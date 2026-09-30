@@ -3232,7 +3232,7 @@ and indefinite descendants. Every definite parent bounds all its descendants;
 an EOC beyond that boundary cannot close a child. <code>TLV_BER_MAX_DEPTH</code> is 64
 simultaneous constructed scopes, counting the outer indefinite element and
 definite constructed descendants, including empty ones. Exceeding it returns
-<code>TLV_ERR_LIMIT</code>. This framing limit is independent of walker depth/element limits.
+<code>TLV_ERR_LIMIT</code>. This framing limit is independent of visitor depth/element limits.
 Resolving one indefinite element takes linear time in the inspected framing;
 tree traversal and schemas can rescan nested encodings.</p>
 <p>Indefinite primitive values and malformed EOC length fields return
@@ -3269,7 +3269,7 @@ The C core does not allocate; C++ error construction retains its existing
 <code>std::string</code> behavior.</p>
 <p><code>tlv_copy_element</code> with the BER writer re-encodes the outer header as definite;
 child bytes remain unchanged. Use <code>tlv_copy_encoded</code> with the full consumed
-range to preserve the original indefinite representation. Readers, walkers,
+range to preserve the original indefinite representation. Readers, visitors,
 structural schemas and structure codecs use the resolved value range.
 DER still rejects indefinite lengths.</p>
 <h3 id="standalone-definite-length-codec">Standalone definite-length codec<a class="headerlink" href="#standalone-definite-length-codec" title="Permanent link">&para;</a></h3>
@@ -3467,7 +3467,8 @@ for the canonical restrictions of this layout.</p>
 <p>The parent's length includes each child's tag, length, and value. These are
 illustrative opaque payloads, not an EMV-valid record. Generic <code>tlv_read</code>
 returns the outer value without automatically visiting definite-length children.
-Use <code>tlv_walk_tree</code> with <code>tlv_format_ber</code>, whose <code>is_constructed</code> is
+Initialize a Tree Reader with <code>tlv_format_ber</code>, then consume it with
+<code>tlv_tree_reader_visit</code>. The Format's <code>is_constructed</code> is
 <code>tlv_asn1_is_constructed</code>, to traverse the hierarchy.</p>
 <h3 id="indefinite-constructed-value">Indefinite constructed value<a class="headerlink" href="#indefinite-constructed-value" title="Permanent link">&para;</a></h3>
 <div class="highlight"><pre><span></span><code><a id="__codelineno-7-1" name="__codelineno-7-1" href="#__codelineno-7-1"></a>E1 80 5A 02 12 34 00 00

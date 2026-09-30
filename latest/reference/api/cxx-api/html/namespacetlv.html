@@ -94,7 +94,7 @@ Classes</h2></td></tr>
 <tr class="memdesc:"><td class="mdescLeft">&#160;</td><td class="mdescRight">An owned, mutable TLV document.  <a href="classtlv_1_1document.html#details">More...</a><br /></td></tr>
 <tr class="separator:"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:"><td class="memItemLeft" align="right" valign="top">struct &#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="structtlv_1_1document__format.html">document_format</a></td></tr>
-<tr class="memdesc:"><td class="mdescLeft">&#160;</td><td class="mdescRight">Format descriptor of a <a class="el" href="classtlv_1_1document.html" title="An owned, mutable TLV document.">tlv::document</a>, as for <a class="elRef" href="../../c-api/html/group__traversal.html#ga67f4429a613aed793bf4c78cda4c6ac9">tlv_walk_tree()</a>.  <a href="structtlv_1_1document__format.html#details">More...</a><br /></td></tr>
+<tr class="memdesc:"><td class="mdescLeft">&#160;</td><td class="mdescRight">Format and runtime resource limits of a <a class="el" href="classtlv_1_1document.html" title="An owned, mutable TLV document.">tlv::document</a>.  <a href="structtlv_1_1document__format.html#details">More...</a><br /></td></tr>
 <tr class="separator:"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:"><td class="memItemLeft" align="right" valign="top">struct &#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="structtlv_1_1error.html">error</a></td></tr>
 <tr class="memdesc:"><td class="mdescLeft">&#160;</td><td class="mdescRight">Idiomatic C++ error that wraps a C result code and its description.  <a href="structtlv_1_1error.html#details">More...</a><br /></td></tr>
@@ -249,10 +249,10 @@ Functions</h2></td></tr>
 <tr class="memitem:ac052284063328a192cc1de21d5788bbd" id="r_ac052284063328a192cc1de21d5788bbd"><td class="memItemLeft" align="right" valign="top"><a class="el" href="classtlv_1_1expected.html">expected</a>&lt; size_t, <a class="el" href="structtlv_1_1error.html">error</a> &gt;&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="namespacetlv.html#ac052284063328a192cc1de21d5788bbd">preserve</a> (const <a class="el" href="namespacetlv.html#a9ea18a502ce343bbda5c68825925022c">source</a> &amp;original, const <a class="el" href="namespacetlv.html#a36fb32b6d2478c7a9f386389e959ebcc">element</a> &amp;value, <a class="el" href="namespacetlv.html#aa91df798a712d88cf7d2f1f63a539b51">byte</a> *data, size_t capacity)</td></tr>
 <tr class="memdesc:ac052284063328a192cc1de21d5788bbd"><td class="mdescLeft">&#160;</td><td class="mdescRight">Reproduce original bytes after checking semantic equality.  <br /></td></tr>
 <tr class="separator:ac052284063328a192cc1de21d5788bbd"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:a9898b9c7e93c4a5883362bfdfdac5152" id="r_a9898b9c7e93c4a5883362bfdfdac5152"><td class="memTemplParams" colspan="2">template&lt;typename Visitor &gt; </td></tr>
-<tr class="memitem:a9898b9c7e93c4a5883362bfdfdac5152"><td class="memTemplItemLeft" align="right" valign="top"><a class="el" href="classtlv_1_1expected.html">expected</a>&lt; void, <a class="el" href="structtlv_1_1error.html">error</a> &gt;&#160;</td><td class="memTemplItemRight" valign="bottom"><a class="el" href="namespacetlv.html#a9898b9c7e93c4a5883362bfdfdac5152">walk_tree</a> (<a class="el" href="namespacetlv.html#a2abe7003a70af047ef9acae17f31f75d">bytes</a> data, const <a class="elRef" href="../../c-api/html/group__formats.html#gac461da7e8d46362fa8e09694efb0b062">tlv_format_t</a> &amp;format, size_t max_depth, size_t max_elements, Visitor &amp;&amp;visitor, size_t *error_offset=nullptr)</td></tr>
-<tr class="memdesc:a9898b9c7e93c4a5883362bfdfdac5152"><td class="mdescLeft">&#160;</td><td class="mdescRight">Traverses nested elements in preorder, calling a visitor for each.  <br /></td></tr>
-<tr class="separator:a9898b9c7e93c4a5883362bfdfdac5152"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:af38bba1df6bf6bbbbe5b7174c2a27473" id="r_af38bba1df6bf6bbbbe5b7174c2a27473"><td class="memTemplParams" colspan="2">template&lt;typename Visitor &gt; </td></tr>
+<tr class="memitem:af38bba1df6bf6bbbbe5b7174c2a27473"><td class="memTemplItemLeft" align="right" valign="top"><a class="el" href="classtlv_1_1expected.html">expected</a>&lt; void, <a class="el" href="structtlv_1_1error.html">error</a> &gt;&#160;</td><td class="memTemplItemRight" valign="bottom"><a class="el" href="namespacetlv.html#af38bba1df6bf6bbbbe5b7174c2a27473">visit_tree</a> (<a class="elRef" href="../../c-api/html/group__traversal.html#ga74999ab774c60a10d1f759404edb7003">tlv_tree_reader_t</a> &amp;<a class="el" href="classtlv_1_1reader.html">reader</a>, Visitor &amp;&amp;visitor, size_t *error_offset=nullptr)</td></tr>
+<tr class="memdesc:af38bba1df6bf6bbbbe5b7174c2a27473"><td class="mdescLeft">&#160;</td><td class="mdescRight">Visit an initialized caller-owned Tree Reader without allocation.  <br /></td></tr>
+<tr class="separator:af38bba1df6bf6bbbbe5b7174c2a27473"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:ae89639a23a48bb20db474516224d7d3e" id="r_ae89639a23a48bb20db474516224d7d3e"><td class="memItemLeft" align="right" valign="top"><a class="el" href="classtlv_1_1expected.html">expected</a>&lt; void, <a class="el" href="structtlv_1_1error.html">error</a> &gt;&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="namespacetlv.html#ae89639a23a48bb20db474516224d7d3e">validate</a> (<a class="el" href="namespacetlv.html#a2abe7003a70af047ef9acae17f31f75d">bytes</a> data, const <a class="elRef" href="../../c-api/html/group__formats.html#gac461da7e8d46362fa8e09694efb0b062">tlv_format_t</a> &amp;format, const <a class="elRef" href="../../c-api/html/group__schemas.html#ga86e8ecc543b5d6b397732cbcf2db59cf">tlv_structure_schema_t</a> &amp;schema, size_t max_depth, size_t max_elements, size_t *error_offset=nullptr)</td></tr>
 <tr class="memdesc:ae89639a23a48bb20db474516224d7d3e"><td class="mdescLeft">&#160;</td><td class="mdescRight">Validates framing, nesting, lengths and occurrence counts against a schema.  <br /></td></tr>
 <tr class="separator:ae89639a23a48bb20db474516224d7d3e"><td class="memSeparator" colspan="2">&#160;</td></tr>
@@ -1656,8 +1656,8 @@ template&lt;typename T &gt; </div>
 
 </div>
 </div>
-<a id="a9898b9c7e93c4a5883362bfdfdac5152" name="a9898b9c7e93c4a5883362bfdfdac5152"></a>
-<h2 class="memtitle"><span class="permalink"><a href="#a9898b9c7e93c4a5883362bfdfdac5152">&#9670;&#160;</a></span>walk_tree()</h2>
+<a id="af38bba1df6bf6bbbbe5b7174c2a27473" name="af38bba1df6bf6bbbbe5b7174c2a27473"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#af38bba1df6bf6bbbbe5b7174c2a27473">&#9670;&#160;</a></span>visit_tree()</h2>
 
 <div class="memitem">
 <div class="memproto">
@@ -1665,28 +1665,10 @@ template&lt;typename T &gt; </div>
 template&lt;typename Visitor &gt; </div>
       <table class="memname">
         <tr>
-          <td class="memname"><a class="el" href="classtlv_1_1expected.html">expected</a>&lt; void, <a class="el" href="structtlv_1_1error.html">error</a> &gt; tlv::walk_tree </td>
+          <td class="memname"><a class="el" href="classtlv_1_1expected.html">expected</a>&lt; void, <a class="el" href="structtlv_1_1error.html">error</a> &gt; tlv::visit_tree </td>
           <td>(</td>
-          <td class="paramtype"><a class="el" href="namespacetlv.html#a2abe7003a70af047ef9acae17f31f75d">bytes</a>&#160;</td>
-          <td class="paramname"><em>data</em>, </td>
-        </tr>
-        <tr>
-          <td class="paramkey"></td>
-          <td></td>
-          <td class="paramtype">const <a class="elRef" href="../../c-api/html/group__formats.html#gac461da7e8d46362fa8e09694efb0b062">tlv_format_t</a> &amp;&#160;</td>
-          <td class="paramname"><em>format</em>, </td>
-        </tr>
-        <tr>
-          <td class="paramkey"></td>
-          <td></td>
-          <td class="paramtype">size_t&#160;</td>
-          <td class="paramname"><em>max_depth</em>, </td>
-        </tr>
-        <tr>
-          <td class="paramkey"></td>
-          <td></td>
-          <td class="paramtype">size_t&#160;</td>
-          <td class="paramname"><em>max_elements</em>, </td>
+          <td class="paramtype"><a class="elRef" href="../../c-api/html/group__traversal.html#ga74999ab774c60a10d1f759404edb7003">tlv_tree_reader_t</a> &amp;&#160;</td>
+          <td class="paramname"><em>reader</em>, </td>
         </tr>
         <tr>
           <td class="paramkey"></td>
@@ -1708,27 +1690,23 @@ template&lt;typename Visitor &gt; </div>
       </table>
 </div><div class="memdoc">
 
-<p>Traverses nested elements in preorder, calling a visitor for each. </p>
-<p>Wraps <a class="elRef" href="../../c-api/html/group__traversal.html#ga67f4429a613aed793bf4c78cda4c6ac9">tlv_walk_tree()</a>. The visitor is borrowed for this call; no function wrapper or allocation is needed. Entries passed to the visitor borrow <code>data</code>.</p>
+<p>Visit an initialized caller-owned Tree Reader without allocation. </p>
 <dl class="tparams"><dt>Template Parameters</dt><dd>
   <table class="tparams">
-    <tr><td class="paramname">Visitor</td><td>Callable invoked as <code>visitor(element, depth, absolute_offset)</code> returning <a class="elRef" href="../../c-api/html/group__traversal.html#ga5685cbc116854f9874253489cb769622">tlv_visit_result_t</a>. <code>element</code> borrows <code>data</code>, <code>depth</code> is zero for top-level elements, and <code>absolute_offset</code> is the element's tag offset in <code>data</code>.</td></tr>
+    <tr><td class="paramname">Visitor</td><td>Callable taking Element, depth and absolute offset and returning tlv_visit_result_t. </td></tr>
   </table>
   </dd>
 </dl>
 <dl class="params"><dt>Parameters</dt><dd>
   <table class="params">
-    <tr><td class="paramname">data</td><td>Encoded input; borrowed. </td></tr>
-    <tr><td class="paramname">format</td><td>Reader format. A <code>nullptr</code> <code>format.is_constructed</code> treats every value as opaque. </td></tr>
-    <tr><td class="paramname">max_depth</td><td>Maximum nesting depth, <code>0..TLV_WALK_MAX_DEPTH</code>. </td></tr>
-    <tr><td class="paramname">max_elements</td><td>Bound on all visited elements. </td></tr>
-    <tr><td class="paramname">visitor</td><td>Visitor callable; returning <a class="elRef" href="../../c-api/html/group__traversal.html#gga32dd2f26caa5ae7507636430b13cc961adbda0be9ca29c754fea87575ba560d01">TLV_VISIT_STOP</a> succeeds immediately, <a class="elRef" href="../../c-api/html/group__traversal.html#gga32dd2f26caa5ae7507636430b13cc961a1e6076c71ec8c7a08aa0c5e47cc1a74b">TLV_VISIT_ERROR</a> fails. </td></tr>
-    <tr><td class="paramname">error_offset</td><td>Optional. On failure receives the failing element's absolute offset; unchanged on success.</td></tr>
+    <tr><td class="paramdir">[in,out]</td><td class="paramname">reader</td><td>Initialized cursor with caller-owned input and frames. </td></tr>
+    <tr><td class="paramdir">[in]</td><td class="paramname">visitor</td><td>Borrowed callable; STOP succeeds, ERROR fails. </td></tr>
+    <tr><td class="paramdir">[out]</td><td class="paramname">error_offset</td><td>Optional absolute failure offset; unchanged on success. </td></tr>
   </table>
   </dd>
 </dl>
-<dl class="section return"><dt>Returns</dt><dd>Success, or the error of <a class="elRef" href="../../c-api/html/group__traversal.html#ga67f4429a613aed793bf4c78cda4c6ac9">tlv_walk_tree()</a>.</dd></dl>
-<dl class="section warning"><dt>Warning</dt><dd>Visitor side effects are not rolled back on error. </dd></dl>
+<dl class="section return"><dt>Returns</dt><dd>Success on exhaustion or STOP; otherwise the original cursor or visitor error. </dd></dl>
+<dl class="section warning"><dt>Warning</dt><dd>Borrowed lifetimes and callback restrictions follow <a class="elRef" href="../../c-api/html/group__traversal.html#ga9da3c187f455de47fb13b6dbb1681d66">tlv_tree_reader_visit()</a>. </dd></dl>
 
 </div>
 </div>

@@ -2997,7 +2997,7 @@ it. For example:</p>
 <li>Rust's <code>Reader</code> implements <code>Iterator&lt;Item = Result&lt;Element&gt;&gt;</code>, so callers
   write <code>for element in reader { ... }</code> instead of an explicit <code>at_end()</code>/
   <code>next()</code> loop. <code>tlv++</code>'s <code>reader</code> uses that explicit loop today (or a
-  visitor passed to <code>tlv::walk_tree</code>); a future C++ range-based <code>for</code> over a
+  visitor passed to <code>tlv::visit_tree</code>); a future C++ range-based <code>for</code> over a
   <code>reader</code> would be the same adaptation applied there.</li>
 <li>Python's <code>Reader</code> iterates the same reader concept with
   <code>for element in reader:</code>, and raises a native <code>Exception</code> subclass instead of
@@ -3070,8 +3070,8 @@ it. For example:</p>
   API is already close to the concepts bound. Targets Lua 5.1 through 5.4
   and LuaJIT. Covers Reader, Element and Tag, across the default, BER, CER, DER,
   Bluetooth LTV and configurable fixed-width formats, plus preorder tree
-  traversal (<code>opentlv.walk_tree()</code>, built on <code>tlv_walk_tree()</code>/
-  <code>tlv_der_walk()</code>) — the one traversal capability neither Rust nor Python
+  traversal (<code>opentlv.visit_tree()</code>, built on <code>tlv_tree_reader_visit()</code>/
+  <code>tlv_der_visit()</code>) — the one traversal capability neither Rust nor Python
   exposes directly yet. See <a href="../../development/lua/">Lua bindings</a> and
   <a href="../../guides/lua/">using OpenTLV from Lua</a>.</li>
 <li><strong>Go</strong>: planned, not started yet. No <code>bindings/go/</code> directory exists; when

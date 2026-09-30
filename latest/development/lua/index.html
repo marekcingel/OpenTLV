@@ -2829,8 +2829,8 @@ model</a>.</p>
 <p>It targets Lua 5.1 through 5.4 and LuaJIT (which implements the Lua 5.1 C
 API), using only the portable subset of the Lua C API common to all of them;
 see <code>bindings/lua/src/compat.h</code>. It covers Reader, Element and Tag, and
-preorder tree traversal (<code>opentlv.walk_tree</code>, built on <code>tlv_walk_tree()</code>/
-<code>tlv_der_walk()</code>); Writer, Document and Schema are not bound yet.</p>
+preorder tree traversal (<code>opentlv.visit_tree</code>, built on <code>tlv_tree_reader_visit()</code>/
+<code>tlv_der_visit()</code>); Writer, Document and Schema are not bound yet.</p>
 <h2 id="build">Build<a class="headerlink" href="#build" title="Permanent link">&para;</a></h2>
 <p>Requirements: CMake 3.16 or newer, a C99 compiler, and Lua 5.1, 5.2, 5.3, 5.4
 or LuaJIT headers and library.</p>
@@ -2849,7 +2849,7 @@ resolves through <code>init.lua</code> to it.</p>
 <p><strong>On Windows</strong>, the module must link against the same shared <code>lua5x.dll</code> the
 embedding Lua interpreter uses, not a statically linked Lua: two
 independently linked copies of the Lua runtime sharing one <code>lua_State</code>
-corrupt memory under this module's calls back into Lua (<code>opentlv.walk_tree</code>'s
+corrupt memory under this module's calls back into Lua (<code>opentlv.visit_tree</code>'s
 callback) and crash. This is generally not a concern on Linux and macOS,
 where system Lua packages already ship a shared library. See
 <code>bindings/lua/README.md</code>.</p>

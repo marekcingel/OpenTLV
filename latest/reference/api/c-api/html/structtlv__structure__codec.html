@@ -175,7 +175,7 @@ Data Fields</h2></td></tr>
         </tr>
       </table>
 </div><div class="memdoc">
-<p>Maximum nesting depth, following <a class="el" href="group__traversal.html#ga67f4429a613aed793bf4c78cda4c6ac9" title="Visits preorder items from the canonical Tree Reader.">tlv_walk_tree()</a> conventions. Zero is a real limit; a value out of range returns <a class="el" href="group__codecs.html#gga5aefdf4a40140da8025256c425474b1aa2dde6f557037bd68cdf6004636648291">TLV_CODEC_ERR_INVALID_VALUE</a>. </p>
+<p>Maximum nesting depth, following <a class="el" href="group__traversal.html#ga9da3c187f455de47fb13b6dbb1681d66" title="Visit remaining preorder items from an initialized Tree Reader.">tlv_tree_reader_visit()</a> conventions. Zero is a real limit; actual traversal is bounded by TLV_STRUCTURE_MAX_DEPTH frames without a Schema, or TLV_SCHEMA_MAX_DEPTH with a Schema. </p>
 
 </div>
 </div>
@@ -190,7 +190,7 @@ Data Fields</h2></td></tr>
         </tr>
       </table>
 </div><div class="memdoc">
-<p>Maximum element count, following <a class="el" href="group__traversal.html#ga67f4429a613aed793bf4c78cda4c6ac9" title="Visits preorder items from the canonical Tree Reader.">tlv_walk_tree()</a> conventions. Zero is a real limit. </p>
+<p>Maximum element count, following <a class="el" href="group__traversal.html#ga9da3c187f455de47fb13b6dbb1681d66" title="Visit remaining preorder items from an initialized Tree Reader.">tlv_tree_reader_visit()</a> conventions. Zero is a real limit. </p>
 
 </div>
 </div>

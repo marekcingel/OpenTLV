@@ -1516,10 +1516,10 @@
 </li>
       
         <li class="md-nav__item">
-  <a href="#walking-multiple-elements" class="md-nav__link">
+  <a href="#traversing-multiple-elements" class="md-nav__link">
     <span class="md-ellipsis">
       
-        Walking multiple elements
+        Traversing multiple elements
       
     </span>
   </a>
@@ -2955,10 +2955,10 @@
 </li>
       
         <li class="md-nav__item">
-  <a href="#walking-multiple-elements" class="md-nav__link">
+  <a href="#traversing-multiple-elements" class="md-nav__link">
     <span class="md-ellipsis">
       
-        Walking multiple elements
+        Traversing multiple elements
       
     </span>
   </a>
@@ -3132,7 +3132,7 @@ Variable are part of the core rather than optional standards packages.</p>
 <th>Length field</th>
 <th>Largest value</th>
 <th>Field order on the wire</th>
-<th>Nesting for the tree walker</th>
+<th>Nesting for the tree visitor</th>
 <th>Availability</th>
 </tr>
 </thead>
@@ -3169,7 +3169,7 @@ explains its wire layout and supported scope.</p>
 <th>Length field</th>
 <th>Largest value</th>
 <th>Field order on the wire</th>
-<th>Nesting for the tree walker</th>
+<th>Nesting for the tree visitor</th>
 <th>Build option</th>
 </tr>
 </thead>
@@ -3277,8 +3277,8 @@ returns <code>TLV_ERR_END_OF_BUFFER</code>; missing tag, length, or value bytes 
 <code>TLV_ERR_NULL_ARG</code>. Both outputs are required and remain unchanged on failure.
 Custom format callback errors propagate unchanged. The stateful
 <code>tlv_reader_next</code> uses the same parser and advances by the consumed size.</p>
-<h2 id="walking-multiple-elements">Walking multiple elements<a class="headerlink" href="#walking-multiple-elements" title="Permanent link">&para;</a></h2>
-<p>Include <code>tlv/reader/walker.h</code> to visit concatenated elements with the generic reader:</p>
+<h2 id="traversing-multiple-elements">Traversing multiple elements<a class="headerlink" href="#traversing-multiple-elements" title="Permanent link">&para;</a></h2>
+<p>Include <code>tlv/reader/visitor.h</code> to visit concatenated elements with the generic reader:</p>
 <div class="highlight"><pre><span></span><code><a id="__codelineno-1-1" name="__codelineno-1-1" href="#__codelineno-1-1"></a><span class="k">static</span><span class="w"> </span><span class="n">tlv_visit_result_t</span><span class="w"> </span><span class="nf">count_element</span><span class="p">(</span><span class="k">const</span><span class="w"> </span><span class="n">tlv_element_t</span><span class="o">*</span><span class="w"> </span><span class="n">element</span><span class="p">,</span><span class="w"> </span><span class="kt">void</span><span class="o">*</span><span class="w"> </span><span class="n">context</span><span class="p">)</span><span class="w"> </span><span class="p">{</span>
 <a id="__codelineno-1-2" name="__codelineno-1-2" href="#__codelineno-1-2"></a><span class="w">    </span><span class="kt">size_t</span><span class="o">*</span><span class="w"> </span><span class="n">count</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="p">(</span><span class="kt">size_t</span><span class="o">*</span><span class="p">)</span><span class="n">context</span><span class="p">;</span>
 <a id="__codelineno-1-3" name="__codelineno-1-3" href="#__codelineno-1-3"></a><span class="w">    </span><span class="p">(</span><span class="kt">void</span><span class="p">)</span><span class="n">element</span><span class="p">;</span>
@@ -3288,7 +3288,9 @@ Custom format callback errors propagate unchanged. The stateful
 <a id="__codelineno-1-7" name="__codelineno-1-7" href="#__codelineno-1-7"></a>
 <a id="__codelineno-1-8" name="__codelineno-1-8" href="#__codelineno-1-8"></a><span class="cm">/* Inside a function: format as constructed above. */</span>
 <a id="__codelineno-1-9" name="__codelineno-1-9" href="#__codelineno-1-9"></a><span class="kt">size_t</span><span class="w"> </span><span class="n">count</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mi">0</span><span class="p">;</span>
-<a id="__codelineno-1-10" name="__codelineno-1-10" href="#__codelineno-1-10"></a><span class="n">tlv_result_t</span><span class="w"> </span><span class="n">result</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">tlv_walk</span><span class="p">(</span><span class="n">data</span><span class="p">,</span><span class="w"> </span><span class="n">size</span><span class="p">,</span><span class="w"> </span><span class="o">&amp;</span><span class="n">format</span><span class="p">,</span><span class="w"> </span><span class="n">count_element</span><span class="p">,</span><span class="w"> </span><span class="o">&amp;</span><span class="n">count</span><span class="p">);</span>
+<a id="__codelineno-1-10" name="__codelineno-1-10" href="#__codelineno-1-10"></a><span class="n">tlv_reader_t</span><span class="w"> </span><span class="n">reader</span><span class="p">;</span>
+<a id="__codelineno-1-11" name="__codelineno-1-11" href="#__codelineno-1-11"></a><span class="n">tlv_result_t</span><span class="w"> </span><span class="n">result</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">tlv_reader_init</span><span class="p">(</span><span class="o">&amp;</span><span class="n">reader</span><span class="p">,</span><span class="w"> </span><span class="n">data</span><span class="p">,</span><span class="w"> </span><span class="n">size</span><span class="p">,</span><span class="w"> </span><span class="o">&amp;</span><span class="n">format</span><span class="p">);</span>
+<a id="__codelineno-1-12" name="__codelineno-1-12" href="#__codelineno-1-12"></a><span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="n">result</span><span class="w"> </span><span class="o">==</span><span class="w"> </span><span class="n">TLV_OK</span><span class="p">)</span><span class="w"> </span><span class="n">result</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">tlv_reader_visit</span><span class="p">(</span><span class="o">&amp;</span><span class="n">reader</span><span class="p">,</span><span class="w"> </span><span class="n">count_element</span><span class="p">,</span><span class="w"> </span><span class="o">&amp;</span><span class="n">count</span><span class="p">);</span>
 </code></pre></div>
 <p>The visitor runs once per successfully parsed element, in buffer order.
 Return <code>TLV_VISIT_CONTINUE</code> to advance, <code>TLV_VISIT_STOP</code> to finish successfully,
@@ -3300,7 +3302,7 @@ The visitor and a format with both read callbacks are required even for empty
 input; invalid arguments return <code>TLV_ERR_NULL_ARG</code>. The optional context may be
 NULL. The element pointer lasts only for the callback; a copied element still borrows
 the input value. Keep the input and format valid and unchanged during traversal.
-The walker allocates no memory and never interprets or recurses into values,
+The visitor allocates no memory and never interprets or recurses into values,
 even when they contain nested TLVs.</p>
 <h2 id="writing-one-element">Writing one element<a class="headerlink" href="#writing-one-element" title="Permanent link">&para;</a></h2>
 <p>Include <code>tlv/writer/writer.h</code>. Query the complete encoded size without providing value
@@ -3370,12 +3372,10 @@ the shared <code>tlv_asn1_is_constructed</code>, which inspects the constructed 
 leave it NULL.
 Custom protocols can supply a different rule. Traversal follows the value element
 and resumes at the complete encoded end, so BER EOCs are skipped correctly.</p>
-<p>Use <code>tlv_walk_tree(data, size, format, max_depth, max_elements, visitor, context,
-error_offset)</code> for bounded preorder traversal or NULL visitor for validation.
-Depth is zero at the top level and cannot exceed <code>TLV_WALK_MAX_DEPTH</code> (64).
-Limits are inclusive; zero is a real limit. Offsets identify failing elements.
-STOP succeeds immediately without validating the remaining input. The original
-flat reader and walker retain their behavior. See <a href="../concepts/architecture/">architecture</a>.</p>
+<p>Initialize <code>tlv_tree_reader_t</code> with caller-owned frames, a runtime depth limit
+and an element limit, then call <code>tlv_tree_reader_visit(&amp;reader, visitor, context,
+error_offset)</code>. The Format classifies constructed tags; Visitor consumes the
+canonical Tree Reader stream.</p>
 <p>See also the <a href="../reference/c-api/#formats">C API reference: formats</a>.</p>
 <h3 id="formats-whose-length-precedes-the-tag">Formats whose length precedes the tag<a class="headerlink" href="#formats-whose-length-precedes-the-tag" title="Permanent link">&para;</a></h3>
 <p>Field order is part of the format configuration. <code>TLV_ELEMENT_ORDER_LTV</code>

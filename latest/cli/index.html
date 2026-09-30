@@ -3606,7 +3606,7 @@ renderers. In <code>compact</code> form:</p>
 <p>The dictionary is context dependent: the same tag can mean different things
 inside different templates (for example <code>82</code> is the 2-byte Application
 Interchange Profile at the top level but a 1-byte Biometric Subtype inside a
-Biometric Header Template). During a walk the CLI switches context on known
+Biometric Header Template). During a traversal the CLI switches context on known
 containers such as the Biometric Information Template <code>7F60</code>. A fragment cut
 out of such a container has no enclosing element to say which context applies,
 so select it explicitly with <code>--emv-context NAME</code>, for <code>dump</code>, <code>decode</code> and
@@ -3808,7 +3808,7 @@ available:</p>
 <a id="__codelineno-24-9" name="__codelineno-24-9" href="#__codelineno-24-9"></a>available:<span class="w"> </span><span class="m">1</span>
 </code></pre></div>
 <p>This declared-length/available detail comes from re-reading the failing
-element on its own once the walk has located it, bounded to the value it
+element on its own once the traversal has located it, bounded to the value it
 actually sits in (not necessarily the whole input); it is shown whenever
 that re-read reproduces the original failure exactly. BER and DER's
 constructed-length handling does not currently surface it back through this
@@ -3878,7 +3878,7 @@ Manufacturer Specific Data through the public value codecs:</p>
 <a id="__codelineno-26-2" name="__codelineno-26-2" href="#__codelineno-26-2"></a>offset=3 tag=0A length=1 value=FC name="Tx Power Level" decoded="-4 dBm"
 </code></pre></div>
 <p>The module accepts trailing zero padding using the public AD container API.
-Only significant structures are walked; their offsets still refer to the
+Only significant structures are traversed; their offsets still refer to the
 original input. Embedded zeros remain value bytes. A nonzero byte after
 padding begins is an error. Without <code>--module bluetooth</code>, <code>bluetooth-ltv</code>
 remains strict wire inspection, including rejection of zero-length structures.</p>

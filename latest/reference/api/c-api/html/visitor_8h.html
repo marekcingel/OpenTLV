@@ -5,7 +5,7 @@
 <meta http-equiv="X-UA-Compatible" content="IE=11"/>
 <meta name="generator" content="Doxygen 1.9.8"/>
 <meta name="viewport" content="width=device-width, initial-scale=1"/>
-<title>OpenTLV C API: tlv/reader/walker.h File Reference</title>
+<title>OpenTLV C API: tlv/reader/visitor.h File Reference</title>
 <link href="tabs.css" rel="stylesheet" type="text/css"/>
 <script type="text/javascript" src="jquery.js"></script>
 <script type="text/javascript" src="dynsections.js"></script>
@@ -77,11 +77,11 @@ $(function() {
 <a href="#typedef-members">Typedefs</a> &#124;
 <a href="#enum-members">Enumerations</a> &#124;
 <a href="#func-members">Functions</a>  </div>
-  <div class="headertitle"><div class="title">walker.h File Reference<div class="ingroups"><a class="el" href="group__traversal.html">Traversal</a></div></div></div>
+  <div class="headertitle"><div class="title">visitor.h File Reference<div class="ingroups"><a class="el" href="group__traversal.html">Traversal</a></div></div></div>
 </div><!--header-->
 <div class="contents">
 
-<p>Compatibility visitor adapters over Reader and Tree Reader.  
+<p>Resumable visitor adapters over Reader and Tree Reader.  
 <a href="#details">More...</a></p>
 <div class="textblock"><code>#include &quot;<a class="el" href="error_8h.html">tlv/error.h</a>&quot;</code><br />
 <code>#include &quot;<a class="el" href="format_8h.html">tlv/format.h</a>&quot;</code><br />
@@ -94,10 +94,10 @@ Typedefs</h2></td></tr>
 <tr class="memdesc:ga5685cbc116854f9874253489cb769622"><td class="mdescLeft">&#160;</td><td class="mdescRight">Value a visitor callback returns to control traversal.  <br /></td></tr>
 <tr class="separator:ga5685cbc116854f9874253489cb769622"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:ga2f77cb67e45cba7d095a0d5986de279a" id="r_ga2f77cb67e45cba7d095a0d5986de279a"><td class="memItemLeft" align="right" valign="top">typedef <a class="el" href="group__traversal.html#ga5685cbc116854f9874253489cb769622">tlv_visit_result_t</a>(*&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="group__traversal.html#ga2f77cb67e45cba7d095a0d5986de279a">tlv_visitor_t</a>) (const <a class="el" href="structtlv__element__t.html">tlv_element_t</a> *element, void *context)</td></tr>
-<tr class="memdesc:ga2f77cb67e45cba7d095a0d5986de279a"><td class="mdescLeft">&#160;</td><td class="mdescRight">Callback invoked by <a class="el" href="group__traversal.html#gac0c19dac414ac8c8337dfaa6947dcfa7" title="Visits each sequential element using the generic reader.">tlv_walk()</a> for each sequential element.  <br /></td></tr>
+<tr class="memdesc:ga2f77cb67e45cba7d095a0d5986de279a"><td class="mdescLeft">&#160;</td><td class="mdescRight">Callback invoked by <a class="el" href="group__traversal.html#gae3ba84a11a9dcb411f2ff66a3c8042f4" title="Visit remaining sequential elements from an initialized Reader.">tlv_reader_visit()</a> for each sequential element.  <br /></td></tr>
 <tr class="separator:ga2f77cb67e45cba7d095a0d5986de279a"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:gaf572548859302a08a316afb73d4ea641" id="r_gaf572548859302a08a316afb73d4ea641"><td class="memItemLeft" align="right" valign="top">typedef <a class="el" href="group__traversal.html#ga5685cbc116854f9874253489cb769622">tlv_visit_result_t</a>(*&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="group__traversal.html#gaf572548859302a08a316afb73d4ea641">tlv_tree_visitor_t</a>) (const <a class="el" href="structtlv__element__t.html">tlv_element_t</a> *element, size_t depth, size_t offset, void *context)</td></tr>
-<tr class="memdesc:gaf572548859302a08a316afb73d4ea641"><td class="mdescLeft">&#160;</td><td class="mdescRight">Callback invoked by <a class="el" href="group__traversal.html#ga67f4429a613aed793bf4c78cda4c6ac9" title="Visits preorder items from the canonical Tree Reader.">tlv_walk_tree()</a> for each element in preorder.  <br /></td></tr>
+<tr class="memdesc:gaf572548859302a08a316afb73d4ea641"><td class="mdescLeft">&#160;</td><td class="mdescRight">Callback invoked by <a class="el" href="group__traversal.html#ga9da3c187f455de47fb13b6dbb1681d66" title="Visit remaining preorder items from an initialized Tree Reader.">tlv_tree_reader_visit()</a> for each element in preorder.  <br /></td></tr>
 <tr class="separator:gaf572548859302a08a316afb73d4ea641"><td class="memSeparator" colspan="2">&#160;</td></tr>
 </table><table class="memberdecls">
 <tr class="heading"><td colspan="2"><h2 class="groupheader"><a id="enum-members" name="enum-members"></a>
@@ -108,25 +108,24 @@ Enumerations</h2></td></tr>
  }</td></tr>
 <tr class="memdesc:ga32dd2f26caa5ae7507636430b13cc961"><td class="mdescLeft">&#160;</td><td class="mdescRight">Value a visitor callback returns to control traversal.  <a href="group__traversal.html#ga32dd2f26caa5ae7507636430b13cc961">More...</a><br /></td></tr>
 <tr class="separator:ga32dd2f26caa5ae7507636430b13cc961"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:gaf9bdc3014f3d54c426b6d2df10de4960" id="r_gaf9bdc3014f3d54c426b6d2df10de4960"><td class="memItemLeft" align="right" valign="top">enum &#160;</td><td class="memItemRight" valign="bottom">{ <a class="el" href="group__traversal.html#ggaf9bdc3014f3d54c426b6d2df10de4960a03f8984ca3e48d080f644fc40d810053">TLV_WALK_MAX_DEPTH</a> = TLV_TREE_DEFAULT_DEPTH
- }</td></tr>
-<tr class="memdesc:gaf9bdc3014f3d54c426b6d2df10de4960"><td class="mdescLeft">&#160;</td><td class="mdescRight">Stack capacity of the compatibility Walker adapter, not a Tree Reader limit.  <a href="group__traversal.html#gaf9bdc3014f3d54c426b6d2df10de4960">More...</a><br /></td></tr>
-<tr class="separator:gaf9bdc3014f3d54c426b6d2df10de4960"><td class="memSeparator" colspan="2">&#160;</td></tr>
 </table><table class="memberdecls">
 <tr class="heading"><td colspan="2"><h2 class="groupheader"><a id="func-members" name="func-members"></a>
 Functions</h2></td></tr>
-<tr class="memitem:gac0c19dac414ac8c8337dfaa6947dcfa7" id="r_gac0c19dac414ac8c8337dfaa6947dcfa7"><td class="memItemLeft" align="right" valign="top"><a class="el" href="group__core.html#ga164d2817a32e5d7b7aa1472e887b47c3">tlv_result_t</a>&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="group__traversal.html#gac0c19dac414ac8c8337dfaa6947dcfa7">tlv_walk</a> (const uint8_t *data, size_t size, const <a class="el" href="group__formats.html#gac461da7e8d46362fa8e09694efb0b062">tlv_format_t</a> *format, <a class="el" href="group__traversal.html#ga2f77cb67e45cba7d095a0d5986de279a">tlv_visitor_t</a> visitor, void *context)</td></tr>
-<tr class="memdesc:gac0c19dac414ac8c8337dfaa6947dcfa7"><td class="mdescLeft">&#160;</td><td class="mdescRight">Visits each sequential element using the generic reader.  <br /></td></tr>
-<tr class="separator:gac0c19dac414ac8c8337dfaa6947dcfa7"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:ga67f4429a613aed793bf4c78cda4c6ac9" id="r_ga67f4429a613aed793bf4c78cda4c6ac9"><td class="memItemLeft" align="right" valign="top"><a class="el" href="group__core.html#ga164d2817a32e5d7b7aa1472e887b47c3">tlv_result_t</a>&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="group__traversal.html#ga67f4429a613aed793bf4c78cda4c6ac9">tlv_walk_tree</a> (const uint8_t *data, size_t size, const <a class="el" href="group__formats.html#gac461da7e8d46362fa8e09694efb0b062">tlv_format_t</a> *format, size_t max_depth, size_t max_elements, <a class="el" href="group__traversal.html#gaf572548859302a08a316afb73d4ea641">tlv_tree_visitor_t</a> visitor, void *context, size_t *error_offset)</td></tr>
-<tr class="memdesc:ga67f4429a613aed793bf4c78cda4c6ac9"><td class="mdescLeft">&#160;</td><td class="mdescRight">Visits preorder items from the canonical Tree Reader.  <br /></td></tr>
-<tr class="separator:ga67f4429a613aed793bf4c78cda4c6ac9"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:gac6b3e217b544594f5d69ca8167dad36e" id="r_gac6b3e217b544594f5d69ca8167dad36e"><td class="memItemLeft" align="right" valign="top"><a class="el" href="group__core.html#ga164d2817a32e5d7b7aa1472e887b47c3">tlv_result_t</a>&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="group__traversal.html#gac6b3e217b544594f5d69ca8167dad36e">tlv_walk_tree_diag</a> (const uint8_t *data, size_t size, const <a class="el" href="group__formats.html#gac461da7e8d46362fa8e09694efb0b062">tlv_format_t</a> *format, size_t max_depth, size_t max_elements, <a class="el" href="group__traversal.html#gaf572548859302a08a316afb73d4ea641">tlv_tree_visitor_t</a> visitor, void *context, size_t *error_offset, <a class="el" href="group__reader.html#ga24371a524a13cd9d1cd22b3db640de85">tlv_reader_diagnostic_t</a> *diagnostic)</td></tr>
-<tr class="memdesc:gac6b3e217b544594f5d69ca8167dad36e"><td class="mdescLeft">&#160;</td><td class="mdescRight">Traverse while retaining the original reader failure detail without reparsing.  <br /></td></tr>
-<tr class="separator:gac6b3e217b544594f5d69ca8167dad36e"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:gae3ba84a11a9dcb411f2ff66a3c8042f4" id="r_gae3ba84a11a9dcb411f2ff66a3c8042f4"><td class="memItemLeft" align="right" valign="top"><a class="el" href="group__core.html#ga164d2817a32e5d7b7aa1472e887b47c3">tlv_result_t</a>&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="group__traversal.html#gae3ba84a11a9dcb411f2ff66a3c8042f4">tlv_reader_visit</a> (<a class="el" href="group__reader.html#gabf4c5d3902d19aaea312759ab513f034">tlv_reader_t</a> *reader, <a class="el" href="group__traversal.html#ga2f77cb67e45cba7d095a0d5986de279a">tlv_visitor_t</a> visitor, void *context)</td></tr>
+<tr class="memdesc:gae3ba84a11a9dcb411f2ff66a3c8042f4"><td class="mdescLeft">&#160;</td><td class="mdescRight">Visit remaining sequential elements from an initialized Reader.  <br /></td></tr>
+<tr class="separator:gae3ba84a11a9dcb411f2ff66a3c8042f4"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:gab595385e0af647cc003648cb29e47d19" id="r_gab595385e0af647cc003648cb29e47d19"><td class="memItemLeft" align="right" valign="top"><a class="el" href="group__core.html#ga164d2817a32e5d7b7aa1472e887b47c3">tlv_result_t</a>&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="group__traversal.html#gab595385e0af647cc003648cb29e47d19">tlv_reader_visit_diag</a> (<a class="el" href="group__reader.html#gabf4c5d3902d19aaea312759ab513f034">tlv_reader_t</a> *reader, <a class="el" href="group__traversal.html#ga2f77cb67e45cba7d095a0d5986de279a">tlv_visitor_t</a> visitor, void *context, <a class="el" href="group__reader.html#ga24371a524a13cd9d1cd22b3db640de85">tlv_reader_diagnostic_t</a> *diagnostic)</td></tr>
+<tr class="memdesc:gab595385e0af647cc003648cb29e47d19"><td class="mdescLeft">&#160;</td><td class="mdescRight">Visit sequential elements with original Reader diagnostics.  <br /></td></tr>
+<tr class="separator:gab595385e0af647cc003648cb29e47d19"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:ga9da3c187f455de47fb13b6dbb1681d66" id="r_ga9da3c187f455de47fb13b6dbb1681d66"><td class="memItemLeft" align="right" valign="top"><a class="el" href="group__core.html#ga164d2817a32e5d7b7aa1472e887b47c3">tlv_result_t</a>&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="group__traversal.html#ga9da3c187f455de47fb13b6dbb1681d66">tlv_tree_reader_visit</a> (<a class="el" href="group__traversal.html#ga74999ab774c60a10d1f759404edb7003">tlv_tree_reader_t</a> *reader, <a class="el" href="group__traversal.html#gaf572548859302a08a316afb73d4ea641">tlv_tree_visitor_t</a> visitor, void *context, size_t *error_offset)</td></tr>
+<tr class="memdesc:ga9da3c187f455de47fb13b6dbb1681d66"><td class="mdescLeft">&#160;</td><td class="mdescRight">Visit remaining preorder items from an initialized Tree Reader.  <br /></td></tr>
+<tr class="separator:ga9da3c187f455de47fb13b6dbb1681d66"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:gaa79add41e0e5bd68e66ac36761de4032" id="r_gaa79add41e0e5bd68e66ac36761de4032"><td class="memItemLeft" align="right" valign="top"><a class="el" href="group__core.html#ga164d2817a32e5d7b7aa1472e887b47c3">tlv_result_t</a>&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="group__traversal.html#gaa79add41e0e5bd68e66ac36761de4032">tlv_tree_reader_visit_diag</a> (<a class="el" href="group__traversal.html#ga74999ab774c60a10d1f759404edb7003">tlv_tree_reader_t</a> *reader, <a class="el" href="group__traversal.html#gaf572548859302a08a316afb73d4ea641">tlv_tree_visitor_t</a> visitor, void *context, size_t *error_offset, <a class="el" href="group__reader.html#ga24371a524a13cd9d1cd22b3db640de85">tlv_reader_diagnostic_t</a> *diagnostic)</td></tr>
+<tr class="memdesc:gaa79add41e0e5bd68e66ac36761de4032"><td class="mdescLeft">&#160;</td><td class="mdescRight">Visit preorder items with original Tree Reader diagnostics.  <br /></td></tr>
+<tr class="separator:gaa79add41e0e5bd68e66ac36761de4032"><td class="memSeparator" colspan="2">&#160;</td></tr>
 </table>
 <a name="details" id="details"></a><h2 class="groupheader">Detailed Description</h2>
-<div class="textblock"><p>Compatibility visitor adapters over Reader and Tree Reader. </p>
+<div class="textblock"><p>Resumable visitor adapters over Reader and Tree Reader. </p>
 </div></div><!-- contents -->
 <!-- start footer part -->
 <hr class="footer"/><address class="footer"><small>

@@ -81,7 +81,7 @@ $(function() {
 </div><!--header-->
 <div class="contents">
 
-<p>Format descriptor of a <a class="el" href="classtlv_1_1document.html" title="An owned, mutable TLV document.">tlv::document</a>, as for <a class="elRef" href="../../c-api/html/group__traversal.html#ga67f4429a613aed793bf4c78cda4c6ac9">tlv_walk_tree()</a>.  
+<p>Format and runtime resource limits of a <a class="el" href="classtlv_1_1document.html" title="An owned, mutable TLV document.">tlv::document</a>.  
  <a href="structtlv_1_1document__format.html#details">More...</a></p>
 
 <p><code>#include &lt;document.hpp&gt;</code></p>
@@ -102,7 +102,7 @@ Public Attributes</h2></td></tr>
 <tr class="separator:a01f1c60aab8b7efa53178162bd6ceb6e"><td class="memSeparator" colspan="2">&#160;</td></tr>
 </table>
 <a name="details" id="details"></a><h2 class="groupheader">Detailed Description</h2>
-<div class="textblock"><p>Format descriptor of a <a class="el" href="classtlv_1_1document.html" title="An owned, mutable TLV document.">tlv::document</a>, as for <a class="elRef" href="../../c-api/html/group__traversal.html#ga67f4429a613aed793bf4c78cda4c6ac9">tlv_walk_tree()</a>. </p>
+<div class="textblock"><p>Format and runtime resource limits of a <a class="el" href="classtlv_1_1document.html" title="An owned, mutable TLV document.">tlv::document</a>. </p>
 <dl class="section see"><dt>See also</dt><dd><a href="https://marekcingel.github.io/OpenTLV/guides/memory/">format context ownership and lifetime</a> </dd></dl>
 </div><h2 class="groupheader">Constructor &amp; Destructor Documentation</h2>
 <a id="a01ed9cb1d258204835fd519aa52a4f7d" name="a01ed9cb1d258204835fd519aa52a4f7d"></a>
@@ -166,7 +166,7 @@ Public Attributes</h2></td></tr>
         </tr>
       </table>
 </div><div class="memdoc">
-<p>Maximum nesting depth, <code>0..TLV_WALK_MAX_DEPTH</code>. </p>
+<p>Runtime maximum nesting depth (default TLV_TREE_DEFAULT_DEPTH). </p>
 
 </div>
 </div>

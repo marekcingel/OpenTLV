@@ -201,18 +201,18 @@ Functions</h2></td></tr>
 <tr class="memitem:ga4da1b2c5d4c53883833dec9c90224f26" id="r_ga4da1b2c5d4c53883833dec9c90224f26"><td class="memItemLeft" align="right" valign="top"><a class="el" href="group__core.html#ga164d2817a32e5d7b7aa1472e887b47c3">tlv_result_t</a>&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="group__builtins.html#ga4da1b2c5d4c53883833dec9c90224f26">tlv_cer_read</a> (const uint8_t *data, size_t size, const <a class="el" href="group__builtins.html#ga0db492e34a92eb40b65521aaa818ea38">tlv_cer_limits_t</a> *limits, <a class="el" href="structtlv__element__t.html">tlv_element_t</a> *element, size_t *consumed, size_t *error_offset)</td></tr>
 <tr class="memdesc:ga4da1b2c5d4c53883833dec9c90224f26"><td class="mdescLeft">&#160;</td><td class="mdescRight">Validates one complete CER element, including all descendants.  <br /></td></tr>
 <tr class="separator:ga4da1b2c5d4c53883833dec9c90224f26"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:ga5bb340d1653a0a78d459a7bcbb57edb1" id="r_ga5bb340d1653a0a78d459a7bcbb57edb1"><td class="memItemLeft" align="right" valign="top"><a class="el" href="group__core.html#ga164d2817a32e5d7b7aa1472e887b47c3">tlv_result_t</a>&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="group__builtins.html#ga5bb340d1653a0a78d459a7bcbb57edb1">tlv_cer_walk</a> (const uint8_t *data, size_t size, const <a class="el" href="group__builtins.html#ga0db492e34a92eb40b65521aaa818ea38">tlv_cer_limits_t</a> *limits, <a class="el" href="group__builtins.html#gafd44c8de159cdfa355cf1583d5ea5f85">tlv_cer_visitor_t</a> visitor, void *context, size_t *error_offset)</td></tr>
-<tr class="memdesc:ga5bb340d1653a0a78d459a7bcbb57edb1"><td class="mdescLeft">&#160;</td><td class="mdescRight">Validates all concatenated CER elements recursively.  <br /></td></tr>
-<tr class="separator:ga5bb340d1653a0a78d459a7bcbb57edb1"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:ga3c297cead769337e53830f9841f6e305" id="r_ga3c297cead769337e53830f9841f6e305"><td class="memItemLeft" align="right" valign="top"><a class="el" href="group__core.html#ga164d2817a32e5d7b7aa1472e887b47c3">tlv_result_t</a>&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="group__builtins.html#ga3c297cead769337e53830f9841f6e305">tlv_cer_visit</a> (const uint8_t *data, size_t size, const <a class="el" href="group__builtins.html#ga0db492e34a92eb40b65521aaa818ea38">tlv_cer_limits_t</a> *limits, <a class="el" href="group__builtins.html#gafd44c8de159cdfa355cf1583d5ea5f85">tlv_cer_visitor_t</a> visitor, void *context, size_t *error_offset)</td></tr>
+<tr class="memdesc:ga3c297cead769337e53830f9841f6e305"><td class="mdescLeft">&#160;</td><td class="mdescRight">Validates all concatenated CER elements recursively.  <br /></td></tr>
+<tr class="separator:ga3c297cead769337e53830f9841f6e305"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:gafafbc1047edba86f0e9dc091fc3022dd" id="r_gafafbc1047edba86f0e9dc091fc3022dd"><td class="memItemLeft" align="right" valign="top"><a class="el" href="group__core.html#ga164d2817a32e5d7b7aa1472e887b47c3">tlv_result_t</a>&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="group__builtins.html#gafafbc1047edba86f0e9dc091fc3022dd">tlv_cer_write</a> (uint8_t *data, size_t capacity, <a class="el" href="structtlv__tag__t.html">tlv_tag_t</a> tag, const uint8_t *value, size_t length, const <a class="el" href="group__builtins.html#ga0db492e34a92eb40b65521aaa818ea38">tlv_cer_limits_t</a> *limits, size_t *written, size_t *error_offset)</td></tr>
 <tr class="memdesc:gafafbc1047edba86f0e9dc091fc3022dd"><td class="mdescLeft">&#160;</td><td class="mdescRight">Writes a canonical CER element.  <br /></td></tr>
 <tr class="separator:gafafbc1047edba86f0e9dc091fc3022dd"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:ga1a7dd9809740a47f3c63e8a688019b92" id="r_ga1a7dd9809740a47f3c63e8a688019b92"><td class="memItemLeft" align="right" valign="top"><a class="el" href="group__core.html#ga164d2817a32e5d7b7aa1472e887b47c3">tlv_result_t</a>&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="group__builtins.html#ga1a7dd9809740a47f3c63e8a688019b92">tlv_cer_read_strict</a> (const uint8_t *data, size_t size, const <a class="el" href="group__builtins.html#ga0db492e34a92eb40b65521aaa818ea38">tlv_cer_limits_t</a> *limits, <a class="el" href="structtlv__element__t.html">tlv_element_t</a> *element, size_t *consumed, size_t *error_offset)</td></tr>
 <tr class="memdesc:ga1a7dd9809740a47f3c63e8a688019b92"><td class="mdescLeft">&#160;</td><td class="mdescRight">Strict counterpart of <a class="el" href="group__builtins.html#ga4da1b2c5d4c53883833dec9c90224f26" title="Validates one complete CER element, including all descendants.">tlv_cer_read()</a>.  <br /></td></tr>
 <tr class="separator:ga1a7dd9809740a47f3c63e8a688019b92"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:ga65d4343f4b29885ee08f55b747b16e57" id="r_ga65d4343f4b29885ee08f55b747b16e57"><td class="memItemLeft" align="right" valign="top"><a class="el" href="group__core.html#ga164d2817a32e5d7b7aa1472e887b47c3">tlv_result_t</a>&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="group__builtins.html#ga65d4343f4b29885ee08f55b747b16e57">tlv_cer_walk_strict</a> (const uint8_t *data, size_t size, const <a class="el" href="group__builtins.html#ga0db492e34a92eb40b65521aaa818ea38">tlv_cer_limits_t</a> *limits, <a class="el" href="group__builtins.html#gafd44c8de159cdfa355cf1583d5ea5f85">tlv_cer_visitor_t</a> visitor, void *context, size_t *error_offset)</td></tr>
-<tr class="memdesc:ga65d4343f4b29885ee08f55b747b16e57"><td class="mdescLeft">&#160;</td><td class="mdescRight">Strict counterpart of <a class="el" href="group__builtins.html#ga5bb340d1653a0a78d459a7bcbb57edb1" title="Validates all concatenated CER elements recursively.">tlv_cer_walk()</a>.  <br /></td></tr>
-<tr class="separator:ga65d4343f4b29885ee08f55b747b16e57"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:gab0ff8cfdc0b214fe6b5f398494ed1789" id="r_gab0ff8cfdc0b214fe6b5f398494ed1789"><td class="memItemLeft" align="right" valign="top"><a class="el" href="group__core.html#ga164d2817a32e5d7b7aa1472e887b47c3">tlv_result_t</a>&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="group__builtins.html#gab0ff8cfdc0b214fe6b5f398494ed1789">tlv_cer_visit_strict</a> (const uint8_t *data, size_t size, const <a class="el" href="group__builtins.html#ga0db492e34a92eb40b65521aaa818ea38">tlv_cer_limits_t</a> *limits, <a class="el" href="group__builtins.html#gafd44c8de159cdfa355cf1583d5ea5f85">tlv_cer_visitor_t</a> visitor, void *context, size_t *error_offset)</td></tr>
+<tr class="memdesc:gab0ff8cfdc0b214fe6b5f398494ed1789"><td class="mdescLeft">&#160;</td><td class="mdescRight">Strict counterpart of <a class="el" href="group__builtins.html#ga3c297cead769337e53830f9841f6e305" title="Validates all concatenated CER elements recursively.">tlv_cer_visit()</a>.  <br /></td></tr>
+<tr class="separator:gab0ff8cfdc0b214fe6b5f398494ed1789"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:ga140f422fa85ba09ae1edd08d8df6d17a" id="r_ga140f422fa85ba09ae1edd08d8df6d17a"><td class="memItemLeft" align="right" valign="top"><a class="el" href="group__core.html#ga164d2817a32e5d7b7aa1472e887b47c3">tlv_result_t</a>&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="group__builtins.html#ga140f422fa85ba09ae1edd08d8df6d17a">tlv_cer_write_strict</a> (uint8_t *data, size_t capacity, <a class="el" href="structtlv__tag__t.html">tlv_tag_t</a> tag, const uint8_t *value, size_t length, const <a class="el" href="group__builtins.html#ga0db492e34a92eb40b65521aaa818ea38">tlv_cer_limits_t</a> *limits, size_t *written, size_t *error_offset)</td></tr>
 <tr class="memdesc:ga140f422fa85ba09ae1edd08d8df6d17a"><td class="mdescLeft">&#160;</td><td class="mdescRight">Strict counterpart of <a class="el" href="group__builtins.html#gafafbc1047edba86f0e9dc091fc3022dd" title="Writes a canonical CER element.">tlv_cer_write()</a>.  <br /></td></tr>
 <tr class="separator:ga140f422fa85ba09ae1edd08d8df6d17a"><td class="memSeparator" colspan="2">&#160;</td></tr>
@@ -222,18 +222,18 @@ Functions</h2></td></tr>
 <tr class="memitem:ga9014234adef8d51b3960fea1e0b641a6" id="r_ga9014234adef8d51b3960fea1e0b641a6"><td class="memItemLeft" align="right" valign="top"><a class="el" href="group__core.html#ga164d2817a32e5d7b7aa1472e887b47c3">tlv_result_t</a>&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="group__builtins.html#ga9014234adef8d51b3960fea1e0b641a6">tlv_der_read</a> (const uint8_t *data, size_t size, const <a class="el" href="group__builtins.html#gad5f79801dce4d3f1d84333b9c9eeb165">tlv_der_limits_t</a> *limits, <a class="el" href="structtlv__element__t.html">tlv_element_t</a> *element, size_t *consumed, size_t *error_offset)</td></tr>
 <tr class="memdesc:ga9014234adef8d51b3960fea1e0b641a6"><td class="mdescLeft">&#160;</td><td class="mdescRight">Validates one complete DER element, including all descendants.  <br /></td></tr>
 <tr class="separator:ga9014234adef8d51b3960fea1e0b641a6"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:ga1488dcc2278e693926e1289a07cd70e2" id="r_ga1488dcc2278e693926e1289a07cd70e2"><td class="memItemLeft" align="right" valign="top"><a class="el" href="group__core.html#ga164d2817a32e5d7b7aa1472e887b47c3">tlv_result_t</a>&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="group__builtins.html#ga1488dcc2278e693926e1289a07cd70e2">tlv_der_walk</a> (const uint8_t *data, size_t size, const <a class="el" href="group__builtins.html#gad5f79801dce4d3f1d84333b9c9eeb165">tlv_der_limits_t</a> *limits, <a class="el" href="group__builtins.html#ga6350bb84cd3a04af1cf493c0096c5107">tlv_der_visitor_t</a> visitor, void *context, size_t *error_offset)</td></tr>
-<tr class="memdesc:ga1488dcc2278e693926e1289a07cd70e2"><td class="mdescLeft">&#160;</td><td class="mdescRight">Validates all concatenated DER elements recursively.  <br /></td></tr>
-<tr class="separator:ga1488dcc2278e693926e1289a07cd70e2"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:gab59b20bdd6d86851e7c7767a3b386c8e" id="r_gab59b20bdd6d86851e7c7767a3b386c8e"><td class="memItemLeft" align="right" valign="top"><a class="el" href="group__core.html#ga164d2817a32e5d7b7aa1472e887b47c3">tlv_result_t</a>&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="group__builtins.html#gab59b20bdd6d86851e7c7767a3b386c8e">tlv_der_visit</a> (const uint8_t *data, size_t size, const <a class="el" href="group__builtins.html#gad5f79801dce4d3f1d84333b9c9eeb165">tlv_der_limits_t</a> *limits, <a class="el" href="group__builtins.html#ga6350bb84cd3a04af1cf493c0096c5107">tlv_der_visitor_t</a> visitor, void *context, size_t *error_offset)</td></tr>
+<tr class="memdesc:gab59b20bdd6d86851e7c7767a3b386c8e"><td class="mdescLeft">&#160;</td><td class="mdescRight">Validates all concatenated DER elements recursively.  <br /></td></tr>
+<tr class="separator:gab59b20bdd6d86851e7c7767a3b386c8e"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:ga10f10ac26ef1680c88e8af6071102bf6" id="r_ga10f10ac26ef1680c88e8af6071102bf6"><td class="memItemLeft" align="right" valign="top"><a class="el" href="group__core.html#ga164d2817a32e5d7b7aa1472e887b47c3">tlv_result_t</a>&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="group__builtins.html#ga10f10ac26ef1680c88e8af6071102bf6">tlv_der_write</a> (uint8_t *data, size_t capacity, <a class="el" href="structtlv__tag__t.html">tlv_tag_t</a> tag, const uint8_t *value, size_t length, const <a class="el" href="group__builtins.html#gad5f79801dce4d3f1d84333b9c9eeb165">tlv_der_limits_t</a> *limits, size_t *written, size_t *error_offset)</td></tr>
 <tr class="memdesc:ga10f10ac26ef1680c88e8af6071102bf6"><td class="mdescLeft">&#160;</td><td class="mdescRight">Writes a canonical DER element.  <br /></td></tr>
 <tr class="separator:ga10f10ac26ef1680c88e8af6071102bf6"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:ga841d77dcad83748039e53734dcd8079d" id="r_ga841d77dcad83748039e53734dcd8079d"><td class="memItemLeft" align="right" valign="top"><a class="el" href="group__core.html#ga164d2817a32e5d7b7aa1472e887b47c3">tlv_result_t</a>&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="group__builtins.html#ga841d77dcad83748039e53734dcd8079d">tlv_der_read_strict</a> (const uint8_t *data, size_t size, const <a class="el" href="group__builtins.html#gad5f79801dce4d3f1d84333b9c9eeb165">tlv_der_limits_t</a> *limits, <a class="el" href="structtlv__element__t.html">tlv_element_t</a> *element, size_t *consumed, size_t *error_offset)</td></tr>
 <tr class="memdesc:ga841d77dcad83748039e53734dcd8079d"><td class="mdescLeft">&#160;</td><td class="mdescRight">Strict counterpart of <a class="el" href="group__builtins.html#ga9014234adef8d51b3960fea1e0b641a6" title="Validates one complete DER element, including all descendants.">tlv_der_read()</a>.  <br /></td></tr>
 <tr class="separator:ga841d77dcad83748039e53734dcd8079d"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:gaea08d8ae30415834d1081ae2714340a0" id="r_gaea08d8ae30415834d1081ae2714340a0"><td class="memItemLeft" align="right" valign="top"><a class="el" href="group__core.html#ga164d2817a32e5d7b7aa1472e887b47c3">tlv_result_t</a>&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="group__builtins.html#gaea08d8ae30415834d1081ae2714340a0">tlv_der_walk_strict</a> (const uint8_t *data, size_t size, const <a class="el" href="group__builtins.html#gad5f79801dce4d3f1d84333b9c9eeb165">tlv_der_limits_t</a> *limits, <a class="el" href="group__builtins.html#ga6350bb84cd3a04af1cf493c0096c5107">tlv_der_visitor_t</a> visitor, void *context, size_t *error_offset)</td></tr>
-<tr class="memdesc:gaea08d8ae30415834d1081ae2714340a0"><td class="mdescLeft">&#160;</td><td class="mdescRight">Strict counterpart of <a class="el" href="group__builtins.html#ga1488dcc2278e693926e1289a07cd70e2" title="Validates all concatenated DER elements recursively.">tlv_der_walk()</a>.  <br /></td></tr>
-<tr class="separator:gaea08d8ae30415834d1081ae2714340a0"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:gae56812672c788223ed942a3b32860bc2" id="r_gae56812672c788223ed942a3b32860bc2"><td class="memItemLeft" align="right" valign="top"><a class="el" href="group__core.html#ga164d2817a32e5d7b7aa1472e887b47c3">tlv_result_t</a>&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="group__builtins.html#gae56812672c788223ed942a3b32860bc2">tlv_der_visit_strict</a> (const uint8_t *data, size_t size, const <a class="el" href="group__builtins.html#gad5f79801dce4d3f1d84333b9c9eeb165">tlv_der_limits_t</a> *limits, <a class="el" href="group__builtins.html#ga6350bb84cd3a04af1cf493c0096c5107">tlv_der_visitor_t</a> visitor, void *context, size_t *error_offset)</td></tr>
+<tr class="memdesc:gae56812672c788223ed942a3b32860bc2"><td class="mdescLeft">&#160;</td><td class="mdescRight">Strict counterpart of <a class="el" href="group__builtins.html#gab59b20bdd6d86851e7c7767a3b386c8e" title="Validates all concatenated DER elements recursively.">tlv_der_visit()</a>.  <br /></td></tr>
+<tr class="separator:gae56812672c788223ed942a3b32860bc2"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:ga00c5252453303c2d726d076d382e1c5b" id="r_ga00c5252453303c2d726d076d382e1c5b"><td class="memItemLeft" align="right" valign="top"><a class="el" href="group__core.html#ga164d2817a32e5d7b7aa1472e887b47c3">tlv_result_t</a>&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="group__builtins.html#ga00c5252453303c2d726d076d382e1c5b">tlv_der_write_strict</a> (uint8_t *data, size_t capacity, <a class="el" href="structtlv__tag__t.html">tlv_tag_t</a> tag, const uint8_t *value, size_t length, const <a class="el" href="group__builtins.html#gad5f79801dce4d3f1d84333b9c9eeb165">tlv_der_limits_t</a> *limits, size_t *written, size_t *error_offset)</td></tr>
 <tr class="memdesc:ga00c5252453303c2d726d076d382e1c5b"><td class="mdescLeft">&#160;</td><td class="mdescRight">Strict counterpart of <a class="el" href="group__builtins.html#ga10f10ac26ef1680c88e8af6071102bf6" title="Writes a canonical DER element.">tlv_der_write()</a>.  <br /></td></tr>
 <tr class="separator:ga00c5252453303c2d726d076d382e1c5b"><td class="memSeparator" colspan="2">&#160;</td></tr>
@@ -2392,14 +2392,14 @@ Variables</h2></td></tr>
 </div><div class="memdoc">
 
 <p>Callback for zero-copy CER traversal. </p>
-<p><code>element</code> is temporary and its value borrows the input, excluding the element's own EOC for a constructed element (consistent with the framing-exclusion convention of <a class="el" href="group__reader.html#gab43f1d0dbbaf69e1dbb3f0e421956939" title="Parses one element from the beginning of a buffer.">tlv_read()</a>). A constructed string's segments are ordinary primitive children one level deeper; to access them zero-copy, iterate the constructed string element's own borrowed value (<code>element-&gt;value</code>), for example with <code>tlv_walk(element-&gt;value.data, size, &amp;tlv_format_cer, ...)</code>. See docs/standards/cer/README.md.</p>
+<p><code>element</code> is temporary and its value borrows the input, excluding the element's own EOC for a constructed element (consistent with the framing-exclusion convention of <a class="el" href="group__reader.html#gab43f1d0dbbaf69e1dbb3f0e421956939" title="Parses one element from the beginning of a buffer.">tlv_read()</a>). A constructed string's segments are ordinary primitive children one level deeper; to access them zero-copy, iterate the constructed string element's own borrowed value (<code>element-&gt;value</code>), for example with a Reader initialized over the value with <code>tlv_format_cer</code>. See docs/standards/cer/README.md.</p>
 <p>Unlike <a class="el" href="group__builtins.html#ga6350bb84cd3a04af1cf493c0096c5107" title="Callback for zero-copy preorder DER traversal.">tlv_der_visitor_t</a>'s preorder guarantee, CER traversal is postorder for constructed elements: a primitive element (including each string segment) is visited immediately when read, but a constructed element, whose indefinite length is not known until its matching EOC is found, is visited only after all of its descendants. This deliberate difference from DER, required by indefinite framing, keeps traversal a single linear pass with no rescanning.</p>
 <dl class="params"><dt>Parameters</dt><dd>
   <table class="params">
     <tr><td class="paramname">element</td><td>Current element; temporary. </td></tr>
     <tr><td class="paramname">depth</td><td>Number of constructed ancestors; top-level elements have depth 0. </td></tr>
     <tr><td class="paramname">offset</td><td>Absolute input offset of the element's tag. </td></tr>
-    <tr><td class="paramname">context</td><td>Caller context passed to <a class="el" href="group__builtins.html#ga5bb340d1653a0a78d459a7bcbb57edb1" title="Validates all concatenated CER elements recursively.">tlv_cer_walk()</a>.</td></tr>
+    <tr><td class="paramname">context</td><td>Caller context passed to <a class="el" href="group__builtins.html#ga3c297cead769337e53830f9841f6e305" title="Validates all concatenated CER elements recursively.">tlv_cer_visit()</a>.</td></tr>
   </table>
   </dd>
 </dl>
@@ -2443,7 +2443,7 @@ Variables</h2></td></tr>
     <tr><td class="paramname">element</td><td>Current element; temporary, its value borrows the input. </td></tr>
     <tr><td class="paramname">depth</td><td>Number of constructed ancestors; top-level elements have depth 0. </td></tr>
     <tr><td class="paramname">offset</td><td>Absolute input offset of the element's tag. </td></tr>
-    <tr><td class="paramname">context</td><td>Caller context passed to <a class="el" href="group__builtins.html#ga1488dcc2278e693926e1289a07cd70e2" title="Validates all concatenated DER elements recursively.">tlv_der_walk()</a>.</td></tr>
+    <tr><td class="paramname">context</td><td>Caller context passed to <a class="el" href="group__builtins.html#gab59b20bdd6d86851e7c7767a3b386c8e" title="Validates all concatenated DER elements recursively.">tlv_der_visit()</a>.</td></tr>
   </table>
   </dd>
 </dl>
@@ -3207,14 +3207,14 @@ Otherwise any result of <a class="el" href="group__builtins.html#ga4da1b2c5d4c53
 
 </div>
 </div>
-<a id="ga5bb340d1653a0a78d459a7bcbb57edb1" name="ga5bb340d1653a0a78d459a7bcbb57edb1"></a>
-<h2 class="memtitle"><span class="permalink"><a href="#ga5bb340d1653a0a78d459a7bcbb57edb1">&#9670;&#160;</a></span>tlv_cer_walk()</h2>
+<a id="ga3c297cead769337e53830f9841f6e305" name="ga3c297cead769337e53830f9841f6e305"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#ga3c297cead769337e53830f9841f6e305">&#9670;&#160;</a></span>tlv_cer_visit()</h2>
 
 <div class="memitem">
 <div class="memproto">
       <table class="memname">
         <tr>
-          <td class="memname"><a class="el" href="group__core.html#ga164d2817a32e5d7b7aa1472e887b47c3">tlv_result_t</a> tlv_cer_walk </td>
+          <td class="memname"><a class="el" href="group__core.html#ga164d2817a32e5d7b7aa1472e887b47c3">tlv_result_t</a> tlv_cer_visit </td>
           <td>(</td>
           <td class="paramtype">const uint8_t *&#160;</td>
           <td class="paramname"><em>data</em>, </td>
@@ -3279,14 +3279,14 @@ Any error of <a class="el" href="group__builtins.html#ga4da1b2c5d4c53883833dec9c
 
 </div>
 </div>
-<a id="ga65d4343f4b29885ee08f55b747b16e57" name="ga65d4343f4b29885ee08f55b747b16e57"></a>
-<h2 class="memtitle"><span class="permalink"><a href="#ga65d4343f4b29885ee08f55b747b16e57">&#9670;&#160;</a></span>tlv_cer_walk_strict()</h2>
+<a id="gab0ff8cfdc0b214fe6b5f398494ed1789" name="gab0ff8cfdc0b214fe6b5f398494ed1789"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#gab0ff8cfdc0b214fe6b5f398494ed1789">&#9670;&#160;</a></span>tlv_cer_visit_strict()</h2>
 
 <div class="memitem">
 <div class="memproto">
       <table class="memname">
         <tr>
-          <td class="memname"><a class="el" href="group__core.html#ga164d2817a32e5d7b7aa1472e887b47c3">tlv_result_t</a> tlv_cer_walk_strict </td>
+          <td class="memname"><a class="el" href="group__core.html#ga164d2817a32e5d7b7aa1472e887b47c3">tlv_result_t</a> tlv_cer_visit_strict </td>
           <td>(</td>
           <td class="paramtype">const uint8_t *&#160;</td>
           <td class="paramname"><em>data</em>, </td>
@@ -3329,7 +3329,7 @@ Any error of <a class="el" href="group__builtins.html#ga4da1b2c5d4c53883833dec9c
       </table>
 </div><div class="memdoc">
 
-<p>Strict counterpart of <a class="el" href="group__builtins.html#ga5bb340d1653a0a78d459a7bcbb57edb1" title="Validates all concatenated CER elements recursively.">tlv_cer_walk()</a>. </p>
+<p>Strict counterpart of <a class="el" href="group__builtins.html#ga3c297cead769337e53830f9841f6e305" title="Validates all concatenated CER elements recursively.">tlv_cer_visit()</a>. </p>
 <p>Adds the content validation described for <a class="el" href="group__builtins.html#ga1a7dd9809740a47f3c63e8a688019b92" title="Strict counterpart of tlv_cer_read().">tlv_cer_read_strict()</a>.</p>
 <dl class="section see"><dt>See also</dt><dd><a class="el" href="group__builtins.html#ga1a7dd9809740a47f3c63e8a688019b92" title="Strict counterpart of tlv_cer_read().">tlv_cer_read_strict</a> </dd></dl>
 
@@ -3718,14 +3718,14 @@ Otherwise any result of <a class="el" href="group__builtins.html#ga9014234adef8d
 
 </div>
 </div>
-<a id="ga1488dcc2278e693926e1289a07cd70e2" name="ga1488dcc2278e693926e1289a07cd70e2"></a>
-<h2 class="memtitle"><span class="permalink"><a href="#ga1488dcc2278e693926e1289a07cd70e2">&#9670;&#160;</a></span>tlv_der_walk()</h2>
+<a id="gab59b20bdd6d86851e7c7767a3b386c8e" name="gab59b20bdd6d86851e7c7767a3b386c8e"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#gab59b20bdd6d86851e7c7767a3b386c8e">&#9670;&#160;</a></span>tlv_der_visit()</h2>
 
 <div class="memitem">
 <div class="memproto">
       <table class="memname">
         <tr>
-          <td class="memname"><a class="el" href="group__core.html#ga164d2817a32e5d7b7aa1472e887b47c3">tlv_result_t</a> tlv_der_walk </td>
+          <td class="memname"><a class="el" href="group__core.html#ga164d2817a32e5d7b7aa1472e887b47c3">tlv_result_t</a> tlv_der_visit </td>
           <td>(</td>
           <td class="paramtype">const uint8_t *&#160;</td>
           <td class="paramname"><em>data</em>, </td>
@@ -3790,14 +3790,14 @@ Any error of <a class="el" href="group__builtins.html#ga9014234adef8d51b3960fea1
 
 </div>
 </div>
-<a id="gaea08d8ae30415834d1081ae2714340a0" name="gaea08d8ae30415834d1081ae2714340a0"></a>
-<h2 class="memtitle"><span class="permalink"><a href="#gaea08d8ae30415834d1081ae2714340a0">&#9670;&#160;</a></span>tlv_der_walk_strict()</h2>
+<a id="gae56812672c788223ed942a3b32860bc2" name="gae56812672c788223ed942a3b32860bc2"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#gae56812672c788223ed942a3b32860bc2">&#9670;&#160;</a></span>tlv_der_visit_strict()</h2>
 
 <div class="memitem">
 <div class="memproto">
       <table class="memname">
         <tr>
-          <td class="memname"><a class="el" href="group__core.html#ga164d2817a32e5d7b7aa1472e887b47c3">tlv_result_t</a> tlv_der_walk_strict </td>
+          <td class="memname"><a class="el" href="group__core.html#ga164d2817a32e5d7b7aa1472e887b47c3">tlv_result_t</a> tlv_der_visit_strict </td>
           <td>(</td>
           <td class="paramtype">const uint8_t *&#160;</td>
           <td class="paramname"><em>data</em>, </td>
@@ -3840,7 +3840,7 @@ Any error of <a class="el" href="group__builtins.html#ga9014234adef8d51b3960fea1
       </table>
 </div><div class="memdoc">
 
-<p>Strict counterpart of <a class="el" href="group__builtins.html#ga1488dcc2278e693926e1289a07cd70e2" title="Validates all concatenated DER elements recursively.">tlv_der_walk()</a>. </p>
+<p>Strict counterpart of <a class="el" href="group__builtins.html#gab59b20bdd6d86851e7c7767a3b386c8e" title="Validates all concatenated DER elements recursively.">tlv_der_visit()</a>. </p>
 <p>Adds the content validation described for <a class="el" href="group__builtins.html#ga841d77dcad83748039e53734dcd8079d" title="Strict counterpart of tlv_der_read().">tlv_der_read_strict()</a>.</p>
 <dl class="section see"><dt>See also</dt><dd><a class="el" href="group__builtins.html#ga841d77dcad83748039e53734dcd8079d" title="Strict counterpart of tlv_der_read().">tlv_der_read_strict</a> </dd></dl>
 

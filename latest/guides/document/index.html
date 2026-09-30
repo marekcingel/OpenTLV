@@ -2895,7 +2895,7 @@
 
 
 <h1 id="mutable-documents">Mutable documents<a class="headerlink" href="#mutable-documents" title="Permanent link">&para;</a></h1>
-<p>The reader, writer and walker are zero-copy: they look at the input buffer and
+<p>The reader, writer and visitor are zero-copy: they look at the input buffer and
 never allocate. That is the right tool for parsing and for embedded targets, but
 it cannot change a message that already exists. When an application has to
 read a TLV message, change a field, add or drop an element and send it on, use
@@ -2927,7 +2927,7 @@ one) the document is a flat list.</p>
 <a id="__codelineno-1-10" name="__codelineno-1-10" href="#__codelineno-1-10"></a><span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="n">rc</span><span class="w"> </span><span class="o">!=</span><span class="w"> </span><span class="n">TLV_OK</span><span class="p">)</span><span class="w"> </span><span class="p">{</span><span class="w"> </span><span class="cm">/* error_offset is the offset of the offending element */</span><span class="w"> </span><span class="p">}</span>
 </code></pre></div>
 <p><code>tlv_document_options_init()</code> also sets the limits, which you can change before
-use: <code>max_depth</code> (default <code>TLV_WALK_MAX_DEPTH</code>) and <code>max_elements</code> (default
+use: <code>max_depth</code> (default <code>TLV_TREE_DEFAULT_DEPTH</code>) and <code>max_elements</code> (default
 <code>TLV_DOCUMENT_DEFAULT_MAX_ELEMENTS</code>, 65536). Parsing and every later
 modification are refused with <code>TLV_ERR_LIMIT</code> when they would exceed a limit, so
 untrusted input cannot make a document grow without bound.</p>
@@ -3079,6 +3079,11 @@ model</a> for the binding coverage of each language.</p>
 <li>Which tags are constructed is decided when a node is created and stays with
   the node; there is no operation that changes a node's tag.</li>
 </ul>
+<p>Document uses the canonical Tree Reader to parse nested input. Its runtime depth
+limit is not capped at <code>TLV_TREE_DEFAULT_DEPTH</code>; temporary structural storage uses
+the Document allocator. Parsing, subtree cleanup, path search, encoded-size
+measurement and encoding are iterative. Measurement and encoding may allocate
+scratch storage and report allocation failure without leaking partial state.</p>
 
 
 

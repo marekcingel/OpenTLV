@@ -2764,7 +2764,7 @@
 
 <h1 id="path-queries">Path queries<a class="headerlink" href="#path-queries" title="Permanent link">&para;</a></h1>
 <p>A query addresses TLV elements by the tags on the way to them, so code can read
-one value out of nested data without walking the whole structure itself. The
+one value out of nested data without traversing the whole structure itself. The
 same text works in the C API, the C++ API and the <a href="../../cli/#path-queries"><code>otlv query</code></a>
 command.</p>
 <h2 id="syntax">Syntax<a class="headerlink" href="#syntax" title="Permanent link">&para;</a></h2>
@@ -2812,16 +2812,22 @@ predicates are not part of it.</p>
 <a id="__codelineno-2-17" name="__codelineno-2-17" href="#__codelineno-2-17"></a><span class="cm">/* On TLV_ERR_INVALID_ARG, text_offset is the index of the offending character. */</span>
 <a id="__codelineno-2-18" name="__codelineno-2-18" href="#__codelineno-2-18"></a>
 <a id="__codelineno-2-19" name="__codelineno-2-19" href="#__codelineno-2-19"></a><span class="kt">size_t</span><span class="w"> </span><span class="n">error_offset</span><span class="p">;</span>
-<a id="__codelineno-2-20" name="__codelineno-2-20" href="#__codelineno-2-20"></a><span class="n">rc</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">tlv_query_walk</span><span class="p">(</span><span class="n">data</span><span class="p">,</span><span class="w"> </span><span class="n">size</span><span class="p">,</span><span class="w"> </span><span class="o">&amp;</span><span class="n">tlv_format_ber</span><span class="p">,</span><span class="w"> </span><span class="o">&amp;</span><span class="n">query</span><span class="p">,</span><span class="w"> </span><span class="n">TLV_WALK_MAX_DEPTH</span><span class="p">,</span><span class="w"> </span><span class="mi">100000</span><span class="p">,</span><span class="w"> </span><span class="n">print_match</span><span class="p">,</span>
+<a id="__codelineno-2-20" name="__codelineno-2-20" href="#__codelineno-2-20"></a><span class="n">rc</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">tlv_query_visit_buffer</span><span class="p">(</span><span class="n">data</span><span class="p">,</span><span class="w"> </span><span class="n">size</span><span class="p">,</span><span class="w"> </span><span class="o">&amp;</span><span class="n">tlv_format_ber</span><span class="p">,</span><span class="w"> </span><span class="o">&amp;</span><span class="n">query</span><span class="p">,</span><span class="w"> </span><span class="n">TLV_TREE_DEFAULT_DEPTH</span><span class="p">,</span><span class="w"> </span><span class="mi">100000</span><span class="p">,</span><span class="w"> </span><span class="n">print_match</span><span class="p">,</span>
 <a id="__codelineno-2-21" name="__codelineno-2-21" href="#__codelineno-2-21"></a><span class="w">                    </span><span class="nb">NULL</span><span class="p">,</span><span class="w"> </span><span class="o">&amp;</span><span class="n">error_offset</span><span class="p">);</span>
 </code></pre></div>
-<p><code>tlv_query_walk()</code> builds on <code>tlv_walk_tree()</code>: it neither allocates nor
+<p><code>tlv_query_visit_buffer()</code> builds on <code>tlv_tree_reader_visit()</code>: it neither allocates nor
 converts the data into another structure, and the element given to the visitor
 borrows the input. No match is not an error; the visitor is just never called.
 The whole input is traversed unless the visitor returns <code>TLV_VISIT_STOP</code>, so
 malformed data after the last match is reported, and <code>max_depth</code> and
 <code>max_elements</code> apply to every traversed element, not only to matches.</p>
-<p>To run a query on a traversal you already have, such as the DER walker, feed each
+<p>For incremental input or caller-selected traversal storage, initialize a
+<code>tlv_tree_reader_t</code> and a <code>tlv_query_matcher_t</code>, then call
+<code>tlv_query_visit(&amp;reader, &amp;matcher, print_match, NULL, &amp;error_offset)</code>.
+Retain both states across STOP or <code>TLV_NEED_MORE_DATA</code>; replace input using
+<code>tlv_tree_reader_set_input()</code> before resuming. The buffer convenience function
+owns <code>TLV_QUERY_MAX_STEPS</code> frames, while the cursor API uses caller-owned frames.</p>
+<p>To run a query on a traversal you already have, such as the DER validation traversal, feed each
 element to a matcher instead:</p>
 <div class="highlight"><pre><span></span><code><a id="__codelineno-3-1" name="__codelineno-3-1" href="#__codelineno-3-1"></a><span class="n">tlv_query_matcher_t</span><span class="w"> </span><span class="n">matcher</span><span class="p">;</span>
 <a id="__codelineno-3-2" name="__codelineno-3-2" href="#__codelineno-3-2"></a><span class="n">tlv_query_matcher_init</span><span class="p">(</span><span class="o">&amp;</span><span class="n">matcher</span><span class="p">,</span><span class="w"> </span><span class="o">&amp;</span><span class="n">query</span><span class="p">);</span>
@@ -2838,20 +2844,20 @@ element to a matcher instead:</p>
 <a id="__codelineno-4-4" name="__codelineno-4-4" href="#__codelineno-4-4"></a><span class="k">auto</span><span class="w"> </span><span class="n">query</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">tlv</span><span class="o">::</span><span class="n">query</span><span class="o">::</span><span class="n">parse</span><span class="p">(</span><span class="s">"6F/A5/50"</span><span class="p">,</span><span class="w"> </span><span class="o">&amp;</span><span class="n">text_offset</span><span class="p">);</span>
 <a id="__codelineno-4-5" name="__codelineno-4-5" href="#__codelineno-4-5"></a><span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="o">!</span><span class="n">query</span><span class="p">)</span><span class="w"> </span><span class="k">return</span><span class="p">;</span><span class="w">  </span><span class="c1">// query.error().code; text_offset is the offending character</span>
 <a id="__codelineno-4-6" name="__codelineno-4-6" href="#__codelineno-4-6"></a>
-<a id="__codelineno-4-7" name="__codelineno-4-7" href="#__codelineno-4-7"></a><span class="k">auto</span><span class="w"> </span><span class="n">walked</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">query</span><span class="o">-&gt;</span><span class="n">walk</span><span class="p">(</span>
+<a id="__codelineno-4-7" name="__codelineno-4-7" href="#__codelineno-4-7"></a><span class="k">auto</span><span class="w"> </span><span class="n">visited</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">query</span><span class="o">-&gt;</span><span class="n">visit_buffer</span><span class="p">(</span>
 <a id="__codelineno-4-8" name="__codelineno-4-8" href="#__codelineno-4-8"></a><span class="w">    </span><span class="n">tlv</span><span class="o">::</span><span class="n">bytes</span><span class="p">(</span><span class="n">data</span><span class="p">,</span><span class="w"> </span><span class="n">size</span><span class="p">),</span><span class="w"> </span><span class="n">tlv_format_ber</span><span class="p">,</span>
-<a id="__codelineno-4-9" name="__codelineno-4-9" href="#__codelineno-4-9"></a><span class="w">    </span><span class="n">TLV_WALK_MAX_DEPTH</span><span class="p">,</span><span class="w"> </span><span class="mi">100000</span><span class="p">,</span>
+<a id="__codelineno-4-9" name="__codelineno-4-9" href="#__codelineno-4-9"></a><span class="w">    </span><span class="n">TLV_TREE_DEFAULT_DEPTH</span><span class="p">,</span><span class="w"> </span><span class="mi">100000</span><span class="p">,</span>
 <a id="__codelineno-4-10" name="__codelineno-4-10" href="#__codelineno-4-10"></a><span class="w">    </span><span class="p">[](</span><span class="k">const</span><span class="w"> </span><span class="n">tlv</span><span class="o">::</span><span class="n">element</span><span class="o">&amp;</span><span class="w"> </span><span class="n">item</span><span class="p">,</span><span class="w"> </span><span class="kt">size_t</span><span class="w"> </span><span class="n">depth</span><span class="p">,</span><span class="w"> </span><span class="kt">size_t</span><span class="w"> </span><span class="n">offset</span><span class="p">)</span><span class="w"> </span><span class="p">{</span>
 <a id="__codelineno-4-11" name="__codelineno-4-11" href="#__codelineno-4-11"></a><span class="w">        </span><span class="c1">// item.value borrows the input</span>
 <a id="__codelineno-4-12" name="__codelineno-4-12" href="#__codelineno-4-12"></a><span class="w">        </span><span class="k">return</span><span class="w"> </span><span class="n">TLV_VISIT_CONTINUE</span><span class="p">;</span>
 <a id="__codelineno-4-13" name="__codelineno-4-13" href="#__codelineno-4-13"></a><span class="w">    </span><span class="p">});</span>
 </code></pre></div>
 <p><code>tlv::query</code> holds the parsed query by value and never allocates.
-<code>tlv::query::walk()</code> wraps <code>tlv_query_walk()</code> with the visitor conventions of
-<code>tlv::walk_tree()</code>.</p>
+<code>tlv::query::visit_buffer()</code> wraps <code>tlv_query_visit_buffer()</code> with the visitor conventions of
+<code>tlv::visit_tree()</code>.</p>
 </div>
 <div class="tabbed-block">
-<p><code>opentlv</code> does not bind the zero-copy walk directly; a query addresses
+<p><code>opentlv</code> does not bind the zero-copy traversal directly; a query addresses
 elements of a <a href="../document/"><code>Document</code></a> instead, through <code>find_path()</code>:</p>
 <div class="highlight"><pre><span></span><code><a id="__codelineno-5-1" name="__codelineno-5-1" href="#__codelineno-5-1"></a><span class="k">with</span> <span class="n">opentlv</span><span class="o">.</span><span class="n">Document</span><span class="p">(</span><span class="n">data</span><span class="p">,</span> <span class="n">opentlv</span><span class="o">.</span><span class="n">Format</span><span class="o">.</span><span class="n">BER</span><span class="p">)</span> <span class="k">as</span> <span class="n">document</span><span class="p">:</span>
 <a id="__codelineno-5-2" name="__codelineno-5-2" href="#__codelineno-5-2"></a>    <span class="n">label</span> <span class="o">=</span> <span class="n">document</span><span class="o">.</span><span class="n">find_path</span><span class="p">(</span><span class="s2">"6F/A5/50"</span><span class="p">)</span>

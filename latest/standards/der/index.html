@@ -2955,7 +2955,7 @@ and leaves the output unchanged on failure. Empty tags and insufficient tag
 capacity return <code>TLV_ERR_INVALID_TAG_SIZE</code>; invalid encodings return
 <code>TLV_ERR_INVALID_TAG</code>. <code>constructed</code> must be 0 or 1.</p>
 <h2 id="traverse-and-limit-work">Traverse and limit work<a class="headerlink" href="#traverse-and-limit-work" title="Permanent link">&para;</a></h2>
-<p><code>tlv_der_walk(data, size, limits, visitor, context, &amp;error_offset)</code> processes all
+<p><code>tlv_der_visit(data, size, limits, visitor, context, &amp;error_offset)</code> processes all
 concatenated elements in preorder, including nested constructed values. A NULL
 visitor performs validation only. Empty input succeeds. Each callback receives
 a temporary element, its depth (top-level is zero), and its absolute tag offset.
@@ -2981,7 +2981,7 @@ effects from earlier elements persist if later validation fails.</p>
 <tr>
 <td><code>max_input_size</code></td>
 <td>16 MiB</td>
-<td>Supplied read/walk buffer or complete encoded output</td>
+<td>Supplied read/visit buffer or complete encoded output</td>
 </tr>
 <tr>
 <td><code>max_value_size</code></td>
@@ -3029,15 +3029,15 @@ destination element. Failures leave destination bytes and <code>written</code> u
 Insufficient capacity returns <code>TLV_ERR_BUFFER_TOO_SHORT</code>. Encoded size overflow
 returns <code>TLV_ERR_INVALID_LENGTH</code>.</p>
 <h2 id="strict-universal-value-validation">Strict universal value validation<a class="headerlink" href="#strict-universal-value-validation" title="Permanent link">&para;</a></h2>
-<p><code>tlv_der_read_strict</code>, <code>tlv_der_walk_strict</code> and <code>tlv_der_write_strict</code> are drop-in
-counterparts of <code>tlv_der_read</code>, <code>tlv_der_walk</code> and <code>tlv_der_write</code>: identical
+<p><code>tlv_der_read_strict</code>, <code>tlv_der_visit_strict</code> and <code>tlv_der_write_strict</code> are drop-in
+counterparts of <code>tlv_der_read</code>, <code>tlv_der_visit</code> and <code>tlv_der_write</code>: identical
 signatures, offsets and resource limits, but every UNIVERSAL-class <strong>primitive</strong>
 element they encounter (including nested ones, and the top-level element given
 to <code>tlv_der_write_strict</code>) additionally has its content checked against ASN.1
 DER canonical rules. Non-UNIVERSAL classes and constructed values (SEQUENCE,
 SET, EXTERNAL, EMBEDDED PDV, CHARACTER STRING) are unaffected: their contents
 are validated structurally only, exactly as with the non-strict functions.
-<code>tlv_der_read</code>, <code>tlv_der_walk</code> and <code>tlv_der_write</code> themselves are unchanged.</p>
+<code>tlv_der_read</code>, <code>tlv_der_visit</code> and <code>tlv_der_write</code> themselves are unchanged.</p>
 <p>Recognized types with invalid or noncanonical content return
 <code>TLV_ERR_INVALID_VALUE</code>. A UNIVERSAL primitive tag number without an
 implemented rule returns <code>TLV_ERR_UNSUPPORTED_TYPE</code> instead of silently
@@ -3192,7 +3192,7 @@ recursion over the schema's own type graph — trusted, caller-authored data,
 not attacker input — guarding only against an accidentally self-referential
 table. <code>TLV_DER_SCHEMA_MAX_COMPONENTS</code> (64) bounds a single SEQUENCE, SET or
 CHOICE's direct component count.</p>
-<p>Existing <code>tlv_der_read</code>/<code>walk</code>/<code>write</code> (and their <code>_strict</code> counterparts) and
+<p>Existing <code>tlv_der_read</code>/<code>visit</code>/<code>write</code> (and their <code>_strict</code> counterparts) and
 the generic <code>tlv_structure_schema_t</code> engine are unaffected: this is a purely
 additive layer.</p>
 <h2 id="errors-and-generic-io">Errors and generic I/O<a class="headerlink" href="#errors-and-generic-io" title="Permanent link">&para;</a></h2>

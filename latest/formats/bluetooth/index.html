@@ -3345,7 +3345,7 @@ before processing a padded Advertising Data buffer. This helper is available
 with <code>OPENTLV_BLUETOOTH=ON</code> and uses the generic reader with the
 strict Bluetooth LTV format. It allocates nothing and leaves the input unchanged.</p>
 <p>For <code>02 01 06 00 00 00</code>, validation succeeds with <code>significant_size = 3</code>.
-Pass the original <code>data</code> pointer and that size to the generic reader, walker
+Pass the original <code>data</code> pointer and that size to the generic reader, visitor
 or schema validator. The remaining bytes are padding; source offsets still
 refer to the original buffer. Subsequent parsing performs a second pass.</p>
 <p>A zero byte starts padding only at a structure boundary, and every remaining
@@ -3519,7 +3519,7 @@ is reported as a value of 2 bytes.</p>
 manufacturer data) is up to the caller, keyed on the type. The views borrow the
 input buffer; see the <a href="../../guides/memory/">shared memory ownership rules</a>
 before retaining one.</p>
-<p>The reader is also usable through the walker, schemas and the <code>otlv</code>
+<p>The reader is also usable through the visitor, schemas and the <code>otlv</code>
 CLI:</p>
 <div class="highlight"><pre><span></span><code><a id="__codelineno-4-1" name="__codelineno-4-1" href="#__codelineno-4-1"></a>$ otlv dump --format bluetooth-ltv --hex "02 01 06 03 09 48 69"
 <a id="__codelineno-4-2" name="__codelineno-4-2" href="#__codelineno-4-2"></a>offset=0 tag=01 length=1 value=06

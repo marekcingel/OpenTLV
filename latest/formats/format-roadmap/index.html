@@ -3337,7 +3337,7 @@ transformed identifiers. LLDPDU protocol conformance remains separate.</strong><
 <tr>
 <td>Different formats at successive nesting levels</td>
 <td>LDP, SNMP, SIM Toolkit</td>
-<td>A caller can parse level by level today; automatic tree walking needs <a href="#generic-processing-extensions">mixed-format traversal</a>.</td>
+<td>A caller can parse level by level today; automatic tree traversing needs <a href="#generic-processing-extensions">mixed-format traversal</a>.</td>
 </tr>
 <tr>
 <td>Fixed PDU header followed by a TLV region</td>
@@ -3371,7 +3371,7 @@ zero-copy value reads. A candidate that cannot meet this is not a fit for the li
   status, buffer ownership, and resource limits. Zero-copy views require their
   backing bytes to remain available; fragmented values need an explicit policy.</li>
 </ul>
-<p>The current tree walker already handles nested values without a schema, using
+<p>The current tree visitor already handles nested values without a schema, using
 bounded iterative traversal. It does not allocate an object tree. See
 <a href="../../concepts/architecture/#reader-and-traversal">architecture</a>.</p>
 <h2 id="proposed-order">Proposed order<a class="headerlink" href="#proposed-order" title="Permanent link">&para;</a></h2>

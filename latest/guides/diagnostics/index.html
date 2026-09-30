@@ -2924,7 +2924,7 @@ its own violations directly as a <code>tlv_schema_diagnostic_t</code> with typed
 rather than chained context strings; see <a href="#schema-diagnostics">Schema diagnostics</a>.</p>
 <p><code>tlv_diagnostic_add_context()</code> links <code>context</code> onto the front of
 <code>diagnostic-&gt;contexts</code>, so the most recently added context is innermost and
-<code>contexts</code> can be walked from innermost to outermost. Nothing is copied: the
+<code>contexts</code> can be traversed from innermost to outermost. Nothing is copied: the
 caller supplies storage for each context node and its <code>layer</code>, <code>key</code> and
 <code>value</code> strings, and that storage must outlive the diagnostic.</p>
 <h2 id="reader-diagnostics">Reader diagnostics<a class="headerlink" href="#reader-diagnostics" title="Permanent link">&para;</a></h2>
@@ -3037,9 +3037,9 @@ for callers that only need the tag, kind and path.</p>
 came from: the same tag can appear at several depths. <code>tlv_diagnostic_path_t</code>
 is a bounded, allocation-free stack of the tags enclosing a diagnostic,
 outermost first, that a caller builds while descending into nested
-constructed elements, for example with <code>tlv_walk_tree()</code>:</p>
+constructed elements, for example with <code>tlv_tree_reader_visit()</code>:</p>
 <div class="highlight"><pre><span></span><code><a id="__codelineno-5-1" name="__codelineno-5-1" href="#__codelineno-5-1"></a><span class="cp">#include</span><span class="w"> </span><span class="cpf">"tlv/diagnostic.h"</span>
-<a id="__codelineno-5-2" name="__codelineno-5-2" href="#__codelineno-5-2"></a><span class="cp">#include</span><span class="w"> </span><span class="cpf">"tlv/reader/walker.h"</span>
+<a id="__codelineno-5-2" name="__codelineno-5-2" href="#__codelineno-5-2"></a><span class="cp">#include</span><span class="w"> </span><span class="cpf">"tlv/reader/visitor.h"</span>
 <a id="__codelineno-5-3" name="__codelineno-5-3" href="#__codelineno-5-3"></a>
 <a id="__codelineno-5-4" name="__codelineno-5-4" href="#__codelineno-5-4"></a><span class="n">tlv_diagnostic_path_t</span><span class="w"> </span><span class="n">path</span><span class="p">;</span>
 <a id="__codelineno-5-5" name="__codelineno-5-5" href="#__codelineno-5-5"></a><span class="n">tlv_diagnostic_path_init</span><span class="p">(</span><span class="o">&amp;</span><span class="n">path</span><span class="p">);</span>
@@ -3051,7 +3051,11 @@ constructed elements, for example with <code>tlv_walk_tree()</code>:</p>
 <a id="__codelineno-5-11" name="__codelineno-5-11" href="#__codelineno-5-11"></a><span class="w">    </span><span class="k">return</span><span class="w"> </span><span class="n">TLV_VISIT_CONTINUE</span><span class="p">;</span>
 <a id="__codelineno-5-12" name="__codelineno-5-12" href="#__codelineno-5-12"></a><span class="p">}</span>
 <a id="__codelineno-5-13" name="__codelineno-5-13" href="#__codelineno-5-13"></a>
-<a id="__codelineno-5-14" name="__codelineno-5-14" href="#__codelineno-5-14"></a><span class="n">tlv_walk_tree</span><span class="p">(</span><span class="n">data</span><span class="p">,</span><span class="w"> </span><span class="n">size</span><span class="p">,</span><span class="w"> </span><span class="o">&amp;</span><span class="n">format</span><span class="p">,</span><span class="w"> </span><span class="n">TLV_WALK_MAX_DEPTH</span><span class="p">,</span><span class="w"> </span><span class="n">SIZE_MAX</span><span class="p">,</span><span class="w"> </span><span class="n">on_element</span><span class="p">,</span><span class="w"> </span><span class="nb">NULL</span><span class="p">,</span><span class="w"> </span><span class="nb">NULL</span><span class="p">);</span>
+<a id="__codelineno-5-14" name="__codelineno-5-14" href="#__codelineno-5-14"></a><span class="n">tlv_tree_frame_t</span><span class="w"> </span><span class="n">frames</span><span class="p">[</span><span class="n">TLV_TREE_DEFAULT_DEPTH</span><span class="p">];</span>
+<a id="__codelineno-5-15" name="__codelineno-5-15" href="#__codelineno-5-15"></a><span class="n">tlv_tree_reader_t</span><span class="w"> </span><span class="n">reader</span><span class="p">;</span>
+<a id="__codelineno-5-16" name="__codelineno-5-16" href="#__codelineno-5-16"></a><span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="n">tlv_tree_reader_init</span><span class="p">(</span><span class="o">&amp;</span><span class="n">reader</span><span class="p">,</span><span class="w"> </span><span class="n">data</span><span class="p">,</span><span class="w"> </span><span class="n">size</span><span class="p">,</span><span class="w"> </span><span class="o">&amp;</span><span class="n">format</span><span class="p">,</span><span class="w"> </span><span class="n">frames</span><span class="p">,</span><span class="w"> </span><span class="n">TLV_TREE_DEFAULT_DEPTH</span><span class="p">,</span>
+<a id="__codelineno-5-17" name="__codelineno-5-17" href="#__codelineno-5-17"></a><span class="w">                         </span><span class="n">TLV_TREE_DEFAULT_DEPTH</span><span class="p">,</span><span class="w"> </span><span class="n">SIZE_MAX</span><span class="p">)</span><span class="w"> </span><span class="o">==</span><span class="w"> </span><span class="n">TLV_OK</span><span class="p">)</span>
+<a id="__codelineno-5-18" name="__codelineno-5-18" href="#__codelineno-5-18"></a><span class="w">    </span><span class="n">tlv_tree_reader_visit</span><span class="p">(</span><span class="o">&amp;</span><span class="n">reader</span><span class="p">,</span><span class="w"> </span><span class="n">on_element</span><span class="p">,</span><span class="w"> </span><span class="nb">NULL</span><span class="p">,</span><span class="w"> </span><span class="nb">NULL</span><span class="p">);</span>
 </code></pre></div>
 <p>Popping back to <code>depth</code> before pushing keeps <code>path</code> in sync with preorder
 traversal: a sibling at the same depth replaces the previous element's tag,

@@ -2923,7 +2923,7 @@ its exact source offset. Strict LTV continues to reject a zero length byte.
 Both modes use the C AD Type registry for names, including Flags, Local Name,
 Service Data and Manufacturer Specific Data. Unknown types remain readable.
 Values remain raw; this view does not apply Bluetooth schemas or value codecs.</p>
-<p>CER uses the generic reader and tree walker with <code>tlv_format_cer</code>: framing and
+<p>CER uses the generic reader and tree visitor with <code>tlv_format_cer</code>: framing and
 EOC boundaries are checked. Full CER validation, including string
 segmentation rules and semantic value checks, is not applied.</p>
 <h2 id="limits">Limits<a class="headerlink" href="#limits" title="Permanent link">&para;</a></h2>

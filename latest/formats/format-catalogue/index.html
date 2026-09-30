@@ -3340,7 +3340,7 @@ depends on how much of X.680 these rows cover.</p>
 <td><code>Certificate</code>, <code>TBSCertificate</code>, extensions, and CRL structures.</td>
 <td>DER schema, value codecs (OID, time, names), dictionary (extension OIDs), open types</td>
 <td>Reuses <a href="../../standards/der/#schema-aware-validation-and-encoding">DER schema-aware validation</a>. Extension values need <a href="#asn1-notation-itu-t-x680-series">open types</a>. No path validation, revocation, or signature verification.</td>
-<td>Verified: RFC 5280 states DER encoding. Field-level syntax not walked.</td>
+<td>Verified: RFC 5280 states DER encoding. Field-level syntax not traversed.</td>
 </tr>
 <tr>
 <td>PKCS#1 (<code>[ ]</code>)</td>
@@ -3442,7 +3442,7 @@ depends on how much of X.680 these rows cover.</p>
 <td><a href="https://www.etsi.org/deliver/etsi_ts/102200_102299/102223/">ETSI TS 102 223</a> (read at v17.7.0), clause 8 and annex C; tag structure defined in ETSI TS 101 220</td>
 <td>Objects with a one-byte tag and a length coded on one or two bytes (<code>81</code> prefix for 128 to 255), carried inside a BER-TLV command object. <code>00</code> and <code>FF</code> are never tags and padding is not allowed. A Comprehension Required flag exists.</td>
 <td>format adapter (new), mixed-format traversal, dictionary</td>
-<td>The BER-TLV wrapper contains a second TLV form, so an automatic tree walk needs <a href="../format-roadmap/#generic-processing-extensions">mixed-format traversal</a>; a caller can already parse the wrapper and then the inner region separately. Whether the flag is part of the tag identity must be decided. No toolkit or terminal behaviour.</td>
+<td>The BER-TLV wrapper contains a second TLV form, so an automatic tree traversal needs <a href="../format-roadmap/#generic-processing-extensions">mixed-format traversal</a>; a caller can already parse the wrapper and then the inner region separately. Whether the flag is part of the tag identity must be decided. No toolkit or terminal behaviour.</td>
 <td>Verified: TS 102 223 v17.7.0 clause 8 and annex C. The position of the flag in TS 101 220 was not found in the v17.2.0 text read.</td>
 </tr>
 <tr>
@@ -3539,7 +3539,7 @@ a caller slices the region first.</p>
 <td><a href="https://www.rfc-editor.org/rfc/rfc5036.html">RFC 5036</a>; extensions such as capabilities are separate scopes</td>
 <td>Three levels: PDU header (10 bytes), messages, TLVs. TLV header: U bit, F bit, 14-bit type, 16-bit length of the value only.</td>
 <td>format adapter (<code>decode</code>, <code>encode</code>), mixed-format traversal, dictionary</td>
-<td>The flag bits share the type field, so the tag identity must decide whether U/F are part of the tag. Multi-level nesting with a different format per level needs <a href="../format-roadmap/#generic-processing-extensions">mixed-format traversal</a> for automatic walks. "LDP" here is the Label Distribution Protocol. No LSR behaviour.</td>
+<td>The flag bits share the type field, so the tag identity must decide whether U/F are part of the tag. Multi-level nesting with a different format per level needs <a href="../format-roadmap/#generic-processing-extensions">mixed-format traversal</a> for automatic traverses. "LDP" here is the Label Distribution Protocol. No LSR behaviour.</td>
 <td>Verified: RFC 5036 PDU and TLV layouts.</td>
 </tr>
 <tr>

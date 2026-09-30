@@ -2924,7 +2924,7 @@ element occupies <code>encodedSize</code> bytes from <code>offset</code>, includ
 Value excludes the enclosing trailer. Field order comes from these ranges,
 so LTV and BER end-of-contents need no byte-layout guessing in the viewer.
 The JSON example above omits <code>encodedSize</code> and <code>source</code> for brevity.</p>
-<p><code>format: "cer"</code> uses the generic tree walker with <code>tlv_format_cer</code>, preserving
+<p><code>format: "cer"</code> uses the generic tree visitor with <code>tlv_format_cer</code>, preserving
 preorder output and EOC source ranges. It checks framing only; full CER
 validation (including string segmentation and semantic values) is not applied.</p>
 <p>With <code>module: "emv"</code> (BER or EMV framing; other formats report an invalid-argument

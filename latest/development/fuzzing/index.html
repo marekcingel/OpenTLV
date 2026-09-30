@@ -2862,12 +2862,12 @@ flags. Contract checks remain active with <code>NDEBUG</code>; UBSan errors are 
 <td>Sequential <code>tlv_read</code> calls, positive bounded consumption, borrowed value ranges, unchanged element and consumed count on failure.</td>
 </tr>
 <tr>
-<td><code>fuzz_walk_tree</code></td>
-<td>Nested <code>tlv_walk_tree</code> traversal, depth and element limits (including zero), element ranges, increasing offsets and parent bounds, STOP/ERROR handling, agreement with validation-only traversal.</td>
+<td><code>fuzz_visitor</code></td>
+<td>Nested <code>tlv_tree_reader_visit</code> traversal, depth and element limits (including zero), element ranges, increasing offsets and parent bounds, STOP/ERROR handling, agreement with validation-only traversal.</td>
 </tr>
 <tr>
 <td><code>fuzz_der</code></td>
-<td><code>tlv_der_read</code> and <code>tlv_der_walk</code>, canonical DER-TLV framing, all four validation limits, unchanged read outputs on failure, error offsets, callbacks and validation-only traversal.</td>
+<td><code>tlv_der_read</code> and <code>tlv_der_visit</code>, canonical DER-TLV framing, all four validation limits, unchanged read outputs on failure, error offsets, callbacks and validation-only traversal.</td>
 </tr>
 <tr>
 <td><code>fuzz_der_schema</code></td>
@@ -2891,16 +2891,16 @@ flags. Contract checks remain active with <code>NDEBUG</code>; UBSan errors are 
 </tr>
 </tbody>
 </table>
-<p>The reader, walker, and round-trip targets run each input against every enabled
+<p>The reader, visitor, and round-trip targets run each input against every enabled
 built-in format: default, fixed-width (one tag byte, one length byte), Bluetooth LTV, BER, and DER. Component switches still
 apply; <code>fuzz_fixed</code> is always built when fuzzing is enabled, while <code>fuzz_der</code> and
 <code>fuzz_der_schema</code> are omitted when <code>OPENTLV_FORMAT_DER=OFF</code>,
 and <code>fuzz_codec</code> and <code>fuzz_dol</code> are omitted when <code>OPENTLV_EMV=OFF</code>. At
 least one built-in format must be enabled. For the raw-byte formats, the
-walker harness uses tag bit <code>0x20</code> as a test-only container convention. BER
+Visitor harness uses tag bit <code>0x20</code> as a test-only container convention. BER
 and DER use their public nesting predicates. <code>fuzz_fixed</code> covers the
 configurable dimensions (tag width, length width, byte order) that the
-reader/walker/round-trip targets' one fixed 1/1/big-endian configuration
+reader/visitor/round-trip targets' one fixed 1/1/big-endian configuration
 cannot reach; deriving a valid <code>tlv_fixed_format_t</code> from the input itself,
 rather than hard-coding a handful of configurations, lets libFuzzer explore
 the full valid range. <code>fuzz_der</code> covers the existing
@@ -2919,7 +2919,7 @@ exceptions rather than requiring every output to remain unchanged on error.</p>
 <p>Each harness's checked-in seed corpus lives next to it, under a <code>corpus/</code>
 folder in the same subsystem or built-in directory of <code>tests/fuzz/</code>, which
 mirrors <code>tlv/src</code>'s own layout: <code>tests/fuzz/reader/corpus/read</code> and
-<code>tests/fuzz/reader/corpus/walk_tree</code> for the generic reader/walker targets,
+<code>tests/fuzz/reader/corpus/visitor</code> for the generic reader/visitor targets,
 <code>tests/fuzz/corpus/roundtrip</code> for the cross-cutting round-trip target,
 <code>tests/fuzz/builtins/fixed/corpus/fixed</code>,
 <code>tests/fuzz/builtins/asn1/corpus/{der,der_schema}</code> /
@@ -2927,9 +2927,9 @@ mirrors <code>tlv/src</code>'s own layout: <code>tests/fuzz/reader/corpus/read</
 Checked-in seed files use the <code>.bin</code> extension to identify binary test inputs.
 Only seed inputs belong in these corpus directories; mutation discoveries and
 crash artifacts go under the build directory instead.</p>
-<p><code>corpus/read</code>, <code>corpus/walk_tree</code>, and <code>builtins/asn1/corpus/der</code> contain raw
+<p><code>corpus/read</code>, <code>corpus/visitor</code>, and <code>builtins/asn1/corpus/der</code> contain raw
 TLV bytes, with no selector prefix. Every enabled format receives the same
-input. A seed may be valid for one format and invalid for another. Walker and
+input. A seed may be valid for one format and invalid for another. Visitor and
 DER limits are also derived from input bytes without removing them from the
 parsed input.</p>
 <p>Seed names describe framing cases: empty input/value, primitive values,
@@ -2938,7 +2938,7 @@ high-number tags, nested containers, BER indefinite framing and EOC errors,
 noncanonical DER framing, and depth-limit boundaries. <code>bluetooth-ltv-*</code> seeds
 cover the length-first layout: valid advertising data, zero-length padding,
 truncated and overrunning lengths, the maximum length byte, and type-only
-elements. The raw formats use <code>0x20</code> as a test-only constructed bit in the walker.</p>
+elements. The raw formats use <code>0x20</code> as a test-only constructed bit in the visitor.</p>
 <p><code>corpus/roundtrip</code> uses a different layout: byte 0 modulo
 <code>17</code> gives the candidate tag size, clamped to the remaining
 input size; subsequent bytes hold that tag, followed by its value. Empty input
@@ -2981,7 +2981,7 @@ For one target:</p>
 <a id="__codelineno-2-2" name="__codelineno-2-2" href="#__codelineno-2-2"></a><span class="nv">status</span><span class="o">=</span><span class="m">0</span>
 <a id="__codelineno-2-3" name="__codelineno-2-3" href="#__codelineno-2-3"></a><span class="nb">declare</span><span class="w"> </span>-A<span class="w"> </span><span class="nv">corpus_dir</span><span class="o">=(</span>
 <a id="__codelineno-2-4" name="__codelineno-2-4" href="#__codelineno-2-4"></a><span class="w">  </span><span class="o">[</span>read<span class="o">]=</span>tests/fuzz/reader/corpus/read
-<a id="__codelineno-2-5" name="__codelineno-2-5" href="#__codelineno-2-5"></a><span class="w">  </span><span class="o">[</span>walk_tree<span class="o">]=</span>tests/fuzz/reader/corpus/walk_tree
+<a id="__codelineno-2-5" name="__codelineno-2-5" href="#__codelineno-2-5"></a><span class="w">  </span><span class="o">[</span>visitor<span class="o">]=</span>tests/fuzz/reader/corpus/visitor
 <a id="__codelineno-2-6" name="__codelineno-2-6" href="#__codelineno-2-6"></a><span class="w">  </span><span class="o">[</span>roundtrip<span class="o">]=</span>tests/fuzz/corpus/roundtrip
 <a id="__codelineno-2-7" name="__codelineno-2-7" href="#__codelineno-2-7"></a><span class="w">  </span><span class="o">[</span>fixed<span class="o">]=</span>tests/fuzz/builtins/fixed/corpus/fixed
 <a id="__codelineno-2-8" name="__codelineno-2-8" href="#__codelineno-2-8"></a><span class="w">  </span><span class="o">[</span>der<span class="o">]=</span>tests/fuzz/builtins/asn1/corpus/der
@@ -2989,7 +2989,7 @@ For one target:</p>
 <a id="__codelineno-2-10" name="__codelineno-2-10" href="#__codelineno-2-10"></a><span class="w">  </span><span class="o">[</span>codec<span class="o">]=</span>tests/fuzz/builtins/emv/corpus/codec
 <a id="__codelineno-2-11" name="__codelineno-2-11" href="#__codelineno-2-11"></a><span class="w">  </span><span class="o">[</span>dol<span class="o">]=</span>tests/fuzz/builtins/emv/corpus/dol
 <a id="__codelineno-2-12" name="__codelineno-2-12" href="#__codelineno-2-12"></a><span class="o">)</span>
-<a id="__codelineno-2-13" name="__codelineno-2-13" href="#__codelineno-2-13"></a><span class="k">for</span><span class="w"> </span>target<span class="w"> </span><span class="k">in</span><span class="w"> </span><span class="nb">read</span><span class="w"> </span>walk_tree<span class="w"> </span>fixed<span class="w"> </span>der<span class="w"> </span>der_schema<span class="w"> </span>roundtrip<span class="w"> </span>codec<span class="w"> </span>dol<span class="p">;</span><span class="w"> </span><span class="k">do</span>
+<a id="__codelineno-2-13" name="__codelineno-2-13" href="#__codelineno-2-13"></a><span class="k">for</span><span class="w"> </span>target<span class="w"> </span><span class="k">in</span><span class="w"> </span><span class="nb">read</span><span class="w"> </span>visitor<span class="w"> </span>fixed<span class="w"> </span>der<span class="w"> </span>der_schema<span class="w"> </span>roundtrip<span class="w"> </span>codec<span class="w"> </span>dol<span class="p">;</span><span class="w"> </span><span class="k">do</span>
 <a id="__codelineno-2-14" name="__codelineno-2-14" href="#__codelineno-2-14"></a><span class="w">  </span><span class="nv">executable</span><span class="o">=</span><span class="s2">"build/fuzz/tests/fuzz/fuzz_</span><span class="nv">$target</span><span class="s2">"</span>
 <a id="__codelineno-2-15" name="__codelineno-2-15" href="#__codelineno-2-15"></a><span class="w">  </span><span class="o">[</span><span class="w"> </span>-x<span class="w"> </span><span class="s2">"</span><span class="nv">$executable</span><span class="s2">"</span><span class="w"> </span><span class="o">]</span><span class="w"> </span><span class="o">||</span><span class="w"> </span><span class="k">continue</span>
 <a id="__codelineno-2-16" name="__codelineno-2-16" href="#__codelineno-2-16"></a><span class="w">  </span>mkdir<span class="w"> </span>-p<span class="w"> </span><span class="s2">"build/fuzz/corpus/</span><span class="nv">$target</span><span class="s2">"</span><span class="w"> </span><span class="s2">"build/fuzz/findings/</span><span class="nv">$target</span><span class="s2">"</span>
@@ -3022,7 +3022,7 @@ commit, and build with the same component options and Clang version. Pass the
 saved input as a file instead of a corpus directory:</p>
 <div class="highlight"><pre><span></span><code><a id="__codelineno-3-1" name="__codelineno-3-1" href="#__codelineno-3-1"></a>build/fuzz/tests/fuzz/fuzz_read<span class="w"> </span>path/to/read/crash-&lt;hash&gt;
 </code></pre></div>
-<p>Use the corresponding target for <code>walk_tree</code>, <code>fixed</code>, <code>der</code>, <code>der_schema</code>,
+<p>Use the corresponding target for <code>visitor</code>, <code>fixed</code>, <code>der</code>, <code>der_schema</code>,
 <code>roundtrip</code>, <code>codec</code>, or <code>dol</code>. Findings
 may also use names such as <code>timeout-&lt;hash&gt;</code> or <code>oom-&lt;hash&gt;</code>; retain the original
 timeout/RSS settings when reproducing those. Keep the sanitizer environment

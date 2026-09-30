@@ -3019,7 +3019,7 @@ context lookup remain stable. Rebuild consumers and update initializers.</p>
 storage. Runtime owners select codecs and validate Schema explicitly; no
 <code>.otlv</code> loader, syntax, mandatory factory or generic dictionary layer is added.</p>
 <h2 id="framing-and-lookup">Framing and lookup<a class="headerlink" href="#framing-and-lookup" title="Permanent link">&para;</a></h2>
-<p>Use <code>&amp;tlv_format_emv</code> with the reader, walker, or writer.
+<p>Use <code>&amp;tlv_format_emv</code> with the reader, visitor, or writer.
 There is no separate EMV parser and the reader never interprets values.</p>
 <p>The descriptor in <code>tlv/builtins/emv/format.h</code> composes generic variable identifier
 and count primitives with EMV policy. It calls no ASN.1 format or private BER
@@ -3330,7 +3330,7 @@ Template (<code>70</code>) for a specific kernel, use <code>tlv_schema_validate_
 <p>Include <code>tlv/builtins/emv/dol.h</code>. A Data Object List is a sequence of tag/
 requested-length pairs with no value bytes of its own; PDOL, CDOL1, CDOL2 and
 DDOL all share this format (Book 3 section 5.4). Reading one with <code>tlv_read</code>
-or <code>tlv_walk</code> would misinterpret the one-byte requested length as a BER
+or <code>tlv_reader_visit</code> would misinterpret the one-byte requested length as a BER
 length field, so this is a dedicated value component rather than ordinary
 TLV structure.</p>
 <div class="highlight"><pre><span></span><code><a id="__codelineno-3-1" name="__codelineno-3-1" href="#__codelineno-3-1"></a><span class="cp">#include</span><span class="w"> </span><span class="cpf">"tlv/builtins/emv/dol.h"</span>
@@ -3403,11 +3403,11 @@ with <code>tlv_emv_codec_amount</code> into caller-owned storage. Currency and d
 come from application context; the codec does not assign them. This one data
 object does not represent a complete or validated transaction.</p>
 <h2 id="example">Example<a class="headerlink" href="#example" title="Permanent link">&para;</a></h2>
-<p><a href="https://github.com/marekcingel/OpenTLV/blob/main/examples/tlv/src/builtins/emv/tag_decoding.c">examples/tlv/src/builtins/emv/tag_decoding.c</a> walks
+<p><a href="https://github.com/marekcingel/OpenTLV/blob/main/examples/tlv/src/builtins/emv/tag_decoding.c">examples/tlv/src/builtins/emv/tag_decoding.c</a> traverses
 a whole record instead of one element: it looks up every child tag with
 <code>tlv_emv_find()</code>, checks its length with <code>tlv_emv_validate_length()</code>, decodes it
 using the explicit builtin presentation profile, and leaves a tag that is unknown or has an invalid
-length skipped rather than aborting the walk.
+length skipped rather than aborting the traversal.
 <a href="./">EMV module and codecs</a></p>
 <p>See also the <a href="../../reference/c-api/#builtins">C API reference: builtins</a>.</p>
 

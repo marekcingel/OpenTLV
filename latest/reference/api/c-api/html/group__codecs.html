@@ -372,6 +372,10 @@ Enumerations</h2></td></tr>
  }</td></tr>
 <tr class="memdesc:ga5aefdf4a40140da8025256c425474b1a"><td class="mdescLeft">&#160;</td><td class="mdescRight">Result code of a value conversion.  <a href="group__codecs.html#ga5aefdf4a40140da8025256c425474b1a">More...</a><br /></td></tr>
 <tr class="separator:ga5aefdf4a40140da8025256c425474b1a"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:ga16af7b253440dadd46a80a4b9fddba4d" id="r_ga16af7b253440dadd46a80a4b9fddba4d"><td class="memItemLeft" align="right" valign="top">enum &#160;</td><td class="memItemRight" valign="bottom">{ <a class="el" href="group__codecs.html#gga16af7b253440dadd46a80a4b9fddba4da444d11f3ec106da446fb3786750ed7fe">TLV_STRUCTURE_MAX_DEPTH</a> = 64
+ }</td></tr>
+<tr class="memdesc:ga16af7b253440dadd46a80a4b9fddba4d"><td class="mdescLeft">&#160;</td><td class="mdescRight">Frame capacity used by structure codecs when no Schema is supplied.  <a href="group__codecs.html#ga16af7b253440dadd46a80a4b9fddba4d">More...</a><br /></td></tr>
+<tr class="separator:ga16af7b253440dadd46a80a4b9fddba4d"><td class="memSeparator" colspan="2">&#160;</td></tr>
 </table><table class="memberdecls">
 <tr class="heading"><td colspan="2"><h2 class="groupheader"><a id="func-members" name="func-members"></a>
 Functions</h2></td></tr>
@@ -1055,6 +1059,25 @@ Variables</h2></td></tr>
 
 </div>
 </div>
+<a id="ga16af7b253440dadd46a80a4b9fddba4d" name="ga16af7b253440dadd46a80a4b9fddba4d"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#ga16af7b253440dadd46a80a4b9fddba4d">&#9670;&#160;</a></span>anonymous enum</h2>
+
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname">anonymous enum</td>
+        </tr>
+      </table>
+</div><div class="memdoc">
+
+<p>Frame capacity used by structure codecs when no Schema is supplied. </p>
+<table class="fieldtable">
+<tr><th colspan="2">Enumerator</th></tr><tr><td class="fieldname"><a id="gga16af7b253440dadd46a80a4b9fddba4da444d11f3ec106da446fb3786750ed7fe" name="gga16af7b253440dadd46a80a4b9fddba4da444d11f3ec106da446fb3786750ed7fe"></a>TLV_STRUCTURE_MAX_DEPTH&#160;</td><td class="fielddoc"></td></tr>
+</table>
+
+</div>
+</div>
 <a id="ga798c4638c9a55ff43b932d29586b5d78" name="ga798c4638c9a55ff43b932d29586b5d78"></a>
 <h2 class="memtitle"><span class="permalink"><a href="#ga798c4638c9a55ff43b932d29586b5d78">&#9670;&#160;</a></span>tlv_bluetooth_ad_flag</h2>
 
@@ -1610,8 +1633,6 @@ Variables</h2></td></tr>
 <dd>
 <a class="el" href="group__codecs.html#gga5aefdf4a40140da8025256c425474b1aacb73f083c46ec5e072caddf46eb8a635">TLV_CODEC_ERR_INVALID_STRUCTURE</a> if validation fails. </dd>
 <dd>
-<a class="el" href="group__codecs.html#gga5aefdf4a40140da8025256c425474b1aa2dde6f557037bd68cdf6004636648291">TLV_CODEC_ERR_INVALID_VALUE</a> if <code>max_depth</code> is out of range. </dd>
-<dd>
 <a class="el" href="group__codecs.html#gga5aefdf4a40140da8025256c425474b1aa92060a99b1c9ac1fd965191ec74ae5f3">TLV_CODEC_ERR_UNSUPPORTED</a> if the descriptor has no decoder.</dd></dl>
 <dl class="section warning"><dt>Warning</dt><dd>On error the contents of <code>value</code> are unspecified. The decoded object may borrow <code>data</code>, which must then outlive it. </dd></dl>
 
@@ -1687,8 +1708,6 @@ Variables</h2></td></tr>
 <a class="el" href="group__codecs.html#gga5aefdf4a40140da8025256c425474b1aa187607751b25c1e4b9a9c2032e93f4d2">TLV_CODEC_ERR_BUFFER_TOO_SHORT</a> if <code>capacity</code> is insufficient. </dd>
 <dd>
 <a class="el" href="group__codecs.html#gga5aefdf4a40140da8025256c425474b1aacb73f083c46ec5e072caddf46eb8a635">TLV_CODEC_ERR_INVALID_STRUCTURE</a> if the produced bytes fail validation. </dd>
-<dd>
-<a class="el" href="group__codecs.html#gga5aefdf4a40140da8025256c425474b1aa2dde6f557037bd68cdf6004636648291">TLV_CODEC_ERR_INVALID_VALUE</a> if <code>max_depth</code> is out of range. </dd>
 <dd>
 <a class="el" href="group__codecs.html#gga5aefdf4a40140da8025256c425474b1aa92060a99b1c9ac1fd965191ec74ae5f3">TLV_CODEC_ERR_UNSUPPORTED</a> if the descriptor has no encoder.</dd></dl>
 <dl class="section warning"><dt>Warning</dt><dd>On error the destination is unspecified and <code>*written</code> is zero. </dd></dl>

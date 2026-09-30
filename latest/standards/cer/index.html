@@ -2912,7 +2912,7 @@ split into canonical segments (see below); a primitive encoding of such a type w
 more than 1,000 content octets is rejected, and so is a constructed encoding whose
 total content is 1,000 octets or fewer.</p>
 <p>This is a <strong>TLV-layer and framing validator, not a complete ASN.1 CER validator</strong>.
-Structural validation (<code>tlv_cer_read</code>/<code>tlv_cer_walk</code>/<code>tlv_cer_write</code>) covers framing,
+Structural validation (<code>tlv_cer_read</code>/<code>tlv_cer_visit</code>/<code>tlv_cer_write</code>) covers framing,
 EOC placement, and canonical segmentation — segment tags, forms and sizes — but not
 value semantics. Universal value semantics (BOOLEAN representation, INTEGER
 minimality, BIT STRING padding, string charsets, and so on) are checked only by the
@@ -2932,7 +2932,7 @@ constructed framing, EOC placement, and canonical string segmentation — before
 returning its element and complete encoded size. Trailing input is ignored. Empty
 input returns <code>TLV_ERR_END_OF_BUFFER</code>. Keep the input alive while using returned
 views (see <a href="../../guides/memory/">memory ownership</a>).</p>
-<p><code>tlv_cer_walk(data, size, limits, visitor, context, &amp;error_offset)</code> processes all
+<p><code>tlv_cer_visit(data, size, limits, visitor, context, &amp;error_offset)</code> processes all
 concatenated elements, including nested constructed values. A NULL visitor
 performs validation only. Empty input succeeds.</p>
 <p>Unlike <a href="../der/"><code>tlv_der_visitor_t</code></a>, which visits every element in
@@ -2977,15 +2977,17 @@ state rather than concatenating them.</p>
 <p>A constructed string's segments are just ordinary CER primitive elements one
 level below its own element — <code>element.value</code> for a constructed CER element already
 excludes the outer EOC, the same convention <code>tlv_read</code> uses for BER. Iterate
-them with the existing generic <code>tlv_walk</code>, no dedicated API needed:</p>
-<div class="highlight"><pre><span></span><code><a id="__codelineno-2-1" name="__codelineno-2-1" href="#__codelineno-2-1"></a><span class="n">tlv_element_t</span><span class="w"> </span><span class="n">element</span><span class="p">;</span><span class="w"> </span><span class="cm">/* a constructed OCTET STRING element from tlv_cer_read/_walk */</span>
+them with the existing generic <code>tlv_reader_visit</code>, no dedicated API needed:</p>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-2-1" name="__codelineno-2-1" href="#__codelineno-2-1"></a><span class="n">tlv_element_t</span><span class="w"> </span><span class="n">element</span><span class="p">;</span><span class="w"> </span><span class="cm">/* a constructed OCTET STRING element from tlv_cer_read/_visit */</span>
 <a id="__codelineno-2-2" name="__codelineno-2-2" href="#__codelineno-2-2"></a><span class="n">tlv_visit_result_t</span><span class="w"> </span><span class="nf">print_segment</span><span class="p">(</span><span class="k">const</span><span class="w"> </span><span class="n">tlv_element_t</span><span class="o">*</span><span class="w"> </span><span class="n">segment</span><span class="p">,</span><span class="w"> </span><span class="kt">void</span><span class="o">*</span><span class="w"> </span><span class="n">context</span><span class="p">)</span><span class="w"> </span><span class="p">{</span>
 <a id="__codelineno-2-3" name="__codelineno-2-3" href="#__codelineno-2-3"></a><span class="w">    </span><span class="cm">/* segment-&gt;value borrows the input; print it, hash it, etc. */</span>
 <a id="__codelineno-2-4" name="__codelineno-2-4" href="#__codelineno-2-4"></a><span class="w">    </span><span class="k">return</span><span class="w"> </span><span class="n">TLV_VISIT_CONTINUE</span><span class="p">;</span>
 <a id="__codelineno-2-5" name="__codelineno-2-5" href="#__codelineno-2-5"></a><span class="p">}</span>
 <a id="__codelineno-2-6" name="__codelineno-2-6" href="#__codelineno-2-6"></a><span class="kt">size_t</span><span class="w"> </span><span class="n">length</span><span class="p">;</span>
 <a id="__codelineno-2-7" name="__codelineno-2-7" href="#__codelineno-2-7"></a><span class="n">tlv_size_to_native</span><span class="p">(</span><span class="n">element</span><span class="p">.</span><span class="n">value</span><span class="p">.</span><span class="n">size</span><span class="p">,</span><span class="w"> </span><span class="o">&amp;</span><span class="n">length</span><span class="p">);</span>
-<a id="__codelineno-2-8" name="__codelineno-2-8" href="#__codelineno-2-8"></a><span class="n">tlv_walk</span><span class="p">(</span><span class="n">element</span><span class="p">.</span><span class="n">value</span><span class="p">.</span><span class="n">data</span><span class="p">,</span><span class="w"> </span><span class="n">length</span><span class="p">,</span><span class="w"> </span><span class="o">&amp;</span><span class="n">tlv_format_cer</span><span class="p">,</span><span class="w"> </span><span class="n">print_segment</span><span class="p">,</span><span class="w"> </span><span class="nb">NULL</span><span class="p">);</span>
+<a id="__codelineno-2-8" name="__codelineno-2-8" href="#__codelineno-2-8"></a><span class="n">tlv_reader_t</span><span class="w"> </span><span class="n">segments</span><span class="p">;</span>
+<a id="__codelineno-2-9" name="__codelineno-2-9" href="#__codelineno-2-9"></a><span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="n">tlv_reader_init</span><span class="p">(</span><span class="o">&amp;</span><span class="n">segments</span><span class="p">,</span><span class="w"> </span><span class="n">element</span><span class="p">.</span><span class="n">value</span><span class="p">.</span><span class="n">data</span><span class="p">,</span><span class="w"> </span><span class="n">length</span><span class="p">,</span><span class="w"> </span><span class="o">&amp;</span><span class="n">tlv_format_cer</span><span class="p">)</span><span class="w"> </span><span class="o">==</span><span class="w"> </span><span class="n">TLV_OK</span><span class="p">)</span>
+<a id="__codelineno-2-10" name="__codelineno-2-10" href="#__codelineno-2-10"></a><span class="w">    </span><span class="n">tlv_reader_visit</span><span class="p">(</span><span class="o">&amp;</span><span class="n">segments</span><span class="p">,</span><span class="w"> </span><span class="n">print_segment</span><span class="p">,</span><span class="w"> </span><span class="nb">NULL</span><span class="p">);</span>
 </code></pre></div>
 <p><code>element.value</code> here is a element of the <strong>encoded constructed contents</strong> (segment
 headers included) — distinct from the <strong>logical string data</strong> each segment's own
@@ -3035,8 +3037,8 @@ correct canonical output from logical content, unlike <code>tlv_cer_write</code>
 pass-through). Size arithmetic, including every segment header and the EOC, is
 overflow-checked before writing.</p>
 <h2 id="strict-universal-value-validation">Strict universal value validation<a class="headerlink" href="#strict-universal-value-validation" title="Permanent link">&para;</a></h2>
-<p><code>tlv_cer_read_strict</code>, <code>tlv_cer_walk_strict</code> and <code>tlv_cer_write_strict</code> are drop-in
-counterparts of <code>tlv_cer_read</code>, <code>tlv_cer_walk</code> and <code>tlv_cer_write</code>: identical
+<p><code>tlv_cer_read_strict</code>, <code>tlv_cer_visit_strict</code> and <code>tlv_cer_write_strict</code> are drop-in
+counterparts of <code>tlv_cer_read</code>, <code>tlv_cer_visit</code> and <code>tlv_cer_write</code>: identical
 signatures, offsets and resource limits, but every UNIVERSAL-class element they
 encounter additionally has its content validated against ASN.1 canonical rules —
 including, for a segmented constructed value, every segment, validated as it is

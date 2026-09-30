@@ -135,7 +135,7 @@ Functions</h2></td></tr>
 
 <p>Validates AD structures and trailing zero padding. </p>
 <p>Uses the generic reader with the strict Bluetooth LTV format. A zero byte at a structure boundary starts padding; every remaining byte must be zero. Zero bytes inside a structure remain part of that structure. Unknown types and empty values are accepted. No schema or value-codec validation occurs. Empty input and all-zero input succeed with a zero significant size.</p>
-<p>The significant prefix can be passed to a generic reader, walker or schema validator with the original input pointer, preserving source offsets. This function never allocates, copies or retains input bytes. Available when <code>OPENTLV_BLUETOOTH</code> is enabled.</p>
+<p>The significant prefix can be passed to a generic reader, visitor or schema validator with the original input pointer, preserving source offsets. This function never allocates, copies or retains input bytes. Available when <code>OPENTLV_BLUETOOTH</code> is enabled.</p>
 <dl class="params"><dt>Parameters</dt><dd>
   <table class="params">
     <tr><td class="paramdir">[in]</td><td class="paramname">data</td><td>Caller-owned input, unchanged during the call. May be <code>NULL</code> only when <code>size</code> is zero. </td></tr>
