@@ -1563,6 +1563,34 @@
   
   
     <li class="md-nav__item">
+      <a href="../nfc/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    NFC Type 2 Tag framing
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
       <a href="../dhcp/" class="md-nav__link">
         
   
@@ -3538,12 +3566,20 @@ depends on how much of X.680 these rows cover.</p>
 <td>Not verified: documents not read in this pass.</td>
 </tr>
 <tr>
-<td>NFC Forum Type 1 and Type 2 tag TLV (<code>[?]</code>)</td>
-<td>NFC Forum Type 1 and Type 2 Tag operation specifications</td>
-<td>Tag memory TLVs: NDEF Message, Lock and Memory Control, NULL, and Terminator. The length forms are to be confirmed.</td>
+<td>NFC Forum Type 2 tag TLV (<code>[x]</code>)</td>
+<td>NFC Forum Type 2 Tag Operation 1.1, section 2.3</td>
+<td>Fixed Tag, short or FF-prefixed two-byte big-endian Length; tag-only NULL and Terminator.</td>
+<td><a href="../nfc/">NFC Type 2 preset</a> over generic escaped fields</td>
+<td>Contiguous TLV stream only; caller controls termination. No physical memory mapping or NDEF decoding.</td>
+<td>Specification 1.1 framing reviewed; not full device conformance.</td>
+</tr>
+<tr>
+<td>NFC Forum Type 1 tag TLV (<code>[?]</code>)</td>
+<td>NFC Forum Type 1 Tag operation specification</td>
+<td>Tag memory TLVs.</td>
 <td>format adapter (new)</td>
-<td>NULL and Terminator have no length and the terminator ends the region: needs a skip and stop policy (see <a href="../format-roadmap/#framing-requirements">framing requirements</a>). The NDEF records inside are <a href="#excluded-encodings">excluded</a>.</td>
-<td>Not verified: NFC Forum documents not read.</td>
+<td>Requires a separate framing and memory-mapping review.</td>
+<td>Not verified: Type 1 specification not read.</td>
 </tr>
 </tbody>
 </table>

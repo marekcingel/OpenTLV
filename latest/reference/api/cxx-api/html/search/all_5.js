@@ -1,7 +1,7 @@
 var searchData=
 [
   ['field_0',['field',['../../../c-api/html/structtlv__schema__diagnostic.html#a69e74dc9e58ca0846a212d63f1d9fa0a',1,'tlv_schema_diagnostic']]],
-  ['fields_1',['fields',['../../../c-api/html/structtlv__tagged__binary__layout.html#a8f96dc546377baf067cf08074ded89f2',1,'tlv_tagged_binary_layout']]],
+  ['fields_1',['fields',['../../../c-api/html/structtlv__tagged__binary__layout.html#a8f96dc546377baf067cf08074ded89f2',1,'tlv_tagged_binary_layout::fields'],['../../../c-api/html/structtlv__tagged__fields__layout.html#a6eebcb14d232f6a29c5c432dd40ce842',1,'tlv_tagged_fields_layout::fields']]],
   ['final_2',['final',['../namespacetlv.html#a6d141be87a05679c237c4d7f5b941c15a2a1585a864d9e67627c6ae04c807a2c5',1,'tlv']]],
   ['final_5finput_3',['final_input',['../../../c-api/html/structtlv__reader.html#a8fdbfe26ef4fdf5c8e4c46b3491088f6',1,'tlv_reader']]],
   ['find_4',['find',['../classtlv_1_1definition__registry.html#a727ea5f41454a5624f733f9f6d0fc5a9',1,'tlv::definition_registry::find()'],['../classtlv_1_1node.html#af08edf06ebd16cfa70b72e6840582f1a',1,'tlv::node::find()'],['../classtlv_1_1document.html#a10fb1bc84fad65ae0d21773428093e31',1,'tlv::document::find(tag_t wanted) const'],['../classtlv_1_1document.html#a721db8298fc9c2ec7adccadc75288321',1,'tlv::document::find(const query &amp;path) const']]],

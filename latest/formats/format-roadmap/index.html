@@ -1563,6 +1563,34 @@
   
   
     <li class="md-nav__item">
+      <a href="../nfc/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    NFC Type 2 Tag framing
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
       <a href="../dhcp/" class="md-nav__link">
         
   
@@ -3061,6 +3089,9 @@ components, limits, and what was checked) is in the
 definitions, structural validation and value codecs. Its remaining work is
 full-edition normative verification and any separately scoped extensions;
 Ethernet transport and LLDP agents remain outside OpenTLV.</p>
+<p>NFC Type 2 now provides <a href="../nfc/">contiguous TLV stream framing</a>, including
+NULL/Terminator and both length forms. Physical memory mapping and NDEF
+interpretation remain outside that implementation.</p>
 <h2 id="keep-the-core-generic">Keep the core generic<a class="headerlink" href="#keep-the-core-generic" title="Permanent link">&para;</a></h2>
 <p>Keep raw framing, nesting rules, structural schemas, value codecs, and protocol
 semantics separate. Generic formats such as Fixed belong to the always-available
@@ -3240,35 +3271,36 @@ so a candidate's "components" show which layers stay separate.</p>
 <a id="__codelineno-0-35" name="__codelineno-0-35" href="#__codelineno-0-35"></a>│   │   ├── [ ] EMV contactless kernels (existing entry)
 <a id="__codelineno-0-36" name="__codelineno-0-36" href="#__codelineno-0-36"></a>│   │   ├── [?] ISO 7816-4 SIMPLE-TLV
 <a id="__codelineno-0-37" name="__codelineno-0-37" href="#__codelineno-0-37"></a>│   │   ├── [?] SIM Toolkit COMPREHENSION-TLV (ETSI TS 102 223)
-<a id="__codelineno-0-38" name="__codelineno-0-38" href="#__codelineno-0-38"></a>│   │   └── [?] NFC Forum Type 1/2 tag TLV container (holds NDEF)
-<a id="__codelineno-0-39" name="__codelineno-0-39" href="#__codelineno-0-39"></a>│   ├── Networking, AAA and tunnelling
-<a id="__codelineno-0-40" name="__codelineno-0-40" href="#__codelineno-0-40"></a>│   │   ├── [ ] RADIUS (existing entry; VSA and extended attributes are variants)
-<a id="__codelineno-0-41" name="__codelineno-0-41" href="#__codelineno-0-41"></a>│   │   ├── [?] Diameter AVP (RFC 6733)
-<a id="__codelineno-0-42" name="__codelineno-0-42" href="#__codelineno-0-42"></a>│   │   ├── [ ] PEAP TLV (existing entry)
-<a id="__codelineno-0-43" name="__codelineno-0-43" href="#__codelineno-0-43"></a>│   │   └── [ ] NDN packet TLV (existing entry)
-<a id="__codelineno-0-44" name="__codelineno-0-44" href="#__codelineno-0-44"></a>│   ├── Networking, link and routing
-<a id="__codelineno-0-45" name="__codelineno-0-45" href="#__codelineno-0-45"></a>│   │   ├── [x] LLDP base TLVs (IEEE 802.1AB; normative audit pending)
-<a id="__codelineno-0-46" name="__codelineno-0-46" href="#__codelineno-0-46"></a>│   │   ├── [?] IS-IS TLVs and sub-TLVs (ISO 10589 and extensions)
-<a id="__codelineno-0-47" name="__codelineno-0-47" href="#__codelineno-0-47"></a>│   │   ├── [x] DHCPv4 option framing (RFC 2132; packet semantics excluded)
-<a id="__codelineno-0-48" name="__codelineno-0-48" href="#__codelineno-0-48"></a>│   │   ├── [?] DHCPv6 options (RFC 8415)
-<a id="__codelineno-0-49" name="__codelineno-0-49" href="#__codelineno-0-49"></a>│   │   ├── [?] LDP (RFC 5036 and extensions)
-<a id="__codelineno-0-50" name="__codelineno-0-50" href="#__codelineno-0-50"></a>│   │   └── [?] RFC 5444 TLV blocks (TLVs only)
-<a id="__codelineno-0-51" name="__codelineno-0-51" href="#__codelineno-0-51"></a>│   ├── Telecommunications (3GPP)
-<a id="__codelineno-0-52" name="__codelineno-0-52" href="#__codelineno-0-52"></a>│   │   ├── [?] PFCP information elements (TS 29.244)
-<a id="__codelineno-0-53" name="__codelineno-0-53" href="#__codelineno-0-53"></a>│   │   ├── [?] GTPv2-C information elements (TS 29.274)
-<a id="__codelineno-0-54" name="__codelineno-0-54" href="#__codelineno-0-54"></a>│   │   ├── [?] GTPv1-C information elements (TS 29.060)
-<a id="__codelineno-0-55" name="__codelineno-0-55" href="#__codelineno-0-55"></a>│   │   └── [?] NAS standard IE formats (TS 24.007; message layouts stay with the caller)
-<a id="__codelineno-0-56" name="__codelineno-0-56" href="#__codelineno-0-56"></a>│   └── IoT
-<a id="__codelineno-0-57" name="__codelineno-0-57" href="#__codelineno-0-57"></a>│       └── [ ] OMA LwM2M TLV (existing entry)
-<a id="__codelineno-0-58" name="__codelineno-0-58" href="#__codelineno-0-58"></a>│
-<a id="__codelineno-0-59" name="__codelineno-0-59" href="#__codelineno-0-59"></a>└── Excluded (not TLV or out of scope)
-<a id="__codelineno-0-60" name="__codelineno-0-60" href="#__codelineno-0-60"></a>    ├── [-] CBOR (RFC 8949)
-<a id="__codelineno-0-61" name="__codelineno-0-61" href="#__codelineno-0-61"></a>    ├── [-] CWT (RFC 8392) and COSE (RFC 9052/9053), CBOR profiles
-<a id="__codelineno-0-62" name="__codelineno-0-62" href="#__codelineno-0-62"></a>    ├── [-] QUIC frames (RFC 9000)
-<a id="__codelineno-0-63" name="__codelineno-0-63" href="#__codelineno-0-63"></a>    ├── [-] NFC NDEF records (NFC Forum NDEF 1.0)
-<a id="__codelineno-0-64" name="__codelineno-0-64" href="#__codelineno-0-64"></a>    ├── [-] RFC 5444 packet header, message header, and address blocks
-<a id="__codelineno-0-65" name="__codelineno-0-65" href="#__codelineno-0-65"></a>    ├── [-] S1AP, X2AP, NGAP (ASN.1 aligned PER)
-<a id="__codelineno-0-66" name="__codelineno-0-66" href="#__codelineno-0-66"></a>    └── [-] ASN.1 PER (X.691), OER (X.696), XER (X.693) as encoding rules
+<a id="__codelineno-0-38" name="__codelineno-0-38" href="#__codelineno-0-38"></a>│   │   ├── [x] NFC Forum Type 2 TLV stream (opaque NDEF)
+<a id="__codelineno-0-39" name="__codelineno-0-39" href="#__codelineno-0-39"></a>│   │   └── [?] NFC Forum Type 1 tag TLV container (holds NDEF)
+<a id="__codelineno-0-40" name="__codelineno-0-40" href="#__codelineno-0-40"></a>│   ├── Networking, AAA and tunnelling
+<a id="__codelineno-0-41" name="__codelineno-0-41" href="#__codelineno-0-41"></a>│   │   ├── [ ] RADIUS (existing entry; VSA and extended attributes are variants)
+<a id="__codelineno-0-42" name="__codelineno-0-42" href="#__codelineno-0-42"></a>│   │   ├── [?] Diameter AVP (RFC 6733)
+<a id="__codelineno-0-43" name="__codelineno-0-43" href="#__codelineno-0-43"></a>│   │   ├── [ ] PEAP TLV (existing entry)
+<a id="__codelineno-0-44" name="__codelineno-0-44" href="#__codelineno-0-44"></a>│   │   └── [ ] NDN packet TLV (existing entry)
+<a id="__codelineno-0-45" name="__codelineno-0-45" href="#__codelineno-0-45"></a>│   ├── Networking, link and routing
+<a id="__codelineno-0-46" name="__codelineno-0-46" href="#__codelineno-0-46"></a>│   │   ├── [x] LLDP base TLVs (IEEE 802.1AB; normative audit pending)
+<a id="__codelineno-0-47" name="__codelineno-0-47" href="#__codelineno-0-47"></a>│   │   ├── [?] IS-IS TLVs and sub-TLVs (ISO 10589 and extensions)
+<a id="__codelineno-0-48" name="__codelineno-0-48" href="#__codelineno-0-48"></a>│   │   ├── [x] DHCPv4 option framing (RFC 2132; packet semantics excluded)
+<a id="__codelineno-0-49" name="__codelineno-0-49" href="#__codelineno-0-49"></a>│   │   ├── [?] DHCPv6 options (RFC 8415)
+<a id="__codelineno-0-50" name="__codelineno-0-50" href="#__codelineno-0-50"></a>│   │   ├── [?] LDP (RFC 5036 and extensions)
+<a id="__codelineno-0-51" name="__codelineno-0-51" href="#__codelineno-0-51"></a>│   │   └── [?] RFC 5444 TLV blocks (TLVs only)
+<a id="__codelineno-0-52" name="__codelineno-0-52" href="#__codelineno-0-52"></a>│   ├── Telecommunications (3GPP)
+<a id="__codelineno-0-53" name="__codelineno-0-53" href="#__codelineno-0-53"></a>│   │   ├── [?] PFCP information elements (TS 29.244)
+<a id="__codelineno-0-54" name="__codelineno-0-54" href="#__codelineno-0-54"></a>│   │   ├── [?] GTPv2-C information elements (TS 29.274)
+<a id="__codelineno-0-55" name="__codelineno-0-55" href="#__codelineno-0-55"></a>│   │   ├── [?] GTPv1-C information elements (TS 29.060)
+<a id="__codelineno-0-56" name="__codelineno-0-56" href="#__codelineno-0-56"></a>│   │   └── [?] NAS standard IE formats (TS 24.007; message layouts stay with the caller)
+<a id="__codelineno-0-57" name="__codelineno-0-57" href="#__codelineno-0-57"></a>│   └── IoT
+<a id="__codelineno-0-58" name="__codelineno-0-58" href="#__codelineno-0-58"></a>│       └── [ ] OMA LwM2M TLV (existing entry)
+<a id="__codelineno-0-59" name="__codelineno-0-59" href="#__codelineno-0-59"></a>│
+<a id="__codelineno-0-60" name="__codelineno-0-60" href="#__codelineno-0-60"></a>└── Excluded (not TLV or out of scope)
+<a id="__codelineno-0-61" name="__codelineno-0-61" href="#__codelineno-0-61"></a>    ├── [-] CBOR (RFC 8949)
+<a id="__codelineno-0-62" name="__codelineno-0-62" href="#__codelineno-0-62"></a>    ├── [-] CWT (RFC 8392) and COSE (RFC 9052/9053), CBOR profiles
+<a id="__codelineno-0-63" name="__codelineno-0-63" href="#__codelineno-0-63"></a>    ├── [-] QUIC frames (RFC 9000)
+<a id="__codelineno-0-64" name="__codelineno-0-64" href="#__codelineno-0-64"></a>    ├── [-] NFC NDEF records (NFC Forum NDEF 1.0)
+<a id="__codelineno-0-65" name="__codelineno-0-65" href="#__codelineno-0-65"></a>    ├── [-] RFC 5444 packet header, message header, and address blocks
+<a id="__codelineno-0-66" name="__codelineno-0-66" href="#__codelineno-0-66"></a>    ├── [-] S1AP, X2AP, NGAP (ASN.1 aligned PER)
+<a id="__codelineno-0-67" name="__codelineno-0-67" href="#__codelineno-0-67"></a>    └── [-] ASN.1 PER (X.691), OER (X.696), XER (X.693) as encoding rules
 </code></pre></div>
 <h2 id="previously-catalogued-candidates">Previously catalogued candidates<a class="headerlink" href="#previously-catalogued-candidates" title="Permanent link">&para;</a></h2>
 <p>These entries existed before the expanded catalogue and are not repeated in the
@@ -3406,7 +3438,7 @@ transformed identifiers. LLDPDU protocol conformance remains separate.</strong><
 <tr>
 <td>Elements without a length, and a terminator</td>
 <td>DHCPv4 Pad and End, NFC tag TLV NULL and Terminator</td>
-<td>DHCPv4 uses the generic identifier-selected binary layout for tag-only Pad/End elements. Skip/stop policy remains with the caller. NFC requires separate assessment.</td>
+<td>DHCPv4 uses the generic identifier-selected binary layout for tag-only Pad/End elements. Skip/stop policy remains with the caller. NFC Type 2 uses the shared tag-only field composition with escape-prefixed lengths; physical memory mapping remains outside the format.</td>
 </tr>
 <tr>
 <td>Composite tag identity (type plus instance, vendor or flags)</td>

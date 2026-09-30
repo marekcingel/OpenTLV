@@ -1,7 +1,7 @@
 var searchData=
 [
   ['field_0',['field',['../structtlv__schema__diagnostic.html#a69e74dc9e58ca0846a212d63f1d9fa0a',1,'tlv_schema_diagnostic']]],
-  ['fields_1',['fields',['../structtlv__tagged__binary__layout.html#a8f96dc546377baf067cf08074ded89f2',1,'tlv_tagged_binary_layout']]],
+  ['fields_1',['fields',['../structtlv__tagged__binary__layout.html#a8f96dc546377baf067cf08074ded89f2',1,'tlv_tagged_binary_layout::fields'],['../structtlv__tagged__fields__layout.html#a6eebcb14d232f6a29c5c432dd40ce842',1,'tlv_tagged_fields_layout::fields']]],
   ['final_5finput_2',['final_input',['../structtlv__reader.html#a8fdbfe26ef4fdf5c8e4c46b3491088f6',1,'tlv_reader']]],
   ['first_5frecord_3',['first_record',['../structtlv__emv__afl__entry__t.html#af4951c6b98c2dd0c0aea1c0c159e7c47',1,'tlv_emv_afl_entry_t']]],
   ['flags_4',['flags',['../structtlv__emv__cryptogram__info__t.html#ade6cca23f3c7b59bca40e64ccf6952fe',1,'tlv_emv_cryptogram_info_t::flags'],['../structtlv__schema__entry__t.html#a97d895ef6074c5849a9abf35355930c6',1,'tlv_schema_entry_t::flags']]],

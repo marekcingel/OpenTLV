@@ -1726,6 +1726,34 @@
   
   
     <li class="md-nav__item">
+      <a href="../../formats/nfc/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    NFC Type 2 Tag framing
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
       <a href="../../formats/dhcp/" class="md-nav__link">
         
   
@@ -3090,6 +3118,10 @@ Turn off what you do not use.</p>
 </thead>
 <tbody>
 <tr>
+<td><code>OPENTLV_NFC</code></td>
+<td><a href="../../formats/nfc/">NFC Type 2 Tag framing</a> for contiguous TLV streams</td>
+</tr>
+<tr>
 <td><code>OPENTLV_DHCP</code></td>
 <td><a href="../../formats/dhcp/">DHCPv4 option framing</a>, including Pad and End</td>
 </tr>
@@ -3137,12 +3169,12 @@ option defaults to ON, so a recipe lists exactly the options it turns OFF.</p>
 <h3 id="core-only">Core only<a class="headerlink" href="#core-only" title="Permanent link">&para;</a></h3>
 <p>Use this when you supply your own <a href="../../formats/custom/">format callbacks</a>.</p>
 <div class="highlight"><pre><span></span><code><a id="__codelineno-0-1" name="__codelineno-0-1" href="#__codelineno-0-1"></a>cmake<span class="w"> </span>-S<span class="w"> </span>.<span class="w"> </span>-B<span class="w"> </span>build<span class="w"> </span><span class="se">\</span>
-<a id="__codelineno-0-2" name="__codelineno-0-2" href="#__codelineno-0-2"></a><span class="w">  </span>-DOPENTLV_BLUETOOTH<span class="o">=</span>OFF<span class="w"> </span>-DOPENTLV_LLDP<span class="o">=</span>OFF<span class="w"> </span>-DOPENTLV_DHCP<span class="o">=</span>OFF<span class="w"> </span>-DOPENTLV_FORMAT_ASN1<span class="o">=</span>OFF
+<a id="__codelineno-0-2" name="__codelineno-0-2" href="#__codelineno-0-2"></a><span class="w">  </span>-DOPENTLV_BLUETOOTH<span class="o">=</span>OFF<span class="w"> </span>-DOPENTLV_LLDP<span class="o">=</span>OFF<span class="w"> </span>-DOPENTLV_DHCP<span class="o">=</span>OFF<span class="w"> </span>-DOPENTLV_NFC<span class="o">=</span>OFF<span class="w"> </span>-DOPENTLV_FORMAT_ASN1<span class="o">=</span>OFF
 <a id="__codelineno-0-3" name="__codelineno-0-3" href="#__codelineno-0-3"></a>cmake<span class="w"> </span>--build<span class="w"> </span>build<span class="w"> </span>--parallel<span class="w"> </span>--target<span class="w"> </span>tlv
 </code></pre></div>
 <h3 id="core-and-ber">Core and BER<a class="headerlink" href="#core-and-ber" title="Permanent link">&para;</a></h3>
 <div class="highlight"><pre><span></span><code><a id="__codelineno-1-1" name="__codelineno-1-1" href="#__codelineno-1-1"></a>cmake<span class="w"> </span>-S<span class="w"> </span>.<span class="w"> </span>-B<span class="w"> </span>build<span class="w"> </span><span class="se">\</span>
-<a id="__codelineno-1-2" name="__codelineno-1-2" href="#__codelineno-1-2"></a><span class="w">  </span>-DOPENTLV_BLUETOOTH<span class="o">=</span>OFF<span class="w"> </span>-DOPENTLV_LLDP<span class="o">=</span>OFF<span class="w"> </span>-DOPENTLV_DHCP<span class="o">=</span>OFF<span class="w"> </span><span class="se">\</span>
+<a id="__codelineno-1-2" name="__codelineno-1-2" href="#__codelineno-1-2"></a><span class="w">  </span>-DOPENTLV_BLUETOOTH<span class="o">=</span>OFF<span class="w"> </span>-DOPENTLV_LLDP<span class="o">=</span>OFF<span class="w"> </span>-DOPENTLV_DHCP<span class="o">=</span>OFF<span class="w"> </span>-DOPENTLV_NFC<span class="o">=</span>OFF<span class="w"> </span><span class="se">\</span>
 <a id="__codelineno-1-3" name="__codelineno-1-3" href="#__codelineno-1-3"></a><span class="w">  </span>-DOPENTLV_FORMAT_DER<span class="o">=</span>OFF<span class="w"> </span>-DOPENTLV_FORMAT_CER<span class="o">=</span>OFF<span class="w"> </span>-DOPENTLV_EMV<span class="o">=</span>OFF
 <a id="__codelineno-1-4" name="__codelineno-1-4" href="#__codelineno-1-4"></a>cmake<span class="w"> </span>--build<span class="w"> </span>build<span class="w"> </span>--parallel<span class="w"> </span>--target<span class="w"> </span>tlv
 </code></pre></div>
@@ -3150,13 +3182,13 @@ option defaults to ON, so a recipe lists exactly the options it turns OFF.</p>
 <p>This recipe enables DER alongside EMV. EMV itself does not need DER;
 add <code>-DOPENTLV_FORMAT_DER=OFF</code> for BER and EMV only. CER is off.</p>
 <div class="highlight"><pre><span></span><code><a id="__codelineno-2-1" name="__codelineno-2-1" href="#__codelineno-2-1"></a>cmake<span class="w"> </span>-S<span class="w"> </span>.<span class="w"> </span>-B<span class="w"> </span>build<span class="w"> </span><span class="se">\</span>
-<a id="__codelineno-2-2" name="__codelineno-2-2" href="#__codelineno-2-2"></a><span class="w">  </span>-DOPENTLV_BLUETOOTH<span class="o">=</span>OFF<span class="w"> </span>-DOPENTLV_LLDP<span class="o">=</span>OFF<span class="w"> </span>-DOPENTLV_DHCP<span class="o">=</span>OFF<span class="w"> </span>-DOPENTLV_FORMAT_CER<span class="o">=</span>OFF
+<a id="__codelineno-2-2" name="__codelineno-2-2" href="#__codelineno-2-2"></a><span class="w">  </span>-DOPENTLV_BLUETOOTH<span class="o">=</span>OFF<span class="w"> </span>-DOPENTLV_LLDP<span class="o">=</span>OFF<span class="w"> </span>-DOPENTLV_DHCP<span class="o">=</span>OFF<span class="w"> </span>-DOPENTLV_NFC<span class="o">=</span>OFF<span class="w"> </span>-DOPENTLV_FORMAT_CER<span class="o">=</span>OFF
 <a id="__codelineno-2-3" name="__codelineno-2-3" href="#__codelineno-2-3"></a>cmake<span class="w"> </span>--build<span class="w"> </span>build<span class="w"> </span>--parallel<span class="w"> </span>--target<span class="w"> </span>tlv
 </code></pre></div>
 <h3 id="core-and-bluetooth-ltv-only">Core and Bluetooth LTV only<a class="headerlink" href="#core-and-bluetooth-ltv-only" title="Permanent link">&para;</a></h3>
 <p>Bluetooth uses the generic binary layout primitives. Fixed is always available.</p>
 <div class="highlight"><pre><span></span><code><a id="__codelineno-3-1" name="__codelineno-3-1" href="#__codelineno-3-1"></a>cmake<span class="w"> </span>-S<span class="w"> </span>.<span class="w"> </span>-B<span class="w"> </span>build<span class="w"> </span><span class="se">\</span>
-<a id="__codelineno-3-2" name="__codelineno-3-2" href="#__codelineno-3-2"></a><span class="w">  </span>-DOPENTLV_FORMAT_ASN1<span class="o">=</span>OFF<span class="w"> </span>-DOPENTLV_LLDP<span class="o">=</span>OFF<span class="w"> </span>-DOPENTLV_DHCP<span class="o">=</span>OFF
+<a id="__codelineno-3-2" name="__codelineno-3-2" href="#__codelineno-3-2"></a><span class="w">  </span>-DOPENTLV_FORMAT_ASN1<span class="o">=</span>OFF<span class="w"> </span>-DOPENTLV_LLDP<span class="o">=</span>OFF<span class="w"> </span>-DOPENTLV_DHCP<span class="o">=</span>OFF<span class="w"> </span>-DOPENTLV_NFC<span class="o">=</span>OFF
 <a id="__codelineno-3-3" name="__codelineno-3-3" href="#__codelineno-3-3"></a>cmake<span class="w"> </span>--build<span class="w"> </span>build<span class="w"> </span>--parallel<span class="w"> </span>--target<span class="w"> </span>tlv
 </code></pre></div>
 <h3 id="everything">Everything<a class="headerlink" href="#everything" title="Permanent link">&para;</a></h3>

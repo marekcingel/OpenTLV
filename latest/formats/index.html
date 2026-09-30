@@ -1760,6 +1760,34 @@
   
   
     <li class="md-nav__item">
+      <a href="nfc/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    NFC Type 2 Tag framing
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
       <a href="dhcp/" class="md-nav__link">
         
   
@@ -3166,6 +3194,11 @@ optional. Both use the same Format, Reader and Writer contracts.</p>
 </thead>
 <tbody>
 <tr>
+<td>NFC Type 2 Tag TLV stream</td>
+<td><a href="nfc/">NFC Type 2 framing</a></td>
+<td>Contiguous data-area stream; caller handles padding and termination</td>
+</tr>
+<tr>
 <td>DHCPv4 options with Pad and End</td>
 <td><a href="dhcp/">DHCPv4 option framing</a></td>
 <td>Individual options; caller handles termination and packet semantics</td>
@@ -3258,6 +3291,15 @@ explains its wire layout and supported scope.</p>
 </tr>
 </thead>
 <tbody>
+<tr>
+<td><a href="nfc/">NFC Type 2</a></td>
+<td>1 byte</td>
+<td>1 or 3 bytes; absent for NULL/Terminator</td>
+<td>65534 bytes</td>
+<td>tag, length, value; tag only for controls</td>
+<td>none</td>
+<td><code>OPENTLV_NFC</code></td>
+</tr>
 <tr>
 <td><a href="dhcp/">DHCPv4 options</a></td>
 <td>1-byte code</td>

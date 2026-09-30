@@ -241,6 +241,9 @@ Functions</h2></td></tr>
 <tr class="memitem:a7f6e7e83fa622c90e448bd2533202edd" id="r_a7f6e7e83fa622c90e448bd2533202edd"><td class="memItemLeft" align="right" valign="top">const <a class="elRef" href="../../c-api/html/group__formats.html#gac461da7e8d46362fa8e09694efb0b062">tlv_format_t</a> &amp;&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="namespacetlv.html#a7f6e7e83fa622c90e448bd2533202edd">lldp_format</a> () noexcept</td></tr>
 <tr class="memdesc:a7f6e7e83fa622c90e448bd2533202edd"><td class="mdescLeft">&#160;</td><td class="mdescRight">Returns the immutable LLDP framing preset.  <br /></td></tr>
 <tr class="separator:a7f6e7e83fa622c90e448bd2533202edd"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a00db5736c984842cb5cf12e120859833" id="r_a00db5736c984842cb5cf12e120859833"><td class="memItemLeft" align="right" valign="top">const <a class="elRef" href="../../c-api/html/group__formats.html#gac461da7e8d46362fa8e09694efb0b062">tlv_format_t</a> &amp;&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="namespacetlv.html#a00db5736c984842cb5cf12e120859833">nfc_type2_format</a> () noexcept</td></tr>
+<tr class="memdesc:a00db5736c984842cb5cf12e120859833"><td class="mdescLeft">&#160;</td><td class="mdescRight">Returns the immutable NFC Type 2 framing preset.  <br /></td></tr>
+<tr class="separator:a00db5736c984842cb5cf12e120859833"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:a4010f369042bb38cdc7ce33bdef47aa5" id="r_a4010f369042bb38cdc7ce33bdef47aa5"><td class="memTemplParams" colspan="2">template&lt;typename T &gt; </td></tr>
 <tr class="memitem:a4010f369042bb38cdc7ce33bdef47aa5"><td class="memTemplItemLeft" align="right" valign="top">std::enable_if&lt; <a class="el" href="structtlv_1_1is__tlv__codec.html">is_tlv_codec</a>&lt; T &gt;::value, <a class="el" href="classtlv_1_1expected.html">expected</a>&lt; void, <a class="el" href="structtlv_1_1error.html">error</a> &gt; &gt;::type&#160;</td><td class="memTemplItemRight" valign="bottom"><a class="el" href="namespacetlv.html#a4010f369042bb38cdc7ce33bdef47aa5">write_value</a> (<a class="el" href="classtlv_1_1writer.html">writer</a> &amp;output, const T &amp;value)</td></tr>
 <tr class="memdesc:a4010f369042bb38cdc7ce33bdef47aa5"><td class="mdescLeft">&#160;</td><td class="mdescRight">Encodes a codec value and writes it as one element.  <br /></td></tr>
@@ -1619,6 +1622,36 @@ template&lt;typename Source &gt; </div>
 </dl>
 <dl class="section return"><dt>Returns</dt><dd>Exact staged size or source/Writer error. Retry with a fresh producer. </dd></dl>
 <dl class="section warning"><dt>Warning</dt><dd>BEGIN Tags must remain alive until this operation returns. </dd></dl>
+
+</div>
+</div>
+<a id="a00db5736c984842cb5cf12e120859833" name="a00db5736c984842cb5cf12e120859833"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#a00db5736c984842cb5cf12e120859833">&#9670;&#160;</a></span>nfc_type2_format()</h2>
+
+<div class="memitem">
+<div class="memproto">
+<table class="mlabels">
+  <tr>
+  <td class="mlabels-left">
+      <table class="memname">
+        <tr>
+          <td class="memname">const <a class="elRef" href="../../c-api/html/group__formats.html#gac461da7e8d46362fa8e09694efb0b062">tlv_format_t</a> &amp; tlv::nfc_type2_format </td>
+          <td>(</td>
+          <td class="paramname"></td><td>)</td>
+          <td></td>
+        </tr>
+      </table>
+  </td>
+  <td class="mlabels-right">
+<span class="mlabels"><span class="mlabel">inline</span><span class="mlabel">noexcept</span></span>  </td>
+  </tr>
+</table>
+</div><div class="memdoc">
+
+<p>Returns the immutable NFC Type 2 framing preset. </p>
+<dl class="section return"><dt>Returns</dt><dd>Shared C descriptor with static lifetime. </dd></dl>
+<dl class="section note"><dt>Note</dt><dd>Requires <code>OPENTLV_NFC=ON</code>. The caller handles padding, termination and physical memory mapping; NDEF contents remain opaque. </dd></dl>
+<dl class="section see"><dt>See also</dt><dd><a class="elRef" href="../../c-api/html/type2_8h.html#a5f63fee79248da9ce4527d47ed674987">tlv_format_nfc_type2</a> </dd></dl>
 
 </div>
 </div>
