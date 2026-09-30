@@ -193,9 +193,12 @@ typedef tlv_result_t (*tlv_encode_fn)(const void* context, const tlv_element_t* 
  * @brief Identify a value containing elements in this same format.
  *
  * @param[in] context Borrowed configuration.
- * @param[in] tag     Successfully decoded identifier, possibly absent.
+ * @param[in] tag     Identifier, possibly absent. Readers pass a successfully decoded
+ *                   identifier; Tree Writer passes the caller's identifier at begin().
  *
  * @return Nonzero for a constructed value; zero for an opaque value.
+ * @note This predicate classifies nesting, not wire representability. Tree Writer
+ *       validates encoding constraints through measure/encode when the parent closes.
  */
 typedef int (*tlv_is_constructed_fn)(const void* context, const tlv_tag_t* tag);
 

@@ -28,6 +28,7 @@ Documentation is grouped by purpose. See
 - [Value codecs](guides/codecs.md)
 - [Copy helpers](guides/copy.md)
 - [Pull-based Reader](guides/reader.md)
+- [Bounded Tree Writer](guides/writer.md)
 - [Mutable documents](guides/document.md)
 - [Building only the components you need](guides/select-components.md)
 

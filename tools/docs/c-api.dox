@@ -32,7 +32,7 @@
  */
 /** @defgroup writer Writer
  * Encoding and stateful output into caller-owned buffers.
- * Guides: @docs{formats,formats}.
+ * Guides: @docs{formats,formats}, @docs{guides/writer,bounded Tree Writer}.
  */
 /** @defgroup traversal Traversal
  * Traversing adjacent or nested elements through the canonical Reader cursor.

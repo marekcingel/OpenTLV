@@ -37,6 +37,7 @@ add_library(${PROJECT_NAME} ${_tlv_library_type}
     src/schema/report.c
     src/schema/constraint.c
     src/writer/writer.c
+    src/writer/tree.c
     src/error.c
     ${OpenTLV_BINARY_DIR}/generated/src/version.c
     ${OpenTLV_BINARY_DIR}/generated/src/config.c

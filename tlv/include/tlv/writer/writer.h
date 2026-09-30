@@ -96,7 +96,11 @@ typedef enum tlv_writer_operation {
     /** Copying an unvalidated encoded byte range. */
     TLV_WRITER_OP_COPY,
     /** Checking and preserving original source bytes. */
-    TLV_WRITER_OP_PRESERVE
+    TLV_WRITER_OP_PRESERVE,
+    /** Opening a constructed element or checking tree resource limits. */
+    TLV_WRITER_OP_BEGIN,
+    /** Closing a constructed element or checking its workspace capacity. */
+    TLV_WRITER_OP_END
 } tlv_writer_operation_t;
 
 /**

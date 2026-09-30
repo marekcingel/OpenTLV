@@ -8,6 +8,7 @@
  */
 
 #include "tlv/attributes.h"
+#include "tlv/defaults.h"
 #include "tlv/compiler.h"
 #include "tlv/element.h"
 #include "tlv/definition.h"
@@ -26,6 +27,7 @@
 #include "tlv/reader/visitor.h"
 #include "tlv/query/query.h"
 #include "tlv/writer/writer.h"
+#include "tlv/writer/tree.h"
 #include "tlv/schema/schema.h"
 #include "tlv/schema/constraint.h"
 #include "tlv/config.h"

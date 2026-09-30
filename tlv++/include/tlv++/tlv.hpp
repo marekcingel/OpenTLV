@@ -15,6 +15,7 @@
 #include "tlv++/formats/fixed_format.hpp"
 #include "tlv++/reader/reader.hpp"
 #include "tlv++/writer/writer.hpp"
+#include "tlv++/writer/tree.hpp"
 #include "tlv++/codec/registry.hpp"
 #include "tlv++/codec/structure.hpp"
 #include "tlv++/reader/visitor.hpp"

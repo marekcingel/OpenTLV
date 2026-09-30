@@ -2,6 +2,13 @@ cmake_minimum_required(VERSION 3.16)
 
 project(example-tlv LANGUAGES C)
 
+add_executable(example-tlv-tree-writer src/tree_writer.c)
+target_link_libraries(example-tlv-tree-writer PRIVATE tlv)
+opentlv_configure_compiler(example-tlv-tree-writer)
+opentlv_copy_shared_runtime(example-tlv-tree-writer)
+add_test(NAME Integration_example_tlv_tree_writer COMMAND $<TARGET_FILE:example-tlv-tree-writer>)
+set_tests_properties(Integration_example_tlv_tree_writer PROPERTIES LABELS "integration;examples")
+
 add_executable(example-tlv-incremental-reader src/incremental_reader.c)
 target_link_libraries(example-tlv-incremental-reader PRIVATE tlv)
 opentlv_configure_compiler(example-tlv-incremental-reader)

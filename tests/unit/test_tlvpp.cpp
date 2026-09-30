@@ -12,6 +12,34 @@
 #include <string>
 #include <type_traits>
 
+TEST(Unit_Tlvpp, TreeWriterBorrowsStorageAndReportsInitializationErrors) {
+    tlv_format_t format = controlled::format;
+    format.is_constructed = [](const void*, const tlv_tag_t* tag) {
+        return tag->size == 1 && tag->data[0] == 0xE1 ? 1 : 0;
+    };
+    std::array<tlv::byte, 8> output{}, scratch{};
+    tlv::tree_writer_frame   frame{};
+    tlv::tree_writer         writer(output.data(), output.size(), format, &frame, 1, scratch.data(),
+                                    scratch.size());
+    const tlv::element       leaf = {TLV_TAG(1), {nullptr, 0}};
+    ASSERT_TRUE(writer.begin(TLV_TAG(0xE1)).has_value());
+    ASSERT_TRUE(writer.write(leaf).has_value());
+    EXPECT_EQ(0u, writer.size());
+    EXPECT_FALSE(writer.finish().has_value());
+    ASSERT_TRUE(writer.end().has_value());
+    EXPECT_EQ(4u, writer.size());
+    EXPECT_TRUE(writer.finish().has_value());
+    EXPECT_EQ(tlv::byte{0xE1}, output[0]);
+    EXPECT_EQ(tlv::byte{2}, output[1]);
+    const tlv_format_t invalid{};
+    tlv::tree_writer   bad(output.data(), output.size(), invalid, &frame, 1, nullptr, 0);
+    EXPECT_FALSE(bad.begin(TLV_TAG(0xE1)).has_value());
+    EXPECT_FALSE(bad.write(leaf).has_value());
+    EXPECT_FALSE(bad.end().has_value());
+    EXPECT_FALSE(bad.finish().has_value());
+    EXPECT_EQ(0u, bad.size());
+}
+
 TEST(Unit_Tlvpp, CanonicalWriterMeasuresPreservesAndCopiesIntoCallerStorage) {
     const uint8_t original[] = {0xFF, 1, 0xAB};
     tlv_decoded_t decoded{};
