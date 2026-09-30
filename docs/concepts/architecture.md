@@ -18,6 +18,7 @@ DECLARATIVE / SEMANTIC MODEL
 ────────────────────────────
 Definition
 Format
+Field Encoding
 Schema
 Codec
 
@@ -25,21 +26,22 @@ RUNTIME REPRESENTATION
 ────────────────────────────
 Element
 Layout
+Document (owned representation)
 
 OPERATIONS
 ────────────────────────────
 Reader
 Writer
-Document
 Query
 Visitor
 ...
 ```
 
 The declarative/semantic model describes meaning and rules: a Definition
-associates an identifier with a descriptive name in a registry, Format defines wire encoding,
-Schema defines structural constraints, and Codec defines conversion between
-Value bytes and application values. These roles can be implemented by tables,
+associates an identifier with a descriptive name in a registry, Format defines
+wire encoding, Field Encoding supplies reusable wire-field mechanics, Schema
+defines structural constraints, and Codec defines conversion between Value
+bytes and application values. These roles can be implemented by tables,
 descriptors and executable callbacks.
 
 The runtime representation describes a concrete instance. Element holds its
@@ -51,13 +53,35 @@ binary layouts declared in `tlv/layout.h` configure Format composition; they
 are reusable rules rather than a decoded instance's runtime layout.
 
 Operations consume or produce these representations using the selected model.
-Reader and Writer process caller-owned buffers, Document supports editable collections of
-elements, Query selects elements, and Visitor participates in traversal.
+Reader and Writer process caller-owned buffers, Query selects elements, and
+Visitor participates in traversal. Document is the core owned representation
+built on these primitives and supports editable collections of elements.
 Operations can carry runtime state; these categories describe their primary
 roles, not a one-to-one mapping to directories or C types.
 
 See the [Format and Element contract](format-contract.md) for the precise
 boundary between semantic content, source layout and wire preservation.
+
+## Planned runtime and compiled models
+
+The [roadmap](../../ROADMAP.md) separates Execution Foundation (Phase 1),
+Runtime Model & OTLV (Phase 2), and Compilation (Phase 3). The latter two are
+planned capabilities built on the current execution contracts.
+
+Phase 2 makes Definition, Format / Field Encoding / Layout configuration,
+Schema and Codec dynamically describable as one complete model. The `.otlv`
+frontend produces an AST, performs semantic analysis and symbol resolution,
+and constructs a canonical internal IR. Runtime lowering builds an immutable
+`tlv_model_t` and supplies the existing execution descriptors. `tlv_format_t`
+remains a lightweight execution descriptor, not the canonical semantic Format
+representation. Loading and model construction may allocate; subsequent TLV
+processing should remain allocation-free with explicit buffers/workspaces.
+Document remains an explicitly owning representation with its own storage needs.
+
+Phase 3 consumes the same frontend and IR through an optimizer/code generator.
+Runtime and compiled backends preserve equivalent OTLV semantics. It completes
+the planned foundational architecture; subsequent SemVer major versions do not
+introduce additional architectural phases by implication.
 
 ## Responsibilities and dependency direction
 

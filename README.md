@@ -200,15 +200,18 @@ Start with the [documentation index](docs/README.md), or choose a topic:
 
 ## Long-term direction
 
-OpenTLV 1.x is the stable, compile-time foundation described above: a
-portable C core and C++ wrapper with built-in formats, schemas, and codecs
-defined at compile time. Beyond 1.x, the project's planned direction moves
-toward runtime-defined TLV formats (an OpenTLV Definition Language, or OTDL),
-a runtime semantic model for interpreting decoded values, and an
-`opentlv-gen` compiler that generates native C/C++ code from OTDL
-definitions. See [ROADMAP.md](ROADMAP.md) for the full stage-by-stage plan;
-future major-version functionality described there is direction, not a
-committed API or implementation design.
+OpenTLV's roadmap has three architectural phases: **Execution Foundation**,
+**Runtime Model & OTLV**, and **Compilation**. Phase 1 discovers and stabilizes
+the reusable C execution primitives through independent real-world TLV
+standards. Phase 2 makes the complete wire, structural and semantic model
+runtime-configurable through `.otlv`, a canonical IR and an immutable runtime
+model. Phase 3 reuses that frontend and IR to generate specialized implementations
+with equivalent semantics, completing the planned foundational architecture.
+
+See [ROADMAP.md](ROADMAP.md) for scope and milestone descriptions. Future APIs
+and language syntax remain planned. Architectural phases are separate from
+SemVer major versions: releases after Phase 3 continue normal compatible and
+breaking evolution without implying additional phases.
 
 ## Releases and contributing
 
