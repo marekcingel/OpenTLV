@@ -10,13 +10,13 @@
       
       
       
-        <link rel="canonical" href="https://marekcingel.github.io/OpenTLV/latest/reference/compilers/">
+        <link rel="canonical" href="https://marekcingel.github.io/OpenTLV/latest/concepts/runtime-model/">
       
       
-        <link rel="prev" href="../cxx-api/">
+        <link rel="prev" href="../architecture/">
       
       
-        <link rel="next" href="../errors/">
+        <link rel="next" href="../processing-pipeline/">
       
       
         
@@ -27,7 +27,7 @@
     
     
       
-        <title>Compilers and build settings - OpenTLV</title>
+        <title>Runtime model and canonical IR - OpenTLV</title>
       
     
     
@@ -80,7 +80,7 @@
     <div data-md-component="skip">
       
         
-        <a href="#supported-compilers" class="md-skip">
+        <a href="#phase-2-runtime-model-and-canonical-ir" class="md-skip">
           Skip to content
         </a>
       
@@ -131,7 +131,7 @@
         <div class="md-header__topic" data-md-component="header-topic">
           <span class="md-ellipsis">
             
-              Compilers and build settings
+              Runtime model and canonical IR
             
           </span>
         </div>
@@ -281,11 +281,13 @@
   
   
   
+    
+  
   
     
     
-      <li class="md-tabs__item">
-        <a href="../../concepts/architecture/" class="md-tabs__link">
+      <li class="md-tabs__item md-tabs__item--active">
+        <a href="../architecture/" class="md-tabs__link">
           
   
   
@@ -401,13 +403,11 @@
   
   
   
-    
-  
   
     
     
-      <li class="md-tabs__item md-tabs__item--active">
-        <a href="../" class="md-tabs__link">
+      <li class="md-tabs__item">
+        <a href="../../reference/" class="md-tabs__link">
           
   
   
@@ -601,26 +601,31 @@
       
   
   
+    
   
   
+  
     
     
     
     
+      
+        
+        
       
       
         
       
     
     
-    <li class="md-nav__item md-nav__item--nested">
+    <li class="md-nav__item md-nav__item--active md-nav__item--section md-nav__item--nested">
       
         
         
-        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_3" >
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_3" checked>
         
           
-          <label class="md-nav__link" for="__nav_3" id="__nav_3_label" tabindex="0">
+          <label class="md-nav__link" for="__nav_3" id="__nav_3_label" tabindex="">
             
   
   
@@ -638,7 +643,7 @@
             <span class="md-nav__icon md-icon"></span>
           </label>
         
-        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_3_label" aria-expanded="false">
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_3_label" aria-expanded="true">
           <label class="md-nav__title" for="__nav_3">
             <span class="md-nav__icon md-icon"></span>
             
@@ -656,7 +661,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../concepts/architecture/" class="md-nav__link">
+      <a href="../architecture/" class="md-nav__link">
         
   
   
@@ -681,10 +686,37 @@
                 
   
   
+    
   
   
-    <li class="md-nav__item">
-      <a href="../../concepts/runtime-model/" class="md-nav__link">
+  
+    <li class="md-nav__item md-nav__item--active">
+      
+      <input class="md-nav__toggle md-toggle" type="checkbox" id="__toc">
+      
+      
+        
+      
+      
+        <label class="md-nav__link md-nav__link--active" for="__toc">
+          
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Runtime model and canonical IR
+  
+
+    
+  </span>
+  
+  
+
+          <span class="md-nav__icon md-icon"></span>
+        </label>
+      
+      <a href="./" class="md-nav__link md-nav__link--active">
         
   
   
@@ -700,6 +732,114 @@
   
 
       </a>
+      
+        
+
+<nav class="md-nav md-nav--secondary" aria-label="Table of contents">
+  
+  
+  
+    
+  
+  
+    <label class="md-nav__title" for="__toc">
+      <span class="md-nav__icon md-icon"></span>
+      Table of contents
+    </label>
+    <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
+      
+        <li class="md-nav__item">
+  <a href="#from-source-to-execution" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        From source to execution
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#ast-and-semantic-analysis" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        AST and semantic analysis
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#canonical-ir" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Canonical IR
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#model-ownership-and-lifetime" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Model ownership and lifetime
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#lowering-and-execution-descriptors" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Lowering and execution descriptors
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#allocation-boundary" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Allocation boundary
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#shared-ir-for-runtime-and-compilation" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Shared IR for runtime and compilation
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#evolution-and-standards-playground" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Evolution and standards playground
+      
+    </span>
+  </a>
+  
+</li>
+      
+    </ul>
+  
+</nav>
+      
     </li>
   
 
@@ -712,7 +852,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../concepts/processing-pipeline/" class="md-nav__link">
+      <a href="../processing-pipeline/" class="md-nav__link">
         
   
   
@@ -740,7 +880,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../concepts/architectural-rules/" class="md-nav__link">
+      <a href="../architectural-rules/" class="md-nav__link">
         
   
   
@@ -768,7 +908,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../concepts/core-types/" class="md-nav__link">
+      <a href="../core-types/" class="md-nav__link">
         
   
   
@@ -796,7 +936,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../concepts/format-contract/" class="md-nav__link">
+      <a href="../format-contract/" class="md-nav__link">
         
   
   
@@ -824,7 +964,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../concepts/definition-boundaries/" class="md-nav__link">
+      <a href="../definition-boundaries/" class="md-nav__link">
         
   
   
@@ -852,7 +992,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../concepts/value/" class="md-nav__link">
+      <a href="../value/" class="md-nav__link">
         
   
   
@@ -880,7 +1020,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../concepts/length/" class="md-nav__link">
+      <a href="../length/" class="md-nav__link">
         
   
   
@@ -908,7 +1048,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../concepts/endian/" class="md-nav__link">
+      <a href="../endian/" class="md-nav__link">
         
   
   
@@ -936,7 +1076,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../concepts/bindings/" class="md-nav__link">
+      <a href="../bindings/" class="md-nav__link">
         
   
   
@@ -2215,31 +2355,26 @@
       
   
   
-    
   
   
-  
     
     
     
     
-      
-        
-        
       
       
         
       
     
     
-    <li class="md-nav__item md-nav__item--active md-nav__item--section md-nav__item--nested">
+    <li class="md-nav__item md-nav__item--nested">
       
         
         
-        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_9" checked>
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_9" >
         
           
-          <label class="md-nav__link" for="__nav_9" id="__nav_9_label" tabindex="">
+          <label class="md-nav__link" for="__nav_9" id="__nav_9_label" tabindex="0">
             
   
   
@@ -2257,7 +2392,7 @@
             <span class="md-nav__icon md-icon"></span>
           </label>
         
-        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_9_label" aria-expanded="true">
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_9_label" aria-expanded="false">
           <label class="md-nav__title" for="__nav_9">
             <span class="md-nav__icon md-icon"></span>
             
@@ -2275,7 +2410,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../" class="md-nav__link">
+      <a href="../../reference/" class="md-nav__link">
         
   
   
@@ -2303,7 +2438,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../c-api/" class="md-nav__link">
+      <a href="../../reference/c-api/" class="md-nav__link">
         
   
   
@@ -2331,7 +2466,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../cxx-api/" class="md-nav__link">
+      <a href="../../reference/cxx-api/" class="md-nav__link">
         
   
   
@@ -2356,37 +2491,10 @@
                 
   
   
-    
   
   
-  
-    <li class="md-nav__item md-nav__item--active">
-      
-      <input class="md-nav__toggle md-toggle" type="checkbox" id="__toc">
-      
-      
-        
-      
-      
-        <label class="md-nav__link md-nav__link--active" for="__toc">
-          
-  
-  
-  <span class="md-ellipsis">
-    
-  
-    Compilers and build settings
-  
-
-    
-  </span>
-  
-  
-
-          <span class="md-nav__icon md-icon"></span>
-        </label>
-      
-      <a href="./" class="md-nav__link md-nav__link--active">
+    <li class="md-nav__item">
+      <a href="../../reference/compilers/" class="md-nav__link">
         
   
   
@@ -2402,37 +2510,6 @@
   
 
       </a>
-      
-        
-
-<nav class="md-nav md-nav--secondary" aria-label="Table of contents">
-  
-  
-  
-    
-  
-  
-    <label class="md-nav__title" for="__toc">
-      <span class="md-nav__icon md-icon"></span>
-      Table of contents
-    </label>
-    <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
-      
-        <li class="md-nav__item">
-  <a href="#building-with-clang" class="md-nav__link">
-    <span class="md-ellipsis">
-      
-        Building with Clang
-      
-    </span>
-  </a>
-  
-</li>
-      
-    </ul>
-  
-</nav>
-      
     </li>
   
 
@@ -2445,7 +2522,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../errors/" class="md-nav__link">
+      <a href="../../reference/errors/" class="md-nav__link">
         
   
   
@@ -2811,10 +2888,87 @@
     <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
       
         <li class="md-nav__item">
-  <a href="#building-with-clang" class="md-nav__link">
+  <a href="#from-source-to-execution" class="md-nav__link">
     <span class="md-ellipsis">
       
-        Building with Clang
+        From source to execution
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#ast-and-semantic-analysis" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        AST and semantic analysis
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#canonical-ir" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Canonical IR
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#model-ownership-and-lifetime" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Model ownership and lifetime
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#lowering-and-execution-descriptors" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Lowering and execution descriptors
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#allocation-boundary" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Allocation boundary
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#shared-ir-for-runtime-and-compilation" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Shared IR for runtime and compilation
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#evolution-and-standards-playground" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Evolution and standards playground
       
     </span>
   </a>
@@ -2838,7 +2992,7 @@
 
 
   
-    <a href="https://github.com/marekcingel/OpenTLV/edit/main/docs/reference/compilers.md" title="Edit this page" class="md-content__button md-icon" rel="edit">
+    <a href="https://github.com/marekcingel/OpenTLV/edit/main/docs/concepts/runtime-model.md" title="Edit this page" class="md-content__button md-icon" rel="edit">
       
       <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M10 20H6V4h7v5h5v3.1l2-2V8l-6-6H6c-1.1 0-2 .9-2 2v16c0 1.1.9 2 2 2h4zm10.2-7c.1 0 .3.1.4.2l1.3 1.3c.2.2.2.6 0 .8l-1 1-2.1-2.1 1-1c.1-.1.2-.2.4-.2m0 3.9L14.1 23H12v-2.1l6.1-6.1z"/></svg>
     </a>
@@ -2846,45 +3000,217 @@
   
 
 
-<h1 id="supported-compilers">Supported compilers<a class="headerlink" href="#supported-compilers" title="Permanent link">&para;</a></h1>
-<p>OpenTLV supports GCC, MSVC, and upstream Clang 18 or newer. The Clang
-minimum is checked by CMake; CI uses Clang 18 on Ubuntu 24.04 with libstdc++.
-AppleClang and clang-cl are not part of the supported CI configuration.</p>
-<p>The C API requires C99. The header-only C++ API supports C++11, C++14,
-C++17, C++20, and C++23. A matching C++ standard library is required;
-the wrapper uses its compatibility implementations when optional library
-features such as <code>std::expected</code> are unavailable.</p>
-<p>CI builds and tests Debug and Release configurations. GCC and MSVC use C++11
-for Debug and C++23 for Release; Clang 18 uses strict C99 and C++23 in both
-configurations and also verifies C-only builds. The Clang job runs the C and
-C++ examples and publishes a combined unit and integration test coverage report for Debug.</p>
-<p>GoogleTest v1.18 requires C++17, so test targets use at least C++17 even
-when the wrapper and examples are configured for C++11 or C++14. The C++
-example does not link GoogleTest. C++14, C++17, and C++20 remain selectable
-locally but are not separate entries in the current CI matrix.
-Clang compilation and testing do not depend on clang-tidy or static analysis.</p>
-<h2 id="building-with-clang">Building with Clang<a class="headerlink" href="#building-with-clang" title="Permanent link">&para;</a></h2>
-<p>With Clang 18 or newer and CMake 3.20 or newer installed (CMake 3.16 is
-sufficient for C++11 through C++20):</p>
-<div class="highlight"><pre><span></span><code><a id="__codelineno-0-1" name="__codelineno-0-1" href="#__codelineno-0-1"></a>cmake<span class="w"> </span>-S<span class="w"> </span>.<span class="w"> </span>-B<span class="w"> </span>build-clang<span class="w"> </span>-G<span class="w"> </span>Ninja<span class="w"> </span><span class="se">\</span>
-<a id="__codelineno-0-2" name="__codelineno-0-2" href="#__codelineno-0-2"></a><span class="w">  </span>-DCMAKE_C_COMPILER<span class="o">=</span>clang<span class="w"> </span>-DCMAKE_CXX_COMPILER<span class="o">=</span>clang++<span class="w"> </span><span class="se">\</span>
-<a id="__codelineno-0-3" name="__codelineno-0-3" href="#__codelineno-0-3"></a><span class="w">  </span>-DCMAKE_BUILD_TYPE<span class="o">=</span>Release<span class="w"> </span><span class="se">\</span>
-<a id="__codelineno-0-4" name="__codelineno-0-4" href="#__codelineno-0-4"></a><span class="w">  </span>-DCMAKE_C_STANDARD<span class="o">=</span><span class="m">99</span><span class="w"> </span>-DCMAKE_C_STANDARD_REQUIRED<span class="o">=</span>ON<span class="w"> </span>-DCMAKE_C_EXTENSIONS<span class="o">=</span>OFF<span class="w"> </span><span class="se">\</span>
-<a id="__codelineno-0-5" name="__codelineno-0-5" href="#__codelineno-0-5"></a><span class="w">  </span>-DCMAKE_CXX_STANDARD<span class="o">=</span><span class="m">23</span><span class="w"> </span>-DCMAKE_CXX_STANDARD_REQUIRED<span class="o">=</span>ON<span class="w"> </span>-DCMAKE_CXX_EXTENSIONS<span class="o">=</span>OFF<span class="w"> </span><span class="se">\</span>
-<a id="__codelineno-0-6" name="__codelineno-0-6" href="#__codelineno-0-6"></a><span class="w">  </span>-DOPENTLV_WARNINGS_AS_ERRORS<span class="o">=</span>ON
-<a id="__codelineno-0-7" name="__codelineno-0-7" href="#__codelineno-0-7"></a>cmake<span class="w"> </span>--build<span class="w"> </span>build-clang
-<a id="__codelineno-0-8" name="__codelineno-0-8" href="#__codelineno-0-8"></a>ctest<span class="w"> </span>--test-dir<span class="w"> </span>build-clang<span class="w"> </span>--output-on-failure
+<h1 id="phase-2-runtime-model-and-canonical-ir">Phase 2 runtime model and canonical IR<a class="headerlink" href="#phase-2-runtime-model-and-canonical-ir" title="Permanent link">&para;</a></h1>
+<p>This page defines the intended Phase 2 architecture for issue #420. It guides
+Phase 1 design; it does not introduce an implemented runtime, OTLV syntax or
+public model API. The <a href="https://github.com/marekcingel/OpenTLV/blob/main/ROADMAP.md">roadmap</a> places Runtime Model &amp; OTLV
+after the Execution Foundation and before Compilation. The
+<a href="../architectural-rules/">core architectural rules</a> apply to all three phases.</p>
+<h2 id="from-source-to-execution">From source to execution<a class="headerlink" href="#from-source-to-execution" title="Permanent link">&para;</a></h2>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-0-1" name="__codelineno-0-1" href="#__codelineno-0-1"></a>.otlv source
+<a id="__codelineno-0-2" name="__codelineno-0-2" href="#__codelineno-0-2"></a>     ↓
+<a id="__codelineno-0-3" name="__codelineno-0-3" href="#__codelineno-0-3"></a>parser
+<a id="__codelineno-0-4" name="__codelineno-0-4" href="#__codelineno-0-4"></a>     ↓
+<a id="__codelineno-0-5" name="__codelineno-0-5" href="#__codelineno-0-5"></a>AST
+<a id="__codelineno-0-6" name="__codelineno-0-6" href="#__codelineno-0-6"></a>     ↓
+<a id="__codelineno-0-7" name="__codelineno-0-7" href="#__codelineno-0-7"></a>resolver / semantic analysis
+<a id="__codelineno-0-8" name="__codelineno-0-8" href="#__codelineno-0-8"></a>     ↓
+<a id="__codelineno-0-9" name="__codelineno-0-9" href="#__codelineno-0-9"></a>canonical IR
+<a id="__codelineno-0-10" name="__codelineno-0-10" href="#__codelineno-0-10"></a>     ↓
+<a id="__codelineno-0-11" name="__codelineno-0-11" href="#__codelineno-0-11"></a>tlv_model_t
+<a id="__codelineno-0-12" name="__codelineno-0-12" href="#__codelineno-0-12"></a>     ↓
+<a id="__codelineno-0-13" name="__codelineno-0-13" href="#__codelineno-0-13"></a>lowering
+<a id="__codelineno-0-14" name="__codelineno-0-14" href="#__codelineno-0-14"></a>     ↓
+<a id="__codelineno-0-15" name="__codelineno-0-15" href="#__codelineno-0-15"></a>execution descriptors
+<a id="__codelineno-0-16" name="__codelineno-0-16" href="#__codelineno-0-16"></a>     ↓
+<a id="__codelineno-0-17" name="__codelineno-0-17" href="#__codelineno-0-17"></a>Reader / Writer / Document
 </code></pre></div>
-<p>Select <code>11</code>, <code>14</code>, <code>17</code>, <code>20</code>, or <code>23</code> with <code>CMAKE_CXX_STANDARD</code>.
-For a C-only build without GoogleTest, also pass
-<code>-DOPENTLV_BUILD_CXX=OFF -DOPENTLV_BUILD_TESTS=OFF -DOPENTLV_BUILD_BENCHMARKS=OFF</code>.</p>
-<p>OpenTLV's own compiled targets enable <code>-Wall -Wextra -Wpedantic</code> with Clang,
-plus <code>-Wstrict-prototypes</code> for C.</p>
-<p><code>OPENTLV_WARNINGS_AS_ERRORS</code> defaults to <code>ON</code> for all supported compilers:
-it adds <code>-Werror</code> for GCC and Clang, and <code>/WX</code> for MSVC, for both C and C++.
-Pass <code>-DOPENTLV_WARNINGS_AS_ERRORS=OFF</code> to disable this behavior.
-These options are private to OpenTLV's compiled targets and do not propagate
-to library consumers or third-party dependencies.</p>
+<p>This is a conceptual construction and execution path, not a requirement for
+separate public APIs at every step. Model construction includes lowering and
+preparing execution contexts before publishing a successfully constructed,
+immutable model. Processing bytes must not trigger deferred parsing, resolution
+or allocating compilation work.</p>
+<p>OTLV is one frontend for an OpenTLV model. Other frontends or programmatic
+builders may produce the same canonical semantics. Native implementations
+remain usable directly through the existing execution contracts without an
+OTLV frontend or a runtime model.</p>
+<h2 id="ast-and-semantic-analysis">AST and semantic analysis<a class="headerlink" href="#ast-and-semantic-analysis" title="Permanent link">&para;</a></h2>
+<p>The abstract syntax tree (AST) represents source syntax. It may retain source
+locations, names, imports, aliases, syntactic shorthand and unresolved
+references. It belongs to the frontend and must not enter the TLV processing
+path.</p>
+<p>The resolver and semantic analysis establish symbol identity, resolve imports
+and references, validate semantic consistency and normalize shorthand before
+producing canonical IR. Invalid or unresolved source must not become an
+executable model. Diagnostics may retain source provenance, but source spelling
+and locations do not define runtime semantics.</p>
+<p>Execution must not borrow AST nodes or depend on source text remaining alive.
+Any data needed after construction must have an explicit model or external
+lifetime contract.</p>
+<h2 id="canonical-ir">Canonical IR<a class="headerlink" href="#canonical-ir" title="Permanent link">&para;</a></h2>
+<p>The canonical intermediate representation describes resolved, normalized model
+semantics: what the model means, independently of a particular execution
+backend. Equivalent source descriptions should be capable of producing the
+same conceptual IR despite differences in aliases, imports or shorthand. This
+does not require a stable binary serialization or byte-identical IR storage.</p>
+<p>The IR must express the existing conceptual boundaries:</p>
+<table>
+<thead>
+<tr>
+<th>Concept</th>
+<th>Semantic responsibility in the model</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Definition</td>
+<td>Identifiers and descriptive names within a registry; no wire encoding or contextual validation policy.</td>
+</tr>
+<tr>
+<td>Format</td>
+<td>Complete element framing, field order, length scope and constructed representation.</td>
+</tr>
+<tr>
+<td>Field Encoding</td>
+<td>Reusable fixed-width, variable-width and packed wire-field mechanics.</td>
+</tr>
+<tr>
+<td>Layout</td>
+<td>Rules/configuration for arranging wire parts and producing source ranges; concrete offsets belong to decoded instances.</td>
+</tr>
+<tr>
+<td>Schema</td>
+<td>Structural and contextual constraints such as occurrence, ordering, allowed children and field lengths.</td>
+</tr>
+<tr>
+<td>Codec</td>
+<td>Interpretation and conversion of Value bytes using the selected value representation.</td>
+</tr>
+</tbody>
+</table>
+<p>Layout needs this distinction because a compiled model describes reusable
+rules, while the Layout of a particular Element is produced only when those
+rules are applied to bytes. The existing <code>tlv_source_t</code> / <code>tlv_range_t</code> and
+<code>tlv_element_t</code> contracts remain the runtime representations; the IR does not
+introduce a parallel runtime Element.</p>
+<p>Standard-specific policy stays in standards and extensions. The IR should
+describe compositions of reusable mechanisms and explicit semantic
+capabilities, rather than requiring protocol branches in generic Reader or
+Writer code. Callback addresses and opaque backend contexts are not a
+sufficient canonical description of model semantics.</p>
+<h2 id="model-ownership-and-lifetime">Model ownership and lifetime<a class="headerlink" href="#model-ownership-and-lifetime" title="Permanent link">&para;</a></h2>
+<p>The planned <code>tlv_model_t</code> is the ownership and lifetime boundary for a compiled
+runtime model. It is an OpenTLV object, not an OTLV-specific syntax object.
+It may own:</p>
+<ul>
+<li>canonical IR objects and resolved references;</li>
+<li>tag and constant storage;</li>
+<li>Format, Schema and Codec configuration;</li>
+<li>lookup tables and indexes;</li>
+<li>lowered execution contexts and descriptor storage.</li>
+</ul>
+<p>A successfully constructed model is immutable. Any required execution
+configuration must be prepared before it is published. Per-operation cursor
+state, output buffers and scratch workspaces belong to the operation or caller,
+not to mutable shared model state.</p>
+<p>Descriptors and their immutable contexts may borrow model-owned storage.
+The model must outlive every operation or retained descriptor using that storage.
+Copying a lightweight descriptor does not extend the owner's lifetime. A
+retained Element may also borrow model-owned identifier bytes, so its lifetime
+must respect both model storage and input-buffer storage as applicable. Model
+ownership does not imply ownership of the input TLV bytes.</p>
+<p>Builders and loaders must make any external lifetime dependencies explicit;
+they must not leave execution dependent on temporary frontend storage. The
+exact destruction, handle and binding ownership APIs remain Phase 2 design
+work. These requirements build on the existing
+<a href="../../guides/memory/#format-context-ownership-and-lifetime">Format context ownership contract</a>.</p>
+<h2 id="lowering-and-execution-descriptors">Lowering and execution descriptors<a class="headerlink" href="#lowering-and-execution-descriptors" title="Permanent link">&para;</a></h2>
+<p>Existing descriptors such as <code>tlv_format_t</code> are lightweight execution interfaces
+with function pointers and borrowed immutable contexts. They are optimized for
+executing a contract, not for expressing or introspecting its full semantics.</p>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-1-1" name="__codelineno-1-1" href="#__codelineno-1-1"></a>canonical IR
+<a id="__codelineno-1-2" name="__codelineno-1-2" href="#__codelineno-1-2"></a>     ↓
+<a id="__codelineno-1-3" name="__codelineno-1-3" href="#__codelineno-1-3"></a>lowering
+<a id="__codelineno-1-4" name="__codelineno-1-4" href="#__codelineno-1-4"></a>     ↓
+<a id="__codelineno-1-5" name="__codelineno-1-5" href="#__codelineno-1-5"></a>tlv_format_t + execution context
+<a id="__codelineno-1-6" name="__codelineno-1-6" href="#__codelineno-1-6"></a>     ↓
+<a id="__codelineno-1-7" name="__codelineno-1-7" href="#__codelineno-1-7"></a>Reader / Writer
+</code></pre></div>
+<p>Lowering selects implementations and prepares the configuration needed to
+execute the resolved semantics. Schema and Codec configuration must likewise
+use their shared execution contracts. Reader and Writer consume descriptors;
+they do not parse OTLV, traverse the AST or interpret canonical IR objects.
+Document composes the existing processing primitives and remains the owned
+representation of message data, distinct from the model that describes it.</p>
+<p>The dependency direction is from frontend/model construction toward execution
+contracts. Generic processing must not depend on the frontend or model loader.
+Reader still works with Format alone: Definition lookup, Schema validation and
+Codec interpretation remain optional consumers rather than mandatory parsing
+stages. See the <a href="../format-contract/">Format and Element contract</a>.</p>
+<h2 id="allocation-boundary">Allocation boundary<a class="headerlink" href="#allocation-boundary" title="Permanent link">&para;</a></h2>
+<blockquote>
+<p>Allocation belongs to model construction, never to TLV processing.</p>
+</blockquote>
+<p>For the runtime model, this means parsing, resolution, IR construction,
+lowering and preparation of indexes/contexts may allocate. Once construction
+has succeeded, using the immutable model must preserve the allocation-free
+execution properties of the C core. Reader, Writer and other bounded hot-path
+operations use explicit caller-provided buffers and workspaces; model-backed
+callbacks must not introduce hidden heap allocation.</p>
+<p>This principle does not remove the storage requirements of explicitly owning
+operations such as Document construction, mutation or encoding with temporary
+storage. Those allocations remain part of the owning API's documented
+contract, separate from model execution. Loading a model does not make an
+owning operation allocation-free.</p>
+<p>A future caller-provided arena or workspace may also allow model construction
+without heap allocation. Its capacity, lifetime and failure contracts are
+future design work, not prerequisites for documenting this boundary.</p>
+<h2 id="shared-ir-for-runtime-and-compilation">Shared IR for runtime and compilation<a class="headerlink" href="#shared-ir-for-runtime-and-compilation" title="Permanent link">&para;</a></h2>
+<p>The same canonical IR must eventually support both backends:</p>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-2-1" name="__codelineno-2-1" href="#__codelineno-2-1"></a>canonical IR ──→ runtime model / lowering ──→ execution descriptors
+<a id="__codelineno-2-2" name="__codelineno-2-2" href="#__codelineno-2-2"></a>       │
+<a id="__codelineno-2-3" name="__codelineno-2-3" href="#__codelineno-2-3"></a>       └───────→ optimizer / code generation ──→ generated implementation
+</code></pre></div>
+<p>The generated/optimized implementation must preserve the same wire, structural
+and Value semantics and the same execution contracts. Runtime callback state
+must not be the only place where meaning is recorded: that would force code
+generation to reconstruct semantics from an execution implementation.</p>
+<p>This is a Phase 1 design requirement and a Phase 3 backend direction, not a
+request to implement compilation during Phase 1 or Phase 2. An alternative
+frontend should not require a different runtime or compilation architecture.</p>
+<h2 id="evolution-and-standards-playground">Evolution and standards playground<a class="headerlink" href="#evolution-and-standards-playground" title="Permanent link">&para;</a></h2>
+<p>The canonical IR initially need not be a stable public C ABI. Phase 2 is the
+period in which real models can expose missing abstractions and the IR,
+runtime model and OTLV language can evolve together. Public APIs may expose
+<code>tlv_model_t</code>, loading, builders and semantic introspection without exposing
+the exact internal IR representation. Introspection must not require callers
+to reverse-engineer execution callbacks or their opaque contexts.</p>
+<p>Continue the Phase 1 standards-playground method at the model level:</p>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-3-1" name="__codelineno-3-1" href="#__codelineno-3-1"></a>real standard
+<a id="__codelineno-3-2" name="__codelineno-3-2" href="#__codelineno-3-2"></a>     ↓
+<a id="__codelineno-3-3" name="__codelineno-3-3" href="#__codelineno-3-3"></a>OTLV model
+<a id="__codelineno-3-4" name="__codelineno-3-4" href="#__codelineno-3-4"></a>     ↓
+<a id="__codelineno-3-5" name="__codelineno-3-5" href="#__codelineno-3-5"></a>missing semantic capability?
+<a id="__codelineno-3-6" name="__codelineno-3-6" href="#__codelineno-3-6"></a>     ↓
+<a id="__codelineno-3-7" name="__codelineno-3-7" href="#__codelineno-3-7"></a>identify the smallest reusable abstraction
+<a id="__codelineno-3-8" name="__codelineno-3-8" href="#__codelineno-3-8"></a>     ↓
+<a id="__codelineno-3-9" name="__codelineno-3-9" href="#__codelineno-3-9"></a>extend / refine IR
+<a id="__codelineno-3-10" name="__codelineno-3-10" href="#__codelineno-3-10"></a>     ↓
+<a id="__codelineno-3-11" name="__codelineno-3-11" href="#__codelineno-3-11"></a>verify against other standards
+</code></pre></div>
+<p>Use independent standards to test the abstraction, while retaining their
+specific policy in the corresponding standard model or extension. A single
+standard's syntax should not dictate the canonical representation.</p>
+<p>For each Phase 1 primitive, review:</p>
+<ol>
+<li>Can it represent the real wire format generically?</li>
+<li>Can the future IR describe it without protocol-specific runtime logic in
+   the generic processing core?</li>
+<li>Can that representation support both runtime lowering and future code
+   generation?</li>
+</ol>
+<p>These checks constrain the foundation without requiring Phase 2 implementation
+or freezing its internal representation prematurely.</p>
 
 
 
@@ -2922,7 +3248,7 @@ to library consumers or third-party dependencies.</p>
       <nav class="md-footer__inner md-grid" aria-label="Footer" >
         
           
-          <a href="../cxx-api/" class="md-footer__link md-footer__link--prev" aria-label="Previous: C++ API">
+          <a href="../architecture/" class="md-footer__link md-footer__link--prev" aria-label="Previous: Architecture">
             <div class="md-footer__button md-icon">
               
               <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M20 11v2H8l5.5 5.5-1.42 1.42L4.16 12l7.92-7.92L13.5 5.5 8 11z"/></svg>
@@ -2932,20 +3258,20 @@ to library consumers or third-party dependencies.</p>
                 Previous
               </span>
               <div class="md-ellipsis">
-                C++ API
+                Architecture
               </div>
             </div>
           </a>
         
         
           
-          <a href="../errors/" class="md-footer__link md-footer__link--next" aria-label="Next: Error codes">
+          <a href="../processing-pipeline/" class="md-footer__link md-footer__link--next" aria-label="Next: Processing pipeline">
             <div class="md-footer__title">
               <span class="md-footer__direction">
                 Next
               </span>
               <div class="md-ellipsis">
-                Error codes
+                Processing pipeline
               </div>
             </div>
             <div class="md-footer__button md-icon">

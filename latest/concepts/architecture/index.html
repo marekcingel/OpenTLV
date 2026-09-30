@@ -16,7 +16,7 @@
         <link rel="prev" href="../../getting-started/">
       
       
-        <link rel="next" href="../processing-pipeline/">
+        <link rel="next" href="../runtime-model/">
       
       
         
@@ -879,6 +879,34 @@
   
 </nav>
       
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../runtime-model/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Runtime model and canonical IR
+  
+
+    
+  </span>
+  
+  
+
+      </a>
     </li>
   
 
@@ -3166,12 +3194,16 @@ planned capabilities built on the current execution contracts.</p>
 <p>Phase 2 makes Definition, Format / Field Encoding / Layout configuration,
 Schema and Codec dynamically describable as one complete model. The <code>.otlv</code>
 frontend produces an AST, performs semantic analysis and symbol resolution,
-and constructs a canonical internal IR. Runtime lowering builds an immutable
-<code>tlv_model_t</code> and supplies the existing execution descriptors. <code>tlv_format_t</code>
+and constructs a canonical internal IR. Model construction establishes
+<code>tlv_model_t</code> ownership and lowers the IR to the existing execution descriptors
+before publishing the immutable model. <code>tlv_format_t</code>
 remains a lightweight execution descriptor, not the canonical semantic Format
 representation. Loading and model construction may allocate; subsequent TLV
 processing should remain allocation-free with explicit buffers/workspaces.
 Document remains an explicitly owning representation with its own storage needs.</p>
+<p>The <a href="../runtime-model/">Phase 2 runtime model and canonical IR</a> defines the
+frontend, semantic representation, model lifetime, lowering and execution
+boundaries, including the shared IR requirement for future code generation.</p>
 <p>Phase 3 consumes the same frontend and IR through an optimizer/code generator.
 Runtime and compiled backends preserve equivalent OTLV semantics. It completes
 the planned foundational architecture; subsequent SemVer major versions do not
@@ -3723,13 +3755,13 @@ selector loads <code>.otlv</code> files or requires a runtime interpreter.</p>
         
         
           
-          <a href="../processing-pipeline/" class="md-footer__link md-footer__link--next" aria-label="Next: Processing pipeline">
+          <a href="../runtime-model/" class="md-footer__link md-footer__link--next" aria-label="Next: Runtime model and canonical IR">
             <div class="md-footer__title">
               <span class="md-footer__direction">
                 Next
               </span>
               <div class="md-ellipsis">
-                Processing pipeline
+                Runtime model and canonical IR
               </div>
             </div>
             <div class="md-footer__button md-icon">
