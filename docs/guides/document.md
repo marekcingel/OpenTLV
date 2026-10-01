@@ -210,9 +210,38 @@ document.erase(old_tag);
 auto encoded = document.encode();   // expected<std::vector<byte>, error>
 ```
 
-Handles stay valid when the document is moved. Children can be visited with
-`for (tlv::node child : tlv::node_range(parent.first_child()))`, and a path
-query works as `document.find(query)`.
+Iterate top-level elements with `for (auto node : document)` and direct children
+with `for (auto child : node.children())`. `node.insert(tag, value, before)`
+inserts a direct child; omit `before` to append. Tag lookup selects the first
+direct child or top-level element; a path query works as `document.find(query)`.
+`document.size()` counts all elements, including descendants.
+
+Document alone owns the canonical C tree. Node copies share validity metadata,
+not tree ownership. Handles remain valid across Document moves and insertion.
+Erasure invalidates every handle to the erased subtree. Successful replacement
+of a constructed Value invalidates its descendants, preserving the parent and
+unrelated handles; failed edits preserve all handles. Destruction or move
+assignment over a Document invalidates handles to its previous tree.
+
+Invalid handles test false, navigation returns empty handles, and tag/value
+access returns empty views. Fallible Node operations return `TLV_ERR_INVALID_ARG`;
+erasing an invalid handle does nothing. An iterator whose current node is
+invalidated compares equal to the end iterator. Capture the next sibling before
+erasing the current node if iteration must continue. Ranges borrow their first
+node and follow the current sibling links; they are not snapshots.
+
+Tag and Value views already returned by accessors remain borrowed: validity
+tracking does not extend their storage lifetime. Do not retain them across
+invalidating edits or Document destruction. Format contexts also remain borrowed.
+The C++ facade allocates handle metadata and is not thread-safe. Native handle
+access is an explicit interoperability escape hatch; native mutation bypasses
+C++ validity tracking. Construct Nodes through Document or Node accessors rather
+than from raw C pointers.
+
+`tlv::ber::parse()` remains the borrowed Reader range API. Owning parsing uses
+`tlv::document::parse(data, tlv::document_format(tlv::ber::format{}))` and returns
+`expected<document, error>`. A runnable traversal and mutation example is
+[`document.cpp`](https://github.com/marekcingel/OpenTLV/blob/main/examples/tlv++/src/document.cpp).
 
 ///
 

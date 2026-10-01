@@ -11,6 +11,8 @@ and [`bindings/wasm/examples`](../../../bindings/wasm/examples/), so the same
 operation can be compared across languages.
 
 - [`parse.cpp`](parse.cpp) -- read a nested BER-TLV document.
+- [`document.cpp`](document.cpp) -- own, iterate and edit a Document with checked
+  Node handles (requires Document and BER).
 - [`write.cpp`](write.cpp) -- build that same document from its parts.
 - [`query.cpp`](query.cpp) -- address one field directly by path.
 - [`validate.cpp`](validate.cpp) -- check the document's structure without decoding it.

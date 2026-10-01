@@ -158,7 +158,7 @@ TEST(Unit_Tlvpp_Document, ParsesInspectsAndEncodesAgain) {
     EXPECT_EQ(doc.first(), outer);
 
     std::vector<int> child_tags;
-    for (tlv::node child : tlv::node_range(outer.first_child())) {
+    for (tlv::node child : outer.children()) {
         child_tags.push_back(static_cast<int>(child.tag().data()[0]));
     }
     EXPECT_EQ((std::vector<int>{0x84, 0xA5}), child_tags);
@@ -306,4 +306,158 @@ TEST(Unit_Tlvpp_Document, ExplicitDestinationPreservesTreeAndSubtreeBoundaries) 
     auto original = doc.encode();
     ASSERT_TRUE(original.has_value());
     EXPECT_EQ(sample, *original);
+}
+
+TEST(Unit_Tlvpp_Document, NaturalRangesAndChildInsertion) {
+    auto parsed = tlv::document::parse(view(sample), format());
+    ASSERT_TRUE(parsed);
+    auto&            doc = *parsed;
+    std::vector<int> tags;
+    for (auto node : doc) tags.push_back(static_cast<int>(node.tag().data()[0]));
+    EXPECT_EQ((std::vector<int>{0x6F, 0x50}), tags);
+    EXPECT_EQ(2, std::distance(doc.begin(), doc.end()));
+    EXPECT_TRUE(doc.first().next().children().empty());
+    EXPECT_FALSE(doc.first().parent());
+    EXPECT_TRUE(tlv::node().children().empty());
+    auto outer = doc.first();
+    auto iterator = outer.children().begin();
+    auto copy = iterator++;
+    EXPECT_EQ(outer.first_child(), *copy);
+    EXPECT_EQ(outer.find(tlv::tag_bytes<0xA5>()), *iterator);
+    const auto payload = make({0x11});
+    auto       inserted = outer.insert(tlv::tag_bytes<0x53>(), view(payload), *iterator);
+    ASSERT_TRUE(inserted);
+    EXPECT_EQ(outer, inserted->parent());
+    EXPECT_EQ(*inserted, copy->next());
+    EXPECT_EQ(make({0x6F, 0x0D, 0x84, 0x02, 0xAA, 0xBB, 0x53, 0x01, 0x11, 0xA5, 0x04, 0x50, 0x02,
+                    0x41, 0x42, 0x50, 0x01, 0xFF}),
+              *doc.encode());
+    auto empty = tlv::document::create(format());
+    ASSERT_TRUE(empty);
+    EXPECT_EQ(empty->begin(), empty->end());
+}
+
+TEST(Unit_Tlvpp_Document, ErasureInvalidatesCopiesDescendantsAndIteratorsOnly) {
+    auto parsed = tlv::document::parse(view(sample), format());
+    ASSERT_TRUE(parsed);
+    auto& doc = *parsed;
+    auto  outer = doc.first();
+    auto  copy = outer;
+    auto  child = outer.first_child();
+    auto  leaf = outer.find(tlv::tag_bytes<0xA5>()).first_child();
+    auto  sibling = outer.next();
+    auto  iterator = doc.begin();
+    outer.erase();
+    EXPECT_FALSE(copy);
+    EXPECT_FALSE(child);
+    EXPECT_FALSE(leaf);
+    EXPECT_EQ(doc.end(), iterator);
+    EXPECT_TRUE(sibling);
+    EXPECT_EQ(sibling, doc.first());
+    EXPECT_TRUE(copy.children().empty());
+    EXPECT_TRUE(copy.tag().empty());
+    EXPECT_EQ(0u, copy.value().size());
+    EXPECT_FALSE(copy.parent());
+    EXPECT_FALSE(copy.find(tlv::tag_bytes<0x50>()));
+    EXPECT_EQ(TLV_ERR_INVALID_ARG, copy.set(tlv::bytes()).error().code);
+    EXPECT_EQ(TLV_ERR_INVALID_ARG, copy.encode().error().code);
+    EXPECT_EQ(TLV_ERR_INVALID_ARG, copy.encoded_size().error().code);
+    EXPECT_EQ(TLV_ERR_INVALID_ARG, copy.encode(controlled::format).error().code);
+    copy.erase();
+    EXPECT_EQ(make({0x50, 0x01, 0xFF}), *doc.encode());
+    EXPECT_EQ(TLV_ERR_INVALID_ARG,
+              doc.insert(tlv::tag_bytes<0x50>(), tlv::bytes(), child).error().code);
+    EXPECT_EQ(TLV_ERR_INVALID_ARG,
+              doc.insert(tlv::tag_bytes<0x50>(), tlv::bytes(), tlv::node(), copy).error().code);
+}
+
+TEST(Unit_Tlvpp_Document, ReplacementPreservesParentCopiesAndFailedEditsPreserveChildren) {
+    auto parsed = tlv::document::parse(view(sample), format());
+    ASSERT_TRUE(parsed);
+    auto&      doc = *parsed;
+    auto       outer = doc.first();
+    auto       outer_copy = outer;
+    auto       child = outer.first_child();
+    auto       nested = outer.find(tlv::tag_bytes<0xA5>()).first_child();
+    auto       sibling = outer.next();
+    const auto malformed = make({0x50, 0x09});
+    EXPECT_FALSE(outer.set(view(malformed)));
+    EXPECT_TRUE(child);
+    EXPECT_TRUE(nested);
+    EXPECT_EQ(sample, *doc.encode());
+    const auto replacement = make({0x51, 0x01, 0x22});
+    ASSERT_TRUE(outer.set(view(replacement)));
+    EXPECT_TRUE(outer_copy);
+    EXPECT_TRUE(sibling);
+    EXPECT_FALSE(child);
+    EXPECT_FALSE(nested);
+    EXPECT_EQ(tlv::tag_bytes<0x51>(), outer_copy.first_child().tag());
+    EXPECT_EQ(make({0x6F, 0x03, 0x51, 0x01, 0x22, 0x50, 0x01, 0xFF}), *doc.encode());
+    auto foreign = tlv::document::parse(view(sample), format());
+    ASSERT_TRUE(foreign);
+    EXPECT_EQ(TLV_ERR_INVALID_ARG,
+              doc.insert(tlv::tag_bytes<0x50>(), tlv::bytes(), foreign->first()).error().code);
+    EXPECT_EQ(TLV_ERR_INVALID_ARG,
+              outer.insert(tlv::tag_bytes<0x50>(), tlv::bytes(), foreign->first().first_child())
+                  .error()
+                  .code);
+    // Repeated allocation must never revive handles to an erased node.
+    for (int i = 0; i < 16; ++i) {
+        auto inserted = outer.insert(tlv::tag_bytes<0x52>(), tlv::bytes());
+        ASSERT_TRUE(inserted);
+        inserted->erase();
+        EXPECT_FALSE(child);
+    }
+}
+
+TEST(Unit_Tlvpp_Document, DestructionAndMoveAssignmentInvalidateOnlyPreviousOwner) {
+    tlv::node       retained;
+    tlv::node_range retained_range;
+    {
+        auto parsed = tlv::document::parse(view(sample), format());
+        ASSERT_TRUE(parsed);
+        retained = parsed->first();
+        retained_range = retained.children();
+    }
+    EXPECT_FALSE(retained);
+    EXPECT_TRUE(retained_range.empty());
+    EXPECT_EQ(TLV_ERR_INVALID_ARG,
+              retained.insert(tlv::tag_bytes<0x50>(), tlv::bytes()).error().code);
+    auto source = tlv::document::parse(view(sample), format());
+    auto destination = tlv::document::parse(view(sample), format());
+    ASSERT_TRUE(source);
+    ASSERT_TRUE(destination);
+    auto incoming = source->first();
+    auto outgoing = destination->first();
+    *destination = std::move(*source);
+    EXPECT_TRUE(incoming);
+    EXPECT_FALSE(outgoing);
+    EXPECT_EQ(incoming, destination->first());
+    EXPECT_EQ(sample, *destination->encode());
+}
+
+TEST(Unit_Tlvpp_Document, PrimitiveEditsAndChildErasurePreserveUnrelatedHandles) {
+    auto parsed = tlv::document::parse(view(sample), format());
+    ASSERT_TRUE(parsed);
+    auto       outer = parsed->first();
+    auto       primitive = outer.first_child();
+    auto       copy = primitive;
+    auto       sibling = primitive.next();
+    auto       sibling_leaf = sibling.first_child();
+    const auto replacement = make({0xCC});
+    ASSERT_TRUE(primitive.set(view(replacement)));
+    ASSERT_TRUE(copy);
+    EXPECT_EQ(1u, copy.value().size());
+    EXPECT_EQ(tlv::byte(0xCC), copy.value().data()[0]);
+    primitive.erase();
+    EXPECT_FALSE(copy);
+    EXPECT_TRUE(outer);
+    EXPECT_TRUE(sibling);
+    EXPECT_TRUE(sibling_leaf);
+    EXPECT_EQ(sibling, outer.first_child());
+    auto other = outer.insert(tlv::tag_bytes<0xA5>(), tlv::bytes());
+    ASSERT_TRUE(other);
+    EXPECT_EQ(*other, sibling.next_same_tag());
+    EXPECT_EQ(make({0x6F, 0x08, 0xA5, 0x04, 0x50, 0x02, 0x41, 0x42, 0xA5, 0x00, 0x50, 0x01, 0xFF}),
+              *parsed->encode());
 }
