@@ -11,7 +11,16 @@ set(SOURCES
 
 if(test_group STREQUAL "unit")
     list(APPEND SOURCES test_native_boundary.cpp test_semantic_views.cpp codec/test_typed_fields.cpp)
-    list(APPEND SOURCES test_diagnostic.cpp)
+    list(APPEND SOURCES test_diagnostic.cpp builtins/test_convenience.cpp)
+    add_executable(test-builtin-convenience-smoke builtins/convenience_smoke.cpp)
+    target_link_libraries(test-builtin-convenience-smoke PRIVATE tlv++)
+    set_target_properties(test-builtin-convenience-smoke PROPERTIES CXX_STANDARD 11 CXX_STANDARD_REQUIRED ON CXX_EXTENSIONS OFF)
+    target_compile_options(test-builtin-convenience-smoke PRIVATE
+        "$<$<CXX_COMPILER_ID:GNU,Clang>:-fno-elide-constructors>")
+    opentlv_configure_compiler(test-builtin-convenience-smoke)
+    opentlv_copy_shared_runtime(test-builtin-convenience-smoke)
+    add_test(NAME Unit_Tlvpp_BuiltinConvenience_AllocationAndNamespaces COMMAND test-builtin-convenience-smoke)
+    set_tests_properties(Unit_Tlvpp_BuiltinConvenience_AllocationAndNamespaces PROPERTIES LABELS "unit")
     list(APPEND SOURCES reader/test_reader.cpp)
     list(APPEND SOURCES reader/test_iterable_reader.cpp)
     list(APPEND SOURCES query/test_query_ranges.cpp)
