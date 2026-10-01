@@ -113,6 +113,84 @@ from the same decode. Source ranges remain relative to `source.data`, the
 element start. Capture `tlv_reader_offset()` before the call to locate that source in
 the logical stream. Non-success leaves both success outputs unchanged.
 
+## C++ iteration and parsing ranges
+
+`tlv::reader<F>` is a C++11 single-pass input range over the canonical C Reader.
+It yields `tlv::element_view`, borrowing Tag and Value bytes without allocating
+or copying Value contents on successful reads. Iteration is flat: constructed
+Values remain opaque. Use Tree Reader for nested traversal.
+
+```cpp
+#include "tlv++/tlv.hpp"
+
+tlv::reader<tlv::ber::format> reader(data); // data is a borrowed tlv::bytes
+for (auto element : reader) {
+    process(element.tag(), element.value());
+}
+
+for (auto element : tlv::ber::parse(data)) {
+    process(element.tag(), element.value());
+}
+```
+
+The generic helpers are `tlv::parse<F>(data)` for default configuration and
+`tlv::parse(data, format)` for an explicit C++ Format, borrowed `tlv::format`
+view or native descriptor. Built-in namespaces provide `ber::parse`,
+`der::parse`, `cer::parse`, `bluetooth::parse`, `dhcp::parse`, `emv::parse`,
+`lldp::parse` and `nfc::parse` under `tlv`, when their components are enabled.
+They select framing only; Schema, container policy and Value codecs remain
+explicit. For example, NFC NULL and Terminator are yielded as ordinary Elements.
+The existing `tlv::ber` namespace precludes a function named `tlv::ber(data)`.
+
+`begin()` reads and consumes one element from the current cursor position;
+`++` reads the next. Dereferencing does not parse again. Calling `begin()`
+again continues rather than restarting. A `break` leaves the published element
+consumed; explicit `next()` then reads the following element. `end()` does not
+parse. Only one traversal may be active per cursor. Advancing an iterator
+invalidates other copies, except that `*it++` exposes the previous borrowed
+Element. Explicit `next()`, `next_source()`, `visit()`, successful `set_input()`,
+and cursor destruction invalidate active iterators. Retained Element copies
+remain usable while their original backing storage remains alive and unchanged.
+
+Only genuine final EOF ends iteration. Initialization errors, malformed or
+truncated data, and `TLV_NEED_MORE_DATA` throw `tlv::parse_error` from `begin()`
+or increment. The failing element is not consumed; a successful prefix remains
+consumed. Even a custom decoder returning `TLV_ERR_END_OF_BUFFER` inside
+nonempty input produces an exception.
+
+```cpp
+try {
+    for (auto element : tlv::ber::parse(data)) {
+        process(element.tag(), element.value());
+    }
+} catch (const tlv::parse_error& failure) {
+    report(failure.code(), failure.offset(), failure.diagnostic());
+}
+```
+
+`code()` preserves the C result. `offset()` identifies the unconsumed element's
+absolute start; `diagnostic()` preserves the C diagnostic, whose field offset
+may differ. Diagnostic byte views remain borrowed, and constructing an exception
+may allocate. Applications needing result-based control or incremental input
+should keep using `next()`, `next_source()` and `set_input()`. An incremental
+Reader can be iterated, but exhaustion requests more data through an exception,
+even at an element boundary. After supplying input, start a new iteration.
+
+Parsing helpers treat input as final and return an internal range that owns its
+C++ Format configuration inline. The range supports move construction in C++11
+without relying on copy elision; it cannot be copied or assigned. Moving preserves
+the cursor position and rebuilds its internal Format addresses, but invalidates
+iterators and views borrowing its previous owned Format storage. Storage borrowed
+by the Format remains the caller's responsibility. Runtime Format descriptors
+and contexts are borrowed. Input must outlive every retained Element or diagnostic;
+the range must also outlive any result borrowing its owned Format. Construction
+or movement of an application Format may itself allocate; the range machinery
+does not. Typed `reader<F>` continues to prohibit copying and moving.
+
+See the compiled [basic example](../../examples/tlv++/src/basic_usage.cpp),
+[custom Format example](../../examples/tlv++/src/formats/custom_format.cpp), and
+[runtime Fixed example](../../examples/tlv++/src/formats/fixed_format_runtime.cpp).
+
 ## Pull-based tree traversal
 
 `tlv_tree_reader_t` is the canonical iterative structural cursor. Include

@@ -47,13 +47,16 @@ private:
 int main() {
     const unsigned char    expected[] = {0x09, 0x02, 0x00, 0x41, 0x42};
     const tlv::bytes       input(reinterpret_cast<const tlv::byte*>(expected), sizeof(expected));
-    tlv::reader<my_format> reader(input);
-    auto                   element = reader.next();
-    if (!element || element->tag() != tlv::tag_bytes<0x09>() || element->value().size() != 2)
-        return 1;
     tlv::byte              output[5]{};
     tlv::writer<my_format> writer(output, sizeof(output));
-    auto                   result = writer.write(*element);
-    if (!result || writer.size() != sizeof(expected)) return 2;
+    try {
+        for (auto element : tlv::parse<my_format>(input)) {
+            if (element.tag() != tlv::tag_bytes<0x09>() || element.value().size() != 2) return 1;
+            if (!writer.write(element)) return 2;
+        }
+    } catch (const tlv::parse_error&) {
+        return 1;
+    }
+    if (writer.size() != sizeof(expected)) return 2;
     return std::memcmp(output, expected, sizeof(expected)) == 0 ? 0 : 3;
 }

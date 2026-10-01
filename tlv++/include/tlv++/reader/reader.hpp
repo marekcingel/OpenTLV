@@ -9,6 +9,7 @@
 #include "tlv++/detail/visitor.hpp"
 #include "tlv/reader/visitor.h"
 #include <type_traits>
+#include <iterator>
 
 namespace tlv {
 
@@ -19,6 +20,41 @@ namespace tlv {
 
 /** @brief C++ alias for the reader-specific diagnostic type, #tlv_reader_diagnostic_t. */
 using reader_diagnostic = tlv_reader_diagnostic_t;
+
+/**
+ * @brief Exception raised by Reader iteration on any outcome other than final EOF.
+ *
+ * Successful iteration allocates nothing. Constructing this exception may allocate.
+ * Diagnostic byte views borrow input and Format storage, which must outlive their use.
+ */
+class parse_error : public std::runtime_error {
+public:
+    /** @brief Retain the original Reader failure and the failing element's absolute offset.
+     * @param code Original C result, including NEED_MORE_DATA.
+     * @param offset Absolute offset of the unconsumed element.
+     * @param diagnostic Original C Reader detail; any byte views remain borrowed.
+     */
+    parse_error(tlv_result_t code, size_t offset, reader_diagnostic diagnostic)
+        : std::runtime_error(tlv_strerror(code)), code_(code), offset_(offset),
+          diagnostic_(diagnostic) {}
+    /** @brief Original C Reader result code. */
+    tlv_result_t code() const noexcept {
+        return code_;
+    }
+    /** @brief Absolute offset of the element whose read failed. */
+    size_t offset() const noexcept {
+        return offset_;
+    }
+    /** @brief Original Reader diagnostic, including the failing field's offset when known. */
+    const reader_diagnostic& diagnostic() const noexcept {
+        return diagnostic_;
+    }
+
+private:
+    tlv_result_t      code_;
+    size_t            offset_;
+    reader_diagnostic diagnostic_;
+};
 
 /** @brief Whether the supplied input window declares final EOF. */
 enum class input_mode {
@@ -65,8 +101,25 @@ TLV_NODISCARD inline expected<decoded, error> read(bytes data, tlv::format forma
  * @see @docs{guides/memory,format context ownership and lifetime}
  */
 namespace detail {
+class reader_iterator;
+template <typename F> class parsing_range;
 class reader_base {
 public:
+    /** @brief C++11 single-pass input iterator yielding borrowed Element views. */
+    using iterator = reader_iterator;
+    /**
+     * @brief Consume and publish the next element at the current cursor position.
+     * @return Input iterator, or end() only on genuine final EOF.
+     * @throws parse_error On initialization, decoding or incremental-input failure.
+     * @note Each begin() consumes another element; it never rewinds. break leaves
+     * the published element consumed. Only one traversal may be active at a time.
+     * @warning Advancing any iterator invalidates its other copies. Explicit next(),
+     * next_source(), visit(), successful set_input(), and cursor destruction invalidate
+     * active iterators. Input and Format storage must outlive retained Element views.
+     */
+    iterator begin();
+    /** @brief Return the end iterator without parsing or changing the cursor. */
+    iterator end() const noexcept;
     /**
      * @brief Create a sequential reader from a C++ Format view without allocation.
      * @param data Encoded input, borrowed.
@@ -219,13 +272,130 @@ public:
     }
 
 private:
+    bool read_for_iteration(element_view& element) {
+        // Only the cursor's final boundary is EOF. A callback returning END_OF_BUFFER
+        // inside nonempty input remains an error.
+        if (init_ok_ && at_end()) return false;
+        reader_diagnostic diagnostic{};
+        tlv_element_t     raw{};
+        const auto        position = offset();
+        const auto        rc =
+            init_ok_ ? tlv_reader_next_diag(&impl_, &raw, &diagnostic) : TLV_ERR_NULL_ARG;
+        if (rc != TLV_OK) {
+            if (!init_ok_) {
+                diagnostic.diagnostic.code = rc;
+                diagnostic.diagnostic.severity = TLV_DIAGNOSTIC_SEVERITY_ERROR;
+                diagnostic.diagnostic.has_offset = 1;
+                diagnostic.diagnostic.offset = position;
+                diagnostic.operation = TLV_READER_OP_HEADER;
+            }
+            throw parse_error(rc, position, diagnostic);
+        }
+        element = detail::semantic_access::borrow(raw);
+        return true;
+    }
     tlv_reader_t impl_{};
     bool         init_ok_ = false;
+    friend class reader_iterator;
+    template <typename F> friend class parsing_range;
 };
+
+/// @cond INTERNAL
+class reader_iterator {
+public:
+    using iterator_category = std::input_iterator_tag;
+    using value_type = element_view;
+    using difference_type = std::ptrdiff_t;
+    using pointer = const element_view*;
+    using reference = const element_view&;
+
+    reader_iterator() noexcept = default;
+    explicit reader_iterator(reader_base& cursor) : cursor_(&cursor) {
+        advance();
+    }
+    reference operator*() const noexcept {
+        return element_;
+    }
+    pointer operator->() const noexcept {
+        return &element_;
+    }
+    reader_iterator& operator++() {
+        advance();
+        return *this;
+    }
+    reader_iterator operator++(int) {
+        auto previous = *this;
+        advance();
+        return previous;
+    }
+    friend bool operator==(const reader_iterator& lhs, const reader_iterator& rhs) noexcept {
+        return lhs.cursor_ == rhs.cursor_ && (!lhs.cursor_ || lhs.position_ == rhs.position_);
+    }
+    friend bool operator!=(const reader_iterator& lhs, const reader_iterator& rhs) noexcept {
+        return !(lhs == rhs);
+    }
+
+private:
+    void advance() {
+        auto* cursor = cursor_;
+        cursor_ = nullptr;
+        if (cursor->read_for_iteration(element_)) {
+            position_ = cursor->offset();
+            cursor_ = cursor;
+        }
+    }
+    reader_base* cursor_ = nullptr;
+    element_view element_{};
+    size_t       position_ = 0;
+};
+
+inline reader_base::iterator reader_base::begin() {
+    return iterator(*this);
+}
+inline reader_base::iterator reader_base::end() const noexcept {
+    return iterator();
+}
+
+// Own configuration inline and rebuild all internal addresses when returned by value
+// in C++11, including builds with copy elision disabled. Moving invalidates iterators
+// and any views borrowing the old configuration; input-backed views remain borrowed.
+template <typename F> class parsing_range {
+    static_assert(format_capabilities<F>::valid && format_capabilities<F>::readable,
+                  "parse requires a valid readable Format");
+
+public:
+    parsing_range(bytes data, F value)
+        : value_(std::move(value)), descriptor_(descriptor_bridge<F>::make(value_)),
+          cursor_(data, descriptor_) {}
+    parsing_range(parsing_range&& other)
+        : value_(std::move(other.value_)), descriptor_(descriptor_bridge<F>::make(value_)),
+          cursor_(other.cursor_) {
+        cursor_.impl_.format = &descriptor_;
+        other.cursor_.init_ok_ = false;
+    }
+    parsing_range(const parsing_range&) = delete;
+    parsing_range&  operator=(const parsing_range&) = delete;
+    parsing_range&  operator=(parsing_range&&) = delete;
+    reader_iterator begin() {
+        return cursor_.begin();
+    }
+    reader_iterator end() const noexcept {
+        return cursor_.end();
+    }
+
+private:
+    F                  value_;
+    const tlv_format_t descriptor_;
+    reader_base        cursor_;
+};
+/// @endcond
 } // namespace detail
 
 /** @brief Generic sequential reader using the canonical C engine.
  * @tparam F C++ Format implementing format_traits; format selects a borrowed runtime view.
+ * @details Supports consuming, single-pass C++11 iteration over element_view.
+ * Only final EOF ends iteration; other outcomes throw parse_error. Explicit
+ * cursor operations retain expected-based error handling.
  * @warning For typed Formats this cursor owns a stable adapter and cannot be copied
  * or moved. It and all Format-borrowed storage must outlive retained results.
  */
@@ -249,12 +419,52 @@ public:
         : format_adapter<F>(std::move(value)),
           detail::reader_base(data, format_adapter<F>::view(), mode) {}
 };
-/** @brief Runtime Format cursor; descriptor and context remain borrowed. */
+/** @brief Iterable runtime Format cursor; descriptor and context remain borrowed.
+ * @details Iteration follows reader::begin(); explicit cursor operations retain
+ * expected-based error handling.
+ */
 template <> class reader<tlv::format> : public detail::reader_base {
 public:
     /** @brief Initialize from a borrowed C++ view or native descriptor. */
     using detail::reader_base::reader_base;
 };
+
+/**
+ * @brief Create an allocation-free single-pass parsing range owning Format configuration.
+ * @tparam F Readable C++ Format; deduced from the configuration argument.
+ * @param data Immutable borrowed input, treated as final.
+ * @param value Format configuration copied or moved into the range.
+ * @return Move-constructible range yielding element_view through the canonical C Reader.
+ * @throws parse_error During iteration on any failure; only final EOF ends the range.
+ * @note Format construction or movement may allocate if F does. Range machinery and
+ * successful iteration do not allocate or copy Value bytes. begin() consumes from
+ * the current position, with the same single-pass rules as reader::begin().
+ * @warning Input and storage borrowed by F must outlive retained results. The range
+ * must also outlive views borrowing its owned Format. Moving it invalidates iterators
+ * and views borrowing its previous Format storage. No copy or assignment is provided.
+ */
+template <typename F> TLV_NODISCARD detail::parsing_range<F> parse(bytes data, F value) {
+    return detail::parsing_range<F>(data, std::move(value));
+}
+
+/** @brief Parse final input with default-constructed Format configuration.
+ * @tparam F Readable, default-constructible C++ Format.
+ * @param data Immutable borrowed final input.
+ * @return Single-pass range with the ownership and error rules of parse(bytes, F).
+ */
+template <typename F> TLV_NODISCARD detail::parsing_range<F> parse(bytes data) {
+    return tlv::parse(data, F{});
+}
+
+/** @brief Parse final input with a borrowed native Format descriptor and context.
+ * @param data Immutable borrowed final input.
+ * @param format Native descriptor and context, which must outlive the range and results.
+ * @return Single-pass range with the iteration error rules of parse(bytes, F).
+ */
+TLV_NODISCARD inline detail::parsing_range<tlv::format> parse(bytes               data,
+                                                              const tlv_format_t& format) {
+    return tlv::parse(data, detail::format_access::borrow(format));
+}
 
 } // namespace tlv
 

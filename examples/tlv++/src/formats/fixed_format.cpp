@@ -22,13 +22,18 @@ int main() {
     }
 
     // Wire bytes: 12 34 03 00 AA BB CC. The tag is kept as is; only the length is little-endian.
-    tlv::reader<> reader(tlv::bytes(buf.data(), writer.size()), format::format());
-    auto          element = reader.next();
-    if (!element) {
-        std::cerr << "read error: " << element.error().message << "\n";
+    tlv::reader<format> reader(tlv::bytes(buf.data(), writer.size()));
+    size_t              count = 0;
+    try {
+        for (auto element : reader) {
+            if (element.value().size() != value.size()) return 1;
+            std::cout << "wrote " << writer.size() << " bytes, read a " << element.value().size()
+                      << "-byte value\n";
+            ++count;
+        }
+    } catch (const tlv::parse_error& failure) {
+        std::cerr << "read error: " << failure.what() << "\n";
         return 1;
     }
-    std::cout << "wrote " << writer.size() << " bytes, read a " << element->value().size()
-              << "-byte value\n";
-    return element->value().size() == value.size() ? 0 : 1;
+    return count == 1 ? 0 : 1;
 }
