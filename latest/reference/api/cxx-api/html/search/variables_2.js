@@ -1,6 +1,6 @@
 var searchData=
 [
-  ['capacity_0',['capacity',['../../../c-api/html/structtlv__tree__reader.html#a5450b3fcd5902bbee73675c2303f036a',1,'tlv_tree_reader::capacity'],['../../../c-api/html/structtlv__tree__writer.html#a443ed066eaff1f4e6ce1379e2757a250',1,'tlv_tree_writer::capacity'],['../../../c-api/html/structtlv__writer.html#a6886baf90fc6f00334270cde71e1e051',1,'tlv_writer::capacity'],['../../../c-api/html/structtlv__schema__diagnostic__report.html#a45c63640a1c6894878650ca571c2f81c',1,'tlv_schema_diagnostic_report::capacity']]],
+  ['capacity_0',['capacity',['../../../c-api/html/structtlv__tree__reader.html#a5450b3fcd5902bbee73675c2303f036a',1,'tlv_tree_reader::capacity'],['../../../c-api/html/structtlv__schema__diagnostic__report.html#a45c63640a1c6894878650ca571c2f81c',1,'tlv_schema_diagnostic_report::capacity'],['../../../c-api/html/structtlv__writer.html#a6886baf90fc6f00334270cde71e1e051',1,'tlv_writer::capacity'],['../../../c-api/html/structtlv__tree__writer.html#a443ed066eaff1f4e6ce1379e2757a250',1,'tlv_tree_writer::capacity']]],
   ['children_1',['children',['../../../c-api/html/structtlv__structure__rule.html#a617ed4c7f509616172efadcd2a666607',1,'tlv_structure_rule']]],
   ['code_2',['code',['../../../c-api/html/structtlv__diagnostic.html#ad32322414b2d7a9ad41dc625d4b71604',1,'tlv_diagnostic::code'],['../structtlv_1_1error.html#a95ae94d214e3a104026eeaa4bb7bf769',1,'tlv::error::code']]],
   ['codec_3',['codec',['../../../c-api/html/structtlv__emv__definition__t.html#a832a1627aaf5bd856ca0315ba71f946f',1,'tlv_emv_definition_t']]],
@@ -9,7 +9,7 @@ var searchData=
   ['components_6',['components',['../../../c-api/html/structtlv__der__schema__type.html#a1a312a9e2014c0879d6db4170e9d968b',1,'tlv_der_schema_type']]],
   ['condition_7',['condition',['../../../c-api/html/structtlv__emv__cvm__result__t.html#a284a5dc6d3eac2837ea2526d5c3e0084',1,'tlv_emv_cvm_result_t']]],
   ['constraint_8',['constraint',['../../../c-api/html/structtlv__der__schema__type.html#a2a12d1cca5abdbbfabff3df5bef18b9d',1,'tlv_der_schema_type']]],
-  ['constructed_9',['constructed',['../../../c-api/html/structtlv__tree__item.html#a09f1b042cdb00dcddb8354c1fb31ef3a',1,'tlv_tree_item']]],
+  ['constructed_9',['constructed',['../../../c-api/html/structtlv__tree__item.html#a09f1b042cdb00dcddb8354c1fb31ef3a',1,'tlv_tree_item::constructed'],['../structtlv_1_1tree__item.html#ae7b4dc31763b436063019b4cacef0d87',1,'tlv::tree_item::constructed']]],
   ['context_10',['context',['../../../c-api/html/structtlv__structure__codec.html#a3cb6d8087e54e8e2ea57f6c052a3ff9f',1,'tlv_structure_codec::context'],['../../../c-api/html/structtlv__format.html#ab4dba137776d1c2e3183cdeca33fc874',1,'tlv_format::context'],['../../../c-api/html/structtlv__codec.html#ac3db750e92243552aab57de371617db9',1,'tlv_codec::context'],['../../../c-api/html/structtlv__allocator.html#a7878ddf58cd4391ab44a0854706e3517',1,'tlv_allocator::context'],['../../../c-api/html/structtlv__field__layout.html#a05b51d56b853864e2556715eb86345a8',1,'tlv_field_layout::context']]],
   ['contexts_11',['contexts',['../../../c-api/html/structtlv__diagnostic.html#ac9905f3a42112057b24550b7e6c689c3',1,'tlv_diagnostic']]],
   ['continuation_5fbit_12',['continuation_bit',['../../../c-api/html/structtlv__variable__identifier.html#ac5f678e1e7f6a2acc27529c9122d36a4',1,'tlv_variable_identifier']]],

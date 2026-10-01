@@ -96,15 +96,15 @@ Public Member Functions</h2></td></tr>
 <tr class="memitem:acabae253a6e58b2bb76b23a5ba583988" id="r_acabae253a6e58b2bb76b23a5ba583988"><td class="memItemLeft" align="right" valign="top"><a class="el" href="classtlv_1_1expected.html">expected</a>&lt; void, <a class="el" href="structtlv_1_1error.html">error</a> &gt;&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classtlv_1_1tree__writer.html#acabae253a6e58b2bb76b23a5ba583988">set_tag_storage</a> (<a class="el" href="classtlv_1_1span.html">span</a>&lt; <a class="el" href="namespacetlv.html#aa91df798a712d88cf7d2f1f63a539b51">byte</a> &gt; storage)</td></tr>
 <tr class="memdesc:acabae253a6e58b2bb76b23a5ba583988"><td class="mdescLeft">&#160;</td><td class="mdescRight">Copy open Tags into disjoint caller-owned storage until matching END.  <br /></td></tr>
 <tr class="separator:acabae253a6e58b2bb76b23a5ba583988"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:a4f689b3a2557edaa46e97e9ba03186ef" id="r_a4f689b3a2557edaa46e97e9ba03186ef"><td class="memItemLeft" align="right" valign="top"><a class="el" href="classtlv_1_1expected.html">expected</a>&lt; void, <a class="el" href="structtlv_1_1error.html">error</a> &gt;&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classtlv_1_1tree__writer.html#a4f689b3a2557edaa46e97e9ba03186ef">write_event</a> (const <a class="elRef" href="../../c-api/html/tree_8h.html#a3b1e811784f5c9b0085cb0144a0c57c2">tlv_tree_event_t</a> &amp;event, <a class="el" href="namespacetlv.html#a1df134eb9e2b476155eb324618396e4d">writer_diagnostic</a> *<a class="el" href="namespacetlv.html#a00ca9c69c35ef11f6a22b7eda1b115ba">diagnostic</a>=nullptr)</td></tr>
-<tr class="memdesc:a4f689b3a2557edaa46e97e9ba03186ef"><td class="mdescLeft">&#160;</td><td class="mdescRight">Consume a canonical event, checking depth and destination classification.  <br /></td></tr>
-<tr class="separator:a4f689b3a2557edaa46e97e9ba03186ef"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:a422d840743c0ab3fbe8f371c37b5aeaa" id="r_a422d840743c0ab3fbe8f371c37b5aeaa"><td class="memItemLeft" align="right" valign="top"><a class="el" href="classtlv_1_1expected.html">expected</a>&lt; void, <a class="el" href="structtlv_1_1error.html">error</a> &gt;&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classtlv_1_1tree__writer.html#a422d840743c0ab3fbe8f371c37b5aeaa">begin</a> (<a class="el" href="namespacetlv.html#a2b31c4b301052e8137584ed7baf54611">tag_t</a> tag, <a class="el" href="namespacetlv.html#a1df134eb9e2b476155eb324618396e4d">writer_diagnostic</a> *<a class="el" href="namespacetlv.html#a00ca9c69c35ef11f6a22b7eda1b115ba">diagnostic</a>=nullptr)</td></tr>
-<tr class="memdesc:a422d840743c0ab3fbe8f371c37b5aeaa"><td class="mdescLeft">&#160;</td><td class="mdescRight">Open a constructed parent; Tag bytes remain borrowed until <a class="el" href="classtlv_1_1tree__writer.html#ad9c0b588f32b62932a9435fa815740ed" title="Close the innermost parent; failures preserve accumulated output and cursor.">end()</a>.  <br /></td></tr>
-<tr class="separator:a422d840743c0ab3fbe8f371c37b5aeaa"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:a740f31ca1ab461c67235f2bf9b5025d3" id="r_a740f31ca1ab461c67235f2bf9b5025d3"><td class="memItemLeft" align="right" valign="top"><a class="el" href="classtlv_1_1expected.html">expected</a>&lt; void, <a class="el" href="structtlv_1_1error.html">error</a> &gt;&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classtlv_1_1tree__writer.html#a740f31ca1ab461c67235f2bf9b5025d3">write</a> (const <a class="el" href="namespacetlv.html#a36fb32b6d2478c7a9f386389e959ebcc">element</a> &amp;value, <a class="el" href="namespacetlv.html#a1df134eb9e2b476155eb324618396e4d">writer_diagnostic</a> *<a class="el" href="namespacetlv.html#a00ca9c69c35ef11f6a22b7eda1b115ba">diagnostic</a>=nullptr)</td></tr>
-<tr class="memdesc:a740f31ca1ab461c67235f2bf9b5025d3"><td class="mdescLeft">&#160;</td><td class="mdescRight">Append a primitive or complete subtree without retaining its Element.  <br /></td></tr>
-<tr class="separator:a740f31ca1ab461c67235f2bf9b5025d3"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a722b7c7ec63856a6f5fe81a3fa98d50b" id="r_a722b7c7ec63856a6f5fe81a3fa98d50b"><td class="memItemLeft" align="right" valign="top"><a class="el" href="classtlv_1_1expected.html">expected</a>&lt; void, <a class="el" href="structtlv_1_1error.html">error</a> &gt;&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classtlv_1_1tree__writer.html#a722b7c7ec63856a6f5fe81a3fa98d50b">write_event</a> (const <a class="el" href="structtlv_1_1tree__event.html">tree_event</a> &amp;event, <a class="el" href="namespacetlv.html#a1df134eb9e2b476155eb324618396e4d">writer_diagnostic</a> *<a class="el" href="namespacetlv.html#a00ca9c69c35ef11f6a22b7eda1b115ba">diagnostic</a>=nullptr)</td></tr>
+<tr class="memdesc:a722b7c7ec63856a6f5fe81a3fa98d50b"><td class="mdescLeft">&#160;</td><td class="mdescRight">Consume a canonical event, checking depth and destination classification.  <br /></td></tr>
+<tr class="separator:a722b7c7ec63856a6f5fe81a3fa98d50b"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a45e353ea9aedc5825ce32072c2a024fc" id="r_a45e353ea9aedc5825ce32072c2a024fc"><td class="memItemLeft" align="right" valign="top"><a class="el" href="classtlv_1_1expected.html">expected</a>&lt; void, <a class="el" href="structtlv_1_1error.html">error</a> &gt;&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classtlv_1_1tree__writer.html#a45e353ea9aedc5825ce32072c2a024fc">begin</a> (<a class="el" href="classtlv_1_1tag.html">tlv::tag</a> <a class="el" href="classtlv_1_1tag.html">tag</a>, <a class="el" href="namespacetlv.html#a1df134eb9e2b476155eb324618396e4d">writer_diagnostic</a> *<a class="el" href="namespacetlv.html#a00ca9c69c35ef11f6a22b7eda1b115ba">diagnostic</a>=nullptr)</td></tr>
+<tr class="memdesc:a45e353ea9aedc5825ce32072c2a024fc"><td class="mdescLeft">&#160;</td><td class="mdescRight">Open a constructed parent; Tag bytes remain borrowed until <a class="el" href="classtlv_1_1tree__writer.html#ad9c0b588f32b62932a9435fa815740ed" title="Close the innermost parent; failures preserve accumulated output and cursor.">end()</a>.  <br /></td></tr>
+<tr class="separator:a45e353ea9aedc5825ce32072c2a024fc"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a28fc0fe5f3854f19b7f200b621034e9f" id="r_a28fc0fe5f3854f19b7f200b621034e9f"><td class="memItemLeft" align="right" valign="top"><a class="el" href="classtlv_1_1expected.html">expected</a>&lt; void, <a class="el" href="structtlv_1_1error.html">error</a> &gt;&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classtlv_1_1tree__writer.html#a28fc0fe5f3854f19b7f200b621034e9f">write</a> (const <a class="el" href="classtlv_1_1element__view.html">element_view</a> &amp;value, <a class="el" href="namespacetlv.html#a1df134eb9e2b476155eb324618396e4d">writer_diagnostic</a> *<a class="el" href="namespacetlv.html#a00ca9c69c35ef11f6a22b7eda1b115ba">diagnostic</a>=nullptr)</td></tr>
+<tr class="memdesc:a28fc0fe5f3854f19b7f200b621034e9f"><td class="mdescLeft">&#160;</td><td class="mdescRight">Append a primitive or complete subtree without retaining its Element.  <br /></td></tr>
+<tr class="separator:a28fc0fe5f3854f19b7f200b621034e9f"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:ad9c0b588f32b62932a9435fa815740ed" id="r_ad9c0b588f32b62932a9435fa815740ed"><td class="memItemLeft" align="right" valign="top"><a class="el" href="classtlv_1_1expected.html">expected</a>&lt; void, <a class="el" href="structtlv_1_1error.html">error</a> &gt;&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classtlv_1_1tree__writer.html#ad9c0b588f32b62932a9435fa815740ed">end</a> (<a class="el" href="namespacetlv.html#a1df134eb9e2b476155eb324618396e4d">writer_diagnostic</a> *<a class="el" href="namespacetlv.html#a00ca9c69c35ef11f6a22b7eda1b115ba">diagnostic</a>=nullptr)</td></tr>
 <tr class="memdesc:ad9c0b588f32b62932a9435fa815740ed"><td class="mdescLeft">&#160;</td><td class="mdescRight">Close the innermost parent; failures preserve accumulated output and cursor.  <br /></td></tr>
 <tr class="separator:ad9c0b588f32b62932a9435fa815740ed"><td class="memSeparator" colspan="2">&#160;</td></tr>
@@ -312,8 +312,8 @@ The view may be temporary; its descriptor and context remain borrowed. </dd></dl
 </div>
 </div>
 <h2 class="groupheader">Member Function Documentation</h2>
-<a id="a422d840743c0ab3fbe8f371c37b5aeaa" name="a422d840743c0ab3fbe8f371c37b5aeaa"></a>
-<h2 class="memtitle"><span class="permalink"><a href="#a422d840743c0ab3fbe8f371c37b5aeaa">&#9670;&#160;</a></span>begin()</h2>
+<a id="a45e353ea9aedc5825ce32072c2a024fc" name="a45e353ea9aedc5825ce32072c2a024fc"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#a45e353ea9aedc5825ce32072c2a024fc">&#9670;&#160;</a></span>begin()</h2>
 
 <div class="memitem">
 <div class="memproto">
@@ -324,7 +324,7 @@ The view may be temporary; its descriptor and context remain borrowed. </dd></dl
         <tr>
           <td class="memname"><a class="el" href="classtlv_1_1expected.html">expected</a>&lt; void, <a class="el" href="structtlv_1_1error.html">error</a> &gt; tlv::tree_writer::begin </td>
           <td>(</td>
-          <td class="paramtype"><a class="el" href="namespacetlv.html#a2b31c4b301052e8137584ed7baf54611">tag_t</a>&#160;</td>
+          <td class="paramtype"><a class="el" href="classtlv_1_1tag.html">tlv::tag</a>&#160;</td>
           <td class="paramname"><em>tag</em>, </td>
         </tr>
         <tr>
@@ -483,8 +483,8 @@ The view may be temporary; its descriptor and context remain borrowed. </dd></dl
 
 </div>
 </div>
-<a id="a740f31ca1ab461c67235f2bf9b5025d3" name="a740f31ca1ab461c67235f2bf9b5025d3"></a>
-<h2 class="memtitle"><span class="permalink"><a href="#a740f31ca1ab461c67235f2bf9b5025d3">&#9670;&#160;</a></span>write()</h2>
+<a id="a28fc0fe5f3854f19b7f200b621034e9f" name="a28fc0fe5f3854f19b7f200b621034e9f"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#a28fc0fe5f3854f19b7f200b621034e9f">&#9670;&#160;</a></span>write()</h2>
 
 <div class="memitem">
 <div class="memproto">
@@ -495,7 +495,7 @@ The view may be temporary; its descriptor and context remain borrowed. </dd></dl
         <tr>
           <td class="memname"><a class="el" href="classtlv_1_1expected.html">expected</a>&lt; void, <a class="el" href="structtlv_1_1error.html">error</a> &gt; tlv::tree_writer::write </td>
           <td>(</td>
-          <td class="paramtype">const <a class="el" href="namespacetlv.html#a36fb32b6d2478c7a9f386389e959ebcc">element</a> &amp;&#160;</td>
+          <td class="paramtype">const <a class="el" href="classtlv_1_1element__view.html">element_view</a> &amp;&#160;</td>
           <td class="paramname"><em>value</em>, </td>
         </tr>
         <tr>
@@ -529,8 +529,8 @@ The view may be temporary; its descriptor and context remain borrowed. </dd></dl
 
 </div>
 </div>
-<a id="a4f689b3a2557edaa46e97e9ba03186ef" name="a4f689b3a2557edaa46e97e9ba03186ef"></a>
-<h2 class="memtitle"><span class="permalink"><a href="#a4f689b3a2557edaa46e97e9ba03186ef">&#9670;&#160;</a></span>write_event()</h2>
+<a id="a722b7c7ec63856a6f5fe81a3fa98d50b" name="a722b7c7ec63856a6f5fe81a3fa98d50b"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#a722b7c7ec63856a6f5fe81a3fa98d50b">&#9670;&#160;</a></span>write_event()</h2>
 
 <div class="memitem">
 <div class="memproto">
@@ -541,7 +541,7 @@ The view may be temporary; its descriptor and context remain borrowed. </dd></dl
         <tr>
           <td class="memname"><a class="el" href="classtlv_1_1expected.html">expected</a>&lt; void, <a class="el" href="structtlv_1_1error.html">error</a> &gt; tlv::tree_writer::write_event </td>
           <td>(</td>
-          <td class="paramtype">const <a class="elRef" href="../../c-api/html/tree_8h.html#a3b1e811784f5c9b0085cb0144a0c57c2">tlv_tree_event_t</a> &amp;&#160;</td>
+          <td class="paramtype">const <a class="el" href="structtlv_1_1tree__event.html">tree_event</a> &amp;&#160;</td>
           <td class="paramname"><em>event</em>, </td>
         </tr>
         <tr>

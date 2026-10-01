@@ -889,10 +889,10 @@
       <ul class="md-nav__list">
         
           <li class="md-nav__item">
-  <a href="#c-element-access" class="md-nav__link">
+  <a href="#c-semantic-views" class="md-nav__link">
     <span class="md-ellipsis">
       
-        C++ element access
+        C++ semantic views
       
     </span>
   </a>
@@ -2984,10 +2984,10 @@
       <ul class="md-nav__list">
         
           <li class="md-nav__item">
-  <a href="#c-element-access" class="md-nav__link">
+  <a href="#c-semantic-views" class="md-nav__link">
     <span class="md-ellipsis">
       
-        C++ element access
+        C++ semantic views
       
     </span>
   </a>
@@ -3178,14 +3178,64 @@ storage must outlive the tag. They allocate no memory.</p>
 is never produced because a tag is "too long for <code>tlv_tag_t</code>".
 <code>TLV_ERR_INVALID_TAG</code> identifies malformed tag encoding.</p>
 <p>See also the <a href="../../reference/c-api/#core-types-and-utilities">C API reference: core types</a>.</p>
-<h3 id="c-element-access">C++ element access<a class="headerlink" href="#c-element-access" title="Permanent link">&para;</a></h3>
-<p><code>tlv::element</code> aliases semantic <code>tlv_element_t</code> with 64-bit <code>value.size</code>.
-<code>tlv::decode()</code> returns separate source information for raw field inspection. Access bytes through <code>element.value.data</code>. When a C++
-codec or range operation needs <code>tlv::bytes</code>, use the checked conversion:</p>
-<div class="highlight"><pre><span></span><code><a id="__codelineno-3-1" name="__codelineno-3-1" href="#__codelineno-3-1"></a><span class="k">auto</span><span class="w"> </span><span class="n">value</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">tlv</span><span class="o">::</span><span class="n">as_bytes</span><span class="p">(</span><span class="n">element</span><span class="p">.</span><span class="n">value</span><span class="p">);</span>
-<a id="__codelineno-3-2" name="__codelineno-3-2" href="#__codelineno-3-2"></a><span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="o">!</span><span class="n">value</span><span class="p">)</span><span class="w"> </span><span class="k">return</span><span class="p">;</span><span class="w"> </span><span class="c1">// Null data with nonzero size, or size above SIZE_MAX.</span>
-<a id="__codelineno-3-3" name="__codelineno-3-3" href="#__codelineno-3-3"></a><span class="c1">// *value is a borrowed tlv::bytes span; keep the source storage alive.</span>
+<h3 id="c-semantic-views">C++ semantic views<a class="headerlink" href="#c-semantic-views" title="Permanent link">&para;</a></h3>
+<p>Include <code>&lt;tlv++/types.hpp&gt;</code> for the allocation-free semantic types:</p>
+<table>
+<thead>
+<tr>
+<th>Type</th>
+<th>Storage and operations</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>tlv::tag</code></td>
+<td>Borrowed immutable identifier bytes; content equality and lexicographic ordering.</td>
+</tr>
+<tr>
+<td><code>tlv::value_view</code></td>
+<td>Borrowed immutable Value bytes with a validated native <code>size_t</code> count; content equality and explicit byte <code>compare()</code>.</td>
+</tr>
+<tr>
+<td><code>tlv::element_view</code></td>
+<td>A Tag and Value together; equality compares both contents and excludes source metadata.</td>
+</tr>
+</tbody>
+</table>
+<p>All three copy descriptors only. Keep input and any Format-supplied identifier
+storage alive and unchanged while retained views are used. Reader advancement
+does not invalidate a view into stable input. Replacing input does not relocate
+retained views; release them before moving or overwriting their backing storage.
+Document accessors borrow Document storage and follow its mutation invalidation
+rules. Document remains the owned tree representation; these views never own bytes.</p>
+<p>Reader <code>next()</code> returns an <code>element_view</code>; decoded results, tree items, events and
+Visitor callbacks expose the same semantic type. Writer accepts it directly:</p>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-3-1" name="__codelineno-3-1" href="#__codelineno-3-1"></a><span class="k">auto</span><span class="w"> </span><span class="n">result</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">reader</span><span class="p">.</span><span class="n">next</span><span class="p">();</span>
+<a id="__codelineno-3-2" name="__codelineno-3-2" href="#__codelineno-3-2"></a><span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="o">!</span><span class="n">result</span><span class="p">)</span><span class="w"> </span><span class="k">return</span><span class="p">;</span>
+<a id="__codelineno-3-3" name="__codelineno-3-3" href="#__codelineno-3-3"></a><span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="n">result</span><span class="o">-&gt;</span><span class="n">tag</span><span class="p">()</span><span class="w"> </span><span class="o">!=</span><span class="w"> </span><span class="n">tlv</span><span class="o">::</span><span class="n">tag_bytes</span><span class="o">&lt;</span><span class="mh">0x01</span><span class="o">&gt;</span><span class="p">())</span><span class="w"> </span><span class="k">return</span><span class="p">;</span>
+<a id="__codelineno-3-4" name="__codelineno-3-4" href="#__codelineno-3-4"></a><span class="k">auto</span><span class="w"> </span><span class="n">value</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">result</span><span class="o">-&gt;</span><span class="n">value</span><span class="p">();</span>
+<a id="__codelineno-3-5" name="__codelineno-3-5" href="#__codelineno-3-5"></a><span class="k">auto</span><span class="w"> </span><span class="n">span</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">value</span><span class="p">.</span><span class="n">as_bytes</span><span class="p">();</span><span class="w"> </span><span class="c1">// No allocation or byte copy.</span>
+<a id="__codelineno-3-6" name="__codelineno-3-6" href="#__codelineno-3-6"></a><span class="k">for</span><span class="w"> </span><span class="p">(</span><span class="k">auto</span><span class="w"> </span><span class="kt">byte</span><span class="w"> </span><span class="o">:</span><span class="w"> </span><span class="n">value</span><span class="p">)</span><span class="w"> </span><span class="p">{</span><span class="w"> </span><span class="cm">/* Opaque Value bytes. */</span><span class="w"> </span><span class="p">}</span>
+<a id="__codelineno-3-7" name="__codelineno-3-7" href="#__codelineno-3-7"></a><span class="k">auto</span><span class="w"> </span><span class="n">written</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">writer</span><span class="p">.</span><span class="n">write</span><span class="p">(</span><span class="o">*</span><span class="n">result</span><span class="p">);</span>
 </code></pre></div>
+<p><code>tag_bytes&lt;0x9F, 0x02&gt;()</code> borrows immutable program-lifetime storage and works in
+C++11 and later. Arguments are bytes in identifier order; no implicit integer or
+endian conversion occurs. Runtime tags and Values can be explicitly constructed
+from <code>tlv::bytes</code>. Both provide <code>data()</code>, <code>size()</code>, <code>empty()</code>, <code>begin()</code>, <code>end()</code>,
+<code>operator[]</code> (index must be in range), <code>at()</code> (throws <code>std::out_of_range</code>) and
+<code>as_bytes()</code>. Span constructors reject null storage with nonzero length with
+<code>std::invalid_argument</code>; the caller still guarantees the actual storage extent.</p>
+<p>A default Tag is absent. A non-null zero-length span represents an explicitly
+empty Tag; <code>present()</code> distinguishes them. Both compare equal by contents, but
+exact source preservation rejects changing presence.</p>
+<p>The previous <code>tlv::tag_t</code>, <code>tlv::element</code> and <code>tlv::as_bytes(tlv_value_t)</code> APIs are
+replaced by these strong types. C structures cannot convert implicitly. For
+mixed C/C++ code, include <code>&lt;tlv++/native.hpp&gt;</code> and use <code>native::borrow_tag()</code>,
+<code>native::borrow_value()</code> or <code>native::borrow_element()</code>, returning <code>expected</code>.
+Native Value imports validate null-pointer requirements and reject logical sizes
+above <code>SIZE_MAX</code> before iteration or narrowing. <code>native::descriptor(view)</code> exports
+a shallow C descriptor; exporting never transfers ownership or extends lifetimes.
+The C API and its build-independent 64-bit logical size contract remain unchanged.</p>
 
 
 

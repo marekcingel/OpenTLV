@@ -3694,7 +3694,7 @@ explicitly out of scope for #400.</p>
 <td>Element</td>
 <td>One TLV element with borrowed wire fields</td>
 <td><code>tlv_element_t</code></td>
-<td><code>tlv::element</code></td>
+<td><code>tlv::element_view</code></td>
 <td><code>Element&lt;'a&gt;</code></td>
 <td><code>Element</code></td>
 <td>a plain table (<code>tag</code>/<code>raw_length</code>/<code>length</code>/<code>value</code>/<code>offset</code> fields)</td>
@@ -3703,7 +3703,7 @@ explicitly out of scope for #400.</p>
 <td>Tag</td>
 <td>The TLV tag abstraction: raw identifying bytes</td>
 <td><code>tlv_tag_t</code></td>
-<td><code>tlv::tag_t</code> (alias)</td>
+<td><code>tlv::tag</code></td>
 <td><code>Tag</code></td>
 <td><code>Tag</code></td>
 <td>a raw Lua string (content equality already compares it)</td>

@@ -94,24 +94,24 @@ Public Types</h2></td></tr>
 </table><table class="memberdecls">
 <tr class="heading"><td colspan="2"><h2 class="groupheader"><a id="pub-methods" name="pub-methods"></a>
 Public Member Functions</h2></td></tr>
-<tr class="memitem:a14c4e2d3bfa97d1f09d7fd5aa63af06c" id="r_a14c4e2d3bfa97d1f09d7fd5aa63af06c"><td class="memItemLeft" align="right" valign="top">void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classtlv_1_1codec__registry.html#a14c4e2d3bfa97d1f09d7fd5aa63af06c">register_decoder</a> (<a class="el" href="namespacetlv.html#a2b31c4b301052e8137584ed7baf54611">tag_t</a> tag, <a class="el" href="classtlv_1_1codec__registry.html#a0d9ec95bf207d6e4d8cdc4c1f110a70d">decoder_fn</a> decoder)</td></tr>
-<tr class="memdesc:a14c4e2d3bfa97d1f09d7fd5aa63af06c"><td class="mdescLeft">&#160;</td><td class="mdescRight">Registers a decoder for a tag.  <br /></td></tr>
-<tr class="separator:a14c4e2d3bfa97d1f09d7fd5aa63af06c"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:ab582f9b722ce658b23f27f8c0c668c63" id="r_ab582f9b722ce658b23f27f8c0c668c63"><td class="memItemLeft" align="right" valign="top">void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classtlv_1_1codec__registry.html#ab582f9b722ce658b23f27f8c0c668c63">register_decoder</a> (<a class="el" href="classtlv_1_1tag.html">tlv::tag</a> <a class="el" href="classtlv_1_1tag.html">tag</a>, <a class="el" href="classtlv_1_1codec__registry.html#a0d9ec95bf207d6e4d8cdc4c1f110a70d">decoder_fn</a> decoder)</td></tr>
+<tr class="memdesc:ab582f9b722ce658b23f27f8c0c668c63"><td class="mdescLeft">&#160;</td><td class="mdescRight">Registers a decoder for a tag.  <br /></td></tr>
+<tr class="separator:ab582f9b722ce658b23f27f8c0c668c63"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:a09d6fdf21a113f3aa4a949058b73680a" id="r_a09d6fdf21a113f3aa4a949058b73680a"><td class="memTemplParams" colspan="2">template&lt;typename T &gt; </td></tr>
 <tr class="memitem:a09d6fdf21a113f3aa4a949058b73680a"><td class="memTemplItemLeft" align="right" valign="top">void&#160;</td><td class="memTemplItemRight" valign="bottom"><a class="el" href="classtlv_1_1codec__registry.html#a09d6fdf21a113f3aa4a949058b73680a">register_type</a> ()</td></tr>
-<tr class="memdesc:a09d6fdf21a113f3aa4a949058b73680a"><td class="mdescLeft">&#160;</td><td class="mdescRight">Registers a codec type directly, using its static <code>tag</code> and <code><a class="el" href="classtlv_1_1codec__registry.html#aa2cfccafba682895eb6a4009d3d4d7ab" title="Decodes a value with the decoder registered for a tag.">decode()</a></code>.  <br /></td></tr>
+<tr class="memdesc:a09d6fdf21a113f3aa4a949058b73680a"><td class="mdescLeft">&#160;</td><td class="mdescRight">Registers a codec type directly, using its static <code>tag</code> and <code><a class="el" href="classtlv_1_1codec__registry.html#a4fa2a85f9428b93973a86983d24fac84" title="Decodes a value with the decoder registered for a tag.">decode()</a></code>.  <br /></td></tr>
 <tr class="separator:a09d6fdf21a113f3aa4a949058b73680a"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:aa2cfccafba682895eb6a4009d3d4d7ab" id="r_aa2cfccafba682895eb6a4009d3d4d7ab"><td class="memItemLeft" align="right" valign="top"><a class="el" href="classtlv_1_1expected.html">expected</a>&lt; <a class="el" href="classtlv_1_1any.html">any</a>, <a class="el" href="structtlv_1_1error.html">error</a> &gt;&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classtlv_1_1codec__registry.html#aa2cfccafba682895eb6a4009d3d4d7ab">decode</a> (<a class="el" href="namespacetlv.html#a2b31c4b301052e8137584ed7baf54611">tag_t</a> tag, <a class="el" href="namespacetlv.html#a2abe7003a70af047ef9acae17f31f75d">bytes</a> data) const</td></tr>
-<tr class="memdesc:aa2cfccafba682895eb6a4009d3d4d7ab"><td class="mdescLeft">&#160;</td><td class="mdescRight">Decodes a value with the decoder registered for a tag.  <br /></td></tr>
-<tr class="separator:aa2cfccafba682895eb6a4009d3d4d7ab"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:a3cfb3b874b991a629c5393c4f8a979c5" id="r_a3cfb3b874b991a629c5393c4f8a979c5"><td class="memItemLeft" align="right" valign="top">bool&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classtlv_1_1codec__registry.html#a3cfb3b874b991a629c5393c4f8a979c5">has_decoder</a> (<a class="el" href="namespacetlv.html#a2b31c4b301052e8137584ed7baf54611">tag_t</a> tag) const</td></tr>
-<tr class="memdesc:a3cfb3b874b991a629c5393c4f8a979c5"><td class="mdescLeft">&#160;</td><td class="mdescRight">Reports whether a decoder is registered for a tag.  <br /></td></tr>
-<tr class="separator:a3cfb3b874b991a629c5393c4f8a979c5"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a4fa2a85f9428b93973a86983d24fac84" id="r_a4fa2a85f9428b93973a86983d24fac84"><td class="memItemLeft" align="right" valign="top"><a class="el" href="classtlv_1_1expected.html">expected</a>&lt; <a class="el" href="classtlv_1_1any.html">any</a>, <a class="el" href="structtlv_1_1error.html">error</a> &gt;&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classtlv_1_1codec__registry.html#a4fa2a85f9428b93973a86983d24fac84">decode</a> (<a class="el" href="classtlv_1_1tag.html">tlv::tag</a> <a class="el" href="classtlv_1_1tag.html">tag</a>, <a class="el" href="namespacetlv.html#a2abe7003a70af047ef9acae17f31f75d">bytes</a> data) const</td></tr>
+<tr class="memdesc:a4fa2a85f9428b93973a86983d24fac84"><td class="mdescLeft">&#160;</td><td class="mdescRight">Decodes a value with the decoder registered for a tag.  <br /></td></tr>
+<tr class="separator:a4fa2a85f9428b93973a86983d24fac84"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:ade82933c0e2806303cf5e15df0a6542a" id="r_ade82933c0e2806303cf5e15df0a6542a"><td class="memItemLeft" align="right" valign="top">bool&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classtlv_1_1codec__registry.html#ade82933c0e2806303cf5e15df0a6542a">has_decoder</a> (<a class="el" href="classtlv_1_1tag.html">tlv::tag</a> <a class="el" href="classtlv_1_1tag.html">tag</a>) const</td></tr>
+<tr class="memdesc:ade82933c0e2806303cf5e15df0a6542a"><td class="mdescLeft">&#160;</td><td class="mdescRight">Reports whether a decoder is registered for a tag.  <br /></td></tr>
+<tr class="separator:ade82933c0e2806303cf5e15df0a6542a"><td class="memSeparator" colspan="2">&#160;</td></tr>
 </table>
 <a name="details" id="details"></a><h2 class="groupheader">Detailed Description</h2>
 <div class="textblock"><p>Registry for types that must be decoded at runtime. </p>
 <p>Complements the compile-time TlvCodec concept. Useful, for example, for pluggable formats whose types are not all known at compile time.</p>
-<dl class="section note"><dt>Note</dt><dd>Registering and decoding may allocate. The registry copies the bytes of every registered tag, so the tag passed to <a class="el" href="classtlv_1_1codec__registry.html#a14c4e2d3bfa97d1f09d7fd5aa63af06c" title="Registers a decoder for a tag.">register_decoder()</a> only has to stay valid for the duration of the call. </dd></dl>
+<dl class="section note"><dt>Note</dt><dd>Registering and decoding may allocate. The registry copies the bytes of every registered tag, so the tag passed to <a class="el" href="classtlv_1_1codec__registry.html#ab582f9b722ce658b23f27f8c0c668c63" title="Registers a decoder for a tag.">register_decoder()</a> only has to stay valid for the duration of the call. </dd></dl>
 </div><h2 class="groupheader">Member Typedef Documentation</h2>
 <a id="a0d9ec95bf207d6e4d8cdc4c1f110a70d" name="a0d9ec95bf207d6e4d8cdc4c1f110a70d"></a>
 <h2 class="memtitle"><span class="permalink"><a href="#a0d9ec95bf207d6e4d8cdc4c1f110a70d">&#9670;&#160;</a></span>decoder_fn</h2>
@@ -130,8 +130,8 @@ Public Member Functions</h2></td></tr>
 </div>
 </div>
 <h2 class="groupheader">Member Function Documentation</h2>
-<a id="aa2cfccafba682895eb6a4009d3d4d7ab" name="aa2cfccafba682895eb6a4009d3d4d7ab"></a>
-<h2 class="memtitle"><span class="permalink"><a href="#aa2cfccafba682895eb6a4009d3d4d7ab">&#9670;&#160;</a></span>decode()</h2>
+<a id="a4fa2a85f9428b93973a86983d24fac84" name="a4fa2a85f9428b93973a86983d24fac84"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#a4fa2a85f9428b93973a86983d24fac84">&#9670;&#160;</a></span>decode()</h2>
 
 <div class="memitem">
 <div class="memproto">
@@ -142,7 +142,7 @@ Public Member Functions</h2></td></tr>
         <tr>
           <td class="memname"><a class="el" href="classtlv_1_1expected.html">expected</a>&lt; <a class="el" href="classtlv_1_1any.html">any</a>, <a class="el" href="structtlv_1_1error.html">error</a> &gt; tlv::codec_registry::decode </td>
           <td>(</td>
-          <td class="paramtype"><a class="el" href="namespacetlv.html#a2b31c4b301052e8137584ed7baf54611">tag_t</a>&#160;</td>
+          <td class="paramtype"><a class="el" href="classtlv_1_1tag.html">tlv::tag</a>&#160;</td>
           <td class="paramname"><em>tag</em>, </td>
         </tr>
         <tr>
@@ -176,8 +176,8 @@ Public Member Functions</h2></td></tr>
 
 </div>
 </div>
-<a id="a3cfb3b874b991a629c5393c4f8a979c5" name="a3cfb3b874b991a629c5393c4f8a979c5"></a>
-<h2 class="memtitle"><span class="permalink"><a href="#a3cfb3b874b991a629c5393c4f8a979c5">&#9670;&#160;</a></span>has_decoder()</h2>
+<a id="ade82933c0e2806303cf5e15df0a6542a" name="ade82933c0e2806303cf5e15df0a6542a"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#ade82933c0e2806303cf5e15df0a6542a">&#9670;&#160;</a></span>has_decoder()</h2>
 
 <div class="memitem">
 <div class="memproto">
@@ -188,7 +188,7 @@ Public Member Functions</h2></td></tr>
         <tr>
           <td class="memname">bool tlv::codec_registry::has_decoder </td>
           <td>(</td>
-          <td class="paramtype"><a class="el" href="namespacetlv.html#a2b31c4b301052e8137584ed7baf54611">tag_t</a>&#160;</td>
+          <td class="paramtype"><a class="el" href="classtlv_1_1tag.html">tlv::tag</a>&#160;</td>
           <td class="paramname"><em>tag</em></td><td>)</td>
           <td> const</td>
         </tr>
@@ -211,8 +211,8 @@ Public Member Functions</h2></td></tr>
 
 </div>
 </div>
-<a id="a14c4e2d3bfa97d1f09d7fd5aa63af06c" name="a14c4e2d3bfa97d1f09d7fd5aa63af06c"></a>
-<h2 class="memtitle"><span class="permalink"><a href="#a14c4e2d3bfa97d1f09d7fd5aa63af06c">&#9670;&#160;</a></span>register_decoder()</h2>
+<a id="ab582f9b722ce658b23f27f8c0c668c63" name="ab582f9b722ce658b23f27f8c0c668c63"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#ab582f9b722ce658b23f27f8c0c668c63">&#9670;&#160;</a></span>register_decoder()</h2>
 
 <div class="memitem">
 <div class="memproto">
@@ -223,7 +223,7 @@ Public Member Functions</h2></td></tr>
         <tr>
           <td class="memname">void tlv::codec_registry::register_decoder </td>
           <td>(</td>
-          <td class="paramtype"><a class="el" href="namespacetlv.html#a2b31c4b301052e8137584ed7baf54611">tag_t</a>&#160;</td>
+          <td class="paramtype"><a class="el" href="classtlv_1_1tag.html">tlv::tag</a>&#160;</td>
           <td class="paramname"><em>tag</em>, </td>
         </tr>
         <tr>
@@ -282,7 +282,7 @@ template&lt;typename T &gt; </div>
 </table>
 </div><div class="memdoc">
 
-<p>Registers a codec type directly, using its static <code>tag</code> and <code><a class="el" href="classtlv_1_1codec__registry.html#aa2cfccafba682895eb6a4009d3d4d7ab" title="Decodes a value with the decoder registered for a tag.">decode()</a></code>. </p>
+<p>Registers a codec type directly, using its static <code>tag</code> and <code><a class="el" href="classtlv_1_1codec__registry.html#a4fa2a85f9428b93973a86983d24fac84" title="Decodes a value with the decoder registered for a tag.">decode()</a></code>. </p>
 <p>Replaces any previous registration for <code>T::tag</code>.</p>
 <dl class="tparams"><dt>Template Parameters</dt><dd>
   <table class="tparams">

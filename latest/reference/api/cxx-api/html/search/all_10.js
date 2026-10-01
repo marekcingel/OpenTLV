@@ -12,7 +12,7 @@ var searchData=
   ['reader_5fdiagnostic_9',['reader_diagnostic',['../namespacetlv.html#aec6151f23d86b874b79d9d2ae021e568',1,'tlv']]],
   ['reference_10',['OpenTLV C++ API reference',['../index.html',1,'']]],
   ['region_11',['region',['../../../c-api/html/structtlv__format__error.html#a08a422ad555a459895a4e10cbc578b95',1,'tlv_format_error']]],
-  ['register_5fdecoder_12',['register_decoder',['../classtlv_1_1codec__registry.html#a14c4e2d3bfa97d1f09d7fd5aa63af06c',1,'tlv::codec_registry']]],
+  ['register_5fdecoder_12',['register_decoder',['../classtlv_1_1codec__registry.html#ab582f9b722ce658b23f27f8c0c668c63',1,'tlv::codec_registry']]],
   ['register_5ftype_13',['register_type',['../classtlv_1_1codec__registry.html#a09d6fdf21a113f3aa4a949058b73680a',1,'tlv::codec_registry']]],
   ['registry_2ehpp_14',['registry.hpp',['../registry_8hpp.html',1,'']]],
   ['release_15',['release',['../../../c-api/html/structtlv__allocator.html#a59680de45a4041e88dbd1fb798b3f145',1,'tlv_allocator']]],

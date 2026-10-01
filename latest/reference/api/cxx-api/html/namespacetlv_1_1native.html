@@ -96,10 +96,63 @@ Functions</h2></td></tr>
 <tr class="memitem:a9dd78e136779029e1ebd0c9ceb762283" id="r_a9dd78e136779029e1ebd0c9ceb762283"><td class="memItemLeft" align="right" valign="top">const <a class="elRef" href="../../c-api/html/group__formats.html#gac461da7e8d46362fa8e09694efb0b062">tlv_format_t</a> &amp;&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="namespacetlv_1_1native.html#a9dd78e136779029e1ebd0c9ceb762283">descriptor</a> (<a class="el" href="classtlv_1_1format.html">tlv::format</a> view) noexcept</td></tr>
 <tr class="memdesc:a9dd78e136779029e1ebd0c9ceb762283"><td class="mdescLeft">&#160;</td><td class="mdescRight">Access the borrowed native descriptor for an explicit C API operation.  <br /></td></tr>
 <tr class="separator:a9dd78e136779029e1ebd0c9ceb762283"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a7c2cdc2911cd7dfc7aacfce159365ac8" id="r_a7c2cdc2911cd7dfc7aacfce159365ac8"><td class="memItemLeft" align="right" valign="top"><a class="el" href="classtlv_1_1expected.html">expected</a>&lt; <a class="el" href="classtlv_1_1tag.html">tlv::tag</a>, <a class="el" href="structtlv_1_1error.html">error</a> &gt;&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="namespacetlv_1_1native.html#a7c2cdc2911cd7dfc7aacfce159365ac8">borrow_tag</a> (<a class="elRef" href="../../c-api/html/structtlv__tag__t.html">tlv_tag_t</a> raw)</td></tr>
+<tr class="memdesc:a7c2cdc2911cd7dfc7aacfce159365ac8"><td class="mdescLeft">&#160;</td><td class="mdescRight">Validate and borrow native identifier bytes without copying.  <br /></td></tr>
+<tr class="separator:a7c2cdc2911cd7dfc7aacfce159365ac8"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a797289684a2c61a990cd488c9073b299" id="r_a797289684a2c61a990cd488c9073b299"><td class="memItemLeft" align="right" valign="top"><a class="el" href="classtlv_1_1expected.html">expected</a>&lt; <a class="el" href="classtlv_1_1value__view.html">value_view</a>, <a class="el" href="structtlv_1_1error.html">error</a> &gt;&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="namespacetlv_1_1native.html#a797289684a2c61a990cd488c9073b299">borrow_value</a> (<a class="elRef" href="../../c-api/html/structtlv__value__t.html">tlv_value_t</a> raw)</td></tr>
+<tr class="memdesc:a797289684a2c61a990cd488c9073b299"><td class="mdescLeft">&#160;</td><td class="mdescRight">Validate and borrow a native Value without copying.  <br /></td></tr>
+<tr class="separator:a797289684a2c61a990cd488c9073b299"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a1b06247466efe459796f5afaeab3da14" id="r_a1b06247466efe459796f5afaeab3da14"><td class="memItemLeft" align="right" valign="top"><a class="el" href="classtlv_1_1expected.html">expected</a>&lt; <a class="el" href="classtlv_1_1element__view.html">element_view</a>, <a class="el" href="structtlv_1_1error.html">error</a> &gt;&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="namespacetlv_1_1native.html#a1b06247466efe459796f5afaeab3da14">borrow_element</a> (<a class="elRef" href="../../c-api/html/structtlv__element__t.html">tlv_element_t</a> raw)</td></tr>
+<tr class="memdesc:a1b06247466efe459796f5afaeab3da14"><td class="mdescLeft">&#160;</td><td class="mdescRight">Validate and borrow a native semantic Element without copying bytes.  <br /></td></tr>
+<tr class="separator:a1b06247466efe459796f5afaeab3da14"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:ac868e00be16dfef24123d5a153ded65a" id="r_ac868e00be16dfef24123d5a153ded65a"><td class="memItemLeft" align="right" valign="top"><a class="elRef" href="../../c-api/html/structtlv__tag__t.html">tlv_tag_t</a>&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="namespacetlv_1_1native.html#ac868e00be16dfef24123d5a153ded65a">descriptor</a> (<a class="el" href="classtlv_1_1tag.html">tlv::tag</a> view) noexcept</td></tr>
+<tr class="memdesc:ac868e00be16dfef24123d5a153ded65a"><td class="mdescLeft">&#160;</td><td class="mdescRight">Export a shallow C Tag descriptor; storage retains its borrowed lifetime.  <br /></td></tr>
+<tr class="separator:ac868e00be16dfef24123d5a153ded65a"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a7574ffe74322ee86be823585cd905b0d" id="r_a7574ffe74322ee86be823585cd905b0d"><td class="memItemLeft" align="right" valign="top"><a class="elRef" href="../../c-api/html/structtlv__value__t.html">tlv_value_t</a>&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="namespacetlv_1_1native.html#a7574ffe74322ee86be823585cd905b0d">descriptor</a> (<a class="el" href="classtlv_1_1value__view.html">value_view</a> view) noexcept</td></tr>
+<tr class="memdesc:a7574ffe74322ee86be823585cd905b0d"><td class="mdescLeft">&#160;</td><td class="mdescRight">Export a shallow C Value descriptor; storage retains its borrowed lifetime.  <br /></td></tr>
+<tr class="separator:a7574ffe74322ee86be823585cd905b0d"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a70de2604a252c5ff8ec9aa16778cff5f" id="r_a70de2604a252c5ff8ec9aa16778cff5f"><td class="memItemLeft" align="right" valign="top"><a class="elRef" href="../../c-api/html/structtlv__element__t.html">tlv_element_t</a>&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="namespacetlv_1_1native.html#a70de2604a252c5ff8ec9aa16778cff5f">descriptor</a> (<a class="el" href="classtlv_1_1element__view.html">element_view</a> view) noexcept</td></tr>
+<tr class="memdesc:a70de2604a252c5ff8ec9aa16778cff5f"><td class="mdescLeft">&#160;</td><td class="mdescRight">Export a shallow C Element descriptor; neither descriptor nor bytes are retained.  <br /></td></tr>
+<tr class="separator:a70de2604a252c5ff8ec9aa16778cff5f"><td class="memSeparator" colspan="2">&#160;</td></tr>
 </table>
 <a name="details" id="details"></a><h2 class="groupheader">Detailed Description</h2>
 <div class="textblock"><p>Explicit C interoperability; ordinary C++ code uses public C++ types. </p>
 </div><h2 class="groupheader">Function Documentation</h2>
+<a id="a1b06247466efe459796f5afaeab3da14" name="a1b06247466efe459796f5afaeab3da14"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#a1b06247466efe459796f5afaeab3da14">&#9670;&#160;</a></span>borrow_element()</h2>
+
+<div class="memitem">
+<div class="memproto">
+<table class="mlabels">
+  <tr>
+  <td class="mlabels-left">
+      <table class="memname">
+        <tr>
+          <td class="memname"><a class="el" href="classtlv_1_1expected.html">expected</a>&lt; <a class="el" href="classtlv_1_1element__view.html">element_view</a>, <a class="el" href="structtlv_1_1error.html">error</a> &gt; tlv::native::borrow_element </td>
+          <td>(</td>
+          <td class="paramtype"><a class="elRef" href="../../c-api/html/structtlv__element__t.html">tlv_element_t</a>&#160;</td>
+          <td class="paramname"><em>raw</em></td><td>)</td>
+          <td></td>
+        </tr>
+      </table>
+  </td>
+  <td class="mlabels-right">
+<span class="mlabels"><span class="mlabel">inline</span></span>  </td>
+  </tr>
+</table>
+</div><div class="memdoc">
+
+<p>Validate and borrow a native semantic Element without copying bytes. </p>
+<dl class="params"><dt>Parameters</dt><dd>
+  <table class="params">
+    <tr><td class="paramname">raw</td><td>Descriptor whose immutable Tag and Value storage outlives every view. </td></tr>
+  </table>
+  </dd>
+</dl>
+<dl class="section return"><dt>Returns</dt><dd>Element view or the original Tag/Value representation error. </dd></dl>
+
+</div>
+</div>
 <a id="a5b5fad32c789fe8bbbab444f8b215b49" name="a5b5fad32c789fe8bbbab444f8b215b49"></a>
 <h2 class="memtitle"><span class="permalink"><a href="#a5b5fad32c789fe8bbbab444f8b215b49">&#9670;&#160;</a></span>borrow_format() <span class="overload">[1/3]</span></h2>
 
@@ -192,8 +245,108 @@ Functions</h2></td></tr>
 
 </div>
 </div>
+<a id="a7c2cdc2911cd7dfc7aacfce159365ac8" name="a7c2cdc2911cd7dfc7aacfce159365ac8"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#a7c2cdc2911cd7dfc7aacfce159365ac8">&#9670;&#160;</a></span>borrow_tag()</h2>
+
+<div class="memitem">
+<div class="memproto">
+<table class="mlabels">
+  <tr>
+  <td class="mlabels-left">
+      <table class="memname">
+        <tr>
+          <td class="memname"><a class="el" href="classtlv_1_1expected.html">expected</a>&lt; <a class="el" href="classtlv_1_1tag.html">tlv::tag</a>, <a class="el" href="structtlv_1_1error.html">error</a> &gt; tlv::native::borrow_tag </td>
+          <td>(</td>
+          <td class="paramtype"><a class="elRef" href="../../c-api/html/structtlv__tag__t.html">tlv_tag_t</a>&#160;</td>
+          <td class="paramname"><em>raw</em></td><td>)</td>
+          <td></td>
+        </tr>
+      </table>
+  </td>
+  <td class="mlabels-right">
+<span class="mlabels"><span class="mlabel">inline</span></span>  </td>
+  </tr>
+</table>
+</div><div class="memdoc">
+
+<p>Validate and borrow native identifier bytes without copying. </p>
+<dl class="params"><dt>Parameters</dt><dd>
+  <table class="params">
+    <tr><td class="paramname">raw</td><td>Native descriptor; underlying immutable bytes must outlive all views. </td></tr>
+  </table>
+  </dd>
+</dl>
+<dl class="section return"><dt>Returns</dt><dd>Tag, or TLV_ERR_NULL_ARG for null storage with nonzero size. </dd></dl>
+<dl class="section note"><dt>Note</dt><dd>The caller remains responsible for the actual storage extent. </dd></dl>
+
+</div>
+</div>
+<a id="a797289684a2c61a990cd488c9073b299" name="a797289684a2c61a990cd488c9073b299"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#a797289684a2c61a990cd488c9073b299">&#9670;&#160;</a></span>borrow_value()</h2>
+
+<div class="memitem">
+<div class="memproto">
+<table class="mlabels">
+  <tr>
+  <td class="mlabels-left">
+      <table class="memname">
+        <tr>
+          <td class="memname"><a class="el" href="classtlv_1_1expected.html">expected</a>&lt; <a class="el" href="classtlv_1_1value__view.html">value_view</a>, <a class="el" href="structtlv_1_1error.html">error</a> &gt; tlv::native::borrow_value </td>
+          <td>(</td>
+          <td class="paramtype"><a class="elRef" href="../../c-api/html/structtlv__value__t.html">tlv_value_t</a>&#160;</td>
+          <td class="paramname"><em>raw</em></td><td>)</td>
+          <td></td>
+        </tr>
+      </table>
+  </td>
+  <td class="mlabels-right">
+<span class="mlabels"><span class="mlabel">inline</span></span>  </td>
+  </tr>
+</table>
+</div><div class="memdoc">
+
+<p>Validate and borrow a native Value without copying. </p>
+<dl class="params"><dt>Parameters</dt><dd>
+  <table class="params">
+    <tr><td class="paramname">raw</td><td>Native descriptor; immutable storage must outlive every view. </td></tr>
+  </table>
+  </dd>
+</dl>
+<dl class="section return"><dt>Returns</dt><dd>Value view, TLV_ERR_NULL_ARG for invalid storage, or TLV_ERR_NATIVE_SIZE if the logical length cannot be addressed by size_t. </dd></dl>
+<dl class="section note"><dt>Note</dt><dd>Validation cannot prove the storage extent. </dd></dl>
+
+</div>
+</div>
+<a id="a70de2604a252c5ff8ec9aa16778cff5f" name="a70de2604a252c5ff8ec9aa16778cff5f"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#a70de2604a252c5ff8ec9aa16778cff5f">&#9670;&#160;</a></span>descriptor() <span class="overload">[1/4]</span></h2>
+
+<div class="memitem">
+<div class="memproto">
+<table class="mlabels">
+  <tr>
+  <td class="mlabels-left">
+      <table class="memname">
+        <tr>
+          <td class="memname"><a class="elRef" href="../../c-api/html/structtlv__element__t.html">tlv_element_t</a> tlv::native::descriptor </td>
+          <td>(</td>
+          <td class="paramtype"><a class="el" href="classtlv_1_1element__view.html">element_view</a>&#160;</td>
+          <td class="paramname"><em>view</em></td><td>)</td>
+          <td></td>
+        </tr>
+      </table>
+  </td>
+  <td class="mlabels-right">
+<span class="mlabels"><span class="mlabel">inline</span><span class="mlabel">noexcept</span></span>  </td>
+  </tr>
+</table>
+</div><div class="memdoc">
+
+<p>Export a shallow C Element descriptor; neither descriptor nor bytes are retained. </p>
+
+</div>
+</div>
 <a id="a9dd78e136779029e1ebd0c9ceb762283" name="a9dd78e136779029e1ebd0c9ceb762283"></a>
-<h2 class="memtitle"><span class="permalink"><a href="#a9dd78e136779029e1ebd0c9ceb762283">&#9670;&#160;</a></span>descriptor()</h2>
+<h2 class="memtitle"><span class="permalink"><a href="#a9dd78e136779029e1ebd0c9ceb762283">&#9670;&#160;</a></span>descriptor() <span class="overload">[2/4]</span></h2>
 
 <div class="memitem">
 <div class="memproto">
@@ -225,6 +378,62 @@ Functions</h2></td></tr>
 </dl>
 <dl class="section return"><dt>Returns</dt><dd>Immutable descriptor reference; no copy or allocation occurs. </dd></dl>
 <dl class="section warning"><dt>Warning</dt><dd>The descriptor and context retain their original borrowed lifetime. </dd></dl>
+
+</div>
+</div>
+<a id="ac868e00be16dfef24123d5a153ded65a" name="ac868e00be16dfef24123d5a153ded65a"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#ac868e00be16dfef24123d5a153ded65a">&#9670;&#160;</a></span>descriptor() <span class="overload">[3/4]</span></h2>
+
+<div class="memitem">
+<div class="memproto">
+<table class="mlabels">
+  <tr>
+  <td class="mlabels-left">
+      <table class="memname">
+        <tr>
+          <td class="memname"><a class="elRef" href="../../c-api/html/structtlv__tag__t.html">tlv_tag_t</a> tlv::native::descriptor </td>
+          <td>(</td>
+          <td class="paramtype"><a class="el" href="classtlv_1_1tag.html">tlv::tag</a>&#160;</td>
+          <td class="paramname"><em>view</em></td><td>)</td>
+          <td></td>
+        </tr>
+      </table>
+  </td>
+  <td class="mlabels-right">
+<span class="mlabels"><span class="mlabel">inline</span><span class="mlabel">noexcept</span></span>  </td>
+  </tr>
+</table>
+</div><div class="memdoc">
+
+<p>Export a shallow C Tag descriptor; storage retains its borrowed lifetime. </p>
+
+</div>
+</div>
+<a id="a7574ffe74322ee86be823585cd905b0d" name="a7574ffe74322ee86be823585cd905b0d"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#a7574ffe74322ee86be823585cd905b0d">&#9670;&#160;</a></span>descriptor() <span class="overload">[4/4]</span></h2>
+
+<div class="memitem">
+<div class="memproto">
+<table class="mlabels">
+  <tr>
+  <td class="mlabels-left">
+      <table class="memname">
+        <tr>
+          <td class="memname"><a class="elRef" href="../../c-api/html/structtlv__value__t.html">tlv_value_t</a> tlv::native::descriptor </td>
+          <td>(</td>
+          <td class="paramtype"><a class="el" href="classtlv_1_1value__view.html">value_view</a>&#160;</td>
+          <td class="paramname"><em>view</em></td><td>)</td>
+          <td></td>
+        </tr>
+      </table>
+  </td>
+  <td class="mlabels-right">
+<span class="mlabels"><span class="mlabel">inline</span><span class="mlabel">noexcept</span></span>  </td>
+  </tr>
+</table>
+</div><div class="memdoc">
+
+<p>Export a shallow C Value descriptor; storage retains its borrowed lifetime. </p>
 
 </div>
 </div>

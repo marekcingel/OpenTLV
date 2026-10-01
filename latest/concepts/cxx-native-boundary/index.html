@@ -1072,6 +1072,17 @@
   
 </li>
       
+        <li class="md-nav__item">
+  <a href="#semantic-interoperability" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Semantic interoperability
+      
+    </span>
+  </a>
+  
+</li>
+      
     </ul>
   
 </nav>
@@ -2943,6 +2954,17 @@
   
 </li>
       
+        <li class="md-nav__item">
+  <a href="#semantic-interoperability" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Semantic interoperability
+      
+    </span>
+  </a>
+  
+</li>
+      
     </ul>
   
 </nav>
@@ -3045,8 +3067,8 @@ their owning abstractions rather than moving processing semantics out of C.</p>
 </thead>
 <tbody>
 <tr>
-<td><code>tag_t</code>, <code>element</code>, <code>as_bytes(tlv_value_t)</code>, borrowed <code>decoded</code>/<code>source</code>/<code>encoding</code> aliases</td>
-<td>#431 semantic views and #432 Format operations</td>
+<td><code>tag</code>, <code>value_view</code>, <code>element_view</code>, decoded/tree semantic payloads</td>
+<td>#431 implemented; <code>source</code>/<code>encoding</code> aliases migrate with #432 Format operations</td>
 </tr>
 <tr>
 <td>Native Format overloads, <code>fixed_format</code> byte-order parameter and <code>format()</code>, built-in descriptor getters</td>
@@ -3073,7 +3095,7 @@ their owning abstractions rather than moving processing semantics out of C.</p>
 <td>#437 Query integration</td>
 </tr>
 <tr>
-<td>Definition entries, Schema rules/diagnostics, diagnostic paths and protocol container/validation options</td>
+<td>Schema rules/diagnostics, diagnostic paths and protocol container/validation options</td>
 <td>Follow-up facade migration alongside their owning generic/domain APIs</td>
 </tr>
 <tr>
@@ -3091,6 +3113,22 @@ in this first step; subsequent changes must state their migration requirements.<
 for implementation bridging. Public interoperability belongs in <code>tlv::native</code>,
 not in an implicit conversion. Protocol policy remains in the standard, and
 all wire processing, traversal, validation and Query semantics stay in C.</p>
+<h2 id="semantic-interoperability">Semantic interoperability<a class="headerlink" href="#semantic-interoperability" title="Permanent link">&para;</a></h2>
+<p><a href="https://github.com/marekcingel/OpenTLV/issues/431">#431</a> replaces C Tag and Element
+aliases with <code>tlv::tag</code>, <code>tlv::value_view</code> and <code>tlv::element_view</code>. Ordinary code
+uses <code>element.tag()</code>, <code>element.value()</code> and explicit <code>as_bytes()</code> spans. Definition
+entries, Query steps, Document accessors and codec tag requirements also use the
+strong Tag type. Definition registries still borrow their tables and names and
+allocate nothing; registered codec identifiers continue to be copied by the registry.</p>
+<p>Native semantic imports are explicit and checked:</p>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-2-1" name="__codelineno-2-1" href="#__codelineno-2-1"></a><span class="k">auto</span><span class="w"> </span><span class="n">result</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">tlv</span><span class="o">::</span><span class="n">native</span><span class="o">::</span><span class="n">borrow_element</span><span class="p">(</span><span class="n">native_element</span><span class="p">);</span>
+<a id="__codelineno-2-2" name="__codelineno-2-2" href="#__codelineno-2-2"></a><span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="o">!</span><span class="n">result</span><span class="p">)</span><span class="w"> </span><span class="k">return</span><span class="p">;</span><span class="w"> </span><span class="c1">// Invalid pointer or non-native-addressable Value size.</span>
+<a id="__codelineno-2-3" name="__codelineno-2-3" href="#__codelineno-2-3"></a><span class="k">auto</span><span class="w"> </span><span class="n">descriptor</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">tlv</span><span class="o">::</span><span class="n">native</span><span class="o">::</span><span class="n">descriptor</span><span class="p">(</span><span class="o">*</span><span class="n">result</span><span class="p">);</span>
+</code></pre></div>
+<p>The native descriptor itself is copied; its Tag and Value bytes remain borrowed.
+Unlike a Format descriptor, a temporary semantic descriptor can be imported safely
+when its underlying byte storage remains alive. See <a href="../core-types/#c-semantic-views">semantic views</a>
+for the borrowed lifetime and absent/empty Tag rules.</p>
 
 
 
