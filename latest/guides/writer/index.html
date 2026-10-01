@@ -3195,6 +3195,12 @@ caller-owned storage with <code>tlv_codec_encode()</code>, check its codec resul
 write those bytes. The Writer does not infer a codec from a tag or serialize a
 host object's memory. The existing <code>write_value()</code> convenience for application
 codecs uses a temporary vector and is outside this allocation-free interface.</p>
+<p>For reusable associations between tags and semantic types, sequential Writers
+also support <code>write&lt;Field&gt;(value)</code> and <code>write&lt;Field&gt;(value, scratch)</code> using
+<a href="../codecs/#c11-typed-fields-and-value-codecs">typed fields and Value codecs</a>.
+The first form stages Value in an owned vector; the second uses caller-owned
+scratch. Both delegate framing to the same Writer and preserve codec errors
+separately from Writer errors. Scoped builders retain their byte-input API.</p>
 <p>The same typed inputs and byte-tag templates are available on the sequential
 <code>tlv::writer&lt;F&gt;</code>:</p>
 <div class="highlight"><pre><span></span><code><a id="__codelineno-1-1" name="__codelineno-1-1" href="#__codelineno-1-1"></a><span class="n">tlv</span><span class="o">::</span><span class="n">writer</span><span class="o">&lt;</span><span class="n">tlv</span><span class="o">::</span><span class="n">ber</span><span class="o">::</span><span class="n">format</span><span class="o">&gt;</span><span class="w"> </span><span class="n">writer</span><span class="p">(</span>

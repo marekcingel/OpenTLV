@@ -90,6 +90,10 @@ $(function() {
 <table class="memberdecls">
 <tr class="heading"><td colspan="2"><h2 class="groupheader"><a id="pub-methods" name="pub-methods"></a>
 Public Member Functions</h2></td></tr>
+<tr class="memitem:a38f8282ad1ef633ac74d985014b8ef3f" id="r_a38f8282ad1ef633ac74d985014b8ef3f"><td class="memTemplParams" colspan="2">template&lt;typename Field &gt; </td></tr>
+<tr class="memitem:a38f8282ad1ef633ac74d985014b8ef3f"><td class="memTemplItemLeft" align="right" valign="top"><a class="el" href="classtlv_1_1expected.html">expected</a>&lt; typename Field::value_type, <a class="el" href="structtlv_1_1typed__error.html">typed_error</a> &gt;&#160;</td><td class="memTemplItemRight" valign="bottom"><a class="el" href="classtlv_1_1document.html#a38f8282ad1ef633ac74d985014b8ef3f">get</a> () const</td></tr>
+<tr class="memdesc:a38f8282ad1ef633ac74d985014b8ef3f"><td class="mdescLeft">&#160;</td><td class="mdescRight">Decode the first top-level element matching a typed field.  <br /></td></tr>
+<tr class="separator:a38f8282ad1ef633ac74d985014b8ef3f"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:a21d3dd045aa4ead04d484d876746bd05" id="r_a21d3dd045aa4ead04d484d876746bd05"><td class="memItemLeft" align="right" valign="top">&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classtlv_1_1document.html#a21d3dd045aa4ead04d484d876746bd05">document</a> (const <a class="el" href="classtlv_1_1document.html">document</a> &amp;)=delete</td></tr>
 <tr class="separator:a21d3dd045aa4ead04d484d876746bd05"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:a093232fe37856efb9a4ff523e0752633" id="r_a093232fe37856efb9a4ff523e0752633"><td class="memItemLeft" align="right" valign="top"><a class="el" href="classtlv_1_1document.html">document</a> &amp;&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classtlv_1_1document.html#a093232fe37856efb9a4ff523e0752633">operator=</a> (const <a class="el" href="classtlv_1_1document.html">document</a> &amp;)=delete</td></tr>
@@ -731,6 +735,43 @@ Friends</h2></td></tr>
 </div><div class="memdoc">
 
 <p>The first top-level element, or an empty handle. </p>
+
+</div>
+</div>
+<a id="a38f8282ad1ef633ac74d985014b8ef3f" name="a38f8282ad1ef633ac74d985014b8ef3f"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#a38f8282ad1ef633ac74d985014b8ef3f">&#9670;&#160;</a></span>get()</h2>
+
+<div class="memitem">
+<div class="memproto">
+<div class="memtemplate">
+template&lt;typename Field &gt; </div>
+<table class="mlabels">
+  <tr>
+  <td class="mlabels-left">
+      <table class="memname">
+        <tr>
+          <td class="memname"><a class="el" href="classtlv_1_1expected.html">expected</a>&lt; typename Field::value_type, <a class="el" href="structtlv_1_1typed__error.html">typed_error</a> &gt; tlv::document::get </td>
+          <td>(</td>
+          <td class="paramname"></td><td>)</td>
+          <td> const</td>
+        </tr>
+      </table>
+  </td>
+  <td class="mlabels-right">
+<span class="mlabels"><span class="mlabel">inline</span></span>  </td>
+  </tr>
+</table>
+</div><div class="memdoc">
+
+<p>Decode the first top-level element matching a typed field. </p>
+<dl class="tparams"><dt>Template Parameters</dt><dd>
+  <table class="tparams">
+    <tr><td class="paramname">Field</td><td>Typed field selecting identifier, Value type and codec. </td></tr>
+  </table>
+  </dd>
+</dl>
+<dl class="section return"><dt>Returns</dt><dd>Typed value, missing_field, or the Node decode error. </dd></dl>
+<dl class="section warning"><dt>Warning</dt><dd>Borrowed results retain Document Value lifetime and edit invalidation. This operation does not validate Schema or enforce uniqueness; owning codecs may allocate. </dd></dl>
 
 </div>
 </div>

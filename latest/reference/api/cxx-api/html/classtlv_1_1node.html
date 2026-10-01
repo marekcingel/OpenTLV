@@ -88,6 +88,14 @@ $(function() {
 <table class="memberdecls">
 <tr class="heading"><td colspan="2"><h2 class="groupheader"><a id="pub-methods" name="pub-methods"></a>
 Public Member Functions</h2></td></tr>
+<tr class="memitem:aaacb174c50dd86ce38908d9c74d8fd34" id="r_aaacb174c50dd86ce38908d9c74d8fd34"><td class="memTemplParams" colspan="2">template&lt;typename Field &gt; </td></tr>
+<tr class="memitem:aaacb174c50dd86ce38908d9c74d8fd34"><td class="memTemplItemLeft" align="right" valign="top"><a class="el" href="classtlv_1_1expected.html">expected</a>&lt; typename Field::value_type, <a class="el" href="structtlv_1_1typed__error.html">typed_error</a> &gt;&#160;</td><td class="memTemplItemRight" valign="bottom"><a class="el" href="classtlv_1_1node.html#aaacb174c50dd86ce38908d9c74d8fd34">decode</a> () const</td></tr>
+<tr class="memdesc:aaacb174c50dd86ce38908d9c74d8fd34"><td class="mdescLeft">&#160;</td><td class="mdescRight">Decode this primitive Node, checking the typed field's tag.  <br /></td></tr>
+<tr class="separator:aaacb174c50dd86ce38908d9c74d8fd34"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a5e99ad968b08620bb8ba0e808f5bb8ef" id="r_a5e99ad968b08620bb8ba0e808f5bb8ef"><td class="memTemplParams" colspan="2">template&lt;typename Field &gt; </td></tr>
+<tr class="memitem:a5e99ad968b08620bb8ba0e808f5bb8ef"><td class="memTemplItemLeft" align="right" valign="top"><a class="el" href="classtlv_1_1expected.html">expected</a>&lt; typename Field::value_type, <a class="el" href="structtlv_1_1typed__error.html">typed_error</a> &gt;&#160;</td><td class="memTemplItemRight" valign="bottom"><a class="el" href="classtlv_1_1node.html#a5e99ad968b08620bb8ba0e808f5bb8ef">get</a> () const</td></tr>
+<tr class="memdesc:a5e99ad968b08620bb8ba0e808f5bb8ef"><td class="mdescLeft">&#160;</td><td class="mdescRight">Decode the first direct child matching a typed field; no recursive lookup.  <br /></td></tr>
+<tr class="separator:a5e99ad968b08620bb8ba0e808f5bb8ef"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:af319a06d40269b47ffe2a3801d2b59da" id="r_af319a06d40269b47ffe2a3801d2b59da"><td class="memItemLeft" align="right" valign="top">&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classtlv_1_1node.html#af319a06d40269b47ffe2a3801d2b59da">node</a> ()=default</td></tr>
 <tr class="memdesc:af319a06d40269b47ffe2a3801d2b59da"><td class="mdescLeft">&#160;</td><td class="mdescRight">Creates an empty handle.  <br /></td></tr>
 <tr class="separator:af319a06d40269b47ffe2a3801d2b59da"><td class="memSeparator" colspan="2">&#160;</td></tr>
@@ -247,6 +255,43 @@ Friends</h2></td></tr>
 </div><div class="memdoc">
 
 <p>Direct children in encoding order; empty for primitive or invalid nodes. </p>
+
+</div>
+</div>
+<a id="aaacb174c50dd86ce38908d9c74d8fd34" name="aaacb174c50dd86ce38908d9c74d8fd34"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#aaacb174c50dd86ce38908d9c74d8fd34">&#9670;&#160;</a></span>decode()</h2>
+
+<div class="memitem">
+<div class="memproto">
+<div class="memtemplate">
+template&lt;typename Field &gt; </div>
+<table class="mlabels">
+  <tr>
+  <td class="mlabels-left">
+      <table class="memname">
+        <tr>
+          <td class="memname"><a class="el" href="classtlv_1_1expected.html">expected</a>&lt; typename Field::value_type, <a class="el" href="structtlv_1_1typed__error.html">typed_error</a> &gt; tlv::node::decode </td>
+          <td>(</td>
+          <td class="paramname"></td><td>)</td>
+          <td> const</td>
+        </tr>
+      </table>
+  </td>
+  <td class="mlabels-right">
+<span class="mlabels"><span class="mlabel">inline</span></span>  </td>
+  </tr>
+</table>
+</div><div class="memdoc">
+
+<p>Decode this primitive Node, checking the typed field's tag. </p>
+<dl class="tparams"><dt>Template Parameters</dt><dd>
+  <table class="tparams">
+    <tr><td class="paramname">Field</td><td>Typed field selecting Value type and codec. </td></tr>
+  </table>
+  </dd>
+</dl>
+<dl class="section return"><dt>Returns</dt><dd>Typed value, invalid_node, tag_mismatch, constructed_value, or codec error. </dd></dl>
+<dl class="section warning"><dt>Warning</dt><dd>Borrowed codec results retain Document storage lifetime and edit invalidation. Owning codecs may allocate; allocation exceptions propagate. </dd></dl>
 
 </div>
 </div>
@@ -535,6 +580,43 @@ Friends</h2></td></tr>
 </div><div class="memdoc">
 
 <p>The first child of a constructed element, or an empty handle. </p>
+
+</div>
+</div>
+<a id="a5e99ad968b08620bb8ba0e808f5bb8ef" name="a5e99ad968b08620bb8ba0e808f5bb8ef"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#a5e99ad968b08620bb8ba0e808f5bb8ef">&#9670;&#160;</a></span>get()</h2>
+
+<div class="memitem">
+<div class="memproto">
+<div class="memtemplate">
+template&lt;typename Field &gt; </div>
+<table class="mlabels">
+  <tr>
+  <td class="mlabels-left">
+      <table class="memname">
+        <tr>
+          <td class="memname"><a class="el" href="classtlv_1_1expected.html">expected</a>&lt; typename Field::value_type, <a class="el" href="structtlv_1_1typed__error.html">typed_error</a> &gt; tlv::node::get </td>
+          <td>(</td>
+          <td class="paramname"></td><td>)</td>
+          <td> const</td>
+        </tr>
+      </table>
+  </td>
+  <td class="mlabels-right">
+<span class="mlabels"><span class="mlabel">inline</span></span>  </td>
+  </tr>
+</table>
+</div><div class="memdoc">
+
+<p>Decode the first direct child matching a typed field; no recursive lookup. </p>
+<dl class="tparams"><dt>Template Parameters</dt><dd>
+  <table class="tparams">
+    <tr><td class="paramname">Field</td><td>Typed field selecting identifier, Value type and codec. </td></tr>
+  </table>
+  </dd>
+</dl>
+<dl class="section return"><dt>Returns</dt><dd>Typed value, invalid_node, missing_field, or the child's decode error. </dd></dl>
+<dl class="section warning"><dt>Warning</dt><dd>Borrowed results follow the child's Value lifetime. Does not validate Schema. </dd></dl>
 
 </div>
 </div>

@@ -1228,6 +1228,17 @@
     <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
       
         <li class="md-nav__item">
+  <a href="#c11-typed-fields-and-value-codecs" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        C++11 typed fields and Value codecs
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
   <a href="#asn1-universal-type-codecs" class="md-nav__link">
     <span class="md-ellipsis">
       
@@ -2950,6 +2961,17 @@
     <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
       
         <li class="md-nav__item">
+  <a href="#c11-typed-fields-and-value-codecs" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        C++11 typed fields and Value codecs
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
   <a href="#asn1-universal-type-codecs" class="md-nav__link">
     <span class="md-ellipsis">
       
@@ -3104,6 +3126,77 @@ supports it. On failure destination contents are unspecified and encode's
 <p><code>tlv_codec_result_t</code> and <code>tlv_codec_strerror()</code> report conversion errors
 independently from parser/writer <code>tlv_result_t</code> errors. The existing C++ codec
 trait and registry are separate APIs and are unchanged.</p>
+<h2 id="c11-typed-fields-and-value-codecs">C++11 typed fields and Value codecs<a class="headerlink" href="#c11-typed-fields-and-value-codecs" title="Permanent link">&para;</a></h2>
+<p>Include <code>&lt;tlv++/codec/typed.hpp&gt;</code> (also included by <code>&lt;tlv++/tlv.hpp&gt;</code>).
+<code>field&lt;Tag, T, Codec = codec&lt;T&gt;&gt;</code> associates a canonical byte identifier with
+a semantic C++ type and a tag-independent Value conversion. It does not add
+a Definition registry, Schema, or protocol dependency.</p>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-3-1" name="__codelineno-3-1" href="#__codelineno-3-1"></a><span class="k">using</span><span class="w"> </span><span class="n">Label</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">tlv</span><span class="o">::</span><span class="n">field</span><span class="o">&lt;</span><span class="n">tlv</span><span class="o">::</span><span class="n">tag_constant</span><span class="o">&lt;</span><span class="mh">0x50</span><span class="o">&gt;</span><span class="p">,</span><span class="w"> </span><span class="n">std</span><span class="o">::</span><span class="n">string</span><span class="o">&gt;</span><span class="p">;</span>
+<a id="__codelineno-3-2" name="__codelineno-3-2" href="#__codelineno-3-2"></a><span class="k">using</span><span class="w"> </span><span class="n">Counter</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">tlv</span><span class="o">::</span><span class="n">field</span><span class="o">&lt;</span><span class="n">tlv</span><span class="o">::</span><span class="n">tag_constant</span><span class="o">&lt;</span><span class="mh">0x9F</span><span class="p">,</span><span class="w"> </span><span class="mh">0x36</span><span class="o">&gt;</span><span class="p">,</span><span class="w"> </span><span class="kt">uint16_t</span><span class="p">,</span>
+<a id="__codelineno-3-3" name="__codelineno-3-3" href="#__codelineno-3-3"></a><span class="w">                           </span><span class="n">tlv</span><span class="o">::</span><span class="n">uint16_be_codec</span><span class="o">&gt;</span><span class="p">;</span>
+<a id="__codelineno-3-4" name="__codelineno-3-4" href="#__codelineno-3-4"></a>
+<a id="__codelineno-3-5" name="__codelineno-3-5" href="#__codelineno-3-5"></a><span class="k">auto</span><span class="w"> </span><span class="n">label</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">document</span><span class="p">.</span><span class="n">get</span><span class="o">&lt;</span><span class="n">Label</span><span class="o">&gt;</span><span class="p">();</span><span class="w"> </span><span class="c1">// expected&lt;std::string, tlv::typed_error&gt;</span>
+<a id="__codelineno-3-6" name="__codelineno-3-6" href="#__codelineno-3-6"></a><span class="k">auto</span><span class="w"> </span><span class="n">counter</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">element</span><span class="p">.</span><span class="n">decode</span><span class="o">&lt;</span><span class="n">Counter</span><span class="o">&gt;</span><span class="p">();</span>
+<a id="__codelineno-3-7" name="__codelineno-3-7" href="#__codelineno-3-7"></a><span class="k">auto</span><span class="w"> </span><span class="n">written</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">writer</span><span class="p">.</span><span class="n">write</span><span class="o">&lt;</span><span class="n">Counter</span><span class="o">&gt;</span><span class="p">(</span><span class="kt">uint16_t</span><span class="p">{</span><span class="mi">42</span><span class="p">});</span>
+<a id="__codelineno-3-8" name="__codelineno-3-8" href="#__codelineno-3-8"></a><span class="c1">// Check every result before accessing its value.</span>
+</code></pre></div>
+<p><code>tag_constant</code> lists identifier bytes in order, preserving leading zeros;
+<code>tag_constant&lt;&gt;</code> represents an absent identifier. The destination Format decides
+whether it can encode that identifier. Value endianness belongs to the explicitly
+selected codec, independently of the Format's Length encoding.</p>
+<p><code>document.get&lt;Field&gt;()</code> selects the first matching top-level element.
+<code>node.get&lt;Field&gt;()</code> selects the first matching direct child, without recursive
+search. Duplicate tags retain first-match behavior. <code>node.decode&lt;Field&gt;()</code> and
+<code>element.decode&lt;Field&gt;()</code> check the current tag before invoking the codec.
+Scalar Node decoding rejects constructed Nodes, whose Value is represented by
+children rather than a serialized byte view. Element decoding uses the Value
+bytes supplied by the caller, including an explicitly selected structure codec.
+These calls do not validate Schema, uniqueness, required fields or contextual
+length limits.</p>
+<p><code>typed_error.kind</code> distinguishes missing fields, mismatched tags, invalid Node
+handles, constructed Nodes, codec failures and Writer failures. Codec and Writer
+failures retain their original <code>codec_code</code> and <code>framing_code</code>, respectively;
+the other domain remains successful. Errors do not allocate.</p>
+<p>Available adapters are <code>uint8_codec</code>, <code>uint16_be_codec</code>, <code>uint16_le_codec</code>,
+<code>uint32_be_codec</code>, <code>uint32_le_codec</code>, and <code>int64_minimal_be_codec</code>. They delegate
+to the C Value codecs. <code>codec_adapter&lt;T, &amp;descriptor&gt;</code> supports other C codecs
+when <code>T</code> is exactly their documented, default-constructible C representation.
+Do not use it to reinterpret an STL object as a C representation.</p>
+<p>Defaults exist for <code>uint8_t</code>, <code>value_view</code> and <code>std::string</code>. Strings own the
+exact bytes, including embedded NUL, without implicit UTF-8 validation.
+<code>value_view</code> borrows input; Reader advancement, input changes, Document edits
+and destruction retain their usual storage lifetime requirements. Multibyte
+integers require an explicit codec. BCD and text validation likewise require
+an explicit conversion with the desired policy.</p>
+<p>Applications can specialize <code>tlv::codec&lt;MyType&gt;</code> or supply a separate codec as
+the third field parameter. Both mechanisms use this C++11 contract:</p>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-4-1" name="__codelineno-4-1" href="#__codelineno-4-1"></a><span class="k">struct</span><span class="w"> </span><span class="nc">MyCodec</span><span class="w"> </span><span class="p">{</span>
+<a id="__codelineno-4-2" name="__codelineno-4-2" href="#__codelineno-4-2"></a><span class="w">    </span><span class="k">using</span><span class="w"> </span><span class="n">value_type</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">MyType</span><span class="p">;</span>
+<a id="__codelineno-4-3" name="__codelineno-4-3" href="#__codelineno-4-3"></a><span class="w">    </span><span class="k">static</span><span class="w"> </span><span class="n">tlv</span><span class="o">::</span><span class="n">expected</span><span class="o">&lt;</span><span class="n">MyType</span><span class="p">,</span><span class="w"> </span><span class="n">tlv_codec_result_t</span><span class="o">&gt;</span><span class="w"> </span><span class="n">decode</span><span class="p">(</span><span class="n">tlv</span><span class="o">::</span><span class="n">bytes</span><span class="w"> </span><span class="n">input</span><span class="p">);</span>
+<a id="__codelineno-4-4" name="__codelineno-4-4" href="#__codelineno-4-4"></a><span class="w">    </span><span class="k">static</span><span class="w"> </span><span class="n">tlv</span><span class="o">::</span><span class="n">expected</span><span class="o">&lt;</span><span class="kt">size_t</span><span class="p">,</span><span class="w"> </span><span class="n">tlv_codec_result_t</span><span class="o">&gt;</span>
+<a id="__codelineno-4-5" name="__codelineno-4-5" href="#__codelineno-4-5"></a><span class="w">    </span><span class="n">encode</span><span class="p">(</span><span class="k">const</span><span class="w"> </span><span class="n">MyType</span><span class="o">&amp;</span><span class="w"> </span><span class="n">value</span><span class="p">,</span><span class="w"> </span><span class="n">tlv</span><span class="o">::</span><span class="kt">byte</span><span class="o">*</span><span class="w"> </span><span class="n">output</span><span class="p">,</span><span class="w"> </span><span class="kt">size_t</span><span class="w"> </span><span class="n">capacity</span><span class="p">);</span>
+<a id="__codelineno-4-6" name="__codelineno-4-6" href="#__codelineno-4-6"></a><span class="p">};</span>
+</code></pre></div>
+<p>Decode consumes the entire Value and validates intrinsic representation rules.
+Encode with <code>nullptr, 0</code> validates and reports the exact required byte count;
+normal encode respects capacity and reports the same count. Codec operations
+never receive a tag or perform a registry lookup. Field instantiation checks
+the value type and return types. Owning/custom codec allocation exceptions
+propagate rather than being converted to framing errors.</p>
+<p><code>writer.write&lt;Field&gt;(value)</code> stages Value bytes in a temporary vector and may
+allocate. For caller-owned staging use:</p>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-5-1" name="__codelineno-5-1" href="#__codelineno-5-1"></a><span class="n">tlv</span><span class="o">::</span><span class="kt">byte</span><span class="w"> </span><span class="n">scratch</span><span class="p">[</span><span class="mi">2</span><span class="p">];</span>
+<a id="__codelineno-5-2" name="__codelineno-5-2" href="#__codelineno-5-2"></a><span class="k">auto</span><span class="w"> </span><span class="n">result</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">writer</span><span class="p">.</span><span class="n">write</span><span class="o">&lt;</span><span class="n">Counter</span><span class="o">&gt;</span><span class="p">(</span><span class="kt">uint16_t</span><span class="p">{</span><span class="mi">42</span><span class="p">},</span><span class="w"> </span><span class="p">{</span><span class="n">scratch</span><span class="p">,</span><span class="w"> </span><span class="k">sizeof</span><span class="p">(</span><span class="n">scratch</span><span class="p">)});</span>
+</code></pre></div>
+<p>Scratch, input storage and Writer output must be disjoint. Insufficient scratch
+fails before the Writer is invoked. Codec failures preserve the output cursor;
+Writer failures also preserve it under the usual Writer contract, though bytes
+past the cursor may change. Custom codecs may allocate even with caller-owned
+scratch. The selected Format still generates all element framing.</p>
+<p>The <a href="https://github.com/marekcingel/OpenTLV/blob/main/examples/tlv++/src/typed_fields.cpp">compiled typed-field example</a>
+uses C++11 with no optional protocol component and exercises Document lookup
+when Document is enabled. The existing <code>is_tlv_codec</code>, <code>write_value()</code> and
+runtime registry remain available with their original contracts.</p>
 <h2 id="asn1-universal-type-codecs">ASN.1 universal-type codecs<a class="headerlink" href="#asn1-universal-type-codecs" title="Permanent link">&para;</a></h2>
 <p><code>tlv/builtins/asn1/asn1_codec.h</code> provides <code>tlv_codec_t</code> descriptors for the
 ASN.1 primitive universal types (BOOLEAN, INTEGER, ENUMERATED, BIT STRING,
@@ -3168,14 +3261,14 @@ choose a fixed output width from a validation rule it has not been given. The
 caller/domain composes the two: choose the representation, encode, and validate
 the resulting length. For variable-width fields, domain code can choose the
 shortest schema-permitted width that fits. No codec performs tag lookup.</p>
-<div class="highlight"><pre><span></span><code><a id="__codelineno-3-1" name="__codelineno-3-1" href="#__codelineno-3-1"></a><span class="cp">#include</span><span class="w"> </span><span class="cpf">"tlv/codec/number.h"</span>
-<a id="__codelineno-3-2" name="__codelineno-3-2" href="#__codelineno-3-2"></a>
-<a id="__codelineno-3-3" name="__codelineno-3-3" href="#__codelineno-3-3"></a><span class="k">static</span><span class="w"> </span><span class="k">const</span><span class="w"> </span><span class="n">tlv_number_codec_config_t</span><span class="w"> </span><span class="n">amount_config</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="p">{</span>
-<a id="__codelineno-3-4" name="__codelineno-3-4" href="#__codelineno-3-4"></a><span class="w">    </span><span class="n">TLV_NUMBER_BCD</span><span class="p">,</span><span class="w"> </span><span class="mi">6</span><span class="p">,</span><span class="w"> </span><span class="mi">12</span>
-<a id="__codelineno-3-5" name="__codelineno-3-5" href="#__codelineno-3-5"></a><span class="p">};</span>
-<a id="__codelineno-3-6" name="__codelineno-3-6" href="#__codelineno-3-6"></a><span class="k">static</span><span class="w"> </span><span class="k">const</span><span class="w"> </span><span class="n">tlv_codec_t</span><span class="w"> </span><span class="n">amount_codec</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="p">{</span>
-<a id="__codelineno-3-7" name="__codelineno-3-7" href="#__codelineno-3-7"></a><span class="w">    </span><span class="o">&amp;</span><span class="n">amount_config</span><span class="p">,</span><span class="w"> </span><span class="n">tlv_number_decode</span><span class="p">,</span><span class="w"> </span><span class="n">tlv_number_encode</span>
-<a id="__codelineno-3-8" name="__codelineno-3-8" href="#__codelineno-3-8"></a><span class="p">};</span>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-6-1" name="__codelineno-6-1" href="#__codelineno-6-1"></a><span class="cp">#include</span><span class="w"> </span><span class="cpf">"tlv/codec/number.h"</span>
+<a id="__codelineno-6-2" name="__codelineno-6-2" href="#__codelineno-6-2"></a>
+<a id="__codelineno-6-3" name="__codelineno-6-3" href="#__codelineno-6-3"></a><span class="k">static</span><span class="w"> </span><span class="k">const</span><span class="w"> </span><span class="n">tlv_number_codec_config_t</span><span class="w"> </span><span class="n">amount_config</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="p">{</span>
+<a id="__codelineno-6-4" name="__codelineno-6-4" href="#__codelineno-6-4"></a><span class="w">    </span><span class="n">TLV_NUMBER_BCD</span><span class="p">,</span><span class="w"> </span><span class="mi">6</span><span class="p">,</span><span class="w"> </span><span class="mi">12</span>
+<a id="__codelineno-6-5" name="__codelineno-6-5" href="#__codelineno-6-5"></a><span class="p">};</span>
+<a id="__codelineno-6-6" name="__codelineno-6-6" href="#__codelineno-6-6"></a><span class="k">static</span><span class="w"> </span><span class="k">const</span><span class="w"> </span><span class="n">tlv_codec_t</span><span class="w"> </span><span class="n">amount_codec</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="p">{</span>
+<a id="__codelineno-6-7" name="__codelineno-6-7" href="#__codelineno-6-7"></a><span class="w">    </span><span class="o">&amp;</span><span class="n">amount_config</span><span class="p">,</span><span class="w"> </span><span class="n">tlv_number_decode</span><span class="p">,</span><span class="w"> </span><span class="n">tlv_number_encode</span>
+<a id="__codelineno-6-8" name="__codelineno-6-8" href="#__codelineno-6-8"></a><span class="p">};</span>
 </code></pre></div>
 <p>Caller-owned configuration uses <code>tlv_number_codec(&amp;config)</code> to create the same
 borrowed descriptor. Keep the configuration alive and unchanged while it is in
@@ -3196,13 +3289,13 @@ selects fixed-width padding. Decode accepts trailing padding within that
 representation. Field-length and digit-count constraints are applied separately
 by Schema/domain validation.
 Digits after padding and nibbles <code>A..E</code> are rejected.</p>
-<div class="highlight"><pre><span></span><code><a id="__codelineno-4-1" name="__codelineno-4-1" href="#__codelineno-4-1"></a><span class="cp">#include</span><span class="w"> </span><span class="cpf">"tlv/codec/digits.h"</span>
-<a id="__codelineno-4-2" name="__codelineno-4-2" href="#__codelineno-4-2"></a>
-<a id="__codelineno-4-3" name="__codelineno-4-3" href="#__codelineno-4-3"></a><span class="k">static</span><span class="w"> </span><span class="k">const</span><span class="w"> </span><span class="n">tlv_digits_codec_config_t</span><span class="w"> </span><span class="n">identifier_config</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="p">{</span><span class="mi">4</span><span class="p">};</span>
-<a id="__codelineno-4-4" name="__codelineno-4-4" href="#__codelineno-4-4"></a><span class="k">static</span><span class="w"> </span><span class="k">const</span><span class="w"> </span><span class="n">tlv_codec_t</span><span class="w"> </span><span class="n">identifier_codec</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="p">{</span>
-<a id="__codelineno-4-5" name="__codelineno-4-5" href="#__codelineno-4-5"></a><span class="w">    </span><span class="o">&amp;</span><span class="n">identifier_config</span><span class="p">,</span><span class="w"> </span><span class="n">tlv_digits_decode</span><span class="p">,</span><span class="w"> </span><span class="n">tlv_digits_encode</span>
-<a id="__codelineno-4-6" name="__codelineno-4-6" href="#__codelineno-4-6"></a><span class="p">};</span>
-<a id="__codelineno-4-7" name="__codelineno-4-7" href="#__codelineno-4-7"></a><span class="cm">/* "00123" encodes as 00 12 3F FF; decoding preserves both leading zeros. */</span>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-7-1" name="__codelineno-7-1" href="#__codelineno-7-1"></a><span class="cp">#include</span><span class="w"> </span><span class="cpf">"tlv/codec/digits.h"</span>
+<a id="__codelineno-7-2" name="__codelineno-7-2" href="#__codelineno-7-2"></a>
+<a id="__codelineno-7-3" name="__codelineno-7-3" href="#__codelineno-7-3"></a><span class="k">static</span><span class="w"> </span><span class="k">const</span><span class="w"> </span><span class="n">tlv_digits_codec_config_t</span><span class="w"> </span><span class="n">identifier_config</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="p">{</span><span class="mi">4</span><span class="p">};</span>
+<a id="__codelineno-7-4" name="__codelineno-7-4" href="#__codelineno-7-4"></a><span class="k">static</span><span class="w"> </span><span class="k">const</span><span class="w"> </span><span class="n">tlv_codec_t</span><span class="w"> </span><span class="n">identifier_codec</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="p">{</span>
+<a id="__codelineno-7-5" name="__codelineno-7-5" href="#__codelineno-7-5"></a><span class="w">    </span><span class="o">&amp;</span><span class="n">identifier_config</span><span class="p">,</span><span class="w"> </span><span class="n">tlv_digits_decode</span><span class="p">,</span><span class="w"> </span><span class="n">tlv_digits_encode</span>
+<a id="__codelineno-7-6" name="__codelineno-7-6" href="#__codelineno-7-6"></a><span class="p">};</span>
+<a id="__codelineno-7-7" name="__codelineno-7-7" href="#__codelineno-7-7"></a><span class="cm">/* "00123" encodes as 00 12 3F FF; decoding preserves both leading zeros. */</span>
 </code></pre></div>
 <p><code>tlv/codec/text.h</code> converts explicitly selected ASCII text. Choose
 <code>TLV_TEXT_ASCII_PRINTABLE</code> (space through <code>~</code>) or <code>TLV_TEXT_ASCII_ALNUM</code>
@@ -3210,14 +3303,14 @@ Digits after padding and nibbles <code>A..E</code> are rejected.</p>
 such as AN/ANS and is not a Unicode codec. Optional zero padding strips trailing
 zero bytes on decode and pads to the selected fixed width on encode. Embedded
 zeros, controls and bytes outside the selected alphabet are invalid.</p>
-<div class="highlight"><pre><span></span><code><a id="__codelineno-5-1" name="__codelineno-5-1" href="#__codelineno-5-1"></a><span class="cp">#include</span><span class="w"> </span><span class="cpf">"tlv/codec/text.h"</span>
-<a id="__codelineno-5-2" name="__codelineno-5-2" href="#__codelineno-5-2"></a>
-<a id="__codelineno-5-3" name="__codelineno-5-3" href="#__codelineno-5-3"></a><span class="k">static</span><span class="w"> </span><span class="k">const</span><span class="w"> </span><span class="n">tlv_text_codec_config_t</span><span class="w"> </span><span class="n">label_config</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="p">{</span>
-<a id="__codelineno-5-4" name="__codelineno-5-4" href="#__codelineno-5-4"></a><span class="w">    </span><span class="n">TLV_TEXT_ASCII_PRINTABLE</span><span class="p">,</span><span class="w"> </span><span class="mi">16</span><span class="p">,</span><span class="w"> </span><span class="mi">1</span>
-<a id="__codelineno-5-5" name="__codelineno-5-5" href="#__codelineno-5-5"></a><span class="p">};</span>
-<a id="__codelineno-5-6" name="__codelineno-5-6" href="#__codelineno-5-6"></a><span class="k">static</span><span class="w"> </span><span class="k">const</span><span class="w"> </span><span class="n">tlv_codec_t</span><span class="w"> </span><span class="n">label_codec</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="p">{</span>
-<a id="__codelineno-5-7" name="__codelineno-5-7" href="#__codelineno-5-7"></a><span class="w">    </span><span class="o">&amp;</span><span class="n">label_config</span><span class="p">,</span><span class="w"> </span><span class="n">tlv_text_decode</span><span class="p">,</span><span class="w"> </span><span class="n">tlv_text_encode</span>
-<a id="__codelineno-5-8" name="__codelineno-5-8" href="#__codelineno-5-8"></a><span class="p">};</span>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-8-1" name="__codelineno-8-1" href="#__codelineno-8-1"></a><span class="cp">#include</span><span class="w"> </span><span class="cpf">"tlv/codec/text.h"</span>
+<a id="__codelineno-8-2" name="__codelineno-8-2" href="#__codelineno-8-2"></a>
+<a id="__codelineno-8-3" name="__codelineno-8-3" href="#__codelineno-8-3"></a><span class="k">static</span><span class="w"> </span><span class="k">const</span><span class="w"> </span><span class="n">tlv_text_codec_config_t</span><span class="w"> </span><span class="n">label_config</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="p">{</span>
+<a id="__codelineno-8-4" name="__codelineno-8-4" href="#__codelineno-8-4"></a><span class="w">    </span><span class="n">TLV_TEXT_ASCII_PRINTABLE</span><span class="p">,</span><span class="w"> </span><span class="mi">16</span><span class="p">,</span><span class="w"> </span><span class="mi">1</span>
+<a id="__codelineno-8-5" name="__codelineno-8-5" href="#__codelineno-8-5"></a><span class="p">};</span>
+<a id="__codelineno-8-6" name="__codelineno-8-6" href="#__codelineno-8-6"></a><span class="k">static</span><span class="w"> </span><span class="k">const</span><span class="w"> </span><span class="n">tlv_codec_t</span><span class="w"> </span><span class="n">label_codec</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="p">{</span>
+<a id="__codelineno-8-7" name="__codelineno-8-7" href="#__codelineno-8-7"></a><span class="w">    </span><span class="o">&amp;</span><span class="n">label_config</span><span class="p">,</span><span class="w"> </span><span class="n">tlv_text_decode</span><span class="p">,</span><span class="w"> </span><span class="n">tlv_text_encode</span>
+<a id="__codelineno-8-8" name="__codelineno-8-8" href="#__codelineno-8-8"></a><span class="p">};</span>
 </code></pre></div>
 <p>The text C representation is <code>tlv_value_t</code>, not a C string. Decode returns an
 unpadded borrowed span into the original wire bytes without adding a terminator;

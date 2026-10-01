@@ -1,12 +1,10 @@
 var searchData=
 [
-  ['name_0',['name',['../classtlv_1_1definition.html#a85243252da0c6732aade72bf1c3b647c',1,'tlv::definition']]],
-  ['next_1',['next',['../classtlv_1_1node.html#a4b9a6cdf37ed21afc75b448296bb487d',1,'tlv::node::next()'],['../classtlv_1_1detail_1_1reader__base.html#a21da748c1c1fe71f15efd83a7accb24f',1,'tlv::detail::reader_base::next()'],['../classtlv_1_1detail_1_1reader__base.html#ad0df4b3006eb6c2fed0a63f1158f46fa',1,'tlv::detail::reader_base::next(reader_diagnostic &amp;out_diagnostic)'],['../classtlv_1_1tree__reader.html#a5a3a79e2cc3ada934014cc52c93823e6',1,'tlv::tree_reader::next(reader_diagnostic *diagnostic=nullptr)']]],
-  ['next_5fevent_2',['next_event',['../classtlv_1_1tree__reader.html#aeb68092903f2cf027c5ca72b427270df',1,'tlv::tree_reader']]],
-  ['next_5fsame_5ftag_3',['next_same_tag',['../classtlv_1_1node.html#a114b1bf9f358158161ff8d95d48e3580',1,'tlv::node']]],
-  ['next_5fsource_4',['next_source',['../classtlv_1_1detail_1_1reader__base.html#a2462f3dd197b8969415223901198ea94',1,'tlv::detail::reader_base']]],
-  ['nfc_5ftype2_5fformat_5',['nfc_type2_format',['../namespacetlv.html#a00db5736c984842cb5cf12e120859833',1,'tlv']]],
-  ['node_6',['node',['../classtlv_1_1node.html#af319a06d40269b47ffe2a3801d2b59da',1,'tlv::node']]],
-  ['node_5fiterator_7',['node_iterator',['../classtlv_1_1node__iterator.html#a2d69c994c0e7d677e1a2a05521124d3c',1,'tlv::node_iterator']]],
-  ['node_5frange_8',['node_range',['../classtlv_1_1node__range.html#ad07857bc3c0c228c8c0d47cc2d9389a1',1,'tlv::node_range']]]
+  ['make_5fdiagnostic_0',['make_diagnostic',['../namespacetlv.html#a0d0a36fc765ca92cdc9ce5fc59fb1bd5',1,'tlv']]],
+  ['make_5fdiagnostic_5fpath_1',['make_diagnostic_path',['../namespacetlv.html#a743e6cef95a14fa9bee005771e2a3183',1,'tlv']]],
+  ['matches_2',['matches',['../classtlv_1_1query__matcher.html#a2521c8e3d2c409a9111318aa3e31803e',1,'tlv::query_matcher']]],
+  ['measure_3',['measure',['../structtlv_1_1format__traits.html#a6a3d96ea0b369d2ed896664ded2ee7a1',1,'tlv::format_traits::measure()'],['../namespacetlv.html#a9daf93c0983963ae4ce08538cae33dbf',1,'tlv::measure(const tlv_format_t &amp;format, const element_view &amp;value)'],['../namespacetlv.html#a341cd18692efb5c62b54bfc30a7bbfc3',1,'tlv::measure(tlv::format format, const element_view &amp;value)'],['../namespacetlv.html#a8dd4ea4721ad76855115212ca7b04979',1,'tlv::measure(tlv::format format, const measure_request &amp;request)']]],
+  ['measure_5ftree_4',['measure_tree',['../namespacetlv.html#a150f8d840867424d28c13be43c89232c',1,'tlv::measure_tree(const tlv_format_t &amp;format, Source &amp;&amp;next, tree_writer_workspace &amp;workspace, size_t max_depth=TLV_TREE_DEFAULT_DEPTH, size_t max_elements=SIZE_MAX, writer_diagnostic *diagnostic=nullptr)'],['../namespacetlv.html#ab4182665a183de70980f0e2ad0a9bd94',1,'tlv::measure_tree(tlv::format format, Source &amp;&amp;next, tree_writer_workspace &amp;workspace, size_t max_depth=TLV_TREE_DEFAULT_DEPTH, size_t max_elements=SIZE_MAX, writer_diagnostic *diagnostic=nullptr)']]],
+  ['measure_5ftree_5fevents_5',['measure_tree_events',['../namespacetlv.html#a8d199e9fb2a94ced8e7fc7616d3f6fa1',1,'tlv::measure_tree_events(const tlv_format_t &amp;format, Source &amp;&amp;next, tree_writer_workspace &amp;workspace, size_t max_depth=TLV_TREE_DEFAULT_DEPTH, size_t max_elements=SIZE_MAX, writer_diagnostic *diagnostic=nullptr)'],['../namespacetlv.html#a81f91995a35b2f569c4a44d6abb43afc',1,'tlv::measure_tree_events(tlv::format format, Source &amp;&amp;next, tree_writer_workspace &amp;workspace, size_t max_depth=TLV_TREE_DEFAULT_DEPTH, size_t max_elements=SIZE_MAX, writer_diagnostic *diagnostic=nullptr)']]],
+  ['message_6',['message',['../structtlv_1_1writer__failure.html#a21d7fc193b5f14854cd0332bbc0d9890',1,'tlv::writer_failure']]]
 ];

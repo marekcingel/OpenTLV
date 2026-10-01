@@ -88,6 +88,10 @@ $(function() {
 <table class="memberdecls">
 <tr class="heading"><td colspan="2"><h2 class="groupheader"><a id="pub-methods" name="pub-methods"></a>
 Public Member Functions</h2></td></tr>
+<tr class="memitem:acdfbef89a8d32202238081a7c9f14230" id="r_acdfbef89a8d32202238081a7c9f14230"><td class="memTemplParams" colspan="2">template&lt;typename Field &gt; </td></tr>
+<tr class="memitem:acdfbef89a8d32202238081a7c9f14230"><td class="memTemplItemLeft" align="right" valign="top"><a class="el" href="classtlv_1_1expected.html">expected</a>&lt; typename Field::value_type, <a class="el" href="structtlv_1_1typed__error.html">typed_error</a> &gt;&#160;</td><td class="memTemplItemRight" valign="bottom"><a class="el" href="classtlv_1_1element__view.html#acdfbef89a8d32202238081a7c9f14230">decode</a> () const</td></tr>
+<tr class="memdesc:acdfbef89a8d32202238081a7c9f14230"><td class="mdescLeft">&#160;</td><td class="mdescRight">Decode this element with a typed field, checking its tag first.  <br /></td></tr>
+<tr class="separator:acdfbef89a8d32202238081a7c9f14230"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:a92b021e1c6e9148e24641a5212549ff9" id="r_a92b021e1c6e9148e24641a5212549ff9"><td class="memItemLeft" align="right" valign="top">&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classtlv_1_1element__view.html#a92b021e1c6e9148e24641a5212549ff9">element_view</a> () noexcept=default</td></tr>
 <tr class="memdesc:a92b021e1c6e9148e24641a5212549ff9"><td class="mdescLeft">&#160;</td><td class="mdescRight">Create an absent Tag and empty Value without allocation.  <br /></td></tr>
 <tr class="separator:a92b021e1c6e9148e24641a5212549ff9"><td class="memSeparator" colspan="2">&#160;</td></tr>
@@ -180,6 +184,43 @@ Friends</h2></td></tr>
 </div>
 </div>
 <h2 class="groupheader">Member Function Documentation</h2>
+<a id="acdfbef89a8d32202238081a7c9f14230" name="acdfbef89a8d32202238081a7c9f14230"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#acdfbef89a8d32202238081a7c9f14230">&#9670;&#160;</a></span>decode()</h2>
+
+<div class="memitem">
+<div class="memproto">
+<div class="memtemplate">
+template&lt;typename Field &gt; </div>
+<table class="mlabels">
+  <tr>
+  <td class="mlabels-left">
+      <table class="memname">
+        <tr>
+          <td class="memname"><a class="el" href="classtlv_1_1expected.html">expected</a>&lt; typename Field::value_type, <a class="el" href="structtlv_1_1typed__error.html">typed_error</a> &gt; tlv::element_view::decode </td>
+          <td>(</td>
+          <td class="paramname"></td><td>)</td>
+          <td> const</td>
+        </tr>
+      </table>
+  </td>
+  <td class="mlabels-right">
+<span class="mlabels"><span class="mlabel">inline</span></span>  </td>
+  </tr>
+</table>
+</div><div class="memdoc">
+
+<p>Decode this element with a typed field, checking its tag first. </p>
+<dl class="tparams"><dt>Template Parameters</dt><dd>
+  <table class="tparams">
+    <tr><td class="paramname">Field</td><td>A <a class="el" href="structtlv_1_1field.html" title="Associate a byte identifier, semantic type and Value codec at compile time.">tlv::field</a> specialization; include <a class="el" href="typed_8hpp.html" title="C++11 typed fields and tag-independent Value codec customization.">codec/typed.hpp</a>. </td></tr>
+  </table>
+  </dd>
+</dl>
+<dl class="section return"><dt>Returns</dt><dd>Typed value, tag_mismatch, or the original codec error. </dd></dl>
+<dl class="section warning"><dt>Warning</dt><dd>Borrowed results retain the input lifetime. Owning codecs may allocate. </dd></dl>
+
+</div>
+</div>
 <a id="af30f72aaafa966c40308be378cbec82b" name="af30f72aaafa966c40308be378cbec82b"></a>
 <h2 class="memtitle"><span class="permalink"><a href="#af30f72aaafa966c40308be378cbec82b">&#9670;&#160;</a></span>tag()</h2>
 
