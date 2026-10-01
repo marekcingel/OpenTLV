@@ -53,7 +53,21 @@ jobs:
         uses: leafo/gh-actions-luarocks@v4
 
       - name: Install test dependencies
-        run: luarocks install busted
+        shell: bash
+        run: |
+          # Dependency rockspecs can fetch archives outside the LuaRocks server.
+          # Retry transient download failures while retaining a failing final status.
+          for attempt in 1 2 3; do
+            if luarocks install busted; then
+              exit 0
+            fi
+            if [ "$attempt" -lt 3 ]; then
+              echo "::warning::Test dependency installation failed (attempt $attempt/3); retrying in 5 seconds."
+              sleep 5
+            fi
+          done
+          echo "::error::Test dependency installation failed after 3 attempts."
+          exit 1
 
       - name: Build and install the opentlv rock
         working-directory: bindings/lua
