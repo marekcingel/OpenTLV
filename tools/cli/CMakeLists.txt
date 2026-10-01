@@ -114,6 +114,7 @@ if(OPENTLV_BUILD_CLI_TESTS)
         "-DHAS_BER=${OPENTLV_FORMAT_BER}"
         "-DHAS_DER=${OPENTLV_FORMAT_DER}"
         "-DHAS_EMV=${OPENTLV_EMV}"
+        "-DHAS_NFC=${OPENTLV_NFC}"
         -P "${CMAKE_CURRENT_SOURCE_DIR}/test.cmake")
     set_tests_properties(Integration_cli PROPERTIES LABELS "integration;cli")
 endif()

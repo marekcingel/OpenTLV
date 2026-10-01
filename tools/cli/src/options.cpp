@@ -408,7 +408,7 @@ void options::usage() {
            "       otlv tags --module emv [--search TEXT] [--output text|json]\n"
            "       otlv completion bash|zsh|fish|powershell\n"
            "       otlv formats | --help | --version\n"
-           "Formats: default, fixed, ber, der, emv, bluetooth-ltv (when enabled in this build)\n"
+           "Formats: fixed, ber, der, emv, bluetooth-ltv, nfc-type2 (when enabled in this build)\n"
            "Options:\n"
            "  --fixed-tag-size N     --format fixed: tag width in bytes (default 1)\n"
            "  --fixed-length-size N  --format fixed: length width in bytes, 1..8 (default 1)\n"

@@ -20,6 +20,9 @@ std::vector<std::string> enabled_formats() {
 #if OPENTLV_BLUETOOTH
     names.push_back("bluetooth-ltv");
 #endif
+#if OPENTLV_NFC
+    names.push_back("nfc-type2");
+#endif
     return names;
 }
 

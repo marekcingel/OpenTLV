@@ -61,15 +61,34 @@ Retain NULL elements if the desired result must preserve padding.
 
 Build and run `example-tlv-nfc_type2`; its source is
 [`examples/tlv/src/nfc_type2.c`](https://github.com/marekcingel/OpenTLV/blob/main/examples/tlv/src/nfc_type2.c).
-The example reads and re-encodes `00 03 03 D1 01 00 FE` byte-for-byte, retains
+The example reads and re-encodes `00 03 09 D1 01 05 54 02 65 6E 48 69 FE` byte-for-byte, retains
 NULL in the encoded result, hides it in the display, and stops after Terminator:
 
 ```text
-NDEF_MESSAGE: D1 01 00
+NDEF_MESSAGE: D1 01 05 54 02 65 6E 48 69
 TERMINATOR
 ```
 
 The Value is opaque: this example demonstrates TLV framing, not NDEF validation.
+
+The supported file corpus lives in
+[`examples/nfc/type2`](https://github.com/marekcingel/OpenTLV/tree/main/examples/nfc/type2).
+It includes this sample, control TLVs, empty Values, short/extended length
+boundaries, reserved identifiers, and malformed inputs. The corpus README
+documents the bytes, expected Elements, and synthetic provenance. Integration
+tests read the checked-in files and independently verify decoding, encoding
+from expected Elements, and Reader -> Element -> Writer byte equality.
+
+With `OPENTLV_BUILD_CLI=ON` and `OPENTLV_NFC=ON`, run from the repository root:
+
+```sh
+otlv decode --format nfc-type2 --input examples/nfc/type2/sample.bin
+```
+
+The JSON contains `00` and `FE` as empty Values and the `03` Value as
+`D101055402656E4869`. CLI format selection is explicit; no format detection
+or NDEF interpretation is performed. `otlv formats` and shell completion
+include `nfc-type2` when enabled. See the corpus README for binary re-encoding.
 
 ## Bindings
 

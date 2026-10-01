@@ -61,6 +61,7 @@ set(SOURCES
     formats/variable_test.cpp
     formats/escaped_test.cpp
     builtins/nfc/type2_test.cpp
+    builtins/nfc/type2_vectors_test.cpp
     packed_field_test.cpp
     query/query_test.cpp
     reader/reader_test.cpp
@@ -159,6 +160,11 @@ target_link_libraries(${test_target} PRIVATE
     tlv
     GTest::gtest_main
 )
+
+if(test_group STREQUAL "integration" AND OPENTLV_NFC)
+    target_compile_definitions(${test_target} PRIVATE
+        OPENTLV_NFC_TYPE2_CORPUS="${OpenTLV_SOURCE_DIR}/examples/nfc/type2")
+endif()
 
 include(GoogleTest)
 opentlv_configure_compiler(${test_target})

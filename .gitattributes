@@ -1,3 +1,5 @@
 # Fuzz seeds are binary input, including files that happen to resemble text.
 tests/fuzz/**/corpus/** binary
 tools/cli/*.bin binary
+examples/nfc/type2/*.bin binary
+examples/nfc/type2/invalid/*.bin binary
