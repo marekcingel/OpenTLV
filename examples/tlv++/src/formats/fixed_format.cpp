@@ -11,7 +11,7 @@ using format = tlv::fixed_format<2, 2, TLV_BYTE_ORDER_LITTLE_ENDIAN>;
 
 int main() {
     std::array<tlv::byte, 16> buf{};
-    tlv::writer               writer(buf.data(), buf.size(), format::format());
+    tlv::writer<>             writer(buf.data(), buf.size(), format::format());
 
     const std::array<tlv::byte, 3> value = {tlv::byte(0xAA), tlv::byte(0xBB), tlv::byte(0xCC)};
     auto                           written =
@@ -22,8 +22,8 @@ int main() {
     }
 
     // Wire bytes: 12 34 03 00 AA BB CC. The tag is kept as is; only the length is little-endian.
-    tlv::reader reader(tlv::bytes(buf.data(), writer.size()), format::format());
-    auto        element = reader.next();
+    tlv::reader<> reader(tlv::bytes(buf.data(), writer.size()), format::format());
+    auto          element = reader.next();
     if (!element) {
         std::cerr << "read error: " << element.error().message << "\n";
         return 1;

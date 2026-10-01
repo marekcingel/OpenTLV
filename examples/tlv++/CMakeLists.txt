@@ -74,3 +74,11 @@ if(OPENTLV_FORMAT_BER)
         set_tests_properties(Integration_example_tlv++_${use_case} PROPERTIES LABELS "integration;examples")
     endforeach()
 endif()
+
+# Application-defined C++ Format; independent of every optional built-in.
+add_executable(example-tlvpp-custom-format src/formats/custom_format.cpp)
+target_link_libraries(example-tlvpp-custom-format PRIVATE tlv++)
+opentlv_configure_compiler(example-tlvpp-custom-format)
+opentlv_copy_shared_runtime(example-tlvpp-custom-format)
+add_test(NAME Integration_example_tlvpp_custom_format COMMAND $<TARGET_FILE:example-tlvpp-custom-format>)
+set_tests_properties(Integration_example_tlvpp_custom_format PROPERTIES LABELS "integration;examples")

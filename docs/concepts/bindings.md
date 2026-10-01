@@ -187,7 +187,7 @@ operations; the exclusions above are tracked for follow-up work.
 
 ### C++ resumable traversal
 
-`tlv::reader` and `tlv::tree_reader` accept `tlv::input_mode::incremental`.
+`tlv::reader<>` and `tlv::tree_reader` accept `tlv::input_mode::incremental`.
 Their `next` operations return `expected` results with the original C codes:
 `TLV_NEED_MORE_DATA` is resumable and `TLV_ERR_END_OF_BUFFER` is final exhaustion.
 Use `set_input` to replace the contiguous input window and declare final input;
@@ -370,8 +370,8 @@ explicitly out of scope for #400.
 
 | Concept | Responsibility | C | C++ (`tlv++`) | Rust (`opentlv`, experimental) | Python (`opentlv`, experimental) | Lua (`opentlv`, experimental) |
 | --- | --- | --- | --- | --- | --- | --- |
-| Reader | Read-only parsing and traversal | `tlv_reader_t`, `tlv_reader_next()` | `tlv::reader` | `Reader<'a>` | `Reader` | `opentlv.reader()` |
-| Writer | Construction and serialization | `tlv_writer_t` | `tlv::writer` | `Writer<'a>` | `Writer` | `opentlv.writer()` |
+| Reader | Read-only parsing and traversal | `tlv_reader_t`, `tlv_reader_next()` | `tlv::reader<>` | `Reader<'a>` | `Reader` | `opentlv.reader()` |
+| Writer | Construction and serialization | `tlv_writer_t` | `tlv::writer<>` | `Writer<'a>` | `Writer` | `opentlv.writer()` |
 | Document | Optional owning, mutable representation | `tlv_document_t` | `tlv::document` | `Document`, `Node`, `NodeMut`, `DocumentBuilder` | `Document`, `Node`, `DocumentBuilder` | not bound yet |
 | Element | One TLV element with borrowed wire fields | `tlv_element_t` | `tlv::element_view` | `Element<'a>` | `Element` | a plain table (`tag`/`raw_length`/`length`/`value`/`offset` fields) |
 | Tag | The TLV tag abstraction: raw identifying bytes | `tlv_tag_t` | `tlv::tag` | `Tag` | `Tag` | a raw Lua string (content equality already compares it) |

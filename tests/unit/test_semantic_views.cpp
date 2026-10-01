@@ -85,7 +85,7 @@ TEST(Unit_Tlvpp_Semantics, NativeImportsRejectInvalidRepresentationBeforeByteAcc
 TEST(Unit_Tlvpp_Semantics, ValuesAndElementsCompareContentsAndBorrowStableInput) {
     const uint8_t input[] = {1, 2, 42, 43, 2, 0};
     const uint8_t copy[] = {42, 43};
-    tlv::reader   reader(bytes(input, sizeof(input)), controlled::format);
+    tlv::reader<> reader(bytes(input, sizeof(input)), controlled::format);
     auto          decoded = reader.next_source();
     ASSERT_TRUE(decoded);
     const auto element = decoded->element;
@@ -107,8 +107,8 @@ TEST(Unit_Tlvpp_Semantics, ValuesAndElementsCompareContentsAndBorrowStableInput)
     EXPECT_THROW(empty.at(0), std::out_of_range);
     ASSERT_TRUE(reader.next());
     EXPECT_EQ(tlv::byte{42}, element.value()[0]);
-    tlv::byte   output[sizeof(input)]{};
-    tlv::writer writer(output, sizeof(output), controlled::format);
+    tlv::byte     output[sizeof(input)]{};
+    tlv::writer<> writer(output, sizeof(output), controlled::format);
     ASSERT_TRUE(writer.write(element.tag(), element.value()));
     ASSERT_EQ(4u, writer.size());
     EXPECT_EQ(0, std::memcmp(input, output, writer.size()));

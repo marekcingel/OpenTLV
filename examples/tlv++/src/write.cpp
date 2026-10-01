@@ -20,8 +20,8 @@ int main() {
     std::array<tlv::byte, 16> value_buf{};
     std::array<tlv::byte, 20> document_buf{};
 
-    tlv::writer df_name_writer(df_name_buf.data(), df_name_buf.size(), tlv_format_ber);
-    auto        df_name_result = df_name_writer.write(
+    tlv::writer<> df_name_writer(df_name_buf.data(), df_name_buf.size(), tlv_format_ber);
+    auto          df_name_result = df_name_writer.write(
         tlv::tag_bytes<0x84>(), tlv::bytes(reinterpret_cast<const tlv::byte*>("ABC"), 3));
     if (!df_name_result) {
         std::cerr << "write error: " << df_name_result.error().message << "\n";
@@ -29,17 +29,18 @@ int main() {
     }
 
     const tlv::byte application_label = tlv::byte(0x01);
-    tlv::writer application_label_writer(application_label_buf.data(), application_label_buf.size(),
-                                         tlv_format_ber);
-    auto        label_result =
+    tlv::writer<>   application_label_writer(application_label_buf.data(),
+                                             application_label_buf.size(), tlv_format_ber);
+    auto            label_result =
         application_label_writer.write(tlv::tag_bytes<0x50>(), tlv::bytes(&application_label, 1));
     if (!label_result) {
         std::cerr << "write error: " << label_result.error().message << "\n";
         return 1;
     }
 
-    tlv::writer proprietary_writer(proprietary_buf.data(), proprietary_buf.size(), tlv_format_ber);
-    auto        proprietary_result = proprietary_writer.write(
+    tlv::writer<> proprietary_writer(proprietary_buf.data(), proprietary_buf.size(),
+                                     tlv_format_ber);
+    auto          proprietary_result = proprietary_writer.write(
         tlv::tag_bytes<0xA5>(),
         tlv::bytes(application_label_buf.data(), application_label_writer.size()));
     if (!proprietary_result) {
@@ -52,8 +53,8 @@ int main() {
                 proprietary_writer.size());
     const size_t value_size = df_name_writer.size() + proprietary_writer.size();
 
-    tlv::writer document_writer(document_buf.data(), document_buf.size(), tlv_format_ber);
-    auto        document_result =
+    tlv::writer<> document_writer(document_buf.data(), document_buf.size(), tlv_format_ber);
+    auto          document_result =
         document_writer.write(tlv::tag_bytes<0x6F>(), tlv::bytes(value_buf.data(), value_size));
     if (!document_result) {
         std::cerr << "write error: " << document_result.error().message << "\n";

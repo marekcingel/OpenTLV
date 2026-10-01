@@ -11,22 +11,21 @@ a source-compatibility guarantee.
 Standards use namespaces such as `tlv::ber`, following the style of protocol
 types in Boost.Asio. The intended Reader spelling is `tlv::ber::reader`,
 backed by the same generic `tlv::reader<tlv::ber::format>` that accepts an
-application Format. These **Reader spellings are planned**, not implemented
-by the initial boundary change. A namespace cannot also be the callable
+application Format. The generic templated Reader is implemented by #432; the protocol-specific
+Reader aliases remain planned. A namespace cannot also be the callable
 `tlv::ber(data)` used in early issue sketches.
 
-The initial implementation provides `tlv::ber::format`, usable with the
-existing generic cursor:
+The implementation provides `tlv::ber::format`, usable with the generic cursor:
 
 ```cpp
-tlv::reader reader(data, tlv::ber::format{});
+tlv::reader<tlv::ber::format> reader(data);
 auto element = reader.next();
 ```
 
 `data` is a borrowed `tlv::bytes` view. Keep its storage alive while using the
 reader and returned elements. BER still uses the generic C Reader and Format
-operations. Other built-in namespaces, iterable readers, typed fields and
-builders follow in their respective issues. C++11 remains the baseline;
+operations. Other built-in Format namespaces are available under their component options;
+iterable readers, typed fields and builders follow in their respective issues. C++11 remains the baseline;
 examples using generic lambdas need a separate C++14-or-newer spelling.
 
 ## Format execution view
@@ -42,10 +41,9 @@ identity. There is no implicit conversion to or from `tlv_format_t`.
 Readability and writability describe available callbacks, not input validity;
 the engine still validates operations and reports its original errors.
 
-This view is the execution boundary, not a replacement for the C++ Format
-customization contract in [#432](https://github.com/marekcingel/OpenTLV/issues/432).
-That contract must allow user-defined Formats without manually constructing
-C descriptors. Built-ins must use the same generic contract.
+This view is the execution boundary. The [C++ Format customization contract](cxx-formats.md)
+in #432 adapts user-defined Formats without manually constructing C descriptors.
+Built-ins satisfy the same contract.
 
 ## Explicit interoperability and lifetime
 
@@ -53,7 +51,7 @@ Include `<tlv++/native.hpp>` explicitly to mix C and C++ APIs:
 
 ```cpp
 auto format = tlv::native::borrow_format(native_descriptor);
-tlv::reader reader(data, format);
+tlv::reader<> reader(data, format);
 const auto& descriptor = tlv::native::descriptor(format);
 ```
 

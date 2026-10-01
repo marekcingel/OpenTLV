@@ -117,6 +117,7 @@ nav:
       - Byte order: concepts/endian.md
       - Language bindings: concepts/bindings.md
       - C++ public/native boundary: concepts/cxx-native-boundary.md
+      - C++ Format customization: concepts/cxx-formats.md
   - Guides:
       - Memory ownership: guides/memory.md
       - Diagnostics: guides/diagnostics.md

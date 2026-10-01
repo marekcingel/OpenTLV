@@ -180,4 +180,5 @@ preserve(const source& original, const element_view& value, byte* data, size_t c
 }
 
 } // namespace tlv
+#include "tlv++/format_traits.hpp"
 #endif

@@ -16,7 +16,7 @@ if(test_group STREQUAL "unit")
     list(APPEND SOURCES writer/test_tree_writer.cpp)
     # tlv::fixed_format<> now delegates to tlv_fixed_format_init(), so its
     # tests need the C fixed format compiled into tlv.
-    list(APPEND SOURCES formats/test_fixed_format.cpp)
+    list(APPEND SOURCES formats/test_fixed_format.cpp formats/test_custom_format.cpp)
     if(OPENTLV_DOCUMENT)
         list(APPEND SOURCES document/test_document.cpp)
     endif()

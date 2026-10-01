@@ -59,12 +59,12 @@ namespace tlv {
  *       format() delegates to tlv_fixed_format_init().
  * @see tlv_fixed_format_t for the same format chosen at runtime instead of
  *      compile time (tlv/formats/fixed.h), usable from C++ via
- *      `tlv::writer`/`tlv::reader`'s `const tlv_format_t&` constructor
+ *      `tlv::writer<>`/`tlv::reader<>`'s `const tlv_format_t&` constructor
  *      parameter directly, with no wrapper of its own needed.
  * @see @docs{guides/memory,format context ownership and lifetime}
  */
 template <std::size_t TagWidth, std::size_t LengthWidth, tlv_byte_order_t Order>
-class fixed_format {
+class fixed_format : public tlv::format {
     static_assert(TagWidth >= 1, "fixed_format: TagWidth must be at least 1");
     static_assert(LengthWidth >= 1 && LengthWidth <= 8,
                   "fixed_format: LengthWidth must be between 1 and 8");
@@ -72,6 +72,9 @@ class fixed_format {
                   "fixed_format: Order must be big or little endian");
 
 public:
+    /** @brief Select this program-lifetime Format for generic C++ algorithms. */
+    fixed_format() noexcept : tlv::format(view()) {}
+
     /** @brief Tag width in bytes. */
     static constexpr std::size_t tag_width = TagWidth;
     /** @brief Length field width in bytes. */

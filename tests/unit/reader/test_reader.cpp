@@ -33,7 +33,7 @@ TEST(Unit_Tlvpp_ReaderParity, SingleElementSourceAndFailurePreservation) {
 
 TEST(Unit_Tlvpp_ReaderParity, IncrementalSourceOffsetsAndFinalTruncation) {
     const uint8_t data[] = {1, 1, 42, 2, 1, 43};
-    tlv::reader   reader(view(data, 2), format, tlv::input_mode::incremental);
+    tlv::reader<> reader(view(data, 2), format, tlv::input_mode::incremental);
     tlv_reader_t  native{};
     ASSERT_EQ(TLV_OK, tlv_reader_init_incremental(&native, data, 2, &format));
     tlv_element_t          element{};
@@ -85,7 +85,7 @@ TEST(Unit_Tlvpp_QueryParity, MatcherOwnsQueryAfterTemporaryExpires) {
 
 TEST(Unit_Tlvpp_ReaderParity, VisitorStopThenResumeWithoutReplay) {
     const uint8_t data[] = {1, 0, 2, 0};
-    tlv::reader   reader(view(data, sizeof(data)), format, tlv::input_mode::incremental);
+    tlv::reader<> reader(view(data, sizeof(data)), format, tlv::input_mode::incremental);
     size_t        count = 0;
     const auto    stop = [&](const tlv::element_view& value) {
         ++count;

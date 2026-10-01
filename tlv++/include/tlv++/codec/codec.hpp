@@ -57,6 +57,7 @@ template <typename T> concept TlvCodec = is_tlv_codec<T>::value;
  * `T::tag`. This is an explicit higher-level convenience API.
  *
  * @tparam T A type satisfying #tlv::is_tlv_codec.
+ * @tparam F Writer Format satisfying the writable customization contract.
  *
  * @param output Writer to append to.
  * @param value  Value to encode.
@@ -65,9 +66,9 @@ template <typename T> concept TlvCodec = is_tlv_codec<T>::value;
  *
  * @note The temporary vector may allocate.
  */
-template <typename T>
+template <typename T, typename F>
 TLV_NODISCARD typename std::enable_if<is_tlv_codec<T>::value, expected<void, error>>::type
-write_value(writer& output, const T& value) {
+write_value(writer<F>& output, const T& value) {
     std::vector<byte> payload;
     value.encode(payload);
     return output.write(T::tag, bytes(payload.data(), payload.size()));
