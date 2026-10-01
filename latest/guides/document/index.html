@@ -3347,9 +3347,34 @@ move-only; <code>tlv::node</code> is a cheap non-owning handle.</p>
 <a id="__codelineno-6-14" name="__codelineno-6-14" href="#__codelineno-6-14"></a>
 <a id="__codelineno-6-15" name="__codelineno-6-15" href="#__codelineno-6-15"></a><span class="k">auto</span><span class="w"> </span><span class="n">encoded</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">document</span><span class="p">.</span><span class="n">encode</span><span class="p">();</span><span class="w">   </span><span class="c1">// expected&lt;std::vector&lt;byte&gt;, error&gt;</span>
 </code></pre></div>
-<p>Handles stay valid when the document is moved. Children can be visited with
-<code>for (tlv::node child : tlv::node_range(parent.first_child()))</code>, and a path
-query works as <code>document.find(query)</code>.</p>
+<p>Iterate top-level elements with <code>for (auto node : document)</code> and direct children
+with <code>for (auto child : node.children())</code>. <code>node.insert(tag, value, before)</code>
+inserts a direct child; omit <code>before</code> to append. Tag lookup selects the first
+direct child or top-level element; a path query works as <code>document.find(query)</code>.
+<code>document.size()</code> counts all elements, including descendants.</p>
+<p>Document alone owns the canonical C tree. Node copies share validity metadata,
+not tree ownership. Handles remain valid across Document moves and insertion.
+Erasure invalidates every handle to the erased subtree. Successful replacement
+of a constructed Value invalidates its descendants, preserving the parent and
+unrelated handles; failed edits preserve all handles. Destruction or move
+assignment over a Document invalidates handles to its previous tree.</p>
+<p>Invalid handles test false, navigation returns empty handles, and tag/value
+access returns empty views. Fallible Node operations return <code>TLV_ERR_INVALID_ARG</code>;
+erasing an invalid handle does nothing. An iterator whose current node is
+invalidated compares equal to the end iterator. Capture the next sibling before
+erasing the current node if iteration must continue. Ranges borrow their first
+node and follow the current sibling links; they are not snapshots.</p>
+<p>Tag and Value views already returned by accessors remain borrowed: validity
+tracking does not extend their storage lifetime. Do not retain them across
+invalidating edits or Document destruction. Format contexts also remain borrowed.
+The C++ facade allocates handle metadata and is not thread-safe. Native handle
+access is an explicit interoperability escape hatch; native mutation bypasses
+C++ validity tracking. Construct Nodes through Document or Node accessors rather
+than from raw C pointers.</p>
+<p><code>tlv::ber::parse()</code> remains the borrowed Reader range API. Owning parsing uses
+<code>tlv::document::parse(data, tlv::document_format(tlv::ber::format{}))</code> and returns
+<code>expected&lt;document, error&gt;</code>. A runnable traversal and mutation example is
+<a href="https://github.com/marekcingel/OpenTLV/blob/main/examples/tlv++/src/document.cpp"><code>document.cpp</code></a>.</p>
 </div>
 <div class="tabbed-block">
 <p><code>opentlv.Document</code> wraps the same API as a context manager; <code>Node</code> is a cheap

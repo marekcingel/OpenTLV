@@ -112,6 +112,12 @@ Public Member Functions</h2></td></tr>
 <tr class="memitem:a3cb9fd5d1c821cf3e9626cdd387d06f1" id="r_a3cb9fd5d1c821cf3e9626cdd387d06f1"><td class="memItemLeft" align="right" valign="top"><a class="el" href="classtlv_1_1node__range.html">node_range</a>&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classtlv_1_1document.html#a3cb9fd5d1c821cf3e9626cdd387d06f1">children</a> () const</td></tr>
 <tr class="memdesc:a3cb9fd5d1c821cf3e9626cdd387d06f1"><td class="mdescLeft">&#160;</td><td class="mdescRight">The top-level elements, in encoding order.  <br /></td></tr>
 <tr class="separator:a3cb9fd5d1c821cf3e9626cdd387d06f1"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a9cb0fb13938387e09b1293552facd053" id="r_a9cb0fb13938387e09b1293552facd053"><td class="memItemLeft" align="right" valign="top"><a class="el" href="classtlv_1_1node__iterator.html">node_iterator</a>&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classtlv_1_1document.html#a9cb0fb13938387e09b1293552facd053">begin</a> () const</td></tr>
+<tr class="memdesc:a9cb0fb13938387e09b1293552facd053"><td class="mdescLeft">&#160;</td><td class="mdescRight">Begin iteration over top-level elements in encoding order.  <br /></td></tr>
+<tr class="separator:a9cb0fb13938387e09b1293552facd053"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:af970d559a4a8f19f4ff24a807b39119a" id="r_af970d559a4a8f19f4ff24a807b39119a"><td class="memItemLeft" align="right" valign="top"><a class="el" href="classtlv_1_1node__iterator.html">node_iterator</a>&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classtlv_1_1document.html#af970d559a4a8f19f4ff24a807b39119a">end</a> () const</td></tr>
+<tr class="memdesc:af970d559a4a8f19f4ff24a807b39119a"><td class="mdescLeft">&#160;</td><td class="mdescRight">End of top-level iteration.  <br /></td></tr>
+<tr class="separator:af970d559a4a8f19f4ff24a807b39119a"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:ae206987a6e03c7bac4a489c8e4bc4283" id="r_ae206987a6e03c7bac4a489c8e4bc4283"><td class="memItemLeft" align="right" valign="top"><a class="el" href="classtlv_1_1node.html">node</a>&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classtlv_1_1document.html#ae206987a6e03c7bac4a489c8e4bc4283">find</a> (<a class="el" href="classtlv_1_1tag.html">tlv::tag</a> wanted) const</td></tr>
 <tr class="memdesc:ae206987a6e03c7bac4a489c8e4bc4283"><td class="mdescLeft">&#160;</td><td class="mdescRight">Finds the first top-level element with a tag.  <br /></td></tr>
 <tr class="separator:ae206987a6e03c7bac4a489c8e4bc4283"><td class="memSeparator" colspan="2">&#160;</td></tr>
@@ -143,7 +149,7 @@ Public Member Functions</h2></td></tr>
 <tr class="memdesc:adb9e80369e370d316e0cdb9c3cc477c2"><td class="mdescLeft">&#160;</td><td class="mdescRight">Encode this Document using a C++ Format view.  <br /></td></tr>
 <tr class="separator:adb9e80369e370d316e0cdb9c3cc477c2"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:a735ba41724e8105c486f42ce1afaac37" id="r_a735ba41724e8105c486f42ce1afaac37"><td class="memItemLeft" align="right" valign="top"><a class="elRef" href="../../c-api/html/group__document.html#gad50a36ea444832274667f45cb81dab83">tlv_document_t</a> *&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classtlv_1_1document.html#a735ba41724e8105c486f42ce1afaac37">c_document</a> () const</td></tr>
-<tr class="memdesc:a735ba41724e8105c486f42ce1afaac37"><td class="mdescLeft">&#160;</td><td class="mdescRight">The underlying C document, for use with the C API.  <br /></td></tr>
+<tr class="memdesc:a735ba41724e8105c486f42ce1afaac37"><td class="mdescLeft">&#160;</td><td class="mdescRight">Borrow the underlying C document for interoperability.  <br /></td></tr>
 <tr class="separator:a735ba41724e8105c486f42ce1afaac37"><td class="memSeparator" colspan="2">&#160;</td></tr>
 </table><table class="memberdecls">
 <tr class="heading"><td colspan="2"><h2 class="groupheader"><a id="pub-static-methods" name="pub-static-methods"></a>
@@ -222,6 +228,34 @@ Friends</h2></td></tr>
 </div>
 </div>
 <h2 class="groupheader">Member Function Documentation</h2>
+<a id="a9cb0fb13938387e09b1293552facd053" name="a9cb0fb13938387e09b1293552facd053"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#a9cb0fb13938387e09b1293552facd053">&#9670;&#160;</a></span>begin()</h2>
+
+<div class="memitem">
+<div class="memproto">
+<table class="mlabels">
+  <tr>
+  <td class="mlabels-left">
+      <table class="memname">
+        <tr>
+          <td class="memname"><a class="el" href="classtlv_1_1node__iterator.html">node_iterator</a> tlv::document::begin </td>
+          <td>(</td>
+          <td class="paramname"></td><td>)</td>
+          <td> const</td>
+        </tr>
+      </table>
+  </td>
+  <td class="mlabels-right">
+<span class="mlabels"><span class="mlabel">inline</span></span>  </td>
+  </tr>
+</table>
+</div><div class="memdoc">
+
+<p>Begin iteration over top-level elements in encoding order. </p>
+<dl class="section note"><dt>Note</dt><dd>Insertion preserves iterators. Erasing the current node or replacing an ancestor's constructed Value invalidates its iterator, which then compares equal to <a class="el" href="classtlv_1_1document.html#af970d559a4a8f19f4ff24a807b39119a" title="End of top-level iteration.">end()</a>. </dd></dl>
+
+</div>
+</div>
 <a id="a735ba41724e8105c486f42ce1afaac37" name="a735ba41724e8105c486f42ce1afaac37"></a>
 <h2 class="memtitle"><span class="permalink"><a href="#a735ba41724e8105c486f42ce1afaac37">&#9670;&#160;</a></span>c_document()</h2>
 
@@ -245,7 +279,8 @@ Friends</h2></td></tr>
 </table>
 </div><div class="memdoc">
 
-<p>The underlying C document, for use with the C API. </p>
+<p>Borrow the underlying C document for interoperability. </p>
+<dl class="section warning"><dt>Warning</dt><dd>Native mutations bypass C++ validity tracking; use C++ operations for edits and never free this handle. Raw handles must not outlive this owner. </dd></dl>
 
 </div>
 </div>
@@ -536,6 +571,33 @@ Friends</h2></td></tr>
 </dl>
 <dl class="section return"><dt>Returns</dt><dd>Exact size or the error from <a class="elRef" href="../../c-api/html/group__document.html#ga64b72e105bbb1b104fae0f549dfd22e0">tlv_document_encoded_size_as()</a>. </dd></dl>
 <dl class="section note"><dt>Note</dt><dd>Stages encoded children using the Document allocator; never changes the tree.   </dd></dl>
+
+</div>
+</div>
+<a id="af970d559a4a8f19f4ff24a807b39119a" name="af970d559a4a8f19f4ff24a807b39119a"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#af970d559a4a8f19f4ff24a807b39119a">&#9670;&#160;</a></span>end()</h2>
+
+<div class="memitem">
+<div class="memproto">
+<table class="mlabels">
+  <tr>
+  <td class="mlabels-left">
+      <table class="memname">
+        <tr>
+          <td class="memname"><a class="el" href="classtlv_1_1node__iterator.html">node_iterator</a> tlv::document::end </td>
+          <td>(</td>
+          <td class="paramname"></td><td>)</td>
+          <td> const</td>
+        </tr>
+      </table>
+  </td>
+  <td class="mlabels-right">
+<span class="mlabels"><span class="mlabel">inline</span></span>  </td>
+  </tr>
+</table>
+</div><div class="memdoc">
+
+<p>End of top-level iteration. </p>
 
 </div>
 </div>

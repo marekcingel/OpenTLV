@@ -88,17 +88,14 @@ $(function() {
 <table class="memberdecls">
 <tr class="heading"><td colspan="2"><h2 class="groupheader"><a id="pub-methods" name="pub-methods"></a>
 Public Member Functions</h2></td></tr>
-<tr class="memitem:ad31fa479e5edf20a550623745add8ca5" id="r_ad31fa479e5edf20a550623745add8ca5"><td class="memItemLeft" align="right" valign="top">&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classtlv_1_1node.html#ad31fa479e5edf20a550623745add8ca5">node</a> ()</td></tr>
-<tr class="memdesc:ad31fa479e5edf20a550623745add8ca5"><td class="mdescLeft">&#160;</td><td class="mdescRight">Creates an empty handle.  <br /></td></tr>
-<tr class="separator:ad31fa479e5edf20a550623745add8ca5"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:ae5a45d99cc953f371870607ef852163e" id="r_ae5a45d99cc953f371870607ef852163e"><td class="memItemLeft" align="right" valign="top">&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classtlv_1_1node.html#ae5a45d99cc953f371870607ef852163e">node</a> (<a class="elRef" href="../../c-api/html/group__document.html#ga9483f2f2d44c9a33a267a462c90d3883">tlv_node_t</a> *<a class="el" href="classtlv_1_1node.html#a26082f0279f8a5bf7ea0206657e113c2">c_node</a>)</td></tr>
-<tr class="memdesc:ae5a45d99cc953f371870607ef852163e"><td class="mdescLeft">&#160;</td><td class="mdescRight">Wraps a C node. Prefer the accessors of <a class="el" href="classtlv_1_1document.html" title="An owned, mutable TLV document.">tlv::document</a>.  <br /></td></tr>
-<tr class="separator:ae5a45d99cc953f371870607ef852163e"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:af319a06d40269b47ffe2a3801d2b59da" id="r_af319a06d40269b47ffe2a3801d2b59da"><td class="memItemLeft" align="right" valign="top">&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classtlv_1_1node.html#af319a06d40269b47ffe2a3801d2b59da">node</a> ()=default</td></tr>
+<tr class="memdesc:af319a06d40269b47ffe2a3801d2b59da"><td class="mdescLeft">&#160;</td><td class="mdescRight">Creates an empty handle.  <br /></td></tr>
+<tr class="separator:af319a06d40269b47ffe2a3801d2b59da"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:af681e39f15d54f02de3909f721d9eacc" id="r_af681e39f15d54f02de3909f721d9eacc"><td class="memItemLeft" align="right" valign="top">&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classtlv_1_1node.html#af681e39f15d54f02de3909f721d9eacc">operator bool</a> () const</td></tr>
 <tr class="memdesc:af681e39f15d54f02de3909f721d9eacc"><td class="mdescLeft">&#160;</td><td class="mdescRight">Reports whether the handle refers to an element.  <br /></td></tr>
 <tr class="separator:af681e39f15d54f02de3909f721d9eacc"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:a26082f0279f8a5bf7ea0206657e113c2" id="r_a26082f0279f8a5bf7ea0206657e113c2"><td class="memItemLeft" align="right" valign="top"><a class="elRef" href="../../c-api/html/group__document.html#ga9483f2f2d44c9a33a267a462c90d3883">tlv_node_t</a> *&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classtlv_1_1node.html#a26082f0279f8a5bf7ea0206657e113c2">c_node</a> () const</td></tr>
-<tr class="memdesc:a26082f0279f8a5bf7ea0206657e113c2"><td class="mdescLeft">&#160;</td><td class="mdescRight">The underlying C node, for use with the C API.  <br /></td></tr>
+<tr class="memdesc:a26082f0279f8a5bf7ea0206657e113c2"><td class="mdescLeft">&#160;</td><td class="mdescRight">Borrow the underlying C node, or nullptr for an invalid handle.  <br /></td></tr>
 <tr class="separator:a26082f0279f8a5bf7ea0206657e113c2"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:a802cd4f3ef76d2ac6419917531cbac49" id="r_a802cd4f3ef76d2ac6419917531cbac49"><td class="memItemLeft" align="right" valign="top"><a class="el" href="classtlv_1_1tag.html">tlv::tag</a>&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classtlv_1_1node.html#a802cd4f3ef76d2ac6419917531cbac49">tag</a> () const</td></tr>
 <tr class="memdesc:a802cd4f3ef76d2ac6419917531cbac49"><td class="mdescLeft">&#160;</td><td class="mdescRight">The element's tag, borrowing the document; empty for an empty handle.  <br /></td></tr>
@@ -124,6 +121,12 @@ Public Member Functions</h2></td></tr>
 <tr class="memitem:ae3c08edd2b873620934db0aeb2a7edcd" id="r_ae3c08edd2b873620934db0aeb2a7edcd"><td class="memItemLeft" align="right" valign="top"><a class="el" href="classtlv_1_1node.html">node</a>&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classtlv_1_1node.html#ae3c08edd2b873620934db0aeb2a7edcd">find</a> (<a class="el" href="classtlv_1_1tag.html">tlv::tag</a> wanted) const</td></tr>
 <tr class="memdesc:ae3c08edd2b873620934db0aeb2a7edcd"><td class="mdescLeft">&#160;</td><td class="mdescRight">Finds the first direct child with a tag.  <br /></td></tr>
 <tr class="separator:ae3c08edd2b873620934db0aeb2a7edcd"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a8314fd06a2de54829ac4af9c22c0a27d" id="r_a8314fd06a2de54829ac4af9c22c0a27d"><td class="memItemLeft" align="right" valign="top"><a class="el" href="classtlv_1_1node__range.html">node_range</a>&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classtlv_1_1node.html#a8314fd06a2de54829ac4af9c22c0a27d">children</a> () const</td></tr>
+<tr class="memdesc:a8314fd06a2de54829ac4af9c22c0a27d"><td class="mdescLeft">&#160;</td><td class="mdescRight">Direct children in encoding order; empty for primitive or invalid nodes.  <br /></td></tr>
+<tr class="separator:a8314fd06a2de54829ac4af9c22c0a27d"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a23da48d6c78a7d2a135f56037eaecbe5" id="r_a23da48d6c78a7d2a135f56037eaecbe5"><td class="memItemLeft" align="right" valign="top"><a class="el" href="classtlv_1_1expected.html">expected</a>&lt; <a class="el" href="classtlv_1_1node.html">node</a>, <a class="el" href="structtlv_1_1error.html">error</a> &gt;&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classtlv_1_1node.html#a23da48d6c78a7d2a135f56037eaecbe5">insert</a> (<a class="el" href="classtlv_1_1tag.html">tlv::tag</a> wanted, <a class="el" href="namespacetlv.html#a2abe7003a70af047ef9acae17f31f75d">bytes</a> <a class="el" href="classtlv_1_1node.html#a664cade6c602e5c5f1977e33bf39f9f7">value</a>, <a class="el" href="classtlv_1_1node.html">node</a> before=<a class="el" href="classtlv_1_1node.html">node</a>())</td></tr>
+<tr class="memdesc:a23da48d6c78a7d2a135f56037eaecbe5"><td class="mdescLeft">&#160;</td><td class="mdescRight">Insert a direct child, optionally before an existing child.  <br /></td></tr>
+<tr class="separator:a23da48d6c78a7d2a135f56037eaecbe5"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:a4c3e99fcadd919d83ef5d5418bf08d09" id="r_a4c3e99fcadd919d83ef5d5418bf08d09"><td class="memItemLeft" align="right" valign="top"><a class="el" href="classtlv_1_1expected.html">expected</a>&lt; void, <a class="el" href="structtlv_1_1error.html">error</a> &gt;&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classtlv_1_1node.html#a4c3e99fcadd919d83ef5d5418bf08d09">set</a> (<a class="el" href="namespacetlv.html#a2abe7003a70af047ef9acae17f31f75d">bytes</a> <a class="el" href="classtlv_1_1node.html#a664cade6c602e5c5f1977e33bf39f9f7">value</a>)</td></tr>
 <tr class="memdesc:a4c3e99fcadd919d83ef5d5418bf08d09"><td class="mdescLeft">&#160;</td><td class="mdescRight">Replaces the element's value.  <br /></td></tr>
 <tr class="separator:a4c3e99fcadd919d83ef5d5418bf08d09"><td class="memSeparator" colspan="2">&#160;</td></tr>
@@ -151,8 +154,10 @@ Public Member Functions</h2></td></tr>
 </table><table class="memberdecls">
 <tr class="heading"><td colspan="2"><h2 class="groupheader"><a id="friends" name="friends"></a>
 Friends</h2></td></tr>
+<tr class="memitem:a7c20332b4481f29ace969e40cfce5f5f" id="r_a7c20332b4481f29ace969e40cfce5f5f"><td class="memItemLeft" align="right" valign="top">class&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classtlv_1_1node.html#a7c20332b4481f29ace969e40cfce5f5f">document</a></td></tr>
+<tr class="separator:a7c20332b4481f29ace969e40cfce5f5f"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:a6babda0d88c04be113f8b15513e079d8" id="r_a6babda0d88c04be113f8b15513e079d8"><td class="memItemLeft" align="right" valign="top">bool&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classtlv_1_1node.html#a6babda0d88c04be113f8b15513e079d8">operator==</a> (const <a class="el" href="classtlv_1_1node.html">node</a> &amp;lhs, const <a class="el" href="classtlv_1_1node.html">node</a> &amp;rhs)</td></tr>
-<tr class="memdesc:a6babda0d88c04be113f8b15513e079d8"><td class="mdescLeft">&#160;</td><td class="mdescRight">Compares two handles for referring to the same element.  <br /></td></tr>
+<tr class="memdesc:a6babda0d88c04be113f8b15513e079d8"><td class="mdescLeft">&#160;</td><td class="mdescRight">Compare node identity; all empty or invalid handles compare equal.  <br /></td></tr>
 <tr class="separator:a6babda0d88c04be113f8b15513e079d8"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:af312b28e0944681c4dc9efd864d780a4" id="r_af312b28e0944681c4dc9efd864d780a4"><td class="memItemLeft" align="right" valign="top">bool&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classtlv_1_1node.html#af312b28e0944681c4dc9efd864d780a4">operator!=</a> (const <a class="el" href="classtlv_1_1node.html">node</a> &amp;lhs, const <a class="el" href="classtlv_1_1node.html">node</a> &amp;rhs)</td></tr>
 <tr class="memdesc:af312b28e0944681c4dc9efd864d780a4"><td class="mdescLeft">&#160;</td><td class="mdescRight">Compares two handles for referring to different elements.  <br /></td></tr>
@@ -160,10 +165,10 @@ Friends</h2></td></tr>
 </table>
 <a name="details" id="details"></a><h2 class="groupheader">Detailed Description</h2>
 <div class="textblock"><p>A non-owning handle to one element of a <a class="el" href="classtlv_1_1document.html" title="An owned, mutable TLV document.">tlv::document</a>. </p>
-<p>A handle is a pointer-sized value that may be copied freely. It stays valid for as long as the element exists in its document: until the element (or an ancestor) is erased or the document is destroyed or moved-from. A handle that refers to nothing is <em>empty</em> and tests as <code>false</code>. The tag and value it returns borrow the document's storage; see <a class="elRef" href="../../c-api/html/document_8h.html">tlv/document/document.h</a> for the exact lifetime rules. </p>
+<p>Copies share inexpensive validity metadata without owning the Document or its tree. Moving a Document preserves handles. Erasure invalidates the erased subtree; replacing a constructed Value invalidates its descendants only. Destruction or replacement of the owning Document invalidates all its handles. Invalid handles test false and accessors return empty results; fallible operations return INVALID_ARG. Tag and Value views borrow storage and must not be retained across invalidating edits or destruction. Operations are not thread-safe. </p>
 </div><h2 class="groupheader">Constructor &amp; Destructor Documentation</h2>
-<a id="ad31fa479e5edf20a550623745add8ca5" name="ad31fa479e5edf20a550623745add8ca5"></a>
-<h2 class="memtitle"><span class="permalink"><a href="#ad31fa479e5edf20a550623745add8ca5">&#9670;&#160;</a></span>node() <span class="overload">[1/2]</span></h2>
+<a id="af319a06d40269b47ffe2a3801d2b59da" name="af319a06d40269b47ffe2a3801d2b59da"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#af319a06d40269b47ffe2a3801d2b59da">&#9670;&#160;</a></span>node()</h2>
 
 <div class="memitem">
 <div class="memproto">
@@ -180,40 +185,12 @@ Friends</h2></td></tr>
       </table>
   </td>
   <td class="mlabels-right">
-<span class="mlabels"><span class="mlabel">inline</span></span>  </td>
+<span class="mlabels"><span class="mlabel">default</span></span>  </td>
   </tr>
 </table>
 </div><div class="memdoc">
 
 <p>Creates an empty handle. </p>
-
-</div>
-</div>
-<a id="ae5a45d99cc953f371870607ef852163e" name="ae5a45d99cc953f371870607ef852163e"></a>
-<h2 class="memtitle"><span class="permalink"><a href="#ae5a45d99cc953f371870607ef852163e">&#9670;&#160;</a></span>node() <span class="overload">[2/2]</span></h2>
-
-<div class="memitem">
-<div class="memproto">
-<table class="mlabels">
-  <tr>
-  <td class="mlabels-left">
-      <table class="memname">
-        <tr>
-          <td class="memname">tlv::node::node </td>
-          <td>(</td>
-          <td class="paramtype"><a class="elRef" href="../../c-api/html/group__document.html#ga9483f2f2d44c9a33a267a462c90d3883">tlv_node_t</a> *&#160;</td>
-          <td class="paramname"><em>c_node</em></td><td>)</td>
-          <td></td>
-        </tr>
-      </table>
-  </td>
-  <td class="mlabels-right">
-<span class="mlabels"><span class="mlabel">inline</span><span class="mlabel">explicit</span></span>  </td>
-  </tr>
-</table>
-</div><div class="memdoc">
-
-<p>Wraps a C node. Prefer the accessors of <a class="el" href="classtlv_1_1document.html" title="An owned, mutable TLV document.">tlv::document</a>. </p>
 
 </div>
 </div>
@@ -241,7 +218,35 @@ Friends</h2></td></tr>
 </table>
 </div><div class="memdoc">
 
-<p>The underlying C node, for use with the C API. </p>
+<p>Borrow the underlying C node, or nullptr for an invalid handle. </p>
+<dl class="section warning"><dt>Warning</dt><dd>Native mutation bypasses C++ validity tracking. Do not erase nodes, replace constructed Values or free the Document through this escape hatch. </dd></dl>
+
+</div>
+</div>
+<a id="a8314fd06a2de54829ac4af9c22c0a27d" name="a8314fd06a2de54829ac4af9c22c0a27d"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#a8314fd06a2de54829ac4af9c22c0a27d">&#9670;&#160;</a></span>children()</h2>
+
+<div class="memitem">
+<div class="memproto">
+<table class="mlabels">
+  <tr>
+  <td class="mlabels-left">
+      <table class="memname">
+        <tr>
+          <td class="memname"><a class="el" href="classtlv_1_1node__range.html">node_range</a> tlv::node::children </td>
+          <td>(</td>
+          <td class="paramname"></td><td>)</td>
+          <td> const</td>
+        </tr>
+      </table>
+  </td>
+  <td class="mlabels-right">
+<span class="mlabels"><span class="mlabel">inline</span></span>  </td>
+  </tr>
+</table>
+</div><div class="memdoc">
+
+<p>Direct children in encoding order; empty for primitive or invalid nodes. </p>
 
 </div>
 </div>
@@ -533,6 +538,60 @@ Friends</h2></td></tr>
 
 </div>
 </div>
+<a id="a23da48d6c78a7d2a135f56037eaecbe5" name="a23da48d6c78a7d2a135f56037eaecbe5"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#a23da48d6c78a7d2a135f56037eaecbe5">&#9670;&#160;</a></span>insert()</h2>
+
+<div class="memitem">
+<div class="memproto">
+<table class="mlabels">
+  <tr>
+  <td class="mlabels-left">
+      <table class="memname">
+        <tr>
+          <td class="memname"><a class="el" href="classtlv_1_1expected.html">expected</a>&lt; <a class="el" href="classtlv_1_1node.html">node</a>, <a class="el" href="structtlv_1_1error.html">error</a> &gt; tlv::node::insert </td>
+          <td>(</td>
+          <td class="paramtype"><a class="el" href="classtlv_1_1tag.html">tlv::tag</a>&#160;</td>
+          <td class="paramname"><em>wanted</em>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype"><a class="el" href="namespacetlv.html#a2abe7003a70af047ef9acae17f31f75d">bytes</a>&#160;</td>
+          <td class="paramname"><em>value</em>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype"><a class="el" href="classtlv_1_1node.html">node</a>&#160;</td>
+          <td class="paramname"><em>before</em> = <code><a class="el" href="classtlv_1_1node.html">node</a>()</code>&#160;</td>
+        </tr>
+        <tr>
+          <td></td>
+          <td>)</td>
+          <td></td><td></td>
+        </tr>
+      </table>
+  </td>
+  <td class="mlabels-right">
+<span class="mlabels"><span class="mlabel">inline</span></span>  </td>
+  </tr>
+</table>
+</div><div class="memdoc">
+
+<p>Insert a direct child, optionally before an existing child. </p>
+<dl class="params"><dt>Parameters</dt><dd>
+  <table class="params">
+    <tr><td class="paramname">wanted</td><td>New child's Tag; copied. </td></tr>
+    <tr><td class="paramname">value</td><td>New child's Value; copied and parsed if constructed. </td></tr>
+    <tr><td class="paramname">before</td><td>Direct child to precede, or an empty handle to append. </td></tr>
+  </table>
+  </dd>
+</dl>
+<dl class="section return"><dt>Returns</dt><dd>New child or the C insertion error; invalid handles return INVALID_ARG. </dd></dl>
+<dl class="section note"><dt>Note</dt><dd>Existing handles and iterators remain valid. Failed insertion changes nothing. </dd></dl>
+
+</div>
+</div>
 <a id="a40dbfcc7d7457acf9f8408f3a95ad9a0" name="a40dbfcc7d7457acf9f8408f3a95ad9a0"></a>
 <h2 class="memtitle"><span class="permalink"><a href="#a40dbfcc7d7457acf9f8408f3a95ad9a0">&#9670;&#160;</a></span>is_constructed()</h2>
 
@@ -761,6 +820,28 @@ Friends</h2></td></tr>
 </div>
 </div>
 <h2 class="groupheader">Friends And Related Symbol Documentation</h2>
+<a id="a7c20332b4481f29ace969e40cfce5f5f" name="a7c20332b4481f29ace969e40cfce5f5f"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#a7c20332b4481f29ace969e40cfce5f5f">&#9670;&#160;</a></span>document</h2>
+
+<div class="memitem">
+<div class="memproto">
+<table class="mlabels">
+  <tr>
+  <td class="mlabels-left">
+      <table class="memname">
+        <tr>
+          <td class="memname">friend class <a class="el" href="classtlv_1_1document.html">document</a></td>
+        </tr>
+      </table>
+  </td>
+  <td class="mlabels-right">
+<span class="mlabels"><span class="mlabel">friend</span></span>  </td>
+  </tr>
+</table>
+</div><div class="memdoc">
+
+</div>
+</div>
 <a id="af312b28e0944681c4dc9efd864d780a4" name="af312b28e0944681c4dc9efd864d780a4"></a>
 <h2 class="memtitle"><span class="permalink"><a href="#af312b28e0944681c4dc9efd864d780a4">&#9670;&#160;</a></span>operator!=</h2>
 
@@ -833,7 +914,7 @@ Friends</h2></td></tr>
 </table>
 </div><div class="memdoc">
 
-<p>Compares two handles for referring to the same element. </p>
+<p>Compare node identity; all empty or invalid handles compare equal. </p>
 
 </div>
 </div>

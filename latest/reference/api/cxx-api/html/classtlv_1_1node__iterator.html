@@ -115,6 +115,7 @@ Friends</h2></td></tr>
 </table>
 <a name="details" id="details"></a><h2 class="groupheader">Detailed Description</h2>
 <div class="textblock"><p>Forward iterator over sibling elements, yielding <a class="el" href="classtlv_1_1node.html" title="A non-owning handle to one element of a tlv::document.">tlv::node</a> handles. </p>
+<dl class="section note"><dt>Note</dt><dd>Copies share node validity. Invalidating the current node makes the iterator compare equal to end; insertion preserves existing positions. </dd></dl>
 </div><h2 class="groupheader">Constructor &amp; Destructor Documentation</h2>
 <a id="a2d69c994c0e7d677e1a2a05521124d3c" name="a2d69c994c0e7d677e1a2a05521124d3c"></a>
 <h2 class="memtitle"><span class="permalink"><a href="#a2d69c994c0e7d677e1a2a05521124d3c">&#9670;&#160;</a></span>node_iterator()</h2>
