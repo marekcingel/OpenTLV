@@ -9,6 +9,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Fixed
 
+- Resolve the CodeQL suspicious pointer-offset warning in C++ Writer tests by using an explicit element count. (#445)
 - Avoid constructing an unused C++ error string for successful `expected<void, E>` results, keeping successful Writer operations allocation-free with debug standard libraries. (#434)
 - Fix CI compilation of custom Format tests in C++20 and newer by constructing empty byte spans without an untyped null pointer. (#432)
 - Safely clean up Lua traversal resources when callback argument allocation fails; validate traversal limits and honor them for DER. (#300)

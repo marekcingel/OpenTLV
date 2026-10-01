@@ -10,6 +10,7 @@
 #include <gtest/gtest.h>
 #include <array>
 #include <cstring>
+#include <iterator>
 #include <string>
 #include <vector>
 
@@ -140,7 +141,7 @@ TEST(Unit_Tlvpp_WriterBuilder, SequentialTypedValuesAndSemanticElements) {
 #if __cplusplus >= 201703L
     ASSERT_TRUE(writer.write<8>(std::string_view("X\0Y", 3)));
     const uint8_t tail[] = {8, 3, 'X', 0, 'Y'};
-    expect_wire(output + sizeof(expected), tail);
+    expect_wire(output + std::size(expected), tail);
 #endif
 }
 
