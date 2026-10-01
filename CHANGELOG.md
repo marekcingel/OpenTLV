@@ -45,6 +45,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Changed
 
+- **Breaking:** Replace raw-pointer C++ Node construction with lifetime-checked Document and Node accessors; rebuild C++ consumers for the new Node handle representation. The C API is unchanged. (#435)
 - **Breaking:** Make C++ Reader and Writer templates; runtime-Format callers use `tlv::reader<>` and `tlv::writer<>`, while typed callers select a built-in or application Format. (#432)
 - Replace C++ Tag and Element aliases with allocation-free borrowed `tag`, `value_view` and `element_view` types across Reader, Writer, Document, Query, Definition and codecs; provide byte access, content comparisons, static byte literals and checked explicit C interoperability. (#431)
 - Document and validate the existing TLV/LTV field-ordering contract, independent length scopes, source layouts and explicit byte preservation using Bluetooth Advertising Data examples. (#424)
@@ -106,6 +107,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Added
 
+- Add natural C++ Document iteration, iterable Node children and direct child insertion; track Node validity across subtree edits and Document destruction while preserving unaffected handles. (#435)
 - Add typed C++ Writer inputs and byte-tag templates, scoped nested builders, bounded caller-owned workspace, exact staged measurement and BER encoding helpers with allocation-free builder results. (#434)
 - Add C++11 single-pass Reader iteration, generic and built-in `parse` ranges, and iteration exceptions preserving Reader error codes, offsets and diagnostics without copying Value bytes. (#433)
 - Add a generic C++ Format customization contract with traits, capability checks and stable adapters, allowing application-defined Formats to use the shared Reader, Writer, tree, Query and Document machinery without constructing C descriptors. Built-in Formats satisfy the same contract. (#432)

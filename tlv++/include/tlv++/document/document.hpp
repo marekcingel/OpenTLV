@@ -4,6 +4,7 @@
 #include <cstddef>
 #include <iterator>
 #include <memory>
+#include <unordered_map>
 #include <utility>
 #include <vector>
 
@@ -17,46 +18,104 @@
  * @brief C++ wrapper for the optional mutable TLV document.
  *
  * Available when the library is built with `OPENTLV_DOCUMENT` (see tlv/config.h).
- * Unlike the reader and writer wrappers, the document allocates.
+ * Unlike the reader and writer wrappers, the document allocates, including
+ * validity metadata when exposing a Node. Allocation failures in the C++ layer
+ * throw std::bad_alloc; native allocation failures are returned as errors.
  */
 
 namespace tlv {
 
+/** @cond INTERNAL */
+namespace detail {
+// Metadata only: the canonical C Document remains the sole tree representation.
+struct node_token {
+    tlv_node_t* pointer;
+    explicit node_token(tlv_node_t* value) : pointer(value) {}
+};
+struct document_lifetime {
+    tlv_document_t*                                            document = nullptr;
+    std::unordered_map<tlv_node_t*, std::weak_ptr<node_token>> handles;
+
+    std::shared_ptr<node_token> track(tlv_node_t* pointer) {
+        if (!pointer) return {};
+        auto& entry = handles[pointer];
+        auto  token = entry.lock();
+        if (!token) {
+            token = std::make_shared<node_token>(pointer);
+            entry = token;
+        }
+        return token;
+    }
+
+    std::vector<std::shared_ptr<node_token>> affected(tlv_node_t* root, bool include_root) {
+        std::vector<std::shared_ptr<node_token>> result;
+        for (auto it = handles.begin(); it != handles.end();) {
+            auto token = it->second.lock();
+            if (!token) {
+                it = handles.erase(it);
+                continue;
+            }
+            auto candidate = include_root ? token->pointer : tlv_node_parent(token->pointer);
+            for (; candidate; candidate = tlv_node_parent(candidate)) {
+                if (candidate == root) {
+                    result.push_back(token);
+                    break;
+                }
+            }
+            ++it;
+        }
+        return result;
+    }
+
+    void invalidate(const std::vector<std::shared_ptr<node_token>>& tokens) {
+        for (const auto& token : tokens) {
+            handles.erase(token->pointer);
+            token->pointer = nullptr;
+        }
+    }
+};
+} // namespace detail
+/** @endcond */
+
+class node_range;
+
 /**
  * @brief A non-owning handle to one element of a #tlv::document.
  *
- * A handle is a pointer-sized value that may be copied freely. It stays valid for as long as the
- * element exists in its document: until the element (or an ancestor) is erased or the document is
- * destroyed or moved-from. A handle that refers to nothing is *empty* and tests as `false`. The
- * tag and value it returns borrow the document's storage; see tlv/document/document.h for the
- * exact lifetime rules.
+ * Copies share inexpensive validity metadata without owning the Document or its tree.
+ * Moving a Document preserves handles. Erasure invalidates the erased subtree;
+ * replacing a constructed Value invalidates its descendants only. Destruction or
+ * replacement of the owning Document invalidates all its handles. Invalid handles
+ * test false and accessors return empty results; fallible operations return INVALID_ARG.
+ * Tag and Value views borrow storage and must not be retained across invalidating
+ * edits or destruction. Operations are not thread-safe.
  */
 class node {
 public:
     /** @brief Creates an empty handle. */
-    node() : node_(nullptr) {}
-
-    /** @brief Wraps a C node. Prefer the accessors of #tlv::document. */
-    explicit node(tlv_node_t* c_node) : node_(c_node) {}
+    node() = default;
 
     /** @brief Reports whether the handle refers to an element. */
     explicit operator bool() const {
-        return node_ != nullptr;
+        return c_node() != nullptr;
     }
 
-    /** @brief The underlying C node, for use with the C API. */
+    /** @brief Borrow the underlying C node, or nullptr for an invalid handle.
+     * @warning Native mutation bypasses C++ validity tracking. Do not erase nodes,
+     * replace constructed Values or free the Document through this escape hatch.
+     */
     tlv_node_t* c_node() const {
-        return node_;
+        return !owner_.expired() && token_ ? token_->pointer : nullptr;
     }
 
     /** @brief The element's tag, borrowing the document; empty for an empty handle. */
     tlv::tag tag() const {
-        return detail::semantic_access::borrow(tlv_node_tag(node_));
+        return detail::semantic_access::borrow(tlv_node_tag(c_node()));
     }
 
     /** @brief Reports whether the element's value holds nested elements. */
     bool is_constructed() const {
-        return tlv_node_is_constructed(node_) != 0;
+        return tlv_node_is_constructed(c_node()) != 0;
     }
 
     /**
@@ -66,28 +125,28 @@ public:
      * its children instead.
      */
     value_view value() const {
-        return value_view(bytes(reinterpret_cast<const byte*>(tlv_node_value_data(node_)),
-                                tlv_node_value_size(node_)));
+        return value_view(bytes(reinterpret_cast<const byte*>(tlv_node_value_data(c_node())),
+                                tlv_node_value_size(c_node())));
     }
 
     /** @brief The first child of a constructed element, or an empty handle. */
     node first_child() const {
-        return node(tlv_node_first_child(node_));
+        return related(tlv_node_first_child(c_node()));
     }
 
     /** @brief The next sibling, or an empty handle. */
     node next() const {
-        return node(tlv_node_next(node_));
+        return related(tlv_node_next(c_node()));
     }
 
     /** @brief The next sibling with the same tag, or an empty handle. */
     node next_same_tag() const {
-        return node(tlv_node_next_same_tag(node_));
+        return related(tlv_node_next_same_tag(c_node()));
     }
 
     /** @brief The parent element, or an empty handle for a top-level element. */
     node parent() const {
-        return node(tlv_node_parent(node_));
+        return related(tlv_node_parent(c_node()));
     }
 
     /**
@@ -98,7 +157,34 @@ public:
      * @return The child, or an empty handle.
      */
     node find(tlv::tag wanted) const {
-        return node(tlv_document_find(nullptr, node_, detail::semantic_access::get(wanted)));
+        return related(tlv_document_find(nullptr, c_node(), detail::semantic_access::get(wanted)));
+    }
+
+    /** @brief Direct children in encoding order; empty for primitive or invalid nodes. */
+    node_range children() const;
+
+    /** @brief Insert a direct child, optionally before an existing child.
+     * @param wanted New child's Tag; copied.
+     * @param value New child's Value; copied and parsed if constructed.
+     * @param before Direct child to precede, or an empty handle to append.
+     * @return New child or the C insertion error; invalid handles return INVALID_ARG.
+     * @note Existing handles and iterators remain valid. Failed insertion changes nothing.
+     */
+    TLV_NODISCARD expected<node, error> insert(tlv::tag wanted, bytes value, node before = node()) {
+        auto owner = owner_.lock();
+        if (!c_node() || (before.token_ && !before))
+            return unexpected<error>(error::from_c(TLV_ERR_INVALID_ARG));
+        tlv_node_t* created = nullptr;
+        auto        rc = tlv_document_insert(
+            owner->document, c_node(), before.c_node(), detail::semantic_access::get(wanted),
+            reinterpret_cast<const uint8_t*>(value.data()), value.size(), &created);
+        if (rc != TLV_OK) return unexpected<error>(error::from_c(rc));
+        try {
+            return related(created);
+        } catch (...) {
+            tlv_node_erase(created);
+            throw;
+        }
     }
 
     /**
@@ -115,9 +201,14 @@ public:
      *          the handles of its children.
      */
     TLV_NODISCARD expected<void, error> set(bytes value) {
-        tlv_result_t rc =
-            tlv_node_set_value(node_, reinterpret_cast<const uint8_t*>(value.data()), value.size());
+        auto owner = owner_.lock();
+        if (!c_node()) return unexpected<error>(error::from_c(TLV_ERR_INVALID_ARG));
+        auto affected = is_constructed() ? owner->affected(c_node(), false)
+                                         : std::vector<std::shared_ptr<detail::node_token>>{};
+        tlv_result_t rc = tlv_node_set_value(
+            c_node(), reinterpret_cast<const uint8_t*>(value.data()), value.size());
         if (rc != TLV_OK) return unexpected<error>(error::from_c(rc));
+        owner->invalidate(affected);
         return {};
     }
 
@@ -127,15 +218,20 @@ public:
      * The handle becomes empty. Handles to the element or anything below it become invalid.
      */
     void erase() {
-        tlv_node_erase(node_);
-        node_ = nullptr;
+        auto owner = owner_.lock();
+        if (!c_node()) return;
+        auto affected = owner->affected(c_node(), true);
+        auto pointer = c_node();
+        owner->invalidate(affected);
+        tlv_node_erase(pointer);
     }
 
     /** @brief Computes the encoded size of the element with its descendants; see
      * tlv_node_encoded_size(). */
     TLV_NODISCARD expected<size_t, error> encoded_size() const {
+        if (!c_node()) return unexpected<error>(error::from_c(TLV_ERR_INVALID_ARG));
         size_t       size = 0;
-        tlv_result_t rc = tlv_node_encoded_size(node_, &size);
+        tlv_result_t rc = tlv_node_encoded_size(c_node(), &size);
         if (rc != TLV_OK) return unexpected<error>(error::from_c(rc));
         return size;
     }
@@ -147,7 +243,7 @@ public:
         std::vector<byte> out(*size);
         size_t            written = 0;
         tlv_result_t      rc =
-            tlv_node_encode(node_, reinterpret_cast<uint8_t*>(out.data()), out.size(), &written);
+            tlv_node_encode(c_node(), reinterpret_cast<uint8_t*>(out.data()), out.size(), &written);
         if (rc != TLV_OK) return unexpected<error>(error::from_c(rc));
         out.resize(written);
         return out;
@@ -160,8 +256,9 @@ public:
      * @note Stages encoded children using the Document allocator; never changes the tree.
      */
     TLV_NODISCARD expected<size_t, error> encoded_size(const tlv_format_t& format) const {
+        if (!c_node()) return unexpected<error>(error::from_c(TLV_ERR_INVALID_ARG));
         size_t     size = 0;
-        const auto rc = tlv_node_encoded_size_as(node_, &format, &size);
+        const auto rc = tlv_node_encoded_size_as(c_node(), &format, &size);
         if (rc != TLV_OK) return unexpected<error>(error::from_c(rc));
         return size;
     }
@@ -184,8 +281,8 @@ public:
         if (!size.has_value()) return unexpected<error>(size.error());
         std::vector<byte> out(*size);
         size_t            written = 0;
-        const auto rc = tlv_node_encode_as(node_, &format, reinterpret_cast<uint8_t*>(out.data()),
-                                           out.size(), &written);
+        const auto        rc = tlv_node_encode_as(
+            c_node(), &format, reinterpret_cast<uint8_t*>(out.data()), out.size(), &written);
         if (rc != TLV_OK) return unexpected<error>(error::from_c(rc));
         out.resize(written);
         return out;
@@ -198,21 +295,34 @@ public:
         return encode(detail::format_access::get(format));
     }
 
-    /** @brief Compares two handles for referring to the same element. */
+    /** @brief Compare node identity; all empty or invalid handles compare equal. */
     friend bool operator==(const node& lhs, const node& rhs) {
-        return lhs.node_ == rhs.node_;
+        return lhs.c_node() == rhs.c_node();
     }
 
     /** @brief Compares two handles for referring to different elements. */
     friend bool operator!=(const node& lhs, const node& rhs) {
-        return lhs.node_ != rhs.node_;
+        return !(lhs == rhs);
     }
 
 private:
-    tlv_node_t* node_;
+    node(tlv_node_t* pointer, const std::shared_ptr<detail::document_lifetime>& owner)
+        : owner_(owner), token_(owner->track(pointer)) {}
+
+    node related(tlv_node_t* pointer) const {
+        auto owner = owner_.lock();
+        return owner ? node(pointer, owner) : node();
+    }
+
+    std::weak_ptr<detail::document_lifetime> owner_;
+    std::shared_ptr<detail::node_token>      token_;
+    friend class document;
 };
 
-/** @brief Forward iterator over sibling elements, yielding #tlv::node handles. */
+/** @brief Forward iterator over sibling elements, yielding #tlv::node handles.
+ * @note Copies share node validity. Invalidating the current node makes the
+ * iterator compare equal to end; insertion preserves existing positions.
+ */
 class node_iterator {
 public:
     /** @cond */
@@ -263,7 +373,10 @@ private:
     node current_;
 };
 
-/** @brief A range of sibling elements, for use in range-based `for` loops. */
+/** @brief A borrowed range of siblings, for range-based `for` loops.
+ * @note Follows live sibling links rather than a snapshot. Invalidating its first
+ * node makes the range empty. Capture the next sibling before erasing a current node.
+ */
 class node_range {
 public:
     /** @brief Creates the range that starts at `first` and ends after the last sibling. */
@@ -287,6 +400,10 @@ public:
 private:
     node first_;
 };
+
+inline node_range node::children() const {
+    return node_range(first_child());
+}
 
 /**
  * @brief Format and runtime resource limits of a #tlv::document.
@@ -391,12 +508,26 @@ public:
 
     /** @brief The first top-level element, or an empty handle. */
     node first() const {
-        return node(tlv_document_first(impl_->handle.get()));
+        return node(tlv_document_first(c_document()), impl_->lifetime);
     }
 
     /** @brief The top-level elements, in encoding order. */
     node_range children() const {
         return node_range(first());
+    }
+
+    /** @brief Begin iteration over top-level elements in encoding order.
+     * @note Insertion preserves iterators. Erasing the current node or replacing
+     * an ancestor's constructed Value invalidates its iterator, which then
+     * compares equal to end().
+     */
+    node_iterator begin() const {
+        return children().begin();
+    }
+
+    /** @brief End of top-level iteration. */
+    node_iterator end() const {
+        return node_iterator();
     }
 
     /**
@@ -408,7 +539,8 @@ public:
      */
     node find(tlv::tag wanted) const {
         return node(
-            tlv_document_find(impl_->handle.get(), nullptr, detail::semantic_access::get(wanted)));
+            tlv_document_find(impl_->handle.get(), nullptr, detail::semantic_access::get(wanted)),
+            impl_->lifetime);
     }
 
     /**
@@ -421,7 +553,7 @@ public:
      * @return The first addressed element in document order, or an empty handle.
      */
     node find(const query& path) const {
-        return node(tlv_document_find_path(impl_->handle.get(), &path.c_query()));
+        return node(tlv_document_find_path(impl_->handle.get(), &path.c_query()), impl_->lifetime);
     }
 
     /**
@@ -440,13 +572,20 @@ public:
      */
     TLV_NODISCARD expected<node, error> insert(tlv::tag wanted, bytes value, node parent = node(),
                                                node before = node()) {
+        if ((parent.token_ && !parent) || (before.token_ && !before))
+            return unexpected<error>(error::from_c(TLV_ERR_INVALID_ARG));
         tlv_node_t*  created = nullptr;
         tlv_result_t rc = tlv_document_insert(impl_->handle.get(), parent.c_node(), before.c_node(),
                                               detail::semantic_access::get(wanted),
                                               reinterpret_cast<const uint8_t*>(value.data()),
                                               value.size(), &created);
         if (rc != TLV_OK) return unexpected<error>(error::from_c(rc));
-        return node(created);
+        try {
+            return node(created, impl_->lifetime);
+        } catch (...) {
+            tlv_node_erase(created);
+            throw;
+        }
     }
 
     /**
@@ -536,7 +675,10 @@ public:
         return encode(detail::format_access::get(format));
     }
 
-    /** @brief The underlying C document, for use with the C API. */
+    /** @brief Borrow the underlying C document for interoperability.
+     * @warning Native mutations bypass C++ validity tracking; use C++ operations
+     * for edits and never free this handle. Raw handles must not outlive this owner.
+     */
     tlv_document_t* c_document() const {
         return impl_->handle.get();
     }
@@ -550,11 +692,15 @@ private:
 
     // The format lives on the heap so that the C document's pointer survives a move.
     struct state {
-        tlv_format_t                             format;
-        std::unique_ptr<tlv_document_t, deleter> handle;
+        tlv_format_t                               format;
+        std::unique_ptr<tlv_document_t, deleter>   handle;
+        std::shared_ptr<detail::document_lifetime> lifetime =
+            std::make_shared<detail::document_lifetime>();
     };
 
-    explicit document(std::unique_ptr<state> impl) : impl_(std::move(impl)) {}
+    explicit document(std::unique_ptr<state> impl) : impl_(std::move(impl)) {
+        impl_->lifetime->document = impl_->handle.get();
+    }
 
     static expected<document, error> make(const bytes* data, const document_format& format,
                                           size_t* error_offset) {
