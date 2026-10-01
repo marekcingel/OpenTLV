@@ -101,6 +101,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Added
 
+- Add a supported NFC Type 2 binary corpus with independent decode/encode and byte-exact round-trip tests, documented examples, and CLI `nfc-type2` format selection. (#426)
 - Add NFC Forum Type 2 Tag TLV stream framing with NULL/Terminator elements, short and extended lengths, source preservation, C++/Python/Rust/Lua/WASM presets and an example; add reusable escape-length and identifier-selected field composition. (#425)
 - Add Lua Query and optional mutable Document bindings with native path matching, editing, serialization, diagnostics, and lifetime-safe node handles. (#303)
 - Add Lua Value codecs with builtin and configurable codecs, EMV dictionary selection, exact 64-bit integer conversion, codec diagnostics and custom Lua callbacks through the C codec contract. (#302)

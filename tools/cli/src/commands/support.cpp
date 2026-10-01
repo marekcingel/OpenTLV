@@ -8,6 +8,9 @@
 #include "console_color.hpp"
 #include "tlv/config.h"
 #include "tlv/formats/fixed.h"
+#if OPENTLV_NFC
+#include "tlv/builtins/nfc/type2.h"
+#endif
 #if OPENTLV_EMV
 #include "tlv/builtins/emv/format.h"
 #endif
@@ -55,6 +58,9 @@ const tlv_format_t* select_format(const options& o) {
 #endif
 #if OPENTLV_BLUETOOTH
     if (!strcmp(name, "bluetooth-ltv")) return &tlv_format_bluetooth_ltv;
+#endif
+#if OPENTLV_NFC
+    if (!strcmp(name, "nfc-type2")) return &tlv_format_nfc_type2;
 #endif
     (void)name;
     return NULL;

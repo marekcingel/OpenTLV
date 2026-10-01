@@ -77,8 +77,8 @@ The same hex syntax applies to files and stdin, including CR/LF between pairs.
 read without buffering the encoded text. It does not limit the number of
 whitespace characters read from a stream.
 
-`formats` lists only enabled formats: `default`, `fixed`, `ber`,
-`der`, and `bluetooth-ltv`. Existing library CMake component options control availability. Unknown
+`formats` lists only enabled formats: `fixed`, `emv`, `ber`,
+`der`, `bluetooth-ltv`, and `nfc-type2`. Existing library CMake component options control availability. Unknown
 or disabled formats fail before reading input. No format detection is performed.
 
 `--format fixed` defaults to one tag byte and one big-endian length byte, matching

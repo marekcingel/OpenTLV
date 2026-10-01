@@ -6,7 +6,9 @@
 
 int main(void) {
     /* A contiguous TLV stream from the data area, not a physical memory dump. */
-    const uint8_t stream[] = {0x00, 0x03, 0x03, 0xD1, 0x01, 0x00, 0xFE};
+    /* Same bytes as examples/nfc/type2/sample.bin: an English "Hi" Text record. */
+    const uint8_t stream[] = {0x00, 0x03, 0x09, 0xD1, 0x01, 0x05, 0x54,
+                              0x02, 0x65, 0x6E, 0x48, 0x69, 0xFE};
     uint8_t       encoded[sizeof(stream)] = {0};
     tlv_reader_t  reader;
     tlv_writer_t  writer;
