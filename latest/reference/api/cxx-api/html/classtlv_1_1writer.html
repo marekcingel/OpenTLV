@@ -87,7 +87,10 @@ $(function() {
 <table class="memberdecls">
 <tr class="heading"><td colspan="2"><h2 class="groupheader"><a id="pub-methods" name="pub-methods"></a>
 Public Member Functions</h2></td></tr>
-<tr class="memitem:a00ae5fd6ea3f246141d985911d497a33" id="r_a00ae5fd6ea3f246141d985911d497a33"><td class="memItemLeft" align="right" valign="top">&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classtlv_1_1writer.html#a00ae5fd6ea3f246141d985911d497a33">writer</a> (<a class="el" href="namespacetlv.html#aa91df798a712d88cf7d2f1f63a539b51">byte</a> *buf, size_t capacity, const <a class="elRef" href="../../c-api/html/group__formats.html#gac461da7e8d46362fa8e09694efb0b062">tlv_format_t</a> &amp;format)</td></tr>
+<tr class="memitem:ac7552fb35b9aa9582274d158e935fc37" id="r_ac7552fb35b9aa9582274d158e935fc37"><td class="memItemLeft" align="right" valign="top">&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classtlv_1_1writer.html#ac7552fb35b9aa9582274d158e935fc37">writer</a> (<a class="el" href="namespacetlv.html#aa91df798a712d88cf7d2f1f63a539b51">byte</a> *buf, size_t capacity, <a class="el" href="classtlv_1_1format.html">tlv::format</a> <a class="el" href="classtlv_1_1format.html">format</a>)</td></tr>
+<tr class="memdesc:ac7552fb35b9aa9582274d158e935fc37"><td class="mdescLeft">&#160;</td><td class="mdescRight">Create a sequential writer from a C++ Format view without allocation.  <br /></td></tr>
+<tr class="separator:ac7552fb35b9aa9582274d158e935fc37"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a00ae5fd6ea3f246141d985911d497a33" id="r_a00ae5fd6ea3f246141d985911d497a33"><td class="memItemLeft" align="right" valign="top">&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classtlv_1_1writer.html#a00ae5fd6ea3f246141d985911d497a33">writer</a> (<a class="el" href="namespacetlv.html#aa91df798a712d88cf7d2f1f63a539b51">byte</a> *buf, size_t capacity, const <a class="elRef" href="../../c-api/html/group__formats.html#gac461da7e8d46362fa8e09694efb0b062">tlv_format_t</a> &amp;<a class="el" href="classtlv_1_1format.html">format</a>)</td></tr>
 <tr class="memdesc:a00ae5fd6ea3f246141d985911d497a33"><td class="mdescLeft">&#160;</td><td class="mdescRight">Creates a writer over a buffer.  <br /></td></tr>
 <tr class="separator:a00ae5fd6ea3f246141d985911d497a33"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:a5f4d451ec3f70797b9471ca99e171510" id="r_a5f4d451ec3f70797b9471ca99e171510"><td class="memItemLeft" align="right" valign="top"><a class="el" href="classtlv_1_1expected.html">expected</a>&lt; void, <a class="el" href="structtlv_1_1error.html">error</a> &gt;&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classtlv_1_1writer.html#a5f4d451ec3f70797b9471ca99e171510">write</a> (<a class="el" href="namespacetlv.html#a2b31c4b301052e8137584ed7baf54611">tag_t</a> tag, <a class="el" href="namespacetlv.html#a2abe7003a70af047ef9acae17f31f75d">bytes</a> value)</td></tr>
@@ -118,8 +121,61 @@ Public Member Functions</h2></td></tr>
 <dl class="section warning"><dt>Warning</dt><dd>The caller must keep the buffer, format, and format context alive for the lifetime of the writer. </dd></dl>
 <dl class="section see"><dt>See also</dt><dd><a href="https://marekcingel.github.io/OpenTLV/guides/memory/">format context ownership and lifetime</a> </dd></dl>
 </div><h2 class="groupheader">Constructor &amp; Destructor Documentation</h2>
+<a id="ac7552fb35b9aa9582274d158e935fc37" name="ac7552fb35b9aa9582274d158e935fc37"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#ac7552fb35b9aa9582274d158e935fc37">&#9670;&#160;</a></span>writer() <span class="overload">[1/2]</span></h2>
+
+<div class="memitem">
+<div class="memproto">
+<table class="mlabels">
+  <tr>
+  <td class="mlabels-left">
+      <table class="memname">
+        <tr>
+          <td class="memname">tlv::writer::writer </td>
+          <td>(</td>
+          <td class="paramtype"><a class="el" href="namespacetlv.html#aa91df798a712d88cf7d2f1f63a539b51">byte</a> *&#160;</td>
+          <td class="paramname"><em>buf</em>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype">size_t&#160;</td>
+          <td class="paramname"><em>capacity</em>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype"><a class="el" href="classtlv_1_1format.html">tlv::format</a>&#160;</td>
+          <td class="paramname"><em>format</em>&#160;</td>
+        </tr>
+        <tr>
+          <td></td>
+          <td>)</td>
+          <td></td><td></td>
+        </tr>
+      </table>
+  </td>
+  <td class="mlabels-right">
+<span class="mlabels"><span class="mlabel">inline</span></span>  </td>
+  </tr>
+</table>
+</div><div class="memdoc">
+
+<p>Create a sequential writer from a C++ Format view without allocation. </p>
+<dl class="params"><dt>Parameters</dt><dd>
+  <table class="params">
+    <tr><td class="paramname">buf</td><td>Borrowed output buffer, null only for zero capacity. </td></tr>
+    <tr><td class="paramname">capacity</td><td>Writable byte count. </td></tr>
+    <tr><td class="paramname">format</td><td>Borrowed Format; descriptor and context must outlive this writer. </td></tr>
+  </table>
+  </dd>
+</dl>
+<dl class="section note"><dt>Note</dt><dd>The view may be temporary. Subsequent writes report initialization failures. </dd></dl>
+
+</div>
+</div>
 <a id="a00ae5fd6ea3f246141d985911d497a33" name="a00ae5fd6ea3f246141d985911d497a33"></a>
-<h2 class="memtitle"><span class="permalink"><a href="#a00ae5fd6ea3f246141d985911d497a33">&#9670;&#160;</a></span>writer()</h2>
+<h2 class="memtitle"><span class="permalink"><a href="#a00ae5fd6ea3f246141d985911d497a33">&#9670;&#160;</a></span>writer() <span class="overload">[2/2]</span></h2>
 
 <div class="memitem">
 <div class="memproto">

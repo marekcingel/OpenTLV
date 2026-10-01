@@ -87,7 +87,10 @@ $(function() {
 <table class="memberdecls">
 <tr class="heading"><td colspan="2"><h2 class="groupheader"><a id="pub-methods" name="pub-methods"></a>
 Public Member Functions</h2></td></tr>
-<tr class="memitem:af15d074773f93d538d18ccf2f6e437da" id="r_af15d074773f93d538d18ccf2f6e437da"><td class="memItemLeft" align="right" valign="top">&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classtlv_1_1reader.html#af15d074773f93d538d18ccf2f6e437da">reader</a> (<a class="el" href="namespacetlv.html#a2abe7003a70af047ef9acae17f31f75d">bytes</a> data, const <a class="elRef" href="../../c-api/html/group__formats.html#gac461da7e8d46362fa8e09694efb0b062">tlv_format_t</a> &amp;format, <a class="el" href="namespacetlv.html#a6d141be87a05679c237c4d7f5b941c15">input_mode</a> mode=<a class="el" href="namespacetlv.html#a6d141be87a05679c237c4d7f5b941c15a2a1585a864d9e67627c6ae04c807a2c5">input_mode::final</a>)</td></tr>
+<tr class="memitem:a0877e8610ee5ed6eb392321a2cb695b4" id="r_a0877e8610ee5ed6eb392321a2cb695b4"><td class="memItemLeft" align="right" valign="top">&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classtlv_1_1reader.html#a0877e8610ee5ed6eb392321a2cb695b4">reader</a> (<a class="el" href="namespacetlv.html#a2abe7003a70af047ef9acae17f31f75d">bytes</a> data, <a class="el" href="classtlv_1_1format.html">tlv::format</a> <a class="el" href="classtlv_1_1format.html">format</a>, <a class="el" href="namespacetlv.html#a6d141be87a05679c237c4d7f5b941c15">input_mode</a> mode=<a class="el" href="namespacetlv.html#a6d141be87a05679c237c4d7f5b941c15a2a1585a864d9e67627c6ae04c807a2c5">input_mode::final</a>)</td></tr>
+<tr class="memdesc:a0877e8610ee5ed6eb392321a2cb695b4"><td class="mdescLeft">&#160;</td><td class="mdescRight">Create a sequential reader from a C++ Format view without allocation.  <br /></td></tr>
+<tr class="separator:a0877e8610ee5ed6eb392321a2cb695b4"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:af15d074773f93d538d18ccf2f6e437da" id="r_af15d074773f93d538d18ccf2f6e437da"><td class="memItemLeft" align="right" valign="top">&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classtlv_1_1reader.html#af15d074773f93d538d18ccf2f6e437da">reader</a> (<a class="el" href="namespacetlv.html#a2abe7003a70af047ef9acae17f31f75d">bytes</a> data, const <a class="elRef" href="../../c-api/html/group__formats.html#gac461da7e8d46362fa8e09694efb0b062">tlv_format_t</a> &amp;<a class="el" href="classtlv_1_1format.html">format</a>, <a class="el" href="namespacetlv.html#a6d141be87a05679c237c4d7f5b941c15">input_mode</a> mode=<a class="el" href="namespacetlv.html#a6d141be87a05679c237c4d7f5b941c15a2a1585a864d9e67627c6ae04c807a2c5">input_mode::final</a>)</td></tr>
 <tr class="memdesc:af15d074773f93d538d18ccf2f6e437da"><td class="mdescLeft">&#160;</td><td class="mdescRight">Creates a reader over a buffer.  <br /></td></tr>
 <tr class="separator:af15d074773f93d538d18ccf2f6e437da"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:a3e4090f5af6710f43cbf9fca4941fb63" id="r_a3e4090f5af6710f43cbf9fca4941fb63"><td class="memItemLeft" align="right" valign="top">bool&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classtlv_1_1reader.html#a3e4090f5af6710f43cbf9fca4941fb63">at_end</a> () const</td></tr>
@@ -122,8 +125,61 @@ Public Member Functions</h2></td></tr>
 <dl class="section warning"><dt>Warning</dt><dd>The caller must keep the buffer, format, and format context alive for the lifetime of the reader and of any element it returns. </dd></dl>
 <dl class="section see"><dt>See also</dt><dd><a href="https://marekcingel.github.io/OpenTLV/guides/memory/">format context ownership and lifetime</a> </dd></dl>
 </div><h2 class="groupheader">Constructor &amp; Destructor Documentation</h2>
+<a id="a0877e8610ee5ed6eb392321a2cb695b4" name="a0877e8610ee5ed6eb392321a2cb695b4"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#a0877e8610ee5ed6eb392321a2cb695b4">&#9670;&#160;</a></span>reader() <span class="overload">[1/2]</span></h2>
+
+<div class="memitem">
+<div class="memproto">
+<table class="mlabels">
+  <tr>
+  <td class="mlabels-left">
+      <table class="memname">
+        <tr>
+          <td class="memname">tlv::reader::reader </td>
+          <td>(</td>
+          <td class="paramtype"><a class="el" href="namespacetlv.html#a2abe7003a70af047ef9acae17f31f75d">bytes</a>&#160;</td>
+          <td class="paramname"><em>data</em>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype"><a class="el" href="classtlv_1_1format.html">tlv::format</a>&#160;</td>
+          <td class="paramname"><em>format</em>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype"><a class="el" href="namespacetlv.html#a6d141be87a05679c237c4d7f5b941c15">input_mode</a>&#160;</td>
+          <td class="paramname"><em>mode</em> = <code><a class="el" href="namespacetlv.html#a6d141be87a05679c237c4d7f5b941c15a2a1585a864d9e67627c6ae04c807a2c5">input_mode::final</a></code>&#160;</td>
+        </tr>
+        <tr>
+          <td></td>
+          <td>)</td>
+          <td></td><td></td>
+        </tr>
+      </table>
+  </td>
+  <td class="mlabels-right">
+<span class="mlabels"><span class="mlabel">inline</span></span>  </td>
+  </tr>
+</table>
+</div><div class="memdoc">
+
+<p>Create a sequential reader from a C++ Format view without allocation. </p>
+<dl class="params"><dt>Parameters</dt><dd>
+  <table class="params">
+    <tr><td class="paramname">data</td><td>Encoded input, borrowed. </td></tr>
+    <tr><td class="paramname">format</td><td>Borrowed Format; its descriptor and context must outlive this cursor and results. </td></tr>
+    <tr><td class="paramname">mode</td><td>Whether this window is final or accepts incremental continuation. </td></tr>
+  </table>
+  </dd>
+</dl>
+<dl class="section note"><dt>Note</dt><dd>The view object may be temporary. Initialization errors are reported by <a class="el" href="classtlv_1_1reader.html#ab8bb5235adb4dc69633eceb8cc7facf4" title="Reads the next element and advances the reader.">next()</a>. </dd></dl>
+
+</div>
+</div>
 <a id="af15d074773f93d538d18ccf2f6e437da" name="af15d074773f93d538d18ccf2f6e437da"></a>
-<h2 class="memtitle"><span class="permalink"><a href="#af15d074773f93d538d18ccf2f6e437da">&#9670;&#160;</a></span>reader()</h2>
+<h2 class="memtitle"><span class="permalink"><a href="#af15d074773f93d538d18ccf2f6e437da">&#9670;&#160;</a></span>reader() <span class="overload">[2/2]</span></h2>
 
 <div class="memitem">
 <div class="memproto">

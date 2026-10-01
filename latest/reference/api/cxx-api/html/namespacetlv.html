@@ -70,6 +70,7 @@ $(function() {
 </div><!-- top -->
 <div class="header">
   <div class="summary">
+<a href="#namespaces">Namespaces</a> &#124;
 <a href="#nested-classes">Classes</a> &#124;
 <a href="#concepts">Concepts</a> &#124;
 <a href="#typedef-members">Typedefs</a> &#124;
@@ -82,6 +83,15 @@ $(function() {
 <p>Public C++ wrappers, value types, codec traits and helpers for OpenTLV.  
 <a href="namespacetlv.html#details">More...</a></p>
 <table class="memberdecls">
+<tr class="heading"><td colspan="2"><h2 class="groupheader"><a id="namespaces" name="namespaces"></a>
+Namespaces</h2></td></tr>
+<tr class="memitem:namespacetlv_1_1ber" id="r_namespacetlv_1_1ber"><td class="memItemLeft" align="right" valign="top">namespace &#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="namespacetlv_1_1ber.html">ber</a></td></tr>
+<tr class="memdesc:namespacetlv_1_1ber"><td class="mdescLeft">&#160;</td><td class="mdescRight">BER-specific types backed by generic OpenTLV operations. <br /></td></tr>
+<tr class="separator:"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:namespacetlv_1_1native" id="r_namespacetlv_1_1native"><td class="memItemLeft" align="right" valign="top">namespace &#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="namespacetlv_1_1native.html">native</a></td></tr>
+<tr class="memdesc:namespacetlv_1_1native"><td class="mdescLeft">&#160;</td><td class="mdescRight">Explicit C interoperability; ordinary C++ code uses public C++ types. <br /></td></tr>
+<tr class="separator:"><td class="memSeparator" colspan="2">&#160;</td></tr>
+</table><table class="memberdecls">
 <tr class="heading"><td colspan="2"><h2 class="groupheader"><a id="nested-classes" name="nested-classes"></a>
 Classes</h2></td></tr>
 <tr class="memitem:"><td class="memItemLeft" align="right" valign="top">class &#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classtlv_1_1any.html">any</a></td></tr>
@@ -113,6 +123,9 @@ Classes</h2></td></tr>
 <tr class="separator:"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:"><td class="memItemLeft" align="right" valign="top">class &#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classtlv_1_1fixed__format.html">fixed_format</a></td></tr>
 <tr class="memdesc:"><td class="mdescLeft">&#160;</td><td class="mdescRight">A fixed-width TLV format selected at compile time.  <a href="classtlv_1_1fixed__format.html#details">More...</a><br /></td></tr>
+<tr class="separator:"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:"><td class="memItemLeft" align="right" valign="top">class &#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classtlv_1_1format.html">format</a></td></tr>
+<tr class="memdesc:"><td class="mdescLeft">&#160;</td><td class="mdescRight">Copyable, allocation-free view of an immutable wire Format.  <a href="classtlv_1_1format.html#details">More...</a><br /></td></tr>
 <tr class="separator:"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:"><td class="memItemLeft" align="right" valign="top">struct &#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="structtlv_1_1is__tlv__codec.html">is_tlv_codec</a></td></tr>
 <tr class="memdesc:"><td class="mdescLeft">&#160;</td><td class="mdescRight">Trait for the interface every payload type must satisfy to be encoded and decoded through TLV.  <a href="structtlv_1_1is__tlv__codec.html#details">More...</a><br /></td></tr>
@@ -278,50 +291,88 @@ Functions</h2></td></tr>
 <tr class="memitem:a1ebd1f785dffded6a41e5887546d0447" id="r_a1ebd1f785dffded6a41e5887546d0447"><td class="memItemLeft" align="right" valign="top">void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="namespacetlv.html#a1ebd1f785dffded6a41e5887546d0447">set_path</a> (<a class="el" href="namespacetlv.html#a00ca9c69c35ef11f6a22b7eda1b115ba">diagnostic</a> &amp;target, const <a class="el" href="namespacetlv.html#a362165fd39d879542d984a7aa5c5f1af">diagnostic_path</a> &amp;path)</td></tr>
 <tr class="memdesc:a1ebd1f785dffded6a41e5887546d0447"><td class="mdescLeft">&#160;</td><td class="mdescRight">Sets the hierarchical path a diagnostic refers to.  <br /></td></tr>
 <tr class="separator:a1ebd1f785dffded6a41e5887546d0447"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:a512ddcc1a3e18ab18462e5e891442851" id="r_a512ddcc1a3e18ab18462e5e891442851"><td class="memItemLeft" align="right" valign="top"><a class="el" href="classtlv_1_1expected.html">expected</a>&lt; <a class="el" href="namespacetlv.html#a805cf4968e94f981f07e1cd785760ae1">decoded</a>, <a class="el" href="structtlv_1_1error.html">error</a> &gt;&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="namespacetlv.html#a512ddcc1a3e18ab18462e5e891442851">decode</a> (const <a class="elRef" href="../../c-api/html/group__formats.html#gac461da7e8d46362fa8e09694efb0b062">tlv_format_t</a> &amp;format, <a class="el" href="namespacetlv.html#a2abe7003a70af047ef9acae17f31f75d">bytes</a> data)</td></tr>
+<tr class="memitem:a512ddcc1a3e18ab18462e5e891442851" id="r_a512ddcc1a3e18ab18462e5e891442851"><td class="memItemLeft" align="right" valign="top"><a class="el" href="classtlv_1_1expected.html">expected</a>&lt; <a class="el" href="namespacetlv.html#a805cf4968e94f981f07e1cd785760ae1">decoded</a>, <a class="el" href="structtlv_1_1error.html">error</a> &gt;&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="namespacetlv.html#a512ddcc1a3e18ab18462e5e891442851">decode</a> (const <a class="elRef" href="../../c-api/html/group__formats.html#gac461da7e8d46362fa8e09694efb0b062">tlv_format_t</a> &amp;<a class="el" href="classtlv_1_1format.html">format</a>, <a class="el" href="namespacetlv.html#a2abe7003a70af047ef9acae17f31f75d">bytes</a> data)</td></tr>
 <tr class="memdesc:a512ddcc1a3e18ab18462e5e891442851"><td class="mdescLeft">&#160;</td><td class="mdescRight">Decode one element and retain its original wire ranges without allocation.  <br /></td></tr>
 <tr class="separator:a512ddcc1a3e18ab18462e5e891442851"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:abb9c0d6fd1e7bbb47434b7fc2e87cea0" id="r_abb9c0d6fd1e7bbb47434b7fc2e87cea0"><td class="memItemLeft" align="right" valign="top"><a class="el" href="classtlv_1_1expected.html">expected</a>&lt; <a class="el" href="namespacetlv.html#ab56240f5c9c93bf9d4a0c1d12fa6535e">encoding</a>, <a class="el" href="structtlv_1_1error.html">error</a> &gt;&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="namespacetlv.html#abb9c0d6fd1e7bbb47434b7fc2e87cea0">measure</a> (const <a class="elRef" href="../../c-api/html/group__formats.html#gac461da7e8d46362fa8e09694efb0b062">tlv_format_t</a> &amp;format, const <a class="el" href="namespacetlv.html#a36fb32b6d2478c7a9f386389e959ebcc">element</a> &amp;value)</td></tr>
+<tr class="memitem:ac8c79662a9de381b9e60f3a762c664a3" id="r_ac8c79662a9de381b9e60f3a762c664a3"><td class="memItemLeft" align="right" valign="top"><a class="el" href="classtlv_1_1expected.html">expected</a>&lt; <a class="el" href="namespacetlv.html#a805cf4968e94f981f07e1cd785760ae1">decoded</a>, <a class="el" href="structtlv_1_1error.html">error</a> &gt;&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="namespacetlv.html#ac8c79662a9de381b9e60f3a762c664a3">decode</a> (<a class="el" href="classtlv_1_1format.html">tlv::format</a> <a class="el" href="classtlv_1_1format.html">format</a>, <a class="el" href="namespacetlv.html#a2abe7003a70af047ef9acae17f31f75d">bytes</a> data)</td></tr>
+<tr class="memdesc:ac8c79662a9de381b9e60f3a762c664a3"><td class="mdescLeft">&#160;</td><td class="mdescRight">Decode using a borrowed C++ Format view.  <br /></td></tr>
+<tr class="separator:ac8c79662a9de381b9e60f3a762c664a3"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:abb9c0d6fd1e7bbb47434b7fc2e87cea0" id="r_abb9c0d6fd1e7bbb47434b7fc2e87cea0"><td class="memItemLeft" align="right" valign="top"><a class="el" href="classtlv_1_1expected.html">expected</a>&lt; <a class="el" href="namespacetlv.html#ab56240f5c9c93bf9d4a0c1d12fa6535e">encoding</a>, <a class="el" href="structtlv_1_1error.html">error</a> &gt;&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="namespacetlv.html#abb9c0d6fd1e7bbb47434b7fc2e87cea0">measure</a> (const <a class="elRef" href="../../c-api/html/group__formats.html#gac461da7e8d46362fa8e09694efb0b062">tlv_format_t</a> &amp;<a class="el" href="classtlv_1_1format.html">format</a>, const <a class="el" href="namespacetlv.html#a36fb32b6d2478c7a9f386389e959ebcc">element</a> &amp;value)</td></tr>
 <tr class="memdesc:abb9c0d6fd1e7bbb47434b7fc2e87cea0"><td class="mdescLeft">&#160;</td><td class="mdescRight">Measure logical framing without a destination buffer.  <br /></td></tr>
 <tr class="separator:abb9c0d6fd1e7bbb47434b7fc2e87cea0"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:a736d1de0b06878e86e64c955b651de17" id="r_a736d1de0b06878e86e64c955b651de17"><td class="memItemLeft" align="right" valign="top"><a class="el" href="classtlv_1_1expected.html">expected</a>&lt; size_t, <a class="el" href="structtlv_1_1error.html">error</a> &gt;&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="namespacetlv.html#a736d1de0b06878e86e64c955b651de17">encode</a> (const <a class="elRef" href="../../c-api/html/group__formats.html#gac461da7e8d46362fa8e09694efb0b062">tlv_format_t</a> &amp;format, const <a class="el" href="namespacetlv.html#a36fb32b6d2478c7a9f386389e959ebcc">element</a> &amp;value, <a class="el" href="namespacetlv.html#aa91df798a712d88cf7d2f1f63a539b51">byte</a> *data, size_t capacity)</td></tr>
+<tr class="memitem:a5aa137aa55bf5d586be65b2200e3f9d7" id="r_a5aa137aa55bf5d586be65b2200e3f9d7"><td class="memItemLeft" align="right" valign="top"><a class="el" href="classtlv_1_1expected.html">expected</a>&lt; <a class="el" href="namespacetlv.html#ab56240f5c9c93bf9d4a0c1d12fa6535e">encoding</a>, <a class="el" href="structtlv_1_1error.html">error</a> &gt;&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="namespacetlv.html#a5aa137aa55bf5d586be65b2200e3f9d7">measure</a> (<a class="el" href="classtlv_1_1format.html">tlv::format</a> <a class="el" href="classtlv_1_1format.html">format</a>, const <a class="el" href="namespacetlv.html#a36fb32b6d2478c7a9f386389e959ebcc">element</a> &amp;value)</td></tr>
+<tr class="memdesc:a5aa137aa55bf5d586be65b2200e3f9d7"><td class="mdescLeft">&#160;</td><td class="mdescRight">Measure using a borrowed C++ Format view.  <br /></td></tr>
+<tr class="separator:a5aa137aa55bf5d586be65b2200e3f9d7"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a736d1de0b06878e86e64c955b651de17" id="r_a736d1de0b06878e86e64c955b651de17"><td class="memItemLeft" align="right" valign="top"><a class="el" href="classtlv_1_1expected.html">expected</a>&lt; size_t, <a class="el" href="structtlv_1_1error.html">error</a> &gt;&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="namespacetlv.html#a736d1de0b06878e86e64c955b651de17">encode</a> (const <a class="elRef" href="../../c-api/html/group__formats.html#gac461da7e8d46362fa8e09694efb0b062">tlv_format_t</a> &amp;<a class="el" href="classtlv_1_1format.html">format</a>, const <a class="el" href="namespacetlv.html#a36fb32b6d2478c7a9f386389e959ebcc">element</a> &amp;value, <a class="el" href="namespacetlv.html#aa91df798a712d88cf7d2f1f63a539b51">byte</a> *data, size_t capacity)</td></tr>
 <tr class="memdesc:a736d1de0b06878e86e64c955b651de17"><td class="mdescLeft">&#160;</td><td class="mdescRight">Encode current semantic content, regenerating framing.  <br /></td></tr>
 <tr class="separator:a736d1de0b06878e86e64c955b651de17"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a7ca607e5827e277f9865babacab14356" id="r_a7ca607e5827e277f9865babacab14356"><td class="memItemLeft" align="right" valign="top"><a class="el" href="classtlv_1_1expected.html">expected</a>&lt; size_t, <a class="el" href="structtlv_1_1error.html">error</a> &gt;&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="namespacetlv.html#a7ca607e5827e277f9865babacab14356">encode</a> (<a class="el" href="classtlv_1_1format.html">tlv::format</a> <a class="el" href="classtlv_1_1format.html">format</a>, const <a class="el" href="namespacetlv.html#a36fb32b6d2478c7a9f386389e959ebcc">element</a> &amp;value, <a class="el" href="namespacetlv.html#aa91df798a712d88cf7d2f1f63a539b51">byte</a> *data, size_t capacity)</td></tr>
+<tr class="memdesc:a7ca607e5827e277f9865babacab14356"><td class="mdescLeft">&#160;</td><td class="mdescRight">Encode using a borrowed C++ Format view.  <br /></td></tr>
+<tr class="separator:a7ca607e5827e277f9865babacab14356"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:ac052284063328a192cc1de21d5788bbd" id="r_ac052284063328a192cc1de21d5788bbd"><td class="memItemLeft" align="right" valign="top"><a class="el" href="classtlv_1_1expected.html">expected</a>&lt; size_t, <a class="el" href="structtlv_1_1error.html">error</a> &gt;&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="namespacetlv.html#ac052284063328a192cc1de21d5788bbd">preserve</a> (const <a class="el" href="namespacetlv.html#a9ea18a502ce343bbda5c68825925022c">source</a> &amp;original, const <a class="el" href="namespacetlv.html#a36fb32b6d2478c7a9f386389e959ebcc">element</a> &amp;value, <a class="el" href="namespacetlv.html#aa91df798a712d88cf7d2f1f63a539b51">byte</a> *data, size_t capacity)</td></tr>
 <tr class="memdesc:ac052284063328a192cc1de21d5788bbd"><td class="mdescLeft">&#160;</td><td class="mdescRight">Reproduce original bytes after checking semantic equality.  <br /></td></tr>
 <tr class="separator:ac052284063328a192cc1de21d5788bbd"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:ac6665c938ebabfd7f55e4df8294432c0" id="r_ac6665c938ebabfd7f55e4df8294432c0"><td class="memItemLeft" align="right" valign="top"><a class="el" href="classtlv_1_1expected.html">expected</a>&lt; <a class="el" href="namespacetlv.html#a805cf4968e94f981f07e1cd785760ae1">decoded</a>, <a class="el" href="structtlv_1_1error.html">error</a> &gt;&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="namespacetlv.html#ac6665c938ebabfd7f55e4df8294432c0">read</a> (<a class="el" href="namespacetlv.html#a2abe7003a70af047ef9acae17f31f75d">bytes</a> data, const <a class="elRef" href="../../c-api/html/group__formats.html#gac461da7e8d46362fa8e09694efb0b062">tlv_format_t</a> &amp;format, size_t &amp;consumed, <a class="el" href="namespacetlv.html#aec6151f23d86b874b79d9d2ae021e568">reader_diagnostic</a> *<a class="el" href="namespacetlv.html#a00ca9c69c35ef11f6a22b7eda1b115ba">diagnostic</a>=nullptr)</td></tr>
+<tr class="memitem:ac6665c938ebabfd7f55e4df8294432c0" id="r_ac6665c938ebabfd7f55e4df8294432c0"><td class="memItemLeft" align="right" valign="top"><a class="el" href="classtlv_1_1expected.html">expected</a>&lt; <a class="el" href="namespacetlv.html#a805cf4968e94f981f07e1cd785760ae1">decoded</a>, <a class="el" href="structtlv_1_1error.html">error</a> &gt;&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="namespacetlv.html#ac6665c938ebabfd7f55e4df8294432c0">read</a> (<a class="el" href="namespacetlv.html#a2abe7003a70af047ef9acae17f31f75d">bytes</a> data, const <a class="elRef" href="../../c-api/html/group__formats.html#gac461da7e8d46362fa8e09694efb0b062">tlv_format_t</a> &amp;<a class="el" href="classtlv_1_1format.html">format</a>, size_t &amp;consumed, <a class="el" href="namespacetlv.html#aec6151f23d86b874b79d9d2ae021e568">reader_diagnostic</a> *<a class="el" href="namespacetlv.html#a00ca9c69c35ef11f6a22b7eda1b115ba">diagnostic</a>=nullptr)</td></tr>
 <tr class="memdesc:ac6665c938ebabfd7f55e4df8294432c0"><td class="mdescLeft">&#160;</td><td class="mdescRight">Read one complete element with its source ranges and optional diagnostics.  <br /></td></tr>
 <tr class="separator:ac6665c938ebabfd7f55e4df8294432c0"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:ae89639a23a48bb20db474516224d7d3e" id="r_ae89639a23a48bb20db474516224d7d3e"><td class="memItemLeft" align="right" valign="top"><a class="el" href="classtlv_1_1expected.html">expected</a>&lt; void, <a class="el" href="structtlv_1_1error.html">error</a> &gt;&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="namespacetlv.html#ae89639a23a48bb20db474516224d7d3e">validate</a> (<a class="el" href="namespacetlv.html#a2abe7003a70af047ef9acae17f31f75d">bytes</a> data, const <a class="elRef" href="../../c-api/html/group__formats.html#gac461da7e8d46362fa8e09694efb0b062">tlv_format_t</a> &amp;format, const <a class="elRef" href="../../c-api/html/group__schemas.html#ga86e8ecc543b5d6b397732cbcf2db59cf">tlv_structure_schema_t</a> &amp;schema, size_t max_depth, size_t max_elements, size_t *error_offset=nullptr)</td></tr>
+<tr class="memitem:a5fb945b389299ab49b5b10717dccc776" id="r_a5fb945b389299ab49b5b10717dccc776"><td class="memItemLeft" align="right" valign="top"><a class="el" href="classtlv_1_1expected.html">expected</a>&lt; <a class="el" href="namespacetlv.html#a805cf4968e94f981f07e1cd785760ae1">decoded</a>, <a class="el" href="structtlv_1_1error.html">error</a> &gt;&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="namespacetlv.html#a5fb945b389299ab49b5b10717dccc776">read</a> (<a class="el" href="namespacetlv.html#a2abe7003a70af047ef9acae17f31f75d">bytes</a> data, <a class="el" href="classtlv_1_1format.html">tlv::format</a> <a class="el" href="classtlv_1_1format.html">format</a>, size_t &amp;consumed, <a class="el" href="namespacetlv.html#aec6151f23d86b874b79d9d2ae021e568">reader_diagnostic</a> *<a class="el" href="namespacetlv.html#a00ca9c69c35ef11f6a22b7eda1b115ba">diagnostic</a>=nullptr)</td></tr>
+<tr class="memdesc:a5fb945b389299ab49b5b10717dccc776"><td class="mdescLeft">&#160;</td><td class="mdescRight">Read one element using a borrowed C++ Format view.  <br /></td></tr>
+<tr class="separator:a5fb945b389299ab49b5b10717dccc776"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:ae89639a23a48bb20db474516224d7d3e" id="r_ae89639a23a48bb20db474516224d7d3e"><td class="memItemLeft" align="right" valign="top"><a class="el" href="classtlv_1_1expected.html">expected</a>&lt; void, <a class="el" href="structtlv_1_1error.html">error</a> &gt;&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="namespacetlv.html#ae89639a23a48bb20db474516224d7d3e">validate</a> (<a class="el" href="namespacetlv.html#a2abe7003a70af047ef9acae17f31f75d">bytes</a> data, const <a class="elRef" href="../../c-api/html/group__formats.html#gac461da7e8d46362fa8e09694efb0b062">tlv_format_t</a> &amp;<a class="el" href="classtlv_1_1format.html">format</a>, const <a class="elRef" href="../../c-api/html/group__schemas.html#ga86e8ecc543b5d6b397732cbcf2db59cf">tlv_structure_schema_t</a> &amp;schema, size_t max_depth, size_t max_elements, size_t *error_offset=nullptr)</td></tr>
 <tr class="memdesc:ae89639a23a48bb20db474516224d7d3e"><td class="mdescLeft">&#160;</td><td class="mdescRight">Validates framing, nesting, lengths and occurrence counts against a schema.  <br /></td></tr>
 <tr class="separator:ae89639a23a48bb20db474516224d7d3e"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:a94c9e2071659e67b2eb136583e40569c" id="r_a94c9e2071659e67b2eb136583e40569c"><td class="memItemLeft" align="right" valign="top"><a class="el" href="classtlv_1_1expected.html">expected</a>&lt; size_t, <a class="el" href="structtlv_1_1error.html">error</a> &gt;&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="namespacetlv.html#a94c9e2071659e67b2eb136583e40569c">validate_all_diag</a> (<a class="el" href="namespacetlv.html#a2abe7003a70af047ef9acae17f31f75d">bytes</a> data, const <a class="elRef" href="../../c-api/html/group__formats.html#gac461da7e8d46362fa8e09694efb0b062">tlv_format_t</a> &amp;format, const <a class="elRef" href="../../c-api/html/group__schemas.html#ga86e8ecc543b5d6b397732cbcf2db59cf">tlv_structure_schema_t</a> &amp;schema, size_t max_depth, size_t max_elements, <a class="el" href="namespacetlv.html#a4e03c6255ccb433c2413b3b7906bab8c">schema_diagnostic</a> *diagnostics, size_t capacity, <a class="elRef" href="../../c-api/html/group__schemas.html#ga7537f035621096beea18ca83bd278646">tlv_schema_unknown_policy_t</a> unknown=<a class="elRef" href="../../c-api/html/group__schemas.html#ggaac0ce480d18e12ccf642fc85a59f8419af5fe9db07d3fb3ef3e1c0326a05ccf82">TLV_SCHEMA_UNKNOWN_BY_SCHEMA</a>, size_t *error_offset=nullptr)</td></tr>
+<tr class="memitem:a94c9e2071659e67b2eb136583e40569c" id="r_a94c9e2071659e67b2eb136583e40569c"><td class="memItemLeft" align="right" valign="top"><a class="el" href="classtlv_1_1expected.html">expected</a>&lt; size_t, <a class="el" href="structtlv_1_1error.html">error</a> &gt;&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="namespacetlv.html#a94c9e2071659e67b2eb136583e40569c">validate_all_diag</a> (<a class="el" href="namespacetlv.html#a2abe7003a70af047ef9acae17f31f75d">bytes</a> data, const <a class="elRef" href="../../c-api/html/group__formats.html#gac461da7e8d46362fa8e09694efb0b062">tlv_format_t</a> &amp;<a class="el" href="classtlv_1_1format.html">format</a>, const <a class="elRef" href="../../c-api/html/group__schemas.html#ga86e8ecc543b5d6b397732cbcf2db59cf">tlv_structure_schema_t</a> &amp;schema, size_t max_depth, size_t max_elements, <a class="el" href="namespacetlv.html#a4e03c6255ccb433c2413b3b7906bab8c">schema_diagnostic</a> *diagnostics, size_t capacity, <a class="elRef" href="../../c-api/html/group__schemas.html#ga7537f035621096beea18ca83bd278646">tlv_schema_unknown_policy_t</a> unknown=<a class="elRef" href="../../c-api/html/group__schemas.html#ggaac0ce480d18e12ccf642fc85a59f8419af5fe9db07d3fb3ef3e1c0326a05ccf82">TLV_SCHEMA_UNKNOWN_BY_SCHEMA</a>, size_t *error_offset=nullptr)</td></tr>
 <tr class="memdesc:a94c9e2071659e67b2eb136583e40569c"><td class="mdescLeft">&#160;</td><td class="mdescRight">Validates a structure and reports every schema violation as a <a class="el" href="namespacetlv.html#a4e03c6255ccb433c2413b3b7906bab8c" title="C++ alias for the schema-specific diagnostic type, tlv_schema_diagnostic_t.">schema_diagnostic</a>.  <br /></td></tr>
 <tr class="separator:a94c9e2071659e67b2eb136583e40569c"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a72e413dfe5970689d73adfef66f0a8ea" id="r_a72e413dfe5970689d73adfef66f0a8ea"><td class="memItemLeft" align="right" valign="top"><a class="el" href="classtlv_1_1expected.html">expected</a>&lt; void, <a class="el" href="structtlv_1_1error.html">error</a> &gt;&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="namespacetlv.html#a72e413dfe5970689d73adfef66f0a8ea">validate</a> (<a class="el" href="namespacetlv.html#a2abe7003a70af047ef9acae17f31f75d">bytes</a> data, <a class="el" href="classtlv_1_1format.html">tlv::format</a> <a class="el" href="classtlv_1_1format.html">format</a>, const <a class="elRef" href="../../c-api/html/group__schemas.html#ga86e8ecc543b5d6b397732cbcf2db59cf">tlv_structure_schema_t</a> &amp;schema, size_t max_depth, size_t max_elements, size_t *error_offset=nullptr)</td></tr>
+<tr class="memdesc:a72e413dfe5970689d73adfef66f0a8ea"><td class="mdescLeft">&#160;</td><td class="mdescRight">Validate a structure using a C++ Format view.  <br /></td></tr>
+<tr class="separator:a72e413dfe5970689d73adfef66f0a8ea"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:ae52acc3634a73efe4b3fca83437e2caf" id="r_ae52acc3634a73efe4b3fca83437e2caf"><td class="memItemLeft" align="right" valign="top"><a class="el" href="classtlv_1_1expected.html">expected</a>&lt; size_t, <a class="el" href="structtlv_1_1error.html">error</a> &gt;&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="namespacetlv.html#ae52acc3634a73efe4b3fca83437e2caf">validate_all_diag</a> (<a class="el" href="namespacetlv.html#a2abe7003a70af047ef9acae17f31f75d">bytes</a> data, <a class="el" href="classtlv_1_1format.html">tlv::format</a> <a class="el" href="classtlv_1_1format.html">format</a>, const <a class="elRef" href="../../c-api/html/group__schemas.html#ga86e8ecc543b5d6b397732cbcf2db59cf">tlv_structure_schema_t</a> &amp;schema, size_t max_depth, size_t max_elements, <a class="el" href="namespacetlv.html#a4e03c6255ccb433c2413b3b7906bab8c">schema_diagnostic</a> *diagnostics, size_t capacity, <a class="elRef" href="../../c-api/html/group__schemas.html#ga7537f035621096beea18ca83bd278646">tlv_schema_unknown_policy_t</a> unknown=<a class="elRef" href="../../c-api/html/group__schemas.html#ggaac0ce480d18e12ccf642fc85a59f8419af5fe9db07d3fb3ef3e1c0326a05ccf82">TLV_SCHEMA_UNKNOWN_BY_SCHEMA</a>, size_t *error_offset=nullptr)</td></tr>
+<tr class="memdesc:ae52acc3634a73efe4b3fca83437e2caf"><td class="mdescLeft">&#160;</td><td class="mdescRight">Collect structure diagnostics using a C++ Format view.  <br /></td></tr>
+<tr class="separator:ae52acc3634a73efe4b3fca83437e2caf"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:a4c254e24e77d49afc2e4866e4370cd82" id="r_a4c254e24e77d49afc2e4866e4370cd82"><td class="memItemLeft" align="right" valign="top"><a class="el" href="classtlv_1_1expected.html">expected</a>&lt; <a class="el" href="namespacetlv.html#a2abe7003a70af047ef9acae17f31f75d">bytes</a>, <a class="el" href="structtlv_1_1error.html">error</a> &gt;&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="namespacetlv.html#a4c254e24e77d49afc2e4866e4370cd82">as_bytes</a> (<a class="elRef" href="../../c-api/html/structtlv__value__t.html">tlv_value_t</a> value)</td></tr>
 <tr class="memdesc:a4c254e24e77d49afc2e4866e4370cd82"><td class="mdescLeft">&#160;</td><td class="mdescRight">Converts a logical TLV value to a native byte span without copying.  <br /></td></tr>
 <tr class="separator:a4c254e24e77d49afc2e4866e4370cd82"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:a150f8d840867424d28c13be43c89232c" id="r_a150f8d840867424d28c13be43c89232c"><td class="memTemplParams" colspan="2">template&lt;typename Source &gt; </td></tr>
-<tr class="memitem:a150f8d840867424d28c13be43c89232c"><td class="memTemplItemLeft" align="right" valign="top"><a class="el" href="classtlv_1_1expected.html">expected</a>&lt; size_t, <a class="el" href="structtlv_1_1error.html">error</a> &gt;&#160;</td><td class="memTemplItemRight" valign="bottom"><a class="el" href="namespacetlv.html#a150f8d840867424d28c13be43c89232c">measure_tree</a> (const <a class="elRef" href="../../c-api/html/group__formats.html#gac461da7e8d46362fa8e09694efb0b062">tlv_format_t</a> &amp;format, Source &amp;&amp;next, <a class="el" href="namespacetlv.html#a57b8cb8121f7e7c4f797dee062d94717">tree_writer_workspace</a> &amp;workspace, size_t max_depth=<a class="elRef" href="../../c-api/html/defaults_8h.html#aba01db17f4a2bfbc3db60dc172972a25ad3b9801dae9cea1796aee28b0cdbfce2">TLV_TREE_DEFAULT_DEPTH</a>, size_t max_elements=SIZE_MAX, <a class="el" href="namespacetlv.html#a1df134eb9e2b476155eb324618396e4d">writer_diagnostic</a> *<a class="el" href="namespacetlv.html#a00ca9c69c35ef11f6a22b7eda1b115ba">diagnostic</a>=nullptr)</td></tr>
+<tr class="memitem:a150f8d840867424d28c13be43c89232c"><td class="memTemplItemLeft" align="right" valign="top"><a class="el" href="classtlv_1_1expected.html">expected</a>&lt; size_t, <a class="el" href="structtlv_1_1error.html">error</a> &gt;&#160;</td><td class="memTemplItemRight" valign="bottom"><a class="el" href="namespacetlv.html#a150f8d840867424d28c13be43c89232c">measure_tree</a> (const <a class="elRef" href="../../c-api/html/group__formats.html#gac461da7e8d46362fa8e09694efb0b062">tlv_format_t</a> &amp;<a class="el" href="classtlv_1_1format.html">format</a>, Source &amp;&amp;next, <a class="el" href="namespacetlv.html#a57b8cb8121f7e7c4f797dee062d94717">tree_writer_workspace</a> &amp;workspace, size_t max_depth=<a class="elRef" href="../../c-api/html/defaults_8h.html#aba01db17f4a2bfbc3db60dc172972a25ad3b9801dae9cea1796aee28b0cdbfce2">TLV_TREE_DEFAULT_DEPTH</a>, size_t max_elements=SIZE_MAX, <a class="el" href="namespacetlv.html#a1df134eb9e2b476155eb324618396e4d">writer_diagnostic</a> *<a class="el" href="namespacetlv.html#a00ca9c69c35ef11f6a22b7eda1b115ba">diagnostic</a>=nullptr)</td></tr>
 <tr class="memdesc:a150f8d840867424d28c13be43c89232c"><td class="mdescLeft">&#160;</td><td class="mdescRight">Measure and stage semantic preorder records using the canonical C engine.  <br /></td></tr>
 <tr class="separator:a150f8d840867424d28c13be43c89232c"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:a8d199e9fb2a94ced8e7fc7616d3f6fa1" id="r_a8d199e9fb2a94ced8e7fc7616d3f6fa1"><td class="memTemplParams" colspan="2">template&lt;typename Source &gt; </td></tr>
-<tr class="memitem:a8d199e9fb2a94ced8e7fc7616d3f6fa1"><td class="memTemplItemLeft" align="right" valign="top"><a class="el" href="classtlv_1_1expected.html">expected</a>&lt; size_t, <a class="el" href="structtlv_1_1error.html">error</a> &gt;&#160;</td><td class="memTemplItemRight" valign="bottom"><a class="el" href="namespacetlv.html#a8d199e9fb2a94ced8e7fc7616d3f6fa1">measure_tree_events</a> (const <a class="elRef" href="../../c-api/html/group__formats.html#gac461da7e8d46362fa8e09694efb0b062">tlv_format_t</a> &amp;format, Source &amp;&amp;next, <a class="el" href="namespacetlv.html#a57b8cb8121f7e7c4f797dee062d94717">tree_writer_workspace</a> &amp;workspace, size_t max_depth=<a class="elRef" href="../../c-api/html/defaults_8h.html#aba01db17f4a2bfbc3db60dc172972a25ad3b9801dae9cea1796aee28b0cdbfce2">TLV_TREE_DEFAULT_DEPTH</a>, size_t max_elements=SIZE_MAX, <a class="el" href="namespacetlv.html#a1df134eb9e2b476155eb324618396e4d">writer_diagnostic</a> *<a class="el" href="namespacetlv.html#a00ca9c69c35ef11f6a22b7eda1b115ba">diagnostic</a>=nullptr)</td></tr>
+<tr class="memitem:a8d199e9fb2a94ced8e7fc7616d3f6fa1"><td class="memTemplItemLeft" align="right" valign="top"><a class="el" href="classtlv_1_1expected.html">expected</a>&lt; size_t, <a class="el" href="structtlv_1_1error.html">error</a> &gt;&#160;</td><td class="memTemplItemRight" valign="bottom"><a class="el" href="namespacetlv.html#a8d199e9fb2a94ced8e7fc7616d3f6fa1">measure_tree_events</a> (const <a class="elRef" href="../../c-api/html/group__formats.html#gac461da7e8d46362fa8e09694efb0b062">tlv_format_t</a> &amp;<a class="el" href="classtlv_1_1format.html">format</a>, Source &amp;&amp;next, <a class="el" href="namespacetlv.html#a57b8cb8121f7e7c4f797dee062d94717">tree_writer_workspace</a> &amp;workspace, size_t max_depth=<a class="elRef" href="../../c-api/html/defaults_8h.html#aba01db17f4a2bfbc3db60dc172972a25ad3b9801dae9cea1796aee28b0cdbfce2">TLV_TREE_DEFAULT_DEPTH</a>, size_t max_elements=SIZE_MAX, <a class="el" href="namespacetlv.html#a1df134eb9e2b476155eb324618396e4d">writer_diagnostic</a> *<a class="el" href="namespacetlv.html#a00ca9c69c35ef11f6a22b7eda1b115ba">diagnostic</a>=nullptr)</td></tr>
 <tr class="memdesc:a8d199e9fb2a94ced8e7fc7616d3f6fa1"><td class="mdescLeft">&#160;</td><td class="mdescRight">Measure and stage a balanced canonical event stream through C.  <br /></td></tr>
 <tr class="separator:a8d199e9fb2a94ced8e7fc7616d3f6fa1"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:a13d744645f8b59ec22c177bd33d7d663" id="r_a13d744645f8b59ec22c177bd33d7d663"><td class="memItemLeft" align="right" valign="top"><a class="el" href="classtlv_1_1expected.html">expected</a>&lt; size_t, <a class="el" href="structtlv_1_1error.html">error</a> &gt;&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="namespacetlv.html#a13d744645f8b59ec22c177bd33d7d663">encoded_size</a> (const <a class="el" href="namespacetlv.html#a36fb32b6d2478c7a9f386389e959ebcc">element</a> &amp;value, const <a class="elRef" href="../../c-api/html/group__formats.html#gac461da7e8d46362fa8e09694efb0b062">tlv_format_t</a> &amp;format, <a class="el" href="namespacetlv.html#a1df134eb9e2b476155eb324618396e4d">writer_diagnostic</a> *<a class="el" href="namespacetlv.html#a00ca9c69c35ef11f6a22b7eda1b115ba">diagnostic</a>=nullptr)</td></tr>
+<tr class="memitem:ab4182665a183de70980f0e2ad0a9bd94" id="r_ab4182665a183de70980f0e2ad0a9bd94"><td class="memTemplParams" colspan="2">template&lt;typename Source &gt; </td></tr>
+<tr class="memitem:ab4182665a183de70980f0e2ad0a9bd94"><td class="memTemplItemLeft" align="right" valign="top"><a class="el" href="classtlv_1_1expected.html">expected</a>&lt; size_t, <a class="el" href="structtlv_1_1error.html">error</a> &gt;&#160;</td><td class="memTemplItemRight" valign="bottom"><a class="el" href="namespacetlv.html#ab4182665a183de70980f0e2ad0a9bd94">measure_tree</a> (<a class="el" href="classtlv_1_1format.html">tlv::format</a> <a class="el" href="classtlv_1_1format.html">format</a>, Source &amp;&amp;next, <a class="el" href="namespacetlv.html#a57b8cb8121f7e7c4f797dee062d94717">tree_writer_workspace</a> &amp;workspace, size_t max_depth=<a class="elRef" href="../../c-api/html/defaults_8h.html#aba01db17f4a2bfbc3db60dc172972a25ad3b9801dae9cea1796aee28b0cdbfce2">TLV_TREE_DEFAULT_DEPTH</a>, size_t max_elements=SIZE_MAX, <a class="el" href="namespacetlv.html#a1df134eb9e2b476155eb324618396e4d">writer_diagnostic</a> *<a class="el" href="namespacetlv.html#a00ca9c69c35ef11f6a22b7eda1b115ba">diagnostic</a>=nullptr)</td></tr>
+<tr class="memdesc:ab4182665a183de70980f0e2ad0a9bd94"><td class="mdescLeft">&#160;</td><td class="mdescRight">Measure preorder records using a C++ Format view.  <br /></td></tr>
+<tr class="separator:ab4182665a183de70980f0e2ad0a9bd94"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a81f91995a35b2f569c4a44d6abb43afc" id="r_a81f91995a35b2f569c4a44d6abb43afc"><td class="memTemplParams" colspan="2">template&lt;typename Source &gt; </td></tr>
+<tr class="memitem:a81f91995a35b2f569c4a44d6abb43afc"><td class="memTemplItemLeft" align="right" valign="top"><a class="el" href="classtlv_1_1expected.html">expected</a>&lt; size_t, <a class="el" href="structtlv_1_1error.html">error</a> &gt;&#160;</td><td class="memTemplItemRight" valign="bottom"><a class="el" href="namespacetlv.html#a81f91995a35b2f569c4a44d6abb43afc">measure_tree_events</a> (<a class="el" href="classtlv_1_1format.html">tlv::format</a> <a class="el" href="classtlv_1_1format.html">format</a>, Source &amp;&amp;next, <a class="el" href="namespacetlv.html#a57b8cb8121f7e7c4f797dee062d94717">tree_writer_workspace</a> &amp;workspace, size_t max_depth=<a class="elRef" href="../../c-api/html/defaults_8h.html#aba01db17f4a2bfbc3db60dc172972a25ad3b9801dae9cea1796aee28b0cdbfce2">TLV_TREE_DEFAULT_DEPTH</a>, size_t max_elements=SIZE_MAX, <a class="el" href="namespacetlv.html#a1df134eb9e2b476155eb324618396e4d">writer_diagnostic</a> *<a class="el" href="namespacetlv.html#a00ca9c69c35ef11f6a22b7eda1b115ba">diagnostic</a>=nullptr)</td></tr>
+<tr class="memdesc:a81f91995a35b2f569c4a44d6abb43afc"><td class="mdescLeft">&#160;</td><td class="mdescRight">Measure balanced events using a C++ Format view.  <br /></td></tr>
+<tr class="separator:a81f91995a35b2f569c4a44d6abb43afc"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a13d744645f8b59ec22c177bd33d7d663" id="r_a13d744645f8b59ec22c177bd33d7d663"><td class="memItemLeft" align="right" valign="top"><a class="el" href="classtlv_1_1expected.html">expected</a>&lt; size_t, <a class="el" href="structtlv_1_1error.html">error</a> &gt;&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="namespacetlv.html#a13d744645f8b59ec22c177bd33d7d663">encoded_size</a> (const <a class="el" href="namespacetlv.html#a36fb32b6d2478c7a9f386389e959ebcc">element</a> &amp;value, const <a class="elRef" href="../../c-api/html/group__formats.html#gac461da7e8d46362fa8e09694efb0b062">tlv_format_t</a> &amp;<a class="el" href="classtlv_1_1format.html">format</a>, <a class="el" href="namespacetlv.html#a1df134eb9e2b476155eb324618396e4d">writer_diagnostic</a> *<a class="el" href="namespacetlv.html#a00ca9c69c35ef11f6a22b7eda1b115ba">diagnostic</a>=nullptr)</td></tr>
 <tr class="memdesc:a13d744645f8b59ec22c177bd33d7d663"><td class="mdescLeft">&#160;</td><td class="mdescRight">Measures exact caller-owned destination storage for an Element.  <br /></td></tr>
 <tr class="separator:a13d744645f8b59ec22c177bd33d7d663"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:a124a5e3f75782ed66470439ae0df7c55" id="r_a124a5e3f75782ed66470439ae0df7c55"><td class="memItemLeft" align="right" valign="top"><a class="el" href="classtlv_1_1expected.html">expected</a>&lt; size_t, <a class="el" href="structtlv_1_1error.html">error</a> &gt;&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="namespacetlv.html#a124a5e3f75782ed66470439ae0df7c55">encoded_size</a> (<a class="el" href="namespacetlv.html#a2b31c4b301052e8137584ed7baf54611">tag_t</a> tag, size_t length, const <a class="elRef" href="../../c-api/html/group__formats.html#gac461da7e8d46362fa8e09694efb0b062">tlv_format_t</a> &amp;format)</td></tr>
+<tr class="memitem:a124a5e3f75782ed66470439ae0df7c55" id="r_a124a5e3f75782ed66470439ae0df7c55"><td class="memItemLeft" align="right" valign="top"><a class="el" href="classtlv_1_1expected.html">expected</a>&lt; size_t, <a class="el" href="structtlv_1_1error.html">error</a> &gt;&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="namespacetlv.html#a124a5e3f75782ed66470439ae0df7c55">encoded_size</a> (<a class="el" href="namespacetlv.html#a2b31c4b301052e8137584ed7baf54611">tag_t</a> tag, size_t length, const <a class="elRef" href="../../c-api/html/group__formats.html#gac461da7e8d46362fa8e09694efb0b062">tlv_format_t</a> &amp;<a class="el" href="classtlv_1_1format.html">format</a>)</td></tr>
 <tr class="memdesc:a124a5e3f75782ed66470439ae0df7c55"><td class="mdescLeft">&#160;</td><td class="mdescRight">Measures an encoding from tag and Value length through the C Format.  <br /></td></tr>
 <tr class="separator:a124a5e3f75782ed66470439ae0df7c55"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:adb04e1553e7edd9bd7d55143941bc1e7" id="r_adb04e1553e7edd9bd7d55143941bc1e7"><td class="memItemLeft" align="right" valign="top"><a class="el" href="classtlv_1_1expected.html">expected</a>&lt; size_t, <a class="el" href="structtlv_1_1error.html">error</a> &gt;&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="namespacetlv.html#adb04e1553e7edd9bd7d55143941bc1e7">write</a> (<a class="el" href="namespacetlv.html#aa91df798a712d88cf7d2f1f63a539b51">byte</a> *data, size_t capacity, const <a class="elRef" href="../../c-api/html/group__formats.html#gac461da7e8d46362fa8e09694efb0b062">tlv_format_t</a> &amp;format, const <a class="el" href="namespacetlv.html#a36fb32b6d2478c7a9f386389e959ebcc">element</a> &amp;value, <a class="el" href="namespacetlv.html#a1df134eb9e2b476155eb324618396e4d">writer_diagnostic</a> *<a class="el" href="namespacetlv.html#a00ca9c69c35ef11f6a22b7eda1b115ba">diagnostic</a>=nullptr)</td></tr>
+<tr class="memitem:adb04e1553e7edd9bd7d55143941bc1e7" id="r_adb04e1553e7edd9bd7d55143941bc1e7"><td class="memItemLeft" align="right" valign="top"><a class="el" href="classtlv_1_1expected.html">expected</a>&lt; size_t, <a class="el" href="structtlv_1_1error.html">error</a> &gt;&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="namespacetlv.html#adb04e1553e7edd9bd7d55143941bc1e7">write</a> (<a class="el" href="namespacetlv.html#aa91df798a712d88cf7d2f1f63a539b51">byte</a> *data, size_t capacity, const <a class="elRef" href="../../c-api/html/group__formats.html#gac461da7e8d46362fa8e09694efb0b062">tlv_format_t</a> &amp;<a class="el" href="classtlv_1_1format.html">format</a>, const <a class="el" href="namespacetlv.html#a36fb32b6d2478c7a9f386389e959ebcc">element</a> &amp;value, <a class="el" href="namespacetlv.html#a1df134eb9e2b476155eb324618396e4d">writer_diagnostic</a> *<a class="el" href="namespacetlv.html#a00ca9c69c35ef11f6a22b7eda1b115ba">diagnostic</a>=nullptr)</td></tr>
 <tr class="memdesc:adb04e1553e7edd9bd7d55143941bc1e7"><td class="mdescLeft">&#160;</td><td class="mdescRight">Encodes one semantic Element into caller-owned storage.  <br /></td></tr>
 <tr class="separator:adb04e1553e7edd9bd7d55143941bc1e7"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:a18876391eb6b08890d3fb44b71acc3c6" id="r_a18876391eb6b08890d3fb44b71acc3c6"><td class="memItemLeft" align="right" valign="top"><a class="el" href="classtlv_1_1expected.html">expected</a>&lt; size_t, <a class="el" href="structtlv_1_1error.html">error</a> &gt;&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="namespacetlv.html#a18876391eb6b08890d3fb44b71acc3c6">write</a> (<a class="el" href="namespacetlv.html#aa91df798a712d88cf7d2f1f63a539b51">byte</a> *data, size_t capacity, const <a class="elRef" href="../../c-api/html/group__formats.html#gac461da7e8d46362fa8e09694efb0b062">tlv_format_t</a> &amp;format, <a class="el" href="namespacetlv.html#a2b31c4b301052e8137584ed7baf54611">tag_t</a> tag, <a class="el" href="namespacetlv.html#a2abe7003a70af047ef9acae17f31f75d">bytes</a> value, <a class="el" href="namespacetlv.html#a1df134eb9e2b476155eb324618396e4d">writer_diagnostic</a> *<a class="el" href="namespacetlv.html#a00ca9c69c35ef11f6a22b7eda1b115ba">diagnostic</a>=nullptr)</td></tr>
+<tr class="memitem:a18876391eb6b08890d3fb44b71acc3c6" id="r_a18876391eb6b08890d3fb44b71acc3c6"><td class="memItemLeft" align="right" valign="top"><a class="el" href="classtlv_1_1expected.html">expected</a>&lt; size_t, <a class="el" href="structtlv_1_1error.html">error</a> &gt;&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="namespacetlv.html#a18876391eb6b08890d3fb44b71acc3c6">write</a> (<a class="el" href="namespacetlv.html#aa91df798a712d88cf7d2f1f63a539b51">byte</a> *data, size_t capacity, const <a class="elRef" href="../../c-api/html/group__formats.html#gac461da7e8d46362fa8e09694efb0b062">tlv_format_t</a> &amp;<a class="el" href="classtlv_1_1format.html">format</a>, <a class="el" href="namespacetlv.html#a2b31c4b301052e8137584ed7baf54611">tag_t</a> tag, <a class="el" href="namespacetlv.html#a2abe7003a70af047ef9acae17f31f75d">bytes</a> value, <a class="el" href="namespacetlv.html#a1df134eb9e2b476155eb324618396e4d">writer_diagnostic</a> *<a class="el" href="namespacetlv.html#a00ca9c69c35ef11f6a22b7eda1b115ba">diagnostic</a>=nullptr)</td></tr>
 <tr class="memdesc:a18876391eb6b08890d3fb44b71acc3c6"><td class="mdescLeft">&#160;</td><td class="mdescRight">Encodes one Tag and Value pair into caller-owned storage.  <br /></td></tr>
 <tr class="separator:a18876391eb6b08890d3fb44b71acc3c6"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a90547e55d9f5daf89b9a82872d1241dc" id="r_a90547e55d9f5daf89b9a82872d1241dc"><td class="memItemLeft" align="right" valign="top"><a class="el" href="classtlv_1_1expected.html">expected</a>&lt; size_t, <a class="el" href="structtlv_1_1error.html">error</a> &gt;&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="namespacetlv.html#a90547e55d9f5daf89b9a82872d1241dc">encoded_size</a> (const <a class="el" href="namespacetlv.html#a36fb32b6d2478c7a9f386389e959ebcc">element</a> &amp;value, <a class="el" href="classtlv_1_1format.html">tlv::format</a> <a class="el" href="classtlv_1_1format.html">format</a>, <a class="el" href="namespacetlv.html#a1df134eb9e2b476155eb324618396e4d">writer_diagnostic</a> *<a class="el" href="namespacetlv.html#a00ca9c69c35ef11f6a22b7eda1b115ba">diagnostic</a>=nullptr)</td></tr>
+<tr class="memdesc:a90547e55d9f5daf89b9a82872d1241dc"><td class="mdescLeft">&#160;</td><td class="mdescRight">Measure an Element using a C++ Format view.  <br /></td></tr>
+<tr class="separator:a90547e55d9f5daf89b9a82872d1241dc"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a280b3179e8bd28d231e308a2e0d0c6da" id="r_a280b3179e8bd28d231e308a2e0d0c6da"><td class="memItemLeft" align="right" valign="top"><a class="el" href="classtlv_1_1expected.html">expected</a>&lt; size_t, <a class="el" href="structtlv_1_1error.html">error</a> &gt;&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="namespacetlv.html#a280b3179e8bd28d231e308a2e0d0c6da">encoded_size</a> (<a class="el" href="namespacetlv.html#a2b31c4b301052e8137584ed7baf54611">tag_t</a> tag, size_t length, <a class="el" href="classtlv_1_1format.html">tlv::format</a> <a class="el" href="classtlv_1_1format.html">format</a>)</td></tr>
+<tr class="memdesc:a280b3179e8bd28d231e308a2e0d0c6da"><td class="mdescLeft">&#160;</td><td class="mdescRight">Measure a Tag and Value length using a C++ Format view.  <br /></td></tr>
+<tr class="separator:a280b3179e8bd28d231e308a2e0d0c6da"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a2fb4a5dc307ef608399aa559ea92ff10" id="r_a2fb4a5dc307ef608399aa559ea92ff10"><td class="memItemLeft" align="right" valign="top"><a class="el" href="classtlv_1_1expected.html">expected</a>&lt; size_t, <a class="el" href="structtlv_1_1error.html">error</a> &gt;&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="namespacetlv.html#a2fb4a5dc307ef608399aa559ea92ff10">write</a> (<a class="el" href="namespacetlv.html#aa91df798a712d88cf7d2f1f63a539b51">byte</a> *data, size_t capacity, <a class="el" href="classtlv_1_1format.html">tlv::format</a> <a class="el" href="classtlv_1_1format.html">format</a>, const <a class="el" href="namespacetlv.html#a36fb32b6d2478c7a9f386389e959ebcc">element</a> &amp;value, <a class="el" href="namespacetlv.html#a1df134eb9e2b476155eb324618396e4d">writer_diagnostic</a> *<a class="el" href="namespacetlv.html#a00ca9c69c35ef11f6a22b7eda1b115ba">diagnostic</a>=nullptr)</td></tr>
+<tr class="memdesc:a2fb4a5dc307ef608399aa559ea92ff10"><td class="mdescLeft">&#160;</td><td class="mdescRight">Write an Element using a C++ Format view.  <br /></td></tr>
+<tr class="separator:a2fb4a5dc307ef608399aa559ea92ff10"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a31d13cf37d2b43e792ad9ada1ca0ff39" id="r_a31d13cf37d2b43e792ad9ada1ca0ff39"><td class="memItemLeft" align="right" valign="top"><a class="el" href="classtlv_1_1expected.html">expected</a>&lt; size_t, <a class="el" href="structtlv_1_1error.html">error</a> &gt;&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="namespacetlv.html#a31d13cf37d2b43e792ad9ada1ca0ff39">write</a> (<a class="el" href="namespacetlv.html#aa91df798a712d88cf7d2f1f63a539b51">byte</a> *data, size_t capacity, <a class="el" href="classtlv_1_1format.html">tlv::format</a> <a class="el" href="classtlv_1_1format.html">format</a>, <a class="el" href="namespacetlv.html#a2b31c4b301052e8137584ed7baf54611">tag_t</a> tag, <a class="el" href="namespacetlv.html#a2abe7003a70af047ef9acae17f31f75d">bytes</a> value, <a class="el" href="namespacetlv.html#a1df134eb9e2b476155eb324618396e4d">writer_diagnostic</a> *<a class="el" href="namespacetlv.html#a00ca9c69c35ef11f6a22b7eda1b115ba">diagnostic</a>=nullptr)</td></tr>
+<tr class="memdesc:a31d13cf37d2b43e792ad9ada1ca0ff39"><td class="mdescLeft">&#160;</td><td class="mdescRight">Write a Tag and Value using a C++ Format view.  <br /></td></tr>
+<tr class="separator:a31d13cf37d2b43e792ad9ada1ca0ff39"><td class="memSeparator" colspan="2">&#160;</td></tr>
 </table>
 <a name="details" id="details"></a><h2 class="groupheader">Detailed Description</h2>
 <div class="textblock"><p>Public C++ wrappers, value types, codec traits and helpers for OpenTLV. </p>
@@ -878,7 +929,7 @@ template&lt;typename T &gt; </div>
 </div>
 </div>
 <a id="a512ddcc1a3e18ab18462e5e891442851" name="a512ddcc1a3e18ab18462e5e891442851"></a>
-<h2 class="memtitle"><span class="permalink"><a href="#a512ddcc1a3e18ab18462e5e891442851">&#9670;&#160;</a></span>decode()</h2>
+<h2 class="memtitle"><span class="permalink"><a href="#a512ddcc1a3e18ab18462e5e891442851">&#9670;&#160;</a></span>decode() <span class="overload">[1/2]</span></h2>
 
 <div class="memitem">
 <div class="memproto">
@@ -921,6 +972,53 @@ template&lt;typename T &gt; </div>
 </dl>
 <dl class="section return"><dt>Returns</dt><dd>Decoded content and source, or the C format error.</dd></dl>
 <dl class="section warning"><dt>Warning</dt><dd>Input, descriptor and context must outlive the result and remain unchanged. </dd></dl>
+
+</div>
+</div>
+<a id="ac8c79662a9de381b9e60f3a762c664a3" name="ac8c79662a9de381b9e60f3a762c664a3"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#ac8c79662a9de381b9e60f3a762c664a3">&#9670;&#160;</a></span>decode() <span class="overload">[2/2]</span></h2>
+
+<div class="memitem">
+<div class="memproto">
+<table class="mlabels">
+  <tr>
+  <td class="mlabels-left">
+      <table class="memname">
+        <tr>
+          <td class="memname"><a class="el" href="classtlv_1_1expected.html">expected</a>&lt; <a class="el" href="namespacetlv.html#a805cf4968e94f981f07e1cd785760ae1">decoded</a>, <a class="el" href="structtlv_1_1error.html">error</a> &gt; tlv::decode </td>
+          <td>(</td>
+          <td class="paramtype"><a class="el" href="classtlv_1_1format.html">tlv::format</a>&#160;</td>
+          <td class="paramname"><em>format</em>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype"><a class="el" href="namespacetlv.html#a2abe7003a70af047ef9acae17f31f75d">bytes</a>&#160;</td>
+          <td class="paramname"><em>data</em>&#160;</td>
+        </tr>
+        <tr>
+          <td></td>
+          <td>)</td>
+          <td></td><td></td>
+        </tr>
+      </table>
+  </td>
+  <td class="mlabels-right">
+<span class="mlabels"><span class="mlabel">inline</span></span>  </td>
+  </tr>
+</table>
+</div><div class="memdoc">
+
+<p>Decode using a borrowed C++ Format view. </p>
+<dl class="params"><dt>Parameters</dt><dd>
+  <table class="params">
+    <tr><td class="paramdir">[in]</td><td class="paramname">format</td><td>Readable descriptor, borrowed. </td></tr>
+    <tr><td class="paramdir">[in]</td><td class="paramname">data</td><td>Immutable borrowed input.</td></tr>
+  </table>
+  </dd>
+</dl>
+<dl class="section return"><dt>Returns</dt><dd>Decoded content and source, or the C format error.</dd></dl>
+<dl class="section warning"><dt>Warning</dt><dd>Input, descriptor and context must outlive the result and remain unchanged.   </dd></dl>
 
 </div>
 </div>
@@ -1108,7 +1206,7 @@ template&lt;typename T &gt; </div>
 </div>
 </div>
 <a id="a736d1de0b06878e86e64c955b651de17" name="a736d1de0b06878e86e64c955b651de17"></a>
-<h2 class="memtitle"><span class="permalink"><a href="#a736d1de0b06878e86e64c955b651de17">&#9670;&#160;</a></span>encode()</h2>
+<h2 class="memtitle"><span class="permalink"><a href="#a736d1de0b06878e86e64c955b651de17">&#9670;&#160;</a></span>encode() <span class="overload">[1/2]</span></h2>
 
 <div class="memitem">
 <div class="memproto">
@@ -1164,6 +1262,66 @@ template&lt;typename T &gt; </div>
   </dd>
 </dl>
 <dl class="section return"><dt>Returns</dt><dd>Written bytes, or a C format error. Callback failure may modify output. </dd></dl>
+
+</div>
+</div>
+<a id="a7ca607e5827e277f9865babacab14356" name="a7ca607e5827e277f9865babacab14356"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#a7ca607e5827e277f9865babacab14356">&#9670;&#160;</a></span>encode() <span class="overload">[2/2]</span></h2>
+
+<div class="memitem">
+<div class="memproto">
+<table class="mlabels">
+  <tr>
+  <td class="mlabels-left">
+      <table class="memname">
+        <tr>
+          <td class="memname"><a class="el" href="classtlv_1_1expected.html">expected</a>&lt; size_t, <a class="el" href="structtlv_1_1error.html">error</a> &gt; tlv::encode </td>
+          <td>(</td>
+          <td class="paramtype"><a class="el" href="classtlv_1_1format.html">tlv::format</a>&#160;</td>
+          <td class="paramname"><em>format</em>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype">const <a class="el" href="namespacetlv.html#a36fb32b6d2478c7a9f386389e959ebcc">element</a> &amp;&#160;</td>
+          <td class="paramname"><em>value</em>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype"><a class="el" href="namespacetlv.html#aa91df798a712d88cf7d2f1f63a539b51">byte</a> *&#160;</td>
+          <td class="paramname"><em>data</em>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype">size_t&#160;</td>
+          <td class="paramname"><em>capacity</em>&#160;</td>
+        </tr>
+        <tr>
+          <td></td>
+          <td>)</td>
+          <td></td><td></td>
+        </tr>
+      </table>
+  </td>
+  <td class="mlabels-right">
+<span class="mlabels"><span class="mlabel">inline</span></span>  </td>
+  </tr>
+</table>
+</div><div class="memdoc">
+
+<p>Encode using a borrowed C++ Format view. </p>
+<dl class="params"><dt>Parameters</dt><dd>
+  <table class="params">
+    <tr><td class="paramdir">[in]</td><td class="paramname">format</td><td>Writable descriptor. </td></tr>
+    <tr><td class="paramdir">[in]</td><td class="paramname">value</td><td>Readable input, not overlapping destination. </td></tr>
+    <tr><td class="paramdir">[out]</td><td class="paramname">data</td><td>Destination pointer, NULL only for zero capacity. </td></tr>
+    <tr><td class="paramdir">[in]</td><td class="paramname">capacity</td><td>Native capacity in bytes.</td></tr>
+  </table>
+  </dd>
+</dl>
+<dl class="section return"><dt>Returns</dt><dd>Written bytes, or a C format error. Callback failure may modify output.   </dd></dl>
 
 </div>
 </div>
@@ -1230,7 +1388,7 @@ template&lt;typename T &gt; </div>
 </div>
 </div>
 <a id="a13d744645f8b59ec22c177bd33d7d663" name="a13d744645f8b59ec22c177bd33d7d663"></a>
-<h2 class="memtitle"><span class="permalink"><a href="#a13d744645f8b59ec22c177bd33d7d663">&#9670;&#160;</a></span>encoded_size() <span class="overload">[1/2]</span></h2>
+<h2 class="memtitle"><span class="permalink"><a href="#a13d744645f8b59ec22c177bd33d7d663">&#9670;&#160;</a></span>encoded_size() <span class="overload">[1/4]</span></h2>
 
 <div class="memitem">
 <div class="memproto">
@@ -1282,8 +1440,61 @@ template&lt;typename T &gt; </div>
 
 </div>
 </div>
+<a id="a90547e55d9f5daf89b9a82872d1241dc" name="a90547e55d9f5daf89b9a82872d1241dc"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#a90547e55d9f5daf89b9a82872d1241dc">&#9670;&#160;</a></span>encoded_size() <span class="overload">[2/4]</span></h2>
+
+<div class="memitem">
+<div class="memproto">
+<table class="mlabels">
+  <tr>
+  <td class="mlabels-left">
+      <table class="memname">
+        <tr>
+          <td class="memname"><a class="el" href="classtlv_1_1expected.html">expected</a>&lt; size_t, <a class="el" href="structtlv_1_1error.html">error</a> &gt; tlv::encoded_size </td>
+          <td>(</td>
+          <td class="paramtype">const <a class="el" href="namespacetlv.html#a36fb32b6d2478c7a9f386389e959ebcc">element</a> &amp;&#160;</td>
+          <td class="paramname"><em>value</em>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype"><a class="el" href="classtlv_1_1format.html">tlv::format</a>&#160;</td>
+          <td class="paramname"><em>format</em>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype"><a class="el" href="namespacetlv.html#a1df134eb9e2b476155eb324618396e4d">writer_diagnostic</a> *&#160;</td>
+          <td class="paramname"><em>diagnostic</em> = <code>nullptr</code>&#160;</td>
+        </tr>
+        <tr>
+          <td></td>
+          <td>)</td>
+          <td></td><td></td>
+        </tr>
+      </table>
+  </td>
+  <td class="mlabels-right">
+<span class="mlabels"><span class="mlabel">inline</span></span>  </td>
+  </tr>
+</table>
+</div><div class="memdoc">
+
+<p>Measure an Element using a C++ Format view. </p>
+<dl class="params"><dt>Parameters</dt><dd>
+  <table class="params">
+    <tr><td class="paramname">value</td><td>Semantic input; content-dependent formats require readable Value. </td></tr>
+    <tr><td class="paramname">format</td><td>Borrowed writable format. </td></tr>
+    <tr><td class="paramname">diagnostic</td><td>Optional failure detail; unchanged on success. </td></tr>
+  </table>
+  </dd>
+</dl>
+<dl class="section return"><dt>Returns</dt><dd>Native byte count or C error. Success does not allocate; errors may allocate.   </dd></dl>
+
+</div>
+</div>
 <a id="a124a5e3f75782ed66470439ae0df7c55" name="a124a5e3f75782ed66470439ae0df7c55"></a>
-<h2 class="memtitle"><span class="permalink"><a href="#a124a5e3f75782ed66470439ae0df7c55">&#9670;&#160;</a></span>encoded_size() <span class="overload">[2/2]</span></h2>
+<h2 class="memtitle"><span class="permalink"><a href="#a124a5e3f75782ed66470439ae0df7c55">&#9670;&#160;</a></span>encoded_size() <span class="overload">[3/4]</span></h2>
 
 <div class="memitem">
 <div class="memproto">
@@ -1332,6 +1543,59 @@ template&lt;typename T &gt; </div>
   </dd>
 </dl>
 <dl class="section return"><dt>Returns</dt><dd>Required byte count, or the C measurement error. </dd></dl>
+
+</div>
+</div>
+<a id="a280b3179e8bd28d231e308a2e0d0c6da" name="a280b3179e8bd28d231e308a2e0d0c6da"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#a280b3179e8bd28d231e308a2e0d0c6da">&#9670;&#160;</a></span>encoded_size() <span class="overload">[4/4]</span></h2>
+
+<div class="memitem">
+<div class="memproto">
+<table class="mlabels">
+  <tr>
+  <td class="mlabels-left">
+      <table class="memname">
+        <tr>
+          <td class="memname"><a class="el" href="classtlv_1_1expected.html">expected</a>&lt; size_t, <a class="el" href="structtlv_1_1error.html">error</a> &gt; tlv::encoded_size </td>
+          <td>(</td>
+          <td class="paramtype"><a class="el" href="namespacetlv.html#a2b31c4b301052e8137584ed7baf54611">tag_t</a>&#160;</td>
+          <td class="paramname"><em>tag</em>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype">size_t&#160;</td>
+          <td class="paramname"><em>length</em>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype"><a class="el" href="classtlv_1_1format.html">tlv::format</a>&#160;</td>
+          <td class="paramname"><em>format</em>&#160;</td>
+        </tr>
+        <tr>
+          <td></td>
+          <td>)</td>
+          <td></td><td></td>
+        </tr>
+      </table>
+  </td>
+  <td class="mlabels-right">
+<span class="mlabels"><span class="mlabel">inline</span></span>  </td>
+  </tr>
+</table>
+</div><div class="memdoc">
+
+<p>Measure a Tag and Value length using a C++ Format view. </p>
+<dl class="params"><dt>Parameters</dt><dd>
+  <table class="params">
+    <tr><td class="paramname">tag</td><td>Semantic tag. </td></tr>
+    <tr><td class="paramname">length</td><td>Logical Value length in bytes. </td></tr>
+    <tr><td class="paramname">format</td><td>Borrowed format; content-dependent formats may reject length-only measurement. </td></tr>
+  </table>
+  </dd>
+</dl>
+<dl class="section return"><dt>Returns</dt><dd>Required byte count, or the C measurement error.   </dd></dl>
 
 </div>
 </div>
@@ -1442,7 +1706,7 @@ template&lt;typename T &gt; </div>
 </div>
 </div>
 <a id="abb9c0d6fd1e7bbb47434b7fc2e87cea0" name="abb9c0d6fd1e7bbb47434b7fc2e87cea0"></a>
-<h2 class="memtitle"><span class="permalink"><a href="#abb9c0d6fd1e7bbb47434b7fc2e87cea0">&#9670;&#160;</a></span>measure()</h2>
+<h2 class="memtitle"><span class="permalink"><a href="#abb9c0d6fd1e7bbb47434b7fc2e87cea0">&#9670;&#160;</a></span>measure() <span class="overload">[1/2]</span></h2>
 
 <div class="memitem">
 <div class="memproto">
@@ -1487,8 +1751,54 @@ template&lt;typename T &gt; </div>
 
 </div>
 </div>
+<a id="a5aa137aa55bf5d586be65b2200e3f9d7" name="a5aa137aa55bf5d586be65b2200e3f9d7"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#a5aa137aa55bf5d586be65b2200e3f9d7">&#9670;&#160;</a></span>measure() <span class="overload">[2/2]</span></h2>
+
+<div class="memitem">
+<div class="memproto">
+<table class="mlabels">
+  <tr>
+  <td class="mlabels-left">
+      <table class="memname">
+        <tr>
+          <td class="memname"><a class="el" href="classtlv_1_1expected.html">expected</a>&lt; <a class="el" href="namespacetlv.html#ab56240f5c9c93bf9d4a0c1d12fa6535e">encoding</a>, <a class="el" href="structtlv_1_1error.html">error</a> &gt; tlv::measure </td>
+          <td>(</td>
+          <td class="paramtype"><a class="el" href="classtlv_1_1format.html">tlv::format</a>&#160;</td>
+          <td class="paramname"><em>format</em>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype">const <a class="el" href="namespacetlv.html#a36fb32b6d2478c7a9f386389e959ebcc">element</a> &amp;&#160;</td>
+          <td class="paramname"><em>value</em>&#160;</td>
+        </tr>
+        <tr>
+          <td></td>
+          <td>)</td>
+          <td></td><td></td>
+        </tr>
+      </table>
+  </td>
+  <td class="mlabels-right">
+<span class="mlabels"><span class="mlabel">inline</span></span>  </td>
+  </tr>
+</table>
+</div><div class="memdoc">
+
+<p>Measure using a borrowed C++ Format view. </p>
+<dl class="params"><dt>Parameters</dt><dd>
+  <table class="params">
+    <tr><td class="paramdir">[in]</td><td class="paramname">format</td><td>Writable descriptor. </td></tr>
+    <tr><td class="paramdir">[in]</td><td class="paramname">value</td><td>Semantic input; content-dependent formats require readable Value.</td></tr>
+  </table>
+  </dd>
+</dl>
+<dl class="section return"><dt>Returns</dt><dd>Exact logical sizes, or a C format error.   </dd></dl>
+
+</div>
+</div>
 <a id="a150f8d840867424d28c13be43c89232c" name="a150f8d840867424d28c13be43c89232c"></a>
-<h2 class="memtitle"><span class="permalink"><a href="#a150f8d840867424d28c13be43c89232c">&#9670;&#160;</a></span>measure_tree()</h2>
+<h2 class="memtitle"><span class="permalink"><a href="#a150f8d840867424d28c13be43c89232c">&#9670;&#160;</a></span>measure_tree() <span class="overload">[1/2]</span></h2>
 
 <div class="memitem">
 <div class="memproto">
@@ -1556,8 +1866,77 @@ template&lt;typename Source &gt; </div>
 
 </div>
 </div>
+<a id="ab4182665a183de70980f0e2ad0a9bd94" name="ab4182665a183de70980f0e2ad0a9bd94"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#ab4182665a183de70980f0e2ad0a9bd94">&#9670;&#160;</a></span>measure_tree() <span class="overload">[2/2]</span></h2>
+
+<div class="memitem">
+<div class="memproto">
+<div class="memtemplate">
+template&lt;typename Source &gt; </div>
+      <table class="memname">
+        <tr>
+          <td class="memname"><a class="el" href="classtlv_1_1expected.html">expected</a>&lt; size_t, <a class="el" href="structtlv_1_1error.html">error</a> &gt; tlv::measure_tree </td>
+          <td>(</td>
+          <td class="paramtype"><a class="el" href="classtlv_1_1format.html">tlv::format</a>&#160;</td>
+          <td class="paramname"><em>format</em>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype">Source &amp;&amp;&#160;</td>
+          <td class="paramname"><em>next</em>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype"><a class="el" href="namespacetlv.html#a57b8cb8121f7e7c4f797dee062d94717">tree_writer_workspace</a> &amp;&#160;</td>
+          <td class="paramname"><em>workspace</em>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype">size_t&#160;</td>
+          <td class="paramname"><em>max_depth</em> = <code><a class="elRef" href="../../c-api/html/defaults_8h.html#aba01db17f4a2bfbc3db60dc172972a25ad3b9801dae9cea1796aee28b0cdbfce2">TLV_TREE_DEFAULT_DEPTH</a></code>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype">size_t&#160;</td>
+          <td class="paramname"><em>max_elements</em> = <code>SIZE_MAX</code>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype"><a class="el" href="namespacetlv.html#a1df134eb9e2b476155eb324618396e4d">writer_diagnostic</a> *&#160;</td>
+          <td class="paramname"><em>diagnostic</em> = <code>nullptr</code>&#160;</td>
+        </tr>
+        <tr>
+          <td></td>
+          <td>)</td>
+          <td></td><td></td>
+        </tr>
+      </table>
+</div><div class="memdoc">
+
+<p>Measure preorder records using a C++ Format view. </p>
+<dl class="params"><dt>Parameters</dt><dd>
+  <table class="params">
+    <tr><td class="paramname">format</td><td>Borrowed destination Format. </td></tr>
+    <tr><td class="paramname">next</td><td>Callable taking Element, depth and constructed flag by reference, returning expected&lt;bool, error&gt;: true publishes, false ends input. Must not throw. </td></tr>
+    <tr><td class="paramname">workspace</td><td>Disjoint caller-owned frames, output and scratch; bytes may change on failure. </td></tr>
+    <tr><td class="paramname">max_depth</td><td>Maximum item depth, roots at zero. </td></tr>
+    <tr><td class="paramname">max_elements</td><td>Maximum source records. </td></tr>
+    <tr><td class="paramname">diagnostic</td><td>Optional failure detail, unchanged on success. </td></tr>
+  </table>
+  </dd>
+</dl>
+<dl class="section return"><dt>Returns</dt><dd>Exact staged byte count or the original source/Writer error. </dd></dl>
+<dl class="section warning"><dt>Warning</dt><dd>Retry requires a fresh source. Tags, Format and context must remain alive throughout measurement; primitive Values must remain readable until the next callback. </dd></dl>
+
+</div>
+</div>
 <a id="a8d199e9fb2a94ced8e7fc7616d3f6fa1" name="a8d199e9fb2a94ced8e7fc7616d3f6fa1"></a>
-<h2 class="memtitle"><span class="permalink"><a href="#a8d199e9fb2a94ced8e7fc7616d3f6fa1">&#9670;&#160;</a></span>measure_tree_events()</h2>
+<h2 class="memtitle"><span class="permalink"><a href="#a8d199e9fb2a94ced8e7fc7616d3f6fa1">&#9670;&#160;</a></span>measure_tree_events() <span class="overload">[1/2]</span></h2>
 
 <div class="memitem">
 <div class="memproto">
@@ -1622,6 +2001,75 @@ template&lt;typename Source &gt; </div>
 </dl>
 <dl class="section return"><dt>Returns</dt><dd>Exact staged size or source/Writer error. Retry with a fresh producer. </dd></dl>
 <dl class="section warning"><dt>Warning</dt><dd>BEGIN Tags must remain alive until this operation returns. </dd></dl>
+
+</div>
+</div>
+<a id="a81f91995a35b2f569c4a44d6abb43afc" name="a81f91995a35b2f569c4a44d6abb43afc"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#a81f91995a35b2f569c4a44d6abb43afc">&#9670;&#160;</a></span>measure_tree_events() <span class="overload">[2/2]</span></h2>
+
+<div class="memitem">
+<div class="memproto">
+<div class="memtemplate">
+template&lt;typename Source &gt; </div>
+      <table class="memname">
+        <tr>
+          <td class="memname"><a class="el" href="classtlv_1_1expected.html">expected</a>&lt; size_t, <a class="el" href="structtlv_1_1error.html">error</a> &gt; tlv::measure_tree_events </td>
+          <td>(</td>
+          <td class="paramtype"><a class="el" href="classtlv_1_1format.html">tlv::format</a>&#160;</td>
+          <td class="paramname"><em>format</em>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype">Source &amp;&amp;&#160;</td>
+          <td class="paramname"><em>next</em>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype"><a class="el" href="namespacetlv.html#a57b8cb8121f7e7c4f797dee062d94717">tree_writer_workspace</a> &amp;&#160;</td>
+          <td class="paramname"><em>workspace</em>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype">size_t&#160;</td>
+          <td class="paramname"><em>max_depth</em> = <code><a class="elRef" href="../../c-api/html/defaults_8h.html#aba01db17f4a2bfbc3db60dc172972a25ad3b9801dae9cea1796aee28b0cdbfce2">TLV_TREE_DEFAULT_DEPTH</a></code>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype">size_t&#160;</td>
+          <td class="paramname"><em>max_elements</em> = <code>SIZE_MAX</code>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype"><a class="el" href="namespacetlv.html#a1df134eb9e2b476155eb324618396e4d">writer_diagnostic</a> *&#160;</td>
+          <td class="paramname"><em>diagnostic</em> = <code>nullptr</code>&#160;</td>
+        </tr>
+        <tr>
+          <td></td>
+          <td>)</td>
+          <td></td><td></td>
+        </tr>
+      </table>
+</div><div class="memdoc">
+
+<p>Measure balanced events using a C++ Format view. </p>
+<dl class="params"><dt>Parameters</dt><dd>
+  <table class="params">
+    <tr><td class="paramname">format</td><td>Borrowed destination Format. </td></tr>
+    <tr><td class="paramname">next</td><td>Callable taking tlv_tree_event_t&amp; and returning expected&lt;bool, error&gt;: true supplies an event, false ends input. Must not throw. </td></tr>
+    <tr><td class="paramname">workspace</td><td>Disjoint caller-owned frames, output and scratch; bytes may change on failure. </td></tr>
+    <tr><td class="paramname">max_depth</td><td>Maximum node depth. </td></tr>
+    <tr><td class="paramname">max_elements</td><td>Maximum BEGIN/ELEMENT count. </td></tr>
+    <tr><td class="paramname">diagnostic</td><td>Optional failure detail, unchanged on success. </td></tr>
+  </table>
+  </dd>
+</dl>
+<dl class="section return"><dt>Returns</dt><dd>Exact staged byte count or the original source/Writer error. </dd></dl>
+<dl class="section warning"><dt>Warning</dt><dd>Retry requires a fresh source. BEGIN Tags, Format and context must remain alive until return. Required workspace capacities follow the native overload's contract. </dd></dl>
 
 </div>
 </div>
@@ -1799,7 +2247,7 @@ template&lt;typename Source &gt; </div>
 </div>
 </div>
 <a id="ac6665c938ebabfd7f55e4df8294432c0" name="ac6665c938ebabfd7f55e4df8294432c0"></a>
-<h2 class="memtitle"><span class="permalink"><a href="#ac6665c938ebabfd7f55e4df8294432c0">&#9670;&#160;</a></span>read()</h2>
+<h2 class="memtitle"><span class="permalink"><a href="#ac6665c938ebabfd7f55e4df8294432c0">&#9670;&#160;</a></span>read() <span class="overload">[1/2]</span></h2>
 
 <div class="memitem">
 <div class="memproto">
@@ -1859,6 +2307,67 @@ template&lt;typename Source &gt; </div>
 
 </div>
 </div>
+<a id="a5fb945b389299ab49b5b10717dccc776" name="a5fb945b389299ab49b5b10717dccc776"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#a5fb945b389299ab49b5b10717dccc776">&#9670;&#160;</a></span>read() <span class="overload">[2/2]</span></h2>
+
+<div class="memitem">
+<div class="memproto">
+<table class="mlabels">
+  <tr>
+  <td class="mlabels-left">
+      <table class="memname">
+        <tr>
+          <td class="memname"><a class="el" href="classtlv_1_1expected.html">expected</a>&lt; <a class="el" href="namespacetlv.html#a805cf4968e94f981f07e1cd785760ae1">decoded</a>, <a class="el" href="structtlv_1_1error.html">error</a> &gt; tlv::read </td>
+          <td>(</td>
+          <td class="paramtype"><a class="el" href="namespacetlv.html#a2abe7003a70af047ef9acae17f31f75d">bytes</a>&#160;</td>
+          <td class="paramname"><em>data</em>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype"><a class="el" href="classtlv_1_1format.html">tlv::format</a>&#160;</td>
+          <td class="paramname"><em>format</em>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype">size_t &amp;&#160;</td>
+          <td class="paramname"><em>consumed</em>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype"><a class="el" href="namespacetlv.html#aec6151f23d86b874b79d9d2ae021e568">reader_diagnostic</a> *&#160;</td>
+          <td class="paramname"><em>diagnostic</em> = <code>nullptr</code>&#160;</td>
+        </tr>
+        <tr>
+          <td></td>
+          <td>)</td>
+          <td></td><td></td>
+        </tr>
+      </table>
+  </td>
+  <td class="mlabels-right">
+<span class="mlabels"><span class="mlabel">inline</span></span>  </td>
+  </tr>
+</table>
+</div><div class="memdoc">
+
+<p>Read one element using a borrowed C++ Format view. </p>
+<dl class="params"><dt>Parameters</dt><dd>
+  <table class="params">
+    <tr><td class="paramdir"></td><td class="paramname">data</td><td>Immutable borrowed input. </td></tr>
+    <tr><td class="paramdir"></td><td class="paramname">format</td><td>Borrowed readable format and context. </td></tr>
+    <tr><td class="paramdir">[out]</td><td class="paramname">consumed</td><td>Encoded byte count; unchanged on failure. </td></tr>
+    <tr><td class="paramdir">[out]</td><td class="paramname">diagnostic</td><td>Optional Reader detail; unchanged on success. </td></tr>
+  </table>
+  </dd>
+</dl>
+<dl class="section return"><dt>Returns</dt><dd>Decoded element and source, or the original C Reader error. </dd></dl>
+<dl class="section warning"><dt>Warning</dt><dd>Input and Format storage must outlive the returned borrowed views.   </dd></dl>
+
+</div>
+</div>
 <a id="a1ebd1f785dffded6a41e5887546d0447" name="a1ebd1f785dffded6a41e5887546d0447"></a>
 <h2 class="memtitle"><span class="permalink"><a href="#a1ebd1f785dffded6a41e5887546d0447">&#9670;&#160;</a></span>set_path()</h2>
 
@@ -1906,7 +2415,7 @@ template&lt;typename Source &gt; </div>
 </div>
 </div>
 <a id="ae89639a23a48bb20db474516224d7d3e" name="ae89639a23a48bb20db474516224d7d3e"></a>
-<h2 class="memtitle"><span class="permalink"><a href="#ae89639a23a48bb20db474516224d7d3e">&#9670;&#160;</a></span>validate()</h2>
+<h2 class="memtitle"><span class="permalink"><a href="#ae89639a23a48bb20db474516224d7d3e">&#9670;&#160;</a></span>validate() <span class="overload">[1/2]</span></h2>
 
 <div class="memitem">
 <div class="memproto">
@@ -1980,8 +2489,83 @@ template&lt;typename Source &gt; </div>
 
 </div>
 </div>
+<a id="a72e413dfe5970689d73adfef66f0a8ea" name="a72e413dfe5970689d73adfef66f0a8ea"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#a72e413dfe5970689d73adfef66f0a8ea">&#9670;&#160;</a></span>validate() <span class="overload">[2/2]</span></h2>
+
+<div class="memitem">
+<div class="memproto">
+<table class="mlabels">
+  <tr>
+  <td class="mlabels-left">
+      <table class="memname">
+        <tr>
+          <td class="memname"><a class="el" href="classtlv_1_1expected.html">expected</a>&lt; void, <a class="el" href="structtlv_1_1error.html">error</a> &gt; tlv::validate </td>
+          <td>(</td>
+          <td class="paramtype"><a class="el" href="namespacetlv.html#a2abe7003a70af047ef9acae17f31f75d">bytes</a>&#160;</td>
+          <td class="paramname"><em>data</em>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype"><a class="el" href="classtlv_1_1format.html">tlv::format</a>&#160;</td>
+          <td class="paramname"><em>format</em>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype">const <a class="elRef" href="../../c-api/html/group__schemas.html#ga86e8ecc543b5d6b397732cbcf2db59cf">tlv_structure_schema_t</a> &amp;&#160;</td>
+          <td class="paramname"><em>schema</em>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype">size_t&#160;</td>
+          <td class="paramname"><em>max_depth</em>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype">size_t&#160;</td>
+          <td class="paramname"><em>max_elements</em>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype">size_t *&#160;</td>
+          <td class="paramname"><em>error_offset</em> = <code>nullptr</code>&#160;</td>
+        </tr>
+        <tr>
+          <td></td>
+          <td>)</td>
+          <td></td><td></td>
+        </tr>
+      </table>
+  </td>
+  <td class="mlabels-right">
+<span class="mlabels"><span class="mlabel">inline</span></span>  </td>
+  </tr>
+</table>
+</div><div class="memdoc">
+
+<p>Validate a structure using a C++ Format view. </p>
+<p>Wraps <a class="elRef" href="../../c-api/html/group__schemas.html#ga71e48e88dafcc4c96def78a5754b2416">tlv_schema_validate()</a>; the conventions for limits and offsets are the same. Values are never decoded and no allocation occurs.</p>
+<dl class="params"><dt>Parameters</dt><dd>
+  <table class="params">
+    <tr><td class="paramname">data</td><td>Encoded input; borrowed. </td></tr>
+    <tr><td class="paramname">format</td><td>Reader format. A <code>nullptr</code> <code>format.is_constructed</code> treats values as opaque. </td></tr>
+    <tr><td class="paramname">schema</td><td>Structural schema; borrowed. </td></tr>
+    <tr><td class="paramname">max_depth</td><td>Maximum nesting depth. </td></tr>
+    <tr><td class="paramname">max_elements</td><td>Maximum total elements. </td></tr>
+    <tr><td class="paramname">error_offset</td><td>Optional. On failure receives the offset of the failure; see <a class="elRef" href="../../c-api/html/group__schemas.html#ga71e48e88dafcc4c96def78a5754b2416">tlv_schema_validate()</a>.</td></tr>
+  </table>
+  </dd>
+</dl>
+<dl class="section return"><dt>Returns</dt><dd>Success if the data conforms; otherwise the error of <a class="elRef" href="../../c-api/html/group__schemas.html#ga71e48e88dafcc4c96def78a5754b2416">tlv_schema_validate()</a>, including <a class="elRef" href="../../c-api/html/group__core.html#gga516c7250563ee9332e2f45f2d203ae61afe701b08473c7ec9597853fe737a62b4">TLV_ERR_SCHEMA</a> and <a class="elRef" href="../../c-api/html/group__core.html#gga516c7250563ee9332e2f45f2d203ae61a9e93735f4f45c97989c940ff2fb68792">TLV_ERR_SCHEMA_MISSING</a>.   </dd></dl>
+
+</div>
+</div>
 <a id="a94c9e2071659e67b2eb136583e40569c" name="a94c9e2071659e67b2eb136583e40569c"></a>
-<h2 class="memtitle"><span class="permalink"><a href="#a94c9e2071659e67b2eb136583e40569c">&#9670;&#160;</a></span>validate_all_diag()</h2>
+<h2 class="memtitle"><span class="permalink"><a href="#a94c9e2071659e67b2eb136583e40569c">&#9670;&#160;</a></span>validate_all_diag() <span class="overload">[1/2]</span></h2>
 
 <div class="memitem">
 <div class="memproto">
@@ -2077,8 +2661,105 @@ template&lt;typename Source &gt; </div>
 
 </div>
 </div>
+<a id="ae52acc3634a73efe4b3fca83437e2caf" name="ae52acc3634a73efe4b3fca83437e2caf"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#ae52acc3634a73efe4b3fca83437e2caf">&#9670;&#160;</a></span>validate_all_diag() <span class="overload">[2/2]</span></h2>
+
+<div class="memitem">
+<div class="memproto">
+<table class="mlabels">
+  <tr>
+  <td class="mlabels-left">
+      <table class="memname">
+        <tr>
+          <td class="memname"><a class="el" href="classtlv_1_1expected.html">expected</a>&lt; size_t, <a class="el" href="structtlv_1_1error.html">error</a> &gt; tlv::validate_all_diag </td>
+          <td>(</td>
+          <td class="paramtype"><a class="el" href="namespacetlv.html#a2abe7003a70af047ef9acae17f31f75d">bytes</a>&#160;</td>
+          <td class="paramname"><em>data</em>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype"><a class="el" href="classtlv_1_1format.html">tlv::format</a>&#160;</td>
+          <td class="paramname"><em>format</em>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype">const <a class="elRef" href="../../c-api/html/group__schemas.html#ga86e8ecc543b5d6b397732cbcf2db59cf">tlv_structure_schema_t</a> &amp;&#160;</td>
+          <td class="paramname"><em>schema</em>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype">size_t&#160;</td>
+          <td class="paramname"><em>max_depth</em>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype">size_t&#160;</td>
+          <td class="paramname"><em>max_elements</em>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype"><a class="el" href="namespacetlv.html#a4e03c6255ccb433c2413b3b7906bab8c">schema_diagnostic</a> *&#160;</td>
+          <td class="paramname"><em>diagnostics</em>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype">size_t&#160;</td>
+          <td class="paramname"><em>capacity</em>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype"><a class="elRef" href="../../c-api/html/group__schemas.html#ga7537f035621096beea18ca83bd278646">tlv_schema_unknown_policy_t</a>&#160;</td>
+          <td class="paramname"><em>unknown</em> = <code><a class="elRef" href="../../c-api/html/group__schemas.html#ggaac0ce480d18e12ccf642fc85a59f8419af5fe9db07d3fb3ef3e1c0326a05ccf82">TLV_SCHEMA_UNKNOWN_BY_SCHEMA</a></code>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype">size_t *&#160;</td>
+          <td class="paramname"><em>error_offset</em> = <code>nullptr</code>&#160;</td>
+        </tr>
+        <tr>
+          <td></td>
+          <td>)</td>
+          <td></td><td></td>
+        </tr>
+      </table>
+  </td>
+  <td class="mlabels-right">
+<span class="mlabels"><span class="mlabel">inline</span></span>  </td>
+  </tr>
+</table>
+</div><div class="memdoc">
+
+<p>Collect structure diagnostics using a C++ Format view. </p>
+<p>Wraps <a class="elRef" href="../../c-api/html/group__schemas.html#ga1cdee0d758d2b8cc4043806b60542f6c">tlv_schema_validate_all_diag()</a>; the rules, order and storage conventions follow the C diagnostic report. Each diagnostic carries the schema field name (if the rule has one) and the expected-versus-actual detail for its kind.</p>
+<dl class="params"><dt>Parameters</dt><dd>
+  <table class="params">
+    <tr><td class="paramname">data</td><td>Encoded input; borrowed. </td></tr>
+    <tr><td class="paramname">format</td><td>Reader format. A <code>nullptr</code> <code>format.is_constructed</code> treats values as opaque. </td></tr>
+    <tr><td class="paramname">schema</td><td>Structural schema; borrowed. </td></tr>
+    <tr><td class="paramname">max_depth</td><td>Maximum nesting depth. </td></tr>
+    <tr><td class="paramname">max_elements</td><td>Maximum total elements. </td></tr>
+    <tr><td class="paramname">diagnostics</td><td>Destination for the first <code>capacity</code> violations; may be <code>nullptr</code> only if <code>capacity</code> is zero. </td></tr>
+    <tr><td class="paramname">capacity</td><td>Number of entries <code>diagnostics</code> can hold. </td></tr>
+    <tr><td class="paramname">unknown</td><td>Policy for tags without a rule. </td></tr>
+    <tr><td class="paramname">error_offset</td><td>Optional. On a wire-level failure receives the offset of the failure; see <a class="elRef" href="../../c-api/html/group__schemas.html#ga1cdee0d758d2b8cc4043806b60542f6c">tlv_schema_validate_all_diag()</a>.</td></tr>
+  </table>
+  </dd>
+</dl>
+<dl class="section return"><dt>Returns</dt><dd>The total number of violations, which is zero if the data conforms and can exceed <code>capacity</code>; otherwise the error of <a class="elRef" href="../../c-api/html/group__schemas.html#ga1cdee0d758d2b8cc4043806b60542f6c">tlv_schema_validate_all_diag()</a> for invalid arguments or unparseable input.</dd></dl>
+<dl class="section see"><dt>See also</dt><dd><a class="elRef" href="../../c-api/html/group__schemas.html#ga76559fb9baaff706b34cab6954926c98">tlv_schema_diagnostic_t</a>   </dd></dl>
+
+</div>
+</div>
 <a id="adb04e1553e7edd9bd7d55143941bc1e7" name="adb04e1553e7edd9bd7d55143941bc1e7"></a>
-<h2 class="memtitle"><span class="permalink"><a href="#adb04e1553e7edd9bd7d55143941bc1e7">&#9670;&#160;</a></span>write() <span class="overload">[1/2]</span></h2>
+<h2 class="memtitle"><span class="permalink"><a href="#adb04e1553e7edd9bd7d55143941bc1e7">&#9670;&#160;</a></span>write() <span class="overload">[1/4]</span></h2>
 
 <div class="memitem">
 <div class="memproto">
@@ -2146,7 +2827,7 @@ template&lt;typename Source &gt; </div>
 </div>
 </div>
 <a id="a18876391eb6b08890d3fb44b71acc3c6" name="a18876391eb6b08890d3fb44b71acc3c6"></a>
-<h2 class="memtitle"><span class="permalink"><a href="#a18876391eb6b08890d3fb44b71acc3c6">&#9670;&#160;</a></span>write() <span class="overload">[2/2]</span></h2>
+<h2 class="memtitle"><span class="permalink"><a href="#a18876391eb6b08890d3fb44b71acc3c6">&#9670;&#160;</a></span>write() <span class="overload">[2/4]</span></h2>
 
 <div class="memitem">
 <div class="memproto">
@@ -2217,6 +2898,149 @@ template&lt;typename Source &gt; </div>
 </dl>
 <dl class="section return"><dt>Returns</dt><dd>Written byte count, or the canonical C error. </dd></dl>
 <dl class="section warning"><dt>Warning</dt><dd>A failing Format callback may modify output bytes; see <a class="elRef" href="../../c-api/html/group__writer.html#ga64ee3299e5ca9aedf22a662750d58f6a">tlv_write_diag()</a>. </dd></dl>
+
+</div>
+</div>
+<a id="a2fb4a5dc307ef608399aa559ea92ff10" name="a2fb4a5dc307ef608399aa559ea92ff10"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#a2fb4a5dc307ef608399aa559ea92ff10">&#9670;&#160;</a></span>write() <span class="overload">[3/4]</span></h2>
+
+<div class="memitem">
+<div class="memproto">
+<table class="mlabels">
+  <tr>
+  <td class="mlabels-left">
+      <table class="memname">
+        <tr>
+          <td class="memname"><a class="el" href="classtlv_1_1expected.html">expected</a>&lt; size_t, <a class="el" href="structtlv_1_1error.html">error</a> &gt; tlv::write </td>
+          <td>(</td>
+          <td class="paramtype"><a class="el" href="namespacetlv.html#aa91df798a712d88cf7d2f1f63a539b51">byte</a> *&#160;</td>
+          <td class="paramname"><em>data</em>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype">size_t&#160;</td>
+          <td class="paramname"><em>capacity</em>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype"><a class="el" href="classtlv_1_1format.html">tlv::format</a>&#160;</td>
+          <td class="paramname"><em>format</em>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype">const <a class="el" href="namespacetlv.html#a36fb32b6d2478c7a9f386389e959ebcc">element</a> &amp;&#160;</td>
+          <td class="paramname"><em>value</em>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype"><a class="el" href="namespacetlv.html#a1df134eb9e2b476155eb324618396e4d">writer_diagnostic</a> *&#160;</td>
+          <td class="paramname"><em>diagnostic</em> = <code>nullptr</code>&#160;</td>
+        </tr>
+        <tr>
+          <td></td>
+          <td>)</td>
+          <td></td><td></td>
+        </tr>
+      </table>
+  </td>
+  <td class="mlabels-right">
+<span class="mlabels"><span class="mlabel">inline</span></span>  </td>
+  </tr>
+</table>
+</div><div class="memdoc">
+
+<p>Write an Element using a C++ Format view. </p>
+<dl class="params"><dt>Parameters</dt><dd>
+  <table class="params">
+    <tr><td class="paramname">data</td><td>Writable output; must not overlap the input Element's storage. </td></tr>
+    <tr><td class="paramname">capacity</td><td>Available output bytes. </td></tr>
+    <tr><td class="paramname">format</td><td>Borrowed Format and context, live for this call. </td></tr>
+    <tr><td class="paramname">value</td><td>Semantic Element with readable Value bytes. </td></tr>
+    <tr><td class="paramname">diagnostic</td><td>Optional borrowed failure detail; unchanged on success. </td></tr>
+  </table>
+  </dd>
+</dl>
+<dl class="section return"><dt>Returns</dt><dd>Written byte count, or the canonical C error. </dd></dl>
+<dl class="section warning"><dt>Warning</dt><dd>A failing Format callback may modify output bytes; see <a class="elRef" href="../../c-api/html/group__writer.html#ga7241611daf00b111624255317d124fc4">tlv_write_element_diag()</a>.   </dd></dl>
+
+</div>
+</div>
+<a id="a31d13cf37d2b43e792ad9ada1ca0ff39" name="a31d13cf37d2b43e792ad9ada1ca0ff39"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#a31d13cf37d2b43e792ad9ada1ca0ff39">&#9670;&#160;</a></span>write() <span class="overload">[4/4]</span></h2>
+
+<div class="memitem">
+<div class="memproto">
+<table class="mlabels">
+  <tr>
+  <td class="mlabels-left">
+      <table class="memname">
+        <tr>
+          <td class="memname"><a class="el" href="classtlv_1_1expected.html">expected</a>&lt; size_t, <a class="el" href="structtlv_1_1error.html">error</a> &gt; tlv::write </td>
+          <td>(</td>
+          <td class="paramtype"><a class="el" href="namespacetlv.html#aa91df798a712d88cf7d2f1f63a539b51">byte</a> *&#160;</td>
+          <td class="paramname"><em>data</em>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype">size_t&#160;</td>
+          <td class="paramname"><em>capacity</em>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype"><a class="el" href="classtlv_1_1format.html">tlv::format</a>&#160;</td>
+          <td class="paramname"><em>format</em>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype"><a class="el" href="namespacetlv.html#a2b31c4b301052e8137584ed7baf54611">tag_t</a>&#160;</td>
+          <td class="paramname"><em>tag</em>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype"><a class="el" href="namespacetlv.html#a2abe7003a70af047ef9acae17f31f75d">bytes</a>&#160;</td>
+          <td class="paramname"><em>value</em>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype"><a class="el" href="namespacetlv.html#a1df134eb9e2b476155eb324618396e4d">writer_diagnostic</a> *&#160;</td>
+          <td class="paramname"><em>diagnostic</em> = <code>nullptr</code>&#160;</td>
+        </tr>
+        <tr>
+          <td></td>
+          <td>)</td>
+          <td></td><td></td>
+        </tr>
+      </table>
+  </td>
+  <td class="mlabels-right">
+<span class="mlabels"><span class="mlabel">inline</span></span>  </td>
+  </tr>
+</table>
+</div><div class="memdoc">
+
+<p>Write a Tag and Value using a C++ Format view. </p>
+<dl class="params"><dt>Parameters</dt><dd>
+  <table class="params">
+    <tr><td class="paramname">data</td><td>Writable output; must not overlap the input tag or Value storage. </td></tr>
+    <tr><td class="paramname">capacity</td><td>Available output bytes. </td></tr>
+    <tr><td class="paramname">format</td><td>Borrowed Format and context. </td></tr>
+    <tr><td class="paramname">tag</td><td>Semantic tag. </td></tr>
+    <tr><td class="paramname">value</td><td>Readable Value bytes, borrowed for this call. </td></tr>
+    <tr><td class="paramname">diagnostic</td><td>Optional borrowed failure detail; unchanged on success. </td></tr>
+  </table>
+  </dd>
+</dl>
+<dl class="section return"><dt>Returns</dt><dd>Written byte count, or the canonical C error. </dd></dl>
+<dl class="section warning"><dt>Warning</dt><dd>A failing Format callback may modify output bytes; see <a class="elRef" href="../../c-api/html/group__writer.html#ga64ee3299e5ca9aedf22a662750d58f6a">tlv_write_diag()</a>.   </dd></dl>
 
 </div>
 </div>

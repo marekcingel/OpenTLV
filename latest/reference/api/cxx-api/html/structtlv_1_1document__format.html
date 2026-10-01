@@ -91,6 +91,9 @@ Public Member Functions</h2></td></tr>
 <tr class="memitem:a01ed9cb1d258204835fd519aa52a4f7d" id="r_a01ed9cb1d258204835fd519aa52a4f7d"><td class="memItemLeft" align="right" valign="top">&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="structtlv_1_1document__format.html#a01ed9cb1d258204835fd519aa52a4f7d">document_format</a> (const <a class="elRef" href="../../c-api/html/group__formats.html#gac461da7e8d46362fa8e09694efb0b062">tlv_format_t</a> &amp;fmt)</td></tr>
 <tr class="memdesc:a01ed9cb1d258204835fd519aa52a4f7d"><td class="mdescLeft">&#160;</td><td class="mdescRight">Bundles the format with the default limits.  <br /></td></tr>
 <tr class="separator:a01ed9cb1d258204835fd519aa52a4f7d"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a15625f2628f19a07ff627bd609e38b64" id="r_a15625f2628f19a07ff627bd609e38b64"><td class="memItemLeft" align="right" valign="top">&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="structtlv_1_1document__format.html#a15625f2628f19a07ff627bd609e38b64">document_format</a> (<a class="el" href="classtlv_1_1format.html">tlv::format</a> fmt)</td></tr>
+<tr class="memdesc:a15625f2628f19a07ff627bd609e38b64"><td class="mdescLeft">&#160;</td><td class="mdescRight">Copy a C++ Format's descriptor and apply default Document limits.  <br /></td></tr>
+<tr class="separator:a15625f2628f19a07ff627bd609e38b64"><td class="memSeparator" colspan="2">&#160;</td></tr>
 </table><table class="memberdecls">
 <tr class="heading"><td colspan="2"><h2 class="groupheader"><a id="pub-attribs" name="pub-attribs"></a>
 Public Attributes</h2></td></tr>
@@ -106,7 +109,7 @@ Public Attributes</h2></td></tr>
 <dl class="section see"><dt>See also</dt><dd><a href="https://marekcingel.github.io/OpenTLV/guides/memory/">format context ownership and lifetime</a> </dd></dl>
 </div><h2 class="groupheader">Constructor &amp; Destructor Documentation</h2>
 <a id="a01ed9cb1d258204835fd519aa52a4f7d" name="a01ed9cb1d258204835fd519aa52a4f7d"></a>
-<h2 class="memtitle"><span class="permalink"><a href="#a01ed9cb1d258204835fd519aa52a4f7d">&#9670;&#160;</a></span>document_format()</h2>
+<h2 class="memtitle"><span class="permalink"><a href="#a01ed9cb1d258204835fd519aa52a4f7d">&#9670;&#160;</a></span>document_format() <span class="overload">[1/2]</span></h2>
 
 <div class="memitem">
 <div class="memproto">
@@ -136,6 +139,41 @@ Public Attributes</h2></td></tr>
   </table>
   </dd>
 </dl>
+
+</div>
+</div>
+<a id="a15625f2628f19a07ff627bd609e38b64" name="a15625f2628f19a07ff627bd609e38b64"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#a15625f2628f19a07ff627bd609e38b64">&#9670;&#160;</a></span>document_format() <span class="overload">[2/2]</span></h2>
+
+<div class="memitem">
+<div class="memproto">
+<table class="mlabels">
+  <tr>
+  <td class="mlabels-left">
+      <table class="memname">
+        <tr>
+          <td class="memname">tlv::document_format::document_format </td>
+          <td>(</td>
+          <td class="paramtype"><a class="el" href="classtlv_1_1format.html">tlv::format</a>&#160;</td>
+          <td class="paramname"><em>fmt</em></td><td>)</td>
+          <td></td>
+        </tr>
+      </table>
+  </td>
+  <td class="mlabels-right">
+<span class="mlabels"><span class="mlabel">inline</span></span>  </td>
+  </tr>
+</table>
+</div><div class="memdoc">
+
+<p>Copy a C++ Format's descriptor and apply default Document limits. </p>
+<dl class="params"><dt>Parameters</dt><dd>
+  <table class="params">
+    <tr><td class="paramname">fmt</td><td>Borrowed Format view; the descriptor is copied and context remains borrowed. </td></tr>
+  </table>
+  </dd>
+</dl>
+<dl class="section note"><dt>Note</dt><dd>No allocation occurs. Context must outlive every Document created with these options. </dd></dl>
 
 </div>
 </div>

@@ -87,7 +87,10 @@ $(function() {
 <table class="memberdecls">
 <tr class="heading"><td colspan="2"><h2 class="groupheader"><a id="pub-methods" name="pub-methods"></a>
 Public Member Functions</h2></td></tr>
-<tr class="memitem:a39f9190c63504f2b99c643f33d991265" id="r_a39f9190c63504f2b99c643f33d991265"><td class="memItemLeft" align="right" valign="top">&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classtlv_1_1tree__writer.html#a39f9190c63504f2b99c643f33d991265">tree_writer</a> (<a class="el" href="namespacetlv.html#aa91df798a712d88cf7d2f1f63a539b51">byte</a> *data, size_t capacity, const <a class="elRef" href="../../c-api/html/group__formats.html#gac461da7e8d46362fa8e09694efb0b062">tlv_format_t</a> &amp;format, <a class="el" href="namespacetlv.html#ab17c45337fcf91eb2d6e5477b0fbe06d">tree_writer_frame</a> *frames, size_t frame_capacity, <a class="el" href="namespacetlv.html#aa91df798a712d88cf7d2f1f63a539b51">byte</a> *scratch, size_t scratch_capacity, size_t max_depth=<a class="elRef" href="../../c-api/html/defaults_8h.html#aba01db17f4a2bfbc3db60dc172972a25ad3b9801dae9cea1796aee28b0cdbfce2">TLV_TREE_DEFAULT_DEPTH</a>, size_t max_elements=SIZE_MAX)</td></tr>
+<tr class="memitem:a55db5f590d9b4c4b4deacc92638366b6" id="r_a55db5f590d9b4c4b4deacc92638366b6"><td class="memItemLeft" align="right" valign="top">&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classtlv_1_1tree__writer.html#a55db5f590d9b4c4b4deacc92638366b6">tree_writer</a> (<a class="el" href="namespacetlv.html#aa91df798a712d88cf7d2f1f63a539b51">byte</a> *data, size_t capacity, <a class="el" href="classtlv_1_1format.html">tlv::format</a> <a class="el" href="classtlv_1_1format.html">format</a>, <a class="el" href="namespacetlv.html#ab17c45337fcf91eb2d6e5477b0fbe06d">tree_writer_frame</a> *frames, size_t frame_capacity, <a class="el" href="namespacetlv.html#aa91df798a712d88cf7d2f1f63a539b51">byte</a> *scratch, size_t scratch_capacity, size_t max_depth=<a class="elRef" href="../../c-api/html/defaults_8h.html#aba01db17f4a2bfbc3db60dc172972a25ad3b9801dae9cea1796aee28b0cdbfce2">TLV_TREE_DEFAULT_DEPTH</a>, size_t max_elements=SIZE_MAX)</td></tr>
+<tr class="memdesc:a55db5f590d9b4c4b4deacc92638366b6"><td class="mdescLeft">&#160;</td><td class="mdescRight">Initialize bounded writing using a C++ Format view.  <br /></td></tr>
+<tr class="separator:a55db5f590d9b4c4b4deacc92638366b6"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a39f9190c63504f2b99c643f33d991265" id="r_a39f9190c63504f2b99c643f33d991265"><td class="memItemLeft" align="right" valign="top">&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classtlv_1_1tree__writer.html#a39f9190c63504f2b99c643f33d991265">tree_writer</a> (<a class="el" href="namespacetlv.html#aa91df798a712d88cf7d2f1f63a539b51">byte</a> *data, size_t capacity, const <a class="elRef" href="../../c-api/html/group__formats.html#gac461da7e8d46362fa8e09694efb0b062">tlv_format_t</a> &amp;<a class="el" href="classtlv_1_1format.html">format</a>, <a class="el" href="namespacetlv.html#ab17c45337fcf91eb2d6e5477b0fbe06d">tree_writer_frame</a> *frames, size_t frame_capacity, <a class="el" href="namespacetlv.html#aa91df798a712d88cf7d2f1f63a539b51">byte</a> *scratch, size_t scratch_capacity, size_t max_depth=<a class="elRef" href="../../c-api/html/defaults_8h.html#aba01db17f4a2bfbc3db60dc172972a25ad3b9801dae9cea1796aee28b0cdbfce2">TLV_TREE_DEFAULT_DEPTH</a>, size_t max_elements=SIZE_MAX)</td></tr>
 <tr class="memdesc:a39f9190c63504f2b99c643f33d991265"><td class="mdescLeft">&#160;</td><td class="mdescRight">Initialize borrowed output and structural storage.  <br /></td></tr>
 <tr class="separator:a39f9190c63504f2b99c643f33d991265"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:acabae253a6e58b2bb76b23a5ba583988" id="r_acabae253a6e58b2bb76b23a5ba583988"><td class="memItemLeft" align="right" valign="top"><a class="el" href="classtlv_1_1expected.html">expected</a>&lt; void, <a class="el" href="structtlv_1_1error.html">error</a> &gt;&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classtlv_1_1tree__writer.html#acabae253a6e58b2bb76b23a5ba583988">set_tag_storage</a> (<a class="el" href="classtlv_1_1span.html">span</a>&lt; <a class="el" href="namespacetlv.html#aa91df798a712d88cf7d2f1f63a539b51">byte</a> &gt; storage)</td></tr>
@@ -116,8 +119,105 @@ Public Member Functions</h2></td></tr>
 <div class="textblock"><p>Iterative bounded writer with the storage and failure contracts of <a class="elRef" href="../../c-api/html/group__writer.html#ga16a0fb1e3ceca1143a5e3d79e99588f3">tlv_tree_writer_t</a>. </p>
 <p>Success paths do not allocate. Error conversion may allocate a message string. Output, frames, scratch and immutable Format/context must outlive this cursor. Only <a class="el" href="classtlv_1_1tree__writer.html#a717823f46deb9796a913d0fc0e577887" title="Return the final output prefix size, excluding open roots; zero on init failure.">size()</a> bytes form a final prefix; open subtrees occupy provisional storage. </p>
 </div><h2 class="groupheader">Constructor &amp; Destructor Documentation</h2>
+<a id="a55db5f590d9b4c4b4deacc92638366b6" name="a55db5f590d9b4c4b4deacc92638366b6"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#a55db5f590d9b4c4b4deacc92638366b6">&#9670;&#160;</a></span>tree_writer() <span class="overload">[1/2]</span></h2>
+
+<div class="memitem">
+<div class="memproto">
+<table class="mlabels">
+  <tr>
+  <td class="mlabels-left">
+      <table class="memname">
+        <tr>
+          <td class="memname">tlv::tree_writer::tree_writer </td>
+          <td>(</td>
+          <td class="paramtype"><a class="el" href="namespacetlv.html#aa91df798a712d88cf7d2f1f63a539b51">byte</a> *&#160;</td>
+          <td class="paramname"><em>data</em>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype">size_t&#160;</td>
+          <td class="paramname"><em>capacity</em>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype"><a class="el" href="classtlv_1_1format.html">tlv::format</a>&#160;</td>
+          <td class="paramname"><em>format</em>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype"><a class="el" href="namespacetlv.html#ab17c45337fcf91eb2d6e5477b0fbe06d">tree_writer_frame</a> *&#160;</td>
+          <td class="paramname"><em>frames</em>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype">size_t&#160;</td>
+          <td class="paramname"><em>frame_capacity</em>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype"><a class="el" href="namespacetlv.html#aa91df798a712d88cf7d2f1f63a539b51">byte</a> *&#160;</td>
+          <td class="paramname"><em>scratch</em>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype">size_t&#160;</td>
+          <td class="paramname"><em>scratch_capacity</em>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype">size_t&#160;</td>
+          <td class="paramname"><em>max_depth</em> = <code><a class="elRef" href="../../c-api/html/defaults_8h.html#aba01db17f4a2bfbc3db60dc172972a25ad3b9801dae9cea1796aee28b0cdbfce2">TLV_TREE_DEFAULT_DEPTH</a></code>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype">size_t&#160;</td>
+          <td class="paramname"><em>max_elements</em> = <code>SIZE_MAX</code>&#160;</td>
+        </tr>
+        <tr>
+          <td></td>
+          <td>)</td>
+          <td></td><td></td>
+        </tr>
+      </table>
+  </td>
+  <td class="mlabels-right">
+<span class="mlabels"><span class="mlabel">inline</span></span>  </td>
+  </tr>
+</table>
+</div><div class="memdoc">
+
+<p>Initialize bounded writing using a C++ Format view. </p>
+<dl class="params"><dt>Parameters</dt><dd>
+  <table class="params">
+    <tr><td class="paramname">data</td><td>Output buffer; NULL only when capacity is zero. </td></tr>
+    <tr><td class="paramname">capacity</td><td>Output capacity in bytes. </td></tr>
+    <tr><td class="paramname">format</td><td>Borrowed writable Format. </td></tr>
+    <tr><td class="paramname">frames</td><td>Caller-owned stack; NULL only for zero frame_capacity. </td></tr>
+    <tr><td class="paramname">frame_capacity</td><td>Number of frames, one per open parent. </td></tr>
+    <tr><td class="paramname">scratch</td><td>Disjoint workspace; NULL only for zero scratch_capacity. </td></tr>
+    <tr><td class="paramname">scratch_capacity</td><td>Workspace size in bytes; must fit the largest closed Value. </td></tr>
+    <tr><td class="paramname">max_depth</td><td>Largest item depth, with roots at zero. </td></tr>
+    <tr><td class="paramname">max_elements</td><td>Maximum begin/write operations. </td></tr>
+  </table>
+  </dd>
+</dl>
+<dl class="section note"><dt>Note</dt><dd>Initialization errors are retained and returned by subsequent operations.   </dd>
+<dd>
+The view may be temporary; its descriptor and context remain borrowed. </dd></dl>
+
+</div>
+</div>
 <a id="a39f9190c63504f2b99c643f33d991265" name="a39f9190c63504f2b99c643f33d991265"></a>
-<h2 class="memtitle"><span class="permalink"><a href="#a39f9190c63504f2b99c643f33d991265">&#9670;&#160;</a></span>tree_writer()</h2>
+<h2 class="memtitle"><span class="permalink"><a href="#a39f9190c63504f2b99c643f33d991265">&#9670;&#160;</a></span>tree_writer() <span class="overload">[2/2]</span></h2>
 
 <div class="memitem">
 <div class="memproto">
