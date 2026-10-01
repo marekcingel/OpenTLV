@@ -1,6 +1,7 @@
 #ifndef OPENTLV_TLVPP_SCHEMA_HPP
 #define OPENTLV_TLVPP_SCHEMA_HPP
 #include "tlv++/types.hpp"
+#include "tlv++/format.hpp"
 #include "tlv/schema/schema.h"
 
 /**
@@ -80,6 +81,31 @@ validate_all_diag(bytes data, const tlv_format_t& format, const tlv_structure_sc
                                                    max_elements, unknown, &report, error_offset);
     if (rc != TLV_OK && rc != TLV_ERR_SCHEMA) return unexpected<error>(error::from_c(rc));
     return report.count;
+}
+/** @brief Validate a structure using a C++ Format view.
+ * @copydetails validate(bytes, const tlv_format_t&, const tlv_structure_schema_t&, size_t, size_t,
+ * size_t*)
+ */
+TLV_NODISCARD inline expected<void, error> validate(bytes data, tlv::format format,
+                                                    const tlv_structure_schema_t& schema,
+                                                    size_t max_depth, size_t max_elements,
+                                                    size_t* error_offset = nullptr) {
+    return validate(data, detail::format_access::get(format), schema, max_depth, max_elements,
+                    error_offset);
+}
+
+/** @brief Collect structure diagnostics using a C++ Format view.
+ * @copydetails validate_all_diag(bytes, const tlv_format_t&, const tlv_structure_schema_t&, size_t,
+ * size_t, schema_diagnostic*, size_t, tlv_schema_unknown_policy_t, size_t*)
+ */
+TLV_NODISCARD inline expected<size_t, error>
+validate_all_diag(bytes data, tlv::format format, const tlv_structure_schema_t& schema,
+                  size_t max_depth, size_t max_elements, schema_diagnostic* diagnostics,
+                  size_t                      capacity,
+                  tlv_schema_unknown_policy_t unknown = TLV_SCHEMA_UNKNOWN_BY_SCHEMA,
+                  size_t*                     error_offset = nullptr) {
+    return validate_all_diag(data, detail::format_access::get(format), schema, max_depth,
+                             max_elements, diagnostics, capacity, unknown, error_offset);
 }
 } // namespace tlv
 #endif

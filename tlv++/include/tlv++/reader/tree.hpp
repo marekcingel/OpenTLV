@@ -27,6 +27,17 @@ using tree_event = tlv_tree_event_t;
 class tree_reader {
 public:
     /**
+     * @brief Initialize bounded traversal using a C++ Format view.
+     * @copydetails tree_reader(bytes, const tlv_format_t&, span<tree_frame>, size_t, size_t,
+     * input_mode)
+     * @note The view may be temporary; its descriptor and context remain borrowed.
+     */
+    tree_reader(bytes data, tlv::format format, span<tree_frame> frames, size_t max_depth,
+                size_t max_elements, input_mode mode = input_mode::final)
+        : tree_reader(data, detail::format_access::get(format), frames, max_depth, max_elements,
+                      mode) {}
+
+    /**
      * @brief Initialize traversal over borrowed input and frame storage.
      * @param data Immutable input window.
      * @param format Borrowed readable Format and context.
@@ -155,16 +166,9 @@ public:
                                               reader_diagnostic* diagnostic = nullptr) {
         has_current_ = false;
         if (init_result_ != TLV_OK) return result(init_result_);
-        using callable = typename std::remove_reference<Visitor>::type;
-        struct state {
-            callable* function;
-        } context{&visitor};
-        auto callback = [](const tlv_element_t* value, size_t depth, size_t offset,
-                           void* context) -> tlv_visit_result_t {
-            return (*static_cast<state*>(context)->function)(*value, depth, offset);
-        };
-        return result(
-            tlv_tree_reader_visit_diag(&impl_, callback, &context, error_offset, diagnostic));
+        detail::tree_visitor<Visitor> context{&visitor};
+        return result(tlv_tree_reader_visit_diag(&impl_, &detail::tree_visitor<Visitor>::call,
+                                                 &context, error_offset, diagnostic));
     }
 
 private:

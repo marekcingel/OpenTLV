@@ -5,6 +5,7 @@
 #include "tlv/size.h"
 #include "tlv++/types.hpp"
 #include "tlv++/format.hpp"
+#include "tlv++/detail/visitor.hpp"
 #include "tlv/reader/visitor.h"
 #include <type_traits>
 
@@ -43,6 +44,14 @@ TLV_NODISCARD inline expected<decoded, error> read(bytes data, const tlv_format_
     return result;
 }
 
+/** @brief Read one element using a borrowed C++ Format view.
+ * @copydetails read(bytes, const tlv_format_t&, size_t&, reader_diagnostic*)
+ */
+TLV_NODISCARD inline expected<decoded, error> read(bytes data, tlv::format format, size_t& consumed,
+                                                   reader_diagnostic* diagnostic = nullptr) {
+    return read(data, detail::format_access::get(format), consumed, diagnostic);
+}
+
 /**
  * @brief Thin, safe C++ wrapper around #tlv_reader_t.
  *
@@ -56,6 +65,17 @@ TLV_NODISCARD inline expected<decoded, error> read(bytes data, const tlv_format_
  */
 class reader {
 public:
+    /**
+     * @brief Create a sequential reader from a C++ Format view without allocation.
+     * @param data Encoded input, borrowed.
+     * @param format Borrowed Format; its descriptor and context must outlive this cursor and
+     * results.
+     * @param mode Whether this window is final or accepts incremental continuation.
+     * @note The view object may be temporary. Initialization errors are reported by next().
+     */
+    reader(bytes data, tlv::format format, input_mode mode = input_mode::final)
+        : reader(data, detail::format_access::get(format), mode) {}
+
     /**
      * @brief Creates a reader over a buffer.
      *
@@ -189,14 +209,9 @@ public:
     TLV_NODISCARD expected<void, error> visit(Visitor&&          visitor,
                                               reader_diagnostic* diagnostic = nullptr) {
         if (!init_ok_) return unexpected<error>(error::from_c(TLV_ERR_NULL_ARG));
-        using callable = typename std::remove_reference<Visitor>::type;
-        struct state {
-            callable* function;
-        } context{&visitor};
-        auto callback = [](const tlv_element_t* value, void* context) -> tlv_visit_result_t {
-            return (*static_cast<state*>(context)->function)(*value);
-        };
-        auto rc = tlv_reader_visit_diag(&impl_, callback, &context, diagnostic);
+        detail::element_visitor<Visitor> context{&visitor};
+        auto rc = tlv_reader_visit_diag(&impl_, &detail::element_visitor<Visitor>::call, &context,
+                                        diagnostic);
         if (rc != TLV_OK) return unexpected<error>(error::from_c(rc));
         return {};
     }

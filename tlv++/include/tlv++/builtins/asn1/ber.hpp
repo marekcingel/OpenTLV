@@ -3,6 +3,7 @@
 
 #include "tlv/builtins/asn1/ber.h"
 #include "tlv++/types.hpp"
+#include "tlv++/format.hpp"
 
 /**
  * @file ber.hpp
@@ -10,6 +11,20 @@
  */
 
 namespace tlv {
+
+/** @brief BER-specific types backed by generic OpenTLV operations. */
+namespace ber {
+/**
+ * @brief Program-lifetime BER Format usable by generic C++ consumers.
+ * @note Constructing or copying this view allocates nothing. BER parsing and
+ * encoding use the canonical engine; no independent parser is introduced.
+ */
+class format : public tlv::format {
+public:
+    /** @brief Select the immutable built-in BER descriptor and context. */
+    format() noexcept : tlv::format(detail::format_access::borrow(tlv_format_ber)) {}
+};
+} // namespace ber
 
 /**
  * @brief Writes explicit BER indefinite framing around an already encoded child sequence.

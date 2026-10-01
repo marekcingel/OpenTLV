@@ -7,6 +7,10 @@ the `tlv` namespace, classes and public headers. Include `tlv++/tlv.hpp` for
 the complete header-only wrapper API; using it still requires linking the C
 library.
 
+The [C++ public/native boundary](../concepts/cxx-native-boundary.md) describes
+the incremental redesign, borrowed `tlv::format` views and explicit native
+interoperability. Include `tlv++/native.hpp` separately for that interoperability API.
+
 - [Namespace `tlv`](api/cxx-api/html/namespacetlv.html)
 - [Class index](api/cxx-api/html/classes.html) and
   [class list](api/cxx-api/html/annotated.html)

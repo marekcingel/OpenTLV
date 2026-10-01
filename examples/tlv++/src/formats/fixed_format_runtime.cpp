@@ -1,7 +1,6 @@
 // Defines a fixed-width TLV format at runtime from tlv++: two tag bytes and a
 // one-byte length, using the raw C tlv_fixed_format_t/tlv_fixed_format_init
-// directly (no tlv++ wrapper is needed: tlv::writer/tlv::reader already take
-// a plain `const tlv_format_t&`). See tlv/formats/fixed.h and
+// through the explicit tlv::native interoperability boundary. See tlv/formats/fixed.h and
 // docs/guides/memory.md#format-context-ownership-and-lifetime for why config
 // must outlive every reader and writer built from it.
 #include <array>
@@ -9,6 +8,7 @@
 
 #include "tlv/formats/fixed.h"
 #include "tlv++/tlv.hpp"
+#include "tlv++/native.hpp"
 
 int main() {
     const tlv_fixed_format_t config = {/* tag_size */ 2, /* length_size */ 1,
@@ -17,9 +17,10 @@ int main() {
     /* config must outlive every reader and writer built from format. */
     tlv_format_t format;
     if (tlv_fixed_format_init(&format, &config) != TLV_OK) return 1;
+    const auto format_view = tlv::native::borrow_format(format);
 
     std::array<tlv::byte, 16> buf{};
-    tlv::writer               writer(buf.data(), buf.size(), format);
+    tlv::writer               writer(buf.data(), buf.size(), format_view);
 
     const std::array<tlv::byte, 3> value = {tlv::byte(0xAA), tlv::byte(0xBB), tlv::byte(0xCC)};
     auto written = writer.write(TLV_TAG(0x12, 0x34), tlv::bytes(value.data(), value.size()));
@@ -29,7 +30,7 @@ int main() {
     }
 
     // Wire bytes: 12 34 03 AA BB CC. The tag is kept as is; the length is one byte.
-    tlv::reader reader(tlv::bytes(buf.data(), writer.size()), format);
+    tlv::reader reader(tlv::bytes(buf.data(), writer.size()), format_view);
     auto        element = reader.next();
     if (!element) {
         std::cerr << "read error: " << element.error().message << "\n";

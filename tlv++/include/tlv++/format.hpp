@@ -4,13 +4,58 @@
 #include "tlv/attributes.h"
 #include "tlv/format.h"
 #include "tlv++/types.hpp"
+#include "tlv++/detail/format_access.hpp"
+
+/**
+ * @file
+ * @brief Borrowed C++ Formats, canonical operations and original source information.
+ */
 
 namespace tlv {
 
 /**
- * @file
- * @brief Canonical format operations and immutable borrowed source information.
+ * @brief Copyable, allocation-free view of an immutable wire Format.
+ *
+ * Copies borrow the same descriptor and context; they do not own either.
+ * The view itself need not outlive a Reader or Writer initialized from it.
+ * Use a C++ preset or explicitly import a C descriptor with
+ * `tlv::native::borrow_format()` from `<tlv++/native.hpp>`.
+ *
+ * @warning The descriptor and its context must remain alive and unchanged for
+ * all operations and all retained source views. Borrowing does not validate
+ * callbacks; operations report the canonical engine's initialization errors.
  */
+class format {
+public:
+    /** @brief Whether the Format provides element decoding. */
+    bool readable() const noexcept {
+        return descriptor_->decode != nullptr;
+    }
+
+    /** @brief Whether the Format provides both measurement and encoding. */
+    bool writable() const noexcept {
+        return descriptor_->measure != nullptr && descriptor_->encode != nullptr;
+    }
+
+    /** @brief Whether the Format can classify constructed identifiers. */
+    bool has_constructed_classifier() const noexcept {
+        return descriptor_->is_constructed != nullptr;
+    }
+
+private:
+    explicit format(const tlv_format_t& descriptor) noexcept : descriptor_(&descriptor) {}
+    const tlv_format_t* descriptor_;
+    friend struct detail::format_access;
+};
+
+/// @cond INTERNAL
+inline tlv::format detail::format_access::borrow(const tlv_format_t& descriptor) noexcept {
+    return tlv::format(descriptor);
+}
+inline const tlv_format_t& detail::format_access::get(tlv::format view) noexcept {
+    return *view.descriptor_;
+}
+/// @endcond
 
 /**
  * @brief Semantic element together with its borrowed original framing.
@@ -45,6 +90,13 @@ TLV_NODISCARD inline expected<decoded, error> decode(const tlv_format_t& format,
     return result;
 }
 
+/** @brief Decode using a borrowed C++ Format view.
+ * @copydetails decode(const tlv_format_t&, bytes)
+ */
+TLV_NODISCARD inline expected<decoded, error> decode(tlv::format format, bytes data) {
+    return decode(detail::format_access::get(format), data);
+}
+
 /**
  * @brief Measure logical framing without a destination buffer.
  *
@@ -59,6 +111,13 @@ TLV_NODISCARD inline expected<encoding, error> measure(const tlv_format_t& forma
     auto     rc = tlv_format_measure(&format, &value, &result, nullptr);
     if (rc != TLV_OK) return unexpected<error>(error::from_c(rc));
     return result;
+}
+
+/** @brief Measure using a borrowed C++ Format view.
+ * @copydetails measure(const tlv_format_t&, const element&)
+ */
+TLV_NODISCARD inline expected<encoding, error> measure(tlv::format format, const element& value) {
+    return measure(detail::format_access::get(format), value);
 }
 
 /**
@@ -78,6 +137,14 @@ encode(const tlv_format_t& format, const element& value, byte* data, size_t capa
                                   &written, nullptr);
     if (rc != TLV_OK) return unexpected<error>(error::from_c(rc));
     return written;
+}
+
+/** @brief Encode using a borrowed C++ Format view.
+ * @copydetails encode(const tlv_format_t&, const element&, byte*, size_t)
+ */
+TLV_NODISCARD inline expected<size_t, error> encode(tlv::format format, const element& value,
+                                                    byte* data, size_t capacity) {
+    return encode(detail::format_access::get(format), value, data, capacity);
 }
 
 /**

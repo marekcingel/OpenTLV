@@ -4,6 +4,7 @@
 #include "tlv/endian.h"
 #include "tlv/format.h"
 #include "tlv/formats/fixed.h"
+#include "tlv++/format.hpp"
 
 #include <cstddef>
 #include <cstdint>
@@ -89,6 +90,15 @@ public:
                                                   TLV_ELEMENT_ORDER_TLV, TLV_LENGTH_SCOPE_VALUE};
         static const tlv_format_t       fmt = init(config);
         return fmt;
+    }
+
+    /**
+     * @brief Return an allocation-free C++ view of this fixed-width Format.
+     * @return Copyable view with program-lifetime descriptor and context.
+     * @note Uses the same canonical implementation and configuration as format().
+     */
+    static tlv::format view() noexcept {
+        return detail::format_access::borrow(format());
     }
 
 private:

@@ -116,6 +116,7 @@ nav:
       - Logical lengths: concepts/length.md
       - Byte order: concepts/endian.md
       - Language bindings: concepts/bindings.md
+      - C++ public/native boundary: concepts/cxx-native-boundary.md
   - Guides:
       - Memory ownership: guides/memory.md
       - Diagnostics: guides/diagnostics.md

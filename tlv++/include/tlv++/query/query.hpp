@@ -89,21 +89,31 @@ public:
     TLV_NODISCARD expected<void, error>
     visit_buffer(bytes data, const tlv_format_t& format, size_t max_depth, size_t max_elements,
                  Visitor&& visitor, size_t* error_offset = nullptr) const {
-        typedef typename std::remove_reference<Visitor>::type visitor_type;
-        struct adapter {
-            visitor_type*             visitor;
-            static tlv_visit_result_t call(const tlv_element_t* element, size_t depth,
-                                           size_t offset, void* context) {
-                adapter* self = static_cast<adapter*>(context);
-                return (*self->visitor)(*element, depth, offset);
-            }
-        };
-        adapter      state{&visitor};
-        tlv_result_t rc = tlv_query_visit_buffer(
+        detail::tree_visitor<Visitor> state{&visitor};
+        tlv_result_t                  rc = tlv_query_visit_buffer(
             reinterpret_cast<const uint8_t*>(data.data()), data.size(), &format, &query_, max_depth,
-            max_elements, &adapter::call, &state, error_offset);
+            max_elements, &detail::tree_visitor<Visitor>::call, &state, error_offset);
         if (rc != TLV_OK) return unexpected<error>(error::from_c(rc));
         return {};
+    }
+
+    /** @brief Visit Query matches using a C++ Format view.
+     * @param data Immutable borrowed input.
+     * @param format Borrowed Format; absent constructed classification treats Values as opaque.
+     * @param max_depth Maximum traversal depth.
+     * @param max_elements Maximum traversed elements.
+     * @param visitor Callable taking Element, depth and offset, returning tlv_visit_result_t.
+     * @param error_offset Optional failure offset, unchanged on success.
+     * @return Success on EOF or STOP, or the original Query/Reader error.
+     * @warning Input, descriptor and context must outlive retained views. Callback effects
+     * are not rolled back. Allocation behavior is the same as for the native overload.
+     */
+    template <typename Visitor>
+    TLV_NODISCARD expected<void, error>
+    visit_buffer(bytes data, tlv::format format, size_t max_depth, size_t max_elements,
+                 Visitor&& visitor, size_t* error_offset = nullptr) const {
+        return visit_buffer(data, detail::format_access::get(format), max_depth, max_elements,
+                            std::forward<Visitor>(visitor), error_offset);
     }
 
 private:
@@ -154,15 +164,9 @@ public:
         if (init_result_ != TLV_OK) return unexpected<error>(error::from_c(init_result_));
         if (reader.init_result_ != TLV_OK)
             return unexpected<error>(error::from_c(reader.init_result_));
-        using callable = typename std::remove_reference<Visitor>::type;
-        struct state {
-            callable* function;
-        } context{&visitor};
-        auto callback = [](const tlv_element_t* value, size_t depth, size_t offset,
-                           void* context) -> tlv_visit_result_t {
-            return (*static_cast<state*>(context)->function)(*value, depth, offset);
-        };
-        auto rc = tlv_query_visit(&reader.impl_, &impl_, callback, &context, error_offset);
+        detail::tree_visitor<Visitor> context{&visitor};
+        auto rc = tlv_query_visit(&reader.impl_, &impl_, &detail::tree_visitor<Visitor>::call,
+                                  &context, error_offset);
         if (rc != TLV_OK) return unexpected<error>(error::from_c(rc));
         return {};
     }
