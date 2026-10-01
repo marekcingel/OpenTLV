@@ -87,6 +87,7 @@ $(function() {
 <code>#include &quot;<a class="el" href="types_8hpp.html">tlv++/types.hpp</a>&quot;</code><br />
 <code>#include &quot;<a class="el" href="format_8hpp.html">tlv++/format.hpp</a>&quot;</code><br />
 <code>#include &quot;<a class="el" href="reader_8hpp.html">tlv++/reader/reader.hpp</a>&quot;</code><br />
+<code>#include &quot;<a class="el" href="builder_8hpp.html">tlv++/writer/builder.hpp</a>&quot;</code><br />
 </div><table class="memberdecls">
 <tr class="heading"><td colspan="2"><h2 class="groupheader"><a id="nested-classes" name="nested-classes"></a>
 Classes</h2></td></tr>
@@ -105,6 +106,14 @@ Namespaces</h2></td></tr>
 </table><table class="memberdecls">
 <tr class="heading"><td colspan="2"><h2 class="groupheader"><a id="func-members" name="func-members"></a>
 Functions</h2></td></tr>
+<tr class="memitem:afbb2497b03c513078dc4c7b88d7f6ff2" id="r_afbb2497b03c513078dc4c7b88d7f6ff2"><td class="memTemplParams" colspan="2">template&lt;typename Output , typename Callback &gt; </td></tr>
+<tr class="memitem:afbb2497b03c513078dc4c7b88d7f6ff2"><td class="memTemplItemLeft" align="right" valign="top"><a class="el" href="classtlv_1_1expected.html">expected</a>&lt; size_t, <a class="el" href="structtlv_1_1writer__failure.html">writer_failure</a> &gt;&#160;</td><td class="memTemplItemRight" valign="bottom"><a class="el" href="namespacetlv_1_1ber.html#afbb2497b03c513078dc4c7b88d7f6ff2">tlv::ber::encode</a> (Output &amp;&amp;output, <a class="el" href="structtlv_1_1writer__workspace.html">writer_workspace</a> workspace, Callback &amp;&amp;callback, <a class="el" href="namespacetlv.html#a1df134eb9e2b476155eb324618396e4d">writer_diagnostic</a> *<a class="el" href="namespacetlv.html#a00ca9c69c35ef11f6a22b7eda1b115ba">diagnostic</a>=nullptr)</td></tr>
+<tr class="memdesc:afbb2497b03c513078dc4c7b88d7f6ff2"><td class="mdescLeft">&#160;</td><td class="mdescRight">Build BER output with explicit caller-owned frames and scratch.  <br /></td></tr>
+<tr class="separator:afbb2497b03c513078dc4c7b88d7f6ff2"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a261fee7f82b0457adf2e4ab63f7fd44c" id="r_a261fee7f82b0457adf2e4ab63f7fd44c"><td class="memTemplParams" colspan="2">template&lt;size_t ScratchCapacity = 1024, size_t Depth = TLV_TREE_DEFAULT_DEPTH, typename Output , typename Callback &gt; </td></tr>
+<tr class="memitem:a261fee7f82b0457adf2e4ab63f7fd44c"><td class="memTemplItemLeft" align="right" valign="top"><a class="el" href="classtlv_1_1expected.html">expected</a>&lt; size_t, <a class="el" href="structtlv_1_1writer__failure.html">writer_failure</a> &gt;&#160;</td><td class="memTemplItemRight" valign="bottom"><a class="el" href="namespacetlv_1_1ber.html#a261fee7f82b0457adf2e4ab63f7fd44c">tlv::ber::encode</a> (Output &amp;&amp;output, Callback &amp;&amp;callback, <a class="el" href="namespacetlv.html#a1df134eb9e2b476155eb324618396e4d">writer_diagnostic</a> *<a class="el" href="namespacetlv.html#a00ca9c69c35ef11f6a22b7eda1b115ba">diagnostic</a>=nullptr)</td></tr>
+<tr class="memdesc:a261fee7f82b0457adf2e4ab63f7fd44c"><td class="mdescLeft">&#160;</td><td class="mdescRight">Build BER output using bounded local stack workspace.  <br /></td></tr>
+<tr class="separator:a261fee7f82b0457adf2e4ab63f7fd44c"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:acf7d1f59407a15e1ad5064f6179b4ef7" id="r_acf7d1f59407a15e1ad5064f6179b4ef7"><td class="memItemLeft" align="right" valign="top"><a class="el" href="classtlv_1_1detail_1_1parsing__range.html">detail::parsing_range</a>&lt; <a class="el" href="classtlv_1_1ber_1_1format.html">format</a> &gt;&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="namespacetlv_1_1ber.html#acf7d1f59407a15e1ad5064f6179b4ef7">tlv::ber::parse</a> (<a class="el" href="namespacetlv.html#a2abe7003a70af047ef9acae17f31f75d">bytes</a> data)</td></tr>
 <tr class="memdesc:acf7d1f59407a15e1ad5064f6179b4ef7"><td class="mdescLeft">&#160;</td><td class="mdescRight">Parse final input as borrowed Elements using the built-in Format.  <br /></td></tr>
 <tr class="separator:acf7d1f59407a15e1ad5064f6179b4ef7"><td class="memSeparator" colspan="2">&#160;</td></tr>

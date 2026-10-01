@@ -74,6 +74,7 @@ $(function() {
 </div><!-- top -->
 <div class="header">
   <div class="summary">
+<a href="#nested-classes">Classes</a> &#124;
 <a href="#pub-methods">Public Member Functions</a> &#124;
 <a href="classtlv_1_1expected_3_01void_00_01E_01_4-members.html">List of all members</a>  </div>
   <div class="headertitle"><div class="title">tlv::expected&lt; void, E &gt; Class Template Reference</div></div>
@@ -87,15 +88,30 @@ $(function() {
 <table class="memberdecls">
 <tr class="heading"><td colspan="2"><h2 class="groupheader"><a id="pub-methods" name="pub-methods"></a>
 Public Member Functions</h2></td></tr>
-<tr class="memitem:a76c8f10cf558ed82215860696ae22ba0" id="r_a76c8f10cf558ed82215860696ae22ba0"><td class="memItemLeft" align="right" valign="top">&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classtlv_1_1expected_3_01void_00_01E_01_4.html#a76c8f10cf558ed82215860696ae22ba0">expected</a> ()</td></tr>
-<tr class="memdesc:a76c8f10cf558ed82215860696ae22ba0"><td class="mdescLeft">&#160;</td><td class="mdescRight">Creates a successful result.  <br /></td></tr>
-<tr class="separator:a76c8f10cf558ed82215860696ae22ba0"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a9fc926ecfe5c60594286497dab09f3a9" id="r_a9fc926ecfe5c60594286497dab09f3a9"><td class="memItemLeft" align="right" valign="top">&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classtlv_1_1expected_3_01void_00_01E_01_4.html#a9fc926ecfe5c60594286497dab09f3a9">expected</a> () noexcept</td></tr>
+<tr class="memdesc:a9fc926ecfe5c60594286497dab09f3a9"><td class="mdescLeft">&#160;</td><td class="mdescRight">Creates success without constructing an error object or allocating.  <br /></td></tr>
+<tr class="separator:a9fc926ecfe5c60594286497dab09f3a9"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:afcd7bd7b2064a0cb5215eb43be8a40d9" id="r_afcd7bd7b2064a0cb5215eb43be8a40d9"><td class="memItemLeft" align="right" valign="top">&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classtlv_1_1expected_3_01void_00_01E_01_4.html#afcd7bd7b2064a0cb5215eb43be8a40d9">expected</a> (const <a class="el" href="classtlv_1_1unexpected.html">unexpected</a>&lt; E &gt; &amp;<a class="el" href="structtlv_1_1error.html">error</a>)</td></tr>
 <tr class="memdesc:afcd7bd7b2064a0cb5215eb43be8a40d9"><td class="mdescLeft">&#160;</td><td class="mdescRight">Creates a failed result holding a copy of the error.  <br /></td></tr>
 <tr class="separator:afcd7bd7b2064a0cb5215eb43be8a40d9"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:a2339b573893c337641a96e91dda184b2" id="r_a2339b573893c337641a96e91dda184b2"><td class="memItemLeft" align="right" valign="top">&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classtlv_1_1expected_3_01void_00_01E_01_4.html#a2339b573893c337641a96e91dda184b2">expected</a> (<a class="el" href="classtlv_1_1unexpected.html">unexpected</a>&lt; E &gt; &amp;&amp;<a class="el" href="structtlv_1_1error.html">error</a>)</td></tr>
 <tr class="memdesc:a2339b573893c337641a96e91dda184b2"><td class="mdescLeft">&#160;</td><td class="mdescRight">Creates a failed result by moving in the error.  <br /></td></tr>
 <tr class="separator:a2339b573893c337641a96e91dda184b2"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:aaf7b182bce7d4129435ba66f6424a6e7" id="r_aaf7b182bce7d4129435ba66f6424a6e7"><td class="memItemLeft" align="right" valign="top">&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classtlv_1_1expected_3_01void_00_01E_01_4.html#aaf7b182bce7d4129435ba66f6424a6e7">expected</a> (const <a class="el" href="classtlv_1_1expected.html">expected</a> &amp;other)</td></tr>
+<tr class="memdesc:aaf7b182bce7d4129435ba66f6424a6e7"><td class="mdescLeft">&#160;</td><td class="mdescRight">Copies the active result; success does not construct an error.  <br /></td></tr>
+<tr class="separator:aaf7b182bce7d4129435ba66f6424a6e7"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:abfccd6d8eff98fa9736974c480114391" id="r_abfccd6d8eff98fa9736974c480114391"><td class="memItemLeft" align="right" valign="top">&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classtlv_1_1expected_3_01void_00_01E_01_4.html#abfccd6d8eff98fa9736974c480114391">expected</a> (<a class="el" href="classtlv_1_1expected.html">expected</a> &amp;&amp;other) noexcept(std::is_nothrow_move_constructible&lt; E &gt;::value)</td></tr>
+<tr class="memdesc:abfccd6d8eff98fa9736974c480114391"><td class="mdescLeft">&#160;</td><td class="mdescRight">Moves the active result without constructing an error for success.  <br /></td></tr>
+<tr class="separator:abfccd6d8eff98fa9736974c480114391"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:ab448656b62f0281daeda5709b5d4e099" id="r_ab448656b62f0281daeda5709b5d4e099"><td class="memItemLeft" align="right" valign="top"><a class="el" href="classtlv_1_1expected.html">expected</a> &amp;&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classtlv_1_1expected_3_01void_00_01E_01_4.html#ab448656b62f0281daeda5709b5d4e099">operator=</a> (const <a class="el" href="classtlv_1_1expected.html">expected</a> &amp;other)</td></tr>
+<tr class="memdesc:ab448656b62f0281daeda5709b5d4e099"><td class="mdescLeft">&#160;</td><td class="mdescRight">Copies success or error, destroying an error when replaced by success.  <br /></td></tr>
+<tr class="separator:ab448656b62f0281daeda5709b5d4e099"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a760b1757413bda4fa9e6c54e11feb4d7" id="r_a760b1757413bda4fa9e6c54e11feb4d7"><td class="memItemLeft" align="right" valign="top"><a class="el" href="classtlv_1_1expected.html">expected</a> &amp;&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classtlv_1_1expected_3_01void_00_01E_01_4.html#a760b1757413bda4fa9e6c54e11feb4d7">operator=</a> (<a class="el" href="classtlv_1_1expected.html">expected</a> &amp;&amp;other) noexcept(std::is_nothrow_move_constructible&lt; E &gt;::value &amp;&amp;std::is_nothrow_move_assignable&lt; E &gt;::value)</td></tr>
+<tr class="memdesc:a760b1757413bda4fa9e6c54e11feb4d7"><td class="mdescLeft">&#160;</td><td class="mdescRight">Moves success or error, preserving the source's active alternative.  <br /></td></tr>
+<tr class="separator:a760b1757413bda4fa9e6c54e11feb4d7"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a9aad7f345a808cd3f38179a1a2fc02c7" id="r_a9aad7f345a808cd3f38179a1a2fc02c7"><td class="memItemLeft" align="right" valign="top">&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classtlv_1_1expected_3_01void_00_01E_01_4.html#a9aad7f345a808cd3f38179a1a2fc02c7">~expected</a> ()</td></tr>
+<tr class="memdesc:a9aad7f345a808cd3f38179a1a2fc02c7"><td class="mdescLeft">&#160;</td><td class="mdescRight">Destroys an error only when that alternative is active.  <br /></td></tr>
+<tr class="separator:a9aad7f345a808cd3f38179a1a2fc02c7"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:af248152ed73fd09ac9cbbdb938c6f928" id="r_af248152ed73fd09ac9cbbdb938c6f928"><td class="memItemLeft" align="right" valign="top">bool&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classtlv_1_1expected_3_01void_00_01E_01_4.html#af248152ed73fd09ac9cbbdb938c6f928">has_value</a> () const</td></tr>
 <tr class="memdesc:af248152ed73fd09ac9cbbdb938c6f928"><td class="mdescLeft">&#160;</td><td class="mdescRight">Returns <code>true</code> if the result is successful.  <br /></td></tr>
 <tr class="separator:af248152ed73fd09ac9cbbdb938c6f928"><td class="memSeparator" colspan="2">&#160;</td></tr>
@@ -119,8 +135,8 @@ class tlv::expected&lt; void, E &gt;</div><p>Minimal result holding either succe
   </dd>
 </dl>
 </div><h2 class="groupheader">Constructor &amp; Destructor Documentation</h2>
-<a id="a76c8f10cf558ed82215860696ae22ba0" name="a76c8f10cf558ed82215860696ae22ba0"></a>
-<h2 class="memtitle"><span class="permalink"><a href="#a76c8f10cf558ed82215860696ae22ba0">&#9670;&#160;</a></span>expected() <span class="overload">[1/3]</span></h2>
+<a id="a9fc926ecfe5c60594286497dab09f3a9" name="a9fc926ecfe5c60594286497dab09f3a9"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#a9fc926ecfe5c60594286497dab09f3a9">&#9670;&#160;</a></span>expected() <span class="overload">[1/5]</span></h2>
 
 <div class="memitem">
 <div class="memproto">
@@ -139,17 +155,17 @@ template&lt;typename E &gt; </div>
       </table>
   </td>
   <td class="mlabels-right">
-<span class="mlabels"><span class="mlabel">inline</span></span>  </td>
+<span class="mlabels"><span class="mlabel">inline</span><span class="mlabel">noexcept</span></span>  </td>
   </tr>
 </table>
 </div><div class="memdoc">
 
-<p>Creates a successful result. </p>
+<p>Creates success without constructing an error object or allocating. </p>
 
 </div>
 </div>
 <a id="afcd7bd7b2064a0cb5215eb43be8a40d9" name="afcd7bd7b2064a0cb5215eb43be8a40d9"></a>
-<h2 class="memtitle"><span class="permalink"><a href="#afcd7bd7b2064a0cb5215eb43be8a40d9">&#9670;&#160;</a></span>expected() <span class="overload">[2/3]</span></h2>
+<h2 class="memtitle"><span class="permalink"><a href="#afcd7bd7b2064a0cb5215eb43be8a40d9">&#9670;&#160;</a></span>expected() <span class="overload">[2/5]</span></h2>
 
 <div class="memitem">
 <div class="memproto">
@@ -179,7 +195,7 @@ template&lt;typename E &gt; </div>
 </div>
 </div>
 <a id="a2339b573893c337641a96e91dda184b2" name="a2339b573893c337641a96e91dda184b2"></a>
-<h2 class="memtitle"><span class="permalink"><a href="#a2339b573893c337641a96e91dda184b2">&#9670;&#160;</a></span>expected() <span class="overload">[3/3]</span></h2>
+<h2 class="memtitle"><span class="permalink"><a href="#a2339b573893c337641a96e91dda184b2">&#9670;&#160;</a></span>expected() <span class="overload">[3/5]</span></h2>
 
 <div class="memitem">
 <div class="memproto">
@@ -205,6 +221,95 @@ template&lt;typename E &gt; </div>
 </div><div class="memdoc">
 
 <p>Creates a failed result by moving in the error. </p>
+
+</div>
+</div>
+<a id="aaf7b182bce7d4129435ba66f6424a6e7" name="aaf7b182bce7d4129435ba66f6424a6e7"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#aaf7b182bce7d4129435ba66f6424a6e7">&#9670;&#160;</a></span>expected() <span class="overload">[4/5]</span></h2>
+
+<div class="memitem">
+<div class="memproto">
+<div class="memtemplate">
+template&lt;typename E &gt; </div>
+<table class="mlabels">
+  <tr>
+  <td class="mlabels-left">
+      <table class="memname">
+        <tr>
+          <td class="memname"><a class="el" href="classtlv_1_1expected.html">tlv::expected</a>&lt; void, E &gt;::expected </td>
+          <td>(</td>
+          <td class="paramtype">const <a class="el" href="classtlv_1_1expected.html">expected</a>&lt; void, E &gt; &amp;&#160;</td>
+          <td class="paramname"><em>other</em></td><td>)</td>
+          <td></td>
+        </tr>
+      </table>
+  </td>
+  <td class="mlabels-right">
+<span class="mlabels"><span class="mlabel">inline</span></span>  </td>
+  </tr>
+</table>
+</div><div class="memdoc">
+
+<p>Copies the active result; success does not construct an error. </p>
+
+</div>
+</div>
+<a id="abfccd6d8eff98fa9736974c480114391" name="abfccd6d8eff98fa9736974c480114391"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#abfccd6d8eff98fa9736974c480114391">&#9670;&#160;</a></span>expected() <span class="overload">[5/5]</span></h2>
+
+<div class="memitem">
+<div class="memproto">
+<div class="memtemplate">
+template&lt;typename E &gt; </div>
+<table class="mlabels">
+  <tr>
+  <td class="mlabels-left">
+      <table class="memname">
+        <tr>
+          <td class="memname"><a class="el" href="classtlv_1_1expected.html">tlv::expected</a>&lt; void, E &gt;::expected </td>
+          <td>(</td>
+          <td class="paramtype"><a class="el" href="classtlv_1_1expected.html">expected</a>&lt; void, E &gt; &amp;&amp;&#160;</td>
+          <td class="paramname"><em>other</em></td><td>)</td>
+          <td></td>
+        </tr>
+      </table>
+  </td>
+  <td class="mlabels-right">
+<span class="mlabels"><span class="mlabel">inline</span><span class="mlabel">noexcept</span></span>  </td>
+  </tr>
+</table>
+</div><div class="memdoc">
+
+<p>Moves the active result without constructing an error for success. </p>
+
+</div>
+</div>
+<a id="a9aad7f345a808cd3f38179a1a2fc02c7" name="a9aad7f345a808cd3f38179a1a2fc02c7"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#a9aad7f345a808cd3f38179a1a2fc02c7">&#9670;&#160;</a></span>~expected()</h2>
+
+<div class="memitem">
+<div class="memproto">
+<div class="memtemplate">
+template&lt;typename E &gt; </div>
+<table class="mlabels">
+  <tr>
+  <td class="mlabels-left">
+      <table class="memname">
+        <tr>
+          <td class="memname"><a class="el" href="classtlv_1_1expected.html">tlv::expected</a>&lt; void, E &gt;::~<a class="el" href="classtlv_1_1expected.html">expected</a> </td>
+          <td>(</td>
+          <td class="paramname"></td><td>)</td>
+          <td></td>
+        </tr>
+      </table>
+  </td>
+  <td class="mlabels-right">
+<span class="mlabels"><span class="mlabel">inline</span></span>  </td>
+  </tr>
+</table>
+</div><div class="memdoc">
+
+<p>Destroys an error only when that alternative is active. </p>
 
 </div>
 </div>
@@ -322,6 +427,68 @@ template&lt;typename E &gt; </div>
 </div><div class="memdoc">
 
 <p>Returns <code>true</code> if the result is successful. </p>
+
+</div>
+</div>
+<a id="ab448656b62f0281daeda5709b5d4e099" name="ab448656b62f0281daeda5709b5d4e099"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#ab448656b62f0281daeda5709b5d4e099">&#9670;&#160;</a></span>operator=() <span class="overload">[1/2]</span></h2>
+
+<div class="memitem">
+<div class="memproto">
+<div class="memtemplate">
+template&lt;typename E &gt; </div>
+<table class="mlabels">
+  <tr>
+  <td class="mlabels-left">
+      <table class="memname">
+        <tr>
+          <td class="memname"><a class="el" href="classtlv_1_1expected.html">expected</a> &amp; <a class="el" href="classtlv_1_1expected.html">tlv::expected</a>&lt; void, E &gt;::operator= </td>
+          <td>(</td>
+          <td class="paramtype">const <a class="el" href="classtlv_1_1expected.html">expected</a>&lt; void, E &gt; &amp;&#160;</td>
+          <td class="paramname"><em>other</em></td><td>)</td>
+          <td></td>
+        </tr>
+      </table>
+  </td>
+  <td class="mlabels-right">
+<span class="mlabels"><span class="mlabel">inline</span></span>  </td>
+  </tr>
+</table>
+</div><div class="memdoc">
+
+<p>Copies success or error, destroying an error when replaced by success. </p>
+<dl class="section return"><dt>Returns</dt><dd>This result. Failed error construction leaves a successful target unchanged. </dd></dl>
+
+</div>
+</div>
+<a id="a760b1757413bda4fa9e6c54e11feb4d7" name="a760b1757413bda4fa9e6c54e11feb4d7"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#a760b1757413bda4fa9e6c54e11feb4d7">&#9670;&#160;</a></span>operator=() <span class="overload">[2/2]</span></h2>
+
+<div class="memitem">
+<div class="memproto">
+<div class="memtemplate">
+template&lt;typename E &gt; </div>
+<table class="mlabels">
+  <tr>
+  <td class="mlabels-left">
+      <table class="memname">
+        <tr>
+          <td class="memname"><a class="el" href="classtlv_1_1expected.html">expected</a> &amp; <a class="el" href="classtlv_1_1expected.html">tlv::expected</a>&lt; void, E &gt;::operator= </td>
+          <td>(</td>
+          <td class="paramtype"><a class="el" href="classtlv_1_1expected.html">expected</a>&lt; void, E &gt; &amp;&amp;&#160;</td>
+          <td class="paramname"><em>other</em></td><td>)</td>
+          <td></td>
+        </tr>
+      </table>
+  </td>
+  <td class="mlabels-right">
+<span class="mlabels"><span class="mlabel">inline</span><span class="mlabel">noexcept</span></span>  </td>
+  </tr>
+</table>
+</div><div class="memdoc">
+
+<p>Moves success or error, preserving the source's active alternative. </p>
+<dl class="section return"><dt>Returns</dt><dd>This result. Error exceptions follow the corresponding E operation. </dd></dl>
 
 </div>
 </div>

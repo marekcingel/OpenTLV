@@ -235,6 +235,18 @@ Classes</h2></td></tr>
 <tr class="memitem:"><td class="memItemLeft" align="right" valign="top">class &#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classtlv_1_1writer_3_01tlv_1_1format_01_4.html">writer&lt; tlv::format &gt;</a></td></tr>
 <tr class="memdesc:"><td class="mdescLeft">&#160;</td><td class="mdescRight">Runtime Format cursor; descriptor and context remain borrowed.  <a href="classtlv_1_1writer_3_01tlv_1_1format_01_4.html#details">More...</a><br /></td></tr>
 <tr class="separator:"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:"><td class="memItemLeft" align="right" valign="top">class &#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classtlv_1_1writer__builder.html">writer_builder</a></td></tr>
+<tr class="memdesc:"><td class="mdescLeft">&#160;</td><td class="mdescRight">Sequential typed builder retaining the first error without allocation.  <a href="classtlv_1_1writer__builder.html#details">More...</a><br /></td></tr>
+<tr class="separator:"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:"><td class="memItemLeft" align="right" valign="top">struct &#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="structtlv_1_1writer__failure.html">writer_failure</a></td></tr>
+<tr class="memdesc:"><td class="mdescLeft">&#160;</td><td class="mdescRight">Writer failure without an allocating message string.  <a href="structtlv_1_1writer__failure.html#details">More...</a><br /></td></tr>
+<tr class="separator:"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:"><td class="memItemLeft" align="right" valign="top">class &#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classtlv_1_1writer__storage.html">writer_storage</a></td></tr>
+<tr class="memdesc:"><td class="mdescLeft">&#160;</td><td class="mdescRight">Fixed-capacity, caller-owned workspace with no dynamic storage.  <a href="classtlv_1_1writer__storage.html#details">More...</a><br /></td></tr>
+<tr class="separator:"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:"><td class="memItemLeft" align="right" valign="top">struct &#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="structtlv_1_1writer__workspace.html">writer_workspace</a></td></tr>
+<tr class="memdesc:"><td class="mdescLeft">&#160;</td><td class="mdescRight">Borrowed, disjoint construction storage and explicit traversal limits.  <a href="structtlv_1_1writer__workspace.html#details">More...</a><br /></td></tr>
+<tr class="separator:"><td class="memSeparator" colspan="2">&#160;</td></tr>
 </table><table class="memberdecls">
 <tr class="heading"><td colspan="2"><h2 class="groupheader"><a id="concepts" name="concepts"></a>
 Concepts</h2></td></tr>
@@ -402,6 +414,26 @@ Functions</h2></td></tr>
 <tr class="memitem:a577b84832327b25989a0567c05db0607"><td class="memTemplItemLeft" align="right" valign="top"><a class="el" href="classtlv_1_1tag.html">tlv::tag</a>&#160;</td><td class="memTemplItemRight" valign="bottom"><a class="el" href="namespacetlv.html#a577b84832327b25989a0567c05db0607">tag_bytes</a> () noexcept</td></tr>
 <tr class="memdesc:a577b84832327b25989a0567c05db0607"><td class="mdescLeft">&#160;</td><td class="mdescRight">Borrow a literal identifier from immutable program-lifetime storage.  <br /></td></tr>
 <tr class="separator:a577b84832327b25989a0567c05db0607"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:aa194a00a84ec5a13a35ad952a4fb9c88" id="r_aa194a00a84ec5a13a35ad952a4fb9c88"><td class="memTemplParams" colspan="2">template&lt;typename Output , typename Callback &gt; </td></tr>
+<tr class="memitem:aa194a00a84ec5a13a35ad952a4fb9c88"><td class="memTemplItemLeft" align="right" valign="top"><a class="el" href="classtlv_1_1expected.html">expected</a>&lt; size_t, <a class="el" href="structtlv_1_1writer__failure.html">writer_failure</a> &gt;&#160;</td><td class="memTemplItemRight" valign="bottom"><a class="el" href="namespacetlv.html#aa194a00a84ec5a13a35ad952a4fb9c88">encode</a> (Output &amp;&amp;output, <a class="el" href="classtlv_1_1format.html">tlv::format</a> <a class="el" href="classtlv_1_1format.html">format</a>, <a class="el" href="structtlv_1_1writer__workspace.html">writer_workspace</a> workspace, Callback &amp;&amp;callback, <a class="el" href="namespacetlv.html#a1df134eb9e2b476155eb324618396e4d">writer_diagnostic</a> *<a class="el" href="namespacetlv.html#a00ca9c69c35ef11f6a22b7eda1b115ba">diagnostic</a>=nullptr)</td></tr>
+<tr class="memdesc:aa194a00a84ec5a13a35ad952a4fb9c88"><td class="mdescLeft">&#160;</td><td class="mdescRight">Encode a sequence once through the canonical C Tree Writer.  <br /></td></tr>
+<tr class="separator:aa194a00a84ec5a13a35ad952a4fb9c88"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a85dd98e9db475f473e1573192329e2dc" id="r_a85dd98e9db475f473e1573192329e2dc"><td class="memTemplParams" colspan="2">template&lt;typename F , typename Output , typename Callback &gt; </td></tr>
+<tr class="memitem:a85dd98e9db475f473e1573192329e2dc"><td class="memTemplItemLeft" align="right" valign="top"><a class="el" href="classtlv_1_1expected.html">expected</a>&lt; size_t, <a class="el" href="structtlv_1_1writer__failure.html">writer_failure</a> &gt;&#160;</td><td class="memTemplItemRight" valign="bottom"><a class="el" href="namespacetlv.html#a85dd98e9db475f473e1573192329e2dc">encode</a> (Output &amp;&amp;output, <a class="el" href="structtlv_1_1writer__workspace.html">writer_workspace</a> workspace, Callback &amp;&amp;callback, F <a class="el" href="classtlv_1_1format.html">format</a>=F{}, <a class="el" href="namespacetlv.html#a1df134eb9e2b476155eb324618396e4d">writer_diagnostic</a> *<a class="el" href="namespacetlv.html#a00ca9c69c35ef11f6a22b7eda1b115ba">diagnostic</a>=nullptr)</td></tr>
+<tr class="memdesc:a85dd98e9db475f473e1573192329e2dc"><td class="mdescLeft">&#160;</td><td class="mdescRight">Encode with a typed Format and explicit caller-owned workspace.  <br /></td></tr>
+<tr class="separator:a85dd98e9db475f473e1573192329e2dc"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:af5001046f5dd5d15026c9bedee820b23" id="r_af5001046f5dd5d15026c9bedee820b23"><td class="memTemplParams" colspan="2">template&lt;typename F , size_t ScratchCapacity = 1024, size_t Depth = TLV_TREE_DEFAULT_DEPTH, typename Output , typename Callback &gt; </td></tr>
+<tr class="memitem:af5001046f5dd5d15026c9bedee820b23"><td class="memTemplItemLeft" align="right" valign="top"><a class="el" href="classtlv_1_1expected.html">expected</a>&lt; size_t, <a class="el" href="structtlv_1_1writer__failure.html">writer_failure</a> &gt;&#160;</td><td class="memTemplItemRight" valign="bottom"><a class="el" href="namespacetlv.html#af5001046f5dd5d15026c9bedee820b23">encode</a> (Output &amp;&amp;output, Callback &amp;&amp;callback, F <a class="el" href="classtlv_1_1format.html">format</a>=F{}, <a class="el" href="namespacetlv.html#a1df134eb9e2b476155eb324618396e4d">writer_diagnostic</a> *<a class="el" href="namespacetlv.html#a00ca9c69c35ef11f6a22b7eda1b115ba">diagnostic</a>=nullptr)</td></tr>
+<tr class="memdesc:af5001046f5dd5d15026c9bedee820b23"><td class="mdescLeft">&#160;</td><td class="mdescRight">Encode with bounded local stack workspace and a typed Format.  <br /></td></tr>
+<tr class="separator:af5001046f5dd5d15026c9bedee820b23"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a51d8a6cb7bd71be2191e4a03635ad0f4" id="r_a51d8a6cb7bd71be2191e4a03635ad0f4"><td class="memTemplParams" colspan="2">template&lt;typename Output , typename Callback &gt; </td></tr>
+<tr class="memitem:a51d8a6cb7bd71be2191e4a03635ad0f4"><td class="memTemplItemLeft" align="right" valign="top"><a class="el" href="classtlv_1_1expected.html">expected</a>&lt; size_t, <a class="el" href="structtlv_1_1writer__failure.html">writer_failure</a> &gt;&#160;</td><td class="memTemplItemRight" valign="bottom"><a class="el" href="namespacetlv.html#a51d8a6cb7bd71be2191e4a03635ad0f4">encoded_size</a> (Output &amp;&amp;staging, <a class="el" href="classtlv_1_1format.html">tlv::format</a> <a class="el" href="classtlv_1_1format.html">format</a>, <a class="el" href="structtlv_1_1writer__workspace.html">writer_workspace</a> workspace, Callback &amp;&amp;callback, <a class="el" href="namespacetlv.html#a1df134eb9e2b476155eb324618396e4d">writer_diagnostic</a> *<a class="el" href="namespacetlv.html#a00ca9c69c35ef11f6a22b7eda1b115ba">diagnostic</a>=nullptr)</td></tr>
+<tr class="memdesc:a51d8a6cb7bd71be2191e4a03635ad0f4"><td class="mdescLeft">&#160;</td><td class="mdescRight">Measure exact sequence size by staging its encoding once in caller storage.  <br /></td></tr>
+<tr class="separator:a51d8a6cb7bd71be2191e4a03635ad0f4"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:acd44cc62724514d6c412d4475adc4d64" id="r_acd44cc62724514d6c412d4475adc4d64"><td class="memTemplParams" colspan="2">template&lt;typename F , typename Output , typename Callback &gt; </td></tr>
+<tr class="memitem:acd44cc62724514d6c412d4475adc4d64"><td class="memTemplItemLeft" align="right" valign="top"><a class="el" href="classtlv_1_1expected.html">expected</a>&lt; size_t, <a class="el" href="structtlv_1_1writer__failure.html">writer_failure</a> &gt;&#160;</td><td class="memTemplItemRight" valign="bottom"><a class="el" href="namespacetlv.html#acd44cc62724514d6c412d4475adc4d64">encoded_size</a> (Output &amp;&amp;staging, <a class="el" href="structtlv_1_1writer__workspace.html">writer_workspace</a> workspace, Callback &amp;&amp;callback, F <a class="el" href="classtlv_1_1format.html">format</a>=F{}, <a class="el" href="namespacetlv.html#a1df134eb9e2b476155eb324618396e4d">writer_diagnostic</a> *<a class="el" href="namespacetlv.html#a00ca9c69c35ef11f6a22b7eda1b115ba">diagnostic</a>=nullptr)</td></tr>
+<tr class="memdesc:acd44cc62724514d6c412d4475adc4d64"><td class="mdescLeft">&#160;</td><td class="mdescRight">Stage exact measurement with a typed Format and explicit workspace.  <br /></td></tr>
+<tr class="separator:acd44cc62724514d6c412d4475adc4d64"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:a150f8d840867424d28c13be43c89232c" id="r_a150f8d840867424d28c13be43c89232c"><td class="memTemplParams" colspan="2">template&lt;typename Source &gt; </td></tr>
 <tr class="memitem:a150f8d840867424d28c13be43c89232c"><td class="memTemplItemLeft" align="right" valign="top"><a class="el" href="classtlv_1_1expected.html">expected</a>&lt; size_t, <a class="el" href="structtlv_1_1error.html">error</a> &gt;&#160;</td><td class="memTemplItemRight" valign="bottom"><a class="el" href="namespacetlv.html#a150f8d840867424d28c13be43c89232c">measure_tree</a> (const <a class="elRef" href="../../c-api/html/group__formats.html#gac461da7e8d46362fa8e09694efb0b062">tlv_format_t</a> &amp;<a class="el" href="classtlv_1_1format.html">format</a>, Source &amp;&amp;next, <a class="el" href="namespacetlv.html#a57b8cb8121f7e7c4f797dee062d94717">tree_writer_workspace</a> &amp;workspace, size_t max_depth=<a class="elRef" href="../../c-api/html/defaults_8h.html#aba01db17f4a2bfbc3db60dc172972a25ad3b9801dae9cea1796aee28b0cdbfce2">TLV_TREE_DEFAULT_DEPTH</a>, size_t max_elements=SIZE_MAX, <a class="el" href="namespacetlv.html#a1df134eb9e2b476155eb324618396e4d">writer_diagnostic</a> *<a class="el" href="namespacetlv.html#a00ca9c69c35ef11f6a22b7eda1b115ba">diagnostic</a>=nullptr)</td></tr>
 <tr class="memdesc:a150f8d840867424d28c13be43c89232c"><td class="mdescLeft">&#160;</td><td class="mdescRight">Measure and stage semantic preorder records using the canonical C engine.  <br /></td></tr>
@@ -1141,7 +1173,7 @@ template&lt;typename T &gt; </div>
 </div>
 </div>
 <a id="ac0364509c04c5e018087c991be37ffa6" name="ac0364509c04c5e018087c991be37ffa6"></a>
-<h2 class="memtitle"><span class="permalink"><a href="#ac0364509c04c5e018087c991be37ffa6">&#9670;&#160;</a></span>encode() <span class="overload">[1/2]</span></h2>
+<h2 class="memtitle"><span class="permalink"><a href="#ac0364509c04c5e018087c991be37ffa6">&#9670;&#160;</a></span>encode() <span class="overload">[1/5]</span></h2>
 
 <div class="memitem">
 <div class="memproto">
@@ -1200,8 +1232,199 @@ template&lt;typename T &gt; </div>
 
 </div>
 </div>
+<a id="af5001046f5dd5d15026c9bedee820b23" name="af5001046f5dd5d15026c9bedee820b23"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#af5001046f5dd5d15026c9bedee820b23">&#9670;&#160;</a></span>encode() <span class="overload">[2/5]</span></h2>
+
+<div class="memitem">
+<div class="memproto">
+<div class="memtemplate">
+template&lt;typename F , size_t ScratchCapacity = 1024, size_t Depth = TLV_TREE_DEFAULT_DEPTH, typename Output , typename Callback &gt; </div>
+      <table class="memname">
+        <tr>
+          <td class="memname"><a class="el" href="classtlv_1_1expected.html">expected</a>&lt; size_t, <a class="el" href="structtlv_1_1writer__failure.html">writer_failure</a> &gt; tlv::encode </td>
+          <td>(</td>
+          <td class="paramtype">Output &amp;&amp;&#160;</td>
+          <td class="paramname"><em>output</em>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype">Callback &amp;&amp;&#160;</td>
+          <td class="paramname"><em>callback</em>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype">F&#160;</td>
+          <td class="paramname"><em>format</em> = <code>F{}</code>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype"><a class="el" href="namespacetlv.html#a1df134eb9e2b476155eb324618396e4d">writer_diagnostic</a> *&#160;</td>
+          <td class="paramname"><em>diagnostic</em> = <code>nullptr</code>&#160;</td>
+        </tr>
+        <tr>
+          <td></td>
+          <td>)</td>
+          <td></td><td></td>
+        </tr>
+      </table>
+</div><div class="memdoc">
+
+<p>Encode with bounded local stack workspace and a typed Format. </p>
+<dl class="tparams"><dt>Template Parameters</dt><dd>
+  <table class="tparams">
+    <tr><td class="paramname">F</td><td>Writable Format. </td></tr>
+    <tr><td class="paramname">ScratchCapacity</td><td>Local scratch bytes, default 1024; never grows automatically. </td></tr>
+    <tr><td class="paramname">Depth</td><td>Local frame count and maximum item depth, default TLV_TREE_DEFAULT_DEPTH. </td></tr>
+  </table>
+  </dd>
+</dl>
+<dl class="params"><dt>Parameters</dt><dd>
+  <table class="params">
+    <tr><td class="paramname">output</td><td>Caller-owned output span, array or contiguous byte container. </td></tr>
+    <tr><td class="paramname">callback</td><td>Scoped construction, invoked once after successful initialization. </td></tr>
+    <tr><td class="paramname">format</td><td>Immutable Format configuration owned for the call. </td></tr>
+    <tr><td class="paramname">diagnostic</td><td>Optional C failure detail. </td></tr>
+  </table>
+  </dd>
+</dl>
+<dl class="section return"><dt>Returns</dt><dd>Exact size or first error, including insufficient scratch or frames. </dd></dl>
+
+</div>
+</div>
+<a id="aa194a00a84ec5a13a35ad952a4fb9c88" name="aa194a00a84ec5a13a35ad952a4fb9c88"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#aa194a00a84ec5a13a35ad952a4fb9c88">&#9670;&#160;</a></span>encode() <span class="overload">[3/5]</span></h2>
+
+<div class="memitem">
+<div class="memproto">
+<div class="memtemplate">
+template&lt;typename Output , typename Callback &gt; </div>
+      <table class="memname">
+        <tr>
+          <td class="memname"><a class="el" href="classtlv_1_1expected.html">expected</a>&lt; size_t, <a class="el" href="structtlv_1_1writer__failure.html">writer_failure</a> &gt; tlv::encode </td>
+          <td>(</td>
+          <td class="paramtype">Output &amp;&amp;&#160;</td>
+          <td class="paramname"><em>output</em>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype"><a class="el" href="classtlv_1_1format.html">tlv::format</a>&#160;</td>
+          <td class="paramname"><em>format</em>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype"><a class="el" href="structtlv_1_1writer__workspace.html">writer_workspace</a>&#160;</td>
+          <td class="paramname"><em>workspace</em>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype">Callback &amp;&amp;&#160;</td>
+          <td class="paramname"><em>callback</em>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype"><a class="el" href="namespacetlv.html#a1df134eb9e2b476155eb324618396e4d">writer_diagnostic</a> *&#160;</td>
+          <td class="paramname"><em>diagnostic</em> = <code>nullptr</code>&#160;</td>
+        </tr>
+        <tr>
+          <td></td>
+          <td>)</td>
+          <td></td><td></td>
+        </tr>
+      </table>
+</div><div class="memdoc">
+
+<p>Encode a sequence once through the canonical C Tree Writer. </p>
+<dl class="params"><dt>Parameters</dt><dd>
+  <table class="params">
+    <tr><td class="paramname">output</td><td>Mutable byte span, byte array, or contiguous byte container; borrowed, never resized. </td></tr>
+    <tr><td class="paramname">format</td><td>Borrowed immutable runtime Format and context. </td></tr>
+    <tr><td class="paramname">workspace</td><td>Caller-owned disjoint frames and scratch. </td></tr>
+    <tr><td class="paramname">callback</td><td>Callable accepting <a class="el" href="classtlv_1_1writer__builder.html" title="Sequential typed builder retaining the first error without allocation.">writer_builder</a>&amp; and returning void, invoked once after successful initialization. Exceptions propagate; no callback is replayed. </td></tr>
+    <tr><td class="paramname">diagnostic</td><td>Optional borrowed C failure detail; Tag lifetimes must cover inspection. </td></tr>
+  </table>
+  </dd>
+</dl>
+<dl class="section return"><dt>Returns</dt><dd>Exact written size or first failure, without allocating even on errors. </dd></dl>
+<dl class="section warning"><dt>Warning</dt><dd>Failed output can contain completed roots and provisional bytes; no whole-output rollback. </dd></dl>
+
+</div>
+</div>
+<a id="a85dd98e9db475f473e1573192329e2dc" name="a85dd98e9db475f473e1573192329e2dc"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#a85dd98e9db475f473e1573192329e2dc">&#9670;&#160;</a></span>encode() <span class="overload">[4/5]</span></h2>
+
+<div class="memitem">
+<div class="memproto">
+<div class="memtemplate">
+template&lt;typename F , typename Output , typename Callback &gt; </div>
+      <table class="memname">
+        <tr>
+          <td class="memname"><a class="el" href="classtlv_1_1expected.html">expected</a>&lt; size_t, <a class="el" href="structtlv_1_1writer__failure.html">writer_failure</a> &gt; tlv::encode </td>
+          <td>(</td>
+          <td class="paramtype">Output &amp;&amp;&#160;</td>
+          <td class="paramname"><em>output</em>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype"><a class="el" href="structtlv_1_1writer__workspace.html">writer_workspace</a>&#160;</td>
+          <td class="paramname"><em>workspace</em>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype">Callback &amp;&amp;&#160;</td>
+          <td class="paramname"><em>callback</em>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype">F&#160;</td>
+          <td class="paramname"><em>format</em> = <code>F{}</code>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype"><a class="el" href="namespacetlv.html#a1df134eb9e2b476155eb324618396e4d">writer_diagnostic</a> *&#160;</td>
+          <td class="paramname"><em>diagnostic</em> = <code>nullptr</code>&#160;</td>
+        </tr>
+        <tr>
+          <td></td>
+          <td>)</td>
+          <td></td><td></td>
+        </tr>
+      </table>
+</div><div class="memdoc">
+
+<p>Encode with a typed Format and explicit caller-owned workspace. </p>
+<dl class="tparams"><dt>Template Parameters</dt><dd>
+  <table class="tparams">
+    <tr><td class="paramname">F</td><td>Writable Format adapted for this operation; its configuration stays stationary. </td></tr>
+  </table>
+  </dd>
+</dl>
+<dl class="params"><dt>Parameters</dt><dd>
+  <table class="params">
+    <tr><td class="paramname">output</td><td>Borrowed mutable byte storage, never resized. </td></tr>
+    <tr><td class="paramname">workspace</td><td>Disjoint caller-owned frames and scratch. </td></tr>
+    <tr><td class="paramname">callback</td><td>Scoped writes; follows the runtime <a class="el" href="namespacetlv.html#ac0364509c04c5e018087c991be37ffa6" title="Encode current semantic content, regenerating framing.">encode()</a> callback contract. </td></tr>
+    <tr><td class="paramname">format</td><td>Immutable Format configuration, owned for the operation. </td></tr>
+    <tr><td class="paramname">diagnostic</td><td>Optional C operation failure detail. </td></tr>
+  </table>
+  </dd>
+</dl>
+<dl class="section return"><dt>Returns</dt><dd>Exact byte count or allocation-free first failure. </dd></dl>
+
+</div>
+</div>
 <a id="a132c6264760d0d8b4c6f8bc31350f4e3" name="a132c6264760d0d8b4c6f8bc31350f4e3"></a>
-<h2 class="memtitle"><span class="permalink"><a href="#a132c6264760d0d8b4c6f8bc31350f4e3">&#9670;&#160;</a></span>encode() <span class="overload">[2/2]</span></h2>
+<h2 class="memtitle"><span class="permalink"><a href="#a132c6264760d0d8b4c6f8bc31350f4e3">&#9670;&#160;</a></span>encode() <span class="overload">[5/5]</span></h2>
 
 <div class="memitem">
 <div class="memproto">
@@ -1323,7 +1546,7 @@ template&lt;typename T &gt; </div>
 </div>
 </div>
 <a id="a62041dc288b310585f0b6f7e73ae2030" name="a62041dc288b310585f0b6f7e73ae2030"></a>
-<h2 class="memtitle"><span class="permalink"><a href="#a62041dc288b310585f0b6f7e73ae2030">&#9670;&#160;</a></span>encoded_size() <span class="overload">[1/4]</span></h2>
+<h2 class="memtitle"><span class="permalink"><a href="#a62041dc288b310585f0b6f7e73ae2030">&#9670;&#160;</a></span>encoded_size() <span class="overload">[1/6]</span></h2>
 
 <div class="memitem">
 <div class="memproto">
@@ -1376,7 +1599,7 @@ template&lt;typename T &gt; </div>
 </div>
 </div>
 <a id="ab155ce7066af5f5848d1d4f8a1a14e55" name="ab155ce7066af5f5848d1d4f8a1a14e55"></a>
-<h2 class="memtitle"><span class="permalink"><a href="#ab155ce7066af5f5848d1d4f8a1a14e55">&#9670;&#160;</a></span>encoded_size() <span class="overload">[2/4]</span></h2>
+<h2 class="memtitle"><span class="permalink"><a href="#ab155ce7066af5f5848d1d4f8a1a14e55">&#9670;&#160;</a></span>encoded_size() <span class="overload">[2/6]</span></h2>
 
 <div class="memitem">
 <div class="memproto">
@@ -1428,8 +1651,136 @@ template&lt;typename T &gt; </div>
 
 </div>
 </div>
+<a id="a51d8a6cb7bd71be2191e4a03635ad0f4" name="a51d8a6cb7bd71be2191e4a03635ad0f4"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#a51d8a6cb7bd71be2191e4a03635ad0f4">&#9670;&#160;</a></span>encoded_size() <span class="overload">[3/6]</span></h2>
+
+<div class="memitem">
+<div class="memproto">
+<div class="memtemplate">
+template&lt;typename Output , typename Callback &gt; </div>
+      <table class="memname">
+        <tr>
+          <td class="memname"><a class="el" href="classtlv_1_1expected.html">expected</a>&lt; size_t, <a class="el" href="structtlv_1_1writer__failure.html">writer_failure</a> &gt; tlv::encoded_size </td>
+          <td>(</td>
+          <td class="paramtype">Output &amp;&amp;&#160;</td>
+          <td class="paramname"><em>staging</em>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype"><a class="el" href="classtlv_1_1format.html">tlv::format</a>&#160;</td>
+          <td class="paramname"><em>format</em>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype"><a class="el" href="structtlv_1_1writer__workspace.html">writer_workspace</a>&#160;</td>
+          <td class="paramname"><em>workspace</em>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype">Callback &amp;&amp;&#160;</td>
+          <td class="paramname"><em>callback</em>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype"><a class="el" href="namespacetlv.html#a1df134eb9e2b476155eb324618396e4d">writer_diagnostic</a> *&#160;</td>
+          <td class="paramname"><em>diagnostic</em> = <code>nullptr</code>&#160;</td>
+        </tr>
+        <tr>
+          <td></td>
+          <td>)</td>
+          <td></td><td></td>
+        </tr>
+      </table>
+</div><div class="memdoc">
+
+<p>Measure exact sequence size by staging its encoding once in caller storage. </p>
+<dl class="params"><dt>Parameters</dt><dd>
+  <table class="params">
+    <tr><td class="paramname">staging</td><td>Mutable byte span, array or container holding the full encoding on success. </td></tr>
+    <tr><td class="paramname">format</td><td>Borrowed immutable Format and context. </td></tr>
+    <tr><td class="paramname">workspace</td><td>Disjoint frames and scratch, as for <a class="el" href="namespacetlv.html#ac0364509c04c5e018087c991be37ffa6" title="Encode current semantic content, regenerating framing.">encode()</a>. </td></tr>
+    <tr><td class="paramname">callback</td><td>Scoped writes, executed once. Content-dependent Formats see encoded children. </td></tr>
+    <tr><td class="paramname">diagnostic</td><td>Optional C failure detail. </td></tr>
+  </table>
+  </dd>
+</dl>
+<dl class="section return"><dt>Returns</dt><dd>Exact encoded byte count or first error. Successful staged bytes can be reused directly; no second callback execution is needed. Failed storage is not a size query and provides no prediction of the complete required capacity. </dd></dl>
+
+</div>
+</div>
+<a id="acd44cc62724514d6c412d4475adc4d64" name="acd44cc62724514d6c412d4475adc4d64"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#acd44cc62724514d6c412d4475adc4d64">&#9670;&#160;</a></span>encoded_size() <span class="overload">[4/6]</span></h2>
+
+<div class="memitem">
+<div class="memproto">
+<div class="memtemplate">
+template&lt;typename F , typename Output , typename Callback &gt; </div>
+      <table class="memname">
+        <tr>
+          <td class="memname"><a class="el" href="classtlv_1_1expected.html">expected</a>&lt; size_t, <a class="el" href="structtlv_1_1writer__failure.html">writer_failure</a> &gt; tlv::encoded_size </td>
+          <td>(</td>
+          <td class="paramtype">Output &amp;&amp;&#160;</td>
+          <td class="paramname"><em>staging</em>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype"><a class="el" href="structtlv_1_1writer__workspace.html">writer_workspace</a>&#160;</td>
+          <td class="paramname"><em>workspace</em>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype">Callback &amp;&amp;&#160;</td>
+          <td class="paramname"><em>callback</em>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype">F&#160;</td>
+          <td class="paramname"><em>format</em> = <code>F{}</code>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype"><a class="el" href="namespacetlv.html#a1df134eb9e2b476155eb324618396e4d">writer_diagnostic</a> *&#160;</td>
+          <td class="paramname"><em>diagnostic</em> = <code>nullptr</code>&#160;</td>
+        </tr>
+        <tr>
+          <td></td>
+          <td>)</td>
+          <td></td><td></td>
+        </tr>
+      </table>
+</div><div class="memdoc">
+
+<p>Stage exact measurement with a typed Format and explicit workspace. </p>
+<dl class="tparams"><dt>Template Parameters</dt><dd>
+  <table class="tparams">
+    <tr><td class="paramname">F</td><td>Writable Format, owned and adapted for the call. </td></tr>
+  </table>
+  </dd>
+</dl>
+<dl class="params"><dt>Parameters</dt><dd>
+  <table class="params">
+    <tr><td class="paramname">staging</td><td>Caller-owned full encoding storage; reusable on success. </td></tr>
+    <tr><td class="paramname">workspace</td><td>Disjoint frames and scratch. </td></tr>
+    <tr><td class="paramname">callback</td><td>Scoped writes executed once; follows <a class="el" href="namespacetlv.html#a51d8a6cb7bd71be2191e4a03635ad0f4" title="Measure exact sequence size by staging its encoding once in caller storage.">encoded_size()</a> staging semantics. </td></tr>
+    <tr><td class="paramname">format</td><td>Immutable Format configuration. </td></tr>
+    <tr><td class="paramname">diagnostic</td><td>Optional C failure detail. </td></tr>
+  </table>
+  </dd>
+</dl>
+<dl class="section return"><dt>Returns</dt><dd>Exact encoded size or allocation-free first failure. </dd></dl>
+
+</div>
+</div>
 <a id="a8c0dc84d4f980d60ffd40539678d5823" name="a8c0dc84d4f980d60ffd40539678d5823"></a>
-<h2 class="memtitle"><span class="permalink"><a href="#a8c0dc84d4f980d60ffd40539678d5823">&#9670;&#160;</a></span>encoded_size() <span class="overload">[3/4]</span></h2>
+<h2 class="memtitle"><span class="permalink"><a href="#a8c0dc84d4f980d60ffd40539678d5823">&#9670;&#160;</a></span>encoded_size() <span class="overload">[5/6]</span></h2>
 
 <div class="memitem">
 <div class="memproto">
@@ -1482,7 +1833,7 @@ template&lt;typename T &gt; </div>
 </div>
 </div>
 <a id="a74326193b034e848868a08d58a14d933" name="a74326193b034e848868a08d58a14d933"></a>
-<h2 class="memtitle"><span class="permalink"><a href="#a74326193b034e848868a08d58a14d933">&#9670;&#160;</a></span>encoded_size() <span class="overload">[4/4]</span></h2>
+<h2 class="memtitle"><span class="permalink"><a href="#a74326193b034e848868a08d58a14d933">&#9670;&#160;</a></span>encoded_size() <span class="overload">[6/6]</span></h2>
 
 <div class="memitem">
 <div class="memproto">
@@ -3242,7 +3593,7 @@ template&lt;typename T , typename F &gt; </div>
   </table>
   </dd>
 </dl>
-<dl class="section return"><dt>Returns</dt><dd>Success, or the error of <a class="el" href="classtlv_1_1detail_1_1writer__base.html#a3332983a556b3981af4463b5638265c7" title="Writes one element with the given tag and raw value bytes.">writer::write()</a>.</dd></dl>
+<dl class="section return"><dt>Returns</dt><dd>Success, or the error of <a class="el" href="classtlv_1_1detail_1_1writer__base.html#aa271a57faa4fe9242ca52e192f378a26" title="Borrow a byte sequence or text and write it under a semantic Tag.">writer::write()</a>.</dd></dl>
 <dl class="section note"><dt>Note</dt><dd>The temporary vector may allocate. </dd></dl>
 
 </div>
