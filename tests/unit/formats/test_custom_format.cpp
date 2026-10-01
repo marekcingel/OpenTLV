@@ -263,14 +263,13 @@ TEST(Unit_Tlvpp_CustomFormat, BuiltinFormatUsesTheSameTypedReaderWriter) {
 TEST(Unit_Tlvpp_CustomFormat, LogicalSizeOnlyMeasurementDoesNotNarrow) {
     tlv::format_adapter<logical_format> format;
     const tlv_size_t                    logical = UINT64_C(4294967296);
-    auto                                measured = tlv::measure(
-        format.view(), tlv::measure_request{tlv::tag_bytes<1>(), logical, tlv::bytes(nullptr, 0)});
+    auto measured = tlv::measure(format.view(),
+                                 tlv::measure_request{tlv::tag_bytes<1>(), logical, tlv::bytes{}});
     ASSERT_TRUE(measured);
     EXPECT_EQ(logical, measured->value);
     EXPECT_EQ(logical + 3, measured->total);
-    auto overflow =
-        tlv::measure(format.view(), tlv::measure_request{tlv::tag_bytes<1>(), TLV_SIZE_MAX,
-                                                         tlv::bytes(nullptr, 0)});
+    auto overflow = tlv::measure(
+        format.view(), tlv::measure_request{tlv::tag_bytes<1>(), TLV_SIZE_MAX, tlv::bytes{}});
     ASSERT_FALSE(overflow);
     EXPECT_EQ(TLV_ERR_OVERFLOW, overflow.error().code);
     const unsigned char content[] = {0};
@@ -321,7 +320,7 @@ TEST(Unit_Tlvpp_CustomFormat, ContentDependentMeasurementReceivesReadableValue) 
     ASSERT_TRUE(measured);
     EXPECT_EQ(sizeof(wire), measured->total);
     auto unavailable =
-        tlv::measure(format.view(), tlv::measure_request{item->tag(), 1, tlv::bytes(nullptr, 0)});
+        tlv::measure(format.view(), tlv::measure_request{item->tag(), 1, tlv::bytes{}});
     ASSERT_FALSE(unavailable);
     EXPECT_EQ(TLV_ERR_NULL_ARG, unavailable.error().code);
     tlv::byte                   out[4]{};

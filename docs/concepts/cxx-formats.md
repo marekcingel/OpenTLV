@@ -97,7 +97,7 @@ must reject a request lacking the bytes they need.
 
 ```cpp
 auto sizes = tlv::measure(format.view(), tlv::measure_request{
-    tlv::tag_bytes<0x01>(), UINT64_C(4294967296), tlv::bytes(nullptr, 0)});
+    tlv::tag_bytes<0x01>(), UINT64_C(4294967296), tlv::bytes{}});
 ```
 
 Failures use allocation-free `format_failure`, containing the original result

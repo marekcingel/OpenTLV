@@ -9,6 +9,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Fixed
 
+- Fix CI compilation of custom Format tests in C++20 and newer by constructing empty byte spans without an untyped null pointer. (#432)
 - Safely clean up Lua traversal resources when callback argument allocation fails; validate traversal limits and honor them for DER. (#300)
 - Preserve Lua module search paths in CTest so registered binding tests and examples can load `opentlv`. (#299)
 - Replace the C++ Document Builder raw-root overload with `current_subtree(reader)`, rejecting invalidated selections and preventing caller-fabricated roots. (#401, #412)
