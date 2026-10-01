@@ -201,7 +201,7 @@ auto parsed = tlv::document::parse(buffer, format);
 if (!parsed) { /* parsed.error().code */ }
 tlv::document document = std::move(*parsed);
 
-tlv::node entry = document.find(TLV_TAG(0x50));
+tlv::node entry = document.find(tlv::tag_bytes<0x50>());
 if (entry) (void)entry.set(new_value);
 
 (void)document.insert(new_tag, new_value);

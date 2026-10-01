@@ -22,9 +22,10 @@
  * @section ownership Ownership and lifetime
  * tlv::reader and tlv::writer hold their C state by value and borrow buffers
  * and format contexts. Destroying a wrapper does not release that storage.
- * tlv::element aliases the canonical C tlv_element_t; keep the source bytes alive.
- * Its value uses raw `data` and logical `size` fields. Use tlv::as_bytes()
- * to obtain a checked tlv::bytes span for C++ codecs and range operations.
+ * tlv::tag, tlv::value_view and tlv::element_view borrow immutable byte storage.
+ * Copies never allocate, copy bytes or extend lifetimes. Use element.tag() and
+ * element.value(); value.as_bytes() returns a validated native byte span.
+ * Include tlv++/native.hpp for checked C imports and explicit descriptor exports.
  * tlv::expected destroys its held value or error through RAII, and tlv::any
  * owns its type-erased value. Error messages, the registry and convenience
  * encoding can allocate; the C core's allocation-free guarantee does not

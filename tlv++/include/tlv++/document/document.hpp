@@ -50,8 +50,8 @@ public:
     }
 
     /** @brief The element's tag, borrowing the document; empty for an empty handle. */
-    tag_t tag() const {
-        return tlv_node_tag(node_);
+    tlv::tag tag() const {
+        return detail::semantic_access::borrow(tlv_node_tag(node_));
     }
 
     /** @brief Reports whether the element's value holds nested elements. */
@@ -65,9 +65,9 @@ public:
      * Empty for an empty value and for a constructed element; read a constructed element through
      * its children instead.
      */
-    bytes value() const {
-        return bytes(reinterpret_cast<const byte*>(tlv_node_value_data(node_)),
-                     tlv_node_value_size(node_));
+    value_view value() const {
+        return value_view(bytes(reinterpret_cast<const byte*>(tlv_node_value_data(node_)),
+                                tlv_node_value_size(node_)));
     }
 
     /** @brief The first child of a constructed element, or an empty handle. */
@@ -97,8 +97,8 @@ public:
      *
      * @return The child, or an empty handle.
      */
-    node find(tag_t wanted) const {
-        return node(tlv_document_find(nullptr, node_, wanted));
+    node find(tlv::tag wanted) const {
+        return node(tlv_document_find(nullptr, node_, detail::semantic_access::get(wanted)));
     }
 
     /**
@@ -406,8 +406,9 @@ public:
      *
      * @return The element, or an empty handle.
      */
-    node find(tag_t wanted) const {
-        return node(tlv_document_find(impl_->handle.get(), nullptr, wanted));
+    node find(tlv::tag wanted) const {
+        return node(
+            tlv_document_find(impl_->handle.get(), nullptr, detail::semantic_access::get(wanted)));
     }
 
     /**
@@ -437,12 +438,13 @@ public:
      *
      * @return The new element, or the error of tlv_document_insert(). On error nothing changed.
      */
-    TLV_NODISCARD expected<node, error> insert(tag_t wanted, bytes value, node parent = node(),
+    TLV_NODISCARD expected<node, error> insert(tlv::tag wanted, bytes value, node parent = node(),
                                                node before = node()) {
         tlv_node_t*  created = nullptr;
-        tlv_result_t rc = tlv_document_insert(
-            impl_->handle.get(), parent.c_node(), before.c_node(), wanted,
-            reinterpret_cast<const uint8_t*>(value.data()), value.size(), &created);
+        tlv_result_t rc = tlv_document_insert(impl_->handle.get(), parent.c_node(), before.c_node(),
+                                              detail::semantic_access::get(wanted),
+                                              reinterpret_cast<const uint8_t*>(value.data()),
+                                              value.size(), &created);
         if (rc != TLV_OK) return unexpected<error>(error::from_c(rc));
         return node(created);
     }
@@ -454,7 +456,7 @@ public:
      *
      * @return `true` if an element was removed. Handles to it and to its descendants are invalid.
      */
-    bool erase(tag_t wanted) {
+    bool erase(tlv::tag wanted) {
         node found = find(wanted);
         if (!found) return false;
         found.erase();
@@ -625,7 +627,7 @@ public:
     current_subtree(tree_reader& reader, size_t max_depth = TLV_TREE_DEFAULT_DEPTH,
                     size_t max_elements = TLV_DOCUMENT_DEFAULT_MAX_ELEMENTS) {
         if (!reader.has_current_) return unexpected<error>(error::from_c(TLV_ERR_INVALID_ARG));
-        const tree_item root = reader.current_;
+        const tlv_tree_item_t root = reader.current_;
         return create_impl(reader, &root, max_depth, max_elements);
     }
 
@@ -648,7 +650,8 @@ public:
     }
 
 private:
-    static expected<document_builder, error> create_impl(tree_reader& reader, const tree_item* root,
+    static expected<document_builder, error> create_impl(tree_reader&           reader,
+                                                         const tlv_tree_item_t* root,
                                                          size_t max_depth, size_t max_elements) {
         reader.has_current_ = false;
         if (reader.init_result_ != TLV_OK)

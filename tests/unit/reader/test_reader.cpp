@@ -22,7 +22,7 @@ TEST(Unit_Tlvpp_ReaderParity, SingleElementSourceAndFailurePreservation) {
     auto          result = tlv::read(view(data, sizeof(data)), format, consumed);
     ASSERT_TRUE(result);
     EXPECT_EQ(3u, consumed);
-    EXPECT_EQ(data + 2, result->element.value.data);
+    EXPECT_EQ(reinterpret_cast<const tlv::byte*>(data + 2), result->element.value().data());
     EXPECT_EQ(data, result->source.data);
     tlv::reader_diagnostic diagnostic{};
     auto                   failure = tlv::read(view(data, 2), format, consumed, &diagnostic);
@@ -78,24 +78,24 @@ TEST(Unit_Tlvpp_TreeReaderParity, ValidationReportsMalformedChildWithoutRequesti
 
 TEST(Unit_Tlvpp_QueryParity, MatcherOwnsQueryAfterTemporaryExpires) {
     tlv::query_matcher matcher(*tlv::query::parse("80/01"));
-    EXPECT_FALSE(matcher.matches(TLV_TAG(0x80), 0));
-    EXPECT_TRUE(matcher.matches(TLV_TAG(1), 1));
-    EXPECT_FALSE(matcher.matches(TLV_TAG(1), 0));
+    EXPECT_FALSE(matcher.matches(tlv::tag_bytes<0x80>(), 0));
+    EXPECT_TRUE(matcher.matches(tlv::tag_bytes<1>(), 1));
+    EXPECT_FALSE(matcher.matches(tlv::tag_bytes<1>(), 0));
 }
 
 TEST(Unit_Tlvpp_ReaderParity, VisitorStopThenResumeWithoutReplay) {
     const uint8_t data[] = {1, 0, 2, 0};
     tlv::reader   reader(view(data, sizeof(data)), format, tlv::input_mode::incremental);
     size_t        count = 0;
-    const auto    stop = [&](const tlv::element& value) {
+    const auto    stop = [&](const tlv::element_view& value) {
         ++count;
-        EXPECT_EQ(1u, value.tag.data[0]);
+        EXPECT_EQ(1u, static_cast<int>(value.tag().data()[0]));
         return TLV_VISIT_STOP;
     };
     ASSERT_TRUE(reader.visit(stop));
-    auto status = reader.visit([&](const tlv::element& value) {
+    auto status = reader.visit([&](const tlv::element_view& value) {
         ++count;
-        EXPECT_EQ(2u, value.tag.data[0]);
+        EXPECT_EQ(2u, static_cast<int>(value.tag().data()[0]));
         return TLV_VISIT_CONTINUE;
     });
     ASSERT_FALSE(status);
@@ -121,8 +121,9 @@ TEST(Unit_Tlvpp_TreeReaderParity, EveryItemMatchesCanonicalCursor) {
         EXPECT_EQ(expected.offset, item->offset);
         EXPECT_EQ(expected.depth, item->depth);
         EXPECT_EQ(expected.constructed, item->constructed);
-        EXPECT_EQ(expected.element.value.data, item->element.value.data);
-        EXPECT_EQ(expected.element.value.size, item->element.value.size);
+        EXPECT_EQ(reinterpret_cast<const tlv::byte*>(expected.element.value.data),
+                  item->element.value().data());
+        EXPECT_EQ(expected.element.value.size, item->element.value().size());
         EXPECT_EQ(expected.source.data, item->source.data);
         EXPECT_EQ(expected.source.value.offset, item->source.value.offset);
     }
@@ -156,15 +157,15 @@ TEST(Unit_Tlvpp_TreeReaderParity, CompleteParentRequiredAndVisitorResumesAfterSk
     EXPECT_EQ(TLV_NEED_MORE_DATA, incomplete.error().code);
     EXPECT_EQ(0u, reader.offset());
     ASSERT_TRUE(reader.set_input(view(data, 4), 0, tlv::input_mode::incremental));
-    const auto stop = [](const tlv::element&, size_t, size_t) { return TLV_VISIT_STOP; };
+    const auto stop = [](const tlv::element_view&, size_t, size_t) { return TLV_VISIT_STOP; };
     ASSERT_TRUE(reader.visit(stop));
     ASSERT_TRUE(reader.skip_subtree());
     EXPECT_EQ(4u, reader.consumed());
     ASSERT_TRUE(reader.set_input(view(data + 4, 2), 4, tlv::input_mode::final));
     size_t count = 0;
-    ASSERT_TRUE(reader.visit([&](const tlv::element& value, size_t depth, size_t offset) {
+    ASSERT_TRUE(reader.visit([&](const tlv::element_view& value, size_t depth, size_t offset) {
         ++count;
-        EXPECT_EQ(2u, value.tag.data[0]);
+        EXPECT_EQ(2u, static_cast<int>(value.tag().data()[0]));
         EXPECT_EQ(0u, depth);
         EXPECT_EQ(4u, offset);
         return TLV_VISIT_CONTINUE;
@@ -177,20 +178,20 @@ TEST(Unit_Tlvpp_QueryParity, MatchStateSurvivesStopAndInputReplacement) {
     const uint8_t data[] = {0x80, 4, 1, 0, 1, 0, 0x80, 2, 1, 0};
     auto          query = tlv::query::parse("80/01");
     ASSERT_TRUE(query);
-    EXPECT_EQ(0x80, query->step(0).data[0]);
-    EXPECT_EQ(0u, query->step(2).size);
+    EXPECT_EQ(tlv::byte{0x80}, query->step(0).data()[0]);
+    EXPECT_EQ(0u, query->step(2).size());
     tlv::query_matcher matcher(*query);
     tlv::tree_frame    frames[1]{};
     tlv::tree_reader reader(view(data, 6), format, {frames, 1}, 1, 5, tlv::input_mode::incremental);
     size_t           count = 0;
-    const auto       stop = [&](const tlv::element&, size_t depth, size_t offset) {
+    const auto       stop = [&](const tlv::element_view&, size_t depth, size_t offset) {
         ++count;
         EXPECT_EQ(1u, depth);
         EXPECT_EQ(2u, offset);
         return TLV_VISIT_STOP;
     };
     ASSERT_TRUE(matcher.visit(reader, stop));
-    auto status = matcher.visit(reader, [&](const tlv::element&, size_t, size_t offset) {
+    auto status = matcher.visit(reader, [&](const tlv::element_view&, size_t, size_t offset) {
         ++count;
         EXPECT_EQ(4u, offset);
         return TLV_VISIT_CONTINUE;
@@ -198,7 +199,7 @@ TEST(Unit_Tlvpp_QueryParity, MatchStateSurvivesStopAndInputReplacement) {
     ASSERT_FALSE(status);
     EXPECT_EQ(TLV_NEED_MORE_DATA, status.error().code);
     ASSERT_TRUE(reader.set_input(view(data + 6, 4), 6, tlv::input_mode::final));
-    ASSERT_TRUE(matcher.visit(reader, [&](const tlv::element&, size_t, size_t offset) {
+    ASSERT_TRUE(matcher.visit(reader, [&](const tlv::element_view&, size_t, size_t offset) {
         ++count;
         EXPECT_EQ(8u, offset);
         return TLV_VISIT_CONTINUE;
@@ -209,13 +210,16 @@ TEST(Unit_Tlvpp_QueryParity, MatchStateSurvivesStopAndInputReplacement) {
 TEST(Unit_Tlvpp_DefinitionParity, LookupUsesCanonicalFirstMatch) {
     const uint8_t         identifier[] = {1};
     const tlv::definition entries[] = {
-        {tlv_tag(identifier, 1), "first"},
-        {tlv_tag(identifier, 1), "second"},
-        {tlv_tag(nullptr, 0), nullptr},
+        {tlv::tag(tlv::bytes(reinterpret_cast<const tlv::byte*>(identifier), 1)), "first"},
+        {tlv::tag(tlv::bytes(reinterpret_cast<const tlv::byte*>(identifier), 1)), "second"},
+        {tlv::tag(tlv::bytes(static_cast<const tlv::byte*>(nullptr), 0)), nullptr},
     };
     const tlv::definition_registry registry(tlv::span<const tlv::definition>(entries, 3));
-    EXPECT_EQ(&entries[0], registry.find(tlv_tag(identifier, 1)));
-    EXPECT_EQ(&entries[2], registry.find(tlv_tag(nullptr, 0)));
+    EXPECT_EQ(&entries[0], registry.find(tlv::tag(
+                               tlv::bytes(reinterpret_cast<const tlv::byte*>(identifier), 1))));
+    EXPECT_EQ(&entries[2],
+              registry.find(tlv::tag(tlv::bytes(static_cast<const tlv::byte*>(nullptr), 0))));
     const uint8_t unknown[] = {2};
-    EXPECT_EQ(nullptr, registry.find(tlv_tag(unknown, 1)));
+    EXPECT_EQ(nullptr,
+              registry.find(tlv::tag(tlv::bytes(reinterpret_cast<const tlv::byte*>(unknown), 1))));
 }

@@ -19,8 +19,9 @@ namespace tlv {
  * TLV.
  *
  * `T` satisfies the trait when it provides:
- * - a static member `tag` convertible to #tag_t. The tag only borrows its bytes, so they must
- *   have static storage (for example `static const tlv::tag_t tag;` defined with `TLV_TAG(...)`),
+ * - a static member `tag` convertible to #tlv::tag. The tag only borrows its bytes, so they must
+ *   have static storage (for example `static const tlv::tag tag;` defined with
+ * `tlv::tag_bytes<...>()`),
  * - `void encode(std::vector<byte>&) const` appending its encoded value, and
  * - a static `decode(bytes)` returning the decoded value.
  *
@@ -34,7 +35,7 @@ template <typename T> struct is_tlv_codec {
 private:
     template <typename U>
     static auto test(int)
-        -> decltype(static_cast<tag_t>(U::tag),
+        -> decltype(static_cast<tlv::tag>(U::tag),
                     std::declval<const U&>().encode(std::declval<std::vector<byte>&>()),
                     U::decode(std::declval<bytes>()), std::true_type());
     template <typename> static std::false_type test(...);

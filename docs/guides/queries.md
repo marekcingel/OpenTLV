@@ -104,8 +104,8 @@ if (!query) return;  // query.error().code; text_offset is the offending charact
 auto visited = query->visit_buffer(
     tlv::bytes(data, size), tlv_format_ber,
     TLV_TREE_DEFAULT_DEPTH, 100000,
-    [](const tlv::element& item, size_t depth, size_t offset) {
-        // item.value borrows the input
+    [](const tlv::element_view& item, size_t depth, size_t offset) {
+        // item.value() borrows the input
         return TLV_VISIT_CONTINUE;
     });
 ```

@@ -20,14 +20,14 @@ tlv::bytes to_bytes(const std::string& s) {
     return tlv::bytes(reinterpret_cast<const tlv::byte*>(s.data()), s.size());
 }
 
-// Owns the bytes of a tag, which tlv::tag_t only borrows. A temporary is valid
+// Owns the bytes of a tag, which tlv::tag only borrows. A temporary is valid
 // for the full expression it appears in; keep a named object for longer uses.
 struct owned_tag {
     std::array<std::uint8_t, 16> bytes{};
     std::size_t                  size = 0;
 
-    operator tlv::tag_t() const {
-        return tlv_tag(bytes.data(), size);
+    operator tlv::tag() const {
+        return tlv::tag(tlv::bytes(reinterpret_cast<const tlv::byte*>(bytes.data()), size));
     }
 };
 
@@ -49,10 +49,10 @@ template <std::size_t T, std::size_t L, tlv_byte_order_t O> void check_layout_an
     ASSERT_TRUE(w.write(make_tag(T), to_bytes(value)).has_value());
     ASSERT_EQ(w.size(), T + L + value.size());
 
-    const owned_tag  expected_owner = make_tag(T);
-    const tlv::tag_t expected_tag = expected_owner;
+    const owned_tag expected_owner = make_tag(T);
+    const tlv::tag  expected_tag = expected_owner;
     for (std::size_t i = 0; i < T; ++i) {
-        EXPECT_EQ(static_cast<std::uint8_t>(buf[i]), expected_tag.data[i]);
+        EXPECT_EQ(buf[i], expected_tag.data()[i]);
     }
     for (std::size_t i = 0; i < L; ++i) {
         const std::size_t  index = O == BE ? i : L - 1 - i;
@@ -63,11 +63,11 @@ template <std::size_t T, std::size_t L, tlv_byte_order_t O> void check_layout_an
     tlv::reader reader(tlv::bytes(buf.data(), w.size()), format::format());
     auto        element = reader.next();
     ASSERT_TRUE(element.has_value());
-    EXPECT_EQ(element->tag.size, T);
-    for (std::size_t i = 0; i < T; ++i) EXPECT_EQ(element->tag.data[i], expected_tag.data[i]);
-    ASSERT_EQ(element->value.size, value.size());
+    EXPECT_EQ(element->tag().size(), T);
+    for (std::size_t i = 0; i < T; ++i) EXPECT_EQ(element->tag().data()[i], expected_tag.data()[i]);
+    ASSERT_EQ(element->value().size(), value.size());
     // Zero-copy: the value points into the input buffer.
-    EXPECT_EQ(element->value.data, reinterpret_cast<const uint8_t*>(buf.data()) + T + L);
+    EXPECT_EQ(element->value().data(), buf.data() + T + L);
     EXPECT_TRUE(reader.at_end());
 }
 
@@ -182,7 +182,7 @@ TEST(Unit_Tlvpp_FixedFormat, MaximumEncodableLengthRoundTrips) {
     tlv::reader reader(tlv::bytes(buf.data(), w.size()), tlv::fixed_format<1, 1, BE>::format());
     auto        element = reader.next();
     ASSERT_TRUE(element.has_value());
-    EXPECT_EQ(element->value.size, 255u);
+    EXPECT_EQ(element->value().size(), 255u);
 
     std::vector<tlv::byte> too_big(2 + 256);
     tlv::writer w2(too_big.data(), too_big.size(), tlv::fixed_format<1, 1, BE>::format());
@@ -201,7 +201,7 @@ TEST(Unit_Tlvpp_FixedFormat, EmptyValueRoundTrips) {
     tlv::reader reader(tlv::bytes(buf.data(), w.size()), tlv::fixed_format<2, 2, LE>::format());
     auto        element = reader.next();
     ASSERT_TRUE(element.has_value());
-    EXPECT_EQ(element->value.size, 0u);
+    EXPECT_EQ(element->value().size(), 0u);
 }
 
 TEST(Unit_Tlvpp_FixedFormat, TruncatedInputIsRejected) {
@@ -293,8 +293,8 @@ TEST(Unit_Tlvpp_FixedFormat, MultipleElementsInSequence) {
     auto        second = reader.next();
     ASSERT_TRUE(first.has_value());
     ASSERT_TRUE(second.has_value());
-    EXPECT_EQ(first->value.size, 2u);
-    EXPECT_EQ(second->value.size, 3u);
+    EXPECT_EQ(first->value().size(), 2u);
+    EXPECT_EQ(second->value().size(), 3u);
     EXPECT_TRUE(reader.at_end());
 }
 
@@ -360,13 +360,13 @@ TEST(Unit_Tlvpp_FixedFormat, ReaderAndWriterAcceptARuntimeCDescriptor) {
     std::array<tlv::byte, 16>      buf{};
     tlv::writer                    writer(buf.data(), buf.size(), format);
     const std::array<tlv::byte, 3> value = {tlv::byte(0xAA), tlv::byte(0xBB), tlv::byte(0xCC)};
-    ASSERT_TRUE(writer.write(TLV_TAG(0x12, 0x34), tlv::bytes(value.data(), value.size())));
+    ASSERT_TRUE(writer.write(tlv::tag_bytes<0x12, 0x34>(), tlv::bytes(value.data(), value.size())));
 
     tlv::reader reader(tlv::bytes(buf.data(), writer.size()), format);
     auto        element = reader.next();
     ASSERT_TRUE(element.has_value());
-    EXPECT_EQ(element->tag.size, 2u);
-    EXPECT_EQ(element->value.size, value.size());
+    EXPECT_EQ(element->tag().size(), 2u);
+    EXPECT_EQ(element->value().size(), value.size());
     EXPECT_TRUE(reader.at_end());
 }
 
@@ -396,7 +396,9 @@ TEST(Unit_Tlvpp_FormatContract, SourceAndSemanticOperationsAreDistinct) {
     ASSERT_TRUE(copied);
     EXPECT_EQ(sizeof(wire), *copied);
     const uint8_t changed = 7;
-    decoded->element.value.data = &changed;
+    decoded->element = tlv::element_view(
+        decoded->element.tag(),
+        tlv::value_view(tlv::bytes(reinterpret_cast<const tlv::byte*>(&changed), 1)));
     EXPECT_FALSE(tlv::preserve(decoded->source, decoded->element, output, sizeof(output)));
     EXPECT_TRUE(tlv::encode(format, decoded->element, output, sizeof(output)));
 }

@@ -14,7 +14,8 @@ int main() {
     tlv::writer               writer(buf.data(), buf.size(), format::format());
 
     const std::array<tlv::byte, 3> value = {tlv::byte(0xAA), tlv::byte(0xBB), tlv::byte(0xCC)};
-    auto written = writer.write(TLV_TAG(0x12, 0x34), tlv::bytes(value.data(), value.size()));
+    auto                           written =
+        writer.write(tlv::tag_bytes<0x12, 0x34>(), tlv::bytes(value.data(), value.size()));
     if (!written) {
         std::cerr << "write error: " << written.error().message << "\n";
         return 1;
@@ -27,7 +28,7 @@ int main() {
         std::cerr << "read error: " << element.error().message << "\n";
         return 1;
     }
-    std::cout << "wrote " << writer.size() << " bytes, read a " << element->value.size
+    std::cout << "wrote " << writer.size() << " bytes, read a " << element->value().size()
               << "-byte value\n";
-    return element->value.size == value.size() ? 0 : 1;
+    return element->value().size() == value.size() ? 0 : 1;
 }

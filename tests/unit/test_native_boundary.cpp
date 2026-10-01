@@ -1,4 +1,5 @@
 #include "tlv++/native.hpp"
+#include "tlv++/native.hpp"
 #include "tlv++/tlv.hpp"
 #include "controlled_format.h"
 
@@ -55,8 +56,8 @@ TEST(Unit_Tlvpp_NativeBoundary, TemporaryViewDoesNotShortenReaderOrSourceLifetim
     auto          decoded = reader.next_source();
     ASSERT_TRUE(decoded);
     EXPECT_EQ(&controlled::format, decoded->source.format);
-    EXPECT_EQ(data + 2, decoded->element.value.data);
-    EXPECT_EQ(42, decoded->element.value.data[0]);
+    EXPECT_EQ(reinterpret_cast<const tlv::byte*>(data + 2), decoded->element.value().data());
+    EXPECT_EQ(42, static_cast<int>(decoded->element.value().data()[0]));
     EXPECT_EQ(3u, reader.offset());
     tlv::byte output[3]{};
     auto      preserved = tlv::preserve(decoded->source, decoded->element, output, sizeof(output));
@@ -78,7 +79,7 @@ TEST(Unit_Tlvpp_NativeBoundary, ReaderRetainsIncrementalAndDiagnosticContracts) 
     ASSERT_TRUE(reader.set_input(view(data, sizeof(data)), 0, tlv::input_mode::final));
     auto complete = reader.next();
     ASSERT_TRUE(complete);
-    EXPECT_EQ(2u, complete->value.size);
+    EXPECT_EQ(2u, complete->value().size());
     EXPECT_TRUE(reader.at_end());
 
     size_t consumed = 99;
@@ -100,7 +101,7 @@ TEST(Unit_Tlvpp_NativeBoundary, FixedViewUsesCanonicalMeasurementAndEncoding) {
     auto size = tlv::encoded_size(decoded->element, format);
     ASSERT_TRUE(size);
     EXPECT_EQ(sizeof(data), *size);
-    auto length_size = tlv::encoded_size(decoded->element.tag, 2, format);
+    auto length_size = tlv::encoded_size(decoded->element.tag(), 2, format);
     ASSERT_TRUE(length_size);
     EXPECT_EQ(sizeof(data), *length_size);
     tlv::byte output[4]{};
@@ -111,7 +112,8 @@ TEST(Unit_Tlvpp_NativeBoundary, FixedViewUsesCanonicalMeasurementAndEncoding) {
     auto written = tlv::write(output, sizeof(output), format, decoded->element);
     ASSERT_TRUE(written);
     EXPECT_EQ(0, std::memcmp(data, output, sizeof(data)));
-    auto pair = tlv::write(output, sizeof(output), format, decoded->element.tag, view(data + 2, 2));
+    auto pair =
+        tlv::write(output, sizeof(output), format, decoded->element.tag(), view(data + 2, 2));
     ASSERT_TRUE(pair);
     EXPECT_EQ(0, std::memcmp(data, output, sizeof(data)));
 }
@@ -143,9 +145,9 @@ TEST(Unit_Tlvpp_NativeBoundary, InvalidBorrowedDescriptorReportsEngineErrors) {
     auto        next = reader.next();
     ASSERT_FALSE(next);
     EXPECT_EQ(TLV_ERR_NULL_ARG, next.error().code);
-    tlv::writer        writer(nullptr, 0, format);
-    const tlv::element element{TLV_TAG(1), {nullptr, 0}};
-    auto               written = writer.write(element);
+    tlv::writer             writer(nullptr, 0, format);
+    const tlv::element_view element{tlv::tag_bytes<1>(), tlv::value_view{}};
+    auto                    written = writer.write(element);
     ASSERT_FALSE(written);
     EXPECT_EQ(0u, writer.size());
 }
@@ -154,7 +156,7 @@ TEST(Unit_Tlvpp_NativeBoundary, VisitorBridgeBorrowsNoncopyableAndConstCallables
     struct visitor {
         std::unique_ptr<size_t> count;
         visitor() : count(new size_t(0)) {}
-        tlv_visit_result_t operator()(const tlv::element&) const {
+        tlv_visit_result_t operator()(const tlv::element_view&) const {
             ++*count;
             return TLV_VISIT_CONTINUE;
         }
@@ -172,10 +174,10 @@ TEST(Unit_Tlvpp_NativeBoundary, TreeAndQueryShareConstructedFormatAndCallbackBri
     tlv::tree_frame  frames[2]{};
     tlv::tree_reader reader(view(data, sizeof(data)), format, {frames, 2}, 2, 8);
     size_t           count = 0;
-    auto             visitor = [&](const tlv::element& element, size_t depth, size_t offset) {
+    auto             visitor = [&](const tlv::element_view& element, size_t depth, size_t offset) {
         EXPECT_EQ(count, depth);
         EXPECT_EQ(count * 2, offset);
-        EXPECT_EQ(count ? 1 : 0xE1, element.tag.data[0]);
+        EXPECT_EQ(count ? 1 : 0xE1, static_cast<int>(element.tag().data()[0]));
         ++count;
         return TLV_VISIT_CONTINUE;
     };
@@ -191,8 +193,8 @@ TEST(Unit_Tlvpp_NativeBoundary, TreeAndQueryShareConstructedFormatAndCallbackBri
     tlv::tree_writer_frame writer_frames[2]{};
     tlv::tree_writer       writer(output, sizeof(output), format, writer_frames, 2, scratch,
                                   sizeof(scratch));
-    ASSERT_TRUE(writer.begin(TLV_TAG(0xE1)));
-    ASSERT_TRUE(writer.write(tlv::element{TLV_TAG(1), {nullptr, 0}}));
+    ASSERT_TRUE(writer.begin(tlv::tag_bytes<0xE1>()));
+    ASSERT_TRUE(writer.write(tlv::element_view{tlv::tag_bytes<1>(), tlv::value_view{}}));
     ASSERT_TRUE(writer.end());
     ASSERT_TRUE(writer.finish());
     EXPECT_EQ(sizeof(data), writer.size());
@@ -207,7 +209,7 @@ TEST(Unit_Tlvpp_NativeBoundary, MeasurementConsumesCanonicalRecordsAndEvents) {
     uint8_t                    output[4]{}, scratch[4]{};
     tlv::tree_writer_workspace workspace{write_frames, 2, output, 4, scratch, 4, 0, 0};
     tlv::tree_reader           records(view(data, sizeof(data)), format, {read_frames, 2}, 2, 8);
-    auto                       next_record = [&](tlv::element& element, size_t& depth,
+    auto                       next_record = [&](tlv::element_view& element, size_t& depth,
                                                  bool& parent) -> tlv::expected<bool, tlv::error> {
         if (records.at_end()) return false;
         auto item = records.next();
@@ -290,8 +292,8 @@ TEST(Unit_Tlvpp_NativeBoundary, BerNamespaceSelectsCanonicalDescriptor) {
     tlv::reader reader(view(data, sizeof(data)), tlv::ber::format{});
     auto        element = reader.next();
     ASSERT_TRUE(element);
-    EXPECT_TRUE(tlv_tag_equal(TLV_TAG(0x5A), element->tag));
-    EXPECT_EQ(2u, element->value.size);
+    EXPECT_TRUE((tlv::tag_bytes<0x5A>() == element->tag()));
+    EXPECT_EQ(2u, element->value().size());
     tlv::byte   output[4]{};
     tlv::writer writer(output, sizeof(output), tlv::ber::format{});
     ASSERT_TRUE(writer.write(*element));

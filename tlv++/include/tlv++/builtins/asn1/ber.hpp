@@ -44,11 +44,11 @@ public:
  * @note On error the destination is unchanged.
  */
 TLV_NODISCARD inline expected<size_t, error> ber_write_indefinite(byte* data, size_t capacity,
-                                                                  tag_t tag, bytes children) {
+                                                                  tlv::tag tag, bytes children) {
     size_t       written = 0;
-    tlv_result_t rc = tlv_ber_write_indefinite(reinterpret_cast<uint8_t*>(data), capacity, tag,
-                                               reinterpret_cast<const uint8_t*>(children.data()),
-                                               children.size(), &written);
+    tlv_result_t rc = tlv_ber_write_indefinite(
+        reinterpret_cast<uint8_t*>(data), capacity, detail::semantic_access::get(tag),
+        reinterpret_cast<const uint8_t*>(children.data()), children.size(), &written);
     if (rc != TLV_OK) return unexpected<error>(error::from_c(rc));
     return written;
 }

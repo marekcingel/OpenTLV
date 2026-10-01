@@ -50,8 +50,8 @@ public:
      * @brief Return the tag at a zero-based query step, or an empty tag out of range.
      * @warning The returned bytes borrow this query and must not outlive it.
      */
-    tag_t step(size_t index) const {
-        return tlv_query_step(&query_, index);
+    tlv::tag step(size_t index) const {
+        return detail::semantic_access::borrow(tlv_query_step(&query_, index));
     }
 
     /** @brief The underlying C query, for use with the C API. */
@@ -66,7 +66,7 @@ public:
      * rules for limits, offsets and errors are the same. Nothing is allocated
      * and the entries passed to the visitor borrow `data`.
      *
-     * @tparam Visitor Callable invoked as `visitor(element, depth, absolute_offset)`
+     * @tparam Visitor Callable invoked as `visitor(element_view, depth, absolute_offset)`
      *                 returning #tlv_visit_result_t, as for tree_reader::visit().
      *
      * @param data          Encoded input; borrowed.
@@ -144,8 +144,9 @@ public:
      * @return True if this item matches the query.
      * @warning Feed every item in order; do not skip nonmatching ancestors.
      */
-    bool matches(tag_t tag, size_t depth) {
-        return init_result_ == TLV_OK && tlv_query_matcher_visit(&impl_, &tag, depth) != 0;
+    bool matches(tlv::tag tag, size_t depth) {
+        const auto raw = detail::semantic_access::get(tag);
+        return init_result_ == TLV_OK && tlv_query_matcher_visit(&impl_, &raw, depth) != 0;
     }
 
     /**

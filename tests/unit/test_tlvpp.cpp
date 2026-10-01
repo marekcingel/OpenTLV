@@ -1,3 +1,4 @@
+#include "tlv++/native.hpp"
 #include "tlv++/format.hpp"
 #include "controlled_format.h"
 #include "tlv++/tlv.hpp"
@@ -21,8 +22,8 @@ TEST(Unit_Tlvpp, TreeWriterBorrowsStorageAndReportsInitializationErrors) {
     tlv::tree_writer_frame   frame{};
     tlv::tree_writer         writer(output.data(), output.size(), format, &frame, 1, scratch.data(),
                                     scratch.size());
-    const tlv::element       leaf = {TLV_TAG(1), {nullptr, 0}};
-    ASSERT_TRUE(writer.begin(TLV_TAG(0xE1)).has_value());
+    const tlv::element_view  leaf = {tlv::tag_bytes<1>(), tlv::value_view{}};
+    ASSERT_TRUE(writer.begin(tlv::tag_bytes<0xE1>()).has_value());
     ASSERT_TRUE(writer.write(leaf).has_value());
     EXPECT_EQ(0u, writer.size());
     EXPECT_FALSE(writer.finish().has_value());
@@ -33,7 +34,7 @@ TEST(Unit_Tlvpp, TreeWriterBorrowsStorageAndReportsInitializationErrors) {
     EXPECT_EQ(tlv::byte{2}, output[1]);
     const tlv_format_t invalid{};
     tlv::tree_writer   bad(output.data(), output.size(), invalid, &frame, 1, nullptr, 0);
-    EXPECT_FALSE(bad.begin(TLV_TAG(0xE1)).has_value());
+    EXPECT_FALSE(bad.begin(tlv::tag_bytes<0xE1>()).has_value());
     EXPECT_FALSE(bad.write(leaf).has_value());
     EXPECT_FALSE(bad.end().has_value());
     EXPECT_FALSE(bad.finish().has_value());
@@ -42,10 +43,12 @@ TEST(Unit_Tlvpp, TreeWriterBorrowsStorageAndReportsInitializationErrors) {
 
 TEST(Unit_Tlvpp, CanonicalWriterMeasuresPreservesAndCopiesIntoCallerStorage) {
     const uint8_t original[] = {0xFF, 1, 0xAB};
-    tlv_decoded_t decoded{};
-    ASSERT_EQ(TLV_OK, tlv_format_decode(&controlled::format, original, sizeof(original), &decoded,
-                                        nullptr));
-    auto required = tlv::encoded_size(decoded.element, controlled::format);
+    auto          parsed =
+        tlv::decode(controlled::format,
+                    tlv::bytes(reinterpret_cast<const tlv::byte*>(original), sizeof(original)));
+    ASSERT_TRUE(parsed);
+    const auto decoded = *parsed;
+    auto       required = tlv::encoded_size(decoded.element, controlled::format);
     ASSERT_TRUE(required.has_value());
     EXPECT_EQ(3u, *required);
     std::array<tlv::byte, 9> output{};
@@ -68,8 +71,8 @@ TEST(Unit_Tlvpp, LldpPresetUsesSharedDescriptor) {
                                            tlv::byte{120}};
     auto result = tlv::decode(tlv::lldp_format(), tlv::bytes(wire.data(), wire.size()));
     ASSERT_TRUE(result.has_value());
-    EXPECT_TRUE(tlv_tag_equal(TLV_TAG(3), result->element.tag));
-    EXPECT_EQ(2u, result->element.value.size);
+    EXPECT_TRUE((tlv::tag_bytes<3>() == result->element.tag()));
+    EXPECT_EQ(2u, result->element.value().size());
 }
 #endif
 
@@ -85,23 +88,24 @@ static_assert(std::is_same<tlv::expected<int, int>, std::expected<int, int>>::va
               "C++23 must use std::expected");
 #endif
 
-static_assert(std::is_same<tlv::element, tlv_element_t>::value,
-              "C++ must use the canonical C element");
+static_assert(!std::is_convertible<tlv_element_t, tlv::element_view>::value,
+              "C++ semantic imports must be explicit");
 
 TEST(Unit_Tlvpp, AsBytesValidatesAndBorrowsValue) {
     const uint8_t data[] = {0xAA, 0xBB};
-    auto          result = tlv::as_bytes(tlv_value_t{data, sizeof(data)});
+    auto          result = tlv::native::borrow_value(tlv_value_t{data, sizeof(data)});
     ASSERT_TRUE(result.has_value());
     EXPECT_EQ(reinterpret_cast<const tlv::byte*>(data), result->data());
     EXPECT_EQ(sizeof(data), result->size());
-    auto empty = tlv::as_bytes(tlv_value_t{nullptr, 0});
+    auto empty = tlv::native::borrow_value(tlv_value_t{nullptr, 0});
     ASSERT_TRUE(empty.has_value());
     EXPECT_TRUE(empty->empty());
-    auto invalid = tlv::as_bytes(tlv_value_t{nullptr, 1});
+    auto invalid = tlv::native::borrow_value(tlv_value_t{nullptr, 1});
     ASSERT_FALSE(invalid.has_value());
     EXPECT_EQ(TLV_ERR_NULL_ARG, invalid.error().code);
 #if SIZE_MAX < UINT64_MAX
-    auto oversized = tlv::as_bytes(tlv_value_t{data, static_cast<tlv_size_t>(SIZE_MAX) + 1});
+    auto oversized =
+        tlv::native::borrow_value(tlv_value_t{data, static_cast<tlv_size_t>(SIZE_MAX) + 1});
     ASSERT_FALSE(oversized.has_value());
     EXPECT_EQ(TLV_ERR_NATIVE_SIZE, oversized.error().code);
 #endif
@@ -117,7 +121,7 @@ TEST(Unit_Tlvpp, WriterReportsBufferTooShort) {
     std::array<tlv::byte, 2> buf{};
     tlv::writer              w(buf.data(), buf.size(), controlled::format);
 
-    auto r = w.write(TLV_TAG(0x01), to_bytes("abcd"));
+    auto r = w.write(tlv::tag_bytes<0x01>(), to_bytes("abcd"));
     ASSERT_FALSE(r.has_value());
     EXPECT_TRUE(r.error().code == TLV_ERR_BUFFER_TOO_SHORT);
 }
@@ -128,7 +132,7 @@ TEST(Unit_Tlvpp, ReaderReportsEndOfBuffer) {
 
     auto e1 = reader.next();
     ASSERT_TRUE(e1.has_value());
-    EXPECT_TRUE(e1->value.size == 0);
+    EXPECT_TRUE(e1->value().size() == 0);
     auto decoded = tlv::decode(controlled::format, tlv::bytes(buf.data(), buf.size()));
     ASSERT_TRUE(decoded);
     EXPECT_EQ(1u, decoded->source.length.offset);
@@ -146,7 +150,7 @@ TEST(Unit_Tlvpp, WriterWriteDiagReportsRequiredExceedingAvailableCapacity) {
     tlv::writer              w(buf.data(), buf.size(), controlled::format);
 
     tlv::writer_diagnostic diagnostic{};
-    auto                   e = w.write(TLV_TAG(0x01), to_bytes("ab"), diagnostic);
+    auto                   e = w.write(tlv::tag_bytes<0x01>(), to_bytes("ab"), diagnostic);
     ASSERT_FALSE(e.has_value());
     EXPECT_TRUE(e.error().code == TLV_ERR_BUFFER_TOO_SHORT);
     EXPECT_EQ(TLV_ERR_BUFFER_TOO_SHORT, diagnostic.diagnostic.code);
@@ -176,8 +180,8 @@ TEST(Unit_Tlvpp, ReaderNextDiagReportsValueExceedingAvailableBytes) {
 // --- Codec concept test ---
 
 struct greeting {
-    static const tlv::tag_t tag;
-    std::string             text;
+    static const tlv::tag tag;
+    std::string           text;
 
     void encode(std::vector<tlv::byte>& out) const {
         out.resize(text.size());
@@ -192,22 +196,23 @@ struct greeting {
     }
 };
 
-const tlv::tag_t greeting::tag = TLV_TAG(0x10);
+const tlv::tag greeting::tag = tlv::tag_bytes<0x10>();
 
 static_assert(tlv::is_tlv_codec<greeting>::value, "greeting must satisfy TLV codec interface");
 
 TEST(Unit_Tlvpp, RegistryComparesValidTagBytesAndSize) {
     tlv::codec_registry registry;
-    tlv::tag_t          first = TLV_TAG(0x10);
+    tlv::tag            first = tlv::tag_bytes<0x10>();
     registry.register_decoder(
         first, [](tlv::bytes) -> tlv::expected<tlv::any, tlv::error> { return tlv::any(42); });
     // The same bytes in different memory are the same tag.
     const std::uint8_t same_bytes[] = {0x10};
-    tlv::tag_t         same = tlv_tag(same_bytes, sizeof(same_bytes));
+    tlv::tag           same =
+        tlv::tag(tlv::bytes(reinterpret_cast<const tlv::byte*>(same_bytes), sizeof(same_bytes)));
     EXPECT_TRUE(registry.has_decoder(same));
-    tlv::tag_t other = TLV_TAG(0x11);
+    tlv::tag other = tlv::tag_bytes<0x11>();
     EXPECT_FALSE(registry.has_decoder(other));
-    tlv::tag_t longer = TLV_TAG(0x10, 0x00);
+    tlv::tag longer = tlv::tag_bytes<0x10, 0x00>();
     EXPECT_FALSE(registry.has_decoder(longer));
     registry.register_decoder(
         longer, [](tlv::bytes) -> tlv::expected<tlv::any, tlv::error> { return tlv::any(84); });

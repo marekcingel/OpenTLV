@@ -18,12 +18,12 @@ int main() {
         return tlv::bytes(reinterpret_cast<const tlv::byte*>(s.data()), s.size());
     };
 
-    tlv::expected<void, tlv::error> r = w.write(TLV_TAG(0x01), to_bytes("hello"));
+    tlv::expected<void, tlv::error> r = w.write(tlv::tag_bytes<0x01>(), to_bytes("hello"));
     if (!r) {
         std::cerr << "write error: " << r.error().message << "\n";
         return 1;
     }
-    r = w.write(TLV_TAG(0x02), to_bytes("world"));
+    r = w.write(tlv::tag_bytes<0x02>(), to_bytes("world"));
     if (!r) {
         std::cerr << "write error: " << r.error().message << "\n";
         return 1;
@@ -38,13 +38,10 @@ int main() {
             std::cerr << "read error: " << element.error().message << "\n";
             return 1;
         }
-        auto value_bytes = tlv::as_bytes(element->value);
-        if (!value_bytes) {
-            std::cerr << "value error: " << value_bytes.error().message << "\n";
-            return 1;
-        }
-        std::string value(reinterpret_cast<const char*>(value_bytes->data()), value_bytes->size());
-        std::cout << "tag=0x" << std::hex << static_cast<int>(element->tag.data[0]) << std::dec
+        auto        value_bytes = element->value().as_bytes();
+        std::string value(reinterpret_cast<const char*>(value_bytes.data()), value_bytes.size());
+
+        std::cout << "tag=0x" << std::hex << static_cast<int>(element->tag().data()[0]) << std::dec
                   << " value=" << value << "\n";
     }
 

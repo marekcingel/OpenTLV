@@ -1,3 +1,4 @@
+#include "tlv++/native.hpp"
 #include "controlled_format.h"
 #include "tlv++/writer/tree.hpp"
 #include "tlv++/reader/tree.hpp"
@@ -20,10 +21,11 @@ TEST(Unit_Tlvpp_TreeWriterParity, MeasurementStagesCanonicalEncoding) {
     tlv::tree_writer_workspace workspace{frames, 4, data, 32, scratch, 32, 0, 0};
     const uint8_t              tags[] = {0xE1, 1, 0xE2};
     size_t                     index = 0;
-    auto                       next = [&](tlv::element& element, size_t& depth,
+    auto                       next = [&](tlv::element_view& element, size_t& depth,
                                           bool& parent) -> tlv::expected<bool, tlv::error> {
         if (index == 3) return false;
-        element = {tlv_tag(tags + index, 1), {nullptr, 0}};
+        element = {tlv::tag(tlv::bytes(reinterpret_cast<const tlv::byte*>(tags + index), 1)),
+                   tlv::value_view{}};
         depth = index ? 1 : 0;
         parent = index != 1;
         ++index;
@@ -45,7 +47,7 @@ TEST(Unit_Tlvpp_TreeWriterParity, MeasurementStagesCanonicalEncoding) {
 
 TEST(Unit_Tlvpp_TreeWriterParity, MeasurementPropagatesSourceError) {
     tlv::tree_writer_workspace workspace{};
-    auto next = [](tlv::element&, size_t&, bool&) -> tlv::expected<bool, tlv::error> {
+    auto next = [](tlv::element_view&, size_t&, bool&) -> tlv::expected<bool, tlv::error> {
         return tlv::unexpected<tlv::error>(tlv::error::from_c(TLV_ERR_INVALID_VALUE));
     };
     auto result = tlv::measure_tree(format, next, workspace);
@@ -56,15 +58,18 @@ TEST(Unit_Tlvpp_TreeWriterParity, MeasurementPropagatesSourceError) {
 }
 
 TEST(Unit_Tlvpp_WriterParity, SingleWriteAndMeasurementMatchC) {
-    const uint8_t      tag_bytes[] = {1};
-    const uint8_t      value_bytes[] = {0x42, 0x43};
-    const tlv::element element{tlv_tag(tag_bytes, 1), {value_bytes, 2}};
-    uint8_t            native_output[16]{};
-    tlv::byte          output[16]{};
-    size_t             native_size = 0;
-    ASSERT_EQ(TLV_OK, tlv_write_element(native_output, sizeof(native_output), &format, &element,
-                                        &native_size));
-    auto measured = tlv::encoded_size(element.tag, element.value.size, format);
+    const uint8_t           tag_bytes[] = {1};
+    const uint8_t           value_bytes[] = {0x42, 0x43};
+    const tlv::element_view element{
+        tlv::tag(tlv::bytes(reinterpret_cast<const tlv::byte*>(tag_bytes), 1)),
+        tlv::value_view(tlv::bytes(reinterpret_cast<const tlv::byte*>(value_bytes), 2))};
+    uint8_t    native_output[16]{};
+    tlv::byte  output[16]{};
+    size_t     native_size = 0;
+    const auto raw = tlv::native::descriptor(element);
+    ASSERT_EQ(TLV_OK,
+              tlv_write_element(native_output, sizeof(native_output), &format, &raw, &native_size));
+    auto measured = tlv::encoded_size(element.tag(), element.value().size(), format);
     ASSERT_TRUE(measured);
     EXPECT_EQ(native_size, *measured);
     auto result = tlv::write(output, sizeof(output), format, element);
@@ -73,7 +78,7 @@ TEST(Unit_Tlvpp_WriterParity, SingleWriteAndMeasurementMatchC) {
     EXPECT_EQ(0, std::memcmp(output, native_output, native_size));
     tlv::writer_diagnostic diagnostic{};
     auto                   failure =
-        tlv::write(output, 1, format, element.tag,
+        tlv::write(output, 1, format, element.tag(),
                    tlv::bytes(reinterpret_cast<const tlv::byte*>(value_bytes), 2), &diagnostic);
     ASSERT_FALSE(failure);
     EXPECT_EQ(TLV_ERR_BUFFER_TOO_SHORT, failure.error().code);
@@ -108,7 +113,7 @@ TEST(Unit_Tlvpp_TreeWriterParity, CanonicalEventPipelineAndMeasurement) {
                                          16,
                                          0,
                                          0};
-    auto next = [&](tlv_tree_event_t& event) -> tlv::expected<bool, tlv::error> {
+    auto next = [&](tlv::tree_event& event) -> tlv::expected<bool, tlv::error> {
         if (source.at_end()) return false;
         auto pulled = source.next_event();
         if (!pulled) return tlv::unexpected<tlv::error>(pulled.error());

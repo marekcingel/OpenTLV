@@ -38,7 +38,7 @@ public:
      * @param tag     Tag to register.
      * @param decoder Decoder called with the element's value bytes.
      */
-    void register_decoder(tag_t tag, decoder_fn decoder) {
+    void register_decoder(tlv::tag tag, decoder_fn decoder) {
         decoders_[key(tag)] = std::move(decoder);
     }
 
@@ -74,7 +74,7 @@ public:
      *         #TLV_ERR_INVALID_LENGTH and message `"unregistered tag"` if no
      *         decoder is registered for `tag`.
      */
-    TLV_NODISCARD expected<any, error> decode(tag_t tag, bytes data) const {
+    TLV_NODISCARD expected<any, error> decode(tlv::tag tag, bytes data) const {
         const auto found = decoders_.find(key(tag));
         if (found == decoders_.end()) {
             return unexpected<error>(error{TLV_ERR_INVALID_LENGTH, "unregistered tag"});
@@ -89,7 +89,7 @@ public:
      *
      * @return `true` if a decoder is registered.
      */
-    TLV_NODISCARD bool has_decoder(tag_t tag) const {
+    TLV_NODISCARD bool has_decoder(tlv::tag tag) const {
         return decoders_.find(key(tag)) != decoders_.end();
     }
 
@@ -97,8 +97,9 @@ private:
     /** Owning copy of a tag's bytes; ordered lexicographically like tlv_tag_compare(). */
     using tag_key = std::vector<std::uint8_t>;
 
-    static tag_key key(tag_t tag) {
-        return tag.data ? tag_key(tag.data, tag.data + tag.size) : tag_key();
+    static tag_key key(tlv::tag tag) {
+        const auto raw = detail::semantic_access::get(tag);
+        return raw.data ? tag_key(raw.data, raw.data + raw.size) : tag_key();
     }
 
     std::map<tag_key, decoder_fn> decoders_;
