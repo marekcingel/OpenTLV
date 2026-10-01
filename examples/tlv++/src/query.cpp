@@ -13,26 +13,36 @@ static const std::array<tlv::byte, 12> document = {
     tlv::byte(0x03), tlv::byte(0x50), tlv::byte(0x01), tlv::byte(0x01)};
 
 int main() {
-    auto query = tlv::query::parse("6F/A5/50");
-    if (!query) {
-        std::cerr << "query parse error: " << query.error().message << "\n";
+    // Streaming Query borrows both input and the caller-owned traversal frames.
+    tlv::tree_frame  frames[2]{};
+    tlv::tree_reader reader({document.data(), document.size()}, tlv::ber::format{}, {frames, 2}, 2,
+                            16);
+    size_t           matches = 0;
+    try {
+        for (const auto& item : reader.select("6F/A5/50")) {
+            std::cout << "6F/A5/50 = ";
+            for (auto byte : item.element.value())
+                std::cout << std::hex << std::uppercase << std::setw(2) << std::setfill('0')
+                          << static_cast<unsigned>(byte);
+            std::cout << std::dec << " (offset " << item.offset << ")\n";
+            if (item.element.value().size() != 1 || item.element.value()[0] != tlv::byte(0x01))
+                return 2;
+            ++matches;
+        }
+#if OPENTLV_DOCUMENT
+        auto owned = tlv::document::parse({document.data(), document.size()},
+                                          tlv::document_format(tlv::ber::format{}));
+        if (!owned) return 3;
+        auto nodes = owned->select("6F/A5/50");
+        if (nodes.size() != matches || nodes.size() != 1 || nodes[0].value()[0] != tlv::byte(0x01))
+            return 3;
+#endif
+    } catch (const tlv::query_error& failure) {
+        std::cerr << "Query error at " << failure.offset() << ": " << failure.what() << '\n';
+        return 1;
+    } catch (const tlv::parse_error& failure) {
+        std::cerr << "Parse error at " << failure.offset() << ": " << failure.what() << '\n';
         return 1;
     }
-
-    bool found = false;
-    auto result = query->visit_buffer(
-        tlv::bytes(document.data(), document.size()), tlv_format_ber, TLV_TREE_DEFAULT_DEPTH, 16,
-        [&found](const tlv::element_view& element, size_t /*depth*/, size_t offset) {
-            std::cout << "6F/A5/50 = " << std::hex << std::uppercase << std::setw(2)
-                      << std::setfill('0') << static_cast<int>(element.value().data()[0])
-                      << std::dec << " (offset " << offset << ")\n";
-            found =
-                element.value().size() == 1 && element.value()[0] == static_cast<tlv::byte>(0x01);
-            return TLV_VISIT_CONTINUE;
-        });
-    if (!result) {
-        std::cerr << "query error: " << result.error().message << "\n";
-        return 1;
-    }
-    return found ? 0 : 1;
+    return matches == 1 ? 0 : 2;
 }

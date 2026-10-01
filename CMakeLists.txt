@@ -118,6 +118,8 @@ if(OPENTLV_BUILD_TESTS)
 endif()
 
 if(OPENTLV_BUILD_EXAMPLES)
+    # Runnable examples are acceptance tests even without GoogleTest targets.
+    enable_testing()
     add_subdirectory(examples)
 endif()
 

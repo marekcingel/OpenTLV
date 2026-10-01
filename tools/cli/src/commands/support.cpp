@@ -9,19 +9,19 @@
 #include "tlv/config.h"
 #include "tlv/formats/fixed.h"
 #if OPENTLV_NFC
-#include "tlv/builtins/nfc/type2.h"
+#include "tlv++/builtins/nfc/type2.hpp"
 #endif
 #if OPENTLV_EMV
-#include "tlv/builtins/emv/format.h"
+#include "tlv++/builtins/emv/format.hpp"
 #endif
 #if OPENTLV_BLUETOOTH
-#include "tlv/builtins/bluetooth/bluetooth_ltv.h"
+#include "tlv++/builtins/bluetooth/ltv.hpp"
 #endif
 #if OPENTLV_FORMAT_BER
-#include "tlv/builtins/asn1/ber.h"
+#include "tlv++/builtins/asn1/ber.hpp"
 #endif
 #if OPENTLV_FORMAT_DER
-#include "tlv/builtins/asn1/der.h"
+#include "tlv++/builtins/asn1/der.hpp"
 #include "tlv/builtins/asn1/der_validation.h"
 #endif
 
@@ -31,39 +31,38 @@ bool is_json(const options& o) {
     return !strcmp(o.output, "json");
 }
 
-const tlv_format_t* select_format(const options& o) {
-    const char* name = o.format;
+format_selection::format_selection(const options& o) : name_(o.format) {
+    if (!name_ || strcmp(name_, "fixed")) return;
+    fixed_.tag_size = o.fixed_tag_size;
+    fixed_.length_size = o.fixed_length_size;
+    fixed_.length_order = !strcmp(o.fixed_byte_order, "little") ? TLV_BYTE_ORDER_LITTLE_ENDIAN
+                                                                : TLV_BYTE_ORDER_BIG_ENDIAN;
+    fixed_.element_order = TLV_ELEMENT_ORDER_TLV;
+    fixed_.length_scope = TLV_LENGTH_SCOPE_VALUE;
+    result_ = tlv_fixed_format_init(&descriptor_, &fixed_);
+}
+
+tlv::expected<tlv::format, tlv::error> format_selection::get() const {
+    if (result_ != TLV_OK) return tlv::unexpected<tlv::error>(tlv::error::from_c(result_));
+    if (name_) {
+        if (!strcmp(name_, "fixed")) return tlv::native::borrow_format(descriptor_);
 #if OPENTLV_EMV
-    if (!strcmp(name, "emv")) return &tlv_format_emv;
+        if (!strcmp(name_, "emv")) return tlv::emv::format{};
 #endif
-    // Configured by --fixed-tag-size/--fixed-length-size/--fixed-byte-order,
-    // one tag byte/one length byte/big-endian by default.
-    if (!strcmp(name, "fixed")) {
-        static tlv_fixed_format_t config;
-        static tlv_format_t       format;
-        config.tag_size = o.fixed_tag_size;
-        config.length_size = o.fixed_length_size;
-        config.length_order = !strcmp(o.fixed_byte_order, "little") ? TLV_BYTE_ORDER_LITTLE_ENDIAN
-                                                                    : TLV_BYTE_ORDER_BIG_ENDIAN;
-        config.element_order = TLV_ELEMENT_ORDER_TLV;
-        config.length_scope = TLV_LENGTH_SCOPE_VALUE;
-        if (tlv_fixed_format_init(&format, &config) != TLV_OK) return NULL;
-        return &format;
-    }
 #if OPENTLV_FORMAT_BER
-    if (!strcmp(name, "ber")) return &tlv_format_ber;
+        if (!strcmp(name_, "ber")) return tlv::ber::format{};
 #endif
 #if OPENTLV_FORMAT_DER
-    if (!strcmp(name, "der")) return &tlv_format_der;
+        if (!strcmp(name_, "der")) return tlv::der::format{};
 #endif
 #if OPENTLV_BLUETOOTH
-    if (!strcmp(name, "bluetooth-ltv")) return &tlv_format_bluetooth_ltv;
+        if (!strcmp(name_, "bluetooth-ltv")) return tlv::bluetooth::format{};
 #endif
 #if OPENTLV_NFC
-    if (!strcmp(name, "nfc-type2")) return &tlv_format_nfc_type2;
+        if (!strcmp(name_, "nfc-type2")) return tlv::nfc::format{};
 #endif
-    (void)name;
-    return NULL;
+    }
+    return tlv::unexpected<tlv::error>(tlv::error::from_c(TLV_ERR_INVALID_ARG));
 }
 
 void print_hex(const uint8_t* data, std::size_t length) {
@@ -73,6 +72,19 @@ void print_hex(const uint8_t* data, std::size_t length) {
     for (std::size_t i = 0; i < length; ++i) std::cout << std::setw(2) << (unsigned)data[i];
     std::cout.fill(fill);
     std::cout.flags(saved);
+}
+
+void print_hex(tlv::bytes bytes) {
+    print_hex(reinterpret_cast<const uint8_t*>(bytes.data()), bytes.size());
+}
+
+void print_tag(tlv::tag tag, bool color) {
+    console_color scope(std::cout, color);
+    print_hex(tag.as_bytes());
+}
+
+std::string hex_string(tlv::bytes bytes) {
+    return hex_string(reinterpret_cast<const uint8_t*>(bytes.data()), bytes.size());
 }
 
 void print_tag(const tlv_tag_t& tag, bool color) {
@@ -104,12 +116,20 @@ tlv_result_t visit_slice(const traversal_env& env, const uint8_t* slice, std::si
     } else
 #endif
     {
-        std::vector<tlv_tree_frame_t> frames(std::min(o.max_depth, slice_size));
-        tlv_tree_reader_t             reader;
-        result = tlv_tree_reader_init(&reader, slice, slice_size, env.format, frames.data(),
-                                      frames.size(), o.max_depth, max_elements);
-        if (result == TLV_OK)
-            result = tlv_tree_reader_visit_diag(&reader, visitor, context, &relative, diagnostic);
+        std::vector<tlv::tree_frame> frames(std::min(o.max_depth, slice_size));
+        tlv::tree_reader reader({reinterpret_cast<const tlv::byte*>(slice), slice_size},
+                                tlv::native::borrow_format(*env.format),
+                                {frames.data(), frames.size()}, o.max_depth, max_elements);
+        // Native adapters are confined to the existing protocol/rendering boundary.
+        auto status = visitor
+                          ? reader.visit(
+                                [&](const tlv::element_view& element, size_t depth, size_t offset) {
+                                    const auto native = tlv::native::descriptor(element);
+                                    return visitor(&native, depth, offset, context);
+                                },
+                                &relative, diagnostic)
+                          : reader.validate(&relative, diagnostic);
+        result = status ? TLV_OK : status.error().code;
         if (result != TLV_OK && diagnostic && diagnostic->diagnostic.code != TLV_OK) {
             if (diagnostic->diagnostic.has_offset) diagnostic->diagnostic.offset += base;
             if (diagnostic->has_tag_offset) diagnostic->tag_offset += base;

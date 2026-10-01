@@ -9,6 +9,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Fixed
 
+- Preserve custom Fixed tag widths, length widths and byte order when CLI JSON encoding validates its output; keep format-independent CLI checks executable with BER disabled. (#439)
 - Retry Lua CI test dependency installation after temporary download failures, while retaining failure after three unsuccessful attempts. (#436)
 - Resolve the CodeQL suspicious pointer-offset warning in C++ Writer tests by using an explicit element count. (#445)
 - Avoid constructing an unused C++ error string for successful `expected<void, E>` results, keeping successful Writer operations allocation-free with debug standard libraries. (#434)
@@ -46,6 +47,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Changed
 
+- Rewrite C++ quick-start and examples around borrowed iteration, scoped writing, owning Document traversal and typed fields; migrate CLI parsing, encoding and Query to the C++ facade, add matching CLI examples and execute the examples through CTest. (#439)
 - **Breaking:** Replace raw-pointer C++ Node construction with lifetime-checked Document and Node accessors; rebuild C++ consumers for the new Node handle representation. The C API is unchanged. (#435)
 - **Breaking:** Make C++ Reader and Writer templates; runtime-Format callers use `tlv::reader<>` and `tlv::writer<>`, while typed callers select a built-in or application Format. (#432)
 - Replace C++ Tag and Element aliases with allocation-free borrowed `tag`, `value_view` and `element_view` types across Reader, Writer, Document, Query, Definition and codecs; provide byte access, content comparisons, static byte literals and checked explicit C interoperability. (#431)

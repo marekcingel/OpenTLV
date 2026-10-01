@@ -43,6 +43,8 @@ if(OPENTLV_FORMAT_BER)
 
     opentlv_configure_compiler(${PROJECT_NAME})
     opentlv_copy_shared_runtime(${PROJECT_NAME})
+    add_test(NAME Integration_example_tlvpp_basic_usage COMMAND $<TARGET_FILE:${PROJECT_NAME}>)
+    set_tests_properties(Integration_example_tlvpp_basic_usage PROPERTIES LABELS "integration;examples")
 
     # Backs the C++ example in Getting Started; scripts/check_doc_examples.py keeps the
     # Markdown copy identical to this file. It is the C++ counterpart of the C quick start.
@@ -50,6 +52,9 @@ if(OPENTLV_FORMAT_BER)
     target_link_libraries(example-tlv++-quick-start PRIVATE tlv++)
     opentlv_configure_compiler(example-tlv++-quick-start)
     opentlv_copy_shared_runtime(example-tlv++-quick-start)
+    add_test(NAME Integration_example_tlvpp_quick_start COMMAND $<TARGET_FILE:example-tlv++-quick-start>)
+    set_tests_properties(Integration_example_tlvpp_quick_start PROPERTIES
+        LABELS "integration;examples" PASS_REGULAR_EXPRESSION "Value bytes: 3")
 
 endif()
 
@@ -60,6 +65,8 @@ add_executable(example-tlv++-formats-fixed-format src/formats/fixed_format.cpp)
 target_link_libraries(example-tlv++-formats-fixed-format PRIVATE tlv++)
 opentlv_configure_compiler(example-tlv++-formats-fixed-format)
 opentlv_copy_shared_runtime(example-tlv++-formats-fixed-format)
+add_test(NAME Integration_example_tlvpp_fixed_format COMMAND $<TARGET_FILE:example-tlv++-formats-fixed-format>)
+set_tests_properties(Integration_example_tlvpp_fixed_format PROPERTIES LABELS "integration;examples")
 # Same format, but tlv_fixed_format_t chosen at runtime through the raw C API.
 add_executable(example-tlv++-formats-fixed-format-runtime src/formats/fixed_format_runtime.cpp)
 target_link_libraries(example-tlv++-formats-fixed-format-runtime PRIVATE tlv++)
@@ -98,6 +105,14 @@ opentlv_copy_shared_runtime(example-tlvpp-custom-format)
 add_test(NAME Integration_example_tlvpp_custom_format COMMAND $<TARGET_FILE:example-tlvpp-custom-format>)
 set_tests_properties(Integration_example_tlvpp_custom_format PROPERTIES LABELS "integration;examples")
 
+# Explicit incremental control and native interoperability require no optional built-in.
+add_executable(example-tlvpp-advanced-control src/advanced_control.cpp)
+target_link_libraries(example-tlvpp-advanced-control PRIVATE tlv++)
+opentlv_configure_compiler(example-tlvpp-advanced-control)
+opentlv_copy_shared_runtime(example-tlvpp-advanced-control)
+add_test(NAME Integration_example_tlvpp_advanced_control COMMAND $<TARGET_FILE:example-tlvpp-advanced-control>)
+set_tests_properties(Integration_example_tlvpp_advanced_control PROPERTIES LABELS "integration;examples")
+
 if(OPENTLV_DOCUMENT AND OPENTLV_FORMAT_BER)
     add_executable(example-tlv++-document src/document.cpp)
     target_link_libraries(example-tlv++-document PRIVATE tlv++)
@@ -105,4 +120,10 @@ if(OPENTLV_DOCUMENT AND OPENTLV_FORMAT_BER)
     opentlv_copy_shared_runtime(example-tlv++-document)
     add_test(NAME Integration_example_tlv++_document COMMAND $<TARGET_FILE:example-tlv++-document>)
     set_tests_properties(Integration_example_tlv++_document PROPERTIES LABELS "integration;examples")
+    add_executable(example-tlvpp-document-edit src/document_edit.cpp)
+    target_link_libraries(example-tlvpp-document-edit PRIVATE tlv++)
+    opentlv_configure_compiler(example-tlvpp-document-edit)
+    opentlv_copy_shared_runtime(example-tlvpp-document-edit)
+    add_test(NAME Integration_example_tlvpp_document_edit COMMAND $<TARGET_FILE:example-tlvpp-document-edit>)
+    set_tests_properties(Integration_example_tlvpp_document_edit PROPERTIES LABELS "integration;examples")
 endif()

@@ -342,12 +342,14 @@ int options::parse(int argc, char** argv) {
         return fail(2, "--fixed-tag-size/--fixed-length-size/--fixed-byte-order require "
                        "--format fixed");
     if (querying) {
-        const tlv_result_t rc = tlv_query_parse(path, &query, nullptr);
+        auto               parsed_query = tlv::query::parse(path);
+        const tlv_result_t rc = parsed_query ? TLV_OK : parsed_query.error().code;
         if (rc == TLV_ERR_INVALID_ARG)
             return fail(2, "invalid query path; use hexadecimal tags separated by /");
         if (rc == TLV_ERR_INVALID_TAG_SIZE) return fail(2, "query tag is too long");
         if (rc != TLV_OK) return fail(2, "query path has too many tags");
-        if (query.count > 1 && strcmp(format, "ber") && strcmp(format, "der") &&
+        query = std::make_shared<tlv::query>(std::move(*parsed_query));
+        if (query->size() > 1 && strcmp(format, "ber") && strcmp(format, "der") &&
             strcmp(format, "emv"))
             return fail(2, "a query with nested tags requires --format ber, der or emv");
         if (value_only && strcmp(output, "text"))

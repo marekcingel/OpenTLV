@@ -9,25 +9,26 @@ namespace cli {
 // decode's visitor: builds the versioned document (docs/cli/json-schema.md).
 // A primitive carries its raw "value"; a constructed element carries its
 // "children" instead, plus an explicit "length_mode" for BER.
-tlv_visit_result_t decode_command::visit_element(const tlv_element_t* element, std::size_t depth,
-                                                 std::size_t offset) {
-    diagnostic_scope_visit(scope_, data(), element, depth, format_->is_constructed);
+tlv_visit_result_t decode_command::visit_element(const tlv::element_view& element,
+                                                 std::size_t depth, std::size_t offset) {
+    const auto native = tlv::native::descriptor(element);
+    diagnostic_scope_visit(scope_, data(), &native, depth, format_->is_constructed);
     offset += base_;
-    const bool indefinite = ber_ && data()[offset + element->tag.size] == 0x80;
-    cli_presentation_visit(&presentation_, element, depth, indefinite);
+    const bool indefinite = ber_ && data()[offset + element.tag().size()] == 0x80;
+    cli_presentation_visit(&presentation_, &native, depth, indefinite);
     nlohmann::ordered_json object;
-    object["tag"] = hex_string(element->tag.data, element->tag.size);
+    object["tag"] = hex_string(element.tag().as_bytes());
     if (bluetooth_module(options_)) {
-        json_bluetooth(object, element, options_.decode != 0);
+        json_bluetooth(object, &native, options_.decode != 0);
     } else if (options_.module) {
-        json_emv(object, presentation_, element, depth, options_.describe, false);
-        if (options_.decode) json_decode(object, presentation_, element, depth);
+        json_emv(object, presentation_, &native, depth, options_.describe, false);
+        if (options_.decode) json_decode(object, presentation_, &native, depth);
     }
-    if (format_->is_constructed && format_->is_constructed(format_->context, &element->tag)) {
+    if (format_->is_constructed && format_->is_constructed(format_->context, &native.tag)) {
         if (ber_) object["length_mode"] = indefinite ? "indefinite" : "definite";
         object["children"] = nlohmann::ordered_json::array();
     } else {
-        object["value"] = hex_string(element->value.data, cli_element_value_size(element));
+        object["value"] = hex_string(element.value().as_bytes());
     }
     document_flush(depth);
     document_stack_.push_back(std::move(object));

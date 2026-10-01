@@ -11,7 +11,7 @@ public:
     using traversal_command::traversal_command;
 
 protected:
-    tlv_visit_result_t visit_element(const tlv_element_t* element, std::size_t depth,
+    tlv_visit_result_t visit_element(const tlv::element_view& element, std::size_t depth,
                                      std::size_t offset) override;
     void               render_output() override;
 };

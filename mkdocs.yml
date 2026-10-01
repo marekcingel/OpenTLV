@@ -125,6 +125,7 @@ nav:
       - Schemas and length validation: guides/schemas.md
       - Value codecs: guides/codecs.md
       - Copy helpers: guides/copy.md
+      - C++ examples: guides/cxx-examples.md
       - Pull-based Reader: guides/reader.md
       - Writer and scoped construction: guides/writer.md
       - Path queries: guides/queries.md

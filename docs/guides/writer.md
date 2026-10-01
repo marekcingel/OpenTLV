@@ -130,7 +130,7 @@ bytes independently, and is compiled and run by the example test suite:
 // Builds the same BER document as parse.cpp using scoped, allocation-free writes.
 #include "tlv++/builtins/asn1/ber.hpp"
 #include <array>
-#include <cstring>
+#include <algorithm>
 #include <iostream>
 
 // Same bytes as parse.cpp's document.
@@ -140,9 +140,8 @@ static const std::array<tlv::byte, 12> expected = {
     tlv::byte(0x03), tlv::byte(0x50), tlv::byte(0x01), tlv::byte(0x01)};
 
 int main() {
-    std::array<tlv::byte, 12>  output{};
-    tlv::writer_storage<12, 2> storage;
-    auto result = tlv::ber::encode(output, storage.view(), [](tlv::writer_builder& writer) {
+    std::array<tlv::byte, 12> output{};
+    auto result = tlv::ber::encode<12, 2>(output, [](tlv::writer_builder& writer) {
         writer.constructed<0x6F>([](tlv::writer_builder& fci) {
             fci.write<0x84>("ABC");
             fci.constructed<0xA5>([](tlv::writer_builder& proprietary) {
@@ -157,8 +156,7 @@ int main() {
     }
 
     std::cout << "Wrote " << *result << " bytes\n";
-    return *result == expected.size() &&
-                   std::memcmp(output.data(), expected.data(), expected.size()) == 0
+    return *result == expected.size() && std::equal(output.begin(), output.end(), expected.begin())
                ? 0
                : 1;
 }

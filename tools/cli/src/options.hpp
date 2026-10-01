@@ -1,8 +1,9 @@
 #ifndef OPENTLV_CLI_OPTIONS_HPP
 #define OPENTLV_CLI_OPTIONS_HPP
 #include <cstddef>
+#include <memory>
 #include "tlv/config.h"
-#include "tlv/query/query.h"
+#include "tlv++/query/query.hpp"
 
 namespace cli {
 
@@ -52,9 +53,9 @@ public:
     const char* search = nullptr;
     // query only: the path text, its parsed form and whether to print only
     // the values of the addressed elements.
-    const char* path = nullptr;
-    tlv_query_t query = {};
-    int         value_only = 0;
+    const char*                       path = nullptr;
+    std::shared_ptr<const tlv::query> query;
+    int                               value_only = 0;
     // --format fixed only: tag width, length width and length byte order.
     std::size_t fixed_tag_size = 1;
     std::size_t fixed_length_size = 1;
