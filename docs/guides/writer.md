@@ -39,6 +39,13 @@ write those bytes. The Writer does not infer a codec from a tag or serialize a
 host object's memory. The existing `write_value()` convenience for application
 codecs uses a temporary vector and is outside this allocation-free interface.
 
+For reusable associations between tags and semantic types, sequential Writers
+also support `write<Field>(value)` and `write<Field>(value, scratch)` using
+[typed fields and Value codecs](codecs.md#c11-typed-fields-and-value-codecs).
+The first form stages Value in an owned vector; the second uses caller-owned
+scratch. Both delegate framing to the same Writer and preserve codec errors
+separately from Writer errors. Scoped builders retain their byte-input API.
+
 The same typed inputs and byte-tag templates are available on the sequential
 `tlv::writer<F>`:
 

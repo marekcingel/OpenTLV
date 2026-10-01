@@ -11,6 +11,7 @@
 #include "tlv++/query/query.hpp"
 #include "tlv++/reader/tree.hpp"
 #include "tlv++/types.hpp"
+#include "tlv++/codec/typed.hpp"
 #include "tlv/document/document.h"
 
 /**
@@ -92,6 +93,33 @@ class node_range;
  */
 class node {
 public:
+    /** @brief Decode this primitive Node, checking the typed field's tag.
+     * @tparam Field Typed field selecting Value type and codec.
+     * @return Typed value, invalid_node, tag_mismatch, constructed_value, or codec error.
+     * @warning Borrowed codec results retain Document storage lifetime and edit invalidation.
+     * Owning codecs may allocate; allocation exceptions propagate.
+     */
+    template <typename Field>
+    TLV_NODISCARD expected<typename Field::value_type, typed_error> decode() const {
+        if (!*this) return unexpected<typed_error>(typed_error(typed_errc::invalid_node));
+        if (tag() != Field::tag())
+            return unexpected<typed_error>(typed_error(typed_errc::tag_mismatch));
+        if (is_constructed())
+            return unexpected<typed_error>(typed_error(typed_errc::constructed_value));
+        return element_view(tag(), value()).template decode<Field>();
+    }
+    /** @brief Decode the first direct child matching a typed field; no recursive lookup.
+     * @tparam Field Typed field selecting identifier, Value type and codec.
+     * @return Typed value, invalid_node, missing_field, or the child's decode error.
+     * @warning Borrowed results follow the child's Value lifetime. Does not validate Schema.
+     */
+    template <typename Field>
+    TLV_NODISCARD expected<typename Field::value_type, typed_error> get() const {
+        if (!*this) return unexpected<typed_error>(typed_error(typed_errc::invalid_node));
+        auto child = find(Field::tag());
+        if (!child) return unexpected<typed_error>(typed_error(typed_errc::missing_field));
+        return child.template decode<Field>();
+    }
     /** @brief Creates an empty handle. */
     node() = default;
 
@@ -454,6 +482,18 @@ struct document_format {
  */
 class document {
 public:
+    /** @brief Decode the first top-level element matching a typed field.
+     * @tparam Field Typed field selecting identifier, Value type and codec.
+     * @return Typed value, missing_field, or the Node decode error.
+     * @warning Borrowed results retain Document Value lifetime and edit invalidation.
+     * This operation does not validate Schema or enforce uniqueness; owning codecs may allocate.
+     */
+    template <typename Field>
+    TLV_NODISCARD expected<typename Field::value_type, typed_error> get() const {
+        auto found = find(Field::tag());
+        if (!found) return unexpected<typed_error>(typed_error(typed_errc::missing_field));
+        return found.template decode<Field>();
+    }
     document(const document&) = delete;
     document& operator=(const document&) = delete;
 

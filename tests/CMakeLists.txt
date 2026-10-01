@@ -5,6 +5,7 @@ project(tests)
 include(tag_layout_checks.cmake)
 include(fixed_format_checks.cmake)
 include(custom_format_checks.cmake)
+include(typed_field_checks.cmake)
 add_test(NAME architecture-pipeline
     COMMAND ${CMAKE_COMMAND} -P ${CMAKE_CURRENT_SOURCE_DIR}/pipeline_checks.cmake)
 set_tests_properties(architecture-pipeline PROPERTIES LABELS "integration;architecture")

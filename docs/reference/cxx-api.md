@@ -12,6 +12,8 @@ the incremental redesign, borrowed `tlv::format` views and explicit native
 interoperability. Include `tlv++/native.hpp` separately for that interoperability API.
 The [Format customization contract](../concepts/cxx-formats.md) defines application
 Formats, traits, capability checks and shared adapters for higher-level consumers.
+The [typed field and Value codec guide](../guides/codecs.md#c11-typed-fields-and-value-codecs)
+describes C++11 field definitions, codec customization, typed lookup and writing.
 
 - [Namespace `tlv`](api/cxx-api/html/namespacetlv.html)
 - [Class index](api/cxx-api/html/classes.html) and
