@@ -118,6 +118,7 @@ nav:
       - Language bindings: concepts/bindings.md
       - C++ public/native boundary: concepts/cxx-native-boundary.md
       - C++ Format customization: concepts/cxx-formats.md
+      - C++ built-in standards: concepts/cxx-builtins.md
   - Guides:
       - Memory ownership: guides/memory.md
       - Diagnostics: guides/diagnostics.md

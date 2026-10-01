@@ -27,6 +27,18 @@ public:
     format() noexcept : tlv::format(detail::format_access::borrow(tlv_format_ber)) {}
 };
 
+/**
+ * @brief BER preset writing constructed elements with indefinite length and EOC.
+ * @note Reads supported BER framing, but rejects primitive writes. Uses the
+ * generic Reader, Writer and Format operations without allocating.
+ */
+class indefinite_format : public tlv::format {
+public:
+    /** @brief Borrow the immutable program-lifetime BER indefinite descriptor. */
+    indefinite_format() noexcept
+        : tlv::format(detail::format_access::borrow(tlv_format_ber_indefinite)) {}
+};
+
 /** @brief Build BER output with explicit caller-owned frames and scratch.
  * @param output Borrowed mutable byte span, array or contiguous byte container.
  * @param workspace Disjoint construction storage, never resized.
@@ -76,8 +88,9 @@ TLV_NODISCARD inline detail::parsing_range<format> parse(bytes data) {
  *
  * Wraps tlv_ber_write_indefinite().
  *
- * @param data     Destination buffer. `nullptr` with zero `capacity` queries
- *                 the size.
+ * @param data     Destination buffer. Insufficient capacity, including
+ *                 nullptr/0, reports BUFFER_TOO_SHORT; use measure() with
+ *                 ber::indefinite_format to determine the required size.
  * @param capacity Destination capacity in bytes.
  * @param tag      Constructed element tag.
  * @param children Already encoded children, without the enclosing EOC. Must
@@ -97,6 +110,22 @@ TLV_NODISCARD inline expected<size_t, error> ber_write_indefinite(byte* data, si
     if (rc != TLV_OK) return unexpected<error>(error::from_c(rc));
     return written;
 }
+
+namespace ber {
+/**
+ * @brief Wrap encoded children in explicit BER indefinite-length framing.
+ * @param output Disjoint caller-owned destination; insufficient capacity is an error.
+ * @param tag Constructed identifier; the C engine validates its form.
+ * @param children Borrowed child sequence, without the enclosing EOC.
+ * @return Written bytes, or the original C error.
+ * @note Successful encoding allocates nothing; failure leaves the destination unchanged.
+ * An error description may allocate. Measure using tlv::measure and indefinite_format.
+ */
+TLV_NODISCARD inline expected<size_t, error> write_indefinite(span<byte> output, tlv::tag tag,
+                                                              bytes children) {
+    return tlv::ber_write_indefinite(output.data(), output.size(), tag, children);
+}
+} // namespace ber
 
 } // namespace tlv
 

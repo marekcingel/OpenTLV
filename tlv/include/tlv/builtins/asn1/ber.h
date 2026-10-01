@@ -126,8 +126,9 @@ TLV_API tlv_result_t tlv_ber_indefinite_encoded_size(tlv_tag_t tag, size_t lengt
  * accepted. Child framing and nesting are validated before the buffer is
  * changed.
  *
- * @param[out] data     Destination buffer. `NULL` with zero `capacity` queries
- *                      the size.
+ * @param[out] data     Destination buffer. `NULL` with zero `capacity` reports
+ *                      #TLV_ERR_BUFFER_TOO_SHORT for a valid element. Use
+ *                      tlv_ber_indefinite_encoded_size() for a size query.
  * @param[in]  capacity Destination capacity in bytes.
  * @param[in]  tag      Constructed element tag.
  * @param[in]  value    Already encoded children. Must not include the

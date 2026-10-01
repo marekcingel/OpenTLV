@@ -24,6 +24,9 @@
 #include "tlv++/codec/structure.hpp"
 #include "tlv++/query/query.hpp"
 #include "tlv++/schema/schema.hpp"
+#if OPENTLV_FORMAT_BER
+#include "tlv++/builtins/asn1/codec.hpp"
+#endif
 #if OPENTLV_FORMAT_DER
 #include "tlv++/builtins/asn1/der.hpp"
 #endif
@@ -32,19 +35,23 @@
 #endif
 #if OPENTLV_BLUETOOTH
 #include "tlv++/builtins/bluetooth/ltv.hpp"
+#include "tlv++/builtins/bluetooth/codec.hpp"
 #endif
 #if OPENTLV_NFC
 #include "tlv++/builtins/nfc/type2.hpp"
 #endif
 #if OPENTLV_DHCP
 #include "tlv++/builtins/dhcp/dhcpv4.hpp"
+#include "tlv++/builtins/dhcp/codec.hpp"
 #include "tlv++/builtins/dhcp/container.hpp"
 #endif
 #if OPENTLV_EMV
 #include "tlv++/builtins/emv/format.hpp"
+#include "tlv++/builtins/emv/codec.hpp"
 #endif
 #if OPENTLV_LLDP
 #include "tlv++/builtins/lldp/lldp.hpp"
+#include "tlv++/builtins/lldp/codec.hpp"
 #endif
 #if OPENTLV_FORMAT_BER
 #include "tlv++/builtins/asn1/ber.hpp"
