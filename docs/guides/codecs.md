@@ -78,6 +78,95 @@ supports it. On failure destination contents are unspecified and encode's
 independently from parser/writer `tlv_result_t` errors. The existing C++ codec
 trait and registry are separate APIs and are unchanged.
 
+## C++11 typed fields and Value codecs
+
+Include `<tlv++/codec/typed.hpp>` (also included by `<tlv++/tlv.hpp>`).
+`field<Tag, T, Codec = codec<T>>` associates a canonical byte identifier with
+a semantic C++ type and a tag-independent Value conversion. It does not add
+a Definition registry, Schema, or protocol dependency.
+
+```cpp
+using Label = tlv::field<tlv::tag_constant<0x50>, std::string>;
+using Counter = tlv::field<tlv::tag_constant<0x9F, 0x36>, uint16_t,
+                           tlv::uint16_be_codec>;
+
+auto label = document.get<Label>(); // expected<std::string, tlv::typed_error>
+auto counter = element.decode<Counter>();
+auto written = writer.write<Counter>(uint16_t{42});
+// Check every result before accessing its value.
+```
+
+`tag_constant` lists identifier bytes in order, preserving leading zeros;
+`tag_constant<>` represents an absent identifier. The destination Format decides
+whether it can encode that identifier. Value endianness belongs to the explicitly
+selected codec, independently of the Format's Length encoding.
+
+`document.get<Field>()` selects the first matching top-level element.
+`node.get<Field>()` selects the first matching direct child, without recursive
+search. Duplicate tags retain first-match behavior. `node.decode<Field>()` and
+`element.decode<Field>()` check the current tag before invoking the codec.
+Scalar Node decoding rejects constructed Nodes, whose Value is represented by
+children rather than a serialized byte view. Element decoding uses the Value
+bytes supplied by the caller, including an explicitly selected structure codec.
+These calls do not validate Schema, uniqueness, required fields or contextual
+length limits.
+
+`typed_error.kind` distinguishes missing fields, mismatched tags, invalid Node
+handles, constructed Nodes, codec failures and Writer failures. Codec and Writer
+failures retain their original `codec_code` and `framing_code`, respectively;
+the other domain remains successful. Errors do not allocate.
+
+Available adapters are `uint8_codec`, `uint16_be_codec`, `uint16_le_codec`,
+`uint32_be_codec`, `uint32_le_codec`, and `int64_minimal_be_codec`. They delegate
+to the C Value codecs. `codec_adapter<T, &descriptor>` supports other C codecs
+when `T` is exactly their documented, default-constructible C representation.
+Do not use it to reinterpret an STL object as a C representation.
+
+Defaults exist for `uint8_t`, `value_view` and `std::string`. Strings own the
+exact bytes, including embedded NUL, without implicit UTF-8 validation.
+`value_view` borrows input; Reader advancement, input changes, Document edits
+and destruction retain their usual storage lifetime requirements. Multibyte
+integers require an explicit codec. BCD and text validation likewise require
+an explicit conversion with the desired policy.
+
+Applications can specialize `tlv::codec<MyType>` or supply a separate codec as
+the third field parameter. Both mechanisms use this C++11 contract:
+
+```cpp
+struct MyCodec {
+    using value_type = MyType;
+    static tlv::expected<MyType, tlv_codec_result_t> decode(tlv::bytes input);
+    static tlv::expected<size_t, tlv_codec_result_t>
+    encode(const MyType& value, tlv::byte* output, size_t capacity);
+};
+```
+
+Decode consumes the entire Value and validates intrinsic representation rules.
+Encode with `nullptr, 0` validates and reports the exact required byte count;
+normal encode respects capacity and reports the same count. Codec operations
+never receive a tag or perform a registry lookup. Field instantiation checks
+the value type and return types. Owning/custom codec allocation exceptions
+propagate rather than being converted to framing errors.
+
+`writer.write<Field>(value)` stages Value bytes in a temporary vector and may
+allocate. For caller-owned staging use:
+
+```cpp
+tlv::byte scratch[2];
+auto result = writer.write<Counter>(uint16_t{42}, {scratch, sizeof(scratch)});
+```
+
+Scratch, input storage and Writer output must be disjoint. Insufficient scratch
+fails before the Writer is invoked. Codec failures preserve the output cursor;
+Writer failures also preserve it under the usual Writer contract, though bytes
+past the cursor may change. Custom codecs may allocate even with caller-owned
+scratch. The selected Format still generates all element framing.
+
+The [compiled typed-field example](../../examples/tlv++/src/typed_fields.cpp)
+uses C++11 with no optional protocol component and exercises Document lookup
+when Document is enabled. The existing `is_tlv_codec`, `write_value()` and
+runtime registry remain available with their original contracts.
+
 ## ASN.1 universal-type codecs
 
 `tlv/builtins/asn1/asn1_codec.h` provides `tlv_codec_t` descriptors for the

@@ -9,6 +9,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Fixed
 
+- Retry Lua CI test dependency installation after temporary download failures, while retaining failure after three unsuccessful attempts. (#436)
 - Resolve the CodeQL suspicious pointer-offset warning in C++ Writer tests by using an explicit element count. (#445)
 - Avoid constructing an unused C++ error string for successful `expected<void, E>` results, keeping successful Writer operations allocation-free with debug standard libraries. (#434)
 - Fix CI compilation of custom Format tests in C++20 and newer by constructing empty byte spans without an untyped null pointer. (#432)
@@ -107,6 +108,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Added
 
+- Add C++11 typed fields and customizable Value codecs, with typed Document/Node lookup, Element/Node decoding, and Writer operations supporting caller-owned scratch storage. (#436)
 - Add natural C++ Document iteration, iterable Node children and direct child insertion; track Node validity across subtree edits and Document destruction while preserving unaffected handles. (#435)
 - Add typed C++ Writer inputs and byte-tag templates, scoped nested builders, bounded caller-owned workspace, exact staged measurement and BER encoding helpers with allocation-free builder results. (#434)
 - Add C++11 single-pass Reader iteration, generic and built-in `parse` ranges, and iteration exceptions preserving Reader error codes, offsets and diagnostics without copying Value bytes. (#433)

@@ -13,6 +13,15 @@
 
 namespace tlv {
 
+/// @cond INTERNAL
+struct typed_error;
+class element_view;
+namespace detail {
+template <typename Field>
+expected<typename Field::value_type, typed_error> decode_field(const element_view& value);
+}
+/// @endcond
+
 /**
  * @brief Idiomatic C++ error that wraps a C result code and its description.
  *
@@ -232,6 +241,15 @@ private:
  */
 class element_view {
 public:
+    /** @brief Decode this element with a typed field, checking its tag first.
+     * @tparam Field A tlv::field specialization; include codec/typed.hpp.
+     * @return Typed value, tag_mismatch, or the original codec error.
+     * @warning Borrowed results retain the input lifetime. Owning codecs may allocate.
+     */
+    template <typename Field>
+    TLV_NODISCARD expected<typename Field::value_type, typed_error> decode() const {
+        return detail::decode_field<Field>(*this);
+    }
     /** @brief Create an absent Tag and empty Value without allocation. */
     element_view() noexcept = default;
     /** @brief Combine borrowed semantic views; their storage must outlive every copy. */

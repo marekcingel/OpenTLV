@@ -15,8 +15,7 @@
 namespace tlv {
 
 /**
- * @brief Trait for the interface every payload type must satisfy to be encoded and decoded through
- * TLV.
+ * @brief Trait for the legacy application payload interface that includes its own tag.
  *
  * `T` satisfies the trait when it provides:
  * - a static member `tag` convertible to #tlv::tag. The tag only borrows its bytes, so they must
@@ -28,6 +27,7 @@ namespace tlv {
  * Implementations live outside the library core. C++20 and later expose the
  * same check as the TlvCodec concept. In C++11 through C++17 it remains an
  * ordinary trait so the API can use SFINAE.
+ * For reusable tag-independent Value conversion, use codec<T> and field instead.
  *
  * @tparam T Payload type to check.
  */

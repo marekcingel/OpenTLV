@@ -19,6 +19,10 @@ operation can be compared across languages.
 
 ## API tour
 
+- [`typed_fields.cpp`](typed_fields.cpp) -- associate byte tags with semantic types,
+  write using caller-owned scratch, and decode through Element or optional Document.
+  Requires C++11 and no optional protocol component.
+
 - [`basic_usage.cpp`](basic_usage.cpp) -- a sequential `tlv::writer<>`/`tlv::reader<>`
   round trip over BER.
 

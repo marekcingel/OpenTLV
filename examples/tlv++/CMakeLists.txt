@@ -2,6 +2,14 @@ cmake_minimum_required(VERSION 3.16)
 
 project(example-tlv++ LANGUAGES CXX)
 
+add_executable(example-tlvpp-typed-fields src/typed_fields.cpp)
+target_link_libraries(example-tlvpp-typed-fields PRIVATE tlv++)
+set_target_properties(example-tlvpp-typed-fields PROPERTIES CXX_STANDARD 11 CXX_STANDARD_REQUIRED ON CXX_EXTENSIONS OFF)
+opentlv_configure_compiler(example-tlvpp-typed-fields)
+opentlv_copy_shared_runtime(example-tlvpp-typed-fields)
+add_test(NAME Integration_example_tlvpp_typed_fields COMMAND $<TARGET_FILE:example-tlvpp-typed-fields>)
+set_tests_properties(Integration_example_tlvpp_typed_fields PROPERTIES LABELS "integration;examples")
+
 if(OPENTLV_LLDP)
     add_executable(example-tlvpp-lldp src/lldp.cpp)
     target_link_libraries(example-tlvpp-lldp PRIVATE tlv++)

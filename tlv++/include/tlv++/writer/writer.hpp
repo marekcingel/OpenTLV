@@ -108,6 +108,26 @@ TLV_NODISCARD inline expected<size_t, error> write(byte* data, size_t capacity,
 namespace detail {
 class writer_base {
 public:
+    /** @brief Encode a typed field into temporary owned storage, then write through Format.
+     * @tparam Field Typed field selecting identifier and codec; include codec/typed.hpp.
+     * @param value Semantic value, borrowed for this call.
+     * @return Success or original codec/Writer error in its own domain.
+     * @note May allocate; allocation exceptions propagate. Failure preserves the cursor.
+     */
+    template <typename Field>
+    TLV_NODISCARD expected<void, typed_error> write(const typename Field::value_type& value);
+
+    /** @brief Encode a typed field using caller-owned scratch, then write through Format.
+     * @tparam Field Typed field selecting identifier and codec; include codec/typed.hpp.
+     * @param value Semantic input, disjoint from scratch and Writer output.
+     * @param scratch Temporary writable Value storage, disjoint from Writer output.
+     * @return Success, codec error (including insufficient scratch), or original Writer error.
+     * @note No library Value allocation. Custom codecs may allocate. Failure preserves
+     * the Writer cursor; scratch and bytes beyond the cursor may change.
+     */
+    template <typename Field>
+    TLV_NODISCARD expected<void, typed_error> write(const typename Field::value_type& value,
+                                                    span<byte>                        scratch);
     /** @brief Initialize from borrowed mutable byte storage and a C++ Format view.
      * @param output Caller-owned contiguous storage, never resized.
      * @param format Borrowed descriptor and context, live for the cursor lifetime.
