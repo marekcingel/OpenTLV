@@ -1317,6 +1317,17 @@
 </li>
       
         <li class="md-nav__item">
+  <a href="#c-iteration-and-parsing-ranges" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        C++ iteration and parsing ranges
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
   <a href="#pull-based-tree-traversal" class="md-nav__link">
     <span class="md-ellipsis">
       
@@ -3033,6 +3044,17 @@
 </li>
       
         <li class="md-nav__item">
+  <a href="#c-iteration-and-parsing-ranges" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        C++ iteration and parsing ranges
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
   <a href="#pull-based-tree-traversal" class="md-nav__link">
     <span class="md-ellipsis">
       
@@ -3266,6 +3288,72 @@ leaves the diagnostic unchanged.</p>
 from the same decode. Source ranges remain relative to <code>source.data</code>, the
 element start. Capture <code>tlv_reader_offset()</code> before the call to locate that source in
 the logical stream. Non-success leaves both success outputs unchanged.</p>
+<h2 id="c-iteration-and-parsing-ranges">C++ iteration and parsing ranges<a class="headerlink" href="#c-iteration-and-parsing-ranges" title="Permanent link">&para;</a></h2>
+<p><code>tlv::reader&lt;F&gt;</code> is a C++11 single-pass input range over the canonical C Reader.
+It yields <code>tlv::element_view</code>, borrowing Tag and Value bytes without allocating
+or copying Value contents on successful reads. Iteration is flat: constructed
+Values remain opaque. Use Tree Reader for nested traversal.</p>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-1-1" name="__codelineno-1-1" href="#__codelineno-1-1"></a><span class="cp">#include</span><span class="w"> </span><span class="cpf">"tlv++/tlv.hpp"</span>
+<a id="__codelineno-1-2" name="__codelineno-1-2" href="#__codelineno-1-2"></a>
+<a id="__codelineno-1-3" name="__codelineno-1-3" href="#__codelineno-1-3"></a><span class="n">tlv</span><span class="o">::</span><span class="n">reader</span><span class="o">&lt;</span><span class="n">tlv</span><span class="o">::</span><span class="n">ber</span><span class="o">::</span><span class="n">format</span><span class="o">&gt;</span><span class="w"> </span><span class="n">reader</span><span class="p">(</span><span class="n">data</span><span class="p">);</span><span class="w"> </span><span class="c1">// data is a borrowed tlv::bytes</span>
+<a id="__codelineno-1-4" name="__codelineno-1-4" href="#__codelineno-1-4"></a><span class="k">for</span><span class="w"> </span><span class="p">(</span><span class="k">auto</span><span class="w"> </span><span class="n">element</span><span class="w"> </span><span class="o">:</span><span class="w"> </span><span class="n">reader</span><span class="p">)</span><span class="w"> </span><span class="p">{</span>
+<a id="__codelineno-1-5" name="__codelineno-1-5" href="#__codelineno-1-5"></a><span class="w">    </span><span class="n">process</span><span class="p">(</span><span class="n">element</span><span class="p">.</span><span class="n">tag</span><span class="p">(),</span><span class="w"> </span><span class="n">element</span><span class="p">.</span><span class="n">value</span><span class="p">());</span>
+<a id="__codelineno-1-6" name="__codelineno-1-6" href="#__codelineno-1-6"></a><span class="p">}</span>
+<a id="__codelineno-1-7" name="__codelineno-1-7" href="#__codelineno-1-7"></a>
+<a id="__codelineno-1-8" name="__codelineno-1-8" href="#__codelineno-1-8"></a><span class="k">for</span><span class="w"> </span><span class="p">(</span><span class="k">auto</span><span class="w"> </span><span class="n">element</span><span class="w"> </span><span class="o">:</span><span class="w"> </span><span class="n">tlv</span><span class="o">::</span><span class="n">ber</span><span class="o">::</span><span class="n">parse</span><span class="p">(</span><span class="n">data</span><span class="p">))</span><span class="w"> </span><span class="p">{</span>
+<a id="__codelineno-1-9" name="__codelineno-1-9" href="#__codelineno-1-9"></a><span class="w">    </span><span class="n">process</span><span class="p">(</span><span class="n">element</span><span class="p">.</span><span class="n">tag</span><span class="p">(),</span><span class="w"> </span><span class="n">element</span><span class="p">.</span><span class="n">value</span><span class="p">());</span>
+<a id="__codelineno-1-10" name="__codelineno-1-10" href="#__codelineno-1-10"></a><span class="p">}</span>
+</code></pre></div>
+<p>The generic helpers are <code>tlv::parse&lt;F&gt;(data)</code> for default configuration and
+<code>tlv::parse(data, format)</code> for an explicit C++ Format, borrowed <code>tlv::format</code>
+view or native descriptor. Built-in namespaces provide <code>ber::parse</code>,
+<code>der::parse</code>, <code>cer::parse</code>, <code>bluetooth::parse</code>, <code>dhcp::parse</code>, <code>emv::parse</code>,
+<code>lldp::parse</code> and <code>nfc::parse</code> under <code>tlv</code>, when their components are enabled.
+They select framing only; Schema, container policy and Value codecs remain
+explicit. For example, NFC NULL and Terminator are yielded as ordinary Elements.
+The existing <code>tlv::ber</code> namespace precludes a function named <code>tlv::ber(data)</code>.</p>
+<p><code>begin()</code> reads and consumes one element from the current cursor position;
+<code>++</code> reads the next. Dereferencing does not parse again. Calling <code>begin()</code>
+again continues rather than restarting. A <code>break</code> leaves the published element
+consumed; explicit <code>next()</code> then reads the following element. <code>end()</code> does not
+parse. Only one traversal may be active per cursor. Advancing an iterator
+invalidates other copies, except that <code>*it++</code> exposes the previous borrowed
+Element. Explicit <code>next()</code>, <code>next_source()</code>, <code>visit()</code>, successful <code>set_input()</code>,
+and cursor destruction invalidate active iterators. Retained Element copies
+remain usable while their original backing storage remains alive and unchanged.</p>
+<p>Only genuine final EOF ends iteration. Initialization errors, malformed or
+truncated data, and <code>TLV_NEED_MORE_DATA</code> throw <code>tlv::parse_error</code> from <code>begin()</code>
+or increment. The failing element is not consumed; a successful prefix remains
+consumed. Even a custom decoder returning <code>TLV_ERR_END_OF_BUFFER</code> inside
+nonempty input produces an exception.</p>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-2-1" name="__codelineno-2-1" href="#__codelineno-2-1"></a><span class="k">try</span><span class="w"> </span><span class="p">{</span>
+<a id="__codelineno-2-2" name="__codelineno-2-2" href="#__codelineno-2-2"></a><span class="w">    </span><span class="k">for</span><span class="w"> </span><span class="p">(</span><span class="k">auto</span><span class="w"> </span><span class="n">element</span><span class="w"> </span><span class="o">:</span><span class="w"> </span><span class="n">tlv</span><span class="o">::</span><span class="n">ber</span><span class="o">::</span><span class="n">parse</span><span class="p">(</span><span class="n">data</span><span class="p">))</span><span class="w"> </span><span class="p">{</span>
+<a id="__codelineno-2-3" name="__codelineno-2-3" href="#__codelineno-2-3"></a><span class="w">        </span><span class="n">process</span><span class="p">(</span><span class="n">element</span><span class="p">.</span><span class="n">tag</span><span class="p">(),</span><span class="w"> </span><span class="n">element</span><span class="p">.</span><span class="n">value</span><span class="p">());</span>
+<a id="__codelineno-2-4" name="__codelineno-2-4" href="#__codelineno-2-4"></a><span class="w">    </span><span class="p">}</span>
+<a id="__codelineno-2-5" name="__codelineno-2-5" href="#__codelineno-2-5"></a><span class="p">}</span><span class="w"> </span><span class="k">catch</span><span class="w"> </span><span class="p">(</span><span class="k">const</span><span class="w"> </span><span class="n">tlv</span><span class="o">::</span><span class="n">parse_error</span><span class="o">&amp;</span><span class="w"> </span><span class="n">failure</span><span class="p">)</span><span class="w"> </span><span class="p">{</span>
+<a id="__codelineno-2-6" name="__codelineno-2-6" href="#__codelineno-2-6"></a><span class="w">    </span><span class="n">report</span><span class="p">(</span><span class="n">failure</span><span class="p">.</span><span class="n">code</span><span class="p">(),</span><span class="w"> </span><span class="n">failure</span><span class="p">.</span><span class="n">offset</span><span class="p">(),</span><span class="w"> </span><span class="n">failure</span><span class="p">.</span><span class="n">diagnostic</span><span class="p">());</span>
+<a id="__codelineno-2-7" name="__codelineno-2-7" href="#__codelineno-2-7"></a><span class="p">}</span>
+</code></pre></div>
+<p><code>code()</code> preserves the C result. <code>offset()</code> identifies the unconsumed element's
+absolute start; <code>diagnostic()</code> preserves the C diagnostic, whose field offset
+may differ. Diagnostic byte views remain borrowed, and constructing an exception
+may allocate. Applications needing result-based control or incremental input
+should keep using <code>next()</code>, <code>next_source()</code> and <code>set_input()</code>. An incremental
+Reader can be iterated, but exhaustion requests more data through an exception,
+even at an element boundary. After supplying input, start a new iteration.</p>
+<p>Parsing helpers treat input as final and return an internal range that owns its
+C++ Format configuration inline. The range supports move construction in C++11
+without relying on copy elision; it cannot be copied or assigned. Moving preserves
+the cursor position and rebuilds its internal Format addresses, but invalidates
+iterators and views borrowing its previous owned Format storage. Storage borrowed
+by the Format remains the caller's responsibility. Runtime Format descriptors
+and contexts are borrowed. Input must outlive every retained Element or diagnostic;
+the range must also outlive any result borrowing its owned Format. Construction
+or movement of an application Format may itself allocate; the range machinery
+does not. Typed <code>reader&lt;F&gt;</code> continues to prohibit copying and moving.</p>
+<p>See the compiled <a href="https://github.com/marekcingel/OpenTLV/blob/main/examples/tlv++/src/basic_usage.cpp">basic example</a>,
+<a href="https://github.com/marekcingel/OpenTLV/blob/main/examples/tlv++/src/formats/custom_format.cpp">custom Format example</a>, and
+<a href="https://github.com/marekcingel/OpenTLV/blob/main/examples/tlv++/src/formats/fixed_format_runtime.cpp">runtime Fixed example</a>.</p>
 <h2 id="pull-based-tree-traversal">Pull-based tree traversal<a class="headerlink" href="#pull-based-tree-traversal" title="Permanent link">&para;</a></h2>
 <p><code>tlv_tree_reader_t</code> is the canonical iterative structural cursor. Include
 <code>tlv/reader/tree.h</code>, supply caller-owned <code>tlv_tree_frame_t</code> storage, and initialize

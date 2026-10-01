@@ -1,6 +1,6 @@
 var searchData=
 [
-  ['span_0',['span',['../classtlv_1_1span.html',1,'tlv']]],
-  ['span_3c_20const_20byte_20_3e_1',['span&lt; const byte &gt;',['../classtlv_1_1span.html',1,'tlv']]],
-  ['span_3c_20const_20tlv_3a_3adefinition_20_3e_2',['span&lt; const tlv::definition &gt;',['../classtlv_1_1span.html',1,'tlv']]]
+  ['reader_0',['reader',['../classtlv_1_1reader.html',1,'tlv']]],
+  ['reader_3c_20tlv_3a_3aformat_20_3e_1',['reader&lt; tlv::format &gt;',['../classtlv_1_1reader_3_01tlv_1_1format_01_4.html',1,'tlv']]],
+  ['reader_5fbase_2',['reader_base',['../classtlv_1_1detail_1_1reader__base.html',1,'tlv::detail']]]
 ];

@@ -190,6 +190,9 @@ Classes</h2></td></tr>
 <tr class="memitem:"><td class="memItemLeft" align="right" valign="top">class &#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classtlv_1_1node__range.html">node_range</a></td></tr>
 <tr class="memdesc:"><td class="mdescLeft">&#160;</td><td class="mdescRight">A range of sibling elements, for use in range-based <code>for</code> loops.  <a href="classtlv_1_1node__range.html#details">More...</a><br /></td></tr>
 <tr class="separator:"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:"><td class="memItemLeft" align="right" valign="top">class &#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classtlv_1_1parse__error.html">parse_error</a></td></tr>
+<tr class="memdesc:"><td class="mdescLeft">&#160;</td><td class="mdescRight">Exception raised by Reader iteration on any outcome other than final EOF.  <a href="classtlv_1_1parse__error.html#details">More...</a><br /></td></tr>
+<tr class="separator:"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:"><td class="memItemLeft" align="right" valign="top">class &#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classtlv_1_1query.html">query</a></td></tr>
 <tr class="memdesc:"><td class="mdescLeft">&#160;</td><td class="mdescRight">A parsed path query such as <code>6F/A5/50</code>.  <a href="classtlv_1_1query.html#details">More...</a><br /></td></tr>
 <tr class="separator:"><td class="memSeparator" colspan="2">&#160;</td></tr>
@@ -200,7 +203,7 @@ Classes</h2></td></tr>
 <tr class="memdesc:"><td class="mdescLeft">&#160;</td><td class="mdescRight">Generic sequential reader using the canonical C engine.  <a href="classtlv_1_1reader.html#details">More...</a><br /></td></tr>
 <tr class="separator:"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:"><td class="memItemLeft" align="right" valign="top">class &#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classtlv_1_1reader_3_01tlv_1_1format_01_4.html">reader&lt; tlv::format &gt;</a></td></tr>
-<tr class="memdesc:"><td class="mdescLeft">&#160;</td><td class="mdescRight">Runtime Format cursor; descriptor and context remain borrowed.  <a href="classtlv_1_1reader_3_01tlv_1_1format_01_4.html#details">More...</a><br /></td></tr>
+<tr class="memdesc:"><td class="mdescLeft">&#160;</td><td class="mdescRight">Iterable runtime Format cursor; descriptor and context remain borrowed.  <a href="classtlv_1_1reader_3_01tlv_1_1format_01_4.html#details">More...</a><br /></td></tr>
 <tr class="separator:"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:"><td class="memItemLeft" align="right" valign="top">class &#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classtlv_1_1span.html">span</a></td></tr>
 <tr class="memdesc:"><td class="mdescLeft">&#160;</td><td class="mdescRight">Minimal non-owning view of contiguous elements for pre-C++20 builds.  <a href="classtlv_1_1span.html#details">More...</a><br /></td></tr>
@@ -372,6 +375,17 @@ Functions</h2></td></tr>
 <tr class="memitem:a5fb945b389299ab49b5b10717dccc776" id="r_a5fb945b389299ab49b5b10717dccc776"><td class="memItemLeft" align="right" valign="top"><a class="el" href="classtlv_1_1expected.html">expected</a>&lt; <a class="el" href="structtlv_1_1decoded.html">decoded</a>, <a class="el" href="structtlv_1_1error.html">error</a> &gt;&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="namespacetlv.html#a5fb945b389299ab49b5b10717dccc776">read</a> (<a class="el" href="namespacetlv.html#a2abe7003a70af047ef9acae17f31f75d">bytes</a> data, <a class="el" href="classtlv_1_1format.html">tlv::format</a> <a class="el" href="classtlv_1_1format.html">format</a>, size_t &amp;consumed, <a class="el" href="namespacetlv.html#aec6151f23d86b874b79d9d2ae021e568">reader_diagnostic</a> *<a class="el" href="namespacetlv.html#a00ca9c69c35ef11f6a22b7eda1b115ba">diagnostic</a>=nullptr)</td></tr>
 <tr class="memdesc:a5fb945b389299ab49b5b10717dccc776"><td class="mdescLeft">&#160;</td><td class="mdescRight">Read one element using a borrowed C++ Format view.  <br /></td></tr>
 <tr class="separator:a5fb945b389299ab49b5b10717dccc776"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:af29e95ce110ca8ccd5540280722003bd" id="r_af29e95ce110ca8ccd5540280722003bd"><td class="memTemplParams" colspan="2">template&lt;typename F &gt; </td></tr>
+<tr class="memitem:af29e95ce110ca8ccd5540280722003bd"><td class="memTemplItemLeft" align="right" valign="top"><a class="el" href="classtlv_1_1detail_1_1parsing__range.html">detail::parsing_range</a>&lt; F &gt;&#160;</td><td class="memTemplItemRight" valign="bottom"><a class="el" href="namespacetlv.html#af29e95ce110ca8ccd5540280722003bd">parse</a> (<a class="el" href="namespacetlv.html#a2abe7003a70af047ef9acae17f31f75d">bytes</a> data, F value)</td></tr>
+<tr class="memdesc:af29e95ce110ca8ccd5540280722003bd"><td class="mdescLeft">&#160;</td><td class="mdescRight">Create an allocation-free single-pass parsing range owning Format configuration.  <br /></td></tr>
+<tr class="separator:af29e95ce110ca8ccd5540280722003bd"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a488f90cb08dd94695022c7428683b774" id="r_a488f90cb08dd94695022c7428683b774"><td class="memTemplParams" colspan="2">template&lt;typename F &gt; </td></tr>
+<tr class="memitem:a488f90cb08dd94695022c7428683b774"><td class="memTemplItemLeft" align="right" valign="top"><a class="el" href="classtlv_1_1detail_1_1parsing__range.html">detail::parsing_range</a>&lt; F &gt;&#160;</td><td class="memTemplItemRight" valign="bottom"><a class="el" href="namespacetlv.html#a488f90cb08dd94695022c7428683b774">parse</a> (<a class="el" href="namespacetlv.html#a2abe7003a70af047ef9acae17f31f75d">bytes</a> data)</td></tr>
+<tr class="memdesc:a488f90cb08dd94695022c7428683b774"><td class="mdescLeft">&#160;</td><td class="mdescRight">Parse final input with default-constructed Format configuration.  <br /></td></tr>
+<tr class="separator:a488f90cb08dd94695022c7428683b774"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a9b52c2e4b9f04e2432d76a6083fac800" id="r_a9b52c2e4b9f04e2432d76a6083fac800"><td class="memItemLeft" align="right" valign="top"><a class="el" href="classtlv_1_1detail_1_1parsing__range.html">detail::parsing_range</a>&lt; <a class="el" href="classtlv_1_1format.html">tlv::format</a> &gt;&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="namespacetlv.html#a9b52c2e4b9f04e2432d76a6083fac800">parse</a> (<a class="el" href="namespacetlv.html#a2abe7003a70af047ef9acae17f31f75d">bytes</a> data, const <a class="elRef" href="../../c-api/html/group__formats.html#gac461da7e8d46362fa8e09694efb0b062">tlv_format_t</a> &amp;<a class="el" href="classtlv_1_1format.html">format</a>)</td></tr>
+<tr class="memdesc:a9b52c2e4b9f04e2432d76a6083fac800"><td class="mdescLeft">&#160;</td><td class="mdescRight">Parse final input with a borrowed native Format descriptor and context.  <br /></td></tr>
+<tr class="separator:a9b52c2e4b9f04e2432d76a6083fac800"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:ae89639a23a48bb20db474516224d7d3e" id="r_ae89639a23a48bb20db474516224d7d3e"><td class="memItemLeft" align="right" valign="top"><a class="el" href="classtlv_1_1expected.html">expected</a>&lt; void, <a class="el" href="structtlv_1_1error.html">error</a> &gt;&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="namespacetlv.html#ae89639a23a48bb20db474516224d7d3e">validate</a> (<a class="el" href="namespacetlv.html#a2abe7003a70af047ef9acae17f31f75d">bytes</a> data, const <a class="elRef" href="../../c-api/html/group__formats.html#gac461da7e8d46362fa8e09694efb0b062">tlv_format_t</a> &amp;<a class="el" href="classtlv_1_1format.html">format</a>, const <a class="elRef" href="../../c-api/html/group__schemas.html#ga86e8ecc543b5d6b397732cbcf2db59cf">tlv_structure_schema_t</a> &amp;schema, size_t max_depth, size_t max_elements, size_t *error_offset=nullptr)</td></tr>
 <tr class="memdesc:ae89639a23a48bb20db474516224d7d3e"><td class="mdescLeft">&#160;</td><td class="mdescRight">Validates framing, nesting, lengths and occurrence counts against a schema.  <br /></td></tr>
 <tr class="separator:ae89639a23a48bb20db474516224d7d3e"><td class="memSeparator" colspan="2">&#160;</td></tr>
@@ -2068,6 +2082,141 @@ template&lt;typename Source &gt; </div>
 <dl class="section return"><dt>Returns</dt><dd>Shared C descriptor with static lifetime. </dd></dl>
 <dl class="section note"><dt>Note</dt><dd>Requires <code>OPENTLV_NFC=ON</code>. The caller handles padding, termination and physical memory mapping; NDEF contents remain opaque. </dd></dl>
 <dl class="section see"><dt>See also</dt><dd><a class="elRef" href="../../c-api/html/type2_8h.html#a5f63fee79248da9ce4527d47ed674987">tlv_format_nfc_type2</a> </dd></dl>
+
+</div>
+</div>
+<a id="a488f90cb08dd94695022c7428683b774" name="a488f90cb08dd94695022c7428683b774"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#a488f90cb08dd94695022c7428683b774">&#9670;&#160;</a></span>parse() <span class="overload">[1/3]</span></h2>
+
+<div class="memitem">
+<div class="memproto">
+<div class="memtemplate">
+template&lt;typename F &gt; </div>
+      <table class="memname">
+        <tr>
+          <td class="memname"><a class="el" href="classtlv_1_1detail_1_1parsing__range.html">detail::parsing_range</a>&lt; F &gt; tlv::parse </td>
+          <td>(</td>
+          <td class="paramtype"><a class="el" href="namespacetlv.html#a2abe7003a70af047ef9acae17f31f75d">bytes</a>&#160;</td>
+          <td class="paramname"><em>data</em></td><td>)</td>
+          <td></td>
+        </tr>
+      </table>
+</div><div class="memdoc">
+
+<p>Parse final input with default-constructed Format configuration. </p>
+<dl class="tparams"><dt>Template Parameters</dt><dd>
+  <table class="tparams">
+    <tr><td class="paramname">F</td><td>Readable, default-constructible C++ Format. </td></tr>
+  </table>
+  </dd>
+</dl>
+<dl class="params"><dt>Parameters</dt><dd>
+  <table class="params">
+    <tr><td class="paramname">data</td><td>Immutable borrowed final input. </td></tr>
+  </table>
+  </dd>
+</dl>
+<dl class="section return"><dt>Returns</dt><dd>Single-pass range with the ownership and error rules of <a class="el" href="namespacetlv.html#af29e95ce110ca8ccd5540280722003bd" title="Create an allocation-free single-pass parsing range owning Format configuration.">parse(bytes, F)</a>. </dd></dl>
+
+</div>
+</div>
+<a id="a9b52c2e4b9f04e2432d76a6083fac800" name="a9b52c2e4b9f04e2432d76a6083fac800"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#a9b52c2e4b9f04e2432d76a6083fac800">&#9670;&#160;</a></span>parse() <span class="overload">[2/3]</span></h2>
+
+<div class="memitem">
+<div class="memproto">
+<table class="mlabels">
+  <tr>
+  <td class="mlabels-left">
+      <table class="memname">
+        <tr>
+          <td class="memname"><a class="el" href="classtlv_1_1detail_1_1parsing__range.html">detail::parsing_range</a>&lt; <a class="el" href="classtlv_1_1format.html">tlv::format</a> &gt; tlv::parse </td>
+          <td>(</td>
+          <td class="paramtype"><a class="el" href="namespacetlv.html#a2abe7003a70af047ef9acae17f31f75d">bytes</a>&#160;</td>
+          <td class="paramname"><em>data</em>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype">const <a class="elRef" href="../../c-api/html/group__formats.html#gac461da7e8d46362fa8e09694efb0b062">tlv_format_t</a> &amp;&#160;</td>
+          <td class="paramname"><em>format</em>&#160;</td>
+        </tr>
+        <tr>
+          <td></td>
+          <td>)</td>
+          <td></td><td></td>
+        </tr>
+      </table>
+  </td>
+  <td class="mlabels-right">
+<span class="mlabels"><span class="mlabel">inline</span></span>  </td>
+  </tr>
+</table>
+</div><div class="memdoc">
+
+<p>Parse final input with a borrowed native Format descriptor and context. </p>
+<dl class="params"><dt>Parameters</dt><dd>
+  <table class="params">
+    <tr><td class="paramname">data</td><td>Immutable borrowed final input. </td></tr>
+    <tr><td class="paramname">format</td><td>Native descriptor and context, which must outlive the range and results. </td></tr>
+  </table>
+  </dd>
+</dl>
+<dl class="section return"><dt>Returns</dt><dd>Single-pass range with the iteration error rules of <a class="el" href="namespacetlv.html#af29e95ce110ca8ccd5540280722003bd" title="Create an allocation-free single-pass parsing range owning Format configuration.">parse(bytes, F)</a>. </dd></dl>
+
+</div>
+</div>
+<a id="af29e95ce110ca8ccd5540280722003bd" name="af29e95ce110ca8ccd5540280722003bd"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#af29e95ce110ca8ccd5540280722003bd">&#9670;&#160;</a></span>parse() <span class="overload">[3/3]</span></h2>
+
+<div class="memitem">
+<div class="memproto">
+<div class="memtemplate">
+template&lt;typename F &gt; </div>
+      <table class="memname">
+        <tr>
+          <td class="memname"><a class="el" href="classtlv_1_1detail_1_1parsing__range.html">detail::parsing_range</a>&lt; F &gt; tlv::parse </td>
+          <td>(</td>
+          <td class="paramtype"><a class="el" href="namespacetlv.html#a2abe7003a70af047ef9acae17f31f75d">bytes</a>&#160;</td>
+          <td class="paramname"><em>data</em>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype">F&#160;</td>
+          <td class="paramname"><em>value</em>&#160;</td>
+        </tr>
+        <tr>
+          <td></td>
+          <td>)</td>
+          <td></td><td></td>
+        </tr>
+      </table>
+</div><div class="memdoc">
+
+<p>Create an allocation-free single-pass parsing range owning Format configuration. </p>
+<dl class="tparams"><dt>Template Parameters</dt><dd>
+  <table class="tparams">
+    <tr><td class="paramname">F</td><td>Readable C++ Format; deduced from the configuration argument. </td></tr>
+  </table>
+  </dd>
+</dl>
+<dl class="params"><dt>Parameters</dt><dd>
+  <table class="params">
+    <tr><td class="paramname">data</td><td>Immutable borrowed input, treated as final. </td></tr>
+    <tr><td class="paramname">value</td><td>Format configuration copied or moved into the range. </td></tr>
+  </table>
+  </dd>
+</dl>
+<dl class="section return"><dt>Returns</dt><dd>Move-constructible range yielding <a class="el" href="classtlv_1_1element__view.html" title="Format-independent borrowed Tag and Value, without source metadata.">element_view</a> through the canonical C Reader. </dd></dl>
+<dl class="exception"><dt>Exceptions</dt><dd>
+  <table class="exception">
+    <tr><td class="paramname"><a class="el" href="classtlv_1_1parse__error.html" title="Exception raised by Reader iteration on any outcome other than final EOF.">parse_error</a></td><td>During iteration on any failure; only final EOF ends the range. </td></tr>
+  </table>
+  </dd>
+</dl>
+<dl class="section note"><dt>Note</dt><dd>Format construction or movement may allocate if F does. Range machinery and successful iteration do not allocate or copy Value bytes. begin() consumes from the current position, with the same single-pass rules as <a class="el" href="classtlv_1_1detail_1_1reader__base.html#a823c65241e52f804b56afdb32a428846" title="Consume and publish the next element at the current cursor position.">reader::begin()</a>. </dd></dl>
+<dl class="section warning"><dt>Warning</dt><dd>Input and storage borrowed by F must outlive retained results. The range must also outlive views borrowing its owned Format. Moving it invalidates iterators and views borrowing its previous Format storage. No copy or assignment is provided. </dd></dl>
 
 </div>
 </div>

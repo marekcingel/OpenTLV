@@ -1,4 +1,4 @@
 var searchData=
 [
-  ['query_5fmatcher_0',['query_matcher',['../classtlv_1_1tree__reader.html#ab9f5beddc2f1b0ae0b8a0147c207d3b2',1,'tlv::tree_reader']]]
+  ['parsing_5frange_0',['parsing_range',['../classtlv_1_1detail_1_1reader__base.html#aad4c6cbd797511e23eca56a931f95f1f',1,'tlv::detail::reader_base']]]
 ];

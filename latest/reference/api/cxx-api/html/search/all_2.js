@@ -11,7 +11,7 @@ var searchData=
   ['cer_5fvalidation_2eh_8',['cer_validation.h',['../../../c-api/html/cer__validation_8h.html',1,'']]],
   ['children_9',['children',['../../../c-api/html/structtlv__structure__rule.html#a617ed4c7f509616172efadcd2a666607',1,'tlv_structure_rule::children'],['../classtlv_1_1document.html#a3cb9fd5d1c821cf3e9626cdd387d06f1',1,'tlv::document::children()']]],
   ['classified_10',['classified',['../structtlv_1_1format__capabilities.html#aecd6aa4bfb1681f4bfee9a6460a372ac',1,'tlv::format_capabilities']]],
-  ['code_11',['code',['../../../c-api/html/structtlv__diagnostic.html#ad32322414b2d7a9ad41dc625d4b71604',1,'tlv_diagnostic::code'],['../structtlv_1_1format__failure.html#a5a1d3b69cfb98778bb29e2718b82b0cf',1,'tlv::format_failure::code'],['../structtlv_1_1error.html#a95ae94d214e3a104026eeaa4bb7bf769',1,'tlv::error::code']]],
+  ['code_11',['code',['../../../c-api/html/structtlv__diagnostic.html#ad32322414b2d7a9ad41dc625d4b71604',1,'tlv_diagnostic::code'],['../structtlv_1_1format__failure.html#a5a1d3b69cfb98778bb29e2718b82b0cf',1,'tlv::format_failure::code'],['../structtlv_1_1error.html#a95ae94d214e3a104026eeaa4bb7bf769',1,'tlv::error::code'],['../classtlv_1_1parse__error.html#aed5edcecadb205307a8bce3815b0d37b',1,'tlv::parse_error::code()']]],
   ['codec_12',['codec',['../../../c-api/html/structtlv__emv__definition__t.html#a832a1627aaf5bd856ca0315ba71f946f',1,'tlv_emv_definition_t']]],
   ['codec_2eh_13',['codec.h',['../../../c-api/html/codec_2codec_8h.html',1,'(Global Namespace)'],['../../../c-api/html/builtins_2lldp_2codec_8h.html',1,'(Global Namespace)'],['../../../c-api/html/builtins_2dhcp_2codec_8h.html',1,'(Global Namespace)']]],
   ['codec_2ehpp_14',['codec.hpp',['../codec_8hpp.html',1,'']]],

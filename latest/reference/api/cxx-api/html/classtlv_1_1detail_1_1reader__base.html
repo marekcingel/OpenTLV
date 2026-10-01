@@ -74,7 +74,9 @@ $(function() {
 </div><!-- top -->
 <div class="header">
   <div class="summary">
+<a href="#pub-types">Public Types</a> &#124;
 <a href="#pub-methods">Public Member Functions</a> &#124;
+<a href="#friends">Friends</a> &#124;
 <a href="classtlv_1_1detail_1_1reader__base-members.html">List of all members</a>  </div>
   <div class="headertitle"><div class="title">tlv::detail::reader_base Class Reference</div></div>
 </div><!--header-->
@@ -88,12 +90,24 @@ Inheritance diagram for tlv::detail::reader_base:</div>
   <img src="classtlv_1_1detail_1_1reader__base.png" usemap="#tlv::detail::reader_5Fbase_map" alt=""/>
   <map id="tlv::detail::reader_5Fbase_map" name="tlv::detail::reader_5Fbase_map">
 <area href="classtlv_1_1reader.html" title="Generic sequential reader using the canonical C engine." alt="tlv::reader&lt; F &gt;" shape="rect" coords="0,56,147,80"/>
-<area href="classtlv_1_1reader_3_01tlv_1_1format_01_4.html" title="Runtime Format cursor; descriptor and context remain borrowed." alt="tlv::reader&lt; tlv::format &gt;" shape="rect" coords="157,56,304,80"/>
+<area href="classtlv_1_1reader_3_01tlv_1_1format_01_4.html" title="Iterable runtime Format cursor; descriptor and context remain borrowed." alt="tlv::reader&lt; tlv::format &gt;" shape="rect" coords="157,56,304,80"/>
   </map>
 </div></div>
 <table class="memberdecls">
+<tr class="heading"><td colspan="2"><h2 class="groupheader"><a id="pub-types" name="pub-types"></a>
+Public Types</h2></td></tr>
+<tr class="memitem:a8ca9842712c4d548c2b099c1b4ab78ea" id="r_a8ca9842712c4d548c2b099c1b4ab78ea"><td class="memItemLeft" align="right" valign="top">using&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classtlv_1_1detail_1_1reader__base.html#a8ca9842712c4d548c2b099c1b4ab78ea">iterator</a> = <a class="el" href="classtlv_1_1detail_1_1reader__base.html#ae959017970659e8e90ce16752b4e86a0">reader_iterator</a></td></tr>
+<tr class="memdesc:a8ca9842712c4d548c2b099c1b4ab78ea"><td class="mdescLeft">&#160;</td><td class="mdescRight">C++11 single-pass input iterator yielding borrowed Element views.  <br /></td></tr>
+<tr class="separator:a8ca9842712c4d548c2b099c1b4ab78ea"><td class="memSeparator" colspan="2">&#160;</td></tr>
+</table><table class="memberdecls">
 <tr class="heading"><td colspan="2"><h2 class="groupheader"><a id="pub-methods" name="pub-methods"></a>
 Public Member Functions</h2></td></tr>
+<tr class="memitem:a823c65241e52f804b56afdb32a428846" id="r_a823c65241e52f804b56afdb32a428846"><td class="memItemLeft" align="right" valign="top"><a class="el" href="classtlv_1_1detail_1_1reader__base.html#a8ca9842712c4d548c2b099c1b4ab78ea">iterator</a>&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classtlv_1_1detail_1_1reader__base.html#a823c65241e52f804b56afdb32a428846">begin</a> ()</td></tr>
+<tr class="memdesc:a823c65241e52f804b56afdb32a428846"><td class="mdescLeft">&#160;</td><td class="mdescRight">Consume and publish the next element at the current cursor position.  <br /></td></tr>
+<tr class="separator:a823c65241e52f804b56afdb32a428846"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:abdf9ce7269ffce5fd90b166abd2414e6" id="r_abdf9ce7269ffce5fd90b166abd2414e6"><td class="memItemLeft" align="right" valign="top"><a class="el" href="classtlv_1_1detail_1_1reader__base.html#a8ca9842712c4d548c2b099c1b4ab78ea">iterator</a>&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classtlv_1_1detail_1_1reader__base.html#abdf9ce7269ffce5fd90b166abd2414e6">end</a> () const noexcept</td></tr>
+<tr class="memdesc:abdf9ce7269ffce5fd90b166abd2414e6"><td class="mdescLeft">&#160;</td><td class="mdescRight">Return the end iterator without parsing or changing the cursor.  <br /></td></tr>
+<tr class="separator:abdf9ce7269ffce5fd90b166abd2414e6"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:ab899ffa6225dca45f383e5efcd59fa42" id="r_ab899ffa6225dca45f383e5efcd59fa42"><td class="memItemLeft" align="right" valign="top">&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classtlv_1_1detail_1_1reader__base.html#ab899ffa6225dca45f383e5efcd59fa42">reader_base</a> (<a class="el" href="namespacetlv.html#a2abe7003a70af047ef9acae17f31f75d">bytes</a> data, <a class="el" href="classtlv_1_1format.html">tlv::format</a> <a class="el" href="classtlv_1_1format.html">format</a>, <a class="el" href="namespacetlv.html#a6d141be87a05679c237c4d7f5b941c15">input_mode</a> mode=<a class="el" href="namespacetlv.html#a6d141be87a05679c237c4d7f5b941c15a2a1585a864d9e67627c6ae04c807a2c5">input_mode::final</a>)</td></tr>
 <tr class="memdesc:ab899ffa6225dca45f383e5efcd59fa42"><td class="mdescLeft">&#160;</td><td class="mdescRight">Create a sequential reader from a C++ Format view without allocation.  <br /></td></tr>
 <tr class="separator:ab899ffa6225dca45f383e5efcd59fa42"><td class="memSeparator" colspan="2">&#160;</td></tr>
@@ -125,7 +139,32 @@ Public Member Functions</h2></td></tr>
 <tr class="memitem:aa21166d5451e1ef31b32cce7102080f0"><td class="memTemplItemLeft" align="right" valign="top"><a class="el" href="classtlv_1_1expected.html">expected</a>&lt; void, <a class="el" href="structtlv_1_1error.html">error</a> &gt;&#160;</td><td class="memTemplItemRight" valign="bottom"><a class="el" href="classtlv_1_1detail_1_1reader__base.html#aa21166d5451e1ef31b32cce7102080f0">visit</a> (Visitor &amp;&amp;visitor, <a class="el" href="namespacetlv.html#aec6151f23d86b874b79d9d2ae021e568">reader_diagnostic</a> *<a class="el" href="namespacetlv.html#a00ca9c69c35ef11f6a22b7eda1b115ba">diagnostic</a>=nullptr)</td></tr>
 <tr class="memdesc:aa21166d5451e1ef31b32cce7102080f0"><td class="mdescLeft">&#160;</td><td class="mdescRight">Visit remaining elements through the C Visitor engine.  <br /></td></tr>
 <tr class="separator:aa21166d5451e1ef31b32cce7102080f0"><td class="memSeparator" colspan="2">&#160;</td></tr>
+</table><table class="memberdecls">
+<tr class="heading"><td colspan="2"><h2 class="groupheader"><a id="friends" name="friends"></a>
+Friends</h2></td></tr>
+<tr class="memitem:ae959017970659e8e90ce16752b4e86a0" id="r_ae959017970659e8e90ce16752b4e86a0"><td class="memItemLeft" align="right" valign="top">class&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classtlv_1_1detail_1_1reader__base.html#ae959017970659e8e90ce16752b4e86a0">reader_iterator</a></td></tr>
+<tr class="separator:ae959017970659e8e90ce16752b4e86a0"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:aad4c6cbd797511e23eca56a931f95f1f" id="r_aad4c6cbd797511e23eca56a931f95f1f"><td class="memTemplParams" colspan="2">template&lt;typename F &gt; </td></tr>
+<tr class="memitem:aad4c6cbd797511e23eca56a931f95f1f"><td class="memTemplItemLeft" align="right" valign="top">class&#160;</td><td class="memTemplItemRight" valign="bottom"><a class="el" href="classtlv_1_1detail_1_1reader__base.html#aad4c6cbd797511e23eca56a931f95f1f">parsing_range</a></td></tr>
+<tr class="separator:aad4c6cbd797511e23eca56a931f95f1f"><td class="memSeparator" colspan="2">&#160;</td></tr>
 </table>
+<h2 class="groupheader">Member Typedef Documentation</h2>
+<a id="a8ca9842712c4d548c2b099c1b4ab78ea" name="a8ca9842712c4d548c2b099c1b4ab78ea"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#a8ca9842712c4d548c2b099c1b4ab78ea">&#9670;&#160;</a></span>iterator</h2>
+
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname">using <a class="el" href="classtlv_1_1detail_1_1reader__base.html#a8ca9842712c4d548c2b099c1b4ab78ea">tlv::detail::reader_base::iterator</a> =  <a class="el" href="classtlv_1_1detail_1_1reader__base.html#ae959017970659e8e90ce16752b4e86a0">reader_iterator</a></td>
+        </tr>
+      </table>
+</div><div class="memdoc">
+
+<p>C++11 single-pass input iterator yielding borrowed Element views. </p>
+
+</div>
+</div>
 <h2 class="groupheader">Constructor &amp; Destructor Documentation</h2>
 <a id="ab899ffa6225dca45f383e5efcd59fa42" name="ab899ffa6225dca45f383e5efcd59fa42"></a>
 <h2 class="memtitle"><span class="permalink"><a href="#ab899ffa6225dca45f383e5efcd59fa42">&#9670;&#160;</a></span>reader_base() <span class="overload">[1/2]</span></h2>
@@ -262,6 +301,34 @@ Public Member Functions</h2></td></tr>
 
 </div>
 </div>
+<a id="a823c65241e52f804b56afdb32a428846" name="a823c65241e52f804b56afdb32a428846"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#a823c65241e52f804b56afdb32a428846">&#9670;&#160;</a></span>begin()</h2>
+
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname"><a class="el" href="classtlv_1_1detail_1_1reader__base.html#a8ca9842712c4d548c2b099c1b4ab78ea">iterator</a> tlv::detail::reader_base::begin </td>
+          <td>(</td>
+          <td class="paramname"></td><td>)</td>
+          <td></td>
+        </tr>
+      </table>
+</div><div class="memdoc">
+
+<p>Consume and publish the next element at the current cursor position. </p>
+<dl class="section return"><dt>Returns</dt><dd>Input iterator, or <a class="el" href="classtlv_1_1detail_1_1reader__base.html#abdf9ce7269ffce5fd90b166abd2414e6" title="Return the end iterator without parsing or changing the cursor.">end()</a> only on genuine final EOF. </dd></dl>
+<dl class="exception"><dt>Exceptions</dt><dd>
+  <table class="exception">
+    <tr><td class="paramname"><a class="el" href="classtlv_1_1parse__error.html" title="Exception raised by Reader iteration on any outcome other than final EOF.">parse_error</a></td><td>On initialization, decoding or incremental-input failure. </td></tr>
+  </table>
+  </dd>
+</dl>
+<dl class="section note"><dt>Note</dt><dd>Each <a class="el" href="classtlv_1_1detail_1_1reader__base.html#a823c65241e52f804b56afdb32a428846" title="Consume and publish the next element at the current cursor position.">begin()</a> consumes another element; it never rewinds. break leaves the published element consumed. Only one traversal may be active at a time. </dd></dl>
+<dl class="section warning"><dt>Warning</dt><dd>Advancing any iterator invalidates its other copies. Explicit <a class="el" href="classtlv_1_1detail_1_1reader__base.html#a21da748c1c1fe71f15efd83a7accb24f" title="Reads the next element and advances the reader.">next()</a>, <a class="el" href="classtlv_1_1detail_1_1reader__base.html#a2462f3dd197b8969415223901198ea94" title="Read an element with source ranges in the same decode.">next_source()</a>, <a class="el" href="classtlv_1_1detail_1_1reader__base.html#aa21166d5451e1ef31b32cce7102080f0" title="Visit remaining elements through the C Visitor engine.">visit()</a>, successful <a class="el" href="classtlv_1_1detail_1_1reader__base.html#a47ab157b434b0595f3d1c3b4e28beaf4" title="Replace the borrowed input window while preserving absolute offsets.">set_input()</a>, and cursor destruction invalidate active iterators. Input and Format storage must outlive retained Element views. </dd></dl>
+
+</div>
+</div>
 <a id="a065d39da79f316328681365525d3a8ec" name="a065d39da79f316328681365525d3a8ec"></a>
 <h2 class="memtitle"><span class="permalink"><a href="#a065d39da79f316328681365525d3a8ec">&#9670;&#160;</a></span>consumed()</h2>
 
@@ -286,6 +353,33 @@ Public Member Functions</h2></td></tr>
 </div><div class="memdoc">
 
 <p>Discardable prefix byte count; retained views may still borrow it. </p>
+
+</div>
+</div>
+<a id="abdf9ce7269ffce5fd90b166abd2414e6" name="abdf9ce7269ffce5fd90b166abd2414e6"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#abdf9ce7269ffce5fd90b166abd2414e6">&#9670;&#160;</a></span>end()</h2>
+
+<div class="memitem">
+<div class="memproto">
+<table class="mlabels">
+  <tr>
+  <td class="mlabels-left">
+      <table class="memname">
+        <tr>
+          <td class="memname"><a class="el" href="classtlv_1_1detail_1_1reader__base.html#a8ca9842712c4d548c2b099c1b4ab78ea">iterator</a> tlv::detail::reader_base::end </td>
+          <td>(</td>
+          <td class="paramname"></td><td>)</td>
+          <td> const</td>
+        </tr>
+      </table>
+  </td>
+  <td class="mlabels-right">
+<span class="mlabels"><span class="mlabel">noexcept</span></span>  </td>
+  </tr>
+</table>
+</div><div class="memdoc">
+
+<p>Return the end iterator without parsing or changing the cursor. </p>
 
 </div>
 </div>
@@ -520,6 +614,53 @@ template&lt;typename Visitor &gt; </div>
 <dl class="section return"><dt>Returns</dt><dd>Success on EOF or STOP; NEED_MORE_DATA or an original C error otherwise. </dd></dl>
 <dl class="section warning"><dt>Warning</dt><dd>Do not mutate the cursor, input or Format in the callback. Effects are not rolled back; the current element is consumed before the callback. </dd></dl>
 <dl class="section see"><dt>See also</dt><dd><a class="elRef" href="../../c-api/html/group__traversal.html#gab595385e0af647cc003648cb29e47d19">tlv_reader_visit_diag</a> </dd></dl>
+
+</div>
+</div>
+<h2 class="groupheader">Friends And Related Symbol Documentation</h2>
+<a id="aad4c6cbd797511e23eca56a931f95f1f" name="aad4c6cbd797511e23eca56a931f95f1f"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#aad4c6cbd797511e23eca56a931f95f1f">&#9670;&#160;</a></span>parsing_range</h2>
+
+<div class="memitem">
+<div class="memproto">
+<div class="memtemplate">
+template&lt;typename F &gt; </div>
+<table class="mlabels">
+  <tr>
+  <td class="mlabels-left">
+      <table class="memname">
+        <tr>
+          <td class="memname">friend class <a class="el" href="classtlv_1_1detail_1_1parsing__range.html">parsing_range</a></td>
+        </tr>
+      </table>
+  </td>
+  <td class="mlabels-right">
+<span class="mlabels"><span class="mlabel">friend</span></span>  </td>
+  </tr>
+</table>
+</div><div class="memdoc">
+
+</div>
+</div>
+<a id="ae959017970659e8e90ce16752b4e86a0" name="ae959017970659e8e90ce16752b4e86a0"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#ae959017970659e8e90ce16752b4e86a0">&#9670;&#160;</a></span>reader_iterator</h2>
+
+<div class="memitem">
+<div class="memproto">
+<table class="mlabels">
+  <tr>
+  <td class="mlabels-left">
+      <table class="memname">
+        <tr>
+          <td class="memname">friend class reader_iterator</td>
+        </tr>
+      </table>
+  </td>
+  <td class="mlabels-right">
+<span class="mlabels"><span class="mlabel">friend</span></span>  </td>
+  </tr>
+</table>
+</div><div class="memdoc">
 
 </div>
 </div>
