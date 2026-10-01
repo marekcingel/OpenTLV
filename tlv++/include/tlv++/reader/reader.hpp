@@ -5,6 +5,7 @@
 #include "tlv/size.h"
 #include "tlv++/types.hpp"
 #include "tlv++/format.hpp"
+#include "tlv++/format_traits.hpp"
 #include "tlv++/detail/visitor.hpp"
 #include "tlv/reader/visitor.h"
 #include <type_traits>
@@ -63,7 +64,8 @@ TLV_NODISCARD inline expected<decoded, error> read(bytes data, tlv::format forma
  *          alive for the lifetime of the reader and of any element it returns.
  * @see @docs{guides/memory,format context ownership and lifetime}
  */
-class reader {
+namespace detail {
+class reader_base {
 public:
     /**
      * @brief Create a sequential reader from a C++ Format view without allocation.
@@ -73,8 +75,8 @@ public:
      * @param mode Whether this window is final or accepts incremental continuation.
      * @note The view object may be temporary. Initialization errors are reported by next().
      */
-    reader(bytes data, tlv::format format, input_mode mode = input_mode::final)
-        : reader(data, detail::format_access::get(format), mode) {}
+    reader_base(bytes data, tlv::format format, input_mode mode = input_mode::final)
+        : reader_base(data, detail::format_access::get(format), mode) {}
 
     /**
      * @brief Creates a reader over a buffer.
@@ -87,7 +89,7 @@ public:
      * @param format Reader format; borrowed.
      * @param mode Whether this window is final or accepts incremental continuation.
      */
-    reader(bytes data, const tlv_format_t& format, input_mode mode = input_mode::final) {
+    reader_base(bytes data, const tlv_format_t& format, input_mode mode = input_mode::final) {
         auto init = mode == input_mode::final ? tlv_reader_init : tlv_reader_init_incremental;
         tlv_result_t rc =
             init(&impl_, reinterpret_cast<const uint8_t*>(data.data()), data.size(), &format);
@@ -219,6 +221,39 @@ public:
 private:
     tlv_reader_t impl_{};
     bool         init_ok_ = false;
+};
+} // namespace detail
+
+/** @brief Generic sequential reader using the canonical C engine.
+ * @tparam F C++ Format implementing format_traits; format selects a borrowed runtime view.
+ * @warning For typed Formats this cursor owns a stable adapter and cannot be copied
+ * or moved. It and all Format-borrowed storage must outlive retained results.
+ */
+template <typename F = tlv::format>
+class reader : private format_adapter<F>, public detail::reader_base {
+    static_assert(format_capabilities<F>::readable, "reader requires a readable Format");
+
+public:
+    /** @brief Initialize with default-constructed Format configuration.
+     * @param data Borrowed input.
+     * @param mode Final or incremental input.
+     */
+    explicit reader(bytes data, input_mode mode = input_mode::final)
+        : format_adapter<F>(), detail::reader_base(data, format_adapter<F>::view(), mode) {}
+    /** @brief Initialize the cursor, owning immutable Format configuration.
+     * @param data Borrowed input.
+     * @param mode Final or incremental input.
+     * @param value Format configuration copied or moved into stable storage.
+     */
+    explicit reader(bytes data, F value, input_mode mode = input_mode::final)
+        : format_adapter<F>(std::move(value)),
+          detail::reader_base(data, format_adapter<F>::view(), mode) {}
+};
+/** @brief Runtime Format cursor; descriptor and context remain borrowed. */
+template <> class reader<tlv::format> : public detail::reader_base {
+public:
+    /** @brief Initialize from a borrowed C++ view or native descriptor. */
+    using detail::reader_base::reader_base;
 };
 
 } // namespace tlv

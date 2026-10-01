@@ -22,6 +22,15 @@
 #include "tlv++/codec/structure.hpp"
 #include "tlv++/query/query.hpp"
 #include "tlv++/schema/schema.hpp"
+#if OPENTLV_FORMAT_DER
+#include "tlv++/builtins/asn1/der.hpp"
+#endif
+#if OPENTLV_FORMAT_CER
+#include "tlv++/builtins/asn1/cer.hpp"
+#endif
+#if OPENTLV_BLUETOOTH
+#include "tlv++/builtins/bluetooth/ltv.hpp"
+#endif
 #if OPENTLV_NFC
 #include "tlv++/builtins/nfc/type2.hpp"
 #endif

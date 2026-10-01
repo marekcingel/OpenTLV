@@ -45,7 +45,7 @@ template <std::size_t T, std::size_t L, tlv_byte_order_t O> void check_layout_an
 
     const std::string         value = "abc";
     std::array<tlv::byte, 32> buf{};
-    tlv::writer               w(buf.data(), buf.size(), format::format());
+    tlv::writer<>             w(buf.data(), buf.size(), format::format());
     ASSERT_TRUE(w.write(make_tag(T), to_bytes(value)).has_value());
     ASSERT_EQ(w.size(), T + L + value.size());
 
@@ -60,8 +60,8 @@ template <std::size_t T, std::size_t L, tlv_byte_order_t O> void check_layout_an
         EXPECT_EQ(static_cast<std::uint8_t>(buf[T + index]), expected);
     }
 
-    tlv::reader reader(tlv::bytes(buf.data(), w.size()), format::format());
-    auto        element = reader.next();
+    tlv::reader<> reader(tlv::bytes(buf.data(), w.size()), format::format());
+    auto          element = reader.next();
     ASSERT_TRUE(element.has_value());
     EXPECT_EQ(element->tag().size(), T);
     for (std::size_t i = 0; i < T; ++i) EXPECT_EQ(element->tag().data()[i], expected_tag.data()[i]);
@@ -94,8 +94,8 @@ TEST(Unit_Tlvpp_FixedFormat, LengthByteOrderDoesNotChangeTheTag) {
     std::array<tlv::byte, 320> le{};
     using be_format = tlv::fixed_format<2, 2, BE>;
     using le_format = tlv::fixed_format<2, 2, LE>;
-    tlv::writer wb(be.data(), be.size(), be_format::format());
-    tlv::writer wl(le.data(), le.size(), le_format::format());
+    tlv::writer<> wb(be.data(), be.size(), be_format::format());
+    tlv::writer<> wl(le.data(), le.size(), le_format::format());
     ASSERT_TRUE(wb.write(make_tag(2), to_bytes(value)).has_value());
     ASSERT_TRUE(wl.write(make_tag(2), to_bytes(value)).has_value());
 
@@ -174,19 +174,19 @@ TEST(Unit_Tlvpp_FixedFormat, LengthRangeBoundaries) {
 TEST(Unit_Tlvpp_FixedFormat, MaximumEncodableLengthRoundTrips) {
     // One-byte length: 255 is the largest value; 256 must be rejected by the writer.
     std::vector<tlv::byte> buf(2 + 255);
-    tlv::writer            w(buf.data(), buf.size(), tlv::fixed_format<1, 1, BE>::format());
+    tlv::writer<>          w(buf.data(), buf.size(), tlv::fixed_format<1, 1, BE>::format());
     const std::string      max_value(255, 'm');
     ASSERT_TRUE(w.write(make_tag(1), to_bytes(max_value)).has_value());
     EXPECT_EQ(static_cast<std::uint8_t>(buf[1]), 255);
 
-    tlv::reader reader(tlv::bytes(buf.data(), w.size()), tlv::fixed_format<1, 1, BE>::format());
-    auto        element = reader.next();
+    tlv::reader<> reader(tlv::bytes(buf.data(), w.size()), tlv::fixed_format<1, 1, BE>::format());
+    auto          element = reader.next();
     ASSERT_TRUE(element.has_value());
     EXPECT_EQ(element->value().size(), 255u);
 
     std::vector<tlv::byte> too_big(2 + 256);
-    tlv::writer w2(too_big.data(), too_big.size(), tlv::fixed_format<1, 1, BE>::format());
-    auto        r = w2.write(make_tag(1), to_bytes(std::string(256, 'x')));
+    tlv::writer<> w2(too_big.data(), too_big.size(), tlv::fixed_format<1, 1, BE>::format());
+    auto          r = w2.write(make_tag(1), to_bytes(std::string(256, 'x')));
     ASSERT_FALSE(r.has_value());
     EXPECT_EQ(r.error().code, TLV_ERR_INVALID_LENGTH);
     EXPECT_EQ(w2.size(), 0u);
@@ -194,12 +194,12 @@ TEST(Unit_Tlvpp_FixedFormat, MaximumEncodableLengthRoundTrips) {
 
 TEST(Unit_Tlvpp_FixedFormat, EmptyValueRoundTrips) {
     std::array<tlv::byte, 8> buf{};
-    tlv::writer              w(buf.data(), buf.size(), tlv::fixed_format<2, 2, LE>::format());
+    tlv::writer<>            w(buf.data(), buf.size(), tlv::fixed_format<2, 2, LE>::format());
     ASSERT_TRUE(w.write(make_tag(2), tlv::bytes()).has_value());
     EXPECT_EQ(w.size(), 4u);
 
-    tlv::reader reader(tlv::bytes(buf.data(), w.size()), tlv::fixed_format<2, 2, LE>::format());
-    auto        element = reader.next();
+    tlv::reader<> reader(tlv::bytes(buf.data(), w.size()), tlv::fixed_format<2, 2, LE>::format());
+    auto          element = reader.next();
     ASSERT_TRUE(element.has_value());
     EXPECT_EQ(element->value().size(), 0u);
 }
@@ -210,9 +210,9 @@ TEST(Unit_Tlvpp_FixedFormat, TruncatedInputIsRejected) {
     const std::array<std::uint8_t, 7> full = {0x01, 0x02, 0x00, 0x03, 'a', 'b', 'c'};
     for (std::size_t size = 1; size < full.size(); ++size) {
         SCOPED_TRACE(size);
-        tlv::reader reader(tlv::bytes(reinterpret_cast<const tlv::byte*>(full.data()), size),
-                           format::format());
-        auto        element = reader.next();
+        tlv::reader<> reader(tlv::bytes(reinterpret_cast<const tlv::byte*>(full.data()), size),
+                             format::format());
+        auto          element = reader.next();
         ASSERT_FALSE(element.has_value());
         EXPECT_EQ(element.error().code, TLV_ERR_BUFFER_TOO_SHORT);
     }
@@ -242,7 +242,7 @@ TEST(Unit_Tlvpp_FixedFormat, InsufficientOutputCapacityIsReported) {
     for (std::size_t capacity = 0; capacity < 7; ++capacity) {
         SCOPED_TRACE(capacity);
         std::array<tlv::byte, 8> buf{};
-        tlv::writer              w(buf.data(), capacity, format::format());
+        tlv::writer<>            w(buf.data(), capacity, format::format());
         auto                     r = w.write(make_tag(2), to_bytes("abc"));
         ASSERT_FALSE(r.has_value());
         EXPECT_EQ(r.error().code, TLV_ERR_BUFFER_TOO_SHORT);
@@ -270,7 +270,7 @@ TEST(Unit_Tlvpp_FixedFormat, LogicalMeasureAndEncodingUseTheSameFraming) {
 TEST(Unit_Tlvpp_FixedFormat, TagSizeMustMatchTheConfiguredWidth) {
     using format = tlv::fixed_format<2, 1, BE>;
     std::array<tlv::byte, 16> buf{};
-    tlv::writer               w(buf.data(), buf.size(), format::format());
+    tlv::writer<>             w(buf.data(), buf.size(), format::format());
 
     for (std::size_t width : {std::size_t(1), std::size_t(3)}) {
         auto r = w.write(make_tag(width), to_bytes("a"));
@@ -283,14 +283,14 @@ TEST(Unit_Tlvpp_FixedFormat, TagSizeMustMatchTheConfiguredWidth) {
 TEST(Unit_Tlvpp_FixedFormat, MultipleElementsInSequence) {
     using format = tlv::fixed_format<1, 2, LE>;
     std::array<tlv::byte, 32> buf{};
-    tlv::writer               w(buf.data(), buf.size(), format::format());
+    tlv::writer<>             w(buf.data(), buf.size(), format::format());
     ASSERT_TRUE(w.write(make_tag(1), to_bytes("ab")).has_value());
     ASSERT_TRUE(w.write(make_tag(1), to_bytes("cde")).has_value());
     EXPECT_EQ(w.size(), (1u + 2 + 2) + (1 + 2 + 3));
 
-    tlv::reader reader(tlv::bytes(buf.data(), w.size()), format::format());
-    auto        first = reader.next();
-    auto        second = reader.next();
+    tlv::reader<> reader(tlv::bytes(buf.data(), w.size()), format::format());
+    auto          first = reader.next();
+    auto          second = reader.next();
     ASSERT_TRUE(first.has_value());
     ASSERT_TRUE(second.has_value());
     EXPECT_EQ(first->value().size(), 2u);
@@ -348,7 +348,7 @@ TEST(Unit_Tlvpp_FixedFormat, OneByteConfigurationMatchesTheCApi) {
 }
 
 // Unlike the compile-time tlv::fixed_format<>, a runtime-configurable
-// tlv_fixed_format_t needs no tlv++ wrapper: tlv::writer/tlv::reader already
+// tlv_fixed_format_t needs no tlv++ wrapper: tlv::writer<>/tlv::reader<> already
 // accept a plain `const tlv_format_t&`. See
 // docs/guides/memory.md#format-context-ownership-and-lifetime.
 TEST(Unit_Tlvpp_FixedFormat, ReaderAndWriterAcceptARuntimeCDescriptor) {
@@ -358,12 +358,12 @@ TEST(Unit_Tlvpp_FixedFormat, ReaderAndWriterAcceptARuntimeCDescriptor) {
     ASSERT_EQ(TLV_OK, tlv_fixed_format_init(&format, &config));
 
     std::array<tlv::byte, 16>      buf{};
-    tlv::writer                    writer(buf.data(), buf.size(), format);
+    tlv::writer<>                  writer(buf.data(), buf.size(), format);
     const std::array<tlv::byte, 3> value = {tlv::byte(0xAA), tlv::byte(0xBB), tlv::byte(0xCC)};
     ASSERT_TRUE(writer.write(tlv::tag_bytes<0x12, 0x34>(), tlv::bytes(value.data(), value.size())));
 
-    tlv::reader reader(tlv::bytes(buf.data(), writer.size()), format);
-    auto        element = reader.next();
+    tlv::reader<> reader(tlv::bytes(buf.data(), writer.size()), format);
+    auto          element = reader.next();
     ASSERT_TRUE(element.has_value());
     EXPECT_EQ(element->tag().size(), 2u);
     EXPECT_EQ(element->value().size(), value.size());

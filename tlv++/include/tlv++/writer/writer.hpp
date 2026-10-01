@@ -4,6 +4,7 @@
 #include "tlv/writer/writer.h"
 #include "tlv++/types.hpp"
 #include "tlv++/format.hpp"
+#include "tlv++/format_traits.hpp"
 
 namespace tlv {
 
@@ -103,7 +104,8 @@ TLV_NODISCARD inline expected<size_t, error> write(byte* data, size_t capacity,
  *          alive for the lifetime of the writer.
  * @see @docs{guides/memory,format context ownership and lifetime}
  */
-class writer {
+namespace detail {
+class writer_base {
 public:
     /**
      * @brief Create a sequential writer from a C++ Format view without allocation.
@@ -112,8 +114,8 @@ public:
      * @param format Borrowed Format; descriptor and context must outlive this writer.
      * @note The view may be temporary. Subsequent writes report initialization failures.
      */
-    writer(byte* buf, size_t capacity, tlv::format format)
-        : writer(buf, capacity, detail::format_access::get(format)) {}
+    writer_base(byte* buf, size_t capacity, tlv::format format)
+        : writer_base(buf, capacity, detail::format_access::get(format)) {}
 
     /**
      * @brief Creates a writer over a buffer.
@@ -125,7 +127,7 @@ public:
      * @param capacity Buffer capacity in bytes.
      * @param format   Writer format; borrowed.
      */
-    writer(byte* buf, size_t capacity, const tlv_format_t& format) {
+    writer_base(byte* buf, size_t capacity, const tlv_format_t& format) {
         tlv_writer_init(&impl_, reinterpret_cast<uint8_t*>(buf), capacity, &format);
     }
 
@@ -248,6 +250,39 @@ public:
 
 private:
     tlv_writer_t impl_{};
+};
+} // namespace detail
+
+/** @brief Generic sequential writer using the canonical C engine.
+ * @tparam F C++ Format implementing format_traits; format selects a borrowed runtime view.
+ * @warning For typed Formats this cursor owns a stable adapter and cannot be copied
+ * or moved. It and all Format-borrowed storage must outlive retained results.
+ */
+template <typename F = tlv::format>
+class writer : private format_adapter<F>, public detail::writer_base {
+    static_assert(format_capabilities<F>::writable, "writer requires a writable Format");
+
+public:
+    /** @brief Initialize with default-constructed Format configuration.
+     * @param data Borrowed output.
+     * @param capacity Native output capacity.
+     */
+    writer(byte* data, size_t capacity)
+        : format_adapter<F>(), detail::writer_base(data, capacity, format_adapter<F>::view()) {}
+    /** @brief Initialize the cursor, owning immutable Format configuration.
+     * @param data Borrowed output.
+     * @param capacity Native output capacity.
+     * @param value Format configuration copied or moved into stable storage.
+     */
+    explicit writer(byte* data, size_t capacity, F value)
+        : format_adapter<F>(std::move(value)),
+          detail::writer_base(data, capacity, format_adapter<F>::view()) {}
+};
+/** @brief Runtime Format cursor; descriptor and context remain borrowed. */
+template <> class writer<tlv::format> : public detail::writer_base {
+public:
+    /** @brief Initialize from a borrowed C++ view or native descriptor. */
+    using detail::writer_base::writer_base;
 };
 
 /** @brief Measure an Element using a C++ Format view.

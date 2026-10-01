@@ -11,13 +11,13 @@ int main() {
     const std::array<tlv::byte, 3> value = {
         static_cast<tlv::byte>(0xAA), static_cast<tlv::byte>(0xBB), static_cast<tlv::byte>(0xCC)};
     std::array<tlv::byte, 5> buffer{};
-    tlv::writer              writer(buffer.data(), buffer.size(), format::format());
+    tlv::writer<>            writer(buffer.data(), buffer.size(), format::format());
 
     if (!writer.write(tag, tlv::bytes(value.data(), value.size()))) return 1;
 
     // element.value() borrows buffer; keep it alive while using the element.
-    tlv::reader reader(tlv::bytes(buffer.data(), writer.size()), format::format());
-    auto        element = reader.next();
+    tlv::reader<> reader(tlv::bytes(buffer.data(), writer.size()), format::format());
+    auto          element = reader.next();
     if (!element || !reader.at_end()) return 1;
 
     if (element->tag() != tlv::tag_bytes<0x01>()) return 1;

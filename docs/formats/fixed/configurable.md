@@ -167,7 +167,7 @@ using format = tlv::fixed_format<2, 2, TLV_BYTE_ORDER_LITTLE_ENDIAN>;
 
 int main() {
     std::array<tlv::byte, 16> buf{};
-    tlv::writer               writer(buf.data(), buf.size(), format::format());
+    tlv::writer<>             writer(buf.data(), buf.size(), format::format());
 
     const std::array<tlv::byte, 3> value = {tlv::byte(0xAA), tlv::byte(0xBB), tlv::byte(0xCC)};
     auto                           written =
@@ -178,8 +178,8 @@ int main() {
     }
 
     // Wire bytes: 12 34 03 00 AA BB CC. The tag is kept as is; only the length is little-endian.
-    tlv::reader reader(tlv::bytes(buf.data(), writer.size()), format::format());
-    auto        element = reader.next();
+    tlv::reader<> reader(tlv::bytes(buf.data(), writer.size()), format::format());
+    auto          element = reader.next();
     if (!element) {
         std::cerr << "read error: " << element.error().message << "\n";
         return 1;
@@ -194,7 +194,7 @@ int main() {
 
 Use the raw C `tlv_fixed_format_t`/`tlv_fixed_format_init()` directly when the
 tag width, length width or byte order are not known at compile time — no
-`tlv++` wrapper is needed, since `tlv::writer`/`tlv::reader` already accept a
+`tlv++` wrapper is needed, since `tlv::writer<>`/`tlv::reader<>` already accept a
 plain `const tlv_format_t&`:
 
 <!-- example: examples/tlv++/src/formats/fixed_format_runtime.cpp -->
@@ -221,7 +221,7 @@ int main() {
     const auto format_view = tlv::native::borrow_format(format);
 
     std::array<tlv::byte, 16> buf{};
-    tlv::writer               writer(buf.data(), buf.size(), format_view);
+    tlv::writer<>             writer(buf.data(), buf.size(), format_view);
 
     const std::array<tlv::byte, 3> value = {tlv::byte(0xAA), tlv::byte(0xBB), tlv::byte(0xCC)};
     auto                           written =
@@ -232,8 +232,8 @@ int main() {
     }
 
     // Wire bytes: 12 34 03 AA BB CC. The tag is kept as is; the length is one byte.
-    tlv::reader reader(tlv::bytes(buf.data(), writer.size()), format_view);
-    auto        element = reader.next();
+    tlv::reader<> reader(tlv::bytes(buf.data(), writer.size()), format_view);
+    auto          element = reader.next();
     if (!element) {
         std::cerr << "read error: " << element.error().message << "\n";
         return 1;

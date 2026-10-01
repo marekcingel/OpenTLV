@@ -17,12 +17,14 @@ operation can be compared across languages.
 
 ## API tour
 
-- [`basic_usage.cpp`](basic_usage.cpp) -- a sequential `tlv::writer`/`tlv::reader`
+- [`basic_usage.cpp`](basic_usage.cpp) -- a sequential `tlv::writer<>`/`tlv::reader<>`
   round trip over BER.
 
 ## Formats
 
 Generic, protocol-agnostic format mechanisms.
 
+- [`formats/custom_format.cpp`](formats/custom_format.cpp) -- an application-defined
+  C++ Format used by the generic Reader and Writer, with no C descriptor construction.
 - [`formats/fixed_format.cpp`](formats/fixed_format.cpp) --
   `tlv::fixed_format<>`, a compile-time configurable fixed-width format.

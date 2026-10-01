@@ -42,8 +42,8 @@ TEST(Integration_Tlvpp, BerIndefiniteRoundTripAndTraversal) {
     auto written = tlv::ber_write_indefinite(buffer, sizeof(buffer), tlv::tag_bytes<0x30>(), value);
     ASSERT_TRUE(written);
     EXPECT_EQ(8u, *written);
-    tlv::reader reader(tlv::bytes(buffer, *written), tlv_format_ber);
-    auto        item = reader.next();
+    tlv::reader<> reader(tlv::bytes(buffer, *written), tlv_format_ber);
+    auto          item = reader.next();
     ASSERT_TRUE(item);
     EXPECT_EQ(buffer + 2, item->value().data());
     EXPECT_EQ(4u, item->value().size());

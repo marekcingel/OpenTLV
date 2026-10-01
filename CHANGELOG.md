@@ -42,6 +42,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Changed
 
+- **Breaking:** Make C++ Reader and Writer templates; runtime-Format callers use `tlv::reader<>` and `tlv::writer<>`, while typed callers select a built-in or application Format. (#432)
 - Replace C++ Tag and Element aliases with allocation-free borrowed `tag`, `value_view` and `element_view` types across Reader, Writer, Document, Query, Definition and codecs; provide byte access, content comparisons, static byte literals and checked explicit C interoperability. (#431)
 - Document and validate the existing TLV/LTV field-ordering contract, independent length scopes, source layouts and explicit byte preservation using Bluetooth Advertising Data examples. (#424)
 - Define the planned Phase 2 runtime model and canonical IR architecture, including frontend separation, immutable model ownership, allocation boundaries and shared runtime/code-generation semantics. (#420)
@@ -102,6 +103,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Added
 
+- Add a generic C++ Format customization contract with traits, capability checks and stable adapters, allowing application-defined Formats to use the shared Reader, Writer, tree, Query and Document machinery without constructing C descriptors. Built-in Formats satisfy the same contract. (#432)
 - Add borrowed C++ Format views across Reader, Writer, Document, Query and Schema, explicit native Format interoperability, and the `tlv::ber::format` preset while retaining existing native overloads during the tlv++ redesign. (#430, #440)
 - Add a supported NFC Type 2 binary corpus with independent decode/encode and byte-exact round-trip tests, documented examples, and CLI `nfc-type2` format selection. (#426)
 - Add NFC Forum Type 2 Tag TLV stream framing with NULL/Terminator elements, short and extended lengths, source preservation, C++/Python/Rust/Lua/WASM presets and an example; add reusable escape-length and identifier-selected field composition. (#425)

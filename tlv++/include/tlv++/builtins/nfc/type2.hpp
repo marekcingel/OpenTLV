@@ -3,10 +3,22 @@
 
 #include "tlv/builtins/nfc/type2.h"
 
+#include "tlv++/format.hpp"
+
 /** @file
  * @brief C++ preset for contiguous NFC Type 2 Tag TLV streams.
  */
 namespace tlv {
+/** @brief NFC wire framing presets. */
+namespace nfc {
+/** @brief Built-in Format satisfying the generic C++ customization contract. */
+class format : public tlv::format {
+public:
+    /** @brief Borrow the canonical program-lifetime descriptor without allocation. */
+    format() noexcept : tlv::format(detail::format_access::borrow(tlv_format_nfc_type2)) {}
+};
+} // namespace nfc
+
 /** @brief Returns the immutable NFC Type 2 framing preset.
  * @return Shared C descriptor with static lifetime.
  * @note Requires `OPENTLV_NFC=ON`. The caller handles padding, termination

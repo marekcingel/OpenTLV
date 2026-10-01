@@ -52,7 +52,7 @@ TEST(Unit_Tlvpp_NativeBoundary, BorrowingPreservesDescriptorAndContextIdentity) 
 
 TEST(Unit_Tlvpp_NativeBoundary, TemporaryViewDoesNotShortenReaderOrSourceLifetime) {
     const uint8_t data[] = {1, 1, 42, 2, 0};
-    tlv::reader   reader(view(data, sizeof(data)), tlv::native::borrow_format(controlled::format));
+    tlv::reader<> reader(view(data, sizeof(data)), tlv::native::borrow_format(controlled::format));
     auto          decoded = reader.next_source();
     ASSERT_TRUE(decoded);
     EXPECT_EQ(&controlled::format, decoded->source.format);
@@ -70,7 +70,7 @@ TEST(Unit_Tlvpp_NativeBoundary, TemporaryViewDoesNotShortenReaderOrSourceLifetim
 TEST(Unit_Tlvpp_NativeBoundary, ReaderRetainsIncrementalAndDiagnosticContracts) {
     const uint8_t          data[] = {1, 2, 42, 43};
     const auto             format = tlv::native::borrow_format(controlled::format);
-    tlv::reader            reader(view(data, 3), format, tlv::input_mode::incremental);
+    tlv::reader<>          reader(view(data, 3), format, tlv::input_mode::incremental);
     tlv::reader_diagnostic diagnostic{};
     auto                   incomplete = reader.next(diagnostic);
     ASSERT_FALSE(incomplete);
@@ -122,8 +122,8 @@ TEST(Unit_Tlvpp_NativeBoundary, TemporaryViewPreservesWriterFailureAndSourceCont
     const uint8_t data[] = {1, 1, 42};
     auto decoded = tlv::decode(tlv::native::borrow_format(controlled::format), view(data, 3));
     ASSERT_TRUE(decoded);
-    tlv::byte   output[6]{};
-    tlv::writer writer(output, sizeof(output), tlv::native::borrow_format(controlled::format));
+    tlv::byte     output[6]{};
+    tlv::writer<> writer(output, sizeof(output), tlv::native::borrow_format(controlled::format));
     ASSERT_TRUE(writer.write(decoded->element));
     ASSERT_TRUE(writer.preserve(decoded->source, decoded->element));
     EXPECT_EQ(0, std::memcmp(data, output, 3));
@@ -141,11 +141,11 @@ TEST(Unit_Tlvpp_NativeBoundary, InvalidBorrowedDescriptorReportsEngineErrors) {
     const auto         format = tlv::native::borrow_format(invalid);
     EXPECT_FALSE(format.readable());
     EXPECT_FALSE(format.writable());
-    tlv::reader reader(tlv::bytes(), format);
-    auto        next = reader.next();
+    tlv::reader<> reader(tlv::bytes(), format);
+    auto          next = reader.next();
     ASSERT_FALSE(next);
     EXPECT_EQ(TLV_ERR_NULL_ARG, next.error().code);
-    tlv::writer             writer(nullptr, 0, format);
+    tlv::writer<>           writer(nullptr, 0, format);
     const tlv::element_view element{tlv::tag_bytes<1>(), tlv::value_view{}};
     auto                    written = writer.write(element);
     ASSERT_FALSE(written);
@@ -163,7 +163,7 @@ TEST(Unit_Tlvpp_NativeBoundary, VisitorBridgeBorrowsNoncopyableAndConstCallables
     };
     const uint8_t data[] = {1, 0, 2, 0};
     const visitor callback;
-    tlv::reader   reader(view(data, sizeof(data)), tlv::native::borrow_format(controlled::format));
+    tlv::reader<> reader(view(data, sizeof(data)), tlv::native::borrow_format(controlled::format));
     ASSERT_TRUE(reader.visit(callback));
     EXPECT_EQ(2u, *callback.count);
 }
@@ -289,13 +289,13 @@ TEST(Unit_Tlvpp_NativeBoundary, DocumentCopiesDescriptorAndSurvivesMove) {
 TEST(Unit_Tlvpp_NativeBoundary, BerNamespaceSelectsCanonicalDescriptor) {
     const uint8_t data[] = {0x5A, 2, 0x12, 0x34};
     EXPECT_EQ(&tlv_format_ber, &tlv::native::descriptor(tlv::ber::format{}));
-    tlv::reader reader(view(data, sizeof(data)), tlv::ber::format{});
-    auto        element = reader.next();
+    tlv::reader<> reader(view(data, sizeof(data)), tlv::ber::format{});
+    auto          element = reader.next();
     ASSERT_TRUE(element);
     EXPECT_TRUE((tlv::tag_bytes<0x5A>() == element->tag()));
     EXPECT_EQ(2u, element->value().size());
-    tlv::byte   output[4]{};
-    tlv::writer writer(output, sizeof(output), tlv::ber::format{});
+    tlv::byte     output[4]{};
+    tlv::writer<> writer(output, sizeof(output), tlv::ber::format{});
     ASSERT_TRUE(writer.write(*element));
     EXPECT_EQ(0, std::memcmp(data, output, sizeof(data)));
 }

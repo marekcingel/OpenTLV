@@ -1,7 +1,7 @@
 #include "tlv/builtins/asn1/ber.h"
 /*
  * Simple example of using the tlv++ layer: writes two TLV items through
- * tlv::writer and reads them back through tlv::reader.
+ * tlv::writer<> and reads them back through tlv::reader<>.
  */
 #include <array>
 #include <cstddef>
@@ -12,7 +12,7 @@
 
 int main() {
     std::array<tlv::byte, 64> buf{};
-    tlv::writer               w(buf.data(), buf.size(), tlv_format_ber);
+    tlv::writer<>             w(buf.data(), buf.size(), tlv_format_ber);
 
     auto to_bytes = [](const std::string& s) {
         return tlv::bytes(reinterpret_cast<const tlv::byte*>(s.data()), s.size());
@@ -31,7 +31,7 @@ int main() {
 
     std::cout << "Wrote " << w.size() << " bytes\n";
 
-    tlv::reader reader(tlv::bytes(buf.data(), w.size()), tlv_format_ber);
+    tlv::reader<> reader(tlv::bytes(buf.data(), w.size()), tlv_format_ber);
     while (!reader.at_end()) {
         auto element = reader.next();
         if (!element) {

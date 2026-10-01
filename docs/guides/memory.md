@@ -108,7 +108,7 @@ for standalone operations and absolute within the buffer for cursor operations;
 errors without a field offset point to the Element start. An absolute offset
 that cannot be represented is unset.
 
-In C++, `tlv::encoded_size(element, format)` and `tlv::writer::write(element)`
+In C++, `tlv::encoded_size(element, format)` and `tlv::writer<>::write(element)`
 provide the same two-stage model; error objects may allocate. Rust exposes
 `element_encoded_size` (and its fixed-format variant) and a Writer borrowing
 `&mut [u8]`. Python exposes `element_encoded_size` and
