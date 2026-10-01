@@ -26,9 +26,7 @@ TEST(Integration_Tlvpp_Dhcpv4, SharedPresetReaderWriterRoundTrip) {
     while (!reader.at_end()) {
         auto element = reader.next();
         ASSERT_TRUE(element);
-        auto value = tlv::as_bytes(element->value);
-        ASSERT_TRUE(value);
-        ASSERT_TRUE(writer.write(element->tag, *value));
+        ASSERT_TRUE(writer.write(*element));
         ++count;
     }
     EXPECT_EQ(4u, count);

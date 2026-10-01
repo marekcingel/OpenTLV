@@ -22,7 +22,7 @@ int main() {
 
     tlv::writer df_name_writer(df_name_buf.data(), df_name_buf.size(), tlv_format_ber);
     auto        df_name_result = df_name_writer.write(
-        TLV_TAG(0x84), tlv::bytes(reinterpret_cast<const tlv::byte*>("ABC"), 3));
+        tlv::tag_bytes<0x84>(), tlv::bytes(reinterpret_cast<const tlv::byte*>("ABC"), 3));
     if (!df_name_result) {
         std::cerr << "write error: " << df_name_result.error().message << "\n";
         return 1;
@@ -32,7 +32,7 @@ int main() {
     tlv::writer application_label_writer(application_label_buf.data(), application_label_buf.size(),
                                          tlv_format_ber);
     auto        label_result =
-        application_label_writer.write(TLV_TAG(0x50), tlv::bytes(&application_label, 1));
+        application_label_writer.write(tlv::tag_bytes<0x50>(), tlv::bytes(&application_label, 1));
     if (!label_result) {
         std::cerr << "write error: " << label_result.error().message << "\n";
         return 1;
@@ -40,7 +40,8 @@ int main() {
 
     tlv::writer proprietary_writer(proprietary_buf.data(), proprietary_buf.size(), tlv_format_ber);
     auto        proprietary_result = proprietary_writer.write(
-        TLV_TAG(0xA5), tlv::bytes(application_label_buf.data(), application_label_writer.size()));
+        tlv::tag_bytes<0xA5>(),
+        tlv::bytes(application_label_buf.data(), application_label_writer.size()));
     if (!proprietary_result) {
         std::cerr << "write error: " << proprietary_result.error().message << "\n";
         return 1;
@@ -53,7 +54,7 @@ int main() {
 
     tlv::writer document_writer(document_buf.data(), document_buf.size(), tlv_format_ber);
     auto        document_result =
-        document_writer.write(TLV_TAG(0x6F), tlv::bytes(value_buf.data(), value_size));
+        document_writer.write(tlv::tag_bytes<0x6F>(), tlv::bytes(value_buf.data(), value_size));
     if (!document_result) {
         std::cerr << "write error: " << document_result.error().message << "\n";
         return 1;

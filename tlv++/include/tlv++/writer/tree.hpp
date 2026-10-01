@@ -4,6 +4,7 @@
 #include "tlv/writer/tree.h"
 #include "tlv/defaults.h"
 #include "tlv++/writer/writer.hpp"
+#include "tlv++/tree.hpp"
 #include <type_traits>
 
 namespace tlv {
@@ -20,7 +21,7 @@ using tree_writer_workspace = tlv_tree_writer_workspace_t;
 /**
  * @brief Measure and stage semantic preorder records using the canonical C engine.
  * @param format Borrowed writable Format and context.
- * @param next Callable taking element&, size_t& depth and bool& constructed, returning
+ * @param next Callable taking element_view&, size_t& depth and bool& constructed, returning
  * expected<bool, error>: true publishes an item, false ends input, error aborts.
  * @param workspace Disjoint caller-owned frames, output and scratch. On success its
  * data contains the exact encoding; required_data/required_scratch report storage
@@ -44,9 +45,11 @@ measure_tree(const tlv_format_t& format, Source&& next, tree_writer_workspace& w
     } context{&next};
     auto callback = [](void* context, tlv_element_t* value, size_t* depth,
                        int* constructed) -> tlv_result_t {
-        bool parent = false;
-        auto item = (*static_cast<state*>(context)->function)(*value, *depth, parent);
+        bool         parent = false;
+        element_view view;
+        auto         item = (*static_cast<state*>(context)->function)(view, *depth, parent);
         if (!item) return item.error().code;
+        *value = detail::semantic_access::get(view);
         *constructed = parent ? 1 : 0;
         return *item ? TLV_OK : TLV_ERR_END_OF_BUFFER;
     };
@@ -60,7 +63,7 @@ measure_tree(const tlv_format_t& format, Source&& next, tree_writer_workspace& w
 /**
  * @brief Measure and stage a balanced canonical event stream through C.
  * @param format Borrowed destination Format.
- * @param next Callable taking tlv_tree_event_t& and returning expected<bool, error>.
+ * @param next Callable taking tree_event& and returning expected<bool, error>.
  * True supplies one event; false is final EOF. The callable must not throw.
  * @param workspace Caller-owned bounded staging storage.
  * @param max_depth Maximum node depth.
@@ -76,8 +79,10 @@ measure_tree_events(const tlv_format_t& format, Source&& next, tree_writer_works
                     writer_diagnostic* diagnostic = nullptr) {
     using callable = typename std::remove_reference<Source>::type;
     auto callback = [](void* context, tlv_tree_event_t* event) -> tlv_result_t {
-        auto item = (*static_cast<callable*>(context))(*event);
+        tree_event view{};
+        auto       item = (*static_cast<callable*>(context))(view);
         if (!item) return item.error().code;
+        *event = detail::tree_access::get(view);
         return *item ? TLV_OK : TLV_ERR_END_OF_BUFFER;
     };
     size_t size = 0;
@@ -146,10 +151,11 @@ public:
      * @param diagnostic Optional Writer failure detail.
      * @return C result; retry the same event on recoverable failure.
      */
-    TLV_NODISCARD expected<void, error> write_event(const tlv_tree_event_t& event,
-                                                    writer_diagnostic*      diagnostic = nullptr) {
+    TLV_NODISCARD expected<void, error> write_event(const tree_event&  event,
+                                                    writer_diagnostic* diagnostic = nullptr) {
+        const auto raw = detail::tree_access::get(event);
         return result(init_result_ == TLV_OK
-                          ? tlv_tree_writer_write_event_diag(&impl_, &event, diagnostic)
+                          ? tlv_tree_writer_write_event_diag(&impl_, &raw, diagnostic)
                           : init_result_);
     }
 
@@ -159,9 +165,12 @@ public:
      * @param diagnostic Optional failure detail, unchanged on success.
      * @return C begin result or the retained initialization error.
      */
-    TLV_NODISCARD expected<void, error> begin(tag_t tag, writer_diagnostic* diagnostic = nullptr) {
-        return result(init_result_ == TLV_OK ? tlv_tree_writer_begin_diag(&impl_, tag, diagnostic)
-                                             : init_result_);
+    TLV_NODISCARD expected<void, error> begin(tlv::tag           tag,
+                                              writer_diagnostic* diagnostic = nullptr) {
+        return result(
+            init_result_ == TLV_OK
+                ? tlv_tree_writer_begin_diag(&impl_, detail::semantic_access::get(tag), diagnostic)
+                : init_result_);
     }
 
     /**
@@ -170,10 +179,11 @@ public:
      * @param diagnostic Optional detail with current absolute output offsets.
      * @return C write result or the retained initialization error.
      */
-    TLV_NODISCARD expected<void, error> write(const element&     value,
-                                              writer_diagnostic* diagnostic = nullptr) {
+    TLV_NODISCARD expected<void, error> write(const element_view& value,
+                                              writer_diagnostic*  diagnostic = nullptr) {
+        const auto raw = detail::semantic_access::get(value);
         return result(init_result_ == TLV_OK
-                          ? tlv_tree_writer_write_element_diag(&impl_, &value, diagnostic)
+                          ? tlv_tree_writer_write_element_diag(&impl_, &raw, diagnostic)
                           : init_result_);
     }
 
@@ -232,7 +242,7 @@ measure_tree(tlv::format format, Source&& next, tree_writer_workspace& workspace
 
 /** @brief Measure balanced events using a C++ Format view.
  * @param format Borrowed destination Format.
- * @param next Callable taking tlv_tree_event_t& and returning expected<bool, error>:
+ * @param next Callable taking tree_event& and returning expected<bool, error>:
  * true supplies an event, false ends input. Must not throw.
  * @param workspace Disjoint caller-owned frames, output and scratch; bytes may change on failure.
  * @param max_depth Maximum node depth.

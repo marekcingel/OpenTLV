@@ -2,6 +2,7 @@
 #define OPENTLV_TLVPP_DETAIL_VISITOR_HPP
 
 #include "tlv/reader/visitor.h"
+#include "tlv++/types.hpp"
 #include <type_traits>
 
 /** @file
@@ -16,7 +17,7 @@ template <typename Visitor> struct element_visitor {
     callable* function;
 
     static tlv_visit_result_t call(const tlv_element_t* value, void* context) {
-        return (*static_cast<element_visitor*>(context)->function)(*value);
+        return (*static_cast<element_visitor*>(context)->function)(semantic_access::borrow(*value));
     }
 };
 
@@ -26,7 +27,8 @@ template <typename Visitor> struct tree_visitor {
 
     static tlv_visit_result_t call(const tlv_element_t* value, size_t depth, size_t offset,
                                    void* context) {
-        return (*static_cast<tree_visitor*>(context)->function)(*value, depth, offset);
+        return (*static_cast<tree_visitor*>(context)->function)(semantic_access::borrow(*value),
+                                                                depth, offset);
     }
 };
 

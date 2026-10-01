@@ -29,22 +29,22 @@ TEST(Integration_Tlvpp, WriterReaderRoundtrip) {
     std::array<tlv::byte, 64> buf{};
     tlv::writer               w(buf.data(), buf.size(), tlv_format_ber);
 
-    auto r1 = w.write(TLV_TAG(0x01), to_bytes("hi"));
+    auto r1 = w.write(tlv::tag_bytes<0x01>(), to_bytes("hi"));
     ASSERT_TRUE(r1.has_value());
-    auto r2 = w.write(TLV_TAG(0x02), to_bytes("x"));
+    auto r2 = w.write(tlv::tag_bytes<0x02>(), to_bytes("x"));
     ASSERT_TRUE(r2.has_value());
 
     tlv::reader reader(tlv::bytes(buf.data(), w.size()), tlv_format_ber);
 
     auto e1 = reader.next();
     ASSERT_TRUE(e1.has_value());
-    EXPECT_TRUE(e1->tag.size == 1 && e1->tag.data[0] == 0x01);
-    EXPECT_TRUE(e1->value.size == 2);
+    EXPECT_TRUE(e1->tag() == tlv::tag_bytes<0x01>());
+    EXPECT_TRUE(e1->value().size() == 2);
 
     auto e2 = reader.next();
     ASSERT_TRUE(e2.has_value());
-    EXPECT_TRUE(e2->tag.size == 1 && e2->tag.data[0] == 0x02);
-    EXPECT_TRUE(e2->value.size == 1);
+    EXPECT_TRUE(e2->tag() == tlv::tag_bytes<0x02>());
+    EXPECT_TRUE(e2->value().size() == 1);
 
     EXPECT_TRUE(reader.at_end());
 }
@@ -52,8 +52,8 @@ TEST(Integration_Tlvpp, WriterReaderRoundtrip) {
 // --- Codec concept test ---
 
 struct greeting {
-    static const tlv::tag_t tag;
-    std::string             text;
+    static const tlv::tag tag;
+    std::string           text;
 
     void encode(std::vector<tlv::byte>& out) const {
         out.resize(text.size());
@@ -68,7 +68,7 @@ struct greeting {
     }
 };
 
-const tlv::tag_t greeting::tag = TLV_TAG(0x10);
+const tlv::tag greeting::tag = tlv::tag_bytes<0x10>();
 
 static_assert(tlv::is_tlv_codec<greeting>::value, "greeting must satisfy TLV codec interface");
 
@@ -83,12 +83,10 @@ TEST(Integration_Tlvpp, CodecWriteViaWriter) {
     tlv::reader reader(tlv::bytes(buf.data(), w.size()), tlv_format_ber);
     auto        element = reader.next();
     ASSERT_TRUE(element.has_value());
-    EXPECT_TRUE(element->tag.size == greeting::tag.size &&
-                element->tag.data[0] == greeting::tag.data[0]);
+    EXPECT_TRUE(element->tag() == greeting::tag);
 
-    auto value = tlv::as_bytes(element->value);
-    ASSERT_TRUE(value.has_value());
-    auto decoded = greeting::decode(*value);
+    auto value = element->value().as_bytes();
+    auto decoded = greeting::decode(value);
     ASSERT_TRUE(decoded.has_value());
     EXPECT_TRUE(decoded->text == "ahoj");
 }
@@ -109,9 +107,8 @@ TEST(Integration_Tlvpp, RegistryDynamicDecode) {
     auto        element = reader.next();
     ASSERT_TRUE(element.has_value());
 
-    auto value = tlv::as_bytes(element->value);
-    ASSERT_TRUE(value.has_value());
-    auto decoded = registry.decode(element->tag, *value);
+    auto value = element->value().as_bytes();
+    auto decoded = registry.decode(element->tag(), value);
     ASSERT_TRUE(decoded.has_value());
     EXPECT_TRUE(tlv::any_cast<greeting>(*decoded).text == "cau");
 }

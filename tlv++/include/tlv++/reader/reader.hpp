@@ -37,11 +37,11 @@ enum class input_mode {
 TLV_NODISCARD inline expected<decoded, error> read(bytes data, const tlv_format_t& format,
                                                    size_t&            consumed,
                                                    reader_diagnostic* diagnostic = nullptr) {
-    decoded result{};
+    tlv_decoded_t result{};
     auto rc = tlv_read_source_diag(reinterpret_cast<const uint8_t*>(data.data()), data.size(),
                                    &format, &result.element, &consumed, &result.source, diagnostic);
     if (rc != TLV_OK) return unexpected<error>(error::from_c(rc));
-    return result;
+    return decoded{detail::semantic_access::borrow(result.element), result.source};
 }
 
 /** @brief Read one element using a borrowed C++ Format view.
@@ -116,7 +116,7 @@ public:
      *
      * @note On error the reader position is unchanged.
      */
-    TLV_NODISCARD expected<element, error> next() {
+    TLV_NODISCARD expected<element_view, error> next() {
         if (!init_ok_) {
             return unexpected<error>(error::from_c(TLV_ERR_NULL_ARG));
         }
@@ -127,7 +127,7 @@ public:
             return unexpected<error>(error::from_c(rc));
         }
 
-        return raw;
+        return detail::semantic_access::borrow(raw);
     }
 
     /**
@@ -140,7 +140,7 @@ public:
      *
      * @return Same as next().
      */
-    TLV_NODISCARD expected<element, error> next(reader_diagnostic& out_diagnostic) {
+    TLV_NODISCARD expected<element_view, error> next(reader_diagnostic& out_diagnostic) {
         if (!init_ok_) {
             return unexpected<error>(error::from_c(TLV_ERR_NULL_ARG));
         }
@@ -151,7 +151,7 @@ public:
             return unexpected<error>(error::from_c(rc));
         }
 
-        return raw;
+        return detail::semantic_access::borrow(raw);
     }
 
     /**
@@ -162,10 +162,10 @@ public:
      */
     TLV_NODISCARD expected<decoded, error> next_source(reader_diagnostic* diagnostic = nullptr) {
         if (!init_ok_) return unexpected<error>(error::from_c(TLV_ERR_NULL_ARG));
-        decoded result{};
+        tlv_decoded_t result{};
         auto rc = tlv_reader_next_source_diag(&impl_, &result.element, &result.source, diagnostic);
         if (rc != TLV_OK) return unexpected<error>(error::from_c(rc));
-        return result;
+        return decoded{detail::semantic_access::borrow(result.element), result.source};
     }
 
     /**

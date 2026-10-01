@@ -2,6 +2,7 @@
 #define OPENTLV_TLVPP_TREE_READER_HPP
 
 #include "tlv++/reader/reader.hpp"
+#include "tlv++/tree.hpp"
 
 /** @file tree.hpp
  * @brief Borrowed C++ preorder cursor backed by the canonical C Tree Reader.
@@ -10,11 +11,6 @@ namespace tlv {
 
 /** @brief Caller-owned structural continuation storage. */
 using tree_frame = tlv_tree_frame_t;
-/** @brief Complete borrowed element, source, depth, absolute offset and classification. */
-using tree_item = tlv_tree_item_t;
-/** @brief Canonical borrowed BEGIN, ELEMENT or END event. */
-using tree_event = tlv_tree_event_t;
-
 /**
  * @brief Bounded preorder traversal with incremental input and subtree control.
  * @warning Input, Format and context must outlive returned views. Frames must
@@ -71,13 +67,14 @@ public:
      */
     TLV_NODISCARD expected<tree_item, error> next(reader_diagnostic* diagnostic = nullptr) {
         has_current_ = false;
-        tree_item result{};
+        tlv_tree_item_t result{};
         auto rc = init_result_ == TLV_OK ? tlv_tree_reader_next_diag(&impl_, &result, diagnostic)
                                          : init_result_;
         if (rc != TLV_OK) return unexpected<error>(error::from_c(rc));
         current_ = result;
         has_current_ = true;
-        return result;
+        return tree_item{detail::semantic_access::borrow(result.element), result.source,
+                         result.depth, result.offset, result.constructed != 0};
     }
 
     /**
@@ -88,12 +85,12 @@ public:
      */
     TLV_NODISCARD expected<tree_event, error> next_event(reader_diagnostic* diagnostic = nullptr) {
         has_current_ = false;
-        tree_event event{};
-        auto       rc = init_result_ == TLV_OK
-                            ? tlv_tree_reader_next_event_diag(&impl_, &event, diagnostic)
-                            : init_result_;
+        tlv_tree_event_t event{};
+        auto             rc = init_result_ == TLV_OK
+                                  ? tlv_tree_reader_next_event_diag(&impl_, &event, diagnostic)
+                                  : init_result_;
         if (rc != TLV_OK) return unexpected<error>(error::from_c(rc));
-        return event;
+        return detail::tree_access::borrow(event);
     }
 
     /**
@@ -178,7 +175,7 @@ private:
         if (rc != TLV_OK) return unexpected<error>(error::from_c(rc));
         return {};
     }
-    tree_item         current_{};
+    tlv_tree_item_t   current_{};
     bool              has_current_ = false;
     tlv_tree_reader_t impl_{};
     tlv_result_t      init_result_ = TLV_ERR_INVALID_ARG;

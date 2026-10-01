@@ -59,8 +59,15 @@ inline const tlv_format_t& detail::format_access::get(tlv::format view) noexcept
 
 /**
  * @brief Semantic element together with its borrowed original framing.
+ * @warning Input, Format identifier storage and source Format/context must
+ * remain alive and unchanged while any retained copy is used. Copies allocate nothing.
  */
-using decoded = tlv_decoded_t;
+struct decoded {
+    /** @brief Complete semantic content borrowing input or immutable Format storage. */
+    element_view element;
+    /** @brief Original immutable framing; source storage and Format must outlive uses. */
+    tlv_source_t source;
+};
 
 /**
  * @brief Immutable borrowed original wire representation.
@@ -83,11 +90,11 @@ using encoding = tlv_encoding_t;
  * @warning Input, descriptor and context must outlive the result and remain unchanged.
  */
 TLV_NODISCARD inline expected<decoded, error> decode(const tlv_format_t& format, bytes data) {
-    decoded result{};
+    tlv_decoded_t result{};
     auto rc = tlv_format_decode(&format, reinterpret_cast<const uint8_t*>(data.data()), data.size(),
                                 &result, nullptr);
     if (rc != TLV_OK) return unexpected<error>(error::from_c(rc));
-    return result;
+    return decoded{detail::semantic_access::borrow(result.element), result.source};
 }
 
 /** @brief Decode using a borrowed C++ Format view.
@@ -106,17 +113,19 @@ TLV_NODISCARD inline expected<decoded, error> decode(tlv::format format, bytes d
  * @return Exact logical sizes, or a C format error.
  */
 TLV_NODISCARD inline expected<encoding, error> measure(const tlv_format_t& format,
-                                                       const element&      value) {
-    encoding result{};
-    auto     rc = tlv_format_measure(&format, &value, &result, nullptr);
+                                                       const element_view& value) {
+    encoding   result{};
+    const auto raw = detail::semantic_access::get(value);
+    auto       rc = tlv_format_measure(&format, &raw, &result, nullptr);
     if (rc != TLV_OK) return unexpected<error>(error::from_c(rc));
     return result;
 }
 
 /** @brief Measure using a borrowed C++ Format view.
- * @copydetails measure(const tlv_format_t&, const element&)
+ * @copydetails measure(const tlv_format_t&, const element_view&)
  */
-TLV_NODISCARD inline expected<encoding, error> measure(tlv::format format, const element& value) {
+TLV_NODISCARD inline expected<encoding, error> measure(tlv::format         format,
+                                                       const element_view& value) {
     return measure(detail::format_access::get(format), value);
 }
 
@@ -131,18 +140,19 @@ TLV_NODISCARD inline expected<encoding, error> measure(tlv::format format, const
  * @return Written bytes, or a C format error. Callback failure may modify output.
  */
 TLV_NODISCARD inline expected<size_t, error>
-encode(const tlv_format_t& format, const element& value, byte* data, size_t capacity) {
-    size_t written = 0;
-    auto   rc = tlv_format_encode(&format, &value, reinterpret_cast<uint8_t*>(data), capacity,
-                                  &written, nullptr);
+encode(const tlv_format_t& format, const element_view& value, byte* data, size_t capacity) {
+    size_t     written = 0;
+    const auto raw = detail::semantic_access::get(value);
+    auto rc = tlv_format_encode(&format, &raw, reinterpret_cast<uint8_t*>(data), capacity, &written,
+                                nullptr);
     if (rc != TLV_OK) return unexpected<error>(error::from_c(rc));
     return written;
 }
 
 /** @brief Encode using a borrowed C++ Format view.
- * @copydetails encode(const tlv_format_t&, const element&, byte*, size_t)
+ * @copydetails encode(const tlv_format_t&, const element_view&, byte*, size_t)
  */
-TLV_NODISCARD inline expected<size_t, error> encode(tlv::format format, const element& value,
+TLV_NODISCARD inline expected<size_t, error> encode(tlv::format format, const element_view& value,
                                                     byte* data, size_t capacity) {
     return encode(detail::format_access::get(format), value, data, capacity);
 }
@@ -159,11 +169,12 @@ TLV_NODISCARD inline expected<size_t, error> encode(tlv::format format, const el
  *
  * @warning Original bytes, descriptor and context must remain valid and unchanged.
  */
-TLV_NODISCARD inline expected<size_t, error> preserve(const source& original, const element& value,
-                                                      byte* data, size_t capacity) {
-    size_t written = 0;
-    auto   rc = tlv_source_preserve(&original, &value, reinterpret_cast<uint8_t*>(data), capacity,
-                                    &written);
+TLV_NODISCARD inline expected<size_t, error>
+preserve(const source& original, const element_view& value, byte* data, size_t capacity) {
+    size_t     written = 0;
+    const auto raw = detail::semantic_access::get(value);
+    auto       rc =
+        tlv_source_preserve(&original, &raw, reinterpret_cast<uint8_t*>(data), capacity, &written);
     if (rc != TLV_OK) return unexpected<error>(error::from_c(rc));
     return written;
 }

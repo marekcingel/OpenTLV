@@ -1,5 +1,5 @@
 #include "bluetooth.hpp"
-#include "tlv++/types.hpp"
+#include "tlv++/native.hpp"
 #include <cstring>
 #include <iomanip>
 #include <sstream>
@@ -29,7 +29,7 @@ const char* bluetooth_name(const tlv_element_t* element) {
 #if OPENTLV_BLUETOOTH
 namespace {
 std::string hex_value(tlv_value_t value) {
-    return hex_string(value.data, tlv::as_bytes(value)->size());
+    return hex_string(value.data, tlv::native::borrow_value(value)->size());
 }
 std::string uuid_text(uint32_t value, unsigned width) {
     std::ostringstream out;
@@ -69,7 +69,7 @@ decode_result decode_bluetooth_value(const tlv_element_t* element) {
         case 0x09:
             return decode<tlv_value_t>(
                 tlv_bluetooth_ad_codec_local_name, element, [](tlv_value_t value) {
-                    const auto bytes = *tlv::as_bytes(value);
+                    const auto bytes = *tlv::native::borrow_value(value);
                     return bytes.empty() ? std::string()
                                          : std::string(reinterpret_cast<const char*>(bytes.data()),
                                                        bytes.size());
@@ -90,7 +90,7 @@ decode_result decode_bluetooth_value(const tlv_element_t* element) {
             return decode<tlv_bluetooth_uuid_list_t>(
                 codec, element, [](const tlv_bluetooth_uuid_list_t& list) {
                     std::string out = "[";
-                    const auto  count = tlv::as_bytes(list.raw)->size() / list.uuid_size;
+                    const auto count = tlv::native::borrow_value(list.raw)->size() / list.uuid_size;
                     for (size_t i = 0; i < count; ++i) {
                         if (i) out += ", ";
                         if (list.uuid_size == 2) {

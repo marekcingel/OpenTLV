@@ -23,13 +23,13 @@ int main() {
     tlv::tree_reader reader(tlv::bytes(document.data(), document.size()), tlv_format_ber,
                             {frames, TLV_TREE_DEFAULT_DEPTH}, TLV_TREE_DEFAULT_DEPTH, 16);
     auto             result =
-        reader.visit([&count](const tlv::element& element, size_t depth, size_t /*offset*/) {
+        reader.visit([&count](const tlv::element_view& element, size_t depth, size_t /*offset*/) {
             std::cout << std::string(depth * 2, ' ') << "tag=" << std::hex << std::uppercase
-                      << static_cast<int>(element.tag.data[0]) << " length=" << std::dec
-                      << element.value.size << " value=" << std::hex << std::uppercase;
-            for (size_t i = 0; i < element.value.size; ++i)
+                      << static_cast<int>(element.tag().data()[0]) << " length=" << std::dec
+                      << element.value().size() << " value=" << std::hex << std::uppercase;
+            for (size_t i = 0; i < element.value().size(); ++i)
                 std::cout << std::setw(2) << std::setfill('0')
-                          << static_cast<int>(element.value.data[i]);
+                          << static_cast<int>(element.value().data()[i]);
             std::cout << std::dec << "\n";
             ++count;
             return TLV_VISIT_CONTINUE;

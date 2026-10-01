@@ -39,27 +39,27 @@ TEST(Integration_Tlvpp, BerIndefiniteRoundTripAndTraversal) {
     tlv::byte        buffer[8]{};
     const uint8_t    children[] = {4, 2, 0, 0};
     const tlv::bytes value(reinterpret_cast<const tlv::byte*>(children), sizeof(children));
-    auto written = tlv::ber_write_indefinite(buffer, sizeof(buffer), TLV_TAG(0x30), value);
+    auto written = tlv::ber_write_indefinite(buffer, sizeof(buffer), tlv::tag_bytes<0x30>(), value);
     ASSERT_TRUE(written);
     EXPECT_EQ(8u, *written);
     tlv::reader reader(tlv::bytes(buffer, *written), tlv_format_ber);
     auto        item = reader.next();
     ASSERT_TRUE(item);
-    EXPECT_EQ(reinterpret_cast<const uint8_t*>(buffer) + 2, item->value.data);
-    EXPECT_EQ(4u, item->value.size);
+    EXPECT_EQ(buffer + 2, item->value().data());
+    EXPECT_EQ(4u, item->value().size());
     EXPECT_TRUE(reader.at_end());
     size_t           visits = 0;
     tlv_tree_frame_t frames[1];
     tlv::tree_reader tree(tlv::bytes(buffer, *written), tlv_format_ber, {frames, 1}, 1, 2);
-    EXPECT_TRUE(tree.visit([&visits](const tlv::element&, size_t depth, size_t offset) {
+    EXPECT_TRUE(tree.visit([&visits](const tlv::element_view&, size_t depth, size_t offset) {
         EXPECT_EQ(visits, depth);
         EXPECT_EQ(visits * 2, offset);
         ++visits;
         return TLV_VISIT_CONTINUE;
     }));
     EXPECT_EQ(2u, visits);
-    EXPECT_FALSE(tlv::ber_write_indefinite(buffer, 7, TLV_TAG(0x30), value));
-    EXPECT_FALSE(tlv::ber_write_indefinite(buffer, sizeof(buffer), TLV_TAG(4), value));
+    EXPECT_FALSE(tlv::ber_write_indefinite(buffer, 7, tlv::tag_bytes<0x30>(), value));
+    EXPECT_FALSE(tlv::ber_write_indefinite(buffer, sizeof(buffer), tlv::tag_bytes<4>(), value));
 }
 
 TEST(Integration_Tlvpp, BerPathQuery) {
@@ -78,11 +78,11 @@ TEST(Integration_Tlvpp, BerPathQuery) {
     EXPECT_EQ(3u, path->c_query().count);
     size_t visits = 0;
     EXPECT_TRUE(path->visit_buffer(input, tlv_format_ber, 8, 100,
-                                   [&](const tlv::element& item, size_t depth, size_t at) {
+                                   [&](const tlv::element_view& item, size_t depth, size_t at) {
                                        EXPECT_EQ(2u, depth);
                                        EXPECT_EQ(8u, at);
-                                       EXPECT_EQ(2u, item.value.size);
-                                       EXPECT_EQ(0x41, static_cast<int>(item.value.data[0]));
+                                       EXPECT_EQ(2u, item.value().size());
+                                       EXPECT_EQ(0x41, static_cast<int>(item.value().data()[0]));
                                        ++visits;
                                        return TLV_VISIT_CONTINUE;
                                    }));
@@ -91,14 +91,14 @@ TEST(Integration_Tlvpp, BerPathQuery) {
     auto missing = tlv::query::parse("6F/A5/51");
     ASSERT_TRUE(missing);
     EXPECT_TRUE(missing->visit_buffer(input, tlv_format_ber, 8, 100,
-                                      [](const tlv::element&, size_t, size_t) {
+                                      [](const tlv::element_view&, size_t, size_t) {
                                           ADD_FAILURE();
                                           return TLV_VISIT_CONTINUE;
                                       }));
     size_t failed_at = 0;
     auto   limited = path->visit_buffer(
         input, tlv_format_ber, 1, 100,
-        [](const tlv::element&, size_t, size_t) { return TLV_VISIT_CONTINUE; }, &failed_at);
+        [](const tlv::element_view&, size_t, size_t) { return TLV_VISIT_CONTINUE; }, &failed_at);
     ASSERT_FALSE(limited);
     EXPECT_EQ(TLV_ERR_LIMIT, limited.error().code);
 }
@@ -109,10 +109,10 @@ TEST(Integration_Tlvpp, LayeredTraversalAndSchema) {
     tlv::bytes       bytes(reinterpret_cast<const tlv::byte*>(data), sizeof(data));
     size_t           visits = 0;
     tlv::tree_reader tree(bytes, tlv_format_ber, {}, 0, 2);
-    auto result = tree.visit([&visits](const tlv::element& item, size_t depth, size_t offset) {
+    auto result = tree.visit([&visits](const tlv::element_view& item, size_t depth, size_t offset) {
         EXPECT_EQ(0u, depth);
         EXPECT_EQ(visits ? 3u : 0u, offset);
-        EXPECT_EQ(visits ? 2 : 1, item.tag.data[0]);
+        EXPECT_EQ(visits ? 2 : 1, static_cast<int>(item.tag().data()[0]));
         ++visits;
         return TLV_VISIT_CONTINUE;
     });

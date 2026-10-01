@@ -228,13 +228,13 @@ int main() {
     size_t           count = 0;
     tlv::tree_reader reader(tlv::bytes(reinterpret_cast<const tlv::byte*>(wire), sizeof(wire)),
                             tlv::lldp_format(), {}, 0, 16);
-    auto             result = reader.visit([&count](const tlv::element& element, size_t, size_t) {
-        if (element.tag.data[0] == 3) {
+    auto result = reader.visit([&count](const tlv::element_view& element, size_t, size_t) {
+        if (element.tag() == tlv::tag_bytes<3>()) {
             uint16_t seconds = 0;
-            size_t   size = 0;
-            if (tlv_size_to_native(element.value.size, &size) != TLV_OK ||
-                tlv_codec_decode(&tlv_lldp_codec_ttl, element.value.data, size, &seconds,
-                                 sizeof(seconds)) != TLV_CODEC_OK ||
+            auto     value = element.value();
+            if (tlv_codec_decode(&tlv_lldp_codec_ttl,
+                                 reinterpret_cast<const uint8_t*>(value.data()), value.size(),
+                                 &seconds, sizeof(seconds)) != TLV_CODEC_OK ||
                 seconds != 120)
                 return TLV_VISIT_ERROR;
         }

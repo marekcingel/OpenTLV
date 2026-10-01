@@ -90,14 +90,14 @@ their owning abstractions rather than moving processing semantics out of C.
 
 | Current public representation | Next migration owner |
 | --- | --- |
-| `tag_t`, `element`, `as_bytes(tlv_value_t)`, borrowed `decoded`/`source`/`encoding` aliases | #431 semantic views and #432 Format operations |
+| `tag`, `value_view`, `element_view`, decoded/tree semantic payloads | #431 implemented; `source`/`encoding` aliases migrate with #432 Format operations |
 | Native Format overloads, `fixed_format` byte-order parameter and `format()`, built-in descriptor getters | #432 customization and #438 standard namespaces |
 | `reader_diagnostic`, `input_mode` cursor operations, native visitor return codes, Tree Reader frames/items/events | #433 Reader and iteration |
 | `writer_diagnostic`, `tlv_source_t` preservation, Tree Writer frames/workspace/events and source callbacks | #434 Writer and builders |
 | `document_format.format`, `node::c_node()`, `document::c_document()`, builder options and C deleters/state | #435 Document ownership and traversal |
 | Native structure-codec descriptors, `is_tlv_codec` tag requirements, callback registration and `any` values | #436 typed fields/codecs |
 | `query::c_query()`, native matching diagnostics and visitor adapters | #437 Query integration |
-| Definition entries, Schema rules/diagnostics, diagnostic paths and protocol container/validation options | Follow-up facade migration alongside their owning generic/domain APIs |
+| Schema rules/diagnostics, diagnostic paths and protocol container/validation options | Follow-up facade migration alongside their owning generic/domain APIs |
 | Examples using native macros, field access and byte conversions | #439 compiled ergonomics examples |
 
 Existing `c_node()`, `c_document()` and `c_query()` accessors already make
@@ -110,3 +110,25 @@ New facade code should use public C++ types at call sites and `tlv::detail`
 for implementation bridging. Public interoperability belongs in `tlv::native`,
 not in an implicit conversion. Protocol policy remains in the standard, and
 all wire processing, traversal, validation and Query semantics stay in C.
+
+## Semantic interoperability
+
+[#431](https://github.com/marekcingel/OpenTLV/issues/431) replaces C Tag and Element
+aliases with `tlv::tag`, `tlv::value_view` and `tlv::element_view`. Ordinary code
+uses `element.tag()`, `element.value()` and explicit `as_bytes()` spans. Definition
+entries, Query steps, Document accessors and codec tag requirements also use the
+strong Tag type. Definition registries still borrow their tables and names and
+allocate nothing; registered codec identifiers continue to be copied by the registry.
+
+Native semantic imports are explicit and checked:
+
+```cpp
+auto result = tlv::native::borrow_element(native_element);
+if (!result) return; // Invalid pointer or non-native-addressable Value size.
+auto descriptor = tlv::native::descriptor(*result);
+```
+
+The native descriptor itself is copied; its Tag and Value bytes remain borrowed.
+Unlike a Format descriptor, a temporary semantic descriptor can be imported safely
+when its underlying byte storage remains alive. See [semantic views](core-types.md#c-semantic-views)
+for the borrowed lifetime and absent/empty Tag rules.

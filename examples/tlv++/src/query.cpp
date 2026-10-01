@@ -22,11 +22,12 @@ int main() {
     bool found = false;
     auto result = query->visit_buffer(
         tlv::bytes(document.data(), document.size()), tlv_format_ber, TLV_TREE_DEFAULT_DEPTH, 16,
-        [&found](const tlv::element& element, size_t /*depth*/, size_t offset) {
+        [&found](const tlv::element_view& element, size_t /*depth*/, size_t offset) {
             std::cout << "6F/A5/50 = " << std::hex << std::uppercase << std::setw(2)
-                      << std::setfill('0') << static_cast<int>(element.value.data[0]) << std::dec
-                      << " (offset " << offset << ")\n";
-            found = element.value.size == 1 && element.value.data[0] == 0x01;
+                      << std::setfill('0') << static_cast<int>(element.value().data()[0])
+                      << std::dec << " (offset " << offset << ")\n";
+            found =
+                element.value().size() == 1 && element.value()[0] == static_cast<tlv::byte>(0x01);
             return TLV_VISIT_CONTINUE;
         });
     if (!result) {

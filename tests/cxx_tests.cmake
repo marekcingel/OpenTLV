@@ -10,7 +10,7 @@ set(SOURCES
 )
 
 if(test_group STREQUAL "unit")
-    list(APPEND SOURCES test_native_boundary.cpp)
+    list(APPEND SOURCES test_native_boundary.cpp test_semantic_views.cpp)
     list(APPEND SOURCES test_diagnostic.cpp)
     list(APPEND SOURCES reader/test_reader.cpp)
     list(APPEND SOURCES writer/test_tree_writer.cpp)

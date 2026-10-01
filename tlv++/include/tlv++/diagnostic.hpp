@@ -74,8 +74,8 @@ inline diagnostic_path make_diagnostic_path() {
  *
  * @return Success, or #error::from_c wrapping #TLV_ERR_LIMIT if the path is already full.
  */
-inline expected<void, error> push_path(diagnostic_path& path, tag_t tag) {
-    tlv_result_t rc = tlv_diagnostic_path_push(&path, tag);
+inline expected<void, error> push_path(diagnostic_path& path, tlv::tag tag) {
+    tlv_result_t rc = tlv_diagnostic_path_push(&path, detail::semantic_access::get(tag));
     if (rc != TLV_OK) return unexpected<error>(error::from_c(rc));
     return {};
 }

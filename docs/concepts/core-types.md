@@ -166,14 +166,53 @@ is never produced because a tag is "too long for `tlv_tag_t`".
 
 See also the [C API reference: core types](../reference/c-api.md#core-types-and-utilities).
 
-### C++ element access
+### C++ semantic views
 
-`tlv::element` aliases semantic `tlv_element_t` with 64-bit `value.size`.
-`tlv::decode()` returns separate source information for raw field inspection. Access bytes through `element.value.data`. When a C++
-codec or range operation needs `tlv::bytes`, use the checked conversion:
+Include `<tlv++/types.hpp>` for the allocation-free semantic types:
+
+| Type | Storage and operations |
+| --- | --- |
+| `tlv::tag` | Borrowed immutable identifier bytes; content equality and lexicographic ordering. |
+| `tlv::value_view` | Borrowed immutable Value bytes with a validated native `size_t` count; content equality and explicit byte `compare()`. |
+| `tlv::element_view` | A Tag and Value together; equality compares both contents and excludes source metadata. |
+
+All three copy descriptors only. Keep input and any Format-supplied identifier
+storage alive and unchanged while retained views are used. Reader advancement
+does not invalidate a view into stable input. Replacing input does not relocate
+retained views; release them before moving or overwriting their backing storage.
+Document accessors borrow Document storage and follow its mutation invalidation
+rules. Document remains the owned tree representation; these views never own bytes.
+
+Reader `next()` returns an `element_view`; decoded results, tree items, events and
+Visitor callbacks expose the same semantic type. Writer accepts it directly:
 
 ```cpp
-auto value = tlv::as_bytes(element.value);
-if (!value) return; // Null data with nonzero size, or size above SIZE_MAX.
-// *value is a borrowed tlv::bytes span; keep the source storage alive.
+auto result = reader.next();
+if (!result) return;
+if (result->tag() != tlv::tag_bytes<0x01>()) return;
+auto value = result->value();
+auto span = value.as_bytes(); // No allocation or byte copy.
+for (auto byte : value) { /* Opaque Value bytes. */ }
+auto written = writer.write(*result);
 ```
+
+`tag_bytes<0x9F, 0x02>()` borrows immutable program-lifetime storage and works in
+C++11 and later. Arguments are bytes in identifier order; no implicit integer or
+endian conversion occurs. Runtime tags and Values can be explicitly constructed
+from `tlv::bytes`. Both provide `data()`, `size()`, `empty()`, `begin()`, `end()`,
+`operator[]` (index must be in range), `at()` (throws `std::out_of_range`) and
+`as_bytes()`. Span constructors reject null storage with nonzero length with
+`std::invalid_argument`; the caller still guarantees the actual storage extent.
+
+A default Tag is absent. A non-null zero-length span represents an explicitly
+empty Tag; `present()` distinguishes them. Both compare equal by contents, but
+exact source preservation rejects changing presence.
+
+The previous `tlv::tag_t`, `tlv::element` and `tlv::as_bytes(tlv_value_t)` APIs are
+replaced by these strong types. C structures cannot convert implicitly. For
+mixed C/C++ code, include `<tlv++/native.hpp>` and use `native::borrow_tag()`,
+`native::borrow_value()` or `native::borrow_element()`, returning `expected`.
+Native Value imports validate null-pointer requirements and reject logical sizes
+above `SIZE_MAX` before iteration or narrowing. `native::descriptor(view)` exports
+a shallow C descriptor; exporting never transfers ownership or extends lifetimes.
+The C API and its build-independent 64-bit logical size contract remain unchanged.
