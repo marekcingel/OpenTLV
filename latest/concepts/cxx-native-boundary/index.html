@@ -16,7 +16,7 @@
         <link rel="prev" href="../bindings/">
       
       
-        <link rel="next" href="../../guides/memory/">
+        <link rel="next" href="../cxx-formats/">
       
       
         
@@ -1087,6 +1087,34 @@
   
 </nav>
       
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../cxx-formats/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    C++ Format customization
+  
+
+    
+  </span>
+  
+  
+
+      </a>
     </li>
   
 
@@ -3000,18 +3028,17 @@ a source-compatibility guarantee.</p>
 <p>Standards use namespaces such as <code>tlv::ber</code>, following the style of protocol
 types in Boost.Asio. The intended Reader spelling is <code>tlv::ber::reader</code>,
 backed by the same generic <code>tlv::reader&lt;tlv::ber::format&gt;</code> that accepts an
-application Format. These <strong>Reader spellings are planned</strong>, not implemented
-by the initial boundary change. A namespace cannot also be the callable
+application Format. The generic templated Reader is implemented by #432; the protocol-specific
+Reader aliases remain planned. A namespace cannot also be the callable
 <code>tlv::ber(data)</code> used in early issue sketches.</p>
-<p>The initial implementation provides <code>tlv::ber::format</code>, usable with the
-existing generic cursor:</p>
-<div class="highlight"><pre><span></span><code><a id="__codelineno-0-1" name="__codelineno-0-1" href="#__codelineno-0-1"></a><span class="n">tlv</span><span class="o">::</span><span class="n">reader</span><span class="w"> </span><span class="nf">reader</span><span class="p">(</span><span class="n">data</span><span class="p">,</span><span class="w"> </span><span class="n">tlv</span><span class="o">::</span><span class="n">ber</span><span class="o">::</span><span class="n">format</span><span class="p">{});</span>
+<p>The implementation provides <code>tlv::ber::format</code>, usable with the generic cursor:</p>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-0-1" name="__codelineno-0-1" href="#__codelineno-0-1"></a><span class="n">tlv</span><span class="o">::</span><span class="n">reader</span><span class="o">&lt;</span><span class="n">tlv</span><span class="o">::</span><span class="n">ber</span><span class="o">::</span><span class="n">format</span><span class="o">&gt;</span><span class="w"> </span><span class="n">reader</span><span class="p">(</span><span class="n">data</span><span class="p">);</span>
 <a id="__codelineno-0-2" name="__codelineno-0-2" href="#__codelineno-0-2"></a><span class="k">auto</span><span class="w"> </span><span class="n">element</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">reader</span><span class="p">.</span><span class="n">next</span><span class="p">();</span>
 </code></pre></div>
 <p><code>data</code> is a borrowed <code>tlv::bytes</code> view. Keep its storage alive while using the
 reader and returned elements. BER still uses the generic C Reader and Format
-operations. Other built-in namespaces, iterable readers, typed fields and
-builders follow in their respective issues. C++11 remains the baseline;
+operations. Other built-in Format namespaces are available under their component options;
+iterable readers, typed fields and builders follow in their respective issues. C++11 remains the baseline;
 examples using generic lambdas need a separate C++14-or-newer spelling.</p>
 <h2 id="format-execution-view">Format execution view<a class="headerlink" href="#format-execution-view" title="Permanent link">&para;</a></h2>
 <p><code>tlv::format</code> is a small, copyable, non-owning execution view. It exposes
@@ -3023,14 +3050,13 @@ descriptor. The existing <code>format()</code> accessor remains available during
 identity. There is no implicit conversion to or from <code>tlv_format_t</code>.
 Readability and writability describe available callbacks, not input validity;
 the engine still validates operations and reports its original errors.</p>
-<p>This view is the execution boundary, not a replacement for the C++ Format
-customization contract in <a href="https://github.com/marekcingel/OpenTLV/issues/432">#432</a>.
-That contract must allow user-defined Formats without manually constructing
-C descriptors. Built-ins must use the same generic contract.</p>
+<p>This view is the execution boundary. The <a href="../cxx-formats/">C++ Format customization contract</a>
+in #432 adapts user-defined Formats without manually constructing C descriptors.
+Built-ins satisfy the same contract.</p>
 <h2 id="explicit-interoperability-and-lifetime">Explicit interoperability and lifetime<a class="headerlink" href="#explicit-interoperability-and-lifetime" title="Permanent link">&para;</a></h2>
 <p>Include <code>&lt;tlv++/native.hpp&gt;</code> explicitly to mix C and C++ APIs:</p>
 <div class="highlight"><pre><span></span><code><a id="__codelineno-1-1" name="__codelineno-1-1" href="#__codelineno-1-1"></a><span class="k">auto</span><span class="w"> </span><span class="n">format</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">tlv</span><span class="o">::</span><span class="n">native</span><span class="o">::</span><span class="n">borrow_format</span><span class="p">(</span><span class="n">native_descriptor</span><span class="p">);</span>
-<a id="__codelineno-1-2" name="__codelineno-1-2" href="#__codelineno-1-2"></a><span class="n">tlv</span><span class="o">::</span><span class="n">reader</span><span class="w"> </span><span class="nf">reader</span><span class="p">(</span><span class="n">data</span><span class="p">,</span><span class="w"> </span><span class="n">format</span><span class="p">);</span>
+<a id="__codelineno-1-2" name="__codelineno-1-2" href="#__codelineno-1-2"></a><span class="n">tlv</span><span class="o">::</span><span class="n">reader</span><span class="o">&lt;&gt;</span><span class="w"> </span><span class="n">reader</span><span class="p">(</span><span class="n">data</span><span class="p">,</span><span class="w"> </span><span class="n">format</span><span class="p">);</span>
 <a id="__codelineno-1-3" name="__codelineno-1-3" href="#__codelineno-1-3"></a><span class="k">const</span><span class="w"> </span><span class="k">auto</span><span class="o">&amp;</span><span class="w"> </span><span class="n">descriptor</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">tlv</span><span class="o">::</span><span class="n">native</span><span class="o">::</span><span class="n">descriptor</span><span class="p">(</span><span class="n">format</span><span class="p">);</span>
 </code></pre></div>
 <p><code>native_descriptor</code> must be a named, live <code>tlv_format_t</code>. Import rejects both
@@ -3183,13 +3209,13 @@ for the borrowed lifetime and absent/empty Tag rules.</p>
         
         
           
-          <a href="../../guides/memory/" class="md-footer__link md-footer__link--next" aria-label="Next: Memory ownership">
+          <a href="../cxx-formats/" class="md-footer__link md-footer__link--next" aria-label="Next: C++ Format customization">
             <div class="md-footer__title">
               <span class="md-footer__direction">
                 Next
               </span>
               <div class="md-ellipsis">
-                Memory ownership
+                C++ Format customization
               </div>
             </div>
             <div class="md-footer__button md-icon">

@@ -1175,6 +1175,34 @@
 
               
             
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../cxx-formats/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    C++ Format customization
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
           </ul>
         </nav>
       
@@ -3497,7 +3525,7 @@ Rows marked Audit require a function-by-function review before claiming full
 capability parity. For #400 acceptance, this review applies to its in-scope
 operations; the exclusions above are tracked for follow-up work.</p>
 <h3 id="c-resumable-traversal">C++ resumable traversal<a class="headerlink" href="#c-resumable-traversal" title="Permanent link">&para;</a></h3>
-<p><code>tlv::reader</code> and <code>tlv::tree_reader</code> accept <code>tlv::input_mode::incremental</code>.
+<p><code>tlv::reader&lt;&gt;</code> and <code>tlv::tree_reader</code> accept <code>tlv::input_mode::incremental</code>.
 Their <code>next</code> operations return <code>expected</code> results with the original C codes:
 <code>TLV_NEED_MORE_DATA</code> is resumable and <code>TLV_ERR_END_OF_BUFFER</code> is final exhaustion.
 Use <code>set_input</code> to replace the contiguous input window and declare final input;
@@ -3667,7 +3695,7 @@ explicitly out of scope for #400.</p>
 <td>Reader</td>
 <td>Read-only parsing and traversal</td>
 <td><code>tlv_reader_t</code>, <code>tlv_reader_next()</code></td>
-<td><code>tlv::reader</code></td>
+<td><code>tlv::reader&lt;&gt;</code></td>
 <td><code>Reader&lt;'a&gt;</code></td>
 <td><code>Reader</code></td>
 <td><code>opentlv.reader()</code></td>
@@ -3676,7 +3704,7 @@ explicitly out of scope for #400.</p>
 <td>Writer</td>
 <td>Construction and serialization</td>
 <td><code>tlv_writer_t</code></td>
-<td><code>tlv::writer</code></td>
+<td><code>tlv::writer&lt;&gt;</code></td>
 <td><code>Writer&lt;'a&gt;</code></td>
 <td><code>Writer</code></td>
 <td><code>opentlv.writer()</code></td>

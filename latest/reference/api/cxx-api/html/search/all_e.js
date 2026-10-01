@@ -13,6 +13,6 @@ var searchData=
   ['presence_10',['presence',['../../../c-api/html/structtlv__der__schema__component.html#ad206011fb0b0cee0ee798a4b91929e7d',1,'tlv_der_schema_component']]],
   ['present_11',['present',['../../../c-api/html/structtlv__range.html#aaa359cdcce6b3743ca6d7c4079318403',1,'tlv_range::present'],['../classtlv_1_1tag.html#a666c8fd09d8d767a1a8bf43de7d4fee5',1,'tlv::tag::present()']]],
   ['presentation_2eh_12',['presentation.h',['../../../c-api/html/presentation_8h.html',1,'']]],
-  ['preserve_13',['preserve',['../classtlv_1_1writer.html#a3109e024e4e02574c067ef6be84ee500',1,'tlv::writer::preserve()'],['../namespacetlv.html#a52f5aaf71f92e261dd85b21f7162f57c',1,'tlv::preserve(const source &amp;original, const element_view &amp;value, byte *data, size_t capacity)']]],
+  ['preserve_13',['preserve',['../classtlv_1_1detail_1_1writer__base.html#a27045b057b5a62a91457e0698e94dad6',1,'tlv::detail::writer_base::preserve()'],['../namespacetlv.html#a52f5aaf71f92e261dd85b21f7162f57c',1,'tlv::preserve(const source &amp;original, const element_view &amp;value, byte *data, size_t capacity)']]],
   ['push_5fpath_14',['push_path',['../namespacetlv.html#a8b244c890959cdd457d0a83a52c89976',1,'tlv']]]
 ];

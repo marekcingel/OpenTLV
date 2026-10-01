@@ -89,20 +89,29 @@ $(function() {
 <code>#include &quot;<a class="elRef" href="../../c-api/html/size_8h.html">tlv/size.h</a>&quot;</code><br />
 <code>#include &quot;<a class="el" href="types_8hpp.html">tlv++/types.hpp</a>&quot;</code><br />
 <code>#include &quot;<a class="el" href="format_8hpp.html">tlv++/format.hpp</a>&quot;</code><br />
+<code>#include &quot;<a class="el" href="format__traits_8hpp.html">tlv++/format_traits.hpp</a>&quot;</code><br />
 <code>#include &quot;<a class="el" href="visitor_8hpp.html">tlv++/detail/visitor.hpp</a>&quot;</code><br />
 <code>#include &quot;<a class="elRef" href="../../c-api/html/visitor_8h.html">tlv/reader/visitor.h</a>&quot;</code><br />
 <code>#include &lt;type_traits&gt;</code><br />
 </div><table class="memberdecls">
 <tr class="heading"><td colspan="2"><h2 class="groupheader"><a id="nested-classes" name="nested-classes"></a>
 Classes</h2></td></tr>
-<tr class="memitem:"><td class="memItemLeft" align="right" valign="top">class &#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classtlv_1_1reader.html">tlv::reader</a></td></tr>
-<tr class="memdesc:"><td class="mdescLeft">&#160;</td><td class="mdescRight">Thin, safe C++ wrapper around <a class="elRef" href="../../c-api/html/group__reader.html#gabf4c5d3902d19aaea312759ab513f034">tlv_reader_t</a>.  <a href="classtlv_1_1reader.html#details">More...</a><br /></td></tr>
+<tr class="memitem:"><td class="memItemLeft" align="right" valign="top">class &#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classtlv_1_1detail_1_1reader__base.html">tlv::detail::reader_base</a></td></tr>
+<tr class="separator:"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:"><td class="memItemLeft" align="right" valign="top">class &#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classtlv_1_1reader.html">tlv::reader&lt; F &gt;</a></td></tr>
+<tr class="memdesc:"><td class="mdescLeft">&#160;</td><td class="mdescRight">Generic sequential reader using the canonical C engine.  <a href="classtlv_1_1reader.html#details">More...</a><br /></td></tr>
+<tr class="separator:"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:"><td class="memItemLeft" align="right" valign="top">class &#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classtlv_1_1reader_3_01tlv_1_1format_01_4.html">tlv::reader&lt; tlv::format &gt;</a></td></tr>
+<tr class="memdesc:"><td class="mdescLeft">&#160;</td><td class="mdescRight">Runtime Format cursor; descriptor and context remain borrowed.  <a href="classtlv_1_1reader_3_01tlv_1_1format_01_4.html#details">More...</a><br /></td></tr>
 <tr class="separator:"><td class="memSeparator" colspan="2">&#160;</td></tr>
 </table><table class="memberdecls">
 <tr class="heading"><td colspan="2"><h2 class="groupheader"><a id="namespaces" name="namespaces"></a>
 Namespaces</h2></td></tr>
 <tr class="memitem:namespacetlv" id="r_namespacetlv"><td class="memItemLeft" align="right" valign="top">namespace &#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="namespacetlv.html">tlv</a></td></tr>
 <tr class="memdesc:namespacetlv"><td class="mdescLeft">&#160;</td><td class="mdescRight">Public C++ wrappers, value types, codec traits and helpers for OpenTLV. <br /></td></tr>
+<tr class="separator:"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:namespacetlv_1_1detail" id="r_namespacetlv_1_1detail"><td class="memItemLeft" align="right" valign="top">namespace &#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="namespacetlv_1_1detail.html">tlv::detail</a></td></tr>
+<tr class="memdesc:namespacetlv_1_1detail"><td class="mdescLeft">&#160;</td><td class="mdescRight">Thin, safe C++ wrapper around <a class="elRef" href="../../c-api/html/group__reader.html#gabf4c5d3902d19aaea312759ab513f034">tlv_reader_t</a>. <br /></td></tr>
 <tr class="separator:"><td class="memSeparator" colspan="2">&#160;</td></tr>
 </table><table class="memberdecls">
 <tr class="heading"><td colspan="2"><h2 class="groupheader"><a id="typedef-members" name="typedef-members"></a>

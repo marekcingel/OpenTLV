@@ -13,7 +13,7 @@
         <link rel="canonical" href="https://marekcingel.github.io/OpenTLV/latest/guides/memory/">
       
       
-        <link rel="prev" href="../../concepts/cxx-native-boundary/">
+        <link rel="prev" href="../../concepts/cxx-formats/">
       
       
         <link rel="next" href="../diagnostics/">
@@ -972,6 +972,34 @@
     
   
     C++ public/native boundary
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../concepts/cxx-formats/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    C++ Format customization
   
 
     
@@ -3117,7 +3145,7 @@ Sizing has no destination capacity. Field offsets are relative to the Element
 for standalone operations and absolute within the buffer for cursor operations;
 errors without a field offset point to the Element start. An absolute offset
 that cannot be represented is unset.</p>
-<p>In C++, <code>tlv::encoded_size(element, format)</code> and <code>tlv::writer::write(element)</code>
+<p>In C++, <code>tlv::encoded_size(element, format)</code> and <code>tlv::writer&lt;&gt;::write(element)</code>
 provide the same two-stage model; error objects may allocate. Rust exposes
 <code>element_encoded_size</code> (and its fixed-format variant) and a Writer borrowing
 <code>&amp;mut [u8]</code>. Python exposes <code>element_encoded_size</code> and
@@ -3206,7 +3234,7 @@ and dynamic containers may allocate; choose the C API for a strict no-heap path.
       <nav class="md-footer__inner md-grid" aria-label="Footer" >
         
           
-          <a href="../../concepts/cxx-native-boundary/" class="md-footer__link md-footer__link--prev" aria-label="Previous: C++ public/native boundary">
+          <a href="../../concepts/cxx-formats/" class="md-footer__link md-footer__link--prev" aria-label="Previous: C++ Format customization">
             <div class="md-footer__button md-icon">
               
               <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M20 11v2H8l5.5 5.5-1.42 1.42L4.16 12l7.92-7.92L13.5 5.5 8 11z"/></svg>
@@ -3216,7 +3244,7 @@ and dynamic containers may allocate; choose the C API for a strict no-heap path.
                 Previous
               </span>
               <div class="md-ellipsis">
-                C++ public/native boundary
+                C++ Format customization
               </div>
             </div>
           </a>
