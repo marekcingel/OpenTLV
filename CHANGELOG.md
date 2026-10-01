@@ -9,6 +9,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Fixed
 
+- Resolve the CodeQL suspicious pointer-offset warning in C++ Writer tests by using an explicit element count. (#445)
+- Avoid constructing an unused C++ error string for successful `expected<void, E>` results, keeping successful Writer operations allocation-free with debug standard libraries. (#434)
 - Fix CI compilation of custom Format tests in C++20 and newer by constructing empty byte spans without an untyped null pointer. (#432)
 - Safely clean up Lua traversal resources when callback argument allocation fails; validate traversal limits and honor them for DER. (#300)
 - Preserve Lua module search paths in CTest so registered binding tests and examples can load `opentlv`. (#299)
@@ -104,6 +106,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Added
 
+- Add typed C++ Writer inputs and byte-tag templates, scoped nested builders, bounded caller-owned workspace, exact staged measurement and BER encoding helpers with allocation-free builder results. (#434)
 - Add C++11 single-pass Reader iteration, generic and built-in `parse` ranges, and iteration exceptions preserving Reader error codes, offsets and diagnostics without copying Value bytes. (#433)
 - Add a generic C++ Format customization contract with traits, capability checks and stable adapters, allowing application-defined Formats to use the shared Reader, Writer, tree, Query and Document machinery without constructing C descriptors. Built-in Formats satisfy the same contract. (#432)
 - Add borrowed C++ Format views across Reader, Writer, Document, Query and Schema, explicit native Format interoperability, and the `tlv::ber::format` preset while retaining existing native overloads during the tlv++ redesign. (#430, #440)

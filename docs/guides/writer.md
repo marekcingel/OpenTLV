@@ -1,4 +1,163 @@
-# Bounded Tree Writer
+# Writer and scoped construction
+
+## Typed C++ writing
+
+Include `<tlv++/writer/builder.hpp>` for generic construction or
+`<tlv++/builtins/asn1/ber.hpp>` for the BER helper. Both use the canonical C
+Writer and Tree Writer. Output remains caller-owned and is never resized.
+
+```cpp
+std::array<tlv::byte, 128> output{};
+auto result = tlv::ber::encode(output, [](tlv::writer_builder& writer) {
+    const uint8_t pan[] = {0x12, 0x34};
+    writer.write<0x5A>(pan);
+    writer.constructed<0x6F>([](tlv::writer_builder& fci) {
+        fci.write<0x84>("AID");
+        fci.write<0x50>("VISA");
+    });
+});
+// Check result once; success contains the exact number of output bytes.
+```
+
+`write(tag, value)` accepts a `tlv::tag`. `write<0x9F, 0x02>(value)` uses
+individual identifier bytes with static lifetime, preserving leading zero bytes
+and platform-independent byte identity. `<0x9F02>` is not a supported shorthand.
+`write(element)` accepts a semantic Element, including an already encoded
+constructed Value; it does not traverse or validate that Value's children.
+
+Supported Values are `tlv::bytes`, `tlv::value_view`, arrays and contiguous
+containers of `tlv::byte` or `uint8_t`, `std::string`, character arrays, and
+`std::string_view` from C++17. Byte inputs preserve every byte. Character arrays
+omit one trailing NUL and preserve embedded NULs; strings and string views use
+their explicit lengths. Raw text pointers are not accepted: use a string view
+or a byte span with a known length. No conversion copies or allocates storage.
+
+Numbers and enums require an explicit Value representation. For example, select
+a C number codec with the desired width and byte order, encode it into
+caller-owned storage with `tlv_codec_encode()`, check its codec result, then
+write those bytes. The Writer does not infer a codec from a tag or serialize a
+host object's memory. The existing `write_value()` convenience for application
+codecs uses a temporary vector and is outside this allocation-free interface.
+
+The same typed inputs and byte-tag templates are available on the sequential
+`tlv::writer<F>`:
+
+```cpp
+tlv::writer<tlv::ber::format> writer(
+    tlv::span<tlv::byte>(output.data(), output.size()));
+auto first = writer.write<0x50>("VISA");
+// Check each result before continuing; writer.size() reports the written prefix.
+```
+
+This cursor preserves its existing per-operation results, diagnostics,
+`copy_encoded()` and `preserve()` operations. Its `tlv::error` may allocate a
+message on failure. The builder and `encode()` instead return
+`expected<size_t, writer_failure>`: the error contains the canonical `code` and
+`message()` borrows a static description, so failures do not allocate either.
+User callbacks and custom containers/Formats remain responsible for their own
+allocation behavior.
+
+### Workspace and scoped errors
+
+The short helper uses 1024 scratch bytes and `TLV_TREE_DEFAULT_DEPTH` frames on
+the stack. `tlv::ber::encode<512, 8>(output, callback)` selects different fixed
+capacities. Insufficient storage returns an error and never grows implicitly.
+For explicit caller storage, use:
+
+```cpp
+tlv::writer_storage<128, 4> storage;
+auto result = tlv::ber::encode(output, storage.view(), callback);
+```
+
+`writer_workspace` also accepts separate frame and scratch spans, plus runtime
+depth and element-count limits. Each open parent requires one frame; scratch
+must fit the largest closed parent Value. Output, workspace and input must be
+disjoint. Generic calls use `tlv::encode<F>(output, workspace, callback, format)`
+or `tlv::encode(output, format_view, workspace, callback)`; the typed overload
+owns a stable Format adapter for the call.
+
+For persistent sequential construction, initialize `tlv::writer_builder` with
+an output span, a C++ Format view and workspace, perform `write()` and
+`constructed()` operations, then inspect `finish()`. Keep the borrowed Format
+descriptor/context and workspace alive and stationary throughout use.
+
+Builder callbacks take `tlv::writer_builder&` and return `void`. The first
+failure is retained, later writes are skipped, and later nested callbacks are
+not invoked. A failed parent opening skips its callback; a failed child skips
+parent closing. Application code can stop writing with `writer.fail(code)`.
+Statements in an already running user callback still execute after a write
+fails; `status()` can be inspected when application control flow needs it.
+
+`constructed()` explicitly closes a parent after its callback succeeds. An
+exception propagates to the caller, marks the builder failed and leaves that
+root unpublished. Destruction does not attempt encoding. `size()` exposes only
+completed roots; failed output may contain provisional bytes and there is no
+whole-buffer rollback. Optional `writer_diagnostic` preserves the C operation's
+detail and current output offsets; initialization errors and application
+`fail()` do not populate it. Runtime Tag storage must outlive diagnostic
+inspection as well as its operation.
+
+All APIs support C++11 with explicitly typed callbacks as above. With C++14
+generic lambdas, dependent calls need `writer.template write<0x50>("VISA")`
+and `writer.template constructed<0x6F>(callback)`.
+
+### Exact size measurement
+
+The existing `encoded_size(element, format)` measures a complete semantic
+Element. For callback construction, use
+`tlv::encoded_size<F>(staging, workspace, callback, format)` or the runtime
+overload `tlv::encoded_size(staging, format_view, workspace, callback)`.
+These operations encode into caller-owned staging storage and return the exact
+size on success. Content-dependent Formats receive actual encoded children.
+The callback runs once and the staged bytes can be used directly or passed to
+`copy_encoded()`. A failed capacity check does not predict the complete final
+size; retrying requires a fresh callback invocation and suitable storage.
+
+### Complete C++ example
+
+This example produces the same document as the parsing example, checks its
+bytes independently, and is compiled and run by the example test suite:
+
+<!-- example: examples/tlv++/src/write.cpp -->
+```cpp
+// Builds the same BER document as parse.cpp using scoped, allocation-free writes.
+#include "tlv++/builtins/asn1/ber.hpp"
+#include <array>
+#include <cstring>
+#include <iostream>
+
+// Same bytes as parse.cpp's document.
+static const std::array<tlv::byte, 12> expected = {
+    tlv::byte(0x6F), tlv::byte(0x0A), tlv::byte(0x84), tlv::byte(0x03),
+    tlv::byte(0x41), tlv::byte(0x42), tlv::byte(0x43), tlv::byte(0xA5),
+    tlv::byte(0x03), tlv::byte(0x50), tlv::byte(0x01), tlv::byte(0x01)};
+
+int main() {
+    std::array<tlv::byte, 12>  output{};
+    tlv::writer_storage<12, 2> storage;
+    auto result = tlv::ber::encode(output, storage.view(), [](tlv::writer_builder& writer) {
+        writer.constructed<0x6F>([](tlv::writer_builder& fci) {
+            fci.write<0x84>("ABC");
+            fci.constructed<0xA5>([](tlv::writer_builder& proprietary) {
+                const uint8_t label[] = {0x01};
+                proprietary.write<0x50>(label);
+            });
+        });
+    });
+    if (!result) {
+        std::cerr << "write error: " << result.error().message() << "\n";
+        return 1;
+    }
+
+    std::cout << "Wrote " << *result << " bytes\n";
+    return *result == expected.size() &&
+                   std::memcmp(output.data(), expected.data(), expected.size()) == 0
+               ? 0
+               : 1;
+}
+```
+
+## Bounded Tree Writer
 
 `tlv_tree_writer_t` builds nested output through explicit `begin()`,
 `write_element()` and `end()` operations. It is iterative and allocation-free,

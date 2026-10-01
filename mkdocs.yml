@@ -125,7 +125,7 @@ nav:
       - Value codecs: guides/codecs.md
       - Copy helpers: guides/copy.md
       - Pull-based Reader: guides/reader.md
-      - Bounded Tree Writer: guides/writer.md
+      - Writer and scoped construction: guides/writer.md
       - Path queries: guides/queries.md
       - Mutable documents: guides/document.md
       - Building only the components you need: guides/select-components.md

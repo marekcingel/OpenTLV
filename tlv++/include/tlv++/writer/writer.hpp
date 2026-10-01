@@ -5,6 +5,7 @@
 #include "tlv++/types.hpp"
 #include "tlv++/format.hpp"
 #include "tlv++/format_traits.hpp"
+#include "tlv++/writer/value.hpp"
 
 namespace tlv {
 
@@ -107,6 +108,48 @@ TLV_NODISCARD inline expected<size_t, error> write(byte* data, size_t capacity,
 namespace detail {
 class writer_base {
 public:
+    /** @brief Initialize from borrowed mutable byte storage and a C++ Format view.
+     * @param output Caller-owned contiguous storage, never resized.
+     * @param format Borrowed descriptor and context, live for the cursor lifetime.
+     */
+    writer_base(span<byte> output, tlv::format format)
+        : writer_base(output.data(), output.size(), format) {}
+
+    /** @brief Initialize from borrowed mutable byte storage and a native Format.
+     * @param output Caller-owned contiguous storage, never resized.
+     * @param format Borrowed descriptor and context, live for the cursor lifetime.
+     */
+    writer_base(span<byte> output, const tlv_format_t& format)
+        : writer_base(output.data(), output.size(), format) {}
+
+    /**
+     * @brief Borrow a byte sequence or text and write it under a semantic Tag.
+     * @param tag Identifier, borrowed for this call.
+     * @param value Byte/uint8_t array or contiguous container, Value view, string,
+     * or string_view (C++17). Character arrays omit one trailing NUL, retaining
+     * embedded NULs; strings use their explicit size. Inputs must not overlap output.
+     * @return Canonical Writer result; error message construction may allocate.
+     * @note No Value conversion allocates. Numbers require an explicit value codec;
+     * encode them into caller storage before writing the resulting bytes.
+     */
+    template <typename T>
+    TLV_NODISCARD auto write(tlv::tag tag, const T& value)
+        -> decltype(detail::writer_bytes(value), expected<void, error>{}) {
+        return write(tag, detail::writer_bytes(value));
+    }
+
+    /**
+     * @brief Write a supported Value using program-lifetime identifier bytes.
+     * @tparam TagBytes Individual identifier bytes in order; no integer normalization.
+     * @param value Borrowed input with the same conversion rules as write(tag, value).
+     * @return Canonical Writer result; failed writes preserve the cursor.
+     */
+    template <uint8_t... TagBytes, typename T>
+    TLV_NODISCARD auto write(const T& value)
+        -> decltype(detail::writer_bytes(value), expected<void, error>{}) {
+        return write(tlv::tag_bytes<TagBytes...>(), detail::writer_bytes(value));
+    }
+
     /**
      * @brief Create a sequential writer from a C++ Format view without allocation.
      * @param buf Borrowed output buffer, null only for zero capacity.
@@ -263,6 +306,13 @@ class writer : private format_adapter<F>, public detail::writer_base {
     static_assert(format_capabilities<F>::writable, "writer requires a writable Format");
 
 public:
+    /** @brief Initialize a typed Writer over borrowed mutable byte storage.
+     * @param output Caller-owned contiguous output, never resized.
+     * @param value Immutable Format configuration owned by the cursor.
+     */
+    explicit writer(span<byte> output, F value = F{})
+        : writer(output.data(), output.size(), std::move(value)) {}
+
     /** @brief Initialize with default-constructed Format configuration.
      * @param data Borrowed output.
      * @param capacity Native output capacity.

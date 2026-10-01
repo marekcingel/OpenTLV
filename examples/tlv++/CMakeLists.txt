@@ -65,7 +65,14 @@ set_tests_properties(Integration_example_tlv++_formats_fixed_format_runtime PROP
 # written, queried and validated in examples/tlv, examples/tlv++ and
 # bindings/rust/opentlv/examples.
 if(OPENTLV_FORMAT_BER)
-    foreach(use_case parse write query validate)
+    # Explicit source registration also backs the synchronized Writer guide example.
+    add_executable(example-tlv++-write src/write.cpp)
+    target_link_libraries(example-tlv++-write PRIVATE tlv++)
+    opentlv_configure_compiler(example-tlv++-write)
+    opentlv_copy_shared_runtime(example-tlv++-write)
+    add_test(NAME Integration_example_tlv++_write COMMAND $<TARGET_FILE:example-tlv++-write>)
+    set_tests_properties(Integration_example_tlv++_write PROPERTIES LABELS "integration;examples")
+    foreach(use_case parse query validate)
         add_executable(example-tlv++-${use_case} src/${use_case}.cpp)
         target_link_libraries(example-tlv++-${use_case} PRIVATE tlv++)
         opentlv_configure_compiler(example-tlv++-${use_case})

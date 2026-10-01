@@ -30,6 +30,10 @@
  * owns its type-erased value. Error messages, the registry and convenience
  * encoding can allocate; the C core's allocation-free guarantee does not
  * apply to every C++ helper. Individual declarations specify these contracts.
+ * tlv::writer_builder and tlv::encode use bounded caller-owned or fixed local
+ * workspace and return allocation-free tlv::writer_failure results. Typed
+ * byte/text writes and scoped construction are described in the
+ * @docs{guides/writer,Writer guide}.
  */
 
 /**
