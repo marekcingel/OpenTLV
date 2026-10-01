@@ -1,6 +1,7 @@
 #ifndef OPENTLV_TLVPP_QUERY_HPP
 #define OPENTLV_TLVPP_QUERY_HPP
 #include <type_traits>
+#include <iterator>
 #include "tlv++/types.hpp"
 #include "tlv/size.h"
 #include "tlv/query/query.h"
@@ -12,6 +13,27 @@
  */
 
 namespace tlv {
+class query_range;
+
+/** @brief Query compilation failure with the original C error and text offset. */
+class query_error : public std::runtime_error {
+public:
+    /** @brief Retain compilation error code and offending text position. */
+    query_error(tlv_result_t code, size_t offset)
+        : std::runtime_error(tlv_strerror(code)), code_(code), offset_(offset) {}
+    /** @brief Original C compilation result. */
+    tlv_result_t code() const noexcept {
+        return code_;
+    }
+    /** @brief Zero-based offending character or tag position. */
+    size_t offset() const noexcept {
+        return offset_;
+    }
+
+private:
+    tlv_result_t code_;
+    size_t       offset_;
+};
 /**
  * @brief A parsed path query such as `6F/A5/50`.
  *
@@ -21,6 +43,24 @@ namespace tlv {
  */
 class query {
 public:
+    /** @brief Compile a path, throwing query_error on failure.
+     * @param text NUL-terminated path; not retained.
+     * @return Self-contained compiled Query.
+     */
+    static query compile(const char* text) {
+        size_t offset = 0;
+        auto   result = parse(text, &offset);
+        if (!result) throw query_error(result.error().code, offset);
+        return *result;
+    }
+
+    /** @brief Select matches from a Tree Reader starting at a tree boundary.
+     * @param reader Borrowed cursor, which must outlive the range and iterators.
+     * @return Allocation-free single-pass range owning a copy of this Query.
+     * @warning Do not interleave other cursor operations except set_input() after
+     * NEED_MORE_DATA. Input and Format storage must outlive retained results.
+     */
+    query_range select(tree_reader& reader) const;
     /**
      * @brief Parses the text of a query.
      *
@@ -120,6 +160,152 @@ private:
     query() : query_() {}
     tlv_query_t query_;
 };
+
+/** @brief Lazy single-pass Query results yielding normal tree_item records.
+ * @note next() preserves matching state across NEED_MORE_DATA. Only final EOF
+ * ends iteration; other outcomes throw parse_error from begin() or increment.
+ * Moving the range invalidates its iterators. Range, Reader, frames, input and
+ * Format must outlive their respective borrowed uses. Successful pulls allocate
+ * nothing. Query matching is performed entirely by the C engine.
+ */
+class query_range {
+public:
+    /** @brief Create a selection owning its Query and borrowing its Tree Reader. */
+    query_range(tree_reader& reader, const query& pattern)
+        : reader_(&reader), query_(pattern.c_query()) {
+        tlv_query_matcher_init(&matcher_, &query_);
+    }
+    /** @brief Transfer continuation state and invalidate source iterators. */
+    query_range(query_range&& other) noexcept
+        : reader_(other.reader_), query_(other.query_), matcher_(other.matcher_) {
+        matcher_.query = &query_;
+        other.reader_ = nullptr;
+        ++other.generation_;
+    }
+    /** @brief Copying would share a mutable Reader cursor and is prohibited. */
+    query_range(const query_range&) = delete;
+    /** @brief Assignment is prohibited while a selection borrows its cursor. */
+    query_range& operator=(const query_range&) = delete;
+    /** @brief Move assignment is prohibited; construct a new selection instead. */
+    query_range& operator=(query_range&&) = delete;
+
+    /** @brief Pull the next match, or original Reader error including NEED_MORE_DATA.
+     * @param diagnostic Optional original Reader diagnostic.
+     * @return Matching tree_item or END_OF_BUFFER at final exhaustion.
+     * @note Feed replacement input to the Reader before retrying NEED_MORE_DATA.
+     * Every pull invalidates earlier iterators. No unmatched ancestors are skipped.
+     */
+    expected<tree_item, error> next(reader_diagnostic* diagnostic = nullptr) {
+        tree_item item{};
+        auto      rc = pull(item, diagnostic);
+        if (rc != TLV_OK) return unexpected<error>(error::from_c(rc));
+        return item;
+    }
+
+    /** @brief C++11 input iterator; advancing invalidates other iterator copies. */
+    class iterator {
+    public:
+        /** @cond INTERNAL */
+        using iterator_category = std::input_iterator_tag;
+        using value_type = tree_item;
+        using difference_type = std::ptrdiff_t;
+        using pointer = const tree_item*;
+        using reference = const tree_item&;
+        /** @endcond */
+        /** @brief Construct the end iterator. */
+        iterator() = default;
+        /** @brief Read the current match; the iterator must be valid. */
+        reference operator*() const {
+            return current_;
+        }
+        /** @brief Access the current match; the iterator must be valid. */
+        pointer operator->() const {
+            return &current_;
+        }
+        /** @brief Pull the next match; throw parse_error except at final EOF. */
+        iterator& operator++() {
+            if (active())
+                advance();
+            else
+                range_ = nullptr;
+            return *this;
+        }
+        /** @brief Pull the next match and return its predecessor's borrowed record. */
+        iterator operator++(int) {
+            auto old = *this;
+            ++*this;
+            return old;
+        }
+        /** @brief Compare single-pass positions; invalidated copies equal end. */
+        friend bool operator==(const iterator& a, const iterator& b) {
+            return a.active() == b.active();
+        }
+        /** @brief Compare single-pass positions. */
+        friend bool operator!=(const iterator& a, const iterator& b) {
+            return !(a == b);
+        }
+
+    private:
+        explicit iterator(query_range& range) : range_(&range) {
+            advance();
+        }
+        query_range* active() const {
+            return range_ && generation_ == range_->generation_ ? range_ : nullptr;
+        }
+        void advance() {
+            if (!range_) return;
+            reader_diagnostic diagnostic{};
+            auto              code = range_->pull(current_, &diagnostic);
+            generation_ = range_->generation_;
+            if (code != TLV_OK) {
+                auto offset = range_->reader_ ? range_->reader_->offset() : 0;
+                range_ = nullptr;
+                if (code != TLV_ERR_END_OF_BUFFER) throw parse_error(code, offset, diagnostic);
+                return;
+            }
+        }
+        query_range* range_ = nullptr;
+        size_t       generation_ = 0;
+        tree_item    current_{};
+        friend class query_range;
+    };
+    /** @brief Consume through the next match; throw parse_error on non-EOF failure. */
+    iterator begin() {
+        return iterator(*this);
+    }
+    /** @brief Return end without consuming input. */
+    iterator end() const noexcept {
+        return iterator();
+    }
+
+private:
+    tlv_result_t pull(tree_item& item, reader_diagnostic* diagnostic) {
+        ++generation_;
+        if (!reader_) return TLV_ERR_INVALID_ARG;
+        for (;;) {
+            auto rc = reader_->next_item(item, diagnostic);
+            if (rc != TLV_OK) return rc;
+            auto tag = detail::semantic_access::get(item.element.tag());
+            if (tlv_query_matcher_visit(&matcher_, &tag, item.depth)) return TLV_OK;
+        }
+    }
+    tree_reader*        reader_;
+    tlv_query_t         query_;
+    tlv_query_matcher_t matcher_{};
+    size_t              generation_ = 0;
+};
+
+inline query_range query::select(tree_reader& reader) const {
+    return query_range(reader, *this);
+}
+
+inline query_range tree_reader::select(const query& pattern) {
+    return pattern.select(*this);
+}
+
+inline query_range tree_reader::select(const char* text) {
+    return query::compile(text).select(*this);
+}
 
 /**
  * @brief Resumable C Query matcher owning a copy of its parsed query.

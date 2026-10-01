@@ -108,6 +108,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Added
 
+- Add C++ Query selection over Documents and Tree Readers, with iterable Node snapshots, allocation-free borrowed traversal, resumable matching and query error positions; expose all-match Document visiting in C. (#437)
 - Add C++11 typed fields and customizable Value codecs, with typed Document/Node lookup, Element/Node decoding, and Writer operations supporting caller-owned scratch storage. (#436)
 - Add natural C++ Document iteration, iterable Node children and direct child insertion; track Node validity across subtree edits and Document destruction while preserving unaffected handles. (#435)
 - Add typed C++ Writer inputs and byte-tag templates, scoped nested builders, bounded caller-owned workspace, exact staged measurement and BER encoding helpers with allocation-free builder results. (#434)

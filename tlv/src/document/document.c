@@ -500,15 +500,23 @@ tlv_node_t* tlv_node_next_same_tag(const tlv_node_t* node) {
     return node ? find_in_siblings(node->next, node_tag(node)) : NULL;
 }
 
-tlv_node_t* tlv_document_find_path(const tlv_document_t* document, const tlv_query_t* query) {
+tlv_result_t tlv_document_query_visit(const tlv_document_t* document, const tlv_query_t* query,
+                                      tlv_document_query_visitor_t visitor, void* context) {
     tlv_query_matcher_t matcher;
     tlv_node_t* node;
     size_t depth = 0;
-    if (!document || tlv_query_matcher_init(&matcher, query) != TLV_OK) return NULL;
+    tlv_result_t rc;
+    if (!document || !query || !visitor) return TLV_ERR_NULL_ARG;
+    rc = tlv_query_matcher_init(&matcher, query);
+    if (rc != TLV_OK) return rc;
     node = document->first;
     while (node) {
         tlv_tag_t tag = node_tag(node);
-        if (tlv_query_matcher_visit(&matcher, &tag, depth)) return node;
+        if (tlv_query_matcher_visit(&matcher, &tag, depth)) {
+            tlv_visit_result_t result = visitor(node, context);
+            if (result == TLV_VISIT_STOP) return TLV_OK;
+            if (result != TLV_VISIT_CONTINUE) return TLV_ERR_VISITOR;
+        }
         if (node->first) {
             node = node->first;
             ++depth;
@@ -520,7 +528,18 @@ tlv_node_t* tlv_document_find_path(const tlv_document_t* document, const tlv_que
             node = node->next;
         }
     }
-    return NULL;
+    return TLV_OK;
+}
+
+static tlv_visit_result_t first_path_match(tlv_node_t* node, void* context) {
+    *(tlv_node_t**)context = node;
+    return TLV_VISIT_STOP;
+}
+
+tlv_node_t* tlv_document_find_path(const tlv_document_t* document, const tlv_query_t* query) {
+    tlv_node_t* result = NULL;
+    (void)tlv_document_query_visit(document, query, first_path_match, &result);
+    return result;
 }
 
 /* ---- Reading a node -------------------------------------------------------------------- */

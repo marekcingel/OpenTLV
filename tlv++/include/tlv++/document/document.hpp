@@ -2,6 +2,7 @@
 #define OPENTLV_TLVPP_DOCUMENT_HPP
 
 #include <cstddef>
+#include <exception>
 #include <iterator>
 #include <memory>
 #include <unordered_map>
@@ -594,6 +595,48 @@ public:
      */
     node find(const query& path) const {
         return node(tlv_document_find_path(impl_->handle.get(), &path.c_query()), impl_->lifetime);
+    }
+
+    /** @brief Select all matching Nodes in Document order.
+     * @param path Compiled Query; not retained.
+     * @return Snapshot of normal non-owning Node handles; no matches is empty.
+     * @note Allocates result storage and Node validity metadata. Insertions after
+     * selection are not included. Erasure, Value replacement and Document destruction
+     * invalidate handles following the normal Node contract; vector positions remain.
+     * @throws std::bad_alloc If result storage or validity metadata allocation fails.
+     */
+    std::vector<node> select(const query& path) const {
+        struct collection {
+            const document*           owner;
+            std::vector<node>         results;
+            std::exception_ptr        failure;
+            static tlv_visit_result_t append(tlv_node_t* raw, void* context) {
+                auto& state = *static_cast<collection*>(context);
+                try {
+                    state.results.push_back(node(raw, state.owner->impl_->lifetime));
+                    return TLV_VISIT_CONTINUE;
+                } catch (...) {
+                    state.failure = std::current_exception();
+                    return TLV_VISIT_ERROR;
+                }
+            }
+        };
+        collection state{this, {}, {}};
+        auto       rc = tlv_document_query_visit(impl_->handle.get(), &path.c_query(),
+                                                 &collection::append, &state);
+        if (state.failure) std::rethrow_exception(state.failure);
+        if (rc != TLV_OK) throw query_error(rc, 0);
+        return std::move(state.results);
+    }
+
+    /** @brief Compile a text path and select all matching Nodes.
+     * @param text NUL-terminated Query text; not retained.
+     * @return Snapshot with the lifetime and mutation rules of select(const query&).
+     * @throws query_error On compilation failure, retaining the original text offset.
+     * @throws std::bad_alloc On C++ result or handle allocation failure.
+     */
+    std::vector<node> select(const char* text) const {
+        return select(query::compile(text));
     }
 
     /**

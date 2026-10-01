@@ -1,6 +1,7 @@
 // Independent of GoogleTest's minimum C++ standard: exercises C++11 range returns
 // with copy elision disabled and observes allocations across successful processing.
 #include "tlv++/reader/reader.hpp"
+#include "tlv++/query/query.hpp"
 #include "tlv++/formats/fixed_format.hpp"
 #include "custom_cpp_format.hpp"
 #include <cstdlib>
@@ -76,7 +77,18 @@ int main() {
         if (element.tag() != (count == 0 ? tlv::tag_bytes<1>() : tlv::tag_bytes<2>())) return 8;
         ++count;
     }
-    observe_allocations = false;
     if (count != 2) return 9;
+    tlv::fixed_format<1, 1, TLV_BYTE_ORDER_BIG_ENDIAN> config;
+    tlv::tree_frame                                    frames[1]{};
+    tlv::tree_reader tree(fixed_input, config.view(), {frames, 1}, 1, 10);
+    auto             selected = tree.select("02");
+    auto             selection = std::move(selected);
+    count = 0;
+    for (auto item : selection) {
+        if (item.element.tag() != tlv::tag_bytes<2>() || item.offset != 3) return 11;
+        ++count;
+    }
+    observe_allocations = false;
+    if (count != 1) return 12;
     return allocation_count == 0 ? 0 : 10;
 }

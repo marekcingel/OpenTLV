@@ -114,6 +114,56 @@ auto visited = query->visit_buffer(
 `tlv::query::visit_buffer()` wraps `tlv_query_visit_buffer()` with the visitor conventions of
 `tlv::tree_reader::visit()`.
 
+Compile a reusable Query with `tlv::query::parse()` for explicit error handling,
+or `tlv::query::compile()` to throw `tlv::query_error`. The exception retains
+the original C result and the zero-based text error offset.
+
+An owning Document supports all-result lookup through normal Node handles:
+
+```cpp
+auto matches = document.select("6F/A5/50");
+for (auto node : matches) {
+    // Use node.value(), node.children(), or node.decode<Field>().
+}
+```
+
+`document.select(query)` also accepts a compiled Query. Results are a
+`std::vector<tlv::node>` snapshot in Document order; selection allocates result
+storage and Node validity metadata. Later insertions are absent from the snapshot.
+Erased Nodes, descendants of replaced constructed Values, and handles whose
+Document was destroyed become invalid according to the normal Node contract.
+The result does not own the Document. `document.find(query)` still returns
+only the first match.
+
+For borrowed traversal, include `tlv++/query/query.hpp` and use:
+
+```cpp
+auto matches = reader.select("6F/A5/50"); // reader is a tlv::tree_reader
+for (const auto& item : matches) {
+    // item.element, item.depth and item.offset are normal Tree Reader results.
+}
+```
+
+The selection owns its compiled Query and borrows the Tree Reader. It is a
+single-pass range; advancing invalidates other iterator copies. Moving the range
+invalidates its iterators. Successful pulls allocate nothing. Input, Format and
+frames retain their normal borrowed lifetime rules. Start at the beginning of
+a tree and do not interleave other cursor operations.
+
+Only final EOF ends iteration. Malformed input, resource limits and
+`NEED_MORE_DATA` throw `tlv::parse_error` with the original result and offset.
+For incremental input, use `matches.next()`, which returns
+`expected<tree_item, error>`; retain the selection across `NEED_MORE_DATA`,
+replace the Reader input with `set_input()`, and retry. Matching state survives.
+All traversed items count towards limits, including nonmatches. A constructed
+parent still requires its complete encoded extent before publication.
+
+Both surfaces reuse C Query matching. Document selection uses
+`tlv_document_query_visit()`, an allocation-free callback API for all matching
+Nodes. Its callbacks may stop early, but must not mutate the Document.
+Tree selection uses the canonical C Tree Reader and Query matcher; it does not
+materialize a Document or evaluate a separate C++ query language.
+
 ///
 
 /// tab | Python
