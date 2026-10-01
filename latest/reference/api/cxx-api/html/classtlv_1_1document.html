@@ -128,6 +128,12 @@ Public Member Functions</h2></td></tr>
 <tr class="memitem:a721db8298fc9c2ec7adccadc75288321" id="r_a721db8298fc9c2ec7adccadc75288321"><td class="memItemLeft" align="right" valign="top"><a class="el" href="classtlv_1_1node.html">node</a>&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classtlv_1_1document.html#a721db8298fc9c2ec7adccadc75288321">find</a> (const <a class="el" href="classtlv_1_1query.html">query</a> &amp;path) const</td></tr>
 <tr class="memdesc:a721db8298fc9c2ec7adccadc75288321"><td class="mdescLeft">&#160;</td><td class="mdescRight">Finds the first element addressed by a path query such as <code>6F/A5/50</code>.  <br /></td></tr>
 <tr class="separator:a721db8298fc9c2ec7adccadc75288321"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a2907ddc33ed25f7214e3f1aafec4d594" id="r_a2907ddc33ed25f7214e3f1aafec4d594"><td class="memItemLeft" align="right" valign="top">std::vector&lt; <a class="el" href="classtlv_1_1node.html">node</a> &gt;&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classtlv_1_1document.html#a2907ddc33ed25f7214e3f1aafec4d594">select</a> (const <a class="el" href="classtlv_1_1query.html">query</a> &amp;path) const</td></tr>
+<tr class="memdesc:a2907ddc33ed25f7214e3f1aafec4d594"><td class="mdescLeft">&#160;</td><td class="mdescRight">Select all matching Nodes in Document order.  <br /></td></tr>
+<tr class="separator:a2907ddc33ed25f7214e3f1aafec4d594"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a2f5f1955526f4f07314ce7c2342c174d" id="r_a2f5f1955526f4f07314ce7c2342c174d"><td class="memItemLeft" align="right" valign="top">std::vector&lt; <a class="el" href="classtlv_1_1node.html">node</a> &gt;&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classtlv_1_1document.html#a2f5f1955526f4f07314ce7c2342c174d">select</a> (const char *text) const</td></tr>
+<tr class="memdesc:a2f5f1955526f4f07314ce7c2342c174d"><td class="mdescLeft">&#160;</td><td class="mdescRight">Compile a text path and select all matching Nodes.  <br /></td></tr>
+<tr class="separator:a2f5f1955526f4f07314ce7c2342c174d"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:a798d214cd8448b9ddc3fb408e273bba9" id="r_a798d214cd8448b9ddc3fb408e273bba9"><td class="memItemLeft" align="right" valign="top"><a class="el" href="classtlv_1_1expected.html">expected</a>&lt; <a class="el" href="classtlv_1_1node.html">node</a>, <a class="el" href="structtlv_1_1error.html">error</a> &gt;&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classtlv_1_1document.html#a798d214cd8448b9ddc3fb408e273bba9">insert</a> (<a class="el" href="classtlv_1_1tag.html">tlv::tag</a> wanted, <a class="el" href="namespacetlv.html#a2abe7003a70af047ef9acae17f31f75d">bytes</a> value, <a class="el" href="classtlv_1_1node.html">node</a> parent=<a class="el" href="classtlv_1_1node.html">node</a>(), <a class="el" href="classtlv_1_1node.html">node</a> before=<a class="el" href="classtlv_1_1node.html">node</a>())</td></tr>
 <tr class="memdesc:a798d214cd8448b9ddc3fb408e273bba9"><td class="mdescLeft">&#160;</td><td class="mdescRight">Inserts a new element.  <br /></td></tr>
 <tr class="separator:a798d214cd8448b9ddc3fb408e273bba9"><td class="memSeparator" colspan="2">&#160;</td></tr>
@@ -941,6 +947,90 @@ template&lt;typename Field &gt; </div>
   </dd>
 </dl>
 <dl class="section return"><dt>Returns</dt><dd>The document, or the error of <a class="elRef" href="../../c-api/html/group__document.html#gaf73b2dae986cd13bdce15b94c0c79ef8">tlv_document_parse()</a>. </dd></dl>
+
+</div>
+</div>
+<a id="a2f5f1955526f4f07314ce7c2342c174d" name="a2f5f1955526f4f07314ce7c2342c174d"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#a2f5f1955526f4f07314ce7c2342c174d">&#9670;&#160;</a></span>select() <span class="overload">[1/2]</span></h2>
+
+<div class="memitem">
+<div class="memproto">
+<table class="mlabels">
+  <tr>
+  <td class="mlabels-left">
+      <table class="memname">
+        <tr>
+          <td class="memname">std::vector&lt; <a class="el" href="classtlv_1_1node.html">node</a> &gt; tlv::document::select </td>
+          <td>(</td>
+          <td class="paramtype">const char *&#160;</td>
+          <td class="paramname"><em>text</em></td><td>)</td>
+          <td> const</td>
+        </tr>
+      </table>
+  </td>
+  <td class="mlabels-right">
+<span class="mlabels"><span class="mlabel">inline</span></span>  </td>
+  </tr>
+</table>
+</div><div class="memdoc">
+
+<p>Compile a text path and select all matching Nodes. </p>
+<dl class="params"><dt>Parameters</dt><dd>
+  <table class="params">
+    <tr><td class="paramname">text</td><td>NUL-terminated Query text; not retained. </td></tr>
+  </table>
+  </dd>
+</dl>
+<dl class="section return"><dt>Returns</dt><dd>Snapshot with the lifetime and mutation rules of select(const query&amp;). </dd></dl>
+<dl class="exception"><dt>Exceptions</dt><dd>
+  <table class="exception">
+    <tr><td class="paramname"><a class="el" href="classtlv_1_1query__error.html" title="Query compilation failure with the original C error and text offset.">query_error</a></td><td>On compilation failure, retaining the original text offset. </td></tr>
+    <tr><td class="paramname">std::bad_alloc</td><td>On C++ result or handle allocation failure. </td></tr>
+  </table>
+  </dd>
+</dl>
+
+</div>
+</div>
+<a id="a2907ddc33ed25f7214e3f1aafec4d594" name="a2907ddc33ed25f7214e3f1aafec4d594"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#a2907ddc33ed25f7214e3f1aafec4d594">&#9670;&#160;</a></span>select() <span class="overload">[2/2]</span></h2>
+
+<div class="memitem">
+<div class="memproto">
+<table class="mlabels">
+  <tr>
+  <td class="mlabels-left">
+      <table class="memname">
+        <tr>
+          <td class="memname">std::vector&lt; <a class="el" href="classtlv_1_1node.html">node</a> &gt; tlv::document::select </td>
+          <td>(</td>
+          <td class="paramtype">const <a class="el" href="classtlv_1_1query.html">query</a> &amp;&#160;</td>
+          <td class="paramname"><em>path</em></td><td>)</td>
+          <td> const</td>
+        </tr>
+      </table>
+  </td>
+  <td class="mlabels-right">
+<span class="mlabels"><span class="mlabel">inline</span></span>  </td>
+  </tr>
+</table>
+</div><div class="memdoc">
+
+<p>Select all matching Nodes in Document order. </p>
+<dl class="params"><dt>Parameters</dt><dd>
+  <table class="params">
+    <tr><td class="paramname">path</td><td>Compiled Query; not retained. </td></tr>
+  </table>
+  </dd>
+</dl>
+<dl class="section return"><dt>Returns</dt><dd>Snapshot of normal non-owning Node handles; no matches is empty. </dd></dl>
+<dl class="section note"><dt>Note</dt><dd>Allocates result storage and Node validity metadata. Insertions after selection are not included. Erasure, Value replacement and Document destruction invalidate handles following the normal Node contract; vector positions remain. </dd></dl>
+<dl class="exception"><dt>Exceptions</dt><dd>
+  <table class="exception">
+    <tr><td class="paramname">std::bad_alloc</td><td>If result storage or validity metadata allocation fails. </td></tr>
+  </table>
+  </dd>
+</dl>
 
 </div>
 </div>

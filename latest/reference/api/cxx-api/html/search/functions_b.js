@@ -1,7 +1,7 @@
 var searchData=
 [
   ['name_0',['name',['../classtlv_1_1definition.html#a85243252da0c6732aade72bf1c3b647c',1,'tlv::definition']]],
-  ['next_1',['next',['../classtlv_1_1node.html#a4b9a6cdf37ed21afc75b448296bb487d',1,'tlv::node::next()'],['../classtlv_1_1detail_1_1reader__base.html#a21da748c1c1fe71f15efd83a7accb24f',1,'tlv::detail::reader_base::next()'],['../classtlv_1_1detail_1_1reader__base.html#ad0df4b3006eb6c2fed0a63f1158f46fa',1,'tlv::detail::reader_base::next(reader_diagnostic &amp;out_diagnostic)'],['../classtlv_1_1tree__reader.html#a5a3a79e2cc3ada934014cc52c93823e6',1,'tlv::tree_reader::next(reader_diagnostic *diagnostic=nullptr)']]],
+  ['next_1',['next',['../classtlv_1_1node.html#a4b9a6cdf37ed21afc75b448296bb487d',1,'tlv::node::next()'],['../classtlv_1_1query__range.html#ac5829cd5ee2013677b1df6b6862b1642',1,'tlv::query_range::next()'],['../classtlv_1_1detail_1_1reader__base.html#a21da748c1c1fe71f15efd83a7accb24f',1,'tlv::detail::reader_base::next()'],['../classtlv_1_1detail_1_1reader__base.html#ad0df4b3006eb6c2fed0a63f1158f46fa',1,'tlv::detail::reader_base::next(reader_diagnostic &amp;out_diagnostic)'],['../classtlv_1_1tree__reader.html#a5a3a79e2cc3ada934014cc52c93823e6',1,'tlv::tree_reader::next(reader_diagnostic *diagnostic=nullptr)']]],
   ['next_5fevent_2',['next_event',['../classtlv_1_1tree__reader.html#aeb68092903f2cf027c5ca72b427270df',1,'tlv::tree_reader']]],
   ['next_5fsame_5ftag_3',['next_same_tag',['../classtlv_1_1node.html#a114b1bf9f358158161ff8d95d48e3580',1,'tlv::node']]],
   ['next_5fsource_4',['next_source',['../classtlv_1_1detail_1_1reader__base.html#a2462f3dd197b8969415223901198ea94',1,'tlv::detail::reader_base']]],

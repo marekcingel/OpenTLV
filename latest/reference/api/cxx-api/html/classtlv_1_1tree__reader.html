@@ -88,6 +88,12 @@ $(function() {
 <table class="memberdecls">
 <tr class="heading"><td colspan="2"><h2 class="groupheader"><a id="pub-methods" name="pub-methods"></a>
 Public Member Functions</h2></td></tr>
+<tr class="memitem:affd2b073d494fcafb72a0ac12eb96bd6" id="r_affd2b073d494fcafb72a0ac12eb96bd6"><td class="memItemLeft" align="right" valign="top"><a class="el" href="classtlv_1_1query__range.html">query_range</a>&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classtlv_1_1tree__reader.html#affd2b073d494fcafb72a0ac12eb96bd6">select</a> (const <a class="el" href="classtlv_1_1query.html">query</a> &amp;pattern)</td></tr>
+<tr class="memdesc:affd2b073d494fcafb72a0ac12eb96bd6"><td class="mdescLeft">&#160;</td><td class="mdescRight">Select path matches from the current tree boundary.  <br /></td></tr>
+<tr class="separator:affd2b073d494fcafb72a0ac12eb96bd6"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a2ee7f21a362afc3d548fbebfae6de374" id="r_a2ee7f21a362afc3d548fbebfae6de374"><td class="memItemLeft" align="right" valign="top"><a class="el" href="classtlv_1_1query__range.html">query_range</a>&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classtlv_1_1tree__reader.html#a2ee7f21a362afc3d548fbebfae6de374">select</a> (const char *text)</td></tr>
+<tr class="memdesc:a2ee7f21a362afc3d548fbebfae6de374"><td class="mdescLeft">&#160;</td><td class="mdescRight">Compile a text path and select its matches.  <br /></td></tr>
+<tr class="separator:a2ee7f21a362afc3d548fbebfae6de374"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:a0f11ef3e39ba28726ced614cbcd6eb02" id="r_a0f11ef3e39ba28726ced614cbcd6eb02"><td class="memItemLeft" align="right" valign="top">&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classtlv_1_1tree__reader.html#a0f11ef3e39ba28726ced614cbcd6eb02">tree_reader</a> (<a class="el" href="namespacetlv.html#a2abe7003a70af047ef9acae17f31f75d">bytes</a> data, <a class="el" href="classtlv_1_1format.html">tlv::format</a> <a class="el" href="classtlv_1_1format.html">format</a>, <a class="el" href="classtlv_1_1span.html">span</a>&lt; <a class="el" href="namespacetlv.html#aa70bacfa123d58a717da39cb7fd97a77">tree_frame</a> &gt; frames, size_t max_depth, size_t max_elements, <a class="el" href="namespacetlv.html#a6d141be87a05679c237c4d7f5b941c15">input_mode</a> mode=<a class="el" href="namespacetlv.html#a6d141be87a05679c237c4d7f5b941c15a2a1585a864d9e67627c6ae04c807a2c5">input_mode::final</a>)</td></tr>
 <tr class="memdesc:a0f11ef3e39ba28726ced614cbcd6eb02"><td class="mdescLeft">&#160;</td><td class="mdescRight">Initialize bounded traversal using a C++ Format view.  <br /></td></tr>
 <tr class="separator:a0f11ef3e39ba28726ced614cbcd6eb02"><td class="memSeparator" colspan="2">&#160;</td></tr>
@@ -131,6 +137,8 @@ Public Member Functions</h2></td></tr>
 </table><table class="memberdecls">
 <tr class="heading"><td colspan="2"><h2 class="groupheader"><a id="friends" name="friends"></a>
 Friends</h2></td></tr>
+<tr class="memitem:a232cd2562e558f6f6b88e2fb6321b413" id="r_a232cd2562e558f6f6b88e2fb6321b413"><td class="memItemLeft" align="right" valign="top">class&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classtlv_1_1tree__reader.html#a232cd2562e558f6f6b88e2fb6321b413">query_range</a></td></tr>
+<tr class="separator:a232cd2562e558f6f6b88e2fb6321b413"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:a39848b78fca670e8aed4510059a796ec" id="r_a39848b78fca670e8aed4510059a796ec"><td class="memItemLeft" align="right" valign="top">class&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classtlv_1_1tree__reader.html#a39848b78fca670e8aed4510059a796ec">document_builder</a></td></tr>
 <tr class="separator:a39848b78fca670e8aed4510059a796ec"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:ab9f5beddc2f1b0ae0b8a0147c207d3b2" id="r_ab9f5beddc2f1b0ae0b8a0147c207d3b2"><td class="memItemLeft" align="right" valign="top">class&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classtlv_1_1tree__reader.html#ab9f5beddc2f1b0ae0b8a0147c207d3b2">query_matcher</a></td></tr>
@@ -500,6 +508,83 @@ The view may be temporary; its descriptor and context remain borrowed. </dd></dl
 
 </div>
 </div>
+<a id="a2ee7f21a362afc3d548fbebfae6de374" name="a2ee7f21a362afc3d548fbebfae6de374"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#a2ee7f21a362afc3d548fbebfae6de374">&#9670;&#160;</a></span>select() <span class="overload">[1/2]</span></h2>
+
+<div class="memitem">
+<div class="memproto">
+<table class="mlabels">
+  <tr>
+  <td class="mlabels-left">
+      <table class="memname">
+        <tr>
+          <td class="memname"><a class="el" href="classtlv_1_1query__range.html">query_range</a> tlv::tree_reader::select </td>
+          <td>(</td>
+          <td class="paramtype">const char *&#160;</td>
+          <td class="paramname"><em>text</em></td><td>)</td>
+          <td></td>
+        </tr>
+      </table>
+  </td>
+  <td class="mlabels-right">
+<span class="mlabels"><span class="mlabel">inline</span></span>  </td>
+  </tr>
+</table>
+</div><div class="memdoc">
+
+<p>Compile a text path and select its matches. </p>
+<dl class="params"><dt>Parameters</dt><dd>
+  <table class="params">
+    <tr><td class="paramname">text</td><td>NUL-terminated path, not retained. </td></tr>
+  </table>
+  </dd>
+</dl>
+<dl class="section return"><dt>Returns</dt><dd>Lazy selection with the lifetime rules of <a class="el" href="classtlv_1_1tree__reader.html#affd2b073d494fcafb72a0ac12eb96bd6" title="Select path matches from the current tree boundary.">select(const query&amp;)</a>. </dd></dl>
+<dl class="exception"><dt>Exceptions</dt><dd>
+  <table class="exception">
+    <tr><td class="paramname"><a class="el" href="classtlv_1_1query__error.html" title="Query compilation failure with the original C error and text offset.">query_error</a></td><td>On invalid Query text, retaining its text offset. </td></tr>
+  </table>
+  </dd>
+</dl>
+
+</div>
+</div>
+<a id="affd2b073d494fcafb72a0ac12eb96bd6" name="affd2b073d494fcafb72a0ac12eb96bd6"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#affd2b073d494fcafb72a0ac12eb96bd6">&#9670;&#160;</a></span>select() <span class="overload">[2/2]</span></h2>
+
+<div class="memitem">
+<div class="memproto">
+<table class="mlabels">
+  <tr>
+  <td class="mlabels-left">
+      <table class="memname">
+        <tr>
+          <td class="memname"><a class="el" href="classtlv_1_1query__range.html">query_range</a> tlv::tree_reader::select </td>
+          <td>(</td>
+          <td class="paramtype">const <a class="el" href="classtlv_1_1query.html">query</a> &amp;&#160;</td>
+          <td class="paramname"><em>pattern</em></td><td>)</td>
+          <td></td>
+        </tr>
+      </table>
+  </td>
+  <td class="mlabels-right">
+<span class="mlabels"><span class="mlabel">inline</span></span>  </td>
+  </tr>
+</table>
+</div><div class="memdoc">
+
+<p>Select path matches from the current tree boundary. </p>
+<dl class="params"><dt>Parameters</dt><dd>
+  <table class="params">
+    <tr><td class="paramname">pattern</td><td>Compiled Query copied into the selection. </td></tr>
+  </table>
+  </dd>
+</dl>
+<dl class="section return"><dt>Returns</dt><dd>Lazy borrowed single-pass selection; include <a class="el" href="query_8hpp.html" title="C++ wrapper for path queries over TLV data.">query/query.hpp</a> to use it. </dd></dl>
+<dl class="section warning"><dt>Warning</dt><dd>Do not interleave cursor operations except input replacement after NEED_MORE_DATA. Reader, frames, input and Format retain their normal lifetimes. </dd></dl>
+
+</div>
+</div>
 <a id="ac447e3c399d5e117406ff8754f1b7191" name="ac447e3c399d5e117406ff8754f1b7191"></a>
 <h2 class="memtitle"><span class="permalink"><a href="#ac447e3c399d5e117406ff8754f1b7191">&#9670;&#160;</a></span>set_input()</h2>
 
@@ -731,8 +816,31 @@ template&lt;typename Visitor &gt; </div>
 
 </div>
 </div>
-<hr/>The documentation for this class was generated from the following file:<ul>
+<a id="a232cd2562e558f6f6b88e2fb6321b413" name="a232cd2562e558f6f6b88e2fb6321b413"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#a232cd2562e558f6f6b88e2fb6321b413">&#9670;&#160;</a></span>query_range</h2>
+
+<div class="memitem">
+<div class="memproto">
+<table class="mlabels">
+  <tr>
+  <td class="mlabels-left">
+      <table class="memname">
+        <tr>
+          <td class="memname">friend class <a class="el" href="classtlv_1_1query__range.html">query_range</a></td>
+        </tr>
+      </table>
+  </td>
+  <td class="mlabels-right">
+<span class="mlabels"><span class="mlabel">friend</span></span>  </td>
+  </tr>
+</table>
+</div><div class="memdoc">
+
+</div>
+</div>
+<hr/>The documentation for this class was generated from the following files:<ul>
 <li>tlv++/reader/<a class="el" href="reader_2tree_8hpp.html">tree.hpp</a></li>
+<li>tlv++/query/<a class="el" href="query_8hpp.html">query.hpp</a></li>
 </ul>
 </div><!-- contents -->
 <!-- start footer part -->

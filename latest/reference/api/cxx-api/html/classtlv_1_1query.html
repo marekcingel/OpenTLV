@@ -88,6 +88,9 @@ $(function() {
 <table class="memberdecls">
 <tr class="heading"><td colspan="2"><h2 class="groupheader"><a id="pub-methods" name="pub-methods"></a>
 Public Member Functions</h2></td></tr>
+<tr class="memitem:a69d08dac112134bad6d1aedd0cdb8c2c" id="r_a69d08dac112134bad6d1aedd0cdb8c2c"><td class="memItemLeft" align="right" valign="top"><a class="el" href="classtlv_1_1query__range.html">query_range</a>&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classtlv_1_1query.html#a69d08dac112134bad6d1aedd0cdb8c2c">select</a> (<a class="el" href="classtlv_1_1tree__reader.html">tree_reader</a> &amp;<a class="el" href="classtlv_1_1reader.html">reader</a>) const</td></tr>
+<tr class="memdesc:a69d08dac112134bad6d1aedd0cdb8c2c"><td class="mdescLeft">&#160;</td><td class="mdescRight">Select matches from a Tree Reader starting at a tree boundary.  <br /></td></tr>
+<tr class="separator:a69d08dac112134bad6d1aedd0cdb8c2c"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:a2cd66da393d6b030f76a61cf7c6b1a67" id="r_a2cd66da393d6b030f76a61cf7c6b1a67"><td class="memItemLeft" align="right" valign="top">size_t&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classtlv_1_1query.html#a2cd66da393d6b030f76a61cf7c6b1a67">size</a> () const</td></tr>
 <tr class="memdesc:a2cd66da393d6b030f76a61cf7c6b1a67"><td class="mdescLeft">&#160;</td><td class="mdescRight">Number of tags in the query, which is the depth of the addressed elements plus one.  <br /></td></tr>
 <tr class="separator:a2cd66da393d6b030f76a61cf7c6b1a67"><td class="memSeparator" colspan="2">&#160;</td></tr>
@@ -108,6 +111,9 @@ Public Member Functions</h2></td></tr>
 </table><table class="memberdecls">
 <tr class="heading"><td colspan="2"><h2 class="groupheader"><a id="pub-static-methods" name="pub-static-methods"></a>
 Static Public Member Functions</h2></td></tr>
+<tr class="memitem:a66873fd47c90ba778ea6426d6dc66ca5" id="r_a66873fd47c90ba778ea6426d6dc66ca5"><td class="memItemLeft" align="right" valign="top">static <a class="el" href="classtlv_1_1query.html">query</a>&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classtlv_1_1query.html#a66873fd47c90ba778ea6426d6dc66ca5">compile</a> (const char *text)</td></tr>
+<tr class="memdesc:a66873fd47c90ba778ea6426d6dc66ca5"><td class="mdescLeft">&#160;</td><td class="mdescRight">Compile a path, throwing <a class="el" href="classtlv_1_1query__error.html" title="Query compilation failure with the original C error and text offset.">query_error</a> on failure.  <br /></td></tr>
+<tr class="separator:a66873fd47c90ba778ea6426d6dc66ca5"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:a14847e1e517af00592812012d260df8f" id="r_a14847e1e517af00592812012d260df8f"><td class="memItemLeft" align="right" valign="top">static <a class="el" href="classtlv_1_1expected.html">expected</a>&lt; <a class="el" href="classtlv_1_1query.html">query</a>, <a class="el" href="structtlv_1_1error.html">error</a> &gt;&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classtlv_1_1query.html#a14847e1e517af00592812012d260df8f">parse</a> (const char *text, size_t *error_offset=nullptr)</td></tr>
 <tr class="memdesc:a14847e1e517af00592812012d260df8f"><td class="mdescLeft">&#160;</td><td class="mdescRight">Parses the text of a query.  <br /></td></tr>
 <tr class="separator:a14847e1e517af00592812012d260df8f"><td class="memSeparator" colspan="2">&#160;</td></tr>
@@ -140,6 +146,41 @@ Static Public Member Functions</h2></td></tr>
 </div><div class="memdoc">
 
 <p>The underlying C query, for use with the C API. </p>
+
+</div>
+</div>
+<a id="a66873fd47c90ba778ea6426d6dc66ca5" name="a66873fd47c90ba778ea6426d6dc66ca5"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#a66873fd47c90ba778ea6426d6dc66ca5">&#9670;&#160;</a></span>compile()</h2>
+
+<div class="memitem">
+<div class="memproto">
+<table class="mlabels">
+  <tr>
+  <td class="mlabels-left">
+      <table class="memname">
+        <tr>
+          <td class="memname">static <a class="el" href="classtlv_1_1query.html">query</a> tlv::query::compile </td>
+          <td>(</td>
+          <td class="paramtype">const char *&#160;</td>
+          <td class="paramname"><em>text</em></td><td>)</td>
+          <td></td>
+        </tr>
+      </table>
+  </td>
+  <td class="mlabels-right">
+<span class="mlabels"><span class="mlabel">inline</span><span class="mlabel">static</span></span>  </td>
+  </tr>
+</table>
+</div><div class="memdoc">
+
+<p>Compile a path, throwing <a class="el" href="classtlv_1_1query__error.html" title="Query compilation failure with the original C error and text offset.">query_error</a> on failure. </p>
+<dl class="params"><dt>Parameters</dt><dd>
+  <table class="params">
+    <tr><td class="paramname">text</td><td>NUL-terminated path; not retained. </td></tr>
+  </table>
+  </dd>
+</dl>
+<dl class="section return"><dt>Returns</dt><dd>Self-contained compiled Query. </dd></dl>
 
 </div>
 </div>
@@ -187,6 +228,42 @@ Static Public Member Functions</h2></td></tr>
   </dd>
 </dl>
 <dl class="section return"><dt>Returns</dt><dd>The query, or the error of <a class="elRef" href="../../c-api/html/group__traversal.html#gac6cc1fdb84b230eec2b4bd26e5da8385">tlv_query_parse()</a>. </dd></dl>
+
+</div>
+</div>
+<a id="a69d08dac112134bad6d1aedd0cdb8c2c" name="a69d08dac112134bad6d1aedd0cdb8c2c"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#a69d08dac112134bad6d1aedd0cdb8c2c">&#9670;&#160;</a></span>select()</h2>
+
+<div class="memitem">
+<div class="memproto">
+<table class="mlabels">
+  <tr>
+  <td class="mlabels-left">
+      <table class="memname">
+        <tr>
+          <td class="memname"><a class="el" href="classtlv_1_1query__range.html">query_range</a> tlv::query::select </td>
+          <td>(</td>
+          <td class="paramtype"><a class="el" href="classtlv_1_1tree__reader.html">tree_reader</a> &amp;&#160;</td>
+          <td class="paramname"><em>reader</em></td><td>)</td>
+          <td> const</td>
+        </tr>
+      </table>
+  </td>
+  <td class="mlabels-right">
+<span class="mlabels"><span class="mlabel">inline</span></span>  </td>
+  </tr>
+</table>
+</div><div class="memdoc">
+
+<p>Select matches from a Tree Reader starting at a tree boundary. </p>
+<dl class="params"><dt>Parameters</dt><dd>
+  <table class="params">
+    <tr><td class="paramname">reader</td><td>Borrowed cursor, which must outlive the range and iterators. </td></tr>
+  </table>
+  </dd>
+</dl>
+<dl class="section return"><dt>Returns</dt><dd>Allocation-free single-pass range owning a copy of this Query. </dd></dl>
+<dl class="section warning"><dt>Warning</dt><dd>Do not interleave other cursor operations except set_input() after NEED_MORE_DATA. Input and Format storage must outlive retained results. </dd></dl>
 
 </div>
 </div>

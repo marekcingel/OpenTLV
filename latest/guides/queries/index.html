@@ -3023,14 +3023,53 @@ element to a matcher instead:</p>
 <p><code>tlv::query</code> holds the parsed query by value and never allocates.
 <code>tlv::query::visit_buffer()</code> wraps <code>tlv_query_visit_buffer()</code> with the visitor conventions of
 <code>tlv::tree_reader::visit()</code>.</p>
+<p>Compile a reusable Query with <code>tlv::query::parse()</code> for explicit error handling,
+or <code>tlv::query::compile()</code> to throw <code>tlv::query_error</code>. The exception retains
+the original C result and the zero-based text error offset.</p>
+<p>An owning Document supports all-result lookup through normal Node handles:</p>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-5-1" name="__codelineno-5-1" href="#__codelineno-5-1"></a><span class="k">auto</span><span class="w"> </span><span class="n">matches</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">document</span><span class="p">.</span><span class="n">select</span><span class="p">(</span><span class="s">"6F/A5/50"</span><span class="p">);</span>
+<a id="__codelineno-5-2" name="__codelineno-5-2" href="#__codelineno-5-2"></a><span class="k">for</span><span class="w"> </span><span class="p">(</span><span class="k">auto</span><span class="w"> </span><span class="n">node</span><span class="w"> </span><span class="o">:</span><span class="w"> </span><span class="n">matches</span><span class="p">)</span><span class="w"> </span><span class="p">{</span>
+<a id="__codelineno-5-3" name="__codelineno-5-3" href="#__codelineno-5-3"></a><span class="w">    </span><span class="c1">// Use node.value(), node.children(), or node.decode&lt;Field&gt;().</span>
+<a id="__codelineno-5-4" name="__codelineno-5-4" href="#__codelineno-5-4"></a><span class="p">}</span>
+</code></pre></div>
+<p><code>document.select(query)</code> also accepts a compiled Query. Results are a
+<code>std::vector&lt;tlv::node&gt;</code> snapshot in Document order; selection allocates result
+storage and Node validity metadata. Later insertions are absent from the snapshot.
+Erased Nodes, descendants of replaced constructed Values, and handles whose
+Document was destroyed become invalid according to the normal Node contract.
+The result does not own the Document. <code>document.find(query)</code> still returns
+only the first match.</p>
+<p>For borrowed traversal, include <code>tlv++/query/query.hpp</code> and use:</p>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-6-1" name="__codelineno-6-1" href="#__codelineno-6-1"></a><span class="k">auto</span><span class="w"> </span><span class="n">matches</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">reader</span><span class="p">.</span><span class="n">select</span><span class="p">(</span><span class="s">"6F/A5/50"</span><span class="p">);</span><span class="w"> </span><span class="c1">// reader is a tlv::tree_reader</span>
+<a id="__codelineno-6-2" name="__codelineno-6-2" href="#__codelineno-6-2"></a><span class="k">for</span><span class="w"> </span><span class="p">(</span><span class="k">const</span><span class="w"> </span><span class="k">auto</span><span class="o">&amp;</span><span class="w"> </span><span class="n">item</span><span class="w"> </span><span class="o">:</span><span class="w"> </span><span class="n">matches</span><span class="p">)</span><span class="w"> </span><span class="p">{</span>
+<a id="__codelineno-6-3" name="__codelineno-6-3" href="#__codelineno-6-3"></a><span class="w">    </span><span class="c1">// item.element, item.depth and item.offset are normal Tree Reader results.</span>
+<a id="__codelineno-6-4" name="__codelineno-6-4" href="#__codelineno-6-4"></a><span class="p">}</span>
+</code></pre></div>
+<p>The selection owns its compiled Query and borrows the Tree Reader. It is a
+single-pass range; advancing invalidates other iterator copies. Moving the range
+invalidates its iterators. Successful pulls allocate nothing. Input, Format and
+frames retain their normal borrowed lifetime rules. Start at the beginning of
+a tree and do not interleave other cursor operations.</p>
+<p>Only final EOF ends iteration. Malformed input, resource limits and
+<code>NEED_MORE_DATA</code> throw <code>tlv::parse_error</code> with the original result and offset.
+For incremental input, use <code>matches.next()</code>, which returns
+<code>expected&lt;tree_item, error&gt;</code>; retain the selection across <code>NEED_MORE_DATA</code>,
+replace the Reader input with <code>set_input()</code>, and retry. Matching state survives.
+All traversed items count towards limits, including nonmatches. A constructed
+parent still requires its complete encoded extent before publication.</p>
+<p>Both surfaces reuse C Query matching. Document selection uses
+<code>tlv_document_query_visit()</code>, an allocation-free callback API for all matching
+Nodes. Its callbacks may stop early, but must not mutate the Document.
+Tree selection uses the canonical C Tree Reader and Query matcher; it does not
+materialize a Document or evaluate a separate C++ query language.</p>
 </div>
 <div class="tabbed-block">
 <p><code>opentlv</code> does not bind the zero-copy traversal directly; a query addresses
 elements of a <a href="../document/"><code>Document</code></a> instead, through <code>find_path()</code>:</p>
-<div class="highlight"><pre><span></span><code><a id="__codelineno-5-1" name="__codelineno-5-1" href="#__codelineno-5-1"></a><span class="k">with</span> <span class="n">opentlv</span><span class="o">.</span><span class="n">Document</span><span class="p">(</span><span class="n">data</span><span class="p">,</span> <span class="n">opentlv</span><span class="o">.</span><span class="n">Format</span><span class="o">.</span><span class="n">BER</span><span class="p">)</span> <span class="k">as</span> <span class="n">document</span><span class="p">:</span>
-<a id="__codelineno-5-2" name="__codelineno-5-2" href="#__codelineno-5-2"></a>    <span class="n">label</span> <span class="o">=</span> <span class="n">document</span><span class="o">.</span><span class="n">find_path</span><span class="p">(</span><span class="s2">"6F/A5/50"</span><span class="p">)</span>
-<a id="__codelineno-5-3" name="__codelineno-5-3" href="#__codelineno-5-3"></a>    <span class="k">if</span> <span class="n">label</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
-<a id="__codelineno-5-4" name="__codelineno-5-4" href="#__codelineno-5-4"></a>        <span class="nb">print</span><span class="p">(</span><span class="nb">bytes</span><span class="p">(</span><span class="n">label</span><span class="o">.</span><span class="n">value</span><span class="p">))</span>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-7-1" name="__codelineno-7-1" href="#__codelineno-7-1"></a><span class="k">with</span> <span class="n">opentlv</span><span class="o">.</span><span class="n">Document</span><span class="p">(</span><span class="n">data</span><span class="p">,</span> <span class="n">opentlv</span><span class="o">.</span><span class="n">Format</span><span class="o">.</span><span class="n">BER</span><span class="p">)</span> <span class="k">as</span> <span class="n">document</span><span class="p">:</span>
+<a id="__codelineno-7-2" name="__codelineno-7-2" href="#__codelineno-7-2"></a>    <span class="n">label</span> <span class="o">=</span> <span class="n">document</span><span class="o">.</span><span class="n">find_path</span><span class="p">(</span><span class="s2">"6F/A5/50"</span><span class="p">)</span>
+<a id="__codelineno-7-3" name="__codelineno-7-3" href="#__codelineno-7-3"></a>    <span class="k">if</span> <span class="n">label</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+<a id="__codelineno-7-4" name="__codelineno-7-4" href="#__codelineno-7-4"></a>        <span class="nb">print</span><span class="p">(</span><span class="nb">bytes</span><span class="p">(</span><span class="n">label</span><span class="o">.</span><span class="n">value</span><span class="p">))</span>
 </code></pre></div>
 <p>A malformed query raises <code>opentlv.InvalidArgError</code>; no match is simply
 <code>None</code>, the same as <code>document.find()</code>. Runnable version, including both

@@ -149,6 +149,9 @@ Functions</h2></td></tr>
 <tr class="heading"><td colspan="2"><h2 class="groupheader">Navigation</h2></td></tr>
 <tr><td class="ititle" colspan="2"><p>Nodes form a tree. Top-level nodes have no parent, and the children of a node are in encoding order. Every function returns <code>NULL</code> when there is no such node, and for a <code>NULL</code> argument. </p>
 </td></tr>
+<tr class="memitem:ga4180ff242fb016d9fc53bbaba3895b5a" id="r_ga4180ff242fb016d9fc53bbaba3895b5a"><td class="memItemLeft" align="right" valign="top">typedef <a class="el" href="group__traversal.html#ga5685cbc116854f9874253489cb769622">tlv_visit_result_t</a>(*&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="group__document.html#ga4180ff242fb016d9fc53bbaba3895b5a">tlv_document_query_visitor_t</a>) (<a class="el" href="group__document.html#ga9483f2f2d44c9a33a267a462c90d3883">tlv_node_t</a> *node, void *context)</td></tr>
+<tr class="memdesc:ga4180ff242fb016d9fc53bbaba3895b5a"><td class="mdescLeft">&#160;</td><td class="mdescRight">Callback for a matching Document Node.  <br /></td></tr>
+<tr class="separator:ga4180ff242fb016d9fc53bbaba3895b5a"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:ga7bd1e25e7143c546514c8cb87ddd7a07" id="r_ga7bd1e25e7143c546514c8cb87ddd7a07"><td class="memItemLeft" align="right" valign="top"><a class="el" href="group__document.html#ga9483f2f2d44c9a33a267a462c90d3883">tlv_node_t</a> *&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="group__document.html#ga7bd1e25e7143c546514c8cb87ddd7a07">tlv_document_first</a> (const <a class="el" href="group__document.html#gad50a36ea444832274667f45cb81dab83">tlv_document_t</a> *document)</td></tr>
 <tr class="memdesc:ga7bd1e25e7143c546514c8cb87ddd7a07"><td class="mdescLeft">&#160;</td><td class="mdescRight">Returns the first top-level node.  <br /></td></tr>
 <tr class="separator:ga7bd1e25e7143c546514c8cb87ddd7a07"><td class="memSeparator" colspan="2">&#160;</td></tr>
@@ -167,6 +170,9 @@ Functions</h2></td></tr>
 <tr class="memitem:ga2319020bba8b34d3de0e35529583a431" id="r_ga2319020bba8b34d3de0e35529583a431"><td class="memItemLeft" align="right" valign="top"><a class="el" href="group__document.html#ga9483f2f2d44c9a33a267a462c90d3883">tlv_node_t</a> *&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="group__document.html#ga2319020bba8b34d3de0e35529583a431">tlv_node_next_same_tag</a> (const <a class="el" href="group__document.html#ga9483f2f2d44c9a33a267a462c90d3883">tlv_node_t</a> *node)</td></tr>
 <tr class="memdesc:ga2319020bba8b34d3de0e35529583a431"><td class="mdescLeft">&#160;</td><td class="mdescRight">Returns the next sibling that has the same tag as <code>node</code>, or <code>NULL</code>.  <br /></td></tr>
 <tr class="separator:ga2319020bba8b34d3de0e35529583a431"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:ga1d3310640d348f6ea1e779409f39f60e" id="r_ga1d3310640d348f6ea1e779409f39f60e"><td class="memItemLeft" align="right" valign="top"><a class="el" href="group__core.html#ga164d2817a32e5d7b7aa1472e887b47c3">tlv_result_t</a>&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="group__document.html#ga1d3310640d348f6ea1e779409f39f60e">tlv_document_query_visit</a> (const <a class="el" href="group__document.html#gad50a36ea444832274667f45cb81dab83">tlv_document_t</a> *document, const <a class="el" href="group__traversal.html#ga747ab1ec662ee8b640d522f981f35ec2">tlv_query_t</a> *query, <a class="el" href="group__document.html#ga4180ff242fb016d9fc53bbaba3895b5a">tlv_document_query_visitor_t</a> visitor, void *context)</td></tr>
+<tr class="memdesc:ga1d3310640d348f6ea1e779409f39f60e"><td class="mdescLeft">&#160;</td><td class="mdescRight">Visit every path match in Document order using the canonical Query matcher.  <br /></td></tr>
+<tr class="separator:ga1d3310640d348f6ea1e779409f39f60e"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:gacdc161264f287c81f360a89cfe3dc2e3" id="r_gacdc161264f287c81f360a89cfe3dc2e3"><td class="memItemLeft" align="right" valign="top"><a class="el" href="group__document.html#ga9483f2f2d44c9a33a267a462c90d3883">tlv_node_t</a> *&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="group__document.html#gacdc161264f287c81f360a89cfe3dc2e3">tlv_document_find_path</a> (const <a class="el" href="group__document.html#gad50a36ea444832274667f45cb81dab83">tlv_document_t</a> *document, const <a class="el" href="group__traversal.html#ga747ab1ec662ee8b640d522f981f35ec2">tlv_query_t</a> *query)</td></tr>
 <tr class="memdesc:gacdc161264f287c81f360a89cfe3dc2e3"><td class="mdescLeft">&#160;</td><td class="mdescRight">Finds the first element addressed by a path query.  <br /></td></tr>
 <tr class="separator:gacdc161264f287c81f360a89cfe3dc2e3"><td class="memSeparator" colspan="2">&#160;</td></tr>
@@ -277,6 +283,30 @@ Functions</h2></td></tr>
 
 <p>Format descriptor and limits of a document. </p>
 <p>Initialize with <a class="el" href="group__document.html#ga791216f14e3bce57eea8ba84830c9096" title="Fills options with the given format and the default limits.">tlv_document_options_init()</a>. The document copies this structure, but the format, the format's context and the allocator context are borrowed and must outlive the document. </p><dl class="section see"><dt>See also</dt><dd><a href="https://marekcingel.github.io/OpenTLV/guides/memory/">format context ownership and lifetime</a> </dd></dl>
+
+</div>
+</div>
+<a id="ga4180ff242fb016d9fc53bbaba3895b5a" name="ga4180ff242fb016d9fc53bbaba3895b5a"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#ga4180ff242fb016d9fc53bbaba3895b5a">&#9670;&#160;</a></span>tlv_document_query_visitor_t</h2>
+
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname">typedef <a class="el" href="group__traversal.html#ga5685cbc116854f9874253489cb769622">tlv_visit_result_t</a>(* tlv_document_query_visitor_t) (<a class="el" href="group__document.html#ga9483f2f2d44c9a33a267a462c90d3883">tlv_node_t</a> *node, void *context)</td>
+        </tr>
+      </table>
+</div><div class="memdoc">
+
+<p>Callback for a matching Document Node. </p>
+<dl class="params"><dt>Parameters</dt><dd>
+  <table class="params">
+    <tr><td class="paramname">node</td><td>Borrowed matching node. </td></tr>
+    <tr><td class="paramname">context</td><td>Caller context. </td></tr>
+  </table>
+  </dd>
+</dl>
+<dl class="section return"><dt>Returns</dt><dd>CONTINUE, STOP or ERROR following the Visitor contract. </dd></dl>
 
 </div>
 </div>
@@ -1092,6 +1122,60 @@ Any error of <a class="el" href="group__document.html#gab982a4c8e22e4d1668a4df48
 <dd>
 Any reader error, propagated unchanged.</dd></dl>
 <dl class="section note"><dt>Note</dt><dd>Nothing is retained on failure: everything allocated so far is released. </dd></dl>
+
+</div>
+</div>
+<a id="ga1d3310640d348f6ea1e779409f39f60e" name="ga1d3310640d348f6ea1e779409f39f60e"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#ga1d3310640d348f6ea1e779409f39f60e">&#9670;&#160;</a></span>tlv_document_query_visit()</h2>
+
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname"><a class="el" href="group__core.html#ga164d2817a32e5d7b7aa1472e887b47c3">tlv_result_t</a> tlv_document_query_visit </td>
+          <td>(</td>
+          <td class="paramtype">const <a class="el" href="group__document.html#gad50a36ea444832274667f45cb81dab83">tlv_document_t</a> *&#160;</td>
+          <td class="paramname"><em>document</em>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype">const <a class="el" href="group__traversal.html#ga747ab1ec662ee8b640d522f981f35ec2">tlv_query_t</a> *&#160;</td>
+          <td class="paramname"><em>query</em>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype"><a class="el" href="group__document.html#ga4180ff242fb016d9fc53bbaba3895b5a">tlv_document_query_visitor_t</a>&#160;</td>
+          <td class="paramname"><em>visitor</em>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype">void *&#160;</td>
+          <td class="paramname"><em>context</em>&#160;</td>
+        </tr>
+        <tr>
+          <td></td>
+          <td>)</td>
+          <td></td><td></td>
+        </tr>
+      </table>
+</div><div class="memdoc">
+
+<p>Visit every path match in Document order using the canonical Query matcher. </p>
+<dl class="params"><dt>Parameters</dt><dd>
+  <table class="params">
+    <tr><td class="paramname">document</td><td>Borrowed Document. </td></tr>
+    <tr><td class="paramname">query</td><td>Parsed Query, borrowed for the call. </td></tr>
+    <tr><td class="paramname">visitor</td><td>Required callback. </td></tr>
+    <tr><td class="paramname">context</td><td>Optional caller context. </td></tr>
+  </table>
+  </dd>
+</dl>
+<dl class="section return"><dt>Returns</dt><dd>OK on exhaustion or STOP, NULL_ARG for missing arguments, Query validation errors, or VISITOR for ERROR or an unknown callback result. </dd></dl>
+<dl class="section warning"><dt>Warning</dt><dd>Do not mutate or destroy the Document during traversal. Nodes borrow it. Callback effects are not rolled back on failure. </dd></dl>
+<dl class="section note"><dt>Note</dt><dd>Never allocates. </dd></dl>
 
 </div>
 </div>
