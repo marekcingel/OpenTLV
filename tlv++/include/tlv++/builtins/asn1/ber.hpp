@@ -4,6 +4,7 @@
 #include "tlv/builtins/asn1/ber.h"
 #include "tlv++/types.hpp"
 #include "tlv++/format.hpp"
+#include "tlv++/reader/reader.hpp"
 
 /**
  * @file ber.hpp
@@ -24,6 +25,17 @@ public:
     /** @brief Select the immutable built-in BER descriptor and context. */
     format() noexcept : tlv::format(detail::format_access::borrow(tlv_format_ber)) {}
 };
+/**
+ * @brief Parse final input as borrowed Elements using the built-in Format.
+ * @param data Immutable borrowed final input.
+ * @return Allocation-free single-pass range; no Schema or Value validation is performed.
+ * @throws parse_error During iteration on any failure other than final EOF.
+ * @warning Input must outlive the range and every retained Element or diagnostic.
+ * @see tlv::parse
+ */
+TLV_NODISCARD inline detail::parsing_range<format> parse(bytes data) {
+    return tlv::parse<format>(data);
+}
 } // namespace ber
 
 /**

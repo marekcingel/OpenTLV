@@ -13,6 +13,17 @@ if(test_group STREQUAL "unit")
     list(APPEND SOURCES test_native_boundary.cpp test_semantic_views.cpp)
     list(APPEND SOURCES test_diagnostic.cpp)
     list(APPEND SOURCES reader/test_reader.cpp)
+    list(APPEND SOURCES reader/test_iterable_reader.cpp)
+    add_executable(test-reader-iteration-smoke reader/iteration_smoke.cpp)
+    target_include_directories(test-reader-iteration-smoke PRIVATE ${OpenTLV_SOURCE_DIR}/tests)
+    target_link_libraries(test-reader-iteration-smoke PRIVATE tlv++)
+    set_target_properties(test-reader-iteration-smoke PROPERTIES CXX_STANDARD 11 CXX_STANDARD_REQUIRED ON CXX_EXTENSIONS OFF)
+    target_compile_options(test-reader-iteration-smoke PRIVATE
+        "$<$<CXX_COMPILER_ID:GNU,Clang>:-fno-elide-constructors>")
+    opentlv_configure_compiler(test-reader-iteration-smoke)
+    opentlv_copy_shared_runtime(test-reader-iteration-smoke)
+    add_test(NAME Unit_Tlvpp_IterableReader_AllocationAndMoves COMMAND test-reader-iteration-smoke)
+    set_tests_properties(Unit_Tlvpp_IterableReader_AllocationAndMoves PROPERTIES LABELS "unit")
     list(APPEND SOURCES writer/test_tree_writer.cpp)
     # tlv::fixed_format<> now delegates to tlv_fixed_format_init(), so its
     # tests need the C fixed format compiled into tlv.

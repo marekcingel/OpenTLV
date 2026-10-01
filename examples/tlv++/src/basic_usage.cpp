@@ -1,7 +1,7 @@
 #include "tlv/builtins/asn1/ber.h"
 /*
  * Simple example of using the tlv++ layer: writes two TLV items through
- * tlv::writer<> and reads them back through tlv::reader<>.
+ * tlv::writer<> and reads them back through tlv::ber::parse().
  */
 #include <array>
 #include <cstddef>
@@ -31,18 +31,18 @@ int main() {
 
     std::cout << "Wrote " << w.size() << " bytes\n";
 
-    tlv::reader<> reader(tlv::bytes(buf.data(), w.size()), tlv_format_ber);
-    while (!reader.at_end()) {
-        auto element = reader.next();
-        if (!element) {
-            std::cerr << "read error: " << element.error().message << "\n";
-            return 1;
-        }
-        auto        value_bytes = element->value().as_bytes();
-        std::string value(reinterpret_cast<const char*>(value_bytes.data()), value_bytes.size());
+    try {
+        for (auto element : tlv::ber::parse(tlv::bytes(buf.data(), w.size()))) {
+            auto        value_bytes = element.value().as_bytes();
+            std::string value(reinterpret_cast<const char*>(value_bytes.data()),
+                              value_bytes.size());
 
-        std::cout << "tag=0x" << std::hex << static_cast<int>(element->tag().data()[0]) << std::dec
-                  << " value=" << value << "\n";
+            std::cout << "tag=0x" << std::hex << static_cast<int>(element.tag().data()[0])
+                      << std::dec << " value=" << value << "\n";
+        }
+    } catch (const tlv::parse_error& failure) {
+        std::cerr << "read error at " << failure.offset() << ": " << failure.what() << "\n";
+        return 1;
     }
 
     return 0;
