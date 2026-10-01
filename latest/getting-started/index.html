@@ -1354,6 +1354,34 @@
   
   
     <li class="md-nav__item">
+      <a href="../guides/cxx-examples/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    C++ examples
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
       <a href="../guides/reader/" class="md-nav__link">
         
   
@@ -3076,9 +3104,10 @@ after linking. Consumers outside the build tree must make the installed
 runtime library discoverable by the platform loader at run time, for example
 by adding its directory to <code>PATH</code> on Windows or <code>LD_LIBRARY_PATH</code>/rpath on Linux.</p>
 <h2 id="quick-start">Quick start<a class="headerlink" href="#quick-start" title="Permanent link">&para;</a></h2>
-<p>The program below writes <code>01 03 AA BB CC</code> with the configurable fixed-width
-format and reads the value back. Each version is a complete program that CI builds and
-runs against the current API, and a check keeps its copy here identical to the
+<p>The C, Rust and Python programs below write <code>01 03 AA BB CC</code> with the configurable
+fixed-width format and read the value back. The C++ quick-start parses a BER
+OCTET STRING containing <code>ABC</code>, using the ergonomic borrowed range. Each version
+is a complete program that CI builds and runs against the current API, and a check keeps its copy here identical to the
 source, so it stays valid as OpenTLV evolves. Choose your language in any tab
 group on this site and the choice is kept for the other tabbed examples.
 Without tabs (for example on GitHub) the C example is listed first.</p>
@@ -3142,36 +3171,28 @@ zero indicates a successful round trip.</p>
 <a href="https://github.com/marekcingel/OpenTLV/blob/main/examples/tlv++/src/quick_start.cpp">examples/tlv++/src/quick_start.cpp</a>.
 Place the checkout at <code>external/OpenTLV</code> in your application. Enable <code>CXX</code> in
 <code>project</code>, set <code>OPENTLV_BUILD_CXX</code> to <code>ON</code>, and link <code>tlv++</code> instead of <code>tlv</code>;
-this target propagates the C library and include paths.</p>
+this target propagates the C library and include paths. The BER preset requires
+<code>OPENTLV_FORMAT_BER=ON</code>. The range visits one level and borrows input; malformed
+final input throws <code>tlv::parse_error</code>, rather than ending iteration silently.
+See the <a href="../guides/cxx-examples/">C++ examples</a> for writing, nested traversal,
+Document, typed fields, Query and explicit control.</p>
 <!-- example: examples/tlv++/src/quick_start.cpp -->
-<div class="highlight"><pre><span></span><code><a id="__codelineno-4-1" name="__codelineno-4-1" href="#__codelineno-4-1"></a><span class="cp">#include</span><span class="w"> </span><span class="cpf">&lt;array&gt;</span>
-<a id="__codelineno-4-2" name="__codelineno-4-2" href="#__codelineno-4-2"></a><span class="cp">#include</span><span class="w"> </span><span class="cpf">&lt;cstring&gt;</span>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-4-1" name="__codelineno-4-1" href="#__codelineno-4-1"></a><span class="cp">#include</span><span class="w"> </span><span class="cpf">&lt;tlv++/tlv.hpp&gt;</span>
+<a id="__codelineno-4-2" name="__codelineno-4-2" href="#__codelineno-4-2"></a><span class="cp">#include</span><span class="w"> </span><span class="cpf">&lt;iostream&gt;</span>
 <a id="__codelineno-4-3" name="__codelineno-4-3" href="#__codelineno-4-3"></a>
-<a id="__codelineno-4-4" name="__codelineno-4-4" href="#__codelineno-4-4"></a><span class="cp">#include</span><span class="w"> </span><span class="cpf">"tlv++/tlv.hpp"</span>
-<a id="__codelineno-4-5" name="__codelineno-4-5" href="#__codelineno-4-5"></a><span class="cp">#include</span><span class="w"> </span><span class="cpf">"tlv++/formats/fixed_format.hpp"</span>
-<a id="__codelineno-4-6" name="__codelineno-4-6" href="#__codelineno-4-6"></a>
-<a id="__codelineno-4-7" name="__codelineno-4-7" href="#__codelineno-4-7"></a><span class="kt">int</span><span class="w"> </span><span class="nf">main</span><span class="p">()</span><span class="w"> </span><span class="p">{</span>
-<a id="__codelineno-4-8" name="__codelineno-4-8" href="#__codelineno-4-8"></a><span class="w">    </span><span class="k">using</span><span class="w"> </span><span class="n">format</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">tlv</span><span class="o">::</span><span class="n">fixed_format</span><span class="o">&lt;</span><span class="mi">1</span><span class="p">,</span><span class="w"> </span><span class="mi">1</span><span class="p">,</span><span class="w"> </span><span class="n">TLV_BYTE_ORDER_BIG_ENDIAN</span><span class="o">&gt;</span><span class="p">;</span>
-<a id="__codelineno-4-9" name="__codelineno-4-9" href="#__codelineno-4-9"></a>
-<a id="__codelineno-4-10" name="__codelineno-4-10" href="#__codelineno-4-10"></a><span class="w">    </span><span class="k">const</span><span class="w"> </span><span class="n">tlv</span><span class="o">::</span><span class="n">tag</span><span class="w">                 </span><span class="n">tag</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">tlv</span><span class="o">::</span><span class="n">tag_bytes</span><span class="o">&lt;</span><span class="mh">0x01</span><span class="o">&gt;</span><span class="p">();</span>
-<a id="__codelineno-4-11" name="__codelineno-4-11" href="#__codelineno-4-11"></a><span class="w">    </span><span class="k">const</span><span class="w"> </span><span class="n">std</span><span class="o">::</span><span class="n">array</span><span class="o">&lt;</span><span class="n">tlv</span><span class="o">::</span><span class="kt">byte</span><span class="p">,</span><span class="w"> </span><span class="mi">3</span><span class="o">&gt;</span><span class="w"> </span><span class="n">value</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="p">{</span>
-<a id="__codelineno-4-12" name="__codelineno-4-12" href="#__codelineno-4-12"></a><span class="w">        </span><span class="k">static_cast</span><span class="o">&lt;</span><span class="n">tlv</span><span class="o">::</span><span class="kt">byte</span><span class="o">&gt;</span><span class="p">(</span><span class="mh">0xAA</span><span class="p">),</span><span class="w"> </span><span class="k">static_cast</span><span class="o">&lt;</span><span class="n">tlv</span><span class="o">::</span><span class="kt">byte</span><span class="o">&gt;</span><span class="p">(</span><span class="mh">0xBB</span><span class="p">),</span><span class="w"> </span><span class="k">static_cast</span><span class="o">&lt;</span><span class="n">tlv</span><span class="o">::</span><span class="kt">byte</span><span class="o">&gt;</span><span class="p">(</span><span class="mh">0xCC</span><span class="p">)};</span>
-<a id="__codelineno-4-13" name="__codelineno-4-13" href="#__codelineno-4-13"></a><span class="w">    </span><span class="n">std</span><span class="o">::</span><span class="n">array</span><span class="o">&lt;</span><span class="n">tlv</span><span class="o">::</span><span class="kt">byte</span><span class="p">,</span><span class="w"> </span><span class="mi">5</span><span class="o">&gt;</span><span class="w"> </span><span class="n">buffer</span><span class="p">{};</span>
-<a id="__codelineno-4-14" name="__codelineno-4-14" href="#__codelineno-4-14"></a><span class="w">    </span><span class="n">tlv</span><span class="o">::</span><span class="n">writer</span><span class="o">&lt;&gt;</span><span class="w">            </span><span class="n">writer</span><span class="p">(</span><span class="n">buffer</span><span class="p">.</span><span class="n">data</span><span class="p">(),</span><span class="w"> </span><span class="n">buffer</span><span class="p">.</span><span class="n">size</span><span class="p">(),</span><span class="w"> </span><span class="n">format</span><span class="o">::</span><span class="n">format</span><span class="p">());</span>
-<a id="__codelineno-4-15" name="__codelineno-4-15" href="#__codelineno-4-15"></a>
-<a id="__codelineno-4-16" name="__codelineno-4-16" href="#__codelineno-4-16"></a><span class="w">    </span><span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="o">!</span><span class="n">writer</span><span class="p">.</span><span class="n">write</span><span class="p">(</span><span class="n">tag</span><span class="p">,</span><span class="w"> </span><span class="n">tlv</span><span class="o">::</span><span class="n">bytes</span><span class="p">(</span><span class="n">value</span><span class="p">.</span><span class="n">data</span><span class="p">(),</span><span class="w"> </span><span class="n">value</span><span class="p">.</span><span class="n">size</span><span class="p">())))</span><span class="w"> </span><span class="k">return</span><span class="w"> </span><span class="mi">1</span><span class="p">;</span>
-<a id="__codelineno-4-17" name="__codelineno-4-17" href="#__codelineno-4-17"></a>
-<a id="__codelineno-4-18" name="__codelineno-4-18" href="#__codelineno-4-18"></a><span class="w">    </span><span class="c1">// element.value() borrows buffer; keep it alive while using the element.</span>
-<a id="__codelineno-4-19" name="__codelineno-4-19" href="#__codelineno-4-19"></a><span class="w">    </span><span class="n">tlv</span><span class="o">::</span><span class="n">reader</span><span class="o">&lt;&gt;</span><span class="w"> </span><span class="n">reader</span><span class="p">(</span><span class="n">tlv</span><span class="o">::</span><span class="n">bytes</span><span class="p">(</span><span class="n">buffer</span><span class="p">.</span><span class="n">data</span><span class="p">(),</span><span class="w"> </span><span class="n">writer</span><span class="p">.</span><span class="n">size</span><span class="p">()),</span><span class="w"> </span><span class="n">format</span><span class="o">::</span><span class="n">format</span><span class="p">());</span>
-<a id="__codelineno-4-20" name="__codelineno-4-20" href="#__codelineno-4-20"></a><span class="w">    </span><span class="k">auto</span><span class="w">          </span><span class="n">element</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">reader</span><span class="p">.</span><span class="n">next</span><span class="p">();</span>
-<a id="__codelineno-4-21" name="__codelineno-4-21" href="#__codelineno-4-21"></a><span class="w">    </span><span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="o">!</span><span class="n">element</span><span class="w"> </span><span class="o">||</span><span class="w"> </span><span class="o">!</span><span class="n">reader</span><span class="p">.</span><span class="n">at_end</span><span class="p">())</span><span class="w"> </span><span class="k">return</span><span class="w"> </span><span class="mi">1</span><span class="p">;</span>
-<a id="__codelineno-4-22" name="__codelineno-4-22" href="#__codelineno-4-22"></a>
-<a id="__codelineno-4-23" name="__codelineno-4-23" href="#__codelineno-4-23"></a><span class="w">    </span><span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="n">element</span><span class="o">-&gt;</span><span class="n">tag</span><span class="p">()</span><span class="w"> </span><span class="o">!=</span><span class="w"> </span><span class="n">tlv</span><span class="o">::</span><span class="n">tag_bytes</span><span class="o">&lt;</span><span class="mh">0x01</span><span class="o">&gt;</span><span class="p">())</span><span class="w"> </span><span class="k">return</span><span class="w"> </span><span class="mi">1</span><span class="p">;</span>
-<a id="__codelineno-4-24" name="__codelineno-4-24" href="#__codelineno-4-24"></a><span class="w">    </span><span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="n">element</span><span class="o">-&gt;</span><span class="n">value</span><span class="p">().</span><span class="n">size</span><span class="p">()</span><span class="w"> </span><span class="o">!=</span><span class="w"> </span><span class="n">value</span><span class="p">.</span><span class="n">size</span><span class="p">()</span><span class="w"> </span><span class="o">||</span>
-<a id="__codelineno-4-25" name="__codelineno-4-25" href="#__codelineno-4-25"></a><span class="w">        </span><span class="n">std</span><span class="o">::</span><span class="n">memcmp</span><span class="p">(</span><span class="n">element</span><span class="o">-&gt;</span><span class="n">value</span><span class="p">().</span><span class="n">data</span><span class="p">(),</span><span class="w"> </span><span class="n">value</span><span class="p">.</span><span class="n">data</span><span class="p">(),</span><span class="w"> </span><span class="n">value</span><span class="p">.</span><span class="n">size</span><span class="p">())</span><span class="w"> </span><span class="o">!=</span><span class="w"> </span><span class="mi">0</span><span class="p">)</span>
-<a id="__codelineno-4-26" name="__codelineno-4-26" href="#__codelineno-4-26"></a><span class="w">        </span><span class="k">return</span><span class="w"> </span><span class="mi">1</span><span class="p">;</span>
-<a id="__codelineno-4-27" name="__codelineno-4-27" href="#__codelineno-4-27"></a><span class="w">    </span><span class="k">return</span><span class="w"> </span><span class="mi">0</span><span class="p">;</span>
-<a id="__codelineno-4-28" name="__codelineno-4-28" href="#__codelineno-4-28"></a><span class="p">}</span>
+<a id="__codelineno-4-4" name="__codelineno-4-4" href="#__codelineno-4-4"></a><span class="kt">int</span><span class="w"> </span><span class="nf">main</span><span class="p">()</span><span class="w"> </span><span class="p">{</span>
+<a id="__codelineno-4-5" name="__codelineno-4-5" href="#__codelineno-4-5"></a><span class="w">    </span><span class="c1">// Elements borrow input; keep it alive while using them.</span>
+<a id="__codelineno-4-6" name="__codelineno-4-6" href="#__codelineno-4-6"></a><span class="w">    </span><span class="k">const</span><span class="w"> </span><span class="n">tlv</span><span class="o">::</span><span class="kt">byte</span><span class="w"> </span><span class="n">input</span><span class="p">[]</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="p">{</span><span class="n">tlv</span><span class="o">::</span><span class="kt">byte</span><span class="p">(</span><span class="mh">0x04</span><span class="p">),</span><span class="w"> </span><span class="n">tlv</span><span class="o">::</span><span class="kt">byte</span><span class="p">(</span><span class="mh">0x03</span><span class="p">),</span><span class="w"> </span><span class="n">tlv</span><span class="o">::</span><span class="kt">byte</span><span class="p">(</span><span class="sc">'A'</span><span class="p">),</span><span class="w"> </span><span class="n">tlv</span><span class="o">::</span><span class="kt">byte</span><span class="p">(</span><span class="sc">'B'</span><span class="p">),</span>
+<a id="__codelineno-4-7" name="__codelineno-4-7" href="#__codelineno-4-7"></a><span class="w">                               </span><span class="n">tlv</span><span class="o">::</span><span class="kt">byte</span><span class="p">(</span><span class="sc">'C'</span><span class="p">)};</span>
+<a id="__codelineno-4-8" name="__codelineno-4-8" href="#__codelineno-4-8"></a><span class="w">    </span><span class="k">try</span><span class="w"> </span><span class="p">{</span>
+<a id="__codelineno-4-9" name="__codelineno-4-9" href="#__codelineno-4-9"></a><span class="w">        </span><span class="k">for</span><span class="w"> </span><span class="p">(</span><span class="k">auto</span><span class="w"> </span><span class="n">element</span><span class="w"> </span><span class="o">:</span><span class="w"> </span><span class="n">tlv</span><span class="o">::</span><span class="n">ber</span><span class="o">::</span><span class="n">parse</span><span class="p">({</span><span class="n">input</span><span class="p">,</span><span class="w"> </span><span class="k">sizeof</span><span class="p">(</span><span class="n">input</span><span class="p">)}))</span><span class="w"> </span><span class="p">{</span>
+<a id="__codelineno-4-10" name="__codelineno-4-10" href="#__codelineno-4-10"></a><span class="w">            </span><span class="n">std</span><span class="o">::</span><span class="n">cout</span><span class="w"> </span><span class="o">&lt;&lt;</span><span class="w"> </span><span class="s">"Value bytes: "</span><span class="w"> </span><span class="o">&lt;&lt;</span><span class="w"> </span><span class="n">element</span><span class="p">.</span><span class="n">value</span><span class="p">().</span><span class="n">size</span><span class="p">()</span><span class="w"> </span><span class="o">&lt;&lt;</span><span class="w"> </span><span class="sc">'\n'</span><span class="p">;</span>
+<a id="__codelineno-4-11" name="__codelineno-4-11" href="#__codelineno-4-11"></a><span class="w">        </span><span class="p">}</span>
+<a id="__codelineno-4-12" name="__codelineno-4-12" href="#__codelineno-4-12"></a><span class="w">    </span><span class="p">}</span><span class="w"> </span><span class="k">catch</span><span class="w"> </span><span class="p">(</span><span class="k">const</span><span class="w"> </span><span class="n">tlv</span><span class="o">::</span><span class="n">parse_error</span><span class="o">&amp;</span><span class="w"> </span><span class="n">failure</span><span class="p">)</span><span class="w"> </span><span class="p">{</span>
+<a id="__codelineno-4-13" name="__codelineno-4-13" href="#__codelineno-4-13"></a><span class="w">        </span><span class="n">std</span><span class="o">::</span><span class="n">cerr</span><span class="w"> </span><span class="o">&lt;&lt;</span><span class="w"> </span><span class="s">"Parse error at "</span><span class="w"> </span><span class="o">&lt;&lt;</span><span class="w"> </span><span class="n">failure</span><span class="p">.</span><span class="n">offset</span><span class="p">()</span><span class="w"> </span><span class="o">&lt;&lt;</span><span class="w"> </span><span class="s">": "</span><span class="w"> </span><span class="o">&lt;&lt;</span><span class="w"> </span><span class="n">failure</span><span class="p">.</span><span class="n">what</span><span class="p">()</span><span class="w"> </span><span class="o">&lt;&lt;</span><span class="w"> </span><span class="sc">'\n'</span><span class="p">;</span>
+<a id="__codelineno-4-14" name="__codelineno-4-14" href="#__codelineno-4-14"></a><span class="w">        </span><span class="k">return</span><span class="w"> </span><span class="mi">1</span><span class="p">;</span>
+<a id="__codelineno-4-15" name="__codelineno-4-15" href="#__codelineno-4-15"></a><span class="w">    </span><span class="p">}</span>
+<a id="__codelineno-4-16" name="__codelineno-4-16" href="#__codelineno-4-16"></a><span class="p">}</span>
 </code></pre></div>
 <p>Then use:</p>
 <div class="highlight"><pre><span></span><code><a id="__codelineno-5-1" name="__codelineno-5-1" href="#__codelineno-5-1"></a><span class="nb">cmake_minimum_required</span><span class="p">(</span><span class="s">VERSION</span><span class="w"> </span><span class="s">3.16</span><span class="p">)</span>
@@ -3188,8 +3209,7 @@ this target propagates the C library and include paths.</p>
 </code></pre></div>
 <p>Configure and build with the CMake commands from
 <a href="#build-from-a-checkout">Build from a checkout</a>, then run <code>build/tlv_demo</code>
-(Ninja/Makefiles) or <code>build/Release/tlv_demo.exe</code> (Visual Studio). Exit code
-zero indicates a successful round trip.</p>
+(Ninja/Makefiles) or <code>build/Release/tlv_demo.exe</code> (Visual Studio). The program prints <code>Value bytes: 3</code>; exit code zero indicates successful parsing.</p>
 </div>
 <div class="tabbed-block">
 <p>Save the example as <code>examples/quick_start.rs</code> in a crate that depends on
