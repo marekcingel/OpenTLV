@@ -291,12 +291,62 @@ private:
  */
 template <typename E> class expected<void, E> {
 public:
-    /** @brief Creates a successful result. */
-    expected() : has_value_(true), error_() {}
+    /** @brief Creates success without constructing an error object or allocating. */
+    expected() noexcept : has_value_(true) {}
     /** @brief Creates a failed result holding a copy of the error. */
-    expected(const unexpected<E>& error) : has_value_(false), error_(error.error()) {}
+    expected(const unexpected<E>& error) : has_value_(false) {
+        new (&storage_.error) E(error.error());
+    }
     /** @brief Creates a failed result by moving in the error. */
-    expected(unexpected<E>&& error) : has_value_(false), error_(std::move(error.error())) {}
+    expected(unexpected<E>&& error) : has_value_(false) {
+        new (&storage_.error) E(std::move(error.error()));
+    }
+    /** @brief Copies the active result; success does not construct an error. */
+    expected(const expected& other) : has_value_(other.has_value_) {
+        if (!has_value_) new (&storage_.error) E(other.storage_.error);
+    }
+    /** @brief Moves the active result without constructing an error for success. */
+    expected(expected&& other) noexcept(std::is_nothrow_move_constructible<E>::value)
+        : has_value_(other.has_value_) {
+        if (!has_value_) new (&storage_.error) E(std::move(other.storage_.error));
+    }
+    /** @brief Copies success or error, destroying an error when replaced by success.
+     * @return This result. Failed error construction leaves a successful target unchanged.
+     */
+    expected& operator=(const expected& other) {
+        if (this == &other) return *this;
+        if (other.has_value_) {
+            if (!has_value_) storage_.error.~E();
+            has_value_ = true;
+        } else if (has_value_) {
+            new (&storage_.error) E(other.storage_.error);
+            has_value_ = false;
+        } else {
+            storage_.error = other.storage_.error;
+        }
+        return *this;
+    }
+    /** @brief Moves success or error, preserving the source's active alternative.
+     * @return This result. Error exceptions follow the corresponding E operation.
+     */
+    expected& operator=(expected&& other) noexcept(std::is_nothrow_move_constructible<E>::value &&
+                                                   std::is_nothrow_move_assignable<E>::value) {
+        if (this == &other) return *this;
+        if (other.has_value_) {
+            if (!has_value_) storage_.error.~E();
+            has_value_ = true;
+        } else if (has_value_) {
+            new (&storage_.error) E(std::move(other.storage_.error));
+            has_value_ = false;
+        } else {
+            storage_.error = std::move(other.storage_.error);
+        }
+        return *this;
+    }
+    /** @brief Destroys an error only when that alternative is active. */
+    ~expected() {
+        if (!has_value_) storage_.error.~E();
+    }
     /** @brief Returns `true` if the result is successful. */
     bool has_value() const {
         return has_value_;
@@ -307,16 +357,20 @@ public:
     }
     /** @brief Returns the error; meaningful only if the result failed. */
     E& error() {
-        return error_;
+        return storage_.error;
     }
     /** @brief Returns the error; meaningful only if the result failed. */
     const E& error() const {
-        return error_;
+        return storage_.error;
     }
 
 private:
+    union storage {
+        storage() {}
+        ~storage() {}
+        E error;
+    } storage_;
     bool has_value_;
-    E    error_;
 };
 #endif
 

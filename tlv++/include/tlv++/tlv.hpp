@@ -18,6 +18,7 @@
 #include "tlv++/reader/tree.hpp"
 #include "tlv++/writer/writer.hpp"
 #include "tlv++/writer/tree.hpp"
+#include "tlv++/writer/builder.hpp"
 #include "tlv++/codec/registry.hpp"
 #include "tlv++/codec/structure.hpp"
 #include "tlv++/query/query.hpp"

@@ -24,7 +24,17 @@ if(test_group STREQUAL "unit")
     opentlv_copy_shared_runtime(test-reader-iteration-smoke)
     add_test(NAME Unit_Tlvpp_IterableReader_AllocationAndMoves COMMAND test-reader-iteration-smoke)
     set_tests_properties(Unit_Tlvpp_IterableReader_AllocationAndMoves PROPERTIES LABELS "unit")
-    list(APPEND SOURCES writer/test_tree_writer.cpp)
+    list(APPEND SOURCES writer/test_tree_writer.cpp writer/test_builder.cpp)
+    add_executable(test-writer-builder-smoke writer/builder_smoke.cpp)
+    target_include_directories(test-writer-builder-smoke PRIVATE ${OpenTLV_SOURCE_DIR}/tests)
+    target_link_libraries(test-writer-builder-smoke PRIVATE tlv++)
+    set_target_properties(test-writer-builder-smoke PROPERTIES CXX_STANDARD 11 CXX_STANDARD_REQUIRED ON CXX_EXTENSIONS OFF)
+    target_compile_options(test-writer-builder-smoke PRIVATE
+        "$<$<CXX_COMPILER_ID:GNU,Clang>:-fno-elide-constructors>")
+    opentlv_configure_compiler(test-writer-builder-smoke)
+    opentlv_copy_shared_runtime(test-writer-builder-smoke)
+    add_test(NAME Unit_Tlvpp_WriterBuilder_AllocationAndMoves COMMAND test-writer-builder-smoke)
+    set_tests_properties(Unit_Tlvpp_WriterBuilder_AllocationAndMoves PROPERTIES LABELS "unit")
     # tlv::fixed_format<> now delegates to tlv_fixed_format_init(), so its
     # tests need the C fixed format compiled into tlv.
     list(APPEND SOURCES formats/test_fixed_format.cpp formats/test_custom_format.cpp)
