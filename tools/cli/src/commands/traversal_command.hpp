@@ -33,7 +33,7 @@ protected:
     // Called for each element the traversal visits, in preorder. The base
     // implementation only keeps the diagnostic scope current (used as-is by
     // "validate", which has no display of its own).
-    virtual tlv_visit_result_t visit_element(const tlv_element_t* element, std::size_t depth,
+    virtual tlv_visit_result_t visit_element(const tlv::element_view& element, std::size_t depth,
                                              std::size_t offset);
 
     // Called once, before the traversal starts. The base implementation does
@@ -91,6 +91,7 @@ protected:
     }
 
     options             options_;
+    format_selection    format_storage_;
     std::size_t         base_;
     int                 ber_;
     cli_presentation_t  presentation_;
@@ -108,8 +109,7 @@ protected:
     nlohmann::ordered_json              document_root_ = nlohmann::ordered_json::array();
     // "query" only: the matcher deciding which elements are addressed and how
     // many were.
-    tlv_query_matcher_t matcher_;
-    std::size_t         matches_;
+    std::size_t matches_;
 
     tlv_result_t               result_;
     std::size_t                error_offset_;

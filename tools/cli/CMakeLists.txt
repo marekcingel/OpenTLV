@@ -117,4 +117,10 @@ if(OPENTLV_BUILD_CLI_TESTS)
         "-DHAS_NFC=${OPENTLV_NFC}"
         -P "${CMAKE_CURRENT_SOURCE_DIR}/test.cmake")
     set_tests_properties(Integration_cli PROPERTIES LABELS "integration;cli")
+    if(OPENTLV_FORMAT_BER)
+        add_test(NAME Integration_cli_cpp_examples COMMAND ${CMAKE_COMMAND}
+            "-DCLI=$<TARGET_FILE:otlv>"
+            -P "${CMAKE_CURRENT_SOURCE_DIR}/examples.cmake")
+        set_tests_properties(Integration_cli_cpp_examples PROPERTIES LABELS "integration;cli;examples")
+    endif()
 endif()

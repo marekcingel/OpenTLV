@@ -165,6 +165,33 @@ int main(void) {
 }
 ```
 
+The C++ facade offers a borrowed BER parsing range (requires
+`OPENTLV_BUILD_CXX=ON` and `OPENTLV_FORMAT_BER=ON`). This complete quick-start
+uses the same canonical engine and is compiled and executed in CI:
+
+<!-- example: examples/tlv++/src/quick_start.cpp -->
+```cpp
+#include <tlv++/tlv.hpp>
+#include <iostream>
+
+int main() {
+    // Elements borrow input; keep it alive while using them.
+    const tlv::byte input[] = {tlv::byte(0x04), tlv::byte(0x03), tlv::byte('A'), tlv::byte('B'),
+                               tlv::byte('C')};
+    try {
+        for (auto element : tlv::ber::parse({input, sizeof(input)})) {
+            std::cout << "Value bytes: " << element.value().size() << '\n';
+        }
+    } catch (const tlv::parse_error& failure) {
+        std::cerr << "Parse error at " << failure.offset() << ": " << failure.what() << '\n';
+        return 1;
+    }
+}
+```
+
+See [C++ examples](docs/guides/cxx-examples.md) for scoped writing, owning
+Documents, typed Values and matching CLI operations.
+
 Requires CMake 3.16+ and a supported compiler: GCC, MSVC, or upstream Clang 18+.
 The C API requires C99; the optional C++ wrapper requires C++11 or newer.
 C++23 builds require CMake 3.20+. Tests use GoogleTest and require C++17 or newer.
@@ -178,8 +205,8 @@ cmake --build build --config Release --parallel
 
 See [getting started](docs/getting-started/README.md) for linking this example, CMake
 integration, C-only builds, and running tests. The [C](examples/tlv/src/) examples
-cover more of the API, one topic per file, and the [C++](examples/tlv++/src/basic_usage.cpp)
-example covers BER; [examples/tlv/src/builtins/emv/tag_decoding.c](examples/tlv/src/builtins/emv/tag_decoding.c)
+cover more of the API, one topic per file, and the [C++](docs/guides/cxx-examples.md)
+examples cover ergonomic parsing, writing, Document, typed fields and Query; [examples/tlv/src/builtins/emv/tag_decoding.c](examples/tlv/src/builtins/emv/tag_decoding.c)
 traverses a full EMV TLV record through tag lookup, length validation, and value decoding.
 
 ## Documentation

@@ -9,6 +9,9 @@
 #include "options.hpp"
 #include "presentation.hpp"
 #include "tlv/reader/visitor.h"
+#include "tlv/formats/fixed.h"
+#include "tlv++/native.hpp"
+#include "tlv++/reader/tree.hpp"
 
 // Small utilities shared by more than one file under commands/, kept out of
 // any single command's own file so none of them has to include another
@@ -27,24 +30,37 @@ struct skipped_range {
 
 bool is_json(const options& o);
 
-// Maps --format (and, for "fixed", --fixed-tag-size/--fixed-length-size/
-// --fixed-byte-order) to a builtin format, or NULL for an unknown or
-// disabled name. Shared by every command that reads or writes TLV data,
-// since one format now serves both directions.
-const tlv_format_t* select_format(const options& o);
+// Owns runtime Fixed configuration; returned views borrow this owner. Built-in
+// views borrow immutable program-lifetime descriptors. No shared mutable state.
+class format_selection {
+public:
+    explicit format_selection(const options& o);
+    format_selection(const format_selection&) = delete;
+    format_selection&                      operator=(const format_selection&) = delete;
+    tlv::expected<tlv::format, tlv::error> get() const;
+
+private:
+    const char*        name_;
+    tlv_fixed_format_t fixed_{};
+    tlv_format_t       descriptor_{};
+    tlv_result_t       result_ = TLV_OK;
+};
 
 // Prints `length` bytes as uppercase hex ("0A1B..."), restoring std::cout's
 // prior formatting state afterward so callers can freely mix this with
 // ordinary decimal output.
 void print_hex(const uint8_t* data, std::size_t length);
+void print_hex(tlv::bytes bytes);
 
 // Prints a tag's bytes as hex, wrapped in the CLI's tag accent color when
 // enabled. Shared by dump's element output and --pdol.
 void print_tag(const tlv_tag_t& tag, bool color);
+void print_tag(tlv::tag tag, bool color);
 
 // Same encoding as print_hex, built as a string instead of streamed, for
 // --output json's field values (which are never color-wrapped).
 std::string hex_string(const uint8_t* data, std::size_t length);
+std::string hex_string(tlv::bytes bytes);
 
 // What every traversal of the input needs to know about the selected format.
 struct traversal_env {

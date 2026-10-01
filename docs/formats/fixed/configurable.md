@@ -167,11 +167,10 @@ using format = tlv::fixed_format<2, 2, TLV_BYTE_ORDER_LITTLE_ENDIAN>;
 
 int main() {
     std::array<tlv::byte, 16> buf{};
-    tlv::writer<>             writer(buf.data(), buf.size(), format::format());
+    tlv::writer<format>       writer(buf.data(), buf.size());
 
     const std::array<tlv::byte, 3> value = {tlv::byte(0xAA), tlv::byte(0xBB), tlv::byte(0xCC)};
-    auto                           written =
-        writer.write(tlv::tag_bytes<0x12, 0x34>(), tlv::bytes(value.data(), value.size()));
+    auto                           written = writer.write<0x12, 0x34>(value);
     if (!written) {
         std::cerr << "write error: " << written.error().message << "\n";
         return 1;

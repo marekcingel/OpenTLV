@@ -7,11 +7,12 @@ namespace {
 
 // The query path as text: uppercase hex tags joined by "/", however the user
 // spelled it.
-std::string query_path(const tlv_query_t& query) {
+std::string query_path(const tlv::query& query) {
     std::string path;
-    for (size_t i = 0; i < query.count; ++i) {
+    for (size_t i = 0; i < query.size(); ++i) {
         if (i) path += '/';
-        path += cli::hex_string(tlv_query_step(&query, i).data, tlv_query_step(&query, i).size);
+        const auto tag = query.step(i);
+        path += cli::hex_string(tag.as_bytes());
     }
     return path;
 }
@@ -21,36 +22,37 @@ std::string query_path(const tlv_query_t& query) {
 namespace cli {
 
 int query_command::prepare() {
-    if (tlv_query_matcher_init(&matcher_, &options_.query) != TLV_OK)
-        return fail(2, "invalid query");
+    if (!options_.query) return fail(2, "invalid query");
+    matcher_.reset(new tlv::query_matcher(*options_.query));
     return 0;
 }
 
 // query's visitor: prints each element the path addresses. Text output is
 // the dump line without nesting, --value prints only the value bytes, and
 // --output json collects the elements into one document printed at the end.
-tlv_visit_result_t query_command::visit_element(const tlv_element_t* element, std::size_t depth,
+tlv_visit_result_t query_command::visit_element(const tlv::element_view& element, std::size_t depth,
                                                 std::size_t offset) {
-    diagnostic_scope_visit(scope_, data(), element, depth, format_->is_constructed);
-    if (!tlv_query_matcher_visit(&matcher_, &element->tag, depth)) return TLV_VISIT_CONTINUE;
+    const auto native = tlv::native::descriptor(element);
+    diagnostic_scope_visit(scope_, data(), &native, depth, format_->is_constructed);
+    if (!matcher_->matches(element.tag(), depth)) return TLV_VISIT_CONTINUE;
     ++matches_;
     if (is_json(options_)) {
         nlohmann::json object;
-        object["path"] = query_path(options_.query);
+        object["path"] = query_path(*options_.query);
         object["offset"] = offset;
-        object["tag"] = hex_string(element->tag.data, element->tag.size);
-        object["length"] = (uint64_t)element->value.size;
-        object["value"] = hex_string(element->value.data, cli_element_value_size(element));
+        object["tag"] = hex_string(element.tag().as_bytes());
+        object["length"] = (uint64_t)element.value().size();
+        object["value"] = hex_string(element.value().as_bytes());
         json_root_.push_back(std::move(object));
         return TLV_VISIT_CONTINUE;
     }
     if (options_.value_only) {
-        print_hex(element->value.data, cli_element_value_size(element));
+        print_hex(element.value().as_bytes());
     } else {
         std::cout << "offset=" << offset << " tag=";
-        print_hex(element->tag.data, element->tag.size);
-        std::cout << " length=" << element->value.size << " value=";
-        print_hex(element->value.data, cli_element_value_size(element));
+        print_hex(element.tag().as_bytes());
+        std::cout << " length=" << element.value().size() << " value=";
+        print_hex(element.value().as_bytes());
     }
     std::cout << "\n";
     return std::cout ? TLV_VISIT_CONTINUE : TLV_VISIT_ERROR;
@@ -65,7 +67,7 @@ void query_command::render_output() {
 
 int query_command::after_success() {
     if (matches_) return 0;
-    std::cerr << "otlv: no match for query " << query_path(options_.query) << "\n";
+    std::cerr << "otlv: no match for query " << query_path(*options_.query) << "\n";
     return 5;
 }
 

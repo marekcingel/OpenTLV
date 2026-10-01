@@ -11,8 +11,11 @@
 #include "input.hpp"
 #include "json_model.hpp"
 #include "tlv/config.h"
-#include "tlv/builtins/asn1/ber.h"
-#include "tlv/writer/writer.h"
+#include "tlv/builtins/asn1/identifier.h"
+#include "tlv++/writer/writer.hpp"
+#if OPENTLV_FORMAT_BER
+#include "tlv++/builtins/asn1/ber.hpp"
+#endif
 #ifdef _WIN32
 #include <fcntl.h>
 #include <io.h>
@@ -34,9 +37,13 @@ int specs_from_options(const cli::options& o, std::vector<cli::element_spec>& sp
     return 0;
 }
 
-// Builds a tlv_tag_t that borrows `bytes`, which must outlive the tag.
-tlv_tag_t make_tag(const std::vector<uint8_t>& bytes) {
-    return tlv_tag(bytes.data(), bytes.size());
+// Views borrow the CLI-owned byte vectors, which outlive each encoding operation.
+tlv::bytes byte_view(const std::vector<uint8_t>& bytes) {
+    return {reinterpret_cast<const tlv::byte*>(bytes.data()), bytes.size()};
+}
+
+tlv::tag make_tag(const std::vector<uint8_t>& bytes) {
+    return tlv::tag(byte_view(bytes));
 }
 
 std::string hex_text(const std::vector<uint8_t>& bytes) {
@@ -61,7 +68,7 @@ int write_failed(std::size_t index, tlv_result_t rc) {
 // derived from the bytes actually written.
 class json_encoder {
 public:
-    json_encoder(const tlv_format_t* format, const char* name) : format_(format), name_(name) {
+    json_encoder(tlv::format format, const char* name) : format_(format), name_(name) {
 #if OPENTLV_FORMAT_BER
         ber_ = !strcmp(name, "ber");
 #endif
@@ -76,8 +83,11 @@ public:
     }
 
 private:
-    bool is_constructed(const tlv_tag_t& tag) const {
-        return format_->is_constructed && format_->is_constructed(format_->context, &tag) != 0;
+    bool is_constructed(tlv::tag tag) const {
+        const auto& descriptor = tlv::native::descriptor(format_);
+        const auto  identifier = tlv::native::descriptor(tag);
+        return descriptor.is_constructed &&
+               descriptor.is_constructed(descriptor.context, &identifier) != 0;
     }
 
     int reject(std::size_t index, const std::string& reason) {
@@ -88,13 +98,11 @@ private:
     // Elements are numbered in preorder, as they appear in the document.
     int encode_element(const cli::json_model::node& element, std::vector<uint8_t>& out) {
         const std::size_t           index = index_++;
-        const tlv_tag_t             tag = make_tag(element.tag);
+        const tlv::tag              tag = make_tag(element.tag);
         std::vector<uint8_t>        children;
         const std::vector<uint8_t>* value = &element.value;
-        std::size_t                 size;
-        tlv_result_t                result;
 
-        if (format_->is_constructed) {
+        if (format_.has_constructed_classifier()) {
             const bool constructed = is_constructed(tag);
             if (element.has_children && !constructed)
                 return reject(index, "tag " + hex_text(element.tag) +
@@ -115,34 +123,35 @@ private:
             value = &children;
         }
         const std::size_t before = out.size();
+        tlv::format       encoding_format = format_;
 #if OPENTLV_FORMAT_BER
-        if (element.indefinite)
-            result = tlv_ber_indefinite_encoded_size(tag, value->size(), &size);
-        else
+        if (element.indefinite) encoding_format = tlv::ber::indefinite_format{};
 #endif
-            result = tlv_encoded_size(tag, value->size(), format_, &size);
-        if (result != TLV_OK) return write_failed(index, result);
+        auto measured = tlv::encoded_size(tag, value->size(), encoding_format);
+        if (!measured) return write_failed(index, measured.error().code);
+        const size_t size = *measured;
         if (size > SIZE_MAX - before) return fail(3, "encoded output too large");
         try {
             out.resize(before + size);
         } catch (const std::bad_alloc&) {
             return fail(3, "cannot allocate CLI memory");
         }
+        auto* destination = reinterpret_cast<tlv::byte*>(out.data() + before);
 #if OPENTLV_FORMAT_BER
-        if (element.indefinite)
-            result = tlv_ber_write_indefinite(out.data() + before, size, tag, value->data(),
-                                              value->size(), &size);
-        else
+        if (element.indefinite) {
+            auto written = tlv::ber::write_indefinite({destination, size}, tag, byte_view(*value));
+            return written ? 0 : write_failed(index, written.error().code);
+        }
 #endif
-            result = tlv_write(out.data() + before, size, format_, tag, value->data(),
-                               value->size(), &size);
-        return result == TLV_OK ? 0 : write_failed(index, result);
+        tlv::writer<> writer(destination, size, format_);
+        auto          written = writer.write(tag, *value);
+        return written ? 0 : write_failed(index, written.error().code);
     }
 
-    const tlv_format_t* format_;
-    const char*         name_;
-    bool                ber_ = false;
-    std::size_t         index_ = 0;
+    tlv::format format_;
+    const char* name_;
+    bool        ber_ = false;
+    std::size_t index_ = 0;
 };
 
 // Emits encoded bytes as hex text or raw bytes, to stdout or --output-file.
@@ -172,7 +181,7 @@ int emit(const cli::options& o, const std::vector<uint8_t>& out) {
 }
 
 // Encodes the JSON document named by --input.
-int encode_json(const cli::options& o, const tlv_format_t* format) {
+int encode_json(const cli::options& o, tlv::format format) {
     std::string               text;
     cli::json_model::document document;
     std::vector<uint8_t>      out;
@@ -197,6 +206,9 @@ int encode_json(const cli::options& o, const tlv_format_t* format) {
     check.max_input = o.max_input;
     check.max_depth = o.max_depth;
     check.max_elements = o.max_elements;
+    check.fixed_tag_size = o.fixed_tag_size;
+    check.fixed_length_size = o.fixed_length_size;
+    check.fixed_byte_order = o.fixed_byte_order;
     cli::validate_command validation(check, out);
     if (validation.run() != 0) return fail(1, "encoded output failed validation");
     return emit(o, out);
@@ -208,40 +220,36 @@ namespace cli {
 
 int encode_command::run() {
     const options&            o = options_;
-    const tlv_format_t*       format = select_format(o);
+    format_selection          selection(o);
+    auto                      format = selection.get();
     std::vector<element_spec> specs;
     std::vector<uint8_t>      out;
     std::size_t               total = 0, i;
     int                       rc;
 
     if (!format) return fail(2, "unknown or disabled format; use otlv formats");
-    if (!tlv_format_can_write(format))
+    if (!format->writable())
         return fail(2, (std::string("format ") + o.format + " does not support encoding").c_str());
-    if (o.input) return encode_json(o, format);
+    if (o.input) return encode_json(o, *format);
     if ((rc = specs_from_options(o, specs))) return rc;
 
     // Validate every element and size the whole output before writing, so a
     // rejected element never yields partial output.
     for (i = 0; i < specs.size(); ++i) {
-        std::size_t  size;
-        tlv_result_t result =
-            tlv_encoded_size(make_tag(specs[i].tag), specs[i].value.size(), format, &size);
-        if (result != TLV_OK) return write_failed(i, result);
-        if (total > SIZE_MAX - size) return fail(3, "encoded output too large");
-        total += size;
+        auto size = tlv::encoded_size(make_tag(specs[i].tag), specs[i].value.size(), *format);
+        if (!size) return write_failed(i, size.error().code);
+        if (total > SIZE_MAX - *size) return fail(3, "encoded output too large");
+        total += *size;
     }
     try {
         out.resize(total);
     } catch (const std::bad_alloc&) {
         return fail(3, "cannot allocate CLI memory");
     }
-    tlv_writer_t writer;
-    if (tlv_writer_init(&writer, out.data(), out.size(), format) != TLV_OK)
-        return fail(3, "cannot initialize writer");
+    tlv::writer<> writer(reinterpret_cast<tlv::byte*>(out.data()), out.size(), *format);
     for (i = 0; i < specs.size(); ++i) {
-        tlv_result_t result = tlv_writer_write(&writer, make_tag(specs[i].tag),
-                                               specs[i].value.data(), specs[i].value.size());
-        if (result != TLV_OK) return write_failed(i, result);
+        auto written = writer.write(make_tag(specs[i].tag), specs[i].value);
+        if (!written) return write_failed(i, written.error().code);
     }
     return emit(o, out);
 }

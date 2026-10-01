@@ -6,25 +6,26 @@
 
 namespace cli {
 
-tlv_visit_result_t dump_command::visit_element(const tlv_element_t* element, std::size_t depth,
+tlv_visit_result_t dump_command::visit_element(const tlv::element_view& element, std::size_t depth,
                                                std::size_t offset) {
-    diagnostic_scope_visit(scope_, data(), element, depth, format_->is_constructed);
+    const auto native = tlv::native::descriptor(element);
+    diagnostic_scope_visit(scope_, data(), &native, depth, format_->is_constructed);
     offset += base_;
-    const int indefinite = ber_ && data()[offset + element->tag.size] == 0x80;
-    cli_presentation_visit(&presentation_, element, depth, indefinite);
+    const int indefinite = ber_ && data()[offset + element.tag().size()] == 0x80;
+    cli_presentation_visit(&presentation_, &native, depth, indefinite);
     if (!options_.tree && depth) return TLV_VISIT_CONTINUE;
     if (is_json(options_)) {
         nlohmann::json object;
         object["offset"] = offset;
-        object["tag"] = hex_string(element->tag.data, element->tag.size);
-        object["length"] = (uint64_t)element->value.size;
+        object["tag"] = hex_string(element.tag().as_bytes());
+        object["length"] = (uint64_t)element.value().size();
         if (indefinite) object["indefinite"] = true;
-        object["value"] = hex_string(element->value.data, cli_element_value_size(element));
+        object["value"] = hex_string(element.value().as_bytes());
         if (bluetooth_module(options_)) {
-            json_bluetooth(object, element, options_.decode != 0);
+            json_bluetooth(object, &native, options_.decode != 0);
         } else if (options_.module) {
-            json_emv(object, presentation_, element, depth, options_.describe);
-            if (options_.decode) json_decode(object, presentation_, element, depth);
+            json_emv(object, presentation_, &native, depth, options_.describe);
+            if (options_.decode) json_decode(object, presentation_, &native, depth);
         }
         // Attach any elements deeper than this one to their parent first,
         // since their subtrees are now known to be finished.
@@ -37,23 +38,23 @@ tlv_visit_result_t dump_command::visit_element(const tlv_element_t* element, std
     else
         for (size_t i = 0; i < depth; ++i) std::cout << "  ";
     std::cout << "offset=" << offset << " tag=";
-    print_tag(element->tag, presentation_.color != 0);
-    std::cout << " length=" << element->value.size;
+    print_tag(element.tag(), presentation_.color != 0);
+    std::cout << " length=" << element.value().size();
     if (indefinite) std::cout << " encoding=indefinite";
     std::cout << " value=";
-    print_hex(element->value.data, cli_element_value_size(element));
+    print_hex(element.value().as_bytes());
     if (bluetooth_module(options_)) {
-        std::cout << " name=" << nlohmann::json(bluetooth_name(element)).dump();
+        std::cout << " name=" << nlohmann::json(bluetooth_name(&native)).dump();
         if (options_.decode) {
-            const auto result = decode_bluetooth_value(element);
+            const auto result = decode_bluetooth_value(&native);
             if (result.status != decode_status::unavailable)
                 std::cout << (result.status == decode_status::ok ? " decoded=" : " decode-error=")
                           << nlohmann::json(result.text).dump();
         }
     } else if (options_.module) {
-        cli_presentation_emv(&presentation_, element, depth, options_.describe);
+        cli_presentation_emv(&presentation_, &native, depth, options_.describe);
         if (options_.decode) {
-            const decode_result result = decode_emv_value(presentation_.contexts[depth], element);
+            const decode_result result = decode_emv_value(presentation_.contexts[depth], &native);
             if (result.status == decode_status::ok)
                 std::cout << " decoded=\"" << result.text << '"';
             else if (result.status == decode_status::error)

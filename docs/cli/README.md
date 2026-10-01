@@ -29,6 +29,10 @@ Building the CLI fetches [nlohmann/json](https://github.com/nlohmann/json)
 `encode --input`) via CMake `FetchContent`; the `tlv`
 and `tlv++` libraries themselves remain dependency-free.
 
+See [C++ and CLI examples](../guides/cxx-examples.md#equivalent-cli-operations)
+for matching parsing, nested writing and Query operations with executable
+acceptance checks.
+
 ## Commands
 
 ```sh

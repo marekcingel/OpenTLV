@@ -40,9 +40,10 @@ by adding its directory to `PATH` on Windows or `LD_LIBRARY_PATH`/rpath on Linux
 
 ## Quick start
 
-The program below writes `01 03 AA BB CC` with the configurable fixed-width
-format and reads the value back. Each version is a complete program that CI builds and
-runs against the current API, and a check keeps its copy here identical to the
+The C, Rust and Python programs below write `01 03 AA BB CC` with the configurable
+fixed-width format and read the value back. The C++ quick-start parses a BER
+OCTET STRING containing `ABC`, using the ergonomic borrowed range. Each version
+is a complete program that CI builds and runs against the current API, and a check keeps its copy here identical to the
 source, so it stays valid as OpenTLV evolves. Choose your language in any tab
 group on this site and the choice is kept for the other tabbed examples.
 Without tabs (for example on GitHub) the C example is listed first.
@@ -115,37 +116,29 @@ Save the example as `main.cpp`. It is
 [examples/tlv++/src/quick_start.cpp](../../examples/tlv++/src/quick_start.cpp).
 Place the checkout at `external/OpenTLV` in your application. Enable `CXX` in
 `project`, set `OPENTLV_BUILD_CXX` to `ON`, and link `tlv++` instead of `tlv`;
-this target propagates the C library and include paths.
+this target propagates the C library and include paths. The BER preset requires
+`OPENTLV_FORMAT_BER=ON`. The range visits one level and borrows input; malformed
+final input throws `tlv::parse_error`, rather than ending iteration silently.
+See the [C++ examples](../guides/cxx-examples.md) for writing, nested traversal,
+Document, typed fields, Query and explicit control.
 
 <!-- example: examples/tlv++/src/quick_start.cpp -->
 ```cpp
-#include <array>
-#include <cstring>
-
-#include "tlv++/tlv.hpp"
-#include "tlv++/formats/fixed_format.hpp"
+#include <tlv++/tlv.hpp>
+#include <iostream>
 
 int main() {
-    using format = tlv::fixed_format<1, 1, TLV_BYTE_ORDER_BIG_ENDIAN>;
-
-    const tlv::tag                 tag = tlv::tag_bytes<0x01>();
-    const std::array<tlv::byte, 3> value = {
-        static_cast<tlv::byte>(0xAA), static_cast<tlv::byte>(0xBB), static_cast<tlv::byte>(0xCC)};
-    std::array<tlv::byte, 5> buffer{};
-    tlv::writer<>            writer(buffer.data(), buffer.size(), format::format());
-
-    if (!writer.write(tag, tlv::bytes(value.data(), value.size()))) return 1;
-
-    // element.value() borrows buffer; keep it alive while using the element.
-    tlv::reader<> reader(tlv::bytes(buffer.data(), writer.size()), format::format());
-    auto          element = reader.next();
-    if (!element || !reader.at_end()) return 1;
-
-    if (element->tag() != tlv::tag_bytes<0x01>()) return 1;
-    if (element->value().size() != value.size() ||
-        std::memcmp(element->value().data(), value.data(), value.size()) != 0)
+    // Elements borrow input; keep it alive while using them.
+    const tlv::byte input[] = {tlv::byte(0x04), tlv::byte(0x03), tlv::byte('A'), tlv::byte('B'),
+                               tlv::byte('C')};
+    try {
+        for (auto element : tlv::ber::parse({input, sizeof(input)})) {
+            std::cout << "Value bytes: " << element.value().size() << '\n';
+        }
+    } catch (const tlv::parse_error& failure) {
+        std::cerr << "Parse error at " << failure.offset() << ": " << failure.what() << '\n';
         return 1;
-    return 0;
+    }
 }
 ```
 
@@ -167,8 +160,7 @@ target_link_libraries(tlv_demo PRIVATE tlv++)
 
 Configure and build with the CMake commands from
 [Build from a checkout](#build-from-a-checkout), then run `build/tlv_demo`
-(Ninja/Makefiles) or `build/Release/tlv_demo.exe` (Visual Studio). Exit code
-zero indicates a successful round trip.
+(Ninja/Makefiles) or `build/Release/tlv_demo.exe` (Visual Studio). The program prints `Value bytes: 3`; exit code zero indicates successful parsing.
 
 ///
 

@@ -1,6 +1,7 @@
 #ifndef OPENTLV_CLI_COMMANDS_QUERY_COMMAND_HPP
 #define OPENTLV_CLI_COMMANDS_QUERY_COMMAND_HPP
 #include "commands/traversal_command.hpp"
+#include <memory>
 
 namespace cli {
 
@@ -13,10 +14,13 @@ public:
 
 protected:
     int                prepare() override;
-    tlv_visit_result_t visit_element(const tlv_element_t* element, std::size_t depth,
+    tlv_visit_result_t visit_element(const tlv::element_view& element, std::size_t depth,
                                      std::size_t offset) override;
     void               render_output() override;
     int                after_success() override;
+
+private:
+    std::unique_ptr<tlv::query_matcher> matcher_;
 };
 
 } // namespace cli

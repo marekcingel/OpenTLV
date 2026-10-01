@@ -392,10 +392,10 @@ check(2 "encode requires --format" encode --tag 5A)
 check(2 "not valid for encode" encode --format ber --tag 5A --hex AA)
 check(2 "requires encode" dump --format ber --hex AA --tag 5A)
 check(2 "output encoding must be binary or hex" encode --format ber --tag 5A --output-encoding text)
-check(2 "complete hexadecimal byte pairs" encode --format ber --tag 5 --value 00)
-check(2 "complete hexadecimal byte pairs" encode --format ber --tag 5A --value 0G)
-check(2 "tag must not be empty" encode --format ber --tag " ")
-check(2 "tag is longer" encode --format ber --tag 0102030405060708090A --value 00)
+check(2 "complete hexadecimal byte pairs" encode --format fixed --tag 5 --value 00)
+check(2 "complete hexadecimal byte pairs" encode --format fixed --tag 5A --value 0G)
+check(2 "tag must not be empty" encode --format fixed --tag " ")
+check(2 "tag is longer" encode --format fixed --tag 0102030405060708090A --value 00)
 check(2 "disabled format" encode --format unknown --tag 5A)
 check(2 "duplicate" encode --format ber --tag 5A --tag 5B)
 if(HAS_BER)
@@ -589,7 +589,7 @@ check(2 "--value requires --tag" encode --format ber --input in.json --value AA)
 check(2 "not valid for encode" encode --format ber --input in.json --hex AA)
 check(2 "not valid for encode" encode --format ber --input in.json --input-encoding hex)
 
-check(3 "cannot open" encode --format ber --input "${json_dir}/nonexistent-cli-input.json")
+check(3 "cannot open" encode --format fixed --input "${json_dir}/nonexistent-cli-input.json")
 check(2 "disabled format" encode --format unknown --input "${json_dir}/nonexistent-cli-input.json")
 
 # Every enabled format: decode, then encode reproduces the input bytes, and
@@ -648,6 +648,10 @@ foreach(pair IN ITEMS "FIXED|fixed" "EMV|emv" "BER|ber" "DER|der" "BLUETOOTH_LTV
     check(3 "element limit" encode --format "${name}" --input "${json_dir}/cli-doc.json" --max-elements 1)
 endforeach()
 if(HAS_FIXED)
+    # JSON encoding and its internal validation must retain the same runtime Format.
+    file(WRITE "${bad_json}" [=[{"schema":"opentlv.tlv","version":1,"format":"fixed","elements":[{"tag":"0102","value":"AABBCC"}]}]=])
+    check(0 "^01020300AABBCC\n$" encode --format fixed --fixed-tag-size 2
+        --fixed-length-size 2 --fixed-byte-order little --input "${bad_json}")
     # Fixed fields have no constructed-element semantics.
     file(WRITE "${bad_json}" [=[{"schema":"opentlv.tlv","version":1,"elements":[{"tag":"30","children":[]}]}]=])
     check(2 "format fixed has no constructed elements" encode --format fixed --input "${bad_json}")

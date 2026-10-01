@@ -57,23 +57,26 @@ void flush_stack(std::vector<Json>& stack, Json& root, size_t target_depth, cons
 namespace cli {
 
 traversal_command::traversal_command(const options& o, std::vector<uint8_t> data)
-    : options_(o), base_(0), ber_(0), presentation_(), format_(NULL), is_der_(false), scope_(),
-      matcher_(), matches_(0), result_(TLV_OK), error_offset_(0), stage_(""), schema_diag_(),
-      has_schema_diag_(false), data_(std::move(data)) {}
+    : options_(o), format_storage_(options_), base_(0), ber_(0), presentation_(), format_(NULL),
+      is_der_(false), scope_(), matches_(0), result_(TLV_OK), error_offset_(0), stage_(""),
+      schema_diag_(), has_schema_diag_(false), data_(std::move(data)) {}
 
 tlv_visit_result_t traversal_command::visit_trampoline(const tlv_element_t* element,
                                                        std::size_t depth, std::size_t offset,
                                                        void* context) {
-    return static_cast<traversal_command*>(context)->visit_element(element, depth, offset);
+    auto view = tlv::native::borrow_element(*element);
+    if (!view) return TLV_VISIT_ERROR;
+    return static_cast<traversal_command*>(context)->visit_element(*view, depth, offset);
 }
 
-tlv_visit_result_t traversal_command::visit_element(const tlv_element_t* element, std::size_t depth,
-                                                    std::size_t) {
+tlv_visit_result_t traversal_command::visit_element(const tlv::element_view& element,
+                                                    std::size_t              depth, std::size_t) {
     // validate has no display visitor of its own; this one exists solely to
     // keep the diagnostic scope current, so a failure the traversal doesn't itself
     // annotate (a value that overruns its own container, not the whole
     // buffer) can still be reported with the path and boundary enclosing it.
-    diagnostic_scope_visit(scope_, data(), element, depth, format_->is_constructed);
+    const auto native = tlv::native::descriptor(element);
+    diagnostic_scope_visit(scope_, data(), &native, depth, format_->is_constructed);
     return TLV_VISIT_CONTINUE;
 }
 
@@ -121,6 +124,7 @@ std::string traversal_command::render_failure_diagnostic(diagnostic_format  diag
 // A DOL length is a single unsigned byte, not a BER length field. No value
 // bytes follow it. Reuse the public BER tag reader without fabricating TLVs.
 tlv_result_t traversal_command::visit_pdol(std::size_t* error_offset) {
+#if OPENTLV_FORMAT_BER
     size_t pos = 0, count = 0;
     while (pos < size()) {
         tlv_element_t element;
@@ -158,6 +162,10 @@ tlv_result_t traversal_command::visit_pdol(std::size_t* error_offset) {
         if (!std::cout) return TLV_ERR_VISITOR;
     }
     return TLV_OK;
+#else
+    (void)error_offset;
+    return TLV_ERR_INVALID_ARG;
+#endif
 }
 
 // Recovery scan over the top-level elements. Each element that reads cleanly
@@ -179,11 +187,11 @@ tlv_result_t traversal_command::visit_recovering(std::size_t* error_offset) {
         skipping = false;
     };
     while (pos < size()) {
-        tlv_element_t           element;
         size_t                  consumed = 0, fault = pos, count = 0;
         tlv_reader_diagnostic_t attempt{};
-        tlv_result_t            rc =
-            tlv_read_diag(data() + pos, size() - pos, format_, &element, &consumed, &attempt);
+        auto decoded = tlv::read({reinterpret_cast<const tlv::byte*>(data() + pos), size() - pos},
+                                 tlv::native::borrow_format(*format_), consumed, &attempt);
+        tlv_result_t rc = decoded ? TLV_OK : decoded.error().code;
         if (rc != TLV_OK) {
             if (attempt.diagnostic.has_offset) attempt.diagnostic.offset += pos;
             if (attempt.has_tag_offset) attempt.tag_offset += pos;
@@ -196,7 +204,7 @@ tlv_result_t traversal_command::visit_recovering(std::size_t* error_offset) {
                              &fault, &attempt);
             if ((rc == TLV_ERR_LIMIT || rc == TLV_ERR_OUT_OF_MEMORY) && fault == pos) {
                 reader_diag_.has_tag = 1;
-                reader_diag_.tag = element.tag;
+                reader_diag_.tag = tlv::native::descriptor(decoded->element.tag());
             }
         }
         if (rc == TLV_ERR_LIMIT || rc == TLV_ERR_OUT_OF_MEMORY) {
@@ -226,9 +234,10 @@ tlv_result_t traversal_command::visit_recovering(std::size_t* error_offset) {
         // Resynchronization is CLI policy, built on single-element decoding.
         ++pos;
         for (; pos < size(); ++pos) {
-            tlv_element_t next;
-            size_t        next_size;
-            if (tlv_read(data() + pos, size() - pos, format_, &next, &next_size) == TLV_OK) break;
+            size_t next_size = 0;
+            if (tlv::read({reinterpret_cast<const tlv::byte*>(data() + pos), size() - pos},
+                          tlv::native::borrow_format(*format_), next_size))
+                break;
         }
     }
     if (skipping) close_range(size());
@@ -236,7 +245,9 @@ tlv_result_t traversal_command::visit_recovering(std::size_t* error_offset) {
 }
 
 int traversal_command::run() {
-    const tlv_format_t* format = select_format(options_);
+    auto selected = format_storage_.get();
+    if (!selected) return fail(2, "unknown or disabled format; use otlv formats");
+    const tlv_format_t* format = &tlv::native::descriptor(*selected);
     std::size_t         error_offset = 0;
     tlv_result_t        result;
     int                 is_ber = 0, is_der = 0, structured;
