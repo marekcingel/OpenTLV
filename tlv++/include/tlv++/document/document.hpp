@@ -166,6 +166,13 @@ public:
         return size;
     }
 
+    /** @brief Measure this subtree using a C++ Format view.
+     * @copydetails encoded_size(const tlv_format_t&) const
+     */
+    TLV_NODISCARD expected<size_t, error> encoded_size(tlv::format format) const {
+        return encoded_size(detail::format_access::get(format));
+    }
+
     /**
      * @brief Encode this node with an explicit destination Format.
      * @param format Borrowed writable Format as for encoded_size(format).
@@ -182,6 +189,13 @@ public:
         if (rc != TLV_OK) return unexpected<error>(error::from_c(rc));
         out.resize(written);
         return out;
+    }
+
+    /** @brief Encode this subtree using a C++ Format view.
+     * @copydetails encode(const tlv_format_t&) const
+     */
+    TLV_NODISCARD expected<std::vector<byte>, error> encode(tlv::format format) const {
+        return encode(detail::format_access::get(format));
     }
 
     /** @brief Compares two handles for referring to the same element. */
@@ -297,6 +311,13 @@ struct document_format {
     document_format(const tlv_format_t& fmt)
         : format(fmt), max_depth(TLV_TREE_DEFAULT_DEPTH),
           max_elements(TLV_DOCUMENT_DEFAULT_MAX_ELEMENTS) {}
+
+    /**
+     * @brief Copy a C++ Format's descriptor and apply default Document limits.
+     * @param fmt Borrowed Format view; the descriptor is copied and context remains borrowed.
+     * @note No allocation occurs. Context must outlive every Document created with these options.
+     */
+    document_format(tlv::format fmt) : document_format(detail::format_access::get(fmt)) {}
 };
 
 /**
@@ -480,6 +501,13 @@ public:
         return size;
     }
 
+    /** @brief Measure this Document using a C++ Format view.
+     * @copydetails encoded_size(const tlv_format_t&) const
+     */
+    TLV_NODISCARD expected<size_t, error> encoded_size(tlv::format format) const {
+        return encoded_size(detail::format_access::get(format));
+    }
+
     /**
      * @brief Encode this document with an explicit destination Format.
      * @param format Borrowed writable Format as for encoded_size(format).
@@ -497,6 +525,13 @@ public:
         if (rc != TLV_OK) return unexpected<error>(error::from_c(rc));
         out.resize(written);
         return out;
+    }
+
+    /** @brief Encode this Document using a C++ Format view.
+     * @copydetails encode(const tlv_format_t&) const
+     */
+    TLV_NODISCARD expected<std::vector<byte>, error> encode(tlv::format format) const {
+        return encode(detail::format_access::get(format));
     }
 
     /** @brief The underlying C document, for use with the C API. */

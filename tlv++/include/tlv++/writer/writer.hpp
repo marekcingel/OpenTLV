@@ -3,6 +3,7 @@
 
 #include "tlv/writer/writer.h"
 #include "tlv++/types.hpp"
+#include "tlv++/format.hpp"
 
 namespace tlv {
 
@@ -101,6 +102,16 @@ TLV_NODISCARD inline expected<size_t, error> write(byte* data, size_t capacity,
  */
 class writer {
 public:
+    /**
+     * @brief Create a sequential writer from a C++ Format view without allocation.
+     * @param buf Borrowed output buffer, null only for zero capacity.
+     * @param capacity Writable byte count.
+     * @param format Borrowed Format; descriptor and context must outlive this writer.
+     * @note The view may be temporary. Subsequent writes report initialization failures.
+     */
+    writer(byte* buf, size_t capacity, tlv::format format)
+        : writer(buf, capacity, detail::format_access::get(format)) {}
+
     /**
      * @brief Creates a writer over a buffer.
      *
@@ -221,6 +232,40 @@ public:
 private:
     tlv_writer_t impl_{};
 };
+
+/** @brief Measure an Element using a C++ Format view.
+ * @copydetails encoded_size(const element&, const tlv_format_t&, writer_diagnostic*)
+ */
+TLV_NODISCARD inline expected<size_t, error> encoded_size(const element& value, tlv::format format,
+                                                          writer_diagnostic* diagnostic = nullptr) {
+    return encoded_size(value, detail::format_access::get(format), diagnostic);
+}
+
+/** @brief Measure a Tag and Value length using a C++ Format view.
+ * @copydetails encoded_size(tag_t, size_t, const tlv_format_t&)
+ */
+TLV_NODISCARD inline expected<size_t, error> encoded_size(tag_t tag, size_t length,
+                                                          tlv::format format) {
+    return encoded_size(tag, length, detail::format_access::get(format));
+}
+
+/** @brief Write an Element using a C++ Format view.
+ * @copydetails write(byte*, size_t, const tlv_format_t&, const element&, writer_diagnostic*)
+ */
+TLV_NODISCARD inline expected<size_t, error> write(byte* data, size_t capacity, tlv::format format,
+                                                   const element&     value,
+                                                   writer_diagnostic* diagnostic = nullptr) {
+    return write(data, capacity, detail::format_access::get(format), value, diagnostic);
+}
+
+/** @brief Write a Tag and Value using a C++ Format view.
+ * @copydetails write(byte*, size_t, const tlv_format_t&, tag_t, bytes, writer_diagnostic*)
+ */
+TLV_NODISCARD inline expected<size_t, error> write(byte* data, size_t capacity, tlv::format format,
+                                                   tag_t tag, bytes value,
+                                                   writer_diagnostic* diagnostic = nullptr) {
+    return write(data, capacity, detail::format_access::get(format), tag, value, diagnostic);
+}
 
 } // namespace tlv
 
