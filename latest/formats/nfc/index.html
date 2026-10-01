@@ -3049,12 +3049,26 @@ Retain NULL elements if the desired result must preserve padding.</p>
 <h2 id="example">Example<a class="headerlink" href="#example" title="Permanent link">&para;</a></h2>
 <p>Build and run <code>example-tlv-nfc_type2</code>; its source is
 <a href="https://github.com/marekcingel/OpenTLV/blob/main/examples/tlv/src/nfc_type2.c"><code>examples/tlv/src/nfc_type2.c</code></a>.
-The example reads and re-encodes <code>00 03 03 D1 01 00 FE</code> byte-for-byte, retains
+The example reads and re-encodes <code>00 03 09 D1 01 05 54 02 65 6E 48 69 FE</code> byte-for-byte, retains
 NULL in the encoded result, hides it in the display, and stops after Terminator:</p>
-<div class="highlight"><pre><span></span><code><a id="__codelineno-0-1" name="__codelineno-0-1" href="#__codelineno-0-1"></a>NDEF_MESSAGE: D1 01 00
+<div class="highlight"><pre><span></span><code><a id="__codelineno-0-1" name="__codelineno-0-1" href="#__codelineno-0-1"></a>NDEF_MESSAGE: D1 01 05 54 02 65 6E 48 69
 <a id="__codelineno-0-2" name="__codelineno-0-2" href="#__codelineno-0-2"></a>TERMINATOR
 </code></pre></div>
 <p>The Value is opaque: this example demonstrates TLV framing, not NDEF validation.</p>
+<p>The supported file corpus lives in
+<a href="https://github.com/marekcingel/OpenTLV/tree/main/examples/nfc/type2"><code>examples/nfc/type2</code></a>.
+It includes this sample, control TLVs, empty Values, short/extended length
+boundaries, reserved identifiers, and malformed inputs. The corpus README
+documents the bytes, expected Elements, and synthetic provenance. Integration
+tests read the checked-in files and independently verify decoding, encoding
+from expected Elements, and Reader -&gt; Element -&gt; Writer byte equality.</p>
+<p>With <code>OPENTLV_BUILD_CLI=ON</code> and <code>OPENTLV_NFC=ON</code>, run from the repository root:</p>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-1-1" name="__codelineno-1-1" href="#__codelineno-1-1"></a>otlv<span class="w"> </span>decode<span class="w"> </span>--format<span class="w"> </span>nfc-type2<span class="w"> </span>--input<span class="w"> </span>examples/nfc/type2/sample.bin
+</code></pre></div>
+<p>The JSON contains <code>00</code> and <code>FE</code> as empty Values and the <code>03</code> Value as
+<code>D101055402656E4869</code>. CLI format selection is explicit; no format detection
+or NDEF interpretation is performed. <code>otlv formats</code> and shell completion
+include <code>nfc-type2</code> when enabled. See the corpus README for binary re-encoding.</p>
 <h2 id="bindings">Bindings<a class="headerlink" href="#bindings" title="Permanent link">&para;</a></h2>
 <table>
 <thead>

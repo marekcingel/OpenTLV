@@ -3047,7 +3047,7 @@ below; <code>encode</code> accepts any member order and any whitespace.</p>
 <td><code>format</code></td>
 <td>string</td>
 <td>on output</td>
-<td>The wire format (<code>fixed</code>, <code>ber</code>, <code>der</code> or <code>bluetooth-ltv</code>). Optional on input; when present it must equal <code>--format</code>.</td>
+<td>The wire format (<code>fixed</code>, <code>emv</code>, <code>ber</code>, <code>der</code>, <code>bluetooth-ltv</code> or <code>nfc-type2</code>). Optional on input; when present it must equal <code>--format</code>.</td>
 </tr>
 <tr>
 <td><code>elements</code></td>
@@ -3107,7 +3107,7 @@ members is not valid input for <code>encode</code>, because it is incomplete.</p
 <li><strong>Primitive and constructed elements have different representations.</strong> For
   BER and DER the tag decides which is legal: a tag whose constructed bit is
   set must use <code>children</code>, any other tag must use <code>value</code>. Formats without
-  constructed elements (<code>fixed</code>, <code>bluetooth-ltv</code>) accept only
+  constructed elements (<code>fixed</code>, <code>bluetooth-ltv</code>, <code>nfc-type2</code>) accept only
   <code>value</code>.</li>
 <li><strong>Order and duplicates are kept.</strong> <code>elements</code> and <code>children</code> are arrays, so
   repeated tags stay repeated and in the same order.</li>
@@ -3147,7 +3147,7 @@ the same limits, so the result is always accepted by that reader.</p>
 </thead>
 <tbody>
 <tr>
-<td><code>default</code>, <code>fixed</code>, <code>bluetooth-ltv</code></td>
+<td><code>fixed</code>, <code>bluetooth-ltv</code>, <code>nfc-type2</code></td>
 <td>yes</td>
 <td>rejected</td>
 <td>rejected</td>

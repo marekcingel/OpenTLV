@@ -3373,8 +3373,8 @@ The same hex syntax applies to files and stdin, including CR/LF between pairs.
 <code>--max-input-size</code> limits decoded bytes; hex whitespace is discarded as it is
 read without buffering the encoded text. It does not limit the number of
 whitespace characters read from a stream.</p>
-<p><code>formats</code> lists only enabled formats: <code>default</code>, <code>fixed</code>, <code>ber</code>,
-<code>der</code>, and <code>bluetooth-ltv</code>. Existing library CMake component options control availability. Unknown
+<p><code>formats</code> lists only enabled formats: <code>fixed</code>, <code>emv</code>, <code>ber</code>,
+<code>der</code>, <code>bluetooth-ltv</code>, and <code>nfc-type2</code>. Existing library CMake component options control availability. Unknown
 or disabled formats fail before reading input. No format detection is performed.</p>
 <p><code>--format fixed</code> defaults to one tag byte and one big-endian length byte, matching
 <code>tlv_fixed_format_t{1, 1, TLV_BYTE_ORDER_BIG_ENDIAN}</code>. <code>--fixed-tag-size N</code> (any positive
