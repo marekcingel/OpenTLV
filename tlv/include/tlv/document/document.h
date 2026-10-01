@@ -303,6 +303,28 @@ TLV_API tlv_node_t* tlv_document_find(const tlv_document_t* document, const tlv_
 /** @brief Returns the next sibling that has the same tag as `node`, or `NULL`. */
 TLV_API tlv_node_t* tlv_node_next_same_tag(const tlv_node_t* node);
 
+/** @brief Callback for a matching Document Node.
+ * @param node Borrowed matching node.
+ * @param context Caller context.
+ * @return CONTINUE, STOP or ERROR following the Visitor contract.
+ */
+typedef tlv_visit_result_t (*tlv_document_query_visitor_t)(tlv_node_t* node, void* context);
+
+/** @brief Visit every path match in Document order using the canonical Query matcher.
+ * @param document Borrowed Document.
+ * @param query Parsed Query, borrowed for the call.
+ * @param visitor Required callback.
+ * @param context Optional caller context.
+ * @return OK on exhaustion or STOP, NULL_ARG for missing arguments, Query validation
+ * errors, or VISITOR for ERROR or an unknown callback result.
+ * @warning Do not mutate or destroy the Document during traversal. Nodes borrow it.
+ * Callback effects are not rolled back on failure.
+ * @note Never allocates.
+ */
+TLV_API tlv_result_t tlv_document_query_visit(const tlv_document_t* document,
+                                              const tlv_query_t* query,
+                                              tlv_document_query_visitor_t visitor, void* context);
+
 /**
  * @brief Finds the first element addressed by a path query.
  *

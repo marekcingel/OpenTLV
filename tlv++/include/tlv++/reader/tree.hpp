@@ -8,6 +8,8 @@
  * @brief Borrowed C++ preorder cursor backed by the canonical C Tree Reader.
  */
 namespace tlv {
+class query;
+class query_range;
 
 /** @brief Caller-owned structural continuation storage. */
 using tree_frame = tlv_tree_frame_t;
@@ -22,6 +24,19 @@ using tree_frame = tlv_tree_frame_t;
  */
 class tree_reader {
 public:
+    /** @brief Select path matches from the current tree boundary.
+     * @param pattern Compiled Query copied into the selection.
+     * @return Lazy borrowed single-pass selection; include query/query.hpp to use it.
+     * @warning Do not interleave cursor operations except input replacement after
+     * NEED_MORE_DATA. Reader, frames, input and Format retain their normal lifetimes.
+     */
+    query_range select(const query& pattern);
+    /** @brief Compile a text path and select its matches.
+     * @param text NUL-terminated path, not retained.
+     * @return Lazy selection with the lifetime rules of select(const query&).
+     * @throws query_error On invalid Query text, retaining its text offset.
+     */
+    query_range select(const char* text);
     /**
      * @brief Initialize bounded traversal using a C++ Format view.
      * @copydetails tree_reader(bytes, const tlv_format_t&, span<tree_frame>, size_t, size_t,
@@ -66,15 +81,10 @@ public:
      * entire encoded extent; use next_event() for explicit structural events.
      */
     TLV_NODISCARD expected<tree_item, error> next(reader_diagnostic* diagnostic = nullptr) {
-        has_current_ = false;
-        tlv_tree_item_t result{};
-        auto rc = init_result_ == TLV_OK ? tlv_tree_reader_next_diag(&impl_, &result, diagnostic)
-                                         : init_result_;
+        tree_item result{};
+        auto      rc = next_item(result, diagnostic);
         if (rc != TLV_OK) return unexpected<error>(error::from_c(rc));
-        current_ = result;
-        has_current_ = true;
-        return tree_item{detail::semantic_access::borrow(result.element), result.source,
-                         result.depth, result.offset, result.constructed != 0};
+        return result;
     }
 
     /**
@@ -169,6 +179,19 @@ public:
     }
 
 private:
+    friend class query_range;
+    tlv_result_t next_item(tree_item& item, reader_diagnostic* diagnostic) {
+        has_current_ = false;
+        tlv_tree_item_t result{};
+        auto rc = init_result_ == TLV_OK ? tlv_tree_reader_next_diag(&impl_, &result, diagnostic)
+                                         : init_result_;
+        if (rc != TLV_OK) return rc;
+        current_ = result;
+        has_current_ = true;
+        item = tree_item{detail::semantic_access::borrow(result.element), result.source,
+                         result.depth, result.offset, result.constructed != 0};
+        return TLV_OK;
+    }
     friend class document_builder;
     friend class query_matcher;
     static expected<void, error> result(tlv_result_t rc) {

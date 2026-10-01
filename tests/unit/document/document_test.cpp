@@ -15,6 +15,16 @@ using Builder = std::unique_ptr<tlv_document_builder_t, decltype(&tlv_document_b
 namespace {
 using Bytes = std::vector<uint8_t>;
 
+struct QueryCollection {
+    std::vector<tlv_node_t*>  nodes;
+    tlv_visit_result_t        command = TLV_VISIT_CONTINUE;
+    static tlv_visit_result_t collect(tlv_node_t* node, void* context) {
+        auto& self = *static_cast<QueryCollection*>(context);
+        self.nodes.push_back(node);
+        return self.command;
+    }
+};
+
 // One-byte tags and lengths; 6F, A5 and A6 hold nested elements.
 //   6F { 84 (AA BB), A5 { 50 (41 42) } }, 50 (FF)
 const Bytes sample = {0x6F, 0x0A, 0x84, 0x02, 0xAA, 0xBB, 0xA5, 0x04,
@@ -1164,4 +1174,30 @@ TEST(Unit_Tlv_Document, WorkspaceGrowthAndAllocationFailuresPreserveOwnedTree) {
         }
     }
     EXPECT_TRUE(completed);
+}
+
+TEST(Unit_Tlv_Document, QueryVisitsAllMatchesAndHonorsCallbackCommands) {
+    auto document = parse(Bytes{0x6F, 2, 0x84, 0, 0x6F, 6, 0xA5, 4, 0x50, 0, 0x50, 0});
+    auto query = tlv_query_t{};
+    ASSERT_EQ(TLV_OK, tlv_query_parse("6F/A5/50", &query, nullptr));
+    QueryCollection collection;
+    EXPECT_EQ(TLV_OK, tlv_document_query_visit(document.get(), &query, QueryCollection::collect,
+                                               &collection));
+    ASSERT_EQ(2u, collection.nodes.size());
+    EXPECT_EQ(collection.nodes[0], tlv_document_find_path(document.get(), &query));
+    EXPECT_EQ(collection.nodes[1], tlv_node_next(collection.nodes[0]));
+    collection.nodes.clear();
+    collection.command = TLV_VISIT_STOP;
+    EXPECT_EQ(TLV_OK, tlv_document_query_visit(document.get(), &query, QueryCollection::collect,
+                                               &collection));
+    EXPECT_EQ(1u, collection.nodes.size());
+    collection.command = TLV_VISIT_ERROR;
+    EXPECT_EQ(TLV_ERR_VISITOR, tlv_document_query_visit(document.get(), &query,
+                                                        QueryCollection::collect, &collection));
+    EXPECT_EQ(TLV_ERR_NULL_ARG,
+              tlv_document_query_visit(nullptr, &query, QueryCollection::collect, &collection));
+    EXPECT_EQ(TLV_ERR_NULL_ARG, tlv_document_query_visit(document.get(), &query, nullptr, nullptr));
+    query = tlv_query_t{};
+    EXPECT_EQ(TLV_ERR_INVALID_ARG, tlv_document_query_visit(document.get(), &query,
+                                                            QueryCollection::collect, &collection));
 }
