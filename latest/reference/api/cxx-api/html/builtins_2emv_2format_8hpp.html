@@ -86,6 +86,7 @@ $(function() {
 <div class="textblock"><code>#include &quot;<a class="elRef" href="../../c-api/html/builtins_2emv_2format_8h.html">tlv/builtins/emv/format.h</a>&quot;</code><br />
 <code>#include &quot;<a class="el" href="format_8hpp.html">tlv++/format.hpp</a>&quot;</code><br />
 <code>#include &quot;<a class="el" href="reader_8hpp.html">tlv++/reader/reader.hpp</a>&quot;</code><br />
+<code>#include &quot;<a class="el" href="builder_8hpp.html">tlv++/writer/builder.hpp</a>&quot;</code><br />
 </div><table class="memberdecls">
 <tr class="heading"><td colspan="2"><h2 class="groupheader"><a id="nested-classes" name="nested-classes"></a>
 Classes</h2></td></tr>
@@ -99,11 +100,19 @@ Namespaces</h2></td></tr>
 <tr class="memdesc:namespacetlv"><td class="mdescLeft">&#160;</td><td class="mdescRight">Public C++ wrappers, value types, codec traits and helpers for OpenTLV. <br /></td></tr>
 <tr class="separator:"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:namespacetlv_1_1emv" id="r_namespacetlv_1_1emv"><td class="memItemLeft" align="right" valign="top">namespace &#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="namespacetlv_1_1emv.html">tlv::emv</a></td></tr>
-<tr class="memdesc:namespacetlv_1_1emv"><td class="mdescLeft">&#160;</td><td class="mdescRight">EMV wire framing presets. <br /></td></tr>
+<tr class="memdesc:namespacetlv_1_1emv"><td class="mdescLeft">&#160;</td><td class="mdescRight">EMV Contact Book 3 Value semantics and explicitly scoped dictionary fields. <br /></td></tr>
 <tr class="separator:"><td class="memSeparator" colspan="2">&#160;</td></tr>
 </table><table class="memberdecls">
 <tr class="heading"><td colspan="2"><h2 class="groupheader"><a id="func-members" name="func-members"></a>
 Functions</h2></td></tr>
+<tr class="memitem:a701273257a3af0b7de2791255c8fb24e" id="r_a701273257a3af0b7de2791255c8fb24e"><td class="memTemplParams" colspan="2">template&lt;typename Output , typename Callback &gt; </td></tr>
+<tr class="memitem:a701273257a3af0b7de2791255c8fb24e"><td class="memTemplItemLeft" align="right" valign="top"><a class="el" href="classtlv_1_1expected.html">expected</a>&lt; size_t, <a class="el" href="structtlv_1_1writer__failure.html">writer_failure</a> &gt;&#160;</td><td class="memTemplItemRight" valign="bottom"><a class="el" href="namespacetlv_1_1emv.html#a701273257a3af0b7de2791255c8fb24e">tlv::emv::encode</a> (Output &amp;&amp;output, <a class="el" href="structtlv_1_1writer__workspace.html">writer_workspace</a> workspace, Callback &amp;&amp;callback, <a class="el" href="namespacetlv.html#a1df134eb9e2b476155eb324618396e4d">writer_diagnostic</a> *<a class="el" href="namespacetlv.html#a00ca9c69c35ef11f6a22b7eda1b115ba">diagnostic</a>=nullptr)</td></tr>
+<tr class="memdesc:a701273257a3af0b7de2791255c8fb24e"><td class="mdescLeft">&#160;</td><td class="mdescRight">Build EMV output with explicit caller-owned frames and scratch.  <br /></td></tr>
+<tr class="separator:a701273257a3af0b7de2791255c8fb24e"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:aa9a8efc92628587bc8cb20626768ed86" id="r_aa9a8efc92628587bc8cb20626768ed86"><td class="memTemplParams" colspan="2">template&lt;size_t ScratchCapacity = 1024, size_t Depth = TLV_TREE_DEFAULT_DEPTH, typename Output , typename Callback &gt; </td></tr>
+<tr class="memitem:aa9a8efc92628587bc8cb20626768ed86"><td class="memTemplItemLeft" align="right" valign="top"><a class="el" href="classtlv_1_1expected.html">expected</a>&lt; size_t, <a class="el" href="structtlv_1_1writer__failure.html">writer_failure</a> &gt;&#160;</td><td class="memTemplItemRight" valign="bottom"><a class="el" href="namespacetlv_1_1emv.html#aa9a8efc92628587bc8cb20626768ed86">tlv::emv::encode</a> (Output &amp;&amp;output, Callback &amp;&amp;callback, <a class="el" href="namespacetlv.html#a1df134eb9e2b476155eb324618396e4d">writer_diagnostic</a> *<a class="el" href="namespacetlv.html#a00ca9c69c35ef11f6a22b7eda1b115ba">diagnostic</a>=nullptr)</td></tr>
+<tr class="memdesc:aa9a8efc92628587bc8cb20626768ed86"><td class="mdescLeft">&#160;</td><td class="mdescRight">Build EMV output using bounded local stack workspace.  <br /></td></tr>
+<tr class="separator:aa9a8efc92628587bc8cb20626768ed86"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:a58a53e2024923261e397a322222d2003" id="r_a58a53e2024923261e397a322222d2003"><td class="memItemLeft" align="right" valign="top"><a class="el" href="classtlv_1_1detail_1_1parsing__range.html">detail::parsing_range</a>&lt; <a class="el" href="classtlv_1_1emv_1_1format.html">format</a> &gt;&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="namespacetlv_1_1emv.html#a58a53e2024923261e397a322222d2003">tlv::emv::parse</a> (<a class="el" href="namespacetlv.html#a2abe7003a70af047ef9acae17f31f75d">bytes</a> data)</td></tr>
 <tr class="memdesc:a58a53e2024923261e397a322222d2003"><td class="mdescLeft">&#160;</td><td class="mdescRight">Parse final input as borrowed Elements using the built-in Format.  <br /></td></tr>
 <tr class="separator:a58a53e2024923261e397a322222d2003"><td class="memSeparator" colspan="2">&#160;</td></tr>

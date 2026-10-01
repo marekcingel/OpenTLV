@@ -86,6 +86,7 @@ $(function() {
 <div class="textblock"><code>#include &quot;<a class="elRef" href="../../c-api/html/type2_8h.html">tlv/builtins/nfc/type2.h</a>&quot;</code><br />
 <code>#include &quot;<a class="el" href="format_8hpp.html">tlv++/format.hpp</a>&quot;</code><br />
 <code>#include &quot;<a class="el" href="reader_8hpp.html">tlv++/reader/reader.hpp</a>&quot;</code><br />
+<code>#include &quot;<a class="el" href="builder_8hpp.html">tlv++/writer/builder.hpp</a>&quot;</code><br />
 </div><table class="memberdecls">
 <tr class="heading"><td colspan="2"><h2 class="groupheader"><a id="nested-classes" name="nested-classes"></a>
 Classes</h2></td></tr>
@@ -104,6 +105,14 @@ Namespaces</h2></td></tr>
 </table><table class="memberdecls">
 <tr class="heading"><td colspan="2"><h2 class="groupheader"><a id="func-members" name="func-members"></a>
 Functions</h2></td></tr>
+<tr class="memitem:a64432ec28c0196fe0293bb4213e639a0" id="r_a64432ec28c0196fe0293bb4213e639a0"><td class="memTemplParams" colspan="2">template&lt;typename Output , typename Callback &gt; </td></tr>
+<tr class="memitem:a64432ec28c0196fe0293bb4213e639a0"><td class="memTemplItemLeft" align="right" valign="top"><a class="el" href="classtlv_1_1expected.html">expected</a>&lt; size_t, <a class="el" href="structtlv_1_1writer__failure.html">writer_failure</a> &gt;&#160;</td><td class="memTemplItemRight" valign="bottom"><a class="el" href="namespacetlv_1_1nfc.html#a64432ec28c0196fe0293bb4213e639a0">tlv::nfc::encode</a> (Output &amp;&amp;output, <a class="el" href="structtlv_1_1writer__workspace.html">writer_workspace</a> workspace, Callback &amp;&amp;callback, <a class="el" href="namespacetlv.html#a1df134eb9e2b476155eb324618396e4d">writer_diagnostic</a> *<a class="el" href="namespacetlv.html#a00ca9c69c35ef11f6a22b7eda1b115ba">diagnostic</a>=nullptr)</td></tr>
+<tr class="memdesc:a64432ec28c0196fe0293bb4213e639a0"><td class="mdescLeft">&#160;</td><td class="mdescRight">Build NFC output with explicit caller-owned frames and scratch.  <br /></td></tr>
+<tr class="separator:a64432ec28c0196fe0293bb4213e639a0"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:ae08f46a2506262905d8fa6417f60b92b" id="r_ae08f46a2506262905d8fa6417f60b92b"><td class="memTemplParams" colspan="2">template&lt;size_t ScratchCapacity = 1024, size_t Depth = TLV_TREE_DEFAULT_DEPTH, typename Output , typename Callback &gt; </td></tr>
+<tr class="memitem:ae08f46a2506262905d8fa6417f60b92b"><td class="memTemplItemLeft" align="right" valign="top"><a class="el" href="classtlv_1_1expected.html">expected</a>&lt; size_t, <a class="el" href="structtlv_1_1writer__failure.html">writer_failure</a> &gt;&#160;</td><td class="memTemplItemRight" valign="bottom"><a class="el" href="namespacetlv_1_1nfc.html#ae08f46a2506262905d8fa6417f60b92b">tlv::nfc::encode</a> (Output &amp;&amp;output, Callback &amp;&amp;callback, <a class="el" href="namespacetlv.html#a1df134eb9e2b476155eb324618396e4d">writer_diagnostic</a> *<a class="el" href="namespacetlv.html#a00ca9c69c35ef11f6a22b7eda1b115ba">diagnostic</a>=nullptr)</td></tr>
+<tr class="memdesc:ae08f46a2506262905d8fa6417f60b92b"><td class="mdescLeft">&#160;</td><td class="mdescRight">Build NFC output using bounded local stack workspace.  <br /></td></tr>
+<tr class="separator:ae08f46a2506262905d8fa6417f60b92b"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:a76758062fea4e805a729fa0a6843d5aa" id="r_a76758062fea4e805a729fa0a6843d5aa"><td class="memItemLeft" align="right" valign="top"><a class="el" href="classtlv_1_1detail_1_1parsing__range.html">detail::parsing_range</a>&lt; <a class="el" href="classtlv_1_1nfc_1_1format.html">format</a> &gt;&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="namespacetlv_1_1nfc.html#a76758062fea4e805a729fa0a6843d5aa">tlv::nfc::parse</a> (<a class="el" href="namespacetlv.html#a2abe7003a70af047ef9acae17f31f75d">bytes</a> data)</td></tr>
 <tr class="memdesc:a76758062fea4e805a729fa0a6843d5aa"><td class="mdescLeft">&#160;</td><td class="mdescRight">Parse final input as borrowed Elements using the built-in Format.  <br /></td></tr>
 <tr class="separator:a76758062fea4e805a729fa0a6843d5aa"><td class="memSeparator" colspan="2">&#160;</td></tr>

@@ -85,11 +85,14 @@ $(function() {
 <table class="memberdecls">
 <tr class="heading"><td colspan="2"><h2 class="groupheader"><a id="namespaces" name="namespaces"></a>
 Namespaces</h2></td></tr>
+<tr class="memitem:namespacetlv_1_1asn1" id="r_namespacetlv_1_1asn1"><td class="memItemLeft" align="right" valign="top">namespace &#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="namespacetlv_1_1asn1.html">asn1</a></td></tr>
+<tr class="memdesc:namespacetlv_1_1asn1"><td class="mdescLeft">&#160;</td><td class="mdescRight">Shared ASN.1 Value semantics for BER, CER and DER. <br /></td></tr>
+<tr class="separator:"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:namespacetlv_1_1ber" id="r_namespacetlv_1_1ber"><td class="memItemLeft" align="right" valign="top">namespace &#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="namespacetlv_1_1ber.html">ber</a></td></tr>
 <tr class="memdesc:namespacetlv_1_1ber"><td class="mdescLeft">&#160;</td><td class="mdescRight">BER-specific types backed by generic OpenTLV operations. <br /></td></tr>
 <tr class="separator:"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:namespacetlv_1_1bluetooth" id="r_namespacetlv_1_1bluetooth"><td class="memItemLeft" align="right" valign="top">namespace &#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="namespacetlv_1_1bluetooth.html">bluetooth</a></td></tr>
-<tr class="memdesc:namespacetlv_1_1bluetooth"><td class="mdescLeft">&#160;</td><td class="mdescRight">Bluetooth wire framing; AD container validation remains separate. <br /></td></tr>
+<tr class="memdesc:namespacetlv_1_1bluetooth"><td class="mdescLeft">&#160;</td><td class="mdescRight">Bluetooth Advertising Data Value semantics. <br /></td></tr>
 <tr class="separator:"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:namespacetlv_1_1cer" id="r_namespacetlv_1_1cer"><td class="memItemLeft" align="right" valign="top">namespace &#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="namespacetlv_1_1cer.html">cer</a></td></tr>
 <tr class="memdesc:namespacetlv_1_1cer"><td class="mdescLeft">&#160;</td><td class="mdescRight">CER wire framing; semantic validation remains separate. <br /></td></tr>
@@ -101,13 +104,13 @@ Namespaces</h2></td></tr>
 <tr class="memdesc:namespacetlv_1_1detail"><td class="mdescLeft">&#160;</td><td class="mdescRight">Thin, safe C++ wrapper around <a class="elRef" href="../../c-api/html/group__reader.html#gabf4c5d3902d19aaea312759ab513f034">tlv_reader_t</a>. <br /></td></tr>
 <tr class="separator:"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:namespacetlv_1_1dhcp" id="r_namespacetlv_1_1dhcp"><td class="memItemLeft" align="right" valign="top">namespace &#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="namespacetlv_1_1dhcp.html">dhcp</a></td></tr>
-<tr class="memdesc:namespacetlv_1_1dhcp"><td class="mdescLeft">&#160;</td><td class="mdescRight">DHCP wire framing presets. <br /></td></tr>
+<tr class="memdesc:namespacetlv_1_1dhcp"><td class="mdescLeft">&#160;</td><td class="mdescRight">DHCPv4 option Value semantics. <br /></td></tr>
 <tr class="separator:"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:namespacetlv_1_1emv" id="r_namespacetlv_1_1emv"><td class="memItemLeft" align="right" valign="top">namespace &#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="namespacetlv_1_1emv.html">emv</a></td></tr>
-<tr class="memdesc:namespacetlv_1_1emv"><td class="mdescLeft">&#160;</td><td class="mdescRight">EMV wire framing presets. <br /></td></tr>
+<tr class="memdesc:namespacetlv_1_1emv"><td class="mdescLeft">&#160;</td><td class="mdescRight">EMV Contact Book 3 Value semantics and explicitly scoped dictionary fields. <br /></td></tr>
 <tr class="separator:"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:namespacetlv_1_1lldp" id="r_namespacetlv_1_1lldp"><td class="memItemLeft" align="right" valign="top">namespace &#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="namespacetlv_1_1lldp.html">lldp</a></td></tr>
-<tr class="memdesc:namespacetlv_1_1lldp"><td class="mdescLeft">&#160;</td><td class="mdescRight">LLDP wire framing presets. <br /></td></tr>
+<tr class="memdesc:namespacetlv_1_1lldp"><td class="mdescLeft">&#160;</td><td class="mdescRight">LLDP base information-string semantics. <br /></td></tr>
 <tr class="separator:"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:namespacetlv_1_1native" id="r_namespacetlv_1_1native"><td class="memItemLeft" align="right" valign="top">namespace &#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="namespacetlv_1_1native.html">native</a></td></tr>
 <tr class="memdesc:namespacetlv_1_1native"><td class="mdescLeft">&#160;</td><td class="mdescRight">Explicit C interoperability; ordinary C++ code uses public C++ types. <br /></td></tr>
@@ -1080,7 +1083,7 @@ template&lt;typename T &gt; </div>
 <p>Wraps <a class="elRef" href="../../c-api/html/group__formats.html#gaf2e0f147f54e46645447b4fe5fc9dc0d">tlv_ber_write_indefinite()</a>.</p>
 <dl class="params"><dt>Parameters</dt><dd>
   <table class="params">
-    <tr><td class="paramname">data</td><td>Destination buffer. <code>nullptr</code> with zero <code>capacity</code> queries the size. </td></tr>
+    <tr><td class="paramname">data</td><td>Destination buffer. Insufficient capacity, including nullptr/0, reports BUFFER_TOO_SHORT; use <a class="el" href="namespacetlv.html#a9daf93c0983963ae4ce08538cae33dbf" title="Measure logical framing without a destination buffer.">measure()</a> with <a class="el" href="classtlv_1_1ber_1_1indefinite__format.html" title="BER preset writing constructed elements with indefinite length and EOC.">ber::indefinite_format</a> to determine the required size. </td></tr>
     <tr><td class="paramname">capacity</td><td>Destination capacity in bytes. </td></tr>
     <tr><td class="paramname">tag</td><td>Constructed element tag. </td></tr>
     <tr><td class="paramname">children</td><td>Already encoded children, without the enclosing EOC. Must not overlap the destination.</td></tr>

@@ -75,12 +75,13 @@ $(function() {
 <div class="header">
   <div class="summary">
 <a href="#nested-classes">Classes</a> &#124;
+<a href="#typedef-members">Typedefs</a> &#124;
 <a href="#func-members">Functions</a>  </div>
   <div class="headertitle"><div class="title">tlv::lldp Namespace Reference</div></div>
 </div><!--header-->
 <div class="contents">
 
-<p>LLDP wire framing presets.  
+<p>LLDP base information-string semantics.  
 <a href="namespacetlv_1_1lldp.html#details">More...</a></p>
 <table class="memberdecls">
 <tr class="heading"><td colspan="2"><h2 class="groupheader"><a id="nested-classes" name="nested-classes"></a>
@@ -88,16 +89,470 @@ Classes</h2></td></tr>
 <tr class="memitem:"><td class="memItemLeft" align="right" valign="top">class &#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classtlv_1_1lldp_1_1format.html">format</a></td></tr>
 <tr class="memdesc:"><td class="mdescLeft">&#160;</td><td class="mdescRight">Built-in Format satisfying the generic C++ customization contract.  <a href="classtlv_1_1lldp_1_1format.html#details">More...</a><br /></td></tr>
 <tr class="separator:"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:"><td class="memItemLeft" align="right" valign="top">struct &#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="structtlv_1_1lldp_1_1id.html">id</a></td></tr>
+<tr class="memdesc:"><td class="mdescLeft">&#160;</td><td class="mdescRight">LLDP id; borrowed octets retain input lifetime.  <a href="structtlv_1_1lldp_1_1id.html#details">More...</a><br /></td></tr>
+<tr class="separator:"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:"><td class="memItemLeft" align="right" valign="top">struct &#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="structtlv_1_1lldp_1_1management__address.html">management_address</a></td></tr>
+<tr class="memdesc:"><td class="mdescLeft">&#160;</td><td class="mdescRight">LLDP management address; borrowed octets retain input lifetime.  <a href="structtlv_1_1lldp_1_1management__address.html#details">More...</a><br /></td></tr>
+<tr class="separator:"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:"><td class="memItemLeft" align="right" valign="top">struct &#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="structtlv_1_1lldp_1_1organisation.html">organisation</a></td></tr>
+<tr class="memdesc:"><td class="mdescLeft">&#160;</td><td class="mdescRight">LLDP organisation; borrowed octets retain input lifetime.  <a href="structtlv_1_1lldp_1_1organisation.html#details">More...</a><br /></td></tr>
+<tr class="separator:"><td class="memSeparator" colspan="2">&#160;</td></tr>
+</table><table class="memberdecls">
+<tr class="heading"><td colspan="2"><h2 class="groupheader"><a id="typedef-members" name="typedef-members"></a>
+Typedefs</h2></td></tr>
+<tr class="memitem:a568e1e8ba33a1b1d1a6489b489b64f42" id="r_a568e1e8ba33a1b1d1a6489b489b64f42"><td class="memItemLeft" align="right" valign="top">using&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="namespacetlv_1_1lldp.html#a568e1e8ba33a1b1d1a6489b489b64f42">capabilities</a> = <a class="elRef" href="../../c-api/html/builtins_2lldp_2codec_8h.html#ada1e8adb2814c168a06e05eeac13fd16">tlv_lldp_capabilities_t</a></td></tr>
+<tr class="memdesc:a568e1e8ba33a1b1d1a6489b489b64f42"><td class="mdescLeft">&#160;</td><td class="mdescRight">Self-contained capability bitmaps; see <a class="elRef" href="../../c-api/html/builtins_2lldp_2codec_8h.html#ada1e8adb2814c168a06e05eeac13fd16">tlv_lldp_capabilities_t</a>.  <br /></td></tr>
+<tr class="separator:a568e1e8ba33a1b1d1a6489b489b64f42"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a7b68c7b555ff8d7b19cd9eb5b45f32de" id="r_a7b68c7b555ff8d7b19cd9eb5b45f32de"><td class="memItemLeft" align="right" valign="top">using&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="namespacetlv_1_1lldp.html#a7b68c7b555ff8d7b19cd9eb5b45f32de">chassis_id_codec</a> = detail::builtin_codec&lt; <a class="el" href="structtlv_1_1lldp_1_1id.html">id</a>, <a class="elRef" href="../../c-api/html/builtins_2lldp_2codec_8h.html#ad3b4bb2fd5578dc4f9abfaf80ae6ecf1">tlv_lldp_id_t</a>, &amp;<a class="elRef" href="../../c-api/html/builtins_2lldp_2codec_8h.html#ad8c66343fea175ab6c06e89cb01c2ba4">tlv_lldp_codec_chassis_id</a>, detail::lldp_id_conversion &gt;</td></tr>
+<tr class="memdesc:a7b68c7b555ff8d7b19cd9eb5b45f32de"><td class="mdescLeft">&#160;</td><td class="mdescRight">Value codec; see <a class="elRef" href="../../c-api/html/builtins_2lldp_2codec_8h.html#ad8c66343fea175ab6c06e89cb01c2ba4">tlv_lldp_codec_chassis_id</a>.  <br /></td></tr>
+<tr class="separator:a7b68c7b555ff8d7b19cd9eb5b45f32de"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a4cd0787079fd36aa05cdb8db1ec2dad4" id="r_a4cd0787079fd36aa05cdb8db1ec2dad4"><td class="memItemLeft" align="right" valign="top">using&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="namespacetlv_1_1lldp.html#a4cd0787079fd36aa05cdb8db1ec2dad4">port_id_codec</a> = detail::builtin_codec&lt; <a class="el" href="structtlv_1_1lldp_1_1id.html">id</a>, <a class="elRef" href="../../c-api/html/builtins_2lldp_2codec_8h.html#ad3b4bb2fd5578dc4f9abfaf80ae6ecf1">tlv_lldp_id_t</a>, &amp;<a class="elRef" href="../../c-api/html/builtins_2lldp_2codec_8h.html#a0b96a5dada7b8b62717f2379eb45912b">tlv_lldp_codec_port_id</a>, detail::lldp_id_conversion &gt;</td></tr>
+<tr class="memdesc:a4cd0787079fd36aa05cdb8db1ec2dad4"><td class="mdescLeft">&#160;</td><td class="mdescRight">Value codec; see <a class="elRef" href="../../c-api/html/builtins_2lldp_2codec_8h.html#a0b96a5dada7b8b62717f2379eb45912b">tlv_lldp_codec_port_id</a>.  <br /></td></tr>
+<tr class="separator:a4cd0787079fd36aa05cdb8db1ec2dad4"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:ae917ff8ef59e84aaec6b1923670d1320" id="r_ae917ff8ef59e84aaec6b1923670d1320"><td class="memItemLeft" align="right" valign="top">using&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="namespacetlv_1_1lldp.html#ae917ff8ef59e84aaec6b1923670d1320">management_address_codec</a> = detail::builtin_codec&lt; <a class="el" href="structtlv_1_1lldp_1_1management__address.html">management_address</a>, <a class="elRef" href="../../c-api/html/builtins_2lldp_2codec_8h.html#ad9f8bd9241a65378353e903c61ad62d8">tlv_lldp_management_address_t</a>, &amp;<a class="elRef" href="../../c-api/html/builtins_2lldp_2codec_8h.html#a7e44394b345d630122b4bf2e9e1e36a8">tlv_lldp_codec_management_address</a>, detail::lldp_management_address_conversion &gt;</td></tr>
+<tr class="memdesc:ae917ff8ef59e84aaec6b1923670d1320"><td class="mdescLeft">&#160;</td><td class="mdescRight">Value codec; see <a class="elRef" href="../../c-api/html/builtins_2lldp_2codec_8h.html#a7e44394b345d630122b4bf2e9e1e36a8">tlv_lldp_codec_management_address</a>.  <br /></td></tr>
+<tr class="separator:ae917ff8ef59e84aaec6b1923670d1320"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a987e7ed051e54e35333907c05a26b64c" id="r_a987e7ed051e54e35333907c05a26b64c"><td class="memItemLeft" align="right" valign="top">using&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="namespacetlv_1_1lldp.html#a987e7ed051e54e35333907c05a26b64c">organisation_codec</a> = detail::builtin_codec&lt; <a class="el" href="structtlv_1_1lldp_1_1organisation.html">organisation</a>, <a class="elRef" href="../../c-api/html/builtins_2lldp_2codec_8h.html#adfdfa2a7b1ec23dedf370f56b574e3f9">tlv_lldp_organisation_t</a>, &amp;<a class="elRef" href="../../c-api/html/builtins_2lldp_2codec_8h.html#ac968009986278f267e569bb259739eb6">tlv_lldp_codec_organisation</a>, detail::lldp_organisation_conversion &gt;</td></tr>
+<tr class="memdesc:a987e7ed051e54e35333907c05a26b64c"><td class="mdescLeft">&#160;</td><td class="mdescRight">Value codec; see <a class="elRef" href="../../c-api/html/builtins_2lldp_2codec_8h.html#ac968009986278f267e569bb259739eb6">tlv_lldp_codec_organisation</a>.  <br /></td></tr>
+<tr class="separator:a987e7ed051e54e35333907c05a26b64c"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a551766b6255aedcf0239ec8d8a43b5b3" id="r_a551766b6255aedcf0239ec8d8a43b5b3"><td class="memItemLeft" align="right" valign="top">using&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="namespacetlv_1_1lldp.html#a551766b6255aedcf0239ec8d8a43b5b3">capabilities_codec</a> = <a class="el" href="structtlv_1_1codec__adapter.html">tlv::codec_adapter</a>&lt; <a class="el" href="namespacetlv_1_1lldp.html#a568e1e8ba33a1b1d1a6489b489b64f42">capabilities</a>, &amp;<a class="elRef" href="../../c-api/html/builtins_2lldp_2codec_8h.html#a5cea4b045e19620a986b415fca93a428">tlv_lldp_codec_capabilities</a> &gt;</td></tr>
+<tr class="memdesc:a551766b6255aedcf0239ec8d8a43b5b3"><td class="mdescLeft">&#160;</td><td class="mdescRight">Capability codec; see <a class="elRef" href="../../c-api/html/builtins_2lldp_2codec_8h.html#a5cea4b045e19620a986b415fca93a428">tlv_lldp_codec_capabilities</a>.  <br /></td></tr>
+<tr class="separator:a551766b6255aedcf0239ec8d8a43b5b3"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a447d5daeec88e6813e369e54b056e8cc" id="r_a447d5daeec88e6813e369e54b056e8cc"><td class="memItemLeft" align="right" valign="top">using&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="namespacetlv_1_1lldp.html#a447d5daeec88e6813e369e54b056e8cc">ttl_codec</a> = <a class="el" href="namespacetlv.html#ac17cfc6624fbea79afde730d8c020d60">tlv::uint16_be_codec</a></td></tr>
+<tr class="memdesc:a447d5daeec88e6813e369e54b056e8cc"><td class="mdescLeft">&#160;</td><td class="mdescRight">TTL codec, including zero; exchange and sequence policy remain separate.  <br /></td></tr>
+<tr class="separator:a447d5daeec88e6813e369e54b056e8cc"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:aa23a93e0e6ac4a92fb90b6f38e736c3a" id="r_aa23a93e0e6ac4a92fb90b6f38e736c3a"><td class="memItemLeft" align="right" valign="top">using&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="namespacetlv_1_1lldp.html#aa23a93e0e6ac4a92fb90b6f38e736c3a">text_codec</a> = <a class="el" href="structtlv_1_1codec.html">tlv::codec</a>&lt; <a class="el" href="classtlv_1_1value__view.html">value_view</a> &gt;</td></tr>
+<tr class="memdesc:aa23a93e0e6ac4a92fb90b6f38e736c3a"><td class="mdescLeft">&#160;</td><td class="mdescRight">Borrowed opaque text octets; no character conversion or terminator.  <br /></td></tr>
+<tr class="separator:aa23a93e0e6ac4a92fb90b6f38e736c3a"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:aacb052cac30edca5eb32b1f67a4666a3" id="r_aacb052cac30edca5eb32b1f67a4666a3"><td class="memItemLeft" align="right" valign="top">using&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="namespacetlv_1_1lldp.html#aacb052cac30edca5eb32b1f67a4666a3">chassis_id_field</a> = <a class="el" href="structtlv_1_1field.html">tlv::field</a>&lt; <a class="el" href="structtlv_1_1tag__constant.html">tlv::tag_constant</a>&lt; 0x01 &gt;, chassis_id_codec::value_type, <a class="el" href="namespacetlv_1_1lldp.html#a7b68c7b555ff8d7b19cd9eb5b45f32de">chassis_id_codec</a> &gt;</td></tr>
+<tr class="memdesc:aacb052cac30edca5eb32b1f67a4666a3"><td class="mdescLeft">&#160;</td><td class="mdescRight">LLDP field using the canonical identifier octet, independent of packed wire header.  <br /></td></tr>
+<tr class="separator:aacb052cac30edca5eb32b1f67a4666a3"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a97c6112923fe27703bf42df872cdde15" id="r_a97c6112923fe27703bf42df872cdde15"><td class="memItemLeft" align="right" valign="top">using&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="namespacetlv_1_1lldp.html#a97c6112923fe27703bf42df872cdde15">port_id_field</a> = <a class="el" href="structtlv_1_1field.html">tlv::field</a>&lt; <a class="el" href="structtlv_1_1tag__constant.html">tlv::tag_constant</a>&lt; 0x02 &gt;, port_id_codec::value_type, <a class="el" href="namespacetlv_1_1lldp.html#a4cd0787079fd36aa05cdb8db1ec2dad4">port_id_codec</a> &gt;</td></tr>
+<tr class="memdesc:a97c6112923fe27703bf42df872cdde15"><td class="mdescLeft">&#160;</td><td class="mdescRight">LLDP field using the canonical identifier octet, independent of packed wire header.  <br /></td></tr>
+<tr class="separator:a97c6112923fe27703bf42df872cdde15"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a33b15554a022ff792daedf8869880a15" id="r_a33b15554a022ff792daedf8869880a15"><td class="memItemLeft" align="right" valign="top">using&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="namespacetlv_1_1lldp.html#a33b15554a022ff792daedf8869880a15">ttl_field</a> = <a class="el" href="structtlv_1_1field.html">tlv::field</a>&lt; <a class="el" href="structtlv_1_1tag__constant.html">tlv::tag_constant</a>&lt; 0x03 &gt;, <a class="el" href="structtlv_1_1codec__adapter.html#a851cecb1f3a004c60020d15b9728abd2">ttl_codec::value_type</a>, <a class="el" href="namespacetlv_1_1lldp.html#a447d5daeec88e6813e369e54b056e8cc">ttl_codec</a> &gt;</td></tr>
+<tr class="memdesc:a33b15554a022ff792daedf8869880a15"><td class="mdescLeft">&#160;</td><td class="mdescRight">LLDP field using the canonical identifier octet, independent of packed wire header.  <br /></td></tr>
+<tr class="separator:a33b15554a022ff792daedf8869880a15"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a2f3b2491be2ad4dc96a4ee8e60618039" id="r_a2f3b2491be2ad4dc96a4ee8e60618039"><td class="memItemLeft" align="right" valign="top">using&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="namespacetlv_1_1lldp.html#a2f3b2491be2ad4dc96a4ee8e60618039">port_description_field</a> = <a class="el" href="structtlv_1_1field.html">tlv::field</a>&lt; <a class="el" href="structtlv_1_1tag__constant.html">tlv::tag_constant</a>&lt; 0x04 &gt;, <a class="el" href="structtlv_1_1codec_3_01value__view_01_4.html#ac31a1b18208adad6c0046cb0542675ac">text_codec::value_type</a>, <a class="el" href="namespacetlv_1_1lldp.html#aa23a93e0e6ac4a92fb90b6f38e736c3a">text_codec</a> &gt;</td></tr>
+<tr class="memdesc:a2f3b2491be2ad4dc96a4ee8e60618039"><td class="mdescLeft">&#160;</td><td class="mdescRight">LLDP field using the canonical identifier octet, independent of packed wire header.  <br /></td></tr>
+<tr class="separator:a2f3b2491be2ad4dc96a4ee8e60618039"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:ae50957ab3b695e7b3e154c939c968087" id="r_ae50957ab3b695e7b3e154c939c968087"><td class="memItemLeft" align="right" valign="top">using&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="namespacetlv_1_1lldp.html#ae50957ab3b695e7b3e154c939c968087">system_name_field</a> = <a class="el" href="structtlv_1_1field.html">tlv::field</a>&lt; <a class="el" href="structtlv_1_1tag__constant.html">tlv::tag_constant</a>&lt; 0x05 &gt;, <a class="el" href="structtlv_1_1codec_3_01value__view_01_4.html#ac31a1b18208adad6c0046cb0542675ac">text_codec::value_type</a>, <a class="el" href="namespacetlv_1_1lldp.html#aa23a93e0e6ac4a92fb90b6f38e736c3a">text_codec</a> &gt;</td></tr>
+<tr class="memdesc:ae50957ab3b695e7b3e154c939c968087"><td class="mdescLeft">&#160;</td><td class="mdescRight">LLDP field using the canonical identifier octet, independent of packed wire header.  <br /></td></tr>
+<tr class="separator:ae50957ab3b695e7b3e154c939c968087"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a503f9e9e26425cca905f38674717f4d9" id="r_a503f9e9e26425cca905f38674717f4d9"><td class="memItemLeft" align="right" valign="top">using&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="namespacetlv_1_1lldp.html#a503f9e9e26425cca905f38674717f4d9">system_description_field</a> = <a class="el" href="structtlv_1_1field.html">tlv::field</a>&lt; <a class="el" href="structtlv_1_1tag__constant.html">tlv::tag_constant</a>&lt; 0x06 &gt;, <a class="el" href="structtlv_1_1codec_3_01value__view_01_4.html#ac31a1b18208adad6c0046cb0542675ac">text_codec::value_type</a>, <a class="el" href="namespacetlv_1_1lldp.html#aa23a93e0e6ac4a92fb90b6f38e736c3a">text_codec</a> &gt;</td></tr>
+<tr class="memdesc:a503f9e9e26425cca905f38674717f4d9"><td class="mdescLeft">&#160;</td><td class="mdescRight">LLDP field using the canonical identifier octet, independent of packed wire header.  <br /></td></tr>
+<tr class="separator:a503f9e9e26425cca905f38674717f4d9"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a5f9b99debd3c4ea73757ca73359c249c" id="r_a5f9b99debd3c4ea73757ca73359c249c"><td class="memItemLeft" align="right" valign="top">using&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="namespacetlv_1_1lldp.html#a5f9b99debd3c4ea73757ca73359c249c">capabilities_field</a> = <a class="el" href="structtlv_1_1field.html">tlv::field</a>&lt; <a class="el" href="structtlv_1_1tag__constant.html">tlv::tag_constant</a>&lt; 0x07 &gt;, <a class="el" href="structtlv_1_1codec__adapter.html#a851cecb1f3a004c60020d15b9728abd2">capabilities_codec::value_type</a>, <a class="el" href="namespacetlv_1_1lldp.html#a551766b6255aedcf0239ec8d8a43b5b3">capabilities_codec</a> &gt;</td></tr>
+<tr class="memdesc:a5f9b99debd3c4ea73757ca73359c249c"><td class="mdescLeft">&#160;</td><td class="mdescRight">LLDP field using the canonical identifier octet, independent of packed wire header.  <br /></td></tr>
+<tr class="separator:a5f9b99debd3c4ea73757ca73359c249c"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:aed98d9a67f71e57f9ded2dba82827975" id="r_aed98d9a67f71e57f9ded2dba82827975"><td class="memItemLeft" align="right" valign="top">using&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="namespacetlv_1_1lldp.html#aed98d9a67f71e57f9ded2dba82827975">management_address_field</a> = <a class="el" href="structtlv_1_1field.html">tlv::field</a>&lt; <a class="el" href="structtlv_1_1tag__constant.html">tlv::tag_constant</a>&lt; 0x08 &gt;, management_address_codec::value_type, <a class="el" href="namespacetlv_1_1lldp.html#ae917ff8ef59e84aaec6b1923670d1320">management_address_codec</a> &gt;</td></tr>
+<tr class="memdesc:aed98d9a67f71e57f9ded2dba82827975"><td class="mdescLeft">&#160;</td><td class="mdescRight">LLDP field using the canonical identifier octet, independent of packed wire header.  <br /></td></tr>
+<tr class="separator:aed98d9a67f71e57f9ded2dba82827975"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a3091bdff3d830bc6a595ec137fd28d61" id="r_a3091bdff3d830bc6a595ec137fd28d61"><td class="memItemLeft" align="right" valign="top">using&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="namespacetlv_1_1lldp.html#a3091bdff3d830bc6a595ec137fd28d61">organisation_field</a> = <a class="el" href="structtlv_1_1field.html">tlv::field</a>&lt; <a class="el" href="structtlv_1_1tag__constant.html">tlv::tag_constant</a>&lt; 0x7F &gt;, organisation_codec::value_type, <a class="el" href="namespacetlv_1_1lldp.html#a987e7ed051e54e35333907c05a26b64c">organisation_codec</a> &gt;</td></tr>
+<tr class="memdesc:a3091bdff3d830bc6a595ec137fd28d61"><td class="mdescLeft">&#160;</td><td class="mdescRight">LLDP field using the canonical identifier octet, independent of packed wire header.  <br /></td></tr>
+<tr class="separator:a3091bdff3d830bc6a595ec137fd28d61"><td class="memSeparator" colspan="2">&#160;</td></tr>
 </table><table class="memberdecls">
 <tr class="heading"><td colspan="2"><h2 class="groupheader"><a id="func-members" name="func-members"></a>
 Functions</h2></td></tr>
+<tr class="memitem:ac069f1a05526c1cb2114db93d519c1f6" id="r_ac069f1a05526c1cb2114db93d519c1f6"><td class="memTemplParams" colspan="2">template&lt;typename Output , typename Callback &gt; </td></tr>
+<tr class="memitem:ac069f1a05526c1cb2114db93d519c1f6"><td class="memTemplItemLeft" align="right" valign="top"><a class="el" href="classtlv_1_1expected.html">expected</a>&lt; size_t, <a class="el" href="structtlv_1_1writer__failure.html">writer_failure</a> &gt;&#160;</td><td class="memTemplItemRight" valign="bottom"><a class="el" href="namespacetlv_1_1lldp.html#ac069f1a05526c1cb2114db93d519c1f6">encode</a> (Output &amp;&amp;output, <a class="el" href="structtlv_1_1writer__workspace.html">writer_workspace</a> workspace, Callback &amp;&amp;callback, <a class="el" href="namespacetlv.html#a1df134eb9e2b476155eb324618396e4d">writer_diagnostic</a> *<a class="el" href="namespacetlv.html#a00ca9c69c35ef11f6a22b7eda1b115ba">diagnostic</a>=nullptr)</td></tr>
+<tr class="memdesc:ac069f1a05526c1cb2114db93d519c1f6"><td class="mdescLeft">&#160;</td><td class="mdescRight">Build LLDP output with explicit caller-owned frames and scratch.  <br /></td></tr>
+<tr class="separator:ac069f1a05526c1cb2114db93d519c1f6"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:afc0ad3d6c1608b7732613dddde20f59f" id="r_afc0ad3d6c1608b7732613dddde20f59f"><td class="memTemplParams" colspan="2">template&lt;size_t ScratchCapacity = 1024, size_t Depth = TLV_TREE_DEFAULT_DEPTH, typename Output , typename Callback &gt; </td></tr>
+<tr class="memitem:afc0ad3d6c1608b7732613dddde20f59f"><td class="memTemplItemLeft" align="right" valign="top"><a class="el" href="classtlv_1_1expected.html">expected</a>&lt; size_t, <a class="el" href="structtlv_1_1writer__failure.html">writer_failure</a> &gt;&#160;</td><td class="memTemplItemRight" valign="bottom"><a class="el" href="namespacetlv_1_1lldp.html#afc0ad3d6c1608b7732613dddde20f59f">encode</a> (Output &amp;&amp;output, Callback &amp;&amp;callback, <a class="el" href="namespacetlv.html#a1df134eb9e2b476155eb324618396e4d">writer_diagnostic</a> *<a class="el" href="namespacetlv.html#a00ca9c69c35ef11f6a22b7eda1b115ba">diagnostic</a>=nullptr)</td></tr>
+<tr class="memdesc:afc0ad3d6c1608b7732613dddde20f59f"><td class="mdescLeft">&#160;</td><td class="mdescRight">Build LLDP output using bounded local stack workspace.  <br /></td></tr>
+<tr class="separator:afc0ad3d6c1608b7732613dddde20f59f"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:a97158793d084328dcc1a8e940280b020" id="r_a97158793d084328dcc1a8e940280b020"><td class="memItemLeft" align="right" valign="top"><a class="el" href="classtlv_1_1detail_1_1parsing__range.html">detail::parsing_range</a>&lt; <a class="el" href="classtlv_1_1lldp_1_1format.html">format</a> &gt;&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="namespacetlv_1_1lldp.html#a97158793d084328dcc1a8e940280b020">parse</a> (<a class="el" href="namespacetlv.html#a2abe7003a70af047ef9acae17f31f75d">bytes</a> data)</td></tr>
 <tr class="memdesc:a97158793d084328dcc1a8e940280b020"><td class="mdescLeft">&#160;</td><td class="mdescRight">Parse final input as borrowed Elements using the built-in Format.  <br /></td></tr>
 <tr class="separator:a97158793d084328dcc1a8e940280b020"><td class="memSeparator" colspan="2">&#160;</td></tr>
 </table>
 <a name="details" id="details"></a><h2 class="groupheader">Detailed Description</h2>
-<div class="textblock"><p>LLDP wire framing presets. </p>
-</div><h2 class="groupheader">Function Documentation</h2>
+<div class="textblock"><p>LLDP base information-string semantics. </p>
+<p>LLDP wire framing presets. </p>
+</div><h2 class="groupheader">Typedef Documentation</h2>
+<a id="a568e1e8ba33a1b1d1a6489b489b64f42" name="a568e1e8ba33a1b1d1a6489b489b64f42"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#a568e1e8ba33a1b1d1a6489b489b64f42">&#9670;&#160;</a></span>capabilities</h2>
+
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname">using <a class="el" href="namespacetlv_1_1lldp.html#a568e1e8ba33a1b1d1a6489b489b64f42">tlv::lldp::capabilities</a> = typedef <a class="elRef" href="../../c-api/html/builtins_2lldp_2codec_8h.html#ada1e8adb2814c168a06e05eeac13fd16">tlv_lldp_capabilities_t</a></td>
+        </tr>
+      </table>
+</div><div class="memdoc">
+
+<p>Self-contained capability bitmaps; see <a class="elRef" href="../../c-api/html/builtins_2lldp_2codec_8h.html#ada1e8adb2814c168a06e05eeac13fd16">tlv_lldp_capabilities_t</a>. </p>
+
+</div>
+</div>
+<a id="a551766b6255aedcf0239ec8d8a43b5b3" name="a551766b6255aedcf0239ec8d8a43b5b3"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#a551766b6255aedcf0239ec8d8a43b5b3">&#9670;&#160;</a></span>capabilities_codec</h2>
+
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname">using <a class="el" href="namespacetlv_1_1lldp.html#a551766b6255aedcf0239ec8d8a43b5b3">tlv::lldp::capabilities_codec</a> = typedef <a class="el" href="structtlv_1_1codec__adapter.html">tlv::codec_adapter</a>&lt;<a class="el" href="namespacetlv_1_1lldp.html#a568e1e8ba33a1b1d1a6489b489b64f42">capabilities</a>, &amp;<a class="elRef" href="../../c-api/html/builtins_2lldp_2codec_8h.html#a5cea4b045e19620a986b415fca93a428">tlv_lldp_codec_capabilities</a>&gt;</td>
+        </tr>
+      </table>
+</div><div class="memdoc">
+
+<p>Capability codec; see <a class="elRef" href="../../c-api/html/builtins_2lldp_2codec_8h.html#a5cea4b045e19620a986b415fca93a428">tlv_lldp_codec_capabilities</a>. </p>
+
+</div>
+</div>
+<a id="a5f9b99debd3c4ea73757ca73359c249c" name="a5f9b99debd3c4ea73757ca73359c249c"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#a5f9b99debd3c4ea73757ca73359c249c">&#9670;&#160;</a></span>capabilities_field</h2>
+
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname">using <a class="el" href="namespacetlv_1_1lldp.html#a5f9b99debd3c4ea73757ca73359c249c">tlv::lldp::capabilities_field</a> = typedef <a class="el" href="structtlv_1_1field.html">tlv::field</a>&lt;<a class="el" href="structtlv_1_1tag__constant.html">tlv::tag_constant</a>&lt;0x07&gt;, <a class="el" href="structtlv_1_1codec__adapter.html#a851cecb1f3a004c60020d15b9728abd2">capabilities_codec::value_type</a>, <a class="el" href="namespacetlv_1_1lldp.html#a551766b6255aedcf0239ec8d8a43b5b3">capabilities_codec</a>&gt;</td>
+        </tr>
+      </table>
+</div><div class="memdoc">
+
+<p>LLDP field using the canonical identifier octet, independent of packed wire header. </p>
+
+</div>
+</div>
+<a id="a7b68c7b555ff8d7b19cd9eb5b45f32de" name="a7b68c7b555ff8d7b19cd9eb5b45f32de"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#a7b68c7b555ff8d7b19cd9eb5b45f32de">&#9670;&#160;</a></span>chassis_id_codec</h2>
+
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname">using <a class="el" href="namespacetlv_1_1lldp.html#a7b68c7b555ff8d7b19cd9eb5b45f32de">tlv::lldp::chassis_id_codec</a> = typedef detail::builtin_codec&lt;<a class="el" href="structtlv_1_1lldp_1_1id.html">id</a>, <a class="elRef" href="../../c-api/html/builtins_2lldp_2codec_8h.html#ad3b4bb2fd5578dc4f9abfaf80ae6ecf1">tlv_lldp_id_t</a>, &amp;<a class="elRef" href="../../c-api/html/builtins_2lldp_2codec_8h.html#ad8c66343fea175ab6c06e89cb01c2ba4">tlv_lldp_codec_chassis_id</a>, detail::lldp_id_conversion&gt;</td>
+        </tr>
+      </table>
+</div><div class="memdoc">
+
+<p>Value codec; see <a class="elRef" href="../../c-api/html/builtins_2lldp_2codec_8h.html#ad8c66343fea175ab6c06e89cb01c2ba4">tlv_lldp_codec_chassis_id</a>. </p>
+
+</div>
+</div>
+<a id="aacb052cac30edca5eb32b1f67a4666a3" name="aacb052cac30edca5eb32b1f67a4666a3"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#aacb052cac30edca5eb32b1f67a4666a3">&#9670;&#160;</a></span>chassis_id_field</h2>
+
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname">using <a class="el" href="namespacetlv_1_1lldp.html#aacb052cac30edca5eb32b1f67a4666a3">tlv::lldp::chassis_id_field</a> = typedef <a class="el" href="structtlv_1_1field.html">tlv::field</a>&lt;<a class="el" href="structtlv_1_1tag__constant.html">tlv::tag_constant</a>&lt;0x01&gt;, chassis_id_codec::value_type, <a class="el" href="namespacetlv_1_1lldp.html#a7b68c7b555ff8d7b19cd9eb5b45f32de">chassis_id_codec</a>&gt;</td>
+        </tr>
+      </table>
+</div><div class="memdoc">
+
+<p>LLDP field using the canonical identifier octet, independent of packed wire header. </p>
+
+</div>
+</div>
+<a id="ae917ff8ef59e84aaec6b1923670d1320" name="ae917ff8ef59e84aaec6b1923670d1320"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#ae917ff8ef59e84aaec6b1923670d1320">&#9670;&#160;</a></span>management_address_codec</h2>
+
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname">using <a class="el" href="namespacetlv_1_1lldp.html#ae917ff8ef59e84aaec6b1923670d1320">tlv::lldp::management_address_codec</a> = typedef detail::builtin_codec&lt;<a class="el" href="structtlv_1_1lldp_1_1management__address.html">management_address</a>, <a class="elRef" href="../../c-api/html/builtins_2lldp_2codec_8h.html#ad9f8bd9241a65378353e903c61ad62d8">tlv_lldp_management_address_t</a>, &amp;<a class="elRef" href="../../c-api/html/builtins_2lldp_2codec_8h.html#a7e44394b345d630122b4bf2e9e1e36a8">tlv_lldp_codec_management_address</a>, detail::lldp_management_address_conversion&gt;</td>
+        </tr>
+      </table>
+</div><div class="memdoc">
+
+<p>Value codec; see <a class="elRef" href="../../c-api/html/builtins_2lldp_2codec_8h.html#a7e44394b345d630122b4bf2e9e1e36a8">tlv_lldp_codec_management_address</a>. </p>
+
+</div>
+</div>
+<a id="aed98d9a67f71e57f9ded2dba82827975" name="aed98d9a67f71e57f9ded2dba82827975"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#aed98d9a67f71e57f9ded2dba82827975">&#9670;&#160;</a></span>management_address_field</h2>
+
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname">using <a class="el" href="namespacetlv_1_1lldp.html#aed98d9a67f71e57f9ded2dba82827975">tlv::lldp::management_address_field</a> = typedef <a class="el" href="structtlv_1_1field.html">tlv::field</a>&lt;<a class="el" href="structtlv_1_1tag__constant.html">tlv::tag_constant</a>&lt;0x08&gt;, management_address_codec::value_type, <a class="el" href="namespacetlv_1_1lldp.html#ae917ff8ef59e84aaec6b1923670d1320">management_address_codec</a>&gt;</td>
+        </tr>
+      </table>
+</div><div class="memdoc">
+
+<p>LLDP field using the canonical identifier octet, independent of packed wire header. </p>
+
+</div>
+</div>
+<a id="a987e7ed051e54e35333907c05a26b64c" name="a987e7ed051e54e35333907c05a26b64c"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#a987e7ed051e54e35333907c05a26b64c">&#9670;&#160;</a></span>organisation_codec</h2>
+
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname">using <a class="el" href="namespacetlv_1_1lldp.html#a987e7ed051e54e35333907c05a26b64c">tlv::lldp::organisation_codec</a> = typedef detail::builtin_codec&lt;<a class="el" href="structtlv_1_1lldp_1_1organisation.html">organisation</a>, <a class="elRef" href="../../c-api/html/builtins_2lldp_2codec_8h.html#adfdfa2a7b1ec23dedf370f56b574e3f9">tlv_lldp_organisation_t</a>, &amp;<a class="elRef" href="../../c-api/html/builtins_2lldp_2codec_8h.html#ac968009986278f267e569bb259739eb6">tlv_lldp_codec_organisation</a>, detail::lldp_organisation_conversion&gt;</td>
+        </tr>
+      </table>
+</div><div class="memdoc">
+
+<p>Value codec; see <a class="elRef" href="../../c-api/html/builtins_2lldp_2codec_8h.html#ac968009986278f267e569bb259739eb6">tlv_lldp_codec_organisation</a>. </p>
+
+</div>
+</div>
+<a id="a3091bdff3d830bc6a595ec137fd28d61" name="a3091bdff3d830bc6a595ec137fd28d61"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#a3091bdff3d830bc6a595ec137fd28d61">&#9670;&#160;</a></span>organisation_field</h2>
+
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname">using <a class="el" href="namespacetlv_1_1lldp.html#a3091bdff3d830bc6a595ec137fd28d61">tlv::lldp::organisation_field</a> = typedef <a class="el" href="structtlv_1_1field.html">tlv::field</a>&lt;<a class="el" href="structtlv_1_1tag__constant.html">tlv::tag_constant</a>&lt;0x7F&gt;, organisation_codec::value_type, <a class="el" href="namespacetlv_1_1lldp.html#a987e7ed051e54e35333907c05a26b64c">organisation_codec</a>&gt;</td>
+        </tr>
+      </table>
+</div><div class="memdoc">
+
+<p>LLDP field using the canonical identifier octet, independent of packed wire header. </p>
+
+</div>
+</div>
+<a id="a2f3b2491be2ad4dc96a4ee8e60618039" name="a2f3b2491be2ad4dc96a4ee8e60618039"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#a2f3b2491be2ad4dc96a4ee8e60618039">&#9670;&#160;</a></span>port_description_field</h2>
+
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname">using <a class="el" href="namespacetlv_1_1lldp.html#a2f3b2491be2ad4dc96a4ee8e60618039">tlv::lldp::port_description_field</a> = typedef <a class="el" href="structtlv_1_1field.html">tlv::field</a>&lt;<a class="el" href="structtlv_1_1tag__constant.html">tlv::tag_constant</a>&lt;0x04&gt;, <a class="el" href="structtlv_1_1codec_3_01value__view_01_4.html#ac31a1b18208adad6c0046cb0542675ac">text_codec::value_type</a>, <a class="el" href="namespacetlv_1_1lldp.html#aa23a93e0e6ac4a92fb90b6f38e736c3a">text_codec</a>&gt;</td>
+        </tr>
+      </table>
+</div><div class="memdoc">
+
+<p>LLDP field using the canonical identifier octet, independent of packed wire header. </p>
+
+</div>
+</div>
+<a id="a4cd0787079fd36aa05cdb8db1ec2dad4" name="a4cd0787079fd36aa05cdb8db1ec2dad4"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#a4cd0787079fd36aa05cdb8db1ec2dad4">&#9670;&#160;</a></span>port_id_codec</h2>
+
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname">using <a class="el" href="namespacetlv_1_1lldp.html#a4cd0787079fd36aa05cdb8db1ec2dad4">tlv::lldp::port_id_codec</a> = typedef detail::builtin_codec&lt;<a class="el" href="structtlv_1_1lldp_1_1id.html">id</a>, <a class="elRef" href="../../c-api/html/builtins_2lldp_2codec_8h.html#ad3b4bb2fd5578dc4f9abfaf80ae6ecf1">tlv_lldp_id_t</a>, &amp;<a class="elRef" href="../../c-api/html/builtins_2lldp_2codec_8h.html#a0b96a5dada7b8b62717f2379eb45912b">tlv_lldp_codec_port_id</a>, detail::lldp_id_conversion&gt;</td>
+        </tr>
+      </table>
+</div><div class="memdoc">
+
+<p>Value codec; see <a class="elRef" href="../../c-api/html/builtins_2lldp_2codec_8h.html#a0b96a5dada7b8b62717f2379eb45912b">tlv_lldp_codec_port_id</a>. </p>
+
+</div>
+</div>
+<a id="a97c6112923fe27703bf42df872cdde15" name="a97c6112923fe27703bf42df872cdde15"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#a97c6112923fe27703bf42df872cdde15">&#9670;&#160;</a></span>port_id_field</h2>
+
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname">using <a class="el" href="namespacetlv_1_1lldp.html#a97c6112923fe27703bf42df872cdde15">tlv::lldp::port_id_field</a> = typedef <a class="el" href="structtlv_1_1field.html">tlv::field</a>&lt;<a class="el" href="structtlv_1_1tag__constant.html">tlv::tag_constant</a>&lt;0x02&gt;, port_id_codec::value_type, <a class="el" href="namespacetlv_1_1lldp.html#a4cd0787079fd36aa05cdb8db1ec2dad4">port_id_codec</a>&gt;</td>
+        </tr>
+      </table>
+</div><div class="memdoc">
+
+<p>LLDP field using the canonical identifier octet, independent of packed wire header. </p>
+
+</div>
+</div>
+<a id="a503f9e9e26425cca905f38674717f4d9" name="a503f9e9e26425cca905f38674717f4d9"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#a503f9e9e26425cca905f38674717f4d9">&#9670;&#160;</a></span>system_description_field</h2>
+
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname">using <a class="el" href="namespacetlv_1_1lldp.html#a503f9e9e26425cca905f38674717f4d9">tlv::lldp::system_description_field</a> = typedef <a class="el" href="structtlv_1_1field.html">tlv::field</a>&lt;<a class="el" href="structtlv_1_1tag__constant.html">tlv::tag_constant</a>&lt;0x06&gt;, <a class="el" href="structtlv_1_1codec_3_01value__view_01_4.html#ac31a1b18208adad6c0046cb0542675ac">text_codec::value_type</a>, <a class="el" href="namespacetlv_1_1lldp.html#aa23a93e0e6ac4a92fb90b6f38e736c3a">text_codec</a>&gt;</td>
+        </tr>
+      </table>
+</div><div class="memdoc">
+
+<p>LLDP field using the canonical identifier octet, independent of packed wire header. </p>
+
+</div>
+</div>
+<a id="ae50957ab3b695e7b3e154c939c968087" name="ae50957ab3b695e7b3e154c939c968087"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#ae50957ab3b695e7b3e154c939c968087">&#9670;&#160;</a></span>system_name_field</h2>
+
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname">using <a class="el" href="namespacetlv_1_1lldp.html#ae50957ab3b695e7b3e154c939c968087">tlv::lldp::system_name_field</a> = typedef <a class="el" href="structtlv_1_1field.html">tlv::field</a>&lt;<a class="el" href="structtlv_1_1tag__constant.html">tlv::tag_constant</a>&lt;0x05&gt;, <a class="el" href="structtlv_1_1codec_3_01value__view_01_4.html#ac31a1b18208adad6c0046cb0542675ac">text_codec::value_type</a>, <a class="el" href="namespacetlv_1_1lldp.html#aa23a93e0e6ac4a92fb90b6f38e736c3a">text_codec</a>&gt;</td>
+        </tr>
+      </table>
+</div><div class="memdoc">
+
+<p>LLDP field using the canonical identifier octet, independent of packed wire header. </p>
+
+</div>
+</div>
+<a id="aa23a93e0e6ac4a92fb90b6f38e736c3a" name="aa23a93e0e6ac4a92fb90b6f38e736c3a"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#aa23a93e0e6ac4a92fb90b6f38e736c3a">&#9670;&#160;</a></span>text_codec</h2>
+
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname">using <a class="el" href="namespacetlv_1_1lldp.html#aa23a93e0e6ac4a92fb90b6f38e736c3a">tlv::lldp::text_codec</a> = typedef <a class="el" href="structtlv_1_1codec.html">tlv::codec</a>&lt;<a class="el" href="classtlv_1_1value__view.html">value_view</a>&gt;</td>
+        </tr>
+      </table>
+</div><div class="memdoc">
+
+<p>Borrowed opaque text octets; no character conversion or terminator. </p>
+
+</div>
+</div>
+<a id="a447d5daeec88e6813e369e54b056e8cc" name="a447d5daeec88e6813e369e54b056e8cc"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#a447d5daeec88e6813e369e54b056e8cc">&#9670;&#160;</a></span>ttl_codec</h2>
+
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname">using <a class="el" href="namespacetlv_1_1lldp.html#a447d5daeec88e6813e369e54b056e8cc">tlv::lldp::ttl_codec</a> = typedef <a class="el" href="namespacetlv.html#ac17cfc6624fbea79afde730d8c020d60">tlv::uint16_be_codec</a></td>
+        </tr>
+      </table>
+</div><div class="memdoc">
+
+<p>TTL codec, including zero; exchange and sequence policy remain separate. </p>
+
+</div>
+</div>
+<a id="a33b15554a022ff792daedf8869880a15" name="a33b15554a022ff792daedf8869880a15"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#a33b15554a022ff792daedf8869880a15">&#9670;&#160;</a></span>ttl_field</h2>
+
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname">using <a class="el" href="namespacetlv_1_1lldp.html#a33b15554a022ff792daedf8869880a15">tlv::lldp::ttl_field</a> = typedef <a class="el" href="structtlv_1_1field.html">tlv::field</a>&lt;<a class="el" href="structtlv_1_1tag__constant.html">tlv::tag_constant</a>&lt;0x03&gt;, <a class="el" href="structtlv_1_1codec__adapter.html#a851cecb1f3a004c60020d15b9728abd2">ttl_codec::value_type</a>, <a class="el" href="namespacetlv_1_1lldp.html#a447d5daeec88e6813e369e54b056e8cc">ttl_codec</a>&gt;</td>
+        </tr>
+      </table>
+</div><div class="memdoc">
+
+<p>LLDP field using the canonical identifier octet, independent of packed wire header. </p>
+
+</div>
+</div>
+<h2 class="groupheader">Function Documentation</h2>
+<a id="afc0ad3d6c1608b7732613dddde20f59f" name="afc0ad3d6c1608b7732613dddde20f59f"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#afc0ad3d6c1608b7732613dddde20f59f">&#9670;&#160;</a></span>encode() <span class="overload">[1/2]</span></h2>
+
+<div class="memitem">
+<div class="memproto">
+<div class="memtemplate">
+template&lt;size_t ScratchCapacity = 1024, size_t Depth = TLV_TREE_DEFAULT_DEPTH, typename Output , typename Callback &gt; </div>
+      <table class="memname">
+        <tr>
+          <td class="memname"><a class="el" href="classtlv_1_1expected.html">expected</a>&lt; size_t, <a class="el" href="structtlv_1_1writer__failure.html">writer_failure</a> &gt; tlv::lldp::encode </td>
+          <td>(</td>
+          <td class="paramtype">Output &amp;&amp;&#160;</td>
+          <td class="paramname"><em>output</em>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype">Callback &amp;&amp;&#160;</td>
+          <td class="paramname"><em>callback</em>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype"><a class="el" href="namespacetlv.html#a1df134eb9e2b476155eb324618396e4d">writer_diagnostic</a> *&#160;</td>
+          <td class="paramname"><em>diagnostic</em> = <code>nullptr</code>&#160;</td>
+        </tr>
+        <tr>
+          <td></td>
+          <td>)</td>
+          <td></td><td></td>
+        </tr>
+      </table>
+</div><div class="memdoc">
+
+<p>Build LLDP output using bounded local stack workspace. </p>
+<dl class="tparams"><dt>Template Parameters</dt><dd>
+  <table class="tparams">
+    <tr><td class="paramname">ScratchCapacity</td><td>Scratch bytes, default 1024; must fit the largest closed Value. </td></tr>
+    <tr><td class="paramname">Depth</td><td>Frame count and maximum item depth, default TLV_TREE_DEFAULT_DEPTH. </td></tr>
+  </table>
+  </dd>
+</dl>
+<dl class="params"><dt>Parameters</dt><dd>
+  <table class="params">
+    <tr><td class="paramname">output</td><td>Caller-owned mutable byte span, array or contiguous byte container. </td></tr>
+    <tr><td class="paramname">callback</td><td>Scoped writes taking <a class="el" href="classtlv_1_1writer__builder.html" title="Sequential typed builder retaining the first error without allocation.">writer_builder</a>&amp; and returning void, invoked once. </td></tr>
+    <tr><td class="paramname">diagnostic</td><td>Optional canonical C Writer failure detail. </td></tr>
+  </table>
+  </dd>
+</dl>
+<dl class="section return"><dt>Returns</dt><dd>Exact byte count or first failure; workspace never grows or allocates. </dd></dl>
+
+</div>
+</div>
+<a id="ac069f1a05526c1cb2114db93d519c1f6" name="ac069f1a05526c1cb2114db93d519c1f6"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#ac069f1a05526c1cb2114db93d519c1f6">&#9670;&#160;</a></span>encode() <span class="overload">[2/2]</span></h2>
+
+<div class="memitem">
+<div class="memproto">
+<div class="memtemplate">
+template&lt;typename Output , typename Callback &gt; </div>
+      <table class="memname">
+        <tr>
+          <td class="memname"><a class="el" href="classtlv_1_1expected.html">expected</a>&lt; size_t, <a class="el" href="structtlv_1_1writer__failure.html">writer_failure</a> &gt; tlv::lldp::encode </td>
+          <td>(</td>
+          <td class="paramtype">Output &amp;&amp;&#160;</td>
+          <td class="paramname"><em>output</em>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype"><a class="el" href="structtlv_1_1writer__workspace.html">writer_workspace</a>&#160;</td>
+          <td class="paramname"><em>workspace</em>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype">Callback &amp;&amp;&#160;</td>
+          <td class="paramname"><em>callback</em>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype"><a class="el" href="namespacetlv.html#a1df134eb9e2b476155eb324618396e4d">writer_diagnostic</a> *&#160;</td>
+          <td class="paramname"><em>diagnostic</em> = <code>nullptr</code>&#160;</td>
+        </tr>
+        <tr>
+          <td></td>
+          <td>)</td>
+          <td></td><td></td>
+        </tr>
+      </table>
+</div><div class="memdoc">
+
+<p>Build LLDP output with explicit caller-owned frames and scratch. </p>
+<dl class="params"><dt>Parameters</dt><dd>
+  <table class="params">
+    <tr><td class="paramname">output</td><td>Borrowed mutable byte span, array or contiguous byte container. </td></tr>
+    <tr><td class="paramname">workspace</td><td>Disjoint construction storage, never resized. </td></tr>
+    <tr><td class="paramname">callback</td><td>Callable taking <a class="el" href="classtlv_1_1writer__builder.html" title="Sequential typed builder retaining the first error without allocation.">writer_builder</a>&amp; and returning void; called once. </td></tr>
+    <tr><td class="paramname">diagnostic</td><td>Optional canonical C Writer failure detail. </td></tr>
+  </table>
+  </dd>
+</dl>
+<dl class="section return"><dt>Returns</dt><dd>Exact written size or allocation-free first failure; exceptions propagate. </dd></dl>
+<dl class="section see"><dt>See also</dt><dd><a class="el" href="namespacetlv.html#ac0364509c04c5e018087c991be37ffa6" title="Encode current semantic content, regenerating framing.">tlv::encode</a> </dd></dl>
+
+</div>
+</div>
 <a id="a97158793d084328dcc1a8e940280b020" name="a97158793d084328dcc1a8e940280b020"></a>
 <h2 class="memtitle"><span class="permalink"><a href="#a97158793d084328dcc1a8e940280b020">&#9670;&#160;</a></span>parse()</h2>
 

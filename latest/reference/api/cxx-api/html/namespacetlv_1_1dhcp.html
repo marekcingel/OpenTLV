@@ -75,12 +75,13 @@ $(function() {
 <div class="header">
   <div class="summary">
 <a href="#nested-classes">Classes</a> &#124;
+<a href="#typedef-members">Typedefs</a> &#124;
 <a href="#func-members">Functions</a>  </div>
   <div class="headertitle"><div class="title">tlv::dhcp Namespace Reference</div></div>
 </div><!--header-->
 <div class="contents">
 
-<p>DHCP wire framing presets.  
+<p>DHCPv4 option Value semantics.  
 <a href="namespacetlv_1_1dhcp.html#details">More...</a></p>
 <table class="memberdecls">
 <tr class="heading"><td colspan="2"><h2 class="groupheader"><a id="nested-classes" name="nested-classes"></a>
@@ -89,15 +90,241 @@ Classes</h2></td></tr>
 <tr class="memdesc:"><td class="mdescLeft">&#160;</td><td class="mdescRight">Built-in Format satisfying the generic C++ customization contract.  <a href="classtlv_1_1dhcp_1_1format.html#details">More...</a><br /></td></tr>
 <tr class="separator:"><td class="memSeparator" colspan="2">&#160;</td></tr>
 </table><table class="memberdecls">
+<tr class="heading"><td colspan="2"><h2 class="groupheader"><a id="typedef-members" name="typedef-members"></a>
+Typedefs</h2></td></tr>
+<tr class="memitem:aa07414099f66e24a9a7c4041c08eb5b6" id="r_aa07414099f66e24a9a7c4041c08eb5b6"><td class="memItemLeft" align="right" valign="top">using&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="namespacetlv_1_1dhcp.html#aa07414099f66e24a9a7c4041c08eb5b6">message_type_codec</a> = <a class="el" href="namespacetlv.html#a1d7a698c5c2079a5d64c0ead6a945612">tlv::uint8_codec</a></td></tr>
+<tr class="memdesc:aa07414099f66e24a9a7c4041c08eb5b6"><td class="mdescLeft">&#160;</td><td class="mdescRight">Message Type byte codec; preserves unassigned values without exchange validation.  <br /></td></tr>
+<tr class="separator:aa07414099f66e24a9a7c4041c08eb5b6"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a9797d9247b375dc31f3c902f8dcf47e8" id="r_a9797d9247b375dc31f3c902f8dcf47e8"><td class="memItemLeft" align="right" valign="top">using&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="namespacetlv_1_1dhcp.html#a9797d9247b375dc31f3c902f8dcf47e8">message_type_field</a> = <a class="el" href="structtlv_1_1field.html">tlv::field</a>&lt; <a class="el" href="structtlv_1_1tag__constant.html">tlv::tag_constant</a>&lt; 0x35 &gt;, <a class="el" href="structtlv_1_1codec__adapter.html#a851cecb1f3a004c60020d15b9728abd2">message_type_codec::value_type</a>, <a class="el" href="namespacetlv_1_1dhcp.html#aa07414099f66e24a9a7c4041c08eb5b6">message_type_codec</a> &gt;</td></tr>
+<tr class="memdesc:a9797d9247b375dc31f3c902f8dcf47e8"><td class="mdescLeft">&#160;</td><td class="mdescRight">DHCPv4 Message Type option (53).  <br /></td></tr>
+<tr class="separator:a9797d9247b375dc31f3c902f8dcf47e8"><td class="memSeparator" colspan="2">&#160;</td></tr>
+</table><table class="memberdecls">
 <tr class="heading"><td colspan="2"><h2 class="groupheader"><a id="func-members" name="func-members"></a>
 Functions</h2></td></tr>
+<tr class="memitem:a6c4f76e2d13cfe9defdd42d55ada83fc" id="r_a6c4f76e2d13cfe9defdd42d55ada83fc"><td class="memItemLeft" align="right" valign="top"><a class="el" href="classtlv_1_1expected.html">expected</a>&lt; size_t, <a class="el" href="structtlv_1_1error.html">error</a> &gt;&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="namespacetlv_1_1dhcp.html#a6c4f76e2d13cfe9defdd42d55ada83fc">options_validate</a> (<a class="el" href="namespacetlv.html#a2abe7003a70af047ef9acae17f31f75d">bytes</a> data, const <a class="elRef" href="../../c-api/html/container_8h.html#aa83e18018ede957bfbce4e6d27e4024a">tlv_dhcpv4_options_rules_t</a> *rules=nullptr, size_t max_elements=SIZE_MAX, <a class="elRef" href="../../c-api/html/group__diagnostics.html#ga2118f30a61e0b0b3ba5d20c73a740b2e">tlv_diagnostic_t</a> *<a class="el" href="namespacetlv.html#a00ca9c69c35ef11f6a22b7eda1b115ba">diagnostic</a>=nullptr)</td></tr>
+<tr class="memdesc:a6c4f76e2d13cfe9defdd42d55ada83fc"><td class="mdescLeft">&#160;</td><td class="mdescRight">Validate a DHCPv4 options region through the canonical container validator.  <br /></td></tr>
+<tr class="separator:a6c4f76e2d13cfe9defdd42d55ada83fc"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:adb3b454f6baee10ca0317e4d9e2c255b" id="r_adb3b454f6baee10ca0317e4d9e2c255b"><td class="memTemplParams" colspan="2">template&lt;typename Output , typename Callback &gt; </td></tr>
+<tr class="memitem:adb3b454f6baee10ca0317e4d9e2c255b"><td class="memTemplItemLeft" align="right" valign="top"><a class="el" href="classtlv_1_1expected.html">expected</a>&lt; size_t, <a class="el" href="structtlv_1_1writer__failure.html">writer_failure</a> &gt;&#160;</td><td class="memTemplItemRight" valign="bottom"><a class="el" href="namespacetlv_1_1dhcp.html#adb3b454f6baee10ca0317e4d9e2c255b">encode</a> (Output &amp;&amp;output, <a class="el" href="structtlv_1_1writer__workspace.html">writer_workspace</a> workspace, Callback &amp;&amp;callback, <a class="el" href="namespacetlv.html#a1df134eb9e2b476155eb324618396e4d">writer_diagnostic</a> *<a class="el" href="namespacetlv.html#a00ca9c69c35ef11f6a22b7eda1b115ba">diagnostic</a>=nullptr)</td></tr>
+<tr class="memdesc:adb3b454f6baee10ca0317e4d9e2c255b"><td class="mdescLeft">&#160;</td><td class="mdescRight">Build DHCP output with explicit caller-owned frames and scratch.  <br /></td></tr>
+<tr class="separator:adb3b454f6baee10ca0317e4d9e2c255b"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a4506e773ee309e2a174329099c290f91" id="r_a4506e773ee309e2a174329099c290f91"><td class="memTemplParams" colspan="2">template&lt;size_t ScratchCapacity = 1024, size_t Depth = TLV_TREE_DEFAULT_DEPTH, typename Output , typename Callback &gt; </td></tr>
+<tr class="memitem:a4506e773ee309e2a174329099c290f91"><td class="memTemplItemLeft" align="right" valign="top"><a class="el" href="classtlv_1_1expected.html">expected</a>&lt; size_t, <a class="el" href="structtlv_1_1writer__failure.html">writer_failure</a> &gt;&#160;</td><td class="memTemplItemRight" valign="bottom"><a class="el" href="namespacetlv_1_1dhcp.html#a4506e773ee309e2a174329099c290f91">encode</a> (Output &amp;&amp;output, Callback &amp;&amp;callback, <a class="el" href="namespacetlv.html#a1df134eb9e2b476155eb324618396e4d">writer_diagnostic</a> *<a class="el" href="namespacetlv.html#a00ca9c69c35ef11f6a22b7eda1b115ba">diagnostic</a>=nullptr)</td></tr>
+<tr class="memdesc:a4506e773ee309e2a174329099c290f91"><td class="mdescLeft">&#160;</td><td class="mdescRight">Build DHCP output using bounded local stack workspace.  <br /></td></tr>
+<tr class="separator:a4506e773ee309e2a174329099c290f91"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:af4d74ff7d95417548a5bd6beaebe1848" id="r_af4d74ff7d95417548a5bd6beaebe1848"><td class="memItemLeft" align="right" valign="top"><a class="el" href="classtlv_1_1detail_1_1parsing__range.html">detail::parsing_range</a>&lt; <a class="el" href="classtlv_1_1dhcp_1_1format.html">format</a> &gt;&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="namespacetlv_1_1dhcp.html#af4d74ff7d95417548a5bd6beaebe1848">parse</a> (<a class="el" href="namespacetlv.html#a2abe7003a70af047ef9acae17f31f75d">bytes</a> data)</td></tr>
 <tr class="memdesc:af4d74ff7d95417548a5bd6beaebe1848"><td class="mdescLeft">&#160;</td><td class="mdescRight">Parse final input as borrowed Elements using the built-in Format.  <br /></td></tr>
 <tr class="separator:af4d74ff7d95417548a5bd6beaebe1848"><td class="memSeparator" colspan="2">&#160;</td></tr>
 </table>
 <a name="details" id="details"></a><h2 class="groupheader">Detailed Description</h2>
-<div class="textblock"><p>DHCP wire framing presets. </p>
-</div><h2 class="groupheader">Function Documentation</h2>
+<div class="textblock"><p>DHCPv4 option Value semantics. </p>
+<p>DHCP wire framing presets.</p>
+<p>DHCP container policy, separate from element framing. </p>
+</div><h2 class="groupheader">Typedef Documentation</h2>
+<a id="aa07414099f66e24a9a7c4041c08eb5b6" name="aa07414099f66e24a9a7c4041c08eb5b6"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#aa07414099f66e24a9a7c4041c08eb5b6">&#9670;&#160;</a></span>message_type_codec</h2>
+
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname">using <a class="el" href="namespacetlv_1_1dhcp.html#aa07414099f66e24a9a7c4041c08eb5b6">tlv::dhcp::message_type_codec</a> = typedef <a class="el" href="namespacetlv.html#a1d7a698c5c2079a5d64c0ead6a945612">tlv::uint8_codec</a></td>
+        </tr>
+      </table>
+</div><div class="memdoc">
+
+<p>Message Type byte codec; preserves unassigned values without exchange validation. </p>
+
+</div>
+</div>
+<a id="a9797d9247b375dc31f3c902f8dcf47e8" name="a9797d9247b375dc31f3c902f8dcf47e8"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#a9797d9247b375dc31f3c902f8dcf47e8">&#9670;&#160;</a></span>message_type_field</h2>
+
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname">using <a class="el" href="namespacetlv_1_1dhcp.html#a9797d9247b375dc31f3c902f8dcf47e8">tlv::dhcp::message_type_field</a> = typedef <a class="el" href="structtlv_1_1field.html">tlv::field</a>&lt;<a class="el" href="structtlv_1_1tag__constant.html">tlv::tag_constant</a>&lt;0x35&gt;, <a class="el" href="structtlv_1_1codec__adapter.html#a851cecb1f3a004c60020d15b9728abd2">message_type_codec::value_type</a>, <a class="el" href="namespacetlv_1_1dhcp.html#aa07414099f66e24a9a7c4041c08eb5b6">message_type_codec</a>&gt;</td>
+        </tr>
+      </table>
+</div><div class="memdoc">
+
+<p>DHCPv4 Message Type option (53). </p>
+
+</div>
+</div>
+<h2 class="groupheader">Function Documentation</h2>
+<a id="a4506e773ee309e2a174329099c290f91" name="a4506e773ee309e2a174329099c290f91"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#a4506e773ee309e2a174329099c290f91">&#9670;&#160;</a></span>encode() <span class="overload">[1/2]</span></h2>
+
+<div class="memitem">
+<div class="memproto">
+<div class="memtemplate">
+template&lt;size_t ScratchCapacity = 1024, size_t Depth = TLV_TREE_DEFAULT_DEPTH, typename Output , typename Callback &gt; </div>
+      <table class="memname">
+        <tr>
+          <td class="memname"><a class="el" href="classtlv_1_1expected.html">expected</a>&lt; size_t, <a class="el" href="structtlv_1_1writer__failure.html">writer_failure</a> &gt; tlv::dhcp::encode </td>
+          <td>(</td>
+          <td class="paramtype">Output &amp;&amp;&#160;</td>
+          <td class="paramname"><em>output</em>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype">Callback &amp;&amp;&#160;</td>
+          <td class="paramname"><em>callback</em>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype"><a class="el" href="namespacetlv.html#a1df134eb9e2b476155eb324618396e4d">writer_diagnostic</a> *&#160;</td>
+          <td class="paramname"><em>diagnostic</em> = <code>nullptr</code>&#160;</td>
+        </tr>
+        <tr>
+          <td></td>
+          <td>)</td>
+          <td></td><td></td>
+        </tr>
+      </table>
+</div><div class="memdoc">
+
+<p>Build DHCP output using bounded local stack workspace. </p>
+<dl class="tparams"><dt>Template Parameters</dt><dd>
+  <table class="tparams">
+    <tr><td class="paramname">ScratchCapacity</td><td>Scratch bytes, default 1024; must fit the largest closed Value. </td></tr>
+    <tr><td class="paramname">Depth</td><td>Frame count and maximum item depth, default TLV_TREE_DEFAULT_DEPTH. </td></tr>
+  </table>
+  </dd>
+</dl>
+<dl class="params"><dt>Parameters</dt><dd>
+  <table class="params">
+    <tr><td class="paramname">output</td><td>Caller-owned mutable byte span, array or contiguous byte container. </td></tr>
+    <tr><td class="paramname">callback</td><td>Scoped writes taking <a class="el" href="classtlv_1_1writer__builder.html" title="Sequential typed builder retaining the first error without allocation.">writer_builder</a>&amp; and returning void, invoked once. </td></tr>
+    <tr><td class="paramname">diagnostic</td><td>Optional canonical C Writer failure detail. </td></tr>
+  </table>
+  </dd>
+</dl>
+<dl class="section return"><dt>Returns</dt><dd>Exact byte count or first failure; workspace never grows or allocates. </dd></dl>
+
+</div>
+</div>
+<a id="adb3b454f6baee10ca0317e4d9e2c255b" name="adb3b454f6baee10ca0317e4d9e2c255b"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#adb3b454f6baee10ca0317e4d9e2c255b">&#9670;&#160;</a></span>encode() <span class="overload">[2/2]</span></h2>
+
+<div class="memitem">
+<div class="memproto">
+<div class="memtemplate">
+template&lt;typename Output , typename Callback &gt; </div>
+      <table class="memname">
+        <tr>
+          <td class="memname"><a class="el" href="classtlv_1_1expected.html">expected</a>&lt; size_t, <a class="el" href="structtlv_1_1writer__failure.html">writer_failure</a> &gt; tlv::dhcp::encode </td>
+          <td>(</td>
+          <td class="paramtype">Output &amp;&amp;&#160;</td>
+          <td class="paramname"><em>output</em>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype"><a class="el" href="structtlv_1_1writer__workspace.html">writer_workspace</a>&#160;</td>
+          <td class="paramname"><em>workspace</em>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype">Callback &amp;&amp;&#160;</td>
+          <td class="paramname"><em>callback</em>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype"><a class="el" href="namespacetlv.html#a1df134eb9e2b476155eb324618396e4d">writer_diagnostic</a> *&#160;</td>
+          <td class="paramname"><em>diagnostic</em> = <code>nullptr</code>&#160;</td>
+        </tr>
+        <tr>
+          <td></td>
+          <td>)</td>
+          <td></td><td></td>
+        </tr>
+      </table>
+</div><div class="memdoc">
+
+<p>Build DHCP output with explicit caller-owned frames and scratch. </p>
+<dl class="params"><dt>Parameters</dt><dd>
+  <table class="params">
+    <tr><td class="paramname">output</td><td>Borrowed mutable byte span, array or contiguous byte container. </td></tr>
+    <tr><td class="paramname">workspace</td><td>Disjoint construction storage, never resized. </td></tr>
+    <tr><td class="paramname">callback</td><td>Callable taking <a class="el" href="classtlv_1_1writer__builder.html" title="Sequential typed builder retaining the first error without allocation.">writer_builder</a>&amp; and returning void; called once. </td></tr>
+    <tr><td class="paramname">diagnostic</td><td>Optional canonical C Writer failure detail. </td></tr>
+  </table>
+  </dd>
+</dl>
+<dl class="section return"><dt>Returns</dt><dd>Exact written size or allocation-free first failure; exceptions propagate. </dd></dl>
+<dl class="section see"><dt>See also</dt><dd><a class="el" href="namespacetlv.html#ac0364509c04c5e018087c991be37ffa6" title="Encode current semantic content, regenerating framing.">tlv::encode</a> </dd></dl>
+
+</div>
+</div>
+<a id="a6c4f76e2d13cfe9defdd42d55ada83fc" name="a6c4f76e2d13cfe9defdd42d55ada83fc"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#a6c4f76e2d13cfe9defdd42d55ada83fc">&#9670;&#160;</a></span>options_validate()</h2>
+
+<div class="memitem">
+<div class="memproto">
+<table class="mlabels">
+  <tr>
+  <td class="mlabels-left">
+      <table class="memname">
+        <tr>
+          <td class="memname"><a class="el" href="classtlv_1_1expected.html">expected</a>&lt; size_t, <a class="el" href="structtlv_1_1error.html">error</a> &gt; tlv::dhcp::options_validate </td>
+          <td>(</td>
+          <td class="paramtype"><a class="el" href="namespacetlv.html#a2abe7003a70af047ef9acae17f31f75d">bytes</a>&#160;</td>
+          <td class="paramname"><em>data</em>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype">const <a class="elRef" href="../../c-api/html/container_8h.html#aa83e18018ede957bfbce4e6d27e4024a">tlv_dhcpv4_options_rules_t</a> *&#160;</td>
+          <td class="paramname"><em>rules</em> = <code>nullptr</code>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype">size_t&#160;</td>
+          <td class="paramname"><em>max_elements</em> = <code>SIZE_MAX</code>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype"><a class="elRef" href="../../c-api/html/group__diagnostics.html#ga2118f30a61e0b0b3ba5d20c73a740b2e">tlv_diagnostic_t</a> *&#160;</td>
+          <td class="paramname"><em>diagnostic</em> = <code>nullptr</code>&#160;</td>
+        </tr>
+        <tr>
+          <td></td>
+          <td>)</td>
+          <td></td><td></td>
+        </tr>
+      </table>
+  </td>
+  <td class="mlabels-right">
+<span class="mlabels"><span class="mlabel">inline</span></span>  </td>
+  </tr>
+</table>
+</div><div class="memdoc">
+
+<p>Validate a DHCPv4 options region through the canonical container validator. </p>
+<dl class="params"><dt>Parameters</dt><dd>
+  <table class="params">
+    <tr><td class="paramname">data</td><td>Borrowed options bytes, without packet header or magic cookie. </td></tr>
+    <tr><td class="paramname">rules</td><td>Optional rules; nullptr requires End and a zero-only tail. </td></tr>
+    <tr><td class="paramname">max_elements</td><td>Element limit including Pad and End; zero permits none. </td></tr>
+    <tr><td class="paramname">diagnostic</td><td>Optional diagnostic, reset on every call. </td></tr>
+  </table>
+  </dd>
+</dl>
+<dl class="section return"><dt>Returns</dt><dd>Significant prefix size through End, or the original C error. </dd></dl>
+<dl class="section note"><dt>Note</dt><dd>Successful validation allocates nothing and retains no input. Building an error description may allocate. Output storage must not overlap input. </dd></dl>
+<dl class="section see"><dt>See also</dt><dd><a class="elRef" href="../../c-api/html/container_8h.html#a44dc4ef9763852b33667034857b67516">tlv_dhcpv4_options_validate</a> </dd></dl>
+
+</div>
+</div>
 <a id="af4d74ff7d95417548a5bd6beaebe1848" name="af4d74ff7d95417548a5bd6beaebe1848"></a>
 <h2 class="memtitle"><span class="permalink"><a href="#af4d74ff7d95417548a5bd6beaebe1848">&#9670;&#160;</a></span>parse()</h2>
 

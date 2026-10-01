@@ -1874,7 +1874,7 @@ An error code for a null output, an invalid or non-constructed tag, or size over
 <p>The ordinary BER writer remains definite-length. The encoding is <code>tag + 80 + encoded children + 00 00</code>. Only constructed tags are accepted. Child framing and nesting are validated before the buffer is changed.</p>
 <dl class="params"><dt>Parameters</dt><dd>
   <table class="params">
-    <tr><td class="paramdir">[out]</td><td class="paramname">data</td><td>Destination buffer. <code>NULL</code> with zero <code>capacity</code> queries the size. </td></tr>
+    <tr><td class="paramdir">[out]</td><td class="paramname">data</td><td>Destination buffer. <code>NULL</code> with zero <code>capacity</code> reports <a class="el" href="group__core.html#gga516c7250563ee9332e2f45f2d203ae61acbd34cf02b42e70e99648aef5b9ca8b3">TLV_ERR_BUFFER_TOO_SHORT</a> for a valid element. Use <a class="el" href="group__formats.html#ga3d4f4c0bde7339904daaa4e38bae1336" title="Reports the encoded size of an explicit indefinite element.">tlv_ber_indefinite_encoded_size()</a> for a size query. </td></tr>
     <tr><td class="paramdir">[in]</td><td class="paramname">capacity</td><td>Destination capacity in bytes. </td></tr>
     <tr><td class="paramdir">[in]</td><td class="paramname">tag</td><td>Constructed element tag. </td></tr>
     <tr><td class="paramdir">[in]</td><td class="paramname">value</td><td>Already encoded children. Must not include the enclosing EOC, and must not overlap the destination. </td></tr>

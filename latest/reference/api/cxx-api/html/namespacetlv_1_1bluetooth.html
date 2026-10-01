@@ -75,12 +75,13 @@ $(function() {
 <div class="header">
   <div class="summary">
 <a href="#nested-classes">Classes</a> &#124;
+<a href="#typedef-members">Typedefs</a> &#124;
 <a href="#func-members">Functions</a>  </div>
   <div class="headertitle"><div class="title">tlv::bluetooth Namespace Reference</div></div>
 </div><!--header-->
 <div class="contents">
 
-<p>Bluetooth wire framing; AD container validation remains separate.  
+<p>Bluetooth Advertising Data Value semantics.  
 <a href="namespacetlv_1_1bluetooth.html#details">More...</a></p>
 <table class="memberdecls">
 <tr class="heading"><td colspan="2"><h2 class="groupheader"><a id="nested-classes" name="nested-classes"></a>
@@ -88,16 +89,685 @@ Classes</h2></td></tr>
 <tr class="memitem:"><td class="memItemLeft" align="right" valign="top">class &#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classtlv_1_1bluetooth_1_1format.html">format</a></td></tr>
 <tr class="memdesc:"><td class="mdescLeft">&#160;</td><td class="mdescRight">Built-in Format satisfying the generic C++ customization contract.  <a href="classtlv_1_1bluetooth_1_1format.html#details">More...</a><br /></td></tr>
 <tr class="separator:"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:"><td class="memItemLeft" align="right" valign="top">struct &#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="structtlv_1_1bluetooth_1_1manufacturer__data.html">manufacturer_data</a></td></tr>
+<tr class="memdesc:"><td class="mdescLeft">&#160;</td><td class="mdescRight">Bluetooth manufacturer data; immutable input must outlive borrowed views.  <a href="structtlv_1_1bluetooth_1_1manufacturer__data.html#details">More...</a><br /></td></tr>
+<tr class="separator:"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:"><td class="memItemLeft" align="right" valign="top">struct &#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="structtlv_1_1bluetooth_1_1service__data128.html">service_data128</a></td></tr>
+<tr class="memdesc:"><td class="mdescLeft">&#160;</td><td class="mdescRight">Bluetooth service data128; immutable input must outlive borrowed views.  <a href="structtlv_1_1bluetooth_1_1service__data128.html#details">More...</a><br /></td></tr>
+<tr class="separator:"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:"><td class="memItemLeft" align="right" valign="top">struct &#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="structtlv_1_1bluetooth_1_1service__data16.html">service_data16</a></td></tr>
+<tr class="memdesc:"><td class="mdescLeft">&#160;</td><td class="mdescRight">Bluetooth service data16; immutable input must outlive borrowed views.  <a href="structtlv_1_1bluetooth_1_1service__data16.html#details">More...</a><br /></td></tr>
+<tr class="separator:"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:"><td class="memItemLeft" align="right" valign="top">struct &#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="structtlv_1_1bluetooth_1_1service__data32.html">service_data32</a></td></tr>
+<tr class="memdesc:"><td class="mdescLeft">&#160;</td><td class="mdescRight">Bluetooth service data32; immutable input must outlive borrowed views.  <a href="structtlv_1_1bluetooth_1_1service__data32.html#details">More...</a><br /></td></tr>
+<tr class="separator:"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:"><td class="memItemLeft" align="right" valign="top">struct &#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="structtlv_1_1bluetooth_1_1uuid__list.html">uuid_list</a></td></tr>
+<tr class="memdesc:"><td class="mdescLeft">&#160;</td><td class="mdescRight">Bluetooth uuid list; immutable input must outlive borrowed views.  <a href="structtlv_1_1bluetooth_1_1uuid__list.html#details">More...</a><br /></td></tr>
+<tr class="separator:"><td class="memSeparator" colspan="2">&#160;</td></tr>
+</table><table class="memberdecls">
+<tr class="heading"><td colspan="2"><h2 class="groupheader"><a id="typedef-members" name="typedef-members"></a>
+Typedefs</h2></td></tr>
+<tr class="memitem:abac5c45e44b983f11c6b360c1c48f365" id="r_abac5c45e44b983f11c6b360c1c48f365"><td class="memItemLeft" align="right" valign="top">using&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="namespacetlv_1_1bluetooth.html#abac5c45e44b983f11c6b360c1c48f365">uuid128</a> = <a class="elRef" href="../../c-api/html/group__codecs.html#gae07dd0f5046612e06f8074acdb9edc7e">tlv_bluetooth_uuid128_t</a></td></tr>
+<tr class="memdesc:abac5c45e44b983f11c6b360c1c48f365"><td class="mdescLeft">&#160;</td><td class="mdescRight">Self-contained UUID in printed byte order; see <a class="elRef" href="../../c-api/html/group__codecs.html#gae07dd0f5046612e06f8074acdb9edc7e">tlv_bluetooth_uuid128_t</a>.  <br /></td></tr>
+<tr class="separator:abac5c45e44b983f11c6b360c1c48f365"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:aefd9f7f275437fdef6de6d66b496465f" id="r_aefd9f7f275437fdef6de6d66b496465f"><td class="memItemLeft" align="right" valign="top">using&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="namespacetlv_1_1bluetooth.html#aefd9f7f275437fdef6de6d66b496465f">uuid16_codec</a> = <a class="el" href="structtlv_1_1codec__adapter.html">tlv::codec_adapter</a>&lt; uint16_t, &amp;<a class="elRef" href="../../c-api/html/group__codecs.html#ga05b87cc6cebac9f37c496b9096bac999">tlv_bluetooth_codec_uuid16</a> &gt;</td></tr>
+<tr class="memdesc:aefd9f7f275437fdef6de6d66b496465f"><td class="mdescLeft">&#160;</td><td class="mdescRight">Value codec; see <a class="elRef" href="../../c-api/html/group__codecs.html#ga05b87cc6cebac9f37c496b9096bac999">tlv_bluetooth_codec_uuid16</a>.  <br /></td></tr>
+<tr class="separator:aefd9f7f275437fdef6de6d66b496465f"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:af9e98b12287d1ea27b117d243dffb6eb" id="r_af9e98b12287d1ea27b117d243dffb6eb"><td class="memItemLeft" align="right" valign="top">using&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="namespacetlv_1_1bluetooth.html#af9e98b12287d1ea27b117d243dffb6eb">uuid32_codec</a> = <a class="el" href="structtlv_1_1codec__adapter.html">tlv::codec_adapter</a>&lt; uint32_t, &amp;<a class="elRef" href="../../c-api/html/group__codecs.html#ga39621698a4bb1f752738f8f893bc8f17">tlv_bluetooth_codec_uuid32</a> &gt;</td></tr>
+<tr class="memdesc:af9e98b12287d1ea27b117d243dffb6eb"><td class="mdescLeft">&#160;</td><td class="mdescRight">Value codec; see <a class="elRef" href="../../c-api/html/group__codecs.html#ga39621698a4bb1f752738f8f893bc8f17">tlv_bluetooth_codec_uuid32</a>.  <br /></td></tr>
+<tr class="separator:af9e98b12287d1ea27b117d243dffb6eb"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a72851b8196d67ad70254d84aba5029c6" id="r_a72851b8196d67ad70254d84aba5029c6"><td class="memItemLeft" align="right" valign="top">using&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="namespacetlv_1_1bluetooth.html#a72851b8196d67ad70254d84aba5029c6">uuid128_codec</a> = <a class="el" href="structtlv_1_1codec__adapter.html">tlv::codec_adapter</a>&lt; <a class="el" href="namespacetlv_1_1bluetooth.html#abac5c45e44b983f11c6b360c1c48f365">uuid128</a>, &amp;<a class="elRef" href="../../c-api/html/group__codecs.html#ga79e9303bfcbf57aae637be9e77db2684">tlv_bluetooth_codec_uuid128</a> &gt;</td></tr>
+<tr class="memdesc:a72851b8196d67ad70254d84aba5029c6"><td class="mdescLeft">&#160;</td><td class="mdescRight">Value codec; see <a class="elRef" href="../../c-api/html/group__codecs.html#ga79e9303bfcbf57aae637be9e77db2684">tlv_bluetooth_codec_uuid128</a>.  <br /></td></tr>
+<tr class="separator:a72851b8196d67ad70254d84aba5029c6"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a3fc4606985b7ba53b94100eb4188abed" id="r_a3fc4606985b7ba53b94100eb4188abed"><td class="memItemLeft" align="right" valign="top">using&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="namespacetlv_1_1bluetooth.html#a3fc4606985b7ba53b94100eb4188abed">tx_power_codec</a> = <a class="el" href="structtlv_1_1codec__adapter.html">tlv::codec_adapter</a>&lt; int8_t, &amp;<a class="elRef" href="../../c-api/html/group__codecs.html#ga6dbe65e259dd2503de3e85e3ea9c2f1e">tlv_bluetooth_ad_codec_tx_power</a> &gt;</td></tr>
+<tr class="memdesc:a3fc4606985b7ba53b94100eb4188abed"><td class="mdescLeft">&#160;</td><td class="mdescRight">Value codec; see <a class="elRef" href="../../c-api/html/group__codecs.html#ga6dbe65e259dd2503de3e85e3ea9c2f1e">tlv_bluetooth_ad_codec_tx_power</a>.  <br /></td></tr>
+<tr class="separator:a3fc4606985b7ba53b94100eb4188abed"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a7fca8e722ee03900ac08cc438fd656f0" id="r_a7fca8e722ee03900ac08cc438fd656f0"><td class="memItemLeft" align="right" valign="top">using&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="namespacetlv_1_1bluetooth.html#a7fca8e722ee03900ac08cc438fd656f0">flags_codec</a> = detail::builtin_codec&lt; <a class="el" href="classtlv_1_1value__view.html">value_view</a>, <a class="elRef" href="../../c-api/html/structtlv__value__t.html">tlv_value_t</a>, &amp;<a class="elRef" href="../../c-api/html/group__codecs.html#ga3f9e2f06044f8ce7e759800385be114e">tlv_bluetooth_ad_codec_flags</a>, detail::borrowed_value_conversion &gt;</td></tr>
+<tr class="memdesc:a7fca8e722ee03900ac08cc438fd656f0"><td class="mdescLeft">&#160;</td><td class="mdescRight">Borrowed Value codec; see <a class="elRef" href="../../c-api/html/group__codecs.html#ga3f9e2f06044f8ce7e759800385be114e">tlv_bluetooth_ad_codec_flags</a>.  <br /></td></tr>
+<tr class="separator:a7fca8e722ee03900ac08cc438fd656f0"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:ae89c09d5237110a35a9e79e604ab365c" id="r_ae89c09d5237110a35a9e79e604ab365c"><td class="memItemLeft" align="right" valign="top">using&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="namespacetlv_1_1bluetooth.html#ae89c09d5237110a35a9e79e604ab365c">local_name_codec</a> = detail::builtin_codec&lt; <a class="el" href="classtlv_1_1value__view.html">value_view</a>, <a class="elRef" href="../../c-api/html/structtlv__value__t.html">tlv_value_t</a>, &amp;<a class="elRef" href="../../c-api/html/group__codecs.html#ga025bd73c1545a4291a54f7472b8db0c9">tlv_bluetooth_ad_codec_local_name</a>, detail::borrowed_value_conversion &gt;</td></tr>
+<tr class="memdesc:ae89c09d5237110a35a9e79e604ab365c"><td class="mdescLeft">&#160;</td><td class="mdescRight">Borrowed Value codec; see <a class="elRef" href="../../c-api/html/group__codecs.html#ga025bd73c1545a4291a54f7472b8db0c9">tlv_bluetooth_ad_codec_local_name</a>.  <br /></td></tr>
+<tr class="separator:ae89c09d5237110a35a9e79e604ab365c"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a585aaf871e0b68da0a787a51e541858a" id="r_a585aaf871e0b68da0a787a51e541858a"><td class="memItemLeft" align="right" valign="top">using&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="namespacetlv_1_1bluetooth.html#a585aaf871e0b68da0a787a51e541858a">uuid16_list_codec</a> = detail::builtin_codec&lt; <a class="el" href="structtlv_1_1bluetooth_1_1uuid__list.html">uuid_list</a>, <a class="elRef" href="../../c-api/html/group__codecs.html#ga46e7a4a78d27c5ff93b99aca25766908">tlv_bluetooth_uuid_list_t</a>, &amp;<a class="elRef" href="../../c-api/html/group__codecs.html#ga8d41d988308320da3c1a8d508235b1bf">tlv_bluetooth_codec_uuid16_list</a>, detail::bluetooth_uuid_list_conversion &gt;</td></tr>
+<tr class="memdesc:a585aaf871e0b68da0a787a51e541858a"><td class="mdescLeft">&#160;</td><td class="mdescRight">Value codec; see <a class="elRef" href="../../c-api/html/group__codecs.html#ga8d41d988308320da3c1a8d508235b1bf">tlv_bluetooth_codec_uuid16_list</a>.  <br /></td></tr>
+<tr class="separator:a585aaf871e0b68da0a787a51e541858a"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a3a1fc67b717a6021f7743589513fc9ed" id="r_a3a1fc67b717a6021f7743589513fc9ed"><td class="memItemLeft" align="right" valign="top">using&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="namespacetlv_1_1bluetooth.html#a3a1fc67b717a6021f7743589513fc9ed">uuid32_list_codec</a> = detail::builtin_codec&lt; <a class="el" href="structtlv_1_1bluetooth_1_1uuid__list.html">uuid_list</a>, <a class="elRef" href="../../c-api/html/group__codecs.html#ga46e7a4a78d27c5ff93b99aca25766908">tlv_bluetooth_uuid_list_t</a>, &amp;<a class="elRef" href="../../c-api/html/group__codecs.html#gada4d2460b1a38a94f676c2ab10fc7763">tlv_bluetooth_codec_uuid32_list</a>, detail::bluetooth_uuid_list_conversion &gt;</td></tr>
+<tr class="memdesc:a3a1fc67b717a6021f7743589513fc9ed"><td class="mdescLeft">&#160;</td><td class="mdescRight">Value codec; see <a class="elRef" href="../../c-api/html/group__codecs.html#gada4d2460b1a38a94f676c2ab10fc7763">tlv_bluetooth_codec_uuid32_list</a>.  <br /></td></tr>
+<tr class="separator:a3a1fc67b717a6021f7743589513fc9ed"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a20251d3066c2410441c8286cd563ad6f" id="r_a20251d3066c2410441c8286cd563ad6f"><td class="memItemLeft" align="right" valign="top">using&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="namespacetlv_1_1bluetooth.html#a20251d3066c2410441c8286cd563ad6f">uuid128_list_codec</a> = detail::builtin_codec&lt; <a class="el" href="structtlv_1_1bluetooth_1_1uuid__list.html">uuid_list</a>, <a class="elRef" href="../../c-api/html/group__codecs.html#ga46e7a4a78d27c5ff93b99aca25766908">tlv_bluetooth_uuid_list_t</a>, &amp;<a class="elRef" href="../../c-api/html/group__codecs.html#ga89e1cab2d3aebbd8be7d4025a45926f7">tlv_bluetooth_codec_uuid128_list</a>, detail::bluetooth_uuid_list_conversion &gt;</td></tr>
+<tr class="memdesc:a20251d3066c2410441c8286cd563ad6f"><td class="mdescLeft">&#160;</td><td class="mdescRight">Value codec; see <a class="elRef" href="../../c-api/html/group__codecs.html#ga89e1cab2d3aebbd8be7d4025a45926f7">tlv_bluetooth_codec_uuid128_list</a>.  <br /></td></tr>
+<tr class="separator:a20251d3066c2410441c8286cd563ad6f"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:ad6284c5411ae08f7502f7fba48440216" id="r_ad6284c5411ae08f7502f7fba48440216"><td class="memItemLeft" align="right" valign="top">using&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="namespacetlv_1_1bluetooth.html#ad6284c5411ae08f7502f7fba48440216">service_data16_codec</a> = detail::builtin_codec&lt; <a class="el" href="structtlv_1_1bluetooth_1_1service__data16.html">service_data16</a>, <a class="elRef" href="../../c-api/html/group__codecs.html#gaf516bf8a267edeb4de5364bf48a2dcf4">tlv_bluetooth_service_data16_t</a>, &amp;<a class="elRef" href="../../c-api/html/group__codecs.html#ga107f26fa8c20a4877fc7228ab5d6fba3">tlv_bluetooth_codec_service_data16</a>, detail::bluetooth_service_data16_conversion &gt;</td></tr>
+<tr class="memdesc:ad6284c5411ae08f7502f7fba48440216"><td class="mdescLeft">&#160;</td><td class="mdescRight">Value codec; see <a class="elRef" href="../../c-api/html/group__codecs.html#ga107f26fa8c20a4877fc7228ab5d6fba3">tlv_bluetooth_codec_service_data16</a>.  <br /></td></tr>
+<tr class="separator:ad6284c5411ae08f7502f7fba48440216"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a2d22865b902fe8076f6daaabea7fe833" id="r_a2d22865b902fe8076f6daaabea7fe833"><td class="memItemLeft" align="right" valign="top">using&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="namespacetlv_1_1bluetooth.html#a2d22865b902fe8076f6daaabea7fe833">service_data32_codec</a> = detail::builtin_codec&lt; <a class="el" href="structtlv_1_1bluetooth_1_1service__data32.html">service_data32</a>, <a class="elRef" href="../../c-api/html/group__codecs.html#gadec783bc1ef90f1e6881a25687154de5">tlv_bluetooth_service_data32_t</a>, &amp;<a class="elRef" href="../../c-api/html/group__codecs.html#ga450ff3e93a08b6b622969172232b6b37">tlv_bluetooth_codec_service_data32</a>, detail::bluetooth_service_data32_conversion &gt;</td></tr>
+<tr class="memdesc:a2d22865b902fe8076f6daaabea7fe833"><td class="mdescLeft">&#160;</td><td class="mdescRight">Value codec; see <a class="elRef" href="../../c-api/html/group__codecs.html#ga450ff3e93a08b6b622969172232b6b37">tlv_bluetooth_codec_service_data32</a>.  <br /></td></tr>
+<tr class="separator:a2d22865b902fe8076f6daaabea7fe833"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:af1a0c139730587d7b14de4ed4446dd7b" id="r_af1a0c139730587d7b14de4ed4446dd7b"><td class="memItemLeft" align="right" valign="top">using&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="namespacetlv_1_1bluetooth.html#af1a0c139730587d7b14de4ed4446dd7b">service_data128_codec</a> = detail::builtin_codec&lt; <a class="el" href="structtlv_1_1bluetooth_1_1service__data128.html">service_data128</a>, <a class="elRef" href="../../c-api/html/group__codecs.html#gae82c78856868db9aedd9018ffed7c044">tlv_bluetooth_service_data128_t</a>, &amp;<a class="elRef" href="../../c-api/html/group__codecs.html#ga85065b8ed22e2b19adfee7866c1cb42f">tlv_bluetooth_codec_service_data128</a>, detail::bluetooth_service_data128_conversion &gt;</td></tr>
+<tr class="memdesc:af1a0c139730587d7b14de4ed4446dd7b"><td class="mdescLeft">&#160;</td><td class="mdescRight">Value codec; see <a class="elRef" href="../../c-api/html/group__codecs.html#ga85065b8ed22e2b19adfee7866c1cb42f">tlv_bluetooth_codec_service_data128</a>.  <br /></td></tr>
+<tr class="separator:af1a0c139730587d7b14de4ed4446dd7b"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a814ea7426564c31dfd2034d93c9e8560" id="r_a814ea7426564c31dfd2034d93c9e8560"><td class="memItemLeft" align="right" valign="top">using&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="namespacetlv_1_1bluetooth.html#a814ea7426564c31dfd2034d93c9e8560">manufacturer_data_codec</a> = detail::builtin_codec&lt; <a class="el" href="structtlv_1_1bluetooth_1_1manufacturer__data.html">manufacturer_data</a>, <a class="elRef" href="../../c-api/html/group__codecs.html#ga519fac563c311b6ea25b77c2f95fe4f0">tlv_bluetooth_manufacturer_data_t</a>, &amp;<a class="elRef" href="../../c-api/html/group__codecs.html#gaf62da319cb685f19f07f970bab7ce803">tlv_bluetooth_codec_manufacturer_data</a>, detail::bluetooth_manufacturer_data_conversion &gt;</td></tr>
+<tr class="memdesc:a814ea7426564c31dfd2034d93c9e8560"><td class="mdescLeft">&#160;</td><td class="mdescRight">Value codec; see <a class="elRef" href="../../c-api/html/group__codecs.html#gaf62da319cb685f19f07f970bab7ce803">tlv_bluetooth_codec_manufacturer_data</a>.  <br /></td></tr>
+<tr class="separator:a814ea7426564c31dfd2034d93c9e8560"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a43f34242b9d2494e211361da96fa1df2" id="r_a43f34242b9d2494e211361da96fa1df2"><td class="memItemLeft" align="right" valign="top">using&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="namespacetlv_1_1bluetooth.html#a43f34242b9d2494e211361da96fa1df2">flags_field</a> = <a class="el" href="structtlv_1_1field.html">tlv::field</a>&lt; <a class="el" href="structtlv_1_1tag__constant.html">tlv::tag_constant</a>&lt; 0x01 &gt;, flags_codec::value_type, <a class="el" href="namespacetlv_1_1bluetooth.html#a7fca8e722ee03900ac08cc438fd656f0">flags_codec</a> &gt;</td></tr>
+<tr class="memdesc:a43f34242b9d2494e211361da96fa1df2"><td class="mdescLeft">&#160;</td><td class="mdescRight">Advertising Data field; Schema owns contextual length constraints.  <br /></td></tr>
+<tr class="separator:a43f34242b9d2494e211361da96fa1df2"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a20dc22c69fe1e2722d7b1976495b6271" id="r_a20dc22c69fe1e2722d7b1976495b6271"><td class="memItemLeft" align="right" valign="top">using&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="namespacetlv_1_1bluetooth.html#a20dc22c69fe1e2722d7b1976495b6271">incomplete_uuid16_list_field</a> = <a class="el" href="structtlv_1_1field.html">tlv::field</a>&lt; <a class="el" href="structtlv_1_1tag__constant.html">tlv::tag_constant</a>&lt; 0x02 &gt;, uuid16_list_codec::value_type, <a class="el" href="namespacetlv_1_1bluetooth.html#a585aaf871e0b68da0a787a51e541858a">uuid16_list_codec</a> &gt;</td></tr>
+<tr class="memdesc:a20dc22c69fe1e2722d7b1976495b6271"><td class="mdescLeft">&#160;</td><td class="mdescRight">Advertising Data field; Schema owns contextual length constraints.  <br /></td></tr>
+<tr class="separator:a20dc22c69fe1e2722d7b1976495b6271"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:ae05a38a042d821dfaa872b80d84702d6" id="r_ae05a38a042d821dfaa872b80d84702d6"><td class="memItemLeft" align="right" valign="top">using&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="namespacetlv_1_1bluetooth.html#ae05a38a042d821dfaa872b80d84702d6">complete_uuid16_list_field</a> = <a class="el" href="structtlv_1_1field.html">tlv::field</a>&lt; <a class="el" href="structtlv_1_1tag__constant.html">tlv::tag_constant</a>&lt; 0x03 &gt;, uuid16_list_codec::value_type, <a class="el" href="namespacetlv_1_1bluetooth.html#a585aaf871e0b68da0a787a51e541858a">uuid16_list_codec</a> &gt;</td></tr>
+<tr class="memdesc:ae05a38a042d821dfaa872b80d84702d6"><td class="mdescLeft">&#160;</td><td class="mdescRight">Advertising Data field; Schema owns contextual length constraints.  <br /></td></tr>
+<tr class="separator:ae05a38a042d821dfaa872b80d84702d6"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a8fccd3b60a6b56ab82f486236b0e073c" id="r_a8fccd3b60a6b56ab82f486236b0e073c"><td class="memItemLeft" align="right" valign="top">using&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="namespacetlv_1_1bluetooth.html#a8fccd3b60a6b56ab82f486236b0e073c">incomplete_uuid32_list_field</a> = <a class="el" href="structtlv_1_1field.html">tlv::field</a>&lt; <a class="el" href="structtlv_1_1tag__constant.html">tlv::tag_constant</a>&lt; 0x04 &gt;, uuid32_list_codec::value_type, <a class="el" href="namespacetlv_1_1bluetooth.html#a3a1fc67b717a6021f7743589513fc9ed">uuid32_list_codec</a> &gt;</td></tr>
+<tr class="memdesc:a8fccd3b60a6b56ab82f486236b0e073c"><td class="mdescLeft">&#160;</td><td class="mdescRight">Advertising Data field; Schema owns contextual length constraints.  <br /></td></tr>
+<tr class="separator:a8fccd3b60a6b56ab82f486236b0e073c"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a81c6e6be8fcefff90f764c866e5a0792" id="r_a81c6e6be8fcefff90f764c866e5a0792"><td class="memItemLeft" align="right" valign="top">using&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="namespacetlv_1_1bluetooth.html#a81c6e6be8fcefff90f764c866e5a0792">complete_uuid32_list_field</a> = <a class="el" href="structtlv_1_1field.html">tlv::field</a>&lt; <a class="el" href="structtlv_1_1tag__constant.html">tlv::tag_constant</a>&lt; 0x05 &gt;, uuid32_list_codec::value_type, <a class="el" href="namespacetlv_1_1bluetooth.html#a3a1fc67b717a6021f7743589513fc9ed">uuid32_list_codec</a> &gt;</td></tr>
+<tr class="memdesc:a81c6e6be8fcefff90f764c866e5a0792"><td class="mdescLeft">&#160;</td><td class="mdescRight">Advertising Data field; Schema owns contextual length constraints.  <br /></td></tr>
+<tr class="separator:a81c6e6be8fcefff90f764c866e5a0792"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a5354155862fe86b11ea8458e52f16fb9" id="r_a5354155862fe86b11ea8458e52f16fb9"><td class="memItemLeft" align="right" valign="top">using&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="namespacetlv_1_1bluetooth.html#a5354155862fe86b11ea8458e52f16fb9">incomplete_uuid128_list_field</a> = <a class="el" href="structtlv_1_1field.html">tlv::field</a>&lt; <a class="el" href="structtlv_1_1tag__constant.html">tlv::tag_constant</a>&lt; 0x06 &gt;, uuid128_list_codec::value_type, <a class="el" href="namespacetlv_1_1bluetooth.html#a20251d3066c2410441c8286cd563ad6f">uuid128_list_codec</a> &gt;</td></tr>
+<tr class="memdesc:a5354155862fe86b11ea8458e52f16fb9"><td class="mdescLeft">&#160;</td><td class="mdescRight">Advertising Data field; Schema owns contextual length constraints.  <br /></td></tr>
+<tr class="separator:a5354155862fe86b11ea8458e52f16fb9"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a12084b220831efd7065d0b2994e4e83a" id="r_a12084b220831efd7065d0b2994e4e83a"><td class="memItemLeft" align="right" valign="top">using&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="namespacetlv_1_1bluetooth.html#a12084b220831efd7065d0b2994e4e83a">complete_uuid128_list_field</a> = <a class="el" href="structtlv_1_1field.html">tlv::field</a>&lt; <a class="el" href="structtlv_1_1tag__constant.html">tlv::tag_constant</a>&lt; 0x07 &gt;, uuid128_list_codec::value_type, <a class="el" href="namespacetlv_1_1bluetooth.html#a20251d3066c2410441c8286cd563ad6f">uuid128_list_codec</a> &gt;</td></tr>
+<tr class="memdesc:a12084b220831efd7065d0b2994e4e83a"><td class="mdescLeft">&#160;</td><td class="mdescRight">Advertising Data field; Schema owns contextual length constraints.  <br /></td></tr>
+<tr class="separator:a12084b220831efd7065d0b2994e4e83a"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:ae7a4c0a28c2e09a4d0c9d080aa85a59d" id="r_ae7a4c0a28c2e09a4d0c9d080aa85a59d"><td class="memItemLeft" align="right" valign="top">using&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="namespacetlv_1_1bluetooth.html#ae7a4c0a28c2e09a4d0c9d080aa85a59d">shortened_local_name_field</a> = <a class="el" href="structtlv_1_1field.html">tlv::field</a>&lt; <a class="el" href="structtlv_1_1tag__constant.html">tlv::tag_constant</a>&lt; 0x08 &gt;, local_name_codec::value_type, <a class="el" href="namespacetlv_1_1bluetooth.html#ae89c09d5237110a35a9e79e604ab365c">local_name_codec</a> &gt;</td></tr>
+<tr class="memdesc:ae7a4c0a28c2e09a4d0c9d080aa85a59d"><td class="mdescLeft">&#160;</td><td class="mdescRight">Advertising Data field; Schema owns contextual length constraints.  <br /></td></tr>
+<tr class="separator:ae7a4c0a28c2e09a4d0c9d080aa85a59d"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a085e051bec8ffad4f58f5d9696bcb84b" id="r_a085e051bec8ffad4f58f5d9696bcb84b"><td class="memItemLeft" align="right" valign="top">using&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="namespacetlv_1_1bluetooth.html#a085e051bec8ffad4f58f5d9696bcb84b">complete_local_name_field</a> = <a class="el" href="structtlv_1_1field.html">tlv::field</a>&lt; <a class="el" href="structtlv_1_1tag__constant.html">tlv::tag_constant</a>&lt; 0x09 &gt;, local_name_codec::value_type, <a class="el" href="namespacetlv_1_1bluetooth.html#ae89c09d5237110a35a9e79e604ab365c">local_name_codec</a> &gt;</td></tr>
+<tr class="memdesc:a085e051bec8ffad4f58f5d9696bcb84b"><td class="mdescLeft">&#160;</td><td class="mdescRight">Advertising Data field; Schema owns contextual length constraints.  <br /></td></tr>
+<tr class="separator:a085e051bec8ffad4f58f5d9696bcb84b"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a5f54df1e7a73caa64619a8d6e59849ce" id="r_a5f54df1e7a73caa64619a8d6e59849ce"><td class="memItemLeft" align="right" valign="top">using&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="namespacetlv_1_1bluetooth.html#a5f54df1e7a73caa64619a8d6e59849ce">tx_power_field</a> = <a class="el" href="structtlv_1_1field.html">tlv::field</a>&lt; <a class="el" href="structtlv_1_1tag__constant.html">tlv::tag_constant</a>&lt; 0x0A &gt;, <a class="el" href="structtlv_1_1codec__adapter.html#a851cecb1f3a004c60020d15b9728abd2">tx_power_codec::value_type</a>, <a class="el" href="namespacetlv_1_1bluetooth.html#a3fc4606985b7ba53b94100eb4188abed">tx_power_codec</a> &gt;</td></tr>
+<tr class="memdesc:a5f54df1e7a73caa64619a8d6e59849ce"><td class="mdescLeft">&#160;</td><td class="mdescRight">Advertising Data field; Schema owns contextual length constraints.  <br /></td></tr>
+<tr class="separator:a5f54df1e7a73caa64619a8d6e59849ce"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:afa86778fcd459068742046df3cbc8991" id="r_afa86778fcd459068742046df3cbc8991"><td class="memItemLeft" align="right" valign="top">using&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="namespacetlv_1_1bluetooth.html#afa86778fcd459068742046df3cbc8991">service_data16_field</a> = <a class="el" href="structtlv_1_1field.html">tlv::field</a>&lt; <a class="el" href="structtlv_1_1tag__constant.html">tlv::tag_constant</a>&lt; 0x16 &gt;, service_data16_codec::value_type, <a class="el" href="namespacetlv_1_1bluetooth.html#ad6284c5411ae08f7502f7fba48440216">service_data16_codec</a> &gt;</td></tr>
+<tr class="memdesc:afa86778fcd459068742046df3cbc8991"><td class="mdescLeft">&#160;</td><td class="mdescRight">Advertising Data field; Schema owns contextual length constraints.  <br /></td></tr>
+<tr class="separator:afa86778fcd459068742046df3cbc8991"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a98355ebd5cfdb6f1dfa533cd082bb477" id="r_a98355ebd5cfdb6f1dfa533cd082bb477"><td class="memItemLeft" align="right" valign="top">using&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="namespacetlv_1_1bluetooth.html#a98355ebd5cfdb6f1dfa533cd082bb477">service_data32_field</a> = <a class="el" href="structtlv_1_1field.html">tlv::field</a>&lt; <a class="el" href="structtlv_1_1tag__constant.html">tlv::tag_constant</a>&lt; 0x20 &gt;, service_data32_codec::value_type, <a class="el" href="namespacetlv_1_1bluetooth.html#a2d22865b902fe8076f6daaabea7fe833">service_data32_codec</a> &gt;</td></tr>
+<tr class="memdesc:a98355ebd5cfdb6f1dfa533cd082bb477"><td class="mdescLeft">&#160;</td><td class="mdescRight">Advertising Data field; Schema owns contextual length constraints.  <br /></td></tr>
+<tr class="separator:a98355ebd5cfdb6f1dfa533cd082bb477"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:afa2024cc4dc14e849796cb713f952e7e" id="r_afa2024cc4dc14e849796cb713f952e7e"><td class="memItemLeft" align="right" valign="top">using&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="namespacetlv_1_1bluetooth.html#afa2024cc4dc14e849796cb713f952e7e">service_data128_field</a> = <a class="el" href="structtlv_1_1field.html">tlv::field</a>&lt; <a class="el" href="structtlv_1_1tag__constant.html">tlv::tag_constant</a>&lt; 0x21 &gt;, service_data128_codec::value_type, <a class="el" href="namespacetlv_1_1bluetooth.html#af1a0c139730587d7b14de4ed4446dd7b">service_data128_codec</a> &gt;</td></tr>
+<tr class="memdesc:afa2024cc4dc14e849796cb713f952e7e"><td class="mdescLeft">&#160;</td><td class="mdescRight">Advertising Data field; Schema owns contextual length constraints.  <br /></td></tr>
+<tr class="separator:afa2024cc4dc14e849796cb713f952e7e"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a728f93cc9be1aeeebe899226d8c5538a" id="r_a728f93cc9be1aeeebe899226d8c5538a"><td class="memItemLeft" align="right" valign="top">using&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="namespacetlv_1_1bluetooth.html#a728f93cc9be1aeeebe899226d8c5538a">manufacturer_data_field</a> = <a class="el" href="structtlv_1_1field.html">tlv::field</a>&lt; <a class="el" href="structtlv_1_1tag__constant.html">tlv::tag_constant</a>&lt; 0xFF &gt;, manufacturer_data_codec::value_type, <a class="el" href="namespacetlv_1_1bluetooth.html#a814ea7426564c31dfd2034d93c9e8560">manufacturer_data_codec</a> &gt;</td></tr>
+<tr class="memdesc:a728f93cc9be1aeeebe899226d8c5538a"><td class="mdescLeft">&#160;</td><td class="mdescRight">Advertising Data field; Schema owns contextual length constraints.  <br /></td></tr>
+<tr class="separator:a728f93cc9be1aeeebe899226d8c5538a"><td class="memSeparator" colspan="2">&#160;</td></tr>
 </table><table class="memberdecls">
 <tr class="heading"><td colspan="2"><h2 class="groupheader"><a id="func-members" name="func-members"></a>
 Functions</h2></td></tr>
+<tr class="memitem:aceaebe78adf2abf6de001cf5571b738c" id="r_aceaebe78adf2abf6de001cf5571b738c"><td class="memTemplParams" colspan="2">template&lt;typename Output , typename Callback &gt; </td></tr>
+<tr class="memitem:aceaebe78adf2abf6de001cf5571b738c"><td class="memTemplItemLeft" align="right" valign="top"><a class="el" href="classtlv_1_1expected.html">expected</a>&lt; size_t, <a class="el" href="structtlv_1_1writer__failure.html">writer_failure</a> &gt;&#160;</td><td class="memTemplItemRight" valign="bottom"><a class="el" href="namespacetlv_1_1bluetooth.html#aceaebe78adf2abf6de001cf5571b738c">encode</a> (Output &amp;&amp;output, <a class="el" href="structtlv_1_1writer__workspace.html">writer_workspace</a> workspace, Callback &amp;&amp;callback, <a class="el" href="namespacetlv.html#a1df134eb9e2b476155eb324618396e4d">writer_diagnostic</a> *<a class="el" href="namespacetlv.html#a00ca9c69c35ef11f6a22b7eda1b115ba">diagnostic</a>=nullptr)</td></tr>
+<tr class="memdesc:aceaebe78adf2abf6de001cf5571b738c"><td class="mdescLeft">&#160;</td><td class="mdescRight">Build BLUETOOTH output with explicit caller-owned frames and scratch.  <br /></td></tr>
+<tr class="separator:aceaebe78adf2abf6de001cf5571b738c"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:addce8517559fa92c270bec73b1059e92" id="r_addce8517559fa92c270bec73b1059e92"><td class="memTemplParams" colspan="2">template&lt;size_t ScratchCapacity = 1024, size_t Depth = TLV_TREE_DEFAULT_DEPTH, typename Output , typename Callback &gt; </td></tr>
+<tr class="memitem:addce8517559fa92c270bec73b1059e92"><td class="memTemplItemLeft" align="right" valign="top"><a class="el" href="classtlv_1_1expected.html">expected</a>&lt; size_t, <a class="el" href="structtlv_1_1writer__failure.html">writer_failure</a> &gt;&#160;</td><td class="memTemplItemRight" valign="bottom"><a class="el" href="namespacetlv_1_1bluetooth.html#addce8517559fa92c270bec73b1059e92">encode</a> (Output &amp;&amp;output, Callback &amp;&amp;callback, <a class="el" href="namespacetlv.html#a1df134eb9e2b476155eb324618396e4d">writer_diagnostic</a> *<a class="el" href="namespacetlv.html#a00ca9c69c35ef11f6a22b7eda1b115ba">diagnostic</a>=nullptr)</td></tr>
+<tr class="memdesc:addce8517559fa92c270bec73b1059e92"><td class="mdescLeft">&#160;</td><td class="mdescRight">Build BLUETOOTH output using bounded local stack workspace.  <br /></td></tr>
+<tr class="separator:addce8517559fa92c270bec73b1059e92"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:a9f45c12d6195b9ff58b319e82c44517d" id="r_a9f45c12d6195b9ff58b319e82c44517d"><td class="memItemLeft" align="right" valign="top"><a class="el" href="classtlv_1_1detail_1_1parsing__range.html">detail::parsing_range</a>&lt; <a class="el" href="classtlv_1_1bluetooth_1_1format.html">format</a> &gt;&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="namespacetlv_1_1bluetooth.html#a9f45c12d6195b9ff58b319e82c44517d">parse</a> (<a class="el" href="namespacetlv.html#a2abe7003a70af047ef9acae17f31f75d">bytes</a> data)</td></tr>
 <tr class="memdesc:a9f45c12d6195b9ff58b319e82c44517d"><td class="mdescLeft">&#160;</td><td class="mdescRight">Parse final input as borrowed Elements using the built-in Format.  <br /></td></tr>
 <tr class="separator:a9f45c12d6195b9ff58b319e82c44517d"><td class="memSeparator" colspan="2">&#160;</td></tr>
 </table>
 <a name="details" id="details"></a><h2 class="groupheader">Detailed Description</h2>
-<div class="textblock"><p>Bluetooth wire framing; AD container validation remains separate. </p>
-</div><h2 class="groupheader">Function Documentation</h2>
+<div class="textblock"><p>Bluetooth Advertising Data Value semantics. </p>
+<p>Bluetooth wire framing; AD container validation remains separate. </p>
+</div><h2 class="groupheader">Typedef Documentation</h2>
+<a id="a085e051bec8ffad4f58f5d9696bcb84b" name="a085e051bec8ffad4f58f5d9696bcb84b"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#a085e051bec8ffad4f58f5d9696bcb84b">&#9670;&#160;</a></span>complete_local_name_field</h2>
+
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname">using <a class="el" href="namespacetlv_1_1bluetooth.html#a085e051bec8ffad4f58f5d9696bcb84b">tlv::bluetooth::complete_local_name_field</a> = typedef <a class="el" href="structtlv_1_1field.html">tlv::field</a>&lt;<a class="el" href="structtlv_1_1tag__constant.html">tlv::tag_constant</a>&lt;0x09&gt;, local_name_codec::value_type, <a class="el" href="namespacetlv_1_1bluetooth.html#ae89c09d5237110a35a9e79e604ab365c">local_name_codec</a>&gt;</td>
+        </tr>
+      </table>
+</div><div class="memdoc">
+
+<p>Advertising Data field; Schema owns contextual length constraints. </p>
+
+</div>
+</div>
+<a id="a12084b220831efd7065d0b2994e4e83a" name="a12084b220831efd7065d0b2994e4e83a"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#a12084b220831efd7065d0b2994e4e83a">&#9670;&#160;</a></span>complete_uuid128_list_field</h2>
+
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname">using <a class="el" href="namespacetlv_1_1bluetooth.html#a12084b220831efd7065d0b2994e4e83a">tlv::bluetooth::complete_uuid128_list_field</a> = typedef <a class="el" href="structtlv_1_1field.html">tlv::field</a>&lt;<a class="el" href="structtlv_1_1tag__constant.html">tlv::tag_constant</a>&lt;0x07&gt;, uuid128_list_codec::value_type, <a class="el" href="namespacetlv_1_1bluetooth.html#a20251d3066c2410441c8286cd563ad6f">uuid128_list_codec</a>&gt;</td>
+        </tr>
+      </table>
+</div><div class="memdoc">
+
+<p>Advertising Data field; Schema owns contextual length constraints. </p>
+
+</div>
+</div>
+<a id="ae05a38a042d821dfaa872b80d84702d6" name="ae05a38a042d821dfaa872b80d84702d6"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#ae05a38a042d821dfaa872b80d84702d6">&#9670;&#160;</a></span>complete_uuid16_list_field</h2>
+
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname">using <a class="el" href="namespacetlv_1_1bluetooth.html#ae05a38a042d821dfaa872b80d84702d6">tlv::bluetooth::complete_uuid16_list_field</a> = typedef <a class="el" href="structtlv_1_1field.html">tlv::field</a>&lt;<a class="el" href="structtlv_1_1tag__constant.html">tlv::tag_constant</a>&lt;0x03&gt;, uuid16_list_codec::value_type, <a class="el" href="namespacetlv_1_1bluetooth.html#a585aaf871e0b68da0a787a51e541858a">uuid16_list_codec</a>&gt;</td>
+        </tr>
+      </table>
+</div><div class="memdoc">
+
+<p>Advertising Data field; Schema owns contextual length constraints. </p>
+
+</div>
+</div>
+<a id="a81c6e6be8fcefff90f764c866e5a0792" name="a81c6e6be8fcefff90f764c866e5a0792"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#a81c6e6be8fcefff90f764c866e5a0792">&#9670;&#160;</a></span>complete_uuid32_list_field</h2>
+
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname">using <a class="el" href="namespacetlv_1_1bluetooth.html#a81c6e6be8fcefff90f764c866e5a0792">tlv::bluetooth::complete_uuid32_list_field</a> = typedef <a class="el" href="structtlv_1_1field.html">tlv::field</a>&lt;<a class="el" href="structtlv_1_1tag__constant.html">tlv::tag_constant</a>&lt;0x05&gt;, uuid32_list_codec::value_type, <a class="el" href="namespacetlv_1_1bluetooth.html#a3a1fc67b717a6021f7743589513fc9ed">uuid32_list_codec</a>&gt;</td>
+        </tr>
+      </table>
+</div><div class="memdoc">
+
+<p>Advertising Data field; Schema owns contextual length constraints. </p>
+
+</div>
+</div>
+<a id="a7fca8e722ee03900ac08cc438fd656f0" name="a7fca8e722ee03900ac08cc438fd656f0"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#a7fca8e722ee03900ac08cc438fd656f0">&#9670;&#160;</a></span>flags_codec</h2>
+
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname">using <a class="el" href="namespacetlv_1_1bluetooth.html#a7fca8e722ee03900ac08cc438fd656f0">tlv::bluetooth::flags_codec</a> = typedef detail::builtin_codec&lt;<a class="el" href="classtlv_1_1value__view.html">value_view</a>, <a class="elRef" href="../../c-api/html/structtlv__value__t.html">tlv_value_t</a>, &amp;<a class="elRef" href="../../c-api/html/group__codecs.html#ga3f9e2f06044f8ce7e759800385be114e">tlv_bluetooth_ad_codec_flags</a>, detail::borrowed_value_conversion&gt;</td>
+        </tr>
+      </table>
+</div><div class="memdoc">
+
+<p>Borrowed Value codec; see <a class="elRef" href="../../c-api/html/group__codecs.html#ga3f9e2f06044f8ce7e759800385be114e">tlv_bluetooth_ad_codec_flags</a>. </p>
+
+</div>
+</div>
+<a id="a43f34242b9d2494e211361da96fa1df2" name="a43f34242b9d2494e211361da96fa1df2"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#a43f34242b9d2494e211361da96fa1df2">&#9670;&#160;</a></span>flags_field</h2>
+
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname">using <a class="el" href="namespacetlv_1_1bluetooth.html#a43f34242b9d2494e211361da96fa1df2">tlv::bluetooth::flags_field</a> = typedef <a class="el" href="structtlv_1_1field.html">tlv::field</a>&lt;<a class="el" href="structtlv_1_1tag__constant.html">tlv::tag_constant</a>&lt;0x01&gt;, flags_codec::value_type, <a class="el" href="namespacetlv_1_1bluetooth.html#a7fca8e722ee03900ac08cc438fd656f0">flags_codec</a>&gt;</td>
+        </tr>
+      </table>
+</div><div class="memdoc">
+
+<p>Advertising Data field; Schema owns contextual length constraints. </p>
+
+</div>
+</div>
+<a id="a5354155862fe86b11ea8458e52f16fb9" name="a5354155862fe86b11ea8458e52f16fb9"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#a5354155862fe86b11ea8458e52f16fb9">&#9670;&#160;</a></span>incomplete_uuid128_list_field</h2>
+
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname">using <a class="el" href="namespacetlv_1_1bluetooth.html#a5354155862fe86b11ea8458e52f16fb9">tlv::bluetooth::incomplete_uuid128_list_field</a> = typedef <a class="el" href="structtlv_1_1field.html">tlv::field</a>&lt;<a class="el" href="structtlv_1_1tag__constant.html">tlv::tag_constant</a>&lt;0x06&gt;, uuid128_list_codec::value_type, <a class="el" href="namespacetlv_1_1bluetooth.html#a20251d3066c2410441c8286cd563ad6f">uuid128_list_codec</a>&gt;</td>
+        </tr>
+      </table>
+</div><div class="memdoc">
+
+<p>Advertising Data field; Schema owns contextual length constraints. </p>
+
+</div>
+</div>
+<a id="a20dc22c69fe1e2722d7b1976495b6271" name="a20dc22c69fe1e2722d7b1976495b6271"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#a20dc22c69fe1e2722d7b1976495b6271">&#9670;&#160;</a></span>incomplete_uuid16_list_field</h2>
+
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname">using <a class="el" href="namespacetlv_1_1bluetooth.html#a20dc22c69fe1e2722d7b1976495b6271">tlv::bluetooth::incomplete_uuid16_list_field</a> = typedef <a class="el" href="structtlv_1_1field.html">tlv::field</a>&lt;<a class="el" href="structtlv_1_1tag__constant.html">tlv::tag_constant</a>&lt;0x02&gt;, uuid16_list_codec::value_type, <a class="el" href="namespacetlv_1_1bluetooth.html#a585aaf871e0b68da0a787a51e541858a">uuid16_list_codec</a>&gt;</td>
+        </tr>
+      </table>
+</div><div class="memdoc">
+
+<p>Advertising Data field; Schema owns contextual length constraints. </p>
+
+</div>
+</div>
+<a id="a8fccd3b60a6b56ab82f486236b0e073c" name="a8fccd3b60a6b56ab82f486236b0e073c"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#a8fccd3b60a6b56ab82f486236b0e073c">&#9670;&#160;</a></span>incomplete_uuid32_list_field</h2>
+
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname">using <a class="el" href="namespacetlv_1_1bluetooth.html#a8fccd3b60a6b56ab82f486236b0e073c">tlv::bluetooth::incomplete_uuid32_list_field</a> = typedef <a class="el" href="structtlv_1_1field.html">tlv::field</a>&lt;<a class="el" href="structtlv_1_1tag__constant.html">tlv::tag_constant</a>&lt;0x04&gt;, uuid32_list_codec::value_type, <a class="el" href="namespacetlv_1_1bluetooth.html#a3a1fc67b717a6021f7743589513fc9ed">uuid32_list_codec</a>&gt;</td>
+        </tr>
+      </table>
+</div><div class="memdoc">
+
+<p>Advertising Data field; Schema owns contextual length constraints. </p>
+
+</div>
+</div>
+<a id="ae89c09d5237110a35a9e79e604ab365c" name="ae89c09d5237110a35a9e79e604ab365c"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#ae89c09d5237110a35a9e79e604ab365c">&#9670;&#160;</a></span>local_name_codec</h2>
+
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname">using <a class="el" href="namespacetlv_1_1bluetooth.html#ae89c09d5237110a35a9e79e604ab365c">tlv::bluetooth::local_name_codec</a> = typedef detail::builtin_codec&lt;<a class="el" href="classtlv_1_1value__view.html">value_view</a>, <a class="elRef" href="../../c-api/html/structtlv__value__t.html">tlv_value_t</a>, &amp;<a class="elRef" href="../../c-api/html/group__codecs.html#ga025bd73c1545a4291a54f7472b8db0c9">tlv_bluetooth_ad_codec_local_name</a>, detail::borrowed_value_conversion&gt;</td>
+        </tr>
+      </table>
+</div><div class="memdoc">
+
+<p>Borrowed Value codec; see <a class="elRef" href="../../c-api/html/group__codecs.html#ga025bd73c1545a4291a54f7472b8db0c9">tlv_bluetooth_ad_codec_local_name</a>. </p>
+
+</div>
+</div>
+<a id="a814ea7426564c31dfd2034d93c9e8560" name="a814ea7426564c31dfd2034d93c9e8560"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#a814ea7426564c31dfd2034d93c9e8560">&#9670;&#160;</a></span>manufacturer_data_codec</h2>
+
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname">using <a class="el" href="namespacetlv_1_1bluetooth.html#a814ea7426564c31dfd2034d93c9e8560">tlv::bluetooth::manufacturer_data_codec</a> = typedef detail::builtin_codec&lt;<a class="el" href="structtlv_1_1bluetooth_1_1manufacturer__data.html">manufacturer_data</a>, <a class="elRef" href="../../c-api/html/group__codecs.html#ga519fac563c311b6ea25b77c2f95fe4f0">tlv_bluetooth_manufacturer_data_t</a>, &amp;<a class="elRef" href="../../c-api/html/group__codecs.html#gaf62da319cb685f19f07f970bab7ce803">tlv_bluetooth_codec_manufacturer_data</a>, detail::bluetooth_manufacturer_data_conversion&gt;</td>
+        </tr>
+      </table>
+</div><div class="memdoc">
+
+<p>Value codec; see <a class="elRef" href="../../c-api/html/group__codecs.html#gaf62da319cb685f19f07f970bab7ce803">tlv_bluetooth_codec_manufacturer_data</a>. </p>
+
+</div>
+</div>
+<a id="a728f93cc9be1aeeebe899226d8c5538a" name="a728f93cc9be1aeeebe899226d8c5538a"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#a728f93cc9be1aeeebe899226d8c5538a">&#9670;&#160;</a></span>manufacturer_data_field</h2>
+
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname">using <a class="el" href="namespacetlv_1_1bluetooth.html#a728f93cc9be1aeeebe899226d8c5538a">tlv::bluetooth::manufacturer_data_field</a> = typedef <a class="el" href="structtlv_1_1field.html">tlv::field</a>&lt;<a class="el" href="structtlv_1_1tag__constant.html">tlv::tag_constant</a>&lt;0xFF&gt;, manufacturer_data_codec::value_type, <a class="el" href="namespacetlv_1_1bluetooth.html#a814ea7426564c31dfd2034d93c9e8560">manufacturer_data_codec</a>&gt;</td>
+        </tr>
+      </table>
+</div><div class="memdoc">
+
+<p>Advertising Data field; Schema owns contextual length constraints. </p>
+
+</div>
+</div>
+<a id="af1a0c139730587d7b14de4ed4446dd7b" name="af1a0c139730587d7b14de4ed4446dd7b"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#af1a0c139730587d7b14de4ed4446dd7b">&#9670;&#160;</a></span>service_data128_codec</h2>
+
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname">using <a class="el" href="namespacetlv_1_1bluetooth.html#af1a0c139730587d7b14de4ed4446dd7b">tlv::bluetooth::service_data128_codec</a> = typedef detail::builtin_codec&lt;<a class="el" href="structtlv_1_1bluetooth_1_1service__data128.html">service_data128</a>, <a class="elRef" href="../../c-api/html/group__codecs.html#gae82c78856868db9aedd9018ffed7c044">tlv_bluetooth_service_data128_t</a>, &amp;<a class="elRef" href="../../c-api/html/group__codecs.html#ga85065b8ed22e2b19adfee7866c1cb42f">tlv_bluetooth_codec_service_data128</a>, detail::bluetooth_service_data128_conversion&gt;</td>
+        </tr>
+      </table>
+</div><div class="memdoc">
+
+<p>Value codec; see <a class="elRef" href="../../c-api/html/group__codecs.html#ga85065b8ed22e2b19adfee7866c1cb42f">tlv_bluetooth_codec_service_data128</a>. </p>
+
+</div>
+</div>
+<a id="afa2024cc4dc14e849796cb713f952e7e" name="afa2024cc4dc14e849796cb713f952e7e"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#afa2024cc4dc14e849796cb713f952e7e">&#9670;&#160;</a></span>service_data128_field</h2>
+
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname">using <a class="el" href="namespacetlv_1_1bluetooth.html#afa2024cc4dc14e849796cb713f952e7e">tlv::bluetooth::service_data128_field</a> = typedef <a class="el" href="structtlv_1_1field.html">tlv::field</a>&lt;<a class="el" href="structtlv_1_1tag__constant.html">tlv::tag_constant</a>&lt;0x21&gt;, service_data128_codec::value_type, <a class="el" href="namespacetlv_1_1bluetooth.html#af1a0c139730587d7b14de4ed4446dd7b">service_data128_codec</a>&gt;</td>
+        </tr>
+      </table>
+</div><div class="memdoc">
+
+<p>Advertising Data field; Schema owns contextual length constraints. </p>
+
+</div>
+</div>
+<a id="ad6284c5411ae08f7502f7fba48440216" name="ad6284c5411ae08f7502f7fba48440216"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#ad6284c5411ae08f7502f7fba48440216">&#9670;&#160;</a></span>service_data16_codec</h2>
+
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname">using <a class="el" href="namespacetlv_1_1bluetooth.html#ad6284c5411ae08f7502f7fba48440216">tlv::bluetooth::service_data16_codec</a> = typedef detail::builtin_codec&lt;<a class="el" href="structtlv_1_1bluetooth_1_1service__data16.html">service_data16</a>, <a class="elRef" href="../../c-api/html/group__codecs.html#gaf516bf8a267edeb4de5364bf48a2dcf4">tlv_bluetooth_service_data16_t</a>, &amp;<a class="elRef" href="../../c-api/html/group__codecs.html#ga107f26fa8c20a4877fc7228ab5d6fba3">tlv_bluetooth_codec_service_data16</a>, detail::bluetooth_service_data16_conversion&gt;</td>
+        </tr>
+      </table>
+</div><div class="memdoc">
+
+<p>Value codec; see <a class="elRef" href="../../c-api/html/group__codecs.html#ga107f26fa8c20a4877fc7228ab5d6fba3">tlv_bluetooth_codec_service_data16</a>. </p>
+
+</div>
+</div>
+<a id="afa86778fcd459068742046df3cbc8991" name="afa86778fcd459068742046df3cbc8991"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#afa86778fcd459068742046df3cbc8991">&#9670;&#160;</a></span>service_data16_field</h2>
+
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname">using <a class="el" href="namespacetlv_1_1bluetooth.html#afa86778fcd459068742046df3cbc8991">tlv::bluetooth::service_data16_field</a> = typedef <a class="el" href="structtlv_1_1field.html">tlv::field</a>&lt;<a class="el" href="structtlv_1_1tag__constant.html">tlv::tag_constant</a>&lt;0x16&gt;, service_data16_codec::value_type, <a class="el" href="namespacetlv_1_1bluetooth.html#ad6284c5411ae08f7502f7fba48440216">service_data16_codec</a>&gt;</td>
+        </tr>
+      </table>
+</div><div class="memdoc">
+
+<p>Advertising Data field; Schema owns contextual length constraints. </p>
+
+</div>
+</div>
+<a id="a2d22865b902fe8076f6daaabea7fe833" name="a2d22865b902fe8076f6daaabea7fe833"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#a2d22865b902fe8076f6daaabea7fe833">&#9670;&#160;</a></span>service_data32_codec</h2>
+
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname">using <a class="el" href="namespacetlv_1_1bluetooth.html#a2d22865b902fe8076f6daaabea7fe833">tlv::bluetooth::service_data32_codec</a> = typedef detail::builtin_codec&lt;<a class="el" href="structtlv_1_1bluetooth_1_1service__data32.html">service_data32</a>, <a class="elRef" href="../../c-api/html/group__codecs.html#gadec783bc1ef90f1e6881a25687154de5">tlv_bluetooth_service_data32_t</a>, &amp;<a class="elRef" href="../../c-api/html/group__codecs.html#ga450ff3e93a08b6b622969172232b6b37">tlv_bluetooth_codec_service_data32</a>, detail::bluetooth_service_data32_conversion&gt;</td>
+        </tr>
+      </table>
+</div><div class="memdoc">
+
+<p>Value codec; see <a class="elRef" href="../../c-api/html/group__codecs.html#ga450ff3e93a08b6b622969172232b6b37">tlv_bluetooth_codec_service_data32</a>. </p>
+
+</div>
+</div>
+<a id="a98355ebd5cfdb6f1dfa533cd082bb477" name="a98355ebd5cfdb6f1dfa533cd082bb477"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#a98355ebd5cfdb6f1dfa533cd082bb477">&#9670;&#160;</a></span>service_data32_field</h2>
+
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname">using <a class="el" href="namespacetlv_1_1bluetooth.html#a98355ebd5cfdb6f1dfa533cd082bb477">tlv::bluetooth::service_data32_field</a> = typedef <a class="el" href="structtlv_1_1field.html">tlv::field</a>&lt;<a class="el" href="structtlv_1_1tag__constant.html">tlv::tag_constant</a>&lt;0x20&gt;, service_data32_codec::value_type, <a class="el" href="namespacetlv_1_1bluetooth.html#a2d22865b902fe8076f6daaabea7fe833">service_data32_codec</a>&gt;</td>
+        </tr>
+      </table>
+</div><div class="memdoc">
+
+<p>Advertising Data field; Schema owns contextual length constraints. </p>
+
+</div>
+</div>
+<a id="ae7a4c0a28c2e09a4d0c9d080aa85a59d" name="ae7a4c0a28c2e09a4d0c9d080aa85a59d"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#ae7a4c0a28c2e09a4d0c9d080aa85a59d">&#9670;&#160;</a></span>shortened_local_name_field</h2>
+
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname">using <a class="el" href="namespacetlv_1_1bluetooth.html#ae7a4c0a28c2e09a4d0c9d080aa85a59d">tlv::bluetooth::shortened_local_name_field</a> = typedef <a class="el" href="structtlv_1_1field.html">tlv::field</a>&lt;<a class="el" href="structtlv_1_1tag__constant.html">tlv::tag_constant</a>&lt;0x08&gt;, local_name_codec::value_type, <a class="el" href="namespacetlv_1_1bluetooth.html#ae89c09d5237110a35a9e79e604ab365c">local_name_codec</a>&gt;</td>
+        </tr>
+      </table>
+</div><div class="memdoc">
+
+<p>Advertising Data field; Schema owns contextual length constraints. </p>
+
+</div>
+</div>
+<a id="a3fc4606985b7ba53b94100eb4188abed" name="a3fc4606985b7ba53b94100eb4188abed"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#a3fc4606985b7ba53b94100eb4188abed">&#9670;&#160;</a></span>tx_power_codec</h2>
+
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname">using <a class="el" href="namespacetlv_1_1bluetooth.html#a3fc4606985b7ba53b94100eb4188abed">tlv::bluetooth::tx_power_codec</a> = typedef <a class="el" href="structtlv_1_1codec__adapter.html">tlv::codec_adapter</a>&lt;int8_t, &amp;<a class="elRef" href="../../c-api/html/group__codecs.html#ga6dbe65e259dd2503de3e85e3ea9c2f1e">tlv_bluetooth_ad_codec_tx_power</a>&gt;</td>
+        </tr>
+      </table>
+</div><div class="memdoc">
+
+<p>Value codec; see <a class="elRef" href="../../c-api/html/group__codecs.html#ga6dbe65e259dd2503de3e85e3ea9c2f1e">tlv_bluetooth_ad_codec_tx_power</a>. </p>
+
+</div>
+</div>
+<a id="a5f54df1e7a73caa64619a8d6e59849ce" name="a5f54df1e7a73caa64619a8d6e59849ce"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#a5f54df1e7a73caa64619a8d6e59849ce">&#9670;&#160;</a></span>tx_power_field</h2>
+
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname">using <a class="el" href="namespacetlv_1_1bluetooth.html#a5f54df1e7a73caa64619a8d6e59849ce">tlv::bluetooth::tx_power_field</a> = typedef <a class="el" href="structtlv_1_1field.html">tlv::field</a>&lt;<a class="el" href="structtlv_1_1tag__constant.html">tlv::tag_constant</a>&lt;0x0A&gt;, <a class="el" href="structtlv_1_1codec__adapter.html#a851cecb1f3a004c60020d15b9728abd2">tx_power_codec::value_type</a>, <a class="el" href="namespacetlv_1_1bluetooth.html#a3fc4606985b7ba53b94100eb4188abed">tx_power_codec</a>&gt;</td>
+        </tr>
+      </table>
+</div><div class="memdoc">
+
+<p>Advertising Data field; Schema owns contextual length constraints. </p>
+
+</div>
+</div>
+<a id="abac5c45e44b983f11c6b360c1c48f365" name="abac5c45e44b983f11c6b360c1c48f365"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#abac5c45e44b983f11c6b360c1c48f365">&#9670;&#160;</a></span>uuid128</h2>
+
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname">using <a class="el" href="namespacetlv_1_1bluetooth.html#abac5c45e44b983f11c6b360c1c48f365">tlv::bluetooth::uuid128</a> = typedef <a class="elRef" href="../../c-api/html/group__codecs.html#gae07dd0f5046612e06f8074acdb9edc7e">tlv_bluetooth_uuid128_t</a></td>
+        </tr>
+      </table>
+</div><div class="memdoc">
+
+<p>Self-contained UUID in printed byte order; see <a class="elRef" href="../../c-api/html/group__codecs.html#gae07dd0f5046612e06f8074acdb9edc7e">tlv_bluetooth_uuid128_t</a>. </p>
+
+</div>
+</div>
+<a id="a72851b8196d67ad70254d84aba5029c6" name="a72851b8196d67ad70254d84aba5029c6"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#a72851b8196d67ad70254d84aba5029c6">&#9670;&#160;</a></span>uuid128_codec</h2>
+
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname">using <a class="el" href="namespacetlv_1_1bluetooth.html#a72851b8196d67ad70254d84aba5029c6">tlv::bluetooth::uuid128_codec</a> = typedef <a class="el" href="structtlv_1_1codec__adapter.html">tlv::codec_adapter</a>&lt;<a class="el" href="namespacetlv_1_1bluetooth.html#abac5c45e44b983f11c6b360c1c48f365">uuid128</a>, &amp;<a class="elRef" href="../../c-api/html/group__codecs.html#ga79e9303bfcbf57aae637be9e77db2684">tlv_bluetooth_codec_uuid128</a>&gt;</td>
+        </tr>
+      </table>
+</div><div class="memdoc">
+
+<p>Value codec; see <a class="elRef" href="../../c-api/html/group__codecs.html#ga79e9303bfcbf57aae637be9e77db2684">tlv_bluetooth_codec_uuid128</a>. </p>
+
+</div>
+</div>
+<a id="a20251d3066c2410441c8286cd563ad6f" name="a20251d3066c2410441c8286cd563ad6f"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#a20251d3066c2410441c8286cd563ad6f">&#9670;&#160;</a></span>uuid128_list_codec</h2>
+
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname">using <a class="el" href="namespacetlv_1_1bluetooth.html#a20251d3066c2410441c8286cd563ad6f">tlv::bluetooth::uuid128_list_codec</a> = typedef detail::builtin_codec&lt;<a class="el" href="structtlv_1_1bluetooth_1_1uuid__list.html">uuid_list</a>, <a class="elRef" href="../../c-api/html/group__codecs.html#ga46e7a4a78d27c5ff93b99aca25766908">tlv_bluetooth_uuid_list_t</a>, &amp;<a class="elRef" href="../../c-api/html/group__codecs.html#ga89e1cab2d3aebbd8be7d4025a45926f7">tlv_bluetooth_codec_uuid128_list</a>, detail::bluetooth_uuid_list_conversion&gt;</td>
+        </tr>
+      </table>
+</div><div class="memdoc">
+
+<p>Value codec; see <a class="elRef" href="../../c-api/html/group__codecs.html#ga89e1cab2d3aebbd8be7d4025a45926f7">tlv_bluetooth_codec_uuid128_list</a>. </p>
+
+</div>
+</div>
+<a id="aefd9f7f275437fdef6de6d66b496465f" name="aefd9f7f275437fdef6de6d66b496465f"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#aefd9f7f275437fdef6de6d66b496465f">&#9670;&#160;</a></span>uuid16_codec</h2>
+
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname">using <a class="el" href="namespacetlv_1_1bluetooth.html#aefd9f7f275437fdef6de6d66b496465f">tlv::bluetooth::uuid16_codec</a> = typedef <a class="el" href="structtlv_1_1codec__adapter.html">tlv::codec_adapter</a>&lt;uint16_t, &amp;<a class="elRef" href="../../c-api/html/group__codecs.html#ga05b87cc6cebac9f37c496b9096bac999">tlv_bluetooth_codec_uuid16</a>&gt;</td>
+        </tr>
+      </table>
+</div><div class="memdoc">
+
+<p>Value codec; see <a class="elRef" href="../../c-api/html/group__codecs.html#ga05b87cc6cebac9f37c496b9096bac999">tlv_bluetooth_codec_uuid16</a>. </p>
+
+</div>
+</div>
+<a id="a585aaf871e0b68da0a787a51e541858a" name="a585aaf871e0b68da0a787a51e541858a"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#a585aaf871e0b68da0a787a51e541858a">&#9670;&#160;</a></span>uuid16_list_codec</h2>
+
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname">using <a class="el" href="namespacetlv_1_1bluetooth.html#a585aaf871e0b68da0a787a51e541858a">tlv::bluetooth::uuid16_list_codec</a> = typedef detail::builtin_codec&lt;<a class="el" href="structtlv_1_1bluetooth_1_1uuid__list.html">uuid_list</a>, <a class="elRef" href="../../c-api/html/group__codecs.html#ga46e7a4a78d27c5ff93b99aca25766908">tlv_bluetooth_uuid_list_t</a>, &amp;<a class="elRef" href="../../c-api/html/group__codecs.html#ga8d41d988308320da3c1a8d508235b1bf">tlv_bluetooth_codec_uuid16_list</a>, detail::bluetooth_uuid_list_conversion&gt;</td>
+        </tr>
+      </table>
+</div><div class="memdoc">
+
+<p>Value codec; see <a class="elRef" href="../../c-api/html/group__codecs.html#ga8d41d988308320da3c1a8d508235b1bf">tlv_bluetooth_codec_uuid16_list</a>. </p>
+
+</div>
+</div>
+<a id="af9e98b12287d1ea27b117d243dffb6eb" name="af9e98b12287d1ea27b117d243dffb6eb"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#af9e98b12287d1ea27b117d243dffb6eb">&#9670;&#160;</a></span>uuid32_codec</h2>
+
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname">using <a class="el" href="namespacetlv_1_1bluetooth.html#af9e98b12287d1ea27b117d243dffb6eb">tlv::bluetooth::uuid32_codec</a> = typedef <a class="el" href="structtlv_1_1codec__adapter.html">tlv::codec_adapter</a>&lt;uint32_t, &amp;<a class="elRef" href="../../c-api/html/group__codecs.html#ga39621698a4bb1f752738f8f893bc8f17">tlv_bluetooth_codec_uuid32</a>&gt;</td>
+        </tr>
+      </table>
+</div><div class="memdoc">
+
+<p>Value codec; see <a class="elRef" href="../../c-api/html/group__codecs.html#ga39621698a4bb1f752738f8f893bc8f17">tlv_bluetooth_codec_uuid32</a>. </p>
+
+</div>
+</div>
+<a id="a3a1fc67b717a6021f7743589513fc9ed" name="a3a1fc67b717a6021f7743589513fc9ed"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#a3a1fc67b717a6021f7743589513fc9ed">&#9670;&#160;</a></span>uuid32_list_codec</h2>
+
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname">using <a class="el" href="namespacetlv_1_1bluetooth.html#a3a1fc67b717a6021f7743589513fc9ed">tlv::bluetooth::uuid32_list_codec</a> = typedef detail::builtin_codec&lt;<a class="el" href="structtlv_1_1bluetooth_1_1uuid__list.html">uuid_list</a>, <a class="elRef" href="../../c-api/html/group__codecs.html#ga46e7a4a78d27c5ff93b99aca25766908">tlv_bluetooth_uuid_list_t</a>, &amp;<a class="elRef" href="../../c-api/html/group__codecs.html#gada4d2460b1a38a94f676c2ab10fc7763">tlv_bluetooth_codec_uuid32_list</a>, detail::bluetooth_uuid_list_conversion&gt;</td>
+        </tr>
+      </table>
+</div><div class="memdoc">
+
+<p>Value codec; see <a class="elRef" href="../../c-api/html/group__codecs.html#gada4d2460b1a38a94f676c2ab10fc7763">tlv_bluetooth_codec_uuid32_list</a>. </p>
+
+</div>
+</div>
+<h2 class="groupheader">Function Documentation</h2>
+<a id="addce8517559fa92c270bec73b1059e92" name="addce8517559fa92c270bec73b1059e92"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#addce8517559fa92c270bec73b1059e92">&#9670;&#160;</a></span>encode() <span class="overload">[1/2]</span></h2>
+
+<div class="memitem">
+<div class="memproto">
+<div class="memtemplate">
+template&lt;size_t ScratchCapacity = 1024, size_t Depth = TLV_TREE_DEFAULT_DEPTH, typename Output , typename Callback &gt; </div>
+      <table class="memname">
+        <tr>
+          <td class="memname"><a class="el" href="classtlv_1_1expected.html">expected</a>&lt; size_t, <a class="el" href="structtlv_1_1writer__failure.html">writer_failure</a> &gt; tlv::bluetooth::encode </td>
+          <td>(</td>
+          <td class="paramtype">Output &amp;&amp;&#160;</td>
+          <td class="paramname"><em>output</em>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype">Callback &amp;&amp;&#160;</td>
+          <td class="paramname"><em>callback</em>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype"><a class="el" href="namespacetlv.html#a1df134eb9e2b476155eb324618396e4d">writer_diagnostic</a> *&#160;</td>
+          <td class="paramname"><em>diagnostic</em> = <code>nullptr</code>&#160;</td>
+        </tr>
+        <tr>
+          <td></td>
+          <td>)</td>
+          <td></td><td></td>
+        </tr>
+      </table>
+</div><div class="memdoc">
+
+<p>Build BLUETOOTH output using bounded local stack workspace. </p>
+<dl class="tparams"><dt>Template Parameters</dt><dd>
+  <table class="tparams">
+    <tr><td class="paramname">ScratchCapacity</td><td>Scratch bytes, default 1024; must fit the largest closed Value. </td></tr>
+    <tr><td class="paramname">Depth</td><td>Frame count and maximum item depth, default TLV_TREE_DEFAULT_DEPTH. </td></tr>
+  </table>
+  </dd>
+</dl>
+<dl class="params"><dt>Parameters</dt><dd>
+  <table class="params">
+    <tr><td class="paramname">output</td><td>Caller-owned mutable byte span, array or contiguous byte container. </td></tr>
+    <tr><td class="paramname">callback</td><td>Scoped writes taking <a class="el" href="classtlv_1_1writer__builder.html" title="Sequential typed builder retaining the first error without allocation.">writer_builder</a>&amp; and returning void, invoked once. </td></tr>
+    <tr><td class="paramname">diagnostic</td><td>Optional canonical C Writer failure detail. </td></tr>
+  </table>
+  </dd>
+</dl>
+<dl class="section return"><dt>Returns</dt><dd>Exact byte count or first failure; workspace never grows or allocates. </dd></dl>
+
+</div>
+</div>
+<a id="aceaebe78adf2abf6de001cf5571b738c" name="aceaebe78adf2abf6de001cf5571b738c"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#aceaebe78adf2abf6de001cf5571b738c">&#9670;&#160;</a></span>encode() <span class="overload">[2/2]</span></h2>
+
+<div class="memitem">
+<div class="memproto">
+<div class="memtemplate">
+template&lt;typename Output , typename Callback &gt; </div>
+      <table class="memname">
+        <tr>
+          <td class="memname"><a class="el" href="classtlv_1_1expected.html">expected</a>&lt; size_t, <a class="el" href="structtlv_1_1writer__failure.html">writer_failure</a> &gt; tlv::bluetooth::encode </td>
+          <td>(</td>
+          <td class="paramtype">Output &amp;&amp;&#160;</td>
+          <td class="paramname"><em>output</em>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype"><a class="el" href="structtlv_1_1writer__workspace.html">writer_workspace</a>&#160;</td>
+          <td class="paramname"><em>workspace</em>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype">Callback &amp;&amp;&#160;</td>
+          <td class="paramname"><em>callback</em>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype"><a class="el" href="namespacetlv.html#a1df134eb9e2b476155eb324618396e4d">writer_diagnostic</a> *&#160;</td>
+          <td class="paramname"><em>diagnostic</em> = <code>nullptr</code>&#160;</td>
+        </tr>
+        <tr>
+          <td></td>
+          <td>)</td>
+          <td></td><td></td>
+        </tr>
+      </table>
+</div><div class="memdoc">
+
+<p>Build BLUETOOTH output with explicit caller-owned frames and scratch. </p>
+<dl class="params"><dt>Parameters</dt><dd>
+  <table class="params">
+    <tr><td class="paramname">output</td><td>Borrowed mutable byte span, array or contiguous byte container. </td></tr>
+    <tr><td class="paramname">workspace</td><td>Disjoint construction storage, never resized. </td></tr>
+    <tr><td class="paramname">callback</td><td>Callable taking <a class="el" href="classtlv_1_1writer__builder.html" title="Sequential typed builder retaining the first error without allocation.">writer_builder</a>&amp; and returning void; called once. </td></tr>
+    <tr><td class="paramname">diagnostic</td><td>Optional canonical C Writer failure detail. </td></tr>
+  </table>
+  </dd>
+</dl>
+<dl class="section return"><dt>Returns</dt><dd>Exact written size or allocation-free first failure; exceptions propagate. </dd></dl>
+<dl class="section see"><dt>See also</dt><dd><a class="el" href="namespacetlv.html#ac0364509c04c5e018087c991be37ffa6" title="Encode current semantic content, regenerating framing.">tlv::encode</a> </dd></dl>
+
+</div>
+</div>
 <a id="a9f45c12d6195b9ff58b319e82c44517d" name="a9f45c12d6195b9ff58b319e82c44517d"></a>
 <h2 class="memtitle"><span class="permalink"><a href="#a9f45c12d6195b9ff58b319e82c44517d">&#9670;&#160;</a></span>parse()</h2>
 

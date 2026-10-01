@@ -94,6 +94,9 @@ Classes</h2></td></tr>
 <tr class="memitem:"><td class="memItemLeft" align="right" valign="top">class &#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classtlv_1_1ber_1_1format.html">tlv::ber::format</a></td></tr>
 <tr class="memdesc:"><td class="mdescLeft">&#160;</td><td class="mdescRight">Program-lifetime BER Format usable by generic C++ consumers.  <a href="classtlv_1_1ber_1_1format.html#details">More...</a><br /></td></tr>
 <tr class="separator:"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:"><td class="memItemLeft" align="right" valign="top">class &#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classtlv_1_1ber_1_1indefinite__format.html">tlv::ber::indefinite_format</a></td></tr>
+<tr class="memdesc:"><td class="mdescLeft">&#160;</td><td class="mdescRight">BER preset writing constructed elements with indefinite length and EOC.  <a href="classtlv_1_1ber_1_1indefinite__format.html#details">More...</a><br /></td></tr>
+<tr class="separator:"><td class="memSeparator" colspan="2">&#160;</td></tr>
 </table><table class="memberdecls">
 <tr class="heading"><td colspan="2"><h2 class="groupheader"><a id="namespaces" name="namespaces"></a>
 Namespaces</h2></td></tr>
@@ -120,6 +123,9 @@ Functions</h2></td></tr>
 <tr class="memitem:a20ef4bc4d3e4ad4b1515472f4fe099ae" id="r_a20ef4bc4d3e4ad4b1515472f4fe099ae"><td class="memItemLeft" align="right" valign="top"><a class="el" href="classtlv_1_1expected.html">expected</a>&lt; size_t, <a class="el" href="structtlv_1_1error.html">error</a> &gt;&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="namespacetlv.html#a20ef4bc4d3e4ad4b1515472f4fe099ae">tlv::ber_write_indefinite</a> (<a class="el" href="namespacetlv.html#aa91df798a712d88cf7d2f1f63a539b51">byte</a> *data, size_t capacity, <a class="el" href="classtlv_1_1tag.html">tlv::tag</a> <a class="el" href="classtlv_1_1tag.html">tag</a>, <a class="el" href="namespacetlv.html#a2abe7003a70af047ef9acae17f31f75d">bytes</a> children)</td></tr>
 <tr class="memdesc:a20ef4bc4d3e4ad4b1515472f4fe099ae"><td class="mdescLeft">&#160;</td><td class="mdescRight">Writes explicit BER indefinite framing around an already encoded child sequence.  <br /></td></tr>
 <tr class="separator:a20ef4bc4d3e4ad4b1515472f4fe099ae"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a82cbd14f17b406e7516fbd6fc58b68ae" id="r_a82cbd14f17b406e7516fbd6fc58b68ae"><td class="memItemLeft" align="right" valign="top"><a class="el" href="classtlv_1_1expected.html">expected</a>&lt; size_t, <a class="el" href="structtlv_1_1error.html">error</a> &gt;&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="namespacetlv_1_1ber.html#a82cbd14f17b406e7516fbd6fc58b68ae">tlv::ber::write_indefinite</a> (<a class="el" href="classtlv_1_1span.html">span</a>&lt; <a class="el" href="namespacetlv.html#aa91df798a712d88cf7d2f1f63a539b51">byte</a> &gt; output, <a class="el" href="classtlv_1_1tag.html">tlv::tag</a> <a class="el" href="classtlv_1_1tag.html">tag</a>, <a class="el" href="namespacetlv.html#a2abe7003a70af047ef9acae17f31f75d">bytes</a> children)</td></tr>
+<tr class="memdesc:a82cbd14f17b406e7516fbd6fc58b68ae"><td class="mdescLeft">&#160;</td><td class="mdescRight">Wrap encoded children in explicit BER indefinite-length framing.  <br /></td></tr>
+<tr class="separator:a82cbd14f17b406e7516fbd6fc58b68ae"><td class="memSeparator" colspan="2">&#160;</td></tr>
 </table>
 <a name="details" id="details"></a><h2 class="groupheader">Detailed Description</h2>
 <div class="textblock"><p>C++ wrapper for explicit BER indefinite-length framing. </p>
