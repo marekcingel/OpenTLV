@@ -71,6 +71,30 @@ tlv_result_t go_format_check(go_format config) {
     return resolve(config, &format, &fixed);
 }
 
+/* Reconstruct a single staged parent for this call; all pointers are call-local. */
+go_write_result go_tree(go_format config, uint8_t* data, size_t capacity, const uint8_t* tag,
+                        size_t tag_size, const uint8_t* value, size_t value_size, uint8_t* scratch,
+                        int close) {
+    go_write_result         result = {0};
+    tlv_format_t            format;
+    tlv_fixed_format_t      fixed;
+    tlv_tree_writer_t       writer;
+    tlv_tree_writer_frame_t frame;
+    tlv_writer_diagnostic_init(&result.diagnostic);
+    result.code = resolve(config, &format, &fixed);
+    if (result.code != TLV_OK) return result;
+    result.code = tlv_tree_writer_init(&writer, data, capacity, &format, &frame, 1, scratch,
+                                       value_size, SIZE_MAX, SIZE_MAX);
+    if (result.code != TLV_OK) return result;
+    result.code = tlv_tree_writer_begin(&writer, tlv_tag(tag, tag_size));
+    if (result.code != TLV_OK || !close) return result;
+    result.code = tlv_writer_copy_encoded(&writer.output, value, value_size);
+    if (result.code != TLV_OK) return result;
+    result.code = tlv_tree_writer_end(&writer);
+    if (result.code == TLV_OK) result.size = tlv_tree_writer_size(&writer);
+    return result;
+}
+
 go_read_result go_read(go_format config, const uint8_t* data, size_t size, int final_input) {
     go_read_result     result = {0};
     tlv_format_t       format;

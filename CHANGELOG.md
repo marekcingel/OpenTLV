@@ -111,6 +111,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Added
 
+- Add an idiomatic Go Writer with element sizing, allocated or caller-provided output, staged nested construction and recoverable capacity errors, delegating encoding to the canonical C engine. (#476)
 - Add a Go Reader with sequential iteration, borrowed element views, absolute source offsets and resumable input windows. (#475)
 - Expose immutable Go Format configuration, built-in presets and borrowed Element views with source metadata and explicit owned copies. (#474)
 - Add the internal Go bridge for native format selection, borrowed element reads, encoded sizing and caller-buffer writes, preserving source metadata and diagnostics without retaining Go pointers in C. (#473)
