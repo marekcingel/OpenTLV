@@ -14,6 +14,7 @@
 
 #include "tlv/tlv.h"
 #include "tlv++/format.hpp"
+#include "tlv++/generator.hpp"
 #include "tlv++/codec/codec.hpp"
 #include "tlv++/codec/typed.hpp"
 #include "tlv++/diagnostic.hpp"

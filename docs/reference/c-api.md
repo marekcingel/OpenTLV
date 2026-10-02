@@ -32,6 +32,40 @@ and [memory ownership](../guides/memory.md).
 [Generated reference](api/c-api/html/group__writer.html). Read first:
 [formats](../formats/README.md).
 
+## Deterministic wire generation
+
+The native `<tlv/generator.h>` API generates complete nonempty TLV streams
+through Writer, with no allocation. The C++ facade is `<tlv++/generator.hpp>`.
+Provide an ordered candidate table of borrowed identifiers and inclusive Value
+size intervals, together with seed, case index and element/depth/Value/case
+limits. Format alone classifies constructed tags; their Values are generated
+child streams. Root depth is zero. Workspace requires
+`(max_depth + 1) * max_case_size` bytes, disjoint from output and inputs.
+Output capacity must be at least `max_case_size`; larger buffers do not alter
+the generated case. Maximum supported depth is 64.
+
+Algorithm version `TLV_GENERATOR_VERSION`, Format/configuration, ordered
+candidates, all limits, seed and case index identify a reproducible case.
+Generation does not depend on earlier calls. Each accepted element is decoded
+and re-encoded with Writer to verify byte-exact reconstruction, including
+constructed children. A bounded search returns `TLV_ERR_LIMIT` when no nonempty
+case can be produced; output size is unchanged on failure, while buffer bytes
+may change. Values sample interval ends and 127/128/255/256 boundaries.
+
+Candidates describe independently composable wire elements. Exclude terminal
+markers (such as DHCPv4 END or NFC Type 2 Terminator) and identifiers requiring
+message-level ordering from the random table. Generation does not infer Schema,
+Codec, terminators or protocol-level message rules. Primitive Value bytes are
+arbitrary; validity here means Format/Writer-valid framing. For BER, use an
+opaque identifier such as `04` and a constructed identifier such as `30`.
+For Fixed, use identifiers of the configured width; Bluetooth LTV, DHCPv4 and
+NFC Type 2 accept ordinary one-byte candidate tags. Custom bidirectional
+Formats use the same API without builtin dispatch.
+
+Executable C and C++ usage and reconstruction checks are in
+[`generator_test.cpp`](../../tests/unit/generator_test.cpp). CLI generation,
+language bindings and a dedicated property suite are separate work.
+
 ## Traversal
 
 [Generated reference](api/c-api/html/group__traversal.html). Read first:

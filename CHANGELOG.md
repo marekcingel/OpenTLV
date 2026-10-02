@@ -115,6 +115,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Added
 
+- Add allocation-free deterministic valid wire generation to the native C API and C++ facade, with reproducible seed/case indices, bounded nesting and sizes, boundary sampling, and Writer-based byte-exact reconstruction checks. (#503)
 - Check documentation inventories against native components, Format descriptors, C++ built-ins, CLI formats, language guides, examples and API-reference inputs in documentation CI. (#501)
 - Add race-enabled Go binding CI checks, concurrent public API and malformed-input regression tests, and enforce public API usage in examples. (#480)
 - Expose Document path queries and typed generic Value codecs through the Go binding, preserving native query errors, codec statuses and owned results. (#479)
