@@ -3,7 +3,7 @@
 
 // Package opentlv provides the Go facade over the canonical OpenTLV C engine.
 //
-// This experimental scaffold exposes library version information. Processing
+// This experimental binding exposes Format, Element and library version information. Processing
 // APIs will be added separately. Applications use Go types; C types and cgo
 // implementation details are confined to internal/capi.
 //

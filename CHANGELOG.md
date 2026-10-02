@@ -111,6 +111,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Added
 
+- Expose immutable Go Format configuration, built-in presets and borrowed Element views with source metadata and explicit owned copies. (#474)
 - Add the internal Go bridge for native format selection, borrowed element reads, encoded sizing and caller-buffer writes, preserving source metadata and diagnostics without retaining Go pointers in C. (#473)
 - Establish the experimental Go binding module with a public Go package, an internal cgo bridge, linked-library version access, a smoke test, a runnable example and build documentation. (#472)
 - Add consistent MIT SPDX license headers to project sources and enforce the shared source-file policy through pre-commit and CI. (#469)

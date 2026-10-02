@@ -3,7 +3,7 @@
 This module establishes the Go binding architecture (#472) and internal native
 bridge (#473). It exposes
 `opentlv.Version()` to verify the connection to the canonical C library.
-Reader, Writer, Format, Element, Document and error APIs are future work.
+Public Format and Element APIs are available (#474). Reader, Writer, Document and detailed diagnostic APIs are future work.
 
 The module path is `github.com/marekcingel/OpenTLV/bindings/go`; its package
 name is `opentlv`. It requires Go 1.22 or newer, cgo and a compatible C compiler.
@@ -50,8 +50,8 @@ presets return an unsupported status; the bridge contains no wire parser.
   native Format pointer is retained in Source. A future Reader facade can retain
   its slice and position in Go and pass each unconsumed window to the bridge.
 
-Public Format/Element, Reader, Writer, Document, Query, Codec and error APIs
-remain separate follow-up stories (#474–#479). Bridge operations for owned
+Public Reader, Writer, Document, Query, Codec and detailed error APIs
+remain separate follow-up stories (#475–#479). Bridge operations for owned
 Document resources and higher-level capabilities will be added with those
 stories, including explicit cleanup for any persistent native allocations.
 
@@ -122,3 +122,28 @@ standalone repository can keep the same public/private boundary and link a
 separately distributed C library. Moving to another module path and choosing
 independent release versions are separate migration decisions. Until then,
 releases of this nested module would use the `bindings/go/` tag prefix.
+
+## Format and Element
+
+`NewFixed(FixedConfig{TagSize: 1, LengthSize: 1, ByteOrder: BigEndian})`
+validates immutable configuration through C. `Order` defaults to `TLV` and
+`LengthScope` to `ValueLength`; byte order must be explicit. `Builtin(BER)`
+selects a linked preset. Disabled or unknown presets return an error, with no
+fallback. Both constructors return `(Format, error)`; failed construction and
+zero-value Formats are invalid (`Valid()` is false). `StatusError` supports
+`errors.As` and preserves the native status number through `Code()`.
+
+`NewElement(tag, value)` borrows the supplied `[]byte` slices. `Tag()` and
+`Value()` preserve binary identity without normalization or Value decoding.
+Keep borrowed bytes unchanged while results are used. `Clone()` copies Tag,
+Value and any raw encoding into independent Go storage, retaining metadata.
+Returned slices remain mutable; callers must synchronize any mutation.
+
+`Source()` describes raw encoding where available: `Bytes`, the element's
+`Offset` in the enclosing input, and Header/Tag/Length/Value/Trailer ranges
+relative to the element start. `Range.Present` distinguishes absent fields from
+present empty fields. `FormatTag` identifies a semantic Tag supplied by the
+Format rather than borrowed from a wire Tag range. Logical elements created by
+`NewElement` have no source bytes or ranges and report offset zero. Reader and
+Document will populate source metadata in their respective follow-up stories.
+Formats own no native allocations and require no cleanup.
