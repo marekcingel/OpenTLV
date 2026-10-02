@@ -9,6 +9,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Fixed
 
+- Fix Clang builds with warnings treated as errors by fully initializing Fixed format configurations in generator tests. (#503)
 - Preserve tabs in Markdown code blocks during pre-commit formatting so the documented Go quick start matches its source and passes documentation checks. (#480)
 - Preserve tabs in Markdown code blocks during pre-commit formatting and synchronize the documented Go quick start with its source so documentation checks pass. (#480)
 - Preserve custom Fixed tag widths, length widths and byte order when CLI JSON encoding validates its output; keep format-independent CLI checks executable with BER disabled. (#439)

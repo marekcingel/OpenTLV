@@ -72,7 +72,8 @@ void exercise(const tlv_format_t& format, const tlv_generator_candidate_t* candi
 TEST(Unit_Generator, FixedAndIndependentBuiltinFamilies) {
     const uint8_t             tags[] = {1, 2, 3};
     tlv_generator_candidate_t candidates[] = {{{tags, 1}, 0, 256}, {{tags + 1, 1}, 0, 256}};
-    const tlv_fixed_format_t  config{1, 2, TLV_BYTE_ORDER_BIG_ENDIAN};
+    const tlv_fixed_format_t  config{1, 2, TLV_BYTE_ORDER_BIG_ENDIAN, TLV_ELEMENT_ORDER_TLV,
+                                     TLV_LENGTH_SCOPE_VALUE};
     tlv_format_t              fixed{};
     ASSERT_EQ(TLV_OK, tlv_fixed_format_init(&fixed, &config));
     exercise(fixed, candidates, 2);
@@ -99,7 +100,8 @@ TEST(Unit_Generator, ValidationAndImpossibleDomain) {
     const uint8_t             tag = 1;
     tlv_generator_candidate_t candidate{{&tag, 1}, 0, 10};
     tlv_generator_options_t   options{0, 0, 10, 0, 10, 64, &candidate, 1};
-    const tlv_fixed_format_t  config{2, 1, TLV_BYTE_ORDER_BIG_ENDIAN};
+    const tlv_fixed_format_t  config{2, 1, TLV_BYTE_ORDER_BIG_ENDIAN, TLV_ELEMENT_ORDER_TLV,
+                                     TLV_LENGTH_SCOPE_VALUE};
     tlv_format_t              fixed{};
     ASSERT_EQ(TLV_OK, tlv_fixed_format_init(&fixed, &config));
     uint8_t out[64], workspace[64];
@@ -122,7 +124,8 @@ TEST(Unit_Generator, CxxFacadeAndZeroDepth) {
     auto          candidate = tlv::make_generator_candidate(
         tlv::tag(tlv::bytes{reinterpret_cast<const tlv::byte*>(&raw), 1}), 0, 10);
     tlv::generator_options   options{0, 7, 1, 0, 10, 64, &candidate, 1};
-    const tlv_fixed_format_t config{1, 1, TLV_BYTE_ORDER_BIG_ENDIAN};
+    const tlv_fixed_format_t config{1, 1, TLV_BYTE_ORDER_BIG_ENDIAN, TLV_ELEMENT_ORDER_TLV,
+                                    TLV_LENGTH_SCOPE_VALUE};
     tlv_format_t             fixed{};
     ASSERT_EQ(TLV_OK, tlv_fixed_format_init(&fixed, &config));
     auto required = tlv::generator_workspace_size(options);
@@ -145,7 +148,8 @@ TEST(Unit_Generator, SamplesValueBoundariesAndChecksLimits) {
     const uint8_t                   tag = 1;
     const tlv_generator_candidate_t candidate{{&tag, 1}, 0, 256};
     tlv_generator_options_t         options{123, 0, 1, 0, 256, 300, &candidate, 1};
-    const tlv_fixed_format_t        config{1, 2, TLV_BYTE_ORDER_BIG_ENDIAN};
+    const tlv_fixed_format_t        config{1, 2, TLV_BYTE_ORDER_BIG_ENDIAN, TLV_ELEMENT_ORDER_TLV,
+                                           TLV_LENGTH_SCOPE_VALUE};
     tlv_format_t                    fixed{};
     ASSERT_EQ(TLV_OK, tlv_fixed_format_init(&fixed, &config));
     uint8_t output[300], workspace[300];
@@ -184,7 +188,8 @@ TEST(Unit_Generator, RejectsWriterOutputWithChangedSemantics) {
     const uint8_t                   tag = 1;
     const tlv_generator_candidate_t candidate{{&tag, 1}, 1, 10};
     const tlv_generator_options_t   options{0, 0, 4, 0, 10, 64, &candidate, 1};
-    const tlv_fixed_format_t        config{1, 1, TLV_BYTE_ORDER_BIG_ENDIAN};
+    const tlv_fixed_format_t        config{1, 1, TLV_BYTE_ORDER_BIG_ENDIAN, TLV_ELEMENT_ORDER_TLV,
+                                           TLV_LENGTH_SCOPE_VALUE};
     tlv_format_t                    broken{};
     ASSERT_EQ(TLV_OK, tlv_fixed_format_init(&broken, &config));
     broken.encode = [](const void* context, const tlv_element_t* element, uint8_t* data,
