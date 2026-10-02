@@ -176,8 +176,12 @@ coverage still needs verification; it must not be counted as parity.
 | Document: public `tlv/document/document.h` operations and node lifetimes | Audit | Partial: owning `Document`, borrowed `Node`/`NodeMut`, builder; allocator adaptation out of scope for #400 | Partial: safe invalidation, builder, builtin destination formats; allocator and remaining destination configuration out of scope for #400 | Missing |
 
 Go exposes Format, Element, Reader, Writer and owned mutable Document facades
-(#472–#477). Query, Codec, custom Format callbacks and resumable Document
-Builder integration remain gaps. Java remains future work.
+(#472–#477), owned diagnostics (#478), Document path Query and typed generic
+Value codecs (#479). Query delegates parsing and traversal to C and returns
+checked Node handles. Codec results own their Go storage and preserve the
+separate native codec status domain. Buffer/resumable Query, protocol-specific
+and application-object Structure codecs, custom Format callbacks and resumable
+Document Builder integration remain gaps. Java remains future work.
 The current WASM tooling embedding exposes only a parse-to-JSON operation; it
 does not satisfy general binding parity. Its classification is described below.
 Neither an experimental label nor an FFI declaration closes a matrix gap.

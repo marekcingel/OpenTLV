@@ -57,6 +57,8 @@ jobs:
           go run ./examples/reader
           go run ./examples/writer
           go run ./examples/errors
+          go run ./examples/codec
           if [ "${{ matrix.components }}" = default ]; then
             go run ./examples/document
+            go run ./examples/query
           fi
