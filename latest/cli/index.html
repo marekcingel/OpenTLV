@@ -2294,6 +2294,17 @@
   
 </li>
       
+        <li class="md-nav__item">
+  <a href="#generate-reproducible-wire-corpora" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Generate reproducible wire corpora
+      
+    </span>
+  </a>
+  
+</li>
+      
     </ul>
   
 </nav>
@@ -3610,6 +3621,17 @@
   
 </li>
       
+        <li class="md-nav__item">
+  <a href="#generate-reproducible-wire-corpora" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Generate reproducible wire corpora
+      
+    </span>
+  </a>
+  
+</li>
+      
     </ul>
   
 </nav>
@@ -4342,6 +4364,80 @@ and adds <code>name</code> and optional <code>decoded</code> or <code>decode_err
 schema. Re-encoding preserves those structures but does not restore container
 padding. <code>--recover</code> is unsupported with this module; <code>--describe</code> and EMV
 options require the EMV module.</p>
+<h2 id="generate-reproducible-wire-corpora">Generate reproducible wire corpora<a class="headerlink" href="#generate-reproducible-wire-corpora" title="Permanent link">&para;</a></h2>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-27-1" name="__codelineno-27-1" href="#__codelineno-27-1"></a>otlv<span class="w"> </span>generate<span class="w"> </span>--format<span class="w"> </span>ber<span class="w"> </span>--seed<span class="w"> </span><span class="m">42</span><span class="w"> </span>--count<span class="w"> </span><span class="m">10000</span><span class="w"> </span>--output-dir<span class="w"> </span>build/property-data/ber
+</code></pre></div>
+<p><code>--format</code>, <code>--seed</code>, <code>--count</code> and <code>--output-dir</code> are required. Seed accepts
+an unsigned 64-bit decimal integer, including zero. Count must be positive and
+always means complete cases (files in the selected encoding), rather than elements. Case indices start at
+zero; names are decimal with at least six digits (<code>000000.bin</code>, <code>000001.bin</code>,
+and so on). Generation does not read stdin and is silent on success.</p>
+<p>Each case represents an independently round-trippable complete TLV stream.
+The native generator selects the number of elements and nesting per case.
+The same native generator algorithm version, CLI candidate domain, Format/configuration,
+limits, seed and case index reproduce identical bytes independently of call order.
+Retain those settings and the OpenTLV version with a corpus; upgrading can change
+its candidate domain or generator algorithm.</p>
+<p>Limits are <code>--max-elements</code> (default 32, including parents), <code>--max-depth</code>
+(default 4, roots at zero, at most 64), <code>--max-value-size</code> (default 256 bytes)
+and <code>--max-case-size</code> (default 4096 bytes). Elements and case size must be positive;
+Value size and depth may be zero. Nested formats use the requested depth; flat
+formats use zero. Scratch storage is <code>(effective depth + 1) * max-case-size</code> bytes,
+plus the owned case result. Cases are generated and written sequentially.</p>
+<table>
+<thead>
+<tr>
+<th>Format</th>
+<th>Ordered candidate tags</th>
+<th>Value domain</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>ber</code>, <code>der</code>, <code>emv</code></td>
+<td><code>04</code>, <code>80</code>, <code>30</code>, <code>A0</code></td>
+<td>Primitive arbitrary bytes; constructed child streams</td>
+</tr>
+<tr>
+<td><code>fixed</code></td>
+<td>Identifier of configured width, every byte <code>01</code></td>
+<td>Capped to the configured Length capacity</td>
+</tr>
+<tr>
+<td><code>bluetooth-ltv</code></td>
+<td><code>09</code>, <code>FF</code></td>
+<td>Capped to 254 bytes</td>
+</tr>
+<tr>
+<td><code>nfc-type2</code></td>
+<td><code>03</code>, <code>FD</code></td>
+<td>Capped to 65534 bytes; excludes NULL and Terminator</td>
+</tr>
+</tbody>
+</table>
+<p>Fixed accepts the existing <code>--fixed-tag-size</code>, <code>--fixed-length-size</code> and
+<code>--fixed-byte-order</code> options. Optional formats must be enabled in the build.
+These are wire corpora: they do not promise Schema, Codec, EMV application,
+Bluetooth AD or NDEF semantic validity. No property runner is required.</p>
+<p>Missing directories are created. Existing target case files are rejected before
+writing any case, and each file is created exclusively. Unrelated directory
+contents are retained. A later generation or I/O failure leaves earlier completed
+files available and reports the failing case; a failed write removes its partial
+file. Use a fresh directory when retrying. Invalid usage/configuration returns 2;
+generation failure or I/O/resource failure returns 3. Unsupported formats and
+impossible limits produce a clear diagnostic.</p>
+<p>Choose <code>--output-encoding bin|json</code>. The default is <code>bin</code>; explicit <code>bin</code>
+behaves identically. Binary mode writes only <code>000000.bin</code>, <code>000001.bin</code>, etc.
+JSON mode writes only <code>000000.json</code>, <code>000001.json</code>, etc.; no binary files are
+written. Each JSON file uses the existing versioned model from <code>otlv decode</code>,
+including raw primitive Values, constructed children and BER length modes.
+Use <code>otlv encode --input</code> with the same Format/configuration to reconstruct the
+corresponding wire case. Both output modes use the same native generated bytes;
+JSON is decoded and serialized entirely within the CLI. Neither the native C
+generator nor its tlv++ wrapper depends on JSON or nlohmann/json.</p>
+<p>Collision checks apply only to paths of the selected encoding; unrelated files,
+including those in the other encoding, are retained. Failed writes remove their
+partial file; earlier complete cases remain available.</p>
 
 
 
