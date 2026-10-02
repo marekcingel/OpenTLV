@@ -9,9 +9,9 @@ repository.workspace = true
 
 [features]
 default = ["lldp", "document", "nfc"]
-lldp = ["opentlv-native/lldp"]
-nfc = ["opentlv-native/nfc"]
-document = ["opentlv-native/document"]
+lldp = ["opentlv-sys/lldp"]
+nfc = ["opentlv-sys/nfc"]
+document = ["opentlv-sys/document"]
 
 [dependencies]
-opentlv-native = { path = "../opentlv-native", default-features = false }
+opentlv-sys = { path = "../opentlv-sys", default-features = false }

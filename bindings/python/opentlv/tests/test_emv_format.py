@@ -2,11 +2,11 @@
 # Copyright (c) 2026 Marek Cingel
 
 import pytest
-import opentlv_native
+import _opentlv
 from opentlv import Format, Reader, Writer, InvalidLengthError
 
 
-@pytest.mark.skipif(not opentlv_native.HAS_EMV, reason="EMV disabled")
+@pytest.mark.skipif(not _opentlv.HAS_EMV, reason="EMV disabled")
 def test_definite_emv_framing():
     writer = Writer(format=Format.EMV)
     writer.write(b"\x9f\x02", b"\x00" * 6)

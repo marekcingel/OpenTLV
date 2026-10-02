@@ -3,7 +3,7 @@ requires = ["scikit-build-core>=0.10"]
 build-backend = "scikit_build_core.build"
 
 [project]
-name = "opentlv-native"
+name = "opentlv-core"
 version = "0.1.0"
 description = "Native Python extension registering the raw OpenTLV C API"
 readme = "README.md"

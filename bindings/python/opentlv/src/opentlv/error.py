@@ -7,7 +7,7 @@ from __future__ import annotations
 
 from typing import Optional
 
-import opentlv_native as _native
+import _opentlv as _native
 
 
 class OpenTLVError(Exception):
@@ -147,7 +147,7 @@ _ERROR_TYPES = {
 
 
 def _from_native(error: "_native.Error") -> OpenTLVError:
-    """Translates a native `opentlv_native.Error` into a typed `OpenTLVError`.
+    """Translates a native `_opentlv.Error` into a typed `OpenTLVError`.
 
     `error.args[0]` is a dict with a "code" key and whichever diagnostic keys
     the failing native call supports; a missing key means the same as an

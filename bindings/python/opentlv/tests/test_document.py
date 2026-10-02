@@ -335,17 +335,17 @@ def test_document_and_node_destination_encoding_are_delegated_to_c():
 
 @pytest.mark.parametrize("operation", ["node_erase", "node_set_value"])
 def test_interrupt_after_native_mutation_cannot_leave_live_stale_handles(monkeypatch, operation):
-    import opentlv_native
+    import _opentlv
     doc = Document(bytes.fromhex("300304012A"))
     parent = doc.first
     child = parent.first_child
-    native = getattr(opentlv_native, operation)
+    native = getattr(_opentlv, operation)
 
     def interrupted(*args):
         native(*args)
         raise KeyboardInterrupt
 
-    monkeypatch.setattr(opentlv_native, operation, interrupted)
+    monkeypatch.setattr(_opentlv, operation, interrupted)
     with pytest.raises(KeyboardInterrupt):
         if operation == "node_erase":
             parent.erase()

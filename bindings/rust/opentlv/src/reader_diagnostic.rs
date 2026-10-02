@@ -2,7 +2,7 @@
 // Copyright (c) 2026 Marek Cingel
 
 //! Owned Reader diagnostics: no native borrowed pointer escapes.
-use opentlv_native as native;
+use opentlv_sys as native;
 use std::{ffi::CStr, slice};
 
 /// Structured detail from the canonical Reader, safe to retain after input replacement.

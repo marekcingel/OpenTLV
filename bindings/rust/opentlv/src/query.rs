@@ -3,7 +3,7 @@
 
 //! Canonical C Query parsing and resumable matching.
 use crate::{Element, Error, Result, Tag, TreeReader, Visit};
-use opentlv_native as native;
+use opentlv_sys as native;
 use std::{ffi::CString, mem::MaybeUninit, ptr};
 
 /// A parsed path owning its tags, independent of the original query string.

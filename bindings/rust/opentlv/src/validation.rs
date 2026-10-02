@@ -13,7 +13,7 @@ use std::fmt;
 use std::mem::MaybeUninit;
 use std::ptr;
 
-use opentlv_native as native;
+use opentlv_sys as native;
 
 use crate::element::Element;
 use crate::error::Error;

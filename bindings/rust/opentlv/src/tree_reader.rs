@@ -3,7 +3,7 @@
 
 //! Safe preorder projection of the canonical C Tree Reader.
 use crate::{Decoded, Error, FixedFormat, Format, ReaderDiagnostic, Result};
-use opentlv_native as native;
+use opentlv_sys as native;
 use std::{marker::PhantomData, mem::MaybeUninit};
 
 /// A complete borrowed element with its original source and traversal location.

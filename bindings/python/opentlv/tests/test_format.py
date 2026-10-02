@@ -5,7 +5,7 @@ from opentlv import Format
 
 
 def test_values_match_what_the_native_module_expects():
-    # opentlv_native's format IDs are fixed; see format.c's lookup.
+    # _opentlv's format IDs are fixed; see format.c's lookup.
     assert not hasattr(Format, "COMPACT")
     assert Format.BER == 1
     assert Format.CER == 2

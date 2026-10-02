@@ -8,7 +8,7 @@ from __future__ import annotations
 from dataclasses import dataclass
 from enum import IntEnum
 
-import opentlv_native as _native
+import _opentlv as _native
 
 
 class CodecError(Exception):

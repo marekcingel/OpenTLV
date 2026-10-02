@@ -10,7 +10,7 @@
 use std::ffi::CStr;
 use std::fmt;
 
-use opentlv_native as native;
+use opentlv_sys as native;
 
 use crate::codec::{Codec, ValueKind};
 use crate::error::{Error, Result};

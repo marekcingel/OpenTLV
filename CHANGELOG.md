@@ -47,6 +47,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Changed
 
+- **Breaking:** Rename the Rust raw binding crate to `opentlv-sys`, the Python implementation distribution to `opentlv-core` with private `_opentlv` imports, and the Lua implementation module to `opentlv._core`; update low-level imports and installation paths accordingly. (#472)
 - Rewrite C++ quick-start and examples around borrowed iteration, scoped writing, owning Document traversal and typed fields; migrate CLI parsing, encoding and Query to the C++ facade, add matching CLI examples and execute the examples through CTest. (#439)
 - **Breaking:** Replace raw-pointer C++ Node construction with lifetime-checked Document and Node accessors; rebuild C++ consumers for the new Node handle representation. The C API is unchanged. (#435)
 - **Breaking:** Make C++ Reader and Writer templates; runtime-Format callers use `tlv::reader<>` and `tlv::writer<>`, while typed callers select a built-in or application Format. (#432)
@@ -110,6 +111,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Added
 
+- Establish the experimental Go binding module with a public Go package, an internal cgo bridge, linked-library version access, a smoke test, a runnable example and build documentation. (#472)
 - Add consistent MIT SPDX license headers to project sources and enforce the shared source-file policy through pre-commit and CI. (#469)
 - Complete C++ standard namespaces with encoding conveniences, a BER indefinite Format preset, shared ASN.1 Value codecs, Bluetooth/LLDP/DHCP codecs and typed fields, and codecs/fields for every codec-bearing EMV dictionary entry; all use the generic C++ contracts and canonical C engine. (#438)
 - Add C++ Query selection over Documents and Tree Readers, with iterable Node snapshots, allocation-free borrowed traversal, resumable matching and query error positions; expose all-match Document visiting in C. (#437)

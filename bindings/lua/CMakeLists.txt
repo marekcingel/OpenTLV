@@ -3,7 +3,7 @@
 # Element, Tag and traversal to Lua 5.1
 # through 5.4 and LuaJIT, and a one-line pure-Lua entry point (lua/) that
 # `require("opentlv")` resolves to — the same native/pure split as the
-# Python opentlv-native/opentlv and Rust opentlv-native/opentlv packages.
+# Python opentlv-core/opentlv and Rust opentlv-sys/opentlv packages.
 # Included only when OPENTLV_BUILD_LUA=ON, so native C/C++ builds never see
 # it.
 #
@@ -128,22 +128,29 @@ endif()
 # runtime that never allocated it — the same corruption the Windows comment
 # above describes, not something specific to how Windows loads DLLs.
 
-# require("opentlv_native") looks for a shared object literally named
-# opentlv_native, with no platform library prefix, and expects the
+# require("opentlv._core") looks for a shared object literally named
+# opentlv/_core, with no platform library prefix, and expects the
 # platform's native module extension except on macOS, where Lua modules are
 # still named .so by ecosystem convention (LuaRocks does the same), not the
 # default .dylib CMake would otherwise pick for a MODULE library.
 # require("opentlv") itself resolves to lua/opentlv/init.lua, which returns
 # this module unchanged; see src/module.c's file comment.
 set_target_properties(opentlv_lua PROPERTIES
-    OUTPUT_NAME opentlv_native
+    OUTPUT_NAME _core
+    LIBRARY_OUTPUT_DIRECTORY "${CMAKE_CURRENT_BINARY_DIR}/opentlv"
+    RUNTIME_OUTPUT_DIRECTORY "${CMAKE_CURRENT_BINARY_DIR}/opentlv"
     PREFIX ""
 )
+foreach(_lua_config DEBUG RELEASE RELWITHDEBINFO MINSIZEREL)
+    set_target_properties(opentlv_lua PROPERTIES
+        LIBRARY_OUTPUT_DIRECTORY_${_lua_config} "${CMAKE_CURRENT_BINARY_DIR}/opentlv"
+        RUNTIME_OUTPUT_DIRECTORY_${_lua_config} "${CMAKE_CURRENT_BINARY_DIR}/opentlv")
+endforeach()
 if(APPLE)
     set_target_properties(opentlv_lua PROPERTIES SUFFIX ".so")
 elseif(WIN32)
     # MSVC does not export any symbols from a DLL by default;
-    # luaopen_opentlv_native needs to be visible for the Lua runtime's
+    # luaopen_opentlv__core needs to be visible for the Lua runtime's
     # require() to find it.
     set_target_properties(opentlv_lua PROPERTIES WINDOWS_EXPORT_ALL_SYMBOLS ON)
 endif()
@@ -167,10 +174,10 @@ if(OPENTLV_BUILD_LUA_TESTS)
 
     # require("opentlv") resolves through lua/opentlv/init.lua (source tree,
     # nothing to build), so tests and examples need LUA_PATH in addition to
-    # the LUA_CPATH entry for the compiled opentlv_native module; the
+    # the LUA_CPATH entry for the compiled opentlv._core module; the
     # trailing ";;" keeps each interpreter's own default search path too.
     set(_lua_path "${CMAKE_CURRENT_SOURCE_DIR}/lua/?.lua;${CMAKE_CURRENT_SOURCE_DIR}/lua/?/init.lua;;")
-    set(_lua_cpath "$<TARGET_FILE_DIR:opentlv_lua>/?$<TARGET_FILE_SUFFIX:opentlv_lua>;;")
+    set(_lua_cpath "$<TARGET_FILE_DIR:opentlv_lua>/../?$<TARGET_FILE_SUFFIX:opentlv_lua>;$<TARGET_FILE_DIR:opentlv_lua_test_allocator>/?$<TARGET_FILE_SUFFIX:opentlv_lua_test_allocator>;;")
     # ENVIRONMENT is a CMake list; preserve separators inside each Lua path.
     string(REPLACE ";" "\\;" _lua_path "${_lua_path}")
     string(REPLACE ";" "\\;" _lua_cpath "${_lua_cpath}")

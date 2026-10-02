@@ -30,15 +30,15 @@
 #include <tlv/version.h>
 #include <tlv/writer/writer.h>
 
-static PyObject* opentlv_native_error = NULL;
-static PyObject* opentlv_native_codec_error = NULL;
+static PyObject* opentlv_python_error = NULL;
+static PyObject* opentlv_python_codec_error = NULL;
 
-static PyObject* opentlv_native_version_string(PyObject* module, PyObject* Py_UNUSED(args)) {
+static PyObject* _opentlv_version_string(PyObject* module, PyObject* Py_UNUSED(args)) {
     (void)module;
     return PyUnicode_FromString(tlv_version_string());
 }
 
-static PyObject* opentlv_native_strerror(PyObject* module, PyObject* args) {
+static PyObject* _opentlv_strerror(PyObject* module, PyObject* args) {
     (void)module;
     int code;
     if (!PyArg_ParseTuple(args, "i", &code)) {
@@ -100,7 +100,7 @@ static int dict_set_bytes_or_none(PyObject* dict, const char* key, int has, cons
                         : Py_NewRef(Py_None));
 }
 
-/* Raises opentlv_native.Error with a single dict argument. Every raise site
+/* Raises _opentlv.Error with a single dict argument. Every raise site
  * fills whichever keys its diagnostic supports; the rest are left absent, and
  * opentlv._from_native() treats a missing key the same as an explicit None.
  * If building the dict itself fails, an exception (typically MemoryError) is
@@ -109,7 +109,7 @@ static void raise_error(PyObject* fields) {
     if (fields == NULL) {
         return;
     }
-    PyErr_SetObject(opentlv_native_error, fields);
+    PyErr_SetObject(opentlv_python_error, fields);
     Py_DECREF(fields);
 }
 
@@ -204,7 +204,7 @@ static void raise_writer_error(tlv_result_t code, const tlv_writer_diagnostic_t*
     raise_error(fields);
 }
 
-/* Raises opentlv_native.Error with "code" and "offset" only; used by every
+/* Raises _opentlv.Error with "code" and "offset" only; used by every
  * failure that reports just a code plus a byte offset (schema validation,
  * document parsing, query parsing). */
 static void raise_code_and_offset(tlv_result_t code, size_t offset) {
@@ -545,9 +545,9 @@ static PyObject* schema_diagnostic_report(const Py_buffer* buffer, const tlv_for
  *
  * Validates `data` against `schema` (an opentlv.StructureSchema serialized
  * with _to_native()) using wire format `format`. Raises
- * opentlv_native.Error with "code" and "offset" on the first violation or
+ * _opentlv.Error with "code" and "offset" on the first violation or
  * wire-level error. */
-static PyObject* opentlv_native_structure_validate(PyObject* module, PyObject* args) {
+static PyObject* _opentlv_structure_validate(PyObject* module, PyObject* args) {
     (void)module;
     Py_buffer  buffer;
     PyObject*  format_obj;
@@ -640,7 +640,7 @@ static PyObject* opentlv_native_structure_validate(PyObject* module, PyObject* a
     Py_RETURN_NONE;
 }
 
-static PyObject* opentlv_native_codec_strerror(PyObject* module, PyObject* args) {
+static PyObject* _opentlv_codec_strerror(PyObject* module, PyObject* args) {
     (void)module;
     int code;
     if (!PyArg_ParseTuple(args, "i", &code)) {
@@ -649,21 +649,21 @@ static PyObject* opentlv_native_codec_strerror(PyObject* module, PyObject* args)
     return PyUnicode_FromString(tlv_codec_strerror((tlv_codec_result_t)code));
 }
 
-/* Raises opentlv_native.CodecError with a single int argument: the
+/* Raises _opentlv.CodecError with a single int argument: the
  * tlv_codec_result_t code. This is a separate error domain from
- * opentlv_native.Error: tlv_codec_result_t conversion errors are
+ * _opentlv.Error: tlv_codec_result_t conversion errors are
  * independent of the tlv_result_t framing errors that raises. */
 static void raise_codec_error(tlv_codec_result_t code) {
     PyObject* codec_args = Py_BuildValue("(i)", (int)code);
     if (codec_args == NULL) {
         return;
     }
-    PyErr_SetObject(opentlv_native_codec_error, codec_args);
+    PyErr_SetObject(opentlv_python_codec_error, codec_args);
     Py_DECREF(codec_args);
 }
 
 /* Names do not participate in lookup; the facade retains them in its records. */
-static PyObject* opentlv_native_definition_find(PyObject* module, PyObject* args) {
+static PyObject* _opentlv_definition_find(PyObject* module, PyObject* args) {
     (void)module;
     PyObject *tags, *wanted;
     if (!PyArg_ParseTuple(args, "OO", &tags, &wanted)) return NULL;
@@ -692,7 +692,7 @@ static PyObject* opentlv_native_definition_find(PyObject* module, PyObject* args
     return result;
 }
 
-static PyObject* opentlv_native_number_codec(PyObject* module, PyObject* args) {
+static PyObject* _opentlv_number_codec(PyObject* module, PyObject* args) {
     (void)module;
     int        operation, encoding;
     Py_ssize_t width;
@@ -766,9 +766,9 @@ static PyObject* opentlv_native_number_codec(PyObject* module, PyObject* args) {
 /* emv_decode_amount(data) -> int
  *
  * Decodes 6 bytes of BCD (EMV format n12) into an unscaled minor-unit
- * amount, using the public `tlv_emv_codec_amount` codec. Raises opentlv_native.CodecError
+ * amount, using the public `tlv_emv_codec_amount` codec. Raises _opentlv.CodecError
  * on failure. */
-static PyObject* opentlv_native_emv_decode_amount(PyObject* module, PyObject* args) {
+static PyObject* _opentlv_emv_decode_amount(PyObject* module, PyObject* args) {
     (void)module;
     Py_buffer buffer;
     if (!PyArg_ParseTuple(args, "y*", &buffer)) {
@@ -789,9 +789,9 @@ static PyObject* opentlv_native_emv_decode_amount(PyObject* module, PyObject* ar
  *
  * Encodes an unscaled minor-unit amount as 6 bytes of BCD (EMV format n12),
  * using the public `tlv_emv_codec_amount` codec. Raises
- * opentlv_native.CodecError on failure, for example if `value` does not fit
+ * _opentlv.CodecError on failure, for example if `value` does not fit
  * the format's 12-digit range. */
-static PyObject* opentlv_native_emv_encode_amount(PyObject* module, PyObject* args) {
+static PyObject* _opentlv_emv_encode_amount(PyObject* module, PyObject* args) {
     (void)module;
     unsigned long long value_arg;
     if (!PyArg_ParseTuple(args, "K", &value_arg)) {
@@ -811,7 +811,7 @@ static PyObject* opentlv_native_emv_encode_amount(PyObject* module, PyObject* ar
 
 #endif
 
-#define DOCUMENT_CAPSULE_NAME "opentlv_native.Document"
+#define DOCUMENT_CAPSULE_NAME "_opentlv.Document"
 
 static void document_capsule_destructor(PyObject* capsule) {
     tlv_document_t* document =
@@ -895,8 +895,8 @@ static int build_document_options(int format_id, Py_ssize_t max_depth, Py_ssize_
 
 /* document_create(format, max_depth, max_elements) -> capsule
  *
- * Creates an empty document. Raises opentlv_native.Error on failure. */
-static PyObject* opentlv_native_document_create(PyObject* module, PyObject* args) {
+ * Creates an empty document. Raises _opentlv.Error on failure. */
+static PyObject* _opentlv_document_create(PyObject* module, PyObject* args) {
     (void)module;
     int        format_id;
     Py_ssize_t max_depth, max_elements;
@@ -923,9 +923,9 @@ static PyObject* opentlv_native_document_create(PyObject* module, PyObject* args
 
 /* document_parse(data, format, max_depth, max_elements) -> capsule
  *
- * Parses `data` into a new owned document. Raises opentlv_native.Error with
+ * Parses `data` into a new owned document. Raises _opentlv.Error with
  * "code" and "offset" on failure. */
-static PyObject* opentlv_native_document_parse(PyObject* module, PyObject* args) {
+static PyObject* _opentlv_document_parse(PyObject* module, PyObject* args) {
     (void)module;
     Py_buffer  buffer;
     int        format_id;
@@ -955,7 +955,7 @@ static PyObject* opentlv_native_document_parse(PyObject* module, PyObject* args)
     return capsule;
 }
 
-static PyObject* opentlv_native_document_count(PyObject* module, PyObject* args) {
+static PyObject* _opentlv_document_count(PyObject* module, PyObject* args) {
     (void)module;
     PyObject* capsule;
     if (!PyArg_ParseTuple(args, "O", &capsule)) {
@@ -968,7 +968,7 @@ static PyObject* opentlv_native_document_count(PyObject* module, PyObject* args)
     return PyLong_FromSize_t(tlv_document_count(document));
 }
 
-static PyObject* opentlv_native_document_first(PyObject* module, PyObject* args) {
+static PyObject* _opentlv_document_first(PyObject* module, PyObject* args) {
     (void)module;
     PyObject* capsule;
     if (!PyArg_ParseTuple(args, "O", &capsule)) {
@@ -982,7 +982,7 @@ static PyObject* opentlv_native_document_first(PyObject* module, PyObject* args)
 }
 
 /* document_find(capsule, parent, tag) -> int | None */
-static PyObject* opentlv_native_document_find(PyObject* module, PyObject* args) {
+static PyObject* _opentlv_document_find(PyObject* module, PyObject* args) {
     (void)module;
     PyObject*   capsule;
     tlv_node_t* parent;
@@ -1002,7 +1002,7 @@ static PyObject* opentlv_native_document_find(PyObject* module, PyObject* args) 
 }
 
 /* document_find_path(capsule, query_text) -> int | None */
-static PyObject* opentlv_native_document_find_path(PyObject* module, PyObject* args) {
+static PyObject* _opentlv_document_find_path(PyObject* module, PyObject* args) {
     (void)module;
     PyObject*   capsule;
     const char* text;
@@ -1024,7 +1024,7 @@ static PyObject* opentlv_native_document_find_path(PyObject* module, PyObject* a
 }
 
 /* document_insert(capsule, parent, before, tag, value) -> int (the new node) */
-static PyObject* opentlv_native_document_insert(PyObject* module, PyObject* args) {
+static PyObject* _opentlv_document_insert(PyObject* module, PyObject* args) {
     (void)module;
     PyObject*   capsule;
     tlv_node_t* parent;
@@ -1053,7 +1053,7 @@ static PyObject* opentlv_native_document_insert(PyObject* module, PyObject* args
     return node_to_py(node);
 }
 
-static PyObject* opentlv_native_document_encoded_size(PyObject* module, PyObject* args) {
+static PyObject* _opentlv_document_encoded_size(PyObject* module, PyObject* args) {
     (void)module;
     int       format_id = -1;
     PyObject* capsule;
@@ -1079,7 +1079,7 @@ static PyObject* opentlv_native_document_encoded_size(PyObject* module, PyObject
     return PyLong_FromSize_t(size);
 }
 
-static PyObject* opentlv_native_document_encode(PyObject* module, PyObject* args) {
+static PyObject* _opentlv_document_encode(PyObject* module, PyObject* args) {
     (void)module;
     int       format_id = -1;
     PyObject* capsule;
@@ -1129,7 +1129,7 @@ static PyObject* opentlv_native_document_encode(PyObject* module, PyObject* args
     return result;
 }
 
-static PyObject* opentlv_native_node_first_child(PyObject* module, PyObject* args) {
+static PyObject* _opentlv_node_first_child(PyObject* module, PyObject* args) {
     (void)module;
     tlv_node_t* node;
     if (!PyArg_ParseTuple(args, "O&", py_to_node, &node)) {
@@ -1138,7 +1138,7 @@ static PyObject* opentlv_native_node_first_child(PyObject* module, PyObject* arg
     return node_to_py(tlv_node_first_child(node));
 }
 
-static PyObject* opentlv_native_node_next(PyObject* module, PyObject* args) {
+static PyObject* _opentlv_node_next(PyObject* module, PyObject* args) {
     (void)module;
     tlv_node_t* node;
     if (!PyArg_ParseTuple(args, "O&", py_to_node, &node)) {
@@ -1147,7 +1147,7 @@ static PyObject* opentlv_native_node_next(PyObject* module, PyObject* args) {
     return node_to_py(tlv_node_next(node));
 }
 
-static PyObject* opentlv_native_node_parent(PyObject* module, PyObject* args) {
+static PyObject* _opentlv_node_parent(PyObject* module, PyObject* args) {
     (void)module;
     tlv_node_t* node;
     if (!PyArg_ParseTuple(args, "O&", py_to_node, &node)) {
@@ -1156,7 +1156,7 @@ static PyObject* opentlv_native_node_parent(PyObject* module, PyObject* args) {
     return node_to_py(tlv_node_parent(node));
 }
 
-static PyObject* opentlv_native_node_next_same_tag(PyObject* module, PyObject* args) {
+static PyObject* _opentlv_node_next_same_tag(PyObject* module, PyObject* args) {
     (void)module;
     tlv_node_t* node;
     if (!PyArg_ParseTuple(args, "O&", py_to_node, &node)) {
@@ -1165,7 +1165,7 @@ static PyObject* opentlv_native_node_next_same_tag(PyObject* module, PyObject* a
     return node_to_py(tlv_node_next_same_tag(node));
 }
 
-static PyObject* opentlv_native_node_tag(PyObject* module, PyObject* args) {
+static PyObject* _opentlv_node_tag(PyObject* module, PyObject* args) {
     (void)module;
     tlv_node_t* node;
     if (!PyArg_ParseTuple(args, "O&", py_to_node, &node)) {
@@ -1175,7 +1175,7 @@ static PyObject* opentlv_native_node_tag(PyObject* module, PyObject* args) {
     return PyBytes_FromStringAndSize((const char*)tag.data, (Py_ssize_t)tag.size);
 }
 
-static PyObject* opentlv_native_node_is_constructed(PyObject* module, PyObject* args) {
+static PyObject* _opentlv_node_is_constructed(PyObject* module, PyObject* args) {
     (void)module;
     tlv_node_t* node;
     if (!PyArg_ParseTuple(args, "O&", py_to_node, &node)) {
@@ -1184,7 +1184,7 @@ static PyObject* opentlv_native_node_is_constructed(PyObject* module, PyObject* 
     return PyBool_FromLong(tlv_node_is_constructed(node));
 }
 
-static PyObject* opentlv_native_node_value(PyObject* module, PyObject* args) {
+static PyObject* _opentlv_node_value(PyObject* module, PyObject* args) {
     (void)module;
     tlv_node_t* node;
     if (!PyArg_ParseTuple(args, "O&", py_to_node, &node)) {
@@ -1195,7 +1195,7 @@ static PyObject* opentlv_native_node_value(PyObject* module, PyObject* args) {
     return PyBytes_FromStringAndSize((const char*)data, (Py_ssize_t)size);
 }
 
-static PyObject* opentlv_native_node_set_value(PyObject* module, PyObject* args) {
+static PyObject* _opentlv_node_set_value(PyObject* module, PyObject* args) {
     (void)module;
     tlv_node_t* node;
     Py_buffer   value_buf;
@@ -1212,7 +1212,7 @@ static PyObject* opentlv_native_node_set_value(PyObject* module, PyObject* args)
     Py_RETURN_NONE;
 }
 
-static PyObject* opentlv_native_node_erase(PyObject* module, PyObject* args) {
+static PyObject* _opentlv_node_erase(PyObject* module, PyObject* args) {
     (void)module;
     tlv_node_t* node;
     if (!PyArg_ParseTuple(args, "O&", py_to_node, &node)) {
@@ -1222,7 +1222,7 @@ static PyObject* opentlv_native_node_erase(PyObject* module, PyObject* args) {
     Py_RETURN_NONE;
 }
 
-static PyObject* opentlv_native_node_encoded_size(PyObject* module, PyObject* args) {
+static PyObject* _opentlv_node_encoded_size(PyObject* module, PyObject* args) {
     (void)module;
     int         format_id = -1;
     tlv_node_t* node;
@@ -1244,7 +1244,7 @@ static PyObject* opentlv_native_node_encoded_size(PyObject* module, PyObject* ar
     return PyLong_FromSize_t(size);
 }
 
-static PyObject* opentlv_native_node_encode(PyObject* module, PyObject* args) {
+static PyObject* _opentlv_node_encode(PyObject* module, PyObject* args) {
     (void)module;
     int         format_id = -1;
     tlv_node_t* node;
@@ -1294,11 +1294,11 @@ static PyObject* opentlv_native_node_encode(PyObject* module, PyObject* args) {
  * int, value_length: int, consumed: int)
  *
  * Parses one element at `offset` in `data` using wire format `format` (an
- * opentlv.Format value) and raises opentlv_native.Error on failure. `data` is
+ * opentlv.Format value) and raises _opentlv.Error on failure. `data` is
  * any buffer-protocol object; `value_offset`/`value_length` describe the
  * value as a range within `data`, so the caller can slice it without
  * copying. */
-static PyObject* opentlv_native_read(PyObject* module, PyObject* args) {
+static PyObject* _opentlv_read(PyObject* module, PyObject* args) {
     (void)module;
     Py_buffer  buffer;
     Py_ssize_t offset;
@@ -1363,7 +1363,7 @@ static PyObject* opentlv_native_read(PyObject* module, PyObject* args) {
 }
 
 /* Copy an unvalidated range with the sequential Writer capacity/diagnostic contract. */
-static PyObject* opentlv_native_copy_encoded(PyObject* module, PyObject* args) {
+static PyObject* _opentlv_copy_encoded(PyObject* module, PyObject* args) {
     (void)module;
     Py_buffer  buffer, encoded;
     Py_ssize_t offset;
@@ -1392,11 +1392,11 @@ static PyObject* opentlv_native_copy_encoded(PyObject* module, PyObject* args) {
 /* write(buffer, offset, tag, value, format) -> written: int
  *
  * Encodes one element at `offset` in `buffer` using wire format `format` and
- * raises opentlv_native.Error on failure, including insufficient capacity
+ * raises _opentlv.Error on failure, including insufficient capacity
  * (`code` 1, `required` set to the exact size needed). `buffer` must be a
  * writable buffer-protocol object (for example a bytearray); `tag` and
  * `value` may be any buffer-protocol object. */
-static PyObject* opentlv_native_write(PyObject* module, PyObject* args) {
+static PyObject* _opentlv_write(PyObject* module, PyObject* args) {
     (void)module;
     Py_buffer  buffer, tag_buf, value_buf;
     Py_ssize_t offset;
@@ -1449,8 +1449,8 @@ static PyObject* opentlv_native_write(PyObject* module, PyObject* args) {
  *
  * Returns the encoded size of an element with `tag` and a value of
  * `value_length` bytes in wire format `format`, without writing anything.
- * Raises opentlv_native.Error on failure. */
-static PyObject* opentlv_native_encoded_size(PyObject* module, PyObject* args) {
+ * Raises _opentlv.Error on failure. */
+static PyObject* _opentlv_encoded_size(PyObject* module, PyObject* args) {
     (void)module;
     Py_buffer  tag_buf;
     Py_ssize_t value_length;
@@ -1481,7 +1481,7 @@ static PyObject* opentlv_native_encoded_size(PyObject* module, PyObject* args) {
     return PyLong_FromSize_t(size);
 }
 
-static PyObject* opentlv_native_element_encoded_size(PyObject* module, PyObject* args) {
+static PyObject* _opentlv_element_encoded_size(PyObject* module, PyObject* args) {
     (void)module;
     Py_buffer tag_buf, value_buf;
 
@@ -1535,8 +1535,8 @@ static int fixed_config_from_args(Py_ssize_t tag_size, Py_ssize_t length_size, i
  *
  * Like read(), but for the configurable fixed-width format: tag_size and
  * length_size are byte widths (length_size 1..8), and big_endian selects the
- * length field's byte order. Raises opentlv_native.Error on failure. */
-static PyObject* opentlv_native_read_fixed(PyObject* module, PyObject* args) {
+ * length field's byte order. Raises _opentlv.Error on failure. */
+static PyObject* _opentlv_read_fixed(PyObject* module, PyObject* args) {
     (void)module;
     Py_buffer  buffer;
     Py_ssize_t offset, tag_size, length_size;
@@ -1609,8 +1609,8 @@ static PyObject* opentlv_native_read_fixed(PyObject* module, PyObject* args) {
 /* write_fixed(buffer, offset, tag, value, tag_size, length_size, big_endian) -> written: int
  *
  * Like write(), but for the configurable fixed-width format. Raises
- * opentlv_native.Error on failure, including insufficient capacity. */
-static PyObject* opentlv_native_write_fixed(PyObject* module, PyObject* args) {
+ * _opentlv.Error on failure, including insufficient capacity. */
+static PyObject* _opentlv_write_fixed(PyObject* module, PyObject* args) {
     (void)module;
     Py_buffer  buffer, tag_buf, value_buf;
     Py_ssize_t offset, tag_size, length_size;
@@ -1671,8 +1671,8 @@ static PyObject* opentlv_native_write_fixed(PyObject* module, PyObject* args) {
 /* encoded_size_fixed(tag, value_length, tag_size, length_size, big_endian) -> int
  *
  * Like encoded_size(), but for the configurable fixed-width format. Raises
- * opentlv_native.Error on failure. */
-static PyObject* opentlv_native_encoded_size_fixed(PyObject* module, PyObject* args) {
+ * _opentlv.Error on failure. */
+static PyObject* _opentlv_encoded_size_fixed(PyObject* module, PyObject* args) {
     (void)module;
     Py_buffer  tag_buf;
     Py_ssize_t value_length, tag_size, length_size;
@@ -1710,7 +1710,7 @@ static PyObject* opentlv_native_encoded_size_fixed(PyObject* module, PyObject* a
     return PyLong_FromSize_t(size);
 }
 
-static PyObject* opentlv_native_element_encoded_size_fixed(PyObject* module, PyObject* args) {
+static PyObject* _opentlv_element_encoded_size_fixed(PyObject* module, PyObject* args) {
     (void)module;
     Py_buffer  tag_buf, value_buf;
     Py_ssize_t tag_size, length_size;
@@ -1754,7 +1754,7 @@ void opentlv_python_raise_writer(tlv_result_t code, const tlv_writer_diagnostic_
     raise_writer_error(code, diagnostic);
 }
 
-static PyMethodDef opentlv_native_methods[] = {
+static PyMethodDef opentlv_python_methods[] = {
     {"length_schema", opentlv_python_length_schema, METH_VARARGS,
      "Find or validate a length rule through the canonical C schema engine."},
     {"source_preserve", opentlv_python_source_preserve, METH_VARARGS,
@@ -1789,93 +1789,90 @@ static PyMethodDef opentlv_native_methods[] = {
      "Feed a preorder item to the C matcher."},
     {"query_visit", opentlv_python_query_visit, METH_VARARGS,
      "Visit matches through the C Query engine."},
-    {"version_string", opentlv_native_version_string, METH_NOARGS,
+    {"version_string", _opentlv_version_string, METH_NOARGS,
      "Return the version of the linked OpenTLV C library, for example \"0.6.0\"."},
-    {"strerror", opentlv_native_strerror, METH_VARARGS,
+    {"strerror", _opentlv_strerror, METH_VARARGS,
      "Return the readable description of a tlv_result_t code."},
-    {"read", opentlv_native_read, METH_VARARGS,
+    {"read", _opentlv_read, METH_VARARGS,
      "Parse one element at an offset in a buffer using a wire format."},
-    {"write", opentlv_native_write, METH_VARARGS,
+    {"write", _opentlv_write, METH_VARARGS,
      "Encode one element at an offset in a writable buffer using a wire format."},
-    {"copy_encoded", opentlv_native_copy_encoded, METH_VARARGS,
+    {"copy_encoded", _opentlv_copy_encoded, METH_VARARGS,
      "Copy raw bytes into caller storage without format conversion."},
-    {"element_encoded_size", opentlv_native_element_encoded_size, METH_VARARGS,
+    {"element_encoded_size", _opentlv_element_encoded_size, METH_VARARGS,
      "Measure exact output storage using semantic content."},
-    {"element_encoded_size_fixed", opentlv_native_element_encoded_size_fixed, METH_VARARGS,
+    {"element_encoded_size_fixed", _opentlv_element_encoded_size_fixed, METH_VARARGS,
      "Measure exact output storage for a fixed format Element."},
-    {"encoded_size", opentlv_native_encoded_size, METH_VARARGS,
+    {"encoded_size", _opentlv_encoded_size, METH_VARARGS,
      "Compute the encoded size of an element without writing it."},
-    {"read_fixed", opentlv_native_read_fixed, METH_VARARGS,
+    {"read_fixed", _opentlv_read_fixed, METH_VARARGS,
      "Parse one element at an offset in a buffer using the configurable fixed-width format."},
-    {"write_fixed", opentlv_native_write_fixed, METH_VARARGS,
+    {"write_fixed", _opentlv_write_fixed, METH_VARARGS,
      "Encode one element at an offset in a writable buffer using the configurable "
      "fixed-width format."},
-    {"encoded_size_fixed", opentlv_native_encoded_size_fixed, METH_VARARGS,
+    {"encoded_size_fixed", _opentlv_encoded_size_fixed, METH_VARARGS,
      "Compute the encoded size of an element in the configurable fixed-width format."},
-    {"structure_validate", opentlv_native_structure_validate, METH_VARARGS,
+    {"structure_validate", _opentlv_structure_validate, METH_VARARGS,
      "Validate a buffer against a serialized structural schema."},
-    {"definition_find", opentlv_native_definition_find, METH_VARARGS,
+    {"definition_find", _opentlv_definition_find, METH_VARARGS,
      "Find the first generic C Definition."},
-    {"number_codec", opentlv_native_number_codec, METH_VARARGS,
-     "Configured C numeric Value codec."},
-    {"codec_strerror", opentlv_native_codec_strerror, METH_VARARGS,
+    {"number_codec", _opentlv_number_codec, METH_VARARGS, "Configured C numeric Value codec."},
+    {"codec_strerror", _opentlv_codec_strerror, METH_VARARGS,
      "Return the readable description of a tlv_codec_result_t code."},
 #if OPENTLV_EMV
-    {"emv_decode_amount", opentlv_native_emv_decode_amount, METH_VARARGS,
+    {"emv_decode_amount", _opentlv_emv_decode_amount, METH_VARARGS,
      "Decode 6 bytes of BCD (EMV format n12) into an unscaled minor-unit amount."},
-    {"emv_encode_amount", opentlv_native_emv_encode_amount, METH_VARARGS,
+    {"emv_encode_amount", _opentlv_emv_encode_amount, METH_VARARGS,
      "Encode an unscaled minor-unit amount as 6 bytes of BCD (EMV format n12)."},
 #endif
-    {"document_create", opentlv_native_document_create, METH_VARARGS, "Create an empty document."},
-    {"document_parse", opentlv_native_document_parse, METH_VARARGS,
+    {"document_create", _opentlv_document_create, METH_VARARGS, "Create an empty document."},
+    {"document_parse", _opentlv_document_parse, METH_VARARGS,
      "Parse a buffer into a new owned document."},
-    {"document_count", opentlv_native_document_count, METH_VARARGS,
+    {"document_count", _opentlv_document_count, METH_VARARGS,
      "Return the number of elements in a document, including nested ones."},
-    {"document_first", opentlv_native_document_first, METH_VARARGS,
+    {"document_first", _opentlv_document_first, METH_VARARGS,
      "Return the first top-level node of a document, or None."},
-    {"document_find", opentlv_native_document_find, METH_VARARGS,
+    {"document_find", _opentlv_document_find, METH_VARARGS,
      "Find the first direct child of a node (or the top level) with a tag."},
-    {"document_find_path", opentlv_native_document_find_path, METH_VARARGS,
+    {"document_find_path", _opentlv_document_find_path, METH_VARARGS,
      "Find the first element addressed by a path query, for example \"6F/A5/50\"."},
-    {"document_insert", opentlv_native_document_insert, METH_VARARGS,
+    {"document_insert", _opentlv_document_insert, METH_VARARGS,
      "Insert a new element into a document and return its node."},
-    {"document_encoded_size", opentlv_native_document_encoded_size, METH_VARARGS,
+    {"document_encoded_size", _opentlv_document_encoded_size, METH_VARARGS,
      "Compute the encoded size of a whole document."},
-    {"document_encode", opentlv_native_document_encode, METH_VARARGS, "Encode a whole document."},
-    {"node_first_child", opentlv_native_node_first_child, METH_VARARGS,
+    {"document_encode", _opentlv_document_encode, METH_VARARGS, "Encode a whole document."},
+    {"node_first_child", _opentlv_node_first_child, METH_VARARGS,
      "Return the first child of a constructed node, or None."},
-    {"node_next", opentlv_native_node_next, METH_VARARGS,
-     "Return the next sibling of a node, or None."},
-    {"node_parent", opentlv_native_node_parent, METH_VARARGS,
+    {"node_next", _opentlv_node_next, METH_VARARGS, "Return the next sibling of a node, or None."},
+    {"node_parent", _opentlv_node_parent, METH_VARARGS,
      "Return the parent of a node, or None for a top-level node."},
-    {"node_next_same_tag", opentlv_native_node_next_same_tag, METH_VARARGS,
+    {"node_next_same_tag", _opentlv_node_next_same_tag, METH_VARARGS,
      "Return the next sibling with the same tag as a node, or None."},
-    {"node_tag", opentlv_native_node_tag, METH_VARARGS, "Return the tag of a node."},
-    {"node_is_constructed", opentlv_native_node_is_constructed, METH_VARARGS,
+    {"node_tag", _opentlv_node_tag, METH_VARARGS, "Return the tag of a node."},
+    {"node_is_constructed", _opentlv_node_is_constructed, METH_VARARGS,
      "Return whether a node's value holds nested elements."},
-    {"node_value", opentlv_native_node_value, METH_VARARGS,
+    {"node_value", _opentlv_node_value, METH_VARARGS,
      "Return the value bytes of a node (empty for a constructed node)."},
-    {"node_set_value", opentlv_native_node_set_value, METH_VARARGS, "Replace the value of a node."},
-    {"node_erase", opentlv_native_node_erase, METH_VARARGS,
+    {"node_set_value", _opentlv_node_set_value, METH_VARARGS, "Replace the value of a node."},
+    {"node_erase", _opentlv_node_erase, METH_VARARGS,
      "Remove a node and all of its descendants from its document."},
-    {"node_encoded_size", opentlv_native_node_encoded_size, METH_VARARGS,
+    {"node_encoded_size", _opentlv_node_encoded_size, METH_VARARGS,
      "Compute the encoded size of one element with its descendants."},
-    {"node_encode", opentlv_native_node_encode, METH_VARARGS,
-     "Encode one element with its descendants."},
+    {"node_encode", _opentlv_node_encode, METH_VARARGS, "Encode one element with its descendants."},
     {NULL, NULL, 0, NULL},
 };
 
-static struct PyModuleDef opentlv_native_module = {
+static struct PyModuleDef opentlv_python_module = {
     PyModuleDef_HEAD_INIT,
-    "opentlv_native",
+    "_opentlv",
     "Raw declarations of the OpenTLV C API, registered directly as Python callables. "
     "Low-level; use the opentlv package instead.",
     -1,
-    opentlv_native_methods,
+    opentlv_python_methods,
 };
 
-PyMODINIT_FUNC PyInit_opentlv_native(void) {
-    PyObject* module = PyModule_Create(&opentlv_native_module);
+PyMODINIT_FUNC PyInit__opentlv(void) {
+    PyObject* module = PyModule_Create(&opentlv_python_module);
     if (module == NULL) {
         return NULL;
     }
@@ -1888,23 +1885,23 @@ PyMODINIT_FUNC PyInit_opentlv_native(void) {
      * diagnostic keys the failing call supports; see raise_error() above.
      * Internal transport to the opentlv package, which maps it to a typed,
      * documented exception. */
-    opentlv_native_error = PyErr_NewException("opentlv_native.Error", NULL, NULL);
-    if (opentlv_native_error == NULL) {
+    opentlv_python_error = PyErr_NewException("_opentlv.Error", NULL, NULL);
+    if (opentlv_python_error == NULL) {
         Py_DECREF(module);
         return NULL;
     }
-    if (PyModule_AddObjectRef(module, "Error", opentlv_native_error) < 0) {
+    if (PyModule_AddObjectRef(module, "Error", opentlv_python_error) < 0) {
         Py_DECREF(module);
         return NULL;
     }
 
     /* Raised with a single int argument: the tlv_codec_result_t code. */
-    opentlv_native_codec_error = PyErr_NewException("opentlv_native.CodecError", NULL, NULL);
-    if (opentlv_native_codec_error == NULL) {
+    opentlv_python_codec_error = PyErr_NewException("_opentlv.CodecError", NULL, NULL);
+    if (opentlv_python_codec_error == NULL) {
         Py_DECREF(module);
         return NULL;
     }
-    if (PyModule_AddObjectRef(module, "CodecError", opentlv_native_codec_error) < 0) {
+    if (PyModule_AddObjectRef(module, "CodecError", opentlv_python_codec_error) < 0) {
         Py_DECREF(module);
         return NULL;
     }

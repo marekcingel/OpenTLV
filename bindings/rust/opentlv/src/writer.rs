@@ -7,7 +7,7 @@ use std::marker::PhantomData;
 use std::mem::MaybeUninit;
 use std::slice;
 
-use opentlv_native as native;
+use opentlv_sys as native;
 
 use crate::element::Element;
 use crate::error::{Error, Result};

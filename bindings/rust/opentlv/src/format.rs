@@ -7,7 +7,7 @@ use std::fmt;
 use std::ptr;
 use std::str::FromStr;
 
-use opentlv_native as native;
+use opentlv_sys as native;
 
 use crate::error::Error;
 

@@ -5,7 +5,7 @@
 
 use std::mem::MaybeUninit;
 
-use opentlv_native as native;
+use opentlv_sys as native;
 
 use crate::error::{Error, Result};
 

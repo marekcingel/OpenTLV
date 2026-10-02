@@ -2,15 +2,15 @@
 # Copyright (c) 2026 Marek Cingel
 
 import pytest
-import opentlv_native
+import _opentlv
 from opentlv import Format, Reader, Writer, InvalidLengthError
 
 
 def test_nfc_availability():
-    assert hasattr(Format, "NFC_TYPE2") == bool(opentlv_native.HAS_NFC)
+    assert hasattr(Format, "NFC_TYPE2") == bool(_opentlv.HAS_NFC)
 
 
-@pytest.mark.skipif(not opentlv_native.HAS_NFC, reason="NFC disabled")
+@pytest.mark.skipif(not _opentlv.HAS_NFC, reason="NFC disabled")
 def test_nfc_stream_roundtrip_and_extended_length():
     wire = bytes.fromhex("00 03 03 D1 01 00 FE 00")
     elements = list(Reader(wire, format=Format.NFC_TYPE2))

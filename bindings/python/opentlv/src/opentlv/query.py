@@ -2,7 +2,7 @@
 # Copyright (c) 2026 Marek Cingel
 
 """Canonical C Query parsing and resumable matching."""
-import opentlv_native as _native
+import _opentlv as _native
 from opentlv.cursor import TreeReader
 from opentlv.element import Element
 from opentlv.error import _from_native

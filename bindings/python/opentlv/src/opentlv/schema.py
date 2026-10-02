@@ -10,7 +10,7 @@ import struct
 from dataclasses import dataclass
 from typing import Iterable, Optional, Union
 
-import opentlv_native as _native
+import _opentlv as _native
 
 from opentlv.error import _from_native
 from opentlv.format import Format, _resolve_format

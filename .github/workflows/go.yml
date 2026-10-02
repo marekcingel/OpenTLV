@@ -1,0 +1,47 @@
+name: Go Bindings
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+    branches: [main]
+    paths:
+      - 'bindings/go/**'
+      - 'tlv/**'
+      - 'cmake/**'
+      - '**/CMakeLists.txt'
+      - '.github/workflows/go.yml'
+
+permissions:
+  contents: read
+
+concurrency:
+  group: go-${{ github.ref }}
+  cancel-in-progress: ${{ github.event_name == 'pull_request' }}
+
+jobs:
+  test:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v5
+      - uses: actions/setup-go@v5
+        with:
+          go-version-file: bindings/go/go.mod
+          cache: false
+      - name: Build canonical C library
+        run: |
+          cmake -S . -B build/go -DOPENTLV_BUILD_SHARED_LIBS=OFF \
+            -DOPENTLV_BUILD_TESTS=OFF -DOPENTLV_BUILD_EXAMPLES=OFF \
+            -DOPENTLV_BUILD_CXX=OFF -DOPENTLV_BUILD_CLI=OFF
+          cmake --build build/go --target tlv --parallel 2
+      - name: Check, test and run example
+        working-directory: bindings/go
+        env:
+          CGO_ENABLED: '1'
+          CGO_CPPFLAGS: '-I${{ github.workspace }}/tlv/include -I${{ github.workspace }}/build/go/generated/include -DTLV_STATIC_DEFINE'
+          CGO_LDFLAGS: '-L${{ github.workspace }}/build/go/tlv'
+        run: |
+          test -z "$(gofmt -l .)"
+          go test -v ./...
+          go vet ./...
+          go run ./examples/version

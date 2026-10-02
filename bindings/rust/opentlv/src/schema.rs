@@ -11,7 +11,7 @@ use std::error;
 use std::fmt;
 use std::ptr;
 
-use opentlv_native as native;
+use opentlv_sys as native;
 
 use crate::emv::Context;
 use crate::error::{Error, Result};

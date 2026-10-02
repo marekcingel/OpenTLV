@@ -3,7 +3,7 @@
 
 //! Callback adaptation only; C owns traversal and continuation.
 use crate::{Element, Error, ReaderDiagnostic, Result};
-use opentlv_native as native;
+use opentlv_sys as native;
 use std::{
     any::Any,
     ffi::c_void,

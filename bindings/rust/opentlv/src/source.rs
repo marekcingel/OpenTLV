@@ -3,7 +3,7 @@
 
 //! Immutable source representation, separate from semantic element content.
 use crate::{Element, Error, FixedFormat, Format, Result};
-use opentlv_native as native;
+use opentlv_sys as native;
 use std::{marker::PhantomData, mem::MaybeUninit, slice};
 
 /// A decoded element and its immutable original encoding.
