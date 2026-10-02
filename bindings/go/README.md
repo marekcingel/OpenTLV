@@ -3,7 +3,7 @@
 This module establishes the Go binding architecture (#472) and internal native
 bridge (#473). It exposes
 `opentlv.Version()` to verify the connection to the canonical C library.
-Public Format and Element APIs are available (#474). Reader, Writer, Document and detailed diagnostic APIs are future work.
+Public Format and Element APIs are available (#474). Reader is available (#475). Writer, Document and detailed diagnostic APIs are future work.
 
 The module path is `github.com/marekcingel/OpenTLV/bindings/go`; its package
 name is `opentlv`. It requires Go 1.22 or newer, cgo and a compatible C compiler.
@@ -47,11 +47,11 @@ presets return an unsupported status; the bridge contains no wire parser.
   rejected before entering C. Insufficient capacity reports the required size;
   other encoder failures retain the C buffer-modification contract.
 - Source ranges remain relative to the returned element start. No temporary
-  native Format pointer is retained in Source. A future Reader facade can retain
-  its slice and position in Go and pass each unconsumed window to the bridge.
+  native Format pointer is retained in Source. The Reader retains its slice and
+  position in Go and passes each unconsumed window to the bridge.
 
-Public Reader, Writer, Document, Query, Codec and detailed error APIs
-remain separate follow-up stories (#475–#479). Bridge operations for owned
+Public Writer, Document, Query, Codec and detailed error APIs
+remain separate follow-up stories (#476–#479). Bridge operations for owned
 Document resources and higher-level capabilities will be added with those
 stories, including explicit cleanup for any persistent native allocations.
 
@@ -144,6 +144,44 @@ Returned slices remain mutable; callers must synchronize any mutation.
 relative to the element start. `Range.Present` distinguishes absent fields from
 present empty fields. `FormatTag` identifies a semantic Tag supplied by the
 Format rather than borrowed from a wire Tag range. Logical elements created by
-`NewElement` have no source bytes or ranges and report offset zero. Reader and
-Document will populate source metadata in their respective follow-up stories.
+`NewElement` have no source bytes or ranges and report offset zero. Reader
+populates source metadata; Document remains a follow-up story.
 Formats own no native allocations and require no cleanup.
+
+## Reader
+
+`NewReader(data, format)` borrows a complete buffer. Iterate with `Next()`,
+retrieve the current view with `Element()`, and check `Err()` after the loop.
+Clean EOF is not an error. Invalid Formats and terminal parse failures produce
+`StatusError`. A failed read leaves the cursor unchanged and clears the current
+element. `Offset()` reports the absolute cursor position; each element has its
+own absolute source offset. Retained elements borrow their original input even
+after the next read. Use `Clone()` before overwriting that storage. Readers need
+no `Close` and must not be used concurrently.
+
+```go
+reader := opentlv.NewReader(data, format)
+for reader.Next() {
+    element := reader.Element()
+    fmt.Printf("%X @ %d\n", element.Tag(), element.Offset())
+}
+if err := reader.Err(); err != nil {
+    return err
+}
+```
+
+`NewIncrementalReader(data, format)` starts with non-final input. When `Next()`
+returns false, `NeedsMoreData()` distinguishes a temporary pause from EOF;
+`Err()` remains nil during that pause. Call `SetInput(window, discard, final)`
+to extend or relocate the contiguous window, optionally removing an already
+consumed prefix. The new window must retain all old bytes after that prefix,
+followed by any additional input. Prefix identity is a caller precondition.
+Offsets remain absolute after discarding. Final input cannot be reopened or
+extended; an incomplete final element reports a parse error. An invalid update
+leaves the reader unchanged. Terminal parse errors cannot be resumed.
+
+The binding does not buffer an `io.Reader` or assemble chunks automatically.
+Callers own window assembly and must preserve storage borrowed by retained
+elements. Detailed diagnostics remain a separate story.
+
+Run the independent Fixed-format example with `go run ./examples/reader`.
