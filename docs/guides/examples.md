@@ -86,6 +86,7 @@ removals and stale links. This is an inventory, not evidence of a CI runtime pas
 | C++ | [formats/custom_format.cpp](../../examples/tlv++/src/formats/custom_format.cpp) | Application Format |
 | C++ | [formats/fixed_format.cpp](../../examples/tlv++/src/formats/fixed_format.cpp) | Generic Fixed Format |
 | C++ | [formats/fixed_format_runtime.cpp](../../examples/tlv++/src/formats/fixed_format_runtime.cpp) | Runtime Fixed / explicit native interop |
+| C++ | [generate.cpp](../../examples/tlv++/src/generate.cpp) | Deterministic wire generation / owned cases |
 | C++ | [lldp.cpp](../../examples/tlv++/src/lldp.cpp) | LLDP validation / codecs |
 | C++ | [parse.cpp](../../examples/tlv++/src/parse.cpp) | Nested parsing / traversal |
 | C++ | [query.cpp](../../examples/tlv++/src/query.cpp) | Path Query |

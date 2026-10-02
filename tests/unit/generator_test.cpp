@@ -46,6 +46,7 @@ void exercise(const tlv_format_t& format, const tlv_generator_candidate_t* candi
     size_t                  workspace_size = 0;
     ASSERT_EQ(TLV_OK, tlv_generator_workspace_size(&options, &workspace_size));
     std::vector<uint8_t> workspace(workspace_size), out(2048), again(4096);
+    tlv::generator       owned(tlv::native::borrow_format(format), options);
     bool                 multiple = false, nested = false;
     for (uint64_t index = 0; index < 200; ++index) {
         options.case_index = index;
@@ -54,6 +55,10 @@ void exercise(const tlv_format_t& format, const tlv_generator_candidate_t* candi
                                        workspace.size(), &written));
         ASSERT_GT(written, 0u);
         ASSERT_LE(written, options.max_case_size);
+        auto wire = owned.generate(index);
+        ASSERT_TRUE(wire);
+        ASSERT_EQ(written, wire->size());
+        EXPECT_EQ(0, std::memcmp(out.data(), wire->data(), written));
         size_t count = 0, deepest = 0;
         check_stream(format, out.data(), written, 0, count, deepest);
         EXPECT_LE(count, options.max_elements);
@@ -142,6 +147,92 @@ TEST(Unit_Generator, CxxFacadeAndZeroDepth) {
     ASSERT_EQ(sizeof(golden), *result);
     EXPECT_EQ(0, std::memcmp(output, golden, sizeof(golden)));
     EXPECT_EQ(0u, deepest);
+}
+
+TEST(Unit_Generator, OwnedCxxCasesMatchNativeAndSurviveReuse) {
+    const uint8_t raw = 1;
+    auto          candidate = tlv::make_generator_candidate(
+        tlv::tag(tlv::bytes{reinterpret_cast<const tlv::byte*>(&raw), 1}), 0, 128);
+    tlv::generator_options options{};
+    options.seed = 42;
+    options.case_index = 999;
+    options.max_elements = 10;
+    options.max_depth = 0;
+    options.max_value_size = 128;
+    options.max_case_size = 512;
+    options.candidates = &candidate;
+    options.candidate_count = 1;
+    const tlv_fixed_format_t config{1, 2, TLV_BYTE_ORDER_BIG_ENDIAN, TLV_ELEMENT_ORDER_TLV,
+                                    TLV_LENGTH_SCOPE_VALUE};
+    tlv_format_t             fixed{};
+    ASSERT_EQ(TLV_OK, tlv_fixed_format_init(&fixed, &config));
+    std::vector<tlv::byte> retained;
+    {
+        tlv::generator generator(tlv::native::borrow_format(fixed), options);
+        options.seed = 0; // The wrapper owns its configuration snapshot.
+        auto first = generator.generate(7);
+        ASSERT_TRUE(first);
+        retained = *first;
+        for (uint64_t index : {7u, 19u, 0u, 7u}) {
+            auto wire = generator.generate(index);
+            ASSERT_TRUE(wire);
+            auto native_options = options;
+            native_options.seed = 42;
+            native_options.case_index = index;
+            size_t required = 0, written = 0;
+            ASSERT_EQ(TLV_OK, tlv_generator_workspace_size(&native_options, &required));
+            std::vector<uint8_t> scratch(required), native(512);
+            ASSERT_EQ(TLV_OK, tlv_generate(&fixed, &native_options, native.data(), native.size(),
+                                           scratch.data(), scratch.size(), &written));
+            ASSERT_EQ(written, wire->size());
+            EXPECT_EQ(0, std::memcmp(native.data(), wire->data(), written));
+            EXPECT_EQ(retained, *first);
+            if (index == 7) EXPECT_EQ(retained, *wire);
+        }
+    }
+    EXPECT_FALSE(retained.empty());
+    size_t count = 0, deepest = 0;
+    check_stream(fixed, reinterpret_cast<const uint8_t*>(retained.data()), retained.size(), 0,
+                 count, deepest);
+}
+
+TEST(Unit_Generator, OwnedCxxErrorsAndRepeatedCalls) {
+    const uint8_t                   raw = 1;
+    const tlv_generator_candidate_t candidate{{&raw, 1}, 0, 10};
+    tlv::generator_options          options{0, 0, 1, 0, 10, 64, &candidate, 1};
+    const tlv_fixed_format_t        config{1, 1, TLV_BYTE_ORDER_BIG_ENDIAN, TLV_ELEMENT_ORDER_TLV,
+                                           TLV_LENGTH_SCOPE_VALUE};
+    tlv_format_t                    fixed{};
+    ASSERT_EQ(TLV_OK, tlv_fixed_format_init(&fixed, &config));
+    options.max_elements = 0;
+    tlv::generator invalid(tlv::native::borrow_format(fixed), options);
+    auto           result = invalid.generate(0);
+    ASSERT_FALSE(result);
+    EXPECT_EQ(TLV_ERR_INVALID_ARG, result.error().code);
+    options.max_elements = 1;
+    options.max_depth = 1;
+    options.max_case_size = SIZE_MAX;
+    tlv::generator overflow(tlv::native::borrow_format(fixed), options);
+    auto           overflow_result = overflow.generate(0);
+    ASSERT_FALSE(overflow_result);
+    EXPECT_EQ(TLV_ERR_OVERFLOW, overflow_result.error().code);
+    options.max_depth = 0;
+    options.max_case_size = 1; // Too small even for an empty element.
+    tlv::generator impossible(tlv::native::borrow_format(fixed), options);
+    for (uint64_t index : {0u, 7u}) {
+        auto impossible_result = impossible.generate(index);
+        ASSERT_FALSE(impossible_result);
+        EXPECT_EQ(TLV_ERR_LIMIT, impossible_result.error().code);
+    }
+    options.max_case_size = 64;
+    tlv_format_t   unavailable{};
+    tlv::generator missing(tlv::native::borrow_format(unavailable), options);
+    auto           missing_result = missing.generate(0);
+    ASSERT_FALSE(missing_result);
+    EXPECT_EQ(TLV_ERR_NULL_ARG, missing_result.error().code);
+    tlv::generator valid(tlv::native::borrow_format(fixed), options);
+    EXPECT_TRUE(valid.generate(0));
+    EXPECT_TRUE(valid.generate(7));
 }
 
 TEST(Unit_Generator, SamplesValueBoundariesAndChecksLimits) {
