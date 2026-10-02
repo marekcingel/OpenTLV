@@ -21,6 +21,7 @@ set(HEADERS
     src/commands/validate_command.hpp
     src/commands/decode_command.hpp
     src/commands/query_command.hpp
+    src/commands/generate_command.hpp
     src/commands/encode_command.hpp
     src/commands/tag_command.hpp
     src/commands/tags_command.hpp
@@ -57,6 +58,7 @@ set(SOURCES
     src/commands/validate_command.cpp
     src/commands/decode_command.cpp
     src/commands/query_command.cpp
+    src/commands/generate_command.cpp
     src/commands/encode_command.cpp
     src/commands/tag_command.cpp
     src/commands/tags_command.cpp

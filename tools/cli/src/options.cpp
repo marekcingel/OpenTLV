@@ -15,7 +15,7 @@
 namespace {
 
 // Option bits, matched by name in options::parse().
-enum : unsigned {
+enum : uint64_t {
     opt_tree = 1,
     opt_format = 2,
     opt_input = 4,
@@ -44,6 +44,12 @@ enum : unsigned {
     opt_fixed_tag_size = 33554432,
     opt_fixed_length_size = 67108864,
     opt_fixed_byte_order = 134217728,
+    opt_seed = UINT64_C(1) << 28,
+    opt_count = UINT64_C(1) << 29,
+    opt_output_dir = UINT64_C(1) << 30,
+    opt_max_value = UINT64_C(1) << 31,
+    opt_max_case = UINT64_C(1) << 32,
+    generate_only = opt_seed | opt_count | opt_output_dir | opt_max_value | opt_max_case,
     // Options only encode takes.
     encode_only = opt_tag | opt_value | opt_output_encoding | opt_output_file,
     // --format fixed only.
@@ -67,19 +73,21 @@ enum : unsigned {
 
 // Options valid for each command, matched by options::parse() below and
 // reused by command_options_mask() for `otlv completion`.
-const unsigned lookup_options = opt_module | opt_output;
-const unsigned listing_options = opt_module | opt_output | opt_search;
-const unsigned query_options = opt_format | opt_input | opt_hex | opt_max_input | opt_max_depth |
+const uint64_t generate_options = opt_format | fixed_only | opt_max_depth | opt_max_elements |
+                                  generate_only | opt_output_encoding;
+const uint64_t lookup_options = opt_module | opt_output;
+const uint64_t listing_options = opt_module | opt_output | opt_search;
+const uint64_t query_options = opt_format | opt_input | opt_hex | opt_max_input | opt_max_depth |
                                opt_max_elements | opt_input_encoding | opt_output | opt_value |
                                opt_diagnostics | fixed_only;
-const unsigned encode_options = opt_format | opt_input | opt_max_input | opt_max_depth |
+const uint64_t encode_options = opt_format | opt_input | opt_max_input | opt_max_depth |
                                 opt_max_elements | encode_only | fixed_only;
-const unsigned decode_options = opt_format | opt_input | opt_hex | opt_max_input | opt_max_depth |
+const uint64_t decode_options = opt_format | opt_input | opt_hex | opt_max_input | opt_max_depth |
                                 opt_max_elements | opt_describe | opt_module | opt_input_encoding |
                                 opt_decode | opt_recover | opt_emv_context | opt_diagnostics |
                                 fixed_only;
-const unsigned dump_options = all_options & ~(encode_only | opt_search | opt_emv_check);
-const unsigned validate_options = all_options & ~(encode_only | opt_search | opt_recover);
+const uint64_t dump_options = all_options & ~(encode_only | opt_search | opt_emv_check);
+const uint64_t validate_options = all_options & ~(encode_only | opt_search | opt_recover);
 
 int number(const char* text, std::size_t* out) {
     std::size_t n = 0;
@@ -126,6 +134,11 @@ int context_by_name(const char* text, int* out) {
 // Shared by option_bit() below and, via cli::option_table(), by `otlv
 // completion`'s per-command option lists.
 const cli::option_entry option_table_data[] = {
+    {"--seed", opt_seed},
+    {"--count", opt_count},
+    {"--output-dir", opt_output_dir},
+    {"--max-value-size", opt_max_value},
+    {"--max-case-size", opt_max_case},
     {"--tree", opt_tree},
     {"--format", opt_format},
     {"--input", opt_input},
@@ -157,7 +170,7 @@ const cli::option_entry option_table_data[] = {
 };
 constexpr std::size_t option_table_count = sizeof(option_table_data) / sizeof(option_table_data[0]);
 
-unsigned option_bit(const char* arg) {
+uint64_t option_bit(const char* arg) {
     for (const cli::option_entry& entry : option_table_data)
         if (!strcmp(arg, entry.name)) return entry.bit;
     return 0;
@@ -168,9 +181,14 @@ unsigned option_bit(const char* arg) {
 namespace cli {
 
 int options::parse(int argc, char** argv) {
-    unsigned seen = 0;
+    uint64_t seen = 0;
     int      i;
     command = argv[1];
+    const bool generating = argc > 1 && !strcmp(command, "generate");
+    if (generating) {
+        max_depth = 4;
+        max_elements = 32;
+    }
     const bool encoding = argc > 1 && !strcmp(command, "encode");
     const bool lookup = argc > 1 && !strcmp(command, "tag");
     const bool listing = argc > 1 && !strcmp(command, "tags");
@@ -178,7 +196,7 @@ int options::parse(int argc, char** argv) {
     const bool validating = argc > 1 && !strcmp(command, "validate");
     const bool querying = argc > 1 && !strcmp(command, "query");
     if (strcmp(command, "dump") && !validating && !decoding && !encoding && !lookup && !listing &&
-        !querying)
+        !querying && !generating)
         return fail(2, "unknown command; use --help");
     i = 2;
     if (querying) {
@@ -194,21 +212,24 @@ int options::parse(int argc, char** argv) {
         i = 3;
     }
     for (; i < argc; ++i) {
-        const unsigned bit = option_bit(argv[i]);
+        const uint64_t bit = option_bit(argv[i]);
         if (!bit) return fail(2, "unknown option; use --help");
         // Each command accepts only its own options. dump and validate share
         // the input, limit and presentation options; decode takes the subset
         // that makes sense for a JSON export. The per-command masks are the
         // file-scope constants above, shared with command_options_mask() for
         // `otlv completion`.
-        if (lookup       ? !(bit & lookup_options)
+        if (!generating && (bit & generate_only)) return fail(2, "option requires generate");
+        if (generating   ? !(bit & generate_options)
+            : lookup     ? !(bit & lookup_options)
             : listing    ? !(bit & listing_options)
             : querying   ? !(bit & query_options)
             : encoding   ? !(bit & encode_options)
             : decoding   ? !(bit & decode_options)
             : validating ? (bit & (encode_only | opt_search | opt_recover))
                          : (bit & (encode_only | opt_search | opt_emv_check)))
-            return fail(2, lookup                ? "option is not valid for tag"
+            return fail(2, generating            ? "option is not valid for generate"
+                           : lookup              ? "option is not valid for tag"
                            : listing             ? "option is not valid for tags"
                            : querying            ? "option is not valid for query"
                            : encoding            ? "option is not valid for encode"
@@ -254,7 +275,23 @@ int options::parse(int argc, char** argv) {
         if (++i == argc) return fail(2, "missing option value");
         if (bit == opt_format)
             format = argv[i];
-        else if (bit == opt_input)
+        else if (bit == opt_output_dir)
+            output_dir = argv[i];
+        else if (bit == opt_seed || bit == opt_count) {
+            uint64_t    n = 0;
+            const char* text = argv[i];
+            if (!*text) return fail(2, "seed/count must be decimal uint64 integers");
+            for (; *text; ++text) {
+                unsigned digit = static_cast<unsigned>(*text - '0');
+                if (digit > 9 || n > (UINT64_MAX - digit) / 10)
+                    return fail(2, "seed/count must be decimal uint64 integers");
+                n = n * 10 + digit;
+            }
+            if (bit == opt_seed)
+                seed = n;
+            else
+                count = n;
+        } else if (bit == opt_input)
             input = argv[i];
         else if (bit == opt_hex)
             hex = argv[i];
@@ -286,6 +323,12 @@ int options::parse(int argc, char** argv) {
             else
                 return fail(2, "EMV check must be structure, dictionary or all");
         } else if (bit == opt_output_encoding) {
+            if (generating) {
+                if (strcmp(argv[i], "bin") && strcmp(argv[i], "json"))
+                    return fail(2, "generate output encoding must be bin or json");
+                json_output = !strcmp(argv[i], "json");
+                continue;
+            }
             if (strcmp(argv[i], "binary") && strcmp(argv[i], "hex"))
                 return fail(2, "output encoding must be binary or hex");
             binary_output = !strcmp(argv[i], "binary");
@@ -313,9 +356,21 @@ int options::parse(int argc, char** argv) {
                 return fail(2, "--fixed-byte-order must be big or little");
             fixed_byte_order = argv[i];
         } else if (!number(argv[i], bit == opt_max_input   ? &max_input
+                                    : bit == opt_max_value ? &max_value_size
+                                    : bit == opt_max_case  ? &max_case_size
                                     : bit == opt_max_depth ? &max_depth
                                                            : &max_elements))
             return fail(2, "limits must be nonnegative decimal integers fitting size_t");
+    }
+    if (generating) {
+        if (!format || !output_dir || !*output_dir || !(seen & opt_seed) || !(seen & opt_count))
+            return fail(2, "generate requires --format, --seed, --count and --output-dir");
+        if (!count || !max_elements || !max_case_size || max_depth > 64)
+            return fail(2,
+                        "generate requires positive count/elements/case size and depth at most 64");
+        if ((seen & fixed_only) && strcmp(format, "fixed"))
+            return fail(2, "fixed options require --format fixed");
+        return 0;
     }
     if (lookup || listing) {
         if (!module)
@@ -403,6 +458,7 @@ void options::usage() {
     std::cout
         << "Usage: otlv dump|validate|decode --format NAME [--input PATH|- | --hex BYTES] "
            "[OPTIONS]\n"
+           "       otlv generate --format NAME --seed N --count N --output-dir PATH [OPTIONS]\n"
            "       otlv encode --format NAME --tag HEX [--value HEX] "
            "[--output-encoding hex|binary]\n"
            "       otlv encode --format NAME [--input JSON_PATH|-] "
@@ -449,6 +505,13 @@ void options::usage() {
            "  --value HEX            encode: value bytes (default: empty)\n"
            "  --output-encoding NAME encode: hex (default, one line) or binary\n"
            "  --output-file PATH     encode: write the result to PATH instead of stdout\n"
+           "  --output-encoding NAME generate: bin (default) or json; one file per case\n"
+           "  --seed N               generate: explicit uint64 seed (zero is valid)\n"
+           "  --count N              generate: number of complete cases/files\n"
+           "  --output-dir PATH      generate: create directories; never overwrite case files\n"
+           "  --max-value-size N     generate: maximum Value bytes (default 256)\n"
+           "  --max-case-size N      generate: maximum case bytes (default 4096)\n"
+           "generate defaults: --max-depth 4, --max-elements 32; flat formats use depth 0.\n"
            "decode prints the versioned JSON document that encode --input reads.\n"
            "query prints every element addressed by a path of hexadecimal tags such as "
            "6F/A5/50 (a top-level 6F, its child A5, its child 50); nested paths need "
@@ -474,9 +537,11 @@ const option_entry* option_table(std::size_t* count) {
     return option_table_data;
 }
 
-unsigned command_options_mask(const char* command) {
-    unsigned mask = 0;
-    if (!strcmp(command, "tag"))
+uint64_t command_options_mask(const char* command) {
+    uint64_t mask = 0;
+    if (!strcmp(command, "generate"))
+        mask = generate_options;
+    else if (!strcmp(command, "tag"))
         mask = lookup_options;
     else if (!strcmp(command, "tags"))
         mask = listing_options;
@@ -499,7 +564,7 @@ unsigned command_options_mask(const char* command) {
     return mask;
 }
 
-unsigned flag_options_mask() {
+uint64_t flag_options_mask() {
     return flag_only;
 }
 

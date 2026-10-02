@@ -41,6 +41,16 @@ void bash_completer::render(std::ostream& out, const completion_model& model) co
            "    case \"$prev\" in\n";
     for (const completion_option& option : model.all_options()) {
         if (!option.has_values() && !option.is_path()) continue;
+        if (option.name() == "--output-encoding") {
+            out << "        --output-encoding) case \"$cmd\" in\n";
+            for (const auto& command : model.commands())
+                for (const auto& candidate : command.options())
+                    if (candidate.name() == option.name())
+                        out << "            " << command.name() << ") COMPREPLY=( $(compgen -W \""
+                            << join(candidate.values()) << "\" -- \"$cur\") ); return 0 ;;\n";
+            out << "        esac; return 0 ;;\n";
+            continue;
+        }
         out << "        " << option.name() << ") ";
         if (option.is_path())
             out << "COMPREPLY=( $(compgen -f -- \"$cur\") ); return 0 ;;\n";

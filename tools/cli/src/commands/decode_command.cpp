@@ -52,7 +52,7 @@ void decode_command::render_output() {
         document["complete"] = skipped_.empty();
         document["skipped"] = skipped_json<nlohmann::ordered_json>(skipped_);
     }
-    std::cout << document.dump() << "\n";
+    output_ << document.dump() << "\n";
 }
 
 } // namespace cli

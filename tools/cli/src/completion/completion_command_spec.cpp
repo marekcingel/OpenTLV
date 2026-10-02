@@ -10,11 +10,11 @@ namespace cli {
 completion_command_spec::completion_command_spec(std::string name) : name_(std::move(name)) {
     std::size_t         count = 0;
     const option_entry* table = option_table(&count);
-    const unsigned      mask = command_options_mask(name_.c_str());
-    const unsigned      flags = flag_options_mask();
+    const uint64_t      mask = command_options_mask(name_.c_str());
+    const uint64_t      flags = flag_options_mask();
     for (std::size_t i = 0; i < count; ++i) {
         if (!(table[i].bit & mask)) continue;
-        completion_option option(table[i]);
+        completion_option option(table[i], name_.c_str());
         // --value is a flag under "query" (print only the addressed values)
         // and a value-taking option (the encoded value bytes) under
         // "encode"; every other option's arity does not depend on the

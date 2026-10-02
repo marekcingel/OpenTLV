@@ -4,6 +4,8 @@
 #ifndef OPENTLV_CLI_COMMANDS_DECODE_COMMAND_HPP
 #define OPENTLV_CLI_COMMANDS_DECODE_COMMAND_HPP
 #include "commands/traversal_command.hpp"
+#include <iostream>
+#include <utility>
 
 namespace cli {
 
@@ -11,12 +13,17 @@ namespace cli {
 // that "encode --input" reads, on success only.
 class decode_command : public traversal_command {
 public:
-    using traversal_command::traversal_command;
+    // The same decoder/model serves stdout and generate's CLI-only JSON output.
+    decode_command(const options& o, std::vector<uint8_t> data, std::ostream& output = std::cout)
+        : traversal_command(o, std::move(data)), output_(output) {}
 
 protected:
     tlv_visit_result_t visit_element(const tlv::element_view& element, std::size_t depth,
                                      std::size_t offset) override;
     void               render_output() override;
+
+private:
+    std::ostream& output_;
 };
 
 } // namespace cli

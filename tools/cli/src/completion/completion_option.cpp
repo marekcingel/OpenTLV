@@ -7,10 +7,18 @@
 
 namespace cli {
 
-completion_option::completion_option(const option_entry& entry) : name_(entry.name) {
+completion_option::completion_option(const option_entry& entry, const char* command)
+    : name_(entry.name) {
     if (name_ == "--format") {
         values_ = enabled_formats();
-    } else if (name_ == "--input-encoding" || name_ == "--output-encoding") {
+    } else if (name_ == "--output-encoding") {
+        if (command && std::string(command) == "generate")
+            values_ = {"bin", "json"};
+        else if (command)
+            values_ = {"binary", "hex"};
+        else
+            values_ = {"binary", "hex", "bin", "json"};
+    } else if (name_ == "--input-encoding") {
         values_ = {"binary", "hex"};
     } else if (name_ == "--output") {
         values_ = {"text", "json"};
@@ -33,7 +41,7 @@ completion_option::completion_option(const option_entry& entry) : name_(entry.na
         const char* const* names = emv_context_names(&count);
         for (std::size_t i = 0; i < count; ++i) values_.push_back(names[i]);
 #endif
-    } else if (name_ == "--input" || name_ == "--output-file") {
+    } else if (name_ == "--input" || name_ == "--output-file" || name_ == "--output-dir") {
         is_path_ = true;
     }
 }
