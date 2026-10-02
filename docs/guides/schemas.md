@@ -95,6 +95,11 @@ maximum. Tags must be unique within the rule table. `allow_unknown` explicitly
 controls unlisted children. `kind` is ANY, PRIMITIVE or CONSTRUCTED. Child schemas
 require CONSTRUCTED and are checked even for an empty container.
 
+Each language below defines the same unordered schema: tag `01` is required
+once, primitive and 1–8 bytes long; tag `02` is optional, repeatable and 0–255
+bytes long. Unknown tags are rejected. Validate the same BER input, for example
+`01 01 2A 02 00`, to compare the public API and error handling.
+
 /// tab | C
 
 ```c
@@ -110,7 +115,9 @@ static const tlv_structure_rule_t rules[] = {
     {&rules_fields[1], 0, SIZE_MAX, TLV_SCHEMA_ANY, NULL, 0}
 };
 static const tlv_structure_schema_t message = {rules, 2, 0, NULL, 0, TLV_SCHEMA_ORDER_ANY};
-/* tlv_schema_validate(data, size, format, &message, 16, 1000, &offset); */
+size_t offset;
+tlv_result_t rc = tlv_schema_validate(data, size, format, &message, 16, 1000, &offset);
+if (rc != TLV_OK) return 1;
 ```
 
 Runnable version, validating a two-level nested schema and rejecting a
@@ -134,32 +141,13 @@ static const tlv_structure_rule_t rules[] = {
     {&rules_fields[1], 0, SIZE_MAX, TLV_SCHEMA_ANY, nullptr, 0}
 };
 static const tlv_structure_schema_t message = {rules, 2, 0, NULL, 0, TLV_SCHEMA_ORDER_ANY};
-// tlv::validate(tlv::bytes(data, size), format, message, 16, 1000);
+auto result = tlv::validate(tlv::bytes(data, size), format, message, 16, 1000);
+if (!result) return 1;
 ```
 
 `tlv::validate` wraps `tlv_schema_validate` and returns an `expected<void, error>`
 instead of a result code and out-parameter offset. Runnable version:
 [validate.cpp](https://github.com/marekcingel/OpenTLV/blob/main/examples/tlv++/src/validate.cpp).
-
-///
-
-/// tab | Python
-
-```python
-schema = opentlv.StructureSchema([
-    opentlv.StructureRule(opentlv.Tag(b"\x01"), min_length=1, max_length=8, min_occurs=1,
-                           max_occurs=1, kind=opentlv.Kind.PRIMITIVE),
-    opentlv.StructureRule(opentlv.Tag(b"\x02"), min_length=0, max_length=255),
-])
-schema.validate(data, format=opentlv.Format.BER)
-```
-
-`StructureSchema.validate()` runs the same C validator and raises
-`SchemaMissingError`, `SchemaError` or `InvalidLengthError` instead of
-returning a result code; see [Using OpenTLV from Python](python.md#validating).
-Runnable version, with a two-level nested schema:
-[validate.py](https://github.com/marekcingel/OpenTLV/blob/main/bindings/python/opentlv/examples/validate.py)
-(`python examples/validate.py`).
 
 ///
 
@@ -185,6 +173,44 @@ for `LengthSchema`, builder methods and the EMV built-in schemas. Runnable
 version, with a two-level nested schema:
 [validate.rs](https://github.com/marekcingel/OpenTLV/blob/main/bindings/rust/opentlv/examples/validate.rs)
 (`cargo run --example validate`).
+
+///
+
+/// tab | Python
+
+```python
+schema = opentlv.StructureSchema([
+    opentlv.StructureRule(opentlv.Tag(b"\x01"), min_length=1, max_length=8, min_occurs=1,
+                           max_occurs=1, kind=opentlv.Kind.PRIMITIVE),
+    opentlv.StructureRule(opentlv.Tag(b"\x02"), min_length=0, max_length=255),
+])
+schema.validate(data, format=opentlv.Format.BER)
+```
+
+`StructureSchema.validate()` runs the same C validator and raises
+`SchemaMissingError`, `SchemaError` or `InvalidLengthError` instead of
+returning a result code; see [Using OpenTLV from Python](python.md#validating).
+Runnable version, with a two-level nested schema:
+[validate.py](https://github.com/marekcingel/OpenTLV/blob/main/bindings/python/opentlv/examples/validate.py)
+(`python examples/validate.py`).
+
+///
+
+/// tab | Lua
+
+```lua
+local opentlv = require("opentlv")
+local schema = opentlv.schema {allow_unknown = false, rules = {
+    {tag = string.char(1), min_length = 1, max_length = 8,
+     min_occurs = 1, max_occurs = 1, kind = "primitive"},
+    {tag = string.char(2), min_length = 0, max_length = 255,
+     min_occurs = 0, max_occurs = math.huge},
+}}
+local result = schema:validate(data, opentlv.formats.ber)
+assert(result.ok, result.code)
+```
+
+Lua returns a validation report with `ok`, native status and owned diagnostics. Invalid schema arguments raise errors. Go has no public Schema facade yet.
 
 ///
 
@@ -283,6 +309,58 @@ static const tlv_structure_rule_t person_rules[] = {
 static const tlv_structure_schema_t person_schema = {
     person_rules, 3, 0, nullptr, 0, TLV_SCHEMA_ORDER_SEQUENCE};
 ```
+
+///
+
+/// tab | Rust
+
+```rust
+let person = StructureSchema::with_constraints(
+    [
+        StructureRule::new(Tag::from_bytes(&[1])).length(1, 8)
+            .required_once().kind(Kind::Primitive),
+        StructureRule::new(Tag::from_bytes(&[2])).length(0, 255)
+            .required_once().kind(Kind::Primitive),
+        StructureRule::new(Tag::from_bytes(&[3])).length(0, 255)
+            .occurs(0, 1).kind(Kind::Primitive),
+    ],
+    false, SchemaOrder::Sequence, [],
+);
+```
+
+Import `SchemaOrder`, `StructureSchema`, `StructureRule`, `Tag` and `Kind` from `opentlv`.
+
+///
+
+/// tab | Python
+
+```python
+person = opentlv.StructureSchema([
+    opentlv.StructureRule(opentlv.Tag(b"\x01"), min_length=1, max_length=8,
+        min_occurs=1, max_occurs=1, kind=opentlv.Kind.PRIMITIVE),
+    opentlv.StructureRule(opentlv.Tag(b"\x02"), min_length=0, max_length=255,
+        min_occurs=1, max_occurs=1, kind=opentlv.Kind.PRIMITIVE),
+    opentlv.StructureRule(opentlv.Tag(b"\x03"), min_length=0, max_length=255,
+        min_occurs=0, max_occurs=1, kind=opentlv.Kind.PRIMITIVE),
+], order=opentlv.SchemaOrder.SEQUENCE)
+```
+
+///
+
+/// tab | Lua
+
+```lua
+local person = opentlv.schema {order = "sequence", allow_unknown = false, rules = {
+    {tag = string.char(1), name = "id", min_length = 1, max_length = 8,
+     min_occurs = 1, max_occurs = 1, kind = "primitive"},
+    {tag = string.char(2), name = "name", min_length = 0, max_length = 255,
+     min_occurs = 1, max_occurs = 1, kind = "primitive"},
+    {tag = string.char(3), name = "comment", min_length = 0, max_length = 255,
+     min_occurs = 0, max_occurs = 1, kind = "primitive"},
+}}
+```
+
+These rules constrain the same `01`, `02`, `03` wire tags as the C example; ASN.1 names are descriptive and do not change identifiers.
 
 ///
 

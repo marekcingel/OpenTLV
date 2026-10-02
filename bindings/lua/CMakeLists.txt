@@ -251,8 +251,13 @@ if(OPENTLV_BUILD_LUA_TESTS)
         set_tests_properties(Integration_lua_components PROPERTIES
             LABELS "integration;lua"
             ENVIRONMENT "${_lua_test_environment}")
+        add_test(NAME Integration_example_lua_quick_start
+            COMMAND ${OPENTLV_LUA_EXECUTABLE} "${CMAKE_CURRENT_SOURCE_DIR}/examples/quick_start.lua")
+        set_tests_properties(Integration_example_lua_quick_start PROPERTIES
+            LABELS "integration;examples;lua" ENVIRONMENT "${_lua_test_environment}"
+            PASS_REGULAR_EXPRESSION "Hello, world!")
         if(OPENTLV_FORMAT_BER)
-            foreach(example parse quick_start)
+            foreach(example parse)
                 add_test(NAME Integration_example_lua_${example}
                     COMMAND ${OPENTLV_LUA_EXECUTABLE} "${CMAKE_CURRENT_SOURCE_DIR}/examples/${example}.lua")
                 set_tests_properties(Integration_example_lua_${example} PROPERTIES

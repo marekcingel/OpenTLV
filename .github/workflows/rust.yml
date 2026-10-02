@@ -80,3 +80,8 @@ jobs:
         run: cargo test --workspace
         env:
           RUSTFLAGS: -D warnings
+
+      - name: Run quick start
+        run: cargo run -p opentlv --example quick_start
+        env:
+          RUSTFLAGS: -D warnings

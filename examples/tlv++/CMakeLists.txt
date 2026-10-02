@@ -19,6 +19,16 @@ if(OPENTLV_LLDP)
     set_tests_properties(Integration_example_tlvpp_lldp PROPERTIES LABELS "integration;examples")
 endif()
 
+# Backs the C++ example in Getting Started; scripts/check_doc_examples.py keeps the
+# Markdown copy identical to this file. It is the C++ counterpart of the C quick start.
+add_executable(example-tlv++-quick-start src/quick_start.cpp)
+target_link_libraries(example-tlv++-quick-start PRIVATE tlv++)
+opentlv_configure_compiler(example-tlv++-quick-start)
+opentlv_copy_shared_runtime(example-tlv++-quick-start)
+add_test(NAME Integration_example_tlvpp_quick_start COMMAND $<TARGET_FILE:example-tlv++-quick-start>)
+set_tests_properties(Integration_example_tlvpp_quick_start PROPERTIES
+    LABELS "integration;examples" PASS_REGULAR_EXPRESSION "Hello, world!")
+
 if(OPENTLV_FORMAT_BER)
     set(HEADERS
     )
@@ -46,15 +56,6 @@ if(OPENTLV_FORMAT_BER)
     add_test(NAME Integration_example_tlvpp_basic_usage COMMAND $<TARGET_FILE:${PROJECT_NAME}>)
     set_tests_properties(Integration_example_tlvpp_basic_usage PROPERTIES LABELS "integration;examples")
 
-    # Backs the C++ example in Getting Started; scripts/check_doc_examples.py keeps the
-    # Markdown copy identical to this file. It is the C++ counterpart of the C quick start.
-    add_executable(example-tlv++-quick-start src/quick_start.cpp)
-    target_link_libraries(example-tlv++-quick-start PRIVATE tlv++)
-    opentlv_configure_compiler(example-tlv++-quick-start)
-    opentlv_copy_shared_runtime(example-tlv++-quick-start)
-    add_test(NAME Integration_example_tlvpp_quick_start COMMAND $<TARGET_FILE:example-tlv++-quick-start>)
-    set_tests_properties(Integration_example_tlvpp_quick_start PROPERTIES
-        LABELS "integration;examples" PASS_REGULAR_EXPRESSION "Value bytes: 3")
 
 endif()
 

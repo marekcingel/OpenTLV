@@ -60,6 +60,10 @@ Document owns native allocations and provides explicit cleanup.
 
 ## Build and run
 
+For the same `Hello, world!` write/read example as C, C++, Rust, Python and Lua,
+see the [multi-language quick start](../../docs/getting-started/README.md#quick-start).
+After configuring cgo below, run `go run ./examples/quick_start`.
+
 Build OpenTLV separately with CMake. The binding does not compile copies of the
 C sources or invoke CMake during `go build`. Use matching library and headers,
 including CMake-generated `tlv/version.h`, `tlv/export.h` and `tlv/config.h`.

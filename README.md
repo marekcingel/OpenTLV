@@ -130,14 +130,14 @@ element of every implemented format, including nested BER/DER and the EMV module
 ## Quick start
 
 This complete C example ([source](examples/tlv/src/quick_start.c), built and run in CI) writes
-`01 03 AA BB CC` and reads the value back:
+a Fixed-format element containing `Hello, world!`, reads it back and prints the text:
 
 <!-- example: examples/tlv/src/quick_start.c -->
 ```c
 // SPDX-License-Identifier: MIT
 // Copyright (c) 2026 Marek Cingel
 
-#include <string.h>
+#include <stdio.h>
 #include "tlv/formats/fixed.h"
 #include "tlv/reader/reader.h"
 #include "tlv/writer/writer.h"
@@ -149,28 +149,27 @@ int main(void) {
     tlv_format_t format;
     if (tlv_fixed_format_init(&format, &config) != TLV_OK) return 1;
 
-    const tlv_tag_t tag = TLV_TAG(0x01);
-    const uint8_t   value[] = {0xAA, 0xBB, 0xCC};
-    uint8_t         buffer[5];
-    size_t          written = 0, consumed = 0;
-    tlv_element_t   element;
+    const uint8_t value[] = "Hello, world!";
+    uint8_t       buffer[64];
+    size_t        written = 0, consumed = 0;
+    tlv_element_t element;
 
-    if (tlv_write(buffer, sizeof(buffer), &format, tag, value, sizeof(value), &written) != TLV_OK)
+    /* sizeof(value) - 1 excludes the trailing NUL. */
+    if (tlv_write(buffer, sizeof(buffer), &format, TLV_TAG(0x01), value, sizeof(value) - 1,
+                  &written) != TLV_OK)
         return 1;
     if (tlv_read(buffer, written, &format, &element, &consumed) != TLV_OK) return 1;
 
     /* element.value borrows buffer; keep it alive while using the element. */
-    if (consumed != written || element.tag.size != 1 || element.tag.data[0] != 0x01) return 1;
-    if (element.value.size != sizeof(value) ||
-        memcmp(element.value.data, value, sizeof(value)) != 0)
-        return 1;
+    printf("%.*s\n", (int)element.value.size, (const char*)element.value.data);
     return 0;
 }
 ```
 
-The C++ facade offers a borrowed BER parsing range (requires
-`OPENTLV_BUILD_CXX=ON` and `OPENTLV_FORMAT_BER=ON`). This complete quick-start
-uses the same canonical engine and is compiled and executed in CI:
+The C++ facade performs the same round trip using scoped encoding, a borrowed
+parsing range and typed string decoding (requires `OPENTLV_BUILD_CXX=ON`). The
+[multi-language quick start](docs/getting-started/README.md#quick-start) also
+shows Rust, Python, Lua and Go using the same format, tag and value:
 
 <!-- example: examples/tlv++/src/quick_start.cpp -->
 ```cpp
@@ -178,15 +177,32 @@ uses the same canonical engine and is compiled and executed in CI:
 // Copyright (c) 2026 Marek Cingel
 
 #include <tlv++/tlv.hpp>
+#include <array>
 #include <iostream>
+#include <string>
+
+using Format = tlv::fixed_format<1, 1, TLV_BYTE_ORDER_BIG_ENDIAN>;
+using Greeting = tlv::field<tlv::tag_constant<0x01>, std::string>;
 
 int main() {
-    // Elements borrow input; keep it alive while using them.
-    const tlv::byte input[] = {tlv::byte(0x04), tlv::byte(0x03), tlv::byte('A'), tlv::byte('B'),
-                               tlv::byte('C')};
+    std::array<tlv::byte, 64> output{};
+    auto written = tlv::encode<Format>(output, [](tlv::writer_builder& writer) {
+        writer.write<0x01>("Hello, world!"); // Character arrays omit the trailing NUL.
+    });
+    if (!written) {
+        std::cerr << written.error().message() << '\n';
+        return 1;
+    }
+
+    // Parse only the written prefix. Decoding Greeting checks the tag and owns its string.
     try {
-        for (auto element : tlv::ber::parse({input, sizeof(input)})) {
-            std::cout << "Value bytes: " << element.value().size() << '\n';
+        for (auto element : tlv::parse<Format>({output.data(), *written})) {
+            auto greeting = element.decode<Greeting>();
+            if (!greeting) {
+                std::cerr << "Greeting decode failed\n";
+                return 1;
+            }
+            std::cout << *greeting << '\n';
         }
     } catch (const tlv::parse_error& failure) {
         std::cerr << "Parse error at " << failure.offset() << ": " << failure.what() << '\n';

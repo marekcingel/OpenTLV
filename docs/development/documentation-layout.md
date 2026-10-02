@@ -93,15 +93,27 @@ without suppressions; do not use the indented `=== "Label"` syntax.
 Conventions:
 
 - Label tabs `C` and `C++` first, in that order, then one tab per binding that
-  has an equivalent, in the order `concepts/bindings.md`'s status table lists
-  them (Rust, then Python, as of this writing). Tabs with the same label are
+  has an equivalent, in the order `Rust`, `Python`, `Lua`, `Go`.
+  Tabs with the same label are
   linked across the site, so a reader's choice follows them from page to page.
   Use other labels only for further languages, never for other kinds of choice.
 - Tab only what differs. Keep the explanation of behavior shared across
   languages (formats, lengths, ownership, errors) as ordinary text outside the
   tabs, and mention a language-specific difference in that language's tab.
+- Use the same input bytes, Format configuration, Tag, Value and operation in
+  every tab of a comparison. Quick starts write and read `Hello, world!` with
+  Fixed (one tag byte, one big-endian length byte), tag `01`, without a trailing
+  NUL. Show error handling through each language's public facade, and explain
+  ownership or result-shape differences beside its example.
+- Quick starts are showcases of each binding's current ergonomics. Use its most
+  convenient public entry points for the chosen operation: direct Value inputs,
+  tag helpers, scoped writing, iteration and typed decoding where supported.
+  Revisit the examples when these APIs improve. Keep normal error handling and
+  lifetime notes visible; put regression assertions and detailed native control
+  in tests or advanced examples. Preserve each binding's supported baseline,
+  including C++11.
 - Use tabs only for equivalent functionality. If a binding has no counterpart
-  for a group (for example Rust has no `Document` or path-query binding, and
+  for a group (for example Go has no public Schema facade, and
   the WebAssembly build is not a Reader/Writer-shaped binding at all — see
   [WebAssembly](webassembly.md)), leave it out of that group's tabs rather
   than adding an empty one; a shape difference that is still worth flagging

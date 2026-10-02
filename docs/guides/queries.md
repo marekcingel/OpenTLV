@@ -38,11 +38,18 @@ BER or DER; without one only one-tag queries match.
 This is a deliberately small language. Wildcards, indexes, recursive search and
 predicates are not part of it.
 
+## Borrowed traversal
+
+The C and C++ examples below apply `6F/A5/50` to the same borrowed BER input.
+`data` contains `6F 0A 84 03 41 42 43 A5 03 50 01 01`. Both visit every match;
+their cursor/storage choices and error handling differ.
+
 /// tab | C
 
 ```c
 #include "tlv/query/query.h"
 #include "tlv/builtins/asn1/ber.h"
+#include <stdio.h>
 
 static tlv_visit_result_t print_match(const tlv_element_t* element, size_t depth,
                                       size_t offset, void* context) {
@@ -58,10 +65,12 @@ tlv_query_t query;
 size_t text_offset;
 tlv_result_t rc = tlv_query_parse("6F/A5/50", &query, &text_offset);
 /* On TLV_ERR_INVALID_ARG, text_offset is the index of the offending character. */
+if (rc != TLV_OK) return 1;
 
 size_t error_offset;
 rc = tlv_query_visit_buffer(data, size, &tlv_format_ber, &query, TLV_TREE_DEFAULT_DEPTH, 100000, print_match,
                     NULL, &error_offset);
+if (rc != TLV_OK) return 1;
 ```
 
 `tlv_query_visit_buffer()` builds on `tlv_tree_reader_visit()`: it neither allocates nor
@@ -96,18 +105,22 @@ if (tlv_query_matcher_visit(&matcher, &element->tag, depth)) {
 
 ```cpp
 #include "tlv++/query/query.hpp"
+#include <iostream>
 
 size_t text_offset;
 auto query = tlv::query::parse("6F/A5/50", &text_offset);
-if (!query) return;  // query.error().code; text_offset is the offending character
+if (!query) return 1; // query.error().code; text_offset is the offending character
 
 auto visited = query->visit_buffer(
     tlv::bytes(data, size), tlv_format_ber,
     TLV_TREE_DEFAULT_DEPTH, 100000,
     [](const tlv::element_view& item, size_t depth, size_t offset) {
         // item.value() borrows the input
+        (void)depth;
+        std::cout << "match at offset " << offset << ", " << item.value().size() << " bytes\n";
         return TLV_VISIT_CONTINUE;
     });
+if (!visited) return 1;
 ```
 
 `tlv::query` holds the parsed query by value and never allocates.
@@ -166,25 +179,103 @@ materialize a Document or evaluate a separate C++ query language.
 
 ///
 
-/// tab | Python
+Rust also exposes resumable Query matching over its Tree Reader; Lua exposes
+`query:evaluate(data, format)` over borrowed traversal with owned result tables.
+Go currently exposes Query through Document. See the
+[binding capability contract](../concepts/bindings.md) for the distinction.
 
-`opentlv` does not bind the zero-copy traversal directly; a query addresses
-elements of a [`Document`](document.md) instead, through `find_path()`:
+## Owned-document lookup
 
-```python
-with opentlv.Document(data, opentlv.Format.BER) as document:
-    label = document.find_path("6F/A5/50")
-    if label is not None:
-        print(bytes(label.value))
+Given a Document parsed from the same BER input, each fragment retrieves the
+first `6F/A5/50` match and its Value `01`. `document` is already owned and alive
+as described in [Mutable documents](document.md#compare-the-public-apis).
+The public APIs differ in whether they return one match or a collection:
+
+/// tab | C
+
+```c
+tlv_query_t query;
+size_t text_offset;
+if (tlv_query_parse("6F/A5/50", &query, &text_offset) != TLV_OK) return 1;
+const tlv_node_t* label = tlv_document_find_path(document, &query);
+if (label) {
+    const uint8_t* value = tlv_node_value_data(label);
+    size_t size = tlv_node_value_size(label);
+    /* value borrows Document storage */
+}
 ```
 
-A malformed query raises `opentlv.InvalidArgError`; no match is simply
-`None`, the same as `document.find()`. Runnable version, including both
-cases:
-[query.py](https://github.com/marekcingel/OpenTLV/blob/main/bindings/python/opentlv/examples/query.py)
-(`python examples/query.py`).
+No match is `NULL`. C also offers `tlv_document_query_visit()` for all matches.
 
 ///
 
-Rust does not bind path queries yet; see the [language bindings conceptual
-model](../concepts/bindings.md) for the binding coverage of each language.
+/// tab | C++
+
+```cpp
+auto query = tlv::query::parse("6F/A5/50");
+if (!query) return 1;
+auto label = document.find(*query);
+if (label) {
+    auto value = label.value(); // borrows Document storage
+}
+```
+
+`find` returns the first match; `select` returns all matches as checked Node handles.
+
+///
+
+/// tab | Rust
+
+```rust
+let query = opentlv::Query::parse("6F/A5/50")?;
+if let Some(label) = document.find_path(&query) {
+    let value = label.value(); // borrows Document storage
+}
+```
+
+No match is `None`. Query parse errors retain the byte offset; `?` propagates them.
+
+///
+
+/// tab | Python
+
+```python
+label = document.find_path("6F/A5/50")
+if label is not None:
+    value = bytes(label.value)  # owned snapshot
+```
+
+No match is `None`; malformed query text raises `opentlv.InvalidArgError`. [Runnable query example](../../bindings/python/opentlv/examples/query.py).
+
+///
+
+/// tab | Lua
+
+```lua
+local label = document:find("6F/A5/50")
+if label then
+    local value = label:value() -- owned string
+end
+```
+
+No match is `nil`; malformed query text raises an error. `document:query()` returns all matching Node handles.
+
+///
+
+/// tab | Go
+
+```go
+matches, err := document.Query("6F/A5/50")
+if err != nil {
+ return err
+}
+if len(matches) > 0 {
+ value := matches[0].Value() // owned snapshot
+ fmt.Printf("%X\n", value)
+}
+
+```
+
+`Query` returns all matches in document order, or an empty slice. Malformed text returns `*opentlv.QueryError` with its native text offset. [Runnable query example](../../bindings/go/examples/query/main.go).
+
+///

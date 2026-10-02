@@ -56,6 +56,7 @@ jobs:
           GOEXPERIMENT=cgocheck2 go test ./...
           go vet ./...
           go run ./examples/version
+          go run ./examples/quick_start
           go run ./examples/reader
           go run ./examples/writer
           go run ./examples/errors
