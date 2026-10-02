@@ -3,6 +3,14 @@
 The #401 audit covers the generic Reader, Tree Reader, Visitor, Query, Document,
 Writer and Tree Writer engines and their C++, Rust and Python adapters.
 
+This technical contract extends the
+[canonical architecture overview](architecture.md#conceptual-model).
+For practical API selection, begin with
+[Choose a processing API](../guides/processing.md); current language coverage
+is recorded in the [binding matrix](bindings.md#capability-implementation-matrix).
+Document is the canonical owned mutable representation; structural events are
+the borrowed traversal/construction representation.
+
 ## Canonical structural events (#402)
 
 The canonical streaming representation is `tlv_tree_event_t` from `tlv/tree.h`:

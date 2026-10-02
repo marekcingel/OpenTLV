@@ -1,21 +1,25 @@
 # Mutable documents
 
-The reader, writer and visitor are zero-copy: they look at the input buffer and
-never allocate. That is the right tool for parsing and for embedded targets, but
-it cannot change a message that already exists. When an application has to
-read a TLV message, change a field, add or drop an element and send it on, use
-the optional **document** API. It copies the data into an owned tree that can be
-modified, and encodes it again.
+Document is the canonical owned mutable representation of TLV data. It copies
+Tags and Values into an editable tree, complementing borrowed Reader and Tree
+Reader processing. Use it to retain data independently of input, query Nodes,
+replace Values, insert or erase elements, and encode the edited result.
+For choosing between borrowed traversal and owned editing, see
+[Choose a processing API](processing.md).
 
 ```text
 Low level, zero-copy:   bytes -> reader -> element -> traversal / schema / codec
 High level, mutable:    Tree Reader -> Document Builder -> document -> modify -> encode
 ```
 
-The document is a separate layer on top of the public reader, writer and
-[path query](queries.md) APIs. It changes nothing about how they work, and they
-do not depend on it. It is the only OpenTLV component that allocates memory, and
-it can be left out of a build with `-DOPENTLV_DOCUMENT=OFF`; see
+Document builds on Element, Format and the public Reader/Tree Reader,
+Writer/Tree Writer and [Query](queries.md) contracts. It owns data and allocates;
+the C borrowed processing APIs retain their allocation-free buffer/workspace
+contracts and do not require a Document. Bindings can add their own allocating
+conveniences. Architectural role and build inclusion are separate: Document
+can be omitted with `-DOPENTLV_DOCUMENT=OFF`, and static linking/dead-code
+elimination can omit unused implementation where supported. Merely enabling
+Document does not allocate a tree. See
 [building only the components you need](select-components.md).
 
 ## Formats

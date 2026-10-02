@@ -9,6 +9,10 @@ Generic formats in `tlv/formats/` are part of the core and always available.
 Built-ins in `tlv/builtins/<protocol>/` implement specific standards and are
 optional. Both use the same Format, Reader and Writer contracts.
 
+See the [implemented capability inventory](support.md) for Definition, Schema,
+Codec, validation, CLI and language-preset coverage, and
+[Choose a processing API](../guides/processing.md) for execution choices.
+
 ## Choose a format
 
 ### Generic core formats
@@ -43,7 +47,7 @@ Variable are part of the core rather than optional standards packages.
 
 | Format | Tag | Length field | Largest value | Field order on the wire | Nesting for the tree visitor | Availability |
 | --- | --- | --- | --- | --- | --- | --- |
-| [Configurable fixed-width TLV](fixed/configurable.md#wire-layout) | 1 to 8 bytes | 1 to 8 bytes, big or little endian, counting the value alone or the tag and value | set by the length width | tag, length, value or length, tag, value | none (opaque values) | Always available (C and C++) |
+| [Configurable fixed-width TLV](fixed/configurable.md#wire-layout) | arbitrary configured width | 1 to 8 bytes, big or little endian, counting the value alone or the tag and value | set by the length width | tag, length, value or length, tag, value | none (opaque values) | Always available (C and C++) |
 | [Configurable variable-width TLV](variable.md) | inline or escaped continuation octets; configurable maximum width | short/long, big or little endian, counting value or tag and value | `tlv_size_t`, subject to configured count width and native buffer limits | tag, length, value or length, tag, value | supplied by concrete composition | Always available (C API) |
 
 ### Built-in standards

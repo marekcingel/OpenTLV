@@ -2,6 +2,18 @@
 
 [Project overview](../README.md)
 
+OpenTLV uses a canonical C execution engine and interoperability boundary,
+with an idiomatic `tlv++` C++ API and official Rust, Python, Lua and Go bindings.
+The `otlv` CLI and WebAssembly support use the same architecture. Reader, Writer,
+Tree Reader, Tree Writer and Visitor support borrowed and streaming processing;
+mutable Document owns data for editing. Query, Schema, Codec and diagnostics
+compose with generic formats and protocol-specific built-ins.
+
+The shared Format, Layout, Element, Schema and Codec contracts are described in
+the [conceptual model](concepts/architecture.md#conceptual-model) and
+[binding model](concepts/bindings.md). See [memory ownership](guides/memory.md)
+for borrowed lifetimes and the allocating Document representation.
+
 Documentation is grouped by purpose. See
 [where documentation belongs](development/documentation-layout.md) before adding a page.
 
@@ -11,6 +23,16 @@ Documentation is grouped by purpose. See
 - Usage examples: [C](../examples/tlv/src/) and [C++](../examples/tlv++/src/basic_usage.cpp)
 - [EMV tag decoding walkthrough](../examples/tlv/src/builtins/emv/tag_decoding.c)
 
+## Language APIs
+
+- [Binding capability reference](concepts/bindings.md)
+- [C++ examples and API usage](guides/cxx-examples.md)
+- [Using OpenTLV from Rust](guides/rust.md)
+- [Using OpenTLV from Python](guides/python.md)
+- [Using OpenTLV from Lua](guides/lua.md)
+- [Using OpenTLV from Go](guides/go.md)
+- [WebAssembly tooling](development/webassembly.md)
+
 ## Concepts
 
 - [Layered architecture, component selection, and API migration](concepts/architecture.md)
@@ -18,10 +40,12 @@ Documentation is grouped by purpose. See
 - [Borrowed TLV values](concepts/value.md)
 - [Logical TLV value lengths](concepts/length.md)
 - [Integer byte-order conversions](concepts/endian.md)
-- [Common conceptual model for language bindings](concepts/bindings.md)
 
 ## Guides
 
+- [Choose a processing API](guides/processing.md)
+- [Executable examples and workflow coverage](guides/examples.md)
+- [Path queries](guides/queries.md)
 - [Memory ownership and lifetime](guides/memory.md)
 - [Diagnostics](guides/diagnostics.md)
 - [Schemas and length validation](guides/schemas.md)
@@ -34,6 +58,7 @@ Documentation is grouped by purpose. See
 
 ## Formats
 
+- [Implemented format and standard capabilities](formats/support.md)
 - [Choosing a format](formats/README.md#choose-a-format)
 - [Formats, reading, writing, traversal, and custom callbacks](formats/README.md)
 - [Format trees and byte examples](formats/format-examples.md)
@@ -63,6 +88,11 @@ Documentation is grouped by purpose. See
 - [Error codes](reference/errors.md)
 
 ## Development
+
+- [Core architectural rules](concepts/architectural-rules.md)
+- [Processing pipeline contract](concepts/processing-pipeline.md)
+- [Planned runtime model and canonical IR](concepts/runtime-model.md)
+- [Go binding development](development/go.md)
 
 - [Where documentation belongs](development/documentation-layout.md)
 - [C API fuzzing with ASan and UBSan](development/fuzzing.md)

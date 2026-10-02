@@ -8,6 +8,10 @@ An application implements operations in C++, without constructing a
 Include `<tlv++/format.hpp>` for the contract, or `<tlv++/tlv.hpp>` for the
 complete configured facade. C++11 remains supported.
 
+See the [current C++ facade overview](cxx-native-boundary.md#public-facade) for
+Reader, Tree Reader, scoped Writer, Document, Query and typed Value consumers.
+The [support inventory](../formats/support.md) records built-in availability.
+
 ## Operations
 
 The default traits recognize these `const noexcept` members:

@@ -349,7 +349,7 @@ Run `lua examples/quick_start.lua` from `bindings/lua` with the built module on
 
 This is [bindings/go/examples/quick_start/main.go](../../bindings/go/examples/quick_start/main.go).
 Build the C library and configure cgo as described in the
-[Go binding README](../../bindings/go/README.md#build-and-run). Import the public
+[Go user guide](../guides/go.md#install-and-integrate). Import the public
 `opentlv` package; no cgo or native package is needed in application code.
 Operations return errors; check `Reader.Err()` after iteration.
 

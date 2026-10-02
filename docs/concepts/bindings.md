@@ -1,15 +1,11 @@
 # Common conceptual model for language bindings
 
-OpenTLV ships one C library (`tlv`) and is expected to grow bindings for
-several languages. A header-only C++ wrapper (`tlv++`) ships in this
-repository today, an experimental Rust crate (`opentlv`, in `bindings/rust/`),
-an experimental Python package (`opentlv`, in `bindings/python/`) and an
-experimental Lua module (`opentlv`, in `bindings/lua/`) are under active
-development, and further bindings may follow. Without a shared
-contract, each binding could invent its own vocabulary for the same
-operation, for example `Reader` in C++, `parse()` in Python, `Parser` in Rust,
-and `Decoder` elsewhere, and a developer who already knows OpenTLV in one
-language would have to relearn it in the next.
+OpenTLV ships a canonical C execution engine, the header-only idiomatic
+`tlv++` C++ API, and official experimental Rust, Python, Lua and Go bindings.
+All use the public C API as their interoperability boundary. WebAssembly is a
+narrow tooling embedding over the same engine. The
+[architecture overview](architecture.md#conceptual-model) defines the concepts;
+this page is the canonical cross-language capability reference.
 
 This page is the design contract every official binding follows: the primary
 concepts below stay recognizable in every binding's public API, even where
@@ -31,13 +27,10 @@ idiomatic  idiomatic  idiomatic  idiomatic  idiomatic  idiomatic
    C++       Rust        Go       Python      Lua    <language>
 ```
 
-C++, Rust and Python expose Readers, Writers and Document facades today.
-Lua (`bindings/lua/`) currently binds Reader, Writer, Tree Writer, Schema, Value Codec, Element and Tag.
-Go (`bindings/go/`) currently exposes Format, Element, Reader, Writer and Document
-facades, including incremental input, staged constructed output and owned mutable
-trees with explicit cleanup. Query and other higher-level processing remain
-follow-up work. The trailing `...` stands
-for any further binding.
+All five language APIs expose Format, Element, Reader, Writer and owned
+Document processing. Their higher-level coverage differs as recorded below;
+Go includes Document Query and generic Value codecs, and Lua includes borrowed
+Query and checked Document Nodes. The trailing `...` stands for future bindings.
 
 The public OpenTLV C API (see the [C API reference](../reference/c-api.md)) is
 the single language boundary every binding wraps. A binding calls into the C
@@ -47,9 +40,9 @@ Rust crate does not sit on top of the C++ wrapper, and a future binding would
 not sit on top of Rust either. This keeps behavior identical across languages,
 since one C implementation backs every one of them, and lets each binding be
 built and shipped independently of the others. `tlv++` differs only in build
-shape, not in boundary: it is header-only and compiles directly against the C
-headers instead of linking a separately built library, but it still wraps only
-the public C API. See [relationship to the C
+shape, not in boundary: its facade is header-only, compiles against the public C
+headers and links the C library, without a separately compiled C++ facade library.
+It still wraps only the public C API. See [relationship to the C
 API](../guides/rust.md#relationship-to-the-c-api) for how the Rust crate holds
 to this in practice.
 
@@ -114,85 +107,63 @@ facade remains a gap. Tests should compare observable C semantics, including
 results, diagnostics, offsets, limits, incremental continuation and encoded
 bytes. The current coverage below is an implementation snapshot, not a claim
 that full parity has already been achieved. This contract is the long-term
-target; [#400](https://github.com/marekcingel/OpenTLV/issues/400) delivers the
-scoped implementation described below.
+target; the matrix records current implemented workflows and remaining gaps.
 
 ## Capability implementation matrix
 
-The current #400 implementation scope is C++, Rust and Python. Lua parity is
-handled by separate stories and does not block this implementation; its column
-below remains informational.
+This is a current public-facade inventory, not the historical acceptance scope
+of a particular issue. **Implemented** means the named workflow has a public
+API, not complete coverage of every C overload. **Partial** names a restricted
+subset or a missing advanced operation. **Missing** means there is no public
+facade. Intentional copying, cleanup and error conventions are documented
+separately and do not close missing-operation gaps.
 
-The following remaining capabilities are explicitly **out of scope for #400**
-and are deferred to follow-up work:
+Availability is another dimension: optional native components must be enabled.
+Python and Lua omit disabled presets; Go returns an unsupported error. Rust's
+native build does not yet offer the same per-protocol component selection and
+its `document` feature must match the linked C library. C++ headers follow the
+generated C configuration. Missing facade support is distinct from disabled
+native functionality; see [component selection](../guides/select-components.md).
 
-- Additional codecs beyond the facades already implemented.
-- Additional protocol-specific Definition/dictionary registries and lookup.
-- Further Format/Layout extensions, including custom callbacks, additional
-  optional builtins and destination-format configuration not yet exposed.
-- Custom Document allocator adaptation.
+| Capability / canonical C family | C++ | Rust | Python | Lua | Go |
+| --- | --- | --- | --- | --- | --- |
+| Format (`tlv_format_t`) | Implemented: traits, adapters and execution views | Partial: presets and Fixed; no public custom callback adapter | Partial: presets and Fixed | Partial: presets and Fixed | Partial: presets and Fixed; no custom callbacks |
+| Element / instance Layout (`tlv_element_t`, `tlv_source_t`) | Implemented: borrowed semantic/source views | Implemented: borrowed Element and Decoded | Implemented: Element and Decoded; retained immutable backing | Partial: copied Element tables and source detail | Implemented: borrowed slices and Source; Clone owns bytes |
+| Single-element read (`tlv_read*`) | Implemented: `read` | Implemented: `read`, `read_fixed` | Implemented: `read` | Missing standalone facade | Missing standalone facade; use Reader |
+| Sequential Reader (`tlv_reader_*`) | Implemented: typed `reader` and ranges | Implemented: `Reader` | Implemented: `Reader` | Implemented: `reader` | Implemented: `Reader` |
+| Resumable Reader (`init_incremental`, `set_input`) | Implemented | Implemented | Implemented | Missing | Implemented: `NewIncrementalReader`, `SetInput` |
+| Tree Reader / events (`tlv_tree_reader_*`) | Implemented: items, events, limits and skip | Implemented | Implemented | Partial: tree Visitor, no pull/event cursor | Missing |
+| Resumable Tree Reader | Implemented | Implemented | Implemented | Missing | Missing |
+| Visitor (`tlv_reader_visit*`, `tlv_tree_reader_visit*`) | Implemented: Reader and Tree Reader callbacks | Implemented | Implemented | Partial: complete-buffer tree Visitor | Missing |
+| Sequential Writer (`tlv_writer_*`) | Implemented: typed Writer, explicit output | Implemented: fixed output | Implemented: fixed or growable output | Implemented: bounded output | Implemented: fixed or growable output |
+| Tree Writer (`tlv_tree_writer_*`) | Implemented: events, begin/end and scoped Builder | Implemented: events, measure and Tag capacity | Implemented: events, measure and Tag capacity | Partial: begin/end, no public event/measure facade | Partial: staged Begin/End; no public event facade |
+| Copy/preservation (`tlv_writer_copy_encoded*`, `tlv_source_preserve`) | Implemented | Implemented | Implemented | Missing | Missing |
+| Reader/Writer diagnostics | Implemented: native structured detail with C++ operation errors | Implemented: owned snapshots | Implemented: structured exceptions | Implemented for exposed Reader/Writer operations: owned tables | Implemented for exposed operations: owned ParseError/WriteError |
+| Borrowed Query (`tlv_query_*`) | Implemented: Query and resumable matcher | Implemented: Query and matcher | Implemented: Query and matcher | Partial: complete-buffer Query evaluation; no resumable matcher facade | Missing |
+| Document Query | Implemented: first match and `select` all matches | Partial: `find_path` / `find_path_mut` first match | Partial: `find_path` first match | Implemented: first match and Query results | Implemented: `Document.Query` all matches |
+| Schema (`tlv/schema/`) | Partial: C schema descriptions with validation helpers | Partial: length/structure schemas and detailed reports | Partial: length/structure schemas and detailed reports | Partial: structural schemas/reports; no standalone length-schema facade | Missing |
+| Value Codec (`tlv/codec/` and built-ins) | Partial: generic typed codecs/fields and standard conveniences; no claim of every C descriptor | Partial: configured NumberCodec and EMV codecs | Partial: configured NumberCodec and EMV amount | Partial: generic/configured codecs, EMV and custom callbacks | Partial: generic typed codecs; no protocol/custom/Structure codecs |
+| Structure Codec (`tlv_structure_codec_t`) | Implemented: application-object adapters | Missing | Missing | Missing | Missing |
+| Definition / dictionaries (`tlv_definition_*`) | Partial: generic registry and standard lookups | Partial: generic registry and EMV dictionary | Partial: generic registry | Missing generic facade | Missing |
+| Field Encoding / reusable Layout configuration | Partial: custom Format can compose C through explicit interop; no complete idiomatic configuration facade | Missing general configuration facade | Missing general configuration facade | Missing general configuration facade | Missing general configuration facade |
+| Owned mutable Document (`tlv_document_*`) | Implemented: RAII, Node, edit, encode; native allocator options | Partial: Document/Node/NodeMut; no allocator adaptation | Partial: safe Node handles; no allocator adaptation | Partial: checked Nodes and edits; no allocator adaptation | Partial: copied Node content, edits and Close; no allocator adaptation |
+| Resumable Document Builder | Implemented | Implemented | Implemented | Missing | Missing |
 
-Existing implementations in these families remain part of #400. The deferred
-capabilities do not block acceptance of its scoped implementation. They remain
-coverage gaps against the long-term full-parity contract; excluding them from
-this issue does not mark them implemented.
+Audit evidence is the public facade and consumer tests, rather than raw FFI:
 
-The public C headers are the source of truth. Each row must cover all public
-operations in the referenced family before it can be marked complete. **Bound**
-means the listed operations have a public facade; it does not imply every
-edge case has a parity test. **Partial** means only a subset is exposed.
-**Missing** means the capability has no public facade. **Audit** means operation
-coverage still needs verification; it must not be counted as parity.
+| Language | Public implementation | Consumer/parity tests | User guide |
+| --- | --- | --- | --- |
+| C++ | [headers](../../tlv++/include/tlv++/) | [reader](../../tests/unit/reader/), [writer](../../tests/unit/writer/), [document](../../tests/unit/document/), [codecs](../../tests/unit/codec/) | [C++ examples](../guides/cxx-examples.md) |
+| Rust | [opentlv/src](../../bindings/rust/opentlv/src/) | [opentlv/tests](../../bindings/rust/opentlv/tests/) | [Rust](../guides/rust.md) |
+| Python | [opentlv facade](../../bindings/python/opentlv/src/opentlv/) | [facade tests](../../bindings/python/opentlv/tests/) | [Python](../guides/python.md) |
+| Lua | [facade adapters](../../bindings/lua/src/) | [consumer tests](../../bindings/lua/tests/) | [Lua](../guides/lua.md) |
+| Go | [public package](../../bindings/go/) | [public tests](../../bindings/go/tests/reader_test.go), [boundary tests](../../bindings/go/internal/capi/) | [Go](../guides/go.md) |
 
-| Capability and canonical C operations | C++ | Rust | Python | Lua |
-| --- | --- | --- | --- | --- |
-| Single-element Reader: `tlv_read`, `tlv_read_diag`, `tlv_read_source_diag` | Bound: `read` | Bound: `read`, `read_fixed` | Bound: `read` | Audit |
-| Sequential Reader: `tlv_reader_init`, `tlv_reader_next`, `tlv_reader_at_end` | Bound: `reader` | Bound: `Reader` | Bound: `Reader` | Bound: `reader` |
-| Incremental Reader: `tlv_reader_init_incremental`, `tlv_reader_set_input`, `tlv_reader_consumed`, `tlv_reader_offset` | Bound: `input_mode`, `set_input`, `consumed`, `offset` | Bound: `Reader::incremental`, continuation methods | Bound: `Reader(final_input=False)`, continuation methods | Missing |
-| Tree Reader: `tlv_tree_reader_init`, `tlv_tree_reader_next`, `tlv_tree_reader_at_end` | Bound: `tree_reader` | Bound: `TreeReader` | Bound: `TreeReader` | Missing pull facade |
-| Event measurement: `tlv_tree_writer_measure_events` | Bound: `measure_tree_events` | Bound: `measure_events` | Bound: `measure_events` | Missing |
-| Bounded Tag copying: `tlv_tree_writer_set_tag_storage` | Bound: `set_tag_storage` | Bound: `set_tag_capacity` | Bound: `set_tag_capacity` | Partial: constructor `tag_capacity`; no storage replacement |
-| Structural events: `tlv_tree_reader_next_event`, `tlv_tree_writer_write_event` | Bound: `next_event`, `write_event` | Bound: `read_event`, `write_event` | Bound: `next_event`, `write_event` | Missing tree facades |
-| Incremental Tree Reader: `tlv_tree_reader_init_incremental`, `tlv_tree_reader_set_input`, `tlv_tree_reader_consumed`, `tlv_tree_reader_offset` | Bound: `tree_reader` continuation methods | Bound: `TreeReader` continuation methods | Bound: `TreeReader` continuation methods | Missing |
-| Reader diagnostics: `tlv_reader_next_diag`, `tlv_tree_reader_next_diag`, `tlv_reader_diagnostic_init` | Bound: optional diagnostics and value initialization | Bound: owned `ReaderDiagnostic` | Bound: structured exceptions | Partial |
-| Source information and instance Layout: `tlv_reader_next_source_diag`, `tlv_source_t`, Tree Reader item source/depth/offset | Bound: `next_source`, `tree_item`, `source` | Bound: `Decoded`, `Layout`, `TreeItem` | Bound: `Decoded`, `Layout`, `TreeItem` | Partial |
-| Reader limits: Tree Reader frame capacity, maximum depth and item count | Bound: `tree_reader` construction | Bound: `TreeReader` construction | Bound: `TreeReader` construction | Partial: Visitor options |
-| Subtree control: `tlv_tree_reader_skip_subtree` | Bound: `skip_subtree` | Bound: `skip_subtree` | Bound: `skip_subtree` | Audit |
-| Visitor: `tlv_reader_visit[_diag]`, `tlv_tree_reader_visit[_diag]` | Bound: Reader and Tree Reader `visit` | Bound: Reader and Tree Reader `visit` | Bound: Reader and Tree Reader `visit` | Partial: tree Visitor |
-| Single-element Writer: `tlv_write[_diag]`, `tlv_write_element[_diag]` | Bound: `write` overloads | Bound: `write_element`, `write_element_fixed` | Audit | Missing |
-| Sequential Writer: `tlv_writer_init`, `tlv_writer_write[_diag]`, `tlv_writer_write_element[_diag]`, size/remaining | Audit | Bound: `Writer`, owned diagnostics | Audit | Bound: `writer`, write/Element, size/remaining |
-| Tree Writer: `tlv_tree_writer_init`, begin/write/end and diagnostic variants, finish/size | Bound: `tree_writer` | Bound: `TreeWriter` | Bound: `TreeWriter` | Bound: `tree_writer`, begin/write/end, finish/size |
-| Element measurement: `tlv_encoded_size`, `tlv_element_encoded_size[_diag]` | Bound: `encoded_size` overloads | Bound: `measure_element`, `encoded_size` | Bound | Missing |
-| Tree measurement: `tlv_tree_writer_measure`, staging and capacity requirements | Bound: `measure_tree` | Bound: `TreeWriter::measure`, `required_workspace` | Bound: `TreeWriter.measure`, exception requirements | Missing |
-| Writer diagnostics: `tlv_writer_diagnostic_t` and diagnostic operations | Audit | Bound: owned sequential, single-element and Tree Writer diagnostics | Audit | Bound: owned sequential and Tree Writer error fields; single-element facade missing |
-| Exact copy/preservation: `tlv_writer_copy_encoded[_diag]`, `tlv_writer_preserve[_diag]`, `tlv_source_preserve` | Audit | Bound: `Writer::copy_encoded`, `Writer::preserve`, `Decoded::preserve` | Bound: `Writer.copy_encoded`, `Writer.preserve`, `Decoded.preserve_into` | Missing |
-| Query: parse/step, matcher init/visit, `tlv_query_visit`, `tlv_query_visit_buffer` | Bound: `query`, `query_matcher` | Bound: `Query`, `QueryMatcher` | Bound: `Query`, `QueryMatcher` | Missing |
-| Schema: public `tlv/schema/` operations, constraints and diagnostics | Audit | Partial: constraints, named fields/groups, bounded detailed reports and Fixed Format validation bound; remaining Format extensions out of scope for #400 | Partial: constraints, named fields/groups, bounded detailed reports and Fixed Format validation bound; remaining Format extensions out of scope for #400 | Partial: structural schemas and bounded detailed reports; standalone length-schema operations remain unbound |
-| Codec: public `tlv/codec/` operations and builtin codecs (additional codecs out of scope for #400) | Audit | Partial: configured `NumberCodec` and EMV codecs | Partial: configured `NumberCodec` and EMV amount | Value codecs, configuration, builtin EMV selection and custom callbacks (#302); structure codecs remain unbound |
-| Generic Definition: `tlv_definition_t`, `tlv_definition_registry_t`, `tlv_definition_find` | Bound: borrowed `definition_registry` | Bound: owned `DefinitionRegistry` | Bound: owned `DefinitionRegistry` | Missing generic facade |
-| Builtin Definition/dictionary registries and protocol-specific lookup (additional coverage out of scope for #400) | Audit | Partial: EMV dictionary | Missing | Separate stories |
-| Format: decode/measure/encode, configuration, custom callbacks and optional builtins (remaining extensions out of scope for #400) | Audit | Partial | Partial | Partial |
-| Format field-layout configuration: public `tlv/layout.h` operations (remaining extensions out of scope for #400) | Audit | Audit | Audit | Audit |
-| Document: public `tlv/document/document.h` operations and node lifetimes | Audit | Partial: owning `Document`, borrowed `Node`/`NodeMut`, builder; allocator adaptation out of scope for #400 | Partial: safe invalidation, builder, builtin destination formats; allocator and remaining destination configuration out of scope for #400 | Missing |
-
-Go exposes Format, Element, Reader, Writer and owned mutable Document facades
-(#472–#477), owned diagnostics (#478), Document path Query and typed generic
-Value codecs (#479). Query delegates parsing and traversal to C and returns
-checked Node handles. Codec results own their Go storage and preserve the
-separate native codec status domain. Buffer/resumable Query, protocol-specific
-and application-object Structure codecs, custom Format callbacks and resumable
-Document Builder integration remain gaps. Java remains future work.
-The current WASM tooling embedding exposes only a parse-to-JSON operation; it
-does not satisfy general binding parity. Its classification is described below.
-Neither an experimental label nor an FFI declaration closes a matrix gap.
-
-The first implementation slice has focused C++ tests in
-`tests/unit/reader/test_reader.cpp`: borrowed source results, incomplete/final
-input, discarded-window offsets, preorder agreement with C, resource limits,
-subtree skipping, Visitor STOP/resume and incremental Query continuation.
-Rows marked Audit require a function-by-function review before claiming full
-capability parity. For #400 acceptance, this review applies to its in-scope
-operations; the exclusions above are tracked for follow-up work.
+The WASM parse-to-JSON operation is a tooling embedding, not a general binding
+with Reader/Writer/Document parity. Java remains future work. Exact signatures
+belong in generated references and binding source documentation; this matrix
+records supported workflows and their limits. Do not treat an experimental
+label or raw FFI declaration as proof of parity.
 
 ### C++ resumable traversal
 
@@ -373,25 +344,21 @@ Python `Document.encode(format)` and `Node.encode(format)` support builtin
 destination formats, with `encoded_size_as` for measurement. Rust also offers
 caller-owned output and reports required capacity on shortage. Remaining
 configuration/allocator differences remain tracked coverage gaps and are
-explicitly out of scope for #400.
+not yet exposed by their public facades.
 
-## Core concepts
+## Shared concepts and intentional differences
 
-| Concept | Responsibility | C | C++ (`tlv++`) | Rust (`opentlv`, experimental) | Python (`opentlv`, experimental) | Lua (`opentlv`, experimental) |
-| --- | --- | --- | --- | --- | --- | --- |
-| Reader | Read-only parsing and traversal | `tlv_reader_t`, `tlv_reader_next()` | `tlv::reader<>` | `Reader<'a>` | `Reader` | `opentlv.reader()` |
-| Writer | Construction and serialization | `tlv_writer_t` | `tlv::writer<>` | `Writer<'a>` | `Writer` | `opentlv.writer()` |
-| Document | Optional owning, mutable representation | `tlv_document_t` | `tlv::document` | `Document`, `Node`, `NodeMut`, `DocumentBuilder` | `Document`, `Node`, `DocumentBuilder` | `Document`, checked `Node`; builder remains unbound |
-| Element | One TLV element with borrowed wire fields | `tlv_element_t` | `tlv::element_view` | `Element<'a>` | `Element` | a plain table (`tag`/`raw_length`/`length`/`value`/`offset` fields) |
-| Tag | The TLV tag abstraction: raw identifying bytes | `tlv_tag_t` | `tlv::tag` | `Tag` | `Tag` | a raw Lua string (content equality already compares it) |
-| Schema | Structural validation: tags, lengths, occurrence and nesting rules | `tlv_schema_t`, `tlv_structure_schema_t` | same C types, wrapped by `tlv::validate`/`tlv::validate_all_diag` | `LengthSchema`, `StructureSchema` | `LengthSchema`, `StructureSchema` | `schema` / `Schema:validate` (structural reports) |
-| Codec | Typed encoding and decoding of a value | `tlv_codec_t`, `tlv_structure_codec_t` | `TlvCodec` concept, `tlv::decode_structure<T>`/`encode_structure` | `Codec` | `NumberCodec` and EMV amount functions | `codecs`, `codec {decode, encode}`; Value codecs only |
-| Diagnostics | Structured diagnostic information for a failure | `tlv_diagnostic_t` | `tlv::diagnostic` (alias) | `SchemaError`, `ValidationError`, `CodecError` (each carries the failing offset; no unified diagnostic type yet) | `OpenTLVError` subclasses carry the offset, expected/actual text and operation, when the C API reports them | owned tables with common code/message/severity, optional native context/path/offset, and Reader/Writer or Schema detail |
+Format describes wire representation; Layout locates an encoded instance;
+Element holds its Tag and logical Value. Schema describes structural rules and
+Codec interprets Value. Reader/Writer, traversal, Query and Document consume
+these contracts as described in the [canonical architecture](architecture.md).
 
-Bindings may reach parity incrementally, but missing capabilities remain
-tracked gaps against the public facade contract. The table above describes
-concept coverage; exposing a concept does not establish coverage of every C
-operation belonging to it.
+Borrowed C/C++/Rust views preserve storage lifetimes explicitly. Python retains
+immutable bytes and snapshots mutable input; Lua copies bytes into strings;
+Go Elements borrow slices while Node content and diagnostics are copied.
+These are language ergonomics, not different TLV representations. Document
+owns data in every binding, with language-specific cleanup and invalidation.
+See each language's guide for the actual allocation and lifetime boundaries.
 
 ## Adapting ergonomics, not architecture
 
@@ -401,9 +368,8 @@ it. For example:
 
 - Rust's `Reader` implements `Iterator<Item = Result<Element>>`, so callers
   write `for element in reader { ... }` instead of an explicit `at_end()`/
-  `next()` loop. `tlv++`'s `reader` uses that explicit loop today (or a
-  visitor passed to `reader.visit` or `tree_reader.visit`); a future C++ range-based `for` over a
-  `reader` would be the same adaptation applied there.
+  `next()` loop. `tlv++` offers range iteration through `tlv::parse` and built-in `parse`
+  helpers, alongside explicit pulls and `reader.visit` / `tree_reader.visit`.
 - Python's `Reader` iterates the same reader concept with
   `for element in reader:`, and raises a native `Exception` subclass instead of
   returning an error code.
@@ -438,53 +404,21 @@ The syntax changes; the concepts (a read-only, one-pass `Reader` yielding
 
 ## Status across current bindings
 
-- **C++ (`tlv++`)**: ships in this repository, header-only, and covers every
-  concept above except a standalone `Diagnostics` type (it reuses the C
-  `tlv_diagnostic_t` directly as `tlv::diagnostic`).
-- **Rust (`opentlv`)**: experimental, in `bindings/rust/`. Covers Reader,
-  Writer, Tree Reader/Writer, Query, Visitors, Document, Element, Tag, Schema
-  and EMV Codec. Codec conversion delegates to public C codecs; earlier
-  binding-side EMV conversions are no longer the implementation. Generic
-  codecs, structure codecs, allocator adaptation and other matrix gaps still
-  require work. See [Rust bindings](../development/rust.md) and [using
-  OpenTLV from Rust](../guides/rust.md).
-- **WebAssembly**: in `bindings/wasm/`, a deliberately narrow `parse()`
-  function that returns a JSON element tree for browser tooling, not a
-  general-purpose object-oriented binding. It is a small embedding built on
-  the C API rather than a binding this contract's Reader/Writer/Element shape
-  applies to. See [WebAssembly build](../development/webassembly.md).
-- **Python**: experimental, in `bindings/python/`, split into
-  `opentlv-core` (a native extension written against the CPython C API,
-  using the CPython Limited API where compatible, that calls the public C
-  API) and `opentlv` (a pure-Python package on top of it) — the same split
-  as the Rust `opentlv-sys`/`opentlv` crates. Covers Reader, Writer,
-  Tree Reader/Writer, Query, Visitors, Document, Element, Tag and Schema.
-  Codec coverage includes configured numeric codecs and the EMV amount codec;
-  other public C codecs still need facade support. See [Python bindings](../development/python.md)
-  and [using OpenTLV from Python](../guides/python.md).
-- **Lua**: experimental, in `bindings/lua/`, split into `opentlv._core` (a
-  native extension written directly against the Lua C API) and `opentlv`
-  (a one-line pure-Lua entry point on top of it, `lua/opentlv/init.lua`) —
-  the same split as the Rust `opentlv-sys`/`opentlv` and Python `opentlv-core`/`opentlv` packages,
-  though here the pure layer adds no ergonomics of its own, since Lua's C
-  API is already close to the concepts bound. Targets Lua 5.1 through 5.4
-  and LuaJIT. Covers Reader, Writer, Tree Writer, Element and Tag, across
-  the default, BER, CER, DER, Bluetooth LTV and configurable fixed-width formats, plus preorder tree
-  traversal (`opentlv.visit_tree()`, built on `tlv_tree_reader_visit()`/
-  `tlv_der_visit()`). Pull-based Tree Reader and advanced Writer capabilities
-  (measurement, structural events and exact copy/preservation) remain gaps
-  in Lua. Value codecs expose builtin representations, configured codecs,
-  EMV dictionary selection and custom callbacks through `tlv_codec_t` (#302).
-  Structure codecs remain unbound. See [Lua bindings](../development/lua.md) and
-  [using OpenTLV from Lua](../guides/lua.md).
-- **Go**: experimental binding in `bindings/go/`, with a public
-  `opentlv` package and a private `internal/capi` cgo bridge. It currently
-  exposes Format, Element, Reader, Writer and owned mutable Document with
-  explicit Close, checked node handles and destination encoding, Document Query,
-  typed generic Value codecs and owned error diagnostics. Tests, public examples
-  and CI cover default and minimal configurations. Complete
-  processing capability parity remains future work. See the
-  [Go binding README](../../bindings/go/README.md) for details. (#472–#480)
+Capability status is recorded once in the matrix above. Packaging and user
+entry points are:
+
+| Language / consumer | Packaging and maturity | Usage | Development |
+| --- | --- | --- | --- |
+| C++ | Header-only C++11 facade shipped with OpenTLV; links the C engine | [C++ examples](../guides/cxx-examples.md) | [Public/native contract](cxx-native-boundary.md) |
+| Rust | Experimental `opentlv` facade plus `opentlv-sys` FFI crate | [Rust guide](../guides/rust.md) | [Rust development](../development/rust.md) |
+| Python | Experimental `opentlv` facade plus `opentlv-core` extension | [Python guide](../guides/python.md) | [Python development](../development/python.md) |
+| Lua | Experimental `opentlv` module with native `opentlv._core` implementation | [Lua guide](../guides/lua.md) | [Lua development](../development/lua.md) |
+| Go | Experimental public `opentlv` package with private `internal/capi` bridge | [Go guide](../guides/go.md) | [Go development](../development/go.md) |
+| WebAssembly | Narrow parse-to-JSON tooling embedding; general facade parity does not apply | [WASM tooling](../development/webassembly.md) | [WASM sources](../../bindings/wasm/) |
+
+Language-specific copying, cleanup, errors and current limitations are documented
+in those guides; an experimental label neither implies full parity nor excuses
+an undocumented missing capability.
 
 ## Implementation package names
 

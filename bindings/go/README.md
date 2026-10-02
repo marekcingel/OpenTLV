@@ -58,6 +58,13 @@ presets return an unsupported status; the bridge contains no wire parser.
 
 Document owns native allocations and provides explicit cleanup.
 
+## User documentation
+
+Start with the [Go user guide](../../docs/guides/go.md) for normal application
+usage and the [capability matrix](../../docs/concepts/bindings.md) for parity.
+This README records native integration and binding development details;
+the [Go development guide](../../docs/development/go.md) links the CI checks.
+
 ## Build and run
 
 For the same `Hello, world!` write/read example as C, C++, Rust, Python and Lua,

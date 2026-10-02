@@ -1,5 +1,8 @@
 # Path queries
 
+See [Choose a processing API](processing.md) for ownership, nesting, resumable
+input, construction and editing choices.
+
 A query addresses TLV elements by the tags on the way to them, so code can read
 one value out of nested data without traversing the whole structure itself. The
 same text works in the C API, the C++ API and the [`otlv query`](../cli/README.md#path-queries)

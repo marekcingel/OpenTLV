@@ -40,7 +40,7 @@ Document is the core owned representation built on these primitives.
 See the [architectural rules](docs/concepts/architectural-rules.md) and
 [architecture overview](docs/concepts/architecture.md) for their boundaries.
 
-Scope includes the portable C99 execution core, the C++11+ wrapper, Reader,
+Scope includes the portable C99 execution core, the idiomatic C++11+ API, Reader,
 Writer, tree traversal, Visitor, Document, Query, structural schemas and value
 codecs, together with native formats and standard-specific capabilities.
 Bindings, CLI tooling, testing, fuzzing, documentation and distribution make
@@ -110,6 +110,36 @@ Generated implementations specialize the same execution contracts instead of
 creating a separate architectural model.
 
 Phase 3 completes the planned foundational OpenTLV architecture.
+
+## Protocol Inference after the foundation
+
+Protocol Inference is a long-term direction after Runtime Model & OTLV and
+Compilation, not an implemented capability or a finalized fourth foundational
+phase. It observes unknown binary/TLV traffic incrementally and produces
+candidate structural descriptions using the normal Reader and execution
+contracts. It must not introduce an inference-specific parser.
+
+Planned principles:
+
+- Search and refine candidate Format and reusable Layout configurations across
+  observations, pruning alternatives and progressively sampling where needed.
+- Infer Schema constraints from repeated messages, including occurrence,
+  cardinality, length and nesting evidence.
+- Retain supporting and contradicting observations, wire coverage, invalid
+  boundaries, competing alternatives and convergence/stability information.
+  Evidence remains inspectable rather than reduced to an opaque confidence score.
+- Separate observed wire facts from analyst-added names, codecs and semantics;
+  bytes alone do not establish a field's business meaning.
+- Export discovered structure as a normal editable `.otlv` model, so supported
+  descriptions can use the normal decode, query, validate and diff tooling
+  when those runtime-model tools exist.
+- Keep AI optional and downstream from deterministic inference and evidence.
+
+Runtime Model design should allow the same semantic model to be constructed
+from `.otlv`, programmatic APIs and future inference. Incomplete candidates and
+incremental observations are design considerations, not execution-ready models:
+validate a candidate before publishing an immutable executable model. APIs,
+algorithms, heuristics and delivery dates remain undecided.
 
 ## Milestone descriptions
 

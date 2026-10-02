@@ -10,6 +10,19 @@ those responsibilities.
 
 ## Conceptual model
 
+This is the canonical architecture overview. The
+[architectural rules](architectural-rules.md) constrain changes; specialized
+contract and audit pages extend this model rather than define another one.
+
+```text
+Definition → Format → Field Encoding → Layout → Element → Schema → Codec
+```
+
+This expresses related responsibilities, not a mandatory runtime call pipeline
+or module dependency graph. Reader/Writer require Format, not a Definition,
+Schema or Codec. Independent standards are a playground for finding reusable
+mechanisms: protocol policy stays in standards and extensions.
+
 OpenTLV separates reusable definitions and rules, concrete runtime data, and
 operations that apply those rules to the data:
 
@@ -31,10 +44,12 @@ Document (owned representation)
 OPERATIONS
 ────────────────────────────
 Reader
+Tree Reader
 Writer
+Tree Writer
 Query
 Visitor
-...
+Diagnostics
 ```
 
 The declarative/semantic model describes meaning and rules: a Definition
@@ -67,6 +82,12 @@ boundary between semantic content, source layout and wire preservation.
 The [roadmap](../../ROADMAP.md) separates Execution Foundation (Phase 1),
 Runtime Model & OTLV (Phase 2), and Compilation (Phase 3). The latter two are
 planned capabilities built on the current execution contracts.
+
+Implemented facilities are the native C execution contracts and their
+language/tool facades. The OTLV frontend, immutable runtime model, compilation
+and subsequent Protocol Inference are planned directions, not currently
+available parsing modes. Document remains owned message data; the runtime
+model supplies reusable interpretation/configuration.
 
 Phase 2 makes Definition, Format / Field Encoding / Layout configuration,
 Schema and Codec dynamically describable as one complete model. The `.otlv`
@@ -101,7 +122,8 @@ introduce additional architectural phases by implication.
 The format descriptor is a shared contract consumed by generic I/O; concrete
 format implementations never need to be named by the reader/writer. A codec
 does not have to use a schema. Existing C++ tag-associated codecs remain valid.
-Bindings are part of the codec area, not another architectural layer.
+Application-object structure mappings belong to Codec. Language bindings are
+facades over all exposed capabilities, not a codec-only architectural layer.
 
 A module is a reusable unit that may provide any subset of Definition, Format,
 Schema and Codec. This is composition, not a fifth capability or a layer.
@@ -118,7 +140,7 @@ contracts to generic consumers. Generic subsystems (`reader/`, `writer/`,
 A format mechanism that names no protocol -- it is parameterized entirely by
 caller-supplied widths and byte order, with no knowledge of any concrete
 wire standard -- lives under the separate top-level `formats/` instead. The
-configurable fixed-width format is the only member so far; other protocol-
+configurable Fixed and Variable formats are current members; protocol-
 agnostic mechanisms (not per-protocol formats) would join it there. This is
 narrower than the pre-#279 `tlv/formats/` (see Migration): that one held
 every concrete format regardless of whether it was protocol-specific, and was
@@ -195,24 +217,30 @@ counterpart and each protocol's wrapper under `builtins/<protocol>/`:
 ```text
 tlv++/
   types.hpp, compat.hpp, diagnostic.hpp, tlv.hpp
-  reader/    reader.hpp, visitor.hpp
+  format.hpp, format_traits.hpp, native.hpp
+  reader/    reader.hpp, tree.hpp
   query/     query.hpp
   document/  document.hpp
-  writer/    writer.hpp
+  writer/    writer.hpp, tree.hpp, builder.hpp
   schema/    schema.hpp
   codec/     codec.hpp, structure.hpp, registry.hpp
   formats/
     fixed_format.hpp
   builtins/
-    asn1/  ber.hpp
+    asn1/       ber.hpp, der.hpp, cer.hpp, codec.hpp
+    bluetooth/  ltv.hpp, codec.hpp
+    emv/        format.hpp, codec.hpp
+    lldp/       lldp.hpp, codec.hpp
+    dhcp/       dhcpv4.hpp, codec.hpp, container.hpp
+    nfc/        type2.hpp
 ```
 
 `tlv++` is header-only, so there is no separate `tlv++/src/`. `registry.hpp`
 sits under `codec/` alongside `codec.hpp` and `structure.hpp`: it is a
 runtime-dispatch complement to the compile-time `TlvCodec` concept, with no C
-counterpart. Only the generic subsystems and protocols that already have a
-C++ wrapper get a folder; a protocol built-in only in C (Bluetooth LTV, EMV)
-has no `tlv++/builtins/<protocol>/` folder until a C++ wrapper for it exists.
+counterpart. Built-in C++ APIs now cover ASN.1, EMV, Bluetooth, LLDP, DHCP
+and NFC under `builtins/<protocol>/`, following the enabled native components.
+See [C++ built-in standards](cxx-builtins.md) for their scoped coverage.
 Every `tlv++` header keeps using full paths from the include root
 (`#include "tlv++/reader/reader.hpp"`, not a relative `#include
 "reader.hpp"`), so moving a header between folders only requires updating
@@ -243,10 +271,13 @@ harnesses, each with its checked-in seed corpus in a sibling `corpus/` folder
 
 `document/document.h` is a layer above the reader, writer and query facilities. It
 builds an owned tree from canonical Tree Reader items, lets the tree be searched,
-changed, extended and shortened, and encodes it again through the writer. It is the only component that
-allocates, it can use a caller-supplied allocator, and it is the `OPENTLV_DOCUMENT`
-option. Nothing below it depends on it, so the reader, writer and visitor stay
-zero-copy and allocation-free whether or not it is built. See
+changed, extended and shortened, and encodes it again through the Writer.
+It is the canonical owned mutable representation, supports a caller-supplied
+allocator and is selected by `OPENTLV_DOCUMENT`. Borrowed processing does not
+require it; enabling it does not allocate storage until an owning operation is
+called. Static linking/dead-code elimination can omit unused Document code
+where supported. C Reader, Writer and Visitor preserve their explicit buffer
+and workspace contracts; binding conveniences and error objects may allocate. See
 [mutable documents](../guides/document.md).
 
 `tlv_document_builder_t` owns unfinished construction and consumes a caller-owned
@@ -310,7 +341,7 @@ can invoke value codecs. Both APIs document object representation and ownership
 through the selected descriptor. C++ offers `decode_structure<T>` and
 `encode_structure` wrappers with caller-owned output storage.
 
-Raw C++ writers only accept tags and bytes. `tlv::write_value(writer, value)`
+C++ Writers accept explicit Tags/bytes and typed fields that select Value codecs. `tlv::write_value(writer, value)`
 is the explicit codec convenience function for existing `T::tag` types. That
 helper retains its temporary `std::vector` and may allocate; raw I/O and the C
 codec wrappers do not allocate. C++ errors and user-defined object types may
@@ -340,13 +371,15 @@ remaining component options to Cargo features is future work; see
 
 ## Build configuration
 
-All generic facilities, including the configurable Fixed format, are always available.
+Generic borrowed processing and the configurable Fixed and Variable formats are
+always available. The owned Document representation has its own build switch.
 
 ### Generic core formats
 
 | Format | Availability |
 | --- | --- |
 | [Configurable fixed-width TLV](../formats/fixed/configurable.md) | Always built; shared C implementation and C++ wrapper |
+| [Configurable variable-width TLV](../formats/variable.md) | Always built; C configuration and explicit C++ native interop |
 
 ### Built-in standards
 
@@ -357,15 +390,18 @@ These packages default to ON and can be disabled subject to the dependencies bel
 | `OPENTLV_NFC` | [NFC Type 2 Tag framing](../formats/nfc/README.md) for contiguous TLV streams |
 | `OPENTLV_DHCP` | [DHCPv4 option framing](../formats/dhcp/README.md), including Pad and End |
 | `OPENTLV_BLUETOOTH` | Bluetooth LTV format, containers, definitions, schemas and codecs |
-| `OPENTLV_LLDP` | LLDP packed framing, base definitions and binding presets; no LLDPDU schemas/codecs |
+| `OPENTLV_LLDP` | LLDP packed framing, base definitions, LLDPDU structural validation, Value codecs and binding presets |
 | `OPENTLV_FORMAT_ASN1` | ASN.1-related wire formats (BER, DER, CER) |
 | `OPENTLV_FORMAT_BER` | Public BER format |
 | `OPENTLV_FORMAT_DER` | DER format and bounded DER validation operations |
 | `OPENTLV_FORMAT_CER` | CER format and bounded CER validation operations |
 | `OPENTLV_EMV` | EMV framing, dictionary, schemas and value codecs |
 
-The [mutable document](../guides/document.md) is a separate optional generic component,
-controlled by `OPENTLV_DOCUMENT`; it is not a format or a standard package.
+### Owned representation
+
+| CMake option / generated config macro | Included component |
+| --- | --- |
+| `OPENTLV_DOCUMENT` | Canonical owned mutable [Document](../guides/document.md); optional build inclusion, not a format or standard package |
 
 `OPENTLV_FORMAT_ASN1`, `OPENTLV_FORMAT_BER`, `OPENTLV_FORMAT_DER`, and
 `OPENTLV_EMV` form a tree (ASN1 -> BER -> DER/CER/EMV): disabling an

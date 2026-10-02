@@ -10,8 +10,11 @@
 [![C API fuzzing](https://github.com/marekcingel/OpenTLV/actions/workflows/fuzz.yml/badge.svg?branch=main)](https://github.com/marekcingel/OpenTLV/actions/workflows/fuzz.yml?query=branch%3Amain)
 [![Documentation](https://github.com/marekcingel/OpenTLV/actions/workflows/docs.yml/badge.svg?branch=main)](https://github.com/marekcingel/OpenTLV/actions/workflows/docs.yml?query=branch%3Amain)
 
-**Read, write, and inspect Tag-Length-Value data in C and C++.**
-OpenTLV provides a dependency-free C99 core and a header-only C++11+ wrapper.
+**Read, write, and inspect Tag-Length-Value data across languages.**
+OpenTLV is a portable TLV foundation with a dependency-free C99 execution engine
+and interoperability boundary. Its idiomatic `tlv++` C++11+ API and official
+Rust, Python, Lua and Go bindings expose the same conceptual model through
+language-native APIs. The `otlv` CLI and WebAssembly support use the same engine.
 Each TLV element identifies a value with a tag and records its length, making
 it useful for structured binary messages, files, and device protocols.
 
@@ -19,22 +22,37 @@ The badges show workflow status on `main`.
 
 ## Who is it for?
 
-OpenTLV is for C/C++ developers building embedded software, protocol handlers,
+OpenTLV is for developers building embedded software, protocol handlers,
 smart-card tooling, and binary-data inspection utilities. It is especially useful
 when the application needs to own its buffers and control memory use.
 
-- **Allocation-free C core:** write into caller-owned storage with capacity checks.
+- **Allocation-free processing:** read and write using caller-owned buffers and explicit workspaces.
 - **Zero-copy value reads:** parsed values borrow the input buffer.
 - **Selectable formats and standard-specific capabilities:** use built-in encodings or supply custom callbacks.
-- **Composable processing:** add traversal, schemas, value codecs, or recovery scanning as needed.
+- **Composable processing:** use Reader and Writer, Tree Reader and Tree Writer,
+  Visitor traversal, Query, Schema, Codec and diagnostics as needed.
+- **Owned editing:** use mutable Document to own, edit and re-encode a message.
 - **Include only what you need:** build just the core, or add a single format such as BER; components you leave out are not compiled. Bindings should follow the same rule, but the Rust bindings do not select components yet. See [architecture](docs/concepts/architecture.md#include-only-what-you-need).
 
-The C++ layer offers convenience wrappers; error strings and dynamic containers
-can allocate. Applications requiring strictly allocation-free behavior should use
-the C API. Raw TLV reading does not interpret values or validate an entire protocol.
+Borrowed and streaming processing can avoid building an owned tree; Document
+explicitly owns its data and allocates storage. C++ and binding conveniences may
+also allocate; choose APIs according to the application's memory requirements.
+Raw TLV reading does not interpret values or validate an entire protocol.
+
+Format describes wire encoding, Layout locates encoded fields, and Element
+represents semantic content. Schema and Codec add structure and value semantics.
+Reader, Writer, Query and Document reuse these contracts; see the
+[architecture](docs/concepts/architecture.md#conceptual-model) and
+[binding model](docs/concepts/bindings.md) for details.
 
 See [choosing a format](docs/formats/README.md#choose-a-format) and
 [memory ownership](docs/guides/memory.md) for practical guidance.
+Start with [processing choices](docs/guides/processing.md),
+[executable examples](docs/guides/examples.md), or the language guides for
+[C++](docs/guides/cxx-examples.md), [Rust](docs/guides/rust.md),
+[Python](docs/guides/python.md), [Lua](docs/guides/lua.md) and
+[Go](docs/guides/go.md). The [roadmap](ROADMAP.md) separates current execution
+capabilities from planned OTLV, compilation and Protocol Inference.
 
 ## Format and standard support
 
@@ -53,11 +71,12 @@ Built-in components are enabled by default and can be selected with
   - [x] Sequential traversal
   - [x] Structural schema validation
   - [ ] Mixed-format child traversal with automatic format selection
-  - [ ] Incremental parsing across input chunks
+  - [x] Resumable Reader and Tree Reader over caller-assembled contiguous input windows
 - **Wire formats**
   - **Default and fixed-width**
     - [x] **Bluetooth LTV** - length-before-type framing used by Bluetooth advertising data, values up to 254 bytes. [Details](docs/formats/bluetooth/README.md) [Tree and bytes](docs/formats/bluetooth/README.md#byte-example)
     - [x] **LLDP TLV support** - packed headers, base definitions, LLDPDU structural validation, allocation-free value codecs and binding framing presets. [Details](docs/formats/lldp/README.md)
+    - [x] **Configurable variable-width TLV** - generic identifier and short/long length composition, without protocol policy. [Details](docs/formats/variable.md)
     - [x] **Configurable fixed-width TLV** - independent tag width, length width (1-8 bytes) and length byte order, chosen at runtime (C) or compile time (C++). [Details](docs/formats/fixed/configurable.md) [Tree and bytes](docs/formats/fixed/configurable.md#wire-layout)
   - **NFC tag memory framing**
     - [x] **NFC Type 2 Tag TLV** - contiguous data-area streams, NULL/Terminator and short/extended lengths; opaque NDEF. [Details](docs/formats/nfc/README.md)
@@ -81,6 +100,7 @@ Built-in components are enabled by default and can be selected with
     - [ ] **EMV contactless kernels**
     - [ ] **GlobalPlatform DGI encoding**
   - **Networking**
+    - [x] **DHCPv4 option framing** - Pad/End controls, option definitions and explicitly selected Value codecs; caller owns packet semantics. [Details](docs/formats/dhcp/README.md)
     - [ ] **NDN packet TLV format**
     - [ ] **PEAP TLV structures**
     - [ ] **RADIUS attribute encoding**
@@ -93,7 +113,7 @@ generic core. Protocol entries above refer to their data encodings and explicitl
 named validation functionality, not complete networking or device stacks.
 
 Tree traversal visits borrowed values without building an allocated object tree.
-Applications that must change a message can opt into the separate, allocating
+Applications that must change a message can use the canonical owned, allocating
 [mutable document](docs/guides/document.md), which parses TLV into an owned tree
 and encodes it again.
 For definite-length containers, the value length covers the complete child
@@ -114,12 +134,13 @@ support never means full protocol support.
 | ASN.1 notation (X.680) | Wider type coverage, BER/CER schema variants, open types, optional schema generator | Extends the [DER schema subset](docs/standards/der/README.md#schema-aware-validation-and-encoding) |
 | ASN.1 standards | X.509, PKCS#1, PKCS#7, PKCS#8, PKCS#10, CMS/S-MIME, Kerberos, OCSP | Schemas over [DER/BER](docs/standards/der/README.md) |
 | Smart cards and SIM | ISO 7816 (BER-TLV and SIMPLE-TLV), GlobalPlatform beyond DGI, eSIM, SIM Toolkit, NFC Type 1 tag TLV container | BER reuse plus new adapters |
-| Networking | IS-IS, DHCPv4/DHCPv6, LDP, RFC 5444 TLV blocks, Diameter | New adapters |
+| Networking | IS-IS, DHCPv6, LDP, RFC 5444 TLV blocks, Diameter | New adapters; DHCPv4 option framing is implemented |
 | Telecommunications | PFCP, GTPv2-C, GTPv1-C, NAS | New adapters and schemas |
 | Excluded (not TLV) | CBOR, CWT, COSE, QUIC frames, NDEF records, ASN.1 PER/OER/XER (S1AP, X2AP, NGAP) | Different encodings; out of scope |
 
 See [format expansion candidates](docs/formats/format-roadmap.md) for the catalogue
 tree, scope rules, framing requirements, and proposed priorities, and the
+[implemented capability inventory](docs/formats/support.md) and
 [candidate catalogue](docs/formats/format-catalogue.md) for specifications, required
 components, variants, limitations, and what was checked against the primary text. Scheduled work is tracked
 in [issues](https://github.com/marekcingel/OpenTLV/issues).
@@ -258,6 +279,11 @@ standards. Phase 2 makes the complete wire, structural and semantic model
 runtime-configurable through `.otlv`, a canonical IR and an immutable runtime
 model. Phase 3 reuses that frontend and IR to generate specialized implementations
 with equivalent semantics, completing the planned foundational architecture.
+
+After that foundation, planned Protocol Inference would refine structural
+candidates from observed traffic and export editable `.otlv` models, reusing
+the normal execution engine and retaining inspectable evidence. AI remains
+optional; the direction does not define finalized APIs or algorithms.
 
 See [ROADMAP.md](ROADMAP.md) for scope and milestone descriptions. Future APIs
 and language syntax remain planned. Architectural phases are separate from
