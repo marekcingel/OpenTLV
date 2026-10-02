@@ -2,7 +2,7 @@
 // Copyright (c) 2026 Marek Cingel
 
 /*
- * luaopen_opentlv_native(): the entry point require("opentlv_native") loads.
+ * luaopen_opentlv__core(): the entry point require("opentlv._core") loads.
  * Ties together the format (format.c), reader (reader.c), writer (writer.c), traversal
  * (visitor.c), error (error.c) and shared (common.c) pieces into the module
  * table Lua sees; the OpenTLV C reader itself (tlv/reader/) does the actual
@@ -12,7 +12,7 @@
  * This is the native module, not the one callers require: `require("opentlv")`
  * resolves to lua/opentlv/init.lua, a one-line pure-Lua file that returns
  * this module unchanged, the same native/pure split Python's
- * opentlv-native/opentlv and Rust's opentlv-native/opentlv already use.
+ * opentlv-core/opentlv and Rust's opentlv-sys/opentlv already use.
  *
  * Rule for what belongs here versus in tlv/: functionality that would be
  * useful outside Lua belongs in the OpenTLV C API, not in this binding.
@@ -51,7 +51,7 @@ static int l_strerror(lua_State* L) {
     return 1;
 }
 
-int luaopen_opentlv_native(lua_State* L) {
+int luaopen_opentlv__core(lua_State* L) {
     lua_newtable(L);
     int module_index = lua_gettop(L);
 

@@ -3,7 +3,7 @@
 
 """Generic identifier metadata; registry lookup delegates to C."""
 from dataclasses import dataclass
-import opentlv_native as _native
+import _opentlv as _native
 from opentlv.tag import Tag
 
 

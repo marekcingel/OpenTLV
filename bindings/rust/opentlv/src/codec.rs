@@ -16,7 +16,7 @@ use std::mem::{self, MaybeUninit};
 use std::os::raw::c_char;
 use std::ptr;
 
-use opentlv_native as native;
+use opentlv_sys as native;
 
 /// An error of a value conversion, mapped from a `tlv_codec_result_t`.
 ///

@@ -3,7 +3,7 @@
 
 """Python bindings for OpenTLV.
 
-This package wraps ``opentlv_native``, the native extension that registers
+This package wraps ``_opentlv``, the native extension that registers
 the public OpenTLV C API as Python callables, into an idiomatic API that
 follows the OpenTLV conceptual model: see [Language
 bindings](https://github.com/marekcingel/OpenTLV/blob/main/docs/concepts/bindings.md).
@@ -15,7 +15,7 @@ Currently bound: `Reader`, `TreeReader`, `Query`/`QueryMatcher`, Visitors,
 Other public C codecs remain a capability gap.
 """
 
-from opentlv_native import version_string
+from _opentlv import version_string
 
 from opentlv.definition import Definition, DefinitionRegistry
 from opentlv import codec

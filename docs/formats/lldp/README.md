@@ -164,7 +164,7 @@ All presets select the shared C descriptor; bindings do not reimplement packing.
 | --- | --- | --- |
 | C++ | `tlv::lldp_format()` | Requires the LLDP C package |
 | Rust | `Format::Lldp`, name `lldp` | Cargo feature `lldp`, enabled by default |
-| Python | `Format.LLDP` | Member exists only when `opentlv_native.HAS_LLDP` is true |
+| Python | `Format.LLDP` | Member exists only when `_opentlv.HAS_LLDP` is true |
 | Lua | `opentlv.formats.lldp` | Field exists only when LLDP is built |
 | JavaScript/WASM | `{ format: "lldp" }` | Listed in the loaded module's `opentlv.formats` only when built |
 

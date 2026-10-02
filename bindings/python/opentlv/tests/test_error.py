@@ -1,7 +1,7 @@
 # SPDX-License-Identifier: MIT
 # Copyright (c) 2026 Marek Cingel
 
-import opentlv_native as native
+import _opentlv as native
 
 from opentlv.error import (
     BufferTooShortError,

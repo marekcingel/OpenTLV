@@ -7,7 +7,7 @@ from __future__ import annotations
 
 from typing import Union
 
-import opentlv_native as _native
+import _opentlv as _native
 
 from opentlv.element import Element
 from opentlv.error import BufferTooShortError, _from_native

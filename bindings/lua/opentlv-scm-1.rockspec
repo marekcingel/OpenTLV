@@ -44,9 +44,10 @@ build = {
       "-DLUA_INCLUDE_DIR=$(LUA_INCDIR) && " ..
       "cmake --build build --target opentlv_lua --config Release",
    -- Installs both halves of the native/pure split (see README.md):
-   -- opentlv_native (the compiled module) and lua/opentlv/init.lua, the
+   -- opentlv._core (the compiled module) and lua/opentlv/init.lua, the
    -- one-line pure-Lua file require("opentlv") actually resolves to.
-   install_command = "cmake -E copy build/bindings/lua/opentlv_native.$(LIB_EXTENSION) $(LIBDIR) && " ..
+   install_command = "cmake -E make_directory $(LIBDIR)/opentlv && " ..
+      "cmake -E copy build/bindings/lua/opentlv/_core.$(LIB_EXTENSION) $(LIBDIR)/opentlv/_core.$(LIB_EXTENSION) && " ..
       "cmake -E make_directory $(LUADIR)/opentlv && " ..
       "cmake -E copy lua/opentlv/init.lua $(LUADIR)/opentlv/init.lua"
 }

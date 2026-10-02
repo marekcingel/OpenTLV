@@ -14,7 +14,7 @@
 #define OPENTLV_LUA_ERROR_MT "opentlv.Error"
 
 /* Registers the "opentlv.Error" metatable (__tostring only). Call once from
- * luaopen_opentlv_native(). */
+ * luaopen_opentlv__core(). */
 void opentlv_lua_open_error(lua_State* L);
 
 /* Sets module_table["errors"] = { OK = 0, BUFFER_TOO_SHORT = 1, ... }, one

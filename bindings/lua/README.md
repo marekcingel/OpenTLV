@@ -1,11 +1,11 @@
 # opentlv (Lua, experimental)
 
 Lua bindings to the [OpenTLV](https://github.com/marekcingel/OpenTLV) C API:
-two pieces, `opentlv-native` (`src/`, built directly against the Lua C API,
+two pieces, `opentlv._core` (`src/`, built directly against the Lua C API,
 binding `Reader`, `Writer`, `TreeWriter`, `Schema`, `Codec`, `Element`, `Tag` and preorder tree traversal) and `opentlv`
 (`lua/opentlv/init.lua`, a one-line pure-Lua entry point on top of it) — the
-same native/pure split as the Python `opentlv-native`/`opentlv` and Rust
-`opentlv-native`/`opentlv` packages. Targets Lua 5.1 through 5.4 and LuaJIT.
+same native/pure split as the Python `opentlv-core`/`opentlv` and Rust
+`opentlv-sys`/`opentlv` packages. Targets Lua 5.1 through 5.4 and LuaJIT.
 See [Lua bindings](https://marekcingel.github.io/OpenTLV/development/lua/)
 and [using OpenTLV from Lua](https://marekcingel.github.io/OpenTLV/guides/lua/).
 
@@ -37,7 +37,7 @@ cmake -S . -B build-lua -DOPENTLV_BUILD_LUA=ON -DCMAKE_BUILD_TYPE=Release \
 cmake --build build-lua --target opentlv_lua
 ```
 
-This produces `opentlv_native.so` (`opentlv_native.dll` on Windows) under
+This produces `opentlv/_core.so` (`opentlv/_core.dll` on Windows) under
 `build-lua/bindings/lua/`; put it on `LUA_CPATH`, and put this directory's
 `lua/` on `LUA_PATH` (or copy both next to your script), so
 `require("opentlv")` finds `lua/opentlv/init.lua`, which in turn finds the
@@ -71,7 +71,7 @@ Alternatively, from this directory:
 luarocks make
 ```
 
-which installs both `opentlv_native` and `lua/opentlv/init.lua` in one step.
+which installs both `opentlv._core` and `lua/opentlv/init.lua` in one step.
 
 ## Test
 

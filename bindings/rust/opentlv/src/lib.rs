@@ -3,7 +3,7 @@
 
 //! Safe Rust bindings for OpenTLV.
 //!
-//! Raw C declarations live in `opentlv-native`; this crate wraps those calls
+//! Raw C declarations live in `opentlv-sys`; this crate wraps those calls
 //! with safe ownership and lifetime contracts. It provides [`Tag`], [`Element`],
 //! [`Error`] and [`Result`], the [`Reader`] that parses TLV buffers, the
 //! [`Writer`] that encodes them, and reports the library version. Higher-level
@@ -64,7 +64,7 @@
 //!
 //! # Relationship to the C API
 //!
-//! Every operation calls into the OpenTLV C library through `opentlv-native`, so
+//! Every operation calls into the OpenTLV C library through `opentlv-sys`, so
 //! behavior and error codes match the C API. The safe layer replaces pointer and
 //! length pairs with slices and lifetimes. [`TreeReader`], resumable Readers,
 //! Visitors and [`QueryMatcher`] delegate to the canonical C engines. Structure
@@ -131,7 +131,7 @@ use std::ffi::CStr;
 pub fn version() -> &'static str {
     // SAFETY: `tlv_version_string` returns a pointer to a static,
     // NUL-terminated ASCII string that is valid for the program's lifetime.
-    unsafe { CStr::from_ptr(opentlv_native::tlv_version_string()) }
+    unsafe { CStr::from_ptr(opentlv_sys::tlv_version_string()) }
         .to_str()
         .expect("OpenTLV version string is ASCII")
 }

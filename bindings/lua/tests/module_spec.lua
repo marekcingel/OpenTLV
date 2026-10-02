@@ -2,7 +2,7 @@
 -- Copyright (c) 2026 Marek Cingel
 
 -- Minimal module-loading test: require("opentlv") must succeed (resolving
--- through lua/opentlv/init.lua to the native opentlv_native module, see
+-- through lua/opentlv/init.lua to the native opentlv._core module, see
 -- src/module.c) and expose the top-level surface every other spec file
 -- exercises in depth. Detailed behavior belongs in
 -- format_spec/reader_spec/visitor_spec/error_spec, not here.
@@ -27,5 +27,6 @@ describe("require(\"opentlv\")", function()
 
     it("returns the same module table on every require()", function()
         assert(require("opentlv") == require("opentlv"))
+        assert(require("opentlv") == require("opentlv._core"))
     end)
 end)

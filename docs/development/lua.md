@@ -1,11 +1,11 @@
 # Lua bindings (experimental)
 
 The Lua bindings live in `bindings/lua/`, split the same way the [Python
-bindings](python.md) and [Rust bindings](rust.md) are: `opentlv-native`
+bindings](python.md) and [Rust bindings](rust.md) are: `opentlv._core`
 (`bindings/lua/src/`), a native extension module written directly against
 the Lua C API, and `opentlv` (`bindings/lua/lua/opentlv/init.lua`), a
 one-line pure-Lua entry point that `require("opentlv")` resolves to and that
-returns `opentlv-native` unchanged. Unlike Python's and Rust's pure layers,
+returns `opentlv._core` unchanged. Unlike Python's and Rust's pure layers,
 `opentlv` adds no ergonomics of its own beyond the name callers request:
 Lua's C API is close enough to the concepts this binding exposes (Reader,
 Writer, Tree Writer, Element, Tag) that there is nothing a Lua-side wrapper would usefully add
@@ -43,7 +43,7 @@ cmake --build build-lua --target opentlv_lua
 or, from `bindings/lua`, `luarocks make`, which drives the same CMake build
 and also installs `lua/opentlv/init.lua` (see
 `bindings/lua/opentlv-scm-1.rockspec`). Either way this produces
-`opentlv_native.so` (`opentlv_native.dll` on Windows); put it on
+`opentlv/_core.so` (`opentlv/_core.dll` on Windows); put it on
 `LUA_CPATH` and `bindings/lua/lua/` on `LUA_PATH` (`luarocks make` does the
 equivalent by installing into LuaRocks' own tree) so `require("opentlv")`
 resolves through `init.lua` to it.

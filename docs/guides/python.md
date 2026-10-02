@@ -10,7 +10,7 @@ details, see [Python bindings](../development/python.md).
 
 `Format.LLDP` selects [LLDP framing](../formats/lldp/README.md) when the native
 extension was built with `OPENTLV_LLDP=ON`. It is absent when the option is OFF;
-`opentlv_native.HAS_LLDP` reports the compiled selection.
+`_opentlv.HAS_LLDP` reports the compiled selection.
 
 The BER, CER and DER presets likewise follow `OPENTLV_FORMAT_BER`,
 `OPENTLV_FORMAT_CER` and `OPENTLV_FORMAT_DER`, with corresponding `HAS_BER`,
@@ -23,10 +23,10 @@ is disabled. The Python binding still requires `OPENTLV_DOCUMENT=ON`.
 
 Neither package is published to PyPI yet. Install both by path from a
 checkout of the repository, in one `pip install` call so the `opentlv`
-package's dependency on `opentlv-native` resolves to the local build:
+package's dependency on `opentlv-core` resolves to the local build:
 
 ```sh
-pip install ./bindings/python/opentlv-native ./bindings/python/opentlv
+pip install ./bindings/python/opentlv-core ./bindings/python/opentlv
 ```
 
 This requires Python 3.11 or newer, CMake 3.26 or newer and a C99 compiler;
@@ -257,11 +257,11 @@ advance past malformed input.
 
 ## Relationship to the C API
 
-`opentlv-native` (imported as `opentlv_native`) is a native extension written
+`opentlv-core` (imported as `_opentlv`) is a native extension written
 directly against the CPython C API (no pybind11, cffi or Cython) and the
 CPython Limited API, declaring and calling the public OpenTLV C API;
 `opentlv` wraps it and contains no C API calls of its own, the same split as
-the Rust `opentlv-native`/`opentlv` crates. `Reader` and `TreeReader` retain native C cursors for incremental input and
+the Rust `opentlv-sys`/`opentlv` crates. `Reader` and `TreeReader` retain native C cursors for incremental input and
 canonical traversal. `Writer` delegates each write to C and updates its Python
 position only after success. With `buffer=...`, output capacity is fixed;
 without it, the owned bytearray grows on a native capacity diagnostic.

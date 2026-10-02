@@ -8,7 +8,7 @@ from __future__ import annotations
 from typing import Iterator, Optional, Union
 from weakref import WeakValueDictionary
 
-import opentlv_native as _native
+import _opentlv as _native
 
 from opentlv.error import _from_native
 from opentlv.format import Format, _resolve_format

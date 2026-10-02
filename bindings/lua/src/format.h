@@ -40,7 +40,7 @@ typedef struct tlv_lua_format {
 /* Registers the "opentlv.Format" metatable, builds module_table["formats"]
  * and stashes BER (or nil when disabled) under OPENTLV_LUA_DEFAULT_FORMAT_KEY.
  * module_table must be on top of the stack; the stack is unchanged on
- * return. Call once from luaopen_opentlv_native(). */
+ * return. Call once from luaopen_opentlv__core(). */
 void opentlv_lua_open_format(lua_State* L, int module_table_index);
 
 /* Checks that the value at `arg` is an opentlv.Format, raising a Lua

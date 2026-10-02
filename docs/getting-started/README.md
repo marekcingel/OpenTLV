@@ -245,7 +245,7 @@ Save the example as `quick_start.py` in a checkout with both Python packages
 installed. It is
 [bindings/python/opentlv/examples/quick_start.py](../../bindings/python/opentlv/examples/quick_start.py).
 The `opentlv` package is not published to PyPI yet; install it, and the
-`opentlv-native` extension it depends on, by path from a checkout of the
+`opentlv-core` extension it depends on, by path from a checkout of the
 repository. See [Using OpenTLV from Python](../guides/python.md) for the full
 setup.
 
@@ -293,7 +293,7 @@ if __name__ == "__main__":
 Then use:
 
 ```sh
-pip install ./bindings/python/opentlv-native ./bindings/python/opentlv
+pip install ./bindings/python/opentlv-core ./bindings/python/opentlv
 python bindings/python/opentlv/examples/quick_start.py
 ```
 

@@ -2,7 +2,7 @@
 # Copyright (c) 2026 Marek Cingel
 
 """Bounded owned buffers around the canonical C Tree Writer."""
-import opentlv_native as _native
+import _opentlv as _native
 from opentlv.error import _from_native
 from opentlv.fixed_format import FixedFormat
 from opentlv.format import _resolve_format

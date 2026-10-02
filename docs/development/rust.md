@@ -4,15 +4,15 @@ The Rust bindings live in `bindings/rust/`, a Cargo workspace with two crates:
 
 | Crate | Purpose |
 | --- | --- |
-| `opentlv-native` | Raw `extern "C"` declarations of the OpenTLV C API and the build script that links the C library |
-| `opentlv` | Safe Rust API built on `opentlv-native` |
+| `opentlv-sys` | Raw `extern "C"` declarations of the OpenTLV C API and the build script that links the C library |
+| `opentlv` | Safe Rust API built on `opentlv-sys` |
 
 For setup, examples, error handling and ownership as a user, see
 [Using OpenTLV from Rust](../guides/rust.md). For the naming and shape this
 crate follows and adapts, see the [language bindings conceptual
 model](../concepts/bindings.md).
 
-Raw C declarations live in `opentlv-native`; safe facade implementations in
+Raw C declarations live in `opentlv-sys`; safe facade implementations in
 `opentlv` contain the audited unsafe calls and callback adapters. Only the part of the C API the safe crate needs is bound
 so far.
 
@@ -30,7 +30,7 @@ The `opentlv` crate exposes these safe types; none of them exposes a raw pointer
 | `FixedFormat<'a>` | `tlv_format_t` | Borrows a `&'a FixedFormatConfig`, mirroring the C `tlv_fixed_format_t`/`tlv_format_t` split directly; no heap allocation |
 | `ByteOrder` | `tlv_byte_order_t` | `Big` or `Little`, the length field's byte order for `FixedFormatConfig` |
 
-The C `tlv_tag_t` is a borrowed pointer and size (`opentlv_native::tlv_tag_t`), so
+The C `tlv_tag_t` is a borrowed pointer and size (`opentlv_sys::tlv_tag_t`), so
 its layout does not depend on how the library was built. `Tag` owns its bytes
 because the safe API cannot hand out a pointer whose lifetime C does not track;
 it converts to a borrowed C tag only for the duration of each call. A tag has no
@@ -217,7 +217,7 @@ on macOS).
 
 ## Document component
 
-The default-enabled `document` feature forwards to `opentlv-native/document`.
+The default-enabled `document` feature forwards to `opentlv-sys/document`.
 Source builds set `OPENTLV_DOCUMENT` to match. Prebuilt C libraries must enable
 that component when the Rust feature is enabled. Document runtime tests and a
 compile-fail lifetime example cover ownership, mutation, Query lookup, limits,

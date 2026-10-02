@@ -4,7 +4,7 @@
 """Ownership and source projections of canonical C Reader cursors."""
 from dataclasses import dataclass, field
 from enum import IntEnum
-import opentlv_native as _native
+import _opentlv as _native
 from opentlv.element import Element
 from opentlv.error import _from_native
 from opentlv.fixed_format import FixedFormat

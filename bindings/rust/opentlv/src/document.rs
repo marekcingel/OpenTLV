@@ -3,7 +3,7 @@
 
 //! Owning C Document with lifetime-bound reads and exclusive mutation.
 use crate::{Error, FixedFormat, Format, Query, ReaderDiagnostic, Result, Tag, TreeReader};
-use opentlv_native as native;
+use opentlv_sys as native;
 use std::{marker::PhantomData, mem::MaybeUninit, ptr, slice};
 
 /// Document failure, with a source offset or required output capacity when supplied by C.

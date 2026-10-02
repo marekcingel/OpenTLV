@@ -3,10 +3,10 @@
 
 -- Pure-Lua entry point for require("opentlv"). Every OpenTLV concept
 -- (Reader, Writer, Tree Writer, Schema, Element, Tag, traversal, errors) is bound in the
--- native opentlv_native module (bindings/lua/src/); this file only
+-- native opentlv._core module (bindings/lua/src/); this file only
 -- re-exports it under the name callers request, the same native/pure split
--- the Python opentlv-native/opentlv and Rust opentlv-native/opentlv
+-- the Python opentlv-core/opentlv and Rust opentlv-sys/opentlv
 -- packages use. It stays this thin on purpose: functionality useful outside
 -- Lua belongs in the OpenTLV C API, not in this binding (see
 -- docs/development/lua.md).
-return require("opentlv_native")
+return require("opentlv._core")

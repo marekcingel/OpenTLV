@@ -88,7 +88,7 @@ if(OPENTLV_BUILD_WASM)
 endif()
 
 if(OPENTLV_BUILD_PYTHON)
-    add_subdirectory(bindings/python/opentlv-native)
+    add_subdirectory(bindings/python/opentlv-core)
 endif()
 
 if(OPENTLV_BUILD_LUA)

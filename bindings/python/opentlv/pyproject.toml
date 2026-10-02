@@ -9,7 +9,7 @@ description = "Python bindings for OpenTLV, a portable C99 library for reading, 
 readme = "README.md"
 requires-python = ">=3.11"
 license = "MIT"
-dependencies = ["opentlv-native"]
+dependencies = ["opentlv-core"]
 
 [tool.hatch.build.targets.wheel]
 packages = ["src/opentlv"]

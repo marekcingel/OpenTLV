@@ -3,7 +3,7 @@
 
 //! Bounded tree output through the canonical C Tree Writer.
 use crate::{Element, Error, FixedFormat, Format, Result, Tag};
-use opentlv_native as native;
+use opentlv_sys as native;
 use std::{
     any::Any,
     ffi::c_void,

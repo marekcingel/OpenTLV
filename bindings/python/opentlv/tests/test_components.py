@@ -3,7 +3,7 @@
 
 """Run this module alone for builds with optional formats disabled."""
 import pytest
-import opentlv_native as native
+import _opentlv as native
 from opentlv import Document, FixedFormat, Format, Reader, Writer, codec, encoded_size
 
 

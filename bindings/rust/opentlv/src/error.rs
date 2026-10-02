@@ -7,7 +7,7 @@ use std::error;
 use std::ffi::CStr;
 use std::fmt;
 
-use opentlv_native as native;
+use opentlv_sys as native;
 
 /// An OpenTLV error, mapped from a non-zero `tlv_result_t`.
 ///

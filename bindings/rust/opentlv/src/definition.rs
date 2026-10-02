@@ -3,7 +3,7 @@
 
 //! Generic identifier metadata; lookup semantics belong to the C registry.
 use crate::Tag;
-use opentlv_native as native;
+use opentlv_sys as native;
 use std::ffi::CString;
 
 /// Identifier and optional descriptive name; no Schema or Codec is implied.
