@@ -3042,24 +3042,23 @@ distributions:</p>
 </thead>
 <tbody>
 <tr>
-<td><code>opentlv-native</code></td>
+<td><code>opentlv-core</code></td>
 <td>Native extension, written directly against the CPython C API; registers the OpenTLV C API as Python callables</td>
 </tr>
 <tr>
 <td><code>opentlv</code></td>
-<td>Pure-Python package built on <code>opentlv-native</code></td>
+<td>Pure-Python package built on <code>opentlv-core</code></td>
 </tr>
 </tbody>
 </table>
-<p>This mirrors the Rust bindings' <code>opentlv-native</code>/<code>opentlv</code> split (see <a href="../rust/">Rust
+<p>This mirrors the Rust bindings' <code>opentlv-sys</code>/<code>opentlv</code> split (see <a href="../rust/">Rust
 bindings</a>): all CPython C API interaction is isolated in
-<code>opentlv-native</code>; <code>opentlv</code> is plain Python and imports
-<code>opentlv_native</code> directly (there is no intermediate underscore-prefixed
-submodule; <code>import opentlv_native</code> resolves straight to the compiled
+<code>opentlv-core</code>; <code>opentlv</code> is plain Python and imports
+the private <code>_opentlv</code> module directly (<code>import _opentlv</code> resolves to the compiled
 extension). For setup and usage, see <a href="../../guides/python/">Using OpenTLV from
 Python</a>. For the naming and shape this binding follows
 and adapts, see the <a href="../../concepts/bindings/">language bindings conceptual model</a>.</p>
-<p><code>opentlv-native</code> exposes the linked library's version, stateless
+<p><code>opentlv-core</code> exposes the linked library's version, stateless
 element-parsing and -encoding calls (<code>read</code>, <code>write</code>, <code>encoded_size</code>)
 parameterized by wire format, their <code>*_fixed</code> counterparts
 (<code>read_fixed</code>, <code>write_fixed</code>, <code>encoded_size_fixed</code>) for the configurable
@@ -3075,24 +3074,24 @@ exception hierarchy and the narrow <code>codec</code> submodule on top of it; se
 OpenTLV from Python</a>.</p>
 <h2 id="build">Build<a class="headerlink" href="#build" title="Permanent link">&para;</a></h2>
 <p>Requirements: Python 3.11 or newer, CMake 3.26 or newer and a C99 compiler.</p>
-<div class="highlight"><pre><span></span><code><a id="__codelineno-0-1" name="__codelineno-0-1" href="#__codelineno-0-1"></a>pip<span class="w"> </span>install<span class="w"> </span>./bindings/python/opentlv-native<span class="w"> </span>./bindings/python/opentlv
+<div class="highlight"><pre><span></span><code><a id="__codelineno-0-1" name="__codelineno-0-1" href="#__codelineno-0-1"></a>pip<span class="w"> </span>install<span class="w"> </span>./bindings/python/opentlv-core<span class="w"> </span>./bindings/python/opentlv
 <a id="__codelineno-0-2" name="__codelineno-0-2" href="#__codelineno-0-2"></a>pip<span class="w"> </span>install<span class="w"> </span>pytest
 <a id="__codelineno-0-3" name="__codelineno-0-3" href="#__codelineno-0-3"></a>pytest<span class="w"> </span>bindings/python/opentlv/tests
 </code></pre></div>
 <p><a href="https://scikit-build-core.readthedocs.io/">scikit-build-core</a> drives the
-<code>opentlv-native</code> build: it configures and builds the OpenTLV C library with
+<code>opentlv-core</code> build: it configures and builds the OpenTLV C library with
 CMake from the repository root
-(<code>bindings/python/opentlv-native/pyproject.toml</code> points
+(<code>bindings/python/opentlv-core/pyproject.toml</code> points
 <code>tool.scikit-build.cmake.source-dir</code> at it), as a static library, and links
 it into the extension. The C++ layer, CLI, tests and examples are not built.
 The extension is compiled against the CPython Limited API
 (<code>Py_LIMITED_API=0x030B0000</code>) as an <code>abi3</code> module, so one wheel per platform
 works on every Python 3.11 and newer. <code>opentlv</code> is a plain
 <a href="https://hatch.pypa.io/latest/plugins/builder/wheel/">hatchling</a>-built wheel
-with no compiled component; it declares <code>opentlv-native</code> as a dependency.
+with no compiled component; it declares <code>opentlv-core</code> as a dependency.
 Neither package is published anywhere yet, so install both together from a
 checkout, as above; when installed in the same <code>pip install</code> invocation, pip
-resolves <code>opentlv</code>'s <code>opentlv-native</code> dependency against the local wheel it
+resolves <code>opentlv</code>'s <code>opentlv-core</code> dependency against the local wheel it
 just built instead of looking on PyPI.</p>
 <h2 id="versioning">Versioning<a class="headerlink" href="#versioning" title="Permanent link">&para;</a></h2>
 <p>Each package's own version, declared in its <code>pyproject.toml</code>, is independent
@@ -3100,14 +3099,14 @@ of the OpenTLV C library's version and is not derived from the repository's
 Git tags; it follows its own release cadence, the same way the Rust crates'
 <code>Cargo.toml</code> version does (see <a href="../rust/#versioning">Rust bindings</a>).
 <code>opentlv.__version__</code> is a separate thing: it calls <code>tlv_version_string()</code> at
-import time (through <code>opentlv-native</code>) and reports the version of the
+import time (through <code>opentlv-core</code>) and reports the version of the
 <em>linked C library</em>, not either package's own version. The two can differ,
 for example packages at <code>0.1.0</code> built against OpenTLV C library <code>0.6.0</code>.</p>
 <h2 id="continuous-integration">Continuous integration<a class="headerlink" href="#continuous-integration" title="Permanent link">&para;</a></h2>
 <p>The <a href="https://github.com/marekcingel/OpenTLV/blob/main/.github/workflows/python.yml">Python Bindings
 workflow</a>
 runs on every push and pull request to <code>main</code>: it installs both packages with
-<code>pip install ./bindings/python/opentlv-native ./bindings/python/opentlv</code> and
+<code>pip install ./bindings/python/opentlv-core ./bindings/python/opentlv</code> and
 runs <code>pytest bindings/python/opentlv/tests</code> on Linux, and additionally on
 Windows and macOS for release tags.</p>
 

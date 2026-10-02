@@ -3217,12 +3217,12 @@
 </thead>
 <tbody>
 <tr>
-<td><code>opentlv-native</code></td>
+<td><code>opentlv-sys</code></td>
 <td>Raw <code>extern "C"</code> declarations of the OpenTLV C API and the build script that links the C library</td>
 </tr>
 <tr>
 <td><code>opentlv</code></td>
-<td>Safe Rust API built on <code>opentlv-native</code></td>
+<td>Safe Rust API built on <code>opentlv-sys</code></td>
 </tr>
 </tbody>
 </table>
@@ -3230,7 +3230,7 @@
 <a href="../../guides/rust/">Using OpenTLV from Rust</a>. For the naming and shape this
 crate follows and adapts, see the <a href="../../concepts/bindings/">language bindings conceptual
 model</a>.</p>
-<p>Raw C declarations live in <code>opentlv-native</code>; safe facade implementations in
+<p>Raw C declarations live in <code>opentlv-sys</code>; safe facade implementations in
 <code>opentlv</code> contain the audited unsafe calls and callback adapters. Only the part of the C API the safe crate needs is bound
 so far.</p>
 <h2 id="core-types">Core types<a class="headerlink" href="#core-types" title="Permanent link">&para;</a></h2>
@@ -3281,7 +3281,7 @@ so far.</p>
 </tr>
 </tbody>
 </table>
-<p>The C <code>tlv_tag_t</code> is a borrowed pointer and size (<code>opentlv_native::tlv_tag_t</code>), so
+<p>The C <code>tlv_tag_t</code> is a borrowed pointer and size (<code>opentlv_sys::tlv_tag_t</code>), so
 its layout does not depend on how the library was built. <code>Tag</code> owns its bytes
 because the safe API cannot hand out a pointer whose lifetime C does not track;
 it converts to a borrowed C tag only for the duration of each call. A tag has no
@@ -3441,7 +3441,7 @@ default CMake build). With a shared library, the platform's loader must find it
 at run time (<code>PATH</code> on Windows, <code>LD_LIBRARY_PATH</code> on Linux, <code>DYLD_LIBRARY_PATH</code>
 on macOS).</p>
 <h2 id="document-component">Document component<a class="headerlink" href="#document-component" title="Permanent link">&para;</a></h2>
-<p>The default-enabled <code>document</code> feature forwards to <code>opentlv-native/document</code>.
+<p>The default-enabled <code>document</code> feature forwards to <code>opentlv-sys/document</code>.
 Source builds set <code>OPENTLV_DOCUMENT</code> to match. Prebuilt C libraries must enable
 that component when the Rust feature is enabled. Document runtime tests and a
 compile-fail lifetime example cover ownership, mutation, Query lookup, limits,

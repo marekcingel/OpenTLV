@@ -3193,7 +3193,7 @@ details, see <a href="../../development/python/">Python bindings</a>.</p>
 <h2 id="setup">Setup<a class="headerlink" href="#setup" title="Permanent link">&para;</a></h2>
 <p><code>Format.LLDP</code> selects <a href="../../formats/lldp/">LLDP framing</a> when the native
 extension was built with <code>OPENTLV_LLDP=ON</code>. It is absent when the option is OFF;
-<code>opentlv_native.HAS_LLDP</code> reports the compiled selection.</p>
+<code>_opentlv.HAS_LLDP</code> reports the compiled selection.</p>
 <p>The BER, CER and DER presets likewise follow <code>OPENTLV_FORMAT_BER</code>,
 <code>OPENTLV_FORMAT_CER</code> and <code>OPENTLV_FORMAT_DER</code>, with corresponding <code>HAS_BER</code>,
 <code>HAS_CER</code> and <code>HAS_DER</code> flags. Disabled presets are absent from <code>Format</code>.
@@ -3204,8 +3204,8 @@ EMV amount functions raise <code>NotImplementedError</code> when <code>OPENTLV_E
 is disabled. The Python binding still requires <code>OPENTLV_DOCUMENT=ON</code>.</p>
 <p>Neither package is published to PyPI yet. Install both by path from a
 checkout of the repository, in one <code>pip install</code> call so the <code>opentlv</code>
-package's dependency on <code>opentlv-native</code> resolves to the local build:</p>
-<div class="highlight"><pre><span></span><code><a id="__codelineno-0-1" name="__codelineno-0-1" href="#__codelineno-0-1"></a>pip<span class="w"> </span>install<span class="w"> </span>./bindings/python/opentlv-native<span class="w"> </span>./bindings/python/opentlv
+package's dependency on <code>opentlv-core</code> resolves to the local build:</p>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-0-1" name="__codelineno-0-1" href="#__codelineno-0-1"></a>pip<span class="w"> </span>install<span class="w"> </span>./bindings/python/opentlv-core<span class="w"> </span>./bindings/python/opentlv
 </code></pre></div>
 <p>This requires Python 3.11 or newer, CMake 3.26 or newer and a C99 compiler;
 see <a href="../../development/python/#build">Build</a>.</p>
@@ -3388,11 +3388,11 @@ Fields the failure does not report are <code>None</code>.</p>
 every further call instead of retrying: the underlying C reader does not
 advance past malformed input.</p>
 <h2 id="relationship-to-the-c-api">Relationship to the C API<a class="headerlink" href="#relationship-to-the-c-api" title="Permanent link">&para;</a></h2>
-<p><code>opentlv-native</code> (imported as <code>opentlv_native</code>) is a native extension written
+<p><code>opentlv-core</code> (imported as <code>_opentlv</code>) is a native extension written
 directly against the CPython C API (no pybind11, cffi or Cython) and the
 CPython Limited API, declaring and calling the public OpenTLV C API;
 <code>opentlv</code> wraps it and contains no C API calls of its own, the same split as
-the Rust <code>opentlv-native</code>/<code>opentlv</code> crates. <code>Reader</code> and <code>TreeReader</code> retain native C cursors for incremental input and
+the Rust <code>opentlv-sys</code>/<code>opentlv</code> crates. <code>Reader</code> and <code>TreeReader</code> retain native C cursors for incremental input and
 canonical traversal. <code>Writer</code> delegates each write to C and updates its Python
 position only after success. With <code>buffer=...</code>, output capacity is fixed;
 without it, the owned bytearray grows on a native capacity diagnostic.

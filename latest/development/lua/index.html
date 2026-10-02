@@ -3120,11 +3120,11 @@
 
 <h1 id="lua-bindings-experimental">Lua bindings (experimental)<a class="headerlink" href="#lua-bindings-experimental" title="Permanent link">&para;</a></h1>
 <p>The Lua bindings live in <code>bindings/lua/</code>, split the same way the <a href="../python/">Python
-bindings</a> and <a href="../rust/">Rust bindings</a> are: <code>opentlv-native</code>
+bindings</a> and <a href="../rust/">Rust bindings</a> are: <code>opentlv._core</code>
 (<code>bindings/lua/src/</code>), a native extension module written directly against
 the Lua C API, and <code>opentlv</code> (<code>bindings/lua/lua/opentlv/init.lua</code>), a
 one-line pure-Lua entry point that <code>require("opentlv")</code> resolves to and that
-returns <code>opentlv-native</code> unchanged. Unlike Python's and Rust's pure layers,
+returns <code>opentlv._core</code> unchanged. Unlike Python's and Rust's pure layers,
 <code>opentlv</code> adds no ergonomics of its own beyond the name callers request:
 Lua's C API is close enough to the concepts this binding exposes (Reader,
 Writer, Tree Writer, Element, Tag) that there is nothing a Lua-side wrapper would usefully add
@@ -3156,7 +3156,7 @@ or LuaJIT headers and library.</p>
 <p>or, from <code>bindings/lua</code>, <code>luarocks make</code>, which drives the same CMake build
 and also installs <code>lua/opentlv/init.lua</code> (see
 <code>bindings/lua/opentlv-scm-1.rockspec</code>). Either way this produces
-<code>opentlv_native.so</code> (<code>opentlv_native.dll</code> on Windows); put it on
+<code>opentlv/_core.so</code> (<code>opentlv/_core.dll</code> on Windows); put it on
 <code>LUA_CPATH</code> and <code>bindings/lua/lua/</code> on <code>LUA_PATH</code> (<code>luarocks make</code> does the
 equivalent by installing into LuaRocks' own tree) so <code>require("opentlv")</code>
 resolves through <code>init.lua</code> to it.</p>

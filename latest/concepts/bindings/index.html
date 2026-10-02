@@ -1128,6 +1128,17 @@
 </li>
       
         <li class="md-nav__item">
+  <a href="#implementation-package-names" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Implementation package names
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
   <a href="#see-also" class="md-nav__link">
     <span class="md-ellipsis">
       
@@ -3205,6 +3216,17 @@
 </li>
       
         <li class="md-nav__item">
+  <a href="#implementation-package-names" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Implementation package names
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
   <a href="#see-also" class="md-nav__link">
     <span class="md-ellipsis">
       
@@ -3270,8 +3292,9 @@ ergonomics to the target language.</p>
 </code></pre></div>
 <p>C++, Rust and Python expose Readers, Writers and Document facades today.
 Lua (<code>bindings/lua/</code>) currently binds Reader, Writer, Tree Writer, Schema, Value Codec, Element and Tag.
-Go is illustrative here, not yet scaffolded, to show the contract extends past the
-current bindings. The trailing <code>...</code> stands for any further binding.</p>
+Go (<code>bindings/go/</code>) currently provides a module scaffold and linked-library
+version access; its processing facade is future work. The trailing <code>...</code> stands
+for any further binding.</p>
 <p>The public OpenTLV C API (see the <a href="../../reference/c-api/">C API reference</a>) is
 the single language boundary every binding wraps. A binding calls into the C
 library directly for parsing, encoding, validation and codec work instead of
@@ -3569,7 +3592,8 @@ coverage still needs verification; it must not be counted as parity.</p>
 </tr>
 </tbody>
 </table>
-<p>Go and Java are future bindings, not existing implementations to mark complete.
+<p>Go has an initial module scaffold; its processing APIs and Java remain future
+work, not existing implementations to mark complete.
 The current WASM tooling embedding exposes only a parse-to-JSON operation; it
 does not satisfy general binding parity. Its classification is described below.
 Neither an experimental label nor an FFI declaration closes a matrix gap.</p>
@@ -3884,18 +3908,18 @@ it. For example:</p>
   the C API rather than a binding this contract's Reader/Writer/Element shape
   applies to. See <a href="../../development/webassembly/">WebAssembly build</a>.</li>
 <li><strong>Python</strong>: experimental, in <code>bindings/python/</code>, split into
-  <code>opentlv-native</code> (a native extension written against the CPython C API,
+  <code>opentlv-core</code> (a native extension written against the CPython C API,
   using the CPython Limited API where compatible, that calls the public C
   API) and <code>opentlv</code> (a pure-Python package on top of it) — the same split
-  as the Rust <code>opentlv-native</code>/<code>opentlv</code> crates. Covers Reader, Writer,
+  as the Rust <code>opentlv-sys</code>/<code>opentlv</code> crates. Covers Reader, Writer,
   Tree Reader/Writer, Query, Visitors, Document, Element, Tag and Schema.
   Codec coverage includes configured numeric codecs and the EMV amount codec;
   other public C codecs still need facade support. See <a href="../../development/python/">Python bindings</a>
   and <a href="../../guides/python/">using OpenTLV from Python</a>.</li>
-<li><strong>Lua</strong>: experimental, in <code>bindings/lua/</code>, split into <code>opentlv-native</code> (a
+<li><strong>Lua</strong>: experimental, in <code>bindings/lua/</code>, split into <code>opentlv._core</code> (a
   native extension written directly against the Lua C API) and <code>opentlv</code>
   (a one-line pure-Lua entry point on top of it, <code>lua/opentlv/init.lua</code>) —
-  the same split as the Rust and Python <code>opentlv-native</code>/<code>opentlv</code> packages,
+  the same split as the Rust <code>opentlv-sys</code>/<code>opentlv</code> and Python <code>opentlv-core</code>/<code>opentlv</code> packages,
   though here the pure layer adds no ergonomics of its own, since Lua's C
   API is already close to the concepts bound. Targets Lua 5.1 through 5.4
   and LuaJIT. Covers Reader, Writer, Tree Writer, Element and Tag, across
@@ -3907,9 +3931,26 @@ it. For example:</p>
   EMV dictionary selection and custom callbacks through <code>tlv_codec_t</code> (#302).
   Structure codecs remain unbound. See <a href="../../development/lua/">Lua bindings</a> and
   <a href="../../guides/lua/">using OpenTLV from Lua</a>.</li>
-<li><strong>Go</strong>: planned, not started yet. No <code>bindings/go/</code> directory exists; when
-  work on it begins, it follows this contract like the Rust crate does.</li>
+<li><strong>Go</strong>: experimental module scaffold in <code>bindings/go/</code>, with a public
+  <code>opentlv</code> package and a private <code>internal/capi</code> cgo bridge. It currently
+  exposes linked-library version information only; processing capability parity
+  remains future work. See the <a href="https://github.com/marekcingel/OpenTLV/blob/main/bindings/go/README.md">Go binding README</a>
+  for package boundaries, build requirements and a runnable example. (#472)</li>
 </ul>
+<h2 id="implementation-package-names">Implementation package names<a class="headerlink" href="#implementation-package-names" title="Permanent link">&para;</a></h2>
+<p>The binding boundary is shared; implementation names follow each language.
+Rust uses the raw FFI crate <code>opentlv-sys</code> (<code>opentlv_sys</code> in code). Python uses
+the private extension module <code>_opentlv</code>, distributed as <code>opentlv-core</code>. Lua
+loads <code>opentlv._core</code> from <code>opentlv/_core</code> under its native module search path.
+Go keeps its C bridge in <code>internal/capi</code>; <code>internal</code> enforces the private import
+boundary, while <code>capi</code> describes the package responsibility. Applications use
+the public <code>opentlv</code> facade in each language.</p>
+<p>For existing checkouts, update Rust dependencies from <code>opentlv-native</code> to
+<code>opentlv-sys</code> and raw imports from <code>opentlv_native</code> to <code>opentlv_sys</code>. Python
+install commands now use <code>bindings/python/opentlv-core</code>; code directly using
+the implementation extension imports <code>_opentlv</code>. Lua installation places the
+compiled module under <code>opentlv/_core</code>, and direct implementation imports use
+<code>require("opentlv._core")</code>. Public facade imports remain <code>opentlv</code>.</p>
 <h2 id="see-also">See also<a class="headerlink" href="#see-also" title="Permanent link">&para;</a></h2>
 <ul>
 <li><a href="../architecture/">Layered architecture</a> for how these concepts are
