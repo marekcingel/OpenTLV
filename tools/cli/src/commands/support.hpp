@@ -67,7 +67,7 @@ std::string hex_string(tlv::bytes bytes);
 
 // What every traversal of the input needs to know about the selected format.
 struct traversal_env {
-    const options*      options;
+    const cli::options* options;
     const tlv_format_t* format;
     bool                is_der;
 };
