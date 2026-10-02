@@ -1,3 +1,6 @@
+// SPDX-License-Identifier: MIT
+// Copyright (c) 2026 Marek Cingel
+
 #include "tlv/builtins/dhcp/dhcpv4.h"
 #include "tlv/reader/reader.h"
 #include "tlv/writer/writer.h"

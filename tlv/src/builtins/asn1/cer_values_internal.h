@@ -1,3 +1,6 @@
+// SPDX-License-Identifier: MIT
+// Copyright (c) 2026 Marek Cingel
+
 #ifndef OPENTLV_CER_VALUES_INTERNAL_H
 #define OPENTLV_CER_VALUES_INTERNAL_H
 #include "tlv/error.h"

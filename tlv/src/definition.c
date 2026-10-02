@@ -1,3 +1,6 @@
+// SPDX-License-Identifier: MIT
+// Copyright (c) 2026 Marek Cingel
+
 #include "tlv/definition.h"
 
 const tlv_definition_t* tlv_definition_find(const tlv_definition_registry_t* registry,

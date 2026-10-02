@@ -1,3 +1,6 @@
+// SPDX-License-Identifier: MIT
+// Copyright (c) 2026 Marek Cingel
+
 #include "tlv/codec/ipv4.h"
 #include "fixed_value_checks.h"
 

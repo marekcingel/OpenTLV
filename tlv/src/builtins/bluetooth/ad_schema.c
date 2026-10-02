@@ -1,3 +1,6 @@
+// SPDX-License-Identifier: MIT
+// Copyright (c) 2026 Marek Cingel
+
 #include "tlv/builtins/bluetooth/ad_schema.h"
 
 static const uint8_t identifiers[] = {0x01, 0x02, 0x03, 0x04, 0x05, 0x06, 0x07,

@@ -1,3 +1,6 @@
+// SPDX-License-Identifier: MIT
+// Copyright (c) 2026 Marek Cingel
+
 // Explicit allocation-free typed encoding, incremental Reader, and C interoperability.
 #include <tlv++/tlv.hpp>
 #include <tlv++/native.hpp>

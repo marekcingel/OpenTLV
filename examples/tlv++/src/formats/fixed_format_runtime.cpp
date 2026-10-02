@@ -1,3 +1,6 @@
+// SPDX-License-Identifier: MIT
+// Copyright (c) 2026 Marek Cingel
+
 // Defines a fixed-width TLV format at runtime from tlv++: two tag bytes and a
 // one-byte length, using the raw C tlv_fixed_format_t/tlv_fixed_format_init
 // through the explicit tlv::native interoperability boundary. See tlv/formats/fixed.h and

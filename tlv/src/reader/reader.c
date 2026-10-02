@@ -1,3 +1,6 @@
+// SPDX-License-Identifier: MIT
+// Copyright (c) 2026 Marek Cingel
+
 #include "tlv/reader/reader.h"
 #include <string.h>
 void tlv_reader_diagnostic_init(tlv_reader_diagnostic_t* diagnostic) {

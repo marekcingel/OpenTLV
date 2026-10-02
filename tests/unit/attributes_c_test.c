@@ -1,3 +1,6 @@
+// SPDX-License-Identifier: MIT
+// Copyright (c) 2026 Marek Cingel
+
 #include "tlv/attributes.h"
 
 TLV_NODISCARD static int nodiscard_answer(void) {

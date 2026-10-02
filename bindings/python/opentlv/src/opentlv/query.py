@@ -1,3 +1,6 @@
+# SPDX-License-Identifier: MIT
+# Copyright (c) 2026 Marek Cingel
+
 """Canonical C Query parsing and resumable matching."""
 import opentlv_native as _native
 from opentlv.cursor import TreeReader

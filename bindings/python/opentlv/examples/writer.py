@@ -1,3 +1,6 @@
+# SPDX-License-Identifier: MIT
+# Copyright (c) 2026 Marek Cingel
+
 """Shows the one place Python's Writer departs from the C, C++ and Rust
 writer: it owns a bytearray it grows as needed, instead of filling a
 caller-provided fixed-capacity buffer, so it never fails for lack of space.

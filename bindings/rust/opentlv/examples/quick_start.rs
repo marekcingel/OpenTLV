@@ -1,3 +1,6 @@
+// SPDX-License-Identifier: MIT
+// Copyright (c) 2026 Marek Cingel
+
 //! The simplest possible round trip: write one element with the
 //! configurable fixed-width format, then read it back. See parse.rs and
 //! write.rs for a nested BER document, and the C `quick_start.c` and C++

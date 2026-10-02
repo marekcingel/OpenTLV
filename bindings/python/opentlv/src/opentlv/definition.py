@@ -1,3 +1,6 @@
+# SPDX-License-Identifier: MIT
+# Copyright (c) 2026 Marek Cingel
+
 """Generic identifier metadata; registry lookup delegates to C."""
 from dataclasses import dataclass
 import opentlv_native as _native

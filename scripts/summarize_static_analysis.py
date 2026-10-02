@@ -1,3 +1,6 @@
+# SPDX-License-Identifier: MIT
+# Copyright (c) 2026 Marek Cingel
+
 """Append the findings of a cppcheck or clang-tidy log to the GitHub Actions step summary.
 
 Usage: summarize_static_analysis.py cppcheck|clang-tidy LOG_FILE

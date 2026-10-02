@@ -1,3 +1,6 @@
+// SPDX-License-Identifier: MIT
+// Copyright (c) 2026 Marek Cingel
+
 #include "visitor_input.h"
 #include "tlv/builtins/bluetooth/bluetooth_ltv.h"
 #include "tlv/copy.h"

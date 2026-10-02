@@ -1,3 +1,6 @@
+// SPDX-License-Identifier: MIT
+// Copyright (c) 2026 Marek Cingel
+
 //! Builds the same nested BER-TLV document `parse.rs` reads, encoding the
 //! innermost elements first and using each encoded result as the next
 //! level's value: the standard way to build constructed TLV bottom-up.

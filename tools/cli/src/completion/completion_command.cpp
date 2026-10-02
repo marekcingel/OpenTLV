@@ -1,3 +1,6 @@
+// SPDX-License-Identifier: MIT
+// Copyright (c) 2026 Marek Cingel
+
 #include "completion/completion_command.hpp"
 #include <iostream>
 #include <memory>

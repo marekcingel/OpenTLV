@@ -1,3 +1,6 @@
+// SPDX-License-Identifier: MIT
+// Copyright (c) 2026 Marek Cingel
+
 #ifndef OPENTLV_CLI_COMMANDS_VALIDATE_COMMAND_HPP
 #define OPENTLV_CLI_COMMANDS_VALIDATE_COMMAND_HPP
 #include "commands/traversal_command.hpp"

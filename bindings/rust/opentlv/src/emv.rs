@@ -1,3 +1,6 @@
+// SPDX-License-Identifier: MIT
+// Copyright (c) 2026 Marek Cingel
+
 //! The EMV module: data dictionary, contexts and per-tag codecs.
 //!
 //! Wraps the C library's EMV Contact Book 3 dictionary. Look a tag up with

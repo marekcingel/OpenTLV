@@ -1,3 +1,6 @@
+-- SPDX-License-Identifier: MIT
+-- Copyright (c) 2026 Marek Cingel
+
 local tlv = require("opentlv")
 local codec = tlv.codecs.uint16_be
 local format = tlv.formats.fixed(1, 1, "big")

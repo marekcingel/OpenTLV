@@ -1,3 +1,6 @@
+-- SPDX-License-Identifier: MIT
+-- Copyright (c) 2026 Marek Cingel
+
 -- Standalone smoke test: expected availability comes from the CMake build.
 local opentlv = require("opentlv")
 assert((opentlv.document ~= nil) == (arg[8] == "1"), "Document availability mismatch")

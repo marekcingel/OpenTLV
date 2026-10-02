@@ -1,3 +1,6 @@
+# SPDX-License-Identifier: MIT
+# Copyright (c) 2026 Marek Cingel
+
 """Changes an existing message with Document instead of rebuilding it from
 scratch: parses it into a tree of nodes, replaces one value, appends a new
 top-level element, and encodes the result. Document is the allocating,

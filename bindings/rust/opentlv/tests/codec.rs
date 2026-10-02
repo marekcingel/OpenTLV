@@ -1,3 +1,6 @@
+// SPDX-License-Identifier: MIT
+// Copyright (c) 2026 Marek Cingel
+
 //! Integration tests for value codecs and the EMV dictionary.
 
 use opentlv::emv::{self, Context};

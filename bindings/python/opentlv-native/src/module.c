@@ -1,3 +1,6 @@
+// SPDX-License-Identifier: MIT
+// Copyright (c) 2026 Marek Cingel
+
 /* Py_LIMITED_API is defined on the command line by the CMake build
  * (Python_add_library(... USE_SABI 3.11 ...)). */
 #include <Python.h>

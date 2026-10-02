@@ -1,3 +1,6 @@
+// SPDX-License-Identifier: MIT
+// Copyright (c) 2026 Marek Cingel
+
 //! Bounded tree output through the canonical C Tree Writer.
 use crate::{Element, Error, FixedFormat, Format, Result, Tag};
 use opentlv_native as native;

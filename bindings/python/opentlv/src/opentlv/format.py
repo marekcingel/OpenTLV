@@ -1,3 +1,6 @@
+# SPDX-License-Identifier: MIT
+# Copyright (c) 2026 Marek Cingel
+
 """Wire formats shared by `Reader` and `Writer`."""
 
 from __future__ import annotations

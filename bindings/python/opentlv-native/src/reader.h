@@ -1,3 +1,6 @@
+// SPDX-License-Identifier: MIT
+// Copyright (c) 2026 Marek Cingel
+
 #ifndef OPENTLV_PYTHON_READER_H
 #define OPENTLV_PYTHON_READER_H
 #include <Python.h>

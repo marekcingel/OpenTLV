@@ -1,3 +1,6 @@
+// SPDX-License-Identifier: MIT
+// Copyright (c) 2026 Marek Cingel
+
 /*
  * BER: a multi-byte tag when supported by the format, and a long-form
  * length for a value over 127 bytes.

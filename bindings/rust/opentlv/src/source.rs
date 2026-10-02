@@ -1,3 +1,6 @@
+// SPDX-License-Identifier: MIT
+// Copyright (c) 2026 Marek Cingel
+
 //! Immutable source representation, separate from semantic element content.
 use crate::{Element, Error, FixedFormat, Format, Result};
 use opentlv_native as native;

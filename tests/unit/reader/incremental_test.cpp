@@ -1,3 +1,6 @@
+// SPDX-License-Identifier: MIT
+// Copyright (c) 2026 Marek Cingel
+
 #include "controlled_format.h"
 #include "tlv/reader/reader.h"
 #include "tlv/formats/fixed.h"

@@ -1,3 +1,6 @@
+// SPDX-License-Identifier: MIT
+// Copyright (c) 2026 Marek Cingel
+
 //! Callback adaptation only; C owns traversal and continuation.
 use crate::{Element, Error, ReaderDiagnostic, Result};
 use opentlv_native as native;

@@ -127,6 +127,9 @@ bytes independently, and is compiled and run by the example test suite:
 
 <!-- example: examples/tlv++/src/write.cpp -->
 ```cpp
+// SPDX-License-Identifier: MIT
+// Copyright (c) 2026 Marek Cingel
+
 // Builds the same BER document as parse.cpp using scoped, allocation-free writes.
 #include "tlv++/builtins/asn1/ber.hpp"
 #include <array>
@@ -272,6 +275,9 @@ This self-checking example works without optional builtins:
 
 <!-- example: examples/tlv/src/tree_writer.c -->
 ```c
+// SPDX-License-Identifier: MIT
+// Copyright (c) 2026 Marek Cingel
+
 /* Nested output with caller-owned frames, destination and scratch storage. */
 #include "tlv/writer/tree.h"
 #include "tlv/formats/fixed.h"

@@ -1,3 +1,6 @@
+// SPDX-License-Identifier: MIT
+// Copyright (c) 2026 Marek Cingel
+
 #ifndef OPENTLV_BUILTINS_ASN1_DER_H
 #define OPENTLV_BUILTINS_ASN1_DER_H
 

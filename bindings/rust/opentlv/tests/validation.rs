@@ -1,3 +1,6 @@
+// SPDX-License-Identifier: MIT
+// Copyright (c) 2026 Marek Cingel
+
 //! Integration tests for format and format selection.
 
 use opentlv::{Element, Error, Format, Limits, Reader, Strictness, Tag, ValidationError, Writer};

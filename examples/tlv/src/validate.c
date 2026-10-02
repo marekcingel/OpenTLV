@@ -1,3 +1,6 @@
+// SPDX-License-Identifier: MIT
+// Copyright (c) 2026 Marek Cingel
+
 /*
  * Checks a document's structure -- which tags are required, how many times,
  * in what nesting, and with what value lengths -- without decoding it. See

@@ -1,3 +1,6 @@
+// SPDX-License-Identifier: MIT
+// Copyright (c) 2026 Marek Cingel
+
 //! Safe Rust bindings for OpenTLV.
 //!
 //! Raw C declarations live in `opentlv-native`; this crate wraps those calls

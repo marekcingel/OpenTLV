@@ -1,3 +1,6 @@
+# SPDX-License-Identifier: MIT
+# Copyright (c) 2026 Marek Cingel
+
 import gc
 import pytest
 from opentlv import (TreeWriter, Element, Tag, Format, BufferTooShortError,

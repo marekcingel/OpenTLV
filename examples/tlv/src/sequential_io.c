@@ -1,3 +1,6 @@
+// SPDX-License-Identifier: MIT
+// Copyright (c) 2026 Marek Cingel
+
 /*
  * Sequential writer and zero-copy reader over BER: appends
  * several elements with different write calls, then reads them back.

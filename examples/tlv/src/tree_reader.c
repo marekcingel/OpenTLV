@@ -1,3 +1,6 @@
+// SPDX-License-Identifier: MIT
+// Copyright (c) 2026 Marek Cingel
+
 /* A caller-owned stack and input window; no allocation or recursion in Tree Reader. */
 #include "tlv/reader/tree.h"
 #include "tlv/formats/fixed.h"

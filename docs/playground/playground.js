@@ -1,3 +1,6 @@
+// SPDX-License-Identifier: MIT
+// Copyright (c) 2026 Marek Cingel
+
 // Interactive TLV playground (docs/playground/index.md). All parsing is done by
 // the OpenTLV WebAssembly build in bindings/wasm; this file only reads the
 // input, calls opentlv.parse() once and renders that one result in three

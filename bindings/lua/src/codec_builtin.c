@@ -1,3 +1,6 @@
+// SPDX-License-Identifier: MIT
+// Copyright (c) 2026 Marek Cingel
+
 /* Explicit adapters for the documented native representations. These functions
  * copy fields, check host representation bounds and root borrowed Lua strings;
  * all Value validation and wire conversion is delegated to the C codecs. */

@@ -1,3 +1,6 @@
+// SPDX-License-Identifier: MIT
+// Copyright (c) 2026 Marek Cingel
+
 // Migration regression: expected public constants and metadata before #381.
 struct DictionaryCase {
     tlv_emv_context_t    context;

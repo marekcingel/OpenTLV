@@ -1,3 +1,6 @@
+// SPDX-License-Identifier: MIT
+// Copyright (c) 2026 Marek Cingel
+
 #include "tlv++/tlv.hpp"
 #include "tlv++/builtins/lldp/lldp.hpp"
 #include "tlv/builtins/lldp/schema.h"

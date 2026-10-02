@@ -1,3 +1,6 @@
+// SPDX-License-Identifier: MIT
+// Copyright (c) 2026 Marek Cingel
+
 /*
  * CER: a nested indefinite-length container, and a logical OCTET STRING
  * over the 1,000-octet canonical segmentation threshold, written as a

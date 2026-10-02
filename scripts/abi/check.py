@@ -1,3 +1,6 @@
+# SPDX-License-Identifier: MIT
+# Copyright (c) 2026 Marek Cingel
+
 """Compare the ABI of the OpenTLV C shared library with the stored ABI baseline.
 
 The baseline is an ``abidw`` dump committed as scripts/abi/baseline.abi (see

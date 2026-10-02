@@ -1,3 +1,6 @@
+# SPDX-License-Identifier: MIT
+# Copyright (c) 2026 Marek Cingel
+
 """Decodes and encodes an EMV format n12 amount (BCD, tag 9F02 "Amount,
 Authorised") with opentlv.codec, the one concrete value codec the public
 OpenTLV C API exports; see docs/guides/python.md#codec for why the rest of

@@ -1,3 +1,6 @@
+// SPDX-License-Identifier: MIT
+// Copyright (c) 2026 Marek Cingel
+
 #[cfg(feature = "nfc")]
 #[test]
 fn nfc_stream_roundtrip_and_extended_length() {

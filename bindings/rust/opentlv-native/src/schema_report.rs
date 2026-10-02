@@ -1,3 +1,6 @@
+// SPDX-License-Identifier: MIT
+// Copyright (c) 2026 Marek Cingel
+
 //! Canonical Schema report ABI.
 use super::*;
 /// Native enclosing scope path.

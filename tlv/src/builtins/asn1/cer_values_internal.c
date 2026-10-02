@@ -1,3 +1,6 @@
+// SPDX-License-Identifier: MIT
+// Copyright (c) 2026 Marek Cingel
+
 #include "cer_values_internal.h"
 
 tlv_cer_type_info_t tlv_cer_type_info(uint64_t number) {

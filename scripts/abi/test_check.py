@@ -1,3 +1,6 @@
+# SPDX-License-Identifier: MIT
+# Copyright (c) 2026 Marek Cingel
+
 """Self-test for check.py: apply known ABI mutations to a copy of the working
 tree and check that check.py (in enforce mode) reacts as the compatibility
 policy requires."""

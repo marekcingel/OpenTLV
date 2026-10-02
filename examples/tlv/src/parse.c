@@ -1,3 +1,6 @@
+// SPDX-License-Identifier: MIT
+// Copyright (c) 2026 Marek Cingel
+
 /*
  * Parses a nested BER-TLV document and prints every element in document
  * order. See write.c for building the same bytes, query.c for addressing one

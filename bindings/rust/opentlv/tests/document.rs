@@ -1,4 +1,7 @@
 #![cfg(feature = "document")]
+// SPDX-License-Identifier: MIT
+// Copyright (c) 2026 Marek Cingel
+
 use opentlv::{ByteOrder, Document, Error, FixedFormat, FixedFormatConfig, Format, Query, Tag};
 
 #[test]

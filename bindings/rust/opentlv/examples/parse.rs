@@ -1,3 +1,6 @@
+// SPDX-License-Identifier: MIT
+// Copyright (c) 2026 Marek Cingel
+
 //! Parses a nested BER-TLV document and prints every element in document
 //! order. See `write.rs` for building the same bytes and `validate.rs` for
 //! checking the document's structure without decoding it. The C, C++ and

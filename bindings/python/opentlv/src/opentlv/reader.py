@@ -1,4 +1,7 @@
-﻿"""Sequential Reader over the canonical C cursor."""
+﻿# SPDX-License-Identifier: MIT
+# Copyright (c) 2026 Marek Cingel
+
+"""Sequential Reader over the canonical C cursor."""
 from opentlv.cursor import Decoded, _Cursor
 from opentlv.error import NeedMoreDataError, OpenTLVError
 

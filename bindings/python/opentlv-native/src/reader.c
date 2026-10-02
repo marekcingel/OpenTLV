@@ -1,3 +1,6 @@
+// SPDX-License-Identifier: MIT
+// Copyright (c) 2026 Marek Cingel
+
 #define PY_SSIZE_T_CLEAN
 #include "reader.h"
 #include "format.h"

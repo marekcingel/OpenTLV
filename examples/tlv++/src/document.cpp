@@ -1,3 +1,6 @@
+// SPDX-License-Identifier: MIT
+// Copyright (c) 2026 Marek Cingel
+
 // Parse an owning Document and traverse roots and their children.
 #include <tlv++/tlv.hpp>
 #include <iostream>

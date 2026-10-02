@@ -1,3 +1,6 @@
+// SPDX-License-Identifier: MIT
+// Copyright (c) 2026 Marek Cingel
+
 #include "tlv/builtins/bluetooth/manufacturer_data.h"
 #include "tlv/endian.h"
 #include <string.h>

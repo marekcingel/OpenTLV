@@ -1,3 +1,6 @@
+// SPDX-License-Identifier: MIT
+// Copyright (c) 2026 Marek Cingel
+
 #include "visitor_input.h"
 // Conformance tests for the Bluetooth LTV (Length | Type | Value) format. Every case goes through
 // the generic reader, writer and Tree Reader; there is no Bluetooth-specific parsing path here.

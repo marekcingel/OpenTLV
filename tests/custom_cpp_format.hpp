@@ -1,3 +1,6 @@
+// SPDX-License-Identifier: MIT
+// Copyright (c) 2026 Marek Cingel
+
 #ifndef OPENTLV_TEST_CUSTOM_CPP_FORMAT_HPP
 #define OPENTLV_TEST_CUSTOM_CPP_FORMAT_HPP
 #include "tlv++/format.hpp"

@@ -1,3 +1,6 @@
+// SPDX-License-Identifier: MIT
+// Copyright (c) 2026 Marek Cingel
+
 #include "formats.h"
 
 int LLVMFuzzerTestOneInput(const uint8_t* data, size_t size) {

@@ -1,3 +1,6 @@
+// SPDX-License-Identifier: MIT
+// Copyright (c) 2026 Marek Cingel
+
 /* Nested output with caller-owned frames, destination and scratch storage. */
 #include "tlv/writer/tree.h"
 #include "tlv/formats/fixed.h"

@@ -1,3 +1,6 @@
+// SPDX-License-Identifier: MIT
+// Copyright (c) 2026 Marek Cingel
+
 #ifndef OPENTLV_CLI_COMPLETION_POWERSHELL_COMPLETER_HPP
 #define OPENTLV_CLI_COMPLETION_POWERSHELL_COMPLETER_HPP
 #include "completion/shell_completer.hpp"

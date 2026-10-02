@@ -1,3 +1,6 @@
+// SPDX-License-Identifier: MIT
+// Copyright (c) 2026 Marek Cingel
+
 #include "tlv/layout.h"
 #ifndef OPENTLV_TEST_CONTROLLED_FORMAT_H
 #define OPENTLV_TEST_CONTROLLED_FORMAT_H

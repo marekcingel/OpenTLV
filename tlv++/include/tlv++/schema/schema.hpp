@@ -1,3 +1,6 @@
+// SPDX-License-Identifier: MIT
+// Copyright (c) 2026 Marek Cingel
+
 #ifndef OPENTLV_TLVPP_SCHEMA_HPP
 #define OPENTLV_TLVPP_SCHEMA_HPP
 #include "tlv++/types.hpp"

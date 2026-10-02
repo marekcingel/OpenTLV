@@ -1,3 +1,6 @@
+// SPDX-License-Identifier: MIT
+// Copyright (c) 2026 Marek Cingel
+
 //! Integration tests for the safe reader API.
 
 use opentlv::{Error, Format, Reader, Tag};

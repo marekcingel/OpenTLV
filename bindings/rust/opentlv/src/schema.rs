@@ -1,3 +1,6 @@
+// SPDX-License-Identifier: MIT
+// Copyright (c) 2026 Marek Cingel
+
 //! Length schemas and structural schemas for validating TLV data.
 //!
 //! Both schema types wrap the C library's tables. Validation runs entirely in

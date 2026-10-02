@@ -1,3 +1,6 @@
+// SPDX-License-Identifier: MIT
+// Copyright (c) 2026 Marek Cingel
+
 #include "commands/formats_command.hpp"
 #include <iostream>
 #include "diagnostics.hpp"

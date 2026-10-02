@@ -1,3 +1,6 @@
+// SPDX-License-Identifier: MIT
+// Copyright (c) 2026 Marek Cingel
+
 #include "tlv/builtins/bluetooth/ad_types.h"
 #include "tlv/config.h"
 #if OPENTLV_BLUETOOTH

@@ -1,3 +1,6 @@
+// SPDX-License-Identifier: MIT
+// Copyright (c) 2026 Marek Cingel
+
 #include "asn1_values_internal.h"
 
 /* Canonical rules follow ITU-T X.690 (10/2021 edition), section 11. Every

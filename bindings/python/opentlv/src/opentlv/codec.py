@@ -1,3 +1,6 @@
+# SPDX-License-Identifier: MIT
+# Copyright (c) 2026 Marek Cingel
+
 """Configured numeric and EMV amount Value codecs backed by canonical C."""
 
 from __future__ import annotations

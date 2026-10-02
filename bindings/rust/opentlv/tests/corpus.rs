@@ -1,3 +1,6 @@
+// SPDX-License-Identifier: MIT
+// Copyright (c) 2026 Marek Cingel
+
 //! Replays the C fuzz seed corpus (the `corpus/` folder next to each fuzz
 //! harness under `tests/fuzz/`) through the safe Rust API, so the bindings
 //! are checked against the same inputs as the C library.

@@ -1,3 +1,6 @@
+// SPDX-License-Identifier: MIT
+// Copyright (c) 2026 Marek Cingel
+
 /*
  * Single-element I/O over the fixed-width format, and the explicit
  * tlv_copy_value()/tlv_copy_encoded()/tlv_copy_element() helpers: each first

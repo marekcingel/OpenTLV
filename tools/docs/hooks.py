@@ -1,3 +1,6 @@
+# SPDX-License-Identifier: MIT
+# Copyright (c) 2026 Marek Cingel
+
 """MkDocs hooks: adapt relative links and publish the generated API references.
 
 Links that leave docs/ point at the GitHub repository, and links to the GitHub

@@ -1,3 +1,6 @@
+// SPDX-License-Identifier: MIT
+// Copyright (c) 2026 Marek Cingel
+
 //! Safe preorder projection of the canonical C Tree Reader.
 use crate::{Decoded, Error, FixedFormat, Format, ReaderDiagnostic, Result};
 use opentlv_native as native;

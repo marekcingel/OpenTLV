@@ -1,3 +1,6 @@
+// SPDX-License-Identifier: MIT
+// Copyright (c) 2026 Marek Cingel
+
 #include "formats.h"
 
 static void check_visit(const uint8_t* data, size_t size, size_t format, size_t depth,
