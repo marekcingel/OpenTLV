@@ -6,17 +6,17 @@
       <meta charset="utf-8">
       <meta name="viewport" content="width=device-width,initial-scale=1">
       
-        <meta name="description" content="Portable C99 and C++ library for reading, writing and validating TLV data.">
+        <meta name="description" content="Portable TLV processing with a canonical C engine, language APIs, CLI and WebAssembly.">
       
       
       
         <link rel="canonical" href="https://marekcingel.github.io/OpenTLV/latest/concepts/bindings/">
       
       
-        <link rel="prev" href="../endian/">
+        <link rel="prev" href="../../guides/lua/">
       
       
-        <link rel="next" href="../cxx-native-boundary/">
+        <link rel="next" href="../../guides/go/">
       
       
         
@@ -281,17 +281,15 @@
   
   
   
-    
-  
   
     
     
-      <li class="md-tabs__item md-tabs__item--active">
-        <a href="../architecture/" class="md-tabs__link">
+      <li class="md-tabs__item">
+        <a href="../../guides/processing/" class="md-tabs__link">
           
   
   
-  Concepts
+  Guides
 
         </a>
       </li>
@@ -303,15 +301,17 @@
   
   
   
+    
+  
   
     
     
-      <li class="md-tabs__item">
-        <a href="../../guides/memory/" class="md-tabs__link">
+      <li class="md-tabs__item md-tabs__item--active">
+        <a href="../../guides/cxx-examples/" class="md-tabs__link">
           
   
   
-  Guides
+  Language APIs
 
         </a>
       </li>
@@ -427,7 +427,27 @@
     
     
       <li class="md-tabs__item">
-        <a href="../../development/workflow/" class="md-tabs__link">
+        <a href="../architecture/" class="md-tabs__link">
+          
+  
+  
+  Architecture and Concepts
+
+        </a>
+      </li>
+    
+  
+
+      
+        
+  
+  
+  
+  
+    
+    
+      <li class="md-tabs__item">
+        <a href="../runtime-model/" class="md-tabs__link">
           
   
   
@@ -601,6 +621,401 @@
       
   
   
+  
+  
+    
+    
+    
+    
+      
+      
+        
+      
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_3" >
+        
+          
+          <label class="md-nav__link" for="__nav_3" id="__nav_3_label" tabindex="0">
+            
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Guides
+  
+
+    
+  </span>
+  
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_3_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_3">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    Guides
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../guides/processing/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Choose a processing API
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../guides/examples/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Executable examples
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../guides/memory/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Memory ownership
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../guides/diagnostics/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Diagnostics
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../guides/schemas/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Schemas and length validation
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../guides/codecs/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Value codecs
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../guides/copy/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Copy helpers
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../guides/reader/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Pull-based Reader
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../guides/writer/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Writer and scoped construction
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../guides/queries/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Path queries
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../guides/document/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Mutable documents
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../guides/select-components/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Building only the components you need
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+      
+      
+  
+  
     
   
   
@@ -622,17 +1037,17 @@
       
         
         
-        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_3" checked>
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_4" checked>
         
           
-          <label class="md-nav__link" for="__nav_3" id="__nav_3_label" tabindex="">
+          <label class="md-nav__link" for="__nav_4" id="__nav_4_label" tabindex="">
             
   
   
   <span class="md-ellipsis">
     
   
-    Concepts
+    Language APIs
   
 
     
@@ -643,12 +1058,12 @@
             <span class="md-nav__icon md-icon"></span>
           </label>
         
-        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_3_label" aria-expanded="true">
-          <label class="md-nav__title" for="__nav_3">
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_4_label" aria-expanded="true">
+          <label class="md-nav__title" for="__nav_4">
             <span class="md-nav__icon md-icon"></span>
             
   
-    Concepts
+    Language APIs
   
 
           </label>
@@ -661,14 +1076,14 @@
   
   
     <li class="md-nav__item">
-      <a href="../architecture/" class="md-nav__link">
+      <a href="../../guides/cxx-examples/" class="md-nav__link">
         
   
   
   <span class="md-ellipsis">
     
   
-    Architecture
+    C++ examples
   
 
     
@@ -689,14 +1104,14 @@
   
   
     <li class="md-nav__item">
-      <a href="../runtime-model/" class="md-nav__link">
+      <a href="../../guides/rust/" class="md-nav__link">
         
   
   
   <span class="md-ellipsis">
     
   
-    Runtime model and canonical IR
+    Using OpenTLV from Rust
   
 
     
@@ -717,14 +1132,14 @@
   
   
     <li class="md-nav__item">
-      <a href="../processing-pipeline/" class="md-nav__link">
+      <a href="../../guides/python/" class="md-nav__link">
         
   
   
   <span class="md-ellipsis">
     
   
-    Processing pipeline
+    Using OpenTLV from Python
   
 
     
@@ -745,182 +1160,14 @@
   
   
     <li class="md-nav__item">
-      <a href="../architectural-rules/" class="md-nav__link">
+      <a href="../../guides/lua/" class="md-nav__link">
         
   
   
   <span class="md-ellipsis">
     
   
-    Core architectural rules
-  
-
-    
-  </span>
-  
-  
-
-      </a>
-    </li>
-  
-
-              
-            
-              
-                
-  
-  
-  
-  
-    <li class="md-nav__item">
-      <a href="../core-types/" class="md-nav__link">
-        
-  
-  
-  <span class="md-ellipsis">
-    
-  
-    Core types
-  
-
-    
-  </span>
-  
-  
-
-      </a>
-    </li>
-  
-
-              
-            
-              
-                
-  
-  
-  
-  
-    <li class="md-nav__item">
-      <a href="../format-contract/" class="md-nav__link">
-        
-  
-  
-  <span class="md-ellipsis">
-    
-  
-    Format and Element contract
-  
-
-    
-  </span>
-  
-  
-
-      </a>
-    </li>
-  
-
-              
-            
-              
-                
-  
-  
-  
-  
-    <li class="md-nav__item">
-      <a href="../definition-boundaries/" class="md-nav__link">
-        
-  
-  
-  <span class="md-ellipsis">
-    
-  
-    Definition boundaries
-  
-
-    
-  </span>
-  
-  
-
-      </a>
-    </li>
-  
-
-              
-            
-              
-                
-  
-  
-  
-  
-    <li class="md-nav__item">
-      <a href="../value/" class="md-nav__link">
-        
-  
-  
-  <span class="md-ellipsis">
-    
-  
-    Borrowed values
-  
-
-    
-  </span>
-  
-  
-
-      </a>
-    </li>
-  
-
-              
-            
-              
-                
-  
-  
-  
-  
-    <li class="md-nav__item">
-      <a href="../length/" class="md-nav__link">
-        
-  
-  
-  <span class="md-ellipsis">
-    
-  
-    Logical lengths
-  
-
-    
-  </span>
-  
-  
-
-      </a>
-    </li>
-  
-
-              
-            
-              
-                
-  
-  
-  
-  
-    <li class="md-nav__item">
-      <a href="../endian/" class="md-nav__link">
-        
-  
-  
-  <span class="md-ellipsis">
-    
-  
-    Byte order
+    Using OpenTLV from Lua
   
 
     
@@ -1095,10 +1342,10 @@
 </li>
       
         <li class="md-nav__item">
-  <a href="#core-concepts" class="md-nav__link">
+  <a href="#shared-concepts-and-intentional-differences" class="md-nav__link">
     <span class="md-ellipsis">
       
-        Core concepts
+        Shared concepts and intentional differences
       
     </span>
   </a>
@@ -1165,14 +1412,14 @@
   
   
     <li class="md-nav__item">
-      <a href="../cxx-native-boundary/" class="md-nav__link">
+      <a href="../../guides/go/" class="md-nav__link">
         
   
   
   <span class="md-ellipsis">
     
   
-    C++ public/native boundary
+    Using OpenTLV from Go
   
 
     
@@ -1193,493 +1440,14 @@
   
   
     <li class="md-nav__item">
-      <a href="../cxx-formats/" class="md-nav__link">
+      <a href="../../development/webassembly/" class="md-nav__link">
         
   
   
   <span class="md-ellipsis">
     
   
-    C++ Format customization
-  
-
-    
-  </span>
-  
-  
-
-      </a>
-    </li>
-  
-
-              
-            
-              
-                
-  
-  
-  
-  
-    <li class="md-nav__item">
-      <a href="../cxx-builtins/" class="md-nav__link">
-        
-  
-  
-  <span class="md-ellipsis">
-    
-  
-    C++ built-in standards
-  
-
-    
-  </span>
-  
-  
-
-      </a>
-    </li>
-  
-
-              
-            
-          </ul>
-        </nav>
-      
-    </li>
-  
-
-    
-      
-      
-  
-  
-  
-  
-    
-    
-    
-    
-      
-      
-        
-      
-    
-    
-    <li class="md-nav__item md-nav__item--nested">
-      
-        
-        
-        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_4" >
-        
-          
-          <label class="md-nav__link" for="__nav_4" id="__nav_4_label" tabindex="0">
-            
-  
-  
-  <span class="md-ellipsis">
-    
-  
-    Guides
-  
-
-    
-  </span>
-  
-  
-
-            <span class="md-nav__icon md-icon"></span>
-          </label>
-        
-        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_4_label" aria-expanded="false">
-          <label class="md-nav__title" for="__nav_4">
-            <span class="md-nav__icon md-icon"></span>
-            
-  
-    Guides
-  
-
-          </label>
-          <ul class="md-nav__list" data-md-scrollfix>
-            
-              
-                
-  
-  
-  
-  
-    <li class="md-nav__item">
-      <a href="../../guides/memory/" class="md-nav__link">
-        
-  
-  
-  <span class="md-ellipsis">
-    
-  
-    Memory ownership
-  
-
-    
-  </span>
-  
-  
-
-      </a>
-    </li>
-  
-
-              
-            
-              
-                
-  
-  
-  
-  
-    <li class="md-nav__item">
-      <a href="../../guides/diagnostics/" class="md-nav__link">
-        
-  
-  
-  <span class="md-ellipsis">
-    
-  
-    Diagnostics
-  
-
-    
-  </span>
-  
-  
-
-      </a>
-    </li>
-  
-
-              
-            
-              
-                
-  
-  
-  
-  
-    <li class="md-nav__item">
-      <a href="../../guides/schemas/" class="md-nav__link">
-        
-  
-  
-  <span class="md-ellipsis">
-    
-  
-    Schemas and length validation
-  
-
-    
-  </span>
-  
-  
-
-      </a>
-    </li>
-  
-
-              
-            
-              
-                
-  
-  
-  
-  
-    <li class="md-nav__item">
-      <a href="../../guides/codecs/" class="md-nav__link">
-        
-  
-  
-  <span class="md-ellipsis">
-    
-  
-    Value codecs
-  
-
-    
-  </span>
-  
-  
-
-      </a>
-    </li>
-  
-
-              
-            
-              
-                
-  
-  
-  
-  
-    <li class="md-nav__item">
-      <a href="../../guides/copy/" class="md-nav__link">
-        
-  
-  
-  <span class="md-ellipsis">
-    
-  
-    Copy helpers
-  
-
-    
-  </span>
-  
-  
-
-      </a>
-    </li>
-  
-
-              
-            
-              
-                
-  
-  
-  
-  
-    <li class="md-nav__item">
-      <a href="../../guides/cxx-examples/" class="md-nav__link">
-        
-  
-  
-  <span class="md-ellipsis">
-    
-  
-    C++ examples
-  
-
-    
-  </span>
-  
-  
-
-      </a>
-    </li>
-  
-
-              
-            
-              
-                
-  
-  
-  
-  
-    <li class="md-nav__item">
-      <a href="../../guides/reader/" class="md-nav__link">
-        
-  
-  
-  <span class="md-ellipsis">
-    
-  
-    Pull-based Reader
-  
-
-    
-  </span>
-  
-  
-
-      </a>
-    </li>
-  
-
-              
-            
-              
-                
-  
-  
-  
-  
-    <li class="md-nav__item">
-      <a href="../../guides/writer/" class="md-nav__link">
-        
-  
-  
-  <span class="md-ellipsis">
-    
-  
-    Writer and scoped construction
-  
-
-    
-  </span>
-  
-  
-
-      </a>
-    </li>
-  
-
-              
-            
-              
-                
-  
-  
-  
-  
-    <li class="md-nav__item">
-      <a href="../../guides/queries/" class="md-nav__link">
-        
-  
-  
-  <span class="md-ellipsis">
-    
-  
-    Path queries
-  
-
-    
-  </span>
-  
-  
-
-      </a>
-    </li>
-  
-
-              
-            
-              
-                
-  
-  
-  
-  
-    <li class="md-nav__item">
-      <a href="../../guides/document/" class="md-nav__link">
-        
-  
-  
-  <span class="md-ellipsis">
-    
-  
-    Mutable documents
-  
-
-    
-  </span>
-  
-  
-
-      </a>
-    </li>
-  
-
-              
-            
-              
-                
-  
-  
-  
-  
-    <li class="md-nav__item">
-      <a href="../../guides/select-components/" class="md-nav__link">
-        
-  
-  
-  <span class="md-ellipsis">
-    
-  
-    Building only the components you need
-  
-
-    
-  </span>
-  
-  
-
-      </a>
-    </li>
-  
-
-              
-            
-              
-                
-  
-  
-  
-  
-    <li class="md-nav__item">
-      <a href="../../guides/rust/" class="md-nav__link">
-        
-  
-  
-  <span class="md-ellipsis">
-    
-  
-    Using OpenTLV from Rust
-  
-
-    
-  </span>
-  
-  
-
-      </a>
-    </li>
-  
-
-              
-            
-              
-                
-  
-  
-  
-  
-    <li class="md-nav__item">
-      <a href="../../guides/python/" class="md-nav__link">
-        
-  
-  
-  <span class="md-ellipsis">
-    
-  
-    Using OpenTLV from Python
-  
-
-    
-  </span>
-  
-  
-
-      </a>
-    </li>
-  
-
-              
-            
-              
-                
-  
-  
-  
-  
-    <li class="md-nav__item">
-      <a href="../../guides/lua/" class="md-nav__link">
-        
-  
-  
-  <span class="md-ellipsis">
-    
-  
-    Using OpenTLV from Lua
+    WebAssembly tooling
   
 
     
@@ -1767,6 +1535,34 @@
     
   
     Overview
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../formats/support/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Implemented capabilities
   
 
     
@@ -2781,7 +2577,7 @@
   <span class="md-ellipsis">
     
   
-    Development
+    Architecture and Concepts
   
 
     
@@ -2797,11 +2593,434 @@
             <span class="md-nav__icon md-icon"></span>
             
   
+    Architecture and Concepts
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../architecture/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Architecture
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../core-types/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Core types
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../value/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Borrowed values
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../length/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Logical lengths
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../endian/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Byte order
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../cxx-native-boundary/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    C++ public/native boundary
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../cxx-formats/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    C++ Format customization
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../cxx-builtins/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    C++ built-in standards
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+    
+    
+      
+      
+        
+      
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_11" >
+        
+          
+          <label class="md-nav__link" for="__nav_11" id="__nav_11_label" tabindex="0">
+            
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Development
+  
+
+    
+  </span>
+  
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_11_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_11">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
     Development
   
 
           </label>
           <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../runtime-model/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Runtime model and canonical IR
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../processing-pipeline/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Processing pipeline
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../architectural-rules/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Core architectural rules
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../format-contract/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Format and Element contract
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../definition-boundaries/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Definition boundaries
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
             
               
                 
@@ -2922,34 +3141,6 @@
   
   
     <li class="md-nav__item">
-      <a href="../../development/webassembly/" class="md-nav__link">
-        
-  
-  
-  <span class="md-ellipsis">
-    
-  
-    WebAssembly build
-  
-
-    
-  </span>
-  
-  
-
-      </a>
-    </li>
-  
-
-              
-            
-              
-                
-  
-  
-  
-  
-    <li class="md-nav__item">
       <a href="../../development/rust/" class="md-nav__link">
         
   
@@ -3014,6 +3205,34 @@
     
   
     Lua bindings
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../development/go/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Go bindings
   
 
     
@@ -3183,10 +3402,10 @@
 </li>
       
         <li class="md-nav__item">
-  <a href="#core-concepts" class="md-nav__link">
+  <a href="#shared-concepts-and-intentional-differences" class="md-nav__link">
     <span class="md-ellipsis">
       
-        Core concepts
+        Shared concepts and intentional differences
       
     </span>
   </a>
@@ -3263,16 +3482,12 @@
 
 
 <h1 id="common-conceptual-model-for-language-bindings">Common conceptual model for language bindings<a class="headerlink" href="#common-conceptual-model-for-language-bindings" title="Permanent link">&para;</a></h1>
-<p>OpenTLV ships one C library (<code>tlv</code>) and is expected to grow bindings for
-several languages. A header-only C++ wrapper (<code>tlv++</code>) ships in this
-repository today, an experimental Rust crate (<code>opentlv</code>, in <code>bindings/rust/</code>),
-an experimental Python package (<code>opentlv</code>, in <code>bindings/python/</code>) and an
-experimental Lua module (<code>opentlv</code>, in <code>bindings/lua/</code>) are under active
-development, and further bindings may follow. Without a shared
-contract, each binding could invent its own vocabulary for the same
-operation, for example <code>Reader</code> in C++, <code>parse()</code> in Python, <code>Parser</code> in Rust,
-and <code>Decoder</code> elsewhere, and a developer who already knows OpenTLV in one
-language would have to relearn it in the next.</p>
+<p>OpenTLV ships a canonical C execution engine, the header-only idiomatic
+<code>tlv++</code> C++ API, and official experimental Rust, Python, Lua and Go bindings.
+All use the public C API as their interoperability boundary. WebAssembly is a
+narrow tooling embedding over the same engine. The
+<a href="../architecture/#conceptual-model">architecture overview</a> defines the concepts;
+this page is the canonical cross-language capability reference.</p>
 <p>This page is the design contract every official binding follows: the primary
 concepts below stay recognizable in every binding's public API, even where
 syntax and idiom differ.</p>
@@ -3290,13 +3505,10 @@ ergonomics to the target language.</p>
 <a id="__codelineno-0-7" name="__codelineno-0-7" href="#__codelineno-0-7"></a>idiomatic  idiomatic  idiomatic  idiomatic  idiomatic  idiomatic
 <a id="__codelineno-0-8" name="__codelineno-0-8" href="#__codelineno-0-8"></a>   C++       Rust        Go       Python      Lua    &lt;language&gt;
 </code></pre></div>
-<p>C++, Rust and Python expose Readers, Writers and Document facades today.
-Lua (<code>bindings/lua/</code>) currently binds Reader, Writer, Tree Writer, Schema, Value Codec, Element and Tag.
-Go (<code>bindings/go/</code>) currently exposes Format, Element, Reader, Writer and Document
-facades, including incremental input, staged constructed output and owned mutable
-trees with explicit cleanup. Query and other higher-level processing remain
-follow-up work. The trailing <code>...</code> stands
-for any further binding.</p>
+<p>All five language APIs expose Format, Element, Reader, Writer and owned
+Document processing. Their higher-level coverage differs as recorded below;
+Go includes Document Query and generic Value codecs, and Lua includes borrowed
+Query and checked Document Nodes. The trailing <code>...</code> stands for future bindings.</p>
 <p>The public OpenTLV C API (see the <a href="../../reference/c-api/">C API reference</a>) is
 the single language boundary every binding wraps. A binding calls into the C
 library directly for parsing, encoding, validation and codec work instead of
@@ -3305,9 +3517,9 @@ Rust crate does not sit on top of the C++ wrapper, and a future binding would
 not sit on top of Rust either. This keeps behavior identical across languages,
 since one C implementation backs every one of them, and lets each binding be
 built and shipped independently of the others. <code>tlv++</code> differs only in build
-shape, not in boundary: it is header-only and compiles directly against the C
-headers instead of linking a separately built library, but it still wraps only
-the public C API. See <a href="../../guides/rust/#relationship-to-the-c-api">relationship to the C
+shape, not in boundary: its facade is header-only, compiles against the public C
+headers and links the C library, without a separately compiled C++ facade library.
+It still wraps only the public C API. See <a href="../../guides/rust/#relationship-to-the-c-api">relationship to the C
 API</a> for how the Rust crate holds
 to this in practice.</p>
 <h2 id="capability-parity-through-the-public-facade">Capability parity through the public facade<a class="headerlink" href="#capability-parity-through-the-public-facade" title="Permanent link">&para;</a></h2>
@@ -3360,257 +3572,250 @@ facade remains a gap. Tests should compare observable C semantics, including
 results, diagnostics, offsets, limits, incremental continuation and encoded
 bytes. The current coverage below is an implementation snapshot, not a claim
 that full parity has already been achieved. This contract is the long-term
-target; <a href="https://github.com/marekcingel/OpenTLV/issues/400">#400</a> delivers the
-scoped implementation described below.</p>
+target; the matrix records current implemented workflows and remaining gaps.</p>
 <h2 id="capability-implementation-matrix">Capability implementation matrix<a class="headerlink" href="#capability-implementation-matrix" title="Permanent link">&para;</a></h2>
-<p>The current #400 implementation scope is C++, Rust and Python. Lua parity is
-handled by separate stories and does not block this implementation; its column
-below remains informational.</p>
-<p>The following remaining capabilities are explicitly <strong>out of scope for #400</strong>
-and are deferred to follow-up work:</p>
-<ul>
-<li>Additional codecs beyond the facades already implemented.</li>
-<li>Additional protocol-specific Definition/dictionary registries and lookup.</li>
-<li>Further Format/Layout extensions, including custom callbacks, additional
-  optional builtins and destination-format configuration not yet exposed.</li>
-<li>Custom Document allocator adaptation.</li>
-</ul>
-<p>Existing implementations in these families remain part of #400. The deferred
-capabilities do not block acceptance of its scoped implementation. They remain
-coverage gaps against the long-term full-parity contract; excluding them from
-this issue does not mark them implemented.</p>
-<p>The public C headers are the source of truth. Each row must cover all public
-operations in the referenced family before it can be marked complete. <strong>Bound</strong>
-means the listed operations have a public facade; it does not imply every
-edge case has a parity test. <strong>Partial</strong> means only a subset is exposed.
-<strong>Missing</strong> means the capability has no public facade. <strong>Audit</strong> means operation
-coverage still needs verification; it must not be counted as parity.</p>
+<p>This is a current public-facade inventory, not the historical acceptance scope
+of a particular issue. <strong>Implemented</strong> means the named workflow has a public
+API, not complete coverage of every C overload. <strong>Partial</strong> names a restricted
+subset or a missing advanced operation. <strong>Missing</strong> means there is no public
+facade. Intentional copying, cleanup and error conventions are documented
+separately and do not close missing-operation gaps.</p>
+<p>Availability is another dimension: optional native components must be enabled.
+Python and Lua omit disabled presets; Go returns an unsupported error. Rust's
+native build does not yet offer the same per-protocol component selection and
+its <code>document</code> feature must match the linked C library. C++ headers follow the
+generated C configuration. Missing facade support is distinct from disabled
+native functionality; see <a href="../../guides/select-components/">component selection</a>.</p>
 <table>
 <thead>
 <tr>
-<th>Capability and canonical C operations</th>
+<th>Capability / canonical C family</th>
 <th>C++</th>
 <th>Rust</th>
 <th>Python</th>
 <th>Lua</th>
+<th>Go</th>
 </tr>
 </thead>
 <tbody>
 <tr>
-<td>Single-element Reader: <code>tlv_read</code>, <code>tlv_read_diag</code>, <code>tlv_read_source_diag</code></td>
-<td>Bound: <code>read</code></td>
-<td>Bound: <code>read</code>, <code>read_fixed</code></td>
-<td>Bound: <code>read</code></td>
-<td>Audit</td>
+<td>Format (<code>tlv_format_t</code>)</td>
+<td>Implemented: traits, adapters and execution views</td>
+<td>Partial: presets and Fixed; no public custom callback adapter</td>
+<td>Partial: presets and Fixed</td>
+<td>Partial: presets and Fixed</td>
+<td>Partial: presets and Fixed; no custom callbacks</td>
 </tr>
 <tr>
-<td>Sequential Reader: <code>tlv_reader_init</code>, <code>tlv_reader_next</code>, <code>tlv_reader_at_end</code></td>
-<td>Bound: <code>reader</code></td>
-<td>Bound: <code>Reader</code></td>
-<td>Bound: <code>Reader</code></td>
-<td>Bound: <code>reader</code></td>
+<td>Element / instance Layout (<code>tlv_element_t</code>, <code>tlv_source_t</code>)</td>
+<td>Implemented: borrowed semantic/source views</td>
+<td>Implemented: borrowed Element and Decoded</td>
+<td>Implemented: Element and Decoded; retained immutable backing</td>
+<td>Partial: copied Element tables and source detail</td>
+<td>Implemented: borrowed slices and Source; Clone owns bytes</td>
 </tr>
 <tr>
-<td>Incremental Reader: <code>tlv_reader_init_incremental</code>, <code>tlv_reader_set_input</code>, <code>tlv_reader_consumed</code>, <code>tlv_reader_offset</code></td>
-<td>Bound: <code>input_mode</code>, <code>set_input</code>, <code>consumed</code>, <code>offset</code></td>
-<td>Bound: <code>Reader::incremental</code>, continuation methods</td>
-<td>Bound: <code>Reader(final_input=False)</code>, continuation methods</td>
+<td>Single-element read (<code>tlv_read*</code>)</td>
+<td>Implemented: <code>read</code></td>
+<td>Implemented: <code>read</code>, <code>read_fixed</code></td>
+<td>Implemented: <code>read</code></td>
+<td>Missing standalone facade</td>
+<td>Missing standalone facade; use Reader</td>
+</tr>
+<tr>
+<td>Sequential Reader (<code>tlv_reader_*</code>)</td>
+<td>Implemented: typed <code>reader</code> and ranges</td>
+<td>Implemented: <code>Reader</code></td>
+<td>Implemented: <code>Reader</code></td>
+<td>Implemented: <code>reader</code></td>
+<td>Implemented: <code>Reader</code></td>
+</tr>
+<tr>
+<td>Resumable Reader (<code>init_incremental</code>, <code>set_input</code>)</td>
+<td>Implemented</td>
+<td>Implemented</td>
+<td>Implemented</td>
+<td>Missing</td>
+<td>Implemented: <code>NewIncrementalReader</code>, <code>SetInput</code></td>
+</tr>
+<tr>
+<td>Tree Reader / events (<code>tlv_tree_reader_*</code>)</td>
+<td>Implemented: items, events, limits and skip</td>
+<td>Implemented</td>
+<td>Implemented</td>
+<td>Partial: tree Visitor, no pull/event cursor</td>
 <td>Missing</td>
 </tr>
 <tr>
-<td>Tree Reader: <code>tlv_tree_reader_init</code>, <code>tlv_tree_reader_next</code>, <code>tlv_tree_reader_at_end</code></td>
-<td>Bound: <code>tree_reader</code></td>
-<td>Bound: <code>TreeReader</code></td>
-<td>Bound: <code>TreeReader</code></td>
-<td>Missing pull facade</td>
-</tr>
-<tr>
-<td>Event measurement: <code>tlv_tree_writer_measure_events</code></td>
-<td>Bound: <code>measure_tree_events</code></td>
-<td>Bound: <code>measure_events</code></td>
-<td>Bound: <code>measure_events</code></td>
+<td>Resumable Tree Reader</td>
+<td>Implemented</td>
+<td>Implemented</td>
+<td>Implemented</td>
+<td>Missing</td>
 <td>Missing</td>
 </tr>
 <tr>
-<td>Bounded Tag copying: <code>tlv_tree_writer_set_tag_storage</code></td>
-<td>Bound: <code>set_tag_storage</code></td>
-<td>Bound: <code>set_tag_capacity</code></td>
-<td>Bound: <code>set_tag_capacity</code></td>
-<td>Partial: constructor <code>tag_capacity</code>; no storage replacement</td>
-</tr>
-<tr>
-<td>Structural events: <code>tlv_tree_reader_next_event</code>, <code>tlv_tree_writer_write_event</code></td>
-<td>Bound: <code>next_event</code>, <code>write_event</code></td>
-<td>Bound: <code>read_event</code>, <code>write_event</code></td>
-<td>Bound: <code>next_event</code>, <code>write_event</code></td>
-<td>Missing tree facades</td>
-</tr>
-<tr>
-<td>Incremental Tree Reader: <code>tlv_tree_reader_init_incremental</code>, <code>tlv_tree_reader_set_input</code>, <code>tlv_tree_reader_consumed</code>, <code>tlv_tree_reader_offset</code></td>
-<td>Bound: <code>tree_reader</code> continuation methods</td>
-<td>Bound: <code>TreeReader</code> continuation methods</td>
-<td>Bound: <code>TreeReader</code> continuation methods</td>
+<td>Visitor (<code>tlv_reader_visit*</code>, <code>tlv_tree_reader_visit*</code>)</td>
+<td>Implemented: Reader and Tree Reader callbacks</td>
+<td>Implemented</td>
+<td>Implemented</td>
+<td>Partial: complete-buffer tree Visitor</td>
 <td>Missing</td>
 </tr>
 <tr>
-<td>Reader diagnostics: <code>tlv_reader_next_diag</code>, <code>tlv_tree_reader_next_diag</code>, <code>tlv_reader_diagnostic_init</code></td>
-<td>Bound: optional diagnostics and value initialization</td>
-<td>Bound: owned <code>ReaderDiagnostic</code></td>
-<td>Bound: structured exceptions</td>
-<td>Partial</td>
+<td>Sequential Writer (<code>tlv_writer_*</code>)</td>
+<td>Implemented: typed Writer, explicit output</td>
+<td>Implemented: fixed output</td>
+<td>Implemented: fixed or growable output</td>
+<td>Implemented: bounded output</td>
+<td>Implemented: fixed or growable output</td>
 </tr>
 <tr>
-<td>Source information and instance Layout: <code>tlv_reader_next_source_diag</code>, <code>tlv_source_t</code>, Tree Reader item source/depth/offset</td>
-<td>Bound: <code>next_source</code>, <code>tree_item</code>, <code>source</code></td>
-<td>Bound: <code>Decoded</code>, <code>Layout</code>, <code>TreeItem</code></td>
-<td>Bound: <code>Decoded</code>, <code>Layout</code>, <code>TreeItem</code></td>
-<td>Partial</td>
+<td>Tree Writer (<code>tlv_tree_writer_*</code>)</td>
+<td>Implemented: events, begin/end and scoped Builder</td>
+<td>Implemented: events, measure and Tag capacity</td>
+<td>Implemented: events, measure and Tag capacity</td>
+<td>Partial: begin/end, no public event/measure facade</td>
+<td>Partial: staged Begin/End; no public event facade</td>
 </tr>
 <tr>
-<td>Reader limits: Tree Reader frame capacity, maximum depth and item count</td>
-<td>Bound: <code>tree_reader</code> construction</td>
-<td>Bound: <code>TreeReader</code> construction</td>
-<td>Bound: <code>TreeReader</code> construction</td>
-<td>Partial: Visitor options</td>
-</tr>
-<tr>
-<td>Subtree control: <code>tlv_tree_reader_skip_subtree</code></td>
-<td>Bound: <code>skip_subtree</code></td>
-<td>Bound: <code>skip_subtree</code></td>
-<td>Bound: <code>skip_subtree</code></td>
-<td>Audit</td>
-</tr>
-<tr>
-<td>Visitor: <code>tlv_reader_visit[_diag]</code>, <code>tlv_tree_reader_visit[_diag]</code></td>
-<td>Bound: Reader and Tree Reader <code>visit</code></td>
-<td>Bound: Reader and Tree Reader <code>visit</code></td>
-<td>Bound: Reader and Tree Reader <code>visit</code></td>
-<td>Partial: tree Visitor</td>
-</tr>
-<tr>
-<td>Single-element Writer: <code>tlv_write[_diag]</code>, <code>tlv_write_element[_diag]</code></td>
-<td>Bound: <code>write</code> overloads</td>
-<td>Bound: <code>write_element</code>, <code>write_element_fixed</code></td>
-<td>Audit</td>
+<td>Copy/preservation (<code>tlv_writer_copy_encoded*</code>, <code>tlv_source_preserve</code>)</td>
+<td>Implemented</td>
+<td>Implemented</td>
+<td>Implemented</td>
+<td>Missing</td>
 <td>Missing</td>
 </tr>
 <tr>
-<td>Sequential Writer: <code>tlv_writer_init</code>, <code>tlv_writer_write[_diag]</code>, <code>tlv_writer_write_element[_diag]</code>, size/remaining</td>
-<td>Audit</td>
-<td>Bound: <code>Writer</code>, owned diagnostics</td>
-<td>Audit</td>
-<td>Bound: <code>writer</code>, write/Element, size/remaining</td>
+<td>Reader/Writer diagnostics</td>
+<td>Implemented: native structured detail with C++ operation errors</td>
+<td>Implemented: owned snapshots</td>
+<td>Implemented: structured exceptions</td>
+<td>Implemented for exposed Reader/Writer operations: owned tables</td>
+<td>Implemented for exposed operations: owned ParseError/WriteError</td>
 </tr>
 <tr>
-<td>Tree Writer: <code>tlv_tree_writer_init</code>, begin/write/end and diagnostic variants, finish/size</td>
-<td>Bound: <code>tree_writer</code></td>
-<td>Bound: <code>TreeWriter</code></td>
-<td>Bound: <code>TreeWriter</code></td>
-<td>Bound: <code>tree_writer</code>, begin/write/end, finish/size</td>
-</tr>
-<tr>
-<td>Element measurement: <code>tlv_encoded_size</code>, <code>tlv_element_encoded_size[_diag]</code></td>
-<td>Bound: <code>encoded_size</code> overloads</td>
-<td>Bound: <code>measure_element</code>, <code>encoded_size</code></td>
-<td>Bound</td>
+<td>Borrowed Query (<code>tlv_query_*</code>)</td>
+<td>Implemented: Query and resumable matcher</td>
+<td>Implemented: Query and matcher</td>
+<td>Implemented: Query and matcher</td>
+<td>Partial: complete-buffer Query evaluation; no resumable matcher facade</td>
 <td>Missing</td>
 </tr>
 <tr>
-<td>Tree measurement: <code>tlv_tree_writer_measure</code>, staging and capacity requirements</td>
-<td>Bound: <code>measure_tree</code></td>
-<td>Bound: <code>TreeWriter::measure</code>, <code>required_workspace</code></td>
-<td>Bound: <code>TreeWriter.measure</code>, exception requirements</td>
+<td>Document Query</td>
+<td>Implemented: first match and <code>select</code> all matches</td>
+<td>Partial: <code>find_path</code> / <code>find_path_mut</code> first match</td>
+<td>Partial: <code>find_path</code> first match</td>
+<td>Implemented: first match and Query results</td>
+<td>Implemented: <code>Document.Query</code> all matches</td>
+</tr>
+<tr>
+<td>Schema (<code>tlv/schema/</code>)</td>
+<td>Partial: C schema descriptions with validation helpers</td>
+<td>Partial: length/structure schemas and detailed reports</td>
+<td>Partial: length/structure schemas and detailed reports</td>
+<td>Partial: structural schemas/reports; no standalone length-schema facade</td>
 <td>Missing</td>
 </tr>
 <tr>
-<td>Writer diagnostics: <code>tlv_writer_diagnostic_t</code> and diagnostic operations</td>
-<td>Audit</td>
-<td>Bound: owned sequential, single-element and Tree Writer diagnostics</td>
-<td>Audit</td>
-<td>Bound: owned sequential and Tree Writer error fields; single-element facade missing</td>
+<td>Value Codec (<code>tlv/codec/</code> and built-ins)</td>
+<td>Partial: generic typed codecs/fields and standard conveniences; no claim of every C descriptor</td>
+<td>Partial: configured NumberCodec and EMV codecs</td>
+<td>Partial: configured NumberCodec and EMV amount</td>
+<td>Partial: generic/configured codecs, EMV and custom callbacks</td>
+<td>Partial: generic typed codecs; no protocol/custom/Structure codecs</td>
 </tr>
 <tr>
-<td>Exact copy/preservation: <code>tlv_writer_copy_encoded[_diag]</code>, <code>tlv_writer_preserve[_diag]</code>, <code>tlv_source_preserve</code></td>
-<td>Audit</td>
-<td>Bound: <code>Writer::copy_encoded</code>, <code>Writer::preserve</code>, <code>Decoded::preserve</code></td>
-<td>Bound: <code>Writer.copy_encoded</code>, <code>Writer.preserve</code>, <code>Decoded.preserve_into</code></td>
+<td>Structure Codec (<code>tlv_structure_codec_t</code>)</td>
+<td>Implemented: application-object adapters</td>
+<td>Missing</td>
+<td>Missing</td>
+<td>Missing</td>
 <td>Missing</td>
 </tr>
 <tr>
-<td>Query: parse/step, matcher init/visit, <code>tlv_query_visit</code>, <code>tlv_query_visit_buffer</code></td>
-<td>Bound: <code>query</code>, <code>query_matcher</code></td>
-<td>Bound: <code>Query</code>, <code>QueryMatcher</code></td>
-<td>Bound: <code>Query</code>, <code>QueryMatcher</code></td>
-<td>Missing</td>
-</tr>
-<tr>
-<td>Schema: public <code>tlv/schema/</code> operations, constraints and diagnostics</td>
-<td>Audit</td>
-<td>Partial: constraints, named fields/groups, bounded detailed reports and Fixed Format validation bound; remaining Format extensions out of scope for #400</td>
-<td>Partial: constraints, named fields/groups, bounded detailed reports and Fixed Format validation bound; remaining Format extensions out of scope for #400</td>
-<td>Partial: structural schemas and bounded detailed reports; standalone length-schema operations remain unbound</td>
-</tr>
-<tr>
-<td>Codec: public <code>tlv/codec/</code> operations and builtin codecs (additional codecs out of scope for #400)</td>
-<td>Audit</td>
-<td>Partial: configured <code>NumberCodec</code> and EMV codecs</td>
-<td>Partial: configured <code>NumberCodec</code> and EMV amount</td>
-<td>Value codecs, configuration, builtin EMV selection and custom callbacks (#302); structure codecs remain unbound</td>
-</tr>
-<tr>
-<td>Generic Definition: <code>tlv_definition_t</code>, <code>tlv_definition_registry_t</code>, <code>tlv_definition_find</code></td>
-<td>Bound: borrowed <code>definition_registry</code></td>
-<td>Bound: owned <code>DefinitionRegistry</code></td>
-<td>Bound: owned <code>DefinitionRegistry</code></td>
+<td>Definition / dictionaries (<code>tlv_definition_*</code>)</td>
+<td>Partial: generic registry and standard lookups</td>
+<td>Partial: generic registry and EMV dictionary</td>
+<td>Partial: generic registry</td>
 <td>Missing generic facade</td>
-</tr>
-<tr>
-<td>Builtin Definition/dictionary registries and protocol-specific lookup (additional coverage out of scope for #400)</td>
-<td>Audit</td>
-<td>Partial: EMV dictionary</td>
 <td>Missing</td>
-<td>Separate stories</td>
 </tr>
 <tr>
-<td>Format: decode/measure/encode, configuration, custom callbacks and optional builtins (remaining extensions out of scope for #400)</td>
-<td>Audit</td>
-<td>Partial</td>
-<td>Partial</td>
-<td>Partial</td>
+<td>Field Encoding / reusable Layout configuration</td>
+<td>Partial: custom Format can compose C through explicit interop; no complete idiomatic configuration facade</td>
+<td>Missing general configuration facade</td>
+<td>Missing general configuration facade</td>
+<td>Missing general configuration facade</td>
+<td>Missing general configuration facade</td>
 </tr>
 <tr>
-<td>Format field-layout configuration: public <code>tlv/layout.h</code> operations (remaining extensions out of scope for #400)</td>
-<td>Audit</td>
-<td>Audit</td>
-<td>Audit</td>
-<td>Audit</td>
+<td>Owned mutable Document (<code>tlv_document_*</code>)</td>
+<td>Implemented: RAII, Node, edit, encode; native allocator options</td>
+<td>Partial: Document/Node/NodeMut; no allocator adaptation</td>
+<td>Partial: safe Node handles; no allocator adaptation</td>
+<td>Partial: checked Nodes and edits; no allocator adaptation</td>
+<td>Partial: copied Node content, edits and Close; no allocator adaptation</td>
 </tr>
 <tr>
-<td>Document: public <code>tlv/document/document.h</code> operations and node lifetimes</td>
-<td>Audit</td>
-<td>Partial: owning <code>Document</code>, borrowed <code>Node</code>/<code>NodeMut</code>, builder; allocator adaptation out of scope for #400</td>
-<td>Partial: safe invalidation, builder, builtin destination formats; allocator and remaining destination configuration out of scope for #400</td>
+<td>Resumable Document Builder</td>
+<td>Implemented</td>
+<td>Implemented</td>
+<td>Implemented</td>
+<td>Missing</td>
 <td>Missing</td>
 </tr>
 </tbody>
 </table>
-<p>Go exposes Format, Element, Reader, Writer and owned mutable Document facades
-(#472–#477), owned diagnostics (#478), Document path Query and typed generic
-Value codecs (#479). Query delegates parsing and traversal to C and returns
-checked Node handles. Codec results own their Go storage and preserve the
-separate native codec status domain. Buffer/resumable Query, protocol-specific
-and application-object Structure codecs, custom Format callbacks and resumable
-Document Builder integration remain gaps. Java remains future work.
-The current WASM tooling embedding exposes only a parse-to-JSON operation; it
-does not satisfy general binding parity. Its classification is described below.
-Neither an experimental label nor an FFI declaration closes a matrix gap.</p>
-<p>The first implementation slice has focused C++ tests in
-<code>tests/unit/reader/test_reader.cpp</code>: borrowed source results, incomplete/final
-input, discarded-window offsets, preorder agreement with C, resource limits,
-subtree skipping, Visitor STOP/resume and incremental Query continuation.
-Rows marked Audit require a function-by-function review before claiming full
-capability parity. For #400 acceptance, this review applies to its in-scope
-operations; the exclusions above are tracked for follow-up work.</p>
+<p>Audit evidence is the public facade and consumer tests, rather than raw FFI:</p>
+<table>
+<thead>
+<tr>
+<th>Language</th>
+<th>Public implementation</th>
+<th>Consumer/parity tests</th>
+<th>User guide</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>C++</td>
+<td><a href="https://github.com/marekcingel/OpenTLV/tree/main/tlv++/include/tlv++">headers</a></td>
+<td><a href="https://github.com/marekcingel/OpenTLV/tree/main/tests/unit/reader">reader</a>, <a href="https://github.com/marekcingel/OpenTLV/tree/main/tests/unit/writer">writer</a>, <a href="https://github.com/marekcingel/OpenTLV/tree/main/tests/unit/document">document</a>, <a href="https://github.com/marekcingel/OpenTLV/tree/main/tests/unit/codec">codecs</a></td>
+<td><a href="../../guides/cxx-examples/">C++ examples</a></td>
+</tr>
+<tr>
+<td>Rust</td>
+<td><a href="https://github.com/marekcingel/OpenTLV/tree/main/bindings/rust/opentlv/src">opentlv/src</a></td>
+<td><a href="https://github.com/marekcingel/OpenTLV/tree/main/bindings/rust/opentlv/tests">opentlv/tests</a></td>
+<td><a href="../../guides/rust/">Rust</a></td>
+</tr>
+<tr>
+<td>Python</td>
+<td><a href="https://github.com/marekcingel/OpenTLV/tree/main/bindings/python/opentlv/src/opentlv">opentlv facade</a></td>
+<td><a href="https://github.com/marekcingel/OpenTLV/tree/main/bindings/python/opentlv/tests">facade tests</a></td>
+<td><a href="../../guides/python/">Python</a></td>
+</tr>
+<tr>
+<td>Lua</td>
+<td><a href="https://github.com/marekcingel/OpenTLV/tree/main/bindings/lua/src">facade adapters</a></td>
+<td><a href="https://github.com/marekcingel/OpenTLV/tree/main/bindings/lua/tests">consumer tests</a></td>
+<td><a href="../../guides/lua/">Lua</a></td>
+</tr>
+<tr>
+<td>Go</td>
+<td><a href="https://github.com/marekcingel/OpenTLV/tree/main/bindings/go">public package</a></td>
+<td><a href="https://github.com/marekcingel/OpenTLV/blob/main/bindings/go/tests/reader_test.go">public tests</a>, <a href="https://github.com/marekcingel/OpenTLV/tree/main/bindings/go/internal/capi">boundary tests</a></td>
+<td><a href="../../guides/go/">Go</a></td>
+</tr>
+</tbody>
+</table>
+<p>The WASM parse-to-JSON operation is a tooling embedding, not a general binding
+with Reader/Writer/Document parity. Java remains future work. Exact signatures
+belong in generated references and binding source documentation; this matrix
+records supported workflows and their limits. Do not treat an experimental
+label or raw FFI declaration as proof of parity.</p>
 <h3 id="c-resumable-traversal">C++ resumable traversal<a class="headerlink" href="#c-resumable-traversal" title="Permanent link">&para;</a></h3>
 <p><code>tlv::reader&lt;&gt;</code> and <code>tlv::tree_reader</code> accept <code>tlv::input_mode::incremental</code>.
 Their <code>next</code> operations return <code>expected</code> results with the original C codes:
@@ -3763,99 +3968,18 @@ reader's combined input/Format lifetime in the resulting Document.</p>
 destination formats, with <code>encoded_size_as</code> for measurement. Rust also offers
 caller-owned output and reports required capacity on shortage. Remaining
 configuration/allocator differences remain tracked coverage gaps and are
-explicitly out of scope for #400.</p>
-<h2 id="core-concepts">Core concepts<a class="headerlink" href="#core-concepts" title="Permanent link">&para;</a></h2>
-<table>
-<thead>
-<tr>
-<th>Concept</th>
-<th>Responsibility</th>
-<th>C</th>
-<th>C++ (<code>tlv++</code>)</th>
-<th>Rust (<code>opentlv</code>, experimental)</th>
-<th>Python (<code>opentlv</code>, experimental)</th>
-<th>Lua (<code>opentlv</code>, experimental)</th>
-</tr>
-</thead>
-<tbody>
-<tr>
-<td>Reader</td>
-<td>Read-only parsing and traversal</td>
-<td><code>tlv_reader_t</code>, <code>tlv_reader_next()</code></td>
-<td><code>tlv::reader&lt;&gt;</code></td>
-<td><code>Reader&lt;'a&gt;</code></td>
-<td><code>Reader</code></td>
-<td><code>opentlv.reader()</code></td>
-</tr>
-<tr>
-<td>Writer</td>
-<td>Construction and serialization</td>
-<td><code>tlv_writer_t</code></td>
-<td><code>tlv::writer&lt;&gt;</code></td>
-<td><code>Writer&lt;'a&gt;</code></td>
-<td><code>Writer</code></td>
-<td><code>opentlv.writer()</code></td>
-</tr>
-<tr>
-<td>Document</td>
-<td>Optional owning, mutable representation</td>
-<td><code>tlv_document_t</code></td>
-<td><code>tlv::document</code></td>
-<td><code>Document</code>, <code>Node</code>, <code>NodeMut</code>, <code>DocumentBuilder</code></td>
-<td><code>Document</code>, <code>Node</code>, <code>DocumentBuilder</code></td>
-<td><code>Document</code>, checked <code>Node</code>; builder remains unbound</td>
-</tr>
-<tr>
-<td>Element</td>
-<td>One TLV element with borrowed wire fields</td>
-<td><code>tlv_element_t</code></td>
-<td><code>tlv::element_view</code></td>
-<td><code>Element&lt;'a&gt;</code></td>
-<td><code>Element</code></td>
-<td>a plain table (<code>tag</code>/<code>raw_length</code>/<code>length</code>/<code>value</code>/<code>offset</code> fields)</td>
-</tr>
-<tr>
-<td>Tag</td>
-<td>The TLV tag abstraction: raw identifying bytes</td>
-<td><code>tlv_tag_t</code></td>
-<td><code>tlv::tag</code></td>
-<td><code>Tag</code></td>
-<td><code>Tag</code></td>
-<td>a raw Lua string (content equality already compares it)</td>
-</tr>
-<tr>
-<td>Schema</td>
-<td>Structural validation: tags, lengths, occurrence and nesting rules</td>
-<td><code>tlv_schema_t</code>, <code>tlv_structure_schema_t</code></td>
-<td>same C types, wrapped by <code>tlv::validate</code>/<code>tlv::validate_all_diag</code></td>
-<td><code>LengthSchema</code>, <code>StructureSchema</code></td>
-<td><code>LengthSchema</code>, <code>StructureSchema</code></td>
-<td><code>schema</code> / <code>Schema:validate</code> (structural reports)</td>
-</tr>
-<tr>
-<td>Codec</td>
-<td>Typed encoding and decoding of a value</td>
-<td><code>tlv_codec_t</code>, <code>tlv_structure_codec_t</code></td>
-<td><code>TlvCodec</code> concept, <code>tlv::decode_structure&lt;T&gt;</code>/<code>encode_structure</code></td>
-<td><code>Codec</code></td>
-<td><code>NumberCodec</code> and EMV amount functions</td>
-<td><code>codecs</code>, <code>codec {decode, encode}</code>; Value codecs only</td>
-</tr>
-<tr>
-<td>Diagnostics</td>
-<td>Structured diagnostic information for a failure</td>
-<td><code>tlv_diagnostic_t</code></td>
-<td><code>tlv::diagnostic</code> (alias)</td>
-<td><code>SchemaError</code>, <code>ValidationError</code>, <code>CodecError</code> (each carries the failing offset; no unified diagnostic type yet)</td>
-<td><code>OpenTLVError</code> subclasses carry the offset, expected/actual text and operation, when the C API reports them</td>
-<td>owned tables with common code/message/severity, optional native context/path/offset, and Reader/Writer or Schema detail</td>
-</tr>
-</tbody>
-</table>
-<p>Bindings may reach parity incrementally, but missing capabilities remain
-tracked gaps against the public facade contract. The table above describes
-concept coverage; exposing a concept does not establish coverage of every C
-operation belonging to it.</p>
+not yet exposed by their public facades.</p>
+<h2 id="shared-concepts-and-intentional-differences">Shared concepts and intentional differences<a class="headerlink" href="#shared-concepts-and-intentional-differences" title="Permanent link">&para;</a></h2>
+<p>Format describes wire representation; Layout locates an encoded instance;
+Element holds its Tag and logical Value. Schema describes structural rules and
+Codec interprets Value. Reader/Writer, traversal, Query and Document consume
+these contracts as described in the <a href="../architecture/">canonical architecture</a>.</p>
+<p>Borrowed C/C++/Rust views preserve storage lifetimes explicitly. Python retains
+immutable bytes and snapshots mutable input; Lua copies bytes into strings;
+Go Elements borrow slices while Node content and diagnostics are copied.
+These are language ergonomics, not different TLV representations. Document
+owns data in every binding, with language-specific cleanup and invalidation.
+See each language's guide for the actual allocation and lifetime boundaries.</p>
 <h2 id="adapting-ergonomics-not-architecture">Adapting ergonomics, not architecture<a class="headerlink" href="#adapting-ergonomics-not-architecture" title="Permanent link">&para;</a></h2>
 <p>Bindings must adapt syntax and behavior to the conventions of their target
 language; they must not introduce a different conceptual architecture to do
@@ -3863,9 +3987,8 @@ it. For example:</p>
 <ul>
 <li>Rust's <code>Reader</code> implements <code>Iterator&lt;Item = Result&lt;Element&gt;&gt;</code>, so callers
   write <code>for element in reader { ... }</code> instead of an explicit <code>at_end()</code>/
-  <code>next()</code> loop. <code>tlv++</code>'s <code>reader</code> uses that explicit loop today (or a
-  visitor passed to <code>reader.visit</code> or <code>tree_reader.visit</code>); a future C++ range-based <code>for</code> over a
-  <code>reader</code> would be the same adaptation applied there.</li>
+  <code>next()</code> loop. <code>tlv++</code> offers range iteration through <code>tlv::parse</code> and built-in <code>parse</code>
+  helpers, alongside explicit pulls and <code>reader.visit</code> / <code>tree_reader.visit</code>.</li>
 <li>Python's <code>Reader</code> iterates the same reader concept with
   <code>for element in reader:</code>, and raises a native <code>Exception</code> subclass instead of
   returning an error code.</li>
@@ -3898,55 +4021,59 @@ it. For example:</p>
 <p>The syntax changes; the concepts (a read-only, one-pass <code>Reader</code> yielding
 <code>Element</code> values) do not.</p>
 <h2 id="status-across-current-bindings">Status across current bindings<a class="headerlink" href="#status-across-current-bindings" title="Permanent link">&para;</a></h2>
-<ul>
-<li><strong>C++ (<code>tlv++</code>)</strong>: ships in this repository, header-only, and covers every
-  concept above except a standalone <code>Diagnostics</code> type (it reuses the C
-  <code>tlv_diagnostic_t</code> directly as <code>tlv::diagnostic</code>).</li>
-<li><strong>Rust (<code>opentlv</code>)</strong>: experimental, in <code>bindings/rust/</code>. Covers Reader,
-  Writer, Tree Reader/Writer, Query, Visitors, Document, Element, Tag, Schema
-  and EMV Codec. Codec conversion delegates to public C codecs; earlier
-  binding-side EMV conversions are no longer the implementation. Generic
-  codecs, structure codecs, allocator adaptation and other matrix gaps still
-  require work. See <a href="../../development/rust/">Rust bindings</a> and <a href="../../guides/rust/">using
-  OpenTLV from Rust</a>.</li>
-<li><strong>WebAssembly</strong>: in <code>bindings/wasm/</code>, a deliberately narrow <code>parse()</code>
-  function that returns a JSON element tree for browser tooling, not a
-  general-purpose object-oriented binding. It is a small embedding built on
-  the C API rather than a binding this contract's Reader/Writer/Element shape
-  applies to. See <a href="../../development/webassembly/">WebAssembly build</a>.</li>
-<li><strong>Python</strong>: experimental, in <code>bindings/python/</code>, split into
-  <code>opentlv-core</code> (a native extension written against the CPython C API,
-  using the CPython Limited API where compatible, that calls the public C
-  API) and <code>opentlv</code> (a pure-Python package on top of it) — the same split
-  as the Rust <code>opentlv-sys</code>/<code>opentlv</code> crates. Covers Reader, Writer,
-  Tree Reader/Writer, Query, Visitors, Document, Element, Tag and Schema.
-  Codec coverage includes configured numeric codecs and the EMV amount codec;
-  other public C codecs still need facade support. See <a href="../../development/python/">Python bindings</a>
-  and <a href="../../guides/python/">using OpenTLV from Python</a>.</li>
-<li><strong>Lua</strong>: experimental, in <code>bindings/lua/</code>, split into <code>opentlv._core</code> (a
-  native extension written directly against the Lua C API) and <code>opentlv</code>
-  (a one-line pure-Lua entry point on top of it, <code>lua/opentlv/init.lua</code>) —
-  the same split as the Rust <code>opentlv-sys</code>/<code>opentlv</code> and Python <code>opentlv-core</code>/<code>opentlv</code> packages,
-  though here the pure layer adds no ergonomics of its own, since Lua's C
-  API is already close to the concepts bound. Targets Lua 5.1 through 5.4
-  and LuaJIT. Covers Reader, Writer, Tree Writer, Element and Tag, across
-  the default, BER, CER, DER, Bluetooth LTV and configurable fixed-width formats, plus preorder tree
-  traversal (<code>opentlv.visit_tree()</code>, built on <code>tlv_tree_reader_visit()</code>/
-  <code>tlv_der_visit()</code>). Pull-based Tree Reader and advanced Writer capabilities
-  (measurement, structural events and exact copy/preservation) remain gaps
-  in Lua. Value codecs expose builtin representations, configured codecs,
-  EMV dictionary selection and custom callbacks through <code>tlv_codec_t</code> (#302).
-  Structure codecs remain unbound. See <a href="../../development/lua/">Lua bindings</a> and
-  <a href="../../guides/lua/">using OpenTLV from Lua</a>.</li>
-<li><strong>Go</strong>: experimental binding in <code>bindings/go/</code>, with a public
-  <code>opentlv</code> package and a private <code>internal/capi</code> cgo bridge. It currently
-  exposes Format, Element, Reader, Writer and owned mutable Document with
-  explicit Close, checked node handles and destination encoding, Document Query,
-  typed generic Value codecs and owned error diagnostics. Tests, public examples
-  and CI cover default and minimal configurations. Complete
-  processing capability parity remains future work. See the
-  <a href="https://github.com/marekcingel/OpenTLV/blob/main/bindings/go/README.md">Go binding README</a> for details. (#472–#480)</li>
-</ul>
+<p>Capability status is recorded once in the matrix above. Packaging and user
+entry points are:</p>
+<table>
+<thead>
+<tr>
+<th>Language / consumer</th>
+<th>Packaging and maturity</th>
+<th>Usage</th>
+<th>Development</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>C++</td>
+<td>Header-only C++11 facade shipped with OpenTLV; links the C engine</td>
+<td><a href="../../guides/cxx-examples/">C++ examples</a></td>
+<td><a href="../cxx-native-boundary/">Public/native contract</a></td>
+</tr>
+<tr>
+<td>Rust</td>
+<td>Experimental <code>opentlv</code> facade plus <code>opentlv-sys</code> FFI crate</td>
+<td><a href="../../guides/rust/">Rust guide</a></td>
+<td><a href="../../development/rust/">Rust development</a></td>
+</tr>
+<tr>
+<td>Python</td>
+<td>Experimental <code>opentlv</code> facade plus <code>opentlv-core</code> extension</td>
+<td><a href="../../guides/python/">Python guide</a></td>
+<td><a href="../../development/python/">Python development</a></td>
+</tr>
+<tr>
+<td>Lua</td>
+<td>Experimental <code>opentlv</code> module with native <code>opentlv._core</code> implementation</td>
+<td><a href="../../guides/lua/">Lua guide</a></td>
+<td><a href="../../development/lua/">Lua development</a></td>
+</tr>
+<tr>
+<td>Go</td>
+<td>Experimental public <code>opentlv</code> package with private <code>internal/capi</code> bridge</td>
+<td><a href="../../guides/go/">Go guide</a></td>
+<td><a href="../../development/go/">Go development</a></td>
+</tr>
+<tr>
+<td>WebAssembly</td>
+<td>Narrow parse-to-JSON tooling embedding; general facade parity does not apply</td>
+<td><a href="../../development/webassembly/">WASM tooling</a></td>
+<td><a href="https://github.com/marekcingel/OpenTLV/tree/main/bindings/wasm">WASM sources</a></td>
+</tr>
+</tbody>
+</table>
+<p>Language-specific copying, cleanup, errors and current limitations are documented
+in those guides; an experimental label neither implies full parity nor excuses
+an undocumented missing capability.</p>
 <h2 id="implementation-package-names">Implementation package names<a class="headerlink" href="#implementation-package-names" title="Permanent link">&para;</a></h2>
 <p>The binding boundary is shared; implementation names follow each language.
 Rust uses the raw FFI crate <code>opentlv-sys</code> (<code>opentlv_sys</code> in code). Python uses
@@ -4007,7 +4134,7 @@ compiled module under <code>opentlv/_core</code>, and direct implementation impo
       <nav class="md-footer__inner md-grid" aria-label="Footer" >
         
           
-          <a href="../endian/" class="md-footer__link md-footer__link--prev" aria-label="Previous: Byte order">
+          <a href="../../guides/lua/" class="md-footer__link md-footer__link--prev" aria-label="Previous: Using OpenTLV from Lua">
             <div class="md-footer__button md-icon">
               
               <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M20 11v2H8l5.5 5.5-1.42 1.42L4.16 12l7.92-7.92L13.5 5.5 8 11z"/></svg>
@@ -4017,20 +4144,20 @@ compiled module under <code>opentlv/_core</code>, and direct implementation impo
                 Previous
               </span>
               <div class="md-ellipsis">
-                Byte order
+                Using OpenTLV from Lua
               </div>
             </div>
           </a>
         
         
           
-          <a href="../cxx-native-boundary/" class="md-footer__link md-footer__link--next" aria-label="Next: C++ public/native boundary">
+          <a href="../../guides/go/" class="md-footer__link md-footer__link--next" aria-label="Next: Using OpenTLV from Go">
             <div class="md-footer__title">
               <span class="md-footer__direction">
                 Next
               </span>
               <div class="md-ellipsis">
-                C++ public/native boundary
+                Using OpenTLV from Go
               </div>
             </div>
             <div class="md-footer__button md-icon">

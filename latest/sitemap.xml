@@ -85,6 +85,10 @@
          <lastmod>2026-10-02</lastmod>
     </url>
     <url>
+         <loc>https://marekcingel.github.io/OpenTLV/latest/development/go/</loc>
+         <lastmod>2026-10-02</lastmod>
+    </url>
+    <url>
          <loc>https://marekcingel.github.io/OpenTLV/latest/development/lua/</loc>
          <lastmod>2026-10-02</lastmod>
     </url>
@@ -122,6 +126,10 @@
     </url>
     <url>
          <loc>https://marekcingel.github.io/OpenTLV/latest/formats/lldp-review/</loc>
+         <lastmod>2026-10-02</lastmod>
+    </url>
+    <url>
+         <loc>https://marekcingel.github.io/OpenTLV/latest/formats/support/</loc>
          <lastmod>2026-10-02</lastmod>
     </url>
     <url>
@@ -193,11 +201,23 @@
          <lastmod>2026-10-02</lastmod>
     </url>
     <url>
+         <loc>https://marekcingel.github.io/OpenTLV/latest/guides/examples/</loc>
+         <lastmod>2026-10-02</lastmod>
+    </url>
+    <url>
+         <loc>https://marekcingel.github.io/OpenTLV/latest/guides/go/</loc>
+         <lastmod>2026-10-02</lastmod>
+    </url>
+    <url>
          <loc>https://marekcingel.github.io/OpenTLV/latest/guides/lua/</loc>
          <lastmod>2026-10-02</lastmod>
     </url>
     <url>
          <loc>https://marekcingel.github.io/OpenTLV/latest/guides/memory/</loc>
+         <lastmod>2026-10-02</lastmod>
+    </url>
+    <url>
+         <loc>https://marekcingel.github.io/OpenTLV/latest/guides/processing/</loc>
          <lastmod>2026-10-02</lastmod>
     </url>
     <url>

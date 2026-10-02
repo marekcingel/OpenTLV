@@ -10,13 +10,13 @@
       
       
       
-        <link rel="canonical" href="https://marekcingel.github.io/OpenTLV/latest/formats/custom/">
+        <link rel="canonical" href="https://marekcingel.github.io/OpenTLV/latest/guides/examples/">
       
       
-        <link rel="prev" href="../asn1/cer/">
+        <link rel="prev" href="../processing/">
       
       
-        <link rel="next" href="../format-examples/">
+        <link rel="next" href="../memory/">
       
       
         
@@ -27,7 +27,7 @@
     
     
       
-        <title>Custom formats - OpenTLV</title>
+        <title>Executable examples - OpenTLV</title>
       
     
     
@@ -80,7 +80,7 @@
     <div data-md-component="skip">
       
         
-        <a href="#application-defined-format-example" class="md-skip">
+        <a href="#executable-examples-and-workflow-coverage" class="md-skip">
           Skip to content
         </a>
       
@@ -131,7 +131,7 @@
         <div class="md-header__topic" data-md-component="header-topic">
           <span class="md-ellipsis">
             
-              Custom formats
+              Executable examples
             
           </span>
         </div>
@@ -281,11 +281,13 @@
   
   
   
+    
+  
   
     
     
-      <li class="md-tabs__item">
-        <a href="../../guides/processing/" class="md-tabs__link">
+      <li class="md-tabs__item md-tabs__item--active">
+        <a href="../processing/" class="md-tabs__link">
           
   
   
@@ -305,7 +307,7 @@
     
     
       <li class="md-tabs__item">
-        <a href="../../guides/cxx-examples/" class="md-tabs__link">
+        <a href="../cxx-examples/" class="md-tabs__link">
           
   
   
@@ -321,13 +323,11 @@
   
   
   
-    
-  
   
     
     
-      <li class="md-tabs__item md-tabs__item--active">
-        <a href="../" class="md-tabs__link">
+      <li class="md-tabs__item">
+        <a href="../../formats/" class="md-tabs__link">
           
   
   
@@ -621,26 +621,31 @@
       
   
   
+    
   
   
+  
     
     
     
     
+      
+        
+        
       
       
         
       
     
     
-    <li class="md-nav__item md-nav__item--nested">
+    <li class="md-nav__item md-nav__item--active md-nav__item--section md-nav__item--nested">
       
         
         
-        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_3" >
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_3" checked>
         
           
-          <label class="md-nav__link" for="__nav_3" id="__nav_3_label" tabindex="0">
+          <label class="md-nav__link" for="__nav_3" id="__nav_3_label" tabindex="">
             
   
   
@@ -658,7 +663,7 @@
             <span class="md-nav__icon md-icon"></span>
           </label>
         
-        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_3_label" aria-expanded="false">
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_3_label" aria-expanded="true">
           <label class="md-nav__title" for="__nav_3">
             <span class="md-nav__icon md-icon"></span>
             
@@ -676,7 +681,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../guides/processing/" class="md-nav__link">
+      <a href="../processing/" class="md-nav__link">
         
   
   
@@ -701,10 +706,37 @@
                 
   
   
+    
   
   
-    <li class="md-nav__item">
-      <a href="../../guides/examples/" class="md-nav__link">
+  
+    <li class="md-nav__item md-nav__item--active">
+      
+      <input class="md-nav__toggle md-toggle" type="checkbox" id="__toc">
+      
+      
+        
+      
+      
+        <label class="md-nav__link md-nav__link--active" for="__toc">
+          
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Executable examples
+  
+
+    
+  </span>
+  
+  
+
+          <span class="md-nav__icon md-icon"></span>
+        </label>
+      
+      <a href="./" class="md-nav__link md-nav__link--active">
         
   
   
@@ -720,6 +752,59 @@
   
 
       </a>
+      
+        
+
+<nav class="md-nav md-nav--secondary" aria-label="Table of contents">
+  
+  
+  
+    
+  
+  
+    <label class="md-nav__title" for="__toc">
+      <span class="md-nav__icon md-icon"></span>
+      Table of contents
+    </label>
+    <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
+      
+        <li class="md-nav__item">
+  <a href="#workflow-coverage" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Workflow coverage
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#running-and-ci-coverage" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Running and CI coverage
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#source-inventory" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Source inventory
+      
+    </span>
+  </a>
+  
+</li>
+      
+    </ul>
+  
+</nav>
+      
     </li>
   
 
@@ -732,7 +817,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../guides/memory/" class="md-nav__link">
+      <a href="../memory/" class="md-nav__link">
         
   
   
@@ -760,7 +845,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../guides/diagnostics/" class="md-nav__link">
+      <a href="../diagnostics/" class="md-nav__link">
         
   
   
@@ -788,7 +873,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../guides/schemas/" class="md-nav__link">
+      <a href="../schemas/" class="md-nav__link">
         
   
   
@@ -816,7 +901,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../guides/codecs/" class="md-nav__link">
+      <a href="../codecs/" class="md-nav__link">
         
   
   
@@ -844,7 +929,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../guides/copy/" class="md-nav__link">
+      <a href="../copy/" class="md-nav__link">
         
   
   
@@ -872,7 +957,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../guides/reader/" class="md-nav__link">
+      <a href="../reader/" class="md-nav__link">
         
   
   
@@ -900,7 +985,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../guides/writer/" class="md-nav__link">
+      <a href="../writer/" class="md-nav__link">
         
   
   
@@ -928,7 +1013,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../guides/queries/" class="md-nav__link">
+      <a href="../queries/" class="md-nav__link">
         
   
   
@@ -956,7 +1041,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../guides/document/" class="md-nav__link">
+      <a href="../document/" class="md-nav__link">
         
   
   
@@ -984,7 +1069,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../guides/select-components/" class="md-nav__link">
+      <a href="../select-components/" class="md-nav__link">
         
   
   
@@ -1071,7 +1156,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../guides/cxx-examples/" class="md-nav__link">
+      <a href="../cxx-examples/" class="md-nav__link">
         
   
   
@@ -1099,7 +1184,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../guides/rust/" class="md-nav__link">
+      <a href="../rust/" class="md-nav__link">
         
   
   
@@ -1127,7 +1212,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../guides/python/" class="md-nav__link">
+      <a href="../python/" class="md-nav__link">
         
   
   
@@ -1155,7 +1240,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../guides/lua/" class="md-nav__link">
+      <a href="../lua/" class="md-nav__link">
         
   
   
@@ -1211,7 +1296,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../guides/go/" class="md-nav__link">
+      <a href="../go/" class="md-nav__link">
         
   
   
@@ -1271,31 +1356,26 @@
       
   
   
-    
   
   
-  
     
     
     
     
-      
-        
-        
       
       
         
       
     
     
-    <li class="md-nav__item md-nav__item--active md-nav__item--section md-nav__item--nested">
+    <li class="md-nav__item md-nav__item--nested">
       
         
         
-        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_5" checked>
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_5" >
         
           
-          <label class="md-nav__link" for="__nav_5" id="__nav_5_label" tabindex="">
+          <label class="md-nav__link" for="__nav_5" id="__nav_5_label" tabindex="0">
             
   
   
@@ -1313,7 +1393,7 @@
             <span class="md-nav__icon md-icon"></span>
           </label>
         
-        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_5_label" aria-expanded="true">
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_5_label" aria-expanded="false">
           <label class="md-nav__title" for="__nav_5">
             <span class="md-nav__icon md-icon"></span>
             
@@ -1331,7 +1411,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../" class="md-nav__link">
+      <a href="../../formats/" class="md-nav__link">
         
   
   
@@ -1359,7 +1439,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../support/" class="md-nav__link">
+      <a href="../../formats/support/" class="md-nav__link">
         
   
   
@@ -1387,7 +1467,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../fixed/configurable/" class="md-nav__link">
+      <a href="../../formats/fixed/configurable/" class="md-nav__link">
         
   
   
@@ -1415,7 +1495,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../variable/" class="md-nav__link">
+      <a href="../../formats/variable/" class="md-nav__link">
         
   
   
@@ -1443,7 +1523,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../bluetooth/" class="md-nav__link">
+      <a href="../../formats/bluetooth/" class="md-nav__link">
         
   
   
@@ -1471,7 +1551,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../nfc/" class="md-nav__link">
+      <a href="../../formats/nfc/" class="md-nav__link">
         
   
   
@@ -1499,7 +1579,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../dhcp/" class="md-nav__link">
+      <a href="../../formats/dhcp/" class="md-nav__link">
         
   
   
@@ -1527,7 +1607,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../lldp/" class="md-nav__link">
+      <a href="../../formats/lldp/" class="md-nav__link">
         
   
   
@@ -1555,7 +1635,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../lldp/conformance/" class="md-nav__link">
+      <a href="../../formats/lldp/conformance/" class="md-nav__link">
         
   
   
@@ -1583,7 +1663,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../asn1/ber/" class="md-nav__link">
+      <a href="../../formats/asn1/ber/" class="md-nav__link">
         
   
   
@@ -1611,7 +1691,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../asn1/der/" class="md-nav__link">
+      <a href="../../formats/asn1/der/" class="md-nav__link">
         
   
   
@@ -1639,7 +1719,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../asn1/cer/" class="md-nav__link">
+      <a href="../../formats/asn1/cer/" class="md-nav__link">
         
   
   
@@ -1664,37 +1744,10 @@
                 
   
   
-    
   
   
-  
-    <li class="md-nav__item md-nav__item--active">
-      
-      <input class="md-nav__toggle md-toggle" type="checkbox" id="__toc">
-      
-      
-        
-      
-      
-        <label class="md-nav__link md-nav__link--active" for="__toc">
-          
-  
-  
-  <span class="md-ellipsis">
-    
-  
-    Custom formats
-  
-
-    
-  </span>
-  
-  
-
-          <span class="md-nav__icon md-icon"></span>
-        </label>
-      
-      <a href="./" class="md-nav__link md-nav__link--active">
+    <li class="md-nav__item">
+      <a href="../../formats/custom/" class="md-nav__link">
         
   
   
@@ -1710,70 +1763,6 @@
   
 
       </a>
-      
-        
-
-<nav class="md-nav md-nav--secondary" aria-label="Table of contents">
-  
-  
-  
-    
-  
-  
-    <label class="md-nav__title" for="__toc">
-      <span class="md-nav__icon md-icon"></span>
-      Table of contents
-    </label>
-    <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
-      
-        <li class="md-nav__item">
-  <a href="#api-and-build" class="md-nav__link">
-    <span class="md-ellipsis">
-      
-        API and build
-      
-    </span>
-  </a>
-  
-</li>
-      
-        <li class="md-nav__item">
-  <a href="#scope-and-limits" class="md-nav__link">
-    <span class="md-ellipsis">
-      
-        Scope and limits
-      
-    </span>
-  </a>
-  
-</li>
-      
-        <li class="md-nav__item">
-  <a href="#c-usage" class="md-nav__link">
-    <span class="md-ellipsis">
-      
-        C usage
-      
-    </span>
-  </a>
-  
-</li>
-      
-        <li class="md-nav__item">
-  <a href="#byte-example" class="md-nav__link">
-    <span class="md-ellipsis">
-      
-        Byte example
-      
-    </span>
-  </a>
-  
-</li>
-      
-    </ul>
-  
-</nav>
-      
     </li>
   
 
@@ -1786,7 +1775,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../format-examples/" class="md-nav__link">
+      <a href="../../formats/format-examples/" class="md-nav__link">
         
   
   
@@ -1814,7 +1803,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../format-roadmap/" class="md-nav__link">
+      <a href="../../formats/format-roadmap/" class="md-nav__link">
         
   
   
@@ -1842,7 +1831,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../format-catalogue/" class="md-nav__link">
+      <a href="../../formats/format-catalogue/" class="md-nav__link">
         
   
   
@@ -1870,7 +1859,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../lldp-review/" class="md-nav__link">
+      <a href="../../formats/lldp-review/" class="md-nav__link">
         
   
   
@@ -3203,10 +3192,10 @@
     <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
       
         <li class="md-nav__item">
-  <a href="#api-and-build" class="md-nav__link">
+  <a href="#workflow-coverage" class="md-nav__link">
     <span class="md-ellipsis">
       
-        API and build
+        Workflow coverage
       
     </span>
   </a>
@@ -3214,10 +3203,10 @@
 </li>
       
         <li class="md-nav__item">
-  <a href="#scope-and-limits" class="md-nav__link">
+  <a href="#running-and-ci-coverage" class="md-nav__link">
     <span class="md-ellipsis">
       
-        Scope and limits
+        Running and CI coverage
       
     </span>
   </a>
@@ -3225,21 +3214,10 @@
 </li>
       
         <li class="md-nav__item">
-  <a href="#c-usage" class="md-nav__link">
+  <a href="#source-inventory" class="md-nav__link">
     <span class="md-ellipsis">
       
-        C usage
-      
-    </span>
-  </a>
-  
-</li>
-      
-        <li class="md-nav__item">
-  <a href="#byte-example" class="md-nav__link">
-    <span class="md-ellipsis">
-      
-        Byte example
+        Source inventory
       
     </span>
   </a>
@@ -3263,7 +3241,7 @@
 
 
   
-    <a href="https://github.com/marekcingel/OpenTLV/edit/main/docs/formats/custom/README.md" title="Edit this page" class="md-content__button md-icon" rel="edit">
+    <a href="https://github.com/marekcingel/OpenTLV/edit/main/docs/guides/examples.md" title="Edit this page" class="md-content__button md-icon" rel="edit">
       
       <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M10 20H6V4h7v5h5v3.1l2-2V8l-6-6H6c-1.1 0-2 .9-2 2v16c0 1.1.9 2 2 2h4zm10.2-7c.1 0 .3.1.4.2l1.3 1.3c.2.2.2.6 0 .8l-1 1-2.1-2.1 1-1c.1-.1.2-.2.4-.2m0 3.9L14.1 23H12v-2.1l6.1-6.1z"/></svg>
     </a>
@@ -3271,75 +3249,479 @@
   
 
 
-<h1 id="application-defined-format-example">Application-defined format example<a class="headerlink" href="#application-defined-format-example" title="Permanent link">&para;</a></h1>
-<p><a href="../">Format documentation</a></p>
-<h2 id="api-and-build">API and build<a class="headerlink" href="#api-and-build" title="Permanent link">&para;</a></h2>
+<h1 id="executable-examples-and-workflow-coverage">Executable examples and workflow coverage<a class="headerlink" href="#executable-examples-and-workflow-coverage" title="Permanent link">&para;</a></h1>
+<p>Examples are part of the public documentation surface: they demonstrate the
+same concepts through each language's intended API. Native C interoperability
+is explicit in the C++ runtime Fixed, advanced-control and Schema examples;
+it is not the default application path. Go examples import only the public
+package. Rust uses <code>opentlv</code>, Python uses <code>opentlv</code>, Lua uses <code>require("opentlv")</code>
+and WebAssembly uses the supported JavaScript loader.</p>
+<h2 id="workflow-coverage">Workflow coverage<a class="headerlink" href="#workflow-coverage" title="Permanent link">&para;</a></h2>
+<p>Links below name existing programs, not promised parity. A dash means there is
+no dedicated example for that workflow; the binding may still implement it.
+See the <a href="../../concepts/bindings/">binding matrix</a> for actual capability coverage.</p>
 <table>
 <thead>
 <tr>
-<th>Setting</th>
-<th>Value</th>
+<th>Workflow</th>
+<th>C</th>
+<th>C++</th>
+<th>Rust</th>
+<th>Python</th>
+<th>Lua</th>
+<th>Go</th>
+<th>WASM</th>
 </tr>
 </thead>
 <tbody>
 <tr>
-<td>Header</td>
-<td><code>tlv/format.h</code>, <code>tlv/layout.h</code></td>
+<td>Quick start</td>
+<td>quick_start.c</td>
+<td>quick_start.cpp</td>
+<td>quick_start.rs</td>
+<td>quick_start.py</td>
+<td>quick_start.lua</td>
+<td>quick_start/main.go</td>
+<td>—</td>
 </tr>
 <tr>
-<td>Setup</td>
-<td><code>tlv_format_init</code> or <code>tlv_fields_format_init</code></td>
+<td>Reader</td>
+<td>sequential_io.c, incremental_reader.c</td>
+<td>quick_start.cpp, advanced_control.cpp</td>
+<td>reader.rs</td>
+<td>parse.py</td>
+<td>quick_start.lua</td>
+<td>reader/main.go</td>
+<td>parse.mjs</td>
 </tr>
 <tr>
-<td>CMake option</td>
-<td>None; generic callbacks are always available</td>
+<td>Writer</td>
+<td>sequential_io.c</td>
+<td>quick_start.cpp</td>
+<td>writer.rs</td>
+<td>writer.py</td>
+<td>quick_start.lua</td>
+<td>writer/main.go</td>
+<td>—</td>
 </tr>
 <tr>
-<td>Link target</td>
-<td><code>tlv</code></td>
+<td>Nested/tree traversal</td>
+<td>tree_reader.c, visitor.c, parse.c</td>
+<td>parse.cpp</td>
+<td>parse.rs</td>
+<td>parse.py</td>
+<td>parse.lua</td>
+<td>—</td>
+<td>parse.mjs</td>
+</tr>
+<tr>
+<td>Nested construction</td>
+<td>tree_writer.c, write.c</td>
+<td>write.cpp</td>
+<td>write.rs</td>
+<td>write.py</td>
+<td>—</td>
+<td>writer/main.go</td>
+<td>—</td>
+</tr>
+<tr>
+<td>Owned Document</td>
+<td>—</td>
+<td>document.cpp, document_edit.cpp</td>
+<td>—</td>
+<td>document.py</td>
+<td>—</td>
+<td>document/main.go</td>
+<td>—</td>
+</tr>
+<tr>
+<td>Query</td>
+<td>query.c</td>
+<td>query.cpp</td>
+<td>—</td>
+<td>query.py</td>
+<td>—</td>
+<td>query/main.go</td>
+<td>—</td>
+</tr>
+<tr>
+<td>Schema / validation</td>
+<td>schema_visitor.c, validate.c</td>
+<td>validate.cpp</td>
+<td>validate.rs</td>
+<td>validate.py</td>
+<td>schema.lua</td>
+<td>—</td>
+<td>—</td>
+</tr>
+<tr>
+<td>Codec / typed Values</td>
+<td>codecs_and_endian.c</td>
+<td>typed_fields.cpp</td>
+<td>—</td>
+<td>codec.py</td>
+<td>codec.lua</td>
+<td>codec/main.go</td>
+<td>—</td>
+</tr>
+<tr>
+<td>Built-in standards</td>
+<td>BER, CER, EMV, DHCP, LLDP, NFC programs</td>
+<td>BER use cases, lldp.cpp</td>
+<td>BER use cases</td>
+<td>BER use cases</td>
+<td>BER use cases / EMV codec</td>
+<td>optional BER nested writing</td>
+<td>BER parsing</td>
 </tr>
 </tbody>
 </table>
-<h2 id="scope-and-limits">Scope and limits<a class="headerlink" href="#scope-and-limits" title="Permanent link">&para;</a></h2>
-<p>The application supplies its descriptors, callbacks, and optional context.
-Callbacks define valid tags and lengths, obey buffer bounds, and support writer
-size queries. For a fixed-width tag and length, use the built-in
-<a href="../fixed/configurable/">configurable fixed-width format</a> instead of custom
-callbacks; write custom callbacks for anything with a different shape, such as
-a variable-length or protocol-specific length field.
-See <a href="../../guides/memory/#format-context-ownership-and-lifetime">format context ownership and lifetime</a>.</p>
-<p>For packed or otherwise transformed identifiers, set
-<code>result-&gt;source.tag_binding = TLV_TAG_BINDING_FORMAT</code> in the decoder and return
-semantic Tag bytes from immutable format-supplied storage. The default binding
-requires a direct input slice. The optional source Tag range describes the wire
-byte envelope, which may overlap Length; it does not hold the transformed bytes.
-Storage must outlive all retained results and must not be reused as scratch.
-See the <a href="../../concepts/format-contract/#decoded-identifier-consistency">identifier contract</a>
-for validation, copying and lifetime rules. These semantics require a complete
-Format callback; sequential <code>tlv_field_layout_t</code> helpers still describe byte
-fields rather than packed bits.</p>
-<h2 id="c-usage">C usage<a class="headerlink" href="#c-usage" title="Permanent link">&para;</a></h2>
-<p>Use the complete custom-format implementation in the
-<a href="https://github.com/marekcingel/OpenTLV/blob/main/examples/tlv/src/custom_format.c">C example</a>, which includes callback
-implementations, descriptor initialization, writing, and reading.
-The <a href="../#generic-interface">generic contract</a> documents each callback.</p>
-<h2 id="byte-example">Byte example<a class="headerlink" href="#byte-example" title="Permanent link">&para;</a></h2>
-<p>Custom callbacks are implemented infrastructure, not one additional standardized
-wire format. The bundled C example supplies a one-byte tag and a fixed two-byte
-little-endian length:</p>
-<div class="highlight"><pre><span></span><code><a id="__codelineno-0-1" name="__codelineno-0-1" href="#__codelineno-0-1"></a>01 01 00 AA
-<a id="__codelineno-0-2" name="__codelineno-0-2" href="#__codelineno-0-2"></a>Element (4 bytes)
-<a id="__codelineno-0-3" name="__codelineno-0-3" href="#__codelineno-0-3"></a>|-- Tag:    01
-<a id="__codelineno-0-4" name="__codelineno-0-4" href="#__codelineno-0-4"></a>|-- Length: 01 00 (little-endian) = 1 value byte
-<a id="__codelineno-0-5" name="__codelineno-0-5" href="#__codelineno-0-5"></a>`-- Value:  AA
-</code></pre></div>
-<p>See the custom-format implementation in the
-<a href="https://github.com/marekcingel/OpenTLV/blob/main/examples/tlv/src/custom_format.c">C example</a> and the
-<a href="../#generic-interface">callback contracts</a>. This particular shape -
-a fixed-width tag and length - could also be built with the
-<a href="../fixed/configurable/">configurable fixed-width format</a>
-(<code>tag_size = 1, length_size = 2, order = TLV_BYTE_ORDER_LITTLE_ENDIAN</code>); the
-example keeps hand-written callbacks to demonstrate the generic mechanism.</p>
+<h2 id="running-and-ci-coverage">Running and CI coverage<a class="headerlink" href="#running-and-ci-coverage" title="Permanent link">&para;</a></h2>
+<p>The <a href="../../getting-started/#quick-start">quick start</a> supplies setup and
+run commands. Use the <a href="../cxx-examples/">C++ guide</a> and the language guides for
+<a href="../rust/">Rust</a>, <a href="../python/">Python</a>, <a href="../lua/">Lua</a> and <a href="../go/">Go</a>.
+C/C++ sources are registered by their example CMake files and run as CTest
+examples when their components are enabled. Component prerequisites can omit
+individual programs; compiling a minimal build does not exercise disabled formats.</p>
+<p>Rust CI builds all targets and runs the quick start; that is not a claim that
+every example is runtime-tested. Python and Lua CI run their example programs.
+Go CI runs applicable examples in default/minimal builds, excluding Document
+and Query where Document is disabled. WASM's Node example is runnable after an
+Emscripten build; a WASM build alone does not prove that example was run.
+The CLI's <a href="https://github.com/marekcingel/OpenTLV/blob/main/tools/cli/examples.cmake">acceptance script</a> exercises the
+shared Fixed round trip and nested BER decode/encode/query workflows.</p>
+<p>Embedded complete programs use <code>&lt;!-- example: PATH --&gt;</code>; run
+<code>python scripts/check_doc_examples.py</code> to keep the copies identical. Small
+illustrative fragments link to runnable programs. Changes to public APIs must
+update their examples and documentation together.</p>
+<h2 id="source-inventory">Source inventory<a class="headerlink" href="#source-inventory" title="Permanent link">&para;</a></h2>
+<p>The <a href="../../development/documentation-layout/#documentation-inventory-checks">documentation inventory check</a>
+compares every source below with the example directories, detecting additions,
+removals and stale links. This is an inventory, not evidence of a CI runtime pass.</p>
+<!-- example-inventory:start -->
+
+<table>
+<thead>
+<tr>
+<th>Language</th>
+<th>Executable source</th>
+<th>Demonstrates</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>C</td>
+<td><a href="https://github.com/marekcingel/OpenTLV/blob/main/examples/tlv/src/builtins/asn1/ber.c">builtins/asn1/ber.c</a></td>
+<td>BER framing / construction</td>
+</tr>
+<tr>
+<td>C</td>
+<td><a href="https://github.com/marekcingel/OpenTLV/blob/main/examples/tlv/src/builtins/asn1/cer.c">builtins/asn1/cer.c</a></td>
+<td>CER framing</td>
+</tr>
+<tr>
+<td>C</td>
+<td><a href="https://github.com/marekcingel/OpenTLV/blob/main/examples/tlv/src/builtins/emv/tag_decoding.c">builtins/emv/tag_decoding.c</a></td>
+<td>EMV definitions / codecs</td>
+</tr>
+<tr>
+<td>C</td>
+<td><a href="https://github.com/marekcingel/OpenTLV/blob/main/examples/tlv/src/codecs_and_endian.c">codecs_and_endian.c</a></td>
+<td>Value codecs and byte order</td>
+</tr>
+<tr>
+<td>C</td>
+<td><a href="https://github.com/marekcingel/OpenTLV/blob/main/examples/tlv/src/copies.c">copies.c</a></td>
+<td>Explicit copy / preservation</td>
+</tr>
+<tr>
+<td>C</td>
+<td><a href="https://github.com/marekcingel/OpenTLV/blob/main/examples/tlv/src/custom_format.c">custom_format.c</a></td>
+<td>Application Format</td>
+</tr>
+<tr>
+<td>C</td>
+<td><a href="https://github.com/marekcingel/OpenTLV/blob/main/examples/tlv/src/dhcpv4.c">dhcpv4.c</a></td>
+<td>DHCPv4 framing / End policy</td>
+</tr>
+<tr>
+<td>C</td>
+<td><a href="https://github.com/marekcingel/OpenTLV/blob/main/examples/tlv/src/formats/fixed_format.c">formats/fixed_format.c</a></td>
+<td>Generic Fixed Format</td>
+</tr>
+<tr>
+<td>C</td>
+<td><a href="https://github.com/marekcingel/OpenTLV/blob/main/examples/tlv/src/incremental_reader.c">incremental_reader.c</a></td>
+<td>Resumable input</td>
+</tr>
+<tr>
+<td>C</td>
+<td><a href="https://github.com/marekcingel/OpenTLV/blob/main/examples/tlv/src/lldp.c">lldp.c</a></td>
+<td>LLDP validation / codecs</td>
+</tr>
+<tr>
+<td>C</td>
+<td><a href="https://github.com/marekcingel/OpenTLV/blob/main/examples/tlv/src/nfc_type2.c">nfc_type2.c</a></td>
+<td>NFC Type 2 framing</td>
+</tr>
+<tr>
+<td>C</td>
+<td><a href="https://github.com/marekcingel/OpenTLV/blob/main/examples/tlv/src/parse.c">parse.c</a></td>
+<td>Nested parsing / traversal</td>
+</tr>
+<tr>
+<td>C</td>
+<td><a href="https://github.com/marekcingel/OpenTLV/blob/main/examples/tlv/src/query.c">query.c</a></td>
+<td>Path Query</td>
+</tr>
+<tr>
+<td>C</td>
+<td><a href="https://github.com/marekcingel/OpenTLV/blob/main/examples/tlv/src/quick_start.c">quick_start.c</a></td>
+<td>Quick start / round trip</td>
+</tr>
+<tr>
+<td>C</td>
+<td><a href="https://github.com/marekcingel/OpenTLV/blob/main/examples/tlv/src/schema_visitor.c">schema_visitor.c</a></td>
+<td>Schema and Visitor</td>
+</tr>
+<tr>
+<td>C</td>
+<td><a href="https://github.com/marekcingel/OpenTLV/blob/main/examples/tlv/src/sequential_io.c">sequential_io.c</a></td>
+<td>Sequential Reader / Writer</td>
+</tr>
+<tr>
+<td>C</td>
+<td><a href="https://github.com/marekcingel/OpenTLV/blob/main/examples/tlv/src/tree_reader.c">tree_reader.c</a></td>
+<td>Pull Tree Reader</td>
+</tr>
+<tr>
+<td>C</td>
+<td><a href="https://github.com/marekcingel/OpenTLV/blob/main/examples/tlv/src/tree_writer.c">tree_writer.c</a></td>
+<td>Tree Writer</td>
+</tr>
+<tr>
+<td>C</td>
+<td><a href="https://github.com/marekcingel/OpenTLV/blob/main/examples/tlv/src/validate.c">validate.c</a></td>
+<td>Schema / validation</td>
+</tr>
+<tr>
+<td>C</td>
+<td><a href="https://github.com/marekcingel/OpenTLV/blob/main/examples/tlv/src/visitor.c">visitor.c</a></td>
+<td>Visitor traversal</td>
+</tr>
+<tr>
+<td>C</td>
+<td><a href="https://github.com/marekcingel/OpenTLV/blob/main/examples/tlv/src/write.c">write.c</a></td>
+<td>Nested construction</td>
+</tr>
+<tr>
+<td>C++</td>
+<td><a href="https://github.com/marekcingel/OpenTLV/blob/main/examples/tlv++/src/advanced_control.cpp">advanced_control.cpp</a></td>
+<td>Input control, scratch and explicit native interop</td>
+</tr>
+<tr>
+<td>C++</td>
+<td><a href="https://github.com/marekcingel/OpenTLV/blob/main/examples/tlv++/src/basic_usage.cpp">basic_usage.cpp</a></td>
+<td>Reader / Writer / codecs</td>
+</tr>
+<tr>
+<td>C++</td>
+<td><a href="https://github.com/marekcingel/OpenTLV/blob/main/examples/tlv++/src/document.cpp">document.cpp</a></td>
+<td>Owned Document / traversal</td>
+</tr>
+<tr>
+<td>C++</td>
+<td><a href="https://github.com/marekcingel/OpenTLV/blob/main/examples/tlv++/src/document_edit.cpp">document_edit.cpp</a></td>
+<td>Document mutation</td>
+</tr>
+<tr>
+<td>C++</td>
+<td><a href="https://github.com/marekcingel/OpenTLV/blob/main/examples/tlv++/src/formats/custom_format.cpp">formats/custom_format.cpp</a></td>
+<td>Application Format</td>
+</tr>
+<tr>
+<td>C++</td>
+<td><a href="https://github.com/marekcingel/OpenTLV/blob/main/examples/tlv++/src/formats/fixed_format.cpp">formats/fixed_format.cpp</a></td>
+<td>Generic Fixed Format</td>
+</tr>
+<tr>
+<td>C++</td>
+<td><a href="https://github.com/marekcingel/OpenTLV/blob/main/examples/tlv++/src/formats/fixed_format_runtime.cpp">formats/fixed_format_runtime.cpp</a></td>
+<td>Runtime Fixed / explicit native interop</td>
+</tr>
+<tr>
+<td>C++</td>
+<td><a href="https://github.com/marekcingel/OpenTLV/blob/main/examples/tlv++/src/lldp.cpp">lldp.cpp</a></td>
+<td>LLDP validation / codecs</td>
+</tr>
+<tr>
+<td>C++</td>
+<td><a href="https://github.com/marekcingel/OpenTLV/blob/main/examples/tlv++/src/parse.cpp">parse.cpp</a></td>
+<td>Nested parsing / traversal</td>
+</tr>
+<tr>
+<td>C++</td>
+<td><a href="https://github.com/marekcingel/OpenTLV/blob/main/examples/tlv++/src/query.cpp">query.cpp</a></td>
+<td>Path Query</td>
+</tr>
+<tr>
+<td>C++</td>
+<td><a href="https://github.com/marekcingel/OpenTLV/blob/main/examples/tlv++/src/quick_start.cpp">quick_start.cpp</a></td>
+<td>Quick start / round trip</td>
+</tr>
+<tr>
+<td>C++</td>
+<td><a href="https://github.com/marekcingel/OpenTLV/blob/main/examples/tlv++/src/typed_fields.cpp">typed_fields.cpp</a></td>
+<td>Typed fields / Values</td>
+</tr>
+<tr>
+<td>C++</td>
+<td><a href="https://github.com/marekcingel/OpenTLV/blob/main/examples/tlv++/src/validate.cpp">validate.cpp</a></td>
+<td>Schema / validation</td>
+</tr>
+<tr>
+<td>C++</td>
+<td><a href="https://github.com/marekcingel/OpenTLV/blob/main/examples/tlv++/src/write.cpp">write.cpp</a></td>
+<td>Nested construction</td>
+</tr>
+<tr>
+<td>Rust</td>
+<td><a href="https://github.com/marekcingel/OpenTLV/blob/main/bindings/rust/opentlv/examples/parse.rs">parse.rs</a></td>
+<td>Nested parsing / traversal</td>
+</tr>
+<tr>
+<td>Rust</td>
+<td><a href="https://github.com/marekcingel/OpenTLV/blob/main/bindings/rust/opentlv/examples/quick_start.rs">quick_start.rs</a></td>
+<td>Quick start / round trip</td>
+</tr>
+<tr>
+<td>Rust</td>
+<td><a href="https://github.com/marekcingel/OpenTLV/blob/main/bindings/rust/opentlv/examples/reader.rs">reader.rs</a></td>
+<td>Sequential Reader and input control</td>
+</tr>
+<tr>
+<td>Rust</td>
+<td><a href="https://github.com/marekcingel/OpenTLV/blob/main/bindings/rust/opentlv/examples/validate.rs">validate.rs</a></td>
+<td>Schema / validation</td>
+</tr>
+<tr>
+<td>Rust</td>
+<td><a href="https://github.com/marekcingel/OpenTLV/blob/main/bindings/rust/opentlv/examples/write.rs">write.rs</a></td>
+<td>Nested construction</td>
+</tr>
+<tr>
+<td>Rust</td>
+<td><a href="https://github.com/marekcingel/OpenTLV/blob/main/bindings/rust/opentlv/examples/writer.rs">writer.rs</a></td>
+<td>Sequential Writer</td>
+</tr>
+<tr>
+<td>Python</td>
+<td><a href="https://github.com/marekcingel/OpenTLV/blob/main/bindings/python/opentlv/examples/codec.py">codec.py</a></td>
+<td>Typed Value codecs</td>
+</tr>
+<tr>
+<td>Python</td>
+<td><a href="https://github.com/marekcingel/OpenTLV/blob/main/bindings/python/opentlv/examples/document.py">document.py</a></td>
+<td>Owned Document / traversal</td>
+</tr>
+<tr>
+<td>Python</td>
+<td><a href="https://github.com/marekcingel/OpenTLV/blob/main/bindings/python/opentlv/examples/parse.py">parse.py</a></td>
+<td>Nested parsing / traversal</td>
+</tr>
+<tr>
+<td>Python</td>
+<td><a href="https://github.com/marekcingel/OpenTLV/blob/main/bindings/python/opentlv/examples/query.py">query.py</a></td>
+<td>Path Query</td>
+</tr>
+<tr>
+<td>Python</td>
+<td><a href="https://github.com/marekcingel/OpenTLV/blob/main/bindings/python/opentlv/examples/quick_start.py">quick_start.py</a></td>
+<td>Quick start / round trip</td>
+</tr>
+<tr>
+<td>Python</td>
+<td><a href="https://github.com/marekcingel/OpenTLV/blob/main/bindings/python/opentlv/examples/validate.py">validate.py</a></td>
+<td>Schema / validation</td>
+</tr>
+<tr>
+<td>Python</td>
+<td><a href="https://github.com/marekcingel/OpenTLV/blob/main/bindings/python/opentlv/examples/write.py">write.py</a></td>
+<td>Nested construction</td>
+</tr>
+<tr>
+<td>Python</td>
+<td><a href="https://github.com/marekcingel/OpenTLV/blob/main/bindings/python/opentlv/examples/writer.py">writer.py</a></td>
+<td>Sequential Writer</td>
+</tr>
+<tr>
+<td>Lua</td>
+<td><a href="https://github.com/marekcingel/OpenTLV/blob/main/bindings/lua/examples/codec.lua">codec.lua</a></td>
+<td>Typed Value codecs</td>
+</tr>
+<tr>
+<td>Lua</td>
+<td><a href="https://github.com/marekcingel/OpenTLV/blob/main/bindings/lua/examples/parse.lua">parse.lua</a></td>
+<td>Nested parsing / traversal</td>
+</tr>
+<tr>
+<td>Lua</td>
+<td><a href="https://github.com/marekcingel/OpenTLV/blob/main/bindings/lua/examples/quick_start.lua">quick_start.lua</a></td>
+<td>Quick start / round trip</td>
+</tr>
+<tr>
+<td>Lua</td>
+<td><a href="https://github.com/marekcingel/OpenTLV/blob/main/bindings/lua/examples/schema.lua">schema.lua</a></td>
+<td>Structural Schema</td>
+</tr>
+<tr>
+<td>Go</td>
+<td><a href="https://github.com/marekcingel/OpenTLV/blob/main/bindings/go/examples/codec/main.go">codec/main.go</a></td>
+<td>Typed Value codecs</td>
+</tr>
+<tr>
+<td>Go</td>
+<td><a href="https://github.com/marekcingel/OpenTLV/blob/main/bindings/go/examples/document/main.go">document/main.go</a></td>
+<td>Owned Document / traversal</td>
+</tr>
+<tr>
+<td>Go</td>
+<td><a href="https://github.com/marekcingel/OpenTLV/blob/main/bindings/go/examples/errors/main.go">errors/main.go</a></td>
+<td>Owned diagnostics / error matching</td>
+</tr>
+<tr>
+<td>Go</td>
+<td><a href="https://github.com/marekcingel/OpenTLV/blob/main/bindings/go/examples/query/main.go">query/main.go</a></td>
+<td>Path Query</td>
+</tr>
+<tr>
+<td>Go</td>
+<td><a href="https://github.com/marekcingel/OpenTLV/blob/main/bindings/go/examples/quick_start/main.go">quick_start/main.go</a></td>
+<td>Quick start / round trip</td>
+</tr>
+<tr>
+<td>Go</td>
+<td><a href="https://github.com/marekcingel/OpenTLV/blob/main/bindings/go/examples/reader/main.go">reader/main.go</a></td>
+<td>Sequential Reader and input control</td>
+</tr>
+<tr>
+<td>Go</td>
+<td><a href="https://github.com/marekcingel/OpenTLV/blob/main/bindings/go/examples/version/main.go">version/main.go</a></td>
+<td>Version / native integration</td>
+</tr>
+<tr>
+<td>Go</td>
+<td><a href="https://github.com/marekcingel/OpenTLV/blob/main/bindings/go/examples/writer/main.go">writer/main.go</a></td>
+<td>Sequential Writer</td>
+</tr>
+<tr>
+<td>WebAssembly</td>
+<td><a href="https://github.com/marekcingel/OpenTLV/blob/main/bindings/wasm/examples/parse.mjs">parse.mjs</a></td>
+<td>Nested parsing / traversal</td>
+</tr>
+</tbody>
+</table>
+<!-- example-inventory:end -->
 
 
 
@@ -3377,7 +3759,7 @@ example keeps hand-written callbacks to demonstrate the generic mechanism.</p>
       <nav class="md-footer__inner md-grid" aria-label="Footer" >
         
           
-          <a href="../asn1/cer/" class="md-footer__link md-footer__link--prev" aria-label="Previous: CER-TLV">
+          <a href="../processing/" class="md-footer__link md-footer__link--prev" aria-label="Previous: Choose a processing API">
             <div class="md-footer__button md-icon">
               
               <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M20 11v2H8l5.5 5.5-1.42 1.42L4.16 12l7.92-7.92L13.5 5.5 8 11z"/></svg>
@@ -3387,20 +3769,20 @@ example keeps hand-written callbacks to demonstrate the generic mechanism.</p>
                 Previous
               </span>
               <div class="md-ellipsis">
-                CER-TLV
+                Choose a processing API
               </div>
             </div>
           </a>
         
         
           
-          <a href="../format-examples/" class="md-footer__link md-footer__link--next" aria-label="Next: Format examples">
+          <a href="../memory/" class="md-footer__link md-footer__link--next" aria-label="Next: Memory ownership">
             <div class="md-footer__title">
               <span class="md-footer__direction">
                 Next
               </span>
               <div class="md-ellipsis">
-                Format examples
+                Memory ownership
               </div>
             </div>
             <div class="md-footer__button md-icon">
