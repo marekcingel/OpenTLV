@@ -10,7 +10,7 @@ namespace cli {
 
 completion_model completion_model::build() {
     completion_model model;
-    for (const char* name : {"dump", "validate", "decode", "encode", "query"})
+    for (const char* name : {"dump", "validate", "decode", "encode", "generate", "query"})
         model.commands_.push_back(completion_command_spec(name));
 #if OPENTLV_EMV
     // tag/tags always fail at runtime without the EMV dictionary, so they are
@@ -26,8 +26,9 @@ completion_model completion_model::build() {
 }
 
 std::vector<completion_option> completion_model::all_options() const {
-    unsigned available = 0;
-    for (const char* name : {"dump", "validate", "decode", "encode", "query", "tag", "tags"})
+    uint64_t available = 0;
+    for (const char* name :
+         {"dump", "validate", "decode", "encode", "generate", "query", "tag", "tags"})
         available |= command_options_mask(name);
     std::size_t                    count = 0;
     const option_entry*            table = option_table(&count);

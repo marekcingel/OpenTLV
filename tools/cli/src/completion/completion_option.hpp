@@ -13,7 +13,7 @@ namespace cli {
 // set of values, a file/path hint, or neither (free-form text, e.g. --hex).
 class completion_option {
 public:
-    explicit completion_option(const option_entry& entry);
+    explicit completion_option(const option_entry& entry, const char* command = nullptr);
 
     const std::string& name() const {
         return name_;

@@ -4,6 +4,7 @@
 #ifndef OPENTLV_CLI_OPTIONS_HPP
 #define OPENTLV_CLI_OPTIONS_HPP
 #include <cstddef>
+#include <cstdint>
 #include <memory>
 #include "tlv/config.h"
 #include "tlv++/query/query.hpp"
@@ -29,6 +30,12 @@ public:
     std::size_t max_input = 16777216;
     std::size_t max_depth = 64;
     std::size_t max_elements = 100000;
+    uint64_t    seed = 0;
+    uint64_t    count = 0;
+    const char* output_dir = nullptr;
+    bool        json_output = false;
+    std::size_t max_value_size = 256;
+    std::size_t max_case_size = 4096;
     int         tree = 0;
     int         pretty = 0;
     int         describe = 0;
@@ -71,21 +78,21 @@ public:
 // tables parse() enforces, instead of a separately maintained copy.
 struct option_entry {
     const char* name;
-    unsigned    bit;
+    uint64_t    bit;
 };
 const option_entry* option_table(std::size_t* count);
 
-// The bitmask of options valid for `command` (one of "dump", "validate",
+// The bitmask of options valid for `command` (one of "generate", "dump", "validate",
 // "decode", "encode", "query", "tag" or "tags"; 0 for any other name),
 // narrowed to this build: EMV-only options are removed unless
 // OPENTLV_EMV. Fixed format options are always available.
-unsigned command_options_mask(const char* command);
+uint64_t command_options_mask(const char* command);
 
 // The bitmask of options that never take a following value (booleans such as
 // --tree or --recover). Every other option in option_table() takes one,
 // except --value under the "query" command, where it means --value's other,
 // flag-only sense (print only the addressed elements' values).
-unsigned flag_options_mask();
+uint64_t flag_options_mask();
 
 #if OPENTLV_EMV
 // The command-line names of the EMV dictionary contexts (tlv_emv_context_t)

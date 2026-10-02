@@ -42,6 +42,18 @@ void zsh_completer::render(std::ostream& out, const completion_model& model) con
            "    case \"$prev\" in\n";
     for (const completion_option& option : model.all_options()) {
         if (!option.has_values() && !option.is_path()) continue;
+        if (option.name() == "--output-encoding") {
+            out << "        --output-encoding)\n            local -a values\n            case "
+                   "\"$cmd\" in\n";
+            for (const auto& command : model.commands())
+                for (const auto& candidate : command.options())
+                    if (candidate.name() == option.name())
+                        out << "                " << command.name() << ") values=("
+                            << join(candidate.values()) << ");;\n";
+            out << "            esac\n            _describe 'value' values\n            return "
+                   ";;\n";
+            continue;
+        }
         out << "        " << option.name() << ")\n";
         if (option.is_path())
             out << "            _files\n";

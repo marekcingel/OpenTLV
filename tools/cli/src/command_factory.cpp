@@ -8,6 +8,7 @@
 #include "commands/decode_command.hpp"
 #include "commands/dump_command.hpp"
 #include "commands/encode_command.hpp"
+#include "commands/generate_command.hpp"
 #include "commands/formats_command.hpp"
 #include "commands/help_command.hpp"
 #include "commands/query_command.hpp"
@@ -48,6 +49,7 @@ std::unique_ptr<command> command_factory::create(int argc, char** argv, int* err
         return nullptr;
     }
 
+    if (!strcmp(o.command, "generate")) return std::unique_ptr<command>(new generate_command(o));
     if (!strcmp(o.command, "encode")) return std::unique_ptr<command>(new encode_command(o));
     if (!strcmp(o.command, "tag")) return std::unique_ptr<command>(new tag_command(o));
     if (!strcmp(o.command, "tags")) return std::unique_ptr<command>(new tags_command(o));
@@ -66,7 +68,7 @@ std::unique_ptr<command> command_factory::create(int argc, char** argv, int* err
     if (!strcmp(o.command, "query"))
         return std::unique_ptr<command>(new query_command(o, std::move(data)));
     // options::parse() only accepts "dump", "validate", "decode", "encode",
-    // "tag", "tags" or "query"; every other case returned above.
+    // "generate", "tag", "tags" or "query"; every other case returned above.
     return std::unique_ptr<command>(new dump_command(o, std::move(data)));
 }
 

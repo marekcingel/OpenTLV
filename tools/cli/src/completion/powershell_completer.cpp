@@ -45,6 +45,16 @@ void powershell_completer::render(std::ostream& out, const completion_model& mod
            "    switch ($prev) {\n";
     for (const completion_option& option : model.all_options()) {
         if (!option.has_values() && !option.is_path()) continue;
+        if (option.name() == "--output-encoding") {
+            out << "        '--output-encoding' { switch ($cmd) {\n";
+            for (const auto& command : model.commands())
+                for (const auto& candidate : command.options())
+                    if (candidate.name() == option.name())
+                        out << "            '" << command.name() << "' { Complete-Values @('"
+                            << join(candidate.values()) << "'.Split(' ')); return }\n";
+            out << "        }; return }\n";
+            continue;
+        }
         out << "        '" << option.name() << "' { ";
         if (option.is_path())
             out << "Complete-Files; return }\n";
