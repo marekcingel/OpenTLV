@@ -1,6 +1,10 @@
 // SPDX-License-Identifier: MIT
 // Copyright (c) 2026 Marek Cingel
 #include "bridge.h"
+#include <stdlib.h>
+#if OPENTLV_DOCUMENT
+#include <tlv/document/document.h>
+#endif
 #if OPENTLV_FORMAT_BER
 #include <tlv/builtins/asn1/ber.h>
 #endif
@@ -63,6 +67,144 @@ static tlv_result_t resolve(go_format config, tlv_format_t* format, tlv_fixed_fo
 #endif
         default: return TLV_ERR_UNSUPPORTED_TYPE;
     }
+}
+
+/* Persistent descriptors and their context are entirely C-owned. */
+struct go_document {
+    tlv_format_t       format;
+    tlv_fixed_format_t fixed;
+#if OPENTLV_DOCUMENT
+    tlv_document_t* document;
+#endif
+};
+
+go_document* go_document_parse(go_format config, const uint8_t* data, size_t size, size_t depth,
+                               size_t elements, int defaults, int* code) {
+#if OPENTLV_DOCUMENT
+    go_document*           d = calloc(1, sizeof(*d));
+    tlv_document_options_t options;
+    if (!d) {
+        *code = TLV_ERR_OUT_OF_MEMORY;
+        return NULL;
+    }
+    *code = resolve(config, &d->format, &d->fixed);
+    if (*code == TLV_OK) *code = tlv_document_options_init(&options, &d->format);
+    if (*code == TLV_OK) {
+        if (!defaults) {
+            options.max_depth = depth;
+            options.max_elements = elements;
+        }
+        *code = tlv_document_parse(data, size, &options, &d->document, NULL);
+    }
+    if (*code != TLV_OK) {
+        free(d);
+        return NULL;
+    }
+    return d;
+#else
+    (void)config;
+    (void)data;
+    (void)size;
+    (void)depth;
+    (void)elements;
+    (void)defaults;
+    *code = TLV_ERR_UNSUPPORTED_TYPE;
+    return NULL;
+#endif
+}
+
+void go_document_free(go_document* d) {
+#if OPENTLV_DOCUMENT
+    if (d) tlv_document_free(d->document);
+#endif
+    free(d);
+}
+
+size_t go_document_count(go_document* d) {
+#if OPENTLV_DOCUMENT
+    return tlv_document_count(d->document);
+#else
+    (void)d;
+    return 0;
+#endif
+}
+
+void* go_document_node(go_document* d, void* n, int operation) {
+#if OPENTLV_DOCUMENT
+    switch (operation) {
+        case 0: return tlv_document_first(d->document);
+        case 1: return tlv_node_first_child(n);
+        case 2: return tlv_node_next(n);
+        case 3: return tlv_node_parent(n);
+    }
+#else
+    (void)d;
+    (void)n;
+    (void)operation;
+#endif
+    return NULL;
+}
+
+go_read_result go_document_read(void* n) {
+    go_read_result r = {0};
+#if OPENTLV_DOCUMENT
+    r.element.tag = tlv_node_tag(n);
+    r.element.value.data = tlv_node_value_data(n);
+    r.element.value.size = tlv_node_value_size(n);
+    r.consumed = tlv_node_is_constructed(n);
+#else
+    (void)n;
+#endif
+    return r;
+}
+
+int go_document_edit(go_document* d, void* n, void* before, const uint8_t* tag, size_t tag_size,
+                     const uint8_t* value, size_t value_size, int operation, void** result) {
+#if OPENTLV_DOCUMENT
+    tlv_node_t*  inserted = NULL;
+    tlv_result_t code;
+    if (operation == 0) return tlv_node_set_value(n, value, value_size);
+    if (operation == 1) {
+        tlv_node_erase(n);
+        return TLV_OK;
+    }
+    code = tlv_document_insert(d->document, n, before, tlv_tag(tag, tag_size), value, value_size,
+                               &inserted);
+    *result = inserted;
+    return code;
+#else
+    (void)d;
+    (void)n;
+    (void)before;
+    (void)tag;
+    (void)tag_size;
+    (void)value;
+    (void)value_size;
+    (void)operation;
+    (void)result;
+    return TLV_ERR_UNSUPPORTED_TYPE;
+#endif
+}
+
+go_write_result go_document_encode(go_document* d, go_format config, uint8_t* data, size_t capacity,
+                                   int measure) {
+    go_write_result r = {0};
+#if OPENTLV_DOCUMENT
+    tlv_format_t       format;
+    tlv_fixed_format_t fixed;
+    r.code = resolve(config, &format, &fixed);
+    if (r.code == TLV_OK)
+        r.code = measure ? tlv_document_encoded_size_as(d->document, &format, &r.size)
+                         : tlv_document_encode_as(d->document, &format, data, capacity, &r.size);
+#else
+    (void)d;
+    (void)config;
+    (void)data;
+    (void)capacity;
+    (void)measure;
+    r.code = TLV_ERR_UNSUPPORTED_TYPE;
+#endif
+    return r;
 }
 
 tlv_result_t go_format_check(go_format config) {

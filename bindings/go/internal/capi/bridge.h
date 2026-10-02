@@ -8,6 +8,8 @@
 #include <tlv/writer/writer.h>
 #include <tlv/writer/tree.h>
 
+typedef struct go_document go_document;
+
 enum go_format_kind {
     GO_FORMAT_FIXED,
     GO_FORMAT_BER,
@@ -46,4 +48,15 @@ go_write_result go_tree(go_format config, uint8_t* data, size_t capacity, const 
 go_read_result  go_read(go_format config, const uint8_t* data, size_t size, int final_input);
 go_write_result go_write(go_format config, uint8_t* data, size_t capacity, const uint8_t* tag,
                          size_t tag_size, const uint8_t* value, size_t value_size, int measure);
+go_document*    go_document_parse(go_format config, const uint8_t* data, size_t size, size_t depth,
+                                  size_t elements, int defaults, int* code);
+void            go_document_free(go_document* document);
+void*           go_document_node(go_document* document, void* node, int operation);
+go_read_result  go_document_read(void* node);
+int go_document_edit(go_document* document, void* node, void* before, const uint8_t* tag,
+                     size_t tag_size, const uint8_t* value, size_t value_size, int operation,
+                     void** result);
+go_write_result go_document_encode(go_document* document, go_format config, uint8_t* data,
+                                   size_t capacity, int measure);
+size_t          go_document_count(go_document* document);
 #endif

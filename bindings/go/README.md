@@ -4,7 +4,7 @@ This module establishes the Go binding architecture (#472) and internal native
 bridge (#473). It exposes
 `opentlv.Version()` to verify the connection to the canonical C library.
 Public Format and Element APIs are available (#474). Reader (#475) and Writer
-(#476) are available. Document and detailed diagnostic APIs are future work.
+(#476) and owned Document (#477) are available. Detailed diagnostic APIs are future work.
 
 The module path is `github.com/marekcingel/OpenTLV/bindings/go`; its package
 name is `opentlv`. It requires Go 1.22 or newer, cgo and a compatible C compiler.
@@ -32,9 +32,12 @@ presets return an unsupported status; the bridge contains no wire parser.
   Go pointers across calls. `runtime.KeepAlive` covers conversion of native
   results after the call. Nil and empty slices are supported without indexing
   their first byte; a non-nil empty slice remains distinct where relevant.
-- Each call builds its descriptor, Fixed context and Reader on the C stack.
+- Reader/Writer calls build their descriptor, Fixed context and cursor on the C stack.
   Format configuration is immutable and reusable concurrently. These operations
   allocate no persistent native resources and require no `Close` or finalizer.
+  Document instead owns a C-allocated descriptor and Fixed context for its entire
+  lifetime, and copies all input before returning. Its finalizer is a fallback;
+  use Close for deterministic cleanup.
 - Parsed Values, source bytes and source-bound Tags borrow the original Go
   slice, without copying. Returned slices keep its backing array alive. The
   caller must keep those bytes unchanged while results are in use and avoid
@@ -51,10 +54,8 @@ presets return an unsupported status; the bridge contains no wire parser.
   native Format pointer is retained in Source. The Reader retains its slice and
   position in Go and passes each unconsumed window to the bridge.
 
-Public Document, Query, Codec and detailed error APIs
-remain separate follow-up stories (#477–#479). Bridge operations for owned
-Document resources and higher-level capabilities will be added with those
-stories, including explicit cleanup for any persistent native allocations.
+Public Query, Codec and detailed error APIs remain separate follow-up stories
+(#478–#479). Document owns native allocations and provides explicit cleanup.
 
 ## Build and run
 
@@ -146,7 +147,7 @@ relative to the element start. `Range.Present` distinguishes absent fields from
 present empty fields. `FormatTag` identifies a semantic Tag supplied by the
 Format rather than borrowed from a wire Tag range. Logical elements created by
 `NewElement` have no source bytes or ranges and report offset zero. Reader
-populates source metadata; Document remains a follow-up story.
+populates source metadata; Document preserves an owned whole-input snapshot.
 Formats own no native allocations and require no cleanup.
 
 ## Reader
@@ -224,5 +225,43 @@ larger slice to copy the completed prefix and retry a failed WriteElement or End
 Input may alias previously returned Bytes because encoding uses independent
 temporary storage. Bytes borrows output; keep that storage unchanged while in use.
 
-Document serialization will be integrated with the public Document API (#477).
+Document serialization is available through `WriteDocument` (#477).
 Run the preset-independent example with `go run ./examples/writer`.
+
+## Document
+
+`Parse(data, format)` copies complete input into the canonical C Document.
+`ParseWithOptions` accepts explicit `MaxDepth` and `MaxElements` limits;
+zero is a literal limit. Parse uses C defaults. Disabled `OPENTLV_DOCUMENT`
+returns an unsupported status rather than a fallback.
+
+Call `defer doc.Close()` after successful parsing. Close is idempotent and
+nil-safe. A finalizer is a fallback for forgotten cleanup. Document copies
+share ownership; closing one closes all. Document is not safe for concurrent use.
+Nodes keep the owning Document alive.
+
+`Elements()` returns roots in encoding order, `Element(index)` selects a root,
+and `Count()` includes descendants. Nodes expose `Children()`, `Parent()`,
+`Constructed()`, `Tag()`, `Value()` and an `Element()` content snapshot.
+Tags and primitive Values are independent Go copies. Constructed Values are
+empty; use Children. Invalid nodes return nil from Tag/Value/Children and an
+error from Element; `Valid()` checks the handle.
+
+`node.SetValue(bytes)` replaces primitive content or parses replacement
+children through C. `node.Erase()` removes a subtree.
+`doc.Insert(parent, before, element)` inserts or appends copied content;
+zero Nodes select roots and append position. Foreign and stale nodes are
+rejected before native access. Every successful edit invalidates all existing
+node handles, including unaffected siblings. Reacquire handles after edits.
+Failed edits preserve the tree and handles.
+
+`Source()` returns a copy of the original complete input, available until the
+first successful edit or Close. The C Document does not store node wire ranges;
+node Element snapshots have no Source metadata. `Encode()` regenerates framing
+in the original Format, including normalization of non-minimal/indefinite
+input. `EncodeAs(format)` uses a compatible destination without remapping Tags.
+`writer.WriteDocument(doc)` appends this encoding in the Writer's Format,
+including inside an open staged parent. Capacity failures leave Writer unchanged.
+
+Run `go run ./examples/document` with Document enabled. Query and resumable
+Tree Reader/Document Builder integration remain follow-up capabilities.
