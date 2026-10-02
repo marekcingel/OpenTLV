@@ -3292,8 +3292,9 @@ ergonomics to the target language.</p>
 </code></pre></div>
 <p>C++, Rust and Python expose Readers, Writers and Document facades today.
 Lua (<code>bindings/lua/</code>) currently binds Reader, Writer, Tree Writer, Schema, Value Codec, Element and Tag.
-Go (<code>bindings/go/</code>) currently provides a module scaffold and linked-library
-version access; its processing facade is future work. The trailing <code>...</code> stands
+Go (<code>bindings/go/</code>) currently exposes Format, Element, Reader and Writer
+facades, including incremental input and staged constructed output. Document
+and higher-level processing remain follow-up work. The trailing <code>...</code> stands
 for any further binding.</p>
 <p>The public OpenTLV C API (see the <a href="../../reference/c-api/">C API reference</a>) is
 the single language boundary every binding wraps. A binding calls into the C
