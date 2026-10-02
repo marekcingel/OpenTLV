@@ -3888,10 +3888,10 @@ it. For example:</p>
   otherwise whenever garbage collection reclaims it. Ownership (the document
   owns every node, tag and value in it) is the same in every binding; only
   how and when that ownership ends differs.</li>
-<li>A future Go binding could return <code>(Element, error)</code> pairs from a <code>Next()</code>
-  method, or a range-over-func iterator (<code>for element, err := range
-  reader.All() { ... }</code>), matching Go's own error-handling convention instead
-  of Rust's <code>Result</code> or C's error codes.</li>
+<li>Go exposes <code>Reader.Next()</code> as a boolean, the current <code>Element()</code> as a
+  borrowed view, and <code>Reader.Err()</code> after iteration. Fallible constructors,
+  writes and Document operations return errors through Go's normal conventions;
+  <code>errors.Is</code> and <code>errors.As</code> retain native status and diagnostic context.</li>
 <li>A future JavaScript binding could expose a reader as a JS iterable and
   surface failures as native exceptions.</li>
 </ul>
@@ -3938,12 +3938,14 @@ it. For example:</p>
   EMV dictionary selection and custom callbacks through <code>tlv_codec_t</code> (#302).
   Structure codecs remain unbound. See <a href="../../development/lua/">Lua bindings</a> and
   <a href="../../guides/lua/">using OpenTLV from Lua</a>.</li>
-<li><strong>Go</strong>: experimental module scaffold in <code>bindings/go/</code>, with a public
+<li><strong>Go</strong>: experimental binding in <code>bindings/go/</code>, with a public
   <code>opentlv</code> package and a private <code>internal/capi</code> cgo bridge. It currently
   exposes Format, Element, Reader, Writer and owned mutable Document with
-  explicit Close, checked node handles and destination encoding. Complete
+  explicit Close, checked node handles and destination encoding, Document Query,
+  typed generic Value codecs and owned error diagnostics. Tests, public examples
+  and CI cover default and minimal configurations. Complete
   processing capability parity remains future work. See the
-  <a href="https://github.com/marekcingel/OpenTLV/blob/main/bindings/go/README.md">Go binding README</a> for details. (#472–#477)</li>
+  <a href="https://github.com/marekcingel/OpenTLV/blob/main/bindings/go/README.md">Go binding README</a> for details. (#472–#480)</li>
 </ul>
 <h2 id="implementation-package-names">Implementation package names<a class="headerlink" href="#implementation-package-names" title="Permanent link">&para;</a></h2>
 <p>The binding boundary is shared; implementation names follow each language.

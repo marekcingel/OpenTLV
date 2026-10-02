@@ -3259,15 +3259,27 @@ without suppressions; do not use the indented <code>=== "Label"</code> syntax.</
 <p>Conventions:</p>
 <ul>
 <li>Label tabs <code>C</code> and <code>C++</code> first, in that order, then one tab per binding that
-  has an equivalent, in the order <code>concepts/bindings.md</code>'s status table lists
-  them (Rust, then Python, as of this writing). Tabs with the same label are
+  has an equivalent, in the order <code>Rust</code>, <code>Python</code>, <code>Lua</code>, <code>Go</code>.
+  Tabs with the same label are
   linked across the site, so a reader's choice follows them from page to page.
   Use other labels only for further languages, never for other kinds of choice.</li>
 <li>Tab only what differs. Keep the explanation of behavior shared across
   languages (formats, lengths, ownership, errors) as ordinary text outside the
   tabs, and mention a language-specific difference in that language's tab.</li>
+<li>Use the same input bytes, Format configuration, Tag, Value and operation in
+  every tab of a comparison. Quick starts write and read <code>Hello, world!</code> with
+  Fixed (one tag byte, one big-endian length byte), tag <code>01</code>, without a trailing
+  NUL. Show error handling through each language's public facade, and explain
+  ownership or result-shape differences beside its example.</li>
+<li>Quick starts are showcases of each binding's current ergonomics. Use its most
+  convenient public entry points for the chosen operation: direct Value inputs,
+  tag helpers, scoped writing, iteration and typed decoding where supported.
+  Revisit the examples when these APIs improve. Keep normal error handling and
+  lifetime notes visible; put regression assertions and detailed native control
+  in tests or advanced examples. Preserve each binding's supported baseline,
+  including C++11.</li>
 <li>Use tabs only for equivalent functionality. If a binding has no counterpart
-  for a group (for example Rust has no <code>Document</code> or path-query binding, and
+  for a group (for example Go has no public Schema facade, and
   the WebAssembly build is not a Reader/Writer-shaped binding at all — see
   <a href="../webassembly/">WebAssembly</a>), leave it out of that group's tabs rather
   than adding an empty one; a shape difference that is still worth flagging

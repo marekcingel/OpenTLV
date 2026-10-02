@@ -3124,7 +3124,12 @@ C engine. The common examples below use C++11; no generic lambdas are required.
 The <a href="https://github.com/marekcingel/OpenTLV/blob/main/examples/tlv++/src/README.md">source index</a> lists all runnable examples.</p>
 <h2 id="borrowed-parsing-and-sequential-iteration">Borrowed parsing and sequential iteration<a class="headerlink" href="#borrowed-parsing-and-sequential-iteration" title="Permanent link">&para;</a></h2>
 <p>The <a href="../../getting-started/#quick-start">quick-start</a> uses
-<code>tlv::ber::parse({input, sizeof(input)})</code>. This returns an allocation-free,
+scoped <code>tlv::encode&lt;Format&gt;()</code>, direct text and template Tag bytes, then
+<code>tlv::parse&lt;Format&gt;()</code> and <code>element.decode&lt;Greeting&gt;()</code> to read <code>Hello, world!</code>
+as an owning <code>std::string</code>. The typed Field checks tag <code>01</code> before decoding;
+the byte-preserving string codec may allocate. Encoding and successful borrowed
+iteration use bounded caller/stack storage. The BER convenience
+<code>tlv::ber::parse({input, sizeof(input)})</code> also returns an allocation-free,
 single-pass range of Elements at one level, including constructed Elements
 whose Values are still encoded child bytes. It does not recursively flatten
 the tree. Input must remain immutable and alive for the range and retained
@@ -3285,8 +3290,9 @@ continue enum. Its bounded frame setup and two possible exception types remain
 visible. Borrowed nested Visitor traversal retains four setup/result operations:
 frames, cursor, Visitor call and result check. Neither example hides limits or
 failure handling to lower its line count.</p>
-<p>The quick-start now isolates parsing; its total length is not compared with the
-old round-trip program because they perform different operations. Document
+<p>The quick-start now uses the same Fixed-format write/read round trip as the
+other languages, with <code>Hello, world!</code> as Value. Its total length is not compared
+with the former BER parsing-only program because they perform different operations. Document
 parsing retains explicit Format selection, and borrowed input still requires a
 byte span. These remaining setup requirements are visible rather than hidden in
 example-only adapters. Allocation-free native control and explicit C structure
@@ -3295,12 +3301,12 @@ access belong in the <a href="https://github.com/marekcingel/OpenTLV/blob/main/e
 <p>With BER enabled, these commands use the same primitive and nested bytes as the
 C++ examples. <code>otlv</code> allocates its input/output storage; C++ callers can select
 borrowed ranges or an owning Document explicitly.</p>
-<div class="highlight"><pre><span></span><code><a id="__codelineno-2-1" name="__codelineno-2-1" href="#__codelineno-2-1"></a>otlv<span class="w"> </span>encode<span class="w"> </span>--format<span class="w"> </span>ber<span class="w"> </span>--tag<span class="w"> </span><span class="m">04</span><span class="w"> </span>--value<span class="w"> </span><span class="m">414243</span>
-<a id="__codelineno-2-2" name="__codelineno-2-2" href="#__codelineno-2-2"></a>otlv<span class="w"> </span>dump<span class="w"> </span>--format<span class="w"> </span>ber<span class="w"> </span>--hex<span class="w"> </span><span class="m">0403414243</span><span class="w"> </span>--no-color
+<div class="highlight"><pre><span></span><code><a id="__codelineno-2-1" name="__codelineno-2-1" href="#__codelineno-2-1"></a>otlv<span class="w"> </span>encode<span class="w"> </span>--format<span class="w"> </span>fixed<span class="w"> </span>--tag<span class="w"> </span><span class="m">01</span><span class="w"> </span>--value<span class="w"> </span>48656C6C6F2C20776F726C6421
+<a id="__codelineno-2-2" name="__codelineno-2-2" href="#__codelineno-2-2"></a>otlv<span class="w"> </span>dump<span class="w"> </span>--format<span class="w"> </span>fixed<span class="w"> </span>--hex<span class="w"> </span>010D48656C6C6F2C20776F726C6421<span class="w"> </span>--no-color
 <a id="__codelineno-2-3" name="__codelineno-2-3" href="#__codelineno-2-3"></a>otlv<span class="w"> </span>decode<span class="w"> </span>--format<span class="w"> </span>ber<span class="w"> </span>--hex<span class="w"> </span>6F0A8403414243A503500101
 <a id="__codelineno-2-4" name="__codelineno-2-4" href="#__codelineno-2-4"></a>otlv<span class="w"> </span>query<span class="w"> </span>6F/A5/50<span class="w"> </span>--format<span class="w"> </span>ber<span class="w"> </span>--hex<span class="w"> </span>6F0A8403414243A503500101<span class="w"> </span>--value
 </code></pre></div>
-<p>The first command produces <code>0403414243</code>; Query produces <code>01</code>. Decode produces
+<p>The first command produces <code>010D48656C6C6F2C20776F726C6421</code>; Query produces <code>01</code>. Decode produces
 the versioned JSON model, which <code>otlv encode --format ber --input model.json</code>
 encodes back to the original bytes. The following executable acceptance example
 checks those exact outputs. CTest runs it as <code>Integration_cli_cpp_examples</code> when
@@ -3320,9 +3326,9 @@ build directory. Run it there with <code>cmake -DCLI=/path/to/otlv -P
 <a id="__codelineno-3-10" name="__codelineno-3-10" href="#__codelineno-3-10"></a><span class="w">    </span><span class="nb">endif</span><span class="p">()</span>
 <a id="__codelineno-3-11" name="__codelineno-3-11" href="#__codelineno-3-11"></a><span class="nb">endfunction</span><span class="p">()</span>
 <a id="__codelineno-3-12" name="__codelineno-3-12" href="#__codelineno-3-12"></a>
-<a id="__codelineno-3-13" name="__codelineno-3-13" href="#__codelineno-3-13"></a><span class="c"># Same primitive Value as the C++ quick-start.</span>
-<a id="__codelineno-3-14" name="__codelineno-3-14" href="#__codelineno-3-14"></a><span class="nb">run_cli</span><span class="p">(</span><span class="s2">"0403414243"</span><span class="w"> </span><span class="s">encode</span><span class="w"> </span><span class="s">--format</span><span class="w"> </span><span class="s">ber</span><span class="w"> </span><span class="s">--tag</span><span class="w"> </span><span class="s">04</span><span class="w"> </span><span class="s">--value</span><span class="w"> </span><span class="s">414243</span><span class="p">)</span>
-<a id="__codelineno-3-15" name="__codelineno-3-15" href="#__codelineno-3-15"></a><span class="nb">run_cli</span><span class="p">(</span><span class="s2">"offset=0 tag=04 length=3 value=414243"</span><span class="w"> </span><span class="s">dump</span><span class="w"> </span><span class="s">--format</span><span class="w"> </span><span class="s">ber</span><span class="w"> </span><span class="s">--hex</span><span class="w"> </span><span class="s">0403414243</span><span class="w"> </span><span class="s">--no-color</span><span class="p">)</span>
+<a id="__codelineno-3-13" name="__codelineno-3-13" href="#__codelineno-3-13"></a><span class="c"># Same Fixed-format Hello, world! round trip as the multi-language quick-start.</span>
+<a id="__codelineno-3-14" name="__codelineno-3-14" href="#__codelineno-3-14"></a><span class="nb">run_cli</span><span class="p">(</span><span class="s2">"010D48656C6C6F2C20776F726C6421"</span><span class="w"> </span><span class="s">encode</span><span class="w"> </span><span class="s">--format</span><span class="w"> </span><span class="s">fixed</span><span class="w"> </span><span class="s">--tag</span><span class="w"> </span><span class="s">01</span><span class="w"> </span><span class="s">--value</span><span class="w"> </span><span class="s">48656C6C6F2C20776F726C6421</span><span class="p">)</span>
+<a id="__codelineno-3-15" name="__codelineno-3-15" href="#__codelineno-3-15"></a><span class="nb">run_cli</span><span class="p">(</span><span class="s2">"offset=0 tag=01 length=13 value=48656C6C6F2C20776F726C6421"</span><span class="w"> </span><span class="s">dump</span><span class="w"> </span><span class="s">--format</span><span class="w"> </span><span class="s">fixed</span><span class="w"> </span><span class="s">--hex</span><span class="w"> </span><span class="s">010D48656C6C6F2C20776F726C6421</span><span class="w"> </span><span class="s">--no-color</span><span class="p">)</span>
 <a id="__codelineno-3-16" name="__codelineno-3-16" href="#__codelineno-3-16"></a>
 <a id="__codelineno-3-17" name="__codelineno-3-17" href="#__codelineno-3-17"></a><span class="c"># Same nested bytes as C++ parse.cpp, write.cpp and query.cpp.</span>
 <a id="__codelineno-3-18" name="__codelineno-3-18" href="#__codelineno-3-18"></a><span class="nb">set</span><span class="p">(</span><span class="s">wire</span><span class="w"> </span><span class="s2">"6F0A8403414243A503500101"</span><span class="p">)</span>
