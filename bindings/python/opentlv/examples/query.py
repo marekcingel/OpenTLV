@@ -1,3 +1,6 @@
+# SPDX-License-Identifier: MIT
+# Copyright (c) 2026 Marek Cingel
+
 """Addresses elements of a Document by a `/`-separated path of hexadecimal
 tags instead of traversing node by node. See document.py for direct navigation
 and parse.py for the document this query addresses.

@@ -1,3 +1,6 @@
+// SPDX-License-Identifier: MIT
+// Copyright (c) 2026 Marek Cingel
+
 //! Links the OpenTLV C library.
 //!
 //! By default the library is built from the repository root with CMake as a

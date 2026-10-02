@@ -1,3 +1,6 @@
+// SPDX-License-Identifier: MIT
+// Copyright (c) 2026 Marek Cingel
+
 #include "tlv/builtins/dhcp/options.h"
 
 static const uint8_t identifiers[] = {0,  1,  3,  6,  12, 15, 50, 51, 53,

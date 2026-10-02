@@ -1,3 +1,6 @@
+// SPDX-License-Identifier: MIT
+// Copyright (c) 2026 Marek Cingel
+
 #include "tlv/copy.h"
 #include "tlv/writer/writer.h"
 #include "tlv/size.h"

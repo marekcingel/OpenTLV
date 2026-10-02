@@ -1,3 +1,6 @@
+// SPDX-License-Identifier: MIT
+// Copyright (c) 2026 Marek Cingel
+
 #ifndef OPENTLV_SCHEMA_CONSTRAINT_H
 #define OPENTLV_SCHEMA_CONSTRAINT_H
 #include "tlv/error.h"

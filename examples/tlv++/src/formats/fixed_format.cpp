@@ -1,3 +1,6 @@
+// SPDX-License-Identifier: MIT
+// Copyright (c) 2026 Marek Cingel
+
 // Defines a fixed-width TLV format at compile time: two tag bytes and a
 // two-byte little-endian length, then writes and reads one element.
 #include <array>

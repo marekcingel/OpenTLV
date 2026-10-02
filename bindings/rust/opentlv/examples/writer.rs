@@ -1,3 +1,6 @@
+// SPDX-License-Identifier: MIT
+// Copyright (c) 2026 Marek Cingel
+
 //! Encodes a nested BER-TLV structure into caller-owned buffers with `Writer`,
 //! then reads it back.
 //!

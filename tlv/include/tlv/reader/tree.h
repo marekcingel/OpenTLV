@@ -1,3 +1,6 @@
+// SPDX-License-Identifier: MIT
+// Copyright (c) 2026 Marek Cingel
+
 #ifndef OPENTLV_TREE_READER_H
 #define OPENTLV_TREE_READER_H
 

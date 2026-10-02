@@ -1,3 +1,6 @@
+// SPDX-License-Identifier: MIT
+// Copyright (c) 2026 Marek Cingel
+
 #include "formats.h"
 
 /* Candidate tags up to this size are tried, which reaches past the longest tag any format accepts.

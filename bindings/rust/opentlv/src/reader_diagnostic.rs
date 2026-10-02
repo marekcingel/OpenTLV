@@ -1,3 +1,6 @@
+// SPDX-License-Identifier: MIT
+// Copyright (c) 2026 Marek Cingel
+
 //! Owned Reader diagnostics: no native borrowed pointer escapes.
 use opentlv_native as native;
 use std::{ffi::CStr, slice};

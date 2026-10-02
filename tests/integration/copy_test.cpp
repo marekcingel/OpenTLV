@@ -1,4 +1,7 @@
-﻿#include "controlled_format.h"
+﻿// SPDX-License-Identifier: MIT
+// Copyright (c) 2026 Marek Cingel
+
+#include "controlled_format.h"
 #include "tlv/builtins/asn1/ber.h"
 #include "tlv/copy.h"
 #include "tlv/reader/reader.h"

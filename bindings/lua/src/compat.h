@@ -1,3 +1,6 @@
+// SPDX-License-Identifier: MIT
+// Copyright (c) 2026 Marek Cingel
+
 /* Portability shims for building against Lua 5.1 through 5.4 and LuaJIT
  * (which implements the Lua 5.1 C API) with the same source. Every other
  * shared Lua C API call (lua_newuserdata, luaL_checkudata,

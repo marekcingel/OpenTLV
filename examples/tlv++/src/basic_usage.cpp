@@ -1,3 +1,6 @@
+// SPDX-License-Identifier: MIT
+// Copyright (c) 2026 Marek Cingel
+
 // Write two primitive BER elements, then iterate over that sequence.
 #include <tlv++/tlv.hpp>
 #include <array>

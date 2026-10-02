@@ -1,3 +1,6 @@
+// SPDX-License-Identifier: MIT
+// Copyright (c) 2026 Marek Cingel
+
 // Addresses the Application Label directly by path, `6F/A5/50`, without
 // traversing the whole document by hand. See parse.cpp for the document itself.
 #include <array>

@@ -1,3 +1,6 @@
+// SPDX-License-Identifier: MIT
+// Copyright (c) 2026 Marek Cingel
+
 /*
  * Applying a length schema inside a tlv_reader_visit() visitor.
  * Parsing never applies a schema automatically; the visitor below does.

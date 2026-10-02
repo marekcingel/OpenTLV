@@ -1,3 +1,6 @@
+// SPDX-License-Identifier: MIT
+// Copyright (c) 2026 Marek Cingel
+
 use opentlv::Error;
 use opentlv_native as native;
 use std::mem::MaybeUninit;

@@ -1,3 +1,6 @@
+// SPDX-License-Identifier: MIT
+// Copyright (c) 2026 Marek Cingel
+
 //! Wire formats shared by the reader and the writer.
 
 use std::fmt;

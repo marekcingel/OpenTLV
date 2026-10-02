@@ -1,3 +1,6 @@
+// SPDX-License-Identifier: MIT
+// Copyright (c) 2026 Marek Cingel
+
 #include "tlv/schema/schema.h"
 #include "tlv/reader/reader.h"
 #include "traversal_internal.h"

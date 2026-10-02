@@ -1,3 +1,6 @@
+// SPDX-License-Identifier: MIT
+// Copyright (c) 2026 Marek Cingel
+
 #include "tlv/error.h"
 
 const char* tlv_strerror(tlv_result_t result) {

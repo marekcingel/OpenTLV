@@ -1,3 +1,6 @@
+# SPDX-License-Identifier: MIT
+# Copyright (c) 2026 Marek Cingel
+
 """Python bindings for OpenTLV.
 
 This package wraps ``opentlv_native``, the native extension that registers

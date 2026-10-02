@@ -1,3 +1,6 @@
+// SPDX-License-Identifier: MIT
+// Copyright (c) 2026 Marek Cingel
+
 //! Sequential writer over a borrowed output buffer.
 
 use std::marker::PhantomData;

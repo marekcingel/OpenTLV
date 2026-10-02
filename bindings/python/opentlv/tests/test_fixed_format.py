@@ -1,3 +1,6 @@
+# SPDX-License-Identifier: MIT
+# Copyright (c) 2026 Marek Cingel
+
 import pytest
 
 from opentlv import Element, FixedFormat, InvalidLengthError, Reader, Tag, Writer, encoded_size

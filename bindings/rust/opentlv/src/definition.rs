@@ -1,3 +1,6 @@
+// SPDX-License-Identifier: MIT
+// Copyright (c) 2026 Marek Cingel
+
 //! Generic identifier metadata; lookup semantics belong to the C registry.
 use crate::Tag;
 use opentlv_native as native;

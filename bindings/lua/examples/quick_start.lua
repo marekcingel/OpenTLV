@@ -1,3 +1,6 @@
+-- SPDX-License-Identifier: MIT
+-- Copyright (c) 2026 Marek Cingel
+
 --[[
 One element encoded with the configurable fixed-width format (one tag byte,
 one length byte) using a Writer, then decoded with a Reader.

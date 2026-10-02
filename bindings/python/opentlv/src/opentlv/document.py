@@ -1,3 +1,6 @@
+# SPDX-License-Identifier: MIT
+# Copyright (c) 2026 Marek Cingel
+
 """Optional mutable TLV document that owns its data and can be modified and encoded again."""
 
 from __future__ import annotations

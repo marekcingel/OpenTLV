@@ -1,3 +1,6 @@
+// SPDX-License-Identifier: MIT
+// Copyright (c) 2026 Marek Cingel
+
 #include "tlv/builtins/bluetooth/ad_schema.h"
 #include "tlv/config.h"
 #include <gtest/gtest.h>

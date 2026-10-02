@@ -1,3 +1,6 @@
+// SPDX-License-Identifier: MIT
+// Copyright (c) 2026 Marek Cingel
+
 #include "tlv/builtins/asn1/identifier.h"
 #include "asn1_internal.h"
 #include "ber_internal.h"

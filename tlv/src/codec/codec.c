@@ -1,3 +1,6 @@
+// SPDX-License-Identifier: MIT
+// Copyright (c) 2026 Marek Cingel
+
 #include "tlv/codec/codec.h"
 
 tlv_codec_result_t tlv_codec_decode(const tlv_codec_t* codec, const uint8_t* data, size_t size,

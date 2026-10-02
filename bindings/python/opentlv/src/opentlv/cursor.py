@@ -1,3 +1,6 @@
+# SPDX-License-Identifier: MIT
+# Copyright (c) 2026 Marek Cingel
+
 """Ownership and source projections of canonical C Reader cursors."""
 from dataclasses import dataclass, field
 from enum import IntEnum

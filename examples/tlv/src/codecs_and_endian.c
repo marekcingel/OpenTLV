@@ -1,3 +1,6 @@
+// SPDX-License-Identifier: MIT
+// Copyright (c) 2026 Marek Cingel
+
 /*
  * An application codec (an aligned uint32_t C object <-> four big-endian
  * bytes) used inside TLV framing, and the standalone endian helpers.

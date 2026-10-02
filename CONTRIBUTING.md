@@ -13,6 +13,8 @@ governed by the [Code of Conduct](CODE_OF_CONDUCT.md).
 Before opening a pull request:
 
 - Follow the [core architectural rules](docs/concepts/architectural-rules.md).
+- Add the standard SPDX license header to project source files (see
+  [Source license headers](#source-license-headers)).
 - Keep changes focused and preserve documented memory ownership and API boundaries.
 - Update relevant documentation and add meaningful tests for behavior changes;
   document new or changed public API as described in
@@ -26,6 +28,31 @@ Before opening a pull request:
 
 For substantial API or architecture changes, discuss the proposed scope in an
 issue first. Repository-specific instructions are in [AGENTS.md](AGENTS.md).
+
+## Source license headers
+
+Start project C/C++ sources and headers with:
+
+```c
+// SPDX-License-Identifier: MIT
+// Copyright (c) 2026 Marek Cingel
+```
+
+Rust, JavaScript, TypeScript, Java and Go use the same comment syntax; Python
+uses `#` and Lua uses `--`. Keep shebangs and Python encoding declarations
+before the notice. C/C++ `.in` source templates also carry the notice so their
+generated outputs inherit it. The complete MIT text remains in [LICENSE](LICENSE).
+
+[scripts/check_license_headers.py](scripts/check_license_headers.py) owns the
+covered extensions and explicit excluded paths, with reasons. Generated files
+under `generated/`, vendored files under `vendor/` or `third_party/`, and
+untracked build/dependency outputs are excluded. Do not replace third-party
+license notices; document any additional exemption in the central policy.
+
+Run `python scripts/check_license_headers.py` to check all tracked sources or
+add `--fix` to insert missing notices while preserving file line endings.
+Existing conflicting notices require manual review. The `license-headers`
+pre-commit hook runs this same check locally and in the Static Analysis CI job.
 
 For the branch model, what CI runs on pull requests, on `main` and on release
 tags, and how to cut a release, see the

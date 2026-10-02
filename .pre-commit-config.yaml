@@ -5,6 +5,21 @@
 exclude: ^(tests/fuzz/(.*/)?corpus/|tools/cli/.*\.bin$)
 
 repos:
+  - repo: local
+    hooks:
+      - id: license-headers
+        name: Check SPDX license headers
+        entry: python scripts/check_license_headers.py
+        language: python
+        pass_filenames: false
+        always_run: true
+      - id: license-header-tests
+        name: Test SPDX license policy
+        entry: python scripts/test_license_headers.py
+        language: python
+        files: ^scripts/(check_license_headers|test_license_headers)\.py$
+        pass_filenames: false
+
   - repo: https://github.com/pre-commit/pre-commit-hooks
     rev: v4.4.0
     hooks:

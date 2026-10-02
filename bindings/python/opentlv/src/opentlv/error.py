@@ -1,3 +1,6 @@
+# SPDX-License-Identifier: MIT
+# Copyright (c) 2026 Marek Cingel
+
 """Python exceptions mapped from OpenTLV result codes."""
 
 from __future__ import annotations

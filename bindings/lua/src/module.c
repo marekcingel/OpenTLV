@@ -1,3 +1,6 @@
+// SPDX-License-Identifier: MIT
+// Copyright (c) 2026 Marek Cingel
+
 /*
  * luaopen_opentlv_native(): the entry point require("opentlv_native") loads.
  * Ties together the format (format.c), reader (reader.c), writer (writer.c), traversal

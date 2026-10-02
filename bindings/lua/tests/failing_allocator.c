@@ -1,3 +1,6 @@
+// SPDX-License-Identifier: MIT
+// Copyright (c) 2026 Marek Cingel
+
 /* Test-only module: fail all growth allocations after the selected point,
  * including Lua's emergency-GC retry, then restore the interpreter allocator. */
 #include "compat.h"

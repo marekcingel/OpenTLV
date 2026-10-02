@@ -1,3 +1,6 @@
+// SPDX-License-Identifier: MIT
+// Copyright (c) 2026 Marek Cingel
+
 // Builds the same BER document as parse.cpp using scoped, allocation-free writes.
 #include "tlv++/builtins/asn1/ber.hpp"
 #include <array>

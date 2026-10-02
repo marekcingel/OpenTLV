@@ -1,3 +1,6 @@
+// SPDX-License-Identifier: MIT
+// Copyright (c) 2026 Marek Cingel
+
 #include "tlv/builtins/emv/presentation.h"
 /*
  * Practical EMV workflow: parse a TLV record, look up each tag in the Book 3

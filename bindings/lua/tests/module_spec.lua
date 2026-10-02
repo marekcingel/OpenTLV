@@ -1,3 +1,6 @@
+-- SPDX-License-Identifier: MIT
+-- Copyright (c) 2026 Marek Cingel
+
 -- Minimal module-loading test: require("opentlv") must succeed (resolving
 -- through lua/opentlv/init.lua to the native opentlv_native module, see
 -- src/module.c) and expose the top-level surface every other spec file

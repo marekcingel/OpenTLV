@@ -1,3 +1,6 @@
+-- SPDX-License-Identifier: MIT
+-- Copyright (c) 2026 Marek Cingel
+
 -- Pure-Lua entry point for require("opentlv"). Every OpenTLV concept
 -- (Reader, Writer, Tree Writer, Schema, Element, Tag, traversal, errors) is bound in the
 -- native opentlv_native module (bindings/lua/src/); this file only

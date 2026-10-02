@@ -1,3 +1,6 @@
+// SPDX-License-Identifier: MIT
+// Copyright (c) 2026 Marek Cingel
+
 #ifndef OPENTLV_FORMATS_ESCAPED_H
 #define OPENTLV_FORMATS_ESCAPED_H
 

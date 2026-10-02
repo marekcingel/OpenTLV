@@ -1,3 +1,6 @@
+// SPDX-License-Identifier: MIT
+// Copyright (c) 2026 Marek Cingel
+
 #include "tlv/builtins/bluetooth/ad_codec.h"
 #include "../../utf8_internal.h"
 #include <string.h>

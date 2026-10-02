@@ -1,3 +1,6 @@
+// SPDX-License-Identifier: MIT
+// Copyright (c) 2026 Marek Cingel
+
 //! Value codecs: conversion between raw TLV values and typed Rust values.
 //!
 //! The conversions run in the C library's codecs. This module owns the

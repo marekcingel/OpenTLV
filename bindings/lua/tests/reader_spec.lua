@@ -1,3 +1,6 @@
+-- SPDX-License-Identifier: MIT
+-- Copyright (c) 2026 Marek Cingel
+
 local opentlv = require("opentlv")
 
 -- tag 0x01 length 2 value 0xAA 0xBB, then tag 0x02 length 0 (empty value).

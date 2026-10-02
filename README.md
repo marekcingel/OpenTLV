@@ -134,6 +134,9 @@ This complete C example ([source](examples/tlv/src/quick_start.c), built and run
 
 <!-- example: examples/tlv/src/quick_start.c -->
 ```c
+// SPDX-License-Identifier: MIT
+// Copyright (c) 2026 Marek Cingel
+
 #include <string.h>
 #include "tlv/formats/fixed.h"
 #include "tlv/reader/reader.h"
@@ -171,6 +174,9 @@ uses the same canonical engine and is compiled and executed in CI:
 
 <!-- example: examples/tlv++/src/quick_start.cpp -->
 ```cpp
+// SPDX-License-Identifier: MIT
+// Copyright (c) 2026 Marek Cingel
+
 #include <tlv++/tlv.hpp>
 #include <iostream>
 

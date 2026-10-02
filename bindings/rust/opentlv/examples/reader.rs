@@ -1,3 +1,6 @@
+// SPDX-License-Identifier: MIT
+// Copyright (c) 2026 Marek Cingel
+
 //! Reads a BER-TLV buffer with `Reader`, descends into a constructed element and
 //! decodes values with the EMV dictionary.
 //!

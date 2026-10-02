@@ -1,4 +1,7 @@
-﻿"""Generate and verify fresh Release archives against the canonical installation."""
+﻿# SPDX-License-Identifier: MIT
+# Copyright (c) 2026 Marek Cingel
+
+"""Generate and verify fresh Release archives against the canonical installation."""
 
 import argparse
 import hashlib

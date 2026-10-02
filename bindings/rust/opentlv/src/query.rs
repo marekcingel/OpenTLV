@@ -1,3 +1,6 @@
+// SPDX-License-Identifier: MIT
+// Copyright (c) 2026 Marek Cingel
+
 //! Canonical C Query parsing and resumable matching.
 use crate::{Element, Error, Result, Tag, TreeReader, Visit};
 use opentlv_native as native;

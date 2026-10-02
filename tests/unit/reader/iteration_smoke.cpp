@@ -1,3 +1,6 @@
+// SPDX-License-Identifier: MIT
+// Copyright (c) 2026 Marek Cingel
+
 // Independent of GoogleTest's minimum C++ standard: exercises C++11 range returns
 // with copy elision disabled and observes allocations across successful processing.
 #include "tlv++/reader/reader.hpp"

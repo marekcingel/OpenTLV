@@ -1,3 +1,6 @@
+# SPDX-License-Identifier: MIT
+# Copyright (c) 2026 Marek Cingel
+
 """Append the gcovr coverage summary to the GitHub Actions step summary.
 
 Reads coverage/summary.json and the COVERAGE_ARTIFACT_URL environment variable.

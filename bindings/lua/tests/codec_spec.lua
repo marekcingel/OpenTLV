@@ -1,3 +1,6 @@
+-- SPDX-License-Identifier: MIT
+-- Copyright (c) 2026 Marek Cingel
+
 local tlv = require("opentlv")
 local c = tlv.codecs
 local b = string.char

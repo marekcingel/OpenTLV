@@ -1,3 +1,6 @@
+# SPDX-License-Identifier: MIT
+# Copyright (c) 2026 Marek Cingel
+
 """Local Google Benchmark workflow; paths are relative to the repository."""
 import argparse
 import json

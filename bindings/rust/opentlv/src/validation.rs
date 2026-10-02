@@ -1,3 +1,6 @@
+// SPDX-License-Identifier: MIT
+// Copyright (c) 2026 Marek Cingel
+
 //! The DER and CER validators: strict, limit-bounded validation and canonical
 //! writing of ASN.1 encodings.
 //!

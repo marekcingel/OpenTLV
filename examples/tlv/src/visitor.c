@@ -1,3 +1,6 @@
+// SPDX-License-Identifier: MIT
+// Copyright (c) 2026 Marek Cingel
+
 /* Resumable push processing uses the same caller-owned Tree Reader as pull. */
 #include "tlv/reader/visitor.h"
 #include "tlv/formats/fixed.h"

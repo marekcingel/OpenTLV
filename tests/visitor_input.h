@@ -1,3 +1,6 @@
+// SPDX-License-Identifier: MIT
+// Copyright (c) 2026 Marek Cingel
+
 #ifndef OPENTLV_TEST_VISITOR_INPUT_H
 #define OPENTLV_TEST_VISITOR_INPUT_H
 #include "tlv/reader/visitor.h"

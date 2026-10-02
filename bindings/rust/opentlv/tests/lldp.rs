@@ -1,4 +1,7 @@
 #![cfg(feature = "lldp")]
+// SPDX-License-Identifier: MIT
+// Copyright (c) 2026 Marek Cingel
+
 use opentlv::{decode, Format, Reader, Tag, Writer};
 
 #[test]

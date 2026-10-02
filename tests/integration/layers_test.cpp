@@ -1,3 +1,6 @@
+// SPDX-License-Identifier: MIT
+// Copyright (c) 2026 Marek Cingel
+
 // Keep this translation unit separate: low-level headers must not import codecs.
 #include "tlv++/reader/reader.hpp"
 #include "tlv++/writer/writer.hpp"

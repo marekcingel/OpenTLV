@@ -1,3 +1,6 @@
+// SPDX-License-Identifier: MIT
+// Copyright (c) 2026 Marek Cingel
+
 // Own, traverse and edit the canonical C Document through the C++ facade.
 #include "tlv++/builtins/asn1/ber.hpp"
 #include "tlv++/document/document.hpp"

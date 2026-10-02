@@ -1,3 +1,6 @@
+// SPDX-License-Identifier: MIT
+// Copyright (c) 2026 Marek Cingel
+
 #include "tlv/codec/values.h"
 #include "tlv/codec/number.h"
 #include <vector>

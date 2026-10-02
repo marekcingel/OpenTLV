@@ -110,6 +110,9 @@ Element (4 bytes)
 
 <!-- example: examples/tlv/src/formats/fixed_format.c -->
 ```c
+// SPDX-License-Identifier: MIT
+// Copyright (c) 2026 Marek Cingel
+
 /*
  * Defines a fixed-width TLV format at runtime: two tag bytes and a one-byte
  * length, then writes and reads one element. See tlv/formats/fixed.h.
@@ -154,6 +157,9 @@ int main(void) {
 
 <!-- example: examples/tlv++/src/formats/fixed_format.cpp -->
 ```cpp
+// SPDX-License-Identifier: MIT
+// Copyright (c) 2026 Marek Cingel
+
 // Defines a fixed-width TLV format at compile time: two tag bytes and a
 // two-byte little-endian length, then writes and reads one element.
 #include <array>
@@ -203,6 +209,9 @@ plain `const tlv_format_t&`:
 
 <!-- example: examples/tlv++/src/formats/fixed_format_runtime.cpp -->
 ```cpp
+// SPDX-License-Identifier: MIT
+// Copyright (c) 2026 Marek Cingel
+
 // Defines a fixed-width TLV format at runtime from tlv++: two tag bytes and a
 // one-byte length, using the raw C tlv_fixed_format_t/tlv_fixed_format_init
 // through the explicit tlv::native interoperability boundary. See tlv/formats/fixed.h and

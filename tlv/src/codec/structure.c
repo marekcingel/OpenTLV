@@ -1,3 +1,6 @@
+// SPDX-License-Identifier: MIT
+// Copyright (c) 2026 Marek Cingel
+
 #include "tlv/codec/structure.h"
 #include "tlv/reader/visitor.h"
 

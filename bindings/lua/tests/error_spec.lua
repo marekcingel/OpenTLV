@@ -1,3 +1,6 @@
+-- SPDX-License-Identifier: MIT
+-- Copyright (c) 2026 Marek Cingel
+
 local opentlv = require("opentlv")
 
 describe("opentlv.errors", function()

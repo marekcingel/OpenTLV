@@ -1,3 +1,6 @@
+// SPDX-License-Identifier: MIT
+// Copyright (c) 2026 Marek Cingel
+
 #ifndef OPENTLV_SCHEMA_TRAVERSAL_INTERNAL_H
 #define OPENTLV_SCHEMA_TRAVERSAL_INTERNAL_H
 #include "tlv/reader/visitor.h"

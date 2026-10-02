@@ -1,3 +1,6 @@
+// SPDX-License-Identifier: MIT
+// Copyright (c) 2026 Marek Cingel
+
 #include "tlv/builtins/bluetooth/company_ids.h"
 
 static const uint8_t identifiers[][2] = {

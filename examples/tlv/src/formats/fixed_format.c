@@ -1,3 +1,6 @@
+// SPDX-License-Identifier: MIT
+// Copyright (c) 2026 Marek Cingel
+
 /*
  * Defines a fixed-width TLV format at runtime: two tag bytes and a one-byte
  * length, then writes and reads one element. See tlv/formats/fixed.h.

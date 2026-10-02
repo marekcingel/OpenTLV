@@ -1,3 +1,6 @@
+// SPDX-License-Identifier: MIT
+// Copyright (c) 2026 Marek Cingel
+
 //! Integration tests for the safe writer API and reader/writer round trips.
 
 use opentlv::{encoded_size, Error, Format, Reader, Tag, Writer};

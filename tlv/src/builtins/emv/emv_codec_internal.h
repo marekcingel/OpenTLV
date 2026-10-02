@@ -1,3 +1,6 @@
+// SPDX-License-Identifier: MIT
+// Copyright (c) 2026 Marek Cingel
+
 #ifndef OPENTLV_EMV_CODEC_INTERNAL_H
 #define OPENTLV_EMV_CODEC_INTERNAL_H
 #include "tlv/builtins/emv/emv_codec.h"

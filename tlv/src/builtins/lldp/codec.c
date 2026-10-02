@@ -1,3 +1,6 @@
+// SPDX-License-Identifier: MIT
+// Copyright (c) 2026 Marek Cingel
+
 #include "tlv/builtins/lldp/codec.h"
 #include <string.h>
 #include "tlv/codec/values.h"

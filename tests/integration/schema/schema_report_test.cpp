@@ -1,3 +1,6 @@
+// SPDX-License-Identifier: MIT
+// Copyright (c) 2026 Marek Cingel
+
 #include "tlv/builtins/asn1/ber.h"
 #include "tlv/reader/visitor.h"
 #include "tlv/schema/schema.h"

@@ -1,3 +1,6 @@
+// SPDX-License-Identifier: MIT
+// Copyright (c) 2026 Marek Cingel
+
 #include "completion/zsh_completer.hpp"
 #include "completion/support.hpp"
 

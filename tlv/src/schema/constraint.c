@@ -1,3 +1,6 @@
+// SPDX-License-Identifier: MIT
+// Copyright (c) 2026 Marek Cingel
+
 #include "tlv/schema/constraint.h"
 
 tlv_result_t tlv_value_constraint_validate(const tlv_value_constraint_t* constraint,

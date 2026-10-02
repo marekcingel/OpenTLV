@@ -1,3 +1,6 @@
+// SPDX-License-Identifier: MIT
+// Copyright (c) 2026 Marek Cingel
+
 #include "tlv/size.h"
 
 tlv_result_t tlv_size_from_native(size_t size, tlv_size_t* logical_size) {

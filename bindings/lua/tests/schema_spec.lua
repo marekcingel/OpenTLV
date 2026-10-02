@@ -1,3 +1,6 @@
+-- SPDX-License-Identifier: MIT
+-- Copyright (c) 2026 Marek Cingel
+
 local tlv = require("opentlv")
 local describe = describe or function(_, run) run() end
 local it = it or function(_, run) run() end

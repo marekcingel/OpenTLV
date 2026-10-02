@@ -1,3 +1,6 @@
+// SPDX-License-Identifier: MIT
+// Copyright (c) 2026 Marek Cingel
+
 #include "diagnostic_render.hpp"
 #include <cstring>
 #include <sstream>

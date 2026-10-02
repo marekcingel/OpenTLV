@@ -1,3 +1,6 @@
+// SPDX-License-Identifier: MIT
+// Copyright (c) 2026 Marek Cingel
+
 /* Caller-owned sliding storage; Reader performs no I/O or buffering. */
 #include "tlv/formats/fixed.h"
 #include "tlv/reader/reader.h"

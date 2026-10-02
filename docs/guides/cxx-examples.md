@@ -20,6 +20,9 @@ may leave a prefix in the output buffer; do not publish that output as a success
 
 <!-- example: examples/tlv++/src/basic_usage.cpp -->
 ```cpp
+// SPDX-License-Identifier: MIT
+// Copyright (c) 2026 Marek Cingel
+
 // Write two primitive BER elements, then iterate over that sequence.
 #include <tlv++/tlv.hpp>
 #include <array>
@@ -80,6 +83,9 @@ See [`document_edit.cpp`](../../examples/tlv++/src/document_edit.cpp) for mutati
 
 <!-- example: examples/tlv++/src/document.cpp -->
 ```cpp
+// SPDX-License-Identifier: MIT
+// Copyright (c) 2026 Marek Cingel
+
 // Parse an owning Document and traverse roots and their children.
 #include <tlv++/tlv.hpp>
 #include <iostream>

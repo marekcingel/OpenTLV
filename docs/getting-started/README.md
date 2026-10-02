@@ -56,6 +56,9 @@ the checkout at `external/OpenTLV` in your application.
 
 <!-- example: examples/tlv/src/quick_start.c -->
 ```c
+// SPDX-License-Identifier: MIT
+// Copyright (c) 2026 Marek Cingel
+
 #include <string.h>
 #include "tlv/formats/fixed.h"
 #include "tlv/reader/reader.h"
@@ -124,6 +127,9 @@ Document, typed fields, Query and explicit control.
 
 <!-- example: examples/tlv++/src/quick_start.cpp -->
 ```cpp
+// SPDX-License-Identifier: MIT
+// Copyright (c) 2026 Marek Cingel
+
 #include <tlv++/tlv.hpp>
 #include <iostream>
 
@@ -175,6 +181,9 @@ for the full setup, including how to link a prebuilt library.
 
 <!-- example: bindings/rust/opentlv/examples/quick_start.rs -->
 ```rust
+// SPDX-License-Identifier: MIT
+// Copyright (c) 2026 Marek Cingel
+
 //! The simplest possible round trip: write one element with the
 //! configurable fixed-width format, then read it back. See parse.rs and
 //! write.rs for a nested BER document, and the C `quick_start.c` and C++
@@ -242,6 +251,9 @@ setup.
 
 <!-- example: bindings/python/opentlv/examples/quick_start.py -->
 ```python
+# SPDX-License-Identifier: MIT
+# Copyright (c) 2026 Marek Cingel
+
 """The simplest possible round trip: write one element with the
 configurable fixed-width format, then read it back. See parse.py and
 write.py for a nested BER document, and the C `quick_start.c`, C++

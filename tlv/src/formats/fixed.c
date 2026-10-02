@@ -1,3 +1,6 @@
+// SPDX-License-Identifier: MIT
+// Copyright (c) 2026 Marek Cingel
+
 #include "tlv/formats/fixed.h"
 tlv_result_t tlv_fixed_format_init(tlv_format_t* format, const tlv_fixed_format_t* config) {
     if (!format || !config || !config->tag_size || !config->length_size ||

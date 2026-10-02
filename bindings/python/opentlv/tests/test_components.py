@@ -1,3 +1,6 @@
+# SPDX-License-Identifier: MIT
+# Copyright (c) 2026 Marek Cingel
+
 """Run this module alone for builds with optional formats disabled."""
 import pytest
 import opentlv_native as native

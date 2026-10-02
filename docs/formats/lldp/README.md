@@ -179,6 +179,9 @@ new writing API.
 
 <!-- example: examples/tlv/src/lldp.c -->
 ```c
+// SPDX-License-Identifier: MIT
+// Copyright (c) 2026 Marek Cingel
+
 #include "tlv/builtins/lldp/lldp.h"
 #include "tlv/builtins/lldp/schema.h"
 #include "tlv/builtins/lldp/codec.h"
@@ -216,6 +219,9 @@ Format preset for traversal.
 
 <!-- example: examples/tlv++/src/lldp.cpp -->
 ```cpp
+// SPDX-License-Identifier: MIT
+// Copyright (c) 2026 Marek Cingel
+
 #include "tlv++/tlv.hpp"
 #include "tlv++/builtins/lldp/lldp.hpp"
 #include "tlv/builtins/lldp/schema.h"

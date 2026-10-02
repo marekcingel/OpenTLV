@@ -1,3 +1,6 @@
+// SPDX-License-Identifier: MIT
+// Copyright (c) 2026 Marek Cingel
+
 #include "tlv/config.h"
 #include "tlv/builtins/asn1/identifier.h"
 #if OPENTLV_FORMAT_DER

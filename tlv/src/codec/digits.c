@@ -1,3 +1,6 @@
+// SPDX-License-Identifier: MIT
+// Copyright (c) 2026 Marek Cingel
+
 #include "tlv/codec/digits.h"
 
 static unsigned nibble(const uint8_t* data, size_t index) {

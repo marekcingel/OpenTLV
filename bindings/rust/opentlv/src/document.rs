@@ -1,3 +1,6 @@
+// SPDX-License-Identifier: MIT
+// Copyright (c) 2026 Marek Cingel
+
 //! Owning C Document with lifetime-bound reads and exclusive mutation.
 use crate::{Error, FixedFormat, Format, Query, ReaderDiagnostic, Result, Tag, TreeReader};
 use opentlv_native as native;

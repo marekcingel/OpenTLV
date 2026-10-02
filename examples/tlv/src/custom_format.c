@@ -1,3 +1,6 @@
+// SPDX-License-Identifier: MIT
+// Copyright (c) 2026 Marek Cingel
+
 /*
  * A fully custom format: one raw tag byte and a two-byte little-endian
  * length field, all built from hand-written callbacks. Callbacks also
