@@ -131,6 +131,15 @@ state each of the following explicitly:
 To catch malformed comments (for example a `@param` that names a nonexistent
 parameter), build the C headers with Clang's `-Wdocumentation`.
 
+## Deterministic property tests
+
+Enable `OPENTLV_BUILD_PROPERTY_TESTS=ON` and select the suite with
+`ctest --test-dir build -L property --output-on-failure`. It uses the CLI
+generator and public Tree Reader/Writer contracts to verify complete generated
+streams, separately from unit, integration and fuzz testing. See the
+[property suite guide](tests/property/README.md) for corpus identity, commit
+seeds, optional-format coverage and failure reproduction.
+
 ## Generate the C API reference
 
 Install [Doxygen](https://www.doxygen.nl/download.html) 1.9.1 or newer, CMake
