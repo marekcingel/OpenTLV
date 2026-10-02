@@ -119,6 +119,9 @@ type OptionalSize struct {
 	Present bool
 }
 
+// DiagnosticContext copies native context strings.
+type DiagnosticContext struct{ Layer, Key, Value string }
+
 // Diagnostic is a Go projection of native reader/writer detail, with no C pointers.
 // Tag and RawLength are owned snapshots; text is copied from native storage.
 type Diagnostic struct {
@@ -130,6 +133,8 @@ type Diagnostic struct {
 	HasTag, HasRawLength                                      bool
 	TagOffset, LengthOffset, ValueOffset                      OptionalSize
 	DeclaredLength, Available, EnclosingEnd, Required, Length OptionalSize
+	Contexts                                                  []DiagnosticContext
+	Path                                                      [][]byte
 }
 
 func bytePointer(data []byte) *C.uint8_t {
@@ -153,7 +158,17 @@ func nativeBytes(data *C.uint8_t, size C.size_t) []byte {
 func wireRange(r C.tlv_range_t) Range                   { return Range{int(r.offset), int(r.size), r.present != 0} }
 func optional(value uint64, present C.int) OptionalSize { return OptionalSize{value, present != 0} }
 func diagnostic(d C.tlv_diagnostic_t, operation C.int) Diagnostic {
-	return Diagnostic{Code: Code(d.code), Severity: int(d.severity), Operation: int(operation), Offset: optional(uint64(d.offset), d.has_offset), Expected: C.GoString(d.expected), Actual: C.GoString(d.actual)}
+	result := Diagnostic{Code: Code(d.code), Severity: int(d.severity), Operation: int(operation), Offset: optional(uint64(d.offset), d.has_offset), Expected: C.GoString(d.expected), Actual: C.GoString(d.actual)}
+	for c := d.contexts; c != nil; c = c.next {
+		result.Contexts = append(result.Contexts, DiagnosticContext{C.GoString(c.layer), C.GoString(c.key), C.GoString(c.value)})
+	}
+	if d.path != nil {
+		for i := 0; i < int(d.path.length); i++ {
+			t := d.path.tags[i]
+			result.Path = append(result.Path, bytes.Clone(nativeBytes(t.data, t.size)))
+		}
+	}
+	return result
 }
 
 // Read decodes the first element through the canonical Reader, without copying input.
@@ -168,23 +183,7 @@ func (f Format) Read(input []byte, final bool) (Element, int, Code, Diagnostic) 
 	defer runtime.KeepAlive(input)
 	code := Code(r.code)
 	if code != OK {
-		d := diagnostic(r.diagnostic.diagnostic, C.int(r.diagnostic.operation))
-		d.Code = code
-		d.HasTag = r.diagnostic.has_tag != 0
-		if d.HasTag {
-			d.Tag = bytes.Clone(nativeBytes(r.diagnostic.tag.data, r.diagnostic.tag.size))
-		}
-		d.HasRawLength = r.diagnostic.has_raw_length != 0
-		if d.HasRawLength {
-			d.RawLength = bytes.Clone(nativeBytes(r.diagnostic.raw_length.data, r.diagnostic.raw_length.size))
-		}
-		d.TagOffset = optional(uint64(r.diagnostic.tag_offset), r.diagnostic.has_tag_offset)
-		d.LengthOffset = optional(uint64(r.diagnostic.length_offset), r.diagnostic.has_length_offset)
-		d.ValueOffset = optional(uint64(r.diagnostic.value_offset), r.diagnostic.has_value_offset)
-		d.DeclaredLength = optional(uint64(r.diagnostic.declared_length), r.diagnostic.has_declared_length)
-		d.Available = optional(uint64(r.diagnostic.available), r.diagnostic.has_available)
-		d.EnclosingEnd = optional(uint64(r.diagnostic.enclosing_end), r.diagnostic.has_enclosing_end)
-		d.Required = optional(uint64(r.diagnostic.required), r.diagnostic.has_required)
+		d := readerDiagnostic(r.diagnostic, code)
 		return Element{}, 0, code, d
 	}
 	s := Source{Bytes: input[:int(r.source.size)], Header: wireRange(r.source.header), Tag: wireRange(r.source.tag), Length: wireRange(r.source.length), Value: wireRange(r.source.value), Trailer: wireRange(r.source.trailer), FormatTag: r.source.tag_binding == C.TLV_TAG_BINDING_FORMAT}
@@ -235,18 +234,44 @@ func (f Format) write(output, tag, value []byte, measure bool) (int, Code, Diagn
 	code := Code(r.code)
 	d := Diagnostic{}
 	if code != OK {
-		d = diagnostic(r.diagnostic.diagnostic, C.int(r.diagnostic.operation))
-		d.Code = code
-		d.HasTag = r.diagnostic.has_tag != 0
-		if d.HasTag {
-			d.Tag = bytes.Clone(tag)
-		}
-		d.Length = optional(uint64(r.diagnostic.length), r.diagnostic.has_length)
-		d.Available = optional(uint64(r.diagnostic.available), r.diagnostic.has_available)
-		d.Required = optional(uint64(r.diagnostic.required), r.diagnostic.has_required)
+		d = writerDiagnostic(r, tag)
 	}
 	if uint64(r.size) > uint64(^uint(0)>>1) {
 		return 0, NativeSize, Diagnostic{Code: NativeSize}
 	}
 	return int(r.size), code, d
+}
+
+func writerDiagnostic(r C.go_write_result, tag []byte) Diagnostic {
+	d := diagnostic(r.diagnostic.diagnostic, C.int(r.diagnostic.operation))
+	d.Code = Code(r.code)
+	d.HasTag = r.diagnostic.has_tag != 0
+	if d.HasTag {
+		d.Tag = bytes.Clone(tag)
+	}
+	d.Length = optional(uint64(r.diagnostic.length), r.diagnostic.has_length)
+	d.Available = optional(uint64(r.diagnostic.available), r.diagnostic.has_available)
+	d.Required = optional(uint64(r.diagnostic.required), r.diagnostic.has_required)
+	return d
+}
+
+func readerDiagnostic(native C.tlv_reader_diagnostic_t, code Code) Diagnostic {
+	d := diagnostic(native.diagnostic, C.int(native.operation))
+	d.Code = code
+	d.HasTag = native.has_tag != 0
+	if d.HasTag {
+		d.Tag = bytes.Clone(nativeBytes(native.tag.data, native.tag.size))
+	}
+	d.HasRawLength = native.has_raw_length != 0
+	if d.HasRawLength {
+		d.RawLength = bytes.Clone(nativeBytes(native.raw_length.data, native.raw_length.size))
+	}
+	d.TagOffset = optional(uint64(native.tag_offset), native.has_tag_offset)
+	d.LengthOffset = optional(uint64(native.length_offset), native.has_length_offset)
+	d.ValueOffset = optional(uint64(native.value_offset), native.has_value_offset)
+	d.DeclaredLength = optional(uint64(native.declared_length), native.has_declared_length)
+	d.Available = optional(uint64(native.available), native.has_available)
+	d.EnclosingEnd = optional(uint64(native.enclosing_end), native.has_enclosing_end)
+	d.Required = optional(uint64(native.required), native.has_required)
+	return d
 }

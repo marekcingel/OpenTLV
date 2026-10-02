@@ -21,23 +21,24 @@ type Document struct{ ptr *C.go_document }
 type Node struct{ ptr unsafe.Pointer }
 
 // ParseDocument copies input into the canonical native Document.
-func (f Format) ParseDocument(data []byte, depth, elements int, defaults bool) (*Document, Code) {
+func (f Format) ParseDocument(data []byte, depth, elements int, defaults bool) (*Document, Code, Diagnostic) {
 	if depth < 0 || elements < 0 {
-		return nil, InvalidArg
+		return nil, InvalidArg, Diagnostic{Code: InvalidArg}
 	}
 	var code C.int
+	var diag C.tlv_reader_diagnostic_t
 	var def C.int
 	if defaults {
 		def = 1
 	}
-	p := C.go_document_parse(f.config, bytePointer(data), C.size_t(len(data)), C.size_t(depth), C.size_t(elements), def, &code)
-	runtime.KeepAlive(data)
+	p := C.go_document_parse(f.config, bytePointer(data), C.size_t(len(data)), C.size_t(depth), C.size_t(elements), def, &code, &diag)
+	defer runtime.KeepAlive(data)
 	if Code(code) != OK {
-		return nil, Code(code)
+		return nil, Code(code), readerDiagnostic(diag, Code(code))
 	}
 	d := &Document{p}
 	runtime.SetFinalizer(d, (*Document).Close)
-	return d, OK
+	return d, OK, Diagnostic{}
 }
 
 // Close releases all native allocations, once.

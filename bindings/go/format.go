@@ -80,7 +80,8 @@ type Format struct {
 func (f Format) Valid() bool { return f.valid }
 
 // StatusError preserves a native failure code as a Go error. It owns no C storage.
-// Detailed processing diagnostics belong to the processing APIs.
+// Use errors.Is with the named Err values. Processing failures wrap this status
+// in ParseError or WriteError; errors.As can still retrieve a StatusError.
 type StatusError struct{ code capi.Code }
 
 // Error returns the canonical native status description.

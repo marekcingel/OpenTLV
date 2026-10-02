@@ -111,6 +111,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Added
 
+- Add idiomatic Go error matching with `errors.Is`, structured parsing and writing errors with owned C diagnostic snapshots, and Document parsing diagnostics. (#478)
 - Expose owned mutable Go Documents with root and child navigation, checked node handles, explicit cleanup, original input snapshots and serialization through the canonical C Writer. (#477)
 - Add an idiomatic Go Writer with element sizing, allocated or caller-provided output, staged nested construction and recoverable capacity errors, delegating encoding to the canonical C engine. (#476)
 - Add a Go Reader with sequential iteration, borrowed element views, absolute source offsets and resumable input windows. (#475)

@@ -46,7 +46,7 @@ func (r *Reader) Next() bool {
 	if r.err != nil || r.done {
 		return false
 	}
-	e, n, code, _ := r.format.native.Read(r.input[r.pos:], r.final)
+	e, n, code, diag := r.format.native.Read(r.input[r.pos:], r.final)
 	r.waiting = false
 	switch code {
 	case capi.OK:
@@ -58,7 +58,7 @@ func (r *Reader) Next() bool {
 	case capi.NeedMoreData:
 		r.waiting = true
 	default:
-		r.err = StatusError{code: code}
+		r.err = parseError(code, diag, uint64(r.base+r.pos))
 	}
 	return false
 }
@@ -69,7 +69,8 @@ func (r *Reader) Next() bool {
 func (r *Reader) Element() Element { return r.element }
 
 // Err returns the terminal parse or construction error. Clean EOF and a pause
-// for more input are not errors. Native codes are available through StatusError.
+// for more input are not errors. Native failures return *ParseError with owned
+// diagnostic detail; errors.Is matches named errors and errors.As finds StatusError.
 func (r *Reader) Err() error { return r.err }
 
 // NeedsMoreData reports whether the last Next paused for non-final input.
