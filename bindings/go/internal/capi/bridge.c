@@ -153,6 +153,53 @@ size_t go_document_count(go_document* d) {
 #endif
 }
 
+#if OPENTLV_DOCUMENT
+typedef struct {
+    void** nodes;
+    size_t count;
+} go_query_results;
+static tlv_visit_result_t collect_query(tlv_node_t* node, void* context) {
+    go_query_results* results = context;
+    results->nodes[results->count++] = node;
+    return TLV_VISIT_CONTINUE;
+}
+#endif
+
+int go_document_query(go_document* d, const char* text, void*** nodes, size_t* count,
+                      size_t* error_offset) {
+#if OPENTLV_DOCUMENT
+    tlv_query_t      query;
+    tlv_result_t     code = tlv_query_parse(text, &query, error_offset);
+    go_query_results results = {NULL, 0};
+    size_t           capacity;
+    if (code != TLV_OK) return code;
+    capacity = tlv_document_count(d->document);
+    if (capacity > SIZE_MAX / sizeof(void*)) return TLV_ERR_OVERFLOW;
+    if (capacity) {
+        results.nodes = malloc(capacity * sizeof(void*));
+        if (!results.nodes) return TLV_ERR_OUT_OF_MEMORY;
+    }
+    code = tlv_document_query_visit(d->document, &query, collect_query, &results);
+    if (code != TLV_OK) {
+        free(results.nodes);
+        return code;
+    }
+    *nodes = results.nodes;
+    *count = results.count;
+    return TLV_OK;
+#else
+    (void)d;
+    (void)text;
+    (void)nodes;
+    (void)count;
+    (void)error_offset;
+    return TLV_ERR_UNSUPPORTED_TYPE;
+#endif
+}
+void go_query_free(void** nodes) {
+    free(nodes);
+}
+
 void* go_document_node(go_document* d, void* n, int operation) {
 #if OPENTLV_DOCUMENT
     switch (operation) {

@@ -5,7 +5,7 @@ bridge (#473). It exposes
 `opentlv.Version()` to verify the connection to the canonical C library.
 Public Format and Element APIs are available (#474), along with Reader (#475),
 Writer (#476), owned Document (#477), and idiomatic errors with owned diagnostic
-snapshots (#478).
+snapshots (#478), Document Query and typed generic Value codecs (#479).
 
 The module path is `github.com/marekcingel/OpenTLV/bindings/go`; its package
 name is `opentlv`. It requires Go 1.22 or newer, cgo and a compatible C compiler.
@@ -55,8 +55,7 @@ presets return an unsupported status; the bridge contains no wire parser.
   native Format pointer is retained in Source. The Reader retains its slice and
   position in Go and passes each unconsumed window to the bridge.
 
-Public Query and Codec APIs remain separate follow-up work (#479). Document
-owns native allocations and provides explicit cleanup.
+Document owns native allocations and provides explicit cleanup.
 
 ## Build and run
 
@@ -264,8 +263,43 @@ input. `EncodeAs(format)` uses a compatible destination without remapping Tags.
 `writer.WriteDocument(doc)` appends this encoding in the Writer's Format,
 including inside an open staged parent. Capacity failures leave Writer unchanged.
 
-Run `go run ./examples/document` with Document enabled. Query and resumable
-Tree Reader/Document Builder integration remain follow-up capabilities.
+Run `go run ./examples/document` with Document enabled. Resumable
+Tree Reader/Document Builder integration remains follow-up work.
+
+## Query and Value codecs
+
+`doc.Query("6F/A5/50")` returns all matching `[]Node` in document order from
+the current mutable C Document. Paths are exact hexadecimal tags separated by
+single slashes. Leading slashes, `//`, wildcards and predicates are rejected by
+the C Query parser. No matches returns an empty slice. Successful edits and
+Close invalidate query nodes; their previously copied Value snapshots survive.
+Query failures return `*QueryError`, support `errors.Is` for native statuses,
+and retain the C parser's byte offset in the query text when provided. Document
+query traversal supplies no additional diagnostic context.
+
+Typed `Codec[T]` values delegate conversion, validation and encoding measurement
+to C. Use `Uint8Codec`, `Uint16BECodec`, `Uint16LECodec`, `Uint32BECodec`,
+`Uint32LECodec`, `Int64Codec`, `BytesCodec`, `NumberCodec`, `TextCodec`,
+`DigitsCodec`, `IPv4Codec` and `IPv4ListCodec`. Configurations are copied and
+validated on use by C. Decode produces owned Go values. Encode returns owned
+Value bytes, which can be supplied to NewElement or Node.SetValue.
+
+`NumberCodec` supports uint64 binary BE/LE and packed numeric BCD; `DigitsCodec`
+preserves leading zeros and trailing F padding. `TextCodec` explicitly selects
+printable ASCII or alphanumeric ASCII and optional fixed width/zero padding.
+IPv4 representations use `[4]byte` and `[][4]byte` in network octet order.
+The zero Codec is unsupported. Generic codecs remain usable with protocol
+components and Document disabled.
+
+Value conversion errors are `CodecError` values in the separate C codec status
+domain. Use `errors.Is(err, opentlv.ErrCodecInvalidValue)` or `errors.As` with
+`CodecError`. C Value codecs provide no structured diagnostics, so none are
+invented. This facade covers generic Value codecs; protocol-specific codecs,
+custom native descriptors and application-object Structure codecs are not yet
+exposed.
+
+Run `go run ./examples/codec`, and with Document enabled,
+`go run ./examples/query` for querying followed by typed Value decoding.
 
 ## Errors and diagnostics
 

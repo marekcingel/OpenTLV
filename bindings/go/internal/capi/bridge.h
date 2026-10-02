@@ -60,4 +60,7 @@ int go_document_edit(go_document* document, void* node, void* before, const uint
 go_write_result go_document_encode(go_document* document, go_format config, uint8_t* data,
                                    size_t capacity, int measure);
 size_t          go_document_count(go_document* document);
+int  go_document_query(go_document* document, const char* text, void*** nodes, size_t* count,
+                       size_t* error_offset);
+void go_query_free(void** nodes);
 #endif
