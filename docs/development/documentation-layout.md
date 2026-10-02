@@ -73,8 +73,8 @@ fragments may stay inline.
 
 ## Language tabs
 
-OpenTLV has a C core, a header-only C++ wrapper, and a growing set of language
-bindings (see the [language bindings conceptual
+OpenTLV provides an idiomatic C++ API and official language bindings over the
+canonical C execution engine (see the [language bindings conceptual
 model](../concepts/bindings.md)). Where two or more expose the same operation,
 show them side by side in content tabs instead of writing separate pages or
 listing languages one after another:

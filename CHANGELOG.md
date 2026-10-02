@@ -49,7 +49,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Changed
 
-- Align project overviews, architecture, binding capabilities, format support and navigation with current APIs; add Go guides, processing and executable-example inventories, and document planned Protocol Inference. (#490, #491, #492, #493, #494, #495, #496, #497, #498, #499, #500)
+- Align project overviews, architecture, binding capabilities, format support and navigation with current APIs; add Go guides, processing and executable-example inventories, and document planned Protocol Inference. (#490, #491, #492, #493, #494, #495, #496, #497, #498, #499, #500 #501)
 - Align multi-language documentation examples and quick starts around equivalent public API operations; showcase each binding's current ergonomic conveniences while writing and reading `Hello, world!` with the same Fixed format, including Go and Lua.
 - **Breaking:** Rename the Rust raw binding crate to `opentlv-sys`, the Python implementation distribution to `opentlv-core` with private `_opentlv` imports, and the Lua implementation module to `opentlv._core`; update low-level imports and installation paths accordingly. (#472)
 - Rewrite C++ quick-start and examples around borrowed iteration, scoped writing, owning Document traversal and typed fields; migrate CLI parsing, encoding and Query to the C++ facade, add matching CLI examples and execute the examples through CTest. (#439)

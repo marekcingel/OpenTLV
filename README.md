@@ -26,7 +26,7 @@ OpenTLV is for developers building embedded software, protocol handlers,
 smart-card tooling, and binary-data inspection utilities. It is especially useful
 when the application needs to own its buffers and control memory use.
 
-- **Allocation-free processing:** read and write using caller-owned buffers and explicit workspaces.
+- **Allocation-free core processing paths:** C Reader, Writer and tree traversal use caller-owned buffers and explicit workspaces.
 - **Zero-copy value reads:** parsed values borrow the input buffer.
 - **Selectable formats and standard-specific capabilities:** use built-in encodings or supply custom callbacks.
 - **Composable processing:** use Reader and Writer, Tree Reader and Tree Writer,
