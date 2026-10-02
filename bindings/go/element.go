@@ -37,7 +37,7 @@ type Element struct {
 }
 
 // NewElement borrows tag and value without interpreting or normalizing them.
-// It has no source metadata; a future Writer validates it against its Format.
+// It has no source metadata; Writer validates it against its Format.
 func NewElement(tag, value []byte) Element { return Element{tag: tag, value: value} }
 
 // Tag returns the binary identifier, preserving byte identity and nil versus empty.

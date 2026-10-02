@@ -33,8 +33,9 @@ idiomatic  idiomatic  idiomatic  idiomatic  idiomatic  idiomatic
 
 C++, Rust and Python expose Readers, Writers and Document facades today.
 Lua (`bindings/lua/`) currently binds Reader, Writer, Tree Writer, Schema, Value Codec, Element and Tag.
-Go (`bindings/go/`) currently provides a module scaffold and linked-library
-version access; its processing facade is future work. The trailing `...` stands
+Go (`bindings/go/`) currently exposes Format, Element, Reader and Writer
+facades, including incremental input and staged constructed output. Document
+and higher-level processing remain follow-up work. The trailing `...` stands
 for any further binding.
 
 The public OpenTLV C API (see the [C API reference](../reference/c-api.md)) is

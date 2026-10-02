@@ -6,6 +6,7 @@
 #include <tlv/formats/fixed.h>
 #include <tlv/reader/reader.h>
 #include <tlv/writer/writer.h>
+#include <tlv/writer/tree.h>
 
 enum go_format_kind {
     GO_FORMAT_FIXED,
@@ -39,6 +40,9 @@ typedef struct {
 } go_write_result;
 
 tlv_result_t    go_format_check(go_format config);
+go_write_result go_tree(go_format config, uint8_t* data, size_t capacity, const uint8_t* tag,
+                        size_t tag_size, const uint8_t* value, size_t value_size, uint8_t* scratch,
+                        int close);
 go_read_result  go_read(go_format config, const uint8_t* data, size_t size, int final_input);
 go_write_result go_write(go_format config, uint8_t* data, size_t capacity, const uint8_t* tag,
                          size_t tag_size, const uint8_t* value, size_t value_size, int measure);

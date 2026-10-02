@@ -55,3 +55,4 @@ jobs:
           go vet ./...
           go run ./examples/version
           go run ./examples/reader
+          go run ./examples/writer

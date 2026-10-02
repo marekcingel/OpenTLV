@@ -3,7 +3,8 @@
 This module establishes the Go binding architecture (#472) and internal native
 bridge (#473). It exposes
 `opentlv.Version()` to verify the connection to the canonical C library.
-Public Format and Element APIs are available (#474). Reader is available (#475). Writer, Document and detailed diagnostic APIs are future work.
+Public Format and Element APIs are available (#474). Reader (#475) and Writer
+(#476) are available. Document and detailed diagnostic APIs are future work.
 
 The module path is `github.com/marekcingel/OpenTLV/bindings/go`; its package
 name is `opentlv`. It requires Go 1.22 or newer, cgo and a compatible C compiler.
@@ -50,8 +51,8 @@ presets return an unsupported status; the bridge contains no wire parser.
   native Format pointer is retained in Source. The Reader retains its slice and
   position in Go and passes each unconsumed window to the bridge.
 
-Public Writer, Document, Query, Codec and detailed error APIs
-remain separate follow-up stories (#476–#479). Bridge operations for owned
+Public Document, Query, Codec and detailed error APIs
+remain separate follow-up stories (#477–#479). Bridge operations for owned
 Document resources and higher-level capabilities will be added with those
 stories, including explicit cleanup for any persistent native allocations.
 
@@ -185,3 +186,43 @@ Callers own window assembly and must preserve storage borrowed by retained
 elements. Detailed diagnostics remain a separate story.
 
 Run the independent Fixed-format example with `go run ./examples/reader`.
+
+## Writer
+
+`NewWriter(format)` allocates output as needed. `NewWriterBuffer(format, buffer)`
+uses the entire slice length as fixed output capacity, starting empty.
+`WriteElement(tag, value)` writes logical content; `Write(element)` does the
+same for an Element and regenerates its framing using the selected Format.
+`Measure(tag, value)` delegates exact sizing, including content-dependent
+framing, to C. `Size()` and `Bytes()` expose the completed root prefix.
+
+```go
+writer := opentlv.NewWriter(format)
+if err := writer.WriteElement([]byte{1}, []byte{42}); err != nil {
+    return err
+}
+data := writer.Bytes()
+```
+
+`Begin(tag)`, `Value(bytes)`, `WriteElement` and `End()` support staged
+construction, including nested parents. Begin requires a constructed identifier
+recognized by Format; generic Fixed and other primitive-only Formats reject it.
+For example, with BER, Begin([]byte{0x30}) opens a SEQUENCE. Value copies raw
+Value bytes without interpretation; WriteElement encodes a child. End closes
+through the canonical C Tree Writer. Tags are copied on Begin. Finish checks
+that every parent is closed; Bytes excludes all unfinished parents.
+
+Open parents use allocated Go staging storage even with a caller-provided root
+buffer. Construction is staged rather than streamed. No native pointer survives
+a call, and Writer requires no Close. C owns all wire framing and validation.
+Writer is not safe for concurrent use.
+
+Errors leave published output and logical open-parent state unchanged.
+A `CapacityError` reports total `Required` and `Available` root buffer sizes;
+`errors.As` also obtains its native `StatusError`. Use `SetBuffer` with a
+larger slice to copy the completed prefix and retry a failed WriteElement or End.
+Input may alias previously returned Bytes because encoding uses independent
+temporary storage. Bytes borrows output; keep that storage unchanged while in use.
+
+Document serialization will be integrated with the public Document API (#477).
+Run the preset-independent example with `go run ./examples/writer`.
