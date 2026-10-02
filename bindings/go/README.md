@@ -3,8 +3,9 @@
 This module establishes the Go binding architecture (#472) and internal native
 bridge (#473). It exposes
 `opentlv.Version()` to verify the connection to the canonical C library.
-Public Format and Element APIs are available (#474). Reader (#475) and Writer
-(#476) and owned Document (#477) are available. Detailed diagnostic APIs are future work.
+Public Format and Element APIs are available (#474), along with Reader (#475),
+Writer (#476), owned Document (#477), and idiomatic errors with owned diagnostic
+snapshots (#478).
 
 The module path is `github.com/marekcingel/OpenTLV/bindings/go`; its package
 name is `opentlv`. It requires Go 1.22 or newer, cgo and a compatible C compiler.
@@ -54,8 +55,8 @@ presets return an unsupported status; the bridge contains no wire parser.
   native Format pointer is retained in Source. The Reader retains its slice and
   position in Go and passes each unconsumed window to the bridge.
 
-Public Query, Codec and detailed error APIs remain separate follow-up stories
-(#478–#479). Document owns native allocations and provides explicit cleanup.
+Public Query and Codec APIs remain separate follow-up work (#479). Document
+owns native allocations and provides explicit cleanup.
 
 ## Build and run
 
@@ -154,9 +155,9 @@ Formats own no native allocations and require no cleanup.
 
 `NewReader(data, format)` borrows a complete buffer. Iterate with `Next()`,
 retrieve the current view with `Element()`, and check `Err()` after the loop.
-Clean EOF is not an error. Invalid Formats and terminal parse failures produce
-`StatusError`. A failed read leaves the cursor unchanged and clears the current
-element. `Offset()` reports the absolute cursor position; each element has its
+Clean EOF is not an error. Invalid Formats produce `StatusError`; native parsing
+failures produce `*ParseError` wrapping `StatusError`. A failed read leaves the
+cursor unchanged and clears the current element. `Offset()` reports the absolute cursor position; each element has its
 own absolute source offset. Retained elements borrow their original input even
 after the next read. Use `Clone()` before overwriting that storage. Readers need
 no `Close` and must not be used concurrently.
@@ -184,7 +185,7 @@ leaves the reader unchanged. Terminal parse errors cannot be resumed.
 
 The binding does not buffer an `io.Reader` or assemble chunks automatically.
 Callers own window assembly and must preserve storage borrowed by retained
-elements. Detailed diagnostics remain a separate story.
+elements. Native failures expose owned diagnostic snapshots through `*ParseError`.
 
 Run the independent Fixed-format example with `go run ./examples/reader`.
 
@@ -265,3 +266,49 @@ including inside an open staged parent. Capacity failures leave Writer unchanged
 
 Run `go run ./examples/document` with Document enabled. Query and resumable
 Tree Reader/Document Builder integration remain follow-up capabilities.
+
+## Errors and diagnostics
+
+Use `errors.Is(err, opentlv.ErrInvalidTag)` (or another named `Err` value)
+for stable error matching. Use `errors.As` to obtain `*ParseError`,
+`*WriteError`, the existing value `StatusError`, or `CapacityError`.
+`StatusError.Code()` remains available for compatibility; callers do not need
+native numeric codes. Wrapping with `fmt.Errorf("operation: %w", err)` preserves
+matching and structured detail.
+
+Native parsing failures from Reader and `Parse`/`ParseWithOptions` return
+`*ParseError`.
+Measurement, element encoding and Tree Writer failures return `*WriteError`.
+Document encoding also returns `*WriteError`, but the current C Document encoding
+API supplies only a status, so its optional detail is absent. Local argument
+checks and Document mutation failures may return `StatusError` directly.
+Fixed output capacity failures retain the existing `CapacityError` and match
+`ErrBufferTooShort`. Clean Reader EOF and incremental `NEED_MORE_DATA` remain
+flow control (`Err() == nil`), rather than terminal errors.
+
+Diagnostics own copied byte slices, strings, native contexts (innermost first),
+and any native path (outermost first). They remain valid after input mutation or
+Document cleanup. `Message` uses the canonical C status description. `Expected`
+and `Actual`, severity, operation, Tag and raw Length are projected from C;
+Go does not infer missing context. `HasOffset`, `HasTag`, `HasRawLength` and
+`OptionalSize.Present` distinguish absent fields from zero or empty values.
+Reader offsets, field positions and enclosing end are absolute, including after
+`SetInput` discards consumed bytes. Byte counts remain unchanged. Writer offsets
+refer to the native encoding operation, including its staged parent workspace.
+Schema, Query and Codec context is exposed when supplied by C; this story does
+not introduce those processing facades.
+
+```go
+if err := reader.Err(); err != nil {
+    if errors.Is(err, opentlv.ErrBufferTooShort) {
+        fmt.Println("incomplete final input")
+    }
+    var parseErr *opentlv.ParseError
+    if errors.As(err, &parseErr) && parseErr.HasOffset {
+        fmt.Printf("parse error at offset %d\n", parseErr.Offset)
+    }
+}
+```
+
+Run `go run ./examples/errors` for a complete example using a generic Fixed
+Format; it also works with optional protocol presets and Document disabled.

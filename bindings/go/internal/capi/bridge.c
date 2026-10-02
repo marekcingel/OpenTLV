@@ -79,7 +79,9 @@ struct go_document {
 };
 
 go_document* go_document_parse(go_format config, const uint8_t* data, size_t size, size_t depth,
-                               size_t elements, int defaults, int* code) {
+                               size_t elements, int defaults, int* code,
+                               tlv_reader_diagnostic_t* diagnostic) {
+    tlv_reader_diagnostic_init(diagnostic);
 #if OPENTLV_DOCUMENT
     go_document*           d = calloc(1, sizeof(*d));
     tlv_document_options_t options;
@@ -94,7 +96,29 @@ go_document* go_document_parse(go_format config, const uint8_t* data, size_t siz
             options.max_depth = depth;
             options.max_elements = elements;
         }
-        *code = tlv_document_parse(data, size, &options, &d->document, NULL);
+        tlv_tree_reader_t       reader;
+        tlv_document_builder_t* builder = NULL;
+        size_t                  capacity = options.max_depth < size ? options.max_depth : size;
+        tlv_tree_frame_t*       frames = NULL;
+        size_t                  error_offset = SIZE_MAX;
+        if (capacity > SIZE_MAX / sizeof(*frames)) {
+            *code = TLV_ERR_OVERFLOW;
+        } else {
+            if (capacity) frames = calloc(capacity, sizeof(*frames));
+            *code = capacity && !frames
+                        ? TLV_ERR_OUT_OF_MEMORY
+                        : tlv_tree_reader_init(&reader, data, size, &d->format, frames, capacity,
+                                               options.max_depth, options.max_elements);
+            if (*code == TLV_OK)
+                *code = tlv_document_builder_create(&options, &reader, NULL, &builder);
+            if (*code == TLV_OK)
+                *code =
+                    tlv_document_builder_consume(builder, &d->document, &error_offset, diagnostic);
+            if (*code != TLV_OK && !diagnostic->diagnostic.has_offset && error_offset != SIZE_MAX)
+                tlv_diagnostic_set_offset(&diagnostic->diagnostic, error_offset);
+            tlv_document_builder_free(builder);
+            free(frames);
+        }
     }
     if (*code != TLV_OK) {
         free(d);
@@ -228,11 +252,11 @@ go_write_result go_tree(go_format config, uint8_t* data, size_t capacity, const 
     result.code = tlv_tree_writer_init(&writer, data, capacity, &format, &frame, 1, scratch,
                                        value_size, SIZE_MAX, SIZE_MAX);
     if (result.code != TLV_OK) return result;
-    result.code = tlv_tree_writer_begin(&writer, tlv_tag(tag, tag_size));
+    result.code = tlv_tree_writer_begin_diag(&writer, tlv_tag(tag, tag_size), &result.diagnostic);
     if (result.code != TLV_OK || !close) return result;
     result.code = tlv_writer_copy_encoded(&writer.output, value, value_size);
     if (result.code != TLV_OK) return result;
-    result.code = tlv_tree_writer_end(&writer);
+    result.code = tlv_tree_writer_end_diag(&writer, &result.diagnostic);
     if (result.code == TLV_OK) result.size = tlv_tree_writer_size(&writer);
     return result;
 }

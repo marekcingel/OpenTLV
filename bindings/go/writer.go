@@ -48,13 +48,14 @@ func NewWriterBuffer(format Format, buffer []byte) *Writer {
 
 // Measure returns the exact encoded size of one element through Format,
 // including content-dependent framing. It does not change Writer state.
+// Native failures return *WriteError with an owned diagnostic snapshot.
 func (w *Writer) Measure(tag, value []byte) (int, error) {
 	if !w.format.Valid() {
 		return 0, StatusError{code: capi.InvalidArg}
 	}
-	n, code, _ := w.format.native.Measure(tag, value)
+	n, code, diag := w.format.native.Measure(tag, value)
 	if code != capi.OK {
-		return 0, StatusError{code: code}
+		return 0, writeError(code, diag)
 	}
 	return n, nil
 }
@@ -81,13 +82,14 @@ func (w *Writer) appendElement(tag, value []byte, closing bool) error {
 	}
 	encoded := make([]byte, n)
 	var code capi.Code
+	var diag capi.Diagnostic
 	if closing {
-		_, code = w.format.native.End(encoded, tag, value)
+		_, code, diag = w.format.native.End(encoded, tag, value)
 	} else {
-		_, code, _ = w.format.native.Write(encoded, tag, value)
+		_, code, diag = w.format.native.Write(encoded, tag, value)
 	}
 	if code != capi.OK {
-		return StatusError{code: code}
+		return writeError(code, diag)
 	}
 	target = append(target, encoded...)
 	if depth > 0 {
@@ -100,6 +102,7 @@ func (w *Writer) appendElement(tag, value []byte, closing bool) error {
 
 // WriteElement appends a complete logical element, re-encoding it in this Format.
 // Input is borrowed only during the call and may alias previously returned Bytes.
+// Native failures return *WriteError; fixed-buffer shortages return CapacityError.
 func (w *Writer) WriteElement(tag, value []byte) error {
 	return w.appendElement(tag, value, false)
 }
@@ -110,12 +113,13 @@ func (w *Writer) Write(element Element) error { return w.WriteElement(element.Ta
 // Begin opens a constructed parent recognized by Format. Primitive-only
 // Formats reject Begin. The Tag is copied; further Format validation may be
 // deferred until End, as in the C Tree Writer. Nested parents are supported.
+// Native failures return *WriteError with an owned diagnostic snapshot.
 func (w *Writer) Begin(tag []byte) error {
 	if !w.format.Valid() {
 		return StatusError{code: capi.InvalidArg}
 	}
-	if code := w.format.native.Begin(tag); code != capi.OK {
-		return StatusError{code: code}
+	if code, diag := w.format.native.Begin(tag); code != capi.OK {
+		return writeError(code, diag)
 	}
 	w.frames = append(w.frames, writerFrame{tag: bytes.Clone(tag)})
 	return nil
@@ -137,6 +141,7 @@ func (w *Writer) Value(value []byte) error {
 
 // End encodes and publishes the innermost staged parent through C Tree Writer.
 // Failure keeps the parent open, allowing a capacity error to be retried.
+// Native failures return *WriteError; fixed-buffer shortages return CapacityError.
 func (w *Writer) End() error {
 	if len(w.frames) == 0 {
 		return StatusError{code: capi.InvalidArg}

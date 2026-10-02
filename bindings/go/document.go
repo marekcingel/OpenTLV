@@ -25,12 +25,13 @@ type documentState struct {
 type DocumentOptions struct{ MaxDepth, MaxElements int }
 
 // Parse copies a complete input into an owned Document using C default limits.
-// Disabled Document support returns an unsupported StatusError.
+// Native failures return *ParseError; disabled support matches ErrUnsupportedType.
 func Parse(data []byte, format Format) (*Document, error) {
 	return parseDocument(data, format, DocumentOptions{}, true)
 }
 
 // ParseWithOptions parses using explicit depth and total element limits.
+// Native failures return *ParseError with owned diagnostics and optional offsets.
 func ParseWithOptions(data []byte, format Format, options DocumentOptions) (*Document, error) {
 	return parseDocument(data, format, options, false)
 }
@@ -39,9 +40,9 @@ func parseDocument(data []byte, format Format, options DocumentOptions, defaults
 	if !format.Valid() {
 		return nil, StatusError{code: capi.InvalidArg}
 	}
-	native, code := format.native.ParseDocument(data, options.MaxDepth, options.MaxElements, defaults)
+	native, code, diag := format.native.ParseDocument(data, options.MaxDepth, options.MaxElements, defaults)
 	if code != capi.OK {
-		return nil, StatusError{code: code}
+		return nil, parseError(code, diag, 0)
 	}
 	return &Document{&documentState{native: native, format: format, source: bytes.Clone(data)}}, nil
 }
@@ -216,18 +217,20 @@ func (d *Document) Encode() ([]byte, error) {
 
 // EncodeAs regenerates framing in a compatible destination Format; tags are
 // never remapped, and incompatible constructed topology is rejected by C.
+// Native failures return *WriteError. The C Document encoding API supplies only
+// a status, so optional diagnostic detail is absent.
 func (d *Document) EncodeAs(format Format) ([]byte, error) {
 	if !d.valid() || !format.Valid() {
 		return nil, StatusError{code: capi.InvalidArg}
 	}
 	size, code := d.native.Encode(format.native, nil, true)
 	if code != capi.OK {
-		return nil, StatusError{code: code}
+		return nil, writeError(code, capi.Diagnostic{})
 	}
 	output := make([]byte, size)
 	_, code = d.native.Encode(format.native, output, false)
 	if code != capi.OK {
-		return nil, StatusError{code: code}
+		return nil, writeError(code, capi.Diagnostic{})
 	}
 	return output, nil
 }
