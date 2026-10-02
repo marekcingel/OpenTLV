@@ -361,36 +361,36 @@ Operations return errors; check `Reader.Err()` after iteration.
 package main
 
 import (
- "fmt"
- "log"
+	"fmt"
+	"log"
 
- opentlv "github.com/marekcingel/OpenTLV/bindings/go"
+	opentlv "github.com/marekcingel/OpenTLV/bindings/go"
 )
 
 func run() error {
- format, err := opentlv.NewFixed(opentlv.FixedConfig{
-  TagSize: 1, LengthSize: 1, ByteOrder: opentlv.BigEndian,
- })
- if err != nil {
-  return err
- }
- writer := opentlv.NewWriter(format)
- if err := writer.WriteElement([]byte{0x01}, []byte("Hello, world!")); err != nil {
-  return err
- }
+	format, err := opentlv.NewFixed(opentlv.FixedConfig{
+		TagSize: 1, LengthSize: 1, ByteOrder: opentlv.BigEndian,
+	})
+	if err != nil {
+		return err
+	}
+	writer := opentlv.NewWriter(format)
+	if err := writer.WriteElement([]byte{0x01}, []byte("Hello, world!")); err != nil {
+		return err
+	}
 
- // Elements borrow the Writer's output; keep it unchanged while reading.
- reader := opentlv.NewReader(writer.Bytes(), format)
- for reader.Next() {
-  fmt.Println(string(reader.Element().Value()))
- }
- return reader.Err()
+	// Elements borrow the Writer's output; keep it unchanged while reading.
+	reader := opentlv.NewReader(writer.Bytes(), format)
+	for reader.Next() {
+		fmt.Println(string(reader.Element().Value()))
+	}
+	return reader.Err()
 }
 
 func main() {
- if err := run(); err != nil {
-  log.Fatal(err)
- }
+	if err := run(); err != nil {
+		log.Fatal(err)
+	}
 }
 ```
 
