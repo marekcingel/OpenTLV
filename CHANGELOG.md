@@ -9,6 +9,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Fixed
 
+- Fix GCC CLI builds by qualifying the options type in the shared traversal context. (#508)
 - Fix Clang builds with warnings treated as errors by fully initializing Fixed format configurations in generator tests. (#503)
 - Preserve tabs in Markdown code blocks during pre-commit formatting so the documented Go quick start matches its source and passes documentation checks. (#480)
 - Preserve tabs in Markdown code blocks during pre-commit formatting and synchronize the documented Go quick start with its source so documentation checks pass. (#480)
@@ -116,6 +117,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Added
 
+- Add an opt-in deterministic property suite for complete Reader/Tree Writer byte-exact round trips across enabled generator-supported formats, with reproducible commit-derived CI corpora and downloadable failure evidence. (#506, #507, #508)
 - Add `otlv generate` for reproducible valid wire corpora, with explicit seeds, case counts, generation limits, one file per case in binary (default) or CLI JSON encoding. (#505)
 - Add a reusable C++ wire generator with managed scratch storage and owned deterministic case results, delegating to the native generator. (#504)
 - Add allocation-free deterministic valid wire generation to the native C API and C++ facade, with reproducible seed/case indices, bounded nesting and sizes, boundary sampling, and Writer-based byte-exact reconstruction checks. (#503)
