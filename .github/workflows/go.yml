@@ -11,6 +11,7 @@ on:
       - 'cmake/**'
       - '**/CMakeLists.txt'
       - '.github/workflows/go.yml'
+      - '.gitattributes'
 
 permissions:
   contents: read
@@ -42,7 +43,7 @@ jobs:
               -DOPENTLV_DHCP=OFF -DOPENTLV_NFC=OFF -DOPENTLV_DOCUMENT=OFF
           fi
           cmake --build build/go --target tlv --parallel 2
-      - name: Check, test and run example
+      - name: Check, test and run examples
         working-directory: bindings/go
         env:
           CGO_ENABLED: '1'
@@ -51,6 +52,7 @@ jobs:
         run: |
           test -z "$(gofmt -l .)"
           go test -v ./...
+          go test -race -count=1 ./...
           GOEXPERIMENT=cgocheck2 go test ./...
           go vet ./...
           go run ./examples/version

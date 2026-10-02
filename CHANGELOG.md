@@ -111,6 +111,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Added
 
+- Add race-enabled Go binding CI checks, concurrent public API and malformed-input regression tests, and enforce public API usage in examples. (#480)
 - Expose Document path queries and typed generic Value codecs through the Go binding, preserving native query errors, codec statuses and owned results. (#479)
 - Add idiomatic Go error matching with `errors.Is`, structured parsing and writing errors with owned C diagnostic snapshots, and Document parsing diagnostics. (#478)
 - Expose owned mutable Go Documents with root and child navigation, checked node handles, explicit cleanup, original input snapshots and serialization through the canonical C Writer. (#477)

@@ -41,6 +41,10 @@ func TestCAPIImportsStayInternal(t *testing.T) {
 			if name == "C" || name == "unsafe" {
 				t.Errorf("%s imports %q outside internal/capi", rel, name)
 			}
+			if strings.HasPrefix(filepath.ToSlash(rel), "examples/") &&
+				strings.HasPrefix(name, "github.com/marekcingel/OpenTLV/bindings/go/") {
+				t.Errorf("%s imports %q instead of the public opentlv package", rel, name)
+			}
 		}
 		return nil
 	})
