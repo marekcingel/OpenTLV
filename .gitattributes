@@ -3,3 +3,6 @@ tests/fuzz/**/corpus/** binary
 tools/cli/*.bin binary
 examples/nfc/type2/*.bin binary
 examples/nfc/type2/invalid/*.bin binary
+
+# gofmt requires LF, including in Windows checkouts with core.autocrlf enabled.
+bindings/go/**/*.go text eol=lf

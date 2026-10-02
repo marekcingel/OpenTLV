@@ -6,6 +6,7 @@ bridge (#473). It exposes
 Public Format and Element APIs are available (#474), along with Reader (#475),
 Writer (#476), owned Document (#477), and idiomatic errors with owned diagnostic
 snapshots (#478), Document Query and typed generic Value codecs (#479).
+Development checks, public consumer tests and CI cover these APIs (#480).
 
 The module path is `github.com/marekcingel/OpenTLV/bindings/go`; its package
 name is `opentlv`. It requires Go 1.22 or newer, cgo and a compatible C compiler.
@@ -46,8 +47,8 @@ presets return an unsupported status; the bridge contains no wire parser.
   transformed identifier) are copied into Go memory, so no native pointer escapes.
 - Diagnostic Tag/raw Length bytes and native text are copied into Go storage.
   Optional diagnostic fields retain their presence flags. The bridge preserves
-  C status codes, including end of input and `NEED_MORE_DATA`; public Go errors
-  belong to the later error API story.
+  C status codes, including end of input and `NEED_MORE_DATA`; the public facade
+  adapts them to the Go errors and Reader flow control described below.
 - Writes borrow caller-provided output storage. Overlap with Tag or Value is
   rejected before entering C. Insufficient capacity reports the required size;
   other encoder failures retain the C buffer-modification contract.
@@ -58,6 +59,10 @@ presets return an unsupported status; the bridge contains no wire parser.
 Document owns native allocations and provides explicit cleanup.
 
 ## Build and run
+
+For the same `Hello, world!` write/read example as C, C++, Rust, Python and Lua,
+see the [multi-language quick start](../../docs/getting-started/README.md#quick-start).
+After configuring cgo below, run `go run ./examples/quick_start`.
 
 Build OpenTLV separately with CMake. The binding does not compile copies of the
 C sources or invoke CMake during `go build`. Use matching library and headers,
@@ -75,6 +80,7 @@ export CGO_CPPFLAGS="-I$(pwd)/tlv/include -I$(pwd)/build/go/generated/include -D
 export CGO_LDFLAGS="-L$(pwd)/build/go/tlv"
 cd bindings/go
 go test ./...
+go test -race -count=1 ./...
 GOEXPERIMENT=cgocheck2 go test ./...
 go vet ./...
 go run ./examples/version
@@ -112,10 +118,43 @@ before rebuilding: Go does not track changes to all external native inputs.
 See the [official cgo documentation](https://pkg.go.dev/cmd/cgo) for compiler,
 flag and pointer rules.
 
-The Go Bindings workflow runs formatting, tests (including `cgocheck2`), vet and
-the version example on Linux with static C libraries, both with default features
-and with optional presets and Document disabled. The module introduces no
-third-party Go dependencies.
+The Go Bindings workflow runs formatting, tests, race-enabled tests,
+`cgocheck2`, vet and all applicable public API examples on Linux with static C
+libraries, both with default features and with optional presets and Document
+disabled. The module introduces no third-party Go dependencies.
+
+## Development checks
+
+After configuring the native library and cgo flags above, run from this directory:
+
+```sh
+gofmt -l .
+go vet ./...
+go test -count=1 ./...
+go test -race -count=1 ./...
+GOEXPERIMENT=cgocheck2 go test -count=1 ./...
+```
+
+Formatting is clean when `gofmt -l .` produces no filenames; use `gofmt -w` on
+files that need formatting. Git preserves LF for Go source files even in Windows
+checkouts with automatic line-ending conversion enabled.
+Race tests require a supported Go target and C
+toolchain; the Windows 386 setup above cannot run the race detector. CI uses
+Linux amd64. The detector checks Go memory accesses; `cgocheck2` additionally
+checks the Go/C pointer boundary, and neither replaces native C sanitizers.
+
+Consumer tests cover Reader ownership and incremental input, Writer round trips
+and capacity retries, Document cleanup and invalidation, diagnostics, Query and
+Value codecs. Malformed-input tests cover truncated Fixed headers and Values
+in TLV/LTV order with both byte orders, and malformed BER where enabled.
+Concurrent consumers share immutable Formats and Codecs while retaining their
+own Readers, Writers and buffers. Native boundary tests live in `internal/capi`.
+
+Examples import only the public `opentlv` package and standard Go packages;
+the architecture test rejects binding subpackage imports in examples and cgo
+or unsafe imports outside `internal/capi`. Run version, reader, writer, errors
+and codec examples in either configuration; document and query require Document.
+The binding remains experimental while public capability parity is incomplete.
 
 ## Future extraction
 
@@ -329,8 +368,8 @@ Go does not infer missing context. `HasOffset`, `HasTag`, `HasRawLength` and
 Reader offsets, field positions and enclosing end are absolute, including after
 `SetInput` discards consumed bytes. Byte counts remain unchanged. Writer offsets
 refer to the native encoding operation, including its staged parent workspace.
-Schema, Query and Codec context is exposed when supplied by C; this story does
-not introduce those processing facades.
+The facade copies only context supplied by C; Query and Codec error contracts
+are described above.
 
 ```go
 if err := reader.Err(); err != nil {

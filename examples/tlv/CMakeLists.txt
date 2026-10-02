@@ -55,14 +55,17 @@ if(OPENTLV_LLDP)
     set_tests_properties(Integration_example_tlv_lldp PROPERTIES LABELS "integration;examples")
 endif()
 
-if(OPENTLV_FORMAT_BER)
-    # Backs the C example in the README and Getting Started; scripts/check_doc_examples.py
-    # keeps the Markdown copies identical to this file.
-    add_executable(example-tlv-quick-start src/quick_start.c)
-    target_link_libraries(example-tlv-quick-start PRIVATE tlv)
-    opentlv_configure_compiler(example-tlv-quick-start)
-    opentlv_copy_shared_runtime(example-tlv-quick-start)
+# Backs the C example in the README and Getting Started; scripts/check_doc_examples.py
+# keeps the Markdown copies identical to this file.
+add_executable(example-tlv-quick-start src/quick_start.c)
+target_link_libraries(example-tlv-quick-start PRIVATE tlv)
+opentlv_configure_compiler(example-tlv-quick-start)
+opentlv_copy_shared_runtime(example-tlv-quick-start)
+add_test(NAME Integration_example_tlv_quick_start COMMAND $<TARGET_FILE:example-tlv-quick-start>)
+set_tests_properties(Integration_example_tlv_quick_start PROPERTIES
+    LABELS "integration;examples" PASS_REGULAR_EXPRESSION "Hello, world!")
 
+if(OPENTLV_FORMAT_BER)
     # Use-case examples shared across languages: the same document is parsed,
     # written, queried and validated in examples/tlv, examples/tlv++ and
     # bindings/rust/opentlv/examples.

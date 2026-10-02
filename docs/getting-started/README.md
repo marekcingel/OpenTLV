@@ -40,13 +40,24 @@ by adding its directory to `PATH` on Windows or `LD_LIBRARY_PATH`/rpath on Linux
 
 ## Quick start
 
-The C, Rust and Python programs below write `01 03 AA BB CC` with the configurable
-fixed-width format and read the value back. The C++ quick-start parses a BER
-OCTET STRING containing `ABC`, using the ergonomic borrowed range. Each version
-is a complete program that CI builds and runs against the current API, and a check keeps its copy here identical to the
-source, so it stays valid as OpenTLV evolves. Choose your language in any tab
-group on this site and the choice is kept for the other tabbed examples.
-Without tabs (for example on GitHub) the C example is listed first.
+Every program below writes the UTF-8 bytes of `Hello, world!` with tag `01`,
+then reads the encoded element back and prints `Hello, world!`. All use the same
+Fixed format: one tag byte and one big-endian length byte. The 15 wire bytes are
+`01 0D 48 65 6C 6C 6F 2C 20 77 6F 72 6C 64 21`; no trailing NUL is encoded.
+No protocol preset is required. Every program prints:
+
+```text
+Hello, world!
+```
+
+Each tab showcases that language's current public conveniences and normal error
+handling. C and C++
+use caller-owned output buffers; Rust borrows a caller-owned buffer, while
+Python, Lua and Go offer allocating Writers. Parsed Values borrow input unless
+the binding copies them. Keep borrowed storage alive and unchanged. The checked
+source blocks show the same operation, making these API differences comparable.
+Language choices are linked across the site; on GitHub the examples appear in
+the same order as the tabs.
 
 /// tab | C
 
@@ -59,7 +70,7 @@ the checkout at `external/OpenTLV` in your application.
 // SPDX-License-Identifier: MIT
 // Copyright (c) 2026 Marek Cingel
 
-#include <string.h>
+#include <stdio.h>
 #include "tlv/formats/fixed.h"
 #include "tlv/reader/reader.h"
 #include "tlv/writer/writer.h"
@@ -71,21 +82,19 @@ int main(void) {
     tlv_format_t format;
     if (tlv_fixed_format_init(&format, &config) != TLV_OK) return 1;
 
-    const tlv_tag_t tag = TLV_TAG(0x01);
-    const uint8_t   value[] = {0xAA, 0xBB, 0xCC};
-    uint8_t         buffer[5];
-    size_t          written = 0, consumed = 0;
-    tlv_element_t   element;
+    const uint8_t value[] = "Hello, world!";
+    uint8_t       buffer[64];
+    size_t        written = 0, consumed = 0;
+    tlv_element_t element;
 
-    if (tlv_write(buffer, sizeof(buffer), &format, tag, value, sizeof(value), &written) != TLV_OK)
+    /* sizeof(value) - 1 excludes the trailing NUL. */
+    if (tlv_write(buffer, sizeof(buffer), &format, TLV_TAG(0x01), value, sizeof(value) - 1,
+                  &written) != TLV_OK)
         return 1;
     if (tlv_read(buffer, written, &format, &element, &consumed) != TLV_OK) return 1;
 
     /* element.value borrows buffer; keep it alive while using the element. */
-    if (consumed != written || element.tag.size != 1 || element.tag.data[0] != 0x01) return 1;
-    if (element.value.size != sizeof(value) ||
-        memcmp(element.value.data, value, sizeof(value)) != 0)
-        return 1;
+    printf("%.*s\n", (int)element.value.size, (const char*)element.value.data);
     return 0;
 }
 ```
@@ -119,9 +128,15 @@ Save the example as `main.cpp`. It is
 [examples/tlv++/src/quick_start.cpp](../../examples/tlv++/src/quick_start.cpp).
 Place the checkout at `external/OpenTLV` in your application. Enable `CXX` in
 `project`, set `OPENTLV_BUILD_CXX` to `ON`, and link `tlv++` instead of `tlv`;
-this target propagates the C library and include paths. The BER preset requires
-`OPENTLV_FORMAT_BER=ON`. The range visits one level and borrows input; malformed
+this target propagates the C library and include paths. `tlv::fixed_format`
+selects the same Fixed configuration at compile time. The range visits one level
+and borrows input; malformed
 final input throws `tlv::parse_error`, rather than ending iteration silently.
+Scoped `encode` accepts the output array, template Tag bytes and a string literal
+directly. `parse` constructs the iterable Reader range. `decode<Greeting>()`
+checks the tag and copies Value bytes into an owning `std::string`; it does not
+validate UTF-8. The scoped encoder uses bounded local workspace, and string
+decoding may allocate.
 See the [C++ examples](../guides/cxx-examples.md) for writing, nested traversal,
 Document, typed fields, Query and explicit control.
 
@@ -131,15 +146,32 @@ Document, typed fields, Query and explicit control.
 // Copyright (c) 2026 Marek Cingel
 
 #include <tlv++/tlv.hpp>
+#include <array>
 #include <iostream>
+#include <string>
+
+using Format = tlv::fixed_format<1, 1, TLV_BYTE_ORDER_BIG_ENDIAN>;
+using Greeting = tlv::field<tlv::tag_constant<0x01>, std::string>;
 
 int main() {
-    // Elements borrow input; keep it alive while using them.
-    const tlv::byte input[] = {tlv::byte(0x04), tlv::byte(0x03), tlv::byte('A'), tlv::byte('B'),
-                               tlv::byte('C')};
+    std::array<tlv::byte, 64> output{};
+    auto written = tlv::encode<Format>(output, [](tlv::writer_builder& writer) {
+        writer.write<0x01>("Hello, world!"); // Character arrays omit the trailing NUL.
+    });
+    if (!written) {
+        std::cerr << written.error().message() << '\n';
+        return 1;
+    }
+
+    // Parse only the written prefix. Decoding Greeting checks the tag and owns its string.
     try {
-        for (auto element : tlv::ber::parse({input, sizeof(input)})) {
-            std::cout << "Value bytes: " << element.value().size() << '\n';
+        for (auto element : tlv::parse<Format>({output.data(), *written})) {
+            auto greeting = element.decode<Greeting>();
+            if (!greeting) {
+                std::cerr << "Greeting decode failed\n";
+                return 1;
+            }
+            std::cout << *greeting << '\n';
         }
     } catch (const tlv::parse_error& failure) {
         std::cerr << "Parse error at " << failure.offset() << ": " << failure.what() << '\n';
@@ -166,7 +198,7 @@ target_link_libraries(tlv_demo PRIVATE tlv++)
 
 Configure and build with the CMake commands from
 [Build from a checkout](#build-from-a-checkout), then run `build/tlv_demo`
-(Ninja/Makefiles) or `build/Release/tlv_demo.exe` (Visual Studio). The program prints `Value bytes: 3`; exit code zero indicates successful parsing.
+(Ninja/Makefiles) or `build/Release/tlv_demo.exe` (Visual Studio). The program prints `Hello, world!`; exit code zero indicates a successful round trip.
 
 ///
 
@@ -178,6 +210,8 @@ Save the example as `examples/quick_start.rs` in a crate that depends on
 The crate is not published to crates.io yet; depend on it by path from a
 checkout of the repository. See [Using OpenTLV from Rust](../guides/rust.md)
 for the full setup, including how to link a prebuilt library.
+Reader implements `Iterator`; `?` propagates both native failures and UTF-8
+conversion errors from this example's `main` result.
 
 <!-- example: bindings/rust/opentlv/examples/quick_start.rs -->
 ```rust
@@ -191,36 +225,21 @@ for the full setup, including how to link a prebuilt library.
 //!
 //! Run with `cargo run --example quick_start` from `bindings/rust`.
 
-use opentlv::{ByteOrder, FixedFormat, FixedFormatConfig, Reader, Result, Tag, Writer};
+use opentlv::{ByteOrder, FixedFormat, FixedFormatConfig, Reader, Tag, Writer};
 
-fn main() -> Result<()> {
+fn main() -> Result<(), Box<dyn std::error::Error>> {
     // One tag byte and one length byte; config must outlive format, and format
     // must outlive its readers and writers.
     let config = FixedFormatConfig::new(1, 1, ByteOrder::Big);
     let format = FixedFormat::new(&config)?;
 
-    let tag = Tag::from_bytes(&[0x01]);
-    let value = [0xAA, 0xBB, 0xCC];
-
-    let mut buf = [0u8; 5];
+    let mut buf = [0u8; 64];
     let mut writer = Writer::with_fixed_format(&mut buf, &format);
-    writer.write(&tag, &value)?;
-    println!(
-        "wrote {} bytes: {:02X?}",
-        writer.written().len(),
-        writer.written()
-    );
+    writer.write(&Tag::from_bytes(&[0x01]), b"Hello, world!")?;
 
-    let mut reader = Reader::with_fixed_format(writer.written(), &format);
-    let element = reader.next_element().expect("one element was written")?;
-    assert_eq!(element.tag(), &tag);
-    assert_eq!(element.value(), &value);
-    assert!(reader.is_at_end());
-    println!(
-        "read tag {:02X?} value {:02X?}",
-        element.tag().as_bytes(),
-        element.value()
-    );
+    for element in Reader::with_fixed_format(writer.written(), &format) {
+        println!("{}", std::str::from_utf8(element?.value())?);
+    }
     Ok(())
 }
 ```
@@ -248,6 +267,8 @@ The `opentlv` package is not published to PyPI yet; install it, and the
 `opentlv-core` extension it depends on, by path from a checkout of the
 repository. See [Using OpenTLV from Python](../guides/python.md) for the full
 setup.
+Writer accepts Tag bytes directly and grows its owned output as needed. Reader
+iteration and UTF-8 decoding use normal Python exceptions.
 
 <!-- example: bindings/python/opentlv/examples/quick_start.py -->
 ```python
@@ -271,19 +292,11 @@ import opentlv
 def main() -> None:
     # One tag byte and one length byte.
     format = opentlv.FixedFormat(1, 1)
-    tag = opentlv.Tag(b"\x01")
-    value = b"\xaa\xbb\xcc"
-
     writer = opentlv.Writer(format)
-    writer.write(tag, value)
-    encoded = writer.bytes()
-    print(f"wrote {len(encoded)} bytes: {encoded.hex(' ').upper()}")
+    writer.write(b"\x01", b"Hello, world!")
 
-    reader = opentlv.Reader(encoded, format)
-    (element,) = list(reader)
-    assert element.tag == tag
-    assert bytes(element.value) == value
-    print(f"read tag {element.tag} value {bytes(element.value).hex(' ').upper()}")
+    for element in opentlv.Reader(writer.bytes(), format):
+        print(element.value.tobytes().decode("utf-8"))
 
 
 if __name__ == "__main__":
@@ -301,11 +314,98 @@ Exit code zero indicates a successful round trip.
 
 ///
 
+/// tab | Lua
+
+This is [bindings/lua/examples/quick_start.lua](../../bindings/lua/examples/quick_start.lua).
+Build the native module as described in [Using OpenTLV from Lua](../guides/lua.md).
+Lua strings carry binary Tag and Value bytes; failed native operations raise errors.
+The Writer uses its default bounded capacity, and Reader works directly in a
+generic `for` loop.
+
+<!-- example: bindings/lua/examples/quick_start.lua -->
+```lua
+-- SPDX-License-Identifier: MIT
+-- Copyright (c) 2026 Marek Cingel
+
+-- Write one Fixed-format element, then read it back through the public API.
+-- Run with `lua examples/quick_start.lua` from bindings/lua.
+local opentlv = require("opentlv")
+
+local format = opentlv.formats.fixed(1, 1, "big")
+local writer = opentlv.writer(format)
+writer:write(string.char(0x01), "Hello, world!")
+
+for element in opentlv.reader(writer:bytes(), format) do
+    print(element.value)
+end
+```
+
+Run `lua examples/quick_start.lua` from `bindings/lua` with the built module on
+`LUA_PATH`/`LUA_CPATH`.
+
+///
+
+/// tab | Go
+
+This is [bindings/go/examples/quick_start/main.go](../../bindings/go/examples/quick_start/main.go).
+Build the C library and configure cgo as described in the
+[Go binding README](../../bindings/go/README.md#build-and-run). Import the public
+`opentlv` package; no cgo or native package is needed in application code.
+Operations return errors; check `Reader.Err()` after iteration.
+
+<!-- example: bindings/go/examples/quick_start/main.go -->
+```go
+// SPDX-License-Identifier: MIT
+// Copyright (c) 2026 Marek Cingel
+
+package main
+
+import (
+	"fmt"
+	"log"
+
+	opentlv "github.com/marekcingel/OpenTLV/bindings/go"
+)
+
+func run() error {
+	format, err := opentlv.NewFixed(opentlv.FixedConfig{
+		TagSize: 1, LengthSize: 1, ByteOrder: opentlv.BigEndian,
+	})
+	if err != nil {
+		return err
+	}
+	writer := opentlv.NewWriter(format)
+	if err := writer.WriteElement([]byte{0x01}, []byte("Hello, world!")); err != nil {
+		return err
+	}
+
+	// Elements borrow the Writer's output; keep it unchanged while reading.
+	reader := opentlv.NewReader(writer.Bytes(), format)
+	for reader.Next() {
+		fmt.Println(string(reader.Element().Value()))
+	}
+	return reader.Err()
+}
+
+func main() {
+	if err := run(); err != nil {
+		log.Fatal(err)
+	}
+}
+```
+
+Run `go run ./examples/quick_start` from `bindings/go` after setting the cgo flags.
+
+///
+
 Both C and C++ programs are built by the `example-tlv-quick-start` and
 `example-tlv++-quick-start` targets whenever `OPENTLV_BUILD_EXAMPLES` is `ON`
 (the default) and run in CI; the Rust program is built by `cargo build
---workspace --all-targets` in the Rust bindings CI workflow, and the Python
-program is run directly in the Python bindings CI workflow. The
+--workspace --all-targets` and run by `cargo run -p opentlv --example quick_start`
+in the Rust bindings CI workflow, and the Python
+program is run directly in the Python bindings CI workflow. Lua CI runs the
+Lua quick start, and Go CI runs its quick start in both default and minimal
+configurations. The
 [C examples](../../examples/tlv/src/), one topic per file (sequential I/O,
 explicit copies, schema validation, codecs, a custom format, and the BER and
 CER builtins), the [C++ example](../../examples/tlv++/src/basic_usage.cpp)

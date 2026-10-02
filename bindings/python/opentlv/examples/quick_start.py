@@ -18,19 +18,11 @@ import opentlv
 def main() -> None:
     # One tag byte and one length byte.
     format = opentlv.FixedFormat(1, 1)
-    tag = opentlv.Tag(b"\x01")
-    value = b"\xaa\xbb\xcc"
-
     writer = opentlv.Writer(format)
-    writer.write(tag, value)
-    encoded = writer.bytes()
-    print(f"wrote {len(encoded)} bytes: {encoded.hex(' ').upper()}")
+    writer.write(b"\x01", b"Hello, world!")
 
-    reader = opentlv.Reader(encoded, format)
-    (element,) = list(reader)
-    assert element.tag == tag
-    assert bytes(element.value) == value
-    print(f"read tag {element.tag} value {bytes(element.value).hex(' ').upper()}")
+    for element in opentlv.Reader(writer.bytes(), format):
+        print(element.value.tobytes().decode("utf-8"))
 
 
 if __name__ == "__main__":

@@ -7,7 +7,12 @@ The [source index](../../examples/tlv++/src/README.md) lists all runnable exampl
 ## Borrowed parsing and sequential iteration
 
 The [quick-start](../getting-started/README.md#quick-start) uses
-`tlv::ber::parse({input, sizeof(input)})`. This returns an allocation-free,
+scoped `tlv::encode<Format>()`, direct text and template Tag bytes, then
+`tlv::parse<Format>()` and `element.decode<Greeting>()` to read `Hello, world!`
+as an owning `std::string`. The typed Field checks tag `01` before decoding;
+the byte-preserving string codec may allocate. Encoding and successful borrowed
+iteration use bounded caller/stack storage. The BER convenience
+`tlv::ber::parse({input, sizeof(input)})` also returns an allocation-free,
 single-pass range of Elements at one level, including constructed Elements
 whose Values are still encoded child bytes. It does not recursively flatten
 the tree. Input must remain immutable and alive for the range and retained
@@ -162,8 +167,9 @@ visible. Borrowed nested Visitor traversal retains four setup/result operations:
 frames, cursor, Visitor call and result check. Neither example hides limits or
 failure handling to lower its line count.
 
-The quick-start now isolates parsing; its total length is not compared with the
-old round-trip program because they perform different operations. Document
+The quick-start now uses the same Fixed-format write/read round trip as the
+other languages, with `Hello, world!` as Value. Its total length is not compared
+with the former BER parsing-only program because they perform different operations. Document
 parsing retains explicit Format selection, and borrowed input still requires a
 byte span. These remaining setup requirements are visible rather than hidden in
 example-only adapters. Allocation-free native control and explicit C structure
@@ -176,13 +182,13 @@ C++ examples. `otlv` allocates its input/output storage; C++ callers can select
 borrowed ranges or an owning Document explicitly.
 
 ```sh
-otlv encode --format ber --tag 04 --value 414243
-otlv dump --format ber --hex 0403414243 --no-color
+otlv encode --format fixed --tag 01 --value 48656C6C6F2C20776F726C6421
+otlv dump --format fixed --hex 010D48656C6C6F2C20776F726C6421 --no-color
 otlv decode --format ber --hex 6F0A8403414243A503500101
 otlv query 6F/A5/50 --format ber --hex 6F0A8403414243A503500101 --value
 ```
 
-The first command produces `0403414243`; Query produces `01`. Decode produces
+The first command produces `010D48656C6C6F2C20776F726C6421`; Query produces `01`. Decode produces
 the versioned JSON model, which `otlv encode --format ber --input model.json`
 encodes back to the original bytes. The following executable acceptance example
 checks those exact outputs. CTest runs it as `Integration_cli_cpp_examples` when
@@ -204,9 +210,9 @@ function(run_cli expected)
     endif()
 endfunction()
 
-# Same primitive Value as the C++ quick-start.
-run_cli("0403414243" encode --format ber --tag 04 --value 414243)
-run_cli("offset=0 tag=04 length=3 value=414243" dump --format ber --hex 0403414243 --no-color)
+# Same Fixed-format Hello, world! round trip as the multi-language quick-start.
+run_cli("010D48656C6C6F2C20776F726C6421" encode --format fixed --tag 01 --value 48656C6C6F2C20776F726C6421)
+run_cli("offset=0 tag=01 length=13 value=48656C6C6F2C20776F726C6421" dump --format fixed --hex 010D48656C6C6F2C20776F726C6421 --no-color)
 
 # Same nested bytes as C++ parse.cpp, write.cpp and query.cpp.
 set(wire "6F0A8403414243A503500101")

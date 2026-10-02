@@ -426,10 +426,10 @@ it. For example:
   otherwise whenever garbage collection reclaims it. Ownership (the document
   owns every node, tag and value in it) is the same in every binding; only
   how and when that ownership ends differs.
-- A future Go binding could return `(Element, error)` pairs from a `Next()`
-  method, or a range-over-func iterator (`for element, err := range
-  reader.All() { ... }`), matching Go's own error-handling convention instead
-  of Rust's `Result` or C's error codes.
+- Go exposes `Reader.Next()` as a boolean, the current `Element()` as a
+  borrowed view, and `Reader.Err()` after iteration. Fallible constructors,
+  writes and Document operations return errors through Go's normal conventions;
+  `errors.Is` and `errors.As` retain native status and diagnostic context.
 - A future JavaScript binding could expose a reader as a JS iterable and
   surface failures as native exceptions.
 
@@ -477,12 +477,14 @@ The syntax changes; the concepts (a read-only, one-pass `Reader` yielding
   EMV dictionary selection and custom callbacks through `tlv_codec_t` (#302).
   Structure codecs remain unbound. See [Lua bindings](../development/lua.md) and
   [using OpenTLV from Lua](../guides/lua.md).
-- **Go**: experimental module scaffold in `bindings/go/`, with a public
+- **Go**: experimental binding in `bindings/go/`, with a public
   `opentlv` package and a private `internal/capi` cgo bridge. It currently
   exposes Format, Element, Reader, Writer and owned mutable Document with
-  explicit Close, checked node handles and destination encoding. Complete
+  explicit Close, checked node handles and destination encoding, Document Query,
+  typed generic Value codecs and owned error diagnostics. Tests, public examples
+  and CI cover default and minimal configurations. Complete
   processing capability parity remains future work. See the
-  [Go binding README](../../bindings/go/README.md) for details. (#472–#477)
+  [Go binding README](../../bindings/go/README.md) for details. (#472–#480)
 
 ## Implementation package names
 

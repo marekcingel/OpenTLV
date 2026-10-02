@@ -8,35 +8,20 @@
 //!
 //! Run with `cargo run --example quick_start` from `bindings/rust`.
 
-use opentlv::{ByteOrder, FixedFormat, FixedFormatConfig, Reader, Result, Tag, Writer};
+use opentlv::{ByteOrder, FixedFormat, FixedFormatConfig, Reader, Tag, Writer};
 
-fn main() -> Result<()> {
+fn main() -> Result<(), Box<dyn std::error::Error>> {
     // One tag byte and one length byte; config must outlive format, and format
     // must outlive its readers and writers.
     let config = FixedFormatConfig::new(1, 1, ByteOrder::Big);
     let format = FixedFormat::new(&config)?;
 
-    let tag = Tag::from_bytes(&[0x01]);
-    let value = [0xAA, 0xBB, 0xCC];
-
-    let mut buf = [0u8; 5];
+    let mut buf = [0u8; 64];
     let mut writer = Writer::with_fixed_format(&mut buf, &format);
-    writer.write(&tag, &value)?;
-    println!(
-        "wrote {} bytes: {:02X?}",
-        writer.written().len(),
-        writer.written()
-    );
+    writer.write(&Tag::from_bytes(&[0x01]), b"Hello, world!")?;
 
-    let mut reader = Reader::with_fixed_format(writer.written(), &format);
-    let element = reader.next_element().expect("one element was written")?;
-    assert_eq!(element.tag(), &tag);
-    assert_eq!(element.value(), &value);
-    assert!(reader.is_at_end());
-    println!(
-        "read tag {:02X?} value {:02X?}",
-        element.tag().as_bytes(),
-        element.value()
-    );
+    for element in Reader::with_fixed_format(writer.written(), &format) {
+        println!("{}", std::str::from_utf8(element?.value())?);
+    }
     Ok(())
 }

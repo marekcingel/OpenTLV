@@ -13,7 +13,9 @@ with its package's build: listed in a CMakeLists.txt under examples/ so CI
 compiles it, placed directly under a bindings/rust/*/examples/ directory that
 Cargo auto-discovers and CI builds with `cargo build --all-targets`, or placed
 directly under bindings/python/opentlv/examples/, which CI runs against the
-installed package, or a CLI CMake acceptance script registered in tools/cli.
+installed package, a Lua example run by the Lua CI example loop, a Go main
+package explicitly run by Go CI, or a CLI CMake acceptance script registered
+in tools/cli.
 Editing either side without the other fails the check, so
 documented code cannot drift from code that builds and runs against the
 current API.
@@ -55,6 +57,16 @@ def is_built(source):
         return True
     if parts[:4] == ("bindings", "python", "opentlv", "examples") and source.suffix == ".py":
         return True
+    if (parts[:3] == ("bindings", "lua", "examples") and len(parts) == 4
+            and source.suffix == ".lua"):
+        return "examples/*.lua" in (ROOT / ".github/workflows/lua.yml").read_text(encoding="utf-8")
+    if (parts[:3] == ("bindings", "go", "examples") and len(parts) == 5
+            and source.name == "main.go"):
+        command = f"go run ./examples/{parts[3]}"
+        return any(
+            line.strip() == command
+            for line in (ROOT / ".github/workflows/go.yml").read_text(encoding="utf-8").splitlines()
+        )
     return False
 
 

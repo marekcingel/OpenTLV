@@ -10,9 +10,9 @@ function(run_cli expected)
     endif()
 endfunction()
 
-# Same primitive Value as the C++ quick-start.
-run_cli("0403414243" encode --format ber --tag 04 --value 414243)
-run_cli("offset=0 tag=04 length=3 value=414243" dump --format ber --hex 0403414243 --no-color)
+# Same Fixed-format Hello, world! round trip as the multi-language quick-start.
+run_cli("010D48656C6C6F2C20776F726C6421" encode --format fixed --tag 01 --value 48656C6C6F2C20776F726C6421)
+run_cli("offset=0 tag=01 length=13 value=48656C6C6F2C20776F726C6421" dump --format fixed --hex 010D48656C6C6F2C20776F726C6421 --no-color)
 
 # Same nested bytes as C++ parse.cpp, write.cpp and query.cpp.
 set(wire "6F0A8403414243A503500101")

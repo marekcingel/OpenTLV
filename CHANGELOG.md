@@ -9,6 +9,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Fixed
 
+- Preserve tabs in Markdown code blocks during pre-commit formatting so the documented Go quick start matches its source and passes documentation checks. (#480)
+- Preserve tabs in Markdown code blocks during pre-commit formatting and synchronize the documented Go quick start with its source so documentation checks pass. (#480)
 - Preserve custom Fixed tag widths, length widths and byte order when CLI JSON encoding validates its output; keep format-independent CLI checks executable with BER disabled. (#439)
 - Retry Lua CI test dependency installation after temporary download failures, while retaining failure after three unsuccessful attempts. (#436)
 - Resolve the CodeQL suspicious pointer-offset warning in C++ Writer tests by using an explicit element count. (#445)
@@ -47,6 +49,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Changed
 
+- Align multi-language documentation examples and quick starts around equivalent public API operations; showcase each binding's current ergonomic conveniences while writing and reading `Hello, world!` with the same Fixed format, including Go and Lua.
 - **Breaking:** Rename the Rust raw binding crate to `opentlv-sys`, the Python implementation distribution to `opentlv-core` with private `_opentlv` imports, and the Lua implementation module to `opentlv._core`; update low-level imports and installation paths accordingly. (#472)
 - Rewrite C++ quick-start and examples around borrowed iteration, scoped writing, owning Document traversal and typed fields; migrate CLI parsing, encoding and Query to the C++ facade, add matching CLI examples and execute the examples through CTest. (#439)
 - **Breaking:** Replace raw-pointer C++ Node construction with lifetime-checked Document and Node accessors; rebuild C++ consumers for the new Node handle representation. The C API is unchanged. (#435)
@@ -111,6 +114,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Added
 
+- Add race-enabled Go binding CI checks, concurrent public API and malformed-input regression tests, and enforce public API usage in examples. (#480)
 - Expose Document path queries and typed generic Value codecs through the Go binding, preserving native query errors, codec statuses and owned results. (#479)
 - Add idiomatic Go error matching with `errors.Is`, structured parsing and writing errors with owned C diagnostic snapshots, and Document parsing diagnostics. (#478)
 - Expose owned mutable Go Documents with root and child navigation, checked node handles, explicit cleanup, original input snapshots and serialization through the canonical C Writer. (#477)

@@ -1,6 +1,7 @@
 # C++ examples
 
-Start with [`quick_start.cpp`](quick_start.cpp): a borrowed BER parsing range,
+Start with [`quick_start.cpp`](quick_start.cpp): scoped encoding, iterable parsing
+and typed string decoding for a Fixed-format `Hello, world!` round trip,
 with explicit error handling and input lifetime. All examples compile and run
 through CTest with the `examples` label when their components are enabled.
 See the [C++ guide](../../../docs/guides/cxx-examples.md) for ownership,

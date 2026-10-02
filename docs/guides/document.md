@@ -183,9 +183,39 @@ that already uses the writer's spelling encodes back to identical bytes.
 A document is not synchronised: concurrent reads are fine, any modification
 needs exclusive access.
 
-## Other languages
+## Compare the public APIs
 
-The sections above describe the C API; other bindings expose the same model.
+Each tab parses the same BER bytes `50 01 41`, finds the first top-level tag `50`,
+changes its Value from `A` to `NEW`, then encodes `50 03 4E 45 57`. BER and
+Document must be enabled. These are fragments inside a function with the shown
+language's error handling; the detailed C operations above apply to all bindings.
+
+/// tab | C
+
+```c
+#include "tlv/document/document.h"
+#include "tlv/builtins/asn1/ber.h"
+
+const uint8_t data[] = {0x50, 1, 'A'};
+const uint8_t value[] = {'N', 'E', 'W'};
+tlv_document_options_t options;
+if (tlv_document_options_init(&options, &tlv_format_ber) != TLV_OK) return 1;
+tlv_document_t* document = NULL;
+size_t offset;
+if (tlv_document_parse(data, sizeof(data), &options, &document, &offset) != TLV_OK)
+    return 1;
+tlv_node_t* entry = tlv_document_find(document, NULL, TLV_TAG(0x50));
+uint8_t encoded[5];
+size_t written;
+tlv_result_t rc = entry ? tlv_node_set_value(entry, value, sizeof(value)) : TLV_ERR_INVALID_ARG;
+if (rc == TLV_OK) rc = tlv_document_encode(document, encoded, sizeof(encoded), &written);
+tlv_document_free(document);
+if (rc != TLV_OK) return 1;
+```
+
+C returns status codes and writes into caller-owned output. Free the Document on every exit after successful parsing.
+
+///
 
 /// tab | C++
 
@@ -193,21 +223,18 @@ The sections above describe the C API; other bindings expose the same model.
 move-only; `tlv::node` is a cheap non-owning handle.
 
 ```cpp
-#include <tlv++/document/document.hpp>
+#include <tlv++/tlv.hpp>
 
+const tlv::byte data[] = {tlv::byte(0x50), tlv::byte(1), tlv::byte('A')};
 tlv::document_format format(tlv_format_ber);
-
-auto parsed = tlv::document::parse(buffer, format);
-if (!parsed) { /* parsed.error().code */ }
+auto parsed = tlv::document::parse({data, sizeof(data)}, format);
+if (!parsed) return 1;
 tlv::document document = std::move(*parsed);
-
-tlv::node entry = document.find(tlv::tag_bytes<0x50>());
-if (entry) (void)entry.set(new_value);
-
-(void)document.insert(new_tag, new_value);
-document.erase(old_tag);
-
-auto encoded = document.encode();   // expected<std::vector<byte>, error>
+auto entry = document.find(tlv::tag_bytes<0x50>());
+const tlv::byte value[] = {tlv::byte('N'), tlv::byte('E'), tlv::byte('W')};
+if (!entry || !entry.set({value, sizeof(value)})) return 1;
+auto encoded = document.encode();
+if (!encoded) return 1;
 ```
 
 Iterate top-level elements with `for (auto node : document)` and direct children
@@ -245,17 +272,34 @@ than from raw C pointers.
 
 ///
 
+/// tab | Rust
+
+```rust
+use opentlv::{Document, Format, Tag};
+
+let mut document = Document::parse(b"\x50\x01A", Format::Ber, 16, 1000)?;
+let tag = Tag::from_bytes(&[0x50]);
+document.find_mut(&tag).expect("tag 50").set_value(b"NEW")?;
+let encoded = document.encode()?;
+```
+
+Use a function returning `Result<_, Box<dyn std::error::Error>>` to propagate both parse and mutation errors. Document drops its native tree automatically; Node borrows prevent overlapping mutation.
+
+///
+
 /// tab | Python
 
 `opentlv.Document` wraps the same API as a context manager; `Node` is a cheap
 non-owning handle.
 
 ```python
-with opentlv.Document(data, opentlv.Format.BER) as document:
-    fci = document.first                       # the 6F template
-    label = fci.find(opentlv.Tag(b"\x50"))      # a direct child of 6F
-    label.value = b"NEW"                        # replace a value
-    document.insert(opentlv.Tag(b"\x9f\x02"), b"\x00\x00\x00\x00\x01\x00")  # append
+import opentlv
+
+with opentlv.Document(b"\x50\x01A", opentlv.Format.BER) as document:
+    entry = document.find(opentlv.Tag(b"\x50"))
+    if entry is None:
+        raise ValueError("tag 50 is missing")
+    entry.value = b"NEW"
     encoded = document.encode()
 ```
 
@@ -272,8 +316,52 @@ Python](python.md#documents) for the full API, including error handling.
 
 ///
 
-Rust does not bind `Document` yet; see the [language bindings conceptual
-model](../concepts/bindings.md) for the binding coverage of each language.
+/// tab | Lua
+
+```lua
+local opentlv = require("opentlv")
+local document = opentlv.document(string.char(0x50, 1) .. "A", opentlv.formats.ber)
+local entry = assert(document:find("50"))
+entry:set("NEW")
+local encoded = document:serialize()
+```
+
+Native failures raise errors. Document and its Node handles retain native storage until garbage collection; strings returned by accessors are owned snapshots.
+
+///
+
+/// tab | Go
+
+```go
+format, err := opentlv.Builtin(opentlv.BER)
+if err != nil {
+ return err
+}
+document, err := opentlv.Parse([]byte{0x50, 1, 'A'}, format)
+if err != nil {
+ return err
+}
+defer document.Close()
+matches, err := document.Query("50")
+if err != nil {
+ return err
+}
+if len(matches) == 0 {
+ return fmt.Errorf("tag 50 is missing")
+}
+if err := matches[0].SetValue([]byte("NEW")); err != nil {
+ return err
+}
+encoded, err := document.Encode()
+if err != nil {
+ return err
+}
+
+```
+
+Import the public `opentlv` package and use a function returning `error`. `Close` provides deterministic cleanup. A successful edit invalidates existing Node handles; `Value()` and encoded bytes are owned Go snapshots. See the [Go binding README](../../bindings/go/README.md#document).
+
+///
 
 ## Limits and scope
 
