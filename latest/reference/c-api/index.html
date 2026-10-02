@@ -2343,6 +2343,17 @@
 </li>
       
         <li class="md-nav__item">
+  <a href="#deterministic-wire-generation" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Deterministic wire generation
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
   <a href="#traversal" class="md-nav__link">
     <span class="md-ellipsis">
       
@@ -3335,6 +3346,17 @@
 </li>
       
         <li class="md-nav__item">
+  <a href="#deterministic-wire-generation" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Deterministic wire generation
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
   <a href="#traversal" class="md-nav__link">
     <span class="md-ellipsis">
       
@@ -3470,6 +3492,35 @@ and <a href="../../guides/memory/">memory ownership</a>.</p>
 <h2 id="writer">Writer<a class="headerlink" href="#writer" title="Permanent link">&para;</a></h2>
 <p><a href="../api/c-api/html/group__writer.html">Generated reference</a>. Read first:
 <a href="../../formats/">formats</a>.</p>
+<h2 id="deterministic-wire-generation">Deterministic wire generation<a class="headerlink" href="#deterministic-wire-generation" title="Permanent link">&para;</a></h2>
+<p>The native <code>&lt;tlv/generator.h&gt;</code> API generates complete nonempty TLV streams
+through Writer, with no allocation. The C++ facade is <code>&lt;tlv++/generator.hpp&gt;</code>.
+Provide an ordered candidate table of borrowed identifiers and inclusive Value
+size intervals, together with seed, case index and element/depth/Value/case
+limits. Format alone classifies constructed tags; their Values are generated
+child streams. Root depth is zero. Workspace requires
+<code>(max_depth + 1) * max_case_size</code> bytes, disjoint from output and inputs.
+Output capacity must be at least <code>max_case_size</code>; larger buffers do not alter
+the generated case. Maximum supported depth is 64.</p>
+<p>Algorithm version <code>TLV_GENERATOR_VERSION</code>, Format/configuration, ordered
+candidates, all limits, seed and case index identify a reproducible case.
+Generation does not depend on earlier calls. Each accepted element is decoded
+and re-encoded with Writer to verify byte-exact reconstruction, including
+constructed children. A bounded search returns <code>TLV_ERR_LIMIT</code> when no nonempty
+case can be produced; output size is unchanged on failure, while buffer bytes
+may change. Values sample interval ends and 127/128/255/256 boundaries.</p>
+<p>Candidates describe independently composable wire elements. Exclude terminal
+markers (such as DHCPv4 END or NFC Type 2 Terminator) and identifiers requiring
+message-level ordering from the random table. Generation does not infer Schema,
+Codec, terminators or protocol-level message rules. Primitive Value bytes are
+arbitrary; validity here means Format/Writer-valid framing. For BER, use an
+opaque identifier such as <code>04</code> and a constructed identifier such as <code>30</code>.
+For Fixed, use identifiers of the configured width; Bluetooth LTV, DHCPv4 and
+NFC Type 2 accept ordinary one-byte candidate tags. Custom bidirectional
+Formats use the same API without builtin dispatch.</p>
+<p>Executable C and C++ usage and reconstruction checks are in
+<a href="https://github.com/marekcingel/OpenTLV/blob/main/tests/unit/generator_test.cpp"><code>generator_test.cpp</code></a>. CLI generation,
+language bindings and a dedicated property suite are separate work.</p>
 <h2 id="traversal">Traversal<a class="headerlink" href="#traversal" title="Permanent link">&para;</a></h2>
 <p><a href="../api/c-api/html/group__traversal.html">Generated reference</a>. Read first:
 <a href="../../guides/reader/#pull-based-tree-traversal">pull-based Tree Reader</a>,

@@ -3522,6 +3522,9 @@ headers and links the C library, without a separately compiled C++ facade librar
 It still wraps only the public C API. See <a href="../../guides/rust/#relationship-to-the-c-api">relationship to the C
 API</a> for how the Rust crate holds
 to this in practice.</p>
+<p>Deterministic wire generation (#503) is currently available in native C and
+the C++ facade only. Rust, Python, Lua, Go and WASM do not expose this capability;
+those facades are outside the first generator iteration.</p>
 <h2 id="capability-parity-through-the-public-facade">Capability parity through the public facade<a class="headerlink" href="#capability-parity-through-the-public-facade" title="Permanent link">&para;</a></h2>
 <p>The <a href="../processing-pipeline/">pipeline audit</a> describes selection of an already
 published subtree: C++ <code>document_builder::current_subtree(reader)</code>, Rust

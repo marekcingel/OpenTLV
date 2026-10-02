@@ -3154,6 +3154,11 @@ The <a href="../../guides/codecs/#c11-typed-fields-and-value-codecs">typed field
 describes C++11 field definitions, codec customization, typed lookup and writing.
 The <a href="../../concepts/cxx-builtins/">built-in standards guide</a> covers domain namespaces,
 framing conveniences, shared ASN.1 codecs and standard-specific typed fields.</p>
+<p>The <code>&lt;tlv++/generator.hpp&gt;</code> facade exposes <code>tlv::generate()</code>,
+<code>generator_workspace_size()</code> and <code>make_generator_candidate()</code> using borrowed
+Formats and caller-owned byte spans. See the
+<a href="../c-api/#deterministic-wire-generation">deterministic wire generation contract</a>
+for limits, reproducibility, workspace and candidate-domain rules.</p>
 <ul>
 <li><a href="../api/cxx-api/html/namespacetlv.html">Namespace <code>tlv</code></a></li>
 <li><a href="../api/cxx-api/html/classes.html">Class index</a> and

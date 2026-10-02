@@ -325,6 +325,12 @@ Typedefs</h2></td></tr>
 <tr class="memitem:ab56240f5c9c93bf9d4a0c1d12fa6535e" id="r_ab56240f5c9c93bf9d4a0c1d12fa6535e"><td class="memItemLeft" align="right" valign="top">using&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="namespacetlv.html#ab56240f5c9c93bf9d4a0c1d12fa6535e">encoding</a> = <a class="elRef" href="../../c-api/html/group__formats.html#ga41a69be060b77335ad4032b16727738d">tlv_encoding_t</a></td></tr>
 <tr class="memdesc:ab56240f5c9c93bf9d4a0c1d12fa6535e"><td class="mdescLeft">&#160;</td><td class="mdescRight">Exact logical framing sizes independent of the native address space.  <br /></td></tr>
 <tr class="separator:ab56240f5c9c93bf9d4a0c1d12fa6535e"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:ad1db2fd27808ea288d33170fb560aeea" id="r_ad1db2fd27808ea288d33170fb560aeea"><td class="memItemLeft" align="right" valign="top">using&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="namespacetlv.html#ad1db2fd27808ea288d33170fb560aeea">generator_candidate</a> = <a class="elRef" href="../../c-api/html/generator_8h.html#a5ba29dabdcf17ffa6a68e96034c3f597">tlv_generator_candidate_t</a></td></tr>
+<tr class="memdesc:ad1db2fd27808ea288d33170fb560aeea"><td class="mdescLeft">&#160;</td><td class="mdescRight">Borrowed candidate descriptor; constructed tags use the Format classifier.  <br /></td></tr>
+<tr class="separator:ad1db2fd27808ea288d33170fb560aeea"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:aa5e1dc27ab7bacc00a21e4ac868ede89" id="r_aa5e1dc27ab7bacc00a21e4ac868ede89"><td class="memItemLeft" align="right" valign="top">using&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="namespacetlv.html#aa5e1dc27ab7bacc00a21e4ac868ede89">generator_options</a> = <a class="elRef" href="../../c-api/html/generator_8h.html#a30ffa41b8f052cbc2383ad76dd1abad8">tlv_generator_options_t</a></td></tr>
+<tr class="memdesc:aa5e1dc27ab7bacc00a21e4ac868ede89"><td class="mdescLeft">&#160;</td><td class="mdescRight">Generator configuration with the limits and lifetime contract of the C API.  <br /></td></tr>
+<tr class="separator:aa5e1dc27ab7bacc00a21e4ac868ede89"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:aec6151f23d86b874b79d9d2ae021e568" id="r_aec6151f23d86b874b79d9d2ae021e568"><td class="memItemLeft" align="right" valign="top">using&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="namespacetlv.html#aec6151f23d86b874b79d9d2ae021e568">reader_diagnostic</a> = <a class="elRef" href="../../c-api/html/group__reader.html#ga24371a524a13cd9d1cd22b3db640de85">tlv_reader_diagnostic_t</a></td></tr>
 <tr class="memdesc:aec6151f23d86b874b79d9d2ae021e568"><td class="mdescLeft">&#160;</td><td class="mdescRight">C++ alias for the reader-specific diagnostic type, <a class="elRef" href="../../c-api/html/group__reader.html#ga24371a524a13cd9d1cd22b3db640de85">tlv_reader_diagnostic_t</a>.  <br /></td></tr>
 <tr class="separator:aec6151f23d86b874b79d9d2ae021e568"><td class="memSeparator" colspan="2">&#160;</td></tr>
@@ -447,6 +453,15 @@ Functions</h2></td></tr>
 <tr class="memitem:a8dd4ea4721ad76855115212ca7b04979" id="r_a8dd4ea4721ad76855115212ca7b04979"><td class="memItemLeft" align="right" valign="top"><a class="el" href="classtlv_1_1expected.html">expected</a>&lt; <a class="el" href="namespacetlv.html#ab56240f5c9c93bf9d4a0c1d12fa6535e">encoding</a>, <a class="el" href="structtlv_1_1error.html">error</a> &gt;&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="namespacetlv.html#a8dd4ea4721ad76855115212ca7b04979">measure</a> (<a class="el" href="classtlv_1_1format.html">tlv::format</a> <a class="el" href="classtlv_1_1format.html">format</a>, const <a class="el" href="structtlv_1_1measure__request.html">measure_request</a> &amp;request)</td></tr>
 <tr class="memdesc:a8dd4ea4721ad76855115212ca7b04979"><td class="mdescLeft">&#160;</td><td class="mdescRight">Measure a logical Value, optionally without readable storage.  <br /></td></tr>
 <tr class="separator:a8dd4ea4721ad76855115212ca7b04979"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:ac4b6c0bb1a24bd8e51d83ae1efab3eaf" id="r_ac4b6c0bb1a24bd8e51d83ae1efab3eaf"><td class="memItemLeft" align="right" valign="top"><a class="el" href="namespacetlv.html#ad1db2fd27808ea288d33170fb560aeea">generator_candidate</a>&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="namespacetlv.html#ac4b6c0bb1a24bd8e51d83ae1efab3eaf">make_generator_candidate</a> (<a class="el" href="classtlv_1_1tag.html">tlv::tag</a> <a class="el" href="classtlv_1_1tag.html">tag</a>, size_t minimum, size_t maximum)</td></tr>
+<tr class="memdesc:ac4b6c0bb1a24bd8e51d83ae1efab3eaf"><td class="mdescLeft">&#160;</td><td class="mdescRight">Build a generator candidate from a borrowed semantic Tag.  <br /></td></tr>
+<tr class="separator:ac4b6c0bb1a24bd8e51d83ae1efab3eaf"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:ab10174b2ec679cec7de2c1a6c1d7095b" id="r_ab10174b2ec679cec7de2c1a6c1d7095b"><td class="memItemLeft" align="right" valign="top"><a class="el" href="classtlv_1_1expected.html">expected</a>&lt; size_t, <a class="el" href="structtlv_1_1error.html">error</a> &gt;&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="namespacetlv.html#ab10174b2ec679cec7de2c1a6c1d7095b">generator_workspace_size</a> (const <a class="el" href="namespacetlv.html#aa5e1dc27ab7bacc00a21e4ac868ede89">generator_options</a> &amp;options)</td></tr>
+<tr class="memdesc:ab10174b2ec679cec7de2c1a6c1d7095b"><td class="mdescLeft">&#160;</td><td class="mdescRight">Compute scratch storage required by the native generator.  <br /></td></tr>
+<tr class="separator:ab10174b2ec679cec7de2c1a6c1d7095b"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a8ac95035fc97d2daf6a3c6163e9d5e0c" id="r_a8ac95035fc97d2daf6a3c6163e9d5e0c"><td class="memItemLeft" align="right" valign="top"><a class="el" href="classtlv_1_1expected.html">expected</a>&lt; size_t, <a class="el" href="structtlv_1_1error.html">error</a> &gt;&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="namespacetlv.html#a8ac95035fc97d2daf6a3c6163e9d5e0c">generate</a> (<a class="el" href="classtlv_1_1format.html">tlv::format</a> <a class="el" href="classtlv_1_1format.html">format</a>, const <a class="el" href="namespacetlv.html#aa5e1dc27ab7bacc00a21e4ac868ede89">generator_options</a> &amp;options, <a class="el" href="classtlv_1_1span.html">span</a>&lt; <a class="el" href="namespacetlv.html#aa91df798a712d88cf7d2f1f63a539b51">byte</a> &gt; output, <a class="el" href="classtlv_1_1span.html">span</a>&lt; <a class="el" href="namespacetlv.html#aa91df798a712d88cf7d2f1f63a539b51">byte</a> &gt; workspace)</td></tr>
+<tr class="memdesc:a8ac95035fc97d2daf6a3c6163e9d5e0c"><td class="mdescLeft">&#160;</td><td class="mdescRight">Generate one reproducible wire case without retaining caller storage.  <br /></td></tr>
+<tr class="separator:a8ac95035fc97d2daf6a3c6163e9d5e0c"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:ac6665c938ebabfd7f55e4df8294432c0" id="r_ac6665c938ebabfd7f55e4df8294432c0"><td class="memItemLeft" align="right" valign="top"><a class="el" href="classtlv_1_1expected.html">expected</a>&lt; <a class="el" href="structtlv_1_1decoded.html">decoded</a>, <a class="el" href="structtlv_1_1error.html">error</a> &gt;&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="namespacetlv.html#ac6665c938ebabfd7f55e4df8294432c0">read</a> (<a class="el" href="namespacetlv.html#a2abe7003a70af047ef9acae17f31f75d">bytes</a> data, const <a class="elRef" href="../../c-api/html/group__formats.html#gac461da7e8d46362fa8e09694efb0b062">tlv_format_t</a> &amp;<a class="el" href="classtlv_1_1format.html">format</a>, size_t &amp;consumed, <a class="el" href="namespacetlv.html#aec6151f23d86b874b79d9d2ae021e568">reader_diagnostic</a> *<a class="el" href="namespacetlv.html#a00ca9c69c35ef11f6a22b7eda1b115ba">diagnostic</a>=nullptr)</td></tr>
 <tr class="memdesc:ac6665c938ebabfd7f55e4df8294432c0"><td class="mdescLeft">&#160;</td><td class="mdescRight">Read one complete element with its source ranges and optional diagnostics.  <br /></td></tr>
 <tr class="separator:ac6665c938ebabfd7f55e4df8294432c0"><td class="memSeparator" colspan="2">&#160;</td></tr>
@@ -622,6 +637,38 @@ Functions</h2></td></tr>
 </div><div class="memdoc">
 
 <p>Exact logical framing sizes independent of the native address space. </p>
+
+</div>
+</div>
+<a id="ad1db2fd27808ea288d33170fb560aeea" name="ad1db2fd27808ea288d33170fb560aeea"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#ad1db2fd27808ea288d33170fb560aeea">&#9670;&#160;</a></span>generator_candidate</h2>
+
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname">using <a class="el" href="namespacetlv.html#ad1db2fd27808ea288d33170fb560aeea">tlv::generator_candidate</a> = typedef <a class="elRef" href="../../c-api/html/generator_8h.html#a5ba29dabdcf17ffa6a68e96034c3f597">tlv_generator_candidate_t</a></td>
+        </tr>
+      </table>
+</div><div class="memdoc">
+
+<p>Borrowed candidate descriptor; constructed tags use the Format classifier. </p>
+
+</div>
+</div>
+<a id="aa5e1dc27ab7bacc00a21e4ac868ede89" name="aa5e1dc27ab7bacc00a21e4ac868ede89"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#aa5e1dc27ab7bacc00a21e4ac868ede89">&#9670;&#160;</a></span>generator_options</h2>
+
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname">using <a class="el" href="namespacetlv.html#aa5e1dc27ab7bacc00a21e4ac868ede89">tlv::generator_options</a> = typedef <a class="elRef" href="../../c-api/html/generator_8h.html#a30ffa41b8f052cbc2383ad76dd1abad8">tlv_generator_options_t</a></td>
+        </tr>
+      </table>
+</div><div class="memdoc">
+
+<p>Generator configuration with the limits and lifetime contract of the C API. </p>
 
 </div>
 </div>
@@ -2085,6 +2132,102 @@ template&lt;typename F , typename Output , typename Callback &gt; </div>
 
 </div>
 </div>
+<a id="a8ac95035fc97d2daf6a3c6163e9d5e0c" name="a8ac95035fc97d2daf6a3c6163e9d5e0c"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#a8ac95035fc97d2daf6a3c6163e9d5e0c">&#9670;&#160;</a></span>generate()</h2>
+
+<div class="memitem">
+<div class="memproto">
+<table class="mlabels">
+  <tr>
+  <td class="mlabels-left">
+      <table class="memname">
+        <tr>
+          <td class="memname"><a class="el" href="classtlv_1_1expected.html">expected</a>&lt; size_t, <a class="el" href="structtlv_1_1error.html">error</a> &gt; tlv::generate </td>
+          <td>(</td>
+          <td class="paramtype"><a class="el" href="classtlv_1_1format.html">tlv::format</a>&#160;</td>
+          <td class="paramname"><em>format</em>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype">const <a class="el" href="namespacetlv.html#aa5e1dc27ab7bacc00a21e4ac868ede89">generator_options</a> &amp;&#160;</td>
+          <td class="paramname"><em>options</em>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype"><a class="el" href="classtlv_1_1span.html">span</a>&lt; <a class="el" href="namespacetlv.html#aa91df798a712d88cf7d2f1f63a539b51">byte</a> &gt;&#160;</td>
+          <td class="paramname"><em>output</em>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype"><a class="el" href="classtlv_1_1span.html">span</a>&lt; <a class="el" href="namespacetlv.html#aa91df798a712d88cf7d2f1f63a539b51">byte</a> &gt;&#160;</td>
+          <td class="paramname"><em>workspace</em>&#160;</td>
+        </tr>
+        <tr>
+          <td></td>
+          <td>)</td>
+          <td></td><td></td>
+        </tr>
+      </table>
+  </td>
+  <td class="mlabels-right">
+<span class="mlabels"><span class="mlabel">inline</span></span>  </td>
+  </tr>
+</table>
+</div><div class="memdoc">
+
+<p>Generate one reproducible wire case without retaining caller storage. </p>
+<dl class="params"><dt>Parameters</dt><dd>
+  <table class="params">
+    <tr><td class="paramdir">[in]</td><td class="paramname">format</td><td>Borrowed readable and writable Format. </td></tr>
+    <tr><td class="paramdir">[in]</td><td class="paramname">options</td><td>Immutable configuration; borrowed candidates must outlive the call. </td></tr>
+    <tr><td class="paramdir">[out]</td><td class="paramname">output</td><td>Destination, at least options.max_case_size bytes. </td></tr>
+    <tr><td class="paramdir">[in,out]</td><td class="paramname">workspace</td><td>Disjoint scratch storage of <a class="el" href="namespacetlv.html#ab10174b2ec679cec7de2c1a6c1d7095b" title="Compute scratch storage required by the native generator.">generator_workspace_size()</a> bytes. </td></tr>
+  </table>
+  </dd>
+</dl>
+<dl class="section return"><dt>Returns</dt><dd>Complete wire byte count, or the canonical generator error. </dd></dl>
+<dl class="section warning"><dt>Warning</dt><dd>On failure destination and workspace bytes may have changed. </dd></dl>
+
+</div>
+</div>
+<a id="ab10174b2ec679cec7de2c1a6c1d7095b" name="ab10174b2ec679cec7de2c1a6c1d7095b"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#ab10174b2ec679cec7de2c1a6c1d7095b">&#9670;&#160;</a></span>generator_workspace_size()</h2>
+
+<div class="memitem">
+<div class="memproto">
+<table class="mlabels">
+  <tr>
+  <td class="mlabels-left">
+      <table class="memname">
+        <tr>
+          <td class="memname"><a class="el" href="classtlv_1_1expected.html">expected</a>&lt; size_t, <a class="el" href="structtlv_1_1error.html">error</a> &gt; tlv::generator_workspace_size </td>
+          <td>(</td>
+          <td class="paramtype">const <a class="el" href="namespacetlv.html#aa5e1dc27ab7bacc00a21e4ac868ede89">generator_options</a> &amp;&#160;</td>
+          <td class="paramname"><em>options</em></td><td>)</td>
+          <td></td>
+        </tr>
+      </table>
+  </td>
+  <td class="mlabels-right">
+<span class="mlabels"><span class="mlabel">inline</span></span>  </td>
+  </tr>
+</table>
+</div><div class="memdoc">
+
+<p>Compute scratch storage required by the native generator. </p>
+<dl class="params"><dt>Parameters</dt><dd>
+  <table class="params">
+    <tr><td class="paramdir">[in]</td><td class="paramname">options</td><td>Immutable generator configuration. </td></tr>
+  </table>
+  </dd>
+</dl>
+<dl class="section return"><dt>Returns</dt><dd>Required bytes, or the canonical validation/overflow error. </dd></dl>
+
+</div>
+</div>
 <a id="a7f6e7e83fa622c90e448bd2533202edd" name="a7f6e7e83fa622c90e448bd2533202edd"></a>
 <h2 class="memtitle"><span class="permalink"><a href="#a7f6e7e83fa622c90e448bd2533202edd">&#9670;&#160;</a></span>lldp_format()</h2>
 
@@ -2188,6 +2331,59 @@ template&lt;typename F , typename Output , typename Callback &gt; </div>
 <p>Builds an empty hierarchical path. </p>
 <p>Wraps <a class="elRef" href="../../c-api/html/group__diagnostics.html#ga843d5d67f62d1759098bb3b5d0b1fbde">tlv_diagnostic_path_init()</a>.</p>
 <dl class="section return"><dt>Returns</dt><dd>The initialized, empty path. </dd></dl>
+
+</div>
+</div>
+<a id="ac4b6c0bb1a24bd8e51d83ae1efab3eaf" name="ac4b6c0bb1a24bd8e51d83ae1efab3eaf"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#ac4b6c0bb1a24bd8e51d83ae1efab3eaf">&#9670;&#160;</a></span>make_generator_candidate()</h2>
+
+<div class="memitem">
+<div class="memproto">
+<table class="mlabels">
+  <tr>
+  <td class="mlabels-left">
+      <table class="memname">
+        <tr>
+          <td class="memname"><a class="el" href="namespacetlv.html#ad1db2fd27808ea288d33170fb560aeea">generator_candidate</a> tlv::make_generator_candidate </td>
+          <td>(</td>
+          <td class="paramtype"><a class="el" href="classtlv_1_1tag.html">tlv::tag</a>&#160;</td>
+          <td class="paramname"><em>tag</em>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype">size_t&#160;</td>
+          <td class="paramname"><em>minimum</em>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype">size_t&#160;</td>
+          <td class="paramname"><em>maximum</em>&#160;</td>
+        </tr>
+        <tr>
+          <td></td>
+          <td>)</td>
+          <td></td><td></td>
+        </tr>
+      </table>
+  </td>
+  <td class="mlabels-right">
+<span class="mlabels"><span class="mlabel">inline</span></span>  </td>
+  </tr>
+</table>
+</div><div class="memdoc">
+
+<p>Build a generator candidate from a borrowed semantic Tag. </p>
+<dl class="params"><dt>Parameters</dt><dd>
+  <table class="params">
+    <tr><td class="paramdir">[in]</td><td class="paramname">tag</td><td>Identifier whose bytes must outlive generation. </td></tr>
+    <tr><td class="paramdir">[in]</td><td class="paramname">minimum</td><td>Inclusive minimum Value size in bytes. </td></tr>
+    <tr><td class="paramdir">[in]</td><td class="paramname">maximum</td><td>Inclusive maximum Value size in bytes. </td></tr>
+  </table>
+  </dd>
+</dl>
+<dl class="section return"><dt>Returns</dt><dd>A candidate descriptor; generation validates its interval. </dd></dl>
 
 </div>
 </div>
