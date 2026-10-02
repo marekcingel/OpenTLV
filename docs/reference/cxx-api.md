@@ -4,11 +4,11 @@ The C++ API reference is generated from the public
 [tlv++](../../tlv++/include/tlv++) headers with Doxygen and published with this
 site. Open the [generated C++ API reference](api/cxx-api/html/index.html) for
 the `tlv` namespace, classes and public headers. Include `tlv++/tlv.hpp` for
-the complete header-only wrapper API; using it still requires linking the C
+the complete configured header-only C++ API; using it still requires linking the C
 library.
 
 The [C++ public/native boundary](../concepts/cxx-native-boundary.md) describes
-the incremental redesign, borrowed `tlv::format` views and explicit native
+the current public facade, borrowed `tlv::format` views and explicit native
 interoperability. Include `tlv++/native.hpp` separately for that interoperability API.
 The [Format customization contract](../concepts/cxx-formats.md) defines application
 Formats, traits, capability checks and shared adapters for higher-level consumers.

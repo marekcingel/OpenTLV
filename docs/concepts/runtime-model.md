@@ -6,6 +6,23 @@ public model API. The [roadmap](../../ROADMAP.md) places Runtime Model & OTLV
 after the Execution Foundation and before Compilation. The
 [core architectural rules](architectural-rules.md) apply to all three phases.
 
+The [canonical architecture overview](architecture.md#conceptual-model)
+defines responsibilities shared by native, runtime and compiled implementations.
+Document remains the canonical owned representation of message data; the
+runtime model owns reusable interpretation/configuration.
+
+## Future model construction and inference
+
+The [Protocol Inference direction](../../ROADMAP.md#protocol-inference-after-the-foundation)
+should construct the same semantic model from incremental observations that
+OTLV or programmatic APIs can describe. Candidate/incomplete descriptions and
+supporting/contradicting evidence belong to construction and analysis; an
+immutable execution model must still pass validation before publication.
+Analyst names/codecs/semantics remain distinct from observed wire facts.
+Inference reuses normal Reader contracts, preserves alternatives and exports
+editable `.otlv`; optional AI stays downstream of deterministic evidence.
+No inference API or algorithm is finalized or implemented.
+
 ## From source to execution
 
 ```text

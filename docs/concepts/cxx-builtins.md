@@ -1,5 +1,10 @@
 # C++ built-in standards
 
+The [current facade overview](cxx-native-boundary.md#public-facade) explains
+generic consumers and interoperability; the
+[implemented support inventory](../formats/support.md) separates framing,
+definitions, Schema, Codec, validation, CLI and binding presets.
+
 Generic C++ primitives remain directly under `tlv`: `reader`, `writer`,
 `element_view`, `field`, `codec`, `document` and `query`. Public namespaces
 describe standards and protocols, independently of header directory structure.

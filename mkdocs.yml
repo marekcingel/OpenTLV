@@ -1,5 +1,5 @@
 site_name: OpenTLV
-site_description: Portable C99 and C++ library for reading, writing and validating TLV data.
+site_description: Portable TLV processing with a canonical C engine, language APIs, CLI and WebAssembly.
 site_url: https://marekcingel.github.io/OpenTLV/
 repo_url: https://github.com/marekcingel/OpenTLV
 repo_name: marekcingel/OpenTLV
@@ -104,38 +104,30 @@ nav:
   - Home: index.md
   - Getting Started:
       - Getting started: getting-started/README.md
-  - Concepts:
-      - Architecture: concepts/architecture.md
-      - Runtime model and canonical IR: concepts/runtime-model.md
-      - Processing pipeline: concepts/processing-pipeline.md
-      - Core architectural rules: concepts/architectural-rules.md
-      - Core types: concepts/core-types.md
-      - Format and Element contract: concepts/format-contract.md
-      - Definition boundaries: concepts/definition-boundaries.md
-      - Borrowed values: concepts/value.md
-      - Logical lengths: concepts/length.md
-      - Byte order: concepts/endian.md
-      - Language bindings: concepts/bindings.md
-      - C++ public/native boundary: concepts/cxx-native-boundary.md
-      - C++ Format customization: concepts/cxx-formats.md
-      - C++ built-in standards: concepts/cxx-builtins.md
   - Guides:
+      - Choose a processing API: guides/processing.md
+      - Executable examples: guides/examples.md
       - Memory ownership: guides/memory.md
       - Diagnostics: guides/diagnostics.md
       - Schemas and length validation: guides/schemas.md
       - Value codecs: guides/codecs.md
       - Copy helpers: guides/copy.md
-      - C++ examples: guides/cxx-examples.md
       - Pull-based Reader: guides/reader.md
       - Writer and scoped construction: guides/writer.md
       - Path queries: guides/queries.md
       - Mutable documents: guides/document.md
       - Building only the components you need: guides/select-components.md
+  - Language APIs:
+      - C++ examples: guides/cxx-examples.md
       - Using OpenTLV from Rust: guides/rust.md
       - Using OpenTLV from Python: guides/python.md
       - Using OpenTLV from Lua: guides/lua.md
+      - Language bindings: concepts/bindings.md
+      - Using OpenTLV from Go: guides/go.md
+      - WebAssembly tooling: development/webassembly.md
   - Formats:
       - Overview: formats/README.md
+      - Implemented capabilities: formats/support.md
       - Configurable fixed-width TLV: formats/fixed/configurable.md
       - Configurable variable-width TLV: formats/variable.md
       - Bluetooth LTV: formats/bluetooth/README.md
@@ -166,13 +158,27 @@ nav:
       - C++ API: reference/cxx-api.md
       - Compilers and build settings: reference/compilers.md
       - Error codes: reference/errors.md
+  - Architecture and Concepts:
+      - Architecture: concepts/architecture.md
+      - Core types: concepts/core-types.md
+      - Borrowed values: concepts/value.md
+      - Logical lengths: concepts/length.md
+      - Byte order: concepts/endian.md
+      - C++ public/native boundary: concepts/cxx-native-boundary.md
+      - C++ Format customization: concepts/cxx-formats.md
+      - C++ built-in standards: concepts/cxx-builtins.md
   - Development:
+      - Runtime model and canonical IR: concepts/runtime-model.md
+      - Processing pipeline: concepts/processing-pipeline.md
+      - Core architectural rules: concepts/architectural-rules.md
+      - Format and Element contract: concepts/format-contract.md
+      - Definition boundaries: concepts/definition-boundaries.md
       - Development workflow: development/workflow.md
       - C ABI compatibility: development/abi-compatibility.md
       - Where documentation belongs: development/documentation-layout.md
       - Fuzzing: development/fuzzing.md
-      - WebAssembly build: development/webassembly.md
       - Rust bindings: development/rust.md
       - Python bindings: development/python.md
       - Lua bindings: development/lua.md
+      - Go bindings: development/go.md
       - Logo assets: assets/README.md

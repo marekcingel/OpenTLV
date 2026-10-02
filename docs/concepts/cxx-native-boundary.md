@@ -1,49 +1,61 @@
 # C++ public and native boundary
 
-The tlv++ redesign ([#440](https://github.com/marekcingel/OpenTLV/issues/440))
-builds an idiomatic C++ API on the canonical C engine. Generic concepts stay
-public under `tlv`; C representation access and callback adaptation belong in
-`tlv::detail`. Detail headers and symbols are implementation details without
-a source-compatibility guarantee.
+`tlv++` is an idiomatic C++11 API over the canonical C engine. It is
+header-only and links to `tlv`; all wire processing, traversal, Query and
+Document operations delegate to C. The
+[architecture overview](architecture.md#conceptual-model) owns the shared model;
+exact declarations belong in the [C++ reference](../reference/cxx-api.md).
 
-## Namespace direction
+## Public facade
 
-Standards use namespaces such as `tlv::ber`, following the style of protocol
-types in Boost.Asio. The intended Reader spelling is `tlv::ber::reader`,
-backed by the same generic `tlv::reader<tlv::ber::format>` that accepts an
-application Format. The generic templated Reader is implemented by #432; the protocol-specific
-Reader aliases remain planned. A namespace cannot also be the callable
-`tlv::ber(data)` used in early issue sketches.
+| Responsibility | Public C++ API | Contract |
+| --- | --- | --- |
+| Identifier and content | `tag`, `value_view`, `element_view`, `decoded` | Borrowed bytes; Tag is byte identity |
+| Format | `format`, `format_traits<F>`, `format_adapter<F>` | Non-owning execution view or owned immutable configuration adapted to C |
+| Sequential reading | `reader<F>`, `parse<F>`, built-in `parse` | Explicit pulls or ranges over complete borrowed Elements |
+| Nested reading | `tree_reader`, items, events and `visit` | Caller frames, limits, subtree skip and resumable windows |
+| Writing | `writer<F>`, `tree_writer`, `writer_builder`, built-in `encode` | Caller output and explicit scratch; staged constructed parents |
+| Owned data | `document`, `node`, `document_builder` | RAII ownership, checked handles, edits and regenerated encoding |
+| Selection | `query`, `query_matcher`, Document Query | C grammar and matching over borrowed or owned traversal |
+| Typed Values | `field`, Value codecs, typed decode/find/write | Explicit Tag/codec association; separate codec and framing errors |
+| Standards | `ber`, `der`, `cer`, `asn1`, `emv`, `bluetooth`, `lldp`, `dhcp`, `nfc` | Domain conveniences under enabled native components |
 
-The implementation provides `tlv::ber::format`, usable with the generic cursor:
+Generic concepts stay public under `tlv`. `tlv::detail` contains descriptor
+access, callback trampolines and adaptation; it has no source-compatibility
+guarantee and is not an application API. Advanced APIs may still accept C
+descriptions such as Schema rules or native Structure Codec descriptors.
 
-```cpp
-tlv::reader<tlv::ber::format> reader(data);
-auto element = reader.next();
-```
+Built-in framing types work with `tlv::reader<tlv::ber::format>` and
+`tlv::writer<tlv::ber::format>`; `tlv::ber::parse(data)` supplies a range.
+Protocol-specific Reader aliases remain unimplemented; the typed cursor and
+parse helper are the current API. See [Format customization](cxx-formats.md),
+[built-in standards](cxx-builtins.md), [compiled examples](../guides/cxx-examples.md)
+and [typed fields](../guides/codecs.md#c11-typed-fields-and-value-codecs).
 
-`data` is a borrowed `tlv::bytes` view. Keep its storage alive while using the
-reader and returned elements. BER still uses the generic C Reader and Format
-operations. Other built-in Format namespaces are available under their component options;
-iterable readers, typed fields and builders follow in their respective issues. C++11 remains the baseline;
-examples using generic lambdas need a separate C++14-or-newer spelling.
+## Ownership, allocation and errors
 
-## Format execution view
+Semantic views borrow Tag/Value storage; source metadata can also depend on the
+Format descriptor and context. Keep them alive and unchanged while retained
+results are used. Copying a `format` execution view allocates nothing and does
+not extend those lifetimes. Typed cursors own their Format configuration;
+higher-level consumers can share a named `format_adapter`. Views must not
+outlive the cursor/adapter that supplies their descriptor.
 
-`tlv::format` is a small, copyable, non-owning execution view. It exposes
-capability queries and can be passed to Format operations, Reader, Writer,
-Tree Reader/Writer, tree measurement, Query, Schema and Document operations.
-`tlv::fixed_format<...>::view()` supplies a C++ view of its program-lifetime
-descriptor. The existing `format()` accessor remains available during migration.
+Sequential Writer uses caller output. Tree Writer and scoped Builder stage
+constructed content in bounded scratch without implicit growth. Document owns
+copied data and allocates, and C++ handle tracking can allocate. Owning codec
+results, vector conveniences, error strings and application callbacks may also
+allocate. Successful borrowed/fixed-size codec operations retain their C
+allocation behavior.
 
-Copying a view performs no allocation and retains the original descriptor
-identity. There is no implicit conversion to or from `tlv_format_t`.
-Readability and writability describe available callbacks, not input validity;
-the engine still validates operations and reports its original errors.
-
-This view is the execution boundary. The [C++ Format customization contract](cxx-formats.md)
-in #432 adapts user-defined Formats without manually constructing C descriptors.
-Built-ins satisfy the same contract.
+Cursor operations return `expected` with `tlv::error`; a failure message may
+allocate. Format customization uses `format_failure` and scoped construction
+uses `writer_failure`, preserving codes/detail without allocating error strings.
+Typed field failures distinguish invalid handles, Tag mismatch, constructed
+Values, codec errors and Writer errors. Ranges use their documented failure
+channel; explicit pulls give control over resumable statuses.
+`TLV_NEED_MORE_DATA` is a pause and `TLV_ERR_END_OF_BUFFER` is final exhaustion.
+C++11 remains the baseline; generic lambdas require C++14.
 
 ## Explicit interoperability and lifetime
 
@@ -55,78 +67,23 @@ tlv::reader<> reader(data, format);
 const auto& descriptor = tlv::native::descriptor(format);
 ```
 
-`native_descriptor` must be a named, live `tlv_format_t`. Import rejects both
-mutable and const temporary descriptors. Export returns an immutable reference
-to the original descriptor. It does not copy configuration or transfer ownership.
+Import requires a named, live `tlv_format_t`, rejecting mutable and const
+temporaries. Export returns an immutable reference to the original descriptor.
+It neither copies configuration nor transfers ownership. The descriptor,
+context and Format-owned identifier storage must outlive dependent operations
+and retained views, even when the C++ view itself was temporary.
 
-The C++ view may be temporary: cursors and decoded source metadata reference
-the original descriptor, not the view object. The descriptor, its context and
-format-owned identifier storage must remain alive and unchanged for all
-dependent operations and retained views. The compiler cannot prevent a caller
-from destroying a named descriptor too early.
+`document_format` and Document creation copy the descriptor into stable storage;
+the context remains borrowed. Builder-produced Documents retain the source
+Reader's descriptor dependency. Copying a descriptor does not copy its context.
 
-`document_format` copies the descriptor when constructed from a view, just as
-it does for its existing native constructor. Document parsing/creation copies
-that descriptor into stable owned storage; the context remains borrowed.
-Documents produced by `document_builder` retain their existing dependency on
-the source Reader's descriptor. No additional allocation is introduced into
-Reader/Writer success paths; existing error strings may allocate.
+Semantic imports use checked `tlv::native::borrow_element`; the descriptor is
+copied but its bytes stay borrowed. Export is explicit through
+`tlv::native::descriptor`. Existing `c_node()`, `c_document()` and `c_query()`
+accessors are native escape hatches. Native Document mutation bypasses C++
+handle tracking; follow their warnings and prefer public mutation APIs.
 
-The compiled [runtime Fixed example](../../examples/tlv++/src/formats/fixed_format_runtime.cpp)
-demonstrates explicit import with caller-owned configuration and buffers.
-The C/C++ descriptor semantics are described in the
-[Format contract](format-contract.md) and [memory guide](../guides/memory.md).
-
-## Public-header audit and migration order
-
-The initial [#430](https://github.com/marekcingel/OpenTLV/issues/430) boundary
-is additive. Existing native overloads and representations remain transitional
-building blocks; they are not the final idiomatic surface. The new path uses
-`detail::format_access` for descriptors, while Reader, Tree Reader and Query
-buffer visitors use shared `detail` trampolines. Other bridges migrate with
-their owning abstractions rather than moving processing semantics out of C.
-
-| Current public representation | Next migration owner |
-| --- | --- |
-| `tag`, `value_view`, `element_view`, decoded/tree semantic payloads | #431 implemented; `source`/`encoding` aliases migrate with #432 Format operations |
-| Native Format overloads, `fixed_format` byte-order parameter and `format()`, built-in descriptor getters | #432 customization and #438 standard namespaces |
-| `reader_diagnostic`, `input_mode` cursor operations, native visitor return codes, Tree Reader frames/items/events | #433 Reader and iteration |
-| `writer_diagnostic`, `tlv_source_t` preservation, Tree Writer frames/workspace/events and source callbacks | #434 Writer and builders |
-| `document_format.format`, `node::c_node()`, `document::c_document()`, builder options and C deleters/state | #435 Document ownership and traversal |
-| Native structure-codec descriptors, `is_tlv_codec` tag requirements, callback registration and `any` values | #436 typed fields/codecs |
-| `query::c_query()`, native matching diagnostics and visitor adapters | #437 Query integration |
-| Schema rules/diagnostics, diagnostic paths and protocol container/validation options | Follow-up facade migration alongside their owning generic/domain APIs |
-| Examples using native macros, field access and byte conversions | #439 compiled ergonomics examples |
-
-Existing `c_node()`, `c_document()` and `c_query()` accessors already make
-interop explicit, but their final placement will be reviewed during migration.
-`error::code` and `error::from_c()` also remain native-facing until the error
-surface migrates with semantic and cursor APIs. Source compatibility is retained
-in this first step; subsequent changes must state their migration requirements.
-
-New facade code should use public C++ types at call sites and `tlv::detail`
-for implementation bridging. Public interoperability belongs in `tlv::native`,
-not in an implicit conversion. Protocol policy remains in the standard, and
-all wire processing, traversal, validation and Query semantics stay in C.
-
-## Semantic interoperability
-
-[#431](https://github.com/marekcingel/OpenTLV/issues/431) replaces C Tag and Element
-aliases with `tlv::tag`, `tlv::value_view` and `tlv::element_view`. Ordinary code
-uses `element.tag()`, `element.value()` and explicit `as_bytes()` spans. Definition
-entries, Query steps, Document accessors and codec tag requirements also use the
-strong Tag type. Definition registries still borrow their tables and names and
-allocate nothing; registered codec identifiers continue to be copied by the registry.
-
-Native semantic imports are explicit and checked:
-
-```cpp
-auto result = tlv::native::borrow_element(native_element);
-if (!result) return; // Invalid pointer or non-native-addressable Value size.
-auto descriptor = tlv::native::descriptor(*result);
-```
-
-The native descriptor itself is copied; its Tag and Value bytes remain borrowed.
-Unlike a Format descriptor, a temporary semantic descriptor can be imported safely
-when its underlying byte storage remains alive. See [semantic views](core-types.md#c-semantic-views)
-for the borrowed lifetime and absent/empty Tag rules.
+The [runtime Fixed example](../../examples/tlv++/src/formats/fixed_format_runtime.cpp)
+demonstrates native import with caller-owned configuration. See the
+[Format contract](format-contract.md), [semantic views](core-types.md#c-semantic-views)
+and [memory guide](../guides/memory.md) for borrowing and preservation.

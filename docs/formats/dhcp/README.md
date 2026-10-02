@@ -2,7 +2,8 @@
 
 Include `tlv/builtins/dhcp/dhcpv4.h` and select `tlv_format_dhcpv4`.
 C++ callers can include `tlv++/builtins/dhcp/dhcpv4.hpp` and use
-`tlv::dhcpv4_format()` with the existing Reader and Writer wrappers.
+the typed `tlv::dhcp::format` with Reader/Writer or `tlv::dhcp::parse`.
+The compatibility getter `tlv::dhcpv4_format()` remains available.
 The independent CMake option `OPENTLV_DHCP` defaults to `ON`;
 `tlv_config_dhcp()` reports the compiled library's availability.
 
@@ -122,7 +123,8 @@ The format does not require End or validate padding after it.
 
 Values stay opaque. This feature does not validate individual option semantics,
 join RFC 3396 fragments, process option overload, recurse into suboptions,
-or implement DHCPv6 framing. Other language binding presets are not added.
+or implement DHCPv6 framing. Go exposes a DHCPv4 preset; Rust, Python and Lua
+do not. See the [support inventory](../support.md#language-framing-presets).
 
 The implementation configures `tlv_tagged_binary_layout_t` with two tag-only
 identifiers, `00` and `FF`. The generic primitive selects by byte identity and

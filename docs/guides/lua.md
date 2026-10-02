@@ -2,8 +2,10 @@
 
 The `opentlv` module is an experimental Lua binding for OpenTLV. It binds a
 Reader, Writer, Tree Writer, Schema, tag/length/value `Element` tables and preorder tree
-traversal; there is no Document binding yet (see [Lua
-bindings](../development/lua.md)).
+traversal, borrowed Query and an owned mutable Document with checked Nodes.
+Pull/resumable Tree Reader and Document Builder remain unbound; see the
+[binding matrix](../concepts/bindings.md#capability-implementation-matrix) and
+[Lua development guide](../development/lua.md).
 
 ## Setup
 

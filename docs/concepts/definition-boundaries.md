@@ -1,5 +1,8 @@
 # Definition boundary audit (#381)
 
+This page extends the [canonical architecture overview](architecture.md#conceptual-model);
+it specifies or audits these responsibilities without defining another model.
+
 This Phase 1 audit examines the current implementation after the ASN.1 and EMV
 format refactoring. It records architectural evidence, not a new normative
 conformance assessment of the standards.

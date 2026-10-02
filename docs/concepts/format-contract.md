@@ -1,5 +1,8 @@
 # Format and Element contract
 
+This page extends the [canonical architecture overview](architecture.md#conceptual-model);
+it specifies or audits these responsibilities without defining another model.
+
 The format is the only layer that interprets wire mechanics. An element is a
 canonical optional byte identifier and contiguous Value bytes; `value.size`
 is its logical byte count, excluding framing. It has no raw Length member.

@@ -1,5 +1,8 @@
 # Format expansion candidates
 
+The [implemented capability inventory](support.md) records current native,
+CLI and language-preset support; this page records candidates and remaining work.
+
 [Back to documentation](../README.md)
 
 This is a candidate catalogue, not a release schedule. The
@@ -231,9 +234,11 @@ zero-copy value reads. A candidate that cannot meet this is not a fit for the li
 
 - **Mixed-format child traversal:** select child formats and nesting rules explicitly
   using application context; current traversal uses the same format for descendants.
-- **Incremental parsing:** resume across input chunks with clear incomplete-input
-  status, buffer ownership, and resource limits. Zero-copy views require their
-  backing bytes to remain available; fragmented values need an explicit policy.
+- **Resumable input is implemented:** Reader and Tree Reader preserve cursor,
+  limits and source offsets across caller-assembled contiguous windows. The
+  next complete element (including a parent before descent) must be resident;
+  fragmented Values and early-header streaming remain separate future work.
+  See [Reader](../guides/reader.md).
 
 The current tree visitor already handles nested values without a schema, using
 bounded iterative traversal. It does not allocate an object tree. See
@@ -249,7 +254,7 @@ bounded iterative traversal. It does not allocate an object tree. See
    Assess further packed-header reuse through LwM2M before adding a bit-field
    Layout primitive (reordered headers are covered by
    [Bluetooth LTV](bluetooth/README.md)).
-3. Add mixed-format traversal and incremental parsing as separately scoped core work.
+3. Add mixed-format traversal as separately scoped core work; resumable contiguous-window Reader and Tree Reader already exist (see the [Reader guide](../guides/reader.md)).
 4. Expand standard-specific schemas and codecs and ASN.1 canonical validation with explicit standard
    coverage, independently of basic wire-format support.
 

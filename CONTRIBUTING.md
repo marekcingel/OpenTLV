@@ -60,6 +60,12 @@ tags, and how to cut a release, see the
 
 ## Public API documentation
 
+Update the relevant capability/support inventories and executable examples in
+the same change as a public capability. Run `python scripts/check_doc_inventory.py`
+and `python scripts/test_doc_inventory.py`; see the
+[inventory maintenance rules](docs/development/documentation-layout.md#documentation-inventory-checks)
+for sources of truth and the limits of automated checking.
+
 The public headers ([tlv/include/tlv](tlv/include/tlv) and
 [tlv++/include/tlv++](tlv++/include/tlv++)) are the authoritative source for
 API contracts and are written as Doxygen comments, so a generated API

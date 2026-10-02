@@ -1,5 +1,8 @@
 # Writer and scoped construction
 
+See [Choose a processing API](processing.md) for ownership, nesting, resumable
+input, construction and editing choices.
+
 ## Typed C++ writing
 
 Include `<tlv++/writer/builder.hpp>` for generic construction or
@@ -32,10 +35,10 @@ omit one trailing NUL and preserve embedded NULs; strings and string views use
 their explicit lengths. Raw text pointers are not accepted: use a string view
 or a byte span with a known length. No conversion copies or allocates storage.
 
-Numbers and enums require an explicit Value representation. For example, select
-a C number codec with the desired width and byte order, encode it into
-caller-owned storage with `tlv_codec_encode()`, check its codec result, then
-write those bytes. The Writer does not infer a codec from a tag or serialize a
+Numbers and enums require an explicit Value representation. Select a typed
+C++ Value codec or field with the desired width and byte order, encode into
+caller-owned scratch or use the typed Writer overloads below, and check the
+codec result before publishing bytes. The Writer does not infer a codec from a tag or serialize a
 host object's memory. The existing `write_value()` convenience for application
 codecs uses a temporary vector and is outside this allocation-free interface.
 

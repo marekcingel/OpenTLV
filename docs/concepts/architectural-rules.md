@@ -9,6 +9,11 @@ current C API invariants.
 The [roadmap](../../ROADMAP.md) defines three architectural phases: Execution
 Foundation, Runtime Model & OTLV, and Compilation. Phase 3 completes the planned
 foundational architecture; future SemVer major releases do not imply more phases.
+
+The [architecture overview](architecture.md#conceptual-model) is the canonical
+technical model; this page states its constraints. Protocol Inference is a
+planned direction after that foundation, using the same execution and model
+contracts rather than adding an inference-specific parser.
 Rules for `.otlv`, runtime models and generated implementations constrain future
 design; they do not claim that these facilities are already implemented.
 

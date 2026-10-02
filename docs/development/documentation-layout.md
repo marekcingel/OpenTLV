@@ -16,6 +16,16 @@ section by the page's primary purpose, and link to related material elsewhere.
 
 ## Section boundaries
 
+The navigation starts with installation and practical Guides, followed by a
+dedicated Language APIs section covering C++, Rust, Python, Lua, Go and the
+WebAssembly tooling embedding. Architecture and Concepts explain the shared
+model; technical contracts, audits and planned runtime-model design are grouped
+under Development. Source paths need not move when navigation changes.
+The [architecture overview](../concepts/architecture.md) is the canonical model,
+the [binding reference](../concepts/bindings.md) owns cross-language capability
+status, and the [implemented inventory](../formats/support.md) owns native/tool
+availability. Task guides link to these inventories rather than redefine them.
+
 `concepts/` explains a model or design decision; `guides/` shows how to complete
 a task; `reference/` provides exact contracts, syntax, options and limits for
 lookup. A guide should link to the relevant concept or reference instead of
@@ -63,8 +73,8 @@ fragments may stay inline.
 
 ## Language tabs
 
-OpenTLV has a C core, a header-only C++ wrapper, and a growing set of language
-bindings (see the [language bindings conceptual
+OpenTLV provides an idiomatic C++ API and official language bindings over the
+canonical C execution engine (see the [language bindings conceptual
 model](../concepts/bindings.md)). Where two or more expose the same operation,
 show them side by side in content tabs instead of writing separate pages or
 listing languages one after another:
@@ -166,6 +176,39 @@ does not require placeholder pages or new OTLV, binding or tool documentation.
 - Keep reorganizations limited to moves, navigation, link updates and minimal
   introductory text. Compare each moved page with its original to ensure
   technical content and examples are preserved.
+
+## Documentation inventory checks
+
+Run `python scripts/check_doc_inventory.py` and
+`python scripts/test_doc_inventory.py` alongside the existing example check,
+Markdown lint, generated API references and strict MkDocs build. CI runs both
+and watches native configuration, bindings, CLI sources, examples and doc tools.
+
+The inventory check derives these small facts directly from repository sources:
+
+| Source of truth | Checked documentation / configuration |
+| --- | --- |
+| Public config macros and root CMake options | Build-configuration rows in the architecture overview |
+| Public built-in `tlv_format_t` descriptors | Implemented Format inventory |
+| C++ built-in directories | C++ family links in the implemented inventory |
+| CLI registered `names.push_back` identifiers | Inventory CLI column and CLI guide identifiers |
+| Official binding directories | User guide and MkDocs navigation entry (WASM uses its tooling guide) |
+| C/C++/Rust/Python/Lua/Go/WASM example sources | Marked source inventory in the examples guide |
+| Doxygen public roots, recursion and file patterns | Recursive discovery of C and C++ public headers |
+
+Adding or removing a public capability must update the corresponding inventory,
+user guidance and executable examples in the same change. Errors name the fact
+and destination to update; removals also detect stale Format/example entries.
+If source registration syntax changes, update the derivation and negative
+fixtures together. The checker is deliberately a small inventory check, not a
+C/C++ parser or automatic documentation generator.
+
+The binding capability matrix, semantic constraints, allocation/lifetime claims,
+protocol conformance and design rationale still require manual source/test
+review. A passing inventory check does not prove complete parity, execute every
+example, validate all prose or replace link/reference/snippet checks. Add new
+machine-derived checks only when there is a clear source of truth; do not mark
+an FFI declaration as a public capability.
 
 ## Migration for issue #186
 

@@ -1,5 +1,8 @@
 # Pull-based Reader
 
+See [Choose a processing API](processing.md) for ownership, nesting, resumable
+input, construction and editing choices.
+
 `tlv_reader_t` is the canonical allocation-free cursor over caller-owned bytes.
 The caller requests one element at a time and decides how to process or retain
 it. Format alone interprets wire representation. Reader performs no I/O,

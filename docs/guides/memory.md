@@ -11,7 +11,7 @@
 | Writer | Borrows output storage, its format descriptor, and context. The caller provides capacity. |
 | Visitor | Receives a temporary view; a copied view still borrows the input. |
 | Value codecs | Representation-dependent; some results borrow input. Follow the selected codec contract. |
-| `tlv_document_t` (optional) | Owns a copy of everything in it and allocates; nodes and the tags and values read from them borrow from the document. See [mutable documents](document.md#ownership-and-lifetime). |
+| `tlv_document_t` | Canonical owned mutable representation; owns copied Tags, Values and nodes and allocates; nodes and the tags and values read from them borrow from the document. See [mutable documents](document.md#ownership-and-lifetime). |
 
 ## Reading
 
@@ -165,7 +165,9 @@ allocation just to keep a context pointer stable.
 Descriptors and their optional context are borrowed, not owned (see
 [above](#format-context-ownership-and-lifetime)). Avoid returning a reader or
 writer referring to a descriptor or context local to a completed function.
-The C core does not allocate dynamically. C++ convenience types, error strings,
-and dynamic containers may allocate; choose the C API for a strict no-heap path.
+Borrowed C processing does not allocate dynamically; Document owns storage and
+allocates. C++ convenience types, error strings and dynamic containers may also
+allocate. Select operations with explicit caller storage for a strict no-heap
+path; enabling Document does not impose runtime allocations on unused paths.
 
 See also the [C API reference](../reference/c-api.md#core-types-and-utilities) and the [C++ API reference](../reference/cxx-api.md).
