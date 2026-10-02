@@ -3292,9 +3292,10 @@ ergonomics to the target language.</p>
 </code></pre></div>
 <p>C++, Rust and Python expose Readers, Writers and Document facades today.
 Lua (<code>bindings/lua/</code>) currently binds Reader, Writer, Tree Writer, Schema, Value Codec, Element and Tag.
-Go (<code>bindings/go/</code>) currently exposes Format, Element, Reader and Writer
-facades, including incremental input and staged constructed output. Document
-and higher-level processing remain follow-up work. The trailing <code>...</code> stands
+Go (<code>bindings/go/</code>) currently exposes Format, Element, Reader, Writer and Document
+facades, including incremental input, staged constructed output and owned mutable
+trees with explicit cleanup. Query and other higher-level processing remain
+follow-up work. The trailing <code>...</code> stands
 for any further binding.</p>
 <p>The public OpenTLV C API (see the <a href="../../reference/c-api/">C API reference</a>) is
 the single language boundary every binding wraps. A binding calls into the C
@@ -3593,8 +3594,9 @@ coverage still needs verification; it must not be counted as parity.</p>
 </tr>
 </tbody>
 </table>
-<p>Go has an initial module scaffold; its processing APIs and Java remain future
-work, not existing implementations to mark complete.
+<p>Go exposes Format, Element, Reader, Writer and owned mutable Document facades
+(#472–#477). Query, Codec, custom Format callbacks and resumable Document
+Builder integration remain gaps. Java remains future work.
 The current WASM tooling embedding exposes only a parse-to-JSON operation; it
 does not satisfy general binding parity. Its classification is described below.
 Neither an experimental label nor an FFI declaration closes a matrix gap.</p>
@@ -3797,7 +3799,7 @@ explicitly out of scope for #400.</p>
 <td><code>tlv::document</code></td>
 <td><code>Document</code>, <code>Node</code>, <code>NodeMut</code>, <code>DocumentBuilder</code></td>
 <td><code>Document</code>, <code>Node</code>, <code>DocumentBuilder</code></td>
-<td>not bound yet</td>
+<td><code>Document</code>, checked <code>Node</code>; builder remains unbound</td>
 </tr>
 <tr>
 <td>Element</td>
@@ -3934,9 +3936,10 @@ it. For example:</p>
   <a href="../../guides/lua/">using OpenTLV from Lua</a>.</li>
 <li><strong>Go</strong>: experimental module scaffold in <code>bindings/go/</code>, with a public
   <code>opentlv</code> package and a private <code>internal/capi</code> cgo bridge. It currently
-  exposes linked-library version information only; processing capability parity
-  remains future work. See the <a href="https://github.com/marekcingel/OpenTLV/blob/main/bindings/go/README.md">Go binding README</a>
-  for package boundaries, build requirements and a runnable example. (#472)</li>
+  exposes Format, Element, Reader, Writer and owned mutable Document with
+  explicit Close, checked node handles and destination encoding. Complete
+  processing capability parity remains future work. See the
+  <a href="https://github.com/marekcingel/OpenTLV/blob/main/bindings/go/README.md">Go binding README</a> for details. (#472–#477)</li>
 </ul>
 <h2 id="implementation-package-names">Implementation package names<a class="headerlink" href="#implementation-package-names" title="Permanent link">&para;</a></h2>
 <p>The binding boundary is shared; implementation names follow each language.
