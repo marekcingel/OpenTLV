@@ -9,6 +9,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Fixed
 
+- Fix Clang builds with warnings treated as errors by fully initializing Fixed format configurations in generator tests. (#503)
 - Preserve tabs in Markdown code blocks during pre-commit formatting so the documented Go quick start matches its source and passes documentation checks. (#480)
 - Preserve tabs in Markdown code blocks during pre-commit formatting and synchronize the documented Go quick start with its source so documentation checks pass. (#480)
 - Preserve custom Fixed tag widths, length widths and byte order when CLI JSON encoding validates its output; keep format-independent CLI checks executable with BER disabled. (#439)
@@ -115,6 +116,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Added
 
+- Add allocation-free deterministic valid wire generation to the native C API and C++ facade, with reproducible seed/case indices, bounded nesting and sizes, boundary sampling, and Writer-based byte-exact reconstruction checks. (#503)
 - Check documentation inventories against native components, Format descriptors, C++ built-ins, CLI formats, language guides, examples and API-reference inputs in documentation CI. (#501)
 - Add race-enabled Go binding CI checks, concurrent public API and malformed-input regression tests, and enforce public API usage in examples. (#480)
 - Expose Document path queries and typed generic Value codecs through the Go binding, preserving native query errors, codec statuses and owned results. (#479)

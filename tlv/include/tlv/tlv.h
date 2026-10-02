@@ -23,6 +23,7 @@
 #include "tlv/diagnostic.h"
 #include "tlv/endian.h"
 #include "tlv/format.h"
+#include "tlv/generator.h"
 #include "tlv/layout.h"
 
 #include "tlv/reader/reader.h"

@@ -10,7 +10,7 @@ set(SOURCES
 )
 
 if(test_group STREQUAL "unit")
-    list(APPEND SOURCES test_native_boundary.cpp test_semantic_views.cpp codec/test_typed_fields.cpp)
+    list(APPEND SOURCES generator_test.cpp test_native_boundary.cpp test_semantic_views.cpp codec/test_typed_fields.cpp)
     list(APPEND SOURCES test_diagnostic.cpp builtins/test_convenience.cpp)
     add_executable(test-builtin-convenience-smoke builtins/convenience_smoke.cpp)
     target_link_libraries(test-builtin-convenience-smoke PRIVATE tlv++)

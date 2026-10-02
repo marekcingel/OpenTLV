@@ -16,6 +16,7 @@ add_library(${PROJECT_NAME} ${_tlv_library_type}
     src/codec/text.c
     src/codec/ipv4.c
     src/codec/structure.c
+    src/generator.c
     src/format.c
     src/layout.c
     src/formats/fixed.c

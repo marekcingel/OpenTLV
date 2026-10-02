@@ -17,6 +17,12 @@ describes C++11 field definitions, codec customization, typed lookup and writing
 The [built-in standards guide](../concepts/cxx-builtins.md) covers domain namespaces,
 framing conveniences, shared ASN.1 codecs and standard-specific typed fields.
 
+The `<tlv++/generator.hpp>` facade exposes `tlv::generate()`,
+`generator_workspace_size()` and `make_generator_candidate()` using borrowed
+Formats and caller-owned byte spans. See the
+[deterministic wire generation contract](c-api.md#deterministic-wire-generation)
+for limits, reproducibility, workspace and candidate-domain rules.
+
 - [Namespace `tlv`](api/cxx-api/html/namespacetlv.html)
 - [Class index](api/cxx-api/html/classes.html) and
   [class list](api/cxx-api/html/annotated.html)
