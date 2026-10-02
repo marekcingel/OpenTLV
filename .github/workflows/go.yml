@@ -56,3 +56,6 @@ jobs:
           go run ./examples/version
           go run ./examples/reader
           go run ./examples/writer
+          if [ "${{ matrix.components }}" = default ]; then
+            go run ./examples/document
+          fi

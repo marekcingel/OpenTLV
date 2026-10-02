@@ -33,9 +33,10 @@ idiomatic  idiomatic  idiomatic  idiomatic  idiomatic  idiomatic
 
 C++, Rust and Python expose Readers, Writers and Document facades today.
 Lua (`bindings/lua/`) currently binds Reader, Writer, Tree Writer, Schema, Value Codec, Element and Tag.
-Go (`bindings/go/`) currently exposes Format, Element, Reader and Writer
-facades, including incremental input and staged constructed output. Document
-and higher-level processing remain follow-up work. The trailing `...` stands
+Go (`bindings/go/`) currently exposes Format, Element, Reader, Writer and Document
+facades, including incremental input, staged constructed output and owned mutable
+trees with explicit cleanup. Query and other higher-level processing remain
+follow-up work. The trailing `...` stands
 for any further binding.
 
 The public OpenTLV C API (see the [C API reference](../reference/c-api.md)) is
@@ -174,8 +175,9 @@ coverage still needs verification; it must not be counted as parity.
 | Format field-layout configuration: public `tlv/layout.h` operations (remaining extensions out of scope for #400) | Audit | Audit | Audit | Audit |
 | Document: public `tlv/document/document.h` operations and node lifetimes | Audit | Partial: owning `Document`, borrowed `Node`/`NodeMut`, builder; allocator adaptation out of scope for #400 | Partial: safe invalidation, builder, builtin destination formats; allocator and remaining destination configuration out of scope for #400 | Missing |
 
-Go has an initial module scaffold; its processing APIs and Java remain future
-work, not existing implementations to mark complete.
+Go exposes Format, Element, Reader, Writer and owned mutable Document facades
+(#472–#477). Query, Codec, custom Format callbacks and resumable Document
+Builder integration remain gaps. Java remains future work.
 The current WASM tooling embedding exposes only a parse-to-JSON operation; it
 does not satisfy general binding parity. Its classification is described below.
 Neither an experimental label nor an FFI declaration closes a matrix gap.
@@ -375,7 +377,7 @@ explicitly out of scope for #400.
 | --- | --- | --- | --- | --- | --- | --- |
 | Reader | Read-only parsing and traversal | `tlv_reader_t`, `tlv_reader_next()` | `tlv::reader<>` | `Reader<'a>` | `Reader` | `opentlv.reader()` |
 | Writer | Construction and serialization | `tlv_writer_t` | `tlv::writer<>` | `Writer<'a>` | `Writer` | `opentlv.writer()` |
-| Document | Optional owning, mutable representation | `tlv_document_t` | `tlv::document` | `Document`, `Node`, `NodeMut`, `DocumentBuilder` | `Document`, `Node`, `DocumentBuilder` | not bound yet |
+| Document | Optional owning, mutable representation | `tlv_document_t` | `tlv::document` | `Document`, `Node`, `NodeMut`, `DocumentBuilder` | `Document`, `Node`, `DocumentBuilder` | `Document`, checked `Node`; builder remains unbound |
 | Element | One TLV element with borrowed wire fields | `tlv_element_t` | `tlv::element_view` | `Element<'a>` | `Element` | a plain table (`tag`/`raw_length`/`length`/`value`/`offset` fields) |
 | Tag | The TLV tag abstraction: raw identifying bytes | `tlv_tag_t` | `tlv::tag` | `Tag` | `Tag` | a raw Lua string (content equality already compares it) |
 | Schema | Structural validation: tags, lengths, occurrence and nesting rules | `tlv_schema_t`, `tlv_structure_schema_t` | same C types, wrapped by `tlv::validate`/`tlv::validate_all_diag` | `LengthSchema`, `StructureSchema` | `LengthSchema`, `StructureSchema` | `schema` / `Schema:validate` (structural reports) |
@@ -473,9 +475,10 @@ The syntax changes; the concepts (a read-only, one-pass `Reader` yielding
   [using OpenTLV from Lua](../guides/lua.md).
 - **Go**: experimental module scaffold in `bindings/go/`, with a public
   `opentlv` package and a private `internal/capi` cgo bridge. It currently
-  exposes linked-library version information only; processing capability parity
-  remains future work. See the [Go binding README](../../bindings/go/README.md)
-  for package boundaries, build requirements and a runnable example. (#472)
+  exposes Format, Element, Reader, Writer and owned mutable Document with
+  explicit Close, checked node handles and destination encoding. Complete
+  processing capability parity remains future work. See the
+  [Go binding README](../../bindings/go/README.md) for details. (#472–#477)
 
 ## Implementation package names
 
