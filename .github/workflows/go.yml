@@ -22,6 +22,9 @@ concurrency:
 jobs:
   test:
     runs-on: ubuntu-latest
+    strategy:
+      matrix:
+        components: [default, minimal]
     steps:
       - uses: actions/checkout@v5
       - uses: actions/setup-go@v5
@@ -33,6 +36,11 @@ jobs:
           cmake -S . -B build/go -DOPENTLV_BUILD_SHARED_LIBS=OFF \
             -DOPENTLV_BUILD_TESTS=OFF -DOPENTLV_BUILD_EXAMPLES=OFF \
             -DOPENTLV_BUILD_CXX=OFF -DOPENTLV_BUILD_CLI=OFF
+          if [ "${{ matrix.components }}" = minimal ]; then
+            cmake -S . -B build/go -DOPENTLV_FORMAT_ASN1=OFF \
+              -DOPENTLV_BLUETOOTH=OFF -DOPENTLV_LLDP=OFF \
+              -DOPENTLV_DHCP=OFF -DOPENTLV_NFC=OFF -DOPENTLV_DOCUMENT=OFF
+          fi
           cmake --build build/go --target tlv --parallel 2
       - name: Check, test and run example
         working-directory: bindings/go
@@ -43,5 +51,6 @@ jobs:
         run: |
           test -z "$(gofmt -l .)"
           go test -v ./...
+          GOEXPERIMENT=cgocheck2 go test ./...
           go vet ./...
           go run ./examples/version

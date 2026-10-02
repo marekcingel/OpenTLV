@@ -1,6 +1,7 @@
 # Go binding (experimental)
 
-This module establishes the Go binding architecture (#472). It exposes
+This module establishes the Go binding architecture (#472) and internal native
+bridge (#473). It exposes
 `opentlv.Version()` to verify the connection to the canonical C library.
 Reader, Writer, Format, Element, Document and error APIs are future work.
 
@@ -12,16 +13,47 @@ Run Go commands from this directory, which contains its own `go.mod`.
 
 - The root `opentlv` package owns the public, idiomatic Go API.
 - `internal/capi` exclusively owns cgo imports, C types, native calls and any
-  future unsafe pointer conversions. Its Go-facing signatures use Go types.
+  unsafe pointer conversions. Its Go-facing signatures use Go types.
 - `tests/` exercises the public package as a consumer and guards the native
   import boundary.
 - `examples/` contains runnable consumer programs.
 
-Future APIs delegate processing to the C engine. They must document ownership,
-borrowed input lifetimes and native resource cleanup before exposing resources.
-Do not retain Go pointers in C storage without a design satisfying cgo's pointer
-rules. The current version operation copies a static C string into Go memory
-and retains no pointers or resources.
+The internal bridge validates Fixed configuration and selects available native
+presets (BER, indefinite BER, DER, CER, EMV, LLDP, Bluetooth LTV, DHCPv4 and NFC
+Type 2). It delegates single-element reads, incremental-input status, encoded
+size calculation and writes to the canonical C Reader/Writer. Native source
+ranges and reader/writer diagnostics are projected into Go values. Disabled
+presets return an unsupported status; the bridge contains no wire parser.
+
+### Ownership and lifetime
+
+- Byte slices are borrowed only during a synchronous cgo call. C never retains
+  Go pointers across calls. `runtime.KeepAlive` covers conversion of native
+  results after the call. Nil and empty slices are supported without indexing
+  their first byte; a non-nil empty slice remains distinct where relevant.
+- Each call builds its descriptor, Fixed context and Reader on the C stack.
+  Format configuration is immutable and reusable concurrently. These operations
+  allocate no persistent native resources and require no `Close` or finalizer.
+- Parsed Values, source bytes and source-bound Tags borrow the original Go
+  slice, without copying. Returned slices keep its backing array alive. The
+  caller must keep those bytes unchanged while results are in use and avoid
+  concurrent mutation during calls. Format-supplied Tags (such as LLDP's
+  transformed identifier) are copied into Go memory, so no native pointer escapes.
+- Diagnostic Tag/raw Length bytes and native text are copied into Go storage.
+  Optional diagnostic fields retain their presence flags. The bridge preserves
+  C status codes, including end of input and `NEED_MORE_DATA`; public Go errors
+  belong to the later error API story.
+- Writes borrow caller-provided output storage. Overlap with Tag or Value is
+  rejected before entering C. Insufficient capacity reports the required size;
+  other encoder failures retain the C buffer-modification contract.
+- Source ranges remain relative to the returned element start. No temporary
+  native Format pointer is retained in Source. A future Reader facade can retain
+  its slice and position in Go and pass each unconsumed window to the bridge.
+
+Public Format/Element, Reader, Writer, Document, Query, Codec and error APIs
+remain separate follow-up stories (#474–#479). Bridge operations for owned
+Document resources and higher-level capabilities will be added with those
+stories, including explicit cleanup for any persistent native allocations.
 
 ## Build and run
 
@@ -41,6 +73,7 @@ export CGO_CPPFLAGS="-I$(pwd)/tlv/include -I$(pwd)/build/go/generated/include -D
 export CGO_LDFLAGS="-L$(pwd)/build/go/tlv"
 cd bindings/go
 go test ./...
+GOEXPERIMENT=cgocheck2 go test ./...
 go vet ./...
 go run ./examples/version
 ```
@@ -77,8 +110,10 @@ before rebuilding: Go does not track changes to all external native inputs.
 See the [official cgo documentation](https://pkg.go.dev/cmd/cgo) for compiler,
 flag and pointer rules.
 
-The Go Bindings workflow runs formatting, tests, vet and the version example on
-Linux with a static C library. The module introduces no third-party Go dependencies.
+The Go Bindings workflow runs formatting, tests (including `cgocheck2`), vet and
+the version example on Linux with static C libraries, both with default features
+and with optional presets and Document disabled. The module introduces no
+third-party Go dependencies.
 
 ## Future extraction
 

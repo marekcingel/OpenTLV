@@ -3,6 +3,9 @@
 
 // Package capi contains the private cgo bridge to OpenTLV.
 // Its boundary uses Go values so C types cannot escape to the public facade.
+// Calls borrow Go byte storage synchronously and retain no Go pointers in C.
+// Read results retain Go slices; native diagnostic bytes and format-owned Tags
+// are copied before returning. See bridge.go and the binding README for lifetimes.
 package capi
 
 /*

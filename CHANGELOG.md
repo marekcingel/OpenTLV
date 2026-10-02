@@ -111,6 +111,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Added
 
+- Add the internal Go bridge for native format selection, borrowed element reads, encoded sizing and caller-buffer writes, preserving source metadata and diagnostics without retaining Go pointers in C. (#473)
 - Establish the experimental Go binding module with a public Go package, an internal cgo bridge, linked-library version access, a smoke test, a runnable example and build documentation. (#472)
 - Add consistent MIT SPDX license headers to project sources and enforce the shared source-file policy through pre-commit and CI. (#469)
 - Complete C++ standard namespaces with encoding conveniences, a BER indefinite Format preset, shared ASN.1 Value codecs, Bluetooth/LLDP/DHCP codecs and typed fields, and codecs/fields for every codec-bearing EMV dictionary entry; all use the generic C++ contracts and canonical C engine. (#438)
