@@ -46,8 +46,9 @@ It still wraps only the public C API. See [relationship to the C
 API](../guides/rust.md#relationship-to-the-c-api) for how the Rust crate holds
 to this in practice.
 
-Deterministic wire generation (#503) is currently available in native C and
-the C++ facade only. Rust, Python, Lua, Go and WASM do not expose this capability;
+Deterministic wire generation (#503, #504) is currently available in native C and
+the C++ facade only, including a C++ generator with owned results and reusable
+scratch storage. Rust, Python, Lua, Go and WASM do not expose this capability;
 those facades are outside the first generator iteration.
 
 ## Capability parity through the public facade

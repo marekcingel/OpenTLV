@@ -4,6 +4,7 @@
 #define OPENTLV_TLVPP_GENERATOR_HPP
 #include "tlv/generator.h"
 #include "tlv++/format.hpp"
+#include <vector>
 /** @file
  * @brief C++ facade for the canonical deterministic wire generator.
  */
@@ -48,5 +49,59 @@ inline expected<size_t, error> generate(tlv::format format, const generator_opti
     if (rc != TLV_OK) return unexpected<error>(error::from_c(rc));
     return size;
 }
+/**
+ * @brief Reusable C++ generator with owned scratch storage and owned case results.
+ *
+ * All validation and generation delegate to the native C generator. Configuration
+ * is copied; Format descriptor/context, candidate table and identifier bytes are
+ * borrowed and must remain alive and unchanged for the generator's lifetime.
+ * Use value initialization (`generator_options options{}`) before setting limits
+ * and candidates. The configured case_index is ignored by generate(case_index).
+ * Scratch storage is allocated lazily and reused. Separate results own their bytes
+ * and remain valid after subsequent calls or destruction of the generator.
+ * Concurrent calls on the same instance require external synchronization.
+ */
+class generator {
+public:
+    /**
+     * @brief Copy configuration and borrow a readable, writable Format.
+     * @param[in] format Immutable borrowed Format; use native::borrow_format() for C descriptors.
+     * @param[in] options Limits, seed and borrowed candidate domain, validated on generation.
+     * @note Construction performs no allocation or generation.
+     */
+    generator(tlv::format format, const generator_options& options)
+        : format_(format), options_(options) {}
+
+    /**
+     * @brief Generate an independently reproducible case into owned bytes.
+     * @param[in] case_index Random-access case index; zero is valid.
+     * @return Complete wire bytes, or the canonical C validation/generation error.
+     * @throws std::bad_alloc If C++ storage allocation fails.
+     * @throws std::length_error If required storage exceeds vector's maximum size.
+     * @note Call order does not affect output. Failed calls expose no partial result
+     * and do not invalidate previous results. C++ ownership may allocate; the native
+     * generator remains allocation-free. No Schema or Codec validity is inferred.
+     */
+    TLV_NODISCARD expected<std::vector<byte>, error> generate(uint64_t case_index) {
+        auto options = options_;
+        options.case_index = case_index;
+        if (!format_.readable() || !format_.writable())
+            return unexpected<error>(error::from_c(TLV_ERR_NULL_ARG));
+        auto required = generator_workspace_size(options);
+        if (!required) return unexpected<error>(required.error());
+        workspace_.resize(*required);
+        std::vector<byte> output(options.max_case_size);
+        auto result = tlv::generate(format_, options, span<byte>{output.data(), output.size()},
+                                    span<byte>{workspace_.data(), workspace_.size()});
+        if (!result) return unexpected<error>(result.error());
+        output.resize(*result);
+        return output;
+    }
+
+private:
+    tlv::format       format_;
+    generator_options options_;
+    std::vector<byte> workspace_;
+};
 } // namespace tlv
 #endif
