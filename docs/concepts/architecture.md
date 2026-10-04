@@ -91,12 +91,13 @@ boundary between semantic content, source layout and wire preservation.
 ## Planned runtime and compiled models
 
 The [roadmap](../../ROADMAP.md) separates Execution Foundation (Phase 1),
-Runtime Model & OTLV (Phase 2), and Compilation (Phase 3). The latter two are
+Runtime Model & OTLV (Phase 2), Protocol Inference (Phase 3), and Compilation
+(Phase 4). The latter three are
 planned capabilities built on the current execution contracts.
 
 Implemented facilities are the native C execution contracts and their
-language/tool facades. The OTLV frontend, immutable runtime model, compilation
-and subsequent Protocol Inference are planned directions, not currently
+language/tool facades. The OTLV frontend, immutable runtime model, Protocol Inference
+and compilation are planned directions, not currently
 available parsing modes. Document remains owned message data; the runtime
 model supplies reusable interpretation/configuration.
 
@@ -115,7 +116,14 @@ The [Phase 2 runtime model and canonical IR](runtime-model.md) defines the
 frontend, semantic representation, model lifetime, lowering and execution
 boundaries, including the shared IR requirement for future code generation.
 
-Phase 3 consumes the same frontend and IR through an optimizer/code generator.
+Phase 3 discovers candidate models from unknown observations, preserving
+alternatives and supporting or contradicting evidence in construction state.
+It validates candidates before publishing the same immutable executable model
+and exports editable `.otlv`. It reuses Reader, the canonical model and Phase 2
+tooling; observed structural facts remain distinct from analyst-added semantics.
+This phase stress-tests the model and IR before compilation depends on them.
+
+Phase 4 consumes the same frontend and IR through an optimizer/code generator.
 Runtime and compiled backends preserve equivalent OTLV semantics. It completes
 the planned foundational architecture; subsequent SemVer major versions do not
 introduce additional architectural phases by implication.

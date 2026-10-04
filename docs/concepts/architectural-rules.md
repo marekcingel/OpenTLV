@@ -6,14 +6,18 @@ The [architecture overview](architecture.md) maps these concepts to the current
 repository; the [Format and Element contract](format-contract.md) specifies the
 current C API invariants.
 
-The [roadmap](../../ROADMAP.md) defines three architectural phases: Execution
-Foundation, Runtime Model & OTLV, and Compilation. Phase 3 completes the planned
+The [roadmap](../../ROADMAP.md) defines four architectural phases: Execution
+Foundation, Runtime Model & OTLV, Protocol Inference, and Compilation. Phase 4
+completes the planned
 foundational architecture; future SemVer major releases do not imply more phases.
 
 The [architecture overview](architecture.md#conceptual-model) is the canonical
-technical model; this page states its constraints. Protocol Inference is a
-planned direction after that foundation, using the same execution and model
-contracts rather than adding an inference-specific parser.
+technical model; this page states its constraints. Protocol Inference is planned
+Phase 3, consuming and validating the Phase 2
+semantic model before Phase 4 Compilation. It reuses the same Reader, execution
+contracts and canonical model rather than adding an inference-specific parser.
+Incomplete candidates, alternatives and evidence belong to construction and
+analysis; they must not weaken the immutable executable model contract.
 Rules for `.otlv`, runtime models and generated implementations constrain future
 design; they do not claim that these facilities are already implemented.
 
@@ -290,7 +294,7 @@ optimized native BER Format
 
 must still behave as the same conceptual Format.
 
-Phase 3 reuses the same OTLV frontend and canonical IR for optimization and
+Phase 4 reuses the same OTLV frontend and canonical IR for optimization and
 code generation. Runtime lowering and compiled implementations must preserve
 equivalent OTLV semantics. Optimization must not create a second OpenTLV API.
 

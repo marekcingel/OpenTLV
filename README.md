@@ -87,8 +87,11 @@ consumer targets, runtime libraries and binding-specific setup.
 
 The native execution APIs and tools are implemented; their precise scope is in
 [the capability inventory](docs/formats/support.md) and
-[binding status](docs/concepts/bindings.md). Runtime OTLV models, compilation and
-Protocol Inference are planned directions described in [the roadmap](ROADMAP.md).
+[binding status](docs/concepts/bindings.md). The [roadmap](ROADMAP.md) defines
+four architectural phases: Execution
+Foundation, Runtime Model & OTLV, Protocol Inference, and Compilation. The latter
+three are planned capabilities built on the same execution contracts; phase
+numbers are independent of SemVer major versions.
 See [releases](https://github.com/marekcingel/OpenTLV/releases) and
 [the changelog](CHANGELOG.md) for version history.
 

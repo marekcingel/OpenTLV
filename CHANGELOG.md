@@ -51,6 +51,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Changed
 
+- Promote Protocol Inference to architectural Phase 3 and move Compilation to Phase 4; clarify shared model construction, OTLV tooling scope and independent SemVer versioning. (#516)
 - Reorganize documentation entry points around a progressive learning path, with a compact README, first CLI task and shared basic model. (#513)
 - Align project overviews, architecture, binding capabilities, format support and navigation with current APIs; add Go guides, processing and executable-example inventories, and document planned Protocol Inference. (#490, #491, #492, #493, #494, #495, #496, #497, #498, #499, #500 #501)
 - Align multi-language documentation examples and quick starts around equivalent public API operations; showcase each binding's current ergonomic conveniences while writing and reading `Hello, world!` with the same Fixed format, including Go and Lua.

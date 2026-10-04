@@ -3,8 +3,8 @@
 This page defines the intended Phase 2 architecture for issue #420. It guides
 Phase 1 design; it does not introduce an implemented runtime, OTLV syntax or
 public model API. The [roadmap](../../ROADMAP.md) places Runtime Model & OTLV
-after the Execution Foundation and before Compilation. The
-[core architectural rules](architectural-rules.md) apply to all three phases.
+after the Execution Foundation and before Protocol Inference and Compilation. The
+[core architectural rules](architectural-rules.md) apply to all four phases.
 
 The [canonical architecture overview](architecture.md#conceptual-model)
 defines responsibilities shared by native, runtime and compiled implementations.
@@ -13,7 +13,7 @@ runtime model owns reusable interpretation/configuration.
 
 ## Future model construction and inference
 
-The [Protocol Inference direction](../../ROADMAP.md#protocol-inference-after-the-foundation)
+The [Phase 3 Protocol Inference](../../ROADMAP.md#phase-3-protocol-inference)
 should construct the same semantic model from incremental observations that
 OTLV or programmatic APIs can describe. Candidate/incomplete descriptions and
 supporting/contradicting evidence belong to construction and analysis; an
@@ -21,7 +21,16 @@ immutable execution model must still pass validation before publication.
 Analyst names/codecs/semantics remain distinct from observed wire facts.
 Inference reuses normal Reader contracts, preserves alternatives and exports
 editable `.otlv`; optional AI stays downstream of deterministic evidence.
-No inference API or algorithm is finalized or implemented.
+Phase 2 constructs a known description into a model; Phase 3 derives candidate
+models from observations and validates them. Inference is a consumer and
+validator of Phase 2, not part of its runtime architecture. The model is
+independent of the OTLV frontend. No inference API or algorithm is finalized
+or implemented.
+
+CLI integration, diagnostics, editor support, syntax highlighting, completion,
+navigation, formatting, VS Code integration and language-aware tooling such as
+an LSP belong conceptually to Phase 2. Not every developer tool needs to block
+completion of the runtime architecture.
 
 ## From source to execution
 
@@ -199,7 +208,7 @@ and Value semantics and the same execution contracts. Runtime callback state
 must not be the only place where meaning is recorded: that would force code
 generation to reconstruct semantics from an execution implementation.
 
-This is a Phase 1 design requirement and a Phase 3 backend direction, not a
+This is a Phase 1 design requirement and a Phase 4 backend direction, not a
 request to implement compilation during Phase 1 or Phase 2. An alternative
 frontend should not require a different runtime or compilation architecture.
 
