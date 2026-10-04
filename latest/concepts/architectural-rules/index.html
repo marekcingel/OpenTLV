@@ -3945,13 +3945,17 @@ shared conceptual model and dependency boundaries for current and future work.
 The <a href="../architecture/">architecture overview</a> maps these concepts to the current
 repository; the <a href="../format-contract/">Format and Element contract</a> specifies the
 current C API invariants.</p>
-<p>The <a href="https://github.com/marekcingel/OpenTLV/blob/main/ROADMAP.md">roadmap</a> defines three architectural phases: Execution
-Foundation, Runtime Model &amp; OTLV, and Compilation. Phase 3 completes the planned
+<p>The <a href="https://github.com/marekcingel/OpenTLV/blob/main/ROADMAP.md">roadmap</a> defines four architectural phases: Execution
+Foundation, Runtime Model &amp; OTLV, Protocol Inference, and Compilation. Phase 4
+completes the planned
 foundational architecture; future SemVer major releases do not imply more phases.</p>
 <p>The <a href="../architecture/#conceptual-model">architecture overview</a> is the canonical
-technical model; this page states its constraints. Protocol Inference is a
-planned direction after that foundation, using the same execution and model
-contracts rather than adding an inference-specific parser.
+technical model; this page states its constraints. Protocol Inference is planned
+Phase 3, consuming and validating the Phase 2
+semantic model before Phase 4 Compilation. It reuses the same Reader, execution
+contracts and canonical model rather than adding an inference-specific parser.
+Incomplete candidates, alternatives and evidence belong to construction and
+analysis; they must not weaken the immutable executable model contract.
 Rules for <code>.otlv</code>, runtime models and generated implementations constrain future
 design; they do not claim that these facilities are already implemented.</p>
 <h2 id="1-generic-core-first">1. Generic core first<a class="headerlink" href="#1-generic-core-first" title="Permanent link">&para;</a></h2>
@@ -4155,7 +4159,7 @@ and the distinction between semantic IR and execution descriptors.</p>
 <a id="__codelineno-7-3" name="__codelineno-7-3" href="#__codelineno-7-3"></a>optimized native BER Format
 </code></pre></div>
 <p>must still behave as the same conceptual Format.</p>
-<p>Phase 3 reuses the same OTLV frontend and canonical IR for optimization and
+<p>Phase 4 reuses the same OTLV frontend and canonical IR for optimization and
 code generation. Runtime lowering and compiled implementations must preserve
 equivalent OTLV semantics. Optimization must not create a second OpenTLV API.</p>
 <hr />
