@@ -111,6 +111,7 @@ void query_s0_stream(benchmark::State& state) {
     }
     std::vector<uint64_t>    scratch((scratch_size + 7) / 8);
     tlv_query_program_info_t info{};
+    info.struct_size = sizeof info;
     if (tlv_query_compile(text, std::strlen(text), nullptr, scratch.data(), scratch_size, nullptr,
                           0, &info, nullptr) != TLV_OK) {
         state.SkipWithError("Query sizing failed");

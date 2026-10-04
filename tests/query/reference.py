@@ -19,7 +19,7 @@ def parse(text):
         tokens.append(match.group(1))
         pos = match.end()
     index = 0
-    precedence = {"|": 1, "intersect": 1, "except": 1, "or": 2, "and": 3, "=": 4, "!=": 4, "<": 4,
+    precedence = {"|": 1, "intersect": 5, "except": 5, "or": 2, "and": 3, "=": 4, "!=": 4, "<": 4,
                   "<=": 4, ">": 4, ">=": 4, "/": 6, "//": 6}
 
     def expression(minimum=0):

@@ -71,14 +71,35 @@ typedef struct query_token {
 typedef struct query_node {
     uint32_t op, left, right, begin, end, axis, anchor, scalar, type;
     uint32_t low, predicate_guard, path_guard, path_kind;
+    uint32_t variable_slot;
 } query_node_t;
 typedef struct query_operator {
     uint32_t kind, token, base, function;
 } query_operator_t;
 struct tlv_query_program {
     uint32_t magic, version, count, root, text_size, text_offset, level, reserved;
+    uint32_t variable_count;
 };
 enum query_value_kind { V_NODE, V_BOOL, V_NUMBER, V_BYTES, V_STRING };
+static inline unsigned query_private_type(tlv_query_result_kind_t type) {
+    switch (type) {
+        case TLV_QUERY_RESULT_NODES: return V_NODE;
+        case TLV_QUERY_RESULT_BOOL: return V_BOOL;
+        case TLV_QUERY_RESULT_INTEGER: return V_NUMBER;
+        case TLV_QUERY_RESULT_BYTES: return V_BYTES;
+        case TLV_QUERY_RESULT_STRING: return V_STRING;
+        default: return UINT32_MAX;
+    }
+}
+static inline tlv_query_result_kind_t query_public_type(unsigned type) {
+    switch (type) {
+        case V_BOOL: return TLV_QUERY_RESULT_BOOL;
+        case V_NUMBER: return TLV_QUERY_RESULT_INTEGER;
+        case V_BYTES: return TLV_QUERY_RESULT_BYTES;
+        case V_STRING: return TLV_QUERY_RESULT_STRING;
+        default: return TLV_QUERY_RESULT_NODES;
+    }
+}
 typedef struct query_value {
     uint64_t number;
     const uint8_t* data;
@@ -107,7 +128,7 @@ static inline const char* query_text(const tlv_query_program_t* p) {
    Storage must remain unchanged after execution initialization. */
 static inline int query_program_valid(const tlv_query_program_t* p) {
     if ((uintptr_t)p % sizeof(uint32_t)) return 0;
-    if (p->magic != QUERY_MAGIC || p->version != 1 || !p->count || p->root >= p->count ||
+    if (p->magic != QUERY_MAGIC || p->version != 2 || !p->count || p->root >= p->count ||
         p->level > TLV_QUERY_D || !p->text_size)
         return 0;
     if (p->count > (UINT32_MAX - sizeof *p) / sizeof(query_node_t)) return 0;
@@ -116,6 +137,7 @@ static inline int query_program_valid(const tlv_query_program_t* p) {
         p->reserved != offset + p->text_size + 1)
         return 0;
     const query_node_t* nodes = query_nodes(p);
+    uint32_t variables = 0;
     for (size_t i = 0; i < p->count; ++i) {
         const query_node_t* n = &nodes[i];
         if (n->op > Q_ARGS || n->axis > A_OTHER || n->anchor > 2 || n->scalar > 1 ||
@@ -134,8 +156,29 @@ static inline int query_program_valid(const tlv_query_program_t* p) {
             return 0;
         if (n->op == Q_CALL && n->right != QUERY_NONE) return 0;
         if (n->op == Q_BYTES && (n->end - n->begin < 3 || (n->end - n->begin - 3) % 2)) return 0;
+        if (n->op == Q_VARIABLE) {
+            if ((n->type != V_NUMBER && n->type != V_BYTES && n->type != V_STRING) ||
+                n->variable_slot > variables || n->end - n->begin < 2)
+                return 0;
+            if (n->variable_slot == variables)
+                ++variables;
+            else {
+                const query_node_t* first = NULL;
+                for (size_t j = 0; j < i; ++j)
+                    if (nodes[j].op == Q_VARIABLE && nodes[j].variable_slot == n->variable_slot) {
+                        first = &nodes[j];
+                        break;
+                    }
+                if (!first || first->type != n->type ||
+                    first->end - first->begin != n->end - n->begin ||
+                    memcmp(query_text(p) + first->begin, query_text(p) + n->begin,
+                           n->end - n->begin))
+                    return 0;
+            }
+        }
     }
-    return nodes[p->root].type == V_NODE && query_text(p)[p->text_size] == 0;
+    return variables == p->variable_count && nodes[p->root].type == V_NODE &&
+           query_text(p)[p->text_size] == 0;
 }
 static inline void query_diag_init(tlv_query_diagnostic_t* d) {
     if (d) memset(d, 0, sizeof *d);

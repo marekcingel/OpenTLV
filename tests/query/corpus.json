@@ -9,6 +9,20 @@
   },
   "cases": [
     {
+      "id": "set-precedence",
+      "rules": ["Q-GRAMMAR-02", "Q-NODE-03"],
+      "query": "//5A | //5A except //5A",
+      "wire": "5A00",
+      "matches": [0]
+    },
+    {
+      "id": "explicit-set-grouping",
+      "rules": ["Q-GRAMMAR-02", "Q-NODE-03"],
+      "query": "(//5A | //5A) except //5A",
+      "wire": "5A00",
+      "matches": []
+    },
+    {
       "id": "signed-boundaries",
       "rules": ["Q-VALUE-01", "Q-FUNCTION-02"],
       "query": "//5A[@len > -1 and -9223372036854775808 < 9223372036854775807]",

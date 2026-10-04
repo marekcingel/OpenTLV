@@ -40,7 +40,8 @@ typedef enum tlv_query_error_kind {
     TLV_QUERY_ERROR_BINDING     /**< Missing, unknown, duplicate or incompatible variable. */
 } tlv_query_error_kind_t;
 
-/** @brief Structured compiler/execution failure, initialized by every diagnostic entry point. */
+/** @brief Fixed-layout compiler/execution failure, initialized by diagnostic entry points.
+ * @note This value type is not extensible; changing its layout requires an ABI change. */
 typedef struct tlv_query_diagnostic {
     tlv_query_error_kind_t kind;    /**< Query failure category. */
     size_t begin;                   /**< Inclusive Query byte offset. */
@@ -84,7 +85,8 @@ typedef struct tlv_query_compile_options {
 
 /** @brief Program requirements and whole-plan information. */
 typedef struct tlv_query_program_info {
-    size_t program_size;                 /**< Exact immutable storage bytes. */
+    size_t struct_size;  /**< Caller-provided writable extent; initialize to sizeof this type. */
+    size_t program_size; /**< Exact immutable storage bytes. */
     size_t program_alignment;            /**< Required address alignment. */
     size_t scratch_size;                 /**< Exact compile scratch bytes for this input. */
     size_t scratch_alignment;            /**< Required scratch alignment. */
@@ -94,13 +96,35 @@ typedef struct tlv_query_program_info {
     tlv_query_result_kind_t result_kind; /**< Result category; F1 executes node results. */
     size_t expression_values; /**< Maximum intermediate value slots; no C stack recursion. */
     size_t instructions;      /**< Maximum expression instructions per published node. */
-    size_t variable_slots; /**< Binding slots in caller workspace, including repeated references. */
+    size_t variable_slots;    /**< Unique referenced variables and exact execution binding slots. */
 } tlv_query_program_info_t;
 
 /** @brief Opaque immutable caller-owned program. */
 typedef struct tlv_query_program tlv_query_program_t;
 /** @brief Opaque mutable caller-owned execution workspace. */
 typedef struct tlv_query_exec tlv_query_exec_t;
+
+/** @brief Fixed-layout borrowed requirement for one unique referenced variable. */
+typedef struct tlv_query_variable_info {
+    const char* name; /**< Name without dollar prefix; borrowed from program, not NUL-terminated. */
+    size_t name_size; /**< Name bytes. */
+    tlv_query_result_kind_t type; /**< Required binding type. */
+} tlv_query_variable_info_t;
+
+/** @brief Count unique referenced variables in first-reference order.
+ * @param[in] program Live immutable program.
+ * @return Unique variable count; zero for NULL or an inconsistent internal image.
+ * @note Unused compile-environment declarations are not program requirements. */
+TLV_API size_t tlv_query_program_variable_count(const tlv_query_program_t* program);
+
+/** @brief Read a unique referenced variable requirement.
+ * @param[in] program Live immutable program.
+ * @param[in] index Zero-based slot in first-reference order.
+ * @param[out] info Fixed-layout output; unchanged on failure.
+ * @return #TLV_OK; #TLV_ERR_NULL_ARG for missing pointers; #TLV_ERR_INVALID_ARG
+ * for invalid image or index. The name remains valid while the program is alive. */
+TLV_API tlv_result_t tlv_query_program_variable(const tlv_query_program_t* program, size_t index,
+                                                tlv_query_variable_info_t* info);
 
 /** @brief Initialize safe compile defaults; NULL is a no-op.
  * @param[out] options Optional destination for current defaults. */
@@ -133,7 +157,7 @@ TLV_API tlv_result_t tlv_query_compile_scratch(const char* text, size_t size,
  * @param[in] scratch_size Available scratch bytes.
  * @param[out] storage Aligned program output; NULL with zero capacity requests sizing.
  * @param[in] capacity Available output bytes.
- * @param[out] info Required exact requirements and plan classification output.
+ * @param[in,out] info Required requirements output; set struct_size to the writable extent.
  * @param[out] diagnostic Optional failure detail.
  * @return #TLV_OK for a supported S0 program or sizing pass.
  * @return #TLV_ERR_UNSUPPORTED_TYPE for recognized later-phase capabilities.
@@ -145,6 +169,9 @@ TLV_API tlv_result_t tlv_query_compile_scratch(const char* text, size_t size,
  * program storage. Sizing and writing are deterministic for identical input/options.
  * @note After semantic analysis, info is also populated for capability/type
  * failures. Earlier lexical, grammar, scratch and arithmetic failures leave it unchanged.
+ * @note struct_size must cover the prefix through result_kind. Writes are limited
+ * to min(struct_size, sizeof current info); unknown trailing caller bytes are preserved.
+ * struct_size is preserved. Rebuilding is required for callers predating this contract.
  */
 TLV_API tlv_result_t tlv_query_compile(const char* text, size_t size,
                                        const tlv_query_compile_options_t* options, void* scratch,
@@ -233,8 +260,9 @@ TLV_API tlv_result_t tlv_query_exec_context(tlv_query_exec_t* exec, size_t ordin
 
 /** @brief Observed execution work and structural validation coverage. */
 typedef struct tlv_query_exec_info {
-    size_t elements;         /**< Published nodes, including nonmatches. */
-    size_t work;             /**< Charged state/byte work. */
+    size_t struct_size; /**< Caller-provided writable extent; initialize to sizeof this type. */
+    size_t elements;    /**< Published nodes, including nonmatches. */
+    size_t work;        /**< Charged state/byte work. */
     size_t skipped_subtrees; /**< Explicitly omitted descendant extents. */
     int finished;            /**< Balanced final EOF was reached. */
     int full_validation;     /**< Finished successfully without omitted descendants. */
@@ -255,9 +283,11 @@ TLV_API tlv_result_t tlv_query_exec_pruning(tlv_query_exec_t* exec, int enabled)
 /**
  * @brief Read execution counters and coverage without altering continuation.
  * @param[in] exec Required initialized execution.
- * @param[out] info Required observed status output.
+ * @param[in,out] info Required observed status output with initialized struct_size.
  * @return #TLV_OK; #TLV_ERR_NULL_ARG for a missing pointer.
  * @note Never allocates. STOP/NEED_MORE_DATA do not imply finished/full validation.
+ * Writes are bounded by struct_size, which must cover elements; struct_size and
+ * unknown trailing caller bytes are preserved. Invalid extents return #TLV_ERR_INVALID_ARG.
  */
 TLV_API tlv_result_t tlv_query_exec_info(const tlv_query_exec_t* exec, tlv_query_exec_info_t* info);
 

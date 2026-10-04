@@ -15,6 +15,7 @@ struct Program {
     tlv_query_diagnostic_t   diagnostic{};
     tlv_result_t             compile(const std::string&                 text,
                                      const tlv_query_compile_options_t* options = nullptr) {
+        info.struct_size = sizeof info;
         size_t size, alignment;
         auto   rc = tlv_query_compile_scratch(text.data(), text.size(), options, &size, &alignment,
                                               &diagnostic);
@@ -82,6 +83,123 @@ TEST(Unit_Tlv_QueryProgram, SignedIntegersAndSubstringBounds) {
     tlv_result_t rc;
     EXPECT_TRUE(run(p, {0x5A, 1, 0x12}, &rc).empty());
     EXPECT_EQ(TLV_ERR_INVALID_VALUE, rc);
+}
+TEST(Unit_Tlv_QueryProgram, UniqueVariableRequirementsAndCompactWorkspace) {
+    tlv_query_variable_t        variables[] = {{"unused", TLV_QUERY_RESULT_BYTES},
+                                               {"min-1", TLV_QUERY_RESULT_INTEGER}};
+    tlv_query_compile_options_t options;
+    tlv_query_compile_options_init(&options);
+    options.variables = variables;
+    options.variable_count = 2;
+    Program p;
+    ASSERT_EQ(TLV_OK, p.compile("//5A[@len > $min-1 and @len != $min-1]", &options));
+    EXPECT_EQ(1u, p.info.variable_slots);
+    EXPECT_EQ(1u, tlv_query_program_variable_count(p.get()));
+    tlv_query_variable_info_t variable{};
+    ASSERT_EQ(TLV_OK, tlv_query_program_variable(p.get(), 0, &variable));
+    EXPECT_EQ("min-1", std::string(variable.name, variable.name_size));
+    EXPECT_EQ(TLV_QUERY_RESULT_INTEGER, variable.type);
+    EXPECT_EQ(TLV_ERR_INVALID_ARG, tlv_query_program_variable(p.get(), 1, &variable));
+    EXPECT_EQ("min-1", std::string(variable.name, variable.name_size));
+    size_t bytes, alignment;
+    ASSERT_EQ(TLV_OK, tlv_query_exec_size(p.get(), 0, &bytes, &alignment));
+    EXPECT_EQ(sizeof(tlv_query_exec_t) + (p.info.states + 1) * sizeof(query_value_t) +
+                  sizeof(size_t) + p.info.states,
+              bytes);
+    std::vector<uint64_t> workspace((bytes + 7) / 8);
+    tlv_query_exec_t*     exec;
+    ASSERT_EQ(TLV_OK, tlv_query_exec_init(p.get(), workspace.data(), bytes, 0, 10, 1000, &exec));
+    EXPECT_EQ(TLV_ERR_INVALID_ARG, tlv_query_exec_bind(exec, "unused", TLV_QUERY_RESULT_BYTES, 0,
+                                                       nullptr, 0, &p.diagnostic));
+    ASSERT_EQ(TLV_OK, tlv_query_exec_bind(exec, "min-1", TLV_QUERY_RESULT_INTEGER, -1, nullptr, 0,
+                                          &p.diagnostic));
+    tlv_tree_event_t event{};
+    const uint8_t    tag = 0x5a;
+    event.kind = TLV_TREE_ELEMENT;
+    event.element.tag = tlv_tag(&tag, 1);
+    int matched;
+    ASSERT_EQ(TLV_OK, tlv_query_exec_feed(exec, &event, &matched, &p.diagnostic));
+    EXPECT_EQ(1, matched);
+    auto copy = p.storage;
+    p.storage = copy;
+    ASSERT_EQ(TLV_OK, tlv_query_program_variable(p.get(), 0, &variable));
+    EXPECT_EQ("min-1", std::string(variable.name, variable.name_size));
+    auto* nodes = const_cast<query_node_t*>(query_nodes(p.get()));
+    for (size_t i = 0; i < p.info.states; ++i)
+        if (nodes[i].op == Q_VARIABLE) {
+            nodes[i].type = V_BOOL;
+            break;
+        }
+    EXPECT_EQ(TLV_ERR_INVALID_ARG, tlv_query_exec_size(p.get(), 0, &bytes, &alignment));
+    ASSERT_EQ(TLV_OK, p.compile("//5A"));
+    EXPECT_EQ(0u, tlv_query_program_variable_count(p.get()));
+    ASSERT_EQ(TLV_OK, tlv_query_exec_size(p.get(), 0, &bytes, &alignment));
+    EXPECT_EQ(sizeof(tlv_query_exec_t) + p.info.states * sizeof(query_value_t) + sizeof(size_t) +
+                  p.info.states,
+              bytes);
+}
+TEST(Unit_Tlv_QueryProgram, VariableIdentifiersFollowGrammar) {
+    Program p;
+    EXPECT_EQ(TLV_ERR_INVALID_ARG, p.compile("//5A[@len > $123]"));
+    EXPECT_EQ(TLV_QUERY_ERROR_SYNTAX, p.diagnostic.kind);
+    EXPECT_EQ(TLV_ERR_INVALID_ARG, p.compile("//5A[@len > $?foo]"));
+    EXPECT_EQ(TLV_ERR_INVALID_ARG, p.compile("//5A[@len > $_foo]"));
+    tlv_query_compile_options_t options;
+    tlv_query_compile_options_init(&options);
+    tlv_query_variable_t variable = {"123", TLV_QUERY_RESULT_INTEGER};
+    options.variables = &variable;
+    options.variable_count = 1;
+    EXPECT_EQ(TLV_ERR_INVALID_ARG, p.compile("//5A", &options));
+    variable.name = "a?b";
+    EXPECT_EQ(TLV_ERR_INVALID_ARG, p.compile("//5A", &options));
+}
+TEST(Unit_Tlv_QueryProgram, IntersectionAndDifferenceBindMoreStronglyThanUnion) {
+    Program p;
+    ASSERT_EQ(TLV_OK, p.compile("//5A | //5A except //5A"));
+    EXPECT_EQ((std::vector<size_t>{0}), run(p, {0x5a, 0}));
+    ASSERT_EQ(TLV_OK, p.compile("(//5A | //5A) except //5A"));
+    EXPECT_TRUE(run(p, {0x5a, 0}).empty());
+    ASSERT_EQ(TLV_OK, p.compile("//5A | //70 intersect //70 except //70"));
+    EXPECT_EQ((std::vector<size_t>{0}), run(p, {0x5a, 0, 0x70, 0}));
+}
+TEST(Unit_Tlv_QueryProgram, CallerSizedInfoPreservesUnknownAndUnavailableFields) {
+    const std::string text = "//5A";
+    size_t            bytes, alignment;
+    ASSERT_EQ(TLV_OK, tlv_query_compile_scratch(text.data(), text.size(), nullptr, &bytes,
+                                                &alignment, nullptr));
+    std::vector<uint64_t> scratch((bytes + 7) / 8);
+    struct Extended {
+        tlv_query_program_info_t info;
+        uint64_t                 sentinel;
+    } output{};
+    output.info.struct_size = sizeof output;
+    output.sentinel = UINT64_MAX;
+    ASSERT_EQ(TLV_OK, tlv_query_compile(text.data(), text.size(), nullptr, scratch.data(), bytes,
+                                        nullptr, 0, &output.info, nullptr));
+    EXPECT_EQ(UINT64_MAX, output.sentinel);
+    EXPECT_EQ(sizeof output, output.info.struct_size);
+    output.info.struct_size = offsetof(tlv_query_program_info_t, expression_values);
+    output.info.expression_values = SIZE_MAX;
+    ASSERT_EQ(TLV_OK, tlv_query_compile(text.data(), text.size(), nullptr, scratch.data(), bytes,
+                                        nullptr, 0, &output.info, nullptr));
+    EXPECT_EQ(SIZE_MAX, output.info.expression_values);
+    output.info.struct_size = 0;
+    EXPECT_EQ(TLV_ERR_INVALID_ARG,
+              tlv_query_compile(text.data(), text.size(), nullptr, scratch.data(), bytes, nullptr,
+                                0, &output.info, nullptr));
+    Program p;
+    ASSERT_EQ(TLV_OK, p.compile(text));
+    ASSERT_EQ(TLV_OK, tlv_query_exec_size(p.get(), 0, &bytes, &alignment));
+    std::vector<uint64_t> workspace((bytes + 7) / 8);
+    tlv_query_exec_t*     exec;
+    ASSERT_EQ(TLV_OK, tlv_query_exec_init(p.get(), workspace.data(), bytes, 0, 10, 100, &exec));
+    tlv_query_exec_info_t info{};
+    EXPECT_EQ(TLV_ERR_INVALID_ARG, tlv_query_exec_info(exec, &info));
+    info.struct_size = offsetof(tlv_query_exec_info_t, work);
+    info.work = SIZE_MAX;
+    ASSERT_EQ(TLV_OK, tlv_query_exec_info(exec, &info));
+    EXPECT_EQ(0u, info.elements);
+    EXPECT_EQ(SIZE_MAX, info.work);
 }
 TEST(Unit_Tlv_QueryProgram, SetOperationsUseNodeIdentityAndSourceOrder) {
     Program                    p;
@@ -246,6 +364,7 @@ TEST(Unit_Tlv_QueryProgram, CapacityAndNestingBoundariesPreserveStorage) {
               tlv_query_compile_scratch(text.data(), text.size(), nullptr, &size, &alignment, &d));
     std::vector<uint64_t>    scratch((size + 7) / 8);
     tlv_query_program_info_t info{};
+    info.struct_size = sizeof info;
     EXPECT_EQ(TLV_ERR_BUFFER_TOO_SHORT,
               tlv_query_compile(text.data(), text.size(), nullptr, scratch.data(), size - 1,
                                 nullptr, 0, &info, &d));
@@ -494,7 +613,8 @@ TEST(Unit_Tlv_QueryProgram, PruningAndExistsExposePartialCoverage) {
               tlv_tree_reader_init(&reader, input, sizeof input, &format, frames, 8, 8, 100));
     ASSERT_EQ(TLV_OK, tlv_query_program_exists(&reader, exec, 0, &found, &p.diagnostic));
     EXPECT_EQ(1, found);
-    tlv_query_exec_info_t info;
+    tlv_query_exec_info_t info{};
+    info.struct_size = sizeof info;
     ASSERT_EQ(TLV_OK, tlv_query_exec_info(exec, &info));
     EXPECT_EQ(1u, info.skipped_subtrees);
     EXPECT_EQ(1, info.finished);
