@@ -43,10 +43,11 @@ an even number of hex digits and may be empty. Keywords are case-sensitive.
 ```ebnf
 query       = expression ;
 expression  = union ;
-union       = disjunction, { ("|" | "intersect" | "except"), disjunction } ;
+union       = disjunction, { "|", disjunction } ;
 disjunction = conjunction, { "or", conjunction } ;
 conjunction = comparison, { "and", comparison } ;
-comparison  = path, [ ("=" | "!=" | "<" | "<=" | ">" | ">="), path ] ;
+comparison  = intersection, [ ("=" | "!=" | "<" | "<=" | ">" | ">="), intersection ] ;
+intersection = path, { ("intersect" | "except"), path } ;
 path        = [ "/" | "//" ], filtered, { ("/" | "//"), filtered } ;
 filtered    = primary, { "[", expression, "]" } ;
 primary     = step | metadata | variable | integer | bytes | string
@@ -71,7 +72,9 @@ hex-pair    = hex-digit, hex-digit ;
 ```
 
 **Q-GRAMMAR-02.** Operators are left associative, with precedence from low to
-high as the productions above. Comparisons do not chain. A function's commas
+high as the productions above. `intersect` and `except` bind more strongly
+than `|`; both are left associative. Thus `A | B except C` means
+`A | (B except C)`. Comparisons do not chain. A function's commas
 separate arguments, not top-level expressions. Predicates bind to the preceding
 primary before path composition. `//` abbreviates descendant navigation from
 the preceding context. A path step `50` is a raw hexadecimal tag; a numeric
@@ -154,11 +157,37 @@ use the explicit future execution environment, not protocol knowledge in Query.
 **Q-FUNCTION-02.** F1 implements node results, metadata comparisons, eager
 boolean composition, byte functions, and tag tests. Both operands of `and` and
 `or` are evaluated, so neither suppresses Source/type/resource errors. Full
-typed conversions, variables, general scalar results and set intersection or
-difference remain later-phase capabilities. Parsing a recognized later feature
+typed conversions and general scalar results remain later-phase capabilities.
+S0 union, intersection and difference combine decisions for the same published
+node identity, preserving source order and eliminating duplicate matches without
+retaining a node set. An operand requiring deferred evidence still makes the
+whole expression unavailable to S0. Parsing a recognized later feature
 must not partially execute it as a V1 path.
-F1 metadata integer operands are nonnegative 64-bit values. Negative literals
-are recognized but require the later signed scalar implementation.
+Integer operands use signed 64-bit limits, including `-9223372036854775808`.
+No arithmetic syntax or implicit conversion is introduced. Metadata and lengths
+above `INT64_MAX` report overflow. Negative substring starts or lengths report
+an invalid value; nonnegative spans are clamped as specified by Q-VALUE-02.
+
+**Q-BINDING-01.** Compile options declare integer, bytes and UTF-8 string
+variables by name without `$`. The compiler validates operand types against
+these declarations and copies the Query text. Declaration storage is borrowed
+only during compilation. Duplicate declarations and undeclared references are
+errors. Variable identifiers start with an ASCII letter and continue with
+letters, digits, underscore or hyphen; `$min-1` is one name, not arithmetic.
+The program retains only referenced variables, with one binding slot per unique
+name. Unused declarations remain compile-environment data. Enumerate requirements
+with `tlv_query_program_variable_count` and `tlv_query_program_variable`; names
+are borrowed bounded spans in first-reference order. Binding unused declarations
+is an unknown-variable error. `tlv_query_exec_bind` binds each referenced name exactly once before
+any event; missing, unknown, duplicate and incompatible bindings are errors.
+All referenced variables are required even if no candidate matches or input
+is empty. Byte spans may contain embedded NUL and Query-like text; bindings
+never pass through the lexer. Strings are validated UTF-8 and remain distinct
+from bytes. Values are borrowed unchanged through execution, including suspension;
+callers needing a copy provide their own stable storage. Reinitialization clears
+bindings. Rebinding after an event, including STOP/NEED_MORE_DATA suspension,
+is rejected. Independent executions can bind different values to one program.
+Runtime-pattern `contains` and string literals remain unavailable in this slice.
 
 ## Storage and execution
 
@@ -229,3 +258,17 @@ repeated scans may cost input bytes × depth. Work limits bound all executions;
 later global Document axes must publish their own bounds rather than a universal
 O(n) claim. Wrapper or Document ownership allocation is outside the C Query
 allocation-free boundary.
+
+**Q-ABI-01.** Compile options require the current `struct_size`. Program info
+and execution info accept caller-sized output prefixes: callers set `struct_size`
+to their writable extent, and writes cover at most the smaller of that extent
+and the current structure. Program info requires the prefix through `result_kind`;
+execution info requires the prefix through `elements`. The supplied extent and
+unknown trailing bytes are preserved. Zero/undersized extents are rejected.
+Callers predating this contract must rebuild; this cannot retroactively protect
+an old ABI. Diagnostic, variable declaration and variable requirement structures
+are fixed-layout value types; layout changes require an ABI change. Opaque program
+and execution objects continue to use independent size/alignment discovery.
+`expression_values` is the conservative intermediate-slot count and `instructions`
+is the maximum number of expression-node evaluations per published node; byte
+scanning and callback costs are separate. `variable_slots` counts unique bindings.

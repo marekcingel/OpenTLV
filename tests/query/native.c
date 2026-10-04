@@ -36,10 +36,11 @@ int main(int argc, char** argv) {
         input[i] = (uint8_t)(a * 16 + b);
     }
     tlv_query_diagnostic_t   diagnostic;
-    tlv_query_program_info_t info;
-    void*                    scratch = NULL;
-    void*                    program = NULL;
-    void*                    workspace = NULL;
+    tlv_query_program_info_t info = {0};
+    info.struct_size = sizeof info;
+    void*        scratch = NULL;
+    void*        program = NULL;
+    void*        workspace = NULL;
     tlv_result_t rc = tlv_query_compile_scratch(argv[1], strlen(argv[1]), NULL, &scratch_size,
                                                 &alignment, &diagnostic);
     if (rc != TLV_OK) goto done;

@@ -1,4 +1,4 @@
-# Query F1 conformance
+# Query conformance
 
 `corpus.json` is a versioned test-only interchange format. Each case names its
 normative rules, Query, encoded input, and expected ordered match offsets or
@@ -29,6 +29,8 @@ CTest registers this comparison as `query-s0-conformance` when Python is availab
 | Q-CONTEXT-01 | F1 candidate predicates; positional execution is a capability rejection |
 | Q-CONTEXT-02 | Ancestor corpus and rejection of filtered ancestor evidence |
 | Q-VALUE-01 | F1 result/operand type checks; general scalar execution is deferred |
+| Q-BINDING-01 | Native typed declaration/binding, independent execution, UTF-8, embedded NUL and reset tests |
+| Q-ABI-01 | Native caller-sized program/execution info prefixes and preserved trailing-byte tests |
 | Q-VALUE-02, Q-FUNCTION-02 | Byte primitive and boolean/length corpus; capability diagnostics |
 | Q-VALUE-03 | Metadata corpus; native missing-Source and custom Header tests |
 | Q-FUNCTION-01 | Native implemented-function arity/type checks; future functions are rejected |

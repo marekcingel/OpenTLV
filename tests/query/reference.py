@@ -19,7 +19,7 @@ def parse(text):
         tokens.append(match.group(1))
         pos = match.end()
     index = 0
-    precedence = {"|": 1, "or": 2, "and": 3, "=": 4, "!=": 4, "<": 4,
+    precedence = {"|": 1, "intersect": 5, "except": 5, "or": 2, "and": 3, "=": 4, "!=": 4, "<": 4,
                   "<=": 4, ">": 4, ">=": 4, "/": 6, "//": 6}
 
     def expression(minimum=0):
@@ -163,13 +163,18 @@ def evaluate(ast, context, universe):
         identities = {node["offset"] for branch in ast[1:]
                       for node in evaluate(branch, context, universe)}
         return [node for node in universe if node["offset"] in identities]
+    if op in ("intersect", "except"):
+        left = {node["offset"] for node in evaluate(ast[1], context, universe)}
+        right = {node["offset"] for node in evaluate(ast[2], context, universe)}
+        identities = left & right if op == "intersect" else left - right
+        return [node for node in universe if node["offset"] in identities]
     if op == "bytes":
         return ast[1]
     if op == "meta":
         return len(context["value"]) if ast[1] == "len" else 2 if ast[1] == "hlen" else context[ast[1]]
     if op in ("=", "!=", "<", "<=", ">", ">="):
         def scalar(value):
-            if value[0] == "test" and value[2].isdecimal():
+            if value[0] == "test" and re.fullmatch(r"-?[0-9]+", value[2]):
                 return int(value[2])
             return evaluate(value, context, universe)
         a, b = scalar(ast[1]), scalar(ast[2])

@@ -13,8 +13,9 @@ int LLVMFuzzerTestOneInput(const uint8_t* data, size_t size) {
     options.max_tokens = 512;
     options.max_states = 512;
     options.max_nesting = 32;
-    tlv_query_program_info_t info;
-    tlv_query_diagnostic_t   diagnostic;
+    tlv_query_program_info_t info = {0};
+    info.struct_size = sizeof info;
+    tlv_query_diagnostic_t diagnostic;
     tlv_result_t rc = tlv_query_compile((const char*)data, size, &options, scratch, sizeof scratch,
                                         program, sizeof program, &info, &diagnostic);
     if (rc != TLV_OK) return 0;
