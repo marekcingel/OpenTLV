@@ -82,6 +82,8 @@ $(function() {
 <table class="memberdecls">
 <tr class="heading"><td colspan="2"><h2 class="groupheader"><a id="pub-attribs" name="pub-attribs"></a>
 Data Fields</h2></td></tr>
+<tr class="memitem:ac5115fecf43fb5a749f9017c4bb1c5d1" id="r_ac5115fecf43fb5a749f9017c4bb1c5d1"><td class="memItemLeft" align="right" valign="top">size_t&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="structtlv__query__program__info.html#ac5115fecf43fb5a749f9017c4bb1c5d1">struct_size</a></td></tr>
+<tr class="separator:ac5115fecf43fb5a749f9017c4bb1c5d1"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:a16f1faefab033633f8fcf256f89fec53" id="r_a16f1faefab033633f8fcf256f89fec53"><td class="memItemLeft" align="right" valign="top">size_t&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="structtlv__query__program__info.html#a16f1faefab033633f8fcf256f89fec53">program_size</a></td></tr>
 <tr class="separator:a16f1faefab033633f8fcf256f89fec53"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:ae174f522aa2fde73db452c5107dab847" id="r_ae174f522aa2fde73db452c5107dab847"><td class="memItemLeft" align="right" valign="top">size_t&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="structtlv__query__program__info.html#ae174f522aa2fde73db452c5107dab847">program_alignment</a></td></tr>
@@ -98,10 +100,46 @@ Data Fields</h2></td></tr>
 <tr class="separator:a5f893576b094858eb3ff0eaaf9d4a143"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:ad0eab5431f283a384770b148c71fcf24" id="r_ad0eab5431f283a384770b148c71fcf24"><td class="memItemLeft" align="right" valign="top"><a class="el" href="group__traversal.html#ga9e9451c7cc7e346182993d0d95065837">tlv_query_result_kind_t</a>&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="structtlv__query__program__info.html#ad0eab5431f283a384770b148c71fcf24">result_kind</a></td></tr>
 <tr class="separator:ad0eab5431f283a384770b148c71fcf24"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a35e35b390915f3ef6d75dd7ad2344b04" id="r_a35e35b390915f3ef6d75dd7ad2344b04"><td class="memItemLeft" align="right" valign="top">size_t&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="structtlv__query__program__info.html#a35e35b390915f3ef6d75dd7ad2344b04">expression_values</a></td></tr>
+<tr class="separator:a35e35b390915f3ef6d75dd7ad2344b04"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a6c3d181c33692fdf24a0f5e4029482a7" id="r_a6c3d181c33692fdf24a0f5e4029482a7"><td class="memItemLeft" align="right" valign="top">size_t&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="structtlv__query__program__info.html#a6c3d181c33692fdf24a0f5e4029482a7">instructions</a></td></tr>
+<tr class="separator:a6c3d181c33692fdf24a0f5e4029482a7"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a69e7f90de070c0d7ed27dc0784016f74" id="r_a69e7f90de070c0d7ed27dc0784016f74"><td class="memItemLeft" align="right" valign="top">size_t&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="structtlv__query__program__info.html#a69e7f90de070c0d7ed27dc0784016f74">variable_slots</a></td></tr>
+<tr class="separator:a69e7f90de070c0d7ed27dc0784016f74"><td class="memSeparator" colspan="2">&#160;</td></tr>
 </table>
 <a name="details" id="details"></a><h2 class="groupheader">Detailed Description</h2>
 <div class="textblock"><p>Program requirements and whole-plan information. </p>
 </div><h2 class="groupheader">Field Documentation</h2>
+<a id="a35e35b390915f3ef6d75dd7ad2344b04" name="a35e35b390915f3ef6d75dd7ad2344b04"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#a35e35b390915f3ef6d75dd7ad2344b04">&#9670;&#160;</a></span>expression_values</h2>
+
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname">size_t tlv_query_program_info::expression_values</td>
+        </tr>
+      </table>
+</div><div class="memdoc">
+<p>Maximum intermediate value slots; no C stack recursion. </p>
+
+</div>
+</div>
+<a id="a6c3d181c33692fdf24a0f5e4029482a7" name="a6c3d181c33692fdf24a0f5e4029482a7"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#a6c3d181c33692fdf24a0f5e4029482a7">&#9670;&#160;</a></span>instructions</h2>
+
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname">size_t tlv_query_program_info::instructions</td>
+        </tr>
+      </table>
+</div><div class="memdoc">
+<p>Maximum expression instructions per published node. </p>
+
+</div>
+</div>
 <a id="a9e0b10534503e59f1350b90cba901495" name="a9e0b10534503e59f1350b90cba901495"></a>
 <h2 class="memtitle"><span class="permalink"><a href="#a9e0b10534503e59f1350b90cba901495">&#9670;&#160;</a></span>language_version</h2>
 
@@ -219,6 +257,36 @@ Data Fields</h2></td></tr>
       </table>
 </div><div class="memdoc">
 <p>Query-dependent state count. </p>
+
+</div>
+</div>
+<a id="ac5115fecf43fb5a749f9017c4bb1c5d1" name="ac5115fecf43fb5a749f9017c4bb1c5d1"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#ac5115fecf43fb5a749f9017c4bb1c5d1">&#9670;&#160;</a></span>struct_size</h2>
+
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname">size_t tlv_query_program_info::struct_size</td>
+        </tr>
+      </table>
+</div><div class="memdoc">
+<p>Caller-provided writable extent; initialize to sizeof this type. </p>
+
+</div>
+</div>
+<a id="a69e7f90de070c0d7ed27dc0784016f74" name="a69e7f90de070c0d7ed27dc0784016f74"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#a69e7f90de070c0d7ed27dc0784016f74">&#9670;&#160;</a></span>variable_slots</h2>
+
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname">size_t tlv_query_program_info::variable_slots</td>
+        </tr>
+      </table>
+</div><div class="memdoc">
+<p>Unique referenced variables and exact execution binding slots. </p>
 
 </div>
 </div>

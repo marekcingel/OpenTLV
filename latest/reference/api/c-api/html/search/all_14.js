@@ -7,6 +7,9 @@ var searchData=
   ['values_4',['values',['../structtlv__emv__number__list__t.html#a83b499386232ab168480bb96c5a8e23c',1,'tlv_emv_number_list_t']]],
   ['values_2eh_5',['values.h',['../values_8h.html',1,'']]],
   ['variable_2eh_6',['variable.h',['../variable_8h.html',1,'']]],
-  ['version_2eh_7',['version.h',['../version_8h.html',1,'']]],
-  ['visitor_2eh_8',['visitor.h',['../visitor_8h.html',1,'']]]
+  ['variable_5fcount_7',['variable_count',['../structtlv__query__compile__options.html#a2295d5954a48dd12db2b04a631c7a1bc',1,'tlv_query_compile_options']]],
+  ['variable_5fslots_8',['variable_slots',['../structtlv__query__program__info.html#a69e7f90de070c0d7ed27dc0784016f74',1,'tlv_query_program_info']]],
+  ['variables_9',['variables',['../structtlv__query__compile__options.html#a1268b467e015a1d4e18ecd88a3b02628',1,'tlv_query_compile_options']]],
+  ['version_2eh_10',['version.h',['../version_8h.html',1,'']]],
+  ['visitor_2eh_11',['visitor.h',['../visitor_8h.html',1,'']]]
 ];

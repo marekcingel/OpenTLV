@@ -94,6 +94,10 @@ Data Fields</h2></td></tr>
 <tr class="separator:a30761d38b3078b779ffdc41a26eb6bc0"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:a973eef26c38265a893d819bb96355357" id="r_a973eef26c38265a893d819bb96355357"><td class="memItemLeft" align="right" valign="top">size_t&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="structtlv__query__compile__options.html#a973eef26c38265a893d819bb96355357">max_states</a></td></tr>
 <tr class="separator:a973eef26c38265a893d819bb96355357"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a1268b467e015a1d4e18ecd88a3b02628" id="r_a1268b467e015a1d4e18ecd88a3b02628"><td class="memItemLeft" align="right" valign="top">const <a class="el" href="group__traversal.html#ga0f16489dae6f4015ac9c6372435427ee">tlv_query_variable_t</a> *&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="structtlv__query__compile__options.html#a1268b467e015a1d4e18ecd88a3b02628">variables</a></td></tr>
+<tr class="separator:a1268b467e015a1d4e18ecd88a3b02628"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a2295d5954a48dd12db2b04a631c7a1bc" id="r_a2295d5954a48dd12db2b04a631c7a1bc"><td class="memItemLeft" align="right" valign="top">size_t&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="structtlv__query__compile__options.html#a2295d5954a48dd12db2b04a631c7a1bc">variable_count</a></td></tr>
+<tr class="separator:a2295d5954a48dd12db2b04a631c7a1bc"><td class="memSeparator" colspan="2">&#160;</td></tr>
 </table>
 <a name="details" id="details"></a><h2 class="groupheader">Detailed Description</h2>
 <div class="textblock"><p>Versioned compile options; initialize using <a class="el" href="group__traversal.html#gac354f007ea0036e5389dbd395283efe2" title="Initialize safe compile defaults; NULL is a no-op.">tlv_query_compile_options_init()</a>. </p>
@@ -185,6 +189,36 @@ Data Fields</h2></td></tr>
       </table>
 </div><div class="memdoc">
 <p>Set by initializer; must match this release. </p>
+
+</div>
+</div>
+<a id="a2295d5954a48dd12db2b04a631c7a1bc" name="a2295d5954a48dd12db2b04a631c7a1bc"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#a2295d5954a48dd12db2b04a631c7a1bc">&#9670;&#160;</a></span>variable_count</h2>
+
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname">size_t tlv_query_compile_options::variable_count</td>
+        </tr>
+      </table>
+</div><div class="memdoc">
+<p>Number of entries in variables. </p>
+
+</div>
+</div>
+<a id="a1268b467e015a1d4e18ecd88a3b02628" name="a1268b467e015a1d4e18ecd88a3b02628"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#a1268b467e015a1d4e18ecd88a3b02628">&#9670;&#160;</a></span>variables</h2>
+
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname">const <a class="el" href="group__traversal.html#ga0f16489dae6f4015ac9c6372435427ee">tlv_query_variable_t</a>* tlv_query_compile_options::variables</td>
+        </tr>
+      </table>
+</div><div class="memdoc">
+<p>Optional borrowed variable declarations. </p>
 
 </div>
 </div>

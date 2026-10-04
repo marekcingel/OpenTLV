@@ -97,13 +97,19 @@ Files</h2></td></tr>
 <tr class="heading"><td colspan="2"><h2 class="groupheader"><a id="nested-classes" name="nested-classes"></a>
 Data Structures</h2></td></tr>
 <tr class="memitem:"><td class="memItemLeft" align="right" valign="top">struct &#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="structtlv__query__diagnostic.html">tlv_query_diagnostic</a></td></tr>
-<tr class="memdesc:"><td class="mdescLeft">&#160;</td><td class="mdescRight">Structured compiler/execution failure, initialized by every diagnostic entry point.  <a href="structtlv__query__diagnostic.html#details">More...</a><br /></td></tr>
+<tr class="memdesc:"><td class="mdescLeft">&#160;</td><td class="mdescRight">Fixed-layout compiler/execution failure, initialized by diagnostic entry points.  <a href="structtlv__query__diagnostic.html#details">More...</a><br /></td></tr>
+<tr class="separator:"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:"><td class="memItemLeft" align="right" valign="top">struct &#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="structtlv__query__variable.html">tlv_query_variable</a></td></tr>
+<tr class="memdesc:"><td class="mdescLeft">&#160;</td><td class="mdescRight">Compile-time variable declaration; names omit the dollar prefix.  <a href="structtlv__query__variable.html#details">More...</a><br /></td></tr>
 <tr class="separator:"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:"><td class="memItemLeft" align="right" valign="top">struct &#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="structtlv__query__compile__options.html">tlv_query_compile_options</a></td></tr>
 <tr class="memdesc:"><td class="mdescLeft">&#160;</td><td class="mdescRight">Versioned compile options; initialize using <a class="el" href="group__traversal.html#gac354f007ea0036e5389dbd395283efe2" title="Initialize safe compile defaults; NULL is a no-op.">tlv_query_compile_options_init()</a>.  <a href="structtlv__query__compile__options.html#details">More...</a><br /></td></tr>
 <tr class="separator:"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:"><td class="memItemLeft" align="right" valign="top">struct &#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="structtlv__query__program__info.html">tlv_query_program_info</a></td></tr>
 <tr class="memdesc:"><td class="mdescLeft">&#160;</td><td class="mdescRight">Program requirements and whole-plan information.  <a href="structtlv__query__program__info.html#details">More...</a><br /></td></tr>
+<tr class="separator:"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:"><td class="memItemLeft" align="right" valign="top">struct &#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="structtlv__query__variable__info.html">tlv_query_variable_info</a></td></tr>
+<tr class="memdesc:"><td class="mdescLeft">&#160;</td><td class="mdescRight">Fixed-layout borrowed requirement for one unique referenced variable.  <a href="structtlv__query__variable__info.html#details">More...</a><br /></td></tr>
 <tr class="separator:"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:"><td class="memItemLeft" align="right" valign="top">struct &#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="structtlv__query__exec__info.html">tlv_query_exec_info</a></td></tr>
 <tr class="memdesc:"><td class="mdescLeft">&#160;</td><td class="mdescRight">Observed execution work and structural validation coverage.  <a href="structtlv__query__exec__info.html#details">More...</a><br /></td></tr>
@@ -133,14 +139,17 @@ Typedefs</h2></td></tr>
 <tr class="memdesc:gafc4c0883612ef05066fbbd5afc6306d5"><td class="mdescLeft">&#160;</td><td class="mdescRight">Query-specific diagnostic category; original result codes remain intact.  <br /></td></tr>
 <tr class="separator:gafc4c0883612ef05066fbbd5afc6306d5"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:ga17f951dcf47161a07accd081699eff6f" id="r_ga17f951dcf47161a07accd081699eff6f"><td class="memItemLeft" align="right" valign="top">typedef struct <a class="el" href="structtlv__query__diagnostic.html">tlv_query_diagnostic</a>&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="group__traversal.html#ga17f951dcf47161a07accd081699eff6f">tlv_query_diagnostic_t</a></td></tr>
-<tr class="memdesc:ga17f951dcf47161a07accd081699eff6f"><td class="mdescLeft">&#160;</td><td class="mdescRight">Structured compiler/execution failure, initialized by every diagnostic entry point.  <br /></td></tr>
+<tr class="memdesc:ga17f951dcf47161a07accd081699eff6f"><td class="mdescLeft">&#160;</td><td class="mdescRight">Fixed-layout compiler/execution failure, initialized by diagnostic entry points.  <br /></td></tr>
 <tr class="separator:ga17f951dcf47161a07accd081699eff6f"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:gaf426eeab5c08024d576603e4102962ec" id="r_gaf426eeab5c08024d576603e4102962ec"><td class="memItemLeft" align="right" valign="top">typedef struct <a class="el" href="structtlv__query__compile__options.html">tlv_query_compile_options</a>&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="group__traversal.html#gaf426eeab5c08024d576603e4102962ec">tlv_query_compile_options_t</a></td></tr>
-<tr class="memdesc:gaf426eeab5c08024d576603e4102962ec"><td class="mdescLeft">&#160;</td><td class="mdescRight">Versioned compile options; initialize using <a class="el" href="group__traversal.html#gac354f007ea0036e5389dbd395283efe2" title="Initialize safe compile defaults; NULL is a no-op.">tlv_query_compile_options_init()</a>.  <br /></td></tr>
-<tr class="separator:gaf426eeab5c08024d576603e4102962ec"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:ga9e9451c7cc7e346182993d0d95065837" id="r_ga9e9451c7cc7e346182993d0d95065837"><td class="memItemLeft" align="right" valign="top">typedef enum <a class="el" href="group__traversal.html#ga43336be01e068a5916b4b8cdb7081c6b">tlv_query_result_kind</a>&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="group__traversal.html#ga9e9451c7cc7e346182993d0d95065837">tlv_query_result_kind_t</a></td></tr>
 <tr class="memdesc:ga9e9451c7cc7e346182993d0d95065837"><td class="mdescLeft">&#160;</td><td class="mdescRight">Category of a Query expression's result.  <br /></td></tr>
 <tr class="separator:ga9e9451c7cc7e346182993d0d95065837"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:ga0f16489dae6f4015ac9c6372435427ee" id="r_ga0f16489dae6f4015ac9c6372435427ee"><td class="memItemLeft" align="right" valign="top">typedef struct <a class="el" href="structtlv__query__variable.html">tlv_query_variable</a>&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="group__traversal.html#ga0f16489dae6f4015ac9c6372435427ee">tlv_query_variable_t</a></td></tr>
+<tr class="memdesc:ga0f16489dae6f4015ac9c6372435427ee"><td class="mdescLeft">&#160;</td><td class="mdescRight">Compile-time variable declaration; names omit the dollar prefix.  <br /></td></tr>
+<tr class="separator:ga0f16489dae6f4015ac9c6372435427ee"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:gaf426eeab5c08024d576603e4102962ec" id="r_gaf426eeab5c08024d576603e4102962ec"><td class="memItemLeft" align="right" valign="top">typedef struct <a class="el" href="structtlv__query__compile__options.html">tlv_query_compile_options</a>&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="group__traversal.html#gaf426eeab5c08024d576603e4102962ec">tlv_query_compile_options_t</a></td></tr>
+<tr class="memdesc:gaf426eeab5c08024d576603e4102962ec"><td class="mdescLeft">&#160;</td><td class="mdescRight">Versioned compile options; initialize using <a class="el" href="group__traversal.html#gac354f007ea0036e5389dbd395283efe2" title="Initialize safe compile defaults; NULL is a no-op.">tlv_query_compile_options_init()</a>.  <br /></td></tr>
+<tr class="separator:gaf426eeab5c08024d576603e4102962ec"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:gaf947e208c6f97e68c59bf5573887d2ca" id="r_gaf947e208c6f97e68c59bf5573887d2ca"><td class="memItemLeft" align="right" valign="top">typedef struct <a class="el" href="structtlv__query__program__info.html">tlv_query_program_info</a>&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="group__traversal.html#gaf947e208c6f97e68c59bf5573887d2ca">tlv_query_program_info_t</a></td></tr>
 <tr class="memdesc:gaf947e208c6f97e68c59bf5573887d2ca"><td class="mdescLeft">&#160;</td><td class="mdescRight">Program requirements and whole-plan information.  <br /></td></tr>
 <tr class="separator:gaf947e208c6f97e68c59bf5573887d2ca"><td class="memSeparator" colspan="2">&#160;</td></tr>
@@ -150,6 +159,9 @@ Typedefs</h2></td></tr>
 <tr class="memitem:gacff0d3ed0386caf2464d098ae952ebb7" id="r_gacff0d3ed0386caf2464d098ae952ebb7"><td class="memItemLeft" align="right" valign="top">typedef struct tlv_query_exec&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="group__traversal.html#gacff0d3ed0386caf2464d098ae952ebb7">tlv_query_exec_t</a></td></tr>
 <tr class="memdesc:gacff0d3ed0386caf2464d098ae952ebb7"><td class="mdescLeft">&#160;</td><td class="mdescRight">Opaque mutable caller-owned execution workspace.  <br /></td></tr>
 <tr class="separator:gacff0d3ed0386caf2464d098ae952ebb7"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:gad7b51415976a241e60ec98bb5de1ede3" id="r_gad7b51415976a241e60ec98bb5de1ede3"><td class="memItemLeft" align="right" valign="top">typedef struct <a class="el" href="structtlv__query__variable__info.html">tlv_query_variable_info</a>&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="group__traversal.html#gad7b51415976a241e60ec98bb5de1ede3">tlv_query_variable_info_t</a></td></tr>
+<tr class="memdesc:gad7b51415976a241e60ec98bb5de1ede3"><td class="mdescLeft">&#160;</td><td class="mdescRight">Fixed-layout borrowed requirement for one unique referenced variable.  <br /></td></tr>
+<tr class="separator:gad7b51415976a241e60ec98bb5de1ede3"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:ga8fadfe5de6aa4dafa270ef24ffdc3def" id="r_ga8fadfe5de6aa4dafa270ef24ffdc3def"><td class="memItemLeft" align="right" valign="top">typedef struct <a class="el" href="structtlv__query__exec__info.html">tlv_query_exec_info</a>&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="group__traversal.html#ga8fadfe5de6aa4dafa270ef24ffdc3def">tlv_query_exec_info_t</a></td></tr>
 <tr class="memdesc:ga8fadfe5de6aa4dafa270ef24ffdc3def"><td class="mdescLeft">&#160;</td><td class="mdescRight">Observed execution work and structural validation coverage.  <br /></td></tr>
 <tr class="separator:ga8fadfe5de6aa4dafa270ef24ffdc3def"><td class="memSeparator" colspan="2">&#160;</td></tr>
@@ -200,6 +212,8 @@ Enumerations</h2></td></tr>
 , <a class="el" href="group__traversal.html#gga66edcf242c8bc06318ff99b24f1ce0eda149e84f84d442cabf805906e97cd1a00">TLV_QUERY_ERROR_EVENTS</a>
 , <a class="el" href="group__traversal.html#gga66edcf242c8bc06318ff99b24f1ce0eda34b90e5575d116b6d17d39c3c22c93cd">TLV_QUERY_ERROR_SOURCE</a>
 , <a class="el" href="group__traversal.html#gga66edcf242c8bc06318ff99b24f1ce0eda57a2fd48313feea39bfcc94781cc19cd">TLV_QUERY_ERROR_READER</a>
+, <br />
+&#160;&#160;<a class="el" href="group__traversal.html#gga66edcf242c8bc06318ff99b24f1ce0eda525e4725e8f486786a348a4d6de6301a">TLV_QUERY_ERROR_BINDING</a>
 <br />
  }</td></tr>
 <tr class="memdesc:ga66edcf242c8bc06318ff99b24f1ce0ed"><td class="mdescLeft">&#160;</td><td class="mdescRight">Query-specific diagnostic category; original result codes remain intact.  <a href="group__traversal.html#ga66edcf242c8bc06318ff99b24f1ce0ed">More...</a><br /></td></tr>
@@ -232,6 +246,12 @@ Enumerations</h2></td></tr>
 </table><table class="memberdecls">
 <tr class="heading"><td colspan="2"><h2 class="groupheader"><a id="func-members" name="func-members"></a>
 Functions</h2></td></tr>
+<tr class="memitem:ga7b03002e8b3fb150a6ab43d6d21e5634" id="r_ga7b03002e8b3fb150a6ab43d6d21e5634"><td class="memItemLeft" align="right" valign="top">size_t&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="group__traversal.html#ga7b03002e8b3fb150a6ab43d6d21e5634">tlv_query_program_variable_count</a> (const <a class="el" href="group__traversal.html#ga45bdea1007b9780dba5559a2190f569d">tlv_query_program_t</a> *program)</td></tr>
+<tr class="memdesc:ga7b03002e8b3fb150a6ab43d6d21e5634"><td class="mdescLeft">&#160;</td><td class="mdescRight">Count unique referenced variables in first-reference order.  <br /></td></tr>
+<tr class="separator:ga7b03002e8b3fb150a6ab43d6d21e5634"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:gab34456b821d2c62b1ead8ac7116f1fc8" id="r_gab34456b821d2c62b1ead8ac7116f1fc8"><td class="memItemLeft" align="right" valign="top"><a class="el" href="group__core.html#ga164d2817a32e5d7b7aa1472e887b47c3">tlv_result_t</a>&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="group__traversal.html#gab34456b821d2c62b1ead8ac7116f1fc8">tlv_query_program_variable</a> (const <a class="el" href="group__traversal.html#ga45bdea1007b9780dba5559a2190f569d">tlv_query_program_t</a> *program, size_t index, <a class="el" href="group__traversal.html#gad7b51415976a241e60ec98bb5de1ede3">tlv_query_variable_info_t</a> *info)</td></tr>
+<tr class="memdesc:gab34456b821d2c62b1ead8ac7116f1fc8"><td class="mdescLeft">&#160;</td><td class="mdescRight">Read a unique referenced variable requirement.  <br /></td></tr>
+<tr class="separator:gab34456b821d2c62b1ead8ac7116f1fc8"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:gac354f007ea0036e5389dbd395283efe2" id="r_gac354f007ea0036e5389dbd395283efe2"><td class="memItemLeft" align="right" valign="top">void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="group__traversal.html#gac354f007ea0036e5389dbd395283efe2">tlv_query_compile_options_init</a> (<a class="el" href="group__traversal.html#gaf426eeab5c08024d576603e4102962ec">tlv_query_compile_options_t</a> *options)</td></tr>
 <tr class="memdesc:gac354f007ea0036e5389dbd395283efe2"><td class="mdescLeft">&#160;</td><td class="mdescRight">Initialize safe compile defaults; NULL is a no-op.  <br /></td></tr>
 <tr class="separator:gac354f007ea0036e5389dbd395283efe2"><td class="memSeparator" colspan="2">&#160;</td></tr>
@@ -250,6 +270,9 @@ Functions</h2></td></tr>
 <tr class="memitem:gac599205d41bcc11b7a76ece55b653d38" id="r_gac599205d41bcc11b7a76ece55b653d38"><td class="memItemLeft" align="right" valign="top"><a class="el" href="group__core.html#ga164d2817a32e5d7b7aa1472e887b47c3">tlv_result_t</a>&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="group__traversal.html#gac599205d41bcc11b7a76ece55b653d38">tlv_query_exec_init</a> (const <a class="el" href="group__traversal.html#ga45bdea1007b9780dba5559a2190f569d">tlv_query_program_t</a> *program, void *storage, size_t capacity, size_t max_depth, size_t max_elements, size_t max_work, <a class="el" href="group__traversal.html#gacff0d3ed0386caf2464d098ae952ebb7">tlv_query_exec_t</a> **exec)</td></tr>
 <tr class="memdesc:gac599205d41bcc11b7a76ece55b653d38"><td class="mdescLeft">&#160;</td><td class="mdescRight">Initialize or reset independent S0 execution in caller workspace.  <br /></td></tr>
 <tr class="separator:gac599205d41bcc11b7a76ece55b653d38"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:ga597eb45f36e2ec234150f343f7e9b545" id="r_ga597eb45f36e2ec234150f343f7e9b545"><td class="memItemLeft" align="right" valign="top"><a class="el" href="group__core.html#ga164d2817a32e5d7b7aa1472e887b47c3">tlv_result_t</a>&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="group__traversal.html#ga597eb45f36e2ec234150f343f7e9b545">tlv_query_exec_bind</a> (<a class="el" href="group__traversal.html#gacff0d3ed0386caf2464d098ae952ebb7">tlv_query_exec_t</a> *exec, const char *name, <a class="el" href="group__traversal.html#ga9e9451c7cc7e346182993d0d95065837">tlv_query_result_kind_t</a> type, int64_t integer, const uint8_t *data, size_t size, <a class="el" href="group__traversal.html#ga17f951dcf47161a07accd081699eff6f">tlv_query_diagnostic_t</a> *diagnostic)</td></tr>
+<tr class="memdesc:ga597eb45f36e2ec234150f343f7e9b545"><td class="mdescLeft">&#160;</td><td class="mdescRight">Bind one typed variable before consuming any event.  <br /></td></tr>
+<tr class="separator:ga597eb45f36e2ec234150f343f7e9b545"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:gaaa928192e50601e3af4e41cfab8ca0ca" id="r_gaaa928192e50601e3af4e41cfab8ca0ca"><td class="memItemLeft" align="right" valign="top"><a class="el" href="group__core.html#ga164d2817a32e5d7b7aa1472e887b47c3">tlv_result_t</a>&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="group__traversal.html#gaaa928192e50601e3af4e41cfab8ca0ca">tlv_query_exec_context</a> (<a class="el" href="group__traversal.html#gacff0d3ed0386caf2464d098ae952ebb7">tlv_query_exec_t</a> *exec, size_t ordinal)</td></tr>
 <tr class="memdesc:gaaa928192e50601e3af4e41cfab8ca0ca"><td class="mdescLeft">&#160;</td><td class="mdescRight">Select a relative node context before feeding events.  <br /></td></tr>
 <tr class="separator:gaaa928192e50601e3af4e41cfab8ca0ca"><td class="memSeparator" colspan="2">&#160;</td></tr>
@@ -378,7 +401,8 @@ Functions</h2></td></tr>
       </table>
 </div><div class="memdoc">
 
-<p>Structured compiler/execution failure, initialized by every diagnostic entry point. </p>
+<p>Fixed-layout compiler/execution failure, initialized by diagnostic entry points. </p>
+<dl class="section note"><dt>Note</dt><dd>This value type is not extensible; changing its layout requires an ABI change. </dd></dl>
 
 </div>
 </div>
@@ -549,6 +573,39 @@ Functions</h2></td></tr>
 
 <p>A parsed query: the tags to follow from a top-level element down to the addressed ones. </p>
 <p>The opaque storage is self-contained: it holds a copy of every tag's bytes, never allocates and never points to other memory, so it can be copied freely. Build it with <a class="el" href="group__traversal.html#gac6cc1fdb84b230eec2b4bd26e5da8385" title="Parses the text of a query.">tlv_query_parse()</a> and read its tags with <a class="el" href="group__traversal.html#ga1d2bf69dfc017ebbac2be367da2d9c23" title="Returns one tag of a query.">tlv_query_step()</a>; a zero-initialized query has no tags and is rejected by the functions that take one. Each tag may have any length as long as all tags together stay within <a class="el" href="group__traversal.html#ggaf9bdc3014f3d54c426b6d2df10de4960a25e94ebacffefe124afbbf879cd6ce7c">TLV_QUERY_MAX_BYTES</a>. sizeof(tlv_query_t) is 648 bytes; alignment is that of uint64_t on the target. Do not inspect opaque members. </p>
+
+</div>
+</div>
+<a id="gad7b51415976a241e60ec98bb5de1ede3" name="gad7b51415976a241e60ec98bb5de1ede3"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#gad7b51415976a241e60ec98bb5de1ede3">&#9670;&#160;</a></span>tlv_query_variable_info_t</h2>
+
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname">typedef struct <a class="el" href="structtlv__query__variable__info.html">tlv_query_variable_info</a> <a class="el" href="group__traversal.html#gad7b51415976a241e60ec98bb5de1ede3">tlv_query_variable_info_t</a></td>
+        </tr>
+      </table>
+</div><div class="memdoc">
+
+<p>Fixed-layout borrowed requirement for one unique referenced variable. </p>
+
+</div>
+</div>
+<a id="ga0f16489dae6f4015ac9c6372435427ee" name="ga0f16489dae6f4015ac9c6372435427ee"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#ga0f16489dae6f4015ac9c6372435427ee">&#9670;&#160;</a></span>tlv_query_variable_t</h2>
+
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname">typedef struct <a class="el" href="structtlv__query__variable.html">tlv_query_variable</a> <a class="el" href="group__traversal.html#ga0f16489dae6f4015ac9c6372435427ee">tlv_query_variable_t</a></td>
+        </tr>
+      </table>
+</div><div class="memdoc">
+
+<p>Compile-time variable declaration; names omit the dollar prefix. </p>
+<dl class="section note"><dt>Note</dt><dd>The name is borrowed only during compilation; the program copies Query text. Integer, bytes and string declarations are supported. Duplicate names are invalid. </dd></dl>
 
 </div>
 </div>
@@ -740,6 +797,8 @@ Functions</h2></td></tr>
 </td></tr>
 <tr><td class="fieldname"><a id="gga66edcf242c8bc06318ff99b24f1ce0eda57a2fd48313feea39bfcc94781cc19cd" name="gga66edcf242c8bc06318ff99b24f1ce0eda57a2fd48313feea39bfcc94781cc19cd"></a>TLV_QUERY_ERROR_READER&#160;</td><td class="fielddoc"><p>Original Reader failure; reader detail is preserved. </p>
 </td></tr>
+<tr><td class="fieldname"><a id="gga66edcf242c8bc06318ff99b24f1ce0eda525e4725e8f486786a348a4d6de6301a" name="gga66edcf242c8bc06318ff99b24f1ce0eda525e4725e8f486786a348a4d6de6301a"></a>TLV_QUERY_ERROR_BINDING&#160;</td><td class="fielddoc"><p>Missing, unknown, duplicate or incompatible variable. </p>
+</td></tr>
 </table>
 
 </div>
@@ -786,13 +845,13 @@ Functions</h2></td></tr>
 <table class="fieldtable">
 <tr><th colspan="2">Enumerator</th></tr><tr><td class="fieldname"><a id="gga43336be01e068a5916b4b8cdb7081c6ba85bee7adeb5c3949f0a574cb32b27a29" name="gga43336be01e068a5916b4b8cdb7081c6ba85bee7adeb5c3949f0a574cb32b27a29"></a>TLV_QUERY_RESULT_NODES&#160;</td><td class="fielddoc"><p>Ordered unique node sequence. </p>
 </td></tr>
-<tr><td class="fieldname"><a id="gga43336be01e068a5916b4b8cdb7081c6ba2b623cf52ce944aa0312276ba2792935" name="gga43336be01e068a5916b4b8cdb7081c6ba2b623cf52ce944aa0312276ba2792935"></a>TLV_QUERY_RESULT_BOOL&#160;</td><td class="fielddoc"><p>Boolean scalar; later-phase execution. </p>
+<tr><td class="fieldname"><a id="gga43336be01e068a5916b4b8cdb7081c6ba2b623cf52ce944aa0312276ba2792935" name="gga43336be01e068a5916b4b8cdb7081c6ba2b623cf52ce944aa0312276ba2792935"></a>TLV_QUERY_RESULT_BOOL&#160;</td><td class="fielddoc"><p>Boolean scalar. </p>
 </td></tr>
-<tr><td class="fieldname"><a id="gga43336be01e068a5916b4b8cdb7081c6ba8c36ab91b1d5ce3bcf051ac654d0b1de" name="gga43336be01e068a5916b4b8cdb7081c6ba8c36ab91b1d5ce3bcf051ac654d0b1de"></a>TLV_QUERY_RESULT_INTEGER&#160;</td><td class="fielddoc"><p>Signed 64-bit scalar; later-phase execution. </p>
+<tr><td class="fieldname"><a id="gga43336be01e068a5916b4b8cdb7081c6ba8c36ab91b1d5ce3bcf051ac654d0b1de" name="gga43336be01e068a5916b4b8cdb7081c6ba8c36ab91b1d5ce3bcf051ac654d0b1de"></a>TLV_QUERY_RESULT_INTEGER&#160;</td><td class="fielddoc"><p>Signed 64-bit scalar. </p>
 </td></tr>
-<tr><td class="fieldname"><a id="gga43336be01e068a5916b4b8cdb7081c6bab21083f0e714bfe5ccf50982bbceed7f" name="gga43336be01e068a5916b4b8cdb7081c6bab21083f0e714bfe5ccf50982bbceed7f"></a>TLV_QUERY_RESULT_BYTES&#160;</td><td class="fielddoc"><p>Borrowed byte scalar; later-phase execution. </p>
+<tr><td class="fieldname"><a id="gga43336be01e068a5916b4b8cdb7081c6bab21083f0e714bfe5ccf50982bbceed7f" name="gga43336be01e068a5916b4b8cdb7081c6bab21083f0e714bfe5ccf50982bbceed7f"></a>TLV_QUERY_RESULT_BYTES&#160;</td><td class="fielddoc"><p>Byte scalar. </p>
 </td></tr>
-<tr><td class="fieldname"><a id="gga43336be01e068a5916b4b8cdb7081c6baeadc704552459f3e5695d42a1ba5cf05" name="gga43336be01e068a5916b4b8cdb7081c6baeadc704552459f3e5695d42a1ba5cf05"></a>TLV_QUERY_RESULT_STRING&#160;</td><td class="fielddoc"><p>UTF-8 string scalar; later-phase execution. </p>
+<tr><td class="fieldname"><a id="gga43336be01e068a5916b4b8cdb7081c6baeadc704552459f3e5695d42a1ba5cf05" name="gga43336be01e068a5916b4b8cdb7081c6baeadc704552459f3e5695d42a1ba5cf05"></a>TLV_QUERY_RESULT_STRING&#160;</td><td class="fielddoc"><p>UTF-8 string scalar. </p>
 </td></tr>
 </table>
 
@@ -901,7 +960,7 @@ Functions</h2></td></tr>
     <tr><td class="paramdir">[in]</td><td class="paramname">scratch_size</td><td>Available scratch bytes. </td></tr>
     <tr><td class="paramdir">[out]</td><td class="paramname">storage</td><td>Aligned program output; NULL with zero capacity requests sizing. </td></tr>
     <tr><td class="paramdir">[in]</td><td class="paramname">capacity</td><td>Available output bytes. </td></tr>
-    <tr><td class="paramdir">[out]</td><td class="paramname">info</td><td>Required exact requirements and plan classification output. </td></tr>
+    <tr><td class="paramdir">[in,out]</td><td class="paramname">info</td><td>Required requirements output; set struct_size to the writable extent. </td></tr>
     <tr><td class="paramdir">[out]</td><td class="paramname">diagnostic</td><td>Optional failure detail. </td></tr>
   </table>
   </dd>
@@ -915,7 +974,9 @@ Functions</h2></td></tr>
 <a class="el" href="group__core.html#gga516c7250563ee9332e2f45f2d203ae61a83b538a74c7058e8863132a6410b9d65">TLV_ERR_INVALID_ARG</a> for syntax/options/alignment; <a class="el" href="group__core.html#gga516c7250563ee9332e2f45f2d203ae61aa4a514ccb37d17b2cd7c7da47d2eab88">TLV_ERR_NULL_ARG</a> for missing pointers; <a class="el" href="group__core.html#gga516c7250563ee9332e2f45f2d203ae61a1e32eada09d59d834a685da1adeaaf97">TLV_ERR_LIMIT</a> for configured resources. </dd></dl>
 <dl class="section note"><dt>Note</dt><dd>Storage, scratch, text and info must not overlap. Failure preserves program storage. Sizing and writing are deterministic for identical input/options. </dd>
 <dd>
-After semantic analysis, info is also populated for capability/type failures. Earlier lexical, grammar, scratch and arithmetic failures leave it unchanged. </dd></dl>
+After semantic analysis, info is also populated for capability/type failures. Earlier lexical, grammar, scratch and arithmetic failures leave it unchanged. </dd>
+<dd>
+struct_size must cover the prefix through result_kind. Writes are limited to min(struct_size, sizeof current info); unknown trailing caller bytes are preserved. struct_size is preserved. Rebuilding is required for callers predating this contract. </dd></dl>
 
 </div>
 </div>
@@ -1037,6 +1098,80 @@ After semantic analysis, info is also populated for capability/type failures. Ea
 </dl>
 <dl class="section return"><dt>Returns</dt><dd>Step count, or zero for NULL, zero-initialized or corrupt storage. </dd></dl>
 <dl class="section note"><dt>Note</dt><dd>Never allocates. O(step count) validation; storage remains unchanged. </dd></dl>
+
+</div>
+</div>
+<a id="ga597eb45f36e2ec234150f343f7e9b545" name="ga597eb45f36e2ec234150f343f7e9b545"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#ga597eb45f36e2ec234150f343f7e9b545">&#9670;&#160;</a></span>tlv_query_exec_bind()</h2>
+
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname"><a class="el" href="group__core.html#ga164d2817a32e5d7b7aa1472e887b47c3">tlv_result_t</a> tlv_query_exec_bind </td>
+          <td>(</td>
+          <td class="paramtype"><a class="el" href="group__traversal.html#gacff0d3ed0386caf2464d098ae952ebb7">tlv_query_exec_t</a> *&#160;</td>
+          <td class="paramname"><em>exec</em>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype">const char *&#160;</td>
+          <td class="paramname"><em>name</em>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype"><a class="el" href="group__traversal.html#ga9e9451c7cc7e346182993d0d95065837">tlv_query_result_kind_t</a>&#160;</td>
+          <td class="paramname"><em>type</em>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype">int64_t&#160;</td>
+          <td class="paramname"><em>integer</em>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype">const uint8_t *&#160;</td>
+          <td class="paramname"><em>data</em>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype">size_t&#160;</td>
+          <td class="paramname"><em>size</em>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype"><a class="el" href="group__traversal.html#ga17f951dcf47161a07accd081699eff6f">tlv_query_diagnostic_t</a> *&#160;</td>
+          <td class="paramname"><em>diagnostic</em>&#160;</td>
+        </tr>
+        <tr>
+          <td></td>
+          <td>)</td>
+          <td></td><td></td>
+        </tr>
+      </table>
+</div><div class="memdoc">
+
+<p>Bind one typed variable before consuming any event. </p>
+<dl class="params"><dt>Parameters</dt><dd>
+  <table class="params">
+    <tr><td class="paramdir">[in,out]</td><td class="paramname">exec</td><td>Required fresh initialized execution. </td></tr>
+    <tr><td class="paramdir">[in]</td><td class="paramname">name</td><td>Required variable name without dollar prefix. </td></tr>
+    <tr><td class="paramdir">[in]</td><td class="paramname">type</td><td>Integer, bytes or UTF-8 string category matching its declaration. </td></tr>
+    <tr><td class="paramdir">[in]</td><td class="paramname">integer</td><td>Signed value used only for integer bindings. </td></tr>
+    <tr><td class="paramdir">[in]</td><td class="paramname">data</td><td>Borrowed bytes/string; NULL is permitted for an empty span. </td></tr>
+    <tr><td class="paramdir">[in]</td><td class="paramname">size</td><td>Span bytes, ignored for integer bindings. </td></tr>
+    <tr><td class="paramdir">[out]</td><td class="paramname">diagnostic</td><td>Optional binding failure detail. </td></tr>
+  </table>
+  </dd>
+</dl>
+<dl class="section return"><dt>Returns</dt><dd><a class="el" href="group__core.html#gga516c7250563ee9332e2f45f2d203ae61ac763c25dd3e807fae4d8078c3d3e94ed">TLV_OK</a>; <a class="el" href="group__core.html#gga516c7250563ee9332e2f45f2d203ae61aa4a514ccb37d17b2cd7c7da47d2eab88">TLV_ERR_NULL_ARG</a> for missing pointers; <a class="el" href="group__core.html#gga516c7250563ee9332e2f45f2d203ae61a83b538a74c7058e8863132a6410b9d65">TLV_ERR_INVALID_ARG</a> for unknown/duplicate/incompatible bindings or used execution. </dd></dl>
+<dl class="section note"><dt>Note</dt><dd>No text interpolation or allocation occurs. Span storage must remain alive and unchanged until reset. To copy a span, the caller copies into its own storage. Reinitialization clears all bindings. Rebinding during STOP/NEED_MORE_DATA is invalid. Invalid bindings leave state unchanged. All referenced variables must be bound before the first event, including variables in predicates with no matching nodes. </dd></dl>
 
 </div>
 </div>
@@ -1200,12 +1335,12 @@ After semantic analysis, info is also populated for capability/type failures. Ea
 <dl class="params"><dt>Parameters</dt><dd>
   <table class="params">
     <tr><td class="paramdir">[in]</td><td class="paramname">exec</td><td>Required initialized execution. </td></tr>
-    <tr><td class="paramdir">[out]</td><td class="paramname">info</td><td>Required observed status output. </td></tr>
+    <tr><td class="paramdir">[in,out]</td><td class="paramname">info</td><td>Required observed status output with initialized struct_size. </td></tr>
   </table>
   </dd>
 </dl>
 <dl class="section return"><dt>Returns</dt><dd><a class="el" href="group__core.html#gga516c7250563ee9332e2f45f2d203ae61ac763c25dd3e807fae4d8078c3d3e94ed">TLV_OK</a>; <a class="el" href="group__core.html#gga516c7250563ee9332e2f45f2d203ae61aa4a514ccb37d17b2cd7c7da47d2eab88">TLV_ERR_NULL_ARG</a> for a missing pointer. </dd></dl>
-<dl class="section note"><dt>Note</dt><dd>Never allocates. STOP/NEED_MORE_DATA do not imply finished/full validation. </dd></dl>
+<dl class="section note"><dt>Note</dt><dd>Never allocates. STOP/NEED_MORE_DATA do not imply finished/full validation. Writes are bounded by struct_size, which must cover elements; struct_size and unknown trailing caller bytes are preserved. Invalid extents return <a class="el" href="group__core.html#gga516c7250563ee9332e2f45f2d203ae61a83b538a74c7058e8863132a6410b9d65">TLV_ERR_INVALID_ARG</a>. </dd></dl>
 
 </div>
 </div>
@@ -1791,6 +1926,79 @@ After semantic analysis, info is also populated for capability/type failures. Ea
 <dl class="section return"><dt>Returns</dt><dd><a class="el" href="group__core.html#gga516c7250563ee9332e2f45f2d203ae61ac763c25dd3e807fae4d8078c3d3e94ed">TLV_OK</a> on discovery/write; <a class="el" href="group__core.html#gga516c7250563ee9332e2f45f2d203ae61aa4a514ccb37d17b2cd7c7da47d2eab88">TLV_ERR_NULL_ARG</a> for missing arguments; <a class="el" href="group__core.html#gga516c7250563ee9332e2f45f2d203ae61acbd34cf02b42e70e99648aef5b9ca8b3">TLV_ERR_BUFFER_TOO_SHORT</a> with required set and output unchanged. </dd></dl>
 <dl class="section note"><dt>Note</dt><dd>Never allocates. Output and required must not overlap program storage. </dd></dl>
 <dl class="section return"><dt>Returns</dt><dd><a class="el" href="group__core.html#gga516c7250563ee9332e2f45f2d203ae61a83b538a74c7058e8863132a6410b9d65">TLV_ERR_INVALID_ARG</a> for misalignment or inconsistent internal image. </dd></dl>
+
+</div>
+</div>
+<a id="gab34456b821d2c62b1ead8ac7116f1fc8" name="gab34456b821d2c62b1ead8ac7116f1fc8"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#gab34456b821d2c62b1ead8ac7116f1fc8">&#9670;&#160;</a></span>tlv_query_program_variable()</h2>
+
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname"><a class="el" href="group__core.html#ga164d2817a32e5d7b7aa1472e887b47c3">tlv_result_t</a> tlv_query_program_variable </td>
+          <td>(</td>
+          <td class="paramtype">const <a class="el" href="group__traversal.html#ga45bdea1007b9780dba5559a2190f569d">tlv_query_program_t</a> *&#160;</td>
+          <td class="paramname"><em>program</em>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype">size_t&#160;</td>
+          <td class="paramname"><em>index</em>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype"><a class="el" href="group__traversal.html#gad7b51415976a241e60ec98bb5de1ede3">tlv_query_variable_info_t</a> *&#160;</td>
+          <td class="paramname"><em>info</em>&#160;</td>
+        </tr>
+        <tr>
+          <td></td>
+          <td>)</td>
+          <td></td><td></td>
+        </tr>
+      </table>
+</div><div class="memdoc">
+
+<p>Read a unique referenced variable requirement. </p>
+<dl class="params"><dt>Parameters</dt><dd>
+  <table class="params">
+    <tr><td class="paramdir">[in]</td><td class="paramname">program</td><td>Live immutable program. </td></tr>
+    <tr><td class="paramdir">[in]</td><td class="paramname">index</td><td>Zero-based slot in first-reference order. </td></tr>
+    <tr><td class="paramdir">[out]</td><td class="paramname">info</td><td>Fixed-layout output; unchanged on failure. </td></tr>
+  </table>
+  </dd>
+</dl>
+<dl class="section return"><dt>Returns</dt><dd><a class="el" href="group__core.html#gga516c7250563ee9332e2f45f2d203ae61ac763c25dd3e807fae4d8078c3d3e94ed">TLV_OK</a>; <a class="el" href="group__core.html#gga516c7250563ee9332e2f45f2d203ae61aa4a514ccb37d17b2cd7c7da47d2eab88">TLV_ERR_NULL_ARG</a> for missing pointers; <a class="el" href="group__core.html#gga516c7250563ee9332e2f45f2d203ae61a83b538a74c7058e8863132a6410b9d65">TLV_ERR_INVALID_ARG</a> for invalid image or index. The name remains valid while the program is alive. </dd></dl>
+
+</div>
+</div>
+<a id="ga7b03002e8b3fb150a6ab43d6d21e5634" name="ga7b03002e8b3fb150a6ab43d6d21e5634"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#ga7b03002e8b3fb150a6ab43d6d21e5634">&#9670;&#160;</a></span>tlv_query_program_variable_count()</h2>
+
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname">size_t tlv_query_program_variable_count </td>
+          <td>(</td>
+          <td class="paramtype">const <a class="el" href="group__traversal.html#ga45bdea1007b9780dba5559a2190f569d">tlv_query_program_t</a> *&#160;</td>
+          <td class="paramname"><em>program</em></td><td>)</td>
+          <td></td>
+        </tr>
+      </table>
+</div><div class="memdoc">
+
+<p>Count unique referenced variables in first-reference order. </p>
+<dl class="params"><dt>Parameters</dt><dd>
+  <table class="params">
+    <tr><td class="paramdir">[in]</td><td class="paramname">program</td><td>Live immutable program. </td></tr>
+  </table>
+  </dd>
+</dl>
+<dl class="section return"><dt>Returns</dt><dd>Unique variable count; zero for NULL or an inconsistent internal image. </dd></dl>
+<dl class="section note"><dt>Note</dt><dd>Unused compile-environment declarations are not program requirements. </dd></dl>
 
 </div>
 </div>
