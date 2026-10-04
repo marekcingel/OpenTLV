@@ -10,13 +10,13 @@
       
       
       
-        <link rel="canonical" href="https://marekcingel.github.io/OpenTLV/latest/formats/variable/">
+        <link rel="canonical" href="https://marekcingel.github.io/OpenTLV/latest/concepts/learning-model/">
       
       
-        <link rel="prev" href="../fixed/configurable/">
+        <link rel="prev" href="../../getting-started/">
       
       
-        <link rel="next" href="../bluetooth/">
+        <link rel="next" href="../../guides/processing/">
       
       
         
@@ -27,7 +27,7 @@
     
     
       
-        <title>Configurable variable-width TLV - OpenTLV</title>
+        <title>Understand the basic model - OpenTLV</title>
       
     
     
@@ -80,7 +80,7 @@
     <div data-md-component="skip">
       
         
-        <a href="#configurable-variable-width-tlv" class="md-skip">
+        <a href="#from-bytes-to-useful-data" class="md-skip">
           Skip to content
         </a>
       
@@ -131,7 +131,7 @@
         <div class="md-header__topic" data-md-component="header-topic">
           <span class="md-ellipsis">
             
-              Configurable variable-width TLV
+              Understand the basic model
             
           </span>
         </div>
@@ -261,10 +261,12 @@
   
   
   
+    
+  
   
     
     
-      <li class="md-tabs__item">
+      <li class="md-tabs__item md-tabs__item--active">
         <a href="../../getting-started/" class="md-tabs__link">
           
   
@@ -321,13 +323,11 @@
   
   
   
-    
-  
   
     
     
-      <li class="md-tabs__item md-tabs__item--active">
-        <a href="../" class="md-tabs__link">
+      <li class="md-tabs__item">
+        <a href="../../formats/" class="md-tabs__link">
           
   
   
@@ -427,7 +427,7 @@
     
     
       <li class="md-tabs__item">
-        <a href="../../concepts/architecture/" class="md-tabs__link">
+        <a href="../architecture/" class="md-tabs__link">
           
   
   
@@ -447,7 +447,7 @@
     
     
       <li class="md-tabs__item">
-        <a href="../../concepts/runtime-model/" class="md-tabs__link">
+        <a href="../runtime-model/" class="md-tabs__link">
           
   
   
@@ -534,26 +534,31 @@
       
   
   
+    
   
   
+  
     
     
     
     
+      
+        
+        
       
       
         
       
     
     
-    <li class="md-nav__item md-nav__item--nested">
+    <li class="md-nav__item md-nav__item--active md-nav__item--section md-nav__item--nested">
       
         
         
-        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_2" >
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_2" checked>
         
           
-          <label class="md-nav__link" for="__nav_2" id="__nav_2_label" tabindex="0">
+          <label class="md-nav__link" for="__nav_2" id="__nav_2_label" tabindex="">
             
   
   
@@ -571,7 +576,7 @@
             <span class="md-nav__icon md-icon"></span>
           </label>
         
-        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_2_label" aria-expanded="false">
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_2_label" aria-expanded="true">
           <label class="md-nav__title" for="__nav_2">
             <span class="md-nav__icon md-icon"></span>
             
@@ -614,10 +619,37 @@
                 
   
   
+    
   
   
-    <li class="md-nav__item">
-      <a href="../../concepts/learning-model/" class="md-nav__link">
+  
+    <li class="md-nav__item md-nav__item--active">
+      
+      <input class="md-nav__toggle md-toggle" type="checkbox" id="__toc">
+      
+      
+        
+      
+      
+        <label class="md-nav__link md-nav__link--active" for="__toc">
+          
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Understand the basic model
+  
+
+    
+  </span>
+  
+  
+
+          <span class="md-nav__icon md-icon"></span>
+        </label>
+      
+      <a href="./" class="md-nav__link md-nav__link--active">
         
   
   
@@ -633,6 +665,81 @@
   
 
       </a>
+      
+        
+
+<nav class="md-nav md-nav--secondary" aria-label="Table of contents">
+  
+  
+  
+    
+  
+  
+    <label class="md-nav__title" for="__toc">
+      <span class="md-nav__icon md-icon"></span>
+      Table of contents
+    </label>
+    <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
+      
+        <li class="md-nav__item">
+  <a href="#element-the-data-you-read" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Element: the data you read
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#reader-and-writer-process-one-element-at-a-time" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Reader and Writer: process one element at a time
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#document-own-and-edit-a-message" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Document: own and edit a message
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#optional-operations" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Optional operations
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#continue-at-your-own-depth" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Continue at your own depth
+      
+    </span>
+  </a>
+  
+</li>
+      
+    </ul>
+  
+</nav>
+      
     </li>
   
 
@@ -1211,7 +1318,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../concepts/bindings/" class="md-nav__link">
+      <a href="../bindings/" class="md-nav__link">
         
   
   
@@ -1299,31 +1406,26 @@
       
   
   
-    
   
   
-  
     
     
     
     
-      
-        
-        
       
       
         
       
     
     
-    <li class="md-nav__item md-nav__item--active md-nav__item--section md-nav__item--nested">
+    <li class="md-nav__item md-nav__item--nested">
       
         
         
-        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_5" checked>
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_5" >
         
           
-          <label class="md-nav__link" for="__nav_5" id="__nav_5_label" tabindex="">
+          <label class="md-nav__link" for="__nav_5" id="__nav_5_label" tabindex="0">
             
   
   
@@ -1341,7 +1443,7 @@
             <span class="md-nav__icon md-icon"></span>
           </label>
         
-        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_5_label" aria-expanded="true">
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_5_label" aria-expanded="false">
           <label class="md-nav__title" for="__nav_5">
             <span class="md-nav__icon md-icon"></span>
             
@@ -1359,7 +1461,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../" class="md-nav__link">
+      <a href="../../formats/" class="md-nav__link">
         
   
   
@@ -1387,7 +1489,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../support/" class="md-nav__link">
+      <a href="../../formats/support/" class="md-nav__link">
         
   
   
@@ -1415,7 +1517,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../fixed/configurable/" class="md-nav__link">
+      <a href="../../formats/fixed/configurable/" class="md-nav__link">
         
   
   
@@ -1440,37 +1542,10 @@
                 
   
   
-    
   
   
-  
-    <li class="md-nav__item md-nav__item--active">
-      
-      <input class="md-nav__toggle md-toggle" type="checkbox" id="__toc">
-      
-      
-        
-      
-      
-        <label class="md-nav__link md-nav__link--active" for="__toc">
-          
-  
-  
-  <span class="md-ellipsis">
-    
-  
-    Configurable variable-width TLV
-  
-
-    
-  </span>
-  
-  
-
-          <span class="md-nav__icon md-icon"></span>
-        </label>
-      
-      <a href="./" class="md-nav__link md-nav__link--active">
+    <li class="md-nav__item">
+      <a href="../../formats/variable/" class="md-nav__link">
         
   
   
@@ -1486,70 +1561,6 @@
   
 
       </a>
-      
-        
-
-<nav class="md-nav md-nav--secondary" aria-label="Table of contents">
-  
-  
-  
-    
-  
-  
-    <label class="md-nav__title" for="__toc">
-      <span class="md-nav__icon md-icon"></span>
-      Table of contents
-    </label>
-    <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
-      
-        <li class="md-nav__item">
-  <a href="#identifier-encoding" class="md-nav__link">
-    <span class="md-ellipsis">
-      
-        Identifier encoding
-      
-    </span>
-  </a>
-  
-</li>
-      
-        <li class="md-nav__item">
-  <a href="#length-encoding" class="md-nav__link">
-    <span class="md-ellipsis">
-      
-        Length encoding
-      
-    </span>
-  </a>
-  
-</li>
-      
-        <li class="md-nav__item">
-  <a href="#complete-format" class="md-nav__link">
-    <span class="md-ellipsis">
-      
-        Complete format
-      
-    </span>
-  </a>
-  
-</li>
-      
-        <li class="md-nav__item">
-  <a href="#concrete-rules-and-terminated-framing" class="md-nav__link">
-    <span class="md-ellipsis">
-      
-        Concrete rules and terminated framing
-      
-    </span>
-  </a>
-  
-</li>
-      
-    </ul>
-  
-</nav>
-      
     </li>
   
 
@@ -1562,7 +1573,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../bluetooth/" class="md-nav__link">
+      <a href="../../formats/bluetooth/" class="md-nav__link">
         
   
   
@@ -1590,7 +1601,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../nfc/" class="md-nav__link">
+      <a href="../../formats/nfc/" class="md-nav__link">
         
   
   
@@ -1618,7 +1629,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../dhcp/" class="md-nav__link">
+      <a href="../../formats/dhcp/" class="md-nav__link">
         
   
   
@@ -1646,7 +1657,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../lldp/" class="md-nav__link">
+      <a href="../../formats/lldp/" class="md-nav__link">
         
   
   
@@ -1674,7 +1685,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../lldp/conformance/" class="md-nav__link">
+      <a href="../../formats/lldp/conformance/" class="md-nav__link">
         
   
   
@@ -1702,7 +1713,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../asn1/ber/" class="md-nav__link">
+      <a href="../../formats/asn1/ber/" class="md-nav__link">
         
   
   
@@ -1730,7 +1741,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../asn1/der/" class="md-nav__link">
+      <a href="../../formats/asn1/der/" class="md-nav__link">
         
   
   
@@ -1758,7 +1769,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../asn1/cer/" class="md-nav__link">
+      <a href="../../formats/asn1/cer/" class="md-nav__link">
         
   
   
@@ -1786,7 +1797,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../custom/" class="md-nav__link">
+      <a href="../../formats/custom/" class="md-nav__link">
         
   
   
@@ -1814,7 +1825,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../format-examples/" class="md-nav__link">
+      <a href="../../formats/format-examples/" class="md-nav__link">
         
   
   
@@ -1842,7 +1853,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../format-roadmap/" class="md-nav__link">
+      <a href="../../formats/format-roadmap/" class="md-nav__link">
         
   
   
@@ -1870,7 +1881,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../format-catalogue/" class="md-nav__link">
+      <a href="../../formats/format-catalogue/" class="md-nav__link">
         
   
   
@@ -1898,7 +1909,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../lldp-review/" class="md-nav__link">
+      <a href="../../formats/lldp-review/" class="md-nav__link">
         
   
   
@@ -2529,7 +2540,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../concepts/architecture/" class="md-nav__link">
+      <a href="../architecture/" class="md-nav__link">
         
   
   
@@ -2557,7 +2568,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../concepts/core-types/" class="md-nav__link">
+      <a href="../core-types/" class="md-nav__link">
         
   
   
@@ -2585,7 +2596,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../concepts/value/" class="md-nav__link">
+      <a href="../value/" class="md-nav__link">
         
   
   
@@ -2613,7 +2624,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../concepts/length/" class="md-nav__link">
+      <a href="../length/" class="md-nav__link">
         
   
   
@@ -2641,7 +2652,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../concepts/endian/" class="md-nav__link">
+      <a href="../endian/" class="md-nav__link">
         
   
   
@@ -2669,7 +2680,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../concepts/cxx-native-boundary/" class="md-nav__link">
+      <a href="../cxx-native-boundary/" class="md-nav__link">
         
   
   
@@ -2697,7 +2708,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../concepts/cxx-formats/" class="md-nav__link">
+      <a href="../cxx-formats/" class="md-nav__link">
         
   
   
@@ -2725,7 +2736,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../concepts/cxx-builtins/" class="md-nav__link">
+      <a href="../cxx-builtins/" class="md-nav__link">
         
   
   
@@ -2812,7 +2823,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../concepts/runtime-model/" class="md-nav__link">
+      <a href="../runtime-model/" class="md-nav__link">
         
   
   
@@ -2840,7 +2851,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../concepts/processing-pipeline/" class="md-nav__link">
+      <a href="../processing-pipeline/" class="md-nav__link">
         
   
   
@@ -2868,7 +2879,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../concepts/architectural-rules/" class="md-nav__link">
+      <a href="../architectural-rules/" class="md-nav__link">
         
   
   
@@ -2896,7 +2907,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../concepts/format-contract/" class="md-nav__link">
+      <a href="../format-contract/" class="md-nav__link">
         
   
   
@@ -2924,7 +2935,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../concepts/definition-boundaries/" class="md-nav__link">
+      <a href="../definition-boundaries/" class="md-nav__link">
         
   
   
@@ -3259,10 +3270,10 @@
     <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
       
         <li class="md-nav__item">
-  <a href="#identifier-encoding" class="md-nav__link">
+  <a href="#element-the-data-you-read" class="md-nav__link">
     <span class="md-ellipsis">
       
-        Identifier encoding
+        Element: the data you read
       
     </span>
   </a>
@@ -3270,10 +3281,10 @@
 </li>
       
         <li class="md-nav__item">
-  <a href="#length-encoding" class="md-nav__link">
+  <a href="#reader-and-writer-process-one-element-at-a-time" class="md-nav__link">
     <span class="md-ellipsis">
       
-        Length encoding
+        Reader and Writer: process one element at a time
       
     </span>
   </a>
@@ -3281,10 +3292,10 @@
 </li>
       
         <li class="md-nav__item">
-  <a href="#complete-format" class="md-nav__link">
+  <a href="#document-own-and-edit-a-message" class="md-nav__link">
     <span class="md-ellipsis">
       
-        Complete format
+        Document: own and edit a message
       
     </span>
   </a>
@@ -3292,10 +3303,21 @@
 </li>
       
         <li class="md-nav__item">
-  <a href="#concrete-rules-and-terminated-framing" class="md-nav__link">
+  <a href="#optional-operations" class="md-nav__link">
     <span class="md-ellipsis">
       
-        Concrete rules and terminated framing
+        Optional operations
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#continue-at-your-own-depth" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Continue at your own depth
       
     </span>
   </a>
@@ -3319,7 +3341,7 @@
 
 
   
-    <a href="https://github.com/marekcingel/OpenTLV/edit/main/docs/formats/variable.md" title="Edit this page" class="md-content__button md-icon" rel="edit">
+    <a href="https://github.com/marekcingel/OpenTLV/edit/main/docs/concepts/learning-model.md" title="Edit this page" class="md-content__button md-icon" rel="edit">
       
       <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M10 20H6V4h7v5h5v3.1l2-2V8l-6-6H6c-1.1 0-2 .9-2 2v16c0 1.1.9 2 2 2h4zm10.2-7c.1 0 .3.1.4.2l1.3 1.3c.2.2.2.6 0 .8l-1 1-2.1-2.1 1-1c.1-.1.2-.2.4-.2m0 3.9L14.1 23H12v-2.1l6.1-6.1z"/></svg>
     </a>
@@ -3327,97 +3349,86 @@
   
 
 
-<h1 id="configurable-variable-width-tlv">Configurable variable-width TLV<a class="headerlink" href="#configurable-variable-width-tlv" title="Permanent link">&para;</a></h1>
-<p><code>tlv/formats/variable.h</code> provides allocation-free identifier and length primitives
-and a definite-length format composed from them. It is always available, even
-when all builtins are disabled, and does not require a runtime <code>.otlv</code> engine.
-It describes wire mechanics, not a protocol or an ASN.1 encoding rule.</p>
-<h2 id="identifier-encoding">Identifier encoding<a class="headerlink" href="#identifier-encoding" title="Permanent link">&para;</a></h2>
-<p><code>tlv_variable_identifier_t</code> selects inline bits in the first octet and an escape
-pattern. An escaped identifier has one or more additional octets, each containing
-configured payload bits and one continuation bit. A clear continuation bit ends
-the identifier. The configuration also bounds its complete byte width.</p>
-<p>The complete identifier is borrowed as raw bytes. Bits outside the inline mask
-in the first octet are preserved without interpretation. Additional octets may
-only contain the configured payload and continuation bits. Zero payloads,
-nonminimal encodings and identifiers wider than an integer are supported;
-concrete standards must enforce any stricter rules themselves.</p>
-<p><code>tlv_variable_identifier_read()</code> returns the borrowed identifier and consumed
-width. <code>tlv_variable_identifier_write()</code> validates a complete identifier and
-copies its bytes unchanged; NULL output with zero capacity measures it.</p>
-<h2 id="length-encoding">Length encoding<a class="headerlink" href="#length-encoding" title="Permanent link">&para;</a></h2>
-<p><code>tlv_variable_length_t</code> describes a prefix with a long-form bit and a payload
-mask. With the long-form bit clear, the payload is the count. With the bit set,
-the payload is the number of following count octets, in explicitly configured
-big or little endian order. Payload mask bits are packed from least to most
-significant, so the selector need not occupy the high bit.</p>
-<p><code>tlv_variable_length_read()</code> accepts nonminimal and zero-padded encodings if the
-count fits <code>tlv_size_t</code>. It checks the complete field is available before checking
-numeric overflow. On wire errors, <code>consumed</code> reports the available field prefix
-for diagnostics; the count output remains unchanged. A zero long-form width is
-not a definite length and returns <code>TLV_ERR_INVALID_LENGTH</code>. There are no
-standard-specific reserved prefixes.</p>
-<p><code>tlv_variable_length_write()</code> chooses short form when possible and otherwise the
-fewest full count octets. NULL output with zero capacity measures the field.
-The prefix must be able to represent the required octet count. Arithmetic
-overflow during decoding returns <code>TLV_ERR_OVERFLOW</code>; buffer truncation is
-reported separately. Native buffer sizes remain subject to the shared
-<a href="../../concepts/format-contract/">Format contract</a>.</p>
-<h2 id="complete-format">Complete format<a class="headerlink" href="#complete-format" title="Permanent link">&para;</a></h2>
-<p><code>tlv_variable_format_init()</code> borrows a <code>const tlv_variable_format_t</code> configuration
-and initializes an ordinary <code>tlv_format_t</code> for Reader, Writer and other consumers.
-The configuration must outlive the descriptor and its users. It may live in
-static storage or caller-owned runtime storage; it must remain unchanged during
-use. Copying the descriptor does not create another configuration or ownership.</p>
-<p>For example, this deliberately non-ASN.1 configuration uses identifier bits 4–6,
-escape pattern <code>0x20</code>, continuation bit 0, and payload bits 4–7:</p>
-<div class="highlight"><pre><span></span><code><a id="__codelineno-0-1" name="__codelineno-0-1" href="#__codelineno-0-1"></a><span class="cp">#include</span><span class="w"> </span><span class="cpf">"tlv/formats/variable.h"</span>
-<a id="__codelineno-0-2" name="__codelineno-0-2" href="#__codelineno-0-2"></a>
-<a id="__codelineno-0-3" name="__codelineno-0-3" href="#__codelineno-0-3"></a><span class="k">static</span><span class="w"> </span><span class="k">const</span><span class="w"> </span><span class="n">tlv_variable_format_t</span><span class="w"> </span><span class="n">config</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="p">{</span>
-<a id="__codelineno-0-4" name="__codelineno-0-4" href="#__codelineno-0-4"></a><span class="w">    </span><span class="p">{</span><span class="mh">0x70</span><span class="p">,</span><span class="w"> </span><span class="mh">0x20</span><span class="p">,</span><span class="w"> </span><span class="mh">0x01</span><span class="p">,</span><span class="w"> </span><span class="mh">0xF0</span><span class="p">,</span><span class="w"> </span><span class="mi">8</span><span class="p">},</span>
-<a id="__codelineno-0-5" name="__codelineno-0-5" href="#__codelineno-0-5"></a><span class="w">    </span><span class="p">{</span><span class="mh">0x80</span><span class="p">,</span><span class="w"> </span><span class="mh">0x7F</span><span class="p">,</span><span class="w"> </span><span class="n">TLV_BYTE_ORDER_LITTLE_ENDIAN</span><span class="p">},</span>
-<a id="__codelineno-0-6" name="__codelineno-0-6" href="#__codelineno-0-6"></a><span class="w">    </span><span class="n">TLV_ELEMENT_ORDER_TLV</span><span class="p">,</span>
-<a id="__codelineno-0-7" name="__codelineno-0-7" href="#__codelineno-0-7"></a><span class="w">    </span><span class="n">TLV_LENGTH_SCOPE_VALUE</span>
-<a id="__codelineno-0-8" name="__codelineno-0-8" href="#__codelineno-0-8"></a><span class="p">};</span>
-<a id="__codelineno-0-9" name="__codelineno-0-9" href="#__codelineno-0-9"></a>
-<a id="__codelineno-0-10" name="__codelineno-0-10" href="#__codelineno-0-10"></a><span class="cm">/* In the caller: */</span>
-<a id="__codelineno-0-11" name="__codelineno-0-11" href="#__codelineno-0-11"></a><span class="n">tlv_format_t</span><span class="w"> </span><span class="n">format</span><span class="p">;</span>
-<a id="__codelineno-0-12" name="__codelineno-0-12" href="#__codelineno-0-12"></a><span class="n">tlv_result_t</span><span class="w"> </span><span class="n">result</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">tlv_variable_format_init</span><span class="p">(</span><span class="o">&amp;</span><span class="n">format</span><span class="p">,</span><span class="w"> </span><span class="o">&amp;</span><span class="n">config</span><span class="p">);</span>
+<h1 id="from-bytes-to-useful-data">From bytes to useful data<a class="headerlink" href="#from-bytes-to-useful-data" title="Permanent link">&para;</a></h1>
+<p>Prerequisite: complete a <a href="../../getting-started/#quick-start">first program</a>
+or inspect bytes with the <a href="../../cli/#first-inspection">CLI</a>.</p>
+<h2 id="element-the-data-you-read">Element: the data you read<a class="headerlink" href="#element-the-data-you-read" title="Permanent link">&para;</a></h2>
+<p>An Element exposes an identifier (Tag) and Value bytes. Its logical length is the
+number of Value bytes. For the Fixed input <code>01 02 48 69</code>:</p>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-0-1" name="__codelineno-0-1" href="#__codelineno-0-1"></a>01       02           48 69
+<a id="__codelineno-0-2" name="__codelineno-0-2" href="#__codelineno-0-2"></a>Tag      wire length  Value: "Hi"
+<a id="__codelineno-0-3" name="__codelineno-0-3" href="#__codelineno-0-3"></a>Element: Tag = 01, Value size = 2
 </code></pre></div>
-<p>Under that configuration, <code>A5 B1 C0 02 AA BB</code> represents identifier <code>A5 B1 C0</code>,
-length 2 and value <code>AA BB</code>. The identifier's first octet selects escape; <code>B1</code>
-continues and <code>C0</code> ends the identifier.</p>
-<p>The format also supports LTV ordering and lengths counting both Tag and Value.
-The latter uses the actual variable identifier width. Decoding publishes borrowed
-Tag/Value and normal Header/Tag/Length/Value/Trailer source ranges. Ordinary
-encoding regenerates the length field; use <code>tlv_source_preserve()</code> to reproduce
-an unchanged source's nonminimal length bytes exactly.</p>
-<h2 id="concrete-rules-and-terminated-framing">Concrete rules and terminated framing<a class="headerlink" href="#concrete-rules-and-terminated-framing" title="Permanent link">&para;</a></h2>
-<p><code>tlv_variable_fields_init()</code> creates a caller-owned <code>tlv_field_layout_t</code> with
-variable field callbacks and a borrowed configuration context. A definite
-composition can be used through <code>tlv_fields_format_init()</code>. For more specialized
-composition, the standalone identifier and length helpers can be called from
-callbacks with a concrete format's own context.</p>
-<p>The existing optional <code>tlv_field_layout_t.resolve</code> callback handles value
-boundary resolution for terminated TLV framing with VALUE scope. A concrete
-format can recognize its length marker before invoking the definite count
-decoder, resolve the logical Value boundary and report a validated Trailer.
-The resolver's error offsets are relative to the bytes after Tag; the field
-composition translates them into element offsets.</p>
-<p>Formats writing trailers supply matching canonical <code>measure</code> and <code>encode</code>
-callbacks. The default Variable format and default field writer emit definite
-counts and no trailer. Changing a read resolver does not change write behavior.
-Constructed classification is also supplied by the concrete format.</p>
-<p>Termination recognition must respect that format's element boundaries. Searching
-opaque Value bytes for a marker is insufficient when the same bytes can occur
-inside a child payload. The integration tests demonstrate a synthetic terminated
-container whose resolver skips complete definite children, including a child
-whose Value contains the trailer bytes.</p>
-<p>The primitives do not assign meaning to ASN.1 classes or numbers, constructed
-bits, EOC, EMV identifiers, dictionaries, or canonical restrictions.
-<a href="../asn1/ber/#generic-mechanics-and-asn1-rules">ASN.1 BER</a> composes these primitives
-with its own identifier, length and indefinite/EOC policy. DER/CER wrapper
-refactoring and independent EMV framing remain separate work.</p>
+<p>Format tells Reader how to locate these fields. Some formats omit an explicit
+Tag or Length field. Layout records source ranges; it is metadata about the
+encoded input, rather than a second representation of Element identity.</p>
+<h2 id="reader-and-writer-process-one-element-at-a-time">Reader and Writer: process one element at a time<a class="headerlink" href="#reader-and-writer-process-one-element-at-a-time" title="Permanent link">&para;</a></h2>
+<p>Use Reader to inspect input and Writer to create output. Start with the
+<a href="../../guides/reader/">Reader example</a> or <a href="../../guides/writer/">Writer guide</a>.</p>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-1-1" name="__codelineno-1-1" href="#__codelineno-1-1"></a>input bytes --Reader + Format--&gt; borrowed Element
+<a id="__codelineno-1-2" name="__codelineno-1-2" href="#__codelineno-1-2"></a>Element     --Writer + Format--&gt; output bytes
+</code></pre></div>
+<p>Keep input alive and unchanged while using borrowed Tags and Values. Keep
+borrowed Format configuration alive for the operations using it. Check each
+operation's result before using its output. Reader does no I/O; your application
+provides input. Streaming input windows and nested traversal are advanced
+options in the Reader guide.</p>
+<p>Writer generates destination framing. Re-encoding equivalent content does not
+promise identical original bytes. Exact preservation of unchanged source uses
+<a href="../format-contract/">the explicit source-preservation contract</a>.</p>
+<h2 id="document-own-and-edit-a-message">Document: own and edit a message<a class="headerlink" href="#document-own-and-edit-a-message" title="Permanent link">&para;</a></h2>
+<p>Choose <a href="../../guides/document/">Document</a> when you need to retain or edit data.
+It owns an allocating tree instead of borrowing all values from the input.</p>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-2-1" name="__codelineno-2-1" href="#__codelineno-2-1"></a>input --parse--&gt; owned Document --edit--&gt; Document --encode--&gt; output
+</code></pre></div>
+<p>Reader and Document are processing choices, not mandatory consecutive stages.
+Their handles and editing rules are explained in the Document guide.</p>
+<h2 id="optional-operations">Optional operations<a class="headerlink" href="#optional-operations" title="Permanent link">&para;</a></h2>
+<table>
+<thead>
+<tr>
+<th>Need</th>
+<th>Operation</th>
+<th>Continue with</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Select elements by path</td>
+<td>Query</td>
+<td><a href="../../guides/queries/">Queries</a></td>
+</tr>
+<tr>
+<td>Check permitted composition</td>
+<td>Schema</td>
+<td><a href="../../guides/schemas/">Schemas</a></td>
+</tr>
+<tr>
+<td>Interpret Value bytes</td>
+<td>Codec</td>
+<td><a href="../../guides/codecs/">Codecs</a></td>
+</tr>
+<tr>
+<td>Explain a failure</td>
+<td>Diagnostics</td>
+<td><a href="../../guides/diagnostics/">Diagnostics</a></td>
+</tr>
+</tbody>
+</table>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-3-1" name="__codelineno-3-1" href="#__codelineno-3-1"></a>Element / Document --Query--&gt; selected elements
+<a id="__codelineno-3-2" name="__codelineno-3-2" href="#__codelineno-3-2"></a>Element structure  --Schema--&gt; validation result
+<a id="__codelineno-3-3" name="__codelineno-3-3" href="#__codelineno-3-3"></a>Value bytes        --Codec--&gt; application value
+</code></pre></div>
+<p>These are optional consumers of shared data, not stages every parser must run.
+A Definition registry supplies identifier names; protocol modules may compose
+Format, definitions, schemas and codecs without adding policy to generic core.</p>
+<h2 id="continue-at-your-own-depth">Continue at your own depth<a class="headerlink" href="#continue-at-your-own-depth" title="Permanent link">&para;</a></h2>
+<p>Next, <a href="../../guides/processing/">choose a processing API</a> for your task. Then
+<a href="../../formats/#choose-a-format">choose a format</a> matching the wire data.
+For detailed lifetimes see <a href="../../guides/memory/">memory ownership</a>; for extension
+work see <a href="../../formats/custom/">custom formats</a>. The
+<a href="../architecture/">architecture overview</a> explains the complete current model.
+<a href="../runtime-model/">Runtime models</a> describe planned work separately.</p>
 
 
 
@@ -3455,7 +3466,7 @@ refactoring and independent EMV framing remain separate work.</p>
       <nav class="md-footer__inner md-grid" aria-label="Footer" >
         
           
-          <a href="../fixed/configurable/" class="md-footer__link md-footer__link--prev" aria-label="Previous: Configurable fixed-width TLV">
+          <a href="../../getting-started/" class="md-footer__link md-footer__link--prev" aria-label="Previous: Getting started">
             <div class="md-footer__button md-icon">
               
               <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M20 11v2H8l5.5 5.5-1.42 1.42L4.16 12l7.92-7.92L13.5 5.5 8 11z"/></svg>
@@ -3465,20 +3476,20 @@ refactoring and independent EMV framing remain separate work.</p>
                 Previous
               </span>
               <div class="md-ellipsis">
-                Configurable fixed-width TLV
+                Getting started
               </div>
             </div>
           </a>
         
         
           
-          <a href="../bluetooth/" class="md-footer__link md-footer__link--next" aria-label="Next: Bluetooth LTV">
+          <a href="../../guides/processing/" class="md-footer__link md-footer__link--next" aria-label="Next: Choose a processing API">
             <div class="md-footer__title">
               <span class="md-footer__direction">
                 Next
               </span>
               <div class="md-ellipsis">
-                Bluetooth LTV
+                Choose a processing API
               </div>
             </div>
             <div class="md-footer__button md-icon">

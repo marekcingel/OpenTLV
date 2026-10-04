@@ -10,13 +10,13 @@
       
       
       
-        <link rel="canonical" href="https://marekcingel.github.io/OpenTLV/latest/formats/variable/">
+        <link rel="canonical" href="https://marekcingel.github.io/OpenTLV/latest/development/documentation-audit/">
       
       
-        <link rel="prev" href="../fixed/configurable/">
+        <link rel="prev" href="../documentation-layout/">
       
       
-        <link rel="next" href="../bluetooth/">
+        <link rel="next" href="../fuzzing/">
       
       
         
@@ -27,7 +27,7 @@
     
     
       
-        <title>Configurable variable-width TLV - OpenTLV</title>
+        <title>Documentation audit - OpenTLV</title>
       
     
     
@@ -80,7 +80,7 @@
     <div data-md-component="skip">
       
         
-        <a href="#configurable-variable-width-tlv" class="md-skip">
+        <a href="#documentation-audit-for-513" class="md-skip">
           Skip to content
         </a>
       
@@ -131,7 +131,7 @@
         <div class="md-header__topic" data-md-component="header-topic">
           <span class="md-ellipsis">
             
-              Configurable variable-width TLV
+              Documentation audit
             
           </span>
         </div>
@@ -321,13 +321,11 @@
   
   
   
-    
-  
   
     
     
-      <li class="md-tabs__item md-tabs__item--active">
-        <a href="../" class="md-tabs__link">
+      <li class="md-tabs__item">
+        <a href="../../formats/" class="md-tabs__link">
           
   
   
@@ -443,10 +441,12 @@
   
   
   
+    
+  
   
     
     
-      <li class="md-tabs__item">
+      <li class="md-tabs__item md-tabs__item--active">
         <a href="../../concepts/runtime-model/" class="md-tabs__link">
           
   
@@ -1267,7 +1267,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../development/webassembly/" class="md-nav__link">
+      <a href="../webassembly/" class="md-nav__link">
         
   
   
@@ -1299,31 +1299,26 @@
       
   
   
-    
   
   
-  
     
     
     
     
-      
-        
-        
       
       
         
       
     
     
-    <li class="md-nav__item md-nav__item--active md-nav__item--section md-nav__item--nested">
+    <li class="md-nav__item md-nav__item--nested">
       
         
         
-        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_5" checked>
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_5" >
         
           
-          <label class="md-nav__link" for="__nav_5" id="__nav_5_label" tabindex="">
+          <label class="md-nav__link" for="__nav_5" id="__nav_5_label" tabindex="0">
             
   
   
@@ -1341,7 +1336,7 @@
             <span class="md-nav__icon md-icon"></span>
           </label>
         
-        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_5_label" aria-expanded="true">
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_5_label" aria-expanded="false">
           <label class="md-nav__title" for="__nav_5">
             <span class="md-nav__icon md-icon"></span>
             
@@ -1359,7 +1354,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../" class="md-nav__link">
+      <a href="../../formats/" class="md-nav__link">
         
   
   
@@ -1387,7 +1382,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../support/" class="md-nav__link">
+      <a href="../../formats/support/" class="md-nav__link">
         
   
   
@@ -1415,7 +1410,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../fixed/configurable/" class="md-nav__link">
+      <a href="../../formats/fixed/configurable/" class="md-nav__link">
         
   
   
@@ -1440,37 +1435,10 @@
                 
   
   
-    
   
   
-  
-    <li class="md-nav__item md-nav__item--active">
-      
-      <input class="md-nav__toggle md-toggle" type="checkbox" id="__toc">
-      
-      
-        
-      
-      
-        <label class="md-nav__link md-nav__link--active" for="__toc">
-          
-  
-  
-  <span class="md-ellipsis">
-    
-  
-    Configurable variable-width TLV
-  
-
-    
-  </span>
-  
-  
-
-          <span class="md-nav__icon md-icon"></span>
-        </label>
-      
-      <a href="./" class="md-nav__link md-nav__link--active">
+    <li class="md-nav__item">
+      <a href="../../formats/variable/" class="md-nav__link">
         
   
   
@@ -1486,70 +1454,6 @@
   
 
       </a>
-      
-        
-
-<nav class="md-nav md-nav--secondary" aria-label="Table of contents">
-  
-  
-  
-    
-  
-  
-    <label class="md-nav__title" for="__toc">
-      <span class="md-nav__icon md-icon"></span>
-      Table of contents
-    </label>
-    <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
-      
-        <li class="md-nav__item">
-  <a href="#identifier-encoding" class="md-nav__link">
-    <span class="md-ellipsis">
-      
-        Identifier encoding
-      
-    </span>
-  </a>
-  
-</li>
-      
-        <li class="md-nav__item">
-  <a href="#length-encoding" class="md-nav__link">
-    <span class="md-ellipsis">
-      
-        Length encoding
-      
-    </span>
-  </a>
-  
-</li>
-      
-        <li class="md-nav__item">
-  <a href="#complete-format" class="md-nav__link">
-    <span class="md-ellipsis">
-      
-        Complete format
-      
-    </span>
-  </a>
-  
-</li>
-      
-        <li class="md-nav__item">
-  <a href="#concrete-rules-and-terminated-framing" class="md-nav__link">
-    <span class="md-ellipsis">
-      
-        Concrete rules and terminated framing
-      
-    </span>
-  </a>
-  
-</li>
-      
-    </ul>
-  
-</nav>
-      
     </li>
   
 
@@ -1562,7 +1466,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../bluetooth/" class="md-nav__link">
+      <a href="../../formats/bluetooth/" class="md-nav__link">
         
   
   
@@ -1590,7 +1494,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../nfc/" class="md-nav__link">
+      <a href="../../formats/nfc/" class="md-nav__link">
         
   
   
@@ -1618,7 +1522,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../dhcp/" class="md-nav__link">
+      <a href="../../formats/dhcp/" class="md-nav__link">
         
   
   
@@ -1646,7 +1550,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../lldp/" class="md-nav__link">
+      <a href="../../formats/lldp/" class="md-nav__link">
         
   
   
@@ -1674,7 +1578,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../lldp/conformance/" class="md-nav__link">
+      <a href="../../formats/lldp/conformance/" class="md-nav__link">
         
   
   
@@ -1702,7 +1606,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../asn1/ber/" class="md-nav__link">
+      <a href="../../formats/asn1/ber/" class="md-nav__link">
         
   
   
@@ -1730,7 +1634,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../asn1/der/" class="md-nav__link">
+      <a href="../../formats/asn1/der/" class="md-nav__link">
         
   
   
@@ -1758,7 +1662,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../asn1/cer/" class="md-nav__link">
+      <a href="../../formats/asn1/cer/" class="md-nav__link">
         
   
   
@@ -1786,7 +1690,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../custom/" class="md-nav__link">
+      <a href="../../formats/custom/" class="md-nav__link">
         
   
   
@@ -1814,7 +1718,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../format-examples/" class="md-nav__link">
+      <a href="../../formats/format-examples/" class="md-nav__link">
         
   
   
@@ -1842,7 +1746,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../format-roadmap/" class="md-nav__link">
+      <a href="../../formats/format-roadmap/" class="md-nav__link">
         
   
   
@@ -1870,7 +1774,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../format-catalogue/" class="md-nav__link">
+      <a href="../../formats/format-catalogue/" class="md-nav__link">
         
   
   
@@ -1898,7 +1802,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../lldp-review/" class="md-nav__link">
+      <a href="../../formats/lldp-review/" class="md-nav__link">
         
   
   
@@ -2757,26 +2661,31 @@
       
   
   
+    
   
   
+  
     
     
     
     
+      
+        
+        
       
       
         
       
     
     
-    <li class="md-nav__item md-nav__item--nested">
+    <li class="md-nav__item md-nav__item--active md-nav__item--section md-nav__item--nested">
       
         
         
-        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_11" >
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_11" checked>
         
           
-          <label class="md-nav__link" for="__nav_11" id="__nav_11_label" tabindex="0">
+          <label class="md-nav__link" for="__nav_11" id="__nav_11_label" tabindex="">
             
   
   
@@ -2794,7 +2703,7 @@
             <span class="md-nav__icon md-icon"></span>
           </label>
         
-        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_11_label" aria-expanded="false">
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_11_label" aria-expanded="true">
           <label class="md-nav__title" for="__nav_11">
             <span class="md-nav__icon md-icon"></span>
             
@@ -2952,7 +2861,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../development/workflow/" class="md-nav__link">
+      <a href="../workflow/" class="md-nav__link">
         
   
   
@@ -2980,7 +2889,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../development/abi-compatibility/" class="md-nav__link">
+      <a href="../abi-compatibility/" class="md-nav__link">
         
   
   
@@ -3008,7 +2917,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../development/documentation-layout/" class="md-nav__link">
+      <a href="../documentation-layout/" class="md-nav__link">
         
   
   
@@ -3033,10 +2942,37 @@
                 
   
   
+    
   
   
-    <li class="md-nav__item">
-      <a href="../../development/documentation-audit/" class="md-nav__link">
+  
+    <li class="md-nav__item md-nav__item--active">
+      
+      <input class="md-nav__toggle md-toggle" type="checkbox" id="__toc">
+      
+      
+        
+      
+      
+        <label class="md-nav__link md-nav__link--active" for="__toc">
+          
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Documentation audit
+  
+
+    
+  </span>
+  
+  
+
+          <span class="md-nav__icon md-icon"></span>
+        </label>
+      
+      <a href="./" class="md-nav__link md-nav__link--active">
         
   
   
@@ -3052,6 +2988,59 @@
   
 
       </a>
+      
+        
+
+<nav class="md-nav md-nav--secondary" aria-label="Table of contents">
+  
+  
+  
+    
+  
+  
+    <label class="md-nav__title" for="__toc">
+      <span class="md-nav__icon md-icon"></span>
+      Table of contents
+    </label>
+    <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
+      
+        <li class="md-nav__item">
+  <a href="#findings-and-canonical-sources" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Findings and canonical sources
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#review-boundaries" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Review boundaries
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#page-inventory" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Page inventory
+      
+    </span>
+  </a>
+  
+</li>
+      
+    </ul>
+  
+</nav>
+      
     </li>
   
 
@@ -3064,7 +3053,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../development/fuzzing/" class="md-nav__link">
+      <a href="../fuzzing/" class="md-nav__link">
         
   
   
@@ -3092,7 +3081,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../development/rust/" class="md-nav__link">
+      <a href="../rust/" class="md-nav__link">
         
   
   
@@ -3120,7 +3109,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../development/python/" class="md-nav__link">
+      <a href="../python/" class="md-nav__link">
         
   
   
@@ -3148,7 +3137,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../development/lua/" class="md-nav__link">
+      <a href="../lua/" class="md-nav__link">
         
   
   
@@ -3176,7 +3165,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../development/go/" class="md-nav__link">
+      <a href="../go/" class="md-nav__link">
         
   
   
@@ -3259,10 +3248,10 @@
     <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
       
         <li class="md-nav__item">
-  <a href="#identifier-encoding" class="md-nav__link">
+  <a href="#findings-and-canonical-sources" class="md-nav__link">
     <span class="md-ellipsis">
       
-        Identifier encoding
+        Findings and canonical sources
       
     </span>
   </a>
@@ -3270,10 +3259,10 @@
 </li>
       
         <li class="md-nav__item">
-  <a href="#length-encoding" class="md-nav__link">
+  <a href="#review-boundaries" class="md-nav__link">
     <span class="md-ellipsis">
       
-        Length encoding
+        Review boundaries
       
     </span>
   </a>
@@ -3281,21 +3270,10 @@
 </li>
       
         <li class="md-nav__item">
-  <a href="#complete-format" class="md-nav__link">
+  <a href="#page-inventory" class="md-nav__link">
     <span class="md-ellipsis">
       
-        Complete format
-      
-    </span>
-  </a>
-  
-</li>
-      
-        <li class="md-nav__item">
-  <a href="#concrete-rules-and-terminated-framing" class="md-nav__link">
-    <span class="md-ellipsis">
-      
-        Concrete rules and terminated framing
+        Page inventory
       
     </span>
   </a>
@@ -3319,7 +3297,7 @@
 
 
   
-    <a href="https://github.com/marekcingel/OpenTLV/edit/main/docs/formats/variable.md" title="Edit this page" class="md-content__button md-icon" rel="edit">
+    <a href="https://github.com/marekcingel/OpenTLV/edit/main/docs/development/documentation-audit.md" title="Edit this page" class="md-content__button md-icon" rel="edit">
       
       <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M10 20H6V4h7v5h5v3.1l2-2V8l-6-6H6c-1.1 0-2 .9-2 2v16c0 1.1.9 2 2 2h4zm10.2-7c.1 0 .3.1.4.2l1.3 1.3c.2.2.2.6 0 .8l-1 1-2.1-2.1 1-1c.1-.1.2-.2.4-.2m0 3.9L14.1 23H12v-2.1l6.1-6.1z"/></svg>
     </a>
@@ -3327,97 +3305,664 @@
   
 
 
-<h1 id="configurable-variable-width-tlv">Configurable variable-width TLV<a class="headerlink" href="#configurable-variable-width-tlv" title="Permanent link">&para;</a></h1>
-<p><code>tlv/formats/variable.h</code> provides allocation-free identifier and length primitives
-and a definite-length format composed from them. It is always available, even
-when all builtins are disabled, and does not require a runtime <code>.otlv</code> engine.
-It describes wire mechanics, not a protocol or an ASN.1 encoding rule.</p>
-<h2 id="identifier-encoding">Identifier encoding<a class="headerlink" href="#identifier-encoding" title="Permanent link">&para;</a></h2>
-<p><code>tlv_variable_identifier_t</code> selects inline bits in the first octet and an escape
-pattern. An escaped identifier has one or more additional octets, each containing
-configured payload bits and one continuation bit. A clear continuation bit ends
-the identifier. The configuration also bounds its complete byte width.</p>
-<p>The complete identifier is borrowed as raw bytes. Bits outside the inline mask
-in the first octet are preserved without interpretation. Additional octets may
-only contain the configured payload and continuation bits. Zero payloads,
-nonminimal encodings and identifiers wider than an integer are supported;
-concrete standards must enforce any stricter rules themselves.</p>
-<p><code>tlv_variable_identifier_read()</code> returns the borrowed identifier and consumed
-width. <code>tlv_variable_identifier_write()</code> validates a complete identifier and
-copies its bytes unchanged; NULL output with zero capacity measures it.</p>
-<h2 id="length-encoding">Length encoding<a class="headerlink" href="#length-encoding" title="Permanent link">&para;</a></h2>
-<p><code>tlv_variable_length_t</code> describes a prefix with a long-form bit and a payload
-mask. With the long-form bit clear, the payload is the count. With the bit set,
-the payload is the number of following count octets, in explicitly configured
-big or little endian order. Payload mask bits are packed from least to most
-significant, so the selector need not occupy the high bit.</p>
-<p><code>tlv_variable_length_read()</code> accepts nonminimal and zero-padded encodings if the
-count fits <code>tlv_size_t</code>. It checks the complete field is available before checking
-numeric overflow. On wire errors, <code>consumed</code> reports the available field prefix
-for diagnostics; the count output remains unchanged. A zero long-form width is
-not a definite length and returns <code>TLV_ERR_INVALID_LENGTH</code>. There are no
-standard-specific reserved prefixes.</p>
-<p><code>tlv_variable_length_write()</code> chooses short form when possible and otherwise the
-fewest full count octets. NULL output with zero capacity measures the field.
-The prefix must be able to represent the required octet count. Arithmetic
-overflow during decoding returns <code>TLV_ERR_OVERFLOW</code>; buffer truncation is
-reported separately. Native buffer sizes remain subject to the shared
-<a href="../../concepts/format-contract/">Format contract</a>.</p>
-<h2 id="complete-format">Complete format<a class="headerlink" href="#complete-format" title="Permanent link">&para;</a></h2>
-<p><code>tlv_variable_format_init()</code> borrows a <code>const tlv_variable_format_t</code> configuration
-and initializes an ordinary <code>tlv_format_t</code> for Reader, Writer and other consumers.
-The configuration must outlive the descriptor and its users. It may live in
-static storage or caller-owned runtime storage; it must remain unchanged during
-use. Copying the descriptor does not create another configuration or ownership.</p>
-<p>For example, this deliberately non-ASN.1 configuration uses identifier bits 4–6,
-escape pattern <code>0x20</code>, continuation bit 0, and payload bits 4–7:</p>
-<div class="highlight"><pre><span></span><code><a id="__codelineno-0-1" name="__codelineno-0-1" href="#__codelineno-0-1"></a><span class="cp">#include</span><span class="w"> </span><span class="cpf">"tlv/formats/variable.h"</span>
-<a id="__codelineno-0-2" name="__codelineno-0-2" href="#__codelineno-0-2"></a>
-<a id="__codelineno-0-3" name="__codelineno-0-3" href="#__codelineno-0-3"></a><span class="k">static</span><span class="w"> </span><span class="k">const</span><span class="w"> </span><span class="n">tlv_variable_format_t</span><span class="w"> </span><span class="n">config</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="p">{</span>
-<a id="__codelineno-0-4" name="__codelineno-0-4" href="#__codelineno-0-4"></a><span class="w">    </span><span class="p">{</span><span class="mh">0x70</span><span class="p">,</span><span class="w"> </span><span class="mh">0x20</span><span class="p">,</span><span class="w"> </span><span class="mh">0x01</span><span class="p">,</span><span class="w"> </span><span class="mh">0xF0</span><span class="p">,</span><span class="w"> </span><span class="mi">8</span><span class="p">},</span>
-<a id="__codelineno-0-5" name="__codelineno-0-5" href="#__codelineno-0-5"></a><span class="w">    </span><span class="p">{</span><span class="mh">0x80</span><span class="p">,</span><span class="w"> </span><span class="mh">0x7F</span><span class="p">,</span><span class="w"> </span><span class="n">TLV_BYTE_ORDER_LITTLE_ENDIAN</span><span class="p">},</span>
-<a id="__codelineno-0-6" name="__codelineno-0-6" href="#__codelineno-0-6"></a><span class="w">    </span><span class="n">TLV_ELEMENT_ORDER_TLV</span><span class="p">,</span>
-<a id="__codelineno-0-7" name="__codelineno-0-7" href="#__codelineno-0-7"></a><span class="w">    </span><span class="n">TLV_LENGTH_SCOPE_VALUE</span>
-<a id="__codelineno-0-8" name="__codelineno-0-8" href="#__codelineno-0-8"></a><span class="p">};</span>
-<a id="__codelineno-0-9" name="__codelineno-0-9" href="#__codelineno-0-9"></a>
-<a id="__codelineno-0-10" name="__codelineno-0-10" href="#__codelineno-0-10"></a><span class="cm">/* In the caller: */</span>
-<a id="__codelineno-0-11" name="__codelineno-0-11" href="#__codelineno-0-11"></a><span class="n">tlv_format_t</span><span class="w"> </span><span class="n">format</span><span class="p">;</span>
-<a id="__codelineno-0-12" name="__codelineno-0-12" href="#__codelineno-0-12"></a><span class="n">tlv_result_t</span><span class="w"> </span><span class="n">result</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">tlv_variable_format_init</span><span class="p">(</span><span class="o">&amp;</span><span class="n">format</span><span class="p">,</span><span class="w"> </span><span class="o">&amp;</span><span class="n">config</span><span class="p">);</span>
-</code></pre></div>
-<p>Under that configuration, <code>A5 B1 C0 02 AA BB</code> represents identifier <code>A5 B1 C0</code>,
-length 2 and value <code>AA BB</code>. The identifier's first octet selects escape; <code>B1</code>
-continues and <code>C0</code> ends the identifier.</p>
-<p>The format also supports LTV ordering and lengths counting both Tag and Value.
-The latter uses the actual variable identifier width. Decoding publishes borrowed
-Tag/Value and normal Header/Tag/Length/Value/Trailer source ranges. Ordinary
-encoding regenerates the length field; use <code>tlv_source_preserve()</code> to reproduce
-an unchanged source's nonminimal length bytes exactly.</p>
-<h2 id="concrete-rules-and-terminated-framing">Concrete rules and terminated framing<a class="headerlink" href="#concrete-rules-and-terminated-framing" title="Permanent link">&para;</a></h2>
-<p><code>tlv_variable_fields_init()</code> creates a caller-owned <code>tlv_field_layout_t</code> with
-variable field callbacks and a borrowed configuration context. A definite
-composition can be used through <code>tlv_fields_format_init()</code>. For more specialized
-composition, the standalone identifier and length helpers can be called from
-callbacks with a concrete format's own context.</p>
-<p>The existing optional <code>tlv_field_layout_t.resolve</code> callback handles value
-boundary resolution for terminated TLV framing with VALUE scope. A concrete
-format can recognize its length marker before invoking the definite count
-decoder, resolve the logical Value boundary and report a validated Trailer.
-The resolver's error offsets are relative to the bytes after Tag; the field
-composition translates them into element offsets.</p>
-<p>Formats writing trailers supply matching canonical <code>measure</code> and <code>encode</code>
-callbacks. The default Variable format and default field writer emit definite
-counts and no trailer. Changing a read resolver does not change write behavior.
-Constructed classification is also supplied by the concrete format.</p>
-<p>Termination recognition must respect that format's element boundaries. Searching
-opaque Value bytes for a marker is insufficient when the same bytes can occur
-inside a child payload. The integration tests demonstrate a synthetic terminated
-container whose resolver skips complete definite children, including a child
-whose Value contains the trailer bytes.</p>
-<p>The primitives do not assign meaning to ASN.1 classes or numbers, constructed
-bits, EOC, EMV identifiers, dictionaries, or canonical restrictions.
-<a href="../asn1/ber/#generic-mechanics-and-asn1-rules">ASN.1 BER</a> composes these primitives
-with its own identifier, length and indefinite/EOC policy. DER/CER wrapper
-refactoring and independent EMV framing remain separate work.</p>
+<h1 id="documentation-audit-for-513">Documentation audit for #513<a class="headerlink" href="#documentation-audit-for-513" title="Permanent link">&para;</a></h1>
+<p>This inventory covers tracked Markdown entry points, learning pages, reference,
+formats, standards, examples, bindings and contributor material. Generated
+Doxygen content is reviewed through its source roots and reference entry pages;
+it remains generated rather than copied here.</p>
+<h2 id="findings-and-canonical-sources">Findings and canonical sources<a class="headerlink" href="#findings-and-canonical-sources" title="Permanent link">&para;</a></h2>
+<table>
+<thead>
+<tr>
+<th>Area</th>
+<th>Finding</th>
+<th>Canonical source and action</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Root README</td>
+<td>Support/candidate lists preceded first usage; complete examples duplicated onboarding</td>
+<td>Compact landing page; support inventory and roadmap retain detailed scope</td>
+</tr>
+<tr>
+<td>Website and GitHub indexes</td>
+<td>Two broad indexes repeated the same choices</td>
+<td>Website homepage is the shared user index; GitHub README points to it</td>
+</tr>
+<tr>
+<td>Installation and first programs</td>
+<td>Loader/build detail appeared before language choice</td>
+<td>Getting Started owns integration and verified multi-language first programs</td>
+</tr>
+<tr>
+<td>Concepts and architecture</td>
+<td>Deep contracts lacked an introductory bridge</td>
+<td>Basic model introduces Element, Reader/Writer and Document; architecture owns exact responsibilities</td>
+</tr>
+<tr>
+<td>Task guides</td>
+<td>Navigation placed advanced memory/schema topics before Reader</td>
+<td>Read/write/edit first; optional consumers and contracts follow</td>
+</tr>
+<tr>
+<td>Bindings</td>
+<td>User and development material have distinct responsibilities</td>
+<td>Language guides own public usage; binding matrix owns parity; component README links guide first</td>
+</tr>
+<tr>
+<td>CLI</td>
+<td>Build details preceded useful commands</td>
+<td>First inspection with exact input/output precedes build reference</td>
+</tr>
+<tr>
+<td>WebAssembly</td>
+<td>Build tooling is needed for embedding, but not browser inspection</td>
+<td>Playground is the user entry; WebAssembly guide owns embedding/build details</td>
+</tr>
+<tr>
+<td>Formats and standards</td>
+<td>Scope descriptions are useful and must survive README reduction</td>
+<td>Support inventory owns availability; individual pages own framing/conformance limits</td>
+</tr>
+<tr>
+<td>Memory and diagnostics</td>
+<td>Safety must remain visible without requiring exhaustive contracts</td>
+<td>First examples keep lifetime/error checks; memory and diagnostic guides own advanced rules</td>
+</tr>
+<tr>
+<td>Custom formats</td>
+<td>Callback contracts require the shared model</td>
+<td>Link from basic model and format overview; keep custom-format implementation reference</td>
+</tr>
+<tr>
+<td>Examples</td>
+<td>Marked blocks already have source synchronization</td>
+<td>Keep runnable sources and existing example checks; avoid new competing complete snippets</td>
+</tr>
+<tr>
+<td>Roadmap</td>
+<td>Current and future models can be confused</td>
+<td>ROADMAP and runtime-model pages own plans; explicitly label future diagrams</td>
+</tr>
+<tr>
+<td>Contributors</td>
+<td>Layout guidance exists but progressive disclosure is implicit</td>
+<td>Record audience, prerequisites, diagrams and navigation conventions</td>
+</tr>
+</tbody>
+</table>
+<h2 id="review-boundaries">Review boundaries<a class="headerlink" href="#review-boundaries" title="Permanent link">&para;</a></h2>
+<p>This is an information-architecture and entry-point review, not a new protocol
+conformance audit or proof of binding parity. Preserve technical sections and
+source examples. Existing support limitations remain authoritative. The existing
+documentation inventory checker verifies source-derived coverage, not prose.</p>
+<p>Paths stay unchanged for existing pages. README heading anchors remain as
+migration entry points; their links route to canonical detailed pages. No new
+redirect service or runtime API is introduced.</p>
+<h2 id="page-inventory">Page inventory<a class="headerlink" href="#page-inventory" title="Permanent link">&para;</a></h2>
+<p>The table records each tracked Markdown page's audience, prerequisite level and
+review decision. Links identify its current canonical location. Topic-specific
+prerequisites are clarified in the learning pages rather than copied into API
+reference or release notes.</p>
+<table>
+<thead>
+<tr>
+<th>Page / canonical location</th>
+<th>Audience</th>
+<th>Prerequisite</th>
+<th>Review decision</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><a href="https://github.com/marekcingel/OpenTLV/blob/main/.github/PULL_REQUEST_TEMPLATE.md">PULL_REQUEST_TEMPLATE.md</a></td>
+<td>User</td>
+<td>None or selected API setup</td>
+<td>Use task entry and recommended next step</td>
+</tr>
+<tr>
+<td><a href="https://github.com/marekcingel/OpenTLV/blob/main/AGENTS.md">Repository instructions</a></td>
+<td>Contributor</td>
+<td>Build workflow</td>
+<td>Keep separate from user onboarding</td>
+</tr>
+<tr>
+<td><a href="https://github.com/marekcingel/OpenTLV/blob/main/CHANGELOG.md">Changelog</a></td>
+<td>Lookup</td>
+<td>Topic-specific</td>
+<td>Keep exact contracts/status; link from learning pages</td>
+</tr>
+<tr>
+<td><a href="https://github.com/marekcingel/OpenTLV/blob/main/CODE_OF_CONDUCT.md">Contributor Covenant Code of Conduct</a></td>
+<td>Contributor</td>
+<td>Build workflow</td>
+<td>Keep separate from user onboarding</td>
+</tr>
+<tr>
+<td><a href="https://github.com/marekcingel/OpenTLV/blob/main/CONTRIBUTING.md">Contributing to OpenTLV</a></td>
+<td>Contributor</td>
+<td>Build workflow</td>
+<td>Keep separate from user onboarding</td>
+</tr>
+<tr>
+<td><a href="https://github.com/marekcingel/OpenTLV/blob/main/README.md">README.md</a></td>
+<td>User</td>
+<td>None or selected API setup</td>
+<td>Use task entry and recommended next step</td>
+</tr>
+<tr>
+<td><a href="https://github.com/marekcingel/OpenTLV/blob/main/ROADMAP.md">Roadmap</a></td>
+<td>Lookup</td>
+<td>Topic-specific</td>
+<td>Keep exact contracts/status; link from learning pages</td>
+</tr>
+<tr>
+<td><a href="https://github.com/marekcingel/OpenTLV/blob/main/SECURITY.md">Security Policy</a></td>
+<td>Contributor</td>
+<td>Build workflow</td>
+<td>Keep separate from user onboarding</td>
+</tr>
+<tr>
+<td><a href="https://github.com/marekcingel/OpenTLV/blob/main/benchmarks/README.md">Local benchmarks</a></td>
+<td>User</td>
+<td>None or selected API setup</td>
+<td>Use task entry and recommended next step</td>
+</tr>
+<tr>
+<td><a href="https://github.com/marekcingel/OpenTLV/blob/main/benchmarks/baselines/README.md">Benchmark baselines</a></td>
+<td>User</td>
+<td>None or selected API setup</td>
+<td>Use task entry and recommended next step</td>
+</tr>
+<tr>
+<td><a href="https://github.com/marekcingel/OpenTLV/blob/main/bindings/go/README.md">Go binding (experimental)</a></td>
+<td>Binding user / contributor</td>
+<td>Language toolchain</td>
+<td>Link public user guide before native/build details</td>
+</tr>
+<tr>
+<td><a href="https://github.com/marekcingel/OpenTLV/blob/main/bindings/lua/README.md">opentlv (Lua, experimental)</a></td>
+<td>Binding user / contributor</td>
+<td>Language toolchain</td>
+<td>Link public user guide before native/build details</td>
+</tr>
+<tr>
+<td><a href="https://github.com/marekcingel/OpenTLV/blob/main/bindings/python/opentlv-core/README.md">opentlv-core (experimental)</a></td>
+<td>Binding user / contributor</td>
+<td>Language toolchain</td>
+<td>Link public user guide before native/build details</td>
+</tr>
+<tr>
+<td><a href="https://github.com/marekcingel/OpenTLV/blob/main/bindings/python/opentlv/README.md">opentlv (experimental)</a></td>
+<td>Binding user / contributor</td>
+<td>Language toolchain</td>
+<td>Link public user guide before native/build details</td>
+</tr>
+<tr>
+<td><a href="https://github.com/marekcingel/OpenTLV/blob/main/docs/README.md">Documentation</a></td>
+<td>User</td>
+<td>None or selected API setup</td>
+<td>Use task entry and recommended next step</td>
+</tr>
+<tr>
+<td><a href="https://github.com/marekcingel/OpenTLV/blob/main/docs/assets/README.md">OpenTLV logo</a></td>
+<td>User</td>
+<td>None or selected API setup</td>
+<td>Use task entry and recommended next step</td>
+</tr>
+<tr>
+<td><a href="https://github.com/marekcingel/OpenTLV/blob/main/docs/cli/README.md">Command-line tool</a></td>
+<td>User</td>
+<td>None or selected API setup</td>
+<td>Use task entry and recommended next step</td>
+</tr>
+<tr>
+<td><a href="https://github.com/marekcingel/OpenTLV/blob/main/docs/cli/json-schema.md">TLV JSON document</a></td>
+<td>User</td>
+<td>None or selected API setup</td>
+<td>Use task entry and recommended next step</td>
+</tr>
+<tr>
+<td><a href="https://github.com/marekcingel/OpenTLV/blob/main/docs/concepts/architectural-rules.md">Core architectural rules</a></td>
+<td>User / extension author</td>
+<td>Basic model</td>
+<td>Add learning context; preserve detailed contracts</td>
+</tr>
+<tr>
+<td><a href="https://github.com/marekcingel/OpenTLV/blob/main/docs/concepts/architecture.md">Layered OpenTLV architecture (#65, #279, #280, #281, #327)</a></td>
+<td>User / extension author</td>
+<td>Basic model</td>
+<td>Add learning context; preserve detailed contracts</td>
+</tr>
+<tr>
+<td><a href="https://github.com/marekcingel/OpenTLV/blob/main/docs/concepts/bindings.md">Common conceptual model for language bindings</a></td>
+<td>User / extension author</td>
+<td>Basic model</td>
+<td>Add learning context; preserve detailed contracts</td>
+</tr>
+<tr>
+<td><a href="https://github.com/marekcingel/OpenTLV/blob/main/docs/concepts/core-types.md">C core types</a></td>
+<td>User / extension author</td>
+<td>Basic model</td>
+<td>Add learning context; preserve detailed contracts</td>
+</tr>
+<tr>
+<td><a href="https://github.com/marekcingel/OpenTLV/blob/main/docs/concepts/cxx-builtins.md">C++ built-in standards</a></td>
+<td>User / extension author</td>
+<td>Basic model</td>
+<td>Add learning context; preserve detailed contracts</td>
+</tr>
+<tr>
+<td><a href="https://github.com/marekcingel/OpenTLV/blob/main/docs/concepts/cxx-formats.md">C++ Format customization</a></td>
+<td>User / extension author</td>
+<td>Basic model</td>
+<td>Add learning context; preserve detailed contracts</td>
+</tr>
+<tr>
+<td><a href="https://github.com/marekcingel/OpenTLV/blob/main/docs/concepts/cxx-native-boundary.md">C++ public and native boundary</a></td>
+<td>User / extension author</td>
+<td>Basic model</td>
+<td>Add learning context; preserve detailed contracts</td>
+</tr>
+<tr>
+<td><a href="https://github.com/marekcingel/OpenTLV/blob/main/docs/concepts/definition-boundaries.md">Definition boundary audit (#381)</a></td>
+<td>User / extension author</td>
+<td>Basic model</td>
+<td>Add learning context; preserve detailed contracts</td>
+</tr>
+<tr>
+<td><a href="https://github.com/marekcingel/OpenTLV/blob/main/docs/concepts/endian.md">Integer byte-order conversions</a></td>
+<td>User / extension author</td>
+<td>Basic model</td>
+<td>Add learning context; preserve detailed contracts</td>
+</tr>
+<tr>
+<td><a href="https://github.com/marekcingel/OpenTLV/blob/main/docs/concepts/format-contract.md">Format and Element contract</a></td>
+<td>User / extension author</td>
+<td>Basic model</td>
+<td>Add learning context; preserve detailed contracts</td>
+</tr>
+<tr>
+<td><a href="https://github.com/marekcingel/OpenTLV/blob/main/docs/concepts/length.md">Logical TLV value lengths</a></td>
+<td>User / extension author</td>
+<td>Basic model</td>
+<td>Add learning context; preserve detailed contracts</td>
+</tr>
+<tr>
+<td><a href="https://github.com/marekcingel/OpenTLV/blob/main/docs/concepts/processing-pipeline.md">Canonical processing pipeline</a></td>
+<td>User / extension author</td>
+<td>Basic model</td>
+<td>Add learning context; preserve detailed contracts</td>
+</tr>
+<tr>
+<td><a href="https://github.com/marekcingel/OpenTLV/blob/main/docs/concepts/runtime-model.md">Phase 2 runtime model and canonical IR</a></td>
+<td>User / extension author</td>
+<td>Basic model</td>
+<td>Add learning context; preserve detailed contracts</td>
+</tr>
+<tr>
+<td><a href="https://github.com/marekcingel/OpenTLV/blob/main/docs/concepts/value.md">Borrowed TLV values</a></td>
+<td>User / extension author</td>
+<td>Basic model</td>
+<td>Add learning context; preserve detailed contracts</td>
+</tr>
+<tr>
+<td><a href="https://github.com/marekcingel/OpenTLV/blob/main/docs/development/abi-compatibility.md">C ABI compatibility</a></td>
+<td>Contributor</td>
+<td>Build workflow</td>
+<td>Keep separate from user onboarding</td>
+</tr>
+<tr>
+<td><a href="https://github.com/marekcingel/OpenTLV/blob/main/docs/development/documentation-layout.md">Where documentation belongs</a></td>
+<td>Contributor</td>
+<td>Build workflow</td>
+<td>Keep separate from user onboarding</td>
+</tr>
+<tr>
+<td><a href="https://github.com/marekcingel/OpenTLV/blob/main/docs/development/fuzzing.md">Fuzzing the C API</a></td>
+<td>Contributor</td>
+<td>Build workflow</td>
+<td>Keep separate from user onboarding</td>
+</tr>
+<tr>
+<td><a href="https://github.com/marekcingel/OpenTLV/blob/main/docs/development/go.md">Go binding development</a></td>
+<td>Contributor</td>
+<td>Build workflow</td>
+<td>Keep separate from user onboarding</td>
+</tr>
+<tr>
+<td><a href="https://github.com/marekcingel/OpenTLV/blob/main/docs/development/lua.md">Lua bindings (experimental)</a></td>
+<td>Contributor</td>
+<td>Build workflow</td>
+<td>Keep separate from user onboarding</td>
+</tr>
+<tr>
+<td><a href="https://github.com/marekcingel/OpenTLV/blob/main/docs/development/python.md">Python bindings (experimental)</a></td>
+<td>Contributor</td>
+<td>Build workflow</td>
+<td>Keep separate from user onboarding</td>
+</tr>
+<tr>
+<td><a href="https://github.com/marekcingel/OpenTLV/blob/main/docs/development/rust.md">Rust bindings (experimental)</a></td>
+<td>Contributor</td>
+<td>Build workflow</td>
+<td>Keep separate from user onboarding</td>
+</tr>
+<tr>
+<td><a href="https://github.com/marekcingel/OpenTLV/blob/main/docs/development/webassembly.md">WebAssembly build (experimental)</a></td>
+<td>Contributor</td>
+<td>Build workflow</td>
+<td>Keep separate from user onboarding</td>
+</tr>
+<tr>
+<td><a href="https://github.com/marekcingel/OpenTLV/blob/main/docs/development/workflow.md">Development workflow</a></td>
+<td>Contributor</td>
+<td>Build workflow</td>
+<td>Keep separate from user onboarding</td>
+</tr>
+<tr>
+<td><a href="https://github.com/marekcingel/OpenTLV/blob/main/docs/formats/README.md">C library formats</a></td>
+<td>Format user</td>
+<td>Reader and matching format</td>
+<td>Keep scope and limitations canonical</td>
+</tr>
+<tr>
+<td><a href="https://github.com/marekcingel/OpenTLV/blob/main/docs/formats/asn1/ber.md">BER-TLV</a></td>
+<td>Format user</td>
+<td>Reader and matching format</td>
+<td>Keep scope and limitations canonical</td>
+</tr>
+<tr>
+<td><a href="https://github.com/marekcingel/OpenTLV/blob/main/docs/formats/asn1/cer.md">CER-TLV</a></td>
+<td>Format user</td>
+<td>Reader and matching format</td>
+<td>Keep scope and limitations canonical</td>
+</tr>
+<tr>
+<td><a href="https://github.com/marekcingel/OpenTLV/blob/main/docs/formats/asn1/der.md">DER-TLV</a></td>
+<td>Format user</td>
+<td>Reader and matching format</td>
+<td>Keep scope and limitations canonical</td>
+</tr>
+<tr>
+<td><a href="https://github.com/marekcingel/OpenTLV/blob/main/docs/formats/bluetooth/README.md">Bluetooth LTV</a></td>
+<td>Format user</td>
+<td>Reader and matching format</td>
+<td>Keep scope and limitations canonical</td>
+</tr>
+<tr>
+<td><a href="https://github.com/marekcingel/OpenTLV/blob/main/docs/formats/custom/README.md">Application-defined format example</a></td>
+<td>Format user</td>
+<td>Reader and matching format</td>
+<td>Keep scope and limitations canonical</td>
+</tr>
+<tr>
+<td><a href="https://github.com/marekcingel/OpenTLV/blob/main/docs/formats/dhcp/README.md">DHCPv4 option framing</a></td>
+<td>Format user</td>
+<td>Reader and matching format</td>
+<td>Keep scope and limitations canonical</td>
+</tr>
+<tr>
+<td><a href="https://github.com/marekcingel/OpenTLV/blob/main/docs/formats/fixed/configurable.md">Configurable fixed-width TLV</a></td>
+<td>Format user</td>
+<td>Reader and matching format</td>
+<td>Keep scope and limitations canonical</td>
+</tr>
+<tr>
+<td><a href="https://github.com/marekcingel/OpenTLV/blob/main/docs/formats/format-catalogue.md">Format candidate catalogue</a></td>
+<td>Format user</td>
+<td>Reader and matching format</td>
+<td>Keep scope and limitations canonical</td>
+</tr>
+<tr>
+<td><a href="https://github.com/marekcingel/OpenTLV/blob/main/docs/formats/format-examples.md">Format trees and byte examples</a></td>
+<td>Format user</td>
+<td>Reader and matching format</td>
+<td>Keep scope and limitations canonical</td>
+</tr>
+<tr>
+<td><a href="https://github.com/marekcingel/OpenTLV/blob/main/docs/formats/format-roadmap.md">Format expansion candidates</a></td>
+<td>Format user</td>
+<td>Reader and matching format</td>
+<td>Keep scope and limitations canonical</td>
+</tr>
+<tr>
+<td><a href="https://github.com/marekcingel/OpenTLV/blob/main/docs/formats/lldp-review.md">LLDP requirements and Format/Layout review</a></td>
+<td>Format user</td>
+<td>Reader and matching format</td>
+<td>Keep scope and limitations canonical</td>
+</tr>
+<tr>
+<td><a href="https://github.com/marekcingel/OpenTLV/blob/main/docs/formats/lldp/README.md">LLDP TLV support</a></td>
+<td>Format user</td>
+<td>Reader and matching format</td>
+<td>Keep scope and limitations canonical</td>
+</tr>
+<tr>
+<td><a href="https://github.com/marekcingel/OpenTLV/blob/main/docs/formats/lldp/conformance.md">LLDP reference tests and conformance boundary</a></td>
+<td>Format user</td>
+<td>Reader and matching format</td>
+<td>Keep scope and limitations canonical</td>
+</tr>
+<tr>
+<td><a href="https://github.com/marekcingel/OpenTLV/blob/main/docs/formats/nfc/README.md">NFC Forum Type 2 Tag TLV framing</a></td>
+<td>Format user</td>
+<td>Reader and matching format</td>
+<td>Keep scope and limitations canonical</td>
+</tr>
+<tr>
+<td><a href="https://github.com/marekcingel/OpenTLV/blob/main/docs/formats/support.md">Implemented format and standard capabilities</a></td>
+<td>Format user</td>
+<td>Reader and matching format</td>
+<td>Keep scope and limitations canonical</td>
+</tr>
+<tr>
+<td><a href="https://github.com/marekcingel/OpenTLV/blob/main/docs/formats/variable.md">Configurable variable-width TLV</a></td>
+<td>Format user</td>
+<td>Reader and matching format</td>
+<td>Keep scope and limitations canonical</td>
+</tr>
+<tr>
+<td><a href="https://github.com/marekcingel/OpenTLV/blob/main/docs/getting-started/README.md">Getting started</a></td>
+<td>User</td>
+<td>None or selected API setup</td>
+<td>Use task entry and recommended next step</td>
+</tr>
+<tr>
+<td><a href="https://github.com/marekcingel/OpenTLV/blob/main/docs/guides/codecs.md">C value codecs</a></td>
+<td>User</td>
+<td>None or selected API setup</td>
+<td>Use task entry and recommended next step</td>
+</tr>
+<tr>
+<td><a href="https://github.com/marekcingel/OpenTLV/blob/main/docs/guides/copy.md">Explicit TLV copies</a></td>
+<td>User</td>
+<td>None or selected API setup</td>
+<td>Use task entry and recommended next step</td>
+</tr>
+<tr>
+<td><a href="https://github.com/marekcingel/OpenTLV/blob/main/docs/guides/cxx-examples.md">C++ examples</a></td>
+<td>User</td>
+<td>None or selected API setup</td>
+<td>Use task entry and recommended next step</td>
+</tr>
+<tr>
+<td><a href="https://github.com/marekcingel/OpenTLV/blob/main/docs/guides/diagnostics.md">Diagnostics</a></td>
+<td>User</td>
+<td>None or selected API setup</td>
+<td>Use task entry and recommended next step</td>
+</tr>
+<tr>
+<td><a href="https://github.com/marekcingel/OpenTLV/blob/main/docs/guides/document.md">Mutable documents</a></td>
+<td>User</td>
+<td>None or selected API setup</td>
+<td>Use task entry and recommended next step</td>
+</tr>
+<tr>
+<td><a href="https://github.com/marekcingel/OpenTLV/blob/main/docs/guides/examples.md">Executable examples and workflow coverage</a></td>
+<td>User</td>
+<td>None or selected API setup</td>
+<td>Use task entry and recommended next step</td>
+</tr>
+<tr>
+<td><a href="https://github.com/marekcingel/OpenTLV/blob/main/docs/guides/go.md">Using OpenTLV from Go</a></td>
+<td>User</td>
+<td>None or selected API setup</td>
+<td>Use task entry and recommended next step</td>
+</tr>
+<tr>
+<td><a href="https://github.com/marekcingel/OpenTLV/blob/main/docs/guides/lua.md">Using OpenTLV from Lua</a></td>
+<td>User</td>
+<td>None or selected API setup</td>
+<td>Use task entry and recommended next step</td>
+</tr>
+<tr>
+<td><a href="https://github.com/marekcingel/OpenTLV/blob/main/docs/guides/memory.md">Memory ownership and lifetime</a></td>
+<td>User</td>
+<td>None or selected API setup</td>
+<td>Use task entry and recommended next step</td>
+</tr>
+<tr>
+<td><a href="https://github.com/marekcingel/OpenTLV/blob/main/docs/guides/processing.md">Choose a processing API</a></td>
+<td>User</td>
+<td>None or selected API setup</td>
+<td>Use task entry and recommended next step</td>
+</tr>
+<tr>
+<td><a href="https://github.com/marekcingel/OpenTLV/blob/main/docs/guides/python.md">Using OpenTLV from Python</a></td>
+<td>User</td>
+<td>None or selected API setup</td>
+<td>Use task entry and recommended next step</td>
+</tr>
+<tr>
+<td><a href="https://github.com/marekcingel/OpenTLV/blob/main/docs/guides/queries.md">Path queries</a></td>
+<td>User</td>
+<td>None or selected API setup</td>
+<td>Use task entry and recommended next step</td>
+</tr>
+<tr>
+<td><a href="https://github.com/marekcingel/OpenTLV/blob/main/docs/guides/reader.md">Pull-based Reader</a></td>
+<td>User</td>
+<td>None or selected API setup</td>
+<td>Use task entry and recommended next step</td>
+</tr>
+<tr>
+<td><a href="https://github.com/marekcingel/OpenTLV/blob/main/docs/guides/rust.md">Using OpenTLV from Rust</a></td>
+<td>User</td>
+<td>None or selected API setup</td>
+<td>Use task entry and recommended next step</td>
+</tr>
+<tr>
+<td><a href="https://github.com/marekcingel/OpenTLV/blob/main/docs/guides/schemas.md">Optional C schemas</a></td>
+<td>User</td>
+<td>None or selected API setup</td>
+<td>Use task entry and recommended next step</td>
+</tr>
+<tr>
+<td><a href="https://github.com/marekcingel/OpenTLV/blob/main/docs/guides/select-components.md">Build only the components you need</a></td>
+<td>User</td>
+<td>None or selected API setup</td>
+<td>Use task entry and recommended next step</td>
+</tr>
+<tr>
+<td><a href="https://github.com/marekcingel/OpenTLV/blob/main/docs/guides/writer.md">Writer and scoped construction</a></td>
+<td>User</td>
+<td>None or selected API setup</td>
+<td>Use task entry and recommended next step</td>
+</tr>
+<tr>
+<td><a href="https://github.com/marekcingel/OpenTLV/blob/main/docs/index.md">OpenTLV documentation</a></td>
+<td>User</td>
+<td>None or selected API setup</td>
+<td>Use task entry and recommended next step</td>
+</tr>
+<tr>
+<td><a href="https://github.com/marekcingel/OpenTLV/blob/main/docs/playground/index.md">Playground</a></td>
+<td>User</td>
+<td>None or selected API setup</td>
+<td>Use task entry and recommended next step</td>
+</tr>
+<tr>
+<td><a href="https://github.com/marekcingel/OpenTLV/blob/main/docs/reference/README.md">Reference</a></td>
+<td>Lookup</td>
+<td>Topic-specific</td>
+<td>Keep exact contracts/status; link from learning pages</td>
+</tr>
+<tr>
+<td><a href="https://github.com/marekcingel/OpenTLV/blob/main/docs/reference/c-api.md">C API reference</a></td>
+<td>Lookup</td>
+<td>Topic-specific</td>
+<td>Keep exact contracts/status; link from learning pages</td>
+</tr>
+<tr>
+<td><a href="https://github.com/marekcingel/OpenTLV/blob/main/docs/reference/compilers.md">Supported compilers</a></td>
+<td>Lookup</td>
+<td>Topic-specific</td>
+<td>Keep exact contracts/status; link from learning pages</td>
+</tr>
+<tr>
+<td><a href="https://github.com/marekcingel/OpenTLV/blob/main/docs/reference/cxx-api.md">C++ API reference</a></td>
+<td>Lookup</td>
+<td>Topic-specific</td>
+<td>Keep exact contracts/status; link from learning pages</td>
+</tr>
+<tr>
+<td><a href="https://github.com/marekcingel/OpenTLV/blob/main/docs/reference/errors.md">Error codes</a></td>
+<td>Lookup</td>
+<td>Topic-specific</td>
+<td>Keep exact contracts/status; link from learning pages</td>
+</tr>
+<tr>
+<td><a href="https://github.com/marekcingel/OpenTLV/blob/main/docs/standards/cer/README.md">ASN.1 CER-TLV</a></td>
+<td>Format user</td>
+<td>Reader and matching format</td>
+<td>Keep scope and limitations canonical</td>
+</tr>
+<tr>
+<td><a href="https://github.com/marekcingel/OpenTLV/blob/main/docs/standards/der/README.md">ASN.1 DER-TLV</a></td>
+<td>Format user</td>
+<td>Reader and matching format</td>
+<td>Keep scope and limitations canonical</td>
+</tr>
+<tr>
+<td><a href="https://github.com/marekcingel/OpenTLV/blob/main/docs/standards/emv/README.md">EMV Contact Book 3 support</a></td>
+<td>Format user</td>
+<td>Reader and matching format</td>
+<td>Keep scope and limitations canonical</td>
+</tr>
+<tr>
+<td><a href="https://github.com/marekcingel/OpenTLV/blob/main/examples/nfc/type2/README.md">NFC Type 2 validation corpus</a></td>
+<td>Example user</td>
+<td>Selected API setup</td>
+<td>Keep runnable sources canonical</td>
+</tr>
+<tr>
+<td><a href="https://github.com/marekcingel/OpenTLV/blob/main/examples/tlv++/src/README.md">C++ examples</a></td>
+<td>Example user</td>
+<td>Selected API setup</td>
+<td>Keep runnable sources canonical</td>
+</tr>
+<tr>
+<td><a href="https://github.com/marekcingel/OpenTLV/blob/main/examples/tlv/src/README.md">C examples</a></td>
+<td>Example user</td>
+<td>Selected API setup</td>
+<td>Keep runnable sources canonical</td>
+</tr>
+<tr>
+<td><a href="https://github.com/marekcingel/OpenTLV/blob/main/tests/README.md">Test layout</a></td>
+<td>User</td>
+<td>None or selected API setup</td>
+<td>Use task entry and recommended next step</td>
+</tr>
+<tr>
+<td><a href="https://github.com/marekcingel/OpenTLV/blob/main/tests/property/README.md">Deterministic property suite</a></td>
+<td>User</td>
+<td>None or selected API setup</td>
+<td>Use task entry and recommended next step</td>
+</tr>
+</tbody>
+</table>
 
 
 
@@ -3455,7 +4000,7 @@ refactoring and independent EMV framing remain separate work.</p>
       <nav class="md-footer__inner md-grid" aria-label="Footer" >
         
           
-          <a href="../fixed/configurable/" class="md-footer__link md-footer__link--prev" aria-label="Previous: Configurable fixed-width TLV">
+          <a href="../documentation-layout/" class="md-footer__link md-footer__link--prev" aria-label="Previous: Where documentation belongs">
             <div class="md-footer__button md-icon">
               
               <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M20 11v2H8l5.5 5.5-1.42 1.42L4.16 12l7.92-7.92L13.5 5.5 8 11z"/></svg>
@@ -3465,20 +4010,20 @@ refactoring and independent EMV framing remain separate work.</p>
                 Previous
               </span>
               <div class="md-ellipsis">
-                Configurable fixed-width TLV
+                Where documentation belongs
               </div>
             </div>
           </a>
         
         
           
-          <a href="../bluetooth/" class="md-footer__link md-footer__link--next" aria-label="Next: Bluetooth LTV">
+          <a href="../fuzzing/" class="md-footer__link md-footer__link--next" aria-label="Next: Fuzzing">
             <div class="md-footer__title">
               <span class="md-footer__direction">
                 Next
               </span>
               <div class="md-ellipsis">
-                Bluetooth LTV
+                Fuzzing
               </div>
             </div>
             <div class="md-footer__button md-icon">

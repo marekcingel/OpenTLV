@@ -16,7 +16,7 @@
         <link rel="prev" href="../schemas/">
       
       
-        <link rel="next" href="../copy/">
+        <link rel="next" href="../examples/">
       
       
         
@@ -610,6 +610,34 @@
 
               
             
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../concepts/learning-model/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Understand the basic model
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
           </ul>
         </nav>
       
@@ -709,14 +737,14 @@
   
   
     <li class="md-nav__item">
-      <a href="../examples/" class="md-nav__link">
+      <a href="../reader/" class="md-nav__link">
         
   
   
   <span class="md-ellipsis">
     
   
-    Executable examples
+    Pull-based Reader
   
 
     
@@ -737,14 +765,42 @@
   
   
     <li class="md-nav__item">
-      <a href="../memory/" class="md-nav__link">
+      <a href="../writer/" class="md-nav__link">
         
   
   
   <span class="md-ellipsis">
     
   
-    Memory ownership
+    Writer and scoped construction
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../document/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Mutable documents
   
 
     
@@ -773,6 +829,34 @@
     
   
     Diagnostics
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../queries/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Path queries
   
 
     
@@ -957,10 +1041,77 @@
   
 </li>
       
+        <li class="md-nav__item">
+  <a href="#next-step" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Next step
+      
+    </span>
+  </a>
+  
+</li>
+      
     </ul>
   
 </nav>
       
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../examples/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Executable examples
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../memory/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Memory ownership
+  
+
+    
+  </span>
+  
+  
+
+      </a>
     </li>
   
 
@@ -981,118 +1132,6 @@
     
   
     Copy helpers
-  
-
-    
-  </span>
-  
-  
-
-      </a>
-    </li>
-  
-
-              
-            
-              
-                
-  
-  
-  
-  
-    <li class="md-nav__item">
-      <a href="../reader/" class="md-nav__link">
-        
-  
-  
-  <span class="md-ellipsis">
-    
-  
-    Pull-based Reader
-  
-
-    
-  </span>
-  
-  
-
-      </a>
-    </li>
-  
-
-              
-            
-              
-                
-  
-  
-  
-  
-    <li class="md-nav__item">
-      <a href="../writer/" class="md-nav__link">
-        
-  
-  
-  <span class="md-ellipsis">
-    
-  
-    Writer and scoped construction
-  
-
-    
-  </span>
-  
-  
-
-      </a>
-    </li>
-  
-
-              
-            
-              
-                
-  
-  
-  
-  
-    <li class="md-nav__item">
-      <a href="../queries/" class="md-nav__link">
-        
-  
-  
-  <span class="md-ellipsis">
-    
-  
-    Path queries
-  
-
-    
-  </span>
-  
-  
-
-      </a>
-    </li>
-  
-
-              
-            
-              
-                
-  
-  
-  
-  
-    <li class="md-nav__item">
-      <a href="../document/" class="md-nav__link">
-        
-  
-  
-  <span class="md-ellipsis">
-    
-  
-    Mutable documents
   
 
     
@@ -3041,6 +3080,34 @@
   
   
     <li class="md-nav__item">
+      <a href="../../development/documentation-audit/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Documentation audit
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
       <a href="../../development/fuzzing/" class="md-nav__link">
         
   
@@ -3312,6 +3379,17 @@
   
 </li>
       
+        <li class="md-nav__item">
+  <a href="#next-step" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Next step
+      
+    </span>
+  </a>
+  
+</li>
+      
     </ul>
   
 </nav>
@@ -3338,6 +3416,9 @@
 
 
 <h1 id="c-value-codecs">C value codecs<a class="headerlink" href="#c-value-codecs" title="Permanent link">&para;</a></h1>
+<p>Prerequisite: Understand Element and Value in <a href="../../concepts/learning-model/">the basic model</a>.</p>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-0-1" name="__codelineno-0-1" href="#__codelineno-0-1"></a>Value bytes + selected Codec --&gt; application value
+</code></pre></div>
 <p><code>tlv/codec/codec.h</code> defines <code>tlv_codec_t</code>, an optional pair of decode and encode
 callbacks with a borrowed, immutable context pointer. Codecs convert raw value
 bytes and application-defined C representations. They do not receive tags,
@@ -3351,31 +3432,31 @@ Encode takes a C object and its size in bytes plus a caller-owned byte buffer.
 No heap allocation or registration is required. A missing callback reports
 <code>TLV_CODEC_ERR_UNSUPPORTED</code> for that direction.</p>
 <p>For example, an application can define a zero-copy decoder:</p>
-<div class="highlight"><pre><span></span><code><a id="__codelineno-0-1" name="__codelineno-0-1" href="#__codelineno-0-1"></a><span class="cp">#include</span><span class="w"> </span><span class="cpf">"tlv/codec/codec.h"</span>
-<a id="__codelineno-0-2" name="__codelineno-0-2" href="#__codelineno-0-2"></a>
-<a id="__codelineno-0-3" name="__codelineno-0-3" href="#__codelineno-0-3"></a><span class="k">typedef</span><span class="w"> </span><span class="k">struct</span><span class="w"> </span><span class="p">{</span><span class="w"> </span><span class="k">const</span><span class="w"> </span><span class="kt">uint8_t</span><span class="o">*</span><span class="w"> </span><span class="n">data</span><span class="p">;</span><span class="w"> </span><span class="kt">size_t</span><span class="w"> </span><span class="n">length</span><span class="p">;</span><span class="w"> </span><span class="p">}</span><span class="w"> </span><span class="n">byte_range_t</span><span class="p">;</span>
-<a id="__codelineno-0-4" name="__codelineno-0-4" href="#__codelineno-0-4"></a>
-<a id="__codelineno-0-5" name="__codelineno-0-5" href="#__codelineno-0-5"></a><span class="k">static</span><span class="w"> </span><span class="n">tlv_codec_result_t</span><span class="w"> </span><span class="nf">decode_bytes</span><span class="p">(</span><span class="k">const</span><span class="w"> </span><span class="kt">void</span><span class="o">*</span><span class="w"> </span><span class="n">context</span><span class="p">,</span>
-<a id="__codelineno-0-6" name="__codelineno-0-6" href="#__codelineno-0-6"></a><span class="w">    </span><span class="k">const</span><span class="w"> </span><span class="kt">uint8_t</span><span class="o">*</span><span class="w"> </span><span class="n">data</span><span class="p">,</span><span class="w"> </span><span class="kt">size_t</span><span class="w"> </span><span class="n">size</span><span class="p">,</span><span class="w"> </span><span class="kt">void</span><span class="o">*</span><span class="w"> </span><span class="n">value</span><span class="p">,</span><span class="w"> </span><span class="kt">size_t</span><span class="w"> </span><span class="n">capacity</span><span class="p">)</span>
-<a id="__codelineno-0-7" name="__codelineno-0-7" href="#__codelineno-0-7"></a><span class="p">{</span>
-<a id="__codelineno-0-8" name="__codelineno-0-8" href="#__codelineno-0-8"></a><span class="w">    </span><span class="n">byte_range_t</span><span class="o">*</span><span class="w"> </span><span class="n">bytes</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="p">(</span><span class="n">byte_range_t</span><span class="o">*</span><span class="p">)</span><span class="n">value</span><span class="p">;</span>
-<a id="__codelineno-0-9" name="__codelineno-0-9" href="#__codelineno-0-9"></a><span class="w">    </span><span class="p">(</span><span class="kt">void</span><span class="p">)</span><span class="n">context</span><span class="p">;</span>
-<a id="__codelineno-0-10" name="__codelineno-0-10" href="#__codelineno-0-10"></a><span class="w">    </span><span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="n">capacity</span><span class="w"> </span><span class="o">&lt;</span><span class="w"> </span><span class="k">sizeof</span><span class="p">(</span><span class="o">*</span><span class="n">bytes</span><span class="p">))</span><span class="w"> </span><span class="k">return</span><span class="w"> </span><span class="n">TLV_CODEC_ERR_BUFFER_TOO_SHORT</span><span class="p">;</span>
-<a id="__codelineno-0-11" name="__codelineno-0-11" href="#__codelineno-0-11"></a><span class="w">    </span><span class="n">bytes</span><span class="o">-&gt;</span><span class="n">data</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">data</span><span class="p">;</span>
-<a id="__codelineno-0-12" name="__codelineno-0-12" href="#__codelineno-0-12"></a><span class="w">    </span><span class="n">bytes</span><span class="o">-&gt;</span><span class="n">length</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">size</span><span class="p">;</span>
-<a id="__codelineno-0-13" name="__codelineno-0-13" href="#__codelineno-0-13"></a><span class="w">    </span><span class="k">return</span><span class="w"> </span><span class="n">TLV_CODEC_OK</span><span class="p">;</span>
-<a id="__codelineno-0-14" name="__codelineno-0-14" href="#__codelineno-0-14"></a><span class="p">}</span>
-<a id="__codelineno-0-15" name="__codelineno-0-15" href="#__codelineno-0-15"></a>
-<a id="__codelineno-0-16" name="__codelineno-0-16" href="#__codelineno-0-16"></a><span class="k">static</span><span class="w"> </span><span class="k">const</span><span class="w"> </span><span class="n">tlv_codec_t</span><span class="w"> </span><span class="n">bytes_codec</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="p">{</span><span class="nb">NULL</span><span class="p">,</span><span class="w"> </span><span class="n">decode_bytes</span><span class="p">,</span><span class="w"> </span><span class="nb">NULL</span><span class="p">};</span>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-1-1" name="__codelineno-1-1" href="#__codelineno-1-1"></a><span class="cp">#include</span><span class="w"> </span><span class="cpf">"tlv/codec/codec.h"</span>
+<a id="__codelineno-1-2" name="__codelineno-1-2" href="#__codelineno-1-2"></a>
+<a id="__codelineno-1-3" name="__codelineno-1-3" href="#__codelineno-1-3"></a><span class="k">typedef</span><span class="w"> </span><span class="k">struct</span><span class="w"> </span><span class="p">{</span><span class="w"> </span><span class="k">const</span><span class="w"> </span><span class="kt">uint8_t</span><span class="o">*</span><span class="w"> </span><span class="n">data</span><span class="p">;</span><span class="w"> </span><span class="kt">size_t</span><span class="w"> </span><span class="n">length</span><span class="p">;</span><span class="w"> </span><span class="p">}</span><span class="w"> </span><span class="n">byte_range_t</span><span class="p">;</span>
+<a id="__codelineno-1-4" name="__codelineno-1-4" href="#__codelineno-1-4"></a>
+<a id="__codelineno-1-5" name="__codelineno-1-5" href="#__codelineno-1-5"></a><span class="k">static</span><span class="w"> </span><span class="n">tlv_codec_result_t</span><span class="w"> </span><span class="nf">decode_bytes</span><span class="p">(</span><span class="k">const</span><span class="w"> </span><span class="kt">void</span><span class="o">*</span><span class="w"> </span><span class="n">context</span><span class="p">,</span>
+<a id="__codelineno-1-6" name="__codelineno-1-6" href="#__codelineno-1-6"></a><span class="w">    </span><span class="k">const</span><span class="w"> </span><span class="kt">uint8_t</span><span class="o">*</span><span class="w"> </span><span class="n">data</span><span class="p">,</span><span class="w"> </span><span class="kt">size_t</span><span class="w"> </span><span class="n">size</span><span class="p">,</span><span class="w"> </span><span class="kt">void</span><span class="o">*</span><span class="w"> </span><span class="n">value</span><span class="p">,</span><span class="w"> </span><span class="kt">size_t</span><span class="w"> </span><span class="n">capacity</span><span class="p">)</span>
+<a id="__codelineno-1-7" name="__codelineno-1-7" href="#__codelineno-1-7"></a><span class="p">{</span>
+<a id="__codelineno-1-8" name="__codelineno-1-8" href="#__codelineno-1-8"></a><span class="w">    </span><span class="n">byte_range_t</span><span class="o">*</span><span class="w"> </span><span class="n">bytes</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="p">(</span><span class="n">byte_range_t</span><span class="o">*</span><span class="p">)</span><span class="n">value</span><span class="p">;</span>
+<a id="__codelineno-1-9" name="__codelineno-1-9" href="#__codelineno-1-9"></a><span class="w">    </span><span class="p">(</span><span class="kt">void</span><span class="p">)</span><span class="n">context</span><span class="p">;</span>
+<a id="__codelineno-1-10" name="__codelineno-1-10" href="#__codelineno-1-10"></a><span class="w">    </span><span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="n">capacity</span><span class="w"> </span><span class="o">&lt;</span><span class="w"> </span><span class="k">sizeof</span><span class="p">(</span><span class="o">*</span><span class="n">bytes</span><span class="p">))</span><span class="w"> </span><span class="k">return</span><span class="w"> </span><span class="n">TLV_CODEC_ERR_BUFFER_TOO_SHORT</span><span class="p">;</span>
+<a id="__codelineno-1-11" name="__codelineno-1-11" href="#__codelineno-1-11"></a><span class="w">    </span><span class="n">bytes</span><span class="o">-&gt;</span><span class="n">data</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">data</span><span class="p">;</span>
+<a id="__codelineno-1-12" name="__codelineno-1-12" href="#__codelineno-1-12"></a><span class="w">    </span><span class="n">bytes</span><span class="o">-&gt;</span><span class="n">length</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">size</span><span class="p">;</span>
+<a id="__codelineno-1-13" name="__codelineno-1-13" href="#__codelineno-1-13"></a><span class="w">    </span><span class="k">return</span><span class="w"> </span><span class="n">TLV_CODEC_OK</span><span class="p">;</span>
+<a id="__codelineno-1-14" name="__codelineno-1-14" href="#__codelineno-1-14"></a><span class="p">}</span>
+<a id="__codelineno-1-15" name="__codelineno-1-15" href="#__codelineno-1-15"></a>
+<a id="__codelineno-1-16" name="__codelineno-1-16" href="#__codelineno-1-16"></a><span class="k">static</span><span class="w"> </span><span class="k">const</span><span class="w"> </span><span class="n">tlv_codec_t</span><span class="w"> </span><span class="n">bytes_codec</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="p">{</span><span class="nb">NULL</span><span class="p">,</span><span class="w"> </span><span class="n">decode_bytes</span><span class="p">,</span><span class="w"> </span><span class="nb">NULL</span><span class="p">};</span>
 </code></pre></div>
 <p>After a successful <code>tlv_read()</code>, convert the view's <code>tlv_size_t</code> value length with
 <code>tlv_size_to_native()</code> (from <code>tlv/size.h</code>) before passing it to a codec, which takes a
 native <code>size_t</code> size:</p>
-<div class="highlight"><pre><span></span><code><a id="__codelineno-1-1" name="__codelineno-1-1" href="#__codelineno-1-1"></a><span class="kt">size_t</span><span class="w"> </span><span class="n">length</span><span class="p">;</span>
-<a id="__codelineno-1-2" name="__codelineno-1-2" href="#__codelineno-1-2"></a><span class="n">byte_range_t</span><span class="w"> </span><span class="n">bytes</span><span class="p">;</span>
-<a id="__codelineno-1-3" name="__codelineno-1-3" href="#__codelineno-1-3"></a><span class="n">tlv_codec_result_t</span><span class="w"> </span><span class="n">result</span><span class="p">;</span>
-<a id="__codelineno-1-4" name="__codelineno-1-4" href="#__codelineno-1-4"></a><span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="n">tlv_size_to_native</span><span class="p">(</span><span class="n">view</span><span class="p">.</span><span class="n">value</span><span class="p">.</span><span class="n">size</span><span class="p">,</span><span class="w"> </span><span class="o">&amp;</span><span class="n">length</span><span class="p">)</span><span class="w"> </span><span class="o">!=</span><span class="w"> </span><span class="n">TLV_OK</span><span class="p">)</span><span class="w"> </span><span class="p">{</span><span class="w"> </span><span class="cm">/* value too large for this build */</span><span class="w"> </span><span class="p">}</span>
-<a id="__codelineno-1-5" name="__codelineno-1-5" href="#__codelineno-1-5"></a><span class="n">result</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">tlv_codec_decode</span><span class="p">(</span><span class="o">&amp;</span><span class="n">bytes_codec</span><span class="p">,</span><span class="w"> </span><span class="n">view</span><span class="p">.</span><span class="n">value</span><span class="p">.</span><span class="n">data</span><span class="p">,</span><span class="w"> </span><span class="n">length</span><span class="p">,</span><span class="w"> </span><span class="o">&amp;</span><span class="n">bytes</span><span class="p">,</span><span class="w"> </span><span class="k">sizeof</span><span class="p">(</span><span class="n">bytes</span><span class="p">));</span>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-2-1" name="__codelineno-2-1" href="#__codelineno-2-1"></a><span class="kt">size_t</span><span class="w"> </span><span class="n">length</span><span class="p">;</span>
+<a id="__codelineno-2-2" name="__codelineno-2-2" href="#__codelineno-2-2"></a><span class="n">byte_range_t</span><span class="w"> </span><span class="n">bytes</span><span class="p">;</span>
+<a id="__codelineno-2-3" name="__codelineno-2-3" href="#__codelineno-2-3"></a><span class="n">tlv_codec_result_t</span><span class="w"> </span><span class="n">result</span><span class="p">;</span>
+<a id="__codelineno-2-4" name="__codelineno-2-4" href="#__codelineno-2-4"></a><span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="n">tlv_size_to_native</span><span class="p">(</span><span class="n">view</span><span class="p">.</span><span class="n">value</span><span class="p">.</span><span class="n">size</span><span class="p">,</span><span class="w"> </span><span class="o">&amp;</span><span class="n">length</span><span class="p">)</span><span class="w"> </span><span class="o">!=</span><span class="w"> </span><span class="n">TLV_OK</span><span class="p">)</span><span class="w"> </span><span class="p">{</span><span class="w"> </span><span class="cm">/* value too large for this build */</span><span class="w"> </span><span class="p">}</span>
+<a id="__codelineno-2-5" name="__codelineno-2-5" href="#__codelineno-2-5"></a><span class="n">result</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">tlv_codec_decode</span><span class="p">(</span><span class="o">&amp;</span><span class="n">bytes_codec</span><span class="p">,</span><span class="w"> </span><span class="n">view</span><span class="p">.</span><span class="n">value</span><span class="p">.</span><span class="n">data</span><span class="p">,</span><span class="w"> </span><span class="n">length</span><span class="p">,</span><span class="w"> </span><span class="o">&amp;</span><span class="n">bytes</span><span class="p">,</span><span class="w"> </span><span class="k">sizeof</span><span class="p">(</span><span class="n">bytes</span><span class="p">));</span>
 </code></pre></div>
 <p>The resulting <code>bytes</code> borrows the original input. Keep that storage alive and
 unmodified while using it. Other codecs can decode into scalars or structs,
@@ -3383,14 +3464,14 @@ including representations containing caller-provided buffers. Callers must
 supply the documented type and alignment; the generic interface cannot check
 C types. Callbacks must validate lengths and capacities before accessing storage.</p>
 <p>For an application-defined encoder, query and encode explicitly:</p>
-<div class="highlight"><pre><span></span><code><a id="__codelineno-2-1" name="__codelineno-2-1" href="#__codelineno-2-1"></a><span class="kt">size_t</span><span class="w"> </span><span class="n">required</span><span class="p">,</span><span class="w"> </span><span class="n">written</span><span class="p">;</span>
-<a id="__codelineno-2-2" name="__codelineno-2-2" href="#__codelineno-2-2"></a><span class="n">tlv_codec_result_t</span><span class="w"> </span><span class="n">result</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">tlv_codec_encode</span><span class="p">(</span><span class="o">&amp;</span><span class="n">my_codec</span><span class="p">,</span>
-<a id="__codelineno-2-3" name="__codelineno-2-3" href="#__codelineno-2-3"></a><span class="w">    </span><span class="o">&amp;</span><span class="n">value</span><span class="p">,</span><span class="w"> </span><span class="k">sizeof</span><span class="p">(</span><span class="n">value</span><span class="p">),</span><span class="w"> </span><span class="nb">NULL</span><span class="p">,</span><span class="w"> </span><span class="mi">0</span><span class="p">,</span><span class="w"> </span><span class="o">&amp;</span><span class="n">required</span><span class="p">);</span>
-<a id="__codelineno-2-4" name="__codelineno-2-4" href="#__codelineno-2-4"></a><span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="n">result</span><span class="w"> </span><span class="o">==</span><span class="w"> </span><span class="n">TLV_CODEC_OK</span><span class="w"> </span><span class="o">&amp;&amp;</span><span class="w"> </span><span class="n">required</span><span class="w"> </span><span class="o">&lt;=</span><span class="w"> </span><span class="k">sizeof</span><span class="p">(</span><span class="n">raw</span><span class="p">))</span><span class="w"> </span><span class="p">{</span>
-<a id="__codelineno-2-5" name="__codelineno-2-5" href="#__codelineno-2-5"></a><span class="w">    </span><span class="n">result</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">tlv_codec_encode</span><span class="p">(</span><span class="o">&amp;</span><span class="n">my_codec</span><span class="p">,</span><span class="w"> </span><span class="o">&amp;</span><span class="n">value</span><span class="p">,</span><span class="w"> </span><span class="k">sizeof</span><span class="p">(</span><span class="n">value</span><span class="p">),</span>
-<a id="__codelineno-2-6" name="__codelineno-2-6" href="#__codelineno-2-6"></a><span class="w">        </span><span class="n">raw</span><span class="p">,</span><span class="w"> </span><span class="k">sizeof</span><span class="p">(</span><span class="n">raw</span><span class="p">),</span><span class="w"> </span><span class="o">&amp;</span><span class="n">written</span><span class="p">);</span>
-<a id="__codelineno-2-7" name="__codelineno-2-7" href="#__codelineno-2-7"></a><span class="w">    </span><span class="cm">/* On success, pass raw and written to tlv_write(). */</span>
-<a id="__codelineno-2-8" name="__codelineno-2-8" href="#__codelineno-2-8"></a><span class="p">}</span>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-3-1" name="__codelineno-3-1" href="#__codelineno-3-1"></a><span class="kt">size_t</span><span class="w"> </span><span class="n">required</span><span class="p">,</span><span class="w"> </span><span class="n">written</span><span class="p">;</span>
+<a id="__codelineno-3-2" name="__codelineno-3-2" href="#__codelineno-3-2"></a><span class="n">tlv_codec_result_t</span><span class="w"> </span><span class="n">result</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">tlv_codec_encode</span><span class="p">(</span><span class="o">&amp;</span><span class="n">my_codec</span><span class="p">,</span>
+<a id="__codelineno-3-3" name="__codelineno-3-3" href="#__codelineno-3-3"></a><span class="w">    </span><span class="o">&amp;</span><span class="n">value</span><span class="p">,</span><span class="w"> </span><span class="k">sizeof</span><span class="p">(</span><span class="n">value</span><span class="p">),</span><span class="w"> </span><span class="nb">NULL</span><span class="p">,</span><span class="w"> </span><span class="mi">0</span><span class="p">,</span><span class="w"> </span><span class="o">&amp;</span><span class="n">required</span><span class="p">);</span>
+<a id="__codelineno-3-4" name="__codelineno-3-4" href="#__codelineno-3-4"></a><span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="n">result</span><span class="w"> </span><span class="o">==</span><span class="w"> </span><span class="n">TLV_CODEC_OK</span><span class="w"> </span><span class="o">&amp;&amp;</span><span class="w"> </span><span class="n">required</span><span class="w"> </span><span class="o">&lt;=</span><span class="w"> </span><span class="k">sizeof</span><span class="p">(</span><span class="n">raw</span><span class="p">))</span><span class="w"> </span><span class="p">{</span>
+<a id="__codelineno-3-5" name="__codelineno-3-5" href="#__codelineno-3-5"></a><span class="w">    </span><span class="n">result</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">tlv_codec_encode</span><span class="p">(</span><span class="o">&amp;</span><span class="n">my_codec</span><span class="p">,</span><span class="w"> </span><span class="o">&amp;</span><span class="n">value</span><span class="p">,</span><span class="w"> </span><span class="k">sizeof</span><span class="p">(</span><span class="n">value</span><span class="p">),</span>
+<a id="__codelineno-3-6" name="__codelineno-3-6" href="#__codelineno-3-6"></a><span class="w">        </span><span class="n">raw</span><span class="p">,</span><span class="w"> </span><span class="k">sizeof</span><span class="p">(</span><span class="n">raw</span><span class="p">),</span><span class="w"> </span><span class="o">&amp;</span><span class="n">written</span><span class="p">);</span>
+<a id="__codelineno-3-7" name="__codelineno-3-7" href="#__codelineno-3-7"></a><span class="w">    </span><span class="cm">/* On success, pass raw and written to tlv_write(). */</span>
+<a id="__codelineno-3-8" name="__codelineno-3-8" href="#__codelineno-3-8"></a><span class="p">}</span>
 </code></pre></div>
 <p>An encode callback must support the <code>NULL, 0</code> destination query, validate the
 object, and report its exact encoded size without writing. Decode consumes the
@@ -3406,14 +3487,14 @@ trait and registry are separate APIs and are unchanged.</p>
 <code>field&lt;Tag, T, Codec = codec&lt;T&gt;&gt;</code> associates a canonical byte identifier with
 a semantic C++ type and a tag-independent Value conversion. It does not add
 a Definition registry, Schema, or protocol dependency.</p>
-<div class="highlight"><pre><span></span><code><a id="__codelineno-3-1" name="__codelineno-3-1" href="#__codelineno-3-1"></a><span class="k">using</span><span class="w"> </span><span class="n">Label</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">tlv</span><span class="o">::</span><span class="n">field</span><span class="o">&lt;</span><span class="n">tlv</span><span class="o">::</span><span class="n">tag_constant</span><span class="o">&lt;</span><span class="mh">0x50</span><span class="o">&gt;</span><span class="p">,</span><span class="w"> </span><span class="n">std</span><span class="o">::</span><span class="n">string</span><span class="o">&gt;</span><span class="p">;</span>
-<a id="__codelineno-3-2" name="__codelineno-3-2" href="#__codelineno-3-2"></a><span class="k">using</span><span class="w"> </span><span class="n">Counter</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">tlv</span><span class="o">::</span><span class="n">field</span><span class="o">&lt;</span><span class="n">tlv</span><span class="o">::</span><span class="n">tag_constant</span><span class="o">&lt;</span><span class="mh">0x9F</span><span class="p">,</span><span class="w"> </span><span class="mh">0x36</span><span class="o">&gt;</span><span class="p">,</span><span class="w"> </span><span class="kt">uint16_t</span><span class="p">,</span>
-<a id="__codelineno-3-3" name="__codelineno-3-3" href="#__codelineno-3-3"></a><span class="w">                           </span><span class="n">tlv</span><span class="o">::</span><span class="n">uint16_be_codec</span><span class="o">&gt;</span><span class="p">;</span>
-<a id="__codelineno-3-4" name="__codelineno-3-4" href="#__codelineno-3-4"></a>
-<a id="__codelineno-3-5" name="__codelineno-3-5" href="#__codelineno-3-5"></a><span class="k">auto</span><span class="w"> </span><span class="n">label</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">document</span><span class="p">.</span><span class="n">get</span><span class="o">&lt;</span><span class="n">Label</span><span class="o">&gt;</span><span class="p">();</span><span class="w"> </span><span class="c1">// expected&lt;std::string, tlv::typed_error&gt;</span>
-<a id="__codelineno-3-6" name="__codelineno-3-6" href="#__codelineno-3-6"></a><span class="k">auto</span><span class="w"> </span><span class="n">counter</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">element</span><span class="p">.</span><span class="n">decode</span><span class="o">&lt;</span><span class="n">Counter</span><span class="o">&gt;</span><span class="p">();</span>
-<a id="__codelineno-3-7" name="__codelineno-3-7" href="#__codelineno-3-7"></a><span class="k">auto</span><span class="w"> </span><span class="n">written</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">writer</span><span class="p">.</span><span class="n">write</span><span class="o">&lt;</span><span class="n">Counter</span><span class="o">&gt;</span><span class="p">(</span><span class="kt">uint16_t</span><span class="p">{</span><span class="mi">42</span><span class="p">});</span>
-<a id="__codelineno-3-8" name="__codelineno-3-8" href="#__codelineno-3-8"></a><span class="c1">// Check every result before accessing its value.</span>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-4-1" name="__codelineno-4-1" href="#__codelineno-4-1"></a><span class="k">using</span><span class="w"> </span><span class="n">Label</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">tlv</span><span class="o">::</span><span class="n">field</span><span class="o">&lt;</span><span class="n">tlv</span><span class="o">::</span><span class="n">tag_constant</span><span class="o">&lt;</span><span class="mh">0x50</span><span class="o">&gt;</span><span class="p">,</span><span class="w"> </span><span class="n">std</span><span class="o">::</span><span class="n">string</span><span class="o">&gt;</span><span class="p">;</span>
+<a id="__codelineno-4-2" name="__codelineno-4-2" href="#__codelineno-4-2"></a><span class="k">using</span><span class="w"> </span><span class="n">Counter</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">tlv</span><span class="o">::</span><span class="n">field</span><span class="o">&lt;</span><span class="n">tlv</span><span class="o">::</span><span class="n">tag_constant</span><span class="o">&lt;</span><span class="mh">0x9F</span><span class="p">,</span><span class="w"> </span><span class="mh">0x36</span><span class="o">&gt;</span><span class="p">,</span><span class="w"> </span><span class="kt">uint16_t</span><span class="p">,</span>
+<a id="__codelineno-4-3" name="__codelineno-4-3" href="#__codelineno-4-3"></a><span class="w">                           </span><span class="n">tlv</span><span class="o">::</span><span class="n">uint16_be_codec</span><span class="o">&gt;</span><span class="p">;</span>
+<a id="__codelineno-4-4" name="__codelineno-4-4" href="#__codelineno-4-4"></a>
+<a id="__codelineno-4-5" name="__codelineno-4-5" href="#__codelineno-4-5"></a><span class="k">auto</span><span class="w"> </span><span class="n">label</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">document</span><span class="p">.</span><span class="n">get</span><span class="o">&lt;</span><span class="n">Label</span><span class="o">&gt;</span><span class="p">();</span><span class="w"> </span><span class="c1">// expected&lt;std::string, tlv::typed_error&gt;</span>
+<a id="__codelineno-4-6" name="__codelineno-4-6" href="#__codelineno-4-6"></a><span class="k">auto</span><span class="w"> </span><span class="n">counter</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">element</span><span class="p">.</span><span class="n">decode</span><span class="o">&lt;</span><span class="n">Counter</span><span class="o">&gt;</span><span class="p">();</span>
+<a id="__codelineno-4-7" name="__codelineno-4-7" href="#__codelineno-4-7"></a><span class="k">auto</span><span class="w"> </span><span class="n">written</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">writer</span><span class="p">.</span><span class="n">write</span><span class="o">&lt;</span><span class="n">Counter</span><span class="o">&gt;</span><span class="p">(</span><span class="kt">uint16_t</span><span class="p">{</span><span class="mi">42</span><span class="p">});</span>
+<a id="__codelineno-4-8" name="__codelineno-4-8" href="#__codelineno-4-8"></a><span class="c1">// Check every result before accessing its value.</span>
 </code></pre></div>
 <p><code>tag_constant</code> lists identifier bytes in order, preserving leading zeros;
 <code>tag_constant&lt;&gt;</code> represents an absent identifier. The destination Format decides
@@ -3445,12 +3526,12 @@ integers require an explicit codec. BCD and text validation likewise require
 an explicit conversion with the desired policy.</p>
 <p>Applications can specialize <code>tlv::codec&lt;MyType&gt;</code> or supply a separate codec as
 the third field parameter. Both mechanisms use this C++11 contract:</p>
-<div class="highlight"><pre><span></span><code><a id="__codelineno-4-1" name="__codelineno-4-1" href="#__codelineno-4-1"></a><span class="k">struct</span><span class="w"> </span><span class="nc">MyCodec</span><span class="w"> </span><span class="p">{</span>
-<a id="__codelineno-4-2" name="__codelineno-4-2" href="#__codelineno-4-2"></a><span class="w">    </span><span class="k">using</span><span class="w"> </span><span class="n">value_type</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">MyType</span><span class="p">;</span>
-<a id="__codelineno-4-3" name="__codelineno-4-3" href="#__codelineno-4-3"></a><span class="w">    </span><span class="k">static</span><span class="w"> </span><span class="n">tlv</span><span class="o">::</span><span class="n">expected</span><span class="o">&lt;</span><span class="n">MyType</span><span class="p">,</span><span class="w"> </span><span class="n">tlv_codec_result_t</span><span class="o">&gt;</span><span class="w"> </span><span class="n">decode</span><span class="p">(</span><span class="n">tlv</span><span class="o">::</span><span class="n">bytes</span><span class="w"> </span><span class="n">input</span><span class="p">);</span>
-<a id="__codelineno-4-4" name="__codelineno-4-4" href="#__codelineno-4-4"></a><span class="w">    </span><span class="k">static</span><span class="w"> </span><span class="n">tlv</span><span class="o">::</span><span class="n">expected</span><span class="o">&lt;</span><span class="kt">size_t</span><span class="p">,</span><span class="w"> </span><span class="n">tlv_codec_result_t</span><span class="o">&gt;</span>
-<a id="__codelineno-4-5" name="__codelineno-4-5" href="#__codelineno-4-5"></a><span class="w">    </span><span class="n">encode</span><span class="p">(</span><span class="k">const</span><span class="w"> </span><span class="n">MyType</span><span class="o">&amp;</span><span class="w"> </span><span class="n">value</span><span class="p">,</span><span class="w"> </span><span class="n">tlv</span><span class="o">::</span><span class="kt">byte</span><span class="o">*</span><span class="w"> </span><span class="n">output</span><span class="p">,</span><span class="w"> </span><span class="kt">size_t</span><span class="w"> </span><span class="n">capacity</span><span class="p">);</span>
-<a id="__codelineno-4-6" name="__codelineno-4-6" href="#__codelineno-4-6"></a><span class="p">};</span>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-5-1" name="__codelineno-5-1" href="#__codelineno-5-1"></a><span class="k">struct</span><span class="w"> </span><span class="nc">MyCodec</span><span class="w"> </span><span class="p">{</span>
+<a id="__codelineno-5-2" name="__codelineno-5-2" href="#__codelineno-5-2"></a><span class="w">    </span><span class="k">using</span><span class="w"> </span><span class="n">value_type</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">MyType</span><span class="p">;</span>
+<a id="__codelineno-5-3" name="__codelineno-5-3" href="#__codelineno-5-3"></a><span class="w">    </span><span class="k">static</span><span class="w"> </span><span class="n">tlv</span><span class="o">::</span><span class="n">expected</span><span class="o">&lt;</span><span class="n">MyType</span><span class="p">,</span><span class="w"> </span><span class="n">tlv_codec_result_t</span><span class="o">&gt;</span><span class="w"> </span><span class="n">decode</span><span class="p">(</span><span class="n">tlv</span><span class="o">::</span><span class="n">bytes</span><span class="w"> </span><span class="n">input</span><span class="p">);</span>
+<a id="__codelineno-5-4" name="__codelineno-5-4" href="#__codelineno-5-4"></a><span class="w">    </span><span class="k">static</span><span class="w"> </span><span class="n">tlv</span><span class="o">::</span><span class="n">expected</span><span class="o">&lt;</span><span class="kt">size_t</span><span class="p">,</span><span class="w"> </span><span class="n">tlv_codec_result_t</span><span class="o">&gt;</span>
+<a id="__codelineno-5-5" name="__codelineno-5-5" href="#__codelineno-5-5"></a><span class="w">    </span><span class="n">encode</span><span class="p">(</span><span class="k">const</span><span class="w"> </span><span class="n">MyType</span><span class="o">&amp;</span><span class="w"> </span><span class="n">value</span><span class="p">,</span><span class="w"> </span><span class="n">tlv</span><span class="o">::</span><span class="kt">byte</span><span class="o">*</span><span class="w"> </span><span class="n">output</span><span class="p">,</span><span class="w"> </span><span class="kt">size_t</span><span class="w"> </span><span class="n">capacity</span><span class="p">);</span>
+<a id="__codelineno-5-6" name="__codelineno-5-6" href="#__codelineno-5-6"></a><span class="p">};</span>
 </code></pre></div>
 <p>Decode consumes the entire Value and validates intrinsic representation rules.
 Encode with <code>nullptr, 0</code> validates and reports the exact required byte count;
@@ -3460,8 +3541,8 @@ the value type and return types. Owning/custom codec allocation exceptions
 propagate rather than being converted to framing errors.</p>
 <p><code>writer.write&lt;Field&gt;(value)</code> stages Value bytes in a temporary vector and may
 allocate. For caller-owned staging use:</p>
-<div class="highlight"><pre><span></span><code><a id="__codelineno-5-1" name="__codelineno-5-1" href="#__codelineno-5-1"></a><span class="n">tlv</span><span class="o">::</span><span class="kt">byte</span><span class="w"> </span><span class="n">scratch</span><span class="p">[</span><span class="mi">2</span><span class="p">];</span>
-<a id="__codelineno-5-2" name="__codelineno-5-2" href="#__codelineno-5-2"></a><span class="k">auto</span><span class="w"> </span><span class="n">result</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">writer</span><span class="p">.</span><span class="n">write</span><span class="o">&lt;</span><span class="n">Counter</span><span class="o">&gt;</span><span class="p">(</span><span class="kt">uint16_t</span><span class="p">{</span><span class="mi">42</span><span class="p">},</span><span class="w"> </span><span class="p">{</span><span class="n">scratch</span><span class="p">,</span><span class="w"> </span><span class="k">sizeof</span><span class="p">(</span><span class="n">scratch</span><span class="p">)});</span>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-6-1" name="__codelineno-6-1" href="#__codelineno-6-1"></a><span class="n">tlv</span><span class="o">::</span><span class="kt">byte</span><span class="w"> </span><span class="n">scratch</span><span class="p">[</span><span class="mi">2</span><span class="p">];</span>
+<a id="__codelineno-6-2" name="__codelineno-6-2" href="#__codelineno-6-2"></a><span class="k">auto</span><span class="w"> </span><span class="n">result</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">writer</span><span class="p">.</span><span class="n">write</span><span class="o">&lt;</span><span class="n">Counter</span><span class="o">&gt;</span><span class="p">(</span><span class="kt">uint16_t</span><span class="p">{</span><span class="mi">42</span><span class="p">},</span><span class="w"> </span><span class="p">{</span><span class="n">scratch</span><span class="p">,</span><span class="w"> </span><span class="k">sizeof</span><span class="p">(</span><span class="n">scratch</span><span class="p">)});</span>
 </code></pre></div>
 <p>Scratch, input storage and Writer output must be disjoint. Insufficient scratch
 fails before the Writer is invoked. Codec failures preserve the output cursor;
@@ -3536,14 +3617,14 @@ choose a fixed output width from a validation rule it has not been given. The
 caller/domain composes the two: choose the representation, encode, and validate
 the resulting length. For variable-width fields, domain code can choose the
 shortest schema-permitted width that fits. No codec performs tag lookup.</p>
-<div class="highlight"><pre><span></span><code><a id="__codelineno-6-1" name="__codelineno-6-1" href="#__codelineno-6-1"></a><span class="cp">#include</span><span class="w"> </span><span class="cpf">"tlv/codec/number.h"</span>
-<a id="__codelineno-6-2" name="__codelineno-6-2" href="#__codelineno-6-2"></a>
-<a id="__codelineno-6-3" name="__codelineno-6-3" href="#__codelineno-6-3"></a><span class="k">static</span><span class="w"> </span><span class="k">const</span><span class="w"> </span><span class="n">tlv_number_codec_config_t</span><span class="w"> </span><span class="n">amount_config</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="p">{</span>
-<a id="__codelineno-6-4" name="__codelineno-6-4" href="#__codelineno-6-4"></a><span class="w">    </span><span class="n">TLV_NUMBER_BCD</span><span class="p">,</span><span class="w"> </span><span class="mi">6</span><span class="p">,</span><span class="w"> </span><span class="mi">12</span>
-<a id="__codelineno-6-5" name="__codelineno-6-5" href="#__codelineno-6-5"></a><span class="p">};</span>
-<a id="__codelineno-6-6" name="__codelineno-6-6" href="#__codelineno-6-6"></a><span class="k">static</span><span class="w"> </span><span class="k">const</span><span class="w"> </span><span class="n">tlv_codec_t</span><span class="w"> </span><span class="n">amount_codec</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="p">{</span>
-<a id="__codelineno-6-7" name="__codelineno-6-7" href="#__codelineno-6-7"></a><span class="w">    </span><span class="o">&amp;</span><span class="n">amount_config</span><span class="p">,</span><span class="w"> </span><span class="n">tlv_number_decode</span><span class="p">,</span><span class="w"> </span><span class="n">tlv_number_encode</span>
-<a id="__codelineno-6-8" name="__codelineno-6-8" href="#__codelineno-6-8"></a><span class="p">};</span>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-7-1" name="__codelineno-7-1" href="#__codelineno-7-1"></a><span class="cp">#include</span><span class="w"> </span><span class="cpf">"tlv/codec/number.h"</span>
+<a id="__codelineno-7-2" name="__codelineno-7-2" href="#__codelineno-7-2"></a>
+<a id="__codelineno-7-3" name="__codelineno-7-3" href="#__codelineno-7-3"></a><span class="k">static</span><span class="w"> </span><span class="k">const</span><span class="w"> </span><span class="n">tlv_number_codec_config_t</span><span class="w"> </span><span class="n">amount_config</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="p">{</span>
+<a id="__codelineno-7-4" name="__codelineno-7-4" href="#__codelineno-7-4"></a><span class="w">    </span><span class="n">TLV_NUMBER_BCD</span><span class="p">,</span><span class="w"> </span><span class="mi">6</span><span class="p">,</span><span class="w"> </span><span class="mi">12</span>
+<a id="__codelineno-7-5" name="__codelineno-7-5" href="#__codelineno-7-5"></a><span class="p">};</span>
+<a id="__codelineno-7-6" name="__codelineno-7-6" href="#__codelineno-7-6"></a><span class="k">static</span><span class="w"> </span><span class="k">const</span><span class="w"> </span><span class="n">tlv_codec_t</span><span class="w"> </span><span class="n">amount_codec</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="p">{</span>
+<a id="__codelineno-7-7" name="__codelineno-7-7" href="#__codelineno-7-7"></a><span class="w">    </span><span class="o">&amp;</span><span class="n">amount_config</span><span class="p">,</span><span class="w"> </span><span class="n">tlv_number_decode</span><span class="p">,</span><span class="w"> </span><span class="n">tlv_number_encode</span>
+<a id="__codelineno-7-8" name="__codelineno-7-8" href="#__codelineno-7-8"></a><span class="p">};</span>
 </code></pre></div>
 <p>Caller-owned configuration uses <code>tlv_number_codec(&amp;config)</code> to create the same
 borrowed descriptor. Keep the configuration alive and unchanged while it is in
@@ -3564,13 +3645,13 @@ selects fixed-width padding. Decode accepts trailing padding within that
 representation. Field-length and digit-count constraints are applied separately
 by Schema/domain validation.
 Digits after padding and nibbles <code>A..E</code> are rejected.</p>
-<div class="highlight"><pre><span></span><code><a id="__codelineno-7-1" name="__codelineno-7-1" href="#__codelineno-7-1"></a><span class="cp">#include</span><span class="w"> </span><span class="cpf">"tlv/codec/digits.h"</span>
-<a id="__codelineno-7-2" name="__codelineno-7-2" href="#__codelineno-7-2"></a>
-<a id="__codelineno-7-3" name="__codelineno-7-3" href="#__codelineno-7-3"></a><span class="k">static</span><span class="w"> </span><span class="k">const</span><span class="w"> </span><span class="n">tlv_digits_codec_config_t</span><span class="w"> </span><span class="n">identifier_config</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="p">{</span><span class="mi">4</span><span class="p">};</span>
-<a id="__codelineno-7-4" name="__codelineno-7-4" href="#__codelineno-7-4"></a><span class="k">static</span><span class="w"> </span><span class="k">const</span><span class="w"> </span><span class="n">tlv_codec_t</span><span class="w"> </span><span class="n">identifier_codec</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="p">{</span>
-<a id="__codelineno-7-5" name="__codelineno-7-5" href="#__codelineno-7-5"></a><span class="w">    </span><span class="o">&amp;</span><span class="n">identifier_config</span><span class="p">,</span><span class="w"> </span><span class="n">tlv_digits_decode</span><span class="p">,</span><span class="w"> </span><span class="n">tlv_digits_encode</span>
-<a id="__codelineno-7-6" name="__codelineno-7-6" href="#__codelineno-7-6"></a><span class="p">};</span>
-<a id="__codelineno-7-7" name="__codelineno-7-7" href="#__codelineno-7-7"></a><span class="cm">/* "00123" encodes as 00 12 3F FF; decoding preserves both leading zeros. */</span>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-8-1" name="__codelineno-8-1" href="#__codelineno-8-1"></a><span class="cp">#include</span><span class="w"> </span><span class="cpf">"tlv/codec/digits.h"</span>
+<a id="__codelineno-8-2" name="__codelineno-8-2" href="#__codelineno-8-2"></a>
+<a id="__codelineno-8-3" name="__codelineno-8-3" href="#__codelineno-8-3"></a><span class="k">static</span><span class="w"> </span><span class="k">const</span><span class="w"> </span><span class="n">tlv_digits_codec_config_t</span><span class="w"> </span><span class="n">identifier_config</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="p">{</span><span class="mi">4</span><span class="p">};</span>
+<a id="__codelineno-8-4" name="__codelineno-8-4" href="#__codelineno-8-4"></a><span class="k">static</span><span class="w"> </span><span class="k">const</span><span class="w"> </span><span class="n">tlv_codec_t</span><span class="w"> </span><span class="n">identifier_codec</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="p">{</span>
+<a id="__codelineno-8-5" name="__codelineno-8-5" href="#__codelineno-8-5"></a><span class="w">    </span><span class="o">&amp;</span><span class="n">identifier_config</span><span class="p">,</span><span class="w"> </span><span class="n">tlv_digits_decode</span><span class="p">,</span><span class="w"> </span><span class="n">tlv_digits_encode</span>
+<a id="__codelineno-8-6" name="__codelineno-8-6" href="#__codelineno-8-6"></a><span class="p">};</span>
+<a id="__codelineno-8-7" name="__codelineno-8-7" href="#__codelineno-8-7"></a><span class="cm">/* "00123" encodes as 00 12 3F FF; decoding preserves both leading zeros. */</span>
 </code></pre></div>
 <p><code>tlv/codec/text.h</code> converts explicitly selected ASCII text. Choose
 <code>TLV_TEXT_ASCII_PRINTABLE</code> (space through <code>~</code>) or <code>TLV_TEXT_ASCII_ALNUM</code>
@@ -3578,14 +3659,14 @@ Digits after padding and nibbles <code>A..E</code> are rejected.</p>
 such as AN/ANS and is not a Unicode codec. Optional zero padding strips trailing
 zero bytes on decode and pads to the selected fixed width on encode. Embedded
 zeros, controls and bytes outside the selected alphabet are invalid.</p>
-<div class="highlight"><pre><span></span><code><a id="__codelineno-8-1" name="__codelineno-8-1" href="#__codelineno-8-1"></a><span class="cp">#include</span><span class="w"> </span><span class="cpf">"tlv/codec/text.h"</span>
-<a id="__codelineno-8-2" name="__codelineno-8-2" href="#__codelineno-8-2"></a>
-<a id="__codelineno-8-3" name="__codelineno-8-3" href="#__codelineno-8-3"></a><span class="k">static</span><span class="w"> </span><span class="k">const</span><span class="w"> </span><span class="n">tlv_text_codec_config_t</span><span class="w"> </span><span class="n">label_config</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="p">{</span>
-<a id="__codelineno-8-4" name="__codelineno-8-4" href="#__codelineno-8-4"></a><span class="w">    </span><span class="n">TLV_TEXT_ASCII_PRINTABLE</span><span class="p">,</span><span class="w"> </span><span class="mi">16</span><span class="p">,</span><span class="w"> </span><span class="mi">1</span>
-<a id="__codelineno-8-5" name="__codelineno-8-5" href="#__codelineno-8-5"></a><span class="p">};</span>
-<a id="__codelineno-8-6" name="__codelineno-8-6" href="#__codelineno-8-6"></a><span class="k">static</span><span class="w"> </span><span class="k">const</span><span class="w"> </span><span class="n">tlv_codec_t</span><span class="w"> </span><span class="n">label_codec</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="p">{</span>
-<a id="__codelineno-8-7" name="__codelineno-8-7" href="#__codelineno-8-7"></a><span class="w">    </span><span class="o">&amp;</span><span class="n">label_config</span><span class="p">,</span><span class="w"> </span><span class="n">tlv_text_decode</span><span class="p">,</span><span class="w"> </span><span class="n">tlv_text_encode</span>
-<a id="__codelineno-8-8" name="__codelineno-8-8" href="#__codelineno-8-8"></a><span class="p">};</span>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-9-1" name="__codelineno-9-1" href="#__codelineno-9-1"></a><span class="cp">#include</span><span class="w"> </span><span class="cpf">"tlv/codec/text.h"</span>
+<a id="__codelineno-9-2" name="__codelineno-9-2" href="#__codelineno-9-2"></a>
+<a id="__codelineno-9-3" name="__codelineno-9-3" href="#__codelineno-9-3"></a><span class="k">static</span><span class="w"> </span><span class="k">const</span><span class="w"> </span><span class="n">tlv_text_codec_config_t</span><span class="w"> </span><span class="n">label_config</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="p">{</span>
+<a id="__codelineno-9-4" name="__codelineno-9-4" href="#__codelineno-9-4"></a><span class="w">    </span><span class="n">TLV_TEXT_ASCII_PRINTABLE</span><span class="p">,</span><span class="w"> </span><span class="mi">16</span><span class="p">,</span><span class="w"> </span><span class="mi">1</span>
+<a id="__codelineno-9-5" name="__codelineno-9-5" href="#__codelineno-9-5"></a><span class="p">};</span>
+<a id="__codelineno-9-6" name="__codelineno-9-6" href="#__codelineno-9-6"></a><span class="k">static</span><span class="w"> </span><span class="k">const</span><span class="w"> </span><span class="n">tlv_codec_t</span><span class="w"> </span><span class="n">label_codec</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="p">{</span>
+<a id="__codelineno-9-7" name="__codelineno-9-7" href="#__codelineno-9-7"></a><span class="w">    </span><span class="o">&amp;</span><span class="n">label_config</span><span class="p">,</span><span class="w"> </span><span class="n">tlv_text_decode</span><span class="p">,</span><span class="w"> </span><span class="n">tlv_text_encode</span>
+<a id="__codelineno-9-8" name="__codelineno-9-8" href="#__codelineno-9-8"></a><span class="p">};</span>
 </code></pre></div>
 <p>The text C representation is <code>tlv_value_t</code>, not a C string. Decode returns an
 unpadded borrowed span into the original wire bytes without adding a terminator;
@@ -3595,6 +3676,8 @@ alive while using the view. An all-padding field represents empty text.</p>
 <code>tlv_text_codec()</code> to construct borrowed descriptors. Configurations must remain
 alive and immutable. Size queries validate input, errors leave output unchanged,
 and neither codec performs allocation, tag lookup or domain selection.</p>
+<h2 id="next-step">Next step<a class="headerlink" href="#next-step" title="Permanent link">&para;</a></h2>
+<p>Next: <a href="../schemas/">schemas</a> for composition constraints and <a href="../../formats/support/">format support</a> for standard modules.</p>
 
 
 
@@ -3649,13 +3732,13 @@ and neither codec performs allocation, tag lookup or domain selection.</p>
         
         
           
-          <a href="../copy/" class="md-footer__link md-footer__link--next" aria-label="Next: Copy helpers">
+          <a href="../examples/" class="md-footer__link md-footer__link--next" aria-label="Next: Executable examples">
             <div class="md-footer__title">
               <span class="md-footer__direction">
                 Next
               </span>
               <div class="md-ellipsis">
-                Copy helpers
+                Executable examples
               </div>
             </div>
             <div class="md-footer__button md-icon">
