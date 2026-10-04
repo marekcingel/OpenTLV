@@ -9,6 +9,9 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Fixed
 
+- Reject inconsistent compiled Query images before execution or formatting, enforce opaque storage sizes at compile time, preserve explicit numeric axis tag tests, and remove repeated V1 Query copying and binding count validation. (#519, #525)
+- Fix Clang Query benchmark builds with warnings treated as errors by avoiding the deprecated const-reference optimization barrier. (#519)
+- Validate Query step boundaries before returning borrowed tags from corrupt storage. (#519)
 - Fix GCC CLI builds by qualifying the options type in the shared traversal context. (#508)
 - Fix Clang builds with warnings treated as errors by fully initializing Fixed format configurations in generator tests. (#503)
 - Preserve tabs in Markdown code blocks during pre-commit formatting so the documented Go quick start matches its source and passes documentation checks. (#480)
@@ -51,6 +54,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Changed
 
+- **Breaking:** Replace public Query fields with opaque copyable storage and validated accessors; rebuild native consumers and migrate direct field access. (#519)
 - Promote Protocol Inference to architectural Phase 3 and move Compilation to Phase 4; clarify shared model construction, OTLV tooling scope and independent SemVer versioning. (#516)
 - Reorganize documentation entry points around a progressive learning path, with a compact README, first CLI task and shared basic model. (#513)
 - Align project overviews, architecture, binding capabilities, format support and navigation with current APIs; add Go guides, processing and executable-example inventories, and document planned Protocol Inference. (#490, #491, #492, #493, #494, #495, #496, #497, #498, #499, #500 #501)
@@ -119,6 +123,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Added
 
+- Add caller-stored compiled Query programs and bounded S0 execution over canonical Tree events, with descendant/union selection, metadata and byte predicates, structured diagnostics and an independent conformance corpus. (#519)
+- Add length-delimited V1 Query parsing, canonical formatting and supported matcher rebinding. (#519)
 - Document the generic Format capability space and configuration matrix, distinguishing current mechanisms, custom Formats, future capabilities and protocol policy. (#514)
 - Add an opt-in deterministic property suite for complete Reader/Tree Writer byte-exact round trips across enabled generator-supported formats, with reproducible commit-derived CI corpora and downloadable failure evidence. (#506, #507, #508)
 - Add `otlv generate` for reproducible valid wire corpora, with explicit seeds, case counts, generation limits, one file per case in binary (default) or CLI JSON encoding. (#505)

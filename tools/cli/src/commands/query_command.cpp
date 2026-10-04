@@ -11,12 +11,11 @@ namespace {
 // The query path as text: uppercase hex tags joined by "/", however the user
 // spelled it.
 std::string query_path(const tlv::query& query) {
-    std::string path;
-    for (size_t i = 0; i < query.size(); ++i) {
-        if (i) path += '/';
-        const auto tag = query.step(i);
-        path += cli::hex_string(tag.as_bytes());
-    }
+    size_t required = 0;
+    tlv_query_format(&query.c_query(), nullptr, 0, &required);
+    std::string path(required, '\0');
+    tlv_query_format(&query.c_query(), &path[0], required, &required);
+    path.resize(required - 1);
     return path;
 }
 

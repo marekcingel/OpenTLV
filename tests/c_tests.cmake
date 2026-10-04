@@ -64,6 +64,7 @@ set(SOURCES
     builtins/nfc/type2_vectors_test.cpp
     packed_field_test.cpp
     query/query_test.cpp
+    query/program_test.cpp
     reader/reader_test.cpp
     reader/incremental_test.cpp
     reader/tree_test.cpp

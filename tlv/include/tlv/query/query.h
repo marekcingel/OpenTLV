@@ -25,10 +25,11 @@ extern "C" {
  * reader format; a path longer than one tag needs a format whose values can
  * be constructed (see tlv_query_visit_buffer()).
  *
- * The query language is deliberately small: exact tag paths only. It carries
+ * This V1 query language is deliberately small: exact tag paths only. It carries
  * no wildcards, indexes, predicates or recursive search, and does not depend
  * on any format or standard, so the same text can address data in the reader
- * and, later, in other document models.
+ * and, later, in other document models. The compiled extended language is
+ * declared in @c tlv/query/program.h.
  */
 
 /** @addtogroup traversal
@@ -44,20 +45,17 @@ enum { TLV_QUERY_MAX_BYTES = 512 };
 /**
  * @brief A parsed query: the tags to follow from a top-level element down to the addressed ones.
  *
- * The structure is self-contained: it holds a copy of every tag's bytes, never
+ * The opaque storage is self-contained: it holds a copy of every tag's bytes, never
  * allocates and never points to other memory, so it can be copied freely. Build
  * it with tlv_query_parse() and read its tags with tlv_query_step(); a
  * zero-initialized query has no tags and is rejected by the functions that
  * take one. Each tag may have any length as long as all tags together stay
- * within #TLV_QUERY_MAX_BYTES.
+ * within #TLV_QUERY_MAX_BYTES. sizeof(tlv_query_t) is 648 bytes; alignment is
+ * that of uint64_t on the target. Do not inspect opaque members.
  */
-typedef struct tlv_query {
-    /** Private: the bytes of all tags, one after another. */
-    uint8_t bytes[TLV_QUERY_MAX_BYTES];
-    /** Private: for each tag, the offset in `bytes` just past its last byte. */
-    uint16_t ends[TLV_QUERY_MAX_STEPS];
-    /** Number of tags, `1..TLV_QUERY_MAX_STEPS` for a parsed query. */
-    size_t count;
+typedef union tlv_query {
+    uint8_t opaque[648]; /**< Fixed ABI capacity: 644 implementation bytes rounded to 8 bytes. */
+    uint64_t alignment;  /**< Private alignment member; never read or write directly. */
 } tlv_query_t;
 
 /**
@@ -87,6 +85,46 @@ typedef struct tlv_query {
 TLV_API tlv_result_t tlv_query_parse(const char* text, tlv_query_t* query, size_t* error_offset);
 
 /**
+ * @brief Parse a bounded V1 ASCII path without requiring a terminator.
+ * @param[in] text Required readable span of exactly size bytes; not retained.
+ * @param[in] size Text length in bytes, excluding any terminator.
+ * @param[out] query Required self-contained output, unchanged on failure.
+ * @param[out] error_offset Optional offending byte offset; unchanged on success.
+ * @return #TLV_OK on success.
+ * @return #TLV_ERR_NULL_ARG for a missing required pointer.
+ * @return #TLV_ERR_INVALID_ARG for empty text, embedded NUL, non-ASCII or invalid V1 syntax.
+ * @return #TLV_ERR_LIMIT above the inline step or tag-byte limits.
+ * @note Never allocates or reads outside the supplied span. Output may overlap text.
+ */
+TLV_API tlv_result_t tlv_query_parse_n(const char* text, size_t size, tlv_query_t* query,
+                                       size_t* error_offset);
+
+/**
+ * @brief Return the validated V1 step count.
+ * @param[in] query Optional Query, borrowed for this call.
+ * @return Step count, or zero for NULL, zero-initialized or corrupt storage.
+ * @note Never allocates. O(step count) validation; storage remains unchanged.
+ */
+TLV_API size_t tlv_query_count(const tlv_query_t* query);
+
+/**
+ * @brief Format a V1 path as uppercase hexadecimal tags separated by slashes.
+ * @param[in] query Required valid Query; borrowed for this call.
+ * @param[out] output Writable output, or NULL with zero capacity for size discovery.
+ * @param[in] capacity Available output bytes, including space for the terminator.
+ * @param[out] required Required byte count including the trailing NUL; required.
+ * @return #TLV_OK for discovery or a complete NUL-terminated write.
+ * @return #TLV_ERR_NULL_ARG for a missing required pointer or NULL output with nonzero capacity.
+ * @return #TLV_ERR_INVALID_ARG for invalid Query storage.
+ * @return #TLV_ERR_BUFFER_TOO_SHORT if capacity is insufficient; required is set and output
+ * unchanged.
+ * @note Never allocates. Other failures preserve outputs. required must not overlap
+ * Query or output storage; output may overlap Query, invalidating it after success.
+ */
+TLV_API tlv_result_t tlv_query_format(const tlv_query_t* query, char* output, size_t capacity,
+                                      size_t* required);
+
+/**
  * @brief Returns one tag of a query.
  *
  * @param[in] query Parsed query.
@@ -94,7 +132,7 @@ TLV_API tlv_result_t tlv_query_parse(const char* text, tlv_query_t* query, size_
  *
  * @return A tag that borrows the bytes stored in `query`, valid for as long as
  *         `query` is alive and unchanged. The empty tag if `query` is `NULL`
- *         or `index` is not below `query->count`.
+ *         or `index` is out of range, or the stored boundaries are invalid.
  */
 TLV_API tlv_tag_t tlv_query_step(const tlv_query_t* query, size_t index);
 
@@ -106,18 +144,31 @@ TLV_API tlv_tag_t tlv_query_step(const tlv_query_t* query, size_t index);
  * up with tlv_query_matcher_init() and feed it every element, in order, with
  * tlv_query_matcher_visit(). The fields are private.
  */
-typedef struct tlv_query_matcher {
-    /** Query being matched; borrowed. */
-    const tlv_query_t* query;
-    /** Number of leading query tags matched by the ancestors of the next element. */
-    size_t matched;
+typedef union tlv_query_matcher {
+    uint8_t opaque[16];    /**< Private continuation storage. */
+    const void* alignment; /**< Private pointer alignment. */
+    size_t size_alignment; /**< Private native-size alignment. */
 } tlv_query_matcher_t;
+
+/**
+ * @brief Rebind suspended V1 matching to an equivalent Query copy.
+ * @param[in,out] matcher Required initialized matcher; continuation is preserved.
+ * @param[in] query Required equivalent Query; must outlive further matching.
+ * @return #TLV_OK on success.
+ * @return #TLV_ERR_NULL_ARG for a missing pointer.
+ * @return #TLV_ERR_INVALID_ARG for an uninitialized matcher or invalid/different Query.
+ * @note Never allocates. Failure preserves matcher. The old Query must remain
+ * alive through this call. Use tlv_query_matcher_init() to reset a traversal.
+ */
+TLV_API tlv_result_t tlv_query_matcher_rebind(tlv_query_matcher_t* matcher,
+                                              const tlv_query_t* query);
 
 /**
  * @brief Prepares a matcher for one traversal.
  *
  * @param[out] matcher Matcher to initialize.
- * @param[in]  query   Parsed query; borrowed and must outlive the matcher.
+ * @param[in]  query   Parsed query; borrowed and must remain alive and unchanged
+ *                    until the matcher is reset or successfully rebound.
  *
  * @return #TLV_OK on success.
  * @return #TLV_ERR_NULL_ARG if `matcher` or `query` is `NULL`.
@@ -167,7 +218,7 @@ TLV_API tlv_result_t tlv_query_visit(tlv_tree_reader_t* reader, tlv_query_matche
  *
  * Traverses the input in preorder like tlv_tree_reader_visit() and calls `visitor` for
  * each element addressed by `query`, in document order, with that element's
- * depth (always `query->count - 1`) and absolute offset. An element is
+ * depth (always `tlv_query_count(query) - 1`) and absolute offset. An element is
  * addressed when its tag equals the last query tag and its ancestors, from the
  * top level down, match the earlier ones.
  *

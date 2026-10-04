@@ -1,0 +1,301 @@
+// SPDX-License-Identifier: MIT
+// Copyright (c) 2026 Marek Cingel
+#ifndef OPENTLV_QUERY_PROGRAM_H
+#define OPENTLV_QUERY_PROGRAM_H
+
+#include "tlv/query/query.h"
+#ifdef __cplusplus
+extern "C" {
+#endif
+
+/** @file
+ * @ingroup traversal
+ * @brief Caller-stored immutable Query programs and bounded S0 event execution.
+ * @note All calls are allocation-free and iterative. Storage must be aligned
+ * to the reported alignment, alive and unchanged while borrowed. Internal
+ * program images are release-specific, not a persistent serialization format.
+ */
+
+/** @addtogroup traversal
+ * @{ */
+
+/** @brief Whole-expression execution requirements, ordered by available storage. */
+typedef enum tlv_query_level {
+    TLV_QUERY_S0, /**< Decisions at complete node publication. */
+    TLV_QUERY_S1, /**< Deferred scope evidence with bounded depth summaries. */
+    TLV_QUERY_S2, /**< Explicit input-dependent candidate capacity. */
+    TLV_QUERY_D   /**< Document navigation and bounded work. */
+} tlv_query_level_t;
+
+/** @brief Query-specific diagnostic category; original result codes remain intact. */
+typedef enum tlv_query_error_kind {
+    TLV_QUERY_ERROR_NONE,       /**< No failure. */
+    TLV_QUERY_ERROR_SYNTAX,     /**< Invalid token or grammar. */
+    TLV_QUERY_ERROR_CAPABILITY, /**< Recognized feature unavailable in this backend. */
+    TLV_QUERY_ERROR_LIMIT,      /**< Named capacity or work budget exhausted. */
+    TLV_QUERY_ERROR_STORAGE,    /**< Invalid storage or alignment. */
+    TLV_QUERY_ERROR_EVENTS,     /**< Unbalanced or otherwise invalid structural feed. */
+    TLV_QUERY_ERROR_SOURCE,     /**< Requested Source property unavailable. */
+    TLV_QUERY_ERROR_READER      /**< Original Reader failure; reader detail is preserved. */
+} tlv_query_error_kind_t;
+
+/** @brief Structured compiler/execution failure, initialized by every diagnostic entry point. */
+typedef struct tlv_query_diagnostic {
+    tlv_query_error_kind_t kind;    /**< Query failure category. */
+    size_t begin;                   /**< Inclusive Query byte offset. */
+    size_t end;                     /**< Exclusive Query byte offset; EOF spans may be empty. */
+    size_t source_offset;           /**< Input byte offset when has_source_offset is nonzero. */
+    int has_source_offset;          /**< Distinguish missing Source from offset zero. */
+    const char* expected;           /**< Static expected-token description, or NULL. */
+    const char* limit;              /**< Static resource name, or NULL. */
+    size_t configured;              /**< Configured resource bound, when limit is present. */
+    tlv_reader_diagnostic_t reader; /**< Original Reader diagnostic on Reader failure. */
+} tlv_query_diagnostic_t;
+
+/** @brief Versioned compile options; initialize using tlv_query_compile_options_init(). */
+typedef struct tlv_query_compile_options {
+    size_t struct_size;        /**< Set by initializer; must match this release. */
+    unsigned language_version; /**< Explicit full language version; currently 1. */
+    size_t max_text;           /**< Maximum Query bytes. */
+    size_t max_tokens;         /**< Maximum lexical tokens. */
+    size_t max_nesting;        /**< Maximum open parentheses/predicates. */
+    size_t max_states;         /**< Maximum compiled expression nodes. */
+} tlv_query_compile_options_t;
+
+/** @brief Category of a Query expression's result. */
+typedef enum tlv_query_result_kind {
+    TLV_QUERY_RESULT_NODES,   /**< Ordered unique node sequence. */
+    TLV_QUERY_RESULT_BOOL,    /**< Boolean scalar; later-phase execution. */
+    TLV_QUERY_RESULT_INTEGER, /**< Signed 64-bit scalar; later-phase execution. */
+    TLV_QUERY_RESULT_BYTES,   /**< Borrowed byte scalar; later-phase execution. */
+    TLV_QUERY_RESULT_STRING   /**< UTF-8 string scalar; later-phase execution. */
+} tlv_query_result_kind_t;
+
+/** @brief Program requirements and whole-plan information. */
+typedef struct tlv_query_program_info {
+    size_t program_size;                 /**< Exact immutable storage bytes. */
+    size_t program_alignment;            /**< Required address alignment. */
+    size_t scratch_size;                 /**< Exact compile scratch bytes for this input. */
+    size_t scratch_alignment;            /**< Required scratch alignment. */
+    size_t states;                       /**< Query-dependent state count. */
+    unsigned language_version;           /**< Compiled language selection. */
+    tlv_query_level_t level;             /**< Lowest conservatively proven execution level. */
+    tlv_query_result_kind_t result_kind; /**< Result category; F1 executes node results. */
+} tlv_query_program_info_t;
+
+/** @brief Opaque immutable caller-owned program. */
+typedef struct tlv_query_program tlv_query_program_t;
+/** @brief Opaque mutable caller-owned execution workspace. */
+typedef struct tlv_query_exec tlv_query_exec_t;
+
+/** @brief Initialize safe compile defaults; NULL is a no-op.
+ * @param[out] options Optional destination for current defaults. */
+TLV_API void tlv_query_compile_options_init(tlv_query_compile_options_t* options);
+
+/**
+ * @brief Discover compiler scratch requirements without interpreting unsupported syntax.
+ * @param[in] text Required bounded text, not retained.
+ * @param[in] size Text bytes; NUL is an invalid token.
+ * @param[in] options Optional initialized options; NULL selects defaults.
+ * @param[out] bytes Required output for exact lexer/parser scratch capacity.
+ * @param[out] alignment Required alignment output.
+ * @param[out] diagnostic Optional initialized failure detail.
+ * @return #TLV_OK on success; #TLV_ERR_NULL_ARG for missing arguments;
+ * #TLV_ERR_INVALID_ARG for invalid options or lexical input;
+ * #TLV_ERR_LIMIT for text/token bounds; #TLV_ERR_OVERFLOW for sizing overflow.
+ * @note Never allocates; size/alignment outputs are unchanged on failure.
+ */
+TLV_API tlv_result_t tlv_query_compile_scratch(const char* text, size_t size,
+                                               const tlv_query_compile_options_t* options,
+                                               size_t* bytes, size_t* alignment,
+                                               tlv_query_diagnostic_t* diagnostic);
+
+/**
+ * @brief Compile or size an immutable, relocatable full-language Query program.
+ * @param[in] text Required bounded text, not retained after success.
+ * @param[in] size Text bytes.
+ * @param[in] options Optional initialized options.
+ * @param[in,out] scratch Required aligned temporary storage, exclusive during this call.
+ * @param[in] scratch_size Available scratch bytes.
+ * @param[out] storage Aligned program output; NULL with zero capacity requests sizing.
+ * @param[in] capacity Available output bytes.
+ * @param[out] info Required exact requirements and plan classification output.
+ * @param[out] diagnostic Optional failure detail.
+ * @return #TLV_OK for a supported S0 program or sizing pass.
+ * @return #TLV_ERR_UNSUPPORTED_TYPE for recognized later-phase capabilities.
+ * @return #TLV_ERR_BUFFER_TOO_SHORT for insufficient scratch/output; info is
+ * populated for insufficient program output, not insufficient scratch.
+ * @return #TLV_ERR_INVALID_ARG for syntax/options/alignment; #TLV_ERR_NULL_ARG
+ * for missing pointers; #TLV_ERR_LIMIT for configured resources.
+ * @note Storage, scratch, text and info must not overlap. Failure preserves
+ * program storage. Sizing and writing are deterministic for identical input/options.
+ * @note After semantic analysis, info is also populated for capability/type
+ * failures. Earlier lexical, grammar, scratch and arithmetic failures leave it unchanged.
+ */
+TLV_API tlv_result_t tlv_query_compile(const char* text, size_t size,
+                                       const tlv_query_compile_options_t* options, void* scratch,
+                                       size_t scratch_size, void* storage, size_t capacity,
+                                       tlv_query_program_info_t* info,
+                                       tlv_query_diagnostic_t* diagnostic);
+
+/**
+ * @brief Canonically format a compiled program, including size discovery.
+ * @param[in] program Required live program returned by compile.
+ * @param[out] output Optional output; NULL requires capacity zero.
+ * @param[in] capacity Available bytes including terminator.
+ * @param[out] required Required output, including terminator.
+ * @return #TLV_OK on discovery/write; #TLV_ERR_NULL_ARG for missing arguments;
+ * #TLV_ERR_BUFFER_TOO_SHORT with required set and output unchanged.
+ * @note Never allocates. Output and required must not overlap program storage.
+ * @return #TLV_ERR_INVALID_ARG for misalignment or inconsistent internal image.
+ */
+TLV_API tlv_result_t tlv_query_program_format(const tlv_query_program_t* program, char* output,
+                                              size_t capacity, size_t* required);
+
+/**
+ * @brief Discover runtime workspace for a compiled S0 plan and depth capacity.
+ * @param[in] program Required live immutable program.
+ * @param[in] max_depth Maximum node depth; roots have depth zero.
+ * @param[out] bytes Required exact workspace size.
+ * @param[out] alignment Required workspace alignment.
+ * @return #TLV_OK; #TLV_ERR_NULL_ARG for missing pointers; #TLV_ERR_OVERFLOW
+ * for arithmetic overflow; #TLV_ERR_UNSUPPORTED_TYPE for unsupported plans.
+ * @return #TLV_ERR_INVALID_ARG for misalignment or inconsistent internal image.
+ * @note Checks the readable image produced by this release's compiler once;
+ * this pointer-only API cannot validate arbitrary or truncated external storage.
+ */
+TLV_API tlv_result_t tlv_query_exec_size(const tlv_query_program_t* program, size_t max_depth,
+                                         size_t* bytes, size_t* alignment);
+
+/**
+ * @brief Initialize or reset independent S0 execution in caller workspace.
+ * @param[in] program Required immutable program; must remain alive and unchanged
+ * throughout execution. Feed does not repeat initialization validation.
+ * @param[in,out] storage Required aligned workspace, exclusive to this execution.
+ * @param[in] capacity Available workspace bytes.
+ * @param[in] max_depth Maximum node depth.
+ * @param[in] max_elements Maximum published nodes, including nonmatches.
+ * @param[in] max_work Maximum charged state evaluations and inspected Value bytes.
+ * @param[out] exec Required borrowed execution handle, unchanged on failure.
+ * @return #TLV_OK; #TLV_ERR_BUFFER_TOO_SHORT for short storage;
+ * #TLV_ERR_INVALID_ARG for alignment/zero budgets; otherwise exec_size errors.
+ * @note Never allocates. Program and workspace must not overlap.
+ */
+TLV_API tlv_result_t tlv_query_exec_init(const tlv_query_program_t* program, void* storage,
+                                         size_t capacity, size_t max_depth, size_t max_elements,
+                                         size_t max_work, tlv_query_exec_t** exec);
+
+/**
+ * @brief Select a relative node context before feeding events.
+ * @param[in,out] exec Required fresh execution; no event may have been consumed.
+ * @param[in] ordinal Zero-based preorder identity below the element budget.
+ * @return #TLV_OK; #TLV_ERR_NULL_ARG for NULL execution; #TLV_ERR_INVALID_ARG
+ * for used execution or an out-of-budget identity.
+ * @note Absolute paths still use the virtual root. Relative paths select children
+ * of this context; dot selects it. Missing context fails at EOF. Ancestor
+ * evidence includes outside ancestors. No payload is retained; failure preserves state.
+ */
+TLV_API tlv_result_t tlv_query_exec_context(tlv_query_exec_t* exec, size_t ordinal);
+
+/** @brief Observed execution work and structural validation coverage. */
+typedef struct tlv_query_exec_info {
+    size_t elements;         /**< Published nodes, including nonmatches. */
+    size_t work;             /**< Charged state/byte work. */
+    size_t skipped_subtrees; /**< Explicitly omitted descendant extents. */
+    int finished;            /**< Balanced final EOF was reached. */
+    int full_validation;     /**< Finished successfully without omitted descendants. */
+    int invalid;             /**< Execution failed and requires reset. */
+} tlv_query_exec_info_t;
+
+/**
+ * @brief Enable or disable proven subtree pruning before feeding events.
+ * @param[in,out] exec Required fresh execution.
+ * @param[in] enabled Zero disables; nonzero explicitly permits partial validation.
+ * @return #TLV_OK; #TLV_ERR_NULL_ARG for NULL; #TLV_ERR_INVALID_ARG for used state.
+ * @note The adapter prunes only exhausted forward child plans with no possible
+ * descendant match. Descendant plans and selected relative contexts are conservatively
+ * drained. Malformed skipped descendants can be concealed; framing errors still propagate.
+ */
+TLV_API tlv_result_t tlv_query_exec_pruning(tlv_query_exec_t* exec, int enabled);
+
+/**
+ * @brief Read execution counters and coverage without altering continuation.
+ * @param[in] exec Required initialized execution.
+ * @param[out] info Required observed status output.
+ * @return #TLV_OK; #TLV_ERR_NULL_ARG for a missing pointer.
+ * @note Never allocates. STOP/NEED_MORE_DATA do not imply finished/full validation.
+ */
+TLV_API tlv_result_t tlv_query_exec_info(const tlv_query_exec_t* exec, tlv_query_exec_info_t* info);
+
+/**
+ * @brief Feed one complete canonical event and report whether its node matches.
+ * @param[in,out] exec Required initialized execution.
+ * @param[in] event Required complete event, borrowed only during this call.
+ * @param[out] matched Required zero/one result; END never matches.
+ * @param[out] diagnostic Optional failure detail.
+ * @return #TLV_OK; #TLV_ERR_INVALID_ARG for invalid sequence;
+ * #TLV_ERR_LIMIT for depth/elements/work; #TLV_ERR_INVALID_VALUE for
+ * unavailable Source metadata; #TLV_ERR_NULL_ARG for missing pointers.
+ * @note Errors invalidate execution until reset. No borrowed payload is retained.
+ * Each node is emitted at most once, in preorder. Skipped END is rejected under
+ * the default full-validation policy. Values must be complete contiguous spans.
+ */
+TLV_API tlv_result_t tlv_query_exec_feed(tlv_query_exec_t* exec, const tlv_tree_event_t* event,
+                                         int* matched, tlv_query_diagnostic_t* diagnostic);
+
+/**
+ * @brief Complete the virtual root at final EOF and require balanced events.
+ * @param[in,out] exec Required active execution.
+ * @param[out] diagnostic Optional failure detail.
+ * @return #TLV_OK on balanced EOF; #TLV_ERR_INVALID_ARG on invalid/unbalanced
+ * feed; #TLV_ERR_NULL_ARG for NULL execution. Repeated successful finish is harmless.
+ */
+TLV_API tlv_result_t tlv_query_exec_finish(tlv_query_exec_t* exec,
+                                           tlv_query_diagnostic_t* diagnostic);
+
+/** @brief Visitor for one borrowed matching BEGIN or ELEMENT event.
+ * @param[in] event Complete matching node; borrowed only for this call.
+ * @param[in] context Caller-provided callback context.
+ * @return Continue, stop after this event, or report a visitor error. */
+typedef tlv_visit_result_t (*tlv_query_event_visitor_t)(const tlv_tree_event_t* event,
+                                                        void* context);
+
+/**
+ * @brief Run S0 over the canonical Tree Reader, preserving STOP/NEED_MORE_DATA continuation.
+ * @param[in,out] reader Required cursor at a tree boundary, then exclusively used here.
+ * @param[in,out] exec Required active execution retained across resumable outcomes.
+ * @param[in] visitor Required callback; no retained payload lifetime is extended.
+ * @param[in] context Optional callback context.
+ * @param[out] diagnostic Optional Query and original Reader detail.
+ * @return #TLV_OK at validated EOF or callback STOP; #TLV_NEED_MORE_DATA
+ * without partial events; #TLV_ERR_VISITOR for callback error; original Reader
+ * or Query error otherwise; #TLV_ERR_NULL_ARG for missing arguments.
+ * @warning Callback effects are not rolled back. STOP is partial validation;
+ * resume to final EOF for full structural coverage. No Schema/DER semantic
+ * validation is implied. Replace input only under Reader frontier rules.
+ */
+TLV_API tlv_result_t tlv_query_program_visit(tlv_tree_reader_t* reader, tlv_query_exec_t* exec,
+                                             tlv_query_event_visitor_t visitor, void* context,
+                                             tlv_query_diagnostic_t* diagnostic);
+
+/**
+ * @brief Test existence with explicit full-validation or early-return behavior.
+ * @param[in,out] reader Required exclusive Tree Reader.
+ * @param[in,out] exec Required execution, retained across NEED_MORE_DATA.
+ * @param[in] early_return Nonzero returns at the first match; zero drains to final EOF.
+ * @param[out] found Required boolean output; unchanged on failure or NEED_MORE_DATA.
+ * @param[out] diagnostic Optional failure detail.
+ * @return #TLV_OK with existence result; otherwise original visit/Reader errors.
+ * @note Matches observed earlier in this execution remain part of existence.
+ * Early-return success has partial coverage; inspect exec_info or resume with
+ * early_return zero. A malformed suffix still fails full-validation mode.
+ */
+TLV_API tlv_result_t tlv_query_program_exists(tlv_tree_reader_t* reader, tlv_query_exec_t* exec,
+                                              int early_return, int* found,
+                                              tlv_query_diagnostic_t* diagnostic);
+
+/** @} */
+#ifdef __cplusplus
+}
+#endif
+#endif

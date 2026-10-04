@@ -14,15 +14,10 @@
 const tlv_query_t* opentlv_lua_check_query(lua_State* L, int arg, tlv_query_t* scratch) {
     if (lua_type(L, arg) == LUA_TUSERDATA)
         return (const tlv_query_t*)luaL_checkudata(L, arg, QUERY_MT);
-    size_t      length;
-    const char* text = luaL_checklstring(L, arg, &length);
-    const char* nul = (const char*)memchr(text, 0, length);
-    if (nul) {
-        opentlv_lua_raise(L, TLV_ERR_INVALID_ARG, 1, (size_t)(nul - text));
-        return NULL;
-    }
+    size_t       length;
+    const char*  text = luaL_checklstring(L, arg, &length);
     size_t       offset = 0;
-    tlv_result_t code = tlv_query_parse(text, scratch, &offset);
+    tlv_result_t code = tlv_query_parse_n(text, length, scratch, &offset);
     if (code != TLV_OK) opentlv_lua_raise(L, code, 1, offset);
     return scratch;
 }
@@ -67,7 +62,8 @@ static int query_new(lua_State* L) {
 static int query_steps(lua_State* L) {
     const tlv_query_t* self = (const tlv_query_t*)luaL_checkudata(L, 1, QUERY_MT);
     lua_newtable(L);
-    for (size_t i = 0; i < self->count; ++i) {
+    size_t count = tlv_query_count(self);
+    for (size_t i = 0; i < count; ++i) {
         tlv_tag_t tag = tlv_query_step(self, i);
         lua_pushlstring(L, (const char*)tag.data, tag.size);
         lua_rawseti(L, -2, (int)i + 1);

@@ -78,7 +78,7 @@ TEST(Integration_Tlvpp, BerPathQuery) {
     auto path = tlv::query::parse("6F/A5/50");
     ASSERT_TRUE(path);
     EXPECT_EQ(3u, path->size());
-    EXPECT_EQ(3u, path->c_query().count);
+    EXPECT_EQ(3u, tlv_query_count(&path->c_query()));
     size_t visits = 0;
     EXPECT_TRUE(path->visit_buffer(input, tlv_format_ber, 8, 100,
                                    [&](const tlv::element_view& item, size_t depth, size_t at) {

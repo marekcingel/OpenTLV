@@ -1,0 +1,287 @@
+{
+  "version": 1,
+  "format": {
+    "tag_bytes": 1,
+    "length_bytes": 1,
+    "constructed_tags": [
+      112
+    ]
+  },
+  "cases": [
+    {
+      "id": "v1-root",
+      "rules": [
+        "Q-V1-01"
+      ],
+      "query": "5A",
+      "wire": "70035A01125A0134",
+      "matches": [
+        5
+      ],
+      "v1": true
+    },
+    {
+      "id": "v1-child",
+      "rules": [
+        "Q-V1-01",
+        "Q-NODE-03"
+      ],
+      "query": "70/5A",
+      "wire": "70065A01125A01345A0156",
+      "matches": [
+        2,
+        5
+      ],
+      "v1": true
+    },
+    {
+      "id": "desc-union",
+      "rules": [
+        "Q-NODE-03"
+      ],
+      "query": "//70//5A | //5A",
+      "wire": "70035A01125A0134",
+      "matches": [
+        2,
+        5
+      ]
+    },
+    {
+      "id": "wildcard",
+      "rules": [
+        "Q-NODE-02"
+      ],
+      "query": "//??",
+      "wire": "70035A01125A0134",
+      "matches": [
+        0,
+        2,
+        5
+      ]
+    },
+    {
+      "id": "metadata",
+      "rules": [
+        "Q-VALUE-03"
+      ],
+      "query": "//5A[@depth = 1 and @index = 1]",
+      "wire": "70065A01125A01345A0156",
+      "matches": [
+        5
+      ]
+    },
+    {
+      "id": "source-header",
+      "rules": [
+        "Q-VALUE-03"
+      ],
+      "query": "//5A[@hlen = 2 and @offset = 2]",
+      "wire": "70035A0112",
+      "matches": [
+        2
+      ]
+    },
+    {
+      "id": "ancestor",
+      "rules": [
+        "Q-CONTEXT-02"
+      ],
+      "query": "//5A[ancestor::70]",
+      "wire": "70035A01125A0134",
+      "matches": [
+        2
+      ]
+    },
+    {
+      "id": "prefix",
+      "rules": [
+        "Q-VALUE-02"
+      ],
+      "query": "//5A[starts-with(value(), x'12')]",
+      "wire": "5A0212345A0156",
+      "matches": [
+        0
+      ]
+    },
+    {
+      "id": "suffix",
+      "rules": [
+        "Q-VALUE-02"
+      ],
+      "query": "//5A[ends-with(value(), x'34')]",
+      "wire": "5A0212345A0156",
+      "matches": [
+        0
+      ]
+    },
+    {
+      "id": "contains",
+      "rules": [
+        "Q-VALUE-02",
+        "Q-COST-01"
+      ],
+      "query": "//5A[contains(value(), x'1234')]",
+      "wire": "5A039912345A0112",
+      "matches": [
+        0
+      ]
+    },
+    {
+      "id": "empty-pattern",
+      "rules": [
+        "Q-VALUE-02"
+      ],
+      "query": "//5A[contains(value(), x'')]",
+      "wire": "5A005A0112",
+      "matches": [
+        0,
+        2
+      ]
+    },
+    {
+      "id": "substring",
+      "rules": [
+        "Q-VALUE-02"
+      ],
+      "query": "//5A[substr(value(), 1, 1) = x'34']",
+      "wire": "5A0212345A0112",
+      "matches": [
+        0
+      ]
+    },
+    {
+      "id": "mask",
+      "rules": [
+        "Q-NODE-02"
+      ],
+      "query": "//tag-mask(x'50', x'F0')",
+      "wire": "5A01127000",
+      "matches": [
+        0
+      ]
+    },
+    {
+      "id": "range",
+      "rules": [
+        "Q-NODE-02"
+      ],
+      "query": "//tag-range(x'50', x'60')",
+      "wire": "5A01127000",
+      "matches": [
+        0
+      ]
+    },
+    {
+      "id": "empty-container",
+      "rules": [
+        "Q-EVENT-01"
+      ],
+      "query": "//70[@len = 0]",
+      "wire": "7000",
+      "matches": [
+        0
+      ]
+    },
+    {
+      "id": "missing-bracket",
+      "rules": [
+        "Q-GRAMMAR-01"
+      ],
+      "query": "//5A[@len=1",
+      "wire": "",
+      "diagnostic": {
+        "code": 10,
+        "kind": 1,
+        "begin": 11,
+        "end": 11
+      }
+    },
+    {
+      "id": "deferred-union",
+      "rules": [
+        "Q-PLAN-01"
+      ],
+      "query": "//70[not(5A)] | //5A",
+      "wire": "",
+      "diagnostic": {
+        "code": 15,
+        "kind": 2
+      }
+    },
+    {
+      "id": "typed-function",
+      "rules": [
+        "Q-FUNCTION-02"
+      ],
+      "query": "//5A[num(.) > 10]",
+      "wire": "",
+      "diagnostic": {
+        "code": 15,
+        "kind": 2
+      }
+    },
+    {
+      "id": "variable",
+      "rules": [
+        "Q-FUNCTION-02"
+      ],
+      "query": "//5A[@len > $min]",
+      "wire": "",
+      "diagnostic": {
+        "code": 15,
+        "kind": 2
+      }
+    },
+    {
+      "id": "grouped-child-chain",
+      "rules": [
+        "Q-GRAMMAR-02"
+      ],
+      "query": "70/(70/5A)",
+      "wire": "700870035A01125A0134",
+      "matches": [
+        4
+      ]
+    },
+    {
+      "id": "grouped-union-chain",
+      "rules": [
+        "Q-GRAMMAR-02",
+        "Q-NODE-03"
+      ],
+      "query": "70/(70/5A | 5A)",
+      "wire": "700870035A01125A0134",
+      "matches": [
+        4,
+        7
+      ]
+    },
+    {
+      "id": "rejected-root-prefix",
+      "rules": [
+        "Q-NODE-01"
+      ],
+      "query": "5A//5A",
+      "wire": "700570035A0112",
+      "matches": []
+    },
+    {
+      "id": "ancestor-only",
+      "rules": [
+        "Q-CONTEXT-02"
+      ],
+      "query": "//5A[ancestor::70]",
+      "wire": "70035A01125A0112",
+      "matches": [
+        2
+      ]
+    },
+    {
+      "id": "byte-order-length-and-not",
+      "rules": ["Q-VALUE-02", "Q-FUNCTION-02"],
+      "query": "//5A[not(@len=0) and len(value())=2 and value()>=x'10']",
+      "wire": "5A0212345A00",
+      "matches": [0]
+    }
+  ]
+}
