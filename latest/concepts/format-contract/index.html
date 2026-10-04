@@ -2489,6 +2489,34 @@
   
   
     <li class="md-nav__item">
+      <a href="../format-capabilities/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Generic Format capability space
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
       <a href="../value/" class="md-nav__link">
         
   
@@ -3408,6 +3436,9 @@
 <h1 id="format-and-element-contract">Format and Element contract<a class="headerlink" href="#format-and-element-contract" title="Permanent link">&para;</a></h1>
 <p>This page extends the <a href="../architecture/#conceptual-model">canonical architecture overview</a>;
 it specifies or audits these responsibilities without defining another model.</p>
+<p>The <a href="../format-capabilities/">generic Format capability space</a> introduces the
+wire dimensions and distinguishes supplied configurations, custom callbacks,
+future capabilities and protocol policy.</p>
 <p>The format is the only layer that interprets wire mechanics. An element is a
 canonical optional byte identifier and contiguous Value bytes; <code>value.size</code>
 is its logical byte count, excluding framing. It has no raw Length member.

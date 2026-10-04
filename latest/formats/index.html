@@ -2691,6 +2691,34 @@
   
   
     <li class="md-nav__item">
+      <a href="../concepts/format-capabilities/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Generic Format capability space
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
       <a href="../concepts/value/" class="md-nav__link">
         
   
@@ -3547,6 +3575,9 @@ format, <code>tlv/formats/</code>; see <a href="../concepts/architecture/#reposi
 <p>Generic formats in <code>tlv/formats/</code> are part of the core and always available.
 Built-ins in <code>tlv/builtins/&lt;protocol&gt;/</code> implement specific standards and are
 optional. Both use the same Format, Reader and Writer contracts.</p>
+<p>For proprietary formats, start with the <a href="../concepts/format-capabilities/">generic Format capability space</a>
+and its configuration matrix. Builtins are representative combinations of wire
+properties; their names do not define the boundary of the generic core.</p>
 <p>See the <a href="support/">implemented capability inventory</a> for Definition, Schema,
 Codec, validation, CLI and language-preset coverage, and
 <a href="../guides/processing/">Choose a processing API</a> for execution choices.</p>
