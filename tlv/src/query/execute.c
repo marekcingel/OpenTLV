@@ -106,9 +106,11 @@ tlv_result_t tlv_query_exec_bind(tlv_query_exec_t* e, const char* name,
     if (!found)
         return query_error(d, TLV_ERR_INVALID_ARG, TLV_QUERY_ERROR_BINDING, 0, 0,
                            "variable referenced by program");
+#if SIZE_MAX > INT64_MAX
     if (type != TLV_QUERY_RESULT_INTEGER && size > INT64_MAX)
         return query_error(d, TLV_ERR_OVERFLOW, TLV_QUERY_ERROR_BINDING, 0, 0,
                            "span length representable as int64");
+#endif
     if (type == TLV_QUERY_RESULT_STRING && tlv_utf8_validate(data, size) != TLV_OK)
         return query_error(d, TLV_ERR_INVALID_VALUE, TLV_QUERY_ERROR_BINDING, 0, 0,
                            "valid UTF-8 string binding");
