@@ -9,6 +9,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Fixed
 
+- Fix Clang Query benchmark builds with warnings treated as errors by avoiding the deprecated const-reference optimization barrier. (#519)
 - Validate Query step boundaries before returning borrowed tags from corrupt storage. (#519)
 - Fix GCC CLI builds by qualifying the options type in the shared traversal context. (#508)
 - Fix Clang builds with warnings treated as errors by fully initializing Fixed format configurations in generator tests. (#503)

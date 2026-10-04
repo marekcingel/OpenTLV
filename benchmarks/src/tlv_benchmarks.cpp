@@ -96,7 +96,8 @@ BENCHMARK(encode_entries)->Arg(16)->Arg(127)->Arg(128)->Arg(255)->Arg(256)->Arg(
 BENCHMARK(parse_stream)->Arg(16)->Arg(256)->Arg(4096);
 
 tlv_visit_result_t query_match(const tlv_tree_event_t* event, void*) {
-    benchmark::DoNotOptimize(event->offset);
+    auto offset = event->offset;
+    benchmark::DoNotOptimize(offset);
     return TLV_VISIT_CONTINUE;
 }
 
