@@ -162,6 +162,7 @@ nav:
   - Architecture and Concepts:
       - Architecture: concepts/architecture.md
       - Core types: concepts/core-types.md
+      - Generic Format capability space: concepts/format-capabilities.md
       - Borrowed values: concepts/value.md
       - Logical lengths: concepts/length.md
       - Byte order: concepts/endian.md

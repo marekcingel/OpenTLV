@@ -118,6 +118,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Added
 
+- Document the generic Format capability space and configuration matrix, distinguishing current mechanisms, custom Formats, future capabilities and protocol policy. (#514)
 - Add an opt-in deterministic property suite for complete Reader/Tree Writer byte-exact round trips across enabled generator-supported formats, with reproducible commit-derived CI corpora and downloadable failure evidence. (#506, #507, #508)
 - Add `otlv generate` for reproducible valid wire corpora, with explicit seeds, case counts, generation limits, one file per case in binary (default) or CLI JSON encoding. (#505)
 - Add a reusable C++ wire generator with managed scratch storage and owned deterministic case results, delegating to the native generator. (#504)
