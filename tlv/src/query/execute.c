@@ -1,6 +1,7 @@
 // SPDX-License-Identifier: MIT
 // Copyright (c) 2026 Marek Cingel
 #include "program_internal.h"
+#include "../utf8_internal.h"
 
 enum { V_HEX = V_STRING + 1 };
 static unsigned byte_at(query_value_t v, size_t i) {
@@ -28,8 +29,21 @@ static int tag_test(const char* text, const query_node_t* n, tlv_tag_t tag) {
 static query_value_t* execution_values(tlv_query_exec_t* e) {
     return (query_value_t*)(e + 1);
 }
+static query_value_t* execution_bindings(tlv_query_exec_t* e) {
+    return execution_values(e) + e->program->count;
+}
+static tlv_result_t bindings_ready(tlv_query_exec_t* e, tlv_query_diagnostic_t* d) {
+    const query_node_t* nodes = query_nodes(e->program);
+    for (size_t i = 0; i < e->program->count; ++i)
+        if (nodes[i].op == Q_VARIABLE && !execution_bindings(e)[i].kind) {
+            e->invalid = 1;
+            return query_error(d, TLV_ERR_INVALID_ARG, TLV_QUERY_ERROR_BINDING, nodes[i].begin,
+                               nodes[i].end, "bound variable");
+        }
+    return TLV_OK;
+}
 static size_t* execution_indexes(tlv_query_exec_t* e) {
-    return (size_t*)(execution_values(e) + e->program->count);
+    return (size_t*)(execution_bindings(e) + e->program->count);
 }
 static uint8_t* execution_states(tlv_query_exec_t* e) {
     return (uint8_t*)(execution_indexes(e) + e->depth_capacity + e->pattern_capacity);
@@ -52,9 +66,10 @@ tlv_result_t tlv_query_exec_size(const tlv_query_program_t* p, size_t depth, siz
     if (!query_program_valid(p)) return TLV_ERR_INVALID_ARG;
     if (p->level != TLV_QUERY_S0) return TLV_ERR_UNSUPPORTED_TYPE;
     size_t count = p->count;
-    if (depth == SIZE_MAX || count > (SIZE_MAX - sizeof(tlv_query_exec_t)) / sizeof(query_value_t))
+    if (depth == SIZE_MAX ||
+        count > (SIZE_MAX - sizeof(tlv_query_exec_t)) / (2 * sizeof(query_value_t)))
         return TLV_ERR_OVERFLOW;
-    size_t base = sizeof(tlv_query_exec_t) + p->count * sizeof(query_value_t);
+    size_t base = sizeof(tlv_query_exec_t) + p->count * (2 * sizeof(query_value_t));
     size_t pattern = pattern_capacity(p);
     if (pattern > (SIZE_MAX - base) / sizeof(size_t)) return TLV_ERR_OVERFLOW;
     base += pattern * sizeof(size_t);
@@ -62,6 +77,53 @@ tlv_result_t tlv_query_exec_size(const tlv_query_program_t* p, size_t depth, siz
     if (depth + 1 > (SIZE_MAX - base) / per_depth) return TLV_ERR_OVERFLOW;
     *bytes = base + (depth + 1) * per_depth;
     *alignment = sizeof(uint64_t) > sizeof(void*) ? sizeof(uint64_t) : sizeof(void*);
+    return TLV_OK;
+}
+
+tlv_result_t tlv_query_exec_bind(tlv_query_exec_t* e, const char* name,
+                                 tlv_query_result_kind_t type, int64_t integer, const uint8_t* data,
+                                 size_t size, tlv_query_diagnostic_t* d) {
+    query_diag_init(d);
+    if (!e || !name || (!data && size && type != TLV_QUERY_RESULT_INTEGER)) return TLV_ERR_NULL_ARG;
+    if (e->elements || e->open || e->invalid || e->finished)
+        return query_error(d, TLV_ERR_INVALID_ARG, TLV_QUERY_ERROR_BINDING, 0, 0,
+                           "fresh execution before binding");
+    if (type < TLV_QUERY_RESULT_INTEGER || type > TLV_QUERY_RESULT_STRING)
+        return query_error(d, TLV_ERR_INVALID_ARG, TLV_QUERY_ERROR_BINDING, 0, 0,
+                           "integer, bytes or string binding");
+    const query_node_t* nodes = query_nodes(e->program);
+    const char* text = query_text(e->program);
+    query_value_t* bindings = execution_bindings(e);
+    int found = 0;
+    for (size_t i = 0; i < e->program->count; ++i) {
+        const query_node_t* n = &nodes[i];
+        if (n->op != Q_VARIABLE || !query_word(text, n->begin + 1, n->end, name)) continue;
+        found = 1;
+        if (n->type != (unsigned)type || bindings[i].kind)
+            return query_error(d, TLV_ERR_INVALID_ARG, TLV_QUERY_ERROR_BINDING, n->begin, n->end,
+                               "unbound variable of declared type");
+    }
+    if (!found)
+        return query_error(d, TLV_ERR_INVALID_ARG, TLV_QUERY_ERROR_BINDING, 0, 0,
+                           "variable referenced by program");
+    if (type != TLV_QUERY_RESULT_INTEGER && size > INT64_MAX)
+        return query_error(d, TLV_ERR_OVERFLOW, TLV_QUERY_ERROR_BINDING, 0, 0,
+                           "span length representable as int64");
+    if (type == TLV_QUERY_RESULT_STRING && tlv_utf8_validate(data, size) != TLV_OK)
+        return query_error(d, TLV_ERR_INVALID_VALUE, TLV_QUERY_ERROR_BINDING, 0, 0,
+                           "valid UTF-8 string binding");
+    query_value_t value = {0};
+    value.kind = (unsigned)type;
+    if (type == TLV_QUERY_RESULT_INTEGER) {
+        value.negative = integer < 0;
+        value.number = integer < 0 ? (uint64_t)(-(integer + 1)) + 1 : (uint64_t)integer;
+    } else {
+        value.data = data;
+        value.size = size;
+    }
+    for (size_t i = 0; i < e->program->count; ++i)
+        if (nodes[i].op == Q_VARIABLE && query_word(text, nodes[i].begin + 1, nodes[i].end, name))
+            bindings[i] = value;
     return TLV_OK;
 }
 
@@ -87,7 +149,7 @@ tlv_result_t tlv_query_exec_init(const tlv_query_program_t* p, void* storage, si
 
 static tlv_result_t compare(tlv_query_exec_t* e, query_value_t a, query_value_t b,
                             const query_node_t* n, int* order, tlv_query_diagnostic_t* d) {
-    if (bytes_kind(a) && bytes_kind(b)) {
+    if ((bytes_kind(a) && bytes_kind(b)) || (a.kind == V_STRING && b.kind == V_STRING)) {
         size_t limit = a.size < b.size ? a.size : b.size;
         tlv_result_t rc = charge(e, limit, n, d);
         if (rc != TLV_OK) return rc;
@@ -102,7 +164,12 @@ static tlv_result_t compare(tlv_query_exec_t* e, query_value_t a, query_value_t 
         return TLV_OK;
     }
     if (a.kind == V_NUMBER && b.kind == V_NUMBER) {
-        *order = a.number < b.number ? -1 : a.number > b.number;
+        if (a.negative != b.negative)
+            *order = a.negative ? -1 : 1;
+        else {
+            *order = a.number < b.number ? -1 : a.number > b.number;
+            if (a.negative) *order = -*order;
+        }
         return TLV_OK;
     }
     return query_error(d, TLV_ERR_INVALID_ARG, TLV_QUERY_ERROR_CAPABILITY, n->begin, n->end,
@@ -190,6 +257,9 @@ static tlv_result_t function(tlv_query_exec_t* e, const tlv_tree_event_t* event,
         if (count > 1 || (count && !bytes_kind(a))) goto arity;
         out->kind = V_NUMBER;
         out->number = count ? a.size : event->element.value.size;
+        if (out->number > INT64_MAX)
+            return query_error(d, TLV_ERR_OVERFLOW, TLV_QUERY_ERROR_CAPABILITY, n->begin, n->end,
+                               "length representable as int64");
         return TLV_OK;
     }
     if (query_word(text, n->begin, n->end, "not")) {
@@ -202,6 +272,9 @@ static tlv_result_t function(tlv_query_exec_t* e, const tlv_tree_event_t* event,
         if ((count != 2 && count != 3) || !bytes_kind(a) || b.kind != V_NUMBER ||
             (count == 3 && c.kind != V_NUMBER))
             goto arity;
+        if (b.negative || (count == 3 && c.negative))
+            return query_error(d, TLV_ERR_INVALID_VALUE, TLV_QUERY_ERROR_CAPABILITY, n->begin,
+                               n->end, "nonnegative substring start and length");
         size_t begin = b.number > a.size ? a.size : (size_t)b.number;
         size_t length = a.size - begin;
         if (count == 3 && c.number < length) length = (size_t)c.number;
@@ -367,6 +440,8 @@ static tlv_result_t evaluate(tlv_query_exec_t* e, const tlv_tree_event_t* event,
                 break;
             case Q_FILTER: out.number = truth(a) && truth(b); break;
             case Q_UNION: out.number = truth(a) || truth(b); break;
+            case Q_INTERSECT: out.number = truth(a) && truth(b); break;
+            case Q_EXCEPT: out.number = truth(a) && !truth(b); break;
             case Q_AND:
             case Q_OR:
                 out.kind = V_BOOL;
@@ -394,22 +469,29 @@ static tlv_result_t evaluate(tlv_query_exec_t* e, const tlv_tree_event_t* event,
                                      ? event->offset
                                      : event->source.header.size;
                 }
+                if (out.number > INT64_MAX)
+                    return query_error(d, TLV_ERR_OVERFLOW, TLV_QUERY_ERROR_CAPABILITY, n->begin,
+                                       n->end, "metadata representable as int64");
                 break;
             case Q_LITERAL:
                 out.kind = V_NUMBER;
-                for (size_t j = n->begin; j < n->end; ++j) {
+                out.negative = text[n->begin] == '-';
+                for (size_t j = n->begin + (unsigned)out.negative; j < n->end; ++j) {
                     unsigned digit = (unsigned)(text[j] - '0');
-                    if (digit > 9 || out.number > (UINT64_MAX - digit) / 10)
+                    uint64_t maximum = (uint64_t)INT64_MAX + (unsigned)out.negative;
+                    if (digit > 9 || out.number > (maximum - digit) / 10)
                         return query_error(d, TLV_ERR_OVERFLOW, TLV_QUERY_ERROR_SYNTAX, n->begin,
-                                           n->end, "nonnegative 64-bit metadata integer");
+                                           n->end, "signed 64-bit integer");
                     out.number = out.number * 10 + digit;
                 }
+                if (!out.number) out.negative = 0;
                 break;
             case Q_BYTES:
                 out.kind = V_HEX;
                 out.data = (const uint8_t*)text + n->begin + 2;
                 out.size = (n->end - n->begin - 3) / 2;
                 break;
+            case Q_VARIABLE: out = execution_bindings(e)[i]; break;
             case Q_EQ:
             case Q_NE:
             case Q_LT:
@@ -451,6 +533,10 @@ tlv_result_t tlv_query_exec_feed(tlv_query_exec_t* e, const tlv_tree_event_t* ev
     if (e->invalid || e->finished) return TLV_ERR_INVALID_ARG;
     tlv_result_t rc = TLV_OK;
     int match = 0;
+    if (!e->elements) {
+        rc = bindings_ready(e, d);
+        if (rc != TLV_OK) goto failure;
+    }
     if (event->kind == TLV_TREE_END) {
         if (!e->open || event->depth != e->open - 1) goto events;
         if (event->skipped) {
@@ -512,6 +598,10 @@ failure:
 tlv_result_t tlv_query_exec_finish(tlv_query_exec_t* e, tlv_query_diagnostic_t* d) {
     query_diag_init(d);
     if (!e) return TLV_ERR_NULL_ARG;
+    if (!e->elements && !e->invalid) {
+        tlv_result_t rc = bindings_ready(e, d);
+        if (rc != TLV_OK) return rc;
+    }
     if (e->invalid || e->open || (e->has_context && !e->context_found)) {
         e->invalid = 1;
         return query_error(d, TLV_ERR_INVALID_ARG, TLV_QUERY_ERROR_EVENTS, 0, 0,
@@ -528,6 +618,10 @@ tlv_result_t tlv_query_program_visit(tlv_tree_reader_t* reader, tlv_query_exec_t
     if (!reader || !e || !visitor) return TLV_ERR_NULL_ARG;
     if (e->invalid) return TLV_ERR_INVALID_ARG;
     if (e->finished) return TLV_OK;
+    if (!e->elements) {
+        tlv_result_t rc = bindings_ready(e, d);
+        if (rc != TLV_OK) return rc;
+    }
     for (;;) {
         tlv_tree_event_t event;
         tlv_reader_diagnostic_t reader_diag;

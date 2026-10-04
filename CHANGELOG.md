@@ -123,6 +123,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Added
 
+- Add typed integer, byte and UTF-8 string Query variable declarations and independent borrowed execution bindings, signed int64 comparisons with overflow checks, and ordered S0 node intersection and difference. (#520)
 - Add caller-stored compiled Query programs and bounded S0 execution over canonical Tree events, with descendant/union selection, metadata and byte predicates, structured diagnostics and an independent conformance corpus. (#519)
 - Add length-delimited V1 Query parsing, canonical formatting and supported matcher rebinding. (#519)
 - Document the generic Format capability space and configuration matrix, distinguishing current mechanisms, custom Formats, future capabilities and protocol policy. (#514)

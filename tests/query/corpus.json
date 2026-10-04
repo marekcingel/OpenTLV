@@ -9,6 +9,27 @@
   },
   "cases": [
     {
+      "id": "signed-boundaries",
+      "rules": ["Q-VALUE-01", "Q-FUNCTION-02"],
+      "query": "//5A[@len > -1 and -9223372036854775808 < 9223372036854775807]",
+      "wire": "5A001201FF5A0112",
+      "matches": [0, 5]
+    },
+    {
+      "id": "identity-intersection",
+      "rules": ["Q-NODE-03", "Q-FUNCTION-02"],
+      "query": "//5A intersect //70//5A",
+      "wire": "70035A01125A0112",
+      "matches": [2]
+    },
+    {
+      "id": "identity-difference",
+      "rules": ["Q-NODE-03", "Q-FUNCTION-02"],
+      "query": "//5A except //70//5A",
+      "wire": "70035A01125A0112",
+      "matches": [5]
+    },
+    {
       "id": "v1-root",
       "rules": [
         "Q-V1-01"
@@ -228,8 +249,8 @@
       "query": "//5A[@len > $min]",
       "wire": "",
       "diagnostic": {
-        "code": 15,
-        "kind": 2
+        "code": 10,
+        "kind": 8
       }
     },
     {

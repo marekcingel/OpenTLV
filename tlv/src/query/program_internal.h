@@ -84,6 +84,7 @@ typedef struct query_value {
     const uint8_t* data;
     size_t size;
     unsigned kind;
+    int negative;
 } query_value_t;
 struct tlv_query_exec {
     const tlv_query_program_t* program;

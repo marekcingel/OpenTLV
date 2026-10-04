@@ -154,11 +154,31 @@ use the explicit future execution environment, not protocol knowledge in Query.
 **Q-FUNCTION-02.** F1 implements node results, metadata comparisons, eager
 boolean composition, byte functions, and tag tests. Both operands of `and` and
 `or` are evaluated, so neither suppresses Source/type/resource errors. Full
-typed conversions, variables, general scalar results and set intersection or
-difference remain later-phase capabilities. Parsing a recognized later feature
+typed conversions and general scalar results remain later-phase capabilities.
+S0 union, intersection and difference combine decisions for the same published
+node identity, preserving source order and eliminating duplicate matches without
+retaining a node set. An operand requiring deferred evidence still makes the
+whole expression unavailable to S0. Parsing a recognized later feature
 must not partially execute it as a V1 path.
-F1 metadata integer operands are nonnegative 64-bit values. Negative literals
-are recognized but require the later signed scalar implementation.
+Integer operands use signed 64-bit limits, including `-9223372036854775808`.
+No arithmetic syntax or implicit conversion is introduced. Metadata and lengths
+above `INT64_MAX` report overflow. Negative substring starts or lengths report
+an invalid value; nonnegative spans are clamped as specified by Q-VALUE-02.
+
+**Q-BINDING-01.** Compile options declare integer, bytes and UTF-8 string
+variables by name without `$`. The compiler validates operand types against
+these declarations and copies the Query text. Declaration storage is borrowed
+only during compilation. Duplicate declarations and undeclared references are
+errors. `tlv_query_exec_bind` binds each referenced name exactly once before
+any event; missing, unknown, duplicate and incompatible bindings are errors.
+All referenced variables are required even if no candidate matches or input
+is empty. Byte spans may contain embedded NUL and Query-like text; bindings
+never pass through the lexer. Strings are validated UTF-8 and remain distinct
+from bytes. Values are borrowed unchanged through execution, including suspension;
+callers needing a copy provide their own stable storage. Reinitialization clears
+bindings. Rebinding after an event, including STOP/NEED_MORE_DATA suspension,
+is rejected. Independent executions can bind different values to one program.
+Runtime-pattern `contains` and string literals remain unavailable in this slice.
 
 ## Storage and execution
 

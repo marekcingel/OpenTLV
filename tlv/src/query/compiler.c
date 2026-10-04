@@ -201,6 +201,24 @@ static tlv_result_t options_check(const tlv_query_compile_options_t* supplied,
                                "initialized language-version 1 options");
         *o = *supplied;
     }
+    if (o->variable_count > o->max_states || (o->variable_count && !o->variables))
+        return query_error(d, TLV_ERR_INVALID_ARG, TLV_QUERY_ERROR_BINDING, 0, 0,
+                           "bounded variable declarations");
+    for (size_t i = 0; i < o->variable_count; ++i) {
+        const tlv_query_variable_t* v = &o->variables[i];
+        if (!v->name || !v->name[0] || v->type < TLV_QUERY_RESULT_INTEGER ||
+            v->type > TLV_QUERY_RESULT_STRING)
+            return query_error(d, TLV_ERR_INVALID_ARG, TLV_QUERY_ERROR_BINDING, 0, 0,
+                               "named integer, bytes or string variable");
+        for (size_t j = 0; v->name[j]; ++j)
+            if (!word_char((unsigned char)v->name[j]))
+                return query_error(d, TLV_ERR_INVALID_ARG, TLV_QUERY_ERROR_BINDING, 0, 0,
+                                   "variable identifier");
+        for (size_t j = 0; j < i; ++j)
+            if (!strcmp(v->name, o->variables[j].name))
+                return query_error(d, TLV_ERR_INVALID_ARG, TLV_QUERY_ERROR_BINDING, 0, 0,
+                                   "unique variable declaration");
+    }
     if (size > o->max_text) return query_limit(d, "text", o->max_text, 0, size);
     if (size >= UINT32_MAX)
         return query_error(d, TLV_ERR_OVERFLOW, TLV_QUERY_ERROR_STORAGE, 0, 0,
@@ -459,7 +477,8 @@ static int decimal(const char* text, const query_node_t* n) {
 }
 
 static tlv_result_t analyze(const char* text, query_node_t* nodes, size_t count,
-                            tlv_query_level_t* level, tlv_query_diagnostic_t* d) {
+                            const tlv_query_compile_options_t* options, tlv_query_level_t* level,
+                            tlv_query_diagnostic_t* d) {
     *level = TLV_QUERY_S0;
     for (size_t i = 0; i < count; ++i) {
         query_node_t* n = &nodes[i];
@@ -602,8 +621,7 @@ static tlv_result_t analyze(const char* text, query_node_t* nodes, size_t count,
                 (n->axis == A_CHILD && n->scalar))
                 goto unsupported;
         }
-        if (n->op == Q_VARIABLE || n->op == Q_STRING || n->op == Q_INTERSECT || n->op == Q_EXCEPT)
-            goto unsupported;
+        if (n->op == Q_STRING) goto unsupported;
         if (n->op == Q_META) {
             if (!query_word(text, n->begin, n->end, "@len") &&
                 !query_word(text, n->begin, n->end, "@offset") &&
@@ -617,13 +635,14 @@ static tlv_result_t analyze(const char* text, query_node_t* nodes, size_t count,
             if (n->anchor == 2)
                 return query_error(d, TLV_ERR_UNSUPPORTED_TYPE, TLV_QUERY_ERROR_CAPABILITY,
                                    n->begin, n->end, "positional predicate execution");
-            if (text[n->begin] == '-') goto unsupported;
+            int negative = text[n->begin] == '-';
+            uint64_t maximum = (uint64_t)INT64_MAX + (unsigned)negative;
             uint64_t value = 0;
-            for (size_t j = n->begin; j < n->end; ++j) {
+            for (size_t j = n->begin + (unsigned)negative; j < n->end; ++j) {
                 unsigned digit = (unsigned)(text[j] - '0');
-                if (digit > 9 || value > (UINT64_MAX - digit) / 10)
+                if (digit > 9 || value > (maximum - digit) / 10)
                     return query_error(d, TLV_ERR_OVERFLOW, TLV_QUERY_ERROR_SYNTAX, n->begin,
-                                       n->end, "nonnegative 64-bit metadata integer");
+                                       n->end, "signed 64-bit integer");
                 value = value * 10 + digit;
             }
         }
@@ -643,6 +662,20 @@ static tlv_result_t analyze(const char* text, query_node_t* nodes, size_t count,
             if (!found) goto unsupported;
         }
         n->type = V_NODE;
+        if (n->op == Q_VARIABLE) {
+            int found = 0;
+            for (size_t j = 0; j < options->variable_count; ++j) {
+                const tlv_query_variable_t* v = &options->variables[j];
+                if (query_word(text, n->begin + 1, n->end, v->name)) {
+                    n->type = (uint32_t)v->type;
+                    found = 1;
+                    break;
+                }
+            }
+            if (!found)
+                return query_error(d, TLV_ERR_INVALID_ARG, TLV_QUERY_ERROR_BINDING, n->begin,
+                                   n->end, "declared typed variable");
+        }
         if (n->op == Q_META || n->op == Q_LITERAL) n->type = V_NUMBER;
         if (n->op == Q_BYTES) n->type = V_BYTES;
         if ((n->op >= Q_EQ && n->op <= Q_OR)) n->type = V_BOOL;
@@ -678,7 +711,8 @@ static tlv_result_t analyze(const char* text, query_node_t* nodes, size_t count,
             } else if (arity && (nodes[args[0]].type != V_BYTES || nodes[args[1]].type != V_BYTES))
                 goto types;
         }
-        if ((n->op == Q_CHILD || n->op == Q_DESC || n->op == Q_UNION) &&
+        if ((n->op == Q_CHILD || n->op == Q_DESC || n->op == Q_UNION || n->op == Q_INTERSECT ||
+             n->op == Q_EXCEPT) &&
             (nodes[n->left].type != V_NODE || nodes[n->right].type != V_NODE))
             goto types;
         if (n->op == Q_FILTER &&
@@ -687,7 +721,8 @@ static tlv_result_t analyze(const char* text, query_node_t* nodes, size_t count,
             goto types;
         if (n->op >= Q_EQ && n->op <= Q_GE &&
             (nodes[n->left].type != nodes[n->right].type ||
-             (nodes[n->left].type != V_BYTES && nodes[n->left].type != V_NUMBER)))
+             (nodes[n->left].type != V_BYTES && nodes[n->left].type != V_NUMBER &&
+              nodes[n->left].type != V_STRING)))
             goto types;
         if ((n->op == Q_AND || n->op == Q_OR) &&
             ((nodes[n->left].type != V_BOOL && nodes[n->left].type != V_NODE) ||
@@ -763,7 +798,7 @@ tlv_result_t tlv_query_compile(const char* text, size_t size,
         }
     }
     tlv_query_level_t level;
-    rc = analyze(text, nodes, used, &level, d);
+    rc = analyze(text, nodes, used, &o, &level, d);
     if (rc == TLV_OK && nodes[root].type != V_NODE)
         rc = query_error(d, TLV_ERR_UNSUPPORTED_TYPE, TLV_QUERY_ERROR_CAPABILITY, nodes[root].begin,
                          nodes[root].end, "F1 node-sequence result");
@@ -779,7 +814,11 @@ tlv_result_t tlv_query_compile(const char* text, size_t size,
     tlv_query_program_info_t result = {total,  sizeof(uint32_t),
                                        needed, alignment,
                                        used,   1,
-                                       level,  (tlv_query_result_kind_t)nodes[root].type};
+                                       level,  (tlv_query_result_kind_t)nodes[root].type,
+                                       used,   used,
+                                       0};
+    for (size_t i = 0; i < used; ++i)
+        if (nodes[i].op == Q_VARIABLE) ++result.variable_slots;
     if (rc != TLV_OK) {
         *info = result;
         return rc;

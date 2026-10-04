@@ -36,7 +36,8 @@ typedef enum tlv_query_error_kind {
     TLV_QUERY_ERROR_STORAGE,    /**< Invalid storage or alignment. */
     TLV_QUERY_ERROR_EVENTS,     /**< Unbalanced or otherwise invalid structural feed. */
     TLV_QUERY_ERROR_SOURCE,     /**< Requested Source property unavailable. */
-    TLV_QUERY_ERROR_READER      /**< Original Reader failure; reader detail is preserved. */
+    TLV_QUERY_ERROR_READER,     /**< Original Reader failure; reader detail is preserved. */
+    TLV_QUERY_ERROR_BINDING     /**< Missing, unknown, duplicate or incompatible variable. */
 } tlv_query_error_kind_t;
 
 /** @brief Structured compiler/execution failure, initialized by every diagnostic entry point. */
@@ -52,24 +53,34 @@ typedef struct tlv_query_diagnostic {
     tlv_reader_diagnostic_t reader; /**< Original Reader diagnostic on Reader failure. */
 } tlv_query_diagnostic_t;
 
-/** @brief Versioned compile options; initialize using tlv_query_compile_options_init(). */
-typedef struct tlv_query_compile_options {
-    size_t struct_size;        /**< Set by initializer; must match this release. */
-    unsigned language_version; /**< Explicit full language version; currently 1. */
-    size_t max_text;           /**< Maximum Query bytes. */
-    size_t max_tokens;         /**< Maximum lexical tokens. */
-    size_t max_nesting;        /**< Maximum open parentheses/predicates. */
-    size_t max_states;         /**< Maximum compiled expression nodes. */
-} tlv_query_compile_options_t;
-
 /** @brief Category of a Query expression's result. */
 typedef enum tlv_query_result_kind {
     TLV_QUERY_RESULT_NODES,   /**< Ordered unique node sequence. */
-    TLV_QUERY_RESULT_BOOL,    /**< Boolean scalar; later-phase execution. */
-    TLV_QUERY_RESULT_INTEGER, /**< Signed 64-bit scalar; later-phase execution. */
-    TLV_QUERY_RESULT_BYTES,   /**< Borrowed byte scalar; later-phase execution. */
-    TLV_QUERY_RESULT_STRING   /**< UTF-8 string scalar; later-phase execution. */
+    TLV_QUERY_RESULT_BOOL,    /**< Boolean scalar. */
+    TLV_QUERY_RESULT_INTEGER, /**< Signed 64-bit scalar. */
+    TLV_QUERY_RESULT_BYTES,   /**< Byte scalar. */
+    TLV_QUERY_RESULT_STRING   /**< UTF-8 string scalar. */
 } tlv_query_result_kind_t;
+
+/** @brief Compile-time variable declaration; names omit the dollar prefix.
+ * @note The name is borrowed only during compilation; the program copies Query text.
+ * Integer, bytes and string declarations are supported. Duplicate names are invalid. */
+typedef struct tlv_query_variable {
+    const char* name;             /**< Required NUL-terminated variable name. */
+    tlv_query_result_kind_t type; /**< Required value category. */
+} tlv_query_variable_t;
+
+/** @brief Versioned compile options; initialize using tlv_query_compile_options_init(). */
+typedef struct tlv_query_compile_options {
+    size_t struct_size;                    /**< Set by initializer; must match this release. */
+    unsigned language_version;             /**< Explicit full language version; currently 1. */
+    size_t max_text;                       /**< Maximum Query bytes. */
+    size_t max_tokens;                     /**< Maximum lexical tokens. */
+    size_t max_nesting;                    /**< Maximum open parentheses/predicates. */
+    size_t max_states;                     /**< Maximum compiled expression nodes. */
+    const tlv_query_variable_t* variables; /**< Optional borrowed variable declarations. */
+    size_t variable_count;                 /**< Number of entries in variables. */
+} tlv_query_compile_options_t;
 
 /** @brief Program requirements and whole-plan information. */
 typedef struct tlv_query_program_info {
@@ -81,6 +92,9 @@ typedef struct tlv_query_program_info {
     unsigned language_version;           /**< Compiled language selection. */
     tlv_query_level_t level;             /**< Lowest conservatively proven execution level. */
     tlv_query_result_kind_t result_kind; /**< Result category; F1 executes node results. */
+    size_t expression_values; /**< Maximum intermediate value slots; no C stack recursion. */
+    size_t instructions;      /**< Maximum expression instructions per published node. */
+    size_t variable_slots; /**< Binding slots in caller workspace, including repeated references. */
 } tlv_query_program_info_t;
 
 /** @brief Opaque immutable caller-owned program. */
@@ -184,6 +198,26 @@ TLV_API tlv_result_t tlv_query_exec_size(const tlv_query_program_t* program, siz
 TLV_API tlv_result_t tlv_query_exec_init(const tlv_query_program_t* program, void* storage,
                                          size_t capacity, size_t max_depth, size_t max_elements,
                                          size_t max_work, tlv_query_exec_t** exec);
+
+/** @brief Bind one typed variable before consuming any event.
+ * @param[in,out] exec Required fresh initialized execution.
+ * @param[in] name Required variable name without dollar prefix.
+ * @param[in] type Integer, bytes or UTF-8 string category matching its declaration.
+ * @param[in] integer Signed value used only for integer bindings.
+ * @param[in] data Borrowed bytes/string; NULL is permitted for an empty span.
+ * @param[in] size Span bytes, ignored for integer bindings.
+ * @param[out] diagnostic Optional binding failure detail.
+ * @return #TLV_OK; #TLV_ERR_NULL_ARG for missing pointers; #TLV_ERR_INVALID_ARG
+ * for unknown/duplicate/incompatible bindings or used execution.
+ * @note No text interpolation or allocation occurs. Span storage must remain alive
+ * and unchanged until reset. To copy a span, the caller copies into its own storage.
+ * Reinitialization clears all bindings. Rebinding during STOP/NEED_MORE_DATA is invalid.
+ * Invalid bindings leave state unchanged. All referenced variables must be bound
+ * before the first event, including variables in predicates with no matching nodes. */
+TLV_API tlv_result_t tlv_query_exec_bind(tlv_query_exec_t* exec, const char* name,
+                                         tlv_query_result_kind_t type, int64_t integer,
+                                         const uint8_t* data, size_t size,
+                                         tlv_query_diagnostic_t* diagnostic);
 
 /**
  * @brief Select a relative node context before feeding events.
