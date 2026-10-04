@@ -1,5 +1,11 @@
 # C value codecs
 
+Prerequisite: Understand Element and Value in [the basic model](../concepts/learning-model.md).
+
+```text
+Value bytes + selected Codec --> application value
+```
+
 `tlv/codec/codec.h` defines `tlv_codec_t`, an optional pair of decode and encode
 callbacks with a borrowed, immutable context pointer. Codecs convert raw value
 bytes and application-defined C representations. They do not receive tags,
@@ -317,3 +323,7 @@ Both configurations can be caller-owned, using `tlv_digits_codec()` or
 `tlv_text_codec()` to construct borrowed descriptors. Configurations must remain
 alive and immutable. Size queries validate input, errors leave output unchanged,
 and neither codec performs allocation, tag lookup or domain selection.
+
+## Next step
+
+Next: [schemas](schemas.md) for composition constraints and [format support](../formats/support.md) for standard modules.

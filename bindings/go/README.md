@@ -1,5 +1,8 @@
 # Go binding (experimental)
 
+For public API setup and a first task, start with [the Go user guide](../../docs/guides/go.md).
+The component details below cover packaging, implementation or development.
+
 This module establishes the Go binding architecture (#472) and internal native
 bridge (#473). It exposes
 `opentlv.Version()` to verify the connection to the canonical C library.

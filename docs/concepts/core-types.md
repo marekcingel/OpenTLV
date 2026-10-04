@@ -1,5 +1,11 @@
 # C core types
 
+Prerequisite: Recognize Element, Tag and Value in the [basic model](learning-model.md).
+
+```text
+Element = Tag + Value bytes (logical length = Value size)
+```
+
 Include `<tlv/element.h>` for `tlv_element_t`, `<tlv/value.h>` for `tlv_value_t`, and
 `<tlv/size.h>` for `tlv_size_t`, or `<tlv/tlv.h>` to pull in all of them
 along with the rest of the public API. The common `tlv_result_t` error codes
@@ -216,3 +222,7 @@ Native Value imports validate null-pointer requirements and reject logical sizes
 above `SIZE_MAX` before iteration or narrowing. `native::descriptor(view)` exports
 a shallow C descriptor; exporting never transfers ownership or extends lifetimes.
 The C API and its build-independent 64-bit logical size contract remain unchanged.
+
+## Next step
+
+Next: [borrowed values](value.md), then [Reader usage](../guides/reader.md).

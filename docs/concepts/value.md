@@ -1,5 +1,11 @@
 # Borrowed TLV values
 
+Prerequisite: Read the [basic model](learning-model.md) first.
+
+```text
+input storage <--- borrowed Value { data, size }
+```
+
 Include `tlv/value.h` (also available through `tlv/tlv.h`) for `tlv_value_t`,
 a read-only, non-owning TLV value, and its checked construction and
 validation. See [logical TLV value lengths](length.md) for the `tlv_size_t`
@@ -104,3 +110,7 @@ for example in `tlv_copy_encoded()`. Source framing uses buffer-relative
 `tlv_range_t` fields separately from semantic Value.
 
 See also the [C API reference: core types](../reference/c-api.md#core-types-and-utilities).
+
+## Next step
+
+Next: [memory ownership](../guides/memory.md) for retained views and copies.

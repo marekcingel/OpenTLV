@@ -1,5 +1,11 @@
 # Path queries
 
+Prerequisite: Use Reader/tree traversal or Document; see [the basic model](../concepts/learning-model.md).
+
+```text
+nested elements + path --> selected elements
+```
+
 See [Choose a processing API](processing.md) for ownership, nesting, resumable
 input, construction and editing choices.
 
@@ -282,3 +288,7 @@ if len(matches) > 0 {
 `Query` returns all matches in document order, or an empty slice. Malformed text returns `*opentlv.QueryError` with its native text offset. [Runnable query example](../../bindings/go/examples/query/main.go).
 
 ///
+
+## Next step
+
+Next: [codecs](codecs.md) to interpret selected Values.

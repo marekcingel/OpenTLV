@@ -1,5 +1,12 @@
 # Memory ownership and lifetime
 
+Prerequisite: Understand Reader and Document in [the basic model](../concepts/learning-model.md).
+
+```text
+input owns bytes <-- Reader views borrow
+Document owns copied/edited storage
+```
+
 [Back to documentation](../README.md)
 
 | Object or operation | Ownership and lifetime |
@@ -171,3 +178,7 @@ allocate. Select operations with explicit caller storage for a strict no-heap
 path; enabling Document does not impose runtime allocations on unused paths.
 
 See also the [C API reference](../reference/c-api.md#core-types-and-utilities) and the [C++ API reference](../reference/cxx-api.md).
+
+## Next step
+
+Next: [copy helpers](copy.md) when a borrowed view must become independent.

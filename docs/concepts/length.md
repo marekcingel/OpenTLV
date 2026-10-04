@@ -1,5 +1,11 @@
 # Logical TLV value lengths
 
+Prerequisite: Understand Element and Value in the [basic model](learning-model.md).
+
+```text
+wire Length --Format--> logical Value byte count
+```
+
 Include `tlv/size.h` (also available through `tlv/tlv.h`) for `tlv_size_t`,
 a fixed 64-bit unsigned logical TLV value length, and its checked conversions
 to and from the current build's native `size_t`.
@@ -83,3 +89,7 @@ failure case, rather than narrowing implicitly. See
 `tlv_value_t` and `tlv_element_t` use `tlv_size_t`.
 
 See also the [C API reference: core types](../reference/c-api.md#core-types-and-utilities).
+
+## Next step
+
+Next: [format choices](../formats/README.md#choose-a-format).

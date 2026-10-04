@@ -1,5 +1,12 @@
 # Layered OpenTLV architecture (#65, #279, #280, #281, #327)
 
+Prerequisite: Start with the [basic model](learning-model.md) before the detailed contracts.
+
+```text
+Format describes wire rules
+Reader/Writer use Format; Schema and Codec are optional
+```
+
 OpenTLV provides one C library (`tlv`) and a header-only C++ interface (`tlv++`)
 that links to it. Core is a logical responsibility, not a directory. Optional
 components are concrete formats and standard-specific capabilities, rather than entire layers.
@@ -571,3 +578,7 @@ CLI `--module emv` selects the existing native EMV definitions, schemas and
 codecs for the relevant command; `--format` selects framing independently. WASM
 uses the selected module's definitions to annotate parsed elements. Neither
 selector loads `.otlv` files or requires a runtime interpreter.
+
+## Next step
+
+Next: [architectural rules](architectural-rules.md) for extension design.

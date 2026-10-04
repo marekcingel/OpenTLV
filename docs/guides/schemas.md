@@ -1,5 +1,11 @@
 # Optional C schemas
 
+Prerequisite: Read [the basic model](../concepts/learning-model.md) and use Reader or Document first.
+
+```text
+elements + Schema --> structural validation
+```
+
 Include `tlv/schema/schema.h` to describe known tags using constant tables.
 This engine is format-agnostic: it expresses occurrence, ordering, mutually
 exclusive alternatives, nesting and membership using generic primitives, with
@@ -545,3 +551,7 @@ caller-owned storage. Keep configuration and Schema alive and immutable while
 used. No tag lookup, allocation or mandatory registry is involved. EMV numeric
 entries use this adapter; LLDP tests exercise it against TTL field constraints
 with an explicitly selected `uint64_t` representation.
+
+## Next step
+
+Next: [Codec](codecs.md) to interpret Value bytes; framing remains the Format responsibility.

@@ -10,6 +10,10 @@ privately instead, following [SECURITY.md](SECURITY.md).
 All project spaces, including issues, pull requests, and reviews, are
 governed by the [Code of Conduct](CODE_OF_CONDUCT.md).
 
+For documentation changes, follow the [progressive learning conventions](docs/development/documentation-layout.md#progressive-learning-conventions).
+User onboarding starts at the [documentation homepage](docs/index.md); developer
+onboarding continues with [the development workflow](docs/development/workflow.md).
+
 Before opening a pull request:
 
 - Follow the [core architectural rules](docs/concepts/architectural-rules.md).

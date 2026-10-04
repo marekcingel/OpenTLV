@@ -14,9 +14,37 @@ section by the page's primary purpose, and link to related material elsewhere.
 | `reference/` | Lookup material: API manuals, option tables, support matrices | [C API](../reference/c-api.md), [Compilers](../reference/compilers.md) |
 | `development/` | Contributor material: tooling, fuzzing, docs conventions | [Fuzzing](fuzzing.md) |
 
+## Progressive learning conventions
+
+Name the intended audience and link prerequisite concepts near the beginning
+of substantial learning pages. Introduce Element and Reader/Writer before
+optional Query, Schema and Codec; keep contributor onboarding separate.
+
+For tutorials and concepts, explain the problem, show a minimal useful example
+with expected output, then explain normal usage. Place advanced ownership,
+errors and contracts later, while keeping the safety rules needed for the first
+example beside it. End with a recommended next step. Reference entries, audits
+and release notes need not repeat this structure.
+
+Use small fenced `text` diagrams with ASCII arrows and short lines that fit
+narrow screens. Show one relationship at a time. Label descriptions, runtime
+objects and operations accurately; optional consumers are not a mandatory
+pipeline. Label future models explicitly and link to the roadmap.
+
+The [homepage](../index.md) is the canonical user index. Component README files
+link to their language guide before implementation details. Link to canonical
+support, memory, build, architecture and roadmap pages instead of copying
+inventories. Keep established paths and anchors, or record migration links.
+
+Use consistent names: Format defines wire rules, Element carries semantic Tag
+and Value, Layout carries source ranges, Schema checks composition, and Codec
+interprets Value. State allocation, streaming and preservation claims with their
+actual scope. Verify marked examples, repository links and the strict site;
+review rendered diagrams and first tasks at a narrow viewport.
+
 ## Section boundaries
 
-The navigation starts with installation and practical Guides, followed by a
+The navigation starts with installation and the basic model, then practical Guides and a
 dedicated Language APIs section covering C++, Rust, Python, Lua, Go and the
 WebAssembly tooling embedding. Architecture and Concepts explain the shared
 model; technical contracts, audits and planned runtime-model design are grouped
@@ -173,9 +201,9 @@ does not require placeholder pages or new OTLV, binding or tool documentation.
 - Run `mkdocs build --strict` to check site pages and anchors. Also check
   repository-relative links outside the site: the site build does not validate
   their targets after the hook rewrites them to GitHub URLs.
-- Keep reorganizations limited to moves, navigation, link updates and minimal
-  introductory text. Compare each moved page with its original to ensure
-  technical content and examples are preserved.
+- Preserve technical content and examples when reorganizing. Move detailed
+  landing-page material to its canonical source, and use introductory bridges
+  where prerequisite concepts are missing.
 
 ## Documentation inventory checks
 
