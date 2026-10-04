@@ -2585,6 +2585,34 @@
   
   
     <li class="md-nav__item">
+      <a href="../../concepts/query-language/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Query language contract
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
       <a href="../../concepts/format-capabilities/" class="md-nav__link">
         
   
@@ -3366,6 +3394,13 @@ one value out of nested data without traversing the whole structure itself. The
 same text works in the C API, the C++ API and the <a href="../../cli/#path-queries"><code>otlv query</code></a>
 command.</p>
 <h2 id="syntax">Syntax<a class="headerlink" href="#syntax" title="Permanent link">&para;</a></h2>
+<p>The V1 helpers below retain exact-path syntax. The separately selected compiled
+language uses caller-owned program and execution storage; see the
+<a href="../../concepts/query-language/">Query language and execution contract</a>.
+Its initial streaming backend (S0: each match is decided when a complete node
+is published) supports descendants, unions, raw-byte node tests,
+metadata and borrowed byte predicates. Later-phase capabilities are rejected
+before input is consumed.</p>
 <p>A query is a list of hexadecimal tags separated by <code>/</code>:</p>
 <div class="highlight"><pre><span></span><code><a id="__codelineno-1-1" name="__codelineno-1-1" href="#__codelineno-1-1"></a>6F/A5/50
 </code></pre></div>

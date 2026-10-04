@@ -2684,6 +2684,34 @@
   
   
     <li class="md-nav__item">
+      <a href="../../concepts/query-language/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Query language contract
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
       <a href="../../concepts/format-capabilities/" class="md-nav__link">
         
   
@@ -3609,6 +3637,15 @@ language bindings and a dedicated property suite are separate work.</p>
 <p><a href="../api/c-api/html/group__traversal.html">Generated reference</a>. Read first:
 <a href="../../guides/reader/#pull-based-tree-traversal">pull-based Tree Reader</a>,
 including caller-owned frame storage and Visitor adapters.</p>
+<p>V1 paths use <code>&lt;tlv/query/query.h&gt;</code> with copyable opaque storage, bounded parsing
+and canonical formatting. Full-language compilation and immediate streaming
+selection (S0, decided at complete node publication) use
+<code>&lt;tlv/query/program.h&gt;</code>: discover scratch, immutable program and runtime workspace
+requirements independently, then retain the execution across STOP/NEED_MORE_DATA.
+See <a href="../../guides/queries/">path queries</a> and the
+<a href="../../concepts/query-language/">Query language contract</a> for syntax, resource
+budgets, relative contexts and explicit validation/pruning coverage. Compiled
+program facades in bindings are part of the later Query integration phase.</p>
 <h2 id="schemas">Schemas<a class="headerlink" href="#schemas" title="Permanent link">&para;</a></h2>
 <p><a href="../api/c-api/html/group__schemas.html">Generated reference</a>. Read first:
 <a href="../../guides/schemas/">schemas and length validation</a>.</p>

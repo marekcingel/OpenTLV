@@ -6,11 +6,11 @@ var searchData=
   ['read_5flength_3',['read_length',['../../../c-api/html/structtlv__field__layout.html#abd377427fb91bb01839eb20133e18aed',1,'tlv_field_layout']]],
   ['read_5ftag_4',['read_tag',['../../../c-api/html/structtlv__field__layout.html#aa3e72953f14c4086402195c37333b5e2',1,'tlv_field_layout']]],
   ['readable_5',['readable',['../structtlv_1_1format__capabilities.html#a549f4b36851ee11aaec0a0a1f286bb5c',1,'tlv::format_capabilities::readable'],['../classtlv_1_1format.html#a91a961d078de32bf8675800b058660a8',1,'tlv::format::readable()']]],
-  ['reader_6',['reader',['../../../c-api/html/group__reader.html',1,'Reader'],['../classtlv_1_1reader.html#a25c89e8a7f000ec0a0a010b73e65e6de',1,'tlv::reader::reader(bytes data, input_mode mode=input_mode::final)'],['../classtlv_1_1reader.html#a6bcf2c89250046a650a495356bb706eb',1,'tlv::reader::reader(bytes data, F value, input_mode mode=input_mode::final)'],['../classtlv_1_1reader.html',1,'tlv::reader&lt; F &gt;']]],
+  ['reader_6',['reader',['../../../c-api/html/group__reader.html',1,'Reader'],['../classtlv_1_1reader.html',1,'tlv::reader&lt; F &gt;'],['../../../c-api/html/structtlv__query__diagnostic.html#a468b1d1b53536a21c80ebbe3e1f1d80e',1,'tlv_query_diagnostic::reader'],['../classtlv_1_1reader.html#a25c89e8a7f000ec0a0a010b73e65e6de',1,'tlv::reader::reader(bytes data, input_mode mode=input_mode::final)'],['../classtlv_1_1reader.html#a6bcf2c89250046a650a495356bb706eb',1,'tlv::reader::reader(bytes data, F value, input_mode mode=input_mode::final)']]],
   ['reader_2eh_7',['reader.h',['../../../c-api/html/reader_8h.html',1,'']]],
   ['reader_2ehpp_8',['reader.hpp',['../reader_8hpp.html',1,'']]],
   ['reader_3c_20tlv_3a_3aformat_20_3e_9',['reader&lt; tlv::format &gt;',['../classtlv_1_1reader_3_01tlv_1_1format_01_4.html',1,'tlv']]],
-  ['reader_5fbase_10',['reader_base',['../classtlv_1_1detail_1_1reader__base.html',1,'tlv::detail::reader_base'],['../classtlv_1_1detail_1_1reader__base.html#ab899ffa6225dca45f383e5efcd59fa42',1,'tlv::detail::reader_base::reader_base(bytes data, tlv::format format, input_mode mode=input_mode::final)'],['../classtlv_1_1detail_1_1reader__base.html#a69826f5b5ff608c198f223300dee1d17',1,'tlv::detail::reader_base::reader_base(bytes data, const tlv_format_t &amp;format, input_mode mode=input_mode::final)']]],
+  ['reader_5fbase_10',['reader_base',['../classtlv_1_1detail_1_1reader__base.html#ab899ffa6225dca45f383e5efcd59fa42',1,'tlv::detail::reader_base::reader_base(bytes data, tlv::format format, input_mode mode=input_mode::final)'],['../classtlv_1_1detail_1_1reader__base.html#a69826f5b5ff608c198f223300dee1d17',1,'tlv::detail::reader_base::reader_base(bytes data, const tlv_format_t &amp;format, input_mode mode=input_mode::final)'],['../classtlv_1_1detail_1_1reader__base.html',1,'tlv::detail::reader_base']]],
   ['reader_5fdiagnostic_11',['reader_diagnostic',['../namespacetlv.html#aec6151f23d86b874b79d9d2ae021e568',1,'tlv']]],
   ['reader_5fiterator_12',['reader_iterator',['../classtlv_1_1detail_1_1reader__base.html#ae959017970659e8e90ce16752b4e86a0',1,'tlv::detail::reader_base']]],
   ['reference_13',['OpenTLV C++ API reference',['../index.html',1,'']]],
@@ -32,6 +32,7 @@ var searchData=
   ['required_5fscratch_29',['required_scratch',['../../../c-api/html/structtlv__tree__writer__workspace.html#ab7682c48cfa38f739218be0e52de85d6',1,'tlv_tree_writer_workspace']]],
   ['resolve_30',['resolve',['../../../c-api/html/structtlv__field__layout.html#a65d8c5f9e4565a632a7f91722f1370b4',1,'tlv_field_layout']]],
   ['result_31',['result',['../../../c-api/html/structtlv__emv__cvm__result__t.html#a7c8a7469f4a61bbd4f1cce74ac4f442a',1,'tlv_emv_cvm_result_t']]],
-  ['resume_32',['resume',['../../../c-api/html/structtlv__tree__frame.html#af9e72ee95b29a377a48ab361f4824c17',1,'tlv_tree_frame']]],
-  ['rules_33',['rules',['../../../c-api/html/structtlv__structure__schema.html#ad62cc59285c58f7e141b9caa00d1d241',1,'tlv_structure_schema']]]
+  ['result_5fkind_32',['result_kind',['../../../c-api/html/structtlv__query__program__info.html#ad0eab5431f283a384770b148c71fcf24',1,'tlv_query_program_info']]],
+  ['resume_33',['resume',['../../../c-api/html/structtlv__tree__frame.html#af9e72ee95b29a377a48ab361f4824c17',1,'tlv_tree_frame']]],
+  ['rules_34',['rules',['../../../c-api/html/structtlv__structure__schema.html#ad62cc59285c58f7e141b9caa00d1d241',1,'tlv_structure_schema']]]
 ];

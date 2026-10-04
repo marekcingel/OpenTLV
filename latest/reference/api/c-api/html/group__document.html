@@ -170,10 +170,10 @@ Functions</h2></td></tr>
 <tr class="memitem:ga2319020bba8b34d3de0e35529583a431" id="r_ga2319020bba8b34d3de0e35529583a431"><td class="memItemLeft" align="right" valign="top"><a class="el" href="group__document.html#ga9483f2f2d44c9a33a267a462c90d3883">tlv_node_t</a> *&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="group__document.html#ga2319020bba8b34d3de0e35529583a431">tlv_node_next_same_tag</a> (const <a class="el" href="group__document.html#ga9483f2f2d44c9a33a267a462c90d3883">tlv_node_t</a> *node)</td></tr>
 <tr class="memdesc:ga2319020bba8b34d3de0e35529583a431"><td class="mdescLeft">&#160;</td><td class="mdescRight">Returns the next sibling that has the same tag as <code>node</code>, or <code>NULL</code>.  <br /></td></tr>
 <tr class="separator:ga2319020bba8b34d3de0e35529583a431"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:ga1d3310640d348f6ea1e779409f39f60e" id="r_ga1d3310640d348f6ea1e779409f39f60e"><td class="memItemLeft" align="right" valign="top"><a class="el" href="group__core.html#ga164d2817a32e5d7b7aa1472e887b47c3">tlv_result_t</a>&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="group__document.html#ga1d3310640d348f6ea1e779409f39f60e">tlv_document_query_visit</a> (const <a class="el" href="group__document.html#gad50a36ea444832274667f45cb81dab83">tlv_document_t</a> *document, const <a class="el" href="group__traversal.html#ga747ab1ec662ee8b640d522f981f35ec2">tlv_query_t</a> *query, <a class="el" href="group__document.html#ga4180ff242fb016d9fc53bbaba3895b5a">tlv_document_query_visitor_t</a> visitor, void *context)</td></tr>
+<tr class="memitem:ga1d3310640d348f6ea1e779409f39f60e" id="r_ga1d3310640d348f6ea1e779409f39f60e"><td class="memItemLeft" align="right" valign="top"><a class="el" href="group__core.html#ga164d2817a32e5d7b7aa1472e887b47c3">tlv_result_t</a>&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="group__document.html#ga1d3310640d348f6ea1e779409f39f60e">tlv_document_query_visit</a> (const <a class="el" href="group__document.html#gad50a36ea444832274667f45cb81dab83">tlv_document_t</a> *document, const <a class="el" href="group__traversal.html#ga976e323bdf21f26674eb8ad393f2e2e5">tlv_query_t</a> *query, <a class="el" href="group__document.html#ga4180ff242fb016d9fc53bbaba3895b5a">tlv_document_query_visitor_t</a> visitor, void *context)</td></tr>
 <tr class="memdesc:ga1d3310640d348f6ea1e779409f39f60e"><td class="mdescLeft">&#160;</td><td class="mdescRight">Visit every path match in Document order using the canonical Query matcher.  <br /></td></tr>
 <tr class="separator:ga1d3310640d348f6ea1e779409f39f60e"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:gacdc161264f287c81f360a89cfe3dc2e3" id="r_gacdc161264f287c81f360a89cfe3dc2e3"><td class="memItemLeft" align="right" valign="top"><a class="el" href="group__document.html#ga9483f2f2d44c9a33a267a462c90d3883">tlv_node_t</a> *&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="group__document.html#gacdc161264f287c81f360a89cfe3dc2e3">tlv_document_find_path</a> (const <a class="el" href="group__document.html#gad50a36ea444832274667f45cb81dab83">tlv_document_t</a> *document, const <a class="el" href="group__traversal.html#ga747ab1ec662ee8b640d522f981f35ec2">tlv_query_t</a> *query)</td></tr>
+<tr class="memitem:gacdc161264f287c81f360a89cfe3dc2e3" id="r_gacdc161264f287c81f360a89cfe3dc2e3"><td class="memItemLeft" align="right" valign="top"><a class="el" href="group__document.html#ga9483f2f2d44c9a33a267a462c90d3883">tlv_node_t</a> *&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="group__document.html#gacdc161264f287c81f360a89cfe3dc2e3">tlv_document_find_path</a> (const <a class="el" href="group__document.html#gad50a36ea444832274667f45cb81dab83">tlv_document_t</a> *document, const <a class="el" href="group__traversal.html#ga976e323bdf21f26674eb8ad393f2e2e5">tlv_query_t</a> *query)</td></tr>
 <tr class="memdesc:gacdc161264f287c81f360a89cfe3dc2e3"><td class="mdescLeft">&#160;</td><td class="mdescRight">Finds the first element addressed by a path query.  <br /></td></tr>
 <tr class="separator:gacdc161264f287c81f360a89cfe3dc2e3"><td class="memSeparator" colspan="2">&#160;</td></tr>
 </table><table class="memberdecls">
@@ -862,7 +862,7 @@ Any writer format error, such as <a class="el" href="group__core.html#gga516c725
         <tr>
           <td class="paramkey"></td>
           <td></td>
-          <td class="paramtype">const <a class="el" href="group__traversal.html#ga747ab1ec662ee8b640d522f981f35ec2">tlv_query_t</a> *&#160;</td>
+          <td class="paramtype">const <a class="el" href="group__traversal.html#ga976e323bdf21f26674eb8ad393f2e2e5">tlv_query_t</a> *&#160;</td>
           <td class="paramname"><em>query</em>&#160;</td>
         </tr>
         <tr>
@@ -1140,7 +1140,7 @@ Any reader error, propagated unchanged.</dd></dl>
         <tr>
           <td class="paramkey"></td>
           <td></td>
-          <td class="paramtype">const <a class="el" href="group__traversal.html#ga747ab1ec662ee8b640d522f981f35ec2">tlv_query_t</a> *&#160;</td>
+          <td class="paramtype">const <a class="el" href="group__traversal.html#ga976e323bdf21f26674eb8ad393f2e2e5">tlv_query_t</a> *&#160;</td>
           <td class="paramname"><em>query</em>, </td>
         </tr>
         <tr>
