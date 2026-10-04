@@ -1,5 +1,11 @@
 # Integer byte-order conversions
 
+Prerequisite: Understand [logical lengths](length.md); tags remain byte identities.
+
+```text
+wire integer bytes --explicit byte order--> host integer
+```
+
 Include `tlv/endian.h` (also available through `tlv/tlv.h`) to convert raw
 value bytes to and from native unsigned integers. The helpers are independent
 of TLV framing and standard semantics; the caller chooses the byte order explicitly.
@@ -67,3 +73,7 @@ the BER module validates excess padding before using these helpers. DER
 continues to apply its stricter canonical length rules.
 
 See also the [C API reference: core types](../reference/c-api.md#core-types-and-utilities).
+
+## Next step
+
+Next: [Fixed format configuration](../formats/fixed/configurable.md).

@@ -1,5 +1,9 @@
 # Using OpenTLV from Go
 
+Start with setup below, then run the [Go quick start](../getting-started/README.md#quick-start)
+for input, expected output and the public API. You can use this guide without
+studying native C implementation contracts.
+
 The experimental `opentlv` package exposes the canonical C engine through Go
 types, slices and errors. Application code imports
 `github.com/marekcingel/OpenTLV/bindings/go`; cgo and native handles stay inside
@@ -164,3 +168,8 @@ Go's copied Node snapshots, owned diagnostics and explicit Close are intentional
 ergonomic differences; missing operations remain capability gaps. The
 [binding matrix](../concepts/bindings.md#capability-implementation-matrix)
 distinguishes these from disabled native components.
+
+## Next step
+
+Use [the basic model](../concepts/learning-model.md) to choose borrowed processing
+or owned editing, then [processing choices](processing.md) for your next task.

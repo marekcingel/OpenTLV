@@ -2,6 +2,16 @@
 
 [Back to documentation](../README.md)
 
+Choose your language in [Quick start](#quick-start) for a complete first
+program and expected output. C/C++ users can build the checkout below; binding
+users should follow setup in the [Rust](../guides/rust.md),
+[Python](../guides/python.md), [Lua](../guides/lua.md) or [Go](../guides/go.md)
+guide before running their example. For terminal inspection, use
+[the CLI first task](../cli/README.md#first-inspection).
+
+After the first program, continue with [the basic mental model](../concepts/learning-model.md).
+Detailed compiler, loader and packaging information below is integration reference.
+
 ## Build from a checkout
 
 Install Git, CMake 3.16+ and GCC, MSVC, or upstream Clang 18+.

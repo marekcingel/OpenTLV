@@ -1,5 +1,11 @@
 # Writer and scoped construction
 
+Prerequisite: Understand Element and Format in the [basic model](../concepts/learning-model.md).
+
+```text
+Element --Writer + Format--> caller-provided output
+```
+
 See [Choose a processing API](processing.md) for ownership, nesting, resumable
 input, construction and editing choices.
 
@@ -348,3 +354,7 @@ encode callbacks, and failures may modify workspace bytes. Source Tags remain
 borrowed through completion. Formats and sources must be deterministic when
 replayed; staging requires space for the complete output, plus shared scratch
 and the structural stack.
+
+## Next step
+
+Next: [Document](document.md) for editing, or [memory contracts](memory.md) for buffer lifetimes.

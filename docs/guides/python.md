@@ -1,5 +1,9 @@
 # Using OpenTLV from Python
 
+Start with setup below, then run the [Python quick start](../getting-started/README.md#quick-start)
+for input, expected output and the public API. You can use this guide without
+studying native C implementation contracts.
+
 The `opentlv` package is an experimental Python binding for OpenTLV. It binds
 `Reader`, `Writer`, `Document`/`Node`, `Element`, `Tag`, `Format`,
 `LengthSchema`/`StructureSchema` and the `OpenTLVError` exception hierarchy,
@@ -301,3 +305,8 @@ unfinished build. Active builders prevent other cursor traversal operations.
 `Document.encode(format)` and `Node.encode(format)` support conversion to a
 compatible builtin destination Format without changing the stored tree.
 `encoded_size_as(format)` measures the same destination encoding.
+
+## Next step
+
+Use [the basic model](../concepts/learning-model.md) to choose borrowed processing
+or owned editing, then [processing choices](processing.md) for your next task.

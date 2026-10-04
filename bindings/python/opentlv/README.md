@@ -1,5 +1,8 @@
 # opentlv (experimental)
 
+For public API setup and a first task, start with [the Python user guide](../../../docs/guides/python.md).
+The component details below cover packaging, implementation or development.
+
 Python bindings for [OpenTLV](https://github.com/marekcingel/OpenTLV), a
 portable C99 library for reading, writing and validating TLV data.
 

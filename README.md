@@ -1,301 +1,108 @@
 ![OpenTLV - Tag, Length, Value](docs/assets/opentlv.svg)
 
-[![GCC build and tests](https://github.com/marekcingel/OpenTLV/actions/workflows/build-gcc.yml/badge.svg?branch=main)](https://github.com/marekcingel/OpenTLV/actions/workflows/build-gcc.yml?query=branch%3Amain)
-[![Clang build and tests](https://github.com/marekcingel/OpenTLV/actions/workflows/build-clang.yml/badge.svg?branch=main)](https://github.com/marekcingel/OpenTLV/actions/workflows/build-clang.yml?query=branch%3Amain)
-[![MSVC build and tests](https://github.com/marekcingel/OpenTLV/actions/workflows/build-msvc.yml/badge.svg?branch=main)](https://github.com/marekcingel/OpenTLV/actions/workflows/build-msvc.yml?query=branch%3Amain)
-[![Rust bindings](https://github.com/marekcingel/OpenTLV/actions/workflows/rust.yml/badge.svg?branch=main)](https://github.com/marekcingel/OpenTLV/actions/workflows/rust.yml?query=branch%3Amain)
-[![WebAssembly build](https://github.com/marekcingel/OpenTLV/actions/workflows/wasm.yml/badge.svg?branch=main)](https://github.com/marekcingel/OpenTLV/actions/workflows/wasm.yml?query=branch%3Amain)
-[![Static analysis](https://github.com/marekcingel/OpenTLV/actions/workflows/static-analysis.yml/badge.svg?branch=main)](https://github.com/marekcingel/OpenTLV/actions/workflows/static-analysis.yml?query=branch%3Amain)
-[![CodeQL](https://github.com/marekcingel/OpenTLV/actions/workflows/codeql.yml/badge.svg?branch=main)](https://github.com/marekcingel/OpenTLV/actions/workflows/codeql.yml?query=branch%3Amain)
-[![C API fuzzing](https://github.com/marekcingel/OpenTLV/actions/workflows/fuzz.yml/badge.svg?branch=main)](https://github.com/marekcingel/OpenTLV/actions/workflows/fuzz.yml?query=branch%3Amain)
-[![Documentation](https://github.com/marekcingel/OpenTLV/actions/workflows/docs.yml/badge.svg?branch=main)](https://github.com/marekcingel/OpenTLV/actions/workflows/docs.yml?query=branch%3Amain)
+[![Build and tests](https://github.com/marekcingel/OpenTLV/actions/workflows/build-gcc.yml/badge.svg?branch=main)](https://github.com/marekcingel/OpenTLV/actions/workflows/build-gcc.yml)
+[![Documentation](https://github.com/marekcingel/OpenTLV/actions/workflows/docs.yml/badge.svg?branch=main)](https://github.com/marekcingel/OpenTLV/actions/workflows/docs.yml)
 
-**Read, write, and inspect Tag-Length-Value data across languages.**
-OpenTLV is a portable TLV foundation with a dependency-free C99 execution engine
-and interoperability boundary. Its idiomatic `tlv++` C++11+ API and official
-Rust, Python, Lua and Go bindings expose the same conceptual model through
-language-native APIs. The `otlv` CLI and WebAssembly support use the same engine.
-Each TLV element identifies a value with a tag and records its length, making
-it useful for structured binary messages, files, and device protocols.
+**Read, write and inspect binary Tag-Length-Value data.**
 
-The badges show workflow status on `main`.
+OpenTLV is a reusable TLV toolkit for embedded software, protocol handlers and
+binary inspection tools. Choose the wire format, then read elements, write
+messages or edit an owned document. Optional Query, Schema and Codec operations
+help you select elements, validate structure and interpret values.
 
-## Who is it for?
+Use C99, the idiomatic C++11+ API, or the official Rust, Python, Lua and Go
+bindings (experimental). The `otlv` CLI and WebAssembly tools use the same C execution engine.
 
-OpenTLV is for developers building embedded software, protocol handlers,
-smart-card tooling, and binary-data inspection utilities. It is especially useful
-when the application needs to own its buffers and control memory use.
+## Why OpenTLV?
 
-- **Allocation-free core processing paths:** C Reader, Writer and tree traversal use caller-owned buffers and explicit workspaces.
-- **Zero-copy value reads:** parsed values borrow the input buffer.
-- **Selectable formats and standard-specific capabilities:** use built-in encodings or supply custom callbacks.
-- **Composable processing:** use Reader and Writer, Tree Reader and Tree Writer,
-  Visitor traversal, Query, Schema, Codec and diagnostics as needed.
-- **Owned editing:** use mutable Document to own, edit and re-encode a message.
-- **Include only what you need:** build just the core, or add a single format such as BER; components you leave out are not compiled. Bindings should follow the same rule, but the Rust bindings do not select components yet. See [architecture](docs/concepts/architecture.md#include-only-what-you-need).
+OpenTLV began with a simple question: which parser should I use for TLV data?
+The answer I received was: none. That experience motivated a reusable,
+format-independent foundation for working with TLV data.
 
-Borrowed and streaming processing can avoid building an owned tree; Document
-explicitly owns its data and allocates storage. C++ and binding conveniences may
-also allocate; choose APIs according to the application's memory requirements.
-Raw TLV reading does not interpret values or validate an entire protocol.
+## What you can do
 
-Format describes wire encoding, Layout locates encoded fields, and Element
-represents semantic content. Schema and Codec add structure and value semantics.
-Reader, Writer, Query and Document reuse these contracts; see the
-[architecture](docs/concepts/architecture.md#conceptual-model) and
-[binding model](docs/concepts/bindings.md) for details.
+- Inspect values without copying their bytes using borrowed Reader results.
+- Traverse nested messages without building an owned tree.
+- Write messages into caller-owned buffers, or use language conveniences.
+- Own, edit and re-encode data with Document.
+- Compose only the processing features and format components you need.
 
-See [choosing a format](docs/formats/README.md#choose-a-format) and
-[memory ownership](docs/guides/memory.md) for practical guidance.
-Start with [processing choices](docs/guides/processing.md),
-[executable examples](docs/guides/examples.md), or the language guides for
-[C++](docs/guides/cxx-examples.md), [Rust](docs/guides/rust.md),
-[Python](docs/guides/python.md), [Lua](docs/guides/lua.md) and
-[Go](docs/guides/go.md). The [roadmap](ROADMAP.md) separates current execution
-capabilities from planned OTLV, compilation and Protocol Inference.
+C Reader, Writer and tree traversal use explicit buffers and workspaces without
+allocating. Document owns storage and allocates; C++ and binding conveniences
+may also allocate. Raw parsing does not validate an entire protocol.
 
-## Format and standard support
+```text
+bytes --Reader + Format--> Element --Writer + Format--> bytes
+                              |
+                       own and edit: Document
+```
 
-Checked items are implemented; the linked documentation defines their scope.
-Unchecked items have no built-in implementation today. This is a support overview,
-not a commitment to implement every listed format; scheduled work belongs in issues.
-Built-in components are enabled by default and can be selected with
-[CMake options](docs/concepts/architecture.md#build-configuration).
-
-- **TLV processing**
-  - [x] Primitive values
-  - [x] Constructed / nested values
-    - [x] BER/DER/CER constructed-tag recognition and custom nesting predicates
-    - [x] Bounded tree traversal without a schema
-    - [x] Depth and element-count limits
-  - [x] Sequential traversal
-  - [x] Structural schema validation
-  - [ ] Mixed-format child traversal with automatic format selection
-  - [x] Resumable Reader and Tree Reader over caller-assembled contiguous input windows
-- **Wire formats**
-  - **Default and fixed-width**
-    - [x] **Bluetooth LTV** - length-before-type framing used by Bluetooth advertising data, values up to 254 bytes. [Details](docs/formats/bluetooth/README.md) [Tree and bytes](docs/formats/bluetooth/README.md#byte-example)
-    - [x] **LLDP TLV support** - packed headers, base definitions, LLDPDU structural validation, allocation-free value codecs and binding framing presets. [Details](docs/formats/lldp/README.md)
-    - [x] **Configurable variable-width TLV** - generic identifier and short/long length composition, without protocol policy. [Details](docs/formats/variable.md)
-    - [x] **Configurable fixed-width TLV** - independent tag width, length width (1-8 bytes) and length byte order, chosen at runtime (C) or compile time (C++). [Details](docs/formats/fixed/configurable.md) [Tree and bytes](docs/formats/fixed/configurable.md#wire-layout)
-  - **NFC tag memory framing**
-    - [x] **NFC Type 2 Tag TLV** - contiguous data-area streams, NULL/Terminator and short/extended lengths; opaque NDEF. [Details](docs/formats/nfc/README.md)
-  - **ASN.1-related encodings**
-    - [x] **BER-TLV** - multi-byte tags. [Scope](docs/formats/asn1/ber.md) [Tree and bytes](docs/formats/asn1/ber.md#byte-example)
-      - [x] Definite-length reading and writing
-      - [x] Constructed indefinite-length reading and explicit writing
-    - [x] **DER-TLV** - canonical identifier and length framing. [Scope](docs/standards/der/README.md) [Tree and bytes](docs/formats/asn1/der.md#byte-example)
-      - [x] Structural validation
-      - [x] Universal primitive value canonical validation (`_strict` functions, documented type coverage). [Scope](docs/standards/der/README.md#strict-universal-value-validation)
-      - [x] Schema-aware SEQUENCE/SEQUENCE OF/SET/SET OF/CHOICE validation and encoding, including canonical SET/SET OF ordering, IMPLICIT/EXPLICIT tagging and DEFAULT omission (requires an explicit schema; the generic reader above does not infer SET/SET OF semantics on its own). [Scope](docs/standards/der/README.md#schema-aware-validation-and-encoding)
-    - [x] **CER-TLV** - indefinite-length constructed framing, canonical string segmentation. [Scope](docs/standards/cer/README.md) [Tree and bytes](docs/formats/asn1/cer.md#byte-example-nested-indefinite-length-containers)
-      - [x] Structural validation (framing, EOC placement, canonical segmentation)
-      - [x] Universal primitive value canonical validation (`_strict` functions, documented type coverage). [Scope](docs/standards/cer/README.md#strict-universal-value-validation)
-      - [ ] Canonical SET/SET OF ordering
-  - [x] **Application-defined format callbacks** - independent reader and writer descriptors. [Contracts](docs/formats/README.md#generic-interface) [Tree and bytes](docs/formats/custom/README.md#byte-example)
-- **Protocol formats and standard-specific capabilities**
-  - **Smart cards / payments**
-    - [x] **EMV Contact Book 3 v4.4** - dictionary, contextual length schemas, and value codecs over BER-TLV; not a payment kernel. [Scope](docs/standards/emv/README.md) [Tree and bytes](docs/standards/emv/README.md#byte-example)
-      - [x] Structural validation (mandatory/forbidden/duplicate tags and nesting for the FCI, Application, and GPO response templates). [Scope](docs/standards/emv/README.md#structural-validation)
-    - [ ] **EMV contactless kernels**
-    - [ ] **GlobalPlatform DGI encoding**
-  - **Networking**
-    - [x] **DHCPv4 option framing** - Pad/End controls, option definitions and explicitly selected Value codecs; caller owns packet semantics. [Details](docs/formats/dhcp/README.md)
-    - [ ] **NDN packet TLV format**
-    - [ ] **PEAP TLV structures**
-    - [ ] **RADIUS attribute encoding**
-  - **IoT / wireless**
-    - [ ] **OMA LwM2M TLV format**
-
-OpenTLV keeps framing, traversal, schemas, and value codecs separate. Broader
-format coverage should come through selectable adapters and schemas around the
-generic core. Protocol entries above refer to their data encodings and explicitly
-named validation functionality, not complete networking or device stacks.
-
-Tree traversal visits borrowed values without building an allocated object tree.
-Applications that must change a message can use the canonical owned, allocating
-[mutable document](docs/guides/document.md), which parses TLV into an owned tree
-and encodes it again.
-For definite-length containers, the value length covers the complete child
-encodings; indefinite BER containers use EOC termination. See
-[nested traversal](docs/formats/README.md#nested-traversal),
-[value codecs](docs/guides/codecs.md), and [architecture](docs/concepts/architecture.md).
-
-### Candidate formats (not implemented)
-
-OpenTLV covers binary formats encoded as TLV; only a different field order or
-packing is accepted as a variation. The catalogue lists possible future built-in
-formats. **Listing is not a commitment and not a claim of support**, and TLV framing
-support never means full protocol support.
-
-| Area | Candidates | Relationship to existing support |
-| --- | --- | --- |
-| Protocols using BER | LDAP, SNMP | Schemas and codecs over [BER-TLV](docs/formats/asn1/ber.md) |
-| ASN.1 notation (X.680) | Wider type coverage, BER/CER schema variants, open types, optional schema generator | Extends the [DER schema subset](docs/standards/der/README.md#schema-aware-validation-and-encoding) |
-| ASN.1 standards | X.509, PKCS#1, PKCS#7, PKCS#8, PKCS#10, CMS/S-MIME, Kerberos, OCSP | Schemas over [DER/BER](docs/standards/der/README.md) |
-| Smart cards and SIM | ISO 7816 (BER-TLV and SIMPLE-TLV), GlobalPlatform beyond DGI, eSIM, SIM Toolkit, NFC Type 1 tag TLV container | BER reuse plus new adapters |
-| Networking | IS-IS, DHCPv6, LDP, RFC 5444 TLV blocks, Diameter | New adapters; DHCPv4 option framing is implemented |
-| Telecommunications | PFCP, GTPv2-C, GTPv1-C, NAS | New adapters and schemas |
-| Excluded (not TLV) | CBOR, CWT, COSE, QUIC frames, NDEF records, ASN.1 PER/OER/XER (S1AP, X2AP, NGAP) | Different encodings; out of scope |
-
-See [format expansion candidates](docs/formats/format-roadmap.md) for the catalogue
-tree, scope rules, framing requirements, and proposed priorities, and the
-[implemented capability inventory](docs/formats/support.md) and
-[candidate catalogue](docs/formats/format-catalogue.md) for specifications, required
-components, variants, limitations, and what was checked against the primary text. Scheduled work is tracked
-in [issues](https://github.com/marekcingel/OpenTLV/issues).
-
-See [format trees and byte examples](docs/formats/format-examples.md) for a field-by-field
-element of every implemented format, including nested BER/DER and the EMV module.
+Schema checks structure and Codec interprets Value bytes; both are optional.
+See the [basic mental model](docs/concepts/learning-model.md).
 
 ## Quick start
 
-This complete C example ([source](examples/tlv/src/quick_start.c), built and run in CI) writes
-a Fixed-format element containing `Hello, world!`, reads it back and prints the text:
-
-<!-- example: examples/tlv/src/quick_start.c -->
-```c
-// SPDX-License-Identifier: MIT
-// Copyright (c) 2026 Marek Cingel
-
-#include <stdio.h>
-#include "tlv/formats/fixed.h"
-#include "tlv/reader/reader.h"
-#include "tlv/writer/writer.h"
-
-int main(void) {
-    /* One tag byte and one length byte; config must outlive its readers and writers. */
-    const tlv_fixed_format_t config = {
-        .tag_size = 1, .length_size = 1, .length_order = TLV_BYTE_ORDER_BIG_ENDIAN};
-    tlv_format_t format;
-    if (tlv_fixed_format_init(&format, &config) != TLV_OK) return 1;
-
-    const uint8_t value[] = "Hello, world!";
-    uint8_t       buffer[64];
-    size_t        written = 0, consumed = 0;
-    tlv_element_t element;
-
-    /* sizeof(value) - 1 excludes the trailing NUL. */
-    if (tlv_write(buffer, sizeof(buffer), &format, TLV_TAG(0x01), value, sizeof(value) - 1,
-                  &written) != TLV_OK)
-        return 1;
-    if (tlv_read(buffer, written, &format, &element, &consumed) != TLV_OK) return 1;
-
-    /* element.value borrows buffer; keep it alive while using the element. */
-    printf("%.*s\n", (int)element.value.size, (const char*)element.value.data);
-    return 0;
-}
-```
-
-The C++ facade performs the same round trip using scoped encoding, a borrowed
-parsing range and typed string decoding (requires `OPENTLV_BUILD_CXX=ON`). The
-[multi-language quick start](docs/getting-started/README.md#quick-start) also
-shows Rust, Python, Lua and Go using the same format, tag and value:
-
-<!-- example: examples/tlv++/src/quick_start.cpp -->
-```cpp
-// SPDX-License-Identifier: MIT
-// Copyright (c) 2026 Marek Cingel
-
-#include <tlv++/tlv.hpp>
-#include <array>
-#include <iostream>
-#include <string>
-
-using Format = tlv::fixed_format<1, 1, TLV_BYTE_ORDER_BIG_ENDIAN>;
-using Greeting = tlv::field<tlv::tag_constant<0x01>, std::string>;
-
-int main() {
-    std::array<tlv::byte, 64> output{};
-    auto written = tlv::encode<Format>(output, [](tlv::writer_builder& writer) {
-        writer.write<0x01>("Hello, world!"); // Character arrays omit the trailing NUL.
-    });
-    if (!written) {
-        std::cerr << written.error().message() << '\n';
-        return 1;
-    }
-
-    // Parse only the written prefix. Decoding Greeting checks the tag and owns its string.
-    try {
-        for (auto element : tlv::parse<Format>({output.data(), *written})) {
-            auto greeting = element.decode<Greeting>();
-            if (!greeting) {
-                std::cerr << "Greeting decode failed\n";
-                return 1;
-            }
-            std::cout << *greeting << '\n';
-        }
-    } catch (const tlv::parse_error& failure) {
-        std::cerr << "Parse error at " << failure.offset() << ": " << failure.what() << '\n';
-        return 1;
-    }
-}
-```
-
-See [C++ examples](docs/guides/cxx-examples.md) for scoped writing, owning
-Documents, typed Values and matching CLI operations.
-
-Requires CMake 3.16+ and a supported compiler: GCC, MSVC, or upstream Clang 18+.
-The C API requires C99; the optional C++ wrapper requires C++11 or newer.
-C++23 builds require CMake 3.20+. Tests use GoogleTest and require C++17 or newer.
-
-Build the library and bundled examples without fetching test dependencies:
+With `otlv` installed, inspect a tag `01` containing the UTF-8 bytes of `Hi`:
 
 ```sh
-cmake -S . -B build -DOPENTLV_BUILD_TESTS=OFF
+otlv dump --format fixed --hex "01 02 48 69"
+```
+
+```text
+offset=0 tag=01 length=2 value=4869
+```
+
+Fixed defaults to one tag byte and one big-endian length byte. Select the format
+that matches your input; OpenTLV does not guess it.
+
+For a first library program, follow [Getting started](docs/getting-started/README.md)
+with runnable C, C++, Rust, Python, Lua and Go examples, normal error handling
+and the lifetime rules needed to use them safely.
+
+## Build and integrate
+
+```sh
+git clone https://github.com/marekcingel/OpenTLV.git
+cd OpenTLV
+cmake -S . -B build -DOPENTLV_BUILD_TESTS=OFF -DCMAKE_BUILD_TYPE=Release
 cmake --build build --config Release --parallel
 ```
 
-See [getting started](docs/getting-started/README.md) for linking this example, CMake
-integration, C-only builds, and running tests. The [C](examples/tlv/src/) examples
-cover more of the API, one topic per file, and the [C++](docs/guides/cxx-examples.md)
-examples cover ergonomic parsing, writing, Document, typed fields and Query; [examples/tlv/src/builtins/emv/tag_decoding.c](examples/tlv/src/builtins/emv/tag_decoding.c)
-traverses a full EMV TLV record through tag lookup, length validation, and value decoding.
+Requires CMake 3.16+ and a supported compiler; the default CLI also needs C++11+.
+The C engine has no third-party dependencies; the CLI fetches its JSON dependency.
+See [integration and installation](docs/getting-started/README.md) for CMake
+consumer targets, runtime libraries and binding-specific setup.
 
 ## Documentation
 
-An optional command-line tool (built on the `tlv++` wrapper, so it requires a
-C++11+ compiler) supports TLV inspection and structural validation from
-files, stdin, or hexadecimal input. Builds by default (`OPENTLV_BUILD_CLI`);
-see the [CLI guide](docs/cli/README.md) for commands, build instructions, limits,
-and exit codes.
+- [Start here](docs/index.md): choose a language or tool and follow the learning path.
+- [Read, write or edit](docs/guides/processing.md): choose an API for your task.
+- [Formats and supported capabilities](docs/formats/support.md): built-ins,
+  limitations and extension points. Application-defined formats are supported;
+  support for every TLV format is not implied.
+- [API reference](docs/reference/README.md): exact behavior and contracts.
+- [Contributing](CONTRIBUTING.md): build, test and develop OpenTLV.
 
-Start with the [documentation index](docs/README.md), or choose a topic:
+## Project status
 
-| Topic | Guide |
-| --- | --- |
-| Build and integrate | [Getting started](docs/getting-started/README.md), [distribution archives](docs/getting-started/README.md#install-and-generate-distribution-archives), [compiler support](docs/reference/compilers.md) |
-| Architecture and API migration | [Layers, component options, and migration](docs/concepts/architecture.md) |
-| Read, write, and traverse | [Formats and I/O contracts](docs/formats/README.md), [core types](docs/concepts/core-types.md) |
-| Validate and decode | [Schemas](docs/guides/schemas.md), [value codecs](docs/guides/codecs.md), [DER](docs/standards/der/README.md), [CER](docs/standards/cer/README.md), [EMV](docs/standards/emv/README.md) |
-| Read and copy data | [Pull-based Reader](docs/guides/reader.md), [copy helpers](docs/guides/copy.md), [byte order](docs/concepts/endian.md) |
-
-## Long-term direction
-
-OpenTLV's roadmap has three architectural phases: **Execution Foundation**,
-**Runtime Model & OTLV**, and **Compilation**. Phase 1 discovers and stabilizes
-the reusable C execution primitives through independent real-world TLV
-standards. Phase 2 makes the complete wire, structural and semantic model
-runtime-configurable through `.otlv`, a canonical IR and an immutable runtime
-model. Phase 3 reuses that frontend and IR to generate specialized implementations
-with equivalent semantics, completing the planned foundational architecture.
-
-After that foundation, planned Protocol Inference would refine structural
-candidates from observed traffic and export editable `.otlv` models, reusing
-the normal execution engine and retaining inspectable evidence. AI remains
-optional; the direction does not define finalized APIs or algorithms.
-
-See [ROADMAP.md](ROADMAP.md) for scope and milestone descriptions. Future APIs
-and language syntax remain planned. Architectural phases are separate from
-SemVer major versions: releases after Phase 3 continue normal compatible and
-breaking evolution without implying additional phases.
-
-## Releases and contributing
-
-See [releases](https://github.com/marekcingel/OpenTLV/releases) and the
-[changelog](CHANGELOG.md) for version history and migration-relevant changes.
-Bug reports and feature proposals are welcome through
-[GitHub issues](https://github.com/marekcingel/OpenTLV/issues).
-See [contributing](CONTRIBUTING.md) before opening a pull request.
+The native execution APIs and tools are implemented; their precise scope is in
+[the capability inventory](docs/formats/support.md) and
+[binding status](docs/concepts/bindings.md). Runtime OTLV models, compilation and
+Protocol Inference are planned directions described in [the roadmap](ROADMAP.md).
+See [releases](https://github.com/marekcingel/OpenTLV/releases) and
+[the changelog](CHANGELOG.md) for version history.
 
 OpenTLV is distributed under the [MIT license](LICENSE).
+
+<!-- Preserve established repository heading links. -->
+<!-- markdownlint-disable MD033 -->
+<a id="who-is-it-for"></a>
+<a id="format-and-standard-support"></a>
+<a id="candidate-formats-not-implemented"></a>
+<a id="long-term-direction"></a>
+<a id="releases-and-contributing"></a>
+<!-- markdownlint-enable MD033 -->
+
+Previous detailed sections are now reached through [format support](docs/formats/support.md),
+[format candidates](docs/formats/format-catalogue.md), [the roadmap](ROADMAP.md)
+and [contributing](CONTRIBUTING.md).

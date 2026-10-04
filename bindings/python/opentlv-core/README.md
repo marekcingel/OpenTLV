@@ -1,5 +1,8 @@
 # opentlv-core (experimental)
 
+For public API setup and a first task, start with [the Python user guide](../../../docs/guides/python.md).
+The component details below cover packaging, implementation or development.
+
 Native Python bindings to the [OpenTLV](https://github.com/marekcingel/OpenTLV)
 C API: a native extension, built directly against the CPython C API and the
 CPython Limited API, that registers the C functions as plain Python callables

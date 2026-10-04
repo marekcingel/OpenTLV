@@ -1,5 +1,11 @@
 # Pull-based Reader
 
+Prerequisite: Complete the [quick start](../getting-started/README.md#quick-start) first.
+
+```text
+input --Reader + Format--> one borrowed Element at a time
+```
+
 See [Choose a processing API](processing.md) for ownership, nesting, resumable
 input, construction and editing choices.
 
@@ -364,3 +370,7 @@ Callback convenience APIs use Visitor naming consistently:
 
 These are renames without compatibility aliases; callback and validation behavior
 is unchanged. `tlv_query_visit` remains the resumable cursor-based API.
+
+## Next step
+
+Next: [Writer](writer.md) to create output, or [Document](document.md) to own and edit it.

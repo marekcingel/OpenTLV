@@ -1,5 +1,11 @@
 # Mutable documents
 
+Prerequisite: Understand the owned/borrowed choice in [the basic model](../concepts/learning-model.md).
+
+```text
+wire bytes --parse--> owned tree --edit/encode--> wire bytes
+```
+
 Document is the canonical owned mutable representation of TLV data. It copies
 Tags and Values into an editable tree, complementing borrowed Reader and Tree
 Reader processing. Use it to retain data independently of input, query Nodes,
@@ -413,3 +419,7 @@ unchanged. All destinations follow the same Tree Writer path.
 In C++, `document.encoded_size(format)` / `document.encode(format)` and the
 corresponding `node` overloads accept a borrowed `const tlv_format_t&`. The
 no-argument methods retain their original behavior.
+
+## Next step
+
+Next: [Query](queries.md) to select nodes and [memory ownership](memory.md) for handle rules.

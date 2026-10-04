@@ -104,18 +104,19 @@ nav:
   - Home: index.md
   - Getting Started:
       - Getting started: getting-started/README.md
+      - Understand the basic model: concepts/learning-model.md
   - Guides:
       - Choose a processing API: guides/processing.md
-      - Executable examples: guides/examples.md
-      - Memory ownership: guides/memory.md
-      - Diagnostics: guides/diagnostics.md
-      - Schemas and length validation: guides/schemas.md
-      - Value codecs: guides/codecs.md
-      - Copy helpers: guides/copy.md
       - Pull-based Reader: guides/reader.md
       - Writer and scoped construction: guides/writer.md
-      - Path queries: guides/queries.md
       - Mutable documents: guides/document.md
+      - Diagnostics: guides/diagnostics.md
+      - Path queries: guides/queries.md
+      - Schemas and length validation: guides/schemas.md
+      - Value codecs: guides/codecs.md
+      - Executable examples: guides/examples.md
+      - Memory ownership: guides/memory.md
+      - Copy helpers: guides/copy.md
       - Building only the components you need: guides/select-components.md
   - Language APIs:
       - C++ examples: guides/cxx-examples.md
@@ -176,6 +177,7 @@ nav:
       - Development workflow: development/workflow.md
       - C ABI compatibility: development/abi-compatibility.md
       - Where documentation belongs: development/documentation-layout.md
+      - Documentation audit: development/documentation-audit.md
       - Fuzzing: development/fuzzing.md
       - Rust bindings: development/rust.md
       - Python bindings: development/python.md

@@ -1,5 +1,11 @@
 # Diagnostics
 
+Prerequisite: Complete a [first program](../getting-started/README.md#quick-start) and check operation results.
+
+```text
+operation failure --> error code + optional source context
+```
+
 A result code such as `TLV_ERR_END_OF_BUFFER` says an operation failed, but
 not where, on what, or why. The **diagnostic** model adds that detail as a
 single, allocation-free structure that every OpenTLV layer can share instead
@@ -242,3 +248,7 @@ bytes (the available prefix if truncated). This also works for malformed,
 nonminimal and logically overflowing length encodings. Keep the input alive
 and unchanged while using this diagnostic. CLI diagnostics expose these bytes
 as `raw_length` in hexadecimal.
+
+## Next step
+
+Next: [error reference](../reference/errors.md) for exact codes.

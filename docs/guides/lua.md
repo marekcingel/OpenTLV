@@ -1,5 +1,9 @@
 # Using OpenTLV from Lua
 
+Start with setup below, then run the [Lua quick start](../getting-started/README.md#quick-start)
+for input, expected output and the public API. You can use this guide without
+studying native C implementation contracts.
+
 The `opentlv` module is an experimental Lua binding for OpenTLV. It binds a
 Reader, Writer, Tree Writer, Schema, tag/length/value `Element` tables and preorder tree
 traversal, borrowed Query and an owned mutable Document with checked Nodes.
@@ -553,3 +557,8 @@ so the binding does not invent them. Encoding uses the native Document/Tree
 Writer contract: framing can be normalized, and incompatible destination
 formats can reject the tree. Lua does not implement a separate DOM or mutation
 engine.
+
+## Next step
+
+Use [the basic model](../concepts/learning-model.md) to choose borrowed processing
+or owned editing, then [processing choices](processing.md) for your next task.

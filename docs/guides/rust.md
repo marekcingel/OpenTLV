@@ -1,5 +1,9 @@
 # Using OpenTLV from Rust
 
+Start with setup below, then run the [Rust quick start](../getting-started/README.md#quick-start)
+for input, expected output and the public API. You can use this guide without
+studying native C implementation contracts.
+
 The `opentlv` crate is an experimental safe Rust API over the OpenTLV C library.
 This guide covers setup, reading, writing, error handling and ownership. For
 crate layout, schemas, codecs, canonical validation and CI, see
@@ -171,3 +175,8 @@ The builder exclusively borrows the reader. On `Error::NeedMoreData`, replace
 input through `builder.set_input` and call `consume` again. Dropping the builder
 releases the reader; completed Documents retain owned content and the reader's
 conservative input/Format lifetime.
+
+## Next step
+
+Use [the basic model](../concepts/learning-model.md) to choose borrowed processing
+or owned editing, then [processing choices](processing.md) for your next task.

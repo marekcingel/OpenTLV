@@ -7,6 +7,26 @@ recovers elements from damaged input, using the public C library through the
 requires a C++11 (or newer) compiler; the underlying library itself remains a
 dependency-free C99 core, so this requirement affects only the CLI target.
 
+## First inspection
+
+Prerequisite: an installed `otlv` executable. If you need to build it, follow
+[Build and install](#build-and-install) below.
+
+```sh
+otlv dump --format fixed --hex "01 02 48 69"
+```
+
+Expected output:
+
+```text
+offset=0 tag=01 length=2 value=4869
+```
+
+This input contains tag `01` with the two Value bytes of `Hi`. Fixed defaults
+to one tag byte and one big-endian length byte. The tool requires an explicit
+format and checks errors; it does not detect the format or infer Value semantics.
+Next, try [commands](#commands) for files, nested data and validation.
+
 ## Build and install
 
 ```sh

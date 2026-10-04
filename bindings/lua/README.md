@@ -1,5 +1,8 @@
 # opentlv (Lua, experimental)
 
+For public API setup and a first task, start with [the Lua user guide](../../docs/guides/lua.md).
+The component details below cover packaging, implementation or development.
+
 Lua bindings to the [OpenTLV](https://github.com/marekcingel/OpenTLV) C API:
 two pieces, `opentlv._core` (`src/`, built directly against the Lua C API,
 binding `Reader`, `Writer`, `TreeWriter`, `Schema`, `Codec`, `Element`, `Tag` and preorder tree traversal) and `opentlv`
