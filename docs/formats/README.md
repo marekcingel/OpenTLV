@@ -9,6 +9,10 @@ Generic formats in `tlv/formats/` are part of the core and always available.
 Built-ins in `tlv/builtins/<protocol>/` implement specific standards and are
 optional. Both use the same Format, Reader and Writer contracts.
 
+For proprietary formats, start with the [generic Format capability space](../concepts/format-capabilities.md)
+and its configuration matrix. Builtins are representative combinations of wire
+properties; their names do not define the boundary of the generic core.
+
 See the [implemented capability inventory](support.md) for Definition, Schema,
 Codec, validation, CLI and language-preset coverage, and
 [Choose a processing API](../guides/processing.md) for execution choices.

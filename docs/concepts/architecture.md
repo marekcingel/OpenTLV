@@ -15,6 +15,10 @@ The [core architectural rules](architectural-rules.md) define the design and
 review constraints. This page describes how the current repository implements
 those responsibilities.
 
+The [generic Format capability space](format-capabilities.md) explains which
+wire dimensions can be configured today and which need custom callbacks or
+future extensions, with builtins shown as representative combinations.
+
 ## Conceptual model
 
 This is the canonical architecture overview. The
