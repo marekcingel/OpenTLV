@@ -7,7 +7,7 @@
 #include <stdint.h>
 #include <string.h>
 
-#define QUERY_MAGIC UINT32_C(0x51525931)
+#define QUERY_MAGIC UINT32_C(0x51525932)
 #define QUERY_NONE UINT32_MAX
 enum query_op {
     Q_TEST,
@@ -100,6 +100,41 @@ static inline const query_node_t* query_nodes(const tlv_query_program_t* p) {
 }
 static inline const char* query_text(const tlv_query_program_t* p) {
     return (const char*)p + p->text_offset;
+}
+/* Structural check of a readable compiler-owned image, not an external loader.
+   The redundant extent rejects inconsistent single-field header corruption.
+   Storage must remain unchanged after execution initialization. */
+static inline int query_program_valid(const tlv_query_program_t* p) {
+    if ((uintptr_t)p % sizeof(uint32_t)) return 0;
+    if (p->magic != QUERY_MAGIC || p->version != 1 || !p->count || p->root >= p->count ||
+        p->level > TLV_QUERY_D || !p->text_size)
+        return 0;
+    if (p->count > (UINT32_MAX - sizeof *p) / sizeof(query_node_t)) return 0;
+    size_t offset = sizeof *p + (size_t)p->count * sizeof(query_node_t);
+    if (p->text_offset != offset || p->text_size >= UINT32_MAX - offset ||
+        p->reserved != offset + p->text_size + 1)
+        return 0;
+    const query_node_t* nodes = query_nodes(p);
+    for (size_t i = 0; i < p->count; ++i) {
+        const query_node_t* n = &nodes[i];
+        if (n->op > Q_ARGS || n->axis > A_OTHER || n->anchor > 2 || n->scalar > 1 ||
+            n->type > V_STRING || n->begin > n->end || n->end > p->text_size || n->low > i)
+            return 0;
+        if ((n->left != QUERY_NONE && n->left >= i) || (n->right != QUERY_NONE && n->right >= i) ||
+            (n->predicate_guard != QUERY_NONE && n->predicate_guard >= i) ||
+            (n->path_guard != QUERY_NONE && n->path_guard >= i))
+            return 0;
+        if (n->path_guard != QUERY_NONE && n->path_kind != Q_CHILD && n->path_kind != Q_DESC &&
+            n->path_kind != Q_SELF)
+            return 0;
+        if ((n->op >= Q_CHILD && n->op <= Q_OR) || n->op == Q_ARGS) {
+            if (n->left == QUERY_NONE || n->right == QUERY_NONE) return 0;
+        } else if (n->op != Q_CALL && (n->left != QUERY_NONE || n->right != QUERY_NONE))
+            return 0;
+        if (n->op == Q_CALL && n->right != QUERY_NONE) return 0;
+        if (n->op == Q_BYTES && (n->end - n->begin < 3 || (n->end - n->begin - 3) % 2)) return 0;
+    }
+    return nodes[p->root].type == V_NODE && query_text(p)[p->text_size] == 0;
 }
 static inline void query_diag_init(tlv_query_diagnostic_t* d) {
     if (d) memset(d, 0, sizeof *d);

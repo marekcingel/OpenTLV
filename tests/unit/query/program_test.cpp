@@ -1,6 +1,7 @@
 // SPDX-License-Identifier: MIT
 // Copyright (c) 2026 Marek Cingel
 #include "tlv/query/program.h"
+#include "../../../tlv/src/query/program_internal.h"
 #include "controlled_format.h"
 #include <gtest/gtest.h>
 #include <cstring>
@@ -114,6 +115,7 @@ TEST(Unit_Tlv_QueryProgram, CapacityAndNestingBoundariesPreserveStorage) {
               tlv_query_compile(text.data(), text.size(), nullptr, scratch.data(), size,
                                 storage.data(), info.program_size - 1, &info, &d));
     EXPECT_EQ(UINT64_MAX, storage[0]);
+    EXPECT_EQ(TLV_QUERY_ERROR_STORAGE, d.kind);
     tlv_query_compile_options_t options;
     tlv_query_compile_options_init(&options);
     options.max_nesting = 1;
@@ -125,6 +127,62 @@ TEST(Unit_Tlv_QueryProgram, CapacityAndNestingBoundariesPreserveStorage) {
                                                scratch.data(), size, nullptr, 0, &info, &d));
     EXPECT_STREQ("nesting", d.limit);
     EXPECT_EQ(1u, d.begin);
+}
+
+TEST(Unit_Tlv_QueryProgram, CorruptInternalImagesAreRejectedBeforeExecutionOrFormatting) {
+    Program original;
+    ASSERT_EQ(TLV_OK, original.compile("//70/5A[@len=1]"));
+    for (unsigned mutation = 0; mutation < 15; ++mutation) {
+        auto  storage = original.storage;
+        auto* p = reinterpret_cast<tlv_query_program_t*>(storage.data());
+        auto* nodes = reinterpret_cast<query_node_t*>(p + 1);
+        switch (mutation) {
+            case 0: p->root = 1000000; break;
+            case 1: ++p->version; break;
+            case 2: p->count = 0; break;
+            case 3: ++p->count; break;
+            case 4: ++p->text_offset; break;
+            case 5: ++p->text_size; break;
+            case 6: ++p->reserved; break;
+            case 7: nodes[0].left = 1000000; break;
+            case 8: nodes[0].right = 0; break;
+            case 9: nodes[0].predicate_guard = 1000000; break;
+            case 10: nodes[0].path_guard = 0; break;
+            case 11: nodes[0].end = p->text_size + 1; break;
+            case 12: nodes[0].op = Q_ARGS + 1; break;
+            case 13: nodes[0].axis = A_OTHER + 1; break;
+            case 14:
+                p = reinterpret_cast<tlv_query_program_t*>(reinterpret_cast<char*>(p) + 1);
+                break;
+        }
+        size_t bytes = 777, alignment = 777, required = 777;
+        EXPECT_EQ(TLV_ERR_INVALID_ARG, tlv_query_exec_size(p, 4, &bytes, &alignment)) << mutation;
+        EXPECT_EQ(777u, bytes);
+        uint64_t          workspace[4096];
+        tlv_query_exec_t* exec = nullptr;
+        EXPECT_EQ(TLV_ERR_INVALID_ARG,
+                  tlv_query_exec_init(p, workspace, sizeof workspace, 4, 100, 10000, &exec))
+            << mutation;
+        EXPECT_EQ(nullptr, exec);
+        char output[64] = "unchanged";
+        EXPECT_EQ(TLV_ERR_INVALID_ARG,
+                  tlv_query_program_format(p, output, sizeof output, &required))
+            << mutation;
+        EXPECT_STREQ("unchanged", output);
+        EXPECT_EQ(777u, required);
+    }
+}
+
+TEST(Unit_Tlv_QueryProgram, ExplicitNumericAxesRemainTagTests) {
+    for (const auto& text : {std::string("//70[50]"), std::string("//70[child::50]"),
+                             std::string("//70[child:: 50]")}) {
+        Program p;
+        EXPECT_EQ(TLV_ERR_UNSUPPORTED_TYPE, p.compile(text));
+        ASSERT_NE(nullptr, p.diagnostic.expected);
+        EXPECT_EQ(text.find("::") == std::string::npos,
+                  std::strcmp(p.diagnostic.expected, "positional predicate execution") == 0);
+        EXPECT_EQ(TLV_QUERY_S1, p.info.level);
+    }
 }
 
 TEST(Unit_Tlv_QueryProgram, StopResumeAndNeedMoreDataDoNotRepeatMatches) {

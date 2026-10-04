@@ -1,6 +1,7 @@
 // SPDX-License-Identifier: MIT
 // Copyright (c) 2026 Marek Cingel
 #include "tlv/query/program.h"
+#include "../../../tlv/src/query/program_internal.h"
 #include <stdlib.h>
 
 int LLVMFuzzerTestOneInput(const uint8_t* data, size_t size) {
@@ -39,5 +40,26 @@ int LLVMFuzzerTestOneInput(const uint8_t* data, size_t size) {
         if (tlv_query_exec_feed(exec, &event, &matched, &diagnostic) != TLV_OK) break;
     }
     (void)tlv_query_exec_finish(exec, &diagnostic);
+    /* Mutate one field of a complete readable compiler image. This exercises
+       internal consistency checks, not loading arbitrary external bytecode. */
+    tlv_query_program_t* mutated = (tlv_query_program_t*)copy;
+    if (size & 1) {
+        uint32_t* fields = (uint32_t*)copy;
+        fields[size % (sizeof *mutated / sizeof(uint32_t))] ^= UINT32_C(0x100000);
+    } else {
+        query_node_t* nodes = (query_node_t*)(mutated + 1);
+        query_node_t* node = &nodes[size % mutated->count];
+        switch (size % 6) {
+            case 0: node->left = mutated->count; break;
+            case 1: node->right = mutated->count; break;
+            case 2: node->predicate_guard = mutated->count; break;
+            case 3: node->path_guard = mutated->count; break;
+            case 4: node->end = mutated->text_size + 1; break;
+            case 5: node->op = Q_ARGS + 1; break;
+        }
+    }
+    size_t bytes, alignment;
+    (void)tlv_query_exec_size(mutated, 16, &bytes, &alignment);
+    (void)tlv_query_program_format(mutated, text, sizeof text, &required);
     return 0;
 }

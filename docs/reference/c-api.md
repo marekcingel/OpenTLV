@@ -73,7 +73,8 @@ language bindings and a dedicated property suite are separate work.
 including caller-owned frame storage and Visitor adapters.
 
 V1 paths use `<tlv/query/query.h>` with copyable opaque storage, bounded parsing
-and canonical formatting. Full-language compilation and S0 event execution use
+and canonical formatting. Full-language compilation and immediate streaming
+selection (S0, decided at complete node publication) use
 `<tlv/query/program.h>`: discover scratch, immutable program and runtime workspace
 requirements independently, then retain the execution across STOP/NEED_MORE_DATA.
 See [path queries](../guides/queries.md) and the

@@ -530,9 +530,10 @@ PyObject* opentlv_python_query_steps(PyObject* module, PyObject* capsule) {
     (void)module;
     query_state* self = PyCapsule_GetPointer(capsule, QUERY_NAME);
     if (!self) return NULL;
-    PyObject* steps = PyTuple_New((Py_ssize_t)tlv_query_count(&self->query));
+    size_t    count = tlv_query_count(&self->query);
+    PyObject* steps = PyTuple_New((Py_ssize_t)count);
     if (!steps) return NULL;
-    for (size_t i = 0; i < tlv_query_count(&self->query); ++i) {
+    for (size_t i = 0; i < count; ++i) {
         tlv_tag_t tag = tlv_query_step(&self->query, i);
         PyObject* value = PyBytes_FromStringAndSize((const char*)tag.data, (Py_ssize_t)tag.size);
         if (!value) {

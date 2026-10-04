@@ -62,7 +62,7 @@ typedef struct tlv_query_compile_options {
     size_t max_states;         /**< Maximum compiled expression nodes. */
 } tlv_query_compile_options_t;
 
-/** @brief Program requirements and whole-plan information. */
+/** @brief Category of a Query expression's result. */
 typedef enum tlv_query_result_kind {
     TLV_QUERY_RESULT_NODES,   /**< Ordered unique node sequence. */
     TLV_QUERY_RESULT_BOOL,    /**< Boolean scalar; later-phase execution. */
@@ -124,11 +124,13 @@ TLV_API tlv_result_t tlv_query_compile_scratch(const char* text, size_t size,
  * @return #TLV_OK for a supported S0 program or sizing pass.
  * @return #TLV_ERR_UNSUPPORTED_TYPE for recognized later-phase capabilities.
  * @return #TLV_ERR_BUFFER_TOO_SHORT for insufficient scratch/output; info is
- * populated for insufficient program output only.
+ * populated for insufficient program output, not insufficient scratch.
  * @return #TLV_ERR_INVALID_ARG for syntax/options/alignment; #TLV_ERR_NULL_ARG
  * for missing pointers; #TLV_ERR_LIMIT for configured resources.
  * @note Storage, scratch, text and info must not overlap. Failure preserves
  * program storage. Sizing and writing are deterministic for identical input/options.
+ * @note After semantic analysis, info is also populated for capability/type
+ * failures. Earlier lexical, grammar, scratch and arithmetic failures leave it unchanged.
  */
 TLV_API tlv_result_t tlv_query_compile(const char* text, size_t size,
                                        const tlv_query_compile_options_t* options, void* scratch,
@@ -145,6 +147,7 @@ TLV_API tlv_result_t tlv_query_compile(const char* text, size_t size,
  * @return #TLV_OK on discovery/write; #TLV_ERR_NULL_ARG for missing arguments;
  * #TLV_ERR_BUFFER_TOO_SHORT with required set and output unchanged.
  * @note Never allocates. Output and required must not overlap program storage.
+ * @return #TLV_ERR_INVALID_ARG for misalignment or inconsistent internal image.
  */
 TLV_API tlv_result_t tlv_query_program_format(const tlv_query_program_t* program, char* output,
                                               size_t capacity, size_t* required);
@@ -157,13 +160,17 @@ TLV_API tlv_result_t tlv_query_program_format(const tlv_query_program_t* program
  * @param[out] alignment Required workspace alignment.
  * @return #TLV_OK; #TLV_ERR_NULL_ARG for missing pointers; #TLV_ERR_OVERFLOW
  * for arithmetic overflow; #TLV_ERR_UNSUPPORTED_TYPE for unsupported plans.
+ * @return #TLV_ERR_INVALID_ARG for misalignment or inconsistent internal image.
+ * @note Checks the readable image produced by this release's compiler once;
+ * this pointer-only API cannot validate arbitrary or truncated external storage.
  */
 TLV_API tlv_result_t tlv_query_exec_size(const tlv_query_program_t* program, size_t max_depth,
                                          size_t* bytes, size_t* alignment);
 
 /**
  * @brief Initialize or reset independent S0 execution in caller workspace.
- * @param[in] program Required immutable program; must outlive execution.
+ * @param[in] program Required immutable program; must remain alive and unchanged
+ * throughout execution. Feed does not repeat initialization validation.
  * @param[in,out] storage Required aligned workspace, exclusive to this execution.
  * @param[in] capacity Available workspace bytes.
  * @param[in] max_depth Maximum node depth.

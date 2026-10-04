@@ -25,10 +25,11 @@ extern "C" {
  * reader format; a path longer than one tag needs a format whose values can
  * be constructed (see tlv_query_visit_buffer()).
  *
- * The query language is deliberately small: exact tag paths only. It carries
+ * This V1 query language is deliberately small: exact tag paths only. It carries
  * no wildcards, indexes, predicates or recursive search, and does not depend
  * on any format or standard, so the same text can address data in the reader
- * and, later, in other document models.
+ * and, later, in other document models. The compiled extended language is
+ * declared in @c tlv/query/program.h.
  */
 
 /** @addtogroup traversal
@@ -53,7 +54,7 @@ enum { TLV_QUERY_MAX_BYTES = 512 };
  * that of uint64_t on the target. Do not inspect opaque members.
  */
 typedef union tlv_query {
-    uint8_t opaque[648]; /**< Private storage; initialize only through Query APIs. */
+    uint8_t opaque[648]; /**< Fixed ABI capacity: 644 implementation bytes rounded to 8 bytes. */
     uint64_t alignment;  /**< Private alignment member; never read or write directly. */
 } tlv_query_t;
 
@@ -166,7 +167,8 @@ TLV_API tlv_result_t tlv_query_matcher_rebind(tlv_query_matcher_t* matcher,
  * @brief Prepares a matcher for one traversal.
  *
  * @param[out] matcher Matcher to initialize.
- * @param[in]  query   Parsed query; borrowed and must outlive the matcher.
+ * @param[in]  query   Parsed query; borrowed and must remain alive and unchanged
+ *                    until the matcher is reset or successfully rebound.
  *
  * @return #TLV_OK on success.
  * @return #TLV_ERR_NULL_ARG if `matcher` or `query` is `NULL`.

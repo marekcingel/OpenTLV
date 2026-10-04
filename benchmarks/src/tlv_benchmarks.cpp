@@ -150,4 +150,28 @@ void query_s0_stream(benchmark::State& state) {
 
 BENCHMARK(query_s0_stream)->Arg(16)->Arg(256)->Arg(4096);
 
+void query_v1_matcher(benchmark::State& state) {
+    tlv_query_t query;
+    if (tlv_query_parse("80", &query, nullptr) != TLV_OK) {
+        state.SkipWithError("V1 Query parsing failed");
+        return;
+    }
+    const uint8_t byte = 0x80;
+    const auto    tag = tlv_tag(&byte, 1);
+    for (auto _ : state) {
+        tlv_query_matcher_t matcher;
+        if (tlv_query_matcher_init(&matcher, &query) != TLV_OK) {
+            state.SkipWithError("V1 matcher initialization failed");
+            break;
+        }
+        for (int64_t i = 0; i < state.range(0); ++i) {
+            auto matched = tlv_query_matcher_visit(&matcher, &tag, 0);
+            benchmark::DoNotOptimize(matched);
+        }
+    }
+    state.SetItemsProcessed(state.iterations() * state.range(0));
+}
+
+BENCHMARK(query_v1_matcher)->Arg(16)->Arg(256)->Arg(4096);
+
 } // namespace

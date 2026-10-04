@@ -49,7 +49,7 @@ static size_t pattern_capacity(const tlv_query_program_t* p) {
 tlv_result_t tlv_query_exec_size(const tlv_query_program_t* p, size_t depth, size_t* bytes,
                                  size_t* alignment) {
     if (!p || !bytes || !alignment) return TLV_ERR_NULL_ARG;
-    if (p->magic != QUERY_MAGIC || !p->count) return TLV_ERR_INVALID_ARG;
+    if (!query_program_valid(p)) return TLV_ERR_INVALID_ARG;
     if (p->level != TLV_QUERY_S0) return TLV_ERR_UNSUPPORTED_TYPE;
     size_t count = p->count;
     if (depth == SIZE_MAX || count > (SIZE_MAX - sizeof(tlv_query_exec_t)) / sizeof(query_value_t))

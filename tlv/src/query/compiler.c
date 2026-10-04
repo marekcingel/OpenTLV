@@ -202,7 +202,9 @@ static tlv_result_t options_check(const tlv_query_compile_options_t* supplied,
         *o = *supplied;
     }
     if (size > o->max_text) return query_limit(d, "text", o->max_text, 0, size);
-    if (size >= UINT32_MAX) return TLV_ERR_OVERFLOW;
+    if (size >= UINT32_MAX)
+        return query_error(d, TLV_ERR_OVERFLOW, TLV_QUERY_ERROR_STORAGE, 0, 0,
+                           "representable Query text size");
     return TLV_OK;
 }
 
@@ -222,7 +224,9 @@ tlv_result_t tlv_query_compile_scratch(const char* text, size_t size,
     size_t count;
     rc = lex(text, size, o.max_tokens, NULL, &count, d, NULL, NULL);
     if (rc != TLV_OK) return rc;
-    if (count >= UINT32_MAX / 2 || count > SIZE_MAX / scratch_unit() - 1) return TLV_ERR_OVERFLOW;
+    if (count >= UINT32_MAX / 2 || count > SIZE_MAX / scratch_unit() - 1)
+        return query_error(d, TLV_ERR_OVERFLOW, TLV_QUERY_ERROR_STORAGE, 0, 0,
+                           "representable compile scratch size");
     *bytes = (count + 1) * scratch_unit();
     *alignment = sizeof(uint32_t);
     return TLV_OK;
@@ -444,6 +448,9 @@ static tlv_result_t parse(const char* text, const query_token_t* tokens, size_t 
 
 static int decimal(const char* text, const query_node_t* n) {
     size_t begin = n->begin;
+    size_t prefix = begin;
+    while (prefix && whitespace((unsigned char)text[prefix - 1])) --prefix;
+    if (prefix >= 2 && text[prefix - 1] == ':' && text[prefix - 2] == ':') return 0;
     if (text[begin] == '-') ++begin;
     if (begin == n->end) return 0;
     for (size_t i = begin; i < n->end; ++i)
@@ -607,7 +614,10 @@ static tlv_result_t analyze(const char* text, query_node_t* nodes, size_t count,
                                    "known metadata property");
         }
         if (n->op == Q_LITERAL) {
-            if (n->anchor == 2 || text[n->begin] == '-') goto unsupported;
+            if (n->anchor == 2)
+                return query_error(d, TLV_ERR_UNSUPPORTED_TYPE, TLV_QUERY_ERROR_CAPABILITY,
+                                   n->begin, n->end, "positional predicate execution");
+            if (text[n->begin] == '-') goto unsupported;
             uint64_t value = 0;
             for (size_t j = n->begin; j < n->end; ++j) {
                 unsigned digit = (unsigned)(text[j] - '0');
@@ -709,7 +719,9 @@ tlv_result_t tlv_query_compile(const char* text, size_t size,
     if ((uintptr_t)scratch % alignment || (storage && (uintptr_t)storage % sizeof(uint32_t)))
         return query_error(d, TLV_ERR_INVALID_ARG, TLV_QUERY_ERROR_STORAGE, 0, 0,
                            "aligned storage");
-    if (scratch_size < needed) return TLV_ERR_BUFFER_TOO_SHORT;
+    if (scratch_size < needed)
+        return query_error(d, TLV_ERR_BUFFER_TOO_SHORT, TLV_QUERY_ERROR_STORAGE, 0, 0,
+                           "sufficient compile scratch capacity");
     size_t count = needed / scratch_unit();
     query_token_t* tokens = scratch;
     query_node_t* nodes = (query_node_t*)(tokens + count);
@@ -757,10 +769,13 @@ tlv_result_t tlv_query_compile(const char* text, size_t size,
                          nodes[root].end, "F1 node-sequence result");
     if (size > SIZE_MAX - sizeof(tlv_query_program_t) - 1 ||
         used > (SIZE_MAX - sizeof(tlv_query_program_t) - size - 1) / sizeof(query_node_t))
-        return TLV_ERR_OVERFLOW;
+        return query_error(d, TLV_ERR_OVERFLOW, TLV_QUERY_ERROR_STORAGE, 0, 0,
+                           "representable program size");
     size_t text_offset = sizeof(tlv_query_program_t) + used * sizeof(query_node_t);
     size_t total = text_offset + size + 1;
-    if (total > UINT32_MAX) return TLV_ERR_OVERFLOW;
+    if (total > UINT32_MAX)
+        return query_error(d, TLV_ERR_OVERFLOW, TLV_QUERY_ERROR_STORAGE, 0, 0,
+                           "representable program size");
     tlv_query_program_info_t result = {total,  sizeof(uint32_t),
                                        needed, alignment,
                                        used,   1,
@@ -771,10 +786,13 @@ tlv_result_t tlv_query_compile(const char* text, size_t size,
     }
     *info = result;
     if (!storage) return TLV_OK;
-    if (capacity < total) return TLV_ERR_BUFFER_TOO_SHORT;
-    tlv_query_program_t p = {
-        QUERY_MAGIC,     1, (uint32_t)used, root, (uint32_t)size, (uint32_t)text_offset,
-        (uint32_t)level, 0};
+    if (capacity < total)
+        return query_error(d, TLV_ERR_BUFFER_TOO_SHORT, TLV_QUERY_ERROR_STORAGE, 0, 0,
+                           "sufficient program capacity");
+    tlv_query_program_t p = {QUERY_MAGIC,     1,
+                             (uint32_t)used,  root,
+                             (uint32_t)size,  (uint32_t)text_offset,
+                             (uint32_t)level, (uint32_t)total};
     memcpy(storage, &p, sizeof p);
     memcpy((uint8_t*)storage + sizeof p, nodes, used * sizeof *nodes);
     memcpy((uint8_t*)storage + text_offset, text, size);
@@ -785,7 +803,7 @@ tlv_result_t tlv_query_compile(const char* text, size_t size,
 tlv_result_t tlv_query_program_format(const tlv_query_program_t* p, char* output, size_t capacity,
                                       size_t* required) {
     if (!p || !required || (!output && capacity)) return TLV_ERR_NULL_ARG;
-    if (p->magic != QUERY_MAGIC) return TLV_ERR_INVALID_ARG;
+    if (!query_program_valid(p)) return TLV_ERR_INVALID_ARG;
     size_t count, length;
     tlv_result_t rc =
         lex(query_text(p), p->text_size, UINT32_MAX, NULL, &count, NULL, NULL, &length);

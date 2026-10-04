@@ -76,6 +76,8 @@ separate arguments, not top-level expressions. Predicates bind to the preceding
 primary before path composition. `//` abbreviates descendant navigation from
 the preceding context. A path step `50` is a raw hexadecimal tag; a numeric
 comparison operand `10` is decimal. A direct predicate `[10]` is positional.
+An explicit axis such as `[child::50]` always denotes a raw tag test, including
+when whitespace follows `::`; it never becomes a positional or scalar literal.
 Bare even hex-looking identifiers such as `CAFE` are raw tags; names use a
 namespace, including `emv:CAFE`. For symbols outside identifier syntax, the
 planned `name(namespace, symbol)` function supplies string arguments. Odd raw
@@ -167,6 +169,11 @@ and uses internal indices/relative offsets, never process pointers. It can be
 copied to aligned storage and shared across independent execution workspaces.
 There is no cross-release serialized image compatibility promise or untrusted
 image loader in F1. F5 validates external program images before execution.
+Workspace initialization and formatting check alignment, image/version markers,
+redundant extent, root and backward node references, and text spans. These checks
+detect inconsistent internal images; pointer-only APIs still require the complete
+readable compiler-produced allocation and cannot validate arbitrary external bytes.
+The program must remain unchanged throughout execution; feed does not revalidate it.
 
 **Q-STORAGE-02.** Compile-time name resolution and execution-time hooks have
 different lifetimes. Copying the program cannot make external callbacks or

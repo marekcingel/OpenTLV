@@ -62,7 +62,8 @@ static int query_new(lua_State* L) {
 static int query_steps(lua_State* L) {
     const tlv_query_t* self = (const tlv_query_t*)luaL_checkudata(L, 1, QUERY_MT);
     lua_newtable(L);
-    for (size_t i = 0; i < tlv_query_count(self); ++i) {
+    size_t count = tlv_query_count(self);
+    for (size_t i = 0; i < count; ++i) {
         tlv_tag_t tag = tlv_query_step(self, i);
         lua_pushlstring(L, (const char*)tag.data, tag.size);
         lua_rawseti(L, -2, (int)i + 1);

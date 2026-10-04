@@ -137,15 +137,22 @@ int tlv_query_matcher_visit(tlv_query_matcher_t* matcher, const tlv_tag_t* tag, 
     if (!matcher || !tag || (tag->size && !tag->data)) return 0;
     query_v1_matcher_t state = query_v1_matcher_load(matcher);
     if (!state.query) return 0;
-    query_v1_data_t data = query_v1_load(state.query);
-    if (!valid_query(&data) || state.matched > data.count || depth > state.matched) return 0;
+    const uint8_t* storage = (const uint8_t*)state.query;
+    uint16_t count;
+    memcpy(&count, storage + offsetof(query_v1_data_t, count), sizeof count);
+    if (!count || count > TLV_QUERY_MAX_STEPS || state.matched > count || depth > state.matched)
+        return 0;
     state.matched = depth;
     int match = 0;
-    if (depth < data.count) {
-        size_t begin = depth ? data.ends[depth - 1] : 0;
-        if (query_tag_test(*tag, data.bytes + begin, data.ends[depth] - begin, 0)) {
+    if (depth < count) {
+        uint16_t begin = 0, end;
+        const uint8_t* ends = storage + offsetof(query_v1_data_t, ends);
+        if (depth) memcpy(&begin, ends + (depth - 1) * sizeof begin, sizeof begin);
+        memcpy(&end, ends + depth * sizeof end, sizeof end);
+        if (begin >= end || end > TLV_QUERY_MAX_BYTES) return 0;
+        if (query_tag_test(*tag, storage + begin, end - begin, 0)) {
             state.matched = depth + 1;
-            match = state.matched == data.count;
+            match = state.matched == count;
         }
     }
     memcpy(matcher, &state, sizeof state);
