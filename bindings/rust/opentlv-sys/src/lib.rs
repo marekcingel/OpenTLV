@@ -1156,21 +1156,38 @@ extern "C" {
 #[repr(C)]
 #[derive(Clone, Copy, Debug)]
 pub struct tlv_query_t {
-    pub bytes: [u8; 512],
-    pub ends: [u16; 65],
-    pub count: usize,
+    opaque: [u64; 81],
 }
-/// Native matcher borrowing its stable query storage.
+/// Native opaque matcher borrowing stable query storage.
 #[repr(C)]
-pub struct tlv_query_matcher_t {
-    pub query: *const tlv_query_t,
-    pub matched: usize,
+pub union tlv_query_matcher_t {
+    opaque: [u8; 16],
+    alignment: *const c_void,
+    size_alignment: usize,
 }
+
 extern "C" {
     pub fn tlv_query_parse(
         text: *const c_char,
         query: *mut tlv_query_t,
         offset: *mut usize,
+    ) -> tlv_result_t;
+    pub fn tlv_query_parse_n(
+        text: *const c_char,
+        size: usize,
+        query: *mut tlv_query_t,
+        offset: *mut usize,
+    ) -> tlv_result_t;
+    pub fn tlv_query_count(query: *const tlv_query_t) -> usize;
+    pub fn tlv_query_format(
+        query: *const tlv_query_t,
+        output: *mut c_char,
+        capacity: usize,
+        required: *mut usize,
+    ) -> tlv_result_t;
+    pub fn tlv_query_matcher_rebind(
+        matcher: *mut tlv_query_matcher_t,
+        query: *const tlv_query_t,
     ) -> tlv_result_t;
     pub fn tlv_query_step(query: *const tlv_query_t, index: usize) -> tlv_tag_t;
     pub fn tlv_query_matcher_init(

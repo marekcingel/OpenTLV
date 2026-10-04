@@ -86,7 +86,7 @@ public:
     /** @brief Number of tags in the query, which is the depth of the addressed elements plus one.
      */
     size_t size() const {
-        return query_.count;
+        return tlv_query_count(&query_);
     }
 
     /**
@@ -181,7 +181,7 @@ public:
     /** @brief Transfer continuation state and invalidate source iterators. */
     query_range(query_range&& other) noexcept
         : reader_(other.reader_), query_(other.query_), matcher_(other.matcher_) {
-        matcher_.query = &query_;
+        tlv_query_matcher_rebind(&matcher_, &query_);
         other.reader_ = nullptr;
         ++other.generation_;
     }

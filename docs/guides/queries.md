@@ -16,6 +16,13 @@ command.
 
 ## Syntax
 
+The V1 helpers below retain exact-path syntax. The separately selected compiled
+language uses caller-owned program and execution storage; see the
+[Query language and execution contract](../concepts/query-language.md).
+Its initial S0 backend supports descendants, unions, raw-byte node tests,
+metadata and borrowed byte predicates. Later-phase capabilities are rejected
+before input is consumed.
+
 A query is a list of hexadecimal tags separated by `/`:
 
 ```text

@@ -72,6 +72,15 @@ language bindings and a dedicated property suite are separate work.
 [pull-based Tree Reader](../guides/reader.md#pull-based-tree-traversal),
 including caller-owned frame storage and Visitor adapters.
 
+V1 paths use `<tlv/query/query.h>` with copyable opaque storage, bounded parsing
+and canonical formatting. Full-language compilation and S0 event execution use
+`<tlv/query/program.h>`: discover scratch, immutable program and runtime workspace
+requirements independently, then retain the execution across STOP/NEED_MORE_DATA.
+See [path queries](../guides/queries.md) and the
+[Query language contract](../concepts/query-language.md) for syntax, resource
+budgets, relative contexts and explicit validation/pruning coverage. Compiled
+program facades in bindings are part of the later Query integration phase.
+
 ## Schemas
 
 [Generated reference](api/c-api/html/group__schemas.html). Read first:

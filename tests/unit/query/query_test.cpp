@@ -5,6 +5,7 @@
 #include "tlv/query/query.h"
 #include <gtest/gtest.h>
 #include <string>
+#include "../../../tlv/src/query/v1_internal.h"
 #include <vector>
 
 namespace {
@@ -73,12 +74,13 @@ Outcome visit_buffer(const char* text, const std::vector<uint8_t>& input = data,
 
 TEST(Unit_Tlv_Query, ParsesTagsInEitherCase) {
     const tlv_query_t query = parse("6F/a5/50");
-    ASSERT_EQ(3u, query.count);
+    ASSERT_EQ(3u, tlv_query_count(&query));
     EXPECT_EQ(0x6F, tlv_query_step(&query, 0).data[0]);
     EXPECT_EQ(1u, tlv_query_step(&query, 0).size);
     EXPECT_EQ(0xA5, tlv_query_step(&query, 1).data[0]);
     EXPECT_EQ(0x50, tlv_query_step(&query, 2).data[0]);
-    EXPECT_EQ(1u, parse("00").count);
+    const auto parse_zero = parse("00");
+    EXPECT_EQ(1u, tlv_query_count(&parse_zero));
     const tlv_query_t wide = parse("9f02/DF8101");
     EXPECT_EQ(2u, tlv_query_step(&wide, 0).size);
     EXPECT_EQ(0x9F, tlv_query_step(&wide, 0).data[0]);
@@ -94,7 +96,7 @@ TEST(Unit_Tlv_Query, TagsOfAnyLengthAreKeptWithinTheTotalByteLimit) {
     std::string twelve;
     for (int i = 0; i < 12; ++i) twelve += "AB";
     const tlv_query_t query = parse((twelve + "/6F").c_str());
-    ASSERT_EQ(2u, query.count);
+    ASSERT_EQ(2u, tlv_query_count(&query));
     EXPECT_EQ(12u, tlv_query_step(&query, 0).size);
     EXPECT_EQ(0xAB, tlv_query_step(&query, 0).data[11]);
     EXPECT_EQ(1u, tlv_query_step(&query, 1).size);
@@ -117,7 +119,7 @@ TEST(Unit_Tlv_Query, RejectsSyntaxErrorsAtTheOffendingPosition) {
         size_t      offset = 99;
         EXPECT_EQ(TLV_ERR_INVALID_ARG, tlv_query_parse(c.text, &query, &offset)) << c.text;
         EXPECT_EQ(c.offset, offset) << c.text;
-        EXPECT_EQ(0u, query.count) << c.text;
+        EXPECT_EQ(0u, tlv_query_count(&query)) << c.text;
     }
 }
 
@@ -139,11 +141,12 @@ TEST(Unit_Tlv_Query, RejectsInvalidArgumentsAndLimits) {
     std::string deepest = "6F";
     for (int i = 1; i < TLV_QUERY_MAX_STEPS; ++i) deepest += "/6F";
     EXPECT_EQ(TLV_OK, tlv_query_parse(deepest.c_str(), &query, nullptr));
-    EXPECT_EQ(static_cast<size_t>(TLV_QUERY_MAX_STEPS), query.count);
+    EXPECT_EQ(static_cast<size_t>(TLV_QUERY_MAX_STEPS), tlv_query_count(&query));
     offset = 99;
     EXPECT_EQ(TLV_ERR_LIMIT, tlv_query_parse((deepest + "/6F").c_str(), &query, &offset));
     EXPECT_EQ(deepest.size() + 1, offset);
-    EXPECT_EQ(static_cast<size_t>(TLV_QUERY_MAX_STEPS), query.count); // Unchanged on failure.
+    EXPECT_EQ(static_cast<size_t>(TLV_QUERY_MAX_STEPS),
+              tlv_query_count(&query)); // Unchanged on failure.
 }
 
 TEST(Unit_Tlv_Query, MatcherRejectsInvalidQueries) {
@@ -153,12 +156,17 @@ TEST(Unit_Tlv_Query, MatcherRejectsInvalidQueries) {
     EXPECT_EQ(TLV_ERR_NULL_ARG, tlv_query_matcher_init(&matcher, nullptr));
     tlv_query_t empty = {};
     EXPECT_EQ(TLV_ERR_INVALID_ARG, tlv_query_matcher_init(&matcher, &empty));
-    query.count = TLV_QUERY_MAX_STEPS + 1;
+    auto corrupt = query_v1_load(&query);
+    corrupt.count = TLV_QUERY_MAX_STEPS + 1;
+    memcpy(&query, &corrupt, sizeof corrupt);
     EXPECT_EQ(TLV_ERR_INVALID_ARG, tlv_query_matcher_init(&matcher, &query));
     query = parse("6F");
-    query.ends[0] = 0; // An empty step.
+    corrupt = query_v1_load(&query);
+    corrupt.ends[0] = 0;
+    memcpy(&query, &corrupt, sizeof corrupt); // An empty step.
     EXPECT_EQ(TLV_ERR_INVALID_TAG_SIZE, tlv_query_matcher_init(&matcher, &query));
-    query.ends[0] = TLV_QUERY_MAX_BYTES + 1; // A step beyond the stored bytes.
+    corrupt.ends[0] = TLV_QUERY_MAX_BYTES + 1;
+    memcpy(&query, &corrupt, sizeof corrupt); // A step beyond the stored bytes.
     EXPECT_EQ(TLV_ERR_INVALID_TAG_SIZE, tlv_query_matcher_init(&matcher, &query));
 }
 

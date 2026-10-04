@@ -4,12 +4,14 @@
 #include "tlv/builtins/asn1/ber.h"
 #include "tlv/reader/reader.h"
 #include "tlv/writer/writer.h"
+#include "tlv/query/program.h"
 
 #include <benchmark/benchmark.h>
 
 #include <cstddef>
 #include <cstdint>
 #include <vector>
+#include <cstring>
 
 namespace {
 
@@ -92,5 +94,59 @@ void parse_stream(benchmark::State& state) {
 BENCHMARK(parse_entries)->Arg(16)->Arg(127)->Arg(128)->Arg(255)->Arg(256)->Arg(4096);
 BENCHMARK(encode_entries)->Arg(16)->Arg(127)->Arg(128)->Arg(255)->Arg(256)->Arg(4096);
 BENCHMARK(parse_stream)->Arg(16)->Arg(256)->Arg(4096);
+
+tlv_visit_result_t query_match(const tlv_tree_event_t* event, void*) {
+    benchmark::DoNotOptimize(event->offset);
+    return TLV_VISIT_CONTINUE;
+}
+
+void query_s0_stream(benchmark::State& state) {
+    const char* text = "//80 | //81";
+    size_t      scratch_size, alignment;
+    if (tlv_query_compile_scratch(text, std::strlen(text), nullptr, &scratch_size, &alignment,
+                                  nullptr) != TLV_OK) {
+        state.SkipWithError("Query scratch discovery failed");
+        return;
+    }
+    std::vector<uint64_t>    scratch((scratch_size + 7) / 8);
+    tlv_query_program_info_t info{};
+    if (tlv_query_compile(text, std::strlen(text), nullptr, scratch.data(), scratch_size, nullptr,
+                          0, &info, nullptr) != TLV_OK) {
+        state.SkipWithError("Query sizing failed");
+        return;
+    }
+    std::vector<uint64_t> program((info.program_size + 7) / 8);
+    if (tlv_query_compile(text, std::strlen(text), nullptr, scratch.data(), scratch_size,
+                          program.data(), info.program_size, &info, nullptr) != TLV_OK) {
+        state.SkipWithError("Query compilation failed");
+        return;
+    }
+    const auto* compiled = reinterpret_cast<const tlv_query_program_t*>(program.data());
+    size_t      workspace_size;
+    if (tlv_query_exec_size(compiled, 0, &workspace_size, &alignment) != TLV_OK) {
+        state.SkipWithError("Query workspace discovery failed");
+        return;
+    }
+    std::vector<uint64_t> workspace((workspace_size + 7) / 8);
+    const auto            encoded = encode_stream(16, static_cast<size_t>(state.range(0)));
+    for (auto _ : state) {
+        tlv_query_exec_t* exec;
+        tlv_tree_reader_t reader;
+        if (tlv_query_exec_init(compiled, workspace.data(), workspace_size, 0,
+                                static_cast<size_t>(state.range(0)), SIZE_MAX, &exec) != TLV_OK ||
+            tlv_tree_reader_init(&reader, encoded.data(), encoded.size(), &tlv_format_ber, nullptr,
+                                 0, 0, static_cast<size_t>(state.range(0))) != TLV_OK ||
+            tlv_query_program_visit(&reader, exec, query_match, nullptr, nullptr) != TLV_OK) {
+            state.SkipWithError("Query execution failed");
+            break;
+        }
+    }
+    state.counters["workspace_bytes"] = static_cast<double>(workspace_size);
+    state.counters["program_bytes"] = static_cast<double>(info.program_size);
+    state.SetItemsProcessed(state.iterations() * state.range(0));
+    state.SetBytesProcessed(state.iterations() * static_cast<int64_t>(encoded.size()));
+}
+
+BENCHMARK(query_s0_stream)->Arg(16)->Arg(256)->Arg(4096);
 
 } // namespace

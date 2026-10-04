@@ -63,11 +63,19 @@ jobs:
             [der]=tests/fuzz/builtins/asn1/corpus/der
             [der_schema]=tests/fuzz/builtins/asn1/corpus/der_schema
             [codec]=tests/fuzz/builtins/emv/corpus/codec
+            [query_parse]=tests/fuzz/query/corpus/parse
+            [query_match]=tests/fuzz/query/corpus/match
+            [query_program]=tests/fuzz/query/corpus/program
           )
-          for target in read visitor fixed der der_schema roundtrip codec; do
+          for target in read visitor fixed der der_schema roundtrip codec query_parse query_match query_program; do
             mkdir -p "build/fuzz/findings/$target" "build/fuzz/corpus/$target"
+            dictionary=()
+            if [[ "$target" == query_program ]]; then
+              dictionary=(-dict=tests/fuzz/query/query.dict)
+            fi
             "build/fuzz/tests/fuzz/fuzz_$target" \
               "build/fuzz/corpus/$target" "${corpus_dir[$target]}" \
+              "${dictionary[@]}" \
               -max_total_time=60 -max_len=4096 -timeout=10 -rss_limit_mb=2048 \
               -artifact_prefix="build/fuzz/findings/$target/" \
               2>&1 | tee "build/fuzz/findings/$target/run.log" || status=1

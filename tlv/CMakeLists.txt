@@ -33,6 +33,8 @@ add_library(${PROJECT_NAME} ${_tlv_library_type}
     src/reader/tree.c
     src/reader/visitor.c
     src/query/query.c
+    src/query/compiler.c
+    src/query/execute.c
     src/schema/schema.c
     src/schema/number.c
     src/schema/structure.c
