@@ -2,9 +2,11 @@
 // Copyright (c) 2026 Marek Cingel
 #include "tlv/query/adapters.h"
 #include "tlv/document/document.h"
+#include "tlv/writer/tree.h"
 #include "tlv/builtins/emv/query.h"
 #include "tlv/builtins/asn1/query.h"
 #include "tlv/builtins/asn1/ber.h"
+#include "tlv/builtins/asn1/cer.h"
 #include "tlv/config.h"
 #include "controlled_format.h"
 #include <gtest/gtest.h>
@@ -333,7 +335,7 @@ TEST(Unit_Tlv_QueryF3, DocumentAxesContextMutationValuesAndScalar) {
     ASSERT_EQ(e.init(), TLV_OK);
     size_t bytes;
     ASSERT_EQ(tlv_document_query_value_size(document, &staging, &bytes), TLV_OK);
-    EXPECT_EQ(bytes, 4u);
+    EXPECT_EQ(bytes, sizeof wire);
     std::vector<uint8_t> values(bytes);
     ASSERT_EQ(tlv_document_query_evaluate(document, e.exec, nullptr, values.data(), bytes, &staging,
                                           &e.diagnostic),
@@ -415,10 +417,13 @@ TEST(Unit_Tlv_QueryF3, DocumentStopResumeSourceErrorsAndResourceLimits) {
     EXPECT_FALSE(e.diagnostic.has_source_offset);
     ASSERT_EQ(e.compile("//*"), TLV_OK);
     ASSERT_EQ(e.init(), TLV_OK);
+    ASSERT_EQ(e.compile("value(/70)"), TLV_OK);
+    ASSERT_EQ(e.init(), TLV_OK);
     EXPECT_EQ(
         tlv_document_query_evaluate(document, e.exec, nullptr, nullptr, 0, &staging, &e.diagnostic),
         TLV_ERR_LIMIT);
     EXPECT_STREQ(e.diagnostic.limit, "document-values");
+    ASSERT_EQ(e.compile("//*"), TLV_OK);
     ASSERT_EQ(e.init(2), TLV_OK);
     EXPECT_EQ(tlv_document_query_evaluate(document, e.exec, nullptr, values.data(), values.size(),
                                           &staging, &e.diagnostic),
@@ -471,6 +476,129 @@ TEST(Unit_Tlv_QueryF3, DocumentQueryNeverUsesOwningAllocator) {
                                           &staging, &e.diagnostic),
               TLV_OK);
     EXPECT_EQ(allocations.calls, calls);
+    EXPECT_EQ(bytes, sizeof wire);
     tlv_document_free(document);
 }
+
+TEST(Unit_Tlv_QueryF3, DocumentNavigationNeedsNoValueStorage) {
+    Evaluation             e;
+    tlv_document_options_t options;
+    ASSERT_EQ(tlv_document_options_init(&options, &e.format), TLV_OK);
+    const uint8_t   wire[] = {0x70, 4, 0x70, 2, 0x5a, 0};
+    tlv_document_t* document = nullptr;
+    ASSERT_EQ(tlv_document_parse(wire, sizeof wire, &options, &document, nullptr), TLV_OK);
+    for (const char* text : {"//5A", "count(//70)", "//70[constructed()]", "//70[len()>0]",
+                             "//70[@len>0]", "value(/70)"}) {
+        ASSERT_EQ(e.compile(text), TLV_OK) << text;
+        const bool needs = std::strstr(text, "len") || std::strstr(text, "value");
+        EXPECT_EQ(e.info.constructed_values_required != 0, needs) << text;
+        ASSERT_EQ(e.init(), TLV_OK);
+        auto rc = tlv_document_query_evaluate(document, e.exec, nullptr, nullptr, 0, nullptr,
+                                              &e.diagnostic);
+        EXPECT_EQ(rc, needs ? TLV_ERR_NULL_ARG : TLV_OK) << text;
+        if (!needs && std::strstr(text, "count")) {
+            ASSERT_EQ(tlv_query_exec_result(e.exec, &e.result), TLV_OK);
+            EXPECT_EQ(e.result.integer, 2);
+        }
+    }
+    tlv_document_free(document);
+}
+
+TEST(Unit_Tlv_QueryF3, DocumentSnapshotSlicesAndWorkIgnoreStagingCapacity) {
+    Evaluation             e;
+    tlv_document_options_t options;
+    ASSERT_EQ(tlv_document_options_init(&options, &e.format), TLV_OK);
+    const uint8_t   wire[] = {0x70, 6, 0x70, 2, 0x5a, 0, 0x70, 0};
+    tlv_document_t* document = nullptr;
+    ASSERT_EQ(tlv_document_parse(wire, sizeof wire, &options, &document, nullptr), TLV_OK);
+    tlv_tree_writer_frame_t     frames[16];
+    uint8_t                     staged[4096], scratch[4096], values[4096];
+    tlv_tree_writer_workspace_t staging{};
+    staging.frames = frames;
+    staging.frame_capacity = 16;
+    staging.data = staged;
+    staging.scratch = scratch;
+    size_t bytes = 0;
+    for (size_t capacity : {sizeof wire, sizeof staged}) {
+        staging.data_capacity = staging.scratch_capacity = capacity;
+        ASSERT_EQ(tlv_document_query_value_size(document, &staging, &bytes), TLV_OK);
+        EXPECT_EQ(bytes, sizeof wire);
+        for (const auto& item : {std::make_pair("value(/70)", size_t(2)),
+                                 std::make_pair("value(/70/70[1])", size_t(4)),
+                                 std::make_pair("value(/70/70[2])", size_t(8))}) {
+            ASSERT_EQ(e.compile(item.first), TLV_OK);
+            ASSERT_EQ(e.init(), TLV_OK);
+            ASSERT_EQ(tlv_document_query_evaluate(document, e.exec, nullptr, values, sizeof values,
+                                                  &staging, &e.diagnostic),
+                      TLV_OK);
+            ASSERT_EQ(tlv_query_exec_result(e.exec, &e.result), TLV_OK);
+            EXPECT_EQ(e.result.data, values + item.second);
+            EXPECT_EQ(std::memcmp(values, wire, sizeof wire), 0);
+        }
+    }
+    // Locate the exact work threshold, then replay both roomy and exact storage.
+    ASSERT_EQ(e.compile("value(/70)"), TLV_OK);
+    size_t threshold = 0;
+    staging.data_capacity = staging.scratch_capacity = sizeof wire;
+    for (size_t work = 1; work < 2000; ++work) {
+        ASSERT_EQ(e.init(4, work), TLV_OK);
+        auto rc = tlv_document_query_evaluate(document, e.exec, nullptr, values, sizeof values,
+                                              &staging, &e.diagnostic);
+        if (rc == TLV_OK) {
+            threshold = work;
+            break;
+        }
+        ASSERT_EQ(rc, TLV_ERR_LIMIT);
+        ASSERT_STREQ(e.diagnostic.limit, "work");
+    }
+    ASSERT_GT(threshold, 0u);
+    for (size_t capacity : {sizeof wire, sizeof staged}) {
+        staging.data_capacity = staging.scratch_capacity = capacity;
+        ASSERT_EQ(e.init(4, threshold), TLV_OK);
+        EXPECT_EQ(tlv_document_query_evaluate(document, e.exec, nullptr, values, capacity, &staging,
+                                              &e.diagnostic),
+                  TLV_OK);
+        ASSERT_EQ(e.init(4, threshold - 1), TLV_OK);
+        EXPECT_EQ(tlv_document_query_evaluate(document, e.exec, nullptr, values, capacity, &staging,
+                                              &e.diagnostic),
+                  TLV_ERR_LIMIT);
+        EXPECT_STREQ(e.diagnostic.limit, "work");
+    }
+    tlv_document_free(document);
+}
+#if OPENTLV_FORMAT_CER
+TEST(Unit_Tlv_QueryF3, DocumentSnapshotClosesNestedIndefiniteValuesBeforeSibling) {
+    Evaluation e;
+    e.format = tlv_format_cer;
+    tlv_document_options_t options;
+    ASSERT_EQ(tlv_document_options_init(&options, &e.format), TLV_OK);
+    const uint8_t   wire[] = {0x30, 0x80, 0x30, 0x80, 0x04, 0, 0, 0, 0, 0, 0x04, 1, 0x7f};
+    tlv_document_t* document = nullptr;
+    ASSERT_EQ(tlv_document_parse(wire, sizeof wire, &options, &document, nullptr), TLV_OK);
+    tlv_tree_writer_frame_t     frames[16];
+    uint8_t                     values[sizeof wire], scratch[sizeof wire];
+    tlv_tree_writer_workspace_t staging{};
+    staging.frames = frames;
+    staging.frame_capacity = 16;
+    staging.scratch = scratch;
+    staging.scratch_capacity = sizeof scratch;
+    // Evaluation needs no staging output. END must skip each enclosing trailer.
+    for (const char* text : {"value(/30/30)", "value(/04)", "len(value(/30))"}) {
+        ASSERT_EQ(e.compile(text), TLV_OK);
+        ASSERT_EQ(e.init(), TLV_OK);
+        ASSERT_EQ(tlv_document_query_evaluate(document, e.exec, nullptr, values, sizeof values,
+                                              &staging, &e.diagnostic),
+                  TLV_OK);
+        ASSERT_EQ(tlv_query_exec_result(e.exec, &e.result), TLV_OK);
+        EXPECT_EQ(std::memcmp(values, wire, sizeof wire), 0);
+        if (e.result.kind == TLV_QUERY_RESULT_INTEGER)
+            EXPECT_EQ(e.result.integer, 6);
+        else {
+            EXPECT_EQ(e.result.size, std::strstr(text, "30") ? 2u : 1u);
+            EXPECT_EQ(e.result.data, values + (std::strstr(text, "30") ? 4 : 12));
+        }
+    }
+    tlv_document_free(document);
+}
+#endif
 #endif

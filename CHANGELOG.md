@@ -126,7 +126,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Added
 
-- Add deferred root-scope Query execution, explicit S2 candidate limits and retention requirements, all navigation axes, and allocation-free compiled Document Query evaluation with ordered unique results, scalar outputs and resumable callbacks. (#521)
+- Add deferred root-scope Query execution, explicit S2 candidate limits and retention requirements, all navigation axes, and allocation-free compiled Document Query evaluation with ordered unique results, scalar outputs and resumable callbacks. Document Values share one encoded snapshot; navigation and counting skip encoding, and work limits do not depend on spare buffer capacity. (#521)
 - Complete Query F2 with finalized scalar results, cardinality-checked conversions, positional functions, compile-time names and explicit codec/tag environments. Add bounded retained-event evaluation for deferred ordered node sets, runtime byte patterns and inspectable conservative optimization. Query callers must rebuild for the extended options and diagnostics. (#520)
 - Expose unique referenced Query variable requirements and size binding workspace by unique variables rather than expression nodes. (#520, #526)
 - Add typed integer, byte and UTF-8 string Query variable declarations and independent borrowed execution bindings, signed int64 comparisons with overflow checks, and ordered S0 node intersection and difference. (#520)

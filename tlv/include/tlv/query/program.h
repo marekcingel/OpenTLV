@@ -174,7 +174,12 @@ typedef struct tlv_query_compile_options {
     int optimize;       /**< Enable bounded constant folding and compatible test sharing. */
 } tlv_query_compile_options_t;
 
-/** @brief Program requirements and whole-plan information. */
+/** @brief Program requirements and whole-plan information.
+ * S0 publishes matching nodes immediately; S1 waits for an independent scope to
+ * close using depth-bounded summaries; S2 retains explicit input-sized descriptors
+ * until EOF. D requires Document navigation. These are resource profiles of the
+ * complete expression, not language versions. Decision timing states when results
+ * may first be delivered; it does not relax borrowed-input lifetime requirements. */
 typedef struct tlv_query_program_info {
     size_t struct_size;  /**< Caller-provided writable extent; initialize to sizeof this type. */
     size_t program_size; /**< Exact immutable storage bytes. */
@@ -195,8 +200,16 @@ typedef struct tlv_query_program_info {
     size_t candidate_size;    /**< Private retained descriptor bytes per input node. */
     size_t candidate_alignment; /**< Descriptor alignment within caller execution storage. */
     size_t frame_states;        /**< Per-depth state slots for depth-bounded execution. */
-    tlv_query_decision_timing_t decision_timing; /**< Earliest result publication frontier. */
-    int stable_input_required; /**< Delayed spans must remain alive/immutable until reset. */
+    tlv_query_decision_timing_t
+        decision_timing; /**< Earliest point when results may be delivered. */
+    /** Delayed Reader spans must remain alive and immutable until execution reset.
+     * Switching Reader windows does not release previous windows: every borrowed
+     * span from an earlier window remains valid, even after results are consumed. */
+    int stable_input_required;
+    /** Nonzero if constructed Values may be read, including length metadata,
+     * scalar conversions and adapter event metadata. Document execution requires
+     * a canonical encoded snapshot only in this case; conservative, not tag-specific. */
+    int constructed_values_required;
 } tlv_query_program_info_t;
 
 /** @brief Opaque immutable caller-owned program. */

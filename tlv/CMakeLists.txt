@@ -115,8 +115,8 @@ if(OPENTLV_EMV)
         src/builtins/emv/emv_codec.c src/builtins/emv/presentation.c src/builtins/emv/dol.c src/builtins/emv/emv_schema.c)
 endif()
 if(OPENTLV_DOCUMENT)
-    # The only component that allocates; nothing else in the library depends on it.
-    target_sources(${PROJECT_NAME} PRIVATE src/document/document.c)
+    # Optional owning component and its allocation-free compiled Query adapter.
+    target_sources(${PROJECT_NAME} PRIVATE src/document/document.c src/query/document_backend.c)
 endif()
 
 set_target_properties(${PROJECT_NAME} PROPERTIES

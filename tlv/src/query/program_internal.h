@@ -203,6 +203,23 @@ static inline unsigned query_function_kind(const char* text, const query_node_t*
             return i;
     return F_UNKNOWN;
 }
+static inline int query_nodes_need_values(const query_node_t* nodes, size_t count,
+                                          const char* text) {
+    for (size_t i = 0; i < count; ++i) {
+        const query_node_t* n = &nodes[i];
+        if (n->op == Q_META && n->end - n->begin == 4 && !memcmp(text + n->begin, "@len", 4))
+            return 1;
+        if (n->op != Q_CALL) continue;
+        unsigned fn = query_function_kind(text, n);
+        if (fn == F_VALUE || fn == F_LEN || (fn >= F_NUM && fn <= F_DATE) ||
+            (fn >= F_STARTS && fn <= F_SUBSTR && n->left == QUERY_NONE))
+            return 1;
+    }
+    return 0;
+}
+static inline int query_program_needs_values(const tlv_query_program_t* p) {
+    return query_nodes_need_values(query_nodes(p), p->count, query_text(p));
+}
 /* Structural check of a readable compiler-owned image, not an external loader.
    The redundant extent rejects inconsistent single-field header corruption.
    Storage must remain unchanged after execution initialization. */
@@ -312,7 +329,8 @@ tlv_result_t query_function_eval(tlv_query_exec_t*, const tlv_tree_event_t*, con
 tlv_result_t query_retained_finish(tlv_query_exec_t*, tlv_query_diagnostic_t*);
 tlv_result_t query_retained_feed(tlv_query_exec_t*, const tlv_tree_event_t*,
                                  tlv_query_diagnostic_t*);
-void query_document_handle(tlv_query_exec_t*, void*);
+void query_document_handle(tlv_query_exec_t*, void*, const uint8_t*);
+const uint8_t* query_document_end(tlv_query_exec_t*);
 tlv_result_t query_document_next(tlv_query_exec_t*, void**);
 size_t query_candidate_size(void);
 size_t query_candidate_alignment(void);

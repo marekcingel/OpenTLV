@@ -11,6 +11,7 @@ typedef struct retained_node {
     tlv_tree_event_t event;
     size_t parent, end, sibling;
     void* handle;
+    const uint8_t* document_end;
 } retained_node_t;
 size_t query_candidate_size(void) {
     return sizeof(retained_node_t);
@@ -713,8 +714,12 @@ tlv_result_t tlv_query_program_explain(const tlv_query_program_t* p, char* outpu
     return TLV_OK;
 }
 
-void query_document_handle(tlv_query_exec_t* e, void* handle) {
+void query_document_handle(tlv_query_exec_t* e, void* handle, const uint8_t* end) {
     eval_nodes(e)[e->elements - 1].handle = handle;
+    eval_nodes(e)[e->elements - 1].document_end = end;
+}
+const uint8_t* query_document_end(tlv_query_exec_t* e) {
+    return eval_nodes(e)[((size_t*)eval_base(e))[e->open - 1]].document_end;
 }
 tlv_result_t query_document_next(tlv_query_exec_t* e, void** handle) {
     if (!e || !handle) return TLV_ERR_NULL_ARG;

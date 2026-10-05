@@ -971,7 +971,8 @@ tlv_result_t tlv_query_compile(const char* text, size_t size,
                                        level == TLV_QUERY_S0   ? TLV_QUERY_DECISION_NODE
                                        : level == TLV_QUERY_S1 ? TLV_QUERY_DECISION_SCOPE
                                                                : TLV_QUERY_DECISION_EOF,
-                                       level != TLV_QUERY_S0};
+                                       level != TLV_QUERY_S0,
+                                       query_nodes_need_values(nodes, used, text)};
     for (size_t i = 0; i < used; ++i) {
         query_node_t* n = &nodes[i];
         if (n->op != Q_VARIABLE) continue;

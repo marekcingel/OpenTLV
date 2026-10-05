@@ -305,13 +305,23 @@ S0/S1 use `tlv_query_exec_size/init`; S2 uses `tlv_query_eval_size/init` with an
 explicit capacity for every published node, including nonmatches. Deferred spans
 require stable input storage across Reader windows. Reader callbacks resume after
 STOP; NEED_MORE_DATA preserves execution without exposing a partial event.
+The levels describe resource needs: immediate decisions (S0), decisions when a
+scope closes (S1), retained input descriptors (S2), or Document navigation (D).
+When `stable_input_required` is nonzero, replacing a Reader window does not release
+old borrowed bytes: keep all published spans alive and immutable until execution reset.
 
 For a compiled query on an existing Document, initialize retained execution even
-when the program can also stream. Supply a separate `tlv_tree_writer_workspace_t`
-with caller-owned frames, staging output and closing scratch. Call
-`tlv_document_query_value_size` to discover the constructed Value buffer size;
-if Writer storage is short, explicitly resize from its reported requirements and
-repeat discovery. This step and subsequent Query execution use no Document allocation.
+when the program can also stream. First inspect `constructed_values_required` in
+program info. If zero, pass NULL/zero for Value storage and NULL for Writer staging;
+navigation and counting do not encode the Document.
+
+Otherwise supply `tlv_tree_writer_workspace_t` with caller-owned frames, output
+and closing scratch. `tlv_document_query_value_size` discovers the complete encoded
+Document size. Resize explicitly from reported Writer requirements and repeat if
+needed. Reuse its output as the final Value snapshot: evaluation encodes directly
+into the supplied Value buffer and all Values borrow ranges within it. Staging
+frames/scratch remain required, but staging output is ignored during evaluation.
+Both discovery and execution use no Document allocation.
 
 Then call `tlv_document_query_evaluate` with the execution, optional relative
 context handle, Value buffer and Writer workspace. Pull first/all matches with

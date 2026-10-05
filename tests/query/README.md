@@ -82,7 +82,10 @@ The existing native pruning tests retain explicit full/partial validation covera
 S1 only labels independently completing root scopes; overlapping deferred selections
 are S2. S2 explicitly retains all published descriptors, with stable borrowed input,
 and releases results at virtual-root EOF. Document adds no hidden Query allocation;
-its separate constructed Value buffer and Tree Writer staging workspace are explicit. See the language contract for
+programs without constructed Value dependencies need no encoding storage. Other
+programs share slices of one encoded snapshot, with explicit Writer frames/scratch.
+Native regressions cover nested/empty snapshot slices, allocator rejection and exact
+work thresholds independent of spare buffer capacity. See the language contract for
 resource costs and the distinction between descriptor and payload retention.
 
 The phase gate also inventories all closed functions, with positive and negative

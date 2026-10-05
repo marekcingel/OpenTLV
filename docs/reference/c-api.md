@@ -78,8 +78,10 @@ and canonical formatting. Full-language compilation and S0/S1/S2 execution use
 requirements independently, then retain the execution across STOP/NEED_MORE_DATA.
 S1 publishes proven root-scope decisions at END. S2 uses explicit candidate
 capacity and stable borrowed input until finalized ordered publication. Compiled
-Document execution uses the same VM with caller-owned Query storage, constructed
-Value storage and Tree Writer staging; global preceding/following plans require it.
+Document execution uses the same VM with caller-owned Query storage; global
+preceding/following plans require it. `constructed_values_required` reports whether
+it also needs a complete encoded snapshot and Tree Writer frames/scratch. Navigation
+and counting skip encoding; required Values share ranges of one snapshot.
 See [path queries](../guides/queries.md) and the
 [Query language contract](../concepts/query-language.md) for syntax, resource
 budgets, relative contexts and explicit validation/pruning coverage. Compiled

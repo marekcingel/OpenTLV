@@ -4,6 +4,7 @@
 #include "../../tlv/src/query/program_internal.h"
 #include "tlv/formats/fixed.h"
 #include "tlv/document/document.h"
+#include "tlv/writer/tree.h"
 #include "tlv/config.h"
 #if OPENTLV_FORMAT_BER
 #include "tlv/builtins/asn1/query.h"
