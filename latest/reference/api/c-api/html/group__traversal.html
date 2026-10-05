@@ -127,7 +127,7 @@ Data Structures</h2></td></tr>
 <tr class="memdesc:"><td class="mdescLeft">&#160;</td><td class="mdescRight">Versioned compile options; initialize using <a class="el" href="group__traversal.html#gac354f007ea0036e5389dbd395283efe2" title="Initialize safe compile defaults; NULL is a no-op.">tlv_query_compile_options_init()</a>.  <a href="structtlv__query__compile__options.html#details">More...</a><br /></td></tr>
 <tr class="separator:"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:"><td class="memItemLeft" align="right" valign="top">struct &#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="structtlv__query__program__info.html">tlv_query_program_info</a></td></tr>
-<tr class="memdesc:"><td class="mdescLeft">&#160;</td><td class="mdescRight">Program requirements and whole-plan information.  <a href="structtlv__query__program__info.html#details">More...</a><br /></td></tr>
+<tr class="memdesc:"><td class="mdescLeft">&#160;</td><td class="mdescRight">Program requirements and whole-plan information. S0 publishes matching nodes immediately; S1 waits for an independent scope to close using depth-bounded summaries; S2 retains explicit input-sized descriptors until EOF. D requires Document navigation. These are resource profiles of the complete expression, not language versions. Decision timing states when results may first be delivered; it does not relax borrowed-input lifetime requirements.  <a href="structtlv__query__program__info.html#details">More...</a><br /></td></tr>
 <tr class="separator:"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:"><td class="memItemLeft" align="right" valign="top">struct &#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="structtlv__query__variable__info.html">tlv_query_variable_info</a></td></tr>
 <tr class="memdesc:"><td class="mdescLeft">&#160;</td><td class="mdescRight">Fixed-layout borrowed requirement for one unique referenced variable.  <a href="structtlv__query__variable__info.html#details">More...</a><br /></td></tr>
@@ -159,6 +159,9 @@ Typedefs</h2></td></tr>
 <tr class="memitem:gafc4c0883612ef05066fbbd5afc6306d5" id="r_gafc4c0883612ef05066fbbd5afc6306d5"><td class="memItemLeft" align="right" valign="top">typedef enum <a class="el" href="group__traversal.html#ga66edcf242c8bc06318ff99b24f1ce0ed">tlv_query_error_kind</a>&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="group__traversal.html#gafc4c0883612ef05066fbbd5afc6306d5">tlv_query_error_kind_t</a></td></tr>
 <tr class="memdesc:gafc4c0883612ef05066fbbd5afc6306d5"><td class="mdescLeft">&#160;</td><td class="mdescRight">Query-specific diagnostic category; original result codes remain intact.  <br /></td></tr>
 <tr class="separator:gafc4c0883612ef05066fbbd5afc6306d5"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:ga02827de4b2461e04efd2d10615344210" id="r_ga02827de4b2461e04efd2d10615344210"><td class="memItemLeft" align="right" valign="top">typedef enum <a class="el" href="group__traversal.html#gadc433791e079a31ea6ca06547dc5cce2">tlv_query_decision_timing</a>&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="group__traversal.html#ga02827de4b2461e04efd2d10615344210">tlv_query_decision_timing_t</a></td></tr>
+<tr class="memdesc:ga02827de4b2461e04efd2d10615344210"><td class="mdescLeft">&#160;</td><td class="mdescRight">Earliest publication frontier for the conservatively selected backend.  <br /></td></tr>
+<tr class="separator:ga02827de4b2461e04efd2d10615344210"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:ga17f951dcf47161a07accd081699eff6f" id="r_ga17f951dcf47161a07accd081699eff6f"><td class="memItemLeft" align="right" valign="top">typedef struct <a class="el" href="structtlv__query__diagnostic.html">tlv_query_diagnostic</a>&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="group__traversal.html#ga17f951dcf47161a07accd081699eff6f">tlv_query_diagnostic_t</a></td></tr>
 <tr class="memdesc:ga17f951dcf47161a07accd081699eff6f"><td class="mdescLeft">&#160;</td><td class="mdescRight">Fixed-layout compiler/execution failure, initialized by diagnostic entry points.  <br /></td></tr>
 <tr class="separator:ga17f951dcf47161a07accd081699eff6f"><td class="memSeparator" colspan="2">&#160;</td></tr>
@@ -193,7 +196,7 @@ Typedefs</h2></td></tr>
 <tr class="memdesc:gaf426eeab5c08024d576603e4102962ec"><td class="mdescLeft">&#160;</td><td class="mdescRight">Versioned compile options; initialize using <a class="el" href="group__traversal.html#gac354f007ea0036e5389dbd395283efe2" title="Initialize safe compile defaults; NULL is a no-op.">tlv_query_compile_options_init()</a>.  <br /></td></tr>
 <tr class="separator:gaf426eeab5c08024d576603e4102962ec"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:gaf947e208c6f97e68c59bf5573887d2ca" id="r_gaf947e208c6f97e68c59bf5573887d2ca"><td class="memItemLeft" align="right" valign="top">typedef struct <a class="el" href="structtlv__query__program__info.html">tlv_query_program_info</a>&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="group__traversal.html#gaf947e208c6f97e68c59bf5573887d2ca">tlv_query_program_info_t</a></td></tr>
-<tr class="memdesc:gaf947e208c6f97e68c59bf5573887d2ca"><td class="mdescLeft">&#160;</td><td class="mdescRight">Program requirements and whole-plan information.  <br /></td></tr>
+<tr class="memdesc:gaf947e208c6f97e68c59bf5573887d2ca"><td class="mdescLeft">&#160;</td><td class="mdescRight">Program requirements and whole-plan information. S0 publishes matching nodes immediately; S1 waits for an independent scope to close using depth-bounded summaries; S2 retains explicit input-sized descriptors until EOF. D requires Document navigation. These are resource profiles of the complete expression, not language versions. Decision timing states when results may first be delivered; it does not relax borrowed-input lifetime requirements.  <br /></td></tr>
 <tr class="separator:gaf947e208c6f97e68c59bf5573887d2ca"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:ga45bdea1007b9780dba5559a2190f569d" id="r_ga45bdea1007b9780dba5559a2190f569d"><td class="memItemLeft" align="right" valign="top">typedef struct tlv_query_program&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="group__traversal.html#ga45bdea1007b9780dba5559a2190f569d">tlv_query_program_t</a></td></tr>
 <tr class="memdesc:ga45bdea1007b9780dba5559a2190f569d"><td class="mdescLeft">&#160;</td><td class="mdescRight">Opaque immutable caller-owned program.  <br /></td></tr>
@@ -262,6 +265,12 @@ Enumerations</h2></td></tr>
  }</td></tr>
 <tr class="memdesc:ga66edcf242c8bc06318ff99b24f1ce0ed"><td class="mdescLeft">&#160;</td><td class="mdescRight">Query-specific diagnostic category; original result codes remain intact.  <a href="group__traversal.html#ga66edcf242c8bc06318ff99b24f1ce0ed">More...</a><br /></td></tr>
 <tr class="separator:ga66edcf242c8bc06318ff99b24f1ce0ed"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:gadc433791e079a31ea6ca06547dc5cce2" id="r_gadc433791e079a31ea6ca06547dc5cce2"><td class="memItemLeft" align="right" valign="top">enum &#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="group__traversal.html#gadc433791e079a31ea6ca06547dc5cce2">tlv_query_decision_timing</a> { <a class="el" href="group__traversal.html#ggadc433791e079a31ea6ca06547dc5cce2af1051c168564a9fb60120416f4a092c0">TLV_QUERY_DECISION_NODE</a>
+, <a class="el" href="group__traversal.html#ggadc433791e079a31ea6ca06547dc5cce2a463ee9fba7195c2c4d8ebb111a53e557">TLV_QUERY_DECISION_SCOPE</a>
+, <a class="el" href="group__traversal.html#ggadc433791e079a31ea6ca06547dc5cce2a0cfb4744a542b4727fd74c2124af9722">TLV_QUERY_DECISION_EOF</a>
+ }</td></tr>
+<tr class="memdesc:gadc433791e079a31ea6ca06547dc5cce2"><td class="mdescLeft">&#160;</td><td class="mdescRight">Earliest publication frontier for the conservatively selected backend.  <a href="group__traversal.html#gadc433791e079a31ea6ca06547dc5cce2">More...</a><br /></td></tr>
+<tr class="separator:gadc433791e079a31ea6ca06547dc5cce2"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:ga43336be01e068a5916b4b8cdb7081c6b" id="r_ga43336be01e068a5916b4b8cdb7081c6b"><td class="memItemLeft" align="right" valign="top">enum &#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="group__traversal.html#ga43336be01e068a5916b4b8cdb7081c6b">tlv_query_result_kind</a> { <br />
 &#160;&#160;<a class="el" href="group__traversal.html#gga43336be01e068a5916b4b8cdb7081c6ba85bee7adeb5c3949f0a574cb32b27a29">TLV_QUERY_RESULT_NODES</a>
 , <a class="el" href="group__traversal.html#gga43336be01e068a5916b4b8cdb7081c6ba2b623cf52ce944aa0312276ba2792935">TLV_QUERY_RESULT_BOOL</a>
@@ -316,10 +325,10 @@ Functions</h2></td></tr>
 <tr class="memdesc:ga2d9b3cb408e4f728d0606013aff07929"><td class="mdescLeft">&#160;</td><td class="mdescRight">Canonically format a compiled program, including size discovery.  <br /></td></tr>
 <tr class="separator:ga2d9b3cb408e4f728d0606013aff07929"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:gad353ad2d98852e309b413e2e8f9fda58" id="r_gad353ad2d98852e309b413e2e8f9fda58"><td class="memItemLeft" align="right" valign="top"><a class="el" href="group__core.html#ga164d2817a32e5d7b7aa1472e887b47c3">tlv_result_t</a>&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="group__traversal.html#gad353ad2d98852e309b413e2e8f9fda58">tlv_query_exec_size</a> (const <a class="el" href="group__traversal.html#ga45bdea1007b9780dba5559a2190f569d">tlv_query_program_t</a> *program, size_t max_depth, size_t *bytes, size_t *alignment)</td></tr>
-<tr class="memdesc:gad353ad2d98852e309b413e2e8f9fda58"><td class="mdescLeft">&#160;</td><td class="mdescRight">Discover runtime workspace for a compiled S0 plan and depth capacity.  <br /></td></tr>
+<tr class="memdesc:gad353ad2d98852e309b413e2e8f9fda58"><td class="mdescLeft">&#160;</td><td class="mdescRight">Discover runtime workspace for a compiled S0/S1 plan and depth capacity.  <br /></td></tr>
 <tr class="separator:gad353ad2d98852e309b413e2e8f9fda58"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:gac599205d41bcc11b7a76ece55b653d38" id="r_gac599205d41bcc11b7a76ece55b653d38"><td class="memItemLeft" align="right" valign="top"><a class="el" href="group__core.html#ga164d2817a32e5d7b7aa1472e887b47c3">tlv_result_t</a>&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="group__traversal.html#gac599205d41bcc11b7a76ece55b653d38">tlv_query_exec_init</a> (const <a class="el" href="group__traversal.html#ga45bdea1007b9780dba5559a2190f569d">tlv_query_program_t</a> *program, void *storage, size_t capacity, size_t max_depth, size_t max_elements, size_t max_work, <a class="el" href="group__traversal.html#gacff0d3ed0386caf2464d098ae952ebb7">tlv_query_exec_t</a> **exec)</td></tr>
-<tr class="memdesc:gac599205d41bcc11b7a76ece55b653d38"><td class="mdescLeft">&#160;</td><td class="mdescRight">Initialize or reset independent S0 execution in caller workspace.  <br /></td></tr>
+<tr class="memdesc:gac599205d41bcc11b7a76ece55b653d38"><td class="mdescLeft">&#160;</td><td class="mdescRight">Initialize or reset independent S0/S1 execution in caller workspace.  <br /></td></tr>
 <tr class="separator:gac599205d41bcc11b7a76ece55b653d38"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:ga597eb45f36e2ec234150f343f7e9b545" id="r_ga597eb45f36e2ec234150f343f7e9b545"><td class="memItemLeft" align="right" valign="top"><a class="el" href="group__core.html#ga164d2817a32e5d7b7aa1472e887b47c3">tlv_result_t</a>&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="group__traversal.html#ga597eb45f36e2ec234150f343f7e9b545">tlv_query_exec_bind</a> (<a class="el" href="group__traversal.html#gacff0d3ed0386caf2464d098ae952ebb7">tlv_query_exec_t</a> *exec, const char *name, <a class="el" href="group__traversal.html#ga9e9451c7cc7e346182993d0d95065837">tlv_query_result_kind_t</a> type, int64_t integer, const uint8_t *data, size_t size, <a class="el" href="group__traversal.html#ga17f951dcf47161a07accd081699eff6f">tlv_query_diagnostic_t</a> *diagnostic)</td></tr>
 <tr class="memdesc:ga597eb45f36e2ec234150f343f7e9b545"><td class="mdescLeft">&#160;</td><td class="mdescRight">Bind one typed variable before consuming any event.  <br /></td></tr>
@@ -336,6 +345,9 @@ Functions</h2></td></tr>
 <tr class="memitem:gacfd20b2dc49c859123cbe8c22d30708a" id="r_gacfd20b2dc49c859123cbe8c22d30708a"><td class="memItemLeft" align="right" valign="top"><a class="el" href="group__core.html#ga164d2817a32e5d7b7aa1472e887b47c3">tlv_result_t</a>&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="group__traversal.html#gacfd20b2dc49c859123cbe8c22d30708a">tlv_query_exec_feed</a> (<a class="el" href="group__traversal.html#gacff0d3ed0386caf2464d098ae952ebb7">tlv_query_exec_t</a> *exec, const <a class="el" href="tree_8h.html#a3b1e811784f5c9b0085cb0144a0c57c2">tlv_tree_event_t</a> *event, int *matched, <a class="el" href="group__traversal.html#ga17f951dcf47161a07accd081699eff6f">tlv_query_diagnostic_t</a> *diagnostic)</td></tr>
 <tr class="memdesc:gacfd20b2dc49c859123cbe8c22d30708a"><td class="mdescLeft">&#160;</td><td class="mdescRight">Feed one complete canonical event and report whether its node matches.  <br /></td></tr>
 <tr class="separator:gacfd20b2dc49c859123cbe8c22d30708a"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:ga02b7cb4da27b1a6d0baab6dfab7bf0f7" id="r_ga02b7cb4da27b1a6d0baab6dfab7bf0f7"><td class="memItemLeft" align="right" valign="top"><a class="el" href="group__core.html#ga164d2817a32e5d7b7aa1472e887b47c3">tlv_result_t</a>&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="group__traversal.html#ga02b7cb4da27b1a6d0baab6dfab7bf0f7">tlv_query_exec_selected</a> (const <a class="el" href="group__traversal.html#gacff0d3ed0386caf2464d098ae952ebb7">tlv_query_exec_t</a> *exec, <a class="el" href="tree_8h.html#a3b1e811784f5c9b0085cb0144a0c57c2">tlv_tree_event_t</a> *event)</td></tr>
+<tr class="memdesc:ga02b7cb4da27b1a6d0baab6dfab7bf0f7"><td class="mdescLeft">&#160;</td><td class="mdescRight">Read the node selected by the most recent successful S1 feed.  <br /></td></tr>
+<tr class="separator:ga02b7cb4da27b1a6d0baab6dfab7bf0f7"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:gacd0d50eee45caf3fd146cbde54c5cc1f" id="r_gacd0d50eee45caf3fd146cbde54c5cc1f"><td class="memItemLeft" align="right" valign="top"><a class="el" href="group__core.html#ga164d2817a32e5d7b7aa1472e887b47c3">tlv_result_t</a>&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="group__traversal.html#gacd0d50eee45caf3fd146cbde54c5cc1f">tlv_query_exec_finish</a> (<a class="el" href="group__traversal.html#gacff0d3ed0386caf2464d098ae952ebb7">tlv_query_exec_t</a> *exec, <a class="el" href="group__traversal.html#ga17f951dcf47161a07accd081699eff6f">tlv_query_diagnostic_t</a> *diagnostic)</td></tr>
 <tr class="memdesc:gacd0d50eee45caf3fd146cbde54c5cc1f"><td class="mdescLeft">&#160;</td><td class="mdescRight">Complete the virtual root at final EOF and require balanced events.  <br /></td></tr>
 <tr class="separator:gacd0d50eee45caf3fd146cbde54c5cc1f"><td class="memSeparator" colspan="2">&#160;</td></tr>
@@ -346,7 +358,7 @@ Functions</h2></td></tr>
 <tr class="memdesc:ga44a2f28463e80909294fcff80bf03fec"><td class="mdescLeft">&#160;</td><td class="mdescRight">Test existence with explicit full-validation or early-return behavior.  <br /></td></tr>
 <tr class="separator:ga44a2f28463e80909294fcff80bf03fec"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:ga828810e1faea5a6ddc9e6ed2d2c8f1b4" id="r_ga828810e1faea5a6ddc9e6ed2d2c8f1b4"><td class="memItemLeft" align="right" valign="top"><a class="el" href="group__core.html#ga164d2817a32e5d7b7aa1472e887b47c3">tlv_result_t</a>&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="group__traversal.html#ga828810e1faea5a6ddc9e6ed2d2c8f1b4">tlv_query_eval_size</a> (const <a class="el" href="group__traversal.html#ga45bdea1007b9780dba5559a2190f569d">tlv_query_program_t</a> *program, size_t max_depth, size_t max_nodes, size_t *bytes, size_t *alignment)</td></tr>
-<tr class="memdesc:ga828810e1faea5a6ddc9e6ed2d2c8f1b4"><td class="mdescLeft">&#160;</td><td class="mdescRight">Discover retained-event workspace for arbitrary compiled F2 results.  <br /></td></tr>
+<tr class="memdesc:ga828810e1faea5a6ddc9e6ed2d2c8f1b4"><td class="mdescLeft">&#160;</td><td class="mdescRight">Discover retained-event workspace for compiled Query results.  <br /></td></tr>
 <tr class="separator:ga828810e1faea5a6ddc9e6ed2d2c8f1b4"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:ga9bd0ff8af5e5c70d32e9ebfa380485f5" id="r_ga9bd0ff8af5e5c70d32e9ebfa380485f5"><td class="memItemLeft" align="right" valign="top"><a class="el" href="group__core.html#ga164d2817a32e5d7b7aa1472e887b47c3">tlv_result_t</a>&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="group__traversal.html#ga9bd0ff8af5e5c70d32e9ebfa380485f5">tlv_query_eval_init</a> (const <a class="el" href="group__traversal.html#ga45bdea1007b9780dba5559a2190f569d">tlv_query_program_t</a> *program, const <a class="el" href="group__traversal.html#gaf2f1c0d8fe278eb32c61e19e7b108a48">tlv_query_environment_t</a> *environment, void *storage, size_t capacity, size_t max_depth, size_t max_nodes, size_t max_work, <a class="el" href="group__traversal.html#gacff0d3ed0386caf2464d098ae952ebb7">tlv_query_exec_t</a> **exec)</td></tr>
 <tr class="memdesc:ga9bd0ff8af5e5c70d32e9ebfa380485f5"><td class="mdescLeft">&#160;</td><td class="mdescRight">Initialize retained canonical-event execution and bounded iterative evaluation.  <br /></td></tr>
@@ -468,6 +480,22 @@ Functions</h2></td></tr>
 </div><div class="memdoc">
 
 <p>Closed conversion-function selectors; no arbitrary function execution. </p>
+
+</div>
+</div>
+<a id="ga02827de4b2461e04efd2d10615344210" name="ga02827de4b2461e04efd2d10615344210"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#ga02827de4b2461e04efd2d10615344210">&#9670;&#160;</a></span>tlv_query_decision_timing_t</h2>
+
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname">typedef enum <a class="el" href="group__traversal.html#gadc433791e079a31ea6ca06547dc5cce2">tlv_query_decision_timing</a> <a class="el" href="group__traversal.html#ga02827de4b2461e04efd2d10615344210">tlv_query_decision_timing_t</a></td>
+        </tr>
+      </table>
+</div><div class="memdoc">
+
+<p>Earliest publication frontier for the conservatively selected backend. </p>
 
 </div>
 </div>
@@ -667,7 +695,7 @@ Functions</h2></td></tr>
       </table>
 </div><div class="memdoc">
 
-<p>Program requirements and whole-plan information. </p>
+<p>Program requirements and whole-plan information. S0 publishes matching nodes immediately; S1 waits for an independent scope to close using depth-bounded summaries; S2 retains explicit input-sized descriptors until EOF. D requires Document navigation. These are resource profiles of the complete expression, not language versions. Decision timing states when results may first be delivered; it does not relax borrowed-input lifetime requirements. </p>
 
 </div>
 </div>
@@ -997,6 +1025,30 @@ Functions</h2></td></tr>
 
 </div>
 </div>
+<a id="gadc433791e079a31ea6ca06547dc5cce2" name="gadc433791e079a31ea6ca06547dc5cce2"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#gadc433791e079a31ea6ca06547dc5cce2">&#9670;&#160;</a></span>tlv_query_decision_timing</h2>
+
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname">enum <a class="el" href="group__traversal.html#gadc433791e079a31ea6ca06547dc5cce2">tlv_query_decision_timing</a></td>
+        </tr>
+      </table>
+</div><div class="memdoc">
+
+<p>Earliest publication frontier for the conservatively selected backend. </p>
+<table class="fieldtable">
+<tr><th colspan="2">Enumerator</th></tr><tr><td class="fieldname"><a id="ggadc433791e079a31ea6ca06547dc5cce2af1051c168564a9fb60120416f4a092c0" name="ggadc433791e079a31ea6ca06547dc5cce2af1051c168564a9fb60120416f4a092c0"></a>TLV_QUERY_DECISION_NODE&#160;</td><td class="fielddoc"><p>Complete BEGIN/ELEMENT publication. </p>
+</td></tr>
+<tr><td class="fieldname"><a id="ggadc433791e079a31ea6ca06547dc5cce2a463ee9fba7195c2c4d8ebb111a53e557" name="ggadc433791e079a31ea6ca06547dc5cce2a463ee9fba7195c2c4d8ebb111a53e557"></a>TLV_QUERY_DECISION_SCOPE&#160;</td><td class="fielddoc"><p>Selected root END, or primitive publication. </p>
+</td></tr>
+<tr><td class="fieldname"><a id="ggadc433791e079a31ea6ca06547dc5cce2a0cfb4744a542b4727fd74c2124af9722" name="ggadc433791e079a31ea6ca06547dc5cce2a0cfb4744a542b4727fd74c2124af9722"></a>TLV_QUERY_DECISION_EOF&#160;</td><td class="fielddoc"><p>Final EOF or complete Document snapshot evaluation. </p>
+</td></tr>
+</table>
+
+</div>
+</div>
 <a id="ga66edcf242c8bc06318ff99b24f1ce0ed" name="ga66edcf242c8bc06318ff99b24f1ce0ed"></a>
 <h2 class="memtitle"><span class="permalink"><a href="#ga66edcf242c8bc06318ff99b24f1ce0ed">&#9670;&#160;</a></span>tlv_query_error_kind</h2>
 
@@ -1199,7 +1251,7 @@ Functions</h2></td></tr>
   </table>
   </dd>
 </dl>
-<dl class="section return"><dt>Returns</dt><dd><a class="el" href="group__core.html#gga516c7250563ee9332e2f45f2d203ae61ac763c25dd3e807fae4d8078c3d3e94ed">TLV_OK</a> for a supported F2 program or sizing pass. </dd>
+<dl class="section return"><dt>Returns</dt><dd><a class="el" href="group__core.html#gga516c7250563ee9332e2f45f2d203ae61ac763c25dd3e807fae4d8078c3d3e94ed">TLV_OK</a> for a supported Query program or sizing pass. </dd>
 <dd>
 <a class="el" href="group__core.html#gga516c7250563ee9332e2f45f2d203ae61a6c282cdacb2900685e03295cf378282e">TLV_ERR_UNSUPPORTED_TYPE</a> for recognized later-phase capabilities. </dd>
 <dd>
@@ -1411,8 +1463,8 @@ struct_size must cover the prefix through result_kind. Writes are limited to min
   </table>
   </dd>
 </dl>
-<dl class="section return"><dt>Returns</dt><dd>OK or size/alignment/environment errors. </dd></dl>
-<dl class="section note"><dt>Note</dt><dd>Feed borrows complete events until reset. Input, Source and environment must remain immutable/alive through suspension. Pruning is unavailable; results become public only after balanced EOF and successful evaluation. No allocation occurs. </dd></dl>
+<dl class="section return"><dt>Returns</dt><dd>OK or size/alignment/environment errors. D plans initialize for Document only. </dd></dl>
+<dl class="section note"><dt>Note</dt><dd>Feed borrows complete events until reset. Input, Source and environment must remain immutable/alive through suspension, even when Reader replaces its current window. Retention capacity covers every published node, not just final matches; descriptors and VM node sets are sized by eval_size. Payload bytes are never copied. Overflow reports the named candidates limit and invalidates until reset. No callbacks have run before finalized retained publication; callback effects never roll back. D plans reject event/Reader execution before consuming input. Pruning is unavailable; results become public only after balanced EOF and successful evaluation. No allocation occurs. </dd></dl>
 
 </div>
 </div>
@@ -1460,7 +1512,7 @@ struct_size must cover the prefix through result_kind. Writes are limited to min
       </table>
 </div><div class="memdoc">
 
-<p>Discover retained-event workspace for arbitrary compiled F2 results. </p>
+<p>Discover retained-event workspace for compiled Query results. </p>
 <dl class="params"><dt>Parameters</dt><dd>
   <table class="params">
     <tr><td class="paramdir">[in]</td><td class="paramname">program</td><td>Immutable live program. </td></tr>
@@ -1631,13 +1683,13 @@ struct_size must cover the prefix through result_kind. Writes are limited to min
   <table class="params">
     <tr><td class="paramdir">[in,out]</td><td class="paramname">exec</td><td>Required initialized execution. </td></tr>
     <tr><td class="paramdir">[in]</td><td class="paramname">event</td><td>Required complete event. S0 borrows during this call; retained execution borrows its complete spans until reset. </td></tr>
-    <tr><td class="paramdir">[out]</td><td class="paramname">matched</td><td>Required zero/one result; END never matches. </td></tr>
+    <tr><td class="paramdir">[out]</td><td class="paramname">matched</td><td>Required zero/one result; S1 END selects its original BEGIN. </td></tr>
     <tr><td class="paramdir">[out]</td><td class="paramname">diagnostic</td><td>Optional failure detail. </td></tr>
   </table>
   </dd>
 </dl>
 <dl class="section return"><dt>Returns</dt><dd><a class="el" href="group__core.html#gga516c7250563ee9332e2f45f2d203ae61ac763c25dd3e807fae4d8078c3d3e94ed">TLV_OK</a>; <a class="el" href="group__core.html#gga516c7250563ee9332e2f45f2d203ae61a83b538a74c7058e8863132a6410b9d65">TLV_ERR_INVALID_ARG</a> for invalid sequence; <a class="el" href="group__core.html#gga516c7250563ee9332e2f45f2d203ae61a1e32eada09d59d834a685da1adeaaf97">TLV_ERR_LIMIT</a> for depth/elements/work; <a class="el" href="group__core.html#gga516c7250563ee9332e2f45f2d203ae61a07580ca64f30aa1a72a405fcbca72f10">TLV_ERR_INVALID_VALUE</a> for unavailable Source metadata; <a class="el" href="group__core.html#gga516c7250563ee9332e2f45f2d203ae61aa4a514ccb37d17b2cd7c7da47d2eab88">TLV_ERR_NULL_ARG</a> for missing pointers. </dd></dl>
-<dl class="section note"><dt>Note</dt><dd>Errors invalidate execution until reset. S0 retains no borrowed payload; retained execution reports matched=0 and publishes results only after finish. Each node is emitted at most once, in preorder. Skipped END is rejected under the default full-validation policy. Values must be complete contiguous spans. </dd></dl>
+<dl class="section note"><dt>Note</dt><dd>Errors invalidate execution until reset. S1 accepts proven independent root scopes only; use exec_selected for delayed publications. S1 borrows one root's complete spans through its END, requiring stable backing storage across windows. S0 retains no borrowed payload; retained execution reports matched=0 and publishes results only after finish. Each node is emitted at most once, in preorder. Skipped END is rejected under the default full-validation policy. Values must be complete contiguous spans. </dd></dl>
 
 </div>
 </div>
@@ -1774,7 +1826,7 @@ struct_size must cover the prefix through result_kind. Writes are limited to min
       </table>
 </div><div class="memdoc">
 
-<p>Initialize or reset independent S0 execution in caller workspace. </p>
+<p>Initialize or reset independent S0/S1 execution in caller workspace. </p>
 <dl class="params"><dt>Parameters</dt><dd>
   <table class="params">
     <tr><td class="paramdir">[in]</td><td class="paramname">program</td><td>Required immutable program; must remain alive and unchanged throughout execution. Feed does not repeat initialization validation. </td></tr>
@@ -1869,6 +1921,45 @@ struct_size must cover the prefix through result_kind. Writes are limited to min
 
 </div>
 </div>
+<a id="ga02b7cb4da27b1a6d0baab6dfab7bf0f7" name="ga02b7cb4da27b1a6d0baab6dfab7bf0f7"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#ga02b7cb4da27b1a6d0baab6dfab7bf0f7">&#9670;&#160;</a></span>tlv_query_exec_selected()</h2>
+
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname"><a class="el" href="group__core.html#ga164d2817a32e5d7b7aa1472e887b47c3">tlv_result_t</a> tlv_query_exec_selected </td>
+          <td>(</td>
+          <td class="paramtype">const <a class="el" href="group__traversal.html#gacff0d3ed0386caf2464d098ae952ebb7">tlv_query_exec_t</a> *&#160;</td>
+          <td class="paramname"><em>exec</em>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype"><a class="el" href="tree_8h.html#a3b1e811784f5c9b0085cb0144a0c57c2">tlv_tree_event_t</a> *&#160;</td>
+          <td class="paramname"><em>event</em>&#160;</td>
+        </tr>
+        <tr>
+          <td></td>
+          <td>)</td>
+          <td></td><td></td>
+        </tr>
+      </table>
+</div><div class="memdoc">
+
+<p>Read the node selected by the most recent successful S1 feed. </p>
+<dl class="params"><dt>Parameters</dt><dd>
+  <table class="params">
+    <tr><td class="paramdir">[in]</td><td class="paramname">exec</td><td>S1 execution whose most recent feed reported matched=1. </td></tr>
+    <tr><td class="paramdir">[out]</td><td class="paramname">event</td><td>Original complete BEGIN/ELEMENT metadata, unchanged on failure. </td></tr>
+  </table>
+  </dd>
+</dl>
+<dl class="section return"><dt>Returns</dt><dd>OK, NULL argument or invalid state. </dd></dl>
+<dl class="section note"><dt>Note</dt><dd>A matched END selects its original BEGIN. Complete spans borrow stable caller input; feeding another event supersedes this publication. No allocation or payload copy. </dd></dl>
+
+</div>
+</div>
 <a id="gad353ad2d98852e309b413e2e8f9fda58" name="gad353ad2d98852e309b413e2e8f9fda58"></a>
 <h2 class="memtitle"><span class="permalink"><a href="#gad353ad2d98852e309b413e2e8f9fda58">&#9670;&#160;</a></span>tlv_query_exec_size()</h2>
 
@@ -1907,7 +1998,7 @@ struct_size must cover the prefix through result_kind. Writes are limited to min
       </table>
 </div><div class="memdoc">
 
-<p>Discover runtime workspace for a compiled S0 plan and depth capacity. </p>
+<p>Discover runtime workspace for a compiled S0/S1 plan and depth capacity. </p>
 <dl class="params"><dt>Parameters</dt><dd>
   <table class="params">
     <tr><td class="paramdir">[in]</td><td class="paramname">program</td><td>Required live immutable program. </td></tr>

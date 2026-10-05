@@ -942,6 +942,17 @@
 </li>
       
         <li class="md-nav__item">
+  <a href="#compiled-deferred-and-document-queries" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Compiled deferred and Document queries
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
   <a href="#next-step" class="md-nav__link">
     <span class="md-ellipsis">
       
@@ -3348,6 +3359,17 @@
 </li>
       
         <li class="md-nav__item">
+  <a href="#compiled-deferred-and-document-queries" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Compiled deferred and Document queries
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
   <a href="#next-step" class="md-nav__link">
     <span class="md-ellipsis">
       
@@ -3612,6 +3634,39 @@ The public APIs differ in whether they return one match or a collection:</p>
 </div>
 </div>
 </div>
+<h2 id="compiled-deferred-and-document-queries">Compiled deferred and Document queries<a class="headerlink" href="#compiled-deferred-and-document-queries" title="Permanent link">&para;</a></h2>
+<p>The full language uses <code>tlv_query_compile</code> and an immutable caller-stored program.
+Inspect its whole-expression level and decision timing before selecting execution.
+S0/S1 use <code>tlv_query_exec_size/init</code>; S2 uses <code>tlv_query_eval_size/init</code> with an
+explicit capacity for every published node, including nonmatches. Deferred spans
+require stable input storage across Reader windows. Reader callbacks resume after
+STOP; NEED_MORE_DATA preserves execution without exposing a partial event.
+The levels describe resource needs: immediate decisions (S0), decisions when a
+scope closes (S1), retained input descriptors (S2), or Document navigation (D).
+When <code>stable_input_required</code> is nonzero, replacing a Reader window does not release
+old borrowed bytes: keep all published spans alive and immutable until execution reset.</p>
+<p>For a compiled query on an existing Document, initialize retained execution even
+when the program can also stream. First inspect <code>constructed_values_required</code> in
+program info. If zero, pass NULL/zero for Value storage and NULL for Writer staging;
+navigation and counting do not encode the Document.</p>
+<p>Otherwise supply <code>tlv_tree_writer_workspace_t</code> with caller-owned frames, output
+and closing scratch. <code>tlv_document_query_value_size</code> discovers the complete encoded
+Document size. Resize explicitly from reported Writer requirements and repeat if
+needed. Reuse its output as the final Value snapshot: evaluation encodes directly
+into the supplied Value buffer and all Values borrow ranges within it. Staging
+frames/scratch remain required, but staging output is ignored during evaluation.
+Both discovery and execution use no Document allocation.</p>
+<p>Then call <code>tlv_document_query_evaluate</code> with the execution, optional relative
+context handle, Value buffer and Writer workspace. Pull first/all matches with
+<code>tlv_document_query_next</code>, or use <code>tlv_document_query_program_visit</code> for resumable
+callbacks. Scalars use <code>tlv_query_exec_result</code>. Keep the Document and Value storage
+alive and unchanged through consumption. Reinitialize execution after edits or a
+terminal error. Global <code>following</code>/<code>preceding</code> plans require this backend and are
+rejected by Reader execution before input is consumed. Source offsets are unavailable.</p>
+<p>The <a href="../../concepts/query-language/#storage-and-execution">language contract</a>
+defines ordered emission, deduplication, capacity errors and backend costs.
+These compiled APIs currently have a C facade; the path APIs above retain their
+existing language and binding behavior.</p>
 <h2 id="next-step">Next step<a class="headerlink" href="#next-step" title="Permanent link">&para;</a></h2>
 <p>Next: <a href="../codecs/">codecs</a> to interpret selected Values.</p>
 
