@@ -35,6 +35,8 @@ add_library(${PROJECT_NAME} ${_tlv_library_type}
     src/query/query.c
     src/query/compiler.c
     src/query/execute.c
+    src/query/evaluation.c
+    src/query/adapters.c
     src/schema/schema.c
     src/schema/number.c
     src/schema/structure.c
@@ -75,7 +77,7 @@ if(OPENTLV_BLUETOOTH)
         src/builtins/bluetooth/bluetooth_ltv.c src/builtins/bluetooth/ad_data.c)
 endif()
 if(OPENTLV_FORMAT_BER)
-    target_sources(${PROJECT_NAME} PRIVATE src/builtins/asn1/ber.c src/builtins/asn1/identifier.c src/builtins/asn1/asn1_codec.c)
+    target_sources(${PROJECT_NAME} PRIVATE src/builtins/asn1/ber.c src/builtins/asn1/identifier.c src/builtins/asn1/asn1_codec.c src/builtins/asn1/query.c)
 endif()
 if(OPENTLV_FORMAT_DER)
     target_sources(${PROJECT_NAME} PRIVATE src/builtins/asn1/der.c)
@@ -109,7 +111,7 @@ endif()
 if(OPENTLV_EMV)
     target_sources(${PROJECT_NAME} PRIVATE
         src/builtins/emv/format.c
-        src/builtins/emv/emv.c src/builtins/emv/dictionary.c
+        src/builtins/emv/emv.c src/builtins/emv/dictionary.c src/builtins/emv/query.c
         src/builtins/emv/emv_codec.c src/builtins/emv/presentation.c src/builtins/emv/dol.c src/builtins/emv/emv_schema.c)
 endif()
 if(OPENTLV_DOCUMENT)

@@ -1,6 +1,6 @@
 // SPDX-License-Identifier: MIT
 // Copyright (c) 2026 Marek Cingel
-#include "tlv/query/program.h"
+#include "tlv/query/adapters.h"
 #include "../../../tlv/src/query/program_internal.h"
 #include <stdlib.h>
 
@@ -13,6 +13,12 @@ int LLVMFuzzerTestOneInput(const uint8_t* data, size_t size) {
     options.max_tokens = 512;
     options.max_states = 512;
     options.max_nesting = 32;
+    options.max_resolved_tag = 64;
+    size_t                  hook_count;
+    tlv_query_environment_t environment = {0};
+    environment.hooks = tlv_query_builtin_hooks(&hook_count);
+    environment.hook_count = hook_count;
+    options.environment = &environment;
     tlv_query_program_info_t info = {0};
     info.struct_size = sizeof info;
     tlv_query_diagnostic_t diagnostic;
@@ -28,8 +34,14 @@ int LLVMFuzzerTestOneInput(const uint8_t* data, size_t size) {
                            &info, &diagnostic);
     if (rc != TLV_OK) abort();
     tlv_query_exec_t* exec;
-    rc = tlv_query_exec_init((const tlv_query_program_t*)program, workspace, sizeof workspace, 16,
-                             128, 100000, &exec);
+    if (info.level != TLV_QUERY_S0) {
+        void* aligned = (void*)(((uintptr_t)workspace + 15) & ~(uintptr_t)15);
+        rc = tlv_query_eval_init((const tlv_query_program_t*)program, &environment, aligned,
+                                 sizeof workspace - 16, 16, 32, 100000, &exec);
+        if (rc != TLV_OK) return 0;
+    } else
+        rc = tlv_query_exec_init((const tlv_query_program_t*)program, workspace, sizeof workspace,
+                                 16, 128, 100000, &exec);
     if (rc != TLV_OK) abort();
     for (size_t i = 0; i < size && i < 128; ++i) {
         tlv_tree_event_t event = {0};

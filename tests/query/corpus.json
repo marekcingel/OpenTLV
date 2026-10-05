@@ -10,38 +10,62 @@
   "cases": [
     {
       "id": "set-precedence",
-      "rules": ["Q-GRAMMAR-02", "Q-NODE-03"],
+      "rules": [
+        "Q-GRAMMAR-02",
+        "Q-NODE-03"
+      ],
       "query": "//5A | //5A except //5A",
       "wire": "5A00",
-      "matches": [0]
+      "matches": [
+        0
+      ]
     },
     {
       "id": "explicit-set-grouping",
-      "rules": ["Q-GRAMMAR-02", "Q-NODE-03"],
+      "rules": [
+        "Q-GRAMMAR-02",
+        "Q-NODE-03"
+      ],
       "query": "(//5A | //5A) except //5A",
       "wire": "5A00",
       "matches": []
     },
     {
       "id": "signed-boundaries",
-      "rules": ["Q-VALUE-01", "Q-FUNCTION-02"],
+      "rules": [
+        "Q-VALUE-01",
+        "Q-FUNCTION-02"
+      ],
       "query": "//5A[@len > -1 and -9223372036854775808 < 9223372036854775807]",
       "wire": "5A001201FF5A0112",
-      "matches": [0, 5]
+      "matches": [
+        0,
+        5
+      ]
     },
     {
       "id": "identity-intersection",
-      "rules": ["Q-NODE-03", "Q-FUNCTION-02"],
+      "rules": [
+        "Q-NODE-03",
+        "Q-FUNCTION-02"
+      ],
       "query": "//5A intersect //70//5A",
       "wire": "70035A01125A0112",
-      "matches": [2]
+      "matches": [
+        2
+      ]
     },
     {
       "id": "identity-difference",
-      "rules": ["Q-NODE-03", "Q-FUNCTION-02"],
+      "rules": [
+        "Q-NODE-03",
+        "Q-FUNCTION-02"
+      ],
       "query": "//5A except //70//5A",
       "wire": "70035A01125A0112",
-      "matches": [5]
+      "matches": [
+        5
+      ]
     },
     {
       "id": "v1-root",
@@ -237,11 +261,12 @@
         "Q-PLAN-01"
       ],
       "query": "//70[not(5A)] | //5A",
-      "wire": "",
-      "diagnostic": {
-        "code": 15,
-        "kind": 2
-      }
+      "wire": "70035A011270005A0113",
+      "matches": [
+        2,
+        5,
+        7
+      ]
     },
     {
       "id": "typed-function",
@@ -249,11 +274,10 @@
         "Q-FUNCTION-02"
       ],
       "query": "//5A[num(.) > 10]",
-      "wire": "",
-      "diagnostic": {
-        "code": 15,
-        "kind": 2
-      }
+      "wire": "5A010B5A0109",
+      "matches": [
+        0
+      ]
     },
     {
       "id": "variable",
@@ -313,10 +337,202 @@
     },
     {
       "id": "byte-order-length-and-not",
-      "rules": ["Q-VALUE-02", "Q-FUNCTION-02"],
+      "rules": [
+        "Q-VALUE-02",
+        "Q-FUNCTION-02"
+      ],
       "query": "//5A[not(@len=0) and len(value())=2 and value()>=x'10']",
       "wire": "5A0212345A00",
-      "matches": [0]
+      "matches": [
+        0
+      ]
+    },
+    {
+      "id": "f2-count",
+      "rules": [
+        "Q-FUNCTION-02"
+      ],
+      "query": "count(//5A)",
+      "wire": "5A01125A0134",
+      "matches": "int:2"
+    },
+    {
+      "id": "f2-empty",
+      "rules": [
+        "Q-FUNCTION-02"
+      ],
+      "query": "empty(//84)",
+      "wire": "5A0112",
+      "matches": "bool:1"
+    },
+    {
+      "id": "f2-exists",
+      "rules": [
+        "Q-FUNCTION-02"
+      ],
+      "query": "exists(//5A)",
+      "wire": "5A0112",
+      "matches": "bool:1"
+    },
+    {
+      "id": "f2-bcd",
+      "rules": [
+        "Q-FUNCTION-02"
+      ],
+      "query": "bcd(x'1234')",
+      "wire": "",
+      "matches": "int:1234"
+    },
+    {
+      "id": "f2-num",
+      "rules": [
+        "Q-FUNCTION-02"
+      ],
+      "query": "num(x'FF')",
+      "wire": "",
+      "matches": "int:-1"
+    },
+    {
+      "id": "f2-text",
+      "rules": [
+        "Q-FUNCTION-02"
+      ],
+      "query": "text(x'610062')",
+      "wire": "",
+      "matches": "string:610062"
+    },
+    {
+      "id": "f2-value",
+      "rules": [
+        "Q-FUNCTION-02"
+      ],
+      "query": "value(//5A)",
+      "wire": "5A021234",
+      "matches": "bytes:1234"
+    },
+    {
+      "id": "f2-tag",
+      "rules": [
+        "Q-FUNCTION-02"
+      ],
+      "query": "tag(//5A)",
+      "wire": "5A0112",
+      "matches": "bytes:5a"
+    },
+    {
+      "id": "f2-boolean",
+      "rules": [
+        "Q-FUNCTION-02"
+      ],
+      "query": "true and not(false)",
+      "wire": "",
+      "matches": "bool:1"
+    },
+    {
+      "id": "f2-last",
+      "rules": [
+        "Q-FUNCTION-02"
+      ],
+      "query": "(//5A)[position()=last()]",
+      "wire": "5A01125A0134",
+      "matches": [
+        3
+      ]
+    },
+    {
+      "id": "f2-step-position",
+      "rules": [
+        "Q-FUNCTION-02"
+      ],
+      "query": "//5A[2]",
+      "wire": "70065A01125A01345A0156",
+      "matches": [
+        5
+      ]
+    },
+    {
+      "id": "f2-global-position",
+      "rules": [
+        "Q-FUNCTION-02"
+      ],
+      "query": "(//5A)[2]",
+      "wire": "70035A01125A0134",
+      "matches": [
+        5
+      ]
+    },
+    {
+      "id": "f2-deferred-except",
+      "rules": [
+        "Q-FUNCTION-02"
+      ],
+      "query": "//70[empty(5A)] except //70[@len>0]",
+      "wire": "70005A0112",
+      "matches": [
+        0
+      ]
+    },
+    {
+      "id": "f2-deferred-intersect",
+      "rules": [
+        "Q-FUNCTION-02"
+      ],
+      "query": "//70[exists(5A)] intersect //70[@len>0]",
+      "wire": "70035A01127000",
+      "matches": [
+        0
+      ]
+    },
+    {
+      "id": "f2-string",
+      "rules": [
+        "Q-FUNCTION-02"
+      ],
+      "query": "'a\\'b' = \"a'b\"",
+      "wire": "",
+      "matches": "bool:1"
+    },
+    {
+      "id": "f2-dynamic-pattern",
+      "rules": [
+        "Q-FUNCTION-02"
+      ],
+      "query": "contains(x'12341234', substr(x'003412', 1))",
+      "wire": "",
+      "matches": "bool:1"
+    },
+    {
+      "id": "f2-candidate-bool",
+      "rules": [
+        "Q-FUNCTION-02"
+      ],
+      "query": "//5A[true != false]",
+      "wire": "5A0112",
+      "matches": [
+        0
+      ]
+    },
+    {
+      "id": "f2-candidate-string",
+      "rules": [
+        "Q-FUNCTION-02"
+      ],
+      "query": "//5A['a' < 'b']",
+      "wire": "5A0112",
+      "matches": [
+        0
+      ]
+    },
+    {
+      "id": "f2-candidate-tag",
+      "rules": [
+        "Q-FUNCTION-02"
+      ],
+      "query": "//5A[tag() = x'5A']",
+      "wire": "5A0112",
+      "matches": [
+        0
+      ]
     }
   ]
 }

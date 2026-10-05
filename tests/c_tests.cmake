@@ -65,6 +65,7 @@ set(SOURCES
     packed_field_test.cpp
     query/query_test.cpp
     query/program_test.cpp
+    query/f2_test.cpp
     reader/reader_test.cpp
     reader/incremental_test.cpp
     reader/tree_test.cpp

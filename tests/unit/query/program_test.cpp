@@ -210,7 +210,8 @@ TEST(Unit_Tlv_QueryProgram, SetOperationsUseNodeIdentityAndSourceOrder) {
     EXPECT_EQ((std::vector<size_t>{5}), run(p, data));
     ASSERT_EQ(TLV_OK, p.compile("(//5A | //5A) intersect (//5A | //70)"));
     EXPECT_EQ((std::vector<size_t>{2, 5}), run(p, data));
-    EXPECT_EQ(TLV_ERR_UNSUPPORTED_TYPE, p.compile("//5A except //70[not(5A)]"));
+    EXPECT_EQ(TLV_OK, p.compile("//5A except //70[not(5A)]"));
+    EXPECT_EQ(TLV_QUERY_D, p.info.level);
 }
 TEST(Unit_Tlv_QueryProgram, TypedBindingsAreIndependentAndNeverQueryText) {
     tlv_query_variable_t        variables[] = {{"aid", TLV_QUERY_RESULT_BYTES},
@@ -337,15 +338,16 @@ TEST(Unit_Tlv_QueryProgram, MissingBindingsDoNotAdvanceReader) {
 }
 TEST(Unit_Tlv_QueryProgram, UnsupportedFeaturesHavePreciseDiagnostics) {
     Program p;
-    EXPECT_EQ(TLV_ERR_UNSUPPORTED_TYPE, p.compile("//70[not(5A)] | //5A"));
-    EXPECT_EQ(TLV_QUERY_ERROR_CAPABILITY, p.diagnostic.kind);
-    EXPECT_EQ(TLV_QUERY_S2, p.info.level);
+    EXPECT_EQ(TLV_OK, p.compile("//70[not(5A)] | //5A"));
+    EXPECT_EQ(TLV_QUERY_D, p.info.level);
+    size_t bytes, alignment;
+    EXPECT_EQ(TLV_ERR_UNSUPPORTED_TYPE, tlv_query_exec_size(p.get(), 1, &bytes, &alignment));
     EXPECT_EQ(TLV_ERR_UNSUPPORTED_TYPE, p.compile("//5A[num(.) > $min]"));
     EXPECT_EQ(TLV_QUERY_ERROR_CAPABILITY, p.diagnostic.kind);
     EXPECT_EQ(TLV_ERR_INVALID_ARG, p.compile("//5A[@len > 1"));
     EXPECT_EQ(TLV_QUERY_ERROR_SYNTAX, p.diagnostic.kind);
-    EXPECT_EQ(TLV_ERR_UNSUPPORTED_TYPE, p.compile("//5A[1]"));
-    EXPECT_EQ(TLV_QUERY_S1, p.info.level);
+    EXPECT_EQ(TLV_OK, p.compile("//5A[1]"));
+    EXPECT_EQ(TLV_QUERY_D, p.info.level);
     EXPECT_EQ(TLV_ERR_INVALID_ARG, p.compile("//9F?"));
     EXPECT_EQ(TLV_ERR_INVALID_ARG, p.compile("//tag-mask(x'00', x'FFFF')"));
     EXPECT_EQ(TLV_ERR_INVALID_ARG, p.compile("//tag-range(x'FF', x'00')"));
@@ -353,7 +355,8 @@ TEST(Unit_Tlv_QueryProgram, UnsupportedFeaturesHavePreciseDiagnostics) {
     EXPECT_EQ(TLV_QUERY_ERROR_SYNTAX, p.diagnostic.kind);
     EXPECT_EQ(TLV_ERR_UNSUPPORTED_TYPE, p.compile("70/(//5A)"));
     EXPECT_EQ(TLV_QUERY_ERROR_CAPABILITY, p.diagnostic.kind);
-    EXPECT_EQ(TLV_ERR_UNSUPPORTED_TYPE, p.compile("//5A[ancestor::70[@len=3]]"));
+    EXPECT_EQ(TLV_OK, p.compile("//5A[ancestor::70[@len=3]]"));
+    EXPECT_EQ(TLV_QUERY_D, p.info.level);
 }
 
 TEST(Unit_Tlv_QueryProgram, CapacityAndNestingBoundariesPreserveStorage) {
@@ -437,11 +440,13 @@ TEST(Unit_Tlv_QueryProgram, ExplicitNumericAxesRemainTagTests) {
     for (const auto& text : {std::string("//70[50]"), std::string("//70[child::50]"),
                              std::string("//70[child:: 50]")}) {
         Program p;
-        EXPECT_EQ(TLV_ERR_UNSUPPORTED_TYPE, p.compile(text));
-        ASSERT_NE(nullptr, p.diagnostic.expected);
-        EXPECT_EQ(text.find("::") == std::string::npos,
-                  std::strcmp(p.diagnostic.expected, "positional predicate execution") == 0);
-        EXPECT_EQ(TLV_QUERY_S1, p.info.level);
+        ASSERT_EQ(TLV_OK, p.compile(text));
+        EXPECT_EQ(TLV_QUERY_D, p.info.level);
+        const query_node_t* nodes = query_nodes(p.get());
+        int                 literal = 0;
+        for (size_t i = 0; i < p.info.states; ++i)
+            if (nodes[i].op == Q_LITERAL) literal = 1;
+        EXPECT_EQ(text.find("::") == std::string::npos, literal != 0);
     }
 }
 

@@ -125,6 +125,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Added
 
+- Complete Query F2 with finalized scalar results, cardinality-checked conversions, positional functions, compile-time names and explicit codec/tag environments. Add bounded retained-event evaluation for deferred ordered node sets, runtime byte patterns and inspectable conservative optimization. Query callers must rebuild for the extended options and diagnostics. (#520)
 - Expose unique referenced Query variable requirements and size binding workspace by unique variables rather than expression nodes. (#520, #526)
 - Add typed integer, byte and UTF-8 string Query variable declarations and independent borrowed execution bindings, signed int64 comparisons with overflow checks, and ordered S0 node intersection and difference. (#520)
 - Add caller-stored compiled Query programs and bounded S0 execution over canonical Tree events, with descendant/union selection, metadata and byte predicates, structured diagnostics and an independent conformance corpus. (#519)
