@@ -4,13 +4,25 @@
 #include "../utf8_internal.h"
 #include <stdio.h>
 
-/* The reference backend retains canonical events, never reparses wire bytes.
+/* The shared retained backend indexes canonical events, never reparses wire bytes.
    Every evaluation frame has explicit bounded node sets. Child references are
    strictly backward in the immutable image; no recursion or VM back edges. */
 typedef struct retained_node {
     tlv_tree_event_t event;
     size_t parent, end, sibling;
+    void* handle;
 } retained_node_t;
+size_t query_candidate_size(void) {
+    return sizeof(retained_node_t);
+}
+size_t query_candidate_alignment(void) {
+    struct alignment_probe {
+        char prefix;
+        retained_node_t node;
+    };
+    return offsetof(struct alignment_probe, node);
+}
+
 typedef struct eval_frame {
     uint32_t instruction, args[3];
     size_t context, position, last, stage, cursor, ordinal, length, arg_count;
@@ -35,7 +47,8 @@ static uint8_t* eval_base(tlv_query_exec_t* e) {
 }
 static retained_node_t* eval_nodes(tlv_query_exec_t* e) {
     return (retained_node_t*)(((uintptr_t)(eval_base(e) +
-                                           align16(e->depth_capacity * e->program->count)) +
+                                           align16(e->depth_capacity *
+                                                   (e->program->count + sizeof(size_t)))) +
                                15) &
                               ~(uintptr_t)15);
 }
@@ -68,7 +81,7 @@ tlv_result_t tlv_query_eval_size(const tlv_query_program_t* p, size_t depth, siz
         add_size(&size, p->pattern_capacity, sizeof(size_t)) != TLV_OK)
         return TLV_ERR_OVERFLOW;
     size_t states = 0;
-    if (add_size(&states, depth + 1, p->count) != TLV_OK || states > SIZE_MAX - 15)
+    if (add_size(&states, depth + 1, p->count + sizeof(size_t)) != TLV_OK || states > SIZE_MAX - 15)
         return TLV_ERR_OVERFLOW;
     if (add_size(&size, 1, align16(states)) != TLV_OK || add_size(&size, 1, 15) != TLV_OK ||
         add_size(&size, nodes + 1, sizeof(retained_node_t)) != TLV_OK ||
@@ -152,35 +165,27 @@ tlv_result_t query_retained_feed(tlv_query_exec_t* e, const tlv_tree_event_t* ev
     if (event->depth >= e->depth_capacity)
         return query_limit(d, "depth", e->depth_capacity - 1, 0, 0);
     if (event->skipped) return TLV_ERR_INVALID_ARG;
-    tlv_result_t work =
-        eval_charge(e, e->elements + 1, &query_nodes(e->program)[e->program->root], d);
+    tlv_result_t work = eval_charge(e, 1, &query_nodes(e->program)[e->program->root], d);
     if (work != TLV_OK) return work;
     retained_node_t* nodes = eval_nodes(e);
     if (event->kind == TLV_TREE_END) {
         if (!e->open || event->depth != e->open - 1) return TLV_ERR_INVALID_ARG;
-        /* END identifies the newest still-open BEGIN at this depth. */
-        for (size_t i = e->elements; i; --i)
-            if (nodes[i - 1].event.kind == TLV_TREE_BEGIN &&
-                nodes[i - 1].event.depth == event->depth && nodes[i - 1].end == SIZE_MAX) {
-                nodes[i - 1].end = e->elements;
-                return TLV_OK;
-            }
-        return TLV_ERR_INVALID_ARG;
+        size_t index = ((size_t*)(eval_base(e)))[event->depth];
+        nodes[index].end = e->elements;
+        return TLV_OK;
     }
     if (event->depth != e->open ||
         (event->kind != TLV_TREE_BEGIN && event->kind != TLV_TREE_ELEMENT))
         return TLV_ERR_INVALID_ARG;
-    if (e->elements == e->node_capacity) return query_limit(d, "nodes", e->node_capacity, 0, 0);
+    if (e->elements == e->node_capacity)
+        return query_limit(d, "candidates", e->node_capacity, 0, 0);
     retained_node_t* n = &nodes[e->elements];
     n->event = *event;
     n->parent = e->node_capacity;
     n->end = event->kind == TLV_TREE_BEGIN ? SIZE_MAX : e->elements + 1;
     n->sibling = eval_indexes(e)[event->depth];
-    for (size_t i = e->elements; i; --i)
-        if (nodes[i - 1].event.kind == TLV_TREE_BEGIN && nodes[i - 1].end == SIZE_MAX) {
-            n->parent = i - 1;
-            break;
-        }
+    if (event->depth) n->parent = ((size_t*)eval_base(e))[event->depth - 1];
+    if (event->kind == TLV_TREE_BEGIN) ((size_t*)eval_base(e))[event->depth] = e->elements;
     return TLV_OK;
 }
 static size_t set_count(tlv_query_exec_t* e, const uint8_t* set) {
@@ -361,16 +366,46 @@ tlv_result_t query_retained_finish(tlv_query_exec_t* e, tlv_query_diagnostic_t* 
                 for (size_t i = 0; i < e->elements; ++i) {
                     rc = eval_charge(e, 1 + nodes[i].event.element.tag.size, n, d);
                     if (rc != TLV_OK) return eval_failure(e, f, rc, d);
-                    int candidate =
-                        n->axis == A_SELF       ? i == f->context
-                        : n->axis == A_CHILD    ? nodes[i].parent == f->context
-                        : n->axis == A_DESC     ? (f->context == virtual_root ||
-                                                   (i > f->context && i < nodes[f->context].end))
-                        : n->axis == A_ANCESTOR ? (f->context < e->elements && i < f->context &&
-                                                   nodes[i].end > f->context)
-                                                : 0;
+                    int candidate = 0;
+                    switch (n->axis) {
+                        case A_SELF: candidate = i == f->context; break;
+                        case A_CHILD: candidate = nodes[i].parent == f->context; break;
+                        case A_DESC:
+                        case A_DESC_SELF:
+                            candidate = f->context == virtual_root ||
+                                        (i >= f->context + (n->axis == A_DESC) &&
+                                         i < nodes[f->context].end);
+                            break;
+                        case A_PARENT:
+                            candidate = f->context < e->elements && i == nodes[f->context].parent;
+                            break;
+                        case A_ANCESTOR:
+                        case A_ANCESTOR_SELF:
+                            candidate = f->context < e->elements &&
+                                        (i < f->context ||
+                                         (i == f->context && n->axis == A_ANCESTOR_SELF)) &&
+                                        nodes[i].end > f->context;
+                            break;
+                        case A_FOLLOW_SIBLING:
+                        case A_PRECEDE_SIBLING:
+                            candidate =
+                                f->context < e->elements &&
+                                nodes[i].parent == nodes[f->context].parent &&
+                                (n->axis == A_FOLLOW_SIBLING ? i > f->context : i < f->context);
+                            break;
+                        case A_FOLLOW:
+                            candidate = f->context < e->elements && i >= nodes[f->context].end;
+                            break;
+                        case A_PRECEDE:
+                            candidate = f->context < e->elements && i < f->context &&
+                                        nodes[i].end <= f->context;
+                            break;
+                    }
+                    int abbreviation = n->axis == A_PARENT && n->end - n->begin == 2 &&
+                                       query_text(e->program)[n->begin] == '.';
                     int match =
-                        n->resolved
+                        abbreviation ? 1
+                        : n->resolved
                             ? query_tag_test(nodes[i].event.element.tag,
                                              query_payload(e->program) + n->data_offset,
                                              n->data_size, 0)
@@ -379,6 +414,10 @@ tlv_result_t query_retained_finish(tlv_query_exec_t* e, tlv_query_diagnostic_t* 
                                              n->end - n->begin, 1);
                     out[i] = (uint8_t)(candidate && match);
                 }
+                if (n->axis == A_PARENT && f->context < e->elements &&
+                    nodes[f->context].parent == virtual_root && n->end - n->begin == 2 &&
+                    query_text(e->program)[n->begin] == '.')
+                    out[virtual_root] = 1;
                 goto complete;
             }
             if (n->op == Q_ROOT || n->op == Q_SELF) {
@@ -593,9 +632,11 @@ tlv_result_t query_retained_finish(tlv_query_exec_t* e, tlv_query_diagnostic_t* 
         }
         if (f->stage == 3) {
             uint32_t axis = n->left;
-            while (instructions[axis].op == Q_FILTER) axis = instructions[axis].left;
-            int reverse = n->op == Q_FILTER && instructions[axis].op == Q_TEST &&
-                          instructions[axis].axis == A_ANCESTOR;
+            while (instructions[axis].op == Q_FILTER && !instructions[axis].grouped)
+                axis = instructions[axis].left;
+            int reverse = n->op == Q_FILTER && !instructions[axis].grouped &&
+                          instructions[axis].op == Q_TEST &&
+                          query_reverse_axis(instructions[axis].axis);
             while (f->cursor <= e->node_capacity &&
                    !saved[reverse ? e->node_capacity - f->cursor : f->cursor])
                 ++f->cursor;
@@ -610,7 +651,6 @@ tlv_result_t query_retained_finish(tlv_query_exec_t* e, tlv_query_diagnostic_t* 
         return TLV_ERR_INVALID_ARG;
     complete:
         if (f->value.kind == V_NODE) {
-            out[virtual_root] = n->op == Q_ROOT || n->op == Q_SELF ? out[virtual_root] : 0;
             f->value.number = set_count(e, out) != 0;
         }
         if (!top) break;
@@ -671,4 +711,22 @@ tlv_result_t tlv_query_program_explain(const tlv_query_program_t* p, char* outpu
     }
     output[total] = 0;
     return TLV_OK;
+}
+
+void query_document_handle(tlv_query_exec_t* e, void* handle) {
+    eval_nodes(e)[e->elements - 1].handle = handle;
+}
+tlv_result_t query_document_next(tlv_query_exec_t* e, void** handle) {
+    if (!e || !handle) return TLV_ERR_NULL_ARG;
+    if (!e->document_backend || !e->finished || e->invalid ||
+        e->result.kind != TLV_QUERY_RESULT_NODES)
+        return TLV_ERR_INVALID_ARG;
+    while (e->result_cursor < e->elements) {
+        size_t i = e->result_cursor++;
+        if (frame_set(e, 0, 0)[i]) {
+            *handle = eval_nodes(e)[i].handle;
+            return TLV_OK;
+        }
+    }
+    return TLV_ERR_END_OF_BUFFER;
 }

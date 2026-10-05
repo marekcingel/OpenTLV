@@ -92,7 +92,7 @@ hexadecimal spellings such as `BAD` cannot silently become a truncated tag.
 not a TLV Element and has no Tag, Value or Source. Absolute paths begin there.
 The default relative context is that same virtual root. Streaming relative context can select a node by its zero-based preorder identity
 using `tlv_query_exec_context` before feeding events. Absolute paths still use
-the virtual root; Document handle contexts belong to the later Document backend.
+the virtual root; Document execution selects a live node handle with `tlv_document_query_evaluate`.
 
 **Q-NODE-02.** Tags are byte strings, compared without conversion to host
 integers. Wildcard `*` includes absent and explicitly empty identifiers;
@@ -116,9 +116,12 @@ order before the final result is normalized to document order. Consequently
 
 **Q-CONTEXT-02.** S0 supports ancestor tests inside predicates as evidence.
 Retained F2 also evaluates filtered ancestor sequences, using nearest-ancestor
-position first and normalizing published results to document order. Parent,
-sibling and global reverse axes and nested absolute paths remain explicit F3
-capabilities. Execution starts at the whole root sequence and can select a
+position first and normalizing published results to document order. F3 implements parent, ancestor-or-self, descendant-or-self, sibling and global
+axes and nested absolute expressions. Reverse-axis predicates use nearest-first
+axis order; parentheses normalize the selected sequence before a global predicate.
+Following excludes the context's descendants; preceding excludes its ancestors.
+The virtual root is navigable with `..`, but never published as a TLV result.
+Explicit tag tests, including `parent::*`, test concrete nodes only. Execution starts at the whole root sequence and can select a
 relative context by preorder identity; it does not reinterpret an interior
 Reader cursor as a root.
 
@@ -221,11 +224,59 @@ complete node publication; S1 retains bounded depth summaries for scope evidence
 S2 requires explicit candidate capacity; D performs Document navigation with
 work bounds. Ordered unions involving undecided ancestors can force S2/D even
 if their individual branches appear S1. `//70[not(5A)] | //9F02` cannot promise
-an unbuffered S1 ordered output. Use `tlv_query_exec_size/init` for S0 and `tlv_query_eval_size/init` for arbitrary
-F2 expressions. The latter is a conservative D plan over explicitly retained
-canonical events: it consumes the full input before exposing finalized results.
-It does not construct a Document or reparse wire bytes. S1/S2 streaming summary
-engines and F3 reverse/sibling/global axes remain separate capabilities.
+an unbuffered S1 ordered output. Use `tlv_query_exec_size/init` for S0/S1, and `tlv_query_eval_size/init` for S2
+or Document execution. S0 also proves unfiltered preceding-sibling existence
+inside local predicates with per-depth evidence, without retaining past nodes.
+History projections and filtered sibling evidence use S2.
+
+The proven S1 subset is one root tag selection with one predicate composed of
+child/descendant tests, `not`, `exists`, `empty`, `count`, integer/boolean literals,
+comparisons and eager boolean operators. For example, `70[not(5A)]`,
+`A5[child::88]`, and `70[count(descendant::5A)>1]` decide at their END.
+Selected root scopes cannot overlap, so scope completion also preserves preorder.
+Nested selection contexts, unions, last-dependent predicates, projections and
+other compositions conservatively use S2; no input-dependent queue is labelled S1.
+`[88]` remains the decimal positional predicate, including after `A5`.
+S1 primitive roots decide at publication because they have no children.
+Empty constructed roots decide at END; EOF completes the virtual root.
+Program info exposes decision timing, frame state slots, candidate descriptor
+size/alignment and stable-input requirements. Source offsets never determine order.
+
+S2 retains every published node in caller-sized descriptors and uses explicit
+bounded VM node sets as its ordered frontier. An earlier unresolved selection
+prevents any callback until balanced final EOF and successful evaluation. The
+virtual root's completion deterministically releases ordered unique results;
+STOP resumes the finalized cursor. Candidate capacity includes nonmatching nodes.
+Overflow reports `candidates`, invalidates execution until reset and emits no
+new callbacks. Previously emitted callbacks from other execution profiles are
+never rolled back. Descriptors borrow complete spans; there is no hidden payload
+copy or source recovery from offsets. All source and Format storage must remain
+alive and immutable until reset, including across Reader window replacement.
+This stable-input contract is independent of descriptor/workspace capacity.
+
+D is reserved for global `preceding`/`following` navigation. Event feed and
+Reader visit reject D before consuming input, including on empty input.
+`tlv_document_query_evaluate` consumes the same program and iterative VM,
+using public Document navigation and preorder identity. Initialize its workspace
+with `eval_size/init`; optionally supply a context handle in that Document.
+`tlv_document_query_next` supplies first/all/pull iteration, and
+`tlv_document_query_program_visit` supports STOP/resume. Scalars use
+`tlv_query_exec_result`. The Document and execution storage are separate.
+
+Document primitive Values borrow owning nodes. Constructed Values are regenerated
+by the existing Writer into the caller's separate Value buffer, sized by
+`tlv_document_query_value_size` using a caller-provided Tree Writer staging
+workspace (frames, output and closing scratch). Discovery reports Writer capacity
+requirements for explicit resize/replay; it never uses the owning Document allocator.
+Evaluation also requires that staging workspace; no Query wire decoder or owning
+copy is added.
+This reproduces current Document encoding semantics, including insertion/removal,
+rather than historical noncanonical wire spellings. Immutable canonical inputs
+have equivalent streaming/Document results and types. Source is unavailable in
+Document, so `@offset`/`@hlen` report Source diagnostics instead of fabricated
+locations; other failures use Query spans without a source location. A foreign
+context or used execution is rejected. Document/Value storage must remain alive
+and unchanged during iteration and callbacks.
 
 **Q-LIMIT-01.** Defaults bound text, tokens, syntactic nesting and states.
 Runtime depth, element count and work are caller parameters. Exact total runtime
@@ -243,7 +294,10 @@ construct a Document.
 **Q-EVENT-02.** NEED_MORE_DATA publishes no partial event. Callback STOP consumes
 the matching event exactly once; retaining execution and Reader permits resume.
 Replacement input obeys the Reader frontier and unfinished-extent retention
-rules. S0 retains boolean state and sibling indices. Retained evaluation also stores
+rules. S0 retains boolean state and sibling indices. S1 borrows one root's
+complete metadata until its END, requiring stable storage throughout that scope;
+raw feed retrieves a matched original BEGIN with `tlv_query_exec_selected`.
+Retained evaluation also stores
 borrowed Element/Source/Value pointers until reset; every published input span
 must remain immutable and alive, even after the Reader frontier moves. A non-resumable error invalidates execution until
 reset; parse/compile failures preserve existing outputs as documented in headers.
@@ -266,8 +320,14 @@ tag bytes and inspected Value bytes. Runtime workspace is O(states × depth)
 plus explicit pattern-prefix scratch. `contains` costs O(Value + pattern);
 other byte primitives charge inspected bytes. Constructed Values overlap, so
 repeated scans may cost input bytes × depth. Work limits bound all executions;
-later global Document axes must publish their own bounds rather than a universal
-O(n) claim. Wrapper or Document ownership allocation is outside the C Query
+Retained feed builds parent/end indexes in O(nodes) with an explicit depth stack.
+The shared VM uses O(states ? nodes + depth ? states) caller storage. It can scan
+nodes for each selected context; arbitrary nested paths can be superlinear.
+Document Value sizing/encoding can take O(nodes squared + regenerated bytes)
+on deeply nested trees. Sizing discovery is outside execution; evaluation charges
+conservative subtree walks, node scans, set operations and encoded bytes
+(including staging capacity per Writer END as an upper bound for moved bytes) to its
+work budget before proceeding. These are bounded costs, not a universal O(n) claim. Wrapper or Document ownership allocation is outside the C Query
 allocation-free boundary.
 
 **Q-ABI-01.** Compile options require the current `struct_size`. Program info

@@ -390,8 +390,10 @@ static tlv_result_t parse(const char* text, const query_token_t* tokens, size_t 
                 uint32_t rhs = values[--vn], lhs = values[--vn];
                 values[vn++] = add_node(nodes, used, Q_FILTER, lhs, rhs, tokens[op.token]);
                 --predicates;
-            } else if (expected || vn != op.base + 1)
-                goto syntax;
+            } else {
+                if (expected || vn != op.base + 1) goto syntax;
+                nodes[values[vn - 1]].grouped = 1;
+            }
             expected = 0;
             after_path = 0;
             continue;
@@ -423,21 +425,9 @@ static tlv_result_t parse(const char* text, const query_token_t* tokens, size_t 
         }
         unsigned axis = A_CHILD;
         if (k == T_WORD && i + 1 < count && tokens[i + 1].kind == T_AXIS) {
-            if (query_word(text, t.begin, t.end, "self"))
-                axis = A_SELF;
-            else if (query_word(text, t.begin, t.end, "descendant"))
-                axis = A_DESC;
-            else if (query_word(text, t.begin, t.end, "ancestor"))
-                axis = A_ANCESTOR;
-            else if (query_word(text, t.begin, t.end, "descendant-or-self") ||
-                     query_word(text, t.begin, t.end, "parent") ||
-                     query_word(text, t.begin, t.end, "ancestor-or-self") ||
-                     query_word(text, t.begin, t.end, "following-sibling") ||
-                     query_word(text, t.begin, t.end, "preceding-sibling") ||
-                     query_word(text, t.begin, t.end, "following") ||
-                     query_word(text, t.begin, t.end, "preceding"))
-                axis = A_OTHER;
-            else if (!query_word(text, t.begin, t.end, "child"))
+            for (axis = A_CHILD; axis <= A_PRECEDE; ++axis)
+                if (query_word(text, t.begin, t.end, query_axis_name(axis))) break;
+            if (axis > A_PRECEDE)
                 return query_error(d, TLV_ERR_INVALID_ARG, TLV_QUERY_ERROR_SYNTAX, t.begin, t.end,
                                    "known axis");
             i += 2;
@@ -450,7 +440,7 @@ static tlv_result_t parse(const char* text, const query_token_t* tokens, size_t 
             op = Q_SELF;
         else if (k == T_DDOT) {
             op = Q_TEST;
-            axis = A_OTHER;
+            axis = A_PARENT;
         } else if (k == T_META)
             op = Q_META;
         else if (k == T_VARIABLE)
@@ -461,18 +451,6 @@ static tlv_result_t parse(const char* text, const query_token_t* tokens, size_t 
             op = Q_STRING;
         else if (k != T_WORD)
             goto syntax;
-        if (axis == A_DESC && !predicates) {
-            if (after_path && on && ops[on - 1].kind == T_SLASH)
-                ops[on - 1].kind = T_DESC;
-            else if (!after_path) {
-                values[vn++] = add_node(nodes, used, Q_ROOT, QUERY_NONE, QUERY_NONE, t);
-                nodes[values[vn - 1]].anchor = 1;
-                query_operator_t prefix = {T_DESC, (uint32_t)i, 0, QUERY_NONE};
-                ops[on++] = prefix;
-                after_path = 1;
-            }
-            axis = A_CHILD;
-        }
         if (op == Q_SELF && !predicates && !after_path) op = Q_ROOT;
         uint32_t n = add_node(nodes, used, op, QUERY_NONE, QUERY_NONE, t);
         nodes[n].axis = axis;
@@ -583,7 +561,13 @@ static tlv_result_t analyze(const char* text, query_node_t* nodes, size_t count,
     for (size_t i = 0; i < count; ++i) {
         query_node_t* n = &nodes[i];
         n->type = V_NODE;
-        if (n->op == Q_TEST) {
+        if (n->op == Q_TEST && n->axis == A_PARENT && n->end - n->begin == 2 &&
+            text[n->begin] == '.' && text[n->begin + 1] == '.') {
+            n->resolved = 1;
+            n->data_offset = (uint32_t)*payload_size;
+            n->data_size = 0;
+        }
+        if (n->op == Q_TEST && !n->resolved) {
             int raw = 1;
             for (size_t j = n->begin; j < n->end; ++j)
                 if (query_hex((unsigned char)text[j]) < 0 && text[j] != '?' && text[j] != '*')
@@ -605,13 +589,13 @@ static tlv_result_t analyze(const char* text, query_node_t* nodes, size_t count,
                            query_hex((unsigned char)text[j + 1]) >= 0)))
                         goto syntax;
             }
-            if (n->axis == A_OTHER || n->axis == A_DESC || (n->axis == A_ANCESTOR && !n->scalar) ||
-                (n->axis == A_CHILD && n->scalar))
-                *level = TLV_QUERY_D;
-            if (n->axis == A_OTHER)
-                return query_error(d, TLV_ERR_UNSUPPORTED_TYPE, TLV_QUERY_ERROR_CAPABILITY,
-                                   n->begin, n->end, "F3 reverse/sibling navigation backend");
         }
+        if (n->op == Q_TEST &&
+            ((n->axis >= A_DESC_SELF && !(n->axis == A_PRECEDE_SIBLING && n->scalar)) ||
+             (n->axis == A_DESC && n->scalar) || (n->axis == A_ANCESTOR && !n->scalar) ||
+             (n->axis == A_CHILD && n->scalar)))
+            *level = TLV_QUERY_D;
+
         if (n->op == Q_VARIABLE) {
             int found = 0;
             for (size_t j = 0; j < o->variable_count; ++j)
@@ -784,7 +768,7 @@ static tlv_result_t analyze(const char* text, query_node_t* nodes, size_t count,
              n->op == Q_EXCEPT) &&
             (nodes[n->left].type != V_NODE || nodes[n->right].type != V_NODE))
             goto types;
-        if (n->op == Q_FILTER && nodes[n->left].axis == A_ANCESTOR) *level = TLV_QUERY_D;
+        if (n->op == Q_FILTER && query_reverse_axis(nodes[n->left].axis)) *level = TLV_QUERY_D;
         if (n->op == Q_FILTER &&
             (nodes[n->left].type != V_NODE ||
              (nodes[n->right].type != V_BOOL && nodes[n->right].type != V_NODE &&
@@ -871,6 +855,16 @@ static tlv_result_t analyze(const char* text, query_node_t* nodes, size_t count,
                            "compatible expression types");
     }
     if (nodes[root].type != V_NODE) *level = TLV_QUERY_D;
+    for (size_t i = 0; i < count; ++i)
+        if (nodes[i].op == Q_ROOT && nodes[i].nested) *level = TLV_QUERY_D;
+    if (*level == TLV_QUERY_D) {
+        *level = TLV_QUERY_S2;
+        for (size_t i = 0; i < count; ++i)
+            if (nodes[i].op == Q_TEST && (nodes[i].axis == A_FOLLOW || nodes[i].axis == A_PRECEDE))
+                *level = TLV_QUERY_D;
+    }
+    if (*level == TLV_QUERY_S2 && query_s1_filter(nodes, count, root, text) != QUERY_NONE)
+        *level = TLV_QUERY_S1;
     return TLV_OK;
 }
 
@@ -920,8 +914,8 @@ tlv_result_t tlv_query_compile(const char* text, size_t size,
             for (size_t j = nodes[n->right].low; j <= n->right; ++j) {
                 query_node_t* step = &nodes[j];
                 if (step->op == Q_ROOT && !step->anchor && text[step->begin] == '/')
-                    return query_error(d, TLV_ERR_UNSUPPORTED_TYPE, TLV_QUERY_ERROR_CAPABILITY,
-                                       step->begin, step->end, "nested absolute path");
+                    step->nested = 1;
+
                 if (step->predicate_guard != QUERY_NONE || step->path_guard != QUERY_NONE) continue;
                 int node_test =
                     step->op == Q_TEST || step->op == Q_SELF ||
@@ -932,6 +926,7 @@ tlv_result_t tlv_query_compile(const char* text, size_t size,
                 if (!node_test) continue;
                 if (step->op == Q_ROOT) step->op = Q_SELF;
                 unsigned kind = n->op;
+                if (n->op == Q_CHILD && step->axis == A_DESC) kind = Q_DESC;
                 if (n->op == Q_CHILD && (step->op == Q_SELF || step->axis == A_SELF)) kind = Q_SELF;
                 step->path_guard = n->left;
                 step->path_kind = kind;
@@ -969,7 +964,14 @@ tlv_result_t tlv_query_compile(const char* text, size_t size,
                                        codec_stride,
                                        o.max_pattern,
                                        optimized,
-                                       used + 1};
+                                       used + 1,
+                                       level >= TLV_QUERY_S2 ? query_candidate_size() : 0,
+                                       level >= TLV_QUERY_S2 ? query_candidate_alignment() : 0,
+                                       used,
+                                       level == TLV_QUERY_S0   ? TLV_QUERY_DECISION_NODE
+                                       : level == TLV_QUERY_S1 ? TLV_QUERY_DECISION_SCOPE
+                                                               : TLV_QUERY_DECISION_EOF,
+                                       level != TLV_QUERY_S0};
     for (size_t i = 0; i < used; ++i) {
         query_node_t* n = &nodes[i];
         if (n->op != Q_VARIABLE) continue;
@@ -993,7 +995,7 @@ tlv_result_t tlv_query_compile(const char* text, size_t size,
         return query_error(d, TLV_ERR_BUFFER_TOO_SHORT, TLV_QUERY_ERROR_STORAGE, 0, 0,
                            "sufficient program capacity");
     tlv_query_program_t p = {QUERY_MAGIC,
-                             3,
+                             4,
                              (uint32_t)used,
                              root,
                              (uint32_t)size,

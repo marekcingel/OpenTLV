@@ -450,3 +450,9 @@ compiled module under `opentlv/_core`, and direct implementation imports use
   reference](../reference/cxx-api.md).
 - [Using OpenTLV from Rust](../guides/rust.md) for a worked example of a
   binding that follows this contract.
+
+Compiled full-language Query execution (`tlv_query_program_*`, S0/S1/S2 and the
+compiled Document backend) is currently a C capability. Its idiomatic facade
+parity is the Query F4 delivery work; the V1 facade rows above do not imply
+compiled-language support. This includes the F3 caller-owned candidate and
+constructed Document Value storage contracts.

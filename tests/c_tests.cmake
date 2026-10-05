@@ -66,6 +66,7 @@ set(SOURCES
     query/query_test.cpp
     query/program_test.cpp
     query/f2_test.cpp
+    query/f3_test.cpp
     reader/reader_test.cpp
     reader/incremental_test.cpp
     reader/tree_test.cpp

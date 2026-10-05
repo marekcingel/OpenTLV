@@ -65,13 +65,43 @@ enum query_token_kind {
     T_AXIS,
     T_END
 };
-enum query_axis { A_CHILD, A_SELF, A_DESC, A_ANCESTOR, A_OTHER };
+enum query_axis {
+    A_CHILD,
+    A_SELF,
+    A_DESC,
+    A_ANCESTOR,
+    A_DESC_SELF,
+    A_PARENT,
+    A_ANCESTOR_SELF,
+    A_FOLLOW_SIBLING,
+    A_PRECEDE_SIBLING,
+    A_FOLLOW,
+    A_PRECEDE
+};
+static inline const char* query_axis_name(unsigned axis) {
+    static const char* names[] = {"child",
+                                  "self",
+                                  "descendant",
+                                  "ancestor",
+                                  "descendant-or-self",
+                                  "parent",
+                                  "ancestor-or-self",
+                                  "following-sibling",
+                                  "preceding-sibling",
+                                  "following",
+                                  "preceding"};
+    return axis <= A_PRECEDE ? names[axis] : NULL;
+}
+static inline int query_reverse_axis(unsigned axis) {
+    return axis == A_ANCESTOR || axis == A_ANCESTOR_SELF || axis == A_PRECEDE_SIBLING ||
+           axis == A_PRECEDE;
+}
 typedef struct query_token {
     uint32_t kind, begin, end;
 } query_token_t;
 typedef struct query_node {
     uint32_t op, left, right, begin, end, axis, anchor, scalar, type;
-    uint32_t low, predicate_guard, path_guard, path_kind;
+    uint32_t low, predicate_guard, path_guard, path_kind, grouped, nested;
     uint32_t variable_slot;
     uint32_t data_offset, data_size, resolved, hook_id, scratch_size, reuse, folded;
 } query_node_t;
@@ -120,6 +150,9 @@ struct tlv_query_exec {
     int invalid, finished;
     int retained;
     size_t node_capacity, result_cursor;
+    int document_backend;
+    tlv_tree_event_t delayed;
+    int delayed_selected, published_match;
     const tlv_query_environment_t* environment;
     tlv_query_result_t result;
 };
@@ -155,15 +188,18 @@ enum query_function {
     F_NAME,
     F_UNKNOWN
 };
-static inline unsigned query_function_kind(const char* text, const query_node_t* n) {
+static inline const char* query_function_name(unsigned function) {
     static const char* names[] = {"value",       "len",    "not",      "starts-with", "ends-with",
                                   "contains",    "substr", "tag-mask", "tag-range",   "count",
                                   "exists",      "empty",  "position", "last",        "num",
                                   "bcd",         "text",   "date",     "tag",         "class",
                                   "constructed", "number", "name"};
+    return function < F_UNKNOWN ? names[function] : NULL;
+}
+static inline unsigned query_function_kind(const char* text, const query_node_t* n) {
     for (unsigned i = 0; i < F_UNKNOWN; ++i)
-        if (strlen(names[i]) == n->end - n->begin &&
-            !memcmp(text + n->begin, names[i], n->end - n->begin))
+        if (strlen(query_function_name(i)) == n->end - n->begin &&
+            !memcmp(text + n->begin, query_function_name(i), n->end - n->begin))
             return i;
     return F_UNKNOWN;
 }
@@ -172,7 +208,7 @@ static inline unsigned query_function_kind(const char* text, const query_node_t*
    Storage must remain unchanged after execution initialization. */
 static inline int query_program_valid(const tlv_query_program_t* p) {
     if ((uintptr_t)p % sizeof(uint32_t)) return 0;
-    if (p->magic != QUERY_MAGIC || p->version != 3 || !p->count || p->root >= p->count ||
+    if (p->magic != QUERY_MAGIC || p->version != 4 || !p->count || p->root >= p->count ||
         p->level > TLV_QUERY_D || !p->text_size)
         return 0;
     if (p->count > (UINT32_MAX - sizeof *p) / sizeof(query_node_t)) return 0;
@@ -185,8 +221,9 @@ static inline int query_program_valid(const tlv_query_program_t* p) {
     uint32_t variables = 0;
     for (size_t i = 0; i < p->count; ++i) {
         const query_node_t* n = &nodes[i];
-        if (n->op > Q_BOOL || n->axis > A_OTHER || n->anchor > 2 || n->scalar > 1 ||
-            n->type > V_STRING || n->begin > n->end || n->end > p->text_size || n->low > i)
+        if (n->op > Q_BOOL || n->axis > A_PRECEDE || n->anchor > 2 || n->scalar > 1 ||
+            n->grouped > 1 || n->nested > 1 || n->type > V_STRING || n->begin > n->end ||
+            n->end > p->text_size || n->low > i)
             return 0;
         if ((n->left != QUERY_NONE && n->left >= i) || (n->right != QUERY_NONE && n->right >= i) ||
             (n->predicate_guard != QUERY_NONE && n->predicate_guard >= i) ||
@@ -275,6 +312,11 @@ tlv_result_t query_function_eval(tlv_query_exec_t*, const tlv_tree_event_t*, con
 tlv_result_t query_retained_finish(tlv_query_exec_t*, tlv_query_diagnostic_t*);
 tlv_result_t query_retained_feed(tlv_query_exec_t*, const tlv_tree_event_t*,
                                  tlv_query_diagnostic_t*);
+void query_document_handle(tlv_query_exec_t*, void*);
+tlv_result_t query_document_next(tlv_query_exec_t*, void**);
+size_t query_candidate_size(void);
+size_t query_candidate_alignment(void);
+uint32_t query_s1_filter(const query_node_t*, size_t, uint32_t, const char*);
 static inline void query_diag_init(tlv_query_diagnostic_t* d) {
     if (d) memset(d, 0, sizeof *d);
 }

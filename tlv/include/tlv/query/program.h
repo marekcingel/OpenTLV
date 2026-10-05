@@ -44,6 +44,13 @@ typedef enum tlv_query_error_kind {
     TLV_QUERY_ERROR_CODEC        /**< Strict Value decoding failed. */
 } tlv_query_error_kind_t;
 
+/** @brief Earliest publication frontier for the conservatively selected backend. */
+typedef enum tlv_query_decision_timing {
+    TLV_QUERY_DECISION_NODE,  /**< Complete BEGIN/ELEMENT publication. */
+    TLV_QUERY_DECISION_SCOPE, /**< Selected root END, or primitive publication. */
+    TLV_QUERY_DECISION_EOF    /**< Final EOF or complete Document snapshot evaluation. */
+} tlv_query_decision_timing_t;
+
 /** @brief Fixed-layout compiler/execution failure, initialized by diagnostic entry points.
  * @note This value type is not extensible; changing its layout requires an ABI change. */
 typedef struct tlv_query_diagnostic {
@@ -185,6 +192,11 @@ typedef struct tlv_query_program_info {
     size_t pattern_bytes;     /**< Runtime pattern capacity. */
     size_t optimized_states;  /**< Folded/shared states. */
     size_t expression_stack;  /**< Maximum iterative retained-evaluator frame count. */
+    size_t candidate_size;    /**< Private retained descriptor bytes per input node. */
+    size_t candidate_alignment; /**< Descriptor alignment within caller execution storage. */
+    size_t frame_states;        /**< Per-depth state slots for depth-bounded execution. */
+    tlv_query_decision_timing_t decision_timing; /**< Earliest result publication frontier. */
+    int stable_input_required; /**< Delayed spans must remain alive/immutable until reset. */
 } tlv_query_program_info_t;
 
 /** @brief Opaque immutable caller-owned program. */
@@ -247,7 +259,7 @@ TLV_API tlv_result_t tlv_query_compile_scratch(const char* text, size_t size,
  * @param[in] capacity Available output bytes.
  * @param[in,out] info Required requirements output; set struct_size to the writable extent.
  * @param[out] diagnostic Optional failure detail.
- * @return #TLV_OK for a supported F2 program or sizing pass.
+ * @return #TLV_OK for a supported Query program or sizing pass.
  * @return #TLV_ERR_UNSUPPORTED_TYPE for recognized later-phase capabilities.
  * @return #TLV_ERR_BUFFER_TOO_SHORT for insufficient scratch/output; info is
  * populated for insufficient program output, not insufficient scratch.
@@ -282,7 +294,7 @@ TLV_API tlv_result_t tlv_query_program_format(const tlv_query_program_t* program
                                               size_t capacity, size_t* required);
 
 /**
- * @brief Discover runtime workspace for a compiled S0 plan and depth capacity.
+ * @brief Discover runtime workspace for a compiled S0/S1 plan and depth capacity.
  * @param[in] program Required live immutable program.
  * @param[in] max_depth Maximum node depth; roots have depth zero.
  * @param[out] bytes Required exact workspace size.
@@ -297,7 +309,7 @@ TLV_API tlv_result_t tlv_query_exec_size(const tlv_query_program_t* program, siz
                                          size_t* bytes, size_t* alignment);
 
 /**
- * @brief Initialize or reset independent S0 execution in caller workspace.
+ * @brief Initialize or reset independent S0/S1 execution in caller workspace.
  * @param[in] program Required immutable program; must remain alive and unchanged
  * throughout execution. Feed does not repeat initialization validation.
  * @param[in,out] storage Required aligned workspace, exclusive to this execution.
@@ -385,18 +397,29 @@ TLV_API tlv_result_t tlv_query_exec_info(const tlv_query_exec_t* exec, tlv_query
  * @param[in,out] exec Required initialized execution.
  * @param[in] event Required complete event. S0 borrows during this call; retained execution
  * borrows its complete spans until reset.
- * @param[out] matched Required zero/one result; END never matches.
+ * @param[out] matched Required zero/one result; S1 END selects its original BEGIN.
  * @param[out] diagnostic Optional failure detail.
  * @return #TLV_OK; #TLV_ERR_INVALID_ARG for invalid sequence;
  * #TLV_ERR_LIMIT for depth/elements/work; #TLV_ERR_INVALID_VALUE for
  * unavailable Source metadata; #TLV_ERR_NULL_ARG for missing pointers.
- * @note Errors invalidate execution until reset. S0 retains no borrowed payload;
+ * @note Errors invalidate execution until reset. S1 accepts proven independent root
+ * scopes only; use exec_selected for delayed publications. S1 borrows one root's
+ * complete spans through its END, requiring stable backing storage across windows.
+ * S0 retains no borrowed payload;
  * retained execution reports matched=0 and publishes results only after finish.
  * Each node is emitted at most once, in preorder. Skipped END is rejected under
  * the default full-validation policy. Values must be complete contiguous spans.
  */
 TLV_API tlv_result_t tlv_query_exec_feed(tlv_query_exec_t* exec, const tlv_tree_event_t* event,
                                          int* matched, tlv_query_diagnostic_t* diagnostic);
+
+/** @brief Read the node selected by the most recent successful S1 feed.
+ * @param[in] exec S1 execution whose most recent feed reported matched=1.
+ * @param[out] event Original complete BEGIN/ELEMENT metadata, unchanged on failure.
+ * @return OK, NULL argument or invalid state.
+ * @note A matched END selects its original BEGIN. Complete spans borrow stable caller
+ * input; feeding another event supersedes this publication. No allocation or payload copy. */
+TLV_API tlv_result_t tlv_query_exec_selected(const tlv_query_exec_t* exec, tlv_tree_event_t* event);
 
 /**
  * @brief Complete the virtual root at final EOF and require balanced events.
@@ -450,7 +473,7 @@ TLV_API tlv_result_t tlv_query_program_exists(tlv_tree_reader_t* reader, tlv_que
                                               int early_return, int* found,
                                               tlv_query_diagnostic_t* diagnostic);
 
-/** @brief Discover retained-event workspace for arbitrary compiled F2 results.
+/** @brief Discover retained-event workspace for compiled Query results.
  * @param[in] program Immutable live program.
  * @param[in] max_depth Maximum node depth.
  * @param[in] max_nodes Explicit nonzero retained-node capacity.
@@ -469,10 +492,15 @@ TLV_API tlv_result_t tlv_query_eval_size(const tlv_query_program_t* program, siz
  * @param[in] max_nodes Explicit retained-node capacity.
  * @param[in] max_work Charged instruction/byte work limit.
  * @param[out] exec Execution handle, unchanged on failure.
- * @return OK or size/alignment/environment errors.
+ * @return OK or size/alignment/environment errors. D plans initialize for Document only.
  * @note Feed borrows complete events until reset. Input, Source and environment must
- * remain immutable/alive through suspension. Pruning is unavailable; results become
- * public only after balanced EOF and successful evaluation. No allocation occurs. */
+ * remain immutable/alive through suspension, even when Reader replaces its current
+ * window. Retention capacity covers every published node, not just final matches;
+ * descriptors and VM node sets are sized by eval_size. Payload bytes are never copied.
+ * Overflow reports the named candidates limit and invalidates until reset. No callbacks
+ * have run before finalized retained publication; callback effects never roll back.
+ * D plans reject event/Reader execution before consuming input. Pruning is unavailable; results
+ * become public only after balanced EOF and successful evaluation. No allocation occurs. */
 TLV_API tlv_result_t tlv_query_eval_init(const tlv_query_program_t* program,
                                          const tlv_query_environment_t* environment, void* storage,
                                          size_t capacity, size_t max_depth, size_t max_nodes,
