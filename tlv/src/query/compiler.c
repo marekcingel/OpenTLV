@@ -198,6 +198,9 @@ void tlv_query_compile_options_init(tlv_query_compile_options_t* o) {
     o->max_tokens = 8192;
     o->max_nesting = 128;
     o->max_states = 8192;
+    o->max_resolved_tag = 512;
+    o->max_pattern = 4096;
+    o->optimize = 1;
 }
 
 static tlv_result_t options_check(const tlv_query_compile_options_t* supplied,
@@ -230,6 +233,24 @@ static tlv_result_t options_check(const tlv_query_compile_options_t* supplied,
                 return query_error(d, TLV_ERR_INVALID_ARG, TLV_QUERY_ERROR_BINDING, 0, 0,
                                    "unique variable declaration");
     }
+    if (!o->max_resolved_tag || o->max_resolved_tag > UINT32_MAX || o->max_pattern > UINT32_MAX)
+        return query_error(d, TLV_ERR_INVALID_ARG, TLV_QUERY_ERROR_STORAGE, 0, 0,
+                           "bounded capabilities");
+    if (o->environment) {
+        const tlv_query_environment_t* e = o->environment;
+        if (e->hook_count > o->max_states || (e->hook_count && !e->hooks))
+            return TLV_ERR_INVALID_ARG;
+        for (size_t i = 0; i < e->hook_count; ++i) {
+            const tlv_query_hook_t* h = &e->hooks[i];
+            if (!h->id || h->function > TLV_QUERY_DATE || !h->scratch_alignment ||
+                h->scratch_alignment > 16 || (h->scratch_alignment & (h->scratch_alignment - 1)) ||
+                h->scratch_size > UINT32_MAX - 15)
+                return TLV_ERR_INVALID_ARG;
+            for (size_t j = 0; j < i; ++j)
+                if (e->hooks[j].id == h->id || e->hooks[j].function == h->function)
+                    return TLV_ERR_INVALID_ARG;
+        }
+    }
     if (size > o->max_text) return query_limit(d, "text", o->max_text, 0, size);
     if (size >= UINT32_MAX)
         return query_error(d, TLV_ERR_OVERFLOW, TLV_QUERY_ERROR_STORAGE, 0, 0,
@@ -256,7 +277,10 @@ tlv_result_t tlv_query_compile_scratch(const char* text, size_t size,
     if (count >= UINT32_MAX / 2 || count > SIZE_MAX / scratch_unit() - 1)
         return query_error(d, TLV_ERR_OVERFLOW, TLV_QUERY_ERROR_STORAGE, 0, 0,
                            "representable compile scratch size");
-    *bytes = (count + 1) * scratch_unit();
+    size_t base = (count + 1) * scratch_unit();
+    if (size > SIZE_MAX - base || count > (SIZE_MAX - base - size) / o.max_resolved_tag)
+        return TLV_ERR_OVERFLOW;
+    *bytes = base + size + count * o.max_resolved_tag;
     *alignment = sizeof(uint32_t);
     return TLV_OK;
 }
@@ -311,6 +335,7 @@ static uint32_t add_node(query_node_t* nodes, size_t* used, unsigned op, uint32_
     if (right != QUERY_NONE && nodes[right].low < n.low) n.low = nodes[right].low;
     n.predicate_guard = QUERY_NONE;
     n.path_guard = QUERY_NONE;
+    n.reuse = QUERY_NONE;
     nodes[*used] = n;
     return (uint32_t)(*used)++;
 }
@@ -487,266 +512,365 @@ static int decimal(const char* text, const query_node_t* n) {
     return 1;
 }
 
-static tlv_result_t analyze(const char* text, query_node_t* nodes, size_t count,
-                            const tlv_query_compile_options_t* options, tlv_query_level_t* level,
-                            tlv_query_diagnostic_t* d) {
+static tlv_result_t resolve_name(const char* text, size_t begin, size_t end,
+                                 const tlv_query_compile_options_t* o, tlv_tag_t* tag,
+                                 tlv_query_diagnostic_t* d) {
+    if (!o->resolve)
+        return query_error(d, TLV_ERR_UNSUPPORTED_TYPE, TLV_QUERY_ERROR_CAPABILITY, begin, end,
+                           "compile-time name resolver");
+    size_t colon = begin;
+    while (colon < end && text[colon] != ':') ++colon;
+    tlv_result_t rc = o->resolve(
+        o->resolve_context, colon < end ? text + begin : NULL, colon < end ? colon - begin : 0,
+        text + (colon < end ? colon + 1 : begin), end - (colon < end ? colon + 1 : begin), tag);
+    if (rc != TLV_OK)
+        return query_error(d, rc, TLV_QUERY_ERROR_CAPABILITY, begin, end,
+                           "one unambiguous symbolic name");
+    if (!tag->size || !tag->data || tag->size > o->max_resolved_tag)
+        return query_limit(d, "resolved-tag", o->max_resolved_tag, begin, end);
+    return TLV_OK;
+}
+static size_t call_args(const query_node_t* nodes, const query_node_t* n, uint32_t args[3]) {
+    size_t count = 0;
+    uint32_t cursor = n->left;
+    while (cursor != QUERY_NONE && nodes[cursor].op == Q_ARGS) {
+        if (count == 2) return 4;
+        args[count++] = nodes[cursor].right;
+        cursor = nodes[cursor].left;
+    }
+    if (cursor != QUERY_NONE) args[count++] = cursor;
+    for (size_t i = 0; i < count / 2; ++i) {
+        uint32_t temp = args[i];
+        args[i] = args[count - i - 1];
+        args[count - i - 1] = temp;
+    }
+    return count;
+}
+static tlv_result_t analyze(const char* text, query_node_t* nodes, size_t count, uint32_t root,
+                            const tlv_query_compile_options_t* o, uint8_t* payload,
+                            size_t* payload_size, size_t* codec_stride, size_t* optimized,
+                            tlv_query_level_t* level, tlv_query_diagnostic_t* d) {
     *level = TLV_QUERY_S0;
+    *payload_size = 0;
+    *codec_stride = 0;
+    *optimized = 0;
     for (size_t i = 0; i < count; ++i) {
         query_node_t* n = &nodes[i];
         if (n->op >= Q_EQ && n->op <= Q_GE) {
             uint32_t sides[2] = {n->left, n->right};
-            for (unsigned j = 0; j < 2; ++j) {
-                query_node_t* operand = &nodes[sides[j]];
-                if (operand->op == Q_TEST && decimal(text, operand)) operand->op = Q_LITERAL;
-            }
+            for (unsigned j = 0; j < 2; ++j)
+                if (nodes[sides[j]].op == Q_TEST && decimal(text, &nodes[sides[j]]))
+                    nodes[sides[j]].op = Q_LITERAL;
         }
-        if (n->op == Q_FILTER) {
-            query_node_t* predicate = &nodes[n->right];
-            if (predicate->op == Q_TEST && predicate->axis == A_CHILD && decimal(text, predicate)) {
-                predicate->op = Q_LITERAL;
-                predicate->anchor = 2; /* Positional predicate, reserved for deferred execution. */
-            }
+        if (n->op == Q_FILTER && nodes[n->right].op == Q_TEST && decimal(text, &nodes[n->right])) {
+            nodes[n->right].op = Q_LITERAL;
+            nodes[n->right].anchor = 2;
         }
-    }
-    /* Propagate scalar context through function argument lists before resolving
-       numeric-looking tokens. Path tests retain their raw-byte interpretation. */
-    for (size_t i = 0; i < count; ++i) {
-        query_node_t* n = &nodes[i];
-        if (n->op != Q_CALL) continue;
-        uint32_t args[3], cursor = n->left;
-        size_t arity = 0;
-        while (cursor != QUERY_NONE && nodes[cursor].op == Q_ARGS) {
-            if (arity == 2)
-                return query_error(d, TLV_ERR_INVALID_ARG, TLV_QUERY_ERROR_SYNTAX, n->begin, n->end,
-                                   "at most three arguments");
-            args[arity++] = nodes[cursor].right;
-            cursor = nodes[cursor].left;
+        if (n->op == Q_CALL && query_function_kind(text, n) == F_SUBSTR) {
+            uint32_t args[3];
+            size_t arity = call_args(nodes, n, args);
+            if (arity > 3) return TLV_ERR_INVALID_ARG;
+            for (size_t j = 1; j < arity; ++j)
+                if (nodes[args[j]].op == Q_TEST && decimal(text, &nodes[args[j]]))
+                    nodes[args[j]].op = Q_LITERAL;
         }
-        if (cursor != QUERY_NONE) args[arity++] = cursor;
-        for (size_t j = 0; j < arity / 2; ++j) {
-            uint32_t temp = args[j];
-            args[j] = args[arity - 1 - j];
-            args[arity - 1 - j] = temp;
-        }
-        if (query_word(text, n->begin, n->end, "substr")) {
-            if (arity != 2 && arity != 3)
-                return query_error(d, TLV_ERR_INVALID_ARG, TLV_QUERY_ERROR_SYNTAX, n->begin, n->end,
-                                   "substr(bytes, start[, length])");
-            for (size_t j = 1; j < arity; ++j) {
-                query_node_t* arg = &nodes[args[j]];
-                if (arg->op == Q_TEST && decimal(text, arg)) arg->op = Q_LITERAL;
-            }
-        } else if (query_word(text, n->begin, n->end, "value")) {
-            if (arity)
-                return query_error(d, TLV_ERR_UNSUPPORTED_TYPE, TLV_QUERY_ERROR_CAPABILITY,
-                                   n->begin, n->end, "F1 value() without node-sequence argument");
-        } else if (query_word(text, n->begin, n->end, "len")) {
-            if (arity > 1)
-                return query_error(d, TLV_ERR_INVALID_ARG, TLV_QUERY_ERROR_SYNTAX, n->begin, n->end,
-                                   "len([bytes])");
-        } else if (query_word(text, n->begin, n->end, "not")) {
-            if (arity != 1)
-                return query_error(d, TLV_ERR_INVALID_ARG, TLV_QUERY_ERROR_SYNTAX, n->begin, n->end,
-                                   "not(boolean)");
-        } else if (query_word(text, n->begin, n->end, "starts-with") ||
-                   query_word(text, n->begin, n->end, "ends-with") ||
-                   query_word(text, n->begin, n->end, "contains") ||
-                   query_word(text, n->begin, n->end, "tag-mask") ||
-                   query_word(text, n->begin, n->end, "tag-range")) {
-            if (arity != 2)
-                return query_error(d, TLV_ERR_INVALID_ARG, TLV_QUERY_ERROR_SYNTAX, n->begin, n->end,
-                                   "two byte arguments");
-            if (query_word(text, n->begin, n->end, "contains") && nodes[args[1]].op != Q_BYTES)
-                return query_error(d, TLV_ERR_UNSUPPORTED_TYPE, TLV_QUERY_ERROR_CAPABILITY,
-                                   n->begin, n->end, "constant byte pattern for F1 contains");
-            if (query_word(text, n->begin, n->end, "tag-mask") ||
-                query_word(text, n->begin, n->end, "tag-range")) {
-                query_node_t* a = &nodes[args[0]];
-                query_node_t* b = &nodes[args[1]];
-                if (a->op != Q_BYTES || b->op != Q_BYTES)
-                    return query_error(d, TLV_ERR_UNSUPPORTED_TYPE, TLV_QUERY_ERROR_CAPABILITY,
-                                       n->begin, n->end, "constant tag-test byte arguments");
-                size_t left = (a->end - a->begin - 3) / 2, right = (b->end - b->begin - 3) / 2;
-                if (query_word(text, n->begin, n->end, "tag-mask") && left != right)
-                    return query_error(d, TLV_ERR_INVALID_ARG, TLV_QUERY_ERROR_SYNTAX, n->begin,
-                                       n->end, "equal pattern and mask widths");
-                if (query_word(text, n->begin, n->end, "tag-range")) {
-                    int order = left < right ? -1 : left > right;
-                    size_t limit = left < right ? left : right;
-                    for (size_t j = 0; j < limit; ++j) {
-                        size_t x = a->begin + 2 + j * 2, y = b->begin + 2 + j * 2;
-                        int low = query_hex((unsigned char)text[x]) * 16 +
-                                  query_hex((unsigned char)text[x + 1]);
-                        int high = query_hex((unsigned char)text[y]) * 16 +
-                                   query_hex((unsigned char)text[y + 1]);
-                        if (low != high) {
-                            order = low < high ? -1 : 1;
-                            break;
-                        }
-                    }
-                    if (order > 0)
-                        return query_error(d, TLV_ERR_INVALID_ARG, TLV_QUERY_ERROR_SYNTAX, n->begin,
-                                           n->end, "ordered range bounds");
-                }
-            }
+        if (n->op == Q_TEST && (query_word(text, n->begin, n->end, "true") ||
+                                query_word(text, n->begin, n->end, "false"))) {
+            n->op = Q_BOOL;
+            n->folded = text[n->begin] == 't';
         }
     }
-    int deferred = 0, ordered_union = 0, document = 0, candidates = 0;
     for (size_t i = 0; i < count; ++i) {
         query_node_t* n = &nodes[i];
-        if (n->op == Q_UNION) ordered_union = 1;
-        if (n->op == Q_LITERAL && n->anchor == 2) deferred = 1;
-        if (n->op == Q_TEST && n->scalar && n->axis == A_CHILD) deferred = 1;
-        if (n->op == Q_TEST && (n->axis == A_OTHER || (n->axis == A_ANCESTOR && !n->scalar)))
-            document = 1;
-        if (n->op == Q_CALL && query_word(text, n->begin, n->end, "last")) candidates = 1;
-        if (n->op == Q_CALL && (query_word(text, n->begin, n->end, "count") ||
-                                query_word(text, n->begin, n->end, "exists") ||
-                                query_word(text, n->begin, n->end, "empty")))
-            deferred = 1;
-    }
-    *level = document                                    ? TLV_QUERY_D
-             : candidates || (deferred && ordered_union) ? TLV_QUERY_S2
-             : deferred                                  ? TLV_QUERY_S1
-                                                         : TLV_QUERY_S0;
-    /* Every recognized later-phase operation gets an explicit capability error.
-       Grammar parsing completes before this semantic pass. */
-    for (size_t i = 0; i < count; ++i) {
-        query_node_t* n = &nodes[i];
+        n->type = V_NODE;
         if (n->op == Q_TEST) {
-            int wildcard = n->end - n->begin == 1 && text[n->begin] == '*';
-            if (!wildcard) {
-                if (memchr(text + n->begin, ':', n->end - n->begin)) goto unsupported;
-                if ((n->end - n->begin) % 2)
-                    return query_error(d, TLV_ERR_INVALID_ARG, TLV_QUERY_ERROR_SYNTAX, n->begin,
-                                       n->end, "whole-byte hexadecimal tag test");
-                for (size_t j = n->begin; j < n->end; j += 2) {
-                    if (text[j] == '?' && text[j + 1] == '?') continue;
-                    if (query_hex((unsigned char)text[j]) < 0 ||
-                        query_hex((unsigned char)text[j + 1]) < 0)
-                        return query_error(d, TLV_ERR_INVALID_ARG, TLV_QUERY_ERROR_SYNTAX, n->begin,
-                                           n->end, "hexadecimal bytes or whole-byte ?? wildcard");
-                }
+            int raw = 1;
+            for (size_t j = n->begin; j < n->end; ++j)
+                if (query_hex((unsigned char)text[j]) < 0 && text[j] != '?' && text[j] != '*')
+                    raw = 0;
+            if (!raw) {
+                tlv_tag_t tag;
+                tlv_result_t rc = resolve_name(text, n->begin, n->end, o, &tag, d);
+                if (rc != TLV_OK) return rc;
+                n->resolved = 1;
+                n->data_offset = (uint32_t)*payload_size;
+                n->data_size = (uint32_t)tag.size;
+                memcpy(payload + *payload_size, tag.data, tag.size);
+                *payload_size += tag.size;
+            } else if (!(n->end - n->begin == 1 && text[n->begin] == '*')) {
+                if ((n->end - n->begin) % 2) goto syntax;
+                for (size_t j = n->begin; j < n->end; j += 2)
+                    if (!((text[j] == '?' && text[j + 1] == '?') ||
+                          (query_hex((unsigned char)text[j]) >= 0 &&
+                           query_hex((unsigned char)text[j + 1]) >= 0)))
+                        goto syntax;
             }
             if (n->axis == A_OTHER || n->axis == A_DESC || (n->axis == A_ANCESTOR && !n->scalar) ||
                 (n->axis == A_CHILD && n->scalar))
-                goto unsupported;
-        }
-        if (n->op == Q_STRING) goto unsupported;
-        if (n->op == Q_META) {
-            if (!query_word(text, n->begin, n->end, "@len") &&
-                !query_word(text, n->begin, n->end, "@offset") &&
-                !query_word(text, n->begin, n->end, "@hlen") &&
-                !query_word(text, n->begin, n->end, "@depth") &&
-                !query_word(text, n->begin, n->end, "@index"))
-                return query_error(d, TLV_ERR_INVALID_ARG, TLV_QUERY_ERROR_SYNTAX, n->begin, n->end,
-                                   "known metadata property");
-        }
-        if (n->op == Q_LITERAL) {
-            if (n->anchor == 2)
+                *level = TLV_QUERY_D;
+            if (n->axis == A_OTHER)
                 return query_error(d, TLV_ERR_UNSUPPORTED_TYPE, TLV_QUERY_ERROR_CAPABILITY,
-                                   n->begin, n->end, "positional predicate execution");
-            int negative = text[n->begin] == '-';
-            uint64_t maximum = (uint64_t)INT64_MAX + (unsigned)negative;
-            uint64_t value = 0;
-            for (size_t j = n->begin + (unsigned)negative; j < n->end; ++j) {
-                unsigned digit = (unsigned)(text[j] - '0');
-                if (digit > 9 || value > (maximum - digit) / 10)
-                    return query_error(d, TLV_ERR_OVERFLOW, TLV_QUERY_ERROR_SYNTAX, n->begin,
-                                       n->end, "signed 64-bit integer");
-                value = value * 10 + digit;
-            }
+                                   n->begin, n->end, "F3 reverse/sibling navigation backend");
         }
-        if (n->op == Q_FILTER) {
-            /* A direct numeric predicate is position-based, not a raw tag. */
-            query_node_t* rhs = &nodes[n->right];
-            if (nodes[n->left].op == Q_TEST && nodes[n->left].axis == A_ANCESTOR) goto unsupported;
-            if (rhs->op == Q_TEST && rhs->axis == A_CHILD && decimal(text, rhs)) goto unsupported;
-        }
-        if (n->op == Q_CALL) {
-            static const char* supported[] = {"value",       "len",       "not",
-                                              "starts-with", "ends-with", "contains",
-                                              "substr",      "tag-range", "tag-mask"};
-            int found = 0;
-            for (size_t j = 0; j < sizeof supported / sizeof supported[0]; ++j)
-                if (query_word(text, n->begin, n->end, supported[j])) found = 1;
-            if (!found) goto unsupported;
-        }
-        n->type = V_NODE;
         if (n->op == Q_VARIABLE) {
             int found = 0;
-            for (size_t j = 0; j < options->variable_count; ++j) {
-                const tlv_query_variable_t* v = &options->variables[j];
-                if (query_word(text, n->begin + 1, n->end, v->name)) {
-                    n->type = query_private_type(v->type);
+            for (size_t j = 0; j < o->variable_count; ++j)
+                if (query_word(text, n->begin + 1, n->end, o->variables[j].name)) {
+                    n->type = query_private_type(o->variables[j].type);
                     found = 1;
                     break;
                 }
-            }
             if (!found)
                 return query_error(d, TLV_ERR_INVALID_ARG, TLV_QUERY_ERROR_BINDING, n->begin,
                                    n->end, "declared typed variable");
         }
         if (n->op == Q_META || n->op == Q_LITERAL) n->type = V_NUMBER;
-        if (n->op == Q_BYTES) n->type = V_BYTES;
-        if ((n->op >= Q_EQ && n->op <= Q_OR)) n->type = V_BOOL;
+        if (n->op == Q_BOOL) n->type = V_BOOL;
+        if (n->op == Q_META && !query_word(text, n->begin, n->end, "@len") &&
+            !query_word(text, n->begin, n->end, "@depth") &&
+            !query_word(text, n->begin, n->end, "@index") &&
+            !query_word(text, n->begin, n->end, "@offset") &&
+            !query_word(text, n->begin, n->end, "@hlen"))
+            goto syntax;
+        if (n->op == Q_LITERAL) {
+            uint64_t value = 0;
+            int negative = text[n->begin] == '-';
+            uint64_t maximum = (uint64_t)INT64_MAX + (unsigned)negative;
+            for (size_t j = n->begin + (unsigned)negative; j < n->end; ++j) {
+                unsigned digit = (unsigned)(text[j] - '0');
+                if (digit > 9 || value > (maximum - digit) / 10)
+                    return query_error(d, TLV_ERR_OVERFLOW, TLV_QUERY_ERROR_SYNTAX, n->begin,
+                                       n->end, "signed int64");
+                value = value * 10 + digit;
+            }
+            if (n->anchor == 2) *level = TLV_QUERY_D;
+        }
+        if (n->op == Q_BYTES || n->op == Q_STRING) {
+            n->type = n->op == Q_BYTES ? V_BYTES : V_STRING;
+            n->data_offset = (uint32_t)*payload_size;
+            if (n->op == Q_BYTES) {
+                for (size_t j = n->begin + 2; j + 1 < n->end - 1; j += 2)
+                    payload[(*payload_size)++] = (uint8_t)(query_hex((unsigned char)text[j]) * 16 +
+                                                           query_hex((unsigned char)text[j + 1]));
+            } else {
+                for (size_t j = n->begin + 1; j < n->end - 1; ++j) {
+                    if (text[j] == '\\') ++j;
+                    payload[(*payload_size)++] = (uint8_t)text[j];
+                }
+            }
+            n->data_size = (uint32_t)(*payload_size - n->data_offset);
+        }
+        if (n->op >= Q_EQ && n->op <= Q_OR) n->type = V_BOOL;
         if (n->op == Q_CALL) {
-            if (query_word(text, n->begin, n->end, "value") ||
-                query_word(text, n->begin, n->end, "substr"))
-                n->type = V_BYTES;
-            else if (query_word(text, n->begin, n->end, "len"))
-                n->type = V_NUMBER;
-            else if (!query_word(text, n->begin, n->end, "tag-range") &&
-                     !query_word(text, n->begin, n->end, "tag-mask"))
-                n->type = V_BOOL;
-            uint32_t args[3], cursor = n->left;
-            size_t arity = 0;
-            while (cursor != QUERY_NONE && nodes[cursor].op == Q_ARGS) {
-                args[arity++] = nodes[cursor].right;
-                cursor = nodes[cursor].left;
+            unsigned f = query_function_kind(text, n);
+            uint32_t args[3];
+            size_t arity = call_args(nodes, n, args);
+            if (arity > 3) goto syntax;
+            if (f == F_NAME) {
+                if (arity != 2 || nodes[args[0]].op != Q_STRING || nodes[args[1]].op != Q_STRING)
+                    goto types;
+                const query_node_t *ns = &nodes[args[0]], *symbol = &nodes[args[1]];
+                if (!o->resolve)
+                    return query_error(d, TLV_ERR_UNSUPPORTED_TYPE, TLV_QUERY_ERROR_CAPABILITY,
+                                       n->begin, n->end, "name resolver");
+                tlv_tag_t tag;
+                tlv_result_t rc = o->resolve(
+                    o->resolve_context, (const char*)payload + ns->data_offset, ns->data_size,
+                    (const char*)payload + symbol->data_offset, symbol->data_size, &tag);
+                if (rc != TLV_OK)
+                    return query_error(d, rc, TLV_QUERY_ERROR_CAPABILITY, n->begin, n->end,
+                                       "one symbolic name");
+                if (!tag.data || !tag.size || tag.size > o->max_resolved_tag)
+                    return query_limit(d, "resolved-tag", o->max_resolved_tag, n->begin, n->end);
+                n->op = Q_TEST;
+                n->left = n->right = QUERY_NONE;
+                n->resolved = 1;
+                n->data_offset = (uint32_t)*payload_size;
+                n->data_size = (uint32_t)tag.size;
+                memcpy(payload + *payload_size, tag.data, tag.size);
+                *payload_size += tag.size;
+                if (n->scalar || n->predicate_guard != QUERY_NONE || n->axis != A_CHILD)
+                    *level = TLV_QUERY_D;
+                continue;
             }
-            if (cursor != QUERY_NONE) args[arity++] = cursor;
-            for (size_t j = 0; j < arity / 2; ++j) {
-                uint32_t temp = args[j];
-                args[j] = args[arity - 1 - j];
-                args[arity - 1 - j] = temp;
-            }
-            if (query_word(text, n->begin, n->end, "not")) {
+            if (f == F_UNKNOWN)
+                return query_error(d, TLV_ERR_UNSUPPORTED_TYPE, TLV_QUERY_ERROR_CAPABILITY,
+                                   n->begin, n->end, "closed supported Query function");
+            if ((f == F_VALUE || f == F_LEN || f == F_TAG || f == F_CLASS || f == F_NUMBER ||
+                 f == F_CONSTRUCTED) &&
+                arity > 1)
+                goto syntax;
+            if ((f == F_NOT || f == F_COUNT || f == F_EXISTS || f == F_EMPTY ||
+                 (f >= F_NUM && f <= F_DATE)) &&
+                arity != 1)
+                goto syntax;
+            if ((f == F_POSITION || f == F_LAST) && arity) goto syntax;
+            if ((f == F_STARTS || f == F_ENDS || f == F_CONTAINS || f == F_MASK || f == F_RANGE) &&
+                arity != 2)
+                goto syntax;
+            if (f == F_SUBSTR && arity != 2 && arity != 3) goto syntax;
+            n->type = f == F_VALUE || f == F_TAG || f == F_SUBSTR ? V_BYTES
+                      : f == F_LEN || f == F_COUNT || f == F_POSITION || f == F_LAST ||
+                              f == F_NUM || f == F_BCD || f == F_DATE || f == F_CLASS ||
+                              f == F_NUMBER
+                          ? V_NUMBER
+                      : f == F_TEXT                 ? V_STRING
+                      : f == F_MASK || f == F_RANGE ? V_NODE
+                                                    : V_BOOL;
+            if (f == F_VALUE || f == F_TAG || f == F_CLASS || f == F_NUMBER || f == F_CONSTRUCTED) {
+                if (arity && nodes[args[0]].type != V_NODE) goto types;
+                if (arity) *level = TLV_QUERY_D;
+            } else if (f == F_LEN) {
+                if (arity && nodes[args[0]].type != V_BYTES && nodes[args[0]].type != V_STRING)
+                    goto types;
+            } else if (f == F_NOT) {
                 if (nodes[args[0]].type != V_BOOL && nodes[args[0]].type != V_NODE) goto types;
-            } else if (query_word(text, n->begin, n->end, "substr")) {
+            } else if (f == F_COUNT || f == F_EXISTS || f == F_EMPTY) {
+                if (nodes[args[0]].type != V_NODE) goto types;
+                *level = TLV_QUERY_D;
+            } else if (f == F_POSITION || f == F_LAST)
+                *level = TLV_QUERY_D;
+            else if (f >= F_NUM && f <= F_DATE) {
+                if (nodes[args[0]].type != V_NODE && nodes[args[0]].type != V_BYTES) goto types;
+                const tlv_query_hook_t* hook = NULL;
+                if (o->environment)
+                    for (size_t j = 0; j < o->environment->hook_count; ++j)
+                        if ((unsigned)o->environment->hooks[j].function == f - F_NUM)
+                            hook = &o->environment->hooks[j];
+                if (!hook)
+                    return query_error(d, TLV_ERR_UNSUPPORTED_TYPE, TLV_QUERY_ERROR_CAPABILITY,
+                                       n->begin, n->end, "conversion provider");
+                n->hook_id = hook->id;
+                n->scratch_size = (uint32_t)((hook->scratch_size + 15) & ~(size_t)15);
+                if (n->scratch_size > *codec_stride) *codec_stride = n->scratch_size;
+                *level = TLV_QUERY_D;
+            } else if (f == F_SUBSTR) {
                 if (nodes[args[0]].type != V_BYTES || nodes[args[1]].type != V_NUMBER ||
                     (arity == 3 && nodes[args[2]].type != V_NUMBER))
                     goto types;
-            } else if (query_word(text, n->begin, n->end, "len")) {
-                if (arity && nodes[args[0]].type != V_BYTES) goto types;
-            } else if (arity && (nodes[args[0]].type != V_BYTES || nodes[args[1]].type != V_BYTES))
-                goto types;
+            } else if (f == F_STARTS || f == F_ENDS || f == F_CONTAINS || f == F_MASK ||
+                       f == F_RANGE) {
+                if (nodes[args[0]].type != V_BYTES || nodes[args[1]].type != V_BYTES) goto types;
+                if ((f == F_MASK || f == F_RANGE) &&
+                    (nodes[args[0]].op != Q_BYTES || nodes[args[1]].op != Q_BYTES))
+                    goto types;
+                if (f == F_CONTAINS && nodes[args[1]].op == Q_BYTES &&
+                    nodes[args[1]].data_size > o->max_pattern)
+                    return query_limit(d, "pattern", o->max_pattern, n->begin, n->end);
+                if (f == F_MASK && nodes[args[0]].data_size != nodes[args[1]].data_size)
+                    goto syntax;
+                if (f == F_RANGE) {
+                    query_node_t *a = &nodes[args[0]], *b = &nodes[args[1]];
+                    size_t size = a->data_size < b->data_size ? a->data_size : b->data_size;
+                    int order = memcmp(payload + a->data_offset, payload + b->data_offset, size);
+                    if (order > 0 || (!order && a->data_size > b->data_size)) goto syntax;
+                }
+            }
+            if (f == F_TAG) *level = TLV_QUERY_D;
+            if (f == F_CLASS || f == F_NUMBER) {
+                if (!o->environment || !o->environment->tags || !o->environment->tags->id ||
+                    (f == F_CLASS ? !o->environment->tags->class_of
+                                  : !o->environment->tags->number_of))
+                    return query_error(d, TLV_ERR_UNSUPPORTED_TYPE, TLV_QUERY_ERROR_CAPABILITY,
+                                       n->begin, n->end, "semantic tag provider");
+                *level = TLV_QUERY_D;
+            }
+            if (f == F_CONSTRUCTED) {
+                if (o->environment && !o->environment->format) return TLV_ERR_UNSUPPORTED_TYPE;
+                *level = TLV_QUERY_D;
+            }
         }
         if ((n->op == Q_CHILD || n->op == Q_DESC || n->op == Q_UNION || n->op == Q_INTERSECT ||
              n->op == Q_EXCEPT) &&
             (nodes[n->left].type != V_NODE || nodes[n->right].type != V_NODE))
             goto types;
+        if (n->op == Q_FILTER && nodes[n->left].axis == A_ANCESTOR) *level = TLV_QUERY_D;
         if (n->op == Q_FILTER &&
             (nodes[n->left].type != V_NODE ||
-             (nodes[n->right].type != V_BOOL && nodes[n->right].type != V_NODE)))
+             (nodes[n->right].type != V_BOOL && nodes[n->right].type != V_NODE &&
+              nodes[n->right].type != V_NUMBER)))
             goto types;
         if (n->op >= Q_EQ && n->op <= Q_GE &&
-            (nodes[n->left].type != nodes[n->right].type ||
-             (nodes[n->left].type != V_BYTES && nodes[n->left].type != V_NUMBER &&
-              nodes[n->left].type != V_STRING)))
+            (nodes[n->left].type != nodes[n->right].type || nodes[n->left].type == V_NODE))
             goto types;
         if ((n->op == Q_AND || n->op == Q_OR) &&
             ((nodes[n->left].type != V_BOOL && nodes[n->left].type != V_NODE) ||
              (nodes[n->right].type != V_BOOL && nodes[n->right].type != V_NODE)))
             goto types;
+        if (o->optimize && n->op >= Q_EQ && n->op <= Q_GE) {
+            const query_node_t* a = &nodes[n->left];
+            const query_node_t* b = &nodes[n->right];
+            int constant = 0, order = 0;
+            if (a->op == Q_LITERAL && b->op == Q_LITERAL) {
+                uint64_t av = 0, bv = 0;
+                int an = text[a->begin] == '-', bn = text[b->begin] == '-';
+                for (size_t j = a->begin + (unsigned)an; j < a->end; ++j)
+                    av = av * 10 + (unsigned)(text[j] - '0');
+                for (size_t j = b->begin + (unsigned)bn; j < b->end; ++j)
+                    bv = bv * 10 + (unsigned)(text[j] - '0');
+                if (!av) an = 0;
+                if (!bv) bn = 0;
+                order = an != bn ? an ? -1 : 1 : av < bv ? -1 : av > bv;
+                if (an && bn) order = -order;
+                constant = 1;
+            } else if ((a->op == Q_BYTES || a->op == Q_STRING) && a->op == b->op) {
+                size_t length = a->data_size < b->data_size ? a->data_size : b->data_size;
+                order = memcmp(payload + a->data_offset, payload + b->data_offset, length);
+                if (!order) order = a->data_size < b->data_size ? -1 : a->data_size > b->data_size;
+                constant = 1;
+            }
+            if (constant) {
+                n->folded = n->op == Q_EQ   ? order == 0
+                            : n->op == Q_NE ? order != 0
+                            : n->op == Q_LT ? order < 0
+                            : n->op == Q_LE ? order <= 0
+                            : n->op == Q_GT ? order > 0
+                                            : order >= 0;
+                n->op = Q_BOOL;
+                n->left = n->right = QUERY_NONE;
+                ++*optimized;
+            }
+        }
+        /* A terminal dot contributes no navigation or fallible operation. */
+        if (o->optimize && n->op == Q_CHILD && nodes[n->right].op == Q_SELF) {
+            query_node_t* dot = &nodes[n->right];
+            dot->op = Q_BOOL;
+            dot->type = V_BOOL;
+            dot->folded = 1;
+            n->op = Q_FILTER;
+            ++*optimized;
+        }
+        if (o->optimize && (n->op == Q_AND || n->op == Q_OR) && nodes[n->left].op == Q_BOOL &&
+            nodes[n->right].op == Q_BOOL) {
+            n->folded = n->op == Q_AND ? nodes[n->left].folded && nodes[n->right].folded
+                                       : nodes[n->left].folded || nodes[n->right].folded;
+            n->op = Q_BOOL;
+            n->left = n->right = QUERY_NONE;
+            ++*optimized;
+        }
+        if (o->optimize && n->op == Q_TEST) {
+            for (size_t j = 0; j < i; ++j) {
+                query_node_t* a = &nodes[j];
+                if (a->op == Q_TEST && a->axis == n->axis && a->anchor == n->anchor &&
+                    a->scalar == n->scalar && a->predicate_guard == n->predicate_guard &&
+                    a->path_guard == n->path_guard && a->path_kind == n->path_kind &&
+                    a->end - a->begin == n->end - n->begin &&
+                    !memcmp(text + a->begin, text + n->begin, n->end - n->begin)) {
+                    n->reuse = (uint32_t)j;
+                    ++*optimized;
+                    break;
+                }
+            }
+        }
         continue;
+    syntax:
+        return query_error(d, TLV_ERR_INVALID_ARG, TLV_QUERY_ERROR_SYNTAX, n->begin, n->end,
+                           "valid Query operand/arity");
     types:
         return query_error(d, TLV_ERR_INVALID_ARG, TLV_QUERY_ERROR_CAPABILITY, n->begin, n->end,
                            "compatible expression types");
-    unsupported:
-        return query_error(d, TLV_ERR_UNSUPPORTED_TYPE, TLV_QUERY_ERROR_CAPABILITY, n->begin,
-                           n->end, "feature supported by F1 S0 execution");
     }
+    if (nodes[root].type != V_NODE) *level = TLV_QUERY_D;
     return TLV_OK;
 }
 
@@ -771,7 +895,10 @@ tlv_result_t tlv_query_compile(const char* text, size_t size,
     if (scratch_size < needed)
         return query_error(d, TLV_ERR_BUFFER_TOO_SHORT, TLV_QUERY_ERROR_STORAGE, 0, 0,
                            "sufficient compile scratch capacity");
-    size_t count = needed / scratch_unit();
+    size_t count = 0;
+    rc = lex(text, size, o.max_tokens, NULL, &count, d, NULL, NULL);
+    if (rc != TLV_OK) return rc;
+    ++count;
     query_token_t* tokens = scratch;
     query_node_t* nodes = (query_node_t*)(tokens + count);
     query_operator_t* ops = (query_operator_t*)(nodes + 2 * count);
@@ -799,7 +926,8 @@ tlv_result_t tlv_query_compile(const char* text, size_t size,
                 int node_test =
                     step->op == Q_TEST || step->op == Q_SELF ||
                     (step->op == Q_ROOT && step->anchor) ||
-                    (step->op == Q_CALL && (query_word(text, step->begin, step->end, "tag-mask") ||
+                    (step->op == Q_CALL && (query_word(text, step->begin, step->end, "name") ||
+                                            query_word(text, step->begin, step->end, "tag-mask") ||
                                             query_word(text, step->begin, step->end, "tag-range")));
                 if (!node_test) continue;
                 if (step->op == Q_ROOT) step->op = Q_SELF;
@@ -812,16 +940,17 @@ tlv_result_t tlv_query_compile(const char* text, size_t size,
         }
     }
     tlv_query_level_t level;
-    rc = analyze(text, nodes, used, &o, &level, d);
-    if (rc == TLV_OK && nodes[root].type != V_NODE)
-        rc = query_error(d, TLV_ERR_UNSUPPORTED_TYPE, TLV_QUERY_ERROR_CAPABILITY, nodes[root].begin,
-                         nodes[root].end, "F1 node-sequence result");
+    size_t payload_size, codec_stride, optimized;
+    uint8_t* payload = (uint8_t*)(values + count + 1);
+    rc = analyze(text, nodes, used, root, &o, payload, &payload_size, &codec_stride, &optimized,
+                 &level, d);
     if (size > SIZE_MAX - sizeof(tlv_query_program_t) - 1 ||
         used > (SIZE_MAX - sizeof(tlv_query_program_t) - size - 1) / sizeof(query_node_t))
         return query_error(d, TLV_ERR_OVERFLOW, TLV_QUERY_ERROR_STORAGE, 0, 0,
                            "representable program size");
     size_t text_offset = sizeof(tlv_query_program_t) + used * sizeof(query_node_t);
-    size_t total = text_offset + size + 1;
+    if (payload_size > SIZE_MAX - text_offset - size - 1) return TLV_ERR_OVERFLOW;
+    size_t total = text_offset + size + 1 + payload_size;
     if (total > UINT32_MAX)
         return query_error(d, TLV_ERR_OVERFLOW, TLV_QUERY_ERROR_STORAGE, 0, 0,
                            "representable program size");
@@ -836,7 +965,11 @@ tlv_result_t tlv_query_compile(const char* text, size_t size,
                                        query_public_type(nodes[root].type),
                                        used,
                                        used,
-                                       0};
+                                       0,
+                                       codec_stride,
+                                       o.max_pattern,
+                                       optimized,
+                                       used + 1};
     for (size_t i = 0; i < used; ++i) {
         query_node_t* n = &nodes[i];
         if (n->op != Q_VARIABLE) continue;
@@ -860,18 +993,23 @@ tlv_result_t tlv_query_compile(const char* text, size_t size,
         return query_error(d, TLV_ERR_BUFFER_TOO_SHORT, TLV_QUERY_ERROR_STORAGE, 0, 0,
                            "sufficient program capacity");
     tlv_query_program_t p = {QUERY_MAGIC,
-                             2,
+                             3,
                              (uint32_t)used,
                              root,
                              (uint32_t)size,
                              (uint32_t)text_offset,
                              (uint32_t)level,
                              (uint32_t)total,
-                             (uint32_t)result.variable_slots};
+                             (uint32_t)result.variable_slots,
+                             (uint32_t)payload_size,
+                             (uint32_t)o.max_pattern,
+                             (uint32_t)codec_stride,
+                             o.environment && o.environment->tags ? o.environment->tags->id : 0};
     memcpy(storage, &p, sizeof p);
     memcpy((uint8_t*)storage + sizeof p, nodes, used * sizeof *nodes);
     memcpy((uint8_t*)storage + text_offset, text, size);
     ((char*)storage)[text_offset + size] = 0;
+    memcpy((uint8_t*)storage + text_offset + size + 1, payload, payload_size);
     return TLV_OK;
 }
 

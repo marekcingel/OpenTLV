@@ -32,10 +32,12 @@ def main():
         if case.get("v1"):
             assert v1_baseline(case["query"], wire) == actual, case["id"]
         if args.native:
-            result = subprocess.run([args.native, case["query"], case["wire"]],
-                                    capture_output=True, text=True, check=True)
-            native = [int(value) for value in result.stdout.split()]
-            assert native == actual, (case["id"], native, actual)
+            for mode in ("o", "u", "ro", "ru"):
+                result = subprocess.run([args.native, case["query"], case["wire"], mode],
+                                        capture_output=True, text=True)
+                assert result.returncode == 0, (case["id"], mode, result.stderr)
+                native = result.stdout.strip() if isinstance(actual, str) else [int(value) for value in result.stdout.split()]
+                assert native == actual, (case["id"], mode, native, actual)
     print(f"{len(corpus['cases'])} Query fixtures passed")
 
 

@@ -4,7 +4,7 @@
 import re
 
 
-TOKEN = re.compile(r"\s*(x'[0-9a-fA-F]*'|//|::|!=|<=|>=|[()/\[\],|=<>]|\.|[@$]?[a-zA-Z0-9_?*-]+)")
+TOKEN = re.compile(r"\s*(x'[0-9a-fA-F]*'|'(?:\\.|[^'\\])*'|\"(?:\\.|[^\"\\])*\"|//|::|!=|<=|>=|[()/\[\],|=<>]|\.|[@$]?[a-zA-Z0-9_?*-]+)")
 
 
 def parse(text):
@@ -37,6 +37,10 @@ def parse(text):
             index += 1
         elif token.startswith("x'"):
             left = ("bytes", bytes.fromhex(token[2:-1]))
+        elif token.startswith(("'", '\"')):
+            left = ("string", re.sub(r"\\(.)", r"\1", token[1:-1]))
+        elif token in ("true", "false"):
+            left = ("bool", token == "true")
         elif token.startswith("@"):
             left = ("meta", token[1:])
         elif index < len(tokens) and tokens[index] == "(":
@@ -121,7 +125,7 @@ def raw_test(spelling, node):
                int(spelling[2 * i:2 * i + 2], 16) == byte for i, byte in enumerate(tag))
 
 
-def evaluate(ast, context, universe):
+def evaluate(ast, context, universe, position=1, last=1):
     op = ast[0]
     if op == "root":
         node = context
@@ -157,8 +161,14 @@ def evaluate(ast, context, universe):
         identities = {node["offset"] for node in result}
         return [node for node in universe if node["offset"] in identities]
     if op == "filter":
-        return [node for node in evaluate(ast[1], context, universe)
-                if evaluate(ast[2], node, universe)]
+        selected = evaluate(ast[1], context, universe)
+        result = []
+        for index, node in enumerate(selected, 1):
+            predicate = ast[2]
+            value = int(predicate[2]) if predicate[0] == "test" and predicate[1] == "child" and re.fullmatch(r"-?[0-9]+", predicate[2]) else evaluate(predicate, node, universe, index, len(selected))
+            if (value == index if type(value) is int else bool(value)):
+                result.append(node)
+        return result
     if op == "|":
         identities = {node["offset"] for branch in ast[1:]
                       for node in evaluate(branch, context, universe)}
@@ -168,6 +178,8 @@ def evaluate(ast, context, universe):
         right = {node["offset"] for node in evaluate(ast[2], context, universe)}
         identities = left & right if op == "intersect" else left - right
         return [node for node in universe if node["offset"] in identities]
+    if op in ("bool", "string"):
+        return ast[1]
     if op == "bytes":
         return ast[1]
     if op == "meta":
@@ -176,20 +188,44 @@ def evaluate(ast, context, universe):
         def scalar(value):
             if value[0] == "test" and re.fullmatch(r"-?[0-9]+", value[2]):
                 return int(value[2])
-            return evaluate(value, context, universe)
+            return evaluate(value, context, universe, position, last)
         a, b = scalar(ast[1]), scalar(ast[2])
         return {"=": lambda: a == b, "!=": lambda: a != b, "<": lambda: a < b,
                 "<=": lambda: a <= b, ">": lambda: a > b, ">=": lambda: a >= b}[op]()
     if op in ("and", "or"):
-        a = bool(evaluate(ast[1], context, universe))
-        b = bool(evaluate(ast[2], context, universe))
+        a = bool(evaluate(ast[1], context, universe, position, last))
+        b = bool(evaluate(ast[2], context, universe, position, last))
         return a and b if op == "and" else a or b
     if op == "call":
         name = ast[1]
         args = [int(arg[2]) if name == "substr" and i and arg[0] == "test" and arg[2].isdecimal()
-                else evaluate(arg, context, universe) for i, arg in enumerate(ast[2])]
-        if name == "value":
-            return context["value"]
+                else evaluate(arg, context, universe, position, last) for i, arg in enumerate(ast[2])]
+        if name in ("count", "exists", "empty"):
+            return len(args[0]) if name == "count" else bool(args[0]) if name == "exists" else not args[0]
+        if name in ("position", "last"):
+            return position if name == "position" else last
+        if name in ("value", "tag", "constructed", "num", "bcd", "text"):
+            value = args[0] if args else [context]
+            if isinstance(value, list):
+                if len(value) != 1 or value[0]["parent"] is None:
+                    raise ValueError("cardinality")
+                node = value[0]
+                value = node["tag"] if name == "tag" else node["value"]
+                if name == "constructed":
+                    return node["tag"] == b"\x70"
+            if name in ("value", "tag"):
+                return value
+            if name == "num":
+                if not value or len(value) > 8:
+                    raise ValueError("integer size")
+                return int.from_bytes(value, "big", signed=True)
+            if name == "bcd":
+                digits = value.hex()
+                if not digits.isdecimal():
+                    raise ValueError("BCD")
+                return int(digits)
+            if name == "text":
+                return value.decode("utf-8")
         if name == "len":
             return len(args[0]) if args else len(context["value"])
         if name == "not":
@@ -220,7 +256,16 @@ def evaluate(ast, context, universe):
 
 def select(query, wire):
     root, nodes = tree(wire)
-    return [node["offset"] for node in evaluate(parse(query), root, nodes)]
+    value = evaluate(parse(query), root, nodes)
+    if isinstance(value, list):
+        return [node["offset"] for node in value]
+    if isinstance(value, bool):
+        return f"bool:{int(value)}"
+    if isinstance(value, int):
+        return f"int:{value}"
+    if isinstance(value, str):
+        return "string:" + value.encode().hex()
+    return "bytes:" + value.hex()
 
 
 def v1_baseline(query, wire):

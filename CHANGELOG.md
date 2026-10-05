@@ -9,6 +9,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Fixed
 
+- Fix C and C++ API documentation builds with Doxygen warnings treated as errors for the new Query adapter headers. (#520)
 - Align Query variable identifiers with the language grammar, give `intersect` and `except` higher precedence than union, and bound program/execution info writes by caller-provided structure sizes. Query callers must initialize the new `struct_size` fields and rebuild. (#520, #526)
 - Fix Query binding builds on 32-bit platforms such as WebAssembly with Clang warnings treated as errors. (#520)
 - Reject inconsistent compiled Query images before execution or formatting, enforce opaque storage sizes at compile time, preserve explicit numeric axis tag tests, and remove repeated V1 Query copying and binding count validation. (#519, #525)
@@ -125,6 +126,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Added
 
+- Complete Query F2 with finalized scalar results, cardinality-checked conversions, positional functions, compile-time names and explicit codec/tag environments. Add bounded retained-event evaluation for deferred ordered node sets, runtime byte patterns and inspectable conservative optimization. Query callers must rebuild for the extended options and diagnostics. (#520)
 - Expose unique referenced Query variable requirements and size binding workspace by unique variables rather than expression nodes. (#520, #526)
 - Add typed integer, byte and UTF-8 string Query variable declarations and independent borrowed execution bindings, signed int64 comparisons with overflow checks, and ordered S0 node intersection and difference. (#520)
 - Add caller-stored compiled Query programs and bounded S0 execution over canonical Tree events, with descendant/union selection, metadata and byte predicates, structured diagnostics and an independent conformance corpus. (#519)

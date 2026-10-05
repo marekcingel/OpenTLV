@@ -50,7 +50,7 @@ comparison  = intersection, [ ("=" | "!=" | "<" | "<=" | ">" | ">="), intersecti
 intersection = path, { ("intersect" | "except"), path } ;
 path        = [ "/" | "//" ], filtered, { ("/" | "//"), filtered } ;
 filtered    = primary, { "[", expression, "]" } ;
-primary     = step | metadata | variable | integer | bytes | string
+primary     = step | metadata | variable | integer | bytes | string | "true" | "false"
             | call | "(", expression, ")" ;
 step        = [ axis, "::" ], test | "." | ".." ;
 axis        = "child" | "descendant" | "descendant-or-self" | "self"
@@ -83,7 +83,7 @@ An explicit axis such as `[child::50]` always denotes a raw tag test, including
 when whitespace follows `::`; it never becomes a positional or scalar literal.
 Bare even hex-looking identifiers such as `CAFE` are raw tags; names use a
 namespace, including `emv:CAFE`. For symbols outside identifier syntax, the
-planned `name(namespace, symbol)` function supplies string arguments. Odd raw
+`name(namespace, symbol)` function supplies string arguments. Odd raw
 hexadecimal spellings such as `BAD` cannot silently become a truncated tag.
 
 ## Node model, order and context
@@ -114,12 +114,13 @@ order before the final result is normalized to document order. Consequently
 `//5A[1]` selects first matching children in their respective contexts whereas
 `(//5A)[1]` selects the first node in the complete descendant selection.
 
-**Q-CONTEXT-02.** F1 supports ancestor tests inside predicates as evidence
-about the current node, never as ancestor projection. Node-returning ancestor
-or parent axes require a later plan. Ancestor predicates with their own filters
-and absolute paths nested inside a relative path are rejected in F1.
-Execution starts at the whole root sequence and can select a relative context
-by preorder identity; it does not reinterpret an interior Reader cursor as a root.
+**Q-CONTEXT-02.** S0 supports ancestor tests inside predicates as evidence.
+Retained F2 also evaluates filtered ancestor sequences, using nearest-ancestor
+position first and normalizing published results to document order. Parent,
+sibling and global reverse axes and nested absolute paths remain explicit F3
+capabilities. Execution starts at the whole root sequence and can select a
+relative context by preorder identity; it does not reinterpret an interior
+Reader cursor as a root.
 
 ## Values, functions and unavailable metadata
 
@@ -135,8 +136,11 @@ accept node sequences without that restriction.
 and ordering compare bytes. `starts-with`, `ends-with`, `contains` and `substr`
 operate on bytes; `substr` uses zero-based start and optional byte count,
 clamping the requested span to the available bytes. Empty patterns match.
-F1 `contains` accepts a compiled byte-literal pattern and uses caller-owned
-prefix workspace. Runtime variable pattern sizing belongs to F2. No operation
+`contains` accepts literal, variable and expression patterns and uses caller-owned
+prefix workspace. Patterns are bounded by compile option `max_pattern` (literal overflow is rejected
+at compilation, runtime overflow at evaluation);
+program info reports the prefix capacity in `pattern_bytes`. A pattern exceeding
+that capacity reports a pattern limit, including when it exceeds the haystack. No operation
 extends a borrowed Value's lifetime.
 
 **Q-VALUE-03.** `@len` is logical Value bytes; `@depth` is zero for roots;
@@ -152,12 +156,12 @@ Source-less custom events and newly edited Document nodes must not fabricate it.
 `name`, `tag-range`, and `tag-mask`. Arity and operand types are checked before
 input consumption for implemented functions. Unknown functions are unsupported
 capabilities, not arbitrary executable hooks. Conversion/Format capabilities
-use the explicit future execution environment, not protocol knowledge in Query.
+use the explicit execution environment, not protocol knowledge in Query.
 
-**Q-FUNCTION-02.** F1 implements node results, metadata comparisons, eager
-boolean composition, byte functions, and tag tests. Both operands of `and` and
-`or` are evaluated, so neither suppresses Source/type/resource errors. Full
-typed conversions and general scalar results remain later-phase capabilities.
+**Q-FUNCTION-02.** F2 implements all five result categories, the closed function
+inventory, metadata comparisons, eager boolean composition and tag tests. Both operands of `and` and
+`or` are evaluated, so neither suppresses Source/type/resource errors. Typed
+conversions decode complete Values through the compatible execution environment.
 S0 union, intersection and difference combine decisions for the same published
 node identity, preserving source order and eliminating duplicate matches without
 retaining a node set. An operand requiring deferred evidence still makes the
@@ -187,7 +191,8 @@ from bytes. Values are borrowed unchanged through execution, including suspensio
 callers needing a copy provide their own stable storage. Reinitialization clears
 bindings. Rebinding after an event, including STOP/NEED_MORE_DATA suspension,
 is rejected. Independent executions can bind different values to one program.
-Runtime-pattern `contains` and string literals remain unavailable in this slice.
+Runtime-pattern `contains` uses the explicit compiled capacity; string literals
+are copied into immutable program storage.
 
 ## Storage and execution
 
@@ -206,8 +211,9 @@ The program must remain unchanged throughout execution; feed does not revalidate
 
 **Q-STORAGE-02.** Compile-time name resolution and execution-time hooks have
 different lifetimes. Copying the program cannot make external callbacks or
-Format contexts self-contained. The F1 API rejects symbolic/hook capabilities;
-their explicit environment is introduced by F2. Repeating sizing/compile with
+Format contexts self-contained. F2 copies resolved tag bytes into the program;
+resolver/Definition storage is needed only while compiling. Providers, their
+contexts and the Format remain borrowed throughout execution and suspension. Repeating sizing/compile with
 the same bounded text/options yields identical requirements and output.
 
 **Q-PLAN-01.** Execution levels apply to whole expressions: S0 decides at
@@ -215,7 +221,11 @@ complete node publication; S1 retains bounded depth summaries for scope evidence
 S2 requires explicit candidate capacity; D performs Document navigation with
 work bounds. Ordered unions involving undecided ancestors can force S2/D even
 if their individual branches appear S1. `//70[not(5A)] | //9F02` cannot promise
-an unbuffered S1 ordered output. F1 rejects non-S0 capabilities before traversal.
+an unbuffered S1 ordered output. Use `tlv_query_exec_size/init` for S0 and `tlv_query_eval_size/init` for arbitrary
+F2 expressions. The latter is a conservative D plan over explicitly retained
+canonical events: it consumes the full input before exposing finalized results.
+It does not construct a Document or reparse wire bytes. S1/S2 streaming summary
+engines and F3 reverse/sibling/global axes remain separate capabilities.
 
 **Q-LIMIT-01.** Defaults bound text, tokens, syntactic nesting and states.
 Runtime depth, element count and work are caller parameters. Exact total runtime
@@ -233,8 +243,9 @@ construct a Document.
 **Q-EVENT-02.** NEED_MORE_DATA publishes no partial event. Callback STOP consumes
 the matching event exactly once; retaining execution and Reader permits resume.
 Replacement input obeys the Reader frontier and unfinished-extent retention
-rules. Execution retains only boolean state and sibling indices, not borrowed
-Element/Source/Value pointers. A non-resumable error invalidates execution until
+rules. S0 retains boolean state and sibling indices. Retained evaluation also stores
+borrowed Element/Source/Value pointers until reset; every published input span
+must remain immutable and alive, even after the Reader frontier moves. A non-resumable error invalidates execution until
 reset; parse/compile failures preserve existing outputs as documented in headers.
 
 **Q-VALIDATE-01.** Default success at EOF means full structural traversal of
@@ -270,5 +281,85 @@ an old ABI. Diagnostic, variable declaration and variable requirement structures
 are fixed-layout value types; layout changes require an ABI change. Opaque program
 and execution objects continue to use independent size/alignment discovery.
 `expression_values` is the conservative intermediate-slot count and `instructions`
-is the maximum number of expression-node evaluations per published node; byte
+is the immutable expression instruction count; retained execution can revisit
+instructions for distinct contexts and charges each evaluation to its work limit; byte
 scanning and callback costs are separate. `variable_slots` counts unique bindings.
+
+## F2 functions and providers
+
+The following signatures are closed and checked at compilation. `nodes` denotes
+an ordered node sequence and `bytes` and `string` remain distinct types.
+
+| Function | Result and operands |
+| --- | --- |
+| `count(nodes)`, `exists(nodes)`, `empty(nodes)` | Integer, boolean, boolean; no cardinality restriction |
+| `not(boolean-or-nodes)` | Boolean; node truth is nonempty |
+| `position()`, `last()` | One-based position and size of the current predicate sequence |
+| `value()` / `value(nodes)` | Complete borrowed Value bytes; exactly one real node |
+| `len()` / `len(bytes-or-string)` | Candidate Value length / byte length |
+| `starts-with(bytes, bytes)`, `ends-with(bytes, bytes)`, `contains(bytes, bytes)` | Boolean; byte matching, including NUL |
+| `substr(bytes, integer[, integer])` | Borrowed byte subspan; zero-based start |
+| `num(bytes-or-nodes)`, `bcd(bytes-or-nodes)`, `date(bytes-or-nodes)` | Signed int64; node arguments require exactly one node |
+| `text(bytes-or-nodes)` | Validated UTF-8 string; exactly one node for node arguments |
+| `tag()` / `tag(nodes)` | Raw canonical identifier bytes |
+| `class()` / `class(nodes)`, `number()` / `number(nodes)` | Provider-defined semantic tag components as int64 |
+| `constructed()` / `constructed(nodes)` | Format-defined constructed status |
+| `name(string, string)` | Compile-time namespace/symbol selection with copied tag bytes |
+| `tag-mask(bytes, bytes)`, `tag-range(bytes, bytes)` | Node tests; masks have equal widths and range endpoints are ordered |
+
+Each chained predicate receives the sequence surviving its preceding predicate.
+`//5A[2]` selects the second matching child at each descendant context;
+`(//5A)[2]` selects the second node of the combined ordered result.
+An integer predicate compares its value to the current one-based position.
+Union/intersection/difference use node identity and emit each selected node once
+in document order, including branches needing descendant or positional evidence.
+No scalar is available until balanced EOF and successful evaluation. Retrieve it
+with `tlv_query_exec_result`; pull node events with `tlv_query_result_next` or use
+the resumable visitor. A retained visitor STOP occurs after full input validation
+and resumes after the consumed selected node.
+
+`tlv_query_definition_resolve` searches explicit Definition namespaces by exact
+label and rejects unknown or ambiguous symbols. Definitions do not choose codecs.
+`tlv_emv_query_resolve` uses native EMV Schema symbols, namespace `emv`, and the
+explicit `PAN` alias for `pan`. Bare hex-looking symbols require a namespace or
+`name('emv', 'symbol')` to distinguish them from raw tags. Compiled programs contain
+no resolver pointers and need no execution-time dictionary lookup.
+
+Compile options reference a `tlv_query_environment_t` for conversion capability
+selection. The program stores stable nonzero IDs and per-call scratch requirements;
+execution initialization checks IDs, function/result roles, scratch bounds and tag
+capabilities before consuming input. The visitor also requires the same Format
+object as the environment. All borrowed providers and contexts must be immutable
+and safe for concurrent independent executions. Caller workspaces supply aligned
+codec scratch (up to 16-byte alignment), with a separate region for each conversion
+instruction so sibling expression results remain valid. Callbacks perform no
+implicit Query allocation; their own costs and allocation policy are external to
+the VM work guarantee and must be bounded by the application.
+
+`tlv_query_builtin_hooks` adapts existing codecs: minimal signed big-endian NUM,
+unsigned packed BCD of at most 18 digits, and UTF-8 TEXT. Domain adapters may replace
+these explicit choices with other existing codecs and distinct capability IDs.
+`tlv_asn1_query_tags` supplies BER/ASN.1 class and number; raw `tag()` always keeps
+canonical identifier identity. Flat formats need an explicit semantic provider for
+class/number. `constructed()` independently delegates to Format.
+`tlv_asn1_query_date` accepts complete nonfractional UTC GeneralizedTime, validates
+the Gregorian calendar and returns signed Unix seconds; unsupported precision or
+timezone forms fail rather than silently losing information. Date values outside
+1970 are valid when representable. Codec failures preserve their original status
+in `diagnostic.codec` together with the Query span and sourced node offset.
+
+Retained workspace is O(instructions ? (depth + node capacity)) plus retained
+events, explicit pattern workspace, evaluation frames and per-instruction codec
+scratch. Evaluation is iterative with validated backward child references, bounded
+frames and no recursive C evaluation. Every frame dispatch, membership scan,
+retention search and byte operation consumes the configured work budget. Exhausted
+node/depth/work/pattern budgets fail; there is no hidden allocation or fallback.
+
+`optimize=0` disables conservative rewrites. The enabled optimizer folds pure
+constant comparisons/boolean pairs, simplifies terminal self steps and shares
+identical guarded S0 tag selectors. It never folds a codec, drops a fallible
+operand, or reorders eager boolean evaluation. `tlv_query_program_explain` reports
+instruction kinds, types, whole-plan level, reused selectors and capability IDs;
+program info reports optimized states and expression stack capacity. The independent
+corpus compares optimized/unoptimized S0 and retained execution. These rewrites do
+not imply global index planning or a universal linear-time execution guarantee.
