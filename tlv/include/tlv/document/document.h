@@ -18,6 +18,13 @@
 extern "C" {
 #endif
 
+/** @brief Opaque compiled Query execution, defined in tlv/query/program.h. */
+struct tlv_query_exec;
+/** @brief Query diagnostic, defined in tlv/query/program.h. */
+struct tlv_query_diagnostic;
+/** @brief Caller Writer staging, defined in tlv/writer/tree.h. */
+struct tlv_tree_writer_workspace;
+
 /**
  * @file
  * @ingroup document
@@ -327,6 +334,70 @@ typedef tlv_visit_result_t (*tlv_document_query_visitor_t)(tlv_node_t* node, voi
 TLV_API tlv_result_t tlv_document_query_visit(const tlv_document_t* document,
                                               const tlv_query_t* query,
                                               tlv_document_query_visitor_t visitor, void* context);
+
+/** @brief Discover the complete encoded snapshot size for compiled Document Query Values.
+ * @param[in] document Live owning Document.
+ * @param[in,out] staging Caller-owned Tree Writer frames/output/scratch, disjoint
+ * from Document storage. Short storage reports Writer requirements; resize
+ * explicitly and repeat discovery from the start.
+ * @param[out] bytes Complete encoded Document size, not a sum of nested Values.
+ * @return OK, NULL argument, overflow or original Writer sizing error.
+ * @note No allocation. Encodes the Document once through the canonical Writer.
+ * Discovery is outside the execution work budget. It is unnecessary when program
+ * info reports constructed_values_required == 0. Output may be reused as the
+ * evaluation snapshot. Include tlv/writer/tree.h for the workspace definition. */
+TLV_API tlv_result_t tlv_document_query_value_size(const tlv_document_t* document,
+                                                   struct tlv_tree_writer_workspace* staging,
+                                                   size_t* bytes);
+
+/** @brief Evaluate a compiled program over Document nodes using a fresh retained execution.
+ * @param[in] document Live Document; must remain unchanged through result consumption.
+ * @param[in,out] exec Fresh execution created with tlv_query_eval_init, including D plans.
+ * @param[in] context Optional node in this Document; NULL selects its virtual root.
+ * @param[in,out] values Complete encoded snapshot storage, alive until execution reset.
+ * May reuse discovery staging.data. NULL/zero is sufficient when constructed
+ * Values are not required by the compiled program.
+ * @param[in] capacity Snapshot bytes, discovered with query_value_size when needed.
+ * @param[in,out] staging Caller-owned bounded Tree Writer frames and closing scratch.
+ * Output data/capacity are used only during discovery; evaluation writes directly
+ * into values. Frames/scratch must be disjoint from values, Query and Document storage.
+ * May be NULL when program info reports constructed_values_required == 0.
+ * @param[out] diagnostic Optional error detail; Source locations are unavailable.
+ * @return OK with finalized nodes/scalar; capacity, depth, candidate, work or original
+ * Writer/Reader/evaluation errors. A foreign context or used execution is invalid.
+ * @note No allocation. Uses public node navigation and the shared Query VM. Programs
+ * that may inspect constructed Values encode the Document once; canonical Reader
+ * decoding maps nodes to slices of that snapshot. Other programs skip encoding entirely.
+ * Encoding follows current Document semantics, including edits. Historical wire
+ * spellings and Source locations are not preserved. Work charges use visited events
+ * and actual byte extents, independently of spare buffer capacity. General Writer
+ * encoding and Query evaluation may still be superlinear on deeply nested inputs.
+ * Failure after execution begins is terminal until reset; no results have been emitted.
+ * Include tlv/query/program.h and, when needed, tlv/writer/tree.h for type definitions. */
+TLV_API tlv_result_t tlv_document_query_evaluate(const tlv_document_t* document,
+                                                 struct tlv_query_exec* exec,
+                                                 const tlv_node_t* context, void* values,
+                                                 size_t capacity,
+                                                 struct tlv_tree_writer_workspace* staging,
+                                                 struct tlv_query_diagnostic* diagnostic);
+
+/** @brief Pull the next finalized unique node handle in current Document preorder.
+ * @param[in,out] exec Successfully evaluated Document node execution.
+ * @param[out] node Borrowed node; unchanged on exhaustion or error.
+ * @return OK, END_OF_BUFFER, NULL argument or invalid execution state.
+ * @note Document and Value storage must remain alive and unchanged. First is one pull;
+ * all is repeated pulls. Iteration allocates nothing and also works without Source. */
+TLV_API tlv_result_t tlv_document_query_next(struct tlv_query_exec* exec, tlv_node_t** node);
+
+/** @brief Visit remaining finalized Document results; STOP resumes after the delivered node.
+ * @param[in,out] exec Successfully evaluated Document node execution.
+ * @param[in] visitor Required callback; must not edit the Document.
+ * @param[in] context Optional callback context.
+ * @return OK on exhaustion/STOP, VISITOR on callback error (terminal), or pull errors.
+ * @warning Previously delivered callbacks are never rolled back. */
+TLV_API tlv_result_t tlv_document_query_program_visit(struct tlv_query_exec* exec,
+                                                      tlv_document_query_visitor_t visitor,
+                                                      void* context);
 
 /**
  * @brief Finds the first element addressed by a path query.

@@ -3,6 +3,7 @@
 
 #include "tlv/document/document.h"
 #include "tlv/size.h"
+#include "document_internal.h"
 #include "tlv/reader/tree.h"
 #include "tlv/writer/tree.h"
 #include <stdlib.h>
@@ -815,4 +816,11 @@ tlv_result_t tlv_node_encode(const tlv_node_t* node, uint8_t* data, size_t capac
                              size_t* written) {
     return tlv_node_encode_as(node, node ? node->document->options.format : NULL, data, capacity,
                               written);
+}
+
+const tlv_format_t* document_format(const tlv_document_t* document) {
+    return document ? document->options.format : NULL;
+}
+int document_contains(const tlv_document_t* document, const tlv_node_t* node) {
+    return node && node->document == document;
 }

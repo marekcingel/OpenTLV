@@ -2,9 +2,10 @@
 # Copyright (c) 2026 Marek Cingel
 """Small test-only Query oracle, independent of the C program and state machine."""
 import re
+import datetime
 
 
-TOKEN = re.compile(r"\s*(x'[0-9a-fA-F]*'|'(?:\\.|[^'\\])*'|\"(?:\\.|[^\"\\])*\"|//|::|!=|<=|>=|[()/\[\],|=<>]|\.|[@$]?[a-zA-Z0-9_?*-]+)")
+TOKEN = re.compile(r"\s*(x'[0-9a-fA-F]*'|'(?:\\.|[^'\\])*'|\"(?:\\.|[^\"\\])*\"|//|::|!=|<=|>=|[()/\[\],|=<>]|\.\.|\.|[a-zA-Z][a-zA-Z0-9_-]*:[a-zA-Z][a-zA-Z0-9_-]*|[@$]?[a-zA-Z0-9_?*-]+)")
 
 
 def parse(text):
@@ -35,6 +36,7 @@ def parse(text):
             if index >= len(tokens) or tokens[index] != ")":
                 raise ValueError("missing )")
             index += 1
+            left = ("group", left)
         elif token.startswith("x'"):
             left = ("bytes", bytes.fromhex(token[2:-1]))
         elif token.startswith(("'", '\"')):
@@ -58,7 +60,7 @@ def parse(text):
             left = ("call", token, args)
         elif index < len(tokens) and tokens[index] == "::":
             index += 1
-            left = ("test", token, tokens[index])
+            left = ("test", token, tokens[index], "explicit")
             index += 1
         else:
             left = ("test", "child", token)
@@ -118,6 +120,8 @@ def descendants(node):
 def raw_test(spelling, node):
     if spelling == "*":
         return True
+    if ':' in spelling:
+        spelling = {"fixture:leaf":"5A", "fixture:container":"70"}[spelling]
     tag = node["tag"]
     if len(spelling) != len(tag) * 2:
         return False
@@ -127,23 +131,49 @@ def raw_test(spelling, node):
 
 def evaluate(ast, context, universe, position=1, last=1):
     op = ast[0]
+    if op == "group":
+        value = evaluate(ast[1], context, universe, position, last)
+        return sorted(value, key=lambda n: n["offset"]) if isinstance(value, list) else value
     if op == "root":
         node = context
         while node["parent"] is not None:
             node = node["parent"]
         return [node]
     if op == "test":
-        axis, spelling = ast[1:]
+        axis, spelling = ast[1:3]
         if spelling == ".":
             return [context]
-        if axis == "ancestor":
-            candidates = []
+        if spelling == "..":
+            return [context["parent"]] if context["parent"] is not None else []
+        if axis in ("ancestor", "ancestor-or-self"):
+            candidates = [context] if axis == "ancestor-or-self" and context["parent"] is not None else []
             parent = context["parent"]
             while parent is not None and parent["parent"] is not None:
                 candidates.append(parent)
                 parent = parent["parent"]
+        elif axis == "parent":
+            parent = context["parent"]
+            candidates = [parent] if parent is not None and parent["parent"] is not None else []
+        elif axis in ("descendant", "descendant-or-self"):
+            candidates = ([context] if axis == "descendant-or-self" and context["parent"] is not None else []) + list(descendants(context))
+        elif axis in ("following-sibling", "preceding-sibling"):
+            siblings = context["parent"]["children"] if context["parent"] else []
+            candidates = [n for n in siblings if n["index"] > context.get("index", -1)] if axis == "following-sibling" else [n for n in reversed(siblings) if n["index"] < context.get("index", -1)]
+        elif axis in ("following", "preceding"):
+            if context["parent"] is None:
+                candidates = []
+            elif axis == "following":
+                excluded = {id(n) for n in descendants(context)}
+                candidates = [n for n in universe if n["offset"] > context["offset"] and id(n) not in excluded]
+            else:
+                ancestors = set()
+                parent = context["parent"]
+                while parent:
+                    ancestors.add(id(parent))
+                    parent = parent["parent"]
+                candidates = [n for n in reversed(universe) if n["offset"] < context["offset"] and id(n) not in ancestors]
         elif axis == "self":
-            candidates = [context]
+            candidates = [context] if context["parent"] is not None else []
         else:
             candidates = context["children"]
         return [node for node in candidates if raw_test(spelling, node)]
@@ -159,25 +189,34 @@ def evaluate(ast, context, universe, position=1, last=1):
                 for inner in [parent, *descendants(parent)]:
                     result.extend(evaluate(ast[2], inner, universe))
         identities = {node["offset"] for node in result}
-        return [node for node in universe if node["offset"] in identities]
+        root = context
+        while root["parent"] is not None:
+            root = root["parent"]
+        return [node for node in [root, *universe] if node["offset"] in identities]
     if op == "filter":
         selected = evaluate(ast[1], context, universe)
         result = []
         for index, node in enumerate(selected, 1):
             predicate = ast[2]
-            value = int(predicate[2]) if predicate[0] == "test" and predicate[1] == "child" and re.fullmatch(r"-?[0-9]+", predicate[2]) else evaluate(predicate, node, universe, index, len(selected))
+            value = int(predicate[2]) if predicate[0] == "test" and len(predicate) == 3 and predicate[1] == "child" and re.fullmatch(r"-?[0-9]+", predicate[2]) else evaluate(predicate, node, universe, index, len(selected))
             if (value == index if type(value) is int else bool(value)):
                 result.append(node)
         return result
     if op == "|":
         identities = {node["offset"] for branch in ast[1:]
                       for node in evaluate(branch, context, universe)}
-        return [node for node in universe if node["offset"] in identities]
+        root = context
+        while root["parent"] is not None:
+            root = root["parent"]
+        return [node for node in [root, *universe] if node["offset"] in identities]
     if op in ("intersect", "except"):
         left = {node["offset"] for node in evaluate(ast[1], context, universe)}
         right = {node["offset"] for node in evaluate(ast[2], context, universe)}
         identities = left & right if op == "intersect" else left - right
-        return [node for node in universe if node["offset"] in identities]
+        root = context
+        while root["parent"] is not None:
+            root = root["parent"]
+        return [node for node in [root, *universe] if node["offset"] in identities]
     if op in ("bool", "string"):
         return ast[1]
     if op == "bytes":
@@ -186,7 +225,7 @@ def evaluate(ast, context, universe, position=1, last=1):
         return len(context["value"]) if ast[1] == "len" else 2 if ast[1] == "hlen" else context[ast[1]]
     if op in ("=", "!=", "<", "<=", ">", ">="):
         def scalar(value):
-            if value[0] == "test" and re.fullmatch(r"-?[0-9]+", value[2]):
+            if value[0] == "test" and len(value) == 3 and re.fullmatch(r"-?[0-9]+", value[2]):
                 return int(value[2])
             return evaluate(value, context, universe, position, last)
         a, b = scalar(ast[1]), scalar(ast[2])
@@ -204,17 +243,28 @@ def evaluate(ast, context, universe, position=1, last=1):
             return len(args[0]) if name == "count" else bool(args[0]) if name == "exists" else not args[0]
         if name in ("position", "last"):
             return position if name == "position" else last
-        if name in ("value", "tag", "constructed", "num", "bcd", "text"):
+        if name in ("value", "tag", "constructed", "num", "bcd", "text", "date", "class", "number"):
             value = args[0] if args else [context]
             if isinstance(value, list):
                 if len(value) != 1 or value[0]["parent"] is None:
                     raise ValueError("cardinality")
                 node = value[0]
-                value = node["tag"] if name == "tag" else node["value"]
+                value = node["tag"] if name in ("tag", "class", "number") else node["value"]
                 if name == "constructed":
                     return node["tag"] == b"\x70"
             if name in ("value", "tag"):
                 return value
+            if name == "class":
+                return value[0] >> 6
+            if name == "number":
+                if value[0] & 31 != 31:
+                    return value[0] & 31
+                number = 0
+                for byte in value[1:]:
+                    number = (number << 7) | (byte & 127)
+                return number
+            if name == "date":
+                return int(datetime.datetime.strptime(value.decode('ascii'), '%Y%m%d%H%M%SZ').replace(tzinfo=datetime.timezone.utc).timestamp())
             if name == "num":
                 if not value or len(value) > 8:
                     raise ValueError("integer size")
@@ -226,6 +276,9 @@ def evaluate(ast, context, universe, position=1, last=1):
                 return int(digits)
             if name == "text":
                 return value.decode("utf-8")
+        if name == "name":
+            spelling = args[0] + ':' + args[1]
+            return [n for n in context["children"] if raw_test(spelling,n)]
         if name == "len":
             return len(args[0]) if args else len(context["value"])
         if name == "not":
@@ -258,7 +311,7 @@ def select(query, wire):
     root, nodes = tree(wire)
     value = evaluate(parse(query), root, nodes)
     if isinstance(value, list):
-        return [node["offset"] for node in value]
+        return sorted({node["offset"] for node in value if node["parent"] is not None})
     if isinstance(value, bool):
         return f"bool:{int(value)}"
     if isinstance(value, int):

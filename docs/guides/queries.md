@@ -297,6 +297,45 @@ if len(matches) > 0 {
 
 ///
 
+## Compiled deferred and Document queries
+
+The full language uses `tlv_query_compile` and an immutable caller-stored program.
+Inspect its whole-expression level and decision timing before selecting execution.
+S0/S1 use `tlv_query_exec_size/init`; S2 uses `tlv_query_eval_size/init` with an
+explicit capacity for every published node, including nonmatches. Deferred spans
+require stable input storage across Reader windows. Reader callbacks resume after
+STOP; NEED_MORE_DATA preserves execution without exposing a partial event.
+The levels describe resource needs: immediate decisions (S0), decisions when a
+scope closes (S1), retained input descriptors (S2), or Document navigation (D).
+When `stable_input_required` is nonzero, replacing a Reader window does not release
+old borrowed bytes: keep all published spans alive and immutable until execution reset.
+
+For a compiled query on an existing Document, initialize retained execution even
+when the program can also stream. First inspect `constructed_values_required` in
+program info. If zero, pass NULL/zero for Value storage and NULL for Writer staging;
+navigation and counting do not encode the Document.
+
+Otherwise supply `tlv_tree_writer_workspace_t` with caller-owned frames, output
+and closing scratch. `tlv_document_query_value_size` discovers the complete encoded
+Document size. Resize explicitly from reported Writer requirements and repeat if
+needed. Reuse its output as the final Value snapshot: evaluation encodes directly
+into the supplied Value buffer and all Values borrow ranges within it. Staging
+frames/scratch remain required, but staging output is ignored during evaluation.
+Both discovery and execution use no Document allocation.
+
+Then call `tlv_document_query_evaluate` with the execution, optional relative
+context handle, Value buffer and Writer workspace. Pull first/all matches with
+`tlv_document_query_next`, or use `tlv_document_query_program_visit` for resumable
+callbacks. Scalars use `tlv_query_exec_result`. Keep the Document and Value storage
+alive and unchanged through consumption. Reinitialize execution after edits or a
+terminal error. Global `following`/`preceding` plans require this backend and are
+rejected by Reader execution before input is consumed. Source offsets are unavailable.
+
+The [language contract](../concepts/query-language.md#storage-and-execution)
+defines ordered emission, deduplication, capacity errors and backend costs.
+These compiled APIs currently have a C facade; the path APIs above retain their
+existing language and binding behavior.
+
 ## Next step
 
 Next: [codecs](codecs.md) to interpret selected Values.

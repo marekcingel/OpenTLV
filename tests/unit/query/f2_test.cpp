@@ -45,7 +45,7 @@ struct Evaluation {
         size_t      count;
         const auto* builtin = tlv_query_builtin_hooks(&count);
         hooks.assign(builtin, builtin + count);
-#if OPENTLV_FORMAT_ASN1
+#if OPENTLV_FORMAT_BER
         hooks.push_back(tlv_asn1_query_date);
 #endif
         format.is_constructed = constructed;
@@ -240,7 +240,7 @@ TEST(Unit_Tlv_QueryF2, NameResolutionCopiesIdentifiersAndDetectsConflicts) {
     EXPECT_EQ((std::vector<size_t>{0}), selected);
     tag = 0x5a;
     ASSERT_EQ(TLV_OK, e.compile("//70[name('a','PAN')]"));
-    EXPECT_EQ(e.info.level, TLV_QUERY_D);
+    EXPECT_EQ(e.info.level, TLV_QUERY_S2);
     ASSERT_EQ(TLV_OK, e.init());
     selected.clear();
     ASSERT_EQ(TLV_OK, e.run({0x70, 2, 0x5a, 0}, &selected));
@@ -275,7 +275,7 @@ TEST(Unit_Tlv_QueryF2, EnvironmentMismatchIsRejectedBeforeInput) {
     EXPECT_EQ(TLV_ERR_INVALID_ARG, flat.compile("value(x'00')"));
     EXPECT_EQ(TLV_ERR_INVALID_ARG, flat.compile("'text' = x'74657874'"));
 }
-#if OPENTLV_FORMAT_ASN1
+#if OPENTLV_FORMAT_BER
 TEST(Unit_Tlv_QueryF2, Asn1CapabilitiesAndUtcDateAdapter) {
     Evaluation e;
     e.environment.tags = &tlv_asn1_query_tags;
