@@ -6,7 +6,11 @@
 #ifdef __cplusplus
 extern "C" {
 #endif
-/** @file @ingroup traversal @brief Generic Definition and Value codec Query adapters. */
+/**
+ * @file
+ * @ingroup traversal
+ * @brief Generic Definition and Value codec Query adapters.
+ */
 /** @brief One explicit namespace of borrowed descriptive definitions. */
 typedef struct tlv_query_definition_scope {
     const char* namespace_name;                   /**< NUL-terminated namespace. */

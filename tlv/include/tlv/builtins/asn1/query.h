@@ -6,7 +6,11 @@
 #ifdef __cplusplus
 extern "C" {
 #endif
-/** @file @ingroup traversal @brief ASN.1 Query semantic tag and date adapters. */
+/**
+ * @file
+ * @ingroup traversal
+ * @brief ASN.1 Query semantic tag and date adapters.
+ */
 /** @brief Static class/number provider for valid BER/DER/CER identifiers.
  * Class values are 0 universal, 1 application, 2 context-specific, 3 private.
  * Number decomposition checks int64 narrowing; raw Tag identity never changes. */

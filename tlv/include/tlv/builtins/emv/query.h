@@ -7,7 +7,11 @@
 #ifdef __cplusplus
 extern "C" {
 #endif
-/** @file @ingroup traversal @brief Native EMV Query name adapter. */
+/**
+ * @file
+ * @ingroup traversal
+ * @brief Native EMV Query name adapter.
+ */
 /** @brief Resolve canonical EMV Schema symbols in namespace emv; PAN aliases pan.
  * @param[in] context Borrowed tlv_emv_dictionary_t, or NULL for the base dictionary.
  * @param[in] namespace_name Optional bounded namespace, empty or emv.
