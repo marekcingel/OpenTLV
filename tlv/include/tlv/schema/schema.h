@@ -289,7 +289,9 @@ typedef enum tlv_schema_issue_kind {
     TLV_SCHEMA_ISSUE_LENGTH,
     /** An element appears before an earlier-listed rule's element in a scope whose
      * #tlv_structure_schema_t::order is #TLV_SCHEMA_ORDER_SEQUENCE. */
-    TLV_SCHEMA_ISSUE_ORDER
+    TLV_SCHEMA_ISSUE_ORDER,
+    /** Contextual compiled Query boolean assertion failed. */
+    TLV_SCHEMA_ISSUE_ASSERTION
 } tlv_schema_issue_kind_t;
 
 /** @brief Unknown-tag policy applied by tlv_schema_validate_all_diag(). */

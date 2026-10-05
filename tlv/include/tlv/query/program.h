@@ -532,6 +532,15 @@ TLV_API tlv_result_t tlv_query_exec_result(const tlv_query_exec_t* exec,
  * @return OK, END_OF_BUFFER, or NULL/invalid-state errors. */
 TLV_API tlv_result_t tlv_query_result_next(tlv_query_exec_t* exec, tlv_tree_event_t* event);
 
+/** @brief Pull a finalized node and its zero-based traversal ordinal.
+ * @param exec Completed retained node-result execution.
+ * @param event Borrowed matching event, unchanged on failure.
+ * @param ordinal Original input preorder position, independent of Source offsets.
+ * @return OK, END_OF_BUFFER or native state/revision error; never allocates.
+ * @note The ordinal is scoped to one traversal/revision and is not tlv_node_identity(). */
+TLV_API tlv_result_t tlv_query_result_next_ordinal(tlv_query_exec_t* exec, tlv_tree_event_t* event,
+                                                   size_t* ordinal);
+
 /** @brief Format normalized plan details; sizing and atomic short-output handling.
  * @param[in] program Live program.
  * @param[out] output Optional destination, NULL with zero capacity for sizing.

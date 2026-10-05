@@ -802,7 +802,7 @@ tlv_result_t tlv_query_program_visit(tlv_tree_reader_t* reader, tlv_query_exec_t
         return query_error(d, TLV_ERR_UNSUPPORTED_TYPE, TLV_QUERY_ERROR_CAPABILITY, 0, 0,
                            "Document execution required");
     if (e->retained && e->environment && e->environment->format &&
-        reader->input.format != e->environment->format)
+        !query_format_compatible(reader->input.format, e->environment->format))
         return TLV_ERR_INVALID_ARG;
     if (e->finished && !e->retained) return TLV_OK;
     if (e->finished && e->retained) goto retained_results;

@@ -10,6 +10,9 @@ typedef struct document_source {
     size_t depth;
     int closing;
 } document_source_t;
+static int document_current(const void* owner, uint64_t revision) {
+    return tlv_document_revision(owner) == revision;
+}
 
 /* Public topology provides balanced events independently of wire representation. */
 static tlv_result_t document_event(void* context, tlv_tree_event_t* event) {
@@ -76,11 +79,15 @@ tlv_result_t tlv_document_query_evaluate(const tlv_document_t* document, tlv_que
         (context && !document_contains(document, context)))
         return TLV_ERR_INVALID_ARG;
     const tlv_format_t* format = document_format(document);
-    if (e->environment && e->environment->format && e->environment->format != format)
+    if (e->environment && e->environment->format &&
+        !query_format_compatible(e->environment->format, format))
         return TLV_ERR_INVALID_ARG;
     int values = query_program_needs_values(e->program);
     if (values && !staging) return TLV_ERR_NULL_ARG;
     e->document_backend = 1;
+    e->document_owner = document;
+    e->document_revision = tlv_document_revision(document);
+    e->document_current = document_current;
     document_budget_t budget = {e, d};
     tlv_result_t rc = TLV_OK;
     size_t encoded = 0;
@@ -148,7 +155,9 @@ failed:
     return rc;
 }
 tlv_result_t tlv_document_query_next(tlv_query_exec_t* e, tlv_node_t** node) {
-    if (!node) return TLV_ERR_NULL_ARG;
+    if (!e || !node) return TLV_ERR_NULL_ARG;
+    if (!e->document_owner || e->document_revision != tlv_document_revision(e->document_owner))
+        return TLV_ERR_INVALID_ARG;
     void* handle;
     tlv_result_t rc = query_document_next(e, &handle);
     if (rc == TLV_OK) *node = handle;
@@ -162,11 +171,46 @@ tlv_result_t tlv_document_query_program_visit(tlv_query_exec_t* e,
         tlv_result_t rc = tlv_document_query_next(e, &node);
         if (rc == TLV_ERR_END_OF_BUFFER) return TLV_OK;
         if (rc != TLV_OK) return rc;
+        document_query_callback((tlv_document_t*)e->document_owner, 1);
         tlv_visit_result_t action = visitor(node, context);
+        int deferred = document_query_callback((tlv_document_t*)e->document_owner, 0);
+        if (deferred) {
+            e->invalid = 1;
+            if (deferred == 2) e->document_owner = NULL;
+            return TLV_ERR_INVALID_ARG;
+        }
         if (action == TLV_VISIT_STOP) return TLV_OK;
         if (action != TLV_VISIT_CONTINUE) {
             e->invalid = 1;
             return TLV_ERR_VISITOR;
         }
     }
+}
+
+tlv_result_t tlv_document_query_edit(tlv_document_t* document, tlv_query_exec_t* e,
+                                     tlv_document_query_edit_kind_t kind, tlv_tag_t tag,
+                                     const uint8_t* value, size_t size, tlv_node_t** targets,
+                                     size_t capacity, size_t* applied) {
+    if (!document || !e || !applied || (!targets && capacity)) return TLV_ERR_NULL_ARG;
+    *applied = 0;
+    if ((kind != TLV_DOCUMENT_QUERY_REMOVE && kind != TLV_DOCUMENT_QUERY_REPLACE &&
+         kind != TLV_DOCUMENT_QUERY_INSERT_AFTER) ||
+        e->document_owner != document || e->result_cursor ||
+        (!value && size && kind != TLV_DOCUMENT_QUERY_REMOVE))
+        return TLV_ERR_INVALID_ARG;
+    if (e->document_revision != tlv_document_revision(document)) return TLV_ERR_INVALID_ARG;
+    size_t required;
+    tlv_result_t status = query_document_result_count(e, &required);
+    if (status != TLV_OK) return status;
+    if (capacity < required) return TLV_ERR_BUFFER_TOO_SHORT;
+    size_t count = 0;
+    for (;;) {
+        tlv_node_t* node;
+        tlv_result_t rc = tlv_document_query_next(e, &node);
+        if (rc == TLV_ERR_END_OF_BUFFER) break;
+        if (rc != TLV_OK) return rc;
+        if (count == capacity) return TLV_ERR_BUFFER_TOO_SHORT;
+        targets[count++] = node;
+    }
+    return document_edit_targets(document, targets, count, kind, tag, value, size, applied);
 }

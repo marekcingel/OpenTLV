@@ -6,6 +6,8 @@
 #include <cstddef>
 #include <cstdint>
 #include <memory>
+#include <vector>
+#include <string>
 #include "tlv/config.h"
 #include "tlv++/query/query.hpp"
 
@@ -66,6 +68,13 @@ public:
     const char*                       path = nullptr;
     std::shared_ptr<const tlv::query> query;
     int                               value_only = 0;
+    bool                              query_count = false;
+    bool                              query_exists = false;
+    bool                              query_explain = false;
+    const char*                       query_backend = "auto";
+    std::vector<std::string>          query_variables;
+    const char*                       against = nullptr;
+    const char*                       where = nullptr;
     // --format fixed only: tag width, length width and length byte order.
     std::size_t fixed_tag_size = 1;
     std::size_t fixed_length_size = 1;

@@ -5,6 +5,8 @@
 #include "tlv/reader/reader.h"
 #include "tlv/writer/writer.h"
 #include "tlv/query/program.h"
+#include "tlv/config.h"
+#include "tlv/document/document.h"
 
 #include <benchmark/benchmark.h>
 
@@ -174,5 +176,36 @@ void query_v1_matcher(benchmark::State& state) {
 }
 
 BENCHMARK(query_v1_matcher)->Arg(16)->Arg(256)->Arg(4096);
+
+#if OPENTLV_DOCUMENT
+// Worst-case stale-address validation after each edit deliberately scans to the
+// last node. Keep these size series to expose the documented quadratic loop cost.
+void document_identity_edit_loop(benchmark::State& state) {
+    const auto             encoded = encode_stream(1, static_cast<size_t>(state.range(0)));
+    tlv_document_options_t options;
+    tlv_document_options_init(&options, &tlv_format_ber);
+    tlv_document_t* doc = nullptr;
+    if (tlv_document_parse(encoded.data(), encoded.size(), &options, &doc, nullptr) != TLV_OK) {
+        state.SkipWithError("Document creation failed");
+        return;
+    }
+    tlv_node_t* last = tlv_document_first(doc);
+    while (tlv_node_next(last)) last = tlv_node_next(last);
+    const uint8_t value = 1;
+    for (auto _ : state) {
+        for (int64_t i = 0; i < state.range(0); ++i) {
+            if (tlv_node_set_value(last, &value, 1) != TLV_OK) {
+                state.SkipWithError("Document edit failed");
+                break;
+            }
+            auto identity = tlv_document_node_identity(doc, last);
+            benchmark::DoNotOptimize(identity);
+        }
+    }
+    state.SetItemsProcessed(state.iterations() * state.range(0));
+    tlv_document_free(doc);
+}
+BENCHMARK(document_identity_edit_loop)->Arg(16)->Arg(256)->Arg(4096);
+#endif
 
 } // namespace

@@ -19,8 +19,9 @@ completion_command_spec::completion_command_spec(std::string name) : name_(std::
         // and a value-taking option (the encoded value bytes) under
         // "encode"; every other option's arity does not depend on the
         // command.
-        option.set_takes_value(!(table[i].bit & flags) &&
-                               !(name_ == "query" && option.name() == "--value"));
+        option.set_takes_value(
+            !(table[i].bit & flags) &&
+            !(name_ == "query" && (option.name() == "--value" || option.name() == "--count")));
         options_.push_back(std::move(option));
     }
 }

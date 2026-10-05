@@ -328,6 +328,7 @@ const char* tlv_schema_issue_kind_string(tlv_schema_issue_kind_t kind) {
         case TLV_SCHEMA_ISSUE_KIND: return "kind";
         case TLV_SCHEMA_ISSUE_LENGTH: return "length";
         case TLV_SCHEMA_ISSUE_ORDER: return "order";
+        case TLV_SCHEMA_ISSUE_ASSERTION: return "assertion";
     }
     return "unknown";
 }

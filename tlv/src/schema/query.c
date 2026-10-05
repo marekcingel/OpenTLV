@@ -1,0 +1,229 @@
+// SPDX-License-Identifier: MIT
+// Copyright (c) 2026 Marek Cingel
+#include "tlv/schema/query.h"
+#include "../query/program_internal.h"
+#include <string.h>
+
+#if OPENTLV_DOCUMENT
+tlv_result_t tlv_schema_query_validate_document(const tlv_document_t* document,
+                                                const tlv_schema_query_rule_t* rules, size_t count,
+                                                size_t depth, size_t nodes, size_t work,
+                                                tlv_schema_query_workspace_t* w, uint8_t* values,
+                                                size_t capacity,
+                                                tlv_tree_writer_workspace_t* staging,
+                                                tlv_schema_query_diagnostic_t* diagnostic) {
+    if (!count) return TLV_OK;
+    if (!document || !w || (!w->contexts && w->context_capacity)) return TLV_ERR_NULL_ARG;
+    size_t a, b, alignment;
+    tlv_result_t rc = tlv_schema_query_size(rules, count, depth, nodes, &a, &b, &alignment);
+    if (rc != TLV_OK) return rc;
+    if (w->selector_size < a || w->assertion_size < b) return TLV_ERR_BUFFER_TOO_SHORT;
+    if (diagnostic) memset(diagnostic, 0, sizeof *diagnostic);
+    for (size_t i = 0; i < count; ++i) {
+        if (diagnostic) diagnostic->rule = i;
+        tlv_query_diagnostic_t* detail = diagnostic ? &diagnostic->query : NULL;
+        tlv_query_exec_t* exec;
+        rc = tlv_query_eval_init(rules[i].context, rules[i].environment, w->selector,
+                                 w->selector_size, depth, nodes, work, &exec);
+        if (rc != TLV_OK) return rc;
+        rc = tlv_document_query_evaluate(document, exec, NULL, values, capacity, staging, detail);
+        if (rc != TLV_OK) return rc;
+        size_t contexts = 0;
+        for (;;) {
+            tlv_node_t* node;
+            rc = tlv_document_query_next(exec, &node);
+            if (rc == TLV_ERR_END_OF_BUFFER) break;
+            if (rc != TLV_OK) return rc;
+            if (contexts == w->context_capacity)
+                return query_limit(detail, "schema-contexts", w->context_capacity, 0, 0);
+            w->contexts[contexts++].node = node;
+        }
+        for (size_t j = 0; j < contexts; ++j) {
+            rc = tlv_query_eval_init(rules[i].assertion, rules[i].environment, w->assertion,
+                                     w->assertion_size, depth, nodes, work, &exec);
+            if (rc != TLV_OK) return rc;
+            rc = tlv_document_query_evaluate(document, exec, w->contexts[j].node, values, capacity,
+                                             staging, detail);
+            if (rc != TLV_OK) return rc;
+            tlv_query_result_t result;
+            rc = tlv_query_exec_result(exec, &result);
+            if (rc != TLV_OK) return rc;
+            if (!result.boolean) {
+                if (diagnostic) {
+                    tlv_schema_diagnostic_init(&diagnostic->schema);
+                    diagnostic->schema.kind = TLV_SCHEMA_ISSUE_ASSERTION;
+                    diagnostic->schema.tag = tlv_node_tag(w->contexts[j].node);
+                    diagnostic->schema.field = rules[i].name;
+                    diagnostic->schema.diagnostic.code = TLV_ERR_SCHEMA;
+                    diagnostic->schema.diagnostic.expected = "contextual Query assertion true";
+                    // Fill enclosing tags outermost first, within the normal diagnostic bound.
+                    tlv_tag_t ancestors[TLV_DIAGNOSTIC_PATH_MAX];
+                    size_t parents = 0;
+                    for (tlv_node_t* p = tlv_node_parent(w->contexts[j].node); p;
+                         p = tlv_node_parent(p)) {
+                        if (parents == TLV_DIAGNOSTIC_PATH_MAX) break;
+                        ancestors[parents++] = tlv_node_tag(p);
+                    }
+                    while (parents)
+                        (void)tlv_diagnostic_path_push(&diagnostic->schema.path,
+                                                       ancestors[--parents]);
+                }
+                return TLV_ERR_SCHEMA;
+            }
+        }
+    }
+    return TLV_OK;
+}
+#endif
+
+tlv_result_t tlv_schema_query_size(const tlv_schema_query_rule_t* rules, size_t count, size_t depth,
+                                   size_t nodes, size_t* selector, size_t* assertion,
+                                   size_t* alignment) {
+    if ((!rules && count) || !selector || !assertion || !alignment) return TLV_ERR_NULL_ARG;
+    size_t selected = 0, asserted = 0, aligned = 1;
+    for (size_t i = 0; i < count; ++i) {
+        if (!rules[i].context || !rules[i].assertion) return TLV_ERR_NULL_ARG;
+        if (!query_program_valid(rules[i].context) || !query_program_valid(rules[i].assertion) ||
+            query_public_type(query_nodes(rules[i].context)[rules[i].context->root].type) !=
+                TLV_QUERY_RESULT_NODES ||
+            query_public_type(query_nodes(rules[i].assertion)[rules[i].assertion->root].type) !=
+                TLV_QUERY_RESULT_BOOL)
+            return TLV_ERR_INVALID_ARG;
+        size_t bytes, align;
+        tlv_result_t rc = tlv_query_eval_size(rules[i].context, depth, nodes, &bytes, &align);
+        if (rc != TLV_OK) return rc;
+        if (bytes > selected) selected = bytes;
+        if (align > aligned) aligned = align;
+        rc = tlv_query_eval_size(rules[i].assertion, depth, nodes, &bytes, &align);
+        if (rc != TLV_OK) return rc;
+        if (bytes > asserted) asserted = bytes;
+        if (align > aligned) aligned = align;
+    }
+    *selector = selected;
+    *assertion = asserted;
+    *alignment = aligned;
+    return TLV_OK;
+}
+static tlv_result_t buffer_evaluate(const uint8_t* data, size_t size, const tlv_format_t* format,
+                                    tlv_query_exec_t* exec, size_t depth, size_t nodes,
+                                    tlv_schema_query_workspace_t* workspace,
+                                    tlv_query_diagnostic_t* diagnostic) {
+    tlv_tree_reader_t reader;
+    tlv_result_t rc = tlv_tree_reader_init(&reader, data, size, format, workspace->frames,
+                                           workspace->frame_capacity, depth, nodes);
+    if (rc != TLV_OK) return rc;
+    for (;;) {
+        tlv_tree_event_t event;
+        tlv_reader_diagnostic_t original;
+        rc = tlv_tree_reader_next_event_diag(&reader, &event, &original);
+        if (rc == TLV_ERR_END_OF_BUFFER) return tlv_query_exec_finish(exec, diagnostic);
+        if (rc != TLV_OK) {
+            if (diagnostic) {
+                memset(diagnostic, 0, sizeof *diagnostic);
+                diagnostic->kind = TLV_QUERY_ERROR_READER;
+                diagnostic->reader = original;
+            }
+            return rc;
+        }
+        int matched;
+        rc = tlv_query_exec_feed(exec, &event, &matched, diagnostic);
+        if (rc != TLV_OK) return rc;
+    }
+}
+
+static void context_path(const uint8_t* data, size_t size, const tlv_format_t* format, size_t depth,
+                         size_t nodes, tlv_schema_query_workspace_t* workspace, size_t wanted,
+                         tlv_diagnostic_path_t* path) {
+    tlv_tree_reader_t reader;
+    if (tlv_tree_reader_init(&reader, data, size, format, workspace->frames,
+                             workspace->frame_capacity, depth, nodes) != TLV_OK)
+        return;
+    tlv_tag_t ancestors[TLV_DIAGNOSTIC_PATH_MAX];
+    size_t ordinal = 0;
+    for (;;) {
+        tlv_tree_event_t event;
+        if (tlv_tree_reader_next_event(&reader, &event) != TLV_OK) return;
+        if (event.kind == TLV_TREE_END) continue;
+        if (ordinal++ == wanted) {
+            size_t count =
+                event.depth < TLV_DIAGNOSTIC_PATH_MAX ? event.depth : TLV_DIAGNOSTIC_PATH_MAX;
+            for (size_t i = 0; i < count; ++i) (void)tlv_diagnostic_path_push(path, ancestors[i]);
+            return;
+        }
+        if (event.depth < TLV_DIAGNOSTIC_PATH_MAX) ancestors[event.depth] = event.element.tag;
+    }
+}
+tlv_result_t tlv_schema_query_validate_buffer(const uint8_t* data, size_t size,
+                                              const tlv_format_t* format,
+                                              const tlv_schema_query_rule_t* rules, size_t count,
+                                              size_t depth, size_t nodes, size_t work,
+                                              tlv_schema_query_workspace_t* w,
+                                              tlv_schema_query_diagnostic_t* diagnostic) {
+    if (!count) return TLV_OK;
+    if ((!data && size) || !format || !w || (!w->contexts && w->context_capacity))
+        return TLV_ERR_NULL_ARG;
+    size_t selector_size, assertion_size, alignment;
+    tlv_result_t rc = tlv_schema_query_size(rules, count, depth, nodes, &selector_size,
+                                            &assertion_size, &alignment);
+    if (rc != TLV_OK) return rc;
+    if (!w->selector || !w->assertion || (uintptr_t)w->selector % alignment ||
+        (uintptr_t)w->assertion % alignment)
+        return TLV_ERR_INVALID_ARG;
+    if (w->selector_size < selector_size || w->assertion_size < assertion_size)
+        return TLV_ERR_BUFFER_TOO_SHORT;
+    for (size_t i = 0; i < count; ++i)
+        if (rules[i].context->level == TLV_QUERY_D || rules[i].assertion->level == TLV_QUERY_D)
+            return TLV_ERR_UNSUPPORTED_TYPE;
+    if (diagnostic) memset(diagnostic, 0, sizeof *diagnostic);
+    for (size_t i = 0; i < count; ++i) {
+        if (diagnostic) diagnostic->rule = i;
+        tlv_query_diagnostic_t* detail = diagnostic ? &diagnostic->query : NULL;
+        tlv_query_exec_t* exec;
+        rc = tlv_query_eval_init(rules[i].context, rules[i].environment, w->selector,
+                                 w->selector_size, depth, nodes, work, &exec);
+        if (rc != TLV_OK) return rc;
+        rc = buffer_evaluate(data, size, format, exec, depth, nodes, w, detail);
+        if (rc != TLV_OK) return rc;
+        size_t contexts = 0;
+        for (;;) {
+            tlv_tree_event_t event;
+            size_t ordinal;
+            rc = tlv_query_result_next_ordinal(exec, &event, &ordinal);
+            if (rc == TLV_ERR_END_OF_BUFFER) break;
+            if (rc != TLV_OK) return rc;
+            if (contexts == w->context_capacity)
+                return query_limit(detail, "schema-contexts", w->context_capacity, 0, 0);
+            w->contexts[contexts].ordinal = ordinal;
+            w->contexts[contexts++].event = event;
+        }
+        for (size_t j = 0; j < contexts; ++j) {
+            rc = tlv_query_eval_init(rules[i].assertion, rules[i].environment, w->assertion,
+                                     w->assertion_size, depth, nodes, work, &exec);
+            if (rc != TLV_OK) return rc;
+            rc = tlv_query_exec_context(exec, w->contexts[j].ordinal);
+            if (rc != TLV_OK) return rc;
+            rc = buffer_evaluate(data, size, format, exec, depth, nodes, w, detail);
+            if (rc != TLV_OK) return rc;
+            tlv_query_result_t result;
+            rc = tlv_query_exec_result(exec, &result);
+            if (rc != TLV_OK) return rc;
+            if (!result.boolean) {
+                if (diagnostic) {
+                    tlv_schema_diagnostic_init(&diagnostic->schema);
+                    diagnostic->schema.kind = TLV_SCHEMA_ISSUE_ASSERTION;
+                    diagnostic->schema.tag = w->contexts[j].event.element.tag;
+                    diagnostic->schema.field = rules[i].name;
+                    diagnostic->schema.diagnostic.code = TLV_ERR_SCHEMA;
+                    diagnostic->schema.diagnostic.expected = "contextual Query assertion true";
+                    if (w->contexts[j].event.source.data)
+                        tlv_diagnostic_set_offset(&diagnostic->schema.diagnostic,
+                                                  w->contexts[j].event.offset);
+                    context_path(data, size, format, depth, nodes, w, w->contexts[j].ordinal,
+                                 &diagnostic->schema.path);
+                }
+                return TLV_ERR_SCHEMA;
+            }
+        }
+    }
+    return TLV_OK;
+}

@@ -12,6 +12,7 @@
 #include "commands/formats_command.hpp"
 #include "commands/help_command.hpp"
 #include "commands/query_command.hpp"
+#include "commands/diff_command.hpp"
 #include "commands/tag_command.hpp"
 #include "commands/tags_command.hpp"
 #include "commands/validate_command.hpp"
@@ -67,6 +68,8 @@ std::unique_ptr<command> command_factory::create(int argc, char** argv, int* err
         return std::unique_ptr<command>(new decode_command(o, std::move(data)));
     if (!strcmp(o.command, "query"))
         return std::unique_ptr<command>(new query_command(o, std::move(data)));
+    if (!strcmp(o.command, "diff"))
+        return std::unique_ptr<command>(new diff_command(o, std::move(data)));
     // options::parse() only accepts "dump", "validate", "decode", "encode",
     // "generate", "tag", "tags" or "query"; every other case returned above.
     return std::unique_ptr<command>(new dump_command(o, std::move(data)));

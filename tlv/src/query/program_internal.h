@@ -9,6 +9,12 @@
 
 #define QUERY_MAGIC UINT32_C(0x51525932)
 #define QUERY_NONE UINT32_MAX
+
+static inline int query_format_compatible(const tlv_format_t* a, const tlv_format_t* b) {
+    return a && b && a->context == b->context && a->decode == b->decode &&
+           a->measure == b->measure && a->encode == b->encode &&
+           a->is_constructed == b->is_constructed;
+}
 enum query_op {
     Q_TEST,
     Q_ROOT,
@@ -151,6 +157,9 @@ struct tlv_query_exec {
     int retained;
     size_t node_capacity, result_cursor;
     int document_backend;
+    const void* document_owner;
+    uint64_t document_revision;
+    int (*document_current)(const void*, uint64_t);
     tlv_tree_event_t delayed;
     int delayed_selected, published_match;
     const tlv_query_environment_t* environment;
@@ -332,6 +341,7 @@ tlv_result_t query_retained_feed(tlv_query_exec_t*, const tlv_tree_event_t*,
 void query_document_handle(tlv_query_exec_t*, void*, const uint8_t*);
 const uint8_t* query_document_end(tlv_query_exec_t*);
 tlv_result_t query_document_next(tlv_query_exec_t*, void**);
+tlv_result_t query_document_result_count(const tlv_query_exec_t*, size_t*);
 size_t query_candidate_size(void);
 size_t query_candidate_alignment(void);
 uint32_t query_s1_filter(const query_node_t*, size_t, uint32_t, const char*);

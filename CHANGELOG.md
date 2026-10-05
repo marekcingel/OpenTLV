@@ -9,6 +9,9 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Fixed
 
+- Validate the actual inserted Value length during Document Query edit preflight, before allocation or mutation. (#529, #522)
+- Preserve completed Query cursors on short edit target storage, prevalidate Document Query edits before mutation, and apply callback erase/free requests after the outermost visit instead of dropping them. (#522)
+- Reject stale compiled Document Query results after edits, and detect native node erasure and allocator address reuse in checked C++ handles. (#522)
 - Fix C and C++ API documentation builds with Doxygen warnings treated as errors for the new Query adapter headers. (#520)
 - Align Query variable identifiers with the language grammar, give `intersect` and `except` higher precedence than union, and bound program/execution info writes by caller-provided structure sizes. Query callers must initialize the new `struct_size` fields and rebuild. (#520, #526)
 - Fix Query binding builds on 32-bit platforms such as WebAssembly with Clang warnings treated as errors. (#520)
@@ -57,6 +60,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Changed
 
+- Accept full compiled Query syntax in `otlv query` while preserving existing exact-path output, and distinguish false/zero scalar success from empty node selections. (#522)
 - **Breaking:** Replace public Query fields with opaque copyable storage and validated accessors; rebuild native consumers and migrate direct field access. (#519)
 - Promote Protocol Inference to architectural Phase 3 and move Compilation to Phase 4; clarify shared model construction, OTLV tooling scope and independent SemVer versioning. (#516)
 - Reorganize documentation entry points around a progressive learning path, with a compact README, first CLI task and shared basic model. (#513)
@@ -126,6 +130,10 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Added
 
+- Add C++ full Query programs and independent executions with owned or caller-owned storage, typed expression composition and variable bindings, resumable Tree callbacks/pulls and checked Document selection. (#522)
+- Add completed-selection Document remove, replace and insert-after operations, with explicit overlap, capacity and partial-failure contracts. (#522)
+- Add contextual Schema assertions using compiled boolean Query programs over complete buffers and Documents. (#522)
+- Add typed Query scalar output, `--count`, `--exists`, `--var`, `--backend` and `--explain` to `otlv query`, plus semantic Document diff and `otlv diff --where`. (#522)
 - Add deferred root-scope Query execution, explicit S2 candidate limits and retention requirements, all navigation axes, and allocation-free compiled Document Query evaluation with ordered unique results, scalar outputs and resumable callbacks. Document Values share one encoded snapshot; navigation and counting skip encoding, and work limits do not depend on spare buffer capacity. (#521)
 - Complete Query F2 with finalized scalar results, cardinality-checked conversions, positional functions, compile-time names and explicit codec/tag environments. Add bounded retained-event evaluation for deferred ordered node sets, runtime byte patterns and inspectable conservative optimization. Query callers must rebuild for the extended options and diagnostics. (#520)
 - Expose unique referenced Query variable requirements and size binding workspace by unique variables rather than expression nodes. (#520, #526)

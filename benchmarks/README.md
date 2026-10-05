@@ -1,5 +1,12 @@
 # Local benchmarks
 
+`document_identity_edit_loop/{16,256,4096}` measures a Value edit followed by
+possibly-stale address validation against the last node. Each revision-triggered
+identity check scans O(n) nodes; a loop of n edits/checks is O(n squared). Compare
+the size series as well as absolute times when changing Document handle storage.
+This benchmark is available when Document is enabled and does not measure or
+assert thread safety.
+
 Use the VS Code tasks in this order:
 
 1. **Benchmark: Build and run** configures and builds Release in `build`, runs

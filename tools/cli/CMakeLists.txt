@@ -21,6 +21,7 @@ set(HEADERS
     src/commands/validate_command.hpp
     src/commands/decode_command.hpp
     src/commands/query_command.hpp
+    src/commands/diff_command.hpp
     src/commands/generate_command.hpp
     src/commands/encode_command.hpp
     src/commands/tag_command.hpp
@@ -58,6 +59,7 @@ set(SOURCES
     src/commands/validate_command.cpp
     src/commands/decode_command.cpp
     src/commands/query_command.cpp
+    src/commands/diff_command.cpp
     src/commands/generate_command.cpp
     src/commands/encode_command.cpp
     src/commands/tag_command.cpp
@@ -117,6 +119,7 @@ if(OPENTLV_BUILD_CLI_TESTS)
         "-DHAS_DER=${OPENTLV_FORMAT_DER}"
         "-DHAS_EMV=${OPENTLV_EMV}"
         "-DHAS_NFC=${OPENTLV_NFC}"
+        "-DHAS_DOCUMENT=${OPENTLV_DOCUMENT}"
         -P "${CMAKE_CURRENT_SOURCE_DIR}/test.cmake")
     set_tests_properties(Integration_cli PROPERTIES LABELS "integration;cli")
     if(OPENTLV_FORMAT_BER)

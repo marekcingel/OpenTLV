@@ -122,6 +122,71 @@ typedef struct tlv_document tlv_document_t;
 /** @brief One element of a document. Opaque; owned by its document. */
 typedef struct tlv_node tlv_node_t;
 
+/** @brief Observe the whole-Document mutation revision; NULL returns zero.
+ * @param document Live Document, borrowed for the call.
+ * @return Revision increased by every successful insert, erase or Value replacement.
+ * @note Failed edits preserve revision. This is not a destruction-safe handle;
+ * callers must retain the Document owner. Concurrent mutation requires external locking.
+ * Query callbacks reject fallible edits with INVALID_ARG. Void erase/free requests
+ * are deferred until the outermost Query callback on this Document returns;
+ * that visit ends with INVALID_ARG. Concurrent mutation requires exclusive access
+ * even when requested from a callback. Revisions wrap after UINT64_MAX edits. */
+TLV_API uint64_t tlv_document_revision(const tlv_document_t* document);
+
+/** @brief Check a possibly stale node address without dereferencing it.
+ * @param document Live owning Document; caller must retain its lifetime.
+ * @param node Address to locate, possibly erased or foreign.
+ * @return Nonzero immutable identity within this Document, or zero when absent/NULL.
+ * @note O(node count) scan, allocation-free. Identities are never reused, including
+ * allocator address reuse; exhaustion rejects creation with LIMIT. Store identity
+ * alongside an address to detect erase/replacement after a revision changes. */
+TLV_API uint64_t tlv_document_node_identity(const tlv_document_t* document, const tlv_node_t* node);
+
+/** @brief Read a live node's immutable Document-local identity in constant time.
+ * @param node Live node or NULL; stale pointers are forbidden.
+ * @return Nonzero identity, or zero for NULL.
+ * @see tlv_document_node_identity for checking a possibly stale address. */
+TLV_API uint64_t tlv_node_identity(const tlv_node_t* node);
+
+/** @brief Completed Query selection edit operation. */
+typedef enum tlv_document_query_edit_kind {
+    TLV_DOCUMENT_QUERY_REMOVE,  /**< Erase selected roots; selected ancestors dominate descendants.
+                                 */
+    TLV_DOCUMENT_QUERY_REPLACE, /**< Replace Values; selected ancestors dominate descendants. */
+    TLV_DOCUMENT_QUERY_INSERT_AFTER /**< Insert one sibling immediately after each selected target.
+                                     */
+} tlv_document_query_edit_kind_t;
+
+/** @brief Edit an already finalized compiled Query selection, never an active traversal.
+ * @param document Live mutable Document used by execution.
+ * @param exec Finished node-result execution; all targets are collected before mutation.
+ * @param kind Operation selector.
+ * @param tag Insertion identifier; ignored by other operations.
+ * @param value Replacement/insertion Value, copied before editing; ignored by removal.
+ * @param size Value bytes.
+ * @param targets Exclusive caller array of node pointers for the complete selection.
+ * @param capacity Array entries; short storage leaves the cursor and targets unchanged,
+ * permitting retry of the same completed execution with a larger target array.
+ * @param applied Required output, initialized to zero; successful edited selected roots.
+ * @return OK for no matches, or native error. Invalid operation/capacity/revision makes
+ * no edits. Remove cannot fail after collection. Replace/insert commit in preorder,
+ * stopping at first failure; previous successful edits remain, without rollback.
+ * Tag framing, constructed Value syntax and every target's depth/count limits are
+ * prevalidated before editing; their failure makes no tree changes. Allocation or
+ * identity exhaustion can still cause partial application during commit.
+ * @note Ancestor dominance is resolved before editing. Insertion includes every selected
+ * node once and preserves original sibling order. Document allocator owns temporary Value
+ * copies and normal inserted nodes. Native pointers borrow Document; keep it alive through
+ * collection. Any successful edit invalidates the execution's whole-document revision.
+ * REPLACE stores identical bytes on primitive targets but parses them as children on
+ * constructed targets. Overlap filtering is O(target count * depth), allocation-free.
+ */
+TLV_API tlv_result_t tlv_document_query_edit(tlv_document_t* document, struct tlv_query_exec* exec,
+                                             tlv_document_query_edit_kind_t kind, tlv_tag_t tag,
+                                             const uint8_t* value, size_t size,
+                                             tlv_node_t** targets, size_t capacity,
+                                             size_t* applied);
+
 /**
  * @brief Resumable owning consumer of a Tree Reader, optionally limited to one subtree.
  *
@@ -266,6 +331,9 @@ TLV_API tlv_result_t tlv_document_parse(const uint8_t* data, size_t size,
  * @param[in] document Document to free. `NULL` is ignored.
  *
  * @warning Invalidates all node pointers, and the tag and value pointers, of the document.
+ * @note During a Query callback, destruction is deferred until the outermost visit
+ * returns from its callback. That visit returns INVALID_ARG; do not use the owner
+ * or any node after it returns. Repeated pending free requests release only once.
  */
 TLV_API void tlv_document_free(tlv_document_t* document);
 
@@ -353,7 +421,8 @@ TLV_API tlv_result_t tlv_document_query_value_size(const tlv_document_t* documen
 /** @brief Evaluate a compiled program over Document nodes using a fresh retained execution.
  * @param[in] document Live Document; must remain unchanged through result consumption.
  * @param[in,out] exec Fresh execution created with tlv_query_eval_init, including D plans.
- * @param[in] context Optional node in this Document; NULL selects its virtual root.
+ * @param[in] context Optional live node in this Document; NULL selects its virtual root.
+ * Erased/stale pointers are forbidden. Ownership validation is O(1).
  * @param[in,out] values Complete encoded snapshot storage, alive until execution reset.
  * May reuse discovery staging.data. NULL/zero is sufficient when constructed
  * Values are not required by the compiled program.
@@ -384,9 +453,11 @@ TLV_API tlv_result_t tlv_document_query_evaluate(const tlv_document_t* document,
 /** @brief Pull the next finalized unique node handle in current Document preorder.
  * @param[in,out] exec Successfully evaluated Document node execution.
  * @param[out] node Borrowed node; unchanged on exhaustion or error.
- * @return OK, END_OF_BUFFER, NULL argument or invalid execution state.
+ * @return OK, END_OF_BUFFER, NULL argument or invalid execution state/revision.
  * @note Document and Value storage must remain alive and unchanged. First is one pull;
- * all is repeated pulls. Iteration allocates nothing and also works without Source. */
+ * all is repeated pulls. Any successful Document edit rejects subsequent pulls
+ * before dereferencing retained nodes. Iteration allocates nothing and also works
+ * without Source. Keep the native Document alive; revision is not a destruction token. */
 TLV_API tlv_result_t tlv_document_query_next(struct tlv_query_exec* exec, tlv_node_t** node);
 
 /** @brief Visit remaining finalized Document results; STOP resumes after the delivered node.
@@ -516,6 +587,9 @@ TLV_API tlv_result_t tlv_document_insert(tlv_document_t* document, tlv_node_t* p
  * @param[in] node Node to erase. `NULL` is ignored.
  *
  * @warning Invalidates `node` and every node below it.
+ * @note During a Query callback, erase is deferred until the outermost visit returns
+ * from its callback, and that visit returns INVALID_ARG. Pending ancestor erasure
+ * dominates descendant requests; all borrowed nodes remain alive inside the callback.
  */
 TLV_API void tlv_node_erase(tlv_node_t* node);
 

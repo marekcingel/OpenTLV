@@ -33,6 +33,7 @@
 #include "tlv/writer/writer.h"
 #include "tlv/writer/tree.h"
 #include "tlv/schema/schema.h"
+#include "tlv/schema/query.h"
 #include "tlv/schema/constraint.h"
 #include "tlv/config.h"
 #if OPENTLV_BLUETOOTH
