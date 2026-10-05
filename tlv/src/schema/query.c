@@ -188,7 +188,7 @@ tlv_result_t tlv_schema_query_validate_buffer(const uint8_t* data, size_t size,
         for (;;) {
             tlv_tree_event_t event;
             size_t ordinal;
-            rc = tlv_query_result_next_identity(exec, &event, &ordinal);
+            rc = tlv_query_result_next_ordinal(exec, &event, &ordinal);
             if (rc == TLV_ERR_END_OF_BUFFER) break;
             if (rc != TLV_OK) return rc;
             if (contexts == w->context_capacity)

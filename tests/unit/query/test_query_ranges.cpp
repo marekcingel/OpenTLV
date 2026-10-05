@@ -234,8 +234,9 @@ TEST(Unit_Tlvpp_FullQuery, NativeRevisionAndCallbackGuard) {
         EXPECT_EQ(TLV_ERR_INVALID_ARG, tlv_node_set_value(node, nullptr, 0));
         return TLV_VISIT_STOP;
     };
-    EXPECT_EQ(TLV_OK, tlv_document_query_program_visit(execution->c_exec(), callback, nullptr));
-    EXPECT_EQ(revision, tlv_document_revision(doc->c_document()));
+    EXPECT_EQ(TLV_ERR_INVALID_ARG,
+              tlv_document_query_program_visit(execution->c_exec(), callback, nullptr));
+    EXPECT_EQ(revision + 1, tlv_document_revision(doc->c_document()));
     doc->first().erase();
     EXPECT_FALSE(doc->next(*execution));
 }
@@ -300,10 +301,8 @@ TEST(Unit_Tlvpp_FullQuery, NativeEditCapacityAndAncestorDominance) {
                                       targets, 1, &applied));
     EXPECT_EQ(0u, applied);
     EXPECT_EQ(original, tlv_document_revision(doc->c_document()));
-    auto second = tlv::query_execution::create(*query, 3, 100, 100000);
-    ASSERT_TRUE(second);
-    ASSERT_TRUE(doc->evaluate(*second, nullptr, 0, nullptr));
-    EXPECT_EQ(TLV_OK, tlv_document_query_edit(doc->c_document(), second->c_exec(),
+    EXPECT_EQ(nullptr, targets[0]);
+    EXPECT_EQ(TLV_OK, tlv_document_query_edit(doc->c_document(), execution->c_exec(),
                                               TLV_DOCUMENT_QUERY_REMOVE, tlv_tag(nullptr, 0),
                                               nullptr, 0, targets, 5, &applied));
     EXPECT_EQ(3u, applied);
@@ -350,7 +349,7 @@ TEST(Unit_Tlvpp_FullQuery, DiffUsesOriginalPositionsAndExcludesUnselectedDescend
     EXPECT_EQ(tlv::diff_kind::removed, missing->front().kind);
 }
 
-TEST(Unit_Tlvpp_FullQuery, InvalidConstructedReplacementReportsPartialProgress) {
+TEST(Unit_Tlvpp_FullQuery, MixedReplacementPrevalidatesConstructedValue) {
     const uint8_t fixture[] = {0x50, 1, 9, 0x6F, 0};
     auto doc = tlv::document::parse(bytes(fixture, sizeof fixture), tlv::document_format(format));
     ASSERT_TRUE(doc);
@@ -360,12 +359,147 @@ TEST(Unit_Tlvpp_FullQuery, InvalidConstructedReplacementReportsPartialProgress) 
     size_t        applied = 99;
     auto changed = doc->query_replace(*all, bytes(replacement, sizeof replacement), &applied);
     EXPECT_FALSE(changed);
-    EXPECT_EQ(1u, applied);
+    EXPECT_EQ(0u, applied);
     EXPECT_EQ(2u, doc->size());
-    EXPECT_EQ(2u, doc->first().value().size());
+    EXPECT_EQ(1u, doc->first().value().size());
     EXPECT_TRUE(doc->first().next());
     EXPECT_FALSE(doc->first().next().first_child());
     ASSERT_TRUE(doc->encode());
+    const uint8_t valid[] = {0x50, 1, 3};
+    ASSERT_TRUE(doc->query_replace(*all, bytes(valid, sizeof valid), &applied));
+    EXPECT_EQ(2u, applied);
+    EXPECT_EQ(sizeof valid, doc->first().value().size());
+    ASSERT_TRUE(doc->first().next().first_child());
+    EXPECT_EQ(3u, static_cast<unsigned>(doc->first().next().first_child().value()[0]));
+}
+
+TEST(Unit_Tlvpp_FullQuery, DeferredFreeReleasesDocumentAfterNestedCallbacks) {
+    struct tracker {
+        size_t       live = 0;
+        static void* allocate(void* context, size_t size) {
+            void* p = std::malloc(size);
+            if (p) ++static_cast<tracker*>(context)->live;
+            return p;
+        }
+        static void release(void* context, void* p) {
+            --static_cast<tracker*>(context)->live;
+            std::free(p);
+        }
+    } allocations;
+    tlv_allocator_t        allocator{&allocations, tracker::allocate, tracker::release};
+    tlv_document_options_t options;
+    ASSERT_EQ(TLV_OK, tlv_document_options_init(&options, &format));
+    options.allocator = &allocator;
+    tlv_document_t* doc = nullptr;
+    ASSERT_EQ(TLV_OK, tlv_document_parse(input, sizeof input, &options, &doc, nullptr));
+    struct context {
+        tlv_document_t* doc;
+        tlv_query_t     query;
+    } ctx{doc, {}};
+    ASSERT_EQ(TLV_OK, tlv_query_parse("50", &ctx.query, nullptr));
+    auto outer = [](tlv_node_t*, void* opaque) {
+        auto& ctx = *static_cast<context*>(opaque);
+        auto  inner = [](tlv_node_t*, void* opaque) {
+            tlv_document_free(static_cast<context*>(opaque)->doc);
+            return TLV_VISIT_STOP;
+        };
+        EXPECT_EQ(TLV_OK, tlv_document_query_visit(ctx.doc, &ctx.query, inner, &ctx));
+        EXPECT_EQ(7u, tlv_document_count(ctx.doc));
+        return TLV_VISIT_STOP;
+    };
+    EXPECT_EQ(TLV_ERR_INVALID_ARG, tlv_document_query_visit(doc, &ctx.query, outer, &ctx));
+    EXPECT_EQ(0u, allocations.live);
+}
+
+TEST(Unit_Tlvpp_FullQuery, CompiledDeferredFreeInvalidatesCurrentExecution) {
+    tlv_document_options_t options;
+    ASSERT_EQ(TLV_OK, tlv_document_options_init(&options, &format));
+    tlv_document_t* doc = nullptr;
+    ASSERT_EQ(TLV_OK, tlv_document_parse(input, sizeof input, &options, &doc, nullptr));
+    auto query = tlv::query_program::compile("//50");
+    ASSERT_TRUE(query);
+    auto execution = tlv::query_execution::create(*query, 3, 100, 100000);
+    ASSERT_TRUE(execution);
+    ASSERT_EQ(TLV_OK, tlv_document_query_evaluate(doc, execution->c_exec(), nullptr, nullptr, 0,
+                                                  nullptr, nullptr));
+    auto callback = [](tlv_node_t*, void* context) {
+        tlv_document_free(static_cast<tlv_document_t*>(context));
+        return TLV_VISIT_CONTINUE;
+    };
+    EXPECT_EQ(TLV_ERR_INVALID_ARG,
+              tlv_document_query_program_visit(execution->c_exec(), callback, doc));
+    tlv_node_t* node = nullptr;
+    EXPECT_EQ(TLV_ERR_INVALID_ARG, tlv_document_query_next(execution->c_exec(), &node));
+    EXPECT_FALSE(execution->result());
+}
+
+TEST(Unit_Tlvpp_FullQuery, DeferredEraseAncestorDominatesPendingDescendant) {
+    auto doc = tlv::document::parse(bytes(input, sizeof input), tlv::document_format(format));
+    ASSERT_TRUE(doc);
+    tlv_query_t query;
+    ASSERT_EQ(TLV_OK, tlv_query_parse("6F", &query, nullptr));
+    auto callback = [](tlv_node_t* node, void*) {
+        tlv_node_erase(tlv_node_first_child(node));
+        tlv_node_erase(node);
+        tlv_node_erase(node);
+        return TLV_VISIT_CONTINUE;
+    };
+    EXPECT_EQ(TLV_ERR_INVALID_ARG,
+              tlv_document_query_visit(doc->c_document(), &query, callback, nullptr));
+    EXPECT_EQ(5u, doc->size());
+    EXPECT_EQ(0x6F, static_cast<unsigned>(doc->first().tag().data()[0]));
+}
+
+TEST(Unit_Tlvpp_FullQuery, InsertAndDepthLimitsArePrevalidated) {
+    const uint8_t        fixture[] = {0x50, 0, 0x6F, 2, 0x50, 0};
+    tlv::document_format limited(format);
+    limited.max_depth = 1;
+    auto doc = tlv::document::parse(bytes(fixture, sizeof fixture), limited);
+    ASSERT_TRUE(doc);
+    auto selector = tlv::query_program::compile("//50");
+    ASSERT_TRUE(selector);
+    const uint8_t child[] = {0x50, 0};
+    size_t        applied = 99;
+    auto          changed = doc->query_insert_after(*selector, tlv::tag_bytes<0x6F>(),
+                                                    bytes(child, sizeof child), &applied);
+    EXPECT_FALSE(changed);
+    EXPECT_EQ(TLV_ERR_LIMIT, changed.error().code);
+    EXPECT_EQ(0u, applied);
+    EXPECT_EQ(3u, doc->size());
+    auto execution = tlv::query_execution::create(*selector, 1, 10, 100000);
+    ASSERT_TRUE(execution);
+    ASSERT_TRUE(doc->evaluate(*execution, nullptr, 0, nullptr));
+    tlv_node_t* targets[2]{};
+    EXPECT_NE(TLV_OK, tlv_document_query_edit(doc->c_document(), execution->c_exec(),
+                                              TLV_DOCUMENT_QUERY_INSERT_AFTER, tlv_tag(nullptr, 1),
+                                              nullptr, 0, targets, 2, &applied));
+    EXPECT_EQ(0u, applied);
+    EXPECT_EQ(3u, doc->size());
+}
+
+TEST(Unit_Tlvpp_FullQuery, AggregateInsertionLimitMakesNoChanges) {
+    const uint8_t          fixture[] = {0x50, 0, 0x50, 0};
+    tlv_document_options_t options;
+    ASSERT_EQ(TLV_OK, tlv_document_options_init(&options, &format));
+    options.max_elements = 3;
+    tlv_document_t* doc = nullptr;
+    ASSERT_EQ(TLV_OK, tlv_document_parse(fixture, sizeof fixture, &options, &doc, nullptr));
+    auto query = tlv::query_program::compile("//50");
+    ASSERT_TRUE(query);
+    auto execution = tlv::query_execution::create(*query, 1, 10, 100000);
+    ASSERT_TRUE(execution);
+    ASSERT_EQ(TLV_OK, tlv_document_query_evaluate(doc, execution->c_exec(), nullptr, nullptr, 0,
+                                                  nullptr, nullptr));
+    tlv_node_t*   targets[2]{};
+    size_t        applied = 99;
+    const uint8_t tag = 0x50;
+    EXPECT_EQ(TLV_ERR_LIMIT,
+              tlv_document_query_edit(doc, execution->c_exec(), TLV_DOCUMENT_QUERY_INSERT_AFTER,
+                                      tlv_tag(&tag, 1), nullptr, 0, targets, 2, &applied));
+    EXPECT_EQ(0u, applied);
+    EXPECT_EQ(2u, tlv_document_count(doc));
+    EXPECT_EQ(0u, tlv_document_revision(doc));
+    tlv_document_free(doc);
 }
 
 TEST(Unit_Tlvpp_FullQuery, DocumentExecutionDetectsDestructionBeforeResultAccess) {

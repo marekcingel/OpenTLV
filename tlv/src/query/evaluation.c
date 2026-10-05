@@ -690,8 +690,8 @@ tlv_result_t tlv_query_result_next(tlv_query_exec_t* e, tlv_tree_event_t* event)
     return TLV_ERR_END_OF_BUFFER;
 }
 
-tlv_result_t tlv_query_result_next_identity(tlv_query_exec_t* e, tlv_tree_event_t* event,
-                                            size_t* ordinal) {
+tlv_result_t tlv_query_result_next_ordinal(tlv_query_exec_t* e, tlv_tree_event_t* event,
+                                           size_t* ordinal) {
     if (!ordinal) return TLV_ERR_NULL_ARG;
     tlv_result_t rc = tlv_query_result_next(e, event);
     if (rc == TLV_OK) *ordinal = e->result_cursor - 1;
@@ -746,4 +746,16 @@ tlv_result_t query_document_next(tlv_query_exec_t* e, void** handle) {
         }
     }
     return TLV_ERR_END_OF_BUFFER;
+}
+
+tlv_result_t query_document_result_count(const tlv_query_exec_t* e, size_t* count) {
+    if (!e || !count) return TLV_ERR_NULL_ARG;
+    if (!e->document_backend || !e->finished || e->invalid ||
+        e->result.kind != TLV_QUERY_RESULT_NODES)
+        return TLV_ERR_INVALID_ARG;
+    size_t total = 0;
+    for (size_t i = 0; i < e->elements; ++i)
+        if (frame_set((tlv_query_exec_t*)e, 0, 0)[i]) ++total;
+    *count = total;
+    return TLV_OK;
 }

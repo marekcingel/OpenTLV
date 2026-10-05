@@ -79,22 +79,39 @@ inserted nodes: `@offset` and `@hlen` fail with SOURCE diagnostics. Source locat
 are not invented from the canonical Value snapshot.
 
 `tlv_document_query_edit` consumes a completed native node selection into a
-caller-owned target array before editing. Capacity failure makes no tree changes.
+caller-owned target array before editing. Capacity failure leaves the tree, target
+array and selection cursor unchanged; retry the same execution with more storage.
 Selected ancestors dominate descendants for remove/replace; insertion processes
 every initial target once, immediately after it, in preorder. Replace means Value
 replacement using the existing Format and constructed-Value parser. Replacement
 bytes are copied through the Document allocator before mutation, so a Value taken
 from a selected node can be used safely by that operation. Native remove cannot
 fail after collection; replace/insert stop at the first failure and report the
-number already applied. They provide no transaction or rollback. C++ convenience
+number already applied. Before mutation, tag framing, constructed Value syntax and
+the depth/element limits of every target are checked. Their failure applies no
+edits; allocation or identity exhaustion during commit can still apply a prefix.
+The same replacement bytes are opaque on primitive targets and parsed as children
+on constructed targets, including mixed selections. Overlap filtering uses the
+cursor's guaranteed unique preorder and costs O(target count * depth).
+They provide no transaction or rollback. C++ convenience
 methods are `query_remove`, `query_replace` and `query_insert_after`.
 
 Native compiled result cursors use whole-Document revision invalidation: any
 successful edit rejects subsequent pulls/scalar access before exposing stale
 storage. Keep the native C Document alive until result consumption; its revision
 is not a destruction token. C++ snapshots retain granular checked Node semantics.
-During Query callbacks, fallible edits return INVALID_ARG and erase/free are
-no-ops. Do not destroy or mutate a Document owner in a callback.
+During Query callbacks, fallible edits return INVALID_ARG. Void erase/free requests
+are deferred until the outermost Query callback on that Document returns; the
+visit then ends with INVALID_ARG. Pending ancestor erasure dominates descendants,
+and freeing dominates pending erasures. Borrowed nodes remain alive through that
+callback, but must not be used after the deferred operation is applied. A compiled
+visit invalidates its execution before returning from deferred mutation/destruction.
+
+Context ownership checks accept live nodes and are O(1). Possibly stale C++ Node
+handles retain an O(document node count) identity scan only after the revision
+changes. Repeated edits followed by checks can consequently cost O(n squared).
+The `document_identity_edit_loop` benchmark tracks this worst case at increasing
+node counts; no constant-time stale-handle validation is claimed.
 
 Contextual Schema assertions are defined in `tlv/schema/query.h`. Each rule
 contains a compiled node context selector, a compiled boolean assertion and an

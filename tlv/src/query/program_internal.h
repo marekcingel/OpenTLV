@@ -341,6 +341,7 @@ tlv_result_t query_retained_feed(tlv_query_exec_t*, const tlv_tree_event_t*,
 void query_document_handle(tlv_query_exec_t*, void*, const uint8_t*);
 const uint8_t* query_document_end(tlv_query_exec_t*);
 tlv_result_t query_document_next(tlv_query_exec_t*, void**);
+tlv_result_t query_document_result_count(const tlv_query_exec_t*, size_t*);
 size_t query_candidate_size(void);
 size_t query_candidate_alignment(void);
 uint32_t query_s1_filter(const query_node_t*, size_t, uint32_t, const char*);

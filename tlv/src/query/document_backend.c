@@ -173,7 +173,12 @@ tlv_result_t tlv_document_query_program_visit(tlv_query_exec_t* e,
         if (rc != TLV_OK) return rc;
         document_query_callback((tlv_document_t*)e->document_owner, 1);
         tlv_visit_result_t action = visitor(node, context);
-        document_query_callback((tlv_document_t*)e->document_owner, 0);
+        int deferred = document_query_callback((tlv_document_t*)e->document_owner, 0);
+        if (deferred) {
+            e->invalid = 1;
+            if (deferred == 2) e->document_owner = NULL;
+            return TLV_ERR_INVALID_ARG;
+        }
         if (action == TLV_VISIT_STOP) return TLV_OK;
         if (action != TLV_VISIT_CONTINUE) {
             e->invalid = 1;
@@ -188,10 +193,16 @@ tlv_result_t tlv_document_query_edit(tlv_document_t* document, tlv_query_exec_t*
                                      size_t capacity, size_t* applied) {
     if (!document || !e || !applied || (!targets && capacity)) return TLV_ERR_NULL_ARG;
     *applied = 0;
-    if (kind > TLV_DOCUMENT_QUERY_INSERT_AFTER || kind < TLV_DOCUMENT_QUERY_REMOVE ||
+    if ((kind != TLV_DOCUMENT_QUERY_REMOVE && kind != TLV_DOCUMENT_QUERY_REPLACE &&
+         kind != TLV_DOCUMENT_QUERY_INSERT_AFTER) ||
         e->document_owner != document || e->result_cursor ||
         (!value && size && kind != TLV_DOCUMENT_QUERY_REMOVE))
         return TLV_ERR_INVALID_ARG;
+    if (e->document_revision != tlv_document_revision(document)) return TLV_ERR_INVALID_ARG;
+    size_t required;
+    tlv_result_t status = query_document_result_count(e, &required);
+    if (status != TLV_OK) return status;
+    if (capacity < required) return TLV_ERR_BUFFER_TOO_SHORT;
     size_t count = 0;
     for (;;) {
         tlv_node_t* node;
