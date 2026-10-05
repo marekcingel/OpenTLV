@@ -940,7 +940,7 @@ tlv_result_t document_edit_targets(tlv_document_t* document, tlv_node_t** target
     if (kind == TLV_DOCUMENT_QUERY_INSERT_AFTER) {
         size_t encoded;
         if (!tag_valid(tag)) return TLV_ERR_NULL_ARG;
-        tlv_result_t check = tlv_encoded_size(tag, 0, document->options.format, &encoded);
+        tlv_result_t check = tlv_encoded_size(tag, size, document->options.format, &encoded);
         if (check != TLV_OK) return check;
         constructed =
             document->options.format->is_constructed &&

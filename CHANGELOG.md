@@ -9,6 +9,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Fixed
 
+- Validate the actual inserted Value length during Document Query edit preflight, before allocation or mutation. (#529, #522)
 - Preserve completed Query cursors on short edit target storage, prevalidate Document Query edits before mutation, and apply callback erase/free requests after the outermost visit instead of dropping them. (#522)
 - Reject stale compiled Document Query results after edits, and detect native node erasure and allocator address reuse in checked C++ handles. (#522)
 - Fix C and C++ API documentation builds with Doxygen warnings treated as errors for the new Query adapter headers. (#520)

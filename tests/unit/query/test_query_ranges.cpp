@@ -309,6 +309,83 @@ TEST(Unit_Tlvpp_FullQuery, NativeEditCapacityAndAncestorDominance) {
     EXPECT_TRUE(doc->empty());
 }
 
+TEST(Unit_Tlvpp_FullQuery, EditRetriesSameExecutionAfterShortTargetStorage) {
+    auto doc = tlv::document::parse(bytes(input, sizeof input), tlv::document_format(format));
+    ASSERT_TRUE(doc);
+    auto query = tlv::query_program::compile("//50");
+    ASSERT_TRUE(query);
+    auto execution = tlv::query_execution::create(*query, 3, 100, 100000);
+    ASSERT_TRUE(execution);
+    ASSERT_TRUE(doc->evaluate(*execution, nullptr, 0, nullptr));
+    auto* const cursor = execution->c_exec();
+    const auto  revision = tlv_document_revision(doc->c_document());
+    auto* const sentinel = doc->first().c_node();
+    tlv_node_t* small[1] = {sentinel};
+    size_t      applied = 99;
+    ASSERT_EQ(TLV_ERR_BUFFER_TOO_SHORT,
+              tlv_document_query_edit(doc->c_document(), cursor, TLV_DOCUMENT_QUERY_REMOVE,
+                                      tlv_tag(nullptr, 0), nullptr, 0, small, 1, &applied));
+    EXPECT_EQ(0u, applied);
+    EXPECT_EQ(sentinel, small[0]);
+    EXPECT_EQ(revision, tlv_document_revision(doc->c_document()));
+    EXPECT_EQ(7u, doc->size());
+
+    // No re-evaluation or cursor reset between the failed call and this retry.
+    tlv_node_t* sufficient[3]{};
+    ASSERT_EQ(TLV_OK,
+              tlv_document_query_edit(doc->c_document(), cursor, TLV_DOCUMENT_QUERY_REMOVE,
+                                      tlv_tag(nullptr, 0), nullptr, 0, sufficient, 3, &applied));
+    EXPECT_EQ(3u, applied);
+    EXPECT_EQ(4u, doc->size());
+    auto remaining = doc->select(*query);
+    ASSERT_TRUE(remaining);
+    EXPECT_TRUE(remaining->empty());
+}
+
+TEST(Unit_Tlvpp_FullQuery, InsertPreflightChecksActualValueLengthBeforeAllocation) {
+    auto bounded = format;
+    bounded.measure = [](const void* context, const tlv_element_t* element,
+                         tlv_encoding_t* encoding, tlv_format_error_t* error) {
+        if (element->value.size > 1) return TLV_ERR_INVALID_LENGTH;
+        return tlv_fields_measure(context, element, encoding, error);
+    };
+    struct allocator_state {
+        bool         reject = false;
+        static void* allocate(void* context, size_t size) {
+            return static_cast<allocator_state*>(context)->reject ? nullptr : std::malloc(size);
+        }
+        static void release(void*, void* pointer) {
+            std::free(pointer);
+        }
+    } state;
+    tlv_allocator_t        allocator{&state, allocator_state::allocate, allocator_state::release};
+    tlv_document_options_t options;
+    ASSERT_EQ(TLV_OK, tlv_document_options_init(&options, &bounded));
+    options.allocator = &allocator;
+    const uint8_t   fixture[] = {0x50, 0};
+    tlv_document_t* doc = nullptr;
+    ASSERT_EQ(TLV_OK, tlv_document_parse(fixture, sizeof fixture, &options, &doc, nullptr));
+    auto query = tlv::query_program::compile("//50");
+    ASSERT_TRUE(query);
+    auto execution = tlv::query_execution::create(*query, 1, 10, 100000);
+    ASSERT_TRUE(execution);
+    ASSERT_EQ(TLV_OK, tlv_document_query_evaluate(doc, execution->c_exec(), nullptr, nullptr, 0,
+                                                  nullptr, nullptr));
+    const uint8_t tag = 0x50, value[] = {1, 2};
+    tlv_node_t*   targets[1]{};
+    size_t        applied = 99;
+    state.reject = true;
+    // Length rejection must precede even the temporary Value copy: the old
+    // zero-length preflight would instead reach allocation and return OOM.
+    EXPECT_EQ(TLV_ERR_INVALID_LENGTH,
+              tlv_document_query_edit(doc, execution->c_exec(), TLV_DOCUMENT_QUERY_INSERT_AFTER,
+                                      tlv_tag(&tag, 1), value, sizeof value, targets, 1, &applied));
+    EXPECT_EQ(0u, applied);
+    EXPECT_EQ(1u, tlv_document_count(doc));
+    EXPECT_EQ(0u, tlv_document_revision(doc));
+    tlv_document_free(doc);
+}
+
 TEST(Unit_Tlvpp_FullQuery, DiffUsesOriginalPositionsAndExcludesUnselectedDescendants) {
     auto left = tlv::document::parse(bytes(input, sizeof input), tlv::document_format(format));
     ASSERT_TRUE(left);
