@@ -14,6 +14,7 @@ namespace cli {
 class query_command : public traversal_command {
 public:
     using traversal_command::traversal_command;
+    int run() override;
 
 protected:
     int                prepare() override;

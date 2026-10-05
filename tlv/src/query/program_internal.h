@@ -9,6 +9,12 @@
 
 #define QUERY_MAGIC UINT32_C(0x51525932)
 #define QUERY_NONE UINT32_MAX
+
+static inline int query_format_compatible(const tlv_format_t* a, const tlv_format_t* b) {
+    return a && b && a->context == b->context && a->decode == b->decode &&
+           a->measure == b->measure && a->encode == b->encode &&
+           a->is_constructed == b->is_constructed;
+}
 enum query_op {
     Q_TEST,
     Q_ROOT,
@@ -151,6 +157,9 @@ struct tlv_query_exec {
     int retained;
     size_t node_capacity, result_cursor;
     int document_backend;
+    const void* document_owner;
+    uint64_t document_revision;
+    int (*document_current)(const void*, uint64_t);
     tlv_tree_event_t delayed;
     int delayed_selected, published_match;
     const tlv_query_environment_t* environment;

@@ -49,6 +49,13 @@ enum : uint64_t {
     opt_output_dir = UINT64_C(1) << 30,
     opt_max_value = UINT64_C(1) << 31,
     opt_max_case = UINT64_C(1) << 32,
+    opt_exists = UINT64_C(1) << 33,
+    opt_explain = UINT64_C(1) << 34,
+    opt_var = UINT64_C(1) << 35,
+    opt_backend = UINT64_C(1) << 36,
+    opt_query = UINT64_C(1) << 37,
+    opt_against = UINT64_C(1) << 38,
+    opt_where = UINT64_C(1) << 39,
     generate_only = opt_seed | opt_count | opt_output_dir | opt_max_value | opt_max_case,
     // Options only encode takes.
     encode_only = opt_tag | opt_value | opt_output_encoding | opt_output_file,
@@ -68,7 +75,7 @@ enum : uint64_t {
     // takes a following value, except --value under "query" (see
     // flag_options_mask()'s doc comment in options.hpp).
     flag_only = opt_tree | opt_pdol | opt_decode | opt_pretty | opt_describe | opt_force_color |
-        opt_no_color | opt_recover
+        opt_no_color | opt_recover | opt_exists | opt_explain
 };
 
 // Options valid for each command, matched by options::parse() below and
@@ -79,7 +86,11 @@ const uint64_t lookup_options = opt_module | opt_output;
 const uint64_t listing_options = opt_module | opt_output | opt_search;
 const uint64_t query_options = opt_format | opt_input | opt_hex | opt_max_input | opt_max_depth |
                                opt_max_elements | opt_input_encoding | opt_output | opt_value |
-                               opt_diagnostics | fixed_only;
+                               opt_diagnostics | fixed_only | opt_count | opt_exists | opt_explain |
+                               opt_var | opt_backend | opt_query;
+const uint64_t diff_options = opt_format | opt_input | opt_against | opt_where | fixed_only |
+                              opt_max_input | opt_max_depth | opt_max_elements | opt_output |
+                              opt_diagnostics;
 const uint64_t encode_options = opt_format | opt_input | opt_max_input | opt_max_depth |
                                 opt_max_elements | encode_only | fixed_only;
 const uint64_t decode_options = opt_format | opt_input | opt_hex | opt_max_input | opt_max_depth |
@@ -134,6 +145,13 @@ int context_by_name(const char* text, int* out) {
 // Shared by option_bit() below and, via cli::option_table(), by `otlv
 // completion`'s per-command option lists.
 const cli::option_entry option_table_data[] = {
+    {"--against", opt_against},
+    {"--where", opt_where},
+    {"--exists", opt_exists},
+    {"--explain", opt_explain},
+    {"--var", opt_var},
+    {"--backend", opt_backend},
+    {"--query", opt_query},
     {"--seed", opt_seed},
     {"--count", opt_count},
     {"--output-dir", opt_output_dir},
@@ -195,15 +213,17 @@ int options::parse(int argc, char** argv) {
     const bool decoding = argc > 1 && !strcmp(command, "decode");
     const bool validating = argc > 1 && !strcmp(command, "validate");
     const bool querying = argc > 1 && !strcmp(command, "query");
+    const bool diffing = argc > 1 && !strcmp(command, "diff");
     if (strcmp(command, "dump") && !validating && !decoding && !encoding && !lookup && !listing &&
-        !querying && !generating)
+        !querying && !generating && !diffing)
         return fail(2, "unknown command; use --help");
     i = 2;
     if (querying) {
         // query takes the path as a positional argument: otlv query 6F/A5/50 --format ber ...
-        if (argc < 3 || !strncmp(argv[2], "--", 2)) return fail(2, "query requires a path");
-        path = argv[2];
-        i = 3;
+        if (argc >= 3 && strncmp(argv[2], "--", 2)) {
+            path = argv[2];
+            i = 3;
+        }
     }
     if (lookup) {
         // tag takes the tag bytes as a positional argument: otlv tag 9F02 --module emv
@@ -214,13 +234,18 @@ int options::parse(int argc, char** argv) {
     for (; i < argc; ++i) {
         const uint64_t bit = option_bit(argv[i]);
         if (!bit) return fail(2, "unknown option; use --help");
+        if ((bit & (opt_against | opt_where)) && !diffing) return fail(2, "option requires diff");
+        if ((bit & (opt_exists | opt_explain | opt_var | opt_backend | opt_query)) && !querying)
+            return fail(2, "option requires query");
         // Each command accepts only its own options. dump and validate share
         // the input, limit and presentation options; decode takes the subset
         // that makes sense for a JSON export. The per-command masks are the
         // file-scope constants above, shared with command_options_mask() for
         // `otlv completion`.
-        if (!generating && (bit & generate_only)) return fail(2, "option requires generate");
+        if (!generating && (bit & generate_only) && !(querying && bit == opt_count))
+            return fail(2, "option requires generate");
         if (generating   ? !(bit & generate_options)
+            : diffing    ? !(bit & diff_options)
             : lookup     ? !(bit & lookup_options)
             : listing    ? !(bit & listing_options)
             : querying   ? !(bit & query_options)
@@ -238,8 +263,20 @@ int options::parse(int argc, char** argv) {
                            : (bit & opt_search)  ? "option requires tags"
                            : (bit & opt_recover) ? "--recover requires dump or decode"
                                                  : "--emv-check requires validate");
-        if (seen & bit) return fail(2, "duplicate option");
+        if ((seen & bit) && bit != opt_var) return fail(2, "duplicate option");
         seen |= bit;
+        if (querying && bit == opt_count) {
+            query_count = true;
+            continue;
+        }
+        if (bit == opt_exists) {
+            query_exists = true;
+            continue;
+        }
+        if (bit == opt_explain) {
+            query_explain = true;
+            continue;
+        }
         if (bit == opt_tree) {
             tree = 1;
             continue;
@@ -273,7 +310,18 @@ int options::parse(int argc, char** argv) {
             continue;
         }
         if (++i == argc) return fail(2, "missing option value");
-        if (bit == opt_format)
+        if (bit == opt_var)
+            query_variables.emplace_back(argv[i]);
+        else if (bit == opt_against)
+            against = argv[i];
+        else if (bit == opt_where)
+            where = argv[i];
+        else if (bit == opt_backend)
+            query_backend = argv[i];
+        else if (bit == opt_query) {
+            if (path) return fail(2, "query text specified twice");
+            path = argv[i];
+        } else if (bit == opt_format)
             format = argv[i];
         else if (bit == opt_output_dir)
             output_dir = argv[i];
@@ -393,6 +441,13 @@ int options::parse(int argc, char** argv) {
         return 0;
     }
     if (!format) return fail(2, "requires --format");
+    if (diffing) {
+#if !OPENTLV_DOCUMENT
+        return fail(2, "diff requires the Document component");
+#endif
+        if (!input || !against || !strcmp(input, "-") || !strcmp(against, "-"))
+            return fail(2, "diff requires --input LEFT and --against RIGHT file paths");
+    }
     if (input && hex) return fail(2, "--input and --hex cannot both be given");
     // Neither --input nor --hex: read the input from stdin.
     if (!input && !hex) input = "-";
@@ -400,14 +455,15 @@ int options::parse(int argc, char** argv) {
         return fail(2, "--fixed-tag-size/--fixed-length-size/--fixed-byte-order require "
                        "--format fixed");
     if (querying) {
-        auto               parsed_query = tlv::query::parse(path);
-        const tlv_result_t rc = parsed_query ? TLV_OK : parsed_query.error().code;
-        if (rc == TLV_ERR_INVALID_ARG)
-            return fail(2, "invalid query path; use hexadecimal tags separated by /");
-        if (rc == TLV_ERR_INVALID_TAG_SIZE) return fail(2, "query tag is too long");
-        if (rc != TLV_OK) return fail(2, "query path has too many tags");
-        query = std::make_shared<tlv::query>(std::move(*parsed_query));
-        if (query->size() > 1 && strcmp(format, "ber") && strcmp(format, "der") &&
+        if (!path) return fail(2, "query requires a path or --query expression");
+        if (query_count && query_exists)
+            return fail(2, "--count and --exists are mutually exclusive");
+        if (strcmp(query_backend, "auto") && strcmp(query_backend, "streaming") &&
+            strcmp(query_backend, "document"))
+            return fail(2, "unknown Query backend");
+        auto parsed_query = tlv::query::parse(path);
+        if (parsed_query) query = std::make_shared<tlv::query>(std::move(*parsed_query));
+        if (query && query->size() > 1 && strcmp(format, "ber") && strcmp(format, "der") &&
             strcmp(format, "emv"))
             return fail(2, "a query with nested tags requires --format ber, der or emv");
         if (value_only && strcmp(output, "text"))
@@ -464,6 +520,10 @@ void options::usage() {
            "       otlv encode --format NAME [--input JSON_PATH|-] "
            "[--output-encoding hex|binary] [--output-file PATH]\n"
            "       otlv query PATH --format NAME [--input PATH|- | --hex BYTES] [--value] "
+           "[--output text|json]\n"
+           "       otlv query --query EXPR --format NAME [--var NAME:TYPE=VALUE] "
+           "[--count|--exists] [--backend auto|streaming|document] [--explain]\n"
+           "       otlv diff --format NAME --input LEFT --against RIGHT [--where EXPR] "
            "[--output text|json]\n"
            "       otlv tag HEX --module emv [--output text|json]\n"
            "       otlv tags --module emv [--search TEXT] [--output text|json]\n"
@@ -547,6 +607,8 @@ uint64_t command_options_mask(const char* command) {
         mask = listing_options;
     else if (!strcmp(command, "query"))
         mask = query_options;
+    else if (!strcmp(command, "diff"))
+        mask = diff_options;
     else if (!strcmp(command, "encode"))
         mask = encode_options;
     else if (!strcmp(command, "decode"))
@@ -560,6 +622,9 @@ uint64_t command_options_mask(const char* command) {
 #endif
 #if !OPENTLV_EMV && !OPENTLV_BLUETOOTH
     mask &= ~(opt_module | opt_decode);
+#endif
+#if !OPENTLV_DOCUMENT
+    if (!strcmp(command, "diff")) mask = 0;
 #endif
     return mask;
 }

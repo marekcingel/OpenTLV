@@ -197,6 +197,7 @@ private:
     }
     friend class document_builder;
     friend class query_matcher;
+    friend class query_execution;
     static expected<void, error> result(tlv_result_t rc) {
         if (rc != TLV_OK) return unexpected<error>(error::from_c(rc));
         return {};

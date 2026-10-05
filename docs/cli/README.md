@@ -355,6 +355,62 @@ from the CLI.
 - No match is reported as `otlv: no match for query ...` with exit code 5, so a
   script can tell a missing element from invalid data.
 
+### Full compiled Query and semantic diff
+
+Full expressions can be positional or supplied with `--query`. Existing exact
+paths preserve their text/JSON/`--value` behavior; descendants (`//`), predicates,
+sets, typed variables and scalar expressions use the compiled C Query engine
+through the C++ program/execution facade.
+
+```sh
+otlv query --query 'count(//50)' --format ber --input capture.bin
+otlv query --query '//50[value(.) = $wanted]' --var wanted:bytes=4142 --format ber --input capture.bin
+otlv query --query '//50[num(.) > $min]' --var min:int=100 --format ber --input capture.bin --explain
+otlv query '//51' --exists --format ber --input capture.bin
+otlv diff --format ber --input left.bin --against right.bin --where '//70/5A' --output json
+```
+
+Variable declarations use `NAME:int=DECIMAL`, `NAME:bytes=HEX` (even-length hex,
+including empty) or `NAME:string=UTF8`. The shell must preserve literal dollar
+signs; single-quoted examples work in Bash and PowerShell. Variables are bound
+through native slots, never substituted into Query text. `num` uses the generic
+minimal signed big-endian integer provider; `bcd` uses packed decimal, and `text`
+uses UTF-8. Symbolic EMV resolution is enabled with `--format emv`.
+
+`--count` and `--exists` wrap a node expression into a scalar expression. False
+and zero return exit code 0, as does every successful scalar. Empty node results
+return 5. Full Query compilation/binding/backend failures return 2 and execution
+failures return 3; existing V1 input parse failures retain exit code 1. Scalar
+JSON is `{ "type": native_result_kind, "value": value }`, with integer JSON
+numbers, booleans, uppercase hex bytes and UTF-8 strings. `--value` is only for
+node selections and cannot be combined with JSON.
+
+`--backend streaming` always uses retained canonical Tree events with explicit
+`--max-elements` capacity and rejects D before traversal. It never builds a
+Document. `--backend document` selects owning Document materialization explicitly.
+`auto` chooses retained streaming for S0-S2 and materializes D. Input is already
+owned by the CLI; retained payloads borrow that input. The owning C++ convenience
+and CLI allocate program/workspace/result storage; the C engine does not allocate.
+Document output reports source offsets as unavailable (`null` in JSON).
+
+`--explain` writes JSON to stderr with normalized Query, language/result/level,
+chosen backend, program/scratch sizing and alignment, capacities, work budget,
+validation policy and an explicitly unstable internal logical IR. It does not
+change the normal result output. Full execution drains to structural EOF; Schema
+or DER semantic validation is not implied. Human/compact/json diagnostics retain
+native Query byte spans and available resource/source context.
+
+`diff` requires two files and the Document component. Its selector is compiled
+once and evaluated on each original complete input. It reports added, removed
+and changed direct nodes; zero differences succeeds with an empty result. Node
+correspondence uses ancestor tags and same-tag sibling occurrence, independent
+of byte offsets. A node selected on either side includes its counterpart. Selected
+ancestors do not implicitly include excluded descendants. Repeated-tag insertions
+may shift correspondence. JSON contains a `changes` array with kind, correspondence
+path and original left/right primitive content/classification; absent sides and
+constructed Values are `null`. This minimal surface does not bind typed variables
+or provider environments for diff. See [Query integration contracts](../guides/queries.md#full-programs-and-integration).
+
 ### Tag lookup
 
 `tag` looks up one BER tag in the OpenTLV EMV dictionary, so the CLI can serve

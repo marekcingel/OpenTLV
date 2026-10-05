@@ -24,6 +24,8 @@ completion_option::completion_option(const option_entry& entry, const char* comm
         values_ = {"text", "json"};
     } else if (name_ == "--diagnostics") {
         values_ = {"human", "compact", "json"};
+    } else if (name_ == "--backend") {
+        values_ = {"auto", "streaming", "document"};
     } else if (name_ == "--fixed-byte-order") {
         values_ = {"big", "little"};
     } else if (name_ == "--module") {

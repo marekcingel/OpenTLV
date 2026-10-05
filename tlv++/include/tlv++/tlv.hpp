@@ -27,6 +27,8 @@
 #include "tlv++/codec/registry.hpp"
 #include "tlv++/codec/structure.hpp"
 #include "tlv++/query/query.hpp"
+#include "tlv++/query/program.hpp"
+#include "tlv++/query/builder.hpp"
 #include "tlv++/schema/schema.hpp"
 #if OPENTLV_FORMAT_BER
 #include "tlv++/builtins/asn1/codec.hpp"

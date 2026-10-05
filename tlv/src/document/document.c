@@ -11,6 +11,7 @@
 
 /* The tag bytes are stored directly after this structure in the same allocation. */
 struct tlv_node {
+    uint64_t identity;
     tlv_document_t* document;
     tlv_node_t* parent;
     tlv_node_t* prev;
@@ -29,6 +30,9 @@ struct tlv_document {
     tlv_node_t* first;
     tlv_node_t* last;
     size_t count;
+    uint64_t revision;
+    size_t query_callbacks;
+    uint64_t next_identity;
 };
 
 struct tlv_document_builder {
@@ -207,10 +211,12 @@ static tlv_result_t create_node(tlv_document_t* document, tlv_node_t* parent, tl
         return TLV_ERR_LIMIT;
     }
     if (tag.size > SIZE_MAX - sizeof *node) return TLV_ERR_OUT_OF_MEMORY;
+    if (document->next_identity == UINT64_MAX) return TLV_ERR_LIMIT;
     node = (tlv_node_t*)memory_allocate(document, sizeof *node + tag.size);
     if (!node) return TLV_ERR_OUT_OF_MEMORY;
     memset(node, 0, sizeof *node);
     node->document = document;
+    node->identity = ++document->next_identity;
     node->tag_size = tag.size;
     if (tag.size) memcpy(node + 1, tag.data, tag.size);
     node->constructed = constructed;
@@ -393,7 +399,7 @@ tlv_result_t tlv_document_parse(const uint8_t* data, size_t size,
 }
 
 void tlv_document_free(tlv_document_t* document) {
-    if (!document) return;
+    if (!document || document->query_callbacks) return;
     discard_children(document, NULL);
     memory_release(document, document);
 }
@@ -517,7 +523,9 @@ tlv_result_t tlv_document_query_visit(const tlv_document_t* document, const tlv_
     while (node) {
         tlv_tag_t tag = node_tag(node);
         if (tlv_query_matcher_visit(&matcher, &tag, depth)) {
+            ++((tlv_document_t*)document)->query_callbacks;
             tlv_visit_result_t result = visitor(node, context);
+            --((tlv_document_t*)document)->query_callbacks;
             if (result == TLV_VISIT_STOP) return TLV_OK;
             if (result != TLV_VISIT_CONTINUE) return TLV_ERR_VISITOR;
         }
@@ -573,12 +581,14 @@ tlv_result_t tlv_node_set_value(tlv_node_t* node, const uint8_t* value, size_t l
     tlv_result_t rc;
     if (!node || (!value && length)) return TLV_ERR_NULL_ARG;
     document = node->document;
+    if (document->query_callbacks) return TLV_ERR_INVALID_ARG;
     if (!node->constructed) {
         uint8_t* copy = copy_bytes(document, value, length);
         if (length && !copy) return TLV_ERR_OUT_OF_MEMORY;
         memory_release(document, node->value);
         node->value = copy;
         node->value_size = length;
+        ++document->revision;
         return TLV_OK;
     }
     /* Parse first into a detached holder, so a failure leaves the old children in place. The
@@ -600,6 +610,7 @@ tlv_result_t tlv_node_set_value(tlv_node_t* node, const uint8_t* value, size_t l
         tlv_node_t* child;
         for (child = node->first; child; child = child->next) child->parent = node;
     }
+    ++document->revision;
     return TLV_OK;
 }
 
@@ -611,6 +622,7 @@ tlv_result_t tlv_document_insert(tlv_document_t* document, tlv_node_t* parent,
     size_t probe_size;
     tlv_result_t rc;
     if (!document || (!value && length) || !tag_valid(tag)) return TLV_ERR_NULL_ARG;
+    if (document->query_callbacks) return TLV_ERR_INVALID_ARG;
     if (parent && (parent->document != document || !parent->constructed))
         return TLV_ERR_INVALID_ARG;
     if (before && (before->document != document || before->parent != parent))
@@ -625,6 +637,7 @@ tlv_result_t tlv_document_insert(tlv_document_t* document, tlv_node_t* parent,
     if (rc != TLV_OK) return rc;
     node_unlink(created);
     node_link(document, parent, (tlv_node_t*)before, created);
+    ++document->revision;
     if (node) *node = created;
     return TLV_OK;
 }
@@ -633,9 +646,11 @@ void tlv_node_erase(tlv_node_t* node) {
     tlv_document_t* document;
     if (!node) return;
     document = node->document;
+    if (document->query_callbacks) return;
     node_unlink(node);
     document->count -= subtree_size(node);
     free_subtree(node);
+    ++document->revision;
 }
 
 /* ---- Encoding -------------------------------------------------------------------------- */
@@ -822,5 +837,71 @@ const tlv_format_t* document_format(const tlv_document_t* document) {
     return document ? document->options.format : NULL;
 }
 int document_contains(const tlv_document_t* document, const tlv_node_t* node) {
-    return node && node->document == document;
+    return tlv_document_node_identity(document, node) != 0;
+}
+uint64_t tlv_document_node_identity(const tlv_document_t* document, const tlv_node_t* wanted) {
+    if (!document || !wanted) return 0;
+    for (const tlv_node_t* node = document->first; node;) {
+        if (node == wanted) return node->identity;
+        if (node->first)
+            node = node->first;
+        else {
+            while (node->parent && !node->next) node = node->parent;
+            node = node->next;
+        }
+    }
+    return 0;
+}
+uint64_t tlv_node_identity(const tlv_node_t* node) {
+    return node ? node->identity : 0;
+}
+uint64_t tlv_document_revision(const tlv_document_t* document) {
+    return document ? document->revision : 0;
+}
+void document_query_callback(tlv_document_t* document, int active) {
+    if (active)
+        ++document->query_callbacks;
+    else
+        --document->query_callbacks;
+}
+
+tlv_result_t document_edit_targets(tlv_document_t* document, tlv_node_t** targets, size_t count,
+                                   tlv_document_query_edit_kind_t kind, tlv_tag_t tag,
+                                   const uint8_t* value, size_t size, size_t* applied) {
+    if (document->query_callbacks) return TLV_ERR_INVALID_ARG;
+    if (!count) return TLV_OK;
+    /* Resolve overlap against the initial topology before freeing a single node. */
+    if (kind != TLV_DOCUMENT_QUERY_INSERT_AFTER) {
+        for (size_t i = count; i-- > 0;) {
+            for (tlv_node_t* parent = targets[i]->parent; parent; parent = parent->parent) {
+                int covered = 0;
+                for (size_t j = 0; j < i; ++j)
+                    if (targets[j] == parent) covered = 1;
+                if (covered) {
+                    targets[i] = NULL;
+                    break;
+                }
+            }
+        }
+    }
+    uint8_t* copy = NULL;
+    if (kind != TLV_DOCUMENT_QUERY_REMOVE && size) {
+        copy = copy_bytes(document, value, size);
+        if (!copy) return TLV_ERR_OUT_OF_MEMORY;
+    }
+    tlv_result_t rc = TLV_OK;
+    for (size_t i = 0; i < count; ++i) {
+        tlv_node_t* target = targets[i];
+        if (!target) continue;
+        if (kind == TLV_DOCUMENT_QUERY_REMOVE)
+            tlv_node_erase(target);
+        else if (kind == TLV_DOCUMENT_QUERY_REPLACE)
+            rc = tlv_node_set_value(target, copy, size);
+        else
+            rc = tlv_document_insert(document, target->parent, target->next, tag, copy, size, NULL);
+        if (rc != TLV_OK) break;
+        ++*applied;
+    }
+    memory_release(document, copy);
+    return rc;
 }

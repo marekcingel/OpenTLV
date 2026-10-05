@@ -18,6 +18,9 @@ completion_model completion_model::build() {
     for (const char* name : {"tag", "tags"})
         model.commands_.push_back(completion_command_spec(name));
 #endif
+#if OPENTLV_DOCUMENT
+    model.commands_.push_back(completion_command_spec("diff"));
+#endif
     model.commands_.push_back(completion_command_spec("formats"));
     completion_command_spec completion_spec("completion");
     completion_spec.set_positional_values({"bash", "zsh", "fish", "powershell"});
@@ -28,7 +31,7 @@ completion_model completion_model::build() {
 std::vector<completion_option> completion_model::all_options() const {
     uint64_t available = 0;
     for (const char* name :
-         {"dump", "validate", "decode", "encode", "generate", "query", "tag", "tags"})
+         {"dump", "validate", "decode", "encode", "generate", "query", "diff", "tag", "tags"})
         available |= command_options_mask(name);
     std::size_t                    count = 0;
     const option_entry*            table = option_table(&count);
