@@ -104,7 +104,7 @@ tlv_visit_result_t query_match(const tlv_tree_event_t* event, void*) {
 }
 
 void query_s0_stream(benchmark::State& state) {
-    const char* text = "//80 | //81";
+    const char* text = "//80";
     size_t      scratch_size, alignment;
     if (tlv_query_compile_scratch(text, std::strlen(text), nullptr, &scratch_size, &alignment,
                                   nullptr) != TLV_OK) {
@@ -176,6 +176,178 @@ void query_v1_matcher(benchmark::State& state) {
 }
 
 BENCHMARK(query_v1_matcher)->Arg(16)->Arg(256)->Arg(4096);
+
+// Frozen V1 and S0 consume identical encoded inputs and canonical Tree events.
+// This includes parsing in both paths; query_v1_matcher remains matcher-only.
+void query_v1_stream(benchmark::State& state) {
+    tlv_query_t query;
+    if (tlv_query_parse("80", &query, nullptr) != TLV_OK) {
+        state.SkipWithError("V1 Query parsing failed");
+        return;
+    }
+    const auto encoded = encode_stream(16, static_cast<size_t>(state.range(0)));
+    for (auto _ : state) {
+        tlv_tree_reader_t   reader;
+        tlv_query_matcher_t matcher;
+        auto                rc = tlv_query_matcher_init(&matcher, &query);
+        if (rc == TLV_OK)
+            rc = tlv_tree_reader_init(&reader, encoded.data(), encoded.size(), &tlv_format_ber,
+                                      nullptr, 0, 0, static_cast<size_t>(state.range(0)));
+        if (rc != TLV_OK) {
+            state.SkipWithError("V1 stream initialization");
+            break;
+        }
+        tlv_tree_event_t event;
+        while ((rc = tlv_tree_reader_next_event(&reader, &event)) == TLV_OK) {
+            const auto matched = tlv_query_matcher_visit(&matcher, &event.element.tag, event.depth);
+            benchmark::DoNotOptimize(matched);
+            if (matched) query_match(&event, nullptr);
+        }
+        if (rc != TLV_ERR_END_OF_BUFFER) {
+            state.SkipWithError("V1 stream traversal");
+            break;
+        }
+    }
+    state.SetItemsProcessed(state.iterations() * state.range(0));
+    state.SetBytesProcessed(state.iterations() * static_cast<int64_t>(encoded.size()));
+}
+BENCHMARK(query_v1_stream)->Arg(16)->Arg(256)->Arg(4096);
+
+// Phase names keep parsing, compilation, validation and retained execution costs
+// separate. Inputs are synthetic project-owned BER octet strings (MIT).
+void query_phase(benchmark::State& state) {
+    const int                   phase = static_cast<int>(state.range(0));
+    const size_t                nodes = static_cast<size_t>(state.range(1));
+    const char*                 texts[] = {"//80",
+                                           "//80",
+                                           "//80",
+                                           "//80",
+                                           "/80[exists(81)]",
+                                           "(//80)[last()]",
+                                           "//80/following::81",
+                                           "count(//80)"};
+    const char*                 text = texts[phase];
+    tlv_query_compile_options_t options;
+    tlv_query_compile_options_init(&options);
+    options.optimize = static_cast<int>(state.range(2));
+    size_t scratch_size, alignment;
+    auto   rc = tlv_query_compile_scratch(text, std::strlen(text), &options, &scratch_size,
+                                          &alignment, nullptr);
+    if (rc != TLV_OK) {
+        state.SkipWithError("compile scratch");
+        return;
+    }
+    std::vector<uint64_t>    scratch((scratch_size + 7) / 8);
+    tlv_query_program_info_t info{};
+    info.struct_size = sizeof info;
+    rc = tlv_query_compile(text, std::strlen(text), &options, scratch.data(), scratch_size, nullptr,
+                           0, &info, nullptr);
+    if (rc != TLV_OK) {
+        state.SkipWithError("compile sizing");
+        return;
+    }
+    std::vector<uint64_t> image((info.program_size + 7) / 8);
+    rc = tlv_query_compile(text, std::strlen(text), &options, scratch.data(), scratch_size,
+                           image.data(), info.program_size, &info, nullptr);
+    if (rc != TLV_OK) {
+        state.SkipWithError("compile image");
+        return;
+    }
+    const auto* program = reinterpret_cast<const tlv_query_program_t*>(image.data());
+    size_t      validation_size;
+    rc = tlv_query_program_load_scratch(program, info.program_size, &options, &validation_size,
+                                        &alignment, nullptr);
+    if (rc != TLV_OK) {
+        state.SkipWithError("validation scratch");
+        return;
+    }
+    std::vector<uint64_t> validation((validation_size + 7) / 8);
+    size_t                workspace_size;
+    bool                  retained = phase >= 5;
+    rc = retained ? tlv_query_eval_size(program, 0, nodes, &workspace_size, &alignment)
+                  : tlv_query_exec_size(program, 0, &workspace_size, &alignment);
+    if (phase < 3)
+        workspace_size = 0;
+    else if (rc != TLV_OK) {
+        state.SkipWithError("execution scratch");
+        return;
+    }
+    std::vector<uint8_t> workspace(workspace_size + 15);
+    void* aligned = reinterpret_cast<void*>((reinterpret_cast<uintptr_t>(workspace.data()) + 15) &
+                                            ~uintptr_t(15));
+    const auto encoded = encode_stream(16, nodes);
+#if OPENTLV_DOCUMENT
+    tlv_document_t* document = nullptr;
+    if (phase == 6) {
+        tlv_document_options_t document_options;
+        tlv_document_options_init(&document_options, &tlv_format_ber);
+        rc = tlv_document_parse(encoded.data(), encoded.size(), &document_options, &document,
+                                nullptr);
+        if (rc != TLV_OK) {
+            state.SkipWithError("Document setup");
+            return;
+        }
+    }
+#else
+    if (phase == 6) {
+        state.SkipWithError("Document disabled");
+        return;
+    }
+#endif
+    for (auto _ : state) {
+        if (phase <= 1) {
+            rc = tlv_query_compile(text, std::strlen(text), &options, scratch.data(), scratch_size,
+                                   phase ? image.data() : nullptr, phase ? info.program_size : 0,
+                                   &info, nullptr);
+        } else if (phase == 2) {
+            const tlv_query_program_t* loaded = nullptr;
+            rc = tlv_query_program_load(program, info.program_size, &options, validation.data(),
+                                        validation_size, &loaded, nullptr, nullptr);
+            benchmark::DoNotOptimize(loaded);
+        } else {
+            tlv_query_exec_t* exec;
+            rc = retained ? tlv_query_eval_init(program, nullptr, aligned, workspace_size, 0, nodes,
+                                                SIZE_MAX, &exec)
+                          : tlv_query_exec_init(program, aligned, workspace_size, 0, nodes,
+                                                SIZE_MAX, &exec);
+#if OPENTLV_DOCUMENT
+            if (rc == TLV_OK && phase == 6)
+                rc = tlv_document_query_evaluate(document, exec, nullptr, nullptr, 0, nullptr,
+                                                 nullptr);
+            else
+#endif
+                if (rc == TLV_OK) {
+                tlv_tree_reader_t reader;
+                rc = tlv_tree_reader_init(&reader, encoded.data(), encoded.size(), &tlv_format_ber,
+                                          nullptr, 0, 0, nodes);
+                if (rc == TLV_OK)
+                    rc = tlv_query_program_visit(&reader, exec, query_match, nullptr, nullptr);
+            }
+        }
+        if (rc != TLV_OK) {
+            state.SkipWithError("Query phase failed");
+            break;
+        }
+        benchmark::ClobberMemory();
+    }
+#if OPENTLV_DOCUMENT
+    if (document) tlv_document_free(document);
+#endif
+    state.counters["program_bytes"] = static_cast<double>(info.program_size);
+    state.counters["compile_scratch_bytes"] = static_cast<double>(scratch_size);
+    state.counters["validation_scratch_bytes"] = static_cast<double>(validation_size);
+    state.counters["workspace_bytes"] = static_cast<double>(workspace_size);
+    state.counters["candidate_capacity"] = retained ? static_cast<double>(nodes) : 0;
+    state.SetLabel(phase == 0   ? "sizing"
+                   : phase == 1 ? "compile"
+                   : phase == 2 ? "image-load"
+                   : phase == 3 ? "S0"
+                   : phase == 4 ? "S1"
+                   : phase == 5 ? "S2"
+                   : phase == 6 ? "D-prebuilt"
+                                : "scalar");
+}
+BENCHMARK(query_phase)->ArgsProduct({{0, 1, 2, 3, 4, 5, 6, 7}, {16, 256, 4096}, {0, 1}});
 
 #if OPENTLV_DOCUMENT
 // Worst-case stale-address validation after each edit deliberately scans to the

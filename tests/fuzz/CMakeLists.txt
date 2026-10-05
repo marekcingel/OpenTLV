@@ -37,10 +37,12 @@ target_compile_options(tlv_fuzz PRIVATE
     -fno-omit-frame-pointer -g)
 
 set(fuzz_targets read visitor roundtrip)
-list(APPEND fuzz_targets query_parse query_match query_program)
+list(APPEND fuzz_targets query_parse query_match query_program query_image query_pairs)
 set(fuzz_source_query_parse query/parse.c)
 set(fuzz_source_query_match query/match.c)
 set(fuzz_source_query_program query/program.c)
+set(fuzz_source_query_image query/image.c)
+set(fuzz_source_query_pairs query/pairs.c)
 set(fuzz_source_read reader/read.c)
 set(fuzz_source_visitor reader/visitor.c)
 set(fuzz_source_roundtrip roundtrip.c)

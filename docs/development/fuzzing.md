@@ -26,6 +26,14 @@ flags. Contract checks remain active with `NDEBUG`; UBSan errors are fatal.
 
 ## Targets and contracts
 
+Query also has `fuzz_query_image`: arbitrary bounded external images are checked
+before publication, without modifying the input. Same-version generated seeds
+and regeneration commands are described in the
+[Query corpus](https://github.com/marekcingel/OpenTLV/blob/main/tests/query/README.md). `fuzz_query_program` additionally
+revalidates successful compiled images with explicit scratch. These targets run
+in the existing ASan/UBSan fuzz workflow; release requirements are tracked by the
+[Query release checklist](query-release.md).
+
 | Target | Checks |
 | --- | --- |
 | `fuzz_read` | Sequential `tlv_read` calls, positive bounded consumption, borrowed value ranges, unchanged element and consumed count on failure. |

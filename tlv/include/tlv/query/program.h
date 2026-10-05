@@ -31,17 +31,18 @@ typedef enum tlv_query_level {
 
 /** @brief Query-specific diagnostic category; original result codes remain intact. */
 typedef enum tlv_query_error_kind {
-    TLV_QUERY_ERROR_NONE,        /**< No failure. */
-    TLV_QUERY_ERROR_SYNTAX,      /**< Invalid token or grammar. */
-    TLV_QUERY_ERROR_CAPABILITY,  /**< Recognized feature unavailable in this backend. */
-    TLV_QUERY_ERROR_LIMIT,       /**< Named capacity or work budget exhausted. */
-    TLV_QUERY_ERROR_STORAGE,     /**< Invalid storage or alignment. */
-    TLV_QUERY_ERROR_EVENTS,      /**< Unbalanced or otherwise invalid structural feed. */
-    TLV_QUERY_ERROR_SOURCE,      /**< Requested Source property unavailable. */
-    TLV_QUERY_ERROR_READER,      /**< Original Reader failure; reader detail is preserved. */
-    TLV_QUERY_ERROR_BINDING,     /**< Missing, unknown, duplicate or incompatible variable. */
-    TLV_QUERY_ERROR_CARDINALITY, /**< Scalar conversion did not receive exactly one node. */
-    TLV_QUERY_ERROR_CODEC        /**< Strict Value decoding failed. */
+    TLV_QUERY_ERROR_NONE,         /**< No failure. */
+    TLV_QUERY_ERROR_SYNTAX,       /**< Invalid token or grammar. */
+    TLV_QUERY_ERROR_CAPABILITY,   /**< Recognized feature unavailable in this backend. */
+    TLV_QUERY_ERROR_LIMIT,        /**< Named capacity or work budget exhausted. */
+    TLV_QUERY_ERROR_STORAGE,      /**< Invalid storage or alignment. */
+    TLV_QUERY_ERROR_EVENTS,       /**< Unbalanced or otherwise invalid structural feed. */
+    TLV_QUERY_ERROR_SOURCE,       /**< Requested Source property unavailable. */
+    TLV_QUERY_ERROR_READER,       /**< Original Reader failure; reader detail is preserved. */
+    TLV_QUERY_ERROR_BINDING,      /**< Missing, unknown, duplicate or incompatible variable. */
+    TLV_QUERY_ERROR_CARDINALITY,  /**< Scalar conversion did not receive exactly one node. */
+    TLV_QUERY_ERROR_CODEC,        /**< Strict Value decoding failed. */
+    TLV_QUERY_ERROR_IMAGE_VERSION /**< Internal image belongs to an incompatible release. */
 } tlv_query_error_kind_t;
 
 /** @brief Earliest publication frontier for the conservatively selected backend. */
@@ -291,6 +292,54 @@ TLV_API tlv_result_t tlv_query_compile(const char* text, size_t size,
                                        size_t scratch_size, void* storage, size_t capacity,
                                        tlv_query_program_info_t* info,
                                        tlv_query_diagnostic_t* diagnostic);
+
+/**
+ * @brief Discover bounded scratch for validating an untrusted internal image.
+ * @param[in] image Required readable image bytes; never modified.
+ * @param[in] size Exact available image extent.
+ * @param[in] options Compiler configuration and capabilities used to produce the image.
+ * @param[out] bytes Required validation scratch size, unchanged on failure.
+ * @param[out] alignment Required scratch alignment, unchanged on failure.
+ * @param[out] diagnostic Optional failure detail.
+ * @return OK, NULL_ARG, INVALID_ARG, LIMIT, OVERFLOW, or UNSUPPORTED_TYPE for
+ * an incompatible image version or byte order. This call does not validate instructions.
+ * @note No allocation or recursion. The image may be unaligned for discovery.
+ * Internal images use native-endian uint32 fields and the release's private layout;
+ * no persistent or cross-release compatibility is promised. Call load before use.
+ */
+TLV_API tlv_result_t tlv_query_program_load_scratch(const void* image, size_t size,
+                                                    const tlv_query_compile_options_t* options,
+                                                    size_t* bytes, size_t* alignment,
+                                                    tlv_query_diagnostic_t* diagnostic);
+
+/**
+ * @brief Validate an exact bounded image and borrow it for read-only execution.
+ * @param[in] image Required aligned readable image, including its complete extent.
+ * @param[in] size Exact image bytes; trailing bytes are rejected.
+ * @param[in] options Original compiler configuration, variables and environment.
+ * @param[in,out] scratch Required exclusive aligned storage from load_scratch.
+ * @param[in] capacity Available scratch bytes.
+ * @param[out] program Required output, unchanged on failure.
+ * @param[in,out] info Optional compiler requirements output with initialized struct_size;
+ * unchanged on failure.
+ * @param[out] diagnostic Optional failure detail.
+ * @return OK, NULL_ARG, INVALID_ARG, BUFFER_TOO_SHORT, LIMIT, OVERFLOW, or
+ * UNSUPPORTED_TYPE for incompatible version/capabilities.
+ * @note Recompiles bounded embedded text and compares every byte with the trusted
+ * compiler output, validating all private instruction, index, type, constant,
+ * transition and optimization fields before publication. Environment resolvers
+ * must be deterministic and hook IDs/contracts must match. Scratch must not overlap
+ * image or outputs. No allocation, recursion or image writes occur. On success the
+ * image may reside in ROM; keep it alive and unchanged throughout execution.
+ * Same-release, same-endian 32/64-bit targets share uint32 image fields; environment
+ * contracts and private layout must also match. Checksums cannot replace validation.
+ */
+TLV_API tlv_result_t tlv_query_program_load(const void* image, size_t size,
+                                            const tlv_query_compile_options_t* options,
+                                            void* scratch, size_t capacity,
+                                            const tlv_query_program_t** program,
+                                            tlv_query_program_info_t* info,
+                                            tlv_query_diagnostic_t* diagnostic);
 
 /**
  * @brief Canonically format a compiled program, including size discovery.

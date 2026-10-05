@@ -29,6 +29,11 @@ static void destroy_source(PyObject* capsule) {
     free(self);
 }
 
+const tlv_source_t* opentlv_python_source_pointer(PyObject* capsule) {
+    source_state* self = PyCapsule_GetPointer(capsule, SOURCE_NAME);
+    return self ? &self->source : NULL;
+}
+
 PyObject* opentlv_python_source_preserve(PyObject* module, PyObject* args) {
     (void)module;
     PyObject*  capsule;
@@ -86,6 +91,24 @@ static int available(cursor* self) {
         return 0;
     }
     return 1;
+}
+
+tlv_tree_reader_t* opentlv_python_query_reader_begin(PyObject* capsule, PyObject** input) {
+    cursor* self = PyCapsule_GetPointer(capsule, CURSOR_NAME);
+    if (!available(self)) return NULL;
+    if (!self->nested) {
+        PyErr_SetString(PyExc_TypeError, "compiled Query requires a TreeReader");
+        return NULL;
+    }
+    self->has_current = 0;
+    self->busy = 1;
+    *input = self->input;
+    return &self->tree;
+}
+
+void opentlv_python_query_reader_end(PyObject* capsule) {
+    cursor* self = PyCapsule_GetPointer(capsule, CURSOR_NAME);
+    if (self) self->busy = 0;
 }
 
 typedef struct builder_state {

@@ -81,6 +81,12 @@ TEST(Unit_Tlvpp_FullQuery, ScalarsVariablesAndStopResume) {
     options.variable_count = 1;
     auto query = tlv::query_program::compile("count(//50[@len >= $minimum])", &options);
     ASSERT_TRUE(query);
+    ASSERT_EQ(1u, query->variable_count());
+    auto requirement = query->variable(0);
+    ASSERT_TRUE(requirement);
+    EXPECT_EQ("minimum", std::string(requirement->name, requirement->name_size));
+    EXPECT_EQ(TLV_QUERY_RESULT_INTEGER, requirement->type);
+    EXPECT_FALSE(query->variable(1));
     auto execution = tlv::query_execution::create(*query, 3, 100, 100000);
     ASSERT_TRUE(execution);
     ASSERT_TRUE(execution->bind("minimum", int64_t(1)));
@@ -111,6 +117,63 @@ TEST(Unit_Tlvpp_FullQuery, ScalarsVariablesAndStopResume) {
     EXPECT_EQ(3u, calls);
     ASSERT_TRUE(selected->visit(second, stop));
     EXPECT_EQ(3u, calls);
+}
+
+TEST(Unit_Tlvpp_FullQuery, StreamingExistencePreservesCoverageAndMalformedSuffix) {
+    const uint8_t broken[] = {0x50, 0, 0x51, 2};
+    auto          program = tlv::query_program::compile("//50");
+    ASSERT_TRUE(program);
+    auto execution = tlv::query_execution::create(*program, 1, 10, 100000, nullptr, false);
+    ASSERT_TRUE(execution);
+    ASSERT_TRUE(execution->pruning(false));
+    tlv::tree_frame  frames[1]{};
+    tlv::tree_reader reader(bytes(broken, sizeof broken), format, {frames, 1}, 1, 10);
+    auto             found = execution->exists(reader, true);
+    ASSERT_TRUE(found);
+    EXPECT_TRUE(*found);
+    auto partial = execution->info();
+    ASSERT_TRUE(partial);
+    EXPECT_FALSE(partial->finished);
+    EXPECT_FALSE(partial->full_validation);
+    EXPECT_EQ(1u, partial->elements);
+    EXPECT_FALSE(execution->context(0));
+    auto validated = execution->exists(reader, false);
+    ASSERT_FALSE(validated);
+    EXPECT_EQ(TLV_QUERY_ERROR_READER, validated.error().diagnostic.kind);
+    auto failed = execution->info();
+    ASSERT_TRUE(failed);
+    EXPECT_TRUE(failed->invalid);
+    EXPECT_FALSE(failed->full_validation);
+}
+
+TEST(Unit_Tlvpp_FullQuery, ValidatedExternalImagePreservesScalarRequirements) {
+    auto compiled = tlv::query_program::compile("count(//50)");
+    ASSERT_TRUE(compiled);
+    const size_t          image_size = compiled->info().program_size;
+    std::vector<uint64_t> image((image_size + 7) / 8);
+    std::memcpy(image.data(), compiled->c_program(), image_size);
+    size_t scratch_size = 0, alignment = 0;
+    ASSERT_TRUE(tlv::query_program::load_scratch(image.data(), image_size, nullptr, scratch_size,
+                                                 alignment));
+    std::vector<uint64_t> scratch((scratch_size + 7) / 8);
+    EXPECT_FALSE(tlv::query_program::load_external(image.data(), image_size - 1, nullptr,
+                                                   scratch.data(), scratch_size));
+    auto loaded = tlv::query_program::load_external(image.data(), image_size, nullptr,
+                                                    scratch.data(), scratch_size);
+    ASSERT_TRUE(loaded);
+    EXPECT_EQ(compiled->format(), loaded->format());
+    EXPECT_EQ(compiled->info().result_kind, loaded->info().result_kind);
+    EXPECT_EQ(compiled->info().level, loaded->info().level);
+    EXPECT_EQ(compiled->info().states, loaded->info().states);
+    auto execution = tlv::query_execution::create(*loaded, 3, 100, 100000);
+    ASSERT_TRUE(execution);
+    tlv::tree_frame  frames[4]{};
+    tlv::tree_reader reader(bytes(input, sizeof input), format, {frames, 4}, 3, 100);
+    ASSERT_TRUE(
+        execution->visit(reader, [](const tlv::tree_event&) { return TLV_VISIT_CONTINUE; }));
+    auto result = execution->result();
+    ASSERT_TRUE(result);
+    EXPECT_EQ(3, result->integer);
 }
 
 TEST(Unit_Tlvpp_FullQuery, EmbeddedNulPreservesNativeSpan) {

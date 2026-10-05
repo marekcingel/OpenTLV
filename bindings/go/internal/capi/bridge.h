@@ -7,8 +7,16 @@
 #include <tlv/reader/reader.h>
 #include <tlv/writer/writer.h>
 #include <tlv/writer/tree.h>
+#include <tlv/query/adapters.h>
 
-typedef struct go_document go_document;
+typedef struct go_document        go_document;
+typedef struct go_query_program   go_query_program;
+typedef struct go_query_execution go_query_execution;
+typedef struct {
+    const char*    name;
+    const uint8_t* tag;
+    size_t         size;
+} go_query_name;
 
 enum go_format_kind {
     GO_FORMAT_FIXED,
@@ -28,6 +36,31 @@ typedef struct {
     size_t tag_size, length_size;
     int    byte_order, element_order, length_scope;
 } go_format;
+go_query_program* go_query_compile(go_format config, const uint8_t* text, size_t size,
+                                   const tlv_query_compile_options_t* options,
+                                   const go_query_name* names, size_t name_count, int image,
+                                   tlv_result_t* code, tlv_query_diagnostic_t* diagnostic);
+void              go_query_program_free(go_query_program* program);
+const tlv_query_program_t*      go_query_native(const go_query_program* program);
+const tlv_query_program_info_t* go_query_info(const go_query_program* program);
+go_query_execution* go_query_execution_create(go_query_program* program, size_t depth, size_t nodes,
+                                              size_t work, int retained, tlv_result_t* code);
+void                go_query_execution_free(go_query_execution* execution);
+tlv_query_exec_t*   go_query_exec(go_query_execution* execution);
+tlv_result_t        go_query_execution_reset(go_query_execution* execution);
+tlv_result_t        go_query_input(go_query_execution* execution, const uint8_t* data, size_t size,
+                                   size_t discard, int final_input);
+tlv_result_t        go_query_visit(go_query_execution* execution, tlv_query_event_visitor_t visitor,
+                                   void* context, tlv_query_diagnostic_t* diagnostic);
+tlv_result_t        go_query_exists(go_query_execution* execution, int early_return, int* found,
+                                    tlv_query_diagnostic_t* diagnostic);
+tlv_result_t go_query_bind(go_query_execution* execution, const char* name,
+                           tlv_query_result_kind_t type, int64_t integer, const uint8_t* data,
+                           size_t size, tlv_query_diagnostic_t* diagnostic);
+tlv_result_t go_query_document(go_query_execution* execution, const go_document* document,
+                               void* context, size_t capacity, tlv_query_diagnostic_t* diagnostic);
+tlv_result_t go_query_document_next(go_query_execution* execution, void** node);
+uint64_t     go_query_node_identity(void* node);
 typedef struct {
     tlv_result_t            code;
     size_t                  consumed;

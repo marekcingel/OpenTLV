@@ -92,9 +92,57 @@ public:
         result.program_ = static_cast<const tlv_query_program_t*>(storage);
         return result;
     }
+    /** @brief Discover bounded external-image validation scratch without allocation.
+     * @param image Readable image bytes.
+     * @param size Exact available extent.
+     * @param options Original compiler configuration and capabilities.
+     * @param bytes Required scratch capacity output.
+     * @param alignment Required scratch alignment output.
+     * @return Success or complete native failure. Discovery does not validate instructions. */
+    static expected<void, query_failure> load_scratch(const void* image, size_t size,
+                                                      const tlv_query_compile_options_t* options,
+                                                      size_t& bytes, size_t& alignment) {
+        tlv_query_diagnostic_t d{};
+        auto rc = tlv_query_program_load_scratch(image, size, options, &bytes, &alignment, &d);
+        if (rc != TLV_OK) return unexpected<query_failure>(detail::query_failed(rc, d));
+        return {};
+    }
+    /** @brief Validate and borrow an immutable aligned image, including ROM.
+     * @param image Image alive and unchanged through every execution.
+     * @param size Exact image extent.
+     * @param options Original compilation configuration and borrowed capabilities.
+     * @param scratch Exclusive aligned validation scratch.
+     * @param capacity Scratch bytes from load_scratch.
+     * @return Borrowed program or complete native failure. No C++ allocation occurs.
+     * @note Images have release-limited compatibility and are fully reconstructed
+     * by the C validator before use. The returned program never owns the image. */
+    static expected<query_program, query_failure>
+    load_external(const void* image, size_t size, const tlv_query_compile_options_t* options,
+                  void* scratch, size_t capacity) {
+        query_program result;
+        result.info_.struct_size = sizeof result.info_;
+        tlv_query_diagnostic_t d{};
+        auto rc = tlv_query_program_load(image, size, options, scratch, capacity, &result.program_,
+                                         &result.info_, &d);
+        if (rc != TLV_OK) return unexpected<query_failure>(detail::query_failed(rc, d));
+        return result;
+    }
     /** @brief Native whole-expression resource requirements. */
     const tlv_query_program_info_t& info() const {
         return info_;
+    }
+    /** @brief Number of unique referenced variables; unused declarations are excluded. */
+    size_t variable_count() const {
+        return tlv_query_program_variable_count(program_);
+    }
+    /** @brief Inspect one referenced variable; its name borrows this immutable program.
+     * @param index Zero-based slot in first-reference order.
+     * @return Bounded name and required type or original native status. */
+    expected<tlv_query_variable_info_t, query_failure> variable(size_t index) const {
+        tlv_query_variable_info_t value{};
+        auto                      rc = tlv_query_program_variable(program_, index, &value);
+        if (rc != TLV_OK) return unexpected<query_failure>(detail::query_failed(rc));
+        return value;
     }
     /** @brief Canonical normalized language spelling; allocates a string. */
     std::string format() const {
@@ -158,21 +206,25 @@ public:
         }
         return *this;
     }
-    /** @brief Allocate retained S0-S2/D workspace with explicit depth, candidate and work bounds.
+    /** @brief Allocate the selected workspace with explicit depth, element and work bounds.
      * @param program Immutable program retained by value.
      * @param depth Maximum depth.
-     * @param nodes Explicit retained-node capacity, including nonmatches.
+     * @param nodes Retained-node capacity or streaming element budget, including nonmatches.
      * @param work Charged native work budget.
      * @param environment Compatible immutable borrowed providers.
+     * @param retained True selects retained evaluation; false selects bounded S0/S1.
      * @return Independent continuation or native failure. */
     static expected<query_execution, query_failure>
     create(const query_program& program, size_t depth, size_t nodes, size_t work,
-           const tlv_query_environment_t* environment = nullptr) {
+           const tlv_query_environment_t* environment = nullptr, bool retained = true) {
         size_t size = 0, alignment = 0;
-        auto   rc = tlv_query_eval_size(program.c_program(), depth, nodes, &size, &alignment);
+        auto   rc = retained
+                        ? tlv_query_eval_size(program.c_program(), depth, nodes, &size, &alignment)
+                        : tlv_query_exec_size(program.c_program(), depth, &size, &alignment);
         if (rc != TLV_OK) return unexpected<query_failure>(detail::query_failed(rc));
         auto memory = std::make_shared<detail::query_memory>(size);
-        auto result = external(program, memory->data(), size, depth, nodes, work, environment);
+        auto result =
+            external(program, memory->data(), size, depth, nodes, work, environment, retained);
         if (result) result->memory_ = memory;
         return result;
     }
@@ -208,6 +260,48 @@ public:
     expected<void, query_failure> bind(const char* name, bytes value, bool string = false) {
         return bind_span(name, string ? TLV_QUERY_RESULT_STRING : TLV_QUERY_RESULT_BYTES, 0,
                          reinterpret_cast<const uint8_t*>(value.data()), value.size());
+    }
+    /** @brief Select a relative preorder context before consuming events.
+     * @param ordinal Traversal-scoped zero-based identity, not a Document node identity.
+     * @return Success or original native status; failed selection preserves state. */
+    expected<void, query_failure> context(size_t ordinal) {
+        auto rc = tlv_query_exec_context(exec_, ordinal);
+        if (rc != TLV_OK) return unexpected<query_failure>(detail::query_failed(rc));
+        return {};
+    }
+    /** @brief Explicitly permit proven subtree pruning on fresh streaming execution.
+     * @param enabled True permits partial structural validation of skipped subtrees.
+     * @return Success or original native status; retained execution rejects pruning. */
+    expected<void, query_failure> pruning(bool enabled) {
+        auto rc = tlv_query_exec_pruning(exec_, enabled ? 1 : 0);
+        if (rc != TLV_OK) return unexpected<query_failure>(detail::query_failed(rc));
+        return {};
+    }
+    /** @brief Read counters, terminal failure state and full/partial validation coverage. */
+    expected<tlv_query_exec_info_t, query_failure> info() const {
+        tlv_query_exec_info_t out{};
+        out.struct_size = sizeof out;
+        auto rc = tlv_query_exec_info(exec_, &out);
+        if (rc != TLV_OK) return unexpected<query_failure>(detail::query_failed(rc));
+        return out;
+    }
+    /** @brief Test existence with explicit early-return or full-validation behavior.
+     * @param reader Exclusive Tree cursor; retained input obeys visit() lifetime rules.
+     * @param early_return True returns at the first match with partial coverage.
+     * @return Existence or complete native diagnostic, including resumable NEED_MORE_DATA.
+     * @note Resume with early_return false to validate the remaining input. */
+    expected<bool, query_failure> exists(tree_reader& reader, bool early_return = false) {
+        if (has_document_)
+            return unexpected<query_failure>(detail::query_failed(TLV_ERR_INVALID_ARG));
+        reader.has_current_ = false;
+        int                    found = 0;
+        tlv_query_diagnostic_t d{};
+        auto                   rc =
+            reader.init_result_ == TLV_OK
+                ? tlv_query_program_exists(&reader.impl_, exec_, early_return ? 1 : 0, &found, &d)
+                : reader.init_result_;
+        if (rc != TLV_OK) return unexpected<query_failure>(detail::query_failed(rc, d));
+        return found != 0;
     }
     /** @brief Visit borrowed Tree results, preserving STOP/NEED_MORE_DATA continuation.
      * @param reader Exclusive borrowed Tree cursor.

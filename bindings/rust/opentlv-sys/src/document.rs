@@ -3,6 +3,10 @@
 
 //! Optional owning Document API declarations.
 use super::*;
+extern "C" {
+    /// Stable native node identity, scoped to its owning Document.
+    pub fn tlv_node_identity(node: *const tlv_node_t) -> u64;
+}
 
 /// Opaque resumable Document builder.
 #[repr(C)]

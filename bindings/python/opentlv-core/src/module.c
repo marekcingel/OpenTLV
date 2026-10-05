@@ -11,6 +11,7 @@
 
 #include "format.h"
 #include "reader.h"
+#include "query.h"
 #include "schema.h"
 #include "writer.h"
 #include <tlv/config.h>
@@ -168,6 +169,35 @@ static void raise_reader_error(tlv_result_t code, const tlv_reader_diagnostic_t*
         return;
     }
     raise_error(fields);
+}
+
+void opentlv_python_raise_query(tlv_result_t code, const tlv_query_diagnostic_t* diagnostic) {
+    raise_reader_error(code, diagnostic && diagnostic->kind == TLV_QUERY_ERROR_READER
+                                 ? &diagnostic->reader
+                                 : NULL);
+    if (!diagnostic || !PyErr_ExceptionMatches(opentlv_python_error)) return;
+    PyObject *type, *value, *traceback;
+    PyErr_Fetch(&type, &value, &traceback);
+    PyErr_NormalizeException(&type, &value, &traceback);
+    PyObject* args = value ? PyObject_GetAttrString(value, "args") : NULL;
+    PyObject* fields = args ? PyTuple_GetItem(args, 0) : NULL;
+    if (fields && (dict_set(fields, "query_kind", PyLong_FromLong(diagnostic->kind)) < 0 ||
+                   dict_set(fields, "begin", PyLong_FromSize_t(diagnostic->begin)) < 0 ||
+                   dict_set(fields, "end", PyLong_FromSize_t(diagnostic->end)) < 0 ||
+                   dict_set_size_or_none(fields, "source_offset", diagnostic->has_source_offset,
+                                         diagnostic->source_offset) < 0 ||
+                   dict_set_str_or_none(fields, "query_expected", diagnostic->expected) < 0 ||
+                   dict_set_str_or_none(fields, "limit", diagnostic->limit) < 0 ||
+                   dict_set(fields, "configured", PyLong_FromSize_t(diagnostic->configured)) < 0 ||
+                   dict_set(fields, "codec", PyLong_FromLong(diagnostic->codec)) < 0)) {
+        Py_XDECREF(args);
+        Py_XDECREF(type);
+        Py_XDECREF(value);
+        Py_XDECREF(traceback);
+        return;
+    }
+    Py_XDECREF(args);
+    PyErr_Restore(type, value, traceback);
 }
 
 static void raise_writer_error(tlv_result_t code, const tlv_writer_diagnostic_t* diag) {
@@ -846,6 +876,10 @@ static tlv_document_t* document_from_capsule(PyObject* capsule_obj) {
     return (tlv_document_t*)PyCapsule_GetPointer(capsule_obj, DOCUMENT_CAPSULE_NAME);
 }
 
+tlv_document_t* opentlv_python_document_pointer(PyObject* capsule) {
+    return document_from_capsule(capsule);
+}
+
 /* PyArg_ParseTuple "O&" converter: None -> NULL, an int from node_to_py() ->
  * that pointer. Returns 1 on success, 0 with an exception set on failure. */
 static int py_to_node(PyObject* obj, void* out) {
@@ -867,6 +901,13 @@ static PyObject* node_to_py(tlv_node_t* node) {
         Py_RETURN_NONE;
     }
     return PyLong_FromVoidPtr(node);
+}
+
+static PyObject* _opentlv_node_identity(PyObject* module, PyObject* args) {
+    (void)module;
+    tlv_node_t* node;
+    if (!PyArg_ParseTuple(args, "O&", py_to_node, &node)) return NULL;
+    return PyLong_FromUnsignedLongLong(tlv_node_identity(node));
 }
 
 /* Builds document options from a Python-supplied format ID and limits.
@@ -1755,6 +1796,34 @@ void opentlv_python_raise_writer(tlv_result_t code, const tlv_writer_diagnostic_
 }
 
 static PyMethodDef opentlv_python_methods[] = {
+    {"node_identity", _opentlv_node_identity, METH_VARARGS,
+     "Read checked traversal-independent node identity."},
+    {"program_create", opentlv_python_program_create, METH_VARARGS,
+     "Compile or validate an owned immutable Query image."},
+    {"program_info", opentlv_python_program_info, METH_O, "Inspect compiled Query requirements."},
+    {"program_render", opentlv_python_program_render, METH_VARARGS,
+     "Format, explain or copy a compiled image."},
+    {"execution_create", opentlv_python_execution_create, METH_VARARGS,
+     "Create independent bounded execution."},
+    {"execution_size", opentlv_python_execution_size, METH_VARARGS,
+     "Discover caller workspace size and alignment."},
+    {"execution_feed", opentlv_python_execution_feed, METH_VARARGS,
+     "Feed a pinned complete canonical event."},
+    {"execution_finish", opentlv_python_execution_finish, METH_O,
+     "Finish balanced canonical events."},
+    {"execution_bind", opentlv_python_execution_bind, METH_VARARGS,
+     "Bind a typed variable with pinned storage."},
+    {"execution_visit", opentlv_python_execution_visit, METH_VARARGS,
+     "Visit or test existence through a TreeReader."},
+    {"execution_info", opentlv_python_execution_info, METH_O,
+     "Read execution counters and coverage."},
+    {"execution_result", opentlv_python_execution_result, METH_O, "Copy a finalized scalar."},
+    {"execution_control", opentlv_python_execution_control, METH_VARARGS,
+     "Select context or explicit pruning."},
+    {"execution_document", opentlv_python_execution_document, METH_VARARGS,
+     "Evaluate a bounded Document snapshot."},
+    {"execution_next", opentlv_python_execution_next, METH_O,
+     "Pull a finalized node with native revision checks."},
     {"length_schema", opentlv_python_length_schema, METH_VARARGS,
      "Find or validate a length rule through the canonical C schema engine."},
     {"source_preserve", opentlv_python_source_preserve, METH_VARARGS,

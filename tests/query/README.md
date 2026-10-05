@@ -1,5 +1,20 @@
 # Query conformance
 
+F5 adds `--commit`, `--seed` and `--evidence` to the runner. The commit seed
+mapping comes from the wire property infrastructure. Evidence separates trees,
+queries and typed bindings from independently computed expected identities/scalars;
+failure JSON preserves the complete reproducer. Generated trees compare optimized,
+unoptimized, retained, Document and legal retained-prefix windows, including typed
+integer/bytes/string parameters and set laws. `Property_query` runs this through
+the property workflow. See [release evidence](../../docs/development/query-release.md)
+for the strict candidate gate and current facade blockers.
+
+The native adapter's `image` mode writes same-version fuzz seeds, for example
+`test-query-conformance "//5A" 5a00 image descendant-v5.bin`. Checked-in image seeds
+are project-generated MIT data: descendant `//5A`, deferred
+`//70[exists(5A)]`, and scalar `count(//5A)`. Regenerate when the private image
+version changes; no cross-release serialization compatibility is promised.
+
 `corpus.json` is a versioned test-only interchange format. Each case names its
 normative rules, Query, encoded input, and expected ordered match offsets, typed scalar encoding or
 diagnostic. The one-byte Fixed format uses `70` as its constructed identifier.
@@ -90,7 +105,17 @@ resource costs and the distinction between descriptor and payload retention.
 
 The phase gate also inventories all closed functions, with positive and negative
 fixtures; optional ASN.1 providers are reported as unavailable when disabled.
-Twenty-four deterministic independently generated trees compare sixteen composed
-queries across streaming/Document/optimized/unoptimized execution. Those expected
+The default twenty-four deterministic independently generated trees compare
+thirty-three composed and parameterized queries across streaming/Document/
+optimized/unoptimized execution. Those expected
 answers come exclusively from the test-only interpreter. Native process checks
 run with bounded parallelism; `--jobs 1` selects sequential execution.
+
+With `--evidence DIR`, generated failures retain both the original JSON record
+and a `failure-*-minimized.json` reproducer. The deterministic shrinker removes
+subtrees, shortens primitive Values and removes predicates, with at most 128
+native attempts. Each attempt recalculates independent expectations, including
+changed source offsets, and keeps the original native exit category. Prefix
+windows are adjusted to the reduced input extent. Diagnostic/provider fixtures
+retain their original inputs. Run `python tests/query/test_minimize.py` to verify
+the shrinker's framing, expectation and budget contracts.

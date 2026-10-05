@@ -191,7 +191,7 @@ impl Drop for DocumentBuilder<'_, '_> {
 /// println!("{:?}", node.value());
 /// ```
 pub struct Document<'f> {
-    raw: *mut native::tlv_document_t,
+    pub(crate) raw: *mut native::tlv_document_t,
     format: *const native::tlv_format_t,
     lifetime: PhantomData<&'f native::tlv_format_t>,
 }
@@ -282,7 +282,7 @@ impl<'f> Document<'f> {
     pub fn is_empty(&self) -> bool {
         self.len() == 0
     }
-    fn node(&self, raw: *mut native::tlv_node_t) -> Option<Node<'_, 'f>> {
+    pub(crate) fn node(&self, raw: *mut native::tlv_node_t) -> Option<Node<'_, 'f>> {
         (!raw.is_null()).then_some(Node {
             raw,
             document: self,
@@ -426,10 +426,15 @@ impl Drop for Document<'_> {
 /// Immutable node borrowing its owning Document. Values are zero-copy views.
 #[derive(Clone, Copy)]
 pub struct Node<'d, 'f> {
-    raw: *mut native::tlv_node_t,
+    pub(crate) raw: *mut native::tlv_node_t,
     document: &'d Document<'f>,
 }
 impl<'d, 'f> Node<'d, 'f> {
+    /// Stable native identity scoped to this immutably borrowed Document.
+    pub fn identity(&self) -> u64 {
+        // SAFETY: immutable Document borrow keeps this node alive.
+        unsafe { native::tlv_node_identity(self.raw) }
+    }
     /// Copy the node's identifier into an owned Tag.
     pub fn tag(&self) -> Tag {
         // SAFETY: C-owned node Tag is live for the document borrow.

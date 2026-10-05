@@ -1,0 +1,84 @@
+name: Query hardening
+on:
+  pull_request:
+    paths: ['tlv/**', 'tlv++/**', 'tests/query/**', 'tests/unit/query/**', 'tests/fuzz/query/**', 'scripts/*query*', '.github/workflows/query-hardening.yml']
+  push:
+    branches: [main]
+    paths: ['tlv/**', 'tlv++/**', 'tests/query/**', 'tests/unit/query/**', 'tests/fuzz/query/**', 'scripts/*query*', '.github/workflows/query-hardening.yml']
+  workflow_dispatch:
+permissions:
+  contents: read
+jobs:
+  contracts:
+    runs-on: ubuntu-24.04
+    steps:
+      - uses: actions/checkout@v5
+      - run: sudo apt-get update && sudo apt-get install -y clang-18 ninja-build
+      - name: Configure full C and C++ contracts
+        run: >-
+          cmake -S . -B build -G Ninja
+          -DCMAKE_C_COMPILER=clang-18 -DCMAKE_CXX_COMPILER=clang++-18
+          -DCMAKE_BUILD_TYPE=Debug -DOPENTLV_BUILD_SHARED_LIBS=OFF
+          -DCMAKE_CXX_STANDARD=11 -DCMAKE_CXX_STANDARD_REQUIRED=ON -DCMAKE_CXX_EXTENSIONS=OFF
+          -DOPENTLV_BUILD_TESTS=ON -DOPENTLV_BUILD_EXAMPLES=OFF
+          -DOPENTLV_BUILD_CLI=OFF -DOPENTLV_BUILD_CLI_TESTS=OFF
+          -DOPENTLV_BUILD_PROPERTY_TESTS=OFF
+          -DCMAKE_C_FLAGS='-fsanitize=address,undefined -fno-omit-frame-pointer'
+          -DCMAKE_CXX_FLAGS='-fsanitize=address,undefined -fno-omit-frame-pointer'
+          -DCMAKE_EXE_LINKER_FLAGS='-fsanitize=address,undefined'
+      - name: Audit transitive internal dependencies and recursion
+        run: |
+          python3 scripts/test_query_contracts.py
+          python3 tests/query/test_minimize.py
+          python3 scripts/check_query_contracts.py --clang clang-18 --generated build/generated/include --output build/query-contracts.json
+          python3 scripts/check_query_release.py --output build/query-release.json
+      - run: cmake --build build --target test-unit-tlv test-unit-tlvpp test-query-conformance --parallel 2
+      - name: Audit production archive symbols and emitted call dependencies
+        run: python3 scripts/check_query_objects.py --archive build/tlv/libtlv.a --output build/query-object-contracts.json
+      - name: Sanitized conformance, work limits and corruption regressions
+        env:
+          ASAN_OPTIONS: detect_leaks=1:halt_on_error=1
+          UBSAN_OPTIONS: halt_on_error=1:print_stacktrace=1
+        run: |
+          ctest --test-dir build -R 'Query|query' --output-on-failure --no-tests=error
+          python3 tests/query/run.py --native build/tests/query/test-query-conformance --commit '${{ github.sha }}' --property-cases 32 --evidence build/query-evidence
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: query-hardening-${{ github.sha }}
+          path: |
+            build/query-contracts.json
+            build/query-object-contracts.json
+            build/query-release.json
+            build/query-evidence/
+            build/Testing/Temporary/LastTest.log
+  memory:
+    runs-on: ubuntu-24.04
+    steps:
+      - uses: actions/checkout@v5
+      - run: sudo apt-get update && sudo apt-get install -y clang-18 ninja-build
+      - name: Build the complete C core with MemorySanitizer
+        run: |
+          cmake -S . -B build/msan -G Ninja -DCMAKE_BUILD_TYPE=Debug \
+            -DCMAKE_C_COMPILER=clang-18 -DCMAKE_CXX_COMPILER=clang++-18 \
+            -DCMAKE_C_FLAGS='-fsanitize=memory -fsanitize-memory-track-origins=2 -fno-omit-frame-pointer -fPIE' \
+            -DCMAKE_EXE_LINKER_FLAGS='-fsanitize=memory -pie' \
+            -DOPENTLV_BUILD_SHARED_LIBS=OFF -DOPENTLV_BUILD_CXX=OFF \
+            -DOPENTLV_BUILD_TESTS=OFF -DOPENTLV_BUILD_CLI=OFF -DOPENTLV_BUILD_EXAMPLES=OFF
+          cmake --build build/msan --target tlv --parallel 2
+      - name: Compile and run the persistent shared Query corpus
+        env:
+          MSAN_OPTIONS: halt_on_error=1:exit_code=86
+        run: |
+          python3 tests/query/memory_driver.py --output build/query-memory-driver.c
+          clang-18 -std=c99 -DTLV_STATIC_DEFINE -I tlv/include -I build/msan/generated/include \
+            -fsanitize=memory -fsanitize-memory-track-origins=2 -fno-omit-frame-pointer -fPIE -pie \
+            build/query-memory-driver.c build/msan/tlv/libtlv.a -lm -o build/query-memory-driver
+          build/query-memory-driver > build/query-msan-output.log 2> build/query-msan.log
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: query-memory-${{ github.sha }}
+          path: |
+            build/query-memory-driver.c
+            build/query-msan*.log

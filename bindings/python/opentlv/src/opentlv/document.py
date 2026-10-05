@@ -114,6 +114,11 @@ class Node:
         return self._document._wrap(_native.node_first_child(self._ptr))
 
     @property
+    def identity(self) -> int:
+        """Stable native identity in this Document; stale handles fail before access."""
+        return _native.node_identity(self._ptr)
+
+    @property
     def next(self) -> Optional["Node"]:
         """The next sibling, or `None`."""
         return self._document._wrap(_native.node_next(self._ptr))
@@ -294,6 +299,21 @@ class Document:
         except _native.Error as native_error:
             raise _from_native(native_error) from None
         return self._wrap(ptr)
+
+    def select(self, program, *, bindings=None, context=None, value_capacity=None, **limits):
+        """Evaluate a compiled Query, returning checked snapshot Nodes or an owned scalar.
+
+        Query workspace and Value snapshot allocation belongs to the Python
+        wrapper. Use QueryExecution for explicit storage and continuation.
+        """
+        from opentlv.program import QueryProgram
+        if not isinstance(program, QueryProgram):
+            raise TypeError("QueryProgram required")
+        execution = program.execution(**limits)
+        for name, value in (bindings or {}).items():
+            execution.bind(name, value)
+        execution.evaluate_document(self, context=context, value_capacity=value_capacity)
+        return list(execution) if program.info["result_kind"] == 0 else execution.result()
 
     @property
     def encoded_size(self) -> int:

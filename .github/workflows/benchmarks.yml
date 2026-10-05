@@ -60,3 +60,19 @@ jobs:
 
       - name: Build benchmarks
         run: cmake --build build --target benchmark-tlv --parallel
+
+      - name: Record Query phase measurements (advisory on shared runners)
+        run: >-
+          build/benchmarks/benchmark-tlv
+          --benchmark_filter='query_phase/[0-7]/(16|256)/[01]$|query_v1_matcher|query_v1_stream|query_s0_stream'
+          --benchmark_min_time=0.05s --benchmark_repetitions=5
+          --benchmark_report_aggregates_only=true
+          --benchmark_out=build/query-benchmarks.json --benchmark_out_format=json
+      - uses: actions/upload-artifact@v4
+        with:
+          name: query-benchmarks-clang18-linux-x64
+          path: build/query-benchmarks.json
+      - name: Check Query budget comparison infrastructure
+        run: |
+          python3 scripts/test_query_benchmark_budget.py
+          python3 scripts/query_benchmark_budget.py --latest build/query-benchmarks.json --output build/query-budget.json

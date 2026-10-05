@@ -13,9 +13,11 @@ use std::os::raw::{c_char, c_int, c_void};
 
 #[cfg(feature = "document")]
 mod document;
+mod program;
 mod schema_report;
 #[cfg(feature = "document")]
 pub use document::*;
+pub use program::*;
 pub use schema_report::*;
 
 /// Logical TLV value length (`tlv_size_t`), always 64 bits wide.

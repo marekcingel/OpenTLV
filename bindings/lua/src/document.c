@@ -65,6 +65,33 @@ static int push_node(lua_State* L, int owner_index, tlv_node_t* node) {
     return 1;
 }
 
+tlv_document_t* opentlv_lua_document_native(lua_State* L, int index) {
+    return check_document(L, index)->document;
+}
+tlv_node_t* opentlv_lua_node_native(lua_State* L, int index, int document_index) {
+    if (lua_isnoneornil(L, index)) return NULL;
+    node_handle_t* handle = check_node(L, index);
+    if (handle->owner != check_document(L, document_index))
+        luaL_argerror(L, index, "node belongs to another document");
+    return handle->node;
+}
+int opentlv_lua_document_push_node(lua_State* L, int document_index, tlv_node_t* node) {
+    return push_node(L, document_index, node);
+}
+
+static int node_identity(lua_State* L) {
+    uint64_t identity = tlv_node_identity(check_node(L, 1)->node);
+#if LUA_VERSION_NUM >= 503
+    if (identity > (uint64_t)LUA_MAXINTEGER) return opentlv_lua_raise(L, TLV_ERR_NATIVE_SIZE, 0, 0);
+    lua_pushinteger(L, (lua_Integer)identity);
+#else
+    lua_Number value = (lua_Number)identity;
+    if ((uint64_t)value != identity) return opentlv_lua_raise(L, TLV_ERR_NATIVE_SIZE, 0, 0);
+    lua_pushnumber(L, value);
+#endif
+    return 1;
+}
+
 static int node_gc(lua_State* L) {
     node_handle_t* self = (node_handle_t*)luaL_checkudata(L, 1, NODE_MT);
     if (self->owner) {
@@ -374,6 +401,7 @@ void opentlv_lua_open_document(lua_State* L, int module_index) {
                                                             {"serialize", document_serialize},
                                                             {NULL, NULL}};
     static const opentlv_lua_method_t node_methods[] = {{"tag", node_tag},
+                                                        {"identity", node_identity},
                                                         {"value", node_value},
                                                         {"is_constructed", node_constructed},
                                                         {"first_child", node_first_child},

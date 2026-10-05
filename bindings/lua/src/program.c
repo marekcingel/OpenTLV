@@ -1,0 +1,687 @@
+// SPDX-License-Identifier: MIT
+// Copyright (c) 2026 Marek Cingel
+#include "program.h"
+#include "common.h"
+#include "document.h"
+#include "error.h"
+#include "format.h"
+#include "query.h"
+#include <tlv/query/adapters.h>
+#include <tlv/writer/tree.h>
+#if OPENTLV_FORMAT_BER
+#include <tlv/builtins/asn1/query.h>
+#endif
+#include <string.h>
+
+#define PROGRAM_MT "opentlv.QueryProgram"
+#define EXECUTION_MT "opentlv.QueryExecution"
+typedef struct {
+    const tlv_query_program_t* program;
+    tlv_query_program_info_t   info;
+    tlv_query_environment_t    environment;
+    tlv_query_hook_t           hooks[4];
+    int                        image_ref, format_ref;
+} program_t;
+typedef struct {
+    program_t*        program;
+    tlv_query_exec_t* exec;
+    void*             storage;
+    size_t            capacity, depth, nodes, work, pinned;
+    tlv_tree_reader_t reader;
+    tlv_tree_frame_t* frames;
+    int               program_ref, storage_ref, frames_ref, pins_ref, document_ref, values_ref;
+    int               retained, has_reader, busy;
+} execution_t;
+typedef struct {
+    const char* name;
+    size_t      size;
+    tlv_tag_t   tag;
+} name_t;
+typedef struct {
+    name_t* names;
+    size_t  count;
+} names_t;
+
+static void* arena(lua_State* L, size_t bytes, size_t alignment) {
+    if (bytes > SIZE_MAX - alignment + 1) {
+        opentlv_lua_raise(L, TLV_ERR_OVERFLOW, 0, 0);
+        return NULL;
+    }
+    uintptr_t raw = (uintptr_t)lua_newuserdata(L, bytes + alignment - 1);
+    return (void*)((raw + alignment - 1) & ~(uintptr_t)(alignment - 1));
+}
+static void field(lua_State* L, const char* name, size_t value) {
+    lua_pushnumber(L, (lua_Number)value);
+    lua_setfield(L, -2, name);
+}
+static int query_error(lua_State* L, tlv_result_t code, const tlv_query_diagnostic_t* d) {
+    if (!d) return opentlv_lua_raise(L, code, 0, 0);
+    opentlv_lua_push_reader_error(L, code, &d->reader);
+    lua_newtable(L);
+    field(L, "kind", d->kind);
+    field(L, "begin", d->begin);
+    field(L, "end", d->end);
+    field(L, "configured", d->configured);
+    field(L, "codec", d->codec);
+    if (d->has_source_offset) field(L, "source_offset", d->source_offset);
+    if (d->expected) {
+        lua_pushstring(L, d->expected);
+        lua_setfield(L, -2, "expected");
+    }
+    if (d->limit) {
+        lua_pushstring(L, d->limit);
+        lua_setfield(L, -2, "limit");
+    }
+    lua_setfield(L, -2, "query");
+    return lua_error(L);
+}
+static program_t* program(lua_State* L, int index) {
+    return luaL_checkudata(L, index, PROGRAM_MT);
+}
+static execution_t* execution(lua_State* L) {
+    execution_t* q = luaL_checkudata(L, 1, EXECUTION_MT);
+    if (!q->exec || q->busy) {
+        opentlv_lua_raise(L, TLV_ERR_INVALID_ARG, 0, 0);
+        return NULL;
+    }
+#if OPENTLV_DOCUMENT
+    if (q->document_ref != LUA_NOREF) {
+        lua_rawgeti(L, LUA_REGISTRYINDEX, q->document_ref);
+        opentlv_lua_document_native(L, lua_gettop(L));
+        lua_pop(L, 1);
+    }
+#endif
+    return q;
+}
+static int program_gc(lua_State* L) {
+    program_t* p = program(L, 1);
+    luaL_unref(L, LUA_REGISTRYINDEX, p->image_ref);
+    luaL_unref(L, LUA_REGISTRYINDEX, p->format_ref);
+    p->image_ref = p->format_ref = LUA_NOREF;
+    return 0;
+}
+static tlv_result_t resolve(const void* context, const char* scope, size_t scope_size,
+                            const char* name, size_t size, tlv_tag_t* tag) {
+    const names_t* lookup = context;
+    for (size_t i = 0; i < lookup->count; ++i) {
+        name_t* item = lookup->names + i;
+        size_t  prefix = scope_size ? scope_size + 1 : 0;
+        if (item->size != prefix + size) continue;
+        if (scope_size && (memcmp(item->name, scope, scope_size) || item->name[scope_size] != ':'))
+            continue;
+        if (!memcmp(item->name + prefix, name, size)) {
+            *tag = item->tag;
+            return TLV_OK;
+        }
+    }
+    return TLV_ERR_INVALID_TAG;
+}
+static size_t map_count(lua_State* L, int index) {
+    size_t count = 0;
+    lua_pushnil(L);
+    while (lua_next(L, index)) {
+        ++count;
+        lua_pop(L, 1);
+    }
+    return count;
+}
+static int compile(lua_State* L, int image) {
+    size_t      length;
+    const char* text = luaL_checklstring(L, 1, &length);
+    lua_settop(L, 3);
+    if (lua_isnil(L, 2)) {
+        lua_getfield(L, LUA_REGISTRYINDEX, OPENTLV_LUA_DEFAULT_FORMAT_KEY);
+        lua_replace(L, 2);
+    }
+    tlv_lua_format_t* format = opentlv_lua_check_format(L, 2);
+    if (!lua_isnil(L, 3)) luaL_checktype(L, 3, LUA_TTABLE);
+    program_t* p = lua_newuserdata(L, sizeof *p);
+    memset(p, 0, sizeof *p);
+    p->image_ref = p->format_ref = LUA_NOREF;
+    luaL_getmetatable(L, PROGRAM_MT);
+    lua_setmetatable(L, -2);
+    int result_index = lua_gettop(L);
+    lua_pushvalue(L, 2);
+    p->format_ref = luaL_ref(L, LUA_REGISTRYINDEX);
+    p->environment.format = &format->format;
+    size_t                  hooks;
+    const tlv_query_hook_t* builtin = tlv_query_builtin_hooks(&hooks);
+    memcpy(p->hooks, builtin, hooks * sizeof *builtin);
+#if OPENTLV_FORMAT_BER
+    if (format->name && (!strcmp(format->name, "ber") || !strcmp(format->name, "cer") ||
+                         !strcmp(format->name, "der"))) {
+        p->environment.tags = &tlv_asn1_query_tags;
+        p->hooks[hooks++] = tlv_asn1_query_date;
+    }
+#endif
+    p->environment.hooks = p->hooks;
+    p->environment.hook_count = hooks;
+    tlv_query_compile_options_t options;
+    tlv_query_compile_options_init(&options);
+    options.environment = &p->environment;
+    options.max_text = opentlv_lua_query_limit(L, 3, "max_text", options.max_text);
+    options.max_tokens = opentlv_lua_query_limit(L, 3, "max_tokens", options.max_tokens);
+    options.max_nesting = opentlv_lua_query_limit(L, 3, "max_nesting", options.max_nesting);
+    options.max_states = opentlv_lua_query_limit(L, 3, "max_states", options.max_states);
+    options.max_pattern = opentlv_lua_query_limit(L, 3, "max_pattern", options.max_pattern);
+    options.max_resolved_tag =
+        opentlv_lua_query_limit(L, 3, "max_resolved_tag", options.max_resolved_tag);
+    names_t names = {0};
+    if (!lua_isnil(L, 3)) {
+        lua_getfield(L, 3, "optimize");
+        if (!lua_isnil(L, -1)) options.optimize = lua_toboolean(L, -1);
+        lua_pop(L, 1);
+        lua_getfield(L, 3, "variables");
+        if (!lua_isnil(L, -1)) {
+            luaL_checktype(L, -1, LUA_TTABLE);
+            int    table = lua_gettop(L);
+            size_t count = map_count(L, table);
+            if (count > SIZE_MAX / sizeof(tlv_query_variable_t))
+                return query_error(L, TLV_ERR_OVERFLOW, NULL);
+            tlv_query_variable_t* vars = lua_newuserdata(L, count * sizeof *vars);
+            options.variables = vars;
+            options.variable_count = count;
+            size_t i = 0;
+            lua_pushnil(L);
+            while (lua_next(L, table)) {
+                size_t      size;
+                const char* name = luaL_checklstring(L, -2, &size);
+                if (memchr(name, 0, size)) return query_error(L, TLV_ERR_INVALID_ARG, NULL);
+                const char* type = luaL_checkstring(L, -1);
+                vars[i].name = name;
+                vars[i++].type = !strcmp(type, "integer")  ? TLV_QUERY_RESULT_INTEGER
+                                 : !strcmp(type, "bytes")  ? TLV_QUERY_RESULT_BYTES
+                                 : !strcmp(type, "string") ? TLV_QUERY_RESULT_STRING
+                                                           : TLV_QUERY_RESULT_NODES;
+                lua_pop(L, 1);
+            }
+        }
+        lua_getfield(L, 3, "names");
+        if (!lua_isnil(L, -1)) {
+            luaL_checktype(L, -1, LUA_TTABLE);
+            int table = lua_gettop(L);
+            names.count = map_count(L, table);
+            if (names.count > SIZE_MAX / sizeof(name_t))
+                return query_error(L, TLV_ERR_OVERFLOW, NULL);
+            names.names = lua_newuserdata(L, names.count * sizeof *names.names);
+            size_t i = 0;
+            lua_pushnil(L);
+            while (lua_next(L, table)) {
+                name_t* item = names.names + i++;
+                item->name = luaL_checklstring(L, -2, &item->size);
+                size_t         size;
+                const uint8_t* tag = (const uint8_t*)luaL_checklstring(L, -1, &size);
+                item->tag = tlv_tag(tag, size);
+                lua_pop(L, 1);
+            }
+        }
+    }
+    options.resolve = resolve;
+    options.resolve_context = &names;
+    size_t                 bytes, alignment;
+    tlv_query_diagnostic_t diagnostic = {0};
+    tlv_result_t           rc =
+        image ? tlv_query_program_load_scratch(text, length, &options, &bytes, &alignment,
+                                               &diagnostic)
+              : tlv_query_compile_scratch(text, length, &options, &bytes, &alignment, &diagnostic);
+    if (rc != TLV_OK) return query_error(L, rc, &diagnostic);
+    void* scratch = arena(L, bytes, alignment);
+    p->info.struct_size = sizeof p->info;
+    if (!image)
+        rc = tlv_query_compile(text, length, &options, scratch, bytes, NULL, 0, &p->info,
+                               &diagnostic);
+    if (rc != TLV_OK) return query_error(L, rc, &diagnostic);
+    size_t image_size = image ? length : p->info.program_size;
+    void*  storage = arena(L, image_size, 16);
+    p->image_ref = luaL_ref(L, LUA_REGISTRYINDEX);
+    if (image) {
+        memcpy(storage, text, length);
+        rc = tlv_query_program_load(storage, length, &options, scratch, bytes, &p->program,
+                                    &p->info, &diagnostic);
+    } else {
+        rc = tlv_query_compile(text, length, &options, scratch, bytes, storage, image_size,
+                               &p->info, &diagnostic);
+        p->program = storage;
+    }
+    if (rc != TLV_OK) return query_error(L, rc, &diagnostic);
+    lua_pushvalue(L, result_index);
+    return 1;
+}
+static int program_compile(lua_State* L) {
+    return compile(L, 0);
+}
+static int program_load(lua_State* L) {
+    return compile(L, 1);
+}
+static int program_image(lua_State* L) {
+    program_t* p = program(L, 1);
+    lua_pushlstring(L, (const char*)p->program, p->info.program_size);
+    return 1;
+}
+static int render(lua_State* L, int explain) {
+    program_t*   p = program(L, 1);
+    size_t       size;
+    tlv_result_t rc = explain ? tlv_query_program_explain(p->program, NULL, 0, &size)
+                              : tlv_query_program_format(p->program, NULL, 0, &size);
+    if (rc != TLV_OK) return query_error(L, rc, NULL);
+    char* output = lua_newuserdata(L, size);
+    rc = explain ? tlv_query_program_explain(p->program, output, size, &size)
+                 : tlv_query_program_format(p->program, output, size, &size);
+    if (rc != TLV_OK) return query_error(L, rc, NULL);
+    lua_pushlstring(L, output, size - 1);
+    return 1;
+}
+static int program_format(lua_State* L) {
+    return render(L, 0);
+}
+static int program_explain(lua_State* L) {
+    return render(L, 1);
+}
+static int program_info(lua_State* L) {
+    program_t* p = program(L, 1);
+    lua_newtable(L);
+#define INFO(name) field(L, #name, p->info.name)
+    INFO(program_size);
+    INFO(program_alignment);
+    INFO(scratch_size);
+    INFO(scratch_alignment);
+    INFO(states);
+    INFO(language_version);
+    INFO(level);
+    INFO(result_kind);
+    INFO(expression_values);
+    INFO(instructions);
+    INFO(variable_slots);
+    INFO(codec_scratch);
+    INFO(pattern_bytes);
+    INFO(optimized_states);
+    INFO(expression_stack);
+    INFO(candidate_size);
+    INFO(candidate_alignment);
+    INFO(frame_states);
+    INFO(decision_timing);
+    INFO(stable_input_required);
+    INFO(constructed_values_required);
+#undef INFO
+    return 1;
+}
+static int program_variables(lua_State* L) {
+    program_t* p = program(L, 1);
+    lua_newtable(L);
+    for (size_t i = 0; i < tlv_query_program_variable_count(p->program); ++i) {
+        tlv_query_variable_info_t value;
+        tlv_result_t              rc = tlv_query_program_variable(p->program, i, &value);
+        if (rc != TLV_OK) return query_error(L, rc, NULL);
+        lua_pushlstring(L, value.name, value.name_size);
+        lua_pushinteger(L, value.type);
+        lua_rawset(L, -3);
+    }
+    return 1;
+}
+static int execution_gc(lua_State* L) {
+    execution_t* q = luaL_checkudata(L, 1, EXECUTION_MT);
+    if (q->busy) return query_error(L, TLV_ERR_INVALID_ARG, NULL);
+    int* refs[] = {&q->program_ref, &q->storage_ref,  &q->frames_ref,
+                   &q->pins_ref,    &q->document_ref, &q->values_ref};
+    for (size_t i = 0; i < sizeof refs / sizeof *refs; ++i) {
+        luaL_unref(L, LUA_REGISTRYINDEX, *refs[i]);
+        *refs[i] = LUA_NOREF;
+    }
+    q->exec = NULL;
+    return 0;
+}
+static tlv_result_t initialize(execution_t* q) {
+    return q->retained
+               ? tlv_query_eval_init(q->program->program, &q->program->environment, q->storage,
+                                     q->capacity, q->depth, q->nodes, q->work, &q->exec)
+               : tlv_query_exec_init(q->program->program, q->storage, q->capacity, q->depth,
+                                     q->nodes, q->work, &q->exec);
+}
+static int program_execution(lua_State* L) {
+    program_t* p = program(L, 1);
+    lua_settop(L, 2);
+    execution_t* q = lua_newuserdata(L, sizeof *q);
+    memset(q, 0, sizeof *q);
+    q->program_ref = q->storage_ref = q->frames_ref = q->pins_ref = q->document_ref =
+        q->values_ref = LUA_NOREF;
+    luaL_getmetatable(L, EXECUTION_MT);
+    lua_setmetatable(L, -2);
+    int result = lua_gettop(L);
+    q->program = p;
+    lua_pushvalue(L, 1);
+    q->program_ref = luaL_ref(L, LUA_REGISTRYINDEX);
+    q->depth = opentlv_lua_query_limit(L, 2, "max_depth", 64);
+    q->nodes = opentlv_lua_query_limit(L, 2, "max_nodes", 1024);
+    q->work = opentlv_lua_query_limit(L, 2, "max_work", 100000000);
+    q->retained = 1;
+    if (!lua_isnil(L, 2)) {
+        lua_getfield(L, 2, "retained");
+        if (!lua_isnil(L, -1)) q->retained = lua_toboolean(L, -1);
+        lua_pop(L, 1);
+    }
+    size_t       alignment;
+    tlv_result_t rc =
+        q->retained ? tlv_query_eval_size(p->program, q->depth, q->nodes, &q->capacity, &alignment)
+                    : tlv_query_exec_size(p->program, q->depth, &q->capacity, &alignment);
+    if (rc != TLV_OK) return query_error(L, rc, NULL);
+    q->storage = arena(L, q->capacity, alignment);
+    q->storage_ref = luaL_ref(L, LUA_REGISTRYINDEX);
+    if (q->depth > SIZE_MAX / sizeof *q->frames) return query_error(L, TLV_ERR_OVERFLOW, NULL);
+    q->frames = lua_newuserdata(L, q->depth * sizeof *q->frames);
+    q->frames_ref = luaL_ref(L, LUA_REGISTRYINDEX);
+    lua_newtable(L);
+    q->pins_ref = luaL_ref(L, LUA_REGISTRYINDEX);
+    rc = initialize(q);
+    if (rc != TLV_OK) return query_error(L, rc, NULL);
+    lua_pushvalue(L, result);
+    return 1;
+}
+static int execution_reset(lua_State* L) {
+    execution_t* q = luaL_checkudata(L, 1, EXECUTION_MT);
+    if (!q->exec || q->busy) return query_error(L, TLV_ERR_INVALID_ARG, NULL);
+    // Allocate replacement roots before changing native state.
+    lua_newtable(L);
+    int          pins = luaL_ref(L, LUA_REGISTRYINDEX);
+    tlv_result_t rc = initialize(q);
+    if (rc != TLV_OK) {
+        luaL_unref(L, LUA_REGISTRYINDEX, pins);
+        return query_error(L, rc, NULL);
+    }
+    luaL_unref(L, LUA_REGISTRYINDEX, q->pins_ref);
+    q->pins_ref = pins;
+    luaL_unref(L, LUA_REGISTRYINDEX, q->document_ref);
+    q->document_ref = LUA_NOREF;
+    luaL_unref(L, LUA_REGISTRYINDEX, q->values_ref);
+    q->values_ref = LUA_NOREF;
+    q->has_reader = 0;
+    q->pinned = 0;
+    return 0;
+}
+static void pin(lua_State* L, execution_t* q, int index) {
+    lua_rawgeti(L, LUA_REGISTRYINDEX, q->pins_ref);
+    lua_pushvalue(L, index);
+    lua_rawseti(L, -2, (int)++q->pinned);
+    lua_pop(L, 1);
+}
+static int execution_input(lua_State* L) {
+    execution_t*   q = execution(L);
+    size_t         size;
+    const uint8_t* data = (const uint8_t*)luaL_checklstring(L, 2, &size);
+    size_t         discard = 0;
+    if (!lua_isnoneornil(L, 3)) {
+        lua_Integer value = luaL_checkinteger(L, 3);
+        if (value < 0) return query_error(L, TLV_ERR_INVALID_ARG, NULL);
+        discard = (size_t)value;
+    }
+    int final = lua_isnoneornil(L, 4) || lua_toboolean(L, 4);
+    if (q->document_ref != LUA_NOREF || (!q->has_reader && discard))
+        return query_error(L, TLV_ERR_INVALID_ARG, NULL);
+    pin(L, q, 2);
+    tlv_result_t rc =
+        q->has_reader ? tlv_tree_reader_set_input(&q->reader, data, size, discard, final)
+        : final       ? tlv_tree_reader_init(&q->reader, data, size, q->program->environment.format,
+                                             q->frames, q->depth, q->depth, q->nodes)
+                      : tlv_tree_reader_init_incremental(&q->reader, data, size,
+                                                         q->program->environment.format, q->frames,
+                                                         q->depth, q->depth, q->nodes);
+    if (rc != TLV_OK) return query_error(L, rc, NULL);
+    q->has_reader = 1;
+    return 0;
+}
+static int execution_bind(lua_State* L) {
+    execution_t*            q = execution(L);
+    const char*             name = luaL_checkstring(L, 2);
+    const char*             type = luaL_checkstring(L, 3);
+    tlv_query_result_kind_t kind;
+    int64_t                 integer = 0;
+    size_t                  size = 0;
+    const uint8_t*          data = NULL;
+    if (!strcmp(type, "integer")) {
+        kind = TLV_QUERY_RESULT_INTEGER;
+        integer = (int64_t)luaL_checkinteger(L, 4);
+    } else {
+        kind = !strcmp(type, "bytes")    ? TLV_QUERY_RESULT_BYTES
+               : !strcmp(type, "string") ? TLV_QUERY_RESULT_STRING
+                                         : TLV_QUERY_RESULT_NODES;
+        data = (const uint8_t*)luaL_checklstring(L, 4, &size);
+        pin(L, q, 4);
+    }
+    tlv_query_diagnostic_t diagnostic = {0};
+    tlv_result_t rc = tlv_query_exec_bind(q->exec, name, kind, integer, data, size, &diagnostic);
+    return rc == TLV_OK ? 0 : query_error(L, rc, &diagnostic);
+}
+typedef struct {
+    tlv_tree_event_t event;
+    int              found;
+} pull_t;
+static tlv_visit_result_t pull(const tlv_tree_event_t* event, void* context) {
+    pull_t* p = context;
+    p->event = *event;
+    p->found = 1;
+    return TLV_VISIT_STOP;
+}
+static int execution_next(lua_State* L) {
+    execution_t*           q = execution(L);
+    tlv_query_diagnostic_t diagnostic = {0};
+#if OPENTLV_DOCUMENT
+    if (q->document_ref != LUA_NOREF) {
+        tlv_node_t*  node = NULL;
+        tlv_result_t rc = tlv_document_query_next(q->exec, &node);
+        if (rc == TLV_ERR_END_OF_BUFFER) {
+            lua_pushnil(L);
+            return 1;
+        }
+        if (rc != TLV_OK) return query_error(L, rc, &diagnostic);
+        lua_rawgeti(L, LUA_REGISTRYINDEX, q->document_ref);
+        return opentlv_lua_document_push_node(L, lua_gettop(L), node);
+    }
+#endif
+    if (!q->has_reader) return query_error(L, TLV_ERR_INVALID_ARG, NULL);
+    pull_t       item = {0};
+    tlv_result_t rc = tlv_query_program_visit(&q->reader, q->exec, pull, &item, &diagnostic);
+    if (rc != TLV_OK) return query_error(L, rc, &diagnostic);
+    if (!item.found) {
+        lua_pushnil(L);
+        return 1;
+    }
+    rc = (tlv_result_t)opentlv_lua_push_element(L, &item.event.element, item.event.offset);
+    if (rc != TLV_OK) return query_error(L, rc, NULL);
+    field(L, "depth", item.event.depth);
+    lua_pushboolean(L, item.event.kind == TLV_TREE_BEGIN);
+    lua_setfield(L, -2, "constructed");
+    return 1;
+}
+static int execution_result(lua_State* L) {
+    execution_t*       q = execution(L);
+    tlv_query_result_t value;
+    tlv_result_t       rc = tlv_query_exec_result(q->exec, &value);
+    if (rc != TLV_OK) return query_error(L, rc, NULL);
+    switch (value.kind) {
+        case TLV_QUERY_RESULT_BOOL: lua_pushboolean(L, value.boolean != 0); break;
+        case TLV_QUERY_RESULT_INTEGER: {
+            lua_Integer integer = (lua_Integer)value.integer;
+            if ((int64_t)integer != value.integer) return query_error(L, TLV_ERR_NATIVE_SIZE, NULL);
+            lua_pushinteger(L, integer);
+        } break;
+        case TLV_QUERY_RESULT_BYTES:
+        case TLV_QUERY_RESULT_STRING:
+            lua_pushlstring(L, value.size ? (const char*)value.data : "", value.size);
+            break;
+        default: return query_error(L, TLV_ERR_INVALID_ARG, NULL);
+    }
+    return 1;
+}
+static int execution_exists(lua_State* L) {
+    execution_t* q = execution(L);
+    if (!q->has_reader || q->document_ref != LUA_NOREF)
+        return query_error(L, TLV_ERR_INVALID_ARG, NULL);
+    int                    found = 0;
+    tlv_query_diagnostic_t diagnostic = {0};
+    tlv_result_t           rc =
+        tlv_query_program_exists(&q->reader, q->exec, lua_toboolean(L, 2), &found, &diagnostic);
+    if (rc != TLV_OK) return query_error(L, rc, &diagnostic);
+    lua_pushboolean(L, found);
+    return 1;
+}
+
+typedef struct {
+    lua_State*              L;
+    const tlv_tree_event_t* event;
+    int                     invoke_index, error_index, failed;
+} callback_t;
+
+/* Match conversion and user code run under pcall. No Lua error may unwind
+ * through the canonical C visitor or leave execution.busy set. */
+static int invoke(lua_State* L) {
+    callback_t* callback = lua_touserdata(L, 1);
+    lua_pushvalue(L, 2);
+    tlv_result_t rc = (tlv_result_t)opentlv_lua_push_element(L, &callback->event->element,
+                                                             callback->event->offset);
+    if (rc != TLV_OK) return query_error(L, rc, NULL);
+    field(L, "depth", callback->event->depth);
+    lua_pushboolean(L, callback->event->kind == TLV_TREE_BEGIN);
+    lua_setfield(L, -2, "constructed");
+    lua_call(L, 1, 1);
+    return 1;
+}
+static tlv_visit_result_t callback_visit(const tlv_tree_event_t* event, void* context) {
+    callback_t* callback = context;
+    lua_State*  L = callback->L;
+    callback->event = event;
+    lua_pushvalue(L, callback->invoke_index);
+    lua_pushlightuserdata(L, callback);
+    lua_pushvalue(L, 2);
+    if (lua_pcall(L, 2, 1, 0) != LUA_OK) {
+        lua_replace(L, callback->error_index);
+        callback->failed = 1;
+        return TLV_VISIT_ERROR;
+    }
+    tlv_visit_result_t result =
+        lua_isboolean(L, -1) && !lua_toboolean(L, -1) ? TLV_VISIT_STOP : TLV_VISIT_CONTINUE;
+    lua_pop(L, 1);
+    return result;
+}
+static int execution_visit(lua_State* L) {
+    execution_t* q = execution(L);
+    luaL_checktype(L, 2, LUA_TFUNCTION);
+    if (!q->has_reader || q->document_ref != LUA_NOREF)
+        return query_error(L, TLV_ERR_INVALID_ARG, NULL);
+    lua_settop(L, 2);
+    luaL_checkstack(L, 8, "Query callback stack");
+    lua_pushcfunction(L, invoke);
+    int invoke_index = lua_gettop(L);
+    lua_pushnil(L);
+    int                    error_index = lua_gettop(L);
+    callback_t             callback = {L, NULL, invoke_index, error_index, 0};
+    tlv_query_diagnostic_t diagnostic = {0};
+    q->busy = 1;
+    tlv_result_t rc =
+        tlv_query_program_visit(&q->reader, q->exec, callback_visit, &callback, &diagnostic);
+    q->busy = 0;
+    if (callback.failed) {
+        lua_pushvalue(L, error_index);
+        return lua_error(L);
+    }
+    return rc == TLV_OK ? 0 : query_error(L, rc, &diagnostic);
+}
+static int execution_info(lua_State* L) {
+    execution_t*          q = execution(L);
+    tlv_query_exec_info_t info;
+    tlv_result_t          rc = tlv_query_exec_info(q->exec, &info);
+    if (rc != TLV_OK) return query_error(L, rc, NULL);
+    lua_newtable(L);
+#define INFO(name) field(L, #name, info.name)
+    INFO(elements);
+    INFO(work);
+    INFO(skipped_subtrees);
+    INFO(full_validation);
+    INFO(finished);
+    INFO(invalid);
+#undef INFO
+    return 1;
+}
+static int execution_context(lua_State* L) {
+    execution_t* q = execution(L);
+    lua_Integer  context = luaL_checkinteger(L, 2);
+    if (context < 0) return query_error(L, TLV_ERR_INVALID_ARG, NULL);
+    tlv_result_t rc = tlv_query_exec_context(q->exec, (size_t)context);
+    return rc == TLV_OK ? 0 : query_error(L, rc, NULL);
+}
+static int execution_pruning(lua_State* L) {
+    execution_t* q = execution(L);
+    tlv_result_t rc = tlv_query_exec_pruning(q->exec, lua_toboolean(L, 2));
+    return rc == TLV_OK ? 0 : query_error(L, rc, NULL);
+}
+#if OPENTLV_DOCUMENT
+static int execution_document(lua_State* L) {
+    execution_t* q = execution(L);
+    if (!q->retained || q->has_reader || q->document_ref != LUA_NOREF)
+        return query_error(L, TLV_ERR_INVALID_ARG, NULL);
+    tlv_document_t* document = opentlv_lua_document_native(L, 2);
+    tlv_node_t*     context = opentlv_lua_node_native(L, 3, 2);
+    size_t          capacity = 0;
+    tlv_result_t    rc = TLV_OK;
+    if (q->program->info.constructed_values_required) {
+        if (lua_isnoneornil(L, 4))
+            rc = tlv_document_encoded_size(document, &capacity);
+        else {
+            lua_Integer value = luaL_checkinteger(L, 4);
+            if (value < 0) return query_error(L, TLV_ERR_INVALID_ARG, NULL);
+            capacity = (size_t)value;
+        }
+    }
+    if (rc != TLV_OK) return query_error(L, rc, NULL);
+    tlv_tree_writer_workspace_t writer = {0};
+    void*                       values = NULL;
+    if (q->program->info.constructed_values_required) {
+        values = lua_newuserdata(L, capacity);
+        q->values_ref = luaL_ref(L, LUA_REGISTRYINDEX);
+        if (q->depth > SIZE_MAX / sizeof *writer.frames)
+            return query_error(L, TLV_ERR_OVERFLOW, NULL);
+        writer.frames = lua_newuserdata(L, q->depth * sizeof *writer.frames);
+        writer.frame_capacity = q->depth;
+        writer.data = lua_newuserdata(L, capacity);
+        writer.data_capacity = capacity;
+        writer.scratch = lua_newuserdata(L, capacity);
+        writer.scratch_capacity = capacity;
+    }
+    lua_pushvalue(L, 2);
+    q->document_ref = luaL_ref(L, LUA_REGISTRYINDEX);
+    tlv_query_diagnostic_t diagnostic = {0};
+    rc = tlv_document_query_evaluate(document, q->exec, context, values, capacity,
+                                     q->program->info.constructed_values_required ? &writer : NULL,
+                                     &diagnostic);
+    return rc == TLV_OK ? 0 : query_error(L, rc, &diagnostic);
+}
+#endif
+void opentlv_lua_open_program(lua_State* L, int module_index) {
+    static const opentlv_lua_method_t program_methods[] = {{"info", program_info},
+                                                           {"variables", program_variables},
+                                                           {"image", program_image},
+                                                           {"format", program_format},
+                                                           {"explain", program_explain},
+                                                           {"execution", program_execution},
+                                                           {NULL, NULL}};
+    static const opentlv_lua_method_t execution_methods[] = {
+        {"close", execution_gc},
+        {"reset", execution_reset},
+        {"set_input", execution_input},
+        {"bind", execution_bind},
+        {"next", execution_next},
+        {"visit", execution_visit},
+        {"result", execution_result},
+        {"exists", execution_exists},
+        {"info", execution_info},
+        {"context", execution_context},
+        {"pruning", execution_pruning},
+#if OPENTLV_DOCUMENT
+        {"evaluate_document", execution_document},
+#endif
+        {NULL, NULL}};
+    opentlv_lua_new_type(L, PROGRAM_MT, program_methods, program_gc, NULL, NULL);
+    opentlv_lua_new_type(L, EXECUTION_MT, execution_methods, execution_gc, NULL, NULL);
+    lua_pushcfunction(L, program_compile);
+    lua_setfield(L, module_index, "query_program");
+    lua_pushcfunction(L, program_load);
+    lua_setfield(L, module_index, "query_program_load");
+}

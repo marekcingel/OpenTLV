@@ -1,0 +1,950 @@
+// SPDX-License-Identifier: MIT
+// Copyright (c) 2026 Marek Cingel
+//! Immutable compiled C Query programs with independent bounded continuations.
+use crate::{Element, Error, Format, ReaderDiagnostic, TreeReader, Visit};
+use opentlv_sys as native;
+use std::{
+    collections::BTreeMap,
+    ffi::{CStr, CString},
+    marker::PhantomData,
+    mem::{size_of, zeroed},
+    os::raw::c_void,
+    panic::{catch_unwind, AssertUnwindSafe},
+    ptr, slice,
+    sync::Arc,
+};
+
+/// Typed expression/binding category. Boolean bindings are not part of this language version.
+#[derive(Clone, Copy, Debug, PartialEq, Eq)]
+#[repr(i32)]
+pub enum QueryType {
+    /// Ordered unique node sequence.
+    Nodes = 0,
+    /// Boolean scalar.
+    Boolean = 1,
+    /// Signed 64-bit integer.
+    Integer = 2,
+    /// Byte span.
+    Bytes = 3,
+    /// Validated UTF-8 string.
+    String = 4,
+}
+/// Complete owned native failure, independent of input/program lifetime.
+#[derive(Clone, Debug)]
+pub struct ProgramError {
+    /// Original native status, including resumable NEED_MORE_DATA.
+    pub error: Error,
+    /// Native Query diagnostic category.
+    pub kind: i32,
+    /// Inclusive Query byte offset.
+    pub begin: usize,
+    /// Exclusive Query byte offset.
+    pub end: usize,
+    /// Original input offset when Source metadata exists.
+    pub source_offset: Option<usize>,
+    /// Owned native expected-token or type description.
+    pub expected: Option<String>,
+    /// Named exhausted resource, when present.
+    pub limit: Option<String>,
+    /// Configured bound for the named resource.
+    pub configured: usize,
+    /// Original native codec status.
+    pub codec: i32,
+    /// Owned original Reader diagnostic for Reader failures.
+    pub reader: Option<Box<ReaderDiagnostic>>,
+}
+impl std::fmt::Display for ProgramError {
+    fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
+        write!(
+            f,
+            "{} at Query bytes {}..{}",
+            self.error, self.begin, self.end
+        )
+    }
+}
+impl std::error::Error for ProgramError {}
+/// Result retaining complete owned Query failure context.
+pub type ProgramResult<T> = std::result::Result<T, ProgramError>;
+fn check(code: i32, diagnostic: &native::tlv_query_diagnostic_t) -> ProgramResult<()> {
+    Error::check(code).map_err(|error| {
+        // SAFETY: diagnostics come from C; descriptions are static NUL-terminated strings.
+        unsafe {
+            let text = |p: *const std::os::raw::c_char| {
+                (!p.is_null()).then(|| CStr::from_ptr(p).to_string_lossy().into_owned())
+            };
+            ProgramError {
+                error,
+                kind: diagnostic.kind,
+                begin: diagnostic.begin,
+                end: diagnostic.end,
+                source_offset: (diagnostic.has_source_offset != 0)
+                    .then_some(diagnostic.source_offset),
+                expected: text(diagnostic.expected),
+                limit: text(diagnostic.limit),
+                configured: diagnostic.configured,
+                codec: diagnostic.codec,
+                reader: (diagnostic.kind == 7)
+                    .then(|| Box::new(ReaderDiagnostic::from_raw(&diagnostic.reader))),
+            }
+        }
+    })
+}
+fn plain(code: i32) -> ProgramResult<()> {
+    // SAFETY: all-zero diagnostic contains valid enums, NULL pointers and zero counts.
+    check(code, &unsafe { zeroed() })
+}
+#[repr(align(16))]
+#[derive(Clone)]
+struct Block([u8; 16]);
+struct Memory {
+    blocks: Vec<Block>,
+    bytes: usize,
+}
+impl Memory {
+    fn new(bytes: usize) -> ProgramResult<Self> {
+        let count = bytes
+            .checked_add(15)
+            .ok_or_else(|| plain(native::TLV_ERR_OVERFLOW).unwrap_err())?
+            / 16;
+        let mut blocks = Vec::new();
+        blocks
+            .try_reserve_exact(count.max(1))
+            .map_err(|_| plain(native::TLV_ERR_OUT_OF_MEMORY).unwrap_err())?;
+        blocks.resize(count.max(1), Block([0; 16]));
+        Ok(Self { blocks, bytes })
+    }
+    fn data(&self) -> *const c_void {
+        self.blocks[0].0.as_ptr().cast()
+    }
+    fn data_mut(&mut self) -> *mut c_void {
+        self.blocks[0].0.as_mut_ptr().cast()
+    }
+}
+/// Owning compiler configuration. Names are resolved only during compilation.
+#[derive(Clone, Debug)]
+pub struct ProgramOptions {
+    /// Explicit immutable builtin Format and semantic capability selection.
+    pub format: Format,
+    /// Declared typed variables; names omit the dollar prefix.
+    pub variables: BTreeMap<String, QueryType>,
+    /// Owned scoped symbolic spellings mapped to raw Tag bytes.
+    pub names: BTreeMap<String, Vec<u8>>,
+    /// Enable the canonical C optimizer.
+    pub optimize: bool,
+    /// Maximum Query text bytes.
+    pub max_text: usize,
+    /// Maximum lexical tokens.
+    pub max_tokens: usize,
+    /// Maximum parser nesting.
+    pub max_nesting: usize,
+    /// Maximum expression instructions.
+    pub max_states: usize,
+    /// Runtime pattern capacity.
+    pub max_pattern: usize,
+    /// Maximum copied symbolic Tag bytes.
+    pub max_resolved_tag: usize,
+}
+impl Default for ProgramOptions {
+    fn default() -> Self {
+        // SAFETY: C initializer writes every option field.
+        let config = unsafe {
+            let mut c = zeroed();
+            native::tlv_query_compile_options_init(&mut c);
+            c
+        };
+        Self {
+            format: Format::Ber,
+            variables: BTreeMap::new(),
+            names: BTreeMap::new(),
+            optimize: true,
+            max_text: config.max_text,
+            max_tokens: config.max_tokens,
+            max_nesting: config.max_nesting,
+            max_states: config.max_states,
+            max_pattern: config.max_pattern,
+            max_resolved_tag: config.max_resolved_tag,
+        }
+    }
+}
+unsafe extern "C" fn resolve(
+    context: *const c_void,
+    space: *const std::os::raw::c_char,
+    space_size: usize,
+    name: *const std::os::raw::c_char,
+    name_size: usize,
+    tag: *mut native::tlv_tag_t,
+) -> i32 {
+    // SAFETY: compile keeps the map and bounded parser spans alive; output is writable.
+    let names = unsafe { &*context.cast::<BTreeMap<String, Vec<u8>>>() };
+    let text = |p, n| {
+        if n == 0 {
+            Ok("")
+        } else {
+            unsafe { std::str::from_utf8(slice::from_raw_parts(p as *const u8, n)) }
+        }
+    };
+    let (Ok(namespace), Ok(name)) = (text(space, space_size), text(name, name_size)) else {
+        return native::TLV_ERR_INVALID_ARG;
+    };
+    let key = if namespace.is_empty() {
+        name.to_owned()
+    } else {
+        format!("{namespace}:{name}")
+    };
+    match names.get(&key) {
+        Some(value) => {
+            unsafe {
+                *tag = native::tlv_tag_t {
+                    data: value.as_ptr(),
+                    size: value.len(),
+                };
+            }
+            native::TLV_OK
+        }
+        None => native::TLV_ERR_INVALID_TAG,
+    }
+}
+struct ProgramStorage {
+    memory: Memory,
+    info: native::tlv_query_program_info_t,
+    environment: native::tlv_query_environment_t,
+    _hooks: Box<[native::tlv_query_hook_t]>,
+}
+// SAFETY: the image is immutable; every Format/provider points to immutable builtin
+// C storage. Resolver contexts are compile-only and never enter the image/environment.
+unsafe impl Send for ProgramStorage {}
+unsafe impl Sync for ProgramStorage {}
+/// Immutable program; clones share storage, while each execution owns distinct workspace.
+#[derive(Clone)]
+pub struct QueryProgram {
+    storage: Arc<ProgramStorage>,
+}
+impl QueryProgram {
+    /// Compile bounded UTF-8 text using caller-selected C options.
+    pub fn compile(text: &str, options: &ProgramOptions) -> ProgramResult<Self> {
+        Self::build(text.as_bytes(), options, false)
+    }
+    /// Validate and own a same-release image copy; release-limited native layout, not serialization.
+    pub fn load(image: &[u8], options: &ProgramOptions) -> ProgramResult<Self> {
+        Self::build(image, options, true)
+    }
+    fn build(data: &[u8], options: &ProgramOptions, image: bool) -> ProgramResult<Self> {
+        // SAFETY: builtin callbacks/descriptors are immutable static C objects.
+        let mut count = 0;
+        let mut hooks = unsafe {
+            slice::from_raw_parts(native::tlv_query_builtin_hooks(&mut count), count).to_vec()
+        };
+        let tags = if matches!(options.format, Format::Ber | Format::Cer | Format::Der) {
+            hooks.push(unsafe { native::tlv_asn1_query_date });
+            ptr::addr_of!(native::tlv_asn1_query_tags)
+        } else {
+            ptr::null()
+        };
+        let hooks = hooks.into_boxed_slice();
+        let environment = native::tlv_query_environment_t {
+            format: options.format.raw(),
+            tags,
+            hooks: hooks.as_ptr(),
+            hook_count: hooks.len(),
+        };
+        let names: Vec<_> = options
+            .variables
+            .keys()
+            .map(|s| CString::new(s.as_str()))
+            .collect::<std::result::Result<_, _>>()
+            .map_err(|_| plain(native::TLV_ERR_INVALID_ARG).unwrap_err())?;
+        let variables: Vec<_> = names
+            .iter()
+            .zip(options.variables.values())
+            .map(|(n, t)| native::tlv_query_variable_t {
+                name: n.as_ptr(),
+                type_: *t as i32,
+            })
+            .collect();
+        // SAFETY: zero initializes optional pointers; all borrowed options survive both passes.
+        let mut config: native::tlv_query_compile_options_t = unsafe { zeroed() };
+        unsafe {
+            native::tlv_query_compile_options_init(&mut config);
+        }
+        config.max_text = options.max_text;
+        config.max_tokens = options.max_tokens;
+        config.max_nesting = options.max_nesting;
+        config.max_states = options.max_states;
+        config.max_pattern = options.max_pattern;
+        config.max_resolved_tag = options.max_resolved_tag;
+        config.variables = variables.as_ptr();
+        config.variable_count = variables.len();
+        config.environment = &environment;
+        config.resolve = Some(resolve);
+        config.resolve_context = ptr::addr_of!(options.names).cast();
+        config.optimize = options.optimize as i32;
+        let (mut bytes, mut alignment) = (0, 0);
+        let mut diagnostic = unsafe { zeroed() };
+        let mut info: native::tlv_query_program_info_t = unsafe { zeroed() };
+        info.struct_size = size_of::<native::tlv_query_program_info_t>();
+        let rc = unsafe {
+            if image {
+                native::tlv_query_program_load_scratch(
+                    data.as_ptr().cast(),
+                    data.len(),
+                    &config,
+                    &mut bytes,
+                    &mut alignment,
+                    &mut diagnostic,
+                )
+            } else {
+                native::tlv_query_compile_scratch(
+                    data.as_ptr().cast(),
+                    data.len(),
+                    &config,
+                    &mut bytes,
+                    &mut alignment,
+                    &mut diagnostic,
+                )
+            }
+        };
+        check(rc, &diagnostic)?;
+        let mut scratch = Memory::new(bytes)?;
+        if !image {
+            let rc = unsafe {
+                native::tlv_query_compile(
+                    data.as_ptr().cast(),
+                    data.len(),
+                    &config,
+                    scratch.data_mut(),
+                    bytes,
+                    ptr::null_mut(),
+                    0,
+                    &mut info,
+                    &mut diagnostic,
+                )
+            };
+            check(rc, &diagnostic)?;
+        }
+        let mut memory = Memory::new(if image { data.len() } else { info.program_size })?;
+        let rc = unsafe {
+            if image {
+                ptr::copy_nonoverlapping(data.as_ptr(), memory.data_mut().cast::<u8>(), data.len());
+                let mut loaded = ptr::null();
+                native::tlv_query_program_load(
+                    memory.data(),
+                    memory.bytes,
+                    &config,
+                    scratch.data_mut(),
+                    bytes,
+                    &mut loaded,
+                    &mut info,
+                    &mut diagnostic,
+                )
+            } else {
+                native::tlv_query_compile(
+                    data.as_ptr().cast(),
+                    data.len(),
+                    &config,
+                    scratch.data_mut(),
+                    bytes,
+                    memory.data_mut(),
+                    memory.bytes,
+                    &mut info,
+                    &mut diagnostic,
+                )
+            }
+        };
+        check(rc, &diagnostic)?;
+        Ok(Self {
+            storage: Arc::new(ProgramStorage {
+                memory,
+                info,
+                environment,
+                _hooks: hooks,
+            }),
+        })
+    }
+    fn raw(&self) -> *const native::tlv_query_program_t {
+        self.storage.memory.data().cast()
+    }
+    /// Read native requirements or execution counters and validation coverage.
+    pub fn info(&self) -> &native::tlv_query_program_info_t {
+        &self.storage.info
+    }
+    /// Owned unique referenced variable names and types in first-reference order.
+    pub fn variables(&self) -> ProgramResult<Vec<(String, QueryType)>> {
+        let mut result = Vec::new();
+        let count = unsafe { native::tlv_query_program_variable_count(self.raw()) };
+        for index in 0..count {
+            let mut variable: native::tlv_query_variable_info_t = unsafe { zeroed() };
+            plain(unsafe { native::tlv_query_program_variable(self.raw(), index, &mut variable) })?;
+            let bytes = unsafe { slice::from_raw_parts(variable.name.cast(), variable.name_size) };
+            let name = std::str::from_utf8(bytes)
+                .map_err(|_| plain(native::TLV_ERR_INVALID_VALUE).unwrap_err())?
+                .to_owned();
+            let kind = match variable.type_ {
+                2 => QueryType::Integer,
+                3 => QueryType::Bytes,
+                4 => QueryType::String,
+                _ => return Err(plain(native::TLV_ERR_INVALID_ARG).unwrap_err()),
+            };
+            result.push((name, kind));
+        }
+        Ok(result)
+    }
+    /// Borrow immutable native-layout image bytes; compatibility is release-limited.
+    pub fn image(&self) -> &[u8] {
+        // SAFETY: immutable aligned owned image remains alive through this borrow.
+        unsafe {
+            slice::from_raw_parts(self.storage.memory.data().cast(), self.storage.memory.bytes)
+        }
+    }
+    /// Return canonical language spelling from C.
+    pub fn format(&self) -> ProgramResult<String> {
+        self.render(false)
+    }
+    /// Return implementation-specific C plan details.
+    pub fn explain(&self) -> ProgramResult<String> {
+        self.render(true)
+    }
+    fn render(&self, explain: bool) -> ProgramResult<String> {
+        let function = if explain {
+            native::tlv_query_program_explain
+        } else {
+            native::tlv_query_program_format
+        };
+        let mut size = 0;
+        plain(unsafe { function(self.raw(), ptr::null_mut(), 0, &mut size) })?;
+        let mut output = vec![0u8; size];
+        plain(unsafe { function(self.raw(), output.as_mut_ptr().cast(), size, &mut size) })?;
+        output.truncate(size - 1);
+        String::from_utf8(output).map_err(|_| plain(native::TLV_ERR_INVALID_VALUE).unwrap_err())
+    }
+    /// Discover exact caller workspace bytes and alignment.
+    pub fn workspace_size(
+        &self,
+        depth: usize,
+        nodes: usize,
+        retained: bool,
+    ) -> ProgramResult<(usize, usize)> {
+        let (mut bytes, mut alignment) = (0, 0);
+        let rc = unsafe {
+            if retained {
+                native::tlv_query_eval_size(self.raw(), depth, nodes, &mut bytes, &mut alignment)
+            } else {
+                native::tlv_query_exec_size(self.raw(), depth, &mut bytes, &mut alignment)
+            }
+        };
+        plain(rc)?;
+        Ok((bytes, alignment))
+    }
+    /// Create independent owning execution with explicit resource bounds.
+    pub fn execution<'a>(
+        &self,
+        depth: usize,
+        nodes: usize,
+        work: usize,
+        retained: bool,
+    ) -> ProgramResult<QueryExecution<'a>> {
+        let (bytes, _) = self.workspace_size(depth, nodes, retained)?;
+        let mut memory = Memory::new(bytes)?;
+        let raw = initialize(self, memory.data_mut(), bytes, depth, nodes, work, retained)?;
+        Ok(QueryExecution {
+            program: self.clone(),
+            raw,
+            _memory: Some(memory),
+            _external: None,
+            #[cfg(feature = "document")]
+            document: None,
+            #[cfg(feature = "document")]
+            values: None,
+            depth,
+            nodes,
+            work,
+            retained,
+            input: PhantomData,
+        })
+    }
+    /// Borrow exclusive aligned caller workspace. Returned execution cannot outlive it.
+    pub fn execution_external<'a>(
+        &self,
+        storage: &'a mut [u8],
+        depth: usize,
+        nodes: usize,
+        work: usize,
+        retained: bool,
+    ) -> ProgramResult<QueryExecution<'a>> {
+        let raw = initialize(
+            self,
+            storage.as_mut_ptr().cast(),
+            storage.len(),
+            depth,
+            nodes,
+            work,
+            retained,
+        )?;
+        Ok(QueryExecution {
+            program: self.clone(),
+            raw,
+            _memory: None,
+            _external: Some(storage),
+            #[cfg(feature = "document")]
+            document: None,
+            #[cfg(feature = "document")]
+            values: None,
+            depth,
+            nodes,
+            work,
+            retained,
+            input: PhantomData,
+        })
+    }
+}
+fn initialize(
+    program: &QueryProgram,
+    storage: *mut c_void,
+    capacity: usize,
+    depth: usize,
+    nodes: usize,
+    work: usize,
+    retained: bool,
+) -> ProgramResult<*mut native::tlv_query_exec_t> {
+    let mut raw = ptr::null_mut();
+    let rc = unsafe {
+        if retained {
+            native::tlv_query_eval_init(
+                program.raw(),
+                &program.storage.environment,
+                storage,
+                capacity,
+                depth,
+                nodes,
+                work,
+                &mut raw,
+            )
+        } else {
+            native::tlv_query_exec_init(
+                program.raw(),
+                storage,
+                capacity,
+                depth,
+                nodes,
+                work,
+                &mut raw,
+            )
+        }
+    };
+    plain(rc)?;
+    Ok(raw)
+}
+/// Borrowed typed binding; spans must survive the execution's complete input lifetime.
+pub enum QueryBinding<'a> {
+    /// Signed 64-bit integer.
+    Integer(i64),
+    /// Byte span.
+    Bytes(&'a [u8]),
+    /// Validated UTF-8 string.
+    String(&'a str),
+}
+/// Finalized scalar spans borrow execution/program/input; copy explicitly for ownership.
+#[derive(Debug, PartialEq, Eq)]
+pub enum QueryValue<'a> {
+    /// Boolean scalar.
+    Boolean(bool),
+    /// Signed 64-bit integer.
+    Integer(i64),
+    /// Byte span.
+    Bytes(&'a [u8]),
+    /// Validated UTF-8 string.
+    String(&'a str),
+}
+/// Selected borrowed node; payload cannot outlive this execution borrow.
+#[derive(Debug)]
+pub struct QueryMatch<'a> {
+    /// Selected semantic Element with a borrowed Value.
+    pub element: Element<'a>,
+    /// Zero-based node depth.
+    pub depth: usize,
+    /// Absolute input offset.
+    pub offset: usize,
+    /// Whether this node is a BEGIN event.
+    pub constructed: bool,
+}
+unsafe fn project<'a>(event: &native::tlv_tree_event_t) -> ProgramResult<QueryMatch<'a>> {
+    Ok(QueryMatch {
+        element: unsafe { Element::from_raw(&event.element) }.map_err(|e| ProgramError {
+            error: e,
+            kind: 0,
+            begin: 0,
+            end: 0,
+            source_offset: None,
+            expected: None,
+            limit: None,
+            configured: 0,
+            codec: 0,
+            reader: None,
+        })?,
+        depth: event.depth,
+        offset: event.offset,
+        constructed: event.kind == native::TLV_TREE_BEGIN,
+    })
+}
+/// Exclusive mutable continuation, borrowing all input windows and variable spans for `'a`.
+pub struct QueryExecution<'a> {
+    program: QueryProgram,
+    raw: *mut native::tlv_query_exec_t,
+    _memory: Option<Memory>,
+    _external: Option<&'a mut [u8]>,
+    #[cfg(feature = "document")]
+    document: Option<&'a crate::Document<'a>>,
+    #[cfg(feature = "document")]
+    values: Option<Memory>,
+    depth: usize,
+    nodes: usize,
+    work: usize,
+    retained: bool,
+    input: PhantomData<&'a [u8]>,
+}
+impl<'a> QueryExecution<'a> {
+    /// Feed a complete canonical event whose payload and owned Tag remain live for `'a`.
+    /// Immediate selection borrows this execution; retained results wait for finish().
+    pub fn feed<'s>(
+        &'s mut self,
+        event: &'a crate::TreeEvent<'a>,
+    ) -> ProgramResult<Option<QueryMatch<'s>>> {
+        self.tree_backend()?;
+        let mut raw: native::tlv_tree_event_t = unsafe { zeroed() };
+        match event {
+            crate::TreeEvent::Begin(item) | crate::TreeEvent::Element(item) => {
+                raw.kind = if matches!(event, crate::TreeEvent::Begin(_)) {
+                    native::TLV_TREE_BEGIN
+                } else {
+                    native::TLV_TREE_ELEMENT
+                };
+                raw.element = native::tlv_element_t {
+                    tag: item.decoded.element.tag().raw(),
+                    value: native::tlv_value_t {
+                        data: item.decoded.element.value().as_ptr(),
+                        size: item.decoded.element.value().len() as u64,
+                    },
+                };
+                raw.source = item.decoded.source;
+                raw.depth = item.depth;
+                raw.offset = item.offset;
+            }
+            crate::TreeEvent::End {
+                depth,
+                offset,
+                skipped,
+            } => {
+                raw.kind = native::TLV_TREE_END;
+                raw.depth = *depth;
+                raw.offset = *offset;
+                raw.skipped = *skipped as i32;
+            }
+        }
+        let mut matched = 0;
+        let mut diagnostic = unsafe { zeroed() };
+        let rc =
+            unsafe { native::tlv_query_exec_feed(self.raw, &raw, &mut matched, &mut diagnostic) };
+        check(rc, &diagnostic)?;
+        if matched == 0 {
+            return Ok(None);
+        }
+        if !self.retained && self.program.info().level == 1 {
+            plain(unsafe { native::tlv_query_exec_selected(self.raw, &mut raw) })?;
+        }
+        unsafe { project(&raw) }.map(Some)
+    }
+    /// Require balanced final events and finalize retained evaluation.
+    pub fn finish(&mut self) -> ProgramResult<()> {
+        self.tree_backend()?;
+        let mut diagnostic = unsafe { zeroed() };
+        let rc = unsafe { native::tlv_query_exec_finish(self.raw, &mut diagnostic) };
+        check(rc, &diagnostic)
+    }
+    /// Reinitialize workspace, clearing bindings and all retained results.
+    pub fn reset(&mut self) -> ProgramResult<()> {
+        let (storage, capacity) = if let Some(memory) = self._memory.as_mut() {
+            (memory.data_mut(), memory.bytes)
+        } else {
+            let external = self._external.as_mut().unwrap();
+            (external.as_mut_ptr().cast(), external.len())
+        };
+        self.raw = initialize(
+            &self.program,
+            storage,
+            capacity,
+            self.depth,
+            self.nodes,
+            self.work,
+            self.retained,
+        )?;
+        #[cfg(feature = "document")]
+        {
+            self.document = None;
+            self.values = None;
+        }
+        Ok(())
+    }
+    /// Bind a typed immutable value before consuming input.
+    pub fn bind(&mut self, name: &str, value: QueryBinding<'a>) -> ProgramResult<()> {
+        let name =
+            CString::new(name).map_err(|_| plain(native::TLV_ERR_INVALID_ARG).unwrap_err())?;
+        let (kind, number, data) = match value {
+            QueryBinding::Integer(n) => (2, n, &[][..]),
+            QueryBinding::Bytes(b) => (3, 0, b),
+            QueryBinding::String(s) => (4, 0, s.as_bytes()),
+        };
+        let mut diagnostic = unsafe { zeroed() };
+        let rc = unsafe {
+            native::tlv_query_exec_bind(
+                self.raw,
+                name.as_ptr(),
+                kind,
+                number,
+                data.as_ptr(),
+                data.len(),
+                &mut diagnostic,
+            )
+        };
+        check(rc, &diagnostic)
+    }
+    /// Select a relative preorder context on fresh execution.
+    pub fn context(&mut self, ordinal: usize) -> ProgramResult<()> {
+        plain(unsafe { native::tlv_query_exec_context(self.raw, ordinal) })
+    }
+    /// Explicitly permit proven subtree pruning with partial validation coverage.
+    pub fn pruning(&mut self, enabled: bool) -> ProgramResult<()> {
+        plain(unsafe { native::tlv_query_exec_pruning(self.raw, enabled as i32) })
+    }
+    /// Read native requirements or execution counters and validation coverage.
+    pub fn info(&self) -> ProgramResult<native::tlv_query_exec_info_t> {
+        let mut info: native::tlv_query_exec_info_t = unsafe { zeroed() };
+        info.struct_size = size_of::<native::tlv_query_exec_info_t>();
+        plain(unsafe { native::tlv_query_exec_info(self.raw, &mut info) })?;
+        Ok(info)
+    }
+    /// Visit borrowed matching nodes; catches panics before returning through C.
+    pub fn visit<F>(&mut self, reader: &mut TreeReader<'a>, mut visitor: F) -> ProgramResult<()>
+    where
+        F: for<'e> FnMut(QueryMatch<'e>) -> Visit,
+    {
+        self.tree_backend()?;
+        struct State<'f, F> {
+            callback: &'f mut F,
+            panic: Option<Box<dyn std::any::Any + Send>>,
+            failure: Option<ProgramError>,
+        }
+        unsafe extern "C" fn callback<F>(
+            event: *const native::tlv_tree_event_t,
+            context: *mut c_void,
+        ) -> i32
+        where
+            F: for<'e> FnMut(QueryMatch<'e>) -> Visit,
+        {
+            // SAFETY: synchronous C call pins state; event spans are live during the callback only.
+            let state = unsafe { &mut *context.cast::<State<'_, F>>() };
+            let matched = match unsafe { project(&*event) } {
+                Ok(value) => value,
+                Err(e) => {
+                    state.failure = Some(e);
+                    return 2;
+                }
+            };
+            match catch_unwind(AssertUnwindSafe(|| (state.callback)(matched))) {
+                Ok(action) => action as i32,
+                Err(panic) => {
+                    state.panic = Some(panic);
+                    2
+                }
+            }
+        }
+        let mut state = State {
+            callback: &mut visitor,
+            panic: None,
+            failure: None,
+        };
+        let mut diagnostic = unsafe { zeroed() };
+        reader.current = None;
+        let rc = unsafe {
+            native::tlv_query_program_visit(
+                &mut reader.raw,
+                self.raw,
+                Some(callback::<F>),
+                ptr::addr_of_mut!(state).cast(),
+                &mut diagnostic,
+            )
+        };
+        if let Some(panic) = state.panic {
+            std::panic::resume_unwind(panic);
+        }
+        if let Some(error) = state.failure {
+            return Err(error);
+        }
+        check(rc, &diagnostic)
+    }
+    /// Pull one borrowed node through native STOP/resume; None means final exhaustion.
+    pub fn next<'s>(
+        &'s mut self,
+        reader: &mut TreeReader<'a>,
+    ) -> ProgramResult<Option<QueryMatch<'s>>> {
+        self.tree_backend()?;
+        if self.program.info().result_kind != 0 {
+            return Err(plain(native::TLV_ERR_INVALID_ARG).unwrap_err());
+        }
+        unsafe extern "C" fn one(
+            event: *const native::tlv_tree_event_t,
+            context: *mut c_void,
+        ) -> i32 {
+            unsafe {
+                *context.cast::<Option<native::tlv_tree_event_t>>() = Some(*event);
+            }
+            1
+        }
+        let mut selected = None;
+        let mut diagnostic = unsafe { zeroed() };
+        reader.current = None;
+        let rc = unsafe {
+            native::tlv_query_program_visit(
+                &mut reader.raw,
+                self.raw,
+                Some(one),
+                ptr::addr_of_mut!(selected).cast(),
+                &mut diagnostic,
+            )
+        };
+        check(rc, &diagnostic)?;
+        selected
+            .as_ref()
+            .map(|event| unsafe { project(event) })
+            .transpose()
+    }
+    /// Test existence, draining input unless explicit early return is selected.
+    pub fn exists(
+        &mut self,
+        reader: &mut TreeReader<'a>,
+        early_return: bool,
+    ) -> ProgramResult<bool> {
+        self.tree_backend()?;
+        reader.current = None;
+        let mut diagnostic = unsafe { zeroed() };
+        let mut found = 0;
+        let rc = unsafe {
+            native::tlv_query_program_exists(
+                &mut reader.raw,
+                self.raw,
+                early_return as i32,
+                &mut found,
+                &mut diagnostic,
+            )
+        };
+        check(rc, &diagnostic)?;
+        Ok(found != 0)
+    }
+    fn tree_backend(&self) -> ProgramResult<()> {
+        #[cfg(feature = "document")]
+        if self.document.is_some() {
+            return plain(native::TLV_ERR_INVALID_ARG);
+        }
+        Ok(())
+    }
+    /// Evaluate an immutable Document revision; the shared borrow prevents safe edits/destruction.
+    /// Constructed Values use one owned canonical snapshot, with an optional explicit byte bound.
+    #[cfg(feature = "document")]
+    pub fn evaluate_document(
+        &mut self,
+        document: &'a crate::Document<'a>,
+        context: Option<&crate::Node<'_, 'a>>,
+        value_capacity: Option<usize>,
+    ) -> ProgramResult<()> {
+        if !self.retained || self.document.is_some() {
+            return plain(native::TLV_ERR_INVALID_ARG);
+        }
+        let mut frames = Vec::<native::tlv_tree_writer_frame_t>::new();
+        let mut staged;
+        let mut scratch;
+        let mut workspace: native::tlv_tree_writer_workspace_t = unsafe { zeroed() };
+        let mut capacity = 0;
+        if self.program.info().constructed_values_required != 0 {
+            capacity = match value_capacity {
+                Some(value) => value,
+                None => document.encoded_size().map_err(|error| ProgramError {
+                    error,
+                    kind: 0,
+                    begin: 0,
+                    end: 0,
+                    source_offset: None,
+                    expected: None,
+                    limit: None,
+                    configured: 0,
+                    codec: 0,
+                    reader: None,
+                })?,
+            };
+            frames
+                .try_reserve_exact(self.depth)
+                .map_err(|_| plain(native::TLV_ERR_OUT_OF_MEMORY).unwrap_err())?;
+            frames.resize_with(self.depth, || unsafe { zeroed() });
+            staged = Memory::new(capacity)?;
+            scratch = Memory::new(capacity)?;
+            workspace.frames = frames.as_mut_ptr();
+            workspace.frame_capacity = frames.len();
+            workspace.data = staged.data_mut().cast();
+            workspace.data_capacity = capacity;
+            workspace.scratch = scratch.data_mut().cast();
+            workspace.scratch_capacity = capacity;
+        }
+        let mut values = Memory::new(capacity)?;
+        self.document = Some(document);
+        let mut diagnostic = unsafe { zeroed() };
+        let rc = unsafe {
+            native::tlv_document_query_evaluate(
+                document.raw,
+                self.raw,
+                context.map_or(ptr::null(), |node| node.raw),
+                values.data_mut(),
+                capacity,
+                if self.program.info().constructed_values_required != 0 {
+                    &mut workspace
+                } else {
+                    ptr::null_mut()
+                },
+                &mut diagnostic,
+            )
+        };
+        // Preserve snapshot storage even if evaluation failed after borrowing it.
+        self.values = Some(values);
+        check(rc, &diagnostic)
+    }
+    /// Pull a checked Document handle in native preorder; None means final exhaustion.
+    #[cfg(feature = "document")]
+    pub fn next_document(&mut self) -> ProgramResult<Option<crate::Node<'a, 'a>>> {
+        let document = self
+            .document
+            .ok_or_else(|| plain(native::TLV_ERR_INVALID_ARG).unwrap_err())?;
+        let mut node = ptr::null_mut();
+        let rc = unsafe { native::tlv_document_query_next(self.raw, &mut node) };
+        if rc == native::TLV_ERR_END_OF_BUFFER {
+            return Ok(None);
+        }
+        plain(rc)?;
+        Ok(document.node(node))
+    }
+    /// Read a finalized scalar borrowing execution/input/program storage.
+    pub fn result(&self) -> ProgramResult<QueryValue<'_>> {
+        let mut result: native::tlv_query_result_t = unsafe { zeroed() };
+        plain(unsafe { native::tlv_query_exec_result(self.raw, &mut result) })?;
+        // SAFETY: successful finalized spans borrow this execution's live input/program/storage.
+        let bytes = if result.size == 0 {
+            &[]
+        } else {
+            unsafe { slice::from_raw_parts(result.data, result.size) }
+        };
+        match result.kind {
+            1 => Ok(QueryValue::Boolean(result.boolean != 0)),
+            2 => Ok(QueryValue::Integer(result.integer)),
+            3 => Ok(QueryValue::Bytes(bytes)),
+            4 => std::str::from_utf8(bytes)
+                .map(QueryValue::String)
+                .map_err(|_| plain(native::TLV_ERR_INVALID_VALUE).unwrap_err()),
+            _ => Err(plain(native::TLV_ERR_INVALID_ARG).unwrap_err()),
+        }
+    }
+}

@@ -53,3 +53,21 @@ endif()
 add_test(NAME Property_infrastructure COMMAND "${Python3_EXECUTABLE}"
     "${CMAKE_CURRENT_SOURCE_DIR}/corpus_test.py")
 set_tests_properties(Property_infrastructure PROPERTIES LABELS "property;infrastructure")
+
+if(TARGET test-query-conformance)
+    add_test(NAME Property_query_infrastructure COMMAND "${Python3_EXECUTABLE}"
+        "${OpenTLV_SOURCE_DIR}/tests/query/test_minimize.py")
+    set_tests_properties(Property_query_infrastructure PROPERTIES LABELS "property;query;infrastructure")
+    set(OPENTLV_QUERY_PROPERTY_COUNT 32 CACHE STRING "Bounded trees for Query differential properties")
+    set(query_seed_args)
+    if(NOT OPENTLV_PROPERTY_SEED STREQUAL "")
+        list(APPEND query_seed_args --seed "${OPENTLV_PROPERTY_SEED}")
+    endif()
+    add_test(NAME Property_query COMMAND "${Python3_EXECUTABLE}"
+        "${OpenTLV_SOURCE_DIR}/tests/query/run.py"
+        --native "$<TARGET_FILE:test-query-conformance>"
+        --property-cases "${OPENTLV_QUERY_PROPERTY_COUNT}"
+        --commit "${OPENTLV_PROPERTY_COMMIT}" ${query_seed_args}
+        --evidence "${OpenTLV_BINARY_DIR}/property-failures/$<CONFIG>/query")
+    set_tests_properties(Property_query PROPERTIES LABELS "property;query" TIMEOUT 300)
+endif()

@@ -8,6 +8,7 @@
 #include <string.h>
 
 #define QUERY_MAGIC UINT32_C(0x51525932)
+#define QUERY_IMAGE_VERSION UINT32_C(5)
 #define QUERY_NONE UINT32_MAX
 
 static inline int query_format_compatible(const tlv_format_t* a, const tlv_format_t* b) {
@@ -234,8 +235,8 @@ static inline int query_program_needs_values(const tlv_query_program_t* p) {
    Storage must remain unchanged after execution initialization. */
 static inline int query_program_valid(const tlv_query_program_t* p) {
     if ((uintptr_t)p % sizeof(uint32_t)) return 0;
-    if (p->magic != QUERY_MAGIC || p->version != 4 || !p->count || p->root >= p->count ||
-        p->level > TLV_QUERY_D || !p->text_size)
+    if (p->magic != QUERY_MAGIC || p->version != QUERY_IMAGE_VERSION || !p->count ||
+        p->root >= p->count || p->level > TLV_QUERY_D || !p->text_size)
         return 0;
     if (p->count > (UINT32_MAX - sizeof *p) / sizeof(query_node_t)) return 0;
     size_t offset = sizeof *p + (size_t)p->count * sizeof(query_node_t);

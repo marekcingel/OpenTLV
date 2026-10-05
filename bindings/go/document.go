@@ -90,6 +90,14 @@ type Node struct {
 func (n Node) Valid() bool {
 	return n.owner.valid() && n.generation == n.owner.generation && n.native.Valid()
 }
+
+// Identity returns the canonical C node identity while this checked handle is valid.
+func (n Node) Identity() (uint64, error) {
+	if !n.Valid() {
+		return 0, StatusError{code: capi.InvalidArg}
+	}
+	return n.native.Identity(), nil
+}
 func (d *Document) wrap(n capi.Node) Node { return Node{d, n, d.generation} }
 func (d *Document) siblings(first capi.Node) []Node {
 	var nodes []Node

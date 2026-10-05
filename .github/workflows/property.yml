@@ -35,7 +35,7 @@ jobs:
             -DOPENTLV_BUILD_EXAMPLES=OFF -DOPENTLV_PROPERTY_COUNT=1000 \
             -DOPENTLV_PROPERTY_COMMIT="$(git rev-parse HEAD)" "${options[@]}"
       - name: Build generator and property verifier
-        run: cmake --build build --target otlv property-roundtrip --parallel 2
+        run: cmake --build build --target otlv property-roundtrip test-query-conformance --parallel 2
       - name: Generate and verify complete cases
         run: ctest --test-dir build -L property --output-on-failure --no-tests=error --parallel 2
       - name: Preserve failure evidence

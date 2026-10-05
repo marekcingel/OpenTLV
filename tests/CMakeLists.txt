@@ -26,8 +26,11 @@ if(OPENTLV_BUILD_UNIT_TESTS OR OPENTLV_BUILD_INTEGRATION_TESTS)
     endforeach()
 endif()
 
-if(OPENTLV_BUILD_INTEGRATION_TESTS)
+if(OPENTLV_BUILD_QUERY_TESTS OR OPENTLV_BUILD_UNIT_TESTS OR OPENTLV_BUILD_INTEGRATION_TESTS OR OPENTLV_BUILD_PROPERTY_TESTS)
     add_subdirectory(query)
+endif()
+
+if(OPENTLV_BUILD_INTEGRATION_TESTS)
     add_test(NAME architecture-pipeline
         COMMAND ${CMAKE_COMMAND} -P ${CMAKE_CURRENT_SOURCE_DIR}/pipeline_checks.cmake)
     set_tests_properties(architecture-pipeline PROPERTIES LABELS "integration;architecture")

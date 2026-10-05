@@ -30,6 +30,16 @@ int LLVMFuzzerTestOneInput(const uint8_t* data, size_t size) {
     rc =
         tlv_query_program_format((const tlv_query_program_t*)program, text, sizeof text, &required);
     if (rc != TLV_OK) abort();
+    size_t                     validation_bytes, validation_alignment;
+    const tlv_query_program_t* validated = NULL;
+    rc = tlv_query_program_load_scratch(program, info.program_size, &options, &validation_bytes,
+                                        &validation_alignment, &diagnostic);
+    if (rc != TLV_OK) abort();
+    if (validation_bytes <= sizeof copy) {
+        rc = tlv_query_program_load(program, info.program_size, &options, copy, validation_bytes,
+                                    &validated, NULL, &diagnostic);
+        if (rc != TLV_OK || validated != (const tlv_query_program_t*)program) abort();
+    }
     rc = tlv_query_compile(text, required - 1, &options, scratch, sizeof scratch, copy, sizeof copy,
                            &info, &diagnostic);
     if (rc != TLV_OK) abort();
@@ -44,13 +54,18 @@ int LLVMFuzzerTestOneInput(const uint8_t* data, size_t size) {
                                  16, 128, 100000, &exec);
     if (rc != TLV_OK) abort();
     for (size_t i = 0; i < size && i < 128; ++i) {
-        tlv_tree_event_t event = {0};
-        event.kind = TLV_TREE_ELEMENT;
+        tlv_tree_event_t            event = {0};
+        const tlv_tree_event_kind_t kinds[] = {TLV_TREE_ELEMENT, TLV_TREE_BEGIN, TLV_TREE_END};
+        event.kind = kinds[data[i] % 3];
+        event.depth = (data[i] / 3) % 18;
         event.element.tag = tlv_tag(data + i, 1);
         event.element.value.data = data;
         event.element.value.size = size;
         int matched;
-        if (tlv_query_exec_feed(exec, &event, &matched, &diagnostic) != TLV_OK) break;
+        if (tlv_query_exec_feed(exec, &event, &matched, &diagnostic) != TLV_OK) {
+            if (tlv_query_exec_feed(exec, &event, &matched, NULL) != TLV_ERR_INVALID_ARG) abort();
+            break;
+        }
     }
     (void)tlv_query_exec_finish(exec, &diagnostic);
     /* Mutate one field of a complete readable compiler image. This exercises
