@@ -81,11 +81,20 @@ $(function() {
 <table class="memberdecls">
 <tr class="heading"><td colspan="2"><h2 class="groupheader"><a id="files" name="files"></a>
 Files</h2></td></tr>
-<tr class="memitem:program_8h" id="r_program_8h"><td class="memItemLeft" align="right" valign="top">file &#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="program_8h.html">program.h</a></td></tr>
-<tr class="memdesc:program_8h"><td class="mdescLeft">&#160;</td><td class="mdescRight">Caller-stored immutable Query programs and bounded S0 event execution. <br /></td></tr>
+<tr class="memitem:builtins_2asn1_2query_8h" id="r_builtins_2asn1_2query_8h"><td class="memItemLeft" align="right" valign="top">file &#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="builtins_2asn1_2query_8h.html">query.h</a></td></tr>
+<tr class="memdesc:builtins_2asn1_2query_8h"><td class="mdescLeft">&#160;</td><td class="mdescRight">ASN.1 Query semantic tag and date adapters. <br /></td></tr>
 <tr class="separator:"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:query_8h" id="r_query_8h"><td class="memItemLeft" align="right" valign="top">file &#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="query_8h.html">query.h</a></td></tr>
-<tr class="memdesc:query_8h"><td class="mdescLeft">&#160;</td><td class="mdescRight">Path queries that address TLV elements by their nested tags. <br /></td></tr>
+<tr class="memitem:builtins_2emv_2query_8h" id="r_builtins_2emv_2query_8h"><td class="memItemLeft" align="right" valign="top">file &#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="builtins_2emv_2query_8h.html">query.h</a></td></tr>
+<tr class="memdesc:builtins_2emv_2query_8h"><td class="mdescLeft">&#160;</td><td class="mdescRight">Native EMV Query name adapter. <br /></td></tr>
+<tr class="separator:"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:adapters_8h" id="r_adapters_8h"><td class="memItemLeft" align="right" valign="top">file &#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="adapters_8h.html">adapters.h</a></td></tr>
+<tr class="memdesc:adapters_8h"><td class="mdescLeft">&#160;</td><td class="mdescRight">Generic Definition and Value codec Query adapters. <br /></td></tr>
+<tr class="separator:"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:program_8h" id="r_program_8h"><td class="memItemLeft" align="right" valign="top">file &#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="program_8h.html">program.h</a></td></tr>
+<tr class="memdesc:program_8h"><td class="mdescLeft">&#160;</td><td class="mdescRight">Caller-stored immutable Query programs and bounded event execution. <br /></td></tr>
+<tr class="separator:"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:query_2query_8h" id="r_query_2query_8h"><td class="memItemLeft" align="right" valign="top">file &#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="query_2query_8h.html">query.h</a></td></tr>
+<tr class="memdesc:query_2query_8h"><td class="mdescLeft">&#160;</td><td class="mdescRight">Path queries that address TLV elements by their nested tags. <br /></td></tr>
 <tr class="separator:"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:reader_2tree_8h" id="r_reader_2tree_8h"><td class="memItemLeft" align="right" valign="top">file &#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="reader_2tree_8h.html">tree.h</a></td></tr>
 <tr class="memdesc:reader_2tree_8h"><td class="mdescLeft">&#160;</td><td class="mdescRight">Iterative pull traversal over caller-owned input and structural storage. <br /></td></tr>
@@ -98,6 +107,18 @@ Files</h2></td></tr>
 Data Structures</h2></td></tr>
 <tr class="memitem:"><td class="memItemLeft" align="right" valign="top">struct &#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="structtlv__query__diagnostic.html">tlv_query_diagnostic</a></td></tr>
 <tr class="memdesc:"><td class="mdescLeft">&#160;</td><td class="mdescRight">Fixed-layout compiler/execution failure, initialized by diagnostic entry points.  <a href="structtlv__query__diagnostic.html#details">More...</a><br /></td></tr>
+<tr class="separator:"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:"><td class="memItemLeft" align="right" valign="top">struct &#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="structtlv__query__result.html">tlv_query_result</a></td></tr>
+<tr class="memdesc:"><td class="mdescLeft">&#160;</td><td class="mdescRight">Fixed-layout scalar output. Spans borrow immutable input, program or workspace until execution reset. Read only after successful finish; nodes use result_next.  <a href="structtlv__query__result.html#details">More...</a><br /></td></tr>
+<tr class="separator:"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:"><td class="memItemLeft" align="right" valign="top">struct &#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="structtlv__query__hook.html">tlv_query_hook</a></td></tr>
+<tr class="memdesc:"><td class="mdescLeft">&#160;</td><td class="mdescRight">Immutable compile requirement/execution provider. IDs, not pointers, enter programs.  <a href="structtlv__query__hook.html#details">More...</a><br /></td></tr>
+<tr class="separator:"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:"><td class="memItemLeft" align="right" valign="top">struct &#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="structtlv__query__tag__adapter.html">tlv_query_tag_adapter</a></td></tr>
+<tr class="memdesc:"><td class="mdescLeft">&#160;</td><td class="mdescRight">Optional semantic tag adapter beside Format, preserving raw tag identity.  <a href="structtlv__query__tag__adapter.html#details">More...</a><br /></td></tr>
+<tr class="separator:"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:"><td class="memItemLeft" align="right" valign="top">struct &#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="structtlv__query__environment.html">tlv_query_environment</a></td></tr>
+<tr class="memdesc:"><td class="mdescLeft">&#160;</td><td class="mdescRight">Borrowed immutable environment, unchanged/alive through execution and suspension.  <a href="structtlv__query__environment.html#details">More...</a><br /></td></tr>
 <tr class="separator:"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:"><td class="memItemLeft" align="right" valign="top">struct &#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="structtlv__query__variable.html">tlv_query_variable</a></td></tr>
 <tr class="memdesc:"><td class="mdescLeft">&#160;</td><td class="mdescRight">Compile-time variable declaration; names omit the dollar prefix.  <a href="structtlv__query__variable.html#details">More...</a><br /></td></tr>
@@ -144,6 +165,27 @@ Typedefs</h2></td></tr>
 <tr class="memitem:ga9e9451c7cc7e346182993d0d95065837" id="r_ga9e9451c7cc7e346182993d0d95065837"><td class="memItemLeft" align="right" valign="top">typedef enum <a class="el" href="group__traversal.html#ga43336be01e068a5916b4b8cdb7081c6b">tlv_query_result_kind</a>&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="group__traversal.html#ga9e9451c7cc7e346182993d0d95065837">tlv_query_result_kind_t</a></td></tr>
 <tr class="memdesc:ga9e9451c7cc7e346182993d0d95065837"><td class="mdescLeft">&#160;</td><td class="mdescRight">Category of a Query expression's result.  <br /></td></tr>
 <tr class="separator:ga9e9451c7cc7e346182993d0d95065837"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:ga0da4f42a4d34072621292fbd8f681d77" id="r_ga0da4f42a4d34072621292fbd8f681d77"><td class="memItemLeft" align="right" valign="top">typedef struct <a class="el" href="structtlv__query__result.html">tlv_query_result</a>&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="group__traversal.html#ga0da4f42a4d34072621292fbd8f681d77">tlv_query_result_t</a></td></tr>
+<tr class="memdesc:ga0da4f42a4d34072621292fbd8f681d77"><td class="mdescLeft">&#160;</td><td class="mdescRight">Fixed-layout scalar output. Spans borrow immutable input, program or workspace until execution reset. Read only after successful finish; nodes use result_next.  <br /></td></tr>
+<tr class="separator:ga0da4f42a4d34072621292fbd8f681d77"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:ga6947c21d5236e9f71a7441603d2e2f7a" id="r_ga6947c21d5236e9f71a7441603d2e2f7a"><td class="memItemLeft" align="right" valign="top">typedef enum <a class="el" href="group__traversal.html#gaa33f785f75e65e8d241ed825b2b713ed">tlv_query_conversion</a>&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="group__traversal.html#ga6947c21d5236e9f71a7441603d2e2f7a">tlv_query_conversion_t</a></td></tr>
+<tr class="memdesc:ga6947c21d5236e9f71a7441603d2e2f7a"><td class="mdescLeft">&#160;</td><td class="mdescRight">Closed conversion-function selectors; no arbitrary function execution.  <br /></td></tr>
+<tr class="separator:ga6947c21d5236e9f71a7441603d2e2f7a"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:ga500da836767d0f820184d35af4cf3042" id="r_ga500da836767d0f820184d35af4cf3042"><td class="memItemLeft" align="right" valign="top">typedef <a class="el" href="group__codecs.html#ga6033534ecdbfc36953062aed6279562f">tlv_codec_result_t</a>(*&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="group__traversal.html#ga500da836767d0f820184d35af4cf3042">tlv_query_decode_t</a>) (const void *context, const <a class="el" href="tree_8h.html#a3b1e811784f5c9b0085cb0144a0c57c2">tlv_tree_event_t</a> *event, const uint8_t *data, size_t size, void *scratch, size_t capacity, <a class="el" href="group__traversal.html#ga0da4f42a4d34072621292fbd8f681d77">tlv_query_result_t</a> *result)</td></tr>
+<tr class="memdesc:ga500da836767d0f820184d35af4cf3042"><td class="mdescLeft">&#160;</td><td class="mdescRight">Complete-Value decode adapter, returning original codec status.  <br /></td></tr>
+<tr class="separator:ga500da836767d0f820184d35af4cf3042"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:ga46bd20df3a79567b3aa87e7b1a906903" id="r_ga46bd20df3a79567b3aa87e7b1a906903"><td class="memItemLeft" align="right" valign="top">typedef struct <a class="el" href="structtlv__query__hook.html">tlv_query_hook</a>&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="group__traversal.html#ga46bd20df3a79567b3aa87e7b1a906903">tlv_query_hook_t</a></td></tr>
+<tr class="memdesc:ga46bd20df3a79567b3aa87e7b1a906903"><td class="mdescLeft">&#160;</td><td class="mdescRight">Immutable compile requirement/execution provider. IDs, not pointers, enter programs.  <br /></td></tr>
+<tr class="separator:ga46bd20df3a79567b3aa87e7b1a906903"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:ga94bec4b17e171b9d37b438048ff18a20" id="r_ga94bec4b17e171b9d37b438048ff18a20"><td class="memItemLeft" align="right" valign="top">typedef struct <a class="el" href="structtlv__query__tag__adapter.html">tlv_query_tag_adapter</a>&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="group__traversal.html#ga94bec4b17e171b9d37b438048ff18a20">tlv_query_tag_adapter_t</a></td></tr>
+<tr class="memdesc:ga94bec4b17e171b9d37b438048ff18a20"><td class="mdescLeft">&#160;</td><td class="mdescRight">Optional semantic tag adapter beside Format, preserving raw tag identity.  <br /></td></tr>
+<tr class="separator:ga94bec4b17e171b9d37b438048ff18a20"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:gaf02b0761e6c077fd46d523305f568a0d" id="r_gaf02b0761e6c077fd46d523305f568a0d"><td class="memItemLeft" align="right" valign="top">typedef <a class="el" href="group__core.html#ga164d2817a32e5d7b7aa1472e887b47c3">tlv_result_t</a>(*&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="group__traversal.html#gaf02b0761e6c077fd46d523305f568a0d">tlv_query_resolve_t</a>) (const void *context, const char *namespace_name, size_t namespace_size, const char *name, size_t name_size, <a class="el" href="structtlv__tag__t.html">tlv_tag_t</a> *tag)</td></tr>
+<tr class="memdesc:gaf02b0761e6c077fd46d523305f568a0d"><td class="mdescLeft">&#160;</td><td class="mdescRight">Compile-time scoped lookup returning a borrowed tag copied during compile.  <br /></td></tr>
+<tr class="separator:gaf02b0761e6c077fd46d523305f568a0d"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:gaf2f1c0d8fe278eb32c61e19e7b108a48" id="r_gaf2f1c0d8fe278eb32c61e19e7b108a48"><td class="memItemLeft" align="right" valign="top">typedef struct <a class="el" href="structtlv__query__environment.html">tlv_query_environment</a>&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="group__traversal.html#gaf2f1c0d8fe278eb32c61e19e7b108a48">tlv_query_environment_t</a></td></tr>
+<tr class="memdesc:gaf2f1c0d8fe278eb32c61e19e7b108a48"><td class="mdescLeft">&#160;</td><td class="mdescRight">Borrowed immutable environment, unchanged/alive through execution and suspension.  <br /></td></tr>
+<tr class="separator:gaf2f1c0d8fe278eb32c61e19e7b108a48"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:ga0f16489dae6f4015ac9c6372435427ee" id="r_ga0f16489dae6f4015ac9c6372435427ee"><td class="memItemLeft" align="right" valign="top">typedef struct <a class="el" href="structtlv__query__variable.html">tlv_query_variable</a>&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="group__traversal.html#ga0f16489dae6f4015ac9c6372435427ee">tlv_query_variable_t</a></td></tr>
 <tr class="memdesc:ga0f16489dae6f4015ac9c6372435427ee"><td class="mdescLeft">&#160;</td><td class="mdescRight">Compile-time variable declaration; names omit the dollar prefix.  <br /></td></tr>
 <tr class="separator:ga0f16489dae6f4015ac9c6372435427ee"><td class="memSeparator" colspan="2">&#160;</td></tr>
@@ -214,6 +256,8 @@ Enumerations</h2></td></tr>
 , <a class="el" href="group__traversal.html#gga66edcf242c8bc06318ff99b24f1ce0eda57a2fd48313feea39bfcc94781cc19cd">TLV_QUERY_ERROR_READER</a>
 , <br />
 &#160;&#160;<a class="el" href="group__traversal.html#gga66edcf242c8bc06318ff99b24f1ce0eda525e4725e8f486786a348a4d6de6301a">TLV_QUERY_ERROR_BINDING</a>
+, <a class="el" href="group__traversal.html#gga66edcf242c8bc06318ff99b24f1ce0edadc9c39cddfb5b7f9f33fadaaa0f491e9">TLV_QUERY_ERROR_CARDINALITY</a>
+, <a class="el" href="group__traversal.html#gga66edcf242c8bc06318ff99b24f1ce0eda8c3fa940f82a96c6cc438c762d3a22ca">TLV_QUERY_ERROR_CODEC</a>
 <br />
  }</td></tr>
 <tr class="memdesc:ga66edcf242c8bc06318ff99b24f1ce0ed"><td class="mdescLeft">&#160;</td><td class="mdescRight">Query-specific diagnostic category; original result codes remain intact.  <a href="group__traversal.html#ga66edcf242c8bc06318ff99b24f1ce0ed">More...</a><br /></td></tr>
@@ -229,6 +273,13 @@ Enumerations</h2></td></tr>
  }</td></tr>
 <tr class="memdesc:ga43336be01e068a5916b4b8cdb7081c6b"><td class="mdescLeft">&#160;</td><td class="mdescRight">Category of a Query expression's result.  <a href="group__traversal.html#ga43336be01e068a5916b4b8cdb7081c6b">More...</a><br /></td></tr>
 <tr class="separator:ga43336be01e068a5916b4b8cdb7081c6b"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:gaa33f785f75e65e8d241ed825b2b713ed" id="r_gaa33f785f75e65e8d241ed825b2b713ed"><td class="memItemLeft" align="right" valign="top">enum &#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="group__traversal.html#gaa33f785f75e65e8d241ed825b2b713ed">tlv_query_conversion</a> { <a class="el" href="group__traversal.html#ggaa33f785f75e65e8d241ed825b2b713eda0e0a7ad65f16bcb913dc9c0c865c6b48">TLV_QUERY_NUM</a>
+, <a class="el" href="group__traversal.html#ggaa33f785f75e65e8d241ed825b2b713edab4fa34c3d96025a542edfb49e7ee6869">TLV_QUERY_BCD</a>
+, <a class="el" href="group__traversal.html#ggaa33f785f75e65e8d241ed825b2b713edacd278edce1bf98064e2dd07c90b92fb2">TLV_QUERY_TEXT</a>
+, <a class="el" href="group__traversal.html#ggaa33f785f75e65e8d241ed825b2b713eda198f5b583473097cfc8b52eeb5671c6e">TLV_QUERY_DATE</a>
+ }</td></tr>
+<tr class="memdesc:gaa33f785f75e65e8d241ed825b2b713ed"><td class="mdescLeft">&#160;</td><td class="mdescRight">Closed conversion-function selectors; no arbitrary function execution.  <a href="group__traversal.html#gaa33f785f75e65e8d241ed825b2b713ed">More...</a><br /></td></tr>
+<tr class="separator:gaa33f785f75e65e8d241ed825b2b713ed"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:ga6b7b47dd702d9e331586d485013fd1ea" id="r_ga6b7b47dd702d9e331586d485013fd1ea"><td class="memItemLeft" align="right" valign="top">enum &#160;</td><td class="memItemRight" valign="bottom">{ <a class="el" href="group__traversal.html#gga6b7b47dd702d9e331586d485013fd1eaa6e916ad17ed0c10580e0541c0b859b13">TLV_QUERY_MAX_STEPS</a> = 65
  }</td></tr>
 <tr class="memdesc:ga6b7b47dd702d9e331586d485013fd1ea"><td class="mdescLeft">&#160;</td><td class="mdescRight">Capacity of the inline query path; independent of Tree Reader limits.  <a href="group__traversal.html#ga6b7b47dd702d9e331586d485013fd1ea">More...</a><br /></td></tr>
@@ -289,11 +340,26 @@ Functions</h2></td></tr>
 <tr class="memdesc:gacd0d50eee45caf3fd146cbde54c5cc1f"><td class="mdescLeft">&#160;</td><td class="mdescRight">Complete the virtual root at final EOF and require balanced events.  <br /></td></tr>
 <tr class="separator:gacd0d50eee45caf3fd146cbde54c5cc1f"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:ga9fc3283111031d88d448983e57933860" id="r_ga9fc3283111031d88d448983e57933860"><td class="memItemLeft" align="right" valign="top"><a class="el" href="group__core.html#ga164d2817a32e5d7b7aa1472e887b47c3">tlv_result_t</a>&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="group__traversal.html#ga9fc3283111031d88d448983e57933860">tlv_query_program_visit</a> (<a class="el" href="group__traversal.html#ga74999ab774c60a10d1f759404edb7003">tlv_tree_reader_t</a> *reader, <a class="el" href="group__traversal.html#gacff0d3ed0386caf2464d098ae952ebb7">tlv_query_exec_t</a> *exec, <a class="el" href="group__traversal.html#gaaea95a191d5e5f24e098d3eadf9ffe6a">tlv_query_event_visitor_t</a> visitor, void *context, <a class="el" href="group__traversal.html#ga17f951dcf47161a07accd081699eff6f">tlv_query_diagnostic_t</a> *diagnostic)</td></tr>
-<tr class="memdesc:ga9fc3283111031d88d448983e57933860"><td class="mdescLeft">&#160;</td><td class="mdescRight">Run S0 over the canonical Tree Reader, preserving STOP/NEED_MORE_DATA continuation.  <br /></td></tr>
+<tr class="memdesc:ga9fc3283111031d88d448983e57933860"><td class="mdescLeft">&#160;</td><td class="mdescRight">Run compiled Query over the canonical Tree Reader with resumable continuation.  <br /></td></tr>
 <tr class="separator:ga9fc3283111031d88d448983e57933860"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:ga44a2f28463e80909294fcff80bf03fec" id="r_ga44a2f28463e80909294fcff80bf03fec"><td class="memItemLeft" align="right" valign="top"><a class="el" href="group__core.html#ga164d2817a32e5d7b7aa1472e887b47c3">tlv_result_t</a>&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="group__traversal.html#ga44a2f28463e80909294fcff80bf03fec">tlv_query_program_exists</a> (<a class="el" href="group__traversal.html#ga74999ab774c60a10d1f759404edb7003">tlv_tree_reader_t</a> *reader, <a class="el" href="group__traversal.html#gacff0d3ed0386caf2464d098ae952ebb7">tlv_query_exec_t</a> *exec, int early_return, int *found, <a class="el" href="group__traversal.html#ga17f951dcf47161a07accd081699eff6f">tlv_query_diagnostic_t</a> *diagnostic)</td></tr>
 <tr class="memdesc:ga44a2f28463e80909294fcff80bf03fec"><td class="mdescLeft">&#160;</td><td class="mdescRight">Test existence with explicit full-validation or early-return behavior.  <br /></td></tr>
 <tr class="separator:ga44a2f28463e80909294fcff80bf03fec"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:ga828810e1faea5a6ddc9e6ed2d2c8f1b4" id="r_ga828810e1faea5a6ddc9e6ed2d2c8f1b4"><td class="memItemLeft" align="right" valign="top"><a class="el" href="group__core.html#ga164d2817a32e5d7b7aa1472e887b47c3">tlv_result_t</a>&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="group__traversal.html#ga828810e1faea5a6ddc9e6ed2d2c8f1b4">tlv_query_eval_size</a> (const <a class="el" href="group__traversal.html#ga45bdea1007b9780dba5559a2190f569d">tlv_query_program_t</a> *program, size_t max_depth, size_t max_nodes, size_t *bytes, size_t *alignment)</td></tr>
+<tr class="memdesc:ga828810e1faea5a6ddc9e6ed2d2c8f1b4"><td class="mdescLeft">&#160;</td><td class="mdescRight">Discover retained-event workspace for arbitrary compiled F2 results.  <br /></td></tr>
+<tr class="separator:ga828810e1faea5a6ddc9e6ed2d2c8f1b4"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:ga9bd0ff8af5e5c70d32e9ebfa380485f5" id="r_ga9bd0ff8af5e5c70d32e9ebfa380485f5"><td class="memItemLeft" align="right" valign="top"><a class="el" href="group__core.html#ga164d2817a32e5d7b7aa1472e887b47c3">tlv_result_t</a>&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="group__traversal.html#ga9bd0ff8af5e5c70d32e9ebfa380485f5">tlv_query_eval_init</a> (const <a class="el" href="group__traversal.html#ga45bdea1007b9780dba5559a2190f569d">tlv_query_program_t</a> *program, const <a class="el" href="group__traversal.html#gaf2f1c0d8fe278eb32c61e19e7b108a48">tlv_query_environment_t</a> *environment, void *storage, size_t capacity, size_t max_depth, size_t max_nodes, size_t max_work, <a class="el" href="group__traversal.html#gacff0d3ed0386caf2464d098ae952ebb7">tlv_query_exec_t</a> **exec)</td></tr>
+<tr class="memdesc:ga9bd0ff8af5e5c70d32e9ebfa380485f5"><td class="mdescLeft">&#160;</td><td class="mdescRight">Initialize retained canonical-event execution and bounded iterative evaluation.  <br /></td></tr>
+<tr class="separator:ga9bd0ff8af5e5c70d32e9ebfa380485f5"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:ga7176a977e31ad123dc26a6a0e1766cdc" id="r_ga7176a977e31ad123dc26a6a0e1766cdc"><td class="memItemLeft" align="right" valign="top"><a class="el" href="group__core.html#ga164d2817a32e5d7b7aa1472e887b47c3">tlv_result_t</a>&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="group__traversal.html#ga7176a977e31ad123dc26a6a0e1766cdc">tlv_query_exec_result</a> (const <a class="el" href="group__traversal.html#gacff0d3ed0386caf2464d098ae952ebb7">tlv_query_exec_t</a> *exec, <a class="el" href="group__traversal.html#ga0da4f42a4d34072621292fbd8f681d77">tlv_query_result_t</a> *result)</td></tr>
+<tr class="memdesc:ga7176a977e31ad123dc26a6a0e1766cdc"><td class="mdescLeft">&#160;</td><td class="mdescRight">Read a finalized scalar or node result category.  <br /></td></tr>
+<tr class="separator:ga7176a977e31ad123dc26a6a0e1766cdc"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:gaebf39cf5036fd87b161eb0fed7ccbfa3" id="r_gaebf39cf5036fd87b161eb0fed7ccbfa3"><td class="memItemLeft" align="right" valign="top"><a class="el" href="group__core.html#ga164d2817a32e5d7b7aa1472e887b47c3">tlv_result_t</a>&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="group__traversal.html#gaebf39cf5036fd87b161eb0fed7ccbfa3">tlv_query_result_next</a> (<a class="el" href="group__traversal.html#gacff0d3ed0386caf2464d098ae952ebb7">tlv_query_exec_t</a> *exec, <a class="el" href="tree_8h.html#a3b1e811784f5c9b0085cb0144a0c57c2">tlv_tree_event_t</a> *event)</td></tr>
+<tr class="memdesc:gaebf39cf5036fd87b161eb0fed7ccbfa3"><td class="mdescLeft">&#160;</td><td class="mdescRight">Pull finalized unique node events in document order.  <br /></td></tr>
+<tr class="separator:gaebf39cf5036fd87b161eb0fed7ccbfa3"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:ga256930be8a1d782e7fbb7767b03d5ca5" id="r_ga256930be8a1d782e7fbb7767b03d5ca5"><td class="memItemLeft" align="right" valign="top"><a class="el" href="group__core.html#ga164d2817a32e5d7b7aa1472e887b47c3">tlv_result_t</a>&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="group__traversal.html#ga256930be8a1d782e7fbb7767b03d5ca5">tlv_query_program_explain</a> (const <a class="el" href="group__traversal.html#ga45bdea1007b9780dba5559a2190f569d">tlv_query_program_t</a> *program, char *output, size_t capacity, size_t *required)</td></tr>
+<tr class="memdesc:ga256930be8a1d782e7fbb7767b03d5ca5"><td class="mdescLeft">&#160;</td><td class="mdescRight">Format normalized plan details; sizing and atomic short-output handling.  <br /></td></tr>
+<tr class="separator:ga256930be8a1d782e7fbb7767b03d5ca5"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:gac6cc1fdb84b230eec2b4bd26e5da8385" id="r_gac6cc1fdb84b230eec2b4bd26e5da8385"><td class="memItemLeft" align="right" valign="top"><a class="el" href="group__core.html#ga164d2817a32e5d7b7aa1472e887b47c3">tlv_result_t</a>&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="group__traversal.html#gac6cc1fdb84b230eec2b4bd26e5da8385">tlv_query_parse</a> (const char *text, <a class="el" href="group__traversal.html#ga976e323bdf21f26674eb8ad393f2e2e5">tlv_query_t</a> *query, size_t *error_offset)</td></tr>
 <tr class="memdesc:gac6cc1fdb84b230eec2b4bd26e5da8385"><td class="mdescLeft">&#160;</td><td class="mdescRight">Parses the text of a query.  <br /></td></tr>
 <tr class="separator:gac6cc1fdb84b230eec2b4bd26e5da8385"><td class="memSeparator" colspan="2">&#160;</td></tr>
@@ -389,6 +455,51 @@ Functions</h2></td></tr>
 
 </div>
 </div>
+<a id="ga6947c21d5236e9f71a7441603d2e2f7a" name="ga6947c21d5236e9f71a7441603d2e2f7a"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#ga6947c21d5236e9f71a7441603d2e2f7a">&#9670;&#160;</a></span>tlv_query_conversion_t</h2>
+
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname">typedef enum <a class="el" href="group__traversal.html#gaa33f785f75e65e8d241ed825b2b713ed">tlv_query_conversion</a> <a class="el" href="group__traversal.html#ga6947c21d5236e9f71a7441603d2e2f7a">tlv_query_conversion_t</a></td>
+        </tr>
+      </table>
+</div><div class="memdoc">
+
+<p>Closed conversion-function selectors; no arbitrary function execution. </p>
+
+</div>
+</div>
+<a id="ga500da836767d0f820184d35af4cf3042" name="ga500da836767d0f820184d35af4cf3042"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#ga500da836767d0f820184d35af4cf3042">&#9670;&#160;</a></span>tlv_query_decode_t</h2>
+
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname">typedef <a class="el" href="group__codecs.html#ga6033534ecdbfc36953062aed6279562f">tlv_codec_result_t</a>(* tlv_query_decode_t) (const void *context, const <a class="el" href="tree_8h.html#a3b1e811784f5c9b0085cb0144a0c57c2">tlv_tree_event_t</a> *event, const uint8_t *data, size_t size, void *scratch, size_t capacity, <a class="el" href="group__traversal.html#ga0da4f42a4d34072621292fbd8f681d77">tlv_query_result_t</a> *result)</td>
+        </tr>
+      </table>
+</div><div class="memdoc">
+
+<p>Complete-Value decode adapter, returning original codec status. </p>
+<dl class="params"><dt>Parameters</dt><dd>
+  <table class="params">
+    <tr><td class="paramdir">[in]</td><td class="paramname">context</td><td>Borrowed immutable thread-safe provider context. </td></tr>
+    <tr><td class="paramdir">[in]</td><td class="paramname">event</td><td>Candidate metadata, or NULL for literal/binding conversion. </td></tr>
+    <tr><td class="paramdir">[in]</td><td class="paramname">data</td><td>Complete contiguous Value bytes. </td></tr>
+    <tr><td class="paramdir">[in]</td><td class="paramname">size</td><td>Input bytes. </td></tr>
+    <tr><td class="paramdir">[in,out]</td><td class="paramname">scratch</td><td>Private aligned caller storage for this VM frame. </td></tr>
+    <tr><td class="paramdir">[in]</td><td class="paramname">capacity</td><td>Scratch bytes. </td></tr>
+    <tr><td class="paramdir">[out]</td><td class="paramname">result</td><td>Tagged scalar; may borrow input or scratch until reset. </td></tr>
+  </table>
+  </dd>
+</dl>
+<dl class="section note"><dt>Note</dt><dd>No allocation. Callback work is outside the engine work bound. </dd></dl>
+
+</div>
+</div>
 <a id="ga17f951dcf47161a07accd081699eff6f" name="ga17f951dcf47161a07accd081699eff6f"></a>
 <h2 class="memtitle"><span class="permalink"><a href="#ga17f951dcf47161a07accd081699eff6f">&#9670;&#160;</a></span>tlv_query_diagnostic_t</h2>
 
@@ -403,6 +514,23 @@ Functions</h2></td></tr>
 
 <p>Fixed-layout compiler/execution failure, initialized by diagnostic entry points. </p>
 <dl class="section note"><dt>Note</dt><dd>This value type is not extensible; changing its layout requires an ABI change. </dd></dl>
+
+</div>
+</div>
+<a id="gaf2f1c0d8fe278eb32c61e19e7b108a48" name="gaf2f1c0d8fe278eb32c61e19e7b108a48"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#gaf2f1c0d8fe278eb32c61e19e7b108a48">&#9670;&#160;</a></span>tlv_query_environment_t</h2>
+
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname">typedef struct <a class="el" href="structtlv__query__environment.html">tlv_query_environment</a> <a class="el" href="group__traversal.html#gaf2f1c0d8fe278eb32c61e19e7b108a48">tlv_query_environment_t</a></td>
+        </tr>
+      </table>
+</div><div class="memdoc">
+
+<p>Borrowed immutable environment, unchanged/alive through execution and suspension. </p>
+<dl class="section note"><dt>Note</dt><dd>Concurrent execution requires thread-safe callbacks and contexts. Capability IDs and scratch requirements must match compilation; no protocol dispatch exists in Query. </dd></dl>
 
 </div>
 </div>
@@ -478,6 +606,22 @@ Functions</h2></td></tr>
 
 </div>
 </div>
+<a id="ga46bd20df3a79567b3aa87e7b1a906903" name="ga46bd20df3a79567b3aa87e7b1a906903"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#ga46bd20df3a79567b3aa87e7b1a906903">&#9670;&#160;</a></span>tlv_query_hook_t</h2>
+
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname">typedef struct <a class="el" href="structtlv__query__hook.html">tlv_query_hook</a> <a class="el" href="group__traversal.html#ga46bd20df3a79567b3aa87e7b1a906903">tlv_query_hook_t</a></td>
+        </tr>
+      </table>
+</div><div class="memdoc">
+
+<p>Immutable compile requirement/execution provider. IDs, not pointers, enter programs. </p>
+
+</div>
+</div>
 <a id="ga6d80ce128702d5b27bac293e7910f7a8" name="ga6d80ce128702d5b27bac293e7910f7a8"></a>
 <h2 class="memtitle"><span class="permalink"><a href="#ga6d80ce128702d5b27bac293e7910f7a8">&#9670;&#160;</a></span>tlv_query_level_t</h2>
 
@@ -543,6 +687,34 @@ Functions</h2></td></tr>
 
 </div>
 </div>
+<a id="gaf02b0761e6c077fd46d523305f568a0d" name="gaf02b0761e6c077fd46d523305f568a0d"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#gaf02b0761e6c077fd46d523305f568a0d">&#9670;&#160;</a></span>tlv_query_resolve_t</h2>
+
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname">typedef <a class="el" href="group__core.html#ga164d2817a32e5d7b7aa1472e887b47c3">tlv_result_t</a>(* tlv_query_resolve_t) (const void *context, const char *namespace_name, size_t namespace_size, const char *name, size_t name_size, <a class="el" href="structtlv__tag__t.html">tlv_tag_t</a> *tag)</td>
+        </tr>
+      </table>
+</div><div class="memdoc">
+
+<p>Compile-time scoped lookup returning a borrowed tag copied during compile. </p>
+<dl class="params"><dt>Parameters</dt><dd>
+  <table class="params">
+    <tr><td class="paramdir">[in]</td><td class="paramname">context</td><td>Resolver context, borrowed only during compile. </td></tr>
+    <tr><td class="paramdir">[in]</td><td class="paramname">namespace_name</td><td>Bounded namespace; empty for unqualified lookup. </td></tr>
+    <tr><td class="paramdir">[in]</td><td class="paramname">namespace_size</td><td>Namespace bytes. </td></tr>
+    <tr><td class="paramdir">[in]</td><td class="paramname">name</td><td>Bounded symbolic name. </td></tr>
+    <tr><td class="paramdir">[in]</td><td class="paramname">name_size</td><td>Name bytes. </td></tr>
+    <tr><td class="paramdir">[out]</td><td class="paramname">tag</td><td>Borrowed raw identifier. </td></tr>
+  </table>
+  </dd>
+</dl>
+<dl class="section return"><dt>Returns</dt><dd>OK for one match, INVALID_TAG for unknown, INVALID_ARG for conflicts. </dd></dl>
+
+</div>
+</div>
 <a id="ga9e9451c7cc7e346182993d0d95065837" name="ga9e9451c7cc7e346182993d0d95065837"></a>
 <h2 class="memtitle"><span class="permalink"><a href="#ga9e9451c7cc7e346182993d0d95065837">&#9670;&#160;</a></span>tlv_query_result_kind_t</h2>
 
@@ -556,6 +728,22 @@ Functions</h2></td></tr>
 </div><div class="memdoc">
 
 <p>Category of a Query expression's result. </p>
+
+</div>
+</div>
+<a id="ga0da4f42a4d34072621292fbd8f681d77" name="ga0da4f42a4d34072621292fbd8f681d77"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#ga0da4f42a4d34072621292fbd8f681d77">&#9670;&#160;</a></span>tlv_query_result_t</h2>
+
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname">typedef struct <a class="el" href="structtlv__query__result.html">tlv_query_result</a> <a class="el" href="group__traversal.html#ga0da4f42a4d34072621292fbd8f681d77">tlv_query_result_t</a></td>
+        </tr>
+      </table>
+</div><div class="memdoc">
+
+<p>Fixed-layout scalar output. Spans borrow immutable input, program or workspace until execution reset. Read only after successful finish; nodes use result_next. </p>
 
 </div>
 </div>
@@ -573,6 +761,22 @@ Functions</h2></td></tr>
 
 <p>A parsed query: the tags to follow from a top-level element down to the addressed ones. </p>
 <p>The opaque storage is self-contained: it holds a copy of every tag's bytes, never allocates and never points to other memory, so it can be copied freely. Build it with <a class="el" href="group__traversal.html#gac6cc1fdb84b230eec2b4bd26e5da8385" title="Parses the text of a query.">tlv_query_parse()</a> and read its tags with <a class="el" href="group__traversal.html#ga1d2bf69dfc017ebbac2be367da2d9c23" title="Returns one tag of a query.">tlv_query_step()</a>; a zero-initialized query has no tags and is rejected by the functions that take one. Each tag may have any length as long as all tags together stay within <a class="el" href="group__traversal.html#ggaf9bdc3014f3d54c426b6d2df10de4960a25e94ebacffefe124afbbf879cd6ce7c">TLV_QUERY_MAX_BYTES</a>. sizeof(tlv_query_t) is 648 bytes; alignment is that of uint64_t on the target. Do not inspect opaque members. </p>
+
+</div>
+</div>
+<a id="ga94bec4b17e171b9d37b438048ff18a20" name="ga94bec4b17e171b9d37b438048ff18a20"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#ga94bec4b17e171b9d37b438048ff18a20">&#9670;&#160;</a></span>tlv_query_tag_adapter_t</h2>
+
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname">typedef struct <a class="el" href="structtlv__query__tag__adapter.html">tlv_query_tag_adapter</a> <a class="el" href="group__traversal.html#ga94bec4b17e171b9d37b438048ff18a20">tlv_query_tag_adapter_t</a></td>
+        </tr>
+      </table>
+</div><div class="memdoc">
+
+<p>Optional semantic tag adapter beside Format, preserving raw tag identity. </p>
 
 </div>
 </div>
@@ -767,6 +971,32 @@ Functions</h2></td></tr>
 
 </div>
 </div>
+<a id="gaa33f785f75e65e8d241ed825b2b713ed" name="gaa33f785f75e65e8d241ed825b2b713ed"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#gaa33f785f75e65e8d241ed825b2b713ed">&#9670;&#160;</a></span>tlv_query_conversion</h2>
+
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname">enum <a class="el" href="group__traversal.html#gaa33f785f75e65e8d241ed825b2b713ed">tlv_query_conversion</a></td>
+        </tr>
+      </table>
+</div><div class="memdoc">
+
+<p>Closed conversion-function selectors; no arbitrary function execution. </p>
+<table class="fieldtable">
+<tr><th colspan="2">Enumerator</th></tr><tr><td class="fieldname"><a id="ggaa33f785f75e65e8d241ed825b2b713eda0e0a7ad65f16bcb913dc9c0c865c6b48" name="ggaa33f785f75e65e8d241ed825b2b713eda0e0a7ad65f16bcb913dc9c0c865c6b48"></a>TLV_QUERY_NUM&#160;</td><td class="fielddoc"><p>Domain-selected integer. </p>
+</td></tr>
+<tr><td class="fieldname"><a id="ggaa33f785f75e65e8d241ed825b2b713edab4fa34c3d96025a542edfb49e7ee6869" name="ggaa33f785f75e65e8d241ed825b2b713edab4fa34c3d96025a542edfb49e7ee6869"></a>TLV_QUERY_BCD&#160;</td><td class="fielddoc"><p>Packed decimal. </p>
+</td></tr>
+<tr><td class="fieldname"><a id="ggaa33f785f75e65e8d241ed825b2b713edacd278edce1bf98064e2dd07c90b92fb2" name="ggaa33f785f75e65e8d241ed825b2b713edacd278edce1bf98064e2dd07c90b92fb2"></a>TLV_QUERY_TEXT&#160;</td><td class="fielddoc"><p>Explicit UTF-8 text. </p>
+</td></tr>
+<tr><td class="fieldname"><a id="ggaa33f785f75e65e8d241ed825b2b713eda198f5b583473097cfc8b52eeb5671c6e" name="ggaa33f785f75e65e8d241ed825b2b713eda198f5b583473097cfc8b52eeb5671c6e"></a>TLV_QUERY_DATE&#160;</td><td class="fielddoc"><p>UTC Unix seconds. </p>
+</td></tr>
+</table>
+
+</div>
+</div>
 <a id="ga66edcf242c8bc06318ff99b24f1ce0ed" name="ga66edcf242c8bc06318ff99b24f1ce0ed"></a>
 <h2 class="memtitle"><span class="permalink"><a href="#ga66edcf242c8bc06318ff99b24f1ce0ed">&#9670;&#160;</a></span>tlv_query_error_kind</h2>
 
@@ -798,6 +1028,10 @@ Functions</h2></td></tr>
 <tr><td class="fieldname"><a id="gga66edcf242c8bc06318ff99b24f1ce0eda57a2fd48313feea39bfcc94781cc19cd" name="gga66edcf242c8bc06318ff99b24f1ce0eda57a2fd48313feea39bfcc94781cc19cd"></a>TLV_QUERY_ERROR_READER&#160;</td><td class="fielddoc"><p>Original Reader failure; reader detail is preserved. </p>
 </td></tr>
 <tr><td class="fieldname"><a id="gga66edcf242c8bc06318ff99b24f1ce0eda525e4725e8f486786a348a4d6de6301a" name="gga66edcf242c8bc06318ff99b24f1ce0eda525e4725e8f486786a348a4d6de6301a"></a>TLV_QUERY_ERROR_BINDING&#160;</td><td class="fielddoc"><p>Missing, unknown, duplicate or incompatible variable. </p>
+</td></tr>
+<tr><td class="fieldname"><a id="gga66edcf242c8bc06318ff99b24f1ce0edadc9c39cddfb5b7f9f33fadaaa0f491e9" name="gga66edcf242c8bc06318ff99b24f1ce0edadc9c39cddfb5b7f9f33fadaaa0f491e9"></a>TLV_QUERY_ERROR_CARDINALITY&#160;</td><td class="fielddoc"><p>Scalar conversion did not receive exactly one node. </p>
+</td></tr>
+<tr><td class="fieldname"><a id="gga66edcf242c8bc06318ff99b24f1ce0eda8c3fa940f82a96c6cc438c762d3a22ca" name="gga66edcf242c8bc06318ff99b24f1ce0eda8c3fa940f82a96c6cc438c762d3a22ca"></a>TLV_QUERY_ERROR_CODEC&#160;</td><td class="fielddoc"><p>Strict Value decoding failed. </p>
 </td></tr>
 </table>
 
@@ -965,7 +1199,7 @@ Functions</h2></td></tr>
   </table>
   </dd>
 </dl>
-<dl class="section return"><dt>Returns</dt><dd><a class="el" href="group__core.html#gga516c7250563ee9332e2f45f2d203ae61ac763c25dd3e807fae4d8078c3d3e94ed">TLV_OK</a> for a supported S0 program or sizing pass. </dd>
+<dl class="section return"><dt>Returns</dt><dd><a class="el" href="group__core.html#gga516c7250563ee9332e2f45f2d203ae61ac763c25dd3e807fae4d8078c3d3e94ed">TLV_OK</a> for a supported F2 program or sizing pass. </dd>
 <dd>
 <a class="el" href="group__core.html#gga516c7250563ee9332e2f45f2d203ae61a6c282cdacb2900685e03295cf378282e">TLV_ERR_UNSUPPORTED_TYPE</a> for recognized later-phase capabilities. </dd>
 <dd>
@@ -1101,6 +1335,146 @@ struct_size must cover the prefix through result_kind. Writes are limited to min
 
 </div>
 </div>
+<a id="ga9bd0ff8af5e5c70d32e9ebfa380485f5" name="ga9bd0ff8af5e5c70d32e9ebfa380485f5"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#ga9bd0ff8af5e5c70d32e9ebfa380485f5">&#9670;&#160;</a></span>tlv_query_eval_init()</h2>
+
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname"><a class="el" href="group__core.html#ga164d2817a32e5d7b7aa1472e887b47c3">tlv_result_t</a> tlv_query_eval_init </td>
+          <td>(</td>
+          <td class="paramtype">const <a class="el" href="group__traversal.html#ga45bdea1007b9780dba5559a2190f569d">tlv_query_program_t</a> *&#160;</td>
+          <td class="paramname"><em>program</em>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype">const <a class="el" href="group__traversal.html#gaf2f1c0d8fe278eb32c61e19e7b108a48">tlv_query_environment_t</a> *&#160;</td>
+          <td class="paramname"><em>environment</em>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype">void *&#160;</td>
+          <td class="paramname"><em>storage</em>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype">size_t&#160;</td>
+          <td class="paramname"><em>capacity</em>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype">size_t&#160;</td>
+          <td class="paramname"><em>max_depth</em>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype">size_t&#160;</td>
+          <td class="paramname"><em>max_nodes</em>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype">size_t&#160;</td>
+          <td class="paramname"><em>max_work</em>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype"><a class="el" href="group__traversal.html#gacff0d3ed0386caf2464d098ae952ebb7">tlv_query_exec_t</a> **&#160;</td>
+          <td class="paramname"><em>exec</em>&#160;</td>
+        </tr>
+        <tr>
+          <td></td>
+          <td>)</td>
+          <td></td><td></td>
+        </tr>
+      </table>
+</div><div class="memdoc">
+
+<p>Initialize retained canonical-event execution and bounded iterative evaluation. </p>
+<dl class="params"><dt>Parameters</dt><dd>
+  <table class="params">
+    <tr><td class="paramdir">[in]</td><td class="paramname">program</td><td>Live immutable program. </td></tr>
+    <tr><td class="paramdir">[in]</td><td class="paramname">environment</td><td>Compatible borrowed providers; NULL when none required. </td></tr>
+    <tr><td class="paramdir">[in,out]</td><td class="paramname">storage</td><td>Aligned exclusive caller workspace. </td></tr>
+    <tr><td class="paramdir">[in]</td><td class="paramname">capacity</td><td>Workspace bytes. </td></tr>
+    <tr><td class="paramdir">[in]</td><td class="paramname">max_depth</td><td>Maximum node depth. </td></tr>
+    <tr><td class="paramdir">[in]</td><td class="paramname">max_nodes</td><td>Explicit retained-node capacity. </td></tr>
+    <tr><td class="paramdir">[in]</td><td class="paramname">max_work</td><td>Charged instruction/byte work limit. </td></tr>
+    <tr><td class="paramdir">[out]</td><td class="paramname">exec</td><td>Execution handle, unchanged on failure. </td></tr>
+  </table>
+  </dd>
+</dl>
+<dl class="section return"><dt>Returns</dt><dd>OK or size/alignment/environment errors. </dd></dl>
+<dl class="section note"><dt>Note</dt><dd>Feed borrows complete events until reset. Input, Source and environment must remain immutable/alive through suspension. Pruning is unavailable; results become public only after balanced EOF and successful evaluation. No allocation occurs. </dd></dl>
+
+</div>
+</div>
+<a id="ga828810e1faea5a6ddc9e6ed2d2c8f1b4" name="ga828810e1faea5a6ddc9e6ed2d2c8f1b4"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#ga828810e1faea5a6ddc9e6ed2d2c8f1b4">&#9670;&#160;</a></span>tlv_query_eval_size()</h2>
+
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname"><a class="el" href="group__core.html#ga164d2817a32e5d7b7aa1472e887b47c3">tlv_result_t</a> tlv_query_eval_size </td>
+          <td>(</td>
+          <td class="paramtype">const <a class="el" href="group__traversal.html#ga45bdea1007b9780dba5559a2190f569d">tlv_query_program_t</a> *&#160;</td>
+          <td class="paramname"><em>program</em>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype">size_t&#160;</td>
+          <td class="paramname"><em>max_depth</em>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype">size_t&#160;</td>
+          <td class="paramname"><em>max_nodes</em>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype">size_t *&#160;</td>
+          <td class="paramname"><em>bytes</em>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype">size_t *&#160;</td>
+          <td class="paramname"><em>alignment</em>&#160;</td>
+        </tr>
+        <tr>
+          <td></td>
+          <td>)</td>
+          <td></td><td></td>
+        </tr>
+      </table>
+</div><div class="memdoc">
+
+<p>Discover retained-event workspace for arbitrary compiled F2 results. </p>
+<dl class="params"><dt>Parameters</dt><dd>
+  <table class="params">
+    <tr><td class="paramdir">[in]</td><td class="paramname">program</td><td>Immutable live program. </td></tr>
+    <tr><td class="paramdir">[in]</td><td class="paramname">max_depth</td><td>Maximum node depth. </td></tr>
+    <tr><td class="paramdir">[in]</td><td class="paramname">max_nodes</td><td>Explicit nonzero retained-node capacity. </td></tr>
+    <tr><td class="paramdir">[out]</td><td class="paramname">bytes</td><td>Required caller workspace bytes. </td></tr>
+    <tr><td class="paramdir">[out]</td><td class="paramname">alignment</td><td>Required alignment. </td></tr>
+  </table>
+  </dd>
+</dl>
+<dl class="section return"><dt>Returns</dt><dd>OK or NULL/invalid-image/capacity/overflow errors. No hidden node set. </dd></dl>
+
+</div>
+</div>
 <a id="ga597eb45f36e2ec234150f343f7e9b545" name="ga597eb45f36e2ec234150f343f7e9b545"></a>
 <h2 class="memtitle"><span class="permalink"><a href="#ga597eb45f36e2ec234150f343f7e9b545">&#9670;&#160;</a></span>tlv_query_exec_bind()</h2>
 
@@ -1210,7 +1584,7 @@ struct_size must cover the prefix through result_kind. Writes are limited to min
   </dd>
 </dl>
 <dl class="section return"><dt>Returns</dt><dd><a class="el" href="group__core.html#gga516c7250563ee9332e2f45f2d203ae61ac763c25dd3e807fae4d8078c3d3e94ed">TLV_OK</a>; <a class="el" href="group__core.html#gga516c7250563ee9332e2f45f2d203ae61aa4a514ccb37d17b2cd7c7da47d2eab88">TLV_ERR_NULL_ARG</a> for NULL execution; <a class="el" href="group__core.html#gga516c7250563ee9332e2f45f2d203ae61a83b538a74c7058e8863132a6410b9d65">TLV_ERR_INVALID_ARG</a> for used execution or an out-of-budget identity. </dd></dl>
-<dl class="section note"><dt>Note</dt><dd>Absolute paths still use the virtual root. Relative paths select children of this context; dot selects it. Missing context fails at EOF. Ancestor evidence includes outside ancestors. No payload is retained; failure preserves state. </dd></dl>
+<dl class="section note"><dt>Note</dt><dd>Absolute paths still use the virtual root. Relative paths select children of this context; dot selects it. Missing context fails at EOF. Ancestor evidence includes outside ancestors. Retained evaluation keeps complete borrowed events until reset; failure preserves state. </dd></dl>
 
 </div>
 </div>
@@ -1256,14 +1630,14 @@ struct_size must cover the prefix through result_kind. Writes are limited to min
 <dl class="params"><dt>Parameters</dt><dd>
   <table class="params">
     <tr><td class="paramdir">[in,out]</td><td class="paramname">exec</td><td>Required initialized execution. </td></tr>
-    <tr><td class="paramdir">[in]</td><td class="paramname">event</td><td>Required complete event, borrowed only during this call. </td></tr>
+    <tr><td class="paramdir">[in]</td><td class="paramname">event</td><td>Required complete event. S0 borrows during this call; retained execution borrows its complete spans until reset. </td></tr>
     <tr><td class="paramdir">[out]</td><td class="paramname">matched</td><td>Required zero/one result; END never matches. </td></tr>
     <tr><td class="paramdir">[out]</td><td class="paramname">diagnostic</td><td>Optional failure detail. </td></tr>
   </table>
   </dd>
 </dl>
 <dl class="section return"><dt>Returns</dt><dd><a class="el" href="group__core.html#gga516c7250563ee9332e2f45f2d203ae61ac763c25dd3e807fae4d8078c3d3e94ed">TLV_OK</a>; <a class="el" href="group__core.html#gga516c7250563ee9332e2f45f2d203ae61a83b538a74c7058e8863132a6410b9d65">TLV_ERR_INVALID_ARG</a> for invalid sequence; <a class="el" href="group__core.html#gga516c7250563ee9332e2f45f2d203ae61a1e32eada09d59d834a685da1adeaaf97">TLV_ERR_LIMIT</a> for depth/elements/work; <a class="el" href="group__core.html#gga516c7250563ee9332e2f45f2d203ae61a07580ca64f30aa1a72a405fcbca72f10">TLV_ERR_INVALID_VALUE</a> for unavailable Source metadata; <a class="el" href="group__core.html#gga516c7250563ee9332e2f45f2d203ae61aa4a514ccb37d17b2cd7c7da47d2eab88">TLV_ERR_NULL_ARG</a> for missing pointers. </dd></dl>
-<dl class="section note"><dt>Note</dt><dd>Errors invalidate execution until reset. No borrowed payload is retained. Each node is emitted at most once, in preorder. Skipped END is rejected under the default full-validation policy. Values must be complete contiguous spans. </dd></dl>
+<dl class="section note"><dt>Note</dt><dd>Errors invalidate execution until reset. S0 retains no borrowed payload; retained execution reports matched=0 and publishes results only after finish. Each node is emitted at most once, in preorder. Skipped END is rejected under the default full-validation policy. Values must be complete contiguous spans. </dd></dl>
 
 </div>
 </div>
@@ -1454,6 +1828,44 @@ struct_size must cover the prefix through result_kind. Writes are limited to min
 </dl>
 <dl class="section return"><dt>Returns</dt><dd><a class="el" href="group__core.html#gga516c7250563ee9332e2f45f2d203ae61ac763c25dd3e807fae4d8078c3d3e94ed">TLV_OK</a>; <a class="el" href="group__core.html#gga516c7250563ee9332e2f45f2d203ae61aa4a514ccb37d17b2cd7c7da47d2eab88">TLV_ERR_NULL_ARG</a> for NULL; <a class="el" href="group__core.html#gga516c7250563ee9332e2f45f2d203ae61a83b538a74c7058e8863132a6410b9d65">TLV_ERR_INVALID_ARG</a> for used state. </dd></dl>
 <dl class="section note"><dt>Note</dt><dd>The adapter prunes only exhausted forward child plans with no possible descendant match. Descendant plans and selected relative contexts are conservatively drained. Malformed skipped descendants can be concealed; framing errors still propagate. </dd></dl>
+
+</div>
+</div>
+<a id="ga7176a977e31ad123dc26a6a0e1766cdc" name="ga7176a977e31ad123dc26a6a0e1766cdc"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#ga7176a977e31ad123dc26a6a0e1766cdc">&#9670;&#160;</a></span>tlv_query_exec_result()</h2>
+
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname"><a class="el" href="group__core.html#ga164d2817a32e5d7b7aa1472e887b47c3">tlv_result_t</a> tlv_query_exec_result </td>
+          <td>(</td>
+          <td class="paramtype">const <a class="el" href="group__traversal.html#gacff0d3ed0386caf2464d098ae952ebb7">tlv_query_exec_t</a> *&#160;</td>
+          <td class="paramname"><em>exec</em>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype"><a class="el" href="group__traversal.html#ga0da4f42a4d34072621292fbd8f681d77">tlv_query_result_t</a> *&#160;</td>
+          <td class="paramname"><em>result</em>&#160;</td>
+        </tr>
+        <tr>
+          <td></td>
+          <td>)</td>
+          <td></td><td></td>
+        </tr>
+      </table>
+</div><div class="memdoc">
+
+<p>Read a finalized scalar or node result category. </p>
+<dl class="params"><dt>Parameters</dt><dd>
+  <table class="params">
+    <tr><td class="paramdir">[in]</td><td class="paramname">exec</td><td>Successfully finished retained execution. </td></tr>
+    <tr><td class="paramdir">[out]</td><td class="paramname">result</td><td>Tagged output, unchanged before completion/error. </td></tr>
+  </table>
+  </dd>
+</dl>
+<dl class="section return"><dt>Returns</dt><dd>OK or NULL/invalid-state errors. </dd></dl>
 
 </div>
 </div>
@@ -1875,6 +2287,58 @@ struct_size must cover the prefix through result_kind. Writes are limited to min
 
 </div>
 </div>
+<a id="ga256930be8a1d782e7fbb7767b03d5ca5" name="ga256930be8a1d782e7fbb7767b03d5ca5"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#ga256930be8a1d782e7fbb7767b03d5ca5">&#9670;&#160;</a></span>tlv_query_program_explain()</h2>
+
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname"><a class="el" href="group__core.html#ga164d2817a32e5d7b7aa1472e887b47c3">tlv_result_t</a> tlv_query_program_explain </td>
+          <td>(</td>
+          <td class="paramtype">const <a class="el" href="group__traversal.html#ga45bdea1007b9780dba5559a2190f569d">tlv_query_program_t</a> *&#160;</td>
+          <td class="paramname"><em>program</em>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype">char *&#160;</td>
+          <td class="paramname"><em>output</em>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype">size_t&#160;</td>
+          <td class="paramname"><em>capacity</em>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype">size_t *&#160;</td>
+          <td class="paramname"><em>required</em>&#160;</td>
+        </tr>
+        <tr>
+          <td></td>
+          <td>)</td>
+          <td></td><td></td>
+        </tr>
+      </table>
+</div><div class="memdoc">
+
+<p>Format normalized plan details; sizing and atomic short-output handling. </p>
+<dl class="params"><dt>Parameters</dt><dd>
+  <table class="params">
+    <tr><td class="paramdir">[in]</td><td class="paramname">program</td><td>Live program. </td></tr>
+    <tr><td class="paramdir">[out]</td><td class="paramname">output</td><td>Optional destination, NULL with zero capacity for sizing. </td></tr>
+    <tr><td class="paramdir">[in]</td><td class="paramname">capacity</td><td>Output bytes including terminator. </td></tr>
+    <tr><td class="paramdir">[out]</td><td class="paramname">required</td><td>Required bytes including terminator. </td></tr>
+  </table>
+  </dd>
+</dl>
+<dl class="section return"><dt>Returns</dt><dd>OK or pointer/image/capacity errors. </dd></dl>
+
+</div>
+</div>
 <a id="ga2d9b3cb408e4f728d0606013aff07929" name="ga2d9b3cb408e4f728d0606013aff07929"></a>
 <h2 class="memtitle"><span class="permalink"><a href="#ga2d9b3cb408e4f728d0606013aff07929">&#9670;&#160;</a></span>tlv_query_program_format()</h2>
 
@@ -2046,7 +2510,7 @@ struct_size must cover the prefix through result_kind. Writes are limited to min
       </table>
 </div><div class="memdoc">
 
-<p>Run S0 over the canonical Tree Reader, preserving STOP/NEED_MORE_DATA continuation. </p>
+<p>Run compiled Query over the canonical Tree Reader with resumable continuation. </p>
 <dl class="params"><dt>Parameters</dt><dd>
   <table class="params">
     <tr><td class="paramdir">[in,out]</td><td class="paramname">reader</td><td>Required cursor at a tree boundary, then exclusively used here. </td></tr>
@@ -2058,7 +2522,45 @@ struct_size must cover the prefix through result_kind. Writes are limited to min
   </dd>
 </dl>
 <dl class="section return"><dt>Returns</dt><dd><a class="el" href="group__core.html#gga516c7250563ee9332e2f45f2d203ae61ac763c25dd3e807fae4d8078c3d3e94ed">TLV_OK</a> at validated EOF or callback STOP; <a class="el" href="group__core.html#gga516c7250563ee9332e2f45f2d203ae61ad90e4f5b2c36d63f9a93b92f1064a5e6">TLV_NEED_MORE_DATA</a> without partial events; <a class="el" href="group__core.html#gga516c7250563ee9332e2f45f2d203ae61a8698f95616bfbe8d38147acebb9a5f4d">TLV_ERR_VISITOR</a> for callback error; original Reader or Query error otherwise; <a class="el" href="group__core.html#gga516c7250563ee9332e2f45f2d203ae61aa4a514ccb37d17b2cd7c7da47d2eab88">TLV_ERR_NULL_ARG</a> for missing arguments. </dd></dl>
-<dl class="section warning"><dt>Warning</dt><dd>Callback effects are not rolled back. STOP is partial validation; resume to final EOF for full structural coverage. No Schema/DER semantic validation is implied. Replace input only under Reader frontier rules. </dd></dl>
+<dl class="section warning"><dt>Warning</dt><dd>Callback effects are not rolled back. STOP is partial validation; resume to final EOF for full structural coverage. Retained execution validates input before callbacks and retains borrowed spans until reset; its STOP resumes the finalized sequence. No Schema/DER semantic validation is implied. Replace input only under Reader frontier rules. </dd></dl>
+
+</div>
+</div>
+<a id="gaebf39cf5036fd87b161eb0fed7ccbfa3" name="gaebf39cf5036fd87b161eb0fed7ccbfa3"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#gaebf39cf5036fd87b161eb0fed7ccbfa3">&#9670;&#160;</a></span>tlv_query_result_next()</h2>
+
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname"><a class="el" href="group__core.html#ga164d2817a32e5d7b7aa1472e887b47c3">tlv_result_t</a> tlv_query_result_next </td>
+          <td>(</td>
+          <td class="paramtype"><a class="el" href="group__traversal.html#gacff0d3ed0386caf2464d098ae952ebb7">tlv_query_exec_t</a> *&#160;</td>
+          <td class="paramname"><em>exec</em>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype"><a class="el" href="tree_8h.html#a3b1e811784f5c9b0085cb0144a0c57c2">tlv_tree_event_t</a> *&#160;</td>
+          <td class="paramname"><em>event</em>&#160;</td>
+        </tr>
+        <tr>
+          <td></td>
+          <td>)</td>
+          <td></td><td></td>
+        </tr>
+      </table>
+</div><div class="memdoc">
+
+<p>Pull finalized unique node events in document order. </p>
+<dl class="params"><dt>Parameters</dt><dd>
+  <table class="params">
+    <tr><td class="paramdir">[in,out]</td><td class="paramname">exec</td><td>Successfully finished retained node-result execution. </td></tr>
+    <tr><td class="paramdir">[out]</td><td class="paramname">event</td><td>Matching event, unchanged on exhaustion/error. </td></tr>
+  </table>
+  </dd>
+</dl>
+<dl class="section return"><dt>Returns</dt><dd>OK, END_OF_BUFFER, or NULL/invalid-state errors. </dd></dl>
 
 </div>
 </div>

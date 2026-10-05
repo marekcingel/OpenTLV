@@ -2608,6 +2608,17 @@
   
 </li>
       
+        <li class="md-nav__item">
+  <a href="#f2-functions-and-providers" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        F2 functions and providers
+      
+    </span>
+  </a>
+  
+</li>
+      
     </ul>
   
 </nav>
@@ -3380,6 +3391,17 @@
   
 </li>
       
+        <li class="md-nav__item">
+  <a href="#f2-functions-and-providers" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        F2 functions and providers
+      
+    </span>
+  </a>
+  
+</li>
+      
     </ul>
   
 </nav>
@@ -3447,7 +3469,7 @@ an even number of hex digits and may be empty. Keywords are case-sensitive.</p>
 <a id="__codelineno-0-7" name="__codelineno-0-7" href="#__codelineno-0-7"></a><span class="k">intersection </span><span class="o">=</span> <span class="k">path</span><span class="p">,</span> <span class="p">{</span> <span class="p">(</span><span class="s2">"intersect"</span> <span class="p">|</span> <span class="s2">"except"</span><span class="p">),</span> <span class="k">path </span><span class="p">}</span> <span class="p">;</span>
 <a id="__codelineno-0-8" name="__codelineno-0-8" href="#__codelineno-0-8"></a><span class="k">path        </span><span class="o">=</span> <span class="p">[</span> <span class="s2">"/"</span> <span class="p">|</span> <span class="s2">"//"</span> <span class="p">],</span> <span class="k">filtered</span><span class="p">,</span> <span class="p">{</span> <span class="p">(</span><span class="s2">"/"</span> <span class="p">|</span> <span class="s2">"//"</span><span class="p">),</span> <span class="k">filtered </span><span class="p">}</span> <span class="p">;</span>
 <a id="__codelineno-0-9" name="__codelineno-0-9" href="#__codelineno-0-9"></a><span class="k">filtered    </span><span class="o">=</span> <span class="k">primary</span><span class="p">,</span> <span class="p">{</span> <span class="s2">"["</span><span class="p">,</span> <span class="k">expression</span><span class="p">,</span> <span class="s2">"]"</span> <span class="p">}</span> <span class="p">;</span>
-<a id="__codelineno-0-10" name="__codelineno-0-10" href="#__codelineno-0-10"></a><span class="k">primary     </span><span class="o">=</span> <span class="k">step </span><span class="p">|</span> <span class="k">metadata </span><span class="p">|</span> <span class="k">variable </span><span class="p">|</span> <span class="k">integer </span><span class="p">|</span> <span class="k">bytes </span><span class="p">|</span> <span class="k">string</span>
+<a id="__codelineno-0-10" name="__codelineno-0-10" href="#__codelineno-0-10"></a><span class="k">primary     </span><span class="o">=</span> <span class="k">step </span><span class="p">|</span> <span class="k">metadata </span><span class="p">|</span> <span class="k">variable </span><span class="p">|</span> <span class="k">integer </span><span class="p">|</span> <span class="k">bytes </span><span class="p">|</span> <span class="k">string </span><span class="p">|</span> <span class="s2">"true"</span> <span class="p">|</span> <span class="s2">"false"</span>
 <a id="__codelineno-0-11" name="__codelineno-0-11" href="#__codelineno-0-11"></a>            <span class="p">|</span> <span class="k">call </span><span class="p">|</span> <span class="s2">"("</span><span class="p">,</span> <span class="k">expression</span><span class="p">,</span> <span class="s2">")"</span> <span class="p">;</span>
 <a id="__codelineno-0-12" name="__codelineno-0-12" href="#__codelineno-0-12"></a><span class="k">step        </span><span class="o">=</span> <span class="p">[</span> <span class="k">axis</span><span class="p">,</span> <span class="s2">"::"</span> <span class="p">],</span> <span class="k">test </span><span class="p">|</span> <span class="s2">"."</span> <span class="p">|</span> <span class="s2">".."</span> <span class="p">;</span>
 <a id="__codelineno-0-13" name="__codelineno-0-13" href="#__codelineno-0-13"></a><span class="k">axis        </span><span class="o">=</span> <span class="s2">"child"</span> <span class="p">|</span> <span class="s2">"descendant"</span> <span class="p">|</span> <span class="s2">"descendant-or-self"</span> <span class="p">|</span> <span class="s2">"self"</span>
@@ -3479,7 +3501,7 @@ An explicit axis such as <code>[child::50]</code> always denotes a raw tag test,
 when whitespace follows <code>::</code>; it never becomes a positional or scalar literal.
 Bare even hex-looking identifiers such as <code>CAFE</code> are raw tags; names use a
 namespace, including <code>emv:CAFE</code>. For symbols outside identifier syntax, the
-planned <code>name(namespace, symbol)</code> function supplies string arguments. Odd raw
+<code>name(namespace, symbol)</code> function supplies string arguments. Odd raw
 hexadecimal spellings such as <code>BAD</code> cannot silently become a truncated tag.</p>
 <h2 id="node-model-order-and-context">Node model, order and context<a class="headerlink" href="#node-model-order-and-context" title="Permanent link">&para;</a></h2>
 <p><strong>Q-NODE-01.</strong> The virtual document root owns the ordered root sequence. It is
@@ -3504,12 +3526,13 @@ predicates use a one-based position; reverse-axis positional context uses axis
 order before the final result is normalized to document order. Consequently
 <code>//5A[1]</code> selects first matching children in their respective contexts whereas
 <code>(//5A)[1]</code> selects the first node in the complete descendant selection.</p>
-<p><strong>Q-CONTEXT-02.</strong> F1 supports ancestor tests inside predicates as evidence
-about the current node, never as ancestor projection. Node-returning ancestor
-or parent axes require a later plan. Ancestor predicates with their own filters
-and absolute paths nested inside a relative path are rejected in F1.
-Execution starts at the whole root sequence and can select a relative context
-by preorder identity; it does not reinterpret an interior Reader cursor as a root.</p>
+<p><strong>Q-CONTEXT-02.</strong> S0 supports ancestor tests inside predicates as evidence.
+Retained F2 also evaluates filtered ancestor sequences, using nearest-ancestor
+position first and normalizing published results to document order. Parent,
+sibling and global reverse axes and nested absolute paths remain explicit F3
+capabilities. Execution starts at the whole root sequence and can select a
+relative context by preorder identity; it does not reinterpret an interior
+Reader cursor as a root.</p>
 <h2 id="values-functions-and-unavailable-metadata">Values, functions and unavailable metadata<a class="headerlink" href="#values-functions-and-unavailable-metadata" title="Permanent link">&para;</a></h2>
 <p><strong>Q-VALUE-01.</strong> Full-language result categories are ordered node sequences,
 booleans, signed 64-bit integers, bytes and UTF-8 strings. Date conversion
@@ -3522,8 +3545,11 @@ accept node sequences without that restriction.</p>
 and ordering compare bytes. <code>starts-with</code>, <code>ends-with</code>, <code>contains</code> and <code>substr</code>
 operate on bytes; <code>substr</code> uses zero-based start and optional byte count,
 clamping the requested span to the available bytes. Empty patterns match.
-F1 <code>contains</code> accepts a compiled byte-literal pattern and uses caller-owned
-prefix workspace. Runtime variable pattern sizing belongs to F2. No operation
+<code>contains</code> accepts literal, variable and expression patterns and uses caller-owned
+prefix workspace. Patterns are bounded by compile option <code>max_pattern</code> (literal overflow is rejected
+at compilation, runtime overflow at evaluation);
+program info reports the prefix capacity in <code>pattern_bytes</code>. A pattern exceeding
+that capacity reports a pattern limit, including when it exceeds the haystack. No operation
 extends a borrowed Value's lifetime.</p>
 <p><strong>Q-VALUE-03.</strong> <code>@len</code> is logical Value bytes; <code>@depth</code> is zero for roots;
 <code>@index</code> is the zero-based sibling ordinal including nonmatching nodes.
@@ -3537,11 +3563,11 @@ Source-less custom events and newly edited Document nodes must not fabricate it.
 <code>name</code>, <code>tag-range</code>, and <code>tag-mask</code>. Arity and operand types are checked before
 input consumption for implemented functions. Unknown functions are unsupported
 capabilities, not arbitrary executable hooks. Conversion/Format capabilities
-use the explicit future execution environment, not protocol knowledge in Query.</p>
-<p><strong>Q-FUNCTION-02.</strong> F1 implements node results, metadata comparisons, eager
-boolean composition, byte functions, and tag tests. Both operands of <code>and</code> and
-<code>or</code> are evaluated, so neither suppresses Source/type/resource errors. Full
-typed conversions and general scalar results remain later-phase capabilities.
+use the explicit execution environment, not protocol knowledge in Query.</p>
+<p><strong>Q-FUNCTION-02.</strong> F2 implements all five result categories, the closed function
+inventory, metadata comparisons, eager boolean composition and tag tests. Both operands of <code>and</code> and
+<code>or</code> are evaluated, so neither suppresses Source/type/resource errors. Typed
+conversions decode complete Values through the compatible execution environment.
 S0 union, intersection and difference combine decisions for the same published
 node identity, preserving source order and eliminating duplicate matches without
 retaining a node set. An operand requiring deferred evidence still makes the
@@ -3570,7 +3596,8 @@ from bytes. Values are borrowed unchanged through execution, including suspensio
 callers needing a copy provide their own stable storage. Reinitialization clears
 bindings. Rebinding after an event, including STOP/NEED_MORE_DATA suspension,
 is rejected. Independent executions can bind different values to one program.
-Runtime-pattern <code>contains</code> and string literals remain unavailable in this slice.</p>
+Runtime-pattern <code>contains</code> uses the explicit compiled capacity; string literals
+are copied into immutable program storage.</p>
 <h2 id="storage-and-execution">Storage and execution<a class="headerlink" href="#storage-and-execution" title="Permanent link">&para;</a></h2>
 <p><strong>Q-STORAGE-01.</strong> Compiler scratch, program and execution workspace have
 independent size/alignment discovery. Compilation performs no internal heap
@@ -3586,15 +3613,20 @@ readable compiler-produced allocation and cannot validate arbitrary external byt
 The program must remain unchanged throughout execution; feed does not revalidate it.</p>
 <p><strong>Q-STORAGE-02.</strong> Compile-time name resolution and execution-time hooks have
 different lifetimes. Copying the program cannot make external callbacks or
-Format contexts self-contained. The F1 API rejects symbolic/hook capabilities;
-their explicit environment is introduced by F2. Repeating sizing/compile with
+Format contexts self-contained. F2 copies resolved tag bytes into the program;
+resolver/Definition storage is needed only while compiling. Providers, their
+contexts and the Format remain borrowed throughout execution and suspension. Repeating sizing/compile with
 the same bounded text/options yields identical requirements and output.</p>
 <p><strong>Q-PLAN-01.</strong> Execution levels apply to whole expressions: S0 decides at
 complete node publication; S1 retains bounded depth summaries for scope evidence;
 S2 requires explicit candidate capacity; D performs Document navigation with
 work bounds. Ordered unions involving undecided ancestors can force S2/D even
 if their individual branches appear S1. <code>//70[not(5A)] | //9F02</code> cannot promise
-an unbuffered S1 ordered output. F1 rejects non-S0 capabilities before traversal.</p>
+an unbuffered S1 ordered output. Use <code>tlv_query_exec_size/init</code> for S0 and <code>tlv_query_eval_size/init</code> for arbitrary
+F2 expressions. The latter is a conservative D plan over explicitly retained
+canonical events: it consumes the full input before exposing finalized results.
+It does not construct a Document or reparse wire bytes. S1/S2 streaming summary
+engines and F3 reverse/sibling/global axes remain separate capabilities.</p>
 <p><strong>Q-LIMIT-01.</strong> Defaults bound text, tokens, syntactic nesting and states.
 Runtime depth, element count and work are caller parameters. Exact total runtime
 storage depends on both the program and depth capacity, not Query text alone.
@@ -3609,8 +3641,9 @@ construct a Document.</p>
 <p><strong>Q-EVENT-02.</strong> NEED_MORE_DATA publishes no partial event. Callback STOP consumes
 the matching event exactly once; retaining execution and Reader permits resume.
 Replacement input obeys the Reader frontier and unfinished-extent retention
-rules. Execution retains only boolean state and sibling indices, not borrowed
-Element/Source/Value pointers. A non-resumable error invalidates execution until
+rules. S0 retains boolean state and sibling indices. Retained evaluation also stores
+borrowed Element/Source/Value pointers until reset; every published input span
+must remain immutable and alive, even after the Reader frontier moves. A non-resumable error invalidates execution until
 reset; parse/compile failures preserve existing outputs as documented in headers.</p>
 <p><strong>Q-VALIDATE-01.</strong> Default success at EOF means full structural traversal of
 the requested input extent. An explicit callback STOP is partial coverage until
@@ -3643,8 +3676,129 @@ an old ABI. Diagnostic, variable declaration and variable requirement structures
 are fixed-layout value types; layout changes require an ABI change. Opaque program
 and execution objects continue to use independent size/alignment discovery.
 <code>expression_values</code> is the conservative intermediate-slot count and <code>instructions</code>
-is the maximum number of expression-node evaluations per published node; byte
+is the immutable expression instruction count; retained execution can revisit
+instructions for distinct contexts and charges each evaluation to its work limit; byte
 scanning and callback costs are separate. <code>variable_slots</code> counts unique bindings.</p>
+<h2 id="f2-functions-and-providers">F2 functions and providers<a class="headerlink" href="#f2-functions-and-providers" title="Permanent link">&para;</a></h2>
+<p>The following signatures are closed and checked at compilation. <code>nodes</code> denotes
+an ordered node sequence and <code>bytes</code> and <code>string</code> remain distinct types.</p>
+<table>
+<thead>
+<tr>
+<th>Function</th>
+<th>Result and operands</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>count(nodes)</code>, <code>exists(nodes)</code>, <code>empty(nodes)</code></td>
+<td>Integer, boolean, boolean; no cardinality restriction</td>
+</tr>
+<tr>
+<td><code>not(boolean-or-nodes)</code></td>
+<td>Boolean; node truth is nonempty</td>
+</tr>
+<tr>
+<td><code>position()</code>, <code>last()</code></td>
+<td>One-based position and size of the current predicate sequence</td>
+</tr>
+<tr>
+<td><code>value()</code> / <code>value(nodes)</code></td>
+<td>Complete borrowed Value bytes; exactly one real node</td>
+</tr>
+<tr>
+<td><code>len()</code> / <code>len(bytes-or-string)</code></td>
+<td>Candidate Value length / byte length</td>
+</tr>
+<tr>
+<td><code>starts-with(bytes, bytes)</code>, <code>ends-with(bytes, bytes)</code>, <code>contains(bytes, bytes)</code></td>
+<td>Boolean; byte matching, including NUL</td>
+</tr>
+<tr>
+<td><code>substr(bytes, integer[, integer])</code></td>
+<td>Borrowed byte subspan; zero-based start</td>
+</tr>
+<tr>
+<td><code>num(bytes-or-nodes)</code>, <code>bcd(bytes-or-nodes)</code>, <code>date(bytes-or-nodes)</code></td>
+<td>Signed int64; node arguments require exactly one node</td>
+</tr>
+<tr>
+<td><code>text(bytes-or-nodes)</code></td>
+<td>Validated UTF-8 string; exactly one node for node arguments</td>
+</tr>
+<tr>
+<td><code>tag()</code> / <code>tag(nodes)</code></td>
+<td>Raw canonical identifier bytes</td>
+</tr>
+<tr>
+<td><code>class()</code> / <code>class(nodes)</code>, <code>number()</code> / <code>number(nodes)</code></td>
+<td>Provider-defined semantic tag components as int64</td>
+</tr>
+<tr>
+<td><code>constructed()</code> / <code>constructed(nodes)</code></td>
+<td>Format-defined constructed status</td>
+</tr>
+<tr>
+<td><code>name(string, string)</code></td>
+<td>Compile-time namespace/symbol selection with copied tag bytes</td>
+</tr>
+<tr>
+<td><code>tag-mask(bytes, bytes)</code>, <code>tag-range(bytes, bytes)</code></td>
+<td>Node tests; masks have equal widths and range endpoints are ordered</td>
+</tr>
+</tbody>
+</table>
+<p>Each chained predicate receives the sequence surviving its preceding predicate.
+<code>//5A[2]</code> selects the second matching child at each descendant context;
+<code>(//5A)[2]</code> selects the second node of the combined ordered result.
+An integer predicate compares its value to the current one-based position.
+Union/intersection/difference use node identity and emit each selected node once
+in document order, including branches needing descendant or positional evidence.
+No scalar is available until balanced EOF and successful evaluation. Retrieve it
+with <code>tlv_query_exec_result</code>; pull node events with <code>tlv_query_result_next</code> or use
+the resumable visitor. A retained visitor STOP occurs after full input validation
+and resumes after the consumed selected node.</p>
+<p><code>tlv_query_definition_resolve</code> searches explicit Definition namespaces by exact
+label and rejects unknown or ambiguous symbols. Definitions do not choose codecs.
+<code>tlv_emv_query_resolve</code> uses native EMV Schema symbols, namespace <code>emv</code>, and the
+explicit <code>PAN</code> alias for <code>pan</code>. Bare hex-looking symbols require a namespace or
+<code>name('emv', 'symbol')</code> to distinguish them from raw tags. Compiled programs contain
+no resolver pointers and need no execution-time dictionary lookup.</p>
+<p>Compile options reference a <code>tlv_query_environment_t</code> for conversion capability
+selection. The program stores stable nonzero IDs and per-call scratch requirements;
+execution initialization checks IDs, function/result roles, scratch bounds and tag
+capabilities before consuming input. The visitor also requires the same Format
+object as the environment. All borrowed providers and contexts must be immutable
+and safe for concurrent independent executions. Caller workspaces supply aligned
+codec scratch (up to 16-byte alignment), with a separate region for each conversion
+instruction so sibling expression results remain valid. Callbacks perform no
+implicit Query allocation; their own costs and allocation policy are external to
+the VM work guarantee and must be bounded by the application.</p>
+<p><code>tlv_query_builtin_hooks</code> adapts existing codecs: minimal signed big-endian NUM,
+unsigned packed BCD of at most 18 digits, and UTF-8 TEXT. Domain adapters may replace
+these explicit choices with other existing codecs and distinct capability IDs.
+<code>tlv_asn1_query_tags</code> supplies BER/ASN.1 class and number; raw <code>tag()</code> always keeps
+canonical identifier identity. Flat formats need an explicit semantic provider for
+class/number. <code>constructed()</code> independently delegates to Format.
+<code>tlv_asn1_query_date</code> accepts complete nonfractional UTC GeneralizedTime, validates
+the Gregorian calendar and returns signed Unix seconds; unsupported precision or
+timezone forms fail rather than silently losing information. Date values outside
+1970 are valid when representable. Codec failures preserve their original status
+in <code>diagnostic.codec</code> together with the Query span and sourced node offset.</p>
+<p>Retained workspace is O(instructions ? (depth + node capacity)) plus retained
+events, explicit pattern workspace, evaluation frames and per-instruction codec
+scratch. Evaluation is iterative with validated backward child references, bounded
+frames and no recursive C evaluation. Every frame dispatch, membership scan,
+retention search and byte operation consumes the configured work budget. Exhausted
+node/depth/work/pattern budgets fail; there is no hidden allocation or fallback.</p>
+<p><code>optimize=0</code> disables conservative rewrites. The enabled optimizer folds pure
+constant comparisons/boolean pairs, simplifies terminal self steps and shares
+identical guarded S0 tag selectors. It never folds a codec, drops a fallible
+operand, or reorders eager boolean evaluation. <code>tlv_query_program_explain</code> reports
+instruction kinds, types, whole-plan level, reused selectors and capability IDs;
+program info reports optimized states and expression stack capacity. The independent
+corpus compares optimized/unoptimized S0 and retained execution. These rewrites do
+not imply global index planning or a universal linear-time execution guarantee.</p>
 
 
 

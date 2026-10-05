@@ -106,10 +106,48 @@ Data Fields</h2></td></tr>
 <tr class="separator:a6c3d181c33692fdf24a0f5e4029482a7"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:a69e7f90de070c0d7ed27dc0784016f74" id="r_a69e7f90de070c0d7ed27dc0784016f74"><td class="memItemLeft" align="right" valign="top">size_t&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="structtlv__query__program__info.html#a69e7f90de070c0d7ed27dc0784016f74">variable_slots</a></td></tr>
 <tr class="separator:a69e7f90de070c0d7ed27dc0784016f74"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a52176433dad677ef247f01a914976b44" id="r_a52176433dad677ef247f01a914976b44"><td class="memItemLeft" align="right" valign="top">size_t&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="structtlv__query__program__info.html#a52176433dad677ef247f01a914976b44">codec_scratch</a></td></tr>
+<tr class="separator:a52176433dad677ef247f01a914976b44"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a63fc581738d6755f06410942bf44658b" id="r_a63fc581738d6755f06410942bf44658b"><td class="memItemLeft" align="right" valign="top">size_t&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="structtlv__query__program__info.html#a63fc581738d6755f06410942bf44658b">pattern_bytes</a></td></tr>
+<tr class="separator:a63fc581738d6755f06410942bf44658b"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a933c5b4451e5d6d643657c4c1f651220" id="r_a933c5b4451e5d6d643657c4c1f651220"><td class="memItemLeft" align="right" valign="top">size_t&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="structtlv__query__program__info.html#a933c5b4451e5d6d643657c4c1f651220">optimized_states</a></td></tr>
+<tr class="separator:a933c5b4451e5d6d643657c4c1f651220"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:afc9068036d49ecec5c6e47ec5c435815" id="r_afc9068036d49ecec5c6e47ec5c435815"><td class="memItemLeft" align="right" valign="top">size_t&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="structtlv__query__program__info.html#afc9068036d49ecec5c6e47ec5c435815">expression_stack</a></td></tr>
+<tr class="separator:afc9068036d49ecec5c6e47ec5c435815"><td class="memSeparator" colspan="2">&#160;</td></tr>
 </table>
 <a name="details" id="details"></a><h2 class="groupheader">Detailed Description</h2>
 <div class="textblock"><p>Program requirements and whole-plan information. </p>
 </div><h2 class="groupheader">Field Documentation</h2>
+<a id="a52176433dad677ef247f01a914976b44" name="a52176433dad677ef247f01a914976b44"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#a52176433dad677ef247f01a914976b44">&#9670;&#160;</a></span>codec_scratch</h2>
+
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname">size_t tlv_query_program_info::codec_scratch</td>
+        </tr>
+      </table>
+</div><div class="memdoc">
+<p>Aligned scratch stride per conversion frame. </p>
+
+</div>
+</div>
+<a id="afc9068036d49ecec5c6e47ec5c435815" name="afc9068036d49ecec5c6e47ec5c435815"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#afc9068036d49ecec5c6e47ec5c435815">&#9670;&#160;</a></span>expression_stack</h2>
+
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname">size_t tlv_query_program_info::expression_stack</td>
+        </tr>
+      </table>
+</div><div class="memdoc">
+<p>Maximum iterative retained-evaluator frame count. </p>
+
+</div>
+</div>
 <a id="a35e35b390915f3ef6d75dd7ad2344b04" name="a35e35b390915f3ef6d75dd7ad2344b04"></a>
 <h2 class="memtitle"><span class="permalink"><a href="#a35e35b390915f3ef6d75dd7ad2344b04">&#9670;&#160;</a></span>expression_values</h2>
 
@@ -136,7 +174,7 @@ Data Fields</h2></td></tr>
         </tr>
       </table>
 </div><div class="memdoc">
-<p>Maximum expression instructions per published node. </p>
+<p>Immutable expression instruction count. </p>
 
 </div>
 </div>
@@ -167,6 +205,36 @@ Data Fields</h2></td></tr>
       </table>
 </div><div class="memdoc">
 <p>Lowest conservatively proven execution level. </p>
+
+</div>
+</div>
+<a id="a933c5b4451e5d6d643657c4c1f651220" name="a933c5b4451e5d6d643657c4c1f651220"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#a933c5b4451e5d6d643657c4c1f651220">&#9670;&#160;</a></span>optimized_states</h2>
+
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname">size_t tlv_query_program_info::optimized_states</td>
+        </tr>
+      </table>
+</div><div class="memdoc">
+<p>Folded/shared states. </p>
+
+</div>
+</div>
+<a id="a63fc581738d6755f06410942bf44658b" name="a63fc581738d6755f06410942bf44658b"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#a63fc581738d6755f06410942bf44658b">&#9670;&#160;</a></span>pattern_bytes</h2>
+
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname">size_t tlv_query_program_info::pattern_bytes</td>
+        </tr>
+      </table>
+</div><div class="memdoc">
+<p>Runtime pattern capacity. </p>
 
 </div>
 </div>
@@ -211,7 +279,7 @@ Data Fields</h2></td></tr>
         </tr>
       </table>
 </div><div class="memdoc">
-<p>Result category; F1 executes node results. </p>
+<p>Finalized result category. </p>
 
 </div>
 </div>

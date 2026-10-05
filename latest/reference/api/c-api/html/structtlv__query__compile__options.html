@@ -98,10 +98,37 @@ Data Fields</h2></td></tr>
 <tr class="separator:a1268b467e015a1d4e18ecd88a3b02628"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:a2295d5954a48dd12db2b04a631c7a1bc" id="r_a2295d5954a48dd12db2b04a631c7a1bc"><td class="memItemLeft" align="right" valign="top">size_t&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="structtlv__query__compile__options.html#a2295d5954a48dd12db2b04a631c7a1bc">variable_count</a></td></tr>
 <tr class="separator:a2295d5954a48dd12db2b04a631c7a1bc"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:acddcd9d11010233a8f66d91ac683fe42" id="r_acddcd9d11010233a8f66d91ac683fe42"><td class="memItemLeft" align="right" valign="top"><a class="el" href="group__traversal.html#gaf02b0761e6c077fd46d523305f568a0d">tlv_query_resolve_t</a>&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="structtlv__query__compile__options.html#acddcd9d11010233a8f66d91ac683fe42">resolve</a></td></tr>
+<tr class="separator:acddcd9d11010233a8f66d91ac683fe42"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a4e955b275b0c490187be15610cbc4c19" id="r_a4e955b275b0c490187be15610cbc4c19"><td class="memItemLeft" align="right" valign="top">const void *&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="structtlv__query__compile__options.html#a4e955b275b0c490187be15610cbc4c19">resolve_context</a></td></tr>
+<tr class="separator:a4e955b275b0c490187be15610cbc4c19"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:adb393a4a7cca26a6157e8e1ffb8397a6" id="r_adb393a4a7cca26a6157e8e1ffb8397a6"><td class="memItemLeft" align="right" valign="top">const <a class="el" href="group__traversal.html#gaf2f1c0d8fe278eb32c61e19e7b108a48">tlv_query_environment_t</a> *&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="structtlv__query__compile__options.html#adb393a4a7cca26a6157e8e1ffb8397a6">environment</a></td></tr>
+<tr class="separator:adb393a4a7cca26a6157e8e1ffb8397a6"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a46774ef24374f49c0f7ba52bd7a273dd" id="r_a46774ef24374f49c0f7ba52bd7a273dd"><td class="memItemLeft" align="right" valign="top">size_t&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="structtlv__query__compile__options.html#a46774ef24374f49c0f7ba52bd7a273dd">max_resolved_tag</a></td></tr>
+<tr class="separator:a46774ef24374f49c0f7ba52bd7a273dd"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a557399fb0081c5962ec640ae7ac31a2b" id="r_a557399fb0081c5962ec640ae7ac31a2b"><td class="memItemLeft" align="right" valign="top">size_t&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="structtlv__query__compile__options.html#a557399fb0081c5962ec640ae7ac31a2b">max_pattern</a></td></tr>
+<tr class="separator:a557399fb0081c5962ec640ae7ac31a2b"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a7f4f4e9b92b94c38222b1daa96ffbb15" id="r_a7f4f4e9b92b94c38222b1daa96ffbb15"><td class="memItemLeft" align="right" valign="top">int&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="structtlv__query__compile__options.html#a7f4f4e9b92b94c38222b1daa96ffbb15">optimize</a></td></tr>
+<tr class="separator:a7f4f4e9b92b94c38222b1daa96ffbb15"><td class="memSeparator" colspan="2">&#160;</td></tr>
 </table>
 <a name="details" id="details"></a><h2 class="groupheader">Detailed Description</h2>
 <div class="textblock"><p>Versioned compile options; initialize using <a class="el" href="group__traversal.html#gac354f007ea0036e5389dbd395283efe2" title="Initialize safe compile defaults; NULL is a no-op.">tlv_query_compile_options_init()</a>. </p>
 </div><h2 class="groupheader">Field Documentation</h2>
+<a id="adb393a4a7cca26a6157e8e1ffb8397a6" name="adb393a4a7cca26a6157e8e1ffb8397a6"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#adb393a4a7cca26a6157e8e1ffb8397a6">&#9670;&#160;</a></span>environment</h2>
+
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname">const <a class="el" href="group__traversal.html#gaf2f1c0d8fe278eb32c61e19e7b108a48">tlv_query_environment_t</a>* tlv_query_compile_options::environment</td>
+        </tr>
+      </table>
+</div><div class="memdoc">
+<p>Compile-time capability environment. </p>
+
+</div>
+</div>
 <a id="ac3733bd84a4865b0cabf2e1f54722282" name="ac3733bd84a4865b0cabf2e1f54722282"></a>
 <h2 class="memtitle"><span class="permalink"><a href="#ac3733bd84a4865b0cabf2e1f54722282">&#9670;&#160;</a></span>language_version</h2>
 
@@ -129,6 +156,36 @@ Data Fields</h2></td></tr>
       </table>
 </div><div class="memdoc">
 <p>Maximum open parentheses/predicates. </p>
+
+</div>
+</div>
+<a id="a557399fb0081c5962ec640ae7ac31a2b" name="a557399fb0081c5962ec640ae7ac31a2b"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#a557399fb0081c5962ec640ae7ac31a2b">&#9670;&#160;</a></span>max_pattern</h2>
+
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname">size_t tlv_query_compile_options::max_pattern</td>
+        </tr>
+      </table>
+</div><div class="memdoc">
+<p>Runtime KMP pattern capacity in explicit workspace. </p>
+
+</div>
+</div>
+<a id="a46774ef24374f49c0f7ba52bd7a273dd" name="a46774ef24374f49c0f7ba52bd7a273dd"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#a46774ef24374f49c0f7ba52bd7a273dd">&#9670;&#160;</a></span>max_resolved_tag</h2>
+
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname">size_t tlv_query_compile_options::max_resolved_tag</td>
+        </tr>
+      </table>
+</div><div class="memdoc">
+<p>Copied tag byte bound per symbolic test. </p>
 
 </div>
 </div>
@@ -174,6 +231,51 @@ Data Fields</h2></td></tr>
       </table>
 </div><div class="memdoc">
 <p>Maximum lexical tokens. </p>
+
+</div>
+</div>
+<a id="a7f4f4e9b92b94c38222b1daa96ffbb15" name="a7f4f4e9b92b94c38222b1daa96ffbb15"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#a7f4f4e9b92b94c38222b1daa96ffbb15">&#9670;&#160;</a></span>optimize</h2>
+
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname">int tlv_query_compile_options::optimize</td>
+        </tr>
+      </table>
+</div><div class="memdoc">
+<p>Enable bounded constant folding and compatible test sharing. </p>
+
+</div>
+</div>
+<a id="acddcd9d11010233a8f66d91ac683fe42" name="acddcd9d11010233a8f66d91ac683fe42"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#acddcd9d11010233a8f66d91ac683fe42">&#9670;&#160;</a></span>resolve</h2>
+
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname"><a class="el" href="group__traversal.html#gaf02b0761e6c077fd46d523305f568a0d">tlv_query_resolve_t</a> tlv_query_compile_options::resolve</td>
+        </tr>
+      </table>
+</div><div class="memdoc">
+<p>Optional scoped name resolver. </p>
+
+</div>
+</div>
+<a id="a4e955b275b0c490187be15610cbc4c19" name="a4e955b275b0c490187be15610cbc4c19"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#a4e955b275b0c490187be15610cbc4c19">&#9670;&#160;</a></span>resolve_context</h2>
+
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname">const void* tlv_query_compile_options::resolve_context</td>
+        </tr>
+      </table>
+</div><div class="memdoc">
+<p>Borrowed only during compilation. </p>
 
 </div>
 </div>
