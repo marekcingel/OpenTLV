@@ -302,7 +302,7 @@ public:
                                      : tlv_query_exec_init(program.c_program(), storage, capacity,
                                                            depth, nodes, work, &result.exec_));
         if (rc != TLV_OK) return unexpected<query_failure>(detail::query_failed(rc));
-        return std::move(result);
+        return result;
     }
     /** @brief Bind a declared integer variable before execution. */
     expected<void, query_failure> bind(const char* name, int64_t value) {
