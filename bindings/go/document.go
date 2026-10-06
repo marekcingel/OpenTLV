@@ -14,10 +14,11 @@ import (
 // Nodes, including unaffected siblings; reacquire them through Elements.
 type Document struct{ *documentState }
 type documentState struct {
-	native     *capi.Document
-	format     Format
-	source     []byte
-	generation uint64
+	native      *capi.Document
+	format      Format
+	source      []byte
+	generation  uint64
+	queryActive int
 }
 
 // DocumentOptions bounds native parsing and subsequent edits. Zero limits are
@@ -50,6 +51,9 @@ func parseDocument(data []byte, format Format, options DocumentOptions, defaults
 // Close deterministically releases native storage. It is idempotent and nil-safe;
 // node content snapshots already returned remain valid.
 func (d *Document) Close() error {
+	if d.valid() && d.queryActive > 0 {
+		return StatusError{code: capi.InvalidArg}
+	}
 	if d.valid() {
 		d.native.Close()
 		d.native = nil
@@ -89,6 +93,14 @@ type Node struct {
 // Valid reports whether this node can still be accessed.
 func (n Node) Valid() bool {
 	return n.owner.valid() && n.generation == n.owner.generation && n.native.Valid()
+}
+
+// Identity returns the canonical C node identity while this checked handle is valid.
+func (n Node) Identity() (uint64, error) {
+	if !n.Valid() {
+		return 0, StatusError{code: capi.InvalidArg}
+	}
+	return n.native.Identity(), nil
 }
 func (d *Document) wrap(n capi.Node) Node { return Node{d, n, d.generation} }
 func (d *Document) siblings(first capi.Node) []Node {
@@ -161,7 +173,7 @@ func (d *Document) changed() { d.generation++; d.source = nil }
 // SetValue replaces primitive bytes or parses replacement children for a
 // constructed node. Failure leaves the tree and all handles unchanged.
 func (n Node) SetValue(value []byte) error {
-	if !n.Valid() {
+	if !n.Valid() || n.owner.queryActive > 0 {
 		return StatusError{code: capi.InvalidArg}
 	}
 	_, code := n.owner.native.Edit(n.native, capi.Node{}, nil, value, 0)
@@ -174,7 +186,7 @@ func (n Node) SetValue(value []byte) error {
 
 // Erase removes this node and descendants and invalidates all node handles.
 func (n Node) Erase() error {
-	if !n.Valid() {
+	if !n.Valid() || n.owner.queryActive > 0 {
 		return StatusError{code: capi.InvalidArg}
 	}
 	_, code := n.owner.native.Edit(n.native, capi.Node{}, nil, nil, 1)
@@ -189,7 +201,7 @@ func (n Node) Erase() error {
 // zero. A zero parent selects roots. Foreign or stale nodes are rejected.
 // Success invalidates existing handles and returns a fresh handle to the new node.
 func (d *Document) Insert(parent, before Node, element Element) (Node, error) {
-	if !d.valid() {
+	if !d.valid() || d.queryActive > 0 {
 		return Node{}, StatusError{code: capi.InvalidArg}
 	}
 	for _, n := range []Node{parent, before} {

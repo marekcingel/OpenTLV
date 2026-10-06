@@ -45,6 +45,8 @@ def parse(text):
             left = ("bool", token == "true")
         elif token.startswith("@"):
             left = ("meta", token[1:])
+        elif token.startswith("$"):
+            left = ("variable", token[1:])
         elif index < len(tokens) and tokens[index] == "(":
             index += 1
             args = []
@@ -131,6 +133,8 @@ def raw_test(spelling, node):
 
 def evaluate(ast, context, universe, position=1, last=1):
     op = ast[0]
+    if op == "scalar":
+        return ast[1]
     if op == "group":
         value = evaluate(ast[1], context, universe, position, last)
         return sorted(value, key=lambda n: n["offset"]) if isinstance(value, list) else value
@@ -307,9 +311,19 @@ def evaluate(ast, context, universe, position=1, last=1):
     raise ValueError("unsupported expression")
 
 
-def select(query, wire):
+def select(query, wire, variables=None):
     root, nodes = tree(wire)
-    value = evaluate(parse(query), root, nodes)
+    def bind(value):
+        if isinstance(value, tuple):
+            if value[0] == "variable":
+                declaration = variables[value[1]]
+                data = declaration["value"]
+                return ("scalar", bytes.fromhex(data) if declaration["type"] == "bytes" else data)
+            return tuple(bind(item) for item in value)
+        if isinstance(value, list):
+            return [bind(item) for item in value]
+        return value
+    value = evaluate(bind(parse(query)), root, nodes)
     if isinstance(value, list):
         return sorted({node["offset"] for node in value if node["parent"] is not None})
     if isinstance(value, bool):

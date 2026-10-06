@@ -38,6 +38,8 @@ add_library(opentlv_lua MODULE
     src/reader.h
     src/query.c
     src/query.h
+    src/program.c
+    src/program.h
     src/document.h
     src/schema.c
     src/schema.h

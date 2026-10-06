@@ -6,9 +6,13 @@
 #include "commands/support.hpp"
 #include "diagnostics.hpp"
 #include "tlv++/query/program.hpp"
+#include "tlv++/native.hpp"
 #include <cstring>
 #include <limits>
 #include "tlv/query/adapters.h"
+#if OPENTLV_FORMAT_BER
+#include "tlv/builtins/asn1/query.h"
+#endif
 #if OPENTLV_EMV
 #include "tlv/builtins/emv/query.h"
 #endif
@@ -125,7 +129,18 @@ int query_command::run() {
     tlv_query_compile_options_t compile_options;
     tlv_query_compile_options_init(&compile_options);
     tlv_query_environment_t environment{};
-    environment.hooks = tlv_query_builtin_hooks(&environment.hook_count);
+    environment.format = &tlv::native::descriptor(*selected_format);
+    const auto*      builtin_hooks = tlv_query_builtin_hooks(&environment.hook_count);
+    tlv_query_hook_t hooks[4];
+    std::memcpy(hooks, builtin_hooks, environment.hook_count * sizeof *hooks);
+#if OPENTLV_FORMAT_BER
+    if (!std::strcmp(options_.format, "ber") || !std::strcmp(options_.format, "der") ||
+        !std::strcmp(options_.format, "cer")) {
+        environment.tags = &tlv_asn1_query_tags;
+        hooks[environment.hook_count++] = tlv_asn1_query_date;
+    }
+#endif
+    environment.hooks = hooks;
     compile_options.environment = &environment;
 #if OPENTLV_EMV
     if (!strcmp(options_.format, "emv")) compile_options.resolve = tlv_emv_query_resolve;

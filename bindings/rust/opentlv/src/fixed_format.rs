@@ -4,6 +4,7 @@
 //! Runtime-configurable fixed-width TLV format.
 
 use std::mem::MaybeUninit;
+use std::sync::Arc;
 
 use opentlv_sys as native;
 
@@ -16,6 +17,22 @@ pub enum ByteOrder {
     Big,
     /// Least significant byte first.
     Little,
+}
+/// Wire ordering of configurable Fixed fields.
+#[derive(Clone, Copy, Debug, PartialEq, Eq)]
+pub enum ElementOrder {
+    /// Tag, Length, Value.
+    Tlv,
+    /// Length, Tag, Value.
+    Ltv,
+}
+/// Logical content counted by the Fixed length field.
+#[derive(Clone, Copy, Debug, PartialEq, Eq)]
+pub enum LengthScope {
+    /// Value bytes only.
+    Value,
+    /// Tag and Value bytes together.
+    TagAndValue,
 }
 
 impl From<ByteOrder> for native::tlv_byte_order_t {
@@ -43,6 +60,22 @@ pub struct FixedFormatConfig {
 }
 
 impl FixedFormatConfig {
+    /// Select field order, leaving width and byte-order settings unchanged.
+    pub fn with_order(mut self, order: ElementOrder) -> Self {
+        self.inner.element_order = match order {
+            ElementOrder::Tlv => native::TLV_ELEMENT_ORDER_TLV,
+            ElementOrder::Ltv => native::TLV_ELEMENT_ORDER_LTV,
+        };
+        self
+    }
+    /// Select what the length field counts; C validates the resulting descriptor.
+    pub fn with_length_scope(mut self, scope: LengthScope) -> Self {
+        self.inner.length_scope = match scope {
+            LengthScope::Value => native::TLV_LENGTH_SCOPE_VALUE,
+            LengthScope::TagAndValue => native::TLV_LENGTH_SCOPE_TAG_AND_VALUE,
+        };
+        self
+    }
     /// Creates a fixed-width format configuration. A one-byte tag and a
     /// one-byte big-endian length is `FixedFormatConfig::new(1, 1,
     /// ByteOrder::Big)`.
@@ -96,7 +129,49 @@ pub struct FixedFormat<'a> {
     format: native::tlv_format_t,
 }
 
+/// Shared owning Fixed descriptor and immutable configuration. Clones preserve
+/// stable native context addresses across programs, Readers and Documents.
+/// Share clones of one owner when combining Query with a Reader or Document;
+/// independently created equal configurations have different native identities.
+#[derive(Clone, Debug)]
+pub struct OwnedFixedFormat {
+    owner: Arc<FixedOwner>,
+}
+#[derive(Debug)]
+struct FixedOwner {
+    config: Box<FixedFormatConfig>,
+    format: native::tlv_format_t,
+}
+// SAFETY: the descriptor references only its immutable owned configuration and
+// static C callbacks. Its context allocation never moves after construction.
+unsafe impl Send for FixedOwner {}
+unsafe impl Sync for FixedOwner {}
+impl OwnedFixedFormat {
+    /// Validate and own a configuration, retaining stable native storage.
+    pub fn new(config: FixedFormatConfig) -> Result<Self> {
+        let config = Box::new(config);
+        let format = FixedFormat::new(&config)?.format;
+        Ok(Self {
+            owner: Arc::new(FixedOwner { config, format }),
+        })
+    }
+    /// Borrow a descriptor for existing Fixed Reader, Writer and Document APIs.
+    pub fn as_borrowed(&self) -> FixedFormat<'_> {
+        FixedFormat {
+            config: &self.owner.config,
+            format: self.owner.format,
+        }
+    }
+    pub(crate) fn raw(&self) -> *const native::tlv_format_t {
+        &self.owner.format
+    }
+}
+
 impl<'a> FixedFormat<'a> {
+    /// Copy this validated configuration into an independent shared owner.
+    pub fn owned(&self) -> Result<OwnedFixedFormat> {
+        OwnedFixedFormat::new(*self.config)
+    }
     /// Creates a configurable fixed-width format borrowing `config`; `config`
     /// must outlive this `FixedFormat`.
     ///

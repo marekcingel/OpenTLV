@@ -51,6 +51,22 @@ class QueryMatcher:
         """Feed every preorder item in order, including nonmatching ancestors."""
         return _native.query_matches(self._capsule, tag.data if isinstance(tag, Tag) else tag, depth)
 
+    def reset(self):
+        """Reset matching state for a fresh traversal; Reader state is independent."""
+        self._rebind(None)
+
+    def rebind(self, query: Query):
+        """Own an equivalent Query copy while preserving suspended matching state."""
+        if not isinstance(query, Query):
+            raise TypeError("Query required")
+        self._rebind(query._capsule)
+
+    def _rebind(self, query):
+        try:
+            _native.query_rebind(self._capsule, query)
+        except _native.Error as error:
+            raise _from_native(error) from None
+
     def visit(self, reader: TreeReader, callback) -> None:
         """Call callback(element, depth, offset) for matches using C Query traversal.
 

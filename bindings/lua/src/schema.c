@@ -216,7 +216,7 @@ static void bounds(lua_State* L, const char* name, size_t minimum, size_t maximu
     lua_setfield(L, -2, name);
 }
 
-static void push_schema_diagnostic(lua_State* L, const tlv_schema_diagnostic_t* detail) {
+void opentlv_lua_push_schema_diagnostic(lua_State* L, const tlv_schema_diagnostic_t* detail) {
     static const char* const kinds[] = {"any", "primitive", "constructed"};
     tlv_diagnostic_t         diagnostic = detail->diagnostic;
     /* Native schema reports store path separately to avoid self-pointers. */
@@ -297,7 +297,7 @@ static int schema_validate(lua_State* L) {
     if (code == TLV_OK || code == TLV_ERR_SCHEMA) {
         size_t count = report.count < capacity ? report.count : capacity;
         for (size_t i = 0; i < count; ++i) {
-            push_schema_diagnostic(L, &report.diagnostics[i]);
+            opentlv_lua_push_schema_diagnostic(L, &report.diagnostics[i]);
             lua_rawseti(L, -2, (int)i + 1);
         }
     } else {

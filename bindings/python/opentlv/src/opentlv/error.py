@@ -156,10 +156,20 @@ def _from_native(error: "_native.Error") -> OpenTLVError:
     fields = error.args[0]
     code = fields["code"]
     error_type = _ERROR_TYPES.get(code, OpenTLVError)
-    return error_type(code, offset=fields.get("offset"), expected=fields.get("expected"),
+    result = error_type(code, offset=fields.get("offset"), expected=fields.get("expected"),
                        actual=fields.get("actual"), operation=fields.get("operation"),
                        tag=fields.get("tag"), length=fields.get("length"),
                        required=fields.get("required"), available=fields.get("available"),
                        raw_length=fields.get("raw_length"), declared_length=fields.get("declared_length"),
                        tag_offset=fields.get("tag_offset"), length_offset=fields.get("length_offset"),
                        value_offset=fields.get("value_offset"), enclosing_end=fields.get("enclosing_end"))
+    # Preserve every Query field alongside the original typed Reader/status error.
+    result.query = {key: fields.get(key) for key in (
+        "query_kind", "begin", "end", "source_offset", "query_expected",
+        "limit", "configured", "codec")} if "query_kind" in fields else None
+    if "applied" in fields:
+        result.applied = fields["applied"]
+    if "rule" in fields:
+        result.rule = fields["rule"]
+        result.schema = fields["schema"]
+    return result

@@ -18,6 +18,7 @@ typedef struct {
     tlv_document_t* document;
     int             format_ref;
     node_handle_t*  handles;
+    int             query_active;
 } document_t;
 
 /* The list tracks borrowed handles, never owns nodes or mirrors their tree.
@@ -65,6 +66,44 @@ static int push_node(lua_State* L, int owner_index, tlv_node_t* node) {
     return 1;
 }
 
+tlv_document_t* opentlv_lua_document_native(lua_State* L, int index) {
+    return check_document(L, index)->document;
+}
+void opentlv_lua_document_invalidate(lua_State* L, int index) {
+    document_t* owner = check_document(L, index);
+    for (node_handle_t* handle = owner->handles; handle; handle = handle->next) {
+        handle->node = NULL;
+        handle->affected = 0;
+    }
+}
+void opentlv_lua_document_query_guard(lua_State* L, int index, int begin) {
+    document_t* owner = check_document(L, index);
+    owner->query_active += begin ? 1 : -1;
+}
+tlv_node_t* opentlv_lua_node_native(lua_State* L, int index, int document_index) {
+    if (lua_isnoneornil(L, index)) return NULL;
+    node_handle_t* handle = check_node(L, index);
+    if (handle->owner != check_document(L, document_index))
+        luaL_argerror(L, index, "node belongs to another document");
+    return handle->node;
+}
+int opentlv_lua_document_push_node(lua_State* L, int document_index, tlv_node_t* node) {
+    return push_node(L, document_index, node);
+}
+
+static int node_identity(lua_State* L) {
+    uint64_t identity = tlv_node_identity(check_node(L, 1)->node);
+#if LUA_VERSION_NUM >= 503
+    if (identity > (uint64_t)LUA_MAXINTEGER) return opentlv_lua_raise(L, TLV_ERR_NATIVE_SIZE, 0, 0);
+    lua_pushinteger(L, (lua_Integer)identity);
+#else
+    lua_Number value = (lua_Number)identity;
+    if ((uint64_t)value != identity) return opentlv_lua_raise(L, TLV_ERR_NATIVE_SIZE, 0, 0);
+    lua_pushnumber(L, value);
+#endif
+    return 1;
+}
+
 static int node_gc(lua_State* L) {
     node_handle_t* self = (node_handle_t*)luaL_checkudata(L, 1, NODE_MT);
     if (self->owner) {
@@ -83,6 +122,7 @@ static int node_gc(lua_State* L) {
 
 static int document_gc(lua_State* L) {
     document_t* self = (document_t*)luaL_checkudata(L, 1, DOCUMENT_MT);
+    if (self->query_active) return opentlv_lua_raise(L, TLV_ERR_INVALID_ARG, 0, 0);
     for (node_handle_t* handle = self->handles; handle; handle = handle->next) handle->node = NULL;
     tlv_document_free(self->document);
     self->document = NULL;
@@ -210,6 +250,7 @@ static int document_query(lua_State* L) {
 }
 
 static int set_value(lua_State* L, document_t* owner, tlv_node_t* node, int arg) {
+    if (owner->query_active) return opentlv_lua_raise(L, TLV_ERR_INVALID_ARG, 0, 0);
     size_t         length;
     const uint8_t* value = (const uint8_t*)luaL_checklstring(L, arg, &length);
     mark_handles(owner, node, 0);
@@ -232,6 +273,7 @@ static int document_set(lua_State* L) {
 
 static int document_erase(lua_State* L) {
     document_t* self = check_document(L, 1);
+    if (self->query_active) return opentlv_lua_raise(L, TLV_ERR_INVALID_ARG, 0, 0);
     tlv_node_t* node = resolve_node(L, self, 2);
     if (!node) {
         lua_pushboolean(L, 0);
@@ -246,7 +288,8 @@ static int document_erase(lua_State* L) {
 
 /* insert(binary_tag, value, parent?, before?) */
 static int document_insert(lua_State* L) {
-    document_t*    self = check_document(L, 1);
+    document_t* self = check_document(L, 1);
+    if (self->query_active) return opentlv_lua_raise(L, TLV_ERR_INVALID_ARG, 0, 0);
     size_t         tag_size, length;
     const uint8_t* tag_data = (const uint8_t*)luaL_checklstring(L, 2, &tag_size);
     const uint8_t* value = (const uint8_t*)luaL_checklstring(L, 3, &length);
@@ -356,7 +399,8 @@ static int node_set(lua_State* L) {
 }
 static int node_erase(lua_State* L) {
     node_handle_t* self = check_node(L, 1);
-    tlv_node_t*    node = self->node;
+    if (self->owner->query_active) return opentlv_lua_raise(L, TLV_ERR_INVALID_ARG, 0, 0);
+    tlv_node_t* node = self->node;
     mark_handles(self->owner, node, 1);
     invalidate_marked(self->owner);
     tlv_node_erase(node);
@@ -364,7 +408,8 @@ static int node_erase(lua_State* L) {
 }
 
 void opentlv_lua_open_document(lua_State* L, int module_index) {
-    static const opentlv_lua_method_t document_methods[] = {{"find", document_find},
+    static const opentlv_lua_method_t document_methods[] = {{"close", document_gc},
+                                                            {"find", document_find},
                                                             {"query", document_query},
                                                             {"first", document_first},
                                                             {"count", document_count},
@@ -374,6 +419,7 @@ void opentlv_lua_open_document(lua_State* L, int module_index) {
                                                             {"serialize", document_serialize},
                                                             {NULL, NULL}};
     static const opentlv_lua_method_t node_methods[] = {{"tag", node_tag},
+                                                        {"identity", node_identity},
                                                         {"value", node_value},
                                                         {"is_constructed", node_constructed},
                                                         {"first_child", node_first_child},

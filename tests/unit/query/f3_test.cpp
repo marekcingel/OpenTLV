@@ -132,6 +132,37 @@ TEST(Unit_Tlv_QueryF3, WholePlanRequirementsAndDocumentRejection) {
     ASSERT_EQ(tlv_tree_reader_next_event(&reader, &event), TLV_OK);
     EXPECT_EQ(event.offset, 0u);
 }
+TEST(Unit_Tlv_QueryF3, DocumentOnlyFeedFailureRequiresReset) {
+    Evaluation e;
+    ASSERT_EQ(e.compile("following::27"), TLV_OK);
+    ASSERT_EQ(e.info.level, TLV_QUERY_D);
+    ASSERT_EQ(e.init(), TLV_OK);
+    const uint8_t    tag = 0x27;
+    tlv_tree_event_t event{};
+    event.kind = TLV_TREE_ELEMENT;
+    event.element.tag = tlv_tag(&tag, 1);
+    tlv_query_exec_info_t info{};
+    info.struct_size = sizeof info;
+    for (int attempt = 0; attempt < 2; ++attempt) {
+        SCOPED_TRACE(attempt);
+        int matched = 9;
+        ASSERT_EQ(tlv_query_exec_info(e.exec, &info), TLV_OK);
+        EXPECT_FALSE(info.invalid);
+        EXPECT_EQ(tlv_query_exec_feed(e.exec, &event, &matched, &e.diagnostic),
+                  TLV_ERR_UNSUPPORTED_TYPE);
+        EXPECT_EQ(e.diagnostic.kind, TLV_QUERY_ERROR_CAPABILITY);
+        EXPECT_EQ(matched, 9);
+        ASSERT_EQ(tlv_query_exec_info(e.exec, &info), TLV_OK);
+        EXPECT_TRUE(info.invalid);
+        EXPECT_FALSE(info.finished);
+        EXPECT_FALSE(info.full_validation);
+        EXPECT_EQ(info.elements, 0u);
+        EXPECT_EQ(tlv_query_exec_feed(e.exec, &event, &matched, nullptr), TLV_ERR_INVALID_ARG);
+        EXPECT_EQ(matched, 9);
+        EXPECT_EQ(tlv_query_exec_finish(e.exec, &e.diagnostic), TLV_ERR_INVALID_ARG);
+        ASSERT_EQ(e.init(), TLV_OK);
+    }
+}
 TEST(Unit_Tlv_QueryF3, S1ScopePublicationStopResumeAndMalformedSuffix) {
     Evaluation e;
     ASSERT_EQ(e.compile("70[not(5A)]"), TLV_OK);

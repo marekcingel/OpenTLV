@@ -524,6 +524,11 @@ ctest --test-dir build-tests -C Release -L unit --output-on-failure --no-tests=e
 ctest --test-dir build-tests -C Release -L integration --output-on-failure --no-tests=error
 ```
 
+`OPENTLV_BUILD_QUERY_TESTS` also defaults to `ON` and makes the independent C
+Query conformance runner available when both groups are disabled. It requires
+neither C++ nor GoogleTest. Unit, integration and property configurations also
+include this runner; the main `OPENTLV_BUILD_TESTS` switch disables all of them.
+
 To configure and build each group independently:
 
 ```sh

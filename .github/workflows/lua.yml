@@ -16,6 +16,8 @@ on:
     branches: [main]
     paths:
       - 'bindings/lua/**'
+      - 'bindings/common/**'
+      - 'tests/query/**'
       - 'tlv/**'
       - 'cmake/**'
       - '**/CMakeLists.txt'
@@ -87,3 +89,8 @@ jobs:
             lua "$example"
             echo "::endgroup::"
           done
+
+      - name: Common compiled Query corpus through Lua facade
+        run: |
+          python3 tests/query/lua_facade.py --output build/lua-query-conformance.lua
+          lua build/lua-query-conformance.lua

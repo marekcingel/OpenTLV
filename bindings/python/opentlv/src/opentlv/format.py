@@ -47,3 +47,11 @@ def _resolve_format(format):
     if _opentlv.HAS_BER:
         return Format.BER
     raise ValueError("format is required when BER is disabled")
+
+
+def _format_specification(format):
+    """Copy owning native descriptor configuration, including FixedFormat."""
+    from opentlv.fixed_format import FixedFormat
+    format = _resolve_format(format)
+    return ((format.tag_size, format.length_size, format.big_endian)
+            if isinstance(format, FixedFormat) else int(format))

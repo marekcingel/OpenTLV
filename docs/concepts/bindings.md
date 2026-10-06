@@ -144,10 +144,10 @@ native functionality; see [component selection](../guides/select-components.md).
 | Tree Writer (`tlv_tree_writer_*`) | Implemented: events, begin/end and scoped Builder | Implemented: events, measure and Tag capacity | Implemented: events, measure and Tag capacity | Partial: begin/end, no public event/measure facade | Partial: staged Begin/End; no public event facade |
 | Copy/preservation (`tlv_writer_copy_encoded*`, `tlv_source_preserve`) | Implemented | Implemented | Implemented | Missing | Missing |
 | Reader/Writer diagnostics | Implemented: native structured detail with C++ operation errors | Implemented: owned snapshots | Implemented: structured exceptions | Implemented for exposed Reader/Writer operations: owned tables | Implemented for exposed operations: owned ParseError/WriteError |
-| Borrowed Query (`tlv_query_*`) | Implemented: Query and resumable matcher | Implemented: Query and matcher | Implemented: Query and matcher | Partial: complete-buffer Query evaluation; no resumable matcher facade | Missing |
+| Borrowed Query (`tlv_query_*`) | Implemented: Query and resumable matcher | Implemented: Query, format and matcher reset/rebind | Implemented: Query and matcher reset/rebind | Implemented: Query and resumable owned Reader/matcher | Implemented: bounded Query, format and explicit event matcher/reset/rebind |
 | Document Query | Implemented: V1 first/all and compiled selection, checked snapshots, explicit workspace evaluation | Partial: `find_path` / `find_path_mut` first match | Partial: `find_path` first match | Implemented: first match and Query results | Implemented: `Document.Query` all matches |
-| Full compiled S0/S1/S2/D Query | Partial: `query_program`/`query_execution`, typed expression composition, variables, environments, scalars, resumable Tree callback/pull and external S0/S1 storage; checked Document snapshots/pulls | Missing | Missing | Missing | Missing |
-| Schema (`tlv/schema/`) | Partial: C schema descriptions with validation helpers | Partial: length/structure schemas and detailed reports | Partial: length/structure schemas and detailed reports | Partial: structural schemas/reports; no standalone length-schema facade | Missing |
+| Full compiled S0/S1/S2/D Query | Checked compilation, typed composition, variables, environments, scalar/resumable execution and checked Document results | Checked programs/execution, providers, Tag/resolver adapters, shared configured Fixed owner, source events/ordinals, Document edits and Schema | Checked programs/execution, providers, Tag/resolver adapters, configured Fixed, source events/ordinals, Document edits and Schema | Checked programs/execution, providers, Tag/resolver adapters, configured Formats, source events/ordinals, Document edits and Schema | Checked programs/execution, providers, Tag/resolver adapters, configured Fixed, source events/ordinals, Document edits and Schema |
+| Schema (`tlv/schema/`) | Partial: C schema descriptions with validation helpers and contextual Query assertions | Partial: length/structure schemas, detailed reports and Query Schema | Partial: length/structure schemas, detailed reports and Query Schema | Partial: structural schemas/reports and Query Schema; no standalone length-schema facade | Partial: contextual Query Schema; structural schemas/reports missing |
 | Value Codec (`tlv/codec/` and built-ins) | Partial: generic typed codecs/fields and standard conveniences; no claim of every C descriptor | Partial: configured NumberCodec and EMV codecs | Partial: configured NumberCodec and EMV amount | Partial: generic/configured codecs, EMV and custom callbacks | Partial: generic typed codecs; no protocol/custom/Structure codecs |
 | Structure Codec (`tlv_structure_codec_t`) | Implemented: application-object adapters | Missing | Missing | Missing | Missing |
 | Definition / dictionaries (`tlv_definition_*`) | Partial: generic registry and standard lookups | Partial: generic registry and EMV dictionary | Partial: generic registry | Missing generic facade | Missing |
@@ -165,8 +165,11 @@ Audit evidence is the public facade and consumer tests, rather than raw FFI:
 | Lua | [facade adapters](../../bindings/lua/src/) | [consumer tests](../../bindings/lua/tests/) | [Lua](../guides/lua.md) |
 | Go | [public package](../../bindings/go/) | [public tests](../../bindings/go/tests/reader_test.go), [boundary tests](../../bindings/go/internal/capi/) | [Go](../guides/go.md) |
 
-The WASM parse-to-JSON operation is a tooling embedding, not a general binding
-with Reader/Writer/Document parity. Java remains future work. Exact signatures
+WASM includes both the parse-to-JSON tooling embedding and an owning compiled
+Query/Document facade. Its Query facade provides configured/custom Formats,
+Tag adapters, scoped/Definition/EMV resolvers, Schema, edits, source events,
+ordinals and bounded V1 compatibility. General Reader/Writer parity remains a
+separate concern. Java remains future work. Exact signatures
 belong in generated references and binding source documentation; this matrix
 records supported workflows and their limits. Do not treat an experimental
 label or raw FFI declaration as proof of parity.
@@ -420,7 +423,7 @@ entry points are:
 | Python | Experimental `opentlv` facade plus `opentlv-core` extension | [Python guide](../guides/python.md) | [Python development](../development/python.md) |
 | Lua | Experimental `opentlv` module with native `opentlv._core` implementation | [Lua guide](../guides/lua.md) | [Lua development](../development/lua.md) |
 | Go | Experimental public `opentlv` package with private `internal/capi` bridge | [Go guide](../guides/go.md) | [Go development](../development/go.md) |
-| WebAssembly | Narrow parse-to-JSON tooling embedding; general facade parity does not apply | [WASM tooling](../development/webassembly.md) | [WASM sources](../../bindings/wasm/) |
+| WebAssembly | Parse tooling plus owning compiled Query and checked Document facade; advanced extension parity remains incomplete | [WASM tooling](../development/webassembly.md) | [WASM sources](../../bindings/wasm/) |
 
 Language-specific copying, cleanup, errors and current limitations are documented
 in those guides; an experimental label neither implies full parity nor excuses
@@ -453,7 +456,12 @@ compiled module under `opentlv/_core`, and direct implementation imports use
   binding that follows this contract.
 
 Compiled full-language Query execution (`tlv_query_program_*`, S0/S1/S2 and the
-compiled Document backend) is currently a C capability. Its idiomatic facade
-parity is the Query F4 delivery work; the V1 facade rows above do not imply
-compiled-language support. This includes the F3 caller-owned candidate and
-constructed Document Value storage contracts.
+compiled Document backend) is exposed through each language facade. Public-facade
+runners in `tests/query/` compare the common language corpus against the independent
+oracle. Separate consumer tests cover custom conversion providers, completed
+selection edits, contextual Query Schema assertions, semantic Tag callbacks,
+dynamic/Definition/EMV resolvers, configured Fixed Formats and checked resolver
+stability. Query accepts each binding's existing Format configurations; general
+custom framing adapters remain a separate matrix row. Owning wrappers adapt
+storage according to their language contracts. See the
+[Query release requirements](../development/query-release.md) for candidate gates.

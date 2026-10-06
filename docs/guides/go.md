@@ -120,6 +120,39 @@ Runnable version: [document/main.go](../../bindings/go/examples/document/main.go
 
 ## Query and typed Values
 
+Compiled expressions use `CompileQuery(text, ProgramOptions)` and immutable
+`QueryProgram` owners. `LoadQuery` validates same-release images using the
+original compile options; `Info`, `Variables`, `Format`, `Explain` and `Image`
+expose native metadata. Compile-time declarations use `QueryType`; runtime
+values use `QueryValue` and `Bind` rather than text interpolation.
+
+`Execution(limits, retained)` creates independent bounded execution state.
+`SetInput(data, discard, final)`, `Next`, `Visit`, `Exists`, `Context`, `Pruning`
+and `Reset` preserve canonical continuation and validation behavior.
+`EvaluateDocument` and `NextDocument` return checked Nodes; `Result` exposes
+scalars. Input and match bytes are copied and retained as required. Callback
+panics invalidate an execution until reset; reentrant operations are rejected.
+Call `Close` for deterministic cleanup. `ProgramError` retains Query diagnostics.
+See [consumer tests](../../bindings/go/tests/program_test.go).
+
+`ProgramOptions.Providers` maps `QueryNum`, `QueryBCD`, `QueryText` and `QueryDate`
+to `QueryProvider` values. Each owns a stable nonzero ID and a `Decode` callback
+receiving copied input and optional `QueryMetadata`. Text outputs use explicit
+`MaxResultBytes` scratch. Provider panics become codec diagnostics. Independent
+executions may call a provider concurrently, so shared callback state must be
+synchronized by its owner.
+
+`Feed(QueryEvent)` and `Finish` support canonical events without a Reader; native
+state rejects mixing input modes until reset. `EditDocument` applies a completed
+selection with explicit target capacity and returns the applied count, including
+on partial failure. Short target storage preserves the selection for retry.
+
+`ValidateQueryBuffer` and `ValidateQueryDocument` accept `[]QueryRule` with context
+selectors, Boolean assertions and diagnostic names. Pass
+`DefaultQuerySchemaLimits()` or explicit resource limits. Validation retains
+programs/providers and copies diagnostic context into `QuerySchemaError`.
+Document mutation and close are rejected while provider callbacks are active.
+
 `doc.Query("6F/A5/50")` delegates path parsing and matching to C and returns all
 matching Nodes in document order. Exact hexadecimal tags and direct-child `/`
 steps are supported; wildcards, predicates and `//` are rejected. No matches

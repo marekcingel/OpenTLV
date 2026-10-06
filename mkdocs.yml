@@ -181,6 +181,8 @@ nav:
       - Where documentation belongs: development/documentation-layout.md
       - Documentation audit: development/documentation-audit.md
       - Fuzzing: development/fuzzing.md
+      - Query release checklist: development/query-release.md
+      - Query phase implementation audit: development/query-phase-audit.md
       - Rust bindings: development/rust.md
       - Python bindings: development/python.md
       - Lua bindings: development/lua.md

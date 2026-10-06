@@ -9,6 +9,18 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Fixed
 
+- Invalidate Query execution when event feeding rejects a Document-only program, so later feed and finish calls require reset. Retain the CI fuzz reproducer as a regression seed. (#523)
+- Escape literal plus signs in Query hardening workflow path filters so GitHub Actions accepts C++ changes for pull requests and pushes. (#523)
+- Size Query fuzz round-trip scratch from the canonical text, avoiding false crashes when formatting adds whitespace near a buffer limit. Retain the CI reproducer as a regression seed. (#523)
+- Reject changing name resolutions during checked two-pass Query compilation, including identifiers of the same size, while preserving output storage on failure. (#523)
+- Allow root-only Document Query Value snapshots at zero depth and keep Lua Documents protected through callback preparation and diagnostic copying. (#523)
+- Initialize Query and contextual Schema diagnostics on Tree Reader resource failures, preventing invalid borrowed spans from reaching language bindings. (#523)
+- Preserve contextual Query Schema diagnostics across Python, Go, Lua and JavaScript/WASM, including paths and available source offsets. (#523)
+- Require both 32-bit and 64-bit validation artifacts in the Query release gate, and reject malformed candidate evidence. (#523)
+- Preserve separated path tokens when formatting compiled Query programs, reject aliased image-loading storage before writes, and reject invalid benchmark measurements in Query release budgets. (#523)
+- Initialize Lua Query execution information correctly, keep Go Query tests compatible with disabled BER, and restore strict Clang Query builds. (#523)
+- Enable ASN.1 tag and date capabilities for compiled CLI Query expressions using BER, DER and CER. (#523)
+- Keep tag-mask and tag-range predicates consistent across Query backends by reporting their required S2 storage. (#523)
 - Validate the actual inserted Value length during Document Query edit preflight, before allocation or mutation. (#529, #522)
 - Preserve completed Query cursors on short edit target storage, prevalidate Document Query edits before mutation, and apply callback erase/free requests after the outermost visit instead of dropping them. (#522)
 - Reject stale compiled Document Query results after edits, and detect native node erasure and allocator address reuse in checked C++ handles. (#522)
@@ -60,6 +72,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Changed
 
+- Keep Query benchmark measurements advisory while Query functionality is completed, without requiring accepted baselines for release. (#523)
 - Accept full compiled Query syntax in `otlv query` while preserving existing exact-path output, and distinguish false/zero scalar success from empty node selections. (#522)
 - **Breaking:** Replace public Query fields with opaque copyable storage and validated accessors; rebuild native consumers and migrate direct field access. (#519)
 - Promote Protocol Inference to architectural Phase 3 and move Compilation to Phase 4; clarify shared model construction, OTLV tooling scope and independent SemVer versioning. (#516)
@@ -130,6 +143,10 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Added
 
+- Expose Query semantic Tag adapters, scoped dynamic/Definition/EMV resolvers, configured Fixed Formats, source-bearing events, result ordinals and V1 compatibility through the owning language facades, with checked resolver stability and callback lifetime tests. (#523)
+- Add an owning Rust Query Schema facade, public-facade Schema regressions, callback and input-replacement fuzz coverage, and a strict Query release-candidate workflow. (#523)
+- Add an owning JavaScript/WASM compiled Query and checked Document facade, public-facade corpus checks, native x86/WASM ABI snapshots, and bounded sanitizer campaigns with retained failure artifacts. (#523)
+- Add bounded read-only Query image loading with explicit validation scratch, C++ external-image and streaming coverage APIs, corruption fuzzing, seeded differential properties with minimized reproducers, and Query release-evidence inventory checks. (#523)
 - Add C++ full Query programs and independent executions with owned or caller-owned storage, typed expression composition and variable bindings, resumable Tree callbacks/pulls and checked Document selection. (#522)
 - Add completed-selection Document remove, replace and insert-after operations, with explicit overlap, capacity and partial-failure contracts. (#522)
 - Add contextual Schema assertions using compiled boolean Query programs over complete buffers and Documents. (#522)

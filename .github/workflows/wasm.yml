@@ -12,6 +12,8 @@ on:
     paths:
       - 'tlv/**'
       - 'bindings/wasm/**'
+      - 'bindings/common/**'
+      - 'tests/query/**'
       - 'cmake/**'
       - '**/CMakeLists.txt'
       - '.github/workflows/wasm.yml'
@@ -71,11 +73,19 @@ jobs:
       - name: Run WebAssembly smoke test
         run: ctest --test-dir build-wasm -L wasm --output-on-failure --no-tests=error
 
+      - name: Common compiled Query corpus through JS/WASM facade
+        run: |
+          python3 tests/query/facade_fixtures.py --output build-wasm/query-fixtures.json
+          node tests/query/wasm_facade.mjs build-wasm/bindings/wasm/dist build-wasm/query-fixtures.json
+          emcc -std=c99 -DTLV_STATIC_DEFINE -I tlv/include -I build-wasm/generated/include tests/query/abi.c -o build-wasm/query-abi.js
+          node build-wasm/query-abi.js > build-wasm/query-abi.json
+          python3 tests/query/check_abi.py --input build-wasm/query-abi.json
+
       - name: Verify reproducible artifacts
         if: startsWith(github.ref, 'refs/tags/')
         run: |
           for dir in build-wasm build-wasm-repeat; do
-            (cd "$dir/bindings/wasm/dist" && sha256sum opentlv-core.js opentlv-core.wasm opentlv.mjs) | tee "$dir.sha256"
+            (cd "$dir/bindings/wasm/dist" && sha256sum opentlv-core.js opentlv-core.wasm opentlv.mjs query.mjs) | tee "$dir.sha256"
           done
           diff build-wasm.sha256 build-wasm-repeat.sha256
 

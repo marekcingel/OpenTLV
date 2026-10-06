@@ -8,6 +8,7 @@ on:
     paths:
       - 'bindings/go/**'
       - 'tlv/**'
+      - 'tests/query/**'
       - 'cmake/**'
       - '**/CMakeLists.txt'
       - '.github/workflows/go.yml'
@@ -64,4 +65,6 @@ jobs:
           if [ "${{ matrix.components }}" = default ]; then
             go run ./examples/document
             go run ./examples/query
+            go build -o ../../build/go-query-conformance ./examples/query_conformance
+            python3 ../../tests/query/run.py --native ../../build/go-query-conformance --property-cases 0
           fi

@@ -1,8 +1,9 @@
 cmake_minimum_required(VERSION 3.16)
 
-project(tests)
+project(tests LANGUAGES C)
 
 if(OPENTLV_BUILD_UNIT_TESTS OR OPENTLV_BUILD_INTEGRATION_TESTS)
+    enable_language(CXX)
     include(tag_layout_checks.cmake)
     include(fixed_format_checks.cmake)
     include(custom_format_checks.cmake)
@@ -26,8 +27,11 @@ if(OPENTLV_BUILD_UNIT_TESTS OR OPENTLV_BUILD_INTEGRATION_TESTS)
     endforeach()
 endif()
 
-if(OPENTLV_BUILD_INTEGRATION_TESTS)
+if(OPENTLV_BUILD_QUERY_TESTS OR OPENTLV_BUILD_UNIT_TESTS OR OPENTLV_BUILD_INTEGRATION_TESTS OR OPENTLV_BUILD_PROPERTY_TESTS)
     add_subdirectory(query)
+endif()
+
+if(OPENTLV_BUILD_INTEGRATION_TESTS)
     add_test(NAME architecture-pipeline
         COMMAND ${CMAKE_COMMAND} -P ${CMAKE_CURRENT_SOURCE_DIR}/pipeline_checks.cmake)
     set_tests_properties(architecture-pipeline PROPERTIES LABELS "integration;architecture")

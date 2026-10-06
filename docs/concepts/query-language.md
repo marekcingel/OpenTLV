@@ -218,6 +218,18 @@ Format contexts self-contained. F2 copies resolved tag bytes into the program;
 resolver/Definition storage is needed only while compiling. Providers, their
 contexts and the Format remain borrowed throughout execution and suspension. Repeating sizing/compile with
 the same bounded text/options yields identical requirements and output.
+For checked two-pass compilation, discover workspace with
+`tlv_query_compile_prepare_size`, compile once with `tlv_query_compile_prepare`,
+then publish with `tlv_query_compile_commit`. Preparation reports exact final
+program size and retains a complete immutable image in caller workspace. Commit
+uses explicitly sized validation scratch from `tlv_query_program_load_scratch`,
+re-resolves names and compares every program byte before writing final storage.
+Changes to same-length identifiers are rejected, preserving output storage and
+info. The independent low-level `tlv_query_compile` calls retain their original
+stable-callback precondition; owning language constructors use checked compilation.
+
+Canonical formatting may add whitespace. Rediscover compilation scratch for the
+formatted text; the original text's exact scratch capacity need not suffice.
 
 **Q-PLAN-01.** Execution levels apply to whole expressions: S0 decides at
 complete node publication; S1 retains bounded depth summaries for scope evidence;
@@ -360,6 +372,31 @@ and execution objects continue to use independent size/alignment discovery.
 is the immutable expression instruction count; retained execution can revisit
 instructions for distinct contexts and charges each evaluation to its work limit; byte
 scanning and callback costs are separate. `variable_slots` counts unique bindings.
+
+**Q-IMAGE-01.** External images enter through `tlv_query_program_load` with their
+exact readable extent. Pointer-only APIs require compiler-owned or already
+validated images. Discovery reads a copied fixed header and bounded text only;
+loading reconstructs the image with the bounded compiler and compares every byte,
+including types, constants, indices, guards, optimization and capability fields.
+The original compile options, typed declarations, deterministic resolver and
+compatible environment are required. A checksum cannot replace validation.
+
+Internal image version 5 uses native-endian uint32 fields, relative offsets and
+no pointers. Wrong version/byte order returns UNSUPPORTED_TYPE and IMAGE_VERSION
+diagnostics before node access. No cross-release serialized-IR compatibility is
+promised. Same-endian 32/64-bit sharing requires matching private layout and
+environment contracts; reconstruction checks compatibility. Aligned immutable
+images may reside in ROM. Validation scratch is separate, writable, caller-owned
+and explicitly sized/aligned by `program_load_scratch`. Validation performs no
+image writes, internal allocation or production recursion; its cost includes
+bounded compilation. Instruction dependencies refer to earlier instructions and
+the evaluator uses explicit bounded frames.
+
+Tag-mask and tag-range functions select relative children, including in
+predicates. `//70[tag-mask(x'5A', x'FF')]` selects containers having a matching
+child; it does not test the candidate's own identifier. Predicate use requires S2
+storage, reported by compile info. Release evidence is tracked by the
+[Query release checklist](../development/query-release.md).
 
 ## F2 functions and providers
 

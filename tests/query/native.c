@@ -140,7 +140,45 @@ int main(int argc, char** argv) {
         printf("\n");
         return 0;
     }
-    if (argc < 3 || argc > 5) return 2;
+    if (argc < 3 || argc > 8) return 2;
+    tlv_query_variable_t variables[3];
+    char                 names[3][64];
+    uint8_t              variable_data[3][256];
+    size_t               variable_sizes[3] = {0};
+    int64_t              variable_integers[3] = {0};
+    size_t               variable_count = argc > 5 ? (size_t)argc - 5 : 0;
+    for (size_t i = 0; i < variable_count; ++i) {
+        const char* argument = argv[5 + i];
+        const char* colon = strchr(argument, ':');
+        if (!colon || colon == argument || (size_t)(colon - argument) >= sizeof names[i]) return 2;
+        memcpy(names[i], argument, (size_t)(colon - argument));
+        names[i][colon - argument] = 0;
+        variables[i].name = names[i];
+        const char* value = strchr(colon + 1, ':');
+        if (!value) return 2;
+        if (!strncmp(colon, ":int:", 5)) {
+            variables[i].type = TLV_QUERY_RESULT_INTEGER;
+            char* end;
+            variable_integers[i] = strtoll(value + 1, &end, 10);
+            if (*end) return 2;
+        } else if (!strncmp(colon, ":bytes:", 7)) {
+            variables[i].type = TLV_QUERY_RESULT_BYTES;
+            size_t length = strlen(value + 1);
+            if (length % 2 || length / 2 > sizeof variable_data[i]) return 2;
+            variable_sizes[i] = length / 2;
+            for (size_t j = 0; j < length / 2; ++j) {
+                int a = hex(value[1 + 2 * j]), b = hex(value[2 + 2 * j]);
+                if (a < 0 || b < 0) return 2;
+                variable_data[i][j] = (uint8_t)(a * 16 + b);
+            }
+        } else if (!strncmp(colon, ":string:", 8)) {
+            variables[i].type = TLV_QUERY_RESULT_STRING;
+            variable_sizes[i] = strlen(value + 1);
+            if (variable_sizes[i] > sizeof variable_data[i]) return 2;
+            memcpy(variable_data[i], value + 1, variable_sizes[i]);
+        } else
+            return 2;
+    }
     size_t scratch_size, alignment, size = strlen(argv[2]) / 2;
     if (strlen(argv[2]) % 2 || size > 65536) return 2;
     uint8_t* input = malloc(size ? size : 1);
@@ -157,6 +195,7 @@ int main(int argc, char** argv) {
     tlv_query_program_info_t info = {0};
     info.struct_size = sizeof info;
     void*              scratch = NULL;
+    void*              validation = NULL;
     void*              program = NULL;
     void*              workspace = NULL;
     void*              workspace_allocation = NULL;
@@ -183,27 +222,46 @@ int main(int argc, char** argv) {
     tlv_query_compile_options_t options;
     tlv_query_compile_options_init(&options);
     options.environment = &environment;
+    options.variables = variables;
+    options.variable_count = variable_count;
     options.resolve = fixture_resolve;
     options.optimize = argc >= 4 && strchr(argv[3], 'u') ? 0 : 1;
-    rc = tlv_query_compile_scratch(argv[1], strlen(argv[1]), &options, &scratch_size, &alignment,
-                                   &diagnostic);
+    rc = tlv_query_compile_prepare_size(argv[1], strlen(argv[1]), &options, &scratch_size,
+                                        &alignment, &diagnostic);
     if (rc != TLV_OK) goto done;
     scratch = malloc(scratch_size);
     if (!scratch) {
         rc = TLV_ERR_OUT_OF_MEMORY;
         goto done;
     }
-    rc = tlv_query_compile(argv[1], strlen(argv[1]), &options, scratch, scratch_size, NULL, 0,
-                           &info, &diagnostic);
+    const tlv_query_program_t* prepared = NULL;
+    rc = tlv_query_compile_prepare(argv[1], strlen(argv[1]), &options, scratch, scratch_size,
+                                   &prepared, &info, &diagnostic);
     if (rc != TLV_OK) goto done;
+    size_t validation_size;
+    rc = tlv_query_program_load_scratch(prepared, info.program_size, &options, &validation_size,
+                                        &alignment, &diagnostic);
+    if (rc != TLV_OK) goto done;
+    validation = malloc(validation_size);
     program = malloc(info.program_size);
-    if (!program) {
+    if (!program || !validation) {
         rc = TLV_ERR_OUT_OF_MEMORY;
         goto done;
     }
-    rc = tlv_query_compile(argv[1], strlen(argv[1]), &options, scratch, scratch_size, program,
-                           info.program_size, &info, &diagnostic);
+    rc = tlv_query_compile_commit(prepared, info.program_size, &options, validation,
+                                  validation_size, program, info.program_size, &info, &diagnostic);
     if (rc != TLV_OK) goto done;
+    if (argc == 5 && !strcmp(argv[3], "image")) {
+        FILE* output = fopen(argv[4], "wb");
+        if (!output) {
+            rc = TLV_ERR_INVALID_ARG;
+            goto done;
+        }
+        size_t written = fwrite(program, 1, info.program_size, output);
+        int    closed = fclose(output);
+        if (written != info.program_size || closed) rc = TLV_ERR_INVALID_ARG;
+        goto done;
+    }
     size_t workspace_size;
     int    document_mode = info.level == TLV_QUERY_D || (argc >= 4 && strchr(argv[3], 'd'));
     int    retained =
@@ -225,6 +283,23 @@ int main(int argc, char** argv) {
                   : tlv_query_exec_init(program, workspace, workspace_size, 128, 100000, 10000000,
                                         &exec);
     if (rc != TLV_OK) goto done;
+    for (size_t i = 0; i < variable_count; ++i) {
+        rc = tlv_query_exec_bind(exec, variables[i].name, variables[i].type, variable_integers[i],
+                                 variable_data[i], variable_sizes[i], &diagnostic);
+        /* Unreferenced declarations do not occupy execution binding slots. */
+        if (rc != TLV_OK && tlv_query_program_variable_count(program)) {
+            int referenced = 0;
+            for (size_t j = 0; j < tlv_query_program_variable_count(program); ++j) {
+                tlv_query_variable_info_t declaration;
+                if (tlv_query_program_variable(program, j, &declaration) != TLV_OK) goto done;
+                if (strlen(variables[i].name) == declaration.name_size &&
+                    !memcmp(variables[i].name, declaration.name, declaration.name_size))
+                    referenced = 1;
+            }
+            if (referenced) goto done;
+        }
+        rc = TLV_OK;
+    }
 #if OPENTLV_DOCUMENT
     if (document_mode) {
         rc = document_run(input, size, &format, exec, &diagnostic);
@@ -238,17 +313,17 @@ int main(int argc, char** argv) {
 #endif
     tlv_tree_reader_t reader;
     tlv_tree_frame_t  frames[128];
-    size_t            split = argc == 5 ? (size_t)strtoul(argv[4], NULL, 10) : size;
+    size_t            split = argc >= 5 ? (size_t)strtoul(argv[4], NULL, 10) : size;
     if (split > size) {
         rc = TLV_ERR_INVALID_ARG;
         goto done;
     }
-    rc = argc == 5 ? tlv_tree_reader_init_incremental(&reader, input, split, &format, frames, 128,
+    rc = argc >= 5 ? tlv_tree_reader_init_incremental(&reader, input, split, &format, frames, 128,
                                                       128, 100000)
                    : tlv_tree_reader_init(&reader, input, size, &format, frames, 128, 128, 100000);
     if (rc != TLV_OK) goto done;
     rc = tlv_query_program_visit(&reader, exec, print_match, NULL, &diagnostic);
-    if (argc == 5 && rc == TLV_NEED_MORE_DATA) {
+    if (argc >= 5 && rc == TLV_NEED_MORE_DATA) {
         rc = tlv_query_program_visit(&reader, exec, print_match, NULL, &diagnostic);
         if (rc == TLV_NEED_MORE_DATA) rc = tlv_tree_reader_set_input(&reader, input, size, 0, 1);
         if (rc == TLV_OK)
@@ -276,6 +351,7 @@ done:
     free(workspace_allocation);
     free(program);
     free(scratch);
+    free(validation);
     free(input);
     return rc == TLV_OK ? 0 : 1;
 }

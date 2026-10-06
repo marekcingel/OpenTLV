@@ -95,6 +95,7 @@ removals and stale links. This is an inventory, not evidence of a CI runtime pas
 | C++ | [validate.cpp](../../examples/tlv++/src/validate.cpp) | Schema / validation |
 | C++ | [write.cpp](../../examples/tlv++/src/write.cpp) | Nested construction |
 | Rust | [parse.rs](../../bindings/rust/opentlv/examples/parse.rs) | Nested parsing / traversal |
+| Rust | [query_conformance.rs](../../bindings/rust/opentlv/examples/query_conformance.rs) | Common compiled Query corpus runner |
 | Rust | [quick_start.rs](../../bindings/rust/opentlv/examples/quick_start.rs) | Quick start / round trip |
 | Rust | [reader.rs](../../bindings/rust/opentlv/examples/reader.rs) | Sequential Reader and input control |
 | Rust | [validate.rs](../../bindings/rust/opentlv/examples/validate.rs) | Schema / validation |
@@ -116,6 +117,7 @@ removals and stale links. This is an inventory, not evidence of a CI runtime pas
 | Go | [document/main.go](../../bindings/go/examples/document/main.go) | Owned Document / traversal |
 | Go | [errors/main.go](../../bindings/go/examples/errors/main.go) | Owned diagnostics / error matching |
 | Go | [query/main.go](../../bindings/go/examples/query/main.go) | Path Query |
+| Go | [query_conformance/main.go](../../bindings/go/examples/query_conformance/main.go) | Common compiled Query corpus runner |
 | Go | [quick_start/main.go](../../bindings/go/examples/quick_start/main.go) | Quick start / round trip |
 | Go | [reader/main.go](../../bindings/go/examples/reader/main.go) | Sequential Reader and input control |
 | Go | [version/main.go](../../bindings/go/examples/version/main.go) | Version / native integration |

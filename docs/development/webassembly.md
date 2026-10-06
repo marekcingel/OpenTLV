@@ -5,13 +5,11 @@ WebAssembly with [Emscripten](https://emscripten.org/), so browser tooling runs
 the same parser as native applications. It defaults to `OFF` and adds nothing
 to normal C and C++ builds.
 
-The first interface is intentionally small: it parses a byte buffer and returns
-the element structure or the parser error. It wraps the existing C API in
-`bindings/wasm/src/opentlv_wasm.c`; no parsing logic is duplicated. Editing,
-schemas and OTLV are not exposed; the EMV dictionary is available as an annotation module (below).
-Unlike a general-purpose binding, it does not follow the Reader/Writer/Element
-shape of the [language bindings conceptual model](../concepts/bindings.md); see
-that page for why.
+The module provides parse tooling plus owning compiled Query, checked Document
+editing and contextual Query Schema validation. It wraps the existing C API in
+`bindings/wasm/src/opentlv_wasm.c`; no parsing or Query semantics are duplicated.
+The EMV dictionary is available as an annotation module (below). Remaining
+public-facade gaps are tracked in the [binding capability matrix](../concepts/bindings.md).
 
 ## Build
 
@@ -30,15 +28,124 @@ The artifacts are written to `build-wasm/bindings/wasm/dist/`:
 | File | Purpose |
 | --- | --- |
 | `opentlv.mjs` | JavaScript entry point (`loadOpenTLV`, `hexToBytes`) |
+| `query.mjs` | Owning compiled Query and checked Document facade |
 | `opentlv-core.js` | Generated Emscripten ES module loader |
 | `opentlv-core.wasm` | The compiled OpenTLV core |
 
-Serve the three files from the same directory. With the same Emscripten version
+Serve these files from the same directory. With the same Emscripten version
 and configuration the artifacts are byte-for-byte identical; CI builds twice
 and compares them. Format options such as `OPENTLV_FORMAT_BER` apply as in
-native builds, and a compiled-out format is rejected as an invalid argument.
+native builds, and disabled formats are unavailable to the facade.
 
 ## Use from JavaScript
+
+### Compiled Query and Document
+
+`loadOpenTLV()` also provides `compileQuery(text, options)`, `loadQuery(image,
+options)` and `document(input, options)`. Compilation and evaluation delegate to
+the native C engine. Query and Document accept `ber`, `ber-indefinite`, `der`,
+`cer`, `emv`, `nfc-type2`, `lldp`, `dhcpv4`, `bluetooth-ltv`, `bluetooth-ad` and
+`fixed`, or an owning `Format` object. Disabled components report unsupported
+type. Query's `bluetooth-ad` alias uses strict element framing; container padding
+is handled by the separate parse tooling. Writer restrictions of each native
+Format also apply to `document.encode()`.
+
+Programs expose `info`, `format()`, `explain()`, `image()`, `evaluate(input)` and
+`execution(limits)`. Declare `variables: { name: "integer" | "bytes" | "string" }`
+at compilation; bind values with `execution.bind(name, value)` or the `bindings`
+option of `evaluate`. Integer inputs accept safe JS integers or signed 64-bit
+`bigint`; results outside the safe integer range return `bigint`. Named Tags can
+be supplied as `names: { symbol: Uint8Array }`. `program.variables` reports the
+native unique referenced variables, excluding unused declarations.
+
+`resolve(scope, name)` can supply dynamic scoped names, returning a copied
+`Uint8Array` or `null` for an unknown identifier. `resolve: "emv"` selects the
+native EMV registry. `nameResolver({ "scope:name": tag })` and
+`definitionResolver({ scope: [{ name, tag }] })` create immutable lookup snapshots;
+an unqualified name must be unique across scopes. Checked compilation rejects
+resolver changes between preparation and final compilation, including equal-size
+Tag changes. Resolver exceptions preserve their original JavaScript identity.
+
+`tags: { id, classOf?, numberOf? }` supplies optional semantic Tag callbacks.
+Callbacks receive copied Tag bytes and return signed 64-bit integers. The
+nonzero stable `id` is checked when loading an image; capabilities remain alive
+while an execution or schema retains the program.
+
+`Format.fixed({ tag_size, length_size, byte_order, element_order, length_scope,
+isConstructed? })` owns the complete native Fixed configuration. Defaults are
+one-byte fields, `"big"`, `"tlv"` and `"value"`; alternatives are `"little"`,
+`"ltv"` and `"tag-and-value"`. Share the Format object between programs and
+Documents using the same configuration. Closing its public handle leaves
+existing dependent objects usable.
+
+`Format.custom({ decode, measure?, encode?, isConstructed? })` registers native
+Format callbacks with owned lifetimes. `decode(bytes)` receives a copy and returns
+`{ tag, header, value, trailer?, tagRange?, lengthRange? }`; each range contains
+`{ offset, size }` relative to the supplied bytes. The returned `tag` is a semantic
+`Uint8Array`, which may differ from the wire field. Native framing validation
+checks the layout. Complete semantic Tags are retained until the Format's final
+dependent owner closes. `measure({ tag, value, valueSize })` returns numeric
+`{ header, value, trailer? }` sizes, and `encode(element)` returns encoded bytes.
+During measurement, `value` may be `null`. Supply both Writer callbacks together
+to support Documents; read-only custom Formats support Query execution. Any
+callback can report a native failure as `{ code }`, or throw its original
+JavaScript exception. Callbacks cannot reenter an object using the same Format.
+
+`providers: { num: { id, decode }, ... }` selects callbacks for the closed `num`,
+`bcd`, `text` and `date` conversions. Callbacks receive copied bytes and optional
+event metadata; return a signed 64-bit integer or a string for `text`. Text
+providers require `max_result_bytes` for bounded native scratch. The owning
+program retains callback registrations until all executions and schemas release
+them. Callback exceptions propagate and reentry is rejected. Loading an image
+requires matching provider IDs and contracts.
+
+`execution.feed(event)` accepts canonical `begin`, `element` and `end` events.
+For `begin` and `element`, `source: Uint8Array` supplies the complete encoded
+element; the owning Format derives the Tag, Value and Source ranges. Without
+`source`, supply copied `tag` and `value` bytes. `offset` stays absolute in either
+case. After a retained raw feed is finalized, `nextOrdinal()` returns
+`{ ordinal, match }` using traversal identity independently of Source offsets.
+`finish()` finalizes deferred results; raw events and Reader input require
+separate resets. After evaluating a Document selection,
+`editDocument("remove" | "replace" | "insert_after", options)` applies edits with
+explicit `target_capacity`. Short target storage reports `error.applied === 0`
+and permits retry; partial failures preserve their applied count.
+
+`querySchema([{ context, assertion, name }], { format })` owns references to
+compiled context selectors and relative Boolean assertion programs. Its
+`validateBuffer` and `validateDocument` methods accept depth/node/work/context
+and snapshot limits. Errors own rule, Query and Schema diagnostic context.
+Close the schema when finished. Document mutation and close are rejected while
+provider callbacks inspect it.
+
+An execution owns its native workspace. `setInput(input, { discard, final })`
+copies and retains input windows until `reset()` or `close()`; original source
+offsets survive legal continuation. `next()` returns a copied match or `null`
+at final exhaustion; needing input raises `QueryError` with the native status.
+`visit(callback)` stops when the callback returns `false` and resumes on the next
+call. Callback exceptions invalidate the execution until reset; reentrant calls
+on that execution are rejected. Scalars use `finish()` then `result()`; `info`
+reports native validation and resource coverage. Explicit limits include
+`max_depth`, `max_nodes` and `max_work`.
+Reader failures preserve copied field offsets, Tag, raw length, expected/actual
+text, path and diagnostic context in `error.query.reader`.
+
+`new V1Query("70/5A")` exposes bounded legacy parsing, `format()`, copied `steps`,
+`evaluate(input, options)` and a native preorder matcher. `matcher()` creates an
+independent owner; feed every Tag and depth with `feed(tag, depth)`, and call
+`reset()` before starting a new traversal. An independent matcher remains valid
+after the original Query closes.
+
+`evaluateDocument(document, { value_capacity })` evaluates the canonical Document
+backend. Results are checked Nodes with `tag`, `value`, `constructed`,
+`firstChild`, `next`, `parent`, `setValue(bytes)` and `erase()`. Constructed Nodes
+return `null` for `value`. Document edits invalidate previous Query selections;
+erased and closed handles raise `QueryError`. Call `close()` on executions,
+programs and Documents for deterministic release. Native executions retain their
+program and Document owners, while the public facade rejects access after a
+Document is closed.
+
+### Parse tooling
 
 ```js
 import { loadOpenTLV, hexToBytes } from "./opentlv.mjs";

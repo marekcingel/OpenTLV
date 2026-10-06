@@ -56,6 +56,26 @@ impl Query {
     pub fn is_empty(&self) -> bool {
         self.len() == 0
     }
+    /// Return the canonical uppercase V1 path using the native formatter.
+    pub fn format(&self) -> Result<String> {
+        let mut required = 0;
+        // SAFETY: initialized Query and writable discovery output.
+        Error::check(unsafe {
+            native::tlv_query_format(&self.raw, ptr::null_mut(), 0, &mut required)
+        })?;
+        let mut output = vec![0; required];
+        // SAFETY: discovery supplied the bounded output size including NUL.
+        Error::check(unsafe {
+            native::tlv_query_format(
+                &self.raw,
+                output.as_mut_ptr().cast(),
+                output.len(),
+                &mut required,
+            )
+        })?;
+        output.pop();
+        String::from_utf8(output).map_err(|_| Error::InvalidValue)
+    }
     /// Returns an owned tag at a path step, or None out of bounds.
     pub fn step(&self, index: usize) -> Option<Tag> {
         if index >= self.len() {
@@ -92,6 +112,20 @@ impl QueryMatcher {
     pub fn matches(&mut self, tag: &Tag, depth: usize) -> bool {
         // SAFETY: initialized matcher and valid borrowed tag for the synchronous call.
         unsafe { native::tlv_query_matcher_visit(&mut self.raw, &tag.raw(), depth) != 0 }
+    }
+    /// Reset matching for another preorder traversal of the same path.
+    pub fn reset(&mut self) -> Result<()> {
+        // SAFETY: exclusive matcher and its stable, live owned Query.
+        Error::check(unsafe { native::tlv_query_matcher_init(&mut self.raw, &*self._query) })
+    }
+    /// Replace the owned path with an equivalent copy, preserving continuation.
+    /// A different path is rejected without changing the matcher.
+    pub fn rebind(&mut self, query: &Query) -> Result<()> {
+        let replacement = Box::new(query.raw);
+        // SAFETY: both old and replacement Query storage remain live through this call.
+        Error::check(unsafe { native::tlv_query_matcher_rebind(&mut self.raw, &*replacement) })?;
+        self._query = replacement;
+        Ok(())
     }
     /// Visit matches from a Tree Reader, retaining state across STOP and input replacement.
     /// Do not interleave unmatched pulls. Panics resume after C returns.

@@ -11,6 +11,7 @@ option(OPENTLV_BUILD_SHARED_LIBS "Build tlv as a shared library instead of stati
 option(OPENTLV_BUILD_TESTS "Build tests" ON)
 option(OPENTLV_BUILD_UNIT_TESTS "Build component contract tests" ON)
 option(OPENTLV_BUILD_INTEGRATION_TESTS "Build format and layer integration tests" ON)
+option(OPENTLV_BUILD_QUERY_TESTS "Build independent C Query conformance tests (no C++ or GoogleTest required)" ON)
 option(OPENTLV_BUILD_PROPERTY_TESTS "Build deterministic generated-corpus property tests (requires CLI and Python)" OFF)
 option(OPENTLV_BUILD_EXAMPLES "Build examples" ON)
 option(OPENTLV_BUILD_CLI "Build the otlv command-line tool" ON)

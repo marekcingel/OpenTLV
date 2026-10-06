@@ -12,6 +12,8 @@ on:
     branches: [main]
     paths:
       - 'bindings/python/**'
+      - 'bindings/common/**'
+      - 'tests/query/**'
       - 'tlv/**'
       - 'cmake/**'
       - '**/CMakeLists.txt'
@@ -52,6 +54,9 @@ jobs:
 
       - name: Test
         run: pytest bindings/python/opentlv/tests
+
+      - name: Common compiled Query corpus through Python facade
+        run: python tests/query/python_facade.py
 
       - name: Run examples
         shell: bash

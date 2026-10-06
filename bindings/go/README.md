@@ -317,6 +317,30 @@ Tree Reader/Document Builder integration remains follow-up work.
 
 ## Query and Value codecs
 
+`ParseQuery("6F/A5/50")` owns a bounded V1 path independently of a Document.
+`Count`, `Step` and `Format` expose its canonical C representation. Its
+`Matcher` owns a stable path copy and accepts every preorder item through
+`Feed(tag, depth)`. `Reset` starts a new traversal; `Rebind` accepts an equivalent
+path while preserving continuation. Close matchers when finished.
+
+`CompileQuery` and `LoadQuery` own extended Query programs; `Execution` chooses
+explicit streaming or retained storage and runtime limits. `ProgramOptions`
+accepts all existing `Format` values, including every `NewFixed` configuration,
+typed variables, conversion providers, stable-ID semantic `QueryTagAdapter`
+callbacks, and scoped `QueryResolver` callbacks. `QueryDefinitions` uses native
+Definition ambiguity rules; `QueryEMV` uses the native EMV symbol dictionary.
+Resolvers must return identical Tags during checked preparation and commit;
+same-size changes are rejected. Provider callbacks must support concurrent
+independent executions; callback panics return a native error after C returns.
+
+Executions copy input and raw feeds into owned storage. `FeedEncoded` decodes one
+encoded node through C to preserve Source-dependent metadata. `Finish` publishes
+retained selections; `NextResultWithOrdinal` also returns the original preorder
+ordinal. `EvaluateDocument` and `NextDocument` expose checked Document handles.
+Equal Fixed configurations interoperate as Go values; incompatible configurations
+are rejected. `ValidateQueryBuffer` and `ValidateQueryDocument` run bounded native
+Query Schema rules and retain owned diagnostic snapshots on failure.
+
 `doc.Query("6F/A5/50")` returns all matching `[]Node` in document order from
 the current mutable C Document. Paths are exact hexadecimal tags separated by
 single slashes. Leading slashes, `//`, wildcards and predicates are rejected by

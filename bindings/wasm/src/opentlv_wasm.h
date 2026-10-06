@@ -3,6 +3,7 @@
 
 #ifndef OPENTLV_WASM_H
 #define OPENTLV_WASM_H
+#include <tlv/query/program.h>
 
 /*
  * Browser-facing boundary of the experimental OpenTLV WebAssembly build.
@@ -53,6 +54,99 @@ extern "C" {
 
 /* Opaque parse result; release it with opentlv_wasm_result_free(). */
 typedef struct opentlv_wasm_result opentlv_wasm_result_t;
+
+/* Owning Query facade handles. Programs and executions have independent
+ * reference-counted lifetimes; all processing delegates to the C Query engine.
+ * Returned JSON strings borrow the handle until its next operation. */
+typedef struct opentlv_wasm_program   opentlv_wasm_program_t;
+typedef struct opentlv_wasm_execution opentlv_wasm_execution_t;
+typedef struct opentlv_wasm_document  opentlv_wasm_document_t;
+typedef struct opentlv_wasm_format    opentlv_wasm_format_t;
+typedef struct opentlv_wasm_v1        opentlv_wasm_v1_t;
+OPENTLV_WASM_API opentlv_wasm_v1_t*   opentlv_wasm_v1_new(const char*, size_t);
+OPENTLV_WASM_API const char* opentlv_wasm_v1_operation(opentlv_wasm_v1_t*, int, const uint8_t*,
+                                                       size_t, size_t);
+OPENTLV_WASM_API void        opentlv_wasm_v1_free(opentlv_wasm_v1_t*);
+OPENTLV_WASM_API opentlv_wasm_format_t* opentlv_wasm_format_new(const char*, size_t, size_t, int,
+                                                                int, int);
+OPENTLV_WASM_API int    opentlv_wasm_format_callbacks(opentlv_wasm_format_t*, tlv_decode_fn,
+                                                      tlv_measure_fn, tlv_encode_fn,
+                                                      tlv_is_constructed_fn);
+OPENTLV_WASM_API void   opentlv_wasm_format_free(opentlv_wasm_format_t*);
+OPENTLV_WASM_API int    opentlv_wasm_format_decoded(opentlv_wasm_format_t*, tlv_decoded_t*,
+                                                    const uint8_t*, size_t, const uint8_t*, size_t,
+                                                    const uint32_t*);
+OPENTLV_WASM_API size_t opentlv_wasm_element_field(const tlv_element_t*, int);
+OPENTLV_WASM_API size_t opentlv_wasm_tag_field(const tlv_tag_t*, int);
+OPENTLV_WASM_API void   opentlv_wasm_integer_write(int64_t*, uint32_t, uint32_t);
+OPENTLV_WASM_API int    opentlv_wasm_encoding_write(tlv_encoding_t*, size_t, size_t, size_t);
+OPENTLV_WASM_API void   opentlv_wasm_size_write(size_t*, size_t);
+OPENTLV_WASM_API opentlv_wasm_program_t* opentlv_wasm_program_with_format(opentlv_wasm_format_t*);
+OPENTLV_WASM_API int
+opentlv_wasm_program_tags(opentlv_wasm_program_t*, uint32_t,
+                          tlv_result_t (*)(const void*, const tlv_tag_t*, int64_t*),
+                          tlv_result_t (*)(const void*, const tlv_tag_t*, int64_t*));
+OPENTLV_WASM_API int opentlv_wasm_program_resolver(opentlv_wasm_program_t*, tlv_query_resolve_t);
+/* Use the native EMV registry resolver; unsupported when EMV is compiled out. */
+OPENTLV_WASM_API int opentlv_wasm_program_emv_resolver(opentlv_wasm_program_t*);
+OPENTLV_WASM_API int opentlv_wasm_resolved_tag(opentlv_wasm_program_t*, tlv_tag_t*, const uint8_t*,
+                                               size_t);
+OPENTLV_WASM_API opentlv_wasm_program_t* opentlv_wasm_program_new(const char* format);
+OPENTLV_WASM_API int opentlv_wasm_program_variable(opentlv_wasm_program_t*, const char*, int);
+OPENTLV_WASM_API int opentlv_wasm_program_name(opentlv_wasm_program_t*, const char*, const uint8_t*,
+                                               size_t);
+OPENTLV_WASM_API int opentlv_wasm_program_option(opentlv_wasm_program_t*, int, size_t);
+/* Install one closed conversion callback before compilation. Integer/string
+ * result helpers avoid exposing private native struct layout to JavaScript. */
+OPENTLV_WASM_API int  opentlv_wasm_program_provider(opentlv_wasm_program_t*, int, uint32_t, size_t,
+                                                    tlv_query_decode_t);
+OPENTLV_WASM_API void opentlv_wasm_provider_integer(tlv_query_result_t*, uint32_t, uint32_t);
+OPENTLV_WASM_API void opentlv_wasm_provider_text(tlv_query_result_t*, const uint8_t*, size_t);
+OPENTLV_WASM_API size_t      opentlv_wasm_provider_event(const tlv_tree_event_t*, int);
+OPENTLV_WASM_API const char* opentlv_wasm_program_compile(opentlv_wasm_program_t*, const uint8_t*,
+                                                          size_t, int);
+OPENTLV_WASM_API const char* opentlv_wasm_program_render(opentlv_wasm_program_t*, int);
+OPENTLV_WASM_API const uint8_t* opentlv_wasm_program_image(opentlv_wasm_program_t*);
+OPENTLV_WASM_API size_t         opentlv_wasm_program_image_size(opentlv_wasm_program_t*);
+OPENTLV_WASM_API void           opentlv_wasm_program_free(opentlv_wasm_program_t*);
+OPENTLV_WASM_API void           opentlv_wasm_program_retain(opentlv_wasm_program_t*);
+OPENTLV_WASM_API const char* opentlv_wasm_schema_validate(opentlv_wasm_program_t*, const uint32_t*,
+                                                          const uint32_t*, size_t,
+                                                          opentlv_wasm_document_t*, const uint8_t*,
+                                                          size_t, size_t, size_t, size_t, size_t,
+                                                          size_t, int);
+OPENTLV_WASM_API opentlv_wasm_execution_t* opentlv_wasm_execution_new(opentlv_wasm_program_t*,
+                                                                      size_t, size_t, size_t, int);
+OPENTLV_WASM_API const char* opentlv_wasm_execution_input(opentlv_wasm_execution_t*, const uint8_t*,
+                                                          size_t, size_t, int);
+OPENTLV_WASM_API const char* opentlv_wasm_execution_bind(opentlv_wasm_execution_t*, const char*,
+                                                         int, const char*, const uint8_t*, size_t);
+/* Feed complete source-less canonical events. END carries no Tag/Value.
+ * Reader input and raw feeds cannot be mixed before reset. */
+OPENTLV_WASM_API const char* opentlv_wasm_execution_feed(opentlv_wasm_execution_t*, int,
+                                                         const uint8_t*, size_t, const uint8_t*,
+                                                         size_t, size_t, size_t, int);
+OPENTLV_WASM_API const char* opentlv_wasm_execution_feed_source(opentlv_wasm_execution_t*, int,
+                                                                const uint8_t*, size_t, size_t,
+                                                                size_t, int);
+/* Operations: 0 reset, 1 pull, 2 scalar, 3 status, 4 exists, 5 context,
+ * 6 pruning, 7 finish, 8 retained result with ordinal. */
+OPENTLV_WASM_API const char* opentlv_wasm_execution_operation(opentlv_wasm_execution_t*, int,
+                                                              size_t);
+OPENTLV_WASM_API void        opentlv_wasm_execution_free(opentlv_wasm_execution_t*);
+OPENTLV_WASM_API opentlv_wasm_document_t* opentlv_wasm_document_new(opentlv_wasm_program_t*,
+                                                                    const uint8_t*, size_t);
+OPENTLV_WASM_API void                     opentlv_wasm_document_free(opentlv_wasm_document_t*);
+OPENTLV_WASM_API const char*              opentlv_wasm_document_encode(opentlv_wasm_document_t*);
+OPENTLV_WASM_API const char* opentlv_wasm_execution_document(opentlv_wasm_execution_t*,
+                                                             opentlv_wasm_document_t*, size_t);
+OPENTLV_WASM_API const char* opentlv_wasm_execution_edit(opentlv_wasm_execution_t*, int,
+                                                         const uint8_t*, size_t, const uint8_t*,
+                                                         size_t, size_t);
+/* Native node address is an internal token, checked against an immutable
+ * identity before navigation or mutation. JS never dereferences it. */
+OPENTLV_WASM_API const char* opentlv_wasm_document_node(opentlv_wasm_document_t*, size_t,
+                                                        const char*, int, const uint8_t*, size_t);
 
 /*
  * Parses `size` bytes as `format` ("fixed", "bluetooth-ltv", "bluetooth-ad", "lldp", "nfc-type2",

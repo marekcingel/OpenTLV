@@ -11,7 +11,7 @@ from weakref import WeakValueDictionary
 import _opentlv as _native
 
 from opentlv.error import _from_native
-from opentlv.format import Format, _resolve_format
+from opentlv.format import Format, _resolve_format, _format_specification
 from opentlv.tag import Tag
 from opentlv.cursor import TreeReader
 
@@ -54,7 +54,7 @@ class Node:
     keeps its document alive until explicitly closed or no longer reachable.
     """
 
-    __slots__ = ("_document", "_address", "_lifetime")
+    __slots__ = ("_document", "_address", "_lifetime", "_query_generation")
 
     def __init__(self, document: "Document", ptr: int, *, _key=None) -> None:
         if _key is not document._lifetimes:
@@ -62,10 +62,13 @@ class Node:
         self._document = document
         self._address = ptr
         self._lifetime = document._lifetime(ptr)
+        self._query_generation = document._query_generation
 
     @property
     def _ptr(self):
-        if self._document._capsule is None or not self._lifetime.valid():
+        if (self._document._capsule is None or
+                self._query_generation != self._document._query_generation or
+                not self._lifetime.valid()):
             raise ValueError("node is no longer valid")
         return self._address
 
@@ -90,6 +93,7 @@ class Node:
         """Replaces the value. For a constructed node, `value` is parsed as
         nested elements with the document's format, replacing every
         child."""
+        self._document._assert_mutable()
         value = bytes(memoryview(value))
         pointer = self._ptr
         previous_revision = self._lifetime.revision
@@ -112,6 +116,11 @@ class Node:
     def first_child(self) -> Optional["Node"]:
         """The first child of a constructed node, or `None`."""
         return self._document._wrap(_native.node_first_child(self._ptr))
+
+    @property
+    def identity(self) -> int:
+        """Stable native identity in this Document; stale handles fail before access."""
+        return _native.node_identity(self._ptr)
 
     @property
     def next(self) -> Optional["Node"]:
@@ -140,6 +149,7 @@ class Node:
 
     def erase(self) -> None:
         """Removes this node and all of its descendants from its document."""
+        self._document._assert_mutable()
         pointer = self._ptr
         self._lifetime.alive = False
         _native.node_erase(pointer)
@@ -198,7 +208,7 @@ class Document:
     b'\\x01\\x01\\xcc'
     """
 
-    __slots__ = ("_capsule", "_lifetimes")
+    __slots__ = ("_capsule", "_lifetimes", "_query_generation", "_query_active")
 
     def __init__(self, data: Optional[bytes] = None, format: Format | None = None, *,
                  max_depth: int = _DEFAULT_MAX_DEPTH,
@@ -208,8 +218,10 @@ class Document:
         `format` is used both to parse `data` (and any constructed value
         later assigned to a node) and to `encode()` the document again.
         """
-        format = _resolve_format(format)
+        format = _format_specification(format)
         self._lifetimes = WeakValueDictionary()
+        self._query_generation = 0
+        self._query_active = 0
         try:
             if data is None:
                 self._capsule = _native.document_create(format, max_depth, max_elements)
@@ -217,6 +229,10 @@ class Document:
                 self._capsule = _native.document_parse(data, format, max_depth, max_elements)
         except _native.Error as native_error:
             raise _from_native(native_error) from None
+
+    def _assert_mutable(self):
+        if self._query_active:
+            raise RuntimeError("Document is active in Query evaluation")
 
     def _lifetime(self, ptr):
         if self._capsule is None:
@@ -286,6 +302,7 @@ class Document:
         `Node.value`, a value of a tag the document's format treats
         as constructed is parsed as nested elements.
         """
+        self._assert_mutable()
         tag_bytes = tag.data if isinstance(tag, Tag) else tag
         parent_ptr = self._node_ptr(parent)
         before_ptr = self._node_ptr(before)
@@ -294,6 +311,21 @@ class Document:
         except _native.Error as native_error:
             raise _from_native(native_error) from None
         return self._wrap(ptr)
+
+    def select(self, program, *, bindings=None, context=None, value_capacity=None, **limits):
+        """Evaluate a compiled Query, returning checked snapshot Nodes or an owned scalar.
+
+        Query workspace and Value snapshot allocation belongs to the Python
+        wrapper. Use QueryExecution for explicit storage and continuation.
+        """
+        from opentlv.program import QueryProgram
+        if not isinstance(program, QueryProgram):
+            raise TypeError("QueryProgram required")
+        execution = program.execution(**limits)
+        for name, value in (bindings or {}).items():
+            execution.bind(name, value)
+        execution.evaluate_document(self, context=context, value_capacity=value_capacity)
+        return list(execution) if program.info["result_kind"] == 0 else execution.result()
 
     @property
     def encoded_size(self) -> int:
@@ -323,6 +355,7 @@ class Document:
         Every node from this document, and the document itself, must not be
         used afterwards.
         """
+        self._assert_mutable()
         self._capsule = None
 
     def __enter__(self) -> "Document":
@@ -369,6 +402,8 @@ class DocumentBuilder:
         # Allocate facade bookkeeping before C transfers ownership.
         document = Document.__new__(Document)
         document._lifetimes = WeakValueDictionary()
+        document._query_generation = 0
+        document._query_active = 0
         try:
             document._capsule = _native.document_builder_consume(self._capsule)
         except _native.Error as error:

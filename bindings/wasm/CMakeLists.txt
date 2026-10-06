@@ -17,6 +17,9 @@ set_target_properties(opentlv-wasm PROPERTIES
     SUFFIX ".js"
     RUNTIME_OUTPUT_DIRECTORY "${_wasm_output_dir}"
 )
+set_property(TARGET opentlv-wasm APPEND PROPERTY LINK_DEPENDS
+    "${CMAKE_CURRENT_SOURCE_DIR}/js/opentlv.mjs"
+    "${CMAKE_CURRENT_SOURCE_DIR}/js/query.mjs")
 
 # Exported entry points come from EMSCRIPTEN_KEEPALIVE in opentlv_wasm.h. The
 # module is an ES module exporting a createOpenTLV() factory; it has no main()
@@ -29,7 +32,8 @@ target_link_options(opentlv-wasm PRIVATE
     -sENVIRONMENT=web,worker,node
     -sALLOW_MEMORY_GROWTH=1
     -sFILESYSTEM=0
-    "-sEXPORTED_RUNTIME_METHODS=['HEAPU8','UTF8ToString','stringToUTF8','lengthBytesUTF8']"
+    -sALLOW_TABLE_GROWTH=1
+    "-sEXPORTED_RUNTIME_METHODS=['HEAPU8','UTF8ToString','stringToUTF8','lengthBytesUTF8','addFunction','removeFunction']"
 )
 
 # The JavaScript wrapper is the documented browser entry point; ship it next to
@@ -37,6 +41,8 @@ target_link_options(opentlv-wasm PRIVATE
 add_custom_command(TARGET opentlv-wasm POST_BUILD
     COMMAND ${CMAKE_COMMAND} -E copy_if_different
         "${CMAKE_CURRENT_SOURCE_DIR}/js/opentlv.mjs" "${_wasm_output_dir}/opentlv.mjs"
+    COMMAND ${CMAKE_COMMAND} -E copy_if_different
+        "${CMAKE_CURRENT_SOURCE_DIR}/js/query.mjs" "${_wasm_output_dir}/query.mjs"
     VERBATIM
 )
 

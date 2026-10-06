@@ -1,6 +1,12 @@
 name: C API Fuzzing
 
 on:
+  pull_request:
+    paths:
+      - 'tlv/**'
+      - 'tests/fuzz/query/**'
+      - 'tests/fuzz/CMakeLists.txt'
+      - '.github/workflows/fuzz.yml'
   push:
     branches: [main]
     tags: ['[0-9]*.[0-9]*.[0-9]*']
@@ -46,7 +52,7 @@ jobs:
       - name: Build C API fuzz targets
         run: cmake --build build/fuzz --parallel
       - name: Fuzz each target for 60 seconds
-        timeout-minutes: 15
+        timeout-minutes: 20
         env:
           ASAN_OPTIONS: abort_on_error=1:detect_leaks=1
           UBSAN_OPTIONS: halt_on_error=1:abort_on_error=1:print_stacktrace=1
@@ -66,8 +72,10 @@ jobs:
             [query_parse]=tests/fuzz/query/corpus/parse
             [query_match]=tests/fuzz/query/corpus/match
             [query_program]=tests/fuzz/query/corpus/program
+            [query_image]=tests/fuzz/query/corpus/image
+            [query_pairs]=tests/fuzz/query/corpus/match
           )
-          for target in read visitor fixed der der_schema roundtrip codec query_parse query_match query_program; do
+          for target in read visitor fixed der der_schema roundtrip codec query_parse query_match query_program query_image query_pairs; do
             mkdir -p "build/fuzz/findings/$target" "build/fuzz/corpus/$target"
             dictionary=()
             if [[ "$target" == query_program ]]; then
