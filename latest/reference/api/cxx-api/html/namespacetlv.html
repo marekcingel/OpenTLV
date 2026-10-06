@@ -151,6 +151,9 @@ Classes</h2></td></tr>
 <tr class="memitem:"><td class="memItemLeft" align="right" valign="top">class &#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classtlv_1_1definition__registry.html">definition_registry</a></td></tr>
 <tr class="memdesc:"><td class="mdescLeft">&#160;</td><td class="mdescRight">Registry view; caller retains entries, identifier bytes and names.  <a href="classtlv_1_1definition__registry.html#details">More...</a><br /></td></tr>
 <tr class="separator:"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:"><td class="memItemLeft" align="right" valign="top">struct &#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="structtlv_1_1diff__entry.html">diff_entry</a></td></tr>
+<tr class="memdesc:"><td class="mdescLeft">&#160;</td><td class="mdescRight">Checked original input handles and stable correspondence description.  <a href="structtlv_1_1diff__entry.html#details">More...</a><br /></td></tr>
+<tr class="separator:"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:"><td class="memItemLeft" align="right" valign="top">class &#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classtlv_1_1document.html">document</a></td></tr>
 <tr class="memdesc:"><td class="mdescLeft">&#160;</td><td class="mdescRight">An owned, mutable TLV document.  <a href="classtlv_1_1document.html#details">More...</a><br /></td></tr>
 <tr class="separator:"><td class="memSeparator" colspan="2">&#160;</td></tr>
@@ -223,8 +226,20 @@ Classes</h2></td></tr>
 <tr class="memitem:"><td class="memItemLeft" align="right" valign="top">class &#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classtlv_1_1query__error.html">query_error</a></td></tr>
 <tr class="memdesc:"><td class="mdescLeft">&#160;</td><td class="mdescRight">Query compilation failure with the original C error and text offset.  <a href="classtlv_1_1query__error.html#details">More...</a><br /></td></tr>
 <tr class="separator:"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:"><td class="memItemLeft" align="right" valign="top">class &#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classtlv_1_1query__execution.html">query_execution</a></td></tr>
+<tr class="memdesc:"><td class="mdescLeft">&#160;</td><td class="mdescRight">Independent move-only Query continuation, retaining its compiled program. Borrowed input and environments must remain stable until destruction/reset. Byte/string scalars and Tree events borrow input/program/workspace; copy explicitly for owned results. NEED_MORE_DATA preserves state and differs from final END_OF_BUFFER.  <a href="classtlv_1_1query__execution.html#details">More...</a><br /></td></tr>
+<tr class="separator:"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:"><td class="memItemLeft" align="right" valign="top">class &#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classtlv_1_1query__expression.html">query_expression</a></td></tr>
+<tr class="memdesc:"><td class="mdescLeft">&#160;</td><td class="mdescRight">Typed expression text, validated only when compiled through the canonical C engine.  <a href="classtlv_1_1query__expression.html#details">More...</a><br /></td></tr>
+<tr class="separator:"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:"><td class="memItemLeft" align="right" valign="top">struct &#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="structtlv_1_1query__failure.html">query_failure</a></td></tr>
+<tr class="memdesc:"><td class="mdescLeft">&#160;</td><td class="mdescRight">Original native status and complete Query diagnostic, including Reader/codec detail.  <a href="structtlv_1_1query__failure.html#details">More...</a><br /></td></tr>
+<tr class="separator:"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:"><td class="memItemLeft" align="right" valign="top">class &#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classtlv_1_1query__matcher.html">query_matcher</a></td></tr>
 <tr class="memdesc:"><td class="mdescLeft">&#160;</td><td class="mdescRight">Resumable C Query matcher owning a copy of its parsed query.  <a href="classtlv_1_1query__matcher.html#details">More...</a><br /></td></tr>
+<tr class="separator:"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:"><td class="memItemLeft" align="right" valign="top">class &#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classtlv_1_1query__program.html">query_program</a></td></tr>
+<tr class="memdesc:"><td class="mdescLeft">&#160;</td><td class="mdescRight">Immutable full-language compiled Query; copies share owned program storage. External-storage programs borrow the caller's aligned immutable storage. Environments, callbacks and their contexts remain borrowed according to the native contract.  <a href="classtlv_1_1query__program.html#details">More...</a><br /></td></tr>
 <tr class="separator:"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:"><td class="memItemLeft" align="right" valign="top">class &#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classtlv_1_1query__range.html">query_range</a></td></tr>
 <tr class="memdesc:"><td class="mdescLeft">&#160;</td><td class="mdescRight">Lazy single-pass Query results yielding normal <a class="el" href="structtlv_1_1tree__item.html" title="Complete borrowed element with source, depth, offset and classification.">tree_item</a> records.  <a href="classtlv_1_1query__range.html#details">More...</a><br /></td></tr>
@@ -334,6 +349,21 @@ Typedefs</h2></td></tr>
 <tr class="memitem:aa5e1dc27ab7bacc00a21e4ac868ede89" id="r_aa5e1dc27ab7bacc00a21e4ac868ede89"><td class="memItemLeft" align="right" valign="top">using&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="namespacetlv.html#aa5e1dc27ab7bacc00a21e4ac868ede89">generator_options</a> = <a class="elRef" href="../../c-api/html/generator_8h.html#a30ffa41b8f052cbc2383ad76dd1abad8">tlv_generator_options_t</a></td></tr>
 <tr class="memdesc:aa5e1dc27ab7bacc00a21e4ac868ede89"><td class="mdescLeft">&#160;</td><td class="mdescRight">Generator configuration with the limits and lifetime contract of the C API.  <br /></td></tr>
 <tr class="separator:aa5e1dc27ab7bacc00a21e4ac868ede89"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a9c81c413deb62d00e1c1e1698b446077" id="r_a9c81c413deb62d00e1c1e1698b446077"><td class="memItemLeft" align="right" valign="top">using&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="namespacetlv.html#a9c81c413deb62d00e1c1e1698b446077">query_nodes</a> = <a class="el" href="classtlv_1_1query__expression.html">query_expression</a>&lt; <a class="elRef" href="../../c-api/html/group__traversal.html#gga43336be01e068a5916b4b8cdb7081c6ba85bee7adeb5c3949f0a574cb32b27a29">TLV_QUERY_RESULT_NODES</a> &gt;</td></tr>
+<tr class="memdesc:a9c81c413deb62d00e1c1e1698b446077"><td class="mdescLeft">&#160;</td><td class="mdescRight">Node selector expression.  <br /></td></tr>
+<tr class="separator:a9c81c413deb62d00e1c1e1698b446077"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:ae5f3d6c8120bb9510951d6b92982ff74" id="r_ae5f3d6c8120bb9510951d6b92982ff74"><td class="memItemLeft" align="right" valign="top">using&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="namespacetlv.html#ae5f3d6c8120bb9510951d6b92982ff74">query_boolean</a> = <a class="el" href="classtlv_1_1query__expression.html">query_expression</a>&lt; <a class="elRef" href="../../c-api/html/group__traversal.html#gga43336be01e068a5916b4b8cdb7081c6ba2b623cf52ce944aa0312276ba2792935">TLV_QUERY_RESULT_BOOL</a> &gt;</td></tr>
+<tr class="memdesc:ae5f3d6c8120bb9510951d6b92982ff74"><td class="mdescLeft">&#160;</td><td class="mdescRight">Boolean assertion expression.  <br /></td></tr>
+<tr class="separator:ae5f3d6c8120bb9510951d6b92982ff74"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:ae1021919a6132cf0982681ffafafd16a" id="r_ae1021919a6132cf0982681ffafafd16a"><td class="memItemLeft" align="right" valign="top">using&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="namespacetlv.html#ae1021919a6132cf0982681ffafafd16a">query_integer</a> = <a class="el" href="classtlv_1_1query__expression.html">query_expression</a>&lt; <a class="elRef" href="../../c-api/html/group__traversal.html#gga43336be01e068a5916b4b8cdb7081c6ba8c36ab91b1d5ce3bcf051ac654d0b1de">TLV_QUERY_RESULT_INTEGER</a> &gt;</td></tr>
+<tr class="memdesc:ae1021919a6132cf0982681ffafafd16a"><td class="mdescLeft">&#160;</td><td class="mdescRight">Signed integer expression.  <br /></td></tr>
+<tr class="separator:ae1021919a6132cf0982681ffafafd16a"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a2676dc9f4e801672989755b324adf8a7" id="r_a2676dc9f4e801672989755b324adf8a7"><td class="memItemLeft" align="right" valign="top">using&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="namespacetlv.html#a2676dc9f4e801672989755b324adf8a7">query_bytes</a> = <a class="el" href="classtlv_1_1query__expression.html">query_expression</a>&lt; <a class="elRef" href="../../c-api/html/group__traversal.html#gga43336be01e068a5916b4b8cdb7081c6bab21083f0e714bfe5ccf50982bbceed7f">TLV_QUERY_RESULT_BYTES</a> &gt;</td></tr>
+<tr class="memdesc:a2676dc9f4e801672989755b324adf8a7"><td class="mdescLeft">&#160;</td><td class="mdescRight">Byte span expression.  <br /></td></tr>
+<tr class="separator:a2676dc9f4e801672989755b324adf8a7"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:aa641a8bde9c9b4fe1d4afa753da4f1f4" id="r_aa641a8bde9c9b4fe1d4afa753da4f1f4"><td class="memItemLeft" align="right" valign="top">using&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="namespacetlv.html#aa641a8bde9c9b4fe1d4afa753da4f1f4">query_string</a> = <a class="el" href="classtlv_1_1query__expression.html">query_expression</a>&lt; <a class="elRef" href="../../c-api/html/group__traversal.html#gga43336be01e068a5916b4b8cdb7081c6baeadc704552459f3e5695d42a1ba5cf05">TLV_QUERY_RESULT_STRING</a> &gt;</td></tr>
+<tr class="memdesc:aa641a8bde9c9b4fe1d4afa753da4f1f4"><td class="mdescLeft">&#160;</td><td class="mdescRight">UTF-8 string expression.  <br /></td></tr>
+<tr class="separator:aa641a8bde9c9b4fe1d4afa753da4f1f4"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:aec6151f23d86b874b79d9d2ae021e568" id="r_aec6151f23d86b874b79d9d2ae021e568"><td class="memItemLeft" align="right" valign="top">using&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="namespacetlv.html#aec6151f23d86b874b79d9d2ae021e568">reader_diagnostic</a> = <a class="elRef" href="../../c-api/html/group__reader.html#ga24371a524a13cd9d1cd22b3db640de85">tlv_reader_diagnostic_t</a></td></tr>
 <tr class="memdesc:aec6151f23d86b874b79d9d2ae021e568"><td class="mdescLeft">&#160;</td><td class="mdescRight">C++ alias for the reader-specific diagnostic type, <a class="elRef" href="../../c-api/html/group__reader.html#ga24371a524a13cd9d1cd22b3db640de85">tlv_reader_diagnostic_t</a>.  <br /></td></tr>
 <tr class="separator:aec6151f23d86b874b79d9d2ae021e568"><td class="memSeparator" colspan="2">&#160;</td></tr>
@@ -372,6 +402,12 @@ Enumerations</h2></td></tr>
 <tr class="separator:aa48ac98faeceb89c29a22a63051a3836"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:aa91df798a712d88cf7d2f1f63a539b51" id="r_aa91df798a712d88cf7d2f1f63a539b51"><td class="memItemLeft" align="right" valign="top">enum class &#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="namespacetlv.html#aa91df798a712d88cf7d2f1f63a539b51">byte</a> : unsigned char </td></tr>
 <tr class="separator:aa91df798a712d88cf7d2f1f63a539b51"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a4488f7d6dbbe5b904e0cd1b5c8049edf" id="r_a4488f7d6dbbe5b904e0cd1b5c8049edf"><td class="memItemLeft" align="right" valign="top">enum class &#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="namespacetlv.html#a4488f7d6dbbe5b904e0cd1b5c8049edf">diff_kind</a> { <a class="el" href="namespacetlv.html#a4488f7d6dbbe5b904e0cd1b5c8049edfab60ed88355ac3f6898fd8a7ab1734d06">added</a>
+, <a class="el" href="namespacetlv.html#a4488f7d6dbbe5b904e0cd1b5c8049edfab07286ebbb5bc7aa91cc3eaa8bc19711">removed</a>
+, <a class="el" href="namespacetlv.html#a4488f7d6dbbe5b904e0cd1b5c8049edfa8977dfac2f8e04cb96e66882235f5aba">changed</a>
+ }</td></tr>
+<tr class="memdesc:a4488f7d6dbbe5b904e0cd1b5c8049edf"><td class="mdescLeft">&#160;</td><td class="mdescRight">One direct node difference; constructed descendants are compared independently.  <a href="namespacetlv.html#a4488f7d6dbbe5b904e0cd1b5c8049edf">More...</a><br /></td></tr>
+<tr class="separator:a4488f7d6dbbe5b904e0cd1b5c8049edf"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:a6d141be87a05679c237c4d7f5b941c15" id="r_a6d141be87a05679c237c4d7f5b941c15"><td class="memItemLeft" align="right" valign="top">enum class &#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="namespacetlv.html#a6d141be87a05679c237c4d7f5b941c15">input_mode</a> { <a class="el" href="namespacetlv.html#a6d141be87a05679c237c4d7f5b941c15a2a1585a864d9e67627c6ae04c807a2c5">final</a>
 , <a class="el" href="namespacetlv.html#a6d141be87a05679c237c4d7f5b941c15a57e48ffcfe372672b239d90ecbe3919a">incremental</a>
  }</td></tr>
@@ -432,6 +468,9 @@ Functions</h2></td></tr>
 <tr class="memitem:a1ebd1f785dffded6a41e5887546d0447" id="r_a1ebd1f785dffded6a41e5887546d0447"><td class="memItemLeft" align="right" valign="top">void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="namespacetlv.html#a1ebd1f785dffded6a41e5887546d0447">set_path</a> (<a class="el" href="namespacetlv.html#a00ca9c69c35ef11f6a22b7eda1b115ba">diagnostic</a> &amp;target, const <a class="el" href="namespacetlv.html#a362165fd39d879542d984a7aa5c5f1af">diagnostic_path</a> &amp;path)</td></tr>
 <tr class="memdesc:a1ebd1f785dffded6a41e5887546d0447"><td class="mdescLeft">&#160;</td><td class="mdescRight">Sets the hierarchical path a diagnostic refers to.  <br /></td></tr>
 <tr class="separator:a1ebd1f785dffded6a41e5887546d0447"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a08e5dd4c84ca47ded5fba1c2b27d2b81" id="r_a08e5dd4c84ca47ded5fba1c2b27d2b81"><td class="memItemLeft" align="right" valign="top"><a class="el" href="classtlv_1_1expected.html">expected</a>&lt; std::vector&lt; <a class="el" href="structtlv_1_1diff__entry.html">diff_entry</a> &gt;, <a class="el" href="structtlv_1_1query__failure.html">query_failure</a> &gt;&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="namespacetlv.html#a08e5dd4c84ca47ded5fba1c2b27d2b81">semantic_diff</a> (const <a class="el" href="classtlv_1_1document.html">document</a> &amp;left, const <a class="el" href="classtlv_1_1document.html">document</a> &amp;right, const <a class="el" href="classtlv_1_1query__program.html">query_program</a> *<a class="el" href="namespacetlv.html#a0a62bd79fd8b9075283dec7a3874ede5">where</a>=nullptr)</td></tr>
+<tr class="memdesc:a08e5dd4c84ca47ded5fba1c2b27d2b81"><td class="mdescLeft">&#160;</td><td class="mdescRight">Compare direct semantic node content selected on either original input.  <br /></td></tr>
+<tr class="separator:a08e5dd4c84ca47ded5fba1c2b27d2b81"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:a512ddcc1a3e18ab18462e5e891442851" id="r_a512ddcc1a3e18ab18462e5e891442851"><td class="memItemLeft" align="right" valign="top"><a class="el" href="classtlv_1_1expected.html">expected</a>&lt; <a class="el" href="structtlv_1_1decoded.html">decoded</a>, <a class="el" href="structtlv_1_1error.html">error</a> &gt;&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="namespacetlv.html#a512ddcc1a3e18ab18462e5e891442851">decode</a> (const <a class="elRef" href="../../c-api/html/group__formats.html#gac461da7e8d46362fa8e09694efb0b062">tlv_format_t</a> &amp;<a class="el" href="classtlv_1_1format.html">format</a>, <a class="el" href="namespacetlv.html#a2abe7003a70af047ef9acae17f31f75d">bytes</a> data)</td></tr>
 <tr class="memdesc:a512ddcc1a3e18ab18462e5e891442851"><td class="mdescLeft">&#160;</td><td class="mdescRight">Decode one element and retain its original wire ranges without allocation.  <br /></td></tr>
 <tr class="separator:a512ddcc1a3e18ab18462e5e891442851"><td class="memSeparator" colspan="2">&#160;</td></tr>
@@ -465,6 +504,44 @@ Functions</h2></td></tr>
 <tr class="memitem:a8ac95035fc97d2daf6a3c6163e9d5e0c" id="r_a8ac95035fc97d2daf6a3c6163e9d5e0c"><td class="memItemLeft" align="right" valign="top"><a class="el" href="classtlv_1_1expected.html">expected</a>&lt; size_t, <a class="el" href="structtlv_1_1error.html">error</a> &gt;&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="namespacetlv.html#a8ac95035fc97d2daf6a3c6163e9d5e0c">generate</a> (<a class="el" href="classtlv_1_1format.html">tlv::format</a> <a class="el" href="classtlv_1_1format.html">format</a>, const <a class="el" href="namespacetlv.html#aa5e1dc27ab7bacc00a21e4ac868ede89">generator_options</a> &amp;options, <a class="el" href="classtlv_1_1span.html">span</a>&lt; <a class="el" href="namespacetlv.html#aa91df798a712d88cf7d2f1f63a539b51">byte</a> &gt; output, <a class="el" href="classtlv_1_1span.html">span</a>&lt; <a class="el" href="namespacetlv.html#aa91df798a712d88cf7d2f1f63a539b51">byte</a> &gt; workspace)</td></tr>
 <tr class="memdesc:a8ac95035fc97d2daf6a3c6163e9d5e0c"><td class="mdescLeft">&#160;</td><td class="mdescRight">Generate one reproducible wire case without retaining caller storage.  <br /></td></tr>
 <tr class="separator:a8ac95035fc97d2daf6a3c6163e9d5e0c"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a0a62bd79fd8b9075283dec7a3874ede5" id="r_a0a62bd79fd8b9075283dec7a3874ede5"><td class="memItemLeft" align="right" valign="top"><a class="el" href="namespacetlv.html#a9c81c413deb62d00e1c1e1698b446077">query_nodes</a>&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="namespacetlv.html#a0a62bd79fd8b9075283dec7a3874ede5">where</a> (const <a class="el" href="namespacetlv.html#a9c81c413deb62d00e1c1e1698b446077">query_nodes</a> &amp;nodes, const <a class="el" href="namespacetlv.html#ae5f3d6c8120bb9510951d6b92982ff74">query_boolean</a> &amp;condition)</td></tr>
+<tr class="memdesc:a0a62bd79fd8b9075283dec7a3874ede5"><td class="mdescLeft">&#160;</td><td class="mdescRight">Compose a selector predicate without parsing either expression.  <br /></td></tr>
+<tr class="separator:a0a62bd79fd8b9075283dec7a3874ede5"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:aecb72b6502f26f32c8e534f56b2bcde1" id="r_aecb72b6502f26f32c8e534f56b2bcde1"><td class="memItemLeft" align="right" valign="top"><a class="el" href="namespacetlv.html#ae5f3d6c8120bb9510951d6b92982ff74">query_boolean</a>&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="namespacetlv.html#aecb72b6502f26f32c8e534f56b2bcde1">exists</a> (const <a class="el" href="namespacetlv.html#a9c81c413deb62d00e1c1e1698b446077">query_nodes</a> &amp;nodes)</td></tr>
+<tr class="memdesc:aecb72b6502f26f32c8e534f56b2bcde1"><td class="mdescLeft">&#160;</td><td class="mdescRight">Compose existence using the native function.  <br /></td></tr>
+<tr class="separator:aecb72b6502f26f32c8e534f56b2bcde1"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a761e89a80c7c57d0ee6566002f044ff1" id="r_a761e89a80c7c57d0ee6566002f044ff1"><td class="memItemLeft" align="right" valign="top"><a class="el" href="namespacetlv.html#ae1021919a6132cf0982681ffafafd16a">query_integer</a>&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="namespacetlv.html#a761e89a80c7c57d0ee6566002f044ff1">count</a> (const <a class="el" href="namespacetlv.html#a9c81c413deb62d00e1c1e1698b446077">query_nodes</a> &amp;nodes)</td></tr>
+<tr class="memdesc:a761e89a80c7c57d0ee6566002f044ff1"><td class="mdescLeft">&#160;</td><td class="mdescRight">Compose cardinality using the native function.  <br /></td></tr>
+<tr class="separator:a761e89a80c7c57d0ee6566002f044ff1"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:afe1bd550d683dc55d9d168b19c0f8362" id="r_afe1bd550d683dc55d9d168b19c0f8362"><td class="memItemLeft" align="right" valign="top"><a class="el" href="namespacetlv.html#ae1021919a6132cf0982681ffafafd16a">query_integer</a>&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="namespacetlv.html#afe1bd550d683dc55d9d168b19c0f8362">num</a> (const <a class="el" href="namespacetlv.html#a9c81c413deb62d00e1c1e1698b446077">query_nodes</a> &amp;nodes)</td></tr>
+<tr class="memdesc:afe1bd550d683dc55d9d168b19c0f8362"><td class="mdescLeft">&#160;</td><td class="mdescRight">Compose strict integer conversion; requires the compiler's NUM environment.  <br /></td></tr>
+<tr class="separator:afe1bd550d683dc55d9d168b19c0f8362"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a11b33a4412a57cc021afa31eef555eed" id="r_a11b33a4412a57cc021afa31eef555eed"><td class="memItemLeft" align="right" valign="top"><a class="el" href="namespacetlv.html#ae1021919a6132cf0982681ffafafd16a">query_integer</a>&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="namespacetlv.html#a11b33a4412a57cc021afa31eef555eed">integer</a> (int64_t value)</td></tr>
+<tr class="memdesc:a11b33a4412a57cc021afa31eef555eed"><td class="mdescLeft">&#160;</td><td class="mdescRight">Compose a decimal comparison operand; no variable interpolation. Bare digit strings remain raw tag tests outside numeric comparison context, following the native language. Use this value as a comparison operand.  <br /></td></tr>
+<tr class="separator:a11b33a4412a57cc021afa31eef555eed"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:af902b290e3ded293b9e37a5c2720cf98" id="r_af902b290e3ded293b9e37a5c2720cf98"><td class="memTemplParams" colspan="2">template&lt;<a class="elRef" href="../../c-api/html/group__traversal.html#ga9e9451c7cc7e346182993d0d95065837">tlv_query_result_kind_t</a> Kind&gt; </td></tr>
+<tr class="memitem:af902b290e3ded293b9e37a5c2720cf98"><td class="memTemplItemLeft" align="right" valign="top"><a class="el" href="classtlv_1_1query__expression.html">query_expression</a>&lt; Kind &gt;&#160;</td><td class="memTemplItemRight" valign="bottom"><a class="el" href="namespacetlv.html#af902b290e3ded293b9e37a5c2720cf98">variable</a> (const std::string &amp;name)</td></tr>
+<tr class="memdesc:af902b290e3ded293b9e37a5c2720cf98"><td class="mdescLeft">&#160;</td><td class="mdescRight">Compose a typed variable reference; the C compiler validates its bounded name.  <br /></td></tr>
+<tr class="separator:af902b290e3ded293b9e37a5c2720cf98"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a3ebb76dfffd8442502ba207c918b744b" id="r_a3ebb76dfffd8442502ba207c918b744b"><td class="memTemplParams" colspan="2">template&lt;<a class="elRef" href="../../c-api/html/group__traversal.html#ga9e9451c7cc7e346182993d0d95065837">tlv_query_result_kind_t</a> Kind&gt; </td></tr>
+<tr class="memitem:a3ebb76dfffd8442502ba207c918b744b"><td class="memTemplItemLeft" align="right" valign="top"><a class="el" href="namespacetlv.html#ae5f3d6c8120bb9510951d6b92982ff74">query_boolean</a>&#160;</td><td class="memTemplItemRight" valign="bottom"><a class="el" href="namespacetlv.html#a3ebb76dfffd8442502ba207c918b744b">operator==</a> (const <a class="el" href="classtlv_1_1query__expression.html">query_expression</a>&lt; Kind &gt; &amp;a, const <a class="el" href="classtlv_1_1query__expression.html">query_expression</a>&lt; Kind &gt; &amp;b)</td></tr>
+<tr class="memdesc:a3ebb76dfffd8442502ba207c918b744b"><td class="mdescLeft">&#160;</td><td class="mdescRight">Compose typed scalar equality.  <br /></td></tr>
+<tr class="separator:a3ebb76dfffd8442502ba207c918b744b"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:ad8b63175d587c88d91cd3db17c79c7db" id="r_ad8b63175d587c88d91cd3db17c79c7db"><td class="memItemLeft" align="right" valign="top"><a class="el" href="namespacetlv.html#ae5f3d6c8120bb9510951d6b92982ff74">query_boolean</a>&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="namespacetlv.html#ad8b63175d587c88d91cd3db17c79c7db">operator&gt;</a> (const <a class="el" href="namespacetlv.html#ae1021919a6132cf0982681ffafafd16a">query_integer</a> &amp;a, const <a class="el" href="namespacetlv.html#ae1021919a6132cf0982681ffafafd16a">query_integer</a> &amp;b)</td></tr>
+<tr class="memdesc:ad8b63175d587c88d91cd3db17c79c7db"><td class="mdescLeft">&#160;</td><td class="mdescRight">Compose signed integer ordering.  <br /></td></tr>
+<tr class="separator:ad8b63175d587c88d91cd3db17c79c7db"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:aec5f4011d204c0fc941af9ee94554e8b" id="r_aec5f4011d204c0fc941af9ee94554e8b"><td class="memItemLeft" align="right" valign="top"><a class="el" href="namespacetlv.html#ae5f3d6c8120bb9510951d6b92982ff74">query_boolean</a>&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="namespacetlv.html#aec5f4011d204c0fc941af9ee94554e8b">operator&lt;</a> (const <a class="el" href="namespacetlv.html#ae1021919a6132cf0982681ffafafd16a">query_integer</a> &amp;a, const <a class="el" href="namespacetlv.html#ae1021919a6132cf0982681ffafafd16a">query_integer</a> &amp;b)</td></tr>
+<tr class="memdesc:aec5f4011d204c0fc941af9ee94554e8b"><td class="mdescLeft">&#160;</td><td class="mdescRight">Compose signed integer ordering.  <br /></td></tr>
+<tr class="separator:aec5f4011d204c0fc941af9ee94554e8b"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a1c6e0d684698817d6764df284798e60d" id="r_a1c6e0d684698817d6764df284798e60d"><td class="memItemLeft" align="right" valign="top"><a class="el" href="namespacetlv.html#ae5f3d6c8120bb9510951d6b92982ff74">query_boolean</a>&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="namespacetlv.html#a1c6e0d684698817d6764df284798e60d">operator&amp;&amp;</a> (const <a class="el" href="namespacetlv.html#ae5f3d6c8120bb9510951d6b92982ff74">query_boolean</a> &amp;a, const <a class="el" href="namespacetlv.html#ae5f3d6c8120bb9510951d6b92982ff74">query_boolean</a> &amp;b)</td></tr>
+<tr class="memdesc:a1c6e0d684698817d6764df284798e60d"><td class="mdescLeft">&#160;</td><td class="mdescRight">Compose native eager boolean conjunction; both operands are evaluated.  <br /></td></tr>
+<tr class="separator:a1c6e0d684698817d6764df284798e60d"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:aabf99939b7e8c790ebe6d94a1013e23c" id="r_aabf99939b7e8c790ebe6d94a1013e23c"><td class="memItemLeft" align="right" valign="top"><a class="el" href="namespacetlv.html#ae5f3d6c8120bb9510951d6b92982ff74">query_boolean</a>&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="namespacetlv.html#aabf99939b7e8c790ebe6d94a1013e23c">operator||</a> (const <a class="el" href="namespacetlv.html#ae5f3d6c8120bb9510951d6b92982ff74">query_boolean</a> &amp;a, const <a class="el" href="namespacetlv.html#ae5f3d6c8120bb9510951d6b92982ff74">query_boolean</a> &amp;b)</td></tr>
+<tr class="memdesc:aabf99939b7e8c790ebe6d94a1013e23c"><td class="mdescLeft">&#160;</td><td class="mdescRight">Compose native eager boolean disjunction; both operands are evaluated.  <br /></td></tr>
+<tr class="separator:aabf99939b7e8c790ebe6d94a1013e23c"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a41624c15a79371b8a93a22d371e9cb5c" id="r_a41624c15a79371b8a93a22d371e9cb5c"><td class="memItemLeft" align="right" valign="top"><a class="el" href="namespacetlv.html#ae5f3d6c8120bb9510951d6b92982ff74">query_boolean</a>&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="namespacetlv.html#a41624c15a79371b8a93a22d371e9cb5c">operator!</a> (const <a class="el" href="namespacetlv.html#ae5f3d6c8120bb9510951d6b92982ff74">query_boolean</a> &amp;a)</td></tr>
+<tr class="memdesc:a41624c15a79371b8a93a22d371e9cb5c"><td class="mdescLeft">&#160;</td><td class="mdescRight">Compose boolean negation using the native function.  <br /></td></tr>
+<tr class="separator:a41624c15a79371b8a93a22d371e9cb5c"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:ac6665c938ebabfd7f55e4df8294432c0" id="r_ac6665c938ebabfd7f55e4df8294432c0"><td class="memItemLeft" align="right" valign="top"><a class="el" href="classtlv_1_1expected.html">expected</a>&lt; <a class="el" href="structtlv_1_1decoded.html">decoded</a>, <a class="el" href="structtlv_1_1error.html">error</a> &gt;&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="namespacetlv.html#ac6665c938ebabfd7f55e4df8294432c0">read</a> (<a class="el" href="namespacetlv.html#a2abe7003a70af047ef9acae17f31f75d">bytes</a> data, const <a class="elRef" href="../../c-api/html/group__formats.html#gac461da7e8d46362fa8e09694efb0b062">tlv_format_t</a> &amp;<a class="el" href="classtlv_1_1format.html">format</a>, size_t &amp;consumed, <a class="el" href="namespacetlv.html#aec6151f23d86b874b79d9d2ae021e568">reader_diagnostic</a> *<a class="el" href="namespacetlv.html#a00ca9c69c35ef11f6a22b7eda1b115ba">diagnostic</a>=nullptr)</td></tr>
 <tr class="memdesc:ac6665c938ebabfd7f55e4df8294432c0"><td class="mdescLeft">&#160;</td><td class="mdescRight">Read one complete element with its source ranges and optional diagnostics.  <br /></td></tr>
 <tr class="separator:ac6665c938ebabfd7f55e4df8294432c0"><td class="memSeparator" colspan="2">&#160;</td></tr>
@@ -691,6 +768,86 @@ Functions</h2></td></tr>
 
 </div>
 </div>
+<a id="ae5f3d6c8120bb9510951d6b92982ff74" name="ae5f3d6c8120bb9510951d6b92982ff74"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#ae5f3d6c8120bb9510951d6b92982ff74">&#9670;&#160;</a></span>query_boolean</h2>
+
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname">using <a class="el" href="namespacetlv.html#ae5f3d6c8120bb9510951d6b92982ff74">tlv::query_boolean</a> = typedef <a class="el" href="classtlv_1_1query__expression.html">query_expression</a>&lt;<a class="elRef" href="../../c-api/html/group__traversal.html#gga43336be01e068a5916b4b8cdb7081c6ba2b623cf52ce944aa0312276ba2792935">TLV_QUERY_RESULT_BOOL</a>&gt;</td>
+        </tr>
+      </table>
+</div><div class="memdoc">
+
+<p>Boolean assertion expression. </p>
+
+</div>
+</div>
+<a id="a2676dc9f4e801672989755b324adf8a7" name="a2676dc9f4e801672989755b324adf8a7"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#a2676dc9f4e801672989755b324adf8a7">&#9670;&#160;</a></span>query_bytes</h2>
+
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname">using <a class="el" href="namespacetlv.html#a2676dc9f4e801672989755b324adf8a7">tlv::query_bytes</a> = typedef <a class="el" href="classtlv_1_1query__expression.html">query_expression</a>&lt;<a class="elRef" href="../../c-api/html/group__traversal.html#gga43336be01e068a5916b4b8cdb7081c6bab21083f0e714bfe5ccf50982bbceed7f">TLV_QUERY_RESULT_BYTES</a>&gt;</td>
+        </tr>
+      </table>
+</div><div class="memdoc">
+
+<p>Byte span expression. </p>
+
+</div>
+</div>
+<a id="ae1021919a6132cf0982681ffafafd16a" name="ae1021919a6132cf0982681ffafafd16a"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#ae1021919a6132cf0982681ffafafd16a">&#9670;&#160;</a></span>query_integer</h2>
+
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname">using <a class="el" href="namespacetlv.html#ae1021919a6132cf0982681ffafafd16a">tlv::query_integer</a> = typedef <a class="el" href="classtlv_1_1query__expression.html">query_expression</a>&lt;<a class="elRef" href="../../c-api/html/group__traversal.html#gga43336be01e068a5916b4b8cdb7081c6ba8c36ab91b1d5ce3bcf051ac654d0b1de">TLV_QUERY_RESULT_INTEGER</a>&gt;</td>
+        </tr>
+      </table>
+</div><div class="memdoc">
+
+<p>Signed integer expression. </p>
+
+</div>
+</div>
+<a id="a9c81c413deb62d00e1c1e1698b446077" name="a9c81c413deb62d00e1c1e1698b446077"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#a9c81c413deb62d00e1c1e1698b446077">&#9670;&#160;</a></span>query_nodes</h2>
+
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname">using <a class="el" href="namespacetlv.html#a9c81c413deb62d00e1c1e1698b446077">tlv::query_nodes</a> = typedef <a class="el" href="classtlv_1_1query__expression.html">query_expression</a>&lt;<a class="elRef" href="../../c-api/html/group__traversal.html#gga43336be01e068a5916b4b8cdb7081c6ba85bee7adeb5c3949f0a574cb32b27a29">TLV_QUERY_RESULT_NODES</a>&gt;</td>
+        </tr>
+      </table>
+</div><div class="memdoc">
+
+<p>Node selector expression. </p>
+
+</div>
+</div>
+<a id="aa641a8bde9c9b4fe1d4afa753da4f1f4" name="aa641a8bde9c9b4fe1d4afa753da4f1f4"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#aa641a8bde9c9b4fe1d4afa753da4f1f4">&#9670;&#160;</a></span>query_string</h2>
+
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname">using <a class="el" href="namespacetlv.html#aa641a8bde9c9b4fe1d4afa753da4f1f4">tlv::query_string</a> = typedef <a class="el" href="classtlv_1_1query__expression.html">query_expression</a>&lt;<a class="elRef" href="../../c-api/html/group__traversal.html#gga43336be01e068a5916b4b8cdb7081c6baeadc704552459f3e5695d42a1ba5cf05">TLV_QUERY_RESULT_STRING</a>&gt;</td>
+        </tr>
+      </table>
+</div><div class="memdoc">
+
+<p>UTF-8 string expression. </p>
+
+</div>
+</div>
 <a id="aec6151f23d86b874b79d9d2ae021e568" name="aec6151f23d86b874b79d9d2ae021e568"></a>
 <h2 class="memtitle"><span class="permalink"><a href="#aec6151f23d86b874b79d9d2ae021e568">&#9670;&#160;</a></span>reader_diagnostic</h2>
 
@@ -903,6 +1060,38 @@ Functions</h2></td></tr>
   </tr>
 </table>
 </div><div class="memdoc">
+
+</div>
+</div>
+<a id="a4488f7d6dbbe5b904e0cd1b5c8049edf" name="a4488f7d6dbbe5b904e0cd1b5c8049edf"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#a4488f7d6dbbe5b904e0cd1b5c8049edf">&#9670;&#160;</a></span>diff_kind</h2>
+
+<div class="memitem">
+<div class="memproto">
+<table class="mlabels">
+  <tr>
+  <td class="mlabels-left">
+      <table class="memname">
+        <tr>
+          <td class="memname">enum class <a class="el" href="namespacetlv.html#a4488f7d6dbbe5b904e0cd1b5c8049edf">tlv::diff_kind</a></td>
+        </tr>
+      </table>
+  </td>
+  <td class="mlabels-right">
+<span class="mlabels"><span class="mlabel">strong</span></span>  </td>
+  </tr>
+</table>
+</div><div class="memdoc">
+
+<p>One direct node difference; constructed descendants are compared independently. </p>
+<table class="fieldtable">
+<tr><th colspan="2">Enumerator</th></tr><tr><td class="fieldname"><a id="a4488f7d6dbbe5b904e0cd1b5c8049edfab60ed88355ac3f6898fd8a7ab1734d06" name="a4488f7d6dbbe5b904e0cd1b5c8049edfab60ed88355ac3f6898fd8a7ab1734d06"></a>added&#160;</td><td class="fielddoc"><p>Present only on the right. </p>
+</td></tr>
+<tr><td class="fieldname"><a id="a4488f7d6dbbe5b904e0cd1b5c8049edfab07286ebbb5bc7aa91cc3eaa8bc19711" name="a4488f7d6dbbe5b904e0cd1b5c8049edfab07286ebbb5bc7aa91cc3eaa8bc19711"></a>removed&#160;</td><td class="fielddoc"><p>Present only on the left. </p>
+</td></tr>
+<tr><td class="fieldname"><a id="a4488f7d6dbbe5b904e0cd1b5c8049edfa8977dfac2f8e04cb96e66882235f5aba" name="a4488f7d6dbbe5b904e0cd1b5c8049edfa8977dfac2f8e04cb96e66882235f5aba"></a>changed&#160;</td><td class="fielddoc"><p>Corresponding direct semantic content differs. </p>
+</td></tr>
+</table>
 
 </div>
 </div>
@@ -1142,6 +1331,34 @@ template&lt;typename T &gt; </div>
 </dl>
 <dl class="section return"><dt>Returns</dt><dd>The complete encoded size, or the error of <a class="elRef" href="../../c-api/html/group__formats.html#gaf2e0f147f54e46645447b4fe5fc9dc0d">tlv_ber_write_indefinite()</a>.</dd></dl>
 <dl class="section note"><dt>Note</dt><dd>On error the destination is unchanged. </dd></dl>
+
+</div>
+</div>
+<a id="a761e89a80c7c57d0ee6566002f044ff1" name="a761e89a80c7c57d0ee6566002f044ff1"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#a761e89a80c7c57d0ee6566002f044ff1">&#9670;&#160;</a></span>count()</h2>
+
+<div class="memitem">
+<div class="memproto">
+<table class="mlabels">
+  <tr>
+  <td class="mlabels-left">
+      <table class="memname">
+        <tr>
+          <td class="memname"><a class="el" href="namespacetlv.html#ae1021919a6132cf0982681ffafafd16a">query_integer</a> tlv::count </td>
+          <td>(</td>
+          <td class="paramtype">const <a class="el" href="namespacetlv.html#a9c81c413deb62d00e1c1e1698b446077">query_nodes</a> &amp;&#160;</td>
+          <td class="paramname"><em>nodes</em></td><td>)</td>
+          <td></td>
+        </tr>
+      </table>
+  </td>
+  <td class="mlabels-right">
+<span class="mlabels"><span class="mlabel">inline</span></span>  </td>
+  </tr>
+</table>
+</div><div class="memdoc">
+
+<p>Compose cardinality using the native function. </p>
 
 </div>
 </div>
@@ -2135,6 +2352,34 @@ template&lt;typename F , typename Output , typename Callback &gt; </div>
 
 </div>
 </div>
+<a id="aecb72b6502f26f32c8e534f56b2bcde1" name="aecb72b6502f26f32c8e534f56b2bcde1"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#aecb72b6502f26f32c8e534f56b2bcde1">&#9670;&#160;</a></span>exists()</h2>
+
+<div class="memitem">
+<div class="memproto">
+<table class="mlabels">
+  <tr>
+  <td class="mlabels-left">
+      <table class="memname">
+        <tr>
+          <td class="memname"><a class="el" href="namespacetlv.html#ae5f3d6c8120bb9510951d6b92982ff74">query_boolean</a> tlv::exists </td>
+          <td>(</td>
+          <td class="paramtype">const <a class="el" href="namespacetlv.html#a9c81c413deb62d00e1c1e1698b446077">query_nodes</a> &amp;&#160;</td>
+          <td class="paramname"><em>nodes</em></td><td>)</td>
+          <td></td>
+        </tr>
+      </table>
+  </td>
+  <td class="mlabels-right">
+<span class="mlabels"><span class="mlabel">inline</span></span>  </td>
+  </tr>
+</table>
+</div><div class="memdoc">
+
+<p>Compose existence using the native function. </p>
+
+</div>
+</div>
 <a id="a8ac95035fc97d2daf6a3c6163e9d5e0c" name="a8ac95035fc97d2daf6a3c6163e9d5e0c"></a>
 <h2 class="memtitle"><span class="permalink"><a href="#a8ac95035fc97d2daf6a3c6163e9d5e0c">&#9670;&#160;</a></span>generate()</h2>
 
@@ -2228,6 +2473,34 @@ template&lt;typename F , typename Output , typename Callback &gt; </div>
   </dd>
 </dl>
 <dl class="section return"><dt>Returns</dt><dd>Required bytes, or the canonical validation/overflow error. </dd></dl>
+
+</div>
+</div>
+<a id="a11b33a4412a57cc021afa31eef555eed" name="a11b33a4412a57cc021afa31eef555eed"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#a11b33a4412a57cc021afa31eef555eed">&#9670;&#160;</a></span>integer()</h2>
+
+<div class="memitem">
+<div class="memproto">
+<table class="mlabels">
+  <tr>
+  <td class="mlabels-left">
+      <table class="memname">
+        <tr>
+          <td class="memname"><a class="el" href="namespacetlv.html#ae1021919a6132cf0982681ffafafd16a">query_integer</a> tlv::integer </td>
+          <td>(</td>
+          <td class="paramtype">int64_t&#160;</td>
+          <td class="paramname"><em>value</em></td><td>)</td>
+          <td></td>
+        </tr>
+      </table>
+  </td>
+  <td class="mlabels-right">
+<span class="mlabels"><span class="mlabel">inline</span></span>  </td>
+  </tr>
+</table>
+</div><div class="memdoc">
+
+<p>Compose a decimal comparison operand; no variable interpolation. Bare digit strings remain raw tag tests outside numeric comparison context, following the native language. Use this value as a comparison operand. </p>
 
 </div>
 </div>
@@ -2835,6 +3108,254 @@ template&lt;typename Source &gt; </div>
 
 </div>
 </div>
+<a id="afe1bd550d683dc55d9d168b19c0f8362" name="afe1bd550d683dc55d9d168b19c0f8362"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#afe1bd550d683dc55d9d168b19c0f8362">&#9670;&#160;</a></span>num()</h2>
+
+<div class="memitem">
+<div class="memproto">
+<table class="mlabels">
+  <tr>
+  <td class="mlabels-left">
+      <table class="memname">
+        <tr>
+          <td class="memname"><a class="el" href="namespacetlv.html#ae1021919a6132cf0982681ffafafd16a">query_integer</a> tlv::num </td>
+          <td>(</td>
+          <td class="paramtype">const <a class="el" href="namespacetlv.html#a9c81c413deb62d00e1c1e1698b446077">query_nodes</a> &amp;&#160;</td>
+          <td class="paramname"><em>nodes</em></td><td>)</td>
+          <td></td>
+        </tr>
+      </table>
+  </td>
+  <td class="mlabels-right">
+<span class="mlabels"><span class="mlabel">inline</span></span>  </td>
+  </tr>
+</table>
+</div><div class="memdoc">
+
+<p>Compose strict integer conversion; requires the compiler's NUM environment. </p>
+
+</div>
+</div>
+<a id="a41624c15a79371b8a93a22d371e9cb5c" name="a41624c15a79371b8a93a22d371e9cb5c"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#a41624c15a79371b8a93a22d371e9cb5c">&#9670;&#160;</a></span>operator!()</h2>
+
+<div class="memitem">
+<div class="memproto">
+<table class="mlabels">
+  <tr>
+  <td class="mlabels-left">
+      <table class="memname">
+        <tr>
+          <td class="memname"><a class="el" href="namespacetlv.html#ae5f3d6c8120bb9510951d6b92982ff74">query_boolean</a> tlv::operator! </td>
+          <td>(</td>
+          <td class="paramtype">const <a class="el" href="namespacetlv.html#ae5f3d6c8120bb9510951d6b92982ff74">query_boolean</a> &amp;&#160;</td>
+          <td class="paramname"><em>a</em></td><td>)</td>
+          <td></td>
+        </tr>
+      </table>
+  </td>
+  <td class="mlabels-right">
+<span class="mlabels"><span class="mlabel">inline</span></span>  </td>
+  </tr>
+</table>
+</div><div class="memdoc">
+
+<p>Compose boolean negation using the native function. </p>
+
+</div>
+</div>
+<a id="a1c6e0d684698817d6764df284798e60d" name="a1c6e0d684698817d6764df284798e60d"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#a1c6e0d684698817d6764df284798e60d">&#9670;&#160;</a></span>operator&amp;&amp;()</h2>
+
+<div class="memitem">
+<div class="memproto">
+<table class="mlabels">
+  <tr>
+  <td class="mlabels-left">
+      <table class="memname">
+        <tr>
+          <td class="memname"><a class="el" href="namespacetlv.html#ae5f3d6c8120bb9510951d6b92982ff74">query_boolean</a> tlv::operator&amp;&amp; </td>
+          <td>(</td>
+          <td class="paramtype">const <a class="el" href="namespacetlv.html#ae5f3d6c8120bb9510951d6b92982ff74">query_boolean</a> &amp;&#160;</td>
+          <td class="paramname"><em>a</em>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype">const <a class="el" href="namespacetlv.html#ae5f3d6c8120bb9510951d6b92982ff74">query_boolean</a> &amp;&#160;</td>
+          <td class="paramname"><em>b</em>&#160;</td>
+        </tr>
+        <tr>
+          <td></td>
+          <td>)</td>
+          <td></td><td></td>
+        </tr>
+      </table>
+  </td>
+  <td class="mlabels-right">
+<span class="mlabels"><span class="mlabel">inline</span></span>  </td>
+  </tr>
+</table>
+</div><div class="memdoc">
+
+<p>Compose native eager boolean conjunction; both operands are evaluated. </p>
+
+</div>
+</div>
+<a id="aec5f4011d204c0fc941af9ee94554e8b" name="aec5f4011d204c0fc941af9ee94554e8b"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#aec5f4011d204c0fc941af9ee94554e8b">&#9670;&#160;</a></span>operator&lt;()</h2>
+
+<div class="memitem">
+<div class="memproto">
+<table class="mlabels">
+  <tr>
+  <td class="mlabels-left">
+      <table class="memname">
+        <tr>
+          <td class="memname"><a class="el" href="namespacetlv.html#ae5f3d6c8120bb9510951d6b92982ff74">query_boolean</a> tlv::operator&lt; </td>
+          <td>(</td>
+          <td class="paramtype">const <a class="el" href="namespacetlv.html#ae1021919a6132cf0982681ffafafd16a">query_integer</a> &amp;&#160;</td>
+          <td class="paramname"><em>a</em>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype">const <a class="el" href="namespacetlv.html#ae1021919a6132cf0982681ffafafd16a">query_integer</a> &amp;&#160;</td>
+          <td class="paramname"><em>b</em>&#160;</td>
+        </tr>
+        <tr>
+          <td></td>
+          <td>)</td>
+          <td></td><td></td>
+        </tr>
+      </table>
+  </td>
+  <td class="mlabels-right">
+<span class="mlabels"><span class="mlabel">inline</span></span>  </td>
+  </tr>
+</table>
+</div><div class="memdoc">
+
+<p>Compose signed integer ordering. </p>
+
+</div>
+</div>
+<a id="a3ebb76dfffd8442502ba207c918b744b" name="a3ebb76dfffd8442502ba207c918b744b"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#a3ebb76dfffd8442502ba207c918b744b">&#9670;&#160;</a></span>operator==()</h2>
+
+<div class="memitem">
+<div class="memproto">
+<div class="memtemplate">
+template&lt;<a class="elRef" href="../../c-api/html/group__traversal.html#ga9e9451c7cc7e346182993d0d95065837">tlv_query_result_kind_t</a> Kind&gt; </div>
+<table class="mlabels">
+  <tr>
+  <td class="mlabels-left">
+      <table class="memname">
+        <tr>
+          <td class="memname"><a class="el" href="namespacetlv.html#ae5f3d6c8120bb9510951d6b92982ff74">query_boolean</a> tlv::operator== </td>
+          <td>(</td>
+          <td class="paramtype">const <a class="el" href="classtlv_1_1query__expression.html">query_expression</a>&lt; Kind &gt; &amp;&#160;</td>
+          <td class="paramname"><em>a</em>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype">const <a class="el" href="classtlv_1_1query__expression.html">query_expression</a>&lt; Kind &gt; &amp;&#160;</td>
+          <td class="paramname"><em>b</em>&#160;</td>
+        </tr>
+        <tr>
+          <td></td>
+          <td>)</td>
+          <td></td><td></td>
+        </tr>
+      </table>
+  </td>
+  <td class="mlabels-right">
+<span class="mlabels"><span class="mlabel">inline</span></span>  </td>
+  </tr>
+</table>
+</div><div class="memdoc">
+
+<p>Compose typed scalar equality. </p>
+
+</div>
+</div>
+<a id="ad8b63175d587c88d91cd3db17c79c7db" name="ad8b63175d587c88d91cd3db17c79c7db"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#ad8b63175d587c88d91cd3db17c79c7db">&#9670;&#160;</a></span>operator&gt;()</h2>
+
+<div class="memitem">
+<div class="memproto">
+<table class="mlabels">
+  <tr>
+  <td class="mlabels-left">
+      <table class="memname">
+        <tr>
+          <td class="memname"><a class="el" href="namespacetlv.html#ae5f3d6c8120bb9510951d6b92982ff74">query_boolean</a> tlv::operator&gt; </td>
+          <td>(</td>
+          <td class="paramtype">const <a class="el" href="namespacetlv.html#ae1021919a6132cf0982681ffafafd16a">query_integer</a> &amp;&#160;</td>
+          <td class="paramname"><em>a</em>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype">const <a class="el" href="namespacetlv.html#ae1021919a6132cf0982681ffafafd16a">query_integer</a> &amp;&#160;</td>
+          <td class="paramname"><em>b</em>&#160;</td>
+        </tr>
+        <tr>
+          <td></td>
+          <td>)</td>
+          <td></td><td></td>
+        </tr>
+      </table>
+  </td>
+  <td class="mlabels-right">
+<span class="mlabels"><span class="mlabel">inline</span></span>  </td>
+  </tr>
+</table>
+</div><div class="memdoc">
+
+<p>Compose signed integer ordering. </p>
+
+</div>
+</div>
+<a id="aabf99939b7e8c790ebe6d94a1013e23c" name="aabf99939b7e8c790ebe6d94a1013e23c"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#aabf99939b7e8c790ebe6d94a1013e23c">&#9670;&#160;</a></span>operator||()</h2>
+
+<div class="memitem">
+<div class="memproto">
+<table class="mlabels">
+  <tr>
+  <td class="mlabels-left">
+      <table class="memname">
+        <tr>
+          <td class="memname"><a class="el" href="namespacetlv.html#ae5f3d6c8120bb9510951d6b92982ff74">query_boolean</a> tlv::operator|| </td>
+          <td>(</td>
+          <td class="paramtype">const <a class="el" href="namespacetlv.html#ae5f3d6c8120bb9510951d6b92982ff74">query_boolean</a> &amp;&#160;</td>
+          <td class="paramname"><em>a</em>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype">const <a class="el" href="namespacetlv.html#ae5f3d6c8120bb9510951d6b92982ff74">query_boolean</a> &amp;&#160;</td>
+          <td class="paramname"><em>b</em>&#160;</td>
+        </tr>
+        <tr>
+          <td></td>
+          <td>)</td>
+          <td></td><td></td>
+        </tr>
+      </table>
+  </td>
+  <td class="mlabels-right">
+<span class="mlabels"><span class="mlabel">inline</span></span>  </td>
+  </tr>
+</table>
+</div><div class="memdoc">
+
+<p>Compose native eager boolean disjunction; both operands are evaluated. </p>
+
+</div>
+</div>
 <a id="a488f90cb08dd94695022c7428683b774" name="a488f90cb08dd94695022c7428683b774"></a>
 <h2 class="memtitle"><span class="permalink"><a href="#a488f90cb08dd94695022c7428683b774">&#9670;&#160;</a></span>parse() <span class="overload">[1/3]</span></h2>
 
@@ -3232,6 +3753,60 @@ template&lt;typename F &gt; </div>
 </dl>
 <dl class="section return"><dt>Returns</dt><dd>Decoded element and source, or the original C Reader error. </dd></dl>
 <dl class="section warning"><dt>Warning</dt><dd>Input and Format storage must outlive the returned borrowed views.   </dd></dl>
+
+</div>
+</div>
+<a id="a08e5dd4c84ca47ded5fba1c2b27d2b81" name="a08e5dd4c84ca47ded5fba1c2b27d2b81"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#a08e5dd4c84ca47ded5fba1c2b27d2b81">&#9670;&#160;</a></span>semantic_diff()</h2>
+
+<div class="memitem">
+<div class="memproto">
+<table class="mlabels">
+  <tr>
+  <td class="mlabels-left">
+      <table class="memname">
+        <tr>
+          <td class="memname"><a class="el" href="classtlv_1_1expected.html">expected</a>&lt; std::vector&lt; <a class="el" href="structtlv_1_1diff__entry.html">diff_entry</a> &gt;, <a class="el" href="structtlv_1_1query__failure.html">query_failure</a> &gt; tlv::semantic_diff </td>
+          <td>(</td>
+          <td class="paramtype">const <a class="el" href="classtlv_1_1document.html">document</a> &amp;&#160;</td>
+          <td class="paramname"><em>left</em>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype">const <a class="el" href="classtlv_1_1document.html">document</a> &amp;&#160;</td>
+          <td class="paramname"><em>right</em>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype">const <a class="el" href="classtlv_1_1query__program.html">query_program</a> *&#160;</td>
+          <td class="paramname"><em>where</em> = <code>nullptr</code>&#160;</td>
+        </tr>
+        <tr>
+          <td></td>
+          <td>)</td>
+          <td></td><td></td>
+        </tr>
+      </table>
+  </td>
+  <td class="mlabels-right">
+<span class="mlabels"><span class="mlabel">inline</span></span>  </td>
+  </tr>
+</table>
+</div><div class="memdoc">
+
+<p>Compare direct semantic node content selected on either original input. </p>
+<dl class="params"><dt>Parameters</dt><dd>
+  <table class="params">
+    <tr><td class="paramname">left</td><td>Original immutable owning Document. </td></tr>
+    <tr><td class="paramname">right</td><td>Original immutable owning Document. </td></tr>
+    <tr><td class="paramname">where</td><td>Optional compiled node selector, evaluated unchanged on each complete input. </td></tr>
+  </table>
+  </dd>
+</dl>
+<dl class="section return"><dt>Returns</dt><dd>Changes in left preorder followed by right-only additions, or native Query failure. </dd></dl>
+<dl class="section note"><dt>Note</dt><dd>Correspondence uses ancestor raw tags and same-tag sibling occurrence, never byte offsets. Inserting a repeated tag may shift later correspondences; no heuristic alignment. Selection on either side includes its original counterpart, even if excluded on the other. A selected ancestor compares only its own classification/primitive Value; excluded descendants do not contribute changes. Constructed children are independent entries. Allocates indexes, selections and checked handles. Source wire spelling is ignored; Query variables/providers require callers to use separately bound selections instead. </dd></dl>
 
 </div>
 </div>
@@ -3659,6 +4234,86 @@ template&lt;uint8_t... Bytes&gt; </div>
 </dl>
 <dl class="section return"><dt>Returns</dt><dd>The total number of violations, which is zero if the data conforms and can exceed <code>capacity</code>; otherwise the error of <a class="elRef" href="../../c-api/html/group__schemas.html#ga1cdee0d758d2b8cc4043806b60542f6c">tlv_schema_validate_all_diag()</a> for invalid arguments or unparseable input.</dd></dl>
 <dl class="section see"><dt>See also</dt><dd><a class="elRef" href="../../c-api/html/group__schemas.html#ga76559fb9baaff706b34cab6954926c98">tlv_schema_diagnostic_t</a>   </dd></dl>
+
+</div>
+</div>
+<a id="af902b290e3ded293b9e37a5c2720cf98" name="af902b290e3ded293b9e37a5c2720cf98"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#af902b290e3ded293b9e37a5c2720cf98">&#9670;&#160;</a></span>variable()</h2>
+
+<div class="memitem">
+<div class="memproto">
+<div class="memtemplate">
+template&lt;<a class="elRef" href="../../c-api/html/group__traversal.html#ga9e9451c7cc7e346182993d0d95065837">tlv_query_result_kind_t</a> Kind&gt; </div>
+<table class="mlabels">
+  <tr>
+  <td class="mlabels-left">
+      <table class="memname">
+        <tr>
+          <td class="memname"><a class="el" href="classtlv_1_1query__expression.html">query_expression</a>&lt; Kind &gt; tlv::variable </td>
+          <td>(</td>
+          <td class="paramtype">const std::string &amp;&#160;</td>
+          <td class="paramname"><em>name</em></td><td>)</td>
+          <td></td>
+        </tr>
+      </table>
+  </td>
+  <td class="mlabels-right">
+<span class="mlabels"><span class="mlabel">inline</span></span>  </td>
+  </tr>
+</table>
+</div><div class="memdoc">
+
+<p>Compose a typed variable reference; the C compiler validates its bounded name. </p>
+<dl class="tparams"><dt>Template Parameters</dt><dd>
+  <table class="tparams">
+    <tr><td class="paramname">Kind</td><td>Integer, bytes or string type matching the supplied compiler declaration. </td></tr>
+  </table>
+  </dd>
+</dl>
+<dl class="params"><dt>Parameters</dt><dd>
+  <table class="params">
+    <tr><td class="paramname">name</td><td>Variable name without a dollar prefix. </td></tr>
+  </table>
+  </dd>
+</dl>
+
+</div>
+</div>
+<a id="a0a62bd79fd8b9075283dec7a3874ede5" name="a0a62bd79fd8b9075283dec7a3874ede5"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#a0a62bd79fd8b9075283dec7a3874ede5">&#9670;&#160;</a></span>where()</h2>
+
+<div class="memitem">
+<div class="memproto">
+<table class="mlabels">
+  <tr>
+  <td class="mlabels-left">
+      <table class="memname">
+        <tr>
+          <td class="memname"><a class="el" href="namespacetlv.html#a9c81c413deb62d00e1c1e1698b446077">query_nodes</a> tlv::where </td>
+          <td>(</td>
+          <td class="paramtype">const <a class="el" href="namespacetlv.html#a9c81c413deb62d00e1c1e1698b446077">query_nodes</a> &amp;&#160;</td>
+          <td class="paramname"><em>nodes</em>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype">const <a class="el" href="namespacetlv.html#ae5f3d6c8120bb9510951d6b92982ff74">query_boolean</a> &amp;&#160;</td>
+          <td class="paramname"><em>condition</em>&#160;</td>
+        </tr>
+        <tr>
+          <td></td>
+          <td>)</td>
+          <td></td><td></td>
+        </tr>
+      </table>
+  </td>
+  <td class="mlabels-right">
+<span class="mlabels"><span class="mlabel">inline</span></span>  </td>
+  </tr>
+</table>
+</div><div class="memdoc">
+
+<p>Compose a selector predicate without parsing either expression. </p>
 
 </div>
 </div>

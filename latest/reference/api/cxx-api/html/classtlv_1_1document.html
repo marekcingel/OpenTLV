@@ -134,6 +134,24 @@ Public Member Functions</h2></td></tr>
 <tr class="memitem:a2f5f1955526f4f07314ce7c2342c174d" id="r_a2f5f1955526f4f07314ce7c2342c174d"><td class="memItemLeft" align="right" valign="top">std::vector&lt; <a class="el" href="classtlv_1_1node.html">node</a> &gt;&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classtlv_1_1document.html#a2f5f1955526f4f07314ce7c2342c174d">select</a> (const char *text) const</td></tr>
 <tr class="memdesc:a2f5f1955526f4f07314ce7c2342c174d"><td class="mdescLeft">&#160;</td><td class="mdescRight">Compile a text path and select all matching Nodes.  <br /></td></tr>
 <tr class="separator:a2f5f1955526f4f07314ce7c2342c174d"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:aa11d56f6e79e17826e0e89082f22be2e" id="r_aa11d56f6e79e17826e0e89082f22be2e"><td class="memItemLeft" align="right" valign="top"><a class="el" href="classtlv_1_1expected.html">expected</a>&lt; std::vector&lt; <a class="el" href="classtlv_1_1node.html">node</a> &gt;, <a class="el" href="structtlv_1_1query__failure.html">query_failure</a> &gt;&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classtlv_1_1document.html#aa11d56f6e79e17826e0e89082f22be2e">select</a> (const <a class="el" href="classtlv_1_1query__program.html">query_program</a> &amp;program, const <a class="elRef" href="../../c-api/html/group__traversal.html#gaf2f1c0d8fe278eb32c61e19e7b108a48">tlv_query_environment_t</a> *environment=nullptr, size_t max_work=100000000) const</td></tr>
+<tr class="memdesc:aa11d56f6e79e17826e0e89082f22be2e"><td class="mdescLeft">&#160;</td><td class="mdescRight">Complete full-language selection and return checked Node snapshots.  <br /></td></tr>
+<tr class="separator:aa11d56f6e79e17826e0e89082f22be2e"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a6c4440f6e479eed0e3983b24a2eacf5d" id="r_a6c4440f6e479eed0e3983b24a2eacf5d"><td class="memItemLeft" align="right" valign="top"><a class="el" href="classtlv_1_1expected.html">expected</a>&lt; void, <a class="el" href="structtlv_1_1query__failure.html">query_failure</a> &gt;&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classtlv_1_1document.html#a6c4440f6e479eed0e3983b24a2eacf5d">evaluate</a> (<a class="el" href="classtlv_1_1query__execution.html">query_execution</a> &amp;execution, uint8_t *values, size_t capacity, <a class="elRef" href="../../c-api/html/group__writer.html#gab9db909d8cb7eb930d06a32e07a72fd8">tlv_tree_writer_workspace_t</a> *staging, <a class="el" href="classtlv_1_1node.html">node</a> context=<a class="el" href="classtlv_1_1node.html">node</a>()) const</td></tr>
+<tr class="memdesc:a6c4440f6e479eed0e3983b24a2eacf5d"><td class="mdescLeft">&#160;</td><td class="mdescRight">Evaluate full Query using caller-owned execution and optional Value staging.  <br /></td></tr>
+<tr class="separator:a6c4440f6e479eed0e3983b24a2eacf5d"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a7d2575bae9235c1aec35ea9257b29f5b" id="r_a7d2575bae9235c1aec35ea9257b29f5b"><td class="memItemLeft" align="right" valign="top"><a class="el" href="classtlv_1_1expected.html">expected</a>&lt; <a class="el" href="classtlv_1_1node.html">node</a>, <a class="el" href="structtlv_1_1query__failure.html">query_failure</a> &gt;&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classtlv_1_1document.html#a7d2575bae9235c1aec35ea9257b29f5b">next</a> (<a class="el" href="classtlv_1_1query__execution.html">query_execution</a> &amp;execution) const</td></tr>
+<tr class="memdesc:a7d2575bae9235c1aec35ea9257b29f5b"><td class="mdescLeft">&#160;</td><td class="mdescRight">Pull a checked Document handle from a completed execution for this Document.  <br /></td></tr>
+<tr class="separator:a7d2575bae9235c1aec35ea9257b29f5b"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:ab5555a72c5513ad449505de6943ffbb3" id="r_ab5555a72c5513ad449505de6943ffbb3"><td class="memItemLeft" align="right" valign="top"><a class="el" href="classtlv_1_1expected.html">expected</a>&lt; size_t, <a class="el" href="structtlv_1_1query__failure.html">query_failure</a> &gt;&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classtlv_1_1document.html#ab5555a72c5513ad449505de6943ffbb3">query_remove</a> (const <a class="el" href="classtlv_1_1query__program.html">query_program</a> &amp;program)</td></tr>
+<tr class="memdesc:ab5555a72c5513ad449505de6943ffbb3"><td class="mdescLeft">&#160;</td><td class="mdescRight">Remove completed selection, with ancestors dominating selected descendants.  <br /></td></tr>
+<tr class="separator:ab5555a72c5513ad449505de6943ffbb3"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a0e87d50fa00aca9ff523b2eb1f97c814" id="r_a0e87d50fa00aca9ff523b2eb1f97c814"><td class="memItemLeft" align="right" valign="top"><a class="el" href="classtlv_1_1expected.html">expected</a>&lt; size_t, <a class="el" href="structtlv_1_1query__failure.html">query_failure</a> &gt;&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classtlv_1_1document.html#a0e87d50fa00aca9ff523b2eb1f97c814">query_replace</a> (const <a class="el" href="classtlv_1_1query__program.html">query_program</a> &amp;program, <a class="el" href="namespacetlv.html#a2abe7003a70af047ef9acae17f31f75d">bytes</a> value, size_t *applied=nullptr)</td></tr>
+<tr class="memdesc:a0e87d50fa00aca9ff523b2eb1f97c814"><td class="mdescLeft">&#160;</td><td class="mdescRight">Replace Values selected against the initial tree; selected ancestors dominate.  <br /></td></tr>
+<tr class="separator:a0e87d50fa00aca9ff523b2eb1f97c814"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a1033e443647b08509ec3628bc58c75f6" id="r_a1033e443647b08509ec3628bc58c75f6"><td class="memItemLeft" align="right" valign="top"><a class="el" href="classtlv_1_1expected.html">expected</a>&lt; size_t, <a class="el" href="structtlv_1_1query__failure.html">query_failure</a> &gt;&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classtlv_1_1document.html#a1033e443647b08509ec3628bc58c75f6">query_insert_after</a> (const <a class="el" href="classtlv_1_1query__program.html">query_program</a> &amp;program, <a class="el" href="classtlv_1_1tag.html">tlv::tag</a> <a class="el" href="classtlv_1_1tag.html">tag</a>, <a class="el" href="namespacetlv.html#a2abe7003a70af047ef9acae17f31f75d">bytes</a> value, size_t *applied=nullptr)</td></tr>
+<tr class="memdesc:a1033e443647b08509ec3628bc58c75f6"><td class="mdescLeft">&#160;</td><td class="mdescRight">Insert one sibling immediately after every node in the initial selection.  <br /></td></tr>
+<tr class="separator:a1033e443647b08509ec3628bc58c75f6"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:a798d214cd8448b9ddc3fb408e273bba9" id="r_a798d214cd8448b9ddc3fb408e273bba9"><td class="memItemLeft" align="right" valign="top"><a class="el" href="classtlv_1_1expected.html">expected</a>&lt; <a class="el" href="classtlv_1_1node.html">node</a>, <a class="el" href="structtlv_1_1error.html">error</a> &gt;&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classtlv_1_1document.html#a798d214cd8448b9ddc3fb408e273bba9">insert</a> (<a class="el" href="classtlv_1_1tag.html">tlv::tag</a> wanted, <a class="el" href="namespacetlv.html#a2abe7003a70af047ef9acae17f31f75d">bytes</a> value, <a class="el" href="classtlv_1_1node.html">node</a> parent=<a class="el" href="classtlv_1_1node.html">node</a>(), <a class="el" href="classtlv_1_1node.html">node</a> before=<a class="el" href="classtlv_1_1node.html">node</a>())</td></tr>
 <tr class="memdesc:a798d214cd8448b9ddc3fb408e273bba9"><td class="mdescLeft">&#160;</td><td class="mdescRight">Inserts a new element.  <br /></td></tr>
 <tr class="separator:a798d214cd8448b9ddc3fb408e273bba9"><td class="memSeparator" colspan="2">&#160;</td></tr>
@@ -290,7 +308,7 @@ Friends</h2></td></tr>
 </div><div class="memdoc">
 
 <p>Borrow the underlying C document for interoperability. </p>
-<dl class="section warning"><dt>Warning</dt><dd>Native mutations bypass C++ validity tracking; use C++ operations for edits and never free this handle. Raw handles must not outlive this owner. </dd></dl>
+<dl class="section warning"><dt>Warning</dt><dd>Never free this handle. Native edits are checked by revision and identity when a retained Node is next accessed. Raw pointers must not outlive this owner. </dd></dl>
 
 </div>
 </div>
@@ -646,6 +664,74 @@ Friends</h2></td></tr>
 
 </div>
 </div>
+<a id="a6c4440f6e479eed0e3983b24a2eacf5d" name="a6c4440f6e479eed0e3983b24a2eacf5d"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#a6c4440f6e479eed0e3983b24a2eacf5d">&#9670;&#160;</a></span>evaluate()</h2>
+
+<div class="memitem">
+<div class="memproto">
+<table class="mlabels">
+  <tr>
+  <td class="mlabels-left">
+      <table class="memname">
+        <tr>
+          <td class="memname"><a class="el" href="classtlv_1_1expected.html">expected</a>&lt; void, <a class="el" href="structtlv_1_1query__failure.html">query_failure</a> &gt; tlv::document::evaluate </td>
+          <td>(</td>
+          <td class="paramtype"><a class="el" href="classtlv_1_1query__execution.html">query_execution</a> &amp;&#160;</td>
+          <td class="paramname"><em>execution</em>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype">uint8_t *&#160;</td>
+          <td class="paramname"><em>values</em>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype">size_t&#160;</td>
+          <td class="paramname"><em>capacity</em>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype"><a class="elRef" href="../../c-api/html/group__writer.html#gab9db909d8cb7eb930d06a32e07a72fd8">tlv_tree_writer_workspace_t</a> *&#160;</td>
+          <td class="paramname"><em>staging</em>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype"><a class="el" href="classtlv_1_1node.html">node</a>&#160;</td>
+          <td class="paramname"><em>context</em> = <code><a class="el" href="classtlv_1_1node.html">node</a>()</code>&#160;</td>
+        </tr>
+        <tr>
+          <td></td>
+          <td>)</td>
+          <td></td><td> const</td>
+        </tr>
+      </table>
+  </td>
+  <td class="mlabels-right">
+<span class="mlabels"><span class="mlabel">inline</span></span>  </td>
+  </tr>
+</table>
+</div><div class="memdoc">
+
+<p>Evaluate full Query using caller-owned execution and optional Value staging. </p>
+<dl class="params"><dt>Parameters</dt><dd>
+  <table class="params">
+    <tr><td class="paramname">execution</td><td>Fresh retained continuation, with variables already bound. </td></tr>
+    <tr><td class="paramname">values</td><td>Stable snapshot destination, alive through result consumption. </td></tr>
+    <tr><td class="paramname">capacity</td><td>Snapshot capacity. </td></tr>
+    <tr><td class="paramname">staging</td><td>Bounded Writer staging, or NULL when Values are unnecessary. </td></tr>
+    <tr><td class="paramname">context</td><td>Optional checked node selecting relative context. </td></tr>
+  </table>
+  </dd>
+</dl>
+<dl class="section return"><dt>Returns</dt><dd>Native diagnostic; successful evaluation allocates nothing. </dd></dl>
+<dl class="section warning"><dt>Warning</dt><dd>Keep Document alive and unchanged until consuming execution results. </dd></dl>
+
+</div>
+</div>
 <a id="a721db8298fc9c2ec7adccadc75288321" name="a721db8298fc9c2ec7adccadc75288321"></a>
 <h2 class="memtitle"><span class="permalink"><a href="#a721db8298fc9c2ec7adccadc75288321">&#9670;&#160;</a></span>find() <span class="overload">[1/2]</span></h2>
 
@@ -842,6 +928,41 @@ template&lt;typename Field &gt; </div>
 
 </div>
 </div>
+<a id="a7d2575bae9235c1aec35ea9257b29f5b" name="a7d2575bae9235c1aec35ea9257b29f5b"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#a7d2575bae9235c1aec35ea9257b29f5b">&#9670;&#160;</a></span>next()</h2>
+
+<div class="memitem">
+<div class="memproto">
+<table class="mlabels">
+  <tr>
+  <td class="mlabels-left">
+      <table class="memname">
+        <tr>
+          <td class="memname"><a class="el" href="classtlv_1_1expected.html">expected</a>&lt; <a class="el" href="classtlv_1_1node.html">node</a>, <a class="el" href="structtlv_1_1query__failure.html">query_failure</a> &gt; tlv::document::next </td>
+          <td>(</td>
+          <td class="paramtype"><a class="el" href="classtlv_1_1query__execution.html">query_execution</a> &amp;&#160;</td>
+          <td class="paramname"><em>execution</em></td><td>)</td>
+          <td> const</td>
+        </tr>
+      </table>
+  </td>
+  <td class="mlabels-right">
+<span class="mlabels"><span class="mlabel">inline</span></span>  </td>
+  </tr>
+</table>
+</div><div class="memdoc">
+
+<p>Pull a checked Document handle from a completed execution for this Document. </p>
+<dl class="params"><dt>Parameters</dt><dd>
+  <table class="params">
+    <tr><td class="paramname">execution</td><td>Completed continuation, with this Document alive and unchanged. </td></tr>
+  </table>
+  </dd>
+</dl>
+<dl class="section return"><dt>Returns</dt><dd>Checked Node, END_OF_BUFFER, or native revision/state failure. </dd></dl>
+
+</div>
+</div>
 <a id="a093232fe37856efb9a4ff523e0752633" name="a093232fe37856efb9a4ff523e0752633"></a>
 <h2 class="memtitle"><span class="permalink"><a href="#a093232fe37856efb9a4ff523e0752633">&#9670;&#160;</a></span>operator=() <span class="overload">[1/2]</span></h2>
 
@@ -950,8 +1071,159 @@ template&lt;typename Field &gt; </div>
 
 </div>
 </div>
+<a id="a1033e443647b08509ec3628bc58c75f6" name="a1033e443647b08509ec3628bc58c75f6"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#a1033e443647b08509ec3628bc58c75f6">&#9670;&#160;</a></span>query_insert_after()</h2>
+
+<div class="memitem">
+<div class="memproto">
+<table class="mlabels">
+  <tr>
+  <td class="mlabels-left">
+      <table class="memname">
+        <tr>
+          <td class="memname"><a class="el" href="classtlv_1_1expected.html">expected</a>&lt; size_t, <a class="el" href="structtlv_1_1query__failure.html">query_failure</a> &gt; tlv::document::query_insert_after </td>
+          <td>(</td>
+          <td class="paramtype">const <a class="el" href="classtlv_1_1query__program.html">query_program</a> &amp;&#160;</td>
+          <td class="paramname"><em>program</em>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype"><a class="el" href="classtlv_1_1tag.html">tlv::tag</a>&#160;</td>
+          <td class="paramname"><em>tag</em>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype"><a class="el" href="namespacetlv.html#a2abe7003a70af047ef9acae17f31f75d">bytes</a>&#160;</td>
+          <td class="paramname"><em>value</em>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype">size_t *&#160;</td>
+          <td class="paramname"><em>applied</em> = <code>nullptr</code>&#160;</td>
+        </tr>
+        <tr>
+          <td></td>
+          <td>)</td>
+          <td></td><td></td>
+        </tr>
+      </table>
+  </td>
+  <td class="mlabels-right">
+<span class="mlabels"><span class="mlabel">inline</span></span>  </td>
+  </tr>
+</table>
+</div><div class="memdoc">
+
+<p>Insert one sibling immediately after every node in the initial selection. </p>
+<dl class="params"><dt>Parameters</dt><dd>
+  <table class="params">
+    <tr><td class="paramname">program</td><td>Immutable node selector. </td></tr>
+    <tr><td class="paramname">tag</td><td>New sibling identifier, copied by the normal Document operation. </td></tr>
+    <tr><td class="paramname">value</td><td>New Value bytes, copied before mutation. </td></tr>
+    <tr><td class="paramname">applied</td><td>Optional successful insert count, including partial failure. </td></tr>
+  </table>
+  </dd>
+</dl>
+<dl class="section return"><dt>Returns</dt><dd>Successful inserts or native error; prior inserts remain on failure. </dd></dl>
+<dl class="section note"><dt>Note</dt><dd>Initial preorder selection completes first. Original sibling order and existing checked handles are preserved; inserted nodes never become new targets. </dd></dl>
+
+</div>
+</div>
+<a id="ab5555a72c5513ad449505de6943ffbb3" name="ab5555a72c5513ad449505de6943ffbb3"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#ab5555a72c5513ad449505de6943ffbb3">&#9670;&#160;</a></span>query_remove()</h2>
+
+<div class="memitem">
+<div class="memproto">
+<table class="mlabels">
+  <tr>
+  <td class="mlabels-left">
+      <table class="memname">
+        <tr>
+          <td class="memname"><a class="el" href="classtlv_1_1expected.html">expected</a>&lt; size_t, <a class="el" href="structtlv_1_1query__failure.html">query_failure</a> &gt; tlv::document::query_remove </td>
+          <td>(</td>
+          <td class="paramtype">const <a class="el" href="classtlv_1_1query__program.html">query_program</a> &amp;&#160;</td>
+          <td class="paramname"><em>program</em></td><td>)</td>
+          <td></td>
+        </tr>
+      </table>
+  </td>
+  <td class="mlabels-right">
+<span class="mlabels"><span class="mlabel">inline</span></span>  </td>
+  </tr>
+</table>
+</div><div class="memdoc">
+
+<p>Remove completed selection, with ancestors dominating selected descendants. </p>
+<dl class="params"><dt>Parameters</dt><dd>
+  <table class="params">
+    <tr><td class="paramname">program</td><td>Immutable full node Query. </td></tr>
+  </table>
+  </dd>
+</dl>
+<dl class="section return"><dt>Returns</dt><dd>Number of removed selected roots or native selection failure. </dd></dl>
+<dl class="section note"><dt>Note</dt><dd>Selection and C++ tracking allocations finish before the first edit. Snapshot handles follow normal Node invalidation. No-match succeeds with zero. </dd></dl>
+
+</div>
+</div>
+<a id="a0e87d50fa00aca9ff523b2eb1f97c814" name="a0e87d50fa00aca9ff523b2eb1f97c814"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#a0e87d50fa00aca9ff523b2eb1f97c814">&#9670;&#160;</a></span>query_replace()</h2>
+
+<div class="memitem">
+<div class="memproto">
+<table class="mlabels">
+  <tr>
+  <td class="mlabels-left">
+      <table class="memname">
+        <tr>
+          <td class="memname"><a class="el" href="classtlv_1_1expected.html">expected</a>&lt; size_t, <a class="el" href="structtlv_1_1query__failure.html">query_failure</a> &gt; tlv::document::query_replace </td>
+          <td>(</td>
+          <td class="paramtype">const <a class="el" href="classtlv_1_1query__program.html">query_program</a> &amp;&#160;</td>
+          <td class="paramname"><em>program</em>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype"><a class="el" href="namespacetlv.html#a2abe7003a70af047ef9acae17f31f75d">bytes</a>&#160;</td>
+          <td class="paramname"><em>value</em>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype">size_t *&#160;</td>
+          <td class="paramname"><em>applied</em> = <code>nullptr</code>&#160;</td>
+        </tr>
+        <tr>
+          <td></td>
+          <td>)</td>
+          <td></td><td></td>
+        </tr>
+      </table>
+  </td>
+  <td class="mlabels-right">
+<span class="mlabels"><span class="mlabel">inline</span></span>  </td>
+  </tr>
+</table>
+</div><div class="memdoc">
+
+<p>Replace Values selected against the initial tree; selected ancestors dominate. </p>
+<dl class="params"><dt>Parameters</dt><dd>
+  <table class="params">
+    <tr><td class="paramname">program</td><td>Immutable node selector. </td></tr>
+    <tr><td class="paramname">value</td><td>New Value bytes, copied before mutation using the Document allocator. </td></tr>
+    <tr><td class="paramname">applied</td><td>Optional successful edit count, including partial failure. </td></tr>
+  </table>
+  </dd>
+</dl>
+<dl class="section return"><dt>Returns</dt><dd>Edited selected roots or native error. No matches succeeds with zero. </dd></dl>
+<dl class="section note"><dt>Note</dt><dd>Preorder commits stop at the first failure; no rollback. Each native Value replacement is atomic and respects Format/constructed parsing. Checked handles detect erased descendants lazily through native revision and identity. </dd></dl>
+
+</div>
+</div>
 <a id="a2f5f1955526f4f07314ce7c2342c174d" name="a2f5f1955526f4f07314ce7c2342c174d"></a>
-<h2 class="memtitle"><span class="permalink"><a href="#a2f5f1955526f4f07314ce7c2342c174d">&#9670;&#160;</a></span>select() <span class="overload">[1/2]</span></h2>
+<h2 class="memtitle"><span class="permalink"><a href="#a2f5f1955526f4f07314ce7c2342c174d">&#9670;&#160;</a></span>select() <span class="overload">[1/3]</span></h2>
 
 <div class="memitem">
 <div class="memproto">
@@ -993,7 +1265,7 @@ template&lt;typename Field &gt; </div>
 </div>
 </div>
 <a id="a2907ddc33ed25f7214e3f1aafec4d594" name="a2907ddc33ed25f7214e3f1aafec4d594"></a>
-<h2 class="memtitle"><span class="permalink"><a href="#a2907ddc33ed25f7214e3f1aafec4d594">&#9670;&#160;</a></span>select() <span class="overload">[2/2]</span></h2>
+<h2 class="memtitle"><span class="permalink"><a href="#a2907ddc33ed25f7214e3f1aafec4d594">&#9670;&#160;</a></span>select() <span class="overload">[2/3]</span></h2>
 
 <div class="memitem">
 <div class="memproto">
@@ -1031,6 +1303,60 @@ template&lt;typename Field &gt; </div>
   </table>
   </dd>
 </dl>
+
+</div>
+</div>
+<a id="aa11d56f6e79e17826e0e89082f22be2e" name="aa11d56f6e79e17826e0e89082f22be2e"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#aa11d56f6e79e17826e0e89082f22be2e">&#9670;&#160;</a></span>select() <span class="overload">[3/3]</span></h2>
+
+<div class="memitem">
+<div class="memproto">
+<table class="mlabels">
+  <tr>
+  <td class="mlabels-left">
+      <table class="memname">
+        <tr>
+          <td class="memname"><a class="el" href="classtlv_1_1expected.html">expected</a>&lt; std::vector&lt; <a class="el" href="classtlv_1_1node.html">node</a> &gt;, <a class="el" href="structtlv_1_1query__failure.html">query_failure</a> &gt; tlv::document::select </td>
+          <td>(</td>
+          <td class="paramtype">const <a class="el" href="classtlv_1_1query__program.html">query_program</a> &amp;&#160;</td>
+          <td class="paramname"><em>program</em>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype">const <a class="elRef" href="../../c-api/html/group__traversal.html#gaf2f1c0d8fe278eb32c61e19e7b108a48">tlv_query_environment_t</a> *&#160;</td>
+          <td class="paramname"><em>environment</em> = <code>nullptr</code>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype">size_t&#160;</td>
+          <td class="paramname"><em>max_work</em> = <code>100000000</code>&#160;</td>
+        </tr>
+        <tr>
+          <td></td>
+          <td>)</td>
+          <td></td><td> const</td>
+        </tr>
+      </table>
+  </td>
+  <td class="mlabels-right">
+<span class="mlabels"><span class="mlabel">inline</span></span>  </td>
+  </tr>
+</table>
+</div><div class="memdoc">
+
+<p>Complete full-language selection and return checked Node snapshots. </p>
+<dl class="params"><dt>Parameters</dt><dd>
+  <table class="params">
+    <tr><td class="paramname">program</td><td>Immutable compiled full Query with node result kind. </td></tr>
+    <tr><td class="paramname">environment</td><td>Optional compatible native providers, borrowed for the call. </td></tr>
+    <tr><td class="paramname">max_work</td><td>Explicit charged execution budget. </td></tr>
+  </table>
+  </dd>
+</dl>
+<dl class="section return"><dt>Returns</dt><dd>Document-order unique checked handles or full native diagnostic. </dd></dl>
+<dl class="section note"><dt>Note</dt><dd>Allocates workspace, optional canonical Value snapshot and result handles. Insertions after selection are excluded; handles follow the normal granular Node invalidation rules. Selection always completes before returning results. </dd></dl>
 
 </div>
 </div>

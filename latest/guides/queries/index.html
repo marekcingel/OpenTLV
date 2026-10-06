@@ -920,6 +920,28 @@
 </li>
       
         <li class="md-nav__item">
+  <a href="#full-programs-and-integration" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Full programs and integration
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#v1-exact-paths" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        V1 exact paths
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
   <a href="#borrowed-traversal" class="md-nav__link">
     <span class="md-ellipsis">
       
@@ -3159,6 +3181,62 @@
   
   
     <li class="md-nav__item">
+      <a href="../../development/query-release/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Query release checklist
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../development/query-phase-audit/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Query phase implementation audit
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
       <a href="../../development/rust/" class="md-nav__link">
         
   
@@ -3337,6 +3415,28 @@
 </li>
       
         <li class="md-nav__item">
+  <a href="#full-programs-and-integration" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Full programs and integration
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#v1-exact-paths" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        V1 exact paths
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
   <a href="#borrowed-traversal" class="md-nav__link">
     <span class="md-ellipsis">
       
@@ -3419,10 +3519,113 @@ command.</p>
 <p>The V1 helpers below retain exact-path syntax. The separately selected compiled
 language uses caller-owned program and execution storage; see the
 <a href="../../concepts/query-language/">Query language and execution contract</a>.
-Its initial streaming backend (S0: each match is decided when a complete node
-is published) supports descendants, unions, raw-byte node tests,
-metadata and borrowed byte predicates. Later-phase capabilities are rejected
-before input is consumed.</p>
+Compiled execution supports S0/S1 streaming, explicitly retained S2 and Document D,
+typed variables and scalar results. The full language is selected explicitly by
+the compiled program APIs; the V1 helpers retain their smaller grammar.</p>
+<h2 id="full-programs-and-integration">Full programs and integration<a class="headerlink" href="#full-programs-and-integration" title="Permanent link">&para;</a></h2>
+<p>C++ applications include <code>tlv++/query/program.hpp</code> for <code>tlv::query_program</code> and
+<code>tlv::query_execution</code>. <code>query_program::compile(std::string, options)</code> preserves
+the text byte length, including embedded NUL diagnostics, and owns immutable
+program storage shared by copies. <code>compile_into</code> borrows explicit aligned caller
+scratch/program storage. Native sizing APIs report their exact requirements.</p>
+<p><code>query_execution::create</code> allocates retained workspace with explicit depth,
+node and work bounds. <code>external(..., retained=false)</code> uses depth-bounded S0/S1
+storage from <code>tlv_query_exec_size</code>; retained executions use <code>tlv_query_eval_size</code>.
+The <code>environment</code> and all binding byte spans remain borrowed. Bind integers with
+<code>bind(name, int64_t)</code> and bytes/string spans with <code>bind(name, bytes, string)</code> before
+execution. No variable text is interpolated. Providers and symbolic resolvers
+are the same native descriptors used by C compilation, with their native lifetime
+and capability-ID requirements.</p>
+<p>Tree execution uses <code>visit(reader, visitor)</code>. STOP returns success and resumes
+after the delivered match. NEED_MORE_DATA preserves the native continuation and
+is returned as a distinct status in <code>query_failure.code</code>. Retained input windows
+must stay alive and immutable until execution destruction/reset. <code>result()</code> reads
+a finalized typed scalar; byte/string spans borrow input, program or workspace.
+<code>next()</code> pulls finalized retained node events and reports END_OF_BUFFER only at
+final exhaustion. Each independent execution retains the program owner.
+<code>next(reader)</code> is the single-pass resumable alternative: it stops after one
+publication and reports NEED_MORE_DATA independently of final exhaustion. Scalar
+programs are rejected before reading input. Copy borrowed payloads explicitly
+when they must outlive the input or workspace.</p>
+<p><code>tlv++/query/builder.hpp</code> provides typed <code>query_nodes</code>, <code>query_boolean</code>,
+<code>query_integer</code>, <code>query_bytes</code> and <code>query_string</code> expressions. Compose <code>where</code>,
+<code>count</code>, <code>exists</code>, boolean operations and numeric comparisons, then call
+<code>compile(options)</code>. The helper builds text and delegates all validation and
+execution to C; it neither parses the language nor bypasses compiler limits.
+<code>integer(value)</code> supplies a decimal comparison operand: bare digit text outside
+a comparison retains the language's raw-tag meaning. Typed <code>variable&lt;Kind&gt;(name)</code>
+references still require matching native declarations and runtime bindings.</p>
+<p>Document <code>select(program)</code> returns an allocated vector of checked Node handles.
+Evaluation completes before returning; later insertions do not appear in that
+snapshot. Erasing a subtree invalidates its handles, constructed Value replacement
+invalidates descendants, and unaffected handles remain valid. Native C edits are
+detected using Document revisions and identities, including reused allocator
+addresses. Ownership destruction makes C++ handles and associated execution
+results fail safely. Borrowed Value/tag views still require callers to obey edit
+lifetimes; an already returned raw span cannot be checked retroactively.</p>
+<p>For allocation-free Document execution, initialize caller workspace, bind values,
+and use <code>document.evaluate(execution, values, capacity, staging, context)</code> followed
+by <code>document.next(execution)</code> or <code>execution.result()</code>. Programs that inspect
+constructed Values need explicit canonical encoded snapshot storage and Writer
+staging. Source metadata is unavailable on Document nodes, including edited and
+inserted nodes: <code>@offset</code> and <code>@hlen</code> fail with SOURCE diagnostics. Source locations
+are not invented from the canonical Value snapshot.</p>
+<p><code>tlv_document_query_edit</code> consumes a completed native node selection into a
+caller-owned target array before editing. Capacity failure leaves the tree, target
+array and selection cursor unchanged; retry the same execution with more storage.
+Selected ancestors dominate descendants for remove/replace; insertion processes
+every initial target once, immediately after it, in preorder. Replace means Value
+replacement using the existing Format and constructed-Value parser. Replacement
+bytes are copied through the Document allocator before mutation, so a Value taken
+from a selected node can be used safely by that operation. Native remove cannot
+fail after collection; replace/insert stop at the first failure and report the
+number already applied. Before mutation, tag framing, constructed Value syntax and
+the depth/element limits of every target are checked. Their failure applies no
+edits; allocation or identity exhaustion during commit can still apply a prefix.
+The same replacement bytes are opaque on primitive targets and parsed as children
+on constructed targets, including mixed selections. Overlap filtering uses the
+cursor's guaranteed unique preorder and costs O(target count * depth).
+They provide no transaction or rollback. C++ convenience
+methods are <code>query_remove</code>, <code>query_replace</code> and <code>query_insert_after</code>.</p>
+<p>Native compiled result cursors use whole-Document revision invalidation: any
+successful edit rejects subsequent pulls/scalar access before exposing stale
+storage. Keep the native C Document alive until result consumption; its revision
+is not a destruction token. C++ snapshots retain granular checked Node semantics.
+During Query callbacks, fallible edits return INVALID_ARG. Void erase/free requests
+are deferred until the outermost Query callback on that Document returns; the
+visit then ends with INVALID_ARG. Pending ancestor erasure dominates descendants,
+and freeing dominates pending erasures. Borrowed nodes remain alive through that
+callback, but must not be used after the deferred operation is applied. A compiled
+visit invalidates its execution before returning from deferred mutation/destruction.</p>
+<p>Context ownership checks accept live nodes and are O(1). Possibly stale C++ Node
+handles retain an O(document node count) identity scan only after the revision
+changes. Repeated edits followed by checks can consequently cost O(n squared).
+The <code>document_identity_edit_loop</code> benchmark tracks this worst case at increasing
+node counts; no constant-time stale-handle validation is claimed.</p>
+<p>Contextual Schema assertions are defined in <code>tlv/schema/query.h</code>. Each rule
+contains a compiled node context selector, a compiled boolean assertion and an
+optional borrowed environment. <code>assert(...)</code> describes the Schema wrapper and
+is not a new Query function. Empty context selection succeeds. <code>query_size</code>
+reports the maximum selector and assertion workspaces reused across all rules;
+context capacity and Reader frames are additional caller storage. Complete-buffer
+validation rejects D programs before traversal; Document validation supports D.
+Reader/codec errors preserve their original codes and diagnostics; false
+assertions report SCHEMA with rule, selected tag and expected boolean context.
+No rules explicitly skips assertion validation. Existing structural rules and
+protocol/domain policies remain independent and optional.</p>
+<p>Semantic diff is available from <code>tlv++/document/diff.hpp</code>. Correspondence is the
+sequence of ancestor raw tags and one-based same-tag sibling occurrences.
+Repeated-tag insertions can shift correspondence; there is no alignment heuristic.
+The optional compiled selector runs once on each original complete Document.
+A node selected on either side includes its original counterpart. Selected
+constructed ancestors compare their own classification, with descendants compared
+only when independently selected. Offsets and historical wire spelling do not
+define identity. Index/result storage allocates; typed variables and provider
+environments are not exposed by this minimal diff convenience surface.</p>
+<p>The other binding Query facades still expose their existing V1 APIs. Full compiled
+Rust, Python, Go, Lua and JS/WASM parity remains required before F4 (#522) closes;
+these C/C++ integrations alone do not complete that phase.</p>
+<h2 id="v1-exact-paths">V1 exact paths<a class="headerlink" href="#v1-exact-paths" title="Permanent link">&para;</a></h2>
 <p>A query is a list of hexadecimal tags separated by <code>/</code>:</p>
 <div class="highlight"><pre><span></span><code><a id="__codelineno-1-1" name="__codelineno-1-1" href="#__codelineno-1-1"></a>6F/A5/50
 </code></pre></div>

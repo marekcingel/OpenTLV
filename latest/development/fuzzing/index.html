@@ -16,7 +16,7 @@
         <link rel="prev" href="../documentation-audit/">
       
       
-        <link rel="next" href="../rust/">
+        <link rel="next" href="../query-release/">
       
       
         
@@ -3148,6 +3148,62 @@
   
   
     <li class="md-nav__item">
+      <a href="../query-release/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Query release checklist
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../query-phase-audit/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Query phase implementation audit
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
       <a href="../rust/" class="md-nav__link">
         
   
@@ -3404,6 +3460,13 @@ reuses the enabled C sources with coverage and sanitizer instrumentation.
 The ordinary <code>tlv</code> target, installed package, and consumers receive no fuzzing
 flags. Contract checks remain active with <code>NDEBUG</code>; UBSan errors are fatal.</p>
 <h2 id="targets-and-contracts">Targets and contracts<a class="headerlink" href="#targets-and-contracts" title="Permanent link">&para;</a></h2>
+<p>Query also has <code>fuzz_query_image</code>: arbitrary bounded external images are checked
+before publication, without modifying the input. Same-version generated seeds
+and regeneration commands are described in the
+<a href="https://github.com/marekcingel/OpenTLV/blob/main/tests/query/README.md">Query corpus</a>. <code>fuzz_query_program</code> additionally
+revalidates successful compiled images with explicit scratch. These targets run
+in the existing ASan/UBSan fuzz workflow; release requirements are tracked by the
+<a href="../query-release/">Query release checklist</a>.</p>
 <table>
 <thead>
 <tr>
@@ -3644,13 +3707,13 @@ the violated library contract.</p>
         
         
           
-          <a href="../rust/" class="md-footer__link md-footer__link--next" aria-label="Next: Rust bindings">
+          <a href="../query-release/" class="md-footer__link md-footer__link--next" aria-label="Next: Query release checklist">
             <div class="md-footer__title">
               <span class="md-footer__direction">
                 Next
               </span>
               <div class="md-ellipsis">
-                Rust bindings
+                Query release checklist
               </div>
             </div>
             <div class="md-footer__button md-icon">

@@ -100,6 +100,9 @@ Files</h2></td></tr>
 <tr class="memitem:schema_2number_8h" id="r_schema_2number_8h"><td class="memItemLeft" align="right" valign="top">file &#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="schema_2number_8h.html">number.h</a></td></tr>
 <tr class="memdesc:schema_2number_8h"><td class="mdescLeft">&#160;</td><td class="mdescRight">Optional composition of field Schema and numeric Value conversion. <br /></td></tr>
 <tr class="separator:"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:schema_2query_8h" id="r_schema_2query_8h"><td class="memItemLeft" align="right" valign="top">file &#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="schema_2query_8h.html">query.h</a></td></tr>
+<tr class="memdesc:schema_2query_8h"><td class="mdescLeft">&#160;</td><td class="mdescRight">Optional contextual assertions composed from compiled Query programs. <br /></td></tr>
+<tr class="separator:"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:schema_2schema_8h" id="r_schema_2schema_8h"><td class="memItemLeft" align="right" valign="top">file &#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="schema_2schema_8h.html">schema.h</a></td></tr>
 <tr class="memdesc:schema_2schema_8h"><td class="mdescLeft">&#160;</td><td class="mdescRight">Length schemas and structural schemas for validating TLV data. <br /></td></tr>
 <tr class="separator:"><td class="memSeparator" colspan="2">&#160;</td></tr>
@@ -277,6 +280,7 @@ Enumerations</h2></td></tr>
 , <br />
 &#160;&#160;<a class="el" href="group__schemas.html#ggae8780ff71af2d72d1dcb5f8189af7dfda2b7227273ccca3c39415fbb9a626ff9f">TLV_SCHEMA_ISSUE_LENGTH</a>
 , <a class="el" href="group__schemas.html#ggae8780ff71af2d72d1dcb5f8189af7dfda6f97bf896b2aa5c6284cae0e20c98475">TLV_SCHEMA_ISSUE_ORDER</a>
+, <a class="el" href="group__schemas.html#ggae8780ff71af2d72d1dcb5f8189af7dfda86a1e6519e7061ef0824517745f7d99d">TLV_SCHEMA_ISSUE_ASSERTION</a>
 <br />
  }</td></tr>
 <tr class="memdesc:gae8780ff71af2d72d1dcb5f8189af7dfd"><td class="mdescLeft">&#160;</td><td class="mdescRight">Kind of violation found by <a class="el" href="group__schemas.html#ga1cdee0d758d2b8cc4043806b60542f6c" title="Validates a TLV structure and reports every schema violation.">tlv_schema_validate_all_diag()</a>.  <a href="group__schemas.html#gae8780ff71af2d72d1dcb5f8189af7dfd">More...</a><br /></td></tr>
@@ -882,6 +886,8 @@ Variables</h2></td></tr>
 <tr><td class="fieldname"><a id="ggae8780ff71af2d72d1dcb5f8189af7dfda2b7227273ccca3c39415fbb9a626ff9f" name="ggae8780ff71af2d72d1dcb5f8189af7dfda2b7227273ccca3c39415fbb9a626ff9f"></a>TLV_SCHEMA_ISSUE_LENGTH&#160;</td><td class="fielddoc"><p>A value length violates the bounds or required multiple of the tag's rule. </p>
 </td></tr>
 <tr><td class="fieldname"><a id="ggae8780ff71af2d72d1dcb5f8189af7dfda6f97bf896b2aa5c6284cae0e20c98475" name="ggae8780ff71af2d72d1dcb5f8189af7dfda6f97bf896b2aa5c6284cae0e20c98475"></a>TLV_SCHEMA_ISSUE_ORDER&#160;</td><td class="fielddoc"><p>An element appears before an earlier-listed rule's element in a scope whose <a class="el" href="structtlv__structure__schema.html#ab2d922f63cd11d4d355b0d92cec6e415">tlv_structure_schema_t::order</a> is <a class="el" href="group__schemas.html#gga3687d250fd81cbe36e88129a2ea1cc0baad2d9e708bae288f99341d3e7850fc6b">TLV_SCHEMA_ORDER_SEQUENCE</a>. </p>
+</td></tr>
+<tr><td class="fieldname"><a id="ggae8780ff71af2d72d1dcb5f8189af7dfda86a1e6519e7061ef0824517745f7d99d" name="ggae8780ff71af2d72d1dcb5f8189af7dfda86a1e6519e7061ef0824517745f7d99d"></a>TLV_SCHEMA_ISSUE_ASSERTION&#160;</td><td class="fielddoc"><p>Contextual compiled Query boolean assertion failed. </p>
 </td></tr>
 </table>
 

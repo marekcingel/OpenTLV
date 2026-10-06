@@ -227,7 +227,7 @@ Friends</h2></td></tr>
 </div><div class="memdoc">
 
 <p>Borrow the underlying C node, or nullptr for an invalid handle. </p>
-<dl class="section warning"><dt>Warning</dt><dd>Native mutation bypasses C++ validity tracking. Do not erase nodes, replace constructed Values or free the Document through this escape hatch. </dd></dl>
+<dl class="section warning"><dt>Warning</dt><dd>Never free the owner through this handle. Native edits are checked by revision and identity before exposing a retained Node again. </dd></dl>
 
 </div>
 </div>
@@ -934,7 +934,7 @@ template&lt;typename Field &gt; </div>
   <td class="mlabels-left">
       <table class="memname">
         <tr>
-          <td class="memname">bool operator!= </td>
+          <td class="memname">bool <a class="el" href="namespacetlv.html#a41624c15a79371b8a93a22d371e9cb5c">operator!</a>= </td>
           <td>(</td>
           <td class="paramtype">const <a class="el" href="classtlv_1_1node.html">node</a> &amp;&#160;</td>
           <td class="paramname"><em>lhs</em>, </td>

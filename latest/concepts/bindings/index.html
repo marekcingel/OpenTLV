@@ -3253,6 +3253,62 @@
   
   
     <li class="md-nav__item">
+      <a href="../../development/query-release/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Query release checklist
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../development/query-phase-audit/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Query phase implementation audit
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
       <a href="../../development/rust/" class="md-nav__link">
         
   
@@ -3813,26 +3869,34 @@ native functionality; see <a href="../../guides/select-components/">component se
 <tr>
 <td>Borrowed Query (<code>tlv_query_*</code>)</td>
 <td>Implemented: Query and resumable matcher</td>
-<td>Implemented: Query and matcher</td>
-<td>Implemented: Query and matcher</td>
-<td>Partial: complete-buffer Query evaluation; no resumable matcher facade</td>
-<td>Missing</td>
+<td>Implemented: Query, format and matcher reset/rebind</td>
+<td>Implemented: Query and matcher reset/rebind</td>
+<td>Implemented: Query and resumable owned Reader/matcher</td>
+<td>Implemented: bounded Query, format and explicit event matcher/reset/rebind</td>
 </tr>
 <tr>
 <td>Document Query</td>
-<td>Implemented: first match and <code>select</code> all matches</td>
+<td>Implemented: V1 first/all and compiled selection, checked snapshots, explicit workspace evaluation</td>
 <td>Partial: <code>find_path</code> / <code>find_path_mut</code> first match</td>
 <td>Partial: <code>find_path</code> first match</td>
 <td>Implemented: first match and Query results</td>
 <td>Implemented: <code>Document.Query</code> all matches</td>
 </tr>
 <tr>
+<td>Full compiled S0/S1/S2/D Query</td>
+<td>Checked compilation, typed composition, variables, environments, scalar/resumable execution and checked Document results</td>
+<td>Checked programs/execution, providers, Tag/resolver adapters, shared configured Fixed owner, source events/ordinals, Document edits and Schema</td>
+<td>Checked programs/execution, providers, Tag/resolver adapters, configured Fixed, source events/ordinals, Document edits and Schema</td>
+<td>Checked programs/execution, providers, Tag/resolver adapters, configured Formats, source events/ordinals, Document edits and Schema</td>
+<td>Checked programs/execution, providers, Tag/resolver adapters, configured Fixed, source events/ordinals, Document edits and Schema</td>
+</tr>
+<tr>
 <td>Schema (<code>tlv/schema/</code>)</td>
-<td>Partial: C schema descriptions with validation helpers</td>
-<td>Partial: length/structure schemas and detailed reports</td>
-<td>Partial: length/structure schemas and detailed reports</td>
-<td>Partial: structural schemas/reports; no standalone length-schema facade</td>
-<td>Missing</td>
+<td>Partial: C schema descriptions with validation helpers and contextual Query assertions</td>
+<td>Partial: length/structure schemas, detailed reports and Query Schema</td>
+<td>Partial: length/structure schemas, detailed reports and Query Schema</td>
+<td>Partial: structural schemas/reports and Query Schema; no standalone length-schema facade</td>
+<td>Partial: contextual Query Schema; structural schemas/reports missing</td>
 </tr>
 <tr>
 <td>Value Codec (<code>tlv/codec/</code> and built-ins)</td>
@@ -3927,8 +3991,11 @@ native functionality; see <a href="../../guides/select-components/">component se
 </tr>
 </tbody>
 </table>
-<p>The WASM parse-to-JSON operation is a tooling embedding, not a general binding
-with Reader/Writer/Document parity. Java remains future work. Exact signatures
+<p>WASM includes both the parse-to-JSON tooling embedding and an owning compiled
+Query/Document facade. Its Query facade provides configured/custom Formats,
+Tag adapters, scoped/Definition/EMV resolvers, Schema, edits, source events,
+ordinals and bounded V1 compatibility. General Reader/Writer parity remains a
+separate concern. Java remains future work. Exact signatures
 belong in generated references and binding source documentation; this matrix
 records supported workflows and their limits. Do not treat an experimental
 label or raw FFI declaration as proof of parity.</p>
@@ -4181,7 +4248,7 @@ entry points are:</p>
 </tr>
 <tr>
 <td>WebAssembly</td>
-<td>Narrow parse-to-JSON tooling embedding; general facade parity does not apply</td>
+<td>Parse tooling plus owning compiled Query and checked Document facade; advanced extension parity remains incomplete</td>
 <td><a href="../../development/webassembly/">WASM tooling</a></td>
 <td><a href="https://github.com/marekcingel/OpenTLV/tree/main/bindings/wasm">WASM sources</a></td>
 </tr>
@@ -4214,10 +4281,15 @@ compiled module under <code>opentlv/_core</code>, and direct implementation impo
   binding that follows this contract.</li>
 </ul>
 <p>Compiled full-language Query execution (<code>tlv_query_program_*</code>, S0/S1/S2 and the
-compiled Document backend) is currently a C capability. Its idiomatic facade
-parity is the Query F4 delivery work; the V1 facade rows above do not imply
-compiled-language support. This includes the F3 caller-owned candidate and
-constructed Document Value storage contracts.</p>
+compiled Document backend) is exposed through each language facade. Public-facade
+runners in <code>tests/query/</code> compare the common language corpus against the independent
+oracle. Separate consumer tests cover custom conversion providers, completed
+selection edits, contextual Query Schema assertions, semantic Tag callbacks,
+dynamic/Definition/EMV resolvers, configured Fixed Formats and checked resolver
+stability. Query accepts each binding's existing Format configurations; general
+custom framing adapters remain a separate matrix row. Owning wrappers adapt
+storage according to their language contracts. See the
+<a href="../../development/query-release/">Query release requirements</a> for candidate gates.</p>
 
 
 

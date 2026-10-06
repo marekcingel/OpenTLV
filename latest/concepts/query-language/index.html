@@ -3170,6 +3170,62 @@
   
   
     <li class="md-nav__item">
+      <a href="../../development/query-release/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Query release checklist
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../development/query-phase-audit/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Query phase implementation audit
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
       <a href="../../development/rust/" class="md-nav__link">
         
   
@@ -3619,7 +3675,18 @@ different lifetimes. Copying the program cannot make external callbacks or
 Format contexts self-contained. F2 copies resolved tag bytes into the program;
 resolver/Definition storage is needed only while compiling. Providers, their
 contexts and the Format remain borrowed throughout execution and suspension. Repeating sizing/compile with
-the same bounded text/options yields identical requirements and output.</p>
+the same bounded text/options yields identical requirements and output.
+For checked two-pass compilation, discover workspace with
+<code>tlv_query_compile_prepare_size</code>, compile once with <code>tlv_query_compile_prepare</code>,
+then publish with <code>tlv_query_compile_commit</code>. Preparation reports exact final
+program size and retains a complete immutable image in caller workspace. Commit
+uses explicitly sized validation scratch from <code>tlv_query_program_load_scratch</code>,
+re-resolves names and compares every program byte before writing final storage.
+Changes to same-length identifiers are rejected, preserving output storage and
+info. The independent low-level <code>tlv_query_compile</code> calls retain their original
+stable-callback precondition; owning language constructors use checked compilation.</p>
+<p>Canonical formatting may add whitespace. Rediscover compilation scratch for the
+formatted text; the original text's exact scratch capacity need not suffice.</p>
 <p><strong>Q-PLAN-01.</strong> Execution levels apply to whole expressions: S0 decides at
 complete node publication; S1 retains bounded depth summaries for scope evidence;
 S2 requires explicit candidate capacity; D performs Document navigation with
@@ -3750,6 +3817,28 @@ and execution objects continue to use independent size/alignment discovery.
 is the immutable expression instruction count; retained execution can revisit
 instructions for distinct contexts and charges each evaluation to its work limit; byte
 scanning and callback costs are separate. <code>variable_slots</code> counts unique bindings.</p>
+<p><strong>Q-IMAGE-01.</strong> External images enter through <code>tlv_query_program_load</code> with their
+exact readable extent. Pointer-only APIs require compiler-owned or already
+validated images. Discovery reads a copied fixed header and bounded text only;
+loading reconstructs the image with the bounded compiler and compares every byte,
+including types, constants, indices, guards, optimization and capability fields.
+The original compile options, typed declarations, deterministic resolver and
+compatible environment are required. A checksum cannot replace validation.</p>
+<p>Internal image version 5 uses native-endian uint32 fields, relative offsets and
+no pointers. Wrong version/byte order returns UNSUPPORTED_TYPE and IMAGE_VERSION
+diagnostics before node access. No cross-release serialized-IR compatibility is
+promised. Same-endian 32/64-bit sharing requires matching private layout and
+environment contracts; reconstruction checks compatibility. Aligned immutable
+images may reside in ROM. Validation scratch is separate, writable, caller-owned
+and explicitly sized/aligned by <code>program_load_scratch</code>. Validation performs no
+image writes, internal allocation or production recursion; its cost includes
+bounded compilation. Instruction dependencies refer to earlier instructions and
+the evaluator uses explicit bounded frames.</p>
+<p>Tag-mask and tag-range functions select relative children, including in
+predicates. <code>//70[tag-mask(x'5A', x'FF')]</code> selects containers having a matching
+child; it does not test the candidate's own identifier. Predicate use requires S2
+storage, reported by compile info. Release evidence is tracked by the
+<a href="../../development/query-release/">Query release checklist</a>.</p>
 <h2 id="f2-functions-and-providers">F2 functions and providers<a class="headerlink" href="#f2-functions-and-providers" title="Permanent link">&para;</a></h2>
 <p>The following signatures are closed and checked at compilation. <code>nodes</code> denotes
 an ordered node sequence and <code>bytes</code> and <code>string</code> remain distinct types.</p>

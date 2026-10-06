@@ -1351,6 +1351,34 @@
     </span>
   </a>
   
+    <nav class="md-nav" aria-label="Use from JavaScript">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#compiled-query-and-document" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Compiled Query and Document
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#parse-tooling" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Parse tooling
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
 </li>
       
         <li class="md-nav__item">
@@ -3148,6 +3176,62 @@
   
   
     <li class="md-nav__item">
+      <a href="../query-release/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Query release checklist
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../query-phase-audit/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Query phase implementation audit
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
       <a href="../rust/" class="md-nav__link">
         
   
@@ -3334,6 +3418,34 @@
     </span>
   </a>
   
+    <nav class="md-nav" aria-label="Use from JavaScript">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#compiled-query-and-document" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Compiled Query and Document
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#parse-tooling" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Parse tooling
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
 </li>
       
         <li class="md-nav__item">
@@ -3388,13 +3500,11 @@
 WebAssembly with <a href="https://emscripten.org/">Emscripten</a>, so browser tooling runs
 the same parser as native applications. It defaults to <code>OFF</code> and adds nothing
 to normal C and C++ builds.</p>
-<p>The first interface is intentionally small: it parses a byte buffer and returns
-the element structure or the parser error. It wraps the existing C API in
-<code>bindings/wasm/src/opentlv_wasm.c</code>; no parsing logic is duplicated. Editing,
-schemas and OTLV are not exposed; the EMV dictionary is available as an annotation module (below).
-Unlike a general-purpose binding, it does not follow the Reader/Writer/Element
-shape of the <a href="../../concepts/bindings/">language bindings conceptual model</a>; see
-that page for why.</p>
+<p>The module provides parse tooling plus owning compiled Query, checked Document
+editing and contextual Query Schema validation. It wraps the existing C API in
+<code>bindings/wasm/src/opentlv_wasm.c</code>; no parsing or Query semantics are duplicated.
+The EMV dictionary is available as an annotation module (below). Remaining
+public-facade gaps are tracked in the <a href="../../concepts/bindings/">binding capability matrix</a>.</p>
 <h2 id="build">Build<a class="headerlink" href="#build" title="Permanent link">&para;</a></h2>
 <p>Install and activate an Emscripten SDK (CI pins the version set in
 <code>.github/workflows/wasm.yml</code>), then:</p>
@@ -3417,6 +3527,10 @@ that page for why.</p>
 <td>JavaScript entry point (<code>loadOpenTLV</code>, <code>hexToBytes</code>)</td>
 </tr>
 <tr>
+<td><code>query.mjs</code></td>
+<td>Owning compiled Query and checked Document facade</td>
+</tr>
+<tr>
 <td><code>opentlv-core.js</code></td>
 <td>Generated Emscripten ES module loader</td>
 </tr>
@@ -3426,11 +3540,105 @@ that page for why.</p>
 </tr>
 </tbody>
 </table>
-<p>Serve the three files from the same directory. With the same Emscripten version
+<p>Serve these files from the same directory. With the same Emscripten version
 and configuration the artifacts are byte-for-byte identical; CI builds twice
 and compares them. Format options such as <code>OPENTLV_FORMAT_BER</code> apply as in
-native builds, and a compiled-out format is rejected as an invalid argument.</p>
+native builds, and disabled formats are unavailable to the facade.</p>
 <h2 id="use-from-javascript">Use from JavaScript<a class="headerlink" href="#use-from-javascript" title="Permanent link">&para;</a></h2>
+<h3 id="compiled-query-and-document">Compiled Query and Document<a class="headerlink" href="#compiled-query-and-document" title="Permanent link">&para;</a></h3>
+<p><code>loadOpenTLV()</code> also provides <code>compileQuery(text, options)</code>, <code>loadQuery(image,
+options)</code> and <code>document(input, options)</code>. Compilation and evaluation delegate to
+the native C engine. Query and Document accept <code>ber</code>, <code>ber-indefinite</code>, <code>der</code>,
+<code>cer</code>, <code>emv</code>, <code>nfc-type2</code>, <code>lldp</code>, <code>dhcpv4</code>, <code>bluetooth-ltv</code>, <code>bluetooth-ad</code> and
+<code>fixed</code>, or an owning <code>Format</code> object. Disabled components report unsupported
+type. Query's <code>bluetooth-ad</code> alias uses strict element framing; container padding
+is handled by the separate parse tooling. Writer restrictions of each native
+Format also apply to <code>document.encode()</code>.</p>
+<p>Programs expose <code>info</code>, <code>format()</code>, <code>explain()</code>, <code>image()</code>, <code>evaluate(input)</code> and
+<code>execution(limits)</code>. Declare <code>variables: { name: "integer" | "bytes" | "string" }</code>
+at compilation; bind values with <code>execution.bind(name, value)</code> or the <code>bindings</code>
+option of <code>evaluate</code>. Integer inputs accept safe JS integers or signed 64-bit
+<code>bigint</code>; results outside the safe integer range return <code>bigint</code>. Named Tags can
+be supplied as <code>names: { symbol: Uint8Array }</code>. <code>program.variables</code> reports the
+native unique referenced variables, excluding unused declarations.</p>
+<p><code>resolve(scope, name)</code> can supply dynamic scoped names, returning a copied
+<code>Uint8Array</code> or <code>null</code> for an unknown identifier. <code>resolve: "emv"</code> selects the
+native EMV registry. <code>nameResolver({ "scope:name": tag })</code> and
+<code>definitionResolver({ scope: [{ name, tag }] })</code> create immutable lookup snapshots;
+an unqualified name must be unique across scopes. Checked compilation rejects
+resolver changes between preparation and final compilation, including equal-size
+Tag changes. Resolver exceptions preserve their original JavaScript identity.</p>
+<p><code>tags: { id, classOf?, numberOf? }</code> supplies optional semantic Tag callbacks.
+Callbacks receive copied Tag bytes and return signed 64-bit integers. The
+nonzero stable <code>id</code> is checked when loading an image; capabilities remain alive
+while an execution or schema retains the program.</p>
+<p><code>Format.fixed({ tag_size, length_size, byte_order, element_order, length_scope,
+isConstructed? })</code> owns the complete native Fixed configuration. Defaults are
+one-byte fields, <code>"big"</code>, <code>"tlv"</code> and <code>"value"</code>; alternatives are <code>"little"</code>,
+<code>"ltv"</code> and <code>"tag-and-value"</code>. Share the Format object between programs and
+Documents using the same configuration. Closing its public handle leaves
+existing dependent objects usable.</p>
+<p><code>Format.custom({ decode, measure?, encode?, isConstructed? })</code> registers native
+Format callbacks with owned lifetimes. <code>decode(bytes)</code> receives a copy and returns
+<code>{ tag, header, value, trailer?, tagRange?, lengthRange? }</code>; each range contains
+<code>{ offset, size }</code> relative to the supplied bytes. The returned <code>tag</code> is a semantic
+<code>Uint8Array</code>, which may differ from the wire field. Native framing validation
+checks the layout. Complete semantic Tags are retained until the Format's final
+dependent owner closes. <code>measure({ tag, value, valueSize })</code> returns numeric
+<code>{ header, value, trailer? }</code> sizes, and <code>encode(element)</code> returns encoded bytes.
+During measurement, <code>value</code> may be <code>null</code>. Supply both Writer callbacks together
+to support Documents; read-only custom Formats support Query execution. Any
+callback can report a native failure as <code>{ code }</code>, or throw its original
+JavaScript exception. Callbacks cannot reenter an object using the same Format.</p>
+<p><code>providers: { num: { id, decode }, ... }</code> selects callbacks for the closed <code>num</code>,
+<code>bcd</code>, <code>text</code> and <code>date</code> conversions. Callbacks receive copied bytes and optional
+event metadata; return a signed 64-bit integer or a string for <code>text</code>. Text
+providers require <code>max_result_bytes</code> for bounded native scratch. The owning
+program retains callback registrations until all executions and schemas release
+them. Callback exceptions propagate and reentry is rejected. Loading an image
+requires matching provider IDs and contracts.</p>
+<p><code>execution.feed(event)</code> accepts canonical <code>begin</code>, <code>element</code> and <code>end</code> events.
+For <code>begin</code> and <code>element</code>, <code>source: Uint8Array</code> supplies the complete encoded
+element; the owning Format derives the Tag, Value and Source ranges. Without
+<code>source</code>, supply copied <code>tag</code> and <code>value</code> bytes. <code>offset</code> stays absolute in either
+case. After a retained raw feed is finalized, <code>nextOrdinal()</code> returns
+<code>{ ordinal, match }</code> using traversal identity independently of Source offsets.
+<code>finish()</code> finalizes deferred results; raw events and Reader input require
+separate resets. After evaluating a Document selection,
+<code>editDocument("remove" | "replace" | "insert_after", options)</code> applies edits with
+explicit <code>target_capacity</code>. Short target storage reports <code>error.applied === 0</code>
+and permits retry; partial failures preserve their applied count.</p>
+<p><code>querySchema([{ context, assertion, name }], { format })</code> owns references to
+compiled context selectors and relative Boolean assertion programs. Its
+<code>validateBuffer</code> and <code>validateDocument</code> methods accept depth/node/work/context
+and snapshot limits. Errors own rule, Query and Schema diagnostic context.
+Close the schema when finished. Document mutation and close are rejected while
+provider callbacks inspect it.</p>
+<p>An execution owns its native workspace. <code>setInput(input, { discard, final })</code>
+copies and retains input windows until <code>reset()</code> or <code>close()</code>; original source
+offsets survive legal continuation. <code>next()</code> returns a copied match or <code>null</code>
+at final exhaustion; needing input raises <code>QueryError</code> with the native status.
+<code>visit(callback)</code> stops when the callback returns <code>false</code> and resumes on the next
+call. Callback exceptions invalidate the execution until reset; reentrant calls
+on that execution are rejected. Scalars use <code>finish()</code> then <code>result()</code>; <code>info</code>
+reports native validation and resource coverage. Explicit limits include
+<code>max_depth</code>, <code>max_nodes</code> and <code>max_work</code>.
+Reader failures preserve copied field offsets, Tag, raw length, expected/actual
+text, path and diagnostic context in <code>error.query.reader</code>.</p>
+<p><code>new V1Query("70/5A")</code> exposes bounded legacy parsing, <code>format()</code>, copied <code>steps</code>,
+<code>evaluate(input, options)</code> and a native preorder matcher. <code>matcher()</code> creates an
+independent owner; feed every Tag and depth with <code>feed(tag, depth)</code>, and call
+<code>reset()</code> before starting a new traversal. An independent matcher remains valid
+after the original Query closes.</p>
+<p><code>evaluateDocument(document, { value_capacity })</code> evaluates the canonical Document
+backend. Results are checked Nodes with <code>tag</code>, <code>value</code>, <code>constructed</code>,
+<code>firstChild</code>, <code>next</code>, <code>parent</code>, <code>setValue(bytes)</code> and <code>erase()</code>. Constructed Nodes
+return <code>null</code> for <code>value</code>. Document edits invalidate previous Query selections;
+erased and closed handles raise <code>QueryError</code>. Call <code>close()</code> on executions,
+programs and Documents for deterministic release. Native executions retain their
+program and Document owners, while the public facade rejects access after a
+Document is closed.</p>
+<h3 id="parse-tooling">Parse tooling<a class="headerlink" href="#parse-tooling" title="Permanent link">&para;</a></h3>
 <div class="highlight"><pre><span></span><code><a id="__codelineno-1-1" name="__codelineno-1-1" href="#__codelineno-1-1"></a><span class="k">import</span><span class="w"> </span><span class="p">{</span><span class="w"> </span><span class="nx">loadOpenTLV</span><span class="p">,</span><span class="w"> </span><span class="nx">hexToBytes</span><span class="w"> </span><span class="p">}</span><span class="w"> </span><span class="kr">from</span><span class="w"> </span><span class="s2">"./opentlv.mjs"</span><span class="p">;</span>
 <a id="__codelineno-1-2" name="__codelineno-1-2" href="#__codelineno-1-2"></a>
 <a id="__codelineno-1-3" name="__codelineno-1-3" href="#__codelineno-1-3"></a><span class="kd">const</span><span class="w"> </span><span class="nx">opentlv</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="k">await</span><span class="w"> </span><span class="nx">loadOpenTLV</span><span class="p">();</span>

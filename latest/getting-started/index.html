@@ -3159,6 +3159,62 @@
   
   
     <li class="md-nav__item">
+      <a href="../development/query-release/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Query release checklist
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../development/query-phase-audit/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Query phase implementation audit
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
       <a href="../development/rust/" class="md-nav__link">
         
   
@@ -3848,6 +3904,10 @@ existing build, use its CTest label:</p>
 <div class="highlight"><pre><span></span><code><a id="__codelineno-17-1" name="__codelineno-17-1" href="#__codelineno-17-1"></a>ctest<span class="w"> </span>--test-dir<span class="w"> </span>build-tests<span class="w"> </span>-C<span class="w"> </span>Release<span class="w"> </span>-L<span class="w"> </span>unit<span class="w"> </span>--output-on-failure<span class="w"> </span>--no-tests<span class="o">=</span>error
 <a id="__codelineno-17-2" name="__codelineno-17-2" href="#__codelineno-17-2"></a>ctest<span class="w"> </span>--test-dir<span class="w"> </span>build-tests<span class="w"> </span>-C<span class="w"> </span>Release<span class="w"> </span>-L<span class="w"> </span>integration<span class="w"> </span>--output-on-failure<span class="w"> </span>--no-tests<span class="o">=</span>error
 </code></pre></div>
+<p><code>OPENTLV_BUILD_QUERY_TESTS</code> also defaults to <code>ON</code> and makes the independent C
+Query conformance runner available when both groups are disabled. It requires
+neither C++ nor GoogleTest. Unit, integration and property configurations also
+include this runner; the main <code>OPENTLV_BUILD_TESTS</code> switch disables all of them.</p>
 <p>To configure and build each group independently:</p>
 <div class="highlight"><pre><span></span><code><a id="__codelineno-18-1" name="__codelineno-18-1" href="#__codelineno-18-1"></a>cmake<span class="w"> </span>-S<span class="w"> </span>.<span class="w"> </span>-B<span class="w"> </span>build-unit<span class="w"> </span>-DOPENTLV_BUILD_TESTS<span class="o">=</span>ON<span class="w"> </span>-DOPENTLV_BUILD_UNIT_TESTS<span class="o">=</span>ON<span class="w"> </span>-DOPENTLV_BUILD_INTEGRATION_TESTS<span class="o">=</span>OFF
 <a id="__codelineno-18-2" name="__codelineno-18-2" href="#__codelineno-18-2"></a>cmake<span class="w"> </span>--build<span class="w"> </span>build-unit<span class="w"> </span>--config<span class="w"> </span>Release<span class="w"> </span>--parallel

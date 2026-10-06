@@ -1,4 +1,7 @@
 var searchData=
 [
-  ['year_0',['year',['../structtlv__asn1__utc__time.html#a6284fd9fd0ce493b4632f183658a73e6',1,'tlv_asn1_utc_time::year'],['../structtlv__asn1__generalized__time.html#a1e31213bdb53cc2079108edfce8134b1',1,'tlv_asn1_generalized_time::year'],['../structtlv__asn1__date.html#a07a89ca9d62bdb87f0109bdbb610da5c',1,'tlv_asn1_date::year'],['../structtlv__asn1__date__time.html#aada73106e0098541c1957df9aa2f8e25',1,'tlv_asn1_date_time::year'],['../structtlv__emv__date__t.html#a3de029824a68c50efb51d293727d8895',1,'tlv_emv_date_t::year']]]
+  ['width_0',['width',['../structtlv__digits__codec__config.html#aad1b4d061bd3d6d7a0250c202dac7777',1,'tlv_digits_codec_config::width'],['../structtlv__number__codec__config.html#ab92ded90e861aa6215ae26f791a8c77c',1,'tlv_number_codec_config::width'],['../structtlv__text__codec__config.html#a4906e1c2ba9d63586d65f3e6b3df01a2',1,'tlv_text_codec_config::width']]],
+  ['work_1',['work',['../structtlv__query__exec__info.html#a229ccf2aea123b4d90fd6c1966eadf14',1,'tlv_query_exec_info']]],
+  ['write_5flength_2',['write_length',['../structtlv__field__layout.html#ab852052d42db14d4b67ab0ade75b6c6e',1,'tlv_field_layout']]],
+  ['write_5ftag_3',['write_tag',['../structtlv__field__layout.html#a4015041306540bcc4b4aa1854b714f43',1,'tlv_field_layout']]]
 ];

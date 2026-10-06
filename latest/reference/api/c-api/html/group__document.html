@@ -108,6 +108,9 @@ Typedefs</h2></td></tr>
 <tr class="memitem:ga9483f2f2d44c9a33a267a462c90d3883" id="r_ga9483f2f2d44c9a33a267a462c90d3883"><td class="memItemLeft" align="right" valign="top">typedef struct tlv_node&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="group__document.html#ga9483f2f2d44c9a33a267a462c90d3883">tlv_node_t</a></td></tr>
 <tr class="memdesc:ga9483f2f2d44c9a33a267a462c90d3883"><td class="mdescLeft">&#160;</td><td class="mdescRight">One element of a document. Opaque; owned by its document.  <br /></td></tr>
 <tr class="separator:ga9483f2f2d44c9a33a267a462c90d3883"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:ga5bd2405401ae0b6cd43be62604f2b62c" id="r_ga5bd2405401ae0b6cd43be62604f2b62c"><td class="memItemLeft" align="right" valign="top">typedef enum <a class="el" href="group__document.html#ga23dff3de326a80ae3ee3f8cea50dca72">tlv_document_query_edit_kind</a>&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="group__document.html#ga5bd2405401ae0b6cd43be62604f2b62c">tlv_document_query_edit_kind_t</a></td></tr>
+<tr class="memdesc:ga5bd2405401ae0b6cd43be62604f2b62c"><td class="mdescLeft">&#160;</td><td class="mdescRight">Completed Query selection edit operation.  <br /></td></tr>
+<tr class="separator:ga5bd2405401ae0b6cd43be62604f2b62c"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:ga1ef71916e5fc7aa07e2126d2dc7f979d" id="r_ga1ef71916e5fc7aa07e2126d2dc7f979d"><td class="memItemLeft" align="right" valign="top">typedef struct tlv_document_builder&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="group__document.html#ga1ef71916e5fc7aa07e2126d2dc7f979d">tlv_document_builder_t</a></td></tr>
 <tr class="memdesc:ga1ef71916e5fc7aa07e2126d2dc7f979d"><td class="mdescLeft">&#160;</td><td class="mdescRight">Resumable owning consumer of a Tree Reader, optionally limited to one subtree.  <br /></td></tr>
 <tr class="separator:ga1ef71916e5fc7aa07e2126d2dc7f979d"><td class="memSeparator" colspan="2">&#160;</td></tr>
@@ -118,9 +121,27 @@ Enumerations</h2></td></tr>
  }</td></tr>
 <tr class="memdesc:ga80155586fa275b28773c9b203f52caba"><td class="mdescLeft">&#160;</td><td class="mdescRight">Default for <a class="el" href="structtlv__document__options.html#a05e0fd155d2abd8f3345ae1a5355bbce">tlv_document_options_t::max_elements</a>: bounds memory taken for one document.  <a href="group__document.html#ga80155586fa275b28773c9b203f52caba">More...</a><br /></td></tr>
 <tr class="separator:ga80155586fa275b28773c9b203f52caba"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:ga23dff3de326a80ae3ee3f8cea50dca72" id="r_ga23dff3de326a80ae3ee3f8cea50dca72"><td class="memItemLeft" align="right" valign="top">enum &#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="group__document.html#ga23dff3de326a80ae3ee3f8cea50dca72">tlv_document_query_edit_kind</a> { <a class="el" href="group__document.html#gga23dff3de326a80ae3ee3f8cea50dca72abca6f329807e8fca95d3fed103fe2a25">TLV_DOCUMENT_QUERY_REMOVE</a>
+, <a class="el" href="group__document.html#gga23dff3de326a80ae3ee3f8cea50dca72a927cfa65532bb18eb6ea55f915d1e367">TLV_DOCUMENT_QUERY_REPLACE</a>
+, <a class="el" href="group__document.html#gga23dff3de326a80ae3ee3f8cea50dca72a99a0b9944e79d907ff86062b8c730290">TLV_DOCUMENT_QUERY_INSERT_AFTER</a>
+ }</td></tr>
+<tr class="memdesc:ga23dff3de326a80ae3ee3f8cea50dca72"><td class="mdescLeft">&#160;</td><td class="mdescRight">Completed Query selection edit operation.  <a href="group__document.html#ga23dff3de326a80ae3ee3f8cea50dca72">More...</a><br /></td></tr>
+<tr class="separator:ga23dff3de326a80ae3ee3f8cea50dca72"><td class="memSeparator" colspan="2">&#160;</td></tr>
 </table><table class="memberdecls">
 <tr class="heading"><td colspan="2"><h2 class="groupheader"><a id="func-members" name="func-members"></a>
 Functions</h2></td></tr>
+<tr class="memitem:ga04e186a27ff6dc18ba29c866d81417f1" id="r_ga04e186a27ff6dc18ba29c866d81417f1"><td class="memItemLeft" align="right" valign="top">uint64_t&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="group__document.html#ga04e186a27ff6dc18ba29c866d81417f1">tlv_document_revision</a> (const <a class="el" href="group__document.html#gad50a36ea444832274667f45cb81dab83">tlv_document_t</a> *document)</td></tr>
+<tr class="memdesc:ga04e186a27ff6dc18ba29c866d81417f1"><td class="mdescLeft">&#160;</td><td class="mdescRight">Observe the whole-Document mutation revision; NULL returns zero.  <br /></td></tr>
+<tr class="separator:ga04e186a27ff6dc18ba29c866d81417f1"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:ga4fd888f2c4ba9ebbb6ace337b87d6a93" id="r_ga4fd888f2c4ba9ebbb6ace337b87d6a93"><td class="memItemLeft" align="right" valign="top">uint64_t&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="group__document.html#ga4fd888f2c4ba9ebbb6ace337b87d6a93">tlv_document_node_identity</a> (const <a class="el" href="group__document.html#gad50a36ea444832274667f45cb81dab83">tlv_document_t</a> *document, const <a class="el" href="group__document.html#ga9483f2f2d44c9a33a267a462c90d3883">tlv_node_t</a> *node)</td></tr>
+<tr class="memdesc:ga4fd888f2c4ba9ebbb6ace337b87d6a93"><td class="mdescLeft">&#160;</td><td class="mdescRight">Check a possibly stale node address without dereferencing it.  <br /></td></tr>
+<tr class="separator:ga4fd888f2c4ba9ebbb6ace337b87d6a93"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:ga7e0fefab0011e81c7a8e6ae97d3cde8f" id="r_ga7e0fefab0011e81c7a8e6ae97d3cde8f"><td class="memItemLeft" align="right" valign="top">uint64_t&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="group__document.html#ga7e0fefab0011e81c7a8e6ae97d3cde8f">tlv_node_identity</a> (const <a class="el" href="group__document.html#ga9483f2f2d44c9a33a267a462c90d3883">tlv_node_t</a> *node)</td></tr>
+<tr class="memdesc:ga7e0fefab0011e81c7a8e6ae97d3cde8f"><td class="mdescLeft">&#160;</td><td class="mdescRight">Read a live node's immutable Document-local identity in constant time.  <br /></td></tr>
+<tr class="separator:ga7e0fefab0011e81c7a8e6ae97d3cde8f"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:ga4eec885557bbc0c890dfcfe3b1344752" id="r_ga4eec885557bbc0c890dfcfe3b1344752"><td class="memItemLeft" align="right" valign="top"><a class="el" href="group__core.html#ga164d2817a32e5d7b7aa1472e887b47c3">tlv_result_t</a>&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="group__document.html#ga4eec885557bbc0c890dfcfe3b1344752">tlv_document_query_edit</a> (<a class="el" href="group__document.html#gad50a36ea444832274667f45cb81dab83">tlv_document_t</a> *document, struct tlv_query_exec *exec, <a class="el" href="group__document.html#ga5bd2405401ae0b6cd43be62604f2b62c">tlv_document_query_edit_kind_t</a> kind, <a class="el" href="structtlv__tag__t.html">tlv_tag_t</a> tag, const uint8_t *value, size_t size, <a class="el" href="group__document.html#ga9483f2f2d44c9a33a267a462c90d3883">tlv_node_t</a> **targets, size_t capacity, size_t *applied)</td></tr>
+<tr class="memdesc:ga4eec885557bbc0c890dfcfe3b1344752"><td class="mdescLeft">&#160;</td><td class="mdescRight">Edit an already finalized compiled Query selection, never an active traversal.  <br /></td></tr>
+<tr class="separator:ga4eec885557bbc0c890dfcfe3b1344752"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:ga84cf18bf22d1d866be097ac50f613a0d" id="r_ga84cf18bf22d1d866be097ac50f613a0d"><td class="memItemLeft" align="right" valign="top"><a class="el" href="group__core.html#ga164d2817a32e5d7b7aa1472e887b47c3">tlv_result_t</a>&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="group__document.html#ga84cf18bf22d1d866be097ac50f613a0d">tlv_document_builder_create</a> (const <a class="el" href="group__document.html#ga00648d53961c7306ff0ae90ce957a294">tlv_document_options_t</a> *options, <a class="el" href="group__traversal.html#ga74999ab774c60a10d1f759404edb7003">tlv_tree_reader_t</a> *reader, const <a class="el" href="group__traversal.html#ga1a97318bea7cf12089db0524b5701d5d">tlv_tree_item_t</a> *root, <a class="el" href="group__document.html#ga1ef71916e5fc7aa07e2126d2dc7f979d">tlv_document_builder_t</a> **builder)</td></tr>
 <tr class="memdesc:ga84cf18bf22d1d866be097ac50f613a0d"><td class="mdescLeft">&#160;</td><td class="mdescRight">Create a builder for a complete tree stream or the last published subtree.  <br /></td></tr>
 <tr class="separator:ga84cf18bf22d1d866be097ac50f613a0d"><td class="memSeparator" colspan="2">&#160;</td></tr>
@@ -298,6 +319,22 @@ Functions</h2></td></tr>
 
 </div>
 </div>
+<a id="ga5bd2405401ae0b6cd43be62604f2b62c" name="ga5bd2405401ae0b6cd43be62604f2b62c"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#ga5bd2405401ae0b6cd43be62604f2b62c">&#9670;&#160;</a></span>tlv_document_query_edit_kind_t</h2>
+
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname">typedef enum <a class="el" href="group__document.html#ga23dff3de326a80ae3ee3f8cea50dca72">tlv_document_query_edit_kind</a> <a class="el" href="group__document.html#ga5bd2405401ae0b6cd43be62604f2b62c">tlv_document_query_edit_kind_t</a></td>
+        </tr>
+      </table>
+</div><div class="memdoc">
+
+<p>Completed Query selection edit operation. </p>
+
+</div>
+</div>
 <a id="ga4180ff242fb016d9fc53bbaba3895b5a" name="ga4180ff242fb016d9fc53bbaba3895b5a"></a>
 <h2 class="memtitle"><span class="permalink"><a href="#ga4180ff242fb016d9fc53bbaba3895b5a">&#9670;&#160;</a></span>tlv_document_query_visitor_t</h2>
 
@@ -370,6 +407,30 @@ Functions</h2></td></tr>
 <p>Default for <a class="el" href="structtlv__document__options.html#a05e0fd155d2abd8f3345ae1a5355bbce">tlv_document_options_t::max_elements</a>: bounds memory taken for one document. </p>
 <table class="fieldtable">
 <tr><th colspan="2">Enumerator</th></tr><tr><td class="fieldname"><a id="gga80155586fa275b28773c9b203f52cabaaf2c70ff1716f20365e62a169f0c89695" name="gga80155586fa275b28773c9b203f52cabaaf2c70ff1716f20365e62a169f0c89695"></a>TLV_DOCUMENT_DEFAULT_MAX_ELEMENTS&#160;</td><td class="fielddoc"></td></tr>
+</table>
+
+</div>
+</div>
+<a id="ga23dff3de326a80ae3ee3f8cea50dca72" name="ga23dff3de326a80ae3ee3f8cea50dca72"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#ga23dff3de326a80ae3ee3f8cea50dca72">&#9670;&#160;</a></span>tlv_document_query_edit_kind</h2>
+
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname">enum <a class="el" href="group__document.html#ga23dff3de326a80ae3ee3f8cea50dca72">tlv_document_query_edit_kind</a></td>
+        </tr>
+      </table>
+</div><div class="memdoc">
+
+<p>Completed Query selection edit operation. </p>
+<table class="fieldtable">
+<tr><th colspan="2">Enumerator</th></tr><tr><td class="fieldname"><a id="gga23dff3de326a80ae3ee3f8cea50dca72abca6f329807e8fca95d3fed103fe2a25" name="gga23dff3de326a80ae3ee3f8cea50dca72abca6f329807e8fca95d3fed103fe2a25"></a>TLV_DOCUMENT_QUERY_REMOVE&#160;</td><td class="fielddoc"><p>Erase selected roots; selected ancestors dominate descendants. </p>
+</td></tr>
+<tr><td class="fieldname"><a id="gga23dff3de326a80ae3ee3f8cea50dca72a927cfa65532bb18eb6ea55f915d1e367" name="gga23dff3de326a80ae3ee3f8cea50dca72a927cfa65532bb18eb6ea55f915d1e367"></a>TLV_DOCUMENT_QUERY_REPLACE&#160;</td><td class="fielddoc"><p>Replace Values; selected ancestors dominate descendants. </p>
+</td></tr>
+<tr><td class="fieldname"><a id="gga23dff3de326a80ae3ee3f8cea50dca72a99a0b9944e79d907ff86062b8c730290" name="gga23dff3de326a80ae3ee3f8cea50dca72a99a0b9944e79d907ff86062b8c730290"></a>TLV_DOCUMENT_QUERY_INSERT_AFTER&#160;</td><td class="fielddoc"><p>Insert one sibling immediately after each selected target. </p>
+</td></tr>
 </table>
 
 </div>
@@ -942,6 +1003,7 @@ Any writer format error, such as <a class="el" href="group__core.html#gga516c725
   </dd>
 </dl>
 <dl class="section warning"><dt>Warning</dt><dd>Invalidates all node pointers, and the tag and value pointers, of the document. </dd></dl>
+<dl class="section note"><dt>Note</dt><dd>During a Query callback, destruction is deferred until the outermost visit returns from its callback. That visit returns INVALID_ARG; do not use the owner or any node after it returns. Repeated pending free requests release only once. </dd></dl>
 
 </div>
 </div>
@@ -1026,6 +1088,45 @@ Any writer format error, such as <a class="el" href="group__core.html#gga516c725
 <a class="el" href="group__core.html#gga516c7250563ee9332e2f45f2d203ae61a614f23c9fdd07003fba404fd4b94d270">TLV_ERR_OUT_OF_MEMORY</a> if memory is exhausted. </dd>
 <dd>
 Any writer format error for the tag, or reader error for a constructed value. </dd></dl>
+
+</div>
+</div>
+<a id="ga4fd888f2c4ba9ebbb6ace337b87d6a93" name="ga4fd888f2c4ba9ebbb6ace337b87d6a93"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#ga4fd888f2c4ba9ebbb6ace337b87d6a93">&#9670;&#160;</a></span>tlv_document_node_identity()</h2>
+
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname">uint64_t tlv_document_node_identity </td>
+          <td>(</td>
+          <td class="paramtype">const <a class="el" href="group__document.html#gad50a36ea444832274667f45cb81dab83">tlv_document_t</a> *&#160;</td>
+          <td class="paramname"><em>document</em>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype">const <a class="el" href="group__document.html#ga9483f2f2d44c9a33a267a462c90d3883">tlv_node_t</a> *&#160;</td>
+          <td class="paramname"><em>node</em>&#160;</td>
+        </tr>
+        <tr>
+          <td></td>
+          <td>)</td>
+          <td></td><td></td>
+        </tr>
+      </table>
+</div><div class="memdoc">
+
+<p>Check a possibly stale node address without dereferencing it. </p>
+<dl class="params"><dt>Parameters</dt><dd>
+  <table class="params">
+    <tr><td class="paramname">document</td><td>Live owning Document; caller must retain its lifetime. </td></tr>
+    <tr><td class="paramname">node</td><td>Address to locate, possibly erased or foreign. </td></tr>
+  </table>
+  </dd>
+</dl>
+<dl class="section return"><dt>Returns</dt><dd>Nonzero immutable identity within this Document, or zero when absent/NULL. </dd></dl>
+<dl class="section note"><dt>Note</dt><dd>O(node count) scan, allocation-free. Identities are never reused, including allocator address reuse; exhaustion rejects creation with LIMIT. Store identity alongside an address to detect erase/replacement after a revision changes. </dd></dl>
 
 </div>
 </div>
@@ -1137,6 +1238,94 @@ Any reader error, propagated unchanged.</dd></dl>
 
 </div>
 </div>
+<a id="ga4eec885557bbc0c890dfcfe3b1344752" name="ga4eec885557bbc0c890dfcfe3b1344752"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#ga4eec885557bbc0c890dfcfe3b1344752">&#9670;&#160;</a></span>tlv_document_query_edit()</h2>
+
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname"><a class="el" href="group__core.html#ga164d2817a32e5d7b7aa1472e887b47c3">tlv_result_t</a> tlv_document_query_edit </td>
+          <td>(</td>
+          <td class="paramtype"><a class="el" href="group__document.html#gad50a36ea444832274667f45cb81dab83">tlv_document_t</a> *&#160;</td>
+          <td class="paramname"><em>document</em>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype">struct tlv_query_exec *&#160;</td>
+          <td class="paramname"><em>exec</em>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype"><a class="el" href="group__document.html#ga5bd2405401ae0b6cd43be62604f2b62c">tlv_document_query_edit_kind_t</a>&#160;</td>
+          <td class="paramname"><em>kind</em>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype"><a class="el" href="structtlv__tag__t.html">tlv_tag_t</a>&#160;</td>
+          <td class="paramname"><em>tag</em>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype">const uint8_t *&#160;</td>
+          <td class="paramname"><em>value</em>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype">size_t&#160;</td>
+          <td class="paramname"><em>size</em>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype"><a class="el" href="group__document.html#ga9483f2f2d44c9a33a267a462c90d3883">tlv_node_t</a> **&#160;</td>
+          <td class="paramname"><em>targets</em>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype">size_t&#160;</td>
+          <td class="paramname"><em>capacity</em>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype">size_t *&#160;</td>
+          <td class="paramname"><em>applied</em>&#160;</td>
+        </tr>
+        <tr>
+          <td></td>
+          <td>)</td>
+          <td></td><td></td>
+        </tr>
+      </table>
+</div><div class="memdoc">
+
+<p>Edit an already finalized compiled Query selection, never an active traversal. </p>
+<dl class="params"><dt>Parameters</dt><dd>
+  <table class="params">
+    <tr><td class="paramname">document</td><td>Live mutable Document used by execution. </td></tr>
+    <tr><td class="paramname">exec</td><td>Finished node-result execution; all targets are collected before mutation. </td></tr>
+    <tr><td class="paramname">kind</td><td>Operation selector. </td></tr>
+    <tr><td class="paramname">tag</td><td>Insertion identifier; ignored by other operations. </td></tr>
+    <tr><td class="paramname">value</td><td>Replacement/insertion Value, copied before editing; ignored by removal. </td></tr>
+    <tr><td class="paramname">size</td><td>Value bytes. </td></tr>
+    <tr><td class="paramname">targets</td><td>Exclusive caller array of node pointers for the complete selection. </td></tr>
+    <tr><td class="paramname">capacity</td><td>Array entries; short storage leaves the cursor and targets unchanged, permitting retry of the same completed execution with a larger target array. </td></tr>
+    <tr><td class="paramname">applied</td><td>Required output, initialized to zero; successful edited selected roots. </td></tr>
+  </table>
+  </dd>
+</dl>
+<dl class="section return"><dt>Returns</dt><dd>OK for no matches, or native error. Invalid operation/capacity/revision makes no edits. Remove cannot fail after collection. Replace/insert commit in preorder, stopping at first failure; previous successful edits remain, without rollback. Tag framing, constructed Value syntax and every target's depth/count limits are prevalidated before editing; their failure makes no tree changes. Allocation or identity exhaustion can still cause partial application during commit. </dd></dl>
+<dl class="section note"><dt>Note</dt><dd>Ancestor dominance is resolved before editing. Insertion includes every selected node once and preserves original sibling order. Document allocator owns temporary Value copies and normal inserted nodes. Native pointers borrow Document; keep it alive through collection. Any successful edit invalidates the execution's whole-document revision. REPLACE stores identical bytes on primitive targets but parses them as children on constructed targets. Overlap filtering is O(target count * depth), allocation-free. </dd></dl>
+
+</div>
+</div>
 <a id="ga8c98c07cd49a90b19b2cecdcb14c3945" name="ga8c98c07cd49a90b19b2cecdcb14c3945"></a>
 <h2 class="memtitle"><span class="permalink"><a href="#ga8c98c07cd49a90b19b2cecdcb14c3945">&#9670;&#160;</a></span>tlv_document_query_evaluate()</h2>
 
@@ -1198,7 +1387,7 @@ Any reader error, propagated unchanged.</dd></dl>
   <table class="params">
     <tr><td class="paramdir">[in]</td><td class="paramname">document</td><td>Live Document; must remain unchanged through result consumption. </td></tr>
     <tr><td class="paramdir">[in,out]</td><td class="paramname">exec</td><td>Fresh execution created with tlv_query_eval_init, including D plans. </td></tr>
-    <tr><td class="paramdir">[in]</td><td class="paramname">context</td><td>Optional node in this Document; NULL selects its virtual root. </td></tr>
+    <tr><td class="paramdir">[in]</td><td class="paramname">context</td><td>Optional live node in this Document; NULL selects its virtual root. Erased/stale pointers are forbidden. Ownership validation is O(1). </td></tr>
     <tr><td class="paramdir">[in,out]</td><td class="paramname">values</td><td>Complete encoded snapshot storage, alive until execution reset. May reuse discovery staging.data. NULL/zero is sufficient when constructed Values are not required by the compiled program. </td></tr>
     <tr><td class="paramdir">[in]</td><td class="paramname">capacity</td><td>Snapshot bytes, discovered with query_value_size when needed. </td></tr>
     <tr><td class="paramdir">[in,out]</td><td class="paramname">staging</td><td>Caller-owned bounded Tree Writer frames and closing scratch. Output data/capacity are used only during discovery; evaluation writes directly into values. Frames/scratch must be disjoint from values, Query and Document storage. May be NULL when program info reports constructed_values_required == 0. </td></tr>
@@ -1245,8 +1434,8 @@ Any reader error, propagated unchanged.</dd></dl>
   </table>
   </dd>
 </dl>
-<dl class="section return"><dt>Returns</dt><dd>OK, END_OF_BUFFER, NULL argument or invalid execution state. </dd></dl>
-<dl class="section note"><dt>Note</dt><dd>Document and Value storage must remain alive and unchanged. First is one pull; all is repeated pulls. Iteration allocates nothing and also works without Source. </dd></dl>
+<dl class="section return"><dt>Returns</dt><dd>OK, END_OF_BUFFER, NULL argument or invalid execution state/revision. </dd></dl>
+<dl class="section note"><dt>Note</dt><dd>Document and Value storage must remain alive and unchanged. First is one pull; all is repeated pulls. Any successful Document edit rejects subsequent pulls before dereferencing retained nodes. Iteration allocates nothing and also works without Source. Keep the native Document alive; revision is not a destruction token. </dd></dl>
 
 </div>
 </div>
@@ -1393,6 +1582,34 @@ Any reader error, propagated unchanged.</dd></dl>
 <dl class="section return"><dt>Returns</dt><dd>OK on exhaustion or STOP, NULL_ARG for missing arguments, Query validation errors, or VISITOR for ERROR or an unknown callback result. </dd></dl>
 <dl class="section warning"><dt>Warning</dt><dd>Do not mutate or destroy the Document during traversal. Nodes borrow it. Callback effects are not rolled back on failure. </dd></dl>
 <dl class="section note"><dt>Note</dt><dd>Never allocates. </dd></dl>
+
+</div>
+</div>
+<a id="ga04e186a27ff6dc18ba29c866d81417f1" name="ga04e186a27ff6dc18ba29c866d81417f1"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#ga04e186a27ff6dc18ba29c866d81417f1">&#9670;&#160;</a></span>tlv_document_revision()</h2>
+
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname">uint64_t tlv_document_revision </td>
+          <td>(</td>
+          <td class="paramtype">const <a class="el" href="group__document.html#gad50a36ea444832274667f45cb81dab83">tlv_document_t</a> *&#160;</td>
+          <td class="paramname"><em>document</em></td><td>)</td>
+          <td></td>
+        </tr>
+      </table>
+</div><div class="memdoc">
+
+<p>Observe the whole-Document mutation revision; NULL returns zero. </p>
+<dl class="params"><dt>Parameters</dt><dd>
+  <table class="params">
+    <tr><td class="paramname">document</td><td>Live Document, borrowed for the call. </td></tr>
+  </table>
+  </dd>
+</dl>
+<dl class="section return"><dt>Returns</dt><dd>Revision increased by every successful insert, erase or Value replacement. </dd></dl>
+<dl class="section note"><dt>Note</dt><dd>Failed edits preserve revision. This is not a destruction-safe handle; callers must retain the Document owner. Concurrent mutation requires external locking. Query callbacks reject fallible edits with INVALID_ARG. Void erase/free requests are deferred until the outermost Query callback on this Document returns; that visit ends with INVALID_ARG. Concurrent mutation requires exclusive access even when requested from a callback. Revisions wrap after UINT64_MAX edits. </dd></dl>
 
 </div>
 </div>
@@ -1614,6 +1831,7 @@ Any reader error, propagated unchanged.</dd></dl>
   </dd>
 </dl>
 <dl class="section warning"><dt>Warning</dt><dd>Invalidates <code>node</code> and every node below it. </dd></dl>
+<dl class="section note"><dt>Note</dt><dd>During a Query callback, erase is deferred until the outermost visit returns from its callback, and that visit returns INVALID_ARG. Pending ancestor erasure dominates descendant requests; all borrowed nodes remain alive inside the callback. </dd></dl>
 
 </div>
 </div>
@@ -1634,6 +1852,34 @@ Any reader error, propagated unchanged.</dd></dl>
 </div><div class="memdoc">
 
 <p>Returns the first child of a constructed node. </p>
+
+</div>
+</div>
+<a id="ga7e0fefab0011e81c7a8e6ae97d3cde8f" name="ga7e0fefab0011e81c7a8e6ae97d3cde8f"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#ga7e0fefab0011e81c7a8e6ae97d3cde8f">&#9670;&#160;</a></span>tlv_node_identity()</h2>
+
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname">uint64_t tlv_node_identity </td>
+          <td>(</td>
+          <td class="paramtype">const <a class="el" href="group__document.html#ga9483f2f2d44c9a33a267a462c90d3883">tlv_node_t</a> *&#160;</td>
+          <td class="paramname"><em>node</em></td><td>)</td>
+          <td></td>
+        </tr>
+      </table>
+</div><div class="memdoc">
+
+<p>Read a live node's immutable Document-local identity in constant time. </p>
+<dl class="params"><dt>Parameters</dt><dd>
+  <table class="params">
+    <tr><td class="paramname">node</td><td>Live node or NULL; stale pointers are forbidden. </td></tr>
+  </table>
+  </dd>
+</dl>
+<dl class="section return"><dt>Returns</dt><dd>Nonzero identity, or zero for NULL. </dd></dl>
+<dl class="section see"><dt>See also</dt><dd><a class="el" href="group__document.html#ga4fd888f2c4ba9ebbb6ace337b87d6a93" title="Check a possibly stale node address without dereferencing it.">tlv_document_node_identity</a> for checking a possibly stale address. </dd></dl>
 
 </div>
 </div>

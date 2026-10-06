@@ -11,8 +11,9 @@ var searchData=
   ['dhcpv4_2ehpp_8',['dhcpv4.hpp',['../dhcpv4_8hpp.html',1,'']]],
   ['diagnostic_2eh_9',['diagnostic.h',['../../../c-api/html/diagnostic_8h.html',1,'']]],
   ['diagnostic_2ehpp_10',['diagnostic.hpp',['../diagnostic_8hpp.html',1,'']]],
-  ['digits_2eh_11',['digits.h',['../../../c-api/html/digits_8h.html',1,'']]],
-  ['document_2eh_12',['document.h',['../../../c-api/html/document_8h.html',1,'']]],
-  ['document_2ehpp_13',['document.hpp',['../document_8hpp.html',1,'']]],
-  ['dol_2eh_14',['dol.h',['../../../c-api/html/dol_8h.html',1,'']]]
+  ['diff_2ehpp_11',['diff.hpp',['../diff_8hpp.html',1,'']]],
+  ['digits_2eh_12',['digits.h',['../../../c-api/html/digits_8h.html',1,'']]],
+  ['document_2eh_13',['document.h',['../../../c-api/html/document_8h.html',1,'']]],
+  ['document_2ehpp_14',['document.hpp',['../document_8hpp.html',1,'']]],
+  ['dol_2eh_15',['dol.h',['../../../c-api/html/dol_8h.html',1,'']]]
 ];

@@ -261,6 +261,7 @@ Enumerations</h2></td></tr>
 &#160;&#160;<a class="el" href="group__traversal.html#gga66edcf242c8bc06318ff99b24f1ce0eda525e4725e8f486786a348a4d6de6301a">TLV_QUERY_ERROR_BINDING</a>
 , <a class="el" href="group__traversal.html#gga66edcf242c8bc06318ff99b24f1ce0edadc9c39cddfb5b7f9f33fadaaa0f491e9">TLV_QUERY_ERROR_CARDINALITY</a>
 , <a class="el" href="group__traversal.html#gga66edcf242c8bc06318ff99b24f1ce0eda8c3fa940f82a96c6cc438c762d3a22ca">TLV_QUERY_ERROR_CODEC</a>
+, <a class="el" href="group__traversal.html#gga66edcf242c8bc06318ff99b24f1ce0edaf145d7642674247761d51128daf03fdf">TLV_QUERY_ERROR_IMAGE_VERSION</a>
 <br />
  }</td></tr>
 <tr class="memdesc:ga66edcf242c8bc06318ff99b24f1ce0ed"><td class="mdescLeft">&#160;</td><td class="mdescRight">Query-specific diagnostic category; original result codes remain intact.  <a href="group__traversal.html#ga66edcf242c8bc06318ff99b24f1ce0ed">More...</a><br /></td></tr>
@@ -321,6 +322,21 @@ Functions</h2></td></tr>
 <tr class="memitem:gaa13b5eda51d3d42dd141c17bc10e4ee1" id="r_gaa13b5eda51d3d42dd141c17bc10e4ee1"><td class="memItemLeft" align="right" valign="top"><a class="el" href="group__core.html#ga164d2817a32e5d7b7aa1472e887b47c3">tlv_result_t</a>&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="group__traversal.html#gaa13b5eda51d3d42dd141c17bc10e4ee1">tlv_query_compile</a> (const char *text, size_t size, const <a class="el" href="group__traversal.html#gaf426eeab5c08024d576603e4102962ec">tlv_query_compile_options_t</a> *options, void *scratch, size_t scratch_size, void *storage, size_t capacity, <a class="el" href="group__traversal.html#gaf947e208c6f97e68c59bf5573887d2ca">tlv_query_program_info_t</a> *info, <a class="el" href="group__traversal.html#ga17f951dcf47161a07accd081699eff6f">tlv_query_diagnostic_t</a> *diagnostic)</td></tr>
 <tr class="memdesc:gaa13b5eda51d3d42dd141c17bc10e4ee1"><td class="mdescLeft">&#160;</td><td class="mdescRight">Compile or size an immutable, relocatable full-language Query program.  <br /></td></tr>
 <tr class="separator:gaa13b5eda51d3d42dd141c17bc10e4ee1"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:ga293d598f8e9d0af6a797b958b73ba9f5" id="r_ga293d598f8e9d0af6a797b958b73ba9f5"><td class="memItemLeft" align="right" valign="top"><a class="el" href="group__core.html#ga164d2817a32e5d7b7aa1472e887b47c3">tlv_result_t</a>&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="group__traversal.html#ga293d598f8e9d0af6a797b958b73ba9f5">tlv_query_compile_prepare_size</a> (const char *text, size_t size, const <a class="el" href="group__traversal.html#gaf426eeab5c08024d576603e4102962ec">tlv_query_compile_options_t</a> *options, size_t *bytes, size_t *alignment, <a class="el" href="group__traversal.html#ga17f951dcf47161a07accd081699eff6f">tlv_query_diagnostic_t</a> *diagnostic)</td></tr>
+<tr class="memdesc:ga293d598f8e9d0af6a797b958b73ba9f5"><td class="mdescLeft">&#160;</td><td class="mdescRight">Discover bounded workspace for checked compilation preparation.  <br /></td></tr>
+<tr class="separator:ga293d598f8e9d0af6a797b958b73ba9f5"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:gacfa0df6f0dc6828bce0cefbb68b902ae" id="r_gacfa0df6f0dc6828bce0cefbb68b902ae"><td class="memItemLeft" align="right" valign="top"><a class="el" href="group__core.html#ga164d2817a32e5d7b7aa1472e887b47c3">tlv_result_t</a>&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="group__traversal.html#gacfa0df6f0dc6828bce0cefbb68b902ae">tlv_query_compile_prepare</a> (const char *text, size_t size, const <a class="el" href="group__traversal.html#gaf426eeab5c08024d576603e4102962ec">tlv_query_compile_options_t</a> *options, void *workspace, size_t capacity, const <a class="el" href="group__traversal.html#ga45bdea1007b9780dba5559a2190f569d">tlv_query_program_t</a> **prepared, <a class="el" href="group__traversal.html#gaf947e208c6f97e68c59bf5573887d2ca">tlv_query_program_info_t</a> *info, <a class="el" href="group__traversal.html#ga17f951dcf47161a07accd081699eff6f">tlv_query_diagnostic_t</a> *diagnostic)</td></tr>
+<tr class="memdesc:gacfa0df6f0dc6828bce0cefbb68b902ae"><td class="mdescLeft">&#160;</td><td class="mdescRight">Resolve and compile once into caller workspace for checked publication.  <br /></td></tr>
+<tr class="separator:gacfa0df6f0dc6828bce0cefbb68b902ae"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:ga0a50f9e3e8ca31805dc9c9015fbd8e8d" id="r_ga0a50f9e3e8ca31805dc9c9015fbd8e8d"><td class="memItemLeft" align="right" valign="top"><a class="el" href="group__core.html#ga164d2817a32e5d7b7aa1472e887b47c3">tlv_result_t</a>&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="group__traversal.html#ga0a50f9e3e8ca31805dc9c9015fbd8e8d">tlv_query_compile_commit</a> (const void *prepared, size_t prepared_size, const <a class="el" href="group__traversal.html#gaf426eeab5c08024d576603e4102962ec">tlv_query_compile_options_t</a> *options, void *scratch, size_t scratch_capacity, void *storage, size_t storage_capacity, <a class="el" href="group__traversal.html#gaf947e208c6f97e68c59bf5573887d2ca">tlv_query_program_info_t</a> *info, <a class="el" href="group__traversal.html#ga17f951dcf47161a07accd081699eff6f">tlv_query_diagnostic_t</a> *diagnostic)</td></tr>
+<tr class="memdesc:ga0a50f9e3e8ca31805dc9c9015fbd8e8d"><td class="mdescLeft">&#160;</td><td class="mdescRight">Validate preparation against current capabilities and publish atomically.  <br /></td></tr>
+<tr class="separator:ga0a50f9e3e8ca31805dc9c9015fbd8e8d"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:ga2f18ab9ffc363de9eef0c903e39227f1" id="r_ga2f18ab9ffc363de9eef0c903e39227f1"><td class="memItemLeft" align="right" valign="top"><a class="el" href="group__core.html#ga164d2817a32e5d7b7aa1472e887b47c3">tlv_result_t</a>&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="group__traversal.html#ga2f18ab9ffc363de9eef0c903e39227f1">tlv_query_program_load_scratch</a> (const void *image, size_t size, const <a class="el" href="group__traversal.html#gaf426eeab5c08024d576603e4102962ec">tlv_query_compile_options_t</a> *options, size_t *bytes, size_t *alignment, <a class="el" href="group__traversal.html#ga17f951dcf47161a07accd081699eff6f">tlv_query_diagnostic_t</a> *diagnostic)</td></tr>
+<tr class="memdesc:ga2f18ab9ffc363de9eef0c903e39227f1"><td class="mdescLeft">&#160;</td><td class="mdescRight">Discover bounded scratch for validating an untrusted internal image.  <br /></td></tr>
+<tr class="separator:ga2f18ab9ffc363de9eef0c903e39227f1"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:gada4c9c329df80dc495a7313b551ebfb0" id="r_gada4c9c329df80dc495a7313b551ebfb0"><td class="memItemLeft" align="right" valign="top"><a class="el" href="group__core.html#ga164d2817a32e5d7b7aa1472e887b47c3">tlv_result_t</a>&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="group__traversal.html#gada4c9c329df80dc495a7313b551ebfb0">tlv_query_program_load</a> (const void *image, size_t size, const <a class="el" href="group__traversal.html#gaf426eeab5c08024d576603e4102962ec">tlv_query_compile_options_t</a> *options, void *scratch, size_t capacity, const <a class="el" href="group__traversal.html#ga45bdea1007b9780dba5559a2190f569d">tlv_query_program_t</a> **program, <a class="el" href="group__traversal.html#gaf947e208c6f97e68c59bf5573887d2ca">tlv_query_program_info_t</a> *info, <a class="el" href="group__traversal.html#ga17f951dcf47161a07accd081699eff6f">tlv_query_diagnostic_t</a> *diagnostic)</td></tr>
+<tr class="memdesc:gada4c9c329df80dc495a7313b551ebfb0"><td class="mdescLeft">&#160;</td><td class="mdescRight">Validate an exact bounded image and borrow it for read-only execution.  <br /></td></tr>
+<tr class="separator:gada4c9c329df80dc495a7313b551ebfb0"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:ga2d9b3cb408e4f728d0606013aff07929" id="r_ga2d9b3cb408e4f728d0606013aff07929"><td class="memItemLeft" align="right" valign="top"><a class="el" href="group__core.html#ga164d2817a32e5d7b7aa1472e887b47c3">tlv_result_t</a>&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="group__traversal.html#ga2d9b3cb408e4f728d0606013aff07929">tlv_query_program_format</a> (const <a class="el" href="group__traversal.html#ga45bdea1007b9780dba5559a2190f569d">tlv_query_program_t</a> *program, char *output, size_t capacity, size_t *required)</td></tr>
 <tr class="memdesc:ga2d9b3cb408e4f728d0606013aff07929"><td class="mdescLeft">&#160;</td><td class="mdescRight">Canonically format a compiled program, including size discovery.  <br /></td></tr>
 <tr class="separator:ga2d9b3cb408e4f728d0606013aff07929"><td class="memSeparator" colspan="2">&#160;</td></tr>
@@ -369,6 +385,9 @@ Functions</h2></td></tr>
 <tr class="memitem:gaebf39cf5036fd87b161eb0fed7ccbfa3" id="r_gaebf39cf5036fd87b161eb0fed7ccbfa3"><td class="memItemLeft" align="right" valign="top"><a class="el" href="group__core.html#ga164d2817a32e5d7b7aa1472e887b47c3">tlv_result_t</a>&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="group__traversal.html#gaebf39cf5036fd87b161eb0fed7ccbfa3">tlv_query_result_next</a> (<a class="el" href="group__traversal.html#gacff0d3ed0386caf2464d098ae952ebb7">tlv_query_exec_t</a> *exec, <a class="el" href="tree_8h.html#a3b1e811784f5c9b0085cb0144a0c57c2">tlv_tree_event_t</a> *event)</td></tr>
 <tr class="memdesc:gaebf39cf5036fd87b161eb0fed7ccbfa3"><td class="mdescLeft">&#160;</td><td class="mdescRight">Pull finalized unique node events in document order.  <br /></td></tr>
 <tr class="separator:gaebf39cf5036fd87b161eb0fed7ccbfa3"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:ga5afc96980863b4c9c1d0caaf26598444" id="r_ga5afc96980863b4c9c1d0caaf26598444"><td class="memItemLeft" align="right" valign="top"><a class="el" href="group__core.html#ga164d2817a32e5d7b7aa1472e887b47c3">tlv_result_t</a>&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="group__traversal.html#ga5afc96980863b4c9c1d0caaf26598444">tlv_query_result_next_ordinal</a> (<a class="el" href="group__traversal.html#gacff0d3ed0386caf2464d098ae952ebb7">tlv_query_exec_t</a> *exec, <a class="el" href="tree_8h.html#a3b1e811784f5c9b0085cb0144a0c57c2">tlv_tree_event_t</a> *event, size_t *ordinal)</td></tr>
+<tr class="memdesc:ga5afc96980863b4c9c1d0caaf26598444"><td class="mdescLeft">&#160;</td><td class="mdescRight">Pull a finalized node and its zero-based traversal ordinal.  <br /></td></tr>
+<tr class="separator:ga5afc96980863b4c9c1d0caaf26598444"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:ga256930be8a1d782e7fbb7767b03d5ca5" id="r_ga256930be8a1d782e7fbb7767b03d5ca5"><td class="memItemLeft" align="right" valign="top"><a class="el" href="group__core.html#ga164d2817a32e5d7b7aa1472e887b47c3">tlv_result_t</a>&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="group__traversal.html#ga256930be8a1d782e7fbb7767b03d5ca5">tlv_query_program_explain</a> (const <a class="el" href="group__traversal.html#ga45bdea1007b9780dba5559a2190f569d">tlv_query_program_t</a> *program, char *output, size_t capacity, size_t *required)</td></tr>
 <tr class="memdesc:ga256930be8a1d782e7fbb7767b03d5ca5"><td class="mdescLeft">&#160;</td><td class="mdescRight">Format normalized plan details; sizing and atomic short-output handling.  <br /></td></tr>
 <tr class="separator:ga256930be8a1d782e7fbb7767b03d5ca5"><td class="memSeparator" colspan="2">&#160;</td></tr>
@@ -1085,6 +1104,8 @@ Functions</h2></td></tr>
 </td></tr>
 <tr><td class="fieldname"><a id="gga66edcf242c8bc06318ff99b24f1ce0eda8c3fa940f82a96c6cc438c762d3a22ca" name="gga66edcf242c8bc06318ff99b24f1ce0eda8c3fa940f82a96c6cc438c762d3a22ca"></a>TLV_QUERY_ERROR_CODEC&#160;</td><td class="fielddoc"><p>Strict Value decoding failed. </p>
 </td></tr>
+<tr><td class="fieldname"><a id="gga66edcf242c8bc06318ff99b24f1ce0edaf145d7642674247761d51128daf03fdf" name="gga66edcf242c8bc06318ff99b24f1ce0edaf145d7642674247761d51128daf03fdf"></a>TLV_QUERY_ERROR_IMAGE_VERSION&#160;</td><td class="fielddoc"><p>Internal image belongs to an incompatible release. </p>
+</td></tr>
 </table>
 
 </div>
@@ -1258,11 +1279,99 @@ Functions</h2></td></tr>
 <a class="el" href="group__core.html#gga516c7250563ee9332e2f45f2d203ae61acbd34cf02b42e70e99648aef5b9ca8b3">TLV_ERR_BUFFER_TOO_SHORT</a> for insufficient scratch/output; info is populated for insufficient program output, not insufficient scratch. </dd>
 <dd>
 <a class="el" href="group__core.html#gga516c7250563ee9332e2f45f2d203ae61a83b538a74c7058e8863132a6410b9d65">TLV_ERR_INVALID_ARG</a> for syntax/options/alignment; <a class="el" href="group__core.html#gga516c7250563ee9332e2f45f2d203ae61aa4a514ccb37d17b2cd7c7da47d2eab88">TLV_ERR_NULL_ARG</a> for missing pointers; <a class="el" href="group__core.html#gga516c7250563ee9332e2f45f2d203ae61a1e32eada09d59d834a685da1adeaaf97">TLV_ERR_LIMIT</a> for configured resources. </dd></dl>
-<dl class="section note"><dt>Note</dt><dd>Storage, scratch, text and info must not overlap. Failure preserves program storage. Sizing and writing are deterministic for identical input/options. </dd>
+<dl class="section note"><dt>Note</dt><dd>Storage, scratch, text and info must not overlap. Failure preserves program storage. Sizing and writing are deterministic for identical input/options. Independent calls do not retain resolver results. Use compile_prepare and compile_commit when resolver changes between sizing and writing must be detected. </dd>
 <dd>
 After semantic analysis, info is also populated for capability/type failures. Earlier lexical, grammar, scratch and arithmetic failures leave it unchanged. </dd>
 <dd>
 struct_size must cover the prefix through result_kind. Writes are limited to min(struct_size, sizeof current info); unknown trailing caller bytes are preserved. struct_size is preserved. Rebuilding is required for callers predating this contract. </dd></dl>
+
+</div>
+</div>
+<a id="ga0a50f9e3e8ca31805dc9c9015fbd8e8d" name="ga0a50f9e3e8ca31805dc9c9015fbd8e8d"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#ga0a50f9e3e8ca31805dc9c9015fbd8e8d">&#9670;&#160;</a></span>tlv_query_compile_commit()</h2>
+
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname"><a class="el" href="group__core.html#ga164d2817a32e5d7b7aa1472e887b47c3">tlv_result_t</a> tlv_query_compile_commit </td>
+          <td>(</td>
+          <td class="paramtype">const void *&#160;</td>
+          <td class="paramname"><em>prepared</em>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype">size_t&#160;</td>
+          <td class="paramname"><em>prepared_size</em>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype">const <a class="el" href="group__traversal.html#gaf426eeab5c08024d576603e4102962ec">tlv_query_compile_options_t</a> *&#160;</td>
+          <td class="paramname"><em>options</em>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype">void *&#160;</td>
+          <td class="paramname"><em>scratch</em>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype">size_t&#160;</td>
+          <td class="paramname"><em>scratch_capacity</em>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype">void *&#160;</td>
+          <td class="paramname"><em>storage</em>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype">size_t&#160;</td>
+          <td class="paramname"><em>storage_capacity</em>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype"><a class="el" href="group__traversal.html#gaf947e208c6f97e68c59bf5573887d2ca">tlv_query_program_info_t</a> *&#160;</td>
+          <td class="paramname"><em>info</em>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype"><a class="el" href="group__traversal.html#ga17f951dcf47161a07accd081699eff6f">tlv_query_diagnostic_t</a> *&#160;</td>
+          <td class="paramname"><em>diagnostic</em>&#160;</td>
+        </tr>
+        <tr>
+          <td></td>
+          <td>)</td>
+          <td></td><td></td>
+        </tr>
+      </table>
+</div><div class="memdoc">
+
+<p>Validate preparation against current capabilities and publish atomically. </p>
+<dl class="params"><dt>Parameters</dt><dd>
+  <table class="params">
+    <tr><td class="paramdir">[in]</td><td class="paramname">prepared</td><td>Immutable image returned by compile_prepare. </td></tr>
+    <tr><td class="paramdir">[in]</td><td class="paramname">prepared_size</td><td>Exact image extent reported by prepare. </td></tr>
+    <tr><td class="paramdir">[in]</td><td class="paramname">options</td><td>Original compiler options and current resolver/environment. </td></tr>
+    <tr><td class="paramdir">[in,out]</td><td class="paramname">scratch</td><td>Exclusive aligned validation storage from program_load_scratch. </td></tr>
+    <tr><td class="paramdir">[in]</td><td class="paramname">scratch_capacity</td><td>Available validation bytes. </td></tr>
+    <tr><td class="paramdir">[out]</td><td class="paramname">storage</td><td>Required aligned final program storage, unchanged on failure. </td></tr>
+    <tr><td class="paramdir">[in]</td><td class="paramname">storage_capacity</td><td>Available final program bytes. </td></tr>
+    <tr><td class="paramdir">[in,out]</td><td class="paramname">info</td><td>Optional initialized requirements output, unchanged on failure. </td></tr>
+    <tr><td class="paramdir">[out]</td><td class="paramname">diagnostic</td><td>Optional failure detail. </td></tr>
+  </table>
+  </dd>
+</dl>
+<dl class="section return"><dt>Returns</dt><dd>Program_load statuses; INVALID_ARG if re-resolution changes the compiled image, even for identifiers of equal size; BUFFER_TOO_SHORT for short storage. </dd></dl>
+<dl class="section note"><dt>Note</dt><dd>No allocation or recursion. All spans and outputs must be disjoint. The complete canonical image is compared without hash collisions before any output storage or info is written. Prepared workspace may be released after success. </dd></dl>
 
 </div>
 </div>
@@ -1289,6 +1398,154 @@ struct_size must cover the prefix through result_kind. Writes are limited to min
   </table>
   </dd>
 </dl>
+
+</div>
+</div>
+<a id="gacfa0df6f0dc6828bce0cefbb68b902ae" name="gacfa0df6f0dc6828bce0cefbb68b902ae"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#gacfa0df6f0dc6828bce0cefbb68b902ae">&#9670;&#160;</a></span>tlv_query_compile_prepare()</h2>
+
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname"><a class="el" href="group__core.html#ga164d2817a32e5d7b7aa1472e887b47c3">tlv_result_t</a> tlv_query_compile_prepare </td>
+          <td>(</td>
+          <td class="paramtype">const char *&#160;</td>
+          <td class="paramname"><em>text</em>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype">size_t&#160;</td>
+          <td class="paramname"><em>size</em>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype">const <a class="el" href="group__traversal.html#gaf426eeab5c08024d576603e4102962ec">tlv_query_compile_options_t</a> *&#160;</td>
+          <td class="paramname"><em>options</em>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype">void *&#160;</td>
+          <td class="paramname"><em>workspace</em>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype">size_t&#160;</td>
+          <td class="paramname"><em>capacity</em>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype">const <a class="el" href="group__traversal.html#ga45bdea1007b9780dba5559a2190f569d">tlv_query_program_t</a> **&#160;</td>
+          <td class="paramname"><em>prepared</em>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype"><a class="el" href="group__traversal.html#gaf947e208c6f97e68c59bf5573887d2ca">tlv_query_program_info_t</a> *&#160;</td>
+          <td class="paramname"><em>info</em>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype"><a class="el" href="group__traversal.html#ga17f951dcf47161a07accd081699eff6f">tlv_query_diagnostic_t</a> *&#160;</td>
+          <td class="paramname"><em>diagnostic</em>&#160;</td>
+        </tr>
+        <tr>
+          <td></td>
+          <td>)</td>
+          <td></td><td></td>
+        </tr>
+      </table>
+</div><div class="memdoc">
+
+<p>Resolve and compile once into caller workspace for checked publication. </p>
+<dl class="params"><dt>Parameters</dt><dd>
+  <table class="params">
+    <tr><td class="paramdir">[in]</td><td class="paramname">text</td><td>Required bounded Query text, copied into the prepared image. </td></tr>
+    <tr><td class="paramdir">[in]</td><td class="paramname">size</td><td>Text bytes. </td></tr>
+    <tr><td class="paramdir">[in]</td><td class="paramname">options</td><td>Optional initialized compiler options. </td></tr>
+    <tr><td class="paramdir">[in,out]</td><td class="paramname">workspace</td><td>Required aligned storage from compile_prepare_size. </td></tr>
+    <tr><td class="paramdir">[in]</td><td class="paramname">capacity</td><td>Available workspace bytes. </td></tr>
+    <tr><td class="paramdir">[out]</td><td class="paramname">prepared</td><td>Required borrowed immutable image output, unchanged on failure. </td></tr>
+    <tr><td class="paramdir">[in,out]</td><td class="paramname">info</td><td>Required requirements output with initialized struct_size; unchanged on failure. program_size is the exact prepared image extent. </td></tr>
+    <tr><td class="paramdir">[out]</td><td class="paramname">diagnostic</td><td>Optional failure detail. </td></tr>
+  </table>
+  </dd>
+</dl>
+<dl class="section return"><dt>Returns</dt><dd>Compile statuses; INVALID_ARG for overlapping storage or misalignment; BUFFER_TOO_SHORT for insufficient workspace. </dd></dl>
+<dl class="section note"><dt>Note</dt><dd>No allocation or recursion. All spans and outputs must be disjoint. Keep workspace alive and unchanged until commit. Each name occurrence is resolved once; commit independently checks all compiled bytes, including copied identifiers. </dd></dl>
+
+</div>
+</div>
+<a id="ga293d598f8e9d0af6a797b958b73ba9f5" name="ga293d598f8e9d0af6a797b958b73ba9f5"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#ga293d598f8e9d0af6a797b958b73ba9f5">&#9670;&#160;</a></span>tlv_query_compile_prepare_size()</h2>
+
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname"><a class="el" href="group__core.html#ga164d2817a32e5d7b7aa1472e887b47c3">tlv_result_t</a> tlv_query_compile_prepare_size </td>
+          <td>(</td>
+          <td class="paramtype">const char *&#160;</td>
+          <td class="paramname"><em>text</em>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype">size_t&#160;</td>
+          <td class="paramname"><em>size</em>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype">const <a class="el" href="group__traversal.html#gaf426eeab5c08024d576603e4102962ec">tlv_query_compile_options_t</a> *&#160;</td>
+          <td class="paramname"><em>options</em>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype">size_t *&#160;</td>
+          <td class="paramname"><em>bytes</em>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype">size_t *&#160;</td>
+          <td class="paramname"><em>alignment</em>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype"><a class="el" href="group__traversal.html#ga17f951dcf47161a07accd081699eff6f">tlv_query_diagnostic_t</a> *&#160;</td>
+          <td class="paramname"><em>diagnostic</em>&#160;</td>
+        </tr>
+        <tr>
+          <td></td>
+          <td>)</td>
+          <td></td><td></td>
+        </tr>
+      </table>
+</div><div class="memdoc">
+
+<p>Discover bounded workspace for checked compilation preparation. </p>
+<dl class="params"><dt>Parameters</dt><dd>
+  <table class="params">
+    <tr><td class="paramdir">[in]</td><td class="paramname">text</td><td>Required bounded Query text. </td></tr>
+    <tr><td class="paramdir">[in]</td><td class="paramname">size</td><td>Text bytes. </td></tr>
+    <tr><td class="paramdir">[in]</td><td class="paramname">options</td><td>Optional initialized compiler options. </td></tr>
+    <tr><td class="paramdir">[out]</td><td class="paramname">bytes</td><td>Required workspace capacity, unchanged on failure. </td></tr>
+    <tr><td class="paramdir">[out]</td><td class="paramname">alignment</td><td>Required workspace alignment, unchanged on failure. </td></tr>
+    <tr><td class="paramdir">[out]</td><td class="paramname">diagnostic</td><td>Optional failure detail. </td></tr>
+  </table>
+  </dd>
+</dl>
+<dl class="section return"><dt>Returns</dt><dd>The compile_scratch statuses, including OVERFLOW for workspace sizing. </dd></dl>
+<dl class="section note"><dt>Note</dt><dd>No allocation, semantic callbacks or recursion. Workspace includes compiler scratch and a conservative image bound; final program size is reported by prepare. </dd></dl>
 
 </div>
 </div>
@@ -1688,8 +1945,8 @@ struct_size must cover the prefix through result_kind. Writes are limited to min
   </table>
   </dd>
 </dl>
-<dl class="section return"><dt>Returns</dt><dd><a class="el" href="group__core.html#gga516c7250563ee9332e2f45f2d203ae61ac763c25dd3e807fae4d8078c3d3e94ed">TLV_OK</a>; <a class="el" href="group__core.html#gga516c7250563ee9332e2f45f2d203ae61a83b538a74c7058e8863132a6410b9d65">TLV_ERR_INVALID_ARG</a> for invalid sequence; <a class="el" href="group__core.html#gga516c7250563ee9332e2f45f2d203ae61a1e32eada09d59d834a685da1adeaaf97">TLV_ERR_LIMIT</a> for depth/elements/work; <a class="el" href="group__core.html#gga516c7250563ee9332e2f45f2d203ae61a07580ca64f30aa1a72a405fcbca72f10">TLV_ERR_INVALID_VALUE</a> for unavailable Source metadata; <a class="el" href="group__core.html#gga516c7250563ee9332e2f45f2d203ae61aa4a514ccb37d17b2cd7c7da47d2eab88">TLV_ERR_NULL_ARG</a> for missing pointers. </dd></dl>
-<dl class="section note"><dt>Note</dt><dd>Errors invalidate execution until reset. S1 accepts proven independent root scopes only; use exec_selected for delayed publications. S1 borrows one root's complete spans through its END, requiring stable backing storage across windows. S0 retains no borrowed payload; retained execution reports matched=0 and publishes results only after finish. Each node is emitted at most once, in preorder. Skipped END is rejected under the default full-validation policy. Values must be complete contiguous spans. </dd></dl>
+<dl class="section return"><dt>Returns</dt><dd><a class="el" href="group__core.html#gga516c7250563ee9332e2f45f2d203ae61ac763c25dd3e807fae4d8078c3d3e94ed">TLV_OK</a>; <a class="el" href="group__core.html#gga516c7250563ee9332e2f45f2d203ae61a83b538a74c7058e8863132a6410b9d65">TLV_ERR_INVALID_ARG</a> for invalid sequence; <a class="el" href="group__core.html#gga516c7250563ee9332e2f45f2d203ae61a1e32eada09d59d834a685da1adeaaf97">TLV_ERR_LIMIT</a> for depth/elements/work; <a class="el" href="group__core.html#gga516c7250563ee9332e2f45f2d203ae61a07580ca64f30aa1a72a405fcbca72f10">TLV_ERR_INVALID_VALUE</a> for unavailable Source metadata; <a class="el" href="group__core.html#gga516c7250563ee9332e2f45f2d203ae61a6c282cdacb2900685e03295cf378282e">TLV_ERR_UNSUPPORTED_TYPE</a> for D programs without Document execution; <a class="el" href="group__core.html#gga516c7250563ee9332e2f45f2d203ae61aa4a514ccb37d17b2cd7c7da47d2eab88">TLV_ERR_NULL_ARG</a> for missing pointers. </dd></dl>
+<dl class="section note"><dt>Note</dt><dd>Execution errors invalidate execution until reset and preserve matched. Missing pointers are rejected without changing execution state. S1 accepts proven independent root scopes only; use exec_selected for delayed publications. S1 borrows one root's complete spans through its END, requiring stable backing storage across windows. S0 retains no borrowed payload; retained execution reports matched=0 and publishes results only after finish. Each node is emitted at most once, in preorder. Skipped END is rejected under the default full-validation policy. Values must be complete contiguous spans. </dd></dl>
 
 </div>
 </div>
@@ -1727,7 +1984,7 @@ struct_size must cover the prefix through result_kind. Writes are limited to min
   </table>
   </dd>
 </dl>
-<dl class="section return"><dt>Returns</dt><dd><a class="el" href="group__core.html#gga516c7250563ee9332e2f45f2d203ae61ac763c25dd3e807fae4d8078c3d3e94ed">TLV_OK</a> on balanced EOF; <a class="el" href="group__core.html#gga516c7250563ee9332e2f45f2d203ae61a83b538a74c7058e8863132a6410b9d65">TLV_ERR_INVALID_ARG</a> on invalid/unbalanced feed; <a class="el" href="group__core.html#gga516c7250563ee9332e2f45f2d203ae61aa4a514ccb37d17b2cd7c7da47d2eab88">TLV_ERR_NULL_ARG</a> for NULL execution. Repeated successful finish is harmless. </dd></dl>
+<dl class="section return"><dt>Returns</dt><dd><a class="el" href="group__core.html#gga516c7250563ee9332e2f45f2d203ae61ac763c25dd3e807fae4d8078c3d3e94ed">TLV_OK</a> on balanced EOF; <a class="el" href="group__core.html#gga516c7250563ee9332e2f45f2d203ae61a83b538a74c7058e8863132a6410b9d65">TLV_ERR_INVALID_ARG</a> on invalid/unbalanced feed; <a class="el" href="group__core.html#gga516c7250563ee9332e2f45f2d203ae61a6c282cdacb2900685e03295cf378282e">TLV_ERR_UNSUPPORTED_TYPE</a> for D programs without Document execution; <a class="el" href="group__core.html#gga516c7250563ee9332e2f45f2d203ae61aa4a514ccb37d17b2cd7c7da47d2eab88">TLV_ERR_NULL_ARG</a> for NULL execution. Repeated successful finish is harmless. </dd></dl>
 
 </div>
 </div>
@@ -2484,6 +2741,154 @@ struct_size must cover the prefix through result_kind. Writes are limited to min
 
 </div>
 </div>
+<a id="gada4c9c329df80dc495a7313b551ebfb0" name="gada4c9c329df80dc495a7313b551ebfb0"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#gada4c9c329df80dc495a7313b551ebfb0">&#9670;&#160;</a></span>tlv_query_program_load()</h2>
+
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname"><a class="el" href="group__core.html#ga164d2817a32e5d7b7aa1472e887b47c3">tlv_result_t</a> tlv_query_program_load </td>
+          <td>(</td>
+          <td class="paramtype">const void *&#160;</td>
+          <td class="paramname"><em>image</em>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype">size_t&#160;</td>
+          <td class="paramname"><em>size</em>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype">const <a class="el" href="group__traversal.html#gaf426eeab5c08024d576603e4102962ec">tlv_query_compile_options_t</a> *&#160;</td>
+          <td class="paramname"><em>options</em>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype">void *&#160;</td>
+          <td class="paramname"><em>scratch</em>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype">size_t&#160;</td>
+          <td class="paramname"><em>capacity</em>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype">const <a class="el" href="group__traversal.html#ga45bdea1007b9780dba5559a2190f569d">tlv_query_program_t</a> **&#160;</td>
+          <td class="paramname"><em>program</em>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype"><a class="el" href="group__traversal.html#gaf947e208c6f97e68c59bf5573887d2ca">tlv_query_program_info_t</a> *&#160;</td>
+          <td class="paramname"><em>info</em>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype"><a class="el" href="group__traversal.html#ga17f951dcf47161a07accd081699eff6f">tlv_query_diagnostic_t</a> *&#160;</td>
+          <td class="paramname"><em>diagnostic</em>&#160;</td>
+        </tr>
+        <tr>
+          <td></td>
+          <td>)</td>
+          <td></td><td></td>
+        </tr>
+      </table>
+</div><div class="memdoc">
+
+<p>Validate an exact bounded image and borrow it for read-only execution. </p>
+<dl class="params"><dt>Parameters</dt><dd>
+  <table class="params">
+    <tr><td class="paramdir">[in]</td><td class="paramname">image</td><td>Required aligned readable image, including its complete extent. </td></tr>
+    <tr><td class="paramdir">[in]</td><td class="paramname">size</td><td>Exact image bytes; trailing bytes are rejected. </td></tr>
+    <tr><td class="paramdir">[in]</td><td class="paramname">options</td><td>Original compiler configuration, variables and environment. </td></tr>
+    <tr><td class="paramdir">[in,out]</td><td class="paramname">scratch</td><td>Required exclusive aligned storage from load_scratch. </td></tr>
+    <tr><td class="paramdir">[in]</td><td class="paramname">capacity</td><td>Available scratch bytes. </td></tr>
+    <tr><td class="paramdir">[out]</td><td class="paramname">program</td><td>Required output, unchanged on failure. </td></tr>
+    <tr><td class="paramdir">[in,out]</td><td class="paramname">info</td><td>Optional compiler requirements output with initialized struct_size; unchanged on failure. </td></tr>
+    <tr><td class="paramdir">[out]</td><td class="paramname">diagnostic</td><td>Optional failure detail. </td></tr>
+  </table>
+  </dd>
+</dl>
+<dl class="section return"><dt>Returns</dt><dd>OK, NULL_ARG, INVALID_ARG, BUFFER_TOO_SHORT, LIMIT, OVERFLOW, or UNSUPPORTED_TYPE for incompatible version/capabilities. </dd></dl>
+<dl class="section note"><dt>Note</dt><dd>Recompiles bounded embedded text and compares every byte with the trusted compiler output, validating all private instruction, index, type, constant, transition and optimization fields before publication. Environment resolvers must be deterministic and hook IDs/contracts must match. Scratch must not overlap image or outputs. No allocation, recursion or image writes occur. On success the image may reside in ROM; keep it alive and unchanged throughout execution. Same-release, same-endian 32/64-bit targets share uint32 image fields; environment contracts and private layout must also match. Checksums cannot replace validation. </dd></dl>
+
+</div>
+</div>
+<a id="ga2f18ab9ffc363de9eef0c903e39227f1" name="ga2f18ab9ffc363de9eef0c903e39227f1"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#ga2f18ab9ffc363de9eef0c903e39227f1">&#9670;&#160;</a></span>tlv_query_program_load_scratch()</h2>
+
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname"><a class="el" href="group__core.html#ga164d2817a32e5d7b7aa1472e887b47c3">tlv_result_t</a> tlv_query_program_load_scratch </td>
+          <td>(</td>
+          <td class="paramtype">const void *&#160;</td>
+          <td class="paramname"><em>image</em>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype">size_t&#160;</td>
+          <td class="paramname"><em>size</em>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype">const <a class="el" href="group__traversal.html#gaf426eeab5c08024d576603e4102962ec">tlv_query_compile_options_t</a> *&#160;</td>
+          <td class="paramname"><em>options</em>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype">size_t *&#160;</td>
+          <td class="paramname"><em>bytes</em>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype">size_t *&#160;</td>
+          <td class="paramname"><em>alignment</em>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype"><a class="el" href="group__traversal.html#ga17f951dcf47161a07accd081699eff6f">tlv_query_diagnostic_t</a> *&#160;</td>
+          <td class="paramname"><em>diagnostic</em>&#160;</td>
+        </tr>
+        <tr>
+          <td></td>
+          <td>)</td>
+          <td></td><td></td>
+        </tr>
+      </table>
+</div><div class="memdoc">
+
+<p>Discover bounded scratch for validating an untrusted internal image. </p>
+<dl class="params"><dt>Parameters</dt><dd>
+  <table class="params">
+    <tr><td class="paramdir">[in]</td><td class="paramname">image</td><td>Required readable image bytes; never modified. </td></tr>
+    <tr><td class="paramdir">[in]</td><td class="paramname">size</td><td>Exact available image extent. </td></tr>
+    <tr><td class="paramdir">[in]</td><td class="paramname">options</td><td>Compiler configuration and capabilities used to produce the image. </td></tr>
+    <tr><td class="paramdir">[out]</td><td class="paramname">bytes</td><td>Required validation scratch size, unchanged on failure. </td></tr>
+    <tr><td class="paramdir">[out]</td><td class="paramname">alignment</td><td>Required scratch alignment, unchanged on failure. </td></tr>
+    <tr><td class="paramdir">[out]</td><td class="paramname">diagnostic</td><td>Optional failure detail. </td></tr>
+  </table>
+  </dd>
+</dl>
+<dl class="section return"><dt>Returns</dt><dd>OK, NULL_ARG, INVALID_ARG, LIMIT, OVERFLOW, or UNSUPPORTED_TYPE for an incompatible image version or byte order. This call does not validate instructions. </dd></dl>
+<dl class="section note"><dt>Note</dt><dd>No allocation or recursion. The image may be unaligned for discovery. Internal images use native-endian uint32 fields and the release's private layout; no persistent or cross-release compatibility is promised. Call load before use. </dd></dl>
+
+</div>
+</div>
 <a id="gab34456b821d2c62b1ead8ac7116f1fc8" name="gab34456b821d2c62b1ead8ac7116f1fc8"></a>
 <h2 class="memtitle"><span class="permalink"><a href="#gab34456b821d2c62b1ead8ac7116f1fc8">&#9670;&#160;</a></span>tlv_query_program_variable()</h2>
 
@@ -2652,6 +3057,52 @@ struct_size must cover the prefix through result_kind. Writes are limited to min
   </dd>
 </dl>
 <dl class="section return"><dt>Returns</dt><dd>OK, END_OF_BUFFER, or NULL/invalid-state errors. </dd></dl>
+
+</div>
+</div>
+<a id="ga5afc96980863b4c9c1d0caaf26598444" name="ga5afc96980863b4c9c1d0caaf26598444"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#ga5afc96980863b4c9c1d0caaf26598444">&#9670;&#160;</a></span>tlv_query_result_next_ordinal()</h2>
+
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname"><a class="el" href="group__core.html#ga164d2817a32e5d7b7aa1472e887b47c3">tlv_result_t</a> tlv_query_result_next_ordinal </td>
+          <td>(</td>
+          <td class="paramtype"><a class="el" href="group__traversal.html#gacff0d3ed0386caf2464d098ae952ebb7">tlv_query_exec_t</a> *&#160;</td>
+          <td class="paramname"><em>exec</em>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype"><a class="el" href="tree_8h.html#a3b1e811784f5c9b0085cb0144a0c57c2">tlv_tree_event_t</a> *&#160;</td>
+          <td class="paramname"><em>event</em>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype">size_t *&#160;</td>
+          <td class="paramname"><em>ordinal</em>&#160;</td>
+        </tr>
+        <tr>
+          <td></td>
+          <td>)</td>
+          <td></td><td></td>
+        </tr>
+      </table>
+</div><div class="memdoc">
+
+<p>Pull a finalized node and its zero-based traversal ordinal. </p>
+<dl class="params"><dt>Parameters</dt><dd>
+  <table class="params">
+    <tr><td class="paramname">exec</td><td>Completed retained node-result execution. </td></tr>
+    <tr><td class="paramname">event</td><td>Borrowed matching event, unchanged on failure. </td></tr>
+    <tr><td class="paramname">ordinal</td><td>Original input preorder position, independent of Source offsets. </td></tr>
+  </table>
+  </dd>
+</dl>
+<dl class="section return"><dt>Returns</dt><dd>OK, END_OF_BUFFER or native state/revision error; never allocates. </dd></dl>
+<dl class="section note"><dt>Note</dt><dd>The ordinal is scoped to one traversal/revision and is not <a class="el" href="group__document.html#ga7e0fefab0011e81c7a8e6ae97d3cde8f" title="Read a live node&#39;s immutable Document-local identity in constant time.">tlv_node_identity()</a>. </dd></dl>
 
 </div>
 </div>

@@ -1269,6 +1269,17 @@
 </li>
       
         <li class="md-nav__item">
+  <a href="#compiled-query" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Compiled Query
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
   <a href="#next-step" class="md-nav__link">
     <span class="md-ellipsis">
       
@@ -3192,6 +3203,62 @@
   
   
     <li class="md-nav__item">
+      <a href="../../development/query-release/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Query release checklist
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../development/query-phase-audit/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Query phase implementation audit
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
       <a href="../../development/rust/" class="md-nav__link">
         
   
@@ -3436,6 +3503,17 @@
 </li>
       
         <li class="md-nav__item">
+  <a href="#compiled-query" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Compiled Query
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
   <a href="#next-step" class="md-nav__link">
     <span class="md-ellipsis">
       
@@ -3664,6 +3742,38 @@ The builder exclusively borrows the reader. On <code>Error::NeedMoreData</code>,
 input through <code>builder.set_input</code> and call <code>consume</code> again. Dropping the builder
 releases the reader; completed Documents retain owned content and the reader's
 conservative input/Format lifetime.</p>
+<h2 id="compiled-query">Compiled Query<a class="headerlink" href="#compiled-query" title="Permanent link">&para;</a></h2>
+<p><code>QueryProgram::compile(text, &amp;ProgramOptions)</code> owns the canonical C program;
+<code>QueryProgram::load(image, &amp;options)</code> validates an image with its original
+compile options. <code>info</code>, <code>variables</code>, <code>format</code>, <code>explain</code> and <code>image</code> expose
+native requirements and release-specific program data.</p>
+<p>Independent <code>QueryExecution</code> values bind typed <code>QueryBinding</code> values, feed events,
+pull or visit a <code>TreeReader</code>, or evaluate a Document. Scalars return <code>QueryValue</code>.
+Use <code>feed_event(QueryEvent)</code> for source-less events, or <code>feed(TreeEvent)</code> to
+preserve Reader Source metadata. After <code>finish()</code>, <code>next_result()</code> pulls retained
+matches; <code>next_result_with_ordinal()</code> also returns native preorder identity.
+Owning workspace and <code>execution_external</code> are available with explicit bounds;
+the latter borrows caller storage. Rust lifetimes preserve program, input and
+Document ownership; errors retain native Query spans and diagnostic detail.
+<code>ProgramOptions.providers</code> holds <code>QueryProvider</code> values for the closed NUM, BCD,
+TEXT and DATE conversions. Each owns a stable ID, scratch limit and <code>Send + Sync</code>
+callback. Callbacks receive bytes and optional owned metadata; return
+<code>QueryDecoded</code> or <code>QueryCodecError</code>. Provider panics become native codec errors,
+and text is copied into bounded native scratch. Programs retain provider owners.</p>
+<p><code>QueryProgram::edit_document</code> evaluates and edits under one exclusive Document
+borrow. <code>QueryEdit</code> selects removal, replacement or insertion;
+<code>QueryEditOptions</code> bounds native work and target storage. <code>QueryEditError</code>
+preserves the applied count, including partial failures. Short target storage
+leaves the Document unchanged for a later retry with larger capacity.</p>
+<p><code>QuerySchema::new(rules, format)</code> owns <code>QueryRule</code> programs. Build each rule with
+<code>QueryRule::new(context, assertion).named(name)</code> and validate a buffer or immutable
+Document with <code>QuerySchemaLimits</code>. C performs contextual selection and Boolean
+assertions; Rust owns workspace and failure context in <code>QuerySchemaError</code>.
+Borrowing prevents Document mutation while validation runs.</p>
+<p>The <a href="https://github.com/marekcingel/OpenTLV/blob/main/bindings/rust/opentlv/examples/query_conformance.rs">consumer example</a>
+runs the common corpus through the public facade. Remaining custom Format and
+semantic Tag adapter coverage is tracked by the
+<a href="../../development/query-release/">release requirements</a>.</p>
 <h2 id="next-step">Next step<a class="headerlink" href="#next-step" title="Permanent link">&para;</a></h2>
 <p>Use <a href="../../concepts/learning-model/">the basic model</a> to choose borrowed processing
 or owned editing, then <a href="../processing/">processing choices</a> for your next task.</p>

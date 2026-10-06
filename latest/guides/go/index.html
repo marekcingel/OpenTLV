@@ -3203,6 +3203,62 @@
   
   
     <li class="md-nav__item">
+      <a href="../../development/query-release/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Query release checklist
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../development/query-phase-audit/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Query phase implementation audit
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
       <a href="../../development/rust/" class="md-nav__link">
         
   
@@ -3588,6 +3644,34 @@ Close. Nodes have no individual wire ranges. <code>Encode()</code> regenerates f
 open parent. Capacity failures preserve the Writer.</p>
 <p>Runnable version: <a href="https://github.com/marekcingel/OpenTLV/blob/main/bindings/go/examples/document/main.go">document/main.go</a>.</p>
 <h2 id="query-and-typed-values">Query and typed Values<a class="headerlink" href="#query-and-typed-values" title="Permanent link">&para;</a></h2>
+<p>Compiled expressions use <code>CompileQuery(text, ProgramOptions)</code> and immutable
+<code>QueryProgram</code> owners. <code>LoadQuery</code> validates same-release images using the
+original compile options; <code>Info</code>, <code>Variables</code>, <code>Format</code>, <code>Explain</code> and <code>Image</code>
+expose native metadata. Compile-time declarations use <code>QueryType</code>; runtime
+values use <code>QueryValue</code> and <code>Bind</code> rather than text interpolation.</p>
+<p><code>Execution(limits, retained)</code> creates independent bounded execution state.
+<code>SetInput(data, discard, final)</code>, <code>Next</code>, <code>Visit</code>, <code>Exists</code>, <code>Context</code>, <code>Pruning</code>
+and <code>Reset</code> preserve canonical continuation and validation behavior.
+<code>EvaluateDocument</code> and <code>NextDocument</code> return checked Nodes; <code>Result</code> exposes
+scalars. Input and match bytes are copied and retained as required. Callback
+panics invalidate an execution until reset; reentrant operations are rejected.
+Call <code>Close</code> for deterministic cleanup. <code>ProgramError</code> retains Query diagnostics.
+See <a href="https://github.com/marekcingel/OpenTLV/blob/main/bindings/go/tests/program_test.go">consumer tests</a>.</p>
+<p><code>ProgramOptions.Providers</code> maps <code>QueryNum</code>, <code>QueryBCD</code>, <code>QueryText</code> and <code>QueryDate</code>
+to <code>QueryProvider</code> values. Each owns a stable nonzero ID and a <code>Decode</code> callback
+receiving copied input and optional <code>QueryMetadata</code>. Text outputs use explicit
+<code>MaxResultBytes</code> scratch. Provider panics become codec diagnostics. Independent
+executions may call a provider concurrently, so shared callback state must be
+synchronized by its owner.</p>
+<p><code>Feed(QueryEvent)</code> and <code>Finish</code> support canonical events without a Reader; native
+state rejects mixing input modes until reset. <code>EditDocument</code> applies a completed
+selection with explicit target capacity and returns the applied count, including
+on partial failure. Short target storage preserves the selection for retry.</p>
+<p><code>ValidateQueryBuffer</code> and <code>ValidateQueryDocument</code> accept <code>[]QueryRule</code> with context
+selectors, Boolean assertions and diagnostic names. Pass
+<code>DefaultQuerySchemaLimits()</code> or explicit resource limits. Validation retains
+programs/providers and copies diagnostic context into <code>QuerySchemaError</code>.
+Document mutation and close are rejected while provider callbacks are active.</p>
 <p><code>doc.Query("6F/A5/50")</code> delegates path parsing and matching to C and returns all
 matching Nodes in document order. Exact hexadecimal tags and direct-child <code>/</code>
 steps are supported; wildcards, predicates and <code>//</code> are rejected. No matches

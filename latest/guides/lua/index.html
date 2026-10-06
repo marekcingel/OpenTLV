@@ -1425,6 +1425,17 @@
 </li>
       
         <li class="md-nav__item">
+  <a href="#compiled-query" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Compiled Query
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
   <a href="#next-step" class="md-nav__link">
     <span class="md-ellipsis">
       
@@ -3292,6 +3303,62 @@
   
   
     <li class="md-nav__item">
+      <a href="../../development/query-release/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Query release checklist
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../development/query-phase-audit/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Query phase implementation audit
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
       <a href="../../development/rust/" class="md-nav__link">
         
   
@@ -3629,6 +3696,17 @@
     <span class="md-ellipsis">
       
         Query and Document
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#compiled-query" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Compiled Query
       
     </span>
   </a>
@@ -4229,6 +4307,15 @@ nonmatching branches), and reports Reader errors with available diagnostics.
 <code>options.max_depth</code> defaults to the native tree default and <code>max_elements</code> to
 65536. Limits must be nonnegative integers. This uses the supplied Format's
 framing contract, not additional semantic Schema or full DER validation.</p>
+<p><code>query:matcher(format, options)</code> owns a resumable native matcher and Tree Reader.
+Use <code>set_input(bytes, discard, final)</code>, <code>next()</code> or <code>visit(callback)</code>; returning
+<code>false</code> stops after the current match, and subsequent calls resume. Nonfinal
+exhaustion raises <code>NEED_MORE_DATA</code>, preserving state for input replacement.
+<code>rebind(equivalent_query)</code> preserves suspended state; <code>reset()</code> clears both
+matching and Reader state. <code>matches(tag, depth)</code> also supports manual preorder
+feeds; reset before switching between manual and Reader input. Options bound
+<code>max_depth</code>, <code>frame_capacity</code> and <code>max_elements</code>. Results own copied strings,
+callback errors propagate, and callback reentry is rejected.</p>
 <p>With <code>OPENTLV_DOCUMENT=ON</code> (the default), <code>tlv.document(data, format, options)</code>
 parses into an owning native Document. Pass <code>nil</code> or an empty string to create
 an empty document. The input can be released after parsing. The Document keeps
@@ -4305,6 +4392,57 @@ so the binding does not invent them. Encoding uses the native Document/Tree
 Writer contract: framing can be normalized, and incompatible destination
 formats can reject the tree. Lua does not implement a separate DOM or mutation
 engine.</p>
+<h2 id="compiled-query">Compiled Query<a class="headerlink" href="#compiled-query" title="Permanent link">&para;</a></h2>
+<p><code>opentlv.query_program(text, format, options)</code> owns an immutable C program;
+<code>query_program_load(image, format, options)</code> validates a same-release image.
+Options include typed <code>variables</code>, named Tag maps and explicit compile limits.
+Programs expose <code>info()</code>, <code>variables()</code>, <code>format()</code>, <code>explain()</code> and <code>image()</code>.</p>
+<p>The program retains its Format, including configured Fixed Format userdata;
+reuse that Format object with Documents evaluated by the program. Options
+<code>tags = {id = ..., class_of = function(raw_tag) ... end, number_of = ...}</code>
+supply optional semantic Tag capabilities. Callbacks return signed 64-bit
+integers; IDs identify the contract when validating saved images. Missing
+capabilities are rejected during compilation.</p>
+<p><code>resolve = function(namespace, name) ... end</code> returns a raw Tag string or <code>nil</code>
+for an unknown name. It is mutually exclusive with a nonempty <code>names</code> map.
+Checked compilation rejects resolver drift between preparation and commit,
+including different Tags with equal byte lengths. Callback errors propagate.
+<code>tlv.query_definition_resolver({scope = {{tag = raw_tag, name = "leaf"}}})</code>
+snapshots the descriptors and returns a resolver using canonical C namespace and
+ambiguity rules. <code>resolve = tlv.query_emv_resolve</code> selects the native base EMV
+dictionary when enabled, including the <code>emv:PAN</code> alias.</p>
+<p><code>program:execution(options)</code> owns independent bounded state. <code>bind(name, type,
+value)</code>, <code>set_input(bytes, discard, final)</code>, <code>next()</code>, <code>visit(callback)</code>,
+<code>exists(early)</code>, <code>info()</code> and <code>reset()</code> delegate to C. Use
+<code>evaluate_document(document)</code> for checked Nodes and <code>result()</code> for scalars.
+Lua strings and match snapshots own copied bytes. Callback errors invalidate
+the execution until reset, and reentrant calls are rejected. <code>close()</code> releases
+native owners deterministically. Native failures raise tables with <code>code</code> and
+Query diagnostic detail. See <a href="https://github.com/marekcingel/OpenTLV/blob/main/bindings/lua/tests/program_spec.lua">consumer tests</a>.</p>
+<p>Compile options accept <code>providers = {num = {id = ..., decode = ...}, ...}</code> for
+<code>num</code>, <code>bcd</code>, <code>text</code> and <code>date</code>. Callbacks receive a Value string and optional
+copied event metadata; return an integer or a UTF-8 string for <code>text</code>. Set
+<code>max_result_bytes</code> for text scratch and preserve IDs/contracts when loading
+images. Provider errors propagate after returning through C; Query reentry from
+providers is rejected.</p>
+<p><code>execution:feed(event)</code> accepts canonical event tables with <code>kind</code>, <code>tag</code>,
+<code>value</code>, <code>depth</code> and <code>offset</code>. An optional <code>source</code> string contains exactly one
+encoded element; C derives its Tag, Value and Layout through the program's
+Format, preserving metadata such as <code>@hlen</code>. The execution retains the string.
+Call <code>finish()</code> before pulling deferred results;
+raw events and Reader input cannot be mixed before reset.
+<code>next_ordinal()</code> returns an owned event table and traversal ordinal from a
+completed retained selection, including Document selections. <code>next()</code> continues
+to return checked Nodes for Documents.
+<code>execution:edit_document(kind, tag, value, target_capacity)</code> edits a completed
+selection and reports the applied count. Short target storage permits retry;
+successful mutations invalidate checked Nodes.</p>
+<p><code>opentlv.query_schema_validate(rules, input, options)</code> validates a buffer string
+or Document. Each rule has <code>context</code>, <code>assertion</code> and <code>name</code>; both programs are
+retained during validation. Options bound depth, nodes, work, contexts and
+Document Value snapshot capacity. Errors own the rule index, Query detail and
+Schema diagnostic context. Provider callbacks cannot mutate or close the
+Document being validated.</p>
 <h2 id="next-step">Next step<a class="headerlink" href="#next-step" title="Permanent link">&para;</a></h2>
 <p>Use <a href="../../concepts/learning-model/">the basic model</a> to choose borrowed processing
 or owned editing, then <a href="../processing/">processing choices</a> for your next task.</p>

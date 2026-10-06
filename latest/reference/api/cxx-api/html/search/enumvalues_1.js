@@ -1,5 +1,6 @@
 var searchData=
 [
-  ['final_0',['final',['../namespacetlv.html#a6d141be87a05679c237c4d7f5b941c15a2a1585a864d9e67627c6ae04c807a2c5',1,'tlv']]],
-  ['framing_1',['framing',['../namespacetlv.html#aa48ac98faeceb89c29a22a63051a3836a29fb2354df497340455c16942b7bef11',1,'tlv']]]
+  ['changed_0',['changed',['../namespacetlv.html#a4488f7d6dbbe5b904e0cd1b5c8049edfa8977dfac2f8e04cb96e66882235f5aba',1,'tlv']]],
+  ['codec_1',['codec',['../namespacetlv.html#aa48ac98faeceb89c29a22a63051a3836a6f0dcb649595714ca1d26d9c226003c1',1,'tlv']]],
+  ['constructed_5fvalue_2',['constructed_value',['../namespacetlv.html#aa48ac98faeceb89c29a22a63051a3836afd794f841b9bcc275623d4b755c93a02',1,'tlv']]]
 ];

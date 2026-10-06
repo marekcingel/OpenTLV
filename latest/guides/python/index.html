@@ -1330,6 +1330,17 @@
 </li>
       
         <li class="md-nav__item">
+  <a href="#compiled-query" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Compiled Query
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
   <a href="#next-step" class="md-nav__link">
     <span class="md-ellipsis">
       
@@ -3225,6 +3236,62 @@
   
   
     <li class="md-nav__item">
+      <a href="../../development/query-release/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Query release checklist
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../development/query-phase-audit/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Query phase implementation audit
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
       <a href="../../development/rust/" class="md-nav__link">
         
   
@@ -3495,6 +3562,17 @@
     <span class="md-ellipsis">
       
         Tree measurement, preservation and materialization
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#compiled-query" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Compiled Query
       
     </span>
   </a>
@@ -3784,6 +3862,64 @@ unfinished build. Active builders prevent other cursor traversal operations.</p>
 <p><code>Document.encode(format)</code> and <code>Node.encode(format)</code> support conversion to a
 compatible builtin destination Format without changing the stored tree.
 <code>encoded_size_as(format)</code> measures the same destination encoding.</p>
+<h2 id="compiled-query">Compiled Query<a class="headerlink" href="#compiled-query" title="Permanent link">&para;</a></h2>
+<p><code>QueryProgram(text, format=..., variables={"minimum": int}, names=...)</code> owns an
+immutable compiled C program. <code>QueryProgram.load(image, ...)</code> validates a
+same-release image using its original options; <code>image()</code>, <code>format()</code> and
+<code>explain()</code> expose copies or descriptions. <code>info</code> reports native requirements.
+Declarations accept <code>int</code>, <code>bytes</code> and <code>str</code>; bind actual values through an
+independent execution rather than interpolating Query text.</p>
+<p>All existing Formats, including configured <code>FixedFormat</code>, work with Query,
+Reader and Document. Compilation snapshots Fixed widths and byte order;
+equivalent configurations share an owned immutable native context. Different
+configurations remain incompatible. <code>tags=QueryTagAdapter(id, class_of=...,
+number_of=...)</code> supplies optional semantic Tag callbacks receiving owned raw
+bytes and returning signed 64-bit integers. The stable nonzero ID participates
+in image compatibility; missing capabilities are rejected during compilation.</p>
+<p>Use <code>resolve(namespace, name)</code> instead of <code>names</code> for dynamic scoped resolution;
+return Tag bytes or <code>None</code> for an unknown name. Checked preparation and commit
+reject changed resolutions, including a different Tag with the same length.
+Resolver exceptions propagate unchanged. <code>QueryDefinitionResolver({namespace:
+DefinitionRegistry(...)})</code> snapshots registries and delegates namespace and
+ambiguity rules to C. <code>query_emv_resolve</code> uses the native base EMV dictionary
+when that component is enabled, for example
+<code>QueryProgram("//emv:PAN", resolve=query_emv_resolve)</code>.</p>
+<p><code>program.execution(max_depth=..., max_nodes=..., max_work=..., retained=True)</code>
+owns bounded native state. <code>retained=False</code> selects S0/S1 storage. Execute through
+the public TreeReader pull/Visitor adapter, or evaluate a Document; results,
+diagnostics, limits and continuation delegate to C. Match snapshots own their
+bytes. Reset separates input/binding lifetimes; callback exceptions require
+reset before reuse. Programs and executions retain their native owners until
+the Python objects are collected.
+The <a href="https://github.com/marekcingel/OpenTLV/blob/main/bindings/python/opentlv/tests/test_program.py">consumer tests</a> and
+<a href="https://github.com/marekcingel/OpenTLV/blob/main/tests/query/python_facade.py">common corpus runner</a> exercise these APIs.</p>
+<p><code>providers={"num": QueryProvider(id, decode), ...}</code> replaces the closed <code>num</code>,
+<code>bcd</code>, <code>text</code> or <code>date</code> conversion. <code>decode(value, metadata)</code> receives owned bytes
+and optional copied <code>QueryMatch</code> metadata; return an integer or, for <code>text</code>, a
+string. Text providers require <code>max_result_bytes</code> for native bounded scratch.
+Keep provider IDs and contracts stable when loading images. Callback exceptions
+propagate; callback allocations and work are outside the C engine's limits.</p>
+<p><code>execution.feed(event)</code> accepts canonical Tree events. Retain borrowed input as
+documented by the event producer; the execution pins the event bytes and original
+Source, preserving Layout metadata predicates. Call <code>finish()</code> before pulling
+deferred results. <code>next_ordinal()</code> returns an owned <code>(QueryMatch, ordinal)</code> from
+a completed retained selection, including Document selections; <code>next()</code> retains
+its checked Node behavior for Documents. <code>edit_document("remove" | "replace" | "insert_after", ...)</code> applies a
+completed Document selection. <code>target_capacity</code> bounds target storage; a short
+target array reports <code>error.applied == 0</code> and allows retry. Successful edits
+invalidate existing checked Nodes; other edit failures report partial counts.</p>
+<p><code>QuerySchema([QueryRule(context, assertion, name)], format=...)</code> retains compiled
+programs and validates through <code>validate_buffer(data, **limits)</code> or
+<code>validate_document(document, **limits)</code>. Assertions are relative Boolean Query
+programs. Limits bound depth, nodes, work, selected contexts and Document Value
+snapshots. Failures retain the rule index, Query detail and owned Schema
+diagnostics. Provider callbacks cannot mutate or close a Document under
+validation. See the <a href="../../development/query-release/">release requirements</a>.</p>
+<p>The separate V1 <code>QueryMatcher</code> preserves matching state across Visitor STOP and
+TreeReader input replacement. <code>rebind(equivalent_query)</code> copies an equivalent
+path without restarting a suspended traversal; a different path fails without
+changing state. <code>reset()</code> starts a new traversal and leaves Reader state to the
+caller. <code>matches(tag, depth)</code> feeds every canonical preorder item manually.</p>
 <h2 id="next-step">Next step<a class="headerlink" href="#next-step" title="Permanent link">&para;</a></h2>
 <p>Use <a href="../../concepts/learning-model/">the basic model</a> to choose borrowed processing
 or owned editing, then <a href="../processing/">processing choices</a> for your next task.</p>
