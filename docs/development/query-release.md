@@ -45,8 +45,8 @@ facade capabilities exercised. In particular, do not copy the generated list of
 required C symbols into a passing facade record without corresponding tests.
 The workflow validates provenance and completeness of supplied evidence; it does
 not manufacture missing phase approval or capability coverage. The per-phase
-[implementation audit](query-phase-audit.md) records remaining implementation
-gaps separately from missing candidate runs.
+[implementation audit](query-phase-audit.md) records implementation and local
+validation separately from missing candidate runs.
 
 ## Resource and validation boundaries
 
@@ -124,10 +124,13 @@ JS/WASM has an owning Query/Document facade over the C engine, including custom
 NUM/BCD/TEXT/DATE conversion callbacks, canonical event feeding, completed
 selection edits and contextual Query Schema validation. Rust, Python, Go and Lua
 expose the same integration capabilities through their ownership models.
-Arbitrary semantic Tag adapters, all Format configurations and remaining V1
-compatibility surfaces still require the per-facade audit. The
+Dedicated regressions also cover semantic Tag adapters, scoped dynamic,
+Definition and EMV resolvers, configured Fixed Formats, source-bearing events,
+ordinals, V1 compatibility and checked two-pass compilation. The
 [binding capability matrix](../concepts/bindings.md#capability-parity-through-the-public-facade)
-distinguishes the common language surface from such remaining extension gaps.
+records these Query capabilities separately from general whole-library facade
+gaps. Existing Format configurations are supported; Rust shares one immutable
+Fixed owner across consumers to preserve native context identity.
 
 The ABI checker covers native 64-bit, native x86 and wasm32 layouts. Sanitizer
 campaign reports retain binary hashes, commands, logs and minimized failures.

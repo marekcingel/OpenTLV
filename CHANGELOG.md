@@ -141,6 +141,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Added
 
+- Expose Query semantic Tag adapters, scoped dynamic/Definition/EMV resolvers, configured Fixed Formats, source-bearing events, result ordinals and V1 compatibility through the owning language facades, with checked resolver stability and callback lifetime tests. (#523)
 - Add an owning Rust Query Schema facade, public-facade Schema regressions, callback and input-replacement fuzz coverage, and a strict Query release-candidate workflow. (#523)
 - Add an owning JavaScript/WASM compiled Query and checked Document facade, public-facade corpus checks, native x86/WASM ABI snapshots, and bounded sanitizer campaigns with retained failure artifacts. (#523)
 - Add bounded read-only Query image loading with explicit validation scratch, C++ external-image and streaming coverage APIs, corruption fuzzing, seeded differential properties with minimized reproducers, and Query release-evidence inventory checks. (#523)

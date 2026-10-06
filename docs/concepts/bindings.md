@@ -144,9 +144,9 @@ native functionality; see [component selection](../guides/select-components.md).
 | Tree Writer (`tlv_tree_writer_*`) | Implemented: events, begin/end and scoped Builder | Implemented: events, measure and Tag capacity | Implemented: events, measure and Tag capacity | Partial: begin/end, no public event/measure facade | Partial: staged Begin/End; no public event facade |
 | Copy/preservation (`tlv_writer_copy_encoded*`, `tlv_source_preserve`) | Implemented | Implemented | Implemented | Missing | Missing |
 | Reader/Writer diagnostics | Implemented: native structured detail with C++ operation errors | Implemented: owned snapshots | Implemented: structured exceptions | Implemented for exposed Reader/Writer operations: owned tables | Implemented for exposed operations: owned ParseError/WriteError |
-| Borrowed Query (`tlv_query_*`) | Implemented: Query and resumable matcher | Implemented: Query and matcher | Implemented: Query and matcher | Partial: complete-buffer Query evaluation; no resumable matcher facade | Missing |
+| Borrowed Query (`tlv_query_*`) | Implemented: Query and resumable matcher | Implemented: Query, format and matcher reset/rebind | Implemented: Query and matcher reset/rebind | Implemented: Query and resumable owned Reader/matcher | Implemented: bounded Query, format and explicit event matcher/reset/rebind |
 | Document Query | Implemented: V1 first/all and compiled selection, checked snapshots, explicit workspace evaluation | Partial: `find_path` / `find_path_mut` first match | Partial: `find_path` first match | Implemented: first match and Query results | Implemented: `Document.Query` all matches |
-| Full compiled S0/S1/S2/D Query | Programs, typed composition, variables, environments, scalar and resumable execution, checked Document results | Programs/execution, conversion callbacks, raw events, scalars, Document results/edits and Query Schema; custom Format/Tag adapter coverage incomplete | Programs/execution, conversion callbacks, raw events, scalars, Document results/edits and Query Schema; custom Tag adapter coverage incomplete | Programs/execution, conversion callbacks, raw events, scalars, Document results/edits and Query Schema; custom Tag adapter coverage incomplete | Programs/execution, conversion callbacks, raw events, scalars, Document results/edits and Query Schema; custom Tag adapter coverage incomplete |
+| Full compiled S0/S1/S2/D Query | Checked compilation, typed composition, variables, environments, scalar/resumable execution and checked Document results | Checked programs/execution, providers, Tag/resolver adapters, shared configured Fixed owner, source events/ordinals, Document edits and Schema | Checked programs/execution, providers, Tag/resolver adapters, configured Fixed, source events/ordinals, Document edits and Schema | Checked programs/execution, providers, Tag/resolver adapters, configured Formats, source events/ordinals, Document edits and Schema | Checked programs/execution, providers, Tag/resolver adapters, configured Fixed, source events/ordinals, Document edits and Schema |
 | Schema (`tlv/schema/`) | Partial: C schema descriptions with validation helpers and contextual Query assertions | Partial: length/structure schemas, detailed reports and Query Schema | Partial: length/structure schemas, detailed reports and Query Schema | Partial: structural schemas/reports and Query Schema; no standalone length-schema facade | Partial: contextual Query Schema; structural schemas/reports missing |
 | Value Codec (`tlv/codec/` and built-ins) | Partial: generic typed codecs/fields and standard conveniences; no claim of every C descriptor | Partial: configured NumberCodec and EMV codecs | Partial: configured NumberCodec and EMV amount | Partial: generic/configured codecs, EMV and custom callbacks | Partial: generic typed codecs; no protocol/custom/Structure codecs |
 | Structure Codec (`tlv_structure_codec_t`) | Implemented: application-object adapters | Missing | Missing | Missing | Missing |
@@ -165,8 +165,11 @@ Audit evidence is the public facade and consumer tests, rather than raw FFI:
 | Lua | [facade adapters](../../bindings/lua/src/) | [consumer tests](../../bindings/lua/tests/) | [Lua](../guides/lua.md) |
 | Go | [public package](../../bindings/go/) | [public tests](../../bindings/go/tests/reader_test.go), [boundary tests](../../bindings/go/internal/capi/) | [Go](../guides/go.md) |
 
-The WASM parse-to-JSON operation is a tooling embedding, not a general binding
-with Reader/Writer/Document parity. Java remains future work. Exact signatures
+WASM includes both the parse-to-JSON tooling embedding and an owning compiled
+Query/Document facade. Its Query facade provides configured/custom Formats,
+Tag adapters, scoped/Definition/EMV resolvers, Schema, edits, source events,
+ordinals and bounded V1 compatibility. General Reader/Writer parity remains a
+separate concern. Java remains future work. Exact signatures
 belong in generated references and binding source documentation; this matrix
 records supported workflows and their limits. Do not treat an experimental
 label or raw FFI declaration as proof of parity.
@@ -456,7 +459,9 @@ Compiled full-language Query execution (`tlv_query_program_*`, S0/S1/S2 and the
 compiled Document backend) is exposed through each language facade. Public-facade
 runners in `tests/query/` compare the common language corpus against the independent
 oracle. Separate consumer tests cover custom conversion providers, completed
-selection edits and contextual Query Schema assertions. Remaining extension
-gaps include arbitrary semantic Tag adapters and some Format configurations;
-owning wrappers adapt storage according to their language contracts. See the
+selection edits, contextual Query Schema assertions, semantic Tag callbacks,
+dynamic/Definition/EMV resolvers, configured Fixed Formats and checked resolver
+stability. Query accepts each binding's existing Format configurations; general
+custom framing adapters remain a separate matrix row. Owning wrappers adapt
+storage according to their language contracts. See the
 [Query release requirements](../development/query-release.md) for candidate gates.

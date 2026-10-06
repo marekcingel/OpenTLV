@@ -7,10 +7,17 @@ failure JSON preserves the complete reproducer. Generated trees compare optimize
 unoptimized, retained, Document and legal retained-prefix windows, including typed
 integer/bytes/string parameters and set laws. `Property_query` runs this through
 the property workflow. See [release evidence](../../docs/development/query-release.md)
-for the strict candidate gate and current facade blockers.
+for the strict candidate gate and required candidate artifacts.
 The [F1-F5 implementation audit](../../docs/development/query-phase-audit.md)
-maps all original work packages to source/tests and records remaining contract
-and facade gaps; a common-corpus pass alone does not establish full parity.
+maps all original work packages to source/tests and records final local
+verification; a common-corpus pass alone does not establish full parity.
+
+Checked compilation is covered by native and facade resolver-drift regressions.
+The native corpus and owning constructors prepare once, then compare complete
+recompiled images before publication. Compiler fuzzing retains the CI input
+`tests/fuzz/query/corpus/program/canonical-scratch-boundary`: canonical whitespace
+can increase scratch requirements, so the harness independently sizes the
+formatted text before recompilation.
 
 The native adapter's `image` mode writes same-version fuzz seeds, for example
 `test-query-conformance "//5A" 5a00 image descendant-v5.bin`. Checked-in image seeds
