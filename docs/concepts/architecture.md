@@ -420,6 +420,8 @@ These packages default to ON and can be disabled subject to the dependencies bel
 
 | CMake option / generated config macro | Included component |
 | --- | --- |
+| `OPENTLV_QUERY_FRONTEND` | Query text parser/compiler; disable for [static C plans](../guides/queries.md#static-c-plans-and-frontend-free-execution) |
+| `OPENTLV_QUERY_SET_OPERATIONS` | Query union, intersection and difference in the shared executor |
 | `OPENTLV_DOCUMENT` | Canonical owned mutable [Document](../guides/document.md); optional build inclusion, not a format or standard package |
 
 `OPENTLV_FORMAT_ASN1`, `OPENTLV_FORMAT_BER`, `OPENTLV_FORMAT_DER`, and

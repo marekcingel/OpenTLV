@@ -3,8 +3,10 @@
 
 #include "tlv/query/query.h"
 #include "v1_internal.h"
+#include "tlv/config.h"
 #include "match_internal.h"
 
+#if OPENTLV_QUERY_FRONTEND
 static int hex_digit(char c) {
     return query_hex((unsigned char)c);
 }
@@ -58,6 +60,8 @@ tlv_result_t tlv_query_parse(const char* text, tlv_query_t* query, size_t* error
     if (!text || !query) return TLV_ERR_NULL_ARG;
     return tlv_query_parse_n(text, strlen(text), query, error_offset);
 }
+
+#endif
 
 static int valid_query(const query_v1_data_t* data) {
     size_t begin = 0;

@@ -1,7 +1,7 @@
 // SPDX-License-Identifier: MIT
 // Copyright (c) 2026 Marek Cingel
 #include "tlv/query/adapters.h"
-#include "../../tlv/src/query/program_internal.h"
+#include "../../tlv/src/query/frontend_internal.h"
 #include "tlv/formats/fixed.h"
 #include "tlv/document/document.h"
 #include "tlv/writer/tree.h"
@@ -251,6 +251,9 @@ int main(int argc, char** argv) {
     rc = tlv_query_compile_commit(prepared, info.program_size, &options, validation,
                                   validation_size, program, info.program_size, &info, &diagnostic);
     if (rc != TLV_OK) goto done;
+    const tlv_query_program_t* checked_plan = NULL;
+    rc = tlv_query_plan_open(program, info.program_size, &checked_plan, &diagnostic);
+    if (rc != TLV_OK) goto done;
     if (argc == 5 && !strcmp(argv[3], "image")) {
         FILE* output = fopen(argv[4], "wb");
         if (!output) {
@@ -262,6 +265,9 @@ int main(int argc, char** argv) {
         if (written != info.program_size || closed) rc = TLV_ERR_INVALID_ARG;
         goto done;
     }
+    /* Every conformance case executes without usable source spelling, including
+       functions, literals, axes and runtime parameter names. */
+    memset((uint8_t*)program + checked_plan->text_offset, '!', checked_plan->text_size);
     size_t workspace_size;
     int    document_mode = info.level == TLV_QUERY_D || (argc >= 4 && strchr(argv[3], 'd'));
     int    retained =

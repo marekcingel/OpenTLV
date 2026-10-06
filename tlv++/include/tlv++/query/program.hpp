@@ -8,7 +8,8 @@
 #include <exception>
 #include <type_traits>
 #include <stdexcept>
-#include "tlv/query/program.h"
+#include "tlv/query/plan.h"
+#include "tlv/config.h"
 #include "tlv++/reader/tree.hpp"
 
 /** @file
@@ -157,6 +158,22 @@ public:
         if (rc != TLV_OK) return unexpected<query_failure>(detail::query_failed(rc, d));
         return result;
     }
+    /** @brief Validate and borrow a static/generated C plan without the Query frontend.
+     * @param image Aligned immutable native image, alive through all executions.
+     * @param size Exact logical byte extent, excluding trailing C structure padding.
+     * @return Borrowed program or native validation failure; no allocation occurs.
+     * @note Copies continue to borrow the image. Compilation and execution share
+     * the same C representation and version/capability checks. */
+    static expected<query_program, query_failure> from_plan(const void* image, size_t size) {
+        query_program          result;
+        tlv_query_diagnostic_t diagnostic{};
+        auto                   rc = tlv_query_plan_open(image, size, &result.program_, &diagnostic);
+        if (rc != TLV_OK) return unexpected<query_failure>(detail::query_failed(rc, diagnostic));
+        result.info_.struct_size = sizeof result.info_;
+        rc = tlv_query_plan_info(result.program_, &result.info_);
+        if (rc != TLV_OK) return unexpected<query_failure>(detail::query_failed(rc));
+        return result;
+    }
     /** @brief Native whole-expression resource requirements. */
     const tlv_query_program_info_t& info() const {
         return info_;
@@ -191,8 +208,13 @@ private:
     query_program() = default;
     std::string render(bool explain) const {
         size_t size = 0;
-        auto   fn = explain ? tlv_query_program_explain : tlv_query_program_format;
-        auto   rc = fn(program_, nullptr, 0, &size);
+        auto   fn = tlv_query_program_explain;
+#if OPENTLV_QUERY_FRONTEND
+        if (!explain) fn = tlv_query_program_format;
+#else
+        if (!explain) throw std::runtime_error(tlv_strerror(TLV_ERR_UNSUPPORTED_TYPE));
+#endif
+        auto rc = fn(program_, nullptr, 0, &size);
         if (rc != TLV_OK) throw std::runtime_error(tlv_strerror(rc));
         std::string out(size, '\0');
         rc = fn(program_, &out[0], size, &size);
@@ -280,7 +302,7 @@ public:
                                      : tlv_query_exec_init(program.c_program(), storage, capacity,
                                                            depth, nodes, work, &result.exec_));
         if (rc != TLV_OK) return unexpected<query_failure>(detail::query_failed(rc));
-        return std::move(result);
+        return result;
     }
     /** @brief Bind a declared integer variable before execution. */
     expected<void, query_failure> bind(const char* name, int64_t value) {

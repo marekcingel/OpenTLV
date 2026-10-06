@@ -3,14 +3,11 @@
 #include "program_internal.h"
 #include "../utf8_internal.h"
 
-enum { V_HEX = V_STRING + 1 };
 static unsigned byte_at(query_value_t v, size_t i) {
-    if (v.kind == V_HEX)
-        return (unsigned)(query_hex(v.data[2 * i]) * 16 + query_hex(v.data[2 * i + 1]));
     return v.data[i];
 }
 static int bytes_kind(query_value_t v) {
-    return v.kind == V_BYTES || v.kind == V_HEX;
+    return v.kind == V_BYTES;
 }
 static int truth(query_value_t v) {
     return v.number != 0;
@@ -23,10 +20,8 @@ static tlv_result_t charge(tlv_query_exec_t* e, size_t amount, const query_node_
     e->work += amount;
     return TLV_OK;
 }
-static int tag_test(const tlv_query_program_t* p, const char* text, const query_node_t* n,
-                    tlv_tag_t tag) {
-    if (n->resolved) return query_tag_test(tag, query_payload(p) + n->data_offset, n->data_size, 0);
-    return query_tag_test(tag, (const uint8_t*)text + n->begin, n->end - n->begin, 1);
+static int tag_test(const tlv_query_program_t* p, const query_node_t* n, tlv_tag_t tag) {
+    return query_plan_tag(p, n, tag);
 }
 static query_value_t* execution_values(tlv_query_exec_t* e) {
     return (query_value_t*)(e + 1);
@@ -54,8 +49,7 @@ static size_t pattern_capacity(const tlv_query_program_t* p) {
     size_t result = 0;
     for (size_t i = 0; i < p->count; ++i) {
         const query_node_t* n = &query_nodes(p)[i];
-        if (n->op == Q_CALL && query_function_kind(query_text(p), n) == F_CONTAINS &&
-            n->left != QUERY_NONE) {
+        if (n->op == Q_CALL && n->selector == F_CONTAINS && n->left != QUERY_NONE) {
             const query_node_t* arg = &query_nodes(p)[n->left];
             if (arg->op == Q_ARGS) arg = &query_nodes(p)[arg->right];
             size_t capacity = arg->op == Q_BYTES ? arg->data_size : p->pattern_capacity;
@@ -69,6 +63,7 @@ tlv_result_t tlv_query_exec_size(const tlv_query_program_t* p, size_t depth, siz
                                  size_t* alignment) {
     if (!p || !bytes || !alignment) return TLV_ERR_NULL_ARG;
     if (!query_program_valid(p)) return TLV_ERR_INVALID_ARG;
+    if (!query_plan_supported(p)) return TLV_ERR_UNSUPPORTED_TYPE;
     if (p->level > TLV_QUERY_S1) return TLV_ERR_UNSUPPORTED_TYPE;
     size_t count = (size_t)p->count + p->variable_count;
     if (depth == SIZE_MAX || count > (SIZE_MAX - sizeof(tlv_query_exec_t)) / sizeof(query_value_t))
@@ -97,12 +92,11 @@ tlv_result_t tlv_query_exec_bind(tlv_query_exec_t* e, const char* name,
         return query_error(d, TLV_ERR_INVALID_ARG, TLV_QUERY_ERROR_BINDING, 0, 0,
                            "integer, bytes or string binding");
     const query_node_t* nodes = query_nodes(e->program);
-    const char* text = query_text(e->program);
     query_value_t* bindings = execution_bindings(e);
     int found = 0;
     for (size_t i = 0; i < e->program->count; ++i) {
         const query_node_t* n = &nodes[i];
-        if (n->op != Q_VARIABLE || !query_word(text, n->begin + 1, n->end, name)) continue;
+        if (n->op != Q_VARIABLE || !query_variable_name(e->program, n, name)) continue;
         found = 1;
         if (n->type != query_private_type(type) || bindings[n->variable_slot].kind)
             return query_error(d, TLV_ERR_INVALID_ARG, TLV_QUERY_ERROR_BINDING, n->begin, n->end,
@@ -129,7 +123,7 @@ tlv_result_t tlv_query_exec_bind(tlv_query_exec_t* e, const char* name,
         value.size = size;
     }
     for (size_t i = 0; i < e->program->count; ++i)
-        if (nodes[i].op == Q_VARIABLE && query_word(text, nodes[i].begin + 1, nodes[i].end, name))
+        if (nodes[i].op == Q_VARIABLE && query_variable_name(e->program, &nodes[i], name))
             bindings[nodes[i].variable_slot] = value;
     return TLV_OK;
 }
@@ -238,7 +232,6 @@ tlv_result_t query_function_eval(tlv_query_exec_t* e, const tlv_tree_event_t* ev
                                  const query_node_t* n, query_value_t* out,
                                  tlv_query_diagnostic_t* d) {
     const tlv_query_program_t* p = e->program;
-    const char* text = query_text(p);
     const query_node_t* nodes = query_nodes(p);
     query_value_t* values = execution_values(e);
     uint32_t args[3];
@@ -261,7 +254,7 @@ tlv_result_t query_function_eval(tlv_query_exec_t* e, const tlv_tree_event_t* ev
     if (count) a = values[args[0]];
     if (count > 1) b = values[args[1]];
     if (count > 2) c = values[args[2]];
-    if (query_word(text, n->begin, n->end, "value")) {
+    if ((n->selector == F_VALUE)) {
         if (count) goto arity;
         out->kind = V_BYTES;
         out->data = event->element.value.data;
@@ -269,7 +262,7 @@ tlv_result_t query_function_eval(tlv_query_exec_t* e, const tlv_tree_event_t* ev
         out->size = (size_t)event->element.value.size;
         return TLV_OK;
     }
-    if (query_word(text, n->begin, n->end, "len")) {
+    if ((n->selector == F_LEN)) {
         if (count > 1 || (count && !bytes_kind(a) && a.kind != V_STRING)) goto arity;
         out->kind = V_NUMBER;
         out->number = count ? a.size : event->element.value.size;
@@ -278,13 +271,13 @@ tlv_result_t query_function_eval(tlv_query_exec_t* e, const tlv_tree_event_t* ev
                                "length representable as int64");
         return TLV_OK;
     }
-    if (query_word(text, n->begin, n->end, "not")) {
+    if ((n->selector == F_NOT)) {
         if (count != 1 || (a.kind != V_BOOL && a.kind != V_NODE)) goto arity;
         out->kind = V_BOOL;
         out->number = !truth(a);
         return TLV_OK;
     }
-    if (query_word(text, n->begin, n->end, "substr")) {
+    if ((n->selector == F_SUBSTR)) {
         if ((count != 2 && count != 3) || !bytes_kind(a) || b.kind != V_NUMBER ||
             (count == 3 && c.kind != V_NUMBER))
             goto arity;
@@ -295,15 +288,14 @@ tlv_result_t query_function_eval(tlv_query_exec_t* e, const tlv_tree_event_t* ev
         size_t length = a.size - begin;
         if (count == 3 && c.number < length) length = (size_t)c.number;
         *out = a;
-        out->data = a.data ? a.data + begin * (a.kind == V_HEX ? 2 : 1) : NULL;
+        out->data = a.data ? a.data + begin : NULL;
         out->size = length;
         return TLV_OK;
     }
-    if (query_word(text, n->begin, n->end, "tag-mask") ||
-        query_word(text, n->begin, n->end, "tag-range")) {
+    if ((n->selector == F_MASK) || (n->selector == F_RANGE)) {
         if (count != 2 || !bytes_kind(a) || !bytes_kind(b)) goto arity;
         out->kind = V_NODE;
-        if (query_word(text, n->begin, n->end, "tag-mask")) {
+        if ((n->selector == F_MASK)) {
             if (a.size != b.size) goto arity;
             if (a.size != event->element.tag.size) return TLV_OK;
             tlv_result_t rc = charge(e, a.size, n, d);
@@ -329,10 +321,9 @@ tlv_result_t query_function_eval(tlv_query_exec_t* e, const tlv_tree_event_t* ev
     }
     if (count != 2 || !bytes_kind(a) || !bytes_kind(b)) goto arity;
     out->kind = V_BOOL;
-    if (query_word(text, n->begin, n->end, "starts-with") ||
-        query_word(text, n->begin, n->end, "ends-with")) {
+    if ((n->selector == F_STARTS) || (n->selector == F_ENDS)) {
         if (b.size > a.size) return TLV_OK;
-        size_t begin = query_word(text, n->begin, n->end, "ends-with") ? a.size - b.size : 0;
+        size_t begin = (n->selector == F_ENDS) ? a.size - b.size : 0;
         tlv_result_t rc = charge(e, b.size, n, d);
         if (rc != TLV_OK) return rc;
         out->number = 1;
@@ -395,7 +386,6 @@ static tlv_result_t evaluate(tlv_query_exec_t* e, const tlv_tree_event_t* event,
                              tlv_query_diagnostic_t* d) {
     const tlv_query_program_t* p = e->program;
     const query_node_t* nodes = query_nodes(p);
-    const char* text = query_text(p);
     query_value_t* values = execution_values(e);
     uint8_t* states = execution_states(e) + event->depth * p->count;
     const uint8_t* parent = event->depth ? states - p->count : NULL;
@@ -431,7 +421,7 @@ static tlv_result_t evaluate(tlv_query_exec_t* e, const tlv_tree_event_t* event,
                 }
                 rc = charge(e, event->element.tag.size, n, d);
                 if (rc != TLV_OK) return rc;
-                int raw = tag_test(p, text, n, event->element.tag);
+                int raw = tag_test(p, n, event->element.tag);
                 unsigned history = states[i] & 8;
                 states[i] = (uint8_t)(((raw || (parent && (parent[i] & 4))) ? 4 : 0) | history |
                                       (raw ? 8 : 0));
@@ -465,9 +455,11 @@ static tlv_result_t evaluate(tlv_query_exec_t* e, const tlv_tree_event_t* event,
                 out.number = truth(b);
                 break;
             case Q_FILTER: out.number = truth(a) && truth(b); break;
+#if OPENTLV_QUERY_SET_OPERATIONS
             case Q_UNION: out.number = truth(a) || truth(b); break;
             case Q_INTERSECT: out.number = truth(a) && truth(b); break;
             case Q_EXCEPT: out.number = truth(a) && !truth(b); break;
+#endif
             case Q_AND:
             case Q_OR:
                 out.kind = V_BOOL;
@@ -475,14 +467,14 @@ static tlv_result_t evaluate(tlv_query_exec_t* e, const tlv_tree_event_t* event,
                 break;
             case Q_META:
                 out.kind = V_NUMBER;
-                if (query_word(text, n->begin, n->end, "@len"))
+                if ((n->selector == TLV_QUERY_META_LEN))
                     out.number = event->element.value.size;
-                else if (query_word(text, n->begin, n->end, "@depth"))
+                else if ((n->selector == TLV_QUERY_META_DEPTH))
                     out.number = event->depth;
-                else if (query_word(text, n->begin, n->end, "@index"))
+                else if ((n->selector == TLV_QUERY_META_INDEX))
                     out.number = execution_indexes(e)[event->depth];
                 else {
-                    int header = query_word(text, n->begin, n->end, "@hlen");
+                    int header = (n->selector == TLV_QUERY_META_HLEN);
                     if (!event->source.data || (header && !event->source.header.present))
                         return query_error(d, TLV_ERR_INVALID_VALUE, TLV_QUERY_ERROR_SOURCE,
                                            n->begin, n->end, "available Source metadata");
@@ -491,9 +483,8 @@ static tlv_result_t evaluate(tlv_query_exec_t* e, const tlv_tree_event_t* event,
                                        event->source.size - event->source.header.offset))
                         return query_error(d, TLV_ERR_INVALID_ARG, TLV_QUERY_ERROR_EVENTS, n->begin,
                                            n->end, "bounded Source Header range");
-                    out.number = query_word(text, n->begin, n->end, "@offset")
-                                     ? event->offset
-                                     : event->source.header.size;
+                    out.number = (n->selector == TLV_QUERY_META_OFFSET) ? event->offset
+                                                                        : event->source.header.size;
                 }
                 if (out.number > INT64_MAX)
                     return query_error(d, TLV_ERR_OVERFLOW, TLV_QUERY_ERROR_CAPABILITY, n->begin,
@@ -501,16 +492,8 @@ static tlv_result_t evaluate(tlv_query_exec_t* e, const tlv_tree_event_t* event,
                 break;
             case Q_LITERAL:
                 out.kind = V_NUMBER;
-                out.negative = text[n->begin] == '-';
-                for (size_t j = n->begin + (unsigned)out.negative; j < n->end; ++j) {
-                    unsigned digit = (unsigned)(text[j] - '0');
-                    uint64_t maximum = (uint64_t)INT64_MAX + (unsigned)out.negative;
-                    if (digit > 9 || out.number > (maximum - digit) / 10)
-                        return query_error(d, TLV_ERR_OVERFLOW, TLV_QUERY_ERROR_SYNTAX, n->begin,
-                                           n->end, "signed 64-bit integer");
-                    out.number = out.number * 10 + digit;
-                }
-                if (!out.number) out.negative = 0;
+                out.negative = (int)n->negative;
+                out.number = query_immediate(n);
                 break;
             case Q_BYTES:
             case Q_STRING:
@@ -560,7 +543,7 @@ static tlv_result_t evaluate(tlv_query_exec_t* e, const tlv_tree_event_t* event,
 /* Proven S1 subset: one root selector with local child/descendant evidence.
    Selected root scopes never overlap, so END order is also result preorder.
    Composition, nested contexts and projections conservatively use S2. */
-uint32_t query_s1_filter(const query_node_t* nodes, size_t count, uint32_t root, const char* text) {
+uint32_t query_s1_filter(const query_node_t* nodes, size_t count, uint32_t root) {
     uint32_t filter = root;
     if (nodes[root].op == Q_CHILD && nodes[nodes[root].left].op == Q_ROOT &&
         !nodes[nodes[root].left].anchor)
@@ -576,7 +559,7 @@ uint32_t query_s1_filter(const query_node_t* nodes, size_t count, uint32_t root,
         } else if (n->op == Q_LITERAL) {
             if (n->anchor == 2) return QUERY_NONE;
         } else if (n->op == Q_CALL) {
-            unsigned fn = query_function_kind(text, n);
+            unsigned fn = n->selector;
             if (fn != F_NOT && fn != F_COUNT && fn != F_EXISTS && fn != F_EMPTY) return QUERY_NONE;
             if (fn != F_NOT && nodes[n->left].op != Q_TEST) return QUERY_NONE;
         } else if (n->op != Q_BOOL && !(n->op >= Q_EQ && n->op <= Q_OR))
@@ -585,8 +568,7 @@ uint32_t query_s1_filter(const query_node_t* nodes, size_t count, uint32_t root,
     return filter;
 }
 static tlv_result_t s1_decide(tlv_query_exec_t* e, int* matched, tlv_query_diagnostic_t* d) {
-    uint32_t filter = query_s1_filter(query_nodes(e->program), e->program->count, e->program->root,
-                                      query_text(e->program));
+    uint32_t filter = query_s1_filter(query_nodes(e->program), e->program->count, e->program->root);
     const query_node_t* nodes = query_nodes(e->program);
     uint32_t predicate = nodes[filter].right;
     query_value_t* values = execution_values(e);
@@ -600,14 +582,12 @@ static tlv_result_t s1_decide(tlv_query_exec_t* e, int* matched, tlv_query_diagn
         if (rc != TLV_OK) return rc;
         if (n->op == Q_TEST) continue; /* count collected from complete publications */
         if (n->op == Q_LITERAL) {
-            const char* text = query_text(e->program);
-            v.negative = text[n->begin] == '-';
-            for (size_t j = n->begin + v.negative; j < n->end; ++j)
-                v.number = v.number * 10 + (unsigned)(text[j] - '0');
+            v.negative = (int)n->negative;
+            v.number = query_immediate(n);
         } else if (n->op == Q_BOOL)
             v.number = n->folded;
         else if (n->op == Q_CALL) {
-            unsigned fn = query_function_kind(query_text(e->program), n);
+            unsigned fn = n->selector;
             v.number = fn == F_COUNT ? a.number : fn == F_EXISTS ? truth(a) : !truth(a);
         } else if (n->op == Q_AND || n->op == Q_OR)
             v.number = n->op == Q_AND ? truth(a) && truth(b) : truth(a) || truth(b);
@@ -633,8 +613,7 @@ static tlv_result_t s1_decide(tlv_query_exec_t* e, int* matched, tlv_query_diagn
 static tlv_result_t s1_feed(tlv_query_exec_t* e, const tlv_tree_event_t* event, int* matched,
                             tlv_query_diagnostic_t* d) {
     const query_node_t* nodes = query_nodes(e->program);
-    uint32_t filter =
-        query_s1_filter(nodes, e->program->count, e->program->root, query_text(e->program));
+    uint32_t filter = query_s1_filter(nodes, e->program->count, e->program->root);
     if (e->has_context) return TLV_ERR_UNSUPPORTED_TYPE;
     if (event->kind == TLV_TREE_END) return event->depth == 0 ? s1_decide(e, matched, d) : TLV_OK;
     if (!event->depth) {
@@ -643,8 +622,7 @@ static tlv_result_t s1_feed(tlv_query_exec_t* e, const tlv_tree_event_t* event, 
         tlv_result_t rc = charge(e, 1, selector, d);
         if (rc == TLV_OK) rc = charge(e, event->element.tag.size, selector, d);
         if (rc != TLV_OK) return rc;
-        e->delayed_selected =
-            tag_test(e->program, query_text(e->program), selector, event->element.tag);
+        e->delayed_selected = tag_test(e->program, selector, event->element.tag);
         e->delayed = *event;
         if (event->kind == TLV_TREE_ELEMENT) return s1_decide(e, matched, d);
         return TLV_OK;
@@ -659,7 +637,7 @@ static tlv_result_t s1_feed(tlv_query_exec_t* e, const tlv_tree_event_t* event, 
         if (rc != TLV_OK) return rc;
         query_value_t* v = &execution_values(e)[i];
         v->kind = V_NODE;
-        if (tag_test(e->program, query_text(e->program), n, event->element.tag)) {
+        if (tag_test(e->program, n, event->element.tag)) {
             if (v->number == INT64_MAX)
                 return query_limit(d, "counter", (size_t)INT64_MAX, n->begin, n->end);
             ++v->number;

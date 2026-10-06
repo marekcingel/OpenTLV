@@ -27,6 +27,10 @@
 #cmakedefine01 OPENTLV_FORMAT_CER
 #cmakedefine01 OPENTLV_EMV
 #cmakedefine01 OPENTLV_DOCUMENT
+/** @brief Whether Query text parsing and compilation are available. */
+#cmakedefine01 OPENTLV_QUERY_FRONTEND
+/** @brief Whether Query set algebra operations are available. */
+#cmakedefine01 OPENTLV_QUERY_SET_OPERATIONS
 
 #ifdef __cplusplus
 extern "C" {

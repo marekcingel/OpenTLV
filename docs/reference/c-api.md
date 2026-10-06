@@ -74,6 +74,10 @@ including caller-owned frame storage and Visitor adapters.
 
 V1 paths use `<tlv/query/query.h>` with copyable opaque storage, bounded parsing
 and canonical formatting. Full-language compilation and S0/S1/S2 execution use
+`<tlv/query/plan.h>`: versioned native static C plans and bounded frontend-free
+validation. Runtime and generated plans use the same execution APIs and caller
+workspace; see [static plans](../guides/queries.md#static-c-plans-and-frontend-free-execution).
+
 `<tlv/query/program.h>`: discover scratch, immutable program and runtime workspace
 requirements independently, then retain the execution across STOP/NEED_MORE_DATA.
 S1 publishes proven root-scope decisions at END. S2 uses explicit candidate

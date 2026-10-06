@@ -1,10 +1,10 @@
 name: Query hardening
 on:
   pull_request:
-    paths: ['tlv/**', 'tlv\+\+/**', 'tests/query/**', 'tests/unit/query/**', 'tests/fuzz/query/**', 'scripts/*query*', '.github/workflows/query-hardening.yml']
+    paths: ['tlv/**', 'tlv\+\+/**', 'tests/query/**', 'tests/unit/query/**', 'tests/fuzz/query/**', 'scripts/*query*', 'CMakeLists.txt', 'cmake/**', '.github/workflows/query-hardening.yml']
   push:
     branches: [main]
-    paths: ['tlv/**', 'tlv\+\+/**', 'tests/query/**', 'tests/unit/query/**', 'tests/fuzz/query/**', 'scripts/*query*', '.github/workflows/query-hardening.yml']
+    paths: ['tlv/**', 'tlv\+\+/**', 'tests/query/**', 'tests/unit/query/**', 'tests/fuzz/query/**', 'scripts/*query*', 'CMakeLists.txt', 'cmake/**', '.github/workflows/query-hardening.yml']
   workflow_dispatch:
 permissions:
   contents: read
@@ -33,7 +33,7 @@ jobs:
           python3 tests/query/test_minimize.py
           python3 scripts/check_query_contracts.py --clang clang-18 --generated build/generated/include --output build/query-contracts.json
           python3 scripts/check_query_release.py --output build/query-release.json
-      - run: cmake --build build --target test-unit-tlv test-unit-tlvpp test-query-conformance test-query-cxx-conformance test-query-abi --parallel 2
+      - run: cmake --build build --target test-unit-tlv test-unit-tlvpp test-query-conformance test-query-cxx-conformance test-query-abi test-query-plan test-query-constexpr --parallel 2
       - name: Audit production archive symbols and emitted call dependencies
         run: python3 scripts/check_query_objects.py --archive build/tlv/libtlv.a --output build/query-object-contracts.json
       - name: Sanitized conformance, work limits and corruption regressions
@@ -67,7 +67,7 @@ jobs:
           -DCMAKE_CXX_STANDARD=11 -DCMAKE_CXX_STANDARD_REQUIRED=ON -DCMAKE_CXX_EXTENSIONS=OFF
           -DOPENTLV_BUILD_TESTS=ON -DOPENTLV_BUILD_INTEGRATION_TESTS=OFF
           -DOPENTLV_BUILD_EXAMPLES=OFF -DOPENTLV_BUILD_CLI=OFF -DOPENTLV_BUILD_CLI_TESTS=OFF
-      - run: cmake --build build --target test-unit-tlv test-unit-tlvpp test-query-conformance test-query-cxx-conformance test-query-abi --parallel 2
+      - run: cmake --build build --target test-unit-tlv test-unit-tlvpp test-query-conformance test-query-cxx-conformance test-query-abi test-query-plan test-query-constexpr --parallel 2
       - name: Run exact and one-short capacities, operation budgets and x86 corpus
         run: |
           ctest --test-dir build -R 'Query|query' --output-on-failure --no-tests=error
@@ -109,3 +109,40 @@ jobs:
           path: |
             build/query-memory-driver.c
             build/query-memory-evidence/
+
+  static-plans:
+    runs-on: ubuntu-24.04
+    strategy:
+      matrix:
+        frontend: ['ON', 'OFF']
+        sets: ['ON', 'OFF']
+        cxx: ['ON', 'OFF']
+    steps:
+      - uses: actions/checkout@v5
+      - run: sudo apt-get update && sudo apt-get install -y clang-18 ninja-build
+      - name: Configure C-only plans
+        run: >-
+          cmake -S . -B build -G Ninja -DCMAKE_C_COMPILER=clang-18 -DCMAKE_CXX_COMPILER=clang++-18
+          -DCMAKE_CXX_STANDARD=11 -DCMAKE_CXX_STANDARD_REQUIRED=ON -DCMAKE_CXX_EXTENSIONS=OFF
+          -DCMAKE_C_STANDARD=99 -DCMAKE_C_STANDARD_REQUIRED=ON -DCMAKE_C_EXTENSIONS=OFF
+          -DOPENTLV_BUILD_CXX=${{ matrix.cxx }} -DOPENTLV_BUILD_SHARED_LIBS=OFF
+          -DOPENTLV_BUILD_UNIT_TESTS=OFF -DOPENTLV_BUILD_INTEGRATION_TESTS=OFF
+          -DOPENTLV_BUILD_EXAMPLES=OFF -DOPENTLV_BUILD_CLI=OFF
+          -DOPENTLV_DOCUMENT=OFF
+          -DOPENTLV_QUERY_FRONTEND=${{ matrix.frontend }}
+          -DOPENTLV_QUERY_SET_OPERATIONS=${{ matrix.sets }}
+          -DCMAKE_C_FLAGS='-fsanitize=address,undefined -fno-omit-frame-pointer'
+          -DCMAKE_CXX_FLAGS='-fsanitize=address,undefined -fno-omit-frame-pointer'
+          -DCMAKE_EXE_LINKER_FLAGS='-fsanitize=address,undefined'
+      - run: cmake --build build --target test-query-plan --parallel 2
+      - if: matrix.cxx == 'ON'
+        run: cmake --build build --target test-query-constexpr --parallel 2
+      - run: ctest --test-dir build -R '^query-(static|constexpr)-plan$' --output-on-failure --no-tests=error
+      - name: Verify absence of runtime frontend symbols
+        if: matrix.frontend == 'OFF'
+        run: |
+          nm --defined-only build/tlv/libtlv.a > build/symbols.txt
+          if grep -E ' (tlv_query_compile[^ ]*|tlv_query_parse[^ ]*|tlv_query_program_load[^ ]*|lex|parse)$' build/symbols.txt; then
+            echo 'Unexpected Query frontend symbol in executor-only archive'
+            exit 1
+          fi
