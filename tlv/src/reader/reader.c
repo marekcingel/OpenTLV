@@ -21,10 +21,12 @@ static tlv_result_t tlv_read_impl(const uint8_t* data, size_t size, const tlv_fo
                                   tlv_element_t* out_element, size_t* consumed,
                                   tlv_source_t* source, tlv_reader_diagnostic_t* diagnostic) {
     tlv_decoded_t decoded;
-    tlv_format_error_t error = {0};
+    tlv_format_error_t error;
     tlv_result_t rc;
     if (!out_element || !consumed) return TLV_ERR_NULL_ARG;
-    rc = tlv_format_decode(format, data, size, &decoded, &error);
+    /* Invalid decode arguments can return before writing error detail. */
+    if (diagnostic) memset(&error, 0, sizeof(error));
+    rc = tlv_format_decode(format, data, size, &decoded, diagnostic ? &error : NULL);
     if (rc == TLV_OK) {
         if (source) *source = decoded.source;
         *out_element = decoded.element;

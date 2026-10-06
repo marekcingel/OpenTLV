@@ -181,6 +181,8 @@ nav:
       - Where documentation belongs: development/documentation-layout.md
       - Documentation audit: development/documentation-audit.md
       - Fuzzing: development/fuzzing.md
+      - Reader decode performance: development/reader-decode-performance.md
+      - Indefinite boundary reuse follow-up: development/indefinite-boundary-reuse.md
       - Query release checklist: development/query-release.md
       - Query phase implementation audit: development/query-phase-audit.md
       - Query adversarial verification: development/query-adversarial.md
