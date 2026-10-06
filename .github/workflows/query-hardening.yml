@@ -29,6 +29,7 @@ jobs:
       - name: Audit transitive internal dependencies and recursion
         run: |
           python3 scripts/test_query_contracts.py
+          python3 scripts/test_query_release.py
           python3 tests/query/test_minimize.py
           python3 scripts/check_query_contracts.py --clang clang-18 --generated build/generated/include --output build/query-contracts.json
           python3 scripts/check_query_release.py --output build/query-release.json

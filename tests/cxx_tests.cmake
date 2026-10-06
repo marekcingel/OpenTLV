@@ -83,4 +83,4 @@ opentlv_configure_compiler(${test_target})
 opentlv_copy_shared_runtime(${test_target})
 
 include(GoogleTest)
-gtest_discover_tests(${test_target} PROPERTIES LABELS ${test_group})
+gtest_discover_tests(${test_target} DISCOVERY_TIMEOUT 30 PROPERTIES LABELS ${test_group})

@@ -25,6 +25,55 @@ CHECKS = ["conformance", "properties", "fuzz-ASan-UBSan", "MSan-or-exclusion",
           "allocation-recursion", "work-budgets-32-64", "benchmarks", "ABI-32-64"]
 
 
+def evidence_errors(evidence, directory, commit, symbols, features):
+    """Validate candidate provenance and contained artifacts; fail closed on malformed records."""
+    errors = []
+    if not isinstance(evidence, dict) or evidence.get("commit") != commit:
+        return ["release evidence missing or belongs to a different candidate commit"]
+    directory = directory.resolve()
+    requirements = [("phases", f"F{phase}", ()) for phase in range(1, 6)]
+    requirements += [("facades", name, features if name == "CLI" else symbols) for name in FACADES]
+    requirements += [("checks", name, ()) for name in CHECKS]
+    for category, name, capabilities in requirements:
+        group = evidence.get(category, {})
+        record = group.get(name) if isinstance(group, dict) else None
+        label = f"{category}/{name}"
+        if not isinstance(record, dict) or record.get("status") != "passed":
+            errors.append(f"missing passing candidate evidence: {label}")
+            continue
+        artifact = record.get("artifact")
+        digest = record.get("sha256")
+        if not isinstance(artifact, str) or not artifact or not isinstance(digest, str):
+            errors.append(f"missing evidence artifact/hash: {label}")
+        else:
+            relative = Path(artifact)
+            path = (directory / relative).resolve()
+            if relative.is_absolute() or not path.is_relative_to(directory):
+                errors.append(f"artifact escapes evidence directory: {label}")
+            elif (not path.is_file() or
+                  hashlib.sha256(path.read_bytes()).hexdigest() != digest):
+                errors.append(f"missing or changed evidence artifact: {label}")
+        provided = record.get("capabilities", [])
+        if (not isinstance(provided, list) or
+                any(not isinstance(value, str) for value in provided) or
+                set(capabilities) - set(provided)):
+            errors.append(f"incomplete capabilities: {label}")
+        if (category == "facades" and name not in ("C", "CLI") and
+                record.get("surface") != "idiomatic"):
+            errors.append(f"raw FFI is insufficient: {name}")
+        if category == "checks" and name == "benchmarks":
+            # An advisory run without an accepted baseline is not a release pass.
+            if record.get("baseline_accepted") is not True:
+                errors.append("accepted matching-platform Query benchmark baseline required")
+        if category == "checks" and name in ("work-budgets-32-64", "ABI-32-64"):
+            pointer_bits = record.get("pointer_bits", [])
+            if (not isinstance(pointer_bits, list) or
+                    any(type(value) is not int for value in pointer_bits) or
+                    set(pointer_bits) != {32, 64}):
+                errors.append(f"both 32-bit and 64-bit evidence required: {name}")
+    return errors
+
+
 def main():
     parser = argparse.ArgumentParser()
     parser.add_argument("--output", type=Path, required=True)
@@ -62,27 +111,8 @@ def main():
                 symbols.add(name)
     commit = subprocess.check_output(["git", "rev-parse", "HEAD"], cwd=root, text=True).strip()
     evidence = json.loads(args.evidence.read_text()) if args.evidence else {}
-    blockers = list(inventory_errors)
-    if evidence.get("commit") != commit:
-        blockers.append("release evidence missing or belongs to a different candidate commit")
-    def require(category, name, capabilities=()):
-        record = evidence.get(category, {}).get(name, {})
-        if record.get("status") != "passed":
-            blockers.append(f"missing passing candidate evidence: {category}/{name}")
-            return
-        path = args.evidence.parent / record.get("artifact", "")
-        if not path.is_file() or hashlib.sha256(path.read_bytes()).hexdigest() != record.get("sha256"):
-            blockers.append(f"missing or changed evidence artifact: {category}/{name}")
-        if set(capabilities) - set(record.get("capabilities", [])):
-            blockers.append(f"incomplete capabilities: {category}/{name}")
-        if category == "facades" and name not in ("C", "CLI") and record.get("surface") != "idiomatic":
-            blockers.append(f"raw FFI is insufficient: {name}")
-    for phase in range(1, 6):
-        require("phases", f"F{phase}")
-    for facade in FACADES:
-        require("facades", facade, symbols if facade != "CLI" else corpus["f3_rules"])
-    for check in CHECKS:
-        require("checks", check)
+    blockers = inventory_errors + evidence_errors(
+        evidence, args.evidence.parent if args.evidence else root, commit, symbols, corpus["f3_rules"])
     if args.release and subprocess.check_output(["git", "status", "--porcelain"], cwd=root):
         blockers.append("release candidate worktree has uncommitted changes")
     report = {"version": 1, "commit": commit, "ready": not blockers,

@@ -23,6 +23,12 @@ or justified exclusion, allocation/recursion, 32/64-bit work/storage boundaries,
 benchmarks and ABI snapshots. Java/C# become additional gates when supported;
 this repository does not claim those implementations.
 
+Benchmark records additionally require `baseline_accepted: true`; an advisory
+measurement alone cannot pass the release gate. Both `work-budgets-32-64` and
+`ABI-32-64` records require `pointer_bits: [32, 64]`. Artifact paths must stay
+inside the evidence directory. Run `python scripts/test_query_release.py` to
+check rejection of stale, malformed, incomplete or modified evidence.
+
 ## Resource and validation boundaries
 
 Compiler, loader and execution use caller storage; owning Documents, snapshots
