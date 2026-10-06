@@ -3,6 +3,9 @@
 #ifndef OPENTLV_GO_BRIDGE_H
 #define OPENTLV_GO_BRIDGE_H
 #include <tlv/config.h>
+#if !OPENTLV_READER || !OPENTLV_WRITER || !OPENTLV_QUERY || !OPENTLV_SCHEMA || !OPENTLV_CODEC
+#error The Go binding requires Reader, Writer, Query, Schema and Codec
+#endif
 #include <tlv/formats/fixed.h>
 #include <tlv/reader/reader.h>
 #include <tlv/writer/writer.h>

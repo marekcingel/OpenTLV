@@ -5,7 +5,7 @@
 #include "tlv/schema/schema.h"
 #include "tlv/query/program.h"
 #include "tlv/config.h"
-#if OPENTLV_DOCUMENT
+#if OPENTLV_DOCUMENT && OPENTLV_READER && OPENTLV_WRITER
 #include "tlv/document/document.h"
 #include "tlv/writer/tree.h"
 #endif
@@ -82,7 +82,7 @@ TLV_API tlv_result_t tlv_schema_query_validate_buffer(
     const uint8_t* data, size_t size, const tlv_format_t* format,
     const tlv_schema_query_rule_t* rules, size_t count, size_t depth, size_t nodes, size_t work,
     tlv_schema_query_workspace_t* workspace, tlv_schema_query_diagnostic_t* diagnostic);
-#if OPENTLV_DOCUMENT
+#if OPENTLV_DOCUMENT && OPENTLV_READER && OPENTLV_WRITER
 /** @brief Validate the same assertion programs over an immutable Document, including D.
  * @param document Owning tree, alive and unchanged throughout validation.
  * @param rules Borrowed compiled rules.

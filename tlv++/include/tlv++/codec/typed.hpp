@@ -8,7 +8,10 @@
 #include <vector>
 #include "tlv++/types.hpp"
 #include "tlv++/codec/typed_error.hpp"
+#include "tlv/config.h"
+#if OPENTLV_WRITER
 #include "tlv++/writer/writer.hpp"
+#endif
 #include "tlv/codec/values.h"
 
 /** @file
@@ -194,6 +197,7 @@ template <typename Tag, typename T, typename Codec = codec<T>> struct field {
     }
 };
 
+#if OPENTLV_WRITER
 /// @cond INTERNAL
 namespace detail {
 template <typename Field>
@@ -220,6 +224,7 @@ expected<void, typed_error> writer_base::write(const typename Field::value_type&
 }
 } // namespace detail
 /// @endcond
+#endif
 
 /// @cond INTERNAL
 namespace detail {

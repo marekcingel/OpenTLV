@@ -26,12 +26,18 @@ foreach(path reader/reader.c reader/tree.c reader/visitor.c writer/writer.c writ
     forbid("tlv/src/${path}" "#include[ \t]+[\"<]tlv/(document|query|schema|codec|builtins)/"
            "lower processing layers must not depend on higher layers or protocols")
 endforeach()
-foreach(path reader/tree.c reader/visitor.c query/query.c document/document.c writer/tree.c)
+foreach(path reader/tree.c reader/visitor.c query/query.c document/reader.c document/writer.c writer/tree.c)
     forbid("tlv/src/${path}" "tlv_format_(decode|encode|measure)[ \t\r\n]*\\(|->[ \t]*(decode|encode|measure)[ \t\r\n]*\\("
            "wire processing must go through Reader/Writer")
     forbid("tlv/src/${path}" "tlv_(fields|variable|packed|fixed)_(decode|encode|measure)[ \t\r\n]*\\("
            "layout mechanics belong to Format, not higher processing layers")
 endforeach()
+# Owned topology may ask Format to validate/measure a tag during insertion,
+# independently of Writer. It must never decode or emit wire bytes itself.
+forbid("tlv/src/document/document.c" "tlv_format_(decode|encode)[ \t\r\n]*\\(|->[ \t]*(decode|encode)[ \t\r\n]*\\("
+       "Document wire import and serialization belong to explicit integrations")
+forbid("tlv/src/document/document.c" "tlv_(fields|variable|packed|fixed)_(decode|encode|measure)[ \t\r\n]*\\("
+       "Document must use Format contracts, not layout internals")
 foreach(path reader/reader.c reader/tree.c)
     forbid("tlv/src/${path}" "#include[ \t]+[\"<]tlv/(writer/|reader/visitor)"
            "Reader engines must not depend on encoding or Visitor adapters")

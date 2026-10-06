@@ -7,8 +7,13 @@
 #include "tlv/export.h"
 #include "tlv/error.h"
 #include "tlv/format.h"
+#include "tlv/config.h"
+#if OPENTLV_QUERY
 #include "tlv/query/query.h"
+#endif
+#if OPENTLV_READER
 #include "tlv/reader/visitor.h"
+#endif
 #include "tlv/tag.h"
 
 #include <stddef.h>
@@ -31,16 +36,16 @@ struct tlv_tree_writer_workspace;
  * @brief Optional mutable TLV document that owns its data and can be modified and encoded again.
  *
  * The reader, writer and traversal APIs are zero-copy and never allocate.
- * This component is a separate convenience layer for applications that must
- * change an existing message: tlv_document_parse() copies the input into an
- * owned tree of nodes, the tree can then be searched, changed, extended and
- * shortened, and tlv_document_encode() writes it out again through the
- * writer of the chosen format.
+ * This component owns a mutable tree that can be built programmatically.
+ * The Reader integration tlv_document_parse() copies wire input into nodes;
+ * the Writer integration tlv_document_encode() serializes the current tree.
  *
- * The document is built only on the public reader, writer and query APIs and
- * works with any format: the reader and writer formats and the nesting
- * predicate are supplied through the Format in #tlv_document_options_t, as for
- * tlv_tree_reader_init(). Nothing in the allocation-free core depends on it. It is
+ * The owned tree is independent of Reader, Writer and Query. Wire import
+ * requires OPENTLV_READER; encoding requires OPENTLV_WRITER; path matching
+ * requires OPENTLV_QUERY. Compiled Document Query currently requires Reader
+ * and Writer as well. The Format and nesting predicate are supplied through
+ * #tlv_document_options_t. Read/write callbacks are needed only by wire
+ * operations. Nothing in the allocation-free core depends on Document. It is
  * an optional component (`OPENTLV_DOCUMENT`, see tlv/config.h) and the only
  * OpenTLV component that allocates memory.
  *
@@ -89,6 +94,9 @@ typedef struct tlv_allocator {
 
 /**
  * @brief Format descriptor and limits of a document.
+ * @note The Format need not provide read/write callbacks for programmatic trees.
+ * Nonempty constructed wire values require OPENTLV_READER; without it, insert
+ * and set_value return TLV_ERR_UNSUPPORTED_TYPE without changing the tree.
  *
  * Initialize with tlv_document_options_init(). The document copies this
  * structure, but the format, the format's context and the allocator context are
@@ -98,8 +106,8 @@ typedef struct tlv_allocator {
 typedef struct tlv_document_options {
     /**
      * Format used to parse input and values and to encode the document.
-     * Required; must be able to both read and write, see tlv_format_can_read()
-     * and tlv_format_can_write(). `format->is_constructed` tells which tags
+     * Required; read/write callbacks are only required for wire integration, see
+     * tlv_format_can_read() and tlv_format_can_write(). `format->is_constructed` tells which tags
      * hold nested elements, or `NULL` to keep every value opaque; its answer
      * is taken when a node is created and stays with the node.
      */
@@ -148,6 +156,7 @@ TLV_API uint64_t tlv_document_node_identity(const tlv_document_t* document, cons
  * @see tlv_document_node_identity for checking a possibly stale address. */
 TLV_API uint64_t tlv_node_identity(const tlv_node_t* node);
 
+#if OPENTLV_QUERY && OPENTLV_READER && OPENTLV_WRITER
 /** @brief Completed Query selection edit operation. */
 typedef enum tlv_document_query_edit_kind {
     TLV_DOCUMENT_QUERY_REMOVE,  /**< Erase selected roots; selected ancestors dominate descendants.
@@ -187,6 +196,9 @@ TLV_API tlv_result_t tlv_document_query_edit(tlv_document_t* document, struct tl
                                              tlv_node_t** targets, size_t capacity,
                                              size_t* applied);
 
+#endif
+
+#if OPENTLV_READER
 /**
  * @brief Resumable owning consumer of a Tree Reader, optionally limited to one subtree.
  *
@@ -266,6 +278,8 @@ TLV_API tlv_result_t tlv_document_builder_consume(tlv_document_builder_t* builde
  */
 TLV_API void tlv_document_builder_free(tlv_document_builder_t* builder);
 
+#endif
+
 /**
  * @brief Fills options with the given format and the default limits.
  *
@@ -276,8 +290,7 @@ TLV_API void tlv_document_builder_free(tlv_document_builder_t* builder);
  * @param[in]  format  Format; borrowed.
  *
  * @return #TLV_OK on success.
- * @return #TLV_ERR_NULL_ARG if `options` is `NULL`, or `format` cannot both
- *         read and write.
+ * @return #TLV_ERR_NULL_ARG if `options` or `format` is `NULL`.
  */
 TLV_API tlv_result_t tlv_document_options_init(tlv_document_options_t* options,
                                                const tlv_format_t* format);
@@ -290,13 +303,14 @@ TLV_API tlv_result_t tlv_document_options_init(tlv_document_options_t* options,
  *                      `NULL` on failure.
  *
  * @return #TLV_OK on success.
- * @return #TLV_ERR_NULL_ARG for a `NULL` argument, an unusable format or an allocator that
+ * @return #TLV_ERR_NULL_ARG for a `NULL` argument or an allocator that
  *         lacks a callback.
  * @return #TLV_ERR_OUT_OF_MEMORY if memory is exhausted.
  */
 TLV_API tlv_result_t tlv_document_create(const tlv_document_options_t* options,
                                          tlv_document_t** document);
 
+#if OPENTLV_READER
 /**
  * @brief Parses encoded elements into a new owned document.
  *
@@ -324,6 +338,8 @@ TLV_API tlv_result_t tlv_document_create(const tlv_document_options_t* options,
 TLV_API tlv_result_t tlv_document_parse(const uint8_t* data, size_t size,
                                         const tlv_document_options_t* options,
                                         tlv_document_t** document, size_t* error_offset);
+
+#endif
 
 /**
  * @brief Frees a document and every node in it.
@@ -381,6 +397,7 @@ TLV_API tlv_node_t* tlv_document_find(const tlv_document_t* document, const tlv_
 /** @brief Returns the next sibling that has the same tag as `node`, or `NULL`. */
 TLV_API tlv_node_t* tlv_node_next_same_tag(const tlv_node_t* node);
 
+#if OPENTLV_QUERY
 /** @brief Callback for a matching Document Node.
  * @param node Borrowed matching node.
  * @param context Caller context.
@@ -403,6 +420,7 @@ TLV_API tlv_result_t tlv_document_query_visit(const tlv_document_t* document,
                                               const tlv_query_t* query,
                                               tlv_document_query_visitor_t visitor, void* context);
 
+#if OPENTLV_READER && OPENTLV_WRITER
 /** @brief Discover the complete encoded snapshot size for compiled Document Query Values.
  * @param[in] document Live owning Document.
  * @param[in,out] staging Caller-owned Tree Writer frames/output/scratch, disjoint
@@ -470,6 +488,8 @@ TLV_API tlv_result_t tlv_document_query_program_visit(struct tlv_query_exec* exe
                                                       tlv_document_query_visitor_t visitor,
                                                       void* context);
 
+#endif
+
 /**
  * @brief Finds the first element addressed by a path query.
  *
@@ -493,6 +513,8 @@ TLV_API tlv_node_t* tlv_document_find_path(const tlv_document_t* document,
  * @name Reading a node
  * @{
  */
+
+#endif
 
 /**
  * @brief Returns the tag of a node.
@@ -603,6 +625,7 @@ TLV_API void tlv_node_erase(tlv_node_t* node);
  * @{
  */
 
+#if OPENTLV_WRITER
 /**
  * @brief Computes the encoded size of a whole document.
  *
@@ -718,6 +741,8 @@ TLV_API tlv_result_t tlv_node_encoded_size_as(const tlv_node_t* node, const tlv_
  */
 TLV_API tlv_result_t tlv_node_encode_as(const tlv_node_t* node, const tlv_format_t* format,
                                         uint8_t* data, size_t capacity, size_t* written);
+
+#endif
 
 /** @} */
 

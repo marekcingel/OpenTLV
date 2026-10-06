@@ -71,6 +71,11 @@ fn build_from_source() {
         })
         .args([
             "-DCMAKE_BUILD_TYPE=Release",
+            "-DOPENTLV_READER=ON",
+            "-DOPENTLV_WRITER=ON",
+            "-DOPENTLV_QUERY=ON",
+            "-DOPENTLV_SCHEMA=ON",
+            "-DOPENTLV_CODEC=ON",
             "-DCMAKE_POSITION_INDEPENDENT_CODE=ON",
             "-DOPENTLV_BUILD_SHARED_LIBS=OFF",
             "-DOPENTLV_BUILD_CXX=OFF",

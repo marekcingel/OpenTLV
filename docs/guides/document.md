@@ -18,21 +18,24 @@ Low level, zero-copy:   bytes -> reader -> element -> traversal / schema / codec
 High level, mutable:    Tree Reader -> Document Builder -> document -> modify -> encode
 ```
 
-Document builds on Element, Format and the public Reader/Tree Reader,
-Writer/Tree Writer and [Query](queries.md) contracts. It owns data and allocates;
-the C borrowed processing APIs retain their allocation-free buffer/workspace
-contracts and do not require a Document. Bindings can add their own allocating
-conveniences. Architectural role and build inclusion are separate: Document
-can be omitted with `-DOPENTLV_DOCUMENT=OFF`, and static linking/dead-code
-elimination can omit unused implementation where supported. Merely enabling
-Document does not allocate a tree. See
+Document builds on Element and Format and owns its mutable tree. It can be
+created and edited programmatically without Reader, Writer or Query. Wire import
+requires Reader; encoding requires Writer; path matching requires Query. The
+compiled Query adapter currently also requires Reader and Writer for Value snapshots.
+These integrations are compiled only when their participating capabilities are enabled.
+Borrowed C processing retains its allocation-free buffer/workspace contracts.
+Merely enabling Document does not allocate a tree. See
 [building only the components you need](select-components.md).
 
 ## Formats
 
-A document works with every format that can both read and write. Its
+A programmatic document accepts a Format without read/write callbacks. Wire
+import needs a readable Format and encoding needs a writable Format. Its
 `format->is_constructed` predicate says which tags hold nested elements.
-Values of those tags are parsed into child nodes; every other value stays an
+Nonempty Values of those tags are wire data parsed into child nodes; this requires
+Reader. Without Reader, nonempty constructed insert/set-value returns
+`TLV_ERR_UNSUPPORTED_TYPE` atomically. Empty constructed nodes can receive children
+through programmatic insertion. Every primitive Value stays an
 opaque byte string. Without a predicate (BER's own descriptor already sets
 one) the document is a flat list.
 

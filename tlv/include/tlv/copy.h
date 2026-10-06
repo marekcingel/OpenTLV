@@ -5,6 +5,7 @@
 #define OPENTLV_COPY_H
 
 #include "tlv/error.h"
+#include "tlv/config.h"
 #include "tlv/element.h"
 #include "tlv/format.h"
 #include "tlv/export.h"
@@ -83,6 +84,7 @@ TLV_API tlv_result_t tlv_copy_value(const tlv_element_t* element, uint8_t* data,
 TLV_API tlv_result_t tlv_copy_encoded(const uint8_t* encoded_data, size_t encoded_length,
                                       uint8_t* data, size_t capacity, size_t* written);
 
+#if OPENTLV_WRITER
 /**
  * @brief Serializes an element's tag, length and value using a writer format.
  *
@@ -112,6 +114,7 @@ TLV_API tlv_result_t tlv_copy_encoded(const uint8_t* encoded_data, size_t encode
  */
 TLV_API tlv_result_t tlv_copy_element(const tlv_element_t* element, const tlv_format_t* format,
                                       uint8_t* data, size_t capacity, size_t* written);
+#endif
 
 #ifdef __cplusplus
 }

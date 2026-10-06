@@ -163,6 +163,7 @@ int tlv_query_matcher_visit(tlv_query_matcher_t* matcher, const tlv_tag_t* tag, 
     return match;
 }
 
+#if OPENTLV_READER
 typedef struct query_visitor {
     tlv_query_matcher_t* matcher;
     tlv_tree_visitor_t visitor;
@@ -206,3 +207,4 @@ tlv_result_t tlv_query_visit_buffer(const uint8_t* data, size_t size, const tlv_
     }
     return tlv_query_visit(&reader, &matcher, visitor, context, error_offset);
 }
+#endif

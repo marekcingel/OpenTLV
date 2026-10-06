@@ -185,6 +185,7 @@ tlv_result_t tlv_ber_write_indefinite(uint8_t* data, size_t capacity, tlv_tag_t 
     return rc;
 }
 
+#if OPENTLV_WRITER
 tlv_result_t tlv_ber_writer_write_indefinite(tlv_writer_t* writer, tlv_tag_t tag,
                                              const uint8_t* value, size_t length) {
     size_t written;
@@ -197,6 +198,7 @@ tlv_result_t tlv_ber_writer_write_indefinite(tlv_writer_t* writer, tlv_tag_t tag
     if (rc == TLV_OK) writer->pos += written;
     return rc;
 }
+#endif
 
 const tlv_field_layout_t tlv_ber_fields = {.context = NULL,
                                            .read_tag = read_tag,

@@ -73,6 +73,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Changed
 
+- Make Reader, Writer, Query, Schema and Codec independently selectable build capabilities, and support programmatic Document trees without Reader or Writer. Build composed integrations only when their capabilities are enabled, with shared/static profile coverage and matching feature configuration. (#531)
 - Make Query execution independent of source text and advance the internal native plan version; rebuild previously compiled Query images. (#530)
 - Keep Query benchmark measurements advisory while Query functionality is completed, without requiring accepted baselines for release. (#523)
 - Accept full compiled Query syntax in `otlv query` while preserving existing exact-path output, and distinguish false/zero scalar success from empty node selections. (#522)

@@ -1,0 +1,23 @@
+name: Capability profiles
+on:
+  push:
+    branches: [main, develop]
+  pull_request:
+  workflow_dispatch:
+jobs:
+  capabilities:
+    permissions:
+      contents: read
+    runs-on: ubuntu-latest
+    strategy:
+      matrix:
+        linkage: [shared, static]
+    steps:
+      - uses: actions/checkout@v5
+      - name: Configure, link and run capability contracts
+        run: |
+          if [ "${{ matrix.linkage }}" = static ]; then
+            python3 scripts/check_capabilities.py --generator Ninja --static --cmake-arg=-DOPENTLV_BUILD_CXX=ON
+          else
+            python3 scripts/check_capabilities.py --generator Ninja --cmake-arg=-DOPENTLV_BUILD_CXX=ON
+          fi

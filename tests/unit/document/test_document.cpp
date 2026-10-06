@@ -276,12 +276,14 @@ TEST(Unit_Tlvpp_Document, MovedDocumentKeepsHandlesValid) {
     EXPECT_EQ(make({0x6F, 0x00}), *moved.encode());
 }
 
-TEST(Unit_Tlvpp_Document, RejectsUnusableFormats) {
-    tlv::document_format broken = format();
-    broken.format.decode = nullptr;
-    auto created = tlv::document::create(broken);
-    ASSERT_FALSE(created.has_value());
-    EXPECT_EQ(TLV_ERR_NULL_ARG, created.error().code);
+TEST(Unit_Tlvpp_Document, CreatesWithoutDecoderAndChecksItOnlyForParsing) {
+    tlv::document_format write_only = format();
+    write_only.format.decode = nullptr;
+    auto created = tlv::document::create(write_only);
+    ASSERT_TRUE(created.has_value());
+    auto parsed = tlv::document::parse(view(sample), write_only);
+    ASSERT_FALSE(parsed.has_value());
+    EXPECT_EQ(TLV_ERR_NULL_ARG, parsed.error().code);
 }
 
 TEST(Unit_Tlvpp_Document, ExplicitDestinationPreservesTreeAndSubtreeBoundaries) {

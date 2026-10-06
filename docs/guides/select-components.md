@@ -5,10 +5,69 @@ recipes for the common selections. For the principle and the option reference, s
 [include only what you need](../concepts/architecture.md#include-only-what-you-need) and
 [build configuration](../concepts/architecture.md#build-configuration).
 
-The generic core (reader, writer, visitor, schemas, value codecs and the format
-callbacks), including the configurable Fixed format, is always built.
-Protocol extensions are options that default to ON.
-Turn off what you do not use.
+Core primitives and generic formats are always built. Reader, Writer, Document,
+Query, Schema and Codec default to ON and can be disabled independently. Operations
+combining capabilities require each participant. Protocol family flags select
+framing and the integrations permitted by the selected core capabilities.
+
+## Capability profiles
+
+Start with all six capability switches OFF, then enable the selected columns:
+
+| Profile | Reader | Writer | Document | Query | Schema | Codec |
+| --- | --- | --- | --- | --- | --- | --- |
+| Minimal read | ON | OFF | OFF | OFF | OFF | OFF |
+| Minimal write | OFF | ON | OFF | OFF | OFF | OFF |
+| Read/write | ON | ON | OFF | OFF | OFF | OFF |
+| Standalone Document | OFF | OFF | ON | OFF | OFF | OFF |
+| Parse Document | ON | OFF | ON | OFF | OFF | OFF |
+| Serialize Document | OFF | ON | ON | OFF | OFF | OFF |
+| Full | ON | ON | ON | ON | ON | ON |
+
+For example, this builds a C library for reading generic formats only:
+
+```sh
+cmake -S . -B build/read \
+  -DOPENTLV_BUILD_CXX=OFF -DOPENTLV_BUILD_EXAMPLES=OFF \
+  -DOPENTLV_READER=ON -DOPENTLV_WRITER=OFF -DOPENTLV_DOCUMENT=OFF \
+  -DOPENTLV_QUERY=OFF -DOPENTLV_SCHEMA=OFF -DOPENTLV_CODEC=OFF \
+  -DOPENTLV_FORMAT_ASN1=OFF -DOPENTLV_BLUETOOTH=OFF \
+  -DOPENTLV_NFC=OFF -DOPENTLV_DHCP=OFF -DOPENTLV_LLDP=OFF
+cmake --build build/read --target tlv
+```
+
+`OPENTLV_QUERY=OFF` also disables its frontend and set operations in the effective
+configuration. `tlv/config.h` and `tlv_config_*()` report that configuration.
+Disabling a capability does not enable another one. Generated headers must match
+the linked library; using declarations from a disabled capability is unsupported.
+
+Reader + Document provides parse/build and constructed-wire mutation. Writer +
+Document provides encoding. Query + Document provides path matching; the current
+compiled Document Query adapter additionally requires Reader and Writer. Schema
+wire validation requires Reader; Schema/Query assertions require both. Structure
+codecs require Reader and Schema. EMV dictionaries compose Schema and Codec;
+EMV framing remains available independently. ASN.1 Query adapters require Codec;
+DER Schema operations currently require Codec and Writer.
+
+### Bindings and tools
+
+The C dependency graph is authoritative. Binding conveniences may require more:
+
+| Consumer | Current requirements |
+| --- | --- |
+| C++ Reader/Writer headers | Matching C capability; the umbrella selects enabled components |
+| C++ Schema facade | Schema and Reader |
+| C++ Query facade | Query and Reader |
+| C++ Document facade | Document, Reader, Writer, Query and Codec |
+| Python, Lua, WASM, CLI, examples, benchmarks and fuzz suites | Reader, Writer, Query, Schema, Codec and Query frontend; CMake skips these in reduced builds |
+| Rust | Native build explicitly enables Reader, Writer, Query, Schema and Codec; Document remains a Cargo feature |
+| Go | Prebuilt library must enable Reader, Writer, Query, Schema and Codec; the bridge checks generated configuration |
+
+Broad unit/integration suites are skipped in reduced builds. The dependency-free
+`capability-contract` test remains available with `OPENTLV_BUILD_TESTS=ON`.
+`python scripts/check_capabilities.py` configures, links and executes the profiles
+above plus core-only, Query-only, Document/Query, Schema-only and Codec-only builds. CI runs both
+shared and static variants and checks that disabled source groups are absent.
 
 ## Generic core formats
 
@@ -45,7 +104,7 @@ template delegates to the always-built C implementation.
 Each recipe starts from a clean build directory; replace `build` with your own. Every
 option defaults to ON, so a recipe lists exactly the options it turns OFF.
 
-### Core only
+### Generic formats without protocol extensions
 
 Use this when you supply your own [format callbacks](../formats/custom/README.md).
 

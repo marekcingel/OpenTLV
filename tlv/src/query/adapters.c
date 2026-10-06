@@ -33,6 +33,7 @@ tlv_result_t tlv_query_definition_resolve(const void* context, const char* ns, s
     *tag = found;
     return TLV_OK;
 }
+#if OPENTLV_CODEC
 tlv_codec_result_t tlv_query_codec_decode(const void* context, const tlv_tree_event_t* event,
                                           const uint8_t* data, size_t size, void* scratch,
                                           size_t capacity, tlv_query_result_t* result) {
@@ -80,3 +81,5 @@ const tlv_query_hook_t* tlv_query_builtin_hooks(size_t* count) {
     if (count) *count = 3;
     return builtin_hooks;
 }
+
+#endif

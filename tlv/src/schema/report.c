@@ -314,21 +314,3 @@ tlv_result_t tlv_schema_validate_all_diag(const uint8_t* data, size_t size,
     if (rc != TLV_OK && rc != TLV_ERR_SCHEMA) report->count = 0;
     return rc;
 }
-
-void tlv_schema_diagnostic_init(tlv_schema_diagnostic_t* diagnostic) {
-    if (!diagnostic) return;
-    memset(diagnostic, 0, sizeof(*diagnostic));
-}
-
-const char* tlv_schema_issue_kind_string(tlv_schema_issue_kind_t kind) {
-    switch (kind) {
-        case TLV_SCHEMA_ISSUE_MISSING: return "missing";
-        case TLV_SCHEMA_ISSUE_DUPLICATE: return "duplicate";
-        case TLV_SCHEMA_ISSUE_UNEXPECTED: return "unexpected";
-        case TLV_SCHEMA_ISSUE_KIND: return "kind";
-        case TLV_SCHEMA_ISSUE_LENGTH: return "length";
-        case TLV_SCHEMA_ISSUE_ORDER: return "order";
-        case TLV_SCHEMA_ISSUE_ASSERTION: return "assertion";
-    }
-    return "unknown";
-}

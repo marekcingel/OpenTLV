@@ -771,6 +771,7 @@ tlv_result_t tlv_query_exec_finish(tlv_query_exec_t* e, tlv_query_diagnostic_t* 
     return TLV_OK;
 }
 
+#if OPENTLV_READER
 tlv_result_t tlv_query_program_visit(tlv_tree_reader_t* reader, tlv_query_exec_t* e,
                                      tlv_query_event_visitor_t visitor, void* context,
                                      tlv_query_diagnostic_t* d) {
@@ -865,3 +866,4 @@ tlv_result_t tlv_query_program_exists(tlv_tree_reader_t* reader, tlv_query_exec_
     *found = e->any_match;
     return TLV_OK;
 }
+#endif

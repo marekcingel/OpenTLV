@@ -10,54 +10,79 @@
  * @ingroup core
  */
 
+/* Core primitives and generic formats */
+#include "tlv/config.h"
 #include "tlv/attributes.h"
-#include "tlv/defaults.h"
 #include "tlv/compiler.h"
-#include "tlv/element.h"
+#include "tlv/defaults.h"
 #include "tlv/definition.h"
+#include "tlv/element.h"
 #include "tlv/size.h"
 #include "tlv/value.h"
-#include "tlv/codec/codec.h"
-#include "tlv/codec/structure.h"
 #include "tlv/copy.h"
 #include "tlv/diagnostic.h"
 #include "tlv/endian.h"
 #include "tlv/format.h"
-#include "tlv/generator.h"
 #include "tlv/layout.h"
+#include "tlv/formats/fixed.h"
+#include "tlv/formats/variable.h"
 
+/* Core capabilities */
+#if OPENTLV_READER
 #include "tlv/reader/reader.h"
 #include "tlv/reader/tree.h"
 #include "tlv/reader/visitor.h"
-#include "tlv/query/query.h"
+#endif
+
+#if OPENTLV_WRITER
 #include "tlv/writer/writer.h"
 #include "tlv/writer/tree.h"
+#include "tlv/generator.h"
+#endif
+
+#if OPENTLV_DOCUMENT
+#include "tlv/document/document.h"
+#endif
+
+#if OPENTLV_QUERY
+#include "tlv/query/query.h"
+#endif
+
+#if OPENTLV_SCHEMA
 #include "tlv/schema/schema.h"
-#include "tlv/schema/query.h"
 #include "tlv/schema/constraint.h"
-#include "tlv/config.h"
-#if OPENTLV_BLUETOOTH
-#include "tlv/builtins/bluetooth/ad_types.h"
+#if OPENTLV_QUERY && OPENTLV_READER
+#include "tlv/schema/query.h"
 #endif
-#include "tlv/formats/fixed.h"
-#include "tlv/formats/variable.h"
-#if OPENTLV_LLDP
-#include "tlv/builtins/lldp/lldp.h"
 #endif
+
+#if OPENTLV_CODEC
+#include "tlv/codec/codec.h"
+#if OPENTLV_SCHEMA && OPENTLV_READER
+#include "tlv/codec/structure.h"
+#endif
+#endif
+
+/* Builtin protocols and formats */
 #if OPENTLV_FORMAT_BER
 #include "tlv/builtins/asn1/ber.h"
 #endif
+
 #if OPENTLV_FORMAT_DER
 #include "tlv/builtins/asn1/der.h"
-#endif
-#if OPENTLV_FORMAT_DER
 #include "tlv/builtins/asn1/der_validation.h"
 #endif
-#if OPENTLV_EMV
+
+#if OPENTLV_EMV && OPENTLV_SCHEMA && OPENTLV_CODEC
 #include "tlv/builtins/emv/emv.h"
 #endif
-#if OPENTLV_DOCUMENT
-#include "tlv/document/document.h"
+
+#if OPENTLV_BLUETOOTH
+#include "tlv/builtins/bluetooth/ad_types.h"
+#endif
+
+#if OPENTLV_LLDP
+#include "tlv/builtins/lldp/lldp.h"
 #endif
 
 #endif /* OPENTLV_TLV_H */

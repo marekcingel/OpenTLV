@@ -5,6 +5,7 @@
 #define OPENTLV_SCHEMA_H
 
 #include "tlv/error.h"
+#include "tlv/config.h"
 #include "tlv/element.h"
 #include "tlv/format.h"
 #include "tlv/diagnostic.h"
@@ -226,6 +227,7 @@ typedef struct tlv_structure_schema {
     tlv_schema_order_t order;
 } tlv_structure_schema_t;
 
+#if OPENTLV_READER
 /**
  * @brief Validates framing, nesting, lengths, occurrence counts, ordering,
  * alternative groups and child membership.
@@ -274,6 +276,7 @@ TLV_API tlv_result_t tlv_schema_validate(const uint8_t* data, size_t size,
                                          const tlv_format_t* format,
                                          const tlv_structure_schema_t* schema, size_t max_depth,
                                          size_t max_elements, size_t* error_offset);
+#endif
 
 /** @brief Kind of violation found by tlv_schema_validate_all_diag(). */
 typedef enum tlv_schema_issue_kind {
@@ -414,6 +417,7 @@ typedef struct tlv_schema_diagnostic_report {
     size_t count;
 } tlv_schema_diagnostic_report_t;
 
+#if OPENTLV_READER
 /**
  * @brief Validates a TLV structure and reports every schema violation.
  *
@@ -465,6 +469,7 @@ TLV_API tlv_result_t tlv_schema_validate_all_diag(const uint8_t* data, size_t si
                                                   tlv_schema_unknown_policy_t unknown,
                                                   tlv_schema_diagnostic_report_t* report,
                                                   size_t* error_offset);
+#endif
 
 #ifdef __cplusplus
 }

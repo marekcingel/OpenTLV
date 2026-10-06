@@ -4,51 +4,16 @@
 #include "tlv/document/document.h"
 #include "tlv/size.h"
 #include "document_internal.h"
+#include "tlv/defaults.h"
+#if OPENTLV_READER
 #include "tlv/reader/tree.h"
+#endif
+#if OPENTLV_WRITER
 #include "tlv/writer/tree.h"
+#endif
 #include <stdlib.h>
 #include <string.h>
 #include <assert.h>
-
-/* The tag bytes are stored directly after this structure in the same allocation. */
-struct tlv_node {
-    uint64_t identity;
-    tlv_document_t* document;
-    tlv_node_t* parent;
-    tlv_node_t* prev;
-    tlv_node_t* next;
-    tlv_node_t* first;
-    tlv_node_t* last;
-    uint8_t* value;
-    size_t value_size;
-    size_t tag_size;
-    int constructed;
-    int pending_erase;
-};
-
-struct tlv_document {
-    tlv_document_options_t options;
-    tlv_allocator_t allocator;
-    tlv_node_t* first;
-    tlv_node_t* last;
-    size_t count;
-    uint64_t revision;
-    size_t query_callbacks;
-    int query_pending;
-    uint64_t next_identity;
-};
-
-struct tlv_document_builder {
-    tlv_document_t* document;
-    tlv_allocator_t allocator;
-    tlv_tree_reader_t* reader;
-    tlv_node_t* container;
-    int subtree_done;
-    size_t source_depth;
-    size_t target_depth;
-    size_t base;
-    int subtree;
-};
 
 /* ---- Memory ---------------------------------------------------------------------------- */
 
@@ -62,11 +27,11 @@ static void default_release(void* context, void* memory) {
     free(memory);
 }
 
-static void* memory_allocate(const tlv_document_t* document, size_t size) {
+void* document_memory_allocate(const tlv_document_t* document, size_t size) {
     return document->allocator.allocate(document->allocator.context, size);
 }
 
-static void memory_release(const tlv_document_t* document, void* memory) {
+void document_memory_release(const tlv_document_t* document, void* memory) {
     if (memory) document->allocator.release(document->allocator.context, memory);
 }
 
@@ -76,7 +41,7 @@ static const uint8_t* node_tag_data(const tlv_node_t* node) {
     return (const uint8_t*)(node + 1);
 }
 
-static tlv_tag_t node_tag(const tlv_node_t* node) {
+tlv_tag_t document_node_tag(const tlv_node_t* node) {
     return node->tag_size ? tlv_tag(node_tag_data(node), node->tag_size) : tlv_tag(NULL, 0);
 }
 
@@ -150,8 +115,8 @@ static void free_subtree(tlv_node_t* root) {
         } else {
             tlv_node_t* parent = node == root ? NULL : node->parent;
             if (parent) parent->first = node->next;
-            memory_release(node->document, node->value);
-            memory_release(node->document, node);
+            document_memory_release(node->document, node->value);
+            document_memory_release(node->document, node);
             node = parent;
         }
     }
@@ -188,34 +153,32 @@ static size_t node_depth(const tlv_node_t* node) {
 static uint8_t* copy_bytes(const tlv_document_t* document, const uint8_t* data, size_t size) {
     uint8_t* copy;
     if (!size) return NULL;
-    copy = (uint8_t*)memory_allocate(document, size);
+    copy = (uint8_t*)document_memory_allocate(document, size);
     if (copy) memcpy(copy, data, size);
     return copy;
 }
 
 /* ---- Parsing --------------------------------------------------------------------------- */
 
-static void set_offset(size_t* out, size_t offset) {
+void document_set_offset(size_t* out, size_t offset) {
     if (out) *out = offset;
 }
-
-static tlv_result_t parse_list(tlv_document_t* document, tlv_node_t* parent, const uint8_t* data,
-                               size_t size, size_t depth, size_t base, size_t* error_offset);
 
 /*
  * Creates one owned node; constructed children are supplied by the Tree Reader consumer.
  */
-static tlv_result_t create_node(tlv_document_t* document, tlv_node_t* parent, tlv_tag_t tag,
-                                const uint8_t* value, size_t length, int constructed, size_t depth,
-                                size_t element_offset, size_t* error_offset, tlv_node_t** created) {
+tlv_result_t document_create_node(tlv_document_t* document, tlv_node_t* parent, tlv_tag_t tag,
+                                  const uint8_t* value, size_t length, int constructed,
+                                  size_t depth, size_t element_offset, size_t* error_offset,
+                                  tlv_node_t** created) {
     tlv_node_t* node;
     if (depth > document->options.max_depth || document->count >= document->options.max_elements) {
-        set_offset(error_offset, element_offset);
+        document_set_offset(error_offset, element_offset);
         return TLV_ERR_LIMIT;
     }
     if (tag.size > SIZE_MAX - sizeof *node) return TLV_ERR_OUT_OF_MEMORY;
     if (document->next_identity == UINT64_MAX) return TLV_ERR_LIMIT;
-    node = (tlv_node_t*)memory_allocate(document, sizeof *node + tag.size);
+    node = (tlv_node_t*)document_memory_allocate(document, sizeof *node + tag.size);
     if (!node) return TLV_ERR_OUT_OF_MEMORY;
     memset(node, 0, sizeof *node);
     node->document = document;
@@ -226,7 +189,7 @@ static tlv_result_t create_node(tlv_document_t* document, tlv_node_t* parent, tl
     if (!node->constructed && length) {
         node->value = copy_bytes(document, value, length);
         if (!node->value) {
-            memory_release(document, node);
+            document_memory_release(document, node);
             return TLV_ERR_OUT_OF_MEMORY;
         }
         node->value_size = length;
@@ -237,82 +200,18 @@ static tlv_result_t create_node(tlv_document_t* document, tlv_node_t* parent, tl
     return TLV_OK;
 }
 
-static tlv_result_t append_item(tlv_document_builder_t* builder, const tlv_tree_item_t* item,
-                                size_t* error_offset) {
-    tlv_node_t* created;
-    size_t depth, length;
-    tlv_result_t rc;
-    if (item->depth < builder->source_depth) return TLV_ERR_INVALID_ARG;
-    depth = item->depth - builder->source_depth;
-    if (depth > SIZE_MAX - builder->target_depth) return TLV_ERR_LIMIT;
-    rc = tlv_size_to_native(item->element.value.size, &length);
-    if (rc == TLV_OK)
-        rc = create_node(builder->document, builder->container, item->element.tag,
-                         item->element.value.data, length, item->constructed,
-                         builder->target_depth + depth, builder->base + item->offset, error_offset,
-                         &created);
-    if (rc != TLV_OK) set_offset(error_offset, builder->base + item->offset);
-    if (rc == TLV_OK && item->constructed) builder->container = created;
-    return rc;
+#if !OPENTLV_READER
+tlv_result_t document_parse_list(tlv_document_t* document, tlv_node_t* parent, const uint8_t* data,
+                                 size_t size, size_t depth, size_t base, size_t* error_offset) {
+    (void)document;
+    (void)parent;
+    (void)data;
+    (void)depth;
+    (void)base;
+    (void)error_offset;
+    return size ? TLV_ERR_UNSUPPORTED_TYPE : TLV_OK;
 }
-
-/* Shared by complete parsing, mutation and the resumable public builder. */
-static tlv_result_t consume_tree(tlv_document_builder_t* builder, size_t* error_offset,
-                                 tlv_reader_diagnostic_t* diagnostic) {
-    tlv_tree_reader_t* reader = builder->reader;
-    while (builder->subtree ? !builder->subtree_done : !tlv_tree_reader_at_end(reader)) {
-        tlv_tree_event_t event;
-        tlv_result_t rc = tlv_tree_reader_next_event_diag(reader, &event, diagnostic);
-        if (rc != TLV_OK) {
-            set_offset(error_offset, builder->base + tlv_tree_reader_offset(reader));
-            return rc;
-        }
-        if (event.kind == TLV_TREE_END) {
-            if (event.skipped || !builder->container) return TLV_ERR_INVALID_ARG;
-            builder->container = builder->container->parent;
-            if (builder->subtree && event.depth == builder->source_depth) builder->subtree_done = 1;
-        } else {
-            tlv_tree_item_t item = {event.element, event.source, event.depth, event.offset,
-                                    event.kind == TLV_TREE_BEGIN};
-            rc = append_item(builder, &item, error_offset);
-            if (rc != TLV_OK) return rc;
-        }
-    }
-    return TLV_OK;
-}
-
-static tlv_result_t parse_list(tlv_document_t* document, tlv_node_t* parent, const uint8_t* data,
-                               size_t size, size_t depth, size_t base, size_t* error_offset) {
-    tlv_tree_reader_t reader;
-    tlv_tree_frame_t* frames = NULL;
-    tlv_document_builder_t builder = {0};
-    size_t capacity;
-    tlv_result_t rc;
-    if (size && depth > document->options.max_depth) {
-        set_offset(error_offset, base);
-        return TLV_ERR_LIMIT;
-    }
-    capacity = depth > document->options.max_depth ? 0 : document->options.max_depth - depth;
-    /* Every nonempty encoding consumes at least one byte and one publication. */
-    if (capacity > size) capacity = size;
-    if (capacity > document->options.max_elements - document->count)
-        capacity = document->options.max_elements - document->count;
-    if (capacity > SIZE_MAX / sizeof *frames) return TLV_ERR_OUT_OF_MEMORY;
-    if (capacity) {
-        frames = (tlv_tree_frame_t*)memory_allocate(document, capacity * sizeof *frames);
-        if (!frames) return TLV_ERR_OUT_OF_MEMORY;
-    }
-    rc = tlv_tree_reader_init(&reader, data, size, document->options.format, frames, capacity,
-                              capacity, document->options.max_elements - document->count);
-    builder.document = document;
-    builder.reader = &reader;
-    builder.container = parent;
-    builder.target_depth = depth;
-    builder.base = base;
-    if (rc == TLV_OK) rc = consume_tree(&builder, error_offset, NULL);
-    memory_release(document, frames);
-    return rc;
-}
+#endif
 
 static tlv_result_t build_node(tlv_document_t* document, tlv_node_t* parent, tlv_tag_t tag,
                                const uint8_t* value, size_t length, size_t depth, size_t value_base,
@@ -321,15 +220,16 @@ static tlv_result_t build_node(tlv_document_t* document, tlv_node_t* parent, tlv
     int constructed =
         document->options.format->is_constructed &&
         document->options.format->is_constructed(document->options.format->context, &tag);
-    tlv_result_t rc = create_node(document, parent, tag, value, length, constructed, depth,
-                                  element_offset, error_offset, &node);
+    tlv_result_t rc = document_create_node(document, parent, tag, value, length, constructed, depth,
+                                           element_offset, error_offset, &node);
     if (rc != TLV_OK) return rc;
     if (node->constructed && length) {
         if (depth == document->options.max_depth) {
-            set_offset(error_offset, value_base);
+            document_set_offset(error_offset, value_base);
             rc = TLV_ERR_LIMIT;
         } else {
-            rc = parse_list(document, node, value, length, depth + 1, value_base, error_offset);
+            rc = document_parse_list(document, node, value, length, depth + 1, value_base,
+                                     error_offset);
         }
     }
     if (rc != TLV_OK) {
@@ -345,7 +245,7 @@ static tlv_result_t build_node(tlv_document_t* document, tlv_node_t* parent, tlv
 /* ---- Lifecycle ------------------------------------------------------------------------- */
 
 static int format_usable(const tlv_format_t* format) {
-    return tlv_format_can_read(format) && tlv_format_can_write(format);
+    return format != NULL;
 }
 
 tlv_result_t tlv_document_options_init(tlv_document_options_t* options,
@@ -382,25 +282,6 @@ tlv_result_t tlv_document_create(const tlv_document_options_t* options, tlv_docu
     return TLV_OK;
 }
 
-tlv_result_t tlv_document_parse(const uint8_t* data, size_t size,
-                                const tlv_document_options_t* options, tlv_document_t** document,
-                                size_t* error_offset) {
-    tlv_document_t* created;
-    tlv_result_t rc;
-    if (!document) return TLV_ERR_NULL_ARG;
-    *document = NULL;
-    if (!data && size) return TLV_ERR_NULL_ARG;
-    rc = tlv_document_create(options, &created);
-    if (rc != TLV_OK) return rc;
-    rc = parse_list(created, NULL, data, size, 0, 0, error_offset);
-    if (rc != TLV_OK) {
-        tlv_document_free(created);
-        return rc;
-    }
-    *document = created;
-    return TLV_OK;
-}
-
 void tlv_document_free(tlv_document_t* document) {
     if (!document) return;
     if (document->query_callbacks) {
@@ -408,70 +289,7 @@ void tlv_document_free(tlv_document_t* document) {
         return;
     }
     discard_children(document, NULL);
-    memory_release(document, document);
-}
-
-tlv_result_t tlv_document_builder_create(const tlv_document_options_t* options,
-                                         tlv_tree_reader_t* reader, const tlv_tree_item_t* root,
-                                         tlv_document_builder_t** builder) {
-    tlv_document_t* document;
-    tlv_document_builder_t* created;
-    tlv_result_t rc;
-    if (!builder) return TLV_ERR_NULL_ARG;
-    *builder = NULL;
-    if (!options || !reader) return TLV_ERR_NULL_ARG;
-    if (options->format != reader->input.format) return TLV_ERR_INVALID_ARG;
-    if ((!root && reader->count) ||
-        (root && (root->source.format != options->format || !root->source.size ||
-                  root->offset > SIZE_MAX - root->source.size)))
-        return TLV_ERR_INVALID_ARG;
-    rc = tlv_document_create(options, &document);
-    if (rc != TLV_OK) return rc;
-    created = (tlv_document_builder_t*)memory_allocate(document, sizeof *created);
-    if (!created) {
-        tlv_document_free(document);
-        return TLV_ERR_OUT_OF_MEMORY;
-    }
-    memset(created, 0, sizeof *created);
-    created->document = document;
-    created->allocator = document->allocator;
-    created->reader = reader;
-    if (root) {
-        created->subtree = 1;
-        created->subtree_done = !root->constructed || !root->element.value.size;
-        created->source_depth = root->depth;
-        rc = append_item(created, root, NULL);
-        if (rc != TLV_OK) {
-            tlv_document_builder_free(created);
-            return rc;
-        }
-    }
-    *builder = created;
-    return TLV_OK;
-}
-
-tlv_result_t tlv_document_builder_consume(tlv_document_builder_t* builder,
-                                          tlv_document_t** document, size_t* error_offset,
-                                          tlv_reader_diagnostic_t* diagnostic) {
-    tlv_result_t rc;
-    if (!document) return TLV_ERR_NULL_ARG;
-    *document = NULL;
-    if (!builder) return TLV_ERR_NULL_ARG;
-    if (!builder->document) return TLV_ERR_INVALID_ARG;
-    rc = consume_tree(builder, error_offset, diagnostic);
-    if (rc == TLV_NEED_MORE_DATA) return rc;
-    if (rc == TLV_OK)
-        *document = builder->document;
-    else
-        tlv_document_free(builder->document);
-    builder->document = NULL;
-    return rc;
-}
-
-void tlv_document_builder_free(tlv_document_builder_t* builder) {
-    if (!builder) return;
-    tlv_document_free(builder->document);
-    builder->allocator.release(builder->allocator.context, builder);
+    document_memory_release(document, document);
 }
 
 size_t tlv_document_count(const tlv_document_t* document) {
@@ -498,7 +316,7 @@ tlv_node_t* tlv_node_parent(const tlv_node_t* node) {
 
 static tlv_node_t* find_in_siblings(tlv_node_t* node, tlv_tag_t tag) {
     for (; node; node = node->next)
-        if (tlv_tag_equal(node_tag(node), tag)) return node;
+        if (tlv_tag_equal(document_node_tag(node), tag)) return node;
     return NULL;
 }
 
@@ -514,57 +332,13 @@ tlv_node_t* tlv_document_find(const tlv_document_t* document, const tlv_node_t* 
 }
 
 tlv_node_t* tlv_node_next_same_tag(const tlv_node_t* node) {
-    return node ? find_in_siblings(node->next, node_tag(node)) : NULL;
-}
-
-tlv_result_t tlv_document_query_visit(const tlv_document_t* document, const tlv_query_t* query,
-                                      tlv_document_query_visitor_t visitor, void* context) {
-    tlv_query_matcher_t matcher;
-    tlv_node_t* node;
-    size_t depth = 0;
-    tlv_result_t rc;
-    if (!document || !query || !visitor) return TLV_ERR_NULL_ARG;
-    rc = tlv_query_matcher_init(&matcher, query);
-    if (rc != TLV_OK) return rc;
-    node = document->first;
-    while (node) {
-        tlv_tag_t tag = node_tag(node);
-        if (tlv_query_matcher_visit(&matcher, &tag, depth)) {
-            document_query_callback((tlv_document_t*)document, 1);
-            tlv_visit_result_t result = visitor(node, context);
-            if (document_query_callback((tlv_document_t*)document, 0)) return TLV_ERR_INVALID_ARG;
-            if (result == TLV_VISIT_STOP) return TLV_OK;
-            if (result != TLV_VISIT_CONTINUE) return TLV_ERR_VISITOR;
-        }
-        if (node->first) {
-            node = node->first;
-            ++depth;
-        } else {
-            while (node->parent && !node->next) {
-                node = node->parent;
-                --depth;
-            }
-            node = node->next;
-        }
-    }
-    return TLV_OK;
-}
-
-static tlv_visit_result_t first_path_match(tlv_node_t* node, void* context) {
-    *(tlv_node_t**)context = node;
-    return TLV_VISIT_STOP;
-}
-
-tlv_node_t* tlv_document_find_path(const tlv_document_t* document, const tlv_query_t* query) {
-    tlv_node_t* result = NULL;
-    (void)tlv_document_query_visit(document, query, first_path_match, &result);
-    return result;
+    return node ? find_in_siblings(node->next, document_node_tag(node)) : NULL;
 }
 
 /* ---- Reading a node -------------------------------------------------------------------- */
 
 tlv_tag_t tlv_node_tag(const tlv_node_t* node) {
-    return node ? node_tag(node) : tlv_tag(NULL, 0);
+    return node ? document_node_tag(node) : tlv_tag(NULL, 0);
 }
 
 int tlv_node_is_constructed(const tlv_node_t* node) {
@@ -592,7 +366,7 @@ tlv_result_t tlv_node_set_value(tlv_node_t* node, const uint8_t* value, size_t l
     if (!node->constructed) {
         uint8_t* copy = copy_bytes(document, value, length);
         if (length && !copy) return TLV_ERR_OUT_OF_MEMORY;
-        memory_release(document, node->value);
+        document_memory_release(document, node->value);
         node->value = copy;
         node->value_size = length;
         ++document->revision;
@@ -604,7 +378,7 @@ tlv_result_t tlv_node_set_value(tlv_node_t* node, const uint8_t* value, size_t l
     holder.document = document;
     old_count = subtree_size(node) - 1;
     document->count -= old_count;
-    rc = parse_list(document, &holder, value, length, node_depth(node) + 1, 0, NULL);
+    rc = document_parse_list(document, &holder, value, length, node_depth(node) + 1, 0, NULL);
     if (rc != TLV_OK) {
         discard_children(document, &holder);
         document->count += old_count;
@@ -626,7 +400,7 @@ tlv_result_t tlv_document_insert(tlv_document_t* document, tlv_node_t* parent,
                                  size_t length, tlv_node_t** node) {
     tlv_node_t holder;
     tlv_node_t* created = NULL;
-    size_t probe_size;
+    tlv_encoding_t probe_size;
     tlv_result_t rc;
     if (!document || (!value && length) || !tag_valid(tag)) return TLV_ERR_NULL_ARG;
     if (document->query_callbacks) return TLV_ERR_INVALID_ARG;
@@ -635,8 +409,12 @@ tlv_result_t tlv_document_insert(tlv_document_t* document, tlv_node_t* parent,
     if (before && (before->document != document || before->parent != parent))
         return TLV_ERR_INVALID_ARG;
     /* Let the writer format reject a tag it could not write. */
-    rc = tlv_encoded_size(tag, 0, document->options.format, &probe_size);
-    if (rc != TLV_OK) return rc;
+    if (tlv_format_can_write(document->options.format)) {
+        tlv_element_t probe = {tag, {NULL, 0}};
+        rc = tlv_format_measure(document->options.format, &probe, &probe_size, NULL);
+        if (rc == TLV_OK) rc = tlv_size_validate_native(probe_size.total);
+        if (rc != TLV_OK) return rc;
+    }
     memset(&holder, 0, sizeof holder);
     holder.document = document;
     rc = build_node(document, &holder, tag, value, length, parent ? node_depth(parent) + 1 : 0, 0,
@@ -662,186 +440,6 @@ void tlv_node_erase(tlv_node_t* node) {
     document->count -= subtree_size(node);
     free_subtree(node);
     ++document->revision;
-}
-
-/* ---- Encoding -------------------------------------------------------------------------- */
-
-/* Document supplies topology and semantic Values; Tree Writer owns scope closure,
- * measurement and wire emission. No byte counts are attached to Document nodes. */
-typedef struct document_source {
-    const tlv_node_t* next;
-    size_t depth;
-    int single;
-    int closing;
-} document_source_t;
-
-/* Materialized topology supplies explicit opens and closes, without byte parsing. */
-static tlv_result_t document_next(void* context, tlv_tree_event_t* event) {
-    document_source_t* source = (document_source_t*)context;
-    const tlv_node_t* node = source->next;
-    if (!node) return TLV_ERR_END_OF_BUFFER;
-    memset(event, 0, sizeof *event);
-    event->depth = source->depth;
-    if (source->closing) {
-        event->kind = TLV_TREE_END;
-    } else {
-        event->kind = node->constructed ? TLV_TREE_BEGIN : TLV_TREE_ELEMENT;
-        event->element = (tlv_element_t){node_tag(node), {node->value, node->value_size}};
-        if (node->constructed) {
-            if (node->first) {
-                source->next = node->first;
-                ++source->depth;
-            } else {
-                source->closing = 1;
-            }
-            return TLV_OK;
-        }
-    }
-    source->closing = 0;
-    if (!source->depth && source->single) {
-        source->next = NULL;
-    } else if (node->next) {
-        source->next = node->next;
-    } else if (source->depth) {
-        source->next = node->parent;
-        --source->depth;
-        source->closing = 1;
-    } else {
-        source->next = NULL;
-    }
-    return TLV_OK;
-}
-
-static tlv_result_t grow_workspace(const tlv_document_t* document, uint8_t** data, size_t* capacity,
-                                   size_t required) {
-    size_t grown;
-    uint8_t* replacement;
-    if (required <= *capacity) return TLV_OK;
-    grown = *capacity <= SIZE_MAX / 2 ? *capacity * 2 : required;
-    if (grown < 256) grown = 256;
-    if (grown < required) grown = required;
-    replacement = (uint8_t*)memory_allocate(document, grown);
-    if (!replacement) return TLV_ERR_OUT_OF_MEMORY;
-    memory_release(document, *data);
-    *data = replacement;
-    *capacity = grown;
-    return TLV_OK;
-}
-
-static void release_workspace(const tlv_document_t* document,
-                              tlv_tree_writer_workspace_t* workspace) {
-    memory_release(document, workspace->frames);
-    memory_release(document, workspace->data);
-    memory_release(document, workspace->scratch);
-}
-
-static tlv_result_t prepare_encoding(const tlv_document_t* document, const tlv_node_t* first,
-                                     int single, const tlv_format_t* format,
-                                     tlv_tree_writer_workspace_t* workspace, size_t* size) {
-    document_source_t source = {first, 0, single, 0};
-    tlv_tree_event_t event;
-    tlv_result_t rc;
-    if (!tlv_format_can_write(format)) return TLV_ERR_NULL_ARG;
-    /* Size only the structural stack here, never wire representations. */
-    while (document_next(&source, &event) == TLV_OK) {
-        if (event.kind == TLV_TREE_BEGIN) {
-            if (event.depth >= SIZE_MAX / sizeof *workspace->frames) return TLV_ERR_OUT_OF_MEMORY;
-            if (event.depth + 1 > workspace->frame_capacity)
-                workspace->frame_capacity = event.depth + 1;
-        }
-    }
-    if (workspace->frame_capacity) {
-        workspace->frames = (tlv_tree_writer_frame_t*)memory_allocate(
-            document, workspace->frame_capacity * sizeof *workspace->frames);
-        if (!workspace->frames) return TLV_ERR_OUT_OF_MEMORY;
-    }
-    for (;;) {
-        source = (document_source_t){first, 0, single, 0};
-        rc = tlv_tree_writer_measure_events(format, document_next, &source, workspace, SIZE_MAX,
-                                            SIZE_MAX, size, NULL);
-        if (rc != TLV_ERR_BUFFER_TOO_SHORT ||
-            (!workspace->required_data && !workspace->required_scratch))
-            return rc;
-        rc = grow_workspace(document, &workspace->data, &workspace->data_capacity,
-                            workspace->required_data);
-        if (rc != TLV_OK) return rc;
-        rc = grow_workspace(document, &workspace->scratch, &workspace->scratch_capacity,
-                            workspace->required_scratch);
-        if (rc != TLV_OK) return rc;
-    }
-}
-
-static tlv_result_t encoded_size_as(const tlv_document_t* document, const tlv_node_t* first,
-                                    int single, const tlv_format_t* format, size_t* size) {
-    tlv_tree_writer_workspace_t workspace = {0};
-    size_t total;
-    tlv_result_t rc = prepare_encoding(document, first, single, format, &workspace, &total);
-    release_workspace(document, &workspace);
-    if (rc == TLV_OK) *size = total;
-    return rc;
-}
-
-static tlv_result_t encode_as(const tlv_document_t* document, const tlv_node_t* first, int single,
-                              const tlv_format_t* format, uint8_t* data, size_t capacity,
-                              size_t* written) {
-    tlv_tree_writer_workspace_t workspace = {0};
-    tlv_writer_t writer;
-    size_t total;
-    tlv_result_t rc = prepare_encoding(document, first, single, format, &workspace, &total);
-    if (rc == TLV_OK && capacity < total) {
-        *written = total;
-        rc = TLV_ERR_BUFFER_TOO_SHORT;
-    } else if (rc == TLV_OK) {
-        rc = tlv_writer_init(&writer, data, capacity, format);
-        if (rc == TLV_OK) rc = tlv_writer_copy_encoded(&writer, workspace.data, total);
-        if (rc == TLV_OK) *written = tlv_writer_size(&writer);
-    }
-    release_workspace(document, &workspace);
-    return rc;
-}
-
-tlv_result_t tlv_document_encoded_size_as(const tlv_document_t* document,
-                                          const tlv_format_t* format, size_t* size) {
-    if (!document || !size) return TLV_ERR_NULL_ARG;
-    return encoded_size_as(document, document->first, 0, format, size);
-}
-
-tlv_result_t tlv_document_encoded_size(const tlv_document_t* document, size_t* size) {
-    return tlv_document_encoded_size_as(document, document ? document->options.format : NULL, size);
-}
-
-tlv_result_t tlv_document_encode_as(const tlv_document_t* document, const tlv_format_t* format,
-                                    uint8_t* data, size_t capacity, size_t* written) {
-    if (!document || !written || (!data && capacity)) return TLV_ERR_NULL_ARG;
-    return encode_as(document, document->first, 0, format, data, capacity, written);
-}
-
-tlv_result_t tlv_document_encode(const tlv_document_t* document, uint8_t* data, size_t capacity,
-                                 size_t* written) {
-    return tlv_document_encode_as(document, document ? document->options.format : NULL, data,
-                                  capacity, written);
-}
-
-tlv_result_t tlv_node_encoded_size_as(const tlv_node_t* node, const tlv_format_t* format,
-                                      size_t* size) {
-    if (!node || !size) return TLV_ERR_NULL_ARG;
-    return encoded_size_as(node->document, node, 1, format, size);
-}
-
-tlv_result_t tlv_node_encoded_size(const tlv_node_t* node, size_t* size) {
-    return tlv_node_encoded_size_as(node, node ? node->document->options.format : NULL, size);
-}
-
-tlv_result_t tlv_node_encode_as(const tlv_node_t* node, const tlv_format_t* format, uint8_t* data,
-                                size_t capacity, size_t* written) {
-    if (!node || !written || (!data && capacity)) return TLV_ERR_NULL_ARG;
-    return encode_as(node->document, node, 1, format, data, capacity, written);
-}
-
-tlv_result_t tlv_node_encode(const tlv_node_t* node, uint8_t* data, size_t capacity,
-                             size_t* written) {
-    return tlv_node_encode_as(node, node ? node->document->options.format : NULL, data, capacity,
-                              written);
 }
 
 const tlv_format_t* document_format(const tlv_document_t* document) {
@@ -897,6 +495,7 @@ int document_query_callback(tlv_document_t* document, int active) {
     return pending;
 }
 
+#if OPENTLV_QUERY && OPENTLV_READER && OPENTLV_WRITER
 tlv_result_t document_edit_targets(tlv_document_t* document, tlv_node_t** targets, size_t count,
                                    tlv_document_query_edit_kind_t kind, tlv_tag_t tag,
                                    const uint8_t* value, size_t size, size_t* applied) {
@@ -954,7 +553,7 @@ tlv_result_t document_edit_targets(tlv_document_t* document, tlv_node_t** target
         if (capacity > size) capacity = size;
         if (capacity > SIZE_MAX / sizeof(tlv_tree_frame_t)) return TLV_ERR_OVERFLOW;
         tlv_tree_frame_t* frames =
-            capacity ? memory_allocate(document, capacity * sizeof *frames) : NULL;
+            capacity ? document_memory_allocate(document, capacity * sizeof *frames) : NULL;
         if (capacity && !frames) return TLV_ERR_OUT_OF_MEMORY;
         tlv_tree_reader_t reader;
         tlv_result_t check =
@@ -968,7 +567,7 @@ tlv_result_t document_edit_targets(tlv_document_t* document, tlv_node_t** target
                 if (event.depth > relative_depth) relative_depth = event.depth;
             }
         }
-        memory_release(document, frames);
+        document_memory_release(document, frames);
         if (check != TLV_ERR_END_OF_BUFFER) return check;
     }
     size_t projected = document->count;
@@ -1008,6 +607,7 @@ tlv_result_t document_edit_targets(tlv_document_t* document, tlv_node_t** target
         if (rc != TLV_OK) break;
         ++*applied;
     }
-    memory_release(document, copy);
+    document_memory_release(document, copy);
     return rc;
 }
+#endif
