@@ -1492,7 +1492,7 @@ const char* opentlv_wasm_execution_operation(opentlv_wasm_execution_t* q, int op
     return query_reply(&q->reply);
 }
 opentlv_wasm_document_t* opentlv_wasm_document_new(opentlv_wasm_program_t* p, const uint8_t* data,
-                                                   size_t size) {
+                                                   size_t size, int retain_source_locations) {
     tlv_result_t             rc = TLV_ERR_UNSUPPORTED_TYPE;
     opentlv_wasm_document_t* doc = NULL;
 #if OPENTLV_DOCUMENT
@@ -1504,11 +1504,13 @@ opentlv_wasm_document_t* opentlv_wasm_document_new(opentlv_wasm_program_t* p, co
         ++p->references;
         tlv_document_options_t options;
         rc = tlv_document_options_init(&options, p->environment.format);
+        options.retain_source_locations = retain_source_locations;
         if (rc == TLV_OK) rc = tlv_document_parse(data, size, &options, &doc->document, NULL);
     }
 #else
     (void)data;
     (void)size;
+    (void)retain_source_locations;
 #endif
     query_status(&p->reply, rc, NULL);
     query_reply(&p->reply);

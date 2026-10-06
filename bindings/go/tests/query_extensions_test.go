@@ -229,6 +229,40 @@ func TestQueryDefinitionsFixedFormatsAndSourceFeeds(t *testing.T) {
 	}
 }
 
+func TestDocumentSourceLocationsSupportGlobalAxes(t *testing.T) {
+	format, err := tlv.Builtin(tlv.BER)
+	if err != nil {
+		t.Skip(err)
+	}
+	doc, err := tlv.ParseWithOptions([]byte{0x50, 0, 0x57, 1, 0xaa}, format,
+		tlv.DocumentOptions{MaxDepth: 4, MaxElements: 4, RetainSourceLocations: true})
+	if errors.Is(err, tlv.ErrUnsupportedType) {
+		t.Skip(err)
+	}
+	if err != nil {
+		t.Fatal(err)
+	}
+	defer doc.Close()
+	program, err := tlv.CompileQuery("//50/following::57[@offset=2 and @hlen=2]",
+		tlv.ProgramOptions{Format: format, Optimize: true})
+	if err != nil {
+		t.Fatal(err)
+	}
+	defer program.Close()
+	execution, err := program.Execution(tlv.DefaultQueryLimits(), true)
+	if err != nil {
+		t.Fatal(err)
+	}
+	defer execution.Close()
+	if err := execution.EvaluateDocument(doc, tlv.Node{}, -1); err != nil {
+		t.Fatal(err)
+	}
+	node, err := execution.NextDocument()
+	if err != nil || !node.Valid() {
+		t.Fatalf("missing located node: %v", err)
+	}
+}
+
 func TestQueryNativeEMVResolver(t *testing.T) {
 	format, err := tlv.Builtin(tlv.EMV)
 	if err != nil {

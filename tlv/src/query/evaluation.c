@@ -344,9 +344,16 @@ static void push_frame(tlv_query_exec_t* e, size_t index, uint32_t instruction, 
 static tlv_result_t eval_failure(tlv_query_exec_t* e, const eval_frame_t* f, tlv_result_t rc,
                                  tlv_query_diagnostic_t* d) {
     size_t selected = f->selected < e->elements ? f->selected : f->context;
-    if (d && selected < e->elements && eval_nodes(e)[selected].event.source.data) {
-        d->has_source_offset = 1;
-        d->source_offset = eval_nodes(e)[selected].event.offset;
+    if (d && selected < e->elements) {
+        const retained_node_t* node = &eval_nodes(e)[selected];
+        size_t offset;
+        tlv_result_t location = e->document_metadata
+                                    ? e->document_metadata(node->handle, 0, &offset)
+                                    : query_source_metadata(&node->event, 0, &offset);
+        if (location == TLV_OK) {
+            d->has_source_offset = 1;
+            d->source_offset = offset;
+        }
     }
     return rc;
 }
@@ -452,17 +459,20 @@ tlv_result_t query_retained_finish(tlv_query_exec_t* e, tlv_query_diagnostic_t* 
                     value = nodes[f->context].sibling;
                 else {
                     int header = (n->selector == TLV_QUERY_META_HLEN);
-                    if (!event->source.data ||
-                        (header && (!event->source.header.present ||
-                                    event->source.header.offset > event->source.size ||
-                                    event->source.header.size >
-                                        event->source.size - event->source.header.offset)))
+                    size_t metadata;
+                    tlv_result_t source_rc =
+                        e->document_metadata
+                            ? e->document_metadata(nodes[f->context].handle, header, &metadata)
+                            : query_source_metadata(event, header, &metadata);
+                    if (source_rc != TLV_OK)
                         return eval_failure(e, f,
-                                            query_error(d, TLV_ERR_INVALID_VALUE,
-                                                        TLV_QUERY_ERROR_SOURCE, n->begin, n->end,
-                                                        "Source metadata"),
+                                            query_error(d, source_rc,
+                                                        source_rc == TLV_ERR_INVALID_ARG
+                                                            ? TLV_QUERY_ERROR_EVENTS
+                                                            : TLV_QUERY_ERROR_SOURCE,
+                                                        n->begin, n->end, "Source metadata"),
                                             d);
-                    value = header ? event->source.header.size : event->offset;
+                    value = metadata;
                 }
                 if (value > INT64_MAX)
                     return eval_failure(e, f,

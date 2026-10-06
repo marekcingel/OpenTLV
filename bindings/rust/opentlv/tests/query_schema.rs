@@ -285,3 +285,29 @@ fn document_supports_reverse_axes_and_bounded_canonical_values() {
         Some("contextual Query assertion true")
     );
 }
+
+#[cfg(feature = "document")]
+#[test]
+fn document_source_locations_support_global_axes() {
+    let document = opentlv::Document::parse_with_source_locations(
+        &[0x50, 0, 0x57, 1, 0xaa],
+        Format::Ber,
+        4,
+        4,
+    )
+    .unwrap();
+    let schema = QuerySchema::new(
+        vec![rule(
+            "//50",
+            "count(following::57[@offset = 2 and @hlen = 2]) = 1",
+        )],
+        Format::Ber,
+    );
+    schema
+        .validate_document(&document, QuerySchemaLimits::default())
+        .unwrap();
+    let plain = opentlv::Document::parse(&[0x50, 0, 0x57, 1, 0xaa], Format::Ber, 4, 4).unwrap();
+    assert!(schema
+        .validate_document(&plain, QuerySchemaLimits::default())
+        .is_err());
+}

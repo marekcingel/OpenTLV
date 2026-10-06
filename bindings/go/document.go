@@ -23,7 +23,12 @@ type documentState struct {
 
 // DocumentOptions bounds native parsing and subsequent edits. Zero limits are
 // literal limits; Parse uses the C defaults instead.
-type DocumentOptions struct{ MaxDepth, MaxElements int }
+type DocumentOptions struct {
+	MaxDepth, MaxElements int
+	// RetainSourceLocations preserves original offsets/header lengths for Query.
+	// Edits invalidate affected nodes and ancestors; input bytes are not borrowed.
+	RetainSourceLocations bool
+}
 
 // Parse copies a complete input into an owned Document using C default limits.
 // Native failures return *ParseError; disabled support matches ErrUnsupportedType.
@@ -41,7 +46,7 @@ func parseDocument(data []byte, format Format, options DocumentOptions, defaults
 	if !format.Valid() {
 		return nil, StatusError{code: capi.InvalidArg}
 	}
-	native, code, diag := format.native.ParseDocument(data, options.MaxDepth, options.MaxElements, defaults)
+	native, code, diag := format.native.ParseDocument(data, options.MaxDepth, options.MaxElements, defaults, options.RetainSourceLocations)
 	if code != capi.OK {
 		return nil, parseError(code, diag, 0)
 	}

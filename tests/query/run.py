@@ -155,7 +155,7 @@ def main():
             assert v1_baseline(case["query"], wire) == expected, case["id"]
         if args.native:
             modes = [(mode, None) for mode in ("o", "u", "ro", "ru", "do", "du")]
-            if "@offset" in case["query"] or "@hlen" in case["query"] or "document" not in capabilities:
+            if "document" not in capabilities:
                 modes = [(mode, split) for mode, split in modes if 'd' not in mode]
             if case.get("generated"):
                 modes += [("o", split) for split in sorted({0, len(wire)//2, len(wire)})]

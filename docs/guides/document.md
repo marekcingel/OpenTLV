@@ -27,6 +27,41 @@ Borrowed C processing retains its allocation-free buffer/workspace contracts.
 Merely enabling Document does not allocate a tree. See
 [building only the components you need](select-components.md).
 
+## Original source locations
+
+Parsing and Document Builder can retain original element offsets and header
+lengths without retaining or borrowing the input buffer. Enable
+`tlv_document_options_t.retain_source_locations` before parsing/building, or
+`tlv::document_format::retain_source_locations` before `document::parse`.
+C++ builder factories also accept a final `retain_source_locations` boolean.
+The default is off, with no extra per-node location storage. When enabled,
+each node adds one `tlv_document_source_location_t` to its existing allocation.
+
+Read copied coordinates with `tlv_node_source_location(node)` or
+`node.source_location()` in C++. Presence flags distinguish unavailable metadata
+from a valid zero offset or empty header. A selected subtree keeps absolute
+Reader coordinates even though its Document depth starts at zero. Query uses
+these coordinates for `@offset` and `@hlen`, including `following`/`preceding`.
+
+Coordinates refer to the **original input**, not a later serialization:
+
+- Successful Value replacement clears the node's location and all ancestors'
+  locations. Replacement children have no original location.
+- Successful insertion or erasure clears ancestor locations. Inserted nodes,
+  including children parsed from an inserted Value, have no original location.
+- Unchanged siblings retain their original coordinates, even when edits shift
+  their encoded position. Failed edits leave locations unchanged.
+- Encoding does not refresh locations. Encode and parse again to obtain
+  coordinates in the new wire representation.
+
+The parse option is also exposed as Python `Document(...,
+retain_source_locations=True)`, Lua Document options `retain_source_locations`,
+Go `DocumentOptions.RetainSourceLocations`, and JavaScript Document options
+`retain_source_locations`. Rust offers `Document::parse_with_source_locations`
+and `Document::parse_fixed_with_source_locations`. These delegate to the same C
+contract; other binding builder entry points retain their default behavior.
+Unretained or invalidated properties produce Query SOURCE diagnostics.
+
 ## Formats
 
 A programmatic document accepts a Format without read/write callbacks. Wire

@@ -41,30 +41,29 @@ def main():
                 result = [match.offset for match in actual] if isinstance(actual, list) else scalar(actual)
                 assert result == expected, (case["id"], "Reader", result, expected)
                 checks += 1
-            if "@offset" not in case["query"] and "@hlen" not in case["query"]:
-                document = Document(wire)
-                execution = program.execution(max_work=100000000)
-                execution.evaluate_document(document)
-                if program.info["result_kind"]:
-                    result = scalar(execution.result())
-                else:
-                    # Source offsets belong to the fixture, not to native Nodes.
-                    # Map public checked handle identities to independent preorder.
-                    _, reference_nodes = tree(wire)
-                    offsets = {}
-                    stack = []
-                    node = document.first
-                    while node is not None:
-                        offsets[node.identity] = reference_nodes[len(offsets)]["offset"]
-                        if node.next is not None:
-                            stack.append(node.next)
-                        node = node.first_child
-                        if node is None and stack:
-                            node = stack.pop()
-                    result = [offsets[node.identity] for node in execution]
-                assert result == expected, (case["id"], "Document", result, expected)
-                checks += 1
-                document.close()
+            document = Document(wire, retain_source_locations=True)
+            execution = program.execution(max_work=100000000)
+            execution.evaluate_document(document)
+            if program.info["result_kind"]:
+                result = scalar(execution.result())
+            else:
+                # Source offsets belong to the fixture, not to native Nodes.
+                # Map public checked handle identities to independent preorder.
+                _, reference_nodes = tree(wire)
+                offsets = {}
+                stack = []
+                node = document.first
+                while node is not None:
+                    offsets[node.identity] = reference_nodes[len(offsets)]["offset"]
+                    if node.next is not None:
+                        stack.append(node.next)
+                    node = node.first_child
+                    if node is None and stack:
+                        node = stack.pop()
+                result = [offsets[node.identity] for node in execution]
+            assert result == expected, (case["id"], "Document", result, expected)
+            checks += 1
+            document.close()
     print(f"Python public Query facade: {len(cases)} common fixtures, {checks} optimized/backend checks passed")
 
 

@@ -38,7 +38,27 @@ void document_memory_release(const tlv_document_t* document, void* memory) {
 /* ---- Nodes ----------------------------------------------------------------------------- */
 
 static const uint8_t* node_tag_data(const tlv_node_t* node) {
-    return (const uint8_t*)(node + 1);
+    return (const uint8_t*)(node + 1) + (node->document->options.retain_source_locations
+                                             ? sizeof(tlv_document_source_location_t)
+                                             : 0);
+}
+
+tlv_document_source_location_t* document_node_location(tlv_node_t* node) {
+    return node && node->document->options.retain_source_locations
+               ? (tlv_document_source_location_t*)(node + 1)
+               : NULL;
+}
+
+tlv_document_source_location_t tlv_node_source_location(const tlv_node_t* node) {
+    tlv_document_source_location_t empty = {0};
+    if (!node || !node->document->options.retain_source_locations) return empty;
+    return *(const tlv_document_source_location_t*)(node + 1);
+}
+
+static void invalidate_locations(tlv_node_t* node) {
+    if (!node || !node->document->options.retain_source_locations) return;
+    for (; node; node = node->parent)
+        memset(document_node_location(node), 0, sizeof(tlv_document_source_location_t));
 }
 
 tlv_tag_t document_node_tag(const tlv_node_t* node) {
@@ -176,15 +196,18 @@ tlv_result_t document_create_node(tlv_document_t* document, tlv_node_t* parent, 
         document_set_offset(error_offset, element_offset);
         return TLV_ERR_LIMIT;
     }
-    if (tag.size > SIZE_MAX - sizeof *node) return TLV_ERR_OUT_OF_MEMORY;
+    size_t node_size =
+        sizeof *node +
+        (document->options.retain_source_locations ? sizeof(tlv_document_source_location_t) : 0);
+    if (tag.size > SIZE_MAX - node_size) return TLV_ERR_OUT_OF_MEMORY;
     if (document->next_identity == UINT64_MAX) return TLV_ERR_LIMIT;
-    node = (tlv_node_t*)document_memory_allocate(document, sizeof *node + tag.size);
+    node = (tlv_node_t*)document_memory_allocate(document, node_size + tag.size);
     if (!node) return TLV_ERR_OUT_OF_MEMORY;
-    memset(node, 0, sizeof *node);
+    memset(node, 0, node_size);
     node->document = document;
     node->identity = ++document->next_identity;
     node->tag_size = tag.size;
-    if (tag.size) memcpy(node + 1, tag.data, tag.size);
+    if (tag.size) memcpy((void*)node_tag_data(node), tag.data, tag.size);
     node->constructed = constructed;
     if (!node->constructed && length) {
         node->value = copy_bytes(document, value, length);
@@ -255,6 +278,7 @@ tlv_result_t tlv_document_options_init(tlv_document_options_t* options,
     options->max_depth = TLV_TREE_DEFAULT_DEPTH;
     options->max_elements = TLV_DOCUMENT_DEFAULT_MAX_ELEMENTS;
     options->allocator = NULL;
+    options->retain_source_locations = 0;
     return TLV_OK;
 }
 
@@ -369,6 +393,7 @@ tlv_result_t tlv_node_set_value(tlv_node_t* node, const uint8_t* value, size_t l
         document_memory_release(document, node->value);
         node->value = copy;
         node->value_size = length;
+        invalidate_locations(node);
         ++document->revision;
         return TLV_OK;
     }
@@ -391,6 +416,7 @@ tlv_result_t tlv_node_set_value(tlv_node_t* node, const uint8_t* value, size_t l
         tlv_node_t* child;
         for (child = node->first; child; child = child->next) child->parent = node;
     }
+    invalidate_locations(node);
     ++document->revision;
     return TLV_OK;
 }
@@ -422,6 +448,7 @@ tlv_result_t tlv_document_insert(tlv_document_t* document, tlv_node_t* parent,
     if (rc != TLV_OK) return rc;
     node_unlink(created);
     node_link(document, parent, (tlv_node_t*)before, created);
+    invalidate_locations(parent);
     ++document->revision;
     if (node) *node = created;
     return TLV_OK;
@@ -436,6 +463,7 @@ void tlv_node_erase(tlv_node_t* node) {
         if (!document->query_pending) document->query_pending = 1;
         return;
     }
+    invalidate_locations(node->parent);
     node_unlink(node);
     document->count -= subtree_size(node);
     free_subtree(node);

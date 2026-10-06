@@ -98,6 +98,10 @@ struct document_lifetime {
 
 class node_range;
 
+/** @brief Original input coordinates and presence flags; owns no input bytes.
+ * @see tlv_node_source_location for edit invalidation and coordinate semantics. */
+using document_source_location = tlv_document_source_location_t;
+
 /**
  * @brief A non-owning handle to one element of a #tlv::document.
  *
@@ -170,6 +174,12 @@ public:
     /** @brief Reports whether the element's value holds nested elements. */
     bool is_constructed() const {
         return tlv_node_is_constructed(c_node()) != 0;
+    }
+
+    /** @brief Copy optional original coordinates; unavailable for invalid or edited nodes.
+     * @return Location with explicit presence flags, independent of input lifetime. */
+    document_source_location source_location() const {
+        return tlv_node_source_location(c_node());
     }
 
     /**
@@ -475,6 +485,10 @@ struct document_format {
     /** Maximum number of elements, including nested ones. */
     size_t max_elements;
 
+    /** Retain original offsets/header lengths when parsing; false by default.
+     * Does not retain input bytes. See tlv_node_source_location for invalidation. */
+    bool retain_source_locations;
+
     /**
      * @brief Bundles the format with the default limits.
      *
@@ -482,7 +496,7 @@ struct document_format {
      */
     document_format(const tlv_format_t& fmt)
         : format(fmt), max_depth(TLV_TREE_DEFAULT_DEPTH),
-          max_elements(TLV_DOCUMENT_DEFAULT_MAX_ELEMENTS) {}
+          max_elements(TLV_DOCUMENT_DEFAULT_MAX_ELEMENTS), retain_source_locations(false) {}
 
     /**
      * @brief Copy a C++ Format's descriptor and apply default Document limits.
@@ -924,6 +938,7 @@ private:
         if (rc != TLV_OK) return unexpected<error>(error::from_c(rc));
         options.max_depth = format.max_depth;
         options.max_elements = format.max_elements;
+        options.retain_source_locations = format.retain_source_locations;
 
         tlv_document_t* raw = nullptr;
         if (data) {
@@ -1012,12 +1027,14 @@ public:
      * @param reader Borrowed initialized Tree Reader; invalidates subtree selection.
      * @param max_depth Maximum materialized depth.
      * @param max_elements Maximum materialized node count.
+     * @param retain_source_locations Copy original source coordinates without borrowing bytes.
      * @return Builder or the original C error; does not advance the reader.
      */
     TLV_NODISCARD static expected<document_builder, error>
     create(tree_reader& reader, size_t max_depth = TLV_TREE_DEFAULT_DEPTH,
-           size_t max_elements = TLV_DOCUMENT_DEFAULT_MAX_ELEMENTS) {
-        return create_impl(reader, nullptr, max_depth, max_elements);
+           size_t max_elements = TLV_DOCUMENT_DEFAULT_MAX_ELEMENTS,
+           bool   retain_source_locations = false) {
+        return create_impl(reader, nullptr, max_depth, max_elements, retain_source_locations);
     }
 
     /**
@@ -1025,6 +1042,7 @@ public:
      * @param reader Borrowed Tree Reader with a current subtree selection.
      * @param max_depth Maximum materialized depth relative to the selected root.
      * @param max_elements Maximum materialized node count.
+     * @param retain_source_locations Preserve absolute Reader coordinates of selected nodes.
      * @return Builder, INVALID_ARG if selection was invalidated, or original C error.
      * @note Root content is copied immediately without another pull. This attempt
      * consumes selection, even on failure. Pulls, skips, input replacement,
@@ -1032,10 +1050,11 @@ public:
      */
     TLV_NODISCARD static expected<document_builder, error>
     current_subtree(tree_reader& reader, size_t max_depth = TLV_TREE_DEFAULT_DEPTH,
-                    size_t max_elements = TLV_DOCUMENT_DEFAULT_MAX_ELEMENTS) {
+                    size_t max_elements = TLV_DOCUMENT_DEFAULT_MAX_ELEMENTS,
+                    bool   retain_source_locations = false) {
         if (!reader.has_current_) return unexpected<error>(error::from_c(TLV_ERR_INVALID_ARG));
         const tlv_tree_item_t root = reader.current_;
-        return create_impl(reader, &root, max_depth, max_elements);
+        return create_impl(reader, &root, max_depth, max_elements, retain_source_locations);
     }
 
     /**
@@ -1060,7 +1079,8 @@ public:
 private:
     static expected<document_builder, error> create_impl(tree_reader&           reader,
                                                          const tlv_tree_item_t* root,
-                                                         size_t max_depth, size_t max_elements) {
+                                                         size_t max_depth, size_t max_elements,
+                                                         bool retain_source_locations) {
         reader.has_current_ = false;
         if (reader.init_result_ != TLV_OK)
             return unexpected<error>(error::from_c(reader.init_result_));
@@ -1069,6 +1089,7 @@ private:
         if (rc != TLV_OK) return unexpected<error>(error::from_c(rc));
         options.max_depth = max_depth;
         options.max_elements = max_elements;
+        options.retain_source_locations = retain_source_locations;
         tlv_document_builder_t* raw = nullptr;
         rc = tlv_document_builder_create(&options, &reader.impl_, root, &raw);
         if (rc != TLV_OK) return unexpected<error>(error::from_c(rc));

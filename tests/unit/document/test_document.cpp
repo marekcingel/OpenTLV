@@ -48,7 +48,7 @@ TEST(Unit_Tlvpp_Document, SelectedBuilderUsesPublishedRootAndResumesReader) {
         auto item = reader.next();
         ASSERT_TRUE(item);
         if (!matcher.matches(item->element.tag(), item->depth)) continue;
-        auto builder = tlv::document_builder::current_subtree(reader);
+        auto builder = tlv::document_builder::current_subtree(reader, 64, 65536, true);
         ASSERT_TRUE(builder);
         auto moved = std::move(*builder);
         auto doc = moved.consume();
@@ -56,12 +56,35 @@ TEST(Unit_Tlvpp_Document, SelectedBuilderUsesPublishedRootAndResumesReader) {
         auto output = doc->encode();
         ASSERT_TRUE(output);
         EXPECT_EQ(make({0xA5, 4, 0x50, 2, 0x41, 0x42}), *output);
+        EXPECT_TRUE(doc->first().source_location().has_offset);
+        EXPECT_EQ(6u, doc->first().source_location().offset);
         EXPECT_FALSE(moved.consume());
         break;
     }
     auto sibling = reader.next();
     ASSERT_TRUE(sibling);
     EXPECT_EQ(12u, sibling->offset);
+}
+
+TEST(Unit_Tlvpp_Document, ParseRetainsSourceLocationsOnlyWhenRequested) {
+    auto config = format();
+    auto plain = tlv::document::parse(view(sample), config);
+    ASSERT_TRUE(plain);
+    EXPECT_FALSE(plain->first().source_location().has_offset);
+    config.retain_source_locations = true;
+    auto doc = tlv::document::parse(view(sample), config);
+    ASSERT_TRUE(doc);
+    auto root = doc->first();
+    EXPECT_TRUE(root.source_location().has_offset);
+    EXPECT_EQ(0u, root.source_location().offset);
+    EXPECT_EQ(2u, root.source_location().header_size);
+    auto child = root.first_child();
+    EXPECT_EQ(2u, child.source_location().offset);
+    ASSERT_TRUE(child.set({}));
+    EXPECT_FALSE(child.source_location().has_offset);
+    EXPECT_FALSE(root.source_location().has_offset);
+    EXPECT_EQ(12u, root.next().source_location().offset);
+    EXPECT_FALSE(tlv::node().source_location().has_offset);
 }
 
 TEST(Unit_Tlvpp_Document, SelectionInvalidatedByCursorAndBuilderOperations) {

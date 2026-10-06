@@ -47,6 +47,8 @@ pub struct tlv_document_options_t {
     pub max_elements: usize,
     /// Optional borrowed allocator descriptor.
     pub allocator: *const c_void,
+    /// Retain original parse coordinates without borrowing input bytes (default zero).
+    pub retain_source_locations: c_int,
 }
 extern "C" {
     pub fn tlv_document_builder_create(

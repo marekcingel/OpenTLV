@@ -125,11 +125,24 @@ struct tlv_query_exec {
     const void* document_owner;
     uint64_t document_revision;
     int (*document_current)(const void*, uint64_t);
+    tlv_result_t (*document_metadata)(const void*, int, size_t*);
     tlv_tree_event_t delayed;
     int delayed_selected, published_match;
     const tlv_query_environment_t* environment;
     tlv_query_result_t result;
 };
+/* Location availability is independent of borrowed Source bytes on Document.
+ * Reader events still validate the actual Source header envelope. */
+static inline tlv_result_t query_source_metadata(const tlv_tree_event_t* event, int header,
+                                                 size_t* value) {
+    if (!event->source.data || (header && !event->source.header.present))
+        return TLV_ERR_INVALID_VALUE;
+    if (header && (event->source.header.offset > event->source.size ||
+                   event->source.header.size > event->source.size - event->source.header.offset))
+        return TLV_ERR_INVALID_ARG;
+    *value = header ? event->source.header.size : event->offset;
+    return TLV_OK;
+}
 static inline const query_node_t* query_nodes(const tlv_query_program_t* p) {
     return (const query_node_t*)(p + 1);
 }

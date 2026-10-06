@@ -200,7 +200,7 @@ impl Document<'static> {
     /// Create an empty document with explicit depth and node limits.
     pub fn new(format: Format, max_depth: usize, max_elements: usize) -> DocResult<Self> {
         // SAFETY: builtin descriptor is static.
-        unsafe { Self::init(None, format.raw(), max_depth, max_elements) }
+        unsafe { Self::init(None, format.raw(), max_depth, max_elements, false) }
     }
     /// Copy and parse input through the C Document engine.
     pub fn parse(
@@ -210,7 +210,20 @@ impl Document<'static> {
         max_elements: usize,
     ) -> DocResult<Self> {
         // SAFETY: builtin descriptor is static; C copies all input.
-        unsafe { Self::init(Some(data), format.raw(), max_depth, max_elements) }
+        unsafe { Self::init(Some(data), format.raw(), max_depth, max_elements, false) }
+    }
+
+    /// Parse with original offsets/header lengths available to Document Query.
+    /// No input bytes are borrowed. Edits invalidate affected nodes and ancestors;
+    /// unaffected nodes keep their original input coordinates.
+    pub fn parse_with_source_locations(
+        data: &[u8],
+        format: Format,
+        max_depth: usize,
+        max_elements: usize,
+    ) -> DocResult<Self> {
+        // SAFETY: builtin descriptor is static; C copies all input and metadata.
+        unsafe { Self::init(Some(data), format.raw(), max_depth, max_elements, true) }
     }
 }
 
@@ -222,7 +235,7 @@ impl<'f> Document<'f> {
         max_elements: usize,
     ) -> DocResult<Self> {
         // SAFETY: signature retains descriptor and context for 'f.
-        unsafe { Self::init(None, format.raw(), max_depth, max_elements) }
+        unsafe { Self::init(None, format.raw(), max_depth, max_elements, false) }
     }
     /// Parse copied input while borrowing the Fixed descriptor and context.
     pub fn parse_fixed(
@@ -232,13 +245,26 @@ impl<'f> Document<'f> {
         max_elements: usize,
     ) -> DocResult<Self> {
         // SAFETY: signature retains descriptor and context for 'f.
-        unsafe { Self::init(Some(data), format.raw(), max_depth, max_elements) }
+        unsafe { Self::init(Some(data), format.raw(), max_depth, max_elements, false) }
+    }
+
+    /// Parse with original source coordinates, borrowing only the Fixed Format.
+    /// See `Document::parse_with_source_locations` for edit invalidation.
+    pub fn parse_fixed_with_source_locations(
+        data: &[u8],
+        format: &'f FixedFormat<'_>,
+        max_depth: usize,
+        max_elements: usize,
+    ) -> DocResult<Self> {
+        // SAFETY: signature retains the descriptor/context; C copies input metadata.
+        unsafe { Self::init(Some(data), format.raw(), max_depth, max_elements, true) }
     }
     unsafe fn init(
         data: Option<&[u8]>,
         format: *const native::tlv_format_t,
         max_depth: usize,
         max_elements: usize,
+        retain_source_locations: bool,
     ) -> DocResult<Self> {
         let mut options = MaybeUninit::uninit();
         // SAFETY: valid borrowed format and writable options.
@@ -247,6 +273,7 @@ impl<'f> Document<'f> {
         let mut options = unsafe { options.assume_init() };
         options.max_depth = max_depth;
         options.max_elements = max_elements;
+        options.retain_source_locations = i32::from(retain_source_locations);
         let mut raw = ptr::null_mut();
         let mut offset = usize::MAX;
         // SAFETY: C owns copied nodes; all temporary inputs remain live through the call.

@@ -121,7 +121,22 @@ typedef struct tlv_document_options {
     size_t max_elements;
     /** Allocator, or `NULL` to use the C library's `malloc()` and `free()`. */
     const tlv_allocator_t* allocator;
+    /** Retain original source locations during parse/build (default zero).
+     * Adds per-node storage, but never borrows input bytes. Inserted/replacement
+     * nodes have no location. Successful edits invalidate the edited node and
+     * its ancestors; unaffected nodes retain their original input coordinates. */
+    int retain_source_locations;
 } tlv_document_options_t;
+
+/** @brief Original input coordinates, independent of the input buffer's lifetime.
+ * These are not offsets in a future serialization. Zero is a valid offset or
+ * header size; consult the presence flags. No original bytes are retained. */
+typedef struct tlv_document_source_location {
+    size_t offset;       /**< Absolute element start in the original Reader input. */
+    size_t header_size;  /**< Original encoded header length. */
+    int has_offset;      /**< Nonzero when the original element offset is known. */
+    int has_header_size; /**< Nonzero when the original header length is known. */
+} tlv_document_source_location_t;
 
 /** @brief An owned mutable TLV document. Opaque; create with tlv_document_create() or
  * tlv_document_parse(). */
@@ -129,6 +144,16 @@ typedef struct tlv_document tlv_document_t;
 
 /** @brief One element of a document. Opaque; owned by its document. */
 typedef struct tlv_node tlv_node_t;
+
+/** @brief Read a copy of a node's optional original source location.
+ * @param node Live node, or NULL for an unavailable location.
+ * @return Coordinates with explicit presence flags; all zero when unavailable.
+ * @note Value replacement invalidates this node and its ancestors. Insert/erase
+ * invalidates ancestors only. Failed edits preserve locations. Replacement
+ * children and inserted nodes never acquire locations from mutation buffers.
+ * Unaffected siblings keep their original coordinates even if encoding shifts.
+ */
+TLV_API tlv_document_source_location_t tlv_node_source_location(const tlv_node_t* node);
 
 /** @brief Observe the whole-Document mutation revision; NULL returns zero.
  * @param document Live Document, borrowed for the call.
@@ -449,14 +474,16 @@ TLV_API tlv_result_t tlv_document_query_value_size(const tlv_document_t* documen
  * Output data/capacity are used only during discovery; evaluation writes directly
  * into values. Frames/scratch must be disjoint from values, Query and Document storage.
  * May be NULL when program info reports constructed_values_required == 0.
- * @param[out] diagnostic Optional error detail; Source locations are unavailable.
+ * @param[out] diagnostic Optional error detail, with retained source offset when available.
  * @return OK with finalized nodes/scalar; capacity, depth, candidate, work or original
  * Writer/Reader/evaluation errors. A foreign context or used execution is invalid.
  * @note No allocation. Uses public node navigation and the shared Query VM. Programs
  * that may inspect constructed Values encode the Document once; canonical Reader
  * decoding maps nodes to slices of that snapshot. Other programs skip encoding entirely.
  * Encoding follows current Document semantics, including edits. Historical wire
- * spellings and Source locations are not preserved. Work charges use visited events
+ * spellings are not preserved. `@offset` and `@hlen` use optional retained original
+ * locations; unavailable locations produce SOURCE diagnostics. They never refer to
+ * the canonical Value snapshot. Work charges use visited events
  * and actual byte extents, independently of spare buffer capacity. General Writer
  * encoding and Query evaluation may still be superlinear on deeply nested inputs.
  * Failure after execution begins is terminal until reset; no results have been emitted.

@@ -16,6 +16,7 @@ struct tlv_document_builder {
     size_t target_depth;
     size_t base;
     int subtree;
+    int retain_source_locations;
 };
 
 static tlv_result_t append_item(tlv_document_builder_t* builder, const tlv_tree_item_t* item,
@@ -33,6 +34,16 @@ static tlv_result_t append_item(tlv_document_builder_t* builder, const tlv_tree_
                                   builder->target_depth + depth, builder->base + item->offset,
                                   error_offset, &created);
     if (rc != TLV_OK) document_set_offset(error_offset, builder->base + item->offset);
+    if (rc == TLV_OK && builder->retain_source_locations && item->source.data) {
+        tlv_document_source_location_t* location = document_node_location(created);
+        location->offset = item->offset;
+        location->has_offset = 1;
+        if (item->source.header.present && item->source.header.offset <= item->source.size &&
+            item->source.header.size <= item->source.size - item->source.header.offset) {
+            location->header_size = item->source.header.size;
+            location->has_header_size = 1;
+        }
+    }
     if (rc == TLV_OK && item->constructed) builder->container = created;
     return rc;
 }
@@ -90,6 +101,9 @@ tlv_result_t document_parse_list(tlv_document_t* document, tlv_node_t* parent, c
     builder.container = parent;
     builder.target_depth = depth;
     builder.base = base;
+    /* Only initial top-level parsing imports provenance. Mutation buffers have
+     * no coordinates in the original Document input. */
+    builder.retain_source_locations = !parent && document->options.retain_source_locations;
     if (rc == TLV_OK) rc = consume_tree(&builder, error_offset, NULL);
     document_memory_release(document, frames);
     return rc;
@@ -139,6 +153,7 @@ tlv_result_t tlv_document_builder_create(const tlv_document_options_t* options,
     created->document = document;
     created->allocator = document->allocator;
     created->reader = reader;
+    created->retain_source_locations = options->retain_source_locations;
     if (root) {
         created->subtree = 1;
         created->subtree_done = !root->constructed || !root->element.value.size;

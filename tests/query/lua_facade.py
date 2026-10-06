@@ -87,8 +87,8 @@ for _, case in ipairs(cases) do
                     end
                 end
             end
-            if tlv.document and not case.query:find("@offset",1,true) and not case.query:find("@hlen",1,true) then
-                local doc=tlv.document(wire,tlv.formats.ber)
+            if tlv.document then
+                local doc=tlv.document(wire,tlv.formats.ber,{retain_source_locations=true})
                 local offsets,stack,index={}, {},1
                 local node=doc:first()
                 while node do

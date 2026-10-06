@@ -135,7 +135,7 @@ OPENTLV_WASM_API const char* opentlv_wasm_execution_operation(opentlv_wasm_execu
                                                               size_t);
 OPENTLV_WASM_API void        opentlv_wasm_execution_free(opentlv_wasm_execution_t*);
 OPENTLV_WASM_API opentlv_wasm_document_t* opentlv_wasm_document_new(opentlv_wasm_program_t*,
-                                                                    const uint8_t*, size_t);
+                                                                    const uint8_t*, size_t, int);
 OPENTLV_WASM_API void                     opentlv_wasm_document_free(opentlv_wasm_document_t*);
 OPENTLV_WASM_API const char*              opentlv_wasm_document_encode(opentlv_wasm_document_t*);
 OPENTLV_WASM_API const char* opentlv_wasm_execution_document(opentlv_wasm_execution_t*,

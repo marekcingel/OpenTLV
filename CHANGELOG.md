@@ -9,6 +9,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Fixed
 
+- Allow Document Query to use original `@offset` and `@hlen`, including with `following`/`preceding`, when optional source-location retention is enabled during parsing. Edits invalidate affected locations without retaining the input buffer. Native consumers must rebuild for the extended Document options. (#531)
 - Fix GCC Query builds with warnings treated as errors and report compiler diagnostics when the constexpr CMake check fails. (#530, #534)
 - Invalidate Query execution when event feeding rejects a Document-only program, so later feed and finish calls require reset. Retain the CI fuzz reproducer as a regression seed. (#523)
 - Escape literal plus signs in Query hardening workflow path filters so GitHub Actions accepts C++ changes for pull requests and pushes. (#523)

@@ -123,8 +123,11 @@ int main(void) {
         CHECK(tlv_document_count(document) == 1);
         tlv_document_free(document);
 #if OPENTLV_READER
+        options.retain_source_locations = 1;
         CHECK(tlv_document_parse(wire, sizeof wire, &options, &document, NULL) == TLV_OK);
         CHECK(tlv_document_count(document) == 1);
+        CHECK(tlv_node_source_location(tlv_document_first(document)).has_offset);
+        CHECK(tlv_node_source_location(tlv_document_first(document)).header_size == 2);
         tlv_document_free(document);
 #endif
         /* Programmatic trees need neither a decoder nor an encoder. */
@@ -132,9 +135,11 @@ int main(void) {
         format.measure = NULL;
         format.encode = NULL;
         CHECK(tlv_document_options_init(&options, &format) == TLV_OK);
+        options.retain_source_locations = 1;
         CHECK(tlv_document_create(&options, &document) == TLV_OK);
         CHECK(tlv_document_insert(document, NULL, NULL, tlv_tag(wire, 1), wire + 2, 1, &child) ==
               TLV_OK);
+        CHECK(!tlv_node_source_location(child).has_offset);
         tlv_document_free(document);
     }
 #endif

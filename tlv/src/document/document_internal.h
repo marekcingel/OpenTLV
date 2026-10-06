@@ -3,7 +3,7 @@
 #ifndef OPENTLV_DOCUMENT_INTERNAL_H
 #define OPENTLV_DOCUMENT_INTERNAL_H
 #include "tlv/document/document.h"
-/* The tag bytes are stored directly after this structure in the same allocation. */
+/* Optional source location, then tag bytes, follow in the same allocation. */
 struct tlv_node {
     uint64_t identity;
     tlv_document_t* document;
@@ -34,6 +34,7 @@ struct tlv_document {
 void* document_memory_allocate(const tlv_document_t* document, size_t size);
 void document_memory_release(const tlv_document_t* document, void* memory);
 tlv_tag_t document_node_tag(const tlv_node_t* node);
+tlv_document_source_location_t* document_node_location(tlv_node_t* node);
 void document_set_offset(size_t* out, size_t offset);
 tlv_result_t document_create_node(tlv_document_t* document, tlv_node_t* parent, tlv_tag_t tag,
                                   const uint8_t* value, size_t length, int constructed,

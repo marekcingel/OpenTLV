@@ -21,7 +21,7 @@ type Document struct{ ptr *C.go_document }
 type Node struct{ ptr unsafe.Pointer }
 
 // ParseDocument copies input into the canonical native Document.
-func (f Format) ParseDocument(data []byte, depth, elements int, defaults bool) (*Document, Code, Diagnostic) {
+func (f Format) ParseDocument(data []byte, depth, elements int, defaults, retainSourceLocations bool) (*Document, Code, Diagnostic) {
 	if depth < 0 || elements < 0 {
 		return nil, InvalidArg, Diagnostic{Code: InvalidArg}
 	}
@@ -31,7 +31,11 @@ func (f Format) ParseDocument(data []byte, depth, elements int, defaults bool) (
 	if defaults {
 		def = 1
 	}
-	p := C.go_document_parse(f.config, bytePointer(data), C.size_t(len(data)), C.size_t(depth), C.size_t(elements), def, &code, &diag)
+	var retain C.int
+	if retainSourceLocations {
+		retain = 1
+	}
+	p := C.go_document_parse(f.config, bytePointer(data), C.size_t(len(data)), C.size_t(depth), C.size_t(elements), def, retain, &code, &diag)
 	defer runtime.KeepAlive(data)
 	if Code(code) != OK {
 		return nil, Code(code), readerDiagnostic(diag, Code(code))

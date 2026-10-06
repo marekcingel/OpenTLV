@@ -115,8 +115,8 @@ go_read_result  go_read(go_format config, const uint8_t* data, size_t size, int 
 go_write_result go_write(go_format config, uint8_t* data, size_t capacity, const uint8_t* tag,
                          size_t tag_size, const uint8_t* value, size_t value_size, int measure);
 go_document*    go_document_parse(go_format config, const uint8_t* data, size_t size, size_t depth,
-                                  size_t elements, int defaults, int* code,
-                                  tlv_reader_diagnostic_t* diagnostic);
+                                  size_t elements, int defaults, int retain_source_locations,
+                                  int* code, tlv_reader_diagnostic_t* diagnostic);
 void            go_document_free(go_document* document);
 void*           go_document_node(go_document* document, void* node, int operation);
 go_read_result  go_document_read(void* node);
