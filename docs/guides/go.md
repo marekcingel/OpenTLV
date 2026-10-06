@@ -120,6 +120,22 @@ Runnable version: [document/main.go](../../bindings/go/examples/document/main.go
 
 ## Query and typed Values
 
+Compiled expressions use `CompileQuery(text, ProgramOptions)` and immutable
+`QueryProgram` owners. `LoadQuery` validates same-release images using the
+original compile options; `Info`, `Variables`, `Format`, `Explain` and `Image`
+expose native metadata. Compile-time declarations use `QueryType`; runtime
+values use `QueryValue` and `Bind` rather than text interpolation.
+
+`Execution(limits, retained)` creates independent bounded execution state.
+`SetInput(data, discard, final)`, `Next`, `Visit`, `Exists`, `Context`, `Pruning`
+and `Reset` preserve canonical continuation and validation behavior.
+`EvaluateDocument` and `NextDocument` return checked Nodes; `Result` exposes
+scalars. Input and match bytes are copied and retained as required. Callback
+panics invalidate an execution until reset; reentrant operations are rejected.
+Call `Close` for deterministic cleanup. `ProgramError` retains Query diagnostics.
+See [consumer tests](../../bindings/go/tests/program_test.go); arbitrary Query
+providers and schema-aware Query edits remain absent.
+
 `doc.Query("6F/A5/50")` delegates path parsing and matching to C and returns all
 matching Nodes in document order. Exact hexadecimal tags and direct-child `/`
 steps are supported; wildcards, predicates and `//` are rejected. No matches

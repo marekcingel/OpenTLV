@@ -157,7 +157,10 @@ func TestCompiledCallbackPanicAndPartialCoverage(t *testing.T) {
 }
 
 func TestCompiledDocumentRevisionAndClose(t *testing.T) {
-	f, _ := tlv.Builtin(tlv.BER)
+	f, err := tlv.Builtin(tlv.BER)
+	if err != nil {
+		t.Skip("BER disabled")
+	}
 	d := document(t, []byte{0x70, 6, 0x5a, 1, 1, 0x5a, 1, 2}, f)
 	q := execution(t, compiled(t, "//5A/preceding-sibling::*", nil), true)
 	if err := q.EvaluateDocument(d, tlv.Node{}, -1); err != nil {

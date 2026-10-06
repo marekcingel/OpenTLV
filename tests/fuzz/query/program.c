@@ -40,9 +40,13 @@ int LLVMFuzzerTestOneInput(const uint8_t* data, size_t size) {
                                     &validated, NULL, &diagnostic);
         if (rc != TLV_OK || validated != (const tlv_query_program_t*)program) abort();
     }
+    tlv_query_program_info_t canonical_info = {0};
+    canonical_info.struct_size = sizeof canonical_info;
     rc = tlv_query_compile(text, required - 1, &options, scratch, sizeof scratch, copy, sizeof copy,
-                           &info, &diagnostic);
+                           &canonical_info, &diagnostic);
     if (rc != TLV_OK) abort();
+    if (canonical_info.level != info.level || canonical_info.result_kind != info.result_kind)
+        abort();
     tlv_query_exec_t* exec;
     if (info.level != TLV_QUERY_S0) {
         void* aligned = (void*)(((uintptr_t)workspace + 15) & ~(uintptr_t)15);

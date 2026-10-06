@@ -54,6 +54,44 @@ extern "C" {
 /* Opaque parse result; release it with opentlv_wasm_result_free(). */
 typedef struct opentlv_wasm_result opentlv_wasm_result_t;
 
+/* Owning Query facade handles. Programs and executions have independent
+ * reference-counted lifetimes; all processing delegates to the C Query engine.
+ * Returned JSON strings borrow the handle until its next operation. */
+typedef struct opentlv_wasm_program      opentlv_wasm_program_t;
+typedef struct opentlv_wasm_execution    opentlv_wasm_execution_t;
+typedef struct opentlv_wasm_document     opentlv_wasm_document_t;
+OPENTLV_WASM_API opentlv_wasm_program_t* opentlv_wasm_program_new(const char* format);
+OPENTLV_WASM_API int opentlv_wasm_program_variable(opentlv_wasm_program_t*, const char*, int);
+OPENTLV_WASM_API int opentlv_wasm_program_name(opentlv_wasm_program_t*, const char*, const uint8_t*,
+                                               size_t);
+OPENTLV_WASM_API int opentlv_wasm_program_option(opentlv_wasm_program_t*, int, size_t);
+OPENTLV_WASM_API const char* opentlv_wasm_program_compile(opentlv_wasm_program_t*, const uint8_t*,
+                                                          size_t, int);
+OPENTLV_WASM_API const char* opentlv_wasm_program_render(opentlv_wasm_program_t*, int);
+OPENTLV_WASM_API const uint8_t*            opentlv_wasm_program_image(opentlv_wasm_program_t*);
+OPENTLV_WASM_API size_t                    opentlv_wasm_program_image_size(opentlv_wasm_program_t*);
+OPENTLV_WASM_API void                      opentlv_wasm_program_free(opentlv_wasm_program_t*);
+OPENTLV_WASM_API opentlv_wasm_execution_t* opentlv_wasm_execution_new(opentlv_wasm_program_t*,
+                                                                      size_t, size_t, size_t, int);
+OPENTLV_WASM_API const char* opentlv_wasm_execution_input(opentlv_wasm_execution_t*, const uint8_t*,
+                                                          size_t, size_t, int);
+OPENTLV_WASM_API const char* opentlv_wasm_execution_bind(opentlv_wasm_execution_t*, const char*,
+                                                         int, const char*, const uint8_t*, size_t);
+/* Operations: 0 reset, 1 pull, 2 scalar, 3 status, 4 exists, 5 context,
+ * 6 pruning, 7 finish. */
+OPENTLV_WASM_API const char* opentlv_wasm_execution_operation(opentlv_wasm_execution_t*, int,
+                                                              size_t);
+OPENTLV_WASM_API void        opentlv_wasm_execution_free(opentlv_wasm_execution_t*);
+OPENTLV_WASM_API opentlv_wasm_document_t* opentlv_wasm_document_new(opentlv_wasm_program_t*,
+                                                                    const uint8_t*, size_t);
+OPENTLV_WASM_API void                     opentlv_wasm_document_free(opentlv_wasm_document_t*);
+OPENTLV_WASM_API const char* opentlv_wasm_execution_document(opentlv_wasm_execution_t*,
+                                                             opentlv_wasm_document_t*, size_t);
+/* Native node address is an internal token, checked against an immutable
+ * identity before navigation or mutation. JS never dereferences it. */
+OPENTLV_WASM_API const char* opentlv_wasm_document_node(opentlv_wasm_document_t*, size_t,
+                                                        const char*, int, const uint8_t*, size_t);
+
 /*
  * Parses `size` bytes as `format` ("fixed", "bluetooth-ltv", "bluetooth-ad", "lldp", "nfc-type2",
  * "ber", "der" or "cer"). `module` annotates elements with dictionary metadata: NULL, "" or "none"

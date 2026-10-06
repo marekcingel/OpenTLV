@@ -32,7 +32,7 @@ jobs:
           python3 tests/query/test_minimize.py
           python3 scripts/check_query_contracts.py --clang clang-18 --generated build/generated/include --output build/query-contracts.json
           python3 scripts/check_query_release.py --output build/query-release.json
-      - run: cmake --build build --target test-unit-tlv test-unit-tlvpp test-query-conformance --parallel 2
+      - run: cmake --build build --target test-unit-tlv test-unit-tlvpp test-query-conformance test-query-cxx-conformance test-query-abi --parallel 2
       - name: Audit production archive symbols and emitted call dependencies
         run: python3 scripts/check_query_objects.py --archive build/tlv/libtlv.a --output build/query-object-contracts.json
       - name: Sanitized conformance, work limits and corruption regressions
@@ -51,6 +51,32 @@ jobs:
             build/query-object-contracts.json
             build/query-release.json
             build/query-evidence/
+            build/Testing/Temporary/LastTest.log
+  boundaries32:
+    runs-on: ubuntu-24.04
+    steps:
+      - uses: actions/checkout@v5
+      - run: sudo apt-get update && sudo apt-get install -y clang-18 g++-multilib ninja-build
+      - name: Configure native x86 resource and ABI contracts
+        run: >-
+          cmake -S . -B build -G Ninja
+          -DCMAKE_C_COMPILER=clang-18 -DCMAKE_CXX_COMPILER=clang++-18
+          -DCMAKE_BUILD_TYPE=Debug -DCMAKE_C_FLAGS=-m32 -DCMAKE_CXX_FLAGS=-m32
+          -DCMAKE_EXE_LINKER_FLAGS=-m32 -DOPENTLV_BUILD_SHARED_LIBS=OFF
+          -DCMAKE_CXX_STANDARD=11 -DCMAKE_CXX_STANDARD_REQUIRED=ON -DCMAKE_CXX_EXTENSIONS=OFF
+          -DOPENTLV_BUILD_TESTS=ON -DOPENTLV_BUILD_INTEGRATION_TESTS=OFF
+          -DOPENTLV_BUILD_EXAMPLES=OFF -DOPENTLV_BUILD_CLI=OFF -DOPENTLV_BUILD_CLI_TESTS=OFF
+      - run: cmake --build build --target test-unit-tlv test-unit-tlvpp test-query-conformance test-query-cxx-conformance test-query-abi --parallel 2
+      - name: Run exact and one-short capacities, operation budgets and x86 corpus
+        run: |
+          ctest --test-dir build -R 'Query|query' --output-on-failure --no-tests=error
+          python3 tests/query/check_abi.py --native build/tests/query/test-query-abi --output build/query-abi32.json
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: query-boundaries-x86-${{ github.sha }}
+          path: |
+            build/query-abi32.json
             build/Testing/Temporary/LastTest.log
   memory:
     runs-on: ubuntu-24.04
@@ -74,11 +100,11 @@ jobs:
           clang-18 -std=c99 -DTLV_STATIC_DEFINE -I tlv/include -I build/msan/generated/include \
             -fsanitize=memory -fsanitize-memory-track-origins=2 -fno-omit-frame-pointer -fPIE -pie \
             build/query-memory-driver.c build/msan/tlv/libtlv.a -lm -o build/query-memory-driver
-          build/query-memory-driver > build/query-msan-output.log 2> build/query-msan.log
+          python3 tests/query/memory_campaign.py --native build/query-memory-driver --output build/query-memory-evidence
       - uses: actions/upload-artifact@v4
         if: always()
         with:
           name: query-memory-${{ github.sha }}
           path: |
             build/query-memory-driver.c
-            build/query-msan*.log
+            build/query-memory-evidence/

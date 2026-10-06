@@ -9,6 +9,9 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Fixed
 
+- Preserve separated path tokens when formatting compiled Query programs, reject aliased image-loading storage before writes, and reject invalid benchmark measurements in Query release budgets. (#523)
+- Initialize Lua Query execution information correctly, keep Go Query tests compatible with disabled BER, and restore strict Clang Query builds. (#523)
+- Enable ASN.1 tag and date capabilities for compiled CLI Query expressions using BER, DER and CER. (#523)
 - Keep tag-mask and tag-range predicates consistent across Query backends by reporting their required S2 storage. (#523)
 - Validate the actual inserted Value length during Document Query edit preflight, before allocation or mutation. (#529, #522)
 - Preserve completed Query cursors on short edit target storage, prevalidate Document Query edits before mutation, and apply callback erase/free requests after the outermost visit instead of dropping them. (#522)
@@ -131,6 +134,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Added
 
+- Add an owning JavaScript/WASM compiled Query and checked Document facade, public-facade corpus checks, native x86/WASM ABI snapshots, and bounded sanitizer campaigns with retained failure artifacts. (#523)
 - Add bounded read-only Query image loading with explicit validation scratch, C++ external-image and streaming coverage APIs, corruption fuzzing, seeded differential properties with minimized reproducers, and Query release-evidence inventory checks. (#523)
 - Add C++ full Query programs and independent executions with owned or caller-owned storage, typed expression composition and variable bindings, resumable Tree callbacks/pulls and checked Document selection. (#522)
 - Add completed-selection Document remove, replace and insert-after operations, with explicit overlap, capacity and partial-failure contracts. (#522)

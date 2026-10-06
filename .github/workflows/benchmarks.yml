@@ -64,7 +64,7 @@ jobs:
       - name: Record Query phase measurements (advisory on shared runners)
         run: >-
           build/benchmarks/benchmark-tlv
-          --benchmark_filter='query_phase/[0-7]/(16|256)/[01]$|query_v1_matcher|query_v1_stream|query_s0_stream'
+          --benchmark_filter='query_phase/[0-7]/(16|256)/[01]$|query_v1_matcher|query_v1_stream|query_s0_stream|query_scaling'
           --benchmark_min_time=0.05s --benchmark_repetitions=5
           --benchmark_report_aggregates_only=true
           --benchmark_out=build/query-benchmarks.json --benchmark_out_format=json

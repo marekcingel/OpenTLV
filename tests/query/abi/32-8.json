@@ -1,0 +1,90 @@
+{
+  "version": 1,
+  "pointer_bits": 32,
+  "types": {
+    "tlv_query_t": {
+      "size": 648,
+      "alignment": 8
+    },
+    "tlv_query_matcher_t": {
+      "size": 16,
+      "alignment": 4
+    },
+    "tlv_query_program_info_t": {
+      "size": 88,
+      "alignment": 4,
+      "struct_size": 0,
+      "program_size": 4,
+      "program_alignment": 8,
+      "scratch_size": 12,
+      "scratch_alignment": 16,
+      "states": 20,
+      "language_version": 24,
+      "level": 28,
+      "result_kind": 32,
+      "expression_values": 36,
+      "instructions": 40,
+      "variable_slots": 44,
+      "codec_scratch": 48,
+      "pattern_bytes": 52,
+      "optimized_states": 56,
+      "expression_stack": 60,
+      "candidate_size": 64,
+      "candidate_alignment": 68,
+      "frame_states": 72,
+      "decision_timing": 76,
+      "stable_input_required": 80,
+      "constructed_values_required": 84
+    },
+    "tlv_query_exec_info_t": {
+      "size": 28,
+      "alignment": 4,
+      "struct_size": 0,
+      "elements": 4,
+      "work": 8,
+      "skipped_subtrees": 12,
+      "finished": 16,
+      "full_validation": 20,
+      "invalid": 24
+    },
+    "tlv_query_diagnostic_t": {
+      "size": 168,
+      "alignment": 8,
+      "kind": 0,
+      "begin": 4,
+      "end": 8,
+      "reader": 32
+    },
+    "tlv_query_result_t": {
+      "size": 20,
+      "alignment": 8,
+      "kind": 0,
+      "boolean": 4,
+      "integer": 8,
+      "data": 16
+    },
+    "tlv_query_compile_options_t": {
+      "size": 56,
+      "alignment": 4,
+      "struct_size": 0,
+      "environment": 40,
+      "optimize": 52
+    },
+    "tlv_query_environment_t": {
+      "size": 16,
+      "alignment": 4
+    },
+    "tlv_query_hook_t": {
+      "size": 24,
+      "alignment": 4
+    },
+    "tlv_query_variable_t": {
+      "size": 8,
+      "alignment": 4
+    },
+    "tlv_query_variable_info_t": {
+      "size": 12,
+      "alignment": 4
+    }
+  }
+}

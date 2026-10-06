@@ -161,7 +161,11 @@ static tlv_result_t lex(const char* text, size_t size, size_t limit, query_token
         }
         if (formatted_size) {
             if (used &&
-                (format_operator(kind) || format_operator(previous) || previous == T_COMMA)) {
+                (format_operator(kind) || format_operator(previous) || previous == T_COMMA ||
+                 ((previous == T_SLASH || previous == T_DESC) &&
+                  (kind == T_SLASH || kind == T_DESC)) ||
+                 ((previous == T_DOT || previous == T_DDOT) &&
+                  (kind == T_DOT || kind == T_DDOT)))) {
                 if (emitted == SIZE_MAX) return TLV_ERR_OVERFLOW;
                 if (formatted) formatted[emitted] = ' ';
                 ++emitted;
@@ -1023,8 +1027,16 @@ tlv_result_t tlv_query_compile(const char* text, size_t size,
 
 /* Never dereference untrusted nodes: only the fixed header and bounded text
    are consumed until canonical reconstruction has authenticated every field. */
+static int image_overlap(const void* a, size_t an, const void* b, size_t bn) {
+    if (!a || !b || !an || !bn) return 0;
+    uintptr_t x = (uintptr_t)a, y = (uintptr_t)b;
+    return x <= y ? y - x < an : x - y < bn;
+}
+
 static tlv_result_t image_header(const void* image, size_t size, tlv_query_program_t* header,
                                  tlv_query_diagnostic_t* diagnostic) {
+    if (image_overlap(image, size, diagnostic, diagnostic ? sizeof *diagnostic : 0))
+        return TLV_ERR_INVALID_ARG;
     query_diag_init(diagnostic);
     if (!image) return TLV_ERR_NULL_ARG;
     if (size < sizeof *header)
@@ -1051,6 +1063,9 @@ tlv_result_t tlv_query_program_load_scratch(const void* image, size_t size,
                                             size_t* bytes, size_t* alignment,
                                             tlv_query_diagnostic_t* diagnostic) {
     if (!bytes || !alignment) return TLV_ERR_NULL_ARG;
+    if (image_overlap(image, size, bytes, sizeof *bytes) ||
+        image_overlap(image, size, alignment, sizeof *alignment))
+        return TLV_ERR_INVALID_ARG;
     tlv_query_program_t header;
     tlv_result_t rc = image_header(image, size, &header, diagnostic);
     if (rc != TLV_OK) return rc;
@@ -1072,6 +1087,14 @@ tlv_result_t tlv_query_program_load(const void* image, size_t size,
                                     tlv_query_program_info_t* output_info,
                                     tlv_query_diagnostic_t* diagnostic) {
     if (!scratch || !program) return TLV_ERR_NULL_ARG;
+    if (image_overlap(image, size, scratch, capacity) ||
+        image_overlap(image, size, program, sizeof *program) ||
+        image_overlap(image, size, output_info, output_info ? sizeof *output_info : 0) ||
+        image_overlap(scratch, capacity, program, sizeof *program) ||
+        image_overlap(scratch, capacity, output_info, output_info ? sizeof *output_info : 0) ||
+        image_overlap(scratch, capacity, diagnostic, diagnostic ? sizeof *diagnostic : 0) ||
+        image_overlap(scratch, capacity, options, options ? sizeof *options : 0))
+        return TLV_ERR_INVALID_ARG;
     if (output_info &&
         output_info->struct_size < offsetof(tlv_query_program_info_t, expression_values))
         return TLV_ERR_INVALID_ARG;

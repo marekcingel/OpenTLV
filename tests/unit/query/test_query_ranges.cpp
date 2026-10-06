@@ -14,6 +14,7 @@
 #include <gtest/gtest.h>
 #include <vector>
 #include <cstdlib>
+#include <cstring>
 
 namespace {
 int constructed(const void*, const tlv_tag_t* tag) {

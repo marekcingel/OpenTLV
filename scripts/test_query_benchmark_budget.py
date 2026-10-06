@@ -5,6 +5,16 @@ from query_benchmark_budget import compare
 
 
 class Budget(unittest.TestCase):
+    def test_invalid_measurements_cannot_pass(self):
+        stable = ({"query_platform": "test"}, {"query_compile": 100}, {"query_compile": .01})
+        for value in (float("nan"), float("inf"), -1, 0):
+            bad = ({"query_platform": "test"}, {"query_compile": value}, {"query_compile": .01})
+            self.assertEqual(compare(stable, bad)[0]["status"], "invalid")
+            self.assertEqual(compare(bad, stable)[0]["status"], "invalid")
+        for value in (float("nan"), float("inf"), -1):
+            bad = ({"query_platform": "test"}, {"query_compile": 100}, {"query_compile": value})
+            self.assertEqual(compare(stable, bad)[0]["status"], "invalid")
+
     def test_platform_and_noise_are_not_success(self):
         stable = ({"query_platform": "test"}, {"query_compile": 100}, {"query_compile": .01})
         for other, expected in [(({}, {"query_compile": 100}, {}), "platform-unverified"),

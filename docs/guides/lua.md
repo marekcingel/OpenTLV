@@ -558,6 +558,23 @@ Writer contract: framing can be normalized, and incompatible destination
 formats can reject the tree. Lua does not implement a separate DOM or mutation
 engine.
 
+## Compiled Query
+
+`opentlv.query_program(text, format, options)` owns an immutable C program;
+`query_program_load(image, format, options)` validates a same-release image.
+Options include typed `variables`, named Tag maps and explicit compile limits.
+Programs expose `info()`, `variables()`, `format()`, `explain()` and `image()`.
+
+`program:execution(options)` owns independent bounded state. `bind(name, type,
+value)`, `set_input(bytes, discard, final)`, `next()`, `visit(callback)`,
+`exists(early)`, `info()` and `reset()` delegate to C. Use
+`evaluate_document(document)` for checked Nodes and `result()` for scalars.
+Lua strings and match snapshots own copied bytes. Callback errors invalidate
+the execution until reset, and reentrant calls are rejected. `close()` releases
+native owners deterministically. Native failures raise tables with `code` and
+Query diagnostic detail. See [consumer tests](../../bindings/lua/tests/program_spec.lua).
+Arbitrary Query providers and schema-aware Query edits remain unavailable.
+
 ## Next step
 
 Use [the basic model](../concepts/learning-model.md) to choose borrowed processing

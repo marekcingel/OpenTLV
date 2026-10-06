@@ -1,8 +1,9 @@
 cmake_minimum_required(VERSION 3.16)
 
-project(tests)
+project(tests LANGUAGES C)
 
 if(OPENTLV_BUILD_UNIT_TESTS OR OPENTLV_BUILD_INTEGRATION_TESTS)
+    enable_language(CXX)
     include(tag_layout_checks.cmake)
     include(fixed_format_checks.cmake)
     include(custom_format_checks.cmake)

@@ -37,6 +37,8 @@ target_link_options(opentlv-wasm PRIVATE
 add_custom_command(TARGET opentlv-wasm POST_BUILD
     COMMAND ${CMAKE_COMMAND} -E copy_if_different
         "${CMAKE_CURRENT_SOURCE_DIR}/js/opentlv.mjs" "${_wasm_output_dir}/opentlv.mjs"
+    COMMAND ${CMAKE_COMMAND} -E copy_if_different
+        "${CMAKE_CURRENT_SOURCE_DIR}/js/query.mjs" "${_wasm_output_dir}/query.mjs"
     VERBATIM
 )
 

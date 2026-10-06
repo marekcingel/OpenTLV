@@ -36,7 +36,12 @@ def compare(baseline, latest, threshold=0.25, max_cv=0.10):
             status, ratio = "missing", None
         else:
             ratio = new[name] / old[name] if old[name] else None
-            if not matching:
+            values = (old[name], new[name], old_cv.get(name, 1), new_cv.get(name, 1))
+            if (not all(math.isfinite(value) for value in values) or
+                    old[name] <= 0 or new[name] <= 0 or
+                    old_cv.get(name, 1) < 0 or new_cv.get(name, 1) < 0):
+                status, ratio = "invalid", None
+            elif not matching:
                 status = "platform-unverified"
             elif max(old_cv.get(name, 1), new_cv.get(name, 1)) > max_cv:
                 status = "noisy"

@@ -8,6 +8,7 @@
 // the JSON result out. Parse failures are reported in `result.error`, they are
 // not thrown.
 import createOpenTLV from "./opentlv-core.js";
+import { queryFacade } from "./query.mjs";
 
 /** Formats the module can parse (a build may compile out some of them). */
 export const FORMATS = Object.freeze(["fixed", "bluetooth-ltv", "bluetooth-ad", "ber", "der", "cer", "lldp", "emv", "nfc-type2"]);
@@ -119,5 +120,6 @@ export async function loadOpenTLV(moduleOptions = {}) {
   api.formats = Object.freeze(FORMATS.filter(format => !api.parse(new Uint8Array(0), { format }).error));
   api.modules = Object.freeze(api.parse(new Uint8Array(0), { format: "ber", module: "emv" }).error
     ? ["none"] : ["none", "emv"]);
+  Object.assign(api, queryFacade(wasm));
   return api;
 }

@@ -30,15 +30,52 @@ The artifacts are written to `build-wasm/bindings/wasm/dist/`:
 | File | Purpose |
 | --- | --- |
 | `opentlv.mjs` | JavaScript entry point (`loadOpenTLV`, `hexToBytes`) |
+| `query.mjs` | Owning compiled Query and checked Document facade |
 | `opentlv-core.js` | Generated Emscripten ES module loader |
 | `opentlv-core.wasm` | The compiled OpenTLV core |
 
-Serve the three files from the same directory. With the same Emscripten version
+Serve these files from the same directory. With the same Emscripten version
 and configuration the artifacts are byte-for-byte identical; CI builds twice
 and compares them. Format options such as `OPENTLV_FORMAT_BER` apply as in
 native builds, and a compiled-out format is rejected as an invalid argument.
 
 ## Use from JavaScript
+
+### Compiled Query and Document
+
+`loadOpenTLV()` also provides `compileQuery(text, options)`, `loadQuery(image,
+options)` and `document(input, options)`. Compilation and evaluation delegate to
+the native C engine. Query formats currently support `ber`, `der` and `cer`;
+disabled components are rejected. Arbitrary callback providers and schema-aware
+Query edits remain unavailable.
+
+Programs expose `info`, `format()`, `explain()`, `image()`, `evaluate(input)` and
+`execution(limits)`. Declare `variables: { name: "integer" | "bytes" | "string" }`
+at compilation; bind values with `execution.bind(name, value)` or the `bindings`
+option of `evaluate`. Integer inputs accept safe JS integers or signed 64-bit
+`bigint`; results outside the safe integer range return `bigint`. Named Tags can
+be supplied as `names: { symbol: Uint8Array }`.
+
+An execution owns its native workspace. `setInput(input, { discard, final })`
+copies and retains input windows until `reset()` or `close()`; original source
+offsets survive legal continuation. `next()` returns a copied match or `null`
+at final exhaustion; needing input raises `QueryError` with the native status.
+`visit(callback)` stops when the callback returns `false` and resumes on the next
+call. Callback exceptions invalidate the execution until reset; reentrant calls
+on that execution are rejected. Scalars use `finish()` then `result()`; `info`
+reports native validation and resource coverage. Explicit limits include
+`max_depth`, `max_nodes` and `max_work`.
+
+`evaluateDocument(document, { value_capacity })` evaluates the canonical Document
+backend. Results are checked Nodes with `tag`, `value`, `constructed`,
+`firstChild`, `next`, `parent`, `setValue(bytes)` and `erase()`. Constructed Nodes
+return `null` for `value`. Document edits invalidate previous Query selections;
+erased and closed handles raise `QueryError`. Call `close()` on executions,
+programs and Documents for deterministic release. Native executions retain their
+program and Document owners, while the public facade rejects access after a
+Document is closed.
+
+### Parse tooling
 
 ```js
 import { loadOpenTLV, hexToBytes } from "./opentlv.mjs";

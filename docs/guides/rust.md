@@ -176,6 +176,22 @@ input through `builder.set_input` and call `consume` again. Dropping the builder
 releases the reader; completed Documents retain owned content and the reader's
 conservative input/Format lifetime.
 
+## Compiled Query
+
+`QueryProgram::compile(text, &ProgramOptions)` owns the canonical C program;
+`QueryProgram::load(image, &options)` validates an image with its original
+compile options. `info`, `variables`, `format`, `explain` and `image` expose
+native requirements and release-specific program data.
+
+Independent `QueryExecution` values bind typed `QueryBinding` values, feed events,
+pull or visit a `TreeReader`, or evaluate a Document. Scalars return `QueryValue`.
+Owning workspace and `execution_external` are available with explicit bounds;
+the latter borrows caller storage. Rust lifetimes preserve program, input and
+Document ownership; errors retain native Query spans and diagnostic detail.
+The [consumer example](../../bindings/rust/opentlv/examples/query_conformance.rs)
+runs the common corpus through the public facade. C extension/provider parity
+remains tracked by the [release requirements](../development/query-release.md).
+
 ## Next step
 
 Use [the basic model](../concepts/learning-model.md) to choose borrowed processing

@@ -84,13 +84,26 @@ policy limits still need accepted per-platform release baselines, and are not an
 assertion of zero overhead relative to V1. Shared-runner CI records measurements
 and checks the comparison infrastructure without hard-failing noisy timings.
 
-## Current release blockers
+## Public-facade evidence and candidate requirements
 
-The [binding capability matrix](../concepts/bindings.md#capability-parity-through-the-public-facade)
-marks full compiled Query missing in Rust, Python, Go and Lua and incomplete in
-C++. JS/WASM lacks a full native Query/Document facade. Complete common corpus
-runners and F4 evidence must precede #523 closure; V1-only success cannot satisfy
-the gate. Candidate ABI matrices, MSan results/exclusions and accepted
-platform-specific benchmark budgets also require release evidence. The new
-inventory and strict checker make these requirements reviewable rather than
-claiming the current checkout is ready for 1.0.
+The common compiled-language corpus has public-facade runners for C++, CLI,
+Rust, Python, Go, Lua and JS/WASM. These exercise optimized and unoptimized
+programs, stream/retained/Document backends where exposed, prefix continuation,
+scalar results and diagnostics. CLI name-resolution cases using a fixture-owned
+provider remain explicit exclusions; the CLI has its own EMV resolver. V1-only
+success cannot satisfy the compiled-language gate.
+
+JS/WASM now has an owning Query/Document facade over the C engine. This is not
+complete parity with every public C extension: it supports builtin BER/DER/CER
+and named Tag maps, but does not expose arbitrary callback providers, raw event
+feeding or schema-aware Query edits. The
+[binding capability matrix](../concepts/bindings.md#capability-parity-through-the-public-facade)
+distinguishes the common language surface from such remaining extension gaps.
+
+The ABI checker covers native 64-bit, native x86 and wasm32 layouts. Sanitizer
+campaign reports retain binary hashes, commands, logs and minimized failures.
+`memory_campaign.py` retries only the documented pre-main MSan shadow-mapping
+failure, never a sanitizer finding. Candidate evidence must still be produced
+for the exact clean commit; local checks against an uncommitted worktree cannot
+be substituted for that evidence. Accepted platform-specific benchmark baselines
+and complete C capability coverage remain release gates.

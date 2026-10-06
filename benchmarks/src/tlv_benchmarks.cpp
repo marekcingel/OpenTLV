@@ -14,6 +14,8 @@
 #include <cstdint>
 #include <vector>
 #include <cstring>
+#include <string>
+#include "tlv/formats/fixed.h"
 
 namespace {
 
@@ -199,7 +201,7 @@ void query_v1_stream(benchmark::State& state) {
         }
         tlv_tree_event_t event;
         while ((rc = tlv_tree_reader_next_event(&reader, &event)) == TLV_OK) {
-            const auto matched = tlv_query_matcher_visit(&matcher, &event.element.tag, event.depth);
+            auto matched = tlv_query_matcher_visit(&matcher, &event.element.tag, event.depth);
             benchmark::DoNotOptimize(matched);
             if (matched) query_match(&event, nullptr);
         }
@@ -212,6 +214,152 @@ void query_v1_stream(benchmark::State& state) {
     state.SetBytesProcessed(state.iterations() * static_cast<int64_t>(encoded.size()));
 }
 BENCHMARK(query_v1_stream)->Arg(16)->Arg(256)->Arg(4096);
+
+// Project-owned synthetic captures (MIT), with independent depth, width,
+// inspected Value bytes and Query-size dimensions. Setup stays outside timing.
+void query_scaling(benchmark::State& state) {
+    const int    kind = static_cast<int>(state.range(0));
+    const size_t scale = static_cast<size_t>(state.range(1));
+    std::string  text = kind == 0 ? "//9F26" : kind == 1 ? "//04" : "//80";
+    auto         wire = encode_stream(kind == 3 ? scale : 8, kind == 3 || kind == 1 ? 1 : 256);
+    auto         format = tlv_format_ber;
+    tlv_fixed_format_t fixed{};
+    if (kind == 0) {
+        wire.resize(256 * 11);
+        tlv_writer_t  writer;
+        const uint8_t tag[] = {0x9f, 0x26};
+        const uint8_t value[8] = {0};
+        if (tlv_writer_init(&writer, wire.data(), wire.size(), &format) != TLV_OK) {
+            state.SkipWithError("synthetic EMV-like setup");
+            return;
+        }
+        for (size_t i = 0; i < 256; ++i)
+            if (tlv_writer_write(&writer, tlv_tag(tag, 2), value, 8) != TLV_OK) {
+                state.SkipWithError("synthetic EMV-like writing");
+                return;
+            }
+        wire.resize(tlv_writer_size(&writer));
+    } else if (kind == 1) {
+        wire[0] = 0x04;
+        for (size_t depth = 0; depth < scale; ++depth) {
+            std::vector<uint8_t> wrapped(wire.size() + 8);
+            tlv_writer_t         writer;
+            const uint8_t        tag = 0x30;
+            if (tlv_writer_init(&writer, wrapped.data(), wrapped.size(), &format) != TLV_OK ||
+                tlv_writer_write(&writer, tlv_tag(&tag, 1), wire.data(), wire.size()) != TLV_OK) {
+                state.SkipWithError("synthetic ASN.1 depth writing");
+                return;
+            }
+            wrapped.resize(tlv_writer_size(&writer));
+            wire.swap(wrapped);
+        }
+    } else if (kind == 2) {
+        fixed.tag_size = fixed.length_size = 1;
+        fixed.length_order = TLV_BYTE_ORDER_BIG_ENDIAN;
+        if (tlv_fixed_format_init(&format, &fixed) != TLV_OK) {
+            state.SkipWithError("generic Fixed setup");
+            return;
+        }
+        wire = encode_stream(8, scale);
+    } else if (kind == 3)
+        text = "//80[contains(value(), x'5A5A5A5A5B')]";
+    else if (kind == 4) {
+        for (size_t i = 1; i < scale; ++i) text += " | //81";
+    } else if (kind == 5) {
+        text = "80";
+        std::vector<uint8_t> nested(wire.size() + 32);
+        tlv_writer_t         writer;
+        const uint8_t        parent = 0x70, leaf = 0x80, value = 0;
+        if (tlv_writer_init(&writer, nested.data(), nested.size(), &format) != TLV_OK ||
+            tlv_writer_write(&writer, tlv_tag(&parent, 1), wire.data(), wire.size()) != TLV_OK ||
+            tlv_writer_write(&writer, tlv_tag(&leaf, 1), &value, 1) != TLV_OK) {
+            state.SkipWithError("pruning setup");
+            return;
+        }
+        nested.resize(tlv_writer_size(&writer));
+        wire.swap(nested);
+    }
+    tlv_query_compile_options_t options;
+    tlv_query_compile_options_init(&options);
+    options.optimize = kind == 5 ? 1 : static_cast<int>(state.range(2));
+    size_t bytes, alignment;
+    auto   rc =
+        tlv_query_compile_scratch(text.data(), text.size(), &options, &bytes, &alignment, nullptr);
+    if (rc != TLV_OK) {
+        state.SkipWithError("scaling compile scratch");
+        return;
+    }
+    std::vector<uint64_t>    scratch((bytes + 7) / 8);
+    tlv_query_program_info_t info{};
+    info.struct_size = sizeof info;
+    rc = tlv_query_compile(text.data(), text.size(), &options, scratch.data(), bytes, nullptr, 0,
+                           &info, nullptr);
+    if (rc != TLV_OK) {
+        state.SkipWithError("scaling compile sizing");
+        return;
+    }
+    std::vector<uint64_t> image((info.program_size + 7) / 8);
+    rc = tlv_query_compile(text.data(), text.size(), &options, scratch.data(), bytes, image.data(),
+                           info.program_size, &info, nullptr);
+    const auto*  program = reinterpret_cast<const tlv_query_program_t*>(image.data());
+    size_t       workspace_size;
+    const size_t depth = kind == 1 ? scale + 1 : 1;
+    if (rc == TLV_OK) rc = tlv_query_exec_size(program, depth, &workspace_size, &alignment);
+    if (rc != TLV_OK) {
+        state.SkipWithError("scaling streaming requirements");
+        return;
+    }
+    std::vector<uint64_t>         workspace((workspace_size + 7) / 8);
+    std::vector<tlv_tree_frame_t> frames(depth);
+    tlv_query_exec_info_t         observed{};
+    observed.struct_size = sizeof observed;
+    for (auto _ : state) {
+        tlv_query_exec_t* exec;
+        tlv_tree_reader_t reader;
+        rc = tlv_query_exec_init(program, workspace.data(), workspace_size, depth, 65536, SIZE_MAX,
+                                 &exec);
+        if (rc == TLV_OK && kind == 5) rc = tlv_query_exec_pruning(exec, state.range(2) != 0);
+        if (rc == TLV_OK)
+            rc = tlv_tree_reader_init(&reader, wire.data(), wire.size(), &format, frames.data(),
+                                      frames.size(), depth, 65536);
+        if (rc == TLV_OK)
+            rc = tlv_query_program_visit(&reader, exec, query_match, nullptr, nullptr);
+        if (rc == TLV_OK) rc = tlv_query_exec_info(exec, &observed);
+        if (rc != TLV_OK) {
+            state.SkipWithError("scaling execution");
+            break;
+        }
+    }
+    state.counters["work_operations"] = static_cast<double>(observed.work);
+    state.counters["program_states"] = static_cast<double>(info.states);
+    state.counters["workspace_bytes"] = static_cast<double>(workspace_size);
+    state.counters["program_bytes"] = static_cast<double>(info.program_size);
+    state.counters["retained_source_bytes"] = 0;
+    state.counters["candidate_capacity"] = 0;
+    state.counters["skipped_subtrees"] = static_cast<double>(observed.skipped_subtrees);
+    state.SetBytesProcessed(state.iterations() * static_cast<int64_t>(wire.size()));
+    const char* labels[] = {"EMV-like",  "deep-ASN.1", "wide-Fixed",
+                            "Value-KMP", "Query-size", "pruning"};
+    state.SetLabel(labels[kind]);
+}
+BENCHMARK(query_scaling)
+    ->Args({0, 1, 0})
+    ->Args({0, 1, 1})
+    ->Args({1, 8, 0})
+    ->Args({1, 32, 0})
+    ->Args({1, 64, 0})
+    ->Args({2, 16, 0})
+    ->Args({2, 256, 0})
+    ->Args({2, 4096, 0})
+    ->Args({3, 64, 0})
+    ->Args({3, 1024, 0})
+    ->Args({3, 4096, 0})
+    ->Args({4, 1, 0})
+    ->Args({4, 16, 0})
+    ->Args({4, 64, 0})
+    ->Args({4, 64, 1})
+    ->Args({5, 256, 0})
+    ->Args({5, 256, 1});
 
 // Phase names keep parsing, compilation, validation and retained execution costs
 // separate. Inputs are synthetic project-owned BER octet strings (MIT).

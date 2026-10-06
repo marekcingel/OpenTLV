@@ -586,8 +586,9 @@ static int execution_visit(lua_State* L) {
 }
 static int execution_info(lua_State* L) {
     execution_t*          q = execution(L);
-    tlv_query_exec_info_t info;
-    tlv_result_t          rc = tlv_query_exec_info(q->exec, &info);
+    tlv_query_exec_info_t info = {0};
+    info.struct_size = sizeof info;
+    tlv_result_t rc = tlv_query_exec_info(q->exec, &info);
     if (rc != TLV_OK) return query_error(L, rc, NULL);
     lua_newtable(L);
 #define INFO(name) field(L, #name, info.name)

@@ -306,6 +306,28 @@ unfinished build. Active builders prevent other cursor traversal operations.
 compatible builtin destination Format without changing the stored tree.
 `encoded_size_as(format)` measures the same destination encoding.
 
+## Compiled Query
+
+`QueryProgram(text, format=..., variables={"minimum": int}, names=...)` owns an
+immutable compiled C program. `QueryProgram.load(image, ...)` validates a
+same-release image using its original options; `image()`, `format()` and
+`explain()` expose copies or descriptions. `info` reports native requirements.
+Declarations accept `int`, `bytes` and `str`; bind actual values through an
+independent execution rather than interpolating Query text.
+
+`program.execution(max_depth=..., max_nodes=..., max_work=..., retained=True)`
+owns bounded native state. `retained=False` selects S0/S1 storage. Execute through
+the public TreeReader pull/Visitor adapter, or evaluate a Document; results,
+diagnostics, limits and continuation delegate to C. Match snapshots own their
+bytes. Reset separates input/binding lifetimes; callback exceptions require
+reset before reuse. Programs and executions support deterministic `close()`.
+The [consumer tests](../../bindings/python/opentlv/tests/test_program.py) and
+[common corpus runner](../../tests/query/python_facade.py) exercise these APIs.
+
+Arbitrary Query provider callbacks and schema-aware Query edits are not exposed
+by this facade; builtin generic codecs and ASN.1 capabilities are selected by
+the Format. See the [release requirements](../development/query-release.md).
+
 ## Next step
 
 Use [the basic model](../concepts/learning-model.md) to choose borrowed processing

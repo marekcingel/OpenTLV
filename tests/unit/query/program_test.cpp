@@ -100,6 +100,36 @@ TEST(Unit_Tlv_QueryProgram, BoundedLoaderRejectsEveryTruncationWithoutWrites) {
                                      bytes, &loaded, nullptr, &p.diagnostic));
 }
 
+TEST(Unit_Tlv_QueryProgram, LoaderRejectsAliasedStorageBeforeWriting) {
+    Program p;
+    ASSERT_EQ(TLV_OK, p.compile("//5A"));
+    size_t bytes, alignment;
+    ASSERT_EQ(TLV_OK, tlv_query_program_load_scratch(p.get(), p.info.program_size, nullptr, &bytes,
+                                                     &alignment, nullptr));
+    std::vector<uint64_t>      scratch((bytes + 7) / 8, 0xabababab);
+    const auto                 original = p.storage;
+    const auto                 untouched = scratch;
+    const tlv_query_program_t* loaded = nullptr;
+    EXPECT_EQ(TLV_ERR_INVALID_ARG,
+              tlv_query_program_load(p.get(), p.info.program_size, nullptr, p.storage.data(), bytes,
+                                     &loaded, nullptr, nullptr));
+    EXPECT_EQ(TLV_ERR_INVALID_ARG,
+              tlv_query_program_load(p.get(), p.info.program_size, nullptr, scratch.data(), bytes,
+                                     reinterpret_cast<const tlv_query_program_t**>(scratch.data()),
+                                     nullptr, nullptr));
+    EXPECT_EQ(TLV_ERR_INVALID_ARG,
+              tlv_query_program_load(p.get(), p.info.program_size, nullptr, scratch.data(), bytes,
+                                     &loaded, nullptr,
+                                     reinterpret_cast<tlv_query_diagnostic_t*>(p.storage.data())));
+    EXPECT_EQ(TLV_ERR_INVALID_ARG,
+              tlv_query_program_load_scratch(p.get(), p.info.program_size, nullptr,
+                                             reinterpret_cast<size_t*>(p.storage.data()),
+                                             &alignment, nullptr));
+    EXPECT_EQ(nullptr, loaded);
+    EXPECT_EQ(original, p.storage);
+    EXPECT_EQ(untouched, scratch);
+}
+
 TEST(Unit_Tlv_QueryProgram, LoaderAuthenticatesEveryInstructionField) {
     Program p;
     ASSERT_EQ(TLV_OK, p.compile("//70[exists(5A)] | //50[@len > 2]"));
@@ -243,6 +273,43 @@ TEST(Unit_Tlv_QueryProgram, AdversarialContainsChargesLinearBytesAndExactWorkBou
         EXPECT_EQ(TLV_ERR_LIMIT, rc);
         EXPECT_STREQ("work", p.diagnostic.limit);
         EXPECT_EQ(TLV_ERR_INVALID_ARG, tlv_query_exec_feed(exec, &event, &matched, nullptr));
+    }
+}
+
+TEST(Unit_Tlv_QueryProgram, StructuralWorkScalesWithEventsAndProgramStates) {
+    for (size_t alternatives : {size_t(1), size_t(4), size_t(16)}) {
+        std::string text = "//5A";
+        for (size_t i = 1; i < alternatives; ++i) text += " | //50";
+        Program p;
+        ASSERT_EQ(TLV_OK, p.compile(text));
+        size_t bytes, alignment;
+        ASSERT_EQ(TLV_OK, tlv_query_exec_size(p.get(), 0, &bytes, &alignment));
+        std::vector<uint64_t> storage((bytes + 7) / 8);
+        size_t                unit_work = 0;
+        for (size_t nodes : {size_t(1), size_t(16), size_t(64), size_t(256)}) {
+            tlv_query_exec_t* exec;
+            ASSERT_EQ(TLV_OK, tlv_query_exec_init(p.get(), storage.data(), bytes, 0, nodes,
+                                                  SIZE_MAX, &exec));
+            uint8_t          tag = 0x5a;
+            tlv_tree_event_t event{};
+            event.kind = TLV_TREE_ELEMENT;
+            event.element.tag = tlv_tag(&tag, 1);
+            size_t matches = 0;
+            for (size_t i = 0; i < nodes; ++i) {
+                event.offset = 2 * i;
+                int matched;
+                ASSERT_EQ(TLV_OK, tlv_query_exec_feed(exec, &event, &matched, nullptr));
+                matches += matched != 0;
+            }
+            ASSERT_EQ(TLV_OK, tlv_query_exec_finish(exec, nullptr));
+            tlv_query_exec_info_t info{};
+            info.struct_size = sizeof info;
+            ASSERT_EQ(TLV_OK, tlv_query_exec_info(exec, &info));
+            if (nodes == 1) unit_work = info.work;
+            EXPECT_EQ(nodes, matches);
+            EXPECT_EQ(unit_work * nodes, info.work);
+            EXPECT_LE(info.work, 8 * p.info.states * nodes);
+        }
     }
 }
 
@@ -833,6 +900,25 @@ TEST(Unit_Tlv_QueryProgram, CanonicalFormatRecompilesAndShortWritesAreAtomic) {
     std::vector<char> second(required);
     ASSERT_EQ(TLV_OK, tlv_query_program_format(copy.get(), second.data(), required, &required));
     EXPECT_EQ(output, second);
+}
+
+TEST(Unit_Tlv_QueryProgram, CanonicalFormatPreservesSeparatedPathTokens) {
+    for (const char* text : {"/\t/.", "/ /ee", "/ //.", "// /."}) {
+        Program original;
+        ASSERT_EQ(TLV_OK, original.compile(text)) << text;
+        char   output[64];
+        size_t required;
+        ASSERT_EQ(TLV_OK,
+                  tlv_query_program_format(original.get(), output, sizeof output, &required));
+        Program canonical;
+        ASSERT_EQ(TLV_OK, canonical.compile(output)) << output;
+        EXPECT_EQ(original.info.level, canonical.info.level) << output;
+        EXPECT_EQ(original.info.result_kind, canonical.info.result_kind) << output;
+        char second[64];
+        ASSERT_EQ(TLV_OK,
+                  tlv_query_program_format(canonical.get(), second, sizeof second, &required));
+        EXPECT_STREQ(output, second);
+    }
 }
 
 TEST(Unit_Tlv_Query, BoundedParsingFormattingAndCorruptAccess) {

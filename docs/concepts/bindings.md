@@ -146,7 +146,7 @@ native functionality; see [component selection](../guides/select-components.md).
 | Reader/Writer diagnostics | Implemented: native structured detail with C++ operation errors | Implemented: owned snapshots | Implemented: structured exceptions | Implemented for exposed Reader/Writer operations: owned tables | Implemented for exposed operations: owned ParseError/WriteError |
 | Borrowed Query (`tlv_query_*`) | Implemented: Query and resumable matcher | Implemented: Query and matcher | Implemented: Query and matcher | Partial: complete-buffer Query evaluation; no resumable matcher facade | Missing |
 | Document Query | Implemented: V1 first/all and compiled selection, checked snapshots, explicit workspace evaluation | Partial: `find_path` / `find_path_mut` first match | Partial: `find_path` first match | Implemented: first match and Query results | Implemented: `Document.Query` all matches |
-| Full compiled S0/S1/S2/D Query | Partial: `query_program`/`query_execution`, typed expression composition, variables, environments, scalars, resumable Tree callback/pull and external S0/S1 storage; checked Document snapshots/pulls | Missing | Missing | Missing | Missing |
+| Full compiled S0/S1/S2/D Query | Partial: programs, typed composition, variables, environments, scalar and resumable execution, checked Document results | Partial: `QueryProgram`/`QueryExecution`, variables, scalar and resumable execution, Document results; extension coverage remains incomplete | Partial: `QueryProgram`/execution, variables, scalar and resumable execution, Document results; extension coverage remains incomplete | Partial: programs/execution, variables, scalar and resumable execution, Document results; no arbitrary Query provider callbacks | Partial: `CompileQuery`/execution, variables, scalar and resumable execution, Document results; no arbitrary Query provider callbacks |
 | Schema (`tlv/schema/`) | Partial: C schema descriptions with validation helpers | Partial: length/structure schemas and detailed reports | Partial: length/structure schemas and detailed reports | Partial: structural schemas/reports; no standalone length-schema facade | Missing |
 | Value Codec (`tlv/codec/` and built-ins) | Partial: generic typed codecs/fields and standard conveniences; no claim of every C descriptor | Partial: configured NumberCodec and EMV codecs | Partial: configured NumberCodec and EMV amount | Partial: generic/configured codecs, EMV and custom callbacks | Partial: generic typed codecs; no protocol/custom/Structure codecs |
 | Structure Codec (`tlv_structure_codec_t`) | Implemented: application-object adapters | Missing | Missing | Missing | Missing |
@@ -420,7 +420,7 @@ entry points are:
 | Python | Experimental `opentlv` facade plus `opentlv-core` extension | [Python guide](../guides/python.md) | [Python development](../development/python.md) |
 | Lua | Experimental `opentlv` module with native `opentlv._core` implementation | [Lua guide](../guides/lua.md) | [Lua development](../development/lua.md) |
 | Go | Experimental public `opentlv` package with private `internal/capi` bridge | [Go guide](../guides/go.md) | [Go development](../development/go.md) |
-| WebAssembly | Narrow parse-to-JSON tooling embedding; general facade parity does not apply | [WASM tooling](../development/webassembly.md) | [WASM sources](../../bindings/wasm/) |
+| WebAssembly | Parse tooling plus owning compiled Query and checked Document facade; advanced extension parity remains incomplete | [WASM tooling](../development/webassembly.md) | [WASM sources](../../bindings/wasm/) |
 
 Language-specific copying, cleanup, errors and current limitations are documented
 in those guides; an experimental label neither implies full parity nor excuses
@@ -453,7 +453,8 @@ compiled module under `opentlv/_core`, and direct implementation imports use
   binding that follows this contract.
 
 Compiled full-language Query execution (`tlv_query_program_*`, S0/S1/S2 and the
-compiled Document backend) is currently a C capability. Its idiomatic facade
-parity is the Query F4 delivery work; the V1 facade rows above do not imply
-compiled-language support. This includes the F3 caller-owned candidate and
-constructed Document Value storage contracts.
+compiled Document backend) is exposed through each language facade. Public-facade
+runners in `tests/query/` compare the common language corpus against the independent
+oracle. This evidence does not imply complete parity with C extension providers,
+schema-aware Query edits or every caller-owned storage overload. See the
+[Query release requirements](../development/query-release.md) for candidate gates.
