@@ -529,6 +529,91 @@ static int raw_reinitialization(void) {
 #endif
     return 0;
 }
+#if OPENTLV_READER
+typedef struct resume_visitor_state {
+    size_t calls;
+    int    errors;
+} resume_visitor_state;
+static tlv_visit_result_t resume_scale_visitor(const tlv_tree_event_t* input, void* context) {
+    resume_visitor_state* state = context;
+    if (input->kind != TLV_TREE_ELEMENT || input->offset != state->calls * 3 ||
+        input->element.tag.size != 1 || input->element.tag.data[0] != 1 ||
+        input->element.value.size != 1 || input->element.value.data[0] != 7)
+        ++state->errors;
+    ++state->calls;
+    return TLV_VISIT_STOP;
+}
+static int retained_resume_scale(void) {
+    enum { count = 40000 };
+    /* All outputs sit between the first and later immutable input windows.
+     * This deterministically exercises the borrowed envelope's legal gaps. */
+    struct resume_spans {
+        uint8_t                first[3];
+        tlv_tree_reader_t      reader;
+        tlv_tree_frame_t       frames[1];
+        tlv_query_diagnostic_t diagnostic;
+        int                    found;
+        uint8_t                later[count - 1][3];
+    } spans = {0};
+    spans.first[0] = spans.first[1] = 1;
+    spans.first[2] = 7;
+    for (size_t i = 0; i < count - 1; ++i) memcpy(spans.later[i], spans.first, sizeof spans.first);
+    tlv_fixed_format_t config = {0};
+    config.tag_size = config.length_size = 1;
+    config.length_order = TLV_BYTE_ORDER_BIG_ENDIAN;
+    tlv_format_t format;
+    CHECK(tlv_fixed_format_init(&format, &config) == TLV_OK);
+    arena                      image;
+    const tlv_query_program_t* p;
+    /* A single axis keeps finish linear, isolating continuation overhead. */
+    CHECK(compile_plan("descendant::01", NULL, &image, &p) == 0);
+    size_t bytes, alignment;
+    CHECK(tlv_query_eval_size(p, 1, count, &bytes, &alignment) == TLV_OK);
+    void* allocation = malloc(bytes + alignment);
+    CHECK(allocation);
+    void* memory = (void*)(((uintptr_t)allocation + alignment - 1) & ~(uintptr_t)(alignment - 1));
+    for (int mode = 0; mode < 3; ++mode) {
+        tlv_query_exec_t* e;
+        CHECK(tlv_query_eval_init(p, NULL, memory, bytes, 1, count, SIZE_MAX, &e) == TLV_OK);
+        CHECK(tlv_tree_reader_init_incremental(&spans.reader, spans.first, sizeof spans.first,
+                                               &format, spans.frames, 1, 1, count) == TLV_OK);
+        resume_visitor_state visitor = {0};
+        spans.found = 79;
+        for (size_t i = 0; i < count; ++i) {
+            if (i)
+                CHECK(tlv_tree_reader_set_input(&spans.reader, spans.later[i - 1], 3, 3, 0) ==
+                      TLV_OK);
+            CHECK((mode ? tlv_query_program_exists(&spans.reader, e, mode == 2, &spans.found,
+                                                   &spans.diagnostic)
+                        : tlv_query_program_visit(&spans.reader, e, resume_scale_visitor, &visitor,
+                                                  &spans.diagnostic)) == TLV_NEED_MORE_DATA);
+            CHECK(visitor.calls == 0 && spans.found == 79);
+        }
+        CHECK(tlv_tree_reader_set_input(&spans.reader, NULL, 0, 3, 1) == TLV_OK);
+        if (mode) {
+            CHECK(tlv_query_program_exists(&spans.reader, e, mode == 2, &spans.found,
+                                           &spans.diagnostic) == TLV_OK);
+            CHECK(spans.found == 1);
+        } else {
+            /* STOP must also resume without rescanning all finalized nodes. */
+            for (size_t i = 0; i < count; ++i) {
+                CHECK(tlv_query_program_visit(&spans.reader, e, resume_scale_visitor, &visitor,
+                                              &spans.diagnostic) == TLV_OK);
+                CHECK(visitor.calls == i + 1 && !visitor.errors);
+            }
+            CHECK(tlv_query_program_visit(&spans.reader, e, resume_scale_visitor, &visitor,
+                                          &spans.diagnostic) == TLV_OK);
+            CHECK(visitor.calls == count);
+        }
+        tlv_query_exec_info_t info = {0};
+        info.struct_size = sizeof info;
+        CHECK(tlv_query_exec_info(e, &info) == TLV_OK);
+        CHECK(info.elements == count && info.finished && !info.invalid);
+    }
+    free(allocation);
+    return 0;
+}
+#endif
 /* Put outputs in a legal gap between two borrowed spans. The retained envelope
  * necessarily includes them, regardless of stack/heap address ordering. */
 static int retained_scale(void) {
@@ -572,6 +657,9 @@ static int retained_scale(void) {
     }
     CHECK(tlv_query_result_next(e, &spans.selected) == TLV_ERR_END_OF_BUFFER);
     free(allocation);
+#if OPENTLV_READER
+    CHECK(retained_resume_scale() == 0);
+#endif
     return 0;
 }
 #if OPENTLV_DOCUMENT && OPENTLV_READER && OPENTLV_WRITER

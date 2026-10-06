@@ -9,6 +9,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Fixed
 
+- Keep resumed Query Reader visits and existence checks independent of retained input history, including continuation after incremental input and visitor stops. (#536)
+- Reject Query workspace reinitialization detected after Document Format callbacks and release the Document callback scope on failure. (#536)
 - Keep retained Query feed, result iteration and status inspection independent of the number of previously retained spans; reject workspace reinitialization detected after callbacks and preserve failure diagnostics when binding is retried. (#536)
 - Reject Query Reader outputs overlapping Reader input, frames or Format, and Document Query edit targets overlapping the applied count or Value, before any writes. (#536)
 - Reject static Query plans with undersized literal-pattern storage, align malformed-event diagnostics across executors, and preserve the original failure diagnostic when feed or finish is retried. (#536)

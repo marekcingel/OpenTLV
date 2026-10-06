@@ -322,6 +322,7 @@ static int diagnostics(const tlv_query_program_t* p) {
 }
 
 #include "adversarial_callbacks.h"
+#include "adversarial_document_reinit.h"
 #include "adversarial_native_test.h"
 
 int main(int argc, char** argv) {
@@ -362,6 +363,7 @@ int main(int argc, char** argv) {
 #endif
 #if OPENTLV_DOCUMENT && OPENTLV_READER && OPENTLV_WRITER
     CHECK(documents() == 0);
+    CHECK(document_format_reinitialization() == 0);
 #endif
 #endif
     puts("adversarial: 512 seeded sequences, lifecycle regressions and storage matrix passed");

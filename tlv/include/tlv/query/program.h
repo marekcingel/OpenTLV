@@ -25,9 +25,10 @@ extern "C" {
  * Outputs must not overlap one another or immutable borrowed data. Read-only
  * input spans may alias each other and program payload; adjacent spans are valid.
  * Detected execution/output overlap returns INVALID_ARG before writes, including
- * diagnostic initialization. Feed, result iteration and exec_info check live
- * descriptors, bindings and delayed S1 spans without scanning retained history;
- * callers must keep their outputs disjoint from all earlier borrowed event spans.
+ * diagnostic initialization. Feed, Reader visit/exists, result iteration and
+ * exec_info check live descriptors, bindings and delayed S1 spans without scanning
+ * retained history; callers must keep their outputs disjoint from all earlier
+ * borrowed event spans.
  * Finish and exec_result also check the complete retained history.
  * Opaque provider contexts remain caller-managed.
  * @note Operations on the same execution from a visitor/provider/tag callback

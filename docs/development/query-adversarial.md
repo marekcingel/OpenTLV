@@ -133,8 +133,16 @@ both executors, including empty patterns and exact/one-short capacities.
 Review regressions also cover raw workspace reinitialization from retained
 providers and S0/S1/retained visitors, preservation of LIMIT diagnostics when
 binding is retried, and IMAGE_VERSION diagnostics for the previous plan version.
+Document evaluation also rejects workspace reinitialization from Format measure,
+encode and decode callbacks, while releasing its callback scope and processing
+deferred erase/free requests.
 The `query-retained-scale` test feeds, inspects and iterates 40,000 nodes with
-outputs in a legal gap between borrowed spans. Its 15-second timeout guards
+outputs in a legal gap between borrowed spans. With Reader enabled it also
+resumes retained visits once per input window after NEED_MORE_DATA, resumes
+finalized results once per visitor STOP, and checks both full and early-return
+existence modes. Reader, frames and outputs sit between immutable input windows,
+so the test is independent of stack/heap address ordering. A single-axis query
+keeps finish linear and isolates continuation overhead. Its 15-second timeout guards
 against repeated full-history overlap scans; output checks in these repeated
 operations remain independent of the number of retained nodes. Callers still
 must keep outputs disjoint from every borrowed event span; finish and scalar

@@ -123,6 +123,7 @@ tlv_result_t tlv_document_query_evaluate(const tlv_document_t* document, tlv_que
         rc = tree_writer_measure_events_observed(format, document_event, &source, &output,
                                                  e->depth_capacity - 1, e->max_elements, &encoded,
                                                  NULL, document_charge, &budget);
+        if (!e->busy) rc = TLV_ERR_INVALID_ARG;
         e->busy = 0;
         staging->required_data = output.required_data;
         staging->required_scratch = output.required_scratch;
@@ -151,6 +152,7 @@ tlv_result_t tlv_document_query_evaluate(const tlv_document_t* document, tlv_que
                 size_t consumed;
                 e->busy = 1;
                 rc = tlv_read(cursor, (size_t)(wire_end - cursor), format, &element, &consumed);
+                if (!e->busy) rc = TLV_ERR_INVALID_ARG;
                 e->busy = 0;
                 if (rc != TLV_OK) goto failed;
                 rc = document_charge(&budget, consumed);
