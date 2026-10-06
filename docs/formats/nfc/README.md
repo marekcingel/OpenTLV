@@ -116,6 +116,8 @@ The minimum extended count and maximum count are configuration, not NFC
 branches in the generic code.
 
 `tlv_tagged_fields_composition_t` composes tag-only selection with arbitrary field
-codecs. The existing DHCP binary composition delegates to this same mechanism.
+encodings. The Escaped format reuses the fixed identifier primitive from
+`tlv/field/fixed.h`. The existing DHCP binary composition delegates tag-only
+selection to the same generic mechanism.
 Neither mechanism imposes protocol termination or padding policy. These
 generic capabilities remain built when `OPENTLV_NFC=OFF`.

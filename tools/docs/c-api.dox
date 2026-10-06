@@ -47,7 +47,7 @@
  * Guides: @docs{guides/codecs,value codecs}.
  */
 /** @defgroup field_encoding Field Encoding
- * Reusable callbacks and packed, variable-width and escaped wire-field primitives.
+ * Reusable callbacks and fixed-width, packed, variable-width and escaped wire-field primitives.
  * These primitives encode individual fields; Format composition defines complete element framing.
  * Guides: @docs{formats,formats}.
  */

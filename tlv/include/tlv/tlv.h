@@ -24,6 +24,7 @@
 #include "tlv/endian.h"
 #include "tlv/format.h"
 #include "tlv/field/encoding.h"
+#include "tlv/field/fixed.h"
 #include "tlv/field/packed.h"
 #include "tlv/field/variable.h"
 #include "tlv/field/escaped.h"

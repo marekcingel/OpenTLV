@@ -159,6 +159,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Added
 
+- Add standalone allocation-free fixed-width Identifier and Length operations in `tlv/field/fixed.h`, preserving raw identifier bytes and supporting explicit count byte order and NULL-output sizing independently of Format and optional capabilities. (#540, #423)
 - Add reproducible Reader, Tree Reader and Document decode benchmarks, including a custom arena allocator comparison and recorded performance evidence. (#538)
 - Add explicit allocation-free Query execution reset in C/C++ and deterministic adversarial lifecycle, storage, callback and plan-equivalence verification, including frontend-free and sanitizer release gates. (#536)
 - Add a C++11 `constexpr` Query builder that creates native plans at compile time and executes through the existing C/C++ APIs without the runtime frontend. (#530)

@@ -17,9 +17,9 @@ extern "C" {
  * @ingroup formats
  * @brief Public field composition primitives for canonical formats.
  *
- * These primitives compose field codecs into a single decode/measure/encode
+ * These primitives compose field encodings into a single decode/measure/encode
  * contract. Reader and Writer never inspect the composition. Context and
- * codec configuration remain borrowed and immutable. Callbacks do not allocate.
+ * encoding configuration remain borrowed and immutable. Callbacks do not allocate.
  * These types configure Format composition; runtime ranges of a decoded element
  * are represented separately by #tlv_source_t and #tlv_range_t.
  */
@@ -31,7 +31,7 @@ extern "C" {
 /**
  * @brief Resolve terminated framing after an identifier.
  *
- * @param[in]  context      Borrowed immutable codec configuration.
+ * @param[in]  context      Borrowed immutable encoding configuration.
  * @param[in]  tag          Already decoded identifier.
  * @param[in]  data         Bytes after the identifier.
  * @param[in]  size         Available bytes.
@@ -67,7 +67,7 @@ typedef enum tlv_length_scope {
 } tlv_length_scope_t;
 
 /**
- * @brief Borrowed field codec composition for a contiguous header and value.
+ * @brief Borrowed field encoding composition for a contiguous header and value.
  *
  * The optional bounds resolver supports terminated values on the TLV path.
  * It returns a validated trailer; formats with an encoder-dependent trailer
@@ -75,7 +75,7 @@ typedef enum tlv_length_scope {
  * A count including the identifier is normalized here, not in Reader/Writer.
  */
 typedef struct tlv_field_composition {
-    const void* context;              /**< Immutable codec context. */
+    const void* context;              /**< Immutable encoding context. */
     tlv_read_tag_fn read_tag;         /**< Identifier decoder. */
     tlv_read_length_fn read_length;   /**< Count decoder. */
     tlv_resolve_bounds_fn resolve;    /**< Optional terminated framing resolver. */
@@ -180,7 +180,7 @@ typedef struct tlv_tagged_binary_composition {
 } tlv_tagged_binary_composition_t;
 
 /**
- * @brief Field codec composition with identifier-selected tag-only elements.
+ * @brief Field encoding composition with identifier-selected tag-only elements.
  *
  * The borrowed immutable fields, table and identifier bytes must outlive all
  * operations. Fields must provide both reading and writing, use TLV/VALUE
@@ -191,7 +191,7 @@ typedef struct tlv_tagged_binary_composition {
  * No skip or stop policy is implied. No operation allocates.
  */
 typedef struct tlv_tagged_fields_composition {
-    tlv_field_composition_t fields; /**< Default field codec composition. */
+    tlv_field_composition_t fields; /**< Default field encoding composition. */
     const tlv_tag_t* tag_only;      /**< Borrowed table; NULL only when count is zero. */
     size_t count;                   /**< Number of table entries. */
 } tlv_tagged_fields_composition_t;
@@ -224,7 +224,8 @@ TLV_API tlv_result_t tlv_tagged_fields_encode(const void* context, const tlv_ele
  * @param[in] composition Borrowed immutable composition, which must outlive format.
  * @return #TLV_OK on success.
  * @return #TLV_ERR_NULL_ARG for a missing required pointer.
- * @return #TLV_ERR_INVALID_ARG for incomplete codecs, unsupported framing or an invalid table.
+ * @return #TLV_ERR_INVALID_ARG for incomplete field encodings, unsupported framing or an invalid
+ * table.
  * @return A tag encoder error for an unrepresentable table identifier.
  */
 TLV_API tlv_result_t tlv_tagged_fields_format_init(

@@ -100,12 +100,16 @@ The IR must express the existing conceptual boundaries:
 | Schema | Structural and contextual constraints such as occurrence, ordering, allowed children and field lengths. |
 | Codec | Interpretation and conversion of Value bytes using the selected value representation. |
 
-Format composition describes reusable rules in the model. Layout is runtime
-information produced only when Format applies those rules to concrete bytes;
-it is not a separate configuration category in the IR. The existing
+Format composition describes reusable rules within Format, not an additional
+canonical layer. Lowering may use the generic composition helpers or provide
+the same complete Format contract directly. Reader and Writer consume that
+contract; Definition, Schema and Codec remain optional to their processing.
+
+Layout is runtime information produced only when Format applies those rules to
+concrete bytes; it is not a separate configuration category in the IR. The existing
 `tlv_source_t` / `tlv_range_t` and `tlv_element_t` contracts remain the runtime
-representations; the IR does not
-introduce a parallel runtime Element.
+representations; the IR does not introduce a parallel runtime Element. Writer
+can encode an Element without a previously parsed source Layout.
 
 Standard-specific policy stays in standards and extensions. The IR should
 describe compositions of reusable mechanisms and explicit semantic

@@ -135,13 +135,14 @@ policy handled above wire mechanics.
 
 | Capability | Status | Current mechanism or boundary |
 | --- | --- | --- |
+| Standalone fixed-width Identifier and Length fields | Configuration | `tlv_fixed_identifier_t` and `tlv_fixed_length_t` in `tlv/field/fixed.h`; raw identifier bytes and unsigned counts with explicit byte order, independent of complete Format framing. |
 | Fixed-width TLV/LTV, big/little-endian counts | Configuration | `tlv_binary_composition_t`, `tlv_fixed_format_t`; Value or Tag-plus-Value scope. |
 | Inline/escaped continuation identifiers and short/long counts | Configuration | `tlv_variable_format_t`; concrete reserved encodings and canonicality remain separate. |
 | Fixed identifiers with escape-prefixed counts | Configuration | `tlv_escaped_format_t`, including optional tag-only identifiers. |
 | Identifier-selected tag-only elements | Configuration | `tlv_tagged_binary_composition_t` / `tlv_tagged_fields_composition_t`; omits Length, requires empty Value, implies no skip/stop policy. |
 | Extract/insert packed unsigned fields | Configuration | `tlv_packed_field_t` helpers preserve unrelated bits on write. |
 | Complete packed Tag/Length header | Custom Format | Compose packed helpers in decode/measure/encode; LLDP is an existing example, not a generic packed-format initializer. |
-| Different sequential field codecs | Custom Format | Supply callbacks to `tlv_field_composition_t`; retain TLV/LTV and supported count scopes. |
+| Different sequential field encodings | Custom Format | Supply callbacks to `tlv_field_composition_t`; retain TLV/LTV and supported count scopes. |
 | Absent Tag or Length; fixed/type-derived Value extent | Custom Format | Publish valid optional ranges and a contiguous Value; no supplied general boundary selector. |
 | Terminated Value or container | Custom Format | Optional bounds resolver for TLV/Value scope, or complete decode; paired measure/encode for trailers. BER indefinite framing is implemented. |
 | Additional Header bytes, alignment padding, checksums/trailers | Custom Format | Complete callbacks validate framing and measure/encode it; no general padding/checksum configuration is supplied. |

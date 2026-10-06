@@ -57,6 +57,7 @@ set(SOURCES
     format_test.cpp
     formats/fixed_dhcp_options_test.cpp
     formats/fixed_io_test.cpp
+    formats/fixed_field_adapters_test.cpp
     formats/format_fixed_test.cpp
     formats/variable_test.cpp
     formats/escaped_test.cpp
@@ -65,6 +66,7 @@ set(SOURCES
     field/packed_test.cpp
     field/variable_test.cpp
     field/escaped_test.cpp
+    field/fixed_test.cpp
     query/query_test.cpp
     query/program_test.cpp
     query/f2_test.cpp

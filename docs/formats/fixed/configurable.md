@@ -42,6 +42,38 @@ the general contract this follows, including copying, sharing and moving.
 Both work with the reader, writer, visitor, schemas and the C API. Neither
 performs allocation.
 
+## Standalone Field Encoding
+
+Use `tlv/field/fixed.h` when only an individual Identifier or Length field is
+needed. Its allocation-free primitives are available without Format headers,
+Reader, Writer or optional builtin protocols:
+
+| Configuration | Operations | Representation |
+| --- | --- | --- |
+| `tlv_fixed_identifier_t` | `tlv_fixed_identifier_read()`, `tlv_fixed_identifier_write()` | `size` raw identifier bytes; the configured width must be nonzero. |
+| `tlv_fixed_length_t` | `tlv_fixed_length_read()`, `tlv_fixed_length_write()` | `size` count bytes, from 1 through 8, with explicit `byte_order`; counts use `tlv_size_t`. |
+
+Identifier reading borrows the exact input bytes; writing requires an identifier
+of the configured width and preserves its bytes. There is no numeric tag
+conversion or byte-order normalization. Length operations accept explicit big
+or little endian and reject counts that exceed the configured width, without
+narrowing the logical count to `size_t`. Both write operations support width
+measurement with NULL output and zero capacity.
+
+Argument and configuration errors preserve outputs. Identifier reads preserve
+both outputs on failure. An incomplete Length input reports the available
+prefix through `consumed` while leaving the count unchanged. Failed writes
+preserve `written` and destination bytes. Identifier copying requires
+nonoverlapping source and destination; no overlap guarantee is added.
+
+These operations do not select field order, apply length scope or describe
+complete elements. The binary composition callbacks adapt them to those rules;
+the Escaped format reuses the same fixed identifier operations.
+`tlv_binary_composition_t` keeps its public `tag_size`, `length_size`,
+`length_order`, `element_order` and `length_scope` members, and
+`tlv_fixed_format_t` remains its alias. Existing Format behavior and failure
+contracts are unchanged.
+
 ## Supported parameters
 
 | Parameter | C field | C++ template parameter | Supported values |

@@ -2,29 +2,23 @@
 // Copyright (c) 2026 Marek Cingel
 
 #include "tlv/formats/escaped.h"
+#include "tlv/field/fixed.h"
 #include "../field/escaped_internal.h"
-#include <string.h>
 
 static tlv_result_t read_tag(const void* context, const uint8_t* data, size_t size, tlv_tag_t* tag,
                              size_t* consumed) {
     const tlv_escaped_format_t* f = (const tlv_escaped_format_t*)context;
-    if (size < f->tag_size) return TLV_ERR_BUFFER_TOO_SHORT;
-    *tag = tlv_tag(data, f->tag_size);
-    *consumed = f->tag_size;
-    return TLV_OK;
+    const tlv_fixed_identifier_t identifier = {f->tag_size};
+    return tlv_fixed_identifier_read(&identifier, data, size, tag, consumed);
 }
 
 static tlv_result_t write_tag(const void* context, uint8_t* data, size_t capacity,
                               const tlv_tag_t* tag, size_t* written) {
     const tlv_escaped_format_t* f = (const tlv_escaped_format_t*)context;
+    const tlv_fixed_identifier_t identifier = {f->tag_size};
+    /* Preserve mismatch precedence and the callback's NULL-output sizing. */
     if (tag->size != f->tag_size) return TLV_ERR_INVALID_TAG_SIZE;
-    if (!tag->data) return TLV_ERR_NULL_ARG;
-    if (data) {
-        if (capacity < f->tag_size) return TLV_ERR_BUFFER_TOO_SHORT;
-        memcpy(data, tag->data, f->tag_size);
-    }
-    *written = f->tag_size;
-    return TLV_OK;
+    return tlv_fixed_identifier_write(&identifier, tag, data, data ? capacity : 0, written);
 }
 
 static tlv_result_t read_length(const void* context, const uint8_t* data, size_t size,

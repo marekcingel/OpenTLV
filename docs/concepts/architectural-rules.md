@@ -44,17 +44,31 @@ Core must never depend on a specific standard.
 
 ## 2. Stable conceptual model
 
-OpenTLV uses these concepts:
+OpenTLV separates reusable descriptions, their implementation and the
+operations that produce or consume runtime representations:
 
 ```text
-Definition → Format → Field Encoding → Layout → Element → Schema → Codec
+REUSABLE DESCRIPTIONS
+Definition    Format    Field Encoding    Schema    Codec
+
+FORMAT CONSTRUCTION (implementation choices)
+Field Encoding + composition rules -- optional helpers --+
+Direct implementation ----------------------------------+--> Format contract
+
+OPERATIONS                              RUNTIME REPRESENTATIONS
+wire bytes -- Reader using Format ----> Element + source Layout
+wire bytes <-- Writer using Format ---- Element
+
+Definition, Schema and Codec are optional, not processing stages.
 ```
 
-This diagram relates the concepts; it is not a mandatory pipeline or a module
-dependency graph. Format does not require a Definition registry. Reader and
-Writer use Format directly; Schema and Codec are optional consumers. The
-[conceptual model](architecture.md#conceptual-model) groups descriptions,
-runtime representations and operations separately.
+Composition belongs to Format rather than adding a canonical layer. Generic
+composition helpers are optional; a Format can implement the same complete
+contract directly. Reader and Writer use Format without requiring Definition,
+Schema or Codec. Writer can encode an Element without a previously parsed
+source Layout. Layout records source ranges for a concrete encoded instance.
+See the [conceptual model](architecture.md#conceptual-model) for the mapping to
+the current implementation.
 
 Their responsibilities must remain separated.
 
@@ -105,15 +119,17 @@ Format must not interpret the semantic meaning of Value.
 Provides reusable mechanics at two levels:
 
 - Low-level bit, byte and integer primitives, including packed unsigned fields.
-- Identifier and Length encodings, including variable-width and escape-prefixed
-  fields and their read/write callback contracts.
+- Identifier and Length encodings, including fixed-width, variable-width and
+  escape-prefixed fields and their read/write callback contracts.
 
 These mechanics live under `tlv/field/` and do not describe complete elements.
-Format composes them with field ordering, length scope, tag-only selection and
-boundary resolution through `tlv/formats/compose.h`. Composition is part of
-Format, not a separate architectural layer. Protocol-specific restrictions
-remain in the standard implementation; field mechanics do not interpret Value
-semantics.
+Format may compose them with field ordering, length scope, tag-only selection
+and boundary resolution through the optional helpers in `tlv/formats/compose.h`.
+Composition is part of Format, not a separate architectural layer.
+Protocol-specific restrictions remain in the standard implementation; field
+mechanics do not interpret Value semantics. Call these mechanisms field
+encodings; reserve Codec for conversion
+between Value bytes and application values.
 
 ### Layout
 

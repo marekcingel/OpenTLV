@@ -113,7 +113,7 @@ or interpreting Value during decoding.
 Use `tlv_fixed_format_init()` with `tag_size = 1`, `length_size = 1`, an explicit
 `length_order`, and the selected `element_order` and `length_scope` to reproduce
 these compositions. Fixed delegates to the generic binary-field composition;
-custom field codecs can use `tlv_field_composition_t` and `tlv_fields_format_init()`.
+custom field encodings can use `tlv_field_composition_t` and `tlv_fields_format_init()`.
 Format configuration must outlive its descriptor and all retained sources.
 
 Encoding an Element uses the destination Format's order and count scope.
@@ -137,13 +137,27 @@ Field Encoding provides individual-field mechanics under `tlv/field/`:
 | Level | Public headers and responsibility |
 | --- | --- |
 | Low-level bit, byte and integer primitives | `tlv/field/packed.h` extracts and inserts unsigned fields within backing integers. Shared byte-order primitives remain in `tlv/endian.h`. |
-| Identifier and Length encodings | `tlv/field/encoding.h` defines the read/write callback contracts; `tlv/field/variable.h` and `tlv/field/escaped.h` provide standalone encoding primitives. |
+| Identifier and Length encodings | `tlv/field/encoding.h` defines the read/write callback contracts; `tlv/field/fixed.h`, `tlv/field/variable.h` and `tlv/field/escaped.h` provide standalone encoding primitives. |
 
 Format composition owns ordering, count scope, tag-only selection and optional
 boundary resolution. Its types, callbacks and initializers live in
 `tlv/formats/compose.h`. The complete Fixed, Variable and Escaped configurations
 and their adapters remain under `tlv/formats/`. Field primitives do not depend
 on these complete formats, Reader, Writer, Document, Schema, Codec or builtins.
+Generic composition helpers are optional; an implementation may supply the same
+complete Format contract directly. Reader and Writer use that contract without
+requiring Definition, Schema or Codec. Writer encodes an Element without needing
+a previously parsed source Layout. Codec converts between Value bytes and
+application values; Identifier and Length mechanics are field encodings.
+
+The [standalone fixed-field primitives](../formats/fixed/configurable.md#standalone-field-encoding)
+preserve identifier bytes and read/write unsigned `tlv_size_t` counts with
+explicit byte order. Binary composition adapts them to field callbacks and
+retains ordering, count normalization, bounds resolution, tag-only selection,
+source ranges and element-relative errors. The Escaped format reuses the same
+fixed identifier primitive. These adapters preserve their existing validation
+precedence and failure behavior; standalone operations validate their own
+arguments under the contracts in `tlv/field/fixed.h`.
 
 ## Format operations
 

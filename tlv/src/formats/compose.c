@@ -2,6 +2,7 @@
 // Copyright (c) 2026 Marek Cingel
 
 #include "tlv/formats/compose.h"
+#include "tlv/field/fixed.h"
 #include "tlv/size.h"
 #include <string.h>
 
@@ -155,46 +156,47 @@ tlv_result_t tlv_fields_format_init(tlv_format_t* format, const tlv_field_compos
 static tlv_result_t binary_tag_read(const void* ctx, const uint8_t* data, size_t size,
                                     tlv_tag_t* tag, size_t* used) {
     const tlv_binary_composition_t* f = (const tlv_binary_composition_t*)ctx;
-    if (f->tag_size > size) return TLV_ERR_BUFFER_TOO_SHORT;
-    *tag = tlv_tag(data, f->tag_size);
-    *used = f->tag_size;
-    return TLV_OK;
+    const tlv_fixed_identifier_t identifier = {f->tag_size};
+    return tlv_fixed_identifier_read(&identifier, data, size, tag, used);
 }
 
 static tlv_result_t binary_tag_write(const void* ctx, uint8_t* data, size_t capacity,
                                      const tlv_tag_t* tag, size_t* used) {
     const tlv_binary_composition_t* f = (const tlv_binary_composition_t*)ctx;
+    const tlv_fixed_identifier_t identifier = {f->tag_size};
+    /* Composition historically reports width mismatch before missing tag bytes. */
     if (tag->size != f->tag_size) return TLV_ERR_INVALID_TAG_SIZE;
-    if (!tag->data) return TLV_ERR_NULL_ARG;
-    if (data && capacity < f->tag_size) return TLV_ERR_BUFFER_TOO_SHORT;
-    if (data) memcpy(data, tag->data, f->tag_size);
-    *used = f->tag_size;
-    return TLV_OK;
+    return tlv_fixed_identifier_write(&identifier, tag, data, data ? capacity : 0, used);
 }
 
 static tlv_result_t binary_length_read(const void* ctx, const uint8_t* data, size_t size,
                                        tlv_size_t* length, size_t* used) {
     const tlv_binary_composition_t* f = (const tlv_binary_composition_t*)ctx;
+    const tlv_fixed_length_t count = {f->length_size, f->length_order};
+    /* Report the wire prefix before decoding, including on byte-order errors. */
     *used = size < f->length_size ? size : f->length_size;
     if (size < f->length_size) return TLV_ERR_BUFFER_TOO_SHORT;
-    return tlv_read_uint(data, f->length_size, f->length_order, length);
+    return tlv_fixed_length_read(&count, data, size, length, used);
 }
 
 static tlv_result_t binary_length_size(const void* ctx, tlv_size_t length, size_t* used) {
     const tlv_binary_composition_t* f = (const tlv_binary_composition_t*)ctx;
-    if (f->length_size < 8 && length >= ((uint64_t)1 << (8 * f->length_size)))
-        return TLV_ERR_INVALID_LENGTH;
-    *used = f->length_size;
-    return TLV_OK;
+    /* A width query has never consulted wire byte order. The fixed primitive
+     * validates its own configuration, so use a supported order for sizing. */
+    const tlv_fixed_length_t count = {f->length_size, TLV_BYTE_ORDER_BIG_ENDIAN};
+    return tlv_fixed_length_write(&count, length, NULL, 0, used);
 }
 
 static tlv_result_t binary_length_write(const void* ctx, uint8_t* data, size_t capacity,
                                         tlv_size_t length, size_t* used) {
     const tlv_binary_composition_t* f = (const tlv_binary_composition_t*)ctx;
+    const tlv_fixed_length_t count = {f->length_size, f->length_order};
+    /* Keep the published width on capacity/order errors, and preserve the
+     * existing count-fit, capacity, byte-order validation precedence. */
     tlv_result_t rc = binary_length_size(ctx, length, used);
     if (rc != TLV_OK || !data) return rc;
     if (capacity < f->length_size) return TLV_ERR_BUFFER_TOO_SHORT;
-    return tlv_write_uint(data, f->length_size, f->length_order, length);
+    return tlv_fixed_length_write(&count, length, data, capacity, used);
 }
 
 static tlv_field_composition_t binary_fields(const void* context) {

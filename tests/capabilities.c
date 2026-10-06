@@ -61,6 +61,33 @@ int main(void) {
     CHECK(tlv_config_schema() == OPENTLV_SCHEMA);
     CHECK(tlv_config_codec() == OPENTLV_CODEC);
     CHECK(tlv_tag_equal(tlv_tag(wire, 1), tlv_tag(wire, 1)));
+    {
+        /* Field encodings are available through the umbrella even with every
+         * optional capability and builtin disabled. */
+        const tlv_fixed_identifier_t identifier = {3};
+        const tlv_fixed_length_t     length = {8, TLV_BYTE_ORDER_LITTLE_ENDIAN};
+        const uint8_t                tag_bytes[] = {0x9F, 0, 0xFF};
+        const uint8_t count_bytes[] = {0xEF, 0xCD, 0xAB, 0x89, 0x67, 0x45, 0x23, 0x01};
+        uint8_t       output[8];
+        tlv_tag_t     tag = {0};
+        tlv_size_t    count = 0;
+        size_t        used = 0;
+        CHECK(tlv_fixed_identifier_read(&identifier, tag_bytes, sizeof tag_bytes, &tag, &used) ==
+              TLV_OK);
+        CHECK(tag.data == tag_bytes && tag.size == sizeof tag_bytes && used == sizeof tag_bytes);
+        CHECK(tlv_fixed_identifier_write(&identifier, &tag, NULL, 0, &used) == TLV_OK);
+        CHECK(used == sizeof tag_bytes);
+        CHECK(tlv_fixed_identifier_write(&identifier, &tag, output, sizeof output, &used) ==
+              TLV_OK);
+        CHECK(used == sizeof tag_bytes && memcmp(output, tag_bytes, used) == 0);
+        CHECK(tlv_fixed_length_read(&length, count_bytes, sizeof count_bytes, &count, &used) ==
+              TLV_OK);
+        CHECK(count == UINT64_C(0x0123456789ABCDEF) && used == sizeof count_bytes);
+        CHECK(tlv_fixed_length_write(&length, count, NULL, 0, &used) == TLV_OK);
+        CHECK(used == sizeof count_bytes);
+        CHECK(tlv_fixed_length_write(&length, count, output, sizeof output, &used) == TLV_OK);
+        CHECK(used == sizeof count_bytes && memcmp(output, count_bytes, used) == 0);
+    }
 #if OPENTLV_READER
     {
         tlv_reader_t  reader;

@@ -4,7 +4,7 @@ Prerequisite: Start with the [basic model](learning-model.md) before the detaile
 
 ```text
 Format describes wire rules
-Reader/Writer use Format; Schema and Codec are optional
+Reader/Writer use Format; Definition, Schema and Codec are optional
 ```
 
 OpenTLV provides one C library (`tlv`) and a header-only C++ interface (`tlv++`)
@@ -25,43 +25,32 @@ This is the canonical architecture overview. The
 [architectural rules](architectural-rules.md) constrain changes; specialized
 contract and audit pages extend this model rather than define another one.
 
-```text
-Definition → Format → Field Encoding → Layout → Element → Schema → Codec
-```
-
-This expresses related responsibilities, not a mandatory runtime call pipeline
-or module dependency graph. Reader/Writer require Format, not a Definition,
-Schema or Codec. Independent standards are a playground for finding reusable
-mechanisms: protocol policy stays in standards and extensions.
-
 OpenTLV separates reusable definitions and rules, concrete runtime data, and
 operations that apply those rules to the data:
 
 ```text
-DECLARATIVE / SEMANTIC MODEL
-────────────────────────────
-Definition
-Format
-Field Encoding
-Schema
-Codec
+REUSABLE DESCRIPTIONS
+Definition    Format    Field Encoding    Schema    Codec
 
-RUNTIME REPRESENTATION
-────────────────────────────
-Element
-Layout
-Document (owned representation)
+FORMAT CONSTRUCTION (implementation choices)
+Field Encoding + composition rules -- optional helpers --+
+Direct implementation ----------------------------------+--> Format contract
 
-OPERATIONS
-────────────────────────────
-Reader
-Tree Reader
-Writer
-Tree Writer
-Query
-Visitor
-Diagnostics
+OPERATIONS                              RUNTIME REPRESENTATIONS
+wire bytes -- Reader using Format ----> Element + source Layout
+wire bytes <-- Writer using Format ---- Element
+
+Definition, Schema and Codec are optional, not processing stages.
 ```
+
+Composition belongs to Format; it is not another canonical layer. The generic
+composition helpers are optional: a Format may implement the same complete
+contract directly. Reader and Writer use that contract regardless of how the
+Format was constructed. Writer can encode an application-created Element
+without a previously parsed source Layout.
+
+Independent standards are a playground for finding reusable mechanisms:
+protocol policy stays in standards and extensions.
 
 The declarative/semantic model describes meaning and rules: a Definition
 associates an identifier with a descriptive name in a registry, Format defines
@@ -79,8 +68,10 @@ and `tlv_range_t`; `tlv_decoded_t` pairs it with `tlv_element_t`.
 Field Encoding has two reusable levels. Low-level bit, byte and integer
 primitives include packed fields in `tlv/field/packed.h`. Identifier and Length
 encodings use the callback contracts in `tlv/field/encoding.h` and the standalone
-variable-width and escape-prefixed primitives in `tlv/field/variable.h` and
-`tlv/field/escaped.h`. Neither level describes a complete element.
+fixed-width, variable-width and escape-prefixed primitives in `tlv/field/fixed.h`,
+`tlv/field/variable.h` and `tlv/field/escaped.h`. Neither level describes a
+complete element. Codec is reserved for converting Value bytes to and from
+application values; individual wire fields use field encodings.
 
 Format composition in `tlv/formats/compose.h` combines field encodings with
 ordering, count scope, tag-only selection and optional boundary resolution.
@@ -145,8 +136,9 @@ introduce additional architectural phases by implication.
 | Area | Responsibility | Allowed dependencies |
 | --- | --- | --- |
 | Shared contracts | Borrowed values, logical lengths, raw tags, errors, format callbacks | Standard C types |
+| Field Encoding | Individual Identifier and Length representations, packed fields | Shared field types and byte-order helpers; no Format dependency |
 | Reader / writer | Bounded raw TLV I/O, iteration, copies, generic traversal | Shared contracts |
-| Formats | Complete Header/Value/Trailer framing and identification of nested containers | Shared contracts; private wire helpers |
+| Formats | Complete Header/Value/Trailer framing and identification of nested containers | Shared contracts; Field Encoding; private wire helpers |
 | Schemas | Tag length, occurrence, primitive/container and child membership rules | Shared contracts, raw reader and traversal |
 | Codec | Value conversion and complete-structure object mappings (bindings) | Shared contracts; structure codecs may use schemas and raw I/O |
 
@@ -201,7 +193,7 @@ tlv/
   writer/    writer.h
   schema/    schema.h
   codec/     codec.h, structure.h
-  field/     encoding.h, packed.h, variable.h, escaped.h
+  field/     encoding.h, fixed.h, packed.h, variable.h, escaped.h
   formats/
     compose.h, fixed.h, variable.h, escaped.h
   builtins/
@@ -239,7 +231,9 @@ from `codec/emv.h`) is distinct from the umbrella `builtins/emv/emv.h`.
 BER, DER and CER share the ASN.1 field adapter in
 `src/builtins/asn1/ber_internal.c` and its private header. Reusable variable-width
 identifier and definite-length algorithms live in `src/field/variable.c`;
-`src/formats/variable.c` supplies their complete-format adapter.
+`src/formats/variable.c` supplies their complete-format adapter. Fixed-width
+identifier and count algorithms live in `src/field/fixed.c`; binary composition
+and the Escaped format reuse them through thin field callback adapters.
 Internal schema validation, BER helpers and EMV value codecs have dedicated
 source files. `config.h` and `version.h` are generated into the build include
 directory. The public aggregate `tlv/tlv.h` includes enabled components; generic

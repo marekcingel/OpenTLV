@@ -10,6 +10,7 @@ endif()
 add_library(${PROJECT_NAME} ${_tlv_library_type}
     src/definition.c
     src/format.c
+    src/field/fixed.c
     src/field/packed.c
     src/field/variable.c
     src/field/escaped.c
