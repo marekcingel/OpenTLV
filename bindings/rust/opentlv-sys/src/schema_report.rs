@@ -5,7 +5,7 @@
 use super::*;
 /// Native enclosing scope path.
 #[repr(C)]
-#[derive(Clone, Copy)]
+#[derive(Clone, Copy, Debug)]
 pub struct tlv_diagnostic_path_t {
     /// Borrowed scope Tags.
     pub tags: [tlv_tag_t; 32],
@@ -14,7 +14,7 @@ pub struct tlv_diagnostic_path_t {
 }
 /// Detailed native Schema violation.
 #[repr(C)]
-#[derive(Clone, Copy)]
+#[derive(Clone, Copy, Debug)]
 pub struct tlv_schema_diagnostic_t {
     /// Corresponding C field.
     pub diagnostic: tlv_diagnostic_t,

@@ -1,0 +1,63 @@
+name: Query release candidate
+
+# The producer must upload manifest.json and its referenced evidence files in
+# query-candidate-evidence. This gate consumes evidence; it never promotes an
+# inventory report or an unverified facade capability to a passing result.
+on:
+  workflow_dispatch:
+    inputs:
+      evidence_run_id:
+        description: Successful run for this commit containing query-candidate-evidence
+        required: true
+        type: string
+  workflow_call:
+    inputs:
+      evidence_run_id:
+        description: Successful run for this commit containing query-candidate-evidence
+        required: true
+        type: string
+
+permissions:
+  contents: read
+  actions: read
+
+jobs:
+  candidate:
+    name: Complete Query candidate evidence
+    runs-on: ubuntu-24.04
+    steps:
+      - uses: actions/checkout@v5
+      - name: Verify evidence run provenance
+        uses: actions/github-script@v7
+        env:
+          EVIDENCE_RUN_ID: ${{ inputs.evidence_run_id }}
+        with:
+          script: |
+            const value = process.env.EVIDENCE_RUN_ID;
+            if (!/^[1-9][0-9]*$/.test(value) || !Number.isSafeInteger(Number(value))) {
+              throw new Error('A numeric evidence run ID is required');
+            }
+            const { data: run } = await github.rest.actions.getWorkflowRun({
+              ...context.repo, run_id: Number(value)
+            });
+            if (run.head_sha !== context.sha || run.status !== 'completed' ||
+                run.conclusion !== 'success') {
+              throw new Error('Evidence must come from a successful run for this candidate commit');
+            }
+      - uses: actions/download-artifact@v4
+        with:
+          name: query-candidate-evidence
+          path: build/query-candidate-evidence
+          github-token: ${{ github.token }}
+          run-id: ${{ inputs.evidence_run_id }}
+      - name: Enforce all Query phases, facades and required checks
+        run: >-
+          python3 scripts/check_query_release.py --release
+          --evidence build/query-candidate-evidence/manifest.json
+          --output build/query-candidate-result.json
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: query-candidate-result-${{ github.sha }}
+          path: build/query-candidate-result.json
+          if-no-files-found: warn

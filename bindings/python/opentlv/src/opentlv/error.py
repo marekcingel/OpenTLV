@@ -171,5 +171,5 @@ def _from_native(error: "_native.Error") -> OpenTLVError:
         result.applied = fields["applied"]
     if "rule" in fields:
         result.rule = fields["rule"]
-        result.schema = {"tag": fields["schema_tag"], "field": fields["schema_field"]}
+        result.schema = fields["schema"]
     return result

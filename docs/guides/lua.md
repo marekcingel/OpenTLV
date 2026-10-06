@@ -573,7 +573,27 @@ Lua strings and match snapshots own copied bytes. Callback errors invalidate
 the execution until reset, and reentrant calls are rejected. `close()` releases
 native owners deterministically. Native failures raise tables with `code` and
 Query diagnostic detail. See [consumer tests](../../bindings/lua/tests/program_spec.lua).
-Arbitrary Query providers and schema-aware Query edits remain unavailable.
+
+Compile options accept `providers = {num = {id = ..., decode = ...}, ...}` for
+`num`, `bcd`, `text` and `date`. Callbacks receive a Value string and optional
+copied event metadata; return an integer or a UTF-8 string for `text`. Set
+`max_result_bytes` for text scratch and preserve IDs/contracts when loading
+images. Provider errors propagate after returning through C; Query reentry from
+providers is rejected.
+
+`execution:feed(event)` accepts canonical event tables with `kind`, `tag`,
+`value`, `depth` and `offset`. Call `finish()` before pulling deferred results;
+raw events and Reader input cannot be mixed before reset.
+`execution:edit_document(kind, tag, value, target_capacity)` edits a completed
+selection and reports the applied count. Short target storage permits retry;
+successful mutations invalidate checked Nodes.
+
+`opentlv.query_schema_validate(rules, input, options)` validates a buffer string
+or Document. Each rule has `context`, `assertion` and `name`; both programs are
+retained during validation. Options bound depth, nodes, work, contexts and
+Document Value snapshot capacity. Errors own the rule index, Query detail and
+Schema diagnostic context. Provider callbacks cannot mutate or close the
+Document being validated.
 
 ## Next step
 

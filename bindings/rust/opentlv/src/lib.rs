@@ -129,8 +129,9 @@ use std::ffi::CStr;
 mod program;
 pub use program::{
     ProgramError, ProgramOptions, ProgramResult, QueryBinding, QueryCodecError, QueryConversion,
-    QueryDecoded, QueryExecution, QueryMatch, QueryMetadata, QueryProgram, QueryProvider,
-    QueryType, QueryValue,
+    QueryDecoded, QueryEvent, QueryExecution, QueryMatch, QueryMetadata, QueryProgram,
+    QueryProvider, QueryRule, QuerySchema, QuerySchemaError, QuerySchemaLimits, QueryType,
+    QueryValue,
 };
 #[cfg(feature = "document")]
 pub use program::{QueryEdit, QueryEditError, QueryEditOptions};

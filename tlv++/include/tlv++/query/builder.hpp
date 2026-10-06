@@ -88,11 +88,11 @@ inline query_boolean operator>(const query_integer& a, const query_integer& b) {
 inline query_boolean operator<(const query_integer& a, const query_integer& b) {
     return query_boolean("(" + a.text() + ") < (" + b.text() + ")");
 }
-/** @brief Compose short-circuit boolean conjunction. */
+/** @brief Compose native eager boolean conjunction; both operands are evaluated. */
 inline query_boolean operator&&(const query_boolean& a, const query_boolean& b) {
     return query_boolean("(" + a.text() + ") and (" + b.text() + ")");
 }
-/** @brief Compose short-circuit boolean disjunction. */
+/** @brief Compose native eager boolean disjunction; both operands are evaluated. */
 inline query_boolean operator||(const query_boolean& a, const query_boolean& b) {
     return query_boolean("(" + a.text() + ") or (" + b.text() + ")");
 }

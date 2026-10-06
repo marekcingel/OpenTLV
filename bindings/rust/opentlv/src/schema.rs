@@ -419,6 +419,10 @@ pub struct SchemaDiagnostic {
     pub path: Vec<Tag>,
     /// Affected source offset, when available.
     pub offset: Option<usize>,
+    /// Owned native description of the expected condition.
+    pub expected: Option<String>,
+    /// Owned native description of the actual condition, when supplied.
+    pub actual: Option<String>,
     /// Owned schema field or group name.
     pub field: Option<String>,
     /// Whether occurrence bounds describe an alternative group.
@@ -433,6 +437,82 @@ pub struct SchemaDiagnostic {
     pub length_multiple: usize,
     /// C length constraint flags; meaningful when length is present.
     pub length_flags: u32,
+}
+
+impl SchemaDiagnostic {
+    // SAFETY: the caller keeps all native diagnostic spans and strings alive.
+    pub(crate) unsafe fn from_raw(item: &native::tlv_schema_diagnostic_t) -> crate::Result<Self> {
+        let mut path = Vec::new();
+        for tag in &item.path.tags[..item.path.length] {
+            // SAFETY: scope Tags borrow live input or schema storage.
+            path.push(unsafe { Tag::from_raw(tag) }?);
+        }
+        // SAFETY: C returns a static NUL-terminated name for any kind.
+        let kind_name =
+            unsafe { std::ffi::CStr::from_ptr(native::tlv_schema_issue_kind_string(item.kind)) }
+                .to_string_lossy()
+                .into_owned();
+        let field = if item.field.is_null() {
+            None
+        } else {
+            // SAFETY: schema retains this NUL-terminated name during the copy.
+            Some(
+                unsafe { std::ffi::CStr::from_ptr(item.field) }
+                    .to_string_lossy()
+                    .into_owned(),
+            )
+        };
+        Ok(Self {
+            error: Error::from_code(item.diagnostic.code).unwrap_or(Error::Schema),
+            severity: item.diagnostic.severity,
+            kind: item.kind,
+            kind_name,
+            // SAFETY: affected tag borrows still-live storage.
+            tag: unsafe { Tag::from_raw(&item.tag) }?,
+            path,
+            offset: (item.diagnostic.has_offset != 0).then_some(item.diagnostic.offset),
+            expected: if item.diagnostic.expected.is_null() {
+                None
+            } else {
+                Some(
+                    unsafe { std::ffi::CStr::from_ptr(item.diagnostic.expected) }
+                        .to_string_lossy()
+                        .into_owned(),
+                )
+            },
+            actual: if item.diagnostic.actual.is_null() {
+                None
+            } else {
+                Some(
+                    unsafe { std::ffi::CStr::from_ptr(item.diagnostic.actual) }
+                        .to_string_lossy()
+                        .into_owned(),
+                )
+            },
+            field,
+            is_group: item.is_group != 0,
+            occurrences: (item.has_occurs != 0).then_some(SchemaBounds {
+                minimum: item.min_occurs,
+                maximum: item.max_occurs,
+                actual: item.occurs,
+            }),
+            length: (item.has_length != 0).then_some(SchemaBounds {
+                minimum: item.min_length,
+                maximum: item.max_length,
+                actual: item.actual_length,
+            }),
+            form: (item.has_form != 0).then_some((
+                match item.expected_form {
+                    1 => Kind::Primitive,
+                    2 => Kind::Constructed,
+                    _ => Kind::Any,
+                },
+                item.actual_constructed != 0,
+            )),
+            length_multiple: item.length_multiple,
+            length_flags: item.length_flags,
+        })
+    }
 }
 
 /// Detailed bounded report, independent of input and schema lifetimes.
@@ -557,59 +637,8 @@ impl StructureSchema {
         for item in storage.iter().take(report.count.min(capacity)) {
             // SAFETY: C initialized the stored prefix; its borrowed data remains live here.
             let item = unsafe { item.assume_init_ref() };
-            let mut path = Vec::new();
-            for tag in &item.path.tags[..item.path.length] {
-                // SAFETY: scope Tags borrow live input or schema storage.
-                path.push(unsafe { Tag::from_raw(tag) }.map_err(convert)?);
-            }
-            // SAFETY: C returns a static NUL-terminated name for any kind.
-            let kind_name = unsafe {
-                std::ffi::CStr::from_ptr(native::tlv_schema_issue_kind_string(item.kind))
-            }
-            .to_string_lossy()
-            .into_owned();
-            let field = if item.field.is_null() {
-                None
-            } else {
-                // SAFETY: schema retains this NUL-terminated name during the copy.
-                Some(
-                    unsafe { std::ffi::CStr::from_ptr(item.field) }
-                        .to_string_lossy()
-                        .into_owned(),
-                )
-            };
-            diagnostics.push(SchemaDiagnostic {
-                error: Error::from_code(item.diagnostic.code).unwrap_or(Error::Schema),
-                severity: item.diagnostic.severity,
-                kind: item.kind,
-                kind_name,
-                // SAFETY: affected tag borrows still-live storage.
-                tag: unsafe { Tag::from_raw(&item.tag) }.map_err(convert)?,
-                path,
-                offset: (item.diagnostic.has_offset != 0).then_some(item.diagnostic.offset),
-                field,
-                is_group: item.is_group != 0,
-                occurrences: (item.has_occurs != 0).then_some(SchemaBounds {
-                    minimum: item.min_occurs,
-                    maximum: item.max_occurs,
-                    actual: item.occurs,
-                }),
-                length: (item.has_length != 0).then_some(SchemaBounds {
-                    minimum: item.min_length,
-                    maximum: item.max_length,
-                    actual: item.actual_length,
-                }),
-                form: (item.has_form != 0).then_some((
-                    match item.expected_form {
-                        1 => Kind::Primitive,
-                        2 => Kind::Constructed,
-                        _ => Kind::Any,
-                    },
-                    item.actual_constructed != 0,
-                )),
-                length_multiple: item.length_multiple,
-                length_flags: item.length_flags,
-            });
+            // SAFETY: C initialized this record and input/schema storage is live.
+            diagnostics.push(unsafe { SchemaDiagnostic::from_raw(item) }.map_err(convert)?);
         }
         Ok(SchemaDiagnosticReport {
             total_count: report.count,

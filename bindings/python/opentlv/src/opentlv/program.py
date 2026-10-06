@@ -166,11 +166,12 @@ class QueryRule:
 class QuerySchema:
     """Owning contextual Schema composition over the canonical C validator.
 
-    Programs and providers remain alive independently of subsequent program
-    close calls. Rules must have compatible native environments. An empty
+    Programs and providers remain alive while the Schema owns its rules.
+    Rules must have compatible native environments. An empty
     context selection succeeds; rules execute in order with explicit bounds.
     """
     def __init__(self, rules, *, format=None):
+        self._busy = False
         self.rules = tuple(rules)
         if any(not isinstance(rule, QueryRule) for rule in self.rules):
             raise TypeError("QueryRule entries required")
@@ -183,9 +184,15 @@ class QuerySchema:
 
     def _validate(self, input, *, max_depth=64, max_nodes=1024, max_work=10000000,
                   max_contexts=None, value_capacity=None):
-        _call(_native.query_schema, self._native_rules, input, int(self._format),
-              max_depth, max_nodes, max_work, max_nodes if max_contexts is None else max_contexts,
-              -1 if value_capacity is None else value_capacity)
+        if self._busy:
+            raise RuntimeError("Query Schema validation is already active")
+        self._busy = True
+        try:
+            _call(_native.query_schema, self._native_rules, input, int(self._format),
+                  max_depth, max_nodes, max_work, max_nodes if max_contexts is None else max_contexts,
+                  -1 if value_capacity is None else value_capacity)
+        finally:
+            self._busy = False
 
     def validate_buffer(self, input, **limits):
         """Validate complete immutable input; D-only rules fail before traversal."""

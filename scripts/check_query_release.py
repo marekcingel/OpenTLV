@@ -107,8 +107,13 @@ def main():
             if "query" in name:
                 symbols.add(name)
     commit = subprocess.check_output(["git", "rev-parse", "HEAD"], cwd=root, text=True).strip()
-    evidence = json.loads(args.evidence.read_text()) if args.evidence else {}
-    blockers = inventory_errors + evidence_errors(
+    evidence, input_errors = {}, []
+    if args.evidence:
+        try:
+            evidence = json.loads(args.evidence.read_text(encoding="utf-8"))
+        except (OSError, UnicodeError, json.JSONDecodeError) as error:
+            input_errors.append(f"invalid release evidence: {error}")
+    blockers = inventory_errors + input_errors + evidence_errors(
         evidence, args.evidence.parent if args.evidence else root, commit, symbols, corpus["f3_rules"])
     if args.release and subprocess.check_output(["git", "status", "--porcelain"], cwd=root):
         blockers.append("release candidate worktree has uncommitted changes")

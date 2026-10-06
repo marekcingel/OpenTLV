@@ -726,11 +726,12 @@ tlv_result_t go_query_document(go_query_execution* q, const go_document* documen
                                size_t capacity, tlv_query_diagnostic_t* diagnostic) {
 #if OPENTLV_DOCUMENT
     if (!q->retained || q->has_reader || q->has_document) return TLV_ERR_INVALID_ARG;
-    if (q->depth > SIZE_MAX / sizeof(tlv_tree_writer_frame_t)) return TLV_ERR_OVERFLOW;
+    if (q->depth == SIZE_MAX || q->depth + 1 > SIZE_MAX / sizeof(tlv_tree_writer_frame_t))
+        return TLV_ERR_OVERFLOW;
     tlv_tree_writer_workspace_t staging = {0};
     if (q->program->info.constructed_values_required) {
-        staging.frames = calloc(q->depth ? q->depth : 1, sizeof *staging.frames);
-        staging.frame_capacity = q->depth;
+        staging.frames = calloc(q->depth + 1, sizeof *staging.frames);
+        staging.frame_capacity = q->depth + 1;
         staging.data = malloc(capacity ? capacity : 1);
         staging.data_capacity = capacity;
         staging.scratch = malloc(capacity ? capacity : 1);

@@ -9,6 +9,9 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Fixed
 
+- Allow root-only Document Query Value snapshots at zero depth and keep Lua Documents protected through callback preparation and diagnostic copying. (#523)
+- Initialize Query and contextual Schema diagnostics on Tree Reader resource failures, preventing invalid borrowed spans from reaching language bindings. (#523)
+- Preserve contextual Query Schema diagnostics across Python, Go, Lua and JavaScript/WASM, including paths and available source offsets. (#523)
 - Require both 32-bit and 64-bit validation artifacts in the Query release gate, and reject malformed candidate evidence. (#523)
 - Preserve separated path tokens when formatting compiled Query programs, reject aliased image-loading storage before writes, and reject invalid benchmark measurements in Query release budgets. (#523)
 - Initialize Lua Query execution information correctly, keep Go Query tests compatible with disabled BER, and restore strict Clang Query builds. (#523)
@@ -136,6 +139,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Added
 
+- Add an owning Rust Query Schema facade, public-facade Schema regressions, callback and input-replacement fuzz coverage, and a strict Query release-candidate workflow. (#523)
 - Add an owning JavaScript/WASM compiled Query and checked Document facade, public-facade corpus checks, native x86/WASM ABI snapshots, and bounded sanitizer campaigns with retained failure artifacts. (#523)
 - Add bounded read-only Query image loading with explicit validation scratch, C++ external-image and streaming coverage APIs, corruption fuzzing, seeded differential properties with minimized reproducers, and Query release-evidence inventory checks. (#523)
 - Add C++ full Query programs and independent executions with owned or caller-owned storage, typed expression composition and variable bindings, resumable Tree callbacks/pulls and checked Document selection. (#522)

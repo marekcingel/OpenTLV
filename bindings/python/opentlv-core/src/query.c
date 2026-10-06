@@ -718,15 +718,15 @@ PyObject* opentlv_python_execution_document(PyObject* module, PyObject* args) {
         release(&self->values);
         release(&self->staging_data);
         release(&self->staging_scratch);
-        if (self->depth > SIZE_MAX / sizeof(tlv_tree_writer_frame_t))
+        if (self->depth == SIZE_MAX || self->depth + 1 > SIZE_MAX / sizeof(tlv_tree_writer_frame_t))
             return failure(TLV_ERR_OVERFLOW, NULL);
-        if (!allocate(&self->frames, self->depth * sizeof(tlv_tree_writer_frame_t)) ||
+        if (!allocate(&self->frames, (self->depth + 1) * sizeof(tlv_tree_writer_frame_t)) ||
             !allocate(&self->values, (size_t)value_capacity) ||
             !allocate(&self->staging_data, (size_t)value_capacity) ||
             !allocate(&self->staging_scratch, (size_t)value_capacity))
             return NULL;
         staging.frames = self->frames.data;
-        staging.frame_capacity = self->depth;
+        staging.frame_capacity = self->depth + 1;
         staging.data = self->staging_data.data;
         staging.data_capacity = (size_t)value_capacity;
         staging.scratch = self->staging_scratch.data;
@@ -798,11 +798,32 @@ PyObject* opentlv_python_query_schema(PyObject* module, PyObject* args) {
     free(rules);
     if (rc != TLV_OK) {
         if (PyErr_Occurred()) return NULL;
+        const tlv_schema_diagnostic_t* schema = &diagnostic.schema;
+        PyObject*                      path = PyTuple_New((Py_ssize_t)schema->path.length);
+        if (!path) return NULL;
+        for (size_t i = 0; i < schema->path.length; ++i) {
+            tlv_tag_t tag = schema->path.tags[i];
+            PyObject* value =
+                PyBytes_FromStringAndSize((const char*)tag.data, (Py_ssize_t)tag.size);
+            if (!value) {
+                Py_DECREF(path);
+                return NULL;
+            }
+            PyTuple_SetItem(path, (Py_ssize_t)i, value);
+        }
+        PyObject* offset = schema->diagnostic.has_offset
+                               ? PyLong_FromSize_t(schema->diagnostic.offset)
+                               : Py_NewRef(Py_None);
+        PyObject* detail = Py_BuildValue(
+            "{s:i,s:i,s:i,s:s,s:y#,s:z,s:N,s:N,s:z,s:z}", "code", (int)schema->diagnostic.code,
+            "severity", (int)schema->diagnostic.severity, "kind", (int)schema->kind, "kind_name",
+            tlv_schema_issue_kind_string(schema->kind), "tag",
+            schema->tag.size ? (const char*)schema->tag.data : "", (Py_ssize_t)schema->tag.size,
+            "field", schema->field, "path", path, "offset", offset, "expected",
+            schema->diagnostic.expected, "actual", schema->diagnostic.actual);
+        if (!detail) return NULL;
         PyObject* details =
-            Py_BuildValue("{s:n,s:y#,s:s}", "rule", (Py_ssize_t)diagnostic.rule, "schema_tag",
-                          diagnostic.schema.tag.size ? (const char*)diagnostic.schema.tag.data : "",
-                          (Py_ssize_t)diagnostic.schema.tag.size, "schema_field",
-                          diagnostic.schema.field ? diagnostic.schema.field : "");
+            Py_BuildValue("{s:n,s:N}", "rule", (Py_ssize_t)diagnostic.rule, "schema", detail);
         if (!details) return NULL;
         failure_fields(rc, &diagnostic.query, details);
         Py_DECREF(details);

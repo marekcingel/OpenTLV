@@ -8,6 +8,9 @@ unoptimized, retained, Document and legal retained-prefix windows, including typ
 integer/bytes/string parameters and set laws. `Property_query` runs this through
 the property workflow. See [release evidence](../../docs/development/query-release.md)
 for the strict candidate gate and current facade blockers.
+The [F1-F5 implementation audit](../../docs/development/query-phase-audit.md)
+maps all original work packages to source/tests and records remaining contract
+and facade gaps; a common-corpus pass alone does not establish full parity.
 
 The native adapter's `image` mode writes same-version fuzz seeds, for example
 `test-query-conformance "//5A" 5a00 image descendant-v5.bin`. Checked-in image seeds

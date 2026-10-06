@@ -5,13 +5,11 @@ WebAssembly with [Emscripten](https://emscripten.org/), so browser tooling runs
 the same parser as native applications. It defaults to `OFF` and adds nothing
 to normal C and C++ builds.
 
-The first interface is intentionally small: it parses a byte buffer and returns
-the element structure or the parser error. It wraps the existing C API in
-`bindings/wasm/src/opentlv_wasm.c`; no parsing logic is duplicated. Editing,
-schemas and OTLV are not exposed; the EMV dictionary is available as an annotation module (below).
-Unlike a general-purpose binding, it does not follow the Reader/Writer/Element
-shape of the [language bindings conceptual model](../concepts/bindings.md); see
-that page for why.
+The module provides parse tooling plus owning compiled Query, checked Document
+editing and contextual Query Schema validation. It wraps the existing C API in
+`bindings/wasm/src/opentlv_wasm.c`; no parsing or Query semantics are duplicated.
+The EMV dictionary is available as an annotation module (below). Remaining
+public-facade gaps are tracked in the [binding capability matrix](../concepts/bindings.md).
 
 ## Build
 
@@ -46,8 +44,7 @@ native builds, and a compiled-out format is rejected as an invalid argument.
 `loadOpenTLV()` also provides `compileQuery(text, options)`, `loadQuery(image,
 options)` and `document(input, options)`. Compilation and evaluation delegate to
 the native C engine. Query formats currently support `ber`, `der` and `cer`;
-disabled components are rejected. Arbitrary callback providers and schema-aware
-Query edits remain unavailable.
+disabled components are rejected.
 
 Programs expose `info`, `format()`, `explain()`, `image()`, `evaluate(input)` and
 `execution(limits)`. Declare `variables: { name: "integer" | "bytes" | "string" }`
@@ -55,6 +52,28 @@ at compilation; bind values with `execution.bind(name, value)` or the `bindings`
 option of `evaluate`. Integer inputs accept safe JS integers or signed 64-bit
 `bigint`; results outside the safe integer range return `bigint`. Named Tags can
 be supplied as `names: { symbol: Uint8Array }`.
+
+`providers: { num: { id, decode }, ... }` selects callbacks for the closed `num`,
+`bcd`, `text` and `date` conversions. Callbacks receive copied bytes and optional
+event metadata; return a signed 64-bit integer or a string for `text`. Text
+providers require `max_result_bytes` for bounded native scratch. The owning
+program retains callback registrations until all executions and schemas release
+them. Callback exceptions propagate and reentry is rejected. Loading an image
+requires matching provider IDs and contracts.
+
+`execution.feed(event)` accepts canonical `begin`, `element` and `end` events.
+`finish()` finalizes deferred results; raw events and Reader input require
+separate resets. After evaluating a Document selection,
+`editDocument("remove" | "replace" | "insert_after", options)` applies edits with
+explicit `target_capacity`. Short target storage reports `error.applied === 0`
+and permits retry; partial failures preserve their applied count.
+
+`querySchema([{ context, assertion, name }], { format })` owns references to
+compiled context selectors and relative Boolean assertion programs. Its
+`validateBuffer` and `validateDocument` methods accept depth/node/work/context
+and snapshot limits. Errors own rule, Query and Schema diagnostic context.
+Close the schema when finished. Document mutation and close are rejected while
+provider callbacks inspect it.
 
 An execution owns its native workspace. `setInput(input, { discard, final })`
 copies and retains input windows until `reset()` or `close()`; original source

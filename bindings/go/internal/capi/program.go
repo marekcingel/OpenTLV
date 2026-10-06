@@ -123,10 +123,11 @@ type QueryRule struct {
 }
 type QuerySchemaLimits struct{ Depth, Nodes, Work, Contexts, ValueCapacity int }
 type QuerySchemaDiagnostic struct {
-	Rule  int
-	Tag   []byte
-	Field string
-	Query ProgramDiagnostic
+	Rule   int
+	Field  string
+	Kind   int
+	Schema Diagnostic
+	Query  ProgramDiagnostic
 }
 
 // ValidateQuerySchema owns storage adaptation only; canonical C evaluates every rule.
@@ -196,7 +197,7 @@ func ValidateQuerySchema(rules []QueryRule, data []byte, document *Document, for
 	if workspace.selector == nil || workspace.assertion == nil || workspace.contexts == nil || workspace.frames == nil {
 		return OutOfMemory, QuerySchemaDiagnostic{}
 	}
-	var diagnostic C.tlv_schema_query_diagnostic_t
+	var nativeDetail C.tlv_schema_query_diagnostic_t
 	if document == nil {
 		input := allocate(len(data), 1, false)
 		if input == nil {
@@ -205,7 +206,7 @@ func ValidateQuerySchema(rules []QueryRule, data []byte, document *Document, for
 		copy(unsafe.Slice((*byte)(input), len(data)), data)
 		code = Code(C.go_query_schema_buffer(format.config, (*C.uint8_t)(input), C.size_t(len(data)),
 			(*C.tlv_schema_query_rule_t)(recordsPointer), C.size_t(len(rules)), C.size_t(limits.Depth),
-			C.size_t(limits.Nodes), C.size_t(limits.Work), &workspace, &diagnostic))
+			C.size_t(limits.Nodes), C.size_t(limits.Work), &workspace, &nativeDetail))
 	} else {
 		capacity := limits.ValueCapacity
 		if capacity < 0 {
@@ -227,11 +228,17 @@ func ValidateQuerySchema(rules []QueryRule, data []byte, document *Document, for
 		}
 		code = Code(C.go_query_schema_document(document.ptr, (*C.tlv_schema_query_rule_t)(recordsPointer),
 			C.size_t(len(rules)), C.size_t(limits.Depth), C.size_t(limits.Nodes), C.size_t(limits.Work),
-			&workspace, values, C.size_t(capacity), &staging, &diagnostic))
+			&workspace, values, C.size_t(capacity), &staging, &nativeDetail))
 	}
-	detail := QuerySchemaDiagnostic{Rule: int(diagnostic.rule), Field: C.GoString(diagnostic.schema.field),
-		Tag:   bytes.Clone(unsafe.Slice((*byte)(unsafe.Pointer(diagnostic.schema.tag.data)), int(diagnostic.schema.tag.size))),
-		Query: programDiagnostic(diagnostic.query, code)}
+	detail := QuerySchemaDiagnostic{Rule: int(nativeDetail.rule), Field: C.GoString(nativeDetail.schema.field),
+		Kind: int(nativeDetail.schema.kind), Schema: diagnostic(nativeDetail.schema.diagnostic, 0),
+		Query: programDiagnostic(nativeDetail.query, code)}
+	detail.Schema.Tag = bytes.Clone(nativeBytes(nativeDetail.schema.tag.data, nativeDetail.schema.tag.size))
+	detail.Schema.HasTag = nativeDetail.schema.tag.size != 0
+	for index := 0; index < int(nativeDetail.schema.path.length); index++ {
+		tag := nativeDetail.schema.path.tags[index]
+		detail.Schema.Path = append(detail.Schema.Path, bytes.Clone(nativeBytes(tag.data, tag.size)))
+	}
 	runtime.KeepAlive(rules)
 	runtime.KeepAlive(document)
 	return code, detail

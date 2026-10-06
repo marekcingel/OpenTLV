@@ -14,10 +14,10 @@ import (
 // Nodes, including unaffected siblings; reacquire them through Elements.
 type Document struct{ *documentState }
 type documentState struct {
-	native     *capi.Document
-	format     Format
-	source     []byte
-	generation uint64
+	native      *capi.Document
+	format      Format
+	source      []byte
+	generation  uint64
 	queryActive int
 }
 
@@ -51,7 +51,9 @@ func parseDocument(data []byte, format Format, options DocumentOptions, defaults
 // Close deterministically releases native storage. It is idempotent and nil-safe;
 // node content snapshots already returned remain valid.
 func (d *Document) Close() error {
-	if d.valid() && d.queryActive > 0 { return StatusError{code: capi.InvalidArg} }
+	if d.valid() && d.queryActive > 0 {
+		return StatusError{code: capi.InvalidArg}
+	}
 	if d.valid() {
 		d.native.Close()
 		d.native = nil

@@ -12,6 +12,7 @@ on:
     paths:
       - 'tlv/**'
       - 'bindings/wasm/**'
+      - 'bindings/common/**'
       - 'tests/query/**'
       - 'cmake/**'
       - '**/CMakeLists.txt'

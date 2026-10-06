@@ -408,7 +408,8 @@ static int node_erase(lua_State* L) {
 }
 
 void opentlv_lua_open_document(lua_State* L, int module_index) {
-    static const opentlv_lua_method_t document_methods[] = {{"find", document_find},
+    static const opentlv_lua_method_t document_methods[] = {{"close", document_gc},
+                                                            {"find", document_find},
                                                             {"query", document_query},
                                                             {"first", document_first},
                                                             {"count", document_count},

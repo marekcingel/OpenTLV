@@ -96,7 +96,9 @@ def check(root):
 
     nav = read("mkdocs.yml")
     bindings_root = root / "bindings"
-    bindings = {directory.name for directory in bindings_root.iterdir() if directory.is_dir()} \
+    # Shared native ownership helpers are not a separately supported language.
+    bindings = {directory.name for directory in bindings_root.iterdir()
+                if directory.is_dir() and directory.name != "common"} \
         if bindings_root.is_dir() else set()
     if not bindings:
         errors.append("bindings/: no official bindings found")

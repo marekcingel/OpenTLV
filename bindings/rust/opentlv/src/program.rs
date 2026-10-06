@@ -3,6 +3,8 @@
 //! Immutable compiled C Query programs with independent bounded continuations.
 use crate::{Element, Error, Format, ReaderDiagnostic, TreeReader, Visit};
 use opentlv_sys as native;
+mod schema;
+pub use schema::{QueryRule, QuerySchema, QuerySchemaError, QuerySchemaLimits};
 use std::{
     collections::BTreeMap,
     ffi::{CStr, CString},
@@ -879,6 +881,42 @@ pub struct QueryMatch<'a> {
     /// Whether this node is a BEGIN event.
     pub constructed: bool,
 }
+/// Borrowed canonical event without wire Source metadata. Producers retain all
+/// Tag and complete Value bytes until the execution is reset or dropped.
+#[derive(Clone, Copy, Debug)]
+pub enum QueryEvent<'a> {
+    /// Open a constructed node; Value contains its complete logical content.
+    Begin {
+        /// Raw Tag bytes.
+        tag: &'a [u8],
+        /// Complete Value bytes.
+        value: &'a [u8],
+        /// Zero-based node depth.
+        depth: usize,
+        /// Producer-supplied event offset, without wire Source semantics.
+        offset: usize,
+    },
+    /// One primitive node.
+    Element {
+        /// Raw Tag bytes.
+        tag: &'a [u8],
+        /// Complete Value bytes.
+        value: &'a [u8],
+        /// Zero-based node depth.
+        depth: usize,
+        /// Producer-supplied event offset, without wire Source semantics.
+        offset: usize,
+    },
+    /// Close the innermost constructed node.
+    End {
+        /// Depth of the node being closed.
+        depth: usize,
+        /// Producer-supplied end offset.
+        offset: usize,
+        /// Descendants were omitted rather than validated.
+        skipped: bool,
+    },
+}
 unsafe fn project<'a>(event: &native::tlv_tree_event_t) -> ProgramResult<QueryMatch<'a>> {
     Ok(QueryMatch {
         element: unsafe { Element::from_raw(&event.element) }.map_err(|e| ProgramError {
@@ -952,6 +990,61 @@ impl<'a> QueryExecution<'a> {
                 raw.skipped = *skipped as i32;
             }
         }
+        self.feed_raw(raw)
+    }
+    /// Feed a source-less canonical event, retaining its borrowed payload for
+    /// the execution lifetime. The C engine validates event balance and bounds.
+    pub fn feed_event(&mut self, event: QueryEvent<'a>) -> ProgramResult<Option<QueryMatch<'_>>> {
+        self.tree_backend()?;
+        let mut raw: native::tlv_tree_event_t = unsafe { zeroed() };
+        match event {
+            QueryEvent::Begin {
+                tag,
+                value,
+                depth,
+                offset,
+            }
+            | QueryEvent::Element {
+                tag,
+                value,
+                depth,
+                offset,
+            } => {
+                raw.kind = if matches!(event, QueryEvent::Begin { .. }) {
+                    native::TLV_TREE_BEGIN
+                } else {
+                    native::TLV_TREE_ELEMENT
+                };
+                raw.element = native::tlv_element_t {
+                    tag: native::tlv_tag_t {
+                        data: tag.as_ptr(),
+                        size: tag.len(),
+                    },
+                    value: native::tlv_value_t {
+                        data: value.as_ptr(),
+                        size: value.len() as u64,
+                    },
+                };
+                raw.depth = depth;
+                raw.offset = offset;
+            }
+            QueryEvent::End {
+                depth,
+                offset,
+                skipped,
+            } => {
+                raw.kind = native::TLV_TREE_END;
+                raw.depth = depth;
+                raw.offset = offset;
+                raw.skipped = skipped as i32;
+            }
+        }
+        self.feed_raw(raw)
+    }
+    fn feed_raw(
+        &mut self,
+        mut raw: native::tlv_tree_event_t,
+    ) -> ProgramResult<Option<QueryMatch<'_>>> {
         let mut matched = 0;
         let mut diagnostic = unsafe { zeroed() };
         let rc =
@@ -971,6 +1064,29 @@ impl<'a> QueryExecution<'a> {
         let mut diagnostic = unsafe { zeroed() };
         let rc = unsafe { native::tlv_query_exec_finish(self.raw, &mut diagnostic) };
         check(rc, &diagnostic)
+    }
+    /// Pull a finalized retained node after raw event feeding, without a Reader.
+    /// Returns None at exhaustion; before finish, C reports an invalid argument.
+    pub fn next_result(&mut self) -> ProgramResult<Option<QueryMatch<'_>>> {
+        self.next_result_with_ordinal()
+            .map(|value| value.map(|(matched, _)| matched))
+    }
+    /// Pull a finalized retained node and its original preorder identity. The
+    /// ordinal can select that node as context in another execution over the same
+    /// event sequence. Shares the result cursor with all other pull operations.
+    pub fn next_result_with_ordinal(&mut self) -> ProgramResult<Option<(QueryMatch<'_>, usize)>> {
+        self.tree_backend()?;
+        let mut event = unsafe { zeroed() };
+        let mut ordinal = 0;
+        // SAFETY: exclusive execution borrow protects its cursor, and feed/Reader
+        // lifetimes retain every input span projected into the returned match.
+        let code =
+            unsafe { native::tlv_query_result_next_ordinal(self.raw, &mut event, &mut ordinal) };
+        if code == native::TLV_ERR_END_OF_BUFFER {
+            return Ok(None);
+        }
+        plain(code)?;
+        unsafe { project(&event) }.map(|matched| Some((matched, ordinal)))
     }
     /// Reinitialize workspace, clearing bindings and all retained results.
     pub fn reset(&mut self) -> ProgramResult<()> {
@@ -1191,10 +1307,14 @@ impl<'a> QueryExecution<'a> {
                     reader: None,
                 })?,
             };
+            let frame_count = self
+                .depth
+                .checked_add(1)
+                .ok_or_else(|| plain(native::TLV_ERR_OVERFLOW).unwrap_err())?;
             frames
-                .try_reserve_exact(self.depth)
+                .try_reserve_exact(frame_count)
                 .map_err(|_| plain(native::TLV_ERR_OUT_OF_MEMORY).unwrap_err())?;
-            frames.resize_with(self.depth, || unsafe { zeroed() });
+            frames.resize_with(frame_count, || unsafe { zeroed() });
             staged = Memory::new(capacity)?;
             scratch = Memory::new(capacity)?;
             workspace.frames = frames.as_mut_ptr();

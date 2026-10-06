@@ -26,6 +26,7 @@ class InventoryTests(unittest.TestCase):
             "tools/cli/src/commands/formats_command.cpp": 'names.push_back("ber");\n',
             "docs/cli/README.md": "Available: `ber`\n",
             "bindings/go/examples/quick_start/main.go": "package main\n",
+            "bindings/common/query_schema.h": "/* shared native ownership helper */\n",
             "docs/guides/go.md": "# Go\n",
             "mkdocs.yml": "nav:\n  - Go: guides/go.md\n  - C++: guides/cxx-examples.md\n",
             "docs/guides/examples.md": "<!-- example-inventory:start -->\n[Go](../../bindings/go/examples/quick_start/main.go)\n<!-- example-inventory:end -->\n",

@@ -114,11 +114,14 @@ static tlv_result_t buffer_evaluate(const uint8_t* data, size_t size, const tlv_
     if (rc != TLV_OK) return rc;
     for (;;) {
         tlv_tree_event_t event;
-        tlv_reader_diagnostic_t original;
+        /* Tree argument/resource failures intentionally leave Reader detail untouched. */
+        tlv_reader_diagnostic_t original = {0};
         rc = tlv_tree_reader_next_event_diag(&reader, &event, &original);
         if (rc == TLV_ERR_END_OF_BUFFER) return tlv_query_exec_finish(exec, diagnostic);
         if (rc != TLV_OK) {
             if (diagnostic) {
+                if (original.diagnostic.code == TLV_OK)
+                    tlv_diagnostic_init(&original.diagnostic, rc, TLV_DIAGNOSTIC_SEVERITY_ERROR);
                 memset(diagnostic, 0, sizeof *diagnostic);
                 diagnostic->kind = TLV_QUERY_ERROR_READER;
                 diagnostic->reader = original;

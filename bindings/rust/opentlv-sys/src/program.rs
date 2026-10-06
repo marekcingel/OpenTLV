@@ -52,7 +52,11 @@ record!(tlv_schema_query_context_t { ordinal: usize, event: tlv_tree_event_t, no
 record!(tlv_schema_query_workspace_t { selector: *mut c_void, selector_size: usize,
     assertion: *mut c_void, assertion_size: usize, contexts: *mut tlv_schema_query_context_t,
     context_capacity: usize, frames: *mut tlv_tree_frame_t, frame_capacity: usize });
-record!(tlv_schema_query_diagnostic_t { rule: usize, schema: tlv_schema_diagnostic_t, query: tlv_query_diagnostic_t });
+record!(tlv_schema_query_diagnostic_t {
+    rule: usize,
+    schema: tlv_schema_diagnostic_t,
+    query: tlv_query_diagnostic_t
+});
 record!(tlv_query_variable_t { name: *const c_char, type_: c_int });
 /// Compile-only resolver; C copies its returned Tag.
 pub type tlv_query_resolve_t = Option<
@@ -112,19 +116,43 @@ pub type tlv_query_event_visitor_t =
 
 extern "C" {
     /// Discover contextual selector/assertion workspace requirements.
-    pub fn tlv_schema_query_size(rules: *const tlv_schema_query_rule_t, count: usize,
-        depth: usize, nodes: usize, selector: *mut usize, assertion: *mut usize,
-        alignment: *mut usize) -> tlv_result_t;
+    pub fn tlv_schema_query_size(
+        rules: *const tlv_schema_query_rule_t,
+        count: usize,
+        depth: usize,
+        nodes: usize,
+        selector: *mut usize,
+        assertion: *mut usize,
+        alignment: *mut usize,
+    ) -> tlv_result_t;
     /// Validate contextual assertions over immutable complete input.
-    pub fn tlv_schema_query_validate_buffer(data: *const u8, size: usize, format: *const tlv_format_t,
-        rules: *const tlv_schema_query_rule_t, count: usize, depth: usize, nodes: usize, work: usize,
-        workspace: *mut tlv_schema_query_workspace_t, diagnostic: *mut tlv_schema_query_diagnostic_t) -> tlv_result_t;
+    pub fn tlv_schema_query_validate_buffer(
+        data: *const u8,
+        size: usize,
+        format: *const tlv_format_t,
+        rules: *const tlv_schema_query_rule_t,
+        count: usize,
+        depth: usize,
+        nodes: usize,
+        work: usize,
+        workspace: *mut tlv_schema_query_workspace_t,
+        diagnostic: *mut tlv_schema_query_diagnostic_t,
+    ) -> tlv_result_t;
     /// Validate contextual assertions over an immutable Document revision.
     #[cfg(feature = "document")]
-    pub fn tlv_schema_query_validate_document(document: *const tlv_document_t,
-        rules: *const tlv_schema_query_rule_t, count: usize, depth: usize, nodes: usize, work: usize,
-        workspace: *mut tlv_schema_query_workspace_t, values: *mut u8, capacity: usize,
-        staging: *mut tlv_tree_writer_workspace_t, diagnostic: *mut tlv_schema_query_diagnostic_t) -> tlv_result_t;
+    pub fn tlv_schema_query_validate_document(
+        document: *const tlv_document_t,
+        rules: *const tlv_schema_query_rule_t,
+        count: usize,
+        depth: usize,
+        nodes: usize,
+        work: usize,
+        workspace: *mut tlv_schema_query_workspace_t,
+        values: *mut u8,
+        capacity: usize,
+        staging: *mut tlv_tree_writer_workspace_t,
+        diagnostic: *mut tlv_schema_query_diagnostic_t,
+    ) -> tlv_result_t;
     pub fn tlv_query_compile_options_init(options: *mut tlv_query_compile_options_t);
     pub fn tlv_query_compile_scratch(
         text: *const c_char,

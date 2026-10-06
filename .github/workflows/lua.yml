@@ -16,6 +16,7 @@ on:
     branches: [main]
     paths:
       - 'bindings/lua/**'
+      - 'bindings/common/**'
       - 'tests/query/**'
       - 'tlv/**'
       - 'cmake/**'

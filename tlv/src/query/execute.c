@@ -812,7 +812,8 @@ tlv_result_t tlv_query_program_visit(tlv_tree_reader_t* reader, tlv_query_exec_t
     }
     for (;;) {
         tlv_tree_event_t event;
-        tlv_reader_diagnostic_t reader_diag;
+        /* Tree argument/resource failures intentionally leave Reader detail untouched. */
+        tlv_reader_diagnostic_t reader_diag = {0};
         tlv_result_t rc = tlv_tree_reader_next_event_diag(reader, &event, d ? &reader_diag : NULL);
         if (rc == TLV_ERR_END_OF_BUFFER) {
             rc = tlv_query_exec_finish(e, d);
@@ -823,6 +824,8 @@ tlv_result_t tlv_query_program_visit(tlv_tree_reader_t* reader, tlv_query_exec_t
         if (rc != TLV_OK) {
             e->invalid = 1;
             if (d) {
+                if (reader_diag.diagnostic.code == TLV_OK)
+                    tlv_diagnostic_init(&reader_diag.diagnostic, rc, TLV_DIAGNOSTIC_SEVERITY_ERROR);
                 d->kind = TLV_QUERY_ERROR_READER;
                 d->reader = reader_diag;
             }

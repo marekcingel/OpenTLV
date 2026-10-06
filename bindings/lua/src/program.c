@@ -6,6 +6,7 @@
 #include "error.h"
 #include "format.h"
 #include "query.h"
+#include "schema.h"
 #include <tlv/query/adapters.h>
 #include <tlv/writer/tree.h>
 #if OPENTLV_FORMAT_BER
@@ -109,6 +110,7 @@ static execution_t* execution(lua_State* L) {
         opentlv_lua_raise(L, TLV_ERR_INVALID_ARG, 0, 0);
         return NULL;
     }
+    if (!lua_checkstack(L, 16)) luaL_error(L, "Query callback stack unavailable");
     execution_t* q = luaL_checkudata(L, 1, EXECUTION_MT);
     if (!q->exec || q->busy || q->program->callback_active) {
         opentlv_lua_raise(L, TLV_ERR_INVALID_ARG, 0, 0);
@@ -121,7 +123,6 @@ static execution_t* execution(lua_State* L) {
         lua_pop(L, 1);
     }
 #endif
-    if (!lua_checkstack(L, 16)) luaL_error(L, "Query callback stack unavailable");
     q->program->callback_state = L;
     q->program->callback_failed = 0;
     lua_pushnil(L);
@@ -930,10 +931,12 @@ static int execution_edit(lua_State* L) {
     lua_pushinteger(L, (lua_Integer)applied);
     return 1;
 }
-static int execution_document(lua_State* L) {
-    execution_t* q = execution(L);
-    if (!q->retained || q->has_reader || q->document_ref != LUA_NOREF)
-        return query_error(L, TLV_ERR_INVALID_ARG, NULL);
+static int execution_document_run(lua_State* L) {
+    execution_t* q = lua_touserdata(L, 5);
+    lua_pushnil(L);
+    q->program->callback_state = L;
+    q->program->callback_failed = 0;
+    q->program->callback_error_index = lua_gettop(L);
     tlv_document_t* document = opentlv_lua_document_native(L, 2);
     tlv_node_t*     context = opentlv_lua_node_native(L, 3, 2);
     size_t          capacity = 0;
@@ -948,33 +951,56 @@ static int execution_document(lua_State* L) {
         }
     }
     if (rc != TLV_OK) return query_error(L, rc, NULL);
+    /* Pin before allocating staging so an allocation failure requires reset
+     * and cannot overwrite an earlier registry-owned Value snapshot on retry. */
+    lua_pushvalue(L, 2);
+    q->document_ref = luaL_ref(L, LUA_REGISTRYINDEX);
     tlv_tree_writer_workspace_t writer = {0};
     void*                       values = NULL;
     if (q->program->info.constructed_values_required) {
         values = lua_newuserdata(L, capacity);
         q->values_ref = luaL_ref(L, LUA_REGISTRYINDEX);
-        if (q->depth > SIZE_MAX / sizeof *writer.frames)
+        if (q->depth == SIZE_MAX || q->depth + 1 > SIZE_MAX / sizeof *writer.frames)
             return query_error(L, TLV_ERR_OVERFLOW, NULL);
-        writer.frames = lua_newuserdata(L, q->depth * sizeof *writer.frames);
-        writer.frame_capacity = q->depth;
+        writer.frames = lua_newuserdata(L, (q->depth + 1) * sizeof *writer.frames);
+        writer.frame_capacity = q->depth + 1;
         writer.data = lua_newuserdata(L, capacity);
         writer.data_capacity = capacity;
         writer.scratch = lua_newuserdata(L, capacity);
         writer.scratch_capacity = capacity;
     }
-    lua_pushvalue(L, 2);
-    q->document_ref = luaL_ref(L, LUA_REGISTRYINDEX);
     tlv_query_diagnostic_t diagnostic = {0};
-    opentlv_lua_document_query_guard(L, 2, 1);
-    q->busy = 1;
     rc = tlv_document_query_evaluate(document, q->exec, context, values, capacity,
                                      q->program->info.constructed_values_required ? &writer : NULL,
                                      &diagnostic);
-    opentlv_lua_document_query_guard(L, 2, 0);
-    q->busy = 0;
     return rc == TLV_OK ? 0 : provider_error(L, q->program, rc, &diagnostic);
 }
+static int execution_document(lua_State* L) {
+    lua_settop(L, 4);
+    lua_pushcfunction(L, execution_document_run);
+    execution_t* q = execution(L);
+    lua_pop(L, 1); /* execution()'s error slot; the protected call uses its own. */
+    if (!q->retained || q->has_reader || q->document_ref != LUA_NOREF)
+        return query_error(L, TLV_ERR_INVALID_ARG, NULL);
+    opentlv_lua_document_query_guard(L, 2, 1);
+    q->busy = 1;
+    for (int i = 1; i <= 4; ++i) lua_pushvalue(L, i);
+    lua_pushlightuserdata(L, q);
+    int status = lua_pcall(L, 5, 0, 0);
+    q->busy = 0;
+    opentlv_lua_document_query_guard(L, 2, 0);
+    return status == LUA_OK ? 0 : lua_error(L);
+}
 #endif
+static int schema_error_projection(lua_State* L) {
+    const tlv_schema_query_diagnostic_t* diagnostic = lua_touserdata(L, 1);
+    tlv_result_t                         rc = (tlv_result_t)lua_tointeger(L, 2);
+    push_query_error(L, rc, &diagnostic->query);
+    field(L, "rule", diagnostic->rule);
+    opentlv_lua_push_schema_diagnostic(L, &diagnostic->schema);
+    lua_setfield(L, -2, "schema");
+    return 1;
+}
 static int query_schema_validate(lua_State* L) {
     if (provider_active(L)) return query_error(L, TLV_ERR_INVALID_ARG, NULL);
     lua_settop(L, 3);
@@ -1044,37 +1070,45 @@ static int query_schema_validate(lua_State* L) {
 #endif
     }
     if (!lua_checkstack(L, 16)) return query_error(L, TLV_ERR_OUT_OF_MEMORY, NULL);
+    /* Allocate the protected projection closure before acquiring the guard.
+     * All later allocation, including diagnostic copying and user finalizers,
+     * runs under pcall so allocation errors cannot strand an active guard. */
+    lua_pushcfunction(L, schema_error_projection);
     for (size_t i = 0; i < 2 * count; ++i) {
         owners[i]->callback_state = L;
         owners[i]->callback_failed = 0;
         owners[i]->callback_error_index = error_index;
     }
 #if OPENTLV_DOCUMENT
-    if (document) opentlv_lua_document_query_guard(L, 2, 1);
+    if (document) {
+        document = opentlv_lua_document_native(L, 2);
+        opentlv_lua_document_query_guard(L, 2, 1);
+    }
 #endif
     tlv_schema_query_diagnostic_t diagnostic;
     tlv_result_t                  rc = opentlv_binding_schema_run(
         data, size, document, format, rules, count, depth, nodes, work, contexts,
         value_capacity == SIZE_MAX ? 0 : value_capacity, value_capacity == SIZE_MAX, &diagnostic);
+    for (size_t i = 0; i < 2 * count; ++i) {
+        if (owners[i]->callback_failed) {
+#if OPENTLV_DOCUMENT
+            if (document) opentlv_lua_document_query_guard(L, 2, 0);
+#endif
+            return provider_error(L, owners[i], rc, &diagnostic.query);
+        }
+    }
+    if (rc != TLV_OK) {
+        lua_pushlightuserdata(L, &diagnostic);
+        lua_pushinteger(L, (lua_Integer)rc);
+        (void)lua_pcall(L, 2, 1, 0);
+#if OPENTLV_DOCUMENT
+        if (document) opentlv_lua_document_query_guard(L, 2, 0);
+#endif
+        return lua_error(L);
+    }
 #if OPENTLV_DOCUMENT
     if (document) opentlv_lua_document_query_guard(L, 2, 0);
 #endif
-    for (size_t i = 0; i < 2 * count; ++i) {
-        if (owners[i]->callback_failed) return provider_error(L, owners[i], rc, &diagnostic.query);
-    }
-    if (rc != TLV_OK) {
-        push_query_error(L, rc, &diagnostic.query);
-        field(L, "rule", diagnostic.rule);
-        lua_newtable(L);
-        lua_pushlstring(L,
-                        diagnostic.schema.tag.size ? (const char*)diagnostic.schema.tag.data : "",
-                        diagnostic.schema.tag.size);
-        lua_setfield(L, -2, "tag");
-        lua_pushstring(L, diagnostic.schema.field ? diagnostic.schema.field : "");
-        lua_setfield(L, -2, "field");
-        lua_setfield(L, -2, "schema");
-        return lua_error(L);
-    }
     return 0;
 }
 void opentlv_lua_open_program(lua_State* L, int module_index) {

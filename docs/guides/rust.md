@@ -185,12 +185,34 @@ native requirements and release-specific program data.
 
 Independent `QueryExecution` values bind typed `QueryBinding` values, feed events,
 pull or visit a `TreeReader`, or evaluate a Document. Scalars return `QueryValue`.
+Use `feed_event(QueryEvent)` for source-less events, or `feed(TreeEvent)` to
+preserve Reader Source metadata. After `finish()`, `next_result()` pulls retained
+matches; `next_result_with_ordinal()` also returns native preorder identity.
 Owning workspace and `execution_external` are available with explicit bounds;
 the latter borrows caller storage. Rust lifetimes preserve program, input and
 Document ownership; errors retain native Query spans and diagnostic detail.
+`ProgramOptions.providers` holds `QueryProvider` values for the closed NUM, BCD,
+TEXT and DATE conversions. Each owns a stable ID, scratch limit and `Send + Sync`
+callback. Callbacks receive bytes and optional owned metadata; return
+`QueryDecoded` or `QueryCodecError`. Provider panics become native codec errors,
+and text is copied into bounded native scratch. Programs retain provider owners.
+
+`QueryProgram::edit_document` evaluates and edits under one exclusive Document
+borrow. `QueryEdit` selects removal, replacement or insertion;
+`QueryEditOptions` bounds native work and target storage. `QueryEditError`
+preserves the applied count, including partial failures. Short target storage
+leaves the Document unchanged for a later retry with larger capacity.
+
+`QuerySchema::new(rules, format)` owns `QueryRule` programs. Build each rule with
+`QueryRule::new(context, assertion).named(name)` and validate a buffer or immutable
+Document with `QuerySchemaLimits`. C performs contextual selection and Boolean
+assertions; Rust owns workspace and failure context in `QuerySchemaError`.
+Borrowing prevents Document mutation while validation runs.
+
 The [consumer example](../../bindings/rust/opentlv/examples/query_conformance.rs)
-runs the common corpus through the public facade. C extension/provider parity
-remains tracked by the [release requirements](../development/query-release.md).
+runs the common corpus through the public facade. Remaining custom Format and
+semantic Tag adapter coverage is tracked by the
+[release requirements](../development/query-release.md).
 
 ## Next step
 

@@ -3,8 +3,11 @@
 """Candidate-gate regressions: provenance, hashes, parity and platform evidence."""
 import copy
 import hashlib
+import json
 from pathlib import Path
 import tempfile
+import subprocess
+import sys
 import unittest
 
 from check_query_release import CHECKS, FACADES, evidence_errors
@@ -82,6 +85,23 @@ class ReleaseGate(unittest.TestCase):
                 self.evidence["checks"]["ABI-32-64"]["pointer_bits"] = value
                 self.assertIn("both 32-bit and 64-bit evidence required: ABI-32-64",
                               self.errors())
+
+    def test_strict_cli_retains_report_for_invalid_evidence(self):
+        evidence = self.root / "manifest.json"
+        output = self.root / "report.json"
+        for content in (b"{broken", b"\xff"):
+            with self.subTest(content=content):
+                evidence.write_bytes(content)
+                result = subprocess.run(
+                    [sys.executable, str(Path(__file__).with_name("check_query_release.py")),
+                     "--release", "--evidence", str(evidence), "--output", str(output)],
+                    capture_output=True, text=True, check=False)
+                self.assertNotEqual(result.returncode, 0)
+                report = json.loads(output.read_text(encoding="utf-8"))
+                self.assertFalse(report["ready"])
+                self.assertTrue(any("invalid release evidence" in error
+                                    for error in report["blockers"]))
+                self.assertNotIn("Traceback", result.stderr)
 
 
 if __name__ == "__main__":

@@ -12,6 +12,7 @@ on:
     branches: [main]
     paths:
       - 'bindings/python/**'
+      - 'bindings/common/**'
       - 'tests/query/**'
       - 'tlv/**'
       - 'cmake/**'

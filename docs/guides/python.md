@@ -320,13 +320,33 @@ owns bounded native state. `retained=False` selects S0/S1 storage. Execute throu
 the public TreeReader pull/Visitor adapter, or evaluate a Document; results,
 diagnostics, limits and continuation delegate to C. Match snapshots own their
 bytes. Reset separates input/binding lifetimes; callback exceptions require
-reset before reuse. Programs and executions support deterministic `close()`.
+reset before reuse. Programs and executions retain their native owners until
+the Python objects are collected.
 The [consumer tests](../../bindings/python/opentlv/tests/test_program.py) and
 [common corpus runner](../../tests/query/python_facade.py) exercise these APIs.
 
-Arbitrary Query provider callbacks and schema-aware Query edits are not exposed
-by this facade; builtin generic codecs and ASN.1 capabilities are selected by
-the Format. See the [release requirements](../development/query-release.md).
+`providers={"num": QueryProvider(id, decode), ...}` replaces the closed `num`,
+`bcd`, `text` or `date` conversion. `decode(value, metadata)` receives owned bytes
+and optional copied `QueryMatch` metadata; return an integer or, for `text`, a
+string. Text providers require `max_result_bytes` for native bounded scratch.
+Keep provider IDs and contracts stable when loading images. Callback exceptions
+propagate; callback allocations and work are outside the C engine's limits.
+
+`execution.feed(event)` accepts canonical Tree events. Retain borrowed input as
+documented by the event producer and call `finish()` before pulling deferred
+results. `edit_document("remove" | "replace" | "insert_after", ...)` applies a
+completed Document selection. `target_capacity` bounds target storage; a short
+target array reports `error.applied == 0` and allows retry. Successful edits
+invalidate existing checked Nodes; other edit failures report partial counts.
+
+`QuerySchema([QueryRule(context, assertion, name)], format=...)` retains compiled
+programs and validates through `validate_buffer(data, **limits)` or
+`validate_document(document, **limits)`. Assertions are relative Boolean Query
+programs. Limits bound depth, nodes, work, selected contexts and Document Value
+snapshots. Failures retain the rule index, Query detail and owned Schema
+diagnostics. Provider callbacks cannot mutate or close a Document under
+validation. See the [release requirements](../development/query-release.md) for
+remaining extension coverage.
 
 ## Next step
 

@@ -4,9 +4,86 @@ import gc
 import pytest
 from opentlv import (QueryProgram, TreeReader, Visit, Document, InvalidArgError,
                      NeedMoreDataError, LimitError, BufferTooShortError, QueryProvider,
-                     InvalidValueError)
+                     InvalidValueError, QueryRule, QuerySchema, SchemaError, UnsupportedTypeError)
 
 WIRE = bytes.fromhex("70065a01015001025a0103")
+
+
+def test_query_schema_buffer_document_owned_diagnostics_and_limits():
+    context = QueryProgram("//5A")
+    schema = QuerySchema([QueryRule(context, QueryProgram("num(.) = 1"), "one")])
+    good = bytes.fromhex("70035a0101")
+    bad = bytearray.fromhex("70035a0102")
+    schema.validate_buffer(good)
+    schema.validate_document(Document(good))
+    QuerySchema([QueryRule(QueryProgram("//5B"), QueryProgram("1 = 0"))]).validate_buffer(bad)
+    with pytest.raises(SchemaError) as caught:
+        schema.validate_buffer(bad)
+    detail = caught.value.schema
+    assert caught.value.rule == 0
+    assert detail["kind_name"] == "assertion" and detail["code"] == caught.value.code
+    assert detail["tag"] == b"\x5a" and detail["path"] == (b"\x70",)
+    assert detail["offset"] == 2 and detail["field"] == "one"
+    assert detail["expected"] == "contextual Query assertion true"
+    document = Document(bad)
+    with pytest.raises(SchemaError) as document_failure:
+        schema.validate_document(document)
+    assert document_failure.value.schema["offset"] is None
+    document.close()
+    bad[:] = b"\0" * len(bad)
+    del schema, context
+    gc.collect()
+    assert document_failure.value.schema["path"] == (b"\x70",)
+    assert detail["tag"] == b"\x5a" and detail["field"] == "one"
+    schema = QuerySchema([QueryRule(QueryProgram("//5A"), QueryProgram("1 = 1"))])
+    with pytest.raises(LimitError) as limit:
+        schema.validate_buffer(good, max_contexts=0)
+    assert limit.value.query["limit"] == "schema-contexts"
+    with pytest.raises(LimitError):
+        schema.validate_buffer(good, max_work=1)
+    with pytest.raises(InvalidArgError):
+        QuerySchema([QueryRule(QueryProgram("//5A"), QueryProgram("count(.)"))]).validate_buffer(good)
+    reverse = QuerySchema([QueryRule(QueryProgram("//5A[2]"),
+                                    QueryProgram("exists(preceding::5A)"))])
+    siblings = bytes.fromhex("70065a01015a0102")
+    with pytest.raises(UnsupportedTypeError):
+        reverse.validate_buffer(siblings)
+    reverse.validate_document(Document(siblings))
+    empty_root = QueryProgram("value(//70)").execution(max_depth=0)
+    empty_root.evaluate_document(Document(b"\x70\0"))
+    assert empty_root.result() == b""
+
+
+def test_query_schema_provider_lifetime_exception_reentry_and_document_guards():
+    document = Document(bytes.fromhex("70035a0101"))
+    node = document.first.first_child
+    actions = []
+    def decode(value, metadata):
+        assert metadata.element.tag.data == b"\x5a"
+        for action in actions:
+            with pytest.raises(RuntimeError):
+                action()
+        return value[0]
+    providers = {"num": QueryProvider(201, decode)}
+    assertion = QueryProgram("num(.) = 1", providers=providers)
+    schema = QuerySchema([QueryRule(QueryProgram("//5A"), assertion)])
+    del assertion, providers
+    gc.collect()
+    actions.extend([document.close, node.erase, lambda: setattr(node, "value", b"x"),
+                    lambda: schema.validate_document(document)])
+    schema.validate_document(document)
+    assert bytes(node.value) == b"\x01"
+    actions.clear()
+    schema.validate_buffer(bytes.fromhex("5a0101"))
+    sentinel = ValueError("schema provider failure")
+    def fail(value, metadata):
+        raise sentinel
+    failed = QuerySchema([QueryRule(QueryProgram("//5A"),
+                                    QueryProgram("num(.) = 1", providers={"num": QueryProvider(202, fail)}))])
+    with pytest.raises(ValueError) as caught:
+        failed.validate_document(document)
+    assert caught.value is sentinel
+    document.close()
 
 
 def test_custom_conversion_provider_lifetime_images_and_backends():

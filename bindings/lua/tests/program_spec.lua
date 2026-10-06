@@ -139,4 +139,104 @@ if tlv.document and tlv.formats.ber then
     scalar:evaluate_document(doc)
     assert(scalar:result()==b(7))
 end
-print("Lua compiled Query lifetime, continuation, callbacks and Document tests passed")
+if tlv.formats.ber then
+    local good, bad = b(0x70,3,0x5a,1,1), b(0x70,3,0x5a,1,2)
+    local rules = {{context = tlv.query_program("//5A", f),
+                    assertion = tlv.query_program("num(.) = 1", f), name = "one"}}
+    tlv.query_schema_validate(rules, good)
+    tlv.query_schema_validate({{context = tlv.query_program("//5B", f),
+        assertion = tlv.query_program("1 = 0", f)}}, bad)
+    local failed = fails(function() tlv.query_schema_validate(rules, bad) end, tlv.errors.SCHEMA)
+    assert(failed.rule == 0 and failed.schema.kind == "assertion")
+    assert(failed.schema.tag == b(0x5a) and failed.schema.path[1] == b(0x70))
+    assert(failed.schema.offset == 2 and failed.schema.field == "one")
+    assert(failed.schema.expected == "contextual Query assertion true")
+    local bounded = fails(function() tlv.query_schema_validate(rules, good, {max_contexts=0}) end, tlv.errors.LIMIT)
+    assert(bounded.query.limit == "schema-contexts")
+    fails(function() tlv.query_schema_validate(rules, good, {max_work=1}) end, tlv.errors.LIMIT)
+    fails(function() tlv.query_schema_validate({{context=rules[1].context,
+        assertion=tlv.query_program("count(.)", f)}}, good) end, tlv.errors.INVALID_ARG)
+    if tlv.document then
+        local empty_root = tlv.query_program("value(//70)", f):execution({max_depth=0})
+        empty_root:evaluate_document(tlv.document(b(0x70,0), f))
+        assert(empty_root:result() == "")
+        empty_root:close()
+        local reverse = {{context=tlv.query_program("//5A[2]", f),
+                          assertion=tlv.query_program("exists(preceding::5A)", f)}}
+        local siblings = b(0x70,6,0x5a,1,1,0x5a,1,2)
+        fails(function() tlv.query_schema_validate(reverse, siblings) end, tlv.errors.UNSUPPORTED_TYPE)
+        tlv.query_schema_validate(reverse, tlv.document(siblings, f))
+        local doc = tlv.document(good, f)
+        tlv.query_schema_validate(rules, doc)
+        local broken = tlv.document(bad, f)
+        local from_document = fails(function() tlv.query_schema_validate(rules, broken) end, tlv.errors.SCHEMA)
+        broken:close()
+        assert(from_document.schema.offset == nil and from_document.schema.path[1] == b(0x70))
+        local root = doc:first()
+        local provider_rules
+        local calls = 0
+        local predicate = tlv.query_program("num(.) = 1", f, {providers={num={id=201,
+            decode=function(value, metadata)
+                calls = calls + 1
+                assert(metadata.tag == b(0x5a))
+                fails(function() doc:close() end)
+                fails(function() root:erase() end)
+                fails(function() tlv.query_schema_validate(provider_rules, doc) end, tlv.errors.INVALID_ARG)
+                provider_rules[1] = nil
+                collectgarbage("collect")
+                return string.byte(value)
+            end}}})
+        provider_rules = {{context=tlv.query_program("//5A", f), assertion=predicate}}
+        predicate = nil
+        tlv.query_schema_validate(provider_rules, doc)
+        assert(calls == 1 and doc:serialize() == good)
+        local marker = {}
+        local throwing = {{context=rules[1].context, assertion=tlv.query_program("num(.) = 1", f,
+            {providers={num={id=202, decode=function() error(marker) end}}})}}
+        assert(fails(function() tlv.query_schema_validate(throwing, doc) end) == marker)
+        doc:close()
+        if debug and debug.sethook then
+            local guarded = tlv.document(good, f)
+            local finalized, blocked, returned = false, false, false
+            local gc_predicate = tlv.query_program("num(.) = 1", f, {providers={num={id=203,
+                decode=function()
+                    collectgarbage("stop")
+                    local function finalize()
+                        finalized = true
+                        local ok, err = pcall(guarded.close, guarded)
+                        blocked = not ok and type(err) == "table" and err.code == tlv.errors.INVALID_ARG
+                    end
+                    local pending
+                    if newproxy then
+                        pending = newproxy(true)
+                        getmetatable(pending).__gc = finalize
+                    else
+                        pending = setmetatable({}, {__gc=finalize})
+                    end
+                    pending = nil
+                    -- The next C call is protected diagnostic projection. Collect
+                    -- before its first allocation to exercise a closing finalizer.
+                    debug.sethook(function()
+                        if returned then
+                            debug.sethook()
+                            collectgarbage("collect")
+                        end
+                    end, "c")
+                    returned = true
+                    return 0
+                end}}})
+            local ok, diagnostic = pcall(tlv.query_schema_validate,
+                {{context=rules[1].context, assertion=gc_predicate}}, guarded)
+            debug.sethook()
+            collectgarbage("restart")
+            assert(not ok and diagnostic.code == tlv.errors.SCHEMA)
+            assert(finalized and blocked, "Document guard ended before diagnostic projection")
+            assert(diagnostic.schema.path[1] == b(0x70))
+            guarded:close()
+        end
+    end
+    rules, bad = nil, nil
+    collectgarbage("collect")
+    assert(failed.schema.tag == b(0x5a) and failed.schema.field == "one")
+end
+print("Lua compiled Query lifetime, continuation, callbacks, Document and Schema tests passed")

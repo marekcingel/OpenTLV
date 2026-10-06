@@ -674,6 +674,35 @@ const char* opentlv_wasm_schema_validate(opentlv_wasm_program_t* owner, const ui
     builder_hex(&owner->reply, diagnostic.schema.tag.data, diagnostic.schema.tag.size);
     builder_text(&owner->reply, "\",\"field\":");
     builder_json_string(&owner->reply, diagnostic.schema.field ? diagnostic.schema.field : "");
+    query_field(&owner->reply, "kind", diagnostic.schema.kind);
+    builder_text(&owner->reply, ",\"kind_name\":");
+    builder_json_string(&owner->reply, tlv_schema_issue_kind_string(diagnostic.schema.kind));
+    query_field(&owner->reply, "code", diagnostic.schema.diagnostic.code);
+    query_field(&owner->reply, "severity", diagnostic.schema.diagnostic.severity);
+    builder_text(&owner->reply, ",\"offset\":");
+    if (diagnostic.schema.diagnostic.has_offset)
+        builder_number(&owner->reply, diagnostic.schema.diagnostic.offset);
+    else
+        builder_text(&owner->reply, "null");
+    builder_text(&owner->reply, ",\"expected\":");
+    if (diagnostic.schema.diagnostic.expected)
+        builder_json_string(&owner->reply, diagnostic.schema.diagnostic.expected);
+    else
+        builder_text(&owner->reply, "null");
+    builder_text(&owner->reply, ",\"actual\":");
+    if (diagnostic.schema.diagnostic.actual)
+        builder_json_string(&owner->reply, diagnostic.schema.diagnostic.actual);
+    else
+        builder_text(&owner->reply, "null");
+    builder_text(&owner->reply, ",\"path\":[");
+    for (size_t i = 0; i < diagnostic.schema.path.length; ++i) {
+        if (i) builder_text(&owner->reply, ",");
+        builder_text(&owner->reply, "\"");
+        builder_hex(&owner->reply, diagnostic.schema.path.tags[i].data,
+                    diagnostic.schema.path.tags[i].size);
+        builder_text(&owner->reply, "\"");
+    }
+    builder_text(&owner->reply, "]");
     builder_text(&owner->reply, "}");
     return query_reply(&owner->reply);
 }
@@ -1135,11 +1164,11 @@ const char* opentlv_wasm_execution_document(opentlv_wasm_execution_t* q,
     rc = !q->retained || q->has_reader || q->document ? TLV_ERR_INVALID_ARG : TLV_OK;
     tlv_tree_writer_workspace_t staging = {0};
     if (rc == TLV_OK && q->program->info.constructed_values_required) {
-        if (q->depth > SIZE_MAX / sizeof *staging.frames)
+        if (q->depth == SIZE_MAX || q->depth + 1 > SIZE_MAX / sizeof *staging.frames)
             rc = TLV_ERR_OVERFLOW;
         else {
-            staging.frames = calloc(q->depth ? q->depth : 1, sizeof *staging.frames);
-            staging.frame_capacity = q->depth;
+            staging.frames = calloc(q->depth + 1, sizeof *staging.frames);
+            staging.frame_capacity = q->depth + 1;
             staging.data = malloc(capacity ? capacity : 1);
             staging.data_capacity = capacity;
             staging.scratch = malloc(capacity ? capacity : 1);

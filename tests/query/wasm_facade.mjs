@@ -199,3 +199,68 @@ assert.deepEqual(editingDocument.first.tag, hexToBytes("5b"));
 assert.equal(editingDocument.first.next, null);
 ancestors.close(); ancestorProgram.close(); editing.close(); editingProgram.close(); editingDocument.close();
 console.log("JS/WASM completed-selection edits: short-capacity retry, replacement, insertion and ancestor dominance passed");
+
+const schemaContext = api.compileQuery("//5A");
+const emptyRootProgram = api.compileQuery("value(//70)");
+const emptyRootDocument = api.document(hexToBytes("7000"));
+const emptyRootExecution = emptyRootProgram.execution({max_depth: 0}).evaluateDocument(emptyRootDocument);
+assert.deepEqual(emptyRootExecution.result(), new Uint8Array());
+emptyRootExecution.close(); emptyRootProgram.close(); emptyRootDocument.close();
+const schemaAssertion = api.compileQuery("num(.) = 1");
+const schema = api.querySchema([{ context: schemaContext, assertion: schemaAssertion, name: "one" }]);
+schemaContext.close(); schemaAssertion.close();
+const goodSchemaInput = hexToBytes("70035a0101");
+const badSchemaInput = hexToBytes("70035a0102");
+schema.validateBuffer(goodSchemaInput);
+let schemaFailure;
+assert.throws(() => schema.validateBuffer(badSchemaInput), error => {
+  schemaFailure = error;
+  return error.rule === 0 && error.schema.kind_name === "assertion";
+});
+assert.equal(schemaFailure.schema.tag, "5A");
+assert.deepEqual(schemaFailure.schema.path, ["70"]);
+assert.equal(schemaFailure.schema.offset, 2);
+assert.equal(schemaFailure.schema.field, "one");
+assert.equal(schemaFailure.schema.expected, "contextual Query assertion true");
+assert.throws(() => schema.validateBuffer(goodSchemaInput, { max_contexts: 0 }),
+  error => error.query.limit === "schema-contexts");
+assert.throws(() => schema.validateBuffer(goodSchemaInput, { max_work: 1 }), error => error.query.limit === "work");
+const schemaDocument = api.document(goodSchemaInput);
+schema.validateDocument(schemaDocument);
+const badSchemaDocument = api.document(badSchemaInput);
+let documentSchemaFailure;
+assert.throws(() => schema.validateDocument(badSchemaDocument), error => {
+  documentSchemaFailure = error; return error.schema.offset === null;
+});
+badSchemaDocument.close(); schema.close(); badSchemaInput.fill(0);
+assert.deepEqual(documentSchemaFailure.schema.path, ["70"]);
+assert.equal(schemaFailure.schema.tag, "5A");
+const schemaMarker = { reason: "schema provider" };
+let schemaProvider, throwSchemaProvider = false;
+const schemaProviderContext = api.compileQuery("//5A");
+const schemaProviderAssertion = api.compileQuery("num(.) = 1", { providers: { num: {
+  id: 201, decode(value, metadata) {
+    if (throwSchemaProvider) throw schemaMarker;
+    assert.deepEqual(metadata.tag, hexToBytes("5a"));
+    assert.throws(() => schemaDocument.close(), error => error.code === 10);
+    assert.throws(() => schemaDocument.first.erase(), error => error.code === 10);
+    assert.throws(() => schemaProvider.close(), error => error.code === 10);
+    assert.throws(() => schemaProvider.validateDocument(schemaDocument), error => error.code === 10);
+    return value[0];
+  },
+} } });
+schemaProvider = api.querySchema([{ context: schemaProviderContext, assertion: schemaProviderAssertion }]);
+schemaProviderContext.close(); schemaProviderAssertion.close();
+schemaProvider.validateDocument(schemaDocument);
+throwSchemaProvider = true;
+assert.throws(() => schemaProvider.validateDocument(schemaDocument), error => error === schemaMarker);
+schemaProvider.close(); schemaDocument.close();
+const reverseContext = api.compileQuery("//5A[2]");
+const reverseAssertion = api.compileQuery("exists(preceding::5A)");
+const reverseSchema = api.querySchema([{ context: reverseContext, assertion: reverseAssertion }]);
+const siblingInput = hexToBytes("70065a01015a0102");
+assert.throws(() => reverseSchema.validateBuffer(siblingInput), error => error.code === 15);
+const siblingDocument = api.document(siblingInput);
+reverseSchema.validateDocument(siblingDocument);
+reverseSchema.close(); reverseContext.close(); reverseAssertion.close(); siblingDocument.close();
+console.log("JS/WASM Query Schema: contextual assertions, owned diagnostics, bounded storage and provider guards passed");

@@ -31,6 +31,23 @@ Both `work-budgets-32-64` and
 inside the evidence directory. Run `python scripts/test_query_release.py` to
 check rejection of stale, malformed, incomplete or modified evidence.
 
+The [Query release candidate workflow](../../.github/workflows/query-release.yml)
+executes this strict gate through `workflow_dispatch` or `workflow_call`. Supply
+the ID of a successful Actions run for the same candidate commit. That run must
+contain the `query-candidate-evidence` artifact with `manifest.json` at its root
+and all files referenced by the manifest. The workflow verifies the producer's
+commit and successful conclusion before downloading evidence, then retains the
+gate report even on failure. Release automation can depend on this reusable
+workflow; an inventory-only hardening run cannot substitute for it.
+
+Each manifest entry must describe checks that actually ran, including the exact
+facade capabilities exercised. In particular, do not copy the generated list of
+required C symbols into a passing facade record without corresponding tests.
+The workflow validates provenance and completeness of supplied evidence; it does
+not manufacture missing phase approval or capability coverage. The per-phase
+[implementation audit](query-phase-audit.md) records remaining implementation
+gaps separately from missing candidate runs.
+
 ## Resource and validation boundaries
 
 Compiler, loader and execution use caller storage; owning Documents, snapshots
@@ -103,10 +120,12 @@ scalar results and diagnostics. CLI name-resolution cases using a fixture-owned
 provider remain explicit exclusions; the CLI has its own EMV resolver. V1-only
 success cannot satisfy the compiled-language gate.
 
-JS/WASM now has an owning Query/Document facade over the C engine. This is not
-complete parity with every public C extension: it supports builtin BER/DER/CER
-and named Tag maps, but does not expose arbitrary callback providers, raw event
-feeding or schema-aware Query edits. The
+JS/WASM has an owning Query/Document facade over the C engine, including custom
+NUM/BCD/TEXT/DATE conversion callbacks, canonical event feeding, completed
+selection edits and contextual Query Schema validation. Rust, Python, Go and Lua
+expose the same integration capabilities through their ownership models.
+Arbitrary semantic Tag adapters, all Format configurations and remaining V1
+compatibility surfaces still require the per-facade audit. The
 [binding capability matrix](../concepts/bindings.md#capability-parity-through-the-public-facade)
 distinguishes the common language surface from such remaining extension gaps.
 

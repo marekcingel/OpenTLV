@@ -79,6 +79,57 @@ fn provider_text_capacity_original_errors_and_panics_are_contained() {
     }
 }
 const WIRE: &[u8] = &[0x70, 6, 0x5a, 1, 1, 0x50, 1, 2, 0x5a, 1, 3];
+#[test]
+fn source_less_feeds_publish_retained_results_and_original_ordinals() {
+    use opentlv::QueryEvent;
+    let program = QueryProgram::compile("(//5A)[last()]", &ProgramOptions::default()).unwrap();
+    let mut execution = program.execution(4, 20, 100000, true).unwrap();
+    assert!(execution.next_result().is_err());
+    for (offset, value) in [(7, &[1][..]), (11, &[2][..])] {
+        assert!(execution
+            .feed_event(QueryEvent::Element {
+                tag: &[0x5a],
+                value,
+                depth: 0,
+                offset,
+            })
+            .unwrap()
+            .is_none());
+    }
+    execution.finish().unwrap();
+    let (matched, ordinal) = execution.next_result_with_ordinal().unwrap().unwrap();
+    assert_eq!(ordinal, 1);
+    assert_eq!(matched.element.value(), &[2]);
+    assert_eq!(matched.offset, 11);
+    assert!(execution.next_result().unwrap().is_none());
+    execution.reset().unwrap();
+    execution
+        .feed_event(QueryEvent::Element {
+            tag: &[0x5a],
+            value: &[3],
+            depth: 0,
+            offset: 0,
+        })
+        .unwrap();
+    execution.finish().unwrap();
+    assert_eq!(
+        execution.next_result().unwrap().unwrap().element.value(),
+        &[3]
+    );
+
+    let offset_query =
+        QueryProgram::compile("//5A[@offset=0]", &ProgramOptions::default()).unwrap();
+    let mut execution = offset_query.execution(4, 20, 100000, true).unwrap();
+    execution
+        .feed_event(QueryEvent::Element {
+            tag: &[0x5a],
+            value: &[],
+            depth: 0,
+            offset: 0,
+        })
+        .unwrap();
+    assert_eq!(execution.finish().unwrap_err().error, Error::InvalidValue);
+}
 #[cfg(feature = "document")]
 #[test]
 fn completed_selection_edits_are_bounded_and_resolve_ancestors() {

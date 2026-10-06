@@ -1,6 +1,7 @@
 // SPDX-License-Identifier: MIT
 // Copyright (c) 2026 Marek Cingel
 #include "tlv/query/program.h"
+#include "tlv/schema/query.h"
 #include "../../../tlv/src/query/program_internal.h"
 #include "controlled_format.h"
 #include <gtest/gtest.h>
@@ -753,6 +754,75 @@ TEST(Unit_Tlv_QueryProgram, ValidationAndWorkLimitsAreExplicit) {
     ASSERT_NE(nullptr, p.diagnostic.limit);
     EXPECT_STREQ("work", p.diagnostic.limit);
 }
+TEST(Unit_Tlv_QueryProgram, TreeResourceLimitsHaveOwnedSafeReaderDiagnostics) {
+    Program selector, assertion;
+    ASSERT_EQ(TLV_OK, selector.compile("//*"));
+    ASSERT_EQ(TLV_OK, assertion.compile("1 = 1"));
+    const uint8_t wire[] = {0x70, 2, 0x5a, 0};
+    auto          format = controlled::format;
+    format.is_constructed = constructed;
+    size_t bytes, alignment;
+    ASSERT_EQ(TLV_OK, tlv_query_exec_size(selector.get(), 4, &bytes, &alignment));
+    std::vector<uint64_t> storage((bytes + 7) / 8);
+    for (int resource = 0; resource < 3; ++resource) {
+        tlv_query_exec_t* exec = nullptr;
+        ASSERT_EQ(TLV_OK,
+                  tlv_query_exec_init(selector.get(), storage.data(), bytes, 4, 8, 100000, &exec));
+        tlv_tree_frame_t  frames[4];
+        tlv_tree_reader_t reader;
+        ASSERT_EQ(TLV_OK, tlv_tree_reader_init(&reader, wire, sizeof wire, &format, frames,
+                                               resource == 0 ? 0 : 4, resource == 1 ? 0 : 4,
+                                               resource == 2 ? 0 : 8));
+        std::vector<size_t> selected;
+        std::memset(&selector.diagnostic, 0xa5, sizeof selector.diagnostic);
+        ASSERT_EQ(TLV_ERR_LIMIT, tlv_query_program_visit(&reader, exec, collect_event, &selected,
+                                                         &selector.diagnostic));
+        const auto& detail = selector.diagnostic.reader;
+        EXPECT_EQ(TLV_QUERY_ERROR_READER, selector.diagnostic.kind);
+        EXPECT_EQ(TLV_ERR_LIMIT, detail.diagnostic.code);
+        EXPECT_EQ(TLV_DIAGNOSTIC_SEVERITY_ERROR, detail.diagnostic.severity);
+        EXPECT_EQ(0, detail.diagnostic.has_offset);
+        EXPECT_EQ(nullptr, detail.diagnostic.expected);
+        EXPECT_EQ(nullptr, detail.diagnostic.actual);
+        EXPECT_EQ(0, detail.has_tag);
+        EXPECT_EQ(nullptr, detail.tag.data);
+        EXPECT_EQ(0u, detail.tag.size);
+        EXPECT_EQ(0, detail.has_raw_length);
+    }
+
+    tlv_schema_query_rule_t rule = {selector.get(), assertion.get(), nullptr, "limited"};
+    size_t                  selector_size, assertion_size;
+    ASSERT_EQ(TLV_OK,
+              tlv_schema_query_size(&rule, 1, 0, 8, &selector_size, &assertion_size, &alignment));
+    std::vector<uint8_t> selected(selector_size + alignment - 1);
+    std::vector<uint8_t> asserted(assertion_size + alignment - 1);
+    auto                 aligned = [alignment](std::vector<uint8_t>& data) {
+        return reinterpret_cast<void*>((reinterpret_cast<uintptr_t>(data.data()) + alignment - 1) &
+                                       ~(static_cast<uintptr_t>(alignment) - 1));
+    };
+    tlv_schema_query_context_t    contexts[8];
+    tlv_tree_frame_t              frame;
+    tlv_schema_query_workspace_t  workspace = {aligned(selected),
+                                               selector_size,
+                                               aligned(asserted),
+                                               assertion_size,
+                                               contexts,
+                                               8,
+                                               &frame,
+                                               1};
+    tlv_schema_query_diagnostic_t diagnostic;
+    std::memset(&diagnostic, 0xa5, sizeof diagnostic);
+    ASSERT_EQ(TLV_ERR_LIMIT,
+              tlv_schema_query_validate_buffer(wire, sizeof wire, &format, &rule, 1, 0, 8, 100000,
+                                               &workspace, &diagnostic));
+    EXPECT_EQ(TLV_QUERY_ERROR_READER, diagnostic.query.kind);
+    EXPECT_EQ(TLV_ERR_LIMIT, diagnostic.query.reader.diagnostic.code);
+    EXPECT_EQ(nullptr, diagnostic.query.reader.diagnostic.expected);
+    EXPECT_EQ(nullptr, diagnostic.query.reader.tag.data);
+    EXPECT_EQ(0, diagnostic.query.reader.has_tag);
+    EXPECT_EQ(0, diagnostic.query.reader.has_raw_length);
+}
+
 TEST(Unit_Tlv_QueryProgram, EventFeedRejectsUnbalancedEventsAndMissingSource) {
     Program p;
     ASSERT_EQ(TLV_OK, p.compile("//5A[@offset = 0]"));

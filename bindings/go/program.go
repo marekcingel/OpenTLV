@@ -95,8 +95,9 @@ func DefaultQuerySchemaLimits() QuerySchemaLimits {
 
 // QuerySchemaError owns a rule-aware native Query/Schema failure.
 type QuerySchemaError struct {
+	Diagnostic
 	Rule    int
-	Tag     []byte
+	Kind    int
 	Field   string
 	Failure *ProgramError
 }
@@ -159,7 +160,8 @@ func validateQuerySchema(rules []QueryRule, input []byte, document *Document, fo
 		return nil
 	}
 	failure := programError(code, detail.Query).(*ProgramError)
-	return &QuerySchemaError{Rule: detail.Rule, Tag: detail.Tag, Field: detail.Field, Failure: failure}
+	return &QuerySchemaError{Diagnostic: publicDiagnostic(detail.Schema), Rule: detail.Rule,
+		Kind: detail.Kind, Field: detail.Field, Failure: failure}
 }
 
 // ValidateQueryBuffer delegates contextual assertions to C over a copied complete
