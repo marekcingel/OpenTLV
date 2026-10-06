@@ -124,6 +124,13 @@ static int loader_aliases(void) {
     memcpy(immutable, p, p->reserved);
     CHECK(tlv_query_program_format(p, (char*)p, p->reserved, &needed) == TLV_ERR_INVALID_ARG);
     CHECK(!memcmp(immutable, p, p->reserved));
+    memcpy(aligned(&memory), p, p->reserved);
+    ((tlv_query_plan_t*)aligned(&memory))->version = TLV_QUERY_PLAN_VERSION - 1;
+    const tlv_query_program_t* loaded = NULL;
+    tlv_query_diagnostic_t     diagnostic;
+    CHECK(tlv_query_program_load(aligned(&memory), p->reserved, NULL, aligned(&before), bytes,
+                                 &loaded, NULL, &diagnostic) == TLV_ERR_UNSUPPORTED_TYPE);
+    CHECK(!loaded && diagnostic.kind == TLV_QUERY_ERROR_IMAGE_VERSION);
     return 0;
 }
 static void reenter(callback_state* s) {
@@ -404,6 +411,167 @@ static int callbacks(void) {
             CHECK(state.calls == 2 && !state.errors);
         }
 #endif
+    return 0;
+}
+typedef struct raw_init_state {
+    const tlv_query_program_t*     program;
+    const tlv_query_environment_t* environment;
+    tlv_query_exec_t*              exec;
+    size_t                         bytes;
+    int                            retained, calls;
+    tlv_result_t                   status;
+} raw_init_state;
+static void raw_reinitialize(raw_init_state* s) {
+    ++s->calls;
+    s->status = s->retained
+                    ? tlv_query_eval_init(s->program, s->environment, s->exec, s->bytes, 2, 4,
+                                          100000, &s->exec)
+                    : tlv_query_exec_init(s->program, s->exec, s->bytes, 2, 4, 100000, &s->exec);
+}
+static tlv_result_t reinitializing_tag(const void* context, const tlv_tag_t* tag, int64_t* out) {
+    (void)tag;
+    raw_reinitialize((raw_init_state*)context);
+    *out = 1;
+    return TLV_OK;
+}
+static int reinitializing_constructed(const void* context, const tlv_tag_t* tag) {
+    (void)tag;
+    raw_reinitialize((raw_init_state*)context);
+    return 0;
+}
+static tlv_codec_result_t reinitializing_codec(const void* context, const tlv_tree_event_t* input,
+                                               const uint8_t* data, size_t size, void* scratch,
+                                               size_t capacity, tlv_query_result_t* out) {
+    (void)input;
+    (void)data;
+    (void)size;
+    (void)scratch;
+    (void)capacity;
+    raw_reinitialize((raw_init_state*)context);
+    out->kind = TLV_QUERY_RESULT_INTEGER;
+    out->integer = 1;
+    return TLV_CODEC_OK;
+}
+#if OPENTLV_READER
+static tlv_visit_result_t reinitializing_event(const tlv_tree_event_t* input, void* context) {
+    (void)input;
+    raw_reinitialize(context);
+    return TLV_VISIT_STOP;
+}
+#endif
+static int raw_reinitialization(void) {
+    arena                   image, memory;
+    raw_init_state          state = {0};
+    tlv_query_tag_adapter_t tags = {74, &state, reinitializing_tag, reinitializing_tag};
+    tlv_query_hook_t        hook = {73, TLV_QUERY_NUM, 0, 1, &state, reinitializing_codec};
+    tlv_format_t            provider_format = {0};
+    provider_format.context = &state;
+    provider_format.is_constructed = reinitializing_constructed;
+    tlv_query_environment_t environment = {0};
+    environment.tags = &tags;
+    environment.hooks = &hook;
+    environment.hook_count = 1;
+    environment.format = &provider_format;
+    state.environment = &environment;
+    state.retained = 1;
+    size_t                alignment;
+    tlv_query_exec_info_t info = {0};
+    info.struct_size = sizeof info;
+    const char* expressions[] = {"//01[number(.) = 1]", "//01[class(.) = 1]", "//01[num(.) = 1]",
+                                 "//01[constructed(.)]"};
+    for (unsigned k = 0; k < 4; ++k) {
+        CHECK(compile_plan(expressions[k], &environment, &image, &state.program) == 0);
+        CHECK(tlv_query_eval_size(state.program, 2, 4, &state.bytes, &alignment) == TLV_OK);
+        CHECK(tlv_query_eval_init(state.program, &environment, aligned(&memory), state.bytes, 2, 4,
+                                  100000, &state.exec) == TLV_OK);
+        state.calls = 0;
+        tlv_tree_event_t input = event();
+        int              matched;
+        for (unsigned i = 0; i < 3; ++i)
+            CHECK(tlv_query_exec_feed(state.exec, &input, &matched, NULL) == TLV_OK);
+        CHECK(tlv_query_exec_finish(state.exec, NULL) == TLV_ERR_INVALID_ARG);
+        CHECK(state.calls == 1 && state.status == TLV_OK);
+        CHECK(tlv_query_exec_info(state.exec, &info) == TLV_OK && info.invalid && !info.finished);
+        tlv_query_result_t result;
+        CHECK(tlv_query_exec_result(state.exec, &result) == TLV_ERR_INVALID_ARG);
+    }
+#if OPENTLV_READER
+    const char*        selections[] = {"//01", "/70[child::01]"};
+    tlv_fixed_format_t config = {0};
+    config.tag_size = config.length_size = 1;
+    config.length_order = TLV_BYTE_ORDER_BIG_ENDIAN;
+    tlv_format_t format;
+    CHECK(tlv_fixed_format_init(&format, &config) == TLV_OK);
+    format.is_constructed = constructed;
+    for (unsigned k = 0; k < 2; ++k)
+        for (state.retained = 0; state.retained < 2; ++state.retained) {
+            CHECK(compile_plan(selections[k], NULL, &image, &state.program) == 0);
+            CHECK((state.retained
+                       ? tlv_query_eval_size(state.program, 2, 4, &state.bytes, &alignment)
+                       : tlv_query_exec_size(state.program, 2, &state.bytes, &alignment)) ==
+                  TLV_OK);
+            state.exec = aligned(&memory);
+            state.environment = NULL;
+            raw_reinitialize(&state);
+            CHECK(state.status == TLV_OK);
+            state.calls = 0;
+            const uint8_t     wire[] = {0x70, 2, 1, 0, 0x70, 2, 1, 0};
+            tlv_tree_reader_t reader;
+            tlv_tree_frame_t  frames[4];
+            CHECK(tlv_tree_reader_init(&reader, wire, sizeof wire, &format, frames, 4, 3, 4) ==
+                  TLV_OK);
+            CHECK(tlv_query_program_visit(&reader, state.exec, reinitializing_event, &state,
+                                          NULL) == TLV_ERR_INVALID_ARG);
+            CHECK(state.calls == 1 && state.status == TLV_OK);
+            CHECK(tlv_query_exec_info(state.exec, &info) == TLV_OK && info.invalid &&
+                  !info.finished);
+        }
+#endif
+    return 0;
+}
+/* Put outputs in a legal gap between two borrowed spans. The retained envelope
+ * necessarily includes them, regardless of stack/heap address ordering. */
+static int retained_scale(void) {
+    enum { count = 40000 };
+    struct separated_spans {
+        uint64_t               tag;
+        int                    matched;
+        tlv_query_diagnostic_t diagnostic;
+        tlv_query_exec_info_t  info;
+        tlv_tree_event_t       selected;
+        size_t                 ordinal;
+        uint64_t               value[64];
+    } spans = {0};
+    arena                      image;
+    const tlv_query_program_t* p;
+    CHECK(compile_plan("descendant::01", NULL, &image, &p) == 0);
+    size_t bytes, alignment;
+    CHECK(tlv_query_eval_size(p, 0, count, &bytes, &alignment) == TLV_OK);
+    void* allocation = malloc(bytes + alignment);
+    CHECK(allocation);
+    void* memory = (void*)(((uintptr_t)allocation + alignment - 1) & ~(uintptr_t)(alignment - 1));
+    tlv_query_exec_t* e;
+    CHECK(tlv_query_eval_init(p, NULL, memory, bytes, 0, count, SIZE_MAX, &e) == TLV_OK);
+    *(uint8_t*)&spans.tag = 1;
+    tlv_tree_event_t input = event();
+    input.element.tag = tlv_tag((const uint8_t*)&spans.tag, 1);
+    input.element.value.data = (const uint8_t*)&spans.value;
+    spans.info.struct_size = sizeof spans.info;
+    for (size_t i = 0; i < count; ++i) {
+        CHECK(tlv_query_exec_feed(e, &input, &spans.matched, &spans.diagnostic) == TLV_OK);
+        CHECK(tlv_query_exec_info(e, &spans.info) == TLV_OK && spans.info.elements == i + 1);
+    }
+    CHECK(tlv_query_exec_finish(e, &spans.diagnostic) == TLV_OK);
+    CHECK(tlv_query_result_next(e, (tlv_tree_event_t*)(void*)spans.value) == TLV_ERR_INVALID_ARG);
+    CHECK(tlv_query_result_next_ordinal(e, &spans.selected, (size_t*)(void*)spans.value) ==
+          TLV_ERR_INVALID_ARG);
+    CHECK(spans.value[0] == 0);
+    for (size_t i = 0; i < count; ++i) {
+        CHECK(tlv_query_result_next_ordinal(e, &spans.selected, &spans.ordinal) == TLV_OK);
+        CHECK(spans.ordinal == i && spans.selected.element.tag.data == input.element.tag.data);
+    }
+    CHECK(tlv_query_result_next(e, &spans.selected) == TLV_ERR_END_OF_BUFFER);
+    free(allocation);
     return 0;
 }
 #if OPENTLV_DOCUMENT && OPENTLV_READER && OPENTLV_WRITER

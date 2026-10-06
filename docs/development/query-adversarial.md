@@ -130,6 +130,16 @@ Static-plan regressions reject `contains` literals larger than the declared
 pattern bound, and compare literal/dynamic matching and LIMIT behavior across
 both executors, including empty patterns and exact/one-short capacities.
 
+Review regressions also cover raw workspace reinitialization from retained
+providers and S0/S1/retained visitors, preservation of LIMIT diagnostics when
+binding is retried, and IMAGE_VERSION diagnostics for the previous plan version.
+The `query-retained-scale` test feeds, inspects and iterates 40,000 nodes with
+outputs in a legal gap between borrowed spans. Its 15-second timeout guards
+against repeated full-history overlap scans; output checks in these repeated
+operations remain independent of the number of retained nodes. Callers still
+must keep outputs disjoint from every borrowed event span; finish and scalar
+result retrieval retain full-history checks.
+
 `adversarial_native.h` additionally contains frontend-produced C initializers
 with all source text removed for S0/S1/S2/D and count/exists/Value results. The
 frontend-enabled driver compares their instructions and payload against current

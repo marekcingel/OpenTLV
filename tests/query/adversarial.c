@@ -307,6 +307,12 @@ static int diagnostics(const tlv_query_program_t* p) {
         CHECK(!memcmp(&original, &d, sizeof d));
         CHECK(tlv_query_exec_feed(e, &input, &matched, &d) == TLV_ERR_INVALID_ARG);
         CHECK(!memcmp(&original, &d, sizeof d));
+        CHECK(tlv_query_exec_bind(e, "n", TLV_QUERY_RESULT_INTEGER, 1, NULL, 0, &d) ==
+              TLV_ERR_INVALID_ARG);
+        CHECK(!memcmp(&original, &d, sizeof d));
+        CHECK(tlv_query_exec_context(e, 0) == TLV_ERR_INVALID_ARG);
+        CHECK(tlv_query_exec_pruning(e, 1) == TLV_ERR_INVALID_ARG);
+        CHECK(!memcmp(&original, &d, sizeof d));
         CHECK(tlv_query_exec_reset(e) == TLV_OK);
         CHECK(tlv_query_exec_bind(e, "n", TLV_QUERY_RESULT_INTEGER, 1, NULL, 0, NULL) == TLV_OK);
         CHECK(tlv_query_exec_feed(e, &input, &matched, &d) == TLV_OK);
@@ -321,6 +327,7 @@ static int diagnostics(const tlv_query_program_t* p) {
 int main(int argc, char** argv) {
 #if OPENTLV_QUERY_FRONTEND
     if (argc == 2 && !strcmp(argv[1], "--export")) return export_plans();
+    if (argc == 2 && !strcmp(argv[1], "--retained-scale")) return retained_scale();
 #endif
     const tlv_query_program_t* p = NULL;
     CHECK(tlv_query_plan_open(&static_plan, static_plan.header.reserved, &p, NULL) == TLV_OK);
@@ -349,6 +356,7 @@ int main(int argc, char** argv) {
 #if OPENTLV_QUERY_FRONTEND
     CHECK(loader_aliases() == 0);
     CHECK(callbacks() == 0);
+    CHECK(raw_reinitialization() == 0);
 #if OPENTLV_READER
     CHECK(reader_aliases() == 0);
 #endif

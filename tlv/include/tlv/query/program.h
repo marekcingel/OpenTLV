@@ -24,8 +24,12 @@ extern "C" {
  * environment descriptors, input/Tag/Value/Source spans or output objects.
  * Outputs must not overlap one another or immutable borrowed data. Read-only
  * input spans may alias each other and program payload; adjacent spans are valid.
- * Forbidden execution/output overlap returns INVALID_ARG before writes, including
- * diagnostic initialization. Opaque provider contexts remain caller-managed.
+ * Detected execution/output overlap returns INVALID_ARG before writes, including
+ * diagnostic initialization. Feed, result iteration and exec_info check live
+ * descriptors, bindings and delayed S1 spans without scanning retained history;
+ * callers must keep their outputs disjoint from all earlier borrowed event spans.
+ * Finish and exec_result also check the complete retained history.
+ * Opaque provider contexts remain caller-managed.
  * @note Operations on the same execution from a visitor/provider/tag callback
  * return INVALID_ARG without changing the outer execution; exec_info is readable.
  * Independent executions are allowed. This is a synchronous reentrancy contract,
@@ -68,7 +72,7 @@ typedef enum tlv_query_decision_timing {
 } tlv_query_decision_timing_t;
 
 /** @brief Fixed-layout compiler/execution failure, initialized by diagnostic entry points.
- * @note A valid feed or finish call on an already failed execution returns
+ * @note A valid bind, feed or finish call on an already failed execution returns
  * INVALID_ARG without writing this object, preserving the original failure when
  * it is reused. Inspect exec_info.invalid and reset before continuing.
  * @note This value type is not extensible; changing its layout requires an ABI change. */

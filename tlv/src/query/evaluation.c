@@ -53,24 +53,27 @@ static retained_node_t* eval_nodes(tlv_query_exec_t* e) {
                                15) &
                               ~(uintptr_t)15);
 }
-int query_retained_overlap(const tlv_query_exec_t* e, const void* p, size_t size) {
+int query_live_overlap(const tlv_query_exec_t* e, const void* p, size_t size) {
     if (!p || !size) return 0;
     if (query_overlap(e->result.data, e->result.size, p, size)) return 1;
-    /* Most outputs live outside the borrowed-input envelope. Only a possible
-     * overlap needs the exact retained-span scan; gaps remain legal. */
+    /* This envelope is only a fast rejection; gaps between live spans are legal.
+     * Never scan the retained candidate set on this per-call path. */
     if (!e->borrowed_high ||
         !query_overlap((const void*)e->borrowed_low, e->borrowed_high - e->borrowed_low, p, size))
         return 0;
     const query_value_t* bindings = (const query_value_t*)(e + 1) + e->program->count;
     for (size_t i = 0; i < e->program->variable_count; ++i)
         if (query_overlap(bindings[i].data, bindings[i].size, p, size)) return 1;
-    if (!e->retained) {
-        return e->program->level == TLV_QUERY_S1 &&
-               (query_overlap(e->delayed.element.tag.data, e->delayed.element.tag.size, p, size) ||
-                query_overlap(e->delayed.element.value.data, (size_t)e->delayed.element.value.size,
-                              p, size) ||
-                query_overlap(e->delayed.source.data, e->delayed.source.size, p, size));
-    }
+    return !e->retained && e->program->level == TLV_QUERY_S1 &&
+           (query_overlap(e->delayed.element.tag.data, e->delayed.element.tag.size, p, size) ||
+            query_overlap(e->delayed.element.value.data, (size_t)e->delayed.element.value.size, p,
+                          size) ||
+            query_overlap(e->delayed.source.data, e->delayed.source.size, p, size));
+}
+int query_retained_overlap(const tlv_query_exec_t* e, const void* p, size_t size) {
+    if (!e->retained || !e->borrowed_high ||
+        !query_overlap((const void*)e->borrowed_low, e->borrowed_high - e->borrowed_low, p, size))
+        return 0;
     const retained_node_t* nodes = eval_nodes((tlv_query_exec_t*)e);
     for (size_t i = 0; i < e->elements; ++i) {
         const tlv_tree_event_t* event = &nodes[i].event;
@@ -293,8 +296,10 @@ static tlv_result_t scalar_call(tlv_query_exec_t* e, eval_frame_t* f, const quer
     if (fn == F_CONSTRUCTED) {
         f->value.kind = V_BOOL;
         const tlv_format_t* format = e->environment->format;
-        f->value.number =
+        int constructed =
             format->is_constructed && format->is_constructed(format->context, &event->element.tag);
+        if (!e->busy) return TLV_ERR_INVALID_ARG;
+        f->value.number = constructed;
         return TLV_OK;
     }
     if (fn == F_CLASS || fn == F_NUMBER) {
@@ -303,6 +308,7 @@ static tlv_result_t scalar_call(tlv_query_exec_t* e, eval_frame_t* f, const quer
         tlv_result_t rc = fn == F_CLASS
                               ? tag->class_of(tag->context, &event->element.tag, &number)
                               : tag->number_of(tag->context, &event->element.tag, &number);
+        if (!e->busy) return TLV_ERR_INVALID_ARG;
         if (rc != TLV_OK)
             return query_error(d, rc, TLV_QUERY_ERROR_CAPABILITY, n->begin, n->end,
                                "valid tag decomposition");
@@ -318,6 +324,7 @@ static tlv_result_t scalar_call(tlv_query_exec_t* e, eval_frame_t* f, const quer
             hook->decode(hook->context, event, f->a.data, f->a.size,
                          eval_codec_scratch(e) + instruction * e->program->codec_stride,
                          hook->scratch_size, &result);
+        if (!e->busy) return TLV_ERR_INVALID_ARG;
         if (rc != TLV_CODEC_OK) {
             if (d) d->codec = rc;
             return query_error(d, TLV_ERR_INVALID_VALUE, TLV_QUERY_ERROR_CODEC, n->begin, n->end,
@@ -534,6 +541,7 @@ tlv_result_t query_retained_finish(tlv_query_exec_t* e, tlv_query_diagnostic_t* 
                 f->arg_count = args_of(instructions, n, f->args);
                 if (!f->arg_count) {
                     rc = scalar_call(e, f, n, f->instruction, d);
+                    if (!e->busy) return TLV_ERR_INVALID_ARG;
                     if (rc != TLV_OK) return eval_failure(e, f, rc, d);
                     goto complete;
                 }
@@ -600,6 +608,7 @@ tlv_result_t query_retained_finish(tlv_query_exec_t* e, tlv_query_diagnostic_t* 
                 continue;
             }
             rc = scalar_call(e, f, n, f->instruction, d);
+            if (!e->busy) return TLV_ERR_INVALID_ARG;
             if (rc != TLV_OK) return eval_failure(e, f, rc, d);
             if (f->value.kind == V_NODE && f->value.number && f->context < e->elements)
                 out[f->context] = 1;
@@ -721,33 +730,41 @@ tlv_result_t tlv_query_exec_result(const tlv_query_exec_t* e, tlv_query_result_t
     *result = e->result;
     return TLV_OK;
 }
-tlv_result_t tlv_query_result_next(tlv_query_exec_t* e, tlv_tree_event_t* event) {
+static tlv_result_t result_next(tlv_query_exec_t* e, tlv_tree_event_t* event, size_t* ordinal) {
     if (!e || !event) return TLV_ERR_NULL_ARG;
-    if (e->busy || e->invalid || query_output_overlap(e, event, sizeof *event))
+    if (e->busy || e->invalid || query_output_overlap_live(e, event, sizeof *event))
         return TLV_ERR_INVALID_ARG;
     if (e->document_current && !e->document_current(e->document_owner, e->document_revision))
         return TLV_ERR_INVALID_ARG;
     if (!e->retained || !e->finished || e->invalid || e->result.kind != TLV_QUERY_RESULT_NODES)
         return TLV_ERR_INVALID_ARG;
     while (e->result_cursor < e->elements) {
-        size_t i = e->result_cursor++;
+        size_t i = e->result_cursor;
         if (frame_set(e, 0, 0)[i]) {
-            *event = eval_nodes(e)[i].event;
+            const tlv_tree_event_t* selected = &eval_nodes(e)[i].event;
+            if (query_event_overlap(selected, event, sizeof *event) ||
+                query_event_overlap(selected, ordinal, ordinal ? sizeof *ordinal : 0))
+                return TLV_ERR_INVALID_ARG;
+            *event = *selected;
+            if (ordinal) *ordinal = i;
+            ++e->result_cursor;
             return TLV_OK;
         }
+        ++e->result_cursor;
     }
     return TLV_ERR_END_OF_BUFFER;
+}
+tlv_result_t tlv_query_result_next(tlv_query_exec_t* e, tlv_tree_event_t* event) {
+    return result_next(e, event, NULL);
 }
 
 tlv_result_t tlv_query_result_next_ordinal(tlv_query_exec_t* e, tlv_tree_event_t* event,
                                            size_t* ordinal) {
     if (!ordinal) return TLV_ERR_NULL_ARG;
-    if ((e && query_output_overlap(e, ordinal, sizeof *ordinal)) ||
+    if ((e && query_output_overlap_live(e, ordinal, sizeof *ordinal)) ||
         query_overlap(ordinal, sizeof *ordinal, event, event ? sizeof *event : 0))
         return TLV_ERR_INVALID_ARG;
-    tlv_result_t rc = tlv_query_result_next(e, event);
-    if (rc == TLV_OK) *ordinal = e->result_cursor - 1;
-    return rc;
+    return result_next(e, event, ordinal);
 }
 tlv_result_t tlv_query_program_explain(const tlv_query_program_t* p, char* output, size_t capacity,
                                        size_t* required) {

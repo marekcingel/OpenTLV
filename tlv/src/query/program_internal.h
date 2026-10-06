@@ -139,6 +139,11 @@ static inline int query_overlap(const void* a, size_t an, const void* b, size_t 
     uintptr_t x = (uintptr_t)a, y = (uintptr_t)b;
     return a && b && an && bn && (x <= y ? y - x < an : x - y < bn);
 }
+static inline int query_event_overlap(const tlv_tree_event_t* event, const void* p, size_t n) {
+    return query_overlap(event->element.tag.data, event->element.tag.size, p, n) ||
+           query_overlap(event->element.value.data, (size_t)event->element.value.size, p, n) ||
+           query_overlap(event->source.data, event->source.size, p, n);
+}
 static inline void query_track_borrow(tlv_query_exec_t* e, const void* p, size_t n) {
     if (!p || !n) return;
     uintptr_t begin = (uintptr_t)p;
@@ -147,11 +152,13 @@ static inline void query_track_borrow(tlv_query_exec_t* e, const void* p, size_t
     if (end > e->borrowed_high) e->borrowed_high = end;
 }
 int query_retained_overlap(const tlv_query_exec_t*, const void*, size_t);
-static inline int query_output_overlap(const tlv_query_exec_t* e, const void* p, size_t n) {
+int query_live_overlap(const tlv_query_exec_t*, const void*, size_t);
+/* Per-event/cursor checks must not scan the accumulated candidate set. */
+static inline int query_output_overlap_live(const tlv_query_exec_t* e, const void* p, size_t n) {
     return query_overlap(e, e->workspace_size, p, n) ||
            query_overlap(e->program, e->program->reserved, p, n) ||
            query_overlap(e->environment, e->environment ? sizeof *e->environment : 0, p, n) ||
-           query_retained_overlap(e, p, n) ||
+           query_live_overlap(e, p, n) ||
            (e->environment &&
             (query_overlap(e->environment->hooks,
                            e->environment->hook_count * sizeof(tlv_query_hook_t), p, n) ||
@@ -159,6 +166,9 @@ static inline int query_output_overlap(const tlv_query_exec_t* e, const void* p,
                            e->environment->tags ? sizeof(tlv_query_tag_adapter_t) : 0, p, n) ||
              query_overlap(e->environment->format,
                            e->environment->format ? sizeof(tlv_format_t) : 0, p, n)));
+}
+static inline int query_output_overlap(const tlv_query_exec_t* e, const void* p, size_t n) {
+    return query_output_overlap_live(e, p, n) || query_retained_overlap(e, p, n);
 }
 static inline int query_borrow_overlap(const tlv_query_exec_t* e, const void* p, size_t n) {
     return query_overlap(e, e->workspace_size, p, n);

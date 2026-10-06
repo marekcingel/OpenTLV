@@ -185,7 +185,7 @@ failed:
 }
 tlv_result_t tlv_document_query_next(tlv_query_exec_t* e, tlv_node_t** node) {
     if (!e || !node) return TLV_ERR_NULL_ARG;
-    if (e->busy || e->invalid || query_output_overlap(e, node, sizeof *node))
+    if (e->busy || e->invalid || query_output_overlap_live(e, node, sizeof *node))
         return TLV_ERR_INVALID_ARG;
     if (!e->document_owner || e->document_revision != tlv_document_revision(e->document_owner))
         return TLV_ERR_INVALID_ARG;

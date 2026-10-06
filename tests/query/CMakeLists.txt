@@ -35,6 +35,8 @@ endif()
 if(NOT OPENTLV_QUERY_FRONTEND)
     return()
 endif()
+add_test(NAME query-retained-scale COMMAND test-query-adversarial --retained-scale)
+set_tests_properties(query-retained-scale PROPERTIES LABELS "query;adversarial" TIMEOUT 15)
 
 add_executable(test-query-conformance native.c)
 add_executable(test-query-abi abi.c)

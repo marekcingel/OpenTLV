@@ -9,6 +9,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Fixed
 
+- Keep retained Query feed, result iteration and status inspection independent of the number of previously retained spans; reject workspace reinitialization detected after callbacks and preserve failure diagnostics when binding is retried. (#536)
 - Reject Query Reader outputs overlapping Reader input, frames or Format, and Document Query edit targets overlapping the applied count or Value, before any writes. (#536)
 - Reject static Query plans with undersized literal-pattern storage, align malformed-event diagnostics across executors, and preserve the original failure diagnostic when feed or finish is retried. (#536)
 - Preserve absolute constexpr Query paths when an execution context is set by emitting an explicit root, matching runtime plan semantics and workspace requirements. Regenerate constexpr node plans and remeasure caller workspace. (#536)
@@ -79,6 +80,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Changed
 
+- Reject nested Query visits on the same Document, including visits using an independent execution. Visits on independent Documents remain supported. (#536)
+- Advance the internal Query plan version to 7 for changed pattern and tag-provider requirements; regenerate previously compiled images and static plans. (#536)
 - Make Reader, Writer, Query, Schema and Codec independently selectable build capabilities, and support programmatic Document trees without Reader or Writer. Build composed integrations only when their capabilities are enabled, with shared/static profile coverage and matching feature configuration. (#531)
 - Make Query execution independent of source text and advance the internal native plan version; rebuild previously compiled Query images. (#530)
 - Keep Query benchmark measurements advisory while Query functionality is completed, without requiring accepted baselines for release. (#523)

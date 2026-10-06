@@ -22,7 +22,7 @@
 /** @brief Native image signature; swapped byte order is incompatible. */
 #define TLV_QUERY_PLAN_MAGIC UINT32_C(0x51525932)
 /** @brief Exact supported representation version, independent of language version. */
-#define TLV_QUERY_PLAN_VERSION UINT32_C(6)
+#define TLV_QUERY_PLAN_VERSION UINT32_C(7)
 /** @brief Absent instruction reference. All other references point backward. */
 #define TLV_QUERY_PLAN_NONE UINT32_MAX
 /** @brief Closed plan opcode selectors. */
