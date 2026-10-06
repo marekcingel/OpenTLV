@@ -8,7 +8,8 @@ var searchData=
   ['set_5ftag_5fstorage_5',['set_tag_storage',['../classtlv_1_1tree__writer.html#acabae253a6e58b2bb76b23a5ba583988',1,'tlv::tree_writer']]],
   ['size_6',['size',['../classtlv_1_1document.html#a88f7e5693ade570f9f9137db51c56ba2',1,'tlv::document::size()'],['../classtlv_1_1query.html#a2cd66da393d6b030f76a61cf7c6b1a67',1,'tlv::query::size()'],['../classtlv_1_1static__query_1_1plan.html#abeb0414721e0852e68c6c7e2d420987f',1,'tlv::static_query::plan::size()'],['../classtlv_1_1tag.html#ad747db05ed1ab45f49a65c9303572d8d',1,'tlv::tag::size()'],['../classtlv_1_1value__view.html#a2ba7647de984850fd0b219cbadce5647',1,'tlv::value_view::size()'],['../classtlv_1_1writer__builder.html#a13639af94321ece1948c3ff35e7df3d0',1,'tlv::writer_builder::size()'],['../classtlv_1_1tree__writer.html#a717823f46deb9796a913d0fc0e577887',1,'tlv::tree_writer::size()'],['../classtlv_1_1detail_1_1writer__base.html#a156c3a8a9d9be425e0d24bc6800c8743',1,'tlv::detail::writer_base::size()'],['../classtlv_1_1span.html#af9763dc55004193c455ecbb1e817909a',1,'tlv::span::size()']]],
   ['skip_5fsubtree_7',['skip_subtree',['../classtlv_1_1tree__reader.html#a35d5898b05a0a542d6cb60989adb95b4',1,'tlv::tree_reader']]],
-  ['span_8',['span',['../classtlv_1_1span.html#a0bda0703f37c736b0a2bf3c77205d114',1,'tlv::span::span()'],['../classtlv_1_1span.html#ab8c70860e2ea0fc3bde54c4a17786d41',1,'tlv::span::span(T *data, std::size_t size)']]],
-  ['status_9',['status',['../classtlv_1_1writer__builder.html#a51e648913a5d340ec2a3dffe6552a8b5',1,'tlv::writer_builder']]],
-  ['step_10',['step',['../classtlv_1_1query.html#a2d7b5fafdb4e8e66fd0384275413ceaa',1,'tlv::query']]]
+  ['source_5flocation_8',['source_location',['../classtlv_1_1node.html#a1c68a5643c8ae37c95b2ce009c5b0f6e',1,'tlv::node']]],
+  ['span_9',['span',['../classtlv_1_1span.html#a0bda0703f37c736b0a2bf3c77205d114',1,'tlv::span::span()'],['../classtlv_1_1span.html#ab8c70860e2ea0fc3bde54c4a17786d41',1,'tlv::span::span(T *data, std::size_t size)']]],
+  ['status_10',['status',['../classtlv_1_1writer__builder.html#a51e648913a5d340ec2a3dffe6552a8b5',1,'tlv::writer_builder']]],
+  ['step_11',['step',['../classtlv_1_1query.html#a2d7b5fafdb4e8e66fd0384275413ceaa',1,'tlv::query']]]
 ];

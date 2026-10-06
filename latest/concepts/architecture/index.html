@@ -2620,10 +2620,10 @@
 </li>
         
           <li class="md-nav__item">
-  <a href="#owned-representation" class="md-nav__link">
+  <a href="#core-capabilities-and-query-features" class="md-nav__link">
     <span class="md-ellipsis">
       
-        Owned representation
+        Core capabilities and Query features
       
     </span>
   </a>
@@ -3626,10 +3626,10 @@
 </li>
         
           <li class="md-nav__item">
-  <a href="#owned-representation" class="md-nav__link">
+  <a href="#core-capabilities-and-query-features" class="md-nav__link">
     <span class="md-ellipsis">
       
-        Owned representation
+        Core capabilities and Query features
       
     </span>
   </a>
@@ -3980,16 +3980,19 @@ harnesses, each with its checked-in seed corpus in a sibling <code>corpus/</code
 <code>tests/fuzz/CMakeLists.txt</code> since <code>OPENTLV_BUILD_FUZZING</code> is independent of
 <code>OPENTLV_BUILD_TESTS</code>. Compile/API checks stay separate from this tree.</p>
 <h2 id="mutable-document">Mutable document<a class="headerlink" href="#mutable-document" title="Permanent link">&para;</a></h2>
-<p><code>document/document.h</code> is a layer above the reader, writer and query facilities. It
-builds an owned tree from canonical Tree Reader items, lets the tree be searched,
-changed, extended and shortened, and encodes it again through the Writer.
-It is the canonical owned mutable representation, supports a caller-supplied
-allocator and is selected by <code>OPENTLV_DOCUMENT</code>. Borrowed processing does not
-require it; enabling it does not allocate storage until an owning operation is
-called. Static linking/dead-code elimination can omit unused Document code
-where supported. C Reader, Writer and Visitor preserve their explicit buffer
-and workspace contracts; binding conveniences and error objects may allocate. See
-<a href="../../guides/document/">mutable documents</a>.</p>
+<p><code>document/document.h</code> provides the canonical owned mutable tree, selected by
+<code>OPENTLV_DOCUMENT</code>. Programmatic construction and mutation need neither Reader
+nor Writer. Document owns its Tags and Values and supports a caller allocator;
+enabling the capability alone does not allocate a tree.</p>
+<p>Wire import is a Reader + Document integration (<code>document/reader.c</code>), serialization
+is a Writer + Document integration (<code>document/writer.c</code>), and path matching is a
+Query + Document integration (<code>document/query.c</code>). Nonempty constructed Values
+passed to insert/set-value are encoded children and require Reader; without it,
+these operations return <code>TLV_ERR_UNSUPPORTED_TYPE</code> without changing the tree.
+Empty constructed nodes and programmatically inserted children remain available.
+Compiled Document Query currently also needs Reader and Writer for its Value
+snapshot; Query-specific execution dependency cleanup remains separate.
+See <a href="../../guides/document/">mutable documents</a>.</p>
 <p><code>tlv_document_builder_t</code> owns unfinished construction and consumes a caller-owned
 Tree Reader, resuming after <code>TLV_NEED_MORE_DATA</code>. It publishes a document only at
 final stream end or completion of a selected subtree. Complete-buffer parsing
@@ -4063,13 +4066,17 @@ own option, and no code or dependency added to builds that do not enable it.</p>
 <p>Language bindings are expected to follow the same rule: a binding should expose a
 component only when the matching C component is enabled, so a binding build can also be
 limited to what it needs. Rust maps its default <code>lldp</code> Cargo feature to
-<code>OPENTLV_LLDP</code>; other components still use the C library defaults. Mapping the
+<code>OPENTLV_LLDP</code>; Reader, Writer, Query, Schema and Codec are explicitly enabled by its native build. Mapping the
 remaining component options to Cargo features is future work; see
 <a href="../../development/rust/#build">Rust bindings</a>. Ready-made CMake recipes are in
 <a href="../../guides/select-components/">building only the components you need</a>.</p>
 <h2 id="build-configuration">Build configuration<a class="headerlink" href="#build-configuration" title="Permanent link">&para;</a></h2>
-<p>Generic borrowed processing and the configurable Fixed and Variable formats are
-always available. The owned Document representation has its own build switch.</p>
+<p>Core primitives (Tag, Value, Element, Format/Layout, diagnostics and shared
+utilities) and configurable Fixed/Variable formats are always available.
+Reader, Writer, Document, Query, Schema and Codec are independent optional
+capabilities, enabled by default. Their source groups are excluded when disabled;
+this does not depend on static-linker dead stripping. A single <code>tlv</code> library
+remains the distribution unit.</p>
 <h3 id="generic-core-formats">Generic core formats<a class="headerlink" href="#generic-core-formats" title="Permanent link">&para;</a></h3>
 <table>
 <thead>
@@ -4137,7 +4144,7 @@ always available. The owned Document representation has its own build switch.</p
 </tr>
 </tbody>
 </table>
-<h3 id="owned-representation">Owned representation<a class="headerlink" href="#owned-representation" title="Permanent link">&para;</a></h3>
+<h3 id="core-capabilities-and-query-features">Core capabilities and Query features<a class="headerlink" href="#core-capabilities-and-query-features" title="Permanent link">&para;</a></h3>
 <table>
 <thead>
 <tr>
@@ -4146,6 +4153,26 @@ always available. The owned Document representation has its own build switch.</p
 </tr>
 </thead>
 <tbody>
+<tr>
+<td><code>OPENTLV_READER</code></td>
+<td>Wire Reader and Tree traversal</td>
+</tr>
+<tr>
+<td><code>OPENTLV_WRITER</code></td>
+<td>Wire Writer, Tree Writer and generation</td>
+</tr>
+<tr>
+<td><code>OPENTLV_QUERY</code></td>
+<td>Canonical Query compiler/execution and path matching</td>
+</tr>
+<tr>
+<td><code>OPENTLV_SCHEMA</code></td>
+<td>Schema descriptions, length and value constraints; wire traversal requires Reader</td>
+</tr>
+<tr>
+<td><code>OPENTLV_CODEC</code></td>
+<td>Semantic Value codecs; structure codecs require Schema and Reader</td>
+</tr>
 <tr>
 <td><code>OPENTLV_QUERY_FRONTEND</code></td>
 <td>Query text parser/compiler; disable for <a href="../../guides/queries/#static-c-plans-and-frontend-free-execution">static C plans</a></td>

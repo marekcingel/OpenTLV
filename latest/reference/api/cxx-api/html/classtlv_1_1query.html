@@ -384,10 +384,10 @@ template&lt;typename Visitor &gt; </div>
 </div><div class="memdoc">
 
 <p>Calls a visitor for every element the query addresses. </p>
-<p>Wraps <a class="elRef" href="../../c-api/html/group__traversal.html#gacd8a0af2a70f78fe01583fd8b727ee34">tlv_query_visit_buffer()</a>: elements are visited in document order and the rules for limits, offsets and errors are the same. Nothing is allocated and the entries passed to the visitor borrow <code>data</code>.</p>
+<p>Wraps tlv_query_visit_buffer(): elements are visited in document order and the rules for limits, offsets and errors are the same. Nothing is allocated and the entries passed to the visitor borrow <code>data</code>.</p>
 <dl class="tparams"><dt>Template Parameters</dt><dd>
   <table class="tparams">
-    <tr><td class="paramname">Visitor</td><td>Callable invoked as <code>visitor(element_view, depth, absolute_offset)</code> returning <a class="elRef" href="../../c-api/html/group__traversal.html#ga5685cbc116854f9874253489cb769622">tlv_visit_result_t</a>, as for <a class="el" href="classtlv_1_1tree__reader.html#ab1551f6a071bad184c3d9b89f87e8dca" title="Visit remaining items using the canonical C Visitor engine.">tree_reader::visit()</a>.</td></tr>
+    <tr><td class="paramname">Visitor</td><td>Callable invoked as <code>visitor(element_view, depth, absolute_offset)</code> returning <a class="elRef" href="../../c-api/html/tree_8h.html#a5685cbc116854f9874253489cb769622">tlv_visit_result_t</a>, as for <a class="el" href="classtlv_1_1tree__reader.html#ab1551f6a071bad184c3d9b89f87e8dca" title="Visit remaining items using the canonical C Visitor engine.">tree_reader::visit()</a>.</td></tr>
   </table>
   </dd>
 </dl>
@@ -397,12 +397,12 @@ template&lt;typename Visitor &gt; </div>
     <tr><td class="paramname">format</td><td>Reader format. A <code>nullptr</code> <code>format.is_constructed</code> treats every value as opaque, in which case only one-tag queries can match. </td></tr>
     <tr><td class="paramname">max_depth</td><td>Runtime depth limit; the convenience API owns TLV_QUERY_MAX_STEPS frames. </td></tr>
     <tr><td class="paramname">max_elements</td><td>Bound on all traversed elements. </td></tr>
-    <tr><td class="paramname">visitor</td><td>Visitor callable; returning <a class="elRef" href="../../c-api/html/group__traversal.html#gga32dd2f26caa5ae7507636430b13cc961adbda0be9ca29c754fea87575ba560d01">TLV_VISIT_STOP</a> succeeds immediately, <a class="elRef" href="../../c-api/html/group__traversal.html#gga32dd2f26caa5ae7507636430b13cc961a1e6076c71ec8c7a08aa0c5e47cc1a74b">TLV_VISIT_ERROR</a> fails. </td></tr>
+    <tr><td class="paramname">visitor</td><td>Visitor callable; returning <a class="elRef" href="../../c-api/html/tree_8h.html#a32dd2f26caa5ae7507636430b13cc961adbda0be9ca29c754fea87575ba560d01">TLV_VISIT_STOP</a> succeeds immediately, <a class="elRef" href="../../c-api/html/tree_8h.html#a32dd2f26caa5ae7507636430b13cc961a1e6076c71ec8c7a08aa0c5e47cc1a74b">TLV_VISIT_ERROR</a> fails. </td></tr>
     <tr><td class="paramname">error_offset</td><td>Optional. On failure receives the failing element's absolute offset; unchanged on success.</td></tr>
   </table>
   </dd>
 </dl>
-<dl class="section return"><dt>Returns</dt><dd>Success, also when nothing matched, or the error of <a class="elRef" href="../../c-api/html/group__traversal.html#gacd8a0af2a70f78fe01583fd8b727ee34">tlv_query_visit_buffer()</a>.</dd></dl>
+<dl class="section return"><dt>Returns</dt><dd>Success, also when nothing matched, or the error of tlv_query_visit_buffer().</dd></dl>
 <dl class="section warning"><dt>Warning</dt><dd>Visitor side effects are not rolled back on error. </dd></dl>
 
 </div>

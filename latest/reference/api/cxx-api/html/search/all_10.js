@@ -38,9 +38,10 @@ var searchData=
   ['result_35',['result',['../classtlv_1_1query__execution.html#a31b5b8547b34008fcef7fbc545241dbc',1,'tlv::query_execution::result()'],['../../../c-api/html/structtlv__emv__cvm__result__t.html#a7c8a7469f4a61bbd4f1cce74ac4f442a',1,'tlv_emv_cvm_result_t::result']]],
   ['result_5fkind_36',['result_kind',['../../../c-api/html/structtlv__query__program__info.html#ad0eab5431f283a384770b148c71fcf24',1,'tlv_query_program_info']]],
   ['resume_37',['resume',['../../../c-api/html/structtlv__tree__frame.html#af9e72ee95b29a377a48ab361f4824c17',1,'tlv_tree_frame']]],
-  ['reuse_38',['reuse',['../../../c-api/html/structtlv__query__instruction.html#a11dcfc9f2e85fd5000c0f0deef6de407',1,'tlv_query_instruction']]],
-  ['right_39',['right',['../structtlv_1_1diff__entry.html#a3bca469528a9a8367ce191f3b90a22db',1,'tlv::diff_entry::right'],['../../../c-api/html/structtlv__query__instruction.html#a0d02ac0a30fefbafee6e7a82656a0dba',1,'tlv_query_instruction::right']]],
-  ['root_40',['root',['../../../c-api/html/structtlv__query__program.html#a9361d5f733b1436902b27b99db4dca4c',1,'tlv_query_program']]],
-  ['rule_41',['rule',['../../../c-api/html/structtlv__schema__query__diagnostic.html#a2d7906c8187a67e71a85d04b33e680fa',1,'tlv_schema_query_diagnostic']]],
-  ['rules_42',['rules',['../../../c-api/html/structtlv__structure__schema.html#ad62cc59285c58f7e141b9caa00d1d241',1,'tlv_structure_schema']]]
+  ['retain_5fsource_5flocations_38',['retain_source_locations',['../structtlv_1_1document__format.html#adc7b38d12144f9900b6f3e10fa97f1ea',1,'tlv::document_format::retain_source_locations'],['../../../c-api/html/structtlv__document__options.html#a4b2ad502662ff853c7b76ddfd965849e',1,'tlv_document_options::retain_source_locations']]],
+  ['reuse_39',['reuse',['../../../c-api/html/structtlv__query__instruction.html#a11dcfc9f2e85fd5000c0f0deef6de407',1,'tlv_query_instruction']]],
+  ['right_40',['right',['../structtlv_1_1diff__entry.html#a3bca469528a9a8367ce191f3b90a22db',1,'tlv::diff_entry::right'],['../../../c-api/html/structtlv__query__instruction.html#a0d02ac0a30fefbafee6e7a82656a0dba',1,'tlv_query_instruction::right']]],
+  ['root_41',['root',['../../../c-api/html/structtlv__query__program.html#a9361d5f733b1436902b27b99db4dca4c',1,'tlv_query_program']]],
+  ['rule_42',['rule',['../../../c-api/html/structtlv__schema__query__diagnostic.html#a2d7906c8187a67e71a85d04b33e680fa',1,'tlv_schema_query_diagnostic']]],
+  ['rules_43',['rules',['../../../c-api/html/structtlv__structure__schema.html#ad62cc59285c58f7e141b9caa00d1d241',1,'tlv_structure_schema']]]
 ];

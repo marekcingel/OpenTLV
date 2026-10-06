@@ -3724,19 +3724,24 @@ aliases remain. Rebuild consumers after this source/ABI-breaking removal.</p>
 <td>Tag/depth matcher; Tree Reader Visitor for buffer traversal</td>
 </tr>
 <tr>
-<td>Document parsing</td>
+<td>Document topology</td>
 <td><code>tlv/src/document/document.c</code></td>
-<td>Resumable Builder consuming canonical structural events</td>
+<td>Owned nodes and programmatic mutation; optional Format measurement validates inserted tags</td>
+</tr>
+<tr>
+<td>Document parsing</td>
+<td><code>tlv/src/document/reader.c</code></td>
+<td>Reader + Document integration: resumable Builder consuming canonical structural events</td>
 </tr>
 <tr>
 <td>Document lookup</td>
-<td><code>tlv/src/document/document.c</code></td>
-<td>Node preorder feeding the same Query matcher</td>
+<td><code>tlv/src/document/query.c</code></td>
+<td>Query + Document integration: node preorder feeding the same Query matcher</td>
 </tr>
 <tr>
 <td>Document encoding</td>
-<td><code>tlv/src/document/document.c</code></td>
-<td>Node events feeding <code>tlv_tree_writer_measure_events</code>, then Writer encoded copy</td>
+<td><code>tlv/src/document/writer.c</code></td>
+<td>Writer + Document integration: node events feeding <code>tlv_tree_writer_measure_events</code>, then Writer encoded copy</td>
 </tr>
 <tr>
 <td>Tree Writer</td>

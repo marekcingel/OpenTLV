@@ -159,7 +159,7 @@ Public Member Functions</h2></td></tr>
 <tr class="memdesc:a2a25eade2516788e70f49fd26ad9dc0c"><td class="mdescLeft">&#160;</td><td class="mdescRight">Removes the first top-level element with a tag.  <br /></td></tr>
 <tr class="separator:a2a25eade2516788e70f49fd26ad9dc0c"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:a540a6d7fbf6c56c899370626c6f2da69" id="r_a540a6d7fbf6c56c899370626c6f2da69"><td class="memItemLeft" align="right" valign="top"><a class="el" href="classtlv_1_1expected.html">expected</a>&lt; size_t, <a class="el" href="structtlv_1_1error.html">error</a> &gt;&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classtlv_1_1document.html#a540a6d7fbf6c56c899370626c6f2da69">encoded_size</a> () const</td></tr>
-<tr class="memdesc:a540a6d7fbf6c56c899370626c6f2da69"><td class="mdescLeft">&#160;</td><td class="mdescRight">Computes the encoded size of the document; see <a class="elRef" href="../../c-api/html/group__document.html#gaa9be50eec6c4dc5c24abb1143a76ba4f">tlv_document_encoded_size()</a>.  <br /></td></tr>
+<tr class="memdesc:a540a6d7fbf6c56c899370626c6f2da69"><td class="mdescLeft">&#160;</td><td class="mdescRight">Computes the encoded size of the document; see tlv_document_encoded_size().  <br /></td></tr>
 <tr class="separator:a540a6d7fbf6c56c899370626c6f2da69"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:aec2ac27f2f69570b4a7a1a24197a75ed" id="r_aec2ac27f2f69570b4a7a1a24197a75ed"><td class="memItemLeft" align="right" valign="top"><a class="el" href="classtlv_1_1expected.html">expected</a>&lt; std::vector&lt; <a class="el" href="namespacetlv.html#aa91df798a712d88cf7d2f1f63a539b51">byte</a> &gt;, <a class="el" href="structtlv_1_1error.html">error</a> &gt;&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classtlv_1_1document.html#aec2ac27f2f69570b4a7a1a24197a75ed">encode</a> () const</td></tr>
 <tr class="memdesc:aec2ac27f2f69570b4a7a1a24197a75ed"><td class="mdescLeft">&#160;</td><td class="mdescRight">Encodes the document into a new vector with the writer format.  <br /></td></tr>
@@ -426,8 +426,8 @@ Friends</h2></td></tr>
 </div><div class="memdoc">
 
 <p>Encodes the document into a new vector with the writer format. </p>
-<p>Wraps <a class="elRef" href="../../c-api/html/group__document.html#gae38dd8a022b31c47ce1753c23ea542de">tlv_document_encode()</a>.</p>
-<dl class="section return"><dt>Returns</dt><dd>The encoded bytes, or the error of <a class="elRef" href="../../c-api/html/group__document.html#gae38dd8a022b31c47ce1753c23ea542de">tlv_document_encode()</a>. </dd></dl>
+<p>Wraps tlv_document_encode().</p>
+<dl class="section return"><dt>Returns</dt><dd>The encoded bytes, or the error of tlv_document_encode(). </dd></dl>
 
 </div>
 </div>
@@ -462,7 +462,7 @@ Friends</h2></td></tr>
   </table>
   </dd>
 </dl>
-<dl class="section return"><dt>Returns</dt><dd>Owned bytes or the error from <a class="elRef" href="../../c-api/html/group__document.html#ga7592b81de37d511817f1bbb4ecc4e415">tlv_document_encode_as()</a>. </dd></dl>
+<dl class="section return"><dt>Returns</dt><dd>Owned bytes or the error from tlv_document_encode_as(). </dd></dl>
 <dl class="section note"><dt>Note</dt><dd>Identifiers are not remapped and the tree's original Format is unchanged. </dd></dl>
 
 </div>
@@ -498,7 +498,7 @@ Friends</h2></td></tr>
   </table>
   </dd>
 </dl>
-<dl class="section return"><dt>Returns</dt><dd>Owned bytes or the error from <a class="elRef" href="../../c-api/html/group__document.html#ga7592b81de37d511817f1bbb4ecc4e415">tlv_document_encode_as()</a>. </dd></dl>
+<dl class="section return"><dt>Returns</dt><dd>Owned bytes or the error from tlv_document_encode_as(). </dd></dl>
 <dl class="section note"><dt>Note</dt><dd>Identifiers are not remapped and the tree's original Format is unchanged.   </dd></dl>
 
 </div>
@@ -526,7 +526,7 @@ Friends</h2></td></tr>
 </table>
 </div><div class="memdoc">
 
-<p>Computes the encoded size of the document; see <a class="elRef" href="../../c-api/html/group__document.html#gaa9be50eec6c4dc5c24abb1143a76ba4f">tlv_document_encoded_size()</a>. </p>
+<p>Computes the encoded size of the document; see tlv_document_encoded_size(). </p>
 
 </div>
 </div>
@@ -561,7 +561,7 @@ Friends</h2></td></tr>
   </table>
   </dd>
 </dl>
-<dl class="section return"><dt>Returns</dt><dd>Exact size or the error from <a class="elRef" href="../../c-api/html/group__document.html#ga64b72e105bbb1b104fae0f549dfd22e0">tlv_document_encoded_size_as()</a>. </dd></dl>
+<dl class="section return"><dt>Returns</dt><dd>Exact size or the error from tlv_document_encoded_size_as(). </dd></dl>
 <dl class="section note"><dt>Note</dt><dd>Stages encoded children using the Document allocator; never changes the tree. </dd></dl>
 
 </div>
@@ -597,7 +597,7 @@ Friends</h2></td></tr>
   </table>
   </dd>
 </dl>
-<dl class="section return"><dt>Returns</dt><dd>Exact size or the error from <a class="elRef" href="../../c-api/html/group__document.html#ga64b72e105bbb1b104fae0f549dfd22e0">tlv_document_encoded_size_as()</a>. </dd></dl>
+<dl class="section return"><dt>Returns</dt><dd>Exact size or the error from tlv_document_encoded_size_as(). </dd></dl>
 <dl class="section note"><dt>Note</dt><dd>Stages encoded children using the Document allocator; never changes the tree.   </dd></dl>
 
 </div>
@@ -757,7 +757,7 @@ Friends</h2></td></tr>
 </div><div class="memdoc">
 
 <p>Finds the first element addressed by a path query such as <code>6F/A5/50</code>. </p>
-<p>Wraps <a class="elRef" href="../../c-api/html/group__document.html#gacdc161264f287c81f360a89cfe3dc2e3">tlv_document_find_path()</a>.</p>
+<p>Wraps tlv_document_find_path().</p>
 <dl class="params"><dt>Parameters</dt><dd>
   <table class="params">
     <tr><td class="paramname">path</td><td>Parsed query.</td></tr>
@@ -1058,7 +1058,7 @@ template&lt;typename Field &gt; </div>
 </div><div class="memdoc">
 
 <p>Parses encoded elements into a new document. </p>
-<p>Wraps <a class="elRef" href="../../c-api/html/group__document.html#gaf73b2dae986cd13bdce15b94c0c79ef8">tlv_document_parse()</a>.</p>
+<p>Wraps tlv_document_parse().</p>
 <dl class="params"><dt>Parameters</dt><dd>
   <table class="params">
     <tr><td class="paramname">data</td><td>Encoded input; copied, so it may be released afterwards. </td></tr>
@@ -1067,7 +1067,7 @@ template&lt;typename Field &gt; </div>
   </table>
   </dd>
 </dl>
-<dl class="section return"><dt>Returns</dt><dd>The document, or the error of <a class="elRef" href="../../c-api/html/group__document.html#gaf73b2dae986cd13bdce15b94c0c79ef8">tlv_document_parse()</a>. </dd></dl>
+<dl class="section return"><dt>Returns</dt><dd>The document, or the error of tlv_document_parse(). </dd></dl>
 
 </div>
 </div>

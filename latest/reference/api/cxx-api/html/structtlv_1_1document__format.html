@@ -103,6 +103,8 @@ Public Attributes</h2></td></tr>
 <tr class="separator:a127929302951e983f17a8df1fc1304fe"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:a01f1c60aab8b7efa53178162bd6ceb6e" id="r_a01f1c60aab8b7efa53178162bd6ceb6e"><td class="memItemLeft" align="right" valign="top">size_t&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="structtlv_1_1document__format.html#a01f1c60aab8b7efa53178162bd6ceb6e">max_elements</a></td></tr>
 <tr class="separator:a01f1c60aab8b7efa53178162bd6ceb6e"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:adc7b38d12144f9900b6f3e10fa97f1ea" id="r_adc7b38d12144f9900b6f3e10fa97f1ea"><td class="memItemLeft" align="right" valign="top">bool&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="structtlv_1_1document__format.html#adc7b38d12144f9900b6f3e10fa97f1ea">retain_source_locations</a></td></tr>
+<tr class="separator:adc7b38d12144f9900b6f3e10fa97f1ea"><td class="memSeparator" colspan="2">&#160;</td></tr>
 </table>
 <a name="details" id="details"></a><h2 class="groupheader">Detailed Description</h2>
 <div class="textblock"><p>Format and runtime resource limits of a <a class="el" href="classtlv_1_1document.html" title="An owned, mutable TLV document.">tlv::document</a>. </p>
@@ -220,6 +222,21 @@ Public Attributes</h2></td></tr>
       </table>
 </div><div class="memdoc">
 <p>Maximum number of elements, including nested ones. </p>
+
+</div>
+</div>
+<a id="adc7b38d12144f9900b6f3e10fa97f1ea" name="adc7b38d12144f9900b6f3e10fa97f1ea"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#adc7b38d12144f9900b6f3e10fa97f1ea">&#9670;&#160;</a></span>retain_source_locations</h2>
+
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname">bool tlv::document_format::retain_source_locations</td>
+        </tr>
+      </table>
+</div><div class="memdoc">
+<p>Retain original offsets/header lengths when parsing; false by default. Does not retain input bytes. See tlv_node_source_location for invalidation. </p>
 
 </div>
 </div>

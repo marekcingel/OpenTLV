@@ -853,6 +853,17 @@
     <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
       
         <li class="md-nav__item">
+  <a href="#original-source-locations" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Original source locations
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
   <a href="#formats" class="md-nav__link">
     <span class="md-ellipsis">
       
@@ -3460,6 +3471,17 @@
     <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
       
         <li class="md-nav__item">
+  <a href="#original-source-locations" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Original source locations
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
   <a href="#formats" class="md-nav__link">
     <span class="md-ellipsis">
       
@@ -3630,19 +3652,53 @@ For choosing between borrowed traversal and owned editing, see
 <div class="highlight"><pre><span></span><code><a id="__codelineno-1-1" name="__codelineno-1-1" href="#__codelineno-1-1"></a>Low level, zero-copy:   bytes -&gt; reader -&gt; element -&gt; traversal / schema / codec
 <a id="__codelineno-1-2" name="__codelineno-1-2" href="#__codelineno-1-2"></a>High level, mutable:    Tree Reader -&gt; Document Builder -&gt; document -&gt; modify -&gt; encode
 </code></pre></div>
-<p>Document builds on Element, Format and the public Reader/Tree Reader,
-Writer/Tree Writer and <a href="../queries/">Query</a> contracts. It owns data and allocates;
-the C borrowed processing APIs retain their allocation-free buffer/workspace
-contracts and do not require a Document. Bindings can add their own allocating
-conveniences. Architectural role and build inclusion are separate: Document
-can be omitted with <code>-DOPENTLV_DOCUMENT=OFF</code>, and static linking/dead-code
-elimination can omit unused implementation where supported. Merely enabling
-Document does not allocate a tree. See
+<p>Document builds on Element and Format and owns its mutable tree. It can be
+created and edited programmatically without Reader, Writer or Query. Wire import
+requires Reader; encoding requires Writer; path matching requires Query. The
+compiled Query adapter currently also requires Reader and Writer for Value snapshots.
+These integrations are compiled only when their participating capabilities are enabled.
+Borrowed C processing retains its allocation-free buffer/workspace contracts.
+Merely enabling Document does not allocate a tree. See
 <a href="../select-components/">building only the components you need</a>.</p>
+<h2 id="original-source-locations">Original source locations<a class="headerlink" href="#original-source-locations" title="Permanent link">&para;</a></h2>
+<p>Parsing and Document Builder can retain original element offsets and header
+lengths without retaining or borrowing the input buffer. Enable
+<code>tlv_document_options_t.retain_source_locations</code> before parsing/building, or
+<code>tlv::document_format::retain_source_locations</code> before <code>document::parse</code>.
+C++ builder factories also accept a final <code>retain_source_locations</code> boolean.
+The default is off, with no extra per-node location storage. When enabled,
+each node adds one <code>tlv_document_source_location_t</code> to its existing allocation.</p>
+<p>Read copied coordinates with <code>tlv_node_source_location(node)</code> or
+<code>node.source_location()</code> in C++. Presence flags distinguish unavailable metadata
+from a valid zero offset or empty header. A selected subtree keeps absolute
+Reader coordinates even though its Document depth starts at zero. Query uses
+these coordinates for <code>@offset</code> and <code>@hlen</code>, including <code>following</code>/<code>preceding</code>.</p>
+<p>Coordinates refer to the <strong>original input</strong>, not a later serialization:</p>
+<ul>
+<li>Successful Value replacement clears the node's location and all ancestors'
+  locations. Replacement children have no original location.</li>
+<li>Successful insertion or erasure clears ancestor locations. Inserted nodes,
+  including children parsed from an inserted Value, have no original location.</li>
+<li>Unchanged siblings retain their original coordinates, even when edits shift
+  their encoded position. Failed edits leave locations unchanged.</li>
+<li>Encoding does not refresh locations. Encode and parse again to obtain
+  coordinates in the new wire representation.</li>
+</ul>
+<p>The parse option is also exposed as Python <code>Document(...,
+retain_source_locations=True)</code>, Lua Document options <code>retain_source_locations</code>,
+Go <code>DocumentOptions.RetainSourceLocations</code>, and JavaScript Document options
+<code>retain_source_locations</code>. Rust offers <code>Document::parse_with_source_locations</code>
+and <code>Document::parse_fixed_with_source_locations</code>. These delegate to the same C
+contract; other binding builder entry points retain their default behavior.
+Unretained or invalidated properties produce Query SOURCE diagnostics.</p>
 <h2 id="formats">Formats<a class="headerlink" href="#formats" title="Permanent link">&para;</a></h2>
-<p>A document works with every format that can both read and write. Its
+<p>A programmatic document accepts a Format without read/write callbacks. Wire
+import needs a readable Format and encoding needs a writable Format. Its
 <code>format-&gt;is_constructed</code> predicate says which tags hold nested elements.
-Values of those tags are parsed into child nodes; every other value stays an
+Nonempty Values of those tags are wire data parsed into child nodes; this requires
+Reader. Without Reader, nonempty constructed insert/set-value returns
+<code>TLV_ERR_UNSUPPORTED_TYPE</code> atomically. Empty constructed nodes can receive children
+through programmatic insertion. Every primitive Value stays an
 opaque byte string. Without a predicate (BER's own descriptor already sets
 one) the document is a flat list.</p>
 <div class="highlight"><pre><span></span><code><a id="__codelineno-2-1" name="__codelineno-2-1" href="#__codelineno-2-1"></a><span class="cp">#include</span><span class="w"> </span><span class="cpf">"tlv/document/document.h"</span>

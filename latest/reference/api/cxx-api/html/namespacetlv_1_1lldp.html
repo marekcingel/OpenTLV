@@ -75,8 +75,7 @@ $(function() {
 <div class="header">
   <div class="summary">
 <a href="#nested-classes">Classes</a> &#124;
-<a href="#typedef-members">Typedefs</a> &#124;
-<a href="#func-members">Functions</a>  </div>
+<a href="#typedef-members">Typedefs</a>  </div>
   <div class="headertitle"><div class="title">tlv::lldp Namespace Reference</div></div>
 </div><!--header-->
 <div class="contents">
@@ -152,20 +151,6 @@ Typedefs</h2></td></tr>
 <tr class="memitem:a3091bdff3d830bc6a595ec137fd28d61" id="r_a3091bdff3d830bc6a595ec137fd28d61"><td class="memItemLeft" align="right" valign="top">using&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="namespacetlv_1_1lldp.html#a3091bdff3d830bc6a595ec137fd28d61">organisation_field</a> = <a class="el" href="structtlv_1_1field.html">tlv::field</a>&lt; <a class="el" href="structtlv_1_1tag__constant.html">tlv::tag_constant</a>&lt; 0x7F &gt;, organisation_codec::value_type, <a class="el" href="namespacetlv_1_1lldp.html#a987e7ed051e54e35333907c05a26b64c">organisation_codec</a> &gt;</td></tr>
 <tr class="memdesc:a3091bdff3d830bc6a595ec137fd28d61"><td class="mdescLeft">&#160;</td><td class="mdescRight">LLDP field using the canonical identifier octet, independent of packed wire header.  <br /></td></tr>
 <tr class="separator:a3091bdff3d830bc6a595ec137fd28d61"><td class="memSeparator" colspan="2">&#160;</td></tr>
-</table><table class="memberdecls">
-<tr class="heading"><td colspan="2"><h2 class="groupheader"><a id="func-members" name="func-members"></a>
-Functions</h2></td></tr>
-<tr class="memitem:ac069f1a05526c1cb2114db93d519c1f6" id="r_ac069f1a05526c1cb2114db93d519c1f6"><td class="memTemplParams" colspan="2">template&lt;typename Output , typename Callback &gt; </td></tr>
-<tr class="memitem:ac069f1a05526c1cb2114db93d519c1f6"><td class="memTemplItemLeft" align="right" valign="top"><a class="el" href="classtlv_1_1expected.html">expected</a>&lt; size_t, <a class="el" href="structtlv_1_1writer__failure.html">writer_failure</a> &gt;&#160;</td><td class="memTemplItemRight" valign="bottom"><a class="el" href="namespacetlv_1_1lldp.html#ac069f1a05526c1cb2114db93d519c1f6">encode</a> (Output &amp;&amp;output, <a class="el" href="structtlv_1_1writer__workspace.html">writer_workspace</a> workspace, Callback &amp;&amp;callback, <a class="el" href="namespacetlv.html#a1df134eb9e2b476155eb324618396e4d">writer_diagnostic</a> *<a class="el" href="namespacetlv.html#a00ca9c69c35ef11f6a22b7eda1b115ba">diagnostic</a>=nullptr)</td></tr>
-<tr class="memdesc:ac069f1a05526c1cb2114db93d519c1f6"><td class="mdescLeft">&#160;</td><td class="mdescRight">Build LLDP output with explicit caller-owned frames and scratch.  <br /></td></tr>
-<tr class="separator:ac069f1a05526c1cb2114db93d519c1f6"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:afc0ad3d6c1608b7732613dddde20f59f" id="r_afc0ad3d6c1608b7732613dddde20f59f"><td class="memTemplParams" colspan="2">template&lt;size_t ScratchCapacity = 1024, size_t Depth = TLV_TREE_DEFAULT_DEPTH, typename Output , typename Callback &gt; </td></tr>
-<tr class="memitem:afc0ad3d6c1608b7732613dddde20f59f"><td class="memTemplItemLeft" align="right" valign="top"><a class="el" href="classtlv_1_1expected.html">expected</a>&lt; size_t, <a class="el" href="structtlv_1_1writer__failure.html">writer_failure</a> &gt;&#160;</td><td class="memTemplItemRight" valign="bottom"><a class="el" href="namespacetlv_1_1lldp.html#afc0ad3d6c1608b7732613dddde20f59f">encode</a> (Output &amp;&amp;output, Callback &amp;&amp;callback, <a class="el" href="namespacetlv.html#a1df134eb9e2b476155eb324618396e4d">writer_diagnostic</a> *<a class="el" href="namespacetlv.html#a00ca9c69c35ef11f6a22b7eda1b115ba">diagnostic</a>=nullptr)</td></tr>
-<tr class="memdesc:afc0ad3d6c1608b7732613dddde20f59f"><td class="mdescLeft">&#160;</td><td class="mdescRight">Build LLDP output using bounded local stack workspace.  <br /></td></tr>
-<tr class="separator:afc0ad3d6c1608b7732613dddde20f59f"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:a97158793d084328dcc1a8e940280b020" id="r_a97158793d084328dcc1a8e940280b020"><td class="memItemLeft" align="right" valign="top"><a class="el" href="classtlv_1_1detail_1_1parsing__range.html">detail::parsing_range</a>&lt; <a class="el" href="classtlv_1_1lldp_1_1format.html">format</a> &gt;&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="namespacetlv_1_1lldp.html#a97158793d084328dcc1a8e940280b020">parse</a> (<a class="el" href="namespacetlv.html#a2abe7003a70af047ef9acae17f31f75d">bytes</a> data)</td></tr>
-<tr class="memdesc:a97158793d084328dcc1a8e940280b020"><td class="mdescLeft">&#160;</td><td class="mdescRight">Parse final input as borrowed Elements using the built-in Format.  <br /></td></tr>
-<tr class="separator:a97158793d084328dcc1a8e940280b020"><td class="memSeparator" colspan="2">&#160;</td></tr>
 </table>
 <a name="details" id="details"></a><h2 class="groupheader">Detailed Description</h2>
 <div class="textblock"><p>LLDP base information-string semantics. </p>
@@ -440,159 +425,6 @@ Functions</h2></td></tr>
 </div><div class="memdoc">
 
 <p>LLDP field using the canonical identifier octet, independent of packed wire header. </p>
-
-</div>
-</div>
-<h2 class="groupheader">Function Documentation</h2>
-<a id="afc0ad3d6c1608b7732613dddde20f59f" name="afc0ad3d6c1608b7732613dddde20f59f"></a>
-<h2 class="memtitle"><span class="permalink"><a href="#afc0ad3d6c1608b7732613dddde20f59f">&#9670;&#160;</a></span>encode() <span class="overload">[1/2]</span></h2>
-
-<div class="memitem">
-<div class="memproto">
-<div class="memtemplate">
-template&lt;size_t ScratchCapacity = 1024, size_t Depth = TLV_TREE_DEFAULT_DEPTH, typename Output , typename Callback &gt; </div>
-      <table class="memname">
-        <tr>
-          <td class="memname"><a class="el" href="classtlv_1_1expected.html">expected</a>&lt; size_t, <a class="el" href="structtlv_1_1writer__failure.html">writer_failure</a> &gt; tlv::lldp::encode </td>
-          <td>(</td>
-          <td class="paramtype">Output &amp;&amp;&#160;</td>
-          <td class="paramname"><em>output</em>, </td>
-        </tr>
-        <tr>
-          <td class="paramkey"></td>
-          <td></td>
-          <td class="paramtype">Callback &amp;&amp;&#160;</td>
-          <td class="paramname"><em>callback</em>, </td>
-        </tr>
-        <tr>
-          <td class="paramkey"></td>
-          <td></td>
-          <td class="paramtype"><a class="el" href="namespacetlv.html#a1df134eb9e2b476155eb324618396e4d">writer_diagnostic</a> *&#160;</td>
-          <td class="paramname"><em>diagnostic</em> = <code>nullptr</code>&#160;</td>
-        </tr>
-        <tr>
-          <td></td>
-          <td>)</td>
-          <td></td><td></td>
-        </tr>
-      </table>
-</div><div class="memdoc">
-
-<p>Build LLDP output using bounded local stack workspace. </p>
-<dl class="tparams"><dt>Template Parameters</dt><dd>
-  <table class="tparams">
-    <tr><td class="paramname">ScratchCapacity</td><td>Scratch bytes, default 1024; must fit the largest closed Value. </td></tr>
-    <tr><td class="paramname">Depth</td><td>Frame count and maximum item depth, default TLV_TREE_DEFAULT_DEPTH. </td></tr>
-  </table>
-  </dd>
-</dl>
-<dl class="params"><dt>Parameters</dt><dd>
-  <table class="params">
-    <tr><td class="paramname">output</td><td>Caller-owned mutable byte span, array or contiguous byte container. </td></tr>
-    <tr><td class="paramname">callback</td><td>Scoped writes taking <a class="el" href="classtlv_1_1writer__builder.html" title="Sequential typed builder retaining the first error without allocation.">writer_builder</a>&amp; and returning void, invoked once. </td></tr>
-    <tr><td class="paramname">diagnostic</td><td>Optional canonical C Writer failure detail. </td></tr>
-  </table>
-  </dd>
-</dl>
-<dl class="section return"><dt>Returns</dt><dd>Exact byte count or first failure; workspace never grows or allocates. </dd></dl>
-
-</div>
-</div>
-<a id="ac069f1a05526c1cb2114db93d519c1f6" name="ac069f1a05526c1cb2114db93d519c1f6"></a>
-<h2 class="memtitle"><span class="permalink"><a href="#ac069f1a05526c1cb2114db93d519c1f6">&#9670;&#160;</a></span>encode() <span class="overload">[2/2]</span></h2>
-
-<div class="memitem">
-<div class="memproto">
-<div class="memtemplate">
-template&lt;typename Output , typename Callback &gt; </div>
-      <table class="memname">
-        <tr>
-          <td class="memname"><a class="el" href="classtlv_1_1expected.html">expected</a>&lt; size_t, <a class="el" href="structtlv_1_1writer__failure.html">writer_failure</a> &gt; tlv::lldp::encode </td>
-          <td>(</td>
-          <td class="paramtype">Output &amp;&amp;&#160;</td>
-          <td class="paramname"><em>output</em>, </td>
-        </tr>
-        <tr>
-          <td class="paramkey"></td>
-          <td></td>
-          <td class="paramtype"><a class="el" href="structtlv_1_1writer__workspace.html">writer_workspace</a>&#160;</td>
-          <td class="paramname"><em>workspace</em>, </td>
-        </tr>
-        <tr>
-          <td class="paramkey"></td>
-          <td></td>
-          <td class="paramtype">Callback &amp;&amp;&#160;</td>
-          <td class="paramname"><em>callback</em>, </td>
-        </tr>
-        <tr>
-          <td class="paramkey"></td>
-          <td></td>
-          <td class="paramtype"><a class="el" href="namespacetlv.html#a1df134eb9e2b476155eb324618396e4d">writer_diagnostic</a> *&#160;</td>
-          <td class="paramname"><em>diagnostic</em> = <code>nullptr</code>&#160;</td>
-        </tr>
-        <tr>
-          <td></td>
-          <td>)</td>
-          <td></td><td></td>
-        </tr>
-      </table>
-</div><div class="memdoc">
-
-<p>Build LLDP output with explicit caller-owned frames and scratch. </p>
-<dl class="params"><dt>Parameters</dt><dd>
-  <table class="params">
-    <tr><td class="paramname">output</td><td>Borrowed mutable byte span, array or contiguous byte container. </td></tr>
-    <tr><td class="paramname">workspace</td><td>Disjoint construction storage, never resized. </td></tr>
-    <tr><td class="paramname">callback</td><td>Callable taking <a class="el" href="classtlv_1_1writer__builder.html" title="Sequential typed builder retaining the first error without allocation.">writer_builder</a>&amp; and returning void; called once. </td></tr>
-    <tr><td class="paramname">diagnostic</td><td>Optional canonical C Writer failure detail. </td></tr>
-  </table>
-  </dd>
-</dl>
-<dl class="section return"><dt>Returns</dt><dd>Exact written size or allocation-free first failure; exceptions propagate. </dd></dl>
-<dl class="section see"><dt>See also</dt><dd><a class="el" href="namespacetlv.html#ac0364509c04c5e018087c991be37ffa6" title="Encode current semantic content, regenerating framing.">tlv::encode</a> </dd></dl>
-
-</div>
-</div>
-<a id="a97158793d084328dcc1a8e940280b020" name="a97158793d084328dcc1a8e940280b020"></a>
-<h2 class="memtitle"><span class="permalink"><a href="#a97158793d084328dcc1a8e940280b020">&#9670;&#160;</a></span>parse()</h2>
-
-<div class="memitem">
-<div class="memproto">
-<table class="mlabels">
-  <tr>
-  <td class="mlabels-left">
-      <table class="memname">
-        <tr>
-          <td class="memname"><a class="el" href="classtlv_1_1detail_1_1parsing__range.html">detail::parsing_range</a>&lt; <a class="el" href="classtlv_1_1lldp_1_1format.html">format</a> &gt; tlv::lldp::parse </td>
-          <td>(</td>
-          <td class="paramtype"><a class="el" href="namespacetlv.html#a2abe7003a70af047ef9acae17f31f75d">bytes</a>&#160;</td>
-          <td class="paramname"><em>data</em></td><td>)</td>
-          <td></td>
-        </tr>
-      </table>
-  </td>
-  <td class="mlabels-right">
-<span class="mlabels"><span class="mlabel">inline</span></span>  </td>
-  </tr>
-</table>
-</div><div class="memdoc">
-
-<p>Parse final input as borrowed Elements using the built-in Format. </p>
-<dl class="params"><dt>Parameters</dt><dd>
-  <table class="params">
-    <tr><td class="paramname">data</td><td>Immutable borrowed final input. </td></tr>
-  </table>
-  </dd>
-</dl>
-<dl class="section return"><dt>Returns</dt><dd>Allocation-free single-pass range; no Schema or Value validation is performed. </dd></dl>
-<dl class="exception"><dt>Exceptions</dt><dd>
-  <table class="exception">
-    <tr><td class="paramname"><a class="el" href="classtlv_1_1parse__error.html" title="Exception raised by Reader iteration on any outcome other than final EOF.">parse_error</a></td><td>During iteration on any failure other than final EOF. </td></tr>
-  </table>
-  </dd>
-</dl>
-<dl class="section warning"><dt>Warning</dt><dd>Input must outlive the range and every retained Element or diagnostic. </dd></dl>
-<dl class="section see"><dt>See also</dt><dd><a class="el" href="namespacetlv.html#af29e95ce110ca8ccd5540280722003bd" title="Create an allocation-free single-pass parsing range owning Format configuration.">tlv::parse</a> </dd></dl>
 
 </div>
 </div>

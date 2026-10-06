@@ -111,6 +111,9 @@ Public Member Functions</h2></td></tr>
 <tr class="memitem:a40dbfcc7d7457acf9f8408f3a95ad9a0" id="r_a40dbfcc7d7457acf9f8408f3a95ad9a0"><td class="memItemLeft" align="right" valign="top">bool&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classtlv_1_1node.html#a40dbfcc7d7457acf9f8408f3a95ad9a0">is_constructed</a> () const</td></tr>
 <tr class="memdesc:a40dbfcc7d7457acf9f8408f3a95ad9a0"><td class="mdescLeft">&#160;</td><td class="mdescRight">Reports whether the element's value holds nested elements.  <br /></td></tr>
 <tr class="separator:a40dbfcc7d7457acf9f8408f3a95ad9a0"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a1c68a5643c8ae37c95b2ce009c5b0f6e" id="r_a1c68a5643c8ae37c95b2ce009c5b0f6e"><td class="memItemLeft" align="right" valign="top"><a class="el" href="namespacetlv.html#a3eb1577c111acc2b74e90e7126ec8808">document_source_location</a>&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classtlv_1_1node.html#a1c68a5643c8ae37c95b2ce009c5b0f6e">source_location</a> () const</td></tr>
+<tr class="memdesc:a1c68a5643c8ae37c95b2ce009c5b0f6e"><td class="mdescLeft">&#160;</td><td class="mdescRight">Copy optional original coordinates; unavailable for invalid or edited nodes.  <br /></td></tr>
+<tr class="separator:a1c68a5643c8ae37c95b2ce009c5b0f6e"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:a664cade6c602e5c5f1977e33bf39f9f7" id="r_a664cade6c602e5c5f1977e33bf39f9f7"><td class="memItemLeft" align="right" valign="top"><a class="el" href="classtlv_1_1value__view.html">value_view</a>&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classtlv_1_1node.html#a664cade6c602e5c5f1977e33bf39f9f7">value</a> () const</td></tr>
 <tr class="memdesc:a664cade6c602e5c5f1977e33bf39f9f7"><td class="mdescLeft">&#160;</td><td class="mdescRight">The value bytes of a primitive element, borrowing the document.  <br /></td></tr>
 <tr class="separator:a664cade6c602e5c5f1977e33bf39f9f7"><td class="memSeparator" colspan="2">&#160;</td></tr>
@@ -142,10 +145,10 @@ Public Member Functions</h2></td></tr>
 <tr class="memdesc:aabd4649c1722f9f9887127d97be3522a"><td class="mdescLeft">&#160;</td><td class="mdescRight">Removes the element and its descendants from the document.  <br /></td></tr>
 <tr class="separator:aabd4649c1722f9f9887127d97be3522a"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:a775913fcd4ac5198f25e28975da33b33" id="r_a775913fcd4ac5198f25e28975da33b33"><td class="memItemLeft" align="right" valign="top"><a class="el" href="classtlv_1_1expected.html">expected</a>&lt; size_t, <a class="el" href="structtlv_1_1error.html">error</a> &gt;&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classtlv_1_1node.html#a775913fcd4ac5198f25e28975da33b33">encoded_size</a> () const</td></tr>
-<tr class="memdesc:a775913fcd4ac5198f25e28975da33b33"><td class="mdescLeft">&#160;</td><td class="mdescRight">Computes the encoded size of the element with its descendants; see <a class="elRef" href="../../c-api/html/group__document.html#gaf676703b9150a47e99d4cd2f1c947aa4">tlv_node_encoded_size()</a>.  <br /></td></tr>
+<tr class="memdesc:a775913fcd4ac5198f25e28975da33b33"><td class="mdescLeft">&#160;</td><td class="mdescRight">Computes the encoded size of the element with its descendants; see tlv_node_encoded_size().  <br /></td></tr>
 <tr class="separator:a775913fcd4ac5198f25e28975da33b33"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:a4e59c48957fafc2136170fb624ebbaec" id="r_a4e59c48957fafc2136170fb624ebbaec"><td class="memItemLeft" align="right" valign="top"><a class="el" href="classtlv_1_1expected.html">expected</a>&lt; std::vector&lt; <a class="el" href="namespacetlv.html#aa91df798a712d88cf7d2f1f63a539b51">byte</a> &gt;, <a class="el" href="structtlv_1_1error.html">error</a> &gt;&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classtlv_1_1node.html#a4e59c48957fafc2136170fb624ebbaec">encode</a> () const</td></tr>
-<tr class="memdesc:a4e59c48957fafc2136170fb624ebbaec"><td class="mdescLeft">&#160;</td><td class="mdescRight">Encodes the element with its descendants into a new vector; see <a class="elRef" href="../../c-api/html/group__document.html#gad440723a7cf1738b26cbde6970bbfa7c">tlv_node_encode()</a>.  <br /></td></tr>
+<tr class="memdesc:a4e59c48957fafc2136170fb624ebbaec"><td class="mdescLeft">&#160;</td><td class="mdescRight">Encodes the element with its descendants into a new vector; see tlv_node_encode().  <br /></td></tr>
 <tr class="separator:a4e59c48957fafc2136170fb624ebbaec"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:aede798f4ed761b83f34688e31561334e" id="r_aede798f4ed761b83f34688e31561334e"><td class="memItemLeft" align="right" valign="top"><a class="el" href="classtlv_1_1expected.html">expected</a>&lt; size_t, <a class="el" href="structtlv_1_1error.html">error</a> &gt;&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classtlv_1_1node.html#aede798f4ed761b83f34688e31561334e">encoded_size</a> (const <a class="elRef" href="../../c-api/html/group__formats.html#gac461da7e8d46362fa8e09694efb0b062">tlv_format_t</a> &amp;<a class="el" href="classtlv_1_1format.html">format</a>) const</td></tr>
 <tr class="memdesc:aede798f4ed761b83f34688e31561334e"><td class="mdescLeft">&#160;</td><td class="mdescRight">Measure this node with an explicit destination Format.  <br /></td></tr>
@@ -318,7 +321,7 @@ template&lt;typename Field &gt; </div>
 </table>
 </div><div class="memdoc">
 
-<p>Encodes the element with its descendants into a new vector; see <a class="elRef" href="../../c-api/html/group__document.html#gad440723a7cf1738b26cbde6970bbfa7c">tlv_node_encode()</a>. </p>
+<p>Encodes the element with its descendants into a new vector; see tlv_node_encode(). </p>
 
 </div>
 </div>
@@ -353,7 +356,7 @@ template&lt;typename Field &gt; </div>
   </table>
   </dd>
 </dl>
-<dl class="section return"><dt>Returns</dt><dd>Owned bytes or the error from <a class="elRef" href="../../c-api/html/group__document.html#ga6b6583104e01236a02a0226822b2486d">tlv_node_encode_as()</a>. </dd></dl>
+<dl class="section return"><dt>Returns</dt><dd>Owned bytes or the error from tlv_node_encode_as(). </dd></dl>
 <dl class="section note"><dt>Note</dt><dd>Identifiers are not remapped and the tree's original Format is unchanged. </dd></dl>
 
 </div>
@@ -389,7 +392,7 @@ template&lt;typename Field &gt; </div>
   </table>
   </dd>
 </dl>
-<dl class="section return"><dt>Returns</dt><dd>Owned bytes or the error from <a class="elRef" href="../../c-api/html/group__document.html#ga6b6583104e01236a02a0226822b2486d">tlv_node_encode_as()</a>. </dd></dl>
+<dl class="section return"><dt>Returns</dt><dd>Owned bytes or the error from tlv_node_encode_as(). </dd></dl>
 <dl class="section note"><dt>Note</dt><dd>Identifiers are not remapped and the tree's original Format is unchanged.   </dd></dl>
 
 </div>
@@ -417,7 +420,7 @@ template&lt;typename Field &gt; </div>
 </table>
 </div><div class="memdoc">
 
-<p>Computes the encoded size of the element with its descendants; see <a class="elRef" href="../../c-api/html/group__document.html#gaf676703b9150a47e99d4cd2f1c947aa4">tlv_node_encoded_size()</a>. </p>
+<p>Computes the encoded size of the element with its descendants; see tlv_node_encoded_size(). </p>
 
 </div>
 </div>
@@ -452,7 +455,7 @@ template&lt;typename Field &gt; </div>
   </table>
   </dd>
 </dl>
-<dl class="section return"><dt>Returns</dt><dd>Exact size or the error from <a class="elRef" href="../../c-api/html/group__document.html#ga41e9b00cabfa1d574479503b6dede2c1">tlv_node_encoded_size_as()</a>. </dd></dl>
+<dl class="section return"><dt>Returns</dt><dd>Exact size or the error from tlv_node_encoded_size_as(). </dd></dl>
 <dl class="section note"><dt>Note</dt><dd>Stages encoded children using the Document allocator; never changes the tree. </dd></dl>
 
 </div>
@@ -488,7 +491,7 @@ template&lt;typename Field &gt; </div>
   </table>
   </dd>
 </dl>
-<dl class="section return"><dt>Returns</dt><dd>Exact size or the error from <a class="elRef" href="../../c-api/html/group__document.html#ga41e9b00cabfa1d574479503b6dede2c1">tlv_node_encoded_size_as()</a>. </dd></dl>
+<dl class="section return"><dt>Returns</dt><dd>Exact size or the error from tlv_node_encoded_size_as(). </dd></dl>
 <dl class="section note"><dt>Note</dt><dd>Stages encoded children using the Document allocator; never changes the tree.   </dd></dl>
 
 </div>
@@ -843,6 +846,34 @@ template&lt;typename Field &gt; </div>
 </dl>
 <dl class="section return"><dt>Returns</dt><dd>Success, or the error of <a class="elRef" href="../../c-api/html/group__document.html#gac18da8900e6c759ba3f477114b22ff70">tlv_node_set_value()</a>. On error nothing changed.</dd></dl>
 <dl class="section warning"><dt>Warning</dt><dd>Invalidates the previous <a class="el" href="classtlv_1_1node.html#a664cade6c602e5c5f1977e33bf39f9f7" title="The value bytes of a primitive element, borrowing the document.">value()</a> of the element and, for a constructed element, the handles of its children. </dd></dl>
+
+</div>
+</div>
+<a id="a1c68a5643c8ae37c95b2ce009c5b0f6e" name="a1c68a5643c8ae37c95b2ce009c5b0f6e"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#a1c68a5643c8ae37c95b2ce009c5b0f6e">&#9670;&#160;</a></span>source_location()</h2>
+
+<div class="memitem">
+<div class="memproto">
+<table class="mlabels">
+  <tr>
+  <td class="mlabels-left">
+      <table class="memname">
+        <tr>
+          <td class="memname"><a class="el" href="namespacetlv.html#a3eb1577c111acc2b74e90e7126ec8808">document_source_location</a> tlv::node::source_location </td>
+          <td>(</td>
+          <td class="paramname"></td><td>)</td>
+          <td> const</td>
+        </tr>
+      </table>
+  </td>
+  <td class="mlabels-right">
+<span class="mlabels"><span class="mlabel">inline</span></span>  </td>
+  </tr>
+</table>
+</div><div class="memdoc">
+
+<p>Copy optional original coordinates; unavailable for invalid or edited nodes. </p>
+<dl class="section return"><dt>Returns</dt><dd>Location with explicit presence flags, independent of input lifetime. </dd></dl>
 
 </div>
 </div>

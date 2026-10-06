@@ -3683,9 +3683,15 @@ lifetimes; an already returned raw span cannot be checked retroactively.</p>
 and use <code>document.evaluate(execution, values, capacity, staging, context)</code> followed
 by <code>document.next(execution)</code> or <code>execution.result()</code>. Programs that inspect
 constructed Values need explicit canonical encoded snapshot storage and Writer
-staging. Source metadata is unavailable on Document nodes, including edited and
-inserted nodes: <code>@offset</code> and <code>@hlen</code> fail with SOURCE diagnostics. Source locations
-are not invented from the canonical Value snapshot.</p>
+staging. Document parsing can optionally retain original source coordinates:
+set <code>tlv_document_options_t.retain_source_locations</code> (C) or
+<code>tlv::document_format::retain_source_locations</code> (C++) before parsing. Then
+<code>@offset</code> and <code>@hlen</code> use the original input coordinates, including in D-level
+<code>following</code>/<code>preceding</code> queries. This stores numbers, not borrowed input bytes.
+The option is off by default. Missing or invalidated properties still produce
+SOURCE diagnostics; locations are never inferred from the canonical Value snapshot.
+See <a href="../document/#original-source-locations">Document source locations</a> for edit
+invalidation and binding options.</p>
 <p><code>tlv_document_query_edit</code> consumes a completed native node selection into a
 caller-owned target array before editing. Capacity failure leaves the tree, target
 array and selection cursor unchanged; retry the same execution with more storage.
@@ -3981,7 +3987,8 @@ context handle, Value buffer and Writer workspace. Pull first/all matches with
 callbacks. Scalars use <code>tlv_query_exec_result</code>. Keep the Document and Value storage
 alive and unchanged through consumption. Reinitialize execution after edits or a
 terminal error. Global <code>following</code>/<code>preceding</code> plans require this backend and are
-rejected by Reader execution before input is consumed. Source offsets are unavailable.</p>
+rejected by Reader execution before input is consumed. Original source offsets
+are available when retained during parsing and not invalidated by edits.</p>
 <p>The <a href="../../concepts/query-language/#storage-and-execution">language contract</a>
 defines ordered emission, deduplication, capacity errors and backend costs.
 These compiled APIs currently have a C facade; the path APIs above retain their

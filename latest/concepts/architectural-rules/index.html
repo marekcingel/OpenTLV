@@ -4476,7 +4476,18 @@ architecture, the Phase 1 abstraction is not generic enough yet.</p>
 <a id="__codelineno-17-4" name="__codelineno-17-4" href="#__codelineno-17-4"></a>Document + Query
 <a id="__codelineno-17-5" name="__codelineno-17-5" href="#__codelineno-17-5"></a>full runtime OTLV stack
 </code></pre></div>
-<p>Disabled functionality should ideally introduce no unnecessary:</p>
+<p>Capabilities compose through explicit integrations rather than mandatory
+ownership dependencies. Core primitives form the stable foundation; Reader,
+Writer, Document, Query, Schema and Codec are capabilities above that foundation.
+Document is an owned tree, not intrinsically the output of Reader. Wire import,
+wire serialization and query evaluation belong to their integration boundaries.</p>
+<p>The build graph must implement <strong>pay only for what you use</strong>: disabling a
+capability excludes its implementation while unrelated capabilities remain usable.
+Linker dead stripping alone does not satisfy this requirement. Convenient binding
+methods such as <code>document.parse()</code> or <code>document.write()</code> do not change C dependency
+ownership. Future Dump, export, model and inference operations should compose with
+their data sources rather than becoming intrinsic Document responsibilities.</p>
+<p>Disabled functionality must introduce no unnecessary:</p>
 <ul>
 <li>runtime cost</li>
 <li>binary-size cost</li>

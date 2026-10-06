@@ -90,82 +90,10 @@ Functions</h2></td></tr>
 <tr class="memitem:ga06d2f6add67c483b2c66da85faf0b942" id="r_ga06d2f6add67c483b2c66da85faf0b942"><td class="memItemLeft" align="right" valign="top"><a class="el" href="group__core.html#ga164d2817a32e5d7b7aa1472e887b47c3">tlv_result_t</a>&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="group__copy.html#ga06d2f6add67c483b2c66da85faf0b942">tlv_copy_encoded</a> (const uint8_t *encoded_data, size_t encoded_length, uint8_t *data, size_t capacity, size_t *written)</td></tr>
 <tr class="memdesc:ga06d2f6add67c483b2c66da85faf0b942"><td class="mdescLeft">&#160;</td><td class="mdescRight">Copies an exact encoded byte range, preserving the original wire bytes.  <br /></td></tr>
 <tr class="separator:ga06d2f6add67c483b2c66da85faf0b942"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:ga819da9ffb95896b67f9487eb66bd9bbd" id="r_ga819da9ffb95896b67f9487eb66bd9bbd"><td class="memItemLeft" align="right" valign="top"><a class="el" href="group__core.html#ga164d2817a32e5d7b7aa1472e887b47c3">tlv_result_t</a>&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="group__copy.html#ga819da9ffb95896b67f9487eb66bd9bbd">tlv_copy_element</a> (const <a class="el" href="structtlv__element__t.html">tlv_element_t</a> *element, const <a class="el" href="group__formats.html#gac461da7e8d46362fa8e09694efb0b062">tlv_format_t</a> *format, uint8_t *data, size_t capacity, size_t *written)</td></tr>
-<tr class="memdesc:ga819da9ffb95896b67f9487eb66bd9bbd"><td class="mdescLeft">&#160;</td><td class="mdescRight">Serializes an element's tag, length and value using a writer format.  <br /></td></tr>
-<tr class="separator:ga819da9ffb95896b67f9487eb66bd9bbd"><td class="memSeparator" colspan="2">&#160;</td></tr>
 </table>
 <a name="details" id="details"></a><h2 class="groupheader">Detailed Description</h2>
 <p>Copying views and encoded bytes into caller-owned storage. Guides: <a href="https://marekcingel.github.io/OpenTLV/guides/copy/">copy helpers</a>. </p>
 <h2 class="groupheader">Function Documentation</h2>
-<a id="ga819da9ffb95896b67f9487eb66bd9bbd" name="ga819da9ffb95896b67f9487eb66bd9bbd"></a>
-<h2 class="memtitle"><span class="permalink"><a href="#ga819da9ffb95896b67f9487eb66bd9bbd">&#9670;&#160;</a></span>tlv_copy_element()</h2>
-
-<div class="memitem">
-<div class="memproto">
-      <table class="memname">
-        <tr>
-          <td class="memname"><a class="el" href="group__core.html#ga164d2817a32e5d7b7aa1472e887b47c3">tlv_result_t</a> tlv_copy_element </td>
-          <td>(</td>
-          <td class="paramtype">const <a class="el" href="structtlv__element__t.html">tlv_element_t</a> *&#160;</td>
-          <td class="paramname"><em>element</em>, </td>
-        </tr>
-        <tr>
-          <td class="paramkey"></td>
-          <td></td>
-          <td class="paramtype">const <a class="el" href="group__formats.html#gac461da7e8d46362fa8e09694efb0b062">tlv_format_t</a> *&#160;</td>
-          <td class="paramname"><em>format</em>, </td>
-        </tr>
-        <tr>
-          <td class="paramkey"></td>
-          <td></td>
-          <td class="paramtype">uint8_t *&#160;</td>
-          <td class="paramname"><em>data</em>, </td>
-        </tr>
-        <tr>
-          <td class="paramkey"></td>
-          <td></td>
-          <td class="paramtype">size_t&#160;</td>
-          <td class="paramname"><em>capacity</em>, </td>
-        </tr>
-        <tr>
-          <td class="paramkey"></td>
-          <td></td>
-          <td class="paramtype">size_t *&#160;</td>
-          <td class="paramname"><em>written</em>&#160;</td>
-        </tr>
-        <tr>
-          <td></td>
-          <td>)</td>
-          <td></td><td></td>
-        </tr>
-      </table>
-</div><div class="memdoc">
-
-<p>Serializes an element's tag, length and value using a writer format. </p>
-<p>Encodes as <a class="el" href="group__writer.html#gacf33218620291433b9ddccbc58798241" title="Encodes one element directly into caller-owned memory.">tlv_write()</a> does, regenerating the length from <code>value.size</code>, so the result may differ from the bytes the element was read from. Use <a class="el" href="group__formats.html#gaff447cb2ce52706c333b38ee275ea592" title="Reproduce immutable source bytes only if element still equals the source.">tlv_source_preserve()</a> to check unchanged content and retain original framing, or <a class="el" href="group__copy.html#ga06d2f6add67c483b2c66da85faf0b942" title="Copies an exact encoded byte range, preserving the original wire bytes.">tlv_copy_encoded()</a> to copy an unvalidated byte range exactly.</p>
-<p>Requires the format's <code>measure</code> and <code>encode</code> callbacks. The element's value bytes must not overlap the destination element.</p>
-<dl class="params"><dt>Parameters</dt><dd>
-  <table class="params">
-    <tr><td class="paramdir">[in]</td><td class="paramname">element</td><td>Element to serialize. </td></tr>
-    <tr><td class="paramdir">[in]</td><td class="paramname">format</td><td>Writer format used to encode the element. </td></tr>
-    <tr><td class="paramdir">[out]</td><td class="paramname">data</td><td>Destination buffer. <code>NULL</code> with zero <code>capacity</code> queries the required size. </td></tr>
-    <tr><td class="paramdir">[in]</td><td class="paramname">capacity</td><td>Destination capacity in bytes. </td></tr>
-    <tr><td class="paramdir">[out]</td><td class="paramname">written</td><td>Receives the encoded size.</td></tr>
-  </table>
-  </dd>
-</dl>
-<dl class="section return"><dt>Returns</dt><dd><a class="el" href="group__core.html#gga516c7250563ee9332e2f45f2d203ae61ac763c25dd3e807fae4d8078c3d3e94ed">TLV_OK</a> on success. </dd>
-<dd>
-<a class="el" href="group__core.html#gga516c7250563ee9332e2f45f2d203ae61aa4a514ccb37d17b2cd7c7da47d2eab88">TLV_ERR_NULL_ARG</a> for missing required pointers or callbacks. </dd>
-<dd>
-<a class="el" href="group__core.html#gga516c7250563ee9332e2f45f2d203ae61acbd34cf02b42e70e99648aef5b9ca8b3">TLV_ERR_BUFFER_TOO_SHORT</a> if <code>capacity</code> is insufficient. </dd>
-<dd>
-Any callback error, propagated unchanged.</dd></dl>
-<dl class="section warning"><dt>Warning</dt><dd>Callback errors may leave <code>data</code> modified. Size queries never write <code>data</code>. </dd></dl>
-<dl class="section see"><dt>See also</dt><dd><a class="el" href="group__writer.html#gacf33218620291433b9ddccbc58798241" title="Encodes one element directly into caller-owned memory.">tlv_write</a>, <a class="el" href="group__copy.html#ga06d2f6add67c483b2c66da85faf0b942" title="Copies an exact encoded byte range, preserving the original wire bytes.">tlv_copy_encoded</a> </dd></dl>
-
-</div>
-</div>
 <a id="ga06d2f6add67c483b2c66da85faf0b942" name="ga06d2f6add67c483b2c66da85faf0b942"></a>
 <h2 class="memtitle"><span class="permalink"><a href="#ga06d2f6add67c483b2c66da85faf0b942">&#9670;&#160;</a></span>tlv_copy_encoded()</h2>
 

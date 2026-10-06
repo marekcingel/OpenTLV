@@ -1628,8 +1628,8 @@ Any callback error, propagated unchanged.</dd></dl>
 </div><div class="memdoc">
 
 <p>Re-encodes an Element at the writer's current position. </p>
-<p>Serializes with <code>writer-&gt;format</code>, following the same argument, overlap and callback-error contracts as <a class="el" href="group__copy.html#ga819da9ffb95896b67f9487eb66bd9bbd" title="Serializes an element&#39;s tag, length and value using a writer format.">tlv_copy_element()</a>.</p>
-<p>Unlike <a class="el" href="group__copy.html#ga819da9ffb95896b67f9487eb66bd9bbd" title="Serializes an element&#39;s tag, length and value using a writer format.">tlv_copy_element()</a>, a <code>NULL</code> writer buffer with zero remaining capacity is treated as a real destination rather than a size query. Every element has a nonzero encoded size under the Format contract, even with an empty value, so the call then returns <a class="el" href="group__core.html#gga516c7250563ee9332e2f45f2d203ae61acbd34cf02b42e70e99648aef5b9ca8b3">TLV_ERR_BUFFER_TOO_SHORT</a>.</p>
+<p>Serializes with <code>writer-&gt;format</code>, following the same argument, overlap and callback-error contracts as tlv_copy_element().</p>
+<p>Unlike tlv_copy_element(), a <code>NULL</code> writer buffer with zero remaining capacity is treated as a real destination rather than a size query. Every element has a nonzero encoded size under the Format contract, even with an empty value, so the call then returns <a class="el" href="group__core.html#gga516c7250563ee9332e2f45f2d203ae61acbd34cf02b42e70e99648aef5b9ca8b3">TLV_ERR_BUFFER_TOO_SHORT</a>.</p>
 <dl class="params"><dt>Parameters</dt><dd>
   <table class="params">
     <tr><td class="paramdir">[in,out]</td><td class="paramname">writer</td><td>Writer to append to. </td></tr>
@@ -1643,9 +1643,9 @@ Any callback error, propagated unchanged.</dd></dl>
 <dd>
 <a class="el" href="group__core.html#gga516c7250563ee9332e2f45f2d203ae61acbd34cf02b42e70e99648aef5b9ca8b3">TLV_ERR_BUFFER_TOO_SHORT</a> if <code>pos &gt; capacity</code> or capacity is insufficient. </dd>
 <dd>
-Any error of <a class="el" href="group__copy.html#ga819da9ffb95896b67f9487eb66bd9bbd" title="Serializes an element&#39;s tag, length and value using a writer format.">tlv_copy_element()</a>, propagated unchanged.</dd></dl>
+Any error of tlv_copy_element(), propagated unchanged.</dd></dl>
 <dl class="section note"><dt>Note</dt><dd>On any failure, including insufficient capacity, the position is unchanged and the required size is not exposed; use <a class="el" href="group__writer.html#gab82c7065ce0c974c3bcecddb921a9610" title="Measures exact native output storage for a semantic Element without allocating.">tlv_element_encoded_size()</a> for that. </dd></dl>
-<dl class="section see"><dt>See also</dt><dd><a class="el" href="group__copy.html#ga819da9ffb95896b67f9487eb66bd9bbd" title="Serializes an element&#39;s tag, length and value using a writer format.">tlv_copy_element</a> </dd></dl>
+<dl class="section see"><dt>See also</dt><dd>tlv_copy_element </dd></dl>
 
 </div>
 </div>

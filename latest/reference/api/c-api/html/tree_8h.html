@@ -94,6 +94,9 @@ Data Structures</h2></td></tr>
 </table><table class="memberdecls">
 <tr class="heading"><td colspan="2"><h2 class="groupheader"><a id="typedef-members" name="typedef-members"></a>
 Typedefs</h2></td></tr>
+<tr class="memitem:a5685cbc116854f9874253489cb769622" id="r_a5685cbc116854f9874253489cb769622"><td class="memItemLeft" align="right" valign="top">typedef enum <a class="el" href="tree_8h.html#a32dd2f26caa5ae7507636430b13cc961">tlv_visit_result</a>&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="tree_8h.html#a5685cbc116854f9874253489cb769622">tlv_visit_result_t</a></td></tr>
+<tr class="memdesc:a5685cbc116854f9874253489cb769622"><td class="mdescLeft">&#160;</td><td class="mdescRight">Value a visitor callback returns to control traversal.  <br /></td></tr>
+<tr class="separator:a5685cbc116854f9874253489cb769622"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:aab4192dd951326b29b156dd34f44007f" id="r_aab4192dd951326b29b156dd34f44007f"><td class="memItemLeft" align="right" valign="top">typedef enum <a class="el" href="tree_8h.html#a0f96f709331f55c115f5ae0024bf9e00">tlv_tree_event_kind</a>&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="tree_8h.html#aab4192dd951326b29b156dd34f44007f">tlv_tree_event_kind_t</a></td></tr>
 <tr class="memdesc:aab4192dd951326b29b156dd34f44007f"><td class="mdescLeft">&#160;</td><td class="mdescRight">One operation in a balanced structural stream.  <br /></td></tr>
 <tr class="separator:aab4192dd951326b29b156dd34f44007f"><td class="memSeparator" colspan="2">&#160;</td></tr>
@@ -103,6 +106,12 @@ Typedefs</h2></td></tr>
 </table><table class="memberdecls">
 <tr class="heading"><td colspan="2"><h2 class="groupheader"><a id="enum-members" name="enum-members"></a>
 Enumerations</h2></td></tr>
+<tr class="memitem:a32dd2f26caa5ae7507636430b13cc961" id="r_a32dd2f26caa5ae7507636430b13cc961"><td class="memItemLeft" align="right" valign="top">enum &#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="tree_8h.html#a32dd2f26caa5ae7507636430b13cc961">tlv_visit_result</a> { <a class="el" href="tree_8h.html#a32dd2f26caa5ae7507636430b13cc961a528d33a0f3bf7971e02fbe57c479f86d">TLV_VISIT_CONTINUE</a> = 0
+, <a class="el" href="tree_8h.html#a32dd2f26caa5ae7507636430b13cc961adbda0be9ca29c754fea87575ba560d01">TLV_VISIT_STOP</a> = 1
+, <a class="el" href="tree_8h.html#a32dd2f26caa5ae7507636430b13cc961a1e6076c71ec8c7a08aa0c5e47cc1a74b">TLV_VISIT_ERROR</a> = 2
+ }</td></tr>
+<tr class="memdesc:a32dd2f26caa5ae7507636430b13cc961"><td class="mdescLeft">&#160;</td><td class="mdescRight">Value a visitor callback returns to control traversal.  <a href="tree_8h.html#a32dd2f26caa5ae7507636430b13cc961">More...</a><br /></td></tr>
+<tr class="separator:a32dd2f26caa5ae7507636430b13cc961"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:a0f96f709331f55c115f5ae0024bf9e00" id="r_a0f96f709331f55c115f5ae0024bf9e00"><td class="memItemLeft" align="right" valign="top">enum &#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="tree_8h.html#a0f96f709331f55c115f5ae0024bf9e00">tlv_tree_event_kind</a> { <a class="el" href="tree_8h.html#a0f96f709331f55c115f5ae0024bf9e00a55cceaeff9750c050a220ecebce4aacb">TLV_TREE_BEGIN</a>
 , <a class="el" href="tree_8h.html#a0f96f709331f55c115f5ae0024bf9e00af91741856953b1d3258ef4f15c21b377">TLV_TREE_ELEMENT</a>
 , <a class="el" href="tree_8h.html#a0f96f709331f55c115f5ae0024bf9e00ad0f40231f021a0fb14bc3b7eef234a76">TLV_TREE_END</a>
@@ -147,6 +156,22 @@ Enumerations</h2></td></tr>
 
 </div>
 </div>
+<a id="a5685cbc116854f9874253489cb769622" name="a5685cbc116854f9874253489cb769622"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#a5685cbc116854f9874253489cb769622">&#9670;&#160;</a></span>tlv_visit_result_t</h2>
+
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname">typedef enum <a class="el" href="tree_8h.html#a32dd2f26caa5ae7507636430b13cc961">tlv_visit_result</a> <a class="el" href="tree_8h.html#a5685cbc116854f9874253489cb769622">tlv_visit_result_t</a></td>
+        </tr>
+      </table>
+</div><div class="memdoc">
+
+<p>Value a visitor callback returns to control traversal. </p>
+
+</div>
+</div>
 <h2 class="groupheader">Enumeration Type Documentation</h2>
 <a id="a0f96f709331f55c115f5ae0024bf9e00" name="a0f96f709331f55c115f5ae0024bf9e00"></a>
 <h2 class="memtitle"><span class="permalink"><a href="#a0f96f709331f55c115f5ae0024bf9e00">&#9670;&#160;</a></span>tlv_tree_event_kind</h2>
@@ -167,6 +192,30 @@ Enumerations</h2></td></tr>
 <tr><td class="fieldname"><a id="a0f96f709331f55c115f5ae0024bf9e00af91741856953b1d3258ef4f15c21b377" name="a0f96f709331f55c115f5ae0024bf9e00af91741856953b1d3258ef4f15c21b377"></a>TLV_TREE_ELEMENT&#160;</td><td class="fielddoc"><p>One primitive node. </p>
 </td></tr>
 <tr><td class="fieldname"><a id="a0f96f709331f55c115f5ae0024bf9e00ad0f40231f021a0fb14bc3b7eef234a76" name="a0f96f709331f55c115f5ae0024bf9e00ad0f40231f021a0fb14bc3b7eef234a76"></a>TLV_TREE_END&#160;</td><td class="fielddoc"><p>Close the innermost open node, without borrowed payload. </p>
+</td></tr>
+</table>
+
+</div>
+</div>
+<a id="a32dd2f26caa5ae7507636430b13cc961" name="a32dd2f26caa5ae7507636430b13cc961"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#a32dd2f26caa5ae7507636430b13cc961">&#9670;&#160;</a></span>tlv_visit_result</h2>
+
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname">enum <a class="el" href="tree_8h.html#a32dd2f26caa5ae7507636430b13cc961">tlv_visit_result</a></td>
+        </tr>
+      </table>
+</div><div class="memdoc">
+
+<p>Value a visitor callback returns to control traversal. </p>
+<table class="fieldtable">
+<tr><th colspan="2">Enumerator</th></tr><tr><td class="fieldname"><a id="a32dd2f26caa5ae7507636430b13cc961a528d33a0f3bf7971e02fbe57c479f86d" name="a32dd2f26caa5ae7507636430b13cc961a528d33a0f3bf7971e02fbe57c479f86d"></a>TLV_VISIT_CONTINUE&#160;</td><td class="fielddoc"><p>Continue with the next element. </p>
+</td></tr>
+<tr><td class="fieldname"><a id="a32dd2f26caa5ae7507636430b13cc961adbda0be9ca29c754fea87575ba560d01" name="a32dd2f26caa5ae7507636430b13cc961adbda0be9ca29c754fea87575ba560d01"></a>TLV_VISIT_STOP&#160;</td><td class="fielddoc"><p>Stop traversal immediately; the traversal still returns <a class="el" href="group__core.html#gga516c7250563ee9332e2f45f2d203ae61ac763c25dd3e807fae4d8078c3d3e94ed">TLV_OK</a>. </p>
+</td></tr>
+<tr><td class="fieldname"><a id="a32dd2f26caa5ae7507636430b13cc961a1e6076c71ec8c7a08aa0c5e47cc1a74b" name="a32dd2f26caa5ae7507636430b13cc961a1e6076c71ec8c7a08aa0c5e47cc1a74b"></a>TLV_VISIT_ERROR&#160;</td><td class="fielddoc"><p>Abort traversal; the traversal returns <a class="el" href="group__core.html#gga516c7250563ee9332e2f45f2d203ae61a8698f95616bfbe8d38147acebb9a5f4d">TLV_ERR_VISITOR</a>. </p>
 </td></tr>
 </table>
 

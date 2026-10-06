@@ -1077,6 +1077,34 @@
     <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
       
         <li class="md-nav__item">
+  <a href="#capability-profiles" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Capability profiles
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Capability profiles">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#bindings-and-tools" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Bindings and tools
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
   <a href="#generic-core-formats" class="md-nav__link">
     <span class="md-ellipsis">
       
@@ -1111,10 +1139,10 @@
       <ul class="md-nav__list">
         
           <li class="md-nav__item">
-  <a href="#core-only" class="md-nav__link">
+  <a href="#generic-formats-without-protocol-extensions" class="md-nav__link">
     <span class="md-ellipsis">
       
-        Core only
+        Generic formats without protocol extensions
       
     </span>
   </a>
@@ -3443,6 +3471,34 @@
     <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
       
         <li class="md-nav__item">
+  <a href="#capability-profiles" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Capability profiles
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Capability profiles">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#bindings-and-tools" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Bindings and tools
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
   <a href="#generic-core-formats" class="md-nav__link">
     <span class="md-ellipsis">
       
@@ -3477,10 +3533,10 @@
       <ul class="md-nav__list">
         
           <li class="md-nav__item">
-  <a href="#core-only" class="md-nav__link">
+  <a href="#generic-formats-without-protocol-extensions" class="md-nav__link">
     <span class="md-ellipsis">
       
-        Core only
+        Generic formats without protocol extensions
       
     </span>
   </a>
@@ -3588,10 +3644,155 @@
 recipes for the common selections. For the principle and the option reference, see
 <a href="../../concepts/architecture/#include-only-what-you-need">include only what you need</a> and
 <a href="../../concepts/architecture/#build-configuration">build configuration</a>.</p>
-<p>The generic core (reader, writer, visitor, schemas, value codecs and the format
-callbacks), including the configurable Fixed format, is always built.
-Protocol extensions are options that default to ON.
-Turn off what you do not use.</p>
+<p>Core primitives and generic formats are always built. Reader, Writer, Document,
+Query, Schema and Codec default to ON and can be disabled independently. Operations
+combining capabilities require each participant. Protocol family flags select
+framing and the integrations permitted by the selected core capabilities.</p>
+<h2 id="capability-profiles">Capability profiles<a class="headerlink" href="#capability-profiles" title="Permanent link">&para;</a></h2>
+<p>Start with all six capability switches OFF, then enable the selected columns:</p>
+<table>
+<thead>
+<tr>
+<th>Profile</th>
+<th>Reader</th>
+<th>Writer</th>
+<th>Document</th>
+<th>Query</th>
+<th>Schema</th>
+<th>Codec</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Minimal read</td>
+<td>ON</td>
+<td>OFF</td>
+<td>OFF</td>
+<td>OFF</td>
+<td>OFF</td>
+<td>OFF</td>
+</tr>
+<tr>
+<td>Minimal write</td>
+<td>OFF</td>
+<td>ON</td>
+<td>OFF</td>
+<td>OFF</td>
+<td>OFF</td>
+<td>OFF</td>
+</tr>
+<tr>
+<td>Read/write</td>
+<td>ON</td>
+<td>ON</td>
+<td>OFF</td>
+<td>OFF</td>
+<td>OFF</td>
+<td>OFF</td>
+</tr>
+<tr>
+<td>Standalone Document</td>
+<td>OFF</td>
+<td>OFF</td>
+<td>ON</td>
+<td>OFF</td>
+<td>OFF</td>
+<td>OFF</td>
+</tr>
+<tr>
+<td>Parse Document</td>
+<td>ON</td>
+<td>OFF</td>
+<td>ON</td>
+<td>OFF</td>
+<td>OFF</td>
+<td>OFF</td>
+</tr>
+<tr>
+<td>Serialize Document</td>
+<td>OFF</td>
+<td>ON</td>
+<td>ON</td>
+<td>OFF</td>
+<td>OFF</td>
+<td>OFF</td>
+</tr>
+<tr>
+<td>Full</td>
+<td>ON</td>
+<td>ON</td>
+<td>ON</td>
+<td>ON</td>
+<td>ON</td>
+<td>ON</td>
+</tr>
+</tbody>
+</table>
+<p>For example, this builds a C library for reading generic formats only:</p>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-0-1" name="__codelineno-0-1" href="#__codelineno-0-1"></a>cmake<span class="w"> </span>-S<span class="w"> </span>.<span class="w"> </span>-B<span class="w"> </span>build/read<span class="w"> </span><span class="se">\</span>
+<a id="__codelineno-0-2" name="__codelineno-0-2" href="#__codelineno-0-2"></a><span class="w">  </span>-DOPENTLV_BUILD_CXX<span class="o">=</span>OFF<span class="w"> </span>-DOPENTLV_BUILD_EXAMPLES<span class="o">=</span>OFF<span class="w"> </span><span class="se">\</span>
+<a id="__codelineno-0-3" name="__codelineno-0-3" href="#__codelineno-0-3"></a><span class="w">  </span>-DOPENTLV_READER<span class="o">=</span>ON<span class="w"> </span>-DOPENTLV_WRITER<span class="o">=</span>OFF<span class="w"> </span>-DOPENTLV_DOCUMENT<span class="o">=</span>OFF<span class="w"> </span><span class="se">\</span>
+<a id="__codelineno-0-4" name="__codelineno-0-4" href="#__codelineno-0-4"></a><span class="w">  </span>-DOPENTLV_QUERY<span class="o">=</span>OFF<span class="w"> </span>-DOPENTLV_SCHEMA<span class="o">=</span>OFF<span class="w"> </span>-DOPENTLV_CODEC<span class="o">=</span>OFF<span class="w"> </span><span class="se">\</span>
+<a id="__codelineno-0-5" name="__codelineno-0-5" href="#__codelineno-0-5"></a><span class="w">  </span>-DOPENTLV_FORMAT_ASN1<span class="o">=</span>OFF<span class="w"> </span>-DOPENTLV_BLUETOOTH<span class="o">=</span>OFF<span class="w"> </span><span class="se">\</span>
+<a id="__codelineno-0-6" name="__codelineno-0-6" href="#__codelineno-0-6"></a><span class="w">  </span>-DOPENTLV_NFC<span class="o">=</span>OFF<span class="w"> </span>-DOPENTLV_DHCP<span class="o">=</span>OFF<span class="w"> </span>-DOPENTLV_LLDP<span class="o">=</span>OFF
+<a id="__codelineno-0-7" name="__codelineno-0-7" href="#__codelineno-0-7"></a>cmake<span class="w"> </span>--build<span class="w"> </span>build/read<span class="w"> </span>--target<span class="w"> </span>tlv
+</code></pre></div>
+<p><code>OPENTLV_QUERY=OFF</code> also disables its frontend and set operations in the effective
+configuration. <code>tlv/config.h</code> and <code>tlv_config_*()</code> report that configuration.
+Disabling a capability does not enable another one. Generated headers must match
+the linked library; using declarations from a disabled capability is unsupported.</p>
+<p>Reader + Document provides parse/build and constructed-wire mutation. Writer +
+Document provides encoding. Query + Document provides path matching; the current
+compiled Document Query adapter additionally requires Reader and Writer. Schema
+wire validation requires Reader; Schema/Query assertions require both. Structure
+codecs require Reader and Schema. EMV dictionaries compose Schema and Codec;
+EMV framing remains available independently. ASN.1 Query adapters require Codec;
+DER Schema operations currently require Codec and Writer.</p>
+<h3 id="bindings-and-tools">Bindings and tools<a class="headerlink" href="#bindings-and-tools" title="Permanent link">&para;</a></h3>
+<p>The C dependency graph is authoritative. Binding conveniences may require more:</p>
+<table>
+<thead>
+<tr>
+<th>Consumer</th>
+<th>Current requirements</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>C++ Reader/Writer headers</td>
+<td>Matching C capability; the umbrella selects enabled components</td>
+</tr>
+<tr>
+<td>C++ Schema facade</td>
+<td>Schema and Reader</td>
+</tr>
+<tr>
+<td>C++ Query facade</td>
+<td>Query and Reader</td>
+</tr>
+<tr>
+<td>C++ Document facade</td>
+<td>Document, Reader, Writer, Query and Codec</td>
+</tr>
+<tr>
+<td>Python, Lua, WASM, CLI, examples, benchmarks and fuzz suites</td>
+<td>Reader, Writer, Query, Schema, Codec and Query frontend; CMake skips these in reduced builds</td>
+</tr>
+<tr>
+<td>Rust</td>
+<td>Native build explicitly enables Reader, Writer, Query, Schema and Codec; Document remains a Cargo feature</td>
+</tr>
+<tr>
+<td>Go</td>
+<td>Prebuilt library must enable Reader, Writer, Query, Schema and Codec; the bridge checks generated configuration</td>
+</tr>
+</tbody>
+</table>
+<p>Broad unit/integration suites are skipped in reduced builds. The dependency-free
+<code>capability-contract</code> test remains available with <code>OPENTLV_BUILD_TESTS=ON</code>.
+<code>python scripts/check_capabilities.py</code> configures, links and executes the profiles
+above plus core-only, Query-only, Document/Query, Schema-only and Codec-only builds. CI runs both
+shared and static variants and checks that disabled source groups are absent.</p>
 <h2 id="generic-core-formats">Generic core formats<a class="headerlink" href="#generic-core-formats" title="Permanent link">&para;</a></h2>
 <table>
 <thead>
@@ -3665,47 +3866,47 @@ template delegates to the always-built C implementation.</p>
 <h2 id="recipes">Recipes<a class="headerlink" href="#recipes" title="Permanent link">&para;</a></h2>
 <p>Each recipe starts from a clean build directory; replace <code>build</code> with your own. Every
 option defaults to ON, so a recipe lists exactly the options it turns OFF.</p>
-<h3 id="core-only">Core only<a class="headerlink" href="#core-only" title="Permanent link">&para;</a></h3>
+<h3 id="generic-formats-without-protocol-extensions">Generic formats without protocol extensions<a class="headerlink" href="#generic-formats-without-protocol-extensions" title="Permanent link">&para;</a></h3>
 <p>Use this when you supply your own <a href="../../formats/custom/">format callbacks</a>.</p>
-<div class="highlight"><pre><span></span><code><a id="__codelineno-0-1" name="__codelineno-0-1" href="#__codelineno-0-1"></a>cmake<span class="w"> </span>-S<span class="w"> </span>.<span class="w"> </span>-B<span class="w"> </span>build<span class="w"> </span><span class="se">\</span>
-<a id="__codelineno-0-2" name="__codelineno-0-2" href="#__codelineno-0-2"></a><span class="w">  </span>-DOPENTLV_BLUETOOTH<span class="o">=</span>OFF<span class="w"> </span>-DOPENTLV_LLDP<span class="o">=</span>OFF<span class="w"> </span>-DOPENTLV_DHCP<span class="o">=</span>OFF<span class="w"> </span>-DOPENTLV_NFC<span class="o">=</span>OFF<span class="w"> </span>-DOPENTLV_FORMAT_ASN1<span class="o">=</span>OFF
-<a id="__codelineno-0-3" name="__codelineno-0-3" href="#__codelineno-0-3"></a>cmake<span class="w"> </span>--build<span class="w"> </span>build<span class="w"> </span>--parallel<span class="w"> </span>--target<span class="w"> </span>tlv
+<div class="highlight"><pre><span></span><code><a id="__codelineno-1-1" name="__codelineno-1-1" href="#__codelineno-1-1"></a>cmake<span class="w"> </span>-S<span class="w"> </span>.<span class="w"> </span>-B<span class="w"> </span>build<span class="w"> </span><span class="se">\</span>
+<a id="__codelineno-1-2" name="__codelineno-1-2" href="#__codelineno-1-2"></a><span class="w">  </span>-DOPENTLV_BLUETOOTH<span class="o">=</span>OFF<span class="w"> </span>-DOPENTLV_LLDP<span class="o">=</span>OFF<span class="w"> </span>-DOPENTLV_DHCP<span class="o">=</span>OFF<span class="w"> </span>-DOPENTLV_NFC<span class="o">=</span>OFF<span class="w"> </span>-DOPENTLV_FORMAT_ASN1<span class="o">=</span>OFF
+<a id="__codelineno-1-3" name="__codelineno-1-3" href="#__codelineno-1-3"></a>cmake<span class="w"> </span>--build<span class="w"> </span>build<span class="w"> </span>--parallel<span class="w"> </span>--target<span class="w"> </span>tlv
 </code></pre></div>
 <h3 id="core-and-ber">Core and BER<a class="headerlink" href="#core-and-ber" title="Permanent link">&para;</a></h3>
-<div class="highlight"><pre><span></span><code><a id="__codelineno-1-1" name="__codelineno-1-1" href="#__codelineno-1-1"></a>cmake<span class="w"> </span>-S<span class="w"> </span>.<span class="w"> </span>-B<span class="w"> </span>build<span class="w"> </span><span class="se">\</span>
-<a id="__codelineno-1-2" name="__codelineno-1-2" href="#__codelineno-1-2"></a><span class="w">  </span>-DOPENTLV_BLUETOOTH<span class="o">=</span>OFF<span class="w"> </span>-DOPENTLV_LLDP<span class="o">=</span>OFF<span class="w"> </span>-DOPENTLV_DHCP<span class="o">=</span>OFF<span class="w"> </span>-DOPENTLV_NFC<span class="o">=</span>OFF<span class="w"> </span><span class="se">\</span>
-<a id="__codelineno-1-3" name="__codelineno-1-3" href="#__codelineno-1-3"></a><span class="w">  </span>-DOPENTLV_FORMAT_DER<span class="o">=</span>OFF<span class="w"> </span>-DOPENTLV_FORMAT_CER<span class="o">=</span>OFF<span class="w"> </span>-DOPENTLV_EMV<span class="o">=</span>OFF
-<a id="__codelineno-1-4" name="__codelineno-1-4" href="#__codelineno-1-4"></a>cmake<span class="w"> </span>--build<span class="w"> </span>build<span class="w"> </span>--parallel<span class="w"> </span>--target<span class="w"> </span>tlv
+<div class="highlight"><pre><span></span><code><a id="__codelineno-2-1" name="__codelineno-2-1" href="#__codelineno-2-1"></a>cmake<span class="w"> </span>-S<span class="w"> </span>.<span class="w"> </span>-B<span class="w"> </span>build<span class="w"> </span><span class="se">\</span>
+<a id="__codelineno-2-2" name="__codelineno-2-2" href="#__codelineno-2-2"></a><span class="w">  </span>-DOPENTLV_BLUETOOTH<span class="o">=</span>OFF<span class="w"> </span>-DOPENTLV_LLDP<span class="o">=</span>OFF<span class="w"> </span>-DOPENTLV_DHCP<span class="o">=</span>OFF<span class="w"> </span>-DOPENTLV_NFC<span class="o">=</span>OFF<span class="w"> </span><span class="se">\</span>
+<a id="__codelineno-2-3" name="__codelineno-2-3" href="#__codelineno-2-3"></a><span class="w">  </span>-DOPENTLV_FORMAT_DER<span class="o">=</span>OFF<span class="w"> </span>-DOPENTLV_FORMAT_CER<span class="o">=</span>OFF<span class="w"> </span>-DOPENTLV_EMV<span class="o">=</span>OFF
+<a id="__codelineno-2-4" name="__codelineno-2-4" href="#__codelineno-2-4"></a>cmake<span class="w"> </span>--build<span class="w"> </span>build<span class="w"> </span>--parallel<span class="w"> </span>--target<span class="w"> </span>tlv
 </code></pre></div>
 <h3 id="core-ber-der-and-emv">Core, BER, DER and EMV<a class="headerlink" href="#core-ber-der-and-emv" title="Permanent link">&para;</a></h3>
 <p>This recipe enables DER alongside EMV. EMV itself does not need DER;
 add <code>-DOPENTLV_FORMAT_DER=OFF</code> for BER and EMV only. CER is off.</p>
-<div class="highlight"><pre><span></span><code><a id="__codelineno-2-1" name="__codelineno-2-1" href="#__codelineno-2-1"></a>cmake<span class="w"> </span>-S<span class="w"> </span>.<span class="w"> </span>-B<span class="w"> </span>build<span class="w"> </span><span class="se">\</span>
-<a id="__codelineno-2-2" name="__codelineno-2-2" href="#__codelineno-2-2"></a><span class="w">  </span>-DOPENTLV_BLUETOOTH<span class="o">=</span>OFF<span class="w"> </span>-DOPENTLV_LLDP<span class="o">=</span>OFF<span class="w"> </span>-DOPENTLV_DHCP<span class="o">=</span>OFF<span class="w"> </span>-DOPENTLV_NFC<span class="o">=</span>OFF<span class="w"> </span>-DOPENTLV_FORMAT_CER<span class="o">=</span>OFF
-<a id="__codelineno-2-3" name="__codelineno-2-3" href="#__codelineno-2-3"></a>cmake<span class="w"> </span>--build<span class="w"> </span>build<span class="w"> </span>--parallel<span class="w"> </span>--target<span class="w"> </span>tlv
+<div class="highlight"><pre><span></span><code><a id="__codelineno-3-1" name="__codelineno-3-1" href="#__codelineno-3-1"></a>cmake<span class="w"> </span>-S<span class="w"> </span>.<span class="w"> </span>-B<span class="w"> </span>build<span class="w"> </span><span class="se">\</span>
+<a id="__codelineno-3-2" name="__codelineno-3-2" href="#__codelineno-3-2"></a><span class="w">  </span>-DOPENTLV_BLUETOOTH<span class="o">=</span>OFF<span class="w"> </span>-DOPENTLV_LLDP<span class="o">=</span>OFF<span class="w"> </span>-DOPENTLV_DHCP<span class="o">=</span>OFF<span class="w"> </span>-DOPENTLV_NFC<span class="o">=</span>OFF<span class="w"> </span>-DOPENTLV_FORMAT_CER<span class="o">=</span>OFF
+<a id="__codelineno-3-3" name="__codelineno-3-3" href="#__codelineno-3-3"></a>cmake<span class="w"> </span>--build<span class="w"> </span>build<span class="w"> </span>--parallel<span class="w"> </span>--target<span class="w"> </span>tlv
 </code></pre></div>
 <h3 id="core-and-bluetooth-ltv-only">Core and Bluetooth LTV only<a class="headerlink" href="#core-and-bluetooth-ltv-only" title="Permanent link">&para;</a></h3>
 <p>Bluetooth uses the generic binary layout primitives. Fixed is always available.</p>
-<div class="highlight"><pre><span></span><code><a id="__codelineno-3-1" name="__codelineno-3-1" href="#__codelineno-3-1"></a>cmake<span class="w"> </span>-S<span class="w"> </span>.<span class="w"> </span>-B<span class="w"> </span>build<span class="w"> </span><span class="se">\</span>
-<a id="__codelineno-3-2" name="__codelineno-3-2" href="#__codelineno-3-2"></a><span class="w">  </span>-DOPENTLV_FORMAT_ASN1<span class="o">=</span>OFF<span class="w"> </span>-DOPENTLV_LLDP<span class="o">=</span>OFF<span class="w"> </span>-DOPENTLV_DHCP<span class="o">=</span>OFF<span class="w"> </span>-DOPENTLV_NFC<span class="o">=</span>OFF
-<a id="__codelineno-3-3" name="__codelineno-3-3" href="#__codelineno-3-3"></a>cmake<span class="w"> </span>--build<span class="w"> </span>build<span class="w"> </span>--parallel<span class="w"> </span>--target<span class="w"> </span>tlv
+<div class="highlight"><pre><span></span><code><a id="__codelineno-4-1" name="__codelineno-4-1" href="#__codelineno-4-1"></a>cmake<span class="w"> </span>-S<span class="w"> </span>.<span class="w"> </span>-B<span class="w"> </span>build<span class="w"> </span><span class="se">\</span>
+<a id="__codelineno-4-2" name="__codelineno-4-2" href="#__codelineno-4-2"></a><span class="w">  </span>-DOPENTLV_FORMAT_ASN1<span class="o">=</span>OFF<span class="w"> </span>-DOPENTLV_LLDP<span class="o">=</span>OFF<span class="w"> </span>-DOPENTLV_DHCP<span class="o">=</span>OFF<span class="w"> </span>-DOPENTLV_NFC<span class="o">=</span>OFF
+<a id="__codelineno-4-3" name="__codelineno-4-3" href="#__codelineno-4-3"></a>cmake<span class="w"> </span>--build<span class="w"> </span>build<span class="w"> </span>--parallel<span class="w"> </span>--target<span class="w"> </span>tlv
 </code></pre></div>
 <h3 id="everything">Everything<a class="headerlink" href="#everything" title="Permanent link">&para;</a></h3>
 <p>The default. No options are needed.</p>
-<div class="highlight"><pre><span></span><code><a id="__codelineno-4-1" name="__codelineno-4-1" href="#__codelineno-4-1"></a>cmake<span class="w"> </span>-S<span class="w"> </span>.<span class="w"> </span>-B<span class="w"> </span>build
-<a id="__codelineno-4-2" name="__codelineno-4-2" href="#__codelineno-4-2"></a>cmake<span class="w"> </span>--build<span class="w"> </span>build<span class="w"> </span>--parallel
+<div class="highlight"><pre><span></span><code><a id="__codelineno-5-1" name="__codelineno-5-1" href="#__codelineno-5-1"></a>cmake<span class="w"> </span>-S<span class="w"> </span>.<span class="w"> </span>-B<span class="w"> </span>build
+<a id="__codelineno-5-2" name="__codelineno-5-2" href="#__codelineno-5-2"></a>cmake<span class="w"> </span>--build<span class="w"> </span>build<span class="w"> </span>--parallel
 </code></pre></div>
 <h2 id="what-you-get">What you get<a class="headerlink" href="#what-you-get" title="Permanent link">&para;</a></h2>
 <p>Fixed remains available in every configuration, including core-only builds.
 Disabled protocol extensions contribute no implementation symbols.</p>
 <p>Confirm your own selection from the generated <code>tlv/config.h</code>, which defines each option
 as <code>1</code> or <code>0</code>:</p>
-<div class="highlight"><pre><span></span><code><a id="__codelineno-5-1" name="__codelineno-5-1" href="#__codelineno-5-1"></a><span class="cp">#include</span><span class="w"> </span><span class="cpf">"tlv/config.h"</span>
-<a id="__codelineno-5-2" name="__codelineno-5-2" href="#__codelineno-5-2"></a>
-<a id="__codelineno-5-3" name="__codelineno-5-3" href="#__codelineno-5-3"></a><span class="cp">#if OPENTLV_FORMAT_BER</span>
-<a id="__codelineno-5-4" name="__codelineno-5-4" href="#__codelineno-5-4"></a><span class="cp">#include</span><span class="w"> </span><span class="cpf">"tlv/builtins/asn1/ber.h"</span>
-<a id="__codelineno-5-5" name="__codelineno-5-5" href="#__codelineno-5-5"></a><span class="cm">/* use tlv_format_ber */</span>
-<a id="__codelineno-5-6" name="__codelineno-5-6" href="#__codelineno-5-6"></a><span class="cp">#endif</span>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-6-1" name="__codelineno-6-1" href="#__codelineno-6-1"></a><span class="cp">#include</span><span class="w"> </span><span class="cpf">"tlv/config.h"</span>
+<a id="__codelineno-6-2" name="__codelineno-6-2" href="#__codelineno-6-2"></a>
+<a id="__codelineno-6-3" name="__codelineno-6-3" href="#__codelineno-6-3"></a><span class="cp">#if OPENTLV_FORMAT_BER</span>
+<a id="__codelineno-6-4" name="__codelineno-6-4" href="#__codelineno-6-4"></a><span class="cp">#include</span><span class="w"> </span><span class="cpf">"tlv/builtins/asn1/ber.h"</span>
+<a id="__codelineno-6-5" name="__codelineno-6-5" href="#__codelineno-6-5"></a><span class="cm">/* use tlv_format_ber */</span>
+<a id="__codelineno-6-6" name="__codelineno-6-6" href="#__codelineno-6-6"></a><span class="cp">#endif</span>
 </code></pre></div>
 <p>Use these macros when your code has to compile against a reduced build. Including the
 header of a disabled component does not provide its symbols.</p>
