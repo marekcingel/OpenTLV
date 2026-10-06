@@ -56,3 +56,17 @@ function(opentlv_generate_config_files)
         "${PROJECT_BINARY_DIR}/generated/src/config.c"
     )
 endfunction()
+
+if(NOT OPENTLV_QUERY_FRONTEND)
+    foreach(component IN ITEMS CLI EXAMPLES BENCHMARKS FUZZING WASM PYTHON LUA)
+        if(OPENTLV_BUILD_${component})
+            message(STATUS "Query frontend disabled: skipping ${component}, which requires text compilation")
+            set(OPENTLV_BUILD_${component} OFF)
+        endif()
+    endforeach()
+    # Existing broad suites exercise the text API. Independent plan tests below
+    # remain enabled and require only a C compiler.
+    set(OPENTLV_BUILD_UNIT_TESTS OFF)
+    set(OPENTLV_BUILD_INTEGRATION_TESTS OFF)
+    set(OPENTLV_BUILD_PROPERTY_TESTS OFF)
+endif()

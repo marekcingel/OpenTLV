@@ -16,6 +16,9 @@ extern "C" {
  * @note All calls are allocation-free and iterative. Storage must be aligned
  * to the reported alignment, alive and unchanged while borrowed. Internal
  * program images are release-specific, not a persistent serialization format.
+ * Text compilation, checked recompilation loading and source formatting require
+ * OPENTLV_QUERY_FRONTEND. Static plans use plan.h and tlv_query_plan_open();
+ * execution, variable access and explain remain available without the frontend.
  */
 
 /** @addtogroup traversal
@@ -403,7 +406,9 @@ TLV_API tlv_result_t tlv_query_program_load(const void* image, size_t size,
                                             tlv_query_diagnostic_t* diagnostic);
 
 /**
- * @brief Canonically format a compiled program, including size discovery.
+ * @brief Canonically format retained program source, including size discovery.
+ * @note Requires the Query frontend and retained source text. Static plans without
+ * source return UNSUPPORTED_TYPE; explain is available without source.
  * @param[in] program Required live program returned by compile.
  * @param[out] output Optional output; NULL requires capacity zero.
  * @param[in] capacity Available bytes including terminator.

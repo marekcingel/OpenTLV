@@ -75,6 +75,7 @@ tlv_result_t tlv_query_eval_size(const tlv_query_program_t* p, size_t depth, siz
                                  size_t* bytes, size_t* alignment) {
     if (!p || !bytes || !alignment) return TLV_ERR_NULL_ARG;
     if (!query_program_valid(p) || !nodes) return TLV_ERR_INVALID_ARG;
+    if (!query_plan_supported(p)) return TLV_ERR_UNSUPPORTED_TYPE;
     if (depth == SIZE_MAX || nodes == SIZE_MAX) return TLV_ERR_OVERFLOW;
     size_t size = sizeof(tlv_query_exec_t), count = (size_t)p->count + p->variable_count;
     if (add_size(&size, count, sizeof(query_value_t)) != TLV_OK ||
@@ -110,7 +111,7 @@ static tlv_result_t compatible(const tlv_query_program_t* p, const tlv_query_env
     for (size_t i = 0; i < p->count; ++i) {
         const query_node_t* n = &nodes[i];
         if (n->op != Q_CALL) continue;
-        unsigned f = query_function_kind(query_text(p), n);
+        unsigned f = n->selector;
         if (f >= F_NUM && f <= F_DATE && !n->hook_id) return TLV_ERR_INVALID_ARG;
         if (n->hook_id) {
             const tlv_query_hook_t* h = NULL;
@@ -211,7 +212,7 @@ static int64_t signed_integer(query_value_t v) {
 }
 static tlv_result_t scalar_call(tlv_query_exec_t* e, eval_frame_t* f, const query_node_t* n,
                                 size_t instruction, tlv_query_diagnostic_t* d) {
-    unsigned fn = query_function_kind(query_text(e->program), n);
+    unsigned fn = n->selector;
     retained_node_t* nodes = eval_nodes(e);
     size_t context = f->selected != SIZE_MAX ? f->selected : f->context;
     const tlv_tree_event_t* event = context < e->elements ? &nodes[context].event : NULL;
@@ -402,30 +403,17 @@ tlv_result_t query_retained_finish(tlv_query_exec_t* e, tlv_query_diagnostic_t* 
                                         nodes[i].end <= f->context;
                             break;
                     }
-                    int abbreviation = n->axis == A_PARENT && n->end - n->begin == 2 &&
-                                       query_text(e->program)[n->begin] == '.';
-                    int match =
-                        abbreviation ? 1
-                        : n->resolved
-                            ? query_tag_test(nodes[i].event.element.tag,
-                                             query_payload(e->program) + n->data_offset,
-                                             n->data_size, 0)
-                            : query_tag_test(nodes[i].event.element.tag,
-                                             (const uint8_t*)query_text(e->program) + n->begin,
-                                             n->end - n->begin, 1);
+                    int match = query_plan_tag(e->program, n, nodes[i].event.element.tag);
                     out[i] = (uint8_t)(candidate && match);
                 }
                 if (n->axis == A_PARENT && f->context < e->elements &&
-                    nodes[f->context].parent == virtual_root && n->end - n->begin == 2 &&
-                    query_text(e->program)[n->begin] == '.')
+                    nodes[f->context].parent == virtual_root && n->context)
                     out[virtual_root] = 1;
                 goto complete;
             }
             if (n->op == Q_ROOT || n->op == Q_SELF) {
                 size_t context =
-                    n->op == Q_SELF || n->anchor || query_text(e->program)[n->begin] == '.'
-                        ? f->context
-                        : virtual_root;
+                    n->op == Q_SELF || n->anchor || n->context ? f->context : virtual_root;
                 out[context] = 1;
                 goto complete;
             }
@@ -443,11 +431,8 @@ tlv_result_t query_retained_finish(tlv_query_exec_t* e, tlv_query_diagnostic_t* 
                 goto complete;
             }
             if (n->op == Q_LITERAL) {
-                const char* text = query_text(e->program);
-                f->value.negative = text[n->begin] == '-';
-                for (size_t i = n->begin + (unsigned)f->value.negative; i < n->end; ++i)
-                    f->value.number = f->value.number * 10 + (unsigned)(text[i] - '0');
-                if (!f->value.number) f->value.negative = 0;
+                f->value.negative = (int)n->negative;
+                f->value.number = query_immediate(n);
                 goto complete;
             }
             if (n->op == Q_META) {
@@ -458,16 +443,15 @@ tlv_result_t query_retained_finish(tlv_query_exec_t* e, tlv_query_diagnostic_t* 
                                                     "candidate metadata"),
                                         d);
                 const tlv_tree_event_t* event = &nodes[f->context].event;
-                const char* text = query_text(e->program);
                 uint64_t value;
-                if (query_word(text, n->begin, n->end, "@len"))
+                if ((n->selector == TLV_QUERY_META_LEN))
                     value = event->element.value.size;
-                else if (query_word(text, n->begin, n->end, "@depth"))
+                else if ((n->selector == TLV_QUERY_META_DEPTH))
                     value = event->depth;
-                else if (query_word(text, n->begin, n->end, "@index"))
+                else if ((n->selector == TLV_QUERY_META_INDEX))
                     value = nodes[f->context].sibling;
                 else {
-                    int header = query_word(text, n->begin, n->end, "@hlen");
+                    int header = (n->selector == TLV_QUERY_META_HLEN);
                     if (!event->source.data ||
                         (header && (!event->source.header.present ||
                                     event->source.header.offset > event->source.size ||
@@ -509,7 +493,7 @@ tlv_result_t query_retained_finish(tlv_query_exec_t* e, tlv_query_diagnostic_t* 
         if (f->stage >= 10) {
             size_t arg = f->stage - 10;
             query_value_t v = child->value;
-            unsigned fn = query_function_kind(query_text(e->program), n);
+            unsigned fn = n->selector;
             if (v.kind == V_NODE) {
                 size_t count = set_count(e, child_set);
                 if (fn == F_COUNT || fn == F_EXISTS || fn == F_EMPTY) {
@@ -589,12 +573,15 @@ tlv_result_t query_retained_finish(tlv_query_exec_t* e, tlv_query_diagnostic_t* 
             }
         } else if (f->stage == 2) {
             f->b = child->value;
+#if OPENTLV_QUERY_SET_OPERATIONS
             if (n->op == Q_UNION || n->op == Q_INTERSECT || n->op == Q_EXCEPT) {
                 for (size_t i = 0; i <= e->node_capacity; ++i)
                     out[i] = (uint8_t)(n->op == Q_UNION       ? saved[i] || child_set[i]
                                        : n->op == Q_INTERSECT ? saved[i] && child_set[i]
                                                               : saved[i] && !child_set[i]);
-            } else if (n->op == Q_AND || n->op == Q_OR)
+            } else
+#endif
+                if (n->op == Q_AND || n->op == Q_OR)
                 f->value.number = n->op == Q_AND ? value_truth(f->a) && value_truth(f->b)
                                                  : value_truth(f->a) || value_truth(f->b);
             else {

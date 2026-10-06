@@ -72,6 +72,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Changed
 
+- Make Query execution independent of source text and advance the internal native plan version; rebuild previously compiled Query images. (#530)
 - Keep Query benchmark measurements advisory while Query functionality is completed, without requiring accepted baselines for release. (#523)
 - Accept full compiled Query syntax in `otlv query` while preserving existing exact-path output, and distinguish false/zero scalar success from empty node selections. (#522)
 - **Breaking:** Replace public Query fields with opaque copyable storage and validated accessors; rebuild native consumers and migrate direct field access. (#519)
@@ -143,6 +144,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Added
 
+- Add a C++11 `constexpr` Query builder that creates native plans at compile time and executes through the existing C/C++ APIs without the runtime frontend. (#530)
+- Support versioned static C Query plans with frontend-independent validation, runtime parameters and the shared executor; add frontend-free builds and optional Query set operations. (#530)
 - Expose Query semantic Tag adapters, scoped dynamic/Definition/EMV resolvers, configured Fixed Formats, source-bearing events, result ordinals and V1 compatibility through the owning language facades, with checked resolver stability and callback lifetime tests. (#523)
 - Add an owning Rust Query Schema facade, public-facade Schema regressions, callback and input-replacement fuzz coverage, and a strict Query release-candidate workflow. (#523)
 - Add an owning JavaScript/WASM compiled Query and checked Document facade, public-facade corpus checks, native x86/WASM ABI snapshots, and bounded sanitizer campaigns with retained failure artifacts. (#523)

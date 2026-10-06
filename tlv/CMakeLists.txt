@@ -33,7 +33,7 @@ add_library(${PROJECT_NAME} ${_tlv_library_type}
     src/reader/tree.c
     src/reader/visitor.c
     src/query/query.c
-    src/query/compiler.c
+    src/query/plan.c
     src/query/execute.c
     src/query/evaluation.c
     src/query/adapters.c
@@ -49,6 +49,10 @@ add_library(${PROJECT_NAME} ${_tlv_library_type}
     ${OpenTLV_BINARY_DIR}/generated/src/version.c
     ${OpenTLV_BINARY_DIR}/generated/src/config.c
 )
+
+if(OPENTLV_QUERY_FRONTEND)
+    target_sources(${PROJECT_NAME} PRIVATE src/query/compiler.c)
+endif()
 
 if(OPENTLV_NFC)
     target_sources(${PROJECT_NAME} PRIVATE src/builtins/nfc/type2.c)

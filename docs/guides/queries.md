@@ -23,6 +23,93 @@ Compiled execution supports S0/S1 streaming, explicitly retained S2 and Document
 typed variables and scalar results. The full language is selected explicitly by
 the compiled program APIs; the V1 helpers retain their smaller grammar.
 
+## Static C plans and frontend-free execution
+
+Runtime compilation and static C plans share the native representation in
+`<tlv/query/plan.h>` and the same S0/S1/S2/Document execution backends. Instructions
+contain resolved function selectors, metadata selectors, integer magnitudes,
+tag bytes/masks and parameter names. Execution never interprets query source.
+Source text is optional and used only for diagnostics and frontend formatting.
+
+The [standalone C plan test](../../tests/query/plan.c) manually defines
+`/01[@len = $n]` as `static const` C data without source text. It validates the
+image with `tlv_query_plan_open`, discovers workspace with `tlv_query_exec_size`
+or `tlv_query_eval_size`, binds `n` with `tlv_query_exec_bind`, and executes using
+caller-owned storage. The frontend-enabled test also compiles the same expression,
+destroys its source spelling, and checks equivalent streaming and retained results
+for two parameter values. No C++ feature or heap allocation is needed by this path.
+
+A native image consists of a `tlv_query_plan_t` header, `count` consecutive
+`tlv_query_instruction_t` instructions, optional source bytes and a zero terminator,
+then the payload. Pass the exact logical extent in `reserved`, excluding trailing
+C structure padding. Instructions use backward references and `TLV_QUERY_PLAN_NONE`
+for absent operands/guards/reuse. The header and instructions require uint32 alignment.
+Borrowed plan storage must remain readable and immutable through execution.
+
+`TLV_QUERY_PLAN_VERSION` is an exact compatibility check for this release-specific
+native layout, not a stable serialized ABI. Different byte order is rejected;
+generated C initializers naturally use the target's byte order. Rebuild generated
+plans when the version changes. `tlv_query_plan_open` checks bounded extents,
+references, operand types, arities, execution profiles and available capabilities
+without parsing or planning. The older `tlv_query_program_load` deliberately retains
+checked recompilation for runtime publication and resolver consistency.
+
+Resolved symbolic names become raw tag bytes. A changed model name-to-tag mapping
+requires rebuilding the plan. Codec hook IDs and semantic tag-provider IDs identify
+application-owned semantic contracts; execution checks these requirements against
+its borrowed environment. IDs must retain their meaning, or the application must
+assign new IDs. No unstable schema index or model pointer is embedded in a plan.
+A universal model/schema fingerprint is left to the future model architecture.
+
+Configure `OPENTLV_QUERY_FRONTEND=OFF` to omit the runtime compiler and V1 text
+parser. Execution, plan validation, parameter introspection and explain remain
+available. Text-dependent CLI, examples, benchmarks, fuzzers and language-extension
+builds are skipped in that configuration, as are the broad frontend test suites;
+the independent C static-plan test remains enabled. Existing source-compilation
+facades require a frontend-enabled library.
+
+`OPENTLV_QUERY_SET_OPERATIONS=OFF` omits union/intersection/difference execution
+from both backends. Compilation and static-plan validation reject these operations
+with `TLV_ERR_UNSUPPORTED_TYPE`; enabled operations preserve the same semantics.
+Document-only navigation additionally requires `OPENTLV_DOCUMENT`. These are
+capability choices within the same plan and execution architecture. Further
+operation-family switches and automatic `.otlv` code generation are future work.
+
+## C++11 constexpr plans
+
+`<tlv++/query/static.hpp>` adds a typed compile-time builder over the same C plan:
+
+```cpp
+namespace q = tlv::static_query;
+static constexpr auto selection =
+    q::where(q::child<0x70>() / q::descendant<0x5A>(),
+             q::length() >= q::parameter("minimum")).compile();
+static_assert(selection.header().variable_count == 1, "one runtime parameter");
+auto program = selection.program();
+```
+
+The `constexpr` initializer constructs the actual native instructions and payload
+at compile time. `program()` performs the canonical C validation and borrows that
+storage through `query_program::from_plan`; it does not compile query text.
+Initialize `query_execution::external`, bind `minimum`, and execute with the usual
+C++ facade or C APIs. Keep `selection` alive and immutable through every execution;
+borrowing from a temporary plan is rejected. Validation and caller-workspace
+execution do not allocate. `tlv_query_plan_info` exposes native execution requirements
+without compiler scratch or optimization-history metadata.
+
+This initial constexpr vocabulary includes exact/wildcard raw child and descendant
+paths, `where`, Value length and depth, signed integer and byte constants, Value
+bytes, named integer/bytes/string parameters, scalar comparisons and eager Boolean
+AND/OR. Empty tag byte packs mean wildcard. Repeated parameter names share one slot;
+conflicting types and invalid names fail constant evaluation. The builder bounds
+plans to 128 instructions and 65,536 payload bytes. It composes instructions directly;
+it does not provide a constexpr text parser or duplicate the full Query frontend.
+The existing runtime text builder remains available for the full language.
+
+The [C++11 constexpr test](../../tests/query/constexpr.cpp) uses `static_assert`
+checks, allocation instrumentation, runtime/static parity in both execution modes,
+and frontend-disabled builds. C-only static plans remain independently supported.
+
 ## Full programs and integration
 
 C++ applications include `tlv++/query/program.hpp` for `tlv::query_program` and

@@ -50,6 +50,8 @@ option(OPENTLV_FORMAT_BER "Include the BER wire format" ON)
 option(OPENTLV_FORMAT_DER "Include the DER wire format and validation" ON)
 option(OPENTLV_FORMAT_CER "Include the CER wire format and validation" ON)
 option(OPENTLV_EMV "Include EMV framing, dictionary, schemas and codecs" ON)
+option(OPENTLV_QUERY_SET_OPERATIONS "Include Query union, intersection and difference operations" ON)
+option(OPENTLV_QUERY_FRONTEND "Include Query text parsing and compilation" ON)
 option(OPENTLV_DOCUMENT "Include the allocating mutable document API" ON)
 
 if(OPENTLV_BUILD_WASM)
