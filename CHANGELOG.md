@@ -82,6 +82,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Changed
 
+- Reduce Reader decode overhead when diagnostics are not requested while preserving callback validation, source metadata and failure behavior. (#538)
 - Reject nested Query visits on the same Document, including visits using an independent execution. Visits on independent Documents remain supported. (#536)
 - Advance the internal Query plan version to 7 for changed pattern and tag-provider requirements; regenerate previously compiled images and static plans. (#536)
 - Make Reader, Writer, Query, Schema and Codec independently selectable build capabilities, and support programmatic Document trees without Reader or Writer. Build composed integrations only when their capabilities are enabled, with shared/static profile coverage and matching feature configuration. (#531)
@@ -157,6 +158,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Added
 
+- Add reproducible Reader, Tree Reader and Document decode benchmarks, including a custom arena allocator comparison and recorded performance evidence. (#538)
 - Add explicit allocation-free Query execution reset in C/C++ and deterministic adversarial lifecycle, storage, callback and plan-equivalence verification, including frontend-free and sanitizer release gates. (#536)
 - Add a C++11 `constexpr` Query builder that creates native plans at compile time and executes through the existing C/C++ APIs without the runtime frontend. (#530)
 - Support versioned static C Query plans with frontend-independent validation, runtime parameters and the shared executor; add frontend-free builds and optional Query set operations. (#530)

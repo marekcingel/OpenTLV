@@ -165,6 +165,228 @@ TEST(Unit_Tlv_Format, InvalidCallbackSizesAndErrorsDoNotAdvance) {
 }
 
 namespace {
+void expect_empty_range(const tlv_range_t& range) {
+    EXPECT_EQ(0u, range.offset);
+    EXPECT_EQ(0u, range.size);
+    EXPECT_EQ(0, range.present);
+}
+
+void expect_empty_element(const tlv_element_t& element) {
+    EXPECT_EQ(nullptr, element.tag.data);
+    EXPECT_EQ(0u, element.tag.size);
+    EXPECT_EQ(nullptr, element.value.data);
+    EXPECT_EQ(0u, element.value.size);
+}
+
+void expect_same_range(const tlv_range_t& expected, const tlv_range_t& actual) {
+    EXPECT_EQ(expected.offset, actual.offset);
+    EXPECT_EQ(expected.size, actual.size);
+    EXPECT_EQ(expected.present, actual.present);
+}
+
+void expect_same_element(const tlv_element_t& expected, const tlv_element_t& actual) {
+    EXPECT_EQ(expected.tag.data, actual.tag.data);
+    EXPECT_EQ(expected.tag.size, actual.tag.size);
+    EXPECT_EQ(expected.value.data, actual.value.data);
+    EXPECT_EQ(expected.value.size, actual.value.size);
+}
+
+void expect_same_source(const tlv_source_t& expected, const tlv_source_t& actual) {
+    EXPECT_EQ(expected.data, actual.data);
+    EXPECT_EQ(expected.size, actual.size);
+    EXPECT_EQ(expected.format, actual.format);
+    EXPECT_EQ(expected.tag_binding, actual.tag_binding);
+    expect_same_range(expected.header, actual.header);
+    expect_same_range(expected.tag, actual.tag);
+    expect_same_range(expected.length, actual.length);
+    expect_same_range(expected.value, actual.value);
+    expect_same_range(expected.trailer, actual.trailer);
+    expect_same_element(expected.element, actual.element);
+}
+
+void expect_same_reader(const tlv_reader_t& expected, const tlv_reader_t& actual) {
+    EXPECT_EQ(expected.format, actual.format);
+    EXPECT_EQ(expected.data, actual.data);
+    EXPECT_EQ(expected.size, actual.size);
+    EXPECT_EQ(expected.pos, actual.pos);
+    EXPECT_EQ(expected.base_offset, actual.base_offset);
+    EXPECT_EQ(expected.final_input, actual.final_input);
+}
+
+tlv_result_t initialized_decode(const void* context, const uint8_t* data, size_t size,
+                                tlv_decoded_t* result, tlv_format_error_t* error) {
+    EXPECT_NE(nullptr, result);
+    EXPECT_NE(nullptr, error);
+    if (!result || !error) return TLV_ERR_NULL_ARG;
+    expect_empty_element(result->element);
+    expect_empty_element(result->source.element);
+    EXPECT_EQ(nullptr, result->source.data);
+    EXPECT_EQ(nullptr, result->source.format);
+    EXPECT_EQ(0u, result->source.size);
+    EXPECT_EQ(TLV_TAG_BINDING_SOURCE, result->source.tag_binding);
+    for (const auto* range : {&result->source.header, &result->source.tag, &result->source.length,
+                              &result->source.value, &result->source.trailer, &error->tag,
+                              &error->length, &error->value})
+        expect_empty_range(*range);
+    EXPECT_EQ(TLV_REGION_HEADER, error->region);
+    EXPECT_EQ(0u, error->offset);
+    EXPECT_EQ(0, error->has_offset);
+    EXPECT_EQ(0u, error->required);
+    EXPECT_EQ(0, error->has_required);
+
+    // A single-byte value with no explicit Tag or Length relies on the core's
+    // zero initialization of all optional fields.
+    result->element.value = {data, 1};
+    result->source.size = 1;
+    result->source.header = {0, 0, 1};
+    result->source.value = {0, 1, 1};
+    result->source.trailer = {1, 0, 1};
+    if (!data[0] || !context) return TLV_OK;
+
+    // Leave a plausible partial result and hostile failure metadata behind.
+    error->region = TLV_REGION_LENGTH;
+    error->offset = std::numeric_limits<size_t>::max();
+    error->has_offset = 1;
+    error->tag = {size, 1, 1};
+    error->length = {0, std::numeric_limits<size_t>::max(), 1};
+    error->value = {0, size + 1, 1};
+    const int mode = *static_cast<const int*>(context);
+    if (mode == 1) {
+        result->source.value.offset = size + 1;
+        return TLV_OK;
+    }
+    return mode == 2 ? TLV_ERR_INVALID_LENGTH : TLV_ERR_BUFFER_TOO_SHORT;
+}
+} // namespace
+
+TEST(Unit_Tlv_Format, DecodeCallbacksReceiveInitializedOutputsWithOptionalFieldsAbsent) {
+    const uint8_t      data[] = {0, 0};
+    const tlv_format_t format = {nullptr, initialized_decode, nullptr, nullptr, nullptr};
+    for (bool diagnostic : {false, true}) {
+        tlv_decoded_t decoded{};
+        decoded.element.tag = TLV_TAG(0xEE);
+        decoded.source.tag = {0, 1, 1};
+        tlv_format_error_t error{};
+        ASSERT_EQ(TLV_OK, tlv_format_decode(&format, data, sizeof(data), &decoded,
+                                            diagnostic ? &error : nullptr));
+        EXPECT_EQ(nullptr, decoded.element.tag.data);
+        EXPECT_EQ(0u, decoded.element.tag.size);
+        expect_empty_range(decoded.source.tag);
+        expect_empty_range(decoded.source.length);
+        EXPECT_EQ(data, decoded.source.data);
+        EXPECT_EQ(&format, decoded.source.format);
+        EXPECT_EQ(data, decoded.source.element.value.data);
+        EXPECT_EQ(1u, decoded.source.element.value.size);
+        EXPECT_EQ(1u, decoded.source.size);
+
+        tlv_reader_t reader;
+        ASSERT_EQ(TLV_OK, tlv_reader_init(&reader, data, sizeof(data), &format));
+        tlv_element_t           element{};
+        tlv_source_t            source{};
+        tlv_reader_diagnostic_t detail{};
+        ASSERT_EQ(TLV_OK, tlv_reader_next_diag(&reader, &element, diagnostic ? &detail : nullptr));
+        ASSERT_EQ(TLV_OK, tlv_reader_next_source_diag(&reader, &element, &source,
+                                                      diagnostic ? &detail : nullptr));
+        EXPECT_EQ(sizeof(data), reader.pos);
+        EXPECT_EQ(data + 1, element.value.data);
+        EXPECT_EQ(data + 1, source.data);
+        EXPECT_EQ(&format, source.format);
+        expect_empty_range(source.tag);
+        expect_empty_range(source.length);
+    }
+}
+
+TEST(Unit_Tlv_Format, FailedDecodeCallbacksPreservePublishedOutputsAcrossReaderPaths) {
+    const uint8_t data[] = {0, 1};
+    for (int mode : {1, 2, 3}) {
+        SCOPED_TRACE(mode);
+        const tlv_format_t format = {&mode, initialized_decode, nullptr, nullptr, nullptr};
+        const tlv_result_t failure = mode == 1   ? TLV_ERR_INVALID_ARG
+                                     : mode == 2 ? TLV_ERR_INVALID_LENGTH
+                                                 : TLV_ERR_BUFFER_TOO_SHORT;
+        tlv_decoded_t      decoded{};
+        ASSERT_EQ(TLV_OK, tlv_format_decode(&format, data, sizeof(data), &decoded, nullptr));
+        const auto decoded_before = decoded;
+        for (bool diagnostic : {false, true}) {
+            tlv_format_error_t error{};
+            EXPECT_EQ(failure, tlv_format_decode(&format, data + 1, 1, &decoded,
+                                                 diagnostic ? &error : nullptr));
+            expect_same_element(decoded_before.element, decoded.element);
+            expect_same_source(decoded_before.source, decoded.source);
+            if (diagnostic) {
+                EXPECT_FALSE(error.tag.present);
+                EXPECT_FALSE(error.length.present);
+                EXPECT_FALSE(error.value.present);
+            }
+            for (bool incremental : {false, true}) {
+                for (bool with_source : {false, true}) {
+                    SCOPED_TRACE(::testing::Message()
+                                 << "diagnostic=" << diagnostic << " incremental=" << incremental
+                                 << " source=" << with_source);
+                    tlv_reader_t reader;
+                    ASSERT_EQ(TLV_OK, incremental
+                                          ? tlv_reader_init_incremental(&reader, data, sizeof(data),
+                                                                        &format)
+                                          : tlv_reader_init(&reader, data, sizeof(data), &format));
+                    tlv_element_t element{};
+                    tlv_source_t  source{};
+                    ASSERT_EQ(TLV_OK,
+                              tlv_reader_next_source_diag(&reader, &element, &source, nullptr));
+                    const auto         reader_before = reader;
+                    const auto         element_before = element;
+                    const auto         source_before = source;
+                    const tlv_result_t expected =
+                        incremental && mode == 3 ? TLV_NEED_MORE_DATA : failure;
+                    tlv_reader_diagnostic_t detail{};
+                    for (int retry = 0; retry < 2; ++retry) {
+                        EXPECT_EQ(expected,
+                                  with_source
+                                      ? tlv_reader_next_source_diag(&reader, &element, &source,
+                                                                    diagnostic ? &detail : nullptr)
+                                      : tlv_reader_next_diag(&reader, &element,
+                                                             diagnostic ? &detail : nullptr));
+                        expect_same_reader(reader_before, reader);
+                        expect_same_element(element_before, element);
+                        expect_same_source(source_before, source);
+                        if (diagnostic) {
+                            EXPECT_EQ(expected, detail.diagnostic.code);
+                            EXPECT_EQ(TLV_READER_OP_LENGTH, detail.operation);
+                            EXPECT_FALSE(detail.diagnostic.has_offset);
+                            EXPECT_FALSE(detail.has_tag);
+                            EXPECT_FALSE(detail.has_raw_length);
+                            EXPECT_FALSE(detail.has_value_offset);
+                        }
+                    }
+                }
+            }
+        }
+    }
+}
+
+TEST(Unit_Tlv_Format, MissingDecodeArgumentsDoNotPublishUninitializedDiagnosticFields) {
+    const uint8_t      data[] = {0};
+    const tlv_format_t no_decode = {};
+    for (const auto* format : {&fixed, &no_decode, static_cast<const tlv_format_t*>(nullptr)}) {
+        tlv_element_t           element{};
+        size_t                  consumed = 99;
+        tlv_reader_diagnostic_t diagnostic;
+        std::memset(&diagnostic, 0xAA, sizeof(diagnostic));
+        EXPECT_EQ(TLV_ERR_NULL_ARG, tlv_read_diag(format == &fixed ? nullptr : data, sizeof(data),
+                                                  format, &element, &consumed, &diagnostic));
+        EXPECT_EQ(99u, consumed);
+        EXPECT_EQ(TLV_ERR_NULL_ARG, diagnostic.diagnostic.code);
+        EXPECT_EQ(TLV_READER_OP_HEADER, diagnostic.operation);
+        EXPECT_FALSE(diagnostic.diagnostic.has_offset);
+        EXPECT_EQ(0u, diagnostic.diagnostic.offset);
+        EXPECT_FALSE(diagnostic.has_tag);
+        EXPECT_FALSE(diagnostic.has_raw_length);
+        EXPECT_FALSE(diagnostic.has_declared_length);
+        EXPECT_FALSE(diagnostic.has_required);
+        EXPECT_FALSE(diagnostic.has_available);
+    }
+}
+
+namespace {
 // A format whose tag width is chosen at runtime, as a format loaded from a
 // description would: nothing about the width is known when OpenTLV is built.
 struct RuntimeTagFormat {
