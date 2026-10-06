@@ -20,6 +20,22 @@ extern "C" {
  * Text compilation, checked recompilation loading and source formatting require
  * OPENTLV_QUERY_FRONTEND. Static plans use plan.h and tlv_query_plan_open();
  * execution, variable access and explain remain available without the frontend.
+ * @note Execution workspace is exclusive: it must not overlap the program,
+ * environment descriptors, input/Tag/Value/Source spans or output objects.
+ * Outputs must not overlap one another or immutable borrowed data. Read-only
+ * input spans may alias each other and program payload; adjacent spans are valid.
+ * Detected execution/output overlap returns INVALID_ARG before writes, including
+ * diagnostic initialization. Feed, Reader visit/exists, result iteration and
+ * exec_info check live descriptors, bindings and delayed S1 spans without scanning
+ * retained history; callers must keep their outputs disjoint from all earlier
+ * borrowed event spans.
+ * Finish and exec_result also check the complete retained history.
+ * Opaque provider contexts remain caller-managed.
+ * @note Operations on the same execution from a visitor/provider/tag callback
+ * return INVALID_ARG without changing the outer execution; exec_info is readable.
+ * Independent executions are allowed. This is a synchronous reentrancy contract,
+ * not thread synchronization. Use exec_reset for recovery; raw initialization
+ * requires exclusive storage and is forbidden while that storage is active.
  */
 
 /** @addtogroup traversal
@@ -57,6 +73,9 @@ typedef enum tlv_query_decision_timing {
 } tlv_query_decision_timing_t;
 
 /** @brief Fixed-layout compiler/execution failure, initialized by diagnostic entry points.
+ * @note A valid bind, feed or finish call on an already failed execution returns
+ * INVALID_ARG without writing this object, preserving the original failure when
+ * it is reused. Inspect exec_info.invalid and reset before continuing.
  * @note This value type is not extensible; changing its layout requires an ABI change. */
 typedef struct tlv_query_diagnostic {
     tlv_query_error_kind_t kind;    /**< Query failure category. */
@@ -449,11 +468,20 @@ TLV_API tlv_result_t tlv_query_exec_size(const tlv_query_program_t* program, siz
  * @param[out] exec Required borrowed execution handle, unchanged on failure.
  * @return #TLV_OK; #TLV_ERR_BUFFER_TOO_SHORT for short storage;
  * #TLV_ERR_INVALID_ARG for alignment/zero budgets; otherwise exec_size errors.
- * @note Never allocates. Program and workspace must not overlap.
+ * @note Never allocates. Program, workspace and exec output must not overlap.
  */
 TLV_API tlv_result_t tlv_query_exec_init(const tlv_query_program_t* program, void* storage,
                                          size_t capacity, size_t max_depth, size_t max_elements,
                                          size_t max_work, tlv_query_exec_t** exec);
+
+/** @brief Reset an initialized execution, preserving its program, providers and budgets.
+ * @param[in,out] exec Live initialized execution; may be finished or failed.
+ * @return #TLV_OK; #TLV_ERR_NULL_ARG for NULL; #TLV_ERR_INVALID_ARG during a callback.
+ * @note Clears bindings, context, pruning, counters, retained input and results.
+ * Program and environment must remain alive. No allocation occurs. Callback rejection
+ * preserves the outer execution. Raw init calls require exclusive workspace ownership
+ * and must never be used to overwrite workspace still active on a callback stack. */
+TLV_API tlv_result_t tlv_query_exec_reset(tlv_query_exec_t* exec);
 
 /** @brief Bind one typed variable before consuming any event.
  * @param[in,out] exec Required fresh initialized execution.
@@ -533,6 +561,8 @@ TLV_API tlv_result_t tlv_query_exec_info(const tlv_query_exec_t* exec, tlv_query
  * unavailable Source metadata; #TLV_ERR_UNSUPPORTED_TYPE for D programs without
  * Document execution; #TLV_ERR_NULL_ARG for missing pointers.
  * @note Execution errors invalidate execution until reset and preserve matched.
+ * A call with required pointers present on an already failed execution preserves
+ * diagnostic as well; it does not report a second event error.
  * Missing pointers are rejected without changing execution state.
  * S1 accepts proven independent root scopes only; use exec_selected for delayed
  * publications. S1 borrows one root's complete spans through its END, requiring
@@ -560,6 +590,10 @@ TLV_API tlv_result_t tlv_query_exec_selected(const tlv_query_exec_t* exec, tlv_t
  * @return #TLV_OK on balanced EOF; #TLV_ERR_INVALID_ARG on invalid/unbalanced
  * feed; #TLV_ERR_UNSUPPORTED_TYPE for D programs without Document execution;
  * #TLV_ERR_NULL_ARG for NULL execution. Repeated successful finish is harmless.
+ * @note Execution failures, including attempting D without Document, invalidate
+ * until reset. Callback and forbidden-overlap rejections preserve the outer state.
+ * Calling finish on an already failed execution returns INVALID_ARG without
+ * changing diagnostic, preserving the initial failure instead of reporting EOF.
  */
 TLV_API tlv_result_t tlv_query_exec_finish(tlv_query_exec_t* exec,
                                            tlv_query_diagnostic_t* diagnostic);
@@ -597,6 +631,7 @@ TLV_API tlv_result_t tlv_query_program_visit(tlv_tree_reader_t* reader, tlv_quer
  * @param[in,out] exec Required execution, retained across NEED_MORE_DATA.
  * @param[in] early_return Nonzero returns at the first match; zero drains to final EOF.
  * @param[out] found Required boolean output; unchanged on failure or NEED_MORE_DATA.
+ * Found and diagnostic must not overlap the Reader, its frames, input or Format.
  * @param[out] diagnostic Optional failure detail.
  * @return #TLV_OK with existence result; otherwise original visit/Reader errors.
  * @note Matches observed earlier in this execution remain part of existence.

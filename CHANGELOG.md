@@ -9,6 +9,13 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Fixed
 
+- Keep resumed Query Reader visits and existence checks independent of retained input history, including continuation after incremental input and visitor stops. (#536)
+- Reject Query workspace reinitialization detected after Document Format callbacks and release the Document callback scope on failure. (#536)
+- Keep retained Query feed, result iteration and status inspection independent of the number of previously retained spans; reject workspace reinitialization detected after callbacks and preserve failure diagnostics when binding is retried. (#536)
+- Reject Query Reader outputs overlapping Reader input, frames or Format, and Document Query edit targets overlapping the applied count or Value, before any writes. (#536)
+- Reject static Query plans with undersized literal-pattern storage, align malformed-event diagnostics across executors, and preserve the original failure diagnostic when feed or finish is retried. (#536)
+- Preserve absolute constexpr Query paths when an execution context is set by emitting an explicit root, matching runtime plan semantics and workspace requirements. Regenerate constexpr node plans and remeasure caller workspace. (#536)
+- Reject overlapping Query workspace/output storage and native callback reentrancy, preserve Document lifetimes through evaluation callbacks, and avoid unused search-pattern and tag-provider requirements in runtime plans. (#536)
 - Enable source-location retention in the Go and Rust Query conformance adapters so Document `@offset` and `@hlen` fixtures pass. (#531)
 - Allow Document Query to use original `@offset` and `@hlen`, including with `following`/`preceding`, when optional source-location retention is enabled during parsing. Edits invalidate affected locations without retaining the input buffer. Native consumers must rebuild for the extended Document options. (#531)
 - Fix GCC Query builds with warnings treated as errors and report compiler diagnostics when the constexpr CMake check fails. (#530, #534)
@@ -75,6 +82,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Changed
 
+- Reject nested Query visits on the same Document, including visits using an independent execution. Visits on independent Documents remain supported. (#536)
+- Advance the internal Query plan version to 7 for changed pattern and tag-provider requirements; regenerate previously compiled images and static plans. (#536)
 - Make Reader, Writer, Query, Schema and Codec independently selectable build capabilities, and support programmatic Document trees without Reader or Writer. Build composed integrations only when their capabilities are enabled, with shared/static profile coverage and matching feature configuration. (#531)
 - Make Query execution independent of source text and advance the internal native plan version; rebuild previously compiled Query images. (#530)
 - Keep Query benchmark measurements advisory while Query functionality is completed, without requiring accepted baselines for release. (#523)
@@ -148,6 +157,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Added
 
+- Add explicit allocation-free Query execution reset in C/C++ and deterministic adversarial lifecycle, storage, callback and plan-equivalence verification, including frontend-free and sanitizer release gates. (#536)
 - Add a C++11 `constexpr` Query builder that creates native plans at compile time and executes through the existing C/C++ APIs without the runtime frontend. (#530)
 - Support versioned static C Query plans with frontend-independent validation, runtime parameters and the shared executor; add frontend-free builds and optional Query set operations. (#530)
 - Expose Query semantic Tag adapters, scoped dynamic/Definition/EMV resolvers, configured Fixed Formats, source-bearing events, result ordinals and V1 compatibility through the owning language facades, with checked resolver stability and callback lifetime tests. (#523)

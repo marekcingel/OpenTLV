@@ -22,7 +22,7 @@ UNIT_RULES = {
 }
 FACADES = ["C", "CLI", "C++", "Rust", "Python", "Go", "Lua", "JS/WASM"]
 CHECKS = ["conformance", "properties", "fuzz-ASan-UBSan", "MSan-or-exclusion",
-          "allocation-recursion", "work-budgets-32-64", "ABI-32-64"]
+          "allocation-recursion", "work-budgets-32-64", "ABI-32-64", "adversarial-lifecycle-storage", "plan-equivalence-frontend-free"]
 ADVISORY_CHECKS = ["benchmarks"]
 
 
@@ -32,7 +32,7 @@ def evidence_errors(evidence, directory, commit, symbols, features):
     if not isinstance(evidence, dict) or evidence.get("commit") != commit:
         return ["release evidence missing or belongs to a different candidate commit"]
     directory = directory.resolve()
-    requirements = [("phases", f"F{phase}", ()) for phase in range(1, 6)]
+    requirements = [("phases", f"F{phase}", ()) for phase in range(1, 7)]
     requirements += [("facades", name, features if name == "CLI" else symbols) for name in FACADES]
     requirements += [("checks", name, ()) for name in CHECKS]
     for category, name, capabilities in requirements:
@@ -118,7 +118,7 @@ def main():
     if args.release and subprocess.check_output(["git", "status", "--porcelain"], cwd=root):
         blockers.append("release candidate worktree has uncommitted changes")
     report = {"version": 1, "commit": commit, "ready": not blockers,
-              "phase_equivalents": {f"F{n}": 518 + n for n in range(1, 6)},
+              "phase_equivalents": {**{f"F{n}": 518 + n for n in range(1, 6)}, "F6": 536},
               "replacement_authority": "https://github.com/marekcingel/OpenTLV/issues/518",
               "normative_rules": rule_map, "features": features,
               "public_C_capabilities": sorted(symbols), "facades": FACADES,

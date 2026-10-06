@@ -25,7 +25,7 @@ class ReleaseGate(unittest.TestCase):
                   "surface": "idiomatic", "capabilities": ["tlv_query_compile", "child"],
                   "pointer_bits": [32, 64]}
         self.evidence = {"commit": "candidate", "phases": {}, "facades": {}, "checks": {}}
-        for category, names in (("phases", [f"F{n}" for n in range(1, 6)]),
+        for category, names in (("phases", [f"F{n}" for n in range(1, 7)]),
                                 ("facades", FACADES), ("checks", CHECKS)):
             self.evidence[category] = {name: copy.deepcopy(record) for name in names}
 
@@ -34,6 +34,15 @@ class ReleaseGate(unittest.TestCase):
 
     def test_complete_candidate(self):
         self.assertEqual(self.errors(), [])
+
+    def test_f6_and_both_adversarial_artifacts_are_required(self):
+        del self.evidence["phases"]["F6"]
+        del self.evidence["checks"]["adversarial-lifecycle-storage"]
+        del self.evidence["checks"]["plan-equivalence-frontend-free"]
+        errors = self.errors()
+        self.assertIn("missing passing candidate evidence: phases/F6", errors)
+        self.assertIn("missing passing candidate evidence: checks/adversarial-lifecycle-storage", errors)
+        self.assertIn("missing passing candidate evidence: checks/plan-equivalence-frontend-free", errors)
 
     def test_wrong_commit_and_missing_or_failed_phase(self):
         self.evidence["commit"] = "old"

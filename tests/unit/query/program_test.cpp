@@ -379,6 +379,18 @@ TEST(Unit_Tlv_QueryProgram, LoaderRequiresMatchingVariablesEnvironmentAndOptimiz
                                              bytes, &loaded, nullptr, nullptr));
     EXPECT_EQ(p.get(), loaded);
     options.max_pattern++;
+    // An unused capability must not become a plan requirement.
+    EXPECT_EQ(0u, p.info.pattern_bytes);
+    EXPECT_EQ(TLV_OK, tlv_query_program_load(p.get(), p.info.program_size, &options, scratch.data(),
+                                             bytes, &loaded, nullptr, nullptr));
+    variable.name = "needle";
+    variable.type = TLV_QUERY_RESULT_BYTES;
+    ASSERT_EQ(TLV_OK, p.compile("//5A[contains(value(), $needle)]", &options));
+    EXPECT_EQ(options.max_pattern, p.info.pattern_bytes);
+    ASSERT_EQ(TLV_OK, tlv_query_program_load_scratch(p.get(), p.info.program_size, &options, &bytes,
+                                                     &alignment, nullptr));
+    scratch.resize((bytes + 7) / 8);
+    options.max_pattern++;
     EXPECT_NE(TLV_OK, tlv_query_program_load(p.get(), p.info.program_size, &options, scratch.data(),
                                              bytes, &loaded, nullptr, nullptr));
 }

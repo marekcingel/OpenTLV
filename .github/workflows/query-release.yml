@@ -50,7 +50,7 @@ jobs:
           path: build/query-candidate-evidence
           github-token: ${{ github.token }}
           run-id: ${{ inputs.evidence_run_id }}
-      - name: Enforce all Query phases, facades and required checks
+      - name: Enforce F1-F6, facades, adversarial and frontend-free evidence
         run: >-
           python3 scripts/check_query_release.py --release
           --evidence build/query-candidate-evidence/manifest.json

@@ -12,24 +12,26 @@
             return 1;                                                                              \
         }                                                                                          \
     } while (0)
-#define NONE TLV_QUERY_PLAN_NONE
-#define BASE .left = NONE, .right = NONE, .predicate_guard = NONE, .path_guard = NONE, .reuse = NONE
-/* Manually authored /01[@len = $n], no source text or frontend objects. */
+#include "adversarial_plan.h"
+
+/* Source-free /01[contains(value(), x'6162')]. */
 static const struct {
     tlv_query_plan_t        header;
-    tlv_query_instruction_t nodes[7];
+    tlv_query_instruction_t nodes[8];
     char                    source[1];
-    uint8_t                 payload[2];
-} static_plan = {
+    uint8_t                 payload[3];
+} contains_plan = {
     .header = {.magic = TLV_QUERY_PLAN_MAGIC,
                .version = TLV_QUERY_PLAN_VERSION,
-               .count = 7,
-               .root = 6,
-               .text_offset = sizeof(tlv_query_plan_t) + 7 * sizeof(tlv_query_instruction_t),
+               .count = 8,
+               .root = 7,
+               .text_offset = sizeof(tlv_query_plan_t) + 8 * sizeof(tlv_query_instruction_t),
                .level = TLV_QUERY_S0,
-               .reserved = sizeof(tlv_query_plan_t) + 7 * sizeof(tlv_query_instruction_t) + 3,
-               .variable_count = 1,
-               .payload_size = 2},
+               .reserved = sizeof(tlv_query_plan_t) + 8 * sizeof(tlv_query_instruction_t) + 4,
+               .payload_size = 3,
+               .pattern_capacity = 2},
+#define NONE TLV_QUERY_PLAN_NONE
+#define BASE .left = NONE, .right = NONE, .predicate_guard = NONE, .path_guard = NONE, .reuse = NONE
     .nodes = {{BASE, .op = TLV_QUERY_OP_ROOT},
               {.op = TLV_QUERY_OP_TEST,
                .left = NONE,
@@ -41,47 +43,150 @@ static const struct {
                .reuse = NONE,
                .resolved = 1,
                .data_size = 1},
-              {.op = TLV_QUERY_OP_META,
+              {.op = TLV_QUERY_OP_CALL,
                .left = NONE,
                .right = NONE,
                .low = 2,
                .predicate_guard = 1,
                .path_guard = NONE,
                .reuse = NONE,
-               .type = TLV_QUERY_PLAN_INTEGER,
-               .selector = TLV_QUERY_META_LEN},
-              {.op = TLV_QUERY_OP_VARIABLE,
+               .type = TLV_QUERY_PLAN_BYTES,
+               .selector = TLV_QUERY_FN_VALUE},
+              {.op = TLV_QUERY_OP_BYTES,
                .left = NONE,
                .right = NONE,
                .low = 3,
                .predicate_guard = 1,
                .path_guard = NONE,
                .reuse = NONE,
-               .type = TLV_QUERY_PLAN_INTEGER,
+               .type = TLV_QUERY_PLAN_BYTES,
                .data_offset = 1,
-               .data_size = 1},
-              {.op = TLV_QUERY_OP_EQ,
+               .data_size = 2},
+              {.op = TLV_QUERY_OP_ARGS,
                .left = 2,
                .right = 3,
                .low = 2,
                .predicate_guard = 1,
                .path_guard = NONE,
+               .reuse = NONE},
+              {.op = TLV_QUERY_OP_CALL,
+               .left = 4,
+               .right = NONE,
+               .low = 2,
+               .predicate_guard = 1,
+               .path_guard = NONE,
                .reuse = NONE,
-               .type = TLV_QUERY_PLAN_BOOL},
+               .type = TLV_QUERY_PLAN_BOOL,
+               .selector = TLV_QUERY_FN_CONTAINS},
               {.op = TLV_QUERY_OP_FILTER,
                .left = 1,
-               .right = 4,
+               .right = 5,
                .low = 1,
                .predicate_guard = NONE,
                .path_guard = NONE,
                .reuse = NONE},
               {.op = TLV_QUERY_OP_CHILD,
                .left = 0,
-               .right = 5,
+               .right = 6,
                .predicate_guard = NONE,
                .path_guard = NONE,
                .reuse = NONE}},
-    .payload = {1, 'n'}};
+#undef BASE
+#undef NONE
+    .payload = {1, 'a', 'b'}};
+
+static int run_contains(const tlv_query_program_t* p, int retained, size_t pattern_size,
+                        tlv_result_t expected) {
+    uint64_t          workspace[8192];
+    size_t            bytes, alignment;
+    tlv_query_exec_t* exec = NULL;
+    CHECK((retained ? tlv_query_eval_size(p, 2, 8, &bytes, &alignment)
+                    : tlv_query_exec_size(p, 2, &bytes, &alignment)) == TLV_OK);
+    uint8_t* aligned = (uint8_t*)(((uintptr_t)workspace + 15) & ~(uintptr_t)15);
+    CHECK(bytes <= sizeof workspace - 15 && alignment <= 16);
+    CHECK((retained ? tlv_query_eval_init(p, NULL, aligned, bytes, 2, 8, 10000, &exec)
+                    : tlv_query_exec_init(p, aligned, bytes, 2, 8, 10000, &exec)) == TLV_OK);
+    const uint8_t value[] = {'a', 'b', 'a', 'b'};
+    const uint8_t tag = 1;
+    if (tlv_query_program_variable_count(p))
+        CHECK(tlv_query_exec_bind(exec, "ab", TLV_QUERY_RESULT_BYTES, 0, value, pattern_size,
+                                  NULL) == TLV_OK);
+    tlv_tree_event_t event = {0};
+    event.kind = TLV_TREE_ELEMENT;
+    event.element.tag.data = &tag;
+    event.element.tag.size = 1;
+    event.element.value.data = value;
+    event.element.value.size = sizeof value;
+    tlv_query_diagnostic_t diagnostic;
+    int                    matched = 0;
+    tlv_result_t           rc = tlv_query_exec_feed(exec, &event, &matched, &diagnostic);
+    if (retained) {
+        CHECK(rc == TLV_OK);
+        rc = tlv_query_exec_finish(exec, &diagnostic);
+    }
+    CHECK(rc == expected);
+    if (expected == TLV_ERR_LIMIT) {
+        CHECK(diagnostic.kind == TLV_QUERY_ERROR_LIMIT && diagnostic.limit &&
+              strcmp(diagnostic.limit, "pattern") == 0);
+        CHECK(diagnostic.configured == p->pattern_capacity);
+    } else if (retained) {
+        CHECK(tlv_query_result_next(exec, &event) == TLV_OK);
+        CHECK(tlv_query_result_next(exec, &event) == TLV_ERR_END_OF_BUFFER);
+    } else {
+        CHECK(matched == 1);
+        CHECK(tlv_query_exec_finish(exec, NULL) == TLV_OK);
+    }
+    return 0;
+}
+
+static int pattern_bounds(void) {
+    uint32_t image[1024];
+    memcpy(image, &contains_plan, contains_plan.header.reserved);
+    tlv_query_plan_t*          header = (tlv_query_plan_t*)image;
+    tlv_query_instruction_t*   nodes = (tlv_query_instruction_t*)(header + 1);
+    const tlv_query_program_t* p = NULL;
+    tlv_query_diagnostic_t     diagnostic;
+    CHECK(tlv_query_plan_open(image, header->reserved, &p, NULL) == TLV_OK);
+    for (int retained = 0; retained < 2; ++retained)
+        CHECK(run_contains(p, retained, 0, TLV_OK) == 0);
+    for (uint32_t capacity = 0; capacity <= 3; ++capacity) {
+        header->pattern_capacity = capacity;
+        if (capacity < 2) {
+            p = &static_plan.header;
+            CHECK(tlv_query_plan_open(image, header->reserved, &p, &diagnostic) ==
+                  TLV_ERR_INVALID_ARG);
+            CHECK(p == &static_plan.header && diagnostic.kind == TLV_QUERY_ERROR_STORAGE);
+        } else {
+            CHECK(tlv_query_plan_open(image, header->reserved, &p, NULL) == TLV_OK);
+            for (int retained = 0; retained < 2; ++retained)
+                CHECK(run_contains(p, retained, 0, TLV_OK) == 0);
+        }
+    }
+    header->pattern_capacity = 0;
+    nodes[3].data_size = 0;
+    CHECK(tlv_query_plan_open(image, header->reserved, &p, NULL) == TLV_OK);
+    for (int retained = 0; retained < 2; ++retained)
+        CHECK(run_contains(p, retained, 0, TLV_OK) == 0);
+    /* Dynamic patterns use the declared capacity, including the valid zero bound. */
+    nodes[3].op = TLV_QUERY_OP_VARIABLE;
+    nodes[3].data_size = 2;
+    header->variable_count = 1;
+    for (uint32_t capacity = 0; capacity <= 3; ++capacity) {
+        header->pattern_capacity = capacity;
+        CHECK(tlv_query_plan_open(image, header->reserved, &p, NULL) == TLV_OK);
+        for (int retained = 0; retained < 2; ++retained) {
+            CHECK(run_contains(p, retained, 0, TLV_OK) == 0);
+            CHECK(run_contains(p, retained, 2, capacity < 2 ? TLV_ERR_LIMIT : TLV_OK) == 0);
+        }
+    }
+    /* Source-free instruction offsets are ordered producer hints, not text bounds. */
+    nodes[5].begin = UINT32_MAX - 1;
+    nodes[5].end = UINT32_MAX;
+    CHECK(tlv_query_plan_open(image, header->reserved, &p, NULL) == TLV_OK);
+    nodes[5].end = nodes[5].begin - 1;
+    CHECK(tlv_query_plan_open(image, header->reserved, &p, NULL) == TLV_ERR_INVALID_ARG);
+    return 0;
+}
 
 static int run(const tlv_query_program_t* p, int retained, int64_t parameter, unsigned* bits) {
     uint64_t          workspace[8192];
@@ -122,6 +227,7 @@ static int run(const tlv_query_program_t* p, int retained, int64_t parameter, un
     return 0;
 }
 int main(void) {
+    CHECK(pattern_bounds() == 0);
     const tlv_query_program_t* p = NULL;
     CHECK(tlv_query_plan_open(&static_plan, static_plan.header.reserved, &p, NULL) == TLV_OK);
     CHECK(tlv_query_program_variable_count(p) == 1);

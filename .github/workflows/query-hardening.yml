@@ -31,9 +31,11 @@ jobs:
           python3 scripts/test_query_contracts.py
           python3 scripts/test_query_release.py
           python3 tests/query/test_minimize.py
+          python3 tests/query/test_adversarial_campaign.py
+          python3 tests/query/generate_adversarial_plans.py --check
           python3 scripts/check_query_contracts.py --clang clang-18 --generated build/generated/include --output build/query-contracts.json
           python3 scripts/check_query_release.py --output build/query-release.json
-      - run: cmake --build build --target test-unit-tlv test-unit-tlvpp test-query-conformance test-query-cxx-conformance test-query-abi test-query-plan test-query-constexpr --parallel 2
+      - run: cmake --build build --target test-unit-tlv test-unit-tlvpp test-query-conformance test-query-cxx-conformance test-query-abi test-query-plan test-query-constexpr test-query-adversarial test-query-equivalence --parallel 2
       - name: Audit production archive symbols and emitted call dependencies
         run: python3 scripts/check_query_objects.py --archive build/tlv/libtlv.a --output build/query-object-contracts.json
       - name: Sanitized conformance, work limits and corruption regressions
@@ -42,6 +44,7 @@ jobs:
           UBSAN_OPTIONS: halt_on_error=1:print_stacktrace=1
         run: |
           ctest --test-dir build -R 'Query|query' --output-on-failure --no-tests=error
+          python3 tests/query/adversarial_campaign.py --native build/tests/query/test-query-adversarial --equivalence build/tests/query/test-query-equivalence --commit '${{ github.sha }}' --output build/query-adversarial
           python3 tests/query/run.py --native build/tests/query/test-query-conformance --commit '${{ github.sha }}' --property-cases 32 --evidence build/query-evidence
       - uses: actions/upload-artifact@v4
         if: always()
@@ -52,6 +55,7 @@ jobs:
             build/query-object-contracts.json
             build/query-release.json
             build/query-evidence/
+            build/query-adversarial/
             build/Testing/Temporary/LastTest.log
   boundaries32:
     runs-on: ubuntu-24.04
@@ -67,7 +71,7 @@ jobs:
           -DCMAKE_CXX_STANDARD=11 -DCMAKE_CXX_STANDARD_REQUIRED=ON -DCMAKE_CXX_EXTENSIONS=OFF
           -DOPENTLV_BUILD_TESTS=ON -DOPENTLV_BUILD_INTEGRATION_TESTS=OFF
           -DOPENTLV_BUILD_EXAMPLES=OFF -DOPENTLV_BUILD_CLI=OFF -DOPENTLV_BUILD_CLI_TESTS=OFF
-      - run: cmake --build build --target test-unit-tlv test-unit-tlvpp test-query-conformance test-query-cxx-conformance test-query-abi test-query-plan test-query-constexpr --parallel 2
+      - run: cmake --build build --target test-unit-tlv test-unit-tlvpp test-query-conformance test-query-cxx-conformance test-query-abi test-query-plan test-query-constexpr test-query-adversarial test-query-equivalence --parallel 2
       - name: Run exact and one-short capacities, operation budgets and x86 corpus
         run: |
           ctest --test-dir build -R 'Query|query' --output-on-failure --no-tests=error
@@ -102,6 +106,10 @@ jobs:
             -fsanitize=memory -fsanitize-memory-track-origins=2 -fno-omit-frame-pointer -fPIE -pie \
             build/query-memory-driver.c build/msan/tlv/libtlv.a -lm -o build/query-memory-driver
           python3 tests/query/memory_campaign.py --native build/query-memory-driver --output build/query-memory-evidence
+          clang-18 -std=c99 -DTLV_STATIC_DEFINE -I tlv/include -I build/msan/generated/include \
+            -fsanitize=memory -fsanitize-memory-track-origins=2 -fno-omit-frame-pointer -fPIE -pie \
+            tests/query/adversarial.c build/msan/tlv/libtlv.a -lm -o build/query-adversarial-msan
+          python3 tests/query/adversarial_campaign.py --native build/query-adversarial-msan --msan --output build/query-adversarial-msan-evidence
       - uses: actions/upload-artifact@v4
         if: always()
         with:
@@ -109,6 +117,7 @@ jobs:
           path: |
             build/query-memory-driver.c
             build/query-memory-evidence/
+            build/query-adversarial-msan-evidence/
 
   static-plans:
     runs-on: ubuntu-24.04
@@ -134,10 +143,10 @@ jobs:
           -DCMAKE_C_FLAGS='-fsanitize=address,undefined -fno-omit-frame-pointer'
           -DCMAKE_CXX_FLAGS='-fsanitize=address,undefined -fno-omit-frame-pointer'
           -DCMAKE_EXE_LINKER_FLAGS='-fsanitize=address,undefined'
-      - run: cmake --build build --target test-query-plan --parallel 2
+      - run: cmake --build build --target test-query-plan test-query-adversarial --parallel 2
       - if: matrix.cxx == 'ON'
-        run: cmake --build build --target test-query-constexpr --parallel 2
-      - run: ctest --test-dir build -R '^query-(static|constexpr)-plan$' --output-on-failure --no-tests=error
+        run: cmake --build build --target test-query-constexpr test-query-equivalence --parallel 2
+      - run: ctest --test-dir build -R '^query-((static|constexpr)-plan|adversarial.*)$' --output-on-failure --no-tests=error
       - name: Verify absence of runtime frontend symbols
         if: matrix.frontend == 'OFF'
         run: |

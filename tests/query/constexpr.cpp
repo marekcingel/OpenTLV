@@ -54,7 +54,8 @@ static constexpr auto bounds_plan =
         .compile();
 static constexpr auto negative_plan = q::integer(INT64_MIN).compile();
 static_assert(root_plan.header().text_size == 0, "source-free native image");
-static_assert(root_plan.header().count == 5, "instructions exist at compile time");
+static_assert(root_plan.header().count == 7,
+              "absolute root and path instructions exist at compile time");
 static_assert(nested_plan.header().variable_count == 1, "repeated names share a slot");
 static_assert(bounds_plan.header().variable_count == 2, "distinct parameter slots");
 static_assert(negative_plan.instruction(0).negative == 1, "integer sign");
@@ -111,6 +112,8 @@ static int run(const tlv::query_program& program, bool retained, int64_t n, unsi
             CHECK(rc == TLV_ERR_END_OF_BUFFER);
         }
     }
+    CHECK(execution->reset());
+    CHECK(!execution->result());
     return 0;
 }
 template <typename Plan>
