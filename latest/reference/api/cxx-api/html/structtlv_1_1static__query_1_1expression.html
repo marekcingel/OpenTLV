@@ -88,9 +88,9 @@ $(function() {
 <table class="memberdecls">
 <tr class="heading"><td colspan="2"><h2 class="groupheader"><a id="pub-methods" name="pub-methods"></a>
 Public Member Functions</h2></td></tr>
-<tr class="memitem:a474b0bf02b84ee6b8c3c9be538e7d7b9" id="r_a474b0bf02b84ee6b8c3c9be538e7d7b9"><td class="memItemLeft" align="right" valign="top">constexpr <a class="el" href="classtlv_1_1static__query_1_1plan.html">plan</a>&lt; N, P &gt;&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="structtlv_1_1static__query_1_1expression.html#a474b0bf02b84ee6b8c3c9be538e7d7b9">compile</a> () const</td></tr>
-<tr class="memdesc:a474b0bf02b84ee6b8c3c9be538e7d7b9"><td class="mdescLeft">&#160;</td><td class="mdescRight">Materialize a source-free native plan; constexpr evaluates at compile time.  <br /></td></tr>
-<tr class="separator:a474b0bf02b84ee6b8c3c9be538e7d7b9"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:ac43363b6a67be84956a2b2d7c9a490ea" id="r_ac43363b6a67be84956a2b2d7c9a490ea"><td class="memItemLeft" align="right" valign="top">constexpr <a class="el" href="classtlv_1_1static__query_1_1plan.html">plan</a>&lt; N+(Kind==<a class="elRef" href="../../c-api/html/group__traversal.html#gga4e909e487e1ea6c7b02cc3416d2a0900a971e85f54eaeda9b55b9be48183715c9">TLV_QUERY_PLAN_NODES</a> ? 2 :0), P &gt;&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="structtlv_1_1static__query_1_1expression.html#ac43363b6a67be84956a2b2d7c9a490ea">compile</a> () const</td></tr>
+<tr class="memdesc:ac43363b6a67be84956a2b2d7c9a490ea"><td class="mdescLeft">&#160;</td><td class="mdescRight">Materialize a source-free native plan; constexpr evaluates at compile time.  <br /></td></tr>
+<tr class="separator:ac43363b6a67be84956a2b2d7c9a490ea"><td class="memSeparator" colspan="2">&#160;</td></tr>
 </table><table class="memberdecls">
 <tr class="heading"><td colspan="2"><h2 class="groupheader"><a id="pub-attribs" name="pub-attribs"></a>
 Public Attributes</h2></td></tr>
@@ -111,8 +111,8 @@ struct tlv::static_query::expression&lt; N, P, Kind &gt;</div><p>Immutable typed
   </dd>
 </dl>
 </div><h2 class="groupheader">Member Function Documentation</h2>
-<a id="a474b0bf02b84ee6b8c3c9be538e7d7b9" name="a474b0bf02b84ee6b8c3c9be538e7d7b9"></a>
-<h2 class="memtitle"><span class="permalink"><a href="#a474b0bf02b84ee6b8c3c9be538e7d7b9">&#9670;&#160;</a></span>compile()</h2>
+<a id="ac43363b6a67be84956a2b2d7c9a490ea" name="ac43363b6a67be84956a2b2d7c9a490ea"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#ac43363b6a67be84956a2b2d7c9a490ea">&#9670;&#160;</a></span>compile()</h2>
 
 <div class="memitem">
 <div class="memproto">
@@ -123,7 +123,7 @@ template&lt;size_t N, size_t P, <a class="elRef" href="../../c-api/html/group__t
   <td class="mlabels-left">
       <table class="memname">
         <tr>
-          <td class="memname">constexpr <a class="el" href="classtlv_1_1static__query_1_1plan.html">plan</a>&lt; N, P &gt; <a class="el" href="structtlv_1_1static__query_1_1expression.html">tlv::static_query::expression</a>&lt; N, P, K &gt;::compile </td>
+          <td class="memname">constexpr <a class="el" href="classtlv_1_1static__query_1_1plan.html">plan</a>&lt; N+(K==<a class="elRef" href="../../c-api/html/group__traversal.html#gga4e909e487e1ea6c7b02cc3416d2a0900a971e85f54eaeda9b55b9be48183715c9">TLV_QUERY_PLAN_NODES</a> ? 2 :0), P &gt; <a class="el" href="structtlv_1_1static__query_1_1expression.html">tlv::static_query::expression</a>&lt; N, P, K &gt;::compile </td>
           <td>(</td>
           <td class="paramname"></td><td>)</td>
           <td> const</td>
@@ -138,6 +138,7 @@ template&lt;size_t N, size_t P, <a class="elRef" href="../../c-api/html/group__t
 
 <p>Materialize a source-free native plan; constexpr evaluates at compile time. </p>
 <dl class="section return"><dt>Returns</dt><dd>Owned inline plan; conflicting parameter types reject constant evaluation. </dd></dl>
+<dl class="section note"><dt>Note</dt><dd>Node plans include an explicit virtual root and path join, preserving absolute-path semantics even when execution has a relative context. These two instructions count toward the native 128-instruction limit. </dd></dl>
 
 </div>
 </div>

@@ -16,7 +16,7 @@
         <link rel="prev" href="../query-release/">
       
       
-        <link rel="next" href="../rust/">
+        <link rel="next" href="../query-adversarial/">
       
       
         
@@ -80,7 +80,7 @@
     <div data-md-component="skip">
       
         
-        <a href="#query-f1-f5-implementation-audit" class="md-skip">
+        <a href="#query-f1-f6-implementation-audit" class="md-skip">
           Skip to content
         </a>
       
@@ -3215,6 +3215,34 @@
   
   
     <li class="md-nav__item">
+      <a href="../query-adversarial/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Query adversarial verification
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
       <a href="../rust/" class="md-nav__link">
         
   
@@ -3461,7 +3489,7 @@
   
 
 
-<h1 id="query-f1-f5-implementation-audit">Query F1-F5 implementation audit<a class="headerlink" href="#query-f1-f5-implementation-audit" title="Permanent link">&para;</a></h1>
+<h1 id="query-f1-f6-implementation-audit">Query F1-F6 implementation audit<a class="headerlink" href="#query-f1-f6-implementation-audit" title="Permanent link">&para;</a></h1>
 <p>Audit date: 2026-10-06. Scope: the original 44 work packages in the supplied
 <code>OpenTLV_Query_1.0_GitHub_Issues.md</code>, compared with current source and
 <a href="https://github.com/marekcingel/OpenTLV/issues/518">epic #518</a>. The epic explicitly
@@ -3497,8 +3525,15 @@ instruction to create another set of GitHub issues.</p>
 <td><a href="https://github.com/marekcingel/OpenTLV/issues/523">F5 / #523</a></td>
 <td>Hardening and candidate gates implemented; local checks below pass. Closing the delivery issue still requires passing CI and complete evidence for the final candidate commit.</td>
 </tr>
+<tr>
+<td><a href="../query-adversarial/">F6 / #536</a></td>
+<td>Deterministic native lifecycle/storage/callback and plan-source verification implemented; local sanitizer, frontend-free and allocation/recursion evidence passes. Hosted candidate evidence remains required.</td>
+</tr>
 </tbody>
 </table>
+<p><a href="../query-adversarial/">F6 / #536</a> adds native API sequence, storage, callback and
+plan-source verification after the original delivery phases. Its audit records
+the constexpr absolute-context regression and the frontend-free validation boundary explicitly.</p>
 <p>Benchmark measurements are advisory by the subsequent scope decision. Accepted
 performance baselines and optimization are not prerequisites for these phase
 assessments. Existing tests and a passing local worktree do not establish a
@@ -3916,13 +3951,13 @@ the supported-platform matrix or the final clean-candidate evidence gate.</p>
         
         
           
-          <a href="../rust/" class="md-footer__link md-footer__link--next" aria-label="Next: Rust bindings">
+          <a href="../query-adversarial/" class="md-footer__link md-footer__link--next" aria-label="Next: Query adversarial verification">
             <div class="md-footer__title">
               <span class="md-footer__direction">
                 Next
               </span>
               <div class="md-ellipsis">
-                Rust bindings
+                Query adversarial verification
               </div>
             </div>
             <div class="md-footer__button md-icon">

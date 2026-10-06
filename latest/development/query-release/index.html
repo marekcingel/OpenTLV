@@ -3182,6 +3182,34 @@
   
   
     <li class="md-nav__item">
+      <a href="../query-adversarial/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Query adversarial verification
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
       <a href="../rust/" class="md-nav__link">
         
   
@@ -3399,7 +3427,9 @@
 <p>Query F1–F5 are delivery phases within the Execution Foundation and all are 1.0
 prerequisites. <a href="https://github.com/marekcingel/OpenTLV/issues/518">Epic #518</a>
 replaces the former 44 child issues with #519–#523. Completion requires equivalent
-phase evidence, rather than closed issue states alone.</p>
+phase evidence, rather than closed issue states alone.
+<a href="../query-adversarial/">F6 / #536</a> adds the final adversarial verification layer;
+its passing evidence is also required before freezing the 1.0 contract.</p>
 <p>Run <code>python scripts/check_query_release.py --output build/query-release.json</code> for
 the inventory of every normative rule, function/axis conformance category and
 public C Query capability. Mappings include the independent corpus and named
@@ -3414,7 +3444,7 @@ passed public C <code>capabilities</code>; CLI lists common corpus feature IDs. 
 facades need <code>surface: "idiomatic"</code>; raw FFI is insufficient. Required checks are
 listed in the generated report: conformance, properties, ASan/UBSan fuzzing, MSan
 or justified exclusion, allocation/recursion, 32/64-bit work/storage boundaries,
-and ABI snapshots. Java/C# become additional gates when supported;
+ABI snapshots, adversarial lifecycle/storage and frontend-free plan equivalence. Java/C# become additional gates when supported;
 this repository does not claim those implementations.</p>
 <p>Benchmarks are temporarily advisory while Query functionality is completed.
 Missing measurements, regressions, noisy timings and unaccepted baselines do

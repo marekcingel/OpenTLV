@@ -110,6 +110,9 @@ Public Member Functions</h2></td></tr>
 <tr class="memitem:a51e8cafc57258f4a5800eb1dace2ad1a" id="r_a51e8cafc57258f4a5800eb1dace2ad1a"><td class="memItemLeft" align="right" valign="top"><a class="el" href="classtlv_1_1expected.html">expected</a>&lt; void, <a class="el" href="structtlv_1_1query__failure.html">query_failure</a> &gt;&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classtlv_1_1query__execution.html#a51e8cafc57258f4a5800eb1dace2ad1a">context</a> (size_t ordinal)</td></tr>
 <tr class="memdesc:a51e8cafc57258f4a5800eb1dace2ad1a"><td class="mdescLeft">&#160;</td><td class="mdescRight">Select a relative preorder context before consuming events.  <br /></td></tr>
 <tr class="separator:a51e8cafc57258f4a5800eb1dace2ad1a"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:aa98271c595f9b0ea7328f48ca8abaf56" id="r_aa98271c595f9b0ea7328f48ca8abaf56"><td class="memItemLeft" align="right" valign="top"><a class="el" href="classtlv_1_1expected.html">expected</a>&lt; void, <a class="el" href="structtlv_1_1query__failure.html">query_failure</a> &gt;&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classtlv_1_1query__execution.html#aa98271c595f9b0ea7328f48ca8abaf56">reset</a> ()</td></tr>
+<tr class="memdesc:aa98271c595f9b0ea7328f48ca8abaf56"><td class="mdescLeft">&#160;</td><td class="mdescRight">Reset state, bindings and results while retaining program, providers and budgets.  <br /></td></tr>
+<tr class="separator:aa98271c595f9b0ea7328f48ca8abaf56"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:a8e9ae69e3841106bacd94ec0fc0479c2" id="r_a8e9ae69e3841106bacd94ec0fc0479c2"><td class="memItemLeft" align="right" valign="top"><a class="el" href="classtlv_1_1expected.html">expected</a>&lt; void, <a class="el" href="structtlv_1_1query__failure.html">query_failure</a> &gt;&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classtlv_1_1query__execution.html#a8e9ae69e3841106bacd94ec0fc0479c2">pruning</a> (bool enabled)</td></tr>
 <tr class="memdesc:a8e9ae69e3841106bacd94ec0fc0479c2"><td class="mdescLeft">&#160;</td><td class="mdescRight">Explicitly permit proven subtree pruning on fresh streaming execution.  <br /></td></tr>
 <tr class="separator:a8e9ae69e3841106bacd94ec0fc0479c2"><td class="memSeparator" colspan="2">&#160;</td></tr>
@@ -741,6 +744,35 @@ Friends</h2></td></tr>
   </dd>
 </dl>
 <dl class="section return"><dt>Returns</dt><dd>Success or original native status; retained execution rejects pruning. </dd></dl>
+
+</div>
+</div>
+<a id="aa98271c595f9b0ea7328f48ca8abaf56" name="aa98271c595f9b0ea7328f48ca8abaf56"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#aa98271c595f9b0ea7328f48ca8abaf56">&#9670;&#160;</a></span>reset()</h2>
+
+<div class="memitem">
+<div class="memproto">
+<table class="mlabels">
+  <tr>
+  <td class="mlabels-left">
+      <table class="memname">
+        <tr>
+          <td class="memname"><a class="el" href="classtlv_1_1expected.html">expected</a>&lt; void, <a class="el" href="structtlv_1_1query__failure.html">query_failure</a> &gt; tlv::query_execution::reset </td>
+          <td>(</td>
+          <td class="paramname"></td><td>)</td>
+          <td></td>
+        </tr>
+      </table>
+  </td>
+  <td class="mlabels-right">
+<span class="mlabels"><span class="mlabel">inline</span></span>  </td>
+  </tr>
+</table>
+</div><div class="memdoc">
+
+<p>Reset state, bindings and results while retaining program, providers and budgets. </p>
+<dl class="section return"><dt>Returns</dt><dd>Success or native invalid-state failure when invoked from an active callback. </dd></dl>
+<dl class="section note"><dt>Note</dt><dd>Delegates to the allocation-free C reset; all previously borrowed results expire. </dd></dl>
 
 </div>
 </div>
