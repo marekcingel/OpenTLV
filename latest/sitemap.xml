@@ -105,6 +105,10 @@
          <lastmod>2026-10-06</lastmod>
     </url>
     <url>
+         <loc>https://marekcingel.github.io/OpenTLV/latest/development/indefinite-boundary-reuse/</loc>
+         <lastmod>2026-10-06</lastmod>
+    </url>
+    <url>
          <loc>https://marekcingel.github.io/OpenTLV/latest/development/lua/</loc>
          <lastmod>2026-10-06</lastmod>
     </url>
@@ -122,6 +126,10 @@
     </url>
     <url>
          <loc>https://marekcingel.github.io/OpenTLV/latest/development/query-release/</loc>
+         <lastmod>2026-10-06</lastmod>
+    </url>
+    <url>
+         <loc>https://marekcingel.github.io/OpenTLV/latest/development/reader-decode-performance/</loc>
          <lastmod>2026-10-06</lastmod>
     </url>
     <url>

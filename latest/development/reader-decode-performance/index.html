@@ -10,13 +10,13 @@
       
       
       
-        <link rel="canonical" href="https://marekcingel.github.io/OpenTLV/latest/guides/cxx-examples/">
+        <link rel="canonical" href="https://marekcingel.github.io/OpenTLV/latest/development/reader-decode-performance/">
       
       
-        <link rel="prev" href="../select-components/">
+        <link rel="prev" href="../fuzzing/">
       
       
-        <link rel="next" href="../rust/">
+        <link rel="next" href="../indefinite-boundary-reuse/">
       
       
         
@@ -27,7 +27,7 @@
     
     
       
-        <title>C++ examples - OpenTLV</title>
+        <title>Reader decode performance - OpenTLV</title>
       
     
     
@@ -80,7 +80,7 @@
     <div data-md-component="skip">
       
         
-        <a href="#c-examples" class="md-skip">
+        <a href="#reader-decode-measurements" class="md-skip">
           Skip to content
         </a>
       
@@ -131,7 +131,7 @@
         <div class="md-header__topic" data-md-component="header-topic">
           <span class="md-ellipsis">
             
-              C++ examples
+              Reader decode performance
             
           </span>
         </div>
@@ -285,7 +285,7 @@
     
     
       <li class="md-tabs__item">
-        <a href="../processing/" class="md-tabs__link">
+        <a href="../../guides/processing/" class="md-tabs__link">
           
   
   
@@ -301,13 +301,11 @@
   
   
   
-    
-  
   
     
     
-      <li class="md-tabs__item md-tabs__item--active">
-        <a href="./" class="md-tabs__link">
+      <li class="md-tabs__item">
+        <a href="../../guides/cxx-examples/" class="md-tabs__link">
           
   
   
@@ -443,10 +441,12 @@
   
   
   
+    
+  
   
     
     
-      <li class="md-tabs__item">
+      <li class="md-tabs__item md-tabs__item--active">
         <a href="../../concepts/runtime-model/" class="md-tabs__link">
           
   
@@ -704,7 +704,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../processing/" class="md-nav__link">
+      <a href="../../guides/processing/" class="md-nav__link">
         
   
   
@@ -732,7 +732,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../reader/" class="md-nav__link">
+      <a href="../../guides/reader/" class="md-nav__link">
         
   
   
@@ -760,7 +760,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../writer/" class="md-nav__link">
+      <a href="../../guides/writer/" class="md-nav__link">
         
   
   
@@ -788,7 +788,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../document/" class="md-nav__link">
+      <a href="../../guides/document/" class="md-nav__link">
         
   
   
@@ -816,7 +816,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../diagnostics/" class="md-nav__link">
+      <a href="../../guides/diagnostics/" class="md-nav__link">
         
   
   
@@ -844,7 +844,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../queries/" class="md-nav__link">
+      <a href="../../guides/queries/" class="md-nav__link">
         
   
   
@@ -872,7 +872,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../schemas/" class="md-nav__link">
+      <a href="../../guides/schemas/" class="md-nav__link">
         
   
   
@@ -900,7 +900,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../codecs/" class="md-nav__link">
+      <a href="../../guides/codecs/" class="md-nav__link">
         
   
   
@@ -928,7 +928,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../examples/" class="md-nav__link">
+      <a href="../../guides/examples/" class="md-nav__link">
         
   
   
@@ -956,7 +956,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../memory/" class="md-nav__link">
+      <a href="../../guides/memory/" class="md-nav__link">
         
   
   
@@ -984,7 +984,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../copy/" class="md-nav__link">
+      <a href="../../guides/copy/" class="md-nav__link">
         
   
   
@@ -1012,7 +1012,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../select-components/" class="md-nav__link">
+      <a href="../../guides/select-components/" class="md-nav__link">
         
   
   
@@ -1044,31 +1044,26 @@
       
   
   
-    
   
   
-  
     
     
     
     
-      
-        
-        
       
       
         
       
     
     
-    <li class="md-nav__item md-nav__item--active md-nav__item--section md-nav__item--nested">
+    <li class="md-nav__item md-nav__item--nested">
       
         
         
-        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_4" checked>
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_4" >
         
           
-          <label class="md-nav__link" for="__nav_4" id="__nav_4_label" tabindex="">
+          <label class="md-nav__link" for="__nav_4" id="__nav_4_label" tabindex="0">
             
   
   
@@ -1086,7 +1081,7 @@
             <span class="md-nav__icon md-icon"></span>
           </label>
         
-        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_4_label" aria-expanded="true">
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_4_label" aria-expanded="false">
           <label class="md-nav__title" for="__nav_4">
             <span class="md-nav__icon md-icon"></span>
             
@@ -1101,37 +1096,10 @@
                 
   
   
-    
   
   
-  
-    <li class="md-nav__item md-nav__item--active">
-      
-      <input class="md-nav__toggle md-toggle" type="checkbox" id="__toc">
-      
-      
-        
-      
-      
-        <label class="md-nav__link md-nav__link--active" for="__toc">
-          
-  
-  
-  <span class="md-ellipsis">
-    
-  
-    C++ examples
-  
-
-    
-  </span>
-  
-  
-
-          <span class="md-nav__icon md-icon"></span>
-        </label>
-      
-      <a href="./" class="md-nav__link md-nav__link--active">
+    <li class="md-nav__item">
+      <a href="../../guides/cxx-examples/" class="md-nav__link">
         
   
   
@@ -1147,103 +1115,6 @@
   
 
       </a>
-      
-        
-
-<nav class="md-nav md-nav--secondary" aria-label="Table of contents">
-  
-  
-  
-    
-  
-  
-    <label class="md-nav__title" for="__toc">
-      <span class="md-nav__icon md-icon"></span>
-      Table of contents
-    </label>
-    <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
-      
-        <li class="md-nav__item">
-  <a href="#borrowed-parsing-and-sequential-iteration" class="md-nav__link">
-    <span class="md-ellipsis">
-      
-        Borrowed parsing and sequential iteration
-      
-    </span>
-  </a>
-  
-</li>
-      
-        <li class="md-nav__item">
-  <a href="#nested-writing-and-traversal" class="md-nav__link">
-    <span class="md-ellipsis">
-      
-        Nested writing and traversal
-      
-    </span>
-  </a>
-  
-</li>
-      
-        <li class="md-nav__item">
-  <a href="#owning-document-and-query" class="md-nav__link">
-    <span class="md-ellipsis">
-      
-        Owning Document and Query
-      
-    </span>
-  </a>
-  
-</li>
-      
-        <li class="md-nav__item">
-  <a href="#typed-values-and-custom-formats" class="md-nav__link">
-    <span class="md-ellipsis">
-      
-        Typed Values and custom Formats
-      
-    </span>
-  </a>
-  
-</li>
-      
-        <li class="md-nav__item">
-  <a href="#measuring-ceremony" class="md-nav__link">
-    <span class="md-ellipsis">
-      
-        Measuring ceremony
-      
-    </span>
-  </a>
-  
-</li>
-      
-        <li class="md-nav__item">
-  <a href="#equivalent-cli-operations" class="md-nav__link">
-    <span class="md-ellipsis">
-      
-        Equivalent CLI operations
-      
-    </span>
-  </a>
-  
-</li>
-      
-        <li class="md-nav__item">
-  <a href="#build-and-run" class="md-nav__link">
-    <span class="md-ellipsis">
-      
-        Build and run
-      
-    </span>
-  </a>
-  
-</li>
-      
-    </ul>
-  
-</nav>
-      
     </li>
   
 
@@ -1256,7 +1127,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../rust/" class="md-nav__link">
+      <a href="../../guides/rust/" class="md-nav__link">
         
   
   
@@ -1284,7 +1155,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../python/" class="md-nav__link">
+      <a href="../../guides/python/" class="md-nav__link">
         
   
   
@@ -1312,7 +1183,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../lua/" class="md-nav__link">
+      <a href="../../guides/lua/" class="md-nav__link">
         
   
   
@@ -1368,7 +1239,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../go/" class="md-nav__link">
+      <a href="../../guides/go/" class="md-nav__link">
         
   
   
@@ -1396,7 +1267,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../development/webassembly/" class="md-nav__link">
+      <a href="../webassembly/" class="md-nav__link">
         
   
   
@@ -2846,26 +2717,31 @@
       
   
   
+    
   
   
+  
     
     
     
     
+      
+        
+        
       
       
         
       
     
     
-    <li class="md-nav__item md-nav__item--nested">
+    <li class="md-nav__item md-nav__item--active md-nav__item--section md-nav__item--nested">
       
         
         
-        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_11" >
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_11" checked>
         
           
-          <label class="md-nav__link" for="__nav_11" id="__nav_11_label" tabindex="0">
+          <label class="md-nav__link" for="__nav_11" id="__nav_11_label" tabindex="">
             
   
   
@@ -2883,7 +2759,7 @@
             <span class="md-nav__icon md-icon"></span>
           </label>
         
-        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_11_label" aria-expanded="false">
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_11_label" aria-expanded="true">
           <label class="md-nav__title" for="__nav_11">
             <span class="md-nav__icon md-icon"></span>
             
@@ -3041,7 +2917,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../development/workflow/" class="md-nav__link">
+      <a href="../workflow/" class="md-nav__link">
         
   
   
@@ -3069,7 +2945,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../development/abi-compatibility/" class="md-nav__link">
+      <a href="../abi-compatibility/" class="md-nav__link">
         
   
   
@@ -3097,7 +2973,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../development/documentation-layout/" class="md-nav__link">
+      <a href="../documentation-layout/" class="md-nav__link">
         
   
   
@@ -3125,7 +3001,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../development/documentation-audit/" class="md-nav__link">
+      <a href="../documentation-audit/" class="md-nav__link">
         
   
   
@@ -3153,7 +3029,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../development/fuzzing/" class="md-nav__link">
+      <a href="../fuzzing/" class="md-nav__link">
         
   
   
@@ -3178,10 +3054,37 @@
                 
   
   
+    
   
   
-    <li class="md-nav__item">
-      <a href="../../development/reader-decode-performance/" class="md-nav__link">
+  
+    <li class="md-nav__item md-nav__item--active">
+      
+      <input class="md-nav__toggle md-toggle" type="checkbox" id="__toc">
+      
+      
+        
+      
+      
+        <label class="md-nav__link md-nav__link--active" for="__toc">
+          
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Reader decode performance
+  
+
+    
+  </span>
+  
+  
+
+          <span class="md-nav__icon md-icon"></span>
+        </label>
+      
+      <a href="./" class="md-nav__link md-nav__link--active">
         
   
   
@@ -3197,6 +3100,109 @@
   
 
       </a>
+      
+        
+
+<nav class="md-nav md-nav--secondary" aria-label="Table of contents">
+  
+  
+  
+    
+  
+  
+    <label class="md-nav__title" for="__toc">
+      <span class="md-nav__icon md-icon"></span>
+      Table of contents
+    </label>
+    <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
+      
+        <li class="md-nav__item">
+  <a href="#scope-and-decisions" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Scope and decisions
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#workloads-and-measurement-method" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Workloads and measurement method
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#recorded-release-results" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Recorded Release results
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Recorded Release results">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#document-allocator-experiment" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Document allocator experiment
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#reproducing-and-collecting-evidence" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Reproducing and collecting evidence
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#contract-validation" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Contract validation
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#deferred-work" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Deferred work
+      
+    </span>
+  </a>
+  
+</li>
+      
+    </ul>
+  
+</nav>
+      
     </li>
   
 
@@ -3209,7 +3215,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../development/indefinite-boundary-reuse/" class="md-nav__link">
+      <a href="../indefinite-boundary-reuse/" class="md-nav__link">
         
   
   
@@ -3237,7 +3243,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../development/query-release/" class="md-nav__link">
+      <a href="../query-release/" class="md-nav__link">
         
   
   
@@ -3265,7 +3271,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../development/query-phase-audit/" class="md-nav__link">
+      <a href="../query-phase-audit/" class="md-nav__link">
         
   
   
@@ -3293,7 +3299,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../development/query-adversarial/" class="md-nav__link">
+      <a href="../query-adversarial/" class="md-nav__link">
         
   
   
@@ -3321,7 +3327,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../development/rust/" class="md-nav__link">
+      <a href="../rust/" class="md-nav__link">
         
   
   
@@ -3349,7 +3355,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../development/python/" class="md-nav__link">
+      <a href="../python/" class="md-nav__link">
         
   
   
@@ -3377,7 +3383,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../development/lua/" class="md-nav__link">
+      <a href="../lua/" class="md-nav__link">
         
   
   
@@ -3405,7 +3411,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../development/go/" class="md-nav__link">
+      <a href="../go/" class="md-nav__link">
         
   
   
@@ -3488,10 +3494,10 @@
     <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
       
         <li class="md-nav__item">
-  <a href="#borrowed-parsing-and-sequential-iteration" class="md-nav__link">
+  <a href="#scope-and-decisions" class="md-nav__link">
     <span class="md-ellipsis">
       
-        Borrowed parsing and sequential iteration
+        Scope and decisions
       
     </span>
   </a>
@@ -3499,10 +3505,10 @@
 </li>
       
         <li class="md-nav__item">
-  <a href="#nested-writing-and-traversal" class="md-nav__link">
+  <a href="#workloads-and-measurement-method" class="md-nav__link">
     <span class="md-ellipsis">
       
-        Nested writing and traversal
+        Workloads and measurement method
       
     </span>
   </a>
@@ -3510,10 +3516,49 @@
 </li>
       
         <li class="md-nav__item">
-  <a href="#owning-document-and-query" class="md-nav__link">
+  <a href="#recorded-release-results" class="md-nav__link">
     <span class="md-ellipsis">
       
-        Owning Document and Query
+        Recorded Release results
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Recorded Release results">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#document-allocator-experiment" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Document allocator experiment
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#reproducing-and-collecting-evidence" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Reproducing and collecting evidence
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#contract-validation" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Contract validation
       
     </span>
   </a>
@@ -3521,43 +3566,10 @@
 </li>
       
         <li class="md-nav__item">
-  <a href="#typed-values-and-custom-formats" class="md-nav__link">
+  <a href="#deferred-work" class="md-nav__link">
     <span class="md-ellipsis">
       
-        Typed Values and custom Formats
-      
-    </span>
-  </a>
-  
-</li>
-      
-        <li class="md-nav__item">
-  <a href="#measuring-ceremony" class="md-nav__link">
-    <span class="md-ellipsis">
-      
-        Measuring ceremony
-      
-    </span>
-  </a>
-  
-</li>
-      
-        <li class="md-nav__item">
-  <a href="#equivalent-cli-operations" class="md-nav__link">
-    <span class="md-ellipsis">
-      
-        Equivalent CLI operations
-      
-    </span>
-  </a>
-  
-</li>
-      
-        <li class="md-nav__item">
-  <a href="#build-and-run" class="md-nav__link">
-    <span class="md-ellipsis">
-      
-        Build and run
+        Deferred work
       
     </span>
   </a>
@@ -3581,7 +3593,7 @@
 
 
   
-    <a href="https://github.com/marekcingel/OpenTLV/edit/main/docs/guides/cxx-examples.md" title="Edit this page" class="md-content__button md-icon" rel="edit">
+    <a href="https://github.com/marekcingel/OpenTLV/edit/main/docs/development/reader-decode-performance.md" title="Edit this page" class="md-content__button md-icon" rel="edit">
       
       <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M10 20H6V4h7v5h5v3.1l2-2V8l-6-6H6c-1.1 0-2 .9-2 2v16c0 1.1.9 2 2 2h4zm10.2-7c.1 0 .3.1.4.2l1.3 1.3c.2.2.2.6 0 .8l-1 1-2.1-2.1 1-1c.1-.1.2-.2.4-.2m0 3.9L14.1 23H12v-2.1l6.1-6.1z"/></svg>
     </a>
@@ -3589,250 +3601,219 @@
   
 
 
-<h1 id="c-examples">C++ examples<a class="headerlink" href="#c-examples" title="Permanent link">&para;</a></h1>
-<p>The C++ facade delegates parsing, traversal, Query and encoding to the canonical
-C engine. The common examples below use C++11; no generic lambdas are required.
-The <a href="https://github.com/marekcingel/OpenTLV/blob/main/examples/tlv++/src/README.md">source index</a> lists all runnable examples.</p>
-<h2 id="borrowed-parsing-and-sequential-iteration">Borrowed parsing and sequential iteration<a class="headerlink" href="#borrowed-parsing-and-sequential-iteration" title="Permanent link">&para;</a></h2>
-<p>The <a href="../../getting-started/#quick-start">quick-start</a> uses
-scoped <code>tlv::encode&lt;Format&gt;()</code>, direct text and template Tag bytes, then
-<code>tlv::parse&lt;Format&gt;()</code> and <code>element.decode&lt;Greeting&gt;()</code> to read <code>Hello, world!</code>
-as an owning <code>std::string</code>. The typed Field checks tag <code>01</code> before decoding;
-the byte-preserving string codec may allocate. Encoding and successful borrowed
-iteration use bounded caller/stack storage. The BER convenience
-<code>tlv::ber::parse({input, sizeof(input)})</code> also returns an allocation-free,
-single-pass range of Elements at one level, including constructed Elements
-whose Values are still encoded child bytes. It does not recursively flatten
-the tree. Input must remain immutable and alive for the range and retained
-Elements. Iteration throws <code>tlv::parse_error</code> on malformed final input.</p>
-<p>The same rule applies to <a href="https://github.com/marekcingel/OpenTLV/blob/main/examples/tlv++/src/basic_usage.cpp"><code>basic_usage.cpp</code></a>,
-which writes two primitive elements and reads only the written output prefix.
-Writing returns a result; check it before reading output. A failed scoped write
-may leave a prefix in the output buffer; do not publish that output as a success.</p>
-<!-- example: examples/tlv++/src/basic_usage.cpp -->
-<div class="highlight"><pre><span></span><code><a id="__codelineno-0-1" name="__codelineno-0-1" href="#__codelineno-0-1"></a><span class="c1">// SPDX-License-Identifier: MIT</span>
-<a id="__codelineno-0-2" name="__codelineno-0-2" href="#__codelineno-0-2"></a><span class="c1">// Copyright (c) 2026 Marek Cingel</span>
-<a id="__codelineno-0-3" name="__codelineno-0-3" href="#__codelineno-0-3"></a>
-<a id="__codelineno-0-4" name="__codelineno-0-4" href="#__codelineno-0-4"></a><span class="c1">// Write two primitive BER elements, then iterate over that sequence.</span>
-<a id="__codelineno-0-5" name="__codelineno-0-5" href="#__codelineno-0-5"></a><span class="cp">#include</span><span class="w"> </span><span class="cpf">&lt;tlv++/tlv.hpp&gt;</span>
-<a id="__codelineno-0-6" name="__codelineno-0-6" href="#__codelineno-0-6"></a><span class="cp">#include</span><span class="w"> </span><span class="cpf">&lt;array&gt;</span>
-<a id="__codelineno-0-7" name="__codelineno-0-7" href="#__codelineno-0-7"></a><span class="cp">#include</span><span class="w"> </span><span class="cpf">&lt;iostream&gt;</span>
-<a id="__codelineno-0-8" name="__codelineno-0-8" href="#__codelineno-0-8"></a>
-<a id="__codelineno-0-9" name="__codelineno-0-9" href="#__codelineno-0-9"></a><span class="kt">int</span><span class="w"> </span><span class="nf">main</span><span class="p">()</span><span class="w"> </span><span class="p">{</span>
-<a id="__codelineno-0-10" name="__codelineno-0-10" href="#__codelineno-0-10"></a><span class="w">    </span><span class="n">std</span><span class="o">::</span><span class="n">array</span><span class="o">&lt;</span><span class="n">tlv</span><span class="o">::</span><span class="kt">byte</span><span class="p">,</span><span class="w"> </span><span class="mi">14</span><span class="o">&gt;</span><span class="w"> </span><span class="n">output</span><span class="p">{};</span>
-<a id="__codelineno-0-11" name="__codelineno-0-11" href="#__codelineno-0-11"></a><span class="w">    </span><span class="k">auto</span><span class="w">                      </span><span class="n">written</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">tlv</span><span class="o">::</span><span class="n">ber</span><span class="o">::</span><span class="n">encode</span><span class="p">(</span><span class="n">output</span><span class="p">,</span><span class="w"> </span><span class="p">[](</span><span class="n">tlv</span><span class="o">::</span><span class="n">writer_builder</span><span class="o">&amp;</span><span class="w"> </span><span class="n">writer</span><span class="p">)</span><span class="w"> </span><span class="p">{</span>
-<a id="__codelineno-0-12" name="__codelineno-0-12" href="#__codelineno-0-12"></a><span class="w">        </span><span class="n">writer</span><span class="p">.</span><span class="n">write</span><span class="o">&lt;</span><span class="mh">0x04</span><span class="o">&gt;</span><span class="p">(</span><span class="s">"hello"</span><span class="p">);</span>
-<a id="__codelineno-0-13" name="__codelineno-0-13" href="#__codelineno-0-13"></a><span class="w">        </span><span class="n">writer</span><span class="p">.</span><span class="n">write</span><span class="o">&lt;</span><span class="mh">0x04</span><span class="o">&gt;</span><span class="p">(</span><span class="s">"world"</span><span class="p">);</span>
-<a id="__codelineno-0-14" name="__codelineno-0-14" href="#__codelineno-0-14"></a><span class="w">    </span><span class="p">});</span>
-<a id="__codelineno-0-15" name="__codelineno-0-15" href="#__codelineno-0-15"></a><span class="w">    </span><span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="o">!</span><span class="n">written</span><span class="p">)</span><span class="w"> </span><span class="p">{</span>
-<a id="__codelineno-0-16" name="__codelineno-0-16" href="#__codelineno-0-16"></a><span class="w">        </span><span class="n">std</span><span class="o">::</span><span class="n">cerr</span><span class="w"> </span><span class="o">&lt;&lt;</span><span class="w"> </span><span class="n">written</span><span class="p">.</span><span class="n">error</span><span class="p">().</span><span class="n">message</span><span class="p">()</span><span class="w"> </span><span class="o">&lt;&lt;</span><span class="w"> </span><span class="sc">'\n'</span><span class="p">;</span>
-<a id="__codelineno-0-17" name="__codelineno-0-17" href="#__codelineno-0-17"></a><span class="w">        </span><span class="k">return</span><span class="w"> </span><span class="mi">1</span><span class="p">;</span>
-<a id="__codelineno-0-18" name="__codelineno-0-18" href="#__codelineno-0-18"></a><span class="w">    </span><span class="p">}</span>
-<a id="__codelineno-0-19" name="__codelineno-0-19" href="#__codelineno-0-19"></a>
-<a id="__codelineno-0-20" name="__codelineno-0-20" href="#__codelineno-0-20"></a><span class="w">    </span><span class="c1">// Only the written prefix is input; borrowed Values cannot outlive output.</span>
-<a id="__codelineno-0-21" name="__codelineno-0-21" href="#__codelineno-0-21"></a><span class="w">    </span><span class="kt">size_t</span><span class="w"> </span><span class="n">count</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mi">0</span><span class="p">;</span>
-<a id="__codelineno-0-22" name="__codelineno-0-22" href="#__codelineno-0-22"></a><span class="w">    </span><span class="k">try</span><span class="w"> </span><span class="p">{</span>
-<a id="__codelineno-0-23" name="__codelineno-0-23" href="#__codelineno-0-23"></a><span class="w">        </span><span class="k">for</span><span class="w"> </span><span class="p">(</span><span class="k">auto</span><span class="w"> </span><span class="n">element</span><span class="w"> </span><span class="o">:</span><span class="w"> </span><span class="n">tlv</span><span class="o">::</span><span class="n">ber</span><span class="o">::</span><span class="n">parse</span><span class="p">({</span><span class="n">output</span><span class="p">.</span><span class="n">data</span><span class="p">(),</span><span class="w"> </span><span class="o">*</span><span class="n">written</span><span class="p">}))</span><span class="w"> </span><span class="p">{</span>
-<a id="__codelineno-0-24" name="__codelineno-0-24" href="#__codelineno-0-24"></a><span class="w">            </span><span class="n">std</span><span class="o">::</span><span class="n">cout</span><span class="w"> </span><span class="o">&lt;&lt;</span><span class="w"> </span><span class="s">"Value bytes: "</span><span class="w"> </span><span class="o">&lt;&lt;</span><span class="w"> </span><span class="n">element</span><span class="p">.</span><span class="n">value</span><span class="p">().</span><span class="n">size</span><span class="p">()</span><span class="w"> </span><span class="o">&lt;&lt;</span><span class="w"> </span><span class="sc">'\n'</span><span class="p">;</span>
-<a id="__codelineno-0-25" name="__codelineno-0-25" href="#__codelineno-0-25"></a><span class="w">            </span><span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="n">element</span><span class="p">.</span><span class="n">tag</span><span class="p">()</span><span class="w"> </span><span class="o">!=</span><span class="w"> </span><span class="n">tlv</span><span class="o">::</span><span class="n">tag_bytes</span><span class="o">&lt;</span><span class="mh">0x04</span><span class="o">&gt;</span><span class="p">()</span><span class="w"> </span><span class="o">||</span><span class="w"> </span><span class="n">element</span><span class="p">.</span><span class="n">value</span><span class="p">().</span><span class="n">size</span><span class="p">()</span><span class="w"> </span><span class="o">!=</span><span class="w"> </span><span class="mi">5</span><span class="p">)</span><span class="w"> </span><span class="k">return</span><span class="w"> </span><span class="mi">2</span><span class="p">;</span>
-<a id="__codelineno-0-26" name="__codelineno-0-26" href="#__codelineno-0-26"></a><span class="w">            </span><span class="o">++</span><span class="n">count</span><span class="p">;</span>
-<a id="__codelineno-0-27" name="__codelineno-0-27" href="#__codelineno-0-27"></a><span class="w">        </span><span class="p">}</span>
-<a id="__codelineno-0-28" name="__codelineno-0-28" href="#__codelineno-0-28"></a><span class="w">    </span><span class="p">}</span><span class="w"> </span><span class="k">catch</span><span class="w"> </span><span class="p">(</span><span class="k">const</span><span class="w"> </span><span class="n">tlv</span><span class="o">::</span><span class="n">parse_error</span><span class="o">&amp;</span><span class="w"> </span><span class="n">failure</span><span class="p">)</span><span class="w"> </span><span class="p">{</span>
-<a id="__codelineno-0-29" name="__codelineno-0-29" href="#__codelineno-0-29"></a><span class="w">        </span><span class="n">std</span><span class="o">::</span><span class="n">cerr</span><span class="w"> </span><span class="o">&lt;&lt;</span><span class="w"> </span><span class="n">failure</span><span class="p">.</span><span class="n">what</span><span class="p">()</span><span class="w"> </span><span class="o">&lt;&lt;</span><span class="w"> </span><span class="sc">'\n'</span><span class="p">;</span>
-<a id="__codelineno-0-30" name="__codelineno-0-30" href="#__codelineno-0-30"></a><span class="w">        </span><span class="k">return</span><span class="w"> </span><span class="mi">1</span><span class="p">;</span>
-<a id="__codelineno-0-31" name="__codelineno-0-31" href="#__codelineno-0-31"></a><span class="w">    </span><span class="p">}</span>
-<a id="__codelineno-0-32" name="__codelineno-0-32" href="#__codelineno-0-32"></a><span class="w">    </span><span class="k">return</span><span class="w"> </span><span class="n">count</span><span class="w"> </span><span class="o">==</span><span class="w"> </span><span class="mi">2</span><span class="w"> </span><span class="o">&amp;&amp;</span><span class="w"> </span><span class="o">*</span><span class="n">written</span><span class="w"> </span><span class="o">==</span><span class="w"> </span><span class="n">output</span><span class="p">.</span><span class="n">size</span><span class="p">()</span><span class="w"> </span><span class="o">?</span><span class="w"> </span><span class="mi">0</span><span class="w"> </span><span class="o">:</span><span class="w"> </span><span class="mi">2</span><span class="p">;</span>
-<a id="__codelineno-0-33" name="__codelineno-0-33" href="#__codelineno-0-33"></a><span class="p">}</span>
-</code></pre></div>
-<h2 id="nested-writing-and-traversal">Nested writing and traversal<a class="headerlink" href="#nested-writing-and-traversal" title="Permanent link">&para;</a></h2>
-<p><a href="https://github.com/marekcingel/OpenTLV/blob/main/examples/tlv++/src/write.cpp"><code>write.cpp</code></a> expresses nesting with
-<code>writer.constructed&lt;Tag&gt;(callback)</code> and writes Values directly from text or byte
-arrays. Its <code>encode&lt;12, 2&gt;</code> uses bounded local storage: 12 scratch bytes and two
-frames. No storage grows or allocates; insufficient output, scratch or depth
-returns an error. The default overload uses 1024 scratch bytes and the default
-tree depth. Select capacities for your data, or pass caller-owned
-<code>writer_storage&lt;Scratch, Depth&gt;::view()</code> as described in the <a href="../writer/">Writer guide</a>.
-Scoped callbacks collect the first failure; check the outer result.</p>
-<p><a href="https://github.com/marekcingel/OpenTLV/blob/main/examples/tlv++/src/parse.cpp"><code>parse.cpp</code></a> visits all four Elements in the
-same nested document through the canonical Tree Reader Visitor. It supplies two
-caller-owned frames, a depth limit of two and an element limit of 16. Those
-frames and input must outlive traversal. The callback supplies a C++ Element,
-depth and source offset; the native continue enum is explicit advanced control.
-Tree Reader currently has no general range interface, so this remains an advanced
-example. Use Document children for common owning traversal. See the <a href="../reader/">Reader guide</a> for incremental input.</p>
-<h2 id="owning-document-and-query">Owning Document and Query<a class="headerlink" href="#owning-document-and-query" title="Permanent link">&para;</a></h2>
-<p>Document parsing returns a checked result and owns the parsed data. Iteration
-visits roots; <code>node.children()</code> visits immediate children. Nodes borrow their
-Document and become invalid when the Document dies or their node is erased.
-See <a href="https://github.com/marekcingel/OpenTLV/blob/main/examples/tlv++/src/document_edit.cpp"><code>document_edit.cpp</code></a> for mutation.</p>
-<!-- example: examples/tlv++/src/document.cpp -->
-<div class="highlight"><pre><span></span><code><a id="__codelineno-1-1" name="__codelineno-1-1" href="#__codelineno-1-1"></a><span class="c1">// SPDX-License-Identifier: MIT</span>
-<a id="__codelineno-1-2" name="__codelineno-1-2" href="#__codelineno-1-2"></a><span class="c1">// Copyright (c) 2026 Marek Cingel</span>
-<a id="__codelineno-1-3" name="__codelineno-1-3" href="#__codelineno-1-3"></a>
-<a id="__codelineno-1-4" name="__codelineno-1-4" href="#__codelineno-1-4"></a><span class="c1">// Parse an owning Document and traverse roots and their children.</span>
-<a id="__codelineno-1-5" name="__codelineno-1-5" href="#__codelineno-1-5"></a><span class="cp">#include</span><span class="w"> </span><span class="cpf">&lt;tlv++/tlv.hpp&gt;</span>
-<a id="__codelineno-1-6" name="__codelineno-1-6" href="#__codelineno-1-6"></a><span class="cp">#include</span><span class="w"> </span><span class="cpf">&lt;iostream&gt;</span>
-<a id="__codelineno-1-7" name="__codelineno-1-7" href="#__codelineno-1-7"></a>
-<a id="__codelineno-1-8" name="__codelineno-1-8" href="#__codelineno-1-8"></a><span class="kt">int</span><span class="w"> </span><span class="nf">main</span><span class="p">()</span><span class="w"> </span><span class="p">{</span>
-<a id="__codelineno-1-9" name="__codelineno-1-9" href="#__codelineno-1-9"></a><span class="w">    </span><span class="k">const</span><span class="w"> </span><span class="n">tlv</span><span class="o">::</span><span class="kt">byte</span><span class="w"> </span><span class="n">input</span><span class="p">[]</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="p">{</span><span class="n">tlv</span><span class="o">::</span><span class="kt">byte</span><span class="p">(</span><span class="mh">0x30</span><span class="p">),</span><span class="w"> </span><span class="n">tlv</span><span class="o">::</span><span class="kt">byte</span><span class="p">(</span><span class="mh">0x03</span><span class="p">),</span><span class="w"> </span><span class="n">tlv</span><span class="o">::</span><span class="kt">byte</span><span class="p">(</span><span class="mh">0x04</span><span class="p">),</span><span class="w"> </span><span class="n">tlv</span><span class="o">::</span><span class="kt">byte</span><span class="p">(</span><span class="mh">0x01</span><span class="p">),</span>
-<a id="__codelineno-1-10" name="__codelineno-1-10" href="#__codelineno-1-10"></a><span class="w">                               </span><span class="n">tlv</span><span class="o">::</span><span class="kt">byte</span><span class="p">(</span><span class="sc">'A'</span><span class="p">),</span><span class="w">  </span><span class="n">tlv</span><span class="o">::</span><span class="kt">byte</span><span class="p">(</span><span class="mh">0x04</span><span class="p">),</span><span class="w"> </span><span class="n">tlv</span><span class="o">::</span><span class="kt">byte</span><span class="p">(</span><span class="mh">0x01</span><span class="p">),</span><span class="w"> </span><span class="n">tlv</span><span class="o">::</span><span class="kt">byte</span><span class="p">(</span><span class="sc">'B'</span><span class="p">)};</span>
-<a id="__codelineno-1-11" name="__codelineno-1-11" href="#__codelineno-1-11"></a><span class="w">    </span><span class="k">auto</span><span class="w">            </span><span class="n">document</span><span class="w"> </span><span class="o">=</span>
-<a id="__codelineno-1-12" name="__codelineno-1-12" href="#__codelineno-1-12"></a><span class="w">        </span><span class="n">tlv</span><span class="o">::</span><span class="n">document</span><span class="o">::</span><span class="n">parse</span><span class="p">({</span><span class="n">input</span><span class="p">,</span><span class="w"> </span><span class="k">sizeof</span><span class="p">(</span><span class="n">input</span><span class="p">)},</span><span class="w"> </span><span class="n">tlv</span><span class="o">::</span><span class="n">document_format</span><span class="p">(</span><span class="n">tlv</span><span class="o">::</span><span class="n">ber</span><span class="o">::</span><span class="n">format</span><span class="p">{}));</span>
-<a id="__codelineno-1-13" name="__codelineno-1-13" href="#__codelineno-1-13"></a><span class="w">    </span><span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="o">!</span><span class="n">document</span><span class="p">)</span><span class="w"> </span><span class="p">{</span>
-<a id="__codelineno-1-14" name="__codelineno-1-14" href="#__codelineno-1-14"></a><span class="w">        </span><span class="n">std</span><span class="o">::</span><span class="n">cerr</span><span class="w"> </span><span class="o">&lt;&lt;</span><span class="w"> </span><span class="n">document</span><span class="p">.</span><span class="n">error</span><span class="p">().</span><span class="n">message</span><span class="w"> </span><span class="o">&lt;&lt;</span><span class="w"> </span><span class="sc">'\n'</span><span class="p">;</span>
-<a id="__codelineno-1-15" name="__codelineno-1-15" href="#__codelineno-1-15"></a><span class="w">        </span><span class="k">return</span><span class="w"> </span><span class="mi">1</span><span class="p">;</span>
-<a id="__codelineno-1-16" name="__codelineno-1-16" href="#__codelineno-1-16"></a><span class="w">    </span><span class="p">}</span>
-<a id="__codelineno-1-17" name="__codelineno-1-17" href="#__codelineno-1-17"></a><span class="w">    </span><span class="c1">// Document owns its data; Nodes borrow this Document and cannot outlive it.</span>
-<a id="__codelineno-1-18" name="__codelineno-1-18" href="#__codelineno-1-18"></a><span class="w">    </span><span class="kt">size_t</span><span class="w"> </span><span class="n">roots</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mi">0</span><span class="p">,</span><span class="w"> </span><span class="n">children</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mi">0</span><span class="p">;</span>
-<a id="__codelineno-1-19" name="__codelineno-1-19" href="#__codelineno-1-19"></a><span class="w">    </span><span class="k">for</span><span class="w"> </span><span class="p">(</span><span class="k">auto</span><span class="w"> </span><span class="n">node</span><span class="w"> </span><span class="o">:</span><span class="w"> </span><span class="o">*</span><span class="n">document</span><span class="p">)</span><span class="w"> </span><span class="p">{</span>
-<a id="__codelineno-1-20" name="__codelineno-1-20" href="#__codelineno-1-20"></a><span class="w">        </span><span class="n">std</span><span class="o">::</span><span class="n">cout</span><span class="w"> </span><span class="o">&lt;&lt;</span><span class="w"> </span><span class="s">"Root Value bytes: "</span><span class="w"> </span><span class="o">&lt;&lt;</span><span class="w"> </span><span class="n">node</span><span class="p">.</span><span class="n">value</span><span class="p">().</span><span class="n">size</span><span class="p">()</span><span class="w"> </span><span class="o">&lt;&lt;</span><span class="w"> </span><span class="sc">'\n'</span><span class="p">;</span>
-<a id="__codelineno-1-21" name="__codelineno-1-21" href="#__codelineno-1-21"></a><span class="w">        </span><span class="o">++</span><span class="n">roots</span><span class="p">;</span>
-<a id="__codelineno-1-22" name="__codelineno-1-22" href="#__codelineno-1-22"></a><span class="w">        </span><span class="k">for</span><span class="w"> </span><span class="p">(</span><span class="k">auto</span><span class="w"> </span><span class="n">child</span><span class="w"> </span><span class="o">:</span><span class="w"> </span><span class="n">node</span><span class="p">.</span><span class="n">children</span><span class="p">())</span><span class="w"> </span><span class="p">{</span>
-<a id="__codelineno-1-23" name="__codelineno-1-23" href="#__codelineno-1-23"></a><span class="w">            </span><span class="n">std</span><span class="o">::</span><span class="n">cout</span><span class="w"> </span><span class="o">&lt;&lt;</span><span class="w"> </span><span class="s">"  Child Value bytes: "</span><span class="w"> </span><span class="o">&lt;&lt;</span><span class="w"> </span><span class="n">child</span><span class="p">.</span><span class="n">value</span><span class="p">().</span><span class="n">size</span><span class="p">()</span><span class="w"> </span><span class="o">&lt;&lt;</span><span class="w"> </span><span class="sc">'\n'</span><span class="p">;</span>
-<a id="__codelineno-1-24" name="__codelineno-1-24" href="#__codelineno-1-24"></a><span class="w">            </span><span class="o">++</span><span class="n">children</span><span class="p">;</span>
-<a id="__codelineno-1-25" name="__codelineno-1-25" href="#__codelineno-1-25"></a><span class="w">        </span><span class="p">}</span>
-<a id="__codelineno-1-26" name="__codelineno-1-26" href="#__codelineno-1-26"></a><span class="w">    </span><span class="p">}</span>
-<a id="__codelineno-1-27" name="__codelineno-1-27" href="#__codelineno-1-27"></a><span class="w">    </span><span class="k">return</span><span class="w"> </span><span class="n">roots</span><span class="w"> </span><span class="o">==</span><span class="w"> </span><span class="mi">2</span><span class="w"> </span><span class="o">&amp;&amp;</span><span class="w"> </span><span class="n">children</span><span class="w"> </span><span class="o">==</span><span class="w"> </span><span class="mi">1</span><span class="w"> </span><span class="o">?</span><span class="w"> </span><span class="mi">0</span><span class="w"> </span><span class="o">:</span><span class="w"> </span><span class="mi">2</span><span class="p">;</span>
-<a id="__codelineno-1-28" name="__codelineno-1-28" href="#__codelineno-1-28"></a><span class="p">}</span>
-</code></pre></div>
-<p>For an owning Document, <code>document.select("6F/A5/50")</code> returns matching Node
-handles. For borrowed streaming traversal, <code>reader.select("6F/A5/50")</code> returns
-a lazy range. <a href="https://github.com/marekcingel/OpenTLV/blob/main/examples/tlv++/src/query.cpp"><code>query.cpp</code></a> executes both
-forms when Document is enabled. Invalid Query text throws <code>query_error</code>;
-streaming parse failures throw <code>parse_error</code>. Document parsing itself uses a
-result that must be checked before selection. Document and its selection
-snapshot may allocate; streaming selection does not allocate on success.</p>
-<h2 id="typed-values-and-custom-formats">Typed Values and custom Formats<a class="headerlink" href="#typed-values-and-custom-formats" title="Permanent link">&para;</a></h2>
-<p><a href="https://github.com/marekcingel/OpenTLV/blob/main/examples/tlv++/src/typed_fields.cpp"><code>typed_fields.cpp</code></a> defines an
-application <code>Counter</code> field with byte Tag <code>9F36</code>, <code>uint16_t</code> and an explicit
-big-endian codec. It uses <code>writer.write&lt;Counter&gt;(value)</code>,
-<code>element.decode&lt;Counter&gt;()</code> and optional <code>document.get&lt;Counter&gt;()</code>.
-Typed results preserve codec and framing failures. The short Writer overload
-allocates temporary Value storage; <a href="https://github.com/marekcingel/OpenTLV/blob/main/examples/tlv++/src/advanced_control.cpp"><code>advanced_control.cpp</code></a>
-instead supplies two caller-owned scratch bytes.</p>
-<p><a href="https://github.com/marekcingel/OpenTLV/blob/main/examples/tlv++/src/formats/fixed_format.cpp"><code>formats/fixed_format.cpp</code></a>
-uses a compile-time Format with typed Reader and Writer; it needs no native
-descriptor access. Its byte-order template argument still uses
-<code>TLV_BYTE_ORDER_LITTLE_ENDIAN</code>: that is an existing public API requirement.
-A completely application-defined Format is shown separately in
-<a href="https://github.com/marekcingel/OpenTLV/blob/main/examples/tlv++/src/formats/custom_format.cpp"><code>formats/custom_format.cpp</code></a>.
-It implements decode, measure and encode contracts and source ranges, while
-generic Reader and Writer still execute the canonical engine.</p>
-<h2 id="measuring-ceremony">Measuring ceremony<a class="headerlink" href="#measuring-ceremony" title="Permanent link">&para;</a></h2>
-<p>These are nonblank, noncomment physical source-line counts from the previous
-examples and this rewrite. Include braces, calls and error reporting; exclude
-input/output fixtures, printing of successful results and acceptance checks.
-Count the complete writing block up to the first success message or parsing,
-and the Document parse/check/move block up to traversal. Fixed-format counting
-also excludes its one-line Value fixture. This measures the visible code users
-need, with the committed formatting, rather than just API calls.</p>
+<h1 id="reader-decode-measurements">Reader decode measurements<a class="headerlink" href="#reader-decode-measurements" title="Permanent link">&para;</a></h1>
+<p>This records the bounded optimization in
+<a href="https://github.com/marekcingel/OpenTLV/issues/538">#538</a>. Reader, Tree Reader and
+Document use the same canonical Format decoder. No public declaration, ABI,
+allocation policy, borrowed lifetime or wire behavior changes.</p>
+<h2 id="scope-and-decisions">Scope and decisions<a class="headerlink" href="#scope-and-decisions" title="Permanent link">&para;</a></h2>
+<p>The issue's instrumented profile identified Reader, Format and field-layout
+decoding as investigation targets. Its percentages are not uninstrumented cost
+shares. The measurements here use the newer starting commit
+<code>85513e6eed094e0b33e674f83cafe6ca837ac251</code>, rather than the issue's original
+<code>12cecdd6a0e72bf01f902383bfc5b0239b675a25</code> profile.</p>
+<p>Two independent changes were evaluated; only A is retained:</p>
+<ul>
+<li><strong>A, optional Reader error staging:</strong> initialize Reader's temporary error
+  object and request Format failure detail only when the caller requests
+  diagnostics. Keep initialization on diagnostic calls because invalid Format
+  arguments can return without writing detail.</li>
+<li><strong>B, contiguous payload masks:</strong> extract low contiguous payload bits directly
+  in the generic variable-field decoder. Retain the existing bit-gathering loop
+  for sparse or shifted masks. This recognizes a field encoding property, not a
+  protocol or builtin Format.</li>
+</ul>
+<p>The B pilot reduced small-BER Reader median time by 2.4% relative to A, but an
+unaffected fixed-TLV workload also decreased by 5.6%. That does not establish
+an attributable improvement beyond host variation. B was removed, along with
+its proposed mask-specific regression test.</p>
+<p>Format still initializes callback result/error storage, always supplies a
+non-NULL callback error object, validates complete ranges and borrowed bindings,
+and publishes a decoded result only after validation. Source metadata and the
+transactional result copy remain intact. Configuration checks remain in place;
+this change introduces no pointer-keyed cache or new immutability assumption.</p>
+<h2 id="workloads-and-measurement-method">Workloads and measurement method<a class="headerlink" href="#workloads-and-measurement-method" title="Permanent link">&para;</a></h2>
+<p>The <a href="https://github.com/marekcingel/OpenTLV/blob/main/benchmarks/README.md">benchmark guide</a> defines the datasets, exact
+element denominators, allocation counters and commands. Reader reads roots;
+Tree Reader visits all elements and validates matching END events. Dataset
+generation and caller-owned traversal workspace allocation are outside timing.
+Every timed iteration checks successful completion and exact element counts.</p>
+<p>Document timings include parse, count verification, destruction and arena reset.
+The default path uses the actual default allocator. An untimed counting pass
+sizes a preallocated, aligned arena through the existing custom allocator API.
+The arena retains its complete storage between iterations and does not reclaim
+individual allocations. Its initial allocation is excluded from timing, so these
+results describe repeated parsing with reusable capacity, not total application
+startup or arbitrary edit workloads.</p>
+<h2 id="recorded-release-results">Recorded Release results<a class="headerlink" href="#recorded-release-results" title="Permanent link">&para;</a></h2>
+<p>Measurements on 2026-10-06 used GCC 13.3.0, Linux x86-64 under WSL2, an Intel
+Core i7-1255U, Google Benchmark v1.9.4, shared OpenTLV, and <code>-O3 -DNDEBUG</code>
+without profiling, sanitizers or LTO. The C library also uses <code>-fPIC</code>
+and <code>-fvisibility=hidden</code>. Benchmark processes were pinned to guest CPU 2.
+The dependency version context contains <code>-dirty</code> because the Windows checkout
+uses CRLF; its content diff ignoring line endings is empty.</p>
+<p>Each case used seven randomly interleaved repetitions, a 0.12-second minimum
+CPU timing interval, and Google Benchmark's adaptive iteration counts.
+No project build or test ran concurrently with these recorded runs. The full
+matrix ran baseline then A; the independent Reader repeat ran A then baseline.
+The same benchmark executable loaded saved baseline/A libraries through
+<code>LD_LIBRARY_PATH</code>; <code>ldd</code> confirmed selection. The only library source difference
+is the retained <code>tlv_read_impl()</code> change described above.</p>
+<p>The <a href="https://github.com/marekcingel/OpenTLV/blob/main/benchmarks/evidence/reader-decode-538.json">full evidence</a> and
+<a href="https://github.com/marekcingel/OpenTLV/blob/main/benchmarks/evidence/reader-decode-538-repeat.json">reverse-order repeat</a>
+retain context, dataset counters, every repetition's iteration count and CPU/wall
+times, medians and sample coefficient of variation (CV). Times below are CPU
+microseconds per complete input, not per element. Negative changes mean less
+time; CV describes variation, not a confidence interval.</p>
 <table>
 <thead>
 <tr>
-<th>Operation</th>
-<th style="text-align: right;">Previous lines</th>
-<th style="text-align: right;">Current lines</th>
-<th>What changed</th>
+<th>Reader workload</th>
+<th style="text-align: right;">Baseline (us)</th>
+<th style="text-align: right;">A (us)</th>
+<th style="text-align: right;">Change</th>
+<th style="text-align: right;">CV baseline/A</th>
+<th style="text-align: right;">Repeat change</th>
 </tr>
 </thead>
 <tbody>
 <tr>
-<td>Write two primitive BER Values (<code>basic_usage.cpp</code>)</td>
-<td style="text-align: right;">14</td>
-<td style="text-align: right;">8</td>
-<td>Scoped encode replaces explicit Writer setup, a byte conversion helper and two individual result checks.</td>
+<td>BER large Values</td>
+<td style="text-align: right;">13.0</td>
+<td style="text-align: right;">11.7</td>
+<td style="text-align: right;">-10.2%</td>
+<td style="text-align: right;">1.0/2.3%</td>
+<td style="text-align: right;">-10.9%</td>
 </tr>
 <tr>
-<td>Write a custom fixed-format Value (<code>formats/fixed_format.cpp</code>)</td>
-<td style="text-align: right;">7</td>
-<td style="text-align: right;">6</td>
-<td>Typed Writer and direct array input replace descriptor selection and explicit Tag/Value adaptation.</td>
+<td>BER small Values</td>
+<td style="text-align: right;">1602.3</td>
+<td style="text-align: right;">1407.8</td>
+<td style="text-align: right;">-12.1%</td>
+<td style="text-align: right;">3.0/4.5%</td>
+<td style="text-align: right;">-10.0%</td>
 </tr>
 <tr>
-<td>Parse/check an owning Document (<code>document.cpp</code>)</td>
-<td style="text-align: right;">4</td>
-<td style="text-align: right;">6</td>
-<td>Iteration uses the checked result directly, removing the move; explicit error reporting adds lines.</td>
+<td>BER nested definite</td>
+<td style="text-align: right;">20.0</td>
+<td style="text-align: right;">17.5</td>
+<td style="text-align: right;">-12.3%</td>
+<td style="text-align: right;">7.8/9.3%</td>
+<td style="text-align: right;">-4.9%</td>
+</tr>
+<tr>
+<td>BER nested indefinite</td>
+<td style="text-align: right;">74.6</td>
+<td style="text-align: right;">72.9</td>
+<td style="text-align: right;">-2.2%</td>
+<td style="text-align: right;">2.7/4.1%</td>
+<td style="text-align: right;">-2.9%</td>
+</tr>
+<tr>
+<td>Fixed LTV</td>
+<td style="text-align: right;">1245.1</td>
+<td style="text-align: right;">1065.8</td>
+<td style="text-align: right;">-14.4%</td>
+<td style="text-align: right;">2.8/3.1%</td>
+<td style="text-align: right;">-12.9%</td>
+</tr>
+<tr>
+<td>Fixed TLV</td>
+<td style="text-align: right;">1241.6</td>
+<td style="text-align: right;">1088.2</td>
+<td style="text-align: right;">-12.3%</td>
+<td style="text-align: right;">5.3/4.8%</td>
+<td style="text-align: right;">-11.0%</td>
+</tr>
+<tr>
+<td>Packed LLDP</td>
+<td style="text-align: right;">1269.5</td>
+<td style="text-align: right;">1104.3</td>
+<td style="text-align: right;">-13.0%</td>
+<td style="text-align: right;">3.9/14.3%</td>
+<td style="text-align: right;">-13.7%</td>
+</tr>
+<tr>
+<td>Variable sparse mask</td>
+<td style="text-align: right;">1325.3</td>
+<td style="text-align: right;">1171.1</td>
+<td style="text-align: right;">-11.6%</td>
+<td style="text-align: right;">4.5/7.3%</td>
+<td style="text-align: right;">-13.2%</td>
+</tr>
+<tr>
+<td>Variable TLV</td>
+<td style="text-align: right;">1331.1</td>
+<td style="text-align: right;">1234.0</td>
+<td style="text-align: right;">-7.3%</td>
+<td style="text-align: right;">2.3/5.0%</td>
+<td style="text-align: right;">-9.0%</td>
 </tr>
 </tbody>
 </table>
-<p>Streaming Query now uses <code>reader.select(path)</code> instead of a callback and native
-continue enum. Its bounded frame setup and two possible exception types remain
-visible. Borrowed nested Visitor traversal retains four setup/result operations:
-frames, cursor, Visitor call and result check. Neither example hides limits or
-failure handling to lower its line count.</p>
-<p>The quick-start now uses the same Fixed-format write/read round trip as the
-other languages, with <code>Hello, world!</code> as Value. Its total length is not compared
-with the former BER parsing-only program because they perform different operations. Document
-parsing retains explicit Format selection, and borrowed input still requires a
-byte span. These remaining setup requirements are visible rather than hidden in
-example-only adapters. Allocation-free native control and explicit C structure
-access belong in the <a href="https://github.com/marekcingel/OpenTLV/blob/main/examples/tlv++/src/README.md#advanced-control">advanced examples</a>.</p>
-<h2 id="equivalent-cli-operations">Equivalent CLI operations<a class="headerlink" href="#equivalent-cli-operations" title="Permanent link">&para;</a></h2>
-<p>With BER enabled, these commands use the same primitive and nested bytes as the
-C++ examples. <code>otlv</code> allocates its input/output storage; C++ callers can select
-borrowed ranges or an owning Document explicitly.</p>
-<div class="highlight"><pre><span></span><code><a id="__codelineno-2-1" name="__codelineno-2-1" href="#__codelineno-2-1"></a>otlv<span class="w"> </span>encode<span class="w"> </span>--format<span class="w"> </span>fixed<span class="w"> </span>--tag<span class="w"> </span><span class="m">01</span><span class="w"> </span>--value<span class="w"> </span>48656C6C6F2C20776F726C6421
-<a id="__codelineno-2-2" name="__codelineno-2-2" href="#__codelineno-2-2"></a>otlv<span class="w"> </span>dump<span class="w"> </span>--format<span class="w"> </span>fixed<span class="w"> </span>--hex<span class="w"> </span>010D48656C6C6F2C20776F726C6421<span class="w"> </span>--no-color
-<a id="__codelineno-2-3" name="__codelineno-2-3" href="#__codelineno-2-3"></a>otlv<span class="w"> </span>decode<span class="w"> </span>--format<span class="w"> </span>ber<span class="w"> </span>--hex<span class="w"> </span>6F0A8403414243A503500101
-<a id="__codelineno-2-4" name="__codelineno-2-4" href="#__codelineno-2-4"></a>otlv<span class="w"> </span>query<span class="w"> </span>6F/A5/50<span class="w"> </span>--format<span class="w"> </span>ber<span class="w"> </span>--hex<span class="w"> </span>6F0A8403414243A503500101<span class="w"> </span>--value
+<p>Small BER, large BER and fixed-layout Reader improvements repeat beyond their
+observed typical dispersion. The indefinite result is within variation; no
+indefinite-specific speedup is claimed. Non-BER Reader and Tree medians all
+decreased in the full matrix. Tree small-BER median decreased 8.9%; Tree and
+Document measurements include more noise and are not used to infer Reader-only
+cost. Several samples have large outliers (CV up to 44%); this is local WSL
+evidence, not a universal throughput guarantee or a hosted performance gate.</p>
+<h3 id="document-allocator-experiment">Document allocator experiment<a class="headerlink" href="#document-allocator-experiment" title="Permanent link">&para;</a></h3>
+<p>For 16,000 small BER elements with A, default parse+free took a median 3107.2 us
+(CV 11.7%); the reusable arena took 2491.7 us (CV 4.9%), a 19.8% reduction in
+this experiment. Both made 32,001 allocation and release callback requests
+for 1,440,120 requested bytes. The arena reserved 1,792,128 bytes including
+alignment padding, about 24.4% more than the sum of requested sizes.</p>
+<p>These flat cases set <code>max_depth=0</code>, avoiding unused traversal-frame allocation;
+this explains the one fewer allocation than the issue's 32,002-call profile.
+Nested cases set <code>max_depth=32</code>. All cases bound <code>max_elements</code> to the exact
+dataset count and disable source-location retention. Default allocator behavior
+and public APIs are unchanged. The arena comparison is independent of the
+Reader comparison: default small-BER Document time changed only -0.5% from
+baseline to A, within observed noise.</p>
+<h3 id="reproducing-and-collecting-evidence">Reproducing and collecting evidence<a class="headerlink" href="#reproducing-and-collecting-evidence" title="Permanent link">&para;</a></h3>
+<p>Build the benchmark source from this change against both the starting core and
+the modified core, with otherwise identical Release options. For each variant:</p>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-0-1" name="__codelineno-0-1" href="#__codelineno-0-1"></a>taskset<span class="w"> </span>-c<span class="w"> </span><span class="m">2</span><span class="w"> </span>./benchmark-tlv<span class="w"> </span><span class="se">\</span>
+<a id="__codelineno-0-2" name="__codelineno-0-2" href="#__codelineno-0-2"></a><span class="w">  </span><span class="s1">'--benchmark_filter=^(reader_decode|tree_decode|document_decode)/'</span><span class="w"> </span><span class="se">\</span>
+<a id="__codelineno-0-3" name="__codelineno-0-3" href="#__codelineno-0-3"></a><span class="w">  </span>--benchmark_min_time<span class="o">=</span><span class="m">0</span>.12s<span class="w"> </span>--benchmark_repetitions<span class="o">=</span><span class="m">7</span><span class="w"> </span><span class="se">\</span>
+<a id="__codelineno-0-4" name="__codelineno-0-4" href="#__codelineno-0-4"></a><span class="w">  </span>--benchmark_enable_random_interleaving<span class="o">=</span><span class="nb">true</span><span class="w"> </span><span class="se">\</span>
+<a id="__codelineno-0-5" name="__codelineno-0-5" href="#__codelineno-0-5"></a><span class="w">  </span>--benchmark_report_aggregates_only<span class="o">=</span><span class="nb">false</span><span class="w"> </span><span class="se">\</span>
+<a id="__codelineno-0-6" name="__codelineno-0-6" href="#__codelineno-0-6"></a><span class="w">  </span>--benchmark_display_aggregates_only<span class="o">=</span><span class="nb">true</span><span class="w"> </span><span class="se">\</span>
+<a id="__codelineno-0-7" name="__codelineno-0-7" href="#__codelineno-0-7"></a><span class="w">  </span>--benchmark_out<span class="o">=</span>before.json<span class="w"> </span>--benchmark_out_format<span class="o">=</span>json<span class="w"> </span><span class="se">\</span>
+<a id="__codelineno-0-8" name="__codelineno-0-8" href="#__codelineno-0-8"></a><span class="w">  </span><span class="s1">'--benchmark_context=commit=YOUR_COMMIT,variant=baseline,compiler=GCC-13.3.0,flags=-O3 -DNDEBUG,affinity=cpu2'</span>
 </code></pre></div>
-<p>The first command produces <code>010D48656C6C6F2C20776F726C6421</code>; Query produces <code>01</code>. Decode produces
-the versioned JSON model, which <code>otlv encode --format ber --input model.json</code>
-encodes back to the original bytes. The following executable acceptance example
-checks those exact outputs. CTest runs it as <code>Integration_cli_cpp_examples</code> when
-<code>OPENTLV_BUILD_CLI_TESTS</code> and BER are enabled; temporary JSON is written in the
-build directory. Run it there with <code>cmake -DCLI=/path/to/otlv -P
-/path/to/tools/cli/examples.cmake</code>.</p>
-<!-- example: tools/cli/examples.cmake -->
-<div class="highlight"><pre><span></span><code><a id="__codelineno-3-1" name="__codelineno-3-1" href="#__codelineno-3-1"></a><span class="c"># Run from a build directory: cmake -DCLI=/path/to/otlv -P /path/to/tools/cli/examples.cmake</span>
-<a id="__codelineno-3-2" name="__codelineno-3-2" href="#__codelineno-3-2"></a><span class="nb">cmake_minimum_required</span><span class="p">(</span><span class="s">VERSION</span><span class="w"> </span><span class="s">3.16</span><span class="p">)</span>
-<a id="__codelineno-3-3" name="__codelineno-3-3" href="#__codelineno-3-3"></a>
-<a id="__codelineno-3-4" name="__codelineno-3-4" href="#__codelineno-3-4"></a><span class="nb">function</span><span class="p">(</span><span class="s">run_cli</span><span class="w"> </span><span class="s">expected</span><span class="p">)</span>
-<a id="__codelineno-3-5" name="__codelineno-3-5" href="#__codelineno-3-5"></a><span class="w">    </span><span class="nb">execute_process</span><span class="p">(</span><span class="s">COMMAND</span><span class="w"> </span><span class="s2">"${CLI}"</span><span class="w"> </span><span class="o">${</span><span class="nv">ARGN</span><span class="o">}</span><span class="w"> </span><span class="s">RESULT_VARIABLE</span><span class="w"> </span><span class="s">result</span>
-<a id="__codelineno-3-6" name="__codelineno-3-6" href="#__codelineno-3-6"></a><span class="w">        </span><span class="s">OUTPUT_VARIABLE</span><span class="w"> </span><span class="s">output</span><span class="w"> </span><span class="s">ERROR_VARIABLE</span><span class="w"> </span><span class="s">error</span><span class="p">)</span>
-<a id="__codelineno-3-7" name="__codelineno-3-7" href="#__codelineno-3-7"></a><span class="w">    </span><span class="nb">string</span><span class="p">(</span><span class="s">STRIP</span><span class="w"> </span><span class="s2">"${output}"</span><span class="w"> </span><span class="s">output</span><span class="p">)</span>
-<a id="__codelineno-3-8" name="__codelineno-3-8" href="#__codelineno-3-8"></a><span class="w">    </span><span class="nb">if</span><span class="p">(</span><span class="s">NOT</span><span class="w"> </span><span class="s">result</span><span class="w"> </span><span class="s">EQUAL</span><span class="w"> </span><span class="s">0</span><span class="w"> </span><span class="s">OR</span><span class="w"> </span><span class="s">NOT</span><span class="w"> </span><span class="s">error</span><span class="w"> </span><span class="s">STREQUAL</span><span class="w"> </span><span class="s2">""</span><span class="w"> </span><span class="s">OR</span><span class="w"> </span><span class="s">NOT</span><span class="w"> </span><span class="s">output</span><span class="w"> </span><span class="s">STREQUAL</span><span class="w"> </span><span class="s">expected</span><span class="p">)</span>
-<a id="__codelineno-3-9" name="__codelineno-3-9" href="#__codelineno-3-9"></a><span class="w">        </span><span class="nb">message</span><span class="p">(</span><span class="s">FATAL_ERROR</span><span class="w"> </span><span class="s2">"${ARGN}: ${result}\n${output}\n${error}\nExpected: ${expected}"</span><span class="p">)</span>
-<a id="__codelineno-3-10" name="__codelineno-3-10" href="#__codelineno-3-10"></a><span class="w">    </span><span class="nb">endif</span><span class="p">()</span>
-<a id="__codelineno-3-11" name="__codelineno-3-11" href="#__codelineno-3-11"></a><span class="nb">endfunction</span><span class="p">()</span>
-<a id="__codelineno-3-12" name="__codelineno-3-12" href="#__codelineno-3-12"></a>
-<a id="__codelineno-3-13" name="__codelineno-3-13" href="#__codelineno-3-13"></a><span class="c"># Same Fixed-format Hello, world! round trip as the multi-language quick-start.</span>
-<a id="__codelineno-3-14" name="__codelineno-3-14" href="#__codelineno-3-14"></a><span class="nb">run_cli</span><span class="p">(</span><span class="s2">"010D48656C6C6F2C20776F726C6421"</span><span class="w"> </span><span class="s">encode</span><span class="w"> </span><span class="s">--format</span><span class="w"> </span><span class="s">fixed</span><span class="w"> </span><span class="s">--tag</span><span class="w"> </span><span class="s">01</span><span class="w"> </span><span class="s">--value</span><span class="w"> </span><span class="s">48656C6C6F2C20776F726C6421</span><span class="p">)</span>
-<a id="__codelineno-3-15" name="__codelineno-3-15" href="#__codelineno-3-15"></a><span class="nb">run_cli</span><span class="p">(</span><span class="s2">"offset=0 tag=01 length=13 value=48656C6C6F2C20776F726C6421"</span><span class="w"> </span><span class="s">dump</span><span class="w"> </span><span class="s">--format</span><span class="w"> </span><span class="s">fixed</span><span class="w"> </span><span class="s">--hex</span><span class="w"> </span><span class="s">010D48656C6C6F2C20776F726C6421</span><span class="w"> </span><span class="s">--no-color</span><span class="p">)</span>
-<a id="__codelineno-3-16" name="__codelineno-3-16" href="#__codelineno-3-16"></a>
-<a id="__codelineno-3-17" name="__codelineno-3-17" href="#__codelineno-3-17"></a><span class="c"># Same nested bytes as C++ parse.cpp, write.cpp and query.cpp.</span>
-<a id="__codelineno-3-18" name="__codelineno-3-18" href="#__codelineno-3-18"></a><span class="nb">set</span><span class="p">(</span><span class="s">wire</span><span class="w"> </span><span class="s2">"6F0A8403414243A503500101"</span><span class="p">)</span>
-<a id="__codelineno-3-19" name="__codelineno-3-19" href="#__codelineno-3-19"></a><span class="nb">set</span><span class="p">(</span><span class="s">model</span><span class="w"> </span><span class="s s-Multiline">[=[{"schema":"opentlv.tlv","version":1,"format":"ber","elements":[{"tag":"6F","length_mode":"definite","children":[{"tag":"84","value":"414243"},{"tag":"A5","length_mode":"definite","children":[{"tag":"50","value":"01"}]}]}]}]=]</span><span class="p">)</span>
-<a id="__codelineno-3-20" name="__codelineno-3-20" href="#__codelineno-3-20"></a><span class="nb">run_cli</span><span class="p">(</span><span class="s2">"${model}"</span><span class="w"> </span><span class="s">decode</span><span class="w"> </span><span class="s">--format</span><span class="w"> </span><span class="s">ber</span><span class="w"> </span><span class="s">--hex</span><span class="w"> </span><span class="s2">"${wire}"</span><span class="p">)</span>
-<a id="__codelineno-3-21" name="__codelineno-3-21" href="#__codelineno-3-21"></a><span class="nb">run_cli</span><span class="p">(</span><span class="s2">"01"</span><span class="w"> </span><span class="s">query</span><span class="w"> </span><span class="s">6F/A5/50</span><span class="w"> </span><span class="s">--format</span><span class="w"> </span><span class="s">ber</span><span class="w"> </span><span class="s">--hex</span><span class="w"> </span><span class="s2">"${wire}"</span><span class="w"> </span><span class="s">--value</span><span class="p">)</span>
-<a id="__codelineno-3-22" name="__codelineno-3-22" href="#__codelineno-3-22"></a>
-<a id="__codelineno-3-23" name="__codelineno-3-23" href="#__codelineno-3-23"></a><span class="c"># Write the decoded model in the build directory, then regenerate the exact wire bytes.</span>
-<a id="__codelineno-3-24" name="__codelineno-3-24" href="#__codelineno-3-24"></a><span class="nb">set</span><span class="p">(</span><span class="s">json</span><span class="w"> </span><span class="s2">"${CMAKE_CURRENT_BINARY_DIR}/cpp-example.json"</span><span class="p">)</span>
-<a id="__codelineno-3-25" name="__codelineno-3-25" href="#__codelineno-3-25"></a><span class="nb">file</span><span class="p">(</span><span class="s">WRITE</span><span class="w"> </span><span class="s2">"${json}"</span><span class="w"> </span><span class="s2">"${model}\n"</span><span class="p">)</span>
-<a id="__codelineno-3-26" name="__codelineno-3-26" href="#__codelineno-3-26"></a><span class="nb">run_cli</span><span class="p">(</span><span class="s2">"${wire}"</span><span class="w"> </span><span class="s">encode</span><span class="w"> </span><span class="s">--format</span><span class="w"> </span><span class="s">ber</span><span class="w"> </span><span class="s">--input</span><span class="w"> </span><span class="s2">"${json}"</span><span class="p">)</span>
+<p>Repeat into <code>after.json</code> with the appropriate variant metadata, then reverse
+the order using the <code>^reader_decode/</code> filter for an independent confirmation.
+Preserve the actual command/build flags and do not compare different datasets.
+From the repository root, collect each matching pair with:</p>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-1-1" name="__codelineno-1-1" href="#__codelineno-1-1"></a>python<span class="w"> </span>scripts/reader_decode_evidence.py<span class="w"> </span><span class="nv">baseline</span><span class="o">=</span>before.json<span class="w"> </span>optional-error<span class="o">=</span>after.json<span class="w"> </span><span class="se">\</span>
+<a id="__codelineno-1-2" name="__codelineno-1-2" href="#__codelineno-1-2"></a><span class="w">  </span>--output<span class="w"> </span>evidence.json<span class="w"> </span>--markdown<span class="w"> </span>comparison.md
 </code></pre></div>
-<p>See the <a href="../../cli/">CLI guide</a> for installation, binary output and limits.</p>
-<p>The CLI implementation also consumes the C++ facade: built-in Format views,
-Tree Reader traversal, borrowed Element access, Writer sizing/encoding and an
-owning Query matcher. Runtime Fixed configuration belongs to each command.
-Query feeds every visited ancestor to the matcher so failure diagnostics retain
-the enclosing path. Recovery uses checked single-element reads. Strict DER,
-PDOL identifiers and existing protocol annotation/diagnostic adapters retain
-explicit native interoperability where their specialized contracts require it.
-CLI JSON encoding validates output with the same Fixed widths and byte order
-selected for writing.</p>
-<h2 id="build-and-run">Build and run<a class="headerlink" href="#build-and-run" title="Permanent link">&para;</a></h2>
-<div class="highlight"><pre><span></span><code><a id="__codelineno-4-1" name="__codelineno-4-1" href="#__codelineno-4-1"></a>cmake<span class="w"> </span>-S<span class="w"> </span>.<span class="w"> </span>-B<span class="w"> </span>build<span class="w"> </span>-DCMAKE_CXX_STANDARD<span class="o">=</span><span class="m">11</span>
-<a id="__codelineno-4-2" name="__codelineno-4-2" href="#__codelineno-4-2"></a>cmake<span class="w"> </span>--build<span class="w"> </span>build<span class="w"> </span>--config<span class="w"> </span>Debug<span class="w"> </span>--parallel
-<a id="__codelineno-4-3" name="__codelineno-4-3" href="#__codelineno-4-3"></a>ctest<span class="w"> </span>--test-dir<span class="w"> </span>build<span class="w"> </span>-C<span class="w"> </span>Debug<span class="w"> </span>-L<span class="w"> </span>examples<span class="w"> </span>--output-on-failure<span class="w"> </span>--no-tests<span class="o">=</span>error
-<a id="__codelineno-4-4" name="__codelineno-4-4" href="#__codelineno-4-4"></a>python<span class="w"> </span>scripts/check_doc_examples.py
-</code></pre></div>
-<p>BER examples require <code>OPENTLV_FORMAT_BER</code>; Document examples additionally require
-<code>OPENTLV_DOCUMENT</code>. Generic Format, typed field and advanced control examples
-remain available when optional protocols are disabled. The CI compiler jobs run
-registered examples through the integration label. Documentation blocks above
-are synchronized with their compiled or executed sources by the example checker.</p>
+<p>The collector rejects failed cases, missing raw repetitions, mismatched workload
+sets/counters and invalid timings. It records observations, not a significance
+test or an automatic regression threshold.</p>
+<h2 id="contract-validation">Contract validation<a class="headerlink" href="#contract-validation" title="Permanent link">&para;</a></h2>
+<p>The MSVC 19.44 Release build passed all 1,138 configured CTest tests, including
+three new callback initialization, failure-publication and early-argument
+diagnostic regressions. All 36 benchmark cases also passed a one-iteration
+MSVC smoke run; that run is functional validation, not timing evidence.
+The saved GCC libraries expose the same 579 symbol names; public headers are
+unchanged.</p>
+<p>Clang 18.1.3 with ASan, UBSan and leak detection passed the complete C++ unit
+executable (176 tests) and 77 focused C Format, Reader, Tree, incremental,
+variable-field and Visitor tests, including all new regressions. The full C
+sanitizer run stopped on an existing intentional invalid-enum load in
+<code>tests/unit/endian_test.cpp</code>. The focused run excludes two existing Visitor
+tests with the same pattern (<code>CursorArgumentsAndCallbackErrors</code> and
+<code>TreeStopAndErrorResumeAtChildrenAndMatchPull</code>). No sanitizer checks were
+disabled and no unrelated tests were changed; this is not a full C sanitizer
+pass. Hosted CI and WASM validation were not run locally.</p>
+<h2 id="deferred-work">Deferred work<a class="headerlink" href="#deferred-work" title="Permanent link">&para;</a></h2>
+<p>Repeated nested-indefinite boundary scans remain in all variants and benchmarks.
+The separate <a href="../indefinite-boundary-reuse/">boundary-reuse follow-up</a> records
+the issue's profiling evidence and the complete-parent publication, incremental
+input, workspace and lifetime constraints for a future design.</p>
 
 
 
@@ -3870,7 +3851,7 @@ are synchronized with their compiled or executed sources by the example checker.
       <nav class="md-footer__inner md-grid" aria-label="Footer" >
         
           
-          <a href="../select-components/" class="md-footer__link md-footer__link--prev" aria-label="Previous: Building only the components you need">
+          <a href="../fuzzing/" class="md-footer__link md-footer__link--prev" aria-label="Previous: Fuzzing">
             <div class="md-footer__button md-icon">
               
               <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M20 11v2H8l5.5 5.5-1.42 1.42L4.16 12l7.92-7.92L13.5 5.5 8 11z"/></svg>
@@ -3880,20 +3861,20 @@ are synchronized with their compiled or executed sources by the example checker.
                 Previous
               </span>
               <div class="md-ellipsis">
-                Building only the components you need
+                Fuzzing
               </div>
             </div>
           </a>
         
         
           
-          <a href="../rust/" class="md-footer__link md-footer__link--next" aria-label="Next: Using OpenTLV from Rust">
+          <a href="../indefinite-boundary-reuse/" class="md-footer__link md-footer__link--next" aria-label="Next: Indefinite boundary reuse follow-up">
             <div class="md-footer__title">
               <span class="md-footer__direction">
                 Next
               </span>
               <div class="md-ellipsis">
-                Using OpenTLV from Rust
+                Indefinite boundary reuse follow-up
               </div>
             </div>
             <div class="md-footer__button md-icon">
