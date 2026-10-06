@@ -349,6 +349,9 @@ int main(int argc, char** argv) {
 #if OPENTLV_QUERY_FRONTEND
     CHECK(loader_aliases() == 0);
     CHECK(callbacks() == 0);
+#if OPENTLV_READER
+    CHECK(reader_aliases() == 0);
+#endif
 #if OPENTLV_DOCUMENT && OPENTLV_READER && OPENTLV_WRITER
     CHECK(documents() == 0);
 #endif

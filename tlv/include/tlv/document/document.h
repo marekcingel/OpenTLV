@@ -202,6 +202,8 @@ typedef enum tlv_document_query_edit_kind {
  * @param capacity Array entries; short storage leaves the cursor and targets unchanged,
  * permitting retry of the same completed execution with a larger target array.
  * @param applied Required output, initialized to zero; successful edited selected roots.
+ * Targets and applied must not overlap each other or a used Value; such overlap
+ * returns #TLV_ERR_INVALID_ARG before writes.
  * @return OK for no matches, or native error. Invalid operation/capacity/revision makes
  * no edits. Remove cannot fail after collection. Replace/insert commit in preorder,
  * stopping at first failure; previous successful edits remain, without rollback.

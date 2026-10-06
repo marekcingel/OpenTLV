@@ -845,18 +845,26 @@ tlv_result_t tlv_query_exec_finish(tlv_query_exec_t* e, tlv_query_diagnostic_t* 
 }
 
 #if OPENTLV_READER
+/* Outputs may not alias the cursor, its frames, input bytes or Format descriptor. */
+static int reader_output_overlap(const tlv_tree_reader_t* reader, const void* p, size_t n) {
+    return query_overlap(reader, sizeof *reader, p, n) ||
+           query_overlap(reader->frames, reader->capacity * sizeof *reader->frames, p, n) ||
+           query_overlap(reader->input.data, reader->input.size, p, n) ||
+           query_overlap(reader->input.format, reader->input.format ? sizeof(tlv_format_t) : 0, p,
+                         n);
+}
+
 tlv_result_t tlv_query_program_visit(tlv_tree_reader_t* reader, tlv_query_exec_t* e,
                                      tlv_query_event_visitor_t visitor, void* context,
                                      tlv_query_diagnostic_t* d) {
     if (e && (e->busy || query_output_overlap(e, d, d ? sizeof *d : 0))) return TLV_ERR_INVALID_ARG;
+    if (reader && reader->capacity > SIZE_MAX / sizeof *reader->frames) return TLV_ERR_INVALID_ARG;
     if (e && reader &&
-        (reader->capacity > SIZE_MAX / sizeof *reader->frames ||
-         query_output_overlap(e, reader, sizeof *reader) ||
+        (query_output_overlap(e, reader, sizeof *reader) ||
          query_output_overlap(e, reader->frames, reader->capacity * sizeof *reader->frames) ||
-         query_borrow_overlap(e, reader->input.data, reader->input.size) ||
-         query_overlap(reader, sizeof *reader, d, d ? sizeof *d : 0) ||
-         query_overlap(reader->input.data, reader->input.size, d, d ? sizeof *d : 0)))
+         query_borrow_overlap(e, reader->input.data, reader->input.size)))
         return TLV_ERR_INVALID_ARG;
+    if (reader && reader_output_overlap(reader, d, d ? sizeof *d : 0)) return TLV_ERR_INVALID_ARG;
     query_diag_init(d);
     if (!reader || !e || !visitor) return TLV_ERR_NULL_ARG;
     if (e->invalid) return TLV_ERR_INVALID_ARG;
@@ -947,6 +955,10 @@ tlv_result_t tlv_query_program_exists(tlv_tree_reader_t* reader, tlv_query_exec_
               query_output_overlap(e, d, d ? sizeof *d : 0)))
         return TLV_ERR_INVALID_ARG;
     if (query_overlap(found, found ? sizeof *found : 0, d, d ? sizeof *d : 0))
+        return TLV_ERR_INVALID_ARG;
+    if (reader && (reader->capacity > SIZE_MAX / sizeof *reader->frames ||
+                   reader_output_overlap(reader, found, found ? sizeof *found : 0) ||
+                   reader_output_overlap(reader, d, d ? sizeof *d : 0)))
         return TLV_ERR_INVALID_ARG;
     query_diag_init(d);
     if (!reader || !e || !found) return TLV_ERR_NULL_ARG;

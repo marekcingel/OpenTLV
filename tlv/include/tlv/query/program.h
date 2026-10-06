@@ -626,6 +626,7 @@ TLV_API tlv_result_t tlv_query_program_visit(tlv_tree_reader_t* reader, tlv_quer
  * @param[in,out] exec Required execution, retained across NEED_MORE_DATA.
  * @param[in] early_return Nonzero returns at the first match; zero drains to final EOF.
  * @param[out] found Required boolean output; unchanged on failure or NEED_MORE_DATA.
+ * Found and diagnostic must not overlap the Reader, its frames, input or Format.
  * @param[out] diagnostic Optional failure detail.
  * @return #TLV_OK with existence result; otherwise original visit/Reader errors.
  * @note Matches observed earlier in this execution remain part of existence.

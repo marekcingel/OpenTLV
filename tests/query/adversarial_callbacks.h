@@ -280,6 +280,67 @@ static tlv_visit_result_t event_visitor(const tlv_tree_event_t* input, void* con
     return TLV_VISIT_CONTINUE;
 }
 #endif
+#if OPENTLV_READER
+static tlv_visit_result_t stop_visitor(const tlv_tree_event_t* input, void* context) {
+    (void)input;
+    (void)context;
+    return TLV_VISIT_STOP;
+}
+/* Query outputs may not alias Reader input, frames or Format; reject before writes. */
+static int reader_aliases(void) {
+    arena                      image, memory, shared, before;
+    const tlv_query_program_t* p;
+    CHECK(compile_plan("//01", NULL, &image, &p) == 0);
+    size_t bytes, alignment;
+    CHECK(tlv_query_exec_size(p, 2, &bytes, &alignment) == TLV_OK);
+    memset(&shared, 0, sizeof shared);
+    uint8_t*           wire = aligned(&shared);
+    tlv_tree_frame_t*  frames = (tlv_tree_frame_t*)(wire + 1024);
+    tlv_format_t*      format = (tlv_format_t*)(wire + 4096);
+    tlv_fixed_format_t config = {0};
+    const uint8_t      encoded[] = {0x70, 3, 1, 1, 9, 1, 1, 8};
+    config.tag_size = config.length_size = 1;
+    config.length_order = TLV_BYTE_ORDER_BIG_ENDIAN;
+    CHECK(tlv_fixed_format_init(format, &config) == TLV_OK);
+    format->is_constructed = constructed;
+    memcpy(wire, encoded, sizeof encoded);
+    for (unsigned output = 0; output < 6; ++output) {
+        tlv_query_exec_t* e;
+        CHECK(tlv_query_exec_init(p, aligned(&memory), bytes, 2, 4, 100000, &e) == TLV_OK);
+        tlv_tree_reader_t reader;
+        CHECK(tlv_tree_reader_init(&reader, wire, sizeof encoded, format, frames, 4, 3, 4) ==
+              TLV_OK);
+        int found = 77;
+        /* Early return stops inside the constructed root with its frame active. */
+        CHECK(tlv_query_program_exists(&reader, e, 1, &found, NULL) == TLV_OK && found == 1);
+        CHECK(reader.depth == 1);
+        found = 77;
+        tlv_tree_reader_t saved_reader = reader;
+        memcpy(&before, &shared, sizeof shared);
+        int*                    target = &found;
+        tlv_query_diagnostic_t* d = NULL;
+        switch (output) {
+            case 0: target = (int*)(void*)wire; break;
+            case 1: target = (int*)(void*)frames; break;
+            case 2: target = (int*)(void*)format; break;
+            case 3: d = (tlv_query_diagnostic_t*)(void*)wire; break;
+            case 4: d = (tlv_query_diagnostic_t*)(void*)frames; break;
+            case 5: d = (tlv_query_diagnostic_t*)(void*)format; break;
+        }
+        CHECK(tlv_query_program_exists(&reader, e, 0, target, d) == TLV_ERR_INVALID_ARG);
+        if (d)
+            CHECK(tlv_query_program_visit(&reader, e, stop_visitor, NULL, d) ==
+                  TLV_ERR_INVALID_ARG);
+        CHECK(found == 77 && !memcmp(&before, &shared, sizeof shared));
+        CHECK(!memcmp(&saved_reader, &reader, sizeof reader));
+        /* The rejected calls left the active nested cursor resumable. */
+        tlv_query_diagnostic_t diagnostic;
+        CHECK(tlv_query_program_exists(&reader, e, 0, &found, &diagnostic) == TLV_OK);
+        CHECK(found == 1 && diagnostic.kind == TLV_QUERY_ERROR_NONE);
+    }
+    return 0;
+}
+#endif
 static int callbacks(void) {
     tlv_fixed_format_t config = {0};
     config.tag_size = config.length_size = 1;
@@ -407,6 +468,51 @@ static int document_reinitialization(const tlv_document_options_t* options) {
     }
     return 0;
 }
+/* Edit target collection may not alias the applied count or the copied Value. */
+static int edit_aliases(void) {
+    tlv_fixed_format_t config = {0};
+    config.tag_size = config.length_size = 1;
+    config.length_order = TLV_BYTE_ORDER_BIG_ENDIAN;
+    tlv_format_t format;
+    CHECK(tlv_fixed_format_init(&format, &config) == TLV_OK);
+    tlv_document_options_t options;
+    CHECK(tlv_document_options_init(&options, &format) == TLV_OK);
+    arena                      image, memory;
+    const tlv_query_program_t* p;
+    CHECK(compile_plan("//01", NULL, &image, &p) == 0);
+    size_t bytes, alignment;
+    CHECK(tlv_query_eval_size(p, 3, 8, &bytes, &alignment) == TLV_OK);
+    for (unsigned alias = 0; alias < 3; ++alias) {
+        const uint8_t     wire[] = {1, 1, 9, 1, 1, 8};
+        tlv_document_t*   document;
+        tlv_query_exec_t* e;
+        CHECK(tlv_document_parse(wire, sizeof wire, &options, &document, NULL) == TLV_OK);
+        CHECK(tlv_query_eval_init(p, NULL, aligned(&memory), bytes, 3, 8, 100000, &e) == TLV_OK);
+        CHECK(tlv_document_query_evaluate(document, e, NULL, NULL, 0, NULL, NULL) == TLV_OK);
+        tlv_node_t* targets[4];
+        memset(targets, 0x5a, sizeof targets);
+        tlv_node_t*    saved[4];
+        size_t         applied = 77;
+        size_t*        count = &applied;
+        const uint8_t  replacement = 4;
+        const uint8_t* value = &replacement;
+        memcpy(saved, targets, sizeof targets);
+        switch (alias) {
+            case 0: count = (size_t*)(void*)&targets[1]; break;
+            case 1: value = (const uint8_t*)(void*)&targets[0]; break;
+            case 2: value = (const uint8_t*)(void*)&applied; break;
+        }
+        CHECK(tlv_document_query_edit(document, e, TLV_DOCUMENT_QUERY_REPLACE, tlv_tag(wire, 1),
+                                      value, 1, targets, 4, count) == TLV_ERR_INVALID_ARG);
+        CHECK(applied == 77 && !memcmp(saved, targets, sizeof targets));
+        CHECK(tlv_node_value_data(tlv_document_first(document))[0] == 9);
+        CHECK(tlv_document_query_edit(document, e, TLV_DOCUMENT_QUERY_REPLACE, tlv_tag(wire, 1),
+                                      &replacement, 1, targets, 4, &applied) == TLV_OK);
+        CHECK(applied == 2 && tlv_node_value_data(tlv_document_first(document))[0] == 4);
+        tlv_document_free(document);
+    }
+    return 0;
+}
 static int documents(void) {
     const char* expressions[] = {
         "//01",         "/70[child::01]",  "(//01)[last()]", "//01 | //01/following::*",
@@ -421,6 +527,7 @@ static int documents(void) {
     CHECK(tlv_document_options_init(&options, &format) == TLV_OK);
     options.retain_source_locations = 1;
     CHECK(document_reinitialization(&options) == 0);
+    CHECK(edit_aliases() == 0);
     for (unsigned kind = 0; kind < sizeof expressions / sizeof *expressions; ++kind)
         for (int mutation = 0; mutation <= 9; ++mutation) {
             const uint8_t  wire[] = {0x70, 3, 1, 1, 9};

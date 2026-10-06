@@ -9,6 +9,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Fixed
 
+- Reject Query Reader outputs overlapping Reader input, frames or Format, and Document Query edit targets overlapping the applied count or Value, before any writes. (#536)
 - Reject static Query plans with undersized literal-pattern storage, align malformed-event diagnostics across executors, and preserve the original failure diagnostic when feed or finish is retried. (#536)
 - Preserve absolute constexpr Query paths when an execution context is set by emitting an explicit root, matching runtime plan semantics and workspace requirements. Regenerate constexpr node plans and remeasure caller workspace. (#536)
 - Reject overlapping Query workspace/output storage and native callback reentrancy, preserve Document lifetimes through evaluation callbacks, and avoid unused search-pattern and tag-provider requirements in runtime plans. (#536)

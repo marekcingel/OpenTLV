@@ -234,7 +234,11 @@ tlv_result_t tlv_document_query_edit(tlv_document_t* document, tlv_query_exec_t*
     if (!document || !e || !applied || (!targets && capacity)) return TLV_ERR_NULL_ARG;
     if (e->busy || document->query_callbacks || query_output_overlap(e, applied, sizeof *applied) ||
         capacity > SIZE_MAX / sizeof *targets ||
-        query_output_overlap(e, targets, capacity * sizeof *targets))
+        query_output_overlap(e, targets, capacity * sizeof *targets) ||
+        query_overlap(targets, capacity * sizeof *targets, applied, sizeof *applied) ||
+        (kind != TLV_DOCUMENT_QUERY_REMOVE &&
+         (query_overlap(value, size, targets, capacity * sizeof *targets) ||
+          query_overlap(value, size, applied, sizeof *applied))))
         return TLV_ERR_INVALID_ARG;
     *applied = 0;
     if ((kind != TLV_DOCUMENT_QUERY_REMOVE && kind != TLV_DOCUMENT_QUERY_REPLACE &&
