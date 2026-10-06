@@ -33,6 +33,12 @@ pub struct DefinitionRegistry {
     entries: Vec<native::tlv_definition_t>,
 }
 impl DefinitionRegistry {
+    pub(crate) fn raw(&self) -> native::tlv_definition_registry_t {
+        native::tlv_definition_registry_t {
+            entries: self.entries.as_ptr(),
+            count: self.entries.len(),
+        }
+    }
     /// Build a registry without parsing, encoding or resolving protocol context.
     pub fn new(definitions: impl IntoIterator<Item = Definition>) -> Self {
         let definitions: Vec<_> = definitions.into_iter().collect();

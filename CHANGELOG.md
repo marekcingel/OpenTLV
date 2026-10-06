@@ -9,6 +9,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Fixed
 
+- Size Query fuzz round-trip scratch from the canonical text, avoiding false crashes when formatting adds whitespace near a buffer limit. Retain the CI reproducer as a regression seed. (#523)
+- Reject changing name resolutions during checked two-pass Query compilation, including identifiers of the same size, while preserving output storage on failure. (#523)
 - Allow root-only Document Query Value snapshots at zero depth and keep Lua Documents protected through callback preparation and diagnostic copying. (#523)
 - Initialize Query and contextual Schema diagnostics on Tree Reader resource failures, preventing invalid borrowed spans from reaching language bindings. (#523)
 - Preserve contextual Query Schema diagnostics across Python, Go, Lua and JavaScript/WASM, including paths and available source offsets. (#523)

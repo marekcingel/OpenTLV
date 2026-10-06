@@ -502,6 +502,16 @@ nonmatching branches), and reports Reader errors with available diagnostics.
 65536. Limits must be nonnegative integers. This uses the supplied Format's
 framing contract, not additional semantic Schema or full DER validation.
 
+`query:matcher(format, options)` owns a resumable native matcher and Tree Reader.
+Use `set_input(bytes, discard, final)`, `next()` or `visit(callback)`; returning
+`false` stops after the current match, and subsequent calls resume. Nonfinal
+exhaustion raises `NEED_MORE_DATA`, preserving state for input replacement.
+`rebind(equivalent_query)` preserves suspended state; `reset()` clears both
+matching and Reader state. `matches(tag, depth)` also supports manual preorder
+feeds; reset before switching between manual and Reader input. Options bound
+`max_depth`, `frame_capacity` and `max_elements`. Results own copied strings,
+callback errors propagate, and callback reentry is rejected.
+
 With `OPENTLV_DOCUMENT=ON` (the default), `tlv.document(data, format, options)`
 parses into an owning native Document. Pass `nil` or an empty string to create
 an empty document. The input can be released after parsing. The Document keeps
@@ -565,6 +575,22 @@ engine.
 Options include typed `variables`, named Tag maps and explicit compile limits.
 Programs expose `info()`, `variables()`, `format()`, `explain()` and `image()`.
 
+The program retains its Format, including configured Fixed Format userdata;
+reuse that Format object with Documents evaluated by the program. Options
+`tags = {id = ..., class_of = function(raw_tag) ... end, number_of = ...}`
+supply optional semantic Tag capabilities. Callbacks return signed 64-bit
+integers; IDs identify the contract when validating saved images. Missing
+capabilities are rejected during compilation.
+
+`resolve = function(namespace, name) ... end` returns a raw Tag string or `nil`
+for an unknown name. It is mutually exclusive with a nonempty `names` map.
+Checked compilation rejects resolver drift between preparation and commit,
+including different Tags with equal byte lengths. Callback errors propagate.
+`tlv.query_definition_resolver({scope = {{tag = raw_tag, name = "leaf"}}})`
+snapshots the descriptors and returns a resolver using canonical C namespace and
+ambiguity rules. `resolve = tlv.query_emv_resolve` selects the native base EMV
+dictionary when enabled, including the `emv:PAN` alias.
+
 `program:execution(options)` owns independent bounded state. `bind(name, type,
 value)`, `set_input(bytes, discard, final)`, `next()`, `visit(callback)`,
 `exists(early)`, `info()` and `reset()` delegate to C. Use
@@ -582,8 +608,14 @@ images. Provider errors propagate after returning through C; Query reentry from
 providers is rejected.
 
 `execution:feed(event)` accepts canonical event tables with `kind`, `tag`,
-`value`, `depth` and `offset`. Call `finish()` before pulling deferred results;
+`value`, `depth` and `offset`. An optional `source` string contains exactly one
+encoded element; C derives its Tag, Value and Layout through the program's
+Format, preserving metadata such as `@hlen`. The execution retains the string.
+Call `finish()` before pulling deferred results;
 raw events and Reader input cannot be mixed before reset.
+`next_ordinal()` returns an owned event table and traversal ordinal from a
+completed retained selection, including Document selections. `next()` continues
+to return checked Nodes for Documents.
 `execution:edit_document(kind, tag, value, target_capacity)` edits a completed
 selection and reports the applied count. Short target storage permits retry;
 successful mutations invalidate checked Nodes.

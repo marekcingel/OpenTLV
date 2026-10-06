@@ -195,6 +195,7 @@ int main(int argc, char** argv) {
     tlv_query_program_info_t info = {0};
     info.struct_size = sizeof info;
     void*              scratch = NULL;
+    void*              validation = NULL;
     void*              program = NULL;
     void*              workspace = NULL;
     void*              workspace_allocation = NULL;
@@ -225,24 +226,30 @@ int main(int argc, char** argv) {
     options.variable_count = variable_count;
     options.resolve = fixture_resolve;
     options.optimize = argc >= 4 && strchr(argv[3], 'u') ? 0 : 1;
-    rc = tlv_query_compile_scratch(argv[1], strlen(argv[1]), &options, &scratch_size, &alignment,
-                                   &diagnostic);
+    rc = tlv_query_compile_prepare_size(argv[1], strlen(argv[1]), &options, &scratch_size,
+                                        &alignment, &diagnostic);
     if (rc != TLV_OK) goto done;
     scratch = malloc(scratch_size);
     if (!scratch) {
         rc = TLV_ERR_OUT_OF_MEMORY;
         goto done;
     }
-    rc = tlv_query_compile(argv[1], strlen(argv[1]), &options, scratch, scratch_size, NULL, 0,
-                           &info, &diagnostic);
+    const tlv_query_program_t* prepared = NULL;
+    rc = tlv_query_compile_prepare(argv[1], strlen(argv[1]), &options, scratch, scratch_size,
+                                   &prepared, &info, &diagnostic);
     if (rc != TLV_OK) goto done;
+    size_t validation_size;
+    rc = tlv_query_program_load_scratch(prepared, info.program_size, &options, &validation_size,
+                                        &alignment, &diagnostic);
+    if (rc != TLV_OK) goto done;
+    validation = malloc(validation_size);
     program = malloc(info.program_size);
-    if (!program) {
+    if (!program || !validation) {
         rc = TLV_ERR_OUT_OF_MEMORY;
         goto done;
     }
-    rc = tlv_query_compile(argv[1], strlen(argv[1]), &options, scratch, scratch_size, program,
-                           info.program_size, &info, &diagnostic);
+    rc = tlv_query_compile_commit(prepared, info.program_size, &options, validation,
+                                  validation_size, program, info.program_size, &info, &diagnostic);
     if (rc != TLV_OK) goto done;
     if (argc == 5 && !strcmp(argv[3], "image")) {
         FILE* output = fopen(argv[4], "wb");
@@ -344,6 +351,7 @@ done:
     free(workspace_allocation);
     free(program);
     free(scratch);
+    free(validation);
     free(input);
     return rc == TLV_OK ? 0 : 1;
 }

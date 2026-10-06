@@ -264,3 +264,174 @@ const siblingDocument = api.document(siblingInput);
 reverseSchema.validateDocument(siblingDocument);
 reverseSchema.close(); reverseContext.close(); reverseAssertion.close(); siblingDocument.close();
 console.log("JS/WASM Query Schema: contextual assertions, owned diagnostics, bounded storage and provider guards passed");
+
+// Scoped resolvers snapshot names and the checked two-pass constructor rejects drift.
+const namedBytes = hexToBytes("5a");
+const definitions = api.definitionResolver({ fixture: [{ name: "leaf", tag: namedBytes }] });
+namedBytes[0] = 0;
+for (const resolveName of [definitions, api.nameResolver({ "fixture:leaf": hexToBytes("5a") })]) {
+  const named = api.compileQuery("//name('fixture','leaf')", { resolve: resolveName });
+  assert.equal(named.evaluate(hexToBytes("5a00")).length, 1);
+  named.close();
+}
+assert.throws(() => api.definitionResolver({ a: [{ name: "x", tag: hexToBytes("01") }, { name: "x", tag: hexToBytes("02") }] }), TypeError);
+assert.throws(() => api.compileQuery("//name('a','missing')", { resolve: definitions }));
+let resolutions = 0;
+assert.throws(() => api.compileQuery("//name('a','changing')", {
+  resolve: () => Uint8Array.of(++resolutions === 1 ? 0x5a : 0x5b),
+}), error => error.code === 10);
+assert.ok(resolutions >= 2);
+const resolverMarker = { resolver: "failed" };
+assert.throws(() => api.compileQuery("//name('a','x')", { resolve() { throw resolverMarker; } }), error => error === resolverMarker);
+const emvNamed = api.compileQuery("//name('emv','PAN')", { resolve: "emv" });
+assert.equal(emvNamed.evaluate(hexToBytes("5a00")).length, 1);
+emvNamed.close();
+const unqualified = api.compileQuery("//name('','leaf')", { resolve: definitions });
+assert.equal(unqualified.evaluate(hexToBytes("5a00")).length, 1);
+unqualified.close();
+assert.throws(() => api.compileQuery("//name('','x')", { resolve: api.definitionResolver({
+  a: [{ name: "x", tag: hexToBytes("01") }], b: [{ name: "x", tag: hexToBytes("02") }],
+}) }), error => error.code === 10);
+
+// Optional tag capabilities have stable image identities and owned callback lifetimes.
+const fixedFormat = api.Format.fixed({ tag_size: 2, length_size: 2, byte_order: "little", element_order: "ltv", length_scope: "tag-and-value" });
+const fixedInput = hexToBytes("0300123407");
+const adapter = { id: 311, numberOf: tag => BigInt(tag[0] * 256 + tag[1]) };
+const tagged = api.compileQuery("//*[number()=4660]", { format: fixedFormat, tags: adapter });
+assert.equal(tagged.evaluate(fixedInput).length, 1);
+assert.throws(() => api.compileQuery("//*[class()=1]", { format: fixedFormat, tags: adapter }), error => error.code === 15);
+const taggedImage = tagged.image();
+assert.throws(() => api.loadQuery(taggedImage, { format: fixedFormat, tags: { ...adapter, id: 312 } }), error => error.code === 10);
+const taggedLoaded = api.loadQuery(taggedImage, { format: fixedFormat, tags: adapter });
+const taggedExecution = taggedLoaded.execution().setInput(fixedInput);
+const fixedDocument = api.document(fixedInput, { format: fixedFormat });
+assert.deepEqual(fixedDocument.encode(), fixedInput);
+fixedFormat.close(); tagged.close(); taggedLoaded.close();
+assert.deepEqual(taggedExecution.next().tag, hexToBytes("1234"));
+taggedExecution.close(); fixedDocument.close();
+let tagExecution;
+const tagMarker = { tag: "failed" };
+const tagErrors = api.compileQuery("//*[class()=1]", { tags: { id: 313, classOf() {
+  assert.throws(() => tagExecution.reset(), error => error.code === 10);
+  throw tagMarker;
+} } });
+tagExecution = tagErrors.execution().setInput(hexToBytes("5a00"));
+assert.throws(() => tagExecution.next(), error => error === tagMarker);
+assert.throws(() => tagExecution.next(), error => error.code === 10);
+tagExecution.reset(); tagExecution.close(); tagErrors.close();
+for (const marker of [null, undefined, new api.QueryError(5)]) {
+  const p = api.compileQuery("//*[number()=1]", { tags: { id: 314, numberOf() { throw marker; } } });
+  assert.throws(() => p.evaluate(hexToBytes("5a00")), error => error === marker);
+  p.close();
+}
+const wideTagNumber = api.compileQuery("//*[number()=4294967297]", { tags: { id: 315, numberOf: () => 4294967297n } });
+assert.equal(wideTagNumber.evaluate(hexToBytes("5a00")).length, 1);
+wideTagNumber.close();
+
+for (const [format, input, tag] of [
+  ["ber", "5a0107", "5a"], ["der", "040107", "04"], ["cer", "040107", "04"],
+  ["ber-indefinite", "70800000", "70"], ["emv", "5a0107", "5a"],
+  ["nfc-type2", "030107", "03"], ["lldp", "060107", "03"],
+  ["bluetooth-ltv", "025a07", "5a"], ["bluetooth-ad", "025a07", "5a"],
+  ["dhcpv4", "5a0107", "5a"],
+]) {
+  const p = api.compileQuery(`//${tag}`, { format });
+  const wire = hexToBytes(input), doc = api.document(wire, { format });
+  assert.equal(p.evaluate(wire).length, 1, format);
+  try { assert.deepEqual(doc.encode(), wire, format); }
+  catch (error) { error.message = `${format}: ${error.message}`; throw error; }
+  doc.close(); p.close();
+}
+
+// Transformed semantic Tags remain valid after callbacks return and owners close.
+let customFormat, customDocument, formatFailure = false;
+const formatMarker = { format: "failed" };
+customFormat = api.Format.custom({
+  decode(input) {
+    if (formatFailure) throw formatMarker;
+    assert.throws(() => customFormat.close(), error => error.code === 10);
+    if (input.length < 2 || input.length < input[1] + 2) return { code: 1 };
+    return { tag: Uint8Array.of(input[0] ^ 0xff), header: { offset: 0, size: 2 },
+      tagRange: { offset: 0, size: 1 }, lengthRange: { offset: 1, size: 1 },
+      value: { offset: 2, size: input[1] } };
+  },
+  measure(element) {
+    if (formatFailure) throw formatMarker;
+    return { header: 2, value: element.valueSize };
+  },
+  encode(element) {
+    if (customDocument) assert.throws(() => customDocument.close(), error => error.code === 10);
+    return Uint8Array.of(element.tag[0] ^ 0xff, element.valueSize, ...element.value);
+  },
+});
+const customFormatProgram = api.compileQuery("//5A", { format: customFormat });
+const customWire = hexToBytes("a50107");
+assert.deepEqual(customFormatProgram.evaluate(customWire)[0].tag, hexToBytes("5a"));
+customDocument = api.document(customWire, { format: customFormat });
+assert.deepEqual(customDocument.first.tag, hexToBytes("5a"));
+assert.deepEqual(customDocument.encode(), customWire);
+customDocument.first.setValue(hexToBytes("09"));
+assert.deepEqual(customDocument.encode(), hexToBytes("a50109"));
+const customAssertion = api.compileQuery("num(.) > 0", { format: customFormat });
+const customSchema = api.querySchema([{ context: customFormatProgram, assertion: customAssertion }], { format: customFormat });
+customAssertion.close();
+customSchema.validateDocument(customDocument);
+customSchema.validateBuffer(customWire);
+formatFailure = true;
+assert.throws(() => customFormatProgram.evaluate(customWire), error => error === formatMarker);
+assert.throws(() => customDocument.encode(), error => error === formatMarker);
+assert.throws(() => customSchema.validateBuffer(customWire), error => error === formatMarker);
+formatFailure = false;
+const customFormatExecution = customFormatProgram.execution().setInput(customWire);
+customFormat.close(); customFormatProgram.close();
+assert.equal(customFormatExecution.next().value[0], 7);
+customSchema.validateBuffer(customWire); customSchema.close();
+customFormatExecution.close(); customDocument.close(); customDocument = null;
+const readOnlyFormat = api.Format.custom({ decode(input) {
+  if (!input.length) return { code: 1 };
+  return { tag: input.subarray(0, 1), header: { offset: 0, size: 1 }, value: { offset: 1, size: 0 } };
+} });
+const readOnlyProgram = api.compileQuery("//51", { format: readOnlyFormat });
+assert.equal(readOnlyProgram.evaluate(hexToBytes("51")).length, 1);
+readOnlyProgram.close(); readOnlyFormat.close();
+const nestedFixed = api.Format.fixed({ isConstructed: tag => tag[0] === 0x70 });
+const nestedProgram = api.compileQuery("//5A", { format: nestedFixed });
+assert.equal(nestedProgram.evaluate(hexToBytes("70025a00")).length, 1);
+nestedProgram.close(); nestedFixed.close();
+
+const sourceProgram = api.compileQuery("//5A[@offset=9 and @hlen=2]");
+const sourced = sourceProgram.execution({ retained: false });
+assert.equal(sourced.feed({ kind: "element", source: hexToBytes("5a0107"), offset: 9 }).offset, 9);
+sourced.finish(); sourced.close(); sourceProgram.close();
+const ordinalProgram = api.compileQuery("//5A");
+const ordinals = ordinalProgram.execution();
+ordinals.feed({ kind: "element", tag: hexToBytes("5a"), offset: 0 });
+ordinals.feed({ kind: "element", tag: hexToBytes("5a"), offset: 0 });
+ordinals.finish();
+assert.equal(ordinals.nextOrdinal().ordinal, 0);
+assert.equal(ordinals.nextOrdinal().ordinal, 1);
+assert.equal(ordinals.nextOrdinal(), null);
+ordinals.close(); ordinalProgram.close();
+const legacy = new api.V1Query("70/5a");
+assert.deepEqual(legacy.steps, [hexToBytes("70"), hexToBytes("5a")]);
+const legacyMatcher = legacy.matcher();
+assert.equal(legacy.evaluate(hexToBytes("70025a00")).length, 1);
+legacy.close();
+assert.equal(legacyMatcher.feed(hexToBytes("70"), 0), false);
+assert.equal(legacyMatcher.feed(hexToBytes("5a"), 1), true);
+legacyMatcher.reset(); legacyMatcher.close();
+assert.throws(() => new api.V1Query("70\0/5a"));
+const requirements = api.compileQuery("//5A[num(.)=$amount]", { variables: { unused: "bytes", amount: "integer" } });
+assert.deepEqual(requirements.variables, { amount: "integer" });
+const requiredLoaded = api.loadQuery(requirements.image(), { variables: { amount: "integer" } });
+assert.deepEqual(requiredLoaded.variables, requirements.variables);
+requiredLoaded.close(); requirements.close();
+const diagnosticProgram = api.compileQuery("//5A");
+let readerFailure;
+assert.throws(() => diagnosticProgram.evaluate(hexToBytes("5a82010200")), error => {
+  readerFailure = error; return error.code === 1 && error.query.reader.raw_length === "820102";
+});
+diagnosticProgram.close();
+assert.equal(readerFailure.query.reader.declared_length, 258);
+assert.equal(readerFailure.query.reader.tag, "5A");
+console.log("JS/WASM extensions: checked resolvers, Tag adapters, Formats, Source feeds, ordinals and V1 passed");

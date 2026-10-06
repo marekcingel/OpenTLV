@@ -10,6 +10,9 @@
 
 /* Stable IDs shared with opentlv.Format; unavailable IDs return NULL. */
 const tlv_format_t* opentlv_python_format_for(int format_id);
+/* Owned builtin/fixed descriptor; context storage is retained by the capsule. */
+PyObject*           opentlv_python_format_owner(PyObject* specification);
+const tlv_format_t* opentlv_python_format_pointer(PyObject* owner);
 /* Adds availability flags to the module; returns -1 on a Python error. */
 int opentlv_python_register_formats(PyObject* module);
 

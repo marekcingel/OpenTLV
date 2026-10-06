@@ -103,7 +103,9 @@ pub use codec::{
 };
 pub use element::Element;
 pub use error::{Error, Result};
-pub use fixed_format::{ByteOrder, FixedFormat, FixedFormatConfig};
+pub use fixed_format::{
+    ByteOrder, ElementOrder, FixedFormat, FixedFormatConfig, LengthScope, OwnedFixedFormat,
+};
 pub use format::Format;
 pub use query::{Query, QueryError, QueryMatcher};
 pub use reader::{read, read_fixed, Reader, ReaderError};
@@ -129,9 +131,9 @@ use std::ffi::CStr;
 mod program;
 pub use program::{
     ProgramError, ProgramOptions, ProgramResult, QueryBinding, QueryCodecError, QueryConversion,
-    QueryDecoded, QueryEvent, QueryExecution, QueryMatch, QueryMetadata, QueryProgram,
-    QueryProvider, QueryRule, QuerySchema, QuerySchemaError, QuerySchemaLimits, QueryType,
-    QueryValue,
+    QueryDecoded, QueryDefinitionScope, QueryEvent, QueryExecution, QueryMatch, QueryMetadata,
+    QueryProgram, QueryProvider, QueryResolver, QueryRule, QuerySchema, QuerySchemaError,
+    QuerySchemaLimits, QueryTagAdapter, QueryType, QueryValue,
 };
 #[cfg(feature = "document")]
 pub use program::{QueryEdit, QueryEditError, QueryEditOptions};

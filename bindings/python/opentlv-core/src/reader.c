@@ -62,17 +62,17 @@ PyObject* opentlv_python_source_preserve(PyObject* module, PyObject* args) {
     return PyLong_FromSize_t(writer.pos - (size_t)offset);
 }
 typedef struct cursor {
-    PyObject*          input;
-    tlv_fixed_format_t fixed;
-    tlv_format_t       format;
-    tlv_reader_t       reader;
-    tlv_tree_reader_t  tree;
-    tlv_tree_item_t    current;
-    int                has_current;
-    tlv_tree_frame_t*  frames;
-    int                nested;
-    int                busy;
-    int                building;
+    PyObject*         input;
+    PyObject*         format_owner;
+    tlv_format_t      format;
+    tlv_reader_t      reader;
+    tlv_tree_reader_t tree;
+    tlv_tree_item_t   current;
+    int               has_current;
+    tlv_tree_frame_t* frames;
+    int               nested;
+    int               busy;
+    int               building;
 } cursor;
 
 static int idle(cursor* self) {
@@ -217,6 +217,7 @@ static void destroy(PyObject* capsule) {
     cursor* self = PyCapsule_GetPointer(capsule, CURSOR_NAME);
     if (!self) return;
     Py_XDECREF(self->input);
+    Py_XDECREF(self->format_owner);
     free(self->frames);
     free(self);
 }
@@ -237,33 +238,20 @@ PyObject* opentlv_python_cursor_create(PyObject* module, PyObject* args) {
     cursor* self = calloc(1, sizeof(*self));
     if (!self) return PyErr_NoMemory();
     tlv_result_t code = TLV_OK;
-    if (format_id == -1) {
-        if (tag_size < 1 || length_size < 1 || length_size > 8)
-            code = TLV_ERR_INVALID_ARG;
-        else {
-            self->fixed.tag_size = (size_t)tag_size;
-            self->fixed.length_size = (size_t)length_size;
-            self->fixed.length_order =
-                big_endian ? TLV_BYTE_ORDER_BIG_ENDIAN : TLV_BYTE_ORDER_LITTLE_ENDIAN;
-            self->fixed.element_order = TLV_ELEMENT_ORDER_TLV;
-            self->fixed.length_scope = TLV_LENGTH_SCOPE_VALUE;
-            code = tlv_fixed_format_init(&self->format, &self->fixed);
-        }
-    } else {
-        const tlv_format_t* format = opentlv_python_format_for(format_id);
-        if (!format)
-            code = TLV_ERR_INVALID_ARG;
-        else
-            self->format = *format;
-    }
-    if (code != TLV_OK) {
+    PyObject*    specification = format_id == -1
+                                     ? Py_BuildValue("(nni)", tag_size, length_size, big_endian)
+                                     : PyLong_FromLong(format_id);
+    self->format_owner = specification ? opentlv_python_format_owner(specification) : NULL;
+    Py_XDECREF(specification);
+    if (!self->format_owner) {
         free(self);
-        opentlv_python_raise_reader(code, NULL);
         return NULL;
     }
+    self->format = *opentlv_python_format_pointer(self->format_owner);
     if (nested && capacity) {
         self->frames = calloc((size_t)capacity, sizeof(*self->frames));
         if (!self->frames) {
+            Py_DECREF(self->format_owner);
             free(self);
             return PyErr_NoMemory();
         }
@@ -286,6 +274,7 @@ PyObject* opentlv_python_cursor_create(PyObject* module, PyObject* args) {
     PyObject* capsule = PyCapsule_New(self, CURSOR_NAME, destroy);
     if (!capsule) {
         Py_DECREF(self->input);
+        Py_DECREF(self->format_owner);
         free(self->frames);
         free(self);
         return NULL;
@@ -588,6 +577,35 @@ PyObject* opentlv_python_query_matches(PyObject* module, PyObject* args) {
     int       matches = tlv_query_matcher_visit(&self->matcher, &value, (size_t)depth);
     PyBuffer_Release(&tag);
     return PyBool_FromLong(matches);
+}
+
+PyObject* opentlv_python_query_rebind(PyObject* module, PyObject* args) {
+    (void)module;
+    PyObject *capsule, *replacement;
+    if (!PyArg_ParseTuple(args, "OO", &capsule, &replacement)) return NULL;
+    query_state* self = PyCapsule_GetPointer(capsule, QUERY_NAME);
+    if (!self) return NULL;
+    if (self->busy) {
+        PyErr_SetString(PyExc_RuntimeError, "matcher is active in a callback");
+        return NULL;
+    }
+    tlv_result_t rc;
+    if (replacement == Py_None)
+        rc = tlv_query_matcher_init(&self->matcher, &self->query);
+    else {
+        query_state* other = PyCapsule_GetPointer(replacement, QUERY_NAME);
+        if (!other) return NULL;
+        rc = tlv_query_matcher_rebind(&self->matcher, &other->query);
+        if (rc == TLV_OK) {
+            self->query = other->query;
+            rc = tlv_query_matcher_rebind(&self->matcher, &self->query);
+        }
+    }
+    if (rc != TLV_OK) {
+        opentlv_python_raise_reader(rc, NULL);
+        return NULL;
+    }
+    return Py_NewRef(Py_None);
 }
 
 PyObject* opentlv_python_query_visit(PyObject* module, PyObject* args) {

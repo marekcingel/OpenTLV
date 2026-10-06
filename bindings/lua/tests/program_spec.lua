@@ -10,6 +10,64 @@ local function fails(run, code)
     return err
 end
 local options = {variables = {min = "integer"}, optimize = true}
+local fixed = tlv.formats.fixed(2, 2, "little")
+local tag_options = {tags={id=301, class_of=function() return 7 end,
+    number_of=function(raw) return string.byte(raw) end}, resolve=function(namespace, name)
+    if namespace == "demo" and name == "leaf" then return b(0x5a,0) end
+end}
+local semantic = tlv.query_program("//demo:leaf[class()=7 and number()=90]", fixed, tag_options)
+local semantic_loaded = tlv.query_program_load(semantic:image(), fixed, tag_options)
+fails(function() tlv.query_program_load(semantic:image(), fixed,
+    {resolve=tag_options.resolve, tags={id=302, class_of=tag_options.tags.class_of,
+                                       number_of=tag_options.tags.number_of}}) end, tlv.errors.INVALID_ARG)
+fails(function() tlv.query_program("number(//5A)", f,
+    {tags={id=303, class_of=function() return 0 end}}) end, tlv.errors.UNSUPPORTED_TYPE)
+if tlv.formats.emv then
+    assert(tlv.query_emv_resolve("emv", "PAN") == b(0x5a))
+    local emv = tlv.query_program("count(//emv:PAN)", tlv.formats.emv,
+                                {resolve=tlv.query_emv_resolve}):execution()
+    emv:set_input(b(0x5a,0)); emv:finish(); assert(emv:result() == 1); emv:close()
+end
+if tlv.document then
+    local doc = tlv.document(b(0x5a,0,1,0,7), fixed)
+    local de = semantic:execution()
+    de:evaluate_document(doc)
+    local match, ordinal = de:next_ordinal()
+    assert(match.value == b(7) and ordinal == 0)
+    de:close(); doc:close()
+    assert(match.tag == b(0x5a,0))
+end
+local semantic_execution = semantic_loaded:execution()
+semantic, semantic_loaded = nil, nil
+collectgarbage("collect")
+semantic_execution:feed({kind="element", source=b(0x5a,0,1,0,7), offset=9})
+semantic_execution:finish()
+local semantic_match, semantic_ordinal = semantic_execution:next_ordinal()
+assert(semantic_match.tag == b(0x5a,0) and semantic_match.value == b(7) and semantic_ordinal == 0)
+semantic_execution:close()
+local changed = 0
+fails(function() tlv.query_program("//named", f, {resolve=function()
+    changed = changed + 1; return changed == 1 and b(0x5a) or b(0x5b)
+end}) end, tlv.errors.INVALID_ARG)
+local registry = {a={{tag=b(0x5a), name="leaf"}}, b={{tag=b(0x5a), name="leaf"}}}
+local definition_resolve = tlv.query_definition_resolver(registry)
+registry.a[1].name = "changed"
+assert(definition_resolve("a", "leaf") == b(0x5a))
+fails(function() definition_resolve("", "leaf") end, tlv.errors.INVALID_ARG)
+local named = tlv.query_program("count(//a:leaf)", f, {resolve=definition_resolve}):execution()
+named:set_input(b(0x5a,0)); named:finish(); assert(named:result() == 1); named:close()
+local marker = {}
+assert(fails(function() tlv.query_program("//named", f, {resolve=function() error(marker) end}) end) == marker)
+local failing_tags = tlv.query_program("class(//5A)", f, {tags={id=302, class_of=function() error(marker) end}}):execution()
+failing_tags:set_input(b(0x5a,0))
+assert(fails(function() failing_tags:finish() end) == marker)
+failing_tags:close()
+local source_query = tlv.query_program("//5A[@hlen=2]", f):execution()
+source_query:feed({kind="element", source=b(0x5a,0), offset=17})
+source_query:finish()
+local sourced, ordinal = source_query:next_ordinal()
+assert(sourced.offset == 17 and ordinal == 0)
+source_query:close()
 local calls = {}
 local providers = {num = {id = 101, decode = function(value, metadata)
     calls[#calls + 1] = metadata
@@ -50,6 +108,36 @@ reentry:set_input(b(0x5a, 0))
 fails(function() reentry:visit(function() end) end, 10)
 reentry:reset()
 local feed_program = tlv.query_program("//5A", f)
+local protected_feed = feed_program:execution({retained=false})
+local metadata_reads = 0
+local guarded_event = setmetatable({kind="element", source=b(0x5a,0)}, {__index=function()
+    metadata_reads = metadata_reads + 1
+    fails(function() protected_feed:close() end, tlv.errors.INVALID_ARG)
+end})
+assert(protected_feed:feed(guarded_event).tag == b(0x5a) and metadata_reads > 0)
+protected_feed:finish()
+if debug and debug.sethook then
+    collectgarbage("stop")
+    local finalized, blocked, entered = false, false, false
+    local function finalize()
+        finalized = true
+        blocked = not pcall(protected_feed.close, protected_feed)
+    end
+    local pending
+    if newproxy then
+        pending = newproxy(true); getmetatable(pending).__gc = finalize
+    else pending = setmetatable({}, {__gc=finalize}) end
+    pending = nil
+    local method = protected_feed.reset
+    debug.sethook(function()
+        if entered then debug.sethook(); collectgarbage("collect")
+        else entered = true end
+    end, "c")
+    method(protected_feed)
+    debug.sethook(); collectgarbage("restart")
+    assert(finalized and blocked, "reset released execution storage during an allocation")
+end
+protected_feed:reset(); protected_feed:close()
 local feeding = feed_program:execution({retained = false})
 local selected = feeding:feed({kind = "element", tag = b(0x5a), value = b(1), offset = 7})
 assert(selected.offset == 7)
@@ -238,5 +326,21 @@ if tlv.formats.ber then
     rules, bad = nil, nil
     collectgarbage("collect")
     assert(failed.schema.tag == b(0x5a) and failed.schema.field == "one")
+end
+local allocator_available, inject = pcall(require, "opentlv_test_allocator")
+if allocator_available then
+    for budget = 0, 32 do
+        local owned = feed_program:execution()
+        inject(function() owned:reset() end, budget)
+        owned:reset()
+        inject(function() owned:feed({kind="element", source=b(0x5a,0)}) end, budget)
+        owned:reset(); owned:set_input(b(0x5a,0)); owned:finish()
+        inject(function() owned:next_ordinal() end, budget)
+        owned:reset(); owned:close()
+        local matcher = tlv.query("5A"):matcher(f)
+        matcher:set_input(b(0x5a,0),0,true)
+        inject(function() matcher:next() end, budget)
+        matcher:reset()
+    end
 end
 print("Lua compiled Query lifetime, continuation, callbacks, Document and Schema tests passed")

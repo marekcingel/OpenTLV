@@ -33,6 +33,29 @@ tlv::bytes    bytes(const uint8_t* data, size_t size) {
 }
 } // namespace
 
+TEST(Unit_Tlvpp_FullQuery, OwningCompilationRejectsChangingResolver) {
+    struct Resolver {
+        uint8_t tag = 0x50;
+        bool    drift = true;
+    } resolver;
+    tlv_query_compile_options_t options;
+    tlv_query_compile_options_init(&options);
+    options.resolve_context = &resolver;
+    options.resolve = [](const void* context, const char*, size_t, const char*, size_t,
+                         tlv_tag_t*  output) -> tlv_result_t {
+        auto& state = *static_cast<Resolver*>(const_cast<void*>(context));
+        if (state.drift) ++state.tag;
+        *output = tlv_tag(&state.tag, 1);
+        return TLV_OK;
+    };
+    auto program = tlv::query_program::compile("//item", &options);
+    ASSERT_FALSE(program);
+    EXPECT_EQ(TLV_ERR_INVALID_ARG, program.error().code);
+    EXPECT_EQ(TLV_QUERY_ERROR_STORAGE, program.error().diagnostic.kind);
+    resolver.drift = false;
+    ASSERT_TRUE(tlv::query_program::compile("//item", &options));
+}
+
 TEST(Unit_Tlvpp_FullQuery, TypedBuilderAndResumablePull) {
     auto expression =
         tlv::where(tlv::query_nodes("//50"), tlv::query_integer("@len") > tlv::integer(0));

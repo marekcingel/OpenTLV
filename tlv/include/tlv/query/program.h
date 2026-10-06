@@ -281,6 +281,8 @@ TLV_API tlv_result_t tlv_query_compile_scratch(const char* text, size_t size,
  * for missing pointers; #TLV_ERR_LIMIT for configured resources.
  * @note Storage, scratch, text and info must not overlap. Failure preserves
  * program storage. Sizing and writing are deterministic for identical input/options.
+ * Independent calls do not retain resolver results. Use compile_prepare and
+ * compile_commit when resolver changes between sizing and writing must be detected.
  * @note After semantic analysis, info is also populated for capability/type
  * failures. Earlier lexical, grammar, scratch and arithmetic failures leave it unchanged.
  * @note struct_size must cover the prefix through result_kind. Writes are limited
@@ -292,6 +294,65 @@ TLV_API tlv_result_t tlv_query_compile(const char* text, size_t size,
                                        size_t scratch_size, void* storage, size_t capacity,
                                        tlv_query_program_info_t* info,
                                        tlv_query_diagnostic_t* diagnostic);
+
+/** @brief Discover bounded workspace for checked compilation preparation.
+ * @param[in] text Required bounded Query text.
+ * @param[in] size Text bytes.
+ * @param[in] options Optional initialized compiler options.
+ * @param[out] bytes Required workspace capacity, unchanged on failure.
+ * @param[out] alignment Required workspace alignment, unchanged on failure.
+ * @param[out] diagnostic Optional failure detail.
+ * @return The compile_scratch statuses, including OVERFLOW for workspace sizing.
+ * @note No allocation, semantic callbacks or recursion. Workspace includes compiler
+ * scratch and a conservative image bound; final program size is reported by prepare. */
+TLV_API tlv_result_t tlv_query_compile_prepare_size(const char* text, size_t size,
+                                                    const tlv_query_compile_options_t* options,
+                                                    size_t* bytes, size_t* alignment,
+                                                    tlv_query_diagnostic_t* diagnostic);
+
+/** @brief Resolve and compile once into caller workspace for checked publication.
+ * @param[in] text Required bounded Query text, copied into the prepared image.
+ * @param[in] size Text bytes.
+ * @param[in] options Optional initialized compiler options.
+ * @param[in,out] workspace Required aligned storage from compile_prepare_size.
+ * @param[in] capacity Available workspace bytes.
+ * @param[out] prepared Required borrowed immutable image output, unchanged on failure.
+ * @param[in,out] info Required requirements output with initialized struct_size;
+ * unchanged on failure. program_size is the exact prepared image extent.
+ * @param[out] diagnostic Optional failure detail.
+ * @return Compile statuses; INVALID_ARG for overlapping storage or misalignment;
+ * BUFFER_TOO_SHORT for insufficient workspace.
+ * @note No allocation or recursion. All spans and outputs must be disjoint. Keep
+ * workspace alive and unchanged until commit. Each name occurrence is resolved once;
+ * commit independently checks all compiled bytes, including copied identifiers. */
+TLV_API tlv_result_t tlv_query_compile_prepare(const char* text, size_t size,
+                                               const tlv_query_compile_options_t* options,
+                                               void* workspace, size_t capacity,
+                                               const tlv_query_program_t** prepared,
+                                               tlv_query_program_info_t* info,
+                                               tlv_query_diagnostic_t* diagnostic);
+
+/** @brief Validate preparation against current capabilities and publish atomically.
+ * @param[in] prepared Immutable image returned by compile_prepare.
+ * @param[in] prepared_size Exact image extent reported by prepare.
+ * @param[in] options Original compiler options and current resolver/environment.
+ * @param[in,out] scratch Exclusive aligned validation storage from program_load_scratch.
+ * @param[in] scratch_capacity Available validation bytes.
+ * @param[out] storage Required aligned final program storage, unchanged on failure.
+ * @param[in] storage_capacity Available final program bytes.
+ * @param[in,out] info Optional initialized requirements output, unchanged on failure.
+ * @param[out] diagnostic Optional failure detail.
+ * @return Program_load statuses; INVALID_ARG if re-resolution changes the compiled
+ * image, even for identifiers of equal size; BUFFER_TOO_SHORT for short storage.
+ * @note No allocation or recursion. All spans and outputs must be disjoint. The
+ * complete canonical image is compared without hash collisions before any output
+ * storage or info is written. Prepared workspace may be released after success. */
+TLV_API tlv_result_t tlv_query_compile_commit(const void* prepared, size_t prepared_size,
+                                              const tlv_query_compile_options_t* options,
+                                              void* scratch, size_t scratch_capacity, void* storage,
+                                              size_t storage_capacity,
+                                              tlv_query_program_info_t* info,
+                                              tlv_query_diagnostic_t* diagnostic);
 
 /**
  * @brief Discover bounded scratch for validating an untrusted internal image.

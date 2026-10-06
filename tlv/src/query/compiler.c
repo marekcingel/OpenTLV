@@ -1033,6 +1033,108 @@ static int image_overlap(const void* a, size_t an, const void* b, size_t bn) {
     return x <= y ? y - x < an : x - y < bn;
 }
 
+/* Compiler scratch already bounds all instruction nodes and copied payload.
+   A second such extent plus header/text therefore bounds a prepared image. */
+static tlv_result_t prepare_layout(const char* text, size_t size,
+                                   const tlv_query_compile_options_t* options, size_t* offset,
+                                   size_t* bytes, size_t* alignment,
+                                   tlv_query_diagnostic_t* diagnostic) {
+    size_t scratch, align;
+    tlv_result_t rc = tlv_query_compile_scratch(text, size, options, &scratch, &align, diagnostic);
+    if (rc != TLV_OK) return rc;
+    if (scratch > SIZE_MAX - (sizeof(uint32_t) - 1)) return TLV_ERR_OVERFLOW;
+    size_t start = (scratch + sizeof(uint32_t) - 1) & ~(sizeof(uint32_t) - 1);
+    if (size > SIZE_MAX - sizeof(tlv_query_program_t) - 1) return TLV_ERR_OVERFLOW;
+    size_t image = sizeof(tlv_query_program_t) + size + 1;
+    if (scratch > SIZE_MAX - image || start > SIZE_MAX - image - scratch) return TLV_ERR_OVERFLOW;
+    *offset = start;
+    *bytes = start + image + scratch;
+    *alignment = align;
+    return TLV_OK;
+}
+
+tlv_result_t tlv_query_compile_prepare_size(const char* text, size_t size,
+                                            const tlv_query_compile_options_t* options,
+                                            size_t* bytes, size_t* alignment,
+                                            tlv_query_diagnostic_t* diagnostic) {
+    if (!bytes || !alignment) return TLV_ERR_NULL_ARG;
+    size_t offset;
+    return prepare_layout(text, size, options, &offset, bytes, alignment, diagnostic);
+}
+
+tlv_result_t tlv_query_compile_prepare(const char* text, size_t size,
+                                       const tlv_query_compile_options_t* options, void* workspace,
+                                       size_t capacity, const tlv_query_program_t** prepared,
+                                       tlv_query_program_info_t* info,
+                                       tlv_query_diagnostic_t* diagnostic) {
+    if (!text || !workspace || !prepared || !info) return TLV_ERR_NULL_ARG;
+    if (info->struct_size < offsetof(tlv_query_program_info_t, expression_values) ||
+        image_overlap(workspace, capacity, text, size) ||
+        image_overlap(workspace, capacity, options, options ? sizeof *options : 0) ||
+        image_overlap(workspace, capacity, prepared, sizeof *prepared) ||
+        image_overlap(workspace, capacity, info, sizeof *info) ||
+        image_overlap(workspace, capacity, diagnostic, diagnostic ? sizeof *diagnostic : 0) ||
+        image_overlap(prepared, sizeof *prepared, info, sizeof *info) ||
+        image_overlap(prepared, sizeof *prepared, diagnostic,
+                      diagnostic ? sizeof *diagnostic : 0) ||
+        image_overlap(info, sizeof *info, diagnostic, diagnostic ? sizeof *diagnostic : 0))
+        return TLV_ERR_INVALID_ARG;
+    size_t offset, needed, alignment;
+    tlv_result_t rc = prepare_layout(text, size, options, &offset, &needed, &alignment, diagnostic);
+    if (rc != TLV_OK) return rc;
+    if ((uintptr_t)workspace % alignment) return TLV_ERR_INVALID_ARG;
+    if (capacity < needed) return TLV_ERR_BUFFER_TOO_SHORT;
+    tlv_query_program_info_t result = {0};
+    result.struct_size = sizeof result;
+    void* image = (uint8_t*)workspace + offset;
+    rc = tlv_query_compile(text, size, options, workspace, offset, image, needed - offset, &result,
+                           diagnostic);
+    if (rc != TLV_OK) return rc;
+    result.struct_size = info->struct_size;
+    memcpy(info, &result, info->struct_size < sizeof result ? info->struct_size : sizeof result);
+    *prepared = image;
+    return TLV_OK;
+}
+
+tlv_result_t tlv_query_compile_commit(const void* prepared, size_t prepared_size,
+                                      const tlv_query_compile_options_t* options, void* scratch,
+                                      size_t scratch_capacity, void* storage,
+                                      size_t storage_capacity, tlv_query_program_info_t* info,
+                                      tlv_query_diagnostic_t* diagnostic) {
+    if (!prepared || !scratch || !storage) return TLV_ERR_NULL_ARG;
+    if ((uintptr_t)storage % sizeof(uint32_t) ||
+        (info && info->struct_size < offsetof(tlv_query_program_info_t, expression_values)) ||
+        image_overlap(storage, storage_capacity, prepared, prepared_size) ||
+        image_overlap(storage, storage_capacity, scratch, scratch_capacity) ||
+        image_overlap(storage, storage_capacity, options, options ? sizeof *options : 0) ||
+        image_overlap(storage, storage_capacity, info, info ? sizeof *info : 0) ||
+        image_overlap(storage, storage_capacity, diagnostic, diagnostic ? sizeof *diagnostic : 0) ||
+        image_overlap(prepared, prepared_size, info, info ? sizeof *info : 0) ||
+        image_overlap(prepared, prepared_size, diagnostic, diagnostic ? sizeof *diagnostic : 0) ||
+        image_overlap(scratch, scratch_capacity, info, info ? sizeof *info : 0) ||
+        image_overlap(scratch, scratch_capacity, diagnostic, diagnostic ? sizeof *diagnostic : 0) ||
+        image_overlap(info, info ? sizeof *info : 0, diagnostic,
+                      diagnostic ? sizeof *diagnostic : 0))
+        return TLV_ERR_INVALID_ARG;
+    if (storage_capacity < prepared_size) {
+        query_diag_init(diagnostic);
+        return TLV_ERR_BUFFER_TOO_SHORT;
+    }
+    tlv_query_program_info_t result = {0};
+    result.struct_size = sizeof result;
+    const tlv_query_program_t* validated;
+    tlv_result_t rc = tlv_query_program_load(prepared, prepared_size, options, scratch,
+                                             scratch_capacity, &validated, &result, diagnostic);
+    if (rc != TLV_OK) return rc;
+    memcpy(storage, validated, prepared_size);
+    if (info) {
+        result.struct_size = info->struct_size;
+        memcpy(info, &result,
+               info->struct_size < sizeof result ? info->struct_size : sizeof result);
+    }
+    return TLV_OK;
+}
+
 static tlv_result_t image_header(const void* image, size_t size, tlv_query_program_t* header,
                                  tlv_query_diagnostic_t* diagnostic) {
     if (image_overlap(image, size, diagnostic, diagnostic ? sizeof *diagnostic : 0))

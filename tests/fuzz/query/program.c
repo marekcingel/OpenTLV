@@ -3,6 +3,7 @@
 #include "tlv/query/adapters.h"
 #include "../../../tlv/src/query/program_internal.h"
 #include <stdlib.h>
+#include <string.h>
 
 int LLVMFuzzerTestOneInput(const uint8_t* data, size_t size) {
     if (size > 4096) return 0;
@@ -25,6 +26,27 @@ int LLVMFuzzerTestOneInput(const uint8_t* data, size_t size) {
     tlv_result_t rc = tlv_query_compile((const char*)data, size, &options, scratch, sizeof scratch,
                                         program, sizeof program, &info, &diagnostic);
     if (rc != TLV_OK) return 0;
+    size_t prepare_bytes, prepare_alignment;
+    rc = tlv_query_compile_prepare_size((const char*)data, size, &options, &prepare_bytes,
+                                        &prepare_alignment, &diagnostic);
+    if (rc != TLV_OK) abort();
+    if (prepare_bytes <= sizeof workspace) {
+        const tlv_query_program_t* prepared = NULL;
+        tlv_query_program_info_t   prepared_info = {0};
+        prepared_info.struct_size = sizeof prepared_info;
+        rc = tlv_query_compile_prepare((const char*)data, size, &options, workspace, prepare_bytes,
+                                       &prepared, &prepared_info, &diagnostic);
+        if (rc != TLV_OK || prepared_info.program_size != info.program_size) abort();
+        size_t check_bytes, check_alignment;
+        rc = tlv_query_program_load_scratch(prepared, prepared_info.program_size, &options,
+                                            &check_bytes, &check_alignment, &diagnostic);
+        if (rc != TLV_OK) abort();
+        if (check_bytes <= sizeof scratch) {
+            rc = tlv_query_compile_commit(prepared, prepared_info.program_size, &options, scratch,
+                                          check_bytes, copy, sizeof copy, NULL, &diagnostic);
+            if (rc != TLV_OK || memcmp(program, copy, info.program_size)) abort();
+        }
+    }
     char   text[8193];
     size_t required;
     rc =
@@ -42,8 +64,18 @@ int LLVMFuzzerTestOneInput(const uint8_t* data, size_t size) {
     }
     tlv_query_program_info_t canonical_info = {0};
     canonical_info.struct_size = sizeof canonical_info;
-    rc = tlv_query_compile(text, required - 1, &options, scratch, sizeof scratch, copy, sizeof copy,
-                           &canonical_info, &diagnostic);
+    /* Canonical whitespace increases text bytes and therefore scratch requirements.
+       Discover this separately: a valid input near the first buffer's boundary
+       must not turn a legitimate short-buffer status into a false crash. */
+    size_t canonical_bytes, canonical_alignment;
+    rc = tlv_query_compile_scratch(text, required - 1, &options, &canonical_bytes,
+                                   &canonical_alignment, &diagnostic);
+    if (rc != TLV_OK) abort();
+    void* canonical_scratch = malloc(canonical_bytes);
+    if (!canonical_scratch) return 0;
+    rc = tlv_query_compile(text, required - 1, &options, canonical_scratch, canonical_bytes, copy,
+                           sizeof copy, &canonical_info, &diagnostic);
+    free(canonical_scratch);
     if (rc != TLV_OK) abort();
     if (canonical_info.level != info.level || canonical_info.result_kind != info.result_kind)
         abort();

@@ -5,8 +5,96 @@ import pytest
 from opentlv import (QueryProgram, TreeReader, Visit, Document, InvalidArgError,
                      NeedMoreDataError, LimitError, BufferTooShortError, QueryProvider,
                      InvalidValueError, QueryRule, QuerySchema, SchemaError, UnsupportedTypeError)
+from opentlv import (QueryTagAdapter, QueryDefinitionResolver, Definition, DefinitionRegistry,
+                     FixedFormat, Query, query_emv_resolve)
 
 WIRE = bytes.fromhex("70065a01015001025a0103")
+
+
+def test_v1_resumable_matcher_rebind_reset_and_emv_names():
+    matcher = Query("70/5A").matcher()
+    assert not matcher.matches(b"\x70", 0)
+    with pytest.raises(InvalidArgError):
+        matcher.rebind(Query("70/50"))
+    matcher.rebind(Query("70/5a"))
+    gc.collect()
+    assert matcher.matches(b"\x5a", 1)
+    matcher.reset()
+    assert not matcher.matches(b"\x5a", 1)
+    reader = TreeReader(bytes.fromhex("70035a0101"), final_input=False)
+    matches = []
+    matcher.visit(reader, lambda item, depth, offset: matches.append(bytes(item.value)) or Visit.STOP)
+    matcher.rebind(Query("70/5A"))
+    with pytest.raises(NeedMoreDataError):
+        matcher.visit(reader, lambda *args: None)
+    reader.set_input(bytes.fromhex("70035a010170035a0102"), final_input=True)
+    matcher.visit(reader, lambda item, depth, offset: matches.append(bytes(item.value)))
+    assert matches == [b"\x01", b"\x02"]
+    import _opentlv
+    if _opentlv.HAS_EMV:
+        assert query_emv_resolve("emv", "PAN") == b"\x5a"
+        assert QueryProgram("count(//emv:PAN)", resolve=query_emv_resolve).evaluate(b"\x5a\0") == 1
+
+
+def test_query_tag_adapter_dynamic_resolver_fixed_format_and_owned_image():
+    format = FixedFormat(2, 2, "little")
+    seen = []
+    tags = QueryTagAdapter(301, class_of=lambda raw: 7, number_of=lambda raw: raw[0])
+    def resolve(namespace, name):
+        seen.append((namespace, name))
+        return b"\x5a\0" if (namespace, name) == ("demo", "leaf") else None
+    program = QueryProgram("//demo:leaf[class()=7 and number()=90]", format=format,
+                           resolve=resolve, tags=tags)
+    wire = bytes.fromhex("5a00010007")
+    format.tag_size = 3  # Compilation snapshots the configured Format.
+    assert bytes(program.evaluate(wire)[0].element.value) == b"\x07"
+    assert seen == [("demo", "leaf"), ("demo", "leaf")]
+    loaded = QueryProgram.load(program.image(), format=FixedFormat(2, 2, "little"),
+                               resolve=resolve, tags=tags)
+    with pytest.raises(InvalidArgError):
+        QueryProgram.load(program.image(), format=FixedFormat(2, 2, "little"), resolve=resolve,
+                          tags=QueryTagAdapter(302, tags.class_of, tags.number_of))
+    document = Document(wire, FixedFormat(2, 2, "little"))
+    assert document.encode() == wire
+    execution = loaded.execution()
+    execution.evaluate_document(document)
+    match, ordinal = execution.next_ordinal()
+    assert ordinal == 0 and match.element.tag.data == b"\x5a\0"
+    document.close()
+    assert bytes(match.element.value) == b"\x07"
+    schema = QuerySchema([QueryRule(QueryProgram("//5A00", format=FixedFormat(2, 2, "little")),
+                                    QueryProgram("num(.)=7", format=FixedFormat(2, 2, "little")))])
+    schema.validate_buffer(wire)
+
+
+def test_query_resolver_drift_definition_ambiguity_and_callback_errors():
+    calls = []
+    def changing(namespace, name):
+        calls.append(name)
+        return b"\x5a" if len(calls) == 1 else b"\x5b"
+    with pytest.raises(InvalidArgError):
+        QueryProgram("//named", resolve=changing)
+    marker = ValueError("resolver exception")
+    def throwing(*args):
+        raise marker
+    with pytest.raises(ValueError) as failure:
+        QueryProgram("//named", resolve=throwing)
+    assert failure.value is marker
+    registry = DefinitionRegistry([Definition(b"\x5a", "leaf")])
+    definitions = QueryDefinitionResolver({"a": registry, "b": registry})
+    assert definitions("a", "leaf") == b"\x5a"
+    with pytest.raises(InvalidArgError):
+        definitions("", "leaf")
+    p = QueryProgram("count(//a:leaf)", resolve=definitions)
+    del registry, definitions
+    gc.collect()
+    assert p.evaluate(bytes.fromhex("5a00")) == 1
+    bad = QueryProgram("class(//5A)", tags=QueryTagAdapter(303, class_of=throwing))
+    with pytest.raises(ValueError) as failure:
+        bad.evaluate(bytes.fromhex("5a00"))
+    assert failure.value is marker
+    with pytest.raises(UnsupportedTypeError):
+        QueryProgram("number(//5A)", tags=QueryTagAdapter(304, class_of=lambda raw: 1))
 
 
 def test_query_schema_buffer_document_owned_diagnostics_and_limits():
@@ -271,7 +359,7 @@ def test_document_reverse_axis_revision_context_and_close_guards():
 
 
 def test_canonical_feed_source_lifetime_and_exact_external_workspace():
-    program = QueryProgram("count(//5A[@offset >= 2])")
+    program = QueryProgram("count(//5A[@offset >= 2 and @hlen = 2])")
     size, alignment = program.workspace_size(max_depth=4, max_nodes=20)
     import ctypes
     storage = bytearray(size + alignment)

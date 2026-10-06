@@ -7,7 +7,8 @@ import _opentlv as _native
 from opentlv.cursor import TreeReader, Visit
 from opentlv.element import Element
 from opentlv.error import _from_native, EndOfBufferError
-from opentlv.format import _resolve_format
+from opentlv.format import _resolve_format, _format_specification
+from opentlv.fixed_format import FixedFormat
 from opentlv.tag import Tag
 
 
@@ -42,6 +43,47 @@ class QueryProvider:
 
 
 @dataclass(frozen=True)
+class QueryTagAdapter:
+    """Explicit semantic Tag decomposition; callbacks receive copied raw bytes.
+
+    The nonzero uint32 ID identifies image compatibility. Each optional
+    callback returns a signed int64; omitted capabilities fail in the C compiler.
+    """
+    id: int
+    class_of: object = None
+    number_of: object = None
+
+    def __post_init__(self):
+        if type(self.id) is not int or not 0 < self.id <= 0xffffffff:
+            raise ValueError("tag adapter ID must be nonzero uint32")
+        if any(value is not None and not callable(value) for value in (self.class_of, self.number_of)):
+            raise TypeError("Tag decomposition callbacks must be callable or None")
+
+
+def query_emv_resolve(namespace, name):
+    """Resolve canonical EMV symbols through the native base dictionary."""
+    return _call(_native.query_emv_resolve, namespace, name)
+
+
+class QueryDefinitionResolver:
+    """Owned named Definition registries resolved by the canonical C adapter."""
+    def __init__(self, scopes):
+        from opentlv.definition import DefinitionRegistry
+        records = []
+        for namespace, registry in scopes.items():
+            if not isinstance(namespace, str) or "\0" in namespace:
+                raise ValueError("NUL-free namespace required")
+            if not isinstance(registry, DefinitionRegistry):
+                raise TypeError("DefinitionRegistry required")
+            records.append((namespace, tuple((item.tag.data, item.name) for item in registry.definitions)))
+        self._scopes = tuple(records)
+
+    def __call__(self, namespace, name):
+        """Resolve one spelling; native ambiguity and unknown-tag errors propagate."""
+        return _call(_native.query_definition_resolve, self._scopes, namespace, name)
+
+
+@dataclass(frozen=True)
 class QueryMatch:
     """Owned event snapshot; copied bytes remain valid after reset/input replacement."""
     element: Element
@@ -73,6 +115,9 @@ class QueryProgram:
 
     def _initialize(self, data, format, variables, names, options, image):
         self._format = _resolve_format(format)
+        if isinstance(self._format, FixedFormat):
+            self._format = FixedFormat(self._format.tag_size, self._format.length_size,
+                                       "big" if self._format.big_endian else "little")
         kinds = {int: 2, bytes: 3, str: 4}
         self._declarations = {name: kinds[kind] for name, kind in (variables or {}).items()}
         if any(not isinstance(name, str) or "\0" in name for name in self._declarations):
@@ -80,10 +125,19 @@ class QueryProgram:
         self._names = {name: bytes(tag.data if isinstance(tag, Tag) else tag)
                        for name, tag in (names or {}).items()}
         allowed = {"max_text", "max_tokens", "max_nesting", "max_states", "max_pattern",
-                   "max_resolved_tag", "optimize", "providers"}
+                   "max_resolved_tag", "optimize", "providers", "tags", "resolve"}
         if options.keys() - allowed:
             raise TypeError(f"unknown compile options: {options.keys() - allowed}")
         self._options = dict(options)
+        if "tags" in self._options:
+            tags = self._options["tags"]
+            if not isinstance(tags, QueryTagAdapter):
+                raise TypeError("QueryTagAdapter required")
+            self._options["tags"] = (tags.id, tags.class_of, tags.number_of)
+        if "resolve" in self._options and not callable(self._options["resolve"]):
+            raise TypeError("resolve(namespace, name) must be callable")
+        if "resolve" in self._options and names:
+            raise ValueError("use either names or resolve")
         if "providers" in self._options:
             selectors = {"num": 0, "bcd": 1, "text": 2, "date": 3}
             providers = self._options["providers"]
@@ -95,7 +149,7 @@ class QueryProgram:
                                   lambda value, metadata, decode=provider.decode:
                                   decode(value, None if metadata is None else _match(metadata)))
                 for name, provider in providers.items()}
-        self._capsule = _call(_native.program_create, data, int(self._format),
+        self._capsule = _call(_native.program_create, data, _format_specification(self._format),
                               self._declarations, self._names, self._options, image)
 
     @classmethod
@@ -188,7 +242,7 @@ class QuerySchema:
             raise RuntimeError("Query Schema validation is already active")
         self._busy = True
         try:
-            _call(_native.query_schema, self._native_rules, input, int(self._format),
+            _call(_native.query_schema, self._native_rules, input, _format_specification(self._format),
                   max_depth, max_nodes, max_work, max_nodes if max_contexts is None else max_contexts,
                   -1 if value_capacity is None else value_capacity)
         finally:
@@ -383,6 +437,24 @@ class QueryExecution:
 
     def __iter__(self):
         return self
+
+    def next_ordinal(self):
+        """Pull (owned QueryMatch, preorder ordinal) from a completed retained result.
+
+        The ordinal identifies a context in this traversal/revision, independently
+        of source offsets and Document node identities. Exhaustion raises StopIteration.
+        """
+        self._check()
+        if self._document is not None:
+            self._document._query_active += 1
+        try:
+            raw, ordinal = _call(_native.execution_next_ordinal, self._capsule)
+            return _match(raw), ordinal
+        except EndOfBufferError:
+            raise StopIteration from None
+        finally:
+            if self._document is not None:
+                self._document._query_active -= 1
 
     def __next__(self):
         return self.next()

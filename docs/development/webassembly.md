@@ -35,7 +35,7 @@ The artifacts are written to `build-wasm/bindings/wasm/dist/`:
 Serve these files from the same directory. With the same Emscripten version
 and configuration the artifacts are byte-for-byte identical; CI builds twice
 and compares them. Format options such as `OPENTLV_FORMAT_BER` apply as in
-native builds, and a compiled-out format is rejected as an invalid argument.
+native builds, and disabled formats are unavailable to the facade.
 
 ## Use from JavaScript
 
@@ -43,15 +43,53 @@ native builds, and a compiled-out format is rejected as an invalid argument.
 
 `loadOpenTLV()` also provides `compileQuery(text, options)`, `loadQuery(image,
 options)` and `document(input, options)`. Compilation and evaluation delegate to
-the native C engine. Query formats currently support `ber`, `der` and `cer`;
-disabled components are rejected.
+the native C engine. Query and Document accept `ber`, `ber-indefinite`, `der`,
+`cer`, `emv`, `nfc-type2`, `lldp`, `dhcpv4`, `bluetooth-ltv`, `bluetooth-ad` and
+`fixed`, or an owning `Format` object. Disabled components report unsupported
+type. Query's `bluetooth-ad` alias uses strict element framing; container padding
+is handled by the separate parse tooling. Writer restrictions of each native
+Format also apply to `document.encode()`.
 
 Programs expose `info`, `format()`, `explain()`, `image()`, `evaluate(input)` and
 `execution(limits)`. Declare `variables: { name: "integer" | "bytes" | "string" }`
 at compilation; bind values with `execution.bind(name, value)` or the `bindings`
 option of `evaluate`. Integer inputs accept safe JS integers or signed 64-bit
 `bigint`; results outside the safe integer range return `bigint`. Named Tags can
-be supplied as `names: { symbol: Uint8Array }`.
+be supplied as `names: { symbol: Uint8Array }`. `program.variables` reports the
+native unique referenced variables, excluding unused declarations.
+
+`resolve(scope, name)` can supply dynamic scoped names, returning a copied
+`Uint8Array` or `null` for an unknown identifier. `resolve: "emv"` selects the
+native EMV registry. `nameResolver({ "scope:name": tag })` and
+`definitionResolver({ scope: [{ name, tag }] })` create immutable lookup snapshots;
+an unqualified name must be unique across scopes. Checked compilation rejects
+resolver changes between preparation and final compilation, including equal-size
+Tag changes. Resolver exceptions preserve their original JavaScript identity.
+
+`tags: { id, classOf?, numberOf? }` supplies optional semantic Tag callbacks.
+Callbacks receive copied Tag bytes and return signed 64-bit integers. The
+nonzero stable `id` is checked when loading an image; capabilities remain alive
+while an execution or schema retains the program.
+
+`Format.fixed({ tag_size, length_size, byte_order, element_order, length_scope,
+isConstructed? })` owns the complete native Fixed configuration. Defaults are
+one-byte fields, `"big"`, `"tlv"` and `"value"`; alternatives are `"little"`,
+`"ltv"` and `"tag-and-value"`. Share the Format object between programs and
+Documents using the same configuration. Closing its public handle leaves
+existing dependent objects usable.
+
+`Format.custom({ decode, measure?, encode?, isConstructed? })` registers native
+Format callbacks with owned lifetimes. `decode(bytes)` receives a copy and returns
+`{ tag, header, value, trailer?, tagRange?, lengthRange? }`; each range contains
+`{ offset, size }` relative to the supplied bytes. The returned `tag` is a semantic
+`Uint8Array`, which may differ from the wire field. Native framing validation
+checks the layout. Complete semantic Tags are retained until the Format's final
+dependent owner closes. `measure({ tag, value, valueSize })` returns numeric
+`{ header, value, trailer? }` sizes, and `encode(element)` returns encoded bytes.
+During measurement, `value` may be `null`. Supply both Writer callbacks together
+to support Documents; read-only custom Formats support Query execution. Any
+callback can report a native failure as `{ code }`, or throw its original
+JavaScript exception. Callbacks cannot reenter an object using the same Format.
 
 `providers: { num: { id, decode }, ... }` selects callbacks for the closed `num`,
 `bcd`, `text` and `date` conversions. Callbacks receive copied bytes and optional
@@ -62,6 +100,11 @@ them. Callback exceptions propagate and reentry is rejected. Loading an image
 requires matching provider IDs and contracts.
 
 `execution.feed(event)` accepts canonical `begin`, `element` and `end` events.
+For `begin` and `element`, `source: Uint8Array` supplies the complete encoded
+element; the owning Format derives the Tag, Value and Source ranges. Without
+`source`, supply copied `tag` and `value` bytes. `offset` stays absolute in either
+case. After a retained raw feed is finalized, `nextOrdinal()` returns
+`{ ordinal, match }` using traversal identity independently of Source offsets.
 `finish()` finalizes deferred results; raw events and Reader input require
 separate resets. After evaluating a Document selection,
 `editDocument("remove" | "replace" | "insert_after", options)` applies edits with
@@ -84,6 +127,14 @@ call. Callback exceptions invalidate the execution until reset; reentrant calls
 on that execution are rejected. Scalars use `finish()` then `result()`; `info`
 reports native validation and resource coverage. Explicit limits include
 `max_depth`, `max_nodes` and `max_work`.
+Reader failures preserve copied field offsets, Tag, raw length, expected/actual
+text, path and diagnostic context in `error.query.reader`.
+
+`new V1Query("70/5A")` exposes bounded legacy parsing, `format()`, copied `steps`,
+`evaluate(input, options)` and a native preorder matcher. `matcher()` creates an
+independent owner; feed every Tag and depth with `feed(tag, depth)`, and call
+`reset()` before starting a new traversal. An independent matcher remains valid
+after the original Query closes.
 
 `evaluateDocument(document, { value_capacity })` evaluates the canonical Document
 backend. Results are checked Nodes with `tag`, `value`, `constructed`,

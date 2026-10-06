@@ -24,6 +24,11 @@ typedef struct {
     size_t    capacity;
     uintptr_t handle;
 } go_query_provider;
+typedef struct {
+    uint32_t  id;
+    uintptr_t handle;
+    int       has_class, has_number;
+} go_query_tags;
 
 enum go_format_kind {
     GO_FORMAT_FIXED,
@@ -47,8 +52,8 @@ go_query_program* go_query_compile(go_format config, const uint8_t* text, size_t
                                    const tlv_query_compile_options_t* options,
                                    const go_query_name* names, size_t name_count,
                                    const go_query_provider* providers, size_t provider_count,
-                                   int image, tlv_result_t* code,
-                                   tlv_query_diagnostic_t* diagnostic);
+                                   const go_query_tags* tags, uintptr_t resolver, int image,
+                                   tlv_result_t* code, tlv_query_diagnostic_t* diagnostic);
 void              go_query_program_free(go_query_program* program);
 void              go_query_program_retain(go_query_program*);
 const tlv_query_environment_t* go_query_environment(go_query_program*);
@@ -71,6 +76,8 @@ tlv_result_t        go_query_input(go_query_execution* execution, const uint8_t*
 tlv_result_t go_query_feed(go_query_execution*, int, const uint8_t*, size_t, const uint8_t*, size_t,
                            size_t, size_t, int, tlv_tree_event_t*, int*, tlv_query_diagnostic_t*);
 tlv_result_t go_query_finish(go_query_execution*, tlv_query_diagnostic_t*);
+tlv_result_t go_query_feed_encoded(go_query_execution*, const uint8_t*, size_t, size_t, size_t,
+                                   tlv_tree_event_t*, int*, tlv_query_diagnostic_t*);
 tlv_result_t go_query_visit(go_query_execution* execution, tlv_query_event_visitor_t visitor,
                             void* context, tlv_query_diagnostic_t* diagnostic);
 tlv_result_t go_query_exists(go_query_execution* execution, int early_return, int* found,

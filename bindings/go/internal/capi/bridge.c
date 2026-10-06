@@ -359,6 +359,8 @@ struct go_query_program {
     tlv_query_hook_t           hooks[4];
     uintptr_t                  provider_handles[4];
     size_t                     provider_count;
+    uintptr_t                  tag_handle;
+    tlv_query_tag_adapter_t    tags;
     void*                      image;
     const tlv_query_program_t* program;
     tlv_query_program_info_t   info;
@@ -366,6 +368,21 @@ struct go_query_program {
 extern int  goQueryProviderDecode(uintptr_t, tlv_tree_event_t*, uint8_t*, size_t, void*, size_t,
                                   tlv_query_result_t*);
 extern void goQueryProviderRelease(uintptr_t);
+extern int  goQueryTagLookup(uintptr_t, int, uint8_t*, size_t, int64_t*);
+extern int  goQueryResolve(uintptr_t, char*, size_t, char*, size_t, tlv_tag_t*);
+static tlv_result_t query_tag_class(const void* context, const tlv_tag_t* tag, int64_t* value) {
+    return (tlv_result_t)goQueryTagLookup((uintptr_t)context, 0, (uint8_t*)tag->data, tag->size,
+                                          value);
+}
+static tlv_result_t query_tag_number(const void* context, const tlv_tag_t* tag, int64_t* value) {
+    return (tlv_result_t)goQueryTagLookup((uintptr_t)context, 1, (uint8_t*)tag->data, tag->size,
+                                          value);
+}
+static tlv_result_t query_dynamic_resolve(const void* context, const char* space, size_t space_size,
+                                          const char* name, size_t name_size, tlv_tag_t* tag) {
+    return (tlv_result_t)goQueryResolve((uintptr_t)context, (char*)space, space_size, (char*)name,
+                                        name_size, tag);
+}
 static tlv_codec_result_t query_provider_decode(const void* context, const tlv_tree_event_t* event,
                                                 const uint8_t* data, size_t size, void* scratch,
                                                 size_t capacity, tlv_query_result_t* result) {
@@ -378,16 +395,17 @@ typedef struct query_buffer {
     uint8_t              data[1];
 } query_buffer;
 struct go_query_execution {
-    go_query_program* program;
-    void*             storage;
-    void*             storage_allocation;
-    size_t            capacity, depth, nodes, work;
-    int               retained, has_reader, has_document, fed;
-    tlv_query_exec_t* exec;
-    tlv_tree_reader_t reader;
-    tlv_tree_frame_t* frames;
-    query_buffer*     buffers;
-    void*             values;
+    go_query_program*       program;
+    tlv_query_environment_t environment;
+    void*                   storage;
+    void*                   storage_allocation;
+    size_t                  capacity, depth, nodes, work;
+    int                     retained, has_reader, has_document, fed;
+    tlv_query_exec_t*       exec;
+    tlv_tree_reader_t       reader;
+    tlv_tree_frame_t*       frames;
+    query_buffer*           buffers;
+    void*                   values;
 };
 typedef struct query_names {
     const go_query_name* names;
@@ -416,17 +434,24 @@ go_query_program* go_query_compile(go_format format, const uint8_t* text, size_t
                                    const tlv_query_compile_options_t* options,
                                    const go_query_name* names, size_t name_count,
                                    const go_query_provider* providers, size_t provider_count,
-                                   int image, tlv_result_t* code,
-                                   tlv_query_diagnostic_t* diagnostic) {
+                                   const go_query_tags* tags, uintptr_t resolver, int image,
+                                   tlv_result_t* code, tlv_query_diagnostic_t* diagnostic) {
     memset(diagnostic, 0, sizeof *diagnostic);
     if (!text && !size) text = (const uint8_t*)"";
     go_query_program* p = calloc(1, sizeof *p);
     if (!p) {
         for (size_t i = 0; i < provider_count; ++i) goQueryProviderRelease(providers[i].handle);
+        if (tags) goQueryProviderRelease(tags->handle);
         *code = TLV_ERR_OUT_OF_MEMORY;
         return NULL;
     }
     p->references = 1;
+    if (tags) {
+        p->tag_handle = tags->handle;
+        p->tags = (tlv_query_tag_adapter_t){tags->id, (const void*)tags->handle,
+                                            tags->has_class ? query_tag_class : NULL,
+                                            tags->has_number ? query_tag_number : NULL};
+    }
     *code = resolve(format, &p->format, &p->fixed);
     p->environment.format = &p->format;
     size_t                  count;
@@ -439,6 +464,7 @@ go_query_program* go_query_compile(go_format format, const uint8_t* text, size_t
         p->hooks[count++] = tlv_asn1_query_date;
     }
 #endif
+    if (tags) p->environment.tags = &p->tags;
     p->environment.hooks = p->hooks;
     p->environment.hook_count = count;
     p->provider_count = provider_count;
@@ -464,18 +490,23 @@ go_query_program* go_query_compile(go_format format, const uint8_t* text, size_t
     config.environment = &p->environment;
     config.resolve = query_resolve;
     config.resolve_context = &lookup;
+    if (resolver) {
+        config.resolve = query_dynamic_resolve;
+        config.resolve_context = (const void*)resolver;
+    }
     size_t bytes = 0, alignment = 0;
     p->info.struct_size = sizeof p->info;
     if (*code == TLV_OK)
         *code = image ? tlv_query_program_load_scratch(text, size, &config, &bytes, &alignment,
                                                        diagnostic)
-                      : tlv_query_compile_scratch((const char*)text, size, &config, &bytes,
-                                                  &alignment, diagnostic);
+                      : tlv_query_compile_prepare_size((const char*)text, size, &config, &bytes,
+                                                       &alignment, diagnostic);
     void* scratch = *code == TLV_OK ? malloc(bytes ? bytes : 1) : NULL;
     if (*code == TLV_OK && !scratch) *code = TLV_ERR_OUT_OF_MEMORY;
+    const tlv_query_program_t* prepared = NULL;
     if (*code == TLV_OK && !image)
-        *code = tlv_query_compile((const char*)text, size, &config, scratch, bytes, NULL, 0,
-                                  &p->info, diagnostic);
+        *code = tlv_query_compile_prepare((const char*)text, size, &config, scratch, bytes,
+                                          &prepared, &p->info, diagnostic);
     if (*code == TLV_OK) {
         p->image = malloc(image ? (size ? size : 1) : p->info.program_size);
         if (!p->image) *code = TLV_ERR_OUT_OF_MEMORY;
@@ -485,8 +516,16 @@ go_query_program* go_query_compile(go_format format, const uint8_t* text, size_t
         *code = tlv_query_program_load(p->image, size, &config, scratch, bytes, &p->program,
                                        &p->info, diagnostic);
     } else if (*code == TLV_OK) {
-        *code = tlv_query_compile((const char*)text, size, &config, scratch, bytes, p->image,
-                                  p->info.program_size, &p->info, diagnostic);
+        size_t validation_bytes = 0;
+        *code = tlv_query_program_load_scratch(prepared, p->info.program_size, &config,
+                                               &validation_bytes, &alignment, diagnostic);
+        void* validation = *code == TLV_OK ? malloc(validation_bytes ? validation_bytes : 1) : NULL;
+        if (*code == TLV_OK && !validation) *code = TLV_ERR_OUT_OF_MEMORY;
+        if (*code == TLV_OK)
+            *code = tlv_query_compile_commit(prepared, p->info.program_size, &config, validation,
+                                             validation_bytes, p->image, p->info.program_size,
+                                             &p->info, diagnostic);
+        free(validation);
         p->program = p->image;
     }
     free(scratch);
@@ -500,6 +539,7 @@ void go_query_program_free(go_query_program* p) {
     if (p && --p->references == 0) {
         for (size_t i = 0; i < p->provider_count; ++i)
             goQueryProviderRelease(p->provider_handles[i]);
+        if (p->tag_handle) goQueryProviderRelease(p->tag_handle);
         free(p->image);
         free(p);
     }
@@ -510,17 +550,69 @@ void go_query_program_retain(go_query_program* p) {
 const tlv_query_environment_t* go_query_environment(go_query_program* p) {
     return &p->environment;
 }
+/* Go Format is an immutable value. For equal Fixed values, retain the native
+ * operation's descriptor in a private environment; never mutate the program. */
+static void query_format_environment(const tlv_format_t*            format,
+                                     const tlv_query_environment_t* source,
+                                     tlv_query_environment_t*       output) {
+    *output = *source;
+    const tlv_format_t* original = source->format;
+    if (!original || !format || !original->context || !format->context ||
+        original->decode != tlv_binary_decode || format->decode != tlv_binary_decode ||
+        original->measure != format->measure || original->encode != format->encode ||
+        original->is_constructed != format->is_constructed)
+        return;
+    const tlv_fixed_format_t* a = original->context;
+    const tlv_fixed_format_t* b = format->context;
+    if (a->tag_size == b->tag_size && a->length_size == b->length_size &&
+        a->length_order == b->length_order && a->element_order == b->element_order &&
+        a->length_scope == b->length_scope)
+        output->format = format;
+}
+static tlv_result_t query_schema_environments(const tlv_format_t*            format,
+                                              const tlv_schema_query_rule_t* rules, size_t count,
+                                              tlv_schema_query_rule_t** copies,
+                                              tlv_query_environment_t** environments) {
+    *copies = NULL;
+    *environments = NULL;
+    if (!count) return TLV_OK;
+    if (count > SIZE_MAX / sizeof **copies || count > SIZE_MAX / sizeof **environments)
+        return TLV_ERR_OVERFLOW;
+    *copies = calloc(count, sizeof **copies);
+    *environments = calloc(count, sizeof **environments);
+    if (!*copies || !*environments) {
+        free(*copies);
+        free(*environments);
+        *copies = NULL;
+        *environments = NULL;
+        return TLV_ERR_OUT_OF_MEMORY;
+    }
+    for (size_t i = 0; i < count; ++i) {
+        (*copies)[i] = rules[i];
+        if (rules[i].environment) {
+            query_format_environment(format, rules[i].environment, &(*environments)[i]);
+            (*copies)[i].environment = &(*environments)[i];
+        }
+    }
+    return TLV_OK;
+}
 tlv_result_t go_query_schema_buffer(go_format config, const uint8_t* data, size_t size,
                                     const tlv_schema_query_rule_t* rules, size_t count,
                                     size_t depth, size_t nodes, size_t work,
                                     tlv_schema_query_workspace_t*  workspace,
                                     tlv_schema_query_diagnostic_t* diagnostic) {
-    tlv_format_t       format;
-    tlv_fixed_format_t fixed;
-    tlv_result_t       rc = resolve(config, &format, &fixed);
-    return rc == TLV_OK ? tlv_schema_query_validate_buffer(data, size, &format, rules, count, depth,
-                                                           nodes, work, workspace, diagnostic)
-                        : rc;
+    tlv_format_t             format;
+    tlv_fixed_format_t       fixed;
+    tlv_result_t             rc = resolve(config, &format, &fixed);
+    tlv_schema_query_rule_t* copies = NULL;
+    tlv_query_environment_t* environments = NULL;
+    if (rc == TLV_OK) rc = query_schema_environments(&format, rules, count, &copies, &environments);
+    if (rc == TLV_OK)
+        rc = tlv_schema_query_validate_buffer(data, size, &format, copies, count, depth, nodes,
+                                              work, workspace, diagnostic);
+    free(copies);
+    free(environments);
+    return rc;
 }
 tlv_result_t go_query_schema_document(go_document* document, const tlv_schema_query_rule_t* rules,
                                       size_t count, size_t depth, size_t nodes, size_t work,
@@ -528,8 +620,17 @@ tlv_result_t go_query_schema_document(go_document* document, const tlv_schema_qu
                                       size_t capacity, tlv_tree_writer_workspace_t* staging,
                                       tlv_schema_query_diagnostic_t* diagnostic) {
 #if OPENTLV_DOCUMENT
-    return tlv_schema_query_validate_document(document->document, rules, count, depth, nodes, work,
-                                              workspace, values, capacity, staging, diagnostic);
+    tlv_schema_query_rule_t* copies = NULL;
+    tlv_query_environment_t* environments = NULL;
+    tlv_result_t             rc =
+        query_schema_environments(&document->format, rules, count, &copies, &environments);
+    if (rc == TLV_OK)
+        rc = tlv_schema_query_validate_document(document->document, copies, count, depth, nodes,
+                                                work, workspace, values, capacity, staging,
+                                                diagnostic);
+    free(copies);
+    free(environments);
+    return rc;
 #else
     (void)document;
     (void)rules;
@@ -570,11 +671,12 @@ static query_buffer* query_buffer_new(const uint8_t* data, size_t size) {
     return buffer;
 }
 tlv_result_t go_query_execution_reset(go_query_execution* q) {
-    tlv_result_t rc =
-        q->retained ? tlv_query_eval_init(q->program->program, &q->program->environment, q->storage,
-                                          q->capacity, q->depth, q->nodes, q->work, &q->exec)
-                    : tlv_query_exec_init(q->program->program, q->storage, q->capacity, q->depth,
-                                          q->nodes, q->work, &q->exec);
+    q->environment = q->program->environment;
+    tlv_result_t rc = q->retained
+                          ? tlv_query_eval_init(q->program->program, &q->environment, q->storage,
+                                                q->capacity, q->depth, q->nodes, q->work, &q->exec)
+                          : tlv_query_exec_init(q->program->program, q->storage, q->capacity,
+                                                q->depth, q->nodes, q->work, &q->exec);
     if (rc == TLV_OK) {
         query_buffers_free(q);
         free(q->values);
@@ -692,6 +794,44 @@ static tlv_visit_result_t query_drain(const tlv_tree_event_t* event, void* conte
     (void)context;
     return TLV_VISIT_CONTINUE;
 }
+tlv_result_t go_query_feed_encoded(go_query_execution* q, const uint8_t* data, size_t size,
+                                   size_t depth, size_t offset, tlv_tree_event_t* event,
+                                   int* matched, tlv_query_diagnostic_t* diagnostic) {
+    if (q->has_reader || q->has_document) return TLV_ERR_INVALID_ARG;
+    query_buffer* buffer = query_buffer_new(data, size);
+    if (!buffer) return TLV_ERR_OUT_OF_MEMORY;
+    tlv_reader_t            reader;
+    tlv_reader_diagnostic_t original = {0};
+    tlv_result_t            rc = tlv_reader_init(&reader, buffer->data, size, &q->program->format);
+    memset(event, 0, sizeof *event);
+    if (rc == TLV_OK)
+        rc = tlv_reader_next_source_diag(&reader, &event->element, &event->source, &original);
+    if (rc == TLV_OK && reader.pos != size) rc = TLV_ERR_INVALID_ARG;
+    if (rc != TLV_OK) {
+        /* Preserve diagnostic spans until the owning Go projection completes. */
+        buffer->next = q->buffers;
+        q->buffers = buffer;
+        memset(diagnostic, 0, sizeof *diagnostic);
+        diagnostic->kind = TLV_QUERY_ERROR_READER;
+        diagnostic->reader = original;
+        diagnostic->reader.diagnostic.code = rc;
+        return rc;
+    }
+    event->kind =
+        q->program->format.is_constructed &&
+                q->program->format.is_constructed(q->program->format.context, &event->element.tag)
+            ? TLV_TREE_BEGIN
+            : TLV_TREE_ELEMENT;
+    event->depth = depth;
+    event->offset = offset;
+    buffer->next = q->buffers;
+    q->buffers = buffer;
+    q->fed = 1;
+    rc = tlv_query_exec_feed(q->exec, event, matched, diagnostic);
+    if (rc == TLV_OK && *matched && q->program->info.level == TLV_QUERY_S1)
+        rc = tlv_query_exec_selected(q->exec, event);
+    return rc;
+}
 tlv_result_t go_query_finish(go_query_execution* q, tlv_query_diagnostic_t* diagnostic) {
     return q->has_reader
                ? tlv_query_program_visit(&q->reader, q->exec, query_drain, NULL, diagnostic)
@@ -726,6 +866,7 @@ tlv_result_t go_query_document(go_query_execution* q, const go_document* documen
                                size_t capacity, tlv_query_diagnostic_t* diagnostic) {
 #if OPENTLV_DOCUMENT
     if (!q->retained || q->has_reader || q->has_document) return TLV_ERR_INVALID_ARG;
+    query_format_environment(&document->format, &q->program->environment, &q->environment);
     if (q->depth == SIZE_MAX || q->depth + 1 > SIZE_MAX / sizeof(tlv_tree_writer_frame_t))
         return TLV_ERR_OVERFLOW;
     tlv_tree_writer_workspace_t staging = {0};

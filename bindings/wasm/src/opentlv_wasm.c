@@ -12,6 +12,12 @@
 #include "tlv/query/adapters.h"
 #include "tlv/document/document.h"
 #include "tlv/writer/tree.h"
+#if OPENTLV_EMV
+#include "tlv/builtins/emv/query.h"
+#endif
+#if OPENTLV_DHCP
+#include "tlv/builtins/dhcp/dhcpv4.h"
+#endif
 #if OPENTLV_FORMAT_BER
 #include "tlv/builtins/asn1/query.h"
 #endif
@@ -493,8 +499,126 @@ typedef struct {
 } wasm_name_t;
 typedef struct wasm_pin {
     struct wasm_pin* next;
+    size_t           size;
     uint8_t          data[1];
 } wasm_pin_t;
+struct opentlv_wasm_format {
+    size_t             references;
+    tlv_format_t       format;
+    tlv_fixed_format_t fixed;
+    int                asn1;
+    wasm_pin_t*        tags;
+};
+opentlv_wasm_format_t* opentlv_wasm_format_new(const char* name, size_t tag_size,
+                                               size_t length_size, int big, int ltv,
+                                               int counts_tag) {
+    if (!name) return NULL;
+    opentlv_wasm_format_t* owner = calloc(1, sizeof *owner);
+    if (!owner) return NULL;
+    owner->references = 1;
+    if (!strcmp(name, "custom")) return owner;
+    int                 der;
+    const tlv_format_t* format = select_format(name, &owner->asn1, &der, tag_size, length_size, big,
+                                               ltv, counts_tag, &owner->fixed, &owner->format);
+#if OPENTLV_DHCP
+    if (!strcmp(name, "dhcpv4")) format = &tlv_format_dhcpv4;
+#endif
+#if OPENTLV_FORMAT_BER
+    if (!strcmp(name, "ber-indefinite")) {
+        format = &tlv_format_ber_indefinite;
+        owner->asn1 = 1;
+    }
+#endif
+    if (!format) {
+        free(owner);
+        return NULL;
+    }
+    owner->format = *format;
+    return owner;
+}
+int opentlv_wasm_format_callbacks(opentlv_wasm_format_t* owner, tlv_decode_fn decode,
+                                  tlv_measure_fn measure, tlv_encode_fn encode,
+                                  tlv_is_constructed_fn constructed) {
+    if (!owner || owner->references != 1) return TLV_ERR_INVALID_ARG;
+    if (decode) {
+        tlv_result_t rc = tlv_format_init(&owner->format, owner, decode, measure, encode);
+        if (rc != TLV_OK) return rc;
+    }
+    owner->format.is_constructed = constructed;
+    return TLV_OK;
+}
+void opentlv_wasm_format_free(opentlv_wasm_format_t* owner) {
+    if (!owner || --owner->references) return;
+    while (owner->tags) {
+        wasm_pin_t* next = owner->tags->next;
+        free(owner->tags);
+        owner->tags = next;
+    }
+    free(owner);
+}
+int opentlv_wasm_format_decoded(opentlv_wasm_format_t* owner, tlv_decoded_t* result,
+                                const uint8_t* input, size_t available, const uint8_t* tag,
+                                size_t tag_size, const uint32_t* ranges) {
+    tlv_range_t fields[5];
+    for (size_t i = 0; i < 5; ++i) {
+        fields[i] = (tlv_range_t){ranges[2 * i], ranges[2 * i + 1], ranges[2 * i] != UINT32_MAX};
+        if (fields[i].present &&
+            (fields[i].offset > available || fields[i].size > available - fields[i].offset))
+            return TLV_ERR_INVALID_ARG;
+    }
+    if (!fields[0].present || !fields[3].present || !fields[4].present ||
+        fields[0].size > SIZE_MAX - fields[3].size ||
+        fields[4].size > SIZE_MAX - fields[0].size - fields[3].size)
+        return TLV_ERR_INVALID_ARG;
+    size_t extent = fields[0].size + fields[3].size + fields[4].size;
+    if (extent > available) return TLV_ERR_BUFFER_TOO_SHORT;
+    if (tag_size > SIZE_MAX - sizeof(wasm_pin_t)) return TLV_ERR_OVERFLOW;
+    wasm_pin_t* pin = owner->tags;
+    while (pin && (pin->size != tag_size || (tag_size && memcmp(pin->data, tag, tag_size))))
+        pin = pin->next;
+    if (!pin) {
+        pin = malloc(sizeof *pin + tag_size);
+        if (!pin) return TLV_ERR_OUT_OF_MEMORY;
+        if (tag_size) memcpy(pin->data, tag, tag_size);
+        pin->size = tag_size;
+        pin->next = owner->tags;
+        owner->tags = pin;
+    }
+    memset(result, 0, sizeof *result);
+    result->element.tag = tlv_tag(pin->data, tag_size);
+    result->element.value.data = input + fields[3].offset;
+    result->element.value.size = fields[3].size;
+    result->source = (tlv_source_t){
+        input,     extent,    fields[0],       fields[1],      fields[2],
+        fields[3], fields[4], result->element, &owner->format, TLV_TAG_BINDING_FORMAT};
+    return TLV_OK;
+}
+size_t opentlv_wasm_element_field(const tlv_element_t* e, int field) {
+    switch (field) {
+        case 0: return (size_t)(uintptr_t)e->tag.data;
+        case 1: return e->tag.size;
+        case 2: return (size_t)(uintptr_t)e->value.data;
+        case 3: return e->value.size;
+        default: return 0;
+    }
+}
+size_t opentlv_wasm_tag_field(const tlv_tag_t* tag, int field) {
+    return field ? tag->size : (size_t)(uintptr_t)tag->data;
+}
+void opentlv_wasm_integer_write(int64_t* result, uint32_t low, uint32_t high) {
+    uint64_t bits = ((uint64_t)high << 32) | low;
+    memcpy(result, &bits, sizeof bits);
+}
+int opentlv_wasm_encoding_write(tlv_encoding_t* e, size_t header, size_t value, size_t trailer) {
+    e->header = header;
+    e->value = value;
+    e->trailer = trailer;
+    e->total = (tlv_size_t)header + value + trailer;
+    return TLV_OK;
+}
+void opentlv_wasm_size_write(size_t* target, size_t value) {
+    *target = value;
+}
 struct opentlv_wasm_program {
     size_t                      references;
     tlv_query_compile_options_t options;
@@ -503,6 +627,10 @@ struct opentlv_wasm_program {
     size_t                      name_count;
     tlv_query_environment_t     environment;
     tlv_query_hook_t            hooks[4];
+    tlv_query_tag_adapter_t     tags;
+    opentlv_wasm_format_t*      format_owner;
+    uint8_t*                    resolved;
+    size_t                      resolved_capacity;
     const tlv_query_program_t*  program;
     void*                       image;
     tlv_query_program_info_t    info;
@@ -555,6 +683,85 @@ static void query_integer(builder_t* b, int64_t value) {
     (void)snprintf(text, sizeof text, "%lld", (long long)value);
     builder_json_string(b, text);
 }
+static void query_unsigned(builder_t* b, uint64_t value) {
+    char text[32];
+    (void)snprintf(text, sizeof text, "%llu", (unsigned long long)value);
+    builder_json_string(b, text);
+}
+static void query_reader_diagnostic(builder_t* b, const tlv_reader_diagnostic_t* r) {
+    builder_text(b, ",\"reader\":{\"code\":");
+    builder_number(b, r->diagnostic.code);
+    builder_text(b, ",\"severity\":");
+    builder_number(b, r->diagnostic.severity);
+    builder_text(b, ",\"operation\":");
+    builder_number(b, r->operation);
+    if (r->diagnostic.has_offset) {
+        builder_text(b, ",\"offset\":");
+        builder_number(b, r->diagnostic.offset);
+    }
+    if (r->diagnostic.expected) {
+        builder_text(b, ",\"expected\":");
+        builder_json_string(b, r->diagnostic.expected);
+    }
+    if (r->diagnostic.actual) {
+        builder_text(b, ",\"actual\":");
+        builder_json_string(b, r->diagnostic.actual);
+    }
+    if (r->has_tag) {
+        builder_text(b, ",\"tag\":\"");
+        builder_hex(b, r->tag.data, r->tag.size);
+        builder_text(b, "\"");
+    }
+    if (r->has_raw_length) {
+        builder_text(b, ",\"raw_length\":\"");
+        builder_hex(b, r->raw_length.data, r->raw_length.size);
+        builder_text(b, "\"");
+    }
+#define READER_FIELD(n)                                                                            \
+    do {                                                                                           \
+        if (r->has_##n) {                                                                          \
+            builder_text(b, ",\"" #n "\":");                                                       \
+            builder_number(b, r->n);                                                               \
+        }                                                                                          \
+    } while (0)
+    READER_FIELD(tag_offset);
+    READER_FIELD(length_offset);
+    READER_FIELD(value_offset);
+    READER_FIELD(available);
+    READER_FIELD(enclosing_end);
+#undef READER_FIELD
+    if (r->has_declared_length) {
+        builder_text(b, ",\"declared_length\":");
+        query_unsigned(b, r->declared_length);
+    }
+    if (r->has_required) {
+        builder_text(b, ",\"required\":");
+        query_unsigned(b, r->required);
+    }
+    builder_text(b, ",\"path\":[");
+    if (r->diagnostic.path)
+        for (size_t i = 0; i < r->diagnostic.path->length; ++i) {
+            const tlv_tag_t* tag = r->diagnostic.path->tags + i;
+            if (i) builder_text(b, ",");
+            builder_text(b, "\"");
+            builder_hex(b, tag->data, tag->size);
+            builder_text(b, "\"");
+        }
+    builder_text(b, "],\"contexts\":[");
+    int first = 1;
+    for (const tlv_diagnostic_context_t* c = r->diagnostic.contexts; c; c = c->next) {
+        if (!first) builder_text(b, ",");
+        first = 0;
+        builder_text(b, "{\"layer\":");
+        builder_json_string(b, c->layer ? c->layer : "");
+        builder_text(b, ",\"key\":");
+        builder_json_string(b, c->key ? c->key : "");
+        builder_text(b, ",\"value\":");
+        builder_json_string(b, c->value ? c->value : "");
+        builder_text(b, "}");
+    }
+    builder_text(b, "]}");
+}
 static void query_status(builder_t* b, tlv_result_t code, const tlv_query_diagnostic_t* d) {
     b->size = 0;
     b->failed = 0;
@@ -583,6 +790,7 @@ static void query_status(builder_t* b, tlv_result_t code, const tlv_query_diagno
             builder_text(b, ",\"source_offset\":");
             builder_number(b, d->source_offset);
         }
+        if (d->kind == TLV_QUERY_ERROR_READER) query_reader_diagnostic(b, &d->reader);
     }
     builder_text(b, "}");
 }
@@ -596,19 +804,67 @@ static void query_field(builder_t* b, const char* name, size_t value) {
     builder_text(b, ":");
     builder_number(b, value);
 }
-opentlv_wasm_program_t* opentlv_wasm_program_new(const char* name) {
-    if (!name) return NULL;
-    const tlv_format_t* format = NULL;
-#if OPENTLV_FORMAT_BER
-    if (!strcmp(name, "ber")) format = &tlv_format_ber;
-#endif
-#if OPENTLV_FORMAT_DER
-    if (!strcmp(name, "der")) format = &tlv_format_der;
-#endif
-#if OPENTLV_FORMAT_CER
-    if (!strcmp(name, "cer")) format = &tlv_format_cer;
-#endif
-    if (!format) return NULL;
+struct opentlv_wasm_v1 {
+    tlv_query_t         query;
+    tlv_query_matcher_t matcher;
+    tlv_result_t        code;
+    size_t              offset;
+    builder_t           reply;
+};
+opentlv_wasm_v1_t* opentlv_wasm_v1_new(const char* text, size_t size) {
+    opentlv_wasm_v1_t* q = calloc(1, sizeof *q);
+    if (!q) return NULL;
+    q->code = tlv_query_parse_n(text, size, &q->query, &q->offset);
+    if (q->code == TLV_OK) q->code = tlv_query_matcher_init(&q->matcher, &q->query);
+    return q;
+}
+const char* opentlv_wasm_v1_operation(opentlv_wasm_v1_t* q, int operation, const uint8_t* data,
+                                      size_t size, size_t depth) {
+    tlv_query_diagnostic_t diagnostic = {0};
+    if (q->code != TLV_OK) {
+        diagnostic.kind = TLV_QUERY_ERROR_SYNTAX;
+        diagnostic.begin = q->offset;
+        diagnostic.end = q->offset;
+    }
+    tlv_result_t rc = q->code;
+    if (rc == TLV_OK && operation == 1) rc = tlv_query_matcher_init(&q->matcher, &q->query);
+    if (operation < 0 || operation > 2) rc = TLV_ERR_INVALID_ARG;
+    query_status(&q->reply, rc, &diagnostic);
+    if (rc == TLV_OK && operation == 0) {
+        char   text[2 * TLV_QUERY_MAX_BYTES + TLV_QUERY_MAX_STEPS];
+        size_t required;
+        rc = tlv_query_format(&q->query, text, sizeof text, &required);
+        if (rc != TLV_OK)
+            query_status(&q->reply, rc, NULL);
+        else {
+            builder_text(&q->reply, ",\"text\":");
+            builder_json_string(&q->reply, text);
+            builder_text(&q->reply, ",\"steps\":[");
+            for (size_t i = 0; i < tlv_query_count(&q->query); ++i) {
+                tlv_tag_t tag = tlv_query_step(&q->query, i);
+                if (i) builder_text(&q->reply, ",");
+                builder_text(&q->reply, "\"");
+                builder_hex(&q->reply, tag.data, tag.size);
+                builder_text(&q->reply, "\"");
+            }
+            builder_text(&q->reply, "]");
+        }
+    } else if (rc == TLV_OK && operation == 2) {
+        tlv_tag_t tag = tlv_tag(data, size);
+        builder_text(&q->reply, tlv_query_matcher_visit(&q->matcher, &tag, depth)
+                                    ? ",\"value\":true"
+                                    : ",\"value\":false");
+    }
+    return query_reply(&q->reply);
+}
+void opentlv_wasm_v1_free(opentlv_wasm_v1_t* q) {
+    if (q) {
+        free(q->reply.data);
+        free(q);
+    }
+}
+opentlv_wasm_program_t* opentlv_wasm_program_with_format(opentlv_wasm_format_t* owner) {
+    if (!owner || !tlv_format_can_read(&owner->format)) return NULL;
     opentlv_wasm_program_t* p = calloc(1, sizeof *p);
     if (!p) return NULL;
     p->references = 1;
@@ -617,16 +873,26 @@ opentlv_wasm_program_t* opentlv_wasm_program_new(const char* name) {
     p->options.resolve = wasm_resolve;
     p->options.resolve_context = p;
     p->options.environment = &p->environment;
-    p->environment.format = format;
+    p->format_owner = owner;
+    ++owner->references;
+    p->environment.format = &owner->format;
     size_t                  count;
     const tlv_query_hook_t* hooks = tlv_query_builtin_hooks(&count);
     memcpy(p->hooks, hooks, count * sizeof *hooks);
 #if OPENTLV_FORMAT_BER
-    p->environment.tags = &tlv_asn1_query_tags;
-    p->hooks[count++] = tlv_asn1_query_date;
+    if (owner->asn1) {
+        p->environment.tags = &tlv_asn1_query_tags;
+        p->hooks[count++] = tlv_asn1_query_date;
+    }
 #endif
     p->environment.hooks = p->hooks;
     p->environment.hook_count = count;
+    return p;
+}
+opentlv_wasm_program_t* opentlv_wasm_program_new(const char* name) {
+    opentlv_wasm_format_t*  format = opentlv_wasm_format_new(name, 1, 1, 1, 0, 0);
+    opentlv_wasm_program_t* p = opentlv_wasm_program_with_format(format);
+    opentlv_wasm_format_free(format);
     return p;
 }
 void opentlv_wasm_program_free(opentlv_wasm_program_t* p) {
@@ -637,8 +903,47 @@ void opentlv_wasm_program_free(opentlv_wasm_program_t* p) {
         free(p->names[i].bytes);
     }
     free(p->image);
+    free(p->resolved);
+    opentlv_wasm_format_free(p->format_owner);
     free(p->reply.data);
     free(p);
+}
+int opentlv_wasm_program_tags(opentlv_wasm_program_t* p, uint32_t id,
+                              tlv_result_t (*class_of)(const void*, const tlv_tag_t*, int64_t*),
+                              tlv_result_t (*number_of)(const void*, const tlv_tag_t*, int64_t*)) {
+    if (!p || p->program || !id || (!class_of && !number_of)) return TLV_ERR_INVALID_ARG;
+    p->tags = (tlv_query_tag_adapter_t){id, NULL, class_of, number_of};
+    p->environment.tags = &p->tags;
+    return TLV_OK;
+}
+int opentlv_wasm_program_resolver(opentlv_wasm_program_t* p, tlv_query_resolve_t resolve) {
+    if (!p || p->program || !resolve) return TLV_ERR_INVALID_ARG;
+    p->options.resolve = resolve;
+    p->options.resolve_context = p;
+    return TLV_OK;
+}
+int opentlv_wasm_program_emv_resolver(opentlv_wasm_program_t* p) {
+    if (!p || p->program) return TLV_ERR_INVALID_ARG;
+#if OPENTLV_EMV
+    p->options.resolve = tlv_emv_query_resolve;
+    p->options.resolve_context = NULL;
+    return TLV_OK;
+#else
+    return TLV_ERR_UNSUPPORTED_TYPE;
+#endif
+}
+int opentlv_wasm_resolved_tag(opentlv_wasm_program_t* p, tlv_tag_t* result, const uint8_t* tag,
+                              size_t size) {
+    if (!size || size > p->options.max_resolved_tag) return TLV_ERR_INVALID_TAG;
+    if (p->resolved_capacity < size) {
+        uint8_t* resized = realloc(p->resolved, size);
+        if (!resized) return TLV_ERR_OUT_OF_MEMORY;
+        p->resolved = resized;
+        p->resolved_capacity = size;
+    }
+    memcpy(p->resolved, tag, size);
+    *result = tlv_tag(p->resolved, size);
+    return TLV_OK;
 }
 void opentlv_wasm_program_retain(opentlv_wasm_program_t* p) {
     ++p->references;
@@ -784,19 +1089,23 @@ size_t opentlv_wasm_provider_event(const tlv_tree_event_t* event, int field) {
 }
 const char* opentlv_wasm_program_compile(opentlv_wasm_program_t* p, const uint8_t* text,
                                          size_t size, int image) {
+    if (p->program) {
+        query_status(&p->reply, TLV_ERR_INVALID_ARG, NULL);
+        return query_reply(&p->reply);
+    }
     tlv_query_diagnostic_t d = {0};
     size_t                 bytes = 0, alignment;
     tlv_result_t           rc =
-        p->program ? TLV_ERR_INVALID_ARG
-        : image    ? tlv_query_program_load_scratch(text, size, &p->options, &bytes, &alignment, &d)
-                   : tlv_query_compile_scratch((const char*)text, size, &p->options, &bytes,
+        image ? tlv_query_program_load_scratch(text, size, &p->options, &bytes, &alignment, &d)
+              : tlv_query_compile_prepare_size((const char*)text, size, &p->options, &bytes,
                                                &alignment, &d);
     void* scratch = rc == TLV_OK ? malloc(bytes ? bytes : 1) : NULL;
     if (rc == TLV_OK && !scratch) rc = TLV_ERR_OUT_OF_MEMORY;
     p->info.struct_size = sizeof p->info;
+    const tlv_query_program_t* prepared = NULL;
     if (rc == TLV_OK && !image)
-        rc = tlv_query_compile((const char*)text, size, &p->options, scratch, bytes, NULL, 0,
-                               &p->info, &d);
+        rc = tlv_query_compile_prepare((const char*)text, size, &p->options, scratch, bytes,
+                                       &prepared, &p->info, &d);
     if (rc == TLV_OK) {
         p->image = malloc(image ? (size ? size : 1) : p->info.program_size);
         if (!p->image) rc = TLV_ERR_OUT_OF_MEMORY;
@@ -806,8 +1115,16 @@ const char* opentlv_wasm_program_compile(opentlv_wasm_program_t* p, const uint8_
         rc = tlv_query_program_load(p->image, size, &p->options, scratch, bytes, &p->program,
                                     &p->info, &d);
     } else if (rc == TLV_OK) {
-        rc = tlv_query_compile((const char*)text, size, &p->options, scratch, bytes, p->image,
-                               p->info.program_size, &p->info, &d);
+        size_t validation_size;
+        rc = tlv_query_program_load_scratch(prepared, p->info.program_size, &p->options,
+                                            &validation_size, &alignment, &d);
+        void* validation = rc == TLV_OK ? malloc(validation_size ? validation_size : 1) : NULL;
+        if (rc == TLV_OK && !validation) rc = TLV_ERR_OUT_OF_MEMORY;
+        if (rc == TLV_OK)
+            rc = tlv_query_compile_commit(prepared, p->info.program_size, &p->options, validation,
+                                          validation_size, p->image, p->info.program_size, &p->info,
+                                          &d);
+        free(validation);
         if (rc == TLV_OK) p->program = p->image;
     }
     free(scratch);
@@ -840,6 +1157,20 @@ const char* opentlv_wasm_program_compile(opentlv_wasm_program_t* p, const uint8_
         FIELD(stable_input_required);
         FIELD(constructed_values_required);
 #undef FIELD
+        builder_text(&p->reply, "}");
+        builder_text(&p->reply, ",\"variables\":{");
+        for (size_t i = 0; i < tlv_query_program_variable_count(p->program); ++i) {
+            tlv_query_variable_info_t variable;
+            if (tlv_query_program_variable(p->program, i, &variable) != TLV_OK) break;
+            if (i) builder_text(&p->reply, ",");
+            builder_text(&p->reply, "\"");
+            /* Variable identifiers use the compiler's restricted ASCII grammar. */
+            builder_append(&p->reply, variable.name, variable.name_size);
+            builder_text(&p->reply, "\":");
+            builder_json_string(&p->reply, variable.type == TLV_QUERY_RESULT_INTEGER ? "integer"
+                                           : variable.type == TLV_QUERY_RESULT_BYTES ? "bytes"
+                                                                                     : "string");
+        }
         builder_text(&p->reply, "}");
     }
     return query_reply(&p->reply);
@@ -880,6 +1211,7 @@ static wasm_pin_t* wasm_pin(opentlv_wasm_execution_t* q, const uint8_t* data, si
     wasm_pin_t* pin = malloc(sizeof *pin + size);
     if (!pin) return NULL;
     if (size) memcpy(pin->data, data, size);
+    pin->size = size;
     pin->next = q->pins;
     q->pins = pin;
     return pin;
@@ -1039,6 +1371,39 @@ const char* opentlv_wasm_execution_feed(opentlv_wasm_execution_t* q, int kind, c
         builder_text(&q->reply, ",\"value\":null");
     return query_reply(&q->reply);
 }
+const char* opentlv_wasm_execution_feed_source(opentlv_wasm_execution_t* q, int kind,
+                                               const uint8_t* source, size_t size, size_t depth,
+                                               size_t offset, int skipped) {
+    tlv_result_t rc =
+        q->has_reader || q->document || kind == TLV_TREE_END ? TLV_ERR_INVALID_ARG : TLV_OK;
+    tlv_query_diagnostic_t diagnostic = {0};
+    tlv_tree_event_t       event = {0};
+    int                    matched = 0;
+    wasm_pin_t*            pin = rc == TLV_OK ? wasm_pin(q, source, size) : NULL;
+    if (rc == TLV_OK && !pin) rc = TLV_ERR_OUT_OF_MEMORY;
+    tlv_decoded_t decoded;
+    if (rc == TLV_OK)
+        rc = tlv_format_decode(q->program->environment.format, pin->data, size, &decoded, NULL);
+    if (rc == TLV_OK && decoded.source.size != size) rc = TLV_ERR_INVALID_ARG;
+    if (rc == TLV_OK) {
+        event.kind = (tlv_tree_event_kind_t)kind;
+        event.depth = depth;
+        event.offset = offset;
+        event.skipped = skipped;
+        event.element = decoded.element;
+        event.source = decoded.source;
+        q->fed = 1;
+        rc = tlv_query_exec_feed(q->exec, &event, &matched, &diagnostic);
+        if (rc == TLV_OK && matched && q->program->info.level == TLV_QUERY_S1)
+            rc = tlv_query_exec_selected(q->exec, &event);
+    }
+    query_status(&q->reply, rc, &diagnostic);
+    if (rc == TLV_OK && matched)
+        wasm_event(&q->reply, &event);
+    else if (rc == TLV_OK)
+        builder_text(&q->reply, ",\"value\":null");
+    return query_reply(&q->reply);
+}
 const char* opentlv_wasm_execution_operation(opentlv_wasm_execution_t* q, int operation,
                                              size_t argument) {
     tlv_query_diagnostic_t d = {0};
@@ -1048,6 +1413,7 @@ const char* opentlv_wasm_execution_operation(opentlv_wasm_execution_t* q, int op
     tlv_query_exec_info_t  info = {0};
     info.struct_size = sizeof info;
     int         found = 0;
+    size_t      ordinal = 0;
     tlv_node_t* node = NULL;
     switch (operation) {
         case 0: rc = wasm_execution_reset(q); break;
@@ -1081,10 +1447,14 @@ const char* opentlv_wasm_execution_operation(opentlv_wasm_execution_t* q, int op
             rc = q->has_reader ? tlv_query_program_visit(&q->reader, q->exec, wasm_drain, NULL, &d)
                                : tlv_query_exec_finish(q->exec, &d);
             break;
+        case 8: rc = tlv_query_result_next_ordinal(q->exec, &event, &ordinal); break;
         default: rc = TLV_ERR_INVALID_ARG; break;
     }
     query_status(&q->reply, rc, &d);
-    if (rc == TLV_OK && operation == 1) {
+    if (rc == TLV_OK && operation == 8) {
+        wasm_event(&q->reply, &event);
+        query_field(&q->reply, "ordinal", ordinal);
+    } else if (rc == TLV_OK && operation == 1) {
         if (!q->document) wasm_event(&q->reply, &event);
 #if OPENTLV_DOCUMENT
         else {
@@ -1155,6 +1525,28 @@ void opentlv_wasm_document_free(opentlv_wasm_document_t* doc) {
 #endif
     opentlv_wasm_program_free(doc->program);
     free(doc);
+}
+const char* opentlv_wasm_document_encode(opentlv_wasm_document_t* doc) {
+    builder_t*   b = &doc->program->reply;
+    tlv_result_t rc = TLV_ERR_UNSUPPORTED_TYPE;
+    uint8_t*     data = NULL;
+    size_t       length = 0;
+#if OPENTLV_DOCUMENT
+    rc = tlv_document_encoded_size(doc->document, &length);
+    if (rc == TLV_OK) {
+        data = malloc(length ? length : 1);
+        if (!data) rc = TLV_ERR_OUT_OF_MEMORY;
+    }
+    if (rc == TLV_OK) rc = tlv_document_encode(doc->document, data, length, &length);
+#endif
+    query_status(b, rc, NULL);
+    if (rc == TLV_OK) {
+        builder_text(b, ",\"value\":\"");
+        builder_hex(b, data, length);
+        builder_text(b, "\"");
+    }
+    free(data);
+    return query_reply(b);
 }
 const char* opentlv_wasm_execution_document(opentlv_wasm_execution_t* q,
                                             opentlv_wasm_document_t* doc, size_t capacity) {

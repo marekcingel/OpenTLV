@@ -72,6 +72,152 @@ std::vector<size_t> run(Program& p, const std::vector<uint8_t>& data,
 }
 } // namespace
 
+TEST(Unit_Tlv_QueryProgram, CheckedCompilationRejectsResolverDriftAndPreservesOutputs) {
+    struct Resolver {
+        uint8_t      tag = 0x5a;
+        size_t       calls = 0;
+        tlv_result_t status = TLV_OK;
+    } resolver;
+    tlv_query_compile_options_t options;
+    tlv_query_compile_options_init(&options);
+    options.resolve_context = &resolver;
+    options.resolve = [](const void* context, const char*, size_t, const char*, size_t,
+                         tlv_tag_t*  tag) -> tlv_result_t {
+        auto& state = *static_cast<Resolver*>(const_cast<void*>(context));
+        ++state.calls;
+        *tag = tlv_tag(&state.tag, 1);
+        return state.status;
+    };
+    const std::string      text = "//ns:item";
+    size_t                 bytes = 0, alignment = 0;
+    tlv_query_diagnostic_t diagnostic{};
+    ASSERT_EQ(TLV_OK, tlv_query_compile_prepare_size(text.data(), text.size(), &options, &bytes,
+                                                     &alignment, &diagnostic));
+    EXPECT_EQ(0u, resolver.calls);
+    std::vector<uint64_t>      preparation((bytes + 7) / 8);
+    const tlv_query_program_t* prepared = nullptr;
+    tlv_query_program_info_t   info{};
+    info.struct_size = sizeof info;
+    EXPECT_EQ(TLV_ERR_BUFFER_TOO_SHORT,
+              tlv_query_compile_prepare(text.data(), text.size(), &options, preparation.data(),
+                                        bytes - 1, &prepared, &info, &diagnostic));
+    EXPECT_EQ(nullptr, prepared);
+    EXPECT_EQ(0u, resolver.calls);
+    ASSERT_EQ(TLV_OK,
+              tlv_query_compile_prepare(text.data(), text.size(), &options, preparation.data(),
+                                        bytes, &prepared, &info, &diagnostic));
+    EXPECT_EQ(1u, resolver.calls);
+    const auto snapshot = preparation;
+    const auto original_info = info;
+    size_t     validation_bytes;
+    ASSERT_EQ(TLV_OK, tlv_query_program_load_scratch(prepared, info.program_size, &options,
+                                                     &validation_bytes, &alignment, &diagnostic));
+    std::vector<uint64_t> validation((validation_bytes + 7) / 8);
+    std::vector<uint64_t> output((info.program_size + 7) / 8, UINT64_C(0xcacacacacacacaca));
+    const auto            original_output = output;
+    auto                  commit = [&](size_t scratch_size, size_t capacity) {
+        return tlv_query_compile_commit(prepared, original_info.program_size, &options,
+                                        validation.data(), scratch_size, output.data(), capacity,
+                                        &info, &diagnostic);
+    };
+    EXPECT_EQ(TLV_ERR_BUFFER_TOO_SHORT, commit(validation_bytes, info.program_size - 1));
+    EXPECT_EQ(TLV_ERR_BUFFER_TOO_SHORT, commit(validation_bytes - 1, info.program_size));
+    EXPECT_EQ(1u, resolver.calls);
+    resolver.tag = 0x50; // Equal size: capacity checks alone cannot detect this change.
+    EXPECT_EQ(TLV_ERR_INVALID_ARG, commit(validation_bytes, info.program_size));
+    EXPECT_EQ(TLV_QUERY_ERROR_STORAGE, diagnostic.kind);
+    EXPECT_EQ(original_output, output);
+    EXPECT_EQ(0, std::memcmp(&original_info, &info, sizeof info));
+    EXPECT_EQ(snapshot, preparation);
+    resolver.status = TLV_ERR_INVALID_VALUE;
+    EXPECT_NE(TLV_OK, commit(validation_bytes, info.program_size));
+    EXPECT_EQ(original_output, output);
+    resolver.status = TLV_OK;
+    resolver.tag = 0x5a;
+    ASSERT_EQ(TLV_OK, commit(validation_bytes, info.program_size));
+    EXPECT_EQ(0, std::memcmp(output.data(), prepared, info.program_size));
+    EXPECT_EQ(snapshot, preparation);
+    Program program;
+    program.storage = output;
+    EXPECT_EQ((std::vector<size_t>{0}), run(program, {0x5a, 0, 0x50, 0}));
+}
+
+TEST(Unit_Tlv_QueryProgram, CheckedCompilationRejectsAliasingAndPreservesInfoExtensions) {
+    const std::string text = "//5A";
+    size_t            bytes, alignment;
+    ASSERT_EQ(TLV_OK, tlv_query_compile_prepare_size(text.data(), text.size(), nullptr, &bytes,
+                                                     &alignment, nullptr));
+    std::vector<uint64_t>      preparation((bytes + 7) / 8);
+    const tlv_query_program_t* prepared = nullptr;
+    struct ExtendedInfo {
+        tlv_query_program_info_t info;
+        uint64_t                 extension;
+    } output{};
+    output.info.struct_size = sizeof output;
+    output.extension = UINT64_C(0xabcdef);
+    ASSERT_EQ(TLV_OK,
+              tlv_query_compile_prepare(text.data(), text.size(), nullptr, preparation.data(),
+                                        bytes, &prepared, &output.info, nullptr));
+    EXPECT_EQ(sizeof output, output.info.struct_size);
+    EXPECT_EQ(UINT64_C(0xabcdef), output.extension);
+    size_t validation_bytes;
+    ASSERT_EQ(TLV_OK, tlv_query_program_load_scratch(prepared, output.info.program_size, nullptr,
+                                                     &validation_bytes, &alignment, nullptr));
+    std::vector<uint64_t> validation((validation_bytes + 7) / 8);
+    std::vector<uint64_t> storage((output.info.program_size + 7) / 8);
+    const auto            original = preparation;
+    EXPECT_EQ(TLV_ERR_INVALID_ARG,
+              tlv_query_compile_commit(prepared, output.info.program_size, nullptr,
+                                       validation.data(), validation_bytes,
+                                       const_cast<tlv_query_program_t*>(prepared),
+                                       output.info.program_size, &output.info, nullptr));
+    EXPECT_EQ(
+        TLV_ERR_INVALID_ARG,
+        tlv_query_compile_commit(
+            prepared, output.info.program_size, nullptr, validation.data(), validation_bytes,
+            storage.data(), 0, &output.info,
+            reinterpret_cast<tlv_query_diagnostic_t*>(const_cast<tlv_query_program_t*>(prepared))));
+    EXPECT_EQ(original, preparation);
+    EXPECT_EQ(TLV_ERR_INVALID_ARG,
+              tlv_query_compile_prepare(text.data(), text.size(), nullptr,
+                                        reinterpret_cast<uint8_t*>(preparation.data()) + 1,
+                                        bytes - 1, &prepared, &output.info, nullptr));
+    ASSERT_EQ(TLV_OK, tlv_query_compile_commit(prepared, output.info.program_size, nullptr,
+                                               validation.data(), validation_bytes, storage.data(),
+                                               output.info.program_size, &output.info, nullptr));
+    EXPECT_EQ(sizeof output, output.info.struct_size);
+    EXPECT_EQ(UINT64_C(0xabcdef), output.extension);
+}
+
+TEST(Unit_Tlv_QueryProgram, CanonicalFormattingRequiresIndependentScratchSizing) {
+    const std::string text = "07<0,7<307,7<00,7<07";
+    Program           original;
+    ASSERT_EQ(TLV_OK, original.compile(text));
+    size_t required;
+    ASSERT_EQ(TLV_OK, tlv_query_program_format(original.get(), nullptr, 0, &required));
+    std::vector<char> formatted(required);
+    ASSERT_EQ(TLV_OK,
+              tlv_query_program_format(original.get(), formatted.data(), required, &required));
+    size_t before, after, alignment;
+    ASSERT_EQ(TLV_OK, tlv_query_compile_scratch(text.data(), text.size(), nullptr, &before,
+                                                &alignment, nullptr));
+    ASSERT_EQ(TLV_OK, tlv_query_compile_scratch(formatted.data(), required - 1, nullptr, &after,
+                                                &alignment, nullptr));
+    ASSERT_GT(after, before);
+    std::vector<uint64_t>    scratch((after + 7) / 8);
+    tlv_query_program_info_t info{};
+    info.struct_size = sizeof info;
+    EXPECT_EQ(TLV_ERR_BUFFER_TOO_SHORT,
+              tlv_query_compile(formatted.data(), required - 1, nullptr, scratch.data(), before,
+                                nullptr, 0, &info, nullptr));
+    ASSERT_EQ(TLV_OK, tlv_query_compile(formatted.data(), required - 1, nullptr, scratch.data(),
+                                        after, nullptr, 0, &info, nullptr));
+    EXPECT_EQ(original.info.level, info.level);
+    EXPECT_EQ(original.info.result_kind, info.result_kind);
+    Program roundtrip;
+    ASSERT_EQ(TLV_OK, roundtrip.compile(std::string(formatted.data(), required - 1)));
+}
+
 TEST(Unit_Tlv_QueryProgram, BoundedLoaderRejectsEveryTruncationWithoutWrites) {
     Program p;
     ASSERT_EQ(TLV_OK, p.compile("//70[exists(5A)] | //50[@len > 2]"));

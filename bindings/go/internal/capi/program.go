@@ -45,6 +45,8 @@ type ProgramOptions struct {
 	Variables                                                             map[string]int
 	Names                                                                 map[string][]byte
 	Providers                                                             map[int]QueryProvider
+	Tags                                                                  *QueryTagAdapter
+	Resolver                                                              QueryResolver
 	Optimize                                                              bool
 	MaxText, MaxTokens, MaxNesting, MaxStates, MaxPattern, MaxResolvedTag int
 }
@@ -340,6 +342,16 @@ func (f Format) CompileProgram(data []byte, options ProgramOptions, image bool) 
 			return nil, InvalidArg, ProgramDiagnostic{}
 		}
 	}
+	if options.Tags != nil && (options.Tags.ID == 0 || (options.Tags.Class == nil && options.Tags.Number == nil)) {
+		return nil, InvalidArg, ProgramDiagnostic{}
+	}
+	var resolver C.uintptr_t
+	if options.Resolver != nil {
+		state := &resolverCall{resolve: options.Resolver}
+		handle := cgo.NewHandle(state)
+		resolver = C.uintptr_t(handle)
+		defer func() { C.free(state.data); handle.Delete() }()
+	}
 	var providerFirst *C.go_query_provider
 	if len(options.Providers) > 0 {
 		memory := C.calloc(C.size_t(len(options.Providers)), C.size_t(unsafe.Sizeof(C.go_query_provider{})))
@@ -358,7 +370,20 @@ func (f Format) CompileProgram(data []byte, options ProgramOptions, image bool) 
 		}
 		providerFirst = &providers[0]
 	}
-	ptr := C.go_query_compile(f.config, bytePointer(data), C.size_t(len(data)), &config, first, C.size_t(len(names)), providerFirst, C.size_t(len(options.Providers)), load, &code, &diagnostic)
+	var tags *C.go_query_tags
+	var nativeTags C.go_query_tags
+	if options.Tags != nil {
+		nativeTags.id = C.uint32_t(options.Tags.ID)
+		nativeTags.handle = C.uintptr_t(cgo.NewHandle(*options.Tags))
+		if options.Tags.Class != nil {
+			nativeTags.has_class = 1
+		}
+		if options.Tags.Number != nil {
+			nativeTags.has_number = 1
+		}
+		tags = &nativeTags
+	}
+	ptr := C.go_query_compile(f.config, bytePointer(data), C.size_t(len(data)), &config, first, C.size_t(len(names)), providerFirst, C.size_t(len(options.Providers)), tags, resolver, load, &code, &diagnostic)
 	runtime.KeepAlive(data)
 	runtime.KeepAlive(variables)
 	runtime.KeepAlive(names)
@@ -525,13 +550,32 @@ func (q *ProgramExecution) Finish() (Code, ProgramDiagnostic) {
 	return code, programDiagnostic(diagnostic, code)
 }
 func (q *ProgramExecution) NextResult() (ProgramMatch, Code) {
+	item, _, code := q.NextResultWithOrdinal()
+	return item, code
+}
+func (q *ProgramExecution) NextResultWithOrdinal() (ProgramMatch, uint64, Code) {
 	var event C.tlv_tree_event_t
-	code := Code(C.tlv_query_result_next(C.go_query_exec(q.ptr), &event))
+	var ordinal C.size_t
+	code := Code(C.tlv_query_result_next_ordinal(C.go_query_exec(q.ptr), &event, &ordinal))
 	defer runtime.KeepAlive(q)
 	if code != OK {
-		return ProgramMatch{}, code
+		return ProgramMatch{}, 0, code
 	}
-	return match(&event), code
+	return match(&event), uint64(ordinal), code
+}
+func (q *ProgramExecution) FeedEncoded(data []byte, depth, offset int) (*ProgramMatch, Code, ProgramDiagnostic) {
+	var event C.tlv_tree_event_t
+	var matched C.int
+	var diagnostic C.tlv_query_diagnostic_t
+	code := Code(C.go_query_feed_encoded(q.ptr, bytePointer(data), C.size_t(len(data)),
+		C.size_t(depth), C.size_t(offset), &event, &matched, &diagnostic))
+	runtime.KeepAlive(data)
+	runtime.KeepAlive(q)
+	if code != OK || matched == 0 {
+		return nil, code, programDiagnostic(diagnostic, code)
+	}
+	item := match(&event)
+	return &item, code, programDiagnostic(diagnostic, code)
 }
 
 func match(event *C.tlv_tree_event_t) ProgramMatch {

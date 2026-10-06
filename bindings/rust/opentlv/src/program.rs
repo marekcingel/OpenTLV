@@ -3,7 +3,9 @@
 //! Immutable compiled C Query programs with independent bounded continuations.
 use crate::{Element, Error, Format, ReaderDiagnostic, TreeReader, Visit};
 use opentlv_sys as native;
+mod providers;
 mod schema;
+pub use providers::{QueryDefinitionScope, QueryResolver, QueryTagAdapter};
 pub use schema::{QueryRule, QuerySchema, QuerySchemaError, QuerySchemaLimits};
 use std::{
     collections::BTreeMap,
@@ -292,10 +294,16 @@ impl Memory {
 pub struct ProgramOptions {
     /// Explicit immutable builtin Format and semantic capability selection.
     pub format: Format,
+    /// Owned configurable Fixed descriptor; when present it replaces `format`.
+    pub fixed_format: Option<crate::OwnedFixedFormat>,
     /// Declared typed variables; names omit the dollar prefix.
     pub variables: BTreeMap<String, QueryType>,
     /// Owned scoped symbolic spellings mapped to raw Tag bytes.
     pub names: BTreeMap<String, Vec<u8>>,
+    /// Compile-only dynamic or Definition resolver, replacing the `names` map.
+    pub resolver: Option<QueryResolver>,
+    /// Optional semantic Tag callbacks, replacing the builtin ASN.1 adapter.
+    pub tags: Option<QueryTagAdapter>,
     /// Owned custom conversion providers; duplicate selectors/IDs are rejected.
     pub providers: Vec<QueryProvider>,
     /// Enable the canonical C optimizer.
@@ -323,8 +331,11 @@ impl Default for ProgramOptions {
         };
         Self {
             format: Format::Ber,
+            fixed_format: None,
             variables: BTreeMap::new(),
             names: BTreeMap::new(),
+            resolver: None,
+            tags: None,
             providers: Vec::new(),
             optimize: true,
             max_text: config.max_text,
@@ -380,6 +391,8 @@ struct ProgramStorage {
     environment: native::tlv_query_environment_t,
     _hooks: Box<[native::tlv_query_hook_t]>,
     _providers: Box<[QueryProvider]>,
+    _tags: Option<Box<providers::TagOwner>>,
+    _format: Option<crate::OwnedFixedFormat>,
 }
 // SAFETY: the image is immutable; providers are either immutable builtin C storage
 // or owned Send + Sync Rust callbacks. Resolver contexts are compile-only.
@@ -522,12 +535,23 @@ impl QueryProgram {
         let mut hooks = unsafe {
             slice::from_raw_parts(native::tlv_query_builtin_hooks(&mut count), count).to_vec()
         };
-        let tags = if matches!(options.format, Format::Ber | Format::Cer | Format::Der) {
+        let mut tags = if options.fixed_format.is_none()
+            && matches!(options.format, Format::Ber | Format::Cer | Format::Der)
+        {
             hooks.push(unsafe { native::tlv_asn1_query_date });
             ptr::addr_of!(native::tlv_asn1_query_tags)
         } else {
             ptr::null()
         };
+        let tag_owner = options
+            .tags
+            .clone()
+            .map(providers::TagOwner::new)
+            .transpose()?;
+        if let Some(owner) = &tag_owner {
+            tags = &owner.native;
+        }
+        let format_owner = options.fixed_format.clone();
         let providers = options.providers.clone().into_boxed_slice();
         for (index, provider) in providers.iter().enumerate() {
             if provider.id == 0
@@ -556,7 +580,9 @@ impl QueryProgram {
         }
         let hooks = hooks.into_boxed_slice();
         let environment = native::tlv_query_environment_t {
-            format: options.format.raw(),
+            format: format_owner
+                .as_ref()
+                .map_or_else(|| options.format.raw(), |format| format.raw()),
             tags,
             hooks: hooks.as_ptr(),
             hook_count: hooks.len(),
@@ -591,6 +617,17 @@ impl QueryProgram {
         config.environment = &environment;
         config.resolve = Some(resolve);
         config.resolve_context = ptr::addr_of!(options.names).cast();
+        let resolver_call = options
+            .resolver
+            .as_ref()
+            .map(|resolver| providers::ResolverCall {
+                resolver,
+                tag: std::cell::RefCell::new(crate::Tag::default()),
+            });
+        if let Some(resolver) = &resolver_call {
+            config.resolve = Some(providers::resolve_callback);
+            config.resolve_context = ptr::addr_of!(*resolver).cast();
+        }
         config.optimize = options.optimize as i32;
         let (mut bytes, mut alignment) = (0, 0);
         let mut diagnostic = unsafe { zeroed() };
@@ -607,7 +644,7 @@ impl QueryProgram {
                     &mut diagnostic,
                 )
             } else {
-                native::tlv_query_compile_scratch(
+                native::tlv_query_compile_prepare_size(
                     data.as_ptr().cast(),
                     data.len(),
                     &config,
@@ -619,16 +656,16 @@ impl QueryProgram {
         };
         check(rc, &diagnostic)?;
         let mut scratch = Memory::new(bytes)?;
+        let mut prepared = ptr::null();
         if !image {
             let rc = unsafe {
-                native::tlv_query_compile(
+                native::tlv_query_compile_prepare(
                     data.as_ptr().cast(),
                     data.len(),
                     &config,
                     scratch.data_mut(),
                     bytes,
-                    ptr::null_mut(),
-                    0,
+                    &mut prepared,
                     &mut info,
                     &mut diagnostic,
                 )
@@ -636,8 +673,8 @@ impl QueryProgram {
             check(rc, &diagnostic)?;
         }
         let mut memory = Memory::new(if image { data.len() } else { info.program_size })?;
-        let rc = unsafe {
-            if image {
+        let rc = if image {
+            unsafe {
                 ptr::copy_nonoverlapping(data.as_ptr(), memory.data_mut().cast::<u8>(), data.len());
                 let mut loaded = ptr::null();
                 native::tlv_query_program_load(
@@ -650,13 +687,28 @@ impl QueryProgram {
                     &mut info,
                     &mut diagnostic,
                 )
-            } else {
-                native::tlv_query_compile(
-                    data.as_ptr().cast(),
-                    data.len(),
+            }
+        } else {
+            let mut validation_bytes = 0;
+            let rc = unsafe {
+                native::tlv_query_program_load_scratch(
+                    prepared.cast(),
+                    info.program_size,
                     &config,
-                    scratch.data_mut(),
-                    bytes,
+                    &mut validation_bytes,
+                    &mut alignment,
+                    &mut diagnostic,
+                )
+            };
+            check(rc, &diagnostic)?;
+            let mut validation = Memory::new(validation_bytes)?;
+            unsafe {
+                native::tlv_query_compile_commit(
+                    prepared.cast(),
+                    info.program_size,
+                    &config,
+                    validation.data_mut(),
+                    validation_bytes,
                     memory.data_mut(),
                     memory.bytes,
                     &mut info,
@@ -672,6 +724,8 @@ impl QueryProgram {
                 environment,
                 _hooks: hooks,
                 _providers: providers,
+                _tags: tag_owner,
+                _format: format_owner,
             }),
         })
     }

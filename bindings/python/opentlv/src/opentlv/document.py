@@ -11,7 +11,7 @@ from weakref import WeakValueDictionary
 import _opentlv as _native
 
 from opentlv.error import _from_native
-from opentlv.format import Format, _resolve_format
+from opentlv.format import Format, _resolve_format, _format_specification
 from opentlv.tag import Tag
 from opentlv.cursor import TreeReader
 
@@ -218,7 +218,7 @@ class Document:
         `format` is used both to parse `data` (and any constructed value
         later assigned to a node) and to `encode()` the document again.
         """
-        format = _resolve_format(format)
+        format = _format_specification(format)
         self._lifetimes = WeakValueDictionary()
         self._query_generation = 0
         self._query_active = 0

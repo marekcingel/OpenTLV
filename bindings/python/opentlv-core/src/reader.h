@@ -27,5 +27,6 @@ PyObject* opentlv_python_cursor_visit(PyObject*, PyObject*);
 PyObject* opentlv_python_query_create(PyObject*, PyObject*);
 PyObject* opentlv_python_query_steps(PyObject*, PyObject*);
 PyObject* opentlv_python_query_matches(PyObject*, PyObject*);
+PyObject* opentlv_python_query_rebind(PyObject*, PyObject*);
 PyObject* opentlv_python_query_visit(PyObject*, PyObject*);
 #endif

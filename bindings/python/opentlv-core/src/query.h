@@ -4,6 +4,8 @@
 #define OPENTLV_PYTHON_QUERY_H
 #include <Python.h>
 PyObject* opentlv_python_program_create(PyObject*, PyObject*);
+PyObject* opentlv_python_query_definition_resolve(PyObject*, PyObject*);
+PyObject* opentlv_python_query_emv_resolve(PyObject*, PyObject*);
 PyObject* opentlv_python_program_info(PyObject*, PyObject*);
 PyObject* opentlv_python_program_render(PyObject*, PyObject*);
 PyObject* opentlv_python_execution_create(PyObject*, PyObject*);
@@ -19,4 +21,5 @@ PyObject* opentlv_python_execution_document(PyObject*, PyObject*);
 PyObject* opentlv_python_execution_edit(PyObject*, PyObject*);
 PyObject* opentlv_python_query_schema(PyObject*, PyObject*);
 PyObject* opentlv_python_execution_next(PyObject*, PyObject*);
+PyObject* opentlv_python_execution_next_ordinal(PyObject*, PyObject*);
 #endif

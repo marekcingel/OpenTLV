@@ -47,7 +47,7 @@ public:
     query_program(const query_program&) = default;
     /** @brief Share immutable ownership, leaving existing executions alive. */
     query_program& operator=(const query_program&) = default;
-    /** @brief Compile bounded text, allocating temporary scratch and immutable program storage.
+    /** @brief Compile bounded text with checked resolver stability and owned program storage.
      * @param text Query bytes, including any embedded NUL for native diagnostics.
      * @param options Initialized native options, including typed declarations and providers.
      * @return Shared program or full native failure; allocation exceptions propagate. */
@@ -55,18 +55,24 @@ public:
     compile(const std::string& text, const tlv_query_compile_options_t* options = nullptr) {
         size_t                 size = 0, alignment = 0;
         tlv_query_diagnostic_t d{};
-        auto                   rc =
-            tlv_query_compile_scratch(text.data(), text.size(), options, &size, &alignment, &d);
+        auto rc = tlv_query_compile_prepare_size(text.data(), text.size(), options, &size,
+                                                 &alignment, &d);
         if (rc != TLV_OK) return unexpected<query_failure>(detail::query_failed(rc, d));
         detail::query_memory     scratch(size);
         tlv_query_program_info_t info{};
         info.struct_size = sizeof info;
-        rc = tlv_query_compile(text.data(), text.size(), options, scratch.data(), size, nullptr, 0,
-                               &info, &d);
+        const tlv_query_program_t* prepared = nullptr;
+        rc = tlv_query_compile_prepare(text.data(), text.size(), options, scratch.data(), size,
+                                       &prepared, &info, &d);
         if (rc != TLV_OK) return unexpected<query_failure>(detail::query_failed(rc, d));
-        auto memory = std::make_shared<detail::query_memory>(info.program_size);
-        auto result = compile_into(text.data(), text.size(), options, scratch.data(), size,
-                                   memory->data(), info.program_size);
+        size_t validation_size = 0;
+        rc = tlv_query_program_load_scratch(prepared, info.program_size, options, &validation_size,
+                                            &alignment, &d);
+        if (rc != TLV_OK) return unexpected<query_failure>(detail::query_failed(rc, d));
+        detail::query_memory validation(validation_size);
+        auto                 memory = std::make_shared<detail::query_memory>(info.program_size);
+        auto result = commit_into(prepared, info.program_size, options, validation.data(),
+                                  validation_size, memory->data(), info.program_size);
         if (result) result->memory_ = memory;
         return result;
     }
@@ -78,7 +84,9 @@ public:
      * @param scratch_size Scratch capacity from compile_scratch.
      * @param storage Immutable output, aligned and alive through all executions.
      * @param capacity Output bytes from a native sizing pass.
-     * @return Borrowed program or full native diagnostic. */
+     * @return Borrowed program or full native diagnostic.
+     * @note This is one native compile call. Use native compile_prepare followed by
+     * commit_into for allocation-free detection of resolver changes across passes. */
     static expected<query_program, query_failure>
     compile_into(const char* text, size_t size, const tlv_query_compile_options_t* options,
                  void* scratch, size_t scratch_size, void* storage, size_t capacity) {
@@ -88,6 +96,28 @@ public:
         result.info_.struct_size = sizeof result.info_;
         auto rc = tlv_query_compile(text, size, options, scratch, scratch_size, storage, capacity,
                                     &result.info_, &d);
+        if (rc != TLV_OK) return unexpected<query_failure>(detail::query_failed(rc, d));
+        result.program_ = static_cast<const tlv_query_program_t*>(storage);
+        return result;
+    }
+    /** @brief Check and publish a prepared program without C++ allocation.
+     * @param prepared Image from native compile_prepare, alive and unchanged during this call.
+     * @param size Exact prepared image extent.
+     * @param options Original compiler options and current capabilities.
+     * @param scratch Exclusive aligned validation storage from load_scratch.
+     * @param scratch_size Available validation bytes.
+     * @param storage Required aligned final image, alive through every execution.
+     * @param capacity Available final program bytes.
+     * @return Borrowed program or complete native failure. Failure preserves storage;
+     * equal-size changes to resolved identifiers are rejected. */
+    static expected<query_program, query_failure>
+    commit_into(const void* prepared, size_t size, const tlv_query_compile_options_t* options,
+                void* scratch, size_t scratch_size, void* storage, size_t capacity) {
+        query_program result;
+        result.info_.struct_size = sizeof result.info_;
+        tlv_query_diagnostic_t d{};
+        auto rc = tlv_query_compile_commit(prepared, size, options, scratch, scratch_size, storage,
+                                           capacity, &result.info_, &d);
         if (rc != TLV_OK) return unexpected<query_failure>(detail::query_failed(rc, d));
         result.program_ = static_cast<const tlv_query_program_t*>(storage);
         return result;

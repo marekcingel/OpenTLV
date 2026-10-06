@@ -218,6 +218,18 @@ Format contexts self-contained. F2 copies resolved tag bytes into the program;
 resolver/Definition storage is needed only while compiling. Providers, their
 contexts and the Format remain borrowed throughout execution and suspension. Repeating sizing/compile with
 the same bounded text/options yields identical requirements and output.
+For checked two-pass compilation, discover workspace with
+`tlv_query_compile_prepare_size`, compile once with `tlv_query_compile_prepare`,
+then publish with `tlv_query_compile_commit`. Preparation reports exact final
+program size and retains a complete immutable image in caller workspace. Commit
+uses explicitly sized validation scratch from `tlv_query_program_load_scratch`,
+re-resolves names and compares every program byte before writing final storage.
+Changes to same-length identifiers are rejected, preserving output storage and
+info. The independent low-level `tlv_query_compile` calls retain their original
+stable-callback precondition; owning language constructors use checked compilation.
+
+Canonical formatting may add whitespace. Rediscover compilation scratch for the
+formatted text; the original text's exact scratch capacity need not suffice.
 
 **Q-PLAN-01.** Execution levels apply to whole expressions: S0 decides at
 complete node publication; S1 retains bounded depth summaries for scope evidence;

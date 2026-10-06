@@ -315,6 +315,23 @@ same-release image using its original options; `image()`, `format()` and
 Declarations accept `int`, `bytes` and `str`; bind actual values through an
 independent execution rather than interpolating Query text.
 
+All existing Formats, including configured `FixedFormat`, work with Query,
+Reader and Document. Compilation snapshots Fixed widths and byte order;
+equivalent configurations share an owned immutable native context. Different
+configurations remain incompatible. `tags=QueryTagAdapter(id, class_of=...,
+number_of=...)` supplies optional semantic Tag callbacks receiving owned raw
+bytes and returning signed 64-bit integers. The stable nonzero ID participates
+in image compatibility; missing capabilities are rejected during compilation.
+
+Use `resolve(namespace, name)` instead of `names` for dynamic scoped resolution;
+return Tag bytes or `None` for an unknown name. Checked preparation and commit
+reject changed resolutions, including a different Tag with the same length.
+Resolver exceptions propagate unchanged. `QueryDefinitionResolver({namespace:
+DefinitionRegistry(...)})` snapshots registries and delegates namespace and
+ambiguity rules to C. `query_emv_resolve` uses the native base EMV dictionary
+when that component is enabled, for example
+`QueryProgram("//emv:PAN", resolve=query_emv_resolve)`.
+
 `program.execution(max_depth=..., max_nodes=..., max_work=..., retained=True)`
 owns bounded native state. `retained=False` selects S0/S1 storage. Execute through
 the public TreeReader pull/Visitor adapter, or evaluate a Document; results,
@@ -333,8 +350,11 @@ Keep provider IDs and contracts stable when loading images. Callback exceptions
 propagate; callback allocations and work are outside the C engine's limits.
 
 `execution.feed(event)` accepts canonical Tree events. Retain borrowed input as
-documented by the event producer and call `finish()` before pulling deferred
-results. `edit_document("remove" | "replace" | "insert_after", ...)` applies a
+documented by the event producer; the execution pins the event bytes and original
+Source, preserving Layout metadata predicates. Call `finish()` before pulling
+deferred results. `next_ordinal()` returns an owned `(QueryMatch, ordinal)` from
+a completed retained selection, including Document selections; `next()` retains
+its checked Node behavior for Documents. `edit_document("remove" | "replace" | "insert_after", ...)` applies a
 completed Document selection. `target_capacity` bounds target storage; a short
 target array reports `error.applied == 0` and allows retry. Successful edits
 invalidate existing checked Nodes; other edit failures report partial counts.
@@ -345,8 +365,13 @@ programs and validates through `validate_buffer(data, **limits)` or
 programs. Limits bound depth, nodes, work, selected contexts and Document Value
 snapshots. Failures retain the rule index, Query detail and owned Schema
 diagnostics. Provider callbacks cannot mutate or close a Document under
-validation. See the [release requirements](../development/query-release.md) for
-remaining extension coverage.
+validation. See the [release requirements](../development/query-release.md).
+
+The separate V1 `QueryMatcher` preserves matching state across Visitor STOP and
+TreeReader input replacement. `rebind(equivalent_query)` copies an equivalent
+path without restarting a suspended traversal; a different path fails without
+changing state. `reset()` starts a new traversal and leaves Reader state to the
+caller. `matches(tag, depth)` feeds every canonical preorder item manually.
 
 ## Next step
 

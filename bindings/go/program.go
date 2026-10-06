@@ -47,6 +47,8 @@ type ProgramOptions struct {
 	Variables                                                             map[string]QueryType
 	Names                                                                 map[string][]byte
 	Providers                                                             map[QueryConversion]QueryProvider
+	Tags                                                                  *QueryTagAdapter
+	Resolver                                                              QueryResolver
 	Optimize                                                              bool
 	MaxText, MaxTokens, MaxNesting, MaxStates, MaxPattern, MaxResolvedTag int
 }
@@ -222,7 +224,24 @@ func buildProgram(data []byte, options ProgramOptions, image bool) (*QueryProgra
 				return capi.ProviderResult{Type: int(value.Type), Integer: value.Integer, Text: value.String}, int(status)
 			}}
 	}
-	native, code, diag := options.Format.native.CompileProgram(data, capi.ProgramOptions{Variables: variables, Names: options.Names,
+	var tags *capi.QueryTagAdapter
+	if options.Tags != nil {
+		tags = &capi.QueryTagAdapter{ID: options.Tags.ID}
+		if callback := options.Tags.Class; callback != nil {
+			tags.Class = func(tag []byte) (int64, capi.Code) { value, err := callback(tag); return value, queryCallbackCode(err) }
+		}
+		if callback := options.Tags.Number; callback != nil {
+			tags.Number = func(tag []byte) (int64, capi.Code) { value, err := callback(tag); return value, queryCallbackCode(err) }
+		}
+	}
+	var resolver capi.QueryResolver
+	if callback := options.Resolver; callback != nil {
+		resolver = func(namespace, name string) ([]byte, capi.Code) {
+			tag, err := callback(namespace, name)
+			return tag, queryCallbackCode(err)
+		}
+	}
+	native, code, diag := options.Format.native.CompileProgram(data, capi.ProgramOptions{Variables: variables, Names: options.Names, Tags: tags, Resolver: resolver,
 		Providers: providers,
 		Optimize:  options.Optimize, MaxText: options.MaxText, MaxTokens: options.MaxTokens, MaxNesting: options.MaxNesting,
 		MaxStates: options.MaxStates, MaxPattern: options.MaxPattern, MaxResolvedTag: options.MaxResolvedTag}, image)
@@ -449,6 +468,29 @@ func (q *QueryExecution) Feed(event QueryEvent) (*QueryMatch, error) {
 	return &QueryMatch{Element: NewElement(item.Tag, item.Value), Depth: item.Depth, Offset: item.Offset, Constructed: item.Constructed}, nil
 }
 
+// FeedEncoded copies and decodes exactly one encoded node using this program's
+// Format, preserving complete C Source metadata. Constructed nodes open a scope;
+// publish descendants and close it with Feed(QueryEnd) in canonical order.
+func (q *QueryExecution) FeedEncoded(data []byte, depth, offset int) (*QueryMatch, error) {
+	if err := q.check(); err != nil {
+		return nil, err
+	}
+	if depth < 0 || offset < 0 {
+		return nil, programError(capi.InvalidArg, capi.ProgramDiagnostic{})
+	}
+	q.busy = true
+	defer func() { q.busy = false }()
+	item, code, diagnostic := q.native.FeedEncoded(data, depth, offset)
+	if err := programError(code, diagnostic); err != nil {
+		return nil, err
+	}
+	q.fed = true
+	if item == nil {
+		return nil, nil
+	}
+	return &QueryMatch{Element: NewElement(item.Tag, item.Value), Depth: item.Depth, Offset: item.Offset, Constructed: item.Constructed}, nil
+}
+
 // Finish drains Reader input or finalizes balanced raw events through C.
 func (q *QueryExecution) Finish() error {
 	if err := q.check(); err != nil {
@@ -504,6 +546,20 @@ func (q *QueryExecution) Next() (QueryMatch, error) {
 		err = programError(capi.EndOfBuffer, capi.ProgramDiagnostic{})
 	}
 	return result, err
+}
+
+// NextResultWithOrdinal pulls a finalized retained Tree result and its original
+// preorder identity, which Context accepts on the same input in another execution.
+// It shares the native result cursor with Next; call Finish before using it.
+func (q *QueryExecution) NextResultWithOrdinal() (QueryMatch, uint64, error) {
+	if err := q.check(); err != nil {
+		return QueryMatch{}, 0, err
+	}
+	if q.document != nil || q.resultType != QueryNodes {
+		return QueryMatch{}, 0, programError(capi.InvalidArg, capi.ProgramDiagnostic{})
+	}
+	item, ordinal, code := q.native.NextResultWithOrdinal()
+	return QueryMatch{Element: NewElement(item.Tag, item.Value), Depth: item.Depth, Offset: item.Offset, Constructed: item.Constructed}, ordinal, programError(code, capi.ProgramDiagnostic{})
 }
 
 // Exists drains by default; early success leaves explicit partial validation coverage.

@@ -58,9 +58,39 @@ typedef struct opentlv_wasm_result opentlv_wasm_result_t;
 /* Owning Query facade handles. Programs and executions have independent
  * reference-counted lifetimes; all processing delegates to the C Query engine.
  * Returned JSON strings borrow the handle until its next operation. */
-typedef struct opentlv_wasm_program      opentlv_wasm_program_t;
-typedef struct opentlv_wasm_execution    opentlv_wasm_execution_t;
-typedef struct opentlv_wasm_document     opentlv_wasm_document_t;
+typedef struct opentlv_wasm_program   opentlv_wasm_program_t;
+typedef struct opentlv_wasm_execution opentlv_wasm_execution_t;
+typedef struct opentlv_wasm_document  opentlv_wasm_document_t;
+typedef struct opentlv_wasm_format    opentlv_wasm_format_t;
+typedef struct opentlv_wasm_v1        opentlv_wasm_v1_t;
+OPENTLV_WASM_API opentlv_wasm_v1_t*   opentlv_wasm_v1_new(const char*, size_t);
+OPENTLV_WASM_API const char* opentlv_wasm_v1_operation(opentlv_wasm_v1_t*, int, const uint8_t*,
+                                                       size_t, size_t);
+OPENTLV_WASM_API void        opentlv_wasm_v1_free(opentlv_wasm_v1_t*);
+OPENTLV_WASM_API opentlv_wasm_format_t* opentlv_wasm_format_new(const char*, size_t, size_t, int,
+                                                                int, int);
+OPENTLV_WASM_API int    opentlv_wasm_format_callbacks(opentlv_wasm_format_t*, tlv_decode_fn,
+                                                      tlv_measure_fn, tlv_encode_fn,
+                                                      tlv_is_constructed_fn);
+OPENTLV_WASM_API void   opentlv_wasm_format_free(opentlv_wasm_format_t*);
+OPENTLV_WASM_API int    opentlv_wasm_format_decoded(opentlv_wasm_format_t*, tlv_decoded_t*,
+                                                    const uint8_t*, size_t, const uint8_t*, size_t,
+                                                    const uint32_t*);
+OPENTLV_WASM_API size_t opentlv_wasm_element_field(const tlv_element_t*, int);
+OPENTLV_WASM_API size_t opentlv_wasm_tag_field(const tlv_tag_t*, int);
+OPENTLV_WASM_API void   opentlv_wasm_integer_write(int64_t*, uint32_t, uint32_t);
+OPENTLV_WASM_API int    opentlv_wasm_encoding_write(tlv_encoding_t*, size_t, size_t, size_t);
+OPENTLV_WASM_API void   opentlv_wasm_size_write(size_t*, size_t);
+OPENTLV_WASM_API opentlv_wasm_program_t* opentlv_wasm_program_with_format(opentlv_wasm_format_t*);
+OPENTLV_WASM_API int
+opentlv_wasm_program_tags(opentlv_wasm_program_t*, uint32_t,
+                          tlv_result_t (*)(const void*, const tlv_tag_t*, int64_t*),
+                          tlv_result_t (*)(const void*, const tlv_tag_t*, int64_t*));
+OPENTLV_WASM_API int opentlv_wasm_program_resolver(opentlv_wasm_program_t*, tlv_query_resolve_t);
+/* Use the native EMV registry resolver; unsupported when EMV is compiled out. */
+OPENTLV_WASM_API int opentlv_wasm_program_emv_resolver(opentlv_wasm_program_t*);
+OPENTLV_WASM_API int opentlv_wasm_resolved_tag(opentlv_wasm_program_t*, tlv_tag_t*, const uint8_t*,
+                                               size_t);
 OPENTLV_WASM_API opentlv_wasm_program_t* opentlv_wasm_program_new(const char* format);
 OPENTLV_WASM_API int opentlv_wasm_program_variable(opentlv_wasm_program_t*, const char*, int);
 OPENTLV_WASM_API int opentlv_wasm_program_name(opentlv_wasm_program_t*, const char*, const uint8_t*,
@@ -96,14 +126,18 @@ OPENTLV_WASM_API const char* opentlv_wasm_execution_bind(opentlv_wasm_execution_
 OPENTLV_WASM_API const char* opentlv_wasm_execution_feed(opentlv_wasm_execution_t*, int,
                                                          const uint8_t*, size_t, const uint8_t*,
                                                          size_t, size_t, size_t, int);
+OPENTLV_WASM_API const char* opentlv_wasm_execution_feed_source(opentlv_wasm_execution_t*, int,
+                                                                const uint8_t*, size_t, size_t,
+                                                                size_t, int);
 /* Operations: 0 reset, 1 pull, 2 scalar, 3 status, 4 exists, 5 context,
- * 6 pruning, 7 finish. */
+ * 6 pruning, 7 finish, 8 retained result with ordinal. */
 OPENTLV_WASM_API const char* opentlv_wasm_execution_operation(opentlv_wasm_execution_t*, int,
                                                               size_t);
 OPENTLV_WASM_API void        opentlv_wasm_execution_free(opentlv_wasm_execution_t*);
 OPENTLV_WASM_API opentlv_wasm_document_t* opentlv_wasm_document_new(opentlv_wasm_program_t*,
                                                                     const uint8_t*, size_t);
 OPENTLV_WASM_API void                     opentlv_wasm_document_free(opentlv_wasm_document_t*);
+OPENTLV_WASM_API const char*              opentlv_wasm_document_encode(opentlv_wasm_document_t*);
 OPENTLV_WASM_API const char* opentlv_wasm_execution_document(opentlv_wasm_execution_t*,
                                                              opentlv_wasm_document_t*, size_t);
 OPENTLV_WASM_API const char* opentlv_wasm_execution_edit(opentlv_wasm_execution_t*, int,

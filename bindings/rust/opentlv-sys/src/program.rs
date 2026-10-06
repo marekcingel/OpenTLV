@@ -46,6 +46,8 @@ record!(tlv_query_tag_adapter_t { id: u32, context: *const c_void,
     number_of: Option<unsafe extern "C" fn(*const c_void, *const tlv_tag_t, *mut i64) -> tlv_result_t> });
 record!(tlv_query_environment_t { format: *const tlv_format_t, tags: *const tlv_query_tag_adapter_t,
     hooks: *const tlv_query_hook_t, hook_count: usize });
+record!(tlv_query_definition_scope_t { namespace_name: *const c_char, definitions: *const tlv_definition_registry_t });
+record!(tlv_query_definition_resolver_t { scopes: *const tlv_query_definition_scope_t, count: usize });
 record!(tlv_schema_query_rule_t { context: *const tlv_query_program_t,
     assertion: *const tlv_query_program_t, environment: *const tlv_query_environment_t, name: *const c_char });
 record!(tlv_schema_query_context_t { ordinal: usize, event: tlv_tree_event_t, node: *mut c_void });
@@ -115,6 +117,47 @@ pub type tlv_query_event_visitor_t =
     Option<unsafe extern "C" fn(*const tlv_tree_event_t, *mut c_void) -> c_int>;
 
 extern "C" {
+    /// Bound preparation storage without invoking scoped name resolution.
+    pub fn tlv_query_compile_prepare_size(
+        text: *const c_char,
+        size: usize,
+        options: *const tlv_query_compile_options_t,
+        bytes: *mut usize,
+        alignment: *mut usize,
+        diagnostic: *mut tlv_query_diagnostic_t,
+    ) -> tlv_result_t;
+    /// Compile one immutable preparation image retained inside caller workspace.
+    pub fn tlv_query_compile_prepare(
+        text: *const c_char,
+        size: usize,
+        options: *const tlv_query_compile_options_t,
+        workspace: *mut c_void,
+        capacity: usize,
+        prepared: *mut *const tlv_query_program_t,
+        info: *mut tlv_query_program_info_t,
+        diagnostic: *mut tlv_query_diagnostic_t,
+    ) -> tlv_result_t;
+    /// Recheck scoped resolution and atomically publish identical program bytes.
+    pub fn tlv_query_compile_commit(
+        prepared: *const c_void,
+        prepared_size: usize,
+        options: *const tlv_query_compile_options_t,
+        scratch: *mut c_void,
+        scratch_capacity: usize,
+        storage: *mut c_void,
+        storage_capacity: usize,
+        info: *mut tlv_query_program_info_t,
+        diagnostic: *mut tlv_query_diagnostic_t,
+    ) -> tlv_result_t;
+    /// Resolve a scoped Definition name with canonical unknown/ambiguity semantics.
+    pub fn tlv_query_definition_resolve(
+        context: *const c_void,
+        namespace_name: *const c_char,
+        namespace_size: usize,
+        name: *const c_char,
+        name_size: usize,
+        tag: *mut tlv_tag_t,
+    ) -> tlv_result_t;
     /// Discover contextual selector/assertion workspace requirements.
     pub fn tlv_schema_query_size(
         rules: *const tlv_schema_query_rule_t,
@@ -298,6 +341,14 @@ extern "C" {
         ordinal: *mut usize,
     ) -> tlv_result_t;
     pub fn tlv_query_builtin_hooks(count: *mut usize) -> *const tlv_query_hook_t;
+    pub fn tlv_emv_query_resolve(
+        context: *const c_void,
+        namespace_name: *const c_char,
+        namespace_size: usize,
+        name: *const c_char,
+        name_size: usize,
+        tag: *mut tlv_tag_t,
+    ) -> tlv_result_t;
     pub static tlv_asn1_query_tags: tlv_query_tag_adapter_t;
     pub static tlv_asn1_query_date: tlv_query_hook_t;
     #[cfg(feature = "document")]
