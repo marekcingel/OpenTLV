@@ -11,6 +11,7 @@
 #endif
 #include <stdlib.h>
 #include <string.h>
+#include "../../../common/query_schema.h"
 
 #define PROGRAM_NAME "opentlv.query_program"
 #define EXECUTION_NAME "opentlv.query_execution"
@@ -25,6 +26,7 @@ typedef struct program {
     tlv_query_program_info_t   info;
     tlv_query_environment_t    environment;
     tlv_query_hook_t           hooks[4];
+    PyObject*                  providers;
 } program;
 typedef struct execution {
     PyObject *        owner, *reader, *inputs, *bindings, *document;
@@ -64,6 +66,22 @@ static int set_size(PyObject* dict, const char* key, size_t value) {
     Py_DECREF(number);
     return rc;
 }
+static PyObject* failure_fields(tlv_result_t code, const tlv_query_diagnostic_t* diagnostic,
+                                PyObject* details) {
+    failure(code, diagnostic);
+    PyObject *type, *error, *traceback;
+    PyErr_Fetch(&type, &error, &traceback);
+    PyErr_NormalizeException(&type, &error, &traceback);
+    PyObject* args = error ? PyObject_GetAttrString(error, "args") : NULL;
+    if (args && PyTuple_Size(args) > 0) {
+        PyObject* fields = PyTuple_GetItem(args, 0);
+        if (PyDict_Check(fields)) PyDict_Update(fields, details);
+    }
+    Py_XDECREF(args);
+    PyErr_Clear();
+    PyErr_Restore(type, error, traceback);
+    return NULL;
+}
 static int size_option(PyObject* options, const char* name, size_t* value) {
     PyObject* item = PyDict_GetItemString(options, name);
     if (!item) return 1;
@@ -95,7 +113,46 @@ static void destroy_program(PyObject* capsule) {
     program* self = PyCapsule_GetPointer(capsule, PROGRAM_NAME);
     if (!self) return;
     release(&self->image);
+    Py_XDECREF(self->providers);
     free(self);
+}
+static PyObject*          project(const tlv_tree_event_t* event);
+static tlv_codec_result_t decode_provider(const void* context, const tlv_tree_event_t* event,
+                                          const uint8_t* data, size_t size, void* scratch,
+                                          size_t capacity, tlv_query_result_t* result) {
+    PyObject* callback = (PyObject*)context;
+    PyObject* input = PyBytes_FromStringAndSize((const char*)data, (Py_ssize_t)size);
+    PyObject* metadata = event ? project(event) : Py_NewRef(Py_None);
+    PyObject* value =
+        input && metadata ? PyObject_CallFunctionObjArgs(callback, input, metadata, NULL) : NULL;
+    Py_XDECREF(input);
+    Py_XDECREF(metadata);
+    if (!value) return TLV_CODEC_ERR_INVALID_VALUE;
+    memset(result, 0, sizeof *result);
+    tlv_codec_result_t code = TLV_CODEC_OK;
+    if (PyLong_Check(value) && !PyBool_Check(value)) {
+        result->kind = TLV_QUERY_RESULT_INTEGER;
+        result->integer = PyLong_AsLongLong(value);
+        if (PyErr_Occurred()) code = TLV_CODEC_ERR_INVALID_VALUE;
+    } else if (PyUnicode_Check(value)) {
+        Py_ssize_t  length;
+        const char* text = PyUnicode_AsUTF8AndSize(value, &length);
+        if (!text)
+            code = TLV_CODEC_ERR_INVALID_VALUE;
+        else if ((size_t)length > capacity)
+            code = TLV_CODEC_ERR_BUFFER_TOO_SHORT;
+        else {
+            if (length) memcpy(scratch, text, (size_t)length);
+            result->kind = TLV_QUERY_RESULT_STRING;
+            result->data = scratch;
+            result->size = (size_t)length;
+        }
+    } else {
+        PyErr_SetString(PyExc_TypeError, "Query provider must return int or str");
+        code = TLV_CODEC_ERR_INVALID_VALUE;
+    }
+    Py_DECREF(value);
+    return code;
 }
 static void dispose_execution(execution* self) {
     Py_XDECREF(self->owner);
@@ -155,6 +212,44 @@ PyObject* opentlv_python_program_create(PyObject* module, PyObject* args) {
 #endif
     self->environment.hooks = self->hooks;
     self->environment.hook_count = hook_count;
+    PyObject* providers = PyDict_GetItemString(options, "providers");
+    if (providers) {
+        if (!PyDict_Check(providers)) {
+            free(self);
+            PyErr_SetString(PyExc_TypeError, "providers must be a dictionary");
+            return NULL;
+        }
+        self->providers = PyDict_Copy(providers);
+        if (!self->providers) {
+            free(self);
+            return NULL;
+        }
+        Py_ssize_t provider_position = 0;
+        PyObject * provider_key, *provider_value;
+        while (PyDict_Next(providers, &provider_position, &provider_key, &provider_value)) {
+            long          function = PyLong_AsLong(provider_key);
+            unsigned long id;
+            Py_ssize_t    capacity;
+            PyObject*     callback;
+            if (PyErr_Occurred() || function < 0 || function > 3 ||
+                !PyArg_ParseTuple(provider_value, "knO", &id, &capacity, &callback) || !id ||
+                id > UINT32_MAX || capacity < 0 || !PyCallable_Check(callback)) {
+                Py_DECREF(self->providers);
+                free(self);
+                if (!PyErr_Occurred()) PyErr_SetString(PyExc_ValueError, "invalid Query provider");
+                return NULL;
+            }
+            size_t slot = 0;
+            while (slot < hook_count &&
+                   self->hooks[slot].function != (tlv_query_conversion_t)function)
+                ++slot;
+            if (slot == hook_count) ++hook_count;
+            self->hooks[slot] = (tlv_query_hook_t){
+                (uint32_t)id,   (tlv_query_conversion_t)function, (size_t)capacity, 1, callback,
+                decode_provider};
+        }
+        self->environment.hook_count = hook_count;
+    }
     tlv_query_compile_options_t config;
     tlv_query_compile_options_init(&config);
     config.environment = &self->environment;
@@ -230,12 +325,14 @@ PyObject* opentlv_python_program_create(PyObject* module, PyObject* args) {
     Py_DECREF(keep_names);
     if (rc != TLV_OK || PyErr_Occurred()) {
         release(&self->image);
+        Py_XDECREF(self->providers);
         free(self);
         return failure(rc, &diagnostic);
     }
     PyObject* capsule = PyCapsule_New(self, PROGRAM_NAME, destroy_program);
     if (!capsule) {
         release(&self->image);
+        Py_XDECREF(self->providers);
         free(self);
     }
     return capsule;
@@ -243,6 +340,7 @@ python_error:
     free(declarations);
     Py_XDECREF(keep_names);
     release(&self->image);
+    Py_XDECREF(self->providers);
     free(self);
     if (!PyErr_Occurred()) PyErr_NoMemory();
     return NULL;
@@ -493,7 +591,9 @@ PyObject* opentlv_python_execution_feed(PyObject* module, PyObject* args) {
         return NULL;
     int                    matched;
     tlv_query_diagnostic_t diagnostic;
-    tlv_result_t           rc = tlv_query_exec_feed(self->native, &event, &matched, &diagnostic);
+    self->busy = 1;
+    tlv_result_t rc = tlv_query_exec_feed(self->native, &event, &matched, &diagnostic);
+    self->busy = 0;
     if (rc != TLV_OK) return failure(rc, &diagnostic);
     if (!matched) return Py_NewRef(Py_None);
     program* query = PyCapsule_GetPointer(self->owner, PROGRAM_NAME);
@@ -510,7 +610,9 @@ PyObject* opentlv_python_execution_finish(PyObject* module, PyObject* capsule) {
     if (!self) return NULL;
     if (self->reader || self->document) return failure(TLV_ERR_INVALID_ARG, NULL);
     tlv_query_diagnostic_t diagnostic;
-    tlv_result_t           rc = tlv_query_exec_finish(self->native, &diagnostic);
+    self->busy = 1;
+    tlv_result_t rc = tlv_query_exec_finish(self->native, &diagnostic);
+    self->busy = 0;
     if (rc != TLV_OK) return failure(rc, &diagnostic);
     return Py_NewRef(Py_None);
 }
@@ -632,11 +734,125 @@ PyObject* opentlv_python_execution_document(PyObject* module, PyObject* args) {
     }
     self->document = Py_NewRef(document_capsule);
     tlv_query_diagnostic_t diagnostic;
-    tlv_result_t           rc = tlv_document_query_evaluate(
+    self->busy = 1;
+    tlv_result_t rc = tlv_document_query_evaluate(
         document, self->native, node, self->values.data, self->values.size,
         query->info.constructed_values_required ? &staging : NULL, &diagnostic);
+    self->busy = 0;
     if (rc != TLV_OK) return failure(rc, &diagnostic);
     return Py_NewRef(Py_None);
+}
+PyObject* opentlv_python_query_schema(PyObject* module, PyObject* args) {
+    (void)module;
+    PyObject * records, *input;
+    int        format_id;
+    Py_ssize_t depth, nodes, work, contexts, value_capacity;
+    if (!PyArg_ParseTuple(args, "OOinnnnn", &records, &input, &format_id, &depth, &nodes, &work,
+                          &contexts, &value_capacity))
+        return NULL;
+    if (!PyTuple_Check(records)) {
+        PyErr_SetString(PyExc_TypeError, "immutable Query rule tuple required");
+        return NULL;
+    }
+    if (depth < 0 || nodes < 0 || work < 0 || contexts < 0 || value_capacity < -1)
+        return failure(TLV_ERR_INVALID_ARG, NULL);
+    Py_ssize_t count = PyTuple_Size(records);
+    if ((size_t)count > SIZE_MAX / sizeof(tlv_schema_query_rule_t)) return PyErr_NoMemory();
+    tlv_schema_query_rule_t* rules = count ? calloc((size_t)count, sizeof *rules) : NULL;
+    if (count && !rules) return PyErr_NoMemory();
+    for (Py_ssize_t i = 0; i < count; ++i) {
+        PyObject* record = PyTuple_GetItem(records, i);
+        PyObject *context, *assertion, *name;
+        if (!PyArg_ParseTuple(record, "OOO", &context, &assertion, &name)) {
+            free(rules);
+            return NULL;
+        }
+        program*    selector = PyCapsule_GetPointer(context, PROGRAM_NAME);
+        program*    predicate = PyCapsule_GetPointer(assertion, PROGRAM_NAME);
+        const char* label = PyUnicode_AsUTF8AndSize(name, NULL);
+        if (!selector || !predicate || !label) {
+            free(rules);
+            return NULL;
+        }
+        rules[i] = (tlv_schema_query_rule_t){selector->native, predicate->native,
+                                             &predicate->environment, label};
+    }
+    const uint8_t*  data = NULL;
+    size_t          size = 0;
+    tlv_document_t* document = NULL;
+    if (PyBytes_Check(input)) {
+        data = (const uint8_t*)PyBytes_AsString(input);
+        size = (size_t)PyBytes_Size(input);
+    } else
+        document = opentlv_python_document_pointer(input);
+    const tlv_format_t* format = opentlv_python_format_for(format_id);
+    if (PyErr_Occurred() || !format) {
+        free(rules);
+        return PyErr_Occurred() ? NULL : failure(TLV_ERR_UNSUPPORTED_TYPE, NULL);
+    }
+    tlv_schema_query_diagnostic_t diagnostic;
+    tlv_result_t                  rc = opentlv_binding_schema_run(
+        data, size, document, format, rules, (size_t)count, (size_t)depth, (size_t)nodes,
+        (size_t)work, (size_t)contexts, value_capacity < 0 ? 0 : (size_t)value_capacity,
+        value_capacity < 0, &diagnostic);
+    free(rules);
+    if (rc != TLV_OK) {
+        if (PyErr_Occurred()) return NULL;
+        PyObject* details =
+            Py_BuildValue("{s:n,s:y#,s:s}", "rule", (Py_ssize_t)diagnostic.rule, "schema_tag",
+                          diagnostic.schema.tag.size ? (const char*)diagnostic.schema.tag.data : "",
+                          (Py_ssize_t)diagnostic.schema.tag.size, "schema_field",
+                          diagnostic.schema.field ? diagnostic.schema.field : "");
+        if (!details) return NULL;
+        failure_fields(rc, &diagnostic.query, details);
+        Py_DECREF(details);
+        return NULL;
+    }
+    return Py_NewRef(Py_None);
+}
+PyObject* opentlv_python_execution_edit(PyObject* module, PyObject* args) {
+    (void)module;
+    PyObject * capsule, *tag, *value;
+    int        kind;
+    Py_ssize_t capacity;
+    if (!PyArg_ParseTuple(args, "OiOOn", &capsule, &kind, &tag, &value, &capacity)) return NULL;
+    execution* self = get_execution(capsule);
+    if (!self) return NULL;
+    if (!self->document || capacity < 0 || (size_t)capacity > SIZE_MAX / sizeof(tlv_node_t*))
+        return failure(TLV_ERR_INVALID_ARG, NULL);
+    tlv_document_t* document = opentlv_python_document_pointer(self->document);
+    if (!document) return NULL;
+    char *     tag_data, *value_data;
+    Py_ssize_t tag_size, value_size;
+    if (PyBytes_AsStringAndSize(tag, &tag_data, &tag_size) < 0 ||
+        PyBytes_AsStringAndSize(value, &value_data, &value_size) < 0)
+        return NULL;
+    tlv_node_t** targets = capacity ? calloc((size_t)capacity, sizeof *targets) : NULL;
+    if (capacity && !targets) return PyErr_NoMemory();
+    size_t applied = 0;
+    self->busy = 1;
+    tlv_result_t rc = tlv_document_query_edit(
+        document, self->native, (tlv_document_query_edit_kind_t)kind,
+        tlv_tag((const uint8_t*)tag_data, (size_t)tag_size), (const uint8_t*)value_data,
+        (size_t)value_size, targets, (size_t)capacity, &applied);
+    self->busy = 0;
+    free(targets);
+    if (rc != TLV_OK) {
+        failure(rc, NULL);
+        PyObject *type, *error, *traceback;
+        PyErr_Fetch(&type, &error, &traceback);
+        PyErr_NormalizeException(&type, &error, &traceback);
+        PyObject* error_args = error ? PyObject_GetAttrString(error, "args") : NULL;
+        if (error_args && PyTuple_Size(error_args) > 0) {
+            PyObject* fields = PyTuple_GetItem(error_args, 0);
+            if (PyDict_Check(fields)) set_size(fields, "applied", applied);
+        }
+        Py_XDECREF(error_args);
+        PyErr_Clear();
+        PyErr_Restore(type, error, traceback);
+        return NULL;
+    }
+    return PyLong_FromSize_t(applied);
 }
 PyObject* opentlv_python_execution_next(PyObject* module, PyObject* capsule) {
     (void)module;

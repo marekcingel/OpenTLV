@@ -46,9 +46,137 @@ type ProgramOptions struct {
 	Format                                                                Format
 	Variables                                                             map[string]QueryType
 	Names                                                                 map[string][]byte
+	Providers                                                             map[QueryConversion]QueryProvider
 	Optimize                                                              bool
 	MaxText, MaxTokens, MaxNesting, MaxStates, MaxPattern, MaxResolvedTag int
 }
+
+// QueryConversion selects one of the four closed native conversion functions.
+type QueryConversion int
+
+const (
+	QueryNum QueryConversion = iota
+	QueryBCD
+	QueryText
+	QueryDate
+)
+
+// QueryMetadata copies candidate metadata; nil identifies a literal/binding conversion.
+type QueryMetadata struct {
+	Tag, Value    []byte
+	Kind          int
+	Depth, Offset uint64
+}
+
+// QueryProvider replaces one builtin with a stable nonzero ID and bounded UTF-8 scratch.
+// Decode returns QueryInteger or QueryString and a codec status (zero for success).
+// Callbacks must be safe for concurrent independent executions. Their allocations
+// and work are outside C engine contracts; panics become InvalidValue codec diagnostics.
+type QueryProvider struct {
+	ID             uint32
+	MaxResultBytes int
+	Decode         func([]byte, *QueryMetadata) (QueryValue, CodecError)
+}
+
+// QueryRule composes an immutable context selector and relative boolean assertion.
+type QueryRule struct {
+	Context, Assertion *QueryProgram
+	Name               string
+}
+
+// QuerySchemaLimits bounds retained descriptors, selected contexts and native work.
+// ValueCapacity=-1 measures a Document snapshot; nonnegative values are hard bounds.
+type QuerySchemaLimits struct{ Depth, Nodes, Work, Contexts, ValueCapacity int }
+
+// DefaultQuerySchemaLimits supplies finite owning-facade convenience bounds.
+func DefaultQuerySchemaLimits() QuerySchemaLimits {
+	return QuerySchemaLimits{Depth: 64, Nodes: 1024, Work: 100000000, Contexts: 1024, ValueCapacity: -1}
+}
+
+// QuerySchemaError owns a rule-aware native Query/Schema failure.
+type QuerySchemaError struct {
+	Rule    int
+	Tag     []byte
+	Field   string
+	Failure *ProgramError
+}
+
+func (e *QuerySchemaError) Error() string { return e.Failure.Error() }
+func (e *QuerySchemaError) Unwrap() error { return e.Failure }
+
+func retainQueryRules(rules []QueryRule) ([]capi.QueryRule, func(), error) {
+	type pin struct {
+		state  *programState
+		native *capi.Program
+	}
+	var pins []pin
+	release := func() {
+		for _, item := range pins {
+			item.state.mutex.Lock()
+			item.native.Close()
+			item.state.mutex.Unlock()
+		}
+	}
+	result := make([]capi.QueryRule, 0, len(rules))
+	for _, rule := range rules {
+		var owners [2]*capi.Program
+		for index, p := range []*QueryProgram{rule.Context, rule.Assertion} {
+			if err := p.lock(); err != nil {
+				release()
+				return nil, func() {}, err
+			}
+			owners[index] = p.state.native.Retain()
+			pins = append(pins, pin{p.state, owners[index]})
+			p.state.mutex.Unlock()
+		}
+		result = append(result, capi.QueryRule{Context: owners[0], Assertion: owners[1], Name: rule.Name})
+	}
+	return result, release, nil
+}
+func validateQuerySchema(rules []QueryRule, input []byte, document *Document, format Format,
+	limits QuerySchemaLimits) error {
+	if !format.Valid() {
+		return programError(capi.InvalidArg, capi.ProgramDiagnostic{})
+	}
+	retained, release, err := retainQueryRules(rules)
+	if err != nil {
+		return err
+	}
+	defer release()
+	var nativeDocument *capi.Document
+	if document != nil {
+		if !document.valid() {
+			return programError(capi.InvalidArg, capi.ProgramDiagnostic{})
+		}
+		document.queryActive++
+		defer func() { document.queryActive-- }()
+		nativeDocument = document.native
+	}
+	code, detail := capi.ValidateQuerySchema(retained, input, nativeDocument, format.native,
+		capi.QuerySchemaLimits{Depth: limits.Depth, Nodes: limits.Nodes, Work: limits.Work,
+			Contexts: limits.Contexts, ValueCapacity: limits.ValueCapacity})
+	if code == capi.OK {
+		return nil
+	}
+	failure := programError(code, detail.Query).(*ProgramError)
+	return &QuerySchemaError{Rule: detail.Rule, Tag: detail.Tag, Field: detail.Field, Failure: failure}
+}
+
+// ValidateQueryBuffer delegates contextual assertions to C over a copied complete
+// input. D-only rules are rejected before traversal; empty selections succeed.
+func ValidateQueryBuffer(rules []QueryRule, input []byte, format Format, limits QuerySchemaLimits) error {
+	return validateQuerySchema(rules, input, nil, format, limits)
+}
+
+// ValidateQueryDocument validates an immutable Document revision, including D.
+// Close and edits during providers are rejected; programs stay retained for the call.
+func ValidateQueryDocument(rules []QueryRule, document *Document, limits QuerySchemaLimits) error {
+	if !document.valid() {
+		return programError(capi.InvalidArg, capi.ProgramDiagnostic{})
+	}
+	return validateQuerySchema(rules, nil, document, document.format, limits)
+}
+
 type programState struct {
 	mutex  sync.Mutex
 	native *capi.Program
@@ -76,8 +204,25 @@ func buildProgram(data []byte, options ProgramOptions, image bool) (*QueryProgra
 	for name, kind := range options.Variables {
 		variables[name] = int(kind)
 	}
+	providers := map[int]capi.QueryProvider{}
+	for selector, provider := range options.Providers {
+		if provider.Decode == nil {
+			return nil, programError(capi.InvalidArg, capi.ProgramDiagnostic{})
+		}
+		decode := provider.Decode
+		providers[int(selector)] = capi.QueryProvider{ID: provider.ID, Capacity: provider.MaxResultBytes,
+			Decode: func(input []byte, metadata *capi.QueryMetadata) (capi.ProviderResult, int) {
+				var public *QueryMetadata
+				if metadata != nil {
+					public = &QueryMetadata{Tag: metadata.Tag, Value: metadata.Value, Kind: metadata.Kind, Depth: metadata.Depth, Offset: metadata.Offset}
+				}
+				value, status := decode(input, public)
+				return capi.ProviderResult{Type: int(value.Type), Integer: value.Integer, Text: value.String}, int(status)
+			}}
+	}
 	native, code, diag := options.Format.native.CompileProgram(data, capi.ProgramOptions{Variables: variables, Names: options.Names,
-		Optimize: options.Optimize, MaxText: options.MaxText, MaxTokens: options.MaxTokens, MaxNesting: options.MaxNesting,
+		Providers: providers,
+		Optimize:  options.Optimize, MaxText: options.MaxText, MaxTokens: options.MaxTokens, MaxNesting: options.MaxNesting,
 		MaxStates: options.MaxStates, MaxPattern: options.MaxPattern, MaxResolvedTag: options.MaxResolvedTag}, image)
 	if err := programError(code, diag); err != nil {
 		return nil, err
@@ -170,6 +315,7 @@ type QueryExecution struct {
 	program    *programState
 	document   *Document
 	busy       bool
+	fed        bool
 	resultType QueryType
 }
 
@@ -219,6 +365,7 @@ func (q *QueryExecution) Reset() error {
 	code := q.native.Reset()
 	if code == capi.OK {
 		q.document = nil
+		q.fed = false
 	}
 	return programError(code, capi.ProgramDiagnostic{})
 }
@@ -260,6 +407,57 @@ type QueryMatch struct {
 	Constructed   bool
 }
 
+// QueryEventKind identifies a canonical structural publication.
+type QueryEventKind int
+
+const (
+	QueryBegin QueryEventKind = iota
+	QueryElement
+	QueryEnd
+)
+
+// QueryEvent carries a complete source-less node. END has no Tag/Value.
+// Feed copies its bytes; Source-dependent expressions report missing metadata.
+type QueryEvent struct {
+	Kind          QueryEventKind
+	Tag, Value    []byte
+	Depth, Offset int
+	Skipped       bool
+}
+
+// Feed publishes canonical events without a Reader. Immediate selections return
+// a match; retained results become available through Next after Finish.
+func (q *QueryExecution) Feed(event QueryEvent) (*QueryMatch, error) {
+	if err := q.check(); err != nil {
+		return nil, err
+	}
+	if event.Depth < 0 || event.Offset < 0 || event.Kind < QueryBegin || event.Kind > QueryEnd {
+		return nil, programError(capi.InvalidArg, capi.ProgramDiagnostic{})
+	}
+	q.busy = true
+	defer func() { q.busy = false }()
+	item, code, diagnostic := q.native.Feed(int(event.Kind), event.Tag, event.Value, event.Depth, event.Offset, event.Skipped)
+	if err := programError(code, diagnostic); err != nil {
+		return nil, err
+	}
+	q.fed = true
+	if item == nil {
+		return nil, nil
+	}
+	return &QueryMatch{Element: NewElement(item.Tag, item.Value), Depth: item.Depth, Offset: item.Offset, Constructed: item.Constructed}, nil
+}
+
+// Finish drains Reader input or finalizes balanced raw events through C.
+func (q *QueryExecution) Finish() error {
+	if err := q.check(); err != nil {
+		return err
+	}
+	q.busy = true
+	defer func() { q.busy = false }()
+	code, diagnostic := q.native.Finish()
+	return programError(code, diagnostic)
+}
+
 // QueryVisit controls callback continuation through the C engine.
 type QueryVisit int
 
@@ -290,6 +488,13 @@ func (q *QueryExecution) Next() (QueryMatch, error) {
 	if q == nil || q.resultType != QueryNodes {
 		return QueryMatch{}, programError(capi.InvalidArg, capi.ProgramDiagnostic{})
 	}
+	if q.fed {
+		if err := q.check(); err != nil {
+			return QueryMatch{}, err
+		}
+		item, code := q.native.NextResult()
+		return QueryMatch{Element: NewElement(item.Tag, item.Value), Depth: item.Depth, Offset: item.Offset, Constructed: item.Constructed}, programError(code, capi.ProgramDiagnostic{})
+	}
 	var result QueryMatch
 	found := false
 	err := q.Visit(func(match QueryMatch) QueryVisit { result = match; found = true; return QueryStop })
@@ -304,6 +509,8 @@ func (q *QueryExecution) Exists(early bool) (bool, error) {
 	if err := q.check(); err != nil {
 		return false, err
 	}
+	q.busy = true
+	defer func() { q.busy = false }()
 	found, code, diag := q.native.Exists(early)
 	return found, programError(code, diag)
 }
@@ -354,6 +561,8 @@ func (q *QueryExecution) EvaluateDocument(document *Document, context Node, valu
 	if err := q.check(); err != nil {
 		return err
 	}
+	q.busy = true
+	defer func() { q.busy = false }()
 	if !document.valid() {
 		return programError(capi.InvalidArg, capi.ProgramDiagnostic{})
 	}
@@ -368,8 +577,39 @@ func (q *QueryExecution) EvaluateDocument(document *Document, context Node, valu
 		}
 	}
 	q.document = document
+	document.queryActive++
+	defer func() { document.queryActive-- }()
 	code, diag := q.native.Document(document.native, context.native, valueCapacity)
 	return programError(code, diag)
+}
+
+// QueryEditKind selects a completed-selection edit with native ancestor dominance.
+type QueryEditKind int
+
+const (
+	QueryRemove QueryEditKind = iota
+	QueryReplace
+	QueryInsertAfter
+)
+
+// EditDocument mutates an already finalized selection with explicit target capacity.
+// Return applied even on failure: commit-time allocation errors may be partial.
+// A short target array preserves the native selection for retry; successful edits
+// invalidate existing Query results and erased checked Nodes.
+func (q *QueryExecution) EditDocument(kind QueryEditKind, tag, value []byte, targetCapacity int) (int, error) {
+	if err := q.check(); err != nil {
+		return 0, err
+	}
+	if q.document == nil || q.document.queryActive > 0 || targetCapacity < 0 {
+		return 0, programError(capi.InvalidArg, capi.ProgramDiagnostic{})
+	}
+	q.busy = true
+	defer func() { q.busy = false }()
+	applied, code := q.native.EditDocument(q.document.native, int(kind), tag, value, targetCapacity)
+	if applied > 0 {
+		q.document.changed()
+	}
+	return applied, programError(code, capi.ProgramDiagnostic{})
 }
 
 // NextDocument returns a checked snapshot handle; edits are rejected by native revision validation.

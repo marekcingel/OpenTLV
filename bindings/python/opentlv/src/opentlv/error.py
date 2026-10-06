@@ -167,4 +167,9 @@ def _from_native(error: "_native.Error") -> OpenTLVError:
     result.query = {key: fields.get(key) for key in (
         "query_kind", "begin", "end", "source_offset", "query_expected",
         "limit", "configured", "codec")} if "query_kind" in fields else None
+    if "applied" in fields:
+        result.applied = fields["applied"]
+    if "rule" in fields:
+        result.rule = fields["rule"]
+        result.schema = {"tag": fields["schema_tag"], "field": fields["schema_field"]}
     return result

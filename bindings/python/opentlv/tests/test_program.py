@@ -3,9 +3,93 @@
 import gc
 import pytest
 from opentlv import (QueryProgram, TreeReader, Visit, Document, InvalidArgError,
-                     NeedMoreDataError, LimitError, BufferTooShortError)
+                     NeedMoreDataError, LimitError, BufferTooShortError, QueryProvider,
+                     InvalidValueError)
 
 WIRE = bytes.fromhex("70065a01015001025a0103")
+
+
+def test_custom_conversion_provider_lifetime_images_and_backends():
+    calls = []
+    def decode(value, metadata):
+        calls.append((value, metadata))
+        return value[0] * 10
+    providers = {"num": QueryProvider(101, decode)}
+    program = QueryProgram("num(//5A)", providers=providers)
+    providers.clear()
+    gc.collect()
+    assert program.evaluate(bytes.fromhex("5a0103")) == 30
+    assert calls[-1][1].offset == 0
+    assert calls[-1][1].element.tag.data == b"\x5a"
+    loaded = QueryProgram.load(program.image(), providers={"num": QueryProvider(101, decode)})
+    assert loaded.evaluate(bytes.fromhex("5a0104")) == 40
+    with pytest.raises(InvalidArgError):
+        QueryProgram.load(program.image())
+    execution = program.execution()
+    document = Document(bytes.fromhex("5a0102"))
+    execution.evaluate_document(document)
+    assert execution.result() == 20
+
+
+def test_custom_text_provider_has_exact_bounded_result_scratch():
+    provider = QueryProvider(102, lambda value, metadata: "a\0b", max_result_bytes=3)
+    assert QueryProgram("text(//5A)", providers={"text": provider}).evaluate(b"\x5a\0") == "a\0b"
+    short = QueryProvider(102, provider.decode, max_result_bytes=2)
+    with pytest.raises(InvalidValueError) as error:
+        QueryProgram("text(//5A)", providers={"text": short}).evaluate(b"\x5a\0")
+    assert error.value.query["codec"] == 2
+
+
+def test_provider_exception_and_execution_reentry_are_preserved():
+    execution = None
+    def decode(value, metadata):
+        execution.reset()
+        return 1
+    program = QueryProgram("num(//5A)", providers={"num": QueryProvider(103, decode)})
+    execution = program.execution()
+    reader = TreeReader(b"\x5a\0")
+    with pytest.raises(RuntimeError, match="active in a callback"):
+        execution.visit(reader, lambda match: None)
+    execution.reset()
+    def failure(value, metadata):
+        raise LookupError("provider failed")
+    with pytest.raises(LookupError, match="provider failed"):
+        QueryProgram("num(//5A)", providers={"num": QueryProvider(104, failure)}).evaluate(b"\x5a\0")
+
+
+def test_completed_document_edits_preserve_short_selection_and_overlap():
+    wire = bytes.fromhex("70065a01015a01025a0103")
+    document = Document(wire)
+    old_node = document.first.first_child
+    execution = QueryProgram("//5A").execution().evaluate_document(document)
+    with pytest.raises(BufferTooShortError) as failure:
+        execution.edit_document("replace", value=b"\x09", target_capacity=2)
+    assert failure.value.applied == 0 and document.encode() == wire
+    assert execution.edit_document("replace", value=b"\x09", target_capacity=3) == 3
+    with pytest.raises(ValueError, match="no longer valid"):
+        old_node.value
+    assert document.encode() == bytes.fromhex("70065a01095a01095a0109")
+    with pytest.raises(InvalidArgError):
+        execution.next()
+    execution.reset()
+    execution.evaluate_document(document)
+    assert execution.edit_document("insert_after", tag=b"\x5b", value=b"\x04") == 3
+    assert QueryProgram("count(//5B)").execution().evaluate_document(document).result() == 3
+    ancestor = QueryProgram("//70 | //5A").execution().evaluate_document(document)
+    assert ancestor.edit_document("remove") == 2
+    assert document.encode() == b"\x5b\x01\x04"
+
+
+def test_invalid_constructed_query_replacement_is_atomic():
+    wire = bytes.fromhex("70035a0101")
+    document = Document(wire)
+    execution = QueryProgram("//70").execution().evaluate_document(document)
+    with pytest.raises(BufferTooShortError) as failure:
+        execution.edit_document("replace", value=b"\x5a")
+    assert failure.value.applied == 0 and document.encode() == wire
+    execution.reset()
+    execution.evaluate_document(document)
+    assert execution.edit_document("replace", value=b"\x5a\x00") == 1
 
 
 def test_full_language_variables_scalar_and_image_roundtrip():

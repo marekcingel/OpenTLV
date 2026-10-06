@@ -44,12 +44,198 @@ func programDiagnostic(d C.tlv_query_diagnostic_t, code Code) ProgramDiagnostic 
 type ProgramOptions struct {
 	Variables                                                             map[string]int
 	Names                                                                 map[string][]byte
+	Providers                                                             map[int]QueryProvider
 	Optimize                                                              bool
 	MaxText, MaxTokens, MaxNesting, MaxStates, MaxPattern, MaxResolvedTag int
+}
+type QueryMetadata struct {
+	Tag, Value    []byte
+	Kind          int
+	Depth, Offset uint64
+}
+type ProviderResult struct {
+	Type    int
+	Integer int64
+	Text    string
+}
+type QueryProvider struct {
+	ID       uint32
+	Capacity int
+	Decode   func([]byte, *QueryMetadata) (ProviderResult, int)
+}
+
+//export goQueryProviderRelease
+func goQueryProviderRelease(handle C.uintptr_t) { cgo.Handle(handle).Delete() }
+
+//export goQueryProviderDecode
+func goQueryProviderDecode(handle C.uintptr_t, event *C.tlv_tree_event_t, data *C.uint8_t, size C.size_t,
+	scratch unsafe.Pointer, capacity C.size_t, output *C.tlv_query_result_t) (code C.int) {
+	code = 3
+	defer func() {
+		if recover() != nil {
+			code = 3
+		}
+	}()
+	provider := cgo.Handle(handle).Value().(QueryProvider)
+	if uint64(size) > uint64(^uint(0)>>1) {
+		return 3
+	}
+	input := bytes.Clone(unsafe.Slice((*byte)(unsafe.Pointer(data)), int(size)))
+	var metadata *QueryMetadata
+	if event != nil {
+		item := match(event)
+		metadata = &QueryMetadata{Tag: item.Tag, Value: item.Value, Kind: int(event.kind), Depth: uint64(event.depth), Offset: uint64(event.offset)}
+	}
+	value, status := provider.Decode(input, metadata)
+	if status != 0 {
+		if status < 1 || status > 5 {
+			return 3
+		}
+		return C.int(status)
+	}
+	*output = C.tlv_query_result_t{}
+	switch value.Type {
+	case 2:
+		output.kind = 2
+		output.integer = C.int64_t(value.Integer)
+	case 4:
+		if uint64(len(value.Text)) > uint64(capacity) {
+			return 2
+		}
+		copy(unsafe.Slice((*byte)(scratch), len(value.Text)), value.Text)
+		output.kind = 4
+		output.data = (*C.uint8_t)(scratch)
+		output.size = C.size_t(len(value.Text))
+	default:
+		return 3
+	}
+	return 0
 }
 
 // Program owns a reference-counted C image. Existing executions survive Close.
 type Program struct{ ptr *C.go_query_program }
+
+func (p *Program) Retain() *Program { C.go_query_program_retain(p.ptr); return &Program{ptr: p.ptr} }
+
+type QueryRule struct {
+	Context, Assertion *Program
+	Name               string
+}
+type QuerySchemaLimits struct{ Depth, Nodes, Work, Contexts, ValueCapacity int }
+type QuerySchemaDiagnostic struct {
+	Rule  int
+	Tag   []byte
+	Field string
+	Query ProgramDiagnostic
+}
+
+// ValidateQuerySchema owns storage adaptation only; canonical C evaluates every rule.
+func ValidateQuerySchema(rules []QueryRule, data []byte, document *Document, format Format,
+	limits QuerySchemaLimits) (Code, QuerySchemaDiagnostic) {
+	if limits.Depth < 0 || limits.Nodes < 0 || limits.Work < 0 || limits.Contexts < 0 || limits.ValueCapacity < -1 {
+		return InvalidArg, QuerySchemaDiagnostic{}
+	}
+	var allocations []unsafe.Pointer
+	defer func() {
+		for _, pointer := range allocations {
+			C.free(pointer)
+		}
+	}()
+	allocate := func(count int, element uintptr, aligned bool) unsafe.Pointer {
+		maximum := ^uintptr(0)
+		if count < 0 || uint64(count) > uint64((maximum-15)/element) {
+			return nil
+		}
+		pointer := C.calloc(1, C.size_t(uintptr(count)*element+15))
+		if pointer == nil {
+			return nil
+		}
+		allocations = append(allocations, pointer)
+		if aligned {
+			return unsafe.Add(pointer, (16-uintptr(pointer)%16)%16)
+		}
+		return pointer
+	}
+	recordsPointer := allocate(len(rules), unsafe.Sizeof(C.tlv_schema_query_rule_t{}), false)
+	if recordsPointer == nil {
+		return OutOfMemory, QuerySchemaDiagnostic{}
+	}
+	records := unsafe.Slice((*C.tlv_schema_query_rule_t)(recordsPointer), len(rules))
+	for index, rule := range rules {
+		if strings.IndexByte(rule.Name, 0) >= 0 {
+			return InvalidArg, QuerySchemaDiagnostic{}
+		}
+		name := C.CString(rule.Name)
+		if name == nil {
+			return OutOfMemory, QuerySchemaDiagnostic{}
+		}
+		allocations = append(allocations, unsafe.Pointer(name))
+		records[index].context = C.go_query_native(rule.Context.ptr)
+		records[index].assertion = C.go_query_native(rule.Assertion.ptr)
+		records[index].environment = C.go_query_environment(rule.Assertion.ptr)
+		records[index].name = name
+	}
+	var selector, assertion, alignment C.size_t
+	code := Code(C.tlv_schema_query_size((*C.tlv_schema_query_rule_t)(recordsPointer), C.size_t(len(rules)),
+		C.size_t(limits.Depth), C.size_t(limits.Nodes), &selector, &assertion, &alignment))
+	if code != OK {
+		return code, QuerySchemaDiagnostic{}
+	}
+	if uint64(selector) > uint64(^uint(0)>>1) || uint64(assertion) > uint64(^uint(0)>>1) || limits.Depth == int(^uint(0)>>1) {
+		return Overflow, QuerySchemaDiagnostic{}
+	}
+	workspace := C.tlv_schema_query_workspace_t{}
+	workspace.selector = allocate(int(selector), 1, true)
+	workspace.selector_size = selector
+	workspace.assertion = allocate(int(assertion), 1, true)
+	workspace.assertion_size = assertion
+	workspace.contexts = (*C.tlv_schema_query_context_t)(allocate(limits.Contexts, unsafe.Sizeof(C.tlv_schema_query_context_t{}), false))
+	workspace.context_capacity = C.size_t(limits.Contexts)
+	workspace.frames = (*C.tlv_tree_frame_t)(allocate(limits.Depth+1, unsafe.Sizeof(C.tlv_tree_frame_t{}), false))
+	workspace.frame_capacity = C.size_t(limits.Depth + 1)
+	if workspace.selector == nil || workspace.assertion == nil || workspace.contexts == nil || workspace.frames == nil {
+		return OutOfMemory, QuerySchemaDiagnostic{}
+	}
+	var diagnostic C.tlv_schema_query_diagnostic_t
+	if document == nil {
+		input := allocate(len(data), 1, false)
+		if input == nil {
+			return OutOfMemory, QuerySchemaDiagnostic{}
+		}
+		copy(unsafe.Slice((*byte)(input), len(data)), data)
+		code = Code(C.go_query_schema_buffer(format.config, (*C.uint8_t)(input), C.size_t(len(data)),
+			(*C.tlv_schema_query_rule_t)(recordsPointer), C.size_t(len(rules)), C.size_t(limits.Depth),
+			C.size_t(limits.Nodes), C.size_t(limits.Work), &workspace, &diagnostic))
+	} else {
+		capacity := limits.ValueCapacity
+		if capacity < 0 {
+			capacity, code = document.Encode(format, nil, true)
+			if code != OK {
+				return code, QuerySchemaDiagnostic{}
+			}
+		}
+		staging := C.tlv_tree_writer_workspace_t{}
+		staging.frames = (*C.tlv_tree_writer_frame_t)(allocate(limits.Depth+1, unsafe.Sizeof(C.tlv_tree_writer_frame_t{}), false))
+		staging.frame_capacity = C.size_t(limits.Depth + 1)
+		staging.data = (*C.uint8_t)(allocate(capacity, 1, false))
+		staging.data_capacity = C.size_t(capacity)
+		staging.scratch = (*C.uint8_t)(allocate(capacity, 1, false))
+		staging.scratch_capacity = C.size_t(capacity)
+		values := (*C.uint8_t)(allocate(capacity, 1, false))
+		if staging.frames == nil || staging.data == nil || staging.scratch == nil || values == nil {
+			return OutOfMemory, QuerySchemaDiagnostic{}
+		}
+		code = Code(C.go_query_schema_document(document.ptr, (*C.tlv_schema_query_rule_t)(recordsPointer),
+			C.size_t(len(rules)), C.size_t(limits.Depth), C.size_t(limits.Nodes), C.size_t(limits.Work),
+			&workspace, values, C.size_t(capacity), &staging, &diagnostic))
+	}
+	detail := QuerySchemaDiagnostic{Rule: int(diagnostic.rule), Field: C.GoString(diagnostic.schema.field),
+		Tag:   bytes.Clone(unsafe.Slice((*byte)(unsafe.Pointer(diagnostic.schema.tag.data)), int(diagnostic.schema.tag.size))),
+		Query: programDiagnostic(diagnostic.query, code)}
+	runtime.KeepAlive(rules)
+	runtime.KeepAlive(document)
+	return code, detail
+}
 
 // CompileProgram compiles bounded bytes or loads a same-release image copy.
 func (f Format) CompileProgram(data []byte, options ProgramOptions, image bool) (*Program, Code, ProgramDiagnostic) {
@@ -142,7 +328,30 @@ func (f Format) CompileProgram(data []byte, options ProgramOptions, image bool) 
 	if image {
 		load = 1
 	}
-	ptr := C.go_query_compile(f.config, bytePointer(data), C.size_t(len(data)), &config, first, C.size_t(len(names)), load, &code, &diagnostic)
+	for selector, provider := range options.Providers {
+		if selector < 0 || selector > 3 || provider.ID == 0 || provider.Capacity < 0 || provider.Decode == nil {
+			return nil, InvalidArg, ProgramDiagnostic{}
+		}
+	}
+	var providerFirst *C.go_query_provider
+	if len(options.Providers) > 0 {
+		memory := C.calloc(C.size_t(len(options.Providers)), C.size_t(unsafe.Sizeof(C.go_query_provider{})))
+		if memory == nil {
+			return nil, OutOfMemory, ProgramDiagnostic{}
+		}
+		defer C.free(memory)
+		providers := unsafe.Slice((*C.go_query_provider)(memory), len(options.Providers))
+		index := 0
+		for selector, provider := range options.Providers {
+			providers[index].id = C.uint32_t(provider.ID)
+			providers[index].function = C.int(selector)
+			providers[index].capacity = C.size_t(provider.Capacity)
+			providers[index].handle = C.uintptr_t(cgo.NewHandle(provider))
+			index++
+		}
+		providerFirst = &providers[0]
+	}
+	ptr := C.go_query_compile(f.config, bytePointer(data), C.size_t(len(data)), &config, first, C.size_t(len(names)), providerFirst, C.size_t(len(options.Providers)), load, &code, &diagnostic)
 	runtime.KeepAlive(data)
 	runtime.KeepAlive(variables)
 	runtime.KeepAlive(names)
@@ -283,6 +492,41 @@ type ProgramMatch struct {
 	Constructed   bool
 }
 
+func (q *ProgramExecution) Feed(kind int, tag, value []byte, depth, offset int, skipped bool) (*ProgramMatch, Code, ProgramDiagnostic) {
+	var event C.tlv_tree_event_t
+	var matched C.int
+	var diagnostic C.tlv_query_diagnostic_t
+	var omit C.int
+	if skipped {
+		omit = 1
+	}
+	code := Code(C.go_query_feed(q.ptr, C.int(kind), bytePointer(tag), C.size_t(len(tag)),
+		bytePointer(value), C.size_t(len(value)), C.size_t(depth), C.size_t(offset), omit, &event, &matched, &diagnostic))
+	runtime.KeepAlive(tag)
+	runtime.KeepAlive(value)
+	runtime.KeepAlive(q)
+	if code != OK || matched == 0 {
+		return nil, code, programDiagnostic(diagnostic, code)
+	}
+	item := match(&event)
+	return &item, code, programDiagnostic(diagnostic, code)
+}
+func (q *ProgramExecution) Finish() (Code, ProgramDiagnostic) {
+	var diagnostic C.tlv_query_diagnostic_t
+	code := Code(C.go_query_finish(q.ptr, &diagnostic))
+	runtime.KeepAlive(q)
+	return code, programDiagnostic(diagnostic, code)
+}
+func (q *ProgramExecution) NextResult() (ProgramMatch, Code) {
+	var event C.tlv_tree_event_t
+	code := Code(C.tlv_query_result_next(C.go_query_exec(q.ptr), &event))
+	defer runtime.KeepAlive(q)
+	if code != OK {
+		return ProgramMatch{}, code
+	}
+	return match(&event), code
+}
+
 func match(event *C.tlv_tree_event_t) ProgramMatch {
 	return ProgramMatch{Tag: bytes.Clone(unsafe.Slice((*byte)(unsafe.Pointer(event.element.tag.data)), int(event.element.tag.size))),
 		Value: bytes.Clone(unsafe.Slice((*byte)(unsafe.Pointer(event.element.value.data)), int(event.element.value.size))), Depth: uint64(event.depth), Offset: uint64(event.offset), Constructed: event.kind == C.TLV_TREE_BEGIN}
@@ -381,5 +625,15 @@ func (q *ProgramExecution) NextDocument() (Node, Code) {
 	var node unsafe.Pointer
 	code := Code(C.go_query_document_next(q.ptr, &node))
 	return Node{node}, code
+}
+func (q *ProgramExecution) EditDocument(document *Document, kind int, tag, value []byte, capacity int) (int, Code) {
+	var applied C.size_t
+	code := Code(C.go_query_edit(q.ptr, document.ptr, C.int(kind), bytePointer(tag), C.size_t(len(tag)),
+		bytePointer(value), C.size_t(len(value)), C.size_t(capacity), &applied))
+	runtime.KeepAlive(q)
+	runtime.KeepAlive(document)
+	runtime.KeepAlive(tag)
+	runtime.KeepAlive(value)
+	return int(applied), code
 }
 func (n Node) Identity() uint64 { return uint64(C.go_query_node_identity(n.ptr)) }

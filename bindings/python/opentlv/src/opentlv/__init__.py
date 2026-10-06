@@ -54,10 +54,10 @@ from opentlv.tag import Tag
 from opentlv.writer import Writer, element_encoded_size, encoded_size
 
 __version__ = version_string()
-from opentlv.program import QueryProgram, QueryExecution, QueryMatch
+from opentlv.program import QueryProgram, QueryExecution, QueryMatch, QueryProvider, QueryRule, QuerySchema
 
 __all__ = [
-    "QueryProgram", "QueryExecution", "QueryMatch",
+    "QueryProgram", "QueryExecution", "QueryMatch", "QueryProvider", "QueryRule", "QuerySchema",
     "__version__",
     "BufferTooShortError",
     "Document",

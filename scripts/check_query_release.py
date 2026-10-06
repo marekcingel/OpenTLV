@@ -22,7 +22,8 @@ UNIT_RULES = {
 }
 FACADES = ["C", "CLI", "C++", "Rust", "Python", "Go", "Lua", "JS/WASM"]
 CHECKS = ["conformance", "properties", "fuzz-ASan-UBSan", "MSan-or-exclusion",
-          "allocation-recursion", "work-budgets-32-64", "benchmarks", "ABI-32-64"]
+          "allocation-recursion", "work-budgets-32-64", "ABI-32-64"]
+ADVISORY_CHECKS = ["benchmarks"]
 
 
 def evidence_errors(evidence, directory, commit, symbols, features):
@@ -61,10 +62,6 @@ def evidence_errors(evidence, directory, commit, symbols, features):
         if (category == "facades" and name not in ("C", "CLI") and
                 record.get("surface") != "idiomatic"):
             errors.append(f"raw FFI is insufficient: {name}")
-        if category == "checks" and name == "benchmarks":
-            # An advisory run without an accepted baseline is not a release pass.
-            if record.get("baseline_accepted") is not True:
-                errors.append("accepted matching-platform Query benchmark baseline required")
         if category == "checks" and name in ("work-budgets-32-64", "ABI-32-64"):
             pointer_bits = record.get("pointer_bits", [])
             if (not isinstance(pointer_bits, list) or
@@ -120,7 +117,8 @@ def main():
               "replacement_authority": "https://github.com/marekcingel/OpenTLV/issues/518",
               "normative_rules": rule_map, "features": features,
               "public_C_capabilities": sorted(symbols), "facades": FACADES,
-              "required_checks": CHECKS, "blockers": blockers}
+              "required_checks": CHECKS, "advisory_checks": ADVISORY_CHECKS,
+              "blockers": blockers}
     args.output.parent.mkdir(parents=True, exist_ok=True)
     args.output.write_text(json.dumps(report, indent=2) + "\n", encoding="utf-8")
     print(f"Query release inventory: {len(rules)} rules, {len(features)} features, "

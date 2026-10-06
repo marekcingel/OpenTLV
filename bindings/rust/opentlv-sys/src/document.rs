@@ -4,6 +4,18 @@
 //! Optional owning Document API declarations.
 use super::*;
 extern "C" {
+    /// Edit a finalized compiled selection using exclusive explicit target storage.
+    pub fn tlv_document_query_edit(
+        document: *mut tlv_document_t,
+        exec: *mut tlv_query_exec_t,
+        kind: c_int,
+        tag: tlv_tag_t,
+        value: *const u8,
+        size: usize,
+        targets: *mut *mut tlv_node_t,
+        capacity: usize,
+        applied: *mut usize,
+    ) -> tlv_result_t;
     /// Stable native node identity, scoped to its owning Document.
     pub fn tlv_node_identity(node: *const tlv_node_t) -> u64;
 }

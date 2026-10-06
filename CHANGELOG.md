@@ -9,7 +9,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Fixed
 
-- Require accepted benchmark baselines and both 32-bit and 64-bit validation artifacts in the Query release gate, and reject malformed candidate evidence. (#523)
+- Require both 32-bit and 64-bit validation artifacts in the Query release gate, and reject malformed candidate evidence. (#523)
 - Preserve separated path tokens when formatting compiled Query programs, reject aliased image-loading storage before writes, and reject invalid benchmark measurements in Query release budgets. (#523)
 - Initialize Lua Query execution information correctly, keep Go Query tests compatible with disabled BER, and restore strict Clang Query builds. (#523)
 - Enable ASN.1 tag and date capabilities for compiled CLI Query expressions using BER, DER and CER. (#523)
@@ -65,6 +65,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Changed
 
+- Keep Query benchmark measurements advisory while Query functionality is completed, without requiring accepted baselines for release. (#523)
 - Accept full compiled Query syntax in `otlv query` while preserving existing exact-path output, and distinguish false/zero scalar success from empty node selections. (#522)
 - **Breaking:** Replace public Query fields with opaque copyable storage and validated accessors; rebuild native consumers and migrate direct field access. (#519)
 - Promote Protocol Inference to architectural Phase 3 and move Compilation to Phase 4; clarify shared model construction, OTLV tooling scope and independent SemVer versioning. (#516)

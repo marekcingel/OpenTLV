@@ -19,6 +19,29 @@ def _call(function, *args):
 
 
 @dataclass(frozen=True)
+class QueryProvider:
+    """One closed conversion provider with a stable nonzero uint32 capability ID.
+
+    ``decode(value, metadata)`` receives copied Value bytes and optional
+    owned ``QueryMatch`` metadata. Return int for num/bcd/date or str for
+    text. String results are copied into explicitly bounded native scratch.
+    Callback exceptions propagate; callback work and Python allocations lie
+    outside the C engine's allocation and work contracts.
+    """
+    id: int
+    decode: object
+    max_result_bytes: int = 0
+
+    def __post_init__(self):
+        if type(self.id) is not int or not 0 < self.id <= 0xffffffff:
+            raise ValueError("provider ID must be nonzero uint32")
+        if not callable(self.decode):
+            raise TypeError("provider decoder must be callable")
+        if type(self.max_result_bytes) is not int or self.max_result_bytes < 0:
+            raise ValueError("nonnegative result capacity required")
+
+
+@dataclass(frozen=True)
 class QueryMatch:
     """Owned event snapshot; copied bytes remain valid after reset/input replacement."""
     element: Element
@@ -57,10 +80,21 @@ class QueryProgram:
         self._names = {name: bytes(tag.data if isinstance(tag, Tag) else tag)
                        for name, tag in (names or {}).items()}
         allowed = {"max_text", "max_tokens", "max_nesting", "max_states", "max_pattern",
-                   "max_resolved_tag", "optimize"}
+                   "max_resolved_tag", "optimize", "providers"}
         if options.keys() - allowed:
             raise TypeError(f"unknown compile options: {options.keys() - allowed}")
         self._options = dict(options)
+        if "providers" in self._options:
+            selectors = {"num": 0, "bcd": 1, "text": 2, "date": 3}
+            providers = self._options["providers"]
+            if any(name not in selectors or not isinstance(provider, QueryProvider)
+                   for name, provider in providers.items()):
+                raise TypeError("providers map num/bcd/text/date to QueryProvider")
+            self._options["providers"] = {
+                selectors[name]: (provider.id, provider.max_result_bytes,
+                                  lambda value, metadata, decode=provider.decode:
+                                  decode(value, None if metadata is None else _match(metadata)))
+                for name, provider in providers.items()}
         self._capsule = _call(_native.program_create, data, int(self._format),
                               self._declarations, self._names, self._options, image)
 
@@ -113,6 +147,59 @@ class QueryProgram:
         matches = []
         execution.visit(reader, matches.append)
         return matches if self.info["result_kind"] == 0 else execution.result()
+
+
+@dataclass(frozen=True)
+class QueryRule:
+    """Select contexts and require a boolean assertion relative to each one."""
+    context: QueryProgram
+    assertion: QueryProgram
+    name: str = ""
+
+    def __post_init__(self):
+        if not isinstance(self.context, QueryProgram) or not isinstance(self.assertion, QueryProgram):
+            raise TypeError("compiled Query programs required")
+        if not isinstance(self.name, str) or "\0" in self.name:
+            raise ValueError("NUL-free rule name required")
+
+
+class QuerySchema:
+    """Owning contextual Schema composition over the canonical C validator.
+
+    Programs and providers remain alive independently of subsequent program
+    close calls. Rules must have compatible native environments. An empty
+    context selection succeeds; rules execute in order with explicit bounds.
+    """
+    def __init__(self, rules, *, format=None):
+        self.rules = tuple(rules)
+        if any(not isinstance(rule, QueryRule) for rule in self.rules):
+            raise TypeError("QueryRule entries required")
+        if any(rule.context._capsule is None or rule.assertion._capsule is None for rule in self.rules):
+            raise ReferenceError("Query program has been closed")
+        self._native_rules = tuple((rule.context._capsule, rule.assertion._capsule, rule.name)
+                                   for rule in self.rules)
+        self._format = _resolve_format(format if format is not None else
+                                       self.rules[0].context._format if self.rules else None)
+
+    def _validate(self, input, *, max_depth=64, max_nodes=1024, max_work=10000000,
+                  max_contexts=None, value_capacity=None):
+        _call(_native.query_schema, self._native_rules, input, int(self._format),
+              max_depth, max_nodes, max_work, max_nodes if max_contexts is None else max_contexts,
+              -1 if value_capacity is None else value_capacity)
+
+    def validate_buffer(self, input, **limits):
+        """Validate complete immutable input; D-only rules fail before traversal."""
+        self._validate(bytes(input), **limits)
+
+    def validate_document(self, document, **limits):
+        """Validate the immutable Document revision, including D rules."""
+        if document._capsule is None:
+            raise ReferenceError("Query Document has been closed")
+        document._query_active += 1
+        try:
+            self._validate(document._capsule, **limits)
+        finally:
+            document._query_active -= 1
 
 
 class QueryExecution:
@@ -216,8 +303,12 @@ class QueryExecution:
         if document._capsule is None:
             raise ReferenceError("Query Document has been closed")
         capacity = document.encoded_size if value_capacity is None else value_capacity
-        _call(_native.execution_document, self._capsule, document._capsule,
-              document._node_ptr(context), capacity)
+        document._query_active += 1
+        try:
+            _call(_native.execution_document, self._capsule, document._capsule,
+                  document._node_ptr(context), capacity)
+        finally:
+            document._query_active -= 1
         self._document = document
         return self
 
@@ -225,6 +316,46 @@ class QueryExecution:
         """Return an owned finalized scalar; node results use next()."""
         self._check()
         return _call(_native.execution_result, self._capsule)
+
+    def edit_document(self, kind, *, tag=b"", value=b"", target_capacity=None):
+        """Edit a finalized selection: remove, replace or insert_after.
+
+        C resolves ancestor overlap and prevalidates framing before mutation.
+        Return the applied count; errors expose ``applied`` for partial commits.
+        Short target capacity preserves the selection for a retry. Edits
+        invalidate prior Document results and checked erased Nodes.
+        """
+        self._check()
+        if self._document is None:
+            raise ValueError("evaluate_document must precede editing")
+        self._document._assert_mutable()
+        kinds = {"remove": 0, "replace": 1, "insert_after": 2}
+        if kind not in kinds:
+            raise ValueError("remove, replace or insert_after required")
+        capacity = self._limits[1] if target_capacity is None else target_capacity
+        tag_data = bytes(tag.data if isinstance(tag, Tag) else tag)
+        value_data = bytes(value)
+        previous_generation = self._document._query_generation
+        previous_lifetimes = self._document._lifetimes
+        replacement_lifetimes = type(previous_lifetimes)()
+        self._document._query_generation += 1
+        self._document._lifetimes = replacement_lifetimes
+        self._document._query_active += 1
+        applied = None
+        try:
+            applied = _call(_native.execution_edit, self._capsule, kinds[kind],
+                            tag_data, value_data, capacity)
+            return applied
+        except Exception as error:
+            applied = getattr(error, "applied", None)
+            raise
+        finally:
+            self._document._query_active -= 1
+            # Invalidate before entering C, including the signal-delivery window
+            # after a native mutation. Restore handles only with a known zero count.
+            if applied == 0:
+                self._document._query_generation = previous_generation
+                self._document._lifetimes = previous_lifetimes
 
     def next(self, reader=None):
         """Pull one match; END_OF_BUFFER becomes StopIteration, not NEED_MORE_DATA."""

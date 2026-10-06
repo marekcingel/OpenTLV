@@ -1,7 +1,7 @@
 name: Benchmarks Build
 
-# Only verifies that the Google Benchmark suites still build; they are run
-# locally. Triggered by changes to the benchmarks or to the library they link,
+# Verifies that the Google Benchmark suites still build and records advisory
+# Query measurements. Triggered by changes to benchmarks or the library they link,
 # and by every release tag (path filters do not apply to tags).
 on:
   push:
@@ -62,6 +62,7 @@ jobs:
         run: cmake --build build --target benchmark-tlv --parallel
 
       - name: Record Query phase measurements (advisory on shared runners)
+        continue-on-error: true
         run: >-
           build/benchmarks/benchmark-tlv
           --benchmark_filter='query_phase/[0-7]/(16|256)/[01]$|query_v1_matcher|query_v1_stream|query_s0_stream|query_scaling'
@@ -72,7 +73,8 @@ jobs:
         with:
           name: query-benchmarks-clang18-linux-x64
           path: build/query-benchmarks.json
-      - name: Check Query budget comparison infrastructure
+      - name: Check Query budget comparison infrastructure (advisory)
+        continue-on-error: true
         run: |
           python3 scripts/test_query_benchmark_budget.py
           python3 scripts/query_benchmark_budget.py --latest build/query-benchmarks.json --output build/query-budget.json

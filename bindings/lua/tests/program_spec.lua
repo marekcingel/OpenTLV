@@ -10,6 +10,61 @@ local function fails(run, code)
     return err
 end
 local options = {variables = {min = "integer"}, optimize = true}
+local calls = {}
+local providers = {num = {id = 101, decode = function(value, metadata)
+    calls[#calls + 1] = metadata
+    return string.byte(value) * 10
+end}}
+local custom = tlv.query_program("num(//5A)", f, {providers = providers})
+providers.num = nil
+collectgarbage("collect")
+local ce = custom:execution()
+ce:set_input(b(0x5a, 1, 3))
+ce:visit(function() end)
+assert(ce:result() == 30 and calls[#calls].offset == 0)
+local loaded_custom = tlv.query_program_load(custom:image(), f, {providers = {
+    num = {id = 101, decode = function(value) return string.byte(value) * 10 end}
+}})
+local le = loaded_custom:execution()
+le:set_input(b(0x5a, 1, 4))
+le:visit(function() end)
+assert(le:result() == 40)
+fails(function() tlv.query_program_load(custom:image(), f) end, 10)
+local tp = tlv.query_program("text(//5A)", f, {providers = {
+    text = {id = 102, max_result_bytes = 3, decode = function() return "a\0b" end}
+}})
+local te = tp:execution()
+te:set_input(b(0x5a, 0)); te:visit(function() end)
+assert(te:result() == "a\0b")
+local failing = tlv.query_program("num(//5A)", f, {providers = {
+    num = {id = 103, decode = function() error("provider failed") end}
+}}):execution()
+failing:set_input(b(0x5a, 0))
+assert(tostring(fails(function() failing:visit(function() end) end)):find("provider failed", 1, true))
+failing:reset()
+local reentry
+reentry = tlv.query_program("num(//5A)", f, {providers = {
+    num = {id = 104, decode = function() reentry:reset(); return 1 end}
+}}):execution()
+reentry:set_input(b(0x5a, 0))
+fails(function() reentry:visit(function() end) end, 10)
+reentry:reset()
+local feed_program = tlv.query_program("//5A", f)
+local feeding = feed_program:execution({retained = false})
+local selected = feeding:feed({kind = "element", tag = b(0x5a), value = b(1), offset = 7})
+assert(selected.offset == 7)
+fails(function() feeding:set_input(b(0x5a, 0)) end, 10)
+feeding:finish()
+assert(feeding:info().full_validation == 1)
+feeding:reset()
+fails(function() feeding:feed({kind = "end"}) end, 10)
+assert(feeding:info().invalid == 1)
+feeding:reset(); feeding:close(); feeding:close()
+local retained_feed = feed_program:execution()
+assert(retained_feed:feed({kind = "element", tag = b(0x5a), offset = 7}) == nil)
+retained_feed:finish()
+assert(retained_feed:next().offset == 7 and retained_feed:next() == nil)
+retained_feed:close()
 local p = tlv.query_program("count(//5A[@len >= $min])", f, options)
 assert(p:info().variable_slots == 1 and p:variables().min == 2)
 assert(#p:format() > 0 and #p:explain() > 0)
@@ -55,6 +110,21 @@ names:set_input(b(0x5a,0));names:visit(function() end);assert(names:result()==1)
 local diagnostic = fails(function() tlv.query_program("//5A[", f) end)
 assert(type(diagnostic.query) == "table" and type(diagnostic.query.begin)=="number")
 if tlv.document and tlv.formats.ber then
+    local edit_doc = tlv.document(b(0x70,6,0x5a,1,1,0x5a,1,2,0x5a,1,3),f)
+    local old_node = edit_doc:first()
+    local editing = tlv.query_program("//5A",f):execution()
+    editing:evaluate_document(edit_doc)
+    local short = fails(function() editing:edit_document("replace",nil,b(9),2) end,1)
+    assert(short.applied == 0)
+    assert(editing:edit_document("replace",nil,b(9),3) == 3)
+    fails(function() old_node:tag() end)
+    fails(function() editing:next() end,10)
+    editing:reset(); editing:evaluate_document(edit_doc)
+    assert(editing:edit_document("insert_after",b(0x5b),b(4),3) == 3)
+    local ancestors = tlv.query_program("//70 | //5A",f):execution()
+    ancestors:evaluate_document(edit_doc)
+    assert(ancestors:edit_document("remove") == 2)
+    assert(edit_doc:serialize() == b(0x5b,1,4))
     local doc = tlv.document(b(0x70,6,0x5a,1,1,0x5a,1,2),f)
     local selected = tlv.query_program("//5A/preceding-sibling::*",f):execution()
     selected:evaluate_document(doc)

@@ -3,6 +3,7 @@
 
 #ifndef OPENTLV_WASM_H
 #define OPENTLV_WASM_H
+#include <tlv/query/program.h>
 
 /*
  * Browser-facing boundary of the experimental OpenTLV WebAssembly build.
@@ -65,18 +66,36 @@ OPENTLV_WASM_API int opentlv_wasm_program_variable(opentlv_wasm_program_t*, cons
 OPENTLV_WASM_API int opentlv_wasm_program_name(opentlv_wasm_program_t*, const char*, const uint8_t*,
                                                size_t);
 OPENTLV_WASM_API int opentlv_wasm_program_option(opentlv_wasm_program_t*, int, size_t);
+/* Install one closed conversion callback before compilation. Integer/string
+ * result helpers avoid exposing private native struct layout to JavaScript. */
+OPENTLV_WASM_API int  opentlv_wasm_program_provider(opentlv_wasm_program_t*, int, uint32_t, size_t,
+                                                    tlv_query_decode_t);
+OPENTLV_WASM_API void opentlv_wasm_provider_integer(tlv_query_result_t*, uint32_t, uint32_t);
+OPENTLV_WASM_API void opentlv_wasm_provider_text(tlv_query_result_t*, const uint8_t*, size_t);
+OPENTLV_WASM_API size_t      opentlv_wasm_provider_event(const tlv_tree_event_t*, int);
 OPENTLV_WASM_API const char* opentlv_wasm_program_compile(opentlv_wasm_program_t*, const uint8_t*,
                                                           size_t, int);
 OPENTLV_WASM_API const char* opentlv_wasm_program_render(opentlv_wasm_program_t*, int);
-OPENTLV_WASM_API const uint8_t*            opentlv_wasm_program_image(opentlv_wasm_program_t*);
-OPENTLV_WASM_API size_t                    opentlv_wasm_program_image_size(opentlv_wasm_program_t*);
-OPENTLV_WASM_API void                      opentlv_wasm_program_free(opentlv_wasm_program_t*);
+OPENTLV_WASM_API const uint8_t* opentlv_wasm_program_image(opentlv_wasm_program_t*);
+OPENTLV_WASM_API size_t         opentlv_wasm_program_image_size(opentlv_wasm_program_t*);
+OPENTLV_WASM_API void           opentlv_wasm_program_free(opentlv_wasm_program_t*);
+OPENTLV_WASM_API void           opentlv_wasm_program_retain(opentlv_wasm_program_t*);
+OPENTLV_WASM_API const char* opentlv_wasm_schema_validate(opentlv_wasm_program_t*, const uint32_t*,
+                                                          const uint32_t*, size_t,
+                                                          opentlv_wasm_document_t*, const uint8_t*,
+                                                          size_t, size_t, size_t, size_t, size_t,
+                                                          size_t, int);
 OPENTLV_WASM_API opentlv_wasm_execution_t* opentlv_wasm_execution_new(opentlv_wasm_program_t*,
                                                                       size_t, size_t, size_t, int);
 OPENTLV_WASM_API const char* opentlv_wasm_execution_input(opentlv_wasm_execution_t*, const uint8_t*,
                                                           size_t, size_t, int);
 OPENTLV_WASM_API const char* opentlv_wasm_execution_bind(opentlv_wasm_execution_t*, const char*,
                                                          int, const char*, const uint8_t*, size_t);
+/* Feed complete source-less canonical events. END carries no Tag/Value.
+ * Reader input and raw feeds cannot be mixed before reset. */
+OPENTLV_WASM_API const char* opentlv_wasm_execution_feed(opentlv_wasm_execution_t*, int,
+                                                         const uint8_t*, size_t, const uint8_t*,
+                                                         size_t, size_t, size_t, int);
 /* Operations: 0 reset, 1 pull, 2 scalar, 3 status, 4 exists, 5 context,
  * 6 pruning, 7 finish. */
 OPENTLV_WASM_API const char* opentlv_wasm_execution_operation(opentlv_wasm_execution_t*, int,
@@ -87,6 +106,9 @@ OPENTLV_WASM_API opentlv_wasm_document_t* opentlv_wasm_document_new(opentlv_wasm
 OPENTLV_WASM_API void                     opentlv_wasm_document_free(opentlv_wasm_document_t*);
 OPENTLV_WASM_API const char* opentlv_wasm_execution_document(opentlv_wasm_execution_t*,
                                                              opentlv_wasm_document_t*, size_t);
+OPENTLV_WASM_API const char* opentlv_wasm_execution_edit(opentlv_wasm_execution_t*, int,
+                                                         const uint8_t*, size_t, const uint8_t*,
+                                                         size_t, size_t);
 /* Native node address is an internal token, checked against an immutable
  * identity before navigation or mutation. JS never dereferences it. */
 OPENTLV_WASM_API const char* opentlv_wasm_document_node(opentlv_wasm_document_t*, size_t,

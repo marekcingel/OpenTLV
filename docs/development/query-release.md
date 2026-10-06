@@ -20,11 +20,13 @@ passed public C `capabilities`; CLI lists common corpus feature IDs. Language
 facades need `surface: "idiomatic"`; raw FFI is insufficient. Required checks are
 listed in the generated report: conformance, properties, ASan/UBSan fuzzing, MSan
 or justified exclusion, allocation/recursion, 32/64-bit work/storage boundaries,
-benchmarks and ABI snapshots. Java/C# become additional gates when supported;
+and ABI snapshots. Java/C# become additional gates when supported;
 this repository does not claim those implementations.
 
-Benchmark records additionally require `baseline_accepted: true`; an advisory
-measurement alone cannot pass the release gate. Both `work-budgets-32-64` and
+Benchmarks are temporarily advisory while Query functionality is completed.
+Missing measurements, regressions, noisy timings and unaccepted baselines do
+not block this gate. The report lists benchmarks under `advisory_checks`.
+Both `work-budgets-32-64` and
 `ABI-32-64` records require `pointer_bits: [32, 64]`. Artifact paths must stay
 inside the evidence directory. Run `python scripts/test_query_release.py` to
 check rejection of stale, malformed, incomplete or modified evidence.
@@ -77,18 +79,20 @@ Benchmarks separate sizing, compilation, image loading, S0, S1, S2, prebuilt D a
 scalar execution, with optimization variants and program/workspace/candidate/
 scratch counters. Current inputs are project-owned MIT synthetic BER sequences,
 without imported captures. V1 matcher timings exclude parsing; overhead claims
-require identical event workloads. Short-run ratios are advisory. Release
-evidence must record platform, toolchain, repetitions, variance and an accepted
-regression threshold, plus depth/width/Value scaling.
+require identical event workloads. Measurements are advisory; performance
+optimization and accepted regression thresholds are deferred until Query
+functionality is complete. Retained measurements should record platform,
+toolchain, repetitions, variance and depth/width/Value scaling.
 
 `scripts/query_benchmark_budget.py` compares aggregate medians against a supplied
 baseline. Its initial advisory budget is 25% slowdown at at most 10% coefficient
 of variation. Both result contexts must carry the same `query_platform` identifier
 (OS, toolchain, architecture and controlled machine class). Missing/noisy/cross-
 platform measurements remain unverified; `--enforce` refuses them. These initial
-policy limits still need accepted per-platform release baselines, and are not an
-assertion of zero overhead relative to V1. Shared-runner CI records measurements
-and checks the comparison infrastructure without hard-failing noisy timings.
+policy limits are available for optional local comparisons, and are not an
+assertion of zero overhead relative to V1. The release gate does not invoke
+`--enforce` or require accepted baselines. Shared-runner CI records measurements
+without making measurement or comparison failures required checks.
 
 ## Public-facade evidence and candidate requirements
 
@@ -111,5 +115,5 @@ campaign reports retain binary hashes, commands, logs and minimized failures.
 `memory_campaign.py` retries only the documented pre-main MSan shadow-mapping
 failure, never a sanitizer finding. Candidate evidence must still be produced
 for the exact clean commit; local checks against an uncommitted worktree cannot
-be substituted for that evidence. Accepted platform-specific benchmark baselines
-and complete C capability coverage remain release gates.
+be substituted for that evidence. Complete C capability coverage remains a
+release gate; benchmark baselines are temporarily advisory.

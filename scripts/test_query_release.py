@@ -20,7 +20,7 @@ class ReleaseGate(unittest.TestCase):
         record = {"status": "passed", "artifact": "results.json",
                   "sha256": hashlib.sha256(self.artifact.read_bytes()).hexdigest(),
                   "surface": "idiomatic", "capabilities": ["tlv_query_compile", "child"],
-                  "pointer_bits": [32, 64], "baseline_accepted": True}
+                  "pointer_bits": [32, 64]}
         self.evidence = {"commit": "candidate", "phases": {}, "facades": {}, "checks": {}}
         for category, names in (("phases", [f"F{n}" for n in range(1, 6)]),
                                 ("facades", FACADES), ("checks", CHECKS)):
@@ -56,10 +56,17 @@ class ReleaseGate(unittest.TestCase):
         self.assertIn("raw FFI is insufficient: Rust", self.errors())
         self.assertIn("incomplete capabilities: facades/Lua", self.errors())
 
-    def test_advisory_benchmarks_and_single_architecture_cannot_release(self):
-        self.evidence["checks"]["benchmarks"]["baseline_accepted"] = False
+    def test_benchmarks_are_optional_and_advisory(self):
+        self.assertNotIn("benchmarks", CHECKS)
+        self.assertEqual(self.errors(), [])
+        for record in (None, {"status": "failed"},
+                       {"status": "passed", "baseline_accepted": False}):
+            with self.subTest(record=record):
+                self.evidence["checks"]["benchmarks"] = record
+                self.assertEqual(self.errors(), [])
+
+    def test_single_architecture_cannot_release(self):
         self.evidence["checks"]["ABI-32-64"]["pointer_bits"] = [64]
-        self.assertTrue(any("baseline" in error for error in self.errors()))
         self.assertTrue(any("32-bit" in error for error in self.errors()))
 
     def test_malformed_records_fail_closed(self):

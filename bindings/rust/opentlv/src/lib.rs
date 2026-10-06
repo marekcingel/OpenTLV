@@ -128,9 +128,12 @@ pub use writer::{
 use std::ffi::CStr;
 mod program;
 pub use program::{
-    ProgramError, ProgramOptions, ProgramResult, QueryBinding, QueryExecution, QueryMatch,
-    QueryProgram, QueryType, QueryValue,
+    ProgramError, ProgramOptions, ProgramResult, QueryBinding, QueryCodecError, QueryConversion,
+    QueryDecoded, QueryExecution, QueryMatch, QueryMetadata, QueryProgram, QueryProvider,
+    QueryType, QueryValue,
 };
+#[cfg(feature = "document")]
+pub use program::{QueryEdit, QueryEditError, QueryEditOptions};
 
 /// Returns the version of the linked OpenTLV C library, for example `"0.6.0"`.
 pub fn version() -> &'static str {

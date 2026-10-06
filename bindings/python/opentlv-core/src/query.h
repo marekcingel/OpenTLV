@@ -16,5 +16,7 @@ PyObject* opentlv_python_execution_info(PyObject*, PyObject*);
 PyObject* opentlv_python_execution_result(PyObject*, PyObject*);
 PyObject* opentlv_python_execution_control(PyObject*, PyObject*);
 PyObject* opentlv_python_execution_document(PyObject*, PyObject*);
+PyObject* opentlv_python_execution_edit(PyObject*, PyObject*);
+PyObject* opentlv_python_query_schema(PyObject*, PyObject*);
 PyObject* opentlv_python_execution_next(PyObject*, PyObject*);
 #endif

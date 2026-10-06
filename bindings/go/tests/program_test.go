@@ -35,6 +35,121 @@ func execution(t *testing.T, p *tlv.QueryProgram, retained bool) *tlv.QueryExecu
 	return q
 }
 
+func TestQueryCustomProvidersLifetimeImageAndErrors(t *testing.T) {
+	f, err := tlv.Builtin(tlv.BER)
+	if err != nil { t.Skip("BER disabled") }
+	options := tlv.ProgramOptions{Format: f, Optimize: true, Providers: map[tlv.QueryConversion]tlv.QueryProvider{
+		tlv.QueryNum: {ID: 101, Decode: func(value []byte, metadata *tlv.QueryMetadata) (tlv.QueryValue, tlv.CodecError) {
+			if metadata == nil || metadata.Offset != 0 { t.Error("missing metadata") }
+			return tlv.QueryValue{Type: tlv.QueryInteger, Integer: int64(value[0]) * 10}, 0
+		}},
+	}}
+	p, err := tlv.CompileQuery("num(//5A)", options)
+	if err != nil { t.Fatal(err) }
+	image, err := p.Image()
+	if err != nil { t.Fatal(err) }
+	if unexpected, err := tlv.LoadQuery(image, tlv.ProgramOptions{Format: f, Optimize: true}); err == nil {
+		unexpected.Close(); t.Fatal("accepted mismatched provider")
+	}
+	loaded, err := tlv.LoadQuery(image, options)
+	if err != nil { t.Fatal(err) }
+	q := execution(t, loaded, true)
+	p.Close(); loaded.Close()
+	runtime.GC()
+	if err := q.SetInput([]byte{0x5a, 1, 3}, 0, true); err != nil { t.Fatal(err) }
+	if err := q.Visit(func(tlv.QueryMatch) tlv.QueryVisit { return tlv.QueryContinue }); err != nil { t.Fatal(err) }
+	value, err := q.Result()
+	if err != nil || value.Integer != 30 { t.Fatal(value, err) }
+	for _, capacity := range []int{3, 2} {
+		options.Providers = map[tlv.QueryConversion]tlv.QueryProvider{tlv.QueryText: {ID: 102, MaxResultBytes: capacity,
+			Decode: func([]byte, *tlv.QueryMetadata) (tlv.QueryValue, tlv.CodecError) {
+				return tlv.QueryValue{Type: tlv.QueryString, String: "a\x00b"}, 0
+			}}}
+		text, err := tlv.CompileQuery("text(//5A)", options)
+		if err != nil { t.Fatal(err) }
+		e := execution(t, text, true); text.Close()
+		if err := e.SetInput([]byte{0x5a, 0}, 0, true); err != nil { t.Fatal(err) }
+		err = e.Visit(func(tlv.QueryMatch) tlv.QueryVisit { return tlv.QueryContinue })
+		if capacity == 2 {
+			var failure *tlv.ProgramError
+			if !errors.As(err, &failure) || failure.Codec != 2 { t.Fatal(err) }
+		} else {
+			value, resultErr := e.Result()
+			if err != nil || resultErr != nil || value.String != "a\x00b" { t.Fatal(value, err, resultErr) }
+		}
+	}
+}
+
+func TestQueryProviderPanicAndReentryDoNotCrossC(t *testing.T) {
+	f, err := tlv.Builtin(tlv.BER)
+	if err != nil { t.Skip("BER disabled") }
+	var active *tlv.QueryExecution
+	for _, panicProvider := range []bool{false, true} {
+		options := tlv.ProgramOptions{Format: f, Optimize: true, Providers: map[tlv.QueryConversion]tlv.QueryProvider{
+			tlv.QueryNum: {ID: 103, Decode: func([]byte, *tlv.QueryMetadata) (tlv.QueryValue, tlv.CodecError) {
+				if panicProvider { panic("provider panic") }
+				if err := active.Reset(); err == nil { t.Error("allowed callback reentry") }
+				return tlv.QueryValue{}, tlv.ErrCodecUnsupported
+			}},
+		}}
+		p, err := tlv.CompileQuery("num(//5A)", options)
+		if err != nil { t.Fatal(err) }
+		active = execution(t, p, true); p.Close()
+		if err := active.SetInput([]byte{0x5a, 0}, 0, true); err != nil { t.Fatal(err) }
+		err = active.Visit(func(tlv.QueryMatch) tlv.QueryVisit { return tlv.QueryContinue })
+		var failure *tlv.ProgramError
+		expected := 4; if panicProvider { expected = 3 }
+		if !errors.As(err, &failure) || failure.Codec != expected { t.Fatal(err) }
+		if err := active.Reset(); err != nil { t.Fatal(err) }
+	}
+}
+
+func TestQueryRawFeedsImmediateRetainedAndMalformed(t *testing.T) {
+	p := compiled(t, "//5A", nil)
+	for _, retained := range []bool{false, true} {
+		q := execution(t, p, retained)
+		item, err := q.Feed(tlv.QueryEvent{Kind: tlv.QueryElement, Tag: []byte{0x5a}, Value: []byte{1}, Offset: 7})
+		if err != nil { t.Fatal(err) }
+		if retained { if item != nil { t.Fatal("early retained publication") } } else if item == nil || item.Offset != 7 { t.Fatal(item) }
+		if err := q.SetInput([]byte{0x5a, 0}, 0, true); !errors.Is(err, tlv.ErrInvalidArg) { t.Fatal(err) }
+		if err := q.Finish(); err != nil { t.Fatal(err) }
+		if retained {
+			item, err := q.Next()
+			if err != nil || item.Offset != 7 { t.Fatal(item, err) }
+			if _, err := q.Next(); !errors.Is(err, tlv.ErrEndOfBuffer) { t.Fatal(err) }
+		}
+		if err := q.Reset(); err != nil { t.Fatal(err) }
+		if _, err := q.Feed(tlv.QueryEvent{Kind: tlv.QueryEnd}); !errors.Is(err, tlv.ErrInvalidArg) { t.Fatal(err) }
+		info, err := q.Info()
+		if err != nil || info["invalid"] != 1 { t.Fatal(info, err) }
+		if err := q.Reset(); err != nil { t.Fatal(err) }
+	}
+}
+func TestQueryCompletedDocumentEditRetryAndOverlap(t *testing.T) {
+	f, err := tlv.Builtin(tlv.BER)
+	if err != nil { t.Skip("BER disabled") }
+	wire := []byte{0x70, 6, 0x5a, 1, 1, 0x5a, 1, 2, 0x5a, 1, 3}
+	d, err := tlv.Parse(wire, f)
+	if err != nil { t.Fatal(err) }
+	defer d.Close()
+	p := compiled(t, "//5A", nil)
+	q := execution(t, p, true)
+	if err := q.EvaluateDocument(d, tlv.Node{}, -1); err != nil { t.Fatal(err) }
+	if applied, err := q.EditDocument(tlv.QueryReplace, nil, []byte{9}, 2); applied != 0 || !errors.Is(err, tlv.ErrBufferTooShort) { t.Fatal(applied, err) }
+	encoded, err := d.Encode()
+	if err != nil || !bytes.Equal(encoded, wire) { t.Fatal(encoded, err) }
+	if applied, err := q.EditDocument(tlv.QueryReplace, nil, []byte{9}, 3); applied != 3 || err != nil { t.Fatal(applied, err) }
+	if _, err := q.NextDocument(); !errors.Is(err, tlv.ErrInvalidArg) { t.Fatal(err) }
+	if err := q.Reset(); err != nil { t.Fatal(err) }
+	if err := q.EvaluateDocument(d, tlv.Node{}, -1); err != nil { t.Fatal(err) }
+	if applied, err := q.EditDocument(tlv.QueryInsertAfter, []byte{0x5b}, []byte{4}, 3); applied != 3 || err != nil { t.Fatal(applied, err) }
+	a := execution(t, compiled(t, "//70 | //5A", nil), true)
+	if err := a.EvaluateDocument(d, tlv.Node{}, -1); err != nil { t.Fatal(err) }
+	if applied, err := a.EditDocument(tlv.QueryRemove, nil, nil, 4); applied != 2 || err != nil { t.Fatal(applied, err) }
+	encoded, err = d.Encode()
+	if err != nil || !bytes.Equal(encoded, []byte{0x5b, 1, 4}) { t.Fatal(encoded, err) }
+}
+
 func TestCompiledProgramTypedBindingsAndImage(t *testing.T) {
 	p := compiled(t, "count(//5A[@len >= $min])", map[string]tlv.QueryType{"min": tlv.QueryInteger})
 	info, err := p.Info()

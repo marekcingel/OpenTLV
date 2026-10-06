@@ -29,6 +29,171 @@ pub enum QueryType {
     /// Validated UTF-8 string.
     String = 4,
 }
+/// One closed C conversion selector.
+#[derive(Clone, Copy, Debug, PartialEq, Eq)]
+#[repr(i32)]
+pub enum QueryConversion {
+    /// Domain integer conversion.
+    Num = 0,
+    /// Domain packed-decimal conversion.
+    Bcd = 1,
+    /// Domain UTF-8 conversion.
+    Text = 2,
+    /// Domain UTC Unix-seconds conversion.
+    Date = 3,
+}
+/// Owned callback output; text is copied to bounded native frame scratch.
+#[derive(Clone, Debug, PartialEq, Eq)]
+pub enum QueryDecoded {
+    /// Signed 64-bit integer.
+    Integer(i64),
+    /// Validated UTF-8 string.
+    String(String),
+}
+/// Original C codec failure returned by a custom provider.
+#[derive(Clone, Copy, Debug, PartialEq, Eq)]
+#[repr(i32)]
+pub enum QueryCodecError {
+    /// Missing required input.
+    NullArgument = 1,
+    /// Insufficient explicit scratch.
+    BufferTooShort = 2,
+    /// Invalid encoded value or callback panic.
+    InvalidValue = 3,
+    /// Unsupported conversion.
+    Unsupported = 4,
+    /// Invalid structure.
+    InvalidStructure = 5,
+}
+/// Optional complete-node metadata copied for a conversion callback.
+#[derive(Clone, Debug)]
+pub struct QueryMetadata {
+    /// Owned raw candidate Tag bytes.
+    pub tag: Vec<u8>,
+    /// Owned complete candidate Value bytes, independent of conversion input.
+    pub value: Vec<u8>,
+    /// Canonical BEGIN/ELEMENT kind.
+    pub kind: i32,
+    /// Node depth.
+    pub depth: usize,
+    /// Original event byte offset, when supplied by the producer.
+    pub offset: usize,
+}
+type DecodeProvider = dyn Fn(&[u8], Option<QueryMetadata>) -> std::result::Result<QueryDecoded, QueryCodecError>
+    + Send
+    + Sync;
+/// Owning thread-safe provider. Stable ID and scratch capacity enter the C image;
+/// callback code remains outside the engine's allocation and work contracts.
+#[derive(Clone)]
+pub struct QueryProvider {
+    /// Closed conversion selector replaced by this provider.
+    pub conversion: QueryConversion,
+    /// Nonzero caller-assigned uint32 compatibility ID.
+    pub id: u32,
+    /// Maximum UTF-8 output bytes in each native frame.
+    pub max_result_bytes: usize,
+    decode: Arc<DecodeProvider>,
+}
+impl std::fmt::Debug for QueryProvider {
+    fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
+        f.debug_struct("QueryProvider")
+            .field("conversion", &self.conversion)
+            .field("id", &self.id)
+            .field("max_result_bytes", &self.max_result_bytes)
+            .finish_non_exhaustive()
+    }
+}
+impl QueryProvider {
+    /// Retain a decoder for all programs/executions using it. Panics are contained
+    /// at the FFI boundary and reported as native InvalidValue codec diagnostics.
+    pub fn new<F>(conversion: QueryConversion, id: u32, max_result_bytes: usize, decode: F) -> Self
+    where
+        F: Fn(&[u8], Option<QueryMetadata>) -> std::result::Result<QueryDecoded, QueryCodecError>
+            + Send
+            + Sync
+            + 'static,
+    {
+        Self {
+            conversion,
+            id,
+            max_result_bytes,
+            decode: Arc::new(decode),
+        }
+    }
+}
+unsafe extern "C" fn decode_provider(
+    context: *const c_void,
+    event: *const native::tlv_tree_event_t,
+    data: *const u8,
+    size: usize,
+    scratch: *mut c_void,
+    capacity: usize,
+    result: *mut native::tlv_query_result_t,
+) -> i32 {
+    // SAFETY: the program owns its boxed providers; C lends complete bounded
+    // input and exclusive frame scratch for this synchronous invocation.
+    let provider = unsafe { &*context.cast::<QueryProvider>() };
+    let input = if size == 0 {
+        &[]
+    } else {
+        unsafe { slice::from_raw_parts(data, size) }
+    };
+    let metadata = if event.is_null() {
+        None
+    } else {
+        let event = unsafe { &*event };
+        let Ok(value_size) = usize::try_from(event.element.value.size) else {
+            return QueryCodecError::InvalidValue as i32;
+        };
+        Some(QueryMetadata {
+            tag: if event.element.tag.size == 0 {
+                Vec::new()
+            } else {
+                unsafe {
+                    slice::from_raw_parts(event.element.tag.data, event.element.tag.size).to_vec()
+                }
+            },
+            value: if event.element.value.size == 0 {
+                Vec::new()
+            } else {
+                unsafe { slice::from_raw_parts(event.element.value.data, value_size).to_vec() }
+            },
+            kind: event.kind,
+            depth: event.depth,
+            offset: event.offset,
+        })
+    };
+    match catch_unwind(AssertUnwindSafe(|| (provider.decode)(input, metadata))) {
+        Ok(Ok(value)) => {
+            let mut output: native::tlv_query_result_t = unsafe { zeroed() };
+            match value {
+                QueryDecoded::Integer(integer) => {
+                    output.kind = 2;
+                    output.integer = integer;
+                }
+                QueryDecoded::String(text) => {
+                    if text.len() > capacity {
+                        return QueryCodecError::BufferTooShort as i32;
+                    }
+                    if !text.is_empty() {
+                        unsafe {
+                            ptr::copy_nonoverlapping(text.as_ptr(), scratch.cast(), text.len())
+                        };
+                    }
+                    output.kind = 4;
+                    output.data = scratch.cast();
+                    output.size = text.len();
+                }
+            }
+            unsafe {
+                *result = output;
+            }
+            0
+        }
+        Ok(Err(code)) => code as i32,
+        Err(_) => QueryCodecError::InvalidValue as i32,
+    }
+}
 /// Complete owned native failure, independent of input/program lifetime.
 #[derive(Clone, Debug)]
 pub struct ProgramError {
@@ -129,6 +294,8 @@ pub struct ProgramOptions {
     pub variables: BTreeMap<String, QueryType>,
     /// Owned scoped symbolic spellings mapped to raw Tag bytes.
     pub names: BTreeMap<String, Vec<u8>>,
+    /// Owned custom conversion providers; duplicate selectors/IDs are rejected.
+    pub providers: Vec<QueryProvider>,
     /// Enable the canonical C optimizer.
     pub optimize: bool,
     /// Maximum Query text bytes.
@@ -156,6 +323,7 @@ impl Default for ProgramOptions {
             format: Format::Ber,
             variables: BTreeMap::new(),
             names: BTreeMap::new(),
+            providers: Vec::new(),
             optimize: true,
             max_text: config.max_text,
             max_tokens: config.max_tokens,
@@ -209,9 +377,10 @@ struct ProgramStorage {
     info: native::tlv_query_program_info_t,
     environment: native::tlv_query_environment_t,
     _hooks: Box<[native::tlv_query_hook_t]>,
+    _providers: Box<[QueryProvider]>,
 }
-// SAFETY: the image is immutable; every Format/provider points to immutable builtin
-// C storage. Resolver contexts are compile-only and never enter the image/environment.
+// SAFETY: the image is immutable; providers are either immutable builtin C storage
+// or owned Send + Sync Rust callbacks. Resolver contexts are compile-only.
 unsafe impl Send for ProgramStorage {}
 unsafe impl Sync for ProgramStorage {}
 /// Immutable program; clones share storage, while each execution owns distinct workspace.
@@ -219,7 +388,124 @@ unsafe impl Sync for ProgramStorage {}
 pub struct QueryProgram {
     storage: Arc<ProgramStorage>,
 }
+/// Completed-selection edit; C resolves overlapping targets and prevalidates framing.
+#[cfg(feature = "document")]
+pub enum QueryEdit<'a> {
+    /// Remove selected roots, with ancestor dominance.
+    Remove,
+    /// Replace complete Values, with ancestor dominance.
+    Replace(&'a [u8]),
+    /// Insert one sibling after every selected target.
+    InsertAfter {
+        /// Raw insertion Tag.
+        tag: &'a [u8],
+        /// Complete insertion Value.
+        value: &'a [u8],
+    },
+}
+/// Explicit bounded storage/work requirements for owning Document edits.
+#[cfg(feature = "document")]
+#[derive(Clone, Copy, Debug)]
+pub struct QueryEditOptions {
+    /// Maximum traversal depth.
+    pub depth: usize,
+    /// Retained node capacity, including nonmatches.
+    pub nodes: usize,
+    /// Native operation budget.
+    pub work: usize,
+    /// Target pointer entries; None uses nodes. Short capacity makes no changes.
+    pub target_capacity: Option<usize>,
+    /// Canonical Value snapshot bytes; None measures the Document.
+    pub value_capacity: Option<usize>,
+}
+#[cfg(feature = "document")]
+impl Default for QueryEditOptions {
+    fn default() -> Self {
+        Self {
+            depth: 64,
+            nodes: 1024,
+            work: 100000000,
+            target_capacity: None,
+            value_capacity: None,
+        }
+    }
+}
+/// Edit failure with the count of preceding committed mutations.
+#[cfg(feature = "document")]
+#[derive(Debug)]
+pub struct QueryEditError {
+    /// Original native failure.
+    pub failure: ProgramError,
+    /// Committed selected roots; no rollback is implied.
+    pub applied: usize,
+}
+#[cfg(feature = "document")]
+impl std::fmt::Display for QueryEditError {
+    fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
+        write!(f, "{} after {} edits", self.failure, self.applied)
+    }
+}
+#[cfg(feature = "document")]
+impl std::error::Error for QueryEditError {
+    fn source(&self) -> Option<&(dyn std::error::Error + 'static)> {
+        Some(&self.failure)
+    }
+}
 impl QueryProgram {
+    /// Select and edit exclusively borrowed Document storage through C. No Node
+    /// borrow can coexist with the mutable Document argument. Short target capacity
+    /// leaves the Document unchanged; retry this program with a larger bound.
+    #[cfg(feature = "document")]
+    pub fn edit_document(
+        &self,
+        document: &mut crate::Document<'_>,
+        edit: QueryEdit<'_>,
+        options: QueryEditOptions,
+    ) -> std::result::Result<usize, QueryEditError> {
+        let initial = |failure| QueryEditError {
+            failure,
+            applied: 0,
+        };
+        let raw = document.raw;
+        let mut execution = self
+            .execution(options.depth, options.nodes, options.work, true)
+            .map_err(initial)?;
+        execution
+            .evaluate_document(document, None, options.value_capacity)
+            .map_err(initial)?;
+        let capacity = options.target_capacity.unwrap_or(options.nodes);
+        let mut targets = Vec::<*mut native::tlv_node_t>::new();
+        targets
+            .try_reserve_exact(capacity)
+            .map_err(|_| initial(plain(native::TLV_ERR_OUT_OF_MEMORY).unwrap_err()))?;
+        targets.resize(capacity, ptr::null_mut());
+        let (kind, tag, value) = match edit {
+            QueryEdit::Remove => (0, &[][..], &[][..]),
+            QueryEdit::Replace(value) => (1, &[][..], value),
+            QueryEdit::InsertAfter { tag, value } => (2, tag, value),
+        };
+        let mut applied = 0;
+        // SAFETY: &mut Document excludes external node borrows. The private
+        // execution has yielded no Nodes; C collects/checks targets before writes.
+        let rc = unsafe {
+            native::tlv_document_query_edit(
+                raw,
+                execution.raw,
+                kind,
+                native::tlv_tag_t {
+                    data: tag.as_ptr(),
+                    size: tag.len(),
+                },
+                value.as_ptr(),
+                value.len(),
+                targets.as_mut_ptr(),
+                capacity,
+                &mut applied,
+            )
+        };
+        plain(rc).map_err(|failure| QueryEditError { failure, applied })?;
+        Ok(applied)
+    }
     /// Compile bounded UTF-8 text using caller-selected C options.
     pub fn compile(text: &str, options: &ProgramOptions) -> ProgramResult<Self> {
         Self::build(text.as_bytes(), options, false)
@@ -240,6 +526,32 @@ impl QueryProgram {
         } else {
             ptr::null()
         };
+        let providers = options.providers.clone().into_boxed_slice();
+        for (index, provider) in providers.iter().enumerate() {
+            if provider.id == 0
+                || providers[..index]
+                    .iter()
+                    .any(|other| other.conversion == provider.conversion || other.id == provider.id)
+            {
+                return Err(plain(native::TLV_ERR_INVALID_ARG).unwrap_err());
+            }
+            let hook = native::tlv_query_hook_t {
+                id: provider.id,
+                function: provider.conversion as i32,
+                scratch_size: provider.max_result_bytes,
+                scratch_alignment: 1,
+                context: (provider as *const QueryProvider).cast(),
+                decode: Some(decode_provider),
+            };
+            if let Some(slot) = hooks
+                .iter_mut()
+                .find(|hook| hook.function == provider.conversion as i32)
+            {
+                *slot = hook;
+            } else {
+                hooks.push(hook);
+            }
+        }
         let hooks = hooks.into_boxed_slice();
         let environment = native::tlv_query_environment_t {
             format: options.format.raw(),
@@ -357,6 +669,7 @@ impl QueryProgram {
                 info,
                 environment,
                 _hooks: hooks,
+                _providers: providers,
             }),
         })
     }
