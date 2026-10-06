@@ -11,5 +11,6 @@ var searchData=
   ['tlv_3a_3aemv_8',['emv',['../namespacetlv_1_1emv.html',1,'tlv']]],
   ['tlv_3a_3alldp_9',['lldp',['../namespacetlv_1_1lldp.html',1,'tlv']]],
   ['tlv_3a_3anative_10',['native',['../namespacetlv_1_1native.html',1,'tlv']]],
-  ['tlv_3a_3anfc_11',['nfc',['../namespacetlv_1_1nfc.html',1,'tlv']]]
+  ['tlv_3a_3anfc_11',['nfc',['../namespacetlv_1_1nfc.html',1,'tlv']]],
+  ['tlv_3a_3astatic_5fquery_12',['static_query',['../namespacetlv_1_1static__query.html',1,'tlv']]]
 ];

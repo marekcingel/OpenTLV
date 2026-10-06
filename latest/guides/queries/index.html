@@ -920,6 +920,28 @@
 </li>
       
         <li class="md-nav__item">
+  <a href="#static-c-plans-and-frontend-free-execution" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Static C plans and frontend-free execution
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#c11-constexpr-plans" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        C++11 constexpr plans
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
   <a href="#full-programs-and-integration" class="md-nav__link">
     <span class="md-ellipsis">
       
@@ -3415,6 +3437,28 @@
 </li>
       
         <li class="md-nav__item">
+  <a href="#static-c-plans-and-frontend-free-execution" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Static C plans and frontend-free execution
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#c11-constexpr-plans" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        C++11 constexpr plans
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
   <a href="#full-programs-and-integration" class="md-nav__link">
     <span class="md-ellipsis">
       
@@ -3522,6 +3566,78 @@ language uses caller-owned program and execution storage; see the
 Compiled execution supports S0/S1 streaming, explicitly retained S2 and Document D,
 typed variables and scalar results. The full language is selected explicitly by
 the compiled program APIs; the V1 helpers retain their smaller grammar.</p>
+<h2 id="static-c-plans-and-frontend-free-execution">Static C plans and frontend-free execution<a class="headerlink" href="#static-c-plans-and-frontend-free-execution" title="Permanent link">&para;</a></h2>
+<p>Runtime compilation and static C plans share the native representation in
+<code>&lt;tlv/query/plan.h&gt;</code> and the same S0/S1/S2/Document execution backends. Instructions
+contain resolved function selectors, metadata selectors, integer magnitudes,
+tag bytes/masks and parameter names. Execution never interprets query source.
+Source text is optional and used only for diagnostics and frontend formatting.</p>
+<p>The <a href="https://github.com/marekcingel/OpenTLV/blob/main/tests/query/plan.c">standalone C plan test</a> manually defines
+<code>/01[@len = $n]</code> as <code>static const</code> C data without source text. It validates the
+image with <code>tlv_query_plan_open</code>, discovers workspace with <code>tlv_query_exec_size</code>
+or <code>tlv_query_eval_size</code>, binds <code>n</code> with <code>tlv_query_exec_bind</code>, and executes using
+caller-owned storage. The frontend-enabled test also compiles the same expression,
+destroys its source spelling, and checks equivalent streaming and retained results
+for two parameter values. No C++ feature or heap allocation is needed by this path.</p>
+<p>A native image consists of a <code>tlv_query_plan_t</code> header, <code>count</code> consecutive
+<code>tlv_query_instruction_t</code> instructions, optional source bytes and a zero terminator,
+then the payload. Pass the exact logical extent in <code>reserved</code>, excluding trailing
+C structure padding. Instructions use backward references and <code>TLV_QUERY_PLAN_NONE</code>
+for absent operands/guards/reuse. The header and instructions require uint32 alignment.
+Borrowed plan storage must remain readable and immutable through execution.</p>
+<p><code>TLV_QUERY_PLAN_VERSION</code> is an exact compatibility check for this release-specific
+native layout, not a stable serialized ABI. Different byte order is rejected;
+generated C initializers naturally use the target's byte order. Rebuild generated
+plans when the version changes. <code>tlv_query_plan_open</code> checks bounded extents,
+references, operand types, arities, execution profiles and available capabilities
+without parsing or planning. The older <code>tlv_query_program_load</code> deliberately retains
+checked recompilation for runtime publication and resolver consistency.</p>
+<p>Resolved symbolic names become raw tag bytes. A changed model name-to-tag mapping
+requires rebuilding the plan. Codec hook IDs and semantic tag-provider IDs identify
+application-owned semantic contracts; execution checks these requirements against
+its borrowed environment. IDs must retain their meaning, or the application must
+assign new IDs. No unstable schema index or model pointer is embedded in a plan.
+A universal model/schema fingerprint is left to the future model architecture.</p>
+<p>Configure <code>OPENTLV_QUERY_FRONTEND=OFF</code> to omit the runtime compiler and V1 text
+parser. Execution, plan validation, parameter introspection and explain remain
+available. Text-dependent CLI, examples, benchmarks, fuzzers and language-extension
+builds are skipped in that configuration, as are the broad frontend test suites;
+the independent C static-plan test remains enabled. Existing source-compilation
+facades require a frontend-enabled library.</p>
+<p><code>OPENTLV_QUERY_SET_OPERATIONS=OFF</code> omits union/intersection/difference execution
+from both backends. Compilation and static-plan validation reject these operations
+with <code>TLV_ERR_UNSUPPORTED_TYPE</code>; enabled operations preserve the same semantics.
+Document-only navigation additionally requires <code>OPENTLV_DOCUMENT</code>. These are
+capability choices within the same plan and execution architecture. Further
+operation-family switches and automatic <code>.otlv</code> code generation are future work.</p>
+<h2 id="c11-constexpr-plans">C++11 constexpr plans<a class="headerlink" href="#c11-constexpr-plans" title="Permanent link">&para;</a></h2>
+<p><code>&lt;tlv++/query/static.hpp&gt;</code> adds a typed compile-time builder over the same C plan:</p>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-1-1" name="__codelineno-1-1" href="#__codelineno-1-1"></a><span class="k">namespace</span><span class="w"> </span><span class="nn">q</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="nn">tlv</span><span class="o">::</span><span class="nn">static_query</span><span class="p">;</span>
+<a id="__codelineno-1-2" name="__codelineno-1-2" href="#__codelineno-1-2"></a><span class="k">static</span><span class="w"> </span><span class="k">constexpr</span><span class="w"> </span><span class="k">auto</span><span class="w"> </span><span class="n">selection</span><span class="w"> </span><span class="o">=</span>
+<a id="__codelineno-1-3" name="__codelineno-1-3" href="#__codelineno-1-3"></a><span class="w">    </span><span class="n">q</span><span class="o">::</span><span class="n">where</span><span class="p">(</span><span class="n">q</span><span class="o">::</span><span class="n">child</span><span class="o">&lt;</span><span class="mh">0x70</span><span class="o">&gt;</span><span class="p">()</span><span class="w"> </span><span class="o">/</span><span class="w"> </span><span class="n">q</span><span class="o">::</span><span class="n">descendant</span><span class="o">&lt;</span><span class="mh">0x5A</span><span class="o">&gt;</span><span class="p">(),</span>
+<a id="__codelineno-1-4" name="__codelineno-1-4" href="#__codelineno-1-4"></a><span class="w">             </span><span class="n">q</span><span class="o">::</span><span class="n">length</span><span class="p">()</span><span class="w"> </span><span class="o">&gt;=</span><span class="w"> </span><span class="n">q</span><span class="o">::</span><span class="n">parameter</span><span class="p">(</span><span class="s">"minimum"</span><span class="p">)).</span><span class="n">compile</span><span class="p">();</span>
+<a id="__codelineno-1-5" name="__codelineno-1-5" href="#__codelineno-1-5"></a><span class="k">static_assert</span><span class="p">(</span><span class="n">selection</span><span class="p">.</span><span class="n">header</span><span class="p">().</span><span class="n">variable_count</span><span class="w"> </span><span class="o">==</span><span class="w"> </span><span class="mi">1</span><span class="p">,</span><span class="w"> </span><span class="s">"one runtime parameter"</span><span class="p">);</span>
+<a id="__codelineno-1-6" name="__codelineno-1-6" href="#__codelineno-1-6"></a><span class="k">auto</span><span class="w"> </span><span class="n">program</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">selection</span><span class="p">.</span><span class="n">program</span><span class="p">();</span>
+</code></pre></div>
+<p>The <code>constexpr</code> initializer constructs the actual native instructions and payload
+at compile time. <code>program()</code> performs the canonical C validation and borrows that
+storage through <code>query_program::from_plan</code>; it does not compile query text.
+Initialize <code>query_execution::external</code>, bind <code>minimum</code>, and execute with the usual
+C++ facade or C APIs. Keep <code>selection</code> alive and immutable through every execution;
+borrowing from a temporary plan is rejected. Validation and caller-workspace
+execution do not allocate. <code>tlv_query_plan_info</code> exposes native execution requirements
+without compiler scratch or optimization-history metadata.</p>
+<p>This initial constexpr vocabulary includes exact/wildcard raw child and descendant
+paths, <code>where</code>, Value length and depth, signed integer and byte constants, Value
+bytes, named integer/bytes/string parameters, scalar comparisons and eager Boolean
+AND/OR. Empty tag byte packs mean wildcard. Repeated parameter names share one slot;
+conflicting types and invalid names fail constant evaluation. The builder bounds
+plans to 128 instructions and 65,536 payload bytes. It composes instructions directly;
+it does not provide a constexpr text parser or duplicate the full Query frontend.
+The existing runtime text builder remains available for the full language.</p>
+<p>The <a href="https://github.com/marekcingel/OpenTLV/blob/main/tests/query/constexpr.cpp">C++11 constexpr test</a> uses <code>static_assert</code>
+checks, allocation instrumentation, runtime/static parity in both execution modes,
+and frontend-disabled builds. C-only static plans remain independently supported.</p>
 <h2 id="full-programs-and-integration">Full programs and integration<a class="headerlink" href="#full-programs-and-integration" title="Permanent link">&para;</a></h2>
 <p>C++ applications include <code>tlv++/query/program.hpp</code> for <code>tlv::query_program</code> and
 <code>tlv::query_execution</code>. <code>query_program::compile(std::string, options)</code> preserves
@@ -3627,15 +3743,15 @@ Rust, Python, Go, Lua and JS/WASM parity remains required before F4 (#522) close
 these C/C++ integrations alone do not complete that phase.</p>
 <h2 id="v1-exact-paths">V1 exact paths<a class="headerlink" href="#v1-exact-paths" title="Permanent link">&para;</a></h2>
 <p>A query is a list of hexadecimal tags separated by <code>/</code>:</p>
-<div class="highlight"><pre><span></span><code><a id="__codelineno-1-1" name="__codelineno-1-1" href="#__codelineno-1-1"></a>6F/A5/50
+<div class="highlight"><pre><span></span><code><a id="__codelineno-2-1" name="__codelineno-2-1" href="#__codelineno-2-1"></a>6F/A5/50
 </code></pre></div>
 <p>The first tag names a top-level element, each following tag one of its direct
 children. For the structure</p>
-<div class="highlight"><pre><span></span><code><a id="__codelineno-2-1" name="__codelineno-2-1" href="#__codelineno-2-1"></a>6F
-<a id="__codelineno-2-2" name="__codelineno-2-2" href="#__codelineno-2-2"></a>├── 84
-<a id="__codelineno-2-3" name="__codelineno-2-3" href="#__codelineno-2-3"></a>└── A5
-<a id="__codelineno-2-4" name="__codelineno-2-4" href="#__codelineno-2-4"></a>    ├── 50
-<a id="__codelineno-2-5" name="__codelineno-2-5" href="#__codelineno-2-5"></a>    └── 9F38
+<div class="highlight"><pre><span></span><code><a id="__codelineno-3-1" name="__codelineno-3-1" href="#__codelineno-3-1"></a>6F
+<a id="__codelineno-3-2" name="__codelineno-3-2" href="#__codelineno-3-2"></a>├── 84
+<a id="__codelineno-3-3" name="__codelineno-3-3" href="#__codelineno-3-3"></a>└── A5
+<a id="__codelineno-3-4" name="__codelineno-3-4" href="#__codelineno-3-4"></a>    ├── 50
+<a id="__codelineno-3-5" name="__codelineno-3-5" href="#__codelineno-3-5"></a>    └── 9F38
 </code></pre></div>
 <p><code>6F/A5/50</code> addresses the <code>50</code> inside <code>A5</code> inside <code>6F</code>. It does not address a
 <code>50</code> anywhere else, and when a tag repeats it addresses every element the path
@@ -3655,30 +3771,30 @@ their cursor/storage choices and error handling differ.</p>
 <div class="tabbed-set tabbed-alternate" data-tabs="1:2"><input checked="checked" id="__tabbed_1_1" name="__tabbed_1" type="radio" /><input id="__tabbed_1_2" name="__tabbed_1" type="radio" /><div class="tabbed-labels"><label for="__tabbed_1_1">C</label><label for="__tabbed_1_2">C++</label></div>
 <div class="tabbed-content">
 <div class="tabbed-block">
-<div class="highlight"><pre><span></span><code><a id="__codelineno-3-1" name="__codelineno-3-1" href="#__codelineno-3-1"></a><span class="cp">#include</span><span class="w"> </span><span class="cpf">"tlv/query/query.h"</span>
-<a id="__codelineno-3-2" name="__codelineno-3-2" href="#__codelineno-3-2"></a><span class="cp">#include</span><span class="w"> </span><span class="cpf">"tlv/builtins/asn1/ber.h"</span>
-<a id="__codelineno-3-3" name="__codelineno-3-3" href="#__codelineno-3-3"></a><span class="cp">#include</span><span class="w"> </span><span class="cpf">&lt;stdio.h&gt;</span>
-<a id="__codelineno-3-4" name="__codelineno-3-4" href="#__codelineno-3-4"></a>
-<a id="__codelineno-3-5" name="__codelineno-3-5" href="#__codelineno-3-5"></a><span class="k">static</span><span class="w"> </span><span class="n">tlv_visit_result_t</span><span class="w"> </span><span class="nf">print_match</span><span class="p">(</span><span class="k">const</span><span class="w"> </span><span class="n">tlv_element_t</span><span class="o">*</span><span class="w"> </span><span class="n">element</span><span class="p">,</span><span class="w"> </span><span class="kt">size_t</span><span class="w"> </span><span class="n">depth</span><span class="p">,</span>
-<a id="__codelineno-3-6" name="__codelineno-3-6" href="#__codelineno-3-6"></a><span class="w">                                      </span><span class="kt">size_t</span><span class="w"> </span><span class="n">offset</span><span class="p">,</span><span class="w"> </span><span class="kt">void</span><span class="o">*</span><span class="w"> </span><span class="n">context</span><span class="p">)</span><span class="w"> </span><span class="p">{</span>
-<a id="__codelineno-3-7" name="__codelineno-3-7" href="#__codelineno-3-7"></a><span class="w">    </span><span class="cm">/* element-&gt;value borrows the input and is valid only during this call. */</span>
-<a id="__codelineno-3-8" name="__codelineno-3-8" href="#__codelineno-3-8"></a><span class="w">    </span><span class="p">(</span><span class="kt">void</span><span class="p">)</span><span class="n">depth</span><span class="p">;</span>
-<a id="__codelineno-3-9" name="__codelineno-3-9" href="#__codelineno-3-9"></a><span class="w">    </span><span class="p">(</span><span class="kt">void</span><span class="p">)</span><span class="n">context</span><span class="p">;</span>
-<a id="__codelineno-3-10" name="__codelineno-3-10" href="#__codelineno-3-10"></a><span class="w">    </span><span class="n">printf</span><span class="p">(</span><span class="s">"match at offset %zu, %llu bytes</span><span class="se">\n</span><span class="s">"</span><span class="p">,</span><span class="w"> </span><span class="n">offset</span><span class="p">,</span>
-<a id="__codelineno-3-11" name="__codelineno-3-11" href="#__codelineno-3-11"></a><span class="w">           </span><span class="p">(</span><span class="kt">unsigned</span><span class="w"> </span><span class="kt">long</span><span class="w"> </span><span class="kt">long</span><span class="p">)</span><span class="n">element</span><span class="o">-&gt;</span><span class="n">value</span><span class="p">.</span><span class="n">size</span><span class="p">);</span>
-<a id="__codelineno-3-12" name="__codelineno-3-12" href="#__codelineno-3-12"></a><span class="w">    </span><span class="k">return</span><span class="w"> </span><span class="n">TLV_VISIT_CONTINUE</span><span class="p">;</span>
-<a id="__codelineno-3-13" name="__codelineno-3-13" href="#__codelineno-3-13"></a><span class="p">}</span>
-<a id="__codelineno-3-14" name="__codelineno-3-14" href="#__codelineno-3-14"></a>
-<a id="__codelineno-3-15" name="__codelineno-3-15" href="#__codelineno-3-15"></a><span class="n">tlv_query_t</span><span class="w"> </span><span class="n">query</span><span class="p">;</span>
-<a id="__codelineno-3-16" name="__codelineno-3-16" href="#__codelineno-3-16"></a><span class="kt">size_t</span><span class="w"> </span><span class="n">text_offset</span><span class="p">;</span>
-<a id="__codelineno-3-17" name="__codelineno-3-17" href="#__codelineno-3-17"></a><span class="n">tlv_result_t</span><span class="w"> </span><span class="n">rc</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">tlv_query_parse</span><span class="p">(</span><span class="s">"6F/A5/50"</span><span class="p">,</span><span class="w"> </span><span class="o">&amp;</span><span class="n">query</span><span class="p">,</span><span class="w"> </span><span class="o">&amp;</span><span class="n">text_offset</span><span class="p">);</span>
-<a id="__codelineno-3-18" name="__codelineno-3-18" href="#__codelineno-3-18"></a><span class="cm">/* On TLV_ERR_INVALID_ARG, text_offset is the index of the offending character. */</span>
-<a id="__codelineno-3-19" name="__codelineno-3-19" href="#__codelineno-3-19"></a><span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="n">rc</span><span class="w"> </span><span class="o">!=</span><span class="w"> </span><span class="n">TLV_OK</span><span class="p">)</span><span class="w"> </span><span class="k">return</span><span class="w"> </span><span class="mi">1</span><span class="p">;</span>
-<a id="__codelineno-3-20" name="__codelineno-3-20" href="#__codelineno-3-20"></a>
-<a id="__codelineno-3-21" name="__codelineno-3-21" href="#__codelineno-3-21"></a><span class="kt">size_t</span><span class="w"> </span><span class="n">error_offset</span><span class="p">;</span>
-<a id="__codelineno-3-22" name="__codelineno-3-22" href="#__codelineno-3-22"></a><span class="n">rc</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">tlv_query_visit_buffer</span><span class="p">(</span><span class="n">data</span><span class="p">,</span><span class="w"> </span><span class="n">size</span><span class="p">,</span><span class="w"> </span><span class="o">&amp;</span><span class="n">tlv_format_ber</span><span class="p">,</span><span class="w"> </span><span class="o">&amp;</span><span class="n">query</span><span class="p">,</span><span class="w"> </span><span class="n">TLV_TREE_DEFAULT_DEPTH</span><span class="p">,</span><span class="w"> </span><span class="mi">100000</span><span class="p">,</span><span class="w"> </span><span class="n">print_match</span><span class="p">,</span>
-<a id="__codelineno-3-23" name="__codelineno-3-23" href="#__codelineno-3-23"></a><span class="w">                    </span><span class="nb">NULL</span><span class="p">,</span><span class="w"> </span><span class="o">&amp;</span><span class="n">error_offset</span><span class="p">);</span>
-<a id="__codelineno-3-24" name="__codelineno-3-24" href="#__codelineno-3-24"></a><span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="n">rc</span><span class="w"> </span><span class="o">!=</span><span class="w"> </span><span class="n">TLV_OK</span><span class="p">)</span><span class="w"> </span><span class="k">return</span><span class="w"> </span><span class="mi">1</span><span class="p">;</span>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-4-1" name="__codelineno-4-1" href="#__codelineno-4-1"></a><span class="cp">#include</span><span class="w"> </span><span class="cpf">"tlv/query/query.h"</span>
+<a id="__codelineno-4-2" name="__codelineno-4-2" href="#__codelineno-4-2"></a><span class="cp">#include</span><span class="w"> </span><span class="cpf">"tlv/builtins/asn1/ber.h"</span>
+<a id="__codelineno-4-3" name="__codelineno-4-3" href="#__codelineno-4-3"></a><span class="cp">#include</span><span class="w"> </span><span class="cpf">&lt;stdio.h&gt;</span>
+<a id="__codelineno-4-4" name="__codelineno-4-4" href="#__codelineno-4-4"></a>
+<a id="__codelineno-4-5" name="__codelineno-4-5" href="#__codelineno-4-5"></a><span class="k">static</span><span class="w"> </span><span class="n">tlv_visit_result_t</span><span class="w"> </span><span class="nf">print_match</span><span class="p">(</span><span class="k">const</span><span class="w"> </span><span class="n">tlv_element_t</span><span class="o">*</span><span class="w"> </span><span class="n">element</span><span class="p">,</span><span class="w"> </span><span class="kt">size_t</span><span class="w"> </span><span class="n">depth</span><span class="p">,</span>
+<a id="__codelineno-4-6" name="__codelineno-4-6" href="#__codelineno-4-6"></a><span class="w">                                      </span><span class="kt">size_t</span><span class="w"> </span><span class="n">offset</span><span class="p">,</span><span class="w"> </span><span class="kt">void</span><span class="o">*</span><span class="w"> </span><span class="n">context</span><span class="p">)</span><span class="w"> </span><span class="p">{</span>
+<a id="__codelineno-4-7" name="__codelineno-4-7" href="#__codelineno-4-7"></a><span class="w">    </span><span class="cm">/* element-&gt;value borrows the input and is valid only during this call. */</span>
+<a id="__codelineno-4-8" name="__codelineno-4-8" href="#__codelineno-4-8"></a><span class="w">    </span><span class="p">(</span><span class="kt">void</span><span class="p">)</span><span class="n">depth</span><span class="p">;</span>
+<a id="__codelineno-4-9" name="__codelineno-4-9" href="#__codelineno-4-9"></a><span class="w">    </span><span class="p">(</span><span class="kt">void</span><span class="p">)</span><span class="n">context</span><span class="p">;</span>
+<a id="__codelineno-4-10" name="__codelineno-4-10" href="#__codelineno-4-10"></a><span class="w">    </span><span class="n">printf</span><span class="p">(</span><span class="s">"match at offset %zu, %llu bytes</span><span class="se">\n</span><span class="s">"</span><span class="p">,</span><span class="w"> </span><span class="n">offset</span><span class="p">,</span>
+<a id="__codelineno-4-11" name="__codelineno-4-11" href="#__codelineno-4-11"></a><span class="w">           </span><span class="p">(</span><span class="kt">unsigned</span><span class="w"> </span><span class="kt">long</span><span class="w"> </span><span class="kt">long</span><span class="p">)</span><span class="n">element</span><span class="o">-&gt;</span><span class="n">value</span><span class="p">.</span><span class="n">size</span><span class="p">);</span>
+<a id="__codelineno-4-12" name="__codelineno-4-12" href="#__codelineno-4-12"></a><span class="w">    </span><span class="k">return</span><span class="w"> </span><span class="n">TLV_VISIT_CONTINUE</span><span class="p">;</span>
+<a id="__codelineno-4-13" name="__codelineno-4-13" href="#__codelineno-4-13"></a><span class="p">}</span>
+<a id="__codelineno-4-14" name="__codelineno-4-14" href="#__codelineno-4-14"></a>
+<a id="__codelineno-4-15" name="__codelineno-4-15" href="#__codelineno-4-15"></a><span class="n">tlv_query_t</span><span class="w"> </span><span class="n">query</span><span class="p">;</span>
+<a id="__codelineno-4-16" name="__codelineno-4-16" href="#__codelineno-4-16"></a><span class="kt">size_t</span><span class="w"> </span><span class="n">text_offset</span><span class="p">;</span>
+<a id="__codelineno-4-17" name="__codelineno-4-17" href="#__codelineno-4-17"></a><span class="n">tlv_result_t</span><span class="w"> </span><span class="n">rc</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">tlv_query_parse</span><span class="p">(</span><span class="s">"6F/A5/50"</span><span class="p">,</span><span class="w"> </span><span class="o">&amp;</span><span class="n">query</span><span class="p">,</span><span class="w"> </span><span class="o">&amp;</span><span class="n">text_offset</span><span class="p">);</span>
+<a id="__codelineno-4-18" name="__codelineno-4-18" href="#__codelineno-4-18"></a><span class="cm">/* On TLV_ERR_INVALID_ARG, text_offset is the index of the offending character. */</span>
+<a id="__codelineno-4-19" name="__codelineno-4-19" href="#__codelineno-4-19"></a><span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="n">rc</span><span class="w"> </span><span class="o">!=</span><span class="w"> </span><span class="n">TLV_OK</span><span class="p">)</span><span class="w"> </span><span class="k">return</span><span class="w"> </span><span class="mi">1</span><span class="p">;</span>
+<a id="__codelineno-4-20" name="__codelineno-4-20" href="#__codelineno-4-20"></a>
+<a id="__codelineno-4-21" name="__codelineno-4-21" href="#__codelineno-4-21"></a><span class="kt">size_t</span><span class="w"> </span><span class="n">error_offset</span><span class="p">;</span>
+<a id="__codelineno-4-22" name="__codelineno-4-22" href="#__codelineno-4-22"></a><span class="n">rc</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">tlv_query_visit_buffer</span><span class="p">(</span><span class="n">data</span><span class="p">,</span><span class="w"> </span><span class="n">size</span><span class="p">,</span><span class="w"> </span><span class="o">&amp;</span><span class="n">tlv_format_ber</span><span class="p">,</span><span class="w"> </span><span class="o">&amp;</span><span class="n">query</span><span class="p">,</span><span class="w"> </span><span class="n">TLV_TREE_DEFAULT_DEPTH</span><span class="p">,</span><span class="w"> </span><span class="mi">100000</span><span class="p">,</span><span class="w"> </span><span class="n">print_match</span><span class="p">,</span>
+<a id="__codelineno-4-23" name="__codelineno-4-23" href="#__codelineno-4-23"></a><span class="w">                    </span><span class="nb">NULL</span><span class="p">,</span><span class="w"> </span><span class="o">&amp;</span><span class="n">error_offset</span><span class="p">);</span>
+<a id="__codelineno-4-24" name="__codelineno-4-24" href="#__codelineno-4-24"></a><span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="n">rc</span><span class="w"> </span><span class="o">!=</span><span class="w"> </span><span class="n">TLV_OK</span><span class="p">)</span><span class="w"> </span><span class="k">return</span><span class="w"> </span><span class="mi">1</span><span class="p">;</span>
 </code></pre></div>
 <p><code>tlv_query_visit_buffer()</code> builds on <code>tlv_tree_reader_visit()</code>: it neither allocates nor
 converts the data into another structure, and the element given to the visitor
@@ -3694,32 +3810,32 @@ Retain both states across STOP or <code>TLV_NEED_MORE_DATA</code>; replace input
 owns <code>TLV_QUERY_MAX_STEPS</code> frames, while the cursor API uses caller-owned frames.</p>
 <p>To run a query on a traversal you already have, such as the DER validation traversal, feed each
 element to a matcher instead:</p>
-<div class="highlight"><pre><span></span><code><a id="__codelineno-4-1" name="__codelineno-4-1" href="#__codelineno-4-1"></a><span class="n">tlv_query_matcher_t</span><span class="w"> </span><span class="n">matcher</span><span class="p">;</span>
-<a id="__codelineno-4-2" name="__codelineno-4-2" href="#__codelineno-4-2"></a><span class="n">tlv_query_matcher_init</span><span class="p">(</span><span class="o">&amp;</span><span class="n">matcher</span><span class="p">,</span><span class="w"> </span><span class="o">&amp;</span><span class="n">query</span><span class="p">);</span>
-<a id="__codelineno-4-3" name="__codelineno-4-3" href="#__codelineno-4-3"></a><span class="cm">/* In a preorder visitor, with the element's tag and depth: */</span>
-<a id="__codelineno-4-4" name="__codelineno-4-4" href="#__codelineno-4-4"></a><span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="n">tlv_query_matcher_visit</span><span class="p">(</span><span class="o">&amp;</span><span class="n">matcher</span><span class="p">,</span><span class="w"> </span><span class="o">&amp;</span><span class="n">element</span><span class="o">-&gt;</span><span class="n">tag</span><span class="p">,</span><span class="w"> </span><span class="n">depth</span><span class="p">))</span><span class="w"> </span><span class="p">{</span>
-<a id="__codelineno-4-5" name="__codelineno-4-5" href="#__codelineno-4-5"></a><span class="w">    </span><span class="cm">/* the element is addressed by the query */</span>
-<a id="__codelineno-4-6" name="__codelineno-4-6" href="#__codelineno-4-6"></a><span class="p">}</span>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-5-1" name="__codelineno-5-1" href="#__codelineno-5-1"></a><span class="n">tlv_query_matcher_t</span><span class="w"> </span><span class="n">matcher</span><span class="p">;</span>
+<a id="__codelineno-5-2" name="__codelineno-5-2" href="#__codelineno-5-2"></a><span class="n">tlv_query_matcher_init</span><span class="p">(</span><span class="o">&amp;</span><span class="n">matcher</span><span class="p">,</span><span class="w"> </span><span class="o">&amp;</span><span class="n">query</span><span class="p">);</span>
+<a id="__codelineno-5-3" name="__codelineno-5-3" href="#__codelineno-5-3"></a><span class="cm">/* In a preorder visitor, with the element's tag and depth: */</span>
+<a id="__codelineno-5-4" name="__codelineno-5-4" href="#__codelineno-5-4"></a><span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="n">tlv_query_matcher_visit</span><span class="p">(</span><span class="o">&amp;</span><span class="n">matcher</span><span class="p">,</span><span class="w"> </span><span class="o">&amp;</span><span class="n">element</span><span class="o">-&gt;</span><span class="n">tag</span><span class="p">,</span><span class="w"> </span><span class="n">depth</span><span class="p">))</span><span class="w"> </span><span class="p">{</span>
+<a id="__codelineno-5-5" name="__codelineno-5-5" href="#__codelineno-5-5"></a><span class="w">    </span><span class="cm">/* the element is addressed by the query */</span>
+<a id="__codelineno-5-6" name="__codelineno-5-6" href="#__codelineno-5-6"></a><span class="p">}</span>
 </code></pre></div>
 </div>
 <div class="tabbed-block">
-<div class="highlight"><pre><span></span><code><a id="__codelineno-5-1" name="__codelineno-5-1" href="#__codelineno-5-1"></a><span class="cp">#include</span><span class="w"> </span><span class="cpf">"tlv++/query/query.hpp"</span>
-<a id="__codelineno-5-2" name="__codelineno-5-2" href="#__codelineno-5-2"></a><span class="cp">#include</span><span class="w"> </span><span class="cpf">&lt;iostream&gt;</span>
-<a id="__codelineno-5-3" name="__codelineno-5-3" href="#__codelineno-5-3"></a>
-<a id="__codelineno-5-4" name="__codelineno-5-4" href="#__codelineno-5-4"></a><span class="kt">size_t</span><span class="w"> </span><span class="n">text_offset</span><span class="p">;</span>
-<a id="__codelineno-5-5" name="__codelineno-5-5" href="#__codelineno-5-5"></a><span class="k">auto</span><span class="w"> </span><span class="n">query</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">tlv</span><span class="o">::</span><span class="n">query</span><span class="o">::</span><span class="n">parse</span><span class="p">(</span><span class="s">"6F/A5/50"</span><span class="p">,</span><span class="w"> </span><span class="o">&amp;</span><span class="n">text_offset</span><span class="p">);</span>
-<a id="__codelineno-5-6" name="__codelineno-5-6" href="#__codelineno-5-6"></a><span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="o">!</span><span class="n">query</span><span class="p">)</span><span class="w"> </span><span class="k">return</span><span class="w"> </span><span class="mi">1</span><span class="p">;</span><span class="w"> </span><span class="c1">// query.error().code; text_offset is the offending character</span>
-<a id="__codelineno-5-7" name="__codelineno-5-7" href="#__codelineno-5-7"></a>
-<a id="__codelineno-5-8" name="__codelineno-5-8" href="#__codelineno-5-8"></a><span class="k">auto</span><span class="w"> </span><span class="n">visited</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">query</span><span class="o">-&gt;</span><span class="n">visit_buffer</span><span class="p">(</span>
-<a id="__codelineno-5-9" name="__codelineno-5-9" href="#__codelineno-5-9"></a><span class="w">    </span><span class="n">tlv</span><span class="o">::</span><span class="n">bytes</span><span class="p">(</span><span class="n">data</span><span class="p">,</span><span class="w"> </span><span class="n">size</span><span class="p">),</span><span class="w"> </span><span class="n">tlv_format_ber</span><span class="p">,</span>
-<a id="__codelineno-5-10" name="__codelineno-5-10" href="#__codelineno-5-10"></a><span class="w">    </span><span class="n">TLV_TREE_DEFAULT_DEPTH</span><span class="p">,</span><span class="w"> </span><span class="mi">100000</span><span class="p">,</span>
-<a id="__codelineno-5-11" name="__codelineno-5-11" href="#__codelineno-5-11"></a><span class="w">    </span><span class="p">[](</span><span class="k">const</span><span class="w"> </span><span class="n">tlv</span><span class="o">::</span><span class="n">element_view</span><span class="o">&amp;</span><span class="w"> </span><span class="n">item</span><span class="p">,</span><span class="w"> </span><span class="kt">size_t</span><span class="w"> </span><span class="n">depth</span><span class="p">,</span><span class="w"> </span><span class="kt">size_t</span><span class="w"> </span><span class="n">offset</span><span class="p">)</span><span class="w"> </span><span class="p">{</span>
-<a id="__codelineno-5-12" name="__codelineno-5-12" href="#__codelineno-5-12"></a><span class="w">        </span><span class="c1">// item.value() borrows the input</span>
-<a id="__codelineno-5-13" name="__codelineno-5-13" href="#__codelineno-5-13"></a><span class="w">        </span><span class="p">(</span><span class="kt">void</span><span class="p">)</span><span class="n">depth</span><span class="p">;</span>
-<a id="__codelineno-5-14" name="__codelineno-5-14" href="#__codelineno-5-14"></a><span class="w">        </span><span class="n">std</span><span class="o">::</span><span class="n">cout</span><span class="w"> </span><span class="o">&lt;&lt;</span><span class="w"> </span><span class="s">"match at offset "</span><span class="w"> </span><span class="o">&lt;&lt;</span><span class="w"> </span><span class="n">offset</span><span class="w"> </span><span class="o">&lt;&lt;</span><span class="w"> </span><span class="s">", "</span><span class="w"> </span><span class="o">&lt;&lt;</span><span class="w"> </span><span class="n">item</span><span class="p">.</span><span class="n">value</span><span class="p">().</span><span class="n">size</span><span class="p">()</span><span class="w"> </span><span class="o">&lt;&lt;</span><span class="w"> </span><span class="s">" bytes</span><span class="se">\n</span><span class="s">"</span><span class="p">;</span>
-<a id="__codelineno-5-15" name="__codelineno-5-15" href="#__codelineno-5-15"></a><span class="w">        </span><span class="k">return</span><span class="w"> </span><span class="n">TLV_VISIT_CONTINUE</span><span class="p">;</span>
-<a id="__codelineno-5-16" name="__codelineno-5-16" href="#__codelineno-5-16"></a><span class="w">    </span><span class="p">});</span>
-<a id="__codelineno-5-17" name="__codelineno-5-17" href="#__codelineno-5-17"></a><span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="o">!</span><span class="n">visited</span><span class="p">)</span><span class="w"> </span><span class="k">return</span><span class="w"> </span><span class="mi">1</span><span class="p">;</span>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-6-1" name="__codelineno-6-1" href="#__codelineno-6-1"></a><span class="cp">#include</span><span class="w"> </span><span class="cpf">"tlv++/query/query.hpp"</span>
+<a id="__codelineno-6-2" name="__codelineno-6-2" href="#__codelineno-6-2"></a><span class="cp">#include</span><span class="w"> </span><span class="cpf">&lt;iostream&gt;</span>
+<a id="__codelineno-6-3" name="__codelineno-6-3" href="#__codelineno-6-3"></a>
+<a id="__codelineno-6-4" name="__codelineno-6-4" href="#__codelineno-6-4"></a><span class="kt">size_t</span><span class="w"> </span><span class="n">text_offset</span><span class="p">;</span>
+<a id="__codelineno-6-5" name="__codelineno-6-5" href="#__codelineno-6-5"></a><span class="k">auto</span><span class="w"> </span><span class="n">query</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">tlv</span><span class="o">::</span><span class="n">query</span><span class="o">::</span><span class="n">parse</span><span class="p">(</span><span class="s">"6F/A5/50"</span><span class="p">,</span><span class="w"> </span><span class="o">&amp;</span><span class="n">text_offset</span><span class="p">);</span>
+<a id="__codelineno-6-6" name="__codelineno-6-6" href="#__codelineno-6-6"></a><span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="o">!</span><span class="n">query</span><span class="p">)</span><span class="w"> </span><span class="k">return</span><span class="w"> </span><span class="mi">1</span><span class="p">;</span><span class="w"> </span><span class="c1">// query.error().code; text_offset is the offending character</span>
+<a id="__codelineno-6-7" name="__codelineno-6-7" href="#__codelineno-6-7"></a>
+<a id="__codelineno-6-8" name="__codelineno-6-8" href="#__codelineno-6-8"></a><span class="k">auto</span><span class="w"> </span><span class="n">visited</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">query</span><span class="o">-&gt;</span><span class="n">visit_buffer</span><span class="p">(</span>
+<a id="__codelineno-6-9" name="__codelineno-6-9" href="#__codelineno-6-9"></a><span class="w">    </span><span class="n">tlv</span><span class="o">::</span><span class="n">bytes</span><span class="p">(</span><span class="n">data</span><span class="p">,</span><span class="w"> </span><span class="n">size</span><span class="p">),</span><span class="w"> </span><span class="n">tlv_format_ber</span><span class="p">,</span>
+<a id="__codelineno-6-10" name="__codelineno-6-10" href="#__codelineno-6-10"></a><span class="w">    </span><span class="n">TLV_TREE_DEFAULT_DEPTH</span><span class="p">,</span><span class="w"> </span><span class="mi">100000</span><span class="p">,</span>
+<a id="__codelineno-6-11" name="__codelineno-6-11" href="#__codelineno-6-11"></a><span class="w">    </span><span class="p">[](</span><span class="k">const</span><span class="w"> </span><span class="n">tlv</span><span class="o">::</span><span class="n">element_view</span><span class="o">&amp;</span><span class="w"> </span><span class="n">item</span><span class="p">,</span><span class="w"> </span><span class="kt">size_t</span><span class="w"> </span><span class="n">depth</span><span class="p">,</span><span class="w"> </span><span class="kt">size_t</span><span class="w"> </span><span class="n">offset</span><span class="p">)</span><span class="w"> </span><span class="p">{</span>
+<a id="__codelineno-6-12" name="__codelineno-6-12" href="#__codelineno-6-12"></a><span class="w">        </span><span class="c1">// item.value() borrows the input</span>
+<a id="__codelineno-6-13" name="__codelineno-6-13" href="#__codelineno-6-13"></a><span class="w">        </span><span class="p">(</span><span class="kt">void</span><span class="p">)</span><span class="n">depth</span><span class="p">;</span>
+<a id="__codelineno-6-14" name="__codelineno-6-14" href="#__codelineno-6-14"></a><span class="w">        </span><span class="n">std</span><span class="o">::</span><span class="n">cout</span><span class="w"> </span><span class="o">&lt;&lt;</span><span class="w"> </span><span class="s">"match at offset "</span><span class="w"> </span><span class="o">&lt;&lt;</span><span class="w"> </span><span class="n">offset</span><span class="w"> </span><span class="o">&lt;&lt;</span><span class="w"> </span><span class="s">", "</span><span class="w"> </span><span class="o">&lt;&lt;</span><span class="w"> </span><span class="n">item</span><span class="p">.</span><span class="n">value</span><span class="p">().</span><span class="n">size</span><span class="p">()</span><span class="w"> </span><span class="o">&lt;&lt;</span><span class="w"> </span><span class="s">" bytes</span><span class="se">\n</span><span class="s">"</span><span class="p">;</span>
+<a id="__codelineno-6-15" name="__codelineno-6-15" href="#__codelineno-6-15"></a><span class="w">        </span><span class="k">return</span><span class="w"> </span><span class="n">TLV_VISIT_CONTINUE</span><span class="p">;</span>
+<a id="__codelineno-6-16" name="__codelineno-6-16" href="#__codelineno-6-16"></a><span class="w">    </span><span class="p">});</span>
+<a id="__codelineno-6-17" name="__codelineno-6-17" href="#__codelineno-6-17"></a><span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="o">!</span><span class="n">visited</span><span class="p">)</span><span class="w"> </span><span class="k">return</span><span class="w"> </span><span class="mi">1</span><span class="p">;</span>
 </code></pre></div>
 <p><code>tlv::query</code> holds the parsed query by value and never allocates.
 <code>tlv::query::visit_buffer()</code> wraps <code>tlv_query_visit_buffer()</code> with the visitor conventions of
@@ -3728,10 +3844,10 @@ element to a matcher instead:</p>
 or <code>tlv::query::compile()</code> to throw <code>tlv::query_error</code>. The exception retains
 the original C result and the zero-based text error offset.</p>
 <p>An owning Document supports all-result lookup through normal Node handles:</p>
-<div class="highlight"><pre><span></span><code><a id="__codelineno-6-1" name="__codelineno-6-1" href="#__codelineno-6-1"></a><span class="k">auto</span><span class="w"> </span><span class="n">matches</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">document</span><span class="p">.</span><span class="n">select</span><span class="p">(</span><span class="s">"6F/A5/50"</span><span class="p">);</span>
-<a id="__codelineno-6-2" name="__codelineno-6-2" href="#__codelineno-6-2"></a><span class="k">for</span><span class="w"> </span><span class="p">(</span><span class="k">auto</span><span class="w"> </span><span class="n">node</span><span class="w"> </span><span class="o">:</span><span class="w"> </span><span class="n">matches</span><span class="p">)</span><span class="w"> </span><span class="p">{</span>
-<a id="__codelineno-6-3" name="__codelineno-6-3" href="#__codelineno-6-3"></a><span class="w">    </span><span class="c1">// Use node.value(), node.children(), or node.decode&lt;Field&gt;().</span>
-<a id="__codelineno-6-4" name="__codelineno-6-4" href="#__codelineno-6-4"></a><span class="p">}</span>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-7-1" name="__codelineno-7-1" href="#__codelineno-7-1"></a><span class="k">auto</span><span class="w"> </span><span class="n">matches</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">document</span><span class="p">.</span><span class="n">select</span><span class="p">(</span><span class="s">"6F/A5/50"</span><span class="p">);</span>
+<a id="__codelineno-7-2" name="__codelineno-7-2" href="#__codelineno-7-2"></a><span class="k">for</span><span class="w"> </span><span class="p">(</span><span class="k">auto</span><span class="w"> </span><span class="n">node</span><span class="w"> </span><span class="o">:</span><span class="w"> </span><span class="n">matches</span><span class="p">)</span><span class="w"> </span><span class="p">{</span>
+<a id="__codelineno-7-3" name="__codelineno-7-3" href="#__codelineno-7-3"></a><span class="w">    </span><span class="c1">// Use node.value(), node.children(), or node.decode&lt;Field&gt;().</span>
+<a id="__codelineno-7-4" name="__codelineno-7-4" href="#__codelineno-7-4"></a><span class="p">}</span>
 </code></pre></div>
 <p><code>document.select(query)</code> also accepts a compiled Query. Results are a
 <code>std::vector&lt;tlv::node&gt;</code> snapshot in Document order; selection allocates result
@@ -3741,10 +3857,10 @@ Document was destroyed become invalid according to the normal Node contract.
 The result does not own the Document. <code>document.find(query)</code> still returns
 only the first match.</p>
 <p>For borrowed traversal, include <code>tlv++/query/query.hpp</code> and use:</p>
-<div class="highlight"><pre><span></span><code><a id="__codelineno-7-1" name="__codelineno-7-1" href="#__codelineno-7-1"></a><span class="k">auto</span><span class="w"> </span><span class="n">matches</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">reader</span><span class="p">.</span><span class="n">select</span><span class="p">(</span><span class="s">"6F/A5/50"</span><span class="p">);</span><span class="w"> </span><span class="c1">// reader is a tlv::tree_reader</span>
-<a id="__codelineno-7-2" name="__codelineno-7-2" href="#__codelineno-7-2"></a><span class="k">for</span><span class="w"> </span><span class="p">(</span><span class="k">const</span><span class="w"> </span><span class="k">auto</span><span class="o">&amp;</span><span class="w"> </span><span class="n">item</span><span class="w"> </span><span class="o">:</span><span class="w"> </span><span class="n">matches</span><span class="p">)</span><span class="w"> </span><span class="p">{</span>
-<a id="__codelineno-7-3" name="__codelineno-7-3" href="#__codelineno-7-3"></a><span class="w">    </span><span class="c1">// item.element, item.depth and item.offset are normal Tree Reader results.</span>
-<a id="__codelineno-7-4" name="__codelineno-7-4" href="#__codelineno-7-4"></a><span class="p">}</span>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-8-1" name="__codelineno-8-1" href="#__codelineno-8-1"></a><span class="k">auto</span><span class="w"> </span><span class="n">matches</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">reader</span><span class="p">.</span><span class="n">select</span><span class="p">(</span><span class="s">"6F/A5/50"</span><span class="p">);</span><span class="w"> </span><span class="c1">// reader is a tlv::tree_reader</span>
+<a id="__codelineno-8-2" name="__codelineno-8-2" href="#__codelineno-8-2"></a><span class="k">for</span><span class="w"> </span><span class="p">(</span><span class="k">const</span><span class="w"> </span><span class="k">auto</span><span class="o">&amp;</span><span class="w"> </span><span class="n">item</span><span class="w"> </span><span class="o">:</span><span class="w"> </span><span class="n">matches</span><span class="p">)</span><span class="w"> </span><span class="p">{</span>
+<a id="__codelineno-8-3" name="__codelineno-8-3" href="#__codelineno-8-3"></a><span class="w">    </span><span class="c1">// item.element, item.depth and item.offset are normal Tree Reader results.</span>
+<a id="__codelineno-8-4" name="__codelineno-8-4" href="#__codelineno-8-4"></a><span class="p">}</span>
 </code></pre></div>
 <p>The selection owns its compiled Query and borrows the Tree Reader. It is a
 single-pass range; advancing invalidates other iterator copies. Moving the range
@@ -3778,60 +3894,60 @@ The public APIs differ in whether they return one match or a collection:</p>
 <div class="tabbed-set tabbed-alternate" data-tabs="2:6"><input checked="checked" id="__tabbed_2_1" name="__tabbed_2" type="radio" /><input id="__tabbed_2_2" name="__tabbed_2" type="radio" /><input id="__tabbed_2_3" name="__tabbed_2" type="radio" /><input id="__tabbed_2_4" name="__tabbed_2" type="radio" /><input id="__tabbed_2_5" name="__tabbed_2" type="radio" /><input id="__tabbed_2_6" name="__tabbed_2" type="radio" /><div class="tabbed-labels"><label for="__tabbed_2_1">C</label><label for="__tabbed_2_2">C++</label><label for="__tabbed_2_3">Rust</label><label for="__tabbed_2_4">Python</label><label for="__tabbed_2_5">Lua</label><label for="__tabbed_2_6">Go</label></div>
 <div class="tabbed-content">
 <div class="tabbed-block">
-<div class="highlight"><pre><span></span><code><a id="__codelineno-8-1" name="__codelineno-8-1" href="#__codelineno-8-1"></a><span class="n">tlv_query_t</span><span class="w"> </span><span class="n">query</span><span class="p">;</span>
-<a id="__codelineno-8-2" name="__codelineno-8-2" href="#__codelineno-8-2"></a><span class="kt">size_t</span><span class="w"> </span><span class="n">text_offset</span><span class="p">;</span>
-<a id="__codelineno-8-3" name="__codelineno-8-3" href="#__codelineno-8-3"></a><span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="n">tlv_query_parse</span><span class="p">(</span><span class="s">"6F/A5/50"</span><span class="p">,</span><span class="w"> </span><span class="o">&amp;</span><span class="n">query</span><span class="p">,</span><span class="w"> </span><span class="o">&amp;</span><span class="n">text_offset</span><span class="p">)</span><span class="w"> </span><span class="o">!=</span><span class="w"> </span><span class="n">TLV_OK</span><span class="p">)</span><span class="w"> </span><span class="k">return</span><span class="w"> </span><span class="mi">1</span><span class="p">;</span>
-<a id="__codelineno-8-4" name="__codelineno-8-4" href="#__codelineno-8-4"></a><span class="k">const</span><span class="w"> </span><span class="n">tlv_node_t</span><span class="o">*</span><span class="w"> </span><span class="n">label</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">tlv_document_find_path</span><span class="p">(</span><span class="n">document</span><span class="p">,</span><span class="w"> </span><span class="o">&amp;</span><span class="n">query</span><span class="p">);</span>
-<a id="__codelineno-8-5" name="__codelineno-8-5" href="#__codelineno-8-5"></a><span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="n">label</span><span class="p">)</span><span class="w"> </span><span class="p">{</span>
-<a id="__codelineno-8-6" name="__codelineno-8-6" href="#__codelineno-8-6"></a><span class="w">    </span><span class="k">const</span><span class="w"> </span><span class="kt">uint8_t</span><span class="o">*</span><span class="w"> </span><span class="n">value</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">tlv_node_value_data</span><span class="p">(</span><span class="n">label</span><span class="p">);</span>
-<a id="__codelineno-8-7" name="__codelineno-8-7" href="#__codelineno-8-7"></a><span class="w">    </span><span class="kt">size_t</span><span class="w"> </span><span class="n">size</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">tlv_node_value_size</span><span class="p">(</span><span class="n">label</span><span class="p">);</span>
-<a id="__codelineno-8-8" name="__codelineno-8-8" href="#__codelineno-8-8"></a><span class="w">    </span><span class="cm">/* value borrows Document storage */</span>
-<a id="__codelineno-8-9" name="__codelineno-8-9" href="#__codelineno-8-9"></a><span class="p">}</span>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-9-1" name="__codelineno-9-1" href="#__codelineno-9-1"></a><span class="n">tlv_query_t</span><span class="w"> </span><span class="n">query</span><span class="p">;</span>
+<a id="__codelineno-9-2" name="__codelineno-9-2" href="#__codelineno-9-2"></a><span class="kt">size_t</span><span class="w"> </span><span class="n">text_offset</span><span class="p">;</span>
+<a id="__codelineno-9-3" name="__codelineno-9-3" href="#__codelineno-9-3"></a><span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="n">tlv_query_parse</span><span class="p">(</span><span class="s">"6F/A5/50"</span><span class="p">,</span><span class="w"> </span><span class="o">&amp;</span><span class="n">query</span><span class="p">,</span><span class="w"> </span><span class="o">&amp;</span><span class="n">text_offset</span><span class="p">)</span><span class="w"> </span><span class="o">!=</span><span class="w"> </span><span class="n">TLV_OK</span><span class="p">)</span><span class="w"> </span><span class="k">return</span><span class="w"> </span><span class="mi">1</span><span class="p">;</span>
+<a id="__codelineno-9-4" name="__codelineno-9-4" href="#__codelineno-9-4"></a><span class="k">const</span><span class="w"> </span><span class="n">tlv_node_t</span><span class="o">*</span><span class="w"> </span><span class="n">label</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">tlv_document_find_path</span><span class="p">(</span><span class="n">document</span><span class="p">,</span><span class="w"> </span><span class="o">&amp;</span><span class="n">query</span><span class="p">);</span>
+<a id="__codelineno-9-5" name="__codelineno-9-5" href="#__codelineno-9-5"></a><span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="n">label</span><span class="p">)</span><span class="w"> </span><span class="p">{</span>
+<a id="__codelineno-9-6" name="__codelineno-9-6" href="#__codelineno-9-6"></a><span class="w">    </span><span class="k">const</span><span class="w"> </span><span class="kt">uint8_t</span><span class="o">*</span><span class="w"> </span><span class="n">value</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">tlv_node_value_data</span><span class="p">(</span><span class="n">label</span><span class="p">);</span>
+<a id="__codelineno-9-7" name="__codelineno-9-7" href="#__codelineno-9-7"></a><span class="w">    </span><span class="kt">size_t</span><span class="w"> </span><span class="n">size</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">tlv_node_value_size</span><span class="p">(</span><span class="n">label</span><span class="p">);</span>
+<a id="__codelineno-9-8" name="__codelineno-9-8" href="#__codelineno-9-8"></a><span class="w">    </span><span class="cm">/* value borrows Document storage */</span>
+<a id="__codelineno-9-9" name="__codelineno-9-9" href="#__codelineno-9-9"></a><span class="p">}</span>
 </code></pre></div>
 <p>No match is <code>NULL</code>. C also offers <code>tlv_document_query_visit()</code> for all matches.</p>
 </div>
 <div class="tabbed-block">
-<div class="highlight"><pre><span></span><code><a id="__codelineno-9-1" name="__codelineno-9-1" href="#__codelineno-9-1"></a><span class="k">auto</span><span class="w"> </span><span class="n">query</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">tlv</span><span class="o">::</span><span class="n">query</span><span class="o">::</span><span class="n">parse</span><span class="p">(</span><span class="s">"6F/A5/50"</span><span class="p">);</span>
-<a id="__codelineno-9-2" name="__codelineno-9-2" href="#__codelineno-9-2"></a><span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="o">!</span><span class="n">query</span><span class="p">)</span><span class="w"> </span><span class="k">return</span><span class="w"> </span><span class="mi">1</span><span class="p">;</span>
-<a id="__codelineno-9-3" name="__codelineno-9-3" href="#__codelineno-9-3"></a><span class="k">auto</span><span class="w"> </span><span class="n">label</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">document</span><span class="p">.</span><span class="n">find</span><span class="p">(</span><span class="o">*</span><span class="n">query</span><span class="p">);</span>
-<a id="__codelineno-9-4" name="__codelineno-9-4" href="#__codelineno-9-4"></a><span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="n">label</span><span class="p">)</span><span class="w"> </span><span class="p">{</span>
-<a id="__codelineno-9-5" name="__codelineno-9-5" href="#__codelineno-9-5"></a><span class="w">    </span><span class="k">auto</span><span class="w"> </span><span class="n">value</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">label</span><span class="p">.</span><span class="n">value</span><span class="p">();</span><span class="w"> </span><span class="c1">// borrows Document storage</span>
-<a id="__codelineno-9-6" name="__codelineno-9-6" href="#__codelineno-9-6"></a><span class="p">}</span>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-10-1" name="__codelineno-10-1" href="#__codelineno-10-1"></a><span class="k">auto</span><span class="w"> </span><span class="n">query</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">tlv</span><span class="o">::</span><span class="n">query</span><span class="o">::</span><span class="n">parse</span><span class="p">(</span><span class="s">"6F/A5/50"</span><span class="p">);</span>
+<a id="__codelineno-10-2" name="__codelineno-10-2" href="#__codelineno-10-2"></a><span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="o">!</span><span class="n">query</span><span class="p">)</span><span class="w"> </span><span class="k">return</span><span class="w"> </span><span class="mi">1</span><span class="p">;</span>
+<a id="__codelineno-10-3" name="__codelineno-10-3" href="#__codelineno-10-3"></a><span class="k">auto</span><span class="w"> </span><span class="n">label</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">document</span><span class="p">.</span><span class="n">find</span><span class="p">(</span><span class="o">*</span><span class="n">query</span><span class="p">);</span>
+<a id="__codelineno-10-4" name="__codelineno-10-4" href="#__codelineno-10-4"></a><span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="n">label</span><span class="p">)</span><span class="w"> </span><span class="p">{</span>
+<a id="__codelineno-10-5" name="__codelineno-10-5" href="#__codelineno-10-5"></a><span class="w">    </span><span class="k">auto</span><span class="w"> </span><span class="n">value</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">label</span><span class="p">.</span><span class="n">value</span><span class="p">();</span><span class="w"> </span><span class="c1">// borrows Document storage</span>
+<a id="__codelineno-10-6" name="__codelineno-10-6" href="#__codelineno-10-6"></a><span class="p">}</span>
 </code></pre></div>
 <p><code>find</code> returns the first match; <code>select</code> returns all matches as checked Node handles.</p>
 </div>
 <div class="tabbed-block">
-<div class="highlight"><pre><span></span><code><a id="__codelineno-10-1" name="__codelineno-10-1" href="#__codelineno-10-1"></a><span class="kd">let</span><span class="w"> </span><span class="n">query</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">opentlv</span><span class="p">::</span><span class="n">Query</span><span class="p">::</span><span class="n">parse</span><span class="p">(</span><span class="s">"6F/A5/50"</span><span class="p">)</span><span class="o">?</span><span class="p">;</span>
-<a id="__codelineno-10-2" name="__codelineno-10-2" href="#__codelineno-10-2"></a><span class="k">if</span><span class="w"> </span><span class="kd">let</span><span class="w"> </span><span class="nb">Some</span><span class="p">(</span><span class="n">label</span><span class="p">)</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">document</span><span class="p">.</span><span class="n">find_path</span><span class="p">(</span><span class="o">&amp;</span><span class="n">query</span><span class="p">)</span><span class="w"> </span><span class="p">{</span>
-<a id="__codelineno-10-3" name="__codelineno-10-3" href="#__codelineno-10-3"></a><span class="w">    </span><span class="kd">let</span><span class="w"> </span><span class="n">value</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">label</span><span class="p">.</span><span class="n">value</span><span class="p">();</span><span class="w"> </span><span class="c1">// borrows Document storage</span>
-<a id="__codelineno-10-4" name="__codelineno-10-4" href="#__codelineno-10-4"></a><span class="p">}</span>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-11-1" name="__codelineno-11-1" href="#__codelineno-11-1"></a><span class="kd">let</span><span class="w"> </span><span class="n">query</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">opentlv</span><span class="p">::</span><span class="n">Query</span><span class="p">::</span><span class="n">parse</span><span class="p">(</span><span class="s">"6F/A5/50"</span><span class="p">)</span><span class="o">?</span><span class="p">;</span>
+<a id="__codelineno-11-2" name="__codelineno-11-2" href="#__codelineno-11-2"></a><span class="k">if</span><span class="w"> </span><span class="kd">let</span><span class="w"> </span><span class="nb">Some</span><span class="p">(</span><span class="n">label</span><span class="p">)</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">document</span><span class="p">.</span><span class="n">find_path</span><span class="p">(</span><span class="o">&amp;</span><span class="n">query</span><span class="p">)</span><span class="w"> </span><span class="p">{</span>
+<a id="__codelineno-11-3" name="__codelineno-11-3" href="#__codelineno-11-3"></a><span class="w">    </span><span class="kd">let</span><span class="w"> </span><span class="n">value</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">label</span><span class="p">.</span><span class="n">value</span><span class="p">();</span><span class="w"> </span><span class="c1">// borrows Document storage</span>
+<a id="__codelineno-11-4" name="__codelineno-11-4" href="#__codelineno-11-4"></a><span class="p">}</span>
 </code></pre></div>
 <p>No match is <code>None</code>. Query parse errors retain the byte offset; <code>?</code> propagates them.</p>
 </div>
 <div class="tabbed-block">
-<div class="highlight"><pre><span></span><code><a id="__codelineno-11-1" name="__codelineno-11-1" href="#__codelineno-11-1"></a><span class="n">label</span> <span class="o">=</span> <span class="n">document</span><span class="o">.</span><span class="n">find_path</span><span class="p">(</span><span class="s2">"6F/A5/50"</span><span class="p">)</span>
-<a id="__codelineno-11-2" name="__codelineno-11-2" href="#__codelineno-11-2"></a><span class="k">if</span> <span class="n">label</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
-<a id="__codelineno-11-3" name="__codelineno-11-3" href="#__codelineno-11-3"></a>    <span class="n">value</span> <span class="o">=</span> <span class="nb">bytes</span><span class="p">(</span><span class="n">label</span><span class="o">.</span><span class="n">value</span><span class="p">)</span>  <span class="c1"># owned snapshot</span>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-12-1" name="__codelineno-12-1" href="#__codelineno-12-1"></a><span class="n">label</span> <span class="o">=</span> <span class="n">document</span><span class="o">.</span><span class="n">find_path</span><span class="p">(</span><span class="s2">"6F/A5/50"</span><span class="p">)</span>
+<a id="__codelineno-12-2" name="__codelineno-12-2" href="#__codelineno-12-2"></a><span class="k">if</span> <span class="n">label</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+<a id="__codelineno-12-3" name="__codelineno-12-3" href="#__codelineno-12-3"></a>    <span class="n">value</span> <span class="o">=</span> <span class="nb">bytes</span><span class="p">(</span><span class="n">label</span><span class="o">.</span><span class="n">value</span><span class="p">)</span>  <span class="c1"># owned snapshot</span>
 </code></pre></div>
 <p>No match is <code>None</code>; malformed query text raises <code>opentlv.InvalidArgError</code>. <a href="https://github.com/marekcingel/OpenTLV/blob/main/bindings/python/opentlv/examples/query.py">Runnable query example</a>.</p>
 </div>
 <div class="tabbed-block">
-<div class="highlight"><pre><span></span><code><a id="__codelineno-12-1" name="__codelineno-12-1" href="#__codelineno-12-1"></a><span class="kd">local</span><span class="w"> </span><span class="nv">label</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="nv">document</span><span class="p">:</span><span class="nf">find</span><span class="p">(</span><span class="s2">"6F/A5/50"</span><span class="p">)</span>
-<a id="__codelineno-12-2" name="__codelineno-12-2" href="#__codelineno-12-2"></a><span class="kr">if</span><span class="w"> </span><span class="nv">label</span><span class="w"> </span><span class="kr">then</span>
-<a id="__codelineno-12-3" name="__codelineno-12-3" href="#__codelineno-12-3"></a><span class="w">    </span><span class="kd">local</span><span class="w"> </span><span class="nv">value</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="nv">label</span><span class="p">:</span><span class="nf">value</span><span class="p">()</span><span class="w"> </span><span class="c1">-- owned string</span>
-<a id="__codelineno-12-4" name="__codelineno-12-4" href="#__codelineno-12-4"></a><span class="kr">end</span>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-13-1" name="__codelineno-13-1" href="#__codelineno-13-1"></a><span class="kd">local</span><span class="w"> </span><span class="nv">label</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="nv">document</span><span class="p">:</span><span class="nf">find</span><span class="p">(</span><span class="s2">"6F/A5/50"</span><span class="p">)</span>
+<a id="__codelineno-13-2" name="__codelineno-13-2" href="#__codelineno-13-2"></a><span class="kr">if</span><span class="w"> </span><span class="nv">label</span><span class="w"> </span><span class="kr">then</span>
+<a id="__codelineno-13-3" name="__codelineno-13-3" href="#__codelineno-13-3"></a><span class="w">    </span><span class="kd">local</span><span class="w"> </span><span class="nv">value</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="nv">label</span><span class="p">:</span><span class="nf">value</span><span class="p">()</span><span class="w"> </span><span class="c1">-- owned string</span>
+<a id="__codelineno-13-4" name="__codelineno-13-4" href="#__codelineno-13-4"></a><span class="kr">end</span>
 </code></pre></div>
 <p>No match is <code>nil</code>; malformed query text raises an error. <code>document:query()</code> returns all matching Node handles.</p>
 </div>
 <div class="tabbed-block">
-<div class="highlight"><pre><span></span><code><a id="__codelineno-13-1" name="__codelineno-13-1" href="#__codelineno-13-1"></a><span class="nx">matches</span><span class="p">,</span><span class="w"> </span><span class="nx">err</span><span class="w"> </span><span class="o">:=</span><span class="w"> </span><span class="nx">document</span><span class="p">.</span><span class="nx">Query</span><span class="p">(</span><span class="s">"6F/A5/50"</span><span class="p">)</span>
-<a id="__codelineno-13-2" name="__codelineno-13-2" href="#__codelineno-13-2"></a><span class="k">if</span><span class="w"> </span><span class="nx">err</span><span class="w"> </span><span class="o">!=</span><span class="w"> </span><span class="kc">nil</span><span class="w"> </span><span class="p">{</span>
-<a id="__codelineno-13-3" name="__codelineno-13-3" href="#__codelineno-13-3"></a><span class="w"> </span><span class="k">return</span><span class="w"> </span><span class="nx">err</span>
-<a id="__codelineno-13-4" name="__codelineno-13-4" href="#__codelineno-13-4"></a><span class="p">}</span>
-<a id="__codelineno-13-5" name="__codelineno-13-5" href="#__codelineno-13-5"></a><span class="k">if</span><span class="w"> </span><span class="nb">len</span><span class="p">(</span><span class="nx">matches</span><span class="p">)</span><span class="w"> </span><span class="o">&gt;</span><span class="w"> </span><span class="mi">0</span><span class="w"> </span><span class="p">{</span>
-<a id="__codelineno-13-6" name="__codelineno-13-6" href="#__codelineno-13-6"></a><span class="w"> </span><span class="nx">value</span><span class="w"> </span><span class="o">:=</span><span class="w"> </span><span class="nx">matches</span><span class="p">[</span><span class="mi">0</span><span class="p">].</span><span class="nx">Value</span><span class="p">()</span><span class="w"> </span><span class="c1">// owned snapshot</span>
-<a id="__codelineno-13-7" name="__codelineno-13-7" href="#__codelineno-13-7"></a><span class="w"> </span><span class="nx">fmt</span><span class="p">.</span><span class="nx">Printf</span><span class="p">(</span><span class="s">"%X\n"</span><span class="p">,</span><span class="w"> </span><span class="nx">value</span><span class="p">)</span>
-<a id="__codelineno-13-8" name="__codelineno-13-8" href="#__codelineno-13-8"></a><span class="p">}</span>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-14-1" name="__codelineno-14-1" href="#__codelineno-14-1"></a><span class="nx">matches</span><span class="p">,</span><span class="w"> </span><span class="nx">err</span><span class="w"> </span><span class="o">:=</span><span class="w"> </span><span class="nx">document</span><span class="p">.</span><span class="nx">Query</span><span class="p">(</span><span class="s">"6F/A5/50"</span><span class="p">)</span>
+<a id="__codelineno-14-2" name="__codelineno-14-2" href="#__codelineno-14-2"></a><span class="k">if</span><span class="w"> </span><span class="nx">err</span><span class="w"> </span><span class="o">!=</span><span class="w"> </span><span class="kc">nil</span><span class="w"> </span><span class="p">{</span>
+<a id="__codelineno-14-3" name="__codelineno-14-3" href="#__codelineno-14-3"></a><span class="w"> </span><span class="k">return</span><span class="w"> </span><span class="nx">err</span>
+<a id="__codelineno-14-4" name="__codelineno-14-4" href="#__codelineno-14-4"></a><span class="p">}</span>
+<a id="__codelineno-14-5" name="__codelineno-14-5" href="#__codelineno-14-5"></a><span class="k">if</span><span class="w"> </span><span class="nb">len</span><span class="p">(</span><span class="nx">matches</span><span class="p">)</span><span class="w"> </span><span class="o">&gt;</span><span class="w"> </span><span class="mi">0</span><span class="w"> </span><span class="p">{</span>
+<a id="__codelineno-14-6" name="__codelineno-14-6" href="#__codelineno-14-6"></a><span class="w"> </span><span class="nx">value</span><span class="w"> </span><span class="o">:=</span><span class="w"> </span><span class="nx">matches</span><span class="p">[</span><span class="mi">0</span><span class="p">].</span><span class="nx">Value</span><span class="p">()</span><span class="w"> </span><span class="c1">// owned snapshot</span>
+<a id="__codelineno-14-7" name="__codelineno-14-7" href="#__codelineno-14-7"></a><span class="w"> </span><span class="nx">fmt</span><span class="p">.</span><span class="nx">Printf</span><span class="p">(</span><span class="s">"%X\n"</span><span class="p">,</span><span class="w"> </span><span class="nx">value</span><span class="p">)</span>
+<a id="__codelineno-14-8" name="__codelineno-14-8" href="#__codelineno-14-8"></a><span class="p">}</span>
 </code></pre></div>
 <p><code>Query</code> returns all matches in document order, or an empty slice. Malformed text returns <code>*opentlv.QueryError</code> with its native text offset. <a href="https://github.com/marekcingel/OpenTLV/blob/main/bindings/go/examples/query/main.go">Runnable query example</a>.</p>
 </div>

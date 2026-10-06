@@ -130,6 +130,9 @@ Static Public Member Functions</h2></td></tr>
 <tr class="memitem:a739578a59f5c65bfa6af1c6c4ae800b4" id="r_a739578a59f5c65bfa6af1c6c4ae800b4"><td class="memItemLeft" align="right" valign="top">static <a class="el" href="classtlv_1_1expected.html">expected</a>&lt; <a class="el" href="classtlv_1_1query__program.html">query_program</a>, <a class="el" href="structtlv_1_1query__failure.html">query_failure</a> &gt;&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classtlv_1_1query__program.html#a739578a59f5c65bfa6af1c6c4ae800b4">load_external</a> (const void *image, size_t size, const <a class="elRef" href="../../c-api/html/group__traversal.html#gaf426eeab5c08024d576603e4102962ec">tlv_query_compile_options_t</a> *options, void *scratch, size_t capacity)</td></tr>
 <tr class="memdesc:a739578a59f5c65bfa6af1c6c4ae800b4"><td class="mdescLeft">&#160;</td><td class="mdescRight">Validate and borrow an immutable aligned image, including ROM.  <br /></td></tr>
 <tr class="separator:a739578a59f5c65bfa6af1c6c4ae800b4"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a04f0d4cd43f9a1da1c5496e58b9b3817" id="r_a04f0d4cd43f9a1da1c5496e58b9b3817"><td class="memItemLeft" align="right" valign="top">static <a class="el" href="classtlv_1_1expected.html">expected</a>&lt; <a class="el" href="classtlv_1_1query__program.html">query_program</a>, <a class="el" href="structtlv_1_1query__failure.html">query_failure</a> &gt;&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classtlv_1_1query__program.html#a04f0d4cd43f9a1da1c5496e58b9b3817">from_plan</a> (const void *image, size_t size)</td></tr>
+<tr class="memdesc:a04f0d4cd43f9a1da1c5496e58b9b3817"><td class="mdescLeft">&#160;</td><td class="mdescRight">Validate and borrow a static/generated C plan without the Query frontend.  <br /></td></tr>
+<tr class="separator:a04f0d4cd43f9a1da1c5496e58b9b3817"><td class="memSeparator" colspan="2">&#160;</td></tr>
 </table>
 <a name="details" id="details"></a><h2 class="groupheader">Detailed Description</h2>
 <div class="textblock"><p>Immutable full-language compiled Query; copies share owned program storage. External-storage programs borrow the caller's aligned immutable storage. Environments, callbacks and their contexts remain borrowed according to the native contract. </p>
@@ -450,6 +453,53 @@ Static Public Member Functions</h2></td></tr>
 </div><div class="memdoc">
 
 <p>Canonical normalized language spelling; allocates a string. </p>
+
+</div>
+</div>
+<a id="a04f0d4cd43f9a1da1c5496e58b9b3817" name="a04f0d4cd43f9a1da1c5496e58b9b3817"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#a04f0d4cd43f9a1da1c5496e58b9b3817">&#9670;&#160;</a></span>from_plan()</h2>
+
+<div class="memitem">
+<div class="memproto">
+<table class="mlabels">
+  <tr>
+  <td class="mlabels-left">
+      <table class="memname">
+        <tr>
+          <td class="memname">static <a class="el" href="classtlv_1_1expected.html">expected</a>&lt; <a class="el" href="classtlv_1_1query__program.html">query_program</a>, <a class="el" href="structtlv_1_1query__failure.html">query_failure</a> &gt; tlv::query_program::from_plan </td>
+          <td>(</td>
+          <td class="paramtype">const void *&#160;</td>
+          <td class="paramname"><em>image</em>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype">size_t&#160;</td>
+          <td class="paramname"><em>size</em>&#160;</td>
+        </tr>
+        <tr>
+          <td></td>
+          <td>)</td>
+          <td></td><td></td>
+        </tr>
+      </table>
+  </td>
+  <td class="mlabels-right">
+<span class="mlabels"><span class="mlabel">inline</span><span class="mlabel">static</span></span>  </td>
+  </tr>
+</table>
+</div><div class="memdoc">
+
+<p>Validate and borrow a static/generated C plan without the Query frontend. </p>
+<dl class="params"><dt>Parameters</dt><dd>
+  <table class="params">
+    <tr><td class="paramname">image</td><td>Aligned immutable native image, alive through all executions. </td></tr>
+    <tr><td class="paramname">size</td><td>Exact logical byte extent, excluding trailing C structure padding. </td></tr>
+  </table>
+  </dd>
+</dl>
+<dl class="section return"><dt>Returns</dt><dd>Borrowed program or native validation failure; no allocation occurs. </dd></dl>
+<dl class="section note"><dt>Note</dt><dd>Copies continue to borrow the image. Compilation and execution share the same C representation and version/capability checks. </dd></dl>
 
 </div>
 </div>

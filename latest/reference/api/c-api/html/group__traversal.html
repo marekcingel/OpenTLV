@@ -72,6 +72,7 @@ $(function() {
   <div class="summary">
 <a href="#files">Files</a> &#124;
 <a href="#nested-classes">Data Structures</a> &#124;
+<a href="#define-members">Macros</a> &#124;
 <a href="#typedef-members">Typedefs</a> &#124;
 <a href="#enum-members">Enumerations</a> &#124;
 <a href="#func-members">Functions</a>  </div>
@@ -90,6 +91,9 @@ Files</h2></td></tr>
 <tr class="memitem:adapters_8h" id="r_adapters_8h"><td class="memItemLeft" align="right" valign="top">file &#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="adapters_8h.html">adapters.h</a></td></tr>
 <tr class="memdesc:adapters_8h"><td class="mdescLeft">&#160;</td><td class="mdescRight">Generic Definition and Value codec Query adapters. <br /></td></tr>
 <tr class="separator:"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:plan_8h" id="r_plan_8h"><td class="memItemLeft" align="right" valign="top">file &#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="plan_8h.html">plan.h</a></td></tr>
+<tr class="memdesc:plan_8h"><td class="mdescLeft">&#160;</td><td class="mdescRight">Release-specific C representation shared by runtime and static Query plans. <br /></td></tr>
+<tr class="separator:"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:program_8h" id="r_program_8h"><td class="memItemLeft" align="right" valign="top">file &#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="program_8h.html">program.h</a></td></tr>
 <tr class="memdesc:program_8h"><td class="mdescLeft">&#160;</td><td class="mdescRight">Caller-stored immutable Query programs and bounded event execution. <br /></td></tr>
 <tr class="separator:"><td class="memSeparator" colspan="2">&#160;</td></tr>
@@ -105,6 +109,12 @@ Files</h2></td></tr>
 </table><table class="memberdecls">
 <tr class="heading"><td colspan="2"><h2 class="groupheader"><a id="nested-classes" name="nested-classes"></a>
 Data Structures</h2></td></tr>
+<tr class="memitem:"><td class="memItemLeft" align="right" valign="top">struct &#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="structtlv__query__instruction.html">tlv_query_instruction</a></td></tr>
+<tr class="memdesc:"><td class="mdescLeft">&#160;</td><td class="mdescRight">One immutable, topologically ordered execution instruction.  <a href="structtlv__query__instruction.html#details">More...</a><br /></td></tr>
+<tr class="separator:"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:"><td class="memItemLeft" align="right" valign="top">struct &#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="structtlv__query__program.html">tlv_query_program</a></td></tr>
+<tr class="memdesc:"><td class="mdescLeft">&#160;</td><td class="mdescRight">Native plan header; also the existing opaque program handle.  <a href="structtlv__query__program.html#details">More...</a><br /></td></tr>
+<tr class="separator:"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:"><td class="memItemLeft" align="right" valign="top">struct &#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="structtlv__query__diagnostic.html">tlv_query_diagnostic</a></td></tr>
 <tr class="memdesc:"><td class="mdescLeft">&#160;</td><td class="mdescRight">Fixed-layout compiler/execution failure, initialized by diagnostic entry points.  <a href="structtlv__query__diagnostic.html#details">More...</a><br /></td></tr>
 <tr class="separator:"><td class="memSeparator" colspan="2">&#160;</td></tr>
@@ -151,8 +161,41 @@ Data Structures</h2></td></tr>
 <tr class="memdesc:"><td class="mdescLeft">&#160;</td><td class="mdescRight">Allocation-free, iterative preorder cursor composing the canonical Reader.  <a href="structtlv__tree__reader.html#details">More...</a><br /></td></tr>
 <tr class="separator:"><td class="memSeparator" colspan="2">&#160;</td></tr>
 </table><table class="memberdecls">
+<tr class="heading"><td colspan="2"><h2 class="groupheader"><a id="define-members" name="define-members"></a>
+Macros</h2></td></tr>
+<tr class="memitem:gabaa0ad424629dca172a65393bb8703da" id="r_gabaa0ad424629dca172a65393bb8703da"><td class="memItemLeft" align="right" valign="top">#define&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="group__traversal.html#gabaa0ad424629dca172a65393bb8703da">TLV_QUERY_PLAN_MAGIC</a>&#160;&#160;&#160;UINT32_C(0x51525932)</td></tr>
+<tr class="memdesc:gabaa0ad424629dca172a65393bb8703da"><td class="mdescLeft">&#160;</td><td class="mdescRight">Native image signature; swapped byte order is incompatible.  <br /></td></tr>
+<tr class="separator:gabaa0ad424629dca172a65393bb8703da"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:ga1153438e9cec52d05c0e6d09b395639e" id="r_ga1153438e9cec52d05c0e6d09b395639e"><td class="memItemLeft" align="right" valign="top">#define&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="group__traversal.html#ga1153438e9cec52d05c0e6d09b395639e">TLV_QUERY_PLAN_VERSION</a>&#160;&#160;&#160;UINT32_C(6)</td></tr>
+<tr class="memdesc:ga1153438e9cec52d05c0e6d09b395639e"><td class="mdescLeft">&#160;</td><td class="mdescRight">Exact supported representation version, independent of language version.  <br /></td></tr>
+<tr class="separator:ga1153438e9cec52d05c0e6d09b395639e"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:gab11a8a0049bdab5280041e2346d75d3e" id="r_gab11a8a0049bdab5280041e2346d75d3e"><td class="memItemLeft" align="right" valign="top">#define&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="group__traversal.html#gab11a8a0049bdab5280041e2346d75d3e">TLV_QUERY_PLAN_NONE</a>&#160;&#160;&#160;UINT32_MAX</td></tr>
+<tr class="memdesc:gab11a8a0049bdab5280041e2346d75d3e"><td class="mdescLeft">&#160;</td><td class="mdescRight">Absent instruction reference. All other references point backward.  <br /></td></tr>
+<tr class="separator:gab11a8a0049bdab5280041e2346d75d3e"><td class="memSeparator" colspan="2">&#160;</td></tr>
+</table><table class="memberdecls">
 <tr class="heading"><td colspan="2"><h2 class="groupheader"><a id="typedef-members" name="typedef-members"></a>
 Typedefs</h2></td></tr>
+<tr class="memitem:ga91e5664b709796e58aa595a368a8b3bf" id="r_ga91e5664b709796e58aa595a368a8b3bf"><td class="memItemLeft" align="right" valign="top">typedef enum <a class="el" href="group__traversal.html#ga09596abb6f10bccbfe9cf747a6470f2c">tlv_query_plan_opcode</a>&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="group__traversal.html#ga91e5664b709796e58aa595a368a8b3bf">tlv_query_plan_opcode_t</a></td></tr>
+<tr class="memdesc:ga91e5664b709796e58aa595a368a8b3bf"><td class="mdescLeft">&#160;</td><td class="mdescRight">Closed plan opcode selectors.  <br /></td></tr>
+<tr class="separator:ga91e5664b709796e58aa595a368a8b3bf"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:ga41c13178df6ed4bee0c4c2c901f1ea1f" id="r_ga41c13178df6ed4bee0c4c2c901f1ea1f"><td class="memItemLeft" align="right" valign="top">typedef enum <a class="el" href="group__traversal.html#gaa596cc4b3b04ecdc9264ce5d4a34a584">tlv_query_plan_axis</a>&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="group__traversal.html#ga41c13178df6ed4bee0c4c2c901f1ea1f">tlv_query_plan_axis_t</a></td></tr>
+<tr class="memdesc:ga41c13178df6ed4bee0c4c2c901f1ea1f"><td class="mdescLeft">&#160;</td><td class="mdescRight">Closed plan axis selectors.  <br /></td></tr>
+<tr class="separator:ga41c13178df6ed4bee0c4c2c901f1ea1f"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:gafb40e9003b78f754ef8a3d03664468df" id="r_gafb40e9003b78f754ef8a3d03664468df"><td class="memItemLeft" align="right" valign="top">typedef enum <a class="el" href="group__traversal.html#ga9733c6c47b1e52a677ca08a9249eb888">tlv_query_plan_function</a>&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="group__traversal.html#gafb40e9003b78f754ef8a3d03664468df">tlv_query_plan_function_t</a></td></tr>
+<tr class="memdesc:gafb40e9003b78f754ef8a3d03664468df"><td class="mdescLeft">&#160;</td><td class="mdescRight">Closed plan function selectors.  <br /></td></tr>
+<tr class="separator:gafb40e9003b78f754ef8a3d03664468df"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:ga058a2bf8a60d9f3697c671ec4f1a8df7" id="r_ga058a2bf8a60d9f3697c671ec4f1a8df7"><td class="memItemLeft" align="right" valign="top">typedef enum <a class="el" href="group__traversal.html#gab71b094e7121421a0bfdfd8c28e413dd">tlv_query_plan_metadata</a>&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="group__traversal.html#ga058a2bf8a60d9f3697c671ec4f1a8df7">tlv_query_plan_metadata_t</a></td></tr>
+<tr class="memdesc:ga058a2bf8a60d9f3697c671ec4f1a8df7"><td class="mdescLeft">&#160;</td><td class="mdescRight">Metadata selectors for TLV_QUERY_OP_META.  <br /></td></tr>
+<tr class="separator:ga058a2bf8a60d9f3697c671ec4f1a8df7"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:gad68622eb8f03038ab25457439581f205" id="r_gad68622eb8f03038ab25457439581f205"><td class="memItemLeft" align="right" valign="top">typedef enum <a class="el" href="group__traversal.html#ga4e909e487e1ea6c7b02cc3416d2a0900">tlv_query_plan_type</a>&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="group__traversal.html#gad68622eb8f03038ab25457439581f205">tlv_query_plan_type_t</a></td></tr>
+<tr class="memdesc:gad68622eb8f03038ab25457439581f205"><td class="mdescLeft">&#160;</td><td class="mdescRight">Internal value categories used by instruction type fields.  <br /></td></tr>
+<tr class="separator:gad68622eb8f03038ab25457439581f205"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:gaca33ac476cd6296a2482ea6a7cce40fb" id="r_gaca33ac476cd6296a2482ea6a7cce40fb"><td class="memItemLeft" align="right" valign="top">typedef struct <a class="el" href="structtlv__query__instruction.html">tlv_query_instruction</a>&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="group__traversal.html#gaca33ac476cd6296a2482ea6a7cce40fb">tlv_query_instruction_t</a></td></tr>
+<tr class="memdesc:gaca33ac476cd6296a2482ea6a7cce40fb"><td class="mdescLeft">&#160;</td><td class="mdescRight">One immutable, topologically ordered execution instruction.  <br /></td></tr>
+<tr class="separator:gaca33ac476cd6296a2482ea6a7cce40fb"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:ga8dbd76225e9bb513a7551403744adb22" id="r_ga8dbd76225e9bb513a7551403744adb22"><td class="memItemLeft" align="right" valign="top">typedef struct <a class="el" href="structtlv__query__program.html">tlv_query_program</a>&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="group__traversal.html#ga8dbd76225e9bb513a7551403744adb22">tlv_query_plan_t</a></td></tr>
+<tr class="memdesc:ga8dbd76225e9bb513a7551403744adb22"><td class="mdescLeft">&#160;</td><td class="mdescRight">Native plan header; also the existing opaque program handle.  <br /></td></tr>
+<tr class="separator:ga8dbd76225e9bb513a7551403744adb22"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:ga6d80ce128702d5b27bac293e7910f7a8" id="r_ga6d80ce128702d5b27bac293e7910f7a8"><td class="memItemLeft" align="right" valign="top">typedef enum <a class="el" href="group__traversal.html#ga8e2ec8100d144ed549468821736bca5b">tlv_query_level</a>&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="group__traversal.html#ga6d80ce128702d5b27bac293e7910f7a8">tlv_query_level_t</a></td></tr>
 <tr class="memdesc:ga6d80ce128702d5b27bac293e7910f7a8"><td class="mdescLeft">&#160;</td><td class="mdescRight">Whole-expression execution requirements, ordered by available storage.  <br /></td></tr>
 <tr class="separator:ga6d80ce128702d5b27bac293e7910f7a8"><td class="memSeparator" colspan="2">&#160;</td></tr>
@@ -198,7 +241,7 @@ Typedefs</h2></td></tr>
 <tr class="memitem:gaf947e208c6f97e68c59bf5573887d2ca" id="r_gaf947e208c6f97e68c59bf5573887d2ca"><td class="memItemLeft" align="right" valign="top">typedef struct <a class="el" href="structtlv__query__program__info.html">tlv_query_program_info</a>&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="group__traversal.html#gaf947e208c6f97e68c59bf5573887d2ca">tlv_query_program_info_t</a></td></tr>
 <tr class="memdesc:gaf947e208c6f97e68c59bf5573887d2ca"><td class="mdescLeft">&#160;</td><td class="mdescRight">Program requirements and whole-plan information. S0 publishes matching nodes immediately; S1 waits for an independent scope to close using depth-bounded summaries; S2 retains explicit input-sized descriptors until EOF. D requires Document navigation. These are resource profiles of the complete expression, not language versions. Decision timing states when results may first be delivered; it does not relax borrowed-input lifetime requirements.  <br /></td></tr>
 <tr class="separator:gaf947e208c6f97e68c59bf5573887d2ca"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:ga45bdea1007b9780dba5559a2190f569d" id="r_ga45bdea1007b9780dba5559a2190f569d"><td class="memItemLeft" align="right" valign="top">typedef struct tlv_query_program&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="group__traversal.html#ga45bdea1007b9780dba5559a2190f569d">tlv_query_program_t</a></td></tr>
+<tr class="memitem:ga45bdea1007b9780dba5559a2190f569d" id="r_ga45bdea1007b9780dba5559a2190f569d"><td class="memItemLeft" align="right" valign="top">typedef struct <a class="el" href="structtlv__query__program.html">tlv_query_program</a>&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="group__traversal.html#ga45bdea1007b9780dba5559a2190f569d">tlv_query_program_t</a></td></tr>
 <tr class="memdesc:ga45bdea1007b9780dba5559a2190f569d"><td class="mdescLeft">&#160;</td><td class="mdescRight">Opaque immutable caller-owned program.  <br /></td></tr>
 <tr class="separator:ga45bdea1007b9780dba5559a2190f569d"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:gacff0d3ed0386caf2464d098ae952ebb7" id="r_gacff0d3ed0386caf2464d098ae952ebb7"><td class="memItemLeft" align="right" valign="top">typedef struct tlv_query_exec&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="group__traversal.html#gacff0d3ed0386caf2464d098ae952ebb7">tlv_query_exec_t</a></td></tr>
@@ -240,6 +283,116 @@ Typedefs</h2></td></tr>
 </table><table class="memberdecls">
 <tr class="heading"><td colspan="2"><h2 class="groupheader"><a id="enum-members" name="enum-members"></a>
 Enumerations</h2></td></tr>
+<tr class="memitem:ga09596abb6f10bccbfe9cf747a6470f2c" id="r_ga09596abb6f10bccbfe9cf747a6470f2c"><td class="memItemLeft" align="right" valign="top">enum &#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="group__traversal.html#ga09596abb6f10bccbfe9cf747a6470f2c">tlv_query_plan_opcode</a> { <br />
+&#160;&#160;<a class="el" href="group__traversal.html#gga09596abb6f10bccbfe9cf747a6470f2ca32c04f5927dae5d6d3ce55fa494c1ab5">TLV_QUERY_OP_TEST</a>
+, <a class="el" href="group__traversal.html#gga09596abb6f10bccbfe9cf747a6470f2ca65ae9919add7dcbc5120ca41730e3949">TLV_QUERY_OP_ROOT</a>
+, <a class="el" href="group__traversal.html#gga09596abb6f10bccbfe9cf747a6470f2ca6c43f35076a499f1e9fbf0cb4e12f310">TLV_QUERY_OP_SELF</a>
+, <a class="el" href="group__traversal.html#gga09596abb6f10bccbfe9cf747a6470f2ca1421571fd76acab279dac3bb9d51f932">TLV_QUERY_OP_META</a>
+, <br />
+&#160;&#160;<a class="el" href="group__traversal.html#gga09596abb6f10bccbfe9cf747a6470f2ca322692f3ad881fd8c1c93298f8bdee90">TLV_QUERY_OP_LITERAL</a>
+, <a class="el" href="group__traversal.html#gga09596abb6f10bccbfe9cf747a6470f2ca698c975f0875c0682f5c4db88ed2b0fb">TLV_QUERY_OP_BYTES</a>
+, <a class="el" href="group__traversal.html#gga09596abb6f10bccbfe9cf747a6470f2ca6e3e321be3fe14122d497040a169e30a">TLV_QUERY_OP_STRING</a>
+, <a class="el" href="group__traversal.html#gga09596abb6f10bccbfe9cf747a6470f2cae3157f805ae13cf38692f3e6ba3def97">TLV_QUERY_OP_VARIABLE</a>
+, <br />
+&#160;&#160;<a class="el" href="group__traversal.html#gga09596abb6f10bccbfe9cf747a6470f2ca7455af285d4fe5484b95b7d6a574155b">TLV_QUERY_OP_CHILD</a>
+, <a class="el" href="group__traversal.html#gga09596abb6f10bccbfe9cf747a6470f2ca8eb745cb5b2f443f65d1c8548f9de113">TLV_QUERY_OP_DESC</a>
+, <a class="el" href="group__traversal.html#gga09596abb6f10bccbfe9cf747a6470f2ca4d0044fe772d853da11cf86534057be5">TLV_QUERY_OP_FILTER</a>
+, <a class="el" href="group__traversal.html#gga09596abb6f10bccbfe9cf747a6470f2ca615f90701064b22265bf9dbcf9b1a9e6">TLV_QUERY_OP_UNION</a>
+, <br />
+&#160;&#160;<a class="el" href="group__traversal.html#gga09596abb6f10bccbfe9cf747a6470f2ca0a772139adcbf1789fc0112dffacf801">TLV_QUERY_OP_INTERSECT</a>
+, <a class="el" href="group__traversal.html#gga09596abb6f10bccbfe9cf747a6470f2ca81d4348c51c08020b2703e790912036f">TLV_QUERY_OP_EXCEPT</a>
+, <a class="el" href="group__traversal.html#gga09596abb6f10bccbfe9cf747a6470f2ca311b624888133949120f7d7cecf7b04e">TLV_QUERY_OP_EQ</a>
+, <a class="el" href="group__traversal.html#gga09596abb6f10bccbfe9cf747a6470f2ca489d43bdc52993a46212868a213a7df9">TLV_QUERY_OP_NE</a>
+, <br />
+&#160;&#160;<a class="el" href="group__traversal.html#gga09596abb6f10bccbfe9cf747a6470f2ca8fff1f089c815e9c0e97054a477621a2">TLV_QUERY_OP_LT</a>
+, <a class="el" href="group__traversal.html#gga09596abb6f10bccbfe9cf747a6470f2ca4103dca8074edb31a5a30b0bd9c7436d">TLV_QUERY_OP_LE</a>
+, <a class="el" href="group__traversal.html#gga09596abb6f10bccbfe9cf747a6470f2caf8715a7a1a5b40b8f3b56b11c687418f">TLV_QUERY_OP_GT</a>
+, <a class="el" href="group__traversal.html#gga09596abb6f10bccbfe9cf747a6470f2caddcfa7b88e1c86792c24e45a86e155d5">TLV_QUERY_OP_GE</a>
+, <br />
+&#160;&#160;<a class="el" href="group__traversal.html#gga09596abb6f10bccbfe9cf747a6470f2cab4920df03d9f9eeb59be201032f0fed9">TLV_QUERY_OP_AND</a>
+, <a class="el" href="group__traversal.html#gga09596abb6f10bccbfe9cf747a6470f2caeb86be0def053be4d96d974601018108">TLV_QUERY_OP_OR</a>
+, <a class="el" href="group__traversal.html#gga09596abb6f10bccbfe9cf747a6470f2ca232f6235b45aeff80b8f4c09f13185b6">TLV_QUERY_OP_CALL</a>
+, <a class="el" href="group__traversal.html#gga09596abb6f10bccbfe9cf747a6470f2caa63ad2c78fde08240928734cb88f679b">TLV_QUERY_OP_ARGS</a>
+, <br />
+&#160;&#160;<a class="el" href="group__traversal.html#gga09596abb6f10bccbfe9cf747a6470f2ca9e258ebe38b09003ebcb1903ae8799d8">TLV_QUERY_OP_BOOL</a>
+<br />
+ }</td></tr>
+<tr class="memdesc:ga09596abb6f10bccbfe9cf747a6470f2c"><td class="mdescLeft">&#160;</td><td class="mdescRight">Closed plan opcode selectors.  <a href="group__traversal.html#ga09596abb6f10bccbfe9cf747a6470f2c">More...</a><br /></td></tr>
+<tr class="separator:ga09596abb6f10bccbfe9cf747a6470f2c"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:gaa596cc4b3b04ecdc9264ce5d4a34a584" id="r_gaa596cc4b3b04ecdc9264ce5d4a34a584"><td class="memItemLeft" align="right" valign="top">enum &#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="group__traversal.html#gaa596cc4b3b04ecdc9264ce5d4a34a584">tlv_query_plan_axis</a> { <br />
+&#160;&#160;<a class="el" href="group__traversal.html#ggaa596cc4b3b04ecdc9264ce5d4a34a584a2d868b9b52c4791cbf7412d26e14337f">TLV_QUERY_AXIS_CHILD</a>
+, <a class="el" href="group__traversal.html#ggaa596cc4b3b04ecdc9264ce5d4a34a584a620adf739e82768174241da96389316c">TLV_QUERY_AXIS_SELF</a>
+, <a class="el" href="group__traversal.html#ggaa596cc4b3b04ecdc9264ce5d4a34a584a253bfd0796a6971afecdbb0374ddea63">TLV_QUERY_AXIS_DESC</a>
+, <a class="el" href="group__traversal.html#ggaa596cc4b3b04ecdc9264ce5d4a34a584addbf54cc1c78b6b674999aeed4fe59b4">TLV_QUERY_AXIS_ANCESTOR</a>
+, <br />
+&#160;&#160;<a class="el" href="group__traversal.html#ggaa596cc4b3b04ecdc9264ce5d4a34a584a1b37e4ee80338a6a27a7cb032f7ff3d2">TLV_QUERY_AXIS_DESC_SELF</a>
+, <a class="el" href="group__traversal.html#ggaa596cc4b3b04ecdc9264ce5d4a34a584a8d9073df37a7ea7c1575f4012ef49c67">TLV_QUERY_AXIS_PARENT</a>
+, <a class="el" href="group__traversal.html#ggaa596cc4b3b04ecdc9264ce5d4a34a584a1bef6f1fef146adbb69725c3d23c9dfc">TLV_QUERY_AXIS_ANCESTOR_SELF</a>
+, <a class="el" href="group__traversal.html#ggaa596cc4b3b04ecdc9264ce5d4a34a584a83cfac08338294fd6e2f398377b39e77">TLV_QUERY_AXIS_FOLLOW_SIBLING</a>
+, <br />
+&#160;&#160;<a class="el" href="group__traversal.html#ggaa596cc4b3b04ecdc9264ce5d4a34a584a77765526df090c1428c1e9ad72eff530">TLV_QUERY_AXIS_PRECEDE_SIBLING</a>
+, <a class="el" href="group__traversal.html#ggaa596cc4b3b04ecdc9264ce5d4a34a584a3530fc0f8184e43f511ffcb7b86d7eb1">TLV_QUERY_AXIS_FOLLOW</a>
+, <a class="el" href="group__traversal.html#ggaa596cc4b3b04ecdc9264ce5d4a34a584a0f1c7a623455422d21f885f97538e022">TLV_QUERY_AXIS_PRECEDE</a>
+<br />
+ }</td></tr>
+<tr class="memdesc:gaa596cc4b3b04ecdc9264ce5d4a34a584"><td class="mdescLeft">&#160;</td><td class="mdescRight">Closed plan axis selectors.  <a href="group__traversal.html#gaa596cc4b3b04ecdc9264ce5d4a34a584">More...</a><br /></td></tr>
+<tr class="separator:gaa596cc4b3b04ecdc9264ce5d4a34a584"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:ga9733c6c47b1e52a677ca08a9249eb888" id="r_ga9733c6c47b1e52a677ca08a9249eb888"><td class="memItemLeft" align="right" valign="top">enum &#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="group__traversal.html#ga9733c6c47b1e52a677ca08a9249eb888">tlv_query_plan_function</a> { <br />
+&#160;&#160;<a class="el" href="group__traversal.html#gga9733c6c47b1e52a677ca08a9249eb888a2046fba56b11be2b609d21db4c55c959">TLV_QUERY_FN_VALUE</a>
+, <a class="el" href="group__traversal.html#gga9733c6c47b1e52a677ca08a9249eb888a49e623b16a2e36fc938998156456dac9">TLV_QUERY_FN_LEN</a>
+, <a class="el" href="group__traversal.html#gga9733c6c47b1e52a677ca08a9249eb888a90928108c88ceb4ecdded2811d232fac">TLV_QUERY_FN_NOT</a>
+, <a class="el" href="group__traversal.html#gga9733c6c47b1e52a677ca08a9249eb888ad812afd19495f9f38a408e27cea841df">TLV_QUERY_FN_STARTS</a>
+, <br />
+&#160;&#160;<a class="el" href="group__traversal.html#gga9733c6c47b1e52a677ca08a9249eb888a8e0931a04931fa9cb82f4c8106d19f95">TLV_QUERY_FN_ENDS</a>
+, <a class="el" href="group__traversal.html#gga9733c6c47b1e52a677ca08a9249eb888a6d55c9191e0f655ca69dfada4d401ca1">TLV_QUERY_FN_CONTAINS</a>
+, <a class="el" href="group__traversal.html#gga9733c6c47b1e52a677ca08a9249eb888a0512310a9e9c4b6a60110451980c11f7">TLV_QUERY_FN_SUBSTR</a>
+, <a class="el" href="group__traversal.html#gga9733c6c47b1e52a677ca08a9249eb888adfdc3984835e16426dc7c875ef877835">TLV_QUERY_FN_MASK</a>
+, <br />
+&#160;&#160;<a class="el" href="group__traversal.html#gga9733c6c47b1e52a677ca08a9249eb888a7773ebb9c1432b5900c723219e9b2e6d">TLV_QUERY_FN_RANGE</a>
+, <a class="el" href="group__traversal.html#gga9733c6c47b1e52a677ca08a9249eb888a062d2f3300a101e10b2b307b3fc1ab5f">TLV_QUERY_FN_COUNT</a>
+, <a class="el" href="group__traversal.html#gga9733c6c47b1e52a677ca08a9249eb888a560684b172a10c7904eb9ef00b7479bc">TLV_QUERY_FN_EXISTS</a>
+, <a class="el" href="group__traversal.html#gga9733c6c47b1e52a677ca08a9249eb888a319b78603d9361ec3fcf144e1d932df5">TLV_QUERY_FN_EMPTY</a>
+, <br />
+&#160;&#160;<a class="el" href="group__traversal.html#gga9733c6c47b1e52a677ca08a9249eb888a0e660209a5a0f0fd76b2f1fb689e286e">TLV_QUERY_FN_POSITION</a>
+, <a class="el" href="group__traversal.html#gga9733c6c47b1e52a677ca08a9249eb888aa89a2660b880d38fea332d39dea1b1b8">TLV_QUERY_FN_LAST</a>
+, <a class="el" href="group__traversal.html#gga9733c6c47b1e52a677ca08a9249eb888af20d0524392f9f9e55a0a74ab3e16df7">TLV_QUERY_FN_NUM</a>
+, <a class="el" href="group__traversal.html#gga9733c6c47b1e52a677ca08a9249eb888ae443ebd51ff040b82e14bc0f91acf4f6">TLV_QUERY_FN_BCD</a>
+, <br />
+&#160;&#160;<a class="el" href="group__traversal.html#gga9733c6c47b1e52a677ca08a9249eb888a15f7f5cfad5fe1706a6d03420907e226">TLV_QUERY_FN_TEXT</a>
+, <a class="el" href="group__traversal.html#gga9733c6c47b1e52a677ca08a9249eb888ad2b42db9b788324f33bee98a936cec66">TLV_QUERY_FN_DATE</a>
+, <a class="el" href="group__traversal.html#gga9733c6c47b1e52a677ca08a9249eb888a5cc3e39acaf2368fbb5e900f5e0d9d72">TLV_QUERY_FN_TAG</a>
+, <a class="el" href="group__traversal.html#gga9733c6c47b1e52a677ca08a9249eb888ae5bfc12bf2e54089e1833b0fe960b18c">TLV_QUERY_FN_CLASS</a>
+, <br />
+&#160;&#160;<a class="el" href="group__traversal.html#gga9733c6c47b1e52a677ca08a9249eb888a36fb6856c77c909c35dc8b290d77721f">TLV_QUERY_FN_CONSTRUCTED</a>
+, <a class="el" href="group__traversal.html#gga9733c6c47b1e52a677ca08a9249eb888a2b4cb2f6d3d6be88b7fd592a1ff3a82d">TLV_QUERY_FN_NUMBER</a>
+, <a class="el" href="group__traversal.html#gga9733c6c47b1e52a677ca08a9249eb888a528995f4b0995f8b9fde683e1faacb17">TLV_QUERY_FN_NAME</a>
+, <a class="el" href="group__traversal.html#gga9733c6c47b1e52a677ca08a9249eb888af7457cddafafcdd16421da93020176ff">TLV_QUERY_FN_UNKNOWN</a>
+<br />
+ }</td></tr>
+<tr class="memdesc:ga9733c6c47b1e52a677ca08a9249eb888"><td class="mdescLeft">&#160;</td><td class="mdescRight">Closed plan function selectors.  <a href="group__traversal.html#ga9733c6c47b1e52a677ca08a9249eb888">More...</a><br /></td></tr>
+<tr class="separator:ga9733c6c47b1e52a677ca08a9249eb888"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:gab71b094e7121421a0bfdfd8c28e413dd" id="r_gab71b094e7121421a0bfdfd8c28e413dd"><td class="memItemLeft" align="right" valign="top">enum &#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="group__traversal.html#gab71b094e7121421a0bfdfd8c28e413dd">tlv_query_plan_metadata</a> { <br />
+&#160;&#160;<a class="el" href="group__traversal.html#ggab71b094e7121421a0bfdfd8c28e413dda6ce5f48346c838991df12aa9aabf3beb">TLV_QUERY_META_LEN</a>
+, <a class="el" href="group__traversal.html#ggab71b094e7121421a0bfdfd8c28e413dda7ef6f5b916d0ba66cf19255901d0a8c8">TLV_QUERY_META_DEPTH</a>
+, <a class="el" href="group__traversal.html#ggab71b094e7121421a0bfdfd8c28e413ddae5caf19e61234a2799e2b00ace100109">TLV_QUERY_META_INDEX</a>
+, <a class="el" href="group__traversal.html#ggab71b094e7121421a0bfdfd8c28e413dda6a212f71b36686bb32494762cd925c0e">TLV_QUERY_META_OFFSET</a>
+, <br />
+&#160;&#160;<a class="el" href="group__traversal.html#ggab71b094e7121421a0bfdfd8c28e413dda0ca8b0c6cd541892031b33cafc341cb2">TLV_QUERY_META_HLEN</a>
+<br />
+ }</td></tr>
+<tr class="memdesc:gab71b094e7121421a0bfdfd8c28e413dd"><td class="mdescLeft">&#160;</td><td class="mdescRight">Metadata selectors for TLV_QUERY_OP_META.  <a href="group__traversal.html#gab71b094e7121421a0bfdfd8c28e413dd">More...</a><br /></td></tr>
+<tr class="separator:gab71b094e7121421a0bfdfd8c28e413dd"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:ga4e909e487e1ea6c7b02cc3416d2a0900" id="r_ga4e909e487e1ea6c7b02cc3416d2a0900"><td class="memItemLeft" align="right" valign="top">enum &#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="group__traversal.html#ga4e909e487e1ea6c7b02cc3416d2a0900">tlv_query_plan_type</a> { <br />
+&#160;&#160;<a class="el" href="group__traversal.html#gga4e909e487e1ea6c7b02cc3416d2a0900a971e85f54eaeda9b55b9be48183715c9">TLV_QUERY_PLAN_NODES</a>
+, <a class="el" href="group__traversal.html#gga4e909e487e1ea6c7b02cc3416d2a0900a5304bd895f748ecef28e841228252bae">TLV_QUERY_PLAN_BOOL</a>
+, <a class="el" href="group__traversal.html#gga4e909e487e1ea6c7b02cc3416d2a0900a531c73d0fcdee28acd0b280010669eb9">TLV_QUERY_PLAN_INTEGER</a>
+, <a class="el" href="group__traversal.html#gga4e909e487e1ea6c7b02cc3416d2a0900a4fe90aef1edcbc9f8fd0bd4ed84e795e">TLV_QUERY_PLAN_BYTES</a>
+, <br />
+&#160;&#160;<a class="el" href="group__traversal.html#gga4e909e487e1ea6c7b02cc3416d2a0900a91b4b2c1af9f7cc98562402c04fcd7fa">TLV_QUERY_PLAN_STRING</a>
+<br />
+ }</td></tr>
+<tr class="memdesc:ga4e909e487e1ea6c7b02cc3416d2a0900"><td class="mdescLeft">&#160;</td><td class="mdescRight">Internal value categories used by instruction type fields.  <a href="group__traversal.html#ga4e909e487e1ea6c7b02cc3416d2a0900">More...</a><br /></td></tr>
+<tr class="separator:ga4e909e487e1ea6c7b02cc3416d2a0900"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:ga8e2ec8100d144ed549468821736bca5b" id="r_ga8e2ec8100d144ed549468821736bca5b"><td class="memItemLeft" align="right" valign="top">enum &#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="group__traversal.html#ga8e2ec8100d144ed549468821736bca5b">tlv_query_level</a> { <a class="el" href="group__traversal.html#gga8e2ec8100d144ed549468821736bca5ba9dda3f2e56264c3c91b86ef45e28222f">TLV_QUERY_S0</a>
 , <a class="el" href="group__traversal.html#gga8e2ec8100d144ed549468821736bca5ba9c4f33ca69fab8f0b46d88dc5b680a1e">TLV_QUERY_S1</a>
 , <a class="el" href="group__traversal.html#gga8e2ec8100d144ed549468821736bca5baf3cd0b3d0e3cba123dae003e543cde36">TLV_QUERY_S2</a>
@@ -307,6 +460,12 @@ Enumerations</h2></td></tr>
 </table><table class="memberdecls">
 <tr class="heading"><td colspan="2"><h2 class="groupheader"><a id="func-members" name="func-members"></a>
 Functions</h2></td></tr>
+<tr class="memitem:gac9b650eb94578e7b28361d6705bf02bd" id="r_gac9b650eb94578e7b28361d6705bf02bd"><td class="memItemLeft" align="right" valign="top"><a class="el" href="group__core.html#ga164d2817a32e5d7b7aa1472e887b47c3">tlv_result_t</a>&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="group__traversal.html#gac9b650eb94578e7b28361d6705bf02bd">tlv_query_plan_open</a> (const void *image, size_t size, const <a class="el" href="group__traversal.html#ga45bdea1007b9780dba5559a2190f569d">tlv_query_program_t</a> **program, <a class="el" href="group__traversal.html#ga17f951dcf47161a07accd081699eff6f">tlv_query_diagnostic_t</a> *diagnostic)</td></tr>
+<tr class="memdesc:gac9b650eb94578e7b28361d6705bf02bd"><td class="mdescLeft">&#160;</td><td class="mdescRight">Validate and borrow a bounded native plan without a Query frontend.  <br /></td></tr>
+<tr class="separator:gac9b650eb94578e7b28361d6705bf02bd"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:gae02e9019bf985c5a234784acd32a0763" id="r_gae02e9019bf985c5a234784acd32a0763"><td class="memItemLeft" align="right" valign="top"><a class="el" href="group__core.html#ga164d2817a32e5d7b7aa1472e887b47c3">tlv_result_t</a>&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="group__traversal.html#gae02e9019bf985c5a234784acd32a0763">tlv_query_plan_info</a> (const <a class="el" href="group__traversal.html#ga45bdea1007b9780dba5559a2190f569d">tlv_query_program_t</a> *program, <a class="el" href="group__traversal.html#gaf947e208c6f97e68c59bf5573887d2ca">tlv_query_program_info_t</a> *info)</td></tr>
+<tr class="memdesc:gae02e9019bf985c5a234784acd32a0763"><td class="mdescLeft">&#160;</td><td class="mdescRight">Inspect requirements of a validated immutable plan without the frontend.  <br /></td></tr>
+<tr class="separator:gae02e9019bf985c5a234784acd32a0763"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:ga7b03002e8b3fb150a6ab43d6d21e5634" id="r_ga7b03002e8b3fb150a6ab43d6d21e5634"><td class="memItemLeft" align="right" valign="top">size_t&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="group__traversal.html#ga7b03002e8b3fb150a6ab43d6d21e5634">tlv_query_program_variable_count</a> (const <a class="el" href="group__traversal.html#ga45bdea1007b9780dba5559a2190f569d">tlv_query_program_t</a> *program)</td></tr>
 <tr class="memdesc:ga7b03002e8b3fb150a6ab43d6d21e5634"><td class="mdescLeft">&#160;</td><td class="mdescRight">Count unique referenced variables in first-reference order.  <br /></td></tr>
 <tr class="separator:ga7b03002e8b3fb150a6ab43d6d21e5634"><td class="memSeparator" colspan="2">&#160;</td></tr>
@@ -338,7 +497,7 @@ Functions</h2></td></tr>
 <tr class="memdesc:gada4c9c329df80dc495a7313b551ebfb0"><td class="mdescLeft">&#160;</td><td class="mdescRight">Validate an exact bounded image and borrow it for read-only execution.  <br /></td></tr>
 <tr class="separator:gada4c9c329df80dc495a7313b551ebfb0"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:ga2d9b3cb408e4f728d0606013aff07929" id="r_ga2d9b3cb408e4f728d0606013aff07929"><td class="memItemLeft" align="right" valign="top"><a class="el" href="group__core.html#ga164d2817a32e5d7b7aa1472e887b47c3">tlv_result_t</a>&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="group__traversal.html#ga2d9b3cb408e4f728d0606013aff07929">tlv_query_program_format</a> (const <a class="el" href="group__traversal.html#ga45bdea1007b9780dba5559a2190f569d">tlv_query_program_t</a> *program, char *output, size_t capacity, size_t *required)</td></tr>
-<tr class="memdesc:ga2d9b3cb408e4f728d0606013aff07929"><td class="mdescLeft">&#160;</td><td class="mdescRight">Canonically format a compiled program, including size discovery.  <br /></td></tr>
+<tr class="memdesc:ga2d9b3cb408e4f728d0606013aff07929"><td class="mdescLeft">&#160;</td><td class="mdescRight">Canonically format retained program source, including size discovery.  <br /></td></tr>
 <tr class="separator:ga2d9b3cb408e4f728d0606013aff07929"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:gad353ad2d98852e309b413e2e8f9fda58" id="r_gad353ad2d98852e309b413e2e8f9fda58"><td class="memItemLeft" align="right" valign="top"><a class="el" href="group__core.html#ga164d2817a32e5d7b7aa1472e887b47c3">tlv_result_t</a>&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="group__traversal.html#gad353ad2d98852e309b413e2e8f9fda58">tlv_query_exec_size</a> (const <a class="el" href="group__traversal.html#ga45bdea1007b9780dba5559a2190f569d">tlv_query_program_t</a> *program, size_t max_depth, size_t *bytes, size_t *alignment)</td></tr>
 <tr class="memdesc:gad353ad2d98852e309b413e2e8f9fda58"><td class="mdescLeft">&#160;</td><td class="mdescRight">Discover runtime workspace for a compiled S0/S1 plan and depth capacity.  <br /></td></tr>
@@ -469,6 +628,55 @@ Functions</h2></td></tr>
 </table>
 <a name="details" id="details"></a><h2 class="groupheader">Detailed Description</h2>
 <p>Traversing adjacent or nested elements through the canonical Reader cursor. Guides: <a href="https://marekcingel.github.io/OpenTLV/guides/reader/">pull-based reading</a>. </p>
+<h2 class="groupheader">Macro Definition Documentation</h2>
+<a id="gabaa0ad424629dca172a65393bb8703da" name="gabaa0ad424629dca172a65393bb8703da"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#gabaa0ad424629dca172a65393bb8703da">&#9670;&#160;</a></span>TLV_QUERY_PLAN_MAGIC</h2>
+
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname">#define TLV_QUERY_PLAN_MAGIC&#160;&#160;&#160;UINT32_C(0x51525932)</td>
+        </tr>
+      </table>
+</div><div class="memdoc">
+
+<p>Native image signature; swapped byte order is incompatible. </p>
+
+</div>
+</div>
+<a id="gab11a8a0049bdab5280041e2346d75d3e" name="gab11a8a0049bdab5280041e2346d75d3e"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#gab11a8a0049bdab5280041e2346d75d3e">&#9670;&#160;</a></span>TLV_QUERY_PLAN_NONE</h2>
+
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname">#define TLV_QUERY_PLAN_NONE&#160;&#160;&#160;UINT32_MAX</td>
+        </tr>
+      </table>
+</div><div class="memdoc">
+
+<p>Absent instruction reference. All other references point backward. </p>
+
+</div>
+</div>
+<a id="ga1153438e9cec52d05c0e6d09b395639e" name="ga1153438e9cec52d05c0e6d09b395639e"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#ga1153438e9cec52d05c0e6d09b395639e">&#9670;&#160;</a></span>TLV_QUERY_PLAN_VERSION</h2>
+
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname">#define TLV_QUERY_PLAN_VERSION&#160;&#160;&#160;UINT32_C(6)</td>
+        </tr>
+      </table>
+</div><div class="memdoc">
+
+<p>Exact supported representation version, independent of language version. </p>
+
+</div>
+</div>
 <h2 class="groupheader">Typedef Documentation</h2>
 <a id="gaf426eeab5c08024d576603e4102962ec" name="gaf426eeab5c08024d576603e4102962ec"></a>
 <h2 class="memtitle"><span class="permalink"><a href="#gaf426eeab5c08024d576603e4102962ec">&#9670;&#160;</a></span>tlv_query_compile_options_t</h2>
@@ -669,6 +877,22 @@ Functions</h2></td></tr>
 
 </div>
 </div>
+<a id="gaca33ac476cd6296a2482ea6a7cce40fb" name="gaca33ac476cd6296a2482ea6a7cce40fb"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#gaca33ac476cd6296a2482ea6a7cce40fb">&#9670;&#160;</a></span>tlv_query_instruction_t</h2>
+
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname">typedef struct <a class="el" href="structtlv__query__instruction.html">tlv_query_instruction</a> <a class="el" href="group__traversal.html#gaca33ac476cd6296a2482ea6a7cce40fb">tlv_query_instruction_t</a></td>
+        </tr>
+      </table>
+</div><div class="memdoc">
+
+<p>One immutable, topologically ordered execution instruction. </p>
+
+</div>
+</div>
 <a id="ga6d80ce128702d5b27bac293e7910f7a8" name="ga6d80ce128702d5b27bac293e7910f7a8"></a>
 <h2 class="memtitle"><span class="permalink"><a href="#ga6d80ce128702d5b27bac293e7910f7a8">&#9670;&#160;</a></span>tlv_query_level_t</h2>
 
@@ -702,6 +926,102 @@ Functions</h2></td></tr>
 
 </div>
 </div>
+<a id="ga41c13178df6ed4bee0c4c2c901f1ea1f" name="ga41c13178df6ed4bee0c4c2c901f1ea1f"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#ga41c13178df6ed4bee0c4c2c901f1ea1f">&#9670;&#160;</a></span>tlv_query_plan_axis_t</h2>
+
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname">typedef enum <a class="el" href="group__traversal.html#gaa596cc4b3b04ecdc9264ce5d4a34a584">tlv_query_plan_axis</a> <a class="el" href="group__traversal.html#ga41c13178df6ed4bee0c4c2c901f1ea1f">tlv_query_plan_axis_t</a></td>
+        </tr>
+      </table>
+</div><div class="memdoc">
+
+<p>Closed plan axis selectors. </p>
+
+</div>
+</div>
+<a id="gafb40e9003b78f754ef8a3d03664468df" name="gafb40e9003b78f754ef8a3d03664468df"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#gafb40e9003b78f754ef8a3d03664468df">&#9670;&#160;</a></span>tlv_query_plan_function_t</h2>
+
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname">typedef enum <a class="el" href="group__traversal.html#ga9733c6c47b1e52a677ca08a9249eb888">tlv_query_plan_function</a> <a class="el" href="group__traversal.html#gafb40e9003b78f754ef8a3d03664468df">tlv_query_plan_function_t</a></td>
+        </tr>
+      </table>
+</div><div class="memdoc">
+
+<p>Closed plan function selectors. </p>
+
+</div>
+</div>
+<a id="ga058a2bf8a60d9f3697c671ec4f1a8df7" name="ga058a2bf8a60d9f3697c671ec4f1a8df7"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#ga058a2bf8a60d9f3697c671ec4f1a8df7">&#9670;&#160;</a></span>tlv_query_plan_metadata_t</h2>
+
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname">typedef enum <a class="el" href="group__traversal.html#gab71b094e7121421a0bfdfd8c28e413dd">tlv_query_plan_metadata</a> <a class="el" href="group__traversal.html#ga058a2bf8a60d9f3697c671ec4f1a8df7">tlv_query_plan_metadata_t</a></td>
+        </tr>
+      </table>
+</div><div class="memdoc">
+
+<p>Metadata selectors for TLV_QUERY_OP_META. </p>
+
+</div>
+</div>
+<a id="ga91e5664b709796e58aa595a368a8b3bf" name="ga91e5664b709796e58aa595a368a8b3bf"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#ga91e5664b709796e58aa595a368a8b3bf">&#9670;&#160;</a></span>tlv_query_plan_opcode_t</h2>
+
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname">typedef enum <a class="el" href="group__traversal.html#ga09596abb6f10bccbfe9cf747a6470f2c">tlv_query_plan_opcode</a> <a class="el" href="group__traversal.html#ga91e5664b709796e58aa595a368a8b3bf">tlv_query_plan_opcode_t</a></td>
+        </tr>
+      </table>
+</div><div class="memdoc">
+
+<p>Closed plan opcode selectors. </p>
+
+</div>
+</div>
+<a id="ga8dbd76225e9bb513a7551403744adb22" name="ga8dbd76225e9bb513a7551403744adb22"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#ga8dbd76225e9bb513a7551403744adb22">&#9670;&#160;</a></span>tlv_query_plan_t</h2>
+
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname">typedef struct <a class="el" href="structtlv__query__program.html">tlv_query_program</a> <a class="el" href="group__traversal.html#ga8dbd76225e9bb513a7551403744adb22">tlv_query_plan_t</a></td>
+        </tr>
+      </table>
+</div><div class="memdoc">
+
+<p>Native plan header; also the existing opaque program handle. </p>
+
+</div>
+</div>
+<a id="gad68622eb8f03038ab25457439581f205" name="gad68622eb8f03038ab25457439581f205"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#gad68622eb8f03038ab25457439581f205">&#9670;&#160;</a></span>tlv_query_plan_type_t</h2>
+
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname">typedef enum <a class="el" href="group__traversal.html#ga4e909e487e1ea6c7b02cc3416d2a0900">tlv_query_plan_type</a> <a class="el" href="group__traversal.html#gad68622eb8f03038ab25457439581f205">tlv_query_plan_type_t</a></td>
+        </tr>
+      </table>
+</div><div class="memdoc">
+
+<p>Internal value categories used by instruction type fields. </p>
+
+</div>
+</div>
 <a id="gaf947e208c6f97e68c59bf5573887d2ca" name="gaf947e208c6f97e68c59bf5573887d2ca"></a>
 <h2 class="memtitle"><span class="permalink"><a href="#gaf947e208c6f97e68c59bf5573887d2ca">&#9670;&#160;</a></span>tlv_query_program_info_t</h2>
 
@@ -725,7 +1045,7 @@ Functions</h2></td></tr>
 <div class="memproto">
       <table class="memname">
         <tr>
-          <td class="memname">typedef struct tlv_query_program <a class="el" href="group__traversal.html#ga45bdea1007b9780dba5559a2190f569d">tlv_query_program_t</a></td>
+          <td class="memname">typedef struct <a class="el" href="structtlv__query__program.html">tlv_query_program</a> <a class="el" href="group__traversal.html#ga45bdea1007b9780dba5559a2190f569d">tlv_query_program_t</a></td>
         </tr>
       </table>
 </div><div class="memdoc">
@@ -1131,6 +1451,236 @@ Functions</h2></td></tr>
 <tr><td class="fieldname"><a id="gga8e2ec8100d144ed549468821736bca5baf3cd0b3d0e3cba123dae003e543cde36" name="gga8e2ec8100d144ed549468821736bca5baf3cd0b3d0e3cba123dae003e543cde36"></a>TLV_QUERY_S2&#160;</td><td class="fielddoc"><p>Explicit input-dependent candidate capacity. </p>
 </td></tr>
 <tr><td class="fieldname"><a id="gga8e2ec8100d144ed549468821736bca5ba4a9a5b7117efb96bfcc2ae0f97a8b4f5" name="gga8e2ec8100d144ed549468821736bca5ba4a9a5b7117efb96bfcc2ae0f97a8b4f5"></a>TLV_QUERY_D&#160;</td><td class="fielddoc"><p>Document navigation and bounded work. </p>
+</td></tr>
+</table>
+
+</div>
+</div>
+<a id="gaa596cc4b3b04ecdc9264ce5d4a34a584" name="gaa596cc4b3b04ecdc9264ce5d4a34a584"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#gaa596cc4b3b04ecdc9264ce5d4a34a584">&#9670;&#160;</a></span>tlv_query_plan_axis</h2>
+
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname">enum <a class="el" href="group__traversal.html#gaa596cc4b3b04ecdc9264ce5d4a34a584">tlv_query_plan_axis</a></td>
+        </tr>
+      </table>
+</div><div class="memdoc">
+
+<p>Closed plan axis selectors. </p>
+<table class="fieldtable">
+<tr><th colspan="2">Enumerator</th></tr><tr><td class="fieldname"><a id="ggaa596cc4b3b04ecdc9264ce5d4a34a584a2d868b9b52c4791cbf7412d26e14337f" name="ggaa596cc4b3b04ecdc9264ce5d4a34a584a2d868b9b52c4791cbf7412d26e14337f"></a>TLV_QUERY_AXIS_CHILD&#160;</td><td class="fielddoc"><p>child selector. </p>
+</td></tr>
+<tr><td class="fieldname"><a id="ggaa596cc4b3b04ecdc9264ce5d4a34a584a620adf739e82768174241da96389316c" name="ggaa596cc4b3b04ecdc9264ce5d4a34a584a620adf739e82768174241da96389316c"></a>TLV_QUERY_AXIS_SELF&#160;</td><td class="fielddoc"><p>self selector. </p>
+</td></tr>
+<tr><td class="fieldname"><a id="ggaa596cc4b3b04ecdc9264ce5d4a34a584a253bfd0796a6971afecdbb0374ddea63" name="ggaa596cc4b3b04ecdc9264ce5d4a34a584a253bfd0796a6971afecdbb0374ddea63"></a>TLV_QUERY_AXIS_DESC&#160;</td><td class="fielddoc"><p>desc selector. </p>
+</td></tr>
+<tr><td class="fieldname"><a id="ggaa596cc4b3b04ecdc9264ce5d4a34a584addbf54cc1c78b6b674999aeed4fe59b4" name="ggaa596cc4b3b04ecdc9264ce5d4a34a584addbf54cc1c78b6b674999aeed4fe59b4"></a>TLV_QUERY_AXIS_ANCESTOR&#160;</td><td class="fielddoc"><p>ancestor selector. </p>
+</td></tr>
+<tr><td class="fieldname"><a id="ggaa596cc4b3b04ecdc9264ce5d4a34a584a1b37e4ee80338a6a27a7cb032f7ff3d2" name="ggaa596cc4b3b04ecdc9264ce5d4a34a584a1b37e4ee80338a6a27a7cb032f7ff3d2"></a>TLV_QUERY_AXIS_DESC_SELF&#160;</td><td class="fielddoc"><p>desc self selector. </p>
+</td></tr>
+<tr><td class="fieldname"><a id="ggaa596cc4b3b04ecdc9264ce5d4a34a584a8d9073df37a7ea7c1575f4012ef49c67" name="ggaa596cc4b3b04ecdc9264ce5d4a34a584a8d9073df37a7ea7c1575f4012ef49c67"></a>TLV_QUERY_AXIS_PARENT&#160;</td><td class="fielddoc"><p>parent selector. </p>
+</td></tr>
+<tr><td class="fieldname"><a id="ggaa596cc4b3b04ecdc9264ce5d4a34a584a1bef6f1fef146adbb69725c3d23c9dfc" name="ggaa596cc4b3b04ecdc9264ce5d4a34a584a1bef6f1fef146adbb69725c3d23c9dfc"></a>TLV_QUERY_AXIS_ANCESTOR_SELF&#160;</td><td class="fielddoc"><p>ancestor self selector. </p>
+</td></tr>
+<tr><td class="fieldname"><a id="ggaa596cc4b3b04ecdc9264ce5d4a34a584a83cfac08338294fd6e2f398377b39e77" name="ggaa596cc4b3b04ecdc9264ce5d4a34a584a83cfac08338294fd6e2f398377b39e77"></a>TLV_QUERY_AXIS_FOLLOW_SIBLING&#160;</td><td class="fielddoc"><p>follow sibling selector. </p>
+</td></tr>
+<tr><td class="fieldname"><a id="ggaa596cc4b3b04ecdc9264ce5d4a34a584a77765526df090c1428c1e9ad72eff530" name="ggaa596cc4b3b04ecdc9264ce5d4a34a584a77765526df090c1428c1e9ad72eff530"></a>TLV_QUERY_AXIS_PRECEDE_SIBLING&#160;</td><td class="fielddoc"><p>precede sibling selector. </p>
+</td></tr>
+<tr><td class="fieldname"><a id="ggaa596cc4b3b04ecdc9264ce5d4a34a584a3530fc0f8184e43f511ffcb7b86d7eb1" name="ggaa596cc4b3b04ecdc9264ce5d4a34a584a3530fc0f8184e43f511ffcb7b86d7eb1"></a>TLV_QUERY_AXIS_FOLLOW&#160;</td><td class="fielddoc"><p>follow selector. </p>
+</td></tr>
+<tr><td class="fieldname"><a id="ggaa596cc4b3b04ecdc9264ce5d4a34a584a0f1c7a623455422d21f885f97538e022" name="ggaa596cc4b3b04ecdc9264ce5d4a34a584a0f1c7a623455422d21f885f97538e022"></a>TLV_QUERY_AXIS_PRECEDE&#160;</td><td class="fielddoc"><p>precede selector. </p>
+</td></tr>
+</table>
+
+</div>
+</div>
+<a id="ga9733c6c47b1e52a677ca08a9249eb888" name="ga9733c6c47b1e52a677ca08a9249eb888"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#ga9733c6c47b1e52a677ca08a9249eb888">&#9670;&#160;</a></span>tlv_query_plan_function</h2>
+
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname">enum <a class="el" href="group__traversal.html#ga9733c6c47b1e52a677ca08a9249eb888">tlv_query_plan_function</a></td>
+        </tr>
+      </table>
+</div><div class="memdoc">
+
+<p>Closed plan function selectors. </p>
+<table class="fieldtable">
+<tr><th colspan="2">Enumerator</th></tr><tr><td class="fieldname"><a id="gga9733c6c47b1e52a677ca08a9249eb888a2046fba56b11be2b609d21db4c55c959" name="gga9733c6c47b1e52a677ca08a9249eb888a2046fba56b11be2b609d21db4c55c959"></a>TLV_QUERY_FN_VALUE&#160;</td><td class="fielddoc"><p>value selector. </p>
+</td></tr>
+<tr><td class="fieldname"><a id="gga9733c6c47b1e52a677ca08a9249eb888a49e623b16a2e36fc938998156456dac9" name="gga9733c6c47b1e52a677ca08a9249eb888a49e623b16a2e36fc938998156456dac9"></a>TLV_QUERY_FN_LEN&#160;</td><td class="fielddoc"><p>len selector. </p>
+</td></tr>
+<tr><td class="fieldname"><a id="gga9733c6c47b1e52a677ca08a9249eb888a90928108c88ceb4ecdded2811d232fac" name="gga9733c6c47b1e52a677ca08a9249eb888a90928108c88ceb4ecdded2811d232fac"></a>TLV_QUERY_FN_NOT&#160;</td><td class="fielddoc"><p>not selector. </p>
+</td></tr>
+<tr><td class="fieldname"><a id="gga9733c6c47b1e52a677ca08a9249eb888ad812afd19495f9f38a408e27cea841df" name="gga9733c6c47b1e52a677ca08a9249eb888ad812afd19495f9f38a408e27cea841df"></a>TLV_QUERY_FN_STARTS&#160;</td><td class="fielddoc"><p>starts selector. </p>
+</td></tr>
+<tr><td class="fieldname"><a id="gga9733c6c47b1e52a677ca08a9249eb888a8e0931a04931fa9cb82f4c8106d19f95" name="gga9733c6c47b1e52a677ca08a9249eb888a8e0931a04931fa9cb82f4c8106d19f95"></a>TLV_QUERY_FN_ENDS&#160;</td><td class="fielddoc"><p>ends selector. </p>
+</td></tr>
+<tr><td class="fieldname"><a id="gga9733c6c47b1e52a677ca08a9249eb888a6d55c9191e0f655ca69dfada4d401ca1" name="gga9733c6c47b1e52a677ca08a9249eb888a6d55c9191e0f655ca69dfada4d401ca1"></a>TLV_QUERY_FN_CONTAINS&#160;</td><td class="fielddoc"><p>contains selector. </p>
+</td></tr>
+<tr><td class="fieldname"><a id="gga9733c6c47b1e52a677ca08a9249eb888a0512310a9e9c4b6a60110451980c11f7" name="gga9733c6c47b1e52a677ca08a9249eb888a0512310a9e9c4b6a60110451980c11f7"></a>TLV_QUERY_FN_SUBSTR&#160;</td><td class="fielddoc"><p>substr selector. </p>
+</td></tr>
+<tr><td class="fieldname"><a id="gga9733c6c47b1e52a677ca08a9249eb888adfdc3984835e16426dc7c875ef877835" name="gga9733c6c47b1e52a677ca08a9249eb888adfdc3984835e16426dc7c875ef877835"></a>TLV_QUERY_FN_MASK&#160;</td><td class="fielddoc"><p>mask selector. </p>
+</td></tr>
+<tr><td class="fieldname"><a id="gga9733c6c47b1e52a677ca08a9249eb888a7773ebb9c1432b5900c723219e9b2e6d" name="gga9733c6c47b1e52a677ca08a9249eb888a7773ebb9c1432b5900c723219e9b2e6d"></a>TLV_QUERY_FN_RANGE&#160;</td><td class="fielddoc"><p>range selector. </p>
+</td></tr>
+<tr><td class="fieldname"><a id="gga9733c6c47b1e52a677ca08a9249eb888a062d2f3300a101e10b2b307b3fc1ab5f" name="gga9733c6c47b1e52a677ca08a9249eb888a062d2f3300a101e10b2b307b3fc1ab5f"></a>TLV_QUERY_FN_COUNT&#160;</td><td class="fielddoc"><p>count selector. </p>
+</td></tr>
+<tr><td class="fieldname"><a id="gga9733c6c47b1e52a677ca08a9249eb888a560684b172a10c7904eb9ef00b7479bc" name="gga9733c6c47b1e52a677ca08a9249eb888a560684b172a10c7904eb9ef00b7479bc"></a>TLV_QUERY_FN_EXISTS&#160;</td><td class="fielddoc"><p>exists selector. </p>
+</td></tr>
+<tr><td class="fieldname"><a id="gga9733c6c47b1e52a677ca08a9249eb888a319b78603d9361ec3fcf144e1d932df5" name="gga9733c6c47b1e52a677ca08a9249eb888a319b78603d9361ec3fcf144e1d932df5"></a>TLV_QUERY_FN_EMPTY&#160;</td><td class="fielddoc"><p>empty selector. </p>
+</td></tr>
+<tr><td class="fieldname"><a id="gga9733c6c47b1e52a677ca08a9249eb888a0e660209a5a0f0fd76b2f1fb689e286e" name="gga9733c6c47b1e52a677ca08a9249eb888a0e660209a5a0f0fd76b2f1fb689e286e"></a>TLV_QUERY_FN_POSITION&#160;</td><td class="fielddoc"><p>position selector. </p>
+</td></tr>
+<tr><td class="fieldname"><a id="gga9733c6c47b1e52a677ca08a9249eb888aa89a2660b880d38fea332d39dea1b1b8" name="gga9733c6c47b1e52a677ca08a9249eb888aa89a2660b880d38fea332d39dea1b1b8"></a>TLV_QUERY_FN_LAST&#160;</td><td class="fielddoc"><p>last selector. </p>
+</td></tr>
+<tr><td class="fieldname"><a id="gga9733c6c47b1e52a677ca08a9249eb888af20d0524392f9f9e55a0a74ab3e16df7" name="gga9733c6c47b1e52a677ca08a9249eb888af20d0524392f9f9e55a0a74ab3e16df7"></a>TLV_QUERY_FN_NUM&#160;</td><td class="fielddoc"><p>num selector. </p>
+</td></tr>
+<tr><td class="fieldname"><a id="gga9733c6c47b1e52a677ca08a9249eb888ae443ebd51ff040b82e14bc0f91acf4f6" name="gga9733c6c47b1e52a677ca08a9249eb888ae443ebd51ff040b82e14bc0f91acf4f6"></a>TLV_QUERY_FN_BCD&#160;</td><td class="fielddoc"><p>bcd selector. </p>
+</td></tr>
+<tr><td class="fieldname"><a id="gga9733c6c47b1e52a677ca08a9249eb888a15f7f5cfad5fe1706a6d03420907e226" name="gga9733c6c47b1e52a677ca08a9249eb888a15f7f5cfad5fe1706a6d03420907e226"></a>TLV_QUERY_FN_TEXT&#160;</td><td class="fielddoc"><p>text selector. </p>
+</td></tr>
+<tr><td class="fieldname"><a id="gga9733c6c47b1e52a677ca08a9249eb888ad2b42db9b788324f33bee98a936cec66" name="gga9733c6c47b1e52a677ca08a9249eb888ad2b42db9b788324f33bee98a936cec66"></a>TLV_QUERY_FN_DATE&#160;</td><td class="fielddoc"><p>date selector. </p>
+</td></tr>
+<tr><td class="fieldname"><a id="gga9733c6c47b1e52a677ca08a9249eb888a5cc3e39acaf2368fbb5e900f5e0d9d72" name="gga9733c6c47b1e52a677ca08a9249eb888a5cc3e39acaf2368fbb5e900f5e0d9d72"></a>TLV_QUERY_FN_TAG&#160;</td><td class="fielddoc"><p>tag selector. </p>
+</td></tr>
+<tr><td class="fieldname"><a id="gga9733c6c47b1e52a677ca08a9249eb888ae5bfc12bf2e54089e1833b0fe960b18c" name="gga9733c6c47b1e52a677ca08a9249eb888ae5bfc12bf2e54089e1833b0fe960b18c"></a>TLV_QUERY_FN_CLASS&#160;</td><td class="fielddoc"><p>class selector. </p>
+</td></tr>
+<tr><td class="fieldname"><a id="gga9733c6c47b1e52a677ca08a9249eb888a36fb6856c77c909c35dc8b290d77721f" name="gga9733c6c47b1e52a677ca08a9249eb888a36fb6856c77c909c35dc8b290d77721f"></a>TLV_QUERY_FN_CONSTRUCTED&#160;</td><td class="fielddoc"><p>constructed selector. </p>
+</td></tr>
+<tr><td class="fieldname"><a id="gga9733c6c47b1e52a677ca08a9249eb888a2b4cb2f6d3d6be88b7fd592a1ff3a82d" name="gga9733c6c47b1e52a677ca08a9249eb888a2b4cb2f6d3d6be88b7fd592a1ff3a82d"></a>TLV_QUERY_FN_NUMBER&#160;</td><td class="fielddoc"><p>number selector. </p>
+</td></tr>
+<tr><td class="fieldname"><a id="gga9733c6c47b1e52a677ca08a9249eb888a528995f4b0995f8b9fde683e1faacb17" name="gga9733c6c47b1e52a677ca08a9249eb888a528995f4b0995f8b9fde683e1faacb17"></a>TLV_QUERY_FN_NAME&#160;</td><td class="fielddoc"><p>name selector. </p>
+</td></tr>
+<tr><td class="fieldname"><a id="gga9733c6c47b1e52a677ca08a9249eb888af7457cddafafcdd16421da93020176ff" name="gga9733c6c47b1e52a677ca08a9249eb888af7457cddafafcdd16421da93020176ff"></a>TLV_QUERY_FN_UNKNOWN&#160;</td><td class="fielddoc"><p>unknown selector. </p>
+</td></tr>
+</table>
+
+</div>
+</div>
+<a id="gab71b094e7121421a0bfdfd8c28e413dd" name="gab71b094e7121421a0bfdfd8c28e413dd"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#gab71b094e7121421a0bfdfd8c28e413dd">&#9670;&#160;</a></span>tlv_query_plan_metadata</h2>
+
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname">enum <a class="el" href="group__traversal.html#gab71b094e7121421a0bfdfd8c28e413dd">tlv_query_plan_metadata</a></td>
+        </tr>
+      </table>
+</div><div class="memdoc">
+
+<p>Metadata selectors for TLV_QUERY_OP_META. </p>
+<table class="fieldtable">
+<tr><th colspan="2">Enumerator</th></tr><tr><td class="fieldname"><a id="ggab71b094e7121421a0bfdfd8c28e413dda6ce5f48346c838991df12aa9aabf3beb" name="ggab71b094e7121421a0bfdfd8c28e413dda6ce5f48346c838991df12aa9aabf3beb"></a>TLV_QUERY_META_LEN&#160;</td><td class="fielddoc"><p>Logical Value length. </p>
+</td></tr>
+<tr><td class="fieldname"><a id="ggab71b094e7121421a0bfdfd8c28e413dda7ef6f5b916d0ba66cf19255901d0a8c8" name="ggab71b094e7121421a0bfdfd8c28e413dda7ef6f5b916d0ba66cf19255901d0a8c8"></a>TLV_QUERY_META_DEPTH&#160;</td><td class="fielddoc"><p>Tree depth. </p>
+</td></tr>
+<tr><td class="fieldname"><a id="ggab71b094e7121421a0bfdfd8c28e413ddae5caf19e61234a2799e2b00ace100109" name="ggab71b094e7121421a0bfdfd8c28e413ddae5caf19e61234a2799e2b00ace100109"></a>TLV_QUERY_META_INDEX&#160;</td><td class="fielddoc"><p>Sibling index. </p>
+</td></tr>
+<tr><td class="fieldname"><a id="ggab71b094e7121421a0bfdfd8c28e413dda6a212f71b36686bb32494762cd925c0e" name="ggab71b094e7121421a0bfdfd8c28e413dda6a212f71b36686bb32494762cd925c0e"></a>TLV_QUERY_META_OFFSET&#160;</td><td class="fielddoc"><p>Source offset. </p>
+</td></tr>
+<tr><td class="fieldname"><a id="ggab71b094e7121421a0bfdfd8c28e413dda0ca8b0c6cd541892031b33cafc341cb2" name="ggab71b094e7121421a0bfdfd8c28e413dda0ca8b0c6cd541892031b33cafc341cb2"></a>TLV_QUERY_META_HLEN&#160;</td><td class="fielddoc"><p>Source Header size. </p>
+</td></tr>
+</table>
+
+</div>
+</div>
+<a id="ga09596abb6f10bccbfe9cf747a6470f2c" name="ga09596abb6f10bccbfe9cf747a6470f2c"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#ga09596abb6f10bccbfe9cf747a6470f2c">&#9670;&#160;</a></span>tlv_query_plan_opcode</h2>
+
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname">enum <a class="el" href="group__traversal.html#ga09596abb6f10bccbfe9cf747a6470f2c">tlv_query_plan_opcode</a></td>
+        </tr>
+      </table>
+</div><div class="memdoc">
+
+<p>Closed plan opcode selectors. </p>
+<table class="fieldtable">
+<tr><th colspan="2">Enumerator</th></tr><tr><td class="fieldname"><a id="gga09596abb6f10bccbfe9cf747a6470f2ca32c04f5927dae5d6d3ce55fa494c1ab5" name="gga09596abb6f10bccbfe9cf747a6470f2ca32c04f5927dae5d6d3ce55fa494c1ab5"></a>TLV_QUERY_OP_TEST&#160;</td><td class="fielddoc"><p>test selector. </p>
+</td></tr>
+<tr><td class="fieldname"><a id="gga09596abb6f10bccbfe9cf747a6470f2ca65ae9919add7dcbc5120ca41730e3949" name="gga09596abb6f10bccbfe9cf747a6470f2ca65ae9919add7dcbc5120ca41730e3949"></a>TLV_QUERY_OP_ROOT&#160;</td><td class="fielddoc"><p>root selector. </p>
+</td></tr>
+<tr><td class="fieldname"><a id="gga09596abb6f10bccbfe9cf747a6470f2ca6c43f35076a499f1e9fbf0cb4e12f310" name="gga09596abb6f10bccbfe9cf747a6470f2ca6c43f35076a499f1e9fbf0cb4e12f310"></a>TLV_QUERY_OP_SELF&#160;</td><td class="fielddoc"><p>self selector. </p>
+</td></tr>
+<tr><td class="fieldname"><a id="gga09596abb6f10bccbfe9cf747a6470f2ca1421571fd76acab279dac3bb9d51f932" name="gga09596abb6f10bccbfe9cf747a6470f2ca1421571fd76acab279dac3bb9d51f932"></a>TLV_QUERY_OP_META&#160;</td><td class="fielddoc"><p>meta selector. </p>
+</td></tr>
+<tr><td class="fieldname"><a id="gga09596abb6f10bccbfe9cf747a6470f2ca322692f3ad881fd8c1c93298f8bdee90" name="gga09596abb6f10bccbfe9cf747a6470f2ca322692f3ad881fd8c1c93298f8bdee90"></a>TLV_QUERY_OP_LITERAL&#160;</td><td class="fielddoc"><p>literal selector. </p>
+</td></tr>
+<tr><td class="fieldname"><a id="gga09596abb6f10bccbfe9cf747a6470f2ca698c975f0875c0682f5c4db88ed2b0fb" name="gga09596abb6f10bccbfe9cf747a6470f2ca698c975f0875c0682f5c4db88ed2b0fb"></a>TLV_QUERY_OP_BYTES&#160;</td><td class="fielddoc"><p>bytes selector. </p>
+</td></tr>
+<tr><td class="fieldname"><a id="gga09596abb6f10bccbfe9cf747a6470f2ca6e3e321be3fe14122d497040a169e30a" name="gga09596abb6f10bccbfe9cf747a6470f2ca6e3e321be3fe14122d497040a169e30a"></a>TLV_QUERY_OP_STRING&#160;</td><td class="fielddoc"><p>string selector. </p>
+</td></tr>
+<tr><td class="fieldname"><a id="gga09596abb6f10bccbfe9cf747a6470f2cae3157f805ae13cf38692f3e6ba3def97" name="gga09596abb6f10bccbfe9cf747a6470f2cae3157f805ae13cf38692f3e6ba3def97"></a>TLV_QUERY_OP_VARIABLE&#160;</td><td class="fielddoc"><p>variable selector. </p>
+</td></tr>
+<tr><td class="fieldname"><a id="gga09596abb6f10bccbfe9cf747a6470f2ca7455af285d4fe5484b95b7d6a574155b" name="gga09596abb6f10bccbfe9cf747a6470f2ca7455af285d4fe5484b95b7d6a574155b"></a>TLV_QUERY_OP_CHILD&#160;</td><td class="fielddoc"><p>child selector. </p>
+</td></tr>
+<tr><td class="fieldname"><a id="gga09596abb6f10bccbfe9cf747a6470f2ca8eb745cb5b2f443f65d1c8548f9de113" name="gga09596abb6f10bccbfe9cf747a6470f2ca8eb745cb5b2f443f65d1c8548f9de113"></a>TLV_QUERY_OP_DESC&#160;</td><td class="fielddoc"><p>desc selector. </p>
+</td></tr>
+<tr><td class="fieldname"><a id="gga09596abb6f10bccbfe9cf747a6470f2ca4d0044fe772d853da11cf86534057be5" name="gga09596abb6f10bccbfe9cf747a6470f2ca4d0044fe772d853da11cf86534057be5"></a>TLV_QUERY_OP_FILTER&#160;</td><td class="fielddoc"><p>filter selector. </p>
+</td></tr>
+<tr><td class="fieldname"><a id="gga09596abb6f10bccbfe9cf747a6470f2ca615f90701064b22265bf9dbcf9b1a9e6" name="gga09596abb6f10bccbfe9cf747a6470f2ca615f90701064b22265bf9dbcf9b1a9e6"></a>TLV_QUERY_OP_UNION&#160;</td><td class="fielddoc"><p>union selector. </p>
+</td></tr>
+<tr><td class="fieldname"><a id="gga09596abb6f10bccbfe9cf747a6470f2ca0a772139adcbf1789fc0112dffacf801" name="gga09596abb6f10bccbfe9cf747a6470f2ca0a772139adcbf1789fc0112dffacf801"></a>TLV_QUERY_OP_INTERSECT&#160;</td><td class="fielddoc"><p>intersect selector. </p>
+</td></tr>
+<tr><td class="fieldname"><a id="gga09596abb6f10bccbfe9cf747a6470f2ca81d4348c51c08020b2703e790912036f" name="gga09596abb6f10bccbfe9cf747a6470f2ca81d4348c51c08020b2703e790912036f"></a>TLV_QUERY_OP_EXCEPT&#160;</td><td class="fielddoc"><p>except selector. </p>
+</td></tr>
+<tr><td class="fieldname"><a id="gga09596abb6f10bccbfe9cf747a6470f2ca311b624888133949120f7d7cecf7b04e" name="gga09596abb6f10bccbfe9cf747a6470f2ca311b624888133949120f7d7cecf7b04e"></a>TLV_QUERY_OP_EQ&#160;</td><td class="fielddoc"><p>eq selector. </p>
+</td></tr>
+<tr><td class="fieldname"><a id="gga09596abb6f10bccbfe9cf747a6470f2ca489d43bdc52993a46212868a213a7df9" name="gga09596abb6f10bccbfe9cf747a6470f2ca489d43bdc52993a46212868a213a7df9"></a>TLV_QUERY_OP_NE&#160;</td><td class="fielddoc"><p>ne selector. </p>
+</td></tr>
+<tr><td class="fieldname"><a id="gga09596abb6f10bccbfe9cf747a6470f2ca8fff1f089c815e9c0e97054a477621a2" name="gga09596abb6f10bccbfe9cf747a6470f2ca8fff1f089c815e9c0e97054a477621a2"></a>TLV_QUERY_OP_LT&#160;</td><td class="fielddoc"><p>lt selector. </p>
+</td></tr>
+<tr><td class="fieldname"><a id="gga09596abb6f10bccbfe9cf747a6470f2ca4103dca8074edb31a5a30b0bd9c7436d" name="gga09596abb6f10bccbfe9cf747a6470f2ca4103dca8074edb31a5a30b0bd9c7436d"></a>TLV_QUERY_OP_LE&#160;</td><td class="fielddoc"><p>le selector. </p>
+</td></tr>
+<tr><td class="fieldname"><a id="gga09596abb6f10bccbfe9cf747a6470f2caf8715a7a1a5b40b8f3b56b11c687418f" name="gga09596abb6f10bccbfe9cf747a6470f2caf8715a7a1a5b40b8f3b56b11c687418f"></a>TLV_QUERY_OP_GT&#160;</td><td class="fielddoc"><p>gt selector. </p>
+</td></tr>
+<tr><td class="fieldname"><a id="gga09596abb6f10bccbfe9cf747a6470f2caddcfa7b88e1c86792c24e45a86e155d5" name="gga09596abb6f10bccbfe9cf747a6470f2caddcfa7b88e1c86792c24e45a86e155d5"></a>TLV_QUERY_OP_GE&#160;</td><td class="fielddoc"><p>ge selector. </p>
+</td></tr>
+<tr><td class="fieldname"><a id="gga09596abb6f10bccbfe9cf747a6470f2cab4920df03d9f9eeb59be201032f0fed9" name="gga09596abb6f10bccbfe9cf747a6470f2cab4920df03d9f9eeb59be201032f0fed9"></a>TLV_QUERY_OP_AND&#160;</td><td class="fielddoc"><p>and selector. </p>
+</td></tr>
+<tr><td class="fieldname"><a id="gga09596abb6f10bccbfe9cf747a6470f2caeb86be0def053be4d96d974601018108" name="gga09596abb6f10bccbfe9cf747a6470f2caeb86be0def053be4d96d974601018108"></a>TLV_QUERY_OP_OR&#160;</td><td class="fielddoc"><p>or selector. </p>
+</td></tr>
+<tr><td class="fieldname"><a id="gga09596abb6f10bccbfe9cf747a6470f2ca232f6235b45aeff80b8f4c09f13185b6" name="gga09596abb6f10bccbfe9cf747a6470f2ca232f6235b45aeff80b8f4c09f13185b6"></a>TLV_QUERY_OP_CALL&#160;</td><td class="fielddoc"><p>call selector. </p>
+</td></tr>
+<tr><td class="fieldname"><a id="gga09596abb6f10bccbfe9cf747a6470f2caa63ad2c78fde08240928734cb88f679b" name="gga09596abb6f10bccbfe9cf747a6470f2caa63ad2c78fde08240928734cb88f679b"></a>TLV_QUERY_OP_ARGS&#160;</td><td class="fielddoc"><p>args selector. </p>
+</td></tr>
+<tr><td class="fieldname"><a id="gga09596abb6f10bccbfe9cf747a6470f2ca9e258ebe38b09003ebcb1903ae8799d8" name="gga09596abb6f10bccbfe9cf747a6470f2ca9e258ebe38b09003ebcb1903ae8799d8"></a>TLV_QUERY_OP_BOOL&#160;</td><td class="fielddoc"><p>bool selector. </p>
+</td></tr>
+</table>
+
+</div>
+</div>
+<a id="ga4e909e487e1ea6c7b02cc3416d2a0900" name="ga4e909e487e1ea6c7b02cc3416d2a0900"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#ga4e909e487e1ea6c7b02cc3416d2a0900">&#9670;&#160;</a></span>tlv_query_plan_type</h2>
+
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname">enum <a class="el" href="group__traversal.html#ga4e909e487e1ea6c7b02cc3416d2a0900">tlv_query_plan_type</a></td>
+        </tr>
+      </table>
+</div><div class="memdoc">
+
+<p>Internal value categories used by instruction type fields. </p>
+<table class="fieldtable">
+<tr><th colspan="2">Enumerator</th></tr><tr><td class="fieldname"><a id="gga4e909e487e1ea6c7b02cc3416d2a0900a971e85f54eaeda9b55b9be48183715c9" name="gga4e909e487e1ea6c7b02cc3416d2a0900a971e85f54eaeda9b55b9be48183715c9"></a>TLV_QUERY_PLAN_NODES&#160;</td><td class="fielddoc"><p>Node selection. </p>
+</td></tr>
+<tr><td class="fieldname"><a id="gga4e909e487e1ea6c7b02cc3416d2a0900a5304bd895f748ecef28e841228252bae" name="gga4e909e487e1ea6c7b02cc3416d2a0900a5304bd895f748ecef28e841228252bae"></a>TLV_QUERY_PLAN_BOOL&#160;</td><td class="fielddoc"><p>Boolean. </p>
+</td></tr>
+<tr><td class="fieldname"><a id="gga4e909e487e1ea6c7b02cc3416d2a0900a531c73d0fcdee28acd0b280010669eb9" name="gga4e909e487e1ea6c7b02cc3416d2a0900a531c73d0fcdee28acd0b280010669eb9"></a>TLV_QUERY_PLAN_INTEGER&#160;</td><td class="fielddoc"><p>Signed integer. </p>
+</td></tr>
+<tr><td class="fieldname"><a id="gga4e909e487e1ea6c7b02cc3416d2a0900a4fe90aef1edcbc9f8fd0bd4ed84e795e" name="gga4e909e487e1ea6c7b02cc3416d2a0900a4fe90aef1edcbc9f8fd0bd4ed84e795e"></a>TLV_QUERY_PLAN_BYTES&#160;</td><td class="fielddoc"><p>Byte span. </p>
+</td></tr>
+<tr><td class="fieldname"><a id="gga4e909e487e1ea6c7b02cc3416d2a0900a91b4b2c1af9f7cc98562402c04fcd7fa" name="gga4e909e487e1ea6c7b02cc3416d2a0900a91b4b2c1af9f7cc98562402c04fcd7fa"></a>TLV_QUERY_PLAN_STRING&#160;</td><td class="fielddoc"><p>UTF-8 span. </p>
 </td></tr>
 </table>
 
@@ -2575,6 +3125,98 @@ struct_size must cover the prefix through result_kind. Writes are limited to min
 
 </div>
 </div>
+<a id="gae02e9019bf985c5a234784acd32a0763" name="gae02e9019bf985c5a234784acd32a0763"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#gae02e9019bf985c5a234784acd32a0763">&#9670;&#160;</a></span>tlv_query_plan_info()</h2>
+
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname"><a class="el" href="group__core.html#ga164d2817a32e5d7b7aa1472e887b47c3">tlv_result_t</a> tlv_query_plan_info </td>
+          <td>(</td>
+          <td class="paramtype">const <a class="el" href="group__traversal.html#ga45bdea1007b9780dba5559a2190f569d">tlv_query_program_t</a> *&#160;</td>
+          <td class="paramname"><em>program</em>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype"><a class="el" href="group__traversal.html#gaf947e208c6f97e68c59bf5573887d2ca">tlv_query_program_info_t</a> *&#160;</td>
+          <td class="paramname"><em>info</em>&#160;</td>
+        </tr>
+        <tr>
+          <td></td>
+          <td>)</td>
+          <td></td><td></td>
+        </tr>
+      </table>
+</div><div class="memdoc">
+
+<p>Inspect requirements of a validated immutable plan without the frontend. </p>
+<dl class="params"><dt>Parameters</dt><dd>
+  <table class="params">
+    <tr><td class="paramdir">[in]</td><td class="paramname">program</td><td>Handle returned by plan_open or runtime compilation. </td></tr>
+    <tr><td class="paramdir">[in,out]</td><td class="paramname">info</td><td>Output with struct_size initialized to its writable extent. </td></tr>
+  </table>
+  </dd>
+</dl>
+<dl class="section return"><dt>Returns</dt><dd>OK, NULL_ARG or INVALID_ARG for an invalid handle or output extent. </dd></dl>
+<dl class="section note"><dt>Note</dt><dd>Compiler scratch and optimization-history fields are zero. Execution sizing still takes application depth/node limits through exec_size or eval_size. </dd></dl>
+
+</div>
+</div>
+<a id="gac9b650eb94578e7b28361d6705bf02bd" name="gac9b650eb94578e7b28361d6705bf02bd"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#gac9b650eb94578e7b28361d6705bf02bd">&#9670;&#160;</a></span>tlv_query_plan_open()</h2>
+
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname"><a class="el" href="group__core.html#ga164d2817a32e5d7b7aa1472e887b47c3">tlv_result_t</a> tlv_query_plan_open </td>
+          <td>(</td>
+          <td class="paramtype">const void *&#160;</td>
+          <td class="paramname"><em>image</em>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype">size_t&#160;</td>
+          <td class="paramname"><em>size</em>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype">const <a class="el" href="group__traversal.html#ga45bdea1007b9780dba5559a2190f569d">tlv_query_program_t</a> **&#160;</td>
+          <td class="paramname"><em>program</em>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype"><a class="el" href="group__traversal.html#ga17f951dcf47161a07accd081699eff6f">tlv_query_diagnostic_t</a> *&#160;</td>
+          <td class="paramname"><em>diagnostic</em>&#160;</td>
+        </tr>
+        <tr>
+          <td></td>
+          <td>)</td>
+          <td></td><td></td>
+        </tr>
+      </table>
+</div><div class="memdoc">
+
+<p>Validate and borrow a bounded native plan without a Query frontend. </p>
+<dl class="params"><dt>Parameters</dt><dd>
+  <table class="params">
+    <tr><td class="paramdir">[in]</td><td class="paramname">image</td><td>Aligned readable image, immutable while borrowed. </td></tr>
+    <tr><td class="paramdir">[in]</td><td class="paramname">size</td><td>Exact byte extent, excluding any trailing C structure padding. </td></tr>
+    <tr><td class="paramdir">[out]</td><td class="paramname">program</td><td>Borrowed execution handle, set only on success. </td></tr>
+    <tr><td class="paramdir">[out]</td><td class="paramname">diagnostic</td><td>Optional initialized error detail. </td></tr>
+  </table>
+  </dd>
+</dl>
+<dl class="section return"><dt>Returns</dt><dd>OK, NULL_ARG, INVALID_ARG for malformed plans, or UNSUPPORTED_TYPE for incompatible versions or unavailable execution capabilities. </dd></dl>
+<dl class="section note"><dt>Note</dt><dd>No allocation, parsing, name resolution or planning occurs. Runtime provider compatibility is checked by eval_init. Resolved names are copied raw tag bytes; changing their model mapping requires rebuilding the plan. Hook and semantic-tag IDs denote application-owned immutable semantic contracts, not internal schema indices. Keep their meaning stable or assign new IDs. </dd></dl>
+
+</div>
+</div>
 <a id="ga44a2f28463e80909294fcff80bf03fec" name="ga44a2f28463e80909294fcff80bf03fec"></a>
 <h2 class="memtitle"><span class="permalink"><a href="#ga44a2f28463e80909294fcff80bf03fec">&#9670;&#160;</a></span>tlv_query_program_exists()</h2>
 
@@ -2725,7 +3367,8 @@ struct_size must cover the prefix through result_kind. Writes are limited to min
       </table>
 </div><div class="memdoc">
 
-<p>Canonically format a compiled program, including size discovery. </p>
+<p>Canonically format retained program source, including size discovery. </p>
+<dl class="section note"><dt>Note</dt><dd>Requires the Query frontend and retained source text. Static plans without source return UNSUPPORTED_TYPE; explain is available without source. </dd></dl>
 <dl class="params"><dt>Parameters</dt><dd>
   <table class="params">
     <tr><td class="paramdir">[in]</td><td class="paramname">program</td><td>Required live program returned by compile. </td></tr>

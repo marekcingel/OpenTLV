@@ -3695,7 +3695,10 @@ language bindings and a dedicated property suite are separate work.</p>
 including caller-owned frame storage and Visitor adapters.</p>
 <p>V1 paths use <code>&lt;tlv/query/query.h&gt;</code> with copyable opaque storage, bounded parsing
 and canonical formatting. Full-language compilation and S0/S1/S2 execution use
-<code>&lt;tlv/query/program.h&gt;</code>: discover scratch, immutable program and runtime workspace
+<code>&lt;tlv/query/plan.h&gt;</code>: versioned native static C plans and bounded frontend-free
+validation. Runtime and generated plans use the same execution APIs and caller
+workspace; see <a href="../../guides/queries/#static-c-plans-and-frontend-free-execution">static plans</a>.</p>
+<p><code>&lt;tlv/query/program.h&gt;</code>: discover scratch, immutable program and runtime workspace
 requirements independently, then retain the execution across STOP/NEED_MORE_DATA.
 S1 publishes proven root-scope decisions at END. S2 uses explicit candidate
 capacity and stable borrowed input until finalized ordered publication. Compiled

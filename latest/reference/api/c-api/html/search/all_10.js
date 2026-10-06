@@ -15,11 +15,16 @@ var searchData=
   ['required_12',['required',['../structtlv__format__error.html#a7331ba0ddc0d90f4debf39fc366d4760',1,'tlv_format_error::required'],['../structtlv__reader__diagnostic.html#a8dd6095780b51576e9d19c0a289ad469',1,'tlv_reader_diagnostic::required'],['../structtlv__writer__diagnostic.html#a894638824c3f1e0af2a1285ab1faccda',1,'tlv_writer_diagnostic::required']]],
   ['required_5fdata_13',['required_data',['../structtlv__tree__writer__workspace.html#a422c1ff269934ece1444932f12e86d7c',1,'tlv_tree_writer_workspace']]],
   ['required_5fscratch_14',['required_scratch',['../structtlv__tree__writer__workspace.html#ab7682c48cfa38f739218be0e52de85d6',1,'tlv_tree_writer_workspace']]],
-  ['resolve_15',['resolve',['../structtlv__field__layout.html#a65d8c5f9e4565a632a7f91722f1370b4',1,'tlv_field_layout::resolve'],['../structtlv__query__compile__options.html#acddcd9d11010233a8f66d91ac683fe42',1,'tlv_query_compile_options::resolve']]],
-  ['resolve_5fcontext_16',['resolve_context',['../structtlv__query__compile__options.html#a4e955b275b0c490187be15610cbc4c19',1,'tlv_query_compile_options']]],
-  ['result_17',['result',['../structtlv__emv__cvm__result__t.html#a7c8a7469f4a61bbd4f1cce74ac4f442a',1,'tlv_emv_cvm_result_t']]],
-  ['result_5fkind_18',['result_kind',['../structtlv__query__program__info.html#ad0eab5431f283a384770b148c71fcf24',1,'tlv_query_program_info']]],
-  ['resume_19',['resume',['../structtlv__tree__frame.html#af9e72ee95b29a377a48ab361f4824c17',1,'tlv_tree_frame']]],
-  ['rule_20',['rule',['../structtlv__schema__query__diagnostic.html#a2d7906c8187a67e71a85d04b33e680fa',1,'tlv_schema_query_diagnostic']]],
-  ['rules_21',['rules',['../structtlv__structure__schema.html#ad62cc59285c58f7e141b9caa00d1d241',1,'tlv_structure_schema']]]
+  ['reserved_15',['reserved',['../structtlv__query__program.html#ae5dfcb0497210d252633d435e9e3bde5',1,'tlv_query_program']]],
+  ['resolve_16',['resolve',['../structtlv__query__compile__options.html#acddcd9d11010233a8f66d91ac683fe42',1,'tlv_query_compile_options::resolve'],['../structtlv__field__layout.html#a65d8c5f9e4565a632a7f91722f1370b4',1,'tlv_field_layout::resolve']]],
+  ['resolve_5fcontext_17',['resolve_context',['../structtlv__query__compile__options.html#a4e955b275b0c490187be15610cbc4c19',1,'tlv_query_compile_options']]],
+  ['resolved_18',['resolved',['../structtlv__query__instruction.html#a710f785e3d11c817bfa530dc37998221',1,'tlv_query_instruction']]],
+  ['result_19',['result',['../structtlv__emv__cvm__result__t.html#a7c8a7469f4a61bbd4f1cce74ac4f442a',1,'tlv_emv_cvm_result_t']]],
+  ['result_5fkind_20',['result_kind',['../structtlv__query__program__info.html#ad0eab5431f283a384770b148c71fcf24',1,'tlv_query_program_info']]],
+  ['resume_21',['resume',['../structtlv__tree__frame.html#af9e72ee95b29a377a48ab361f4824c17',1,'tlv_tree_frame']]],
+  ['reuse_22',['reuse',['../structtlv__query__instruction.html#a11dcfc9f2e85fd5000c0f0deef6de407',1,'tlv_query_instruction']]],
+  ['right_23',['right',['../structtlv__query__instruction.html#a0d02ac0a30fefbafee6e7a82656a0dba',1,'tlv_query_instruction']]],
+  ['root_24',['root',['../structtlv__query__program.html#a9361d5f733b1436902b27b99db4dca4c',1,'tlv_query_program']]],
+  ['rule_25',['rule',['../structtlv__schema__query__diagnostic.html#a2d7906c8187a67e71a85d04b33e680fa',1,'tlv_schema_query_diagnostic']]],
+  ['rules_26',['rules',['../structtlv__structure__schema.html#ad62cc59285c58f7e141b9caa00d1d241',1,'tlv_structure_schema']]]
 ];
