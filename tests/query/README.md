@@ -129,3 +129,11 @@ changed source offsets, and keeps the original native exit category. Prefix
 windows are adjusted to the reduced input extent. Diagnostic/provider fixtures
 retain their original inputs. Run `python tests/query/test_minimize.py` to verify
 the shrinker's framing, expectation and budget contracts.
+
+## Adversarial API verification
+
+The frontend-free `test-query-adversarial` driver and generated
+`test-query-equivalence` family cover lifecycle, storage, native callbacks,
+Document lifetime and plan sources. See the canonical
+[F6 audit](../../docs/development/query-adversarial.md) for contracts, intentional
+representation differences, replay, minimization and evidence commands.

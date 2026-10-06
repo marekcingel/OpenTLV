@@ -4,6 +4,8 @@ Query F1–F5 are delivery phases within the Execution Foundation and all are 1.
 prerequisites. [Epic #518](https://github.com/marekcingel/OpenTLV/issues/518)
 replaces the former 44 child issues with #519–#523. Completion requires equivalent
 phase evidence, rather than closed issue states alone.
+[F6 / #536](query-adversarial.md) adds the final adversarial verification layer;
+its passing evidence is also required before freezing the 1.0 contract.
 
 Run `python scripts/check_query_release.py --output build/query-release.json` for
 the inventory of every normative rule, function/axis conformance category and
@@ -20,7 +22,7 @@ passed public C `capabilities`; CLI lists common corpus feature IDs. Language
 facades need `surface: "idiomatic"`; raw FFI is insufficient. Required checks are
 listed in the generated report: conformance, properties, ASan/UBSan fuzzing, MSan
 or justified exclusion, allocation/recursion, 32/64-bit work/storage boundaries,
-and ABI snapshots. Java/C# become additional gates when supported;
+ABI snapshots, adversarial lifecycle/storage and frontend-free plan equivalence. Java/C# become additional gates when supported;
 this repository does not claim those implementations.
 
 Benchmarks are temporarily advisory while Query functionality is completed.

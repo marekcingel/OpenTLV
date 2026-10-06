@@ -9,6 +9,7 @@ size_t tlv_query_program_variable_count(const tlv_query_program_t* p) {
 tlv_result_t tlv_query_program_variable(const tlv_query_program_t* p, size_t index,
                                         tlv_query_variable_info_t* info) {
     if (!p || !info) return TLV_ERR_NULL_ARG;
+    if (query_overlap(p, p->reserved, info, sizeof *info)) return TLV_ERR_INVALID_ARG;
     if (!query_program_valid(p) || index >= p->variable_count) return TLV_ERR_INVALID_ARG;
     const query_node_t* nodes = query_nodes(p);
     for (size_t i = 0; i < p->count; ++i) {
@@ -127,6 +128,11 @@ static int plan_types(const tlv_query_program_t* p) {
 tlv_result_t tlv_query_plan_open(const void* image, size_t size,
                                  const tlv_query_program_t** program,
                                  tlv_query_diagnostic_t* diagnostic) {
+    if (query_overlap(image, size, program, program ? sizeof *program : 0) ||
+        query_overlap(image, size, diagnostic, diagnostic ? sizeof *diagnostic : 0) ||
+        query_overlap(program, program ? sizeof *program : 0, diagnostic,
+                      diagnostic ? sizeof *diagnostic : 0))
+        return TLV_ERR_INVALID_ARG;
     query_diag_init(diagnostic);
     if (!image || !program) return TLV_ERR_NULL_ARG;
     if ((uintptr_t)image % sizeof(uint32_t) || size < sizeof(tlv_query_program_t))
@@ -157,6 +163,7 @@ invalid:
 
 tlv_result_t tlv_query_plan_info(const tlv_query_program_t* p, tlv_query_program_info_t* info) {
     if (!p || !info) return TLV_ERR_NULL_ARG;
+    if (query_overlap(p, p->reserved, info, sizeof *info)) return TLV_ERR_INVALID_ARG;
     if (info->struct_size < offsetof(tlv_query_program_info_t, expression_values) ||
         !query_program_valid(p))
         return TLV_ERR_INVALID_ARG;

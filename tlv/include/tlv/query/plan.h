@@ -169,6 +169,8 @@ extern "C" {
  * tag bytes; changing their model mapping requires rebuilding the plan. Hook
  * and semantic-tag IDs denote application-owned immutable semantic contracts,
  * not internal schema indices. Keep their meaning stable or assign new IDs.
+ * Image, program output and diagnostic must be disjoint. Overlap is rejected
+ * before writes, including diagnostic initialization.
  */
 TLV_API tlv_result_t tlv_query_plan_open(const void* image, size_t size,
                                          const tlv_query_program_t** program,

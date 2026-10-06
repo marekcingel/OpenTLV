@@ -487,6 +487,11 @@ TLV_API tlv_result_t tlv_document_query_value_size(const tlv_document_t* documen
  * and actual byte extents, independently of spare buffer capacity. General Writer
  * encoding and Query evaluation may still be superlinear on deeply nested inputs.
  * Failure after execution begins is terminal until reset; no results have been emitted.
+ * During evaluation and result callbacks, replacement/insertion and nested traversal
+ * on this Document are rejected. Erase/free requests are deferred until the enclosing
+ * operation returns from its callbacks, then invalidate execution. Borrowed node and
+ * Value spans remain alive during callbacks. Outside those operations the caller must
+ * keep the Document alive; this API does not retain ownership or synchronize threads.
  * Include tlv/query/program.h and, when needed, tlv/writer/tree.h for type definitions. */
 TLV_API tlv_result_t tlv_document_query_evaluate(const tlv_document_t* document,
                                                  struct tlv_query_exec* exec,
@@ -510,7 +515,9 @@ TLV_API tlv_result_t tlv_document_query_next(struct tlv_query_exec* exec, tlv_no
  * @param[in] visitor Required callback; must not edit the Document.
  * @param[in] context Optional callback context.
  * @return OK on exhaustion/STOP, VISITOR on callback error (terminal), or pull errors.
- * @warning Previously delivered callbacks are never rolled back. */
+ * @warning Previously delivered callbacks are never rolled back. Erase/free requests
+ * are deferred until callback return and invalidate this execution. Same-execution
+ * feed, finish, reset, bind and nested visits are rejected without altering it. */
 TLV_API tlv_result_t tlv_document_query_program_visit(struct tlv_query_exec* exec,
                                                       tlv_document_query_visitor_t visitor,
                                                       void* context);

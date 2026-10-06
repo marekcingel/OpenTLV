@@ -271,6 +271,17 @@ static size_t scratch_unit(void) {
 tlv_result_t tlv_query_compile_scratch(const char* text, size_t size,
                                        const tlv_query_compile_options_t* options, size_t* bytes,
                                        size_t* alignment, tlv_query_diagnostic_t* d) {
+    const void* outputs[] = {bytes, alignment, d};
+    const size_t extents[] = {bytes ? sizeof *bytes : 0, alignment ? sizeof *alignment : 0,
+                              d ? sizeof *d : 0};
+    for (size_t i = 0; i < 3; ++i) {
+        if (query_overlap(outputs[i], extents[i], text, size) ||
+            query_overlap(outputs[i], extents[i], options, options ? sizeof *options : 0))
+            return TLV_ERR_INVALID_ARG;
+        for (size_t j = 0; j < i; ++j)
+            if (query_overlap(outputs[i], extents[i], outputs[j], extents[j]))
+                return TLV_ERR_INVALID_ARG;
+    }
     query_diag_init(d);
     if (!text || !bytes || !alignment) return TLV_ERR_NULL_ARG;
     tlv_query_compile_options_t o;
@@ -913,6 +924,16 @@ tlv_result_t tlv_query_compile(const char* text, size_t size,
                                const tlv_query_compile_options_t* options, void* scratch,
                                size_t scratch_size, void* storage, size_t capacity,
                                tlv_query_program_info_t* info, tlv_query_diagnostic_t* d) {
+    const void* outputs[] = {scratch, storage, info, d};
+    const size_t extents[] = {scratch_size, capacity, info ? sizeof *info : 0, d ? sizeof *d : 0};
+    for (size_t i = 0; i < 4; ++i) {
+        if (query_overlap(outputs[i], extents[i], text, size) ||
+            query_overlap(outputs[i], extents[i], options, options ? sizeof *options : 0))
+            return TLV_ERR_INVALID_ARG;
+        for (size_t j = 0; j < i; ++j)
+            if (query_overlap(outputs[i], extents[i], outputs[j], extents[j]))
+                return TLV_ERR_INVALID_ARG;
+    }
     query_diag_init(d);
     if (!text || !scratch || !info || (!storage && capacity)) return TLV_ERR_NULL_ARG;
     if (info->struct_size < offsetof(tlv_query_program_info_t, expression_values))
@@ -980,6 +1001,21 @@ tlv_result_t tlv_query_compile(const char* text, size_t size,
     uint8_t* payload = (uint8_t*)(values + count + 1);
     rc = analyze(text, nodes, used, root, &o, payload, &payload_size, &codec_stride, &optimized,
                  &level, d);
+    size_t pattern_bytes = 0;
+    uint32_t tag_id = 0;
+    for (size_t i = 0; i < used; ++i) {
+        const query_node_t* n = &nodes[i];
+        if (n->op != Q_CALL) continue;
+        if ((n->selector == F_CLASS || n->selector == F_NUMBER) && o.environment &&
+            o.environment->tags)
+            tag_id = o.environment->tags->id;
+        if (n->selector == F_CONTAINS && n->left != QUERY_NONE) {
+            const query_node_t* arg = &nodes[n->left];
+            if (arg->op == Q_ARGS) arg = &nodes[arg->right];
+            size_t bound = arg->op == Q_BYTES ? arg->data_size : o.max_pattern;
+            if (bound > pattern_bytes) pattern_bytes = bound;
+        }
+    }
     if (size > SIZE_MAX - sizeof(tlv_query_program_t) - 1 ||
         used > (SIZE_MAX - sizeof(tlv_query_program_t) - size - 1) / sizeof(query_node_t))
         return query_error(d, TLV_ERR_OVERFLOW, TLV_QUERY_ERROR_STORAGE, 0, 0,
@@ -1003,7 +1039,7 @@ tlv_result_t tlv_query_compile(const char* text, size_t size,
                                        used,
                                        0,
                                        codec_stride,
-                                       o.max_pattern,
+                                       pattern_bytes,
                                        optimized,
                                        used + 1,
                                        level >= TLV_QUERY_S2 ? query_candidate_size() : 0,
@@ -1046,9 +1082,9 @@ tlv_result_t tlv_query_compile(const char* text, size_t size,
                              (uint32_t)total,
                              (uint32_t)result.variable_slots,
                              (uint32_t)payload_size,
-                             (uint32_t)o.max_pattern,
+                             (uint32_t)pattern_bytes,
                              (uint32_t)codec_stride,
-                             o.environment && o.environment->tags ? o.environment->tags->id : 0};
+                             tag_id};
     memcpy(storage, &p, sizeof p);
     memcpy((uint8_t*)storage + sizeof p, nodes, used * sizeof *nodes);
     memcpy((uint8_t*)storage + text_offset, text, size);
@@ -1227,7 +1263,12 @@ tlv_result_t tlv_query_program_load(const void* image, size_t size,
         image_overlap(scratch, capacity, program, sizeof *program) ||
         image_overlap(scratch, capacity, output_info, output_info ? sizeof *output_info : 0) ||
         image_overlap(scratch, capacity, diagnostic, diagnostic ? sizeof *diagnostic : 0) ||
-        image_overlap(scratch, capacity, options, options ? sizeof *options : 0))
+        image_overlap(scratch, capacity, options, options ? sizeof *options : 0) ||
+        image_overlap(program, sizeof *program, output_info,
+                      output_info ? sizeof *output_info : 0) ||
+        image_overlap(program, sizeof *program, diagnostic, diagnostic ? sizeof *diagnostic : 0) ||
+        image_overlap(output_info, output_info ? sizeof *output_info : 0, diagnostic,
+                      diagnostic ? sizeof *diagnostic : 0))
         return TLV_ERR_INVALID_ARG;
     if (output_info &&
         output_info->struct_size < offsetof(tlv_query_program_info_t, expression_values))
@@ -1265,6 +1306,10 @@ tlv_result_t tlv_query_program_format(const tlv_query_program_t* p, char* output
                                       size_t* required) {
     if (!p || !required || (!output && capacity)) return TLV_ERR_NULL_ARG;
     if (!query_program_valid(p)) return TLV_ERR_INVALID_ARG;
+    if (query_overlap(p, p->reserved, output, capacity) ||
+        query_overlap(p, p->reserved, required, sizeof *required) ||
+        query_overlap(output, capacity, required, sizeof *required))
+        return TLV_ERR_INVALID_ARG;
     if (!p->text_size) return TLV_ERR_UNSUPPORTED_TYPE;
     size_t count, length;
     tlv_result_t rc =

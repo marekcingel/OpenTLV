@@ -183,6 +183,7 @@ nav:
       - Fuzzing: development/fuzzing.md
       - Query release checklist: development/query-release.md
       - Query phase implementation audit: development/query-phase-audit.md
+      - Query adversarial verification: development/query-adversarial.md
       - Rust bindings: development/rust.md
       - Python bindings: development/python.md
       - Lua bindings: development/lua.md

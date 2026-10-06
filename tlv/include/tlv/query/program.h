@@ -20,6 +20,17 @@ extern "C" {
  * Text compilation, checked recompilation loading and source formatting require
  * OPENTLV_QUERY_FRONTEND. Static plans use plan.h and tlv_query_plan_open();
  * execution, variable access and explain remain available without the frontend.
+ * @note Execution workspace is exclusive: it must not overlap the program,
+ * environment descriptors, input/Tag/Value/Source spans or output objects.
+ * Outputs must not overlap one another or immutable borrowed data. Read-only
+ * input spans may alias each other and program payload; adjacent spans are valid.
+ * Forbidden execution/output overlap returns INVALID_ARG before writes, including
+ * diagnostic initialization. Opaque provider contexts remain caller-managed.
+ * @note Operations on the same execution from a visitor/provider/tag callback
+ * return INVALID_ARG without changing the outer execution; exec_info is readable.
+ * Independent executions are allowed. This is a synchronous reentrancy contract,
+ * not thread synchronization. Use exec_reset for recovery; raw initialization
+ * requires exclusive storage and is forbidden while that storage is active.
  */
 
 /** @addtogroup traversal
@@ -449,11 +460,20 @@ TLV_API tlv_result_t tlv_query_exec_size(const tlv_query_program_t* program, siz
  * @param[out] exec Required borrowed execution handle, unchanged on failure.
  * @return #TLV_OK; #TLV_ERR_BUFFER_TOO_SHORT for short storage;
  * #TLV_ERR_INVALID_ARG for alignment/zero budgets; otherwise exec_size errors.
- * @note Never allocates. Program and workspace must not overlap.
+ * @note Never allocates. Program, workspace and exec output must not overlap.
  */
 TLV_API tlv_result_t tlv_query_exec_init(const tlv_query_program_t* program, void* storage,
                                          size_t capacity, size_t max_depth, size_t max_elements,
                                          size_t max_work, tlv_query_exec_t** exec);
+
+/** @brief Reset an initialized execution, preserving its program, providers and budgets.
+ * @param[in,out] exec Live initialized execution; may be finished or failed.
+ * @return #TLV_OK; #TLV_ERR_NULL_ARG for NULL; #TLV_ERR_INVALID_ARG during a callback.
+ * @note Clears bindings, context, pruning, counters, retained input and results.
+ * Program and environment must remain alive. No allocation occurs. Callback rejection
+ * preserves the outer execution. Raw init calls require exclusive workspace ownership
+ * and must never be used to overwrite workspace still active on a callback stack. */
+TLV_API tlv_result_t tlv_query_exec_reset(tlv_query_exec_t* exec);
 
 /** @brief Bind one typed variable before consuming any event.
  * @param[in,out] exec Required fresh initialized execution.
@@ -560,6 +580,8 @@ TLV_API tlv_result_t tlv_query_exec_selected(const tlv_query_exec_t* exec, tlv_t
  * @return #TLV_OK on balanced EOF; #TLV_ERR_INVALID_ARG on invalid/unbalanced
  * feed; #TLV_ERR_UNSUPPORTED_TYPE for D programs without Document execution;
  * #TLV_ERR_NULL_ARG for NULL execution. Repeated successful finish is harmless.
+ * @note Execution failures, including attempting D without Document, invalidate
+ * until reset. Callback and forbidden-overlap rejections preserve the outer state.
  */
 TLV_API tlv_result_t tlv_query_exec_finish(tlv_query_exec_t* exec,
                                            tlv_query_diagnostic_t* diagnostic);

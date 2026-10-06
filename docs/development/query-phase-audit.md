@@ -1,4 +1,4 @@
-# Query F1-F5 implementation audit
+# Query F1-F6 implementation audit
 
 Audit date: 2026-10-06. Scope: the original 44 work packages in the supplied
 `OpenTLV_Query_1.0_GitHub_Issues.md`, compared with current source and
@@ -16,6 +16,11 @@ instruction to create another set of GitHub issues.
 | [F3 / #521](https://github.com/marekcingel/OpenTLV/issues/521) | Bounded S1/S2, ordering, all Document axes and cross-backend/reference checks are implemented. |
 | [F4 / #522](https://github.com/marekcingel/OpenTLV/issues/522) | Implemented Query integrations and owning facades, including Tag adapters, scoped dynamic/Definition/EMV resolvers, configured Formats, source events, ordinals and V1 compatibility. |
 | [F5 / #523](https://github.com/marekcingel/OpenTLV/issues/523) | Hardening and candidate gates implemented; local checks below pass. Closing the delivery issue still requires passing CI and complete evidence for the final candidate commit. |
+| [F6 / #536](query-adversarial.md) | Deterministic native lifecycle/storage/callback and plan-source verification implemented; local sanitizer, frontend-free and allocation/recursion evidence passes. Hosted candidate evidence remains required. |
+
+[F6 / #536](query-adversarial.md) adds native API sequence, storage, callback and
+plan-source verification after the original delivery phases. Its audit records
+the constexpr absolute-context regression and the frontend-free validation boundary explicitly.
 
 Benchmark measurements are advisory by the subsequent scope decision. Accepted
 performance baselines and optimization are not prerequisites for these phase

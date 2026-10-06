@@ -321,6 +321,14 @@ public:
         if (rc != TLV_OK) return unexpected<query_failure>(detail::query_failed(rc));
         return {};
     }
+    /** @brief Reset state, bindings and results while retaining program, providers and budgets.
+     * @return Success or native invalid-state failure when invoked from an active callback.
+     * @note Delegates to the allocation-free C reset; all previously borrowed results expire. */
+    expected<void, query_failure> reset() {
+        auto rc = tlv_query_exec_reset(exec_);
+        if (rc != TLV_OK) return unexpected<query_failure>(detail::query_failed(rc));
+        return {};
+    }
     /** @brief Explicitly permit proven subtree pruning on fresh streaming execution.
      * @param enabled True permits partial structural validation of skipped subtrees.
      * @return Success or original native status; retained execution rejects pruning. */

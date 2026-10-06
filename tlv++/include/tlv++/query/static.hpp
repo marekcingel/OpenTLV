@@ -123,11 +123,27 @@ template <size_t N, size_t P, tlv_query_plan_type_t Kind> struct expression {
     std::array<tlv_query_instruction_t, N> nodes;   /**< Immutable instruction values. */
     std::array<uint8_t, P>                 payload; /**< Raw constant/tag/name bytes. */
     /** @brief Materialize a source-free native plan; constexpr evaluates at compile time.
-     * @return Owned inline plan; conflicting parameter types reject constant evaluation. */
-    constexpr plan<N, P> compile() const;
+     * @return Owned inline plan; conflicting parameter types reject constant evaluation.
+     * @note Node plans include an explicit virtual root and path join, preserving
+     * absolute-path semantics even when execution has a relative context. These
+     * two instructions count toward the native 128-instruction limit. */
+    constexpr plan<N + (Kind == TLV_QUERY_PLAN_NODES ? 2 : 0), P> compile() const;
 };
 /** @cond INTERNAL */
 namespace detail {
+template <size_t N, size_t P, tlv_query_plan_type_t K>
+constexpr tlv_query_instruction_t rooted_node(const expression<N, P, K>& e, size_t i) {
+    return K != TLV_QUERY_PLAN_NODES ? e.nodes[i]
+           : i == 0                  ? node(TLV_QUERY_OP_ROOT, TLV_QUERY_PLAN_NODES)
+           : i == N + 1
+               ? node(TLV_QUERY_OP_CHILD, TLV_QUERY_PLAN_NODES, 0, static_cast<uint32_t>(N))
+               : relocate(e.nodes[i - 1], 1, 0, TLV_QUERY_OP_CHILD, 0);
+}
+template <size_t N, size_t P, tlv_query_plan_type_t K, size_t... I>
+constexpr expression<N + (K == TLV_QUERY_PLAN_NODES ? 2 : 0), P, K>
+rooted(const expression<N, P, K>& e, indices<I...>) {
+    return {{{rooted_node(e, I)...}}, e.payload};
+}
 template <size_t N, size_t P, tlv_query_plan_type_t K>
 constexpr bool same_bytes(const expression<N, P, K>& e, size_t a, size_t b, size_t i = 0) {
     return e.nodes[a].data_size == e.nodes[b].data_size &&
@@ -239,9 +255,11 @@ public:
     expected<query_program, query_failure> program() const&& = delete;
 };
 template <size_t N, size_t P, tlv_query_plan_type_t K>
-constexpr plan<N, P> expression<N, P, K>::compile() const {
+constexpr plan<N + (K == TLV_QUERY_PLAN_NODES ? 2 : 0), P> expression<N, P, K>::compile() const {
     return detail::consistent(*this)
-               ? plan<N, P>(*this)
+               ? plan<N + (K == TLV_QUERY_PLAN_NODES ? 2 : 0), P>(detail::rooted(
+                     *this,
+                     typename detail::sequence<N + (K == TLV_QUERY_PLAN_NODES ? 2 : 0)>::type{}))
                : throw std::invalid_argument("conflicting constexpr Query parameter types");
 }
 /** @cond INTERNAL */

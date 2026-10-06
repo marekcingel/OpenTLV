@@ -112,6 +112,9 @@ typedef struct query_value {
 } query_value_t;
 struct tlv_query_exec {
     const tlv_query_program_t* program;
+    size_t workspace_size;
+    uintptr_t borrowed_low, borrowed_high;
+    int busy;
     size_t depth_capacity, open, elements, max_elements, work, max_work, pattern_capacity;
     size_t context_ordinal, context_depth;
     int has_context, context_found, context_active;
@@ -131,6 +134,35 @@ struct tlv_query_exec {
     const tlv_query_environment_t* environment;
     tlv_query_result_t result;
 };
+/* Subtraction avoids wrapping either caller-supplied interval endpoint. */
+static inline int query_overlap(const void* a, size_t an, const void* b, size_t bn) {
+    uintptr_t x = (uintptr_t)a, y = (uintptr_t)b;
+    return a && b && an && bn && (x <= y ? y - x < an : x - y < bn);
+}
+static inline void query_track_borrow(tlv_query_exec_t* e, const void* p, size_t n) {
+    if (!p || !n) return;
+    uintptr_t begin = (uintptr_t)p;
+    uintptr_t end = n > UINTPTR_MAX - begin ? UINTPTR_MAX : begin + n;
+    if (!e->borrowed_high || begin < e->borrowed_low) e->borrowed_low = begin;
+    if (end > e->borrowed_high) e->borrowed_high = end;
+}
+int query_retained_overlap(const tlv_query_exec_t*, const void*, size_t);
+static inline int query_output_overlap(const tlv_query_exec_t* e, const void* p, size_t n) {
+    return query_overlap(e, e->workspace_size, p, n) ||
+           query_overlap(e->program, e->program->reserved, p, n) ||
+           query_overlap(e->environment, e->environment ? sizeof *e->environment : 0, p, n) ||
+           query_retained_overlap(e, p, n) ||
+           (e->environment &&
+            (query_overlap(e->environment->hooks,
+                           e->environment->hook_count * sizeof(tlv_query_hook_t), p, n) ||
+             query_overlap(e->environment->tags,
+                           e->environment->tags ? sizeof(tlv_query_tag_adapter_t) : 0, p, n) ||
+             query_overlap(e->environment->format,
+                           e->environment->format ? sizeof(tlv_format_t) : 0, p, n)));
+}
+static inline int query_borrow_overlap(const tlv_query_exec_t* e, const void* p, size_t n) {
+    return query_overlap(e, e->workspace_size, p, n);
+}
 /* Location availability is independent of borrowed Source bytes on Document.
  * Reader events still validate the actual Source header envelope. */
 static inline tlv_result_t query_source_metadata(const tlv_tree_event_t* event, int header,

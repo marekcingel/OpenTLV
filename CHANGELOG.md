@@ -9,6 +9,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Fixed
 
+- Preserve absolute constexpr Query paths when an execution context is set by emitting an explicit root, matching runtime plan semantics and workspace requirements. Regenerate constexpr node plans and remeasure caller workspace. (#536)
+- Reject overlapping Query workspace/output storage and native callback reentrancy, preserve Document lifetimes through evaluation callbacks, and avoid unused search-pattern and tag-provider requirements in runtime plans. (#536)
 - Enable source-location retention in the Go and Rust Query conformance adapters so Document `@offset` and `@hlen` fixtures pass. (#531)
 - Allow Document Query to use original `@offset` and `@hlen`, including with `following`/`preceding`, when optional source-location retention is enabled during parsing. Edits invalidate affected locations without retaining the input buffer. Native consumers must rebuild for the extended Document options. (#531)
 - Fix GCC Query builds with warnings treated as errors and report compiler diagnostics when the constexpr CMake check fails. (#530, #534)
@@ -148,6 +150,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Added
 
+- Add explicit allocation-free Query execution reset in C/C++ and deterministic adversarial lifecycle, storage, callback and plan-equivalence verification, including frontend-free and sanitizer release gates. (#536)
 - Add a C++11 `constexpr` Query builder that creates native plans at compile time and executes through the existing C/C++ APIs without the runtime frontend. (#530)
 - Support versioned static C Query plans with frontend-independent validation, runtime parameters and the shared executor; add frontend-free builds and optional Query set operations. (#530)
 - Expose Query semantic Tag adapters, scoped dynamic/Definition/EMV resolvers, configured Fixed Formats, source-bearing events, result ordinals and V1 compatibility through the owning language facades, with checked resolver stability and callback lifetime tests. (#523)
