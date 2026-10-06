@@ -246,6 +246,75 @@ static int aliases(const tlv_query_program_t* p) {
     return 0;
 }
 
+static int diagnostics(const tlv_query_program_t* p) {
+    arena                  memory;
+    tlv_query_diagnostic_t reference[8];
+    for (int retained = 0; retained < 2; ++retained) {
+        tlv_query_exec_t* e;
+        size_t            bytes;
+        CHECK(initialize(p, retained, &memory, &e, &bytes) == 0);
+        for (unsigned malformed = 0; malformed < 8; ++malformed) {
+            CHECK(tlv_query_exec_reset(e) == TLV_OK);
+            CHECK(tlv_query_exec_bind(e, "n", TLV_QUERY_RESULT_INTEGER, 1, NULL, 0, NULL) ==
+                  TLV_OK);
+            tlv_tree_event_t input = event();
+            int              matched = 79;
+            if (malformed >= 6) {
+                input.kind = TLV_TREE_BEGIN;
+                CHECK(tlv_query_exec_feed(e, &input, &matched, NULL) == TLV_OK);
+                input.kind = TLV_TREE_END;
+            }
+            switch (malformed) {
+                case 0: input.skipped = 1; break;
+                case 1: input.kind = TLV_TREE_END; break;
+                case 2: input.kind = (tlv_tree_event_kind_t)99; break;
+                case 3: input.depth = 1; break;
+                case 4: input.element.tag.data = NULL; break;
+                case 5: input.element.value.data = NULL; break;
+                case 6: input.skipped = 1; break;
+                case 7: input.depth = 1; break;
+            }
+            input.source.data = event().element.value.data;
+            input.source.size = 1;
+            input.offset = 17;
+            matched = 79;
+            tlv_query_diagnostic_t d;
+            CHECK(tlv_query_exec_feed(e, &input, &matched, &d) == TLV_ERR_INVALID_ARG);
+            CHECK(matched == 79 && d.kind == TLV_QUERY_ERROR_EVENTS);
+            CHECK(d.expected &&
+                  !strcmp(d.expected, "balanced complete canonical events without pruning"));
+            CHECK(d.has_source_offset && d.source_offset == 17 && !d.limit);
+            if (!retained)
+                reference[malformed] = d;
+            else
+                CHECK(!memcmp(&reference[malformed], &d, sizeof d));
+            tlv_query_diagnostic_t original = d;
+            CHECK(tlv_query_exec_finish(e, &d) == TLV_ERR_INVALID_ARG);
+            CHECK(!memcmp(&original, &d, sizeof d));
+        }
+        /* LIMIT detail survives rejected feed/finish continuations until reset. */
+        CHECK(tlv_query_exec_reset(e) == TLV_OK);
+        CHECK(tlv_query_exec_bind(e, "n", TLV_QUERY_RESULT_INTEGER, 1, NULL, 0, NULL) == TLV_OK);
+        tlv_tree_event_t       input = event();
+        tlv_query_diagnostic_t d;
+        int                    matched = 79;
+        for (int i = 0; i < 3; ++i) CHECK(tlv_query_exec_feed(e, &input, &matched, &d) == TLV_OK);
+        CHECK(tlv_query_exec_feed(e, &input, &matched, &d) == TLV_ERR_LIMIT);
+        CHECK(d.kind == TLV_QUERY_ERROR_LIMIT && d.configured == 3);
+        CHECK(d.limit && !strcmp(d.limit, retained ? "candidates" : "elements"));
+        tlv_query_diagnostic_t original = d;
+        CHECK(tlv_query_exec_finish(e, &d) == TLV_ERR_INVALID_ARG);
+        CHECK(!memcmp(&original, &d, sizeof d));
+        CHECK(tlv_query_exec_feed(e, &input, &matched, &d) == TLV_ERR_INVALID_ARG);
+        CHECK(!memcmp(&original, &d, sizeof d));
+        CHECK(tlv_query_exec_reset(e) == TLV_OK);
+        CHECK(tlv_query_exec_bind(e, "n", TLV_QUERY_RESULT_INTEGER, 1, NULL, 0, NULL) == TLV_OK);
+        CHECK(tlv_query_exec_feed(e, &input, &matched, &d) == TLV_OK);
+        CHECK(tlv_query_exec_finish(e, &d) == TLV_OK && d.kind == TLV_QUERY_ERROR_NONE);
+    }
+    return 0;
+}
+
 #include "adversarial_callbacks.h"
 #include "adversarial_native_test.h"
 
@@ -255,6 +324,7 @@ int main(int argc, char** argv) {
 #endif
     const tlv_query_program_t* p = NULL;
     CHECK(tlv_query_plan_open(&static_plan, static_plan.header.reserved, &p, NULL) == TLV_OK);
+    CHECK(diagnostics(p) == 0);
     if (argc == 3 && !strcmp(argv[1], "--sequence")) {
         CHECK(sequence(p, 0, argv[2]) == 0);
         CHECK(sequence(p, 1, argv[2]) == 0);

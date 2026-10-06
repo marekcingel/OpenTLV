@@ -211,9 +211,9 @@ static tlv_result_t compare(tlv_query_exec_t* e, query_value_t a, query_value_t 
 
 tlv_result_t tlv_query_exec_context(tlv_query_exec_t* e, size_t ordinal) {
     if (!e) return TLV_ERR_NULL_ARG;
+    if (e->busy) return TLV_ERR_INVALID_ARG;
     if (!e->retained && e->program->level == TLV_QUERY_S1) return TLV_ERR_UNSUPPORTED_TYPE;
-    if (e->busy || e->elements || e->open || e->invalid || e->finished ||
-        ordinal >= e->max_elements)
+    if (e->elements || e->open || e->invalid || e->finished || ordinal >= e->max_elements)
         return TLV_ERR_INVALID_ARG;
     e->has_context = 1;
     e->context_ordinal = ordinal;
@@ -703,9 +703,11 @@ tlv_result_t tlv_query_exec_feed(tlv_query_exec_t* e, const tlv_tree_event_t* ev
                        matched ? sizeof *matched : 0) ||
          query_overlap(event->source.data, event->source.size, d, d ? sizeof *d : 0)))
         return TLV_ERR_INVALID_ARG;
+    /* A rejected continuation must not replace the original failure detail. */
+    if (e && event && matched && e->invalid) return TLV_ERR_INVALID_ARG;
     query_diag_init(d);
     if (!e || !event || !matched) return TLV_ERR_NULL_ARG;
-    if (e->invalid || e->finished) return TLV_ERR_INVALID_ARG;
+    if (e->finished) return TLV_ERR_INVALID_ARG;
     tlv_result_t rc = TLV_OK;
     int match = 0;
     if (!e->elements) {
@@ -717,14 +719,23 @@ tlv_result_t tlv_query_exec_feed(tlv_query_exec_t* e, const tlv_tree_event_t* ev
                          "Document execution required");
         goto failure;
     }
+    /* Validate the common event contract before either backend can consume it. */
+    if (event->kind == TLV_TREE_END) {
+        if (!e->open || event->depth != e->open - 1 ||
+            (event->skipped &&
+             (e->retained || !e->prune_allowed || e->prune_depth != event->depth)))
+            goto events;
+    } else if ((event->kind != TLV_TREE_BEGIN && event->kind != TLV_TREE_ELEMENT) ||
+               event->depth != e->open || event->skipped ||
+               (event->element.tag.size && !event->element.tag.data) ||
+               (event->element.value.size && !event->element.value.data))
+        goto events;
     if (e->retained) {
         rc = query_retained_feed(e, event, d);
         if (rc != TLV_OK) goto failure;
     }
     if (event->kind == TLV_TREE_END) {
-        if (!e->open || event->depth != e->open - 1) goto events;
         if (event->skipped) {
-            if (!e->prune_allowed || e->prune_depth != event->depth) goto events;
             ++e->pruned;
         }
         e->prune_allowed = 0;
@@ -736,11 +747,6 @@ tlv_result_t tlv_query_exec_feed(tlv_query_exec_t* e, const tlv_tree_event_t* ev
         }
         --e->open;
     } else {
-        if ((event->kind != TLV_TREE_BEGIN && event->kind != TLV_TREE_ELEMENT) ||
-            event->depth != e->open || event->skipped ||
-            (event->element.tag.size && !event->element.tag.data) ||
-            (event->element.value.size && !event->element.value.data))
-            goto events;
         if (event->depth >= e->depth_capacity) {
             rc = query_limit(d, "depth", e->depth_capacity - 1, 0, 0);
             goto failure;
@@ -806,19 +812,20 @@ tlv_result_t tlv_query_exec_selected(const tlv_query_exec_t* e, tlv_tree_event_t
 }
 
 tlv_result_t tlv_query_exec_finish(tlv_query_exec_t* e, tlv_query_diagnostic_t* d) {
-    if (e && (e->busy || query_output_overlap(e, d, d ? sizeof *d : 0))) return TLV_ERR_INVALID_ARG;
+    if (e && (e->busy || e->invalid || query_output_overlap(e, d, d ? sizeof *d : 0)))
+        return TLV_ERR_INVALID_ARG;
     query_diag_init(d);
     if (!e) return TLV_ERR_NULL_ARG;
-    if (!e->invalid && e->program->level == TLV_QUERY_D && !e->document_backend) {
+    if (e->program->level == TLV_QUERY_D && !e->document_backend) {
         e->invalid = 1;
         return query_error(d, TLV_ERR_UNSUPPORTED_TYPE, TLV_QUERY_ERROR_CAPABILITY, 0, 0,
                            "Document execution required");
     }
-    if (!e->elements && !e->invalid) {
+    if (!e->elements) {
         tlv_result_t rc = bindings_ready(e, d);
         if (rc != TLV_OK) return rc;
     }
-    if (e->invalid || e->open || (e->has_context && !e->context_found)) {
+    if (e->open || (e->has_context && !e->context_found)) {
         e->invalid = 1;
         return query_error(d, TLV_ERR_INVALID_ARG, TLV_QUERY_ERROR_EVENTS, 0, 0,
                            "balanced final EOF");
@@ -899,10 +906,9 @@ tlv_result_t tlv_query_program_visit(tlv_tree_reader_t* reader, tlv_query_exec_t
             }
         }
         if (matched) {
-            const tlv_tree_event_t* selected =
-                e->program->level == TLV_QUERY_S1 ? &e->delayed : &event;
+            tlv_tree_event_t selected = e->program->level == TLV_QUERY_S1 ? e->delayed : event;
             e->busy = 1;
-            tlv_visit_result_t result = visitor(selected, context);
+            tlv_visit_result_t result = visitor(&selected, context);
             e->busy = 0;
             if (result == TLV_VISIT_STOP) return TLV_OK;
             if (result != TLV_VISIT_CONTINUE) {

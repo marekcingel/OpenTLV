@@ -205,12 +205,16 @@ tlv_result_t tlv_document_query_program_visit(tlv_query_exec_t* e,
         tlv_result_t rc = tlv_document_query_next(e, &node);
         if (rc == TLV_ERR_END_OF_BUFFER) return TLV_OK;
         if (rc != TLV_OK) return rc;
-        document_query_callback((tlv_document_t*)e->document_owner, 1);
+        tlv_document_t* owner = (tlv_document_t*)e->document_owner;
+        document_query_callback(owner, 1);
         e->busy = 1;
         tlv_visit_result_t action = visitor(node, context);
+        /* Raw reinitialization during a callback violates exclusive workspace
+         * ownership, but must not strand the Document callback scope. */
+        int overwritten = !e->busy || e->document_owner != owner;
         e->busy = 0;
-        int deferred = document_query_callback((tlv_document_t*)e->document_owner, 0);
-        if (deferred) {
+        int deferred = document_query_callback(owner, 0);
+        if (deferred || overwritten) {
             e->invalid = 1;
             if (deferred == 2) e->document_owner = NULL;
             return TLV_ERR_INVALID_ARG;

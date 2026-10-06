@@ -16,6 +16,10 @@ Retained capacity exhaustion, missing bindings and malformed events remain
 terminal until reset. Separate provider-failure sequences verify the same
 recovery boundary. S1 regressions cover repeated delayed selection followed by
 terminal failure; generated native plans cover S0/S1/S2/D and scalar results.
+Malformed and skipped-event regressions require the same EVENTS category and
+source detail in streaming and retained execution. Valid feed/finish calls on
+an already failed execution preserve the supplied diagnostic, so a LIMIT cause
+is not overwritten by a spurious EOF error; reset starts a new diagnostic cycle.
 
 | State | Bind | Feed | Finish | Results | Reset |
 | --- | --- | --- | --- | --- | --- |
@@ -32,6 +36,10 @@ they require exclusive ownership and cannot be used to overwrite storage active
 on a callback stack. The library cannot inspect arbitrary uninitialized bytes
 as an existing execution. No thread-local registry or hidden allocation is used.
 Separate executions remain independent; this is not synchronization between threads.
+The Document visitor also keeps a local owner reference for balanced callback
+cleanup if a caller violates the raw-init restriction. Regression cases cover
+reinitialization alone and combined with deferred erase/free; this defensive
+cleanup does not make raw reinitialization a supported callback operation.
 
 ## Storage relationships
 
@@ -68,10 +76,15 @@ operations fail without corrupting the outer operation. A nested independent
 compiler invokes a name resolver which attempts the same operations. Resolver
 failure is a compilation failure, not an execution phase: the surrounding
 provider determines whether its execution succeeds or fails.
+Streaming S1 visitors receive a local event descriptor, not execution workspace;
+the descriptor and its fields remain stable across rejected reentrant calls.
 
 Document tests combine retained S0/S1/S2/D with erasing selected nodes/ancestors,
 replacing their Values, inserting before/after, repeated erase, nested visits
 and Document free. Replacement/insertion and nested traversal are rejected.
+Insert-before uses `tlv_document_insert`; Query edit still exposes only remove,
+replace and insert-after. Provider cases include decode, class, number and the
+Format constructed callback.
 Erase/free are deferred through evaluation or the visitor callback, preserving
 borrowed Tag/Value/node data; applying them invalidates execution. The backend
 attaches each Document handle before feeding its event. Existing retained-source
@@ -88,6 +101,10 @@ one-short candidate and exhausted-work budgets. The frontend-enabled runner also
 compiles the corresponding text. It compares status, diagnostic category, result
 kind, ordered unique ordinals, variables, profile, retention, provider and pattern
 requirements. Exact and one-byte-short workspace capacities are checked per plan.
+This family is explicitly limited to the builder's shared S0 node/S2 scalar
+subset. It does not claim constexpr S1/D or node-set predicates. Compiler scratch
+size/alignment and optimization-history counts are construction-only metadata;
+the test separately requires their documented zero values from `plan_info`.
 
 The family checks streaming and retained execution, flat and nested trees, and
 execution with and without a relative context. It requires identical measured
@@ -99,12 +116,19 @@ absolute paths independent of that context. Regenerate constexpr images; inferre
 `auto` use is unchanged, but explicit `plan<N, P>` result types and caller workspace
 measurements must account for two additional node-plan instructions.
 
-Source-free plans may omit source positions. The comparison requires diagnostic
+Source-free plans may omit source positions or retain ordered producer source-map
+hints. `begin <= end` is always validated; only plans carrying text can validate
+the upper bound. Such hints never index the image. Consumers without the producer's
+source map normalize both Query offsets to unavailable when comparing plans.
+The comparison requires diagnostic
 category, provider status, source availability/offset, resource name/bound and
 expected-condition equivalence. Query text offsets are compared only for generated
 native images retaining the compiler's source map. The differential audit also
 removed unused runtime search-pattern capacity and unused tag-provider IDs from
 plan requirements.
+Static-plan regressions reject `contains` literals larger than the declared
+pattern bound, and compare literal/dynamic matching and LIMIT behavior across
+both executors, including empty patterns and exact/one-short capacities.
 
 `adversarial_native.h` additionally contains frontend-produced C initializers
 with all source text removed for S0/S1/S2/D and count/exists/Value results. The

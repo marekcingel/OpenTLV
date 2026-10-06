@@ -11,6 +11,7 @@
 #endif
 typedef struct callback_state {
     tlv_query_exec_t* exec;
+    size_t            workspace_bytes;
     unsigned          calls, errors;
     int               fail, mutation;
 #if OPENTLV_DOCUMENT && OPENTLV_READER && OPENTLV_WRITER
@@ -245,9 +246,37 @@ static tlv_result_t tag_number(const void* context, const tlv_tag_t* tag, int64_
     return s->fail ? TLV_ERR_INVALID_TAG : TLV_OK;
 }
 #if OPENTLV_READER
+static int constructed(const void* context, const tlv_tag_t* tag) {
+    (void)context;
+    return tag->size == 1 && tag->data[0] == 0x70;
+}
+static int same_range(const tlv_range_t* a, const tlv_range_t* b) {
+    return a->offset == b->offset && a->size == b->size && a->present == b->present;
+}
+static int same_element(const tlv_element_t* a, const tlv_element_t* b) {
+    return a->tag.data == b->tag.data && a->tag.size == b->tag.size &&
+           a->value.data == b->value.data && a->value.size == b->value.size;
+}
+static int same_event(const tlv_tree_event_t* a, const tlv_tree_event_t* b) {
+    const tlv_source_t* x = &a->source;
+    const tlv_source_t* y = &b->source;
+    /* Structure padding is not initialized by every Format and is not semantic. */
+    return a->kind == b->kind && same_element(&a->element, &b->element) && x->data == y->data &&
+           x->size == y->size && same_range(&x->header, &y->header) &&
+           same_range(&x->tag, &y->tag) && same_range(&x->length, &y->length) &&
+           same_range(&x->value, &y->value) && same_range(&x->trailer, &y->trailer) &&
+           same_element(&x->element, &y->element) && x->format == y->format &&
+           x->tag_binding == y->tag_binding && a->depth == b->depth && a->offset == b->offset &&
+           a->skipped == b->skipped;
+}
 static tlv_visit_result_t event_visitor(const tlv_tree_event_t* input, void* context) {
-    (void)input;
-    reenter(context);
+    callback_state*  s = context;
+    tlv_tree_event_t saved = *input;
+    if ((uintptr_t)input >= (uintptr_t)s->exec &&
+        (uintptr_t)input - (uintptr_t)s->exec < s->workspace_bytes)
+        ++s->errors;
+    reenter(s);
+    if (!same_event(input, &saved)) ++s->errors;
     return TLV_VISIT_CONTINUE;
 }
 #endif
@@ -290,46 +319,117 @@ static int callbacks(void) {
         }
     }
 #if OPENTLV_READER
-    CHECK(compile_plan("//01", NULL, &image, &p) == 0);
-    for (int retained = 0; retained < 2; ++retained) {
-        size_t bytes;
-        CHECK(initialize(p, retained, &memory, &state.exec, &bytes) == 0);
-        const uint8_t     wire[] = {1, 0, 1, 0};
-        tlv_tree_reader_t reader;
-        tlv_tree_frame_t  frames[4];
-        CHECK(tlv_tree_reader_init(&reader, wire, sizeof wire, &format, frames, 4, 3, 3) == TLV_OK);
-        state.calls = state.errors = 0;
-        CHECK(tlv_query_program_visit(&reader, state.exec, event_visitor, &state, NULL) == TLV_OK);
-        CHECK(state.calls == 2 && !state.errors);
-    }
+    format.is_constructed = constructed;
+    const char* selections[] = {"//01", "/70[child::01]"};
+    for (unsigned kind = 0; kind < 2; ++kind)
+        for (int retained = 0; retained < 2; ++retained) {
+            CHECK(compile_plan(selections[kind], NULL, &image, &p) == 0);
+            size_t bytes, alignment;
+            CHECK((retained ? tlv_query_eval_size(p, 2, 4, &bytes, &alignment)
+                            : tlv_query_exec_size(p, 2, &bytes, &alignment)) == TLV_OK);
+            CHECK((retained ? tlv_query_eval_init(p, NULL, aligned(&memory), bytes, 2, 4, 100000,
+                                                  &state.exec)
+                            : tlv_query_exec_init(p, aligned(&memory), bytes, 2, 4, 100000,
+                                                  &state.exec)) == TLV_OK);
+            state.workspace_bytes = bytes;
+            const uint8_t     wire[] = {0x70, 2, 1, 0, 0x70, 2, 1, 0};
+            tlv_tree_reader_t reader;
+            tlv_tree_frame_t  frames[4];
+            CHECK(tlv_tree_reader_init(&reader, wire, sizeof wire, &format, frames, 4, 3, 4) ==
+                  TLV_OK);
+            state.calls = state.errors = 0;
+            CHECK(tlv_query_program_visit(&reader, state.exec, event_visitor, &state, NULL) ==
+                  TLV_OK);
+            CHECK(state.calls == 2 && !state.errors);
+        }
 #endif
     return 0;
 }
 #if OPENTLV_DOCUMENT && OPENTLV_READER && OPENTLV_WRITER
-static int constructed(const void* context, const tlv_tag_t* tag) {
-    (void)context;
-    return tag->size == 1 && tag->data[0] == 0x70;
+typedef struct callback_format {
+    tlv_fixed_format_t config;
+    callback_state*    state;
+} callback_format;
+static int mutating_constructed(const void* context, const tlv_tag_t* tag) {
+    const callback_format* format = context;
+    if (format->state) {
+        reenter(format->state);
+        mutate(format->state);
+    }
+    return constructed(NULL, tag);
+}
+typedef struct reinitialize_state {
+    tlv_query_exec_t*          exec;
+    const tlv_query_program_t* program;
+    tlv_document_t*            document;
+    size_t                     bytes;
+    int                        mutation;
+    unsigned                   calls, errors;
+} reinitialize_state;
+static tlv_visit_result_t reinitialize_visitor(tlv_node_t* node, void* context) {
+    reinitialize_state* state = context;
+    ++state->calls;
+    /* Deliberately violate raw-init ownership to check defensive scope cleanup. */
+    if (tlv_query_eval_init(state->program, NULL, state->exec, state->bytes, 3, 8, 100000,
+                            &state->exec) != TLV_OK)
+        ++state->errors;
+    if (state->mutation == 1) tlv_node_erase(node);
+    if (state->mutation == 2) tlv_document_free(state->document);
+    return TLV_VISIT_STOP;
+}
+static int document_reinitialization(const tlv_document_options_t* options) {
+    for (int mutation = 0; mutation < 3; ++mutation) {
+        const uint8_t      wire[] = {0x70, 3, 1, 1, 9};
+        reinitialize_state state = {0};
+        state.mutation = mutation;
+        arena image, memory;
+        CHECK(compile_plan("//01", NULL, &image, &state.program) == 0);
+        size_t alignment;
+        CHECK(tlv_query_eval_size(state.program, 3, 8, &state.bytes, &alignment) == TLV_OK);
+        CHECK(tlv_query_eval_init(state.program, NULL, aligned(&memory), state.bytes, 3, 8, 100000,
+                                  &state.exec) == TLV_OK);
+        CHECK(tlv_document_parse(wire, sizeof wire, options, &state.document, NULL) == TLV_OK);
+        CHECK(tlv_document_query_evaluate(state.document, state.exec, NULL, NULL, 0, NULL, NULL) ==
+              TLV_OK);
+        CHECK(tlv_document_query_program_visit(state.exec, reinitialize_visitor, &state) ==
+              TLV_ERR_INVALID_ARG);
+        CHECK(state.calls == 1 && !state.errors);
+        tlv_query_result_t result;
+        CHECK(tlv_query_exec_result(state.exec, &result) == TLV_ERR_INVALID_ARG);
+        if (mutation != 2) {
+            const uint8_t value = 7, tag = 1;
+            tlv_node_t*   root = tlv_document_first(state.document);
+            CHECK(tlv_document_insert(state.document, root, NULL, tlv_tag(&tag, 1), &value, 1,
+                                      NULL) == TLV_OK);
+            CHECK(tlv_document_count(state.document) == (mutation ? 2 : 3));
+            tlv_document_free(state.document);
+        }
+    }
+    return 0;
 }
 static int documents(void) {
-    const char*        expressions[] = {"//01",           "/70[child::01]",
-                                        "(//01)[last()]", "//01 | //01/following::*",
-                                        "num(//01[1])",   "number(//01[1])"};
-    tlv_fixed_format_t config = {0};
-    config.tag_size = config.length_size = 1;
-    config.length_order = TLV_BYTE_ORDER_BIG_ENDIAN;
+    const char* expressions[] = {
+        "//01",         "/70[child::01]",  "(//01)[last()]", "//01 | //01/following::*",
+        "num(//01[1])", "number(//01[1])", "class(//01[1])", "constructed(//01[1])"};
+    callback_format callback = {0};
+    callback.config.tag_size = callback.config.length_size = 1;
+    callback.config.length_order = TLV_BYTE_ORDER_BIG_ENDIAN;
     tlv_format_t format;
-    CHECK(tlv_fixed_format_init(&format, &config) == TLV_OK);
-    format.is_constructed = constructed;
+    CHECK(tlv_fixed_format_init(&format, &callback.config) == TLV_OK);
+    format.is_constructed = mutating_constructed;
     tlv_document_options_t options;
     CHECK(tlv_document_options_init(&options, &format) == TLV_OK);
     options.retain_source_locations = 1;
-    for (unsigned kind = 0; kind < 6; ++kind)
+    CHECK(document_reinitialization(&options) == 0);
+    for (unsigned kind = 0; kind < sizeof expressions / sizeof *expressions; ++kind)
         for (int mutation = 0; mutation <= 9; ++mutation) {
             const uint8_t  wire[] = {0x70, 3, 1, 1, 9};
             callback_state state = {0};
             state.mutation = mutation;
+            callback.state = NULL;
             CHECK(tlv_document_parse(wire, sizeof wire, &options, &state.document, NULL) == TLV_OK);
             state.node = tlv_node_first_child(tlv_document_first(state.document));
+            if (kind == 7) callback.state = &state;
             tlv_query_hook_t        hook = {73, TLV_QUERY_NUM, 0, 1, &state, decode};
             tlv_query_tag_adapter_t tags = {74, &state, tag_number, tag_number};
             tlv_query_environment_t environment = {0};

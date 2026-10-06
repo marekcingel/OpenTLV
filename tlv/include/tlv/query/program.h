@@ -68,6 +68,9 @@ typedef enum tlv_query_decision_timing {
 } tlv_query_decision_timing_t;
 
 /** @brief Fixed-layout compiler/execution failure, initialized by diagnostic entry points.
+ * @note A valid feed or finish call on an already failed execution returns
+ * INVALID_ARG without writing this object, preserving the original failure when
+ * it is reused. Inspect exec_info.invalid and reset before continuing.
  * @note This value type is not extensible; changing its layout requires an ABI change. */
 typedef struct tlv_query_diagnostic {
     tlv_query_error_kind_t kind;    /**< Query failure category. */
@@ -553,6 +556,8 @@ TLV_API tlv_result_t tlv_query_exec_info(const tlv_query_exec_t* exec, tlv_query
  * unavailable Source metadata; #TLV_ERR_UNSUPPORTED_TYPE for D programs without
  * Document execution; #TLV_ERR_NULL_ARG for missing pointers.
  * @note Execution errors invalidate execution until reset and preserve matched.
+ * A call with required pointers present on an already failed execution preserves
+ * diagnostic as well; it does not report a second event error.
  * Missing pointers are rejected without changing execution state.
  * S1 accepts proven independent root scopes only; use exec_selected for delayed
  * publications. S1 borrows one root's complete spans through its END, requiring
@@ -582,6 +587,8 @@ TLV_API tlv_result_t tlv_query_exec_selected(const tlv_query_exec_t* exec, tlv_t
  * #TLV_ERR_NULL_ARG for NULL execution. Repeated successful finish is harmless.
  * @note Execution failures, including attempting D without Document, invalidate
  * until reset. Callback and forbidden-overlap rejections preserve the outer state.
+ * Calling finish on an already failed execution returns INVALID_ARG without
+ * changing diagnostic, preserving the initial failure instead of reporting EOF.
  */
 TLV_API tlv_result_t tlv_query_exec_finish(tlv_query_exec_t* exec,
                                            tlv_query_diagnostic_t* diagnostic);

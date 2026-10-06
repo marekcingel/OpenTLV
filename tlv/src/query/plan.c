@@ -104,6 +104,9 @@ static int plan_types(const tlv_query_program_t* p) {
                 return 0;
         } else if (f >= F_STARTS && f <= F_RANGE) {
             if (a != V_BYTES || b != V_BYTES) return 0;
+            if (f == F_CONTAINS && nodes[args[1]].op == Q_BYTES &&
+                nodes[args[1]].data_size > p->pattern_capacity)
+                return 0;
             if (f == F_MASK || f == F_RANGE) {
                 const query_node_t *x = &nodes[args[0]], *y = &nodes[args[1]];
                 if (x->op != Q_BYTES || y->op != Q_BYTES) return 0;

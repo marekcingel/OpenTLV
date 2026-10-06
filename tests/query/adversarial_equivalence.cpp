@@ -140,6 +140,8 @@ static int metadata(const tlv_query_program_t* a, const tlv_query_program_t* b) 
     x.struct_size = sizeof x;
     y.struct_size = sizeof y;
     CHECK(tlv_query_plan_info(a, &x) == TLV_OK && tlv_query_plan_info(b, &y) == TLV_OK);
+    CHECK(!x.scratch_size && !y.scratch_size && !x.scratch_alignment && !y.scratch_alignment &&
+          !x.optimized_states && !y.optimized_states);
     CHECK(x.level == y.level && x.result_kind == y.result_kind &&
           x.variable_slots == y.variable_slots);
     CHECK(x.stable_input_required == y.stable_input_required &&
@@ -186,6 +188,9 @@ template <class Plan> static int check(unsigned index, const Plan& plan, const c
     CHECK(tlv_query_compile(source, std::strlen(source), &options, scratch, sizeof scratch, storage,
                             sizeof storage, &info, nullptr) == TLV_OK);
     const auto* runtime = reinterpret_cast<const tlv_query_program_t*>(storage);
+    /* Compilation reports construction history, while plan_info reports only
+     * executable requirements. These differences are explicitly permitted. */
+    CHECK(info.scratch_size > 0 && info.scratch_alignment > 0);
     CHECK(metadata(compiled, runtime) == 0);
 #else
     (void)source;

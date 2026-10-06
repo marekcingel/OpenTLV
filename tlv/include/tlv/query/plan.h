@@ -11,6 +11,10 @@
  * generated plans when TLV_QUERY_PLAN_VERSION changes. All words use host byte order.
  * An image contains header, count instructions, text_size optional diagnostic bytes
  * plus a zero terminator, then payload_size bytes. No pointers enter the image.
+ * Instruction diagnostic ranges always require begin <= end. With source text,
+ * end must be within text_size. Without text, ordered offsets are optional
+ * producer-supplied source-map hints, never offsets into the image; consumers
+ * must ignore them unless they also possess that producer's source map.
  * Use tlv_query_plan_open() before executing manually constructed or external data.
  */
 /** @addtogroup traversal
@@ -150,7 +154,7 @@ typedef struct tlv_query_program {
     uint32_t reserved;    /**< Exact image extent, including terminator and payload. */
     uint32_t variable_count;   /**< Number of parameter slots. */
     uint32_t payload_size;     /**< Payload byte extent. */
-    uint32_t pattern_capacity; /**< Maximum runtime search-pattern length. */
+    uint32_t pattern_capacity; /**< Search-pattern bound; must cover every contains literal. */
     uint32_t codec_stride;     /**< Maximum codec scratch stride, a multiple of 16. */
     uint32_t tag_id;           /**< Stable semantic tag-provider contract ID; zero if unused. */
 } tlv_query_plan_t;
@@ -171,6 +175,8 @@ extern "C" {
  * not internal schema indices. Keep their meaning stable or assign new IDs.
  * Image, program output and diagnostic must be disjoint. Overlap is rejected
  * before writes, including diagnostic initialization.
+ * A contains literal larger than pattern_capacity is a malformed plan; dynamic
+ * patterns exceeding that bound fail during execution in every backend.
  */
 TLV_API tlv_result_t tlv_query_plan_open(const void* image, size_t size,
                                          const tlv_query_program_t** program,
