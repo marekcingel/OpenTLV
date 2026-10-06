@@ -524,10 +524,13 @@ TLV_API tlv_result_t tlv_query_exec_info(const tlv_query_exec_t* exec, tlv_query
  * @param[out] diagnostic Optional failure detail.
  * @return #TLV_OK; #TLV_ERR_INVALID_ARG for invalid sequence;
  * #TLV_ERR_LIMIT for depth/elements/work; #TLV_ERR_INVALID_VALUE for
- * unavailable Source metadata; #TLV_ERR_NULL_ARG for missing pointers.
- * @note Errors invalidate execution until reset. S1 accepts proven independent root
- * scopes only; use exec_selected for delayed publications. S1 borrows one root's
- * complete spans through its END, requiring stable backing storage across windows.
+ * unavailable Source metadata; #TLV_ERR_UNSUPPORTED_TYPE for D programs without
+ * Document execution; #TLV_ERR_NULL_ARG for missing pointers.
+ * @note Execution errors invalidate execution until reset and preserve matched.
+ * Missing pointers are rejected without changing execution state.
+ * S1 accepts proven independent root scopes only; use exec_selected for delayed
+ * publications. S1 borrows one root's complete spans through its END, requiring
+ * stable backing storage across windows.
  * S0 retains no borrowed payload;
  * retained execution reports matched=0 and publishes results only after finish.
  * Each node is emitted at most once, in preorder. Skipped END is rejected under
@@ -549,7 +552,8 @@ TLV_API tlv_result_t tlv_query_exec_selected(const tlv_query_exec_t* exec, tlv_t
  * @param[in,out] exec Required active execution.
  * @param[out] diagnostic Optional failure detail.
  * @return #TLV_OK on balanced EOF; #TLV_ERR_INVALID_ARG on invalid/unbalanced
- * feed; #TLV_ERR_NULL_ARG for NULL execution. Repeated successful finish is harmless.
+ * feed; #TLV_ERR_UNSUPPORTED_TYPE for D programs without Document execution;
+ * #TLV_ERR_NULL_ARG for NULL execution. Repeated successful finish is harmless.
  */
 TLV_API tlv_result_t tlv_query_exec_finish(tlv_query_exec_t* exec,
                                            tlv_query_diagnostic_t* diagnostic);

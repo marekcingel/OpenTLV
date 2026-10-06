@@ -680,8 +680,9 @@ tlv_result_t tlv_query_exec_feed(tlv_query_exec_t* e, const tlv_tree_event_t* ev
         if (rc != TLV_OK) goto failure;
     }
     if (e->program->level == TLV_QUERY_D && !e->document_backend) {
-        return query_error(d, TLV_ERR_UNSUPPORTED_TYPE, TLV_QUERY_ERROR_CAPABILITY, 0, 0,
-                           "Document execution required");
+        rc = query_error(d, TLV_ERR_UNSUPPORTED_TYPE, TLV_QUERY_ERROR_CAPABILITY, 0, 0,
+                         "Document execution required");
+        goto failure;
     }
     if (e->retained) {
         rc = query_retained_feed(e, event, d);
@@ -768,7 +769,7 @@ tlv_result_t tlv_query_exec_selected(const tlv_query_exec_t* e, tlv_tree_event_t
 tlv_result_t tlv_query_exec_finish(tlv_query_exec_t* e, tlv_query_diagnostic_t* d) {
     query_diag_init(d);
     if (!e) return TLV_ERR_NULL_ARG;
-    if (e->program->level == TLV_QUERY_D && !e->document_backend)
+    if (!e->invalid && e->program->level == TLV_QUERY_D && !e->document_backend)
         return query_error(d, TLV_ERR_UNSUPPORTED_TYPE, TLV_QUERY_ERROR_CAPABILITY, 0, 0,
                            "Document execution required");
     if (!e->elements && !e->invalid) {
