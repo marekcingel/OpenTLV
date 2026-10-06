@@ -1,10 +1,10 @@
 name: Query hardening
 on:
   pull_request:
-    paths: ['tlv/**', 'tlv++/**', 'tests/query/**', 'tests/unit/query/**', 'tests/fuzz/query/**', 'scripts/*query*', '.github/workflows/query-hardening.yml']
+    paths: ['tlv/**', 'tlv\+\+/**', 'tests/query/**', 'tests/unit/query/**', 'tests/fuzz/query/**', 'scripts/*query*', '.github/workflows/query-hardening.yml']
   push:
     branches: [main]
-    paths: ['tlv/**', 'tlv++/**', 'tests/query/**', 'tests/unit/query/**', 'tests/fuzz/query/**', 'scripts/*query*', '.github/workflows/query-hardening.yml']
+    paths: ['tlv/**', 'tlv\+\+/**', 'tests/query/**', 'tests/unit/query/**', 'tests/fuzz/query/**', 'scripts/*query*', '.github/workflows/query-hardening.yml']
   workflow_dispatch:
 permissions:
   contents: read
