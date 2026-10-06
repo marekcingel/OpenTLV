@@ -5,9 +5,12 @@
 #define OPENTLV_BUILTINS_ASN1_BER_H
 
 #include "tlv/error.h"
+#include "tlv/config.h"
+#if OPENTLV_WRITER
+#include "tlv/writer/writer.h"
+#endif
 #include "tlv/builtins/asn1/identifier.h"
 #include "tlv/format.h"
-#include "tlv/writer/writer.h"
 #include "tlv/size.h"
 #include "tlv/export.h"
 
@@ -149,6 +152,7 @@ TLV_API tlv_result_t tlv_ber_indefinite_encoded_size(tlv_tag_t tag, size_t lengt
 TLV_API tlv_result_t tlv_ber_write_indefinite(uint8_t* data, size_t capacity, tlv_tag_t tag,
                                               const uint8_t* value, size_t length, size_t* written);
 
+#if OPENTLV_WRITER
 /**
  * @brief Appends an explicit indefinite-length element to a writer.
  *
@@ -167,6 +171,7 @@ TLV_API tlv_result_t tlv_ber_write_indefinite(uint8_t* data, size_t capacity, tl
  */
 TLV_API tlv_result_t tlv_ber_writer_write_indefinite(tlv_writer_t* writer, tlv_tag_t tag,
                                                      const uint8_t* value, size_t length);
+#endif
 
 /*
  * The definite-length field codec below (X.690 section 8.1.3) is standalone,

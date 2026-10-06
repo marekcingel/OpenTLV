@@ -1,6 +1,7 @@
 // SPDX-License-Identifier: MIT
 // Copyright (c) 2026 Marek Cingel
 
+#include "tlv/config.h"
 #include "ber_internal.h"
 #include "asn1_internal.h"
 #include "tlv/builtins/asn1/cer.h"
@@ -298,6 +299,7 @@ tlv_result_t tlv_cer_read_strict(const uint8_t* data, size_t size, const tlv_cer
     return read_impl(data, size, limits, element, consumed, 1, error_offset);
 }
 
+#if OPENTLV_WRITER
 /* Validates and, in strict mode, checks universal content of one primitive
  * value about to be written; shared by write_impl and
  * tlv_cer_write_segmented_string's single-primitive-element path. Returns
@@ -546,3 +548,5 @@ tlv_result_t tlv_cer_write_segmented_string(uint8_t* data, size_t capacity, tlv_
     }
     return TLV_OK;
 }
+
+#endif

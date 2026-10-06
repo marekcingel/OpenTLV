@@ -12,6 +12,7 @@
 #include <gtest/gtest.h>
 #include <cstring>
 #include <cstdlib>
+#include <memory>
 #include <string>
 #include <vector>
 
@@ -467,6 +468,149 @@ TEST(Unit_Tlv_QueryF3, DocumentStopResumeSourceErrorsAndResourceLimits) {
     EXPECT_STREQ(e.diagnostic.limit, "work");
     tlv_document_free(document);
 }
+
+TEST(Unit_Tlv_QueryF3, RetainedDocumentLocationsMatchStreamingAndSupportDocumentAxes) {
+    Evaluation             e;
+    tlv_document_options_t options;
+    ASSERT_EQ(tlv_document_options_init(&options, &e.format), TLV_OK);
+    options.retain_source_locations = 1;
+    const std::vector<uint8_t> wire = {0x70, 5, 0x50, 0, 0x57, 1, 9, 0x50, 0};
+    auto                       input = wire;
+    tlv_document_t*            raw = nullptr;
+    ASSERT_EQ(tlv_document_parse(input.data(), input.size(), &options, &raw, nullptr), TLV_OK);
+    std::unique_ptr<tlv_document_t, decltype(&tlv_document_free)> doc(raw, tlv_document_free);
+    input.assign(input.size(), 0);
+    for (const char* text : {"//*[@offset = 0 and @hlen = 2]", "//57[@offset = 4]",
+                             "//50[@offset > 0 and @hlen = 2]", "//57/..[@offset = 0]"}) {
+        SCOPED_TRACE(text);
+        ASSERT_EQ(e.compile(text), TLV_OK);
+        ASSERT_EQ(e.init(), TLV_OK);
+        std::vector<size_t> retained;
+        ASSERT_EQ(e.run(wire, &retained), TLV_OK);
+        if (e.info.level <= TLV_QUERY_S1) {
+            size_t bytes, alignment;
+            ASSERT_EQ(tlv_query_exec_size(e.program, 16, &bytes, &alignment), TLV_OK);
+            Buffer storage(bytes, alignment);
+            ASSERT_EQ(tlv_query_exec_init(e.program, storage.data, bytes, 16, 64, 1000000, &e.exec),
+                      TLV_OK);
+            std::vector<size_t> streaming;
+            tlv_tree_frame_t    frames[16];
+            tlv_tree_reader_t   reader;
+            ASSERT_EQ(tlv_tree_reader_init(&reader, wire.data(), wire.size(), &e.format, frames, 16,
+                                           16, 64),
+                      TLV_OK);
+            ASSERT_EQ(tlv_query_program_visit(&reader, e.exec, noop, &streaming, &e.diagnostic),
+                      TLV_OK);
+            EXPECT_EQ(retained, streaming);
+        }
+        ASSERT_EQ(e.init(), TLV_OK);
+        ASSERT_EQ(tlv_document_query_evaluate(doc.get(), e.exec, nullptr, nullptr, 0, nullptr,
+                                              &e.diagnostic),
+                  TLV_OK);
+        std::vector<size_t> locations;
+        tlv_node_t*         node;
+        while (tlv_document_query_next(e.exec, &node) == TLV_OK) {
+            auto location = tlv_node_source_location(node);
+            EXPECT_TRUE(location.has_offset);
+            locations.push_back(location.offset);
+        }
+        EXPECT_EQ(retained, locations);
+    }
+    for (const auto& c : std::vector<std::pair<const char*, std::vector<size_t>>>{
+             {"//50[1]/following::*[@offset > 0 and @hlen = 2]", {4, 7}},
+             {"//57/preceding::*[@offset = 2 and @hlen = 2]", {2}}}) {
+        ASSERT_EQ(e.compile(c.first), TLV_OK);
+        EXPECT_EQ(e.info.level, TLV_QUERY_D);
+        ASSERT_EQ(e.init(), TLV_OK);
+        ASSERT_EQ(tlv_document_query_evaluate(doc.get(), e.exec, nullptr, nullptr, 0, nullptr,
+                                              &e.diagnostic),
+                  TLV_OK);
+        std::vector<size_t> locations;
+        tlv_node_t*         node;
+        while (tlv_document_query_next(e.exec, &node) == TLV_OK)
+            locations.push_back(tlv_node_source_location(node).offset);
+        EXPECT_EQ(c.second, locations);
+    }
+    // An edit invalidates the touched node's provenance, never substitutes offset zero.
+    auto leaf = tlv_node_next(tlv_node_first_child(tlv_document_first(doc.get())));
+    ASSERT_EQ(tlv_node_set_value(leaf, nullptr, 0), TLV_OK);
+    ASSERT_EQ(e.compile("//50[1]/following::57[@offset > 0]"), TLV_OK);
+    ASSERT_EQ(e.init(), TLV_OK);
+    EXPECT_EQ(
+        tlv_document_query_evaluate(doc.get(), e.exec, nullptr, nullptr, 0, nullptr, &e.diagnostic),
+        TLV_ERR_INVALID_VALUE);
+    EXPECT_EQ(e.diagnostic.kind, TLV_QUERY_ERROR_SOURCE);
+    EXPECT_FALSE(e.diagnostic.has_source_offset);
+}
+
+TEST(Unit_Tlv_QueryF3, DocumentLocationPreservesEmptyHeaderAndZeroOffset) {
+    Evaluation e;
+    e.format = {};
+    e.format.decode = [](const void*, const uint8_t* data, size_t size, tlv_decoded_t* decoded,
+                         tlv_format_error_t*) -> tlv_result_t {
+        if (!size) return TLV_ERR_BUFFER_TOO_SHORT;
+        *decoded = {};
+        decoded->element.value = {data, 1};
+        decoded->source.data = data;
+        decoded->source.size = 1;
+        decoded->source.header = {0, 0, 1};
+        decoded->source.value = {0, 1, 1};
+        decoded->source.trailer = {1, 0, 1};
+        decoded->source.element = decoded->element;
+        return TLV_OK;
+    };
+    tlv_document_options_t options;
+    ASSERT_EQ(tlv_document_options_init(&options, &e.format), TLV_OK);
+    options.retain_source_locations = 1;
+    const uint8_t   wire = 7;
+    tlv_document_t* raw = nullptr;
+    ASSERT_EQ(tlv_document_parse(&wire, 1, &options, &raw, nullptr), TLV_OK);
+    std::unique_ptr<tlv_document_t, decltype(&tlv_document_free)> doc(raw, tlv_document_free);
+    auto location = tlv_node_source_location(tlv_document_first(raw));
+    EXPECT_TRUE(location.has_offset);
+    EXPECT_TRUE(location.has_header_size);
+    EXPECT_EQ(0u, location.offset);
+    EXPECT_EQ(0u, location.header_size);
+    ASSERT_EQ(e.compile("//*[@offset=0 and @hlen=0]"), TLV_OK);
+    ASSERT_EQ(e.init(), TLV_OK);
+    ASSERT_EQ(tlv_document_query_evaluate(raw, e.exec, nullptr, nullptr, 0, nullptr, &e.diagnostic),
+              TLV_OK);
+    tlv_node_t* node = nullptr;
+    EXPECT_EQ(tlv_document_query_next(e.exec, &node), TLV_OK);
+    EXPECT_EQ(node, tlv_document_first(raw));
+}
+
+#if OPENTLV_FORMAT_BER
+TEST(Unit_Tlv_QueryF3, OriginalLocationsAreIndependentOfCanonicalValueSnapshot) {
+    Evaluation e;
+    e.format = tlv_format_ber;
+    tlv_document_options_t options;
+    ASSERT_EQ(tlv_document_options_init(&options, &e.format), TLV_OK);
+    options.retain_source_locations = 1;
+    const uint8_t   wire[] = {0x50, 0x81, 1, 0xaa, 0x57, 0};
+    tlv_document_t* raw = nullptr;
+    ASSERT_EQ(tlv_document_parse(wire, sizeof wire, &options, &raw, nullptr), TLV_OK);
+    std::unique_ptr<tlv_document_t, decltype(&tlv_document_free)> doc(raw, tlv_document_free);
+    ASSERT_EQ(
+        e.compile("//50[@offset=0 and @hlen=3 and @len=1]/following::57[@offset=4 and @hlen=2]"),
+        TLV_OK);
+    ASSERT_EQ(e.init(), TLV_OK);
+    tlv_tree_writer_frame_t     frames[16];
+    uint8_t                     values[64], scratch[64];
+    tlv_tree_writer_workspace_t staging{};
+    staging.frames = frames;
+    staging.frame_capacity = 16;
+    staging.scratch = scratch;
+    staging.scratch_capacity = sizeof scratch;
+    ASSERT_EQ(tlv_document_query_evaluate(raw, e.exec, nullptr, values, sizeof values, &staging,
+                                          &e.diagnostic),
+              TLV_OK);
+    tlv_node_t* node = nullptr;
+    ASSERT_EQ(tlv_document_query_next(e.exec, &node), TLV_OK);
+    EXPECT_EQ(node, tlv_node_next(tlv_document_first(raw)));
+    EXPECT_EQ(tlv_document_query_next(e.exec, &node), TLV_ERR_END_OF_BUFFER);
+}
+#endif
 
 TEST(Unit_Tlv_QueryF3, DocumentQueryNeverUsesOwningAllocator) {
     Evaluation             e;

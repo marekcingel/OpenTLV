@@ -972,7 +972,9 @@ static PyObject* _opentlv_document_parse(PyObject* module, PyObject* args) {
     Py_buffer  buffer;
     PyObject*  format_spec;
     Py_ssize_t max_depth, max_elements;
-    if (!PyArg_ParseTuple(args, "y*Onn", &buffer, &format_spec, &max_depth, &max_elements)) {
+    int        retain_source_locations = 0;
+    if (!PyArg_ParseTuple(args, "y*Onn|p", &buffer, &format_spec, &max_depth, &max_elements,
+                          &retain_source_locations)) {
         return NULL;
     }
     tlv_document_options_t options;
@@ -987,6 +989,7 @@ static PyObject* _opentlv_document_parse(PyObject* module, PyObject* args) {
         PyBuffer_Release(&buffer);
         return NULL;
     }
+    options.retain_source_locations = retain_source_locations;
     tlv_document_t* document = NULL;
     size_t          error_offset = 0;
     tlv_result_t code = tlv_document_parse((const uint8_t*)buffer.buf, (size_t)buffer.len, &options,

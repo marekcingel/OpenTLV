@@ -142,9 +142,10 @@ aliases remain. Rebuild consumers after this source/ABI-breaking removal.
 | Tree Reader | `tlv/src/reader/tree.c` | `tlv_reader_next_source_diag`; iterative scope stack |
 | Visitor | `tlv/src/reader/visitor.c` | Reader or Tree Reader pulls |
 | Query | `tlv/src/query/query.c` | Tag/depth matcher; Tree Reader Visitor for buffer traversal |
-| Document parsing | `tlv/src/document/document.c` | Resumable Builder consuming canonical structural events |
-| Document lookup | `tlv/src/document/document.c` | Node preorder feeding the same Query matcher |
-| Document encoding | `tlv/src/document/document.c` | Node events feeding `tlv_tree_writer_measure_events`, then Writer encoded copy |
+| Document topology | `tlv/src/document/document.c` | Owned nodes and programmatic mutation; optional Format measurement validates inserted tags |
+| Document parsing | `tlv/src/document/reader.c` | Reader + Document integration: resumable Builder consuming canonical structural events |
+| Document lookup | `tlv/src/document/query.c` | Query + Document integration: node preorder feeding the same Query matcher |
+| Document encoding | `tlv/src/document/writer.c` | Writer + Document integration: node events feeding `tlv_tree_writer_measure_events`, then Writer encoded copy |
 | Tree Writer | `tlv/src/writer/tree.c` | Writer measurement and encoding; iterative parent stack |
 | Writer | `tlv/src/writer/writer.c` | Format measurement and encoding |
 

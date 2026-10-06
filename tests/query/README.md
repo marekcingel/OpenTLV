@@ -36,8 +36,8 @@ tree. It does not call OpenTLV or interpret compiled program images. V1 fixtures
 also run a separate frozen exact-path baseline. `native.c` executes the same
 fixtures through the canonical C Tree Reader, optimized/unoptimized programs and S0/retained execution.
 Each successful fixture compares optimized/unoptimized native modes, forced
-retained execution, and Document execution (except intentionally unavailable
-Source properties). The native adapter maps source-less Document handles to fixture
+retained execution, and Document execution with optional original source locations
+enabled, including `@offset`/`@hlen`. The native adapter maps Document handles to fixture
 Reader preorder identities. Every byte split of each fixture also exercises a
 stable backing buffer, repeated NEED_MORE_DATA and final completion. Global D
 plans execute only over Document; unit tests verify rejection before Reader consumption. Run:

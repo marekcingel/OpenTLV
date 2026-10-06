@@ -5,8 +5,9 @@
 #define OPENTLV_BUILTINS_ASN1_DER_VALIDATION_H
 
 #include "tlv/error.h"
+#include "tlv/config.h"
 #include "tlv/builtins/asn1/der.h"
-#include "tlv/reader/visitor.h"
+#include "tlv/tree.h"
 #include "tlv/export.h"
 
 #ifdef __cplusplus
@@ -115,6 +116,7 @@ TLV_API tlv_result_t tlv_der_read(const uint8_t* data, size_t size, const tlv_de
 TLV_API tlv_result_t tlv_der_visit(const uint8_t* data, size_t size, const tlv_der_limits_t* limits,
                                    tlv_der_visitor_t visitor, void* context, size_t* error_offset);
 
+#if OPENTLV_WRITER
 /**
  * @brief Writes a canonical DER element.
  *
@@ -144,6 +146,7 @@ TLV_API tlv_result_t tlv_der_write(uint8_t* data, size_t capacity, tlv_tag_t tag
                                    const uint8_t* value, size_t length,
                                    const tlv_der_limits_t* limits, size_t* written,
                                    size_t* error_offset);
+#endif
 
 /**
  * @brief Strict counterpart of tlv_der_read().
@@ -174,6 +177,7 @@ TLV_API tlv_result_t tlv_der_read_strict(const uint8_t* data, size_t size,
 TLV_API tlv_result_t tlv_der_visit_strict(const uint8_t* data, size_t size,
                                           const tlv_der_limits_t* limits, tlv_der_visitor_t visitor,
                                           void* context, size_t* error_offset);
+#if OPENTLV_WRITER
 /**
  * @brief Strict counterpart of tlv_der_write().
  *
@@ -185,6 +189,7 @@ TLV_API tlv_result_t tlv_der_write_strict(uint8_t* data, size_t capacity, tlv_ta
                                           const uint8_t* value, size_t length,
                                           const tlv_der_limits_t* limits, size_t* written,
                                           size_t* error_offset);
+#endif
 
 #ifdef __cplusplus
 }

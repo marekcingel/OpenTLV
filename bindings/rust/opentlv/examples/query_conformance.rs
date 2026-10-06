@@ -91,7 +91,9 @@ fn main() {
         let wire = hex(&args[2]);
         #[cfg(feature = "document")]
         if mode.contains('d') || program.info().level == 3 {
-            let document = opentlv::Document::parse(&wire, Format::Ber, 128, 1024).unwrap();
+            let document =
+                opentlv::Document::parse_with_source_locations(&wire, Format::Ber, 128, 1024)
+                    .unwrap();
             // Execution must be created after input/Document owners so Rust drops it first.
             let mut document_execution = program.execution(128, 1024, 100000000, true)?;
             for (name, _) in program.variables()? {

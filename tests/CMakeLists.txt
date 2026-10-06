@@ -2,6 +2,25 @@ cmake_minimum_required(VERSION 3.16)
 
 project(tests LANGUAGES C)
 
+add_executable(capability-contract capabilities.c)
+get_target_property(_capability_sources tlv SOURCES)
+file(GENERATE OUTPUT "${OpenTLV_BINARY_DIR}/capability-sources.txt"
+    CONTENT "${_capability_sources}")
+target_link_libraries(capability-contract PRIVATE tlv)
+add_test(NAME capability-contract COMMAND capability-contract)
+set_tests_properties(capability-contract PROPERTIES LABELS "capabilities")
+if(OPENTLV_BUILD_CXX)
+    add_executable(capability-cxx-contract capabilities.cpp)
+    target_link_libraries(capability-cxx-contract PRIVATE tlv++)
+    add_test(NAME capability-cxx-contract COMMAND capability-cxx-contract)
+    set_tests_properties(capability-cxx-contract PROPERTIES LABELS "capabilities")
+endif()
+if(OPENTLV_BUILD_SHARED_LIBS)
+    add_custom_command(TARGET capability-contract POST_BUILD
+        COMMAND ${CMAKE_COMMAND} -E copy_if_different
+            $<TARGET_FILE:tlv> $<TARGET_FILE_DIR:capability-contract>)
+endif()
+
 if(OPENTLV_BUILD_UNIT_TESTS OR OPENTLV_BUILD_INTEGRATION_TESTS)
     enable_language(CXX)
     include(tag_layout_checks.cmake)

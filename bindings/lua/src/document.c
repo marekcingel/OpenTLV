@@ -167,6 +167,12 @@ static int document_new(lua_State* L) {
     if (code != TLV_OK) return opentlv_lua_raise(L, code, 0, 0);
     options.max_depth = opentlv_lua_query_limit(L, 3, "max_depth", options.max_depth);
     options.max_elements = opentlv_lua_query_limit(L, 3, "max_elements", options.max_elements);
+    if (lua_istable(L, 3)) {
+        lua_getfield(L, 3, "retain_source_locations");
+        if (!lua_isnil(L, -1)) luaL_checktype(L, -1, LUA_TBOOLEAN);
+        options.retain_source_locations = lua_toboolean(L, -1);
+        lua_pop(L, 1);
+    }
     document_t* self = (document_t*)lua_newuserdata(L, sizeof(*self));
     *self = (document_t){0};
     self->format_ref = LUA_NOREF;

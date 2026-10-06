@@ -338,6 +338,22 @@ def test_explicit_short_workspace_candidate_limit_and_early_coverage():
     assert error.value.query["query_kind"] == 7
 
 
+def test_document_source_locations_support_global_axes_and_edit_invalidation():
+    wire = bytearray.fromhex("50005701aa")
+    program = QueryProgram("//50/following::57[@offset = 2 and @hlen = 2]")
+    with Document(wire, retain_source_locations=True) as document:
+        wire[:] = b"\x00" * len(wire)
+        selected = document.select(program)
+        assert len(selected) == 1
+        assert selected[0].value == b"\xaa"
+        selected[0].value = b"\xbb"
+        with pytest.raises(InvalidValueError):
+            document.select(program)
+    with Document(bytes.fromhex("50005701aa")) as document:
+        with pytest.raises(InvalidValueError):
+            document.select(program)
+
+
 def test_document_reverse_axis_revision_context_and_close_guards():
     document = Document(WIRE)
     execution = QueryProgram("//50[preceding-sibling::5A]").execution()

@@ -475,16 +475,15 @@ static tlv_result_t evaluate(tlv_query_exec_t* e, const tlv_tree_event_t* event,
                     out.number = execution_indexes(e)[event->depth];
                 else {
                     int header = (n->selector == TLV_QUERY_META_HLEN);
-                    if (!event->source.data || (header && !event->source.header.present))
-                        return query_error(d, TLV_ERR_INVALID_VALUE, TLV_QUERY_ERROR_SOURCE,
-                                           n->begin, n->end, "available Source metadata");
-                    if (header && (event->source.header.offset > event->source.size ||
-                                   event->source.header.size >
-                                       event->source.size - event->source.header.offset))
-                        return query_error(d, TLV_ERR_INVALID_ARG, TLV_QUERY_ERROR_EVENTS, n->begin,
-                                           n->end, "bounded Source Header range");
-                    out.number = (n->selector == TLV_QUERY_META_OFFSET) ? event->offset
-                                                                        : event->source.header.size;
+                    size_t metadata;
+                    tlv_result_t source_rc = query_source_metadata(event, header, &metadata);
+                    if (source_rc != TLV_OK)
+                        return query_error(d, source_rc,
+                                           source_rc == TLV_ERR_INVALID_ARG
+                                               ? TLV_QUERY_ERROR_EVENTS
+                                               : TLV_QUERY_ERROR_SOURCE,
+                                           n->begin, n->end, "Source metadata");
+                    out.number = metadata;
                 }
                 if (out.number > INT64_MAX)
                     return query_error(d, TLV_ERR_OVERFLOW, TLV_QUERY_ERROR_CAPABILITY, n->begin,
@@ -771,6 +770,7 @@ tlv_result_t tlv_query_exec_finish(tlv_query_exec_t* e, tlv_query_diagnostic_t* 
     return TLV_OK;
 }
 
+#if OPENTLV_READER
 tlv_result_t tlv_query_program_visit(tlv_tree_reader_t* reader, tlv_query_exec_t* e,
                                      tlv_query_event_visitor_t visitor, void* context,
                                      tlv_query_diagnostic_t* d) {
@@ -865,3 +865,4 @@ tlv_result_t tlv_query_program_exists(tlv_tree_reader_t* reader, tlv_query_exec_
     *found = e->any_match;
     return TLV_OK;
 }
+#endif

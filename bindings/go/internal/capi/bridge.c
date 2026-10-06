@@ -83,8 +83,8 @@ struct go_document {
 };
 
 go_document* go_document_parse(go_format config, const uint8_t* data, size_t size, size_t depth,
-                               size_t elements, int defaults, int* code,
-                               tlv_reader_diagnostic_t* diagnostic) {
+                               size_t elements, int defaults, int retain_source_locations,
+                               int* code, tlv_reader_diagnostic_t* diagnostic) {
     tlv_reader_diagnostic_init(diagnostic);
 #if OPENTLV_DOCUMENT
     go_document*           d = calloc(1, sizeof(*d));
@@ -96,6 +96,7 @@ go_document* go_document_parse(go_format config, const uint8_t* data, size_t siz
     *code = resolve(config, &d->format, &d->fixed);
     if (*code == TLV_OK) *code = tlv_document_options_init(&options, &d->format);
     if (*code == TLV_OK) {
+        options.retain_source_locations = retain_source_locations;
         if (!defaults) {
             options.max_depth = depth;
             options.max_elements = elements;
@@ -136,6 +137,7 @@ go_document* go_document_parse(go_format config, const uint8_t* data, size_t siz
     (void)depth;
     (void)elements;
     (void)defaults;
+    (void)retain_source_locations;
     *code = TLV_ERR_UNSUPPORTED_TYPE;
     return NULL;
 #endif

@@ -26,3 +26,21 @@ tlv_result_t tlv_schema_validate_length(const tlv_schema_entry_t* entry, size_t 
         return TLV_ERR_INVALID_LENGTH;
     return TLV_OK;
 }
+
+void tlv_schema_diagnostic_init(tlv_schema_diagnostic_t* diagnostic) {
+    if (!diagnostic) return;
+    memset(diagnostic, 0, sizeof(*diagnostic));
+}
+
+const char* tlv_schema_issue_kind_string(tlv_schema_issue_kind_t kind) {
+    switch (kind) {
+        case TLV_SCHEMA_ISSUE_MISSING: return "missing";
+        case TLV_SCHEMA_ISSUE_DUPLICATE: return "duplicate";
+        case TLV_SCHEMA_ISSUE_UNEXPECTED: return "unexpected";
+        case TLV_SCHEMA_ISSUE_KIND: return "kind";
+        case TLV_SCHEMA_ISSUE_LENGTH: return "length";
+        case TLV_SCHEMA_ISSUE_ORDER: return "order";
+        case TLV_SCHEMA_ISSUE_ASSERTION: return "assertion";
+    }
+    return "unknown";
+}

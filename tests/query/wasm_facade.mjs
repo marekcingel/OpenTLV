@@ -65,8 +65,8 @@ for (const fixture of cases) {
           }
         }
       }
-      if (!fixture.query.includes("@offset") && !fixture.query.includes("@hlen")) {
-        const document = api.document(wire);
+      {
+        const document = api.document(wire, { retain_source_locations: true });
         const query = execution(true);
         try {
           const offsets = new Map(), stack = [];

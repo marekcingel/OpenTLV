@@ -288,16 +288,20 @@ harnesses, each with its checked-in seed corpus in a sibling `corpus/` folder
 
 ## Mutable document
 
-`document/document.h` is a layer above the reader, writer and query facilities. It
-builds an owned tree from canonical Tree Reader items, lets the tree be searched,
-changed, extended and shortened, and encodes it again through the Writer.
-It is the canonical owned mutable representation, supports a caller-supplied
-allocator and is selected by `OPENTLV_DOCUMENT`. Borrowed processing does not
-require it; enabling it does not allocate storage until an owning operation is
-called. Static linking/dead-code elimination can omit unused Document code
-where supported. C Reader, Writer and Visitor preserve their explicit buffer
-and workspace contracts; binding conveniences and error objects may allocate. See
-[mutable documents](../guides/document.md).
+`document/document.h` provides the canonical owned mutable tree, selected by
+`OPENTLV_DOCUMENT`. Programmatic construction and mutation need neither Reader
+nor Writer. Document owns its Tags and Values and supports a caller allocator;
+enabling the capability alone does not allocate a tree.
+
+Wire import is a Reader + Document integration (`document/reader.c`), serialization
+is a Writer + Document integration (`document/writer.c`), and path matching is a
+Query + Document integration (`document/query.c`). Nonempty constructed Values
+passed to insert/set-value are encoded children and require Reader; without it,
+these operations return `TLV_ERR_UNSUPPORTED_TYPE` without changing the tree.
+Empty constructed nodes and programmatically inserted children remain available.
+Compiled Document Query currently also needs Reader and Writer for its Value
+snapshot; Query-specific execution dependency cleanup remains separate.
+See [mutable documents](../guides/document.md).
 
 `tlv_document_builder_t` owns unfinished construction and consumes a caller-owned
 Tree Reader, resuming after `TLV_NEED_MORE_DATA`. It publishes a document only at
@@ -383,15 +387,19 @@ own option, and no code or dependency added to builds that do not enable it.
 Language bindings are expected to follow the same rule: a binding should expose a
 component only when the matching C component is enabled, so a binding build can also be
 limited to what it needs. Rust maps its default `lldp` Cargo feature to
-`OPENTLV_LLDP`; other components still use the C library defaults. Mapping the
+`OPENTLV_LLDP`; Reader, Writer, Query, Schema and Codec are explicitly enabled by its native build. Mapping the
 remaining component options to Cargo features is future work; see
 [Rust bindings](../development/rust.md#build). Ready-made CMake recipes are in
 [building only the components you need](../guides/select-components.md).
 
 ## Build configuration
 
-Generic borrowed processing and the configurable Fixed and Variable formats are
-always available. The owned Document representation has its own build switch.
+Core primitives (Tag, Value, Element, Format/Layout, diagnostics and shared
+utilities) and configurable Fixed/Variable formats are always available.
+Reader, Writer, Document, Query, Schema and Codec are independent optional
+capabilities, enabled by default. Their source groups are excluded when disabled;
+this does not depend on static-linker dead stripping. A single `tlv` library
+remains the distribution unit.
 
 ### Generic core formats
 
@@ -416,10 +424,15 @@ These packages default to ON and can be disabled subject to the dependencies bel
 | `OPENTLV_FORMAT_CER` | CER format and bounded CER validation operations |
 | `OPENTLV_EMV` | EMV framing, dictionary, schemas and value codecs |
 
-### Owned representation
+### Core capabilities and Query features
 
 | CMake option / generated config macro | Included component |
 | --- | --- |
+| `OPENTLV_READER` | Wire Reader and Tree traversal |
+| `OPENTLV_WRITER` | Wire Writer, Tree Writer and generation |
+| `OPENTLV_QUERY` | Canonical Query compiler/execution and path matching |
+| `OPENTLV_SCHEMA` | Schema descriptions, length and value constraints; wire traversal requires Reader |
+| `OPENTLV_CODEC` | Semantic Value codecs; structure codecs require Schema and Reader |
 | `OPENTLV_QUERY_FRONTEND` | Query text parser/compiler; disable for [static C plans](../guides/queries.md#static-c-plans-and-frontend-free-execution) |
 | `OPENTLV_QUERY_SET_OPERATIONS` | Query union, intersection and difference in the shared executor |
 | `OPENTLV_DOCUMENT` | Canonical owned mutable [Document](../guides/document.md); optional build inclusion, not a format or standard package |

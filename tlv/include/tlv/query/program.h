@@ -4,6 +4,7 @@
 #define OPENTLV_QUERY_PROGRAM_H
 
 #include "tlv/query/query.h"
+#include "tlv/reader/diagnostic.h"
 #include "tlv/codec/codec.h"
 #include "tlv/definition.h"
 #ifdef __cplusplus
@@ -570,6 +571,7 @@ TLV_API tlv_result_t tlv_query_exec_finish(tlv_query_exec_t* exec,
 typedef tlv_visit_result_t (*tlv_query_event_visitor_t)(const tlv_tree_event_t* event,
                                                         void* context);
 
+#if OPENTLV_READER
 /**
  * @brief Run compiled Query over the canonical Tree Reader with resumable continuation.
  * @param[in,out] reader Required cursor at a tree boundary, then exclusively used here.
@@ -604,6 +606,8 @@ TLV_API tlv_result_t tlv_query_program_visit(tlv_tree_reader_t* reader, tlv_quer
 TLV_API tlv_result_t tlv_query_program_exists(tlv_tree_reader_t* reader, tlv_query_exec_t* exec,
                                               int early_return, int* found,
                                               tlv_query_diagnostic_t* diagnostic);
+
+#endif
 
 /** @brief Discover retained-event workspace for compiled Query results.
  * @param[in] program Immutable live program.

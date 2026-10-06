@@ -3,22 +3,43 @@
 
 #include "tlv/config.h"
 
-int tlv_config_bluetooth(void) {
-    return OPENTLV_BLUETOOTH;
+/* Core capabilities */
+int tlv_config_reader(void) {
+    return OPENTLV_READER;
 }
 
-int tlv_config_nfc(void) {
-    return OPENTLV_NFC;
+int tlv_config_writer(void) {
+    return OPENTLV_WRITER;
 }
 
-int tlv_config_dhcp(void) {
-    return OPENTLV_DHCP;
+int tlv_config_document(void) {
+    return OPENTLV_DOCUMENT;
 }
 
-int tlv_config_lldp(void) {
-    return OPENTLV_LLDP;
+int tlv_config_query(void) {
+    return OPENTLV_QUERY;
 }
 
+int tlv_config_schema(void) {
+    return OPENTLV_SCHEMA;
+}
+
+int tlv_config_codec(void) {
+    return OPENTLV_CODEC;
+}
+
+
+/* Query features */
+int tlv_config_query_frontend(void) {
+    return OPENTLV_QUERY_FRONTEND;
+}
+
+int tlv_config_query_set_operations(void) {
+    return OPENTLV_QUERY_SET_OPERATIONS;
+}
+
+
+/* Builtin protocols and formats */
 int tlv_config_format_asn1(void) {
     return OPENTLV_FORMAT_ASN1;
 }
@@ -39,6 +60,18 @@ int tlv_config_emv(void) {
     return OPENTLV_EMV;
 }
 
-int tlv_config_document(void) {
-    return OPENTLV_DOCUMENT;
+int tlv_config_bluetooth(void) {
+    return OPENTLV_BLUETOOTH;
+}
+
+int tlv_config_nfc(void) {
+    return OPENTLV_NFC;
+}
+
+int tlv_config_dhcp(void) {
+    return OPENTLV_DHCP;
+}
+
+int tlv_config_lldp(void) {
+    return OPENTLV_LLDP;
 }

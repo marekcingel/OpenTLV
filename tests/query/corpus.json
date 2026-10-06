@@ -9,6 +9,20 @@
   },
   "cases": [
     {
+      "id": "document-following-source-location",
+      "rules": ["Q-NODE-03"],
+      "query": "//50[1]/following::*[@offset > 0 and @hlen = 2]",
+      "wire": "700550005701095000",
+      "matches": [4, 7]
+    },
+    {
+      "id": "document-preceding-source-location",
+      "rules": ["Q-NODE-03"],
+      "query": "//57/preceding::*[@offset = 2 and @hlen = 2]",
+      "wire": "700550005701095000",
+      "matches": [2]
+    },
+    {
       "id": "set-precedence",
       "rules": [
         "Q-GRAMMAR-02",

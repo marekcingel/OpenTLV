@@ -3,6 +3,9 @@
 #ifndef OPENTLV_GO_BRIDGE_H
 #define OPENTLV_GO_BRIDGE_H
 #include <tlv/config.h>
+#if !OPENTLV_READER || !OPENTLV_WRITER || !OPENTLV_QUERY || !OPENTLV_SCHEMA || !OPENTLV_CODEC
+#error The Go binding requires Reader, Writer, Query, Schema and Codec
+#endif
 #include <tlv/formats/fixed.h>
 #include <tlv/reader/reader.h>
 #include <tlv/writer/writer.h>
@@ -112,8 +115,8 @@ go_read_result  go_read(go_format config, const uint8_t* data, size_t size, int 
 go_write_result go_write(go_format config, uint8_t* data, size_t capacity, const uint8_t* tag,
                          size_t tag_size, const uint8_t* value, size_t value_size, int measure);
 go_document*    go_document_parse(go_format config, const uint8_t* data, size_t size, size_t depth,
-                                  size_t elements, int defaults, int* code,
-                                  tlv_reader_diagnostic_t* diagnostic);
+                                  size_t elements, int defaults, int retain_source_locations,
+                                  int* code, tlv_reader_diagnostic_t* diagnostic);
 void            go_document_free(go_document* document);
 void*           go_document_node(go_document* document, void* node, int operation);
 go_read_result  go_document_read(void* node);

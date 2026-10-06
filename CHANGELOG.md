@@ -9,6 +9,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Fixed
 
+- Enable source-location retention in the Go and Rust Query conformance adapters so Document `@offset` and `@hlen` fixtures pass. (#531)
+- Allow Document Query to use original `@offset` and `@hlen`, including with `following`/`preceding`, when optional source-location retention is enabled during parsing. Edits invalidate affected locations without retaining the input buffer. Native consumers must rebuild for the extended Document options. (#531)
 - Fix GCC Query builds with warnings treated as errors and report compiler diagnostics when the constexpr CMake check fails. (#530, #534)
 - Invalidate Query execution when event feeding rejects a Document-only program, so later feed and finish calls require reset. Retain the CI fuzz reproducer as a regression seed. (#523)
 - Escape literal plus signs in Query hardening workflow path filters so GitHub Actions accepts C++ changes for pull requests and pushes. (#523)
@@ -73,6 +75,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Changed
 
+- Make Reader, Writer, Query, Schema and Codec independently selectable build capabilities, and support programmatic Document trees without Reader or Writer. Build composed integrations only when their capabilities are enabled, with shared/static profile coverage and matching feature configuration. (#531)
 - Make Query execution independent of source text and advance the internal native plan version; rebuild previously compiled Query images. (#530)
 - Keep Query benchmark measurements advisory while Query functionality is completed, without requiring accepted baselines for release. (#523)
 - Accept full compiled Query syntax in `otlv query` while preserving existing exact-path output, and distinguish false/zero scalar success from empty node selections. (#522)

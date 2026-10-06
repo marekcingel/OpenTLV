@@ -159,8 +159,9 @@ int main(int argc, char** argv) {
     }
     if (document_mode) {
 #if OPENTLV_DOCUMENT
-        auto document =
-            tlv::document::parse(view(input, input.size()), tlv::document_format(format));
+        tlv::document_format document_options(format);
+        document_options.retain_source_locations = true;
+        auto document = tlv::document::parse(view(input, input.size()), document_options);
         if (!document) return 2;
         std::vector<std::pair<tlv::node, size_t>> offsets;
         std::vector<tlv::node>                    stack;

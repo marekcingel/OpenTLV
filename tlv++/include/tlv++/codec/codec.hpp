@@ -8,7 +8,10 @@
 #include <utility>
 #include <vector>
 #include "tlv++/types.hpp"
+#include "tlv/config.h"
+#if OPENTLV_WRITER
 #include "tlv++/writer/writer.hpp"
+#endif
 
 /**
  * @file codec.hpp
@@ -53,6 +56,7 @@ public:
 template <typename T> concept TlvCodec = is_tlv_codec<T>::value;
 #endif
 
+#if OPENTLV_WRITER
 /**
  * @brief Encodes a codec value and writes it as one element.
  *
@@ -76,6 +80,7 @@ write_value(writer<F>& output, const T& value) {
     value.encode(payload);
     return output.write(T::tag, bytes(payload.data(), payload.size()));
 }
+#endif
 
 } // namespace tlv
 

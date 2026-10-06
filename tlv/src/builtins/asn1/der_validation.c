@@ -1,6 +1,7 @@
 // SPDX-License-Identifier: MIT
 // Copyright (c) 2026 Marek Cingel
 
+#include "tlv/config.h"
 #include "ber_internal.h"
 #include "tlv/builtins/asn1/der.h"
 #include "tlv/builtins/asn1/der_validation.h"
@@ -149,6 +150,7 @@ tlv_result_t tlv_der_read_strict(const uint8_t* data, size_t size, const tlv_der
     return read_impl(data, size, limits, element, consumed, 1, error_offset);
 }
 
+#if OPENTLV_WRITER
 static tlv_result_t write_impl(uint8_t* data, size_t capacity, tlv_tag_t tag, const uint8_t* value,
                                size_t length, const tlv_der_limits_t* limits, int strict,
                                size_t* written, size_t* error_offset) {
@@ -196,3 +198,5 @@ tlv_result_t tlv_der_write_strict(uint8_t* data, size_t capacity, tlv_tag_t tag,
                                   size_t* error_offset) {
     return write_impl(data, capacity, tag, value, length, limits, 1, written, error_offset);
 }
+
+#endif

@@ -113,7 +113,9 @@ func main() {
 		fail(err)
 	}
 	if strings.Contains(mode, "d") || info["level"] == 3 {
-		d, err := tlv.Parse(wire, f)
+		d, err := tlv.ParseWithOptions(wire, f, tlv.DocumentOptions{
+			MaxDepth: 128, MaxElements: 1024, RetainSourceLocations: true,
+		})
 		if err != nil {
 			fail(err)
 		}

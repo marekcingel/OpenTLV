@@ -295,9 +295,14 @@ Snapshot ranges are obtained through the existing canonical Reader; the adapter
 adds no parser and uses no owning Document allocation.
 This reproduces current Document encoding semantics, including insertion/removal,
 rather than historical noncanonical wire spellings. Immutable canonical inputs
-have equivalent streaming/Document results and types. Source is unavailable in
-Document, so `@offset`/`@hlen` report Source diagnostics instead of fabricated
-locations; other failures use Query spans without a source location. A foreign
+have equivalent streaming/Document results and types. With optional Document
+source-location retention enabled, `@offset`/`@hlen` also agree with Reader
+metadata for unchanged parsed nodes, including D-level navigation. These are
+original input coordinates, not offsets in the canonical snapshot. Replacement
+invalidates the edited node and ancestors; insertion/erasure invalidates ancestors.
+Inserted/replacement nodes have no origin, and failed edits preserve metadata.
+Missing or invalidated properties report Source diagnostics instead of fabricated
+locations. Other failures include a retained source offset when available. A foreign
 context or used execution is rejected. Document/Value storage must remain alive
 and unchanged during iteration and callbacks.
 

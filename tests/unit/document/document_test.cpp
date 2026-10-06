@@ -156,6 +156,92 @@ TEST(Unit_Tlv_Document, ParsesNestedStructureAndKeepsOrder) {
     EXPECT_EQ(nullptr, tlv_node_next(last));
 }
 
+TEST(Unit_Tlv_Document, SourceLocationsOwnScalarsAndInvalidateOnlyAffectedNodes) {
+    auto opts = options();
+    EXPECT_EQ(0, opts.retain_source_locations);
+    auto plain = parse(sample, opts);
+    EXPECT_FALSE(tlv_node_source_location(tlv_document_first(plain.get())).has_offset);
+    EXPECT_FALSE(tlv_node_source_location(nullptr).has_header_size);
+    opts.retain_source_locations = 1;
+    auto input = sample;
+    auto doc = parse(input, opts);
+    input.assign(input.size(), 0); // No location depends on the original bytes.
+    auto root = tlv_document_first(doc.get());
+    auto nested = find(doc.get(), "6F/A5");
+    auto leaf = find(doc.get(), "6F/A5/50");
+    auto sibling = tlv_node_next(root);
+    auto location = tlv_node_source_location(root);
+    EXPECT_TRUE(location.has_offset);
+    EXPECT_EQ(0u, location.offset);
+    EXPECT_TRUE(location.has_header_size);
+    EXPECT_EQ(2u, location.header_size);
+    EXPECT_EQ(8u, tlv_node_source_location(leaf).offset);
+    EXPECT_EQ(12u, tlv_node_source_location(sibling).offset);
+    const uint8_t invalid[] = {0x50, 2};
+    EXPECT_NE(TLV_OK, tlv_node_set_value(nested, invalid, sizeof invalid));
+    EXPECT_TRUE(tlv_node_source_location(root).has_offset);
+    EXPECT_TRUE(tlv_node_source_location(nested).has_offset);
+    EXPECT_EQ(8u, tlv_node_source_location(leaf).offset);
+    const uint8_t replacement[] = {1, 2, 3};
+    ASSERT_EQ(TLV_OK, tlv_node_set_value(leaf, replacement, sizeof replacement));
+    EXPECT_FALSE(tlv_node_source_location(leaf).has_offset);
+    EXPECT_FALSE(tlv_node_source_location(nested).has_header_size);
+    EXPECT_FALSE(tlv_node_source_location(root).has_offset);
+    EXPECT_EQ(2u, tlv_node_source_location(tlv_node_first_child(root)).offset);
+    EXPECT_EQ(12u, tlv_node_source_location(sibling).offset);
+    // Encoding shifts this sibling, but does not rewrite its original coordinate.
+    EXPECT_NE(sample, encode(doc.get()));
+    EXPECT_EQ(12u, tlv_node_source_location(sibling).offset);
+}
+
+TEST(Unit_Tlv_Document, InsertEraseAndReplacementDoNotInventSourceLocations) {
+    auto opts = options();
+    opts.retain_source_locations = 1;
+    for (int operation = 0; operation != 3; ++operation) {
+        SCOPED_TRACE(operation);
+        auto          doc = parse(sample, opts);
+        auto          root = tlv_document_first(doc.get());
+        auto          nested = find(doc.get(), "6F/A5");
+        auto          sibling = tlv_node_next(root);
+        const uint8_t wire[] = {0x50, 0};
+        if (operation == 0) {
+            const uint8_t tag = 0xA6;
+            tlv_node_t*   inserted = nullptr;
+            ASSERT_EQ(TLV_OK, tlv_document_insert(doc.get(), nested, nullptr, tlv_tag(&tag, 1),
+                                                  wire, sizeof wire, &inserted));
+            EXPECT_FALSE(tlv_node_source_location(inserted).has_offset);
+            EXPECT_FALSE(tlv_node_source_location(tlv_node_first_child(inserted)).has_offset);
+            EXPECT_EQ(8u, tlv_node_source_location(tlv_node_first_child(nested)).offset);
+        } else if (operation == 1) {
+            tlv_node_erase(tlv_node_first_child(nested));
+        } else {
+            ASSERT_EQ(TLV_OK, tlv_node_set_value(nested, wire, sizeof wire));
+            EXPECT_FALSE(tlv_node_source_location(tlv_node_first_child(nested)).has_offset);
+        }
+        EXPECT_FALSE(tlv_node_source_location(nested).has_offset);
+        EXPECT_FALSE(tlv_node_source_location(root).has_header_size);
+        EXPECT_EQ(12u, tlv_node_source_location(sibling).offset);
+    }
+}
+
+TEST(Unit_Tlv_Document, FailedAllocationPreservesSourceLocations) {
+    Arena arena;
+    auto  allocator = arena.allocator();
+    auto  opts = options();
+    opts.allocator = &allocator;
+    opts.retain_source_locations = 1;
+    {
+        auto doc = parse(sample, opts);
+        auto leaf = find(doc.get(), "6F/A5/50");
+        arena.fail_at = arena.allocations;
+        const uint8_t value = 3;
+        EXPECT_EQ(TLV_ERR_OUT_OF_MEMORY, tlv_node_set_value(leaf, &value, 1));
+        EXPECT_EQ(8u, tlv_node_source_location(leaf).offset);
+        EXPECT_TRUE(tlv_node_source_location(tlv_document_first(doc.get())).has_offset);
+    }
+    EXPECT_TRUE(arena.live.empty());
+}
+
 TEST(Unit_Tlv_Document, EmptyInputGivesEmptyDocument) {
     Doc doc = parse(Bytes());
     EXPECT_EQ(0u, tlv_document_count(doc.get()));
@@ -529,17 +615,17 @@ TEST(Unit_Tlv_Document, RejectsInvalidArguments) {
     EXPECT_EQ(TLV_ERR_NULL_ARG, tlv_document_create(&broken, &doc));
     tlv_format_t write_only = controlled::format;
     write_only.decode = nullptr;
-    write_only.decode = nullptr;
     broken = opts;
     broken.format = &write_only;
-    EXPECT_EQ(TLV_ERR_NULL_ARG, tlv_document_create(&broken, &doc));
+    ASSERT_EQ(TLV_OK, tlv_document_create(&broken, &doc));
+    tlv_document_free(doc);
     tlv_format_t read_only = controlled::format;
-    read_only.encode = nullptr;
     read_only.encode = nullptr;
     read_only.measure = nullptr;
     broken = opts;
     broken.format = &read_only;
-    EXPECT_EQ(TLV_ERR_NULL_ARG, tlv_document_create(&broken, &doc));
+    ASSERT_EQ(TLV_OK, tlv_document_create(&broken, &doc));
+    tlv_document_free(doc);
     broken = opts;
     broken.max_depth = TLV_TREE_DEFAULT_DEPTH + 1;
     EXPECT_EQ(TLV_OK, tlv_document_create(&broken, &doc));
@@ -768,7 +854,8 @@ TEST(Unit_Tlv_Document, IterativeEncodingReleasesEveryTemporaryAllocationOnFailu
 }
 
 TEST(Unit_Tlv_DocumentBuilder, IncrementalInputOwnsPublishedDataAndTransfersOnlyAtFinalEnd) {
-    auto              opts = options();
+    auto opts = options();
+    opts.retain_source_locations = 1;
     Bytes             window = {0x50, 1, 0xAB};
     tlv_tree_frame_t  frames[4];
     tlv_tree_reader_t reader;
@@ -796,10 +883,15 @@ TEST(Unit_Tlv_DocumentBuilder, IncrementalInputOwnsPublishedDataAndTransfersOnly
     EXPECT_EQ(expected, encode(doc.get()));
     EXPECT_EQ(6u, tlv_document_count(doc.get()));
     EXPECT_EQ(Bytes({0xAB}), value_of(tlv_document_first(doc.get())));
+    EXPECT_EQ(0u, tlv_node_source_location(tlv_document_first(doc.get())).offset);
+    EXPECT_TRUE(tlv_node_source_location(tlv_document_first(doc.get())).has_offset);
+    EXPECT_EQ(3u, tlv_node_source_location(tlv_node_next(tlv_document_first(doc.get()))).offset);
+    EXPECT_EQ(11u, tlv_node_source_location(find(doc.get(), "6F/A5/50")).offset);
 }
 
 TEST(Unit_Tlv_DocumentBuilder, QuerySelectedSubtreeNormalizesDepthAndLeavesNextSiblingUnread) {
     auto opts = options();
+    opts.retain_source_locations = 1;
     opts.max_depth = 1;
     opts.max_elements = 2;
     tlv_tree_frame_t  frames[4];
@@ -821,6 +913,8 @@ TEST(Unit_Tlv_DocumentBuilder, QuerySelectedSubtreeNormalizesDepthAndLeavesNextS
     ASSERT_EQ(TLV_OK, tlv_document_builder_consume(raw, &doc.handle, nullptr, nullptr));
     EXPECT_EQ(Bytes({0xA5, 4, 0x50, 2, 0x41, 0x42}), encode(doc.get()));
     EXPECT_EQ(nullptr, tlv_node_parent(tlv_document_first(doc.get())));
+    EXPECT_EQ(6u, tlv_node_source_location(tlv_document_first(doc.get())).offset);
+    EXPECT_EQ(8u, tlv_node_source_location(find(doc.get(), "A5/50")).offset);
     EXPECT_EQ(12u, tlv_tree_reader_offset(&reader));
     ASSERT_EQ(TLV_OK, tlv_tree_reader_next(&reader, &item));
     EXPECT_EQ(12u, item.offset);

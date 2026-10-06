@@ -161,9 +161,15 @@ For allocation-free Document execution, initialize caller workspace, bind values
 and use `document.evaluate(execution, values, capacity, staging, context)` followed
 by `document.next(execution)` or `execution.result()`. Programs that inspect
 constructed Values need explicit canonical encoded snapshot storage and Writer
-staging. Source metadata is unavailable on Document nodes, including edited and
-inserted nodes: `@offset` and `@hlen` fail with SOURCE diagnostics. Source locations
-are not invented from the canonical Value snapshot.
+staging. Document parsing can optionally retain original source coordinates:
+set `tlv_document_options_t.retain_source_locations` (C) or
+`tlv::document_format::retain_source_locations` (C++) before parsing. Then
+`@offset` and `@hlen` use the original input coordinates, including in D-level
+`following`/`preceding` queries. This stores numbers, not borrowed input bytes.
+The option is off by default. Missing or invalidated properties still produce
+SOURCE diagnostics; locations are never inferred from the canonical Value snapshot.
+See [Document source locations](document.md#original-source-locations) for edit
+invalidation and binding options.
 
 `tlv_document_query_edit` consumes a completed native node selection into a
 caller-owned target array before editing. Capacity failure leaves the tree, target
@@ -533,7 +539,8 @@ context handle, Value buffer and Writer workspace. Pull first/all matches with
 callbacks. Scalars use `tlv_query_exec_result`. Keep the Document and Value storage
 alive and unchanged through consumption. Reinitialize execution after edits or a
 terminal error. Global `following`/`preceding` plans require this backend and are
-rejected by Reader execution before input is consumed. Source offsets are unavailable.
+rejected by Reader execution before input is consumed. Original source offsets
+are available when retained during parsing and not invalidated by edits.
 
 The [language contract](../concepts/query-language.md#storage-and-execution)
 defines ordered emission, deduplication, capacity errors and backend costs.

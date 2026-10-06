@@ -4,7 +4,7 @@
 #include "../query/program_internal.h"
 #include <string.h>
 
-#if OPENTLV_DOCUMENT
+#if OPENTLV_DOCUMENT && OPENTLV_READER && OPENTLV_WRITER
 tlv_result_t tlv_schema_query_validate_document(const tlv_document_t* document,
                                                 const tlv_schema_query_rule_t* rules, size_t count,
                                                 size_t depth, size_t nodes, size_t work,

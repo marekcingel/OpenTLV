@@ -562,14 +562,15 @@ export function queryFacade(wasm) {
     *[Symbol.iterator]() { for (let node = this.next(); node !== null; node = this.next()) yield node; }
   }
   class Document {
-    constructor(input, { format = "ber" } = {}) {
+    constructor(input, { format = "ber", retain_source_locations = false } = {}) {
       bytes(input);
       const program = new QueryProgram("//*", { format });
       this._program = program;
       this._pointer = 0;
       try {
         program._native(() => {
-          this._pointer = temporary(input, pointer => wasm._opentlv_wasm_document_new(program._pointer, pointer, input.length));
+          this._pointer = temporary(input, pointer => wasm._opentlv_wasm_document_new(
+            program._pointer, pointer, input.length, retain_source_locations ? 1 : 0));
           if (!this._pointer) response(wasm._opentlv_wasm_program_render(program._pointer, -1));
         });
         ++program._references;

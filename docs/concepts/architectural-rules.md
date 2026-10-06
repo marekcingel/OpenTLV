@@ -616,7 +616,20 @@ Document + Query
 full runtime OTLV stack
 ```
 
-Disabled functionality should ideally introduce no unnecessary:
+Capabilities compose through explicit integrations rather than mandatory
+ownership dependencies. Core primitives form the stable foundation; Reader,
+Writer, Document, Query, Schema and Codec are capabilities above that foundation.
+Document is an owned tree, not intrinsically the output of Reader. Wire import,
+wire serialization and query evaluation belong to their integration boundaries.
+
+The build graph must implement **pay only for what you use**: disabling a
+capability excludes its implementation while unrelated capabilities remain usable.
+Linker dead stripping alone does not satisfy this requirement. Convenient binding
+methods such as `document.parse()` or `document.write()` do not change C dependency
+ownership. Future Dump, export, model and inference operations should compose with
+their data sources rather than becoming intrinsic Document responsibilities.
+
+Disabled functionality must introduce no unnecessary:
 
 - runtime cost
 - binary-size cost

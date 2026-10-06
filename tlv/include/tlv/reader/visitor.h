@@ -24,18 +24,6 @@ extern "C" {
  */
 
 /**
- * @brief Value a visitor callback returns to control traversal.
- */
-typedef enum tlv_visit_result {
-    /** Continue with the next element. */
-    TLV_VISIT_CONTINUE = 0,
-    /** Stop traversal immediately; the traversal still returns #TLV_OK. */
-    TLV_VISIT_STOP = 1,
-    /** Abort traversal; the traversal returns #TLV_ERR_VISITOR. */
-    TLV_VISIT_ERROR = 2
-} tlv_visit_result_t;
-
-/**
  * @brief Callback invoked by tlv_reader_visit() for each sequential element.
  *
  * @param element    Current element. The pointer is valid only during the

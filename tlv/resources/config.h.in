@@ -17,57 +17,109 @@
  * @{
  */
 
-#cmakedefine01 OPENTLV_BLUETOOTH
-#cmakedefine01 OPENTLV_NFC
-#cmakedefine01 OPENTLV_DHCP
-#cmakedefine01 OPENTLV_LLDP
-#cmakedefine01 OPENTLV_FORMAT_ASN1
-#cmakedefine01 OPENTLV_FORMAT_BER
-#cmakedefine01 OPENTLV_FORMAT_DER
-#cmakedefine01 OPENTLV_FORMAT_CER
-#cmakedefine01 OPENTLV_EMV
+/* Core capabilities */
+/** @brief Whether Reader is enabled in this build. */
+#cmakedefine01 OPENTLV_READER
+/** @brief Whether Writer is enabled in this build. */
+#cmakedefine01 OPENTLV_WRITER
+/** @brief Whether Document is enabled in this build. */
 #cmakedefine01 OPENTLV_DOCUMENT
-/** @brief Whether Query text parsing and compilation are available. */
+/** @brief Whether Query is enabled in this build. */
+#cmakedefine01 OPENTLV_QUERY
+/** @brief Whether Schema is enabled in this build. */
+#cmakedefine01 OPENTLV_SCHEMA
+/** @brief Whether Codec is enabled in this build. */
+#cmakedefine01 OPENTLV_CODEC
+
+/* Query features */
+/** @brief Whether Query text frontend is enabled in this build. */
 #cmakedefine01 OPENTLV_QUERY_FRONTEND
-/** @brief Whether Query set algebra operations are available. */
+/** @brief Whether Query set operations is enabled in this build. */
 #cmakedefine01 OPENTLV_QUERY_SET_OPERATIONS
+
+/* Builtin protocols and formats */
+/** @brief Whether ASN.1 format family is enabled in this build. */
+#cmakedefine01 OPENTLV_FORMAT_ASN1
+/** @brief Whether BER format is enabled in this build. */
+#cmakedefine01 OPENTLV_FORMAT_BER
+/** @brief Whether DER format is enabled in this build. */
+#cmakedefine01 OPENTLV_FORMAT_DER
+/** @brief Whether CER format is enabled in this build. */
+#cmakedefine01 OPENTLV_FORMAT_CER
+/** @brief Whether EMV is enabled in this build. */
+#cmakedefine01 OPENTLV_EMV
+/** @brief Whether Bluetooth is enabled in this build. */
+#cmakedefine01 OPENTLV_BLUETOOTH
+/** @brief Whether NFC is enabled in this build. */
+#cmakedefine01 OPENTLV_NFC
+/** @brief Whether DHCP is enabled in this build. */
+#cmakedefine01 OPENTLV_DHCP
+/** @brief Whether LLDP is enabled in this build. */
+#cmakedefine01 OPENTLV_LLDP
 
 #ifdef __cplusplus
 extern "C" {
 #endif
 
-/* Runtime mirrors of the OPENTLV_* macros above: 1 if the component was
- * compiled into this build of the library, 0 otherwise. Useful when the
- * compiled configuration is not known at the consumer's compile time. */
-/**
- * @brief Reports availability of the Bluetooth extension.
- * @return 1 if formats, containers, definitions, schemas and codecs for
- *         Bluetooth were built, or 0 if `OPENTLV_BLUETOOTH` was disabled.
- */
-TLV_API int tlv_config_bluetooth(void);
-/** @brief Reports whether LLDP framing and definitions were built.
- * @return 1 if `OPENTLV_LLDP` was enabled, otherwise 0.
- */
-TLV_API int tlv_config_lldp(void);
-/**
- * @brief Reports whether DHCPv4 option framing was built.
- * @return 1 if `OPENTLV_DHCP` was enabled, otherwise 0.
- */
-TLV_API int tlv_config_dhcp(void);
-/** @brief Reports whether NFC Type 2 Tag framing was built.
- * @return 1 if `OPENTLV_NFC` was enabled, otherwise 0.
- */
-TLV_API int tlv_config_nfc(void);
-TLV_API int tlv_config_format_asn1(void);
-TLV_API int tlv_config_format_ber(void);
-TLV_API int tlv_config_format_der(void);
-TLV_API int tlv_config_format_cer(void);
-/**
- * @brief Reports whether native EMV capabilities were built.
- * @return 1 if `OPENTLV_EMV` was enabled, otherwise 0.
- */
-TLV_API int tlv_config_emv(void);
+/* Runtime mirrors return 1 when enabled and 0 otherwise. Builtin flags
+ * select protocol families; integrations also require their core capabilities. */
+
+/* Core capabilities */
+/** @brief Reports Reader availability.
+ * @return The effective OPENTLV_READER value (0 or 1). */
+TLV_API int tlv_config_reader(void);
+/** @brief Reports Writer availability.
+ * @return The effective OPENTLV_WRITER value (0 or 1). */
+TLV_API int tlv_config_writer(void);
+/** @brief Reports Document availability.
+ * @return The effective OPENTLV_DOCUMENT value (0 or 1). */
 TLV_API int tlv_config_document(void);
+/** @brief Reports Query availability.
+ * @return The effective OPENTLV_QUERY value (0 or 1). */
+TLV_API int tlv_config_query(void);
+/** @brief Reports Schema availability.
+ * @return The effective OPENTLV_SCHEMA value (0 or 1). */
+TLV_API int tlv_config_schema(void);
+/** @brief Reports Codec availability.
+ * @return The effective OPENTLV_CODEC value (0 or 1). */
+TLV_API int tlv_config_codec(void);
+
+/* Query features */
+/** @brief Reports Query text frontend availability.
+ * @return The effective OPENTLV_QUERY_FRONTEND value (0 or 1). */
+TLV_API int tlv_config_query_frontend(void);
+/** @brief Reports Query set operations availability.
+ * @return The effective OPENTLV_QUERY_SET_OPERATIONS value (0 or 1). */
+TLV_API int tlv_config_query_set_operations(void);
+
+/* Builtin protocols and formats */
+/** @brief Reports ASN.1 format family availability.
+ * @return The effective OPENTLV_FORMAT_ASN1 value (0 or 1). */
+TLV_API int tlv_config_format_asn1(void);
+/** @brief Reports BER format availability.
+ * @return The effective OPENTLV_FORMAT_BER value (0 or 1). */
+TLV_API int tlv_config_format_ber(void);
+/** @brief Reports DER format availability.
+ * @return The effective OPENTLV_FORMAT_DER value (0 or 1). */
+TLV_API int tlv_config_format_der(void);
+/** @brief Reports CER format availability.
+ * @return The effective OPENTLV_FORMAT_CER value (0 or 1). */
+TLV_API int tlv_config_format_cer(void);
+/** @brief Reports EMV availability.
+ * @return The effective OPENTLV_EMV value (0 or 1). */
+TLV_API int tlv_config_emv(void);
+/** @brief Reports Bluetooth availability.
+ * @return The effective OPENTLV_BLUETOOTH value (0 or 1). */
+TLV_API int tlv_config_bluetooth(void);
+/** @brief Reports NFC availability.
+ * @return The effective OPENTLV_NFC value (0 or 1). */
+TLV_API int tlv_config_nfc(void);
+/** @brief Reports DHCP availability.
+ * @return The effective OPENTLV_DHCP value (0 or 1). */
+TLV_API int tlv_config_dhcp(void);
+/** @brief Reports LLDP availability.
+ * @return The effective OPENTLV_LLDP value (0 or 1). */
+TLV_API int tlv_config_lldp(void);
 
 #ifdef __cplusplus
 }

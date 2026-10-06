@@ -212,11 +212,15 @@ class Document:
 
     def __init__(self, data: Optional[bytes] = None, format: Format | None = None, *,
                  max_depth: int = _DEFAULT_MAX_DEPTH,
-                 max_elements: int = _DEFAULT_MAX_ELEMENTS) -> None:
+                 max_elements: int = _DEFAULT_MAX_ELEMENTS,
+                 retain_source_locations: bool = False) -> None:
         """Creates a document, empty or parsed from `data`.
 
         `format` is used both to parse `data` (and any constructed value
         later assigned to a node) and to `encode()` the document again.
+        `retain_source_locations` preserves original offsets/header lengths for
+        Query without borrowing input bytes. Edits invalidate affected nodes and
+        ancestors; unaffected nodes retain their original coordinates.
         """
         format = _format_specification(format)
         self._lifetimes = WeakValueDictionary()
@@ -226,7 +230,8 @@ class Document:
             if data is None:
                 self._capsule = _native.document_create(format, max_depth, max_elements)
             else:
-                self._capsule = _native.document_parse(data, format, max_depth, max_elements)
+                self._capsule = _native.document_parse(
+                    data, format, max_depth, max_elements, retain_source_locations)
         except _native.Error as native_error:
             raise _from_native(native_error) from None
 

@@ -13,6 +13,12 @@ typedef struct document_source {
 static int document_current(const void* owner, uint64_t revision) {
     return tlv_document_revision(owner) == revision;
 }
+static tlv_result_t document_metadata(const void* handle, int header, size_t* value) {
+    tlv_document_source_location_t location = tlv_node_source_location(handle);
+    if (header ? !location.has_header_size : !location.has_offset) return TLV_ERR_INVALID_VALUE;
+    *value = header ? location.header_size : location.offset;
+    return TLV_OK;
+}
 
 /* Public topology provides balanced events independently of wire representation. */
 static tlv_result_t document_event(void* context, tlv_tree_event_t* event) {
@@ -28,6 +34,7 @@ static tlv_result_t document_event(void* context, tlv_tree_event_t* event) {
         event->element.tag = tlv_node_tag(node);
         event->element.value.data = tlv_node_value_data(node);
         event->element.value.size = tlv_node_value_size(node);
+        event->offset = tlv_node_source_location(node).offset;
         if (event->kind == TLV_TREE_BEGIN) {
             if (tlv_node_first_child(node)) {
                 source->next = tlv_node_first_child(node);
@@ -88,6 +95,7 @@ tlv_result_t tlv_document_query_evaluate(const tlv_document_t* document, tlv_que
     e->document_owner = document;
     e->document_revision = tlv_document_revision(document);
     e->document_current = document_current;
+    e->document_metadata = document_metadata;
     document_budget_t budget = {e, d};
     tlv_result_t rc = TLV_OK;
     size_t encoded = 0;
@@ -133,8 +141,8 @@ tlv_result_t tlv_document_query_evaluate(const tlv_document_t* document, tlv_que
                 rc = document_charge(&budget, consumed);
                 if (rc != TLV_OK) goto failed;
                 end = cursor + consumed;
-                /* The wire is only a Value snapshot: keep Document identity/Tag and
-                 * deliberately do not publish historical Source offsets. */
+                /* The wire is only a Value snapshot. Original locations come
+                 * from Document provenance, never from this serialization. */
                 event.element.value = element.value;
                 cursor = event.kind == TLV_TREE_BEGIN ? element.value.data : end;
             }
