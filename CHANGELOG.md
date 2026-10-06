@@ -82,6 +82,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Changed
 
+- **Breaking:** Separate individual-field encodings under `tlv/field/` from Format composition in `tlv/formats/compose.h`; remove `tlv/layout.h` and rename its four `*_layout_t` configuration types to `*_composition_t` without compatibility aliases. Wire behavior and runtime source ranges are unchanged. (#423)
 - Reduce Reader decode overhead when diagnostics are not requested while preserving callback validation, source metadata and failure behavior. (#538)
 - Reject nested Query visits on the same Document, including visits using an independent execution. Visits on independent Documents remain supported. (#536)
 - Advance the internal Query plan version to 7 for changed pattern and tag-provider requirements; regenerate previously compiled images and static plans. (#536)

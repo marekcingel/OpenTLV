@@ -1,7 +1,7 @@
 // SPDX-License-Identifier: MIT
 // Copyright (c) 2026 Marek Cingel
 
-#include "tlv/layout.h"
+#include "tlv/formats/compose.h"
 #include "tlv/builtins/asn1/der.h"
 #include "ber_internal.h"
 #include "asn1_internal.h"
@@ -35,12 +35,12 @@ static tlv_result_t der_write_tag(const void* context, uint8_t* data, size_t cap
     return tlv_asn1_write_identifier_checked(der_read_tag, context, data, capacity, tag, written);
 }
 
-const tlv_field_layout_t tlv_der_fields = {.context = NULL,
-                                           .read_tag = der_read_tag,
-                                           .read_length = tlv_asn1_read_minimal_length,
-                                           .write_tag = der_write_tag,
-                                           .write_length = tlv_ber_write_length,
-                                           .length_size = tlv_ber_length_size};
+const tlv_field_composition_t tlv_der_fields = {.context = NULL,
+                                                .read_tag = der_read_tag,
+                                                .read_length = tlv_asn1_read_minimal_length,
+                                                .write_tag = der_write_tag,
+                                                .write_length = tlv_ber_write_length,
+                                                .length_size = tlv_ber_length_size};
 const tlv_format_t tlv_format_der = {&tlv_der_fields, tlv_fields_decode, tlv_fields_measure,
                                      tlv_fields_encode, tlv_asn1_is_constructed};
 

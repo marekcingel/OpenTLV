@@ -182,7 +182,10 @@ zero for argument errors. Output storage must not overlap the input or each
 other. Never strip trailing zeros by scanning backward: they may belong to
 the final value.
 
-## Wire layout and logical model
+<!-- markdownlint-disable-next-line MD033 -->
+<a id="wire-layout-and-logical-model"></a>
+
+## Wire representation and logical model
 
 On the wire the length comes first:
 
@@ -467,9 +470,9 @@ Element (4 bytes)
 
 ## How it fits the format architecture
 
-Bluetooth is a configuration of the public binary-field layout primitives in
-`tlv/layout.h`: one-byte Tag and Length, Length before Tag, Length counting Tag
-and Value. It has no dependency on Fixed-private code or the Fixed build option.
+Bluetooth is a configuration of the public binary-field composition primitives
+in `tlv/formats/compose.h`: one-byte Tag and Length, Length before Tag, Length
+counting Tag and Value. It has no dependency on Fixed-private code or the Fixed build option.
 Both formats expose the same canonical decode/measure/encode contract.
 
 See [Format/Element contract](../../concepts/format-contract.md).

@@ -46,8 +46,13 @@
  * Value conversion and structured codecs, including EMV values.
  * Guides: @docs{guides/codecs,value codecs}.
  */
+/** @defgroup field_encoding Field Encoding
+ * Reusable callbacks and packed, variable-width and escaped wire-field primitives.
+ * These primitives encode individual fields; Format composition defines complete element framing.
+ * Guides: @docs{formats,formats}.
+ */
 /** @defgroup formats Formats
- * Format callbacks and default, fixed, BER, DER and CER wire formats.
+ * Format callbacks, composition and default, fixed, BER, DER and CER wire formats.
  * Guides: @docs{formats,formats}.
  */
 /** @defgroup builtins Builtins

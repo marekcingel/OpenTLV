@@ -1,15 +1,15 @@
 // SPDX-License-Identifier: MIT
 // Copyright (c) 2026 Marek Cingel
 
-#include "tlv/layout.h"
+#include "tlv/formats/compose.h"
 #include "tlv/config.h"
 #include <gtest/gtest.h>
 #include <cstring>
 
 TEST(Unit_Tlv_TaggedBinary, DifferentIdentifiersWidthsAndByteOrder) {
-    const uint8_t                    marker[] = {0xAB, 0xCD};
-    const tlv_tag_t                  tags[] = {tlv_tag(marker, sizeof(marker))};
-    const tlv_tagged_binary_layout_t layout = {
+    const uint8_t                         marker[] = {0xAB, 0xCD};
+    const tlv_tag_t                       tags[] = {tlv_tag(marker, sizeof(marker))};
+    const tlv_tagged_binary_composition_t layout = {
         {2, 2, TLV_BYTE_ORDER_LITTLE_ENDIAN, TLV_ELEMENT_ORDER_TLV, TLV_LENGTH_SCOPE_VALUE},
         tags,
         1};
@@ -47,9 +47,9 @@ TEST(Unit_Tlv_TaggedBinary, DifferentIdentifiersWidthsAndByteOrder) {
 }
 
 TEST(Unit_Tlv_TaggedBinary, ValidatesConfigurationAndPreservesDescriptor) {
-    const uint8_t                    marker = 42;
-    tlv_tag_t                        tag = tlv_tag(&marker, 1);
-    const tlv_tagged_binary_layout_t valid = {
+    const uint8_t                         marker = 42;
+    tlv_tag_t                             tag = tlv_tag(&marker, 1);
+    const tlv_tagged_binary_composition_t valid = {
         {1, 1, TLV_BYTE_ORDER_BIG_ENDIAN, TLV_ELEMENT_ORDER_TLV, TLV_LENGTH_SCOPE_VALUE}, &tag, 1};
     tlv_format_t format{};
     ASSERT_EQ(TLV_OK, tlv_tagged_binary_format_init(&format, &valid));

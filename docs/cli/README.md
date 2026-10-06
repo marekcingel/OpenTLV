@@ -481,7 +481,7 @@ offset=3 tag=9F1A requested-length=2
 ```
 
 Supply the contents of tag `9F38`, not its enclosing TLV header. Ordinary TLV
-dumping still leaves that value opaque. The same pair layout is used by other
+dumping still leaves that value opaque. The same pair representation is used by other
 EMV DOLs. Tags contain one or two bytes; each requested length is exactly one
 unsigned byte (0..255), including `80` and `FF`. No value follows the length.
 Order and duplicate tags are preserved. This mode neither constructs terminal

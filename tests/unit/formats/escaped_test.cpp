@@ -5,19 +5,16 @@
 #include "tlv/formats/variable.h"
 #include "tlv/config.h"
 #include <gtest/gtest.h>
-#include <algorithm>
-#include <array>
 #include <cstring>
-#include <vector>
 
 TEST(Unit_Tlv_TaggedFields, VariableWidthIdentifiersAndIndependentLengthCodec) {
-    const tlv_variable_format_t config{{0x1F, 0x1F, 0x80, 0x7F, 8},
-                                       {0x80, 0x7F, TLV_BYTE_ORDER_BIG_ENDIAN},
-                                       TLV_ELEMENT_ORDER_TLV,
-                                       TLV_LENGTH_SCOPE_VALUE};
-    const uint8_t               marker[] = {0x9F, 0x02};
-    const tlv_tag_t             tag = tlv_tag(marker, sizeof(marker));
-    tlv_tagged_fields_layout_t  layout{};
+    const tlv_variable_format_t     config{{0x1F, 0x1F, 0x80, 0x7F, 8},
+                                           {0x80, 0x7F, TLV_BYTE_ORDER_BIG_ENDIAN},
+                                           TLV_ELEMENT_ORDER_TLV,
+                                           TLV_LENGTH_SCOPE_VALUE};
+    const uint8_t                   marker[] = {0x9F, 0x02};
+    const tlv_tag_t                 tag = tlv_tag(marker, sizeof(marker));
+    tlv_tagged_fields_composition_t layout{};
     ASSERT_EQ(TLV_OK, tlv_variable_fields_init(&layout.fields, &config));
     layout.tag_only = &tag;
     layout.count = 1;
@@ -49,61 +46,6 @@ TEST(Unit_Tlv_TaggedFields, VariableWidthIdentifiersAndIndependentLengthCodec) {
     EXPECT_EQ(TLV_ERR_INVALID_ARG, tlv_tagged_fields_format_init(&format, &invalid));
     EXPECT_EQ(TLV_ERR_NULL_ARG, tlv_tagged_fields_format_init(nullptr, &layout));
     EXPECT_EQ(TLV_ERR_NULL_ARG, tlv_tagged_fields_format_init(&format, nullptr));
-}
-
-TEST(Unit_Tlv_Escaped, CountsWidthsByteOrdersAndTransactionalErrors) {
-    for (auto order : {TLV_BYTE_ORDER_BIG_ENDIAN, TLV_BYTE_ORDER_LITTLE_ENDIAN}) {
-        for (size_t width = 1; width <= 8; ++width) {
-            const uint64_t maximum = width == 8 ? UINT64_MAX : (UINT64_C(1) << (8 * width)) - 1;
-            const tlv_escaped_length_t config{0x80, width, order, 0x80, maximum};
-            for (uint64_t count : {UINT64_C(0), UINT64_C(127), UINT64_C(128), maximum}) {
-                std::array<uint8_t, 10> wire;
-                wire.fill(0xCC);
-                size_t measured = 0, written = 0, consumed = 0;
-                ASSERT_EQ(TLV_OK, tlv_escaped_length_write(&config, count, nullptr, 0, &measured));
-                ASSERT_EQ(TLV_OK, tlv_escaped_length_write(&config, count, wire.data(), wire.size(),
-                                                           &written));
-                EXPECT_EQ(count < 128 ? 1u : 1 + width, measured);
-                EXPECT_EQ(measured, written);
-                EXPECT_EQ(0xCC, wire[written]);
-                uint64_t decoded = 17;
-                ASSERT_EQ(TLV_OK, tlv_escaped_length_read(&config, wire.data(), written, &decoded,
-                                                          &consumed));
-                EXPECT_EQ(count, decoded);
-                EXPECT_EQ(written, consumed);
-                for (size_t available = 0; available < written; ++available) {
-                    decoded = 17;
-                    EXPECT_EQ(TLV_ERR_BUFFER_TOO_SHORT,
-                              tlv_escaped_length_read(&config, wire.data(), available, &decoded,
-                                                      &consumed));
-                    EXPECT_EQ(17u, decoded);
-                    EXPECT_EQ(available, consumed);
-                }
-                wire.fill(0xCC);
-                size_t unchanged = 99;
-                EXPECT_EQ(
-                    TLV_ERR_BUFFER_TOO_SHORT,
-                    tlv_escaped_length_write(&config, count, wire.data(), written - 1, &unchanged));
-                EXPECT_EQ(99u, unchanged);
-                EXPECT_TRUE(
-                    std::all_of(wire.begin(), wire.end(), [](uint8_t b) { return b == 0xCC; }));
-            }
-            const uint8_t reserved[] = {0x81};
-            uint64_t      decoded = 17;
-            size_t        consumed = 0;
-            EXPECT_EQ(TLV_ERR_INVALID_LENGTH,
-                      tlv_escaped_length_read(&config, reserved, 1, &decoded, &consumed));
-            EXPECT_EQ(17u, decoded);
-        }
-    }
-    const tlv_escaped_length_t little{0x80, 2, TLV_BYTE_ORDER_LITTLE_ENDIAN, 0x80, 65535};
-    uint8_t                    bytes[3]{};
-    size_t                     written = 0;
-    ASSERT_EQ(TLV_OK, tlv_escaped_length_write(&little, 0x1234, bytes, sizeof(bytes), &written));
-    EXPECT_EQ(0x80, bytes[0]);
-    EXPECT_EQ(0x34, bytes[1]);
-    EXPECT_EQ(0x12, bytes[2]);
-    EXPECT_EQ(OPENTLV_NFC, tlv_config_nfc());
 }
 
 TEST(Unit_Tlv_Escaped, NonminimalPreservationAndCanonicalEncoding) {
@@ -138,6 +80,7 @@ TEST(Unit_Tlv_Escaped, NonminimalPreservationAndCanonicalEncoding) {
 }
 
 TEST(Unit_Tlv_Escaped, IdentifierSelectionIsIndependentOfNfc) {
+    EXPECT_EQ(OPENTLV_NFC, tlv_config_nfc());
     const uint8_t              tag_bytes[] = {0xAB, 0xCD};
     const tlv_tag_t            tag = tlv_tag(tag_bytes, 2);
     const tlv_escaped_format_t config{2,

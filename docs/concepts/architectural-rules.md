@@ -102,9 +102,16 @@ Format must not interpret the semantic meaning of Value.
 
 ### Field Encoding
 
-Provides reusable mechanics for encoding and decoding individual wire fields,
-such as fixed-width, variable-width and packed fields. Format composes these
-mechanics with field ordering and framing rules. Protocol-specific restrictions
+Provides reusable mechanics at two levels:
+
+- Low-level bit, byte and integer primitives, including packed unsigned fields.
+- Identifier and Length encodings, including variable-width and escape-prefixed
+  fields and their read/write callback contracts.
+
+These mechanics live under `tlv/field/` and do not describe complete elements.
+Format composes them with field ordering, length scope, tag-only selection and
+boundary resolution through `tlv/formats/compose.h`. Composition is part of
+Format, not a separate architectural layer. Protocol-specific restrictions
 remain in the standard implementation; field mechanics do not interpret Value
 semantics.
 
@@ -124,9 +131,9 @@ Examples:
 Layout is runtime information produced while parsing.
 
 In the current C API, `tlv_source_t` and `tlv_range_t` carry this information;
-`tlv_decoded_t` pairs it with the semantic Element. The reusable field-layout
-configuration types in `tlv/layout.h` belong to Format composition, not to a
-concrete decoded instance's Layout.
+`tlv_decoded_t` pairs it with the semantic Element. Reusable configuration
+belongs to Format composition; Layout is reserved for the ranges of a concrete
+decoded instance.
 
 Format defines the rules.
 Layout describes the result of applying those rules to concrete bytes.
@@ -234,7 +241,7 @@ Runtime:
 
 ```text
 runtime Definition
-runtime Format / Field Encoding / Layout configuration
+runtime Format composition / Field Encoding configuration
 runtime Schema
 runtime Codec
 ```

@@ -2,7 +2,7 @@
 // Copyright (c) 2026 Marek Cingel
 
 #include "ber_internal.h"
-#include "tlv/formats/variable.h"
+#include "tlv/field/variable.h"
 
 /* X.690 wire configuration. The generic primitives have no ASN.1 policy. */
 static const tlv_variable_identifier_t ber_identifier = {
@@ -98,9 +98,9 @@ tlv_result_t tlv_ber_write_length(const void* context, uint8_t* data, size_t cap
     return tlv_ber_length_encode(length, data, capacity, written);
 }
 
-const tlv_field_layout_t tlv_ber_wire = {.context = NULL,
-                                         .read_tag = read_tag,
-                                         .read_length = read_length,
-                                         .write_tag = write_tag,
-                                         .write_length = tlv_ber_write_length,
-                                         .length_size = tlv_ber_length_size};
+const tlv_field_composition_t tlv_ber_wire = {.context = NULL,
+                                              .read_tag = read_tag,
+                                              .read_length = read_length,
+                                              .write_tag = write_tag,
+                                              .write_length = tlv_ber_write_length,
+                                              .length_size = tlv_ber_length_size};

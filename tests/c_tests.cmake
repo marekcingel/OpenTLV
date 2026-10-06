@@ -62,7 +62,9 @@ set(SOURCES
     formats/escaped_test.cpp
     builtins/nfc/type2_test.cpp
     builtins/nfc/type2_vectors_test.cpp
-    packed_field_test.cpp
+    field/packed_test.cpp
+    field/variable_test.cpp
+    field/escaped_test.cpp
     query/query_test.cpp
     query/program_test.cpp
     query/f2_test.cpp

@@ -14,7 +14,7 @@ extern "C" {
 /**
  * @file
  * @ingroup formats
- * @brief Shared ASN.1 identifier classes, bit layout and accessors.
+ * @brief Shared ASN.1 identifier classes, bit representation and accessors.
  *
  * Accessors inspect an already valid identifier without applying BER, DER or
  * CER policy. Format-specific constructors and number readers validate tags
@@ -41,7 +41,7 @@ typedef enum tlv_asn1_class {
 } tlv_asn1_class_t;
 
 /**
- * @brief Identifier octet bit layout below the class field (X.690 section 8.1.2).
+ * @brief Identifier octet bit representation below the class field (X.690 section 8.1.2).
  *
  * Bit 5 is the constructed/primitive flag. The low 5 bits are the
  * low-tag-number field, which escapes to high-tag-number form by being

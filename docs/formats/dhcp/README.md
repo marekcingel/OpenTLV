@@ -126,11 +126,11 @@ join RFC 3396 fragments, process option overload, recurse into suboptions,
 or implement DHCPv6 framing. Go exposes a DHCPv4 preset; Rust, Python and Lua
 do not. See the [support inventory](../support.md#language-framing-presets).
 
-The implementation configures `tlv_tagged_binary_layout_t` with two tag-only
+The implementation configures `tlv_tagged_binary_composition_t` with two tag-only
 identifiers, `00` and `FF`. The generic primitive selects by byte identity and
-delegates all other elements to the existing binary TLV layout. Its table can
+delegates all other elements to the existing binary TLV composition. Its table can
 use different identifiers and widths; no core Reader/Writer logic knows DHCP.
-The table, its identifier bytes and the layout are borrowed immutable storage
+The table, its identifier bytes and the composition are borrowed immutable storage
 when applications initialize their own descriptors with
 `tlv_tagged_binary_format_init()`.
 

@@ -5,7 +5,7 @@
 #define OPENTLV_FORMATS_FIXED_H
 
 #include "tlv/endian.h"
-#include "tlv/layout.h"
+#include "tlv/formats/compose.h"
 #include "tlv/export.h"
 #include <stddef.h>
 
@@ -51,11 +51,11 @@ extern "C" {
  */
 
 /**
- * @brief Fixed format configuration using the generic binary-field layout.
+ * @brief Fixed format configuration using the generic binary-field composition.
  *
- * @see tlv_binary_layout_t
+ * @see tlv_binary_composition_t
  */
-typedef tlv_binary_layout_t tlv_fixed_format_t;
+typedef tlv_binary_composition_t tlv_fixed_format_t;
 
 /**
  * @brief Initializes a format for the configurable fixed-width encoding.

@@ -251,7 +251,7 @@ async function start() {
     if (item.symbol) add("Module entry", `${module.toUpperCase()} · ${item.symbol}`);
     const bluetooth = session.result.format.startsWith("bluetooth-");
     add(bluetooth ? "AD Type" : "Tag", item.tag);
-    if (bluetooth) add("Wire layout", "Length | Type | Value; wire length counts Type + Value");
+    if (bluetooth) add("Wire representation", "Length | Type | Value; wire length counts Type + Value");
     add("Value length", `${item.length}${item.lengthValid === false ? " (outside the range the module permits)" : ""}`);
     const fields = [
       { offset: selected.tagStart, title: "Encoded tag", bytes: tagBytes },

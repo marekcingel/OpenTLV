@@ -1,4 +1,4 @@
-# Architectural guardrails, deliberately limited to the canonical processing engines.
+# Architectural guardrails for Field Encoding and the canonical processing engines.
 # Semantic behavior is covered by Integration_Tlv_Pipeline and component tests.
 get_filename_component(root "${CMAKE_CURRENT_LIST_DIR}/.." ABSOLUTE)
 if(EXISTS "${root}/tlv++/include/tlv++/reader/visitor.hpp")
@@ -14,6 +14,18 @@ function(forbid path pattern reason)
         message(FATAL_ERROR "${path}: ${reason}")
     endif()
 endfunction()
+
+file(GLOB_RECURSE field_files RELATIVE "${root}"
+     "${root}/tlv/include/tlv/field/*.h"
+     "${root}/tlv/src/field/*.h"
+     "${root}/tlv/src/field/*.c")
+foreach(path IN LISTS field_files)
+    forbid("${path}" "#include[ \t]+[\"<]([^\">]*/)?(format\\.h|formats/)"
+           "Field Encoding must not depend on Format or Format Composition")
+endforeach()
+if(EXISTS "${root}/tlv/include/tlv/layout.h")
+    message(FATAL_ERROR "Composition belongs in tlv/formats/compose.h; tlv/layout.h must not return")
+endif()
 
 foreach(path tlv/include/tlv/schema/schema.h tlv/src/schema/report.c)
     forbid("${path}" "tlv_schema_(issue_t|report_t|issue_path_string)|TLV_SCHEMA_PATH_MAX"

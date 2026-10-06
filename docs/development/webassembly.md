@@ -200,7 +200,7 @@ element occupies `encodedSize` bytes from `offset`, including any trailer.
 `source` contains absolute `{offset, length}` ranges for `header`, `tag`,
 `length`, `value` and `trailer`; empty regions have length zero. The logical
 Value excludes the enclosing trailer. Field order comes from these ranges,
-so LTV and BER end-of-contents need no byte-layout guessing in the viewer.
+so LTV and BER end-of-contents need no wire-framing guessing in the viewer.
 The JSON example above omits `encodedSize` and `source` for brevity.
 
 `format: "cer"` uses the generic tree visitor with `tlv_format_cer`, preserving

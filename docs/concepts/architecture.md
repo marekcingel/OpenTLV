@@ -74,9 +74,21 @@ The runtime representation describes a concrete instance. Element holds its
 semantic identifier and Value. Layout describes how that instance occupies
 wire bytes: Header, optional Tag and Length fields, Value, Trailer and their
 ranges. In the current C API, this source information belongs to `tlv_source_t`
-and `tlv_range_t`; `tlv_decoded_t` pairs it with `tlv_element_t`. The field and
-binary layouts declared in `tlv/layout.h` configure Format composition; they
-are reusable rules rather than a decoded instance's runtime layout.
+and `tlv_range_t`; `tlv_decoded_t` pairs it with `tlv_element_t`.
+
+Field Encoding has two reusable levels. Low-level bit, byte and integer
+primitives include packed fields in `tlv/field/packed.h`. Identifier and Length
+encodings use the callback contracts in `tlv/field/encoding.h` and the standalone
+variable-width and escape-prefixed primitives in `tlv/field/variable.h` and
+`tlv/field/escaped.h`. Neither level describes a complete element.
+
+Format composition in `tlv/formats/compose.h` combines field encodings with
+ordering, count scope, tag-only selection and optional boundary resolution.
+Its `tlv_field_composition_t`, `tlv_binary_composition_t`,
+`tlv_tagged_fields_composition_t` and `tlv_tagged_binary_composition_t`
+configurations supply reusable rules. Format produces Layout when those rules
+are applied to concrete bytes. Composition belongs to Format; it is not another
+architectural layer.
 
 Operations consume or produce these representations using the selected model.
 Reader and Writer process caller-owned buffers, Query selects elements, and
@@ -101,7 +113,7 @@ and compilation are planned directions, not currently
 available parsing modes. Document remains owned message data; the runtime
 model supplies reusable interpretation/configuration.
 
-Phase 2 makes Definition, Format / Field Encoding / Layout configuration,
+Phase 2 makes Definition, Format composition / Field Encoding configuration,
 Schema and Codec dynamically describable as one complete model. The `.otlv`
 frontend produces an AST, performs semantic analysis and symbol resolution,
 and constructs a canonical internal IR. Model construction establishes
@@ -189,8 +201,9 @@ tlv/
   writer/    writer.h
   schema/    schema.h
   codec/     codec.h, structure.h
+  field/     encoding.h, packed.h, variable.h, escaped.h
   formats/
-    fixed.h
+    compose.h, fixed.h, variable.h, escaped.h
   builtins/
     bluetooth/ bluetooth_ltv.h, ad_types.h
     asn1/      ber.h, der.h, cer.h, der_validation.h, cer_validation.h, der_schema.h
@@ -210,9 +223,12 @@ The [Definition boundary audit](definition-boundaries.md) records this contract,
 evidence across five standard families and the identifier-mapping decision.
 Small fundamental types (`tag.h`, `length.h`, `size.h`, `value.h`, `element.h`, and the
 generic `format.h` descriptor contracts) sit directly under `tlv/`, alongside
-the generic subsystem folders. `formats/fixed.h` and `formats/variable.h` hold
-format mechanisms that name no protocol; every protocol-specific format or standard
-OpenTLV ships lives under `builtins/<protocol>/`, so all of a protocol's
+the generic subsystem folders. `field/` contains individual-field mechanics;
+`formats/compose.h` combines them into complete Format operations.
+`formats/fixed.h`, `formats/variable.h` and `formats/escaped.h` provide complete
+generic format configurations and their adapters. These mechanisms name no
+protocol; every protocol-specific format or standard OpenTLV ships lives under
+`builtins/<protocol>/`, so all of a protocol's
 functionality is in one place instead of scattered across role-based folders: EMV's schema,
 codec, DOL and dictionary header are all under `builtins/emv/`, and
 ASN.1's wire formats and bounded DER/CER validation operations are all under
@@ -222,7 +238,8 @@ that build on them would otherwise share a name, so the validation headers are
 from `codec/emv.h`) is distinct from the umbrella `builtins/emv/emv.h`.
 BER, DER and CER share the ASN.1 field adapter in
 `src/builtins/asn1/ber_internal.c` and its private header. Reusable variable-width
-identifier and definite-length algorithms live in `src/formats/variable.c`.
+identifier and definite-length algorithms live in `src/field/variable.c`;
+`src/formats/variable.c` supplies their complete-format adapter.
 Internal schema validation, BER helpers and EMV value codecs have dedicated
 source files. `config.h` and `version.h` are generated into the build include
 directory. The public aggregate `tlv/tlv.h` includes enabled components; generic
@@ -394,8 +411,8 @@ remaining component options to Cargo features is future work; see
 
 ## Build configuration
 
-Core primitives (Tag, Value, Element, Format/Layout, diagnostics and shared
-utilities) and configurable Fixed/Variable formats are always available.
+Core primitives (Tag, Value, Element, Format, Field Encoding, runtime Layout,
+diagnostics and shared utilities) and configurable Fixed/Variable formats are always available.
 Reader, Writer, Document, Query, Schema and Codec are independent optional
 capabilities, enabled by default. Their source groups are excluded when disabled;
 this does not depend on static-linker dead stripping. A single `tlv` library

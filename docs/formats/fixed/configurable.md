@@ -14,7 +14,7 @@ for a configuration your application reuses.
 `{1, 1, TLV_BYTE_ORDER_BIG_ENDIAN, TLV_ELEMENT_ORDER_LTV,
 TLV_LENGTH_SCOPE_TAG_AND_VALUE}`.
 
-Two APIs share this wire layout, and the C++ one is a thin compile-time
+Two APIs share this wire representation, and the C++ one is a thin compile-time
 wrapper that delegates every read and write to the C one:
 
 - **C**, `tlv_fixed_format_t`: chosen at runtime, checked when the format is initialized.
@@ -56,7 +56,10 @@ An out-of-range C++ template argument fails to compile with a `static_assert`
 message; an invalid C `tlv_fixed_format_t` is rejected at init time (see
 [Errors](#errors)).
 
-## Wire layout
+<!-- markdownlint-disable-next-line MD033 -->
+<a id="wire-layout"></a>
+
+## Wire representation
 
 Each element is `tag_size`/`TagWidth` tag bytes and `length_size`/`LengthWidth`
 length bytes, in the order `element_order` selects, followed by the value bytes.

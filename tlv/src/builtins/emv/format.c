@@ -2,7 +2,8 @@
 // Copyright (c) 2026 Marek Cingel
 
 #include "tlv/builtins/emv/format.h"
-#include "tlv/formats/variable.h"
+#include "tlv/field/variable.h"
+#include "tlv/formats/compose.h"
 
 /* Book 3 v4.4 Annex B. These are EMV policies, not ASN.1 constraints. */
 static const tlv_variable_identifier_t identifier = {0x1f, 0x1f, 0x80, 0x7f, 2};
@@ -58,11 +59,11 @@ static int is_constructed(const void* context, const tlv_tag_t* tag) {
     return tag && tag->data && tag->size && (tag->data[0] & 0x20) != 0;
 }
 
-static const tlv_field_layout_t fields = {.read_tag = read_tag,
-                                          .read_length = read_length,
-                                          .write_tag = write_tag,
-                                          .write_length = write_length,
-                                          .length_size = length_size};
+static const tlv_field_composition_t fields = {.read_tag = read_tag,
+                                               .read_length = read_length,
+                                               .write_tag = write_tag,
+                                               .write_length = write_length,
+                                               .length_size = length_size};
 
 const tlv_format_t tlv_format_emv = {&fields, tlv_fields_decode, tlv_fields_measure,
                                      tlv_fields_encode, is_constructed};

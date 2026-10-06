@@ -9,7 +9,7 @@
 #if OPENTLV_FORMAT_CER
 #include "tlv/builtins/asn1/cer.h"
 #endif
-#include "tlv/layout.h"
+#include "tlv/formats/compose.h"
 #include "tlv/formats/variable.h"
 #include "tlv/builtins/asn1/ber.h"
 #include "tlv/reader/reader.h"
@@ -29,18 +29,18 @@ TEST(Unit_Tlv_Ber, InvalidAndNonminimalLengths) {
     tlv_size_t length = 42;
     size_t     used = 42;
     for (uint8_t prefix : {0x80, 0xFF})
-        EXPECT_EQ(TLV_ERR_INVALID_LENGTH, static_cast<const tlv_field_layout_t*>(ber.context)
+        EXPECT_EQ(TLV_ERR_INVALID_LENGTH, static_cast<const tlv_field_composition_t*>(ber.context)
                                               ->read_length(nullptr, &prefix, 1, &length, &used));
     std::vector<uint8_t> overflow(sizeof(tlv_size_t) + 2, 0);
     overflow[0] = 0x80 | (sizeof(tlv_size_t) + 1);
     overflow[1] = 1;
     EXPECT_EQ(TLV_ERR_INVALID_LENGTH,
-              static_cast<const tlv_field_layout_t*>(ber.context)
+              static_cast<const tlv_field_composition_t*>(ber.context)
                   ->read_length(nullptr, overflow.data(), overflow.size(), &length, &used));
     EXPECT_EQ(42u, length);
     EXPECT_EQ(overflow.size(), used);
     const uint8_t padded[] = {0x83, 0, 0, 0x7F};
-    ASSERT_EQ(TLV_OK, static_cast<const tlv_field_layout_t*>(ber.context)
+    ASSERT_EQ(TLV_OK, static_cast<const tlv_field_composition_t*>(ber.context)
                           ->read_length(nullptr, padded, sizeof(padded), &length, &used));
     EXPECT_EQ(127u, length);
     EXPECT_EQ(4u, used);
@@ -58,22 +58,22 @@ TEST(Unit_Tlv_Ber, TagSizeLimitAndContinuation) {
     bytes.back() = 0x01;
     tlv_tag_t tag{};
     size_t    used = 0;
-    ASSERT_EQ(TLV_OK, static_cast<const tlv_field_layout_t*>(ber.context)
+    ASSERT_EQ(TLV_OK, static_cast<const tlv_field_composition_t*>(ber.context)
                           ->read_tag(nullptr, bytes.data(), bytes.size(), &tag, &used));
     EXPECT_EQ(bytes.size(), used);
     // The tag borrows the input rather than copying it.
     EXPECT_EQ(bytes.data(), tag.data);
     EXPECT_EQ(bytes.size(), tag.size);
-    ASSERT_EQ(TLV_OK, static_cast<const tlv_field_layout_t*>(ber_writer.context)
+    ASSERT_EQ(TLV_OK, static_cast<const tlv_field_composition_t*>(ber_writer.context)
                           ->write_tag(nullptr, nullptr, 0, &tag, &used));
     std::vector<uint8_t> output(bytes.size(), 0xEE);
     for (size_t capacity = 0; capacity < bytes.size(); ++capacity) {
         EXPECT_EQ(TLV_ERR_BUFFER_TOO_SHORT,
-                  static_cast<const tlv_field_layout_t*>(ber_writer.context)
+                  static_cast<const tlv_field_composition_t*>(ber_writer.context)
                       ->write_tag(nullptr, output.data(), capacity, &tag, &used));
         for (auto byte : output) EXPECT_EQ(0xEE, byte);
     }
-    ASSERT_EQ(TLV_OK, static_cast<const tlv_field_layout_t*>(ber_writer.context)
+    ASSERT_EQ(TLV_OK, static_cast<const tlv_field_composition_t*>(ber_writer.context)
                           ->write_tag(nullptr, output.data(), output.size(), &tag, &used));
     EXPECT_EQ(bytes, output);
     // One byte more than the format supports is rejected, however the tag ends.
@@ -81,17 +81,18 @@ TEST(Unit_Tlv_Ber, TagSizeLimitAndContinuation) {
     bytes[0] = 0x9F;
     bytes.back() = 1;
     EXPECT_EQ(TLV_ERR_INVALID_TAG_SIZE,
-              static_cast<const tlv_field_layout_t*>(ber.context)
+              static_cast<const tlv_field_composition_t*>(ber.context)
                   ->read_tag(nullptr, bytes.data(), bytes.size(), &tag, &used));
     EXPECT_EQ(TLV_ERR_INVALID_TAG_SIZE,
-              static_cast<const tlv_field_layout_t*>(ber.context)
+              static_cast<const tlv_field_composition_t*>(ber.context)
                   ->read_tag(nullptr, bytes.data(), TLV_ASN1_TAG_MAX_SIZE, &tag, &used));
     tag = tlv_tag(bytes.data(), bytes.size());
-    EXPECT_EQ(TLV_ERR_INVALID_TAG_SIZE, static_cast<const tlv_field_layout_t*>(ber_writer.context)
-                                            ->write_tag(nullptr, nullptr, 0, &tag, &used));
+    EXPECT_EQ(TLV_ERR_INVALID_TAG_SIZE,
+              static_cast<const tlv_field_composition_t*>(ber_writer.context)
+                  ->write_tag(nullptr, nullptr, 0, &tag, &used));
     for (size_t size = 0; size < TLV_ASN1_TAG_MAX_SIZE; ++size)
         EXPECT_EQ(TLV_ERR_BUFFER_TOO_SHORT,
-                  static_cast<const tlv_field_layout_t*>(ber.context)
+                  static_cast<const tlv_field_composition_t*>(ber.context)
                       ->read_tag(nullptr, bytes.data(), size, &tag, &used));
 }
 
@@ -112,12 +113,12 @@ TEST(Unit_Tlv_Ber, InvalidTagsAndWriterState) {
     // A tag whose bytes are missing is reported before its size is looked at.
     size_t          used;
     const tlv_tag_t missing = tlv_tag(nullptr, 1);
-    EXPECT_EQ(TLV_ERR_NULL_ARG, static_cast<const tlv_field_layout_t*>(ber_writer.context)
+    EXPECT_EQ(TLV_ERR_NULL_ARG, static_cast<const tlv_field_composition_t*>(ber_writer.context)
                                     ->write_tag(nullptr, nullptr, 0, &missing, &used));
     const uint8_t invalid_tag[] = {0x9F, 0x80, 1};
     tlv_tag_t     tag{};
     EXPECT_EQ(TLV_ERR_INVALID_TAG,
-              static_cast<const tlv_field_layout_t*>(ber.context)
+              static_cast<const tlv_field_composition_t*>(ber.context)
                   ->read_tag(nullptr, invalid_tag, sizeof(invalid_tag), &tag, &used));
 }
 
@@ -385,16 +386,16 @@ TEST(Unit_Tlv_Ber, LongPaddedLengthsAndTruncation) {
         bytes.back() = 0x7F;
         tlv_size_t length = 42;
         size_t     used = 43;
-        ASSERT_EQ(TLV_OK, static_cast<const tlv_field_layout_t*>(ber.context)
+        ASSERT_EQ(TLV_OK, static_cast<const tlv_field_composition_t*>(ber.context)
                               ->read_length(nullptr, bytes.data(), bytes.size(), &length, &used));
         EXPECT_EQ(127u, length);
         EXPECT_EQ(bytes.size(), used);
         bytes.back() = 0;
-        ASSERT_EQ(TLV_OK, static_cast<const tlv_field_layout_t*>(ber.context)
+        ASSERT_EQ(TLV_OK, static_cast<const tlv_field_composition_t*>(ber.context)
                               ->read_length(nullptr, bytes.data(), bytes.size(), &length, &used));
         EXPECT_EQ(0u, length);
         std::memset(bytes.data() + bytes.size() - sizeof(tlv_size_t), 255, sizeof(tlv_size_t));
-        ASSERT_EQ(TLV_OK, static_cast<const tlv_field_layout_t*>(ber.context)
+        ASSERT_EQ(TLV_OK, static_cast<const tlv_field_composition_t*>(ber.context)
                               ->read_length(nullptr, bytes.data(), bytes.size(), &length, &used));
         EXPECT_EQ(TLV_SIZE_MAX, length);
         bytes[1] = 1;
@@ -402,13 +403,13 @@ TEST(Unit_Tlv_Ber, LongPaddedLengthsAndTruncation) {
         used = 43;
         for (size_t size = 0; size < bytes.size(); ++size) {
             EXPECT_EQ(TLV_ERR_BUFFER_TOO_SHORT,
-                      static_cast<const tlv_field_layout_t*>(ber.context)
+                      static_cast<const tlv_field_composition_t*>(ber.context)
                           ->read_length(nullptr, bytes.data(), size, &length, &used));
             EXPECT_EQ(42u, length);
             EXPECT_EQ(size, used);
         }
         EXPECT_EQ(TLV_ERR_INVALID_LENGTH,
-                  static_cast<const tlv_field_layout_t*>(ber.context)
+                  static_cast<const tlv_field_composition_t*>(ber.context)
                       ->read_length(nullptr, bytes.data(), bytes.size(), &length, &used));
         EXPECT_EQ(42u, length);
         EXPECT_EQ(bytes.size(), used);
@@ -471,7 +472,7 @@ TEST(Unit_Tlv_Ber, LengthPolicyAndAtomicPublicOutputsDifferFromVariableMechanics
               tlv_ber_length_decode(reserved.data(), reserved.size(), &value, &used));
     EXPECT_EQ(99u, value);
     EXPECT_EQ(99u, used);
-    const auto* fields = static_cast<const tlv_field_layout_t*>(ber.context);
+    const auto* fields = static_cast<const tlv_field_composition_t*>(ber.context);
     EXPECT_EQ(TLV_ERR_INVALID_LENGTH, fields->read_length(fields->context, reserved.data(),
                                                           reserved.size(), &value, &used));
     EXPECT_EQ(1u, used); // Only the reserved prefix belongs to the diagnostic field.

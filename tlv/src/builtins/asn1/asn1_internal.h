@@ -3,7 +3,7 @@
 
 #ifndef OPENTLV_ASN1_INTERNAL_H
 #define OPENTLV_ASN1_INTERNAL_H
-#include "tlv/layout.h"
+#include "tlv/field/encoding.h"
 #include "tlv/builtins/asn1/identifier.h"
 
 /* Parses one BER identifier via tlv_ber_wire.read_tag, then applies the

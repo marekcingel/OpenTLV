@@ -9,7 +9,7 @@
 #include <stdint.h>
 #include <stdio.h>
 #include "tlv/endian.h"
-#include "tlv/layout.h"
+#include "tlv/formats/compose.h"
 #include "tlv/size.h"
 #include "tlv/reader/reader.h"
 #include "tlv/writer/writer.h"
@@ -88,16 +88,16 @@ int main(void) {
     tlv_element_t element;
     size_t        written, consumed;
 
-    const tlv_field_layout_t layout = {NULL,
-                                       read_tag_1byte,
-                                       read_length_le16,
-                                       NULL,
-                                       write_tag_1byte,
-                                       write_length_le16,
-                                       length_size_le16,
-                                       TLV_ELEMENT_ORDER_TLV,
-                                       TLV_LENGTH_SCOPE_VALUE};
-    CHECK(tlv_fields_format_init(&format, &layout));
+    const tlv_field_composition_t composition = {NULL,
+                                                 read_tag_1byte,
+                                                 read_length_le16,
+                                                 NULL,
+                                                 write_tag_1byte,
+                                                 write_length_le16,
+                                                 length_size_le16,
+                                                 TLV_ELEMENT_ORDER_TLV,
+                                                 TLV_LENGTH_SCOPE_VALUE};
+    CHECK(tlv_fields_format_init(&format, &composition));
     /* format and its optional immutable context must outlive their users. */
     CHECK(tlv_write(encoded, sizeof(encoded), &format, TLV_TAG(1), value, sizeof(value), &written));
     CHECK(tlv_read(encoded, written, &format, &element, &consumed));

@@ -113,7 +113,7 @@ or interpreting Value during decoding.
 Use `tlv_fixed_format_init()` with `tag_size = 1`, `length_size = 1`, an explicit
 `length_order`, and the selected `element_order` and `length_scope` to reproduce
 these compositions. Fixed delegates to the generic binary-field composition;
-custom field codecs can use `tlv_field_layout_t` and `tlv_fields_format_init()`.
+custom field codecs can use `tlv_field_composition_t` and `tlv_fields_format_init()`.
 Format configuration must outlive its descriptor and all retained sources.
 
 Encoding an Element uses the destination Format's order and count scope.
@@ -130,15 +130,32 @@ Tree Reader and Tree Writer tests exercise LTV through the same upper layers.
 NFC Type 2 support and its control rules are outside this ordering contract's
 validation scope.
 
+## Field Encoding and Format composition
+
+Field Encoding provides individual-field mechanics under `tlv/field/`:
+
+| Level | Public headers and responsibility |
+| --- | --- |
+| Low-level bit, byte and integer primitives | `tlv/field/packed.h` extracts and inserts unsigned fields within backing integers. Shared byte-order primitives remain in `tlv/endian.h`. |
+| Identifier and Length encodings | `tlv/field/encoding.h` defines the read/write callback contracts; `tlv/field/variable.h` and `tlv/field/escaped.h` provide standalone encoding primitives. |
+
+Format composition owns ordering, count scope, tag-only selection and optional
+boundary resolution. Its types, callbacks and initializers live in
+`tlv/formats/compose.h`. The complete Fixed, Variable and Escaped configurations
+and their adapters remain under `tlv/formats/`. Field primitives do not depend
+on these complete formats, Reader, Writer, Document, Schema, Codec or builtins.
+
 ## Format operations
 
 The descriptor has one decode operation, one measure operation and one encode
 operation. Reader and Writer have no alternate field-callback path. Field
-composition is a public Format primitive (`tlv_field_layout_t`); fixed binary
-fields use `tlv_binary_layout_t`. TLV and LTV use the same composition with
-explicit order and count scope. Bluetooth does not depend on Fixed internals.
+composition is a public Format primitive (`tlv_field_composition_t`); fixed binary
+fields use `tlv_binary_composition_t`. Identifier-selected tag-only framing uses
+`tlv_tagged_fields_composition_t` or `tlv_tagged_binary_composition_t`.
+TLV and LTV use the same composition with explicit order and count scope.
+Bluetooth does not depend on Fixed internals.
 
-Packed fields sharing a wire integer use `tlv_packed_field_t` from `tlv/layout.h`.
+Packed fields sharing a wire integer use `tlv_packed_field_t` from `tlv/field/packed.h`.
 It describes 1..8 backing bytes, explicit byte order, bit offset counted from
 the decoded integer's least significant bit, and bit width. The read/write
 helpers operate on unsigned `uint64_t` values and require the complete backing
@@ -155,7 +172,7 @@ if (rc == TLV_OK)
     rc = tlv_packed_field_write(&count, header, sizeof(header), 300);
 ```
 
-These helpers configure Format composition, not runtime source ranges. Format
+These helpers encode individual fields. Format composition and complete Format
 callbacks retain responsibility for Tag mapping and its storage lifetime,
 logical Length semantics, Value bounds and diagnostics. LLDP uses this primitive
 without depending on Fixed or changing the canonical Format operations.
@@ -194,6 +211,15 @@ Wire integer byte order is explicit and independent of the host. A format's
 accepted logical range must not silently change between 32-bit and 64-bit builds.
 
 ## Migration
+
+For the Field Encoding / Format composition split (#423), replace
+`tlv/layout.h` with `tlv/formats/compose.h` for composition and the appropriate
+`tlv/field/` header for individual-field operations. Rename the four configuration
+types ending in `_layout_t` to `_composition_t`: `tlv_field_composition_t`,
+`tlv_binary_composition_t`, `tlv_tagged_fields_composition_t` and
+`tlv_tagged_binary_composition_t`. There are no compatibility headers or aliases.
+Composition members and function names are unchanged; this source migration
+does not change wire bytes, diagnostics, borrowing or runtime source ranges.
 
 Rebuild all consumers: `tlv_source_t` now includes `tag_binding`, which also
 changes the layout of `tlv_decoded_t`. Existing decoders retain direct source

@@ -1,7 +1,7 @@
 // SPDX-License-Identifier: MIT
 // Copyright (c) 2026 Marek Cingel
 
-#include "tlv/layout.h"
+#include "tlv/formats/compose.h"
 #include "tlv/reader/reader.h"
 #include "tlv/writer/writer.h"
 #include <gtest/gtest.h>
@@ -47,27 +47,27 @@ tlv_result_t write_length(const void* ctx, uint8_t* data, size_t size, tlv_size_
     data[1] = static_cast<uint8_t>(length >> 8);
     return TLV_OK;
 }
-const tlv_field_layout_t fixed_layout = {&width,
-                                         read_tag,
-                                         read_length,
-                                         nullptr,
-                                         nullptr,
-                                         nullptr,
-                                         nullptr,
-                                         TLV_ELEMENT_ORDER_TLV,
-                                         TLV_LENGTH_SCOPE_VALUE};
-const tlv_format_t       fixed = {&fixed_layout, tlv_fields_decode, nullptr, nullptr, nullptr};
-const tlv_field_layout_t fixed_writer_layout = {&width,
-                                                nullptr,
-                                                nullptr,
-                                                nullptr,
-                                                write_tag,
-                                                write_length,
-                                                length_size,
-                                                TLV_ELEMENT_ORDER_TLV,
-                                                TLV_LENGTH_SCOPE_VALUE};
-const tlv_format_t       fixed_writer = {&fixed_writer_layout, nullptr, tlv_fields_measure,
-                                         tlv_fields_encode, nullptr};
+const tlv_field_composition_t fixed_layout = {&width,
+                                              read_tag,
+                                              read_length,
+                                              nullptr,
+                                              nullptr,
+                                              nullptr,
+                                              nullptr,
+                                              TLV_ELEMENT_ORDER_TLV,
+                                              TLV_LENGTH_SCOPE_VALUE};
+const tlv_format_t            fixed = {&fixed_layout, tlv_fields_decode, nullptr, nullptr, nullptr};
+const tlv_field_composition_t fixed_writer_layout = {&width,
+                                                     nullptr,
+                                                     nullptr,
+                                                     nullptr,
+                                                     write_tag,
+                                                     write_length,
+                                                     length_size,
+                                                     TLV_ELEMENT_ORDER_TLV,
+                                                     TLV_LENGTH_SCOPE_VALUE};
+const tlv_format_t            fixed_writer = {&fixed_writer_layout, nullptr, tlv_fields_measure,
+                                              tlv_fields_encode, nullptr};
 } // namespace
 
 TEST(Integration_Tlv_Format, CustomFormatRoundTripAndWireBytes) {

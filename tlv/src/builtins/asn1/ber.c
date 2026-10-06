@@ -2,7 +2,7 @@
 // Copyright (c) 2026 Marek Cingel
 
 #include "tlv/size.h"
-#include "tlv/layout.h"
+#include "tlv/formats/compose.h"
 #include "tlv/builtins/asn1/ber.h"
 #include "ber_internal.h"
 #include "asn1_internal.h"
@@ -200,19 +200,19 @@ tlv_result_t tlv_ber_writer_write_indefinite(tlv_writer_t* writer, tlv_tag_t tag
 }
 #endif
 
-const tlv_field_layout_t tlv_ber_fields = {.context = NULL,
-                                           .read_tag = read_tag,
-                                           .read_length = read_length,
-                                           .resolve = read_value_bounds,
-                                           .write_tag = write_tag,
-                                           .write_length = tlv_ber_write_length,
-                                           .length_size = tlv_ber_length_size};
+const tlv_field_composition_t tlv_ber_fields = {.context = NULL,
+                                                .read_tag = read_tag,
+                                                .read_length = read_length,
+                                                .resolve = read_value_bounds,
+                                                .write_tag = write_tag,
+                                                .write_length = tlv_ber_write_length,
+                                                .length_size = tlv_ber_length_size};
 const tlv_format_t tlv_format_ber = {&tlv_ber_fields, tlv_fields_decode, tlv_fields_measure,
                                      tlv_fields_encode, tlv_asn1_is_constructed};
 
 tlv_result_t tlv_asn1_indefinite_measure(const void* context, const tlv_element_t* element,
                                          tlv_encoding_t* sizes, tlv_format_error_t* error) {
-    const tlv_field_layout_t* fields = (const tlv_field_layout_t*)context;
+    const tlv_field_composition_t* fields = (const tlv_field_composition_t*)context;
     size_t tag_size;
     tlv_result_t rc;
     error->region = TLV_REGION_TAG;

@@ -1,7 +1,7 @@
 // SPDX-License-Identifier: MIT
 // Copyright (c) 2026 Marek Cingel
 
-#include "tlv/layout.h"
+#include "tlv/field/packed.h"
 #include <gtest/gtest.h>
 #include <array>
 #include <climits>

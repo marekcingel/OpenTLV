@@ -6,7 +6,7 @@
 
 | Setting | Value |
 | --- | --- |
-| Header | `tlv/format.h`, `tlv/layout.h` |
+| Header | `tlv/format.h`, `tlv/field/encoding.h`, `tlv/formats/compose.h` |
 | Setup | `tlv_format_init` or `tlv_fields_format_init` |
 | CMake option | None; generic callbacks are always available |
 | Link target | `tlv` |
@@ -29,7 +29,7 @@ byte envelope, which may overlap Length; it does not hold the transformed bytes.
 Storage must outlive all retained results and must not be reused as scratch.
 See the [identifier contract](../../concepts/format-contract.md#decoded-identifier-consistency)
 for validation, copying and lifetime rules. These semantics require a complete
-Format callback; sequential `tlv_field_layout_t` helpers still describe byte
+Format callback; sequential `tlv_field_composition_t` helpers still describe byte
 fields rather than packed bits.
 
 ## C usage
