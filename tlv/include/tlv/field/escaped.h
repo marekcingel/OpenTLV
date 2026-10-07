@@ -42,7 +42,7 @@ typedef struct tlv_escaped_length {
 } tlv_escaped_length_t;
 
 /** @brief Decode an inline or escape-prefixed count.
- * @param[in] config Immutable validated encoding configuration.
+ * @param[in] config Immutable encoding configuration, validated by this operation.
  * @param[in] data Source bytes; NULL allowed only with zero size.
  * @param[in] size Available bytes.
  * @param[out] length Decoded count; unchanged on failure.
@@ -53,7 +53,9 @@ typedef struct tlv_escaped_length {
  * @return #TLV_ERR_INVALID_BYTE_ORDER for unsupported byte order.
  * @return #TLV_ERR_BUFFER_TOO_SHORT for incomplete fields.
  * @return #TLV_ERR_INVALID_LENGTH for a reserved prefix or out-of-range count.
- * @note Argument/configuration errors preserve both outputs.
+ * @note Validate required pointers and configuration before inspecting wire bytes.
+ * Argument/configuration errors preserve both outputs; incomplete input reports
+ * the available prefix through consumed.
  */
 TLV_API tlv_result_t tlv_escaped_length_read(const tlv_escaped_length_t* config,
                                              const uint8_t* data, size_t size, tlv_size_t* length,
@@ -71,7 +73,8 @@ TLV_API tlv_result_t tlv_escaped_length_read(const tlv_escaped_length_t* config,
  * @return #TLV_ERR_INVALID_BYTE_ORDER for unsupported byte order.
  * @return #TLV_ERR_INVALID_LENGTH for a count above max_length.
  * @return #TLV_ERR_BUFFER_TOO_SHORT for insufficient capacity.
- * @note Validates before writing; no allocation occurs.
+ * @note Validate required pointers, configuration, count range and capacity in
+ * that order. Failure preserves written and destination bytes. No allocation occurs.
  */
 TLV_API tlv_result_t tlv_escaped_length_write(const tlv_escaped_length_t* config, tlv_size_t length,
                                               uint8_t* data, size_t capacity, size_t* written);

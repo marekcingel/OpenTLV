@@ -54,9 +54,9 @@ void check_splits(const tlv_format_t* format, const std::vector<uint8_t>& wire) 
 } // namespace
 
 TEST(Integration_Tlv_Incremental, EverySplitUsesTheSelectedFormatAndBorrowedRepresentation) {
-    const tlv_fixed_format_t config = {1, 1, TLV_BYTE_ORDER_BIG_ENDIAN, TLV_ELEMENT_ORDER_TLV,
-                                       TLV_LENGTH_SCOPE_VALUE};
-    tlv_format_t             format;
+    const tlv_fixed_format_t config = {
+        {1}, {1, TLV_BYTE_ORDER_BIG_ENDIAN}, TLV_ELEMENT_ORDER_TLV, TLV_LENGTH_SCOPE_VALUE};
+    tlv_format_t format;
     ASSERT_EQ(TLV_OK, tlv_fixed_format_init(&format, &config));
     check_splits(&format, {1, 2, 0xAA, 0xBB});
 #if OPENTLV_FORMAT_BER

@@ -233,7 +233,7 @@ TEST(Unit_Tlv_Element, FixedSizeDomainIsIndependentOfFieldOrderAndByteOrder) {
     (void)source;
     for (auto byte_order : {TLV_BYTE_ORDER_BIG_ENDIAN, TLV_BYTE_ORDER_LITTLE_ENDIAN}) {
         for (auto order : {TLV_ELEMENT_ORDER_TLV, TLV_ELEMENT_ORDER_LTV}) {
-            const tlv_fixed_format_t config = {2, 8, byte_order, order, TLV_LENGTH_SCOPE_VALUE};
+            const tlv_fixed_format_t config = {{2}, {8, byte_order}, order, TLV_LENGTH_SCOPE_VALUE};
             tlv_format_t             format{};
             ASSERT_EQ(TLV_OK, tlv_fixed_format_init(&format, &config));
             uint8_t      data[11] = {};
@@ -519,9 +519,9 @@ TEST(Unit_Tlv_FormatContract, NoExplicitFieldsAndEmptyHeaderAreValid) {
     EXPECT_EQ(wire, output);
 }
 TEST(Unit_Tlv_FormatContract, LogicalSizeAndWireLimitsAreSeparate) {
-    const tlv_fixed_format_t config = {1, 8, TLV_BYTE_ORDER_BIG_ENDIAN, TLV_ELEMENT_ORDER_TLV,
-                                       TLV_LENGTH_SCOPE_VALUE};
-    tlv_format_t             format{};
+    const tlv_fixed_format_t config = {
+        {1}, {8, TLV_BYTE_ORDER_BIG_ENDIAN}, TLV_ELEMENT_ORDER_TLV, TLV_LENGTH_SCOPE_VALUE};
+    tlv_format_t format{};
     ASSERT_EQ(TLV_OK, tlv_fixed_format_init(&format, &config));
     tlv_element_t  element = {TLV_TAG(1), {nullptr, UINT64_C(4294967296)}};
     tlv_encoding_t sizes{};

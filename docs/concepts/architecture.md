@@ -70,7 +70,10 @@ primitives include packed fields in `tlv/field/packed.h`. Identifier and Length
 encodings use the callback contracts in `tlv/field/encoding.h` and the standalone
 fixed-width, variable-width and escape-prefixed primitives in `tlv/field/fixed.h`,
 `tlv/field/variable.h` and `tlv/field/escaped.h`. Neither level describes a
-complete element. Codec is reserved for converting Value bytes to and from
+complete element. Fixed, variable and escaped Format configurations embed
+their `identifier` and `length` descriptions and use `element_order` and
+`length_scope` for composition policy. Adapters follow the shared Field Encoding
+validation and prefix-reporting contract. Codec is reserved for converting Value bytes to and from
 application values; individual wire fields use field encodings.
 
 Format composition in `tlv/formats/compose.h` combines field encodings with

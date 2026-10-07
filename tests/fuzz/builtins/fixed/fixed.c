@@ -17,9 +17,9 @@
  * harness. */
 static tlv_fixed_format_t fuzz_fixed_config(const uint8_t* data, size_t size) {
     tlv_fixed_format_t config;
-    config.tag_size = 1 + (size_t)((size > 0 ? data[0] : 0) % FUZZ_FIXED_MAX_TAG_SIZE);
-    config.length_size = 1 + (size_t)((size > 1 ? data[1] : 0) % 8);
-    config.length_order =
+    config.identifier.size = 1 + (size_t)((size > 0 ? data[0] : 0) % FUZZ_FIXED_MAX_TAG_SIZE);
+    config.length.size = 1 + (size_t)((size > 1 ? data[1] : 0) % 8);
+    config.length.byte_order =
         ((size > 2 ? data[2] : 0) & 1) ? TLV_BYTE_ORDER_LITTLE_ENDIAN : TLV_BYTE_ORDER_BIG_ENDIAN;
     config.element_order =
         ((size > 3 ? data[3] : 0) & 1) ? TLV_ELEMENT_ORDER_LTV : TLV_ELEMENT_ORDER_TLV;
@@ -36,17 +36,17 @@ static tlv_fixed_format_t fuzz_fixed_config(const uint8_t* data, size_t size) {
  * both widths are known. */
 static void check_fixed_roundtrip(const tlv_format_t* format, const tlv_fixed_format_t* config,
                                   const uint8_t* data, size_t size) {
-    if (size < config->tag_size) return;
-    tlv_tag_t      tag = tlv_tag(data, config->tag_size);
-    const uint8_t* value = data + config->tag_size;
-    size_t         value_size = size - config->tag_size;
+    if (size < config->identifier.size) return;
+    tlv_tag_t      tag = tlv_tag(data, config->identifier.size);
+    const uint8_t* value = data + config->identifier.size;
+    size_t         value_size = size - config->identifier.size;
     size_t         total = SIZE_MAX, written = SIZE_MAX, consumed = SIZE_MAX;
     tlv_result_t   rc = tlv_encoded_size(tag, value_size, format, &total);
     if (rc != TLV_OK) {
         FUZZ_CHECK(total == SIZE_MAX);
         return;
     }
-    FUZZ_CHECK(total == config->tag_size + config->length_size + value_size);
+    FUZZ_CHECK(total == config->identifier.size + config->length.size + value_size);
     uint8_t* encoded = (uint8_t*)malloc(total);
     FUZZ_CHECK(encoded != NULL);
     memset(encoded, 0xa5, total);

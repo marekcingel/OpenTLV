@@ -8,9 +8,11 @@ use std::mem::MaybeUninit;
 #[test]
 fn native_reader_layout_and_incremental_transitions_match_c() {
     let config = native::tlv_fixed_format_t {
-        tag_size: 1,
-        length_size: 1,
-        length_order: native::TLV_BYTE_ORDER_BIG_ENDIAN,
+        identifier: native::tlv_fixed_identifier_t { size: 1 },
+        length: native::tlv_fixed_length_t {
+            size: 1,
+            byte_order: native::TLV_BYTE_ORDER_BIG_ENDIAN,
+        },
         element_order: native::TLV_ELEMENT_ORDER_TLV,
         length_scope: native::TLV_LENGTH_SCOPE_VALUE,
     };

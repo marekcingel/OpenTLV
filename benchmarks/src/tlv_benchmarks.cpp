@@ -254,8 +254,8 @@ void query_scaling(benchmark::State& state) {
             wire.swap(wrapped);
         }
     } else if (kind == 2) {
-        fixed.tag_size = fixed.length_size = 1;
-        fixed.length_order = TLV_BYTE_ORDER_BIG_ENDIAN;
+        fixed.identifier.size = fixed.length.size = 1;
+        fixed.length.byte_order = TLV_BYTE_ORDER_BIG_ENDIAN;
         if (tlv_fixed_format_init(&format, &fixed) != TLV_OK) {
             state.SkipWithError("generic Fixed setup");
             return;

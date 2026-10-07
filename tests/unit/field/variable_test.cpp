@@ -62,11 +62,13 @@ TEST(Unit_Tlv_Variable, IdentifierBoundsAndAtomicWrites) {
     for (size_t size = 0; size < 3; ++size) {
         EXPECT_EQ(TLV_ERR_BUFFER_TOO_SHORT,
                   tlv_variable_identifier_read(&limited, bytes, size, &tag, &used));
-        EXPECT_EQ(99u, used);
+        EXPECT_EQ(size, used);
         EXPECT_EQ(sizeof(bytes), tag.size);
     }
     EXPECT_EQ(TLV_ERR_INVALID_TAG_SIZE,
               tlv_variable_identifier_read(&limited, bytes, sizeof(bytes), &tag, &used));
+    EXPECT_EQ(2u, used);
+    used = 99;
     auto truncated = tlv_tag(bytes, 2);
     EXPECT_EQ(TLV_ERR_INVALID_TAG,
               tlv_variable_identifier_write(&limited, &truncated, nullptr, 0, &used));

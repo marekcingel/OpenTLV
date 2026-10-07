@@ -17,6 +17,7 @@ static tlv_result_t tag_policy(const uint8_t* data, size_t size) {
 
 static tlv_result_t read_tag(const void* context, const uint8_t* data, size_t size, tlv_tag_t* tag,
                              size_t* used) {
+    if ((!data && size) || !tag || !used) return TLV_ERR_NULL_ARG;
     tlv_result_t rc;
     (void)context;
     rc = tag_policy(data, size);
@@ -26,6 +27,7 @@ static tlv_result_t read_tag(const void* context, const uint8_t* data, size_t si
 
 static tlv_result_t write_tag(const void* context, uint8_t* data, size_t capacity,
                               const tlv_tag_t* tag, size_t* used) {
+    if (!tag || (!tag->data && tag->size) || (!data && capacity) || !used) return TLV_ERR_NULL_ARG;
     tlv_result_t rc;
     (void)context;
     rc = tag_policy(tag->data, tag->size);
@@ -35,6 +37,7 @@ static tlv_result_t write_tag(const void* context, uint8_t* data, size_t capacit
 
 static tlv_result_t read_length(const void* context, const uint8_t* data, size_t size,
                                 tlv_size_t* length, size_t* used) {
+    if ((!data && size) || !length || !used) return TLV_ERR_NULL_ARG;
     (void)context;
     if (size && (data[0] == 0x80 || data[0] > 0x82)) {
         *used = 1;
@@ -46,6 +49,7 @@ static tlv_result_t read_length(const void* context, const uint8_t* data, size_t
 static tlv_result_t write_length(const void* context, uint8_t* data, size_t capacity,
                                  tlv_size_t length, size_t* used) {
     (void)context;
+    if (!used || (!data && capacity)) return TLV_ERR_NULL_ARG;
     if (length > 65535) return TLV_ERR_INVALID_LENGTH;
     return tlv_variable_length_write(&count, length, data, capacity, used);
 }

@@ -103,8 +103,7 @@ beginning of a buffer:
 
 ```c
 /* One tag byte and one length byte; config must outlive its readers. */
-const tlv_fixed_format_t config = {
-    .tag_size = 1, .length_size = 1, .length_order = TLV_BYTE_ORDER_BIG_ENDIAN};
+const tlv_fixed_format_t config = {.identifier = {1}, .length = {1, TLV_BYTE_ORDER_BIG_ENDIAN}};
 tlv_format_t format;
 tlv_fixed_format_init(&format, &config);
 
@@ -166,8 +165,7 @@ bytes, then write into a caller-owned buffer:
 
 ```c
 /* One tag byte and one length byte; config must outlive its writers. */
-const tlv_fixed_format_t config = {
-    .tag_size = 1, .length_size = 1, .length_order = TLV_BYTE_ORDER_BIG_ENDIAN};
+const tlv_fixed_format_t config = {.identifier = {1}, .length = {1, TLV_BYTE_ORDER_BIG_ENDIAN}};
 tlv_format_t format;
 tlv_fixed_format_init(&format, &config);
 

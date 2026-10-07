@@ -35,12 +35,18 @@ tlv_result_t tlv_variable_identifier_read(const tlv_variable_identifier_t* confi
     if (!config || (!data && size) || !tag || !consumed) return TLV_ERR_NULL_ARG;
     rc = identifier_validate(config);
     if (rc != TLV_OK) return rc;
-    if (!size) return TLV_ERR_BUFFER_TOO_SHORT;
+    if (!size) {
+        *consumed = 0;
+        return TLV_ERR_BUFFER_TOO_SHORT;
+    }
     if ((data[0] & config->inline_mask) == config->escape) {
         for (;;) {
             uint8_t octet;
             if (count == config->max_size) return TLV_ERR_INVALID_TAG_SIZE;
-            if (count == size) return TLV_ERR_BUFFER_TOO_SHORT;
+            if (count == size) {
+                *consumed = size;
+                return TLV_ERR_BUFFER_TOO_SHORT;
+            }
             octet = data[count++];
             if (octet & ~(config->continuation_bit | config->payload_mask))
                 return TLV_ERR_INVALID_TAG;

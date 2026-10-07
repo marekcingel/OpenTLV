@@ -200,10 +200,10 @@ int main(int argc, char** argv) {
     void*              program = NULL;
     void*              workspace = NULL;
     void*              workspace_allocation = NULL;
-    tlv_fixed_format_t config = {0};
-    config.tag_size = 1;
-    config.length_size = 1;
-    config.length_order = TLV_BYTE_ORDER_BIG_ENDIAN;
+    tlv_fixed_format_t config = {{0}, {0}};
+    config.identifier.size = 1;
+    config.length.size = 1;
+    config.length.byte_order = TLV_BYTE_ORDER_BIG_ENDIAN;
     tlv_format_t format;
     tlv_result_t rc = tlv_fixed_format_init(&format, &config);
     if (rc != TLV_OK) return 2;

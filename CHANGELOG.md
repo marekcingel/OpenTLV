@@ -82,7 +82,9 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Changed
 
-- **Breaking:** Separate individual-field encodings under `tlv/field/` from Format composition in `tlv/formats/compose.h`; remove `tlv/layout.h` and rename its four `*_layout_t` configuration types to `*_composition_t` without compatibility aliases. Wire behavior and runtime source ranges are unchanged. (#423)
+- **Breaking:** Separate individual-field encodings under `tlv/field/` from Format composition in `tlv/formats/compose.h`; remove `tlv/layout.h` and rename its four `*_layout_t` configuration types to `*_composition_t` without compatibility aliases. Compose Fixed/binary and Escaped configurations from `identifier` and `length` field configurations, with unified `element_order`/`length_scope` names; migrate nested initializers and rebuild native/FFI consumers. (#423)
+  - Field Encoding is the single validation contract: mismatched nonempty tags with NULL bytes report `TLV_ERR_NULL_ARG` before width errors; invalid length configurations leave `consumed` unchanged; direct binary/tagged-binary measurement rejects unsupported byte order when processing Length. (#423)
+  - Incomplete fixed/variable identifiers report their available prefix. Field writes reject NULL output with nonzero capacity and preserve outputs on failure; Fixed initialization reports missing pointers as `TLV_ERR_NULL_ARG` and validates embedded fields before composition policy. Valid wire representations and borrowing contracts are unchanged. (#423)
 - Reduce Reader decode overhead when diagnostics are not requested while preserving callback validation, source metadata and failure behavior. (#538)
 - Reject nested Query visits on the same Document, including visits using an independent execution. Visits on independent Documents remain supported. (#536)
 - Advance the internal Query plan version to 7 for changed pattern and tag-provider requirements; regenerate previously compiled images and static plans. (#536)
@@ -159,7 +161,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Added
 
-- Add standalone allocation-free fixed-width Identifier and Length operations in `tlv/field/fixed.h`, preserving raw identifier bytes and supporting explicit count byte order and NULL-output sizing independently of Format and optional capabilities. (#540, #423)
+- Add standalone allocation-free fixed-width Identifier and Length operations in `tlv/field/fixed.h`, preserving raw identifier bytes and supporting explicit count byte order and NULL-output sizing independently of Format and optional capabilities. (#423)
 - Add reproducible Reader, Tree Reader and Document decode benchmarks, including a custom arena allocator comparison and recorded performance evidence. (#538)
 - Add explicit allocation-free Query execution reset in C/C++ and deterministic adversarial lifecycle, storage, callback and plan-equivalence verification, including frontend-free and sanitizer release gates. (#536)
 - Add a C++11 `constexpr` Query builder that creates native plans at compile time and executes through the existing C/C++ APIs without the runtime frontend. (#530)

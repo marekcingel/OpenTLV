@@ -50,9 +50,9 @@ static tlv_result_t document_format_reinit_decode(const void* context, const uin
 }
 
 static int document_format_reinitialization(void) {
-    tlv_fixed_format_t config = {0};
-    config.tag_size = config.length_size = 1;
-    config.length_order = TLV_BYTE_ORDER_BIG_ENDIAN;
+    tlv_fixed_format_t config = {{0}, {0}};
+    config.identifier.size = config.length.size = 1;
+    config.length.byte_order = TLV_BYTE_ORDER_BIG_ENDIAN;
     for (unsigned trigger = 0; trigger < 3; ++trigger)
         for (int mutation = 0; mutation < 3; ++mutation) {
             const uint8_t                wire[] = {1, 1, 9, 1, 1, 8};

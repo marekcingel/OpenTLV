@@ -117,9 +117,9 @@ TEST(Unit_Tlvpp_FixedFormat, DescriptorHasStaticStorageAndAMatchingContext) {
     EXPECT_EQ(&format::format(), &format::format());
     ASSERT_NE(format::format().context, nullptr);
     const auto* config = static_cast<const tlv_fixed_format_t*>(format::format().context);
-    EXPECT_EQ(config->tag_size, 1u);
-    EXPECT_EQ(config->length_size, 2u);
-    EXPECT_EQ(config->length_order, BE);
+    EXPECT_EQ(config->identifier.size, 1u);
+    EXPECT_EQ(config->length.size, 2u);
+    EXPECT_EQ(config->length.byte_order, BE);
     EXPECT_NE(format::format().decode, nullptr);
     EXPECT_NE(format::format().encode, nullptr);
     EXPECT_NE(static_cast<const void*>(&format::format()),
@@ -131,8 +131,9 @@ TEST(Unit_Tlvpp_FixedFormat, DescriptorHasStaticStorageAndAMatchingContext) {
 // implementation that merely produces equivalent wire bytes.
 TEST(Unit_Tlvpp_FixedFormat, DelegatesToTheSameCImplementationAsARuntimeConfig) {
     using format = tlv::fixed_format<2, 3, LE>;
-    const tlv_fixed_format_t c_config = {2, 3, LE, TLV_ELEMENT_ORDER_TLV, TLV_LENGTH_SCOPE_VALUE};
-    tlv_format_t             c_format{};
+    const tlv_fixed_format_t c_config = {
+        {2}, {3, LE}, TLV_ELEMENT_ORDER_TLV, TLV_LENGTH_SCOPE_VALUE};
+    tlv_format_t c_format{};
     ASSERT_EQ(TLV_OK, tlv_fixed_format_init(&c_format, &c_config));
 
     const tlv_format_t& cpp_format = format::format();
@@ -323,9 +324,9 @@ TEST(Unit_Tlvpp_FixedFormat, WorksWithTheCApi) {
 
 TEST(Unit_Tlvpp_FixedFormat, OneByteConfigurationMatchesTheCApi) {
     using format = tlv::fixed_format<1, 1, BE>;
-    const tlv_fixed_format_t c_config = {1, 1, TLV_BYTE_ORDER_BIG_ENDIAN, TLV_ELEMENT_ORDER_TLV,
-                                         TLV_LENGTH_SCOPE_VALUE};
-    tlv_format_t             c_writer{};
+    const tlv_fixed_format_t c_config = {
+        {1}, {1, TLV_BYTE_ORDER_BIG_ENDIAN}, TLV_ELEMENT_ORDER_TLV, TLV_LENGTH_SCOPE_VALUE};
+    tlv_format_t c_writer{};
     ASSERT_EQ(TLV_OK, tlv_fixed_format_init(&c_writer, &c_config));
     for (std::size_t length : {std::size_t(0), std::size_t(1), std::size_t(255)}) {
         SCOPED_TRACE(length);
@@ -355,9 +356,9 @@ TEST(Unit_Tlvpp_FixedFormat, OneByteConfigurationMatchesTheCApi) {
 // accept a plain `const tlv_format_t&`. See
 // docs/guides/memory.md#format-context-ownership-and-lifetime.
 TEST(Unit_Tlvpp_FixedFormat, ReaderAndWriterAcceptARuntimeCDescriptor) {
-    const tlv_fixed_format_t config = {2, 1, TLV_BYTE_ORDER_BIG_ENDIAN, TLV_ELEMENT_ORDER_TLV,
-                                       TLV_LENGTH_SCOPE_VALUE};
-    tlv_format_t             format{};
+    const tlv_fixed_format_t config = {
+        {2}, {1, TLV_BYTE_ORDER_BIG_ENDIAN}, TLV_ELEMENT_ORDER_TLV, TLV_LENGTH_SCOPE_VALUE};
+    tlv_format_t format{};
     ASSERT_EQ(TLV_OK, tlv_fixed_format_init(&format, &config));
 
     std::array<tlv::byte, 16>      buf{};

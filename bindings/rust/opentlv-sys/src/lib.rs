@@ -286,16 +286,32 @@ pub struct tlv_reader_t {
     pub final_input: c_int,
 }
 
+/// Fixed-width raw identifier encoding.
+#[repr(C)]
+#[derive(Clone, Copy, Debug)]
+pub struct tlv_fixed_identifier_t {
+    /// Nonzero identifier width in bytes.
+    pub size: usize,
+}
+
+/// Fixed-width unsigned count encoding.
+#[repr(C)]
+#[derive(Clone, Copy, Debug)]
+pub struct tlv_fixed_length_t {
+    /// Count width in bytes, from one through eight.
+    pub size: usize,
+    /// Explicit wire byte order.
+    pub byte_order: tlv_byte_order_t,
+}
+
 /// State describing a configurable fixed-width format (`tlv_fixed_format_t`).
 #[repr(C)]
 #[derive(Clone, Copy, Debug)]
 pub struct tlv_fixed_format_t {
-    /// Tag width in bytes; must be at least 1.
-    pub tag_size: usize,
-    /// Length field width in bytes; must be between 1 and 8.
-    pub length_size: usize,
-    /// Byte order of the length field; `TLV_BYTE_ORDER_BIG_ENDIAN` or `TLV_BYTE_ORDER_LITTLE_ENDIAN`.
-    pub length_order: tlv_byte_order_t,
+    /// Raw identifier encoding.
+    pub identifier: tlv_fixed_identifier_t,
+    /// Unsigned count encoding.
+    pub length: tlv_fixed_length_t,
     /// Where the length field falls relative to the tag.
     pub element_order: tlv_element_order_t,
     /// What the length field counts.

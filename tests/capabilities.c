@@ -48,12 +48,12 @@ static int constructed(const void* context, const tlv_tag_t* tag) {
 #endif
 
 int main(void) {
-    tlv_fixed_format_t config = {0};
+    tlv_fixed_format_t config = {{0}, {0}};
     tlv_format_t       format;
     const uint8_t      wire[] = {1, 1, 42};
-    config.tag_size = 1;
-    config.length_size = 1;
-    config.length_order = TLV_BYTE_ORDER_BIG_ENDIAN;
+    config.identifier.size = 1;
+    config.length.size = 1;
+    config.length.byte_order = TLV_BYTE_ORDER_BIG_ENDIAN;
     CHECK(tlv_fixed_format_init(&format, &config) == TLV_OK);
     CHECK(tlv_config_reader() == OPENTLV_READER);
     CHECK(tlv_config_writer() == OPENTLV_WRITER);

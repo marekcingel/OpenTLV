@@ -9,6 +9,7 @@
 #include <string.h>
 static tlv_result_t read_tag(const void* context, const uint8_t* data, size_t size, tlv_tag_t* tag,
                              size_t* used) {
+    if ((!data && size) || !tag || !used) return TLV_ERR_NULL_ARG;
     /* Universal tag zero is reserved for EOC, never an ordinary element. */
     if (size && (data[0] == 0 || data[0] == TLV_ASN1_CONSTRUCTED_BIT)) return TLV_ERR_INVALID_TAG;
     return tlv_ber_wire.read_tag(context, data, size, tag, used);
@@ -16,6 +17,7 @@ static tlv_result_t read_tag(const void* context, const uint8_t* data, size_t si
 
 static tlv_result_t write_tag(const void* context, uint8_t* data, size_t capacity,
                               const tlv_tag_t* tag, size_t* used) {
+    if (!tag || (!tag->data && tag->size) || (!data && capacity) || !used) return TLV_ERR_NULL_ARG;
     if (tag->size && tag->data && (tag->data[0] == 0 || tag->data[0] == TLV_ASN1_CONSTRUCTED_BIT))
         return TLV_ERR_INVALID_TAG;
     return tlv_ber_wire.write_tag(context, data, capacity, tag, used);
@@ -23,6 +25,7 @@ static tlv_result_t write_tag(const void* context, uint8_t* data, size_t capacit
 
 static tlv_result_t read_length(const void* context, const uint8_t* data, size_t size,
                                 tlv_size_t* length, size_t* used) {
+    if ((!data && size) || !length || !used) return TLV_ERR_NULL_ARG;
     return tlv_ber_wire.read_length(context, data, size, length, used);
 }
 

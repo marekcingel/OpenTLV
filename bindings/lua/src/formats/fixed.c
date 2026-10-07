@@ -30,9 +30,9 @@ static int l_format_fixed(lua_State* L) {
     }
 
     tlv_lua_format_t* format = (tlv_lua_format_t*)lua_newuserdata(L, sizeof(tlv_lua_format_t));
-    format->fixed_config.tag_size = (size_t)tag_size;
-    format->fixed_config.length_size = (size_t)length_size;
-    format->fixed_config.length_order = order;
+    format->fixed_config.identifier.size = (size_t)tag_size;
+    format->fixed_config.length.size = (size_t)length_size;
+    format->fixed_config.length.byte_order = order;
     format->fixed_config.element_order = TLV_ELEMENT_ORDER_TLV;
     format->fixed_config.length_scope = TLV_LENGTH_SCOPE_VALUE;
     format->use_der_validation = 0;

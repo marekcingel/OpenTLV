@@ -126,6 +126,8 @@ These mechanics live under `tlv/field/` and do not describe complete elements.
 Format may compose them with field ordering, length scope, tag-only selection
 and boundary resolution through the optional helpers in `tlv/formats/compose.h`.
 Composition is part of Format, not a separate architectural layer.
+Configurations embed the reusable Identifier and Length descriptions; adapters
+follow the single-field validation and prefix-reporting contract in `tlv/field/`.
 Protocol-specific restrictions remain in the standard implementation; field
 mechanics do not interpret Value semantics. Call these mechanisms field
 encodings; reserve Codec for conversion

@@ -69,14 +69,16 @@ typedef struct tlv_variable_length {
  * @param[in] data Source bytes; NULL is allowed only when size is zero.
  * @param[in] size Available source bytes.
  * @param[out] tag Identifier borrowing data, which must outlive the result.
- * @param[out] consumed Complete identifier width on success.
+ * @param[out] consumed Complete width on success; available prefix on incomplete input.
  * @return #TLV_OK on success.
  * @return #TLV_ERR_NULL_ARG for a missing required pointer.
  * @return #TLV_ERR_INVALID_ARG for invalid configuration.
  * @return #TLV_ERR_BUFFER_TOO_SHORT for a missing prefix or continuation octet.
  * @return #TLV_ERR_INVALID_TAG_SIZE if the identifier would exceed max_size.
  * @return #TLV_ERR_INVALID_TAG for bits outside the continuation/payload masks.
- * @note Outputs are unchanged on failure. No allocation occurs.
+ * @note Validate required pointers, configuration, then available wire bytes.
+ * Incomplete input sets *consumed to size; other failures preserve consumed.
+ * The tag is unchanged on failure. No allocation occurs.
  */
 TLV_API tlv_result_t tlv_variable_identifier_read(const tlv_variable_identifier_t* config,
                                                   const uint8_t* data, size_t size, tlv_tag_t* tag,
@@ -96,7 +98,9 @@ TLV_API tlv_result_t tlv_variable_identifier_read(const tlv_variable_identifier_
  * @return #TLV_ERR_INVALID_TAG_SIZE for an empty or oversized identifier.
  * @return #TLV_ERR_INVALID_TAG for an incomplete identifier, trailing bytes or invalid bits.
  * @return #TLV_ERR_BUFFER_TOO_SHORT for insufficient destination capacity.
- * @note Outputs are unchanged on failure. Source and destination may overlap.
+ * @note Validate required pointers, configuration, identifier constraints and
+ * capacity in that order. Outputs are unchanged on failure. Source and destination
+ * may overlap.
  */
 TLV_API tlv_result_t tlv_variable_identifier_write(const tlv_variable_identifier_t* config,
                                                    const tlv_tag_t* tag, uint8_t* data,
@@ -117,7 +121,9 @@ TLV_API tlv_result_t tlv_variable_identifier_write(const tlv_variable_identifier
  * @return #TLV_ERR_BUFFER_TOO_SHORT for an incomplete field.
  * @return #TLV_ERR_INVALID_LENGTH for invalid prefix bits or zero long-form width.
  * @return #TLV_ERR_OVERFLOW if the complete count exceeds #tlv_size_t.
- * @note Argument/configuration errors leave both outputs unchanged.
+ * @note Validate required pointers and configuration before inspecting wire bytes.
+ * Argument/configuration errors leave both outputs unchanged. Incomplete input
+ * reports the available prefix through consumed.
  */
 TLV_API tlv_result_t tlv_variable_length_read(const tlv_variable_length_t* config,
                                               const uint8_t* data, size_t size, tlv_size_t* length,
@@ -137,7 +143,8 @@ TLV_API tlv_result_t tlv_variable_length_read(const tlv_variable_length_t* confi
  * @return #TLV_ERR_INVALID_BYTE_ORDER for unsupported byte order.
  * @return #TLV_ERR_INVALID_LENGTH if the prefix cannot represent the required width.
  * @return #TLV_ERR_BUFFER_TOO_SHORT for insufficient destination capacity.
- * @note Outputs are unchanged on failure. No allocation occurs.
+ * @note Validate required pointers, configuration, count representability and
+ * capacity in that order. Outputs are unchanged on failure. No allocation occurs.
  */
 TLV_API tlv_result_t tlv_variable_length_write(const tlv_variable_length_t* config,
                                                tlv_size_t length, uint8_t* data, size_t capacity,

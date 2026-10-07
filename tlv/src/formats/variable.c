@@ -40,8 +40,8 @@ static tlv_field_composition_t variable_fields(const tlv_variable_format_t* conf
     fields.write_tag = write_tag;
     fields.write_length = write_length;
     fields.length_size = length_size;
-    fields.order = config->element_order;
-    fields.scope = config->length_scope;
+    fields.element_order = config->element_order;
+    fields.length_scope = config->length_scope;
     return fields;
 }
 

@@ -2,7 +2,7 @@
 // Copyright (c) 2026 Marek Cingel
 
 #include "tlv/formats/compose.h"
-#include "tlv/field/fixed.h"
+#include "../field/fixed_internal.h"
 #include "tlv/size.h"
 #include <string.h>
 
@@ -25,7 +25,7 @@ tlv_result_t tlv_fields_decode(const void* context, const uint8_t* data, size_t 
     size_t pos = 0, tag_size = 0, length_size = 0, trailer = 0, native;
     tlv_result_t rc;
     for (int step = 0; step < 2; ++step) {
-        int identifier = (step == 0) == (f->order == TLV_ELEMENT_ORDER_TLV);
+        int identifier = (step == 0) == (f->element_order == TLV_ELEMENT_ORDER_TLV);
         if (identifier) {
             location(error, TLV_REGION_TAG, pos);
             rc = f->read_tag(f->context, data + pos, size - pos, &tag, &tag_size);
@@ -51,13 +51,13 @@ tlv_result_t tlv_fields_decode(const void* context, const uint8_t* data, size_t 
             error->length = range(pos, length_size <= size - pos ? length_size : size - pos);
             if (rc != TLV_OK) return rc;
             if (length_size > size - pos) return TLV_ERR_INVALID_LENGTH;
-            if (f->scope == TLV_LENGTH_SCOPE_TAG_AND_VALUE && !length)
+            if (f->length_scope == TLV_LENGTH_SCOPE_TAG_AND_VALUE && !length)
                 return TLV_ERR_INVALID_LENGTH;
             result->source.length = error->length;
             pos += length_size;
         }
     }
-    if (f->scope == TLV_LENGTH_SCOPE_TAG_AND_VALUE) {
+    if (f->length_scope == TLV_LENGTH_SCOPE_TAG_AND_VALUE) {
         if (length < tag_size) {
             location(error, TLV_REGION_LENGTH, result->source.length.offset);
             return TLV_ERR_INVALID_LENGTH;
@@ -91,8 +91,8 @@ static tlv_result_t field_sizes(const tlv_field_composition_t* f, const tlv_elem
     if (rc != TLV_OK) return rc;
     if (!*tag_size) return TLV_ERR_INVALID_TAG;
     *count = element->value.size;
-    location(error, TLV_REGION_LENGTH, f->order == TLV_ELEMENT_ORDER_TLV ? *tag_size : 0);
-    if (f->scope == TLV_LENGTH_SCOPE_TAG_AND_VALUE) {
+    location(error, TLV_REGION_LENGTH, f->element_order == TLV_ELEMENT_ORDER_TLV ? *tag_size : 0);
+    if (f->length_scope == TLV_LENGTH_SCOPE_TAG_AND_VALUE) {
         rc = tlv_size_add(*count, *tag_size, count);
         if (rc != TLV_OK) return rc;
     }
@@ -123,8 +123,8 @@ tlv_result_t tlv_fields_encode(const void* context, const tlv_element_t* element
     rc = tlv_size_to_native(element->value.size, &v);
     if (rc != TLV_OK) return rc;
     if (t > capacity || l > capacity - t || v > capacity - t - l) return TLV_ERR_BUFFER_TOO_SHORT;
-    to = f->order == TLV_ELEMENT_ORDER_TLV ? 0 : l;
-    lo = f->order == TLV_ELEMENT_ORDER_TLV ? t : 0;
+    to = f->element_order == TLV_ELEMENT_ORDER_TLV ? 0 : l;
+    lo = f->element_order == TLV_ELEMENT_ORDER_TLV ? t : 0;
     location(error, TLV_REGION_TAG, to);
     rc = f->write_tag(f->context, data + to, t, &element->tag, &used);
     if (rc != TLV_OK) return rc;
@@ -140,9 +140,12 @@ tlv_result_t tlv_fields_encode(const void* context, const tlv_element_t* element
 
 tlv_result_t tlv_fields_format_init(tlv_format_t* format, const tlv_field_composition_t* f) {
     int read, write;
-    if (!f || (f->order != TLV_ELEMENT_ORDER_TLV && f->order != TLV_ELEMENT_ORDER_LTV) ||
-        (f->scope != TLV_LENGTH_SCOPE_VALUE && f->scope != TLV_LENGTH_SCOPE_TAG_AND_VALUE) ||
-        (f->resolve && (f->order != TLV_ELEMENT_ORDER_TLV || f->scope != TLV_LENGTH_SCOPE_VALUE)))
+    if (!f ||
+        (f->element_order != TLV_ELEMENT_ORDER_TLV && f->element_order != TLV_ELEMENT_ORDER_LTV) ||
+        (f->length_scope != TLV_LENGTH_SCOPE_VALUE &&
+         f->length_scope != TLV_LENGTH_SCOPE_TAG_AND_VALUE) ||
+        (f->resolve &&
+         (f->element_order != TLV_ELEMENT_ORDER_TLV || f->length_scope != TLV_LENGTH_SCOPE_VALUE)))
         return TLV_ERR_INVALID_ARG;
     read = f->read_tag || f->read_length || f->resolve;
     write = f->write_tag || f->write_length || f->length_size;
@@ -156,47 +159,30 @@ tlv_result_t tlv_fields_format_init(tlv_format_t* format, const tlv_field_compos
 static tlv_result_t binary_tag_read(const void* ctx, const uint8_t* data, size_t size,
                                     tlv_tag_t* tag, size_t* used) {
     const tlv_binary_composition_t* f = (const tlv_binary_composition_t*)ctx;
-    const tlv_fixed_identifier_t identifier = {f->tag_size};
-    return tlv_fixed_identifier_read(&identifier, data, size, tag, used);
+    return tlv_fixed_identifier_read(&f->identifier, data, size, tag, used);
 }
 
 static tlv_result_t binary_tag_write(const void* ctx, uint8_t* data, size_t capacity,
                                      const tlv_tag_t* tag, size_t* used) {
     const tlv_binary_composition_t* f = (const tlv_binary_composition_t*)ctx;
-    const tlv_fixed_identifier_t identifier = {f->tag_size};
-    /* Composition historically reports width mismatch before missing tag bytes. */
-    if (tag->size != f->tag_size) return TLV_ERR_INVALID_TAG_SIZE;
-    return tlv_fixed_identifier_write(&identifier, tag, data, data ? capacity : 0, used);
+    return tlv_fixed_identifier_write(&f->identifier, tag, data, capacity, used);
 }
 
 static tlv_result_t binary_length_read(const void* ctx, const uint8_t* data, size_t size,
                                        tlv_size_t* length, size_t* used) {
     const tlv_binary_composition_t* f = (const tlv_binary_composition_t*)ctx;
-    const tlv_fixed_length_t count = {f->length_size, f->length_order};
-    /* Report the wire prefix before decoding, including on byte-order errors. */
-    *used = size < f->length_size ? size : f->length_size;
-    if (size < f->length_size) return TLV_ERR_BUFFER_TOO_SHORT;
-    return tlv_fixed_length_read(&count, data, size, length, used);
+    return tlv_fixed_length_read(&f->length, data, size, length, used);
 }
 
 static tlv_result_t binary_length_size(const void* ctx, tlv_size_t length, size_t* used) {
     const tlv_binary_composition_t* f = (const tlv_binary_composition_t*)ctx;
-    /* A width query has never consulted wire byte order. The fixed primitive
-     * validates its own configuration, so use a supported order for sizing. */
-    const tlv_fixed_length_t count = {f->length_size, TLV_BYTE_ORDER_BIG_ENDIAN};
-    return tlv_fixed_length_write(&count, length, NULL, 0, used);
+    return tlv_fixed_length_write(&f->length, length, NULL, 0, used);
 }
 
 static tlv_result_t binary_length_write(const void* ctx, uint8_t* data, size_t capacity,
                                         tlv_size_t length, size_t* used) {
     const tlv_binary_composition_t* f = (const tlv_binary_composition_t*)ctx;
-    const tlv_fixed_length_t count = {f->length_size, f->length_order};
-    /* Keep the published width on capacity/order errors, and preserve the
-     * existing count-fit, capacity, byte-order validation precedence. */
-    tlv_result_t rc = binary_length_size(ctx, length, used);
-    if (rc != TLV_OK || !data) return rc;
-    if (capacity < f->length_size) return TLV_ERR_BUFFER_TOO_SHORT;
-    return tlv_fixed_length_write(&count, length, data, capacity, used);
+    return tlv_fixed_length_write(&f->length, length, data, capacity, used);
 }
 
 static tlv_field_composition_t binary_fields(const void* context) {
@@ -216,8 +202,8 @@ tlv_result_t tlv_binary_decode(const void* context, const uint8_t* data, size_t 
     if (rc == TLV_ERR_BUFFER_TOO_SHORT &&
         (error->region == TLV_REGION_TAG || error->region == TLV_REGION_LENGTH)) {
         error->has_required = 1;
-        error->required =
-            error->region == TLV_REGION_TAG ? composition->tag_size : composition->length_size;
+        error->required = error->region == TLV_REGION_TAG ? composition->identifier.size
+                                                          : composition->length.size;
     }
     return rc;
 }
@@ -303,8 +289,8 @@ tlv_result_t tlv_tagged_fields_format_init(tlv_format_t* format,
     if (!format || !f) return TLV_ERR_NULL_ARG;
     if (!f->fields.read_tag || !f->fields.read_length || !f->fields.write_tag ||
         !f->fields.write_length || !f->fields.length_size || f->fields.resolve ||
-        f->fields.order != TLV_ELEMENT_ORDER_TLV || f->fields.scope != TLV_LENGTH_SCOPE_VALUE ||
-        (f->count && !f->tag_only))
+        f->fields.element_order != TLV_ELEMENT_ORDER_TLV ||
+        f->fields.length_scope != TLV_LENGTH_SCOPE_VALUE || (f->count && !f->tag_only))
         return TLV_ERR_INVALID_ARG;
     for (size_t i = 0; i < f->count; ++i) {
         size_t width = 0;
@@ -334,7 +320,7 @@ tlv_result_t tlv_tagged_binary_decode(const void* context, const uint8_t* data, 
         (error->region == TLV_REGION_TAG || error->region == TLV_REGION_LENGTH)) {
         error->has_required = 1;
         error->required =
-            error->region == TLV_REGION_TAG ? f->fields.tag_size : f->fields.length_size;
+            error->region == TLV_REGION_TAG ? f->fields.identifier.size : f->fields.length.size;
     }
     return rc;
 }
@@ -356,16 +342,17 @@ tlv_result_t tlv_tagged_binary_encode(const void* context, const tlv_element_t* 
 
 tlv_result_t tlv_tagged_binary_format_init(tlv_format_t* format,
                                            const tlv_tagged_binary_composition_t* f) {
+    tlv_result_t rc;
     if (!format || !f) return TLV_ERR_NULL_ARG;
-    if (!f->fields.tag_size || !f->fields.length_size || f->fields.length_size > 8 ||
-        f->fields.element_order != TLV_ELEMENT_ORDER_TLV ||
+    rc = fixed_identifier_validate(&f->fields.identifier);
+    if (rc != TLV_OK) return rc;
+    rc = fixed_length_validate(&f->fields.length);
+    if (rc != TLV_OK) return rc;
+    if (f->fields.element_order != TLV_ELEMENT_ORDER_TLV ||
         f->fields.length_scope != TLV_LENGTH_SCOPE_VALUE || (f->count && !f->tag_only))
         return TLV_ERR_INVALID_ARG;
-    if (f->fields.length_order != TLV_BYTE_ORDER_BIG_ENDIAN &&
-        f->fields.length_order != TLV_BYTE_ORDER_LITTLE_ENDIAN)
-        return TLV_ERR_INVALID_BYTE_ORDER;
     for (size_t i = 0; i < f->count; ++i)
-        if (!f->tag_only[i].data || f->tag_only[i].size != f->fields.tag_size)
+        if (!f->tag_only[i].data || f->tag_only[i].size != f->fields.identifier.size)
             return TLV_ERR_INVALID_ARG;
     return tlv_format_init(format, f, tlv_tagged_binary_decode, tlv_tagged_binary_measure,
                            tlv_tagged_binary_encode);

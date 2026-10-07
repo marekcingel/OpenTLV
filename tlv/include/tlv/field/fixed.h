@@ -49,12 +49,13 @@ typedef struct tlv_fixed_length {
  * @param[in] data Source bytes; NULL is allowed only when size is zero.
  * @param[in] size Available source bytes.
  * @param[out] tag Identifier borrowing data; input must remain alive and unchanged while used.
- * @param[out] consumed Configured identifier width on success.
+ * @param[out] consumed Configured width on success; available prefix on incomplete input.
  * @return #TLV_OK on success.
  * @return #TLV_ERR_NULL_ARG for a missing required pointer or NULL data with nonzero size.
  * @return #TLV_ERR_INVALID_ARG for a zero configured width.
  * @return #TLV_ERR_BUFFER_TOO_SHORT for incomplete input.
- * @note Validation follows the order above. Both outputs are unchanged on failure.
+ * @note Validation follows the order above. Argument/configuration errors preserve
+ * both outputs. Incomplete input sets *consumed to size and leaves tag unchanged.
  * No allocation or copy occurs; bytes after the identifier are not inspected.
  */
 TLV_API tlv_result_t tlv_fixed_identifier_read(const tlv_fixed_identifier_t* config,

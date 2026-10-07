@@ -10,7 +10,7 @@ TEST(Unit_Tlv_TaggedBinary, DifferentIdentifiersWidthsAndByteOrder) {
     const uint8_t                         marker[] = {0xAB, 0xCD};
     const tlv_tag_t                       tags[] = {tlv_tag(marker, sizeof(marker))};
     const tlv_tagged_binary_composition_t layout = {
-        {2, 2, TLV_BYTE_ORDER_LITTLE_ENDIAN, TLV_ELEMENT_ORDER_TLV, TLV_LENGTH_SCOPE_VALUE},
+        {{2}, {2, TLV_BYTE_ORDER_LITTLE_ENDIAN}, TLV_ELEMENT_ORDER_TLV, TLV_LENGTH_SCOPE_VALUE},
         tags,
         1};
     tlv_format_t format{};
@@ -50,7 +50,9 @@ TEST(Unit_Tlv_TaggedBinary, ValidatesConfigurationAndPreservesDescriptor) {
     const uint8_t                         marker = 42;
     tlv_tag_t                             tag = tlv_tag(&marker, 1);
     const tlv_tagged_binary_composition_t valid = {
-        {1, 1, TLV_BYTE_ORDER_BIG_ENDIAN, TLV_ELEMENT_ORDER_TLV, TLV_LENGTH_SCOPE_VALUE}, &tag, 1};
+        {{1}, {1, TLV_BYTE_ORDER_BIG_ENDIAN}, TLV_ELEMENT_ORDER_TLV, TLV_LENGTH_SCOPE_VALUE},
+        &tag,
+        1};
     tlv_format_t format{};
     ASSERT_EQ(TLV_OK, tlv_tagged_binary_format_init(&format, &valid));
     const auto original = format;
@@ -59,9 +61,9 @@ TEST(Unit_Tlv_TaggedBinary, ValidatesConfigurationAndPreservesDescriptor) {
     for (unsigned field = 0; field < 8; ++field) {
         auto bad = valid;
         switch (field) {
-            case 0: bad.fields.tag_size = 0; break;
-            case 1: bad.fields.length_size = 0; break;
-            case 2: bad.fields.length_size = 9; break;
+            case 0: bad.fields.identifier.size = 0; break;
+            case 1: bad.fields.length.size = 0; break;
+            case 2: bad.fields.length.size = 9; break;
             case 3: bad.fields.element_order = TLV_ELEMENT_ORDER_LTV; break;
             case 4: bad.fields.length_scope = TLV_LENGTH_SCOPE_TAG_AND_VALUE; break;
             case 5: bad.tag_only = nullptr; break;
@@ -76,7 +78,7 @@ TEST(Unit_Tlv_TaggedBinary, ValidatesConfigurationAndPreservesDescriptor) {
         tag = tlv_tag(&marker, 1);
     }
     auto empty = valid;
-    empty.fields.length_order = TLV_BYTE_ORDER_UNKNOWN;
+    empty.fields.length.byte_order = TLV_BYTE_ORDER_UNKNOWN;
     EXPECT_EQ(TLV_ERR_INVALID_BYTE_ORDER, tlv_tagged_binary_format_init(&format, &empty));
     EXPECT_EQ(original.context, format.context);
     empty = valid;

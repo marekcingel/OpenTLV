@@ -25,6 +25,7 @@ static tlv_result_t identifier_policy(const uint8_t* data, size_t size) {
 
 static tlv_result_t read_tag(const void* context, const uint8_t* data, size_t size, tlv_tag_t* tag,
                              size_t* consumed) {
+    if ((!data && size) || !tag || !consumed) return TLV_ERR_NULL_ARG;
     tlv_result_t rc;
     (void)context;
     rc = identifier_policy(data, size);
@@ -34,20 +35,20 @@ static tlv_result_t read_tag(const void* context, const uint8_t* data, size_t si
 
 static tlv_result_t write_tag(const void* context, uint8_t* data, size_t capacity,
                               const tlv_tag_t* tag, size_t* written) {
+    if (!tag || (!tag->data && tag->size) || (!data && capacity) || !written)
+        return TLV_ERR_NULL_ARG;
     tlv_result_t rc;
     (void)context;
     if (!tag->size || tag->size > TLV_ASN1_TAG_MAX_SIZE) return TLV_ERR_INVALID_TAG_SIZE;
-    if (!tag->data) return TLV_ERR_NULL_ARG;
     rc = identifier_policy(tag->data, tag->size);
     if (rc != TLV_OK) return rc;
-    rc = tlv_variable_identifier_write(&ber_identifier, tag, data, data ? capacity : 0, written);
-    /* Preserve the existing field callback's required-width report. */
-    if (rc == TLV_ERR_BUFFER_TOO_SHORT) *written = tag->size;
+    rc = tlv_variable_identifier_write(&ber_identifier, tag, data, capacity, written);
     return rc;
 }
 
 static tlv_result_t read_length(const void* context, const uint8_t* data, size_t size,
                                 tlv_size_t* length, size_t* consumed) {
+    if ((!data && size) || !length || !consumed) return TLV_ERR_NULL_ARG;
     tlv_result_t rc;
     (void)context;
     /* FF is reserved by X.690 8.1.3.5, not by the generic count encoding. */

@@ -35,7 +35,7 @@ TEST(Unit_Tlv_TaggedFields, VariableWidthIdentifiersAndIndependentLengthCodec) {
     EXPECT_EQ(0, std::memcmp(marker, output, sizeof(marker)));
     const auto original = format;
     auto       invalid = layout;
-    invalid.fields.order = TLV_ELEMENT_ORDER_LTV;
+    invalid.fields.element_order = TLV_ELEMENT_ORDER_LTV;
     EXPECT_EQ(TLV_ERR_INVALID_ARG, tlv_tagged_fields_format_init(&format, &invalid));
     EXPECT_EQ(original.context, format.context);
     invalid = layout;
@@ -49,7 +49,7 @@ TEST(Unit_Tlv_TaggedFields, VariableWidthIdentifiersAndIndependentLengthCodec) {
 }
 
 TEST(Unit_Tlv_Escaped, NonminimalPreservationAndCanonicalEncoding) {
-    const tlv_escaped_format_t config{2,
+    const tlv_escaped_format_t config{{2},
                                       {0x80, 2, TLV_BYTE_ORDER_LITTLE_ENDIAN, 0, 65535},
                                       TLV_ELEMENT_ORDER_LTV,
                                       TLV_LENGTH_SCOPE_TAG_AND_VALUE,
@@ -83,7 +83,7 @@ TEST(Unit_Tlv_Escaped, IdentifierSelectionIsIndependentOfNfc) {
     EXPECT_EQ(OPENTLV_NFC, tlv_config_nfc());
     const uint8_t              tag_bytes[] = {0xAB, 0xCD};
     const tlv_tag_t            tag = tlv_tag(tag_bytes, 2);
-    const tlv_escaped_format_t config{2,
+    const tlv_escaped_format_t config{{2},
                                       {0x80, 2, TLV_BYTE_ORDER_LITTLE_ENDIAN, 0x80, 65535},
                                       TLV_ELEMENT_ORDER_TLV,
                                       TLV_LENGTH_SCOPE_VALUE,
@@ -107,7 +107,7 @@ TEST(Unit_Tlv_Escaped, IdentifierSelectionIsIndependentOfNfc) {
 }
 
 TEST(Unit_Tlv_Escaped, InvalidConfigurationPreservesDescriptorAndOutputs) {
-    const tlv_escaped_format_t valid{1,
+    const tlv_escaped_format_t valid{{1},
                                      {255, 2, TLV_BYTE_ORDER_BIG_ENDIAN, 255, 65534},
                                      TLV_ELEMENT_ORDER_TLV,
                                      TLV_LENGTH_SCOPE_VALUE,
@@ -119,15 +119,15 @@ TEST(Unit_Tlv_Escaped, InvalidConfigurationPreservesDescriptorAndOutputs) {
     for (int field = 0; field < 10; ++field) {
         auto bad = valid;
         switch (field) {
-            case 0: bad.tag_size = 0; break;
+            case 0: bad.identifier.size = 0; break;
             case 1: bad.length.escape = 0; break;
             case 2: bad.length.extended_size = 0; break;
             case 3: bad.length.extended_size = 9; break;
             case 4: bad.length.min_extended = 256; break;
             case 5: bad.length.max_length = 254; break;
             case 6: bad.length.max_length = 65536; break;
-            case 7: bad.order = static_cast<tlv_element_order_t>(9); break;
-            case 8: bad.scope = static_cast<tlv_length_scope_t>(9); break;
+            case 7: bad.element_order = static_cast<tlv_element_order_t>(9); break;
+            case 8: bad.length_scope = static_cast<tlv_length_scope_t>(9); break;
             case 9: bad.count = 1; break;
         }
         EXPECT_EQ(TLV_ERR_INVALID_ARG, tlv_escaped_format_init(&format, &bad));

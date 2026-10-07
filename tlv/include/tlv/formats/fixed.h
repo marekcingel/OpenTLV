@@ -19,9 +19,9 @@ extern "C" {
  * @brief A configurable fixed-width TLV format: independent tag and length widths,
  * field order and length semantics.
  *
- * Every element is `tag_size` raw tag bytes and a `length_size`-byte length
- * field in `length_order`, in the order `element_order` selects, then the value
- * bytes. Tag bytes are copied unchanged in wire order, so `length_order`
+ * Every element is `identifier.size` raw tag bytes and a `length.size`-byte length
+ * field in `length.byte_order`, in the order `element_order` selects, then the value
+ * bytes. Tag bytes are copied unchanged in wire order, so `length.byte_order`
  * applies to the length field only.
  *
  * `length_scope` selects what the length field counts: #TLV_LENGTH_SCOPE_VALUE
@@ -32,17 +32,17 @@ extern "C" {
  * it must cover with #TLV_ERR_INVALID_LENGTH.
  *
  * A one-byte tag and a one-byte length, the narrowest useful configuration, is
- * `tlv_fixed_format_t{1, 1, TLV_BYTE_ORDER_BIG_ENDIAN}`: the trailing
+ * `tlv_fixed_format_t{{1}, {1, TLV_BYTE_ORDER_BIG_ENDIAN}}`: the trailing
  * `element_order` and `length_scope` default to #TLV_ELEMENT_ORDER_TLV and
  * #TLV_LENGTH_SCOPE_VALUE respectively, since both are zero-valued
  * enumerators. An application that only ever needs one shape can define it
  * once as a file-scope constant instead of building the format on every use.
  *
  * Bluetooth LTV (tlv/builtins/bluetooth/bluetooth_ltv.h) is this format
- * configured as `{1, 1, TLV_BYTE_ORDER_BIG_ENDIAN, TLV_ELEMENT_ORDER_LTV,
+ * configured as `{{1}, {1, TLV_BYTE_ORDER_BIG_ENDIAN}, TLV_ELEMENT_ORDER_LTV,
  * TLV_LENGTH_SCOPE_TAG_AND_VALUE}`.
  *
- * @note Writing a tag whose size differs from the configured `tag_size`
+ * @note Writing a tag whose size differs from the configured `identifier.size`
  *       returns #TLV_ERR_INVALID_TAG_SIZE.
  */
 
@@ -68,11 +68,12 @@ typedef tlv_binary_composition_t tlv_fixed_format_t;
  * @param[in]  config Fixed-width format state, borrowed. Must not be `NULL`.
  *
  * @return #TLV_OK on success; every field is set.
- * @return #TLV_ERR_INVALID_ARG if `format` or `config` is `NULL`, `config->tag_size`
- *         is 0, `config->length_size` is 0 or greater than 8, or
+ * @return #TLV_ERR_NULL_ARG if format or config is NULL.
+ * @return #TLV_ERR_INVALID_ARG if `config->identifier.size`
+ *         is 0, `config->length.size` is 0 or greater than 8, or
  *         `config->element_order`/`config->length_scope` is not one of the
  *         enumerators above.
- * @return #TLV_ERR_INVALID_BYTE_ORDER if `config->length_order` is neither
+ * @return #TLV_ERR_INVALID_BYTE_ORDER if `config->length.byte_order` is neither
  *         #TLV_BYTE_ORDER_BIG_ENDIAN nor #TLV_BYTE_ORDER_LITTLE_ENDIAN.
  *
  * @note On failure the descriptor is unchanged.

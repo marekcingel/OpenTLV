@@ -508,9 +508,9 @@ TEST(Integration_Tlv_Architecture, WholeObjectCodecRoundtripAndValidationBeforeM
 } // namespace
 
 TEST(Integration_Tlv_Architecture, WireFamiliesShareCanonicalElementAndGenericOperations) {
-    const tlv_fixed_format_t config{1, 1, TLV_BYTE_ORDER_BIG_ENDIAN, TLV_ELEMENT_ORDER_TLV,
-                                    TLV_LENGTH_SCOPE_VALUE};
-    tlv_format_t             fixed{};
+    const tlv_fixed_format_t config{
+        {1}, {1, TLV_BYTE_ORDER_BIG_ENDIAN}, TLV_ELEMENT_ORDER_TLV, TLV_LENGTH_SCOPE_VALUE};
+    tlv_format_t fixed{};
     ASSERT_EQ(TLV_OK, tlv_fixed_format_init(&fixed, &config));
     struct Case {
         const char*          name;

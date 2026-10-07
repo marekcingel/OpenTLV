@@ -8,9 +8,9 @@
 #include <gtest/gtest.h>
 
 namespace {
-const tlv_fixed_format_t fixed_config = {1, 1, TLV_BYTE_ORDER_BIG_ENDIAN, TLV_ELEMENT_ORDER_TLV,
-                                         TLV_LENGTH_SCOPE_VALUE};
-const tlv_format_t       fixed_format = [] {
+const tlv_fixed_format_t fixed_config = {
+    {1}, {1, TLV_BYTE_ORDER_BIG_ENDIAN}, TLV_ELEMENT_ORDER_TLV, TLV_LENGTH_SCOPE_VALUE};
+const tlv_format_t fixed_format = [] {
     tlv_format_t format{};
     (void)tlv_fixed_format_init(&format, &fixed_config);
     return format;

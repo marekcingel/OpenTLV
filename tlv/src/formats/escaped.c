@@ -2,23 +2,19 @@
 // Copyright (c) 2026 Marek Cingel
 
 #include "tlv/formats/escaped.h"
-#include "tlv/field/fixed.h"
+#include "../field/fixed_internal.h"
 #include "../field/escaped_internal.h"
 
 static tlv_result_t read_tag(const void* context, const uint8_t* data, size_t size, tlv_tag_t* tag,
                              size_t* consumed) {
     const tlv_escaped_format_t* f = (const tlv_escaped_format_t*)context;
-    const tlv_fixed_identifier_t identifier = {f->tag_size};
-    return tlv_fixed_identifier_read(&identifier, data, size, tag, consumed);
+    return tlv_fixed_identifier_read(&f->identifier, data, size, tag, consumed);
 }
 
 static tlv_result_t write_tag(const void* context, uint8_t* data, size_t capacity,
                               const tlv_tag_t* tag, size_t* written) {
     const tlv_escaped_format_t* f = (const tlv_escaped_format_t*)context;
-    const tlv_fixed_identifier_t identifier = {f->tag_size};
-    /* Preserve mismatch precedence and the callback's NULL-output sizing. */
-    if (tag->size != f->tag_size) return TLV_ERR_INVALID_TAG_SIZE;
-    return tlv_fixed_identifier_write(&identifier, tag, data, data ? capacity : 0, written);
+    return tlv_fixed_identifier_write(&f->identifier, tag, data, capacity, written);
 }
 
 static tlv_result_t read_length(const void* context, const uint8_t* data, size_t size,
@@ -38,10 +34,11 @@ static tlv_result_t length_size(const void* context, tlv_size_t length, size_t* 
 }
 
 static tlv_tagged_fields_composition_t fields(const tlv_escaped_format_t* f) {
-    tlv_tagged_fields_composition_t result = {
-        {f, read_tag, read_length, NULL, write_tag, write_length, length_size, f->order, f->scope},
-        f->tag_only,
-        f->count};
+    tlv_tagged_fields_composition_t result = {{f, read_tag, read_length, NULL, write_tag,
+                                               write_length, length_size, f->element_order,
+                                               f->length_scope},
+                                              f->tag_only,
+                                              f->count};
     return result;
 }
 
@@ -73,14 +70,18 @@ tlv_result_t tlv_escaped_encode(const void* context, const tlv_element_t* elemen
 tlv_result_t tlv_escaped_format_init(tlv_format_t* format, const tlv_escaped_format_t* f) {
     tlv_result_t rc;
     if (!format || !f) return TLV_ERR_NULL_ARG;
+    rc = fixed_identifier_validate(&f->identifier);
+    if (rc != TLV_OK) return rc;
     rc = validate_length(&f->length);
     if (rc != TLV_OK) return rc;
-    if (!f->tag_size || (f->order != TLV_ELEMENT_ORDER_TLV && f->order != TLV_ELEMENT_ORDER_LTV) ||
-        (f->scope != TLV_LENGTH_SCOPE_VALUE && f->scope != TLV_LENGTH_SCOPE_TAG_AND_VALUE) ||
-        (f->count &&
-         (!f->tag_only || f->order != TLV_ELEMENT_ORDER_TLV || f->scope != TLV_LENGTH_SCOPE_VALUE)))
+    if ((f->element_order != TLV_ELEMENT_ORDER_TLV && f->element_order != TLV_ELEMENT_ORDER_LTV) ||
+        (f->length_scope != TLV_LENGTH_SCOPE_VALUE &&
+         f->length_scope != TLV_LENGTH_SCOPE_TAG_AND_VALUE) ||
+        (f->count && (!f->tag_only || f->element_order != TLV_ELEMENT_ORDER_TLV ||
+                      f->length_scope != TLV_LENGTH_SCOPE_VALUE)))
         return TLV_ERR_INVALID_ARG;
     for (size_t i = 0; i < f->count; ++i)
-        if (!f->tag_only[i].data || f->tag_only[i].size != f->tag_size) return TLV_ERR_INVALID_ARG;
+        if (!f->tag_only[i].data || f->tag_only[i].size != f->identifier.size)
+            return TLV_ERR_INVALID_ARG;
     return tlv_format_init(format, f, tlv_escaped_decode, tlv_escaped_measure, tlv_escaped_encode);
 }

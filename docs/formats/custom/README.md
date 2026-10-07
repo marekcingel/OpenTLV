@@ -58,5 +58,5 @@ See the custom-format implementation in the
 [callback contracts](../README.md#generic-interface). This particular shape -
 a fixed-width tag and length - could also be built with the
 [configurable fixed-width format](../fixed/configurable.md)
-(`tag_size = 1, length_size = 2, order = TLV_BYTE_ORDER_LITTLE_ENDIAN`); the
+(`identifier.size = 1, length.size = 2, length.byte_order = TLV_BYTE_ORDER_LITTLE_ENDIAN`); the
 example keeps hand-written callbacks to demonstrate the generic mechanism.

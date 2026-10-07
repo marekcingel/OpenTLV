@@ -30,7 +30,7 @@ it reports availability of the entire extension. The wire descriptor remains
 `tlv_format_bluetooth_ltv` and the CLI format name remains `bluetooth-ltv`.
 
 Bluetooth LTV is a preset of the [configurable Fixed format](../fixed/configurable.md):
-`{1, 1, TLV_BYTE_ORDER_BIG_ENDIAN, TLV_ELEMENT_ORDER_LTV,
+`{{1}, {1, TLV_BYTE_ORDER_BIG_ENDIAN}, TLV_ELEMENT_ORDER_LTV,
 TLV_LENGTH_SCOPE_TAG_AND_VALUE}`. `tlv_format_bluetooth_ltv` exists so callers
 do not have to spell that configuration out themselves; there is no
 Bluetooth-specific parser or writer underneath it.

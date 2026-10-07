@@ -11,8 +11,13 @@ static tlv_result_t der_read_tag(const void* context, const uint8_t* data, size_
     tlv_tag_t parsed;
     size_t count;
     unsigned number;
-    tlv_result_t rc = tlv_asn1_read_identifier(context, data, size, &parsed, &count);
-    if (rc != TLV_OK) return rc;
+    tlv_result_t rc;
+    if ((!data && size) || !tag || !consumed) return TLV_ERR_NULL_ARG;
+    rc = tlv_asn1_read_identifier(context, data, size, &parsed, &count);
+    if (rc != TLV_OK) {
+        if (rc == TLV_ERR_BUFFER_TOO_SHORT) *consumed = count;
+        return rc;
+    }
     /* Only tags up to 36 currently have assigned universal type semantics.
      * Larger numbers remain opaque, without narrowing large raw identifiers.
      * tlv_asn1_read_identifier already rejects tags 0/15 and requires the

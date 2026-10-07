@@ -5,7 +5,7 @@
 #define OPENTLV_FORMATS_COMPOSE_H
 
 #include "tlv/format.h"
-#include "tlv/endian.h"
+#include "tlv/field/fixed.h"
 #include "tlv/field/encoding.h"
 
 #ifdef __cplusplus
@@ -75,15 +75,15 @@ typedef enum tlv_length_scope {
  * A count including the identifier is normalized here, not in Reader/Writer.
  */
 typedef struct tlv_field_composition {
-    const void* context;              /**< Immutable encoding context. */
-    tlv_read_tag_fn read_tag;         /**< Identifier decoder. */
-    tlv_read_length_fn read_length;   /**< Count decoder. */
-    tlv_resolve_bounds_fn resolve;    /**< Optional terminated framing resolver. */
-    tlv_write_tag_fn write_tag;       /**< Identifier encoder and width query. */
-    tlv_write_length_fn write_length; /**< Count encoder. */
-    tlv_length_size_fn length_size;   /**< Count width query. */
-    tlv_element_order_t order;        /**< Wire field order. */
-    tlv_length_scope_t scope;         /**< Wire count meaning. */
+    const void* context;               /**< Immutable encoding context. */
+    tlv_read_tag_fn read_tag;          /**< Identifier decoder. */
+    tlv_read_length_fn read_length;    /**< Count decoder. */
+    tlv_resolve_bounds_fn resolve;     /**< Optional terminated framing resolver. */
+    tlv_write_tag_fn write_tag;        /**< Identifier encoder and width query. */
+    tlv_write_length_fn write_length;  /**< Count encoder. */
+    tlv_length_size_fn length_size;    /**< Count width query. */
+    tlv_element_order_t element_order; /**< Wire field order. */
+    tlv_length_scope_t length_scope;   /**< Wire count meaning. */
 } tlv_field_composition_t;
 
 /**
@@ -127,9 +127,8 @@ TLV_API tlv_result_t tlv_fields_format_init(tlv_format_t* format,
  * @brief Fixed-width binary fields, independent of any protocol.
  */
 typedef struct tlv_binary_composition {
-    size_t tag_size;                   /**< Identifier width; nonzero. */
-    size_t length_size;                /**< Count width, one through eight bytes. */
-    tlv_byte_order_t length_order;     /**< Explicit big or little endian. */
+    tlv_fixed_identifier_t identifier; /**< Raw identifier encoding. */
+    tlv_fixed_length_t length;         /**< Unsigned count encoding. */
     tlv_element_order_t element_order; /**< Field ordering. */
     tlv_length_scope_t length_scope;   /**< Count semantics. */
 } tlv_binary_composition_t;
@@ -170,13 +169,13 @@ TLV_API tlv_result_t tlv_binary_encode(const void* context, const tlv_element_t*
  *
  * Configuration, table and identifier bytes are borrowed and immutable and
  * must outlive the descriptor. No operation allocates. fields must use TLV
- * ordering and VALUE scope, with nonzero tag_size and length_size in 1..8.
+ * ordering and VALUE scope, with valid identifier and length field configurations.
  * Duplicate table entries are permitted and have no additional effect.
  */
 typedef struct tlv_tagged_binary_composition {
     tlv_binary_composition_t fields; /**< Default binary TLV field configuration. */
     const tlv_tag_t* tag_only;       /**< Identifier table; NULL only when count is zero. */
-    size_t count; /**< Number of entries; each must have fields.tag_size bytes. */
+    size_t count; /**< Number of entries; each must have fields.identifier.size bytes. */
 } tlv_tagged_binary_composition_t;
 
 /**

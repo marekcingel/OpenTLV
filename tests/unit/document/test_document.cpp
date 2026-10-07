@@ -315,7 +315,7 @@ TEST(Unit_Tlvpp_Document, ExplicitDestinationPreservesTreeAndSubtreeBoundaries) 
     auto& doc = *parsed;
     auto  destination = controlled::format;
     auto  layout = controlled::format_layout;
-    layout.order = TLV_ELEMENT_ORDER_LTV;
+    layout.element_order = TLV_ELEMENT_ORDER_LTV;
     destination.context = &layout;
     destination.is_constructed = is_constructed;
     auto output = doc.encode(destination);

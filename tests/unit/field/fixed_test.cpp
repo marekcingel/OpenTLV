@@ -43,7 +43,7 @@ TEST(Unit_Tlv_FixedField, IdentifierFailuresPreserveOutputsAndBuffer) {
                   tlv_fixed_identifier_read(&config, input, available, &tag, &consumed));
         EXPECT_EQ(input + 1, tag.data);
         EXPECT_EQ(2u, tag.size);
-        EXPECT_EQ(99u, consumed);
+        EXPECT_EQ(available, consumed);
     }
     tag = tlv_tag(input, sizeof(input));
     std::array<uint8_t, 5> output{{0xCC, 0xCC, 0xCC, 0xCC, 0xCC}};
@@ -91,7 +91,7 @@ TEST(Unit_Tlv_FixedField, IdentifierValidatesConfigurationAndRequiredArguments) 
     EXPECT_EQ(TLV_ERR_BUFFER_TOO_SHORT, tlv_fixed_identifier_read(&valid, nullptr, 0, &tag, &used));
     EXPECT_EQ(input, tag.data);
     EXPECT_EQ(1u, tag.size);
-    EXPECT_EQ(99u, used);
+    EXPECT_EQ(0u, used);
     EXPECT_EQ(0xCC, output);
 }
 

@@ -110,8 +110,8 @@ configuration; Type `09` identifies a Complete Local Name, here `AB`.
 This demonstrates framing equivalence without requiring a Definition lookup
 or interpreting Value during decoding.
 
-Use `tlv_fixed_format_init()` with `tag_size = 1`, `length_size = 1`, an explicit
-`length_order`, and the selected `element_order` and `length_scope` to reproduce
+Use `tlv_fixed_format_init()` with `identifier.size = 1`, `length.size = 1`, an explicit
+`length.byte_order`, and the selected `element_order` and `length_scope` to reproduce
 these compositions. Fixed delegates to the generic binary-field composition;
 custom field encodings can use `tlv_field_composition_t` and `tlv_fields_format_init()`.
 Format configuration must outlive its descriptor and all retained sources.
@@ -155,9 +155,11 @@ preserve identifier bytes and read/write unsigned `tlv_size_t` counts with
 explicit byte order. Binary composition adapts them to field callbacks and
 retains ordering, count normalization, bounds resolution, tag-only selection,
 source ranges and element-relative errors. The Escaped format reuses the same
-fixed identifier primitive. These adapters preserve their existing validation
-precedence and failure behavior; standalone operations validate their own
-arguments under the contracts in `tlv/field/fixed.h`.
+fixed identifier primitive. All adapters follow the canonical single-field
+contract: required pointers, configuration, field constraints, then capacity.
+Argument/configuration failures preserve outputs, including `consumed`;
+incomplete input reports the available prefix. Measuring validates the real
+configuration, including count byte order.
 
 ## Format operations
 
@@ -232,8 +234,23 @@ For the Field Encoding / Format composition split (#423), replace
 types ending in `_layout_t` to `_composition_t`: `tlv_field_composition_t`,
 `tlv_binary_composition_t`, `tlv_tagged_fields_composition_t` and
 `tlv_tagged_binary_composition_t`. There are no compatibility headers or aliases.
-Composition members and function names are unchanged; this source migration
-does not change wire bytes, diagnostics, borrowing or runtime source ranges.
+Fixed/binary configurations now embed `identifier` and `length` field
+configurations: use `identifier.size`, `length.size` and `length.byte_order`.
+Escaped Format replaces `tag_size` with `identifier.size`; Escaped Format and
+generic field composition rename `order`/`scope` to `element_order`/`length_scope`.
+Convert positional initializers to nested braces, for example
+`{{1}, {2, TLV_BYTE_ORDER_BIG_ENDIAN}, TLV_ELEMENT_ORDER_TLV, TLV_LENGTH_SCOPE_VALUE}`.
+There are no compatibility members. Rebuild native consumers and FFI mirrors.
+
+Adapters follow Field Encoding validation: a mismatched nonempty tag with NULL
+bytes returns `TLV_ERR_NULL_ARG`; invalid length configuration preserves
+`consumed`; direct binary/tagged-binary measurement rejects unsupported byte
+order when a Length is present. Tag-only elements do not process a Length.
+Incomplete fixed/variable identifiers now report their available prefix.
+Fixed initialization returns `TLV_ERR_NULL_ARG` for missing pointers and checks
+field configuration before composition policy. NULL output with nonzero capacity
+is rejected by field writes, including tag-only callback writes. Valid wire
+representations, borrowing and runtime source-range meanings are unchanged.
 
 Rebuild all consumers: `tlv_source_t` now includes `tag_binding`, which also
 changes the layout of `tlv_decoded_t`. Existing decoders retain direct source

@@ -3,6 +3,13 @@
 
 #include "tlv/formats/fixed.h"
 #include "tlv/formats/escaped.h"
+#include "tlv/tlv.h"
+#if OPENTLV_FORMAT_CER
+#include "tlv/builtins/asn1/cer.h"
+#endif
+#if OPENTLV_EMV
+#include "tlv/builtins/emv/format.h"
+#endif
 #include <gtest/gtest.h>
 #include <algorithm>
 #include <array>
@@ -10,9 +17,9 @@
 
 TEST(Unit_Tlv_FixedFieldAdapters, DecodePreservesPrefixRangesAndElementRelativeErrors) {
     for (auto order : {TLV_ELEMENT_ORDER_TLV, TLV_ELEMENT_ORDER_LTV}) {
-        const tlv_fixed_format_t   binary{2, 2, TLV_BYTE_ORDER_BIG_ENDIAN, order,
-                                          TLV_LENGTH_SCOPE_VALUE};
-        const tlv_escaped_format_t escaped{2,       {0x80, 2, TLV_BYTE_ORDER_BIG_ENDIAN, 0, 65535},
+        const tlv_fixed_format_t binary{
+            {2}, {2, TLV_BYTE_ORDER_BIG_ENDIAN}, order, TLV_LENGTH_SCOPE_VALUE};
+        const tlv_escaped_format_t escaped{{2},     {0x80, 2, TLV_BYTE_ORDER_BIG_ENDIAN, 0, 65535},
                                            order,   TLV_LENGTH_SCOPE_VALUE,
                                            nullptr, 0};
         for (bool use_escape : {false, true}) {
@@ -78,10 +85,10 @@ TEST(Unit_Tlv_FixedFieldAdapters, DecodePreservesPrefixRangesAndElementRelativeE
     }
 }
 
-TEST(Unit_Tlv_FixedFieldAdapters, TagErrorsPrecedeLengthErrorsAndDoNotMutateOutput) {
-    const tlv_fixed_format_t   binary{2, 1, TLV_BYTE_ORDER_BIG_ENDIAN, TLV_ELEMENT_ORDER_TLV,
-                                      TLV_LENGTH_SCOPE_VALUE};
-    const tlv_escaped_format_t escaped{2,
+TEST(Unit_Tlv_FixedFieldAdapters, TagValidationMatchesPrimitiveAndDoesNotMutateOutput) {
+    const tlv_fixed_format_t binary{
+        {2}, {1, TLV_BYTE_ORDER_BIG_ENDIAN}, TLV_ELEMENT_ORDER_TLV, TLV_LENGTH_SCOPE_VALUE};
+    const tlv_escaped_format_t escaped{{2},
                                        {0x80, 1, TLV_BYTE_ORDER_BIG_ENDIAN, 0, 255},
                                        TLV_ELEMENT_ORDER_TLV,
                                        TLV_LENGTH_SCOPE_VALUE,
@@ -95,7 +102,7 @@ TEST(Unit_Tlv_FixedFieldAdapters, TagErrorsPrecedeLengthErrorsAndDoNotMutateOutp
         const uint8_t      value[256] = {};
         const tlv_tag_t    tags[] = {tlv_tag(nullptr, 0), tlv_tag(nullptr, 1), tlv_tag(nullptr, 2),
                                      tlv_tag(tag_bytes, 1), tlv_tag(tag_bytes, 2)};
-        const tlv_result_t expected[] = {TLV_ERR_INVALID_TAG_SIZE, TLV_ERR_INVALID_TAG_SIZE,
+        const tlv_result_t expected[] = {TLV_ERR_INVALID_TAG_SIZE, TLV_ERR_NULL_ARG,
                                          TLV_ERR_NULL_ARG, TLV_ERR_INVALID_TAG_SIZE,
                                          TLV_ERR_INVALID_LENGTH};
         for (size_t i = 0; i < sizeof(tags) / sizeof(tags[0]); ++i) {
@@ -106,7 +113,11 @@ TEST(Unit_Tlv_FixedFieldAdapters, TagErrorsPrecedeLengthErrorsAndDoNotMutateOutp
             size_t             written = 99;
             tlv_encoding_t     sizes{11, 12, 13, 36};
             tlv_format_error_t error{};
-            // Direct callbacks preserve tag-size-before-tag-pointer precedence.
+            // Composition delegates field validation without changing its precedence.
+            size_t             field_width = 99;
+            const tlv_result_t field_result =
+                tlv_fixed_identifier_write(&binary.identifier, &tags[i], nullptr, 0, &field_width);
+            EXPECT_EQ(i == 4 ? TLV_OK : expected[i], field_result);
             EXPECT_EQ(expected[i], format.measure(format.context, &element, &sizes, &error));
             EXPECT_EQ(i == 4 ? TLV_REGION_LENGTH : TLV_REGION_TAG, error.region);
             EXPECT_EQ(i == 4 ? 2u : 0u, error.offset);
@@ -117,7 +128,7 @@ TEST(Unit_Tlv_FixedFieldAdapters, TagErrorsPrecedeLengthErrorsAndDoNotMutateOutp
             EXPECT_EQ(99u, written);
             EXPECT_EQ(before, output);
             // The validated entry point rejects a nonempty tag with NULL bytes first.
-            const tlv_result_t public_expected = i == 1 ? TLV_ERR_NULL_ARG : expected[i];
+            const tlv_result_t public_expected = expected[i];
             EXPECT_EQ(public_expected, tlv_format_encode(&format, &element, output.data(),
                                                          output.size(), &written, &error));
             EXPECT_EQ(99u, written);
@@ -127,9 +138,9 @@ TEST(Unit_Tlv_FixedFieldAdapters, TagErrorsPrecedeLengthErrorsAndDoNotMutateOutp
 }
 
 TEST(Unit_Tlv_FixedFieldAdapters, ShortOutputReportsWidthAtTheExistingApiBoundary) {
-    const tlv_fixed_format_t   binary{2, 1, TLV_BYTE_ORDER_BIG_ENDIAN, TLV_ELEMENT_ORDER_TLV,
-                                      TLV_LENGTH_SCOPE_VALUE};
-    const tlv_escaped_format_t escaped{2,
+    const tlv_fixed_format_t binary{
+        {2}, {1, TLV_BYTE_ORDER_BIG_ENDIAN}, TLV_ELEMENT_ORDER_TLV, TLV_LENGTH_SCOPE_VALUE};
+    const tlv_escaped_format_t escaped{{2},
                                        {0x80, 1, TLV_BYTE_ORDER_BIG_ENDIAN, 0, 255},
                                        TLV_ELEMENT_ORDER_TLV,
                                        TLV_LENGTH_SCOPE_VALUE,
@@ -165,12 +176,14 @@ TEST(Unit_Tlv_FixedFieldAdapters, ShortOutputReportsWidthAtTheExistingApiBoundar
     }
 }
 
-TEST(Unit_Tlv_FixedFieldAdapters, TagOnlyCallbacksKeepNullOutputSizingBehavior) {
+TEST(Unit_Tlv_FixedFieldAdapters, TagOnlyCallbacksRejectNullOutputWithNonzeroCapacity) {
     const uint8_t                         bytes[] = {0xAB, 0xCD};
     const tlv_tag_t                       tag = tlv_tag(bytes, sizeof(bytes));
     const tlv_tagged_binary_composition_t binary{
-        {2, 1, TLV_BYTE_ORDER_BIG_ENDIAN, TLV_ELEMENT_ORDER_TLV, TLV_LENGTH_SCOPE_VALUE}, &tag, 1};
-    const tlv_escaped_format_t escaped{2,
+        {{2}, {1, TLV_BYTE_ORDER_BIG_ENDIAN}, TLV_ELEMENT_ORDER_TLV, TLV_LENGTH_SCOPE_VALUE},
+        &tag,
+        1};
+    const tlv_escaped_format_t escaped{{2},
                                        {0x80, 1, TLV_BYTE_ORDER_BIG_ENDIAN, 0, 255},
                                        TLV_ELEMENT_ORDER_TLV,
                                        TLV_LENGTH_SCOPE_VALUE,
@@ -183,8 +196,9 @@ TEST(Unit_Tlv_FixedFieldAdapters, TagOnlyCallbacksKeepNullOutputSizingBehavior) 
                                      : tlv_tagged_binary_format_init(&format, &binary));
         tlv_format_error_t error{};
         size_t             written = 99;
-        EXPECT_EQ(TLV_OK, format.encode(format.context, &element, nullptr, 2, &written, &error));
-        EXPECT_EQ(2u, written);
+        EXPECT_EQ(TLV_ERR_NULL_ARG,
+                  format.encode(format.context, &element, nullptr, 2, &written, &error));
+        EXPECT_EQ(99u, written);
         written = 99;
         EXPECT_EQ(TLV_ERR_NULL_ARG,
                   tlv_format_encode(&format, &element, nullptr, 2, &written, &error));
@@ -192,61 +206,74 @@ TEST(Unit_Tlv_FixedFieldAdapters, TagOnlyCallbacksKeepNullOutputSizingBehavior) 
     }
 }
 
-TEST(Unit_Tlv_FixedFieldAdapters, BinaryCallbacksRetainLengthByteOrderValidationTiming) {
-    // Direct binary callbacks historically measure without interpreting byte order.
-    // Configuration initializers separately reject this byte order.
-    const tlv_binary_composition_t config{2, 2, TLV_BYTE_ORDER_UNKNOWN, TLV_ELEMENT_ORDER_TLV,
-                                          TLV_LENGTH_SCOPE_VALUE};
-    const uint8_t                  wire[] = {0xAB, 0xCD, 0, 1, 42};
-    const tlv_element_t            element{tlv_tag(wire, 2), {wire + 4, 1}};
-    tlv_encoding_t                 sizes{};
-    tlv_format_error_t             error{};
-    ASSERT_EQ(TLV_OK, tlv_binary_measure(&config, &element, &sizes, &error));
-    EXPECT_EQ(4u, sizes.header);
-    EXPECT_EQ(5u, sizes.total);
-    tlv_decoded_t decoded{};
-    EXPECT_EQ(TLV_ERR_BUFFER_TOO_SHORT, tlv_binary_decode(&config, wire, 3, &decoded, &error));
-    EXPECT_EQ(TLV_REGION_LENGTH, error.region);
-    EXPECT_EQ(2u, error.offset);
-    EXPECT_EQ(2u, error.length.offset);
-    EXPECT_EQ(1u, error.length.size);
-    error = {};
-    EXPECT_EQ(TLV_ERR_INVALID_BYTE_ORDER,
-              tlv_binary_decode(&config, wire, sizeof(wire), &decoded, &error));
-    EXPECT_EQ(2u, error.length.size);
-    std::array<uint8_t, 5> output{{0xCC, 0xCC, 0xCC, 0xCC, 0xCC}};
-    size_t                 written = 99;
-    EXPECT_EQ(TLV_ERR_INVALID_BYTE_ORDER,
-              tlv_binary_encode(&config, &element, output.data(), output.size(), &written, &error));
-    EXPECT_EQ((std::array<uint8_t, 5>{{0xAB, 0xCD, 0xCC, 0xCC, 0xCC}}), output);
-    EXPECT_EQ(99u, written);
-    EXPECT_EQ(TLV_REGION_LENGTH, error.region);
-    EXPECT_EQ(2u, error.offset);
+TEST(Unit_Tlv_FixedFieldAdapters, BinaryCallbacksUseTheRealLengthConfiguration) {
+    const uint8_t       wire[] = {0xAB, 0xCD, 0, 0, 0, 0};
+    const tlv_element_t element{tlv_tag(wire, 2), {nullptr, 0}};
+    for (size_t width : {size_t{0}, size_t{2}, size_t{9}}) {
+        for (auto order :
+             {TLV_BYTE_ORDER_UNKNOWN, TLV_BYTE_ORDER_BIG_ENDIAN, TLV_BYTE_ORDER_LITTLE_ENDIAN}) {
+            const tlv_binary_composition_t config{
+                {2}, {width, order}, TLV_ELEMENT_ORDER_TLV, TLV_LENGTH_SCOPE_VALUE};
+            const tlv_tagged_binary_composition_t tagged{config, nullptr, 0};
+            size_t                                measured = 99;
+            const auto expected = tlv_fixed_length_write(&config.length, 0, nullptr, 0, &measured);
+            tlv_encoding_t     sizes{};
+            tlv_format_error_t error{};
+            EXPECT_EQ(expected, tlv_binary_measure(&config, &element, &sizes, &error));
+            EXPECT_EQ(expected, tlv_tagged_binary_measure(&tagged, &element, &sizes, &error));
+            if (expected != TLV_OK) EXPECT_EQ(99u, measured);
+            for (size_t available = 0; available <= 2; ++available) {
+                size_t     consumed = 0;
+                tlv_size_t value = 99;
+                const auto read_result =
+                    tlv_fixed_length_read(&config.length, wire + 2, available, &value, &consumed);
+                tlv_decoded_t decoded{};
+                error = {};
+                EXPECT_EQ(read_result,
+                          tlv_binary_decode(&config, wire, 2 + available, &decoded, &error));
+                EXPECT_EQ(consumed, error.length.size);
+                if (expected != TLV_OK) EXPECT_EQ(0u, consumed);
+                if (read_result != TLV_OK) EXPECT_EQ(99u, value);
+            }
+            std::array<uint8_t, 6> output;
+            output.fill(0xCC);
+            const auto before = output;
+            size_t     written = 99;
+            EXPECT_EQ(expected, tlv_binary_encode(&config, &element, output.data(), output.size(),
+                                                  &written, &error));
+            if (expected != TLV_OK) {
+                EXPECT_EQ(before, output);
+                EXPECT_EQ(99u, written);
+            }
+        }
+    }
 }
 
-TEST(Unit_Tlv_FixedFieldAdapters, InitializersKeepTheirDistinctValidationPrecedence) {
+TEST(Unit_Tlv_FixedFieldAdapters, InitializersValidateFieldsBeforeCompositionPolicy) {
     tlv_format_t             format{};
-    const tlv_fixed_format_t valid{1, 1, TLV_BYTE_ORDER_BIG_ENDIAN, TLV_ELEMENT_ORDER_TLV,
-                                   TLV_LENGTH_SCOPE_VALUE};
+    const tlv_fixed_format_t valid{
+        {1}, {1, TLV_BYTE_ORDER_BIG_ENDIAN}, TLV_ELEMENT_ORDER_TLV, TLV_LENGTH_SCOPE_VALUE};
     ASSERT_EQ(TLV_OK, tlv_fixed_format_init(&format, &valid));
     auto fixed = valid;
-    fixed.tag_size = 0;
-    fixed.length_order = TLV_BYTE_ORDER_UNKNOWN;
-    EXPECT_EQ(TLV_ERR_INVALID_ARG, tlv_fixed_format_init(nullptr, &fixed));
+    fixed.identifier.size = 0;
+    fixed.length.byte_order = TLV_BYTE_ORDER_UNKNOWN;
+    EXPECT_EQ(TLV_ERR_NULL_ARG, tlv_fixed_format_init(nullptr, &fixed));
     EXPECT_EQ(TLV_ERR_INVALID_ARG, tlv_fixed_format_init(&format, &fixed));
     const tlv_tag_t                 missing = tlv_tag(nullptr, 1);
     tlv_tagged_binary_composition_t tagged{fixed, &missing, 1};
     EXPECT_EQ(TLV_ERR_NULL_ARG, tlv_tagged_binary_format_init(nullptr, &tagged));
     EXPECT_EQ(TLV_ERR_INVALID_ARG, tlv_tagged_binary_format_init(&format, &tagged));
-    tagged.fields.tag_size = 1;
+    tagged.fields.identifier.size = 1;
     EXPECT_EQ(TLV_ERR_INVALID_BYTE_ORDER, tlv_tagged_binary_format_init(&format, &tagged));
-    tlv_escaped_format_t escaped{0,
+    tlv_escaped_format_t escaped{{0},
                                  {0x80, 1, TLV_BYTE_ORDER_UNKNOWN, 0, 255},
                                  TLV_ELEMENT_ORDER_TLV,
                                  TLV_LENGTH_SCOPE_VALUE,
                                  nullptr,
                                  0};
     EXPECT_EQ(TLV_ERR_NULL_ARG, tlv_escaped_format_init(nullptr, &escaped));
+    EXPECT_EQ(TLV_ERR_INVALID_ARG, tlv_escaped_format_init(&format, &escaped));
+    escaped.identifier.size = 1;
     EXPECT_EQ(TLV_ERR_INVALID_BYTE_ORDER, tlv_escaped_format_init(&format, &escaped));
     escaped.length.extended_size = 0;
     EXPECT_EQ(TLV_ERR_INVALID_ARG, tlv_escaped_format_init(&format, &escaped));
@@ -254,4 +281,52 @@ TEST(Unit_Tlv_FixedFieldAdapters, InitializersKeepTheirDistinctValidationPrecede
     EXPECT_EQ(&tlv_binary_decode, format.decode);
     EXPECT_EQ(&tlv_binary_measure, format.measure);
     EXPECT_EQ(&tlv_binary_encode, format.encode);
+}
+
+TEST(Unit_Tlv_FixedFieldAdapters, BuiltinFieldCallbacksFollowArgumentAndPrefixContracts) {
+    const tlv_format_t* formats[] = {
+        nullptr,
+#if OPENTLV_FORMAT_BER
+        &tlv_format_ber,
+#endif
+#if OPENTLV_FORMAT_DER
+        &tlv_format_der,
+#endif
+#if OPENTLV_FORMAT_CER
+        &tlv_format_cer,
+#endif
+#if OPENTLV_EMV
+        &tlv_format_emv,
+#endif
+    };
+    for (const auto* format : formats) {
+        if (!format) continue;
+        const auto*     fields = static_cast<const tlv_field_composition_t*>(format->context);
+        const uint8_t   bytes[] = {0x9F, 0x1F};
+        const tlv_tag_t tag = tlv_tag(bytes, sizeof(bytes));
+        const tlv_tag_t missing = tlv_tag(nullptr, 999);
+        uint8_t         output[] = {0xCC, 0xCC};
+        size_t          used = 99;
+        EXPECT_EQ(TLV_ERR_NULL_ARG, fields->write_tag(fields->context, output, 2, &missing, &used));
+        EXPECT_EQ(TLV_ERR_NULL_ARG, fields->write_tag(fields->context, nullptr, 2, &tag, &used));
+        EXPECT_EQ(TLV_ERR_BUFFER_TOO_SHORT,
+                  fields->write_tag(fields->context, output, 1, &tag, &used));
+        EXPECT_EQ(99u, used);
+        EXPECT_EQ(0xCC, output[0]);
+        EXPECT_EQ(0xCC, output[1]);
+        tlv_tag_t parsed = tag;
+        EXPECT_EQ(TLV_ERR_NULL_ARG, fields->read_tag(fields->context, nullptr, 1, &parsed, &used));
+        EXPECT_EQ(99u, used);
+        EXPECT_EQ(TLV_ERR_BUFFER_TOO_SHORT,
+                  fields->read_tag(fields->context, bytes, 1, &parsed, &used));
+        EXPECT_EQ(1u, used);
+        EXPECT_EQ(tag.data, parsed.data);
+        EXPECT_EQ(tag.size, parsed.size);
+        tlv_size_t value = 42;
+        used = 99;
+        EXPECT_EQ(TLV_ERR_NULL_ARG,
+                  fields->read_length(fields->context, nullptr, 1, &value, &used));
+        EXPECT_EQ(99u, used);
+        EXPECT_EQ(42u, value);
+    }
 }

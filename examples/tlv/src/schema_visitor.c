@@ -55,9 +55,8 @@ static tlv_visit_result_t visit(const tlv_element_t* element, void* context) {
 int main(void) {
     tlv_reader_t reader;
     /* One tag byte and one length byte; config must outlive its readers. */
-    const tlv_fixed_format_t config = {
-        .tag_size = 1, .length_size = 1, .length_order = TLV_BYTE_ORDER_BIG_ENDIAN};
-    tlv_format_t format;
+    const tlv_fixed_format_t config = {.identifier = {1}, .length = {1, TLV_BYTE_ORDER_BIG_ENDIAN}};
+    tlv_format_t             format;
     if (tlv_fixed_format_init(&format, &config) != TLV_OK) return 1;
 
     const uint8_t   input[] = {1, 2, 0xAB, 0xCD, 2, 0};

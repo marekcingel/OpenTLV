@@ -30,12 +30,12 @@ extern "C" {
  * bytes are borrowed and must outlive the descriptor. All Values are opaque.
  */
 typedef struct tlv_escaped_format {
-    size_t tag_size;             /**< Nonzero fixed identifier width. */
-    tlv_escaped_length_t length; /**< Count encoding and accepted range. */
-    tlv_element_order_t order;   /**< TLV or LTV ordering. */
-    tlv_length_scope_t scope;    /**< Value or identifier-and-value count. */
-    const tlv_tag_t* tag_only;   /**< Borrowed table; NULL only if count is zero. */
-    size_t count;                /**< Table size; tags have tag_size bytes. */
+    tlv_fixed_identifier_t identifier; /**< Nonzero fixed identifier width. */
+    tlv_escaped_length_t length;       /**< Count encoding and accepted range. */
+    tlv_element_order_t element_order; /**< TLV or LTV ordering. */
+    tlv_length_scope_t length_scope;   /**< Value or identifier-and-value count. */
+    const tlv_tag_t* tag_only;         /**< Borrowed table; NULL only if count is zero. */
+    size_t count;                      /**< Table size; tags have identifier.size bytes. */
 } tlv_escaped_format_t;
 
 /** @brief Decode escape-length framing.

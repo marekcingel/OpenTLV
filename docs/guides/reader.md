@@ -18,8 +18,7 @@ buffering, recovery, schema validation or semantic Value decoding.
 #include "tlv/formats/fixed.h"
 #include "tlv/reader/reader.h"
 
-const tlv_fixed_format_t config = {
-    .tag_size = 1, .length_size = 1, .length_order = TLV_BYTE_ORDER_BIG_ENDIAN};
+const tlv_fixed_format_t config = {.identifier = {1}, .length = {1, TLV_BYTE_ORDER_BIG_ENDIAN}};
 tlv_format_t format;
 tlv_reader_t reader;
 const uint8_t data[] = {1, 1, 0xAB, 2, 0};

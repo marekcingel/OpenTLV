@@ -8,13 +8,12 @@
 #include <string.h>
 
 int main(void) {
-    const tlv_fixed_format_t config = {
-        .tag_size = 1, .length_size = 1, .length_order = TLV_BYTE_ORDER_BIG_ENDIAN};
-    tlv_format_t  format;
-    tlv_reader_t  reader;
-    const uint8_t incoming[] = {1, 2, 0xAA, 0xBB, 2, 0};
-    uint8_t       window[4]; /* Smaller than the complete input, large enough for each element. */
-    size_t        count = 0;
+    const tlv_fixed_format_t config = {.identifier = {1}, .length = {1, TLV_BYTE_ORDER_BIG_ENDIAN}};
+    tlv_format_t             format;
+    tlv_reader_t             reader;
+    const uint8_t            incoming[] = {1, 2, 0xAA, 0xBB, 2, 0};
+    uint8_t window[4]; /* Smaller than the complete input, large enough for each element. */
+    size_t  count = 0;
     if (tlv_fixed_format_init(&format, &config) != TLV_OK) return 1;
     if (tlv_reader_init_incremental(&reader, NULL, 0, &format) != TLV_OK) return 1;
 

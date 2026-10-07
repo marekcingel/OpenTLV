@@ -12,16 +12,15 @@ static int constructed(const void* context, const tlv_tag_t* tag) {
 }
 
 int main(void) {
-    const tlv_fixed_format_t config = {
-        .tag_size = 1, .length_size = 1, .length_order = TLV_BYTE_ORDER_BIG_ENDIAN};
-    tlv_format_t            format;
-    uint8_t                 output[64], scratch[64];
-    tlv_tree_writer_frame_t frames[2];
-    tlv_tree_writer_t       writer;
-    const uint8_t           value_a[] = {0xAA}, value_b[] = {0xBB};
-    const tlv_element_t     a = {TLV_TAG(0x01), {value_a, sizeof(value_a)}};
-    const tlv_element_t     b = {TLV_TAG(0x02), {value_b, sizeof(value_b)}};
-    const uint8_t           expected[] = {0xE1, 8, 1, 1, 0xAA, 0xE2, 3, 2, 1, 0xBB};
+    const tlv_fixed_format_t config = {.identifier = {1}, .length = {1, TLV_BYTE_ORDER_BIG_ENDIAN}};
+    tlv_format_t             format;
+    uint8_t                  output[64], scratch[64];
+    tlv_tree_writer_frame_t  frames[2];
+    tlv_tree_writer_t        writer;
+    const uint8_t            value_a[] = {0xAA}, value_b[] = {0xBB};
+    const tlv_element_t      a = {TLV_TAG(0x01), {value_a, sizeof(value_a)}};
+    const tlv_element_t      b = {TLV_TAG(0x02), {value_b, sizeof(value_b)}};
+    const uint8_t            expected[] = {0xE1, 8, 1, 1, 0xAA, 0xE2, 3, 2, 1, 0xBB};
     if (tlv_fixed_format_init(&format, &config) != TLV_OK) return 1;
     format.is_constructed = constructed;
     if (tlv_tree_writer_init(&writer, output, sizeof(output), &format, frames, 2, scratch,
