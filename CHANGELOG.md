@@ -186,6 +186,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Added
 
+- Add informational Callgrind instruction-count and native Release timing comparisons for Reader, Writer, Document and Query, with baseline/candidate reports and downloadable profiling evidence. (#560)
 - Add opt-in CTest Valgrind Memcheck integration and Ubuntu CI coverage for the C and C++ suites, including native subprocesses used by Query conformance tests. (#560)
 - Add a reproducible comparison of native and C++ Reader APIs across revisions, retaining raw measurements and build provenance. (#440)
 - Add reproducible C++ Reader and Document benchmarks covering successful pulls, failures, incremental recovery, primitive edit loops and retained-handle validation. (#440, #459)

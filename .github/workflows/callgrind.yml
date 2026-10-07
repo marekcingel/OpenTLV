@@ -1,0 +1,96 @@
+name: Callgrind comparison
+
+on:
+  pull_request:
+    paths: ['tlv/**', 'tlv\+\+/**', 'benchmarks/**', 'scripts/*callgrind*', 'CMakeLists.txt', 'cmake/**', '.github/workflows/callgrind.yml']
+  push:
+    branches: [main]
+    paths: ['tlv/**', 'tlv\+\+/**', 'benchmarks/**', 'scripts/*callgrind*', 'CMakeLists.txt', 'cmake/**', '.github/workflows/callgrind.yml']
+  workflow_dispatch:
+    inputs:
+      baseline_ref:
+        description: Baseline Git ref (manual runs only)
+        type: string
+        default: main
+      threshold_percent:
+        description: Informational Callgrind instruction increase threshold (%)
+        type: string
+        default: '5'
+      threshold_instructions:
+        description: Minimum absolute instruction increase to flag
+        type: string
+        default: '0'
+      native_threshold_percent:
+        description: Informational native median time increase threshold (%)
+        type: string
+        default: '5'
+
+permissions:
+  contents: read
+
+jobs:
+  callgrind:
+    name: Callgrind and native comparison (informational)
+    runs-on: ubuntu-24.04
+    timeout-minutes: 30
+    continue-on-error: true
+    env:
+      IR_THRESHOLD_PERCENT: ${{ inputs.threshold_percent || '5' }}
+      IR_THRESHOLD_INSTRUCTIONS: ${{ inputs.threshold_instructions || '0' }}
+      NATIVE_THRESHOLD_PERCENT: ${{ inputs.native_threshold_percent || '5' }}
+    steps:
+      - name: Check out candidate
+        uses: actions/checkout@v5
+        with:
+          ref: ${{ github.event.pull_request.head.sha || github.sha }}
+          path: candidate
+          persist-credentials: false
+      - name: Check out baseline
+        uses: actions/checkout@v5
+        with:
+          ref: ${{ github.event.pull_request.base.sha || github.event.before || inputs.baseline_ref || 'main' }}
+          path: baseline
+          persist-credentials: false
+      - name: Install tools
+        run: sudo apt-get update && sudo apt-get install -y gcc g++ cmake ninja-build valgrind python3
+      - name: Test comparison tools
+        run: |
+          python3 candidate/scripts/test_callgrind_report.py
+          python3 candidate/scripts/test_callgrind_compare.py
+      - name: Compare matching workloads
+        id: compare
+        run: >-
+          python3 candidate/scripts/callgrind_compare.py
+          --baseline-source baseline --candidate-source candidate
+          --output-dir build/callgrind
+          --iterations 2000 --native-iterations 20000 --native-repetitions 5
+          --threshold-percent "$IR_THRESHOLD_PERCENT"
+          --threshold-instructions "$IR_THRESHOLD_INSTRUCTIONS"
+          --native-threshold-percent "$NATIVE_THRESHOLD_PERCENT"
+          --jobs 2 --cc gcc
+      - name: Publish comparison summary
+        if: always()
+        env:
+          COMPARISON_OUTCOME: ${{ steps.compare.outcome }}
+        run: |
+          if [ "$COMPARISON_OUTCOME" != success ]; then
+            printf '%s\n\n' 'Callgrind comparison did not complete. Inspect the job logs and available artifacts; this is not a clean performance result.' >> "$GITHUB_STEP_SUMMARY"
+          fi
+          if [ -f build/callgrind/report.md ]; then
+            cat build/callgrind/report.md >> "$GITHUB_STEP_SUMMARY"
+          fi
+      - name: Upload comparison evidence
+        uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: callgrind-${{ github.sha }}
+          path: |
+            build/callgrind/report.json
+            build/callgrind/report.md
+            build/callgrind/metadata.json
+            build/callgrind/profiles/
+            build/callgrind/logs/
+            build/callgrind/native/
+            build/callgrind/build-metadata/
+            build/callgrind/harness/
+          if-no-files-found: warn

@@ -35,7 +35,8 @@ question, so the expensive checks stay off the path of everyday development.
 | C ABI compatibility (`abidiff`, see [ABI](abi-compatibility.md)) | if `tlv`, CMake or `scripts/abi/check.py` changed | yes | yes |
 | Fuzzing | | yes | yes |
 | [Valgrind Memcheck](valgrind.md) (plain GCC Debug C/C++ tests) | if native sources, tests, CMake or Memcheck tooling changed | same | |
-| Benchmarks (build only) | if benchmarks or `tlv` changed | same | yes |
+| [Callgrind and native comparison](valgrind.md#compare-instruction-counts-and-native-timings) (informational) | if native sources, benchmarks, CMake or Callgrind tooling changed | same | |
+| Google Benchmark build and advisory Query timings | if benchmarks, `tlv` or CMake changed | same | yes |
 | Rust bindings on Linux | if Rust, `tlv` or CMake changed | yes | yes |
 | Rust bindings on Windows and macOS | | | yes |
 | WebAssembly build and smoke test | if `tlv`, WebAssembly or CMake changed | yes | yes |
@@ -56,8 +57,13 @@ on it. If you make one of these checks a required status check in branch
 protection, a pull request that skips it stays pending, so require only the
 checks that always run (pre-commit and the Clang build).
 
-Benchmarks are never run in CI. They are only built, when they or the library
-change, to confirm they still compile; run them locally.
+The `benchmarks.yml` workflow builds the Google Benchmark suites and records
+selected native Query phase, matcher, streaming and scaling measurements in a
+Clang Release build. These shared-runner timings and Query budget checks are
+advisory; run the full benchmark suite locally as needed. The separate Callgrind
+workflow runs four fixed C workloads under Callgrind and in native Release
+builds to compare the baseline and candidate revisions. Instruction and timing
+thresholds are informational; Memcheck memory errors fail its independent job.
 
 ## Releasing
 

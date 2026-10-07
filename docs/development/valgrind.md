@@ -1,9 +1,27 @@
-# Valgrind Memcheck
+# Valgrind memory and performance checks
 
 The C and C++ suites can run under Valgrind Memcheck on Linux, including WSL.
 This checks invalid memory accesses, uses of uninitialized memory, and leaks in
 a plain native build. It complements the [sanitized fuzz targets](fuzzing.md)
 and Query sanitizer jobs.
+
+A separate workflow compares Reader, Writer, Document and Query instruction
+counts with Callgrind, then measures matching workloads without instrumentation.
+These checks have separate jobs and build directories:
+
+| Check | Build | Result |
+| --- | --- | --- |
+| Memcheck | GCC Debug | Memory errors and leaks fail the job. |
+| Callgrind | GCC RelWithDebInfo (`-O2 -g -DNDEBUG`) | Instruction-count increases are informational. |
+| Native timing | GCC Release (`-O3 -DNDEBUG`) | Repeated elapsed-time and throughput measurements provide supporting evidence. |
+
+Memcheck failures must block merging through the repository's required-check
+rules. The workflow reports failure; it cannot configure those rules. Its path
+filters also mean a required check needs an always-run gate if it must cover
+every PR, including documentation-only changes. Callgrind and native timing
+remain informational, including explicitly reported infrastructure failures.
+They run independently of Memcheck so their reports do not wait for the full
+memory-check suite.
 
 ## Run locally
 
@@ -99,3 +117,128 @@ sanitized binaries, fuzz targets and WASM require their dedicated workflows.
 See the [CTest MemCheck documentation](https://cmake.org/cmake/help/latest/manual/ctest.1.html#ctest-memcheck-step)
 and [Valgrind manual](https://valgrind.org/docs/manual/manual-core.html) for
 report and command-line details.
+
+## Compare instruction counts and native timings
+
+Use two existing Git checkouts on Linux, with the candidate containing the
+comparison tools. Choose a new or empty output directory and at least three
+native repetitions. From the candidate checkout:
+
+```sh
+python3 scripts/callgrind_compare.py \
+  --baseline-source ../OpenTLV-baseline \
+  --candidate-source . \
+  --output-dir build/callgrind \
+  --iterations 2000 \
+  --native-iterations 20000 \
+  --native-repetitions 5 \
+  --threshold-percent 5 \
+  --threshold-instructions 0 \
+  --native-threshold-percent 5 \
+  --jobs 2 --cc gcc
+```
+
+The tools installed for Memcheck also support this comparison. Each library is
+built twice, using the same compiler and configuration for each baseline/candidate
+pair. The runner uses the candidate's `benchmarks/callgrind` harness for both
+versions so changes to benchmark code cannot silently give the two versions
+different inputs or iteration counts. The baseline must support the public API
+used by that harness; an incompatible baseline is an infrastructure error rather
+than a performance result. Existing Google Benchmark dependencies are not needed.
+
+Local modifications are included in the build and recorded using working-tree
+status and source-file hashes. A dirty checkout's recorded commit SHA identifies
+its parent revision, not the exact code measured; retain its metadata and changes
+when reproducing a local result. Sources must remain unchanged during the run.
+
+Callgrind measures `Ir`, the number of executed machine instructions, for each
+of Reader, Writer, Document and Query separately. The report gives baseline and
+candidate counts, absolute differences, percentage differences, and function
+costs. Both the percentage and absolute instruction thresholds must be exceeded
+to flag a workload. For example, `--threshold-percent 5
+--threshold-instructions 10000` flags an increase only when it exceeds both 5%
+and 10,000 instructions. Thresholds classify the report; they do not make the
+comparison command fail. Tool, build, workload and report failures return a
+nonzero status and must be investigated before interpreting any available data.
+If the baseline count is zero, the percentage is undefined and only the absolute
+threshold applies.
+
+All four workloads use the `ber-flat-256x16-v1` input: 256 flat primitive BER
+elements, tags `0x80` through `0x8f` repeated, and 16 bytes per value, for 4,608
+wire bytes. Value byte `j` in element `i` is `(i + j) % 256`. Input preparation,
+Query compilation and Query workspace allocation happen before measurement.
+One warmup validates the result before the measured loop; each iteration also
+checks its result. The full Writer output comparison runs outside measurement.
+
+| Workload | Measured operation per iteration |
+| --- | --- |
+| Reader | Initialize the Reader and traverse all 256 elements. |
+| Writer | Initialize the Writer and encode all 256 elements. |
+| Document | Parse the owned Document, traverse it and free it, including allocations. |
+| Query | Initialize execution and a Tree Reader, then run the precompiled `//80` query and visit its 16 matches. |
+
+Callgrind collects only the measured loop. Native timing brackets the same loop
+with a monotonic clock. Throughput is the 4,608 input bytes multiplied by the
+iteration count and divided by elapsed time; it describes the complete workload,
+including the initialization and validation above. Output checksums must agree
+between versions and measurement modes after accounting for iteration counts.
+The harness uses Callgrind's client requests to start instrumentation, zero the
+counters and dump the measured region. The `.out.1` profile contains that region;
+the final `.out` termination dump is not used for comparison. See the official
+[Callgrind manual](https://valgrind.org/docs/manual/cl-manual.html) for client
+requests and profile interpretation.
+
+Instruction counts depend on the compiled machine code, compiler version,
+optimization flags and target architecture. Compare only runs with the same
+toolchain and workload. A change in `Ir` does not establish a change in execution
+time: branch prediction, caches, CPU behavior and operating-system scheduling
+affect native performance. The Release measurements therefore repeat each
+workload without Valgrind and report the samples and median with throughput.
+Their separate `--native-threshold-percent` classification remains informational;
+shared CI-runner noise prevents treating a small timing difference as proof of
+a regression. Samples with a coefficient of variation above 5% are marked noisy
+before classifying the timing change. Confirm performance-sensitive changes with
+controlled native measurements on representative hardware and inputs.
+
+The output directory contains:
+
+- `report.md` and `report.json`: comparison tables and machine-readable results.
+- `metadata.json`: source revisions, toolchain, configuration and iteration data.
+- `profiles/`: raw Callgrind profiles for each version and workload.
+- `native/`: raw measurements from the Release builds.
+- `logs/`: configure, build and execution output for investigating failures.
+- `build-metadata/`: the CMake caches and compilation command databases.
+- `harness/`: the frozen workload source used for both revisions.
+
+Use the raw profiles with `callgrind_annotate` or KCachegrind to inspect
+individual functions and callers. Keep the metadata with the profiles when
+sharing a report so the source revisions and compilation settings remain
+reproducible.
+
+## CI comparison baseline and artifacts
+
+The `callgrind.yml` workflow runs on pull requests and pushes to `main` that
+change native sources, benchmarks, Callgrind tools, CMake, or the workflow
+itself. It also supports manual dispatch. It uses these revisions:
+
+| Trigger | Baseline | Candidate |
+| --- | --- | --- |
+| Pull request | PR base SHA | PR head SHA |
+| Push to `main` | SHA before the push | Pushed SHA |
+| Manual dispatch | `baseline_ref` input, default `main` | Selected workflow revision |
+
+Both checkouts run on the same Ubuntu 24.04 worker. CI uses 2,000 Callgrind
+iterations and five native samples of 20,000 iterations per workload. Manual
+dispatch exposes the instruction percentage, absolute instruction and native
+timing thresholds; the command-line options above also configure iteration
+counts. The job publishes the Markdown report to the Actions summary and uploads
+JSON, metadata, raw profiles, native samples, logs and compilation settings even
+when the comparison fails. A failed or skipped comparison is explicitly marked
+in the summary and is not interpreted as a clean result.
+
+The independent `valgrind.yml` Memcheck workflow still runs the full registered
+C/C++ suite, including the Query conformance matrix, with its existing source,
+test, CMake and Memcheck-tool path filters. Changes limited to Callgrind tooling
+or benchmarks do not trigger Memcheck. The complete Memcheck run can be much
+longer than the focused performance workloads because the conformance harness
+launches thousands of native test processes.
