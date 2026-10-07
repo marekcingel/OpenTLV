@@ -32,6 +32,15 @@ struct end_error_format {
     }
 };
 
+struct counted_error_format {
+    size_t*                                          calls;
+    tlv::expected<tlv::decoded, tlv::format_failure> decode(tlv::bytes) const noexcept {
+        ++*calls; // An observation sink; immutable configuration and outcomes are unchanged.
+        return tlv::unexpected<tlv::format_failure>(
+            tlv::format_failure(tlv::errc::buffer_too_short).at(tlv::wire_region::value, 1, 2));
+    }
+};
+
 auto make_custom_range(tlv::bytes data) -> decltype(tlv::parse(data, move_only_format{})) {
     auto range = tlv::parse(data, move_only_format{});
     return range;
@@ -161,7 +170,21 @@ TEST(Unit_Tlvpp_IterableReader, LaterFailureThrowsAfterValidPrefixAndCanRetryExp
 TEST(Unit_Tlvpp_IterableReader, InvalidInitializationAndCallbackEndAreNotEmptyRanges) {
     tlv_format_t  missing{};
     tlv::reader<> reader(tlv::bytes{}, tlv::native::borrow_format(missing));
-    EXPECT_THROW((void)reader.begin(), tlv::parse_error);
+    try {
+        (void)reader.begin();
+        FAIL() << "invalid initialization must report an initialized failure";
+    } catch (const tlv::parse_error& failure) {
+        const auto error = failure.failure();
+        EXPECT_EQ(tlv::errc::null_argument, error.status());
+        EXPECT_EQ(tlv::operation::reader, error.stage());
+        EXPECT_EQ(tlv::severity::error, error.severity());
+        ASSERT_TRUE(error.has_offset());
+        EXPECT_EQ(0u, error.offset());
+        EXPECT_FALSE(error.has_tag());
+        EXPECT_EQ(0u, error.depth());
+        EXPECT_EQ(nullptr, error.expected());
+        EXPECT_EQ(nullptr, error.actual());
+    }
     const uint8_t                 data[] = {1};
     tlv::reader<end_error_format> custom(input(data, sizeof(data)));
     try {
@@ -169,10 +192,57 @@ TEST(Unit_Tlvpp_IterableReader, InvalidInitializationAndCallbackEndAreNotEmptyRa
         FAIL() << "callback END_OF_BUFFER inside input is not final EOF";
     } catch (const tlv::parse_error& failure) {
         EXPECT_EQ(TLV_ERR_END_OF_BUFFER, failure.code());
+        EXPECT_FALSE(failure.failure().has_offset());
+        EXPECT_FALSE(failure.failure().has_tag());
+        EXPECT_EQ(0u, failure.failure().depth());
     }
     EXPECT_EQ(0u, custom.consumed());
     auto invalid_range = tlv::parse(tlv::bytes{}, tlv::native::borrow_format(missing));
     EXPECT_THROW((void)invalid_range.begin(), tlv::parse_error);
+}
+
+TEST(Unit_Tlvpp_IterableReader, FailureAndPauseDecodeOnceAndEmptyBoundariesDoNotDecode) {
+    const uint8_t data[] = {1};
+    for (auto mode : {tlv::input_mode::final, tlv::input_mode::incremental}) {
+        size_t                            calls = 0;
+        tlv::reader<counted_error_format> reader(input(data, sizeof data),
+                                                 counted_error_format{&calls}, mode);
+        try {
+            (void)reader.begin();
+            FAIL() << "the callback must report incomplete input";
+        } catch (const tlv::parse_error& failure) {
+            EXPECT_EQ(1u, calls);
+            const auto error = failure.failure();
+            EXPECT_EQ(mode == tlv::input_mode::final ? tlv::errc::buffer_too_short
+                                                     : tlv::errc::need_more_data,
+                      error.status());
+            ASSERT_TRUE(error.has_offset());
+            EXPECT_EQ(1u, error.offset());
+            EXPECT_FALSE(error.has_tag());
+            EXPECT_EQ(0u, error.depth());
+        }
+        EXPECT_EQ(0u, reader.consumed());
+
+        calls = 0;
+        tlv::reader<counted_error_format> empty({}, counted_error_format{&calls}, mode);
+        if (mode == tlv::input_mode::final) {
+            EXPECT_EQ(empty.begin(), empty.end());
+        } else {
+            try {
+                (void)empty.begin();
+                FAIL() << "empty incremental input must remain resumable";
+            } catch (const tlv::parse_error& failure) {
+                const auto error = failure.failure();
+                EXPECT_EQ(tlv::errc::need_more_data, error.status());
+                EXPECT_EQ(tlv::severity::info, error.severity());
+                ASSERT_TRUE(error.has_offset());
+                EXPECT_EQ(0u, error.offset());
+                EXPECT_FALSE(error.has_tag());
+                EXPECT_EQ(0u, error.depth());
+            }
+        }
+        EXPECT_EQ(0u, calls);
+    }
 }
 
 TEST(Unit_Tlvpp_IterableReader, IncrementalShortageExhaustionAndAbsoluteOffsets) {

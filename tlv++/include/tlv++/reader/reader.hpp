@@ -227,7 +227,8 @@ public:
      * @note On error the reader position is unchanged.
      */
     TLV_NODISCARD expected<element_view, error> next() {
-        reader_diagnostic diagnostic{};
+        // The C cursor initializes diagnostics on every failure; success never reads them.
+        reader_diagnostic diagnostic;
         return next(diagnostic);
     }
 
@@ -324,13 +325,14 @@ private:
         // Only the cursor's final boundary is EOF. A callback returning END_OF_BUFFER
         // inside nonempty input remains an error.
         if (init_ok_ && at_end()) return false;
-        reader_diagnostic diagnostic{};
+        reader_diagnostic diagnostic;
         tlv_element_t     raw{};
         const auto        position = offset();
         const auto        rc =
             init_ok_ ? tlv_reader_next_diag(&impl_, &raw, &diagnostic) : TLV_ERR_NULL_ARG;
         if (rc != TLV_OK) {
             if (!init_ok_) {
+                diagnostic = {};
                 diagnostic.diagnostic.code = rc;
                 diagnostic.diagnostic.severity = TLV_DIAGNOSTIC_SEVERITY_ERROR;
                 diagnostic.diagnostic.has_offset = 1;

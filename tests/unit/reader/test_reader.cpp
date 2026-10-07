@@ -18,7 +18,59 @@ int constructed(const void*, const tlv_tag_t* tag) {
 }
 const tlv_format_t format = {&controlled::format_layout, tlv_fields_decode, tlv_fields_measure,
                              tlv_fields_encode, constructed};
+size_t             decode_calls = 0;
+tlv_result_t       counted_decode(const void* context, const uint8_t* data, size_t size,
+                                  tlv_decoded_t* result, tlv_format_error_t* error) {
+    ++decode_calls; // Observe calls without changing the Format configuration or outcome.
+    return format.decode(context, data, size, result, error);
+}
 } // namespace
+
+TEST(Unit_Tlvpp_ReaderParity, PullFailuresDecodeOnceAndRetainDiagnosticContext) {
+    auto counted = format;
+    counted.decode = counted_decode;
+    const uint8_t data[] = {1, 1, 42, 2, 1, 43};
+    for (auto mode : {tlv::input_mode::final, tlv::input_mode::incremental}) {
+        decode_calls = 0;
+        tlv::reader<> reader(view(data, 5), tlv::native::borrow_format(counted), mode);
+        ASSERT_TRUE(reader.next());
+        ASSERT_EQ(1u, decode_calls);
+        const auto code = mode == tlv::input_mode::final ? tlv::errc::buffer_too_short
+                                                         : tlv::errc::need_more_data;
+        for (size_t retry = 0; retry < 2; ++retry) {
+            const auto result = reader.next();
+            ASSERT_FALSE(result);
+            EXPECT_EQ(2u + retry, decode_calls);
+            EXPECT_EQ(code, result.error().status());
+            EXPECT_EQ(tlv::operation::reader, result.error().stage());
+            EXPECT_EQ(mode == tlv::input_mode::final ? tlv::severity::error : tlv::severity::info,
+                      result.error().severity());
+            ASSERT_TRUE(result.error().has_offset());
+            EXPECT_EQ(5u, result.error().offset());
+            ASSERT_TRUE(result.error().has_tag());
+            EXPECT_EQ(tlv::tag_bytes<2>(), result.error().tag());
+            EXPECT_EQ(0u, result.error().depth());
+            EXPECT_EQ(nullptr, result.error().expected());
+            EXPECT_EQ(nullptr, result.error().actual());
+            EXPECT_EQ(3u, reader.offset());
+            EXPECT_EQ(3u, reader.consumed());
+        }
+        if (mode == tlv::input_mode::incremental) {
+            ASSERT_TRUE(reader.set_input(view(data, sizeof data), 0, tlv::input_mode::final));
+            ASSERT_TRUE(reader.next());
+            EXPECT_EQ(4u, decode_calls);
+            const auto eof = reader.next();
+            ASSERT_FALSE(eof);
+            EXPECT_EQ(tlv::errc::end_of_input, eof.error().status());
+            EXPECT_EQ(4u, decode_calls);
+            ASSERT_TRUE(eof.error().has_offset());
+            EXPECT_EQ(sizeof data, eof.error().offset());
+            EXPECT_FALSE(eof.error().has_tag());
+            EXPECT_EQ(0u, eof.error().depth());
+            EXPECT_TRUE(reader.at_end());
+        }
+    }
+}
 
 TEST(Unit_Tlvpp_ReaderParity, SingleElementSourceAndFailurePreservation) {
     const uint8_t data[] = {1, 1, 42, 2, 0};

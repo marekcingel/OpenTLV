@@ -186,6 +186,40 @@ TEST(Unit_Tlvpp, SchemaIssueCopiesPathBeyondReportLifetime) {
     EXPECT_EQ(0u, copied.length());
 }
 
+TEST(Unit_Tlvpp, CommonErrorPreservesFullPathAfterDiagnosticStorageExpires) {
+    tlv::byte  identifiers[tlv::diagnostic_path_capacity]{};
+    tlv::error copied(tlv::errc::ok);
+    {
+        auto path = tlv::make_diagnostic_path();
+        for (size_t i = 0; i < tlv::diagnostic_path_capacity; ++i) {
+            identifiers[i] = static_cast<tlv::byte>(i + 1);
+            ASSERT_TRUE(tlv::push_path(path, tlv::tag({&identifiers[i], 1})));
+        }
+        tlv::reader_diagnostic diagnostic{};
+        diagnostic.diagnostic =
+            tlv::make_diagnostic(tlv::errc::invalid_value, tlv::severity::warning);
+        tlv::set_offset(diagnostic.diagnostic, SIZE_MAX - 1);
+        tlv::set_path(diagnostic.diagnostic, path);
+        tlv::set_tag(diagnostic, tlv::tag_bytes<0xFE>());
+        diagnostic.diagnostic.expected = "canonical value";
+        diagnostic.diagnostic.actual = "unexpected value";
+        copied = tlv::parse_error(diagnostic.diagnostic.code, 17, diagnostic).failure();
+    }
+    EXPECT_EQ(tlv::errc::invalid_value, copied.status());
+    EXPECT_EQ(tlv::operation::reader, copied.stage());
+    EXPECT_EQ(tlv::severity::warning, copied.severity());
+    ASSERT_TRUE(copied.has_offset());
+    EXPECT_EQ(SIZE_MAX - 1, copied.offset());
+    ASSERT_TRUE(copied.has_tag());
+    EXPECT_EQ(tlv::tag_bytes<0xFE>(), copied.tag());
+    ASSERT_EQ(tlv::diagnostic_path_capacity, copied.depth());
+    for (size_t i = 0; i < copied.depth(); ++i)
+        EXPECT_EQ(tlv::tag({&identifiers[i], 1}), copied.ancestor(i));
+    EXPECT_TRUE(copied.ancestor(copied.depth()).empty());
+    EXPECT_STREQ("canonical value", copied.expected());
+    EXPECT_STREQ("unexpected value", copied.actual());
+}
+
 TEST(Unit_Tlvpp, SchemaAlternativeGroupsAndCapacityAreExplicit) {
     tlv::schema_rule first(tlv::tag_bytes<1>()), second(tlv::tag_bytes<2>());
     first.group = second.group = 1;

@@ -166,13 +166,32 @@ TLV_API tlv_document_source_location_t tlv_node_source_location(const tlv_node_t
  * even when requested from a callback. Revisions wrap after UINT64_MAX edits. */
 TLV_API uint64_t tlv_document_revision(const tlv_document_t* document);
 
+/** @brief Observe the whole-Document Node retirement epoch; NULL returns zero.
+ *
+ * @param document Live Document, borrowed for the call, or NULL.
+ * @return Epoch initially zero, increased once by each successful edit that retires
+ * at least one previously published Node: erase or constructed Value replacement
+ * with existing children. Insertions, primitive replacements, replacements of
+ * constructed Nodes without existing children, and failed individual edits preserve the epoch.
+ * @note This constant-time query allocates nothing. Deferred Query-callback
+ * erasure advances the epoch only when it commits. Batch edits retain increments
+ * from earlier committed operations if a later operation fails.
+ * This epoch detects potentially stale Node addresses, not changes to borrowed
+ * Value bytes; use tlv_document_revision() to observe every successful mutation.
+ * It is not a destruction-safe handle or a synchronization primitive. Keep the
+ * Document alive and provide exclusive access during mutation.
+ * @note Epochs never wrap: each increment retires a distinct Node identity, and
+ * identity exhaustion rejects further creation before identities can be reused.
+ * @see tlv_document_node_identity for allocation-free stale-address validation. */
+TLV_API uint64_t tlv_document_retire_epoch(const tlv_document_t* document);
+
 /** @brief Check a possibly stale node address without dereferencing it.
  * @param document Live owning Document; caller must retain its lifetime.
  * @param node Address to locate, possibly erased or foreign.
  * @return Nonzero immutable identity within this Document, or zero when absent/NULL.
  * @note O(node count) scan, allocation-free. Identities are never reused, including
  * allocator address reuse; exhaustion rejects creation with LIMIT. Store identity
- * alongside an address to detect erase/replacement after a revision changes. */
+ * alongside an address to detect erase/replacement after the retirement epoch changes. */
 TLV_API uint64_t tlv_document_node_identity(const tlv_document_t* document, const tlv_node_t* node);
 
 /** @brief Read a live node's immutable Document-local identity in constant time.

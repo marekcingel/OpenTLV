@@ -4,6 +4,8 @@
 #include "controlled_format.h"
 #include "tlv/config.h"
 #include "tlv/document/document.h"
+// Private state is used only to place the nonwrapping counters near exhaustion.
+#include "../../../tlv/src/document/document_internal.h"
 #include <gtest/gtest.h>
 #include <cstdint>
 #include <memory>
@@ -339,6 +341,99 @@ TEST(Unit_Tlv_Document, SetValueOnPrimitiveUpdatesEnclosingLengths) {
     EXPECT_EQ(TLV_ERR_NULL_ARG, tlv_node_set_value(leaf, nullptr, 1));
 }
 
+TEST(Unit_Tlv_Document, RetirementEpochDistinguishesNodeRetirementFromOtherMutations) {
+    auto doc = parse(sample);
+    EXPECT_EQ(0u, tlv_document_retire_epoch(nullptr));
+    EXPECT_EQ(0u, tlv_document_retire_epoch(doc.get()));
+    const auto    initial_revision = tlv_document_revision(doc.get());
+    auto          root = tlv_document_first(doc.get());
+    auto          primitive = tlv_node_first_child(root);
+    const uint8_t value = 0xCC;
+    ASSERT_EQ(TLV_OK, tlv_node_set_value(primitive, &value, 1));
+    EXPECT_EQ(0u, tlv_document_retire_epoch(doc.get()));
+    EXPECT_EQ(initial_revision + 1, tlv_document_revision(doc.get()));
+
+    tlv_node_t* empty = nullptr;
+    ASSERT_EQ(TLV_OK,
+              tlv_document_insert(doc.get(), root, nullptr, TLV_TAG(0xA6), nullptr, 0, &empty));
+    ASSERT_NE(nullptr, empty);
+    EXPECT_EQ(0u, tlv_document_retire_epoch(doc.get()));
+    EXPECT_EQ(initial_revision + 2, tlv_document_revision(doc.get()));
+    ASSERT_EQ(TLV_OK, tlv_node_set_value(empty, nullptr, 0));
+    EXPECT_EQ(0u, tlv_document_retire_epoch(doc.get()));
+    EXPECT_EQ(initial_revision + 3, tlv_document_revision(doc.get()));
+
+    const Bytes children = {0x50, 0, 0x51, 0};
+    ASSERT_EQ(TLV_OK, tlv_node_set_value(empty, children.data(), children.size()));
+    EXPECT_EQ(0u, tlv_document_retire_epoch(doc.get()));
+    EXPECT_EQ(initial_revision + 4, tlv_document_revision(doc.get()));
+    auto retired = tlv_node_first_child(empty);
+    ASSERT_EQ(TLV_OK, tlv_node_set_value(empty, nullptr, 0));
+    EXPECT_EQ(1u, tlv_document_retire_epoch(doc.get()));
+    EXPECT_EQ(initial_revision + 5, tlv_document_revision(doc.get()));
+    EXPECT_EQ(0u, tlv_document_node_identity(doc.get(), retired));
+    ASSERT_EQ(TLV_OK, tlv_node_set_value(empty, nullptr, 0));
+    EXPECT_EQ(1u, tlv_document_retire_epoch(doc.get()));
+    EXPECT_EQ(initial_revision + 6, tlv_document_revision(doc.get()));
+
+    // Removing several descendants is one retirement event.
+    const auto previous_count = tlv_document_count(doc.get());
+    tlv_node_erase(root);
+    EXPECT_EQ(2u, tlv_document_retire_epoch(doc.get()));
+    EXPECT_EQ(initial_revision + 7, tlv_document_revision(doc.get()));
+    EXPECT_GT(previous_count - tlv_document_count(doc.get()), 1u);
+    EXPECT_EQ((Bytes{0x50, 1, 0xFF}), encode(doc.get()));
+}
+
+TEST(Unit_Tlv_Document, RetirementEpochRemainsBoundedAtIdentityExhaustion) {
+    Doc  doc;
+    auto opts = options();
+    ASSERT_EQ(TLV_OK, tlv_document_create(&opts, &doc.handle));
+    // Model a valid history of single-node insert/erase pairs with an empty tree.
+    doc.get()->next_identity = UINT64_MAX - 1;
+    doc.get()->retire_epoch = UINT64_MAX - 1;
+    tlv_node_t* last = nullptr;
+    ASSERT_EQ(TLV_OK,
+              tlv_document_insert(doc.get(), nullptr, nullptr, TLV_TAG(0xA6), nullptr, 0, &last));
+    ASSERT_NE(nullptr, last);
+    EXPECT_EQ(UINT64_MAX, tlv_node_identity(last));
+    for (int i = 0; i < 3; ++i) {
+        ASSERT_EQ(TLV_OK, tlv_node_set_value(last, nullptr, 0));
+        EXPECT_EQ(UINT64_MAX - 1, tlv_document_retire_epoch(doc.get()));
+    }
+    const Bytes child = {0x50, 0};
+    EXPECT_EQ(TLV_ERR_LIMIT, tlv_node_set_value(last, child.data(), child.size()));
+    EXPECT_EQ(UINT64_MAX - 1, tlv_document_retire_epoch(doc.get()));
+    EXPECT_EQ(1u, tlv_document_count(doc.get()));
+    tlv_node_erase(last);
+    EXPECT_EQ(UINT64_MAX, tlv_document_retire_epoch(doc.get()));
+    EXPECT_EQ(0u, tlv_document_count(doc.get()));
+    EXPECT_EQ(TLV_ERR_LIMIT,
+              tlv_document_insert(doc.get(), nullptr, nullptr, TLV_TAG(0x50), nullptr, 0, nullptr));
+    EXPECT_EQ(UINT64_MAX, tlv_document_retire_epoch(doc.get()));
+}
+
+TEST(Unit_Tlv_Document, IdentityExhaustionDuringDetachedReplacementPreservesRetirementEpoch) {
+    auto       doc = parse(Bytes{0xA6, 2, 0x50, 0});
+    auto       parent = tlv_document_first(doc.get());
+    auto       child = tlv_node_first_child(parent);
+    const auto child_identity = tlv_node_identity(child);
+    // Two live identities remain; earlier single-node retirements consumed the rest.
+    doc.get()->next_identity = UINT64_MAX - 1;
+    doc.get()->retire_epoch = UINT64_MAX - 3;
+    const auto  revision = tlv_document_revision(doc.get());
+    const Bytes replacement = {0x51, 0, 0x52, 0};
+    EXPECT_EQ(TLV_ERR_LIMIT, tlv_node_set_value(parent, replacement.data(), replacement.size()));
+    EXPECT_EQ(UINT64_MAX, doc.get()->next_identity);
+    EXPECT_EQ(UINT64_MAX - 3, tlv_document_retire_epoch(doc.get()));
+    EXPECT_EQ(revision, tlv_document_revision(doc.get()));
+    EXPECT_EQ(child_identity, tlv_document_node_identity(doc.get(), child));
+    EXPECT_EQ((Bytes{0xA6, 2, 0x50, 0}), encode(doc.get()));
+    tlv_node_erase(parent);
+    EXPECT_EQ(UINT64_MAX - 2, tlv_document_retire_epoch(doc.get()));
+    EXPECT_EQ(0u, tlv_document_count(doc.get()));
+}
+
 TEST(Unit_Tlv_Document, SetValueOnConstructedReplacesChildren) {
     Doc         doc = parse(sample);
     tlv_node_t* container = find(doc.get(), "6F/A5");
@@ -350,11 +445,15 @@ TEST(Unit_Tlv_Document, SetValueOnConstructedReplacesChildren) {
               encode(doc.get()));
 
     const Bytes before = encode(doc.get());
+    const auto  epoch = tlv_document_retire_epoch(doc.get());
+    const auto  revision = tlv_document_revision(doc.get());
     const Bytes malformed = {0x50, 0x05, 0x01};
     size_t      count = tlv_document_count(doc.get());
     EXPECT_NE(TLV_OK, tlv_node_set_value(container, malformed.data(), malformed.size()));
     EXPECT_EQ(count, tlv_document_count(doc.get()));
     EXPECT_EQ(before, encode(doc.get()));
+    EXPECT_EQ(epoch, tlv_document_retire_epoch(doc.get()));
+    EXPECT_EQ(revision, tlv_document_revision(doc.get()));
 
     ASSERT_EQ(TLV_OK, tlv_node_set_value(container, nullptr, 0));
     EXPECT_EQ(nullptr, tlv_node_first_child(container));
@@ -707,11 +806,15 @@ TEST(Unit_Tlv_Document, ModificationFailuresChangeNothing) {
     bool set_done = false, insert_done = false;
     for (size_t offset = 0; offset < 16 && !(set_done && insert_done); ++offset) {
         if (!set_done) {
+            const auto epoch = tlv_document_retire_epoch(doc.get());
+            const auto revision = tlv_document_revision(doc.get());
             arena.fail_at = arena.allocations + offset;
             tlv_result_t rc =
                 tlv_node_set_value(find(doc.get(), "6F/A5"), contents.data(), contents.size());
             arena.fail_at = SIZE_MAX;
             set_done = rc == TLV_OK;
+            EXPECT_EQ(epoch + (set_done ? 1 : 0), tlv_document_retire_epoch(doc.get()));
+            EXPECT_EQ(revision + (set_done ? 1 : 0), tlv_document_revision(doc.get()));
             if (!set_done) {
                 EXPECT_EQ(TLV_ERR_OUT_OF_MEMORY, rc);
                 EXPECT_EQ(before, encode(doc.get()));
@@ -720,11 +823,15 @@ TEST(Unit_Tlv_Document, ModificationFailuresChangeNothing) {
         }
         if (!insert_done) {
             const size_t count = tlv_document_count(doc.get());
+            const auto   epoch = tlv_document_retire_epoch(doc.get());
+            const auto   revision = tlv_document_revision(doc.get());
             arena.fail_at = arena.allocations + offset;
             tlv_result_t rc = tlv_document_insert(doc.get(), nullptr, nullptr, TLV_TAG(0xA6),
                                                   contents.data(), contents.size(), nullptr);
             arena.fail_at = SIZE_MAX;
             insert_done = rc == TLV_OK;
+            EXPECT_EQ(epoch, tlv_document_retire_epoch(doc.get()));
+            EXPECT_EQ(revision + (insert_done ? 1 : 0), tlv_document_revision(doc.get()));
             if (!insert_done) {
                 EXPECT_EQ(TLV_ERR_OUT_OF_MEMORY, rc);
                 EXPECT_EQ(count, tlv_document_count(doc.get()));
@@ -1297,4 +1404,43 @@ TEST(Unit_Tlv_Document, QueryVisitsAllMatchesAndHonorsCallbackCommands) {
     query = tlv_query_t{};
     EXPECT_EQ(TLV_ERR_INVALID_ARG, tlv_document_query_visit(document.get(), &query,
                                                             QueryCollection::collect, &collection));
+}
+
+TEST(Unit_Tlv_Document, RetirementEpochAdvancesWhenDeferredEraseActuallyCommits) {
+    auto       doc = parse(sample);
+    const auto epoch = tlv_document_retire_epoch(doc.get());
+    const auto revision = tlv_document_revision(doc.get());
+    auto       root = tlv_document_first(doc.get());
+    auto       descendant = tlv_node_first_child(root);
+    auto       untouched = tlv_node_next(root);
+    const auto root_identity = tlv_node_identity(root);
+    const auto untouched_identity = tlv_node_identity(untouched);
+    struct State {
+        tlv_document_t* document;
+        uint64_t        epoch, revision, root_identity;
+        size_t          calls;
+    } state{doc.get(), epoch, revision, root_identity, 0};
+    tlv_query_t query;
+    ASSERT_EQ(TLV_OK, tlv_query_parse("6F", &query, nullptr));
+    auto callback = [](tlv_node_t* node, void* context) {
+        auto& state = *static_cast<State*>(context);
+        ++state.calls;
+        tlv_node_erase(tlv_node_first_child(node));
+        tlv_node_erase(node);
+        tlv_node_erase(node);
+        EXPECT_EQ(state.epoch, tlv_document_retire_epoch(state.document));
+        EXPECT_EQ(state.revision, tlv_document_revision(state.document));
+        EXPECT_EQ(state.root_identity, tlv_document_node_identity(state.document, node));
+        EXPECT_NE(nullptr, tlv_node_first_child(node));
+        EXPECT_EQ(TLV_ERR_INVALID_ARG, tlv_node_set_value(node, nullptr, 0));
+        return TLV_VISIT_CONTINUE;
+    };
+    EXPECT_EQ(TLV_ERR_INVALID_ARG, tlv_document_query_visit(doc.get(), &query, callback, &state));
+    EXPECT_EQ(1u, state.calls);
+    EXPECT_EQ(epoch + 1, tlv_document_retire_epoch(doc.get()));
+    EXPECT_EQ(revision + 1, tlv_document_revision(doc.get()));
+    EXPECT_EQ(0u, tlv_document_node_identity(doc.get(), root));
+    EXPECT_EQ(0u, tlv_document_node_identity(doc.get(), descendant));
+    EXPECT_EQ(untouched_identity, tlv_document_node_identity(doc.get(), untouched));
+    EXPECT_EQ((Bytes{0x50, 1, 0xFF}), encode(doc.get()));
 }

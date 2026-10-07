@@ -198,7 +198,10 @@ struct error_access {
                             const tlv_tag_t*             tag = nullptr,
                             const tlv_diagnostic_path_t* path = nullptr) noexcept {
         error result(static_cast<errc>(value.code), stage);
-        if (value.has_offset) result = result.at(value.offset, stage);
+        if (value.has_offset) {
+            result.offset_ = value.offset;
+            result.located_ = true;
+        }
         if (path)
             result.path_ = *path;
         else if (value.path)

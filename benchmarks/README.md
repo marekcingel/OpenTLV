@@ -86,6 +86,68 @@ variation. It does not run benchmarks or establish statistical significance.
 Record the source commit, variant, compiler/build flags and invocation using
 Google Benchmark's `--benchmark_context` when producing each input JSON.
 
+## Public C++ Reader and Document
+
+The `cxx_reader/` and `cxx_document/` workloads measure the public facade itself
+(#440). They complement the canonical C decode and identity benchmarks; their
+different work must not be combined into one overall speedup.
+
+| Family | Cases | Timed work per iteration |
+| --- | ---: | --- |
+| `cxx_reader/next/{ber,fixed}/{16,4096}` | 4 | Initialize a cursor, read every one-byte Value through `next()`, and check final EOF |
+| `cxx_reader/range/{ber,fixed}/{16,4096}` | 4 | Initialize and consume the same input through the public Reader range |
+| `cxx_reader/failure/{ber,fixed}/{eof,truncated_value,need_more_data}/{1,256}` | 12 | Repeat the expected failed `next()` outcome on an unchanged cursor |
+| `cxx_reader/failure/initialization/{1,256}` | 2 | Repeat `next()` on a cursor initialized with a write-only application Format |
+| `cxx_reader/resume/{ber,fixed}/{16,4096}` | 4 | For each element, initialize partial input, check `need_more_data`, replace the input, read successfully and check final EOF |
+| `cxx_document/primitive_child_edit/{16,256,4096}` | 3 | Iterate a constructed node's children and replace each primitive Value |
+| `cxx_document/snapshot/cached/{16,256,4096}` | 3 | Read Values through a retained vector of Node handles, without mutation |
+| `cxx_document/snapshot/after_primitive_edit/{16,256,4096}` | 3 | First access to every retained handle after one primitive Value replacement |
+| `cxx_document/snapshot/after_retirement/{16,256,4096}` | 3 | First access to every surviving retained handle after another node is erased |
+
+The 38 cases prepare wire buffers and Document trees outside timing. Reader
+success and resume cases include cursor initialization. Repeated failure cases
+initialize once before timing and consume status, message and location-presence
+information; they do not force the whole result through an artificial copy.
+Every result is checked for the exact expected outcome. Failure never advances
+the cursor, and incomplete input must remain resumable.
+
+The Document fixture is one constructed parent with the stated number of
+one-byte primitive children. The edit loop includes Value replacement and
+traversal; it alternates between two Values and verifies the final contents.
+Snapshot vectors are retained across iterations. Snapshot mutations are outside
+timing, so the measured work is the first subsequent access to each handle,
+including any validity check. The retirement control inserts and erases an extra
+child during the paused setup, checks that its retained handle becomes invalid,
+then reads the surviving snapshot. It deliberately preserves actual retirement
+costs and does not imply constant-time access after erase. Setup touches the same
+Document and warms its memory; these are not cold-cache measurements.
+
+`items_per_second` counts decoded elements for successful Reader cases, attempted
+calls for failure cases, and edited/read children for Document cases.
+`next_calls/iteration` records explicit calls (`0` for range traversal).
+`error_bytes` and `result_bytes` record the active C++ layout; Document counters
+record the tree size and retirement count. Document creation/destruction and
+snapshot allocation are excluded. These workloads do not measure thread safety.
+
+Configure the Release benchmark target as above, then retain individual raw
+repetitions for each source variant, for example:
+
+```text
+"--benchmark_filter=^cxx_(reader|document)/" --benchmark_min_time=0.2s --benchmark_repetitions=7 --benchmark_report_aggregates_only=false --benchmark_display_aggregates_only=true --benchmark_out=benchmarks/results/cxx-facade-before.json --benchmark_out_format=json --benchmark_context=variant=before
+```
+
+Repeat with a separately built candidate and distinct output/context labels.
+Use the same compiler, optimization flags, capability selection, CPU affinity
+and idle-machine conditions. Compare each workload's raw repetitions and median
+independently; near-noise effects need repeated alternating runs. Existing Google
+Benchmark JSON and `scripts/benchmarks.py compare` need no new evidence format.
+
+These cases are added only with `OPENTLV_BUILD_CXX=ON`. Reader cases require
+Reader and BER; Document cases match the public facade's Document, Reader,
+Writer, Query and Codec requirements. Missing capabilities are never enabled by
+the workloads. The existing top-level policy still skips the entire benchmark
+target in reduced capability builds, including a Document-without-Reader profile.
+
 `document_identity_edit_loop/{16,256,4096}` measures a Value edit followed by
 possibly-stale address validation against the last node. Each revision-triggered
 identity check scans O(n) nodes; a loop of n edits/checks is O(n squared). Compare

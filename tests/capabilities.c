@@ -117,6 +117,7 @@ int main(void) {
         format.is_constructed = constructed;
         CHECK(tlv_document_options_init(&options, &format) == TLV_OK);
         CHECK(tlv_document_create(&options, &document) == TLV_OK);
+        CHECK(tlv_document_retire_epoch(document) == 0);
         CHECK(tlv_document_insert(document, NULL, NULL, tlv_tag(&container, 1), NULL, 0, &parent) ==
               TLV_OK);
         CHECK(tlv_document_insert(document, parent, NULL, tlv_tag(wire, 1), wire + 2, 1, &child) ==
@@ -147,7 +148,9 @@ int main(void) {
         }
 #endif
         CHECK(tlv_node_set_value(child, wire, 1) == TLV_OK);
+        CHECK(tlv_document_retire_epoch(document) == 0);
         tlv_node_erase(child);
+        CHECK(tlv_document_retire_epoch(document) == 1);
         CHECK(tlv_document_count(document) == 1);
         tlv_document_free(document);
 #if OPENTLV_READER

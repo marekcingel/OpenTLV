@@ -59,10 +59,12 @@ using document_source_location = tlv_document_source_location_t;
 /**
  * @brief A non-owning handle to one element of a #tlv::document.
  *
- * Copies retain identity and revision values and borrow one shared lifetime record.
- * Node observation/copying allocates nothing. After a Document mutation, the first
+ * Copies retain identity and retirement epoch and borrow one shared lifetime record.
+ * Node observation/copying allocates nothing. After an edit retires any Node, the first
  * access through each retained handle performs an O(number of nodes) membership
- * check before dereferencing it; subsequent accesses at that revision are O(1).
+ * check before dereferencing it; subsequent accesses at that epoch are O(1).
+ * Insertions and primitive Value replacement preserve this cache because no Node
+ * retires. Borrowed Value bytes still invalidate when their Value is replaced.
  * Handles do not own the Document or its tree.
  * Moving a Document preserves handles. Erasure invalidates the erased subtree;
  * replacing a constructed Value invalidates its descendants only. Destruction or
@@ -104,7 +106,7 @@ public:
         return child.template decode<Field>();
     }
     /** @brief Creates an empty handle. */
-    node() noexcept : pointer_(nullptr), identity_(0), revision_(0) {}
+    node() noexcept : pointer_(nullptr), identity_(0), retire_epoch_(0) {}
 
     /** @brief Reports whether the handle refers to an element. */
     explicit operator bool() const {
@@ -114,18 +116,18 @@ public:
 private:
     /** @brief Borrow the underlying C node, or nullptr for an invalid handle.
      * @warning Never free the owner through this handle. Native edits are checked
-     * by revision and identity before exposing a retained Node again.
+     * by retirement epoch and identity before exposing a retained Node again.
      */
     tlv_node_t* c_node() const {
         auto owner = owner_.lock();
         if (!owner || !pointer_) return nullptr;
-        const auto revision = tlv_document_revision(owner->document);
-        if (revision_ != revision) {
+        const auto epoch = tlv_document_retire_epoch(owner->document);
+        if (retire_epoch_ != epoch) {
             // Membership is checked before dereferencing a potentially retired pointer.
             // Identity rejects allocator address reuse after erase/replacement.
             if (tlv_document_node_identity(owner->document, pointer_) != identity_)
                 pointer_ = nullptr;
-            revision_ = revision;
+            retire_epoch_ = epoch;
         }
         return pointer_;
     }
@@ -326,7 +328,7 @@ public:
 private:
     node(tlv_node_t* pointer, const std::shared_ptr<detail::document_lifetime>& owner)
         : owner_(owner), pointer_(pointer), identity_(tlv_node_identity(pointer)),
-          revision_(tlv_document_revision(owner->document)) {}
+          retire_epoch_(tlv_document_retire_epoch(owner->document)) {}
 
     node related(tlv_node_t* pointer) const {
         auto owner = owner_.lock();
@@ -336,7 +338,7 @@ private:
     std::weak_ptr<detail::document_lifetime> owner_;
     mutable tlv_node_t*                      pointer_;
     uint64_t                                 identity_;
-    mutable uint64_t                         revision_;
+    mutable uint64_t                         retire_epoch_;
     friend class document;
     friend struct detail::document_access;
 };
@@ -956,7 +958,7 @@ public:
      * @return Edited selected roots or native error. No matches succeeds with zero.
      * @note Preorder commits stop at the first failure; no rollback. Each native Value
      * replacement is atomic and respects Format/constructed parsing. Checked handles
-     * detect erased descendants lazily through native revision and identity. */
+     * detect erased descendants lazily through native retirement epoch and identity. */
     expected<size_t, query_failure> query_replace(const query_program& program, bytes value,
                                                   size_t* applied = nullptr) {
         return edit_query(program, TLV_DOCUMENT_QUERY_REPLACE, tlv_tag(nullptr, 0), value, applied);
@@ -1085,7 +1087,7 @@ public:
 
 private:
     /** @brief Borrow the underlying C document for interoperability.
-     * @warning Never free this handle. Native edits are checked by revision and identity
+     * @warning Never free this handle. Native edits are checked by retirement epoch and identity
      * when a retained Node is next accessed. Raw pointers must not outlive this owner.
      */
     tlv_document_t* c_document() const {

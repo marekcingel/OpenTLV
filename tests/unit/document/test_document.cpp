@@ -5,6 +5,8 @@
 
 #include "controlled_format.h"
 #include "tlv++/document/document.hpp"
+// Override only the native allocator to force address reuse in the handle regression.
+#include "../../../tlv/src/document/document_internal.h"
 
 #include <gtest/gtest.h>
 
@@ -48,6 +50,40 @@ tlv::document_format format() {
 // 6F { 84 (AA BB), A5 { 50 (41 42) } }, 50 (FF)
 const Bytes sample = make(
     {0x6F, 0x0A, 0x84, 0x02, 0xAA, 0xBB, 0xA5, 0x04, 0x50, 0x02, 0x41, 0x42, 0x50, 0x01, 0xFF});
+
+struct ReusingAllocation {
+    tlv_allocator_t delegate{};
+    void*           slot = nullptr;
+    size_t          slot_size = 0;
+    bool            occupied = false;
+
+    ~ReusingAllocation() {
+        if (slot) delegate.release(delegate.context, slot);
+    }
+    static void* allocate(void* context, size_t size) {
+        auto& self = *static_cast<ReusingAllocation*>(context);
+        if (self.slot && !self.occupied && self.slot_size == size) {
+            self.occupied = true;
+            return self.slot;
+        }
+        auto memory = self.delegate.allocate(self.delegate.context, size);
+        if (memory && !self.slot) {
+            self.slot = memory;
+            self.slot_size = size;
+            self.occupied = true;
+        }
+        return memory;
+    }
+    static void release(void* context, void* memory) {
+        auto& self = *static_cast<ReusingAllocation*>(context);
+        if (memory == self.slot) {
+            EXPECT_TRUE(self.occupied);
+            self.occupied = false;
+        } else {
+            self.delegate.release(self.delegate.context, memory);
+        }
+    }
+};
 
 TEST(Unit_Tlvpp_Document, SelectedBuilderUsesPublishedRootAndResumesReader) {
     auto             config = format();
@@ -503,4 +539,70 @@ TEST(Unit_Tlvpp_Document, PrimitiveEditsAndChildErasurePreserveUnrelatedHandles)
     EXPECT_EQ(*other, sibling.next_same_tag());
     EXPECT_EQ(make({0x6F, 0x08, 0xA5, 0x04, 0x50, 0x02, 0x41, 0x42, 0xA5, 0x00, 0x50, 0x01, 0xFF}),
               *parsed->encode());
+}
+
+TEST(Unit_Tlvpp_Document, NativeNonretiringEditsPreserveRetainedHandles) {
+    auto parsed = tlv::document::parse(view(sample), format());
+    ASSERT_TRUE(parsed);
+    auto            root = parsed->first();
+    auto            primitive = root.first_child();
+    auto            nested = primitive.next();
+    auto            leaf = nested.first_child();
+    tlv::const_node read_only = primitive;
+    auto            native_document = tlv::native::handle(*parsed);
+    const auto      epoch = tlv_document_retire_epoch(native_document);
+    const auto      revision = tlv_document_revision(native_document);
+    const uint8_t   value = 0xCC;
+    ASSERT_EQ(TLV_OK, tlv_node_set_value(tlv::native::handle(primitive), &value, 1));
+    ASSERT_EQ(TLV_OK, tlv_document_insert(native_document, tlv::native::handle(root), nullptr,
+                                          TLV_TAG(0x52), nullptr, 0, nullptr));
+    EXPECT_EQ(epoch, tlv_document_retire_epoch(native_document));
+    EXPECT_EQ(revision + 2, tlv_document_revision(native_document));
+    EXPECT_EQ(tlv::byte(value), read_only.value().data()[0]);
+    EXPECT_EQ(tlv::tag_bytes<0xA5>(), nested.tag());
+    EXPECT_EQ(tlv::byte(0x41), leaf.value().data()[0]);
+    EXPECT_EQ(tlv::tag_bytes<0x52>(), nested.next().tag());
+
+    // A native constructed replacement retires descendants, but not its own handle.
+    ASSERT_EQ(TLV_OK, tlv_node_set_value(tlv::native::handle(nested), nullptr, 0));
+    EXPECT_EQ(epoch + 1, tlv_document_retire_epoch(native_document));
+    EXPECT_FALSE(leaf);
+    EXPECT_TRUE(nested);
+    EXPECT_FALSE(nested.first_child());
+    EXPECT_TRUE(root);
+    EXPECT_TRUE(read_only);
+}
+
+TEST(Unit_Tlvpp_Document, NativeEraseAndAddressReuseNeverReviveRetainedHandles) {
+    // The allocator state outlives the document and retains one freed node allocation.
+    ReusingAllocation allocation;
+    auto              parsed = tlv::document::create(format());
+    ASSERT_TRUE(parsed);
+    auto native_document = tlv::native::handle(*parsed);
+    allocation.delegate = native_document->allocator;
+    native_document->allocator = {&allocation, ReusingAllocation::allocate,
+                                  ReusingAllocation::release};
+    auto original = parsed->insert(tlv::tag_bytes<0x50>(), {});
+    ASSERT_TRUE(original);
+    auto            retained = *original;
+    tlv::const_node retained_const = retained;
+    auto            old_address = tlv::native::handle(retained);
+    const auto      old_identity = tlv_node_identity(old_address);
+    const auto      epoch = tlv_document_retire_epoch(native_document);
+    auto            unaffected = parsed->insert(tlv::tag_bytes<0x51>(), {});
+    ASSERT_TRUE(unaffected);
+
+    tlv_node_erase(old_address);
+    EXPECT_EQ(epoch + 1, tlv_document_retire_epoch(native_document));
+    // Do not inspect old handles until the same address belongs to a new identity.
+    auto replacement = parsed->insert(tlv::tag_bytes<0x50>(), {});
+    ASSERT_TRUE(replacement);
+    ASSERT_EQ(old_address, tlv::native::handle(*replacement));
+    EXPECT_NE(old_identity, tlv_node_identity(tlv::native::handle(*replacement)));
+    EXPECT_EQ(epoch + 1, tlv_document_retire_epoch(native_document));
+    EXPECT_FALSE(retained);
+    EXPECT_FALSE(retained_const);
+    EXPECT_FALSE(*original);
+    EXPECT_TRUE(*unaffected);
+    EXPECT_TRUE(*replacement);
 }

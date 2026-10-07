@@ -84,30 +84,42 @@ may allocate. The allocation-free guarantee does not cover this failure path.
 
 ### Node validity and allocation costs
 
-Each Node handle stores a pointer, identity and cached Document revision and
-borrows the owner's lifetime record. Unchanged-document access is constant-time.
-After a mutation, the first access through each retained handle checks membership
+Each Node handle stores a pointer, identity and cached Document retirement epoch
+and borrows the owner's lifetime record. Access is constant-time while that epoch
+is unchanged, including after insertion and primitive Value replacement.
+After an edit retires Nodes, the first access through each retained handle checks membership
 without dereferencing a possibly freed pointer; it also compares identity to
 reject allocator address reuse. This check scans the current Document in O(nodes).
-Subsequent accesses at the same revision are constant-time. Copies validate
+Subsequent accesses at the same epoch are constant-time. Copies validate
 independently; moving the owning Document preserves handles, and owner destruction
 invalidates them. A `const document` returns `const_node`, including through Query
 selection, so child traversal cannot recover mutation.
 
-Every successful edit changes the revision, including insertion and primitive
-Value replacement. Consequently, `for (auto child : parent.children()) child.set(value)`
-can take O(nodes squared): each edit makes the iterator's retained handle require
-another membership scan. This is a known limit of checked handles, including
-when no nodes are erased. The canonical C API does not expose a separate retirement
-epoch. An optimization must preserve detection of native edits and stale handles;
-it is not part of this change.
+The canonical `tlv_document_retire_epoch()` advances only on actual erasure or
+successful constructed Value replacement that removes existing descendants.
+Failed individual edits and replacing an empty constructed Value do not retire Nodes.
+The separate `tlv_document_revision()` still changes on every successful edit,
+preserving Query execution invalidation. Native and C++ edits use the same epochs.
+
+For primitive children, `for (auto child : parent.children()) child.set(value)`
+therefore has constant-time handle validation per iteration. Accessing H retained
+handles after one insertion or primitive replacement also avoids membership scans.
+After actual Node retirement, accessing H retained handles can still cost
+O(H * nodes), even for surviving siblings. Erasing Nodes or replacing subtrees
+during traversal can consequently remain quadratic. Value views still borrow
+bytes that a primitive replacement can invalidate; handle validity does not
+extend those byte lifetimes.
+
+The [C++ facade performance report](../development/cxx-facade-performance.md)
+describes the Reader and Document workloads, measurement boundaries and retained
+retirement costs.
 
 The `test-document-handle-smoke` C++11 target checks zero C++ allocations during
 seven traversals of 10,000 nodes, handle invalidation, short typed writes and
 Reader failure reporting. Pass an extra argument to print raw repetitions as
 `repeat,observed_nodes,allocations,microseconds`. Local measurements before replacing
 the map/token tracker observed 20,007 allocations on the first traversal and 10,000
-on subsequent traversals; the identity/revision handles observed zero in all seven.
+on subsequent traversals; the checked identity handles observed zero in all seven.
 This is an allocation result for that workload, not a general timing guarantee.
 The smoke test does not measure traversal interleaved with edits.
 The owning C Document still allocates its tree. Typed Writer convenience operations
@@ -118,7 +130,7 @@ values; caller-supplied scratch avoids this fallback.
 
 `const document` and `const_node` restrict mutation through the public interface;
 they do not promise thread safety. Node accessors can update a handle's mutable
-pointer/revision cache after a Document mutation. Two threads reading the same
+pointer/epoch cache after a Document edit retires Nodes. Two threads reading the same
 `const_node` can therefore race even after the mutation has completed. Externally
 synchronize concurrent access to a Document and its shared handles, including
 const access; read-only traversal does not supply synchronization.
@@ -147,7 +159,7 @@ Semantic imports use checked `tlv::native::borrow_element`; the descriptor is
 copied but its bytes stay borrowed. Export is explicit through
 `tlv::native::descriptor`. Document and Node interoperability uses
 `tlv::native::handle()`, preserving constness for const Documents and `const_node`.
-Native Document edits participate in revision/identity checks when retained
+Native Document edits participate in retirement-epoch/identity checks when retained
 C++ handles are accessed. Never free the borrowed owner or retain raw pointers
 after its destruction. Query path descriptors use `native::descriptor(query)`; compiled programs and
 mutable continuations use `native::handle()`. Temporary owning objects cannot
@@ -224,7 +236,7 @@ without heap allocation for ancestor descriptors; their identifier bytes remain 
 | `query_options` | Declaration table | Names and optional environment during compilation; finish mutation before borrowing |
 | `query_environment` | Provider table | Format and provider contexts through all dependent programs/executions |
 | `validation_report<N>` / copied issue | Diagnostic records and ancestor descriptors | Identifier bytes and field names from input, Format or Schema |
-| `document` / `node` | Tree / checked non-owning handle | Mutation changes revision; destruction invalidates handles; const traversal stays read-only |
+| `document` / `node` | Tree / checked non-owning handle | All edits change Query revision; Node retirement changes the handle epoch; destruction invalidates handles |
 
 Custom Format methods use exact C++ return types and `const noexcept` callbacks;
 the existing positive and negative compile checks enforce this contract. Typed
@@ -278,7 +290,7 @@ C engine harnesses remain outside this gate. Run
 | #456 | Runtime Codec view, stateful owner and exact representation/error contracts |
 | #457 | Builtin metadata audit below and runtime EMV dictionary/Bluetooth metadata APIs |
 | #458 | Lifetime table, rejected temporary borrows and copied-owner/invalidated-handle tests |
-| #459 | Identity/revision Node validation and reproducible zero-allocation traversal checks |
+| #459 | Identity/retirement-epoch Node validation, zero-allocation traversal and edit/snapshot benchmarks |
 | #460 | Allocation-free returned errors and short typed writes; explicit scratch alternatives |
 | #461 | Completion/pause/failure table and failed-initialization/range regression tests |
 | #462 | C++ Format overloads and explicit native imports, descriptors and handles |
@@ -312,7 +324,9 @@ Native typed codec adapters move to `native::codec_adapter`; raw Schema
 validation lives under `native::validate`. Query compiler settings and runtime
 capabilities are obtained from named C++ owners; existing C tables can be imported
 with `native::borrow_query_settings` and `native::borrow_query_capabilities`.
-These are C++ source changes; the canonical C ABI is unchanged by this work.
+These are C++ source changes. Existing C entry points and public layouts remain
+compatible; the additive `tlv_document_retire_epoch()` entry point requires users
+of the updated C++ Document headers to link a matching native library.
 
 `reader::at_end()` and `tree_reader::at_end()` now return `false` after failed
 initialization; previously an initialization failure appeared to be clean
