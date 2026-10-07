@@ -9,6 +9,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Fixed
 
+- Align Query fuzz checks with codec diagnostics for rejected custom hook results and retain a regression input. (#543)
 - Report a codec failure in Query diagnostics when a successful custom conversion hook returns an invalid result type, missing data or invalid UTF-8. (#543)
 - Preserve validation error precedence for Packed and Variable writes: reject nonempty Tags with NULL bytes before Packed width errors, and reject oversized Variable Tags before wire-policy errors. (#541, #542)
 - Fix Clang benchmark builds with warnings treated as errors by fully initializing Variable format policy and constructed-predicate members. (#542)
