@@ -9,6 +9,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Fixed
 
+- Fix Clang benchmark builds with warnings treated as errors by fully initializing Variable format policy and constructed-predicate members. (#542)
 - Exercise out-of-range byte-order, visitor and Schema enum values in C regression tests so UBSan can validate the error paths without undefined C++ enum loads. (#423)
 - Keep borrowed container tag storage alive until `end()` in the C Tree Writer example, fixing a stack-use-after-scope detected by AddressSanitizer. (#423)
 - Fix Clang builds with warnings treated as errors by fully initializing nested Fixed format configurations in capability, Query and fuzz tests. (#423)
