@@ -66,7 +66,7 @@ TEST(Unit_Tlv_Der, TagSizeErrorsPreserveOutputs) {
     EXPECT_EQ(42u, number);
     EXPECT_EQ(TLV_ERR_INVALID_TAG_SIZE,
               static_cast<const tlv_field_composition_t*>(tlv_format_der.context)
-                  ->write_tag(nullptr, output, sizeof(output), &tag, &written));
+                  ->write_tag(nullptr, &tag, output, sizeof(output), &written));
     EXPECT_EQ(99u, written);
     EXPECT_EQ(0xEE, output[0]);
     // The longest tag the format accepts, with a high-tag-number that never ends.
@@ -82,7 +82,7 @@ TEST(Unit_Tlv_Der, TagSizeErrorsPreserveOutputs) {
     EXPECT_EQ(TLV_ERR_INVALID_TAG_SIZE, tlv_der_tag_number(&tag, &number));
     EXPECT_EQ(TLV_ERR_INVALID_TAG_SIZE,
               static_cast<const tlv_field_composition_t*>(tlv_format_der.context)
-                  ->write_tag(nullptr, output, sizeof(output), &tag, &written));
+                  ->write_tag(nullptr, &tag, output, sizeof(output), &written));
     EXPECT_EQ(99u, written);
     const tlv_tag_t before = tag;
     EXPECT_EQ(TLV_ERR_INVALID_TAG_SIZE,

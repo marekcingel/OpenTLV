@@ -73,6 +73,8 @@ typedef enum tlv_length_scope {
  * It returns a validated trailer; formats with an encoder-dependent trailer
  * implement the canonical measure/encode operations directly instead.
  * A count including the identifier is normalized here, not in Reader/Writer.
+ * Both write callbacks must support NULL output with zero capacity: measurement
+ * queries their widths through the same callbacks used for encoding.
  */
 typedef struct tlv_field_composition {
     const void* context;               /**< Immutable encoding context. */
@@ -80,8 +82,7 @@ typedef struct tlv_field_composition {
     tlv_read_length_fn read_length;    /**< Count decoder. */
     tlv_resolve_bounds_fn resolve;     /**< Optional terminated framing resolver. */
     tlv_write_tag_fn write_tag;        /**< Identifier encoder and width query. */
-    tlv_write_length_fn write_length;  /**< Count encoder. */
-    tlv_length_size_fn length_size;    /**< Count width query. */
+    tlv_write_length_fn write_length;  /**< Count encoder and width query. */
     tlv_element_order_t element_order; /**< Wire field order. */
     tlv_length_scope_t length_scope;   /**< Wire count meaning. */
 } tlv_field_composition_t;

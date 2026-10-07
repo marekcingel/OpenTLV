@@ -32,11 +32,53 @@ TEST(Unit_Tlv_Variable, ConfigurationAndNullArguments) {
         EXPECT_EQ(original_decode, format.decode);
     }
     auto bad_order = config;
-    bad_order.length.byte_order = static_cast<tlv_byte_order_t>(99);
+    bad_order.length.byte_order = TLV_BYTE_ORDER_UNKNOWN;
     EXPECT_EQ(TLV_ERR_INVALID_BYTE_ORDER, tlv_variable_format_init(&format, &bad_order));
     EXPECT_EQ(TLV_ERR_NULL_ARG, tlv_variable_format_init(nullptr, &config));
     EXPECT_EQ(TLV_ERR_NULL_ARG, tlv_variable_format_init(&format, nullptr));
     EXPECT_EQ(TLV_ERR_NULL_ARG, tlv_variable_fields_init(nullptr, &config));
     tlv_field_composition_t fields = {};
     EXPECT_EQ(TLV_ERR_NULL_ARG, tlv_variable_fields_init(&fields, nullptr));
+}
+
+TEST(Unit_Tlv_Variable, WriteCallbacksProvideSizingWithoutSeparateCallbacks) {
+    tlv_field_composition_t fields{};
+    ASSERT_EQ(TLV_OK, tlv_variable_fields_init(&fields, &config));
+    fields.read_tag = nullptr;
+    fields.read_length = nullptr;
+    tlv_format_t format{};
+    ASSERT_EQ(TLV_OK, tlv_fields_format_init(&format, &fields));
+    EXPECT_EQ(nullptr, format.decode);
+    ASSERT_NE(nullptr, format.measure);
+    ASSERT_NE(nullptr, format.encode);
+
+    const uint8_t   tag_bytes[] = {0x9F, 0x81, 0x00};
+    const tlv_tag_t tag = tlv_tag(tag_bytes, sizeof(tag_bytes));
+    for (tlv_size_t length : {tlv_size_t{0}, tlv_size_t{127}, tlv_size_t{128}, tlv_size_t{256}}) {
+        size_t tag_size = 99, length_size = 99, written = 99;
+        ASSERT_EQ(TLV_OK, fields.write_tag(fields.context, &tag, nullptr, 0, &tag_size));
+        ASSERT_EQ(TLV_OK, fields.write_length(fields.context, length, nullptr, 0, &length_size));
+        std::vector<uint8_t> value(static_cast<size_t>(length), 0xAA);
+        const tlv_element_t  element{tag, {value.data(), length}};
+        tlv_encoding_t       sizes{};
+        ASSERT_EQ(TLV_OK, tlv_format_measure(&format, &element, &sizes, nullptr));
+        EXPECT_EQ(tag_size + length_size, sizes.header);
+        EXPECT_EQ(tag_size + length_size + length, sizes.total);
+        std::vector<uint8_t> encoded(static_cast<size_t>(sizes.total));
+        ASSERT_EQ(TLV_OK, tlv_format_encode(&format, &element, encoded.data(), encoded.size(),
+                                            &written, nullptr));
+        EXPECT_EQ(encoded.size(), written);
+        uint8_t identifier_output[sizeof(tag_bytes)] = {};
+        ASSERT_EQ(TLV_OK, fields.write_tag(fields.context, &tag, identifier_output,
+                                           sizeof(identifier_output), &written));
+        EXPECT_EQ(tag_size, written);
+        for (size_t i = 0; i < tag_size; ++i) EXPECT_EQ(identifier_output[i], encoded[i]);
+        uint8_t count_output[9] = {};
+        ASSERT_EQ(TLV_OK, fields.write_length(fields.context, length, count_output,
+                                              sizeof(count_output), &written));
+        EXPECT_EQ(length_size, written);
+        for (size_t i = 0; i < length_size; ++i) EXPECT_EQ(count_output[i], encoded[tag_size + i]);
+    }
+    fields.write_length = nullptr;
+    EXPECT_EQ(TLV_ERR_INVALID_ARG, tlv_fields_format_init(&format, &fields));
 }

@@ -83,7 +83,7 @@ TEST(Integration_Tlv_Der, CanonicalLengthBytesAndRoundTrip) {
     size_t      written, used;
     tlv_size_t  actual;
     ASSERT_EQ(TLV_OK, static_cast<const tlv_field_composition_t*>(tlv_format_der.context)
-                          ->write_length(nullptr, bytes, sizeof(bytes), SIZE_MAX, &written));
+                          ->write_length(nullptr, SIZE_MAX, bytes, sizeof(bytes), &written));
     ASSERT_EQ(TLV_OK, static_cast<const tlv_field_composition_t*>(format.context)
                           ->read_length(nullptr, bytes, written, &actual, &used));
     EXPECT_EQ(SIZE_MAX, actual);

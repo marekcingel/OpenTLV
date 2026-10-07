@@ -9,6 +9,10 @@
 #include <string>
 #include <vector>
 
+extern "C" tlv_result_t tlv_test_schema_unknown_policy(const uint8_t*, size_t, const tlv_format_t*,
+                                                       const tlv_structure_schema_t*, int,
+                                                       tlv_schema_diagnostic_report_t*);
+
 namespace {
 using Wire = std::vector<uint8_t>;
 
@@ -280,15 +284,14 @@ TEST(Integration_Tlv_SchemaReport, RejectsInvalidArgumentsAndRuleTables) {
     const Wire                     wire = valid;
     tlv_schema_diagnostic_t        storage[2];
     tlv_schema_diagnostic_report_t report = {storage, 2, 0};
-    auto call = [&](const tlv_structure_schema_t* schema, tlv_schema_unknown_policy_t unknown,
-                    tlv_schema_diagnostic_report_t* r) {
-        return tlv_schema_validate_all_diag(wire.data(), wire.size(), &tlv_format_ber, schema,
-                                            TLV_TREE_DEFAULT_DEPTH, 1000, unknown, r, nullptr);
+    auto                           call = [&](const tlv_structure_schema_t* schema, int unknown,
+                                              tlv_schema_diagnostic_report_t* r) {
+        return tlv_test_schema_unknown_policy(wire.data(), wire.size(), &tlv_format_ber, schema,
+                                              unknown, r);
     };
     EXPECT_EQ(TLV_ERR_NULL_ARG, call(&rootSchema, TLV_SCHEMA_UNKNOWN_BY_SCHEMA, nullptr));
     EXPECT_EQ(TLV_ERR_NULL_ARG, call(nullptr, TLV_SCHEMA_UNKNOWN_BY_SCHEMA, &report));
-    EXPECT_EQ(TLV_ERR_INVALID_ARG,
-              call(&rootSchema, static_cast<tlv_schema_unknown_policy_t>(7), &report));
+    EXPECT_EQ(TLV_ERR_INVALID_ARG, call(&rootSchema, 7, &report));
 
     const tlv_structure_rule_t   duplicateRules[] = {rootRules[0], rootRules[0]};
     const tlv_structure_schema_t duplicateSchema = {duplicateRules, 2, 1,

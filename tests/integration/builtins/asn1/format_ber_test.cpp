@@ -183,17 +183,17 @@ TEST(Integration_Tlv_Ber, LengthWireBytesAndBounds) {
         size_t     used = 0;
         tlv_size_t length = 0;
         ASSERT_EQ(TLV_OK, static_cast<const tlv_field_composition_t*>(ber_writer.context)
-                              ->length_size(nullptr, item.value, &used));
+                              ->write_length(nullptr, item.value, NULL, 0, &used));
         EXPECT_EQ(item.bytes.size(), used);
         std::vector<uint8_t> data(used, 0xEE);
         for (size_t capacity = 0; capacity < data.size(); ++capacity) {
             EXPECT_EQ(TLV_ERR_BUFFER_TOO_SHORT,
                       static_cast<const tlv_field_composition_t*>(ber_writer.context)
-                          ->write_length(nullptr, data.data(), capacity, item.value, &used));
+                          ->write_length(nullptr, item.value, data.data(), capacity, &used));
             for (auto byte : data) EXPECT_EQ(0xEE, byte);
         }
         ASSERT_EQ(TLV_OK, static_cast<const tlv_field_composition_t*>(ber_writer.context)
-                              ->write_length(nullptr, data.data(), data.size(), item.value, &used));
+                              ->write_length(nullptr, item.value, data.data(), data.size(), &used));
         EXPECT_EQ(item.bytes, data);
         ASSERT_EQ(TLV_OK, static_cast<const tlv_field_composition_t*>(ber.context)
                               ->read_length(nullptr, data.data(), data.size(), &length, &used));

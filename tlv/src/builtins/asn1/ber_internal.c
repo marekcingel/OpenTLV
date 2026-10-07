@@ -33,8 +33,8 @@ static tlv_result_t read_tag(const void* context, const uint8_t* data, size_t si
     return tlv_variable_identifier_read(&ber_identifier, data, size, tag, consumed);
 }
 
-static tlv_result_t write_tag(const void* context, uint8_t* data, size_t capacity,
-                              const tlv_tag_t* tag, size_t* written) {
+static tlv_result_t write_tag(const void* context, const tlv_tag_t* tag, uint8_t* data,
+                              size_t capacity, size_t* written) {
     if (!tag || (!tag->data && tag->size) || (!data && capacity) || !written)
         return TLV_ERR_NULL_ARG;
     tlv_result_t rc;
@@ -88,13 +88,8 @@ tlv_result_t tlv_ber_length_encode(tlv_size_t value, uint8_t* out, size_t out_ca
     return tlv_variable_length_write(&ber_length, value, out, out_capacity, written);
 }
 
-tlv_result_t tlv_ber_length_size(const void* context, tlv_size_t length, size_t* size) {
-    (void)context;
-    return tlv_ber_length_encode(length, NULL, 0, size);
-}
-
-tlv_result_t tlv_ber_write_length(const void* context, uint8_t* data, size_t capacity,
-                                  tlv_size_t length, size_t* written) {
+tlv_result_t tlv_ber_write_length(const void* context, tlv_size_t length, uint8_t* data,
+                                  size_t capacity, size_t* written) {
     (void)context;
     return tlv_ber_length_encode(length, data, capacity, written);
 }
@@ -103,5 +98,4 @@ const tlv_field_composition_t tlv_ber_wire = {.context = NULL,
                                               .read_tag = read_tag,
                                               .read_length = read_length,
                                               .write_tag = write_tag,
-                                              .write_length = tlv_ber_write_length,
-                                              .length_size = tlv_ber_length_size};
+                                              .write_length = tlv_ber_write_length};

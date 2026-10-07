@@ -35,17 +35,16 @@ static tlv_result_t der_read_tag(const void* context, const uint8_t* data, size_
     return TLV_OK;
 }
 
-static tlv_result_t der_write_tag(const void* context, uint8_t* data, size_t capacity,
-                                  const tlv_tag_t* tag, size_t* written) {
-    return tlv_asn1_write_identifier_checked(der_read_tag, context, data, capacity, tag, written);
+static tlv_result_t der_write_tag(const void* context, const tlv_tag_t* tag, uint8_t* data,
+                                  size_t capacity, size_t* written) {
+    return tlv_asn1_write_identifier_checked(der_read_tag, context, tag, data, capacity, written);
 }
 
 const tlv_field_composition_t tlv_der_fields = {.context = NULL,
                                                 .read_tag = der_read_tag,
                                                 .read_length = tlv_asn1_read_minimal_length,
                                                 .write_tag = der_write_tag,
-                                                .write_length = tlv_ber_write_length,
-                                                .length_size = tlv_ber_length_size};
+                                                .write_length = tlv_ber_write_length};
 const tlv_format_t tlv_format_der = {&tlv_der_fields, tlv_fields_decode, tlv_fields_measure,
                                      tlv_fields_encode, tlv_asn1_is_constructed};
 

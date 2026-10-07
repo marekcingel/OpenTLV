@@ -23,7 +23,7 @@ inline tlv_result_t read_length(const void*, const uint8_t* data, size_t size, t
     *used = 1;
     return TLV_OK;
 }
-inline tlv_result_t write_tag(const void*, uint8_t* data, size_t size, const tlv_tag_t* tag,
+inline tlv_result_t write_tag(const void*, const tlv_tag_t* tag, uint8_t* data, size_t size,
                               size_t* used) {
     if (tag->size != 1) return TLV_ERR_INVALID_TAG_SIZE;
     if (data && !size) return TLV_ERR_BUFFER_TOO_SHORT;
@@ -36,25 +36,20 @@ inline tlv_result_t length_size(const void*, tlv_size_t length, size_t* used) {
     *used = 1;
     return TLV_OK;
 }
-inline tlv_result_t write_length(const void* context, uint8_t* data, size_t size, tlv_size_t length,
+inline tlv_result_t write_length(const void* context, tlv_size_t length, uint8_t* data, size_t size,
                                  size_t* used) {
     const auto result = length_size(context, length, used);
     if (result != TLV_OK) return result;
+    if (!data) return TLV_OK;
     if (!size) return TLV_ERR_BUFFER_TOO_SHORT;
     data[0] = static_cast<uint8_t>(length);
     return TLV_OK;
 }
-const tlv_field_composition_t format_layout = {nullptr,
-                                               read_tag,
-                                               read_length,
-                                               nullptr,
-                                               write_tag,
-                                               write_length,
-                                               length_size,
-                                               TLV_ELEMENT_ORDER_TLV,
-                                               TLV_LENGTH_SCOPE_VALUE};
-const tlv_format_t            format = {&format_layout, tlv_fields_decode, tlv_fields_measure,
-                                        tlv_fields_encode, nullptr};
+const tlv_field_composition_t format_layout = {
+    nullptr,   read_tag,     read_length,           nullptr,
+    write_tag, write_length, TLV_ELEMENT_ORDER_TLV, TLV_LENGTH_SCOPE_VALUE};
+const tlv_format_t format = {&format_layout, tlv_fields_decode, tlv_fields_measure,
+                             tlv_fields_encode, nullptr};
 } // namespace controlled
 
 #endif

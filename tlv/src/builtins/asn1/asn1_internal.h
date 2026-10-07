@@ -25,8 +25,8 @@ tlv_result_t tlv_asn1_read_identifier(const void* context, const uint8_t* data, 
  * and requires the parse to consume exactly tag->size bytes, matching the
  * write_tag contract (validate, and optionally emit, canonical identifier
  * bytes). data may be NULL only when capacity is 0 (size query). */
-tlv_result_t tlv_asn1_write_identifier(const void* context, uint8_t* data, size_t capacity,
-                                       const tlv_tag_t* tag, size_t* written);
+tlv_result_t tlv_asn1_write_identifier(const void* context, const tlv_tag_t* tag, uint8_t* data,
+                                       size_t capacity, size_t* written);
 
 /* Parses one BER definite length via tlv_ber_wire.read_length, then
  * rejects non-minimal long-form encodings (a long form below 128, or a
@@ -37,8 +37,8 @@ tlv_result_t tlv_asn1_write_identifier(const void* context, uint8_t* data, size_
 tlv_result_t tlv_asn1_read_minimal_length(const void* context, const uint8_t* data, size_t size,
                                           tlv_size_t* length, size_t* consumed);
 /* Validate and emit exactly one identifier with the supplied ASN.1 policy. */
-tlv_result_t tlv_asn1_write_identifier_checked(tlv_read_tag_fn, const void*, uint8_t*, size_t,
-                                               const tlv_tag_t*, size_t*);
+tlv_result_t tlv_asn1_write_identifier_checked(tlv_read_tag_fn, const void*, const tlv_tag_t*,
+                                               uint8_t*, size_t, size_t*);
 
 /* Identifier arithmetic is shared; the caller supplies its format policy.
  * Both functions preserve caller outputs on failure. */

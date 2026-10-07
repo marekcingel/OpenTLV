@@ -10,8 +10,8 @@ static tlv_result_t read_tag(const void* context, const uint8_t* data, size_t si
     return tlv_variable_identifier_read(&c->identifier, data, size, tag, consumed);
 }
 
-static tlv_result_t write_tag(const void* context, uint8_t* data, size_t capacity,
-                              const tlv_tag_t* tag, size_t* written) {
+static tlv_result_t write_tag(const void* context, const tlv_tag_t* tag, uint8_t* data,
+                              size_t capacity, size_t* written) {
     const tlv_variable_format_t* c = (const tlv_variable_format_t*)context;
     return tlv_variable_identifier_write(&c->identifier, tag, data, capacity, written);
 }
@@ -22,14 +22,10 @@ static tlv_result_t read_length(const void* context, const uint8_t* data, size_t
     return tlv_variable_length_read(&c->length, data, size, length, consumed);
 }
 
-static tlv_result_t write_length(const void* context, uint8_t* data, size_t capacity,
-                                 tlv_size_t length, size_t* written) {
+static tlv_result_t write_length(const void* context, tlv_size_t length, uint8_t* data,
+                                 size_t capacity, size_t* written) {
     const tlv_variable_format_t* c = (const tlv_variable_format_t*)context;
     return tlv_variable_length_write(&c->length, length, data, capacity, written);
-}
-
-static tlv_result_t length_size(const void* context, tlv_size_t length, size_t* size) {
-    return write_length(context, NULL, 0, length, size);
 }
 
 static tlv_field_composition_t variable_fields(const tlv_variable_format_t* config) {
@@ -39,7 +35,7 @@ static tlv_field_composition_t variable_fields(const tlv_variable_format_t* conf
     fields.read_length = read_length;
     fields.write_tag = write_tag;
     fields.write_length = write_length;
-    fields.length_size = length_size;
+
     fields.element_order = config->element_order;
     fields.length_scope = config->length_scope;
     return fields;

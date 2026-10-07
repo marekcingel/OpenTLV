@@ -181,7 +181,8 @@ if (result == TLV_OK && required <= sizeof(buffer)) {
 }
 ```
 
-Both APIs require `write_tag`, `write_length`, and `length_size`. The size query
+Field composition requires `write_tag` and `write_length`; both support sizing
+with NULL output and zero capacity. There is no separate `length_size` callback. The size query
 validates the tag and length; a total that cannot fit in `size_t` returns
 `TLV_ERR_INVALID_LENGTH`. Output size pointers are required and remain unchanged
 on failure. Insufficient capacity returns `TLV_ERR_BUFFER_TOO_SHORT` before any

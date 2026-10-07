@@ -307,10 +307,10 @@ TEST(Unit_Tlv_FixedFieldAdapters, BuiltinFieldCallbacksFollowArgumentAndPrefixCo
         const tlv_tag_t missing = tlv_tag(nullptr, 999);
         uint8_t         output[] = {0xCC, 0xCC};
         size_t          used = 99;
-        EXPECT_EQ(TLV_ERR_NULL_ARG, fields->write_tag(fields->context, output, 2, &missing, &used));
-        EXPECT_EQ(TLV_ERR_NULL_ARG, fields->write_tag(fields->context, nullptr, 2, &tag, &used));
+        EXPECT_EQ(TLV_ERR_NULL_ARG, fields->write_tag(fields->context, &missing, output, 2, &used));
+        EXPECT_EQ(TLV_ERR_NULL_ARG, fields->write_tag(fields->context, &tag, nullptr, 2, &used));
         EXPECT_EQ(TLV_ERR_BUFFER_TOO_SHORT,
-                  fields->write_tag(fields->context, output, 1, &tag, &used));
+                  fields->write_tag(fields->context, &tag, output, 1, &used));
         EXPECT_EQ(99u, used);
         EXPECT_EQ(0xCC, output[0]);
         EXPECT_EQ(0xCC, output[1]);

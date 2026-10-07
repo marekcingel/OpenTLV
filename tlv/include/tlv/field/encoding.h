@@ -29,6 +29,8 @@ extern "C" {
  * Argument/configuration errors leave all outputs unchanged. Incomplete input
  * reports the available field prefix in consumed while preserving the decoded
  * identifier/count. Writing and sizing validate the same real configuration.
+ * Both write callbacks take the field value before the destination and support
+ * sizing with NULL data and zero capacity; there is no separate sizing callback.
  * Failed writes preserve written and destination bytes. These contracts do not
  * imply overlap support; that remains specific to each field encoding.
  */
@@ -75,9 +77,9 @@ typedef tlv_result_t (*tlv_read_length_fn)(const void* context, const uint8_t* d
  * @brief Encode an identifier, or query its width with NULL output.
  *
  * @param[in]  context  Borrowed immutable encoding configuration.
+ * @param[in]  tag      Identifier to validate and encode.
  * @param[out] data     Destination; NULL with zero capacity for sizing.
  * @param[in]  capacity Available native capacity; zero for sizing.
- * @param[in]  tag      Identifier to validate and encode.
  * @param[out] written  Exact encoded width on success, identical for sizing and writing.
  *
  * @return #TLV_OK on success.
@@ -87,17 +89,17 @@ typedef tlv_result_t (*tlv_read_length_fn)(const void* context, const uint8_t* d
  *
  * @note Validation follows the shared Field Encoding order; failed writes preserve outputs.
  */
-typedef tlv_result_t (*tlv_write_tag_fn)(const void* context, uint8_t* data, size_t capacity,
-                                         const tlv_tag_t* tag, size_t* written);
+typedef tlv_result_t (*tlv_write_tag_fn)(const void* context, const tlv_tag_t* tag, uint8_t* data,
+                                         size_t capacity, size_t* written);
 
 /**
- * @brief Encode a logical count into a length field.
+ * @brief Encode a logical count, or query its width with NULL output.
  *
  * @param[in]  context  Borrowed immutable encoding configuration.
- * @param[out] data     Destination; NULL with zero capacity for sizing.
- * @param[in]  capacity Available native capacity.
  * @param[in]  length   Wire count after composition applies count scope.
- * @param[out] written  Exact encoded width on success.
+ * @param[out] data     Destination; NULL with zero capacity for sizing.
+ * @param[in]  capacity Available native capacity; zero for sizing.
+ * @param[out] written  Exact encoded width on success, identical for sizing and writing.
  *
  * @return #TLV_OK on success.
  * @return #TLV_ERR_NULL_ARG for a missing required pointer.
@@ -106,25 +108,8 @@ typedef tlv_result_t (*tlv_write_tag_fn)(const void* context, uint8_t* data, siz
  *
  * @note Validation follows the shared Field Encoding order; failed writes preserve outputs.
  */
-typedef tlv_result_t (*tlv_write_length_fn)(const void* context, uint8_t* data, size_t capacity,
-                                            tlv_size_t length, size_t* written);
-
-/**
- * @brief Validate a logical count and query its encoded field width.
- *
- * @param[in]  context Borrowed immutable encoding configuration.
- * @param[in]  length  Wire count after composition applies count scope.
- * @param[out] size    Exact native width of the encoded field on success.
- *
- * @return #TLV_OK on success.
- * @return #TLV_ERR_NULL_ARG for a missing required pointer.
- * @return #TLV_ERR_INVALID_ARG or #TLV_ERR_INVALID_BYTE_ORDER for invalid configuration.
- * @return A length error reported by the encoder.
- *
- * @note No buffer is accessed. Validate required pointers, configuration and
- * count representability in that order; leave size unchanged on failure.
- */
-typedef tlv_result_t (*tlv_length_size_fn)(const void* context, tlv_size_t length, size_t* size);
+typedef tlv_result_t (*tlv_write_length_fn)(const void* context, tlv_size_t length, uint8_t* data,
+                                            size_t capacity, size_t* written);
 
 /** @} */
 

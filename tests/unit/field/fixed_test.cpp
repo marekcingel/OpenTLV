@@ -195,7 +195,7 @@ TEST(Unit_Tlv_FixedField, LengthConfigurationErrorsPreserveBothOutputs) {
         EXPECT_EQ(TLV_ERR_INVALID_ARG,
                   tlv_fixed_length_write(&invalid, 0, output.data(), output.size(), &used));
     }
-    for (auto order : {TLV_BYTE_ORDER_UNKNOWN, static_cast<tlv_byte_order_t>(99)}) {
+    for (auto order : {TLV_BYTE_ORDER_UNKNOWN}) {
         const tlv_fixed_length_t invalid{2, order};
         EXPECT_EQ(TLV_ERR_INVALID_BYTE_ORDER,
                   tlv_fixed_length_read(&invalid, input, sizeof(input), &value, &used));

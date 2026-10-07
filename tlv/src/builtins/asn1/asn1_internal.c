@@ -30,7 +30,7 @@ tlv_result_t tlv_asn1_read_identifier(const void* context, const uint8_t* data, 
 }
 
 tlv_result_t tlv_asn1_write_identifier_checked(tlv_read_tag_fn read_identifier, const void* context,
-                                               uint8_t* data, size_t capacity, const tlv_tag_t* tag,
+                                               const tlv_tag_t* tag, uint8_t* data, size_t capacity,
                                                size_t* written) {
     tlv_tag_t parsed;
     size_t count;
@@ -70,8 +70,8 @@ int tlv_asn1_number_must_construct(uint64_t number) {
     return number == 8 || number == 11 || number == 16 || number == 17 || number == 29;
 }
 
-tlv_result_t tlv_asn1_write_identifier(const void* context, uint8_t* data, size_t capacity,
-                                       const tlv_tag_t* tag, size_t* written) {
-    return tlv_asn1_write_identifier_checked(tlv_asn1_read_identifier, context, data, capacity, tag,
+tlv_result_t tlv_asn1_write_identifier(const void* context, const tlv_tag_t* tag, uint8_t* data,
+                                       size_t capacity, size_t* written) {
+    return tlv_asn1_write_identifier_checked(tlv_asn1_read_identifier, context, tag, data, capacity,
                                              written);
 }

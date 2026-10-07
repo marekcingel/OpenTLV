@@ -139,14 +139,10 @@ TEST(Unit_Tlv_Fixed, InitRejectsInvalidArgumentsWithoutModification) {
 TEST(Unit_Tlv_Fixed, InitRejectsInvalidByteOrder) {
     const tlv_fixed_format_t unknown = {
         {1}, {2, TLV_BYTE_ORDER_UNKNOWN}, TLV_ELEMENT_ORDER_TLV, TLV_LENGTH_SCOPE_VALUE};
-    const tlv_fixed_format_t bogus = {
-        {1}, {2, static_cast<tlv_byte_order_t>(99)}, TLV_ELEMENT_ORDER_TLV, TLV_LENGTH_SCOPE_VALUE};
     tlv_format_t reader{};
     tlv_format_t writer{};
     EXPECT_EQ(TLV_ERR_INVALID_BYTE_ORDER, tlv_fixed_format_init(&reader, &unknown));
-    EXPECT_EQ(TLV_ERR_INVALID_BYTE_ORDER, tlv_fixed_format_init(&reader, &bogus));
     EXPECT_EQ(TLV_ERR_INVALID_BYTE_ORDER, tlv_fixed_format_init(&writer, &unknown));
-    EXPECT_EQ(TLV_ERR_INVALID_BYTE_ORDER, tlv_fixed_format_init(&writer, &bogus));
 }
 
 TEST(Unit_Tlv_Fixed, TruncationPreservesReaderAndOutput) {

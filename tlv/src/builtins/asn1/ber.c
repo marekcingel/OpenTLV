@@ -15,12 +15,12 @@ static tlv_result_t read_tag(const void* context, const uint8_t* data, size_t si
     return tlv_ber_wire.read_tag(context, data, size, tag, used);
 }
 
-static tlv_result_t write_tag(const void* context, uint8_t* data, size_t capacity,
-                              const tlv_tag_t* tag, size_t* used) {
+static tlv_result_t write_tag(const void* context, const tlv_tag_t* tag, uint8_t* data,
+                              size_t capacity, size_t* used) {
     if (!tag || (!tag->data && tag->size) || (!data && capacity) || !used) return TLV_ERR_NULL_ARG;
     if (tag->size && tag->data && (tag->data[0] == 0 || tag->data[0] == TLV_ASN1_CONSTRUCTED_BIT))
         return TLV_ERR_INVALID_TAG;
-    return tlv_ber_wire.write_tag(context, data, capacity, tag, used);
+    return tlv_ber_wire.write_tag(context, tag, data, capacity, used);
 }
 
 static tlv_result_t read_length(const void* context, const uint8_t* data, size_t size,
@@ -208,8 +208,7 @@ const tlv_field_composition_t tlv_ber_fields = {.context = NULL,
                                                 .read_length = read_length,
                                                 .resolve = read_value_bounds,
                                                 .write_tag = write_tag,
-                                                .write_length = tlv_ber_write_length,
-                                                .length_size = tlv_ber_length_size};
+                                                .write_length = tlv_ber_write_length};
 const tlv_format_t tlv_format_ber = {&tlv_ber_fields, tlv_fields_decode, tlv_fields_measure,
                                      tlv_fields_encode, tlv_asn1_is_constructed};
 
@@ -220,7 +219,7 @@ tlv_result_t tlv_asn1_indefinite_measure(const void* context, const tlv_element_
     tlv_result_t rc;
     error->region = TLV_REGION_TAG;
     error->has_offset = 1;
-    rc = fields->write_tag(fields->context, NULL, 0, &element->tag, &tag_size);
+    rc = fields->write_tag(fields->context, &element->tag, NULL, 0, &tag_size);
     if (rc != TLV_OK) return rc;
     if (!tlv_asn1_is_constructed(NULL, &element->tag)) return TLV_ERR_INVALID_LENGTH;
     sizes->header = tag_size + (tlv_size_t)1;

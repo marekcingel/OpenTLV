@@ -39,6 +39,12 @@ Use the complete custom-format implementation in the
 implementations, descriptor initialization, writing, and reading.
 The [generic contract](../README.md#generic-interface) documents each callback.
 
+Field write callbacks take `(context, tag/length, data, capacity, written)`, in
+the same order as the standalone Field Encoding primitives. Both Identifier and
+Length use NULL output with zero capacity to validate and query their encoded
+width. A custom encoder must support that mode; there is no separate sizing
+callback in `tlv_field_composition_t`.
+
 ## Byte example
 
 Custom callbacks are implemented infrastructure, not one additional standardized

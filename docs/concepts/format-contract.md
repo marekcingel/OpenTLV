@@ -238,6 +238,12 @@ Fixed/binary configurations now embed `identifier` and `length` field
 configurations: use `identifier.size`, `length.size` and `length.byte_order`.
 Escaped Format replaces `tag_size` with `identifier.size`; Escaped Format and
 generic field composition rename `order`/`scope` to `element_order`/`length_scope`.
+Field write callbacks use `(context, tag/length, data, capacity, written)`, matching
+the standalone primitives. Both callbacks validate and report their encoded width
+when `data` is NULL and `capacity` is zero. Remove `tlv_length_size_fn` and the
+`tlv_field_composition_t.length_size` initializer; composition measures Length
+through `write_length(context, length, NULL, 0, &size)`. Custom write callbacks
+must support this sizing mode and report the same width as a successful write.
 Convert positional initializers to nested braces, for example
 `{{1}, {2, TLV_BYTE_ORDER_BIG_ENDIAN}, TLV_ELEMENT_ORDER_TLV, TLV_LENGTH_SCOPE_VALUE}`.
 There are no compatibility members. Rebuild native consumers and FFI mirrors.

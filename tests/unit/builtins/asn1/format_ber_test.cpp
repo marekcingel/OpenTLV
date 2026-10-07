@@ -65,16 +65,16 @@ TEST(Unit_Tlv_Ber, TagSizeLimitAndContinuation) {
     EXPECT_EQ(bytes.data(), tag.data);
     EXPECT_EQ(bytes.size(), tag.size);
     ASSERT_EQ(TLV_OK, static_cast<const tlv_field_composition_t*>(ber_writer.context)
-                          ->write_tag(nullptr, nullptr, 0, &tag, &used));
+                          ->write_tag(nullptr, &tag, nullptr, 0, &used));
     std::vector<uint8_t> output(bytes.size(), 0xEE);
     for (size_t capacity = 0; capacity < bytes.size(); ++capacity) {
         EXPECT_EQ(TLV_ERR_BUFFER_TOO_SHORT,
                   static_cast<const tlv_field_composition_t*>(ber_writer.context)
-                      ->write_tag(nullptr, output.data(), capacity, &tag, &used));
+                      ->write_tag(nullptr, &tag, output.data(), capacity, &used));
         for (auto byte : output) EXPECT_EQ(0xEE, byte);
     }
     ASSERT_EQ(TLV_OK, static_cast<const tlv_field_composition_t*>(ber_writer.context)
-                          ->write_tag(nullptr, output.data(), output.size(), &tag, &used));
+                          ->write_tag(nullptr, &tag, output.data(), output.size(), &used));
     EXPECT_EQ(bytes, output);
     // One byte more than the format supports is rejected, however the tag ends.
     bytes.assign(TLV_ASN1_TAG_MAX_SIZE + 1, 0x81);
@@ -89,7 +89,7 @@ TEST(Unit_Tlv_Ber, TagSizeLimitAndContinuation) {
     tag = tlv_tag(bytes.data(), bytes.size());
     EXPECT_EQ(TLV_ERR_INVALID_TAG_SIZE,
               static_cast<const tlv_field_composition_t*>(ber_writer.context)
-                  ->write_tag(nullptr, nullptr, 0, &tag, &used));
+                  ->write_tag(nullptr, &tag, nullptr, 0, &used));
     for (size_t size = 0; size < TLV_ASN1_TAG_MAX_SIZE; ++size)
         EXPECT_EQ(TLV_ERR_BUFFER_TOO_SHORT,
                   static_cast<const tlv_field_composition_t*>(ber.context)
@@ -114,7 +114,7 @@ TEST(Unit_Tlv_Ber, InvalidTagsAndWriterState) {
     size_t          used;
     const tlv_tag_t missing = tlv_tag(nullptr, 1);
     EXPECT_EQ(TLV_ERR_NULL_ARG, static_cast<const tlv_field_composition_t*>(ber_writer.context)
-                                    ->write_tag(nullptr, nullptr, 0, &missing, &used));
+                                    ->write_tag(nullptr, &missing, nullptr, 0, &used));
     const uint8_t invalid_tag[] = {0x9F, 0x80, 1};
     tlv_tag_t     tag{};
     EXPECT_EQ(TLV_ERR_INVALID_TAG,

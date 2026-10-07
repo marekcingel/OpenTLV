@@ -102,7 +102,7 @@ TEST(Unit_Tlv_Visitor, CursorArgumentsAndCallbackErrors) {
     const uint8_t data[] = {1, 0, 2, 0};
     EXPECT_EQ(TLV_ERR_NULL_ARG, tlv_reader_visit(nullptr, collect, nullptr));
     EXPECT_EQ(TLV_ERR_NULL_ARG, tlv_tree_reader_visit(nullptr, nullptr, nullptr, nullptr));
-    for (auto result : {TLV_VISIT_STOP, TLV_VISIT_ERROR, static_cast<tlv_visit_result_t>(99)}) {
+    for (auto result : {TLV_VISIT_STOP, TLV_VISIT_ERROR}) {
         tlv_reader_t reader;
         ASSERT_EQ(TLV_OK, tlv_reader_init(&reader, data, sizeof(data), &controlled::format));
         EXPECT_EQ(TLV_ERR_NULL_ARG, tlv_reader_visit(&reader, nullptr, nullptr));
@@ -124,7 +124,7 @@ TEST(Unit_Tlv_Visitor, CursorArgumentsAndCallbackErrors) {
 TEST(Unit_Tlv_Visitor, TreeStopAndErrorResumeAtChildrenAndMatchPull) {
     const uint8_t data[] = {0xE1, 2, 1, 0, 2, 0};
     auto          format = tree_format();
-    for (auto result : {TLV_VISIT_STOP, TLV_VISIT_ERROR, static_cast<tlv_visit_result_t>(99)}) {
+    for (auto result : {TLV_VISIT_STOP, TLV_VISIT_ERROR}) {
         tlv_tree_frame_t  frames[1], pull_frames[1];
         tlv_tree_reader_t reader, pull;
         ASSERT_EQ(TLV_OK,

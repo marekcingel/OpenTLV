@@ -246,26 +246,26 @@ TEST(Unit_Tlv_Writer, OverflowAndCallbackFailuresPreserveOutput) {
     format.context = &format_layout;
     size_t  size = 99;
     uint8_t data[4] = {};
-    format_layout.length_size = [](const void*, tlv_size_t, size_t* used) {
+    format_layout.write_length = [](const void*, tlv_size_t, uint8_t*, size_t, size_t* used) {
         *used = std::numeric_limits<size_t>::max();
         return TLV_OK;
     };
     EXPECT_EQ(extent_error, tlv_encoded_size(tag, 0, &format, &size));
     EXPECT_EQ(extent_error, tlv_write(data, 4, &format, tag, nullptr, 0, &size));
-    format_layout.length_size = [](const void*, tlv_size_t, size_t* used) {
+    format_layout.write_length = [](const void*, tlv_size_t, uint8_t*, size_t, size_t* used) {
         *used = 0;
         return TLV_OK;
     };
     EXPECT_EQ(extent_error,
               tlv_encoded_size(tag, std::numeric_limits<size_t>::max(), &format, &size));
     format_layout = controlled::format_layout;
-    format_layout.write_tag = [](const void*, uint8_t* dst, size_t, const tlv_tag_t*,
+    format_layout.write_tag = [](const void*, const tlv_tag_t*, uint8_t* dst, size_t,
                                  size_t* used) {
         *used = dst ? 2 : 1;
         return TLV_OK;
     };
     EXPECT_EQ(TLV_ERR_INVALID_TAG, tlv_write(data, 4, &format, tag, nullptr, 0, &size));
-    format_layout.write_tag = [](const void*, uint8_t*, size_t, const tlv_tag_t*, size_t*) {
+    format_layout.write_tag = [](const void*, const tlv_tag_t*, uint8_t*, size_t, size_t*) {
         return TLV_ERR_END_OF_BUFFER;
     };
     EXPECT_EQ(TLV_ERR_END_OF_BUFFER, tlv_encoded_size(tag, 0, &format, &size));
@@ -457,13 +457,10 @@ TEST(Unit_Tlv_Writer, ImplicitZeroByteLength) {
     auto format_layout = controlled::format_layout;
     auto format = controlled::format;
     format.context = &format_layout;
-    format_layout.length_size = [](const void*, tlv_size_t length, size_t* used) {
-        *used = 0;
-        return length == 0 ? TLV_OK : TLV_ERR_INVALID_LENGTH;
-    };
-    format_layout.write_length = [](const void*, uint8_t*, size_t capacity, tlv_size_t,
+    format_layout.write_length = [](const void*, tlv_size_t length, uint8_t*, size_t capacity,
                                     size_t* used) {
         EXPECT_EQ(0u, capacity);
+        if (length != 0) return TLV_ERR_INVALID_LENGTH;
         *used = 0;
         return TLV_OK;
     };
