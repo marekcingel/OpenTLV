@@ -316,6 +316,7 @@ static int reader_aliases(void) {
         tlv_query_exec_t* e;
         CHECK(tlv_query_exec_init(p, aligned(&memory), bytes, 2, 4, 100000, &e) == TLV_OK);
         tlv_tree_reader_t reader;
+        memset(&reader, 0, sizeof reader);
         CHECK(tlv_tree_reader_init(&reader, wire, sizeof encoded, format, frames, 4, 3, 4) ==
               TLV_OK);
         int found = 77;
@@ -323,7 +324,8 @@ static int reader_aliases(void) {
         CHECK(tlv_query_program_exists(&reader, e, 1, &found, NULL) == TLV_OK && found == 1);
         CHECK(reader.depth == 1);
         found = 77;
-        tlv_tree_reader_t saved_reader = reader;
+        unsigned char saved_reader[sizeof reader];
+        memcpy(saved_reader, &reader, sizeof reader);
         memcpy(&before, &shared, sizeof shared);
         int*                    target = &found;
         tlv_query_diagnostic_t* d = NULL;
@@ -340,7 +342,7 @@ static int reader_aliases(void) {
             CHECK(tlv_query_program_visit(&reader, e, stop_visitor, NULL, d) ==
                   TLV_ERR_INVALID_ARG);
         CHECK(found == 77 && !memcmp(&before, &shared, sizeof shared));
-        CHECK(!memcmp(&saved_reader, &reader, sizeof reader));
+        CHECK(!memcmp(saved_reader, &reader, sizeof reader));
         /* The rejected calls left the active nested cursor resumable. */
         tlv_query_diagnostic_t diagnostic;
         CHECK(tlv_query_program_exists(&reader, e, 0, &found, &diagnostic) == TLV_OK);

@@ -141,6 +141,8 @@ TEST(Unit_Tlv_Incremental, CallerCanSlideWithinBoundedStorageAcrossManyElements)
 TEST(Unit_Tlv_Incremental, RejectsInvalidWindowUpdatesTransactionally) {
     const uint8_t wire[] = {1, 0, 2};
     tlv_reader_t  reader;
+    // The transactional snapshot below includes padding, so define every byte.
+    std::memset(&reader, 0, sizeof(reader));
     ASSERT_EQ(TLV_OK,
               tlv_reader_init_incremental(&reader, wire, sizeof(wire), &controlled::format));
     tlv_element_t element{};

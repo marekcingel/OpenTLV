@@ -34,6 +34,7 @@ question, so the expensive checks stay off the path of everyday development.
 | CodeQL (required by the repository rules) | always | yes | yes |
 | C ABI compatibility (`abidiff`, see [ABI](abi-compatibility.md)) | if `tlv`, CMake or `scripts/abi/check.py` changed | yes | yes |
 | Fuzzing | | yes | yes |
+| [Valgrind Memcheck](valgrind.md) (plain GCC Debug C/C++ tests) | if native sources, tests, CMake or Memcheck tooling changed | same | |
 | Benchmarks (build only) | if benchmarks or `tlv` changed | same | yes |
 | Rust bindings on Linux | if Rust, `tlv` or CMake changed | yes | yes |
 | Rust bindings on Windows and macOS | | | yes |

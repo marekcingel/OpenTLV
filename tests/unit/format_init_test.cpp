@@ -16,14 +16,15 @@ TEST(Unit_Tlv_FormatInit, IndependentCapabilitiesAndAtomicFailure) {
     EXPECT_FALSE(tlv_format_can_write(&read));
     EXPECT_FALSE(tlv_format_can_read(&write));
     EXPECT_TRUE(tlv_format_can_write(&write));
-    auto before = both;
+    unsigned char before[sizeof(both)];
+    std::memcpy(before, &both, sizeof(both));
     EXPECT_EQ(TLV_ERR_INVALID_ARG, tlv_format_init(&both, nullptr, nullptr, nullptr, nullptr));
-    EXPECT_EQ(0, std::memcmp(&before, &both, sizeof(both)));
+    EXPECT_EQ(0, std::memcmp(before, &both, sizeof(both)));
     EXPECT_EQ(TLV_ERR_INVALID_ARG, tlv_format_init(&both, nullptr, f.decode, f.measure, nullptr));
     EXPECT_EQ(TLV_ERR_INVALID_ARG, tlv_format_init(&both, nullptr, f.decode, nullptr, f.encode));
     EXPECT_EQ(TLV_ERR_INVALID_ARG,
               tlv_format_init(nullptr, nullptr, f.decode, f.measure, f.encode));
-    EXPECT_EQ(0, std::memcmp(&before, &both, sizeof(both)));
+    EXPECT_EQ(0, std::memcmp(before, &both, sizeof(both)));
     tlv_reader_t reader{};
     tlv_writer_t writer{};
     EXPECT_EQ(TLV_ERR_NULL_ARG, tlv_reader_init(&reader, nullptr, 0, &write));

@@ -27,6 +27,7 @@ function(property_configuration name format)
         --commit "${OPENTLV_PROPERTY_COMMIT}" --seed "${OPENTLV_PROPERTY_SEED}"
         --generator-header "${OpenTLV_SOURCE_DIR}/tlv/include/tlv/generator.h" ${ARGN})
     set_tests_properties(Property_${name} PROPERTIES LABELS "property;${format}" TIMEOUT 300)
+    opentlv_memcheck_timeout(Property_${name} 6000)
 endfunction()
 
 property_configuration(fixed fixed)
@@ -70,4 +71,5 @@ if(TARGET test-query-conformance)
         --commit "${OPENTLV_PROPERTY_COMMIT}" ${query_seed_args}
         --evidence "${OpenTLV_BINARY_DIR}/property-failures/$<CONFIG>/query")
     set_tests_properties(Property_query PROPERTIES LABELS "property;query" TIMEOUT 300)
+    opentlv_memcheck_timeout(Property_query 6000)
 endif()

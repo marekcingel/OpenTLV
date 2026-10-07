@@ -1,0 +1,2 @@
+#!/bin/sh
+exec "@Python3_EXECUTABLE@" "@OpenTLV_SOURCE_DIR@/scripts/memcheck.py" "@OPENTLV_VALGRIND_EXECUTABLE@" "$@"

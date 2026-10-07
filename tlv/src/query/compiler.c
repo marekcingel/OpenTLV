@@ -1026,30 +1026,32 @@ tlv_result_t tlv_query_compile(const char* text, size_t size,
     if (total > UINT32_MAX)
         return query_error(d, TLV_ERR_OVERFLOW, TLV_QUERY_ERROR_STORAGE, 0, 0,
                            "representable program size");
-    tlv_query_program_info_t result = {info->struct_size,
-                                       total,
-                                       sizeof(uint32_t),
-                                       needed,
-                                       alignment,
-                                       used,
-                                       1,
-                                       level,
-                                       query_public_type(nodes[root].type),
-                                       used,
-                                       used,
-                                       0,
-                                       codec_stride,
-                                       pattern_bytes,
-                                       optimized,
-                                       used + 1,
-                                       level >= TLV_QUERY_S2 ? query_candidate_size() : 0,
-                                       level >= TLV_QUERY_S2 ? query_candidate_alignment() : 0,
-                                       used,
-                                       level == TLV_QUERY_S0   ? TLV_QUERY_DECISION_NODE
-                                       : level == TLV_QUERY_S1 ? TLV_QUERY_DECISION_SCOPE
-                                                               : TLV_QUERY_DECISION_EOF,
-                                       level != TLV_QUERY_S0,
-                                       query_nodes_need_values(nodes, used)};
+    tlv_query_program_info_t result;
+    /* The versioned output is copied by byte extent, including structure padding. */
+    memset(&result, 0, sizeof result);
+    result.struct_size = info->struct_size;
+    result.program_size = total;
+    result.program_alignment = sizeof(uint32_t);
+    result.scratch_size = needed;
+    result.scratch_alignment = alignment;
+    result.states = used;
+    result.language_version = 1;
+    result.level = level;
+    result.result_kind = query_public_type(nodes[root].type);
+    result.expression_values = used;
+    result.instructions = used;
+    result.codec_scratch = codec_stride;
+    result.pattern_bytes = pattern_bytes;
+    result.optimized_states = optimized;
+    result.expression_stack = used + 1;
+    result.candidate_size = level >= TLV_QUERY_S2 ? query_candidate_size() : 0;
+    result.candidate_alignment = level >= TLV_QUERY_S2 ? query_candidate_alignment() : 0;
+    result.frame_states = used;
+    result.decision_timing = level == TLV_QUERY_S0   ? TLV_QUERY_DECISION_NODE
+                             : level == TLV_QUERY_S1 ? TLV_QUERY_DECISION_SCOPE
+                                                     : TLV_QUERY_DECISION_EOF;
+    result.stable_input_required = level != TLV_QUERY_S0;
+    result.constructed_values_required = query_nodes_need_values(nodes, used);
     for (size_t i = 0; i < used; ++i) {
         query_node_t* n = &nodes[i];
         if (n->op != Q_VARIABLE) continue;
@@ -1152,7 +1154,8 @@ tlv_result_t tlv_query_compile_prepare(const char* text, size_t size,
     if (rc != TLV_OK) return rc;
     if ((uintptr_t)workspace % alignment) return TLV_ERR_INVALID_ARG;
     if (capacity < needed) return TLV_ERR_BUFFER_TOO_SHORT;
-    tlv_query_program_info_t result = {0};
+    tlv_query_program_info_t result;
+    memset(&result, 0, sizeof result);
     result.struct_size = sizeof result;
     void* image = (uint8_t*)workspace + offset;
     rc = tlv_query_compile(text, size, options, workspace, offset, image, needed - offset, &result,
@@ -1188,7 +1191,8 @@ tlv_result_t tlv_query_compile_commit(const void* prepared, size_t prepared_size
         query_diag_init(diagnostic);
         return TLV_ERR_BUFFER_TOO_SHORT;
     }
-    tlv_query_program_info_t result = {0};
+    tlv_query_program_info_t result;
+    memset(&result, 0, sizeof result);
     result.struct_size = sizeof result;
     const tlv_query_program_t* validated;
     tlv_result_t rc = tlv_query_program_load(prepared, prepared_size, options, scratch,
@@ -1284,7 +1288,8 @@ tlv_result_t tlv_query_program_load(const void* image, size_t size,
     size_t offset = needed - size;
     tlv_query_program_t header;
     memcpy(&header, image, sizeof header);
-    tlv_query_program_info_t info = {0};
+    tlv_query_program_info_t info;
+    memset(&info, 0, sizeof info);
     info.struct_size = sizeof info;
     void* reconstructed = (uint8_t*)scratch + offset;
     rc = tlv_query_compile((const char*)image + header.text_offset, header.text_size, options,
