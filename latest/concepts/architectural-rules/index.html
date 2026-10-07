@@ -4143,14 +4143,28 @@ design; they do not claim that these facilities are already implemented.</p>
 <p>Core must never depend on a specific standard.</p>
 <hr />
 <h2 id="2-stable-conceptual-model">2. Stable conceptual model<a class="headerlink" href="#2-stable-conceptual-model" title="Permanent link">&para;</a></h2>
-<p>OpenTLV uses these concepts:</p>
-<div class="highlight"><pre><span></span><code><a id="__codelineno-1-1" name="__codelineno-1-1" href="#__codelineno-1-1"></a>Definition → Format → Field Encoding → Layout → Element → Schema → Codec
+<p>OpenTLV separates reusable descriptions, their implementation and the
+operations that produce or consume runtime representations:</p>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-1-1" name="__codelineno-1-1" href="#__codelineno-1-1"></a>REUSABLE DESCRIPTIONS
+<a id="__codelineno-1-2" name="__codelineno-1-2" href="#__codelineno-1-2"></a>Definition    Format    Field Encoding    Schema    Codec
+<a id="__codelineno-1-3" name="__codelineno-1-3" href="#__codelineno-1-3"></a>
+<a id="__codelineno-1-4" name="__codelineno-1-4" href="#__codelineno-1-4"></a>FORMAT CONSTRUCTION (implementation choices)
+<a id="__codelineno-1-5" name="__codelineno-1-5" href="#__codelineno-1-5"></a>Field Encoding + composition rules -- optional helpers --+
+<a id="__codelineno-1-6" name="__codelineno-1-6" href="#__codelineno-1-6"></a>Direct implementation ----------------------------------+--&gt; Format contract
+<a id="__codelineno-1-7" name="__codelineno-1-7" href="#__codelineno-1-7"></a>
+<a id="__codelineno-1-8" name="__codelineno-1-8" href="#__codelineno-1-8"></a>OPERATIONS                              RUNTIME REPRESENTATIONS
+<a id="__codelineno-1-9" name="__codelineno-1-9" href="#__codelineno-1-9"></a>wire bytes -- Reader using Format ----&gt; Element + source Layout
+<a id="__codelineno-1-10" name="__codelineno-1-10" href="#__codelineno-1-10"></a>wire bytes &lt;-- Writer using Format ---- Element
+<a id="__codelineno-1-11" name="__codelineno-1-11" href="#__codelineno-1-11"></a>
+<a id="__codelineno-1-12" name="__codelineno-1-12" href="#__codelineno-1-12"></a>Definition, Schema and Codec are optional, not processing stages.
 </code></pre></div>
-<p>This diagram relates the concepts; it is not a mandatory pipeline or a module
-dependency graph. Format does not require a Definition registry. Reader and
-Writer use Format directly; Schema and Codec are optional consumers. The
-<a href="../architecture/#conceptual-model">conceptual model</a> groups descriptions,
-runtime representations and operations separately.</p>
+<p>Composition belongs to Format rather than adding a canonical layer. Generic
+composition helpers are optional; a Format can implement the same complete
+contract directly. Reader and Writer use Format without requiring Definition,
+Schema or Codec. Writer can encode an Element without a previously parsed
+source Layout. Layout records source ranges for a concrete encoded instance.
+See the <a href="../architecture/#conceptual-model">conceptual model</a> for the mapping to
+the current implementation.</p>
 <p>Their responsibilities must remain separated.</p>
 <h3 id="definition">Definition<a class="headerlink" href="#definition" title="Permanent link">&para;</a></h3>
 <p>Provides a minimal registry of identifiers and their descriptive names.</p>
@@ -4187,11 +4201,22 @@ and the separate assessment of logical identity versus identifier mapping.</p>
 </ul>
 <p>Format must not interpret the semantic meaning of Value.</p>
 <h3 id="field-encoding">Field Encoding<a class="headerlink" href="#field-encoding" title="Permanent link">&para;</a></h3>
-<p>Provides reusable mechanics for encoding and decoding individual wire fields,
-such as fixed-width, variable-width and packed fields. Format composes these
-mechanics with field ordering and framing rules. Protocol-specific restrictions
-remain in the standard implementation; field mechanics do not interpret Value
-semantics.</p>
+<p>Provides reusable mechanics at two levels:</p>
+<ul>
+<li>Low-level bit, byte and integer primitives, including packed unsigned fields.</li>
+<li>Identifier and Length encodings, including fixed-width, variable-width and
+  escape-prefixed fields and their read/write callback contracts.</li>
+</ul>
+<p>These mechanics live under <code>tlv/field/</code> and do not describe complete elements.
+Format may compose them with field ordering, length scope, tag-only selection
+and boundary resolution through the optional helpers in <code>tlv/formats/compose.h</code>.
+Composition is part of Format, not a separate architectural layer.
+Configurations embed the reusable Identifier and Length descriptions; adapters
+follow the single-field validation and prefix-reporting contract in <code>tlv/field/</code>.
+Protocol-specific restrictions remain in the standard implementation; field
+mechanics do not interpret Value semantics. Call these mechanisms field
+encodings; reserve Codec for conversion
+between Value bytes and application values.</p>
 <h3 id="layout">Layout<a class="headerlink" href="#layout" title="Permanent link">&para;</a></h3>
 <p>Represents where the parts of one concrete encoded element are located in the source bytes.</p>
 <p>Examples:</p>
@@ -4205,9 +4230,9 @@ semantics.</p>
 </ul>
 <p>Layout is runtime information produced while parsing.</p>
 <p>In the current C API, <code>tlv_source_t</code> and <code>tlv_range_t</code> carry this information;
-<code>tlv_decoded_t</code> pairs it with the semantic Element. The reusable field-layout
-configuration types in <code>tlv/layout.h</code> belong to Format composition, not to a
-concrete decoded instance's Layout.</p>
+<code>tlv_decoded_t</code> pairs it with the semantic Element. Reusable configuration
+belongs to Format composition; Layout is reserved for the ranges of a concrete
+decoded instance.</p>
 <p>Format defines the rules.
 Layout describes the result of applying those rules to concrete bytes.</p>
 <h3 id="element">Element<a class="headerlink" href="#element" title="Permanent link">&para;</a></h3>
@@ -4285,7 +4310,7 @@ representation built on these primitives.</p>
 <p>Phase 2 dynamically configures the same abstractions established by Phase 1.</p>
 <p>Runtime:</p>
 <div class="highlight"><pre><span></span><code><a id="__codelineno-4-1" name="__codelineno-4-1" href="#__codelineno-4-1"></a>runtime Definition
-<a id="__codelineno-4-2" name="__codelineno-4-2" href="#__codelineno-4-2"></a>runtime Format / Field Encoding / Layout configuration
+<a id="__codelineno-4-2" name="__codelineno-4-2" href="#__codelineno-4-2"></a>runtime Format composition / Field Encoding configuration
 <a id="__codelineno-4-3" name="__codelineno-4-3" href="#__codelineno-4-3"></a>runtime Schema
 <a id="__codelineno-4-4" name="__codelineno-4-4" href="#__codelineno-4-4"></a>runtime Codec
 </code></pre></div>

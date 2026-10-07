@@ -3769,7 +3769,7 @@ element occupies <code>encodedSize</code> bytes from <code>offset</code>, includ
 <code>source</code> contains absolute <code>{offset, length}</code> ranges for <code>header</code>, <code>tag</code>,
 <code>length</code>, <code>value</code> and <code>trailer</code>; empty regions have length zero. The logical
 Value excludes the enclosing trailer. Field order comes from these ranges,
-so LTV and BER end-of-contents need no byte-layout guessing in the viewer.
+so LTV and BER end-of-contents need no wire-framing guessing in the viewer.
 The JSON example above omits <code>encodedSize</code> and <code>source</code> for brevity.</p>
 <p><code>format: "cer"</code> uses the generic tree visitor with <code>tlv_format_cer</code>, preserving
 preorder output and EOC source ranges. It checks framing only; full CER

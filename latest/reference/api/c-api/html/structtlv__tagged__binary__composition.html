@@ -5,7 +5,7 @@
 <meta http-equiv="X-UA-Compatible" content="IE=11"/>
 <meta name="generator" content="Doxygen 1.9.8"/>
 <meta name="viewport" content="width=device-width, initial-scale=1"/>
-<title>OpenTLV C API: tlv_tagged_binary_layout Struct Reference</title>
+<title>OpenTLV C API: tlv_tagged_binary_composition Struct Reference</title>
 <link href="tabs.css" rel="stylesheet" type="text/css"/>
 <script type="text/javascript" src="jquery.js"></script>
 <script type="text/javascript" src="dynsections.js"></script>
@@ -71,52 +71,52 @@ $(function() {
 <div class="header">
   <div class="summary">
 <a href="#pub-attribs">Data Fields</a>  </div>
-  <div class="headertitle"><div class="title">tlv_tagged_binary_layout Struct Reference<div class="ingroups"><a class="el" href="group__formats.html">Formats</a></div></div></div>
+  <div class="headertitle"><div class="title">tlv_tagged_binary_composition Struct Reference<div class="ingroups"><a class="el" href="group__formats.html">Formats</a></div></div></div>
 </div><!--header-->
 <div class="contents">
 
 <p>Fixed binary TLV framing with identifier-selected tag-only elements.  
- <a href="structtlv__tagged__binary__layout.html#details">More...</a></p>
+ <a href="structtlv__tagged__binary__composition.html#details">More...</a></p>
 
-<p><code>#include &lt;layout.h&gt;</code></p>
+<p><code>#include &lt;compose.h&gt;</code></p>
 <table class="memberdecls">
 <tr class="heading"><td colspan="2"><h2 class="groupheader"><a id="pub-attribs" name="pub-attribs"></a>
 Data Fields</h2></td></tr>
-<tr class="memitem:a8f96dc546377baf067cf08074ded89f2" id="r_a8f96dc546377baf067cf08074ded89f2"><td class="memItemLeft" align="right" valign="top"><a class="el" href="group__formats.html#gaa539a67f6feeae3003c2935741734354">tlv_binary_layout_t</a>&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="structtlv__tagged__binary__layout.html#a8f96dc546377baf067cf08074ded89f2">fields</a></td></tr>
-<tr class="separator:a8f96dc546377baf067cf08074ded89f2"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:a2d12a5b5c043a256e6bb9855555b2db8" id="r_a2d12a5b5c043a256e6bb9855555b2db8"><td class="memItemLeft" align="right" valign="top">const <a class="el" href="structtlv__tag__t.html">tlv_tag_t</a> *&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="structtlv__tagged__binary__layout.html#a2d12a5b5c043a256e6bb9855555b2db8">tag_only</a></td></tr>
-<tr class="separator:a2d12a5b5c043a256e6bb9855555b2db8"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:a23b525d8374732b6f2d368773d070d04" id="r_a23b525d8374732b6f2d368773d070d04"><td class="memItemLeft" align="right" valign="top">size_t&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="structtlv__tagged__binary__layout.html#a23b525d8374732b6f2d368773d070d04">count</a></td></tr>
-<tr class="separator:a23b525d8374732b6f2d368773d070d04"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a958014f8ec19a5f66301488910c96511" id="r_a958014f8ec19a5f66301488910c96511"><td class="memItemLeft" align="right" valign="top"><a class="el" href="group__formats.html#ga357e1b9f7a347ca3635e1fcccf9fc793">tlv_binary_composition_t</a>&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="structtlv__tagged__binary__composition.html#a958014f8ec19a5f66301488910c96511">fields</a></td></tr>
+<tr class="separator:a958014f8ec19a5f66301488910c96511"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a11faa4035a84b9af673bec6cb40253f7" id="r_a11faa4035a84b9af673bec6cb40253f7"><td class="memItemLeft" align="right" valign="top">const <a class="el" href="structtlv__tag__t.html">tlv_tag_t</a> *&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="structtlv__tagged__binary__composition.html#a11faa4035a84b9af673bec6cb40253f7">tag_only</a></td></tr>
+<tr class="separator:a11faa4035a84b9af673bec6cb40253f7"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a13e784d5713bdf8bb5bbe9ce05a533c3" id="r_a13e784d5713bdf8bb5bbe9ce05a533c3"><td class="memItemLeft" align="right" valign="top">size_t&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="structtlv__tagged__binary__composition.html#a13e784d5713bdf8bb5bbe9ce05a533c3">count</a></td></tr>
+<tr class="separator:a13e784d5713bdf8bb5bbe9ce05a533c3"><td class="memSeparator" colspan="2">&#160;</td></tr>
 </table>
 <a name="details" id="details"></a><h2 class="groupheader">Detailed Description</h2>
 <div class="textblock"><p>Fixed binary TLV framing with identifier-selected tag-only elements. </p>
 <p>Identifiers listed in tag_only omit both Length and Value; all other tags use fields. Selection compares raw identifier bytes, without numeric or protocol interpretation. Listed identifiers require an empty semantic Value. A decoded tag-only element has an absent Length range and present empty Value and Trailer ranges immediately after Tag. No terminator policy is implied.</p>
-<p>Configuration, table and identifier bytes are borrowed and immutable and must outlive the descriptor. No operation allocates. fields must use TLV ordering and VALUE scope, with nonzero tag_size and length_size in 1..8. Duplicate table entries are permitted and have no additional effect. </p>
+<p>Configuration, table and identifier bytes are borrowed and immutable and must outlive the descriptor. No operation allocates. fields must use TLV ordering and VALUE scope, with valid identifier and length field configurations. Duplicate table entries are permitted and have no additional effect. </p>
 </div><h2 class="groupheader">Field Documentation</h2>
-<a id="a23b525d8374732b6f2d368773d070d04" name="a23b525d8374732b6f2d368773d070d04"></a>
-<h2 class="memtitle"><span class="permalink"><a href="#a23b525d8374732b6f2d368773d070d04">&#9670;&#160;</a></span>count</h2>
+<a id="a13e784d5713bdf8bb5bbe9ce05a533c3" name="a13e784d5713bdf8bb5bbe9ce05a533c3"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#a13e784d5713bdf8bb5bbe9ce05a533c3">&#9670;&#160;</a></span>count</h2>
 
 <div class="memitem">
 <div class="memproto">
       <table class="memname">
         <tr>
-          <td class="memname">size_t tlv_tagged_binary_layout::count</td>
+          <td class="memname">size_t tlv_tagged_binary_composition::count</td>
         </tr>
       </table>
 </div><div class="memdoc">
-<p>Number of entries; each must have fields.tag_size bytes. </p>
+<p>Number of entries; each must have fields.identifier.size bytes. </p>
 
 </div>
 </div>
-<a id="a8f96dc546377baf067cf08074ded89f2" name="a8f96dc546377baf067cf08074ded89f2"></a>
-<h2 class="memtitle"><span class="permalink"><a href="#a8f96dc546377baf067cf08074ded89f2">&#9670;&#160;</a></span>fields</h2>
+<a id="a958014f8ec19a5f66301488910c96511" name="a958014f8ec19a5f66301488910c96511"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#a958014f8ec19a5f66301488910c96511">&#9670;&#160;</a></span>fields</h2>
 
 <div class="memitem">
 <div class="memproto">
       <table class="memname">
         <tr>
-          <td class="memname"><a class="el" href="group__formats.html#gaa539a67f6feeae3003c2935741734354">tlv_binary_layout_t</a> tlv_tagged_binary_layout::fields</td>
+          <td class="memname"><a class="el" href="group__formats.html#ga357e1b9f7a347ca3635e1fcccf9fc793">tlv_binary_composition_t</a> tlv_tagged_binary_composition::fields</td>
         </tr>
       </table>
 </div><div class="memdoc">
@@ -124,14 +124,14 @@ Data Fields</h2></td></tr>
 
 </div>
 </div>
-<a id="a2d12a5b5c043a256e6bb9855555b2db8" name="a2d12a5b5c043a256e6bb9855555b2db8"></a>
-<h2 class="memtitle"><span class="permalink"><a href="#a2d12a5b5c043a256e6bb9855555b2db8">&#9670;&#160;</a></span>tag_only</h2>
+<a id="a11faa4035a84b9af673bec6cb40253f7" name="a11faa4035a84b9af673bec6cb40253f7"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#a11faa4035a84b9af673bec6cb40253f7">&#9670;&#160;</a></span>tag_only</h2>
 
 <div class="memitem">
 <div class="memproto">
       <table class="memname">
         <tr>
-          <td class="memname">const <a class="el" href="structtlv__tag__t.html">tlv_tag_t</a>* tlv_tagged_binary_layout::tag_only</td>
+          <td class="memname">const <a class="el" href="structtlv__tag__t.html">tlv_tag_t</a>* tlv_tagged_binary_composition::tag_only</td>
         </tr>
       </table>
 </div><div class="memdoc">
@@ -140,7 +140,7 @@ Data Fields</h2></td></tr>
 </div>
 </div>
 <hr/>The documentation for this struct was generated from the following file:<ul>
-<li>tlv/<a class="el" href="layout_8h.html">layout.h</a></li>
+<li>tlv/formats/<a class="el" href="compose_8h.html">compose.h</a></li>
 </ul>
 </div><!-- contents -->
 <!-- start footer part -->

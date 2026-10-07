@@ -1,4 +1,4 @@
 var searchData=
 [
-  ['formats_0',['Formats',['../../../c-api/html/group__formats.html',1,'']]]
+  ['encoding_0',['Field Encoding',['../../../c-api/html/group__field__encoding.html',1,'']]]
 ];

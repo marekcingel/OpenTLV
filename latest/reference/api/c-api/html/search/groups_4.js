@@ -1,4 +1,4 @@
 var searchData=
 [
-  ['formats_0',['Formats',['../group__formats.html',1,'']]]
+  ['encoding_0',['Field Encoding',['../group__field__encoding.html',1,'']]]
 ];

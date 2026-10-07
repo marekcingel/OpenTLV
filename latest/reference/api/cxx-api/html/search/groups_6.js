@@ -1,4 +1,4 @@
 var searchData=
 [
-  ['reader_0',['Reader',['../../../c-api/html/group__reader.html',1,'']]]
+  ['mutable_20document_0',['Mutable document',['../../../c-api/html/group__document.html',1,'']]]
 ];

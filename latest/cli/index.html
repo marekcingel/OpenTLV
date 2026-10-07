@@ -4041,7 +4041,7 @@ whitespace characters read from a stream.</p>
 <code>der</code>, <code>bluetooth-ltv</code>, and <code>nfc-type2</code>. Existing library CMake component options control availability. Unknown
 or disabled formats fail before reading input. No format detection is performed.</p>
 <p><code>--format fixed</code> defaults to one tag byte and one big-endian length byte, matching
-<code>tlv_fixed_format_t{1, 1, TLV_BYTE_ORDER_BIG_ENDIAN}</code>. <code>--fixed-tag-size N</code> (any positive
+<code>tlv_fixed_format_t{{1}, {1, TLV_BYTE_ORDER_BIG_ENDIAN}}</code>. <code>--fixed-tag-size N</code> (any positive
 byte count), <code>--fixed-length-size N</code> (1 to 8) and <code>--fixed-byte-order big|little</code> configure it;
 all three require <code>--format fixed</code> and are otherwise rejected as invalid usage. For example:</p>
 <div class="highlight"><pre><span></span><code><a id="__codelineno-4-1" name="__codelineno-4-1" href="#__codelineno-4-1"></a>otlv<span class="w"> </span>dump<span class="w"> </span>--format<span class="w"> </span>fixed<span class="w"> </span>--fixed-tag-size<span class="w"> </span><span class="m">2</span><span class="w"> </span>--fixed-length-size<span class="w"> </span><span class="m">1</span><span class="w"> </span>--hex<span class="w"> </span><span class="s2">"0102 03 AABBCC"</span>
@@ -4335,7 +4335,7 @@ rejected by every other command.</p>
 <a id="__codelineno-20-2" name="__codelineno-20-2" href="#__codelineno-20-2"></a>offset=3 tag=9F1A requested-length=2
 </code></pre></div>
 <p>Supply the contents of tag <code>9F38</code>, not its enclosing TLV header. Ordinary TLV
-dumping still leaves that value opaque. The same pair layout is used by other
+dumping still leaves that value opaque. The same pair representation is used by other
 EMV DOLs. Tags contain one or two bytes; each requested length is exactly one
 unsigned byte (0..255), including <code>80</code> and <code>FF</code>. No value follows the length.
 Order and duplicate tags are preserved. This mode neither constructs terminal

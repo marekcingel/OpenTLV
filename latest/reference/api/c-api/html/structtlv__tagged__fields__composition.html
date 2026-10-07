@@ -5,7 +5,7 @@
 <meta http-equiv="X-UA-Compatible" content="IE=11"/>
 <meta name="generator" content="Doxygen 1.9.8"/>
 <meta name="viewport" content="width=device-width, initial-scale=1"/>
-<title>OpenTLV C API: tlv_tagged_fields_layout Struct Reference</title>
+<title>OpenTLV C API: tlv_tagged_fields_composition Struct Reference</title>
 <link href="tabs.css" rel="stylesheet" type="text/css"/>
 <script type="text/javascript" src="jquery.js"></script>
 <script type="text/javascript" src="dynsections.js"></script>
@@ -71,36 +71,36 @@ $(function() {
 <div class="header">
   <div class="summary">
 <a href="#pub-attribs">Data Fields</a>  </div>
-  <div class="headertitle"><div class="title">tlv_tagged_fields_layout Struct Reference<div class="ingroups"><a class="el" href="group__formats.html">Formats</a></div></div></div>
+  <div class="headertitle"><div class="title">tlv_tagged_fields_composition Struct Reference<div class="ingroups"><a class="el" href="group__formats.html">Formats</a></div></div></div>
 </div><!--header-->
 <div class="contents">
 
-<p>Field codec composition with identifier-selected tag-only elements.  
- <a href="structtlv__tagged__fields__layout.html#details">More...</a></p>
+<p>Field encoding composition with identifier-selected tag-only elements.  
+ <a href="structtlv__tagged__fields__composition.html#details">More...</a></p>
 
-<p><code>#include &lt;layout.h&gt;</code></p>
+<p><code>#include &lt;compose.h&gt;</code></p>
 <table class="memberdecls">
 <tr class="heading"><td colspan="2"><h2 class="groupheader"><a id="pub-attribs" name="pub-attribs"></a>
 Data Fields</h2></td></tr>
-<tr class="memitem:a6eebcb14d232f6a29c5c432dd40ce842" id="r_a6eebcb14d232f6a29c5c432dd40ce842"><td class="memItemLeft" align="right" valign="top"><a class="el" href="group__formats.html#ga219256615355bced52734b26d900f4cf">tlv_field_layout_t</a>&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="structtlv__tagged__fields__layout.html#a6eebcb14d232f6a29c5c432dd40ce842">fields</a></td></tr>
-<tr class="separator:a6eebcb14d232f6a29c5c432dd40ce842"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:ae3b611dfc88866dd259b5bfd33835623" id="r_ae3b611dfc88866dd259b5bfd33835623"><td class="memItemLeft" align="right" valign="top">const <a class="el" href="structtlv__tag__t.html">tlv_tag_t</a> *&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="structtlv__tagged__fields__layout.html#ae3b611dfc88866dd259b5bfd33835623">tag_only</a></td></tr>
-<tr class="separator:ae3b611dfc88866dd259b5bfd33835623"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:af933b106921f8f5e9a861a2eb5ddab10" id="r_af933b106921f8f5e9a861a2eb5ddab10"><td class="memItemLeft" align="right" valign="top">size_t&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="structtlv__tagged__fields__layout.html#af933b106921f8f5e9a861a2eb5ddab10">count</a></td></tr>
-<tr class="separator:af933b106921f8f5e9a861a2eb5ddab10"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a050b864c5337099fab5d89dbb760a8f3" id="r_a050b864c5337099fab5d89dbb760a8f3"><td class="memItemLeft" align="right" valign="top"><a class="el" href="group__formats.html#gaf5d0e7e17ca8c32a2137fd1c89861315">tlv_field_composition_t</a>&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="structtlv__tagged__fields__composition.html#a050b864c5337099fab5d89dbb760a8f3">fields</a></td></tr>
+<tr class="separator:a050b864c5337099fab5d89dbb760a8f3"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a6c0157258ddd36e6315298bc2aec9038" id="r_a6c0157258ddd36e6315298bc2aec9038"><td class="memItemLeft" align="right" valign="top">const <a class="el" href="structtlv__tag__t.html">tlv_tag_t</a> *&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="structtlv__tagged__fields__composition.html#a6c0157258ddd36e6315298bc2aec9038">tag_only</a></td></tr>
+<tr class="separator:a6c0157258ddd36e6315298bc2aec9038"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a0cccbb9aa301fef1f1aa1c79789bed19" id="r_a0cccbb9aa301fef1f1aa1c79789bed19"><td class="memItemLeft" align="right" valign="top">size_t&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="structtlv__tagged__fields__composition.html#a0cccbb9aa301fef1f1aa1c79789bed19">count</a></td></tr>
+<tr class="separator:a0cccbb9aa301fef1f1aa1c79789bed19"><td class="memSeparator" colspan="2">&#160;</td></tr>
 </table>
 <a name="details" id="details"></a><h2 class="groupheader">Detailed Description</h2>
-<div class="textblock"><p>Field codec composition with identifier-selected tag-only elements. </p>
+<div class="textblock"><p>Field encoding composition with identifier-selected tag-only elements. </p>
 <p>The borrowed immutable fields, table and identifier bytes must outlive all operations. Fields must provide both reading and writing, use TLV/VALUE framing and have no bounds resolver. Table identifiers use semantic byte identity and must be encodable by fields.write_tag. Duplicate entries are harmless. Tag-only elements omit Length and require an empty Value; their source Value/Trailer ranges are present and empty immediately after Tag. No skip or stop policy is implied. No operation allocates. </p>
 </div><h2 class="groupheader">Field Documentation</h2>
-<a id="af933b106921f8f5e9a861a2eb5ddab10" name="af933b106921f8f5e9a861a2eb5ddab10"></a>
-<h2 class="memtitle"><span class="permalink"><a href="#af933b106921f8f5e9a861a2eb5ddab10">&#9670;&#160;</a></span>count</h2>
+<a id="a0cccbb9aa301fef1f1aa1c79789bed19" name="a0cccbb9aa301fef1f1aa1c79789bed19"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#a0cccbb9aa301fef1f1aa1c79789bed19">&#9670;&#160;</a></span>count</h2>
 
 <div class="memitem">
 <div class="memproto">
       <table class="memname">
         <tr>
-          <td class="memname">size_t tlv_tagged_fields_layout::count</td>
+          <td class="memname">size_t tlv_tagged_fields_composition::count</td>
         </tr>
       </table>
 </div><div class="memdoc">
@@ -108,29 +108,29 @@ Data Fields</h2></td></tr>
 
 </div>
 </div>
-<a id="a6eebcb14d232f6a29c5c432dd40ce842" name="a6eebcb14d232f6a29c5c432dd40ce842"></a>
-<h2 class="memtitle"><span class="permalink"><a href="#a6eebcb14d232f6a29c5c432dd40ce842">&#9670;&#160;</a></span>fields</h2>
+<a id="a050b864c5337099fab5d89dbb760a8f3" name="a050b864c5337099fab5d89dbb760a8f3"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#a050b864c5337099fab5d89dbb760a8f3">&#9670;&#160;</a></span>fields</h2>
 
 <div class="memitem">
 <div class="memproto">
       <table class="memname">
         <tr>
-          <td class="memname"><a class="el" href="group__formats.html#ga219256615355bced52734b26d900f4cf">tlv_field_layout_t</a> tlv_tagged_fields_layout::fields</td>
+          <td class="memname"><a class="el" href="group__formats.html#gaf5d0e7e17ca8c32a2137fd1c89861315">tlv_field_composition_t</a> tlv_tagged_fields_composition::fields</td>
         </tr>
       </table>
 </div><div class="memdoc">
-<p>Default field codec composition. </p>
+<p>Default field encoding composition. </p>
 
 </div>
 </div>
-<a id="ae3b611dfc88866dd259b5bfd33835623" name="ae3b611dfc88866dd259b5bfd33835623"></a>
-<h2 class="memtitle"><span class="permalink"><a href="#ae3b611dfc88866dd259b5bfd33835623">&#9670;&#160;</a></span>tag_only</h2>
+<a id="a6c0157258ddd36e6315298bc2aec9038" name="a6c0157258ddd36e6315298bc2aec9038"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#a6c0157258ddd36e6315298bc2aec9038">&#9670;&#160;</a></span>tag_only</h2>
 
 <div class="memitem">
 <div class="memproto">
       <table class="memname">
         <tr>
-          <td class="memname">const <a class="el" href="structtlv__tag__t.html">tlv_tag_t</a>* tlv_tagged_fields_layout::tag_only</td>
+          <td class="memname">const <a class="el" href="structtlv__tag__t.html">tlv_tag_t</a>* tlv_tagged_fields_composition::tag_only</td>
         </tr>
       </table>
 </div><div class="memdoc">
@@ -139,7 +139,7 @@ Data Fields</h2></td></tr>
 </div>
 </div>
 <hr/>The documentation for this struct was generated from the following file:<ul>
-<li>tlv/<a class="el" href="layout_8h.html">layout.h</a></li>
+<li>tlv/formats/<a class="el" href="compose_8h.html">compose.h</a></li>
 </ul>
 </div><!-- contents -->
 <!-- start footer part -->

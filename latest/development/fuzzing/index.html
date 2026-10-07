@@ -3638,17 +3638,17 @@ parsed input.</p>
 concatenated elements, truncated tag/length/value, invalid/overflowing lengths,
 high-number tags, nested containers, BER indefinite framing and EOC errors,
 noncanonical DER framing, and depth-limit boundaries. <code>bluetooth-ltv-*</code> seeds
-cover the length-first layout: valid advertising data, zero-length padding,
+cover length-first framing: valid advertising data, zero-length padding,
 truncated and overrunning lengths, the maximum length byte, and type-only
 elements. The raw formats use <code>0x20</code> as a test-only constructed bit in the visitor.</p>
-<p><code>corpus/roundtrip</code> uses a different layout: byte 0 modulo
+<p><code>corpus/roundtrip</code> uses a different input structure: byte 0 modulo
 <code>17</code> gives the candidate tag size, clamped to the remaining
 input size; subsequent bytes hold that tag, followed by its value. Empty input
 produces an empty candidate tag/value. Every input is also tested as a value
 with the valid primitive tag <code>04</code>, ensuring successful writes are exercised.
 Long-value seeds cover 127/128 and 255/256 length transitions, including the
 Bluetooth LTV 254/255-byte value limit.</p>
-<p><code>builtins/fixed/corpus/fixed</code> uses its own layout: the first three bytes
+<p><code>builtins/fixed/corpus/fixed</code> uses its own input structure: the first three bytes
 select the <code>tlv_fixed_format_t</code> under test (tag width, length width, and
 byte order, each masked into its valid range), and the rest is a payload
 tried both as a tag/value pair to round-trip through that configuration and

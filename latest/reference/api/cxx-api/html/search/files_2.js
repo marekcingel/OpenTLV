@@ -9,10 +9,11 @@ var searchData=
   ['company_5fids_2eh_6',['company_ids.h',['../../../c-api/html/company__ids_8h.html',1,'']]],
   ['compat_2ehpp_7',['compat.hpp',['../compat_8hpp.html',1,'']]],
   ['compiler_2eh_8',['compiler.h',['../../../c-api/html/compiler_8h.html',1,'']]],
-  ['config_2eh_9',['config.h',['../../../c-api/html/config_8h.html',1,'']]],
-  ['constraint_2eh_10',['constraint.h',['../../../c-api/html/constraint_8h.html',1,'']]],
-  ['container_2eh_11',['container.h',['../../../c-api/html/container_8h.html',1,'']]],
-  ['container_2ehpp_12',['container.hpp',['../container_8hpp.html',1,'']]],
-  ['copy_2eh_13',['copy.h',['../../../c-api/html/copy_8h.html',1,'']]],
-  ['cxx_2dapi_2edox_14',['cxx-api.dox',['../cxx-api_8dox.html',1,'']]]
+  ['compose_2eh_9',['compose.h',['../../../c-api/html/compose_8h.html',1,'']]],
+  ['config_2eh_10',['config.h',['../../../c-api/html/config_8h.html',1,'']]],
+  ['constraint_2eh_11',['constraint.h',['../../../c-api/html/constraint_8h.html',1,'']]],
+  ['container_2eh_12',['container.h',['../../../c-api/html/container_8h.html',1,'']]],
+  ['container_2ehpp_13',['container.hpp',['../container_8hpp.html',1,'']]],
+  ['copy_2eh_14',['copy.h',['../../../c-api/html/copy_8h.html',1,'']]],
+  ['cxx_2dapi_2edox_15',['cxx-api.dox',['../cxx-api_8dox.html',1,'']]]
 ];

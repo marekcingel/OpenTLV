@@ -5,7 +5,7 @@
 <meta http-equiv="X-UA-Compatible" content="IE=11"/>
 <meta name="generator" content="Doxygen 1.9.8"/>
 <meta name="viewport" content="width=device-width, initial-scale=1"/>
-<title>OpenTLV C API: tlv/formats/variable.h File Reference</title>
+<title>OpenTLV C API: tlv/field/variable.h File Reference</title>
 <link href="tabs.css" rel="stylesheet" type="text/css"/>
 <script type="text/javascript" src="jquery.js"></script>
 <script type="text/javascript" src="dynsections.js"></script>
@@ -69,7 +69,7 @@ $(function() {
 
 <div id="nav-path" class="navpath">
   <ul>
-<li class="navelem"><a class="el" href="dir_19ad8241a0a4e087f79ee19a3ff0f932.html">tlv</a></li><li class="navelem"><a class="el" href="dir_0a2251813a2f8fc32fda035b51d4c9be.html">formats</a></li>  </ul>
+<li class="navelem"><a class="el" href="dir_19ad8241a0a4e087f79ee19a3ff0f932.html">tlv</a></li><li class="navelem"><a class="el" href="dir_8adb0d31bca0f70aacb00a12045a34a5.html">field</a></li>  </ul>
 </div>
 </div><!-- top -->
 <div class="header">
@@ -77,13 +77,15 @@ $(function() {
 <a href="#nested-classes">Data Structures</a> &#124;
 <a href="#typedef-members">Typedefs</a> &#124;
 <a href="#func-members">Functions</a>  </div>
-  <div class="headertitle"><div class="title">variable.h File Reference<div class="ingroups"><a class="el" href="group__formats.html">Formats</a></div></div></div>
+  <div class="headertitle"><div class="title">variable.h File Reference<div class="ingroups"><a class="el" href="group__field__encoding.html">Field Encoding</a></div></div></div>
 </div><!--header-->
 <div class="contents">
 
 <p>Configurable variable-width identifier and count primitives.  
 <a href="#details">More...</a></p>
-<div class="textblock"><code>#include &quot;<a class="el" href="layout_8h.html">tlv/layout.h</a>&quot;</code><br />
+<div class="textblock"><code>#include &quot;<a class="el" href="tag_8h.html">tlv/tag.h</a>&quot;</code><br />
+<code>#include &quot;<a class="el" href="size_8h.html">tlv/size.h</a>&quot;</code><br />
+<code>#include &quot;<a class="el" href="endian_8h.html">tlv/endian.h</a>&quot;</code><br />
 </div><table class="memberdecls">
 <tr class="heading"><td colspan="2"><h2 class="groupheader"><a id="nested-classes" name="nested-classes"></a>
 Data Structures</h2></td></tr>
@@ -93,42 +95,30 @@ Data Structures</h2></td></tr>
 <tr class="memitem:"><td class="memItemLeft" align="right" valign="top">struct &#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="structtlv__variable__length.html">tlv_variable_length</a></td></tr>
 <tr class="memdesc:"><td class="mdescLeft">&#160;</td><td class="mdescRight">Short unsigned count or a prefix specifying the following octet count.  <a href="structtlv__variable__length.html#details">More...</a><br /></td></tr>
 <tr class="separator:"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:"><td class="memItemLeft" align="right" valign="top">struct &#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="structtlv__variable__format.html">tlv_variable_format</a></td></tr>
-<tr class="memdesc:"><td class="mdescLeft">&#160;</td><td class="mdescRight">Definite variable-width field configuration for TLV or LTV.  <a href="structtlv__variable__format.html#details">More...</a><br /></td></tr>
-<tr class="separator:"><td class="memSeparator" colspan="2">&#160;</td></tr>
 </table><table class="memberdecls">
 <tr class="heading"><td colspan="2"><h2 class="groupheader"><a id="typedef-members" name="typedef-members"></a>
 Typedefs</h2></td></tr>
-<tr class="memitem:ga6f571fc336adff5ecbcb18fdeb432846" id="r_ga6f571fc336adff5ecbcb18fdeb432846"><td class="memItemLeft" align="right" valign="top">typedef struct <a class="el" href="structtlv__variable__identifier.html">tlv_variable_identifier</a>&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="group__formats.html#ga6f571fc336adff5ecbcb18fdeb432846">tlv_variable_identifier_t</a></td></tr>
+<tr class="memitem:ga6f571fc336adff5ecbcb18fdeb432846" id="r_ga6f571fc336adff5ecbcb18fdeb432846"><td class="memItemLeft" align="right" valign="top">typedef struct <a class="el" href="structtlv__variable__identifier.html">tlv_variable_identifier</a>&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="group__field__encoding.html#ga6f571fc336adff5ecbcb18fdeb432846">tlv_variable_identifier_t</a></td></tr>
 <tr class="memdesc:ga6f571fc336adff5ecbcb18fdeb432846"><td class="mdescLeft">&#160;</td><td class="mdescRight">Inline identifier bits with an escape into continuation octets.  <br /></td></tr>
 <tr class="separator:ga6f571fc336adff5ecbcb18fdeb432846"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:gaa63b1e8474b5f92b9d39cd928eb9d60d" id="r_gaa63b1e8474b5f92b9d39cd928eb9d60d"><td class="memItemLeft" align="right" valign="top">typedef struct <a class="el" href="structtlv__variable__length.html">tlv_variable_length</a>&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="group__formats.html#gaa63b1e8474b5f92b9d39cd928eb9d60d">tlv_variable_length_t</a></td></tr>
+<tr class="memitem:gaa63b1e8474b5f92b9d39cd928eb9d60d" id="r_gaa63b1e8474b5f92b9d39cd928eb9d60d"><td class="memItemLeft" align="right" valign="top">typedef struct <a class="el" href="structtlv__variable__length.html">tlv_variable_length</a>&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="group__field__encoding.html#gaa63b1e8474b5f92b9d39cd928eb9d60d">tlv_variable_length_t</a></td></tr>
 <tr class="memdesc:gaa63b1e8474b5f92b9d39cd928eb9d60d"><td class="mdescLeft">&#160;</td><td class="mdescRight">Short unsigned count or a prefix specifying the following octet count.  <br /></td></tr>
 <tr class="separator:gaa63b1e8474b5f92b9d39cd928eb9d60d"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:gacf4370ef904f1de0996496b92a1f6679" id="r_gacf4370ef904f1de0996496b92a1f6679"><td class="memItemLeft" align="right" valign="top">typedef struct <a class="el" href="structtlv__variable__format.html">tlv_variable_format</a>&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="group__formats.html#gacf4370ef904f1de0996496b92a1f6679">tlv_variable_format_t</a></td></tr>
-<tr class="memdesc:gacf4370ef904f1de0996496b92a1f6679"><td class="mdescLeft">&#160;</td><td class="mdescRight">Definite variable-width field configuration for TLV or LTV.  <br /></td></tr>
-<tr class="separator:gacf4370ef904f1de0996496b92a1f6679"><td class="memSeparator" colspan="2">&#160;</td></tr>
 </table><table class="memberdecls">
 <tr class="heading"><td colspan="2"><h2 class="groupheader"><a id="func-members" name="func-members"></a>
 Functions</h2></td></tr>
-<tr class="memitem:gab96fa0fd2f00eaea14615ddfe4616577" id="r_gab96fa0fd2f00eaea14615ddfe4616577"><td class="memItemLeft" align="right" valign="top"><a class="el" href="group__core.html#ga164d2817a32e5d7b7aa1472e887b47c3">tlv_result_t</a>&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="group__formats.html#gab96fa0fd2f00eaea14615ddfe4616577">tlv_variable_identifier_read</a> (const <a class="el" href="group__formats.html#ga6f571fc336adff5ecbcb18fdeb432846">tlv_variable_identifier_t</a> *config, const uint8_t *data, size_t size, <a class="el" href="structtlv__tag__t.html">tlv_tag_t</a> *tag, size_t *consumed)</td></tr>
+<tr class="memitem:gab96fa0fd2f00eaea14615ddfe4616577" id="r_gab96fa0fd2f00eaea14615ddfe4616577"><td class="memItemLeft" align="right" valign="top"><a class="el" href="group__core.html#ga164d2817a32e5d7b7aa1472e887b47c3">tlv_result_t</a>&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="group__field__encoding.html#gab96fa0fd2f00eaea14615ddfe4616577">tlv_variable_identifier_read</a> (const <a class="el" href="group__field__encoding.html#ga6f571fc336adff5ecbcb18fdeb432846">tlv_variable_identifier_t</a> *config, const uint8_t *data, size_t size, <a class="el" href="structtlv__tag__t.html">tlv_tag_t</a> *tag, size_t *consumed)</td></tr>
 <tr class="memdesc:gab96fa0fd2f00eaea14615ddfe4616577"><td class="mdescLeft">&#160;</td><td class="mdescRight">Read a complete variable identifier without copying its bytes.  <br /></td></tr>
 <tr class="separator:gab96fa0fd2f00eaea14615ddfe4616577"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:ga1a1e8e03b3606f61f54aa243bd97eb5f" id="r_ga1a1e8e03b3606f61f54aa243bd97eb5f"><td class="memItemLeft" align="right" valign="top"><a class="el" href="group__core.html#ga164d2817a32e5d7b7aa1472e887b47c3">tlv_result_t</a>&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="group__formats.html#ga1a1e8e03b3606f61f54aa243bd97eb5f">tlv_variable_identifier_write</a> (const <a class="el" href="group__formats.html#ga6f571fc336adff5ecbcb18fdeb432846">tlv_variable_identifier_t</a> *config, const <a class="el" href="structtlv__tag__t.html">tlv_tag_t</a> *tag, uint8_t *data, size_t capacity, size_t *written)</td></tr>
+<tr class="memitem:ga1a1e8e03b3606f61f54aa243bd97eb5f" id="r_ga1a1e8e03b3606f61f54aa243bd97eb5f"><td class="memItemLeft" align="right" valign="top"><a class="el" href="group__core.html#ga164d2817a32e5d7b7aa1472e887b47c3">tlv_result_t</a>&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="group__field__encoding.html#ga1a1e8e03b3606f61f54aa243bd97eb5f">tlv_variable_identifier_write</a> (const <a class="el" href="group__field__encoding.html#ga6f571fc336adff5ecbcb18fdeb432846">tlv_variable_identifier_t</a> *config, const <a class="el" href="structtlv__tag__t.html">tlv_tag_t</a> *tag, uint8_t *data, size_t capacity, size_t *written)</td></tr>
 <tr class="memdesc:ga1a1e8e03b3606f61f54aa243bd97eb5f"><td class="mdescLeft">&#160;</td><td class="mdescRight">Validate and copy a raw identifier, or measure it with NULL output.  <br /></td></tr>
 <tr class="separator:ga1a1e8e03b3606f61f54aa243bd97eb5f"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:ga72d26e71a434830afb98051697bef35b" id="r_ga72d26e71a434830afb98051697bef35b"><td class="memItemLeft" align="right" valign="top"><a class="el" href="group__core.html#ga164d2817a32e5d7b7aa1472e887b47c3">tlv_result_t</a>&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="group__formats.html#ga72d26e71a434830afb98051697bef35b">tlv_variable_length_read</a> (const <a class="el" href="group__formats.html#gaa63b1e8474b5f92b9d39cd928eb9d60d">tlv_variable_length_t</a> *config, const uint8_t *data, size_t size, <a class="el" href="group__core.html#gaf15b8962e0139f0bfb17769739dcd9f8">tlv_size_t</a> *length, size_t *consumed)</td></tr>
+<tr class="memitem:ga72d26e71a434830afb98051697bef35b" id="r_ga72d26e71a434830afb98051697bef35b"><td class="memItemLeft" align="right" valign="top"><a class="el" href="group__core.html#ga164d2817a32e5d7b7aa1472e887b47c3">tlv_result_t</a>&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="group__field__encoding.html#ga72d26e71a434830afb98051697bef35b">tlv_variable_length_read</a> (const <a class="el" href="group__field__encoding.html#gaa63b1e8474b5f92b9d39cd928eb9d60d">tlv_variable_length_t</a> *config, const uint8_t *data, size_t size, <a class="el" href="group__core.html#gaf15b8962e0139f0bfb17769739dcd9f8">tlv_size_t</a> *length, size_t *consumed)</td></tr>
 <tr class="memdesc:ga72d26e71a434830afb98051697bef35b"><td class="mdescLeft">&#160;</td><td class="mdescRight">Decode a definite count without narrowing to native size.  <br /></td></tr>
 <tr class="separator:ga72d26e71a434830afb98051697bef35b"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:gaa83a0cbd4983a982f7ba3eec98a76366" id="r_gaa83a0cbd4983a982f7ba3eec98a76366"><td class="memItemLeft" align="right" valign="top"><a class="el" href="group__core.html#ga164d2817a32e5d7b7aa1472e887b47c3">tlv_result_t</a>&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="group__formats.html#gaa83a0cbd4983a982f7ba3eec98a76366">tlv_variable_length_write</a> (const <a class="el" href="group__formats.html#gaa63b1e8474b5f92b9d39cd928eb9d60d">tlv_variable_length_t</a> *config, <a class="el" href="group__core.html#gaf15b8962e0139f0bfb17769739dcd9f8">tlv_size_t</a> length, uint8_t *data, size_t capacity, size_t *written)</td></tr>
+<tr class="memitem:gaa83a0cbd4983a982f7ba3eec98a76366" id="r_gaa83a0cbd4983a982f7ba3eec98a76366"><td class="memItemLeft" align="right" valign="top"><a class="el" href="group__core.html#ga164d2817a32e5d7b7aa1472e887b47c3">tlv_result_t</a>&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="group__field__encoding.html#gaa83a0cbd4983a982f7ba3eec98a76366">tlv_variable_length_write</a> (const <a class="el" href="group__field__encoding.html#gaa63b1e8474b5f92b9d39cd928eb9d60d">tlv_variable_length_t</a> *config, <a class="el" href="group__core.html#gaf15b8962e0139f0bfb17769739dcd9f8">tlv_size_t</a> length, uint8_t *data, size_t capacity, size_t *written)</td></tr>
 <tr class="memdesc:gaa83a0cbd4983a982f7ba3eec98a76366"><td class="mdescLeft">&#160;</td><td class="mdescRight">Encode a definite count, or measure it with NULL output.  <br /></td></tr>
 <tr class="separator:gaa83a0cbd4983a982f7ba3eec98a76366"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:ga733cac9d8ecc8d87ceb1f760b7fac710" id="r_ga733cac9d8ecc8d87ceb1f760b7fac710"><td class="memItemLeft" align="right" valign="top"><a class="el" href="group__core.html#ga164d2817a32e5d7b7aa1472e887b47c3">tlv_result_t</a>&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="group__formats.html#ga733cac9d8ecc8d87ceb1f760b7fac710">tlv_variable_fields_init</a> (<a class="el" href="group__formats.html#ga219256615355bced52734b26d900f4cf">tlv_field_layout_t</a> *fields, const <a class="el" href="group__formats.html#gacf4370ef904f1de0996496b92a1f6679">tlv_variable_format_t</a> *config)</td></tr>
-<tr class="memdesc:ga733cac9d8ecc8d87ceb1f760b7fac710"><td class="mdescLeft">&#160;</td><td class="mdescRight">Initialize reusable variable field callbacks for format composition.  <br /></td></tr>
-<tr class="separator:ga733cac9d8ecc8d87ceb1f760b7fac710"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:ga68ed194abac8f01ace32853e31822957" id="r_ga68ed194abac8f01ace32853e31822957"><td class="memItemLeft" align="right" valign="top"><a class="el" href="group__core.html#ga164d2817a32e5d7b7aa1472e887b47c3">tlv_result_t</a>&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="group__formats.html#ga68ed194abac8f01ace32853e31822957">tlv_variable_format_init</a> (<a class="el" href="group__formats.html#gac461da7e8d46362fa8e09694efb0b062">tlv_format_t</a> *format, const <a class="el" href="group__formats.html#gacf4370ef904f1de0996496b92a1f6679">tlv_variable_format_t</a> *config)</td></tr>
-<tr class="memdesc:ga68ed194abac8f01ace32853e31822957"><td class="mdescLeft">&#160;</td><td class="mdescRight">Initialize a bidirectional definite variable-width format.  <br /></td></tr>
-<tr class="separator:ga68ed194abac8f01ace32853e31822957"><td class="memSeparator" colspan="2">&#160;</td></tr>
 </table>
 <a name="details" id="details"></a><h2 class="groupheader">Detailed Description</h2>
 <div class="textblock"><p>Configurable variable-width identifier and count primitives. </p>

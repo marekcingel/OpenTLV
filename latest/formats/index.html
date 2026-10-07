@@ -3828,7 +3828,7 @@ Codec, validation, CLI and language-preset coverage, and
 They are an extension mechanism, not a built-in standard or a supplied format.</p>
 <h2 id="compare-formats">Compare formats<a class="headerlink" href="#compare-formats" title="Permanent link">&para;</a></h2>
 <h3 id="generic-core-formats_1">Generic core formats<a class="headerlink" href="#generic-core-formats_1" title="Permanent link">&para;</a></h3>
-<p>These reusable formats describe wire layouts without protocol policy. Fixed and
+<p>These reusable formats describe wire representations without protocol policy. Fixed and
 Variable are part of the core rather than optional standards packages.</p>
 <table>
 <thead>
@@ -3844,7 +3844,7 @@ Variable are part of the core rather than optional standards packages.</p>
 </thead>
 <tbody>
 <tr>
-<td><a href="fixed/configurable/#wire-layout">Configurable fixed-width TLV</a></td>
+<td><a href="fixed/configurable/#wire-representation">Configurable fixed-width TLV</a></td>
 <td>arbitrary configured width</td>
 <td>1 to 8 bytes, big or little endian, counting the value alone or the tag and value</td>
 <td>set by the length width</td>
@@ -3866,7 +3866,7 @@ Variable are part of the core rather than optional standards packages.</p>
 <h3 id="built-in-standards_1">Built-in standards<a class="headerlink" href="#built-in-standards_1" title="Permanent link">&para;</a></h3>
 <p>These formats implement a specific standard. Their packages may also provide
 definitions, schemas, value codecs and container handling. Each format's page
-explains its wire layout and supported scope.</p>
+explains its wire representation and supported scope.</p>
 <table>
 <thead>
 <tr>
@@ -3899,7 +3899,7 @@ explains its wire layout and supported scope.</p>
 <td><code>OPENTLV_DHCP</code></td>
 </tr>
 <tr>
-<td><a href="bluetooth/#wire-layout-and-logical-model">Bluetooth LTV</a></td>
+<td><a href="bluetooth/#wire-representation-and-logical-model">Bluetooth LTV</a></td>
 <td>1-byte type</td>
 <td>1 byte, counting the type and the value</td>
 <td>254 bytes</td>
@@ -3908,7 +3908,7 @@ explains its wire layout and supported scope.</p>
 <td><code>OPENTLV_BLUETOOTH</code></td>
 </tr>
 <tr>
-<td><a href="lldp/#wire-layout-and-logical-model">LLDP</a></td>
+<td><a href="lldp/#wire-representation-and-logical-model">LLDP</a></td>
 <td>7-bit Type, canonical one-byte Tag</td>
 <td>9 bits, Value only</td>
 <td>511 bytes</td>
@@ -3917,7 +3917,7 @@ explains its wire layout and supported scope.</p>
 <td><code>OPENTLV_LLDP</code></td>
 </tr>
 <tr>
-<td><a href="asn1/ber/#layout-and-typical-use">BER-TLV</a></td>
+<td><a href="asn1/ber/#framing-and-typical-use">BER-TLV</a></td>
 <td>1 to 8 bytes (multi-byte tags)</td>
 <td>short, long, or indefinite for constructed values</td>
 <td>up to <code>SIZE_MAX</code></td>
@@ -3926,7 +3926,7 @@ explains its wire layout and supported scope.</p>
 <td><code>OPENTLV_FORMAT_BER</code></td>
 </tr>
 <tr>
-<td><a href="asn1/der/#layout-and-typical-use">DER-TLV</a></td>
+<td><a href="asn1/der/#framing-and-typical-use">DER-TLV</a></td>
 <td>as BER</td>
 <td>definite, shortest form only</td>
 <td>definite lengths</td>
@@ -3935,7 +3935,7 @@ explains its wire layout and supported scope.</p>
 <td><code>OPENTLV_FORMAT_DER</code></td>
 </tr>
 <tr>
-<td><a href="asn1/cer/#layout-and-typical-use">CER-TLV</a></td>
+<td><a href="asn1/cer/#framing-and-typical-use">CER-TLV</a></td>
 <td>as BER</td>
 <td>primitive: definite, shortest; constructed: indefinite</td>
 <td>definite lengths for primitives</td>
@@ -3945,13 +3945,13 @@ explains its wire layout and supported scope.</p>
 </tr>
 </tbody>
 </table>
-<p><a href="custom/">Application-defined formats</a> supply their own field layout,
+<p><a href="custom/">Application-defined formats</a> supply their own field composition,
 limits and nesting predicate through the same generic callback contract.</p>
 <p>Notes for choosing:</p>
 <ul>
 <li>Only BER, DER and CER carry a constructed bit, so only they nest by themselves.
   The other formats hold opaque values; nesting is then up to your predicate.</li>
-<li>DER and CER are BER with restrictions: they share the tag layout and differ in how
+<li>DER and CER are BER with restrictions: they share the tag encoding and differ in how
   lengths are chosen. Their generic readers check framing only; canonical values come from
   the validation functions.</li>
 <li>Bluetooth LTV is a preset of the configurable Fixed format that puts the length
@@ -3971,17 +3971,16 @@ limits and nesting predicate through the same generic callback contract.</p>
 <p>Include <code>tlv/reader/reader.h</code> and call <code>tlv_read</code> to parse one element from the
 beginning of a buffer:</p>
 <div class="highlight"><pre><span></span><code><a id="__codelineno-0-1" name="__codelineno-0-1" href="#__codelineno-0-1"></a><span class="cm">/* One tag byte and one length byte; config must outlive its readers. */</span>
-<a id="__codelineno-0-2" name="__codelineno-0-2" href="#__codelineno-0-2"></a><span class="k">const</span><span class="w"> </span><span class="n">tlv_fixed_format_t</span><span class="w"> </span><span class="n">config</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="p">{</span>
-<a id="__codelineno-0-3" name="__codelineno-0-3" href="#__codelineno-0-3"></a><span class="w">    </span><span class="p">.</span><span class="n">tag_size</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mi">1</span><span class="p">,</span><span class="w"> </span><span class="p">.</span><span class="n">length_size</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mi">1</span><span class="p">,</span><span class="w"> </span><span class="p">.</span><span class="n">length_order</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">TLV_BYTE_ORDER_BIG_ENDIAN</span><span class="p">};</span>
-<a id="__codelineno-0-4" name="__codelineno-0-4" href="#__codelineno-0-4"></a><span class="n">tlv_format_t</span><span class="w"> </span><span class="n">format</span><span class="p">;</span>
-<a id="__codelineno-0-5" name="__codelineno-0-5" href="#__codelineno-0-5"></a><span class="n">tlv_fixed_format_init</span><span class="p">(</span><span class="o">&amp;</span><span class="n">format</span><span class="p">,</span><span class="w"> </span><span class="o">&amp;</span><span class="n">config</span><span class="p">);</span>
-<a id="__codelineno-0-6" name="__codelineno-0-6" href="#__codelineno-0-6"></a>
-<a id="__codelineno-0-7" name="__codelineno-0-7" href="#__codelineno-0-7"></a><span class="n">tlv_element_t</span><span class="w"> </span><span class="n">element</span><span class="p">;</span>
-<a id="__codelineno-0-8" name="__codelineno-0-8" href="#__codelineno-0-8"></a><span class="kt">size_t</span><span class="w"> </span><span class="n">consumed</span><span class="p">;</span>
-<a id="__codelineno-0-9" name="__codelineno-0-9" href="#__codelineno-0-9"></a><span class="n">tlv_result_t</span><span class="w"> </span><span class="n">result</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">tlv_read</span><span class="p">(</span><span class="n">data</span><span class="p">,</span><span class="w"> </span><span class="n">size</span><span class="p">,</span><span class="w"> </span><span class="o">&amp;</span><span class="n">format</span><span class="p">,</span><span class="w"> </span><span class="o">&amp;</span><span class="n">element</span><span class="p">,</span><span class="w"> </span><span class="o">&amp;</span><span class="n">consumed</span><span class="p">);</span>
-<a id="__codelineno-0-10" name="__codelineno-0-10" href="#__codelineno-0-10"></a><span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="n">result</span><span class="w"> </span><span class="o">==</span><span class="w"> </span><span class="n">TLV_OK</span><span class="p">)</span><span class="w"> </span><span class="p">{</span>
-<a id="__codelineno-0-11" name="__codelineno-0-11" href="#__codelineno-0-11"></a><span class="w">    </span><span class="cm">/* element.value borrows data; consumed also includes any framing trailer. */</span>
-<a id="__codelineno-0-12" name="__codelineno-0-12" href="#__codelineno-0-12"></a><span class="p">}</span>
+<a id="__codelineno-0-2" name="__codelineno-0-2" href="#__codelineno-0-2"></a><span class="k">const</span><span class="w"> </span><span class="n">tlv_fixed_format_t</span><span class="w"> </span><span class="n">config</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="p">{.</span><span class="n">identifier</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="p">{</span><span class="mi">1</span><span class="p">},</span><span class="w"> </span><span class="p">.</span><span class="n">length</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="p">{</span><span class="mi">1</span><span class="p">,</span><span class="w"> </span><span class="n">TLV_BYTE_ORDER_BIG_ENDIAN</span><span class="p">}};</span>
+<a id="__codelineno-0-3" name="__codelineno-0-3" href="#__codelineno-0-3"></a><span class="n">tlv_format_t</span><span class="w"> </span><span class="n">format</span><span class="p">;</span>
+<a id="__codelineno-0-4" name="__codelineno-0-4" href="#__codelineno-0-4"></a><span class="n">tlv_fixed_format_init</span><span class="p">(</span><span class="o">&amp;</span><span class="n">format</span><span class="p">,</span><span class="w"> </span><span class="o">&amp;</span><span class="n">config</span><span class="p">);</span>
+<a id="__codelineno-0-5" name="__codelineno-0-5" href="#__codelineno-0-5"></a>
+<a id="__codelineno-0-6" name="__codelineno-0-6" href="#__codelineno-0-6"></a><span class="n">tlv_element_t</span><span class="w"> </span><span class="n">element</span><span class="p">;</span>
+<a id="__codelineno-0-7" name="__codelineno-0-7" href="#__codelineno-0-7"></a><span class="kt">size_t</span><span class="w"> </span><span class="n">consumed</span><span class="p">;</span>
+<a id="__codelineno-0-8" name="__codelineno-0-8" href="#__codelineno-0-8"></a><span class="n">tlv_result_t</span><span class="w"> </span><span class="n">result</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">tlv_read</span><span class="p">(</span><span class="n">data</span><span class="p">,</span><span class="w"> </span><span class="n">size</span><span class="p">,</span><span class="w"> </span><span class="o">&amp;</span><span class="n">format</span><span class="p">,</span><span class="w"> </span><span class="o">&amp;</span><span class="n">element</span><span class="p">,</span><span class="w"> </span><span class="o">&amp;</span><span class="n">consumed</span><span class="p">);</span>
+<a id="__codelineno-0-9" name="__codelineno-0-9" href="#__codelineno-0-9"></a><span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="n">result</span><span class="w"> </span><span class="o">==</span><span class="w"> </span><span class="n">TLV_OK</span><span class="p">)</span><span class="w"> </span><span class="p">{</span>
+<a id="__codelineno-0-10" name="__codelineno-0-10" href="#__codelineno-0-10"></a><span class="w">    </span><span class="cm">/* element.value borrows data; consumed also includes any framing trailer. */</span>
+<a id="__codelineno-0-11" name="__codelineno-0-11" href="#__codelineno-0-11"></a><span class="p">}</span>
 </code></pre></div>
 <p>Trailing bytes are ignored. The input must remain alive while using the element.
 The reader allocates no memory, copies no value bytes, and does not decode
@@ -4023,23 +4022,23 @@ even when they contain nested TLVs.</p>
 <p>Include <code>tlv/writer/writer.h</code>. Query the complete encoded size without providing value
 bytes, then write into a caller-owned buffer:</p>
 <div class="highlight"><pre><span></span><code><a id="__codelineno-2-1" name="__codelineno-2-1" href="#__codelineno-2-1"></a><span class="cm">/* One tag byte and one length byte; config must outlive its writers. */</span>
-<a id="__codelineno-2-2" name="__codelineno-2-2" href="#__codelineno-2-2"></a><span class="k">const</span><span class="w"> </span><span class="n">tlv_fixed_format_t</span><span class="w"> </span><span class="n">config</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="p">{</span>
-<a id="__codelineno-2-3" name="__codelineno-2-3" href="#__codelineno-2-3"></a><span class="w">    </span><span class="p">.</span><span class="n">tag_size</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mi">1</span><span class="p">,</span><span class="w"> </span><span class="p">.</span><span class="n">length_size</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mi">1</span><span class="p">,</span><span class="w"> </span><span class="p">.</span><span class="n">length_order</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">TLV_BYTE_ORDER_BIG_ENDIAN</span><span class="p">};</span>
-<a id="__codelineno-2-4" name="__codelineno-2-4" href="#__codelineno-2-4"></a><span class="n">tlv_format_t</span><span class="w"> </span><span class="n">format</span><span class="p">;</span>
-<a id="__codelineno-2-5" name="__codelineno-2-5" href="#__codelineno-2-5"></a><span class="n">tlv_fixed_format_init</span><span class="p">(</span><span class="o">&amp;</span><span class="n">format</span><span class="p">,</span><span class="w"> </span><span class="o">&amp;</span><span class="n">config</span><span class="p">);</span>
-<a id="__codelineno-2-6" name="__codelineno-2-6" href="#__codelineno-2-6"></a>
-<a id="__codelineno-2-7" name="__codelineno-2-7" href="#__codelineno-2-7"></a><span class="k">const</span><span class="w"> </span><span class="n">tlv_tag_t</span><span class="w"> </span><span class="n">tag</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">TLV_TAG</span><span class="p">(</span><span class="mh">0x01</span><span class="p">);</span>
-<a id="__codelineno-2-8" name="__codelineno-2-8" href="#__codelineno-2-8"></a><span class="k">const</span><span class="w"> </span><span class="kt">uint8_t</span><span class="w"> </span><span class="n">value</span><span class="p">[]</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="p">{</span><span class="mh">0xAA</span><span class="p">,</span><span class="w"> </span><span class="mh">0xBB</span><span class="p">,</span><span class="w"> </span><span class="mh">0xCC</span><span class="p">};</span>
-<a id="__codelineno-2-9" name="__codelineno-2-9" href="#__codelineno-2-9"></a><span class="kt">uint8_t</span><span class="w"> </span><span class="n">buffer</span><span class="p">[</span><span class="mi">5</span><span class="p">];</span>
-<a id="__codelineno-2-10" name="__codelineno-2-10" href="#__codelineno-2-10"></a><span class="kt">size_t</span><span class="w"> </span><span class="n">required</span><span class="p">,</span><span class="w"> </span><span class="n">written</span><span class="p">;</span>
-<a id="__codelineno-2-11" name="__codelineno-2-11" href="#__codelineno-2-11"></a><span class="n">tlv_result_t</span><span class="w"> </span><span class="n">result</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">tlv_encoded_size</span><span class="p">(</span><span class="n">tag</span><span class="p">,</span><span class="w"> </span><span class="k">sizeof</span><span class="p">(</span><span class="n">value</span><span class="p">),</span><span class="w"> </span><span class="o">&amp;</span><span class="n">format</span><span class="p">,</span><span class="w"> </span><span class="o">&amp;</span><span class="n">required</span><span class="p">);</span>
-<a id="__codelineno-2-12" name="__codelineno-2-12" href="#__codelineno-2-12"></a><span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="n">result</span><span class="w"> </span><span class="o">==</span><span class="w"> </span><span class="n">TLV_OK</span><span class="w"> </span><span class="o">&amp;&amp;</span><span class="w"> </span><span class="n">required</span><span class="w"> </span><span class="o">&lt;=</span><span class="w"> </span><span class="k">sizeof</span><span class="p">(</span><span class="n">buffer</span><span class="p">))</span><span class="w"> </span><span class="p">{</span>
-<a id="__codelineno-2-13" name="__codelineno-2-13" href="#__codelineno-2-13"></a><span class="w">    </span><span class="n">result</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">tlv_write</span><span class="p">(</span><span class="n">buffer</span><span class="p">,</span><span class="w"> </span><span class="k">sizeof</span><span class="p">(</span><span class="n">buffer</span><span class="p">),</span><span class="w"> </span><span class="o">&amp;</span><span class="n">format</span><span class="p">,</span>
-<a id="__codelineno-2-14" name="__codelineno-2-14" href="#__codelineno-2-14"></a><span class="w">                       </span><span class="n">tag</span><span class="p">,</span><span class="w"> </span><span class="n">value</span><span class="p">,</span><span class="w"> </span><span class="k">sizeof</span><span class="p">(</span><span class="n">value</span><span class="p">),</span><span class="w"> </span><span class="o">&amp;</span><span class="n">written</span><span class="p">);</span>
-<a id="__codelineno-2-15" name="__codelineno-2-15" href="#__codelineno-2-15"></a><span class="w">    </span><span class="cm">/* On success: written == required; buffer contains 01 03 AA BB CC. */</span>
-<a id="__codelineno-2-16" name="__codelineno-2-16" href="#__codelineno-2-16"></a><span class="p">}</span>
+<a id="__codelineno-2-2" name="__codelineno-2-2" href="#__codelineno-2-2"></a><span class="k">const</span><span class="w"> </span><span class="n">tlv_fixed_format_t</span><span class="w"> </span><span class="n">config</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="p">{.</span><span class="n">identifier</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="p">{</span><span class="mi">1</span><span class="p">},</span><span class="w"> </span><span class="p">.</span><span class="n">length</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="p">{</span><span class="mi">1</span><span class="p">,</span><span class="w"> </span><span class="n">TLV_BYTE_ORDER_BIG_ENDIAN</span><span class="p">}};</span>
+<a id="__codelineno-2-3" name="__codelineno-2-3" href="#__codelineno-2-3"></a><span class="n">tlv_format_t</span><span class="w"> </span><span class="n">format</span><span class="p">;</span>
+<a id="__codelineno-2-4" name="__codelineno-2-4" href="#__codelineno-2-4"></a><span class="n">tlv_fixed_format_init</span><span class="p">(</span><span class="o">&amp;</span><span class="n">format</span><span class="p">,</span><span class="w"> </span><span class="o">&amp;</span><span class="n">config</span><span class="p">);</span>
+<a id="__codelineno-2-5" name="__codelineno-2-5" href="#__codelineno-2-5"></a>
+<a id="__codelineno-2-6" name="__codelineno-2-6" href="#__codelineno-2-6"></a><span class="k">const</span><span class="w"> </span><span class="n">tlv_tag_t</span><span class="w"> </span><span class="n">tag</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">TLV_TAG</span><span class="p">(</span><span class="mh">0x01</span><span class="p">);</span>
+<a id="__codelineno-2-7" name="__codelineno-2-7" href="#__codelineno-2-7"></a><span class="k">const</span><span class="w"> </span><span class="kt">uint8_t</span><span class="w"> </span><span class="n">value</span><span class="p">[]</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="p">{</span><span class="mh">0xAA</span><span class="p">,</span><span class="w"> </span><span class="mh">0xBB</span><span class="p">,</span><span class="w"> </span><span class="mh">0xCC</span><span class="p">};</span>
+<a id="__codelineno-2-8" name="__codelineno-2-8" href="#__codelineno-2-8"></a><span class="kt">uint8_t</span><span class="w"> </span><span class="n">buffer</span><span class="p">[</span><span class="mi">5</span><span class="p">];</span>
+<a id="__codelineno-2-9" name="__codelineno-2-9" href="#__codelineno-2-9"></a><span class="kt">size_t</span><span class="w"> </span><span class="n">required</span><span class="p">,</span><span class="w"> </span><span class="n">written</span><span class="p">;</span>
+<a id="__codelineno-2-10" name="__codelineno-2-10" href="#__codelineno-2-10"></a><span class="n">tlv_result_t</span><span class="w"> </span><span class="n">result</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">tlv_encoded_size</span><span class="p">(</span><span class="n">tag</span><span class="p">,</span><span class="w"> </span><span class="k">sizeof</span><span class="p">(</span><span class="n">value</span><span class="p">),</span><span class="w"> </span><span class="o">&amp;</span><span class="n">format</span><span class="p">,</span><span class="w"> </span><span class="o">&amp;</span><span class="n">required</span><span class="p">);</span>
+<a id="__codelineno-2-11" name="__codelineno-2-11" href="#__codelineno-2-11"></a><span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="n">result</span><span class="w"> </span><span class="o">==</span><span class="w"> </span><span class="n">TLV_OK</span><span class="w"> </span><span class="o">&amp;&amp;</span><span class="w"> </span><span class="n">required</span><span class="w"> </span><span class="o">&lt;=</span><span class="w"> </span><span class="k">sizeof</span><span class="p">(</span><span class="n">buffer</span><span class="p">))</span><span class="w"> </span><span class="p">{</span>
+<a id="__codelineno-2-12" name="__codelineno-2-12" href="#__codelineno-2-12"></a><span class="w">    </span><span class="n">result</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">tlv_write</span><span class="p">(</span><span class="n">buffer</span><span class="p">,</span><span class="w"> </span><span class="k">sizeof</span><span class="p">(</span><span class="n">buffer</span><span class="p">),</span><span class="w"> </span><span class="o">&amp;</span><span class="n">format</span><span class="p">,</span>
+<a id="__codelineno-2-13" name="__codelineno-2-13" href="#__codelineno-2-13"></a><span class="w">                       </span><span class="n">tag</span><span class="p">,</span><span class="w"> </span><span class="n">value</span><span class="p">,</span><span class="w"> </span><span class="k">sizeof</span><span class="p">(</span><span class="n">value</span><span class="p">),</span><span class="w"> </span><span class="o">&amp;</span><span class="n">written</span><span class="p">);</span>
+<a id="__codelineno-2-14" name="__codelineno-2-14" href="#__codelineno-2-14"></a><span class="w">    </span><span class="cm">/* On success: written == required; buffer contains 01 03 AA BB CC. */</span>
+<a id="__codelineno-2-15" name="__codelineno-2-15" href="#__codelineno-2-15"></a><span class="p">}</span>
 </code></pre></div>
-<p>Both APIs require <code>write_tag</code>, <code>write_length</code>, and <code>length_size</code>. The size query
+<p>Field composition requires <code>write_tag</code> and <code>write_length</code>; both support sizing
+with NULL output and zero capacity. There is no separate <code>length_size</code> callback. The size query
 validates the tag and length; a total that cannot fit in <code>size_t</code> returns
 <code>TLV_ERR_INVALID_LENGTH</code>. Output size pointers are required and remain unchanged
 on failure. Insufficient capacity returns <code>TLV_ERR_BUFFER_TOO_SHORT</code> before any
@@ -4069,10 +4068,13 @@ whose framing depends on value content.</p>
 current element with the immutable source content and rejects mutation instead
 of silently reusing stale Length or Trailer bytes. Ordinary encoding does not
 preserve BER nonminimal lengths or arbitrary header padding.</p>
-<p>Field-based custom formats can compose <code>tlv_field_layout_t</code> from <code>tlv/layout.h</code>
-and initialize a descriptor with <code>tlv_fields_format_init()</code>. Fixed TLV, Fixed
+<p>Field-based custom formats can compose <code>tlv_field_composition_t</code> from
+<code>tlv/formats/compose.h</code> and initialize a descriptor with <code>tlv_fields_format_init()</code>.
+Fixed TLV, Fixed
 LTV and Bluetooth use the same public binary-field primitives. Formats with
-other framing implement the same canonical operations directly.</p>
+other framing implement the same canonical operations directly.
+See <a href="../concepts/format-contract/#field-encoding-and-format-composition">Field Encoding and Format composition</a>
+for the boundary between standalone field primitives and complete framing.</p>
 <p>See the <a href="../concepts/format-contract/">Format/Element contract</a> for lifetime,
 mutation, preservation, diagnostics and size invariants.</p>
 <h2 id="nested-traversal">Nested traversal<a class="headerlink" href="#nested-traversal" title="Permanent link">&para;</a></h2>

@@ -1,4 +1,4 @@
 var searchData=
 [
-  ['writer_0',['Writer',['../group__writer.html',1,'']]]
+  ['utilities_0',['utilities',['../group__copy.html',1,'Copy utilities'],['../group__core.html',1,'Core types and utilities']]]
 ];

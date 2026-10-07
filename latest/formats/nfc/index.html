@@ -3697,11 +3697,14 @@ or automatically stops traversal at Terminator.</p>
 combines fixed-width identifiers, configurable escape-prefixed lengths,
 field ordering, count scope and an optional tag-only identifier table.
 The standalone <code>tlv_escaped_length_read()</code> / <code>tlv_escaped_length_write()</code>
-primitives also support different markers, count widths and byte orders.
+primitives in <code>tlv/field/escaped.h</code> also support different markers, count widths
+and byte orders.
 The minimum extended count and maximum count are configuration, not NFC
 branches in the generic code.</p>
-<p><code>tlv_tagged_fields_layout_t</code> composes tag-only selection with arbitrary field
-codecs. The existing DHCP binary layout delegates to this same mechanism.
+<p><code>tlv_tagged_fields_composition_t</code> composes tag-only selection with arbitrary field
+encodings. The Escaped format reuses the fixed identifier primitive from
+<code>tlv/field/fixed.h</code>. The existing DHCP binary composition delegates tag-only
+selection to the same generic mechanism.
 Neither mechanism imposes protocol termination or padding policy. These
 generic capabilities remain built when <code>OPENTLV_NFC=OFF</code>.</p>
 

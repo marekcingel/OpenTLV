@@ -3536,7 +3536,7 @@
 <tbody>
 <tr>
 <td>Header</td>
-<td><code>tlv/format.h</code>, <code>tlv/layout.h</code></td>
+<td><code>tlv/format.h</code>, <code>tlv/field/encoding.h</code>, <code>tlv/formats/compose.h</code></td>
 </tr>
 <tr>
 <td>Setup</td>
@@ -3568,13 +3568,18 @@ byte envelope, which may overlap Length; it does not hold the transformed bytes.
 Storage must outlive all retained results and must not be reused as scratch.
 See the <a href="../../concepts/format-contract/#decoded-identifier-consistency">identifier contract</a>
 for validation, copying and lifetime rules. These semantics require a complete
-Format callback; sequential <code>tlv_field_layout_t</code> helpers still describe byte
+Format callback; sequential <code>tlv_field_composition_t</code> helpers still describe byte
 fields rather than packed bits.</p>
 <h2 id="c-usage">C usage<a class="headerlink" href="#c-usage" title="Permanent link">&para;</a></h2>
 <p>Use the complete custom-format implementation in the
 <a href="https://github.com/marekcingel/OpenTLV/blob/main/examples/tlv/src/custom_format.c">C example</a>, which includes callback
 implementations, descriptor initialization, writing, and reading.
 The <a href="../#generic-interface">generic contract</a> documents each callback.</p>
+<p>Field write callbacks take <code>(context, tag/length, data, capacity, written)</code>, in
+the same order as the standalone Field Encoding primitives. Both Identifier and
+Length use NULL output with zero capacity to validate and query their encoded
+width. A custom encoder must support that mode; there is no separate sizing
+callback in <code>tlv_field_composition_t</code>.</p>
 <h2 id="byte-example">Byte example<a class="headerlink" href="#byte-example" title="Permanent link">&para;</a></h2>
 <p>Custom callbacks are implemented infrastructure, not one additional standardized
 wire format. The bundled C example supplies a one-byte tag and a fixed two-byte
@@ -3590,7 +3595,7 @@ little-endian length:</p>
 <a href="../#generic-interface">callback contracts</a>. This particular shape -
 a fixed-width tag and length - could also be built with the
 <a href="../fixed/configurable/">configurable fixed-width format</a>
-(<code>tag_size = 1, length_size = 2, order = TLV_BYTE_ORDER_LITTLE_ENDIAN</code>); the
+(<code>identifier.size = 1, length.size = 2, length.byte_order = TLV_BYTE_ORDER_LITTLE_ENDIAN</code>); the
 example keeps hand-written callbacks to demonstrate the generic mechanism.</p>
 
 

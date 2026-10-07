@@ -1586,10 +1586,10 @@
 </li>
       
         <li class="md-nav__item">
-  <a href="#wire-layout-and-logical-model" class="md-nav__link">
+  <a href="#wire-representation-and-logical-model" class="md-nav__link">
     <span class="md-ellipsis">
       
-        Wire layout and logical model
+        Wire representation and logical model
       
     </span>
   </a>
@@ -3664,10 +3664,10 @@
 </li>
       
         <li class="md-nav__item">
-  <a href="#wire-layout-and-logical-model" class="md-nav__link">
+  <a href="#wire-representation-and-logical-model" class="md-nav__link">
     <span class="md-ellipsis">
       
-        Wire layout and logical model
+        Wire representation and logical model
       
     </span>
   </a>
@@ -3879,7 +3879,7 @@ The runtime feature query is <code>tlv_config_bluetooth()</code> from <code>tlv/
 it reports availability of the entire extension. The wire descriptor remains
 <code>tlv_format_bluetooth_ltv</code> and the CLI format name remains <code>bluetooth-ltv</code>.</p>
 <p>Bluetooth LTV is a preset of the <a href="../fixed/configurable/">configurable Fixed format</a>:
-<code>{1, 1, TLV_BYTE_ORDER_BIG_ENDIAN, TLV_ELEMENT_ORDER_LTV,
+<code>{{1}, {1, TLV_BYTE_ORDER_BIG_ENDIAN}, TLV_ELEMENT_ORDER_LTV,
 TLV_LENGTH_SCOPE_TAG_AND_VALUE}</code>. <code>tlv_format_bluetooth_ltv</code> exists so callers
 do not have to spell that configuration out themselves; there is no
 Bluetooth-specific parser or writer underneath it.</p>
@@ -4058,7 +4058,9 @@ unchanged on failure. <code>error_offset</code> is optional, unchanged on succes
 zero for argument errors. Output storage must not overlap the input or each
 other. Never strip trailing zeros by scanning backward: they may belong to
 the final value.</p>
-<h2 id="wire-layout-and-logical-model">Wire layout and logical model<a class="headerlink" href="#wire-layout-and-logical-model" title="Permanent link">&para;</a></h2>
+<!-- markdownlint-disable-next-line MD033 -->
+<p><a id="wire-layout-and-logical-model"></a></p>
+<h2 id="wire-representation-and-logical-model">Wire representation and logical model<a class="headerlink" href="#wire-representation-and-logical-model" title="Permanent link">&para;</a></h2>
 <p>On the wire the length comes first:</p>
 <div class="highlight"><pre><span></span><code><a id="__codelineno-1-1" name="__codelineno-1-1" href="#__codelineno-1-1"></a>[Length][Type][Value]
 <a id="__codelineno-1-2" name="__codelineno-1-2" href="#__codelineno-1-2"></a>   1 B    1 B   Length - 1 bytes
@@ -4450,9 +4452,9 @@ never returned partially.</p>
 <a id="__codelineno-6-5" name="__codelineno-6-5" href="#__codelineno-6-5"></a>`-- Value:  48 69 ("Hi")
 </code></pre></div>
 <h2 id="how-it-fits-the-format-architecture">How it fits the format architecture<a class="headerlink" href="#how-it-fits-the-format-architecture" title="Permanent link">&para;</a></h2>
-<p>Bluetooth is a configuration of the public binary-field layout primitives in
-<code>tlv/layout.h</code>: one-byte Tag and Length, Length before Tag, Length counting Tag
-and Value. It has no dependency on Fixed-private code or the Fixed build option.
+<p>Bluetooth is a configuration of the public binary-field composition primitives
+in <code>tlv/formats/compose.h</code>: one-byte Tag and Length, Length before Tag, Length
+counting Tag and Value. It has no dependency on Fixed-private code or the Fixed build option.
 Both formats expose the same canonical decode/measure/encode contract.</p>
 <p>See <a href="../../concepts/format-contract/">Format/Element contract</a>.</p>
 

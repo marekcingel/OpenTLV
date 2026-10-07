@@ -1486,6 +1486,17 @@
 </li>
       
         <li class="md-nav__item">
+  <a href="#standalone-field-encoding" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Standalone Field Encoding
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
   <a href="#supported-parameters" class="md-nav__link">
     <span class="md-ellipsis">
       
@@ -1497,10 +1508,10 @@
 </li>
       
         <li class="md-nav__item">
-  <a href="#wire-layout" class="md-nav__link">
+  <a href="#wire-representation" class="md-nav__link">
     <span class="md-ellipsis">
       
-        Wire layout
+        Wire representation
       
     </span>
   </a>
@@ -3499,6 +3510,17 @@
 </li>
       
         <li class="md-nav__item">
+  <a href="#standalone-field-encoding" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Standalone Field Encoding
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
   <a href="#supported-parameters" class="md-nav__link">
     <span class="md-ellipsis">
       
@@ -3510,10 +3532,10 @@
 </li>
       
         <li class="md-nav__item">
-  <a href="#wire-layout" class="md-nav__link">
+  <a href="#wire-representation" class="md-nav__link">
     <span class="md-ellipsis">
       
-        Wire layout
+        Wire representation
       
     </span>
   </a>
@@ -3593,15 +3615,15 @@
 <p><a href="../../">Format documentation</a></p>
 <p>A fixed-width TLV format: a tag width, a length width (1 to 8 bytes), a length
 byte order, a field order and a length scope, chosen independently instead of
-hardcoded. A one-byte tag and a one-byte length is <code>tag_size = 1, length_size
-= 1, length_order = TLV_BYTE_ORDER_BIG_ENDIAN</code> (or <code>fixed_format&lt;1, 1,
+hardcoded. A one-byte tag and a one-byte length is <code>identifier.size = 1, length.size
+= 1, length.byte_order = TLV_BYTE_ORDER_BIG_ENDIAN</code> (or <code>fixed_format&lt;1, 1,
 TLV_BYTE_ORDER_BIG_ENDIAN&gt;</code>), with <code>element_order</code> and <code>length_scope</code> defaulted
 to the conventional TLV/value-only shape; define your own file-scope constant
 for a configuration your application reuses.</p>
 <p><a href="../../bluetooth/">Bluetooth LTV</a> is this format preset to
-<code>{1, 1, TLV_BYTE_ORDER_BIG_ENDIAN, TLV_ELEMENT_ORDER_LTV,
+<code>{{1}, {1, TLV_BYTE_ORDER_BIG_ENDIAN}, TLV_ELEMENT_ORDER_LTV,
 TLV_LENGTH_SCOPE_TAG_AND_VALUE}</code>.</p>
-<p>Two APIs share this wire layout, and the C++ one is a thin compile-time
+<p>Two APIs share this wire representation, and the C++ one is a thin compile-time
 wrapper that delegates every read and write to the C one:</p>
 <ul>
 <li><strong>C</strong>, <code>tlv_fixed_format_t</code>: chosen at runtime, checked when the format is initialized.</li>
@@ -3625,7 +3647,7 @@ wrapper that delegates every read and write to the C one:</p>
 </tr>
 <tr>
 <td>Configuration</td>
-<td><code>tlv_fixed_format_t{tag_size, length_size, length_order, element_order, length_scope}</code></td>
+<td><code>tlv_fixed_format_t{{tag_size}, {length_size, length_order}, element_order, length_scope}</code></td>
 <td><code>tlv::fixed_format&lt;TagWidth, LengthWidth, Order&gt;</code> (TLV element order, value-only length scope)</td>
 </tr>
 <tr>
@@ -3655,6 +3677,55 @@ lifetime</a> for
 the general contract this follows, including copying, sharing and moving.
 Both work with the reader, writer, visitor, schemas and the C API. Neither
 performs allocation.</p>
+<h2 id="standalone-field-encoding">Standalone Field Encoding<a class="headerlink" href="#standalone-field-encoding" title="Permanent link">&para;</a></h2>
+<p>Use <code>tlv/field/fixed.h</code> when only an individual Identifier or Length field is
+needed. Its allocation-free primitives are available without Format headers,
+Reader, Writer or optional builtin protocols:</p>
+<table>
+<thead>
+<tr>
+<th>Configuration</th>
+<th>Operations</th>
+<th>Representation</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>tlv_fixed_identifier_t</code></td>
+<td><code>tlv_fixed_identifier_read()</code>, <code>tlv_fixed_identifier_write()</code></td>
+<td><code>size</code> raw identifier bytes; the configured width must be nonzero.</td>
+</tr>
+<tr>
+<td><code>tlv_fixed_length_t</code></td>
+<td><code>tlv_fixed_length_read()</code>, <code>tlv_fixed_length_write()</code></td>
+<td><code>size</code> count bytes, from 1 through 8, with explicit <code>byte_order</code>; counts use <code>tlv_size_t</code>.</td>
+</tr>
+</tbody>
+</table>
+<p>Identifier reading borrows the exact input bytes; writing requires an identifier
+of the configured width and preserves its bytes. There is no numeric tag
+conversion or byte-order normalization. Length operations accept explicit big
+or little endian and reject counts that exceed the configured width, without
+narrowing the logical count to <code>size_t</code>. Both write operations support width
+measurement with NULL output and zero capacity.</p>
+<p>Argument and configuration errors preserve outputs. Incomplete Identifier or
+Length input reports the available prefix through <code>consumed</code> while leaving the
+decoded identifier or count unchanged. Failed writes
+preserve <code>written</code> and destination bytes. Identifier copying requires
+nonoverlapping source and destination; no overlap guarantee is added.</p>
+<p>These operations do not select field order, apply length scope or describe
+complete elements. The binary composition callbacks adapt them to those rules;
+the Escaped format reuses the same fixed identifier operations.
+<code>tlv_binary_composition_t</code> embeds <code>tlv_fixed_identifier_t identifier</code> and
+<code>tlv_fixed_length_t length</code>, alongside <code>element_order</code> and <code>length_scope</code>.
+<code>tlv_fixed_format_t</code> remains the fixed-format name for this composition.
+<code>tlv_escaped_format_t</code> embeds the same identifier configuration with an escaped
+length configuration and uses the same ordering/scope member names.</p>
+<p>Field primitives define the shared validation contract: required pointers,
+configuration, field constraints, then buffer capacity. Format adapters forward
+to this contract without compatibility pre-checks. Sizing validates the actual
+byte order. See the <a href="../../../concepts/format-contract/#migration">migration notes</a>
+for source and diagnostic changes.</p>
 <h2 id="supported-parameters">Supported parameters<a class="headerlink" href="#supported-parameters" title="Permanent link">&para;</a></h2>
 <table>
 <thead>
@@ -3668,19 +3739,19 @@ performs allocation.</p>
 <tbody>
 <tr>
 <td>Tag width</td>
-<td><code>tag_size</code></td>
+<td><code>identifier.size</code></td>
 <td><code>TagWidth</code></td>
 <td>1 or more bytes</td>
 </tr>
 <tr>
 <td>Length width</td>
-<td><code>length_size</code></td>
+<td><code>length.size</code></td>
 <td><code>LengthWidth</code></td>
 <td>1 to 8 bytes</td>
 </tr>
 <tr>
 <td>Length byte order</td>
-<td><code>length_order</code></td>
+<td><code>length.byte_order</code></td>
 <td><code>Order</code></td>
 <td><code>TLV_BYTE_ORDER_BIG_ENDIAN</code>, <code>TLV_BYTE_ORDER_LITTLE_ENDIAN</code></td>
 </tr>
@@ -3701,8 +3772,10 @@ performs allocation.</p>
 <p>An out-of-range C++ template argument fails to compile with a <code>static_assert</code>
 message; an invalid C <code>tlv_fixed_format_t</code> is rejected at init time (see
 <a href="#errors">Errors</a>).</p>
-<h2 id="wire-layout">Wire layout<a class="headerlink" href="#wire-layout" title="Permanent link">&para;</a></h2>
-<p>Each element is <code>tag_size</code>/<code>TagWidth</code> tag bytes and <code>length_size</code>/<code>LengthWidth</code>
+<!-- markdownlint-disable-next-line MD033 -->
+<p><a id="wire-layout"></a></p>
+<h2 id="wire-representation">Wire representation<a class="headerlink" href="#wire-representation" title="Permanent link">&para;</a></h2>
+<p>Each element is <code>identifier.size</code>/<code>TagWidth</code> tag bytes and <code>length.size</code>/<code>LengthWidth</code>
 length bytes, in the order <code>element_order</code> selects, followed by the value bytes.</p>
 <ul>
 <li>Tags are raw bytes and are never reordered; the byte order applies only to the length field.</li>
@@ -3711,11 +3784,11 @@ length bytes, in the order <code>element_order</code> selects, followed by the v
   <code>encoded_length = value_size</code>.</li>
 <li><code>TLV_LENGTH_SCOPE_TAG_AND_VALUE</code> has the length also count the tag:
   <code>encoded_length = tag_size + value_size</code>. Reading rejects an encoded length
-  smaller than <code>tag_size</code> with <code>TLV_ERR_INVALID_LENGTH</code>, since it leaves no
+  smaller than <code>identifier.size</code> with <code>TLV_ERR_INVALID_LENGTH</code>, since it leaves no
   room for the tag.</li>
 <li>Every tag byte value is valid. Values are opaque and read in place from the input.</li>
 </ul>
-<div class="highlight"><pre><span></span><code><a id="__codelineno-0-1" name="__codelineno-0-1" href="#__codelineno-0-1"></a>tag_size = 2, length_size = 2, length_order = TLV_BYTE_ORDER_LITTLE_ENDIAN
+<div class="highlight"><pre><span></span><code><a id="__codelineno-0-1" name="__codelineno-0-1" href="#__codelineno-0-1"></a>identifier.size = 2, length.size = 2, length.byte_order = TLV_BYTE_ORDER_LITTLE_ENDIAN
 <a id="__codelineno-0-2" name="__codelineno-0-2" href="#__codelineno-0-2"></a>element_order = TLV_ELEMENT_ORDER_TLV, length_scope = TLV_LENGTH_SCOPE_VALUE
 <a id="__codelineno-0-3" name="__codelineno-0-3" href="#__codelineno-0-3"></a>
 <a id="__codelineno-0-4" name="__codelineno-0-4" href="#__codelineno-0-4"></a>12 34 03 00 AA BB CC
@@ -3724,7 +3797,7 @@ length bytes, in the order <code>element_order</code> selects, followed by the v
 <a id="__codelineno-0-7" name="__codelineno-0-7" href="#__codelineno-0-7"></a>|-- Length: 03 00 = 3 value bytes (little-endian)
 <a id="__codelineno-0-8" name="__codelineno-0-8" href="#__codelineno-0-8"></a>`-- Value:  AA BB CC
 </code></pre></div>
-<div class="highlight"><pre><span></span><code><a id="__codelineno-1-1" name="__codelineno-1-1" href="#__codelineno-1-1"></a>tag_size = 1, length_size = 1, length_order = TLV_BYTE_ORDER_BIG_ENDIAN
+<div class="highlight"><pre><span></span><code><a id="__codelineno-1-1" name="__codelineno-1-1" href="#__codelineno-1-1"></a>identifier.size = 1, length.size = 1, length.byte_order = TLV_BYTE_ORDER_BIG_ENDIAN
 <a id="__codelineno-1-2" name="__codelineno-1-2" href="#__codelineno-1-2"></a>element_order = TLV_ELEMENT_ORDER_LTV, length_scope = TLV_LENGTH_SCOPE_TAG_AND_VALUE
 <a id="__codelineno-1-3" name="__codelineno-1-3" href="#__codelineno-1-3"></a>(this is the Bluetooth LTV preset; see ../bluetooth/README.md)
 <a id="__codelineno-1-4" name="__codelineno-1-4" href="#__codelineno-1-4"></a>
@@ -3744,11 +3817,11 @@ length bytes, in the order <code>element_order</code> selects, followed by the v
 </thead>
 <tbody>
 <tr>
-<td><code>config</code> (C) is <code>NULL</code>, <code>tag_size</code> is 0, <code>length_size</code> is 0 or greater than 8, or <code>element_order</code>/<code>length_scope</code> is not one of its enumerators</td>
+<td><code>config</code> (C) is <code>NULL</code>, <code>identifier.size</code> is 0, <code>length.size</code> is 0 or greater than 8, or <code>element_order</code>/<code>length_scope</code> is not one of its enumerators</td>
 <td><code>TLV_ERR_INVALID_ARG</code> (init only)</td>
 </tr>
 <tr>
-<td><code>length_order</code> (C) is neither big- nor little-endian</td>
+<td><code>length.byte_order</code> (C) is neither big- nor little-endian</td>
 <td><code>TLV_ERR_INVALID_BYTE_ORDER</code> (init only)</td>
 </tr>
 <tr>
@@ -3764,11 +3837,11 @@ length bytes, in the order <code>element_order</code> selects, followed by the v
 <td><code>TLV_ERR_INVALID_TAG_SIZE</code></td>
 </tr>
 <tr>
-<td>Value longer than the largest length the length width can hold (minus <code>tag_size</code> under <code>TLV_LENGTH_SCOPE_TAG_AND_VALUE</code>)</td>
+<td>Value longer than the largest length the length width can hold (minus <code>identifier.size</code> under <code>TLV_LENGTH_SCOPE_TAG_AND_VALUE</code>)</td>
 <td><code>TLV_ERR_INVALID_LENGTH</code></td>
 </tr>
 <tr>
-<td>Decoded length does not fit in <code>size_t</code> (for example an 8-byte length on a 32-bit target), or is smaller than <code>tag_size</code> under <code>TLV_LENGTH_SCOPE_TAG_AND_VALUE</code></td>
+<td>Decoded length does not fit in <code>size_t</code> (for example an 8-byte length on a 32-bit target), or is smaller than <code>identifier.size</code> under <code>TLV_LENGTH_SCOPE_TAG_AND_VALUE</code></td>
 <td><code>TLV_ERR_INVALID_LENGTH</code></td>
 </tr>
 </tbody>
@@ -3797,25 +3870,24 @@ length bytes, in the order <code>element_order</code> selects, followed by the v
 <a id="__codelineno-2-20" name="__codelineno-2-20" href="#__codelineno-2-20"></a><span class="cp">    } while (0)</span>
 <a id="__codelineno-2-21" name="__codelineno-2-21" href="#__codelineno-2-21"></a>
 <a id="__codelineno-2-22" name="__codelineno-2-22" href="#__codelineno-2-22"></a><span class="kt">int</span><span class="w"> </span><span class="nf">main</span><span class="p">(</span><span class="kt">void</span><span class="p">)</span><span class="w"> </span><span class="p">{</span>
-<a id="__codelineno-2-23" name="__codelineno-2-23" href="#__codelineno-2-23"></a><span class="w">    </span><span class="k">const</span><span class="w"> </span><span class="n">tlv_fixed_format_t</span><span class="w"> </span><span class="n">config</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="p">{</span>
-<a id="__codelineno-2-24" name="__codelineno-2-24" href="#__codelineno-2-24"></a><span class="w">        </span><span class="p">.</span><span class="n">tag_size</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mi">2</span><span class="p">,</span><span class="w"> </span><span class="p">.</span><span class="n">length_size</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mi">1</span><span class="p">,</span><span class="w"> </span><span class="p">.</span><span class="n">length_order</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">TLV_BYTE_ORDER_BIG_ENDIAN</span><span class="p">};</span>
-<a id="__codelineno-2-25" name="__codelineno-2-25" href="#__codelineno-2-25"></a><span class="w">    </span><span class="cm">/* config must outlive every reader and writer built from it. */</span>
-<a id="__codelineno-2-26" name="__codelineno-2-26" href="#__codelineno-2-26"></a><span class="w">    </span><span class="n">tlv_format_t</span><span class="w"> </span><span class="n">format</span><span class="p">;</span>
-<a id="__codelineno-2-27" name="__codelineno-2-27" href="#__codelineno-2-27"></a><span class="w">    </span><span class="n">CHECK</span><span class="p">(</span><span class="n">tlv_fixed_format_init</span><span class="p">(</span><span class="o">&amp;</span><span class="n">format</span><span class="p">,</span><span class="w"> </span><span class="o">&amp;</span><span class="n">config</span><span class="p">));</span>
-<a id="__codelineno-2-28" name="__codelineno-2-28" href="#__codelineno-2-28"></a>
-<a id="__codelineno-2-29" name="__codelineno-2-29" href="#__codelineno-2-29"></a><span class="w">    </span><span class="k">const</span><span class="w"> </span><span class="kt">uint8_t</span><span class="w"> </span><span class="n">value</span><span class="p">[]</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="p">{</span><span class="mh">0xAA</span><span class="p">,</span><span class="w"> </span><span class="mh">0xBB</span><span class="p">,</span><span class="w"> </span><span class="mh">0xCC</span><span class="p">};</span>
-<a id="__codelineno-2-30" name="__codelineno-2-30" href="#__codelineno-2-30"></a><span class="w">    </span><span class="kt">uint8_t</span><span class="w">       </span><span class="n">encoded</span><span class="p">[</span><span class="mi">16</span><span class="p">];</span>
-<a id="__codelineno-2-31" name="__codelineno-2-31" href="#__codelineno-2-31"></a><span class="w">    </span><span class="kt">size_t</span><span class="w">        </span><span class="n">written</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mi">0</span><span class="p">,</span><span class="w"> </span><span class="n">consumed</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mi">0</span><span class="p">;</span>
-<a id="__codelineno-2-32" name="__codelineno-2-32" href="#__codelineno-2-32"></a><span class="w">    </span><span class="n">tlv_element_t</span><span class="w"> </span><span class="n">element</span><span class="p">;</span>
-<a id="__codelineno-2-33" name="__codelineno-2-33" href="#__codelineno-2-33"></a>
-<a id="__codelineno-2-34" name="__codelineno-2-34" href="#__codelineno-2-34"></a><span class="w">    </span><span class="n">CHECK</span><span class="p">(</span><span class="n">tlv_write</span><span class="p">(</span><span class="n">encoded</span><span class="p">,</span><span class="w"> </span><span class="k">sizeof</span><span class="p">(</span><span class="n">encoded</span><span class="p">),</span><span class="w"> </span><span class="o">&amp;</span><span class="n">format</span><span class="p">,</span><span class="w"> </span><span class="p">(</span><span class="n">TLV_TAG</span><span class="p">(</span><span class="mh">0x12</span><span class="p">,</span><span class="w"> </span><span class="mh">0x34</span><span class="p">)),</span><span class="w"> </span><span class="n">value</span><span class="p">,</span><span class="w"> </span><span class="k">sizeof</span><span class="p">(</span><span class="n">value</span><span class="p">),</span>
-<a id="__codelineno-2-35" name="__codelineno-2-35" href="#__codelineno-2-35"></a><span class="w">                    </span><span class="o">&amp;</span><span class="n">written</span><span class="p">));</span>
-<a id="__codelineno-2-36" name="__codelineno-2-36" href="#__codelineno-2-36"></a><span class="w">    </span><span class="cm">/* Wire bytes: 12 34 03 AA BB CC. The tag is kept as is; the length is one byte. */</span>
-<a id="__codelineno-2-37" name="__codelineno-2-37" href="#__codelineno-2-37"></a><span class="w">    </span><span class="n">CHECK</span><span class="p">(</span><span class="n">tlv_read</span><span class="p">(</span><span class="n">encoded</span><span class="p">,</span><span class="w"> </span><span class="n">written</span><span class="p">,</span><span class="w"> </span><span class="o">&amp;</span><span class="n">format</span><span class="p">,</span><span class="w"> </span><span class="o">&amp;</span><span class="n">element</span><span class="p">,</span><span class="w"> </span><span class="o">&amp;</span><span class="n">consumed</span><span class="p">));</span>
-<a id="__codelineno-2-38" name="__codelineno-2-38" href="#__codelineno-2-38"></a>
-<a id="__codelineno-2-39" name="__codelineno-2-39" href="#__codelineno-2-39"></a><span class="w">    </span><span class="k">return</span><span class="w"> </span><span class="n">consumed</span><span class="w"> </span><span class="o">==</span><span class="w"> </span><span class="n">written</span><span class="w"> </span><span class="o">&amp;&amp;</span><span class="w"> </span><span class="n">element</span><span class="p">.</span><span class="n">tag</span><span class="p">.</span><span class="n">size</span><span class="w"> </span><span class="o">==</span><span class="w"> </span><span class="mi">2</span><span class="w"> </span><span class="o">&amp;&amp;</span><span class="w"> </span><span class="n">element</span><span class="p">.</span><span class="n">value</span><span class="p">.</span><span class="n">size</span><span class="w"> </span><span class="o">==</span><span class="w"> </span><span class="k">sizeof</span><span class="p">(</span><span class="n">value</span><span class="p">)</span><span class="w"> </span><span class="o">?</span><span class="w"> </span><span class="mi">0</span>
-<a id="__codelineno-2-40" name="__codelineno-2-40" href="#__codelineno-2-40"></a><span class="w">                                                                                               </span><span class="o">:</span><span class="w"> </span><span class="mi">1</span><span class="p">;</span>
-<a id="__codelineno-2-41" name="__codelineno-2-41" href="#__codelineno-2-41"></a><span class="p">}</span>
+<a id="__codelineno-2-23" name="__codelineno-2-23" href="#__codelineno-2-23"></a><span class="w">    </span><span class="k">const</span><span class="w"> </span><span class="n">tlv_fixed_format_t</span><span class="w"> </span><span class="n">config</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="p">{.</span><span class="n">identifier</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="p">{</span><span class="mi">2</span><span class="p">},</span><span class="w"> </span><span class="p">.</span><span class="n">length</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="p">{</span><span class="mi">1</span><span class="p">,</span><span class="w"> </span><span class="n">TLV_BYTE_ORDER_BIG_ENDIAN</span><span class="p">}};</span>
+<a id="__codelineno-2-24" name="__codelineno-2-24" href="#__codelineno-2-24"></a><span class="w">    </span><span class="cm">/* config must outlive every reader and writer built from it. */</span>
+<a id="__codelineno-2-25" name="__codelineno-2-25" href="#__codelineno-2-25"></a><span class="w">    </span><span class="n">tlv_format_t</span><span class="w"> </span><span class="n">format</span><span class="p">;</span>
+<a id="__codelineno-2-26" name="__codelineno-2-26" href="#__codelineno-2-26"></a><span class="w">    </span><span class="n">CHECK</span><span class="p">(</span><span class="n">tlv_fixed_format_init</span><span class="p">(</span><span class="o">&amp;</span><span class="n">format</span><span class="p">,</span><span class="w"> </span><span class="o">&amp;</span><span class="n">config</span><span class="p">));</span>
+<a id="__codelineno-2-27" name="__codelineno-2-27" href="#__codelineno-2-27"></a>
+<a id="__codelineno-2-28" name="__codelineno-2-28" href="#__codelineno-2-28"></a><span class="w">    </span><span class="k">const</span><span class="w"> </span><span class="kt">uint8_t</span><span class="w"> </span><span class="n">value</span><span class="p">[]</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="p">{</span><span class="mh">0xAA</span><span class="p">,</span><span class="w"> </span><span class="mh">0xBB</span><span class="p">,</span><span class="w"> </span><span class="mh">0xCC</span><span class="p">};</span>
+<a id="__codelineno-2-29" name="__codelineno-2-29" href="#__codelineno-2-29"></a><span class="w">    </span><span class="kt">uint8_t</span><span class="w">       </span><span class="n">encoded</span><span class="p">[</span><span class="mi">16</span><span class="p">];</span>
+<a id="__codelineno-2-30" name="__codelineno-2-30" href="#__codelineno-2-30"></a><span class="w">    </span><span class="kt">size_t</span><span class="w">        </span><span class="n">written</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mi">0</span><span class="p">,</span><span class="w"> </span><span class="n">consumed</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mi">0</span><span class="p">;</span>
+<a id="__codelineno-2-31" name="__codelineno-2-31" href="#__codelineno-2-31"></a><span class="w">    </span><span class="n">tlv_element_t</span><span class="w"> </span><span class="n">element</span><span class="p">;</span>
+<a id="__codelineno-2-32" name="__codelineno-2-32" href="#__codelineno-2-32"></a>
+<a id="__codelineno-2-33" name="__codelineno-2-33" href="#__codelineno-2-33"></a><span class="w">    </span><span class="n">CHECK</span><span class="p">(</span><span class="n">tlv_write</span><span class="p">(</span><span class="n">encoded</span><span class="p">,</span><span class="w"> </span><span class="k">sizeof</span><span class="p">(</span><span class="n">encoded</span><span class="p">),</span><span class="w"> </span><span class="o">&amp;</span><span class="n">format</span><span class="p">,</span><span class="w"> </span><span class="p">(</span><span class="n">TLV_TAG</span><span class="p">(</span><span class="mh">0x12</span><span class="p">,</span><span class="w"> </span><span class="mh">0x34</span><span class="p">)),</span><span class="w"> </span><span class="n">value</span><span class="p">,</span><span class="w"> </span><span class="k">sizeof</span><span class="p">(</span><span class="n">value</span><span class="p">),</span>
+<a id="__codelineno-2-34" name="__codelineno-2-34" href="#__codelineno-2-34"></a><span class="w">                    </span><span class="o">&amp;</span><span class="n">written</span><span class="p">));</span>
+<a id="__codelineno-2-35" name="__codelineno-2-35" href="#__codelineno-2-35"></a><span class="w">    </span><span class="cm">/* Wire bytes: 12 34 03 AA BB CC. The tag is kept as is; the length is one byte. */</span>
+<a id="__codelineno-2-36" name="__codelineno-2-36" href="#__codelineno-2-36"></a><span class="w">    </span><span class="n">CHECK</span><span class="p">(</span><span class="n">tlv_read</span><span class="p">(</span><span class="n">encoded</span><span class="p">,</span><span class="w"> </span><span class="n">written</span><span class="p">,</span><span class="w"> </span><span class="o">&amp;</span><span class="n">format</span><span class="p">,</span><span class="w"> </span><span class="o">&amp;</span><span class="n">element</span><span class="p">,</span><span class="w"> </span><span class="o">&amp;</span><span class="n">consumed</span><span class="p">));</span>
+<a id="__codelineno-2-37" name="__codelineno-2-37" href="#__codelineno-2-37"></a>
+<a id="__codelineno-2-38" name="__codelineno-2-38" href="#__codelineno-2-38"></a><span class="w">    </span><span class="k">return</span><span class="w"> </span><span class="n">consumed</span><span class="w"> </span><span class="o">==</span><span class="w"> </span><span class="n">written</span><span class="w"> </span><span class="o">&amp;&amp;</span><span class="w"> </span><span class="n">element</span><span class="p">.</span><span class="n">tag</span><span class="p">.</span><span class="n">size</span><span class="w"> </span><span class="o">==</span><span class="w"> </span><span class="mi">2</span><span class="w"> </span><span class="o">&amp;&amp;</span><span class="w"> </span><span class="n">element</span><span class="p">.</span><span class="n">value</span><span class="p">.</span><span class="n">size</span><span class="w"> </span><span class="o">==</span><span class="w"> </span><span class="k">sizeof</span><span class="p">(</span><span class="n">value</span><span class="p">)</span><span class="w"> </span><span class="o">?</span><span class="w"> </span><span class="mi">0</span>
+<a id="__codelineno-2-39" name="__codelineno-2-39" href="#__codelineno-2-39"></a><span class="w">                                                                                               </span><span class="o">:</span><span class="w"> </span><span class="mi">1</span><span class="p">;</span>
+<a id="__codelineno-2-40" name="__codelineno-2-40" href="#__codelineno-2-40"></a><span class="p">}</span>
 </code></pre></div>
 <h2 id="example-c_1">Example (C++)<a class="headerlink" href="#example-c_1" title="Permanent link">&para;</a></h2>
 <!-- example: examples/tlv++/src/formats/fixed_format.cpp -->
@@ -3883,40 +3955,41 @@ plain <code>const tlv_format_t&amp;</code>:</p>
 <a id="__codelineno-4-14" name="__codelineno-4-14" href="#__codelineno-4-14"></a><span class="cp">#include</span><span class="w"> </span><span class="cpf">"tlv++/native.hpp"</span>
 <a id="__codelineno-4-15" name="__codelineno-4-15" href="#__codelineno-4-15"></a>
 <a id="__codelineno-4-16" name="__codelineno-4-16" href="#__codelineno-4-16"></a><span class="kt">int</span><span class="w"> </span><span class="nf">main</span><span class="p">()</span><span class="w"> </span><span class="p">{</span>
-<a id="__codelineno-4-17" name="__codelineno-4-17" href="#__codelineno-4-17"></a><span class="w">    </span><span class="k">const</span><span class="w"> </span><span class="n">tlv_fixed_format_t</span><span class="w"> </span><span class="n">config</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="p">{</span><span class="cm">/* tag_size */</span><span class="w"> </span><span class="mi">2</span><span class="p">,</span><span class="w"> </span><span class="cm">/* length_size */</span><span class="w"> </span><span class="mi">1</span><span class="p">,</span>
-<a id="__codelineno-4-18" name="__codelineno-4-18" href="#__codelineno-4-18"></a><span class="w">                                       </span><span class="n">TLV_BYTE_ORDER_BIG_ENDIAN</span><span class="p">,</span><span class="w"> </span><span class="n">TLV_ELEMENT_ORDER_TLV</span><span class="p">,</span>
-<a id="__codelineno-4-19" name="__codelineno-4-19" href="#__codelineno-4-19"></a><span class="w">                                       </span><span class="n">TLV_LENGTH_SCOPE_VALUE</span><span class="p">};</span>
-<a id="__codelineno-4-20" name="__codelineno-4-20" href="#__codelineno-4-20"></a><span class="w">    </span><span class="cm">/* config must outlive every reader and writer built from format. */</span>
-<a id="__codelineno-4-21" name="__codelineno-4-21" href="#__codelineno-4-21"></a><span class="w">    </span><span class="n">tlv_format_t</span><span class="w"> </span><span class="n">format</span><span class="p">;</span>
-<a id="__codelineno-4-22" name="__codelineno-4-22" href="#__codelineno-4-22"></a><span class="w">    </span><span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="n">tlv_fixed_format_init</span><span class="p">(</span><span class="o">&amp;</span><span class="n">format</span><span class="p">,</span><span class="w"> </span><span class="o">&amp;</span><span class="n">config</span><span class="p">)</span><span class="w"> </span><span class="o">!=</span><span class="w"> </span><span class="n">TLV_OK</span><span class="p">)</span><span class="w"> </span><span class="k">return</span><span class="w"> </span><span class="mi">1</span><span class="p">;</span>
-<a id="__codelineno-4-23" name="__codelineno-4-23" href="#__codelineno-4-23"></a><span class="w">    </span><span class="k">const</span><span class="w"> </span><span class="k">auto</span><span class="w"> </span><span class="n">format_view</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">tlv</span><span class="o">::</span><span class="n">native</span><span class="o">::</span><span class="n">borrow_format</span><span class="p">(</span><span class="n">format</span><span class="p">);</span>
-<a id="__codelineno-4-24" name="__codelineno-4-24" href="#__codelineno-4-24"></a>
-<a id="__codelineno-4-25" name="__codelineno-4-25" href="#__codelineno-4-25"></a><span class="w">    </span><span class="n">std</span><span class="o">::</span><span class="n">array</span><span class="o">&lt;</span><span class="n">tlv</span><span class="o">::</span><span class="kt">byte</span><span class="p">,</span><span class="w"> </span><span class="mi">16</span><span class="o">&gt;</span><span class="w"> </span><span class="n">buf</span><span class="p">{};</span>
-<a id="__codelineno-4-26" name="__codelineno-4-26" href="#__codelineno-4-26"></a><span class="w">    </span><span class="n">tlv</span><span class="o">::</span><span class="n">writer</span><span class="o">&lt;&gt;</span><span class="w">             </span><span class="n">writer</span><span class="p">(</span><span class="n">buf</span><span class="p">.</span><span class="n">data</span><span class="p">(),</span><span class="w"> </span><span class="n">buf</span><span class="p">.</span><span class="n">size</span><span class="p">(),</span><span class="w"> </span><span class="n">format_view</span><span class="p">);</span>
-<a id="__codelineno-4-27" name="__codelineno-4-27" href="#__codelineno-4-27"></a>
-<a id="__codelineno-4-28" name="__codelineno-4-28" href="#__codelineno-4-28"></a><span class="w">    </span><span class="k">const</span><span class="w"> </span><span class="n">std</span><span class="o">::</span><span class="n">array</span><span class="o">&lt;</span><span class="n">tlv</span><span class="o">::</span><span class="kt">byte</span><span class="p">,</span><span class="w"> </span><span class="mi">3</span><span class="o">&gt;</span><span class="w"> </span><span class="n">value</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="p">{</span><span class="n">tlv</span><span class="o">::</span><span class="kt">byte</span><span class="p">(</span><span class="mh">0xAA</span><span class="p">),</span><span class="w"> </span><span class="n">tlv</span><span class="o">::</span><span class="kt">byte</span><span class="p">(</span><span class="mh">0xBB</span><span class="p">),</span><span class="w"> </span><span class="n">tlv</span><span class="o">::</span><span class="kt">byte</span><span class="p">(</span><span class="mh">0xCC</span><span class="p">)};</span>
-<a id="__codelineno-4-29" name="__codelineno-4-29" href="#__codelineno-4-29"></a><span class="w">    </span><span class="k">auto</span><span class="w">                           </span><span class="n">written</span><span class="w"> </span><span class="o">=</span>
-<a id="__codelineno-4-30" name="__codelineno-4-30" href="#__codelineno-4-30"></a><span class="w">        </span><span class="n">writer</span><span class="p">.</span><span class="n">write</span><span class="p">(</span><span class="n">tlv</span><span class="o">::</span><span class="n">tag_bytes</span><span class="o">&lt;</span><span class="mh">0x12</span><span class="p">,</span><span class="w"> </span><span class="mh">0x34</span><span class="o">&gt;</span><span class="p">(),</span><span class="w"> </span><span class="n">tlv</span><span class="o">::</span><span class="n">bytes</span><span class="p">(</span><span class="n">value</span><span class="p">.</span><span class="n">data</span><span class="p">(),</span><span class="w"> </span><span class="n">value</span><span class="p">.</span><span class="n">size</span><span class="p">()));</span>
-<a id="__codelineno-4-31" name="__codelineno-4-31" href="#__codelineno-4-31"></a><span class="w">    </span><span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="o">!</span><span class="n">written</span><span class="p">)</span><span class="w"> </span><span class="p">{</span>
-<a id="__codelineno-4-32" name="__codelineno-4-32" href="#__codelineno-4-32"></a><span class="w">        </span><span class="n">std</span><span class="o">::</span><span class="n">cerr</span><span class="w"> </span><span class="o">&lt;&lt;</span><span class="w"> </span><span class="s">"write error: "</span><span class="w"> </span><span class="o">&lt;&lt;</span><span class="w"> </span><span class="n">written</span><span class="p">.</span><span class="n">error</span><span class="p">().</span><span class="n">message</span><span class="w"> </span><span class="o">&lt;&lt;</span><span class="w"> </span><span class="s">"</span><span class="se">\n</span><span class="s">"</span><span class="p">;</span>
-<a id="__codelineno-4-33" name="__codelineno-4-33" href="#__codelineno-4-33"></a><span class="w">        </span><span class="k">return</span><span class="w"> </span><span class="mi">1</span><span class="p">;</span>
-<a id="__codelineno-4-34" name="__codelineno-4-34" href="#__codelineno-4-34"></a><span class="w">    </span><span class="p">}</span>
-<a id="__codelineno-4-35" name="__codelineno-4-35" href="#__codelineno-4-35"></a>
-<a id="__codelineno-4-36" name="__codelineno-4-36" href="#__codelineno-4-36"></a><span class="w">    </span><span class="c1">// Wire bytes: 12 34 03 AA BB CC. The tag is kept as is; the length is one byte.</span>
-<a id="__codelineno-4-37" name="__codelineno-4-37" href="#__codelineno-4-37"></a><span class="w">    </span><span class="kt">size_t</span><span class="w"> </span><span class="n">count</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mi">0</span><span class="p">;</span>
-<a id="__codelineno-4-38" name="__codelineno-4-38" href="#__codelineno-4-38"></a><span class="w">    </span><span class="k">try</span><span class="w"> </span><span class="p">{</span>
-<a id="__codelineno-4-39" name="__codelineno-4-39" href="#__codelineno-4-39"></a><span class="w">        </span><span class="k">for</span><span class="w"> </span><span class="p">(</span><span class="k">auto</span><span class="w"> </span><span class="n">element</span><span class="w"> </span><span class="o">:</span><span class="w"> </span><span class="n">tlv</span><span class="o">::</span><span class="n">parse</span><span class="p">(</span><span class="n">tlv</span><span class="o">::</span><span class="n">bytes</span><span class="p">(</span><span class="n">buf</span><span class="p">.</span><span class="n">data</span><span class="p">(),</span><span class="w"> </span><span class="n">writer</span><span class="p">.</span><span class="n">size</span><span class="p">()),</span><span class="w"> </span><span class="n">format_view</span><span class="p">))</span><span class="w"> </span><span class="p">{</span>
-<a id="__codelineno-4-40" name="__codelineno-4-40" href="#__codelineno-4-40"></a><span class="w">            </span><span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="n">element</span><span class="p">.</span><span class="n">value</span><span class="p">().</span><span class="n">size</span><span class="p">()</span><span class="w"> </span><span class="o">!=</span><span class="w"> </span><span class="n">value</span><span class="p">.</span><span class="n">size</span><span class="p">())</span><span class="w"> </span><span class="k">return</span><span class="w"> </span><span class="mi">1</span><span class="p">;</span>
-<a id="__codelineno-4-41" name="__codelineno-4-41" href="#__codelineno-4-41"></a><span class="w">            </span><span class="n">std</span><span class="o">::</span><span class="n">cout</span><span class="w"> </span><span class="o">&lt;&lt;</span><span class="w"> </span><span class="s">"wrote "</span><span class="w"> </span><span class="o">&lt;&lt;</span><span class="w"> </span><span class="n">writer</span><span class="p">.</span><span class="n">size</span><span class="p">()</span><span class="w"> </span><span class="o">&lt;&lt;</span><span class="w"> </span><span class="s">" bytes, read a "</span><span class="w"> </span><span class="o">&lt;&lt;</span><span class="w"> </span><span class="n">element</span><span class="p">.</span><span class="n">value</span><span class="p">().</span><span class="n">size</span><span class="p">()</span>
-<a id="__codelineno-4-42" name="__codelineno-4-42" href="#__codelineno-4-42"></a><span class="w">                      </span><span class="o">&lt;&lt;</span><span class="w"> </span><span class="s">"-byte value</span><span class="se">\n</span><span class="s">"</span><span class="p">;</span>
-<a id="__codelineno-4-43" name="__codelineno-4-43" href="#__codelineno-4-43"></a><span class="w">            </span><span class="o">++</span><span class="n">count</span><span class="p">;</span>
-<a id="__codelineno-4-44" name="__codelineno-4-44" href="#__codelineno-4-44"></a><span class="w">        </span><span class="p">}</span>
-<a id="__codelineno-4-45" name="__codelineno-4-45" href="#__codelineno-4-45"></a><span class="w">    </span><span class="p">}</span><span class="w"> </span><span class="k">catch</span><span class="w"> </span><span class="p">(</span><span class="k">const</span><span class="w"> </span><span class="n">tlv</span><span class="o">::</span><span class="n">parse_error</span><span class="o">&amp;</span><span class="w"> </span><span class="n">failure</span><span class="p">)</span><span class="w"> </span><span class="p">{</span>
-<a id="__codelineno-4-46" name="__codelineno-4-46" href="#__codelineno-4-46"></a><span class="w">        </span><span class="n">std</span><span class="o">::</span><span class="n">cerr</span><span class="w"> </span><span class="o">&lt;&lt;</span><span class="w"> </span><span class="s">"read error: "</span><span class="w"> </span><span class="o">&lt;&lt;</span><span class="w"> </span><span class="n">failure</span><span class="p">.</span><span class="n">what</span><span class="p">()</span><span class="w"> </span><span class="o">&lt;&lt;</span><span class="w"> </span><span class="s">"</span><span class="se">\n</span><span class="s">"</span><span class="p">;</span>
-<a id="__codelineno-4-47" name="__codelineno-4-47" href="#__codelineno-4-47"></a><span class="w">        </span><span class="k">return</span><span class="w"> </span><span class="mi">1</span><span class="p">;</span>
-<a id="__codelineno-4-48" name="__codelineno-4-48" href="#__codelineno-4-48"></a><span class="w">    </span><span class="p">}</span>
-<a id="__codelineno-4-49" name="__codelineno-4-49" href="#__codelineno-4-49"></a><span class="w">    </span><span class="k">return</span><span class="w"> </span><span class="n">count</span><span class="w"> </span><span class="o">==</span><span class="w"> </span><span class="mi">1</span><span class="w"> </span><span class="o">?</span><span class="w"> </span><span class="mi">0</span><span class="w"> </span><span class="o">:</span><span class="w"> </span><span class="mi">1</span><span class="p">;</span>
-<a id="__codelineno-4-50" name="__codelineno-4-50" href="#__codelineno-4-50"></a><span class="p">}</span>
+<a id="__codelineno-4-17" name="__codelineno-4-17" href="#__codelineno-4-17"></a><span class="w">    </span><span class="k">const</span><span class="w"> </span><span class="n">tlv_fixed_format_t</span><span class="w"> </span><span class="n">config</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="p">{{</span><span class="cm">/* tag_size */</span><span class="w"> </span><span class="mi">2</span><span class="p">},</span>
+<a id="__codelineno-4-18" name="__codelineno-4-18" href="#__codelineno-4-18"></a><span class="w">                                       </span><span class="p">{</span><span class="cm">/* length_size */</span><span class="w"> </span><span class="mi">1</span><span class="p">,</span><span class="w"> </span><span class="n">TLV_BYTE_ORDER_BIG_ENDIAN</span><span class="p">},</span>
+<a id="__codelineno-4-19" name="__codelineno-4-19" href="#__codelineno-4-19"></a><span class="w">                                       </span><span class="n">TLV_ELEMENT_ORDER_TLV</span><span class="p">,</span>
+<a id="__codelineno-4-20" name="__codelineno-4-20" href="#__codelineno-4-20"></a><span class="w">                                       </span><span class="n">TLV_LENGTH_SCOPE_VALUE</span><span class="p">};</span>
+<a id="__codelineno-4-21" name="__codelineno-4-21" href="#__codelineno-4-21"></a><span class="w">    </span><span class="cm">/* config must outlive every reader and writer built from format. */</span>
+<a id="__codelineno-4-22" name="__codelineno-4-22" href="#__codelineno-4-22"></a><span class="w">    </span><span class="n">tlv_format_t</span><span class="w"> </span><span class="n">format</span><span class="p">;</span>
+<a id="__codelineno-4-23" name="__codelineno-4-23" href="#__codelineno-4-23"></a><span class="w">    </span><span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="n">tlv_fixed_format_init</span><span class="p">(</span><span class="o">&amp;</span><span class="n">format</span><span class="p">,</span><span class="w"> </span><span class="o">&amp;</span><span class="n">config</span><span class="p">)</span><span class="w"> </span><span class="o">!=</span><span class="w"> </span><span class="n">TLV_OK</span><span class="p">)</span><span class="w"> </span><span class="k">return</span><span class="w"> </span><span class="mi">1</span><span class="p">;</span>
+<a id="__codelineno-4-24" name="__codelineno-4-24" href="#__codelineno-4-24"></a><span class="w">    </span><span class="k">const</span><span class="w"> </span><span class="k">auto</span><span class="w"> </span><span class="n">format_view</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">tlv</span><span class="o">::</span><span class="n">native</span><span class="o">::</span><span class="n">borrow_format</span><span class="p">(</span><span class="n">format</span><span class="p">);</span>
+<a id="__codelineno-4-25" name="__codelineno-4-25" href="#__codelineno-4-25"></a>
+<a id="__codelineno-4-26" name="__codelineno-4-26" href="#__codelineno-4-26"></a><span class="w">    </span><span class="n">std</span><span class="o">::</span><span class="n">array</span><span class="o">&lt;</span><span class="n">tlv</span><span class="o">::</span><span class="kt">byte</span><span class="p">,</span><span class="w"> </span><span class="mi">16</span><span class="o">&gt;</span><span class="w"> </span><span class="n">buf</span><span class="p">{};</span>
+<a id="__codelineno-4-27" name="__codelineno-4-27" href="#__codelineno-4-27"></a><span class="w">    </span><span class="n">tlv</span><span class="o">::</span><span class="n">writer</span><span class="o">&lt;&gt;</span><span class="w">             </span><span class="n">writer</span><span class="p">(</span><span class="n">buf</span><span class="p">.</span><span class="n">data</span><span class="p">(),</span><span class="w"> </span><span class="n">buf</span><span class="p">.</span><span class="n">size</span><span class="p">(),</span><span class="w"> </span><span class="n">format_view</span><span class="p">);</span>
+<a id="__codelineno-4-28" name="__codelineno-4-28" href="#__codelineno-4-28"></a>
+<a id="__codelineno-4-29" name="__codelineno-4-29" href="#__codelineno-4-29"></a><span class="w">    </span><span class="k">const</span><span class="w"> </span><span class="n">std</span><span class="o">::</span><span class="n">array</span><span class="o">&lt;</span><span class="n">tlv</span><span class="o">::</span><span class="kt">byte</span><span class="p">,</span><span class="w"> </span><span class="mi">3</span><span class="o">&gt;</span><span class="w"> </span><span class="n">value</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="p">{</span><span class="n">tlv</span><span class="o">::</span><span class="kt">byte</span><span class="p">(</span><span class="mh">0xAA</span><span class="p">),</span><span class="w"> </span><span class="n">tlv</span><span class="o">::</span><span class="kt">byte</span><span class="p">(</span><span class="mh">0xBB</span><span class="p">),</span><span class="w"> </span><span class="n">tlv</span><span class="o">::</span><span class="kt">byte</span><span class="p">(</span><span class="mh">0xCC</span><span class="p">)};</span>
+<a id="__codelineno-4-30" name="__codelineno-4-30" href="#__codelineno-4-30"></a><span class="w">    </span><span class="k">auto</span><span class="w">                           </span><span class="n">written</span><span class="w"> </span><span class="o">=</span>
+<a id="__codelineno-4-31" name="__codelineno-4-31" href="#__codelineno-4-31"></a><span class="w">        </span><span class="n">writer</span><span class="p">.</span><span class="n">write</span><span class="p">(</span><span class="n">tlv</span><span class="o">::</span><span class="n">tag_bytes</span><span class="o">&lt;</span><span class="mh">0x12</span><span class="p">,</span><span class="w"> </span><span class="mh">0x34</span><span class="o">&gt;</span><span class="p">(),</span><span class="w"> </span><span class="n">tlv</span><span class="o">::</span><span class="n">bytes</span><span class="p">(</span><span class="n">value</span><span class="p">.</span><span class="n">data</span><span class="p">(),</span><span class="w"> </span><span class="n">value</span><span class="p">.</span><span class="n">size</span><span class="p">()));</span>
+<a id="__codelineno-4-32" name="__codelineno-4-32" href="#__codelineno-4-32"></a><span class="w">    </span><span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="o">!</span><span class="n">written</span><span class="p">)</span><span class="w"> </span><span class="p">{</span>
+<a id="__codelineno-4-33" name="__codelineno-4-33" href="#__codelineno-4-33"></a><span class="w">        </span><span class="n">std</span><span class="o">::</span><span class="n">cerr</span><span class="w"> </span><span class="o">&lt;&lt;</span><span class="w"> </span><span class="s">"write error: "</span><span class="w"> </span><span class="o">&lt;&lt;</span><span class="w"> </span><span class="n">written</span><span class="p">.</span><span class="n">error</span><span class="p">().</span><span class="n">message</span><span class="w"> </span><span class="o">&lt;&lt;</span><span class="w"> </span><span class="s">"</span><span class="se">\n</span><span class="s">"</span><span class="p">;</span>
+<a id="__codelineno-4-34" name="__codelineno-4-34" href="#__codelineno-4-34"></a><span class="w">        </span><span class="k">return</span><span class="w"> </span><span class="mi">1</span><span class="p">;</span>
+<a id="__codelineno-4-35" name="__codelineno-4-35" href="#__codelineno-4-35"></a><span class="w">    </span><span class="p">}</span>
+<a id="__codelineno-4-36" name="__codelineno-4-36" href="#__codelineno-4-36"></a>
+<a id="__codelineno-4-37" name="__codelineno-4-37" href="#__codelineno-4-37"></a><span class="w">    </span><span class="c1">// Wire bytes: 12 34 03 AA BB CC. The tag is kept as is; the length is one byte.</span>
+<a id="__codelineno-4-38" name="__codelineno-4-38" href="#__codelineno-4-38"></a><span class="w">    </span><span class="kt">size_t</span><span class="w"> </span><span class="n">count</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mi">0</span><span class="p">;</span>
+<a id="__codelineno-4-39" name="__codelineno-4-39" href="#__codelineno-4-39"></a><span class="w">    </span><span class="k">try</span><span class="w"> </span><span class="p">{</span>
+<a id="__codelineno-4-40" name="__codelineno-4-40" href="#__codelineno-4-40"></a><span class="w">        </span><span class="k">for</span><span class="w"> </span><span class="p">(</span><span class="k">auto</span><span class="w"> </span><span class="n">element</span><span class="w"> </span><span class="o">:</span><span class="w"> </span><span class="n">tlv</span><span class="o">::</span><span class="n">parse</span><span class="p">(</span><span class="n">tlv</span><span class="o">::</span><span class="n">bytes</span><span class="p">(</span><span class="n">buf</span><span class="p">.</span><span class="n">data</span><span class="p">(),</span><span class="w"> </span><span class="n">writer</span><span class="p">.</span><span class="n">size</span><span class="p">()),</span><span class="w"> </span><span class="n">format_view</span><span class="p">))</span><span class="w"> </span><span class="p">{</span>
+<a id="__codelineno-4-41" name="__codelineno-4-41" href="#__codelineno-4-41"></a><span class="w">            </span><span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="n">element</span><span class="p">.</span><span class="n">value</span><span class="p">().</span><span class="n">size</span><span class="p">()</span><span class="w"> </span><span class="o">!=</span><span class="w"> </span><span class="n">value</span><span class="p">.</span><span class="n">size</span><span class="p">())</span><span class="w"> </span><span class="k">return</span><span class="w"> </span><span class="mi">1</span><span class="p">;</span>
+<a id="__codelineno-4-42" name="__codelineno-4-42" href="#__codelineno-4-42"></a><span class="w">            </span><span class="n">std</span><span class="o">::</span><span class="n">cout</span><span class="w"> </span><span class="o">&lt;&lt;</span><span class="w"> </span><span class="s">"wrote "</span><span class="w"> </span><span class="o">&lt;&lt;</span><span class="w"> </span><span class="n">writer</span><span class="p">.</span><span class="n">size</span><span class="p">()</span><span class="w"> </span><span class="o">&lt;&lt;</span><span class="w"> </span><span class="s">" bytes, read a "</span><span class="w"> </span><span class="o">&lt;&lt;</span><span class="w"> </span><span class="n">element</span><span class="p">.</span><span class="n">value</span><span class="p">().</span><span class="n">size</span><span class="p">()</span>
+<a id="__codelineno-4-43" name="__codelineno-4-43" href="#__codelineno-4-43"></a><span class="w">                      </span><span class="o">&lt;&lt;</span><span class="w"> </span><span class="s">"-byte value</span><span class="se">\n</span><span class="s">"</span><span class="p">;</span>
+<a id="__codelineno-4-44" name="__codelineno-4-44" href="#__codelineno-4-44"></a><span class="w">            </span><span class="o">++</span><span class="n">count</span><span class="p">;</span>
+<a id="__codelineno-4-45" name="__codelineno-4-45" href="#__codelineno-4-45"></a><span class="w">        </span><span class="p">}</span>
+<a id="__codelineno-4-46" name="__codelineno-4-46" href="#__codelineno-4-46"></a><span class="w">    </span><span class="p">}</span><span class="w"> </span><span class="k">catch</span><span class="w"> </span><span class="p">(</span><span class="k">const</span><span class="w"> </span><span class="n">tlv</span><span class="o">::</span><span class="n">parse_error</span><span class="o">&amp;</span><span class="w"> </span><span class="n">failure</span><span class="p">)</span><span class="w"> </span><span class="p">{</span>
+<a id="__codelineno-4-47" name="__codelineno-4-47" href="#__codelineno-4-47"></a><span class="w">        </span><span class="n">std</span><span class="o">::</span><span class="n">cerr</span><span class="w"> </span><span class="o">&lt;&lt;</span><span class="w"> </span><span class="s">"read error: "</span><span class="w"> </span><span class="o">&lt;&lt;</span><span class="w"> </span><span class="n">failure</span><span class="p">.</span><span class="n">what</span><span class="p">()</span><span class="w"> </span><span class="o">&lt;&lt;</span><span class="w"> </span><span class="s">"</span><span class="se">\n</span><span class="s">"</span><span class="p">;</span>
+<a id="__codelineno-4-48" name="__codelineno-4-48" href="#__codelineno-4-48"></a><span class="w">        </span><span class="k">return</span><span class="w"> </span><span class="mi">1</span><span class="p">;</span>
+<a id="__codelineno-4-49" name="__codelineno-4-49" href="#__codelineno-4-49"></a><span class="w">    </span><span class="p">}</span>
+<a id="__codelineno-4-50" name="__codelineno-4-50" href="#__codelineno-4-50"></a><span class="w">    </span><span class="k">return</span><span class="w"> </span><span class="n">count</span><span class="w"> </span><span class="o">==</span><span class="w"> </span><span class="mi">1</span><span class="w"> </span><span class="o">?</span><span class="w"> </span><span class="mi">0</span><span class="w"> </span><span class="o">:</span><span class="w"> </span><span class="mi">1</span><span class="p">;</span>
+<a id="__codelineno-4-51" name="__codelineno-4-51" href="#__codelineno-4-51"></a><span class="p">}</span>
 </code></pre></div>
 <p>See <a href="../../../guides/memory/">shared memory ownership rules</a> before retaining a parsed element.</p>
 

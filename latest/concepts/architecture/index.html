@@ -3792,7 +3792,7 @@
 <h1 id="layered-opentlv-architecture-65-279-280-281-327">Layered OpenTLV architecture (#65, #279, #280, #281, #327)<a class="headerlink" href="#layered-opentlv-architecture-65-279-280-281-327" title="Permanent link">&para;</a></h1>
 <p>Prerequisite: Start with the <a href="../learning-model/">basic model</a> before the detailed contracts.</p>
 <div class="highlight"><pre><span></span><code><a id="__codelineno-0-1" name="__codelineno-0-1" href="#__codelineno-0-1"></a>Format describes wire rules
-<a id="__codelineno-0-2" name="__codelineno-0-2" href="#__codelineno-0-2"></a>Reader/Writer use Format; Schema and Codec are optional
+<a id="__codelineno-0-2" name="__codelineno-0-2" href="#__codelineno-0-2"></a>Reader/Writer use Format; Definition, Schema and Codec are optional
 </code></pre></div>
 <p>OpenTLV provides one C library (<code>tlv</code>) and a header-only C++ interface (<code>tlv++</code>)
 that links to it. Core is a logical responsibility, not a directory. Optional
@@ -3807,38 +3807,28 @@ future extensions, with builtins shown as representative combinations.</p>
 <p>This is the canonical architecture overview. The
 <a href="../architectural-rules/">architectural rules</a> constrain changes; specialized
 contract and audit pages extend this model rather than define another one.</p>
-<div class="highlight"><pre><span></span><code><a id="__codelineno-1-1" name="__codelineno-1-1" href="#__codelineno-1-1"></a>Definition → Format → Field Encoding → Layout → Element → Schema → Codec
-</code></pre></div>
-<p>This expresses related responsibilities, not a mandatory runtime call pipeline
-or module dependency graph. Reader/Writer require Format, not a Definition,
-Schema or Codec. Independent standards are a playground for finding reusable
-mechanisms: protocol policy stays in standards and extensions.</p>
 <p>OpenTLV separates reusable definitions and rules, concrete runtime data, and
 operations that apply those rules to the data:</p>
-<div class="highlight"><pre><span></span><code><a id="__codelineno-2-1" name="__codelineno-2-1" href="#__codelineno-2-1"></a>DECLARATIVE / SEMANTIC MODEL
-<a id="__codelineno-2-2" name="__codelineno-2-2" href="#__codelineno-2-2"></a>────────────────────────────
-<a id="__codelineno-2-3" name="__codelineno-2-3" href="#__codelineno-2-3"></a>Definition
-<a id="__codelineno-2-4" name="__codelineno-2-4" href="#__codelineno-2-4"></a>Format
-<a id="__codelineno-2-5" name="__codelineno-2-5" href="#__codelineno-2-5"></a>Field Encoding
-<a id="__codelineno-2-6" name="__codelineno-2-6" href="#__codelineno-2-6"></a>Schema
-<a id="__codelineno-2-7" name="__codelineno-2-7" href="#__codelineno-2-7"></a>Codec
-<a id="__codelineno-2-8" name="__codelineno-2-8" href="#__codelineno-2-8"></a>
-<a id="__codelineno-2-9" name="__codelineno-2-9" href="#__codelineno-2-9"></a>RUNTIME REPRESENTATION
-<a id="__codelineno-2-10" name="__codelineno-2-10" href="#__codelineno-2-10"></a>────────────────────────────
-<a id="__codelineno-2-11" name="__codelineno-2-11" href="#__codelineno-2-11"></a>Element
-<a id="__codelineno-2-12" name="__codelineno-2-12" href="#__codelineno-2-12"></a>Layout
-<a id="__codelineno-2-13" name="__codelineno-2-13" href="#__codelineno-2-13"></a>Document (owned representation)
-<a id="__codelineno-2-14" name="__codelineno-2-14" href="#__codelineno-2-14"></a>
-<a id="__codelineno-2-15" name="__codelineno-2-15" href="#__codelineno-2-15"></a>OPERATIONS
-<a id="__codelineno-2-16" name="__codelineno-2-16" href="#__codelineno-2-16"></a>────────────────────────────
-<a id="__codelineno-2-17" name="__codelineno-2-17" href="#__codelineno-2-17"></a>Reader
-<a id="__codelineno-2-18" name="__codelineno-2-18" href="#__codelineno-2-18"></a>Tree Reader
-<a id="__codelineno-2-19" name="__codelineno-2-19" href="#__codelineno-2-19"></a>Writer
-<a id="__codelineno-2-20" name="__codelineno-2-20" href="#__codelineno-2-20"></a>Tree Writer
-<a id="__codelineno-2-21" name="__codelineno-2-21" href="#__codelineno-2-21"></a>Query
-<a id="__codelineno-2-22" name="__codelineno-2-22" href="#__codelineno-2-22"></a>Visitor
-<a id="__codelineno-2-23" name="__codelineno-2-23" href="#__codelineno-2-23"></a>Diagnostics
+<div class="highlight"><pre><span></span><code><a id="__codelineno-1-1" name="__codelineno-1-1" href="#__codelineno-1-1"></a>REUSABLE DESCRIPTIONS
+<a id="__codelineno-1-2" name="__codelineno-1-2" href="#__codelineno-1-2"></a>Definition    Format    Field Encoding    Schema    Codec
+<a id="__codelineno-1-3" name="__codelineno-1-3" href="#__codelineno-1-3"></a>
+<a id="__codelineno-1-4" name="__codelineno-1-4" href="#__codelineno-1-4"></a>FORMAT CONSTRUCTION (implementation choices)
+<a id="__codelineno-1-5" name="__codelineno-1-5" href="#__codelineno-1-5"></a>Field Encoding + composition rules -- optional helpers --+
+<a id="__codelineno-1-6" name="__codelineno-1-6" href="#__codelineno-1-6"></a>Direct implementation ----------------------------------+--&gt; Format contract
+<a id="__codelineno-1-7" name="__codelineno-1-7" href="#__codelineno-1-7"></a>
+<a id="__codelineno-1-8" name="__codelineno-1-8" href="#__codelineno-1-8"></a>OPERATIONS                              RUNTIME REPRESENTATIONS
+<a id="__codelineno-1-9" name="__codelineno-1-9" href="#__codelineno-1-9"></a>wire bytes -- Reader using Format ----&gt; Element + source Layout
+<a id="__codelineno-1-10" name="__codelineno-1-10" href="#__codelineno-1-10"></a>wire bytes &lt;-- Writer using Format ---- Element
+<a id="__codelineno-1-11" name="__codelineno-1-11" href="#__codelineno-1-11"></a>
+<a id="__codelineno-1-12" name="__codelineno-1-12" href="#__codelineno-1-12"></a>Definition, Schema and Codec are optional, not processing stages.
 </code></pre></div>
+<p>Composition belongs to Format; it is not another canonical layer. The generic
+composition helpers are optional: a Format may implement the same complete
+contract directly. Reader and Writer use that contract regardless of how the
+Format was constructed. Writer can encode an application-created Element
+without a previously parsed source Layout.</p>
+<p>Independent standards are a playground for finding reusable mechanisms:
+protocol policy stays in standards and extensions.</p>
 <p>The declarative/semantic model describes meaning and rules: a Definition
 associates an identifier with a descriptive name in a registry, Format defines
 wire encoding, Field Encoding supplies reusable wire-field mechanics, Schema
@@ -3849,9 +3839,24 @@ descriptors and executable callbacks.</p>
 semantic identifier and Value. Layout describes how that instance occupies
 wire bytes: Header, optional Tag and Length fields, Value, Trailer and their
 ranges. In the current C API, this source information belongs to <code>tlv_source_t</code>
-and <code>tlv_range_t</code>; <code>tlv_decoded_t</code> pairs it with <code>tlv_element_t</code>. The field and
-binary layouts declared in <code>tlv/layout.h</code> configure Format composition; they
-are reusable rules rather than a decoded instance's runtime layout.</p>
+and <code>tlv_range_t</code>; <code>tlv_decoded_t</code> pairs it with <code>tlv_element_t</code>.</p>
+<p>Field Encoding has two reusable levels. Low-level bit, byte and integer
+primitives include packed fields in <code>tlv/field/packed.h</code>. Identifier and Length
+encodings use the callback contracts in <code>tlv/field/encoding.h</code> and the standalone
+fixed-width, variable-width and escape-prefixed primitives in <code>tlv/field/fixed.h</code>,
+<code>tlv/field/variable.h</code> and <code>tlv/field/escaped.h</code>. Neither level describes a
+complete element. Fixed, variable and escaped Format configurations embed
+their <code>identifier</code> and <code>length</code> descriptions and use <code>element_order</code> and
+<code>length_scope</code> for composition policy. Adapters follow the shared Field Encoding
+validation and prefix-reporting contract. Codec is reserved for converting Value bytes to and from
+application values; individual wire fields use field encodings.</p>
+<p>Format composition in <code>tlv/formats/compose.h</code> combines field encodings with
+ordering, count scope, tag-only selection and optional boundary resolution.
+Its <code>tlv_field_composition_t</code>, <code>tlv_binary_composition_t</code>,
+<code>tlv_tagged_fields_composition_t</code> and <code>tlv_tagged_binary_composition_t</code>
+configurations supply reusable rules. Format produces Layout when those rules
+are applied to concrete bytes. Composition belongs to Format; it is not another
+architectural layer.</p>
 <p>Operations consume or produce these representations using the selected model.
 Reader and Writer process caller-owned buffers, Query selects elements, and
 Visitor participates in traversal. Document is the core owned representation
@@ -3870,7 +3875,7 @@ language/tool facades. The OTLV frontend, immutable runtime model, Protocol Infe
 and compilation are planned directions, not currently
 available parsing modes. Document remains owned message data; the runtime
 model supplies reusable interpretation/configuration.</p>
-<p>Phase 2 makes Definition, Format / Field Encoding / Layout configuration,
+<p>Phase 2 makes Definition, Format composition / Field Encoding configuration,
 Schema and Codec dynamically describable as one complete model. The <code>.otlv</code>
 frontend produces an AST, performs semantic analysis and symbol resolution,
 and constructs a canonical internal IR. Model construction establishes
@@ -3909,6 +3914,11 @@ introduce additional architectural phases by implication.</p>
 <td>Standard C types</td>
 </tr>
 <tr>
+<td>Field Encoding</td>
+<td>Individual Identifier and Length representations, packed fields</td>
+<td>Shared field types and byte-order helpers; no Format dependency</td>
+</tr>
+<tr>
 <td>Reader / writer</td>
 <td>Bounded raw TLV I/O, iteration, copies, generic traversal</td>
 <td>Shared contracts</td>
@@ -3916,7 +3926,7 @@ introduce additional architectural phases by implication.</p>
 <tr>
 <td>Formats</td>
 <td>Complete Header/Value/Trailer framing and identification of nested containers</td>
-<td>Shared contracts; private wire helpers</td>
+<td>Shared contracts; Field Encoding; private wire helpers</td>
 </tr>
 <tr>
 <td>Schemas</td>
@@ -3964,21 +3974,22 @@ through a private ASN.1 field adapter also consumed by DER/CER. The wrappers
 retain their concrete rules and current component dependencies.</p>
 <h2 id="repository-layout">Repository layout<a class="headerlink" href="#repository-layout" title="Permanent link">&para;</a></h2>
 <p>Public headers under <code>tlv/include/tlv/</code> and sources under <code>tlv/src/</code> use:</p>
-<div class="highlight"><pre><span></span><code><a id="__codelineno-3-1" name="__codelineno-3-1" href="#__codelineno-3-1"></a>tlv/
-<a id="__codelineno-3-2" name="__codelineno-3-2" href="#__codelineno-3-2"></a>  element.h, value.h, length.h, size.h, error.h, endian.h, copy.h, format.h, tlv.h
-<a id="__codelineno-3-3" name="__codelineno-3-3" href="#__codelineno-3-3"></a>  compiler.h, attributes.h, definition.h
-<a id="__codelineno-3-4" name="__codelineno-3-4" href="#__codelineno-3-4"></a>  reader/    reader.h, tree.h, visitor.h
-<a id="__codelineno-3-5" name="__codelineno-3-5" href="#__codelineno-3-5"></a>  query/     query.h
-<a id="__codelineno-3-6" name="__codelineno-3-6" href="#__codelineno-3-6"></a>  document/  document.h
-<a id="__codelineno-3-7" name="__codelineno-3-7" href="#__codelineno-3-7"></a>  writer/    writer.h
-<a id="__codelineno-3-8" name="__codelineno-3-8" href="#__codelineno-3-8"></a>  schema/    schema.h
-<a id="__codelineno-3-9" name="__codelineno-3-9" href="#__codelineno-3-9"></a>  codec/     codec.h, structure.h
-<a id="__codelineno-3-10" name="__codelineno-3-10" href="#__codelineno-3-10"></a>  formats/
-<a id="__codelineno-3-11" name="__codelineno-3-11" href="#__codelineno-3-11"></a>    fixed.h
-<a id="__codelineno-3-12" name="__codelineno-3-12" href="#__codelineno-3-12"></a>  builtins/
-<a id="__codelineno-3-13" name="__codelineno-3-13" href="#__codelineno-3-13"></a>    bluetooth/ bluetooth_ltv.h, ad_types.h
-<a id="__codelineno-3-14" name="__codelineno-3-14" href="#__codelineno-3-14"></a>    asn1/      ber.h, der.h, cer.h, der_validation.h, cer_validation.h, der_schema.h
-<a id="__codelineno-3-15" name="__codelineno-3-15" href="#__codelineno-3-15"></a>    emv/       emv.h, emv_schema.h, dol.h, emv_codec.h
+<div class="highlight"><pre><span></span><code><a id="__codelineno-2-1" name="__codelineno-2-1" href="#__codelineno-2-1"></a>tlv/
+<a id="__codelineno-2-2" name="__codelineno-2-2" href="#__codelineno-2-2"></a>  element.h, value.h, length.h, size.h, error.h, endian.h, copy.h, format.h, tlv.h
+<a id="__codelineno-2-3" name="__codelineno-2-3" href="#__codelineno-2-3"></a>  compiler.h, attributes.h, definition.h
+<a id="__codelineno-2-4" name="__codelineno-2-4" href="#__codelineno-2-4"></a>  reader/    reader.h, tree.h, visitor.h
+<a id="__codelineno-2-5" name="__codelineno-2-5" href="#__codelineno-2-5"></a>  query/     query.h
+<a id="__codelineno-2-6" name="__codelineno-2-6" href="#__codelineno-2-6"></a>  document/  document.h
+<a id="__codelineno-2-7" name="__codelineno-2-7" href="#__codelineno-2-7"></a>  writer/    writer.h
+<a id="__codelineno-2-8" name="__codelineno-2-8" href="#__codelineno-2-8"></a>  schema/    schema.h
+<a id="__codelineno-2-9" name="__codelineno-2-9" href="#__codelineno-2-9"></a>  codec/     codec.h, structure.h
+<a id="__codelineno-2-10" name="__codelineno-2-10" href="#__codelineno-2-10"></a>  field/     encoding.h, fixed.h, packed.h, variable.h, escaped.h
+<a id="__codelineno-2-11" name="__codelineno-2-11" href="#__codelineno-2-11"></a>  formats/
+<a id="__codelineno-2-12" name="__codelineno-2-12" href="#__codelineno-2-12"></a>    compose.h, fixed.h, variable.h, escaped.h
+<a id="__codelineno-2-13" name="__codelineno-2-13" href="#__codelineno-2-13"></a>  builtins/
+<a id="__codelineno-2-14" name="__codelineno-2-14" href="#__codelineno-2-14"></a>    bluetooth/ bluetooth_ltv.h, ad_types.h
+<a id="__codelineno-2-15" name="__codelineno-2-15" href="#__codelineno-2-15"></a>    asn1/      ber.h, der.h, cer.h, der_validation.h, cer_validation.h, der_schema.h
+<a id="__codelineno-2-16" name="__codelineno-2-16" href="#__codelineno-2-16"></a>    emv/       emv.h, emv_schema.h, dol.h, emv_codec.h
 </code></pre></div>
 <p>The tree shows the public layout; corresponding implementation files use <code>.c</code>.
 <code>definition.h</code> provides borrowed identifier/name entries and a generic registry
@@ -3993,9 +4004,12 @@ The <a href="../definition-boundaries/">Definition boundary audit</a> records th
 evidence across five standard families and the identifier-mapping decision.
 Small fundamental types (<code>tag.h</code>, <code>length.h</code>, <code>size.h</code>, <code>value.h</code>, <code>element.h</code>, and the
 generic <code>format.h</code> descriptor contracts) sit directly under <code>tlv/</code>, alongside
-the generic subsystem folders. <code>formats/fixed.h</code> and <code>formats/variable.h</code> hold
-format mechanisms that name no protocol; every protocol-specific format or standard
-OpenTLV ships lives under <code>builtins/&lt;protocol&gt;/</code>, so all of a protocol's
+the generic subsystem folders. <code>field/</code> contains individual-field mechanics;
+<code>formats/compose.h</code> combines them into complete Format operations.
+<code>formats/fixed.h</code>, <code>formats/variable.h</code> and <code>formats/escaped.h</code> provide complete
+generic format configurations and their adapters. These mechanisms name no
+protocol; every protocol-specific format or standard OpenTLV ships lives under
+<code>builtins/&lt;protocol&gt;/</code>, so all of a protocol's
 functionality is in one place instead of scattered across role-based folders: EMV's schema,
 codec, DOL and dictionary header are all under <code>builtins/emv/</code>, and
 ASN.1's wire formats and bounded DER/CER validation operations are all under
@@ -4005,7 +4019,10 @@ that build on them would otherwise share a name, so the validation headers are
 from <code>codec/emv.h</code>) is distinct from the umbrella <code>builtins/emv/emv.h</code>.
 BER, DER and CER share the ASN.1 field adapter in
 <code>src/builtins/asn1/ber_internal.c</code> and its private header. Reusable variable-width
-identifier and definite-length algorithms live in <code>src/formats/variable.c</code>.
+identifier and definite-length algorithms live in <code>src/field/variable.c</code>;
+<code>src/formats/variable.c</code> supplies their complete-format adapter. Fixed-width
+identifier and count algorithms live in <code>src/field/fixed.c</code>; binary composition
+and the Escaped format reuse them through thin field callback adapters.
 Internal schema validation, BER helpers and EMV value codecs have dedicated
 source files. <code>config.h</code> and <code>version.h</code> are generated into the build include
 directory. The public aggregate <code>tlv/tlv.h</code> includes enabled components; generic
@@ -4014,24 +4031,24 @@ consumers. C++ common types are in <code>tlv++/types.hpp</code>, independent of 
 <p>Public headers under <code>tlv++/include/tlv++/</code> mirror the same layout (#280),
 grouping the C++ wrapper for each generic subsystem alongside its C
 counterpart and each protocol's wrapper under <code>builtins/&lt;protocol&gt;/</code>:</p>
-<div class="highlight"><pre><span></span><code><a id="__codelineno-4-1" name="__codelineno-4-1" href="#__codelineno-4-1"></a>tlv++/
-<a id="__codelineno-4-2" name="__codelineno-4-2" href="#__codelineno-4-2"></a>  types.hpp, compat.hpp, diagnostic.hpp, tlv.hpp
-<a id="__codelineno-4-3" name="__codelineno-4-3" href="#__codelineno-4-3"></a>  format.hpp, format_traits.hpp, native.hpp
-<a id="__codelineno-4-4" name="__codelineno-4-4" href="#__codelineno-4-4"></a>  reader/    reader.hpp, tree.hpp
-<a id="__codelineno-4-5" name="__codelineno-4-5" href="#__codelineno-4-5"></a>  query/     query.hpp
-<a id="__codelineno-4-6" name="__codelineno-4-6" href="#__codelineno-4-6"></a>  document/  document.hpp
-<a id="__codelineno-4-7" name="__codelineno-4-7" href="#__codelineno-4-7"></a>  writer/    writer.hpp, tree.hpp, builder.hpp
-<a id="__codelineno-4-8" name="__codelineno-4-8" href="#__codelineno-4-8"></a>  schema/    schema.hpp
-<a id="__codelineno-4-9" name="__codelineno-4-9" href="#__codelineno-4-9"></a>  codec/     codec.hpp, structure.hpp, registry.hpp
-<a id="__codelineno-4-10" name="__codelineno-4-10" href="#__codelineno-4-10"></a>  formats/
-<a id="__codelineno-4-11" name="__codelineno-4-11" href="#__codelineno-4-11"></a>    fixed_format.hpp
-<a id="__codelineno-4-12" name="__codelineno-4-12" href="#__codelineno-4-12"></a>  builtins/
-<a id="__codelineno-4-13" name="__codelineno-4-13" href="#__codelineno-4-13"></a>    asn1/       ber.hpp, der.hpp, cer.hpp, codec.hpp
-<a id="__codelineno-4-14" name="__codelineno-4-14" href="#__codelineno-4-14"></a>    bluetooth/  ltv.hpp, codec.hpp
-<a id="__codelineno-4-15" name="__codelineno-4-15" href="#__codelineno-4-15"></a>    emv/        format.hpp, codec.hpp
-<a id="__codelineno-4-16" name="__codelineno-4-16" href="#__codelineno-4-16"></a>    lldp/       lldp.hpp, codec.hpp
-<a id="__codelineno-4-17" name="__codelineno-4-17" href="#__codelineno-4-17"></a>    dhcp/       dhcpv4.hpp, codec.hpp, container.hpp
-<a id="__codelineno-4-18" name="__codelineno-4-18" href="#__codelineno-4-18"></a>    nfc/        type2.hpp
+<div class="highlight"><pre><span></span><code><a id="__codelineno-3-1" name="__codelineno-3-1" href="#__codelineno-3-1"></a>tlv++/
+<a id="__codelineno-3-2" name="__codelineno-3-2" href="#__codelineno-3-2"></a>  types.hpp, compat.hpp, diagnostic.hpp, tlv.hpp
+<a id="__codelineno-3-3" name="__codelineno-3-3" href="#__codelineno-3-3"></a>  format.hpp, format_traits.hpp, native.hpp
+<a id="__codelineno-3-4" name="__codelineno-3-4" href="#__codelineno-3-4"></a>  reader/    reader.hpp, tree.hpp
+<a id="__codelineno-3-5" name="__codelineno-3-5" href="#__codelineno-3-5"></a>  query/     query.hpp
+<a id="__codelineno-3-6" name="__codelineno-3-6" href="#__codelineno-3-6"></a>  document/  document.hpp
+<a id="__codelineno-3-7" name="__codelineno-3-7" href="#__codelineno-3-7"></a>  writer/    writer.hpp, tree.hpp, builder.hpp
+<a id="__codelineno-3-8" name="__codelineno-3-8" href="#__codelineno-3-8"></a>  schema/    schema.hpp
+<a id="__codelineno-3-9" name="__codelineno-3-9" href="#__codelineno-3-9"></a>  codec/     codec.hpp, structure.hpp, registry.hpp
+<a id="__codelineno-3-10" name="__codelineno-3-10" href="#__codelineno-3-10"></a>  formats/
+<a id="__codelineno-3-11" name="__codelineno-3-11" href="#__codelineno-3-11"></a>    fixed_format.hpp
+<a id="__codelineno-3-12" name="__codelineno-3-12" href="#__codelineno-3-12"></a>  builtins/
+<a id="__codelineno-3-13" name="__codelineno-3-13" href="#__codelineno-3-13"></a>    asn1/       ber.hpp, der.hpp, cer.hpp, codec.hpp
+<a id="__codelineno-3-14" name="__codelineno-3-14" href="#__codelineno-3-14"></a>    bluetooth/  ltv.hpp, codec.hpp
+<a id="__codelineno-3-15" name="__codelineno-3-15" href="#__codelineno-3-15"></a>    emv/        format.hpp, codec.hpp
+<a id="__codelineno-3-16" name="__codelineno-3-16" href="#__codelineno-3-16"></a>    lldp/       lldp.hpp, codec.hpp
+<a id="__codelineno-3-17" name="__codelineno-3-17" href="#__codelineno-3-17"></a>    dhcp/       dhcpv4.hpp, codec.hpp, container.hpp
+<a id="__codelineno-3-18" name="__codelineno-3-18" href="#__codelineno-3-18"></a>    nfc/        type2.hpp
 </code></pre></div>
 <p><code>tlv++</code> is header-only, so there is no separate <code>tlv++/src/</code>. <code>registry.hpp</code>
 sits under <code>codec/</code> alongside <code>codec.hpp</code> and <code>structure.hpp</code>: it is a
@@ -4155,8 +4172,8 @@ remaining component options to Cargo features is future work; see
 <a href="../../development/rust/#build">Rust bindings</a>. Ready-made CMake recipes are in
 <a href="../../guides/select-components/">building only the components you need</a>.</p>
 <h2 id="build-configuration">Build configuration<a class="headerlink" href="#build-configuration" title="Permanent link">&para;</a></h2>
-<p>Core primitives (Tag, Value, Element, Format/Layout, diagnostics and shared
-utilities) and configurable Fixed/Variable formats are always available.
+<p>Core primitives (Tag, Value, Element, Format, Field Encoding, runtime Layout,
+diagnostics and shared utilities) and configurable Fixed/Variable formats are always available.
 Reader, Writer, Document, Query, Schema and Codec are independent optional
 capabilities, enabled by default. Their source groups are excluded when disabled;
 this does not depend on static-linker dead stripping. A single <code>tlv</code> library
@@ -4289,9 +4306,9 @@ config macros when supporting reduced builds.</p>
 omitted. Generic architecture tests use an application-defined format and run
 even when all protocol extensions are disabled. The benchmark uses BER and
 is built only when that component is enabled.</p>
-<div class="highlight"><pre><span></span><code><a id="__codelineno-5-1" name="__codelineno-5-1" href="#__codelineno-5-1"></a>cmake<span class="w"> </span>-S<span class="w"> </span>.<span class="w"> </span>-B<span class="w"> </span>build-minimal<span class="w"> </span><span class="se">\</span>
-<a id="__codelineno-5-2" name="__codelineno-5-2" href="#__codelineno-5-2"></a><span class="w">  </span>-DOPENTLV_BLUETOOTH<span class="o">=</span>OFF<span class="w"> </span>-DOPENTLV_LLDP<span class="o">=</span>OFF<span class="w"> </span>-DOPENTLV_DHCP<span class="o">=</span>OFF<span class="w"> </span>-DOPENTLV_NFC<span class="o">=</span>OFF<span class="w"> </span>-DOPENTLV_FORMAT_ASN1<span class="o">=</span>OFF
-<a id="__codelineno-5-3" name="__codelineno-5-3" href="#__codelineno-5-3"></a>cmake<span class="w"> </span>--build<span class="w"> </span>build-minimal<span class="w"> </span>--parallel
+<div class="highlight"><pre><span></span><code><a id="__codelineno-4-1" name="__codelineno-4-1" href="#__codelineno-4-1"></a>cmake<span class="w"> </span>-S<span class="w"> </span>.<span class="w"> </span>-B<span class="w"> </span>build-minimal<span class="w"> </span><span class="se">\</span>
+<a id="__codelineno-4-2" name="__codelineno-4-2" href="#__codelineno-4-2"></a><span class="w">  </span>-DOPENTLV_BLUETOOTH<span class="o">=</span>OFF<span class="w"> </span>-DOPENTLV_LLDP<span class="o">=</span>OFF<span class="w"> </span>-DOPENTLV_DHCP<span class="o">=</span>OFF<span class="w"> </span>-DOPENTLV_NFC<span class="o">=</span>OFF<span class="w"> </span>-DOPENTLV_FORMAT_ASN1<span class="o">=</span>OFF
+<a id="__codelineno-4-3" name="__codelineno-4-3" href="#__codelineno-4-3"></a>cmake<span class="w"> </span>--build<span class="w"> </span>build-minimal<span class="w"> </span>--parallel
 </code></pre></div>
 <h2 id="migration">Migration<a class="headerlink" href="#migration" title="Permanent link">&para;</a></h2>
 <p>OpenTLV is before 1.0.0, so the public API is still allowed to change; see

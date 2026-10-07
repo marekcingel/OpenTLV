@@ -3874,7 +3874,7 @@ so a candidate's "components" show which layers stay separate.</p>
 <a id="__codelineno-0-53" name="__codelineno-0-53" href="#__codelineno-0-53"></a>│   │   ├── [?] PFCP information elements (TS 29.244)
 <a id="__codelineno-0-54" name="__codelineno-0-54" href="#__codelineno-0-54"></a>│   │   ├── [?] GTPv2-C information elements (TS 29.274)
 <a id="__codelineno-0-55" name="__codelineno-0-55" href="#__codelineno-0-55"></a>│   │   ├── [?] GTPv1-C information elements (TS 29.060)
-<a id="__codelineno-0-56" name="__codelineno-0-56" href="#__codelineno-0-56"></a>│   │   └── [?] NAS standard IE formats (TS 24.007; message layouts stay with the caller)
+<a id="__codelineno-0-56" name="__codelineno-0-56" href="#__codelineno-0-56"></a>│   │   └── [?] NAS standard IE formats (TS 24.007; message framing stays with the caller)
 <a id="__codelineno-0-57" name="__codelineno-0-57" href="#__codelineno-0-57"></a>│   └── IoT
 <a id="__codelineno-0-58" name="__codelineno-0-58" href="#__codelineno-0-58"></a>│       └── [ ] OMA LwM2M TLV (existing entry)
 <a id="__codelineno-0-59" name="__codelineno-0-59" href="#__codelineno-0-59"></a>│
@@ -3964,7 +3964,7 @@ so a candidate's "components" show which layers stay separate.</p>
 <tr>
 <td>RADIUS</td>
 <td>Base attributes (RFC 2865), the Vendor-Specific attribute (type 26, vendor ID followed by vendor type and length), extended attribute types (<a href="https://www.rfc-editor.org/rfc/rfc6929.html">RFC 6929</a>: Extended-Type-1 to 3 and the Long Extended Type), and long-attribute fragmentation. <a href="../format-catalogue/#networking-aaa-and-tunnelling">Diameter</a> is a sibling candidate.</td>
-<td>Verified: RFC 2865 vendor-specific layout and RFC 6929 extended-type structure.</td>
+<td>Verified: RFC 2865 vendor-specific framing and RFC 6929 extended-type structure.</td>
 </tr>
 <tr>
 <td>NDN</td>
@@ -4023,7 +4023,7 @@ transformed identifiers. LLDPDU protocol conformance remains separate.</strong><
 <tr>
 <td>Elements without a length, and a terminator</td>
 <td>DHCPv4 Pad and End, NFC tag TLV NULL and Terminator</td>
-<td>DHCPv4 uses the generic identifier-selected binary layout for tag-only Pad/End elements. Skip/stop policy remains with the caller. NFC Type 2 uses the shared tag-only field composition with escape-prefixed lengths; physical memory mapping remains outside the format.</td>
+<td>DHCPv4 uses the generic identifier-selected binary composition for tag-only Pad/End elements. Skip/stop policy remains with the caller. NFC Type 2 uses the shared tag-only field composition with escape-prefixed lengths; physical memory mapping remains outside the format.</td>
 </tr>
 <tr>
 <td>Composite tag identity (type plus instance, vendor or flags)</td>
@@ -4084,8 +4084,8 @@ bounded iterative traversal. It does not allocate an object tree. See
    deferred checklist in the <a href="../lldp-review/">LLDP requirements review</a>. This
    does not block #360; its architecture assessment and canonical Tag storage
    requirement are complete.
-   Assess further packed-header reuse through LwM2M before adding a bit-field
-   Layout primitive (reordered headers are covered by
+   Assess further packed-header reuse through LwM2M before extending packed
+   Field Encoding primitives (reordered headers are covered by
    <a href="../bluetooth/">Bluetooth LTV</a>).</li>
 <li>Add mixed-format traversal as separately scoped core work; resumable contiguous-window Reader and Tree Reader already exist (see the <a href="../../guides/reader/">Reader guide</a>).</li>
 <li>Expand standard-specific schemas and codecs and ASN.1 canonical validation with explicit standard
@@ -4107,7 +4107,7 @@ was read in the primary text. This is the summary of the documents read in full 
 <tbody>
 <tr>
 <td>RFC 1157, 1195, 2132, 2315, 2865, 2986, 3046, 3396, 3417, 4120, 4511, 5036, 5280, 5305, 5444, 5652, 5912, 5958, 6733, 6929, 6960, 8017, 8392, 8415, 8551, 8949, 9000, 9052</td>
-<td>BER/DER statements, TLV layouts, restrictions and padding rules</td>
+<td>BER/DER statements, TLV framing, restrictions and padding rules</td>
 </tr>
 <tr>
 <td>3GPP TS 24.007 v17.5.0, 29.060 v17.4.0, 29.244 v17.9.0, 29.274 v17.10.0, 36.413 v18.4.0, 36.423 v18.4.0, 38.413 v19.1.0</td>

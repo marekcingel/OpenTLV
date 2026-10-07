@@ -3970,7 +3970,7 @@ add <code>-DOPENTLV_FORMAT_DER=OFF</code> for BER and EMV only. CER is off.</p>
 <a id="__codelineno-3-3" name="__codelineno-3-3" href="#__codelineno-3-3"></a>cmake<span class="w"> </span>--build<span class="w"> </span>build<span class="w"> </span>--parallel<span class="w"> </span>--target<span class="w"> </span>tlv
 </code></pre></div>
 <h3 id="core-and-bluetooth-ltv-only">Core and Bluetooth LTV only<a class="headerlink" href="#core-and-bluetooth-ltv-only" title="Permanent link">&para;</a></h3>
-<p>Bluetooth uses the generic binary layout primitives. Fixed is always available.</p>
+<p>Bluetooth uses the generic binary composition primitives. Fixed is always available.</p>
 <div class="highlight"><pre><span></span><code><a id="__codelineno-4-1" name="__codelineno-4-1" href="#__codelineno-4-1"></a>cmake<span class="w"> </span>-S<span class="w"> </span>.<span class="w"> </span>-B<span class="w"> </span>build<span class="w"> </span><span class="se">\</span>
 <a id="__codelineno-4-2" name="__codelineno-4-2" href="#__codelineno-4-2"></a><span class="w">  </span>-DOPENTLV_FORMAT_ASN1<span class="o">=</span>OFF<span class="w"> </span>-DOPENTLV_LLDP<span class="o">=</span>OFF<span class="w"> </span>-DOPENTLV_DHCP<span class="o">=</span>OFF<span class="w"> </span>-DOPENTLV_NFC<span class="o">=</span>OFF
 <a id="__codelineno-4-3" name="__codelineno-4-3" href="#__codelineno-4-3"></a>cmake<span class="w"> </span>--build<span class="w"> </span>build<span class="w"> </span>--parallel<span class="w"> </span>--target<span class="w"> </span>tlv

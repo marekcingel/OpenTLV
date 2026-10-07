@@ -1916,15 +1916,15 @@
 </li>
       
         <li class="md-nav__item">
-  <a href="#wire-layouts-of-verified-candidates" class="md-nav__link">
+  <a href="#wire-representations-of-verified-candidates" class="md-nav__link">
     <span class="md-ellipsis">
       
-        Wire layouts of verified candidates
+        Wire representations of verified candidates
       
     </span>
   </a>
   
-    <nav class="md-nav" aria-label="Wire layouts of verified candidates">
+    <nav class="md-nav" aria-label="Wire representations of verified candidates">
       <ul class="md-nav__list">
         
           <li class="md-nav__item">
@@ -3725,15 +3725,15 @@
 </li>
       
         <li class="md-nav__item">
-  <a href="#wire-layouts-of-verified-candidates" class="md-nav__link">
+  <a href="#wire-representations-of-verified-candidates" class="md-nav__link">
     <span class="md-ellipsis">
       
-        Wire layouts of verified candidates
+        Wire representations of verified candidates
       
     </span>
   </a>
   
-    <nav class="md-nav" aria-label="Wire layouts of verified candidates">
+    <nav class="md-nav" aria-label="Wire representations of verified candidates">
       <ul class="md-nav__list">
         
           <li class="md-nav__item">
@@ -3920,7 +3920,7 @@ page, which also defines the <a href="../format-roadmap/#scope-principle">scope 
 to implement and is not a claim of support</strong>; TLV framing support never means full
 protocol support. Nothing on this page is implemented unless the roadmap tree marks it
 <code>[x]</code>. See
-<a href="#wire-layouts-of-verified-candidates">wire layouts of verified candidates</a> for block
+<a href="#wire-representations-of-verified-candidates">wire representations of verified candidates</a> for block
 diagrams.</p>
 <p>Columns: <strong>Specification</strong> is the primary document; the edition is chosen when the
 candidate is scoped. <strong>Subset</strong> is the part suitable for OpenTLV. <strong>Components</strong> are the
@@ -4245,7 +4245,7 @@ a caller slices the region first.</p>
 <td>Three levels: PDU header (10 bytes), messages, TLVs. TLV header: U bit, F bit, 14-bit type, 16-bit length of the value only.</td>
 <td>format adapter (<code>decode</code>, <code>encode</code>), mixed-format traversal, dictionary</td>
 <td>The flag bits share the type field, so the tag identity must decide whether U/F are part of the tag. Multi-level nesting with a different format per level needs <a href="../format-roadmap/#generic-processing-extensions">mixed-format traversal</a> for automatic traverses. "LDP" here is the Label Distribution Protocol. No LSR behaviour.</td>
-<td>Verified: RFC 5036 PDU and TLV layouts.</td>
+<td>Verified: RFC 5036 PDU and TLV framing.</td>
 </tr>
 <tr>
 <td>RFC 5444 TLV blocks (<code>[?]</code>)</td>
@@ -4253,7 +4253,7 @@ a caller slices the region first.</p>
 <td>TLV blocks only: a 16-bit block length, then TLVs with type, flags, optional type extension, optional indexes, optional length and value.</td>
 <td>format adapter (<code>decode</code>), dictionary</td>
 <td>The flags decide which fields exist, so the header size varies per element. Address-block index semantics are separate. The packet and message structure is <a href="#excluded-encodings">excluded</a>. No MANET routing.</td>
-<td>Verified: RFC 5444 TLV block and TLV layout.</td>
+<td>Verified: RFC 5444 TLV block and TLV framing.</td>
 </tr>
 </tbody>
 </table>
@@ -4301,13 +4301,15 @@ choose a release when scoping.</p>
 <td><a href="https://www.etsi.org/deliver/etsi_ts/124000_124099/124007/17.05.00_60/ts_124007v170500p.pdf">TS 24.007</a> (read at v17.5.0); message specifications <a href="https://www.3gpp.org/ftp/Specs/archive/24_series/24.301/">TS 24.301</a> (EPS), <a href="https://www.3gpp.org/ftp/Specs/archive/24_series/24.501/">TS 24.501</a> (5GS), <a href="https://www.3gpp.org/ftp/Specs/archive/24_series/24.008/">TS 24.008</a> (2G/3G)</td>
 <td>Only the standard information element formats T, TV, TLV, TLV-E (and the length-prefixed LV and LV-E): one-byte IEI or half-octet IEI, length of one octet (LV, TLV) or two octets (LV-E, TLV-E). Each generation and message type is a separate scope.</td>
 <td>format adapter (new, per IE format), structure schema, dictionary</td>
-<td>The imperative part of a message carries mandatory IEs without an identifier (V, LV, LV-E), so which element sits at which position comes from the message definition. That positional layout is not self-describing TLV: only the length-prefixed and tagged IEs are in scope, the rest stays opaque bytes for the caller. Assess against the existing <a href="../../guides/schemas/">structure schemas</a>. NAS security header and ciphering are out of scope.</td>
+<td>The imperative part of a message carries mandatory IEs without an identifier (V, LV, LV-E), so which element sits at which position comes from the message definition. That positional structure is not self-describing TLV: only the length-prefixed and tagged IEs are in scope, the rest stays opaque bytes for the caller. Assess against the existing <a href="../../guides/schemas/">structure schemas</a>. NAS security header and ciphering are out of scope.</td>
 <td>Verified: TS 24.007 v17.5.0 clause 11.2 (IE formats, length indicator, imperative part). The message specifications were not read.</td>
 </tr>
 </tbody>
 </table>
-<h2 id="wire-layouts-of-verified-candidates">Wire layouts of verified candidates<a class="headerlink" href="#wire-layouts-of-verified-candidates" title="Permanent link">&para;</a></h2>
-<p>Layouts for the candidates whose framing was read in the primary text. They show how
+<!-- markdownlint-disable-next-line MD033 -->
+<p><a id="wire-layouts-of-verified-candidates"></a></p>
+<h2 id="wire-representations-of-verified-candidates">Wire representations of verified candidates<a class="headerlink" href="#wire-representations-of-verified-candidates" title="Permanent link">&para;</a></h2>
+<p>Representations for the candidates whose framing was read in the primary text. They show how
 each format is arranged so its shape is clear before any adapter exists. Diagrams are
 drawn from the cited specification; implementation status is recorded in the
 catalogue rows above and the linked format guides. "Adapter view" says
@@ -4454,7 +4456,7 @@ it; header size 2 or 3.</p>
 <div class="highlight"><pre><span></span><code><a id="__codelineno-10-1" name="__codelineno-10-1" href="#__codelineno-10-1"></a>| Length 4 (high bit 0) | DER-encoded Kerberos message (Length bytes) |
 </code></pre></div>
 <p>The four-byte length prefix is not TLV and comes before the DER value, which uses the
-<a href="../asn1/der/#layout-and-typical-use">DER layout</a>. The prefix belongs to the transport,
+<a href="../asn1/der/#framing-and-typical-use">DER framing</a>. The prefix belongs to the transport,
 not to an adapter.</p>
 <h3 id="globalplatform-dgi-card-specification-v23-clause-11112">GlobalPlatform DGI (Card Specification v2.3, clause 11.1.12)<a class="headerlink" href="#globalplatform-dgi-card-specification-v23-clause-11112" title="Permanent link">&para;</a></h3>
 <div class="highlight"><pre><span></span><code><a id="__codelineno-11-1" name="__codelineno-11-1" href="#__codelineno-11-1"></a>| DGI 2 bytes | Length indicator | Data |
@@ -4521,7 +4523,7 @@ listed so the reason is recorded.</p>
 <tr>
 <td>ASN.1 PER, OER, XER (<code>[-]</code>)</td>
 <td><a href="https://www.itu.int/rec/T-REC-X.691/en">X.691</a>, <a href="https://www.itu.int/rec/T-REC-X.696/en">X.696</a>, <a href="https://www.itu.int/rec/T-REC-X.693/en">X.693</a></td>
-<td>Encoding rules for the same X.680 types but not TLV: PER is bit-packed, OER is octet-oriented with schema-driven layout, XER is human-readable text. Only the X.690 rules (BER, CER, DER) are TLV.</td>
+<td>Encoding rules for the same X.680 types but not TLV: PER is bit-packed, OER is octet-oriented with schema-driven representation, XER is human-readable text. Only the X.690 rules (BER, CER, DER) are TLV.</td>
 <td>Not verified: ITU-T recommendations not read.</td>
 </tr>
 </tbody>

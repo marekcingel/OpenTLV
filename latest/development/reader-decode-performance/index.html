@@ -3607,7 +3607,7 @@
 Document use the same canonical Format decoder. No public declaration, ABI,
 allocation policy, borrowed lifetime or wire behavior changes.</p>
 <h2 id="scope-and-decisions">Scope and decisions<a class="headerlink" href="#scope-and-decisions" title="Permanent link">&para;</a></h2>
-<p>The issue's instrumented profile identified Reader, Format and field-layout
+<p>The issue's instrumented profile identified Reader, Format and field-composition
 decoding as investigation targets. Its percentages are not uninstrumented cost
 shares. The measurements here use the newer starting commit
 <code>85513e6eed094e0b33e674f83cafe6ca837ac251</code>, rather than the issue's original
@@ -3751,7 +3751,7 @@ time; CV describes variation, not a confidence interval.</p>
 </tr>
 </tbody>
 </table>
-<p>Small BER, large BER and fixed-layout Reader improvements repeat beyond their
+<p>Small BER, large BER and Fixed-format Reader improvements repeat beyond their
 observed typical dispersion. The indefinite result is within variation; no
 indefinite-specific speedup is claimed. Non-BER Reader and Tree medians all
 decreased in the full matrix. Tree small-BER median decreased 8.9%; Tree and

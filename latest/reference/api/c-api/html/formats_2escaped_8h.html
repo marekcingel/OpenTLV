@@ -83,34 +83,23 @@ $(function() {
 
 <p>Fixed identifiers with short or escape-prefixed unsigned lengths.  
 <a href="#details">More...</a></p>
-<div class="textblock"><code>#include &quot;<a class="el" href="layout_8h.html">tlv/layout.h</a>&quot;</code><br />
+<div class="textblock"><code>#include &quot;<a class="el" href="compose_8h.html">tlv/formats/compose.h</a>&quot;</code><br />
+<code>#include &quot;<a class="el" href="field_2escaped_8h.html">tlv/field/escaped.h</a>&quot;</code><br />
 </div><table class="memberdecls">
 <tr class="heading"><td colspan="2"><h2 class="groupheader"><a id="nested-classes" name="nested-classes"></a>
 Data Structures</h2></td></tr>
-<tr class="memitem:"><td class="memItemLeft" align="right" valign="top">struct &#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="structtlv__escaped__length.html">tlv_escaped_length</a></td></tr>
-<tr class="memdesc:"><td class="mdescLeft">&#160;</td><td class="mdescRight">One-byte inline count or an escape followed by a fixed-width count.  <a href="structtlv__escaped__length.html#details">More...</a><br /></td></tr>
-<tr class="separator:"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:"><td class="memItemLeft" align="right" valign="top">struct &#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="structtlv__escaped__format.html">tlv_escaped_format</a></td></tr>
 <tr class="memdesc:"><td class="mdescLeft">&#160;</td><td class="mdescRight">Fixed identifiers composed with escape-prefixed lengths.  <a href="structtlv__escaped__format.html#details">More...</a><br /></td></tr>
 <tr class="separator:"><td class="memSeparator" colspan="2">&#160;</td></tr>
 </table><table class="memberdecls">
 <tr class="heading"><td colspan="2"><h2 class="groupheader"><a id="typedef-members" name="typedef-members"></a>
 Typedefs</h2></td></tr>
-<tr class="memitem:gaf5c45667914cd54694dd62ed0f33b34d" id="r_gaf5c45667914cd54694dd62ed0f33b34d"><td class="memItemLeft" align="right" valign="top">typedef struct <a class="el" href="structtlv__escaped__length.html">tlv_escaped_length</a>&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="group__formats.html#gaf5c45667914cd54694dd62ed0f33b34d">tlv_escaped_length_t</a></td></tr>
-<tr class="memdesc:gaf5c45667914cd54694dd62ed0f33b34d"><td class="mdescLeft">&#160;</td><td class="mdescRight">One-byte inline count or an escape followed by a fixed-width count.  <br /></td></tr>
-<tr class="separator:gaf5c45667914cd54694dd62ed0f33b34d"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:gad9c901588b3c62fc04ae9888b889cc0b" id="r_gad9c901588b3c62fc04ae9888b889cc0b"><td class="memItemLeft" align="right" valign="top">typedef struct <a class="el" href="structtlv__escaped__format.html">tlv_escaped_format</a>&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="group__formats.html#gad9c901588b3c62fc04ae9888b889cc0b">tlv_escaped_format_t</a></td></tr>
 <tr class="memdesc:gad9c901588b3c62fc04ae9888b889cc0b"><td class="mdescLeft">&#160;</td><td class="mdescRight">Fixed identifiers composed with escape-prefixed lengths.  <br /></td></tr>
 <tr class="separator:gad9c901588b3c62fc04ae9888b889cc0b"><td class="memSeparator" colspan="2">&#160;</td></tr>
 </table><table class="memberdecls">
 <tr class="heading"><td colspan="2"><h2 class="groupheader"><a id="func-members" name="func-members"></a>
 Functions</h2></td></tr>
-<tr class="memitem:gacbe2b88d8ad82acd8b9d4b02e12573c3" id="r_gacbe2b88d8ad82acd8b9d4b02e12573c3"><td class="memItemLeft" align="right" valign="top"><a class="el" href="group__core.html#ga164d2817a32e5d7b7aa1472e887b47c3">tlv_result_t</a>&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="group__formats.html#gacbe2b88d8ad82acd8b9d4b02e12573c3">tlv_escaped_length_read</a> (const <a class="el" href="group__formats.html#gaf5c45667914cd54694dd62ed0f33b34d">tlv_escaped_length_t</a> *config, const uint8_t *data, size_t size, <a class="el" href="group__core.html#gaf15b8962e0139f0bfb17769739dcd9f8">tlv_size_t</a> *length, size_t *consumed)</td></tr>
-<tr class="memdesc:gacbe2b88d8ad82acd8b9d4b02e12573c3"><td class="mdescLeft">&#160;</td><td class="mdescRight">Decode an inline or escape-prefixed count.  <br /></td></tr>
-<tr class="separator:gacbe2b88d8ad82acd8b9d4b02e12573c3"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:ga09fce846c542619228f1696362f8e1f0" id="r_ga09fce846c542619228f1696362f8e1f0"><td class="memItemLeft" align="right" valign="top"><a class="el" href="group__core.html#ga164d2817a32e5d7b7aa1472e887b47c3">tlv_result_t</a>&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="group__formats.html#ga09fce846c542619228f1696362f8e1f0">tlv_escaped_length_write</a> (const <a class="el" href="group__formats.html#gaf5c45667914cd54694dd62ed0f33b34d">tlv_escaped_length_t</a> *config, <a class="el" href="group__core.html#gaf15b8962e0139f0bfb17769739dcd9f8">tlv_size_t</a> length, uint8_t *data, size_t capacity, size_t *written)</td></tr>
-<tr class="memdesc:ga09fce846c542619228f1696362f8e1f0"><td class="mdescLeft">&#160;</td><td class="mdescRight">Encode a count, or measure its field width with NULL output.  <br /></td></tr>
-<tr class="separator:ga09fce846c542619228f1696362f8e1f0"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:gae228e35d50e986fb162166dc4e8c7453" id="r_gae228e35d50e986fb162166dc4e8c7453"><td class="memItemLeft" align="right" valign="top"><a class="el" href="group__core.html#ga164d2817a32e5d7b7aa1472e887b47c3">tlv_result_t</a>&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="group__formats.html#gae228e35d50e986fb162166dc4e8c7453">tlv_escaped_decode</a> (const void *context, const uint8_t *data, size_t size, <a class="el" href="group__formats.html#ga3bc09282da50bc43b6467030f2e5bc4e">tlv_decoded_t</a> *result, <a class="el" href="group__formats.html#gaf56623f95321491247ba733426e0333f">tlv_format_error_t</a> *error)</td></tr>
 <tr class="memdesc:gae228e35d50e986fb162166dc4e8c7453"><td class="mdescLeft">&#160;</td><td class="mdescRight">Decode escape-length framing.  <br /></td></tr>
 <tr class="separator:gae228e35d50e986fb162166dc4e8c7453"><td class="memSeparator" colspan="2">&#160;</td></tr>

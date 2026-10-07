@@ -22,7 +22,7 @@ var searchData=
   ['bht_5fformat_5fbht_5fformat_5fowner_5ffield_19',['bht_format_bht_format_owner_field',['../namespacetlv_1_1emv.html#aa513530026dbcaf45e926d8bd05d3472',1,'tlv::emv']]],
   ['bht_5fformat_5fbht_5fformat_5ftype_5fcodec_20',['bht_format_bht_format_type_codec',['../namespacetlv_1_1emv.html#ac53948387c4a3a75ef699cca57b44f29',1,'tlv::emv']]],
   ['bht_5fformat_5fbht_5fformat_5ftype_5ffield_21',['bht_format_bht_format_type_field',['../namespacetlv_1_1emv.html#a1fa2aabc00435fda48e73312aaa9fe83',1,'tlv::emv']]],
-  ['bind_22',['bind',['../classtlv_1_1query__execution.html#a18cb7bdaa3aeb5e249380c00808c0702',1,'tlv::query_execution::bind(const char *name, int64_t value)'],['../classtlv_1_1query__execution.html#acb4cc76fea290f31feefa01c10a0d1ed',1,'tlv::query_execution::bind(const char *name, bytes value, bool string=false)']]],
+  ['bind_22',['bind',['../classtlv_1_1query__execution.html#acb4cc76fea290f31feefa01c10a0d1ed',1,'tlv::query_execution::bind(const char *name, bytes value, bool string=false)'],['../classtlv_1_1query__execution.html#a18cb7bdaa3aeb5e249380c00808c0702',1,'tlv::query_execution::bind(const char *name, int64_t value)']]],
   ['biometric_23',['biometric',['../namespacetlv_1_1emv.html#a7d1e09acf1a2fd2608a15a6c3cc72056',1,'tlv::emv']]],
   ['biometric_5fattempts_5fpreferred_5ffacial_5fattempts_5fcodec_24',['biometric_attempts_preferred_facial_attempts_codec',['../namespacetlv_1_1emv.html#a3181fff8bb62cdd23ce28c720268b706',1,'tlv::emv']]],
   ['biometric_5fattempts_5fpreferred_5ffacial_5fattempts_5ffield_25',['biometric_attempts_preferred_facial_attempts_field',['../namespacetlv_1_1emv.html#a58d763e5ae745a45ac15064933c2c5ae',1,'tlv::emv']]],
@@ -70,6 +70,6 @@ var searchData=
   ['builtin_5fcodec_2ehpp_67',['builtin_codec.hpp',['../builtin__codec_8hpp.html',1,'']]],
   ['builtins_68',['Builtins',['../../../c-api/html/group__builtins.html',1,'']]],
   ['byte_69',['byte',['../namespacetlv.html#aa91df798a712d88cf7d2f1f63a539b51',1,'tlv']]],
-  ['byte_5forder_70',['byte_order',['../../../c-api/html/structtlv__escaped__length.html#a5c3c2f5e1e6704467da3947b5888ec94',1,'tlv_escaped_length::byte_order'],['../../../c-api/html/structtlv__packed__field.html#a01bacd8d635b580ed9dd9429eda0c0d0',1,'tlv_packed_field::byte_order'],['../../../c-api/html/structtlv__variable__length.html#aec8204af2bde4699b095c5b4db90e980',1,'tlv_variable_length::byte_order']]],
+  ['byte_5forder_70',['byte_order',['../../../c-api/html/structtlv__escaped__length.html#a5c3c2f5e1e6704467da3947b5888ec94',1,'tlv_escaped_length::byte_order'],['../../../c-api/html/structtlv__fixed__length.html#aecdf97be26c63cbafe33078de0c4d481',1,'tlv_fixed_length::byte_order'],['../../../c-api/html/structtlv__packed__field.html#a01bacd8d635b580ed9dd9429eda0c0d0',1,'tlv_packed_field::byte_order'],['../../../c-api/html/structtlv__variable__length.html#aec8204af2bde4699b095c5b4db90e980',1,'tlv_variable_length::byte_order']]],
   ['bytes_71',['bytes',['../../../c-api/html/structtlv__bluetooth__uuid128.html#a5f304111a954b5e400ef494fb9eda57c',1,'tlv_bluetooth_uuid128::bytes'],['../namespacetlv.html#a2abe7003a70af047ef9acae17f31f75d',1,'tlv::bytes'],['../namespacetlv_1_1static__query.html#a3bd2997f8970a658ef7668d983d38443',1,'tlv::static_query::bytes()'],['../../../c-api/html/structtlv__ipv4.html#a087af4e7ecd3ab0eb445082b0810302e',1,'tlv_ipv4::bytes']]]
 ];

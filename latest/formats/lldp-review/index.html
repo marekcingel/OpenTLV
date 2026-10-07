@@ -80,7 +80,7 @@
     <div data-md-component="skip">
       
         
-        <a href="#lldp-requirements-and-formatlayout-review" class="md-skip">
+        <a href="#lldp-requirements-format-and-runtime-layout-review" class="md-skip">
           Skip to content
         </a>
       
@@ -3623,7 +3623,9 @@
   
 
 
-<h1 id="lldp-requirements-and-formatlayout-review">LLDP requirements and Format/Layout review<a class="headerlink" href="#lldp-requirements-and-formatlayout-review" title="Permanent link">&para;</a></h1>
+<h1 id="lldp-requirements-format-and-runtime-layout-review">LLDP requirements, Format and runtime Layout review<a class="headerlink" href="#lldp-requirements-format-and-runtime-layout-review" title="Permanent link">&para;</a></h1>
+<!-- markdownlint-disable-next-line MD033 -->
+<p><a id="lldp-requirements-and-formatlayout-review"></a></p>
 <p>Architecture review for <a href="https://github.com/marekcingel/OpenTLV/issues/360">#360</a>.
 <a href="../lldp/">LLDP base support</a> now includes framing, definitions, structural
 validation and value codecs through the combined #362/#363 implementation. The review found a decoded-identifier restriction;
@@ -3647,8 +3649,8 @@ architecture review. This scope decision does not establish IEEE conformance.</p
 <td>Architecture assessment, layer mapping and generic Tag storage support are complete. Normative verification is tracked separately and does not block closure.</td>
 </tr>
 <tr>
-<td><a href="https://github.com/marekcingel/OpenTLV/issues/361">#361: packed Layout primitive</a></td>
-<td>Implemented as <code>tlv_packed_field_t</code> with bounded unsigned extraction/insertion. LLDP uses it within its complete Format callbacks.</td>
+<td><a href="https://github.com/marekcingel/OpenTLV/issues/361">#361: packed Field Encoding primitive</a></td>
+<td>Implemented as <code>tlv_packed_field_t</code> in <code>tlv/field/packed.h</code> with bounded unsigned extraction/insertion. LLDP uses it within its complete Format callbacks.</td>
 </tr>
 <tr>
 <td><a href="https://github.com/marekcingel/OpenTLV/issues/362">#362: LLDP format and definitions</a></td>
@@ -3686,7 +3688,7 @@ separate from closing the architecture scope of #360.</p>
 <h2 id="preliminary-wire-requirements">Preliminary wire requirements<a class="headerlink" href="#preliminary-wire-requirements" title="Permanent link">&para;</a></h2>
 <p>The two-byte header carries Type in its upper seven bits and Length in its lower
 nine bits. Value immediately follows it. Deriving byte operations from that
-layout, independently of host byte order:</p>
+representation, independently of host byte order:</p>
 <div class="highlight"><pre><span></span><code><a id="__codelineno-0-1" name="__codelineno-0-1" href="#__codelineno-0-1"></a>type   = b0 &gt;&gt; 1
 <a id="__codelineno-0-2" name="__codelineno-0-2" href="#__codelineno-0-2"></a>length = ((b0 &amp; 1) &lt;&lt; 8) | b1
 <a id="__codelineno-0-3" name="__codelineno-0-3" href="#__codelineno-0-3"></a>b0     = (type &lt;&lt; 1) | (length &gt;&gt; 8)
@@ -3787,11 +3789,11 @@ selects a child format and payload boundary.</p>
 </tr>
 <tr>
 <td>Format</td>
-<td>Full <code>decode</code>, <code>measure</code>, <code>encode</code> callbacks can unpack/pack the two-byte header and validate bounds. Canonical decoded Tags use <code>TLV_TAG_BINDING_FORMAT</code> as described below.</td>
+<td>Full <code>decode</code>, <code>measure</code>, <code>encode</code> callbacks unpack/pack the two-byte header with <code>tlv/field/packed.h</code> and validate bounds. Canonical decoded Tags use <code>TLV_TAG_BINDING_FORMAT</code> as described below. The helpers in <code>tlv/formats/compose.h</code> compose sequential byte fields; LLDP supplies complete callbacks for its shared packed header.</td>
 </tr>
 <tr>
 <td>Layout</td>
-<td>Header <code>[0,2)</code>, Value <code>[2,2+L)</code>, empty Trailer at <code>2+L</code>. Byte ranges cannot express individual bits; Header retains all original bits. Configuration helpers in <code>layout.h</code> compose sequential byte fields, not overlapping bit fields.</td>
+<td>Header <code>[0,2)</code>, Value <code>[2,2+L)</code>, empty Trailer at <code>2+L</code>. Runtime byte ranges cannot express individual bits; Header retains all original bits.</td>
 </tr>
 <tr>
 <td>Element</td>

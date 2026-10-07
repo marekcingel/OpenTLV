@@ -1765,10 +1765,10 @@
 </li>
       
         <li class="md-nav__item">
-  <a href="#layout-and-typical-use" class="md-nav__link">
+  <a href="#framing-and-typical-use" class="md-nav__link">
     <span class="md-ellipsis">
       
-        Layout and typical use
+        Framing and typical use
       
     </span>
   </a>
@@ -3660,10 +3660,10 @@
 </li>
       
         <li class="md-nav__item">
-  <a href="#layout-and-typical-use" class="md-nav__link">
+  <a href="#framing-and-typical-use" class="md-nav__link">
     <span class="md-ellipsis">
       
-        Layout and typical use
+        Framing and typical use
       
     </span>
   </a>
@@ -3779,7 +3779,7 @@
 <p>See <a href="../../../guides/memory/">shared memory ownership rules</a> before retaining a parsed element.</p>
 <h2 id="generic-mechanics-and-asn1-rules">Generic mechanics and ASN.1 rules<a class="headerlink" href="#generic-mechanics-and-asn1-rules" title="Permanent link">&para;</a></h2>
 <p>BER composes the <a href="../../variable/">generic Variable primitives</a> through the
-existing field-layout contract. Its immutable configuration selects inline
+existing field-composition contract. Its immutable configuration selects inline
 mask/escape <code>1F</code>, continuation bit <code>80</code>, payload mask <code>7F</code>, an eight-byte
 identifier limit, and short/long length prefixes with big-endian count octets.
 The generic implementation owns identifier boundary detection and definite
@@ -4097,9 +4097,11 @@ tags longer than <code>TLV_ASN1_TAG_MAX_SIZE</code> return <code>TLV_ERR_INVALID
 returns <code>TLV_ERR_INVALID_TAG_SIZE</code> even if those bytes are missing. Empty input to
 the generic reader returns <code>TLV_ERR_END_OF_BUFFER</code>. All BER-specific encoding
 and validation live in the format callbacks.</p>
-<h2 id="layout-and-typical-use">Layout and typical use<a class="headerlink" href="#layout-and-typical-use" title="Permanent link">&para;</a></h2>
+<!-- markdownlint-disable-next-line MD033 -->
+<p><a id="layout-and-typical-use"></a></p>
+<h2 id="framing-and-typical-use">Framing and typical use<a class="headerlink" href="#framing-and-typical-use" title="Permanent link">&para;</a></h2>
 <p>An element is identifier octets, length octets, and contents. A constructed value's
-contents are more elements with the same layout, so the structure is recursive.</p>
+contents are more elements with the same framing, so the structure is recursive.</p>
 <div class="highlight"><pre><span></span><code><a id="__codelineno-5-1" name="__codelineno-5-1" href="#__codelineno-5-1"></a>+------------------+----------------------+-----------------------+---------+
 <a id="__codelineno-5-2" name="__codelineno-5-2" href="#__codelineno-5-2"></a>| Identifier       | Length               | Contents              | EOC     |
 <a id="__codelineno-5-3" name="__codelineno-5-3" href="#__codelineno-5-3"></a>| 1+ bytes (tag)   | 1+ bytes             | Length bytes          | 00 00   |
@@ -4142,7 +4144,7 @@ contents are more elements with the same layout, so the structure is recursive.<
 identifier or the length octets. Typical uses are ASN.1-based protocols and smart-card
 data objects, where BER is the framing and the meaning of each tag comes from a
 <a href="../../../standards/emv/">module</a> or a schema. See <a href="../der/">DER</a> and <a href="../cer/">CER</a>
-for the canonical restrictions of this layout.</p>
+for the canonical restrictions of this framing.</p>
 <h2 id="byte-example">Byte example<a class="headerlink" href="#byte-example" title="Permanent link">&para;</a></h2>
 <h3 id="definite-constructed-value">Definite constructed value<a class="headerlink" href="#definite-constructed-value" title="Permanent link">&para;</a></h3>
 <div class="highlight"><pre><span></span><code><a id="__codelineno-6-1" name="__codelineno-6-1" href="#__codelineno-6-1"></a>E1 08 5A 02 12 34 5F 2A 01 56

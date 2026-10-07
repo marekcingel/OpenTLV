@@ -3704,6 +3704,12 @@ model</a>.</p>
 <p>Raw C declarations live in <code>opentlv-sys</code>; safe facade implementations in
 <code>opentlv</code> contain the audited unsafe calls and callback adapters. Only the part of the C API the safe crate needs is bound
 so far.</p>
+<p>The <code>opentlv-sys</code> test suite builds a small C ABI probe with CMake and a native C
+compiler. It compares the size, alignment and every member offset of Fixed field
+and format configurations with the Rust <code>#[repr(C)]</code> mirrors. Offset checks catch
+layout changes even when the overall structure size stays the same. This test
+uses the matching source headers; consumers must still pair them with the
+matching native library.</p>
 <h2 id="core-types">Core types<a class="headerlink" href="#core-types" title="Permanent link">&para;</a></h2>
 <p>The <code>opentlv</code> crate exposes these safe types; none of them exposes a raw pointer:</p>
 <table>

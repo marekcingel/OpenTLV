@@ -3840,9 +3840,9 @@ aliases remain. Rebuild consumers after this source/ABI-breaking removal.</p>
 </tbody>
 </table>
 <p>These dependencies are acyclic. Definition registries and Schema/Codec are not
-mandatory stages. Only Format and its reusable layout primitives interpret wire
-framing. Constructed classification is a Format callback, including when used by
-Tree Reader and Tree Writer.</p>
+mandatory stages. Only Format and its reusable field encoding and composition
+primitives interpret wire framing. Constructed classification is a Format
+callback, including when used by Tree Reader and Tree Writer.</p>
 <p>Document's iterative node iteration, counting and destruction operate on owned
 nodes, not encoded input. They must not be replaced with a byte parser. Likewise,
 Tree Writer's semantic preorder callback supplies nodes; Tree Writer owns nested

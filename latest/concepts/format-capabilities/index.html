@@ -3592,7 +3592,7 @@
 <h1 id="generic-format-capability-space">Generic Format capability space<a class="headerlink" href="#generic-format-capability-space" title="Permanent link">&para;</a></h1>
 <p>OpenTLV represents binary elements through combinations of wire properties.
 Built-in protocols are representative points in that space, not its boundary.
-For a proprietary format, start with its identifier, boundary and layout rules
+For a proprietary format, start with its identifier, boundary and composition rules
 rather than looking for its name in the <a href="../../formats/support/">format inventory</a>.</p>
 <h2 id="from-element-to-format">From Element to Format<a class="headerlink" href="#from-element-to-format" title="Permanent link">&para;</a></h2>
 <p>An Element contains an optional byte identifier and a contiguous Value. Its
@@ -3621,7 +3621,7 @@ it must not point into scratch reused by subsequent decodes.</p>
 <a id="__codelineno-1-4" name="__codelineno-1-4" href="#__codelineno-1-4"></a>                 v
 <a id="__codelineno-1-5" name="__codelineno-1-5" href="#__codelineno-1-5"></a>          the same Element
 </code></pre></div>
-<p><code>tlv_element_order_t</code> selects TLV or LTV in the generic sequential field layouts.
+<p><code>tlv_element_order_t</code> selects TLV or LTV in the generic sequential field compositions.
 <code>tlv_length_scope_t</code> separately selects whether the count covers Value alone or
 Tag plus Value. Bluetooth uses LTV and Tag-plus-Value counts; these choices also
 work for other configured widths. The enum does not describe arbitrary field
@@ -3631,7 +3631,7 @@ permutations or packed headers.</p>
 <a id="__codelineno-2-2" name="__codelineno-2-2" href="#__codelineno-2-2"></a>                                  |
 <a id="__codelineno-2-3" name="__codelineno-2-3" href="#__codelineno-2-3"></a>              +-------------------+-------------------+
 <a id="__codelineno-2-4" name="__codelineno-2-4" href="#__codelineno-2-4"></a>              |                   |                   |
-<a id="__codelineno-2-5" name="__codelineno-2-5" href="#__codelineno-2-5"></a>          Identifier           Boundary             Layout
+<a id="__codelineno-2-5" name="__codelineno-2-5" href="#__codelineno-2-5"></a>          Identifier           Boundary           Composition
 <a id="__codelineno-2-6" name="__codelineno-2-6" href="#__codelineno-2-6"></a>              |                   |                   |
 <a id="__codelineno-2-7" name="__codelineno-2-7" href="#__codelineno-2-7"></a>           fixed               explicit              TLV
 <a id="__codelineno-2-8" name="__codelineno-2-8" href="#__codelineno-2-8"></a>           variable            fixed                 LTV
@@ -3704,9 +3704,10 @@ LTV with Value-only length scope:</p>
 <a id="__codelineno-3-3" name="__codelineno-3-3" href="#__codelineno-3-3"></a> Length    Tag   Value
 <a id="__codelineno-3-4" name="__codelineno-3-4" href="#__codelineno-3-4"></a>    2     A1 B2  CA FE
 </code></pre></div>
-<p>For different field encodings, <code>tlv_field_layout_t</code> composes read/write tag and
-length callbacks with ordering and count scope. Reuse the standalone variable,
-escaped-length or binary helpers where they match the wire rules. Supplying a
+<p>For different field encodings, <code>tlv_field_composition_t</code> from
+<code>tlv/formats/compose.h</code> composes read/write tag and length callbacks with ordering
+and count scope. Reuse the standalone primitives under <code>tlv/field/</code> or binary
+field adapters where they match the wire rules. Supplying a
 field callback is implementation work, even though the composition is generic.</p>
 <p>For a shared packed header, absent fields, extra header bytes, or generated
 trailers, implement the complete <code>tlv_format_t</code> callback groups. Reader and Writer
@@ -3746,9 +3747,14 @@ policy handled above wire mechanics.</p>
 </thead>
 <tbody>
 <tr>
+<td>Standalone fixed-width Identifier and Length fields</td>
+<td>Configuration</td>
+<td><code>tlv_fixed_identifier_t</code> and <code>tlv_fixed_length_t</code> in <code>tlv/field/fixed.h</code>; raw identifier bytes and unsigned counts with explicit byte order, independent of complete Format framing.</td>
+</tr>
+<tr>
 <td>Fixed-width TLV/LTV, big/little-endian counts</td>
 <td>Configuration</td>
-<td><code>tlv_binary_layout_t</code>, <code>tlv_fixed_format_t</code>; Value or Tag-plus-Value scope.</td>
+<td><code>tlv_binary_composition_t</code>, <code>tlv_fixed_format_t</code>; Value or Tag-plus-Value scope.</td>
 </tr>
 <tr>
 <td>Inline/escaped continuation identifiers and short/long counts</td>
@@ -3763,7 +3769,7 @@ policy handled above wire mechanics.</p>
 <tr>
 <td>Identifier-selected tag-only elements</td>
 <td>Configuration</td>
-<td><code>tlv_tagged_binary_layout_t</code> / <code>tlv_tagged_fields_layout_t</code>; omits Length, requires empty Value, implies no skip/stop policy.</td>
+<td><code>tlv_tagged_binary_composition_t</code> / <code>tlv_tagged_fields_composition_t</code>; omits Length, requires empty Value, implies no skip/stop policy.</td>
 </tr>
 <tr>
 <td>Extract/insert packed unsigned fields</td>
@@ -3776,9 +3782,9 @@ policy handled above wire mechanics.</p>
 <td>Compose packed helpers in decode/measure/encode; LLDP is an existing example, not a generic packed-format initializer.</td>
 </tr>
 <tr>
-<td>Different sequential field codecs</td>
+<td>Different sequential field encodings</td>
 <td>Custom Format</td>
-<td>Supply callbacks to <code>tlv_field_layout_t</code>; retain TLV/LTV and supported count scopes.</td>
+<td>Supply callbacks to <code>tlv_field_composition_t</code>; retain TLV/LTV and supported count scopes.</td>
 </tr>
 <tr>
 <td>Absent Tag or Length; fixed/type-derived Value extent</td>
@@ -3821,7 +3827,7 @@ policy handled above wire mechanics.</p>
 <td>Future <code>.otlv</code> frontend/model/compiler reuse these contracts; no runtime interpreter is delivered by these configuration APIs.</td>
 </tr>
 <tr>
-<td>General boundary selectors and arbitrary layout composition</td>
+<td>General boundary selectors and arbitrary Format composition</td>
 <td>Planned/generalizable</td>
 <td>Possible generalizations of custom callbacks, not committed features or supplied configuration knobs today.</td>
 </tr>

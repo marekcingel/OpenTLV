@@ -1626,10 +1626,10 @@
 </li>
       
         <li class="md-nav__item">
-  <a href="#wire-layout-and-logical-model" class="md-nav__link">
+  <a href="#wire-representation-and-logical-model" class="md-nav__link">
     <span class="md-ellipsis">
       
-        Wire layout and logical model
+        Wire representation and logical model
       
     </span>
   </a>
@@ -3571,10 +3571,10 @@
 </li>
       
         <li class="md-nav__item">
-  <a href="#wire-layout-and-logical-model" class="md-nav__link">
+  <a href="#wire-representation-and-logical-model" class="md-nav__link">
     <span class="md-ellipsis">
       
-        Wire layout and logical model
+        Wire representation and logical model
       
     </span>
   </a>
@@ -3786,7 +3786,9 @@ contracts from the remaining full-edition normative audit.</p>
 </tr>
 </tbody>
 </table>
-<h2 id="wire-layout-and-logical-model">Wire layout and logical model<a class="headerlink" href="#wire-layout-and-logical-model" title="Permanent link">&para;</a></h2>
+<!-- markdownlint-disable-next-line MD033 -->
+<p><a id="wire-layout-and-logical-model"></a></p>
+<h2 id="wire-representation-and-logical-model">Wire representation and logical model<a class="headerlink" href="#wire-representation-and-logical-model" title="Permanent link">&para;</a></h2>
 <div class="highlight"><pre><span></span><code><a id="__codelineno-0-1" name="__codelineno-0-1" href="#__codelineno-0-1"></a>15              9 8                 0
 <a id="__codelineno-0-2" name="__codelineno-0-2" href="#__codelineno-0-2"></a>+----------------+-------------------+
 <a id="__codelineno-0-3" name="__codelineno-0-3" href="#__codelineno-0-3"></a>| Type (7 bits)   | Length (9 bits)   |
@@ -3804,7 +3806,7 @@ accept representable Values beyond those limits; apply Schema before treating
 them as valid LLDP fields. Compound codecs retain required prefixes, subtype
 checks and inner-length consistency. Rebuild consumers of the former symbols.</p>
 <p>For example, <code>06 02 00 78</code> becomes Tag <code>03</code> and Value <code>00 78</code>.</p>
-<p>The adapter composes two <code>tlv_packed_field_t</code> configurations from <code>tlv/layout.h</code>:
+<p>The adapter composes two <code>tlv_packed_field_t</code> configurations from <code>tlv/field/packed.h</code>:
 Type uses offset 9 and width 7; Length uses offset 0 and width 9. Both use
 two-byte big-endian storage. The primitive handles unsigned extraction and
 insertion; the adapter maps Type to canonical Tag bytes and validates framing.</p>
