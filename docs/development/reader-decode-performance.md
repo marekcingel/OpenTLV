@@ -5,6 +5,11 @@ This records the bounded optimization in
 Document use the same canonical Format decoder. No public declaration, ABI,
 allocation policy, borrowed lifetime or wire behavior changes.
 
+This page records the #538 implementation and measurements. A later
+[#440 C++ facade follow-up](cxx-facade-performance.md#c-diagnostic-follow-up)
+also removes the outer Reader clear for diagnostic calls after making Format
+argument-failure output deterministic. The historical results below are unchanged.
+
 ## Scope and decisions
 
 The issue's instrumented profile identified Reader, Format and field-composition

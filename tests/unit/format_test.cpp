@@ -178,6 +178,21 @@ void expect_same_range(const tlv_range_t& expected, const tlv_range_t& actual) {
     EXPECT_EQ(expected.present, actual.present);
 }
 
+void expect_same_format_error(const tlv_format_error_t& expected,
+                              const tlv_format_error_t& actual) {
+    EXPECT_EQ(expected.region, actual.region);
+    EXPECT_EQ(expected.offset, actual.offset);
+    EXPECT_EQ(expected.has_offset, actual.has_offset);
+    EXPECT_EQ(expected.required, actual.required);
+    EXPECT_EQ(expected.has_required, actual.has_required);
+    expect_same_range(expected.tag, actual.tag);
+    expect_same_range(expected.length, actual.length);
+    expect_same_range(expected.value, actual.value);
+}
+
+const tlv_format_error_t stale_error = {TLV_REGION_TRAILER, 17,        1,        19, 1,
+                                        {1, 2, 1},          {3, 4, 1}, {5, 6, 1}};
+
 void expect_same_element(const tlv_element_t& expected, const tlv_element_t& actual) {
     EXPECT_EQ(expected.tag.data, actual.tag.data);
     EXPECT_EQ(expected.tag.size, actual.tag.size);
@@ -251,6 +266,28 @@ tlv_result_t initialized_decode(const void* context, const uint8_t* data, size_t
     }
     return mode == 2 ? TLV_ERR_INVALID_LENGTH : TLV_ERR_BUFFER_TOO_SHORT;
 }
+
+struct DecodeProbe {
+    size_t*      calls;
+    tlv_result_t result;
+    bool         partial_detail;
+    bool         inconsistent_source;
+};
+
+tlv_result_t probed_decode(const void* context, const uint8_t* data, size_t size,
+                           tlv_decoded_t* result, tlv_format_error_t* error) {
+    const auto& probe = *static_cast<const DecodeProbe*>(context);
+    ++*probe.calls;
+    const auto rc = initialized_decode(nullptr, data, size, result, error);
+    if (rc != TLV_OK) return rc;
+    if (probe.partial_detail) {
+        error->region = TLV_REGION_VALUE;
+        error->has_required = 1;
+        error->required = size + 2;
+    }
+    if (probe.inconsistent_source) result->source.value.offset = size + 1;
+    return probe.result;
+}
 } // namespace
 
 TEST(Unit_Tlv_Format, DecodeCallbacksReceiveInitializedOutputsWithOptionalFieldsAbsent) {
@@ -260,9 +297,10 @@ TEST(Unit_Tlv_Format, DecodeCallbacksReceiveInitializedOutputsWithOptionalFields
         tlv_decoded_t decoded{};
         decoded.element.tag = TLV_TAG(0xEE);
         decoded.source.tag = {0, 1, 1};
-        tlv_format_error_t error{};
+        tlv_format_error_t error = stale_error;
         ASSERT_EQ(TLV_OK, tlv_format_decode(&format, data, sizeof(data), &decoded,
                                             diagnostic ? &error : nullptr));
+        expect_same_format_error(stale_error, error);
         EXPECT_EQ(nullptr, decoded.element.tag.data);
         EXPECT_EQ(0u, decoded.element.tag.size);
         expect_empty_range(decoded.source.tag);
@@ -287,6 +325,92 @@ TEST(Unit_Tlv_Format, DecodeCallbacksReceiveInitializedOutputsWithOptionalFields
         EXPECT_EQ(&format, source.format);
         expect_empty_range(source.tag);
         expect_empty_range(source.length);
+    }
+}
+
+TEST(Unit_Tlv_Format, DecodePreflightInitializesAllFailureDetailWithoutCallingDecoder) {
+    const uint8_t      data[] = {0};
+    size_t             calls = 0;
+    const DecodeProbe  probe = {&calls, TLV_OK, false, false};
+    const tlv_format_t format = {&probe, probed_decode, nullptr, nullptr, nullptr};
+    const tlv_format_t no_decode = {};
+    tlv_decoded_t      decoded{};
+    ASSERT_EQ(TLV_OK, tlv_format_decode(&format, data, sizeof(data), &decoded, nullptr));
+    const auto decoded_before = decoded;
+    calls = 0;
+    const struct {
+        const tlv_format_t* format;
+        const uint8_t*      data;
+        size_t              size;
+        tlv_decoded_t*      decoded;
+        tlv_result_t        result;
+    } cases[] = {
+        {nullptr, data, sizeof(data), &decoded, TLV_ERR_NULL_ARG},
+        {&no_decode, data, sizeof(data), &decoded, TLV_ERR_NULL_ARG},
+        {&format, data, sizeof(data), nullptr, TLV_ERR_NULL_ARG},
+        {&format, nullptr, sizeof(data), &decoded, TLV_ERR_NULL_ARG},
+        {&format, data, 0, &decoded, TLV_ERR_END_OF_BUFFER},
+        {&format, nullptr, 0, &decoded, TLV_ERR_END_OF_BUFFER},
+    };
+    for (const auto& test : cases) {
+        SCOPED_TRACE(::testing::Message()
+                     << "format=" << test.format << " data=" << static_cast<const void*>(test.data)
+                     << " size=" << test.size << " decoded=" << test.decoded);
+        for (bool diagnostic : {false, true}) {
+            tlv_format_error_t error = stale_error;
+            EXPECT_EQ(test.result, tlv_format_decode(test.format, test.data, test.size,
+                                                     test.decoded, diagnostic ? &error : nullptr));
+            EXPECT_EQ(0u, calls);
+            expect_same_element(decoded_before.element, decoded.element);
+            expect_same_source(decoded_before.source, decoded.source);
+            if (diagnostic) {
+                tlv_format_error_t expected{};
+                expected.has_offset = test.result == TLV_ERR_END_OF_BUFFER;
+                expect_same_format_error(expected, error);
+            }
+        }
+    }
+}
+
+TEST(Unit_Tlv_Format, DecodeCallbacksPublishCompletePartialOrAbsentFailureDetailOnce) {
+    const uint8_t     data[] = {0};
+    size_t            calls = 0;
+    const DecodeProbe cases[] = {
+        {&calls, TLV_ERR_NULL_ARG, false, false},
+        {&calls, TLV_ERR_NULL_ARG, true, false},
+        {&calls, TLV_ERR_BUFFER_TOO_SHORT, false, false},
+        {&calls, TLV_ERR_INVALID_LENGTH, true, false},
+        {&calls, TLV_OK, false, true},
+        {&calls, TLV_OK, true, true},
+    };
+    const tlv_format_t successful = {nullptr, initialized_decode, nullptr, nullptr, nullptr};
+    tlv_decoded_t      decoded{};
+    ASSERT_EQ(TLV_OK, tlv_format_decode(&successful, data, sizeof(data), &decoded, nullptr));
+    const auto decoded_before = decoded;
+    for (const auto& probe : cases) {
+        SCOPED_TRACE(::testing::Message()
+                     << "result=" << probe.result << " partial_detail=" << probe.partial_detail
+                     << " inconsistent_source=" << probe.inconsistent_source);
+        const tlv_format_t format = {&probe, probed_decode, nullptr, nullptr, nullptr};
+        const auto         failure = probe.inconsistent_source ? TLV_ERR_INVALID_ARG : probe.result;
+        for (bool diagnostic : {false, true}) {
+            calls = 0;
+            tlv_format_error_t error = stale_error;
+            EXPECT_EQ(failure, tlv_format_decode(&format, data, sizeof(data), &decoded,
+                                                 diagnostic ? &error : nullptr));
+            EXPECT_EQ(1u, calls);
+            expect_same_element(decoded_before.element, decoded.element);
+            expect_same_source(decoded_before.source, decoded.source);
+            if (diagnostic) {
+                tlv_format_error_t expected{};
+                if (probe.partial_detail) {
+                    expected.region = TLV_REGION_VALUE;
+                    expected.has_required = 1;
+                    expected.required = sizeof(data) + 2;
+                }
+                expect_same_format_error(expected, error);
+            }
+        }
     }
 }
 

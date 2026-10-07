@@ -142,11 +142,40 @@ and idle-machine conditions. Compare each workload's raw repetitions and median
 independently; near-noise effects need repeated alternating runs. Existing Google
 Benchmark JSON and `scripts/benchmarks.py compare` need no new evidence format.
 
+The checked-in `evidence/cxx-facade-440*.json` files use generic host and
+executable labels. Each benchmark result occupies one line to reduce file size;
+all raw repetitions, aggregates, numeric values and other context are retained.
+They remain ordinary Google Benchmark JSON and work with the same comparison
+tools.
+
 These cases are added only with `OPENTLV_BUILD_CXX=ON`. Reader cases require
 Reader and BER; Document cases match the public facade's Document, Reader,
 Writer, Query and Codec requirements. Missing capabilities are never enabled by
 the workloads. The existing top-level policy still skips the entire benchmark
 target in reduced capability builds, including a Document-without-Reader profile.
+
+For a comparison with the earlier C++ facade, the standalone
+[`reader_api_comparison.py`](../scripts/reader_api_comparison.py) collector builds
+each revision's native library and headers with identical GCC `-O2 -DNDEBUG`
+settings. It measures BER/Fixed explicit pulls, ranges, repeated failures and
+incremental pauses, together with native C calls with and without diagnostics.
+The older facade only needs an adapter for its Fixed template parameter type.
+Run on Linux/WSL with GCC, CMake and Ninja:
+
+```sh
+python3 scripts/reader_api_comparison.py --variant main=89991d9f --variant prior=a2d1fd3 --variant candidate=working --legacy-label main --prepare-only
+# Wait until other builds and tests have stopped before collecting timings.
+python3 scripts/reader_api_comparison.py --run-only --cpu 2
+```
+
+Choose an available CPU for your host. The defaults collect seven shuffled
+repetitions of 2,000,000 operations per case. The CSV retains every timing and
+checksum; the JSON records source revisions/patches, build flags, hashes and
+summaries without identifying hostnames or local paths. The collector verifies
+prepared binary hashes and refuses to overwrite evidence unless explicitly
+requested. This typed Reader workload differs from the runtime-Format Google
+Benchmark suite above; compare revisions within each workload, not their absolute
+times across the two suites.
 
 `document_identity_edit_loop/{16,256,4096}` measures a Value edit followed by
 possibly-stale address validation against the last node. Each revision-triggered

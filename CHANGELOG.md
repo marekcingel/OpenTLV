@@ -9,6 +9,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Fixed
 
+- Avoid redundant C Reader diagnostic clearing on successful decoding, and initialize Format failure detail for invalid arguments while preserving callback initialization and single-decode behavior. (#440, #452, #461)
 - Avoid redundant diagnostic initialization and full error copies in C++ Reader pulls while retaining failure context and one decode per call. (#440, #452, #460, #461)
 - Keep C++ Document handle validation constant-time after insertion and primitive Value replacement, using a separate node-retirement epoch while preserving stale-handle checks after erasure and subtree replacement. (#440, #459)
 - Prevent accidental copying or moving of C++ stateful Codec owners through permissive Codec constructors. (#440, #456, #463)
@@ -184,6 +185,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Added
 
+- Add a reproducible comparison of native and C++ Reader APIs across revisions, retaining raw measurements and build provenance. (#440)
 - Add reproducible C++ Reader and Document benchmarks covering successful pulls, failures, incremental recovery, primitive edit loops and retained-handle validation. (#440, #459)
 - Add `tlv_document_retire_epoch()` independently of the mutation revision used by Query. Updated C++ Document headers require a native library that exports this entry point. (#440, #459)
 - Add chainable C++ Schema rule modifiers for alternative groups, length multiples and endpoint-only length constraints in initializer lists. (#440, #453)

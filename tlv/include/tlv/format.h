@@ -75,7 +75,10 @@ typedef enum tlv_region {
 } tlv_region_t;
 
 /**
- * @brief Format-produced failure detail, initialized to zero by the caller.
+ * @brief Format-produced failure detail, initialized to zero before invoking callbacks.
+ *
+ * The core initializes callback storage. Public operation output guarantees are
+ * documented on the individual entry points.
  */
 typedef struct tlv_format_error {
     tlv_region_t region; /**< Region being interpreted. */
@@ -276,7 +279,8 @@ TLV_API int tlv_format_can_write(const tlv_format_t* format);
  * @param[in]  data    Input, NULL only when size is zero.
  * @param[in]  size    Native available extent.
  * @param[out] decoded Complete result, unchanged on failure.
- * @param[out] error   Optional failure detail; unchanged on success.
+ * @param[out] error   Optional failure detail, fully initialized on every failure;
+ *                    unchanged on success. Missing arguments yield empty detail.
  *
  * @return #TLV_OK on success.
  * @return #TLV_ERR_END_OF_BUFFER if the input is empty.

@@ -56,11 +56,11 @@ the surviving snapshot. Setup warms the tree; these are not cold-cache timings.
 
 ## Measurement method
 
-The local comparison on 2026-10-07 uses commit
-`4500ab8198267609c7a7a84ed8793f97bec78fbb` before these performance fixes and the
-working tree with the fixes. Both executables compile the identical benchmark
-source against their respective headers and static native libraries. It is a
-comparison with the reviewed C++ facade, not with the older `main` facade.
+The first local comparison on 2026-10-07 uses commit
+`4500ab8198267609c7a7a84ed8793f97bec78fbb` and the candidate subsequently committed
+as `a2d1fd3`. Both executables compile the identical benchmark source against their
+respective headers and static native libraries. This matrix compares two PR
+states; the separate C diagnostic follow-up below also includes the older `main`.
 
 Both builds use GCC 13.3.0, C++11, `-O2 -DNDEBUG`, Google Benchmark v1.9.4 and
 Linux x86-64 under WSL2 on an Intel Core i7-1255U. Benchmark processes are pinned
@@ -161,3 +161,83 @@ one added export and no changed or removed functions or public types. Focused
 C++11/C++23 strict-warning checks and documentation checks pass. The complete
 repository suite, full sanitizer suites, fuzz campaigns, hosted CI and WASM
 runtime validation were not rerun for this follow-up.
+
+## C diagnostic follow-up
+
+A subsequent review of `a2d1fd3` identified a second Reader staging clear in the
+native `tlv_read_impl()`. The Format wrapper already initializes the callback's
+result and error storage and copies complete failure detail to its caller. Its
+invalid-argument branch was the one exception. That branch now publishes empty
+detail too, allowing Reader to remove its own pre-decode clear.
+
+Callback storage still starts initialized, callbacks run at most once, and partial
+or absent failure metadata is supported. Successful Format decoding leaves the
+caller error output untouched; failed decoding leaves the decoded result untouched.
+This changes neither signatures nor layouts. It does not remove all diagnostic
+tracking inside decoders or change the 600-byte C++ error layout.
+
+The new preflight regression fails against `a2d1fd3` and passes with the fix.
+Current validation includes 940 selected Windows/MSVC Debug CTest checks and 89
+focused Clang ASan/UBSan tests, including C Reader, Tree Reader, Format and C++
+facade paths. Full-repository/hosted CI, fuzz campaigns and WASM runtime checks
+were not rerun for this change.
+
+The four earlier evidence files preserve every original sample and aggregate.
+They now use compact standard JSON and generic host/executable identifiers; no
+timing was changed during that metadata cleanup.
+
+### Comparison with main
+
+The separate [collector](../../scripts/reader_api_comparison.py) and
+[benchmark source](../../benchmarks/tools/reader_api_comparison.cpp) build exact
+revisions `89991d9f` (`main`), `a2d1fd3` (prior PR) and the working candidate with
+the C diagnostic change. Each uses its own native library and C++ headers, with
+matching generated capabilities, GCC 13.3, C++11 and `-O2 -DNDEBUG` without LTO.
+The old Fixed template argument type is the only compatibility adapter.
+
+The 2026-10-07 run uses the same WSL2 host and CPU affinity 2, without concurrent
+project builds or tests. Each of 60 cases has seven shuffled repetitions. The
+[420 raw timings](../../benchmarks/evidence/reader-api-440.csv) and
+[build provenance and summaries](../../benchmarks/evidence/reader-api-440.json)
+retain source commits/patches, checksums, hashes and every observation, without
+hostnames or absolute paths. The benchmark uses a typed `reader<Format>` and an
+elapsed wall-clock timer; its absolute times should not be mixed with the earlier
+runtime-Format Google Benchmark CPU timings.
+
+Every row below is a median in milliseconds for **2,000,000** operations. Success
+and range cases consume that many three-byte elements. Failure/pause cases repeat
+the same two-byte header missing its one-byte Value; they measure status polling,
+not appending data and resuming. Input allocation is outside timing, while Reader
+construction, all calls and result-checksum accumulation are inside. Native C
+controls include both ordinary and diagnostic calls.
+
+| Workload | main `89991d9f` | Prior PR `a2d1fd3` | C diagnostic fix |
+| --- | ---: | ---: | ---: |
+| BER C++ `next()` | 180.021 | 205.111 | 182.948 |
+| Fixed C++ `next()` | 144.782 | 161.031 | 136.098 |
+| BER C++ range | 229.424 | 210.061 | 195.734 |
+| Fixed C++ range | 183.016 | 164.970 | 138.802 |
+| BER C++ failed `next()` | 194.342 | 325.669 | 287.578 |
+| Fixed C++ failed `next()` | 153.591 | 274.394 | 242.397 |
+| BER C++ `need_more_data` | 179.520 | 335.205 | 299.132 |
+| Fixed C++ `need_more_data` | 128.095 | 269.604 | 244.884 |
+| BER C `tlv_reader_next()` | 175.583 | 174.458 | 181.577 |
+| BER C `tlv_reader_next_diag()` | 202.597 | 199.171 | 179.012 |
+| Fixed C `tlv_reader_next()` | 129.541 | 128.314 | 132.215 |
+| Fixed C `tlv_reader_next_diag()` | 158.697 | 158.076 | 135.717 |
+
+BER C++ successful pulls take 10.8% less time than the prior PR and 1.6% more than
+`main` in this run. Their min/max ranges are 180.4–198.0 ms for the candidate,
+199.2–250.3 ms for the prior PR and 177.7–183.0 ms for `main`. Fixed pulls show a
+15.5% median reduction against the prior PR. Native diagnostic success improves
+by 10.1% for BER and 14.1% for Fixed; the ordinary C control medians vary by 4.1%
+and 3.0% with overlapping ranges. This supports removing redundant staging, with
+successful C++ throughput close to `main` in these fixtures. It is not a guarantee
+of parity for every Format or compiler.
+
+Outliers remain, including a 622.8 ms `main` native BER pause sample. All samples
+are retained, and smaller differences should be treated cautiously. Failed C++
+pulls still take about 1.5–1.6 times the `main` medians; repeated pauses take about
+1.7–1.9 times. The measured error/result layouts remain 600/608 bytes versus
+40/48 bytes on `main`. Changing that storage or making handle validation constant
+time after actual retirement remains separate work.
