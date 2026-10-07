@@ -33,8 +33,8 @@ enum class workload {
 };
 
 struct input {
-    tlv_fixed_format_t    fixed = {1, 1, TLV_BYTE_ORDER_BIG_ENDIAN, TLV_ELEMENT_ORDER_TLV,
-                                   TLV_LENGTH_SCOPE_VALUE};
+    tlv_fixed_format_t fixed = {
+        {1}, {1, TLV_BYTE_ORDER_BIG_ENDIAN}, TLV_ELEMENT_ORDER_TLV, TLV_LENGTH_SCOPE_VALUE};
     tlv_variable_format_t variable = {{0x1f, 0x1f, 0x80, 0x7f, 8},
                                       {0x80, 0x7f, TLV_BYTE_ORDER_BIG_ENDIAN},
                                       TLV_ELEMENT_ORDER_TLV,

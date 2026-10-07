@@ -85,9 +85,11 @@ impl FixedFormatConfig {
     pub fn new(tag_size: usize, length_size: usize, order: ByteOrder) -> FixedFormatConfig {
         FixedFormatConfig {
             inner: native::tlv_fixed_format_t {
-                tag_size,
-                length_size,
-                length_order: order.into(),
+                identifier: native::tlv_fixed_identifier_t { size: tag_size },
+                length: native::tlv_fixed_length_t {
+                    size: length_size,
+                    byte_order: order.into(),
+                },
                 element_order: native::TLV_ELEMENT_ORDER_TLV,
                 length_scope: native::TLV_LENGTH_SCOPE_VALUE,
             },
@@ -96,12 +98,12 @@ impl FixedFormatConfig {
 
     /// Tag width in bytes.
     pub fn tag_size(&self) -> usize {
-        self.inner.tag_size
+        self.inner.identifier.size
     }
 
     /// Length field width in bytes.
     pub fn length_size(&self) -> usize {
-        self.inner.length_size
+        self.inner.length.size
     }
 }
 

@@ -31,10 +31,12 @@ int main(int argc, char** argv) try {
     if (argc != 9) return 2;
     const size_t depth = std::stoul(argv[4]), elements = std::stoul(argv[5]);
     if (depth > 64 || !elements) return 2;
-    const tlv_fixed_format_t fixed = {std::stoul(argv[6]), std::stoul(argv[7]),
-                                      !std::strcmp(argv[8], "little") ? TLV_BYTE_ORDER_LITTLE_ENDIAN
-                                                                      : TLV_BYTE_ORDER_BIG_ENDIAN,
-                                      TLV_ELEMENT_ORDER_TLV, TLV_LENGTH_SCOPE_VALUE};
+    const tlv_fixed_format_t fixed = {{std::stoul(argv[6])},
+                                      {std::stoul(argv[7]), !std::strcmp(argv[8], "little")
+                                                                ? TLV_BYTE_ORDER_LITTLE_ENDIAN
+                                                                : TLV_BYTE_ORDER_BIG_ENDIAN},
+                                      TLV_ELEMENT_ORDER_TLV,
+                                      TLV_LENGTH_SCOPE_VALUE};
     tlv_format_t             descriptor{};
     const tlv_format_t*      format = nullptr;
     if (!std::strcmp(argv[1], "fixed")) {

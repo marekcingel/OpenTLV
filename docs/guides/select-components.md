@@ -136,7 +136,7 @@ cmake --build build --parallel --target tlv
 
 ### Core and Bluetooth LTV only
 
-Bluetooth uses the generic binary layout primitives. Fixed is always available.
+Bluetooth uses the generic binary composition primitives. Fixed is always available.
 
 ```sh
 cmake -S . -B build \

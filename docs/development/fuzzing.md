@@ -95,11 +95,11 @@ Seed names describe framing cases: empty input/value, primitive values,
 concatenated elements, truncated tag/length/value, invalid/overflowing lengths,
 high-number tags, nested containers, BER indefinite framing and EOC errors,
 noncanonical DER framing, and depth-limit boundaries. `bluetooth-ltv-*` seeds
-cover the length-first layout: valid advertising data, zero-length padding,
+cover length-first framing: valid advertising data, zero-length padding,
 truncated and overrunning lengths, the maximum length byte, and type-only
 elements. The raw formats use `0x20` as a test-only constructed bit in the visitor.
 
-`corpus/roundtrip` uses a different layout: byte 0 modulo
+`corpus/roundtrip` uses a different input structure: byte 0 modulo
 `17` gives the candidate tag size, clamped to the remaining
 input size; subsequent bytes hold that tag, followed by its value. Empty input
 produces an empty candidate tag/value. Every input is also tested as a value
@@ -107,7 +107,7 @@ with the valid primitive tag `04`, ensuring successful writes are exercised.
 Long-value seeds cover 127/128 and 255/256 length transitions, including the
 Bluetooth LTV 254/255-byte value limit.
 
-`builtins/fixed/corpus/fixed` uses its own layout: the first three bytes
+`builtins/fixed/corpus/fixed` uses its own input structure: the first three bytes
 select the `tlv_fixed_format_t` under test (tag width, length width, and
 byte order, each masked into its valid range), and the rest is a payload
 tried both as a tag/value pair to round-trip through that configuration and

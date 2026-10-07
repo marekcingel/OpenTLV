@@ -96,7 +96,7 @@ reference or release notes.
 | [Format candidate catalogue](../../docs/formats/format-catalogue.md) | Format user | Reader and matching format | Keep scope and limitations canonical |
 | [Format trees and byte examples](../../docs/formats/format-examples.md) | Format user | Reader and matching format | Keep scope and limitations canonical |
 | [Format expansion candidates](../../docs/formats/format-roadmap.md) | Format user | Reader and matching format | Keep scope and limitations canonical |
-| [LLDP requirements and Format/Layout review](../../docs/formats/lldp-review.md) | Format user | Reader and matching format | Keep scope and limitations canonical |
+| [LLDP requirements, Format and runtime Layout review](../../docs/formats/lldp-review.md) | Format user | Reader and matching format | Keep scope and limitations canonical |
 | [LLDP TLV support](../../docs/formats/lldp/README.md) | Format user | Reader and matching format | Keep scope and limitations canonical |
 | [LLDP reference tests and conformance boundary](../../docs/formats/lldp/conformance.md) | Format user | Reader and matching format | Keep scope and limitations canonical |
 | [NFC Forum Type 2 Tag TLV framing](../../docs/formats/nfc/README.md) | Format user | Reader and matching format | Keep scope and limitations canonical |

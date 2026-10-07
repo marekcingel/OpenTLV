@@ -16,6 +16,13 @@ Raw C declarations live in `opentlv-sys`; safe facade implementations in
 `opentlv` contain the audited unsafe calls and callback adapters. Only the part of the C API the safe crate needs is bound
 so far.
 
+The `opentlv-sys` test suite builds a small C ABI probe with CMake and a native C
+compiler. It compares the size, alignment and every member offset of Fixed field
+and format configurations with the Rust `#[repr(C)]` mirrors. Offset checks catch
+layout changes even when the overall structure size stays the same. This test
+uses the matching source headers; consumers must still pair them with the
+matching native library.
+
 ## Core types
 
 The `opentlv` crate exposes these safe types; none of them exposes a raw pointer:

@@ -334,7 +334,7 @@ static tlv_result_t write_impl(uint8_t* data, size_t capacity, tlv_tag_t tag, co
         return fail(TLV_ERR_NULL_ARG, 0, error_offset);
     if (limits->max_depth > TLV_CER_MAX_DEPTH || !limits->max_elements)
         return fail(TLV_ERR_LIMIT, 0, error_offset);
-    rc = tlv_cer_fields.write_tag(NULL, NULL, 0, &tag, &tag_size);
+    rc = tlv_cer_fields.write_tag(NULL, &tag, NULL, 0, &tag_size);
     if (rc != TLV_OK) return fail(rc, 0, error_offset);
 
     if (tlv_asn1_tag_is_constructed(&tag)) {
@@ -437,7 +437,7 @@ tlv_result_t tlv_cer_write_segmented_string(uint8_t* data, size_t capacity, tlv_
         return fail(TLV_ERR_LIMIT, 0, error_offset);
     if (tlv_asn1_tag_class(&tag) != TLV_ASN1_UNIVERSAL || tlv_asn1_tag_is_constructed(&tag))
         return fail(TLV_ERR_INVALID_ARG, 0, error_offset);
-    rc = tlv_cer_fields.write_tag(NULL, NULL, 0, &tag, &tag_size);
+    rc = tlv_cer_fields.write_tag(NULL, &tag, NULL, 0, &tag_size);
     if (rc != TLV_OK) return fail(rc, 0, error_offset);
     if (tlv_cer_tag_number(&tag, &number) != TLV_OK || number > 36)
         return fail(TLV_ERR_INVALID_ARG, 0, error_offset);
@@ -467,7 +467,7 @@ tlv_result_t tlv_cer_write_segmented_string(uint8_t* data, size_t capacity, tlv_
     }
 
     if (content_length > limits->max_value_size) return fail(TLV_ERR_LIMIT, tag_size, error_offset);
-    rc = tlv_cer_fields.length_size(NULL, TLV_CER_MAX_SEGMENT_OCTETS, &seg_length_size);
+    rc = tlv_cer_fields.write_length(NULL, TLV_CER_MAX_SEGMENT_OCTETS, NULL, 0, &seg_length_size);
     if (rc != TLV_OK) return fail(rc, 0, error_offset);
 
     {
@@ -482,7 +482,7 @@ tlv_result_t tlv_cer_write_segmented_string(uint8_t* data, size_t capacity, tlv_
             per_segment;
         segment_layout(source_octets, chunk, &num_non_final, &final_octets);
         final_content_size = is_bit ? final_octets + 1 : final_octets;
-        rc = tlv_cer_fields.length_size(NULL, final_content_size, &final_length_size);
+        rc = tlv_cer_fields.write_length(NULL, final_content_size, NULL, 0, &final_length_size);
         if (rc != TLV_OK) return fail(rc, 0, error_offset);
 
         per_segment = tag_size + seg_length_size + TLV_CER_MAX_SEGMENT_OCTETS;
@@ -521,8 +521,8 @@ tlv_result_t tlv_cer_write_segmented_string(uint8_t* data, size_t capacity, tlv_
             for (size_t i = 0; i < num_non_final; ++i) {
                 memcpy(out, tag.data, tag_size);
                 out += tag_size;
-                rc = tlv_cer_fields.write_length(NULL, out, seg_length_size,
-                                                 TLV_CER_MAX_SEGMENT_OCTETS, &used);
+                rc = tlv_cer_fields.write_length(NULL, TLV_CER_MAX_SEGMENT_OCTETS, out,
+                                                 seg_length_size, &used);
                 if (rc != TLV_OK) return fail(rc, 0, error_offset);
                 out += used;
                 if (is_bit) *out++ = 0;
@@ -532,7 +532,7 @@ tlv_result_t tlv_cer_write_segmented_string(uint8_t* data, size_t capacity, tlv_
             }
             memcpy(out, tag.data, tag_size);
             out += tag_size;
-            rc = tlv_cer_fields.write_length(NULL, out, final_length_size, final_content_size,
+            rc = tlv_cer_fields.write_length(NULL, final_content_size, out, final_length_size,
                                              &used);
             if (rc != TLV_OK) return fail(rc, 0, error_offset);
             out += used;

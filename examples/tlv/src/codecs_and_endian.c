@@ -56,9 +56,8 @@ static tlv_codec_result_t encode_u32(const void* context, const void* value, siz
 
 int main(void) {
     /* One tag byte and one length byte; config must outlive its readers and writers. */
-    const tlv_fixed_format_t config = {
-        .tag_size = 1, .length_size = 1, .length_order = TLV_BYTE_ORDER_BIG_ENDIAN};
-    tlv_format_t format;
+    const tlv_fixed_format_t config = {.identifier = {1}, .length = {1, TLV_BYTE_ORDER_BIG_ENDIAN}};
+    tlv_format_t             format;
     CHECK(tlv_fixed_format_init(&format, &config));
 
     const tlv_codec_t codec = {NULL, decode_u32, encode_u32};

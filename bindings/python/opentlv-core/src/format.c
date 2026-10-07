@@ -44,9 +44,10 @@ PyObject* opentlv_python_format_owner(PyObject* specification) {
             PyErr_SetString(PyExc_ValueError, "invalid FixedFormat widths");
             return NULL;
         }
-        value->fixed.tag_size = (size_t)tag;
-        value->fixed.length_size = (size_t)length;
-        value->fixed.length_order = big ? TLV_BYTE_ORDER_BIG_ENDIAN : TLV_BYTE_ORDER_LITTLE_ENDIAN;
+        value->fixed.identifier.size = (size_t)tag;
+        value->fixed.length.size = (size_t)length;
+        value->fixed.length.byte_order =
+            big ? TLV_BYTE_ORDER_BIG_ENDIAN : TLV_BYTE_ORDER_LITTLE_ENDIAN;
         value->fixed.element_order = TLV_ELEMENT_ORDER_TLV;
         value->fixed.length_scope = TLV_LENGTH_SCOPE_VALUE;
         if (tlv_fixed_format_init(&value->format, &value->fixed) != TLV_OK) {
@@ -66,9 +67,9 @@ PyObject* opentlv_python_format_owner(PyObject* specification) {
     }
     for (format_owner* existing = owners; existing; existing = existing->next) {
         if (value->configured && existing->configured &&
-            value->fixed.tag_size == existing->fixed.tag_size &&
-            value->fixed.length_size == existing->fixed.length_size &&
-            value->fixed.length_order == existing->fixed.length_order) {
+            value->fixed.identifier.size == existing->fixed.identifier.size &&
+            value->fixed.length.size == existing->fixed.length.size &&
+            value->fixed.length.byte_order == existing->fixed.length.byte_order) {
             free(value);
             value = existing;
             break;

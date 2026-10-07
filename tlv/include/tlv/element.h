@@ -33,7 +33,7 @@
  * must outlive every use of this element and its shallow copies.
  * `value.size` is the logical value byte count, independent of native pointer
  * width, excluding framing. Value bytes are contiguous. Neither a wire Length
- * field nor a particular header layout is implied.
+ * field nor a particular header composition is implied.
  *
  * Reader-produced values fit the input buffer. Manually assembled values
  * require validation before narrowing to `size_t`. Wire/source information

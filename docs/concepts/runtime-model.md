@@ -95,17 +95,21 @@ The IR must express the existing conceptual boundaries:
 | Concept | Semantic responsibility in the model |
 | --- | --- |
 | Definition | Identifiers and descriptive names within a registry; no wire encoding or contextual validation policy. |
-| Format | Complete element framing, field order, length scope and constructed representation. |
-| Field Encoding | Reusable fixed-width, variable-width and packed wire-field mechanics. |
-| Layout | Rules/configuration for arranging wire parts and producing source ranges; concrete offsets belong to decoded instances. |
+| Format | Complete element framing, field composition and ordering, length scope, boundary resolution and constructed representation. |
+| Field Encoding | Low-level bit/byte/integer primitives and reusable Identifier/Length encodings. |
 | Schema | Structural and contextual constraints such as occurrence, ordering, allowed children and field lengths. |
 | Codec | Interpretation and conversion of Value bytes using the selected value representation. |
 
-Layout needs this distinction because a compiled model describes reusable
-rules, while the Layout of a particular Element is produced only when those
-rules are applied to bytes. The existing `tlv_source_t` / `tlv_range_t` and
-`tlv_element_t` contracts remain the runtime representations; the IR does not
-introduce a parallel runtime Element.
+Format composition describes reusable rules within Format, not an additional
+canonical layer. Lowering may use the generic composition helpers or provide
+the same complete Format contract directly. Reader and Writer consume that
+contract; Definition, Schema and Codec remain optional to their processing.
+
+Layout is runtime information produced only when Format applies those rules to
+concrete bytes; it is not a separate configuration category in the IR. The existing
+`tlv_source_t` / `tlv_range_t` and `tlv_element_t` contracts remain the runtime
+representations; the IR does not introduce a parallel runtime Element. Writer
+can encode an Element without a previously parsed source Layout.
 
 Standard-specific policy stays in standards and extensions. The IR should
 describe compositions of reusable mechanisms and explicit semantic

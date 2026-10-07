@@ -56,9 +56,9 @@ tlv_result_t resolve(const void* context, const tlv_tag_t*, const uint8_t* data,
 
 tlv_result_t terminated_measure(const void* context, const tlv_element_t* element,
                                 tlv_encoding_t* encoding, tlv_format_error_t*) {
-    const auto*  fields = static_cast<const tlv_field_layout_t*>(context);
+    const auto*  fields = static_cast<const tlv_field_composition_t*>(context);
     size_t       tag_size = 0;
-    tlv_result_t rc = fields->write_tag(fields->context, nullptr, 0, &element->tag, &tag_size);
+    tlv_result_t rc = fields->write_tag(fields->context, &element->tag, nullptr, 0, &tag_size);
     if (rc != TLV_OK) return rc;
     encoding->header = tag_size + tlv_size_t{1};
     encoding->value = element->value.size;
@@ -192,7 +192,7 @@ TEST(Integration_Tlv_Variable, ErrorsKeepReaderWriterStateAndProvideFieldLocatio
 }
 
 TEST(Integration_Tlv_Variable, ComposesTerminatedBoundsAndTrailerWithoutBuiltinPolicy) {
-    tlv_field_layout_t fields = {};
+    tlv_field_composition_t fields = {};
     ASSERT_EQ(TLV_OK, tlv_variable_fields_init(&fields, &config));
     fields.resolve = resolve;
     const tlv_format_t format = {&fields, tlv_fields_decode, terminated_measure, terminated_encode,

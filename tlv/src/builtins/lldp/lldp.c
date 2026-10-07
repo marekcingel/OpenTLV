@@ -2,7 +2,7 @@
 // Copyright (c) 2026 Marek Cingel
 
 #include "tlv/builtins/lldp/lldp.h"
-#include "tlv/layout.h"
+#include "tlv/field/packed.h"
 #include <string.h>
 
 static const tlv_packed_field_t type_field = {2, 9, 7, TLV_BYTE_ORDER_BIG_ENDIAN};

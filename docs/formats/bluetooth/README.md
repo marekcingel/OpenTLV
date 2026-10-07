@@ -30,7 +30,7 @@ it reports availability of the entire extension. The wire descriptor remains
 `tlv_format_bluetooth_ltv` and the CLI format name remains `bluetooth-ltv`.
 
 Bluetooth LTV is a preset of the [configurable Fixed format](../fixed/configurable.md):
-`{1, 1, TLV_BYTE_ORDER_BIG_ENDIAN, TLV_ELEMENT_ORDER_LTV,
+`{{1}, {1, TLV_BYTE_ORDER_BIG_ENDIAN}, TLV_ELEMENT_ORDER_LTV,
 TLV_LENGTH_SCOPE_TAG_AND_VALUE}`. `tlv_format_bluetooth_ltv` exists so callers
 do not have to spell that configuration out themselves; there is no
 Bluetooth-specific parser or writer underneath it.
@@ -182,7 +182,10 @@ zero for argument errors. Output storage must not overlap the input or each
 other. Never strip trailing zeros by scanning backward: they may belong to
 the final value.
 
-## Wire layout and logical model
+<!-- markdownlint-disable-next-line MD033 -->
+<a id="wire-layout-and-logical-model"></a>
+
+## Wire representation and logical model
 
 On the wire the length comes first:
 
@@ -467,9 +470,9 @@ Element (4 bytes)
 
 ## How it fits the format architecture
 
-Bluetooth is a configuration of the public binary-field layout primitives in
-`tlv/layout.h`: one-byte Tag and Length, Length before Tag, Length counting Tag
-and Value. It has no dependency on Fixed-private code or the Fixed build option.
+Bluetooth is a configuration of the public binary-field composition primitives
+in `tlv/formats/compose.h`: one-byte Tag and Length, Length before Tag, Length
+counting Tag and Value. It has no dependency on Fixed-private code or the Fixed build option.
 Both formats expose the same canonical decode/measure/encode contract.
 
 See [Format/Element contract](../../concepts/format-contract.md).

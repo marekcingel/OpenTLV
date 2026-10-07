@@ -271,9 +271,9 @@ static const tlv_format_t* select_format(const char* name, int* ber, int* der,
     // which outlives this call, since a `static` here would make the module
     // non-reentrant (see docs/guides/memory.md#format-context-ownership-and-lifetime).
     if (!strcmp(name, "fixed")) {
-        fixed_config->tag_size = fixed_tag_size;
-        fixed_config->length_size = fixed_length_size;
-        fixed_config->length_order =
+        fixed_config->identifier.size = fixed_tag_size;
+        fixed_config->length.size = fixed_length_size;
+        fixed_config->length.byte_order =
             fixed_big_endian ? TLV_BYTE_ORDER_BIG_ENDIAN : TLV_BYTE_ORDER_LITTLE_ENDIAN;
         fixed_config->element_order =
             fixed_length_first ? TLV_ELEMENT_ORDER_LTV : TLV_ELEMENT_ORDER_TLV;

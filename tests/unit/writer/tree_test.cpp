@@ -250,7 +250,7 @@ TEST(Unit_Tlv_TreeWriter, SuccessPreservesDiagnosticAndInitFailurePreservesCurso
 
 TEST(Unit_Tlv_TreeWriter, LtvOrderingIsOwnedByFormat) {
     auto layout = controlled::format_layout;
-    layout.order = TLV_ELEMENT_ORDER_LTV;
+    layout.element_order = TLV_ELEMENT_ORDER_LTV;
     const tlv_format_t ltv = {&layout, tlv_fields_decode, tlv_fields_measure, tlv_fields_encode,
                               constructed};
     uint8_t            data[4]{}, scratch[2]{};

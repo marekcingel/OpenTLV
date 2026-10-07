@@ -47,9 +47,12 @@ int main(void) {
 }
 ```
 
-## Layout and typical use
+<!-- markdownlint-disable-next-line MD033 -->
+<a id="layout-and-typical-use"></a>
 
-DER uses the [BER layout](ber.md#layout-and-typical-use) with one encoding chosen for
+## Framing and typical use
+
+DER uses the [BER framing](ber.md#framing-and-typical-use) with one encoding chosen for
 every value, so equal values always encode to the same bytes.
 
 ```text

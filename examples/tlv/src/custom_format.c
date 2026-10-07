@@ -9,7 +9,7 @@
 #include <stdint.h>
 #include <stdio.h>
 #include "tlv/endian.h"
-#include "tlv/layout.h"
+#include "tlv/formats/compose.h"
 #include "tlv/size.h"
 #include "tlv/reader/reader.h"
 #include "tlv/writer/writer.h"
@@ -44,15 +44,15 @@ static tlv_result_t read_tag_1byte(const void* context, const uint8_t* data, siz
     *consumed = 1;
     return TLV_OK;
 }
-static tlv_result_t write_tag_1byte(const void* context, uint8_t* data, size_t capacity,
-                                    const tlv_tag_t* tag, size_t* written) {
+static tlv_result_t write_tag_1byte(const void* context, const tlv_tag_t* tag, uint8_t* data,
+                                    size_t capacity, size_t* written) {
     (void)context;
+    if (!tag || (!tag->data && tag->size) || (!data && capacity) || !written)
+        return TLV_ERR_NULL_ARG;
     if (tag->size != 1) return TLV_ERR_INVALID_TAG_SIZE;
-    if (!tag->data) return TLV_ERR_NULL_ARG;
+    if (data && !capacity) return TLV_ERR_BUFFER_TOO_SHORT;
+    if (data) data[0] = tag->data[0];
     *written = 1;
-    if (!data) return TLV_OK;
-    if (!capacity) return TLV_ERR_BUFFER_TOO_SHORT;
-    data[0] = tag->data[0];
     return TLV_OK;
 }
 
@@ -64,20 +64,14 @@ static tlv_result_t read_length_le16(const void* context, const uint8_t* data, s
     *consumed = sizeof(uint16_t);
     return TLV_OK;
 }
-static tlv_result_t length_size_le16(const void* context, tlv_size_t length, size_t* size) {
+static tlv_result_t write_length_le16(const void* context, tlv_size_t length, uint8_t* data,
+                                      size_t capacity, size_t* written) {
     (void)context;
+    if ((!data && capacity) || !written) return TLV_ERR_NULL_ARG;
     if (length > UINT16_MAX) return TLV_ERR_INVALID_LENGTH;
-    *size = sizeof(uint16_t);
-    return TLV_OK;
-}
-static tlv_result_t write_length_le16(const void* context, uint8_t* data, size_t capacity,
-                                      tlv_size_t length, size_t* written) {
-    size_t       required;
-    tlv_result_t result = length_size_le16(context, length, &required);
-    if (result != TLV_OK) return result;
-    if (capacity < required) return TLV_ERR_BUFFER_TOO_SHORT;
-    tlv_write_u16_le(data, (uint16_t)length);
-    *written = required;
+    if (data && capacity < sizeof(uint16_t)) return TLV_ERR_BUFFER_TOO_SHORT;
+    if (data) tlv_write_u16_le(data, (uint16_t)length);
+    *written = sizeof(uint16_t);
     return TLV_OK;
 }
 
@@ -88,16 +82,15 @@ int main(void) {
     tlv_element_t element;
     size_t        written, consumed;
 
-    const tlv_field_layout_t layout = {NULL,
-                                       read_tag_1byte,
-                                       read_length_le16,
-                                       NULL,
-                                       write_tag_1byte,
-                                       write_length_le16,
-                                       length_size_le16,
-                                       TLV_ELEMENT_ORDER_TLV,
-                                       TLV_LENGTH_SCOPE_VALUE};
-    CHECK(tlv_fields_format_init(&format, &layout));
+    const tlv_field_composition_t composition = {NULL,
+                                                 read_tag_1byte,
+                                                 read_length_le16,
+                                                 NULL,
+                                                 write_tag_1byte,
+                                                 write_length_le16,
+                                                 TLV_ELEMENT_ORDER_TLV,
+                                                 TLV_LENGTH_SCOPE_VALUE};
+    CHECK(tlv_fields_format_init(&format, &composition));
     /* format and its optional immutable context must outlive their users. */
     CHECK(tlv_write(encoded, sizeof(encoded), &format, TLV_TAG(1), value, sizeof(value), &written));
     CHECK(tlv_read(encoded, written, &format, &element, &consumed));

@@ -36,10 +36,10 @@ bool is_json(const options& o) {
 
 format_selection::format_selection(const options& o) : name_(o.format) {
     if (!name_ || strcmp(name_, "fixed")) return;
-    fixed_.tag_size = o.fixed_tag_size;
-    fixed_.length_size = o.fixed_length_size;
-    fixed_.length_order = !strcmp(o.fixed_byte_order, "little") ? TLV_BYTE_ORDER_LITTLE_ENDIAN
-                                                                : TLV_BYTE_ORDER_BIG_ENDIAN;
+    fixed_.identifier.size = o.fixed_tag_size;
+    fixed_.length.size = o.fixed_length_size;
+    fixed_.length.byte_order = !strcmp(o.fixed_byte_order, "little") ? TLV_BYTE_ORDER_LITTLE_ENDIAN
+                                                                     : TLV_BYTE_ORDER_BIG_ENDIAN;
     fixed_.element_order = TLV_ELEMENT_ORDER_TLV;
     fixed_.length_scope = TLV_LENGTH_SCOPE_VALUE;
     result_ = tlv_fixed_format_init(&descriptor_, &fixed_);

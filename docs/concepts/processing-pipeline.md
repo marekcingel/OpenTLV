@@ -150,9 +150,9 @@ aliases remain. Rebuild consumers after this source/ABI-breaking removal.
 | Writer | `tlv/src/writer/writer.c` | Format measurement and encoding |
 
 These dependencies are acyclic. Definition registries and Schema/Codec are not
-mandatory stages. Only Format and its reusable layout primitives interpret wire
-framing. Constructed classification is a Format callback, including when used by
-Tree Reader and Tree Writer.
+mandatory stages. Only Format and its reusable field encoding and composition
+primitives interpret wire framing. Constructed classification is a Format
+callback, including when used by Tree Reader and Tree Writer.
 
 Document's iterative node iteration, counting and destruction operate on owned
 nodes, not encoded input. They must not be replaced with a byte parser. Likewise,

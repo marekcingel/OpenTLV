@@ -38,7 +38,7 @@ tlv_result_t tlv_asn1_tag_make_checked(tlv_write_tag_fn validate, tlv_asn1_class
             bytes[i + 1] = (uint8_t)(digits[count - i - 1] |
                                      (i + 1 < count ? TLV_BER_TAG_DIGIT_CONTINUATION_BIT : 0));
     }
-    if (validate(NULL, NULL, 0, &result, &written) != TLV_OK) return TLV_ERR_INVALID_TAG;
+    if (validate(NULL, &result, NULL, 0, &written) != TLV_OK) return TLV_ERR_INVALID_TAG;
     memcpy(storage, bytes, result.size);
     *tag = tlv_tag(storage, result.size);
     return TLV_OK;
@@ -50,7 +50,7 @@ tlv_result_t tlv_asn1_tag_number_checked(tlv_write_tag_fn validate, const tlv_ta
     size_t written;
     tlv_result_t rc;
     if (!tag || !number) return TLV_ERR_NULL_ARG;
-    rc = validate(NULL, NULL, 0, tag, &written);
+    rc = validate(NULL, tag, NULL, 0, &written);
     if (rc != TLV_OK) return rc;
     result = tag->data[0] & TLV_ASN1_TAG_NUMBER_MASK;
     if (tag->size > 1) {

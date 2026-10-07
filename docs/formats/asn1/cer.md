@@ -59,9 +59,12 @@ int main(void) {
 }
 ```
 
-## Layout and typical use
+<!-- markdownlint-disable-next-line MD033 -->
+<a id="layout-and-typical-use"></a>
 
-CER uses the [BER layout](ber.md#layout-and-typical-use) and makes the choice of length
+## Framing and typical use
+
+CER uses the [BER framing](ber.md#framing-and-typical-use) and makes the choice of length
 form depend on the kind of value.
 
 ```text

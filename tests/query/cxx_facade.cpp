@@ -79,8 +79,8 @@ int main(int argc, char** argv) {
     std::string        mode = argc >= 4 ? argv[3] : "o";
     auto               input = unhex(argv[2]);
     tlv_fixed_format_t fixed{};
-    fixed.tag_size = fixed.length_size = 1;
-    fixed.length_order = TLV_BYTE_ORDER_BIG_ENDIAN;
+    fixed.identifier.size = fixed.length.size = 1;
+    fixed.length.byte_order = TLV_BYTE_ORDER_BIG_ENDIAN;
     tlv_format_t format{};
     if (tlv_fixed_format_init(&format, &fixed) != TLV_OK) return 2;
     format.is_constructed = constructed;

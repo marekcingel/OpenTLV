@@ -2,7 +2,7 @@
 
 OpenTLV represents binary elements through combinations of wire properties.
 Built-in protocols are representative points in that space, not its boundary.
-For a proprietary format, start with its identifier, boundary and layout rules
+For a proprietary format, start with its identifier, boundary and composition rules
 rather than looking for its name in the [format inventory](../formats/support.md).
 
 ## From Element to Format
@@ -41,7 +41,7 @@ LTV: [ Length ][ Tag ][ Value ]
           the same Element
 ```
 
-`tlv_element_order_t` selects TLV or LTV in the generic sequential field layouts.
+`tlv_element_order_t` selects TLV or LTV in the generic sequential field compositions.
 `tlv_length_scope_t` separately selects whether the count covers Value alone or
 Tag plus Value. Bluetooth uses LTV and Tag-plus-Value counts; these choices also
 work for other configured widths. The enum does not describe arbitrary field
@@ -54,7 +54,7 @@ permutations or packed headers.
                                   |
               +-------------------+-------------------+
               |                   |                   |
-          Identifier           Boundary             Layout
+          Identifier           Boundary           Composition
               |                   |                   |
            fixed               explicit              TLV
            variable            fixed                 LTV
@@ -93,9 +93,10 @@ LTV with Value-only length scope:
     2     A1 B2  CA FE
 ```
 
-For different field encodings, `tlv_field_layout_t` composes read/write tag and
-length callbacks with ordering and count scope. Reuse the standalone variable,
-escaped-length or binary helpers where they match the wire rules. Supplying a
+For different field encodings, `tlv_field_composition_t` from
+`tlv/formats/compose.h` composes read/write tag and length callbacks with ordering
+and count scope. Reuse the standalone primitives under `tlv/field/` or binary
+field adapters where they match the wire rules. Supplying a
 field callback is implementation work, even though the composition is generic.
 
 For a shared packed header, absent fields, extra header bytes, or generated
@@ -134,13 +135,14 @@ policy handled above wire mechanics.
 
 | Capability | Status | Current mechanism or boundary |
 | --- | --- | --- |
-| Fixed-width TLV/LTV, big/little-endian counts | Configuration | `tlv_binary_layout_t`, `tlv_fixed_format_t`; Value or Tag-plus-Value scope. |
+| Standalone fixed-width Identifier and Length fields | Configuration | `tlv_fixed_identifier_t` and `tlv_fixed_length_t` in `tlv/field/fixed.h`; raw identifier bytes and unsigned counts with explicit byte order, independent of complete Format framing. |
+| Fixed-width TLV/LTV, big/little-endian counts | Configuration | `tlv_binary_composition_t`, `tlv_fixed_format_t`; Value or Tag-plus-Value scope. |
 | Inline/escaped continuation identifiers and short/long counts | Configuration | `tlv_variable_format_t`; concrete reserved encodings and canonicality remain separate. |
 | Fixed identifiers with escape-prefixed counts | Configuration | `tlv_escaped_format_t`, including optional tag-only identifiers. |
-| Identifier-selected tag-only elements | Configuration | `tlv_tagged_binary_layout_t` / `tlv_tagged_fields_layout_t`; omits Length, requires empty Value, implies no skip/stop policy. |
+| Identifier-selected tag-only elements | Configuration | `tlv_tagged_binary_composition_t` / `tlv_tagged_fields_composition_t`; omits Length, requires empty Value, implies no skip/stop policy. |
 | Extract/insert packed unsigned fields | Configuration | `tlv_packed_field_t` helpers preserve unrelated bits on write. |
 | Complete packed Tag/Length header | Custom Format | Compose packed helpers in decode/measure/encode; LLDP is an existing example, not a generic packed-format initializer. |
-| Different sequential field codecs | Custom Format | Supply callbacks to `tlv_field_layout_t`; retain TLV/LTV and supported count scopes. |
+| Different sequential field encodings | Custom Format | Supply callbacks to `tlv_field_composition_t`; retain TLV/LTV and supported count scopes. |
 | Absent Tag or Length; fixed/type-derived Value extent | Custom Format | Publish valid optional ranges and a contiguous Value; no supplied general boundary selector. |
 | Terminated Value or container | Custom Format | Optional bounds resolver for TLV/Value scope, or complete decode; paired measure/encode for trailers. BER indefinite framing is implemented. |
 | Additional Header bytes, alignment padding, checksums/trailers | Custom Format | Complete callbacks validate framing and measure/encode it; no general padding/checksum configuration is supplied. |
@@ -149,7 +151,7 @@ policy handled above wire mechanics.
 | Allowed children, order, occurrence counts | Outside core | Schema uses the shared elements without redefining framing. |
 | Value meaning, dictionaries, transactions, transport/device mapping | Outside core | Codec, domain composition or application responsibilities. |
 | Declarative runtime configuration and generated implementations | Planned/generalizable | Future `.otlv` frontend/model/compiler reuse these contracts; no runtime interpreter is delivered by these configuration APIs. |
-| General boundary selectors and arbitrary layout composition | Planned/generalizable | Possible generalizations of custom callbacks, not committed features or supplied configuration knobs today. |
+| General boundary selectors and arbitrary Format composition | Planned/generalizable | Possible generalizations of custom callbacks, not committed features or supplied configuration knobs today. |
 | Mixed-format traversal | Planned/generalizable | Not implemented in generic Tree processing; tracked in the [format roadmap](../formats/format-roadmap.md#generic-processing-extensions). A caller can parse separate regions with separate Formats today. |
 
 Read-only and write-only Formats are possible. A decode demonstration does not

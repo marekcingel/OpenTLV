@@ -1,9 +1,10 @@
 # Configurable variable-width TLV
 
-`tlv/formats/variable.h` provides allocation-free identifier and length primitives
-and a definite-length format composed from them. It is always available, even
-when all builtins are disabled, and does not require a runtime `.otlv` engine.
-It describes wire mechanics, not a protocol or an ASN.1 encoding rule.
+`tlv/field/variable.h` provides allocation-free identifier and length primitives.
+`tlv/formats/variable.h` provides the definite-length format and adapters composed
+from them. Both are always available, even when all builtins are disabled, and
+do not require a runtime `.otlv` engine. They describe wire mechanics, not a
+protocol or an ASN.1 encoding rule.
 
 ## Identifier encoding
 
@@ -82,13 +83,14 @@ an unchanged source's nonminimal length bytes exactly.
 
 ## Concrete rules and terminated framing
 
-`tlv_variable_fields_init()` creates a caller-owned `tlv_field_layout_t` with
+`tlv_variable_fields_init()` from `tlv/formats/variable.h` creates a caller-owned
+`tlv_field_composition_t` from `tlv/formats/compose.h` with
 variable field callbacks and a borrowed configuration context. A definite
 composition can be used through `tlv_fields_format_init()`. For more specialized
 composition, the standalone identifier and length helpers can be called from
 callbacks with a concrete format's own context.
 
-The existing optional `tlv_field_layout_t.resolve` callback handles value
+The existing optional `tlv_field_composition_t.resolve` callback handles value
 boundary resolution for terminated TLV framing with VALUE scope. A concrete
 format can recognize its length marker before invoking the definite count
 decoder, resolve the logical Value boundary and report a validated Trailer.

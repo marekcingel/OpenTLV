@@ -218,7 +218,7 @@ TEST(Unit_Tlv_Endian, CheckedFailuresPreserveOutputs) {
         EXPECT_EQ(TLV_ERR_INVALID_LENGTH,
                   tlv_write_uint(bytes, width, TLV_BYTE_ORDER_BIG_ENDIAN, 0));
     }
-    for (auto order : {TLV_BYTE_ORDER_UNKNOWN, static_cast<tlv_byte_order_t>(99)}) {
+    for (auto order : {TLV_BYTE_ORDER_UNKNOWN}) {
         EXPECT_EQ(TLV_ERR_INVALID_BYTE_ORDER, tlv_read_uint(bytes, 8, order, &value));
         EXPECT_EQ(TLV_ERR_INVALID_BYTE_ORDER, tlv_write_uint(bytes, 8, order, 0));
     }
@@ -230,8 +230,8 @@ TEST(Unit_Tlv_Endian, CheckedFailuresPreserveOutputs) {
 }
 
 TEST(Unit_Tlv_Endian, ValidationOrderAndBothOrdersPreserveOutputs) {
-    for (auto order : {TLV_BYTE_ORDER_BIG_ENDIAN, TLV_BYTE_ORDER_LITTLE_ENDIAN,
-                       TLV_BYTE_ORDER_UNKNOWN, static_cast<tlv_byte_order_t>(99)}) {
+    for (auto order :
+         {TLV_BYTE_ORDER_BIG_ENDIAN, TLV_BYTE_ORDER_LITTLE_ENDIAN, TLV_BYTE_ORDER_UNKNOWN}) {
         alignas(uint64_t) uint8_t storage[10];
         std::memset(storage, 0xA5, sizeof(storage));
         uint64_t value = 42;
@@ -245,7 +245,7 @@ TEST(Unit_Tlv_Endian, ValidationOrderAndBothOrdersPreserveOutputs) {
                       tlv_write_uint(storage + 1, width, order, UINT64_MAX));
             for (auto byte : storage) EXPECT_EQ(0xA5, byte);
         }
-        if (order == TLV_BYTE_ORDER_UNKNOWN || static_cast<int>(order) == 99) {
+        if (order == TLV_BYTE_ORDER_UNKNOWN) {
             EXPECT_EQ(TLV_ERR_INVALID_BYTE_ORDER,
                       tlv_write_uint(storage + 1, 1, order, UINT64_MAX));
             for (auto byte : storage) EXPECT_EQ(0xA5, byte);

@@ -201,9 +201,9 @@ TEST(Unit_Tlv_Incremental, AbsoluteOffsetOverflowIsRejectedWithoutPublishing) {
 }
 
 TEST(Unit_Tlv_Incremental, FixedHeaderReportsKnownRequiredExtent) {
-    const tlv_fixed_format_t config = {2, 2, TLV_BYTE_ORDER_BIG_ENDIAN, TLV_ELEMENT_ORDER_TLV,
-                                       TLV_LENGTH_SCOPE_VALUE};
-    tlv_format_t             format;
+    const tlv_fixed_format_t config = {
+        {2}, {2, TLV_BYTE_ORDER_BIG_ENDIAN}, TLV_ELEMENT_ORDER_TLV, TLV_LENGTH_SCOPE_VALUE};
+    tlv_format_t format;
     ASSERT_EQ(TLV_OK, tlv_fixed_format_init(&format, &config));
     const uint8_t wire[] = {1, 2, 0, 0};
     for (size_t size : {size_t(1), size_t(3)}) {

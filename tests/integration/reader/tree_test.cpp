@@ -14,9 +14,9 @@
 #include <vector>
 
 TEST(Integration_Tlv_Tree, FixedLtvUsesFormatOwnedOrderAndConstruction) {
-    const tlv_fixed_format_t config = {1, 1, TLV_BYTE_ORDER_BIG_ENDIAN, TLV_ELEMENT_ORDER_LTV,
-                                       TLV_LENGTH_SCOPE_VALUE};
-    tlv_format_t             format;
+    const tlv_fixed_format_t config = {
+        {1}, {1, TLV_BYTE_ORDER_BIG_ENDIAN}, TLV_ELEMENT_ORDER_LTV, TLV_LENGTH_SCOPE_VALUE};
+    tlv_format_t format;
     ASSERT_EQ(TLV_OK, tlv_fixed_format_init(&format, &config));
     format.is_constructed = [](const void*, const tlv_tag_t* tag) -> int {
         return tag->data[0] == 0xE1;

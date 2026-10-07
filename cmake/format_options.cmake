@@ -23,7 +23,7 @@
 #
 # OPENTLV_BLUETOOTH controls the entire Bluetooth extension independently
 # of the always-built Fixed format. Both formats reuse the generic
-# binary layout primitives.
+# binary Format composition primitives.
 #
 set(_OPENTLV_FORMAT_OPTIONS_MODULE_DIR "${CMAKE_CURRENT_LIST_DIR}")
 

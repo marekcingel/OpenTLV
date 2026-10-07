@@ -110,10 +110,10 @@ configuration; Type `09` identifies a Complete Local Name, here `AB`.
 This demonstrates framing equivalence without requiring a Definition lookup
 or interpreting Value during decoding.
 
-Use `tlv_fixed_format_init()` with `tag_size = 1`, `length_size = 1`, an explicit
-`length_order`, and the selected `element_order` and `length_scope` to reproduce
+Use `tlv_fixed_format_init()` with `identifier.size = 1`, `length.size = 1`, an explicit
+`length.byte_order`, and the selected `element_order` and `length_scope` to reproduce
 these compositions. Fixed delegates to the generic binary-field composition;
-custom field codecs can use `tlv_field_layout_t` and `tlv_fields_format_init()`.
+custom field encodings can use `tlv_field_composition_t` and `tlv_fields_format_init()`.
 Format configuration must outlive its descriptor and all retained sources.
 
 Encoding an Element uses the destination Format's order and count scope.
@@ -130,15 +130,48 @@ Tree Reader and Tree Writer tests exercise LTV through the same upper layers.
 NFC Type 2 support and its control rules are outside this ordering contract's
 validation scope.
 
+## Field Encoding and Format composition
+
+Field Encoding provides individual-field mechanics under `tlv/field/`:
+
+| Level | Public headers and responsibility |
+| --- | --- |
+| Low-level bit, byte and integer primitives | `tlv/field/packed.h` extracts and inserts unsigned fields within backing integers. Shared byte-order primitives remain in `tlv/endian.h`. |
+| Identifier and Length encodings | `tlv/field/encoding.h` defines the read/write callback contracts; `tlv/field/fixed.h`, `tlv/field/variable.h` and `tlv/field/escaped.h` provide standalone encoding primitives. |
+
+Format composition owns ordering, count scope, tag-only selection and optional
+boundary resolution. Its types, callbacks and initializers live in
+`tlv/formats/compose.h`. The complete Fixed, Variable and Escaped configurations
+and their adapters remain under `tlv/formats/`. Field primitives do not depend
+on these complete formats, Reader, Writer, Document, Schema, Codec or builtins.
+Generic composition helpers are optional; an implementation may supply the same
+complete Format contract directly. Reader and Writer use that contract without
+requiring Definition, Schema or Codec. Writer encodes an Element without needing
+a previously parsed source Layout. Codec converts between Value bytes and
+application values; Identifier and Length mechanics are field encodings.
+
+The [standalone fixed-field primitives](../formats/fixed/configurable.md#standalone-field-encoding)
+preserve identifier bytes and read/write unsigned `tlv_size_t` counts with
+explicit byte order. Binary composition adapts them to field callbacks and
+retains ordering, count normalization, bounds resolution, tag-only selection,
+source ranges and element-relative errors. The Escaped format reuses the same
+fixed identifier primitive. All adapters follow the canonical single-field
+contract: required pointers, configuration, field constraints, then capacity.
+Argument/configuration failures preserve outputs, including `consumed`;
+incomplete input reports the available prefix. Measuring validates the real
+configuration, including count byte order.
+
 ## Format operations
 
 The descriptor has one decode operation, one measure operation and one encode
 operation. Reader and Writer have no alternate field-callback path. Field
-composition is a public Format primitive (`tlv_field_layout_t`); fixed binary
-fields use `tlv_binary_layout_t`. TLV and LTV use the same composition with
-explicit order and count scope. Bluetooth does not depend on Fixed internals.
+composition is a public Format primitive (`tlv_field_composition_t`); fixed binary
+fields use `tlv_binary_composition_t`. Identifier-selected tag-only framing uses
+`tlv_tagged_fields_composition_t` or `tlv_tagged_binary_composition_t`.
+TLV and LTV use the same composition with explicit order and count scope.
+Bluetooth does not depend on Fixed internals.
 
-Packed fields sharing a wire integer use `tlv_packed_field_t` from `tlv/layout.h`.
+Packed fields sharing a wire integer use `tlv_packed_field_t` from `tlv/field/packed.h`.
 It describes 1..8 backing bytes, explicit byte order, bit offset counted from
 the decoded integer's least significant bit, and bit width. The read/write
 helpers operate on unsigned `uint64_t` values and require the complete backing
@@ -155,7 +188,7 @@ if (rc == TLV_OK)
     rc = tlv_packed_field_write(&count, header, sizeof(header), 300);
 ```
 
-These helpers configure Format composition, not runtime source ranges. Format
+These helpers encode individual fields. Format composition and complete Format
 callbacks retain responsibility for Tag mapping and its storage lifetime,
 logical Length semantics, Value bounds and diagnostics. LLDP uses this primitive
 without depending on Fixed or changing the canonical Format operations.
@@ -194,6 +227,36 @@ Wire integer byte order is explicit and independent of the host. A format's
 accepted logical range must not silently change between 32-bit and 64-bit builds.
 
 ## Migration
+
+For the Field Encoding / Format composition split (#423), replace
+`tlv/layout.h` with `tlv/formats/compose.h` for composition and the appropriate
+`tlv/field/` header for individual-field operations. Rename the four configuration
+types ending in `_layout_t` to `_composition_t`: `tlv_field_composition_t`,
+`tlv_binary_composition_t`, `tlv_tagged_fields_composition_t` and
+`tlv_tagged_binary_composition_t`. There are no compatibility headers or aliases.
+Fixed/binary configurations now embed `identifier` and `length` field
+configurations: use `identifier.size`, `length.size` and `length.byte_order`.
+Escaped Format replaces `tag_size` with `identifier.size`; Escaped Format and
+generic field composition rename `order`/`scope` to `element_order`/`length_scope`.
+Field write callbacks use `(context, tag/length, data, capacity, written)`, matching
+the standalone primitives. Both callbacks validate and report their encoded width
+when `data` is NULL and `capacity` is zero. Remove `tlv_length_size_fn` and the
+`tlv_field_composition_t.length_size` initializer; composition measures Length
+through `write_length(context, length, NULL, 0, &size)`. Custom write callbacks
+must support this sizing mode and report the same width as a successful write.
+Convert positional initializers to nested braces, for example
+`{{1}, {2, TLV_BYTE_ORDER_BIG_ENDIAN}, TLV_ELEMENT_ORDER_TLV, TLV_LENGTH_SCOPE_VALUE}`.
+There are no compatibility members. Rebuild native consumers and FFI mirrors.
+
+Adapters follow Field Encoding validation: a mismatched nonempty tag with NULL
+bytes returns `TLV_ERR_NULL_ARG`; invalid length configuration preserves
+`consumed`; direct binary/tagged-binary measurement rejects unsupported byte
+order when a Length is present. Tag-only elements do not process a Length.
+Incomplete fixed/variable identifiers now report their available prefix.
+Fixed initialization returns `TLV_ERR_NULL_ARG` for missing pointers and checks
+field configuration before composition policy. NULL output with nonzero capacity
+is rejected by field writes, including tag-only callback writes. Valid wire
+representations, borrowing and runtime source-range meanings are unchanged.
 
 Rebuild all consumers: `tlv_source_t` now includes `tag_binding`, which also
 changes the layout of `tlv_decoded_t`. Existing decoders retain direct source

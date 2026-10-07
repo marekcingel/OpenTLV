@@ -12,9 +12,12 @@ TEST(Integration_Tlv_Fixed, EquivalentElementsKeepTheirOwnLayoutAcrossOrdersAndS
     // The three examples in the Format contract: ordering and count scope
     // change independently, while the semantic Tag and Value stay identical.
     const tlv_fixed_format_t configs[] = {
-        {1, 1, TLV_BYTE_ORDER_BIG_ENDIAN, TLV_ELEMENT_ORDER_TLV, TLV_LENGTH_SCOPE_VALUE},
-        {1, 1, TLV_BYTE_ORDER_BIG_ENDIAN, TLV_ELEMENT_ORDER_LTV, TLV_LENGTH_SCOPE_VALUE},
-        {1, 1, TLV_BYTE_ORDER_BIG_ENDIAN, TLV_ELEMENT_ORDER_LTV, TLV_LENGTH_SCOPE_TAG_AND_VALUE},
+        {{1}, {1, TLV_BYTE_ORDER_BIG_ENDIAN}, TLV_ELEMENT_ORDER_TLV, TLV_LENGTH_SCOPE_VALUE},
+        {{1}, {1, TLV_BYTE_ORDER_BIG_ENDIAN}, TLV_ELEMENT_ORDER_LTV, TLV_LENGTH_SCOPE_VALUE},
+        {{1},
+         {1, TLV_BYTE_ORDER_BIG_ENDIAN},
+         TLV_ELEMENT_ORDER_LTV,
+         TLV_LENGTH_SCOPE_TAG_AND_VALUE},
     };
     const uint8_t wires[][4] = {
         {0x09, 0x02, 0x41, 0x42}, {0x02, 0x09, 0x41, 0x42}, {0x03, 0x09, 0x41, 0x42}};
@@ -80,9 +83,9 @@ TEST(Integration_Tlv_Fixed, EquivalentElementsKeepTheirOwnLayoutAcrossOrdersAndS
 
 TEST(Integration_Tlv_Fixed, ExampleWireBytesTwoByteTagOneByteLength) {
     /* [tag: 2 bytes][length: 1 byte][value: N bytes], from the issue's example use case. */
-    const tlv_fixed_format_t config = {2, 1, TLV_BYTE_ORDER_BIG_ENDIAN, TLV_ELEMENT_ORDER_TLV,
-                                       TLV_LENGTH_SCOPE_VALUE};
-    tlv_format_t             writer_format{};
+    const tlv_fixed_format_t config = {
+        {2}, {1, TLV_BYTE_ORDER_BIG_ENDIAN}, TLV_ELEMENT_ORDER_TLV, TLV_LENGTH_SCOPE_VALUE};
+    tlv_format_t writer_format{};
     ASSERT_EQ(TLV_OK, tlv_fixed_format_init(&writer_format, &config));
 
     const uint8_t expected[] = {0x12, 0x34, 0x03, 0xAA, 0xBB, 0xCC};
@@ -110,10 +113,10 @@ TEST(Integration_Tlv_Fixed, ExampleWireBytesTwoByteTagOneByteLength) {
 TEST(Integration_Tlv_Fixed, ExampleWireBytesTwoByteLittleEndianLength) {
     /* Matches tlv::fixed_format<2, 2, TLV_BYTE_ORDER_LITTLE_ENDIAN>, documented in
      * docs/formats/fixed/configurable.md: 12 34 03 00 AA BB CC. */
-    const tlv_fixed_format_t config = {2, 2, TLV_BYTE_ORDER_LITTLE_ENDIAN, TLV_ELEMENT_ORDER_TLV,
-                                       TLV_LENGTH_SCOPE_VALUE};
-    tlv_format_t             writer_format{};
-    tlv_format_t             reader_format{};
+    const tlv_fixed_format_t config = {
+        {2}, {2, TLV_BYTE_ORDER_LITTLE_ENDIAN}, TLV_ELEMENT_ORDER_TLV, TLV_LENGTH_SCOPE_VALUE};
+    tlv_format_t writer_format{};
+    tlv_format_t reader_format{};
     ASSERT_EQ(TLV_OK, tlv_fixed_format_init(&writer_format, &config));
     ASSERT_EQ(TLV_OK, tlv_fixed_format_init(&reader_format, &config));
 
@@ -133,10 +136,10 @@ TEST(Integration_Tlv_Fixed, ExampleWireBytesTwoByteLittleEndianLength) {
 }
 
 TEST(Integration_Tlv_Fixed, EveryLengthByteRoundTripsOneByteTagOneByteLength) {
-    const tlv_fixed_format_t config = {1, 1, TLV_BYTE_ORDER_BIG_ENDIAN, TLV_ELEMENT_ORDER_TLV,
-                                       TLV_LENGTH_SCOPE_VALUE};
-    tlv_format_t             writer_format{};
-    tlv_format_t             reader_format{};
+    const tlv_fixed_format_t config = {
+        {1}, {1, TLV_BYTE_ORDER_BIG_ENDIAN}, TLV_ELEMENT_ORDER_TLV, TLV_LENGTH_SCOPE_VALUE};
+    tlv_format_t writer_format{};
+    tlv_format_t reader_format{};
     ASSERT_EQ(TLV_OK, tlv_fixed_format_init(&writer_format, &config));
     ASSERT_EQ(TLV_OK, tlv_fixed_format_init(&reader_format, &config));
 
@@ -172,9 +175,9 @@ TEST(Integration_Tlv_Fixed, EveryLengthByteRoundTripsOneByteTagOneByteLength) {
 // context are safe for concurrent use. See
 // docs/guides/memory.md#format-context-ownership-and-lifetime.
 TEST(Integration_Tlv_Fixed, OneFormatSharedByReaderAndWriterConcurrentlyLive) {
-    const tlv_fixed_format_t config = {2, 1, TLV_BYTE_ORDER_BIG_ENDIAN, TLV_ELEMENT_ORDER_TLV,
-                                       TLV_LENGTH_SCOPE_VALUE};
-    tlv_format_t             format{};
+    const tlv_fixed_format_t config = {
+        {2}, {1, TLV_BYTE_ORDER_BIG_ENDIAN}, TLV_ELEMENT_ORDER_TLV, TLV_LENGTH_SCOPE_VALUE};
+    tlv_format_t format{};
     ASSERT_EQ(TLV_OK, tlv_fixed_format_init(&format, &config));
 
     uint8_t      data[64] = {};
@@ -202,9 +205,9 @@ TEST(Integration_Tlv_Fixed, OneFormatSharedByReaderAndWriterConcurrentlyLive) {
 }
 
 TEST(Integration_Tlv_Fixed, RejectsLengthThatOverflowsConfiguredWidth) {
-    const tlv_fixed_format_t config = {1, 1, TLV_BYTE_ORDER_BIG_ENDIAN, TLV_ELEMENT_ORDER_TLV,
-                                       TLV_LENGTH_SCOPE_VALUE};
-    tlv_format_t             writer_format{};
+    const tlv_fixed_format_t config = {
+        {1}, {1, TLV_BYTE_ORDER_BIG_ENDIAN}, TLV_ELEMENT_ORDER_TLV, TLV_LENGTH_SCOPE_VALUE};
+    tlv_format_t writer_format{};
     ASSERT_EQ(TLV_OK, tlv_fixed_format_init(&writer_format, &config));
     uint8_t      data[260] = {};
     tlv_writer_t writer;
@@ -217,9 +220,9 @@ TEST(Integration_Tlv_Fixed, RejectsLengthThatOverflowsConfiguredWidth) {
 // Matches docs/formats/bluetooth/README.md's byte example exactly, since this
 // configuration is the Bluetooth LTV preset.
 TEST(Integration_Tlv_Fixed, ExampleWireBytesLtvFieldOrderTagAndValueScope) {
-    const tlv_fixed_format_t config = {1, 1, TLV_BYTE_ORDER_BIG_ENDIAN, TLV_ELEMENT_ORDER_LTV,
-                                       TLV_LENGTH_SCOPE_TAG_AND_VALUE};
-    tlv_format_t             format{};
+    const tlv_fixed_format_t config = {
+        {1}, {1, TLV_BYTE_ORDER_BIG_ENDIAN}, TLV_ELEMENT_ORDER_LTV, TLV_LENGTH_SCOPE_TAG_AND_VALUE};
+    tlv_format_t format{};
     ASSERT_EQ(TLV_OK, tlv_fixed_format_init(&format, &config));
 
     const uint8_t expected[] = {0x03, 0x09, 'H', 'i'};
@@ -250,9 +253,9 @@ TEST(Integration_Tlv_Fixed, ExampleWireBytesLtvFieldOrderTagAndValueScope) {
 // [tag: 1 byte][length: 1 byte][value: N bytes], length = tag_size + value_size:
 // the conventional field order with Bluetooth-style length semantics.
 TEST(Integration_Tlv_Fixed, ExampleWireBytesTlvFieldOrderTagAndValueScope) {
-    const tlv_fixed_format_t config = {1, 1, TLV_BYTE_ORDER_BIG_ENDIAN, TLV_ELEMENT_ORDER_TLV,
-                                       TLV_LENGTH_SCOPE_TAG_AND_VALUE};
-    tlv_format_t             format{};
+    const tlv_fixed_format_t config = {
+        {1}, {1, TLV_BYTE_ORDER_BIG_ENDIAN}, TLV_ELEMENT_ORDER_TLV, TLV_LENGTH_SCOPE_TAG_AND_VALUE};
+    tlv_format_t format{};
     ASSERT_EQ(TLV_OK, tlv_fixed_format_init(&format, &config));
 
     const uint8_t expected[] = {0x09, 0x03, 'H', 'i'};
@@ -289,9 +292,9 @@ TEST(Integration_Tlv_Fixed, EveryFieldOrderAndLengthScopeCombinationRoundTrips) 
         for (auto length_scope : length_scopes) {
             SCOPED_TRACE(::testing::Message()
                          << "element_order=" << element_order << " length_scope=" << length_scope);
-            const tlv_fixed_format_t config = {1, 1, TLV_BYTE_ORDER_BIG_ENDIAN, element_order,
-                                               length_scope};
-            tlv_format_t             format{};
+            const tlv_fixed_format_t config = {
+                {1}, {1, TLV_BYTE_ORDER_BIG_ENDIAN}, element_order, length_scope};
+            tlv_format_t format{};
             ASSERT_EQ(TLV_OK, tlv_fixed_format_init(&format, &config));
 
             // The widest value the 1-byte length field can hold: 255, minus 1

@@ -7,7 +7,7 @@ allocation policy, borrowed lifetime or wire behavior changes.
 
 ## Scope and decisions
 
-The issue's instrumented profile identified Reader, Format and field-layout
+The issue's instrumented profile identified Reader, Format and field-composition
 decoding as investigation targets. Its percentages are not uninstrumented cost
 shares. The measurements here use the newer starting commit
 `85513e6eed094e0b33e674f83cafe6ca837ac251`, rather than the issue's original
@@ -87,7 +87,7 @@ time; CV describes variation, not a confidence interval.
 | Variable sparse mask | 1325.3 | 1171.1 | -11.6% | 4.5/7.3% | -13.2% |
 | Variable TLV | 1331.1 | 1234.0 | -7.3% | 2.3/5.0% | -9.0% |
 
-Small BER, large BER and fixed-layout Reader improvements repeat beyond their
+Small BER, large BER and Fixed-format Reader improvements repeat beyond their
 observed typical dispersion. The indefinite result is within variation; no
 indefinite-specific speedup is claimed. Non-BER Reader and Tree medians all
 decreased in the full matrix. Tree small-BER median decreased 8.9%; Tree and

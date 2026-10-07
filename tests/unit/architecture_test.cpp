@@ -1,7 +1,7 @@
 // SPDX-License-Identifier: MIT
 // Copyright (c) 2026 Marek Cingel
 
-#include "tlv/layout.h"
+#include "tlv/formats/compose.h"
 #include "tlv/reader/reader.h"
 #include "tlv/writer/writer.h"
 #include "tlv/reader/visitor.h"
@@ -26,7 +26,7 @@ tlv_result_t tag_read(const void*, const uint8_t* data, size_t size, tlv_tag_t* 
     *used = 1;
     return TLV_OK;
 }
-tlv_result_t tag_write(const void*, uint8_t* data, size_t capacity, const tlv_tag_t* tag,
+tlv_result_t tag_write(const void*, const tlv_tag_t* tag, uint8_t* data, size_t capacity,
                        size_t* used) {
     if (tag->size != 1) return TLV_ERR_INVALID_TAG_SIZE;
     *used = 1;
@@ -47,9 +47,10 @@ tlv_result_t length_size(const void*, tlv_size_t length, size_t* used) {
     *used = 1;
     return TLV_OK;
 }
-tlv_result_t length_write(const void* ctx, uint8_t* data, size_t capacity, tlv_size_t length,
+tlv_result_t length_write(const void* ctx, tlv_size_t length, uint8_t* data, size_t capacity,
                           size_t* used) {
     if (length_size(ctx, length, used) != TLV_OK) return TLV_ERR_INVALID_LENGTH;
+    if (!data) return TLV_OK;
     if (!capacity) return TLV_ERR_BUFFER_TOO_SHORT;
     data[0] = static_cast<uint8_t>(length);
     return TLV_OK;
@@ -57,47 +58,23 @@ tlv_result_t length_write(const void* ctx, uint8_t* data, size_t capacity, tlv_s
 int constructed(const void*, const tlv_tag_t* tag) {
     return (tag->data[0] & 0x80) != 0;
 }
-const tlv_field_layout_t format_layout = {nullptr,
-                                          tag_read,
-                                          length_read,
-                                          nullptr,
-                                          nullptr,
-                                          nullptr,
-                                          nullptr,
-                                          TLV_ELEMENT_ORDER_TLV,
-                                          TLV_LENGTH_SCOPE_VALUE};
-const tlv_format_t       format = {&format_layout, tlv_fields_decode, nullptr, nullptr, nullptr};
-const tlv_field_layout_t full_format_layout = {nullptr,
-                                               tag_read,
-                                               length_read,
-                                               nullptr,
-                                               tag_write,
-                                               length_write,
-                                               length_size,
-                                               TLV_ELEMENT_ORDER_TLV,
-                                               TLV_LENGTH_SCOPE_VALUE};
-const tlv_format_t       full_format = {&full_format_layout, tlv_fields_decode, tlv_fields_measure,
-                                        tlv_fields_encode, nullptr};
-const tlv_field_layout_t constructed_format_layout = {nullptr,
-                                                      tag_read,
-                                                      length_read,
-                                                      nullptr,
-                                                      nullptr,
-                                                      nullptr,
-                                                      nullptr,
-                                                      TLV_ELEMENT_ORDER_TLV,
-                                                      TLV_LENGTH_SCOPE_VALUE};
+const tlv_field_composition_t format_layout = {
+    nullptr, tag_read, length_read,           nullptr,
+    nullptr, nullptr,  TLV_ELEMENT_ORDER_TLV, TLV_LENGTH_SCOPE_VALUE};
+const tlv_format_t format = {&format_layout, tlv_fields_decode, nullptr, nullptr, nullptr};
+const tlv_field_composition_t full_format_layout = {
+    nullptr,   tag_read,     length_read,           nullptr,
+    tag_write, length_write, TLV_ELEMENT_ORDER_TLV, TLV_LENGTH_SCOPE_VALUE};
+const tlv_format_t full_format = {&full_format_layout, tlv_fields_decode, tlv_fields_measure,
+                                  tlv_fields_encode, nullptr};
+const tlv_field_composition_t constructed_format_layout = {
+    nullptr, tag_read, length_read,           nullptr,
+    nullptr, nullptr,  TLV_ELEMENT_ORDER_TLV, TLV_LENGTH_SCOPE_VALUE};
 const tlv_format_t constructed_format = {&constructed_format_layout, tlv_fields_decode, nullptr,
                                          nullptr, constructed};
-const tlv_field_layout_t constructed_full_format_layout = {nullptr,
-                                                           tag_read,
-                                                           length_read,
-                                                           nullptr,
-                                                           tag_write,
-                                                           length_write,
-                                                           length_size,
-                                                           TLV_ELEMENT_ORDER_TLV,
-                                                           TLV_LENGTH_SCOPE_VALUE};
+const tlv_field_composition_t constructed_full_format_layout = {
+    nullptr,   tag_read,     length_read,           nullptr,
+    tag_write, length_write, TLV_ELEMENT_ORDER_TLV, TLV_LENGTH_SCOPE_VALUE};
 const tlv_format_t constructed_full_format = {&constructed_full_format_layout, tlv_fields_decode,
                                               tlv_fields_measure, tlv_fields_encode, constructed};
 const tlv_schema_entry_t   child_rules_fields[] = {{TLV_TAG(1), 1, 1, 0, nullptr, 0},
@@ -111,9 +88,9 @@ TEST(Unit_Tlv_Architecture, GenericValueBoundsAndTrailerValidation) {
         size_t       header, value, trailer;
         tlv_result_t rc;
     };
-    Bounds             bounds = {1, 1, 2, TLV_OK};
-    tlv_format_t       framed = format;
-    tlv_field_layout_t layout = format_layout;
+    Bounds                  bounds = {1, 1, 2, TLV_OK};
+    tlv_format_t            framed = format;
+    tlv_field_composition_t layout = format_layout;
     layout.context = &bounds;
     framed.context = &layout;
     layout.resolve = [](const void* ctx, const tlv_tag_t*, const uint8_t*, size_t, size_t* header,

@@ -110,11 +110,14 @@ The NFC implementation is immutable configuration over
 combines fixed-width identifiers, configurable escape-prefixed lengths,
 field ordering, count scope and an optional tag-only identifier table.
 The standalone `tlv_escaped_length_read()` / `tlv_escaped_length_write()`
-primitives also support different markers, count widths and byte orders.
+primitives in `tlv/field/escaped.h` also support different markers, count widths
+and byte orders.
 The minimum extended count and maximum count are configuration, not NFC
 branches in the generic code.
 
-`tlv_tagged_fields_layout_t` composes tag-only selection with arbitrary field
-codecs. The existing DHCP binary layout delegates to this same mechanism.
+`tlv_tagged_fields_composition_t` composes tag-only selection with arbitrary field
+encodings. The Escaped format reuses the fixed identifier primitive from
+`tlv/field/fixed.h`. The existing DHCP binary composition delegates tag-only
+selection to the same generic mechanism.
 Neither mechanism imposes protocol termination or padding policy. These
 generic capabilities remain built when `OPENTLV_NFC=OFF`.

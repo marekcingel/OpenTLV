@@ -38,9 +38,9 @@
 static tlv_result_t resolve(go_format config, tlv_format_t* format, tlv_fixed_format_t* fixed) {
     switch (config.kind) {
         case GO_FORMAT_FIXED:
-            fixed->tag_size = config.tag_size;
-            fixed->length_size = config.length_size;
-            fixed->length_order = (tlv_byte_order_t)config.byte_order;
+            fixed->identifier.size = config.tag_size;
+            fixed->length.size = config.length_size;
+            fixed->length.byte_order = (tlv_byte_order_t)config.byte_order;
             fixed->element_order = (tlv_element_order_t)config.element_order;
             fixed->length_scope = (tlv_length_scope_t)config.length_scope;
             return tlv_fixed_format_init(format, fixed);
@@ -566,8 +566,8 @@ static void query_format_environment(const tlv_format_t*            format,
         return;
     const tlv_fixed_format_t* a = original->context;
     const tlv_fixed_format_t* b = format->context;
-    if (a->tag_size == b->tag_size && a->length_size == b->length_size &&
-        a->length_order == b->length_order && a->element_order == b->element_order &&
+    if (a->identifier.size == b->identifier.size && a->length.size == b->length.size &&
+        a->length.byte_order == b->length.byte_order && a->element_order == b->element_order &&
         a->length_scope == b->length_scope)
         output->format = format;
 }

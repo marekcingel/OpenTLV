@@ -1,7 +1,7 @@
 // SPDX-License-Identifier: MIT
 // Copyright (c) 2026 Marek Cingel
 
-#include "tlv/layout.h"
+#include "tlv/formats/compose.h"
 #include "tlv/builtins/asn1/cer.h"
 #include "ber_internal.h"
 #include "asn1_internal.h"
@@ -59,13 +59,12 @@ static tlv_result_t cer_encode(const void* context, const tlv_element_t* element
     return tlv_fields_encode(context, element, data, capacity, written, error);
 }
 
-const tlv_field_layout_t tlv_cer_fields = {.context = NULL,
-                                           .read_tag = tlv_asn1_read_identifier,
-                                           .read_length = tlv_asn1_read_minimal_length,
-                                           .resolve = read_value_bounds,
-                                           .write_tag = tlv_asn1_write_identifier,
-                                           .write_length = tlv_ber_write_length,
-                                           .length_size = tlv_ber_length_size};
+const tlv_field_composition_t tlv_cer_fields = {.context = NULL,
+                                                .read_tag = tlv_asn1_read_identifier,
+                                                .read_length = tlv_asn1_read_minimal_length,
+                                                .resolve = read_value_bounds,
+                                                .write_tag = tlv_asn1_write_identifier,
+                                                .write_length = tlv_ber_write_length};
 const tlv_format_t tlv_format_cer = {&tlv_cer_fields, tlv_fields_decode, cer_measure, cer_encode,
                                      tlv_asn1_is_constructed};
 

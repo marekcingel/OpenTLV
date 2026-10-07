@@ -161,7 +161,7 @@ OpenTLV
 │   │   ├── [?] PFCP information elements (TS 29.244)
 │   │   ├── [?] GTPv2-C information elements (TS 29.274)
 │   │   ├── [?] GTPv1-C information elements (TS 29.060)
-│   │   └── [?] NAS standard IE formats (TS 24.007; message layouts stay with the caller)
+│   │   └── [?] NAS standard IE formats (TS 24.007; message framing stays with the caller)
 │   └── IoT
 │       └── [ ] OMA LwM2M TLV (existing entry)
 │
@@ -197,7 +197,7 @@ Variants and open questions that these entries need before scoping:
 | --- | --- | --- |
 | GlobalPlatform DGI | A DGI is coded on two bytes followed by a length indicator whose coding is defined in the GlobalPlatform scripting language specification (annex B), not in the Card Specification. That document and the later Card Specification editions must be read before scoping. | Verified: Card Specification v2.3 clause 11.1.12. The scripting specification was not read. |
 | EMV contactless | Kernel-specific: the contactless books define several kernels; each needs its own dictionary and edition. Book 3 data objects are already covered by the [EMV module](../standards/emv/README.md). | Not verified: EMV contactless books not read. |
-| RADIUS | Base attributes (RFC 2865), the Vendor-Specific attribute (type 26, vendor ID followed by vendor type and length), extended attribute types ([RFC 6929](https://www.rfc-editor.org/rfc/rfc6929.html): Extended-Type-1 to 3 and the Long Extended Type), and long-attribute fragmentation. [Diameter](format-catalogue.md#networking-aaa-and-tunnelling) is a sibling candidate. | Verified: RFC 2865 vendor-specific layout and RFC 6929 extended-type structure. |
+| RADIUS | Base attributes (RFC 2865), the Vendor-Specific attribute (type 26, vendor ID followed by vendor type and length), extended attribute types ([RFC 6929](https://www.rfc-editor.org/rfc/rfc6929.html): Extended-Type-1 to 3 and the Long Extended Type), and long-attribute fragmentation. [Diameter](format-catalogue.md#networking-aaa-and-tunnelling) is a sibling candidate. | Verified: RFC 2865 vendor-specific framing and RFC 6929 extended-type structure. |
 | NDN | Packet specification revision, variable-length number encoding for both type and length, and which packet types get explicit container rules. | Not verified: NDN specification not read. |
 | LwM2M TLV | The TLV content format appears across several LwM2M releases; pick one release and record differences. | Not verified: LwM2M specification not read. |
 
@@ -218,7 +218,7 @@ transformed identifiers. LLDPDU protocol conformance remains separate.**
 | Length includes the header | RADIUS, Diameter | The adapter subtracts the header size to get `value_size` and rejects a length smaller than the header. |
 | Trailing padding after the value | Diameter | The canonical framing result includes a Trailer range and logical trailer size; `encode` writes and `decode` validates the padding. |
 | Header size depends on the type or flags | PFCP (enterprise ID), GTPv2 (type 254), GTPv1-C (TV versus TLV), RFC 5444 (flags) | `header_size` is reported per element, so this fits. GTPv1-C needs a type-to-length table in the borrowed descriptor context. |
-| Elements without a length, and a terminator | DHCPv4 Pad and End, NFC tag TLV NULL and Terminator | DHCPv4 uses the generic identifier-selected binary layout for tag-only Pad/End elements. Skip/stop policy remains with the caller. NFC Type 2 uses the shared tag-only field composition with escape-prefixed lengths; physical memory mapping remains outside the format. |
+| Elements without a length, and a terminator | DHCPv4 Pad and End, NFC tag TLV NULL and Terminator | DHCPv4 uses the generic identifier-selected binary composition for tag-only Pad/End elements. Skip/stop policy remains with the caller. NFC Type 2 uses the shared tag-only field composition with escape-prefixed lengths; physical memory mapping remains outside the format. |
 | Composite tag identity (type plus instance, vendor or flags) | GTPv2, PFCP, Diameter, RADIUS VSA, LDP | Direct binding requires a compatible contiguous source byte range; transformed identities require stable immutable format storage and individual review. LLDP keeps OUI/subtype in Value, not in its outer Tag. |
 | Grouped or nested elements decided by the type | PFCP, GTPv2, Diameter, IS-IS sub-TLVs, DHCPv4 option 82 | `tlv_format_t::is_constructed` receives the format context and the tag, so a table in the context can decide; the flags and value are not visible to it. |
 | Different formats at successive nesting levels | LDP, SNMP, SIM Toolkit | A caller can parse level by level today; automatic tree traversing needs [mixed-format traversal](#generic-processing-extensions). |
@@ -251,8 +251,8 @@ bounded iterative traversal. It does not allocate an object tree. See
    deferred checklist in the [LLDP requirements review](lldp-review.md). This
    does not block #360; its architecture assessment and canonical Tag storage
    requirement are complete.
-   Assess further packed-header reuse through LwM2M before adding a bit-field
-   Layout primitive (reordered headers are covered by
+   Assess further packed-header reuse through LwM2M before extending packed
+   Field Encoding primitives (reordered headers are covered by
    [Bluetooth LTV](bluetooth/README.md)).
 3. Add mixed-format traversal as separately scoped core work; resumable contiguous-window Reader and Tree Reader already exist (see the [Reader guide](../guides/reader.md)).
 4. Expand standard-specific schemas and codecs and ASN.1 canonical validation with explicit standard
@@ -269,7 +269,7 @@ was read in the primary text. This is the summary of the documents read in full 
 
 | Read in the primary text | Used for |
 | --- | --- |
-| RFC 1157, 1195, 2132, 2315, 2865, 2986, 3046, 3396, 3417, 4120, 4511, 5036, 5280, 5305, 5444, 5652, 5912, 5958, 6733, 6929, 6960, 8017, 8392, 8415, 8551, 8949, 9000, 9052 | BER/DER statements, TLV layouts, restrictions and padding rules |
+| RFC 1157, 1195, 2132, 2315, 2865, 2986, 3046, 3396, 3417, 4120, 4511, 5036, 5280, 5305, 5444, 5652, 5912, 5958, 6733, 6929, 6960, 8017, 8392, 8415, 8551, 8949, 9000, 9052 | BER/DER statements, TLV framing, restrictions and padding rules |
 | 3GPP TS 24.007 v17.5.0, 29.060 v17.4.0, 29.244 v17.9.0, 29.274 v17.10.0, 36.413 v18.4.0, 36.423 v18.4.0, 38.413 v19.1.0 | IE formats and PER transfer syntax |
 | ETSI TS 102 223 v17.7.0, ETSI TS 101 220 v17.2.0 | COMPREHENSION-TLV structure |
 | GlobalPlatform Card Specification v2.3 | BER-TLV tags and lengths, DGI coding |

@@ -4,17 +4,17 @@
 
 A fixed-width TLV format: a tag width, a length width (1 to 8 bytes), a length
 byte order, a field order and a length scope, chosen independently instead of
-hardcoded. A one-byte tag and a one-byte length is `tag_size = 1, length_size
-= 1, length_order = TLV_BYTE_ORDER_BIG_ENDIAN` (or `fixed_format<1, 1,
+hardcoded. A one-byte tag and a one-byte length is `identifier.size = 1, length.size
+= 1, length.byte_order = TLV_BYTE_ORDER_BIG_ENDIAN` (or `fixed_format<1, 1,
 TLV_BYTE_ORDER_BIG_ENDIAN>`), with `element_order` and `length_scope` defaulted
 to the conventional TLV/value-only shape; define your own file-scope constant
 for a configuration your application reuses.
 
 [Bluetooth LTV](../bluetooth/README.md) is this format preset to
-`{1, 1, TLV_BYTE_ORDER_BIG_ENDIAN, TLV_ELEMENT_ORDER_LTV,
+`{{1}, {1, TLV_BYTE_ORDER_BIG_ENDIAN}, TLV_ELEMENT_ORDER_LTV,
 TLV_LENGTH_SCOPE_TAG_AND_VALUE}`.
 
-Two APIs share this wire layout, and the C++ one is a thin compile-time
+Two APIs share this wire representation, and the C++ one is a thin compile-time
 wrapper that delegates every read and write to the C one:
 
 - **C**, `tlv_fixed_format_t`: chosen at runtime, checked when the format is initialized.
@@ -26,7 +26,7 @@ wrapper that delegates every read and write to the C one:
 | Setting | C | C++ |
 | --- | --- | --- |
 | Header | `tlv/formats/fixed.h` | `tlv++/formats/fixed_format.hpp` |
-| Configuration | `tlv_fixed_format_t{tag_size, length_size, length_order, element_order, length_scope}` | `tlv::fixed_format<TagWidth, LengthWidth, Order>` (TLV element order, value-only length scope) |
+| Configuration | `tlv_fixed_format_t{{tag_size}, {length_size, length_order}, element_order, length_scope}` | `tlv::fixed_format<TagWidth, LengthWidth, Order>` (TLV element order, value-only length scope) |
 | Descriptor | `tlv_fixed_format_init(&format, &config)` | `fixed_format<...>::format()` returns `const tlv_format_t&` |
 | Availability | Always built | Always available with the C++ wrapper |
 | Link target | `tlv` | `tlv++` |
@@ -42,13 +42,52 @@ the general contract this follows, including copying, sharing and moving.
 Both work with the reader, writer, visitor, schemas and the C API. Neither
 performs allocation.
 
+## Standalone Field Encoding
+
+Use `tlv/field/fixed.h` when only an individual Identifier or Length field is
+needed. Its allocation-free primitives are available without Format headers,
+Reader, Writer or optional builtin protocols:
+
+| Configuration | Operations | Representation |
+| --- | --- | --- |
+| `tlv_fixed_identifier_t` | `tlv_fixed_identifier_read()`, `tlv_fixed_identifier_write()` | `size` raw identifier bytes; the configured width must be nonzero. |
+| `tlv_fixed_length_t` | `tlv_fixed_length_read()`, `tlv_fixed_length_write()` | `size` count bytes, from 1 through 8, with explicit `byte_order`; counts use `tlv_size_t`. |
+
+Identifier reading borrows the exact input bytes; writing requires an identifier
+of the configured width and preserves its bytes. There is no numeric tag
+conversion or byte-order normalization. Length operations accept explicit big
+or little endian and reject counts that exceed the configured width, without
+narrowing the logical count to `size_t`. Both write operations support width
+measurement with NULL output and zero capacity.
+
+Argument and configuration errors preserve outputs. Incomplete Identifier or
+Length input reports the available prefix through `consumed` while leaving the
+decoded identifier or count unchanged. Failed writes
+preserve `written` and destination bytes. Identifier copying requires
+nonoverlapping source and destination; no overlap guarantee is added.
+
+These operations do not select field order, apply length scope or describe
+complete elements. The binary composition callbacks adapt them to those rules;
+the Escaped format reuses the same fixed identifier operations.
+`tlv_binary_composition_t` embeds `tlv_fixed_identifier_t identifier` and
+`tlv_fixed_length_t length`, alongside `element_order` and `length_scope`.
+`tlv_fixed_format_t` remains the fixed-format name for this composition.
+`tlv_escaped_format_t` embeds the same identifier configuration with an escaped
+length configuration and uses the same ordering/scope member names.
+
+Field primitives define the shared validation contract: required pointers,
+configuration, field constraints, then buffer capacity. Format adapters forward
+to this contract without compatibility pre-checks. Sizing validates the actual
+byte order. See the [migration notes](../../concepts/format-contract.md#migration)
+for source and diagnostic changes.
+
 ## Supported parameters
 
 | Parameter | C field | C++ template parameter | Supported values |
 | --- | --- | --- | --- |
-| Tag width | `tag_size` | `TagWidth` | 1 or more bytes |
-| Length width | `length_size` | `LengthWidth` | 1 to 8 bytes |
-| Length byte order | `length_order` | `Order` | `TLV_BYTE_ORDER_BIG_ENDIAN`, `TLV_BYTE_ORDER_LITTLE_ENDIAN` |
+| Tag width | `identifier.size` | `TagWidth` | 1 or more bytes |
+| Length width | `length.size` | `LengthWidth` | 1 to 8 bytes |
+| Length byte order | `length.byte_order` | `Order` | `TLV_BYTE_ORDER_BIG_ENDIAN`, `TLV_BYTE_ORDER_LITTLE_ENDIAN` |
 | Element order | `element_order` | not configurable (always `TLV_ELEMENT_ORDER_TLV`) | `TLV_ELEMENT_ORDER_TLV` (tag, length, value), `TLV_ELEMENT_ORDER_LTV` (length, tag, value) |
 | Length scope | `length_scope` | not configurable (always `TLV_LENGTH_SCOPE_VALUE`) | `TLV_LENGTH_SCOPE_VALUE` (counts only the value), `TLV_LENGTH_SCOPE_TAG_AND_VALUE` (counts the tag and the value) |
 
@@ -56,9 +95,12 @@ An out-of-range C++ template argument fails to compile with a `static_assert`
 message; an invalid C `tlv_fixed_format_t` is rejected at init time (see
 [Errors](#errors)).
 
-## Wire layout
+<!-- markdownlint-disable-next-line MD033 -->
+<a id="wire-layout"></a>
 
-Each element is `tag_size`/`TagWidth` tag bytes and `length_size`/`LengthWidth`
+## Wire representation
+
+Each element is `identifier.size`/`TagWidth` tag bytes and `length.size`/`LengthWidth`
 length bytes, in the order `element_order` selects, followed by the value bytes.
 
 - Tags are raw bytes and are never reordered; the byte order applies only to the length field.
@@ -67,12 +109,12 @@ length bytes, in the order `element_order` selects, followed by the value bytes.
   `encoded_length = value_size`.
 - `TLV_LENGTH_SCOPE_TAG_AND_VALUE` has the length also count the tag:
   `encoded_length = tag_size + value_size`. Reading rejects an encoded length
-  smaller than `tag_size` with `TLV_ERR_INVALID_LENGTH`, since it leaves no
+  smaller than `identifier.size` with `TLV_ERR_INVALID_LENGTH`, since it leaves no
   room for the tag.
 - Every tag byte value is valid. Values are opaque and read in place from the input.
 
 ```text
-tag_size = 2, length_size = 2, length_order = TLV_BYTE_ORDER_LITTLE_ENDIAN
+identifier.size = 2, length.size = 2, length.byte_order = TLV_BYTE_ORDER_LITTLE_ENDIAN
 element_order = TLV_ELEMENT_ORDER_TLV, length_scope = TLV_LENGTH_SCOPE_VALUE
 
 12 34 03 00 AA BB CC
@@ -83,7 +125,7 @@ Element (7 bytes)
 ```
 
 ```text
-tag_size = 1, length_size = 1, length_order = TLV_BYTE_ORDER_BIG_ENDIAN
+identifier.size = 1, length.size = 1, length.byte_order = TLV_BYTE_ORDER_BIG_ENDIAN
 element_order = TLV_ELEMENT_ORDER_LTV, length_scope = TLV_LENGTH_SCOPE_TAG_AND_VALUE
 (this is the Bluetooth LTV preset; see ../bluetooth/README.md)
 
@@ -98,13 +140,13 @@ Element (4 bytes)
 
 | Situation | Result |
 | --- | --- |
-| `config` (C) is `NULL`, `tag_size` is 0, `length_size` is 0 or greater than 8, or `element_order`/`length_scope` is not one of its enumerators | `TLV_ERR_INVALID_ARG` (init only) |
-| `length_order` (C) is neither big- nor little-endian | `TLV_ERR_INVALID_BYTE_ORDER` (init only) |
+| `config` (C) is `NULL`, `identifier.size` is 0, `length.size` is 0 or greater than 8, or `element_order`/`length_scope` is not one of its enumerators | `TLV_ERR_INVALID_ARG` (init only) |
+| `length.byte_order` (C) is neither big- nor little-endian | `TLV_ERR_INVALID_BYTE_ORDER` (init only) |
 | Input has fewer bytes than the tag, length or value needs | `TLV_ERR_BUFFER_TOO_SHORT` |
 | Output capacity is smaller than the element | `TLV_ERR_BUFFER_TOO_SHORT` |
 | Written tag size differs from the configured tag width | `TLV_ERR_INVALID_TAG_SIZE` |
-| Value longer than the largest length the length width can hold (minus `tag_size` under `TLV_LENGTH_SCOPE_TAG_AND_VALUE`) | `TLV_ERR_INVALID_LENGTH` |
-| Decoded length does not fit in `size_t` (for example an 8-byte length on a 32-bit target), or is smaller than `tag_size` under `TLV_LENGTH_SCOPE_TAG_AND_VALUE` | `TLV_ERR_INVALID_LENGTH` |
+| Value longer than the largest length the length width can hold (minus `identifier.size` under `TLV_LENGTH_SCOPE_TAG_AND_VALUE`) | `TLV_ERR_INVALID_LENGTH` |
+| Decoded length does not fit in `size_t` (for example an 8-byte length on a 32-bit target), or is smaller than `identifier.size` under `TLV_LENGTH_SCOPE_TAG_AND_VALUE` | `TLV_ERR_INVALID_LENGTH` |
 
 ## Example (C)
 
@@ -132,8 +174,7 @@ Element (4 bytes)
     } while (0)
 
 int main(void) {
-    const tlv_fixed_format_t config = {
-        .tag_size = 2, .length_size = 1, .length_order = TLV_BYTE_ORDER_BIG_ENDIAN};
+    const tlv_fixed_format_t config = {.identifier = {2}, .length = {1, TLV_BYTE_ORDER_BIG_ENDIAN}};
     /* config must outlive every reader and writer built from it. */
     tlv_format_t format;
     CHECK(tlv_fixed_format_init(&format, &config));
@@ -225,8 +266,9 @@ plain `const tlv_format_t&`:
 #include "tlv++/native.hpp"
 
 int main() {
-    const tlv_fixed_format_t config = {/* tag_size */ 2, /* length_size */ 1,
-                                       TLV_BYTE_ORDER_BIG_ENDIAN, TLV_ELEMENT_ORDER_TLV,
+    const tlv_fixed_format_t config = {{/* tag_size */ 2},
+                                       {/* length_size */ 1, TLV_BYTE_ORDER_BIG_ENDIAN},
+                                       TLV_ELEMENT_ORDER_TLV,
                                        TLV_LENGTH_SCOPE_VALUE};
     /* config must outlive every reader and writer built from format. */
     tlv_format_t format;

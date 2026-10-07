@@ -39,9 +39,8 @@ static void print_element(const tlv_element_t* element) {
 
 int main(void) {
     /* One tag byte and one length byte; config must outlive its readers and writers. */
-    const tlv_fixed_format_t config = {
-        .tag_size = 1, .length_size = 1, .length_order = TLV_BYTE_ORDER_BIG_ENDIAN};
-    tlv_format_t format;
+    const tlv_fixed_format_t config = {.identifier = {1}, .length = {1, TLV_BYTE_ORDER_BIG_ENDIAN}};
+    tlv_format_t             format;
     CHECK(tlv_fixed_format_init(&format, &config));
 
     uint8_t         input[32], owned[8], exact[32], serialized[32];

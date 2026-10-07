@@ -54,9 +54,9 @@ PyObject* opentlv_python_tree_writer_create(PyObject* module, PyObject* args) {
         if (tag_size < 1 || length_size < 1 || length_size > 8)
             code = TLV_ERR_INVALID_ARG;
         else {
-            self->fixed.tag_size = (size_t)tag_size;
-            self->fixed.length_size = (size_t)length_size;
-            self->fixed.length_order =
+            self->fixed.identifier.size = (size_t)tag_size;
+            self->fixed.length.size = (size_t)length_size;
+            self->fixed.length.byte_order =
                 big_endian ? TLV_BYTE_ORDER_BIG_ENDIAN : TLV_BYTE_ORDER_LITTLE_ENDIAN;
             self->fixed.element_order = TLV_ELEMENT_ORDER_TLV;
             self->fixed.length_scope = TLV_LENGTH_SCOPE_VALUE;

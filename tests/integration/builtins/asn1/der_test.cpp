@@ -1,7 +1,7 @@
 // SPDX-License-Identifier: MIT
 // Copyright (c) 2026 Marek Cingel
 
-#include "tlv/layout.h"
+#include "tlv/formats/compose.h"
 #include "tlv/config.h"
 #if OPENTLV_FORMAT_BER
 #include "tlv/builtins/asn1/ber.h"
@@ -82,9 +82,9 @@ TEST(Integration_Tlv_Der, CanonicalLengthBytesAndRoundTrip) {
     uint8_t     bytes[sizeof(tlv_size_t) + 1];
     size_t      written, used;
     tlv_size_t  actual;
-    ASSERT_EQ(TLV_OK, static_cast<const tlv_field_layout_t*>(tlv_format_der.context)
-                          ->write_length(nullptr, bytes, sizeof(bytes), SIZE_MAX, &written));
-    ASSERT_EQ(TLV_OK, static_cast<const tlv_field_layout_t*>(format.context)
+    ASSERT_EQ(TLV_OK, static_cast<const tlv_field_composition_t*>(tlv_format_der.context)
+                          ->write_length(nullptr, SIZE_MAX, bytes, sizeof(bytes), &written));
+    ASSERT_EQ(TLV_OK, static_cast<const tlv_field_composition_t*>(format.context)
                           ->read_length(nullptr, bytes, written, &actual, &used));
     EXPECT_EQ(SIZE_MAX, actual);
     EXPECT_EQ(written, used);

@@ -604,9 +604,10 @@ static PyObject* _opentlv_structure_validate(PyObject* module, PyObject* args) {
             PyErr_SetString(PyExc_ValueError, "negative format width");
             return NULL;
         }
-        fixed.tag_size = (size_t)tag_size;
-        fixed.length_size = (size_t)length_size;
-        fixed.length_order = big_endian ? TLV_BYTE_ORDER_BIG_ENDIAN : TLV_BYTE_ORDER_LITTLE_ENDIAN;
+        fixed.identifier.size = (size_t)tag_size;
+        fixed.length.size = (size_t)length_size;
+        fixed.length.byte_order =
+            big_endian ? TLV_BYTE_ORDER_BIG_ENDIAN : TLV_BYTE_ORDER_LITTLE_ENDIAN;
         fixed.element_order = TLV_ELEMENT_ORDER_TLV;
         fixed.length_scope = TLV_LENGTH_SCOPE_VALUE;
         tlv_result_t rc = tlv_fixed_format_init(&descriptor, &fixed);
@@ -1571,9 +1572,9 @@ static int fixed_config_from_args(Py_ssize_t tag_size, Py_ssize_t length_size, i
         PyErr_SetString(PyExc_ValueError, "length_size must be between 1 and 8");
         return 0;
     }
-    out->tag_size = (size_t)tag_size;
-    out->length_size = (size_t)length_size;
-    out->length_order = big_endian ? TLV_BYTE_ORDER_BIG_ENDIAN : TLV_BYTE_ORDER_LITTLE_ENDIAN;
+    out->identifier.size = (size_t)tag_size;
+    out->length.size = (size_t)length_size;
+    out->length.byte_order = big_endian ? TLV_BYTE_ORDER_BIG_ENDIAN : TLV_BYTE_ORDER_LITTLE_ENDIAN;
     out->element_order = TLV_ELEMENT_ORDER_TLV;
     out->length_scope = TLV_LENGTH_SCOPE_VALUE;
     return 1;

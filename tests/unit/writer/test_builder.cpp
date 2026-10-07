@@ -382,7 +382,7 @@ TEST(Unit_Tlvpp_WriterBuilder, ContentDependentMeasurementReceivesCompleteChildr
 
 TEST(Unit_Tlvpp_WriterBuilder, LtvOrderingUsesDestinationFormat) {
     auto layout = controlled::format_layout;
-    layout.order = TLV_ELEMENT_ORDER_LTV;
+    layout.element_order = TLV_ELEMENT_ORDER_LTV;
     auto format = nested_format();
     format.context = &layout;
     tlv::byte                  output[16]{};

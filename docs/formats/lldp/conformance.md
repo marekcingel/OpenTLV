@@ -14,7 +14,7 @@ IEEE 802.1AB-2016. The original architecture review is preserved in
   the mandatory three-TLV prefix and optional End. This is a partial excerpt,
   not evidence that all of clause 8 was inspected.
 - The [IEEE LLDP overview, slide 9](https://www.ieee802.org/1/files/public/docs2025/new-bottorff-lldp-for-lsvr-0425-v02.pdf)
-  supplies the packed header, mandatory prefix and generic organisational layout.
+  supplies the packed header, mandatory prefix and generic organisational framing.
   It is an informative contribution, not the published specification.
 
 ## Reference vectors

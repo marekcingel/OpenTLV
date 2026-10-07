@@ -10,9 +10,10 @@ static int native_constructed(const void* context, const tlv_tag_t* tag) {
     return tag->size == 1 && tag->data[0] == 0x70;
 }
 static int native_document(const tlv_query_program_t* p, size_t kind) {
-    tlv_fixed_format_t config = {0};
-    config.tag_size = config.length_size = 1;
-    config.length_order = TLV_BYTE_ORDER_BIG_ENDIAN;
+    tlv_fixed_format_t config = {
+        {0}, {0, TLV_BYTE_ORDER_UNKNOWN}, TLV_ELEMENT_ORDER_TLV, TLV_LENGTH_SCOPE_VALUE};
+    config.identifier.size = config.length.size = 1;
+    config.length.byte_order = TLV_BYTE_ORDER_BIG_ENDIAN;
     tlv_format_t format;
     CHECK(tlv_fixed_format_init(&format, &config) == TLV_OK);
     format.is_constructed = native_constructed;

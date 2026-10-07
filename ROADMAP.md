@@ -30,13 +30,26 @@ and [format expansion candidates](docs/formats/format-roadmap.md).
 The canonical technical model remains centered around:
 
 ```text
-Definition → Format → Field Encoding → Layout → Element → Schema → Codec
+REUSABLE DESCRIPTIONS
+Definition    Format    Field Encoding    Schema    Codec
+
+FORMAT CONSTRUCTION (implementation choices)
+Field Encoding + composition rules -- optional helpers --+
+Direct implementation ----------------------------------+--> Format contract
+
+OPERATIONS                              RUNTIME REPRESENTATIONS
+wire bytes -- Reader using Format ----> Element + source Layout
+wire bytes <-- Writer using Format ---- Element
+
+Definition, Schema and Codec are optional, not processing stages.
 ```
 
-This is a conceptual relationship, not a mandatory processing pipeline or
-module dependency graph. Field Encoding provides reusable wire-field
-mechanics for Format composition. Layout describes the location of a concrete
-element's wire parts; reusable layout configuration belongs to Format.
+Field Encoding provides reusable wire-field mechanics. Composition belongs to
+Format, not to a separate canonical layer. Generic composition helpers are
+optional; a Format may implement the same complete contract directly. Reader
+and Writer use Format without requiring Definition, Schema or Codec. Layout
+describes source ranges for a concrete encoded instance; Writer can encode an
+Element without a previously parsed Layout.
 Document is the core owned representation built on these primitives.
 See the [architectural rules](docs/concepts/architectural-rules.md) and
 [architecture overview](docs/concepts/architecture.md) for their boundaries.
@@ -73,7 +86,7 @@ Planned scope:
 - A canonical internal intermediate representation (IR).
 - An immutable runtime `tlv_model_t`, model loading, ownership and introspection.
 - Runtime Definition configuration.
-- Runtime Format / Field Encoding / Layout configuration.
+- Runtime Format composition / Field Encoding configuration.
 - Runtime Schema configuration.
 - Runtime Codec configuration.
 - OTLV developer tooling: CLI integration, diagnostics, editor support, syntax
@@ -117,7 +130,7 @@ contracts. It must not introduce an inference-specific parser.
 
 Planned principles:
 
-- Search and refine candidate Format and reusable Layout configurations across
+- Search and refine candidate Format compositions and Field Encodings across
   observations, pruning alternatives and progressively sampling where needed.
 - Infer Schema constraints from repeated messages, including occurrence,
   cardinality, length and nesting evidence.

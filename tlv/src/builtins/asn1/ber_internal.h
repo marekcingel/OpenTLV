@@ -3,18 +3,17 @@
 
 #ifndef OPENTLV_BER_INTERNAL_H
 #define OPENTLV_BER_INTERNAL_H
-#include "tlv/layout.h"
+#include "tlv/formats/compose.h"
 #include "tlv/builtins/asn1/ber.h"
 /* Private ASN.1 field adapter over generic Variable primitives. Retains BER's
  * leading-digit and reserved-length policy; DER/CER add their own restrictions.
  * This is not the reusable, protocol-independent wire implementation. */
-extern const tlv_field_layout_t tlv_ber_wire;
-extern const tlv_field_layout_t tlv_der_fields;
-extern const tlv_field_layout_t tlv_cer_fields;
+extern const tlv_field_composition_t tlv_ber_wire;
+extern const tlv_field_composition_t tlv_der_fields;
+extern const tlv_field_composition_t tlv_cer_fields;
 
 /* Shared shortest definite-length encoder and sizing callbacks. */
-tlv_result_t tlv_ber_write_length(const void*, uint8_t*, size_t, tlv_size_t, size_t*);
-tlv_result_t tlv_ber_length_size(const void*, tlv_size_t, size_t*);
+tlv_result_t tlv_ber_write_length(const void*, tlv_size_t, uint8_t*, size_t, size_t*);
 
 /* BER high-tag-number form: the tag number is carried across one or more
  * base-128 digit octets following the identifier octet (X.690 §8.1.2.4.2). */

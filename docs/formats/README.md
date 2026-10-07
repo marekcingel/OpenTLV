@@ -46,38 +46,38 @@ They are an extension mechanism, not a built-in standard or a supplied format.
 
 ### Generic core formats
 
-These reusable formats describe wire layouts without protocol policy. Fixed and
+These reusable formats describe wire representations without protocol policy. Fixed and
 Variable are part of the core rather than optional standards packages.
 
 | Format | Tag | Length field | Largest value | Field order on the wire | Nesting for the tree visitor | Availability |
 | --- | --- | --- | --- | --- | --- | --- |
-| [Configurable fixed-width TLV](fixed/configurable.md#wire-layout) | arbitrary configured width | 1 to 8 bytes, big or little endian, counting the value alone or the tag and value | set by the length width | tag, length, value or length, tag, value | none (opaque values) | Always available (C and C++) |
+| [Configurable fixed-width TLV](fixed/configurable.md#wire-representation) | arbitrary configured width | 1 to 8 bytes, big or little endian, counting the value alone or the tag and value | set by the length width | tag, length, value or length, tag, value | none (opaque values) | Always available (C and C++) |
 | [Configurable variable-width TLV](variable.md) | inline or escaped continuation octets; configurable maximum width | short/long, big or little endian, counting value or tag and value | `tlv_size_t`, subject to configured count width and native buffer limits | tag, length, value or length, tag, value | supplied by concrete composition | Always available (C API) |
 
 ### Built-in standards
 
 These formats implement a specific standard. Their packages may also provide
 definitions, schemas, value codecs and container handling. Each format's page
-explains its wire layout and supported scope.
+explains its wire representation and supported scope.
 
 | Format | Tag | Length field | Largest value | Field order on the wire | Nesting for the tree visitor | Build option |
 | --- | --- | --- | --- | --- | --- | --- |
 | [NFC Type 2](nfc/README.md) | 1 byte | 1 or 3 bytes; absent for NULL/Terminator | 65534 bytes | tag, length, value; tag only for controls | none | `OPENTLV_NFC` |
 | [DHCPv4 options](dhcp/README.md) | 1-byte code | 1 byte; absent for Pad/End | 255 bytes; 0 for Pad/End | code, length, value; code only for Pad/End | none | `OPENTLV_DHCP` |
-| [Bluetooth LTV](bluetooth/README.md#wire-layout-and-logical-model) | 1-byte type | 1 byte, counting the type and the value | 254 bytes | length, type, value | none | `OPENTLV_BLUETOOTH` |
-| [LLDP](lldp/README.md#wire-layout-and-logical-model) | 7-bit Type, canonical one-byte Tag | 9 bits, Value only | 511 bytes | packed Type/Length, Value | none | `OPENTLV_LLDP` |
-| [BER-TLV](asn1/ber.md#layout-and-typical-use) | 1 to 8 bytes (multi-byte tags) | short, long, or indefinite for constructed values | up to `SIZE_MAX` | identifier, length, contents (and EOC) | `tlv_asn1_is_constructed` | `OPENTLV_FORMAT_BER` |
-| [DER-TLV](asn1/der.md#layout-and-typical-use) | as BER | definite, shortest form only | definite lengths | identifier, length, contents | `tlv_asn1_is_constructed` | `OPENTLV_FORMAT_DER` |
-| [CER-TLV](asn1/cer.md#layout-and-typical-use) | as BER | primitive: definite, shortest; constructed: indefinite | definite lengths for primitives | identifier, length, contents (and EOC) | `tlv_asn1_is_constructed` | `OPENTLV_FORMAT_CER` |
+| [Bluetooth LTV](bluetooth/README.md#wire-representation-and-logical-model) | 1-byte type | 1 byte, counting the type and the value | 254 bytes | length, type, value | none | `OPENTLV_BLUETOOTH` |
+| [LLDP](lldp/README.md#wire-representation-and-logical-model) | 7-bit Type, canonical one-byte Tag | 9 bits, Value only | 511 bytes | packed Type/Length, Value | none | `OPENTLV_LLDP` |
+| [BER-TLV](asn1/ber.md#framing-and-typical-use) | 1 to 8 bytes (multi-byte tags) | short, long, or indefinite for constructed values | up to `SIZE_MAX` | identifier, length, contents (and EOC) | `tlv_asn1_is_constructed` | `OPENTLV_FORMAT_BER` |
+| [DER-TLV](asn1/der.md#framing-and-typical-use) | as BER | definite, shortest form only | definite lengths | identifier, length, contents | `tlv_asn1_is_constructed` | `OPENTLV_FORMAT_DER` |
+| [CER-TLV](asn1/cer.md#framing-and-typical-use) | as BER | primitive: definite, shortest; constructed: indefinite | definite lengths for primitives | identifier, length, contents (and EOC) | `tlv_asn1_is_constructed` | `OPENTLV_FORMAT_CER` |
 
-[Application-defined formats](custom/README.md) supply their own field layout,
+[Application-defined formats](custom/README.md) supply their own field composition,
 limits and nesting predicate through the same generic callback contract.
 
 Notes for choosing:
 
 - Only BER, DER and CER carry a constructed bit, so only they nest by themselves.
   The other formats hold opaque values; nesting is then up to your predicate.
-- DER and CER are BER with restrictions: they share the tag layout and differ in how
+- DER and CER are BER with restrictions: they share the tag encoding and differ in how
   lengths are chosen. Their generic readers check framing only; canonical values come from
   the validation functions.
 - Bluetooth LTV is a preset of the configurable Fixed format that puts the length
@@ -103,8 +103,7 @@ beginning of a buffer:
 
 ```c
 /* One tag byte and one length byte; config must outlive its readers. */
-const tlv_fixed_format_t config = {
-    .tag_size = 1, .length_size = 1, .length_order = TLV_BYTE_ORDER_BIG_ENDIAN};
+const tlv_fixed_format_t config = {.identifier = {1}, .length = {1, TLV_BYTE_ORDER_BIG_ENDIAN}};
 tlv_format_t format;
 tlv_fixed_format_init(&format, &config);
 
@@ -166,8 +165,7 @@ bytes, then write into a caller-owned buffer:
 
 ```c
 /* One tag byte and one length byte; config must outlive its writers. */
-const tlv_fixed_format_t config = {
-    .tag_size = 1, .length_size = 1, .length_order = TLV_BYTE_ORDER_BIG_ENDIAN};
+const tlv_fixed_format_t config = {.identifier = {1}, .length = {1, TLV_BYTE_ORDER_BIG_ENDIAN}};
 tlv_format_t format;
 tlv_fixed_format_init(&format, &config);
 
@@ -183,7 +181,8 @@ if (result == TLV_OK && required <= sizeof(buffer)) {
 }
 ```
 
-Both APIs require `write_tag`, `write_length`, and `length_size`. The size query
+Field composition requires `write_tag` and `write_length`; both support sizing
+with NULL output and zero capacity. There is no separate `length_size` callback. The size query
 validates the tag and length; a total that cannot fit in `size_t` returns
 `TLV_ERR_INVALID_LENGTH`. Output size pointers are required and remain unchanged
 on failure. Insufficient capacity returns `TLV_ERR_BUFFER_TOO_SHORT` before any
@@ -219,10 +218,13 @@ current element with the immutable source content and rejects mutation instead
 of silently reusing stale Length or Trailer bytes. Ordinary encoding does not
 preserve BER nonminimal lengths or arbitrary header padding.
 
-Field-based custom formats can compose `tlv_field_layout_t` from `tlv/layout.h`
-and initialize a descriptor with `tlv_fields_format_init()`. Fixed TLV, Fixed
+Field-based custom formats can compose `tlv_field_composition_t` from
+`tlv/formats/compose.h` and initialize a descriptor with `tlv_fields_format_init()`.
+Fixed TLV, Fixed
 LTV and Bluetooth use the same public binary-field primitives. Formats with
 other framing implement the same canonical operations directly.
+See [Field Encoding and Format composition](../concepts/format-contract.md#field-encoding-and-format-composition)
+for the boundary between standalone field primitives and complete framing.
 
 See the [Format/Element contract](../concepts/format-contract.md) for lifetime,
 mutation, preservation, diagnostics and size invariants.

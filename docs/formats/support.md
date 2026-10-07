@@ -3,8 +3,8 @@
 This inventory describes the current native implementation. A built-in Format
 means supported wire framing, not a complete protocol stack. Definitions name
 identifiers; Schema constrains composition; Codec interprets Values. Independent
-standards exercise shared Field Encoding/Layout primitives rather than add
-protocol branches to the generic core. See the
+standards exercise shared Field Encoding and Format composition primitives rather
+than add protocol branches to the generic core. See the
 [format comparison](README.md#compare-formats) for wire limits and the
 [binding matrix](../concepts/bindings.md) for operation-level coverage.
 

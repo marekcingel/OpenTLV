@@ -6,7 +6,7 @@
 
 | Setting | Value |
 | --- | --- |
-| Header | `tlv/format.h`, `tlv/layout.h` |
+| Header | `tlv/format.h`, `tlv/field/encoding.h`, `tlv/formats/compose.h` |
 | Setup | `tlv_format_init` or `tlv_fields_format_init` |
 | CMake option | None; generic callbacks are always available |
 | Link target | `tlv` |
@@ -29,7 +29,7 @@ byte envelope, which may overlap Length; it does not hold the transformed bytes.
 Storage must outlive all retained results and must not be reused as scratch.
 See the [identifier contract](../../concepts/format-contract.md#decoded-identifier-consistency)
 for validation, copying and lifetime rules. These semantics require a complete
-Format callback; sequential `tlv_field_layout_t` helpers still describe byte
+Format callback; sequential `tlv_field_composition_t` helpers still describe byte
 fields rather than packed bits.
 
 ## C usage
@@ -38,6 +38,12 @@ Use the complete custom-format implementation in the
 [C example](../../../examples/tlv/src/custom_format.c), which includes callback
 implementations, descriptor initialization, writing, and reading.
 The [generic contract](../README.md#generic-interface) documents each callback.
+
+Field write callbacks take `(context, tag/length, data, capacity, written)`, in
+the same order as the standalone Field Encoding primitives. Both Identifier and
+Length use NULL output with zero capacity to validate and query their encoded
+width. A custom encoder must support that mode; there is no separate sizing
+callback in `tlv_field_composition_t`.
 
 ## Byte example
 
@@ -58,5 +64,5 @@ See the custom-format implementation in the
 [callback contracts](../README.md#generic-interface). This particular shape -
 a fixed-width tag and length - could also be built with the
 [configurable fixed-width format](../fixed/configurable.md)
-(`tag_size = 1, length_size = 2, order = TLV_BYTE_ORDER_LITTLE_ENDIAN`); the
+(`identifier.size = 1, length.size = 2, length.byte_order = TLV_BYTE_ORDER_LITTLE_ENDIAN`); the
 example keeps hand-written callbacks to demonstrate the generic mechanism.

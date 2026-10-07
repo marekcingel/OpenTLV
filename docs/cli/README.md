@@ -106,7 +106,7 @@ whitespace characters read from a stream.
 or disabled formats fail before reading input. No format detection is performed.
 
 `--format fixed` defaults to one tag byte and one big-endian length byte, matching
-`tlv_fixed_format_t{1, 1, TLV_BYTE_ORDER_BIG_ENDIAN}`. `--fixed-tag-size N` (any positive
+`tlv_fixed_format_t{{1}, {1, TLV_BYTE_ORDER_BIG_ENDIAN}}`. `--fixed-tag-size N` (any positive
 byte count), `--fixed-length-size N` (1 to 8) and `--fixed-byte-order big|little` configure it;
 all three require `--format fixed` and are otherwise rejected as invalid usage. For example:
 
@@ -481,7 +481,7 @@ offset=3 tag=9F1A requested-length=2
 ```
 
 Supply the contents of tag `9F38`, not its enclosing TLV header. Ordinary TLV
-dumping still leaves that value opaque. The same pair layout is used by other
+dumping still leaves that value opaque. The same pair representation is used by other
 EMV DOLs. Tags contain one or two bytes; each requested length is exactly one
 unsigned byte (0..255), including `80` and `FF`. No value follows the length.
 Order and duplicate tags are preserved. This mode neither constructs terminal

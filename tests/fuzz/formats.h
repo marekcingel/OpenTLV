@@ -28,9 +28,9 @@ static inline int fuzz_constructed(const void* context, const tlv_tag_t* tag) {
  * library's own extern const globals. Populated by LLVMFuzzerInitialize()
  * below; tlv_fixed_format_t-based formats additionally need a runtime init
  * call and cannot be compile-time constants like the other entries here. */
-static const tlv_fixed_format_t fuzz_fixed_config = {1, 1, TLV_BYTE_ORDER_BIG_ENDIAN,
-                                                     TLV_ELEMENT_ORDER_TLV, TLV_LENGTH_SCOPE_VALUE};
-static tlv_format_t             fuzz_fixed_format;
+static const tlv_fixed_format_t fuzz_fixed_config = {
+    {1}, {1, TLV_BYTE_ORDER_BIG_ENDIAN}, TLV_ELEMENT_ORDER_TLV, TLV_LENGTH_SCOPE_VALUE};
+static tlv_format_t fuzz_fixed_format;
 #if OPENTLV_BLUETOOTH
 static tlv_format_t fuzz_bluetooth_ltv_format;
 #endif

@@ -12,12 +12,11 @@ static int constructed(const void* context, const tlv_tag_t* tag) {
 }
 
 int main(void) {
-    const tlv_fixed_format_t config = {
-        .tag_size = 1, .length_size = 1, .length_order = TLV_BYTE_ORDER_BIG_ENDIAN};
-    tlv_format_t      format;
-    tlv_tree_frame_t  frames[TLV_TREE_DEFAULT_DEPTH];
-    tlv_tree_reader_t reader;
-    tlv_tree_event_t  item;
+    const tlv_fixed_format_t config = {.identifier = {1}, .length = {1, TLV_BYTE_ORDER_BIG_ENDIAN}};
+    tlv_format_t             format;
+    tlv_tree_frame_t         frames[TLV_TREE_DEFAULT_DEPTH];
+    tlv_tree_reader_t        reader;
+    tlv_tree_event_t         item;
     /* E1 contains 01 and E2, which contains 02. */
     const uint8_t wire[] = {0xE1, 6, 1, 0, 0xE2, 2, 2, 0};
     const uint8_t next_root[] = {3, 0};

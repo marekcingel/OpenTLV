@@ -14,8 +14,9 @@
 #include "tlv++/native.hpp"
 
 int main() {
-    const tlv_fixed_format_t config = {/* tag_size */ 2, /* length_size */ 1,
-                                       TLV_BYTE_ORDER_BIG_ENDIAN, TLV_ELEMENT_ORDER_TLV,
+    const tlv_fixed_format_t config = {{/* tag_size */ 2},
+                                       {/* length_size */ 1, TLV_BYTE_ORDER_BIG_ENDIAN},
+                                       TLV_ELEMENT_ORDER_TLV,
                                        TLV_LENGTH_SCOPE_VALUE};
     /* config must outlive every reader and writer built from format. */
     tlv_format_t format;

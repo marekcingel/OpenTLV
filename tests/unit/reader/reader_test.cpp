@@ -23,14 +23,14 @@ TEST(Unit_Tlv_Reader, ReadsOnlyFirstElementAndBorrowsValue) {
 
 namespace {
 struct Config {
-    tlv_field_layout_t layout = controlled::format_layout;
-    size_t             tag_bytes = 2;
-    size_t             length_bytes = 2;
-    size_t             value_bytes = 2;
-    size_t             tag_size = 2;
-    bool               tag_without_data = false;
-    tlv_result_t       tag_error = TLV_OK;
-    tlv_result_t       length_error = TLV_OK;
+    tlv_field_composition_t layout = controlled::format_layout;
+    size_t                  tag_bytes = 2;
+    size_t                  length_bytes = 2;
+    size_t                  value_bytes = 2;
+    size_t                  tag_size = 2;
+    bool                    tag_without_data = false;
+    tlv_result_t            tag_error = TLV_OK;
+    tlv_result_t            length_error = TLV_OK;
 };
 
 tlv_format_t make_format(Config* config) {

@@ -20,7 +20,7 @@ See [shared memory ownership rules](../../guides/memory.md) before retaining a p
 ## Generic mechanics and ASN.1 rules
 
 BER composes the [generic Variable primitives](../variable.md) through the
-existing field-layout contract. Its immutable configuration selects inline
+existing field-composition contract. Its immutable configuration selects inline
 mask/escape `1F`, continuation bit `80`, payload mask `7F`, an eight-byte
 identifier limit, and short/long length prefixes with big-endian count octets.
 The generic implementation owns identifier boundary detection and definite
@@ -346,10 +346,13 @@ returns `TLV_ERR_INVALID_TAG_SIZE` even if those bytes are missing. Empty input 
 the generic reader returns `TLV_ERR_END_OF_BUFFER`. All BER-specific encoding
 and validation live in the format callbacks.
 
-## Layout and typical use
+<!-- markdownlint-disable-next-line MD033 -->
+<a id="layout-and-typical-use"></a>
+
+## Framing and typical use
 
 An element is identifier octets, length octets, and contents. A constructed value's
-contents are more elements with the same layout, so the structure is recursive.
+contents are more elements with the same framing, so the structure is recursive.
 
 ```text
 +------------------+----------------------+-----------------------+---------+
@@ -373,7 +376,7 @@ The definite length covers the contents (all children with their headers), not t
 identifier or the length octets. Typical uses are ASN.1-based protocols and smart-card
 data objects, where BER is the framing and the meaning of each tag comes from a
 [module](../../standards/emv/README.md) or a schema. See [DER](der.md) and [CER](cer.md)
-for the canonical restrictions of this layout.
+for the canonical restrictions of this framing.
 
 ## Byte example
 

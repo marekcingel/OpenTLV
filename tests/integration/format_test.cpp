@@ -1,7 +1,7 @@
 // SPDX-License-Identifier: MIT
 // Copyright (c) 2026 Marek Cingel
 
-#include "tlv/layout.h"
+#include "tlv/formats/compose.h"
 #include "tlv/reader/reader.h"
 #include "tlv/writer/writer.h"
 #include <gtest/gtest.h>
@@ -17,7 +17,7 @@ tlv_result_t read_tag(const void*, const uint8_t* data, size_t size, tlv_tag_t* 
     *used = 2;
     return TLV_OK;
 }
-tlv_result_t write_tag(const void*, uint8_t* data, size_t size, const tlv_tag_t* tag,
+tlv_result_t write_tag(const void*, const tlv_tag_t* tag, uint8_t* data, size_t size,
                        size_t* used) {
     if (tag->size != 2) return TLV_ERR_INVALID_TAG_SIZE;
     *used = 2;
@@ -38,36 +38,30 @@ tlv_result_t read_length(const void* ctx, const uint8_t* data, size_t size, tlv_
     *length = data[0] | (static_cast<size_t>(data[1]) << 8);
     return TLV_OK;
 }
-tlv_result_t write_length(const void* ctx, uint8_t* data, size_t size, tlv_size_t length,
+tlv_result_t write_length(const void* ctx, tlv_size_t length, uint8_t* data, size_t size,
                           size_t* used) {
     const auto rc = length_size(ctx, length, used);
     if (rc != TLV_OK) return rc;
+    if (!data) return TLV_OK;
     if (size < *used) return TLV_ERR_BUFFER_TOO_SHORT;
     data[0] = static_cast<uint8_t>(length);
     data[1] = static_cast<uint8_t>(length >> 8);
     return TLV_OK;
 }
-const tlv_field_layout_t fixed_layout = {&width,
-                                         read_tag,
-                                         read_length,
-                                         nullptr,
-                                         nullptr,
-                                         nullptr,
-                                         nullptr,
-                                         TLV_ELEMENT_ORDER_TLV,
-                                         TLV_LENGTH_SCOPE_VALUE};
-const tlv_format_t       fixed = {&fixed_layout, tlv_fields_decode, nullptr, nullptr, nullptr};
-const tlv_field_layout_t fixed_writer_layout = {&width,
-                                                nullptr,
-                                                nullptr,
-                                                nullptr,
-                                                write_tag,
-                                                write_length,
-                                                length_size,
-                                                TLV_ELEMENT_ORDER_TLV,
-                                                TLV_LENGTH_SCOPE_VALUE};
-const tlv_format_t       fixed_writer = {&fixed_writer_layout, nullptr, tlv_fields_measure,
-                                         tlv_fields_encode, nullptr};
+const tlv_field_composition_t fixed_layout = {
+    &width,  read_tag, read_length,           nullptr,
+    nullptr, nullptr,  TLV_ELEMENT_ORDER_TLV, TLV_LENGTH_SCOPE_VALUE};
+const tlv_format_t            fixed = {&fixed_layout, tlv_fields_decode, nullptr, nullptr, nullptr};
+const tlv_field_composition_t fixed_writer_layout = {&width,
+                                                     nullptr,
+                                                     nullptr,
+                                                     nullptr,
+                                                     write_tag,
+                                                     write_length,
+                                                     TLV_ELEMENT_ORDER_TLV,
+                                                     TLV_LENGTH_SCOPE_VALUE};
+const tlv_format_t            fixed_writer = {&fixed_writer_layout, nullptr, tlv_fields_measure,
+                                              tlv_fields_encode, nullptr};
 } // namespace
 
 TEST(Integration_Tlv_Format, CustomFormatRoundTripAndWireBytes) {

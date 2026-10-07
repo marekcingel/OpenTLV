@@ -55,14 +55,20 @@ set(SOURCES
     endian_test.cpp
     format_init_test.cpp
     format_test.cpp
+    invalid_enum_c_test.c
+    invalid_enum_test.cpp
     formats/fixed_dhcp_options_test.cpp
     formats/fixed_io_test.cpp
+    formats/fixed_field_adapters_test.cpp
     formats/format_fixed_test.cpp
     formats/variable_test.cpp
     formats/escaped_test.cpp
     builtins/nfc/type2_test.cpp
     builtins/nfc/type2_vectors_test.cpp
-    packed_field_test.cpp
+    field/packed_test.cpp
+    field/variable_test.cpp
+    field/escaped_test.cpp
+    field/fixed_test.cpp
     query/query_test.cpp
     query/program_test.cpp
     query/f2_test.cpp
@@ -73,6 +79,7 @@ set(SOURCES
     reader/visitor_test.cpp
     schema/constraint_test.cpp
     schema/schema_report_test.cpp
+    schema/schema_report_c_test.c
     schema/schema_test.cpp
     size_test.cpp
     tag_test.cpp
@@ -120,7 +127,7 @@ if(NOT (OPENTLV_FORMAT_BER AND OPENTLV_EMV))
 endif()
 if(NOT (OPENTLV_FORMAT_BER))
     list(REMOVE_ITEM SOURCES builtins/asn1/format_ber_test.cpp builtins/asn1/asn1_codec_test.cpp
-                                 schema/schema_report_test.cpp)
+                                 schema/schema_report_test.cpp schema/schema_report_c_test.c)
 endif()
 if(NOT (OPENTLV_BLUETOOTH))
     list(FILTER SOURCES EXCLUDE REGEX "^builtins/bluetooth/")
