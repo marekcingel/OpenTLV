@@ -6,10 +6,10 @@
 #include <vector>
 
 namespace {
-const tlv_variable_identifier_t identifier = {0x1F, 0x1F, 0x80, 0x7F, 16};
-const tlv_variable_length_t     count = {0x80, 0x7F, TLV_BYTE_ORDER_BIG_ENDIAN};
+const tlv_variable_identifier_t identifier = {0x1F, 0x1F, 0x80, 0x7F, 16, NULL};
+const tlv_variable_length_t     count = {0x80, 0x7F, TLV_BYTE_ORDER_BIG_ENDIAN, NULL};
 const tlv_variable_format_t     config = {identifier, count, TLV_ELEMENT_ORDER_TLV,
-                                          TLV_LENGTH_SCOPE_VALUE};
+                                          TLV_LENGTH_SCOPE_VALUE, NULL};
 } // namespace
 
 TEST(Unit_Tlv_Variable, ConfigurationAndNullArguments) {
@@ -81,4 +81,31 @@ TEST(Unit_Tlv_Variable, WriteCallbacksProvideSizingWithoutSeparateCallbacks) {
     }
     fields.write_length = nullptr;
     EXPECT_EQ(TLV_ERR_INVALID_ARG, tlv_fields_format_init(&format, &fields));
+}
+
+TEST(Unit_Tlv_Variable, ConstructedPredicateUsesCanonicalBytesAndFormatContext) {
+    const uint8_t         bytes[] = {0x9F, 0x22};
+    const auto            tag = tlv_tag(bytes, sizeof(bytes));
+    tlv_constructed_bit_t bit = {1, 3, 2};
+    EXPECT_EQ(1, tlv_constructed_bit_predicate(&bit, &tag));
+    EXPECT_EQ(0, tlv_constructed_bit_predicate(nullptr, &tag));
+    EXPECT_EQ(0, tlv_constructed_bit_predicate(&bit, nullptr));
+    bit.byte_index = SIZE_MAX;
+    EXPECT_EQ(0, tlv_constructed_bit_predicate(&bit, &tag));
+    bit = {0, 0x20, 0};
+    EXPECT_EQ(1, tlv_constructed_bit_predicate(&bit, &tag));
+    auto c = config;
+    c.constructed = &bit;
+    tlv_format_t format{};
+    ASSERT_EQ(TLV_OK, tlv_variable_format_init(&format, &c));
+    EXPECT_EQ(tlv_variable_decode, format.decode);
+    EXPECT_EQ(tlv_variable_measure, format.measure);
+    EXPECT_EQ(tlv_variable_encode, format.encode);
+    ASSERT_NE(nullptr, format.is_constructed);
+    EXPECT_EQ(1, format.is_constructed(format.context, &tag));
+    bit.value = 0x40;
+    EXPECT_EQ(TLV_ERR_INVALID_ARG, tlv_variable_format_init(&format, &c));
+    EXPECT_EQ(0, tlv_constructed_bit_predicate(&bit, &tag));
+    bit = {0, 0, 0};
+    EXPECT_EQ(TLV_ERR_INVALID_ARG, tlv_variable_format_init(&format, &c));
 }

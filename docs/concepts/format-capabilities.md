@@ -72,7 +72,7 @@ configuration or that every combination is valid.
 | Length representation | Fixed binary counts, short/long counts, escape-prefixed counts, or no explicit Length range under a custom Format. |
 | Fixed and variable widths | Fixed tag widths and 1–8-byte binary counts; configurable variable identifier limits and variable count widths. These describe fields, not a fixed Value size. |
 | Byte order | Explicit big/little endian for binary counts and packed storage; identifier bytes are never implicitly converted into host integers. |
-| Packed fields | Unsigned fields within 1–8-byte backing integers; overlapping Tag/Length byte envelopes require complete Format callbacks. |
+| Packed fields | Unsigned fields within 1–8-byte backing integers; complete packed headers use `tlv_packed_layout_t` with immutable canonical Tag storage. |
 | Value boundaries | Explicit counts in supplied formats; custom callbacks can derive a fixed or type-selected byte extent, or resolve terminated framing. Value remains contiguous. |
 | Padding | Extra Header/Trailer bytes can be represented by a custom Format. Stream padding and whether to skip a control element belong to the caller or protocol container. |
 | Termination | A bounds resolver can recognize an element's terminated Value; message End policy is separate from decoding an individual element. |
@@ -99,7 +99,8 @@ and count scope. Reuse the standalone primitives under `tlv/field/` or binary
 field adapters where they match the wire rules. Supplying a
 field callback is implementation work, even though the composition is generic.
 
-For a shared packed header, absent fields, extra header bytes, or generated
+For a shared packed Tag/Length header, configure [Packed](../formats/packed.md).
+For absent fields, extra header bytes beyond the supplied layouts, or generated
 trailers, implement the complete `tlv_format_t` callback groups. Reader and Writer
 continue to use the same contracts; see [custom Formats](../formats/custom/README.md).
 A bounds resolver applies only to TLV/Value-scope framing in the field composer.
@@ -137,16 +138,19 @@ policy handled above wire mechanics.
 | --- | --- | --- |
 | Standalone fixed-width Identifier and Length fields | Configuration | `tlv_fixed_identifier_t` and `tlv_fixed_length_t` in `tlv/field/fixed.h`; raw identifier bytes and unsigned counts with explicit byte order, independent of complete Format framing. |
 | Fixed-width TLV/LTV, big/little-endian counts | Configuration | `tlv_binary_composition_t`, `tlv_fixed_format_t`; Value or Tag-plus-Value scope. |
-| Inline/escaped continuation identifiers and short/long counts | Configuration | `tlv_variable_format_t`; concrete reserved encodings and canonicality remain separate. |
+| Inline/escaped continuation identifiers and short/long counts | Configuration | `tlv_variable_format_t` with optional identifier/length policies; ASN.1 universal semantics remain protocol-owned. |
 | Fixed identifiers with escape-prefixed counts | Configuration | `tlv_escaped_format_t`, including optional tag-only identifiers. |
 | Identifier-selected tag-only elements | Configuration | `tlv_tagged_binary_composition_t` / `tlv_tagged_fields_composition_t`; omits Length, requires empty Value, implies no skip/stop policy. |
 | Extract/insert packed unsigned fields | Configuration | `tlv_packed_field_t` helpers preserve unrelated bits on write. |
-| Complete packed Tag/Length header | Custom Format | Compose packed helpers in decode/measure/encode; LLDP is an existing example, not a generic packed-format initializer. |
+| Complete packed Tag/Length header | Configuration | `tlv_packed_layout_t` and `tlv_packed_decode` / `tlv_packed_measure` / `tlv_packed_encode`; LLDP is a configuration with immutable canonical Tags. |
+| Constructed bit predicate | Configuration | `tlv_constructed_bit_t`; Variable Format borrows the predicate in its context. |
+| Identifier prefix, width and minimality constraints | Configuration | Variable encoding plus `tlv_identifier_policy_t`; raw Tag identity is preserved. |
+| Definite count form, width, maximum and minimality constraints | Configuration | `tlv_length_policy_t`; indefinite/EOC and ASN.1 type rules remain protocol callbacks. |
 | Different sequential field encodings | Custom Format | Supply callbacks to `tlv_field_composition_t`; retain TLV/LTV and supported count scopes. |
 | Absent Tag or Length; fixed/type-derived Value extent | Custom Format | Publish valid optional ranges and a contiguous Value; no supplied general boundary selector. |
 | Terminated Value or container | Custom Format | Optional bounds resolver for TLV/Value scope, or complete decode; paired measure/encode for trailers. BER indefinite framing is implemented. |
 | Additional Header bytes, alignment padding, checksums/trailers | Custom Format | Complete callbacks validate framing and measure/encode it; no general padding/checksum configuration is supplied. |
-| Constructed classification | Custom Format | Optional `is_constructed` predicate; generic Tree processing handles traversal. Fixed/Variable configurations alone keep Values opaque. |
+| Constructed classification beyond a masked Tag byte | Custom Format | Optional `is_constructed` callback; generic Tree processing handles traversal. Variable's configured bit predicate covers the mechanical bit-test case. |
 | Stream PAD/END handling and required termination | Outside core | Protocol container/caller decides skipping, stopping and tail validity; tag-only framing alone makes no such decision. |
 | Allowed children, order, occurrence counts | Outside core | Schema uses the shared elements without redefining framing. |
 | Value meaning, dictionaries, transactions, transport/device mapping | Outside core | Codec, domain composition or application responsibilities. |
@@ -220,3 +224,6 @@ For a proprietary format, identify each wire dimension, select existing
 configuration where possible, and isolate the remaining rules in callbacks or
 protocol containers. Verify truncation, malformed framing, borrowed lifetimes
 and semantic round trips against the shared contract before claiming support.
+
+See the [field policy design note](field-policies.md) for EMV adoption and the
+intentional ASN.1-owned DER/CER callbacks.

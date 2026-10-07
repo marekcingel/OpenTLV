@@ -27,6 +27,31 @@ static uint8_t pack(unsigned value, uint8_t mask) {
     return (uint8_t)result;
 }
 
+static tlv_result_t identifier_prefix(const tlv_variable_identifier_t* c, const uint8_t* data,
+                                      size_t size) {
+    const tlv_identifier_policy_t* p = c->policy;
+    if (!p || !size) return TLV_OK;
+    for (size_t i = 0; i < p->forbidden_leading_count; ++i)
+        if (data[0] == p->forbidden_leading[i]) return TLV_ERR_INVALID_TAG;
+    if (p->reject_zero_first_payload && size > 1 && (data[0] & c->inline_mask) == c->escape &&
+        !(data[1] & c->payload_mask))
+        return TLV_ERR_INVALID_TAG;
+    return TLV_OK;
+}
+
+static int identifier_minimal(const tlv_variable_identifier_t* c, const uint8_t* data,
+                              size_t count) {
+    unsigned value = 0, radix, maximum;
+    if (!c->policy || !c->policy->require_minimal || count == 1) return 1;
+    radix = unpack(c->payload_mask, c->payload_mask) + 1;
+    maximum = unpack(c->inline_mask, c->inline_mask);
+    if (count > 2 && !(data[1] & c->payload_mask)) return 0;
+    /* Saturate beyond the small inline domain; identifiers need not fit uint64_t. */
+    for (size_t i = 1; i < count && value <= maximum; ++i)
+        value = value * radix + unpack(data[i], c->payload_mask);
+    return value > maximum || value == unpack(c->escape, c->inline_mask);
+}
+
 tlv_result_t tlv_variable_identifier_read(const tlv_variable_identifier_t* config,
                                           const uint8_t* data, size_t size, tlv_tag_t* tag,
                                           size_t* consumed) {
@@ -34,6 +59,8 @@ tlv_result_t tlv_variable_identifier_read(const tlv_variable_identifier_t* confi
     tlv_result_t rc;
     if (!config || (!data && size) || !tag || !consumed) return TLV_ERR_NULL_ARG;
     rc = identifier_validate(config);
+    if (rc != TLV_OK) return rc;
+    rc = identifier_prefix(config, data, size);
     if (rc != TLV_OK) return rc;
     if (!size) {
         *consumed = 0;
@@ -53,6 +80,7 @@ tlv_result_t tlv_variable_identifier_read(const tlv_variable_identifier_t* confi
             if (!(octet & config->continuation_bit)) break;
         }
     }
+    if (!identifier_minimal(config, data, count)) return TLV_ERR_INVALID_TAG;
     *tag = tlv_tag(data, count);
     *consumed = count;
     return TLV_OK;
@@ -91,18 +119,32 @@ tlv_result_t tlv_variable_length_read(const tlv_variable_length_t* config, const
     if (data[0] & ~(config->long_form_bit | config->payload_mask)) return TLV_ERR_INVALID_LENGTH;
     count = unpack(data[0], config->payload_mask);
     if (!(data[0] & config->long_form_bit)) {
+        if (config->policy && (!config->policy->allow_short || count > config->policy->max_value))
+            return TLV_ERR_INVALID_LENGTH;
         *length = count;
         return TLV_OK;
     }
     if (!count) return TLV_ERR_INVALID_LENGTH;
+    if (config->policy && (!config->policy->allow_long || count > config->policy->max_long_octets))
+        return TLV_ERR_INVALID_LENGTH;
     *consumed = count < size ? count + 1 : size;
     if (count >= size) return TLV_ERR_BUFFER_TOO_SHORT;
     /* Fold most significant octets first, permitting any number of zero
      * padding octets while checking every arithmetic step before shifting. */
     for (size_t i = 0; i < count; ++i) {
         size_t index = config->byte_order == TLV_BYTE_ORDER_BIG_ENDIAN ? i + 1 : count - i;
-        if (value > (UINT64_MAX >> 8)) return TLV_ERR_OVERFLOW;
+        if (value > (UINT64_MAX >> 8))
+            return config->policy ? TLV_ERR_INVALID_LENGTH : TLV_ERR_OVERFLOW;
         value = (value << 8) | data[index];
+    }
+    if (config->policy) {
+        const tlv_length_policy_t* p = config->policy;
+        size_t most_significant = config->byte_order == TLV_BYTE_ORDER_BIG_ENDIAN ? 1 : count;
+        if (value > p->max_value ||
+            (p->require_minimal &&
+             ((p->allow_short && value <= unpack(config->payload_mask, config->payload_mask)) ||
+              (count > 1 && data[most_significant] == 0))))
+            return TLV_ERR_INVALID_LENGTH;
     }
     *length = value;
     return TLV_OK;
@@ -116,14 +158,18 @@ tlv_result_t tlv_variable_length_write(const tlv_variable_length_t* config, tlv_
     if (!config || (!data && capacity) || !written) return TLV_ERR_NULL_ARG;
     rc = length_validate(config);
     if (rc != TLV_OK) return rc;
+    if (config->policy && length > config->policy->max_value) return TLV_ERR_INVALID_LENGTH;
     maximum = unpack(config->payload_mask, config->payload_mask);
-    if (length > maximum) {
+    if (length > maximum || (config->policy && !config->policy->allow_short)) {
         tlv_size_t remaining = length;
         do {
             ++count;
             remaining >>= 8;
         } while (remaining);
         if (count > maximum) return TLV_ERR_INVALID_LENGTH;
+        if (config->policy &&
+            (!config->policy->allow_long || count > config->policy->max_long_octets))
+            return TLV_ERR_INVALID_LENGTH;
     }
     width = count + 1;
     if (data) {

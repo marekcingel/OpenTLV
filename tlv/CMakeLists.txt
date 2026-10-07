@@ -14,6 +14,7 @@ add_library(${PROJECT_NAME} ${_tlv_library_type}
     src/field/packed.c
     src/field/variable.c
     src/field/escaped.c
+    src/formats/packed.c
     src/formats/compose.c
     src/formats/fixed.c
     src/formats/variable.c

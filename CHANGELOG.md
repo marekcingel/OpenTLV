@@ -9,6 +9,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Fixed
 
+- Preserve validation error precedence for Packed and Variable writes: reject nonempty Tags with NULL bytes before Packed width errors, and reject oversized Variable Tags before wire-policy errors. (#541, #542)
+- Fix Clang benchmark builds with warnings treated as errors by fully initializing Variable format policy and constructed-predicate members. (#542)
 - Exercise out-of-range byte-order, visitor and Schema enum values in C regression tests so UBSan can validate the error paths without undefined C++ enum loads. (#423)
 - Keep borrowed container tag storage alive until `end()` in the C Tree Writer example, fixing a stack-use-after-scope detected by AddressSanitizer. (#423)
 - Fix Clang builds with warnings treated as errors by fully initializing nested Fixed format configurations in capability, Query and fuzz tests. (#423)
@@ -85,6 +87,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Changed
 
+- **Breaking:** Extend Variable identifier, length and Format configurations with optional declarative policies and a constructed-bit predicate; this changes their public C ABI and requires native clients and bindings to rebuild with the new headers and library. EMV now uses generic callbacks, while DER/CER reuse generic identifier and length minimality checks and retain ASN.1 type and termination rules. (#542)
 - **Breaking:** Separate individual-field encodings under `tlv/field/` from Format composition in `tlv/formats/compose.h`; remove `tlv/layout.h` and rename its four `*_layout_t` configuration types to `*_composition_t` without compatibility aliases. Compose Fixed/binary and Escaped configurations from `identifier` and `length` field configurations, with unified `element_order`/`length_scope` names; migrate nested initializers and rebuild native/FFI consumers. (#423)
   - Unify field write callbacks with primitive argument order `(context, tag/length, data, capacity, written)` and NULL-output sizing for both fields. Remove `tlv_length_size_fn` and the composition `length_size` member; custom field encoders must support sizing through their write callback. (#423)
   - Field Encoding is the single validation contract: mismatched nonempty tags with NULL bytes report `TLV_ERR_NULL_ARG` before width errors; invalid length configurations leave `consumed` unchanged; direct binary/tagged-binary measurement rejects unsupported byte order when processing Length. (#423)
@@ -165,6 +168,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Added
 
+- Configure packed Tag/Length formats with immutable caller-owned identifier storage, explicit byte order and length scope; LLDP now uses the same generic framing callbacks. (#541)
 - Add a Rust/C ABI layout regression test for Fixed field and format configurations, checking member offsets and alignment as well as structure sizes. (#423)
 - Add standalone allocation-free fixed-width Identifier and Length operations in `tlv/field/fixed.h`, preserving raw identifier bytes and supporting explicit count byte order and NULL-output sizing independently of Format and optional capabilities. (#423)
 - Add reproducible Reader, Tree Reader and Document decode benchmarks, including a custom arena allocator comparison and recorded performance evidence. (#538)

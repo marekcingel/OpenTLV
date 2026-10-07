@@ -30,7 +30,8 @@ Storage must outlive all retained results and must not be reused as scratch.
 See the [identifier contract](../../concepts/format-contract.md#decoded-identifier-consistency)
 for validation, copying and lifetime rules. These semantics require a complete
 Format callback; sequential `tlv_field_composition_t` helpers still describe byte
-fields rather than packed bits.
+fields rather than packed bits. For definite packed Tag/Length headers, use
+the supplied [Packed configuration](../packed.md) and its complete callbacks.
 
 ## C usage
 

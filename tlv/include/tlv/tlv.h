@@ -28,6 +28,7 @@
 #include "tlv/field/packed.h"
 #include "tlv/field/variable.h"
 #include "tlv/field/escaped.h"
+#include "tlv/formats/packed.h"
 #include "tlv/formats/compose.h"
 #include "tlv/formats/fixed.h"
 #include "tlv/formats/variable.h"

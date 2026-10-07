@@ -40,8 +40,9 @@ semantic content and source ranges. The semantic Tag borrows its exact source
 byte range by default; `TLV_TAG_BINDING_FORMAT` permits immutable format-supplied
 identifier storage for transformations such as packed fields. See the
 [LLDP review](lldp-review.md).
-An adapter for packed headers, length-before-type framing, padding, or a length
-that includes header bytes needs an explicit compatibility review. These formats
+Packed Tag/Length headers now have a [generic configuration](packed.md), used
+by LLDP. Further adapters for length-before-type framing, padding, or a length
+that includes header bytes need an explicit compatibility review. These formats
 are candidates, not a claim that every one fits the existing callbacks unchanged.
 Any contract extension should describe a reusable framing requirement rather than
 introducing protocol-specific branches in the generic parser.
@@ -214,7 +215,7 @@ transformed identifiers. LLDPDU protocol conformance remains separate.**
 | Requirement | Seen in | Fit with the current callbacks |
 | --- | --- | --- |
 | Length before type, or any other field order | Bluetooth LTV (implemented) | Covered by `decode` and `encode`. |
-| Bit-packed type and length, or flag bits sharing a field | LLDP, LDP, RFC 5444, NAS half-octet IEIs | Whole-header callbacks handle packing; `TLV_TAG_BINDING_FORMAT` permits canonical identifiers in immutable format storage. [LLDP review](lldp-review.md): framing adapter and presets implemented and tested, normative verification pending. Other candidates need individual review. |
+| Bit-packed type and length, or flag bits sharing a field | LLDP, LDP, RFC 5444, NAS half-octet IEIs | `tlv_packed_layout_t` configures definite packed Tag/Length framing; `TLV_TAG_BINDING_FORMAT` permits canonical identifiers in immutable format storage. [LLDP review](lldp-review.md): framing adapter and presets implemented and tested, normative verification pending. Other candidates need individual review. |
 | Length includes the header | RADIUS, Diameter | The adapter subtracts the header size to get `value_size` and rejects a length smaller than the header. |
 | Trailing padding after the value | Diameter | The canonical framing result includes a Trailer range and logical trailer size; `encode` writes and `decode` validates the padding. |
 | Header size depends on the type or flags | PFCP (enterprise ID), GTPv2 (type 254), GTPv1-C (TV versus TLV), RFC 5444 (flags) | `header_size` is reported per element, so this fits. GTPv1-C needs a type-to-length table in the borrowed descriptor context. |

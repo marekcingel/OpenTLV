@@ -93,6 +93,11 @@ only Value bytes; `TLV_LENGTH_SCOPE_TAG_AND_VALUE` counts the encoded identifier
 and Value bytes, excluding the Length field itself. Both orders support both
 scopes. In every case, `element.value.size` counts only Value bytes.
 
+For [packed headers](../formats/packed.md), Tag-plus-Value scope counts the
+minimal wire Tag byte envelope plus Value. A byte shared with Length belongs
+to that envelope; no separate Length-field size is added. Canonical Tag storage
+width does not affect the wire count.
+
 For one-byte Type and Length fields, these inputs describe the same semantic
 Tag `09` and Value `41 42`:
 

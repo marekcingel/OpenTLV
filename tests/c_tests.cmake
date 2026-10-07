@@ -61,6 +61,7 @@ set(SOURCES
     formats/fixed_io_test.cpp
     formats/fixed_field_adapters_test.cpp
     formats/format_fixed_test.cpp
+    formats/packed_test.cpp
     formats/variable_test.cpp
     formats/escaped_test.cpp
     builtins/nfc/type2_test.cpp

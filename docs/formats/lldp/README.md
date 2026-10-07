@@ -50,10 +50,12 @@ checks and inner-length consistency. Rebuild consumers of the former symbols.
 
 For example, `06 02 00 78` becomes Tag `03` and Value `00 78`.
 
-The adapter composes two `tlv_packed_field_t` configurations from `tlv/field/packed.h`:
+The descriptor uses a [generic packed layout](../packed.md) from
+`tlv/formats/packed.h` with two `tlv_packed_field_t` configurations:
 Type uses offset 9 and width 7; Length uses offset 0 and width 9. Both use
 two-byte big-endian storage. The primitive handles unsigned extraction and
-insertion; the adapter maps Type to canonical Tag bytes and validates framing.
+insertion; the generic Format callbacks map Type to canonical Tag bytes and
+validate framing. LLDP supplies only the layout and immutable identifier table.
 
 Decoded Tags borrow a static immutable table with `TLV_TAG_BINDING_FORMAT`.
 Value borrows the original input. Source Header covers two bytes; the Tag wire

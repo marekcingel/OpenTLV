@@ -2,67 +2,19 @@
 // Copyright (c) 2026 Marek Cingel
 
 #include "tlv/builtins/emv/format.h"
-#include "tlv/field/variable.h"
-#include "tlv/formats/compose.h"
+#include "tlv/formats/variable.h"
 
-/* Book 3 v4.4 Annex B. These are EMV policies, not ASN.1 constraints. */
-static const tlv_variable_identifier_t identifier = {0x1f, 0x1f, 0x80, 0x7f, 2};
-static const tlv_variable_length_t count = {0x80, 0x7f, TLV_BYTE_ORDER_BIG_ENDIAN};
+/* Book 3 v4.4 Annex B: raw EMV identifiers, not ASN.1 number semantics. */
+static const uint8_t forbidden[] = {0};
+static const tlv_identifier_policy_t tag_policy = {forbidden, sizeof(forbidden), 1, 0};
+static const tlv_length_policy_t length_policy = {1, 1, 0, 2, 65535};
+static const tlv_constructed_bit_t constructed = {0, 0x20, 0x20};
+static const tlv_variable_format_t config = {
+    {0x1F, 0x1F, 0x80, 0x7F, 2, &tag_policy},
+    {0x80, 0x7F, TLV_BYTE_ORDER_BIG_ENDIAN, &length_policy},
+    TLV_ELEMENT_ORDER_TLV,
+    TLV_LENGTH_SCOPE_VALUE,
+    &constructed};
 
-static tlv_result_t tag_policy(const uint8_t* data, size_t size) {
-    if (size && data[0] == 0) return TLV_ERR_INVALID_TAG;
-    if (size > 1 && (data[0] & 0x1f) == 0x1f && !(data[1] & 0x7f)) return TLV_ERR_INVALID_TAG;
-    return TLV_OK;
-}
-
-static tlv_result_t read_tag(const void* context, const uint8_t* data, size_t size, tlv_tag_t* tag,
-                             size_t* used) {
-    if ((!data && size) || !tag || !used) return TLV_ERR_NULL_ARG;
-    tlv_result_t rc;
-    (void)context;
-    rc = tag_policy(data, size);
-    if (rc != TLV_OK) return rc;
-    return tlv_variable_identifier_read(&identifier, data, size, tag, used);
-}
-
-static tlv_result_t write_tag(const void* context, const tlv_tag_t* tag, uint8_t* data,
-                              size_t capacity, size_t* used) {
-    if (!tag || (!tag->data && tag->size) || (!data && capacity) || !used) return TLV_ERR_NULL_ARG;
-    tlv_result_t rc;
-    (void)context;
-    rc = tag_policy(tag->data, tag->size);
-    if (rc != TLV_OK) return rc;
-    return tlv_variable_identifier_write(&identifier, tag, data, capacity, used);
-}
-
-static tlv_result_t read_length(const void* context, const uint8_t* data, size_t size,
-                                tlv_size_t* length, size_t* used) {
-    if ((!data && size) || !length || !used) return TLV_ERR_NULL_ARG;
-    (void)context;
-    if (size && (data[0] == 0x80 || data[0] > 0x82)) {
-        *used = 1;
-        return TLV_ERR_INVALID_LENGTH;
-    }
-    return tlv_variable_length_read(&count, data, size, length, used);
-}
-
-static tlv_result_t write_length(const void* context, tlv_size_t length, uint8_t* data,
-                                 size_t capacity, size_t* used) {
-    (void)context;
-    if (!used || (!data && capacity)) return TLV_ERR_NULL_ARG;
-    if (length > 65535) return TLV_ERR_INVALID_LENGTH;
-    return tlv_variable_length_write(&count, length, data, capacity, used);
-}
-
-static int is_constructed(const void* context, const tlv_tag_t* tag) {
-    (void)context;
-    return tag && tag->data && tag->size && (tag->data[0] & 0x20) != 0;
-}
-
-static const tlv_field_composition_t fields = {.read_tag = read_tag,
-                                               .read_length = read_length,
-                                               .write_tag = write_tag,
-                                               .write_length = write_length};
-
-const tlv_format_t tlv_format_emv = {&fields, tlv_fields_decode, tlv_fields_measure,
-                                     tlv_fields_encode, is_constructed};
+const tlv_format_t tlv_format_emv = {&config, tlv_variable_decode, tlv_variable_measure,
+                                     tlv_variable_encode, tlv_variable_is_constructed};
