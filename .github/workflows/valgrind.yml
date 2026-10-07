@@ -2,10 +2,14 @@ name: Valgrind Memcheck
 
 on:
   pull_request:
+    types: [opened, synchronize, reopened, labeled, unlabeled]
     paths: ['tlv/**', 'tlv\+\+/**', 'tests/**', 'scripts/*memcheck*', 'CMakeLists.txt', 'cmake/**', '.github/workflows/valgrind.yml']
   push:
-    branches: [main]
-    paths: ['tlv/**', 'tlv\+\+/**', 'tests/**', 'scripts/*memcheck*', 'CMakeLists.txt', 'cmake/**', '.github/workflows/valgrind.yml']
+    # Include both the requested v* tags and the repository's X.Y.Z releases.
+    tags: ['v*', '[0-9]*.[0-9]*.[0-9]*']
+  schedule:
+    # Every Sunday at 02:17 UTC on the default branch (main).
+    - cron: '17 2 * * 0'
   workflow_dispatch:
 
 permissions:
@@ -13,8 +17,20 @@ permissions:
 
 jobs:
   memcheck:
+    # Other label changes must neither start tests nor cancel an active check.
+    if: >-
+      (github.event.action != 'labeled' && github.event.action != 'unlabeled') ||
+      github.event.label.name == 'memcheck-full'
+    name: Memcheck (${{ (github.event_name != 'pull_request' || contains(github.event.pull_request.labels.*.name, 'memcheck-full')) && 'full' || 'quick' }})
     runs-on: ubuntu-24.04
-    timeout-minutes: 90
+    timeout-minutes: ${{ (github.event_name != 'pull_request' || contains(github.event.pull_request.labels.*.name, 'memcheck-full')) && 90 || 20 }}
+    # Job-level concurrency keeps skipped, unrelated label events out of the group.
+    concurrency:
+      group: memcheck-${{ github.ref }}
+      cancel-in-progress: ${{ github.event_name == 'pull_request' }}
+    # Keep failures visible, but do not require this optional check in branch rules.
+    env:
+      MEMCHECK_EXCLUDE_LABELS: ${{ (github.event_name != 'pull_request' || contains(github.event.pull_request.labels.*.name, 'memcheck-full')) && 'no-memcheck' || 'no-memcheck|memcheck-full' }}
     steps:
       - uses: actions/checkout@v5
       - name: Install tools
@@ -30,11 +46,11 @@ jobs:
           -DOPENTLV_BUILD_CLI_TESTS=OFF -DOPENTLV_BUILD_PROPERTY_TESTS=OFF
           -DOPENTLV_BUILD_FUZZING=OFF
       - name: Build C and C++ suites
-        run: cmake --build build/valgrind --parallel 2
+        run: cmake --build build/valgrind --parallel 4
       - name: Run tests and launcher regressions without instrumentation
-        run: ctest --test-dir build/valgrind --output-on-failure --no-tests=error --parallel 2
+        run: ctest --test-dir build/valgrind --output-on-failure --no-tests=error --parallel 4
       - name: Run Memcheck
-        run: ctest --test-dir build/valgrind -T memcheck -LE no-memcheck --output-on-failure --no-tests=error --parallel 2
+        run: ctest --test-dir build/valgrind -T memcheck -LE "$MEMCHECK_EXCLUDE_LABELS" --output-on-failure --no-tests=error --parallel 4
       - uses: actions/upload-artifact@v4
         if: always()
         with:

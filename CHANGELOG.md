@@ -98,6 +98,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Changed
 
+- Keep all C/C++ unit and integration tests in a shorter, optional PR Memcheck run; run the full Query conformance matrices weekly, on release tags, manually, or with the `memcheck-full` PR label. (#560)
 - **Breaking:** Return `false` from C++ Reader and Tree Reader `at_end()` after failed initialization instead of treating it as end-of-input. Callers must handle `next()` failures to terminate or recover. (#440, #461)
 - Check native usage in mixed C++ test fixtures against per-symbol occurrence baselines, and scan `.cc`, `.cxx` and `.inl` files for public/native boundary violations. (#440, #468)
 - Implement CLI parsing, writing, validation, metadata, decoding, Query and diagnostics through the public C++ facade. (#440, #467)

@@ -11,15 +11,17 @@ These checks have separate jobs and build directories:
 
 | Check | Build | Result |
 | --- | --- | --- |
-| Memcheck | GCC Debug | Memory errors and leaks fail the job. |
+| Memcheck | GCC Debug | Memory errors and leaks fail the job; the PR check is optional and must not be required for merging. |
 | Callgrind | GCC RelWithDebInfo (`-O2 -g -DNDEBUG`) | Instruction-count increases are informational. |
 | Native timing | GCC Release (`-O3 -DNDEBUG`) | Repeated elapsed-time and throughput measurements provide supporting evidence. |
 
-Memcheck failures must block merging through the repository's required-check
-rules. The workflow reports failure; it cannot configure those rules. Its path
-filters also mean a required check needs an always-run gate if it must cover
-every PR, including documentation-only changes. Callgrind and native timing
-remain informational, including explicitly reported infrastructure failures.
+Memcheck is an optional, non-blocking PR check; do not make it a required status
+check in branch protection. Errors remain visible in the test output and uploaded
+reports, and the job reports failure in every scope. Keep it out of required
+checks in both branch protection and repository rulesets; the workflow does not
+modify those settings.
+Callgrind and native timing remain informational, including explicitly reported
+infrastructure failures.
 They run independently of Memcheck so their reports do not wait for the full
 memory-check suite.
 
@@ -36,9 +38,18 @@ cmake -S . -B build/valgrind -G Ninja \
   -DOPENTLV_BUILD_TESTS=ON -DOPENTLV_BUILD_MEMCHECK=ON \
   -DOPENTLV_BUILD_EXAMPLES=OFF -DOPENTLV_BUILD_CLI=OFF \
   -DOPENTLV_BUILD_CLI_TESTS=OFF
-cmake --build build/valgrind --parallel 2
-ctest --test-dir build/valgrind --output-on-failure --no-tests=error --parallel 2
-ctest --test-dir build/valgrind -T memcheck -LE no-memcheck --output-on-failure --no-tests=error --parallel 2
+cmake --build build/valgrind --parallel 4
+ctest --test-dir build/valgrind --output-on-failure --no-tests=error --parallel 4
+ctest --test-dir build/valgrind -T memcheck -LE no-memcheck --output-on-failure --no-tests=error --parallel 4
+```
+
+The last command runs the full Memcheck suite. To reproduce the shorter PR
+selection, exclude the expensive conformance matrices:
+
+```sh
+ctest --test-dir build/valgrind -T memcheck \
+  -LE 'no-memcheck|memcheck-full' \
+  --output-on-failure --no-tests=error --parallel 4
 ```
 
 `OPENTLV_BUILD_MEMCHECK` defaults to `OFF`, so ordinary builds do not require
@@ -80,6 +91,36 @@ Valgrind startup and debug-symbol loading costs for every case. Query corpus
 harnesses still start individual native processes; measure the complete CTest
 job when assessing CI duration.
 
+## Memcheck CI scope
+
+The `valgrind.yml` workflow uses four build/test workers. Relevant PR changes
+run the shorter selection, retaining every case in the four C/C++ unit and
+integration GoogleTest binaries and the remaining native checks. The C and C++
+Query conformance matrices carry the `memcheck-full` label and run only in the
+full selection, as do optional CLI Query and generated-property matrices when
+registered. The CI build disables the CLI and property tests. Ordinary CTest
+still runs every registered test before Memcheck.
+
+| Trigger | Memcheck selection | Failure handling |
+| --- | --- | --- |
+| Relevant pull request | Shorter selection | Job fails on errors; check is not required for merging. |
+| Relevant PR with the `memcheck-full` label | Full suite | Job fails on errors; check is not required for merging. |
+| Weekly schedule, Sunday at 02:17 UTC | Full suite on the default branch (`main`) | Job fails on errors. |
+| Tag matching `v*` or `[0-9]*.[0-9]*.[0-9]*` | Full suite at the tag | Job fails on errors. |
+| Manual dispatch | Full suite at the selected revision | Job fails on errors. |
+
+Adding or removing the `memcheck-full` PR label reevaluates the selection.
+New runs cancel superseded runs for the same PR. Regular pushes to `main` do
+not start Memcheck; the weekly schedule checks the latest default-branch state.
+The scheduled workflow must exist on the default branch to run.
+
+Moving the conformance matrices to full runs leaves a detection delay for memory
+errors specific to those paths. Without a labeled PR, manual run or release tag,
+detection waits for the next weekly run, potentially a week plus scheduling
+delays. Use the PR label or a manual full run before merging changes that need
+that coverage. The shorter selection is not a substitute for full conformance
+coverage, and its duration must be measured independently.
+
 ## Read a report
 
 CTest reports the failing test name. Inspect its
@@ -113,6 +154,11 @@ document the reason beside its registration. The `-LE no-memcheck` option in
 the commands above excludes that label; such tests still run under ordinary
 CTest. An exclusion must not hide a failing native memory check;
 sanitized binaries, fuzz targets and WASM require their dedicated workflows.
+
+Use `memcheck-full` for expensive native tests retained in the full Memcheck
+selection. Unlike `no-memcheck`, this label does not exclude a test from full
+memory checking. The shorter PR command excludes both labels; the full command
+excludes only `no-memcheck`.
 
 See the [CTest MemCheck documentation](https://cmake.org/cmake/help/latest/manual/ctest.1.html#ctest-memcheck-step)
 and [Valgrind manual](https://valgrind.org/docs/manual/manual-core.html) for
@@ -236,9 +282,7 @@ JSON, metadata, raw profiles, native samples, logs and compilation settings even
 when the comparison fails. A failed or skipped comparison is explicitly marked
 in the summary and is not interpreted as a clean result.
 
-The independent `valgrind.yml` Memcheck workflow still runs the full registered
-C/C++ suite, including the Query conformance matrix, with its existing source,
-test, CMake and Memcheck-tool path filters. Changes limited to Callgrind tooling
-or benchmarks do not trigger Memcheck. The complete Memcheck run can be much
-longer than the focused performance workloads because the conformance harness
-launches thousands of native test processes.
+The independent `valgrind.yml` workflow uses the [Memcheck CI scope](#memcheck-ci-scope)
+described above. Its PR path filters cover native sources, tests, CMake and
+Memcheck tooling. Changes limited to Callgrind tooling or benchmarks do not
+trigger PR Memcheck.

@@ -66,7 +66,8 @@ if(OPENTLV_BUILD_CXX)
         add_test(NAME query-cxx-conformance
             COMMAND ${Python3_EXECUTABLE} ${CMAKE_CURRENT_SOURCE_DIR}/run.py
                 --native $<TARGET_FILE:test-query-cxx-conformance> --property-cases 0)
-        set_tests_properties(query-cxx-conformance PROPERTIES LABELS "query;conformance")
+        # The corpus starts thousands of native processes under Valgrind.
+        set_tests_properties(query-cxx-conformance PROPERTIES LABELS "query;conformance;memcheck-full")
         opentlv_memcheck_timeout(query-cxx-conformance 3600)
     endif()
 endif()
@@ -81,13 +82,13 @@ if(Python3_Interpreter_FOUND)
         add_test(NAME query-cli-conformance
             COMMAND ${Python3_EXECUTABLE} ${CMAKE_CURRENT_SOURCE_DIR}/cli_facade.py
                 --cli $<TARGET_FILE:otlv>)
-        set_tests_properties(query-cli-conformance PROPERTIES LABELS "query;conformance")
+        set_tests_properties(query-cli-conformance PROPERTIES LABELS "query;conformance;memcheck-full")
         opentlv_memcheck_timeout(query-cli-conformance 3600)
     endif()
     add_test(NAME query-s0-conformance
         COMMAND ${Python3_EXECUTABLE} ${CMAKE_CURRENT_SOURCE_DIR}/run.py
             --native $<TARGET_FILE:test-query-conformance>)
-    set_tests_properties(query-s0-conformance PROPERTIES LABELS "query;conformance")
+    set_tests_properties(query-s0-conformance PROPERTIES LABELS "query;conformance;memcheck-full")
     # The default generated matrix starts more than 9,000 native processes.
     opentlv_memcheck_timeout(query-s0-conformance 5400)
 endif()
