@@ -34,14 +34,14 @@ TEST(Unit_Tlvpp_TreeWriterParity, MeasurementStagesCanonicalEncoding) {
         ++index;
         return true;
     };
-    auto result = tlv::measure_tree(format, next, workspace);
+    auto result = tlv::measure_tree(tlv::native::borrow_format(format), next, workspace);
     ASSERT_TRUE(result);
     ASSERT_EQ(6u, *result);
     const uint8_t expected[] = {0xE1, 4, 1, 0, 0xE2, 0};
     EXPECT_EQ(std::vector<uint8_t>(expected, expected + 6), std::vector<uint8_t>(data, data + 6));
     index = 0;
     workspace.scratch_capacity = 0;
-    auto failure = tlv::measure_tree(format, next, workspace);
+    auto failure = tlv::measure_tree(tlv::native::borrow_format(format), next, workspace);
     ASSERT_FALSE(failure);
     EXPECT_EQ(TLV_ERR_BUFFER_TOO_SHORT, failure.error().code);
     EXPECT_EQ(4u, workspace.required_scratch);
@@ -53,7 +53,7 @@ TEST(Unit_Tlvpp_TreeWriterParity, MeasurementPropagatesSourceError) {
     auto next = [](tlv::element_view&, size_t&, bool&) -> tlv::expected<bool, tlv::error> {
         return tlv::unexpected<tlv::error>(tlv::error::from_c(TLV_ERR_INVALID_VALUE));
     };
-    auto result = tlv::measure_tree(format, next, workspace);
+    auto result = tlv::measure_tree(tlv::native::borrow_format(format), next, workspace);
     ASSERT_FALSE(result);
     EXPECT_EQ(TLV_ERR_INVALID_VALUE, result.error().code);
     EXPECT_EQ(0u, workspace.required_data);
@@ -72,16 +72,17 @@ TEST(Unit_Tlvpp_WriterParity, SingleWriteAndMeasurementMatchC) {
     const auto raw = tlv::native::descriptor(element);
     ASSERT_EQ(TLV_OK,
               tlv_write_element(native_output, sizeof(native_output), &format, &raw, &native_size));
-    auto measured = tlv::encoded_size(element.tag(), element.value().size(), format);
+    auto measured = tlv::encoded_size(element.tag(), element.value().size(),
+                                      tlv::native::borrow_format(format));
     ASSERT_TRUE(measured);
     EXPECT_EQ(native_size, *measured);
-    auto result = tlv::write(output, sizeof(output), format, element);
+    auto result = tlv::write(output, sizeof(output), tlv::native::borrow_format(format), element);
     ASSERT_TRUE(result);
     EXPECT_EQ(native_size, *result);
     EXPECT_EQ(0, std::memcmp(output, native_output, native_size));
     tlv::writer_diagnostic diagnostic{};
     auto                   failure =
-        tlv::write(output, 1, format, element.tag(),
+        tlv::write(output, 1, tlv::native::borrow_format(format), element.tag(),
                    tlv::bytes(reinterpret_cast<const tlv::byte*>(value_bytes), 2), &diagnostic);
     ASSERT_FALSE(failure);
     EXPECT_EQ(TLV_ERR_BUFFER_TOO_SHORT, failure.error().code);
@@ -95,8 +96,10 @@ TEST(Unit_Tlvpp_TreeWriterParity, CanonicalEventPipelineAndMeasurement) {
     tlv::tree_writer_frame write_frames[1];
     tlv::byte              output[16], scratch[16], tags[1];
     tlv::tree_reader reader(tlv::bytes(reinterpret_cast<const tlv::byte*>(input), sizeof(input)),
-                            format, tlv::span<tlv::tree_frame>(read_frames, 1), 1, 2);
-    tlv::tree_writer writer(output, 16, format, write_frames, 1, scratch, 16, 1, 2);
+                            tlv::native::borrow_format(format),
+                            tlv::span<tlv::tree_frame>(read_frames, 1), 1, 2);
+    tlv::tree_writer writer(output, 16, tlv::native::borrow_format(format), write_frames, 1,
+                            scratch, 16, 1, 2);
     ASSERT_TRUE(writer.set_tag_storage(tlv::span<tlv::byte>(tags, 1)));
     while (!reader.at_end()) {
         auto event = reader.next_event();
@@ -107,7 +110,8 @@ TEST(Unit_Tlvpp_TreeWriterParity, CanonicalEventPipelineAndMeasurement) {
     ASSERT_EQ(sizeof(input), writer.size());
     EXPECT_EQ(0, std::memcmp(input, output, sizeof(input)));
     tlv::tree_reader source(tlv::bytes(reinterpret_cast<const tlv::byte*>(input), sizeof(input)),
-                            format, tlv::span<tlv::tree_frame>(read_frames, 1), 1, 2);
+                            tlv::native::borrow_format(format),
+                            tlv::span<tlv::tree_frame>(read_frames, 1), 1, 2);
     tlv::tree_writer_workspace workspace{write_frames,
                                          1,
                                          reinterpret_cast<uint8_t*>(output),
@@ -123,7 +127,8 @@ TEST(Unit_Tlvpp_TreeWriterParity, CanonicalEventPipelineAndMeasurement) {
         event = *pulled;
         return true;
     };
-    auto measured = tlv::measure_tree_events(format, next, workspace, 1, 2);
+    auto measured =
+        tlv::measure_tree_events(tlv::native::borrow_format(format), next, workspace, 1, 2);
     ASSERT_TRUE(measured);
     EXPECT_EQ(sizeof(input), *measured);
 }

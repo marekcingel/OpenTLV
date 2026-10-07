@@ -1,6 +1,7 @@
 // SPDX-License-Identifier: MIT
 // Copyright (c) 2026 Marek Cingel
 #include "tlv++/query/static.hpp"
+#include "tlv++/native.hpp"
 #include <cstdio>
 #include <cstdlib>
 #include <new>
@@ -94,10 +95,11 @@ static int run(const tlv::query_program& program, bool retained, int64_t n, unsi
         event.element.value.data = value;
         event.element.value.size = i == 2 ? 2 : 1;
         int matched = 0;
-        CHECK(tlv_query_exec_feed(execution->c_exec(), &event, &matched, nullptr) == TLV_OK);
+        CHECK(tlv_query_exec_feed(tlv::native::handle(*execution), &event, &matched, nullptr) ==
+              TLV_OK);
         if (matched) bits |= 1u << i;
     }
-    CHECK(tlv_query_exec_finish(execution->c_exec(), nullptr) == TLV_OK);
+    CHECK(tlv_query_exec_finish(tlv::native::handle(*execution), nullptr) == TLV_OK);
     if (retained) {
         auto result = execution->result();
         CHECK(result);
@@ -107,7 +109,7 @@ static int run(const tlv::query_program& program, bool retained, int64_t n, unsi
         } else {
             tlv_tree_event_t event;
             tlv_result_t     rc;
-            while ((rc = tlv_query_result_next(execution->c_exec(), &event)) == TLV_OK)
+            while ((rc = tlv_query_result_next(tlv::native::handle(*execution), &event)) == TLV_OK)
                 bits |= 1u << event.offset;
             CHECK(rc == TLV_ERR_END_OF_BUFFER);
         }
@@ -141,7 +143,8 @@ static int check(const Plan& plan, const char* text, unsigned one, unsigned two)
     options.variable_count = 3;
     for (int optimize = 0; optimize < 2; ++optimize) {
         options.optimize = optimize;
-        auto runtime = tlv::query_program::compile(text, &options);
+        auto runtime =
+            tlv::query_program::compile(text, tlv::native::borrow_query_settings(&options));
         CHECK(runtime);
         for (int retained = 0; retained < 2; ++retained) {
             unsigned bits;

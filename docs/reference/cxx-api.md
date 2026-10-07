@@ -61,11 +61,11 @@ int main() {
     options.max_case_size = 512;
     options.candidates = &candidate;
     options.candidate_count = 1;
-    tlv::generator generator(tlv::fixed_format<1, 2, TLV_BYTE_ORDER_BIG_ENDIAN>{}, options);
+    tlv::generator generator(tlv::fixed_format<1, 2, tlv::byte_order::big_endian>{}, options);
     for (uint64_t index = 0; index < 3; ++index) {
         auto wire = generator.generate(index);
         if (!wire) {
-            std::cerr << wire.error().message << '\n';
+            std::cerr << wire.error().message() << '\n';
             return 1;
         }
         std::cout << "Case " << index << ": " << wire->size() << " bytes\n";

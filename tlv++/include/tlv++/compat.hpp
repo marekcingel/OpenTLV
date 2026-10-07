@@ -4,6 +4,11 @@
 #ifndef OPENTLV_TLVPP_COMPAT_HPP
 #define OPENTLV_TLVPP_COMPAT_HPP
 
+#if !defined(__cpp_exceptions) && !defined(__EXCEPTIONS) && !defined(_CPPUNWIND)
+#error                                                                                             \
+    "tlv++ requires C++ exceptions; explicit pull operations return expected, while ranges and owning operations may throw."
+#endif
+
 /**
  * @file compat.hpp
  * @brief C++11-to-C++23 compatibility shims for tlv++ (byte, any, span, expected).

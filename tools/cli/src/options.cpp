@@ -7,9 +7,10 @@
 #include <cstring>
 #include <iostream>
 #include "tlv/config.h"
-#include "tlv/reader/visitor.h"
+#include "tlv++/types.hpp"
+#include "tlv++/visitor.hpp"
 #if OPENTLV_EMV
-#include "tlv/builtins/emv/emv.h"
+#include "tlv++/builtins/emv/dictionary.hpp"
 #endif
 
 namespace {
@@ -120,14 +121,14 @@ struct context_name {
 
 // Command-line names of the EMV dictionary contexts (tlv_emv_context_t).
 const context_name context_names[] = {
-    {"base", TLV_EMV_CONTEXT_BASE},
-    {"bit", TLV_EMV_CONTEXT_BIT},
-    {"bht", TLV_EMV_CONTEXT_BHT},
-    {"bht-format", TLV_EMV_CONTEXT_BHT_FORMAT},
-    {"bit-group", TLV_EMV_CONTEXT_BIT_GROUP},
-    {"biometric-counters", TLV_EMV_CONTEXT_BIOMETRIC_COUNTERS},
-    {"biometric-attempts", TLV_EMV_CONTEXT_BIOMETRIC_ATTEMPTS},
-    {"biometric-verification", TLV_EMV_CONTEXT_BIOMETRIC_VERIFICATION},
+    {"base", static_cast<int>(tlv::emv::context::base)},
+    {"bit", static_cast<int>(tlv::emv::context::bit)},
+    {"bht", static_cast<int>(tlv::emv::context::bht)},
+    {"bht-format", static_cast<int>(tlv::emv::context::bht_format)},
+    {"bit-group", static_cast<int>(tlv::emv::context::bit_group)},
+    {"biometric-counters", static_cast<int>(tlv::emv::context::biometric_counters)},
+    {"biometric-attempts", static_cast<int>(tlv::emv::context::biometric_attempts)},
+    {"biometric-verification", static_cast<int>(tlv::emv::context::biometric_verification)},
 };
 
 int context_by_name(const char* text, int* out) {

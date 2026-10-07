@@ -7,17 +7,17 @@
 
 TEST(Unit_Tlvpp_Diagnostic, MakeDiagnosticSetsCodeAndSeverity) {
     tlv::diagnostic diagnostic =
-        tlv::make_diagnostic(TLV_ERR_END_OF_BUFFER, TLV_DIAGNOSTIC_SEVERITY_WARNING);
+        tlv::make_diagnostic(tlv::errc::end_of_input, tlv::severity::warning);
 
-    EXPECT_EQ(TLV_ERR_END_OF_BUFFER, diagnostic.code);
-    EXPECT_EQ(TLV_DIAGNOSTIC_SEVERITY_WARNING, diagnostic.severity);
+    EXPECT_EQ(tlv::errc::end_of_input, tlv::status(diagnostic));
+    EXPECT_EQ(tlv::severity::warning, tlv::severity_of(diagnostic));
     EXPECT_EQ(0, diagnostic.has_offset);
     EXPECT_EQ(nullptr, diagnostic.contexts);
 }
 
 TEST(Unit_Tlvpp_Diagnostic, AddContextPushesOntoTheFrontOfTheChain) {
     tlv::diagnostic diagnostic =
-        tlv::make_diagnostic(TLV_ERR_INVALID_LENGTH, TLV_DIAGNOSTIC_SEVERITY_ERROR);
+        tlv::make_diagnostic(tlv::errc::invalid_length, tlv::severity::error);
     tlv::diagnostic_context ber;
     tlv::diagnostic_context schema;
 
@@ -44,19 +44,19 @@ TEST(Unit_Tlvpp_Diagnostic, PushPathAppendsTagsInOrder) {
     EXPECT_TRUE(tlv::push_path(path, tlv::tag_bytes<0xA5>()).has_value());
 
     ASSERT_EQ(2u, path.length);
-    EXPECT_TRUE(tlv_tag_equal(path.tags[0], TLV_TAG(0x6F)));
-    EXPECT_TRUE(tlv_tag_equal(path.tags[1], TLV_TAG(0xA5)));
+    EXPECT_TRUE((tlv::path_tag(path, 0) == tlv::tag_bytes<0x6F>()));
+    EXPECT_TRUE((tlv::path_tag(path, 1) == tlv::tag_bytes<0xA5>()));
 }
 
 TEST(Unit_Tlvpp_Diagnostic, PushPathReturnsAnErrorWhenFull) {
     tlv::diagnostic_path path = tlv::make_diagnostic_path();
-    for (int i = 0; i < TLV_DIAGNOSTIC_PATH_MAX; ++i)
+    for (int i = 0; i < tlv::diagnostic_path_capacity; ++i)
         ASSERT_TRUE(tlv::push_path(path, tlv::tag_bytes<0x01>()).has_value());
 
     tlv::expected<void, tlv::error> result = tlv::push_path(path, tlv::tag_bytes<0x02>());
 
     ASSERT_FALSE(result.has_value());
-    EXPECT_EQ(TLV_ERR_LIMIT, result.error().code);
+    EXPECT_EQ(tlv::errc::limit, result.error().status());
 }
 
 TEST(Unit_Tlvpp_Diagnostic, PopPathRemovesTheLastTag) {
@@ -67,12 +67,12 @@ TEST(Unit_Tlvpp_Diagnostic, PopPathRemovesTheLastTag) {
     tlv::pop_path(path);
 
     ASSERT_EQ(1u, path.length);
-    EXPECT_TRUE(tlv_tag_equal(path.tags[0], TLV_TAG(0x6F)));
+    EXPECT_TRUE((tlv::path_tag(path, 0) == tlv::tag_bytes<0x6F>()));
 }
 
 TEST(Unit_Tlvpp_Diagnostic, SetPathAttachesThePathToTheDiagnostic) {
     tlv::diagnostic diagnostic =
-        tlv::make_diagnostic(TLV_ERR_END_OF_BUFFER, TLV_DIAGNOSTIC_SEVERITY_ERROR);
+        tlv::make_diagnostic(tlv::errc::end_of_input, tlv::severity::error);
     tlv::diagnostic_path path = tlv::make_diagnostic_path();
     tlv::push_path(path, tlv::tag_bytes<0x6F>());
 

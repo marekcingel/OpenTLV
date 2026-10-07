@@ -6,15 +6,13 @@
 #include "commands/support.hpp"
 #include "diagnostics.hpp"
 #include "tlv++/query/program.hpp"
-#include "tlv++/native.hpp"
 #include <cstring>
 #include <limits>
-#include "tlv/query/adapters.h"
 #if OPENTLV_FORMAT_BER
-#include "tlv/builtins/asn1/query.h"
+#include "tlv++/builtins/asn1/query.hpp"
 #endif
 #if OPENTLV_EMV
-#include "tlv/builtins/emv/query.h"
+#include "tlv++/builtins/emv/query.hpp"
 #endif
 #if OPENTLV_DOCUMENT
 #include "tlv++/document/document.hpp"
@@ -25,12 +23,7 @@ namespace {
 // The query path as text: uppercase hex tags joined by "/", however the user
 // spelled it.
 std::string query_path(const tlv::query& query) {
-    size_t required = 0;
-    tlv_query_format(&query.c_query(), nullptr, 0, &required);
-    std::string path(required, '\0');
-    tlv_query_format(&query.c_query(), &path[0], required, &required);
-    path.resize(required - 1);
-    return path;
+    return query.format();
 }
 
 } // namespace
@@ -47,8 +40,8 @@ int query_command::run() {
     if (!selected_format) return fail(2, "unknown or disabled format; use otlv formats");
     auto report = [&](const tlv::query_failure& failure, int status) {
         const auto&    d = failure.diagnostic;
-        nlohmann::json detail = {{"error", tlv_strerror(failure.code)},
-                                 {"code", failure.code},
+        nlohmann::json detail = {{"error", tlv::message(failure.status())},
+                                 {"code", failure.status()},
                                  {"kind", d.kind},
                                  {"begin", d.begin},
                                  {"end", d.end}};
@@ -58,27 +51,27 @@ int query_command::run() {
             detail["limit"] = d.limit;
             detail["configured"] = d.configured;
         }
-        if (d.kind == TLV_QUERY_ERROR_CODEC) detail["codec"] = d.codec;
-        if (d.kind == TLV_QUERY_ERROR_READER) {
-            detail["reader"] = {{"code", d.reader.diagnostic.code},
+        if (failure.kind() == tlv::query_issue::codec) detail["codec"] = d.codec;
+        if (failure.kind() == tlv::query_issue::reader) {
+            detail["reader"] = {{"code", static_cast<tlv::errc>(d.reader.diagnostic.code)},
                                 {"operation", d.reader.operation}};
             if (d.reader.diagnostic.has_offset)
                 detail["reader"]["offset"] = d.reader.diagnostic.offset;
             if (d.reader.has_tag)
-                detail["reader"]["tag"] = hex_string(d.reader.tag.data, d.reader.tag.size);
+                detail["reader"]["tag"] = hex_string(tlv::diagnostic_tag(d.reader).as_bytes());
         }
         if (!strcmp(options_.diagnostics, "json"))
             std::cerr << detail.dump() << '\n';
         else
-            std::cerr << "otlv: " << tlv_strerror(failure.code) << " query=" << d.begin << ':'
+            std::cerr << "otlv: " << tlv::message(failure.status()) << " query=" << d.begin << ':'
                       << d.end << (d.expected ? " expected=" : "") << (d.expected ? d.expected : "")
                       << '\n';
         return status;
     };
     struct variable {
-        std::string             name, value;
-        tlv_query_result_kind_t type;
-        int64_t                 integer = 0;
+        std::string     name, value;
+        tlv::query_type type;
+        int64_t         integer = 0;
     };
     std::vector<variable> variables;
     for (const auto& text : options_.query_variables) {
@@ -91,7 +84,7 @@ int query_command::run() {
         v.value = text.substr(equals + 1);
         auto type = text.substr(colon + 1, equals - colon - 1);
         if (type == "int") {
-            v.type = TLV_QUERY_RESULT_INTEGER;
+            v.type = tlv::query_type::integer;
             size_t end = 0;
             if (v.value.empty() || v.value.find_first_not_of("-0123456789") != std::string::npos)
                 return fail(2, "invalid int variable");
@@ -102,7 +95,7 @@ int query_command::run() {
             }
             if (end != v.value.size()) return fail(2, "invalid int variable");
         } else if (type == "bytes") {
-            v.type = TLV_QUERY_RESULT_BYTES;
+            v.type = tlv::query_type::bytes;
             if (v.value.size() % 2)
                 return fail(2, "bytes variable requires even-length hexadecimal");
             auto digit = [](char c) {
@@ -119,57 +112,46 @@ int query_command::run() {
             }
             v.value = std::move(decoded);
         } else if (type == "string")
-            v.type = TLV_QUERY_RESULT_STRING;
+            v.type = tlv::query_type::string;
         else
             return fail(2, "unknown variable type; use int, bytes or string");
         variables.push_back(std::move(v));
     }
-    std::vector<tlv_query_variable_t> declarations;
-    for (const auto& v : variables) declarations.push_back({v.name.c_str(), v.type});
-    tlv_query_compile_options_t compile_options;
-    tlv_query_compile_options_init(&compile_options);
-    tlv_query_environment_t environment{};
-    environment.format = &tlv::native::descriptor(*selected_format);
-    const auto*      builtin_hooks = tlv_query_builtin_hooks(&environment.hook_count);
-    tlv_query_hook_t hooks[4];
-    std::memcpy(hooks, builtin_hooks, environment.hook_count * sizeof *hooks);
+    tlv::query_environment environment(*selected_format);
 #if OPENTLV_FORMAT_BER
     if (!std::strcmp(options_.format, "ber") || !std::strcmp(options_.format, "der") ||
-        !std::strcmp(options_.format, "cer")) {
-        environment.tags = &tlv_asn1_query_tags;
-        hooks[environment.hook_count++] = tlv_asn1_query_date;
-    }
+        !std::strcmp(options_.format, "cer"))
+        tlv::asn1::configure_query(environment);
 #endif
-    environment.hooks = hooks;
-    compile_options.environment = &environment;
+    tlv::query_options compile_options(&environment);
 #if OPENTLV_EMV
-    if (!strcmp(options_.format, "emv")) compile_options.resolve = tlv_emv_query_resolve;
+    if (!std::strcmp(options_.format, "emv")) tlv::emv::configure_query(compile_options);
 #endif
-    compile_options.variables = declarations.data();
-    compile_options.variable_count = declarations.size();
+    for (const auto& v : variables)
+        compile_options.declare(v.name.c_str(), static_cast<tlv::query_type>(v.type));
     std::string text = options_.path;
     if (options_.query_count) text = "count(" + text + ")";
     if (options_.query_exists) text = "exists(" + text + ")";
-    auto program = tlv::query_program::compile(text, &compile_options);
+    auto program = tlv::query_program::compile(text, compile_options);
     if (!program) return report(program.error(), 2);
     bool document_backend =
         !strcmp(options_.query_backend, "document") ||
-        (program->info().level == TLV_QUERY_D && !strcmp(options_.query_backend, "auto"));
-    if (program->info().level == TLV_QUERY_D && !document_backend)
+        (program->level() == tlv::query_level::document && !strcmp(options_.query_backend, "auto"));
+    if (program->level() == tlv::query_level::document && !document_backend)
         return fail(2, "Query requires Document; streaming backend does not materialize input");
-    if (options_.value_only && program->info().result_kind != TLV_QUERY_RESULT_NODES)
+    if (options_.value_only && program->result_type() != tlv::query_type::nodes)
         return fail(2, "--value requires a node selection");
     auto execution = tlv::query_execution::create(*program, options_.max_depth,
-                                                  options_.max_elements, 100000000, &environment);
+                                                  options_.max_elements, 100000000, environment);
     if (!execution) return report(execution.error(), 2);
     for (const auto& v : variables) {
         auto bound =
-            v.type == TLV_QUERY_RESULT_INTEGER
+            v.type == tlv::query_type::integer
                 ? execution->bind(v.name.c_str(), v.integer)
                 : execution->bind(v.name.c_str(),
                                   tlv::bytes(reinterpret_cast<const tlv::byte*>(v.value.data()),
                                              v.value.size()),
-                                  v.type == TLV_QUERY_RESULT_STRING);
+                                  v.type == tlv::query_type::string);
         if (!bound) return report(bound.error(), 2);
     }
     if (options_.query_explain) {
@@ -213,7 +195,7 @@ int query_command::run() {
             std::cout << '\n';
         }
     };
-    std::vector<uint8_t> value_snapshot, scratch;
+    std::vector<tlv::byte> value_snapshot, scratch;
 #if OPENTLV_DOCUMENT
     std::unique_ptr<tlv::document> document;
 #endif
@@ -224,28 +206,26 @@ int query_command::run() {
         settings.max_elements = options_.max_elements;
         auto parsed = tlv::document::parse(
             tlv::bytes(reinterpret_cast<const tlv::byte*>(data()), size()), settings);
-        if (!parsed) return fail(3, tlv_strerror(parsed.error().code));
+        if (!parsed) return fail(3, tlv::message(parsed.error().status()));
         document.reset(new tlv::document(std::move(*parsed)));
-        std::vector<tlv_tree_writer_frame_t> frames(options_.max_depth + 1);
-        tlv_tree_writer_workspace_t          staging{};
-        staging.frames = frames.data();
-        staging.frame_capacity = frames.size();
+        std::vector<tlv::writer_frame> frames(options_.max_depth + 1);
+
         if (program->info().constructed_values_required) {
             auto encoded = document->encode();
-            if (!encoded) return fail(3, tlv_strerror(encoded.error().code));
+            if (!encoded) return fail(3, tlv::message(encoded.error().status()));
             value_snapshot.resize(encoded->size());
             scratch.resize(encoded->size());
-            staging.scratch = scratch.data();
-            staging.scratch_capacity = scratch.size();
         }
-        auto evaluated =
-            document->evaluate(*execution, value_snapshot.data(), value_snapshot.size(),
+        const tlv::writer_workspace staging({frames.data(), frames.size()},
+                                            {scratch.data(), scratch.size()});
+        auto                        evaluated =
+            document->evaluate(*execution, {value_snapshot.data(), value_snapshot.size()},
                                program->info().constructed_values_required ? &staging : nullptr);
         if (!evaluated) return report(evaluated.error(), 3);
-        if (program->info().result_kind == TLV_QUERY_RESULT_NODES)
+        if (program->result_type() == tlv::query_type::nodes)
             for (;;) {
                 auto node = document->next(*execution);
-                if (!node && node.error().code == TLV_ERR_END_OF_BUFFER) break;
+                if (!node && node.error().status() == tlv::errc::end_of_input) break;
                 if (!node) return report(node.error(), 3);
                 // Constructed Value output is obtained through the normal Document encoder.
                 auto                   value = node->value();
@@ -253,7 +233,7 @@ int query_command::run() {
                 if (node->is_constructed())
                     for (auto child : node->children()) {
                         auto encoded = child.encode();
-                        if (!encoded) return fail(3, tlv_strerror(encoded.error().code));
+                        if (!encoded) return fail(3, tlv::message(encoded.error().status()));
                         children.insert(children.end(), encoded->begin(), encoded->end());
                     }
                 emit(tlv::element_view(node->tag(), node->is_constructed()
@@ -272,29 +252,30 @@ int query_command::run() {
                                 options_.max_depth, options_.max_elements);
         auto             visited = execution->visit(reader, [&](const tlv::tree_event& event) {
             emit(event.element, true, event.offset);
-            return TLV_VISIT_CONTINUE;
+            return tlv::visit_control::next;
         });
         if (!visited) return report(visited.error(), 3);
     }
-    auto result = execution->result();
+    auto result = execution->scalar();
     if (!result) return report(result.error(), 3);
-    if (result->kind == TLV_QUERY_RESULT_NODES) {
+    if (result->kind == tlv::query_type::nodes) {
         if (is_json(options_)) std::cout << nlohmann::json({{"matches", matches}}).dump() << '\n';
         if (!matches_) return fail(5, ("no match for query " + program->format()).c_str());
     } else {
         nlohmann::json value;
-        if (result->kind == TLV_QUERY_RESULT_BOOL)
+        if (result->kind == tlv::query_type::boolean)
             value = result->boolean != 0;
-        else if (result->kind == TLV_QUERY_RESULT_INTEGER)
+        else if (result->kind == tlv::query_type::integer)
             value = result->integer;
-        else if (result->kind == TLV_QUERY_RESULT_BYTES)
-            value = hex_string(result->data, result->size);
+        else if (result->kind == tlv::query_type::bytes)
+            value = hex_string(result->data);
         else
-            value = std::string(result->size ? reinterpret_cast<const char*>(result->data) : "",
-                                result->size);
+            value = std::string(
+                result->data.size() ? reinterpret_cast<const char*>(result->data.data()) : "",
+                result->data.size());
         if (is_json(options_))
             std::cout << nlohmann::json({{"type", result->kind}, {"value", value}}).dump() << '\n';
-        else if (result->kind == TLV_QUERY_RESULT_BYTES || result->kind == TLV_QUERY_RESULT_STRING)
+        else if (result->kind == tlv::query_type::bytes || result->kind == tlv::query_type::string)
             std::cout << value.get<std::string>() << '\n';
         else
             std::cout << value.dump() << '\n';
@@ -311,11 +292,10 @@ int query_command::prepare() {
 // query's visitor: prints each element the path addresses. Text output is
 // the dump line without nesting, --value prints only the value bytes, and
 // --output json collects the elements into one document printed at the end.
-tlv_visit_result_t query_command::visit_element(const tlv::element_view& element, std::size_t depth,
+tlv::visit_control query_command::visit_element(const tlv::element_view& element, std::size_t depth,
                                                 std::size_t offset) {
-    const auto native = tlv::native::descriptor(element);
-    diagnostic_scope_visit(scope_, data(), &native, depth, format_->is_constructed);
-    if (!matcher_->matches(element.tag(), depth)) return TLV_VISIT_CONTINUE;
+    diagnostic_scope_visit(scope_, data(), &element, depth, *format_);
+    if (!matcher_->matches(element.tag(), depth)) return tlv::visit_control::next;
     ++matches_;
     if (is_json(options_)) {
         nlohmann::json object;
@@ -325,7 +305,7 @@ tlv_visit_result_t query_command::visit_element(const tlv::element_view& element
         object["length"] = (uint64_t)element.value().size();
         object["value"] = hex_string(element.value().as_bytes());
         json_root_.push_back(std::move(object));
-        return TLV_VISIT_CONTINUE;
+        return tlv::visit_control::next;
     }
     if (options_.value_only) {
         print_hex(element.value().as_bytes());
@@ -336,11 +316,11 @@ tlv_visit_result_t query_command::visit_element(const tlv::element_view& element
         print_hex(element.value().as_bytes());
     }
     std::cout << "\n";
-    return std::cout ? TLV_VISIT_CONTINUE : TLV_VISIT_ERROR;
+    return std::cout ? tlv::visit_control::next : tlv::visit_control::error;
 }
 
 void query_command::render_output() {
-    if (result_ != TLV_OK || !is_json(options_)) return;
+    if (result_ != tlv::errc::ok || !is_json(options_)) return;
     nlohmann::json document;
     document["matches"] = std::move(json_root_);
     std::cout << document.dump() << "\n";

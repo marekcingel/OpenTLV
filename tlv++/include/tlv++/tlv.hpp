@@ -8,8 +8,7 @@
  * @file tlv.hpp
  * @brief Main include that aggregates the complete tlv++ API.
  *
- * Usage: `#include "tlv++/definition.hpp"
-#include <tlv++/tlv.hpp>`
+ * Usage: `#include <tlv++/tlv.hpp>`
  */
 
 /* Core primitives and generic formats */
@@ -17,7 +16,9 @@
 #include "tlv/tlv.h"
 #include "tlv++/format.hpp"
 #include "tlv++/diagnostic.hpp"
+#include "tlv++/version.hpp"
 #include "tlv++/formats/fixed_format.hpp"
+#include "tlv++/formats/runtime_fixed.hpp"
 
 /* Core capabilities */
 #if OPENTLV_READER
@@ -48,6 +49,7 @@
 
 #if OPENTLV_CODEC
 #include "tlv++/codec/codec.hpp"
+#include "tlv++/codec/dynamic.hpp"
 #include "tlv++/codec/typed.hpp"
 #include "tlv++/codec/registry.hpp"
 #if OPENTLV_SCHEMA && OPENTLV_READER
@@ -58,6 +60,9 @@
 /* Builtin protocols and formats */
 #if OPENTLV_FORMAT_BER
 #include "tlv++/builtins/asn1/ber.hpp"
+#if OPENTLV_QUERY && OPENTLV_READER && OPENTLV_CODEC
+#include "tlv++/builtins/asn1/query.hpp"
+#endif
 #if OPENTLV_CODEC
 #include "tlv++/builtins/asn1/codec.hpp"
 #endif
@@ -73,13 +78,20 @@
 
 #if OPENTLV_EMV
 #include "tlv++/builtins/emv/format.hpp"
+#if OPENTLV_QUERY && OPENTLV_READER && OPENTLV_SCHEMA && OPENTLV_CODEC
+#include "tlv++/builtins/emv/query.hpp"
+#endif
 #if OPENTLV_CODEC && OPENTLV_SCHEMA
 #include "tlv++/builtins/emv/codec.hpp"
+#include "tlv++/builtins/emv/dictionary.hpp"
 #endif
 #endif
 
 #if OPENTLV_BLUETOOTH
 #include "tlv++/builtins/bluetooth/ltv.hpp"
+#if OPENTLV_SCHEMA && OPENTLV_READER
+#include "tlv++/builtins/bluetooth/metadata.hpp"
+#endif
 #if OPENTLV_CODEC
 #include "tlv++/builtins/bluetooth/codec.hpp"
 #endif

@@ -9,6 +9,9 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Fixed
 
+- Keep failed C++ Reader and Tree Reader initialization distinct from clean end-of-input in `at_end()`. (#440, #461)
+- Reject C++ Format, Writer workspace and Query identifier views borrowed from temporary owners. (#440, #458)
+- Preserve read-only C++ Document traversal through immutable Node handles, including Query selections and semantic diffs. (#440, #464)
 - Align Query fuzz checks with codec diagnostics for rejected custom hook results and retain a regression input. (#543)
 - Report a codec failure in Query diagnostics when a successful custom conversion hook returns an invalid result type, missing data or invalid UTF-8. (#543)
 - Preserve validation error precedence for Packed and Variable writes: reject nonempty Tags with NULL bytes before Packed width errors, and reject oversized Variable Tags before wire-policy errors. (#541, #542)
@@ -89,6 +92,11 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Changed
 
+- Implement CLI parsing, writing, validation, metadata, decoding, Query and diagnostics through the public C++ facade. (#440, #467)
+- **Breaking:** Use scoped C++ Codec/Query configuration types and `error.message()`; move native Format overloads, typed Codec adapters, Schema validation and Query handles behind explicit `tlv::native` interoperability. The C ABI and wire semantics are unchanged. (#440, #452, #455, #462)
+- Make C++ operation errors allocation-free, avoid temporary heap storage for typed Writer values up to 64 bytes, and remove per-Node handle-tracking allocations while preserving stale-handle detection. (#440, #452, #459, #460)
+- Require scoped C++ byte-order values for compile-time Fixed Formats and explicit native import for runtime Reader/Writer constructors; move Document and Node native handles to `tlv::native::handle()`. (#440, #455, #462)
+- Diagnose disabled C++ exception support explicitly; pull operations retain result-based errors, while ranges, checked access and owning operations retain their documented exceptions. (#440, #465)
 - **Breaking:** Extend Variable identifier, length and Format configurations with optional declarative policies and a constructed-bit predicate; this changes their public C ABI and requires native clients and bindings to rebuild with the new headers and library. EMV now uses generic callbacks, while DER/CER reuse generic identifier and length minimality checks and retain ASN.1 type and termination rules. (#542)
 - **Breaking:** Separate individual-field encodings under `tlv/field/` from Format composition in `tlv/formats/compose.h`; remove `tlv/layout.h` and rename its four `*_layout_t` configuration types to `*_composition_t` without compatibility aliases. Compose Fixed/binary and Escaped configurations from `identifier` and `length` field configurations, with unified `element_order`/`length_scope` names; migrate nested initializers and rebuild native/FFI consumers. (#423)
   - Unify field write callbacks with primitive argument order `(context, tag/length, data, capacity, written)` and NULL-output sizing for both fields. Remove `tlv_length_size_fn` and the composition `length_size` member; custom field encoders must support sizing through their write callback. (#423)
@@ -170,6 +178,9 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Added
 
+- Enforce the public C++ consumer boundary in CI, with documented exceptions for native interoperability and parity tests. (#440, #451, #468)
+- Add public C++ Query environment/variable configuration, stateful runtime Codec ownership, Bluetooth metadata and DHCP container policies. (#440, #455, #456, #457, #463)
+- Add owned runtime Fixed Format configuration, bounded C++ Schema definitions and validation reports, runtime Value codecs and EMV dictionary views; use the public APIs in runtime configuration, validation and LLDP examples. (#440, #453, #454, #456, #457, #466)
 - Configure packed Tag/Length formats with immutable caller-owned identifier storage, explicit byte order and length scope; LLDP now uses the same generic framing callbacks. (#541)
 - Add a Rust/C ABI layout regression test for Fixed field and format configurations, checking member offsets and alignment as well as structure sizes. (#423)
 - Add standalone allocation-free fixed-width Identifier and Length operations in `tlv/field/fixed.h`, preserving raw identifier bytes and supporting explicit count byte order and NULL-output sizing independently of Format and optional capabilities. (#423)

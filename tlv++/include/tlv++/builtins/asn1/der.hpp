@@ -8,6 +8,7 @@
 #include "tlv/config.h"
 #if OPENTLV_READER
 #include "tlv++/reader/reader.hpp"
+#include "tlv/builtins/asn1/der_validation.h"
 #endif
 #if OPENTLV_WRITER
 #include "tlv++/writer/builder.hpp"
@@ -18,6 +19,34 @@
 namespace tlv {
 /** @brief DER wire framing; semantic validation remains separate. */
 namespace der {
+#if OPENTLV_READER
+/** @brief Explicit resource limits for canonical DER semantic validation. */
+struct limits {
+    size_t depth;    /**< Maximum nesting depth. */
+    size_t input;    /**< Maximum total input bytes. */
+    size_t value;    /**< Maximum primitive Value bytes. */
+    size_t elements; /**< Maximum total elements. */
+};
+/**
+ * @brief Validate canonical DER values and visit elements using the shared C engine.
+ * @param data Borrowed immutable input.
+ * @param resources Explicit resource limits.
+ * @param visitor Callable receiving element_view, depth and byte offset; returns visit_control.
+ * @return Success on final EOF or visitor stop, otherwise a located operation error.
+ * @note Does not allocate. Returned element views borrow input and Format storage.
+ */
+template <typename Visitor>
+expected<void, error> visit(bytes data, limits resources, Visitor&& visitor) {
+    const tlv_der_limits_t        raw{resources.depth, resources.input, resources.value,
+                                      resources.elements};
+    detail::tree_visitor<Visitor> adapter{&visitor};
+    size_t                        offset = 0;
+    const auto rc = tlv_der_visit(reinterpret_cast<const uint8_t*>(data.data()), data.size(), &raw,
+                                  &detail::tree_visitor<Visitor>::call, &adapter, &offset);
+    if (rc != TLV_OK) return unexpected<error>(error::from_c(rc).at(offset, operation::reader));
+    return {};
+}
+#endif
 /** @brief Built-in Format satisfying the generic C++ customization contract. */
 class format : public tlv::format {
 public:

@@ -77,6 +77,7 @@ TLV_NODISCARD inline detail::parsing_range<format> parse(bytes data) {
 
 } // namespace emv
 
+namespace native {
 /**
  * @brief Return the immutable definite EMV BER-TLV format.
  * @return The shared C descriptor; no allocation occurs.
@@ -85,5 +86,6 @@ TLV_NODISCARD inline detail::parsing_range<format> parse(bytes data) {
 inline const tlv_format_t& emv_format() noexcept {
     return tlv_format_emv;
 }
+} // namespace native
 } // namespace tlv
 #endif

@@ -22,10 +22,12 @@ struct moving_format : custom_cpp_format {
 };
 
 template <typename T, typename = void> struct writable : std::false_type {};
+template <typename...> struct test_void {
+    using type = void;
+};
 template <typename T>
-struct writable<
-    T, typename tlv::detail::format_void<decltype(std::declval<tlv::writer_builder&>().write(
-           tlv::tag_bytes<1>(), std::declval<const T&>()))>::type> : std::true_type {};
+struct writable<T, typename test_void<decltype(std::declval<tlv::writer_builder&>().write(
+                       tlv::tag_bytes<1>(), std::declval<const T&>()))>::type> : std::true_type {};
 static_assert(!writable<unsigned>::value, "Numeric representation must be explicit");
 static_assert(!writable<const char*>::value, "Do not allocate a string from a raw pointer");
 static_assert(!writable<std::array<unsigned, 2>>::value, "Do not serialize host objects");
@@ -84,11 +86,11 @@ int main() {
             writer.constructed<0xE1>([](tlv::writer_builder& parent) { parent.write<1>(""); });
         },
         moving_format{});
-    if (failure || failure.error().code != TLV_ERR_BUFFER_TOO_SHORT) return 3;
+    if (failure || failure.error().status() != tlv::errc::buffer_too_short) return 3;
     if (!failure.error().message()) return 4;
     auto overflow = tlv::encode<moving_format>(
         output, [&](tlv::writer_builder& writer) { writer.write<1>(text); }, moving_format{});
-    if (overflow || overflow.error().code != TLV_ERR_BUFFER_TOO_SHORT) return 5;
+    if (overflow || overflow.error().status() != tlv::errc::buffer_too_short) return 5;
     tlv::writer<moving_format> sequential(output, sizeof(output), moving_format{});
     if (!sequential.write<1>("A")) return 6;
     observe_allocations = false;

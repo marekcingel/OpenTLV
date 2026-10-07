@@ -28,6 +28,7 @@ if(OPENTLV_BUILD_UNIT_TESTS OR OPENTLV_BUILD_INTEGRATION_TESTS)
     include(fixed_format_checks.cmake)
     include(custom_format_checks.cmake)
     include(typed_field_checks.cmake)
+    include(cxx_contract_checks.cmake)
     include(FetchContent)
 
     FetchContent_Declare(

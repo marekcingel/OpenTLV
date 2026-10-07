@@ -1,6 +1,7 @@
 // SPDX-License-Identifier: MIT
 // Copyright (c) 2026 Marek Cingel
 
+#include "tlv++/native.hpp"
 #include "tlv++/tlv.hpp"
 #include "controlled_format.h"
 #include <gtest/gtest.h>
@@ -14,15 +15,15 @@ struct count {
 namespace tlv {
 template <> struct codec<application::count> {
     using value_type = application::count;
-    static expected<value_type, tlv_codec_result_t> decode(bytes input) {
+    static expected<value_type, tlv::codec_errc> decode(bytes input) {
         auto result = uint8_codec::decode(input);
-        if (!result) return unexpected<tlv_codec_result_t>(result.error());
-        if (*result > 10) return unexpected<tlv_codec_result_t>(TLV_CODEC_ERR_INVALID_VALUE);
+        if (!result) return unexpected<tlv::codec_errc>(result.error());
+        if (*result > 10) return unexpected<tlv::codec_errc>(tlv::codec_errc::invalid_value);
         return value_type{*result};
     }
-    static expected<size_t, tlv_codec_result_t> encode(const value_type& value, byte* output,
-                                                       size_t capacity) {
-        if (value.value > 10) return unexpected<tlv_codec_result_t>(TLV_CODEC_ERR_INVALID_VALUE);
+    static expected<size_t, tlv::codec_errc> encode(const value_type& value, byte* output,
+                                                    size_t capacity) {
+        if (value.value > 10) return unexpected<tlv::codec_errc>(tlv::codec_errc::invalid_value);
         return uint8_codec::encode(value.value, output, capacity);
     }
 };
@@ -44,8 +45,8 @@ TEST(Unit_Tlvpp_TypedFields, IndependentBytesAndExplicitEndianness) {
     ASSERT_TRUE(little);
     EXPECT_EQ(0x1234, *big);
     EXPECT_EQ(0x3412, *little);
-    tlv::byte                                                       output[8]{};
-    tlv::writer<tlv::fixed_format<2, 1, TLV_BYTE_ORDER_BIG_ENDIAN>> writer(output, 8);
+    tlv::byte                                                         output[8]{};
+    tlv::writer<tlv::fixed_format<2, 1, tlv::byte_order::big_endian>> writer(output, 8);
     ASSERT_TRUE(writer.write<Big>(*big));
     const tlv::byte expected[] = {static_cast<tlv::byte>(0x9F), static_cast<tlv::byte>(0x36),
                                   static_cast<tlv::byte>(2), static_cast<tlv::byte>(0x12),
@@ -66,7 +67,7 @@ TEST(Unit_Tlvpp_TypedFields, StringsPreserveNulsAndBorrowedValuesRetainInput) {
     EXPECT_EQ(input, borrowed->as_bytes().data());
     tlv::byte     output[8]{};
     tlv::byte     scratch[3]{};
-    tlv::writer<> writer(output, 8, controlled::format);
+    tlv::writer<> writer(output, 8, tlv::native::borrow_format(controlled::format));
     ASSERT_TRUE(writer.write<Label>(*text, {scratch, 3}));
     const tlv::byte expected[] = {static_cast<tlv::byte>(0x50), static_cast<tlv::byte>(3),
                                   static_cast<tlv::byte>('A'), static_cast<tlv::byte>(0),
@@ -90,7 +91,7 @@ TEST(Unit_Tlvpp_TypedFields, ErrorDomainsAndCursorPreservation) {
     EXPECT_EQ(TLV_CODEC_ERR_INVALID_VALUE, invalid.error().codec_code);
     tlv::byte     output[3]{};
     tlv::byte     scratch[1]{};
-    tlv::writer<> writer(output, 3, controlled::format);
+    tlv::writer<> writer(output, 3, tlv::native::borrow_format(controlled::format));
     auto          too_small = writer.write<Label>("AB", {scratch, 1});
     ASSERT_FALSE(too_small);
     EXPECT_EQ(TLV_CODEC_ERR_BUFFER_TOO_SHORT, too_small.error().codec_code);
@@ -122,7 +123,8 @@ TEST(Unit_Tlvpp_TypedFields, DocumentScopeDuplicatesAndInvalidatedNodes) {
         static_cast<tlv::byte>(1),    static_cast<tlv::byte>('N'), static_cast<tlv::byte>(0x50),
         static_cast<tlv::byte>(1),    static_cast<tlv::byte>('T'), static_cast<tlv::byte>(0x50),
         static_cast<tlv::byte>(1),    static_cast<tlv::byte>('D')};
-    auto doc = tlv::document::parse({input, 11}, tlv::document_format(format));
+    auto doc =
+        tlv::document::parse({input, 11}, tlv::document_format(tlv::native::borrow_format(format)));
     ASSERT_TRUE(doc);
     auto top = doc->get<Label>();
     ASSERT_TRUE(top);

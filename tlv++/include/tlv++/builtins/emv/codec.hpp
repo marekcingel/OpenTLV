@@ -13,6 +13,7 @@
  * Encode storage must be disjoint from all borrowed input; nullptr/0 validates
  * and measures. Codec errors are propagated unchanged.
  */
+#include "tlv++/codec/dynamic.hpp"
 #include <limits>
 #include "tlv/builtins/emv/emv.h"
 #include "tlv/builtins/emv/emv_codec.h"
@@ -39,6 +40,32 @@ using number_list = tlv_emv_number_list_t;
 using time = tlv_emv_time_t;
 /** @brief Self-contained EMV track2 value; see #tlv_emv_track2_t. */
 using track2 = tlv_emv_track2_t;
+/** @brief Savings account selection. */
+constexpr account savings_account = TLV_EMV_ACCOUNT_SAVINGS;
+/** @brief Cheque/debit account selection. */
+constexpr account debit_account = TLV_EMV_ACCOUNT_CHEQUE_DEBIT;
+/** @brief Credit account selection. */
+constexpr account credit_account = TLV_EMV_ACCOUNT_CREDIT;
+/** @brief Application authentication cryptogram. */
+constexpr auto aac = TLV_EMV_CRYPTOGRAM_AAC;
+/** @brief Transaction certificate. */
+constexpr auto tc = TLV_EMV_CRYPTOGRAM_TC;
+/** @brief Authorization request cryptogram. */
+constexpr auto arqc = TLV_EMV_CRYPTOGRAM_ARQC;
+/** @brief Facial biometric representation. */
+constexpr biometric facial = TLV_EMV_BIOMETRIC_FACIAL;
+/** @brief Voice biometric representation. */
+constexpr biometric voice = TLV_EMV_BIOMETRIC_VOICE;
+/** @brief Finger biometric representation. */
+constexpr biometric finger = TLV_EMV_BIOMETRIC_FINGER;
+/** @brief Iris biometric representation. */
+constexpr biometric iris = TLV_EMV_BIOMETRIC_IRIS;
+/** @brief Palm biometric representation. */
+constexpr biometric palm = TLV_EMV_BIOMETRIC_PALM;
+/** @brief Failed cardholder verification. */
+constexpr auto verification_failed = TLV_EMV_CVM_RESULT_FAILED;
+/** @brief Successful cardholder verification. */
+constexpr auto verification_succeeded = TLV_EMV_CVM_RESULT_SUCCESSFUL;
 } // namespace emv
 /// @cond INTERNAL
 namespace detail {
@@ -54,43 +81,41 @@ template <tlv_emv_context_t Context, typename Tag> struct emv_dictionary_codec_p
 };
 template <typename T, typename Provider> struct emv_dictionary_value_codec {
     using value_type = T;
-    static expected<T, tlv_codec_result_t> decode(bytes input) {
+    static expected<T, codec_errc> decode(bytes input) {
         T          result{};
         const auto rc =
             tlv_codec_decode(Provider::descriptor(), reinterpret_cast<const uint8_t*>(input.data()),
                              input.size(), &result, sizeof(result));
-        if (rc != TLV_CODEC_OK) return unexpected<tlv_codec_result_t>(rc);
+        if (rc != TLV_CODEC_OK) return unexpected<codec_errc>(static_cast<codec_errc>(rc));
         return result;
     }
-    static expected<size_t, tlv_codec_result_t> encode(const T& value, byte* output,
-                                                       size_t capacity) {
+    static expected<size_t, codec_errc> encode(const T& value, byte* output, size_t capacity) {
         size_t     written = 0;
         const auto rc = tlv_codec_encode(Provider::descriptor(), &value, sizeof(value),
                                          reinterpret_cast<uint8_t*>(output), capacity, &written);
-        if (rc != TLV_CODEC_OK) return unexpected<tlv_codec_result_t>(rc);
+        if (rc != TLV_CODEC_OK) return unexpected<codec_errc>(static_cast<codec_errc>(rc));
         return written;
     }
 };
 template <typename Provider> struct emv_dictionary_value_codec<std::string, Provider> {
     using value_type = std::string;
-    static expected<std::string, tlv_codec_result_t> decode(bytes input) {
-        if (!input.data() && input.size())
-            return unexpected<tlv_codec_result_t>(TLV_CODEC_ERR_NULL_ARG);
+    static expected<std::string, codec_errc> decode(bytes input) {
+        if (!input.data() && input.size()) return unexpected<codec_errc>(codec_errc::null_argument);
         if (input.size() > (std::numeric_limits<size_t>::max() - 1) / 2)
-            return unexpected<tlv_codec_result_t>(TLV_CODEC_ERR_INVALID_VALUE);
+            return unexpected<codec_errc>(codec_errc::invalid_value);
         std::vector<char> storage(input.size() * 2 + 1);
         const auto        rc =
             tlv_codec_decode(Provider::descriptor(), reinterpret_cast<const uint8_t*>(input.data()),
                              input.size(), storage.data(), storage.size());
-        if (rc != TLV_CODEC_OK) return unexpected<tlv_codec_result_t>(rc);
+        if (rc != TLV_CODEC_OK) return unexpected<codec_errc>(static_cast<codec_errc>(rc));
         return std::string(storage.data());
     }
-    static expected<size_t, tlv_codec_result_t> encode(const std::string& value, byte* output,
-                                                       size_t capacity) {
+    static expected<size_t, codec_errc> encode(const std::string& value, byte* output,
+                                               size_t capacity) {
         size_t     written = 0;
         const auto rc = tlv_codec_encode(Provider::descriptor(), value.c_str(), value.size(),
                                          reinterpret_cast<uint8_t*>(output), capacity, &written);
-        if (rc != TLV_CODEC_OK) return unexpected<tlv_codec_result_t>(rc);
+        if (rc != TLV_CODEC_OK) return unexpected<codec_errc>(static_cast<codec_errc>(rc));
         return written;
     }
 };
@@ -98,7 +123,7 @@ template <typename Provider> struct emv_dictionary_value_codec<std::string, Prov
 /// @endcond
 namespace emv {
 /** @brief Amount in unscaled minor units, encoded as six BCD bytes; see #tlv_emv_codec_amount. */
-using amount_codec = tlv::codec_adapter<uint64_t, &tlv_emv_codec_amount>;
+using amount_codec = tlv::detail::codec_adapter<uint64_t, &tlv_emv_codec_amount>;
 /** @brief Value codec using the canonical dictionary descriptor and its existing constraints.
  * @note Selects BASE / 42 independently of input tags; no context fallback.
  */

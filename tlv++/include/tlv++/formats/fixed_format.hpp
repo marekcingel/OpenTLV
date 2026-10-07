@@ -8,6 +8,7 @@
 #include "tlv/format.h"
 #include "tlv/formats/fixed.h"
 #include "tlv++/format.hpp"
+#include "tlv++/formats/options.hpp"
 
 #include <cstddef>
 #include <cstdint>
@@ -58,20 +59,16 @@ namespace tlv {
  * @tparam LengthWidth Length field width in bytes.
  * @tparam Order       Byte order of the length field.
  *
- * @note Uses the always-available C Fixed format implementation;
- *       format() delegates to tlv_fixed_format_init().
- * @see tlv_fixed_format_t for the same format chosen at runtime instead of
- *      compile time (tlv/formats/fixed.h), usable from C++ via
- *      `tlv::writer<>`/`tlv::reader<>`'s `const tlv_format_t&` constructor
- *      parameter directly, with no wrapper of its own needed.
+ * @note Uses the always-available canonical C Fixed format implementation.
+ * @see runtime_fixed_format for widths and policies selected at runtime.
  * @see @docs{guides/memory,format context ownership and lifetime}
  */
-template <std::size_t TagWidth, std::size_t LengthWidth, tlv_byte_order_t Order>
+template <std::size_t TagWidth, std::size_t LengthWidth, byte_order Order = byte_order::big_endian>
 class fixed_format : public tlv::format {
     static_assert(TagWidth >= 1, "fixed_format: TagWidth must be at least 1");
     static_assert(LengthWidth >= 1 && LengthWidth <= 8,
                   "fixed_format: LengthWidth must be between 1 and 8");
-    static_assert(Order == TLV_BYTE_ORDER_BIG_ENDIAN || Order == TLV_BYTE_ORDER_LITTLE_ENDIAN,
+    static_assert(Order == byte_order::big_endian || Order == byte_order::little_endian,
                   "fixed_format: Order must be big or little endian");
 
 public:
@@ -86,25 +83,25 @@ public:
     static constexpr std::uint64_t max_length =
         ~static_cast<std::uint64_t>(0) >> (64 - 8 * LengthWidth);
 
-    /**
-     * @brief Returns the descriptor for this format.
-     *
-     * @return A borrowed, immutable descriptor that lives for the whole program.
-     */
-    static const tlv_format_t& format() {
+private:
+    static const tlv_format_t& native_format() {
         static const tlv_fixed_format_t config = {
-            {TagWidth}, {LengthWidth, Order}, TLV_ELEMENT_ORDER_TLV, TLV_LENGTH_SCOPE_VALUE};
+            {TagWidth},
+            {LengthWidth, static_cast<tlv_byte_order_t>(Order)},
+            TLV_ELEMENT_ORDER_TLV,
+            TLV_LENGTH_SCOPE_VALUE};
         static const tlv_format_t fmt = init(config);
         return fmt;
     }
 
+public:
     /**
      * @brief Return an allocation-free C++ view of this fixed-width Format.
      * @return Copyable view with program-lifetime descriptor and context.
-     * @note Uses the same canonical implementation and configuration as format().
+     * @note Uses the canonical fixed Format implementation and immutable configuration.
      */
     static tlv::format view() noexcept {
-        return detail::format_access::borrow(format());
+        return detail::format_access::borrow(native_format());
     }
 
 private:
@@ -115,11 +112,11 @@ private:
     }
 };
 
-template <std::size_t TagWidth, std::size_t LengthWidth, tlv_byte_order_t Order>
+template <std::size_t TagWidth, std::size_t LengthWidth, byte_order Order>
 constexpr std::size_t fixed_format<TagWidth, LengthWidth, Order>::tag_width;
-template <std::size_t TagWidth, std::size_t LengthWidth, tlv_byte_order_t Order>
+template <std::size_t TagWidth, std::size_t LengthWidth, byte_order Order>
 constexpr std::size_t fixed_format<TagWidth, LengthWidth, Order>::length_width;
-template <std::size_t TagWidth, std::size_t LengthWidth, tlv_byte_order_t Order>
+template <std::size_t TagWidth, std::size_t LengthWidth, byte_order Order>
 constexpr std::uint64_t fixed_format<TagWidth, LengthWidth, Order>::max_length;
 
 } // namespace tlv

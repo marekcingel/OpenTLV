@@ -1,10 +1,8 @@
 // SPDX-License-Identifier: MIT
 // Copyright (c) 2026 Marek Cingel
 
-#include "tlv/builtins/emv/presentation.h"
 #include "presentation.hpp"
 #include "tlv/config.h"
-#include "tlv/size.h"
 #include <cassert>
 #include <iostream>
 #include <sstream>
@@ -17,7 +15,7 @@
 #include <unistd.h>
 #endif
 #if OPENTLV_EMV
-#include "tlv/builtins/emv/emv.h"
+#include "tlv++/builtins/emv/dictionary.hpp"
 #endif
 
 static int environment_excludes_color(void) {
@@ -75,18 +73,15 @@ void cli_presentation_restore(cli_presentation_t* p) {
 #endif
 }
 
-size_t cli_element_value_size(const tlv_element_t* element) {
-    size_t             value_size = 0;
-    const tlv_result_t rc = tlv_size_to_native(element->value.size, &value_size);
-    assert(rc == TLV_OK && "reader-produced value must fit size_t");
-    if (rc != TLV_OK) abort();
-    return value_size;
+size_t cli_element_value_size(const tlv::element_view* element) {
+    return element->value().size();
 }
 
-void cli_presentation_visit(cli_presentation_t* p, const tlv_element_t* element, size_t depth,
+void cli_presentation_visit(cli_presentation_t* p, const tlv::element_view* element, size_t depth,
                             int indefinite) {
     size_t end =
-        static_cast<size_t>(element->value.data - p->data) + cli_element_value_size(element);
+        static_cast<size_t>(reinterpret_cast<const uint8_t*>(element->value().data()) - p->data) +
+        cli_element_value_size(element);
     p->ends.resize(depth + 2);
     p->more.resize(depth + 2);
     p->contexts.resize(depth + 2);
@@ -94,8 +89,8 @@ void cli_presentation_visit(cli_presentation_t* p, const tlv_element_t* element,
     {
         p->ends[depth + 1] = end;
 #if OPENTLV_EMV
-        p->contexts[depth + 1] =
-            tlv_emv_child_context((tlv_emv_context_t)p->contexts[depth], &element->tag);
+        p->contexts[depth + 1] = static_cast<int>(tlv::emv::child_context(
+            static_cast<tlv::emv::context>(p->contexts[depth]), element->tag()));
 #endif
     }
 }
@@ -108,33 +103,25 @@ void cli_presentation_prefix(const cli_presentation_t* p, size_t depth) {
                                      : "\xE2\x94\x94\xE2\x94\x80\xE2\x94\x80 ");
 }
 
-#if OPENTLV_EMV
-/* Presentation-only wrapper: falls back to a generic title-cased label when
- * the symbol has no curated one. Tag matching, value types and bounds come
- * from tlv itself (tlv_emv_display_label/tlv_emv_titlecase_name). */
-std::string cli_emv_display_name(const tlv_definition_t* definition) {
-    return definition && definition->name ? definition->name : "";
-}
-#endif
-
-cli_emv_info cli_presentation_emv_info(const cli_presentation_t* p, const tlv_element_t* element,
-                                       size_t depth, int describe) {
+cli_emv_info cli_presentation_emv_info(const cli_presentation_t* p,
+                                       const tlv::element_view* element, size_t depth,
+                                       int describe) {
     cli_emv_info info;
 #if OPENTLV_EMV
-    const tlv_emv_definition_t* definition =
-        tlv_emv_find((tlv_emv_context_t)p->contexts[depth], &element->tag);
+    const auto definition = tlv::emv::dictionary(static_cast<tlv::emv::context>(p->contexts[depth]))
+                                .find(element->tag());
     if (!definition) return info;
     info.known = true;
-    info.name = cli_emv_display_name(definition->definition);
+    info.name = definition.name();
     if (describe) {
         std::ostringstream description;
-        description << tlv_emv_value_kind_description(tlv_emv_builtin_value_kind(definition))
-                    << "; dictionary length: " << definition->schema->min_length;
-        if (definition->schema->max_length == SIZE_MAX)
+        description << tlv::emv::description(definition.kind())
+                    << "; dictionary length: " << definition.length().minimum;
+        if (definition.length().maximum == SIZE_MAX)
             description << "..unbounded";
-        else if (definition->schema->max_length != definition->schema->min_length)
-            description << ".." << definition->schema->max_length;
-        description << " bytes; step: " << tlv_emv_length_step(definition);
+        else if (definition.length().maximum != definition.length().minimum)
+            description << ".." << definition.length().maximum;
+        description << " bytes; step: " << definition.length_step();
         info.has_description = true;
         info.description = description.str();
     }
@@ -147,8 +134,8 @@ cli_emv_info cli_presentation_emv_info(const cli_presentation_t* p, const tlv_el
     return info;
 }
 
-void cli_presentation_emv(const cli_presentation_t* p, const tlv_element_t* element, size_t depth,
-                          int describe) {
+void cli_presentation_emv(const cli_presentation_t* p, const tlv::element_view* element,
+                          size_t depth, int describe) {
     const cli_emv_info info = cli_presentation_emv_info(p, element, depth, describe);
     std::cout << " name=\"" << (info.known ? info.name : "Unknown EMV tag in this context") << '"';
     if (info.has_description) std::cout << " description=\"" << info.description << '"';

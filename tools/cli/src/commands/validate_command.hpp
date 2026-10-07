@@ -26,22 +26,22 @@ private:
     // plus enough detail -- independent of `presentation`, which exists only
     // for display bookkeeping -- to report it richly.
     struct dictionary_check {
-        cli_presentation_t       presentation = {};
-        const uint8_t*           data = nullptr;
-        tlv_is_constructed_fn    predicate = nullptr;
-        diagnostic_scope         scope = {};
-        tlv_result_t             result = TLV_OK;
-        std::size_t              offset = 0;
-        std::string              tag;
-        std::string              expected;
-        std::string              actual;
-        const char*              field_name = nullptr;
-        tlv_diagnostic_context_t field_context = {};
+        cli_presentation_t      presentation = {};
+        const uint8_t*          data = nullptr;
+        const tlv::format*      predicate = nullptr;
+        diagnostic_scope        scope = {};
+        tlv::errc               result = tlv::errc::ok;
+        std::size_t             offset = 0;
+        std::string             tag;
+        std::string             expected;
+        std::string             actual;
+        const char*             field_name = nullptr;
+        tlv::diagnostic_context field_context = {};
     };
-    static tlv_visit_result_t check_dictionary_trampoline(const tlv_element_t* element,
+    static tlv::visit_control check_dictionary_trampoline(const tlv::element_view* element,
                                                           std::size_t depth, std::size_t offset,
                                                           void* context);
-    tlv_visit_result_t check_dictionary_element(const tlv_element_t* element, std::size_t depth,
+    tlv::visit_control check_dictionary_element(const tlv::element_view* element, std::size_t depth,
                                                 std::size_t offset);
 
     dictionary_check check_;

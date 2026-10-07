@@ -24,6 +24,21 @@ namespace tlv {
 
 /** @brief BER-specific types backed by generic OpenTLV operations. */
 namespace ber {
+/** @brief Largest supported BER identifier width in bytes. */
+constexpr size_t max_tag_size = TLV_ASN1_TAG_MAX_SIZE;
+/**
+ * @brief Read one canonical BER identifier without reading its Length or Value.
+ * @param input Borrowed immutable input.
+ * @param consumed Identifier byte count, unchanged on failure.
+ * @return Borrowed identifier or canonical wire error; no allocation occurs.
+ */
+inline expected<tlv::tag, error> read_identifier(bytes input, size_t& consumed) {
+    tlv_tag_t  identifier{};
+    const auto rc = tlv_ber_read_identifier(reinterpret_cast<const uint8_t*>(input.data()),
+                                            input.size(), &identifier, &consumed);
+    if (rc != TLV_OK) return unexpected<error>(error::from_c(rc));
+    return detail::semantic_access::borrow(identifier);
+}
 /**
  * @brief Program-lifetime BER Format usable by generic C++ consumers.
  * @note Constructing or copying this view allocates nothing. BER parsing and

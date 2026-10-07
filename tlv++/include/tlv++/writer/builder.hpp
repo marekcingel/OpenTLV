@@ -13,10 +13,21 @@
  */
 namespace tlv {
 
+/** @brief Opaque structural Writer frame storage; contents belong to the active Writer. */
+using writer_frame = tlv_tree_writer_frame_t;
+
 /** @brief Writer failure without an allocating message string. */
 struct writer_failure {
     /** @brief Original canonical Writer result. */
     tlv_result_t code;
+    /** @brief Canonical C++ operation status. */
+    errc status() const noexcept {
+        return static_cast<errc>(code);
+    }
+    /** @brief Copy the common structured failure without allocating. */
+    tlv::error failure() const noexcept {
+        return tlv::error(status(), operation::writer);
+    }
     /** @brief Borrow a static description; no allocation or ownership transfer. */
     const char* message() const noexcept {
         return tlv_strerror(code);
@@ -28,7 +39,7 @@ struct writer_failure {
  */
 struct writer_workspace {
     /** @brief One frame for each simultaneously open constructed element. */
-    span<tlv_tree_writer_frame_t> frames;
+    span<writer_frame> frames;
     /** @brief Bytes sufficient for the largest constructed Value closed during writing. */
     span<byte> scratch;
     /** @brief Largest item depth, with roots at zero. */
@@ -67,11 +78,13 @@ public:
      * @param max_elements Maximum successful writes and parent openings.
      * @return View valid while this object remains alive and stationary.
      */
-    writer_workspace view(size_t max_depth = Depth, size_t max_elements = SIZE_MAX) noexcept {
+    writer_workspace view(size_t max_depth = Depth, size_t max_elements = SIZE_MAX) & noexcept {
         return writer_workspace(span<tlv_tree_writer_frame_t>(frames_.data(), Depth),
                                 span<byte>(scratch_.data(), ScratchCapacity), max_depth,
                                 max_elements);
     }
+    /** @brief Reject borrowing construction storage from a temporary owner. */
+    writer_workspace view(size_t = Depth, size_t = SIZE_MAX) && = delete;
 
 private:
     std::array<tlv_tree_writer_frame_t, Depth> frames_;

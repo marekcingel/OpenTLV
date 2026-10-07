@@ -16,6 +16,7 @@ PROFILES = {
     "parse-document": ("READER", "DOCUMENT"),
     "write-document": ("WRITER", "DOCUMENT"),
     "query": ("QUERY",),
+    "query-reader": ("QUERY", "READER"),
     "document-query": ("DOCUMENT", "QUERY"),
     "schema": ("SCHEMA",),
     "codec": ("CODEC",),

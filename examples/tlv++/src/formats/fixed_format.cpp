@@ -10,7 +10,7 @@
 #include "tlv++/formats/fixed_format.hpp"
 #include "tlv++/tlv.hpp"
 
-using format = tlv::fixed_format<2, 2, TLV_BYTE_ORDER_LITTLE_ENDIAN>;
+using format = tlv::fixed_format<2, 2, tlv::byte_order::little_endian>;
 
 int main() {
     std::array<tlv::byte, 16> buf{};
@@ -19,7 +19,7 @@ int main() {
     const std::array<tlv::byte, 3> value = {tlv::byte(0xAA), tlv::byte(0xBB), tlv::byte(0xCC)};
     auto                           written = writer.write<0x12, 0x34>(value);
     if (!written) {
-        std::cerr << "write error: " << written.error().message << "\n";
+        std::cerr << "write error: " << written.error().message() << "\n";
         return 1;
     }
 

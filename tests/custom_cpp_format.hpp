@@ -13,13 +13,14 @@ struct custom_cpp_format {
     unsigned char                                    trailer = 0xA5;
     tlv::expected<tlv::decoded, tlv::format_failure> decode(tlv::bytes data) const noexcept {
         if (data.size() < 2)
-            return failure(TLV_ERR_BUFFER_TOO_SHORT, TLV_REGION_HEADER, data.size(), 2);
+            return failure(tlv::errc::buffer_too_short, tlv::wire_region::header, data.size(), 2);
         const size_t length = static_cast<unsigned char>(data[1]);
         const size_t total = length + 3;
         if (data.size() < total)
-            return failure(TLV_ERR_BUFFER_TOO_SHORT, TLV_REGION_TRAILER, data.size(), total);
+            return failure(tlv::errc::buffer_too_short, tlv::wire_region::trailer, data.size(),
+                           total);
         if (static_cast<unsigned char>(data[total - 1]) != trailer)
-            return failure(TLV_ERR_INVALID_VALUE, TLV_REGION_TRAILER, total - 1, total);
+            return failure(tlv::errc::invalid_value, tlv::wire_region::trailer, total - 1, total);
         tlv::source source{};
         source.size = total;
         source.header = {0, 2, 1};
@@ -35,10 +36,10 @@ struct custom_cpp_format {
     measure(const tlv::measure_request& value) const noexcept {
         if (value.identifier.size() != 1)
             return tlv::unexpected<tlv::format_failure>(
-                tlv::format_failure(TLV_ERR_INVALID_TAG_SIZE));
+                tlv::format_failure(tlv::errc::invalid_tag_size));
         if (value.value_size > 255)
             return tlv::unexpected<tlv::format_failure>(
-                tlv::format_failure(TLV_ERR_INVALID_LENGTH));
+                tlv::format_failure(tlv::errc::invalid_length));
         const auto size = value.value_size;
         return tlv::encoding{2, size, 1, size + 3};
     }
@@ -49,7 +50,7 @@ struct custom_cpp_format {
         if (!size) return tlv::unexpected<tlv::format_failure>(size.error());
         if (data.size() < size->total)
             return tlv::unexpected<tlv::format_failure>(
-                tlv::format_failure(TLV_ERR_BUFFER_TOO_SHORT));
+                tlv::format_failure(tlv::errc::buffer_too_short));
         data[0] = value.tag()[0];
         data[1] = static_cast<tlv::byte>(value.value().size());
         if (!value.value().empty())
@@ -62,15 +63,10 @@ struct custom_cpp_format {
     }
 
 private:
-    static tlv::unexpected<tlv::format_failure> failure(tlv_result_t code, tlv_region_t region,
+    static tlv::unexpected<tlv::format_failure> failure(tlv::errc code, tlv::wire_region region,
                                                         size_t offset, size_t required) noexcept {
-        tlv_format_error_t detail{};
-        detail.region = region;
-        detail.offset = offset;
-        detail.has_offset = 1;
-        detail.required = required;
-        detail.has_required = 1;
-        return tlv::unexpected<tlv::format_failure>(tlv::format_failure(code, detail));
+        return tlv::unexpected<tlv::format_failure>(
+            tlv::format_failure(code).at(region, offset, required));
     }
 };
 #endif

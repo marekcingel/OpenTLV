@@ -21,7 +21,54 @@ using diagnostic_context = tlv_diagnostic_context_t;
 
 /** @brief C++ alias for the C diagnostic path type, #tlv_diagnostic_path_t. */
 using diagnostic_path = tlv_diagnostic_path_t;
+/** @brief Maximum number of enclosing identifiers retained by a diagnostic path. */
+constexpr size_t diagnostic_path_capacity = TLV_DIAGNOSTIC_PATH_MAX;
+/** @brief Borrow the identifier at index, or an absent identifier when out of range. */
+inline tlv::tag path_tag(const diagnostic_path& path, size_t index) noexcept {
+    return index < path.length ? detail::semantic_access::borrow(path.tags[index]) : tlv::tag{};
+}
 
+/** @brief Immutable program-lifetime severity name. */
+inline const char* message(severity value) noexcept {
+    return tlv_diagnostic_severity_string(static_cast<tlv_diagnostic_severity_t>(value));
+}
+/** @brief Canonical C++ status of a common diagnostic. */
+inline errc status(const diagnostic& value) noexcept {
+    return static_cast<errc>(value.code);
+}
+/** @brief Severity of a common diagnostic. */
+inline severity severity_of(const diagnostic& value) noexcept {
+    return static_cast<severity>(value.severity);
+}
+/** @brief Assign severity without changing error detail. */
+inline void set_severity(diagnostic& value, severity level) noexcept {
+    value.severity = static_cast<tlv_diagnostic_severity_t>(level);
+}
+/** @brief Initialize common diagnostic metadata using C++ status and severity. */
+inline diagnostic make_diagnostic(errc code, severity level = severity::error) noexcept {
+    diagnostic result;
+    tlv_diagnostic_init(&result, static_cast<tlv_result_t>(code),
+                        static_cast<tlv_diagnostic_severity_t>(level));
+    return result;
+}
+/** @brief Attach an absolute byte offset to a common diagnostic. */
+inline void set_offset(diagnostic& value, size_t offset) noexcept {
+    tlv_diagnostic_set_offset(&value, offset);
+}
+/** @brief Format a hierarchical identifier path into caller-owned character storage.
+ * @param path Borrowed enclosing identifiers.
+ * @param output Destination for text including its terminator.
+ * @return Text length excluding the terminator, or insufficient-storage error.
+ * @note Does not allocate; input identifiers need only remain alive for the call.
+ */
+inline expected<size_t, error> format_path(const diagnostic_path& path, span<char> output) {
+    size_t     size = 0;
+    const auto rc = tlv_diagnostic_path_string(&path, output.data(), output.size(), &size);
+    if (rc != TLV_OK) return unexpected<error>(error::from_c(rc));
+    return size;
+}
+
+namespace native {
 /**
  * @brief Builds a diagnostic with a code and severity, and no location, expectation or context.
  *
@@ -37,6 +84,7 @@ inline diagnostic make_diagnostic(tlv_result_t code, tlv_diagnostic_severity_t s
     tlv_diagnostic_init(&result, code, severity);
     return result;
 }
+} // namespace native
 
 /**
  * @brief Attaches one context element to a diagnostic.

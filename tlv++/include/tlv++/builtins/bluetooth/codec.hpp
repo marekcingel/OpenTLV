@@ -18,6 +18,7 @@
 #include "tlv/builtins/bluetooth/service_data.h"
 #include "tlv/builtins/bluetooth/manufacturer_data.h"
 #include "tlv++/detail/builtin_codec.hpp"
+#include "tlv++/codec/dynamic.hpp"
 
 namespace tlv {
 /** @brief Bluetooth Advertising Data Value semantics. */
@@ -124,14 +125,30 @@ struct bluetooth_manufacturer_data_conversion {
 } // namespace detail
 /// @endcond
 namespace bluetooth {
+/** @brief Read a UUID at index through the canonical list codec without allocation.
+ * @tparam T uint16_t, uint32_t or uuid128, matching the list's UUID width.
+ * @param list Borrowed immutable decoded UUID list.
+ * @param index Zero-based UUID index.
+ * @return UUID or canonical size/index error; the input remains unchanged.
+ */
+template <typename T> expected<T, codec_errc> uuid_at(const uuid_list& list, size_t index) {
+    static_assert(std::is_same<T, uint16_t>::value || std::is_same<T, uint32_t>::value ||
+                      std::is_same<T, uuid128>::value,
+                  "UUID representation must match a Bluetooth UUID");
+    const auto raw = detail::bluetooth_uuid_list_conversion::to_native(list);
+    T          result{};
+    const auto rc = tlv_bluetooth_uuid_list_at(&raw, index, &result, sizeof(result));
+    if (rc != TLV_CODEC_OK) return unexpected<codec_errc>(static_cast<codec_errc>(rc));
+    return result;
+}
 /** @brief Value codec; see #tlv_bluetooth_codec_uuid16. */
-using uuid16_codec = tlv::codec_adapter<uint16_t, &tlv_bluetooth_codec_uuid16>;
+using uuid16_codec = tlv::detail::codec_adapter<uint16_t, &tlv_bluetooth_codec_uuid16>;
 /** @brief Value codec; see #tlv_bluetooth_codec_uuid32. */
-using uuid32_codec = tlv::codec_adapter<uint32_t, &tlv_bluetooth_codec_uuid32>;
+using uuid32_codec = tlv::detail::codec_adapter<uint32_t, &tlv_bluetooth_codec_uuid32>;
 /** @brief Value codec; see #tlv_bluetooth_codec_uuid128. */
-using uuid128_codec = tlv::codec_adapter<uuid128, &tlv_bluetooth_codec_uuid128>;
+using uuid128_codec = tlv::detail::codec_adapter<uuid128, &tlv_bluetooth_codec_uuid128>;
 /** @brief Value codec; see #tlv_bluetooth_ad_codec_tx_power. */
-using tx_power_codec = tlv::codec_adapter<int8_t, &tlv_bluetooth_ad_codec_tx_power>;
+using tx_power_codec = tlv::detail::codec_adapter<int8_t, &tlv_bluetooth_ad_codec_tx_power>;
 /** @brief Borrowed Value codec; see #tlv_bluetooth_ad_codec_flags. */
 using flags_codec = detail::builtin_codec<value_view, tlv_value_t, &tlv_bluetooth_ad_codec_flags,
                                           detail::borrowed_value_conversion>;

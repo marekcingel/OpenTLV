@@ -7,8 +7,7 @@
 #include <nlohmann/json.hpp>
 #include "diagnostics.hpp"
 #include "tlv/config.h"
-#include "tlv/builtins/asn1/ber.h"
-#include "tlv/tag.h"
+#include "tlv++/builtins/asn1/identifier.hpp"
 
 namespace cli {
 namespace json_model {
@@ -134,7 +133,7 @@ public:
             case member::tag:
                 if (!hex_bytes(value, element.tag)) return bad_hex("tag");
                 if (element.tag.empty()) return fail(2, "member \"tag\" must not be empty");
-                if (element.tag.size() > TLV_ASN1_TAG_MAX_SIZE)
+                if (element.tag.size() > tlv::asn1::max_tag_size)
                     return fail(2, "tag is longer than the longest tag a supported format accepts");
                 return true;
             case member::value:

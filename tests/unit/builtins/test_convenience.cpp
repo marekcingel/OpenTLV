@@ -24,7 +24,7 @@ template <typename Codec> void value_round_trip(tlv::bytes wire) {
     if (wire.size()) {
         auto short_output = Codec::encode(*decoded, output.data(), wire.size() - 1);
         ASSERT_FALSE(short_output);
-        EXPECT_EQ(TLV_CODEC_ERR_BUFFER_TOO_SHORT, short_output.error());
+        EXPECT_EQ(tlv::codec_errc::buffer_too_short, short_output.error());
     }
 }
 } // namespace

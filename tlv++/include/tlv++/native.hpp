@@ -5,6 +5,22 @@
 #define OPENTLV_TLVPP_NATIVE_HPP
 
 #include "tlv++/format.hpp"
+#include "tlv/config.h"
+#if OPENTLV_QUERY && OPENTLV_READER
+#include "tlv++/query/query.hpp"
+#include "tlv++/query/options.hpp"
+#include "tlv++/query/program.hpp"
+#endif
+#if OPENTLV_CODEC
+#include "tlv++/codec/dynamic.hpp"
+#include "tlv++/codec/typed.hpp"
+#endif
+#if OPENTLV_SCHEMA
+#include "tlv++/schema/definition.hpp"
+#endif
+#if OPENTLV_DOCUMENT && OPENTLV_READER && OPENTLV_WRITER && OPENTLV_QUERY && OPENTLV_CODEC
+#include "tlv++/document/document.hpp"
+#endif
 
 /** @file
  * @brief Explicit interoperability with the canonical C engine.
@@ -13,6 +29,95 @@
 namespace tlv {
 /** @brief Explicit C interoperability; ordinary C++ code uses public C++ types. */
 namespace native {
+#if OPENTLV_QUERY && OPENTLV_READER
+/** @brief Borrow an immutable native program; its owner and providers must outlive use. */
+inline const tlv_query_program_t* handle(const query_program& value) noexcept {
+    return detail::query_program_access::get(value);
+}
+/** @brief Reject borrowing a native program from a temporary owner. */
+const tlv_query_program_t* handle(query_program&&) = delete;
+/** @brief Reject borrowing a native program from a const temporary owner. */
+const tlv_query_program_t* handle(const query_program&&) = delete;
+/** @brief Borrow a mutable continuation; its owner and borrowed inputs must outlive use. */
+inline tlv_query_exec_t* handle(query_execution& value) noexcept {
+    return detail::query_program_access::get(value);
+}
+/** @brief Explicitly borrow native compiler settings; all referenced state remains borrowed. */
+inline query_settings borrow_query_settings(const tlv_query_compile_options_t* value) noexcept {
+    return detail::query_options_access::borrow(value);
+}
+/** @brief Explicitly borrow native Query capabilities, including an absent environment. */
+inline query_capabilities borrow_query_capabilities(const tlv_query_environment_t* value) noexcept {
+    return detail::query_options_access::borrow(value);
+}
+/** @brief Borrow a parsed native path; the C++ Query owner must outlive its use. */
+inline const tlv_query_t& descriptor(const query& value) noexcept {
+    return detail::query_access::get(value);
+}
+/** @brief Reject descriptor borrowing from a temporary Query. */
+const tlv_query_t& descriptor(query&&) = delete;
+/** @brief Reject descriptor borrowing from a const temporary Query. */
+const tlv_query_t& descriptor(const query&&) = delete;
+#endif
+
+#if OPENTLV_CODEC
+/** @brief Explicit typed adaptation of an immutable C Value Codec descriptor.
+ * @tparam T Exact C representation documented by Descriptor.
+ * @tparam Descriptor Program-lifetime canonical C Codec; context remains borrowed.
+ */
+template <typename T, const tlv_codec_t* Descriptor>
+using codec_adapter = detail::codec_adapter<T, Descriptor>;
+/** @brief Borrow an immutable C Codec and context for explicit runtime interoperability.
+ * @warning Descriptor and context must outlive all uses; representation types must match.
+ */
+inline dynamic_codec borrow_codec(const tlv_codec_t& descriptor) noexcept {
+    return detail::codec_access::borrow(&descriptor);
+}
+/** @brief Reject a dangling view into a temporary C Codec. */
+dynamic_codec borrow_codec(tlv_codec_t&&) = delete;
+/** @brief Reject a dangling view into a const temporary C Codec. */
+dynamic_codec borrow_codec(const tlv_codec_t&&) = delete;
+/** @brief Access a borrowed runtime Codec, or nullptr for an absent codec. */
+inline const tlv_codec_t* descriptor(dynamic_codec view) noexcept {
+    return detail::codec_access::get(view);
+}
+#endif
+#if OPENTLV_SCHEMA
+/** @brief Borrow a C structural Schema for explicit interoperability without allocation.
+ * @warning All tables, identifier bytes and names must outlive uses of the returned view.
+ */
+inline schema borrow_schema(const tlv_structure_schema_t& descriptor) noexcept {
+    return detail::schema_access::borrow(&descriptor);
+}
+/** @brief Reject borrowing a temporary Schema descriptor. */
+schema borrow_schema(tlv_structure_schema_t&&) = delete;
+/** @brief Reject borrowing a const temporary Schema descriptor. */
+schema borrow_schema(const tlv_structure_schema_t&&) = delete;
+/** @brief Access the immutable borrowed Schema descriptor, or nullptr for an absent Schema. */
+inline const tlv_structure_schema_t* descriptor(schema view) noexcept {
+    return detail::schema_access::get(view);
+}
+#endif
+
+#if OPENTLV_DOCUMENT && OPENTLV_READER && OPENTLV_WRITER && OPENTLV_QUERY && OPENTLV_CODEC
+/** @brief Borrow a mutable native Document for explicit interoperability; never free it.
+ * @warning Pointer must not outlive the owner. Edits preserve checked C++ handle invalidation. */
+inline tlv_document_t* handle(document& value) {
+    return detail::document_access::get(value);
+}
+/** @brief Borrow a read-only native Document; never free it or outlive its owner. */
+inline const tlv_document_t* handle(const document& value) {
+    return detail::document_access::get(value);
+}
+/** @brief Borrow a mutable native Node, or nullptr if invalid; never free its owner. */
+inline tlv_node_t* handle(const node& value) {
+    return detail::document_access::get(value);
+}
+/** @brief Borrow a read-only native Node, or nullptr if invalid. */
+inline const tlv_node_t* handle(const const_node& value) {
+    return detail::document_access::get(value);
+}
+#endif
 
 /**
  * @brief Borrow an existing immutable C Format without copying or allocation.

@@ -10,7 +10,7 @@ namespace tlv {
 /** @brief Typed expression text, validated only when compiled through the canonical C engine.
  * @tparam Kind Expected result category; a mismatch is a native INVALID_ARG failure.
  * Building expressions allocates strings. This helper performs no semantic parsing. */
-template <tlv_query_result_kind_t Kind> class query_expression {
+template <query_type Kind> class query_expression {
 public:
     /** @brief Adopt bounded expression text, including embedded NUL for C diagnostics. */
     explicit query_expression(std::string text) : text_(std::move(text)) {}
@@ -19,13 +19,12 @@ public:
         return text_;
     }
     /** @brief Compile composed text with typed variable declarations and borrowed providers.
-     * @param options Native initialized compiler environment.
+     * @param options Borrowed compiler settings.
      * @return Immutable owning program or full native diagnostic. */
-    expected<query_program, query_failure>
-    compile(const tlv_query_compile_options_t* options = nullptr) const {
+    expected<query_program, query_failure> compile(query_settings options = nullptr) const {
         auto program = query_program::compile(text_, options);
         if (!program) return program;
-        if (program->info().result_kind != Kind)
+        if (program->result_type() != Kind)
             return unexpected<query_failure>(detail::query_failed(TLV_ERR_INVALID_ARG));
         return program;
     }
@@ -34,15 +33,15 @@ private:
     std::string text_;
 };
 /** @brief Node selector expression. */
-using query_nodes = query_expression<TLV_QUERY_RESULT_NODES>;
+using query_nodes = query_expression<query_type::nodes>;
 /** @brief Boolean assertion expression. */
-using query_boolean = query_expression<TLV_QUERY_RESULT_BOOL>;
+using query_boolean = query_expression<query_type::boolean>;
 /** @brief Signed integer expression. */
-using query_integer = query_expression<TLV_QUERY_RESULT_INTEGER>;
+using query_integer = query_expression<query_type::integer>;
 /** @brief Byte span expression. */
-using query_bytes = query_expression<TLV_QUERY_RESULT_BYTES>;
+using query_bytes = query_expression<query_type::bytes>;
 /** @brief UTF-8 string expression. */
-using query_string = query_expression<TLV_QUERY_RESULT_STRING>;
+using query_string = query_expression<query_type::string>;
 /** @brief Compose a selector predicate without parsing either expression. */
 inline query_nodes where(const query_nodes& nodes, const query_boolean& condition) {
     return query_nodes("(" + nodes.text() + ")[" + condition.text() + "]");
@@ -68,15 +67,14 @@ inline query_integer integer(int64_t value) {
 /** @brief Compose a typed variable reference; the C compiler validates its bounded name.
  * @tparam Kind Integer, bytes or string type matching the supplied compiler declaration.
  * @param name Variable name without a dollar prefix. */
-template <tlv_query_result_kind_t Kind>
-inline query_expression<Kind> variable(const std::string& name) {
-    static_assert(Kind == TLV_QUERY_RESULT_INTEGER || Kind == TLV_QUERY_RESULT_BYTES ||
-                      Kind == TLV_QUERY_RESULT_STRING,
+template <query_type Kind> inline query_expression<Kind> variable(const std::string& name) {
+    static_assert(Kind == query_type::integer || Kind == query_type::bytes ||
+                      Kind == query_type::string,
                   "Query variables support integer, bytes and string only");
     return query_expression<Kind>("$" + name);
 }
 /** @brief Compose typed scalar equality. */
-template <tlv_query_result_kind_t Kind>
+template <query_type Kind>
 inline query_boolean operator==(const query_expression<Kind>& a, const query_expression<Kind>& b) {
     return query_boolean("(" + a.text() + ") = (" + b.text() + ")");
 }

@@ -78,7 +78,7 @@ void operator delete[](void* pointer, size_t) noexcept {
 
 int main() {
     observe_allocations = true;
-    using custom_format = tlv::fixed_format<1, 1, TLV_BYTE_ORDER_BIG_ENDIAN>;
+    using custom_format = tlv::fixed_format<1, 1, tlv::byte_order::big_endian>;
     using custom_field = tlv::field<tlv::tag_constant<4>, uint8_t>;
     tlv::byte generic_output[3]{};
     size_t    generic_calls = 0;

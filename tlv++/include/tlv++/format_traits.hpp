@@ -14,6 +14,15 @@
  */
 namespace tlv {
 
+/** @brief Region of original framing involved in a Format failure. */
+enum class wire_region {
+    header = TLV_REGION_HEADER,  /**< Complete header. */
+    tag = TLV_REGION_TAG,        /**< Identifier field. */
+    length = TLV_REGION_LENGTH,  /**< Length field. */
+    value = TLV_REGION_VALUE,    /**< Value bytes. */
+    trailer = TLV_REGION_TRAILER /**< Closing framing. */
+};
+
 /** @brief Allocation-free Format failure with optional relative wire diagnostics. */
 struct format_failure {
     /** @brief Original canonical result code. */
@@ -26,6 +35,36 @@ struct format_failure {
      */
     explicit format_failure(tlv_result_t code, tlv_format_error_t detail = {}) noexcept
         : code(code), detail(detail) {}
+    /** @brief Report a canonical C++ status without exposing native enum values. */
+    explicit format_failure(errc code) noexcept : code(static_cast<tlv_result_t>(code)), detail{} {}
+    /** @brief Canonical C++ outcome. */
+    errc status() const noexcept {
+        return static_cast<errc>(code);
+    }
+    /** @brief Static canonical description, without allocating. */
+    const char* message() const noexcept {
+        return tlv::message(status());
+    }
+    /** @brief Copy common metadata; relative framing details remain available on this failure. */
+    tlv::error failure() const noexcept {
+        auto value = tlv::error(status(), operation::format);
+        return detail.has_offset ? value.at(detail.offset, operation::format) : value;
+    }
+    /** @brief Return a copy with element-relative offset and required input/output extent.
+     * @param region Failed wire field.
+     * @param offset Byte offset relative to the element start.
+     * @param required Total required bytes, without narrowing logical wire sizes.
+     * @return Enriched failure; no allocation or ownership transfer occurs.
+     */
+    format_failure at(wire_region region, size_t offset, wire_size required) const noexcept {
+        auto copy = *this;
+        copy.detail.region = static_cast<tlv_region_t>(region);
+        copy.detail.offset = offset;
+        copy.detail.has_offset = 1;
+        copy.detail.required = required;
+        copy.detail.has_required = 1;
+        return copy;
+    }
 };
 
 /** @brief Borrowed arguments for exact logical Format measurement.
@@ -437,9 +476,11 @@ public:
     /** @brief Prohibit assignment of immutable configuration. */
     format_adapter& operator=(const format_adapter&) = delete;
     /** @brief Return a borrowed generic view; the adapter must outlive all uses. */
-    tlv::format view() const noexcept {
+    tlv::format view() const& noexcept {
         return detail::format_access::borrow(descriptor_);
     }
+    /** @brief Reject a view whose temporary adapter would immediately be destroyed. */
+    tlv::format view() const&& = delete;
 
 private:
     tlv_format_t make_descriptor() const noexcept {

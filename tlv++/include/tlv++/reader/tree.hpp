@@ -20,7 +20,7 @@ using tree_frame = tlv_tree_frame_t;
  * @brief Bounded preorder traversal with incremental input and subtree control.
  * @warning Input, Format and context must outlive returned views. Frames must
  * remain writable and alive throughout traversal and must not overlap input.
- * Successful pull operations allocate nothing; error messages may allocate.
+ * Pull operations and returned structured errors do not allocate.
  * Only the last successful explicit next() selects a subtree for Document building.
  * Every pull, skip, input replacement, validation, visitor or builder creation
  * attempt invalidates the previous selection, including failed attempts.
@@ -40,16 +40,6 @@ public:
      * @throws query_error On invalid Query text, retaining its text offset.
      */
     query_range select(const char* text);
-    /**
-     * @brief Initialize bounded traversal using a C++ Format view.
-     * @copydetails tree_reader(bytes, const tlv_format_t&, span<tree_frame>, size_t, size_t,
-     * input_mode)
-     * @note The view may be temporary; its descriptor and context remain borrowed.
-     */
-    tree_reader(bytes data, tlv::format format, span<tree_frame> frames, size_t max_depth,
-                size_t max_elements, input_mode mode = input_mode::final)
-        : tree_reader(data, detail::format_access::get(format), frames, max_depth, max_elements,
-                      mode) {}
 
     /**
      * @brief Initialize traversal over borrowed input and frame storage.
@@ -61,12 +51,13 @@ public:
      * @param mode Whether the input is final or resumable.
      * @note Initialization errors are reported by subsequent operations.
      */
-    tree_reader(bytes data, const tlv_format_t& format, span<tree_frame> frames, size_t max_depth,
+    tree_reader(bytes data, tlv::format format, span<tree_frame> frames, size_t max_depth,
                 size_t max_elements, input_mode mode = input_mode::final) {
         auto init =
             mode == input_mode::final ? tlv_tree_reader_init : tlv_tree_reader_init_incremental;
         init_result_ = init(&impl_, reinterpret_cast<const uint8_t*>(data.data()), data.size(),
-                            &format, frames.data(), frames.size(), max_depth, max_elements);
+                            &detail::format_access::get(format), frames.data(), frames.size(),
+                            max_depth, max_elements);
     }
 
     /** @brief Copying a cursor would share mutable frame storage and is prohibited. */
@@ -84,9 +75,11 @@ public:
      * entire encoded extent; use next_event() for explicit structural events.
      */
     TLV_NODISCARD expected<tree_item, error> next(reader_diagnostic* diagnostic = nullptr) {
-        tree_item result{};
-        auto      rc = next_item(result, diagnostic);
-        if (rc != TLV_OK) return unexpected<error>(error::from_c(rc));
+        tree_item         result{};
+        reader_diagnostic local{};
+        auto*             report = diagnostic ? diagnostic : &local;
+        auto              rc = next_item(result, report);
+        if (rc != TLV_OK) return unexpected<error>(detail::reader_failed(rc, *report, offset()));
         return result;
     }
 
@@ -98,11 +91,12 @@ public:
      */
     TLV_NODISCARD expected<tree_event, error> next_event(reader_diagnostic* diagnostic = nullptr) {
         has_current_ = false;
-        tlv_tree_event_t event{};
-        auto             rc = init_result_ == TLV_OK
-                                  ? tlv_tree_reader_next_event_diag(&impl_, &event, diagnostic)
-                                  : init_result_;
-        if (rc != TLV_OK) return unexpected<error>(error::from_c(rc));
+        tlv_tree_event_t  event{};
+        reader_diagnostic local{};
+        auto*             report = diagnostic ? diagnostic : &local;
+        auto rc = init_result_ == TLV_OK ? tlv_tree_reader_next_event_diag(&impl_, &event, report)
+                                         : init_result_;
+        if (rc != TLV_OK) return unexpected<error>(detail::reader_failed(rc, *report, offset()));
         return detail::tree_access::borrow(event);
     }
 
@@ -143,7 +137,7 @@ public:
     }
     /** @brief True at final exhaustion or when initialization failed. */
     TLV_NODISCARD bool at_end() const {
-        return init_result_ != TLV_OK || tlv_tree_reader_at_end(&impl_) != 0;
+        return init_result_ == TLV_OK && tlv_tree_reader_at_end(&impl_) != 0;
     }
 
     /**
@@ -156,15 +150,21 @@ public:
     TLV_NODISCARD expected<void, error> validate(size_t*            error_offset = nullptr,
                                                  reader_diagnostic* diagnostic = nullptr) {
         has_current_ = false;
-        return result(init_result_ == TLV_OK ? tlv_tree_reader_visit_diag(&impl_, nullptr, nullptr,
-                                                                          error_offset, diagnostic)
-                                             : init_result_);
+        reader_diagnostic local{};
+        if (!diagnostic) diagnostic = &local;
+        const auto rc =
+            init_result_ == TLV_OK
+                ? tlv_tree_reader_visit_diag(&impl_, nullptr, nullptr, error_offset, diagnostic)
+                : init_result_;
+        if (rc != TLV_OK)
+            return unexpected<error>(detail::reader_failed(rc, *diagnostic, offset()));
+        return {};
     }
 
     /**
      * @brief Visit remaining items using the canonical C Visitor engine.
      * @param visitor Callable taking Element, depth and absolute offset, returning
-     * tlv_visit_result_t.
+     * visit_control.
      * @param[out] error_offset Optional absolute failure offset; unchanged on success.
      * @param[out] diagnostic Optional Reader detail, cleared at entry for a valid cursor.
      * @return Success at EOF or STOP; NEED_MORE_DATA or original C error otherwise.
@@ -177,8 +177,13 @@ public:
         has_current_ = false;
         if (init_result_ != TLV_OK) return result(init_result_);
         detail::tree_visitor<Visitor> context{&visitor};
-        return result(tlv_tree_reader_visit_diag(&impl_, &detail::tree_visitor<Visitor>::call,
-                                                 &context, error_offset, diagnostic));
+        reader_diagnostic             local{};
+        if (!diagnostic) diagnostic = &local;
+        const auto rc = tlv_tree_reader_visit_diag(&impl_, &detail::tree_visitor<Visitor>::call,
+                                                   &context, error_offset, diagnostic);
+        if (rc != TLV_OK)
+            return unexpected<error>(detail::reader_failed(rc, *diagnostic, offset()));
+        return {};
     }
 
 private:
@@ -199,7 +204,7 @@ private:
     friend class query_matcher;
     friend class query_execution;
     static expected<void, error> result(tlv_result_t rc) {
-        if (rc != TLV_OK) return unexpected<error>(error::from_c(rc));
+        if (rc != TLV_OK) return unexpected<error>(error::from_c(rc).during(operation::reader));
         return {};
     }
     tlv_tree_item_t   current_{};

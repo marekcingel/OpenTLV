@@ -1,7 +1,7 @@
 # NFC Forum Type 2 Tag TLV framing
 
 Select `tlv_format_nfc_type2` from `tlv/builtins/nfc/type2.h`, or
-`tlv::nfc_type2_format()` from `tlv++/builtins/nfc/type2.hpp`.
+`tlv::nfc::format{}` from `tlv++/builtins/nfc/type2.hpp`.
 The independent `OPENTLV_NFC` option defaults to `ON`;
 `tlv_config_nfc()` reports availability in the linked library.
 
@@ -94,7 +94,7 @@ include `nfc-type2` when enabled. See the corpus README for binary re-encoding.
 
 | Binding | Preset | Availability |
 | --- | --- | --- |
-| C++ | `tlv::nfc_type2_format()` | `OPENTLV_NFC` |
+| C++ | `tlv::nfc::format{}` | `OPENTLV_NFC` |
 | Python | `Format.NFC_TYPE2` | Present when native `HAS_NFC` is true |
 | Rust | `Format::NfcType2` / `"nfc-type2"` | Default-enabled Cargo feature `nfc` |
 | Lua | `opentlv.formats.nfc_type2` | Present when `OPENTLV_NFC` is enabled |

@@ -1,5 +1,7 @@
 // SPDX-License-Identifier: MIT
 // Copyright (c) 2026 Marek Cingel
+
+#include "tlv++/native.hpp"
 #include "tlv++/query/program.hpp"
 #include "tlv/config.h"
 #include "tlv/query/adapters.h"
@@ -133,14 +135,16 @@ int main(int argc, char** argv) {
     options.variables = declarations.data();
     options.variable_count = declarations.size();
     options.optimize = mode.find('u') == std::string::npos;
-    auto program = tlv::query_program::compile(argv[1], &options);
+    auto program =
+        tlv::query_program::compile(argv[1], tlv::native::borrow_query_settings(&options));
     if (!program) return fail(program.error());
     const bool document_mode =
         program->info().level == TLV_QUERY_D || mode.find('d') != std::string::npos;
     const bool retained = document_mode || program->info().level >= TLV_QUERY_S2 ||
                           mode.find('r') != std::string::npos;
-    auto execution = tlv::query_execution::create(*program, 128, 1024, 100000000,
-                                                  retained ? &environment : nullptr, retained);
+    auto       execution = tlv::query_execution::create(
+        *program, 128, 1024, 100000000,
+        tlv::native::borrow_query_capabilities(retained ? &environment : nullptr), retained);
     if (!execution) return fail(execution.error());
     for (const auto& value : bindings) {
         bool referenced = false;
@@ -159,7 +163,7 @@ int main(int argc, char** argv) {
     }
     if (document_mode) {
 #if OPENTLV_DOCUMENT
-        tlv::document_format document_options(format);
+        tlv::document_format document_options(tlv::native::borrow_format(format));
         document_options.retain_source_locations = true;
         auto document = tlv::document::parse(view(input, input.size()), document_options);
         if (!document) return 2;
@@ -167,7 +171,8 @@ int main(int argc, char** argv) {
         std::vector<tlv::node>                    stack;
         auto                                      node = document->first();
         tlv::tree_frame                           frames[128];
-        tlv::tree_reader reader(view(input, input.size()), format, {frames, 128}, 128, 1024);
+        tlv::tree_reader reader(view(input, input.size()), tlv::native::borrow_format(format),
+                                {frames, 128}, 128, 1024);
         for (;;) {
             auto item = reader.next();
             if (!item) {
@@ -183,17 +188,10 @@ int main(int argc, char** argv) {
                 stack.pop_back();
             }
         }
-        tlv_tree_writer_frame_t frames_out[128];
-        std::vector<uint8_t>    values(input.size() + 4096), staged(values.size()),
-            scratch(values.size());
-        tlv_tree_writer_workspace_t writer{};
-        writer.frames = frames_out;
-        writer.frame_capacity = 128;
-        writer.data = staged.data();
-        writer.data_capacity = staged.size();
-        writer.scratch = scratch.data();
-        writer.scratch_capacity = scratch.size();
-        auto status = document->evaluate(*execution, values.data(), values.size(), &writer);
+        tlv::writer_frame           frames_out[128];
+        std::vector<tlv::byte>      values(input.size() + 4096), scratch(values.size());
+        const tlv::writer_workspace writer({frames_out, 128}, {scratch.data(), scratch.size()});
+        auto status = document->evaluate(*execution, {values.data(), values.size()}, &writer);
         if (!status) return fail(status.error());
         if (program->info().result_kind == TLV_QUERY_RESULT_NODES) {
             for (;;) {
@@ -224,7 +222,8 @@ int main(int argc, char** argv) {
     tlv::tree_frame frames[128];
     size_t          split = argc >= 5 ? std::stoul(argv[4]) : input.size();
     if (split > input.size()) return 2;
-    tlv::tree_reader reader(view(input, split), format, {frames, 128}, 128, 1024,
+    tlv::tree_reader reader(view(input, split), tlv::native::borrow_format(format), {frames, 128},
+                            128, 1024,
                             argc >= 5 ? tlv::input_mode::incremental : tlv::input_mode::final);
     auto             collect = [](const tlv::tree_event& event) {
         std::cout << event.offset << '\n';

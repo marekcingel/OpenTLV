@@ -6,7 +6,7 @@
 #include <iostream>
 #include <string>
 
-using Format = tlv::fixed_format<1, 1, TLV_BYTE_ORDER_BIG_ENDIAN>;
+using Format = tlv::fixed_format<1, 1, tlv::byte_order::big_endian>;
 using Greeting = tlv::field<tlv::tag_constant<0x01>, std::string>;
 
 int main() {

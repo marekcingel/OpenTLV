@@ -16,41 +16,30 @@ std::string hex_offset(size_t offset) {
     return out.str();
 }
 
-// tlv_diagnostic_path_t never holds more than TLV_DIAGNOSTIC_PATH_MAX (32)
+// tlv::diagnostic_path never holds more than TLV_DIAGNOSTIC_PATH_MAX (32)
 // tags; this comfortably bounds their hex-plus-separator text.
-std::string path_string(const tlv_diagnostic_path_t& path) {
-    char         buf[512];
-    size_t       length = 0;
-    tlv_result_t rc = tlv_diagnostic_path_string(&path, buf, sizeof buf, &length);
-    return rc == TLV_OK ? std::string(buf, length) : std::string();
+std::string path_string(const tlv::diagnostic_path& path) {
+    char       buf[512];
+    const auto length = tlv::format_path(path, {buf, sizeof buf});
+    return length ? std::string(buf, *length) : std::string();
 }
 
-const char* form_name(tlv_schema_kind_t kind) {
-    switch (kind) {
-        case TLV_SCHEMA_PRIMITIVE: return "primitive";
-        case TLV_SCHEMA_CONSTRUCTED: return "constructed";
-        case TLV_SCHEMA_ANY: return "either";
-    }
-    return "unknown";
-}
-
-std::string hex_tag(const tlv_tag_t& tag) {
+std::string hex_tag(tlv::tag tag) {
+    const auto        bytes = tag.as_bytes();
     static const char digits[] = "0123456789ABCDEF";
-    std::string       result(tag.size * 2, '0');
-    for (size_t i = 0; i < tag.size; ++i) {
-        result[i * 2] = digits[tag.data[i] >> 4];
-        result[i * 2 + 1] = digits[tag.data[i] & 0xF];
+    std::string       result(bytes.size() * 2, '0');
+    for (size_t i = 0; i < bytes.size(); ++i) {
+        const auto value = static_cast<unsigned>(bytes[i]);
+        result[2 * i] = digits[value >> 4];
+        result[2 * i + 1] = digits[value & 15];
     }
     return result;
 }
-
-const char* operation_name(tlv_reader_operation_t operation) {
-    switch (operation) {
-        case TLV_READER_OP_TAG: return "tag";
-        case TLV_READER_OP_LENGTH: return "length";
-        case TLV_READER_OP_VALUE: return "value";
-        case TLV_READER_OP_TRAILER: return "trailer";
-        case TLV_READER_OP_HEADER: return "header";
+const char* form_name(tlv::schema_kind kind) {
+    switch (kind) {
+        case tlv::schema_kind::primitive: return "primitive";
+        case tlv::schema_kind::constructed: return "constructed";
+        case tlv::schema_kind::any: return "either";
     }
     return "unknown";
 }
@@ -61,15 +50,16 @@ const char* operation_name(tlv_reader_operation_t operation) {
 // keeps the three formats showing the same fields for every type.
 
 void append_header_human(std::ostringstream& out, const tlv::diagnostic& d) {
-    out << tlv_diagnostic_severity_string(d.severity) << ": " << tlv_strerror(d.code) << "\n";
-    out << "\ncode: " << error_name(d.code);
+    out << tlv::message(tlv::severity_of(d)) << ": " << tlv::message(static_cast<tlv::errc>(d.code))
+        << "\n";
+    out << "\ncode: " << error_name(static_cast<tlv::errc>(d.code));
     if (d.has_offset) out << "\noffset: " << hex_offset(d.offset) << " (" << d.offset << ")";
 }
 
 void append_trailer_human(std::ostringstream& out, const tlv::diagnostic& d) {
     if (d.expected) out << "\nexpected: " << d.expected;
     if (d.actual) out << "\nactual: " << d.actual;
-    for (const tlv_diagnostic_context_t* ctx = d.contexts; ctx; ctx = ctx->next)
+    for (const tlv::diagnostic_context* ctx = d.contexts; ctx; ctx = ctx->next)
         out << "\n" << ctx->layer << " " << ctx->key << ": " << ctx->value;
 }
 
@@ -77,15 +67,15 @@ std::string trailer_compact(const tlv::diagnostic& d) {
     std::ostringstream out;
     if (d.expected) out << "; expected=" << d.expected;
     if (d.actual) out << "; actual=" << d.actual;
-    for (const tlv_diagnostic_context_t* ctx = d.contexts; ctx; ctx = ctx->next)
+    for (const tlv::diagnostic_context* ctx = d.contexts; ctx; ctx = ctx->next)
         out << "; " << ctx->layer << " " << ctx->key << "=" << ctx->value;
     return out.str();
 }
 
 void set_header_json(nlohmann::json& object, const tlv::diagnostic& d) {
-    object["severity"] = tlv_diagnostic_severity_string(d.severity);
-    object["code"] = error_name(d.code);
-    object["message"] = tlv_strerror(d.code);
+    object["severity"] = tlv::message(tlv::severity_of(d));
+    object["code"] = error_name(static_cast<tlv::errc>(d.code));
+    object["message"] = tlv::message(static_cast<tlv::errc>(d.code));
     if (d.has_offset) object["offset"] = d.offset;
 }
 
@@ -94,7 +84,7 @@ void append_trailer_json(nlohmann::json& object, const tlv::diagnostic& d) {
     if (d.actual) object["actual"] = d.actual;
     if (d.contexts) {
         nlohmann::json contexts = nlohmann::json::array();
-        for (const tlv_diagnostic_context_t* ctx = d.contexts; ctx; ctx = ctx->next)
+        for (const tlv::diagnostic_context* ctx = d.contexts; ctx; ctx = ctx->next)
             contexts.push_back({{"layer", ctx->layer}, {"key", ctx->key}, {"value", ctx->value}});
         object["contexts"] = std::move(contexts);
     }
@@ -115,9 +105,10 @@ std::string diagnostic_human(const tlv::diagnostic& d, const char* stage, const 
 std::string diagnostic_compact(const tlv::diagnostic& d, const char* stage, const char* tag_hex) {
     std::ostringstream out;
     if (stage && *stage) out << stage << " ";
-    out << error_name(d.code) << " at byte " << (d.has_offset ? d.offset : 0);
+    out << error_name(static_cast<tlv::errc>(d.code)) << " at byte "
+        << (d.has_offset ? d.offset : 0);
     if (tag_hex) out << " tag=" << tag_hex;
-    out << ": " << tlv_strerror(d.code) << trailer_compact(d);
+    out << ": " << tlv::message(static_cast<tlv::errc>(d.code)) << trailer_compact(d);
     return out.str();
 }
 
@@ -133,55 +124,55 @@ std::string diagnostic_json(const tlv::diagnostic& d, const char* stage, const c
 
 // -- Schema diagnostic --------------------------------------------------------
 
-std::string schema_human(const tlv::schema_diagnostic& d) {
+std::string schema_human(const tlv::validation_issue& d) {
     std::ostringstream out;
-    append_header_human(out, d.diagnostic);
-    if (d.path.length) out << "\npath: " << path_string(d.path);
-    out << "\ntag: " << hex_tag(d.tag);
-    if (d.field) out << "\nfield: " << d.field;
-    if (d.has_length)
-        out << "\nexpected length: " << d.min_length << ".." << d.max_length
-            << "\nactual length: " << d.actual_length;
-    if (d.has_occurs)
-        out << "\nexpected occurrences: " << d.min_occurs << ".." << d.max_occurs
-            << "\nactual occurrences: " << d.occurs;
-    if (d.has_form)
-        out << "\nexpected form: " << form_name(d.expected_form)
-            << "\nactual form: " << (d.actual_constructed ? "constructed" : "primitive");
-    append_trailer_human(out, d.diagnostic);
+    append_header_human(out, d.diagnostic());
+    if (d.depth()) out << "\npath: " << path_string(d.path());
+    out << "\ntag: " << hex_tag(d.tag());
+    if (d.field()) out << "\nfield: " << d.field();
+    if (d.has_length())
+        out << "\nexpected length: " << d.expected_length().minimum << ".."
+            << d.expected_length().maximum << "\nactual length: " << d.length();
+    if (d.has_occurrences())
+        out << "\nexpected occurrences: " << d.expected_occurrences().minimum << ".."
+            << d.expected_occurrences().maximum << "\nactual occurrences: " << d.occurrences();
+    if (d.has_form())
+        out << "\nexpected form: " << form_name(d.expected_form())
+            << "\nactual form: " << (d.constructed() ? "constructed" : "primitive");
+    append_trailer_human(out, d.diagnostic());
     return out.str();
 }
 
-std::string schema_compact(const tlv::schema_diagnostic& d) {
+std::string schema_compact(const tlv::validation_issue& d) {
     std::ostringstream out;
-    out << "schema " << error_name(d.diagnostic.code) << " at byte "
-        << (d.diagnostic.has_offset ? d.diagnostic.offset : 0) << " tag=" << hex_tag(d.tag);
-    out << ": " << tlv_strerror(d.diagnostic.code) << trailer_compact(d.diagnostic);
+    out << "schema " << error_name(d.error().status()) << " at byte "
+        << (d.diagnostic().has_offset ? d.diagnostic().offset : 0) << " tag=" << hex_tag(d.tag());
+    out << ": " << tlv::message(d.error().status()) << trailer_compact(d.diagnostic());
     return out.str();
 }
 
-std::string schema_json(const tlv::schema_diagnostic& d) {
+std::string schema_json(const tlv::validation_issue& d) {
     nlohmann::json object;
-    set_header_json(object, d.diagnostic);
-    object["kind"] = tlv_schema_issue_kind_string(d.kind);
-    if (d.path.length) object["path"] = path_string(d.path);
-    object["tag"] = hex_tag(d.tag);
-    if (d.field) object["field"] = d.field;
-    if (d.has_length) {
-        object["min_length"] = d.min_length;
-        object["max_length"] = d.max_length;
-        object["actual_length"] = d.actual_length;
+    set_header_json(object, d.diagnostic());
+    object["kind"] = tlv::message(d.kind());
+    if (d.depth()) object["path"] = path_string(d.path());
+    object["tag"] = hex_tag(d.tag());
+    if (d.field()) object["field"] = d.field();
+    if (d.has_length()) {
+        object["min_length"] = d.expected_length().minimum;
+        object["max_length"] = d.expected_length().maximum;
+        object["actual_length"] = d.length();
     }
-    if (d.has_occurs) {
-        object["min_occurs"] = d.min_occurs;
-        object["max_occurs"] = d.max_occurs;
-        object["occurs"] = d.occurs;
+    if (d.has_occurrences()) {
+        object["min_occurs"] = d.expected_occurrences().minimum;
+        object["max_occurs"] = d.expected_occurrences().maximum;
+        object["occurs"] = d.occurrences();
     }
-    if (d.has_form) {
-        object["expected_form"] = form_name(d.expected_form);
-        object["actual_form"] = d.actual_constructed ? "constructed" : "primitive";
+    if (d.has_form()) {
+        object["expected_form"] = form_name(d.expected_form());
+        object["actual_form"] = d.constructed() ? "constructed" : "primitive";
     }
-    append_trailer_json(object, d.diagnostic);
+    append_trailer_json(object, d.diagnostic());
     return object.dump();
 }
 
@@ -191,10 +182,9 @@ std::string reader_human(const tlv::reader_diagnostic& d) {
     std::ostringstream out;
     append_header_human(out, d.diagnostic);
     if (d.diagnostic.path) out << "\npath: " << path_string(*d.diagnostic.path);
-    if (d.has_tag) out << "\ntag: " << hex_tag(d.tag);
-    out << "\nwhile reading: " << operation_name(d.operation);
-    if (d.has_raw_length)
-        out << "\nraw length: " << hex_tag(tlv_tag(d.raw_length.data, d.raw_length.size));
+    if (d.has_tag) out << "\ntag: " << hex_tag(tlv::diagnostic_tag(d));
+    out << "\nwhile reading: " << tlv::message(tlv::phase(d));
+    if (d.has_raw_length) out << "\nraw length: " << hex_tag(tlv::tag(tlv::raw_length(d)));
     if (d.has_declared_length) out << "\ndeclared length: " << d.declared_length;
     if (d.has_available) out << "\navailable: " << d.available;
     append_trailer_human(out, d.diagnostic);
@@ -203,15 +193,15 @@ std::string reader_human(const tlv::reader_diagnostic& d) {
 
 std::string reader_compact(const tlv::reader_diagnostic& d) {
     std::ostringstream out;
-    out << error_name(d.diagnostic.code) << " at byte "
+    out << error_name(static_cast<tlv::errc>(d.diagnostic.code)) << " at byte "
         << (d.diagnostic.has_offset ? d.diagnostic.offset : 0);
-    if (d.has_tag) out << " tag=" << hex_tag(d.tag);
-    out << " while reading " << operation_name(d.operation);
-    if (d.has_raw_length)
-        out << "; raw_length=" << hex_tag(tlv_tag(d.raw_length.data, d.raw_length.size));
+    if (d.has_tag) out << " tag=" << hex_tag(tlv::diagnostic_tag(d));
+    out << " while reading " << tlv::message(tlv::phase(d));
+    if (d.has_raw_length) out << "; raw_length=" << hex_tag(tlv::tag(tlv::raw_length(d)));
     if (d.has_declared_length) out << "; declared_length=" << d.declared_length;
     if (d.has_available) out << "; available=" << d.available;
-    out << ": " << tlv_strerror(d.diagnostic.code) << trailer_compact(d.diagnostic);
+    out << ": " << tlv::message(static_cast<tlv::errc>(d.diagnostic.code))
+        << trailer_compact(d.diagnostic);
     return out.str();
 }
 
@@ -219,10 +209,9 @@ std::string reader_json(const tlv::reader_diagnostic& d) {
     nlohmann::json object;
     set_header_json(object, d.diagnostic);
     if (d.diagnostic.path) object["path"] = path_string(*d.diagnostic.path);
-    if (d.has_tag) object["tag"] = hex_tag(d.tag);
-    object["operation"] = operation_name(d.operation);
-    if (d.has_raw_length)
-        object["raw_length"] = hex_tag(tlv_tag(d.raw_length.data, d.raw_length.size));
+    if (d.has_tag) object["tag"] = hex_tag(tlv::diagnostic_tag(d));
+    object["operation"] = tlv::message(tlv::phase(d));
+    if (d.has_raw_length) object["raw_length"] = hex_tag(tlv::tag(tlv::raw_length(d)));
     if (d.has_declared_length) object["declared_length"] = d.declared_length;
     if (d.has_available) object["available"] = d.available;
     append_trailer_json(object, d.diagnostic);
@@ -243,32 +232,8 @@ bool parse_diagnostic_format(const char* name, diagnostic_format* out) {
     return true;
 }
 
-const char* error_name(tlv_result_t rc) {
-    switch (rc) {
-#define ERROR_NAME(e)                                                                              \
-    case e: return #e
-        ERROR_NAME(TLV_OK);
-        ERROR_NAME(TLV_ERR_BUFFER_TOO_SHORT);
-        ERROR_NAME(TLV_ERR_INVALID_LENGTH);
-        ERROR_NAME(TLV_ERR_NULL_ARG);
-        ERROR_NAME(TLV_ERR_OUT_OF_MEMORY);
-        ERROR_NAME(TLV_ERR_END_OF_BUFFER);
-        ERROR_NAME(TLV_ERR_INVALID_TAG);
-        ERROR_NAME(TLV_ERR_VISITOR);
-        ERROR_NAME(TLV_ERR_LIMIT);
-        ERROR_NAME(TLV_ERR_SCHEMA);
-        ERROR_NAME(TLV_ERR_INVALID_ARG);
-        ERROR_NAME(TLV_ERR_INVALID_TAG_SIZE);
-        ERROR_NAME(TLV_ERR_INVALID_BYTE_ORDER);
-        ERROR_NAME(TLV_ERR_OVERFLOW);
-        ERROR_NAME(TLV_ERR_INVALID_VALUE);
-        ERROR_NAME(TLV_ERR_UNSUPPORTED_TYPE);
-        ERROR_NAME(TLV_ERR_SCHEMA_MISSING);
-        ERROR_NAME(TLV_ERR_NATIVE_SIZE);
-        ERROR_NAME(TLV_NEED_MORE_DATA);
-#undef ERROR_NAME
-        default: return "TLV_ERR_UNKNOWN";
-    }
+const char* error_name(tlv::errc rc) {
+    return tlv::name(rc);
 }
 
 std::string format_diagnostic(const tlv::diagnostic& diagnostic, diagnostic_format format,
@@ -281,8 +246,8 @@ std::string format_diagnostic(const tlv::diagnostic& diagnostic, diagnostic_form
     return std::string();
 }
 
-std::string format_schema_diagnostic(const tlv::schema_diagnostic& diagnostic,
-                                     diagnostic_format             format) {
+std::string format_schema_diagnostic(const tlv::validation_issue& diagnostic,
+                                     diagnostic_format            format) {
     switch (format) {
         case diagnostic_format::human: return schema_human(diagnostic);
         case diagnostic_format::compact: return schema_compact(diagnostic);

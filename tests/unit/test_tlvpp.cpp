@@ -23,9 +23,9 @@ TEST(Unit_Tlvpp, TreeWriterBorrowsStorageAndReportsInitializationErrors) {
     };
     std::array<tlv::byte, 8> output{}, scratch{};
     tlv::tree_writer_frame   frame{};
-    tlv::tree_writer         writer(output.data(), output.size(), format, &frame, 1, scratch.data(),
-                                    scratch.size());
-    const tlv::element_view  leaf = {tlv::tag_bytes<1>(), tlv::value_view{}};
+    tlv::tree_writer        writer(output.data(), output.size(), tlv::native::borrow_format(format),
+                                   &frame, 1, scratch.data(), scratch.size());
+    const tlv::element_view leaf = {tlv::tag_bytes<1>(), tlv::value_view{}};
     ASSERT_TRUE(writer.begin(tlv::tag_bytes<0xE1>()).has_value());
     ASSERT_TRUE(writer.write(leaf).has_value());
     EXPECT_EQ(0u, writer.size());
@@ -36,7 +36,8 @@ TEST(Unit_Tlvpp, TreeWriterBorrowsStorageAndReportsInitializationErrors) {
     EXPECT_EQ(tlv::byte{0xE1}, output[0]);
     EXPECT_EQ(tlv::byte{2}, output[1]);
     const tlv_format_t invalid{};
-    tlv::tree_writer   bad(output.data(), output.size(), invalid, &frame, 1, nullptr, 0);
+    tlv::tree_writer bad(output.data(), output.size(), tlv::native::borrow_format(invalid), &frame,
+                         1, nullptr, 0);
     EXPECT_FALSE(bad.begin(tlv::tag_bytes<0xE1>()).has_value());
     EXPECT_FALSE(bad.write(leaf).has_value());
     EXPECT_FALSE(bad.end().has_value());
@@ -47,15 +48,17 @@ TEST(Unit_Tlvpp, TreeWriterBorrowsStorageAndReportsInitializationErrors) {
 TEST(Unit_Tlvpp, CanonicalWriterMeasuresPreservesAndCopiesIntoCallerStorage) {
     const uint8_t original[] = {0xFF, 1, 0xAB};
     auto          parsed =
-        tlv::decode(controlled::format,
+        tlv::decode(tlv::native::borrow_format(controlled::format),
                     tlv::bytes(reinterpret_cast<const tlv::byte*>(original), sizeof(original)));
     ASSERT_TRUE(parsed);
     const auto decoded = *parsed;
-    auto       required = tlv::encoded_size(decoded.element, controlled::format);
+    auto       required =
+        tlv::encoded_size(decoded.element, tlv::native::borrow_format(controlled::format));
     ASSERT_TRUE(required.has_value());
     EXPECT_EQ(3u, *required);
     std::array<tlv::byte, 9> output{};
-    tlv::writer<>            writer(output.data(), output.size(), controlled::format);
+    tlv::writer<>            writer(output.data(), output.size(),
+                                    tlv::native::borrow_format(controlled::format));
     ASSERT_TRUE(writer.write(decoded.element).has_value());
     ASSERT_TRUE(writer.preserve(decoded.source, decoded.element).has_value());
     ASSERT_TRUE(writer.copy_encoded(tlv::bytes(output.data(), 3)).has_value());
@@ -69,10 +72,10 @@ TEST(Unit_Tlvpp, CanonicalWriterMeasuresPreservesAndCopiesIntoCallerStorage) {
 
 #if OPENTLV_LLDP
 TEST(Unit_Tlvpp, LldpPresetUsesSharedDescriptor) {
-    EXPECT_EQ(&tlv_format_lldp, &tlv::lldp_format());
+    EXPECT_EQ(&tlv_format_lldp, &tlv::native::lldp_format());
     const std::array<tlv::byte, 4> wire = {tlv::byte{6}, tlv::byte{2}, tlv::byte{0},
                                            tlv::byte{120}};
-    auto result = tlv::decode(tlv::lldp_format(), tlv::bytes(wire.data(), wire.size()));
+    auto result = tlv::decode(tlv::lldp::format{}, tlv::bytes(wire.data(), wire.size()));
     ASSERT_TRUE(result.has_value());
     EXPECT_TRUE((tlv::tag_bytes<3>() == result->element.tag()));
     EXPECT_EQ(2u, result->element.value().size());
@@ -122,7 +125,7 @@ tlv::bytes to_bytes(const std::string& s) {
 
 TEST(Unit_Tlvpp, WriterReportsBufferTooShort) {
     std::array<tlv::byte, 2> buf{};
-    tlv::writer<>            w(buf.data(), buf.size(), controlled::format);
+    tlv::writer<> w(buf.data(), buf.size(), tlv::native::borrow_format(controlled::format));
 
     auto r = w.write(tlv::tag_bytes<0x01>(), to_bytes("abcd"));
     ASSERT_FALSE(r.has_value());
@@ -131,12 +134,14 @@ TEST(Unit_Tlvpp, WriterReportsBufferTooShort) {
 
 TEST(Unit_Tlvpp, ReaderReportsEndOfBuffer) {
     std::array<tlv::byte, 2> buf{{static_cast<tlv::byte>(0x01), static_cast<tlv::byte>(0x00)}};
-    tlv::reader<>            reader(tlv::bytes(buf.data(), buf.size()), controlled::format);
+    tlv::reader<>            reader(tlv::bytes(buf.data(), buf.size()),
+                                    tlv::native::borrow_format(controlled::format));
 
     auto e1 = reader.next();
     ASSERT_TRUE(e1.has_value());
     EXPECT_TRUE(e1->value().size() == 0);
-    auto decoded = tlv::decode(controlled::format, tlv::bytes(buf.data(), buf.size()));
+    auto decoded = tlv::decode(tlv::native::borrow_format(controlled::format),
+                               tlv::bytes(buf.data(), buf.size()));
     ASSERT_TRUE(decoded);
     EXPECT_EQ(1u, decoded->source.length.offset);
     EXPECT_EQ(1u, decoded->source.length.size);
@@ -150,7 +155,7 @@ TEST(Unit_Tlvpp, ReaderReportsEndOfBuffer) {
 
 TEST(Unit_Tlvpp, WriterWriteDiagReportsRequiredExceedingAvailableCapacity) {
     std::array<tlv::byte, 1> buf{};
-    tlv::writer<>            w(buf.data(), buf.size(), controlled::format);
+    tlv::writer<> w(buf.data(), buf.size(), tlv::native::borrow_format(controlled::format));
 
     tlv::writer_diagnostic diagnostic{};
     auto                   e = w.write(tlv::tag_bytes<0x01>(), to_bytes("ab"), diagnostic);
@@ -166,7 +171,8 @@ TEST(Unit_Tlvpp, WriterWriteDiagReportsRequiredExceedingAvailableCapacity) {
 
 TEST(Unit_Tlvpp, ReaderNextDiagReportsValueExceedingAvailableBytes) {
     std::array<tlv::byte, 2> buf{{static_cast<tlv::byte>(0xAB), static_cast<tlv::byte>(6)}};
-    tlv::reader<>            reader(tlv::bytes(buf.data(), buf.size()), controlled::format);
+    tlv::reader<>            reader(tlv::bytes(buf.data(), buf.size()),
+                                    tlv::native::borrow_format(controlled::format));
 
     tlv::reader_diagnostic diagnostic{};
     auto                   e = reader.next(diagnostic);

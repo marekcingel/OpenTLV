@@ -7,10 +7,10 @@
 // Application framing: one-byte Tag, two-byte little-endian Length, opaque Value.
 struct my_format {
     tlv::expected<tlv::decoded, tlv::format_failure> decode(tlv::bytes data) const noexcept {
-        if (data.size() < 3) return fail(TLV_ERR_BUFFER_TOO_SHORT);
+        if (data.size() < 3) return fail(tlv::errc::buffer_too_short);
         const size_t length = static_cast<unsigned char>(data[1]) |
                               (static_cast<size_t>(static_cast<unsigned char>(data[2])) << 8);
-        if (length > data.size() - 3) return fail(TLV_ERR_BUFFER_TOO_SHORT);
+        if (length > data.size() - 3) return fail(tlv::errc::buffer_too_short);
         tlv::source source{};
         source.size = length + 3;
         source.header = {0, 3, 1};
@@ -24,15 +24,15 @@ struct my_format {
     }
     tlv::expected<tlv::encoding, tlv::format_failure>
     measure(const tlv::measure_request& value) const noexcept {
-        if (value.identifier.size() != 1) return fail(TLV_ERR_INVALID_TAG_SIZE);
-        if (value.value_size > 65535) return fail(TLV_ERR_INVALID_LENGTH);
+        if (value.identifier.size() != 1) return fail(tlv::errc::invalid_tag_size);
+        if (value.value_size > 65535) return fail(tlv::errc::invalid_length);
         return tlv::encoding{3, value.value_size, 0, value.value_size + 3};
     }
     tlv::expected<size_t, tlv::format_failure> encode(const tlv::element_view& value,
                                                       tlv::span<tlv::byte> output) const noexcept {
         auto size = measure({value.tag(), value.value().size(), value.value().as_bytes()});
         if (!size) return tlv::unexpected<tlv::format_failure>(size.error());
-        if (output.size() < size->total) return fail(TLV_ERR_BUFFER_TOO_SHORT);
+        if (output.size() < size->total) return fail(tlv::errc::buffer_too_short);
         output[0] = value.tag()[0];
         output[1] = static_cast<tlv::byte>(value.value().size() & 0xFF);
         output[2] = static_cast<tlv::byte>(value.value().size() >> 8);
@@ -42,7 +42,7 @@ struct my_format {
     }
 
 private:
-    static tlv::unexpected<tlv::format_failure> fail(tlv_result_t code) noexcept {
+    static tlv::unexpected<tlv::format_failure> fail(tlv::errc code) noexcept {
         return tlv::unexpected<tlv::format_failure>(tlv::format_failure(code));
     }
 };

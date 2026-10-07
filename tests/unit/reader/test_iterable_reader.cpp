@@ -13,7 +13,7 @@ namespace {
 tlv::bytes input(const uint8_t* data, size_t size) {
     return {reinterpret_cast<const tlv::byte*>(data), size};
 }
-using fixed = tlv::fixed_format<1, 1, TLV_BYTE_ORDER_BIG_ENDIAN>;
+using fixed = tlv::fixed_format<1, 1, tlv::byte_order::big_endian>;
 const uint8_t wire[] = {1, 1, 42, 2, 0, 3, 2, 43, 44};
 
 struct move_only_format : custom_cpp_format {
@@ -160,7 +160,7 @@ TEST(Unit_Tlvpp_IterableReader, LaterFailureThrowsAfterValidPrefixAndCanRetryExp
 
 TEST(Unit_Tlvpp_IterableReader, InvalidInitializationAndCallbackEndAreNotEmptyRanges) {
     tlv_format_t  missing{};
-    tlv::reader<> reader(tlv::bytes{}, missing);
+    tlv::reader<> reader(tlv::bytes{}, tlv::native::borrow_format(missing));
     EXPECT_THROW((void)reader.begin(), tlv::parse_error);
     const uint8_t                 data[] = {1};
     tlv::reader<end_error_format> custom(input(data, sizeof(data)));
@@ -171,7 +171,7 @@ TEST(Unit_Tlvpp_IterableReader, InvalidInitializationAndCallbackEndAreNotEmptyRa
         EXPECT_EQ(TLV_ERR_END_OF_BUFFER, failure.code());
     }
     EXPECT_EQ(0u, custom.consumed());
-    auto invalid_range = tlv::parse(tlv::bytes{}, missing);
+    auto invalid_range = tlv::parse(tlv::bytes{}, tlv::native::borrow_format(missing));
     EXPECT_THROW((void)invalid_range.begin(), tlv::parse_error);
 }
 
@@ -200,12 +200,11 @@ TEST(Unit_Tlvpp_IterableReader, IncrementalShortageExhaustionAndAbsoluteOffsets)
 
 TEST(Unit_Tlvpp_IterableReader, GenericRuntimeAndTemporaryCustomRanges) {
     size_t count = 0;
-    for (auto element : tlv::parse(input(wire, sizeof(wire)), fixed::format())) {
+    for (auto element : tlv::parse(input(wire, sizeof(wire)), fixed::view())) {
         EXPECT_EQ(++count, static_cast<unsigned char>(element.tag()[0]));
     }
     EXPECT_EQ(3u, count);
-    auto borrowed =
-        tlv::parse(input(wire, sizeof(wire)), tlv::native::borrow_format(fixed::format()));
+    auto borrowed = tlv::parse(input(wire, sizeof(wire)), fixed::view());
     EXPECT_EQ(3, std::distance(borrowed.begin(), borrowed.end()));
     const uint8_t custom_wire[] = {9, 1, 42, 0xEE, 10, 0, 0xEE};
     count = 0;

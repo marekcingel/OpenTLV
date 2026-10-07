@@ -14,9 +14,9 @@
 #include "diagnostic_render.hpp"
 #include "options.hpp"
 #include "presentation.hpp"
-#include "tlv/query/query.h"
-#include "tlv/reader/visitor.h"
-#include "tlv/schema/schema.h"
+#include "tlv++/types.hpp"
+#include "tlv++/visitor.hpp"
+#include "tlv++/schema/report.hpp"
 
 namespace cli {
 
@@ -36,7 +36,7 @@ protected:
     // Called for each element the traversal visits, in preorder. The base
     // implementation only keeps the diagnostic scope current (used as-is by
     // "validate", which has no display of its own).
-    virtual tlv_visit_result_t visit_element(const tlv::element_view& element, std::size_t depth,
+    virtual tlv::visit_control visit_element(const tlv::element_view& element, std::size_t depth,
                                              std::size_t offset);
 
     // Called once, before the traversal starts. The base implementation does
@@ -46,7 +46,7 @@ protected:
 
     // "validate --module" only: runs the selected module schema/value
     // checks once the format traversal itself succeeded (called from run() only
-    // when result_ == TLV_OK, options_.module and !options_.pdol). May
+    // when result_ == tlv::errc::ok, options_.module and !options_.pdol). May
     // update result_/error_offset_/stage_ and either has_schema_diag_ with
     // schema_diag_, or stage_ alone, for render_failure_diagnostic() below.
     // The base implementation does nothing.
@@ -54,19 +54,19 @@ protected:
 
     // Called once the traversal (and, for "validate", the module checks) are done,
     // regardless of the outcome: prints the command's own output. Most
-    // overrides only print on result_ == TLV_OK, except "dump" --output
+    // overrides only print on result_ == tlv::errc::ok, except "dump" --output
     // json, which (like the original implementation) prints whatever
     // elements were collected even after a failure. The base implementation
     // does nothing (used as-is by "validate", which never prints on success).
     virtual void render_output();
 
-    // Called only once result_ == TLV_OK is confirmed (after the failure
+    // Called only once result_ == tlv::errc::ok is confirmed (after the failure
     // diagnostic has already been handled): returns a nonzero exit code to
     // override the default of 0. "query" uses this for its exit code 5 (no
     // element matched).
     virtual int after_success();
 
-    // Renders the diagnostic for a failed run (result_ != TLV_OK). The base
+    // Renders the diagnostic for a failed run (result_ != tlv::errc::ok). The base
     // implementation covers a schema violation (has_schema_diag_) and the
     // generic wire-level/result-code cases; "validate" overrides it to also
     // cover its own EMV dictionary check violation.
@@ -93,14 +93,14 @@ protected:
         return data_.size();
     }
 
-    options             options_;
-    format_selection    format_storage_;
-    std::size_t         base_;
-    int                 ber_;
-    cli_presentation_t  presentation_;
-    const tlv_format_t* format_;
-    bool                is_der_;
-    diagnostic_scope    scope_;
+    options            options_;
+    format_selection   format_storage_;
+    std::size_t        base_;
+    int                ber_;
+    cli_presentation_t presentation_;
+    const tlv::format* format_;
+    bool               is_der_;
+    diagnostic_scope   scope_;
     // --output json only: elements not yet attached to their parent's nested
     // "elements" array, one per currently open depth, and the finished
     // document's top-level array.
@@ -114,23 +114,23 @@ protected:
     // many were.
     std::size_t matches_;
 
-    tlv_result_t               result_;
+    tlv::errc                  result_;
     std::size_t                error_offset_;
     std::vector<skipped_range> skipped_;
     // Names the separate EMV pass ("schema ", "dictionary ") a failure came
     // from, as opposed to the format/framing traversal.
-    const char*             stage_;
-    tlv_schema_diagnostic_t schema_diag_;
-    bool                    has_schema_diag_;
-    tlv_reader_diagnostic_t reader_diag_{};
+    const char*            stage_;
+    tlv::validation_issue  schema_diag_;
+    bool                   has_schema_diag_;
+    tlv::reader_diagnostic reader_diag_{};
 
 private:
-    static tlv_visit_result_t visit_trampoline(const tlv_element_t* element, std::size_t depth,
+    static tlv::visit_control visit_trampoline(const tlv::element_view* element, std::size_t depth,
                                                std::size_t offset, void* context);
     // --pdol: raw DOL tag/one-byte-length pairs (BER only), not full TLV.
-    tlv_result_t visit_pdol(std::size_t* error_offset);
+    tlv::errc visit_pdol(std::size_t* error_offset);
     // --recover: scans past damaged top-level elements instead of failing.
-    tlv_result_t visit_recovering(std::size_t* error_offset);
+    tlv::errc visit_recovering(std::size_t* error_offset);
 
     std::vector<uint8_t> data_;
 };

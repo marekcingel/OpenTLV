@@ -6,7 +6,7 @@ A fixed-width TLV format: a tag width, a length width (1 to 8 bytes), a length
 byte order, a field order and a length scope, chosen independently instead of
 hardcoded. A one-byte tag and a one-byte length is `identifier.size = 1, length.size
 = 1, length.byte_order = TLV_BYTE_ORDER_BIG_ENDIAN` (or `fixed_format<1, 1,
-TLV_BYTE_ORDER_BIG_ENDIAN>`), with `element_order` and `length_scope` defaulted
+tlv::byte_order::big_endian>`), with `element_order` and `length_scope` defaulted
 to the conventional TLV/value-only shape; define your own file-scope constant
 for a configuration your application reuses.
 
@@ -14,8 +14,8 @@ for a configuration your application reuses.
 `{{1}, {1, TLV_BYTE_ORDER_BIG_ENDIAN}, TLV_ELEMENT_ORDER_LTV,
 TLV_LENGTH_SCOPE_TAG_AND_VALUE}`.
 
-Two APIs share this wire representation, and the C++ one is a thin compile-time
-wrapper that delegates every read and write to the C one:
+The C API, C++ compile-time preset and owned runtime configuration share this
+wire representation. Both C++ forms delegate every read and write to C:
 
 - **C**, `tlv_fixed_format_t`: chosen at runtime, checked when the format is initialized.
 - **C++**, `tlv::fixed_format<TagWidth, LengthWidth, Order>`: chosen at compile time, checked with
@@ -27,7 +27,7 @@ wrapper that delegates every read and write to the C one:
 | --- | --- | --- |
 | Header | `tlv/formats/fixed.h` | `tlv++/formats/fixed_format.hpp` |
 | Configuration | `tlv_fixed_format_t{{tag_size}, {length_size, length_order}, element_order, length_scope}` | `tlv::fixed_format<TagWidth, LengthWidth, Order>` (TLV element order, value-only length scope) |
-| Descriptor | `tlv_fixed_format_init(&format, &config)` | `fixed_format<...>::format()` returns `const tlv_format_t&` |
+| Descriptor | `tlv_fixed_format_init(&format, &config)` | `fixed_format<...>::view()` returns `tlv::format` |
 | Availability | Always built | Always available with the C++ wrapper |
 | Link target | `tlv` | `tlv++` |
 
@@ -210,7 +210,7 @@ int main(void) {
 #include "tlv++/formats/fixed_format.hpp"
 #include "tlv++/tlv.hpp"
 
-using format = tlv::fixed_format<2, 2, TLV_BYTE_ORDER_LITTLE_ENDIAN>;
+using format = tlv::fixed_format<2, 2, tlv::byte_order::little_endian>;
 
 int main() {
     std::array<tlv::byte, 16> buf{};
@@ -219,7 +219,7 @@ int main() {
     const std::array<tlv::byte, 3> value = {tlv::byte(0xAA), tlv::byte(0xBB), tlv::byte(0xCC)};
     auto                           written = writer.write<0x12, 0x34>(value);
     if (!written) {
-        std::cerr << "write error: " << written.error().message << "\n";
+        std::cerr << "write error: " << written.error().message() << "\n";
         return 1;
     }
 
@@ -243,37 +243,27 @@ int main() {
 
 ## Example (C++, runtime-configurable)
 
-Use the raw C `tlv_fixed_format_t`/`tlv_fixed_format_init()` directly when the
-tag width, length width or byte order are not known at compile time — no
-`tlv++` wrapper is needed, since `tlv::writer<>`/`tlv::reader<>` already accept a
-plain `const tlv_format_t&`:
+Use `tlv::runtime_fixed_format` when widths, byte order, element order or length
+scope are chosen at runtime. Its `view()` reports invalid configuration and
+borrows the named owner. Keep that owner alive through all Reader, Writer and
+retained source-view uses. Copying the owner creates independent configuration.
 
 <!-- example: examples/tlv++/src/formats/fixed_format_runtime.cpp -->
 ```cpp
 // SPDX-License-Identifier: MIT
 // Copyright (c) 2026 Marek Cingel
 
-// Defines a fixed-width TLV format at runtime from tlv++: two tag bytes and a
-// one-byte length, using the raw C tlv_fixed_format_t/tlv_fixed_format_init
-// through the explicit tlv::native interoperability boundary. See tlv/formats/fixed.h and
-// docs/guides/memory.md#format-context-ownership-and-lifetime for why config
-// must outlive every reader and writer built from it.
+// Runtime configuration owns its state; cursors borrow the stable owner.
 #include <array>
 #include <iostream>
 
-#include "tlv/formats/fixed.h"
 #include "tlv++/tlv.hpp"
-#include "tlv++/native.hpp"
 
 int main() {
-    const tlv_fixed_format_t config = {{/* tag_size */ 2},
-                                       {/* length_size */ 1, TLV_BYTE_ORDER_BIG_ENDIAN},
-                                       TLV_ELEMENT_ORDER_TLV,
-                                       TLV_LENGTH_SCOPE_VALUE};
-    /* config must outlive every reader and writer built from format. */
-    tlv_format_t format;
-    if (tlv_fixed_format_init(&format, &config) != TLV_OK) return 1;
-    const auto format_view = tlv::native::borrow_format(format);
+    const tlv::runtime_fixed_format format(2, 1);
+    const auto                      selected = format.view();
+    if (!selected) return 1;
+    const auto format_view = *selected;
 
     std::array<tlv::byte, 16> buf{};
     tlv::writer<>             writer(buf.data(), buf.size(), format_view);
@@ -282,7 +272,7 @@ int main() {
     auto                           written =
         writer.write(tlv::tag_bytes<0x12, 0x34>(), tlv::bytes(value.data(), value.size()));
     if (!written) {
-        std::cerr << "write error: " << written.error().message << "\n";
+        std::cerr << "write error: " << written.error().message() << "\n";
         return 1;
     }
 

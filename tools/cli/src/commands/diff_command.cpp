@@ -31,17 +31,17 @@ int diff_command::run() {
     std::unique_ptr<tlv::query_program> where;
     if (options_.where) {
         auto compiled = tlv::query_program::compile(options_.where);
-        if (!compiled) return fail(2, tlv_strerror(compiled.error().code));
+        if (!compiled) return fail(2, tlv::message(compiled.error().status()));
         where.reset(new tlv::query_program(std::move(*compiled)));
     }
     auto changes = tlv::semantic_diff(*left, *right, where.get());
-    if (!changes) return fail(3, tlv_strerror(changes.error().code));
+    if (!changes) return fail(3, tlv::message(changes.error().status()));
     nlohmann::json results = nlohmann::json::array();
     for (const auto& change : *changes) {
         const char* kind = change.kind == tlv::diff_kind::added     ? "added"
                            : change.kind == tlv::diff_kind::removed ? "removed"
                                                                     : "changed";
-        auto        value = [](const tlv::node& n) -> nlohmann::json {
+        auto        value = [](const tlv::const_node& n) -> nlohmann::json {
             if (!n) return nullptr;
             return nlohmann::json{
                 {"constructed", n.is_constructed()},

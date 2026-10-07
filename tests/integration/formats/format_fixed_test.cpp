@@ -111,7 +111,7 @@ TEST(Integration_Tlv_Fixed, ExampleWireBytesTwoByteTagOneByteLength) {
 }
 
 TEST(Integration_Tlv_Fixed, ExampleWireBytesTwoByteLittleEndianLength) {
-    /* Matches tlv::fixed_format<2, 2, TLV_BYTE_ORDER_LITTLE_ENDIAN>, documented in
+    /* Matches tlv::fixed_format<2, 2, tlv::byte_order::little_endian>, documented in
      * docs/formats/fixed/configurable.md: 12 34 03 00 AA BB CC. */
     const tlv_fixed_format_t config = {
         {2}, {2, TLV_BYTE_ORDER_LITTLE_ENDIAN}, TLV_ELEMENT_ORDER_TLV, TLV_LENGTH_SCOPE_VALUE};

@@ -18,7 +18,7 @@ public:
         : traversal_command(o, std::move(data)), output_(output) {}
 
 protected:
-    tlv_visit_result_t visit_element(const tlv::element_view& element, std::size_t depth,
+    tlv::visit_control visit_element(const tlv::element_view& element, std::size_t depth,
                                      std::size_t offset) override;
     void               render_output() override;
 

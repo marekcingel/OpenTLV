@@ -1,12 +1,24 @@
 // SPDX-License-Identifier: MIT
 // Copyright (c) 2026 Marek Cingel
 
+#include "tlv++/native.hpp"
+
 #include "controlled_format.h"
 #include "tlv++/document/document.hpp"
 
 #include <gtest/gtest.h>
 
 #include <vector>
+#include <type_traits>
+
+static_assert(
+    std::is_same<decltype(std::declval<const tlv::document&>().first()), tlv::const_node>::value,
+    "A const Document must not expose mutable Nodes");
+static_assert(!std::is_convertible<tlv::const_node, tlv::node>::value,
+              "Read-only handles must not recover mutation");
+static_assert(
+    std::is_same<decltype(std::declval<tlv::const_node>().first_child()), tlv::const_node>::value,
+    "Read-only traversal must stay read-only");
 
 namespace {
 
@@ -30,7 +42,7 @@ int is_constructed(const void*, const tlv_tag_t* tag) {
 tlv::document_format format() {
     tlv_format_t constructed_format = controlled::format;
     constructed_format.is_constructed = is_constructed;
-    return tlv::document_format(constructed_format);
+    return tlv::document_format(tlv::native::borrow_format(constructed_format));
 }
 
 // 6F { 84 (AA BB), A5 { 50 (41 42) } }, 50 (FF)
@@ -40,7 +52,7 @@ const Bytes sample = make(
 TEST(Unit_Tlvpp_Document, SelectedBuilderUsesPublishedRootAndResumesReader) {
     auto             config = format();
     tlv::tree_frame  frames[2]{};
-    tlv::tree_reader reader(view(sample), config.format, {frames, 2}, 2, 10);
+    tlv::tree_reader reader(view(sample), config.view(), {frames, 2}, 2, 10);
     auto             query = tlv::query::parse("6F/A5");
     ASSERT_TRUE(query);
     tlv::query_matcher matcher(*query);
@@ -92,7 +104,7 @@ TEST(Unit_Tlvpp_Document, SelectionInvalidatedByCursorAndBuilderOperations) {
         SCOPED_TRACE(operation);
         auto             config = format();
         tlv::tree_frame  frames[2]{};
-        tlv::tree_reader reader(view(sample), config.format, {frames, 2}, 2, 10);
+        tlv::tree_reader reader(view(sample), config.view(), {frames, 2}, 2, 10);
         EXPECT_FALSE(tlv::document_builder::current_subtree(reader));
         ASSERT_TRUE(reader.next());
         auto stop = [](const tlv::element_view&, size_t, size_t) { return TLV_VISIT_STOP; };
@@ -137,7 +149,7 @@ TEST(Unit_Tlvpp_Document, SelectionInvalidatedByCursorAndBuilderOperations) {
 TEST(Unit_Tlvpp_Document, SelectionUsesLatestPullAndIgnoresCallerItemChanges) {
     auto             config = format();
     tlv::tree_frame  frames[2]{};
-    tlv::tree_reader reader(view(sample), config.format, {frames, 2}, 2, 10);
+    tlv::tree_reader reader(view(sample), config.view(), {frames, 2}, 2, 10);
     auto             old = reader.next();
     ASSERT_TRUE(old);
     auto latest = reader.next();
@@ -156,7 +168,7 @@ TEST(Unit_Tlvpp_Document, WholeStreamBuilderResumesAfterInputReplacement) {
     auto             config = format();
     const auto       data = make({0x50, 1, 42});
     tlv::tree_frame  frames[1]{};
-    tlv::tree_reader reader(tlv::bytes(data.data(), 1), config.format, {frames, 1}, 1, 5,
+    tlv::tree_reader reader(tlv::bytes(data.data(), 1), config.view(), {frames, 1}, 1, 5,
                             tlv::input_mode::incremental);
     auto             builder = tlv::document_builder::create(reader);
     ASSERT_TRUE(builder);
@@ -300,9 +312,11 @@ TEST(Unit_Tlvpp_Document, MovedDocumentKeepsHandlesValid) {
 }
 
 TEST(Unit_Tlvpp_Document, CreatesWithoutDecoderAndChecksItOnlyForParsing) {
-    tlv::document_format write_only = format();
-    write_only.format.decode = nullptr;
-    auto created = tlv::document::create(write_only);
+    const auto original = format();
+    auto       descriptor = tlv::native::descriptor(original.view());
+    descriptor.decode = nullptr;
+    tlv::document_format write_only(tlv::native::borrow_format(descriptor));
+    auto                 created = tlv::document::create(write_only);
     ASSERT_TRUE(created.has_value());
     auto parsed = tlv::document::parse(view(sample), write_only);
     ASSERT_FALSE(parsed.has_value());
@@ -318,17 +332,17 @@ TEST(Unit_Tlvpp_Document, ExplicitDestinationPreservesTreeAndSubtreeBoundaries) 
     layout.element_order = TLV_ELEMENT_ORDER_LTV;
     destination.context = &layout;
     destination.is_constructed = is_constructed;
-    auto output = doc.encode(destination);
+    auto output = doc.encode(tlv::native::borrow_format(destination));
     ASSERT_TRUE(output.has_value());
     EXPECT_EQ(make({10, 0x6F, 2, 0x84, 0xAA, 0xBB, 4, 0xA5, 2, 0x50, 0x41, 0x42, 1, 0x50, 0xFF}),
               *output);
-    auto size = doc.encoded_size(destination);
+    auto size = doc.encoded_size(tlv::native::borrow_format(destination));
     ASSERT_TRUE(size.has_value());
     EXPECT_EQ(output->size(), *size);
-    auto subtree = doc.first().encode(destination);
+    auto subtree = doc.first().encode(tlv::native::borrow_format(destination));
     ASSERT_TRUE(subtree.has_value());
     EXPECT_EQ(Bytes(output->begin(), output->begin() + 12), *subtree);
-    auto subtree_size = doc.first().encoded_size(destination);
+    auto subtree_size = doc.first().encoded_size(tlv::native::borrow_format(destination));
     ASSERT_TRUE(subtree_size.has_value());
     EXPECT_EQ(subtree->size(), *subtree_size);
     auto original = doc.encode();
@@ -390,7 +404,8 @@ TEST(Unit_Tlvpp_Document, ErasureInvalidatesCopiesDescendantsAndIteratorsOnly) {
     EXPECT_EQ(TLV_ERR_INVALID_ARG, copy.set(tlv::bytes()).error().code);
     EXPECT_EQ(TLV_ERR_INVALID_ARG, copy.encode().error().code);
     EXPECT_EQ(TLV_ERR_INVALID_ARG, copy.encoded_size().error().code);
-    EXPECT_EQ(TLV_ERR_INVALID_ARG, copy.encode(controlled::format).error().code);
+    EXPECT_EQ(TLV_ERR_INVALID_ARG,
+              copy.encode(tlv::native::borrow_format(controlled::format)).error().code);
     copy.erase();
     EXPECT_EQ(make({0x50, 0x01, 0xFF}), *doc.encode());
     EXPECT_EQ(TLV_ERR_INVALID_ARG,
