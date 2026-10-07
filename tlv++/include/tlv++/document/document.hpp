@@ -69,7 +69,10 @@ using document_source_location = tlv_document_source_location_t;
  * replacement of the owning Document invalidates all its handles. Invalid handles
  * test false and accessors return empty results; fallible operations return INVALID_ARG.
  * Tag and Value views borrow storage and must not be retained across invalidating
- * edits or destruction. Operations are not thread-safe.
+ * edits or destruction.
+ * @warning Operations are not thread-safe. Const access can update the handle's
+ * validity cache; externally synchronize concurrent access to a shared handle,
+ * including read-only access after a Document mutation has completed.
  */
 class node {
 public:
@@ -428,6 +431,9 @@ class const_node_range;
 /**
  * @brief Read-only checked Node handle; cannot recover mutable Node or native storage.
  * Copies allocate nothing and retain the same validity and borrowed-view rules as node.
+ * @warning Read-only access does not imply thread safety. Const methods may update
+ * the validity cache after a Document mutation; concurrent access to the same
+ * handle requires external synchronization even when the Document is no longer mutating.
  */
 class const_node {
 public:
@@ -631,6 +637,9 @@ public:
  * A document is move-only. Moving keeps every #tlv::node handle valid; the moved-from document
  * is empty and unusable except for destruction and assignment.
  *
+ * @warning Const access provides a read-only interface, not a concurrent-read guarantee.
+ * Externally synchronize concurrent access to the Document and shared handles;
+ * even const Node access may update a handle's validity cache after a mutation.
  * @warning The format callbacks' contexts are borrowed and must outlive the document.
  * Documents returned by document_builder also borrow the reader's Format descriptor.
  * @see @docs{guides/memory,format context ownership and lifetime}

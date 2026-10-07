@@ -9,7 +9,7 @@
 #include <initializer_list>
 
 /** @file
- * @brief Bounded allocation-free C++ structural Schema definitions.
+ * @brief Bounded C++ structural Schema definitions with allocation-free successful construction.
  */
 namespace tlv {
 /** @brief Required element form. */
@@ -94,6 +94,39 @@ struct schema_rule {
                 const char* name = nullptr) noexcept
         : identifier(identifier), length(length), occurrences(occurrences), kind(kind),
           children(children), name(name), length_multiple(0), endpoints_only(false), group(0) {}
+    /**
+     * @brief Return a rule copy assigned to an alternative group.
+     * @param id Group identifier; zero makes the rule independent.
+     * @return Updated value, suitable for chaining in an initializer list since C++11.
+     * @note The original rule is unchanged. Copies allocate nothing and retain borrowed lifetimes.
+     */
+    schema_rule in_group(uint32_t id) const noexcept {
+        auto result = *this;
+        result.group = id;
+        return result;
+    }
+    /**
+     * @brief Return a rule copy requiring Value lengths divisible by a given number.
+     * @param divisor Required length divisor; zero disables this restriction.
+     * @return Updated value, suitable for chaining in an initializer list since C++11.
+     * @note The original rule is unchanged. Copies allocate nothing and retain borrowed lifetimes.
+     */
+    schema_rule with_length_multiple(size_t divisor) const noexcept {
+        auto result = *this;
+        result.length_multiple = divisor;
+        return result;
+    }
+    /**
+     * @brief Return a rule copy restricting lengths to the inclusive interval's endpoints.
+     * @param enabled Whether only the minimum and maximum length are permitted.
+     * @return Updated value, suitable for chaining in an initializer list since C++11.
+     * @note The original rule is unchanged. Copies allocate nothing and retain borrowed lifetimes.
+     */
+    schema_rule with_endpoints_only(bool enabled = true) const noexcept {
+        auto result = *this;
+        result.endpoints_only = enabled;
+        return result;
+    }
 };
 /** @brief Alternative group with a shared occurrence constraint. */
 struct schema_group {
@@ -105,9 +138,11 @@ struct schema_group {
         : id(id), occurrences(occurrences), name(name) {}
 };
 /**
- * @brief Stationary caller-owned Schema tables; construction and validation allocate nothing.
+ * @brief Stationary caller-owned Schema tables with bounded capacity.
  * @tparam Capacity Maximum rule count.
  * @tparam Groups Maximum alternative-group count.
+ * @note Successful construction and validation allocate nothing. A capacity error throws
+ * std::length_error, whose construction may allocate.
  * @warning Identifier bytes, names and child Schema storage remain borrowed. Keep them
  * and this storage alive and unchanged through all dependent validations.
  */
@@ -120,6 +155,7 @@ public:
      * @param allow_unknown Whether unmatched identifiers are allowed in this scope.
      * @param groups Alternative-group definitions.
      * @throws std::length_error If either initializer list exceeds its declared capacity.
+     * Constructing this exception may allocate; successful construction does not allocate.
      */
     schema_storage(std::initializer_list<schema_rule> rules, schema_order order = schema_order::any,
                    bool allow_unknown = false, std::initializer_list<schema_group> groups = {}) {

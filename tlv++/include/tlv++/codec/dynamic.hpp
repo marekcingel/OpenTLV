@@ -28,6 +28,8 @@ inline const char* message(codec_errc code) noexcept {
 /** @brief Project a codec outcome into the common diagnostic contract without allocation.
  * @param code Original codec status, retained by the calling result for exact domain inspection.
  * @return Corresponding operation status with the codec's precise static description.
+ * @note invalid_structure projects to errc::invalid_value because structural conversion can
+ * fail without Schema validation. The original codec status and its description remain distinct.
  */
 inline error to_error(codec_errc code) noexcept {
     errc status = errc::invalid_value;
@@ -36,7 +38,7 @@ inline error to_error(codec_errc code) noexcept {
         case codec_errc::null_argument: status = errc::null_argument; break;
         case codec_errc::buffer_too_short: status = errc::buffer_too_short; break;
         case codec_errc::unsupported: status = errc::unsupported_type; break;
-        case codec_errc::invalid_structure: status = errc::schema; break;
+        case codec_errc::invalid_structure:
         case codec_errc::invalid_value: break;
     }
     return error(static_cast<tlv_result_t>(status), message(code)).during(operation::codec);
@@ -44,7 +46,10 @@ inline error to_error(codec_errc code) noexcept {
 /// @cond INTERNAL
 namespace detail {
 struct codec_access;
-}
+template <typename Owner, typename... Args> struct is_codec_owner_argument : std::false_type {};
+template <typename Owner, typename Arg>
+struct is_codec_owner_argument<Owner, Arg> : std::is_same<Owner, typename std::decay<Arg>::type> {};
+} // namespace detail
 /// @endcond
 /**
  * @brief Borrowed runtime Value codec, selected by a domain dictionary or explicit
@@ -164,8 +169,12 @@ public:
                   "Runtime codec encode(value, output, capacity) must be const and noexcept");
     /** @brief Construct codec state in place, including non-default-constructible state.
      * @param args Arguments forwarded exactly once to Codec's constructor.
+     * @note A sole argument of this owner type is excluded, regardless of cv/ref qualification.
+     * Owners cannot be copied or moved, even when Codec accepts arbitrary constructor arguments.
      */
-    template <typename... Args>
+    template <typename... Args,
+              typename std::enable_if<!detail::is_codec_owner_argument<codec_owner, Args...>::value,
+                                      int>::type = 0>
     explicit codec_owner(Args&&... args)
         : codec_(std::forward<Args>(args)...), descriptor_{this, decode, encode} {}
     /** @brief Keep borrowed descriptor/context addresses stationary. */

@@ -9,8 +9,9 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Fixed
 
+- Prevent accidental copying or moving of C++ stateful Codec owners through permissive Codec constructors. (#440, #456, #463)
+- Report malformed Codec structure as `errc::invalid_value` when projecting C++ errors, independently of Schema validation. (#440, #452)
 - Fix Clang builds of the C++ diagnostic tests with warnings treated as errors by matching the path-capacity loop counter's unsigned type. (#440)
-- Keep failed C++ Reader and Tree Reader initialization distinct from clean end-of-input in `at_end()`. (#440, #461)
 - Reject C++ Format, Writer workspace and Query identifier views borrowed from temporary owners. (#440, #458)
 - Preserve read-only C++ Document traversal through immutable Node handles, including Query selections and semantic diffs. (#440, #464)
 - Align Query fuzz checks with codec diagnostics for rejected custom hook results and retain a regression input. (#543)
@@ -93,6 +94,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Changed
 
+- **Breaking:** Return `false` from C++ Reader and Tree Reader `at_end()` after failed initialization instead of treating it as end-of-input. Callers must handle `next()` failures to terminate or recover. (#440, #461)
+- Check native usage in mixed C++ test fixtures against per-symbol occurrence baselines, and scan `.cc`, `.cxx` and `.inl` files for public/native boundary violations. (#440, #468)
 - Implement CLI parsing, writing, validation, metadata, decoding, Query and diagnostics through the public C++ facade. (#440, #467)
 - **Breaking:** Use scoped C++ Codec/Query configuration types and `error.message()`; move native Format overloads, typed Codec adapters, Schema validation and Query handles behind explicit `tlv::native` interoperability. The C ABI and wire semantics are unchanged. (#440, #452, #455, #462)
 - Make C++ operation errors allocation-free, avoid temporary heap storage for typed Writer values up to 64 bytes, and remove per-Node handle-tracking allocations while preserving stale-handle detection. (#440, #452, #459, #460)
@@ -179,6 +182,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Added
 
+- Add chainable C++ Schema rule modifiers for alternative groups, length multiples and endpoint-only length constraints in initializer lists. (#440, #453)
 - Enforce the public C++ consumer boundary in CI, with documented exceptions for native interoperability and parity tests. (#440, #451, #468)
 - Add public C++ Query environment/variable configuration, stateful runtime Codec ownership, Bluetooth metadata and DHCP container policies. (#440, #455, #456, #457, #463)
 - Add owned runtime Fixed Format configuration, bounded C++ Schema definitions and validation reports, runtime Value codecs and EMV dictionary views; use the public APIs in runtime configuration, validation and LLDP examples. (#440, #453, #454, #456, #457, #466)

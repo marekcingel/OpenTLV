@@ -90,6 +90,9 @@ enum class severity {
  *
  * Text is borrowed, normally from immutable program-lifetime library strings.
  * Custom descriptions must outlive every error copy. Numeric context is copied.
+ * @note Every error contains a full inline diagnostic path. Its storage also
+ * contributes to sizeof(expected<T, error>) for successful results, although
+ * success does not construct an error. Check sizes when budgeting stack or retained results.
  */
 struct error {
     /** @brief Native status retained for transitional interoperability. */

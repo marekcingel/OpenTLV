@@ -26,7 +26,40 @@ struct bounded_byte_codec {
     }
     uint8_t maximum;
 };
+
+struct permissive_byte_codec : bounded_byte_codec {
+    template <typename... Args>
+    explicit permissive_byte_codec(Args&&...) : bounded_byte_codec(uint8_t(sizeof...(Args))) {}
+};
+
+using stationary_codec = tlv::codec_owner<permissive_byte_codec>;
+static_assert(!std::is_constructible<stationary_codec, stationary_codec&>::value,
+              "Mutable owners must not enter the forwarding constructor");
+static_assert(!std::is_constructible<stationary_codec, const stationary_codec&>::value,
+              "Const owners cannot be copied");
+static_assert(!std::is_constructible<stationary_codec, volatile stationary_codec&>::value,
+              "Volatile owners must not enter the forwarding constructor");
+static_assert(!std::is_constructible<stationary_codec, const volatile stationary_codec&>::value,
+              "Const volatile owners must not enter the forwarding constructor");
+static_assert(!std::is_constructible<stationary_codec, stationary_codec&&>::value,
+              "Owners cannot be moved");
+static_assert(!std::is_constructible<stationary_codec, const stationary_codec&&>::value,
+              "Const temporary owners must not enter the forwarding constructor");
+static_assert(!std::is_constructible<stationary_codec, volatile stationary_codec&&>::value,
+              "Volatile temporary owners must not enter the forwarding constructor");
+static_assert(!std::is_constructible<stationary_codec, const volatile stationary_codec&&>::value,
+              "Const volatile temporary owners must not enter the forwarding constructor");
 } // namespace
+
+TEST(Unit_Tlvpp, RuntimeCodecAcceptsDefaultAndMultipleConstructorArguments) {
+    stationary_codec default_owner;
+    stationary_codec multiple_owner(1, 2);
+    const tlv::byte  zero[] = {tlv::byte(0)}, two[] = {tlv::byte(2)};
+    EXPECT_EQ(0u, *default_owner.view().decode<uint8_t>({zero, 1}));
+    EXPECT_EQ(tlv::codec_errc::invalid_value,
+              default_owner.view().decode<uint8_t>({two, 1}).error());
+    EXPECT_EQ(2u, *multiple_owner.view().decode<uint8_t>({two, 1}));
+}
 
 TEST(Unit_Tlvpp, RuntimeCodecOwnsNonDefaultStateAndPreservesStatus) {
     tlv::codec_owner<bounded_byte_codec> owner(uint8_t(7));
@@ -43,6 +76,14 @@ TEST(Unit_Tlvpp, RuntimeCodecOwnsNonDefaultStateAndPreservesStatus) {
     EXPECT_EQ(tlv::byte(5), output[0]);
     static_assert(!std::is_copy_constructible<decltype(owner)>::value,
                   "Codec owners remain stationary");
+}
+
+TEST(Unit_Tlvpp, CodecStructureFailureDoesNotImplySchemaValidation) {
+    const auto codec_status = tlv::codec_errc::invalid_structure;
+    const auto failure = tlv::to_error(codec_status);
+    EXPECT_EQ(tlv::errc::invalid_value, failure.status());
+    EXPECT_EQ(tlv::operation::codec, failure.stage());
+    EXPECT_STREQ(tlv::message(codec_status), failure.message());
 }
 
 TEST(Unit_Tlvpp, PublicSchemaReportsMissingFieldAndBoundedViolations) {
@@ -156,6 +197,44 @@ TEST(Unit_Tlvpp, SchemaAlternativeGroupsAndCapacityAreExplicit) {
     EXPECT_TRUE(report.at(0).is_group());
     EXPECT_STREQ("choice", report.at(0).field());
     EXPECT_THROW((tlv::schema_storage<1>({first, second})), std::length_error);
+}
+
+TEST(Unit_Tlvpp, SchemaRulesComposeLengthAndGroupConstraintsInInitializerLists) {
+    const tlv::schema_rule          base(tlv::tag_bytes<1>(), {2, 8});
+    const tlv::schema_storage<2, 1> schema(
+        {base.with_length_multiple(2).in_group(1),
+         tlv::schema_rule(tlv::tag_bytes<2>(), {2, 8}).with_endpoints_only().in_group(1)},
+        tlv::schema_order::any, false, {{1, tlv::bounds::exactly(1), "choice"}});
+    EXPECT_EQ(0u, base.length_multiple);
+    EXPECT_EQ(0u, base.group);
+    EXPECT_FALSE(base.endpoints_only);
+    EXPECT_FALSE(base.with_endpoints_only().with_endpoints_only(false).endpoints_only);
+
+    const tlv::fixed_format<1, 1> format;
+    const tlv::byte               valid_multiple[] = {tlv::byte(1), tlv::byte(4), tlv::byte(0),
+                                                      tlv::byte(0), tlv::byte(0), tlv::byte(0)};
+    const tlv::byte valid_endpoint[] = {tlv::byte(2), tlv::byte(2), tlv::byte(0), tlv::byte(0)};
+    EXPECT_TRUE(tlv::validate({valid_multiple, sizeof valid_multiple}, format, schema.view()));
+    EXPECT_TRUE(tlv::validate({valid_endpoint, sizeof valid_endpoint}, format, schema.view()));
+
+    tlv::validation_report<1> report;
+    const tlv::byte invalid_multiple[] = {tlv::byte(1), tlv::byte(3), tlv::byte(0), tlv::byte(0),
+                                          tlv::byte(0)};
+    ASSERT_TRUE(
+        report.validate({invalid_multiple, sizeof invalid_multiple}, format, schema.view()));
+    ASSERT_EQ(1u, report.size());
+    EXPECT_EQ(tlv::schema_issue::length, report.at(0).kind());
+    EXPECT_EQ(2u, report.at(0).length_multiple());
+    const tlv::byte invalid_endpoint[] = {tlv::byte(2), tlv::byte(4), tlv::byte(0),
+                                          tlv::byte(0), tlv::byte(0), tlv::byte(0)};
+    ASSERT_TRUE(
+        report.validate({invalid_endpoint, sizeof invalid_endpoint}, format, schema.view()));
+    ASSERT_EQ(1u, report.size());
+    EXPECT_EQ(tlv::schema_issue::length, report.at(0).kind());
+    EXPECT_TRUE(report.at(0).length_endpoints_only());
+    ASSERT_TRUE(report.validate({}, format, schema.view()));
+    ASSERT_EQ(1u, report.size());
+    EXPECT_TRUE(report.at(0).is_group());
 }
 
 TEST(Unit_Tlvpp, PublicQueryConfigurationBindsTypedVariables) {

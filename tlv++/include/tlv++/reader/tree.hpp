@@ -135,7 +135,11 @@ public:
     TLV_NODISCARD size_t offset() const {
         return tlv_tree_reader_offset(&impl_);
     }
-    /** @brief True at final exhaustion or when initialization failed. */
+    /**
+     * @brief True only at a successfully initialized final input boundary.
+     * @return False after initialization failure or while waiting for more input;
+     * next() reports the corresponding error or resumable pause.
+     */
     TLV_NODISCARD bool at_end() const {
         return init_result_ == TLV_OK && tlv_tree_reader_at_end(&impl_) != 0;
     }

@@ -78,6 +78,10 @@ their documented exception contracts. No second exception-disabled implementatio
 of the C++ facade is provided. The canonical C engine remains available in builds
 that disable C++ exceptions.
 
+Successful `schema_storage<N,G>` construction uses only its bounded inline tables.
+Exceeding either capacity throws `std::length_error`; constructing that exception
+may allocate. The allocation-free guarantee does not cover this failure path.
+
 ### Node validity and allocation costs
 
 Each Node handle stores a pointer, identity and cached Document revision and
@@ -90,6 +94,14 @@ independently; moving the owning Document preserves handles, and owner destructi
 invalidates them. A `const document` returns `const_node`, including through Query
 selection, so child traversal cannot recover mutation.
 
+Every successful edit changes the revision, including insertion and primitive
+Value replacement. Consequently, `for (auto child : parent.children()) child.set(value)`
+can take O(nodes squared): each edit makes the iterator's retained handle require
+another membership scan. This is a known limit of checked handles, including
+when no nodes are erased. The canonical C API does not expose a separate retirement
+epoch. An optimization must preserve detection of native edits and stale handles;
+it is not part of this change.
+
 The `test-document-handle-smoke` C++11 target checks zero C++ allocations during
 seven traversals of 10,000 nodes, handle invalidation, short typed writes and
 Reader failure reporting. Pass an extra argument to print raw repetitions as
@@ -97,9 +109,19 @@ Reader failure reporting. Pass an extra argument to print raw repetitions as
 the map/token tracker observed 20,007 allocations on the first traversal and 10,000
 on subsequent traversals; the identity/revision handles observed zero in all seven.
 This is an allocation result for that workload, not a general timing guarantee.
+The smoke test does not measure traversal interleaved with edits.
 The owning C Document still allocates its tree. Typed Writer convenience operations
 use 64 bytes of stack scratch for short encoded values, then a vector for larger
 values; caller-supplied scratch avoids this fallback.
+
+### Concurrent access
+
+`const document` and `const_node` restrict mutation through the public interface;
+they do not promise thread safety. Node accessors can update a handle's mutable
+pointer/revision cache after a Document mutation. Two threads reading the same
+`const_node` can therefore race even after the mutation has completed. Externally
+synchronize concurrent access to a Document and its shared handles, including
+const access; read-only traversal does not supply synchronization.
 
 ## Explicit interoperability and lifetime
 
@@ -154,6 +176,33 @@ Schema reports expose bounds, occurrence counts, form and alternative-group
 information through C++ accessors. Legacy diagnostic aliases remain useful for
 advanced diagnostic collection; common consumers need no native constants.
 
+### Diagnostic storage costs
+
+Allocation-free errors use fixed inline storage for up to 32 ancestor descriptors.
+This increases the size of every `error` and of result objects, including successful
+`expected<element_view, error>` results, even though success does not construct an
+error. Schema reports reserve full diagnostic records for their declared capacity.
+Representative GCC C++11 layouts measured with the default configuration are:
+
+| Object | x86-64 bytes | x86 bytes |
+| --- | ---: | ---: |
+| `error` before this facade change | 40 | 28 |
+| `error` with inline diagnostic context | 600 | 304 |
+| `expected<element_view, error>` | 608 | 308 |
+| `validation_report<0>` | 16 | 8 |
+| `validation_report<1>` | 712 | 368 |
+| `validation_report<8>` | 5640 | 2916 |
+
+These are measured layouts, not ABI size guarantees; check `sizeof` with the target
+compiler, standard library and configuration. Account for this storage in retained
+result vectors, recursive calls and embedded stack budgets. Consume results as they
+arrive when retaining the full diagnostics is unnecessary. Choose report capacity
+and storage placement explicitly; `validation_report<0>` counts violations without
+retaining records. The inline representation keeps returned errors self-contained
+without heap allocation for ancestor descriptors; their identifier bytes remain borrowed.
+
+### Traversal outcomes
+
 | Operation | Completion | Failure and continuation |
 | --- | --- | --- |
 | Reader / Tree Reader `next()` | Element or event | `end_of_input` is final exhaustion; `need_more_data` preserves resumable state |
@@ -186,6 +235,19 @@ those methods through the canonical C callback ABI. Non-default-constructible
 codec state can be constructed in place. Codec encode with `nullptr, 0` measures
 and validates; runtime decoding must use the exact documented representation.
 
+Schema rule modifiers return copies, so additional constraints can be composed in
+initializer lists without mutating a base rule:
+
+```cpp
+const tlv::schema_storage<2, 1> schema(
+    {tlv::schema_rule(tlv::tag_bytes<1>(), {2, 8}).with_length_multiple(2).in_group(1),
+     tlv::schema_rule(tlv::tag_bytes<2>(), {2, 8}).with_endpoints_only().in_group(1)},
+    tlv::schema_order::any, false, {{1, tlv::bounds::exactly(1), "choice"}});
+```
+
+Here either identifier must occur exactly once across the group. The first accepts
+even Value lengths from 2 to 8; the second accepts only lengths 2 and 8.
+
 ## Coverage audit and enforcement (#440)
 
 The closure boundary is complete supported consumer workflows, not a one-to-one
@@ -193,15 +255,22 @@ copy of every C helper. All ordinary examples and CLI sources pass
 `scripts/check_cxx_boundary.py`; the CI job also runs the scanner's regression
 tests. The scanner rejects native headers, C identifiers/constants and
 `tlv::detail`/`tlv::native` usage. The generated `tlv/config.h` capability switches
-are allowed. Native parity and malformed-native-input fixtures are excluded by
-exact path with a reason in the script; mixed historical parity files are not
-claimed as pure public examples. New public acceptance tests belong in
-`tests/unit/public_api_test.cpp` and are checked. The explicit interoperability
-example remains excluded. Run `--report build/cxx-boundary.json` for the audit.
+are allowed. Native parity, malformed-native-input fixtures and the explicit
+interoperability example have exact per-path, per-symbol occurrence baselines in
+`scripts/cxx_boundary_baseline.json`, each with a reason. These files remain
+checked: new symbols, additional occurrences and stale allowances fail the gate.
+Qualified `tlv::native` and `tlv::detail` members have separate counts. Changing a
+fixture requires reviewing its baseline alongside the source change; no entire
+file is exempt. Mixed historical parity files are not claimed as pure public
+examples. New public acceptance tests belong in `tests/unit/public_api_test.cpp`.
+The scanner covers `.cpp`, `.hpp`, `.h`, `.cc`, `.cxx` and `.inl` under the consumer
+roots; tests enter its scope when they directly include `tlv++/` headers, so pure
+C engine harnesses remain outside this gate. Run
+`--report build/cxx-boundary.json` for the audit.
 
 | Issue | Implemented contract and evidence |
 | --- | --- |
-| #451 | Public coverage table, CLI migration, public acceptance tests and explicit native exclusions |
+| #451 | Public coverage table, CLI migration, public acceptance tests and explicit native baselines |
 | #452 | Common error projection, borrowed messages, located Reader/Writer/Document errors and Schema reports |
 | #453 | Bounded declarative Schema rules/groups, child schemas and validation/report APIs |
 | #454 | Runtime Fixed owner, configuration validation, independent copying and CLI selection |
@@ -218,7 +287,7 @@ example remains excluded. Run `--report build/cxx-boundary.json` for the audit.
 | #465 | One exception-enabled C++ contract with a negative exception-disabled compile check |
 | #466 | Public runtime-format, validation, typed-field and traversal examples |
 | #467 | Public C++ CLI parsing, writing, metadata, validation, decoding, Query and diagnostics |
-| #468 | Architectural scanner, explicit exclusions, scanner tests and CI integration |
+| #468 | Architectural scanner, exact native symbol baselines, scanner tests and CI integration |
 
 ### Builtin metadata audit
 
@@ -244,3 +313,11 @@ validation lives under `native::validate`. Query compiler settings and runtime
 capabilities are obtained from named C++ owners; existing C tables can be imported
 with `native::borrow_query_settings` and `native::borrow_query_capabilities`.
 These are C++ source changes; the canonical C ABI is unchanged by this work.
+
+`reader::at_end()` and `tree_reader::at_end()` now return `false` after failed
+initialization; previously an initialization failure appeared to be clean
+end-of-input. A loop using `while (!reader.at_end())` must check the result of
+`next()` and stop or recover on failure. Ignoring that result can now repeat
+indefinitely with an invalid Format. In explicit pull loops, treat
+`errc::end_of_input` as completion, `errc::need_more_data` as a resumable pause,
+and other errors as failures requiring handling before another pull.

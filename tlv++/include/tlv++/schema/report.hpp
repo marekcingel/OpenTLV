@@ -128,6 +128,9 @@ private:
  * @tparam Capacity Maximum retained violation count, including zero for counting only.
  * @warning Retained identifiers and names borrow input, Format and Schema storage.
  * Validation replaces the prior report; it never allocates.
+ * @note Storage grows linearly with Capacity: each record contains a full inline
+ * diagnostic path. Choose Capacity and storage placement for the application's
+ * memory budget; Capacity zero counts violations without retaining records.
  */
 template <size_t Capacity> class validation_report {
 public:
