@@ -11,10 +11,11 @@
 #include <vector>
 
 namespace {
-const tlv_variable_format_t config = {{0x70, 0x20, 0x01, 0xF0, 8},
-                                      {0x80, 0x7F, TLV_BYTE_ORDER_LITTLE_ENDIAN},
+const tlv_variable_format_t config = {{0x70, 0x20, 0x01, 0xF0, 8, NULL},
+                                      {0x80, 0x7F, TLV_BYTE_ORDER_LITTLE_ENDIAN, NULL},
                                       TLV_ELEMENT_ORDER_TLV,
-                                      TLV_LENGTH_SCOPE_VALUE};
+                                      TLV_LENGTH_SCOPE_VALUE,
+                                      NULL};
 
 // A synthetic container: zero-width long count, definite child elements, FA FB
 // trailer recognized only at child boundaries. This policy belongs to this
@@ -221,4 +222,43 @@ TEST(Integration_Tlv_Variable, ComposesTerminatedBoundsAndTrailerWithoutBuiltinP
     EXPECT_EQ(TLV_REGION_TRAILER, error.region);
     EXPECT_EQ(7u, error.offset);
     EXPECT_EQ(TLV_ERR_BUFFER_TOO_SHORT, tlv_format_decode(&format, bytes, 8, &decoded, &error));
+}
+
+TEST(Integration_Tlv_Variable, DeclarativeThreeByteTagsMinimalLengthsAndConstructedBit) {
+    static const uint8_t                 forbidden[] = {0};
+    static const tlv_identifier_policy_t tag_policy = {forbidden, 1, 1, 0};
+    static const tlv_length_policy_t     length_policy = {1, 1, 1, 2, 65535};
+    static const tlv_constructed_bit_t   constructed = {0, 0x20, 0x20};
+    const tlv_variable_format_t          config = {
+        {0x1F, 0x1F, 0x80, 0x7F, 3, &tag_policy},
+        {0x80, 0x7F, TLV_BYTE_ORDER_LITTLE_ENDIAN, &length_policy},
+        TLV_ELEMENT_ORDER_TLV,
+        TLV_LENGTH_SCOPE_VALUE,
+        &constructed};
+    tlv_format_t format{};
+    ASSERT_EQ(TLV_OK, tlv_variable_format_init(&format, &config));
+    const uint8_t            tag[] = {0xBF, 0x81, 0x01};
+    std::array<uint8_t, 256> value{};
+    const tlv_element_t      element = {tlv_tag(tag, sizeof(tag)), {value.data(), value.size()}};
+    std::array<uint8_t, 262> wire{};
+    size_t                   written = 0;
+    ASSERT_EQ(TLV_OK,
+              tlv_format_encode(&format, &element, wire.data(), wire.size(), &written, nullptr));
+    const uint8_t expected_header[] = {0xBF, 0x81, 1, 0x82, 0, 1};
+    EXPECT_EQ(0, std::memcmp(expected_header, wire.data(), sizeof(expected_header)));
+    tlv_decoded_t decoded{};
+    ASSERT_EQ(TLV_OK, tlv_format_decode(&format, wire.data(), written, &decoded, nullptr));
+    EXPECT_EQ(1, format.is_constructed(format.context, &decoded.element.tag));
+    EXPECT_EQ(256u, decoded.element.value.size);
+    EXPECT_EQ(wire.data(), decoded.element.tag.data);
+    const uint8_t      padded[] = {1, 0x81, 1, 42};
+    tlv_format_error_t error{};
+    EXPECT_EQ(TLV_ERR_INVALID_LENGTH,
+              tlv_format_decode(&format, padded, sizeof(padded), &decoded, &error));
+    EXPECT_EQ(TLV_REGION_LENGTH, error.region);
+    EXPECT_EQ(1u, error.offset);
+    const uint8_t width_error[] = {1, 0x83};
+    EXPECT_EQ(TLV_ERR_INVALID_LENGTH,
+              tlv_format_decode(&format, width_error, sizeof(width_error), &decoded, &error));
+    EXPECT_EQ(1u, error.length.size);
 }

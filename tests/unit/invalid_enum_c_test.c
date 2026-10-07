@@ -43,10 +43,11 @@ int tlv_test_invalid_enum_fields(void) {
     tlv_format_t             format;
     const tlv_fixed_format_t fixed = {
         {1}, {2, order}, TLV_ELEMENT_ORDER_TLV, TLV_LENGTH_SCOPE_VALUE};
-    const tlv_variable_format_t variable = {{0x1F, 0x1F, 0x80, 0x7F, 16},
-                                            {0x80, 0x7F, order},
+    const tlv_variable_format_t variable = {{0x1F, 0x1F, 0x80, 0x7F, 16, NULL},
+                                            {0x80, 0x7F, order, NULL},
                                             TLV_ELEMENT_ORDER_TLV,
-                                            TLV_LENGTH_SCOPE_VALUE};
+                                            TLV_LENGTH_SCOPE_VALUE,
+                                            NULL};
     CHECK(tlv_fixed_format_init(&format, &fixed) == TLV_ERR_INVALID_BYTE_ORDER);
     CHECK(tlv_variable_format_init(&format, &variable) == TLV_ERR_INVALID_BYTE_ORDER);
     const uint8_t       packed_tags[] = {0, 1};

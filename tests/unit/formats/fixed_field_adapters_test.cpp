@@ -2,6 +2,7 @@
 // Copyright (c) 2026 Marek Cingel
 
 #include "tlv/formats/fixed.h"
+#include "tlv/formats/variable.h"
 #include "tlv/formats/escaped.h"
 #include "tlv/tlv.h"
 #if OPENTLV_FORMAT_CER
@@ -301,7 +302,16 @@ TEST(Unit_Tlv_FixedFieldAdapters, BuiltinFieldCallbacksFollowArgumentAndPrefixCo
     };
     for (const auto* format : formats) {
         if (!format) continue;
-        const auto*     fields = static_cast<const tlv_field_composition_t*>(format->context);
+        tlv_field_composition_t        variable_fields{};
+        const tlv_field_composition_t* fields;
+        if (format->decode == tlv_variable_decode) {
+            ASSERT_EQ(TLV_OK, tlv_variable_fields_init(
+                                  &variable_fields,
+                                  static_cast<const tlv_variable_format_t*>(format->context)));
+            fields = &variable_fields;
+        } else {
+            fields = static_cast<const tlv_field_composition_t*>(format->context);
+        }
         const uint8_t   bytes[] = {0x9F, 0x1F};
         const tlv_tag_t tag = tlv_tag(bytes, sizeof(bytes));
         const tlv_tag_t missing = tlv_tag(nullptr, 999);

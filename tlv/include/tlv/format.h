@@ -30,6 +30,28 @@ extern "C" {
  */
 
 /**
+ * @brief Constructed classification by an exact masked byte comparison.
+ *
+ * A nonzero mask is required; value must contain only masked bits. The
+ * predicate reads canonical Tag bytes, not the source wire envelope.
+ */
+typedef struct tlv_constructed_bit {
+    size_t byte_index; /**< Zero-based canonical identifier byte index. */
+    uint8_t mask;      /**< Nonzero mask of tested bits. */
+    uint8_t value;     /**< Required masked value; zero can test clear bits. */
+} tlv_constructed_bit_t;
+
+/**
+ * @brief Test a canonical Tag against a borrowed bit predicate.
+ *
+ * @param[in] context Immutable tlv_constructed_bit_t; NULL means no match.
+ * @param[in] tag Borrowed readable Tag; NULL or missing bytes mean no match.
+ * @return One for an exact masked match, zero otherwise or for invalid configuration.
+ * @note No allocation or mutation. Out-of-range indices are never read.
+ */
+TLV_API int tlv_constructed_bit_predicate(const void* context, const tlv_tag_t* tag);
+
+/**
  * @brief An optional, buffer-relative field range.
  */
 typedef struct tlv_range {

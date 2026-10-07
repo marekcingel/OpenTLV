@@ -76,8 +76,9 @@ outside their field widths. Decode bounds-checks Value before native narrowing.
 [LLDP](lldp/README.md) is a two-byte big-endian configuration with seven-bit
 Type, nine-bit Value length and a static 128-byte identifier table. Its existing
 presets, diagnostics and source ranges are preserved. Constructed classification
-and protocol validation remain separate from packed framing; policy extensions
-are outside #541.
+and protocol validation remain separate from packed framing; declarative field
+policies are described in the
+[policy design note](../concepts/field-policies.md) for #542.
 
 Existing LLDP language presets continue to use `tlv_format_lldp`. General
 packed configuration is currently C API functionality, available in C++ through

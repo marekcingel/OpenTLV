@@ -3,12 +3,15 @@
 
 #include "tlv/builtins/asn1/identifier.h"
 #include "asn1_internal.h"
+#include "tlv/format.h"
 #include "ber_internal.h"
 #include <string.h>
 
 int tlv_asn1_is_constructed(const void* context, const tlv_tag_t* tag) {
     (void)context;
-    return tlv_asn1_tag_is_constructed(tag);
+    static const tlv_constructed_bit_t bit = {0, TLV_ASN1_CONSTRUCTED_BIT,
+                                              TLV_ASN1_CONSTRUCTED_BIT};
+    return tlv_constructed_bit_predicate(&bit, tag);
 }
 
 tlv_result_t tlv_asn1_tag_make_checked(tlv_write_tag_fn validate, tlv_asn1_class_t tag_class,

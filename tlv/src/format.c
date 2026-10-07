@@ -5,6 +5,12 @@
 #include "tlv/size.h"
 #include <string.h>
 
+int tlv_constructed_bit_predicate(const void* context, const tlv_tag_t* tag) {
+    const tlv_constructed_bit_t* bit = (const tlv_constructed_bit_t*)context;
+    return bit && bit->mask && !(bit->value & ~bit->mask) && tag && tag->data &&
+           bit->byte_index < tag->size && (tag->data[bit->byte_index] & bit->mask) == bit->value;
+}
+
 tlv_result_t tlv_format_init(tlv_format_t* format, const void* context, tlv_decode_fn decode,
                              tlv_measure_fn measure, tlv_encode_fn encode) {
     if (!format || (!!measure != !!encode) || (!decode && !encode)) return TLV_ERR_INVALID_ARG;

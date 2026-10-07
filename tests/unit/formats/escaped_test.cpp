@@ -8,10 +8,11 @@
 #include <cstring>
 
 TEST(Unit_Tlv_TaggedFields, VariableWidthIdentifiersAndIndependentLengthCodec) {
-    const tlv_variable_format_t     config{{0x1F, 0x1F, 0x80, 0x7F, 8},
-                                           {0x80, 0x7F, TLV_BYTE_ORDER_BIG_ENDIAN},
+    const tlv_variable_format_t     config{{0x1F, 0x1F, 0x80, 0x7F, 8, NULL},
+                                           {0x80, 0x7F, TLV_BYTE_ORDER_BIG_ENDIAN, NULL},
                                            TLV_ELEMENT_ORDER_TLV,
-                                           TLV_LENGTH_SCOPE_VALUE};
+                                           TLV_LENGTH_SCOPE_VALUE,
+                                           NULL};
     const uint8_t                   marker[] = {0x9F, 0x02};
     const tlv_tag_t                 tag = tlv_tag(marker, sizeof(marker));
     tlv_tagged_fields_composition_t layout{};

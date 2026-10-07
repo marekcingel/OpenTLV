@@ -84,10 +84,11 @@ TEST(Integration_Tlv_Ber, IndefiniteCompositionPreservesSourceAndRegeneratesFram
     EXPECT_EQ(13, out[1]);
     EXPECT_EQ(0, std::memcmp(bytes + 2, out + 2, 13));
 
-    const tlv_variable_format_t raw = {{0x1F, 0x1F, 0x80, 0x7F, 8},
-                                       {0x80, 0x7F, TLV_BYTE_ORDER_BIG_ENDIAN},
+    const tlv_variable_format_t raw = {{0x1F, 0x1F, 0x80, 0x7F, 8, NULL},
+                                       {0x80, 0x7F, TLV_BYTE_ORDER_BIG_ENDIAN, NULL},
                                        TLV_ELEMENT_ORDER_TLV,
-                                       TLV_LENGTH_SCOPE_VALUE};
+                                       TLV_LENGTH_SCOPE_VALUE,
+                                       NULL};
     tlv_format_t                generic = {};
     ASSERT_EQ(TLV_OK, tlv_variable_format_init(&generic, &raw));
     // Indefinite/EOC semantics belong to BER, not to the shared count primitive.

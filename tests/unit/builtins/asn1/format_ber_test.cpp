@@ -417,7 +417,7 @@ TEST(Unit_Tlv_Ber, LongPaddedLengthsAndTruncation) {
 }
 
 TEST(Unit_Tlv_Ber, IdentifierPolicyIsSeparateFromVariableMechanics) {
-    const tlv_variable_identifier_t wire = {0x1F, 0x1F, 0x80, 0x7F, TLV_ASN1_TAG_MAX_SIZE};
+    const tlv_variable_identifier_t wire = {0x1F, 0x1F, 0x80, 0x7F, TLV_ASN1_TAG_MAX_SIZE, NULL};
     // Exhaust the first octet and first continuation digit. The final zero
     // terminates a continuation, including nonminimal raw identifiers.
     for (unsigned first = 0; first <= 255; ++first) {
@@ -457,7 +457,7 @@ TEST(Unit_Tlv_Ber, LeadingDigitPolicyKeepsErrorPrecedence) {
 }
 
 TEST(Unit_Tlv_Ber, LengthPolicyAndAtomicPublicOutputsDifferFromVariableMechanics) {
-    const tlv_variable_length_t wire = {0x80, 0x7F, TLV_BYTE_ORDER_BIG_ENDIAN};
+    const tlv_variable_length_t wire = {0x80, 0x7F, TLV_BYTE_ORDER_BIG_ENDIAN, NULL};
     std::vector<uint8_t>        reserved(128, 0);
     reserved[0] = 0xFF;
     reserved.back() = 7;

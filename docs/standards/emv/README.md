@@ -73,8 +73,10 @@ Use `&tlv_format_emv` with the reader, visitor, or writer.
 There is no separate EMV parser and the reader never interprets values.
 
 The descriptor in `tlv/builtins/emv/format.h` composes generic variable identifier
-and count primitives with EMV policy. It calls no ASN.1 format or private BER
-helper. C++ exposes the same descriptor as `tlv::emv_format()` from
+and count primitives with declarative EMV policies and a constructed-bit predicate.
+It uses only generic Variable Format callbacks; see the
+[policy design note](../../concepts/field-policies.md). It calls no ASN.1 format
+or private BER helper. C++ exposes the same descriptor as `tlv::emv_format()` from
 `tlv++/builtins/emv/format.hpp`.
 
 | Concern | EMV framing contract |

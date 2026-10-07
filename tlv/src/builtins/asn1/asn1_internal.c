@@ -3,20 +3,25 @@
 
 #include "asn1_internal.h"
 #include "ber_internal.h"
+#include "tlv/field/variable.h"
 
 tlv_result_t tlv_asn1_read_identifier(const void* context, const uint8_t* data, size_t size,
                                       tlv_tag_t* tag, size_t* consumed) {
+    static const tlv_identifier_policy_t policy = {NULL, 0, 1, 1};
+    static const tlv_variable_identifier_t encoding = {
+        TLV_ASN1_TAG_NUMBER_MASK, TLV_ASN1_TAG_NUMBER_MASK, TLV_BER_TAG_DIGIT_CONTINUATION_BIT,
+        TLV_BER_TAG_DIGIT_MASK,   TLV_ASN1_TAG_MAX_SIZE,    &policy};
     tlv_tag_t parsed;
     size_t count;
     unsigned number;
     tlv_result_t rc;
     if ((!data && size) || !tag || !consumed) return TLV_ERR_NULL_ARG;
-    rc = tlv_ber_wire.read_tag(context, data, size, &parsed, &count);
+    (void)context;
+    rc = tlv_variable_identifier_read(&encoding, data, size, &parsed, &count);
     if (rc != TLV_OK) {
         if (rc == TLV_ERR_BUFFER_TOO_SHORT) *consumed = count;
         return rc;
     }
-    if (count == 2 && data[1] < TLV_ASN1_LOW_TAG_LIMIT) return TLV_ERR_INVALID_TAG;
     number = count == 1 ? (data[0] & TLV_ASN1_TAG_NUMBER_MASK) : (count == 2 ? data[1] : 127);
     if (!(data[0] & 0xC0)) {
         int must_construct;
@@ -52,18 +57,12 @@ tlv_result_t tlv_asn1_write_identifier_checked(tlv_read_tag_fn read_identifier, 
 
 tlv_result_t tlv_asn1_read_minimal_length(const void* context, const uint8_t* data, size_t size,
                                           tlv_size_t* length, size_t* consumed) {
-    tlv_size_t value;
-    size_t count = 0;
-    tlv_result_t rc;
-    if ((!data && size) || !length || !consumed) return TLV_ERR_NULL_ARG;
-    rc = tlv_ber_wire.read_length(context, data, size, &value, &count);
-    *consumed = count;
-    if (rc != TLV_OK) return rc;
-    if (count > 1 && (value < TLV_BER_LENGTH_LONG_FORM_BIT || data[1] == 0))
-        return TLV_ERR_INVALID_LENGTH;
-    *length = value;
-    *consumed = count;
-    return TLV_OK;
+    static const tlv_length_policy_t policy = {1, 1, 1, 126, UINT64_MAX};
+    static const tlv_variable_length_t encoding = {TLV_BER_LENGTH_LONG_FORM_BIT,
+                                                   TLV_BER_LENGTH_COUNT_MASK,
+                                                   TLV_BYTE_ORDER_BIG_ENDIAN, &policy};
+    (void)context;
+    return tlv_variable_length_read(&encoding, data, size, length, consumed);
 }
 
 int tlv_asn1_number_must_construct(uint64_t number) {

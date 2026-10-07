@@ -16,8 +16,10 @@ the identifier. The configuration also bounds its complete byte width.
 The complete identifier is borrowed as raw bytes. Bits outside the inline mask
 in the first octet are preserved without interpretation. Additional octets may
 only contain the configured payload and continuation bits. Zero payloads,
-nonminimal encodings and identifiers wider than an integer are supported;
-concrete standards must enforce any stricter rules themselves.
+nonminimal encodings and identifiers wider than an integer are supported
+without a policy. Optional `tlv_identifier_policy_t` constrains forbidden leading
+bytes, the first escaped payload and minimal number encoding. Protocol-specific
+type semantics remain in concrete standards.
 
 `tlv_variable_identifier_read()` returns the borrowed identifier and consumed
 width. `tlv_variable_identifier_write()` validates a complete identifier and
@@ -31,7 +33,7 @@ the payload is the number of following count octets, in explicitly configured
 big or little endian order. Payload mask bits are packed from least to most
 significant, so the selector need not occupy the high bit.
 
-`tlv_variable_length_read()` accepts nonminimal and zero-padded encodings if the
+Without a policy, `tlv_variable_length_read()` accepts nonminimal and zero-padded encodings if the
 count fits `tlv_size_t`. It checks the complete field is available before checking
 numeric overflow. On wire errors, `consumed` reports the available field prefix
 for diagnostics; the count output remains unchanged. A zero long-form width is
@@ -60,10 +62,11 @@ escape pattern `0x20`, continuation bit 0, and payload bits 4–7:
 #include "tlv/formats/variable.h"
 
 static const tlv_variable_format_t config = {
-    {0x70, 0x20, 0x01, 0xF0, 8},
-    {0x80, 0x7F, TLV_BYTE_ORDER_LITTLE_ENDIAN},
+    {0x70, 0x20, 0x01, 0xF0, 8, NULL},
+    {0x80, 0x7F, TLV_BYTE_ORDER_LITTLE_ENDIAN, NULL},
     TLV_ELEMENT_ORDER_TLV,
-    TLV_LENGTH_SCOPE_VALUE
+    TLV_LENGTH_SCOPE_VALUE,
+    NULL
 };
 
 /* In the caller: */
@@ -80,6 +83,46 @@ The latter uses the actual variable identifier width. Decoding publishes borrowe
 Tag/Value and normal Header/Tag/Length/Value/Trailer source ranges. Ordinary
 encoding regenerates the length field; use `tlv_source_preserve()` to reproduce
 an unchanged source's nonminimal length bytes exactly.
+
+## Declarative policies
+
+The [policy design note](../concepts/field-policies.md) defines the generic and
+protocol-owned boundaries, storage lifetimes and error precedence. Set the
+identifier and length `policy` pointers to immutable caller-owned constraints;
+NULL keeps the unconstrained wire primitives. Length policies select allowed
+short/long forms, maximum long-form octets, maximum count and minimal encoding.
+Indefinite lengths remain outside the definite primitive.
+
+Set the Format's `constructed` pointer to a `tlv_constructed_bit_t` to classify
+canonical Tag bytes by `(tag[byte_index] & mask) == value`. The mask must be
+nonzero and value may contain only masked bits. A missing byte never matches.
+The generic Format callbacks are public, so a static descriptor can use
+`tlv_variable_decode`, `tlv_variable_measure`, `tlv_variable_encode` and
+`tlv_variable_is_constructed` with the same configuration as its context.
+
+For example, an EMV-like proprietary format can allow three-byte identifiers,
+definite lengths through 65535, and minimal length encoding without adapters:
+
+```c
+static const uint8_t forbidden[] = {0};
+static const tlv_identifier_policy_t tag_policy = {forbidden, 1, 1, 0};
+static const tlv_length_policy_t length_policy = {1, 1, 1, 2, 65535};
+static const tlv_constructed_bit_t constructed = {0, 0x20, 0x20};
+static const tlv_variable_format_t constrained = {
+    {0x1F, 0x1F, 0x80, 0x7F, 3, &tag_policy},
+    {0x80, 0x7F, TLV_BYTE_ORDER_LITTLE_ENDIAN, &length_policy},
+    TLV_ELEMENT_ORDER_TLV, TLV_LENGTH_SCOPE_VALUE, &constructed
+};
+```
+
+The [integration test](../../tests/integration/formats/variable_test.cpp) checks
+this configuration against a hand-written little-endian wire vector. EMV uses
+two-byte Tags and deliberately accepts nonminimal lengths; this example is not
+the EMV preset.
+
+The added policy and predicate pointers change the C configuration ABI. Rebuild
+native clients and matching bindings; zero-initialize or explicitly initialize
+all configuration members.
 
 ## Concrete rules and terminated framing
 

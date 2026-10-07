@@ -18,7 +18,7 @@ the CLI today. EMV's dictionary/validation is separately selected by `--module e
 | Format / scope | C descriptor or initializer | Component | C++ framing header | CLI identifier |
 | --- | --- | --- | --- | --- |
 | [Fixed](fixed/configurable.md) | `tlv_fixed_format_init` | Always built | [fixed_format.hpp](../../tlv++/include/tlv++/formats/fixed_format.hpp) | `fixed` |
-| [Variable](variable.md) | `tlv_variable_format_init` | Always built | Native interop/custom Format | Unavailable |
+| [Variable with optional field policies](variable.md) | `tlv_variable_format_init` | Always built | Native interop/custom Format | Unavailable |
 | [Packed](packed.md) | `tlv_packed_layout_t` with `tlv_packed_decode` / `tlv_packed_measure` / `tlv_packed_encode` | Always built | Native interop/custom Format | Unavailable |
 | [BER](asn1/ber.md) | `tlv_format_ber`, `tlv_format_ber_indefinite` | `OPENTLV_FORMAT_BER` | [ber.hpp](../../tlv++/include/tlv++/builtins/asn1/ber.hpp) | `ber` |
 | [DER](../standards/der/README.md) | `tlv_format_der` | `OPENTLV_FORMAT_DER` | [der.hpp](../../tlv++/include/tlv++/builtins/asn1/der.hpp) | `der` |
@@ -39,7 +39,7 @@ is the authoritative description of dependency and disabled-component behavior.
 
 | Package | Definition / dictionary | Schema / structural validation | Value codecs / conformance | Explicit limits |
 | --- | --- | --- | --- | --- |
-| Fixed / Variable / Packed | Application supplied | Application supplied | Generic codecs selected explicitly | Generic wire mechanics do not infer semantics |
+| Fixed / Variable / Packed | Application supplied | Application supplied | Generic codecs selected explicitly | Generic wire mechanics and optional declarative policies do not infer protocol semantics |
 | BER / ASN.1 | ASN.1 tag/type helpers | Generic traversal and application Schema | Shared ASN.1 Value codecs; framing reader accepts BER representation | No complete ASN.1 notation/compiler or protocol |
 | DER | ASN.1 helpers | Recursive validation and schema-aware supported type subset | `_strict` universal Values; schema-aware SET/SET OF ordering and tagging | Full type/time/schema conformance remains limited to the linked scope |
 | CER | ASN.1 helpers | Recursive framing, EOC and segmentation checks | `_strict` universal Values and canonical string segmentation | Canonical SET/SET OF ordering not implemented |

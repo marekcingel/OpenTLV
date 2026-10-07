@@ -4,11 +4,12 @@
 #include "tlv/field/variable.h"
 #include <gtest/gtest.h>
 #include <array>
+#include <cstring>
 #include <vector>
 
 namespace {
-const tlv_variable_identifier_t identifier = {0x1F, 0x1F, 0x80, 0x7F, 16};
-const tlv_variable_length_t     count = {0x80, 0x7F, TLV_BYTE_ORDER_BIG_ENDIAN};
+const tlv_variable_identifier_t identifier = {0x1F, 0x1F, 0x80, 0x7F, 16, NULL};
+const tlv_variable_length_t     count = {0x80, 0x7F, TLV_BYTE_ORDER_BIG_ENDIAN, NULL};
 } // namespace
 
 TEST(Unit_Tlv_Variable, IdentifierPreservesRawIdentityWithoutStandardRules) {
@@ -36,7 +37,7 @@ TEST(Unit_Tlv_Variable, IdentifierPreservesRawIdentityWithoutStandardRules) {
 }
 
 TEST(Unit_Tlv_Variable, DifferentInlineEscapeContinuationAndPayloadBits) {
-    const tlv_variable_identifier_t alternate = {0x70, 0x20, 0x01, 0xF0, 4};
+    const tlv_variable_identifier_t alternate = {0x70, 0x20, 0x01, 0xF0, 4, NULL};
     const uint8_t                   bytes[] = {0xA5, 0xB1, 0xC0, 0xDD};
     tlv_tag_t                       tag = {};
     size_t                          used = 0;
@@ -115,7 +116,7 @@ TEST(Unit_Tlv_Variable, KnownLengthEncodingsAndLogicalBoundaries) {
         ASSERT_EQ(TLV_OK, tlv_variable_length_read(&count, out.data(), out.size(), &value, &used));
         EXPECT_EQ(c.value, value);
     }
-    const tlv_variable_length_t alternate = {1, 0xAA, TLV_BYTE_ORDER_LITTLE_ENDIAN};
+    const tlv_variable_length_t alternate = {1, 0xAA, TLV_BYTE_ORDER_LITTLE_ENDIAN, NULL};
     uint8_t                     out[3] = {};
     size_t                      used = 0;
     ASSERT_EQ(TLV_OK, tlv_variable_length_write(&alternate, 13, out, 3, &used));
@@ -167,7 +168,7 @@ TEST(Unit_Tlv_Variable, LengthFailuresPreserveOutputAndReportAvailablePrefix) {
     EXPECT_EQ(TLV_ERR_BUFFER_TOO_SHORT,
               tlv_variable_length_read(&count, nullptr, 0, &value, &used));
     EXPECT_EQ(0u, used);
-    const tlv_variable_length_t tiny = {0x80, 1, TLV_BYTE_ORDER_BIG_ENDIAN};
+    const tlv_variable_length_t tiny = {0x80, 1, TLV_BYTE_ORDER_BIG_ENDIAN, NULL};
     const uint8_t               invalid[] = {2};
     EXPECT_EQ(TLV_ERR_INVALID_LENGTH, tlv_variable_length_read(&tiny, invalid, 1, &value, &used));
     used = 99;
@@ -223,4 +224,167 @@ TEST(Unit_Tlv_VariableField, InvalidConfigurationPreservesOutputs) {
     EXPECT_EQ(42u, value);
     EXPECT_EQ(99u, used);
     EXPECT_EQ(0xCC, output);
+}
+
+TEST(Unit_Tlv_VariablePolicies, IdentifierPrefixAndMinimality) {
+    const uint8_t             forbidden[] = {0, 0xFF};
+    tlv_identifier_policy_t   policy = {forbidden, sizeof(forbidden), 1, 0};
+    tlv_variable_identifier_t config = {0x1F, 0x1F, 0x80, 0x7F, 16, &policy};
+    const uint8_t             invalid[][3] = {{0, 0, 0}, {0xFF, 0x81, 0}, {0x9F, 0x80, 0}};
+    for (const auto& bytes : invalid) {
+        tlv_tag_t tag = tlv_tag(forbidden, 1);
+        size_t    used = 99;
+        EXPECT_EQ(TLV_ERR_INVALID_TAG,
+                  tlv_variable_identifier_read(&config, bytes, 2, &tag, &used));
+        EXPECT_EQ(forbidden, tag.data);
+        EXPECT_EQ(99u, used);
+        auto    input = tlv_tag(bytes, 2);
+        uint8_t output[3] = {0xCC, 0xCC, 0xCC};
+        EXPECT_EQ(TLV_ERR_INVALID_TAG,
+                  tlv_variable_identifier_write(&config, &input, output, 3, &used));
+        EXPECT_EQ(0xCC, output[0]);
+        EXPECT_EQ(99u, used);
+    }
+    const uint8_t compatible[] = {0x9F, 0x1C};
+    tlv_tag_t     tag{};
+    size_t        used = 0;
+    ASSERT_EQ(TLV_OK, tlv_variable_identifier_read(&config, compatible, 2, &tag, &used));
+    policy.require_minimal = 1;
+    EXPECT_EQ(TLV_ERR_INVALID_TAG,
+              tlv_variable_identifier_read(&config, compatible, 2, &tag, &used));
+    const uint8_t minimum[] = {0x9F, 0x1F};
+    EXPECT_EQ(TLV_OK, tlv_variable_identifier_read(&config, minimum, 2, &tag, &used));
+    // Wider than uint64_t: canonicality must not narrow the identifier number.
+    const uint8_t wide[] = {0x9F, 0x81, 0x80, 0x80, 0x80, 0x80, 0x80, 0x80, 0x80, 0x80, 0};
+    ASSERT_EQ(TLV_OK, tlv_variable_identifier_read(&config, wide, sizeof(wide), &tag, &used));
+    EXPECT_EQ(sizeof(wide), used);
+    config.max_size = 2;
+    EXPECT_EQ(TLV_ERR_INVALID_TAG_SIZE,
+              tlv_variable_identifier_read(&config, wide, sizeof(wide), &tag, &used));
+}
+
+TEST(Unit_Tlv_VariablePolicies, SparseIdentifierMasksAndNonmaximalEscape) {
+    const tlv_identifier_policy_t   policy = {nullptr, 0, 0, 1};
+    const tlv_variable_identifier_t config = {0x50, 0x10, 1, 0xA0, 8, &policy};
+    // Inline values 0, 2 and 3 exist. Value 1 must escape; payload bits are 5 and 7.
+    const uint8_t minimal[] = {0x10, 0x20};
+    const uint8_t nonminimal[] = {0x10, 0x80};
+    const uint8_t padded[] = {0x10, 1, 0x20};
+    const uint8_t larger[] = {0x10, 0x21, 0}; // Base four: 1, 0 -> 4.
+    tlv_tag_t     tag{};
+    size_t        used = 0;
+    EXPECT_EQ(TLV_OK, tlv_variable_identifier_read(&config, minimal, 2, &tag, &used));
+    EXPECT_EQ(TLV_ERR_INVALID_TAG,
+              tlv_variable_identifier_read(&config, nonminimal, 2, &tag, &used));
+    EXPECT_EQ(TLV_ERR_INVALID_TAG, tlv_variable_identifier_read(&config, padded, 3, &tag, &used));
+    EXPECT_EQ(TLV_OK, tlv_variable_identifier_read(&config, larger, 3, &tag, &used));
+}
+
+TEST(Unit_Tlv_VariablePolicies, LengthFormsBoundsAndMinimalityBothOrders) {
+    for (auto order : {TLV_BYTE_ORDER_BIG_ENDIAN, TLV_BYTE_ORDER_LITTLE_ENDIAN}) {
+        tlv_length_policy_t   policy = {1, 1, 1, 2, 511};
+        tlv_variable_length_t config = {0x80, 0x7F, order, &policy};
+        for (tlv_size_t value : {UINT64_C(0), UINT64_C(127), UINT64_C(128), UINT64_C(255),
+                                 UINT64_C(256), UINT64_C(511)}) {
+            uint8_t    wire[3]{};
+            size_t     written = 0, consumed = 0;
+            tlv_size_t decoded = 99;
+            ASSERT_EQ(TLV_OK, tlv_variable_length_write(&config, value, wire, 3, &written));
+            EXPECT_EQ(value < 128 ? value : (value < 256 ? 0x81u : 0x82u), wire[0]);
+            ASSERT_EQ(TLV_OK,
+                      tlv_variable_length_read(&config, wire, written, &decoded, &consumed));
+            EXPECT_EQ(value, decoded);
+            EXPECT_EQ(written, consumed);
+        }
+        const uint8_t short_long[] = {0x81, 127};
+        const uint8_t padded_be[] = {0x82, 0, 128}, padded_le[] = {0x82, 128, 0};
+        tlv_size_t    decoded = 999;
+        size_t        used = 99;
+        EXPECT_EQ(TLV_ERR_INVALID_LENGTH,
+                  tlv_variable_length_read(&config, short_long, 2, &decoded, &used));
+        EXPECT_EQ(999u, decoded);
+        EXPECT_EQ(2u, used);
+        EXPECT_EQ(TLV_ERR_INVALID_LENGTH,
+                  tlv_variable_length_read(
+                      &config, order == TLV_BYTE_ORDER_BIG_ENDIAN ? padded_be : padded_le, 3,
+                      &decoded, &used));
+        policy.require_minimal = 0;
+        EXPECT_EQ(TLV_OK, tlv_variable_length_read(&config, short_long, 2, &decoded, &used));
+        for (uint8_t prefix : {0x80, 0x83, 0xFF}) {
+            EXPECT_EQ(TLV_ERR_INVALID_LENGTH,
+                      tlv_variable_length_read(&config, &prefix, 1, &decoded, &used));
+            EXPECT_EQ(1u, used);
+        }
+        const uint8_t truncated[] = {0x82, 1};
+        EXPECT_EQ(TLV_ERR_BUFFER_TOO_SHORT,
+                  tlv_variable_length_read(&config, truncated, 2, &decoded, &used));
+        EXPECT_EQ(2u, used);
+        uint8_t output[3] = {0xCC, 0xCC, 0xCC};
+        used = 99;
+        EXPECT_EQ(TLV_ERR_INVALID_LENGTH,
+                  tlv_variable_length_write(&config, 512, output, 3, &used));
+        EXPECT_EQ(0xCC, output[0]);
+        EXPECT_EQ(99u, used);
+        policy.allow_long = 0;
+        EXPECT_EQ(TLV_ERR_INVALID_LENGTH,
+                  tlv_variable_length_write(&config, 128, output, 3, &used));
+        policy.allow_long = 1;
+        policy.allow_short = 0;
+        policy.require_minimal = 1;
+        ASSERT_EQ(TLV_OK, tlv_variable_length_write(&config, 0, output, 3, &used));
+        EXPECT_EQ(2u, used);
+        EXPECT_EQ(0x81, output[0]);
+        EXPECT_EQ(0, output[1]);
+        EXPECT_EQ(TLV_OK, tlv_variable_length_read(&config, output, used, &decoded, &used));
+        const uint8_t zero = 0;
+        EXPECT_EQ(TLV_ERR_INVALID_LENGTH,
+                  tlv_variable_length_read(&config, &zero, 1, &decoded, &used));
+    }
+}
+
+TEST(Unit_Tlv_VariablePolicies, SparseLengthMasksAndOverflow) {
+    tlv_length_policy_t   policy = {1, 1, 1, 15, UINT64_MAX};
+    tlv_variable_length_t config = {1, 0xAA, TLV_BYTE_ORDER_LITTLE_ENDIAN, &policy};
+    const uint8_t         wire[] = {9, 0, 1}; // Two following octets, 256 little endian.
+    tlv_size_t            value = 0;
+    size_t                used = 0;
+    ASSERT_EQ(TLV_OK, tlv_variable_length_read(&config, wire, 3, &value, &used));
+    EXPECT_EQ(256u, value);
+    uint8_t output[3]{};
+    ASSERT_EQ(TLV_OK, tlv_variable_length_write(&config, value, output, 3, &used));
+    EXPECT_EQ(0, std::memcmp(wire, output, 3));
+    config = {0x80, 0x7F, TLV_BYTE_ORDER_BIG_ENDIAN, &policy};
+    const uint8_t overflow[] = {0x89, 1, 0, 0, 0, 0, 0, 0, 0, 0};
+    value = 99;
+    EXPECT_EQ(TLV_ERR_INVALID_LENGTH,
+              tlv_variable_length_read(&config, overflow, sizeof(overflow), &value, &used));
+    EXPECT_EQ(99u, value);
+    EXPECT_EQ(sizeof(overflow), used);
+    config.policy = nullptr;
+    EXPECT_EQ(TLV_ERR_OVERFLOW,
+              tlv_variable_length_read(&config, overflow, sizeof(overflow), &value, &used));
+}
+
+TEST(Unit_Tlv_VariablePolicies, InvalidPolicyPreservesOutputs) {
+    tlv_length_policy_t         policy = {0, 0, 0, 0, 0};
+    const tlv_variable_length_t config = {0x80, 0x7F, TLV_BYTE_ORDER_BIG_ENDIAN, &policy};
+    const uint8_t               wire = 0;
+    size_t                      used = 99;
+    tlv_size_t                  value = 99;
+    EXPECT_EQ(TLV_ERR_INVALID_ARG, tlv_variable_length_read(&config, &wire, 1, &value, &used));
+    EXPECT_EQ(99u, value);
+    EXPECT_EQ(99u, used);
+    policy = {1, 1, 0, 0, UINT64_MAX};
+    EXPECT_EQ(TLV_ERR_INVALID_ARG, tlv_variable_length_write(&config, 0, nullptr, 0, &used));
+    policy = {1, 1, 2, 8, UINT64_MAX};
+    EXPECT_EQ(TLV_ERR_INVALID_ARG, tlv_variable_length_write(&config, 0, nullptr, 0, &used));
+    tlv_identifier_policy_t         tag_policy = {nullptr, 1, 0, 0};
+    const tlv_variable_identifier_t identifier = {0x1F, 0x1F, 0x80, 0x7F, 8, &tag_policy};
+    tlv_tag_t                       tag{};
+    EXPECT_EQ(TLV_ERR_INVALID_ARG,
+              tlv_variable_identifier_read(&identifier, &wire, 1, &tag, &used));
+    tag_policy = {nullptr, 0, 2, 0};
+    EXPECT_EQ(TLV_ERR_INVALID_ARG,
+              tlv_variable_identifier_read(&identifier, &wire, 1, &tag, &used));
+    EXPECT_EQ(99u, used);
 }

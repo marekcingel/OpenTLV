@@ -6,7 +6,7 @@
 #include "tlv/field/encoding.h"
 #include "tlv/builtins/asn1/identifier.h"
 
-/* Parses one BER identifier via tlv_ber_wire.read_tag, then applies the
+/* Parses one identifier using generic Variable minimal-number policy, then applies the
  * canonical identifier restrictions shared by DER and CER (ITU-T X.690 §8.1,
  * applied by both the canonical (§9) and distinguished (§10) encoding rules):
  * the second high-tag-number digit must not encode a number below 31 (minimal
@@ -28,7 +28,7 @@ tlv_result_t tlv_asn1_read_identifier(const void* context, const uint8_t* data, 
 tlv_result_t tlv_asn1_write_identifier(const void* context, const tlv_tag_t* tag, uint8_t* data,
                                        size_t capacity, size_t* written);
 
-/* Parses one BER definite length via tlv_ber_wire.read_length, then
+/* Delegates to the generic Variable length policy configured for ASN.1 and
  * rejects non-minimal long-form encodings (a long form below 128, or a
  * leading zero padding octet), the canonical minimal-definite-length
  * restriction DER and CER both require of every definite length they encode.

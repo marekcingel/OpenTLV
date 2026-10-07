@@ -7,9 +7,9 @@
 /* X.690 wire configuration. The generic primitives have no ASN.1 policy. */
 static const tlv_variable_identifier_t ber_identifier = {
     TLV_ASN1_TAG_NUMBER_MASK, TLV_ASN1_TAG_NUMBER_MASK, TLV_BER_TAG_DIGIT_CONTINUATION_BIT,
-    TLV_BER_TAG_DIGIT_MASK, TLV_ASN1_TAG_MAX_SIZE};
+    TLV_BER_TAG_DIGIT_MASK,   TLV_ASN1_TAG_MAX_SIZE,    NULL};
 static const tlv_variable_length_t ber_length = {
-    TLV_BER_LENGTH_LONG_FORM_BIT, TLV_BER_LENGTH_COUNT_MASK, TLV_BYTE_ORDER_BIG_ENDIAN};
+    TLV_BER_LENGTH_LONG_FORM_BIT, TLV_BER_LENGTH_COUNT_MASK, TLV_BYTE_ORDER_BIG_ENDIAN, NULL};
 
 /* The leading high-tag-number digit must be nonzero (X.690 8.1.2.4.2).
  * Check the available prefix first to preserve BER's error precedence even

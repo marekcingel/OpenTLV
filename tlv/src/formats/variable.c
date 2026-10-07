@@ -54,25 +54,27 @@ tlv_result_t tlv_variable_fields_init(tlv_field_composition_t* fields,
         (config->length_scope != TLV_LENGTH_SCOPE_VALUE &&
          config->length_scope != TLV_LENGTH_SCOPE_TAG_AND_VALUE))
         return TLV_ERR_INVALID_ARG;
+    if (config->constructed &&
+        (!config->constructed->mask || (config->constructed->value & ~config->constructed->mask)))
+        return TLV_ERR_INVALID_ARG;
     *fields = variable_fields(config);
     return TLV_OK;
 }
 
-static tlv_result_t variable_decode(const void* context, const uint8_t* data, size_t size,
-                                    tlv_decoded_t* decoded, tlv_format_error_t* error) {
+tlv_result_t tlv_variable_decode(const void* context, const uint8_t* data, size_t size,
+                                 tlv_decoded_t* decoded, tlv_format_error_t* error) {
     tlv_field_composition_t fields = variable_fields((const tlv_variable_format_t*)context);
     return tlv_fields_decode(&fields, data, size, decoded, error);
 }
 
-static tlv_result_t variable_measure(const void* context, const tlv_element_t* element,
-                                     tlv_encoding_t* encoding, tlv_format_error_t* error) {
+tlv_result_t tlv_variable_measure(const void* context, const tlv_element_t* element,
+                                  tlv_encoding_t* encoding, tlv_format_error_t* error) {
     tlv_field_composition_t fields = variable_fields((const tlv_variable_format_t*)context);
     return tlv_fields_measure(&fields, element, encoding, error);
 }
 
-static tlv_result_t variable_encode(const void* context, const tlv_element_t* element,
-                                    uint8_t* data, size_t capacity, size_t* written,
-                                    tlv_format_error_t* error) {
+tlv_result_t tlv_variable_encode(const void* context, const tlv_element_t* element, uint8_t* data,
+                                 size_t capacity, size_t* written, tlv_format_error_t* error) {
     tlv_field_composition_t fields = variable_fields((const tlv_variable_format_t*)context);
     return tlv_fields_encode(&fields, element, data, capacity, written, error);
 }
@@ -83,5 +85,13 @@ tlv_result_t tlv_variable_format_init(tlv_format_t* format, const tlv_variable_f
     if (!format) return TLV_ERR_NULL_ARG;
     rc = tlv_variable_fields_init(&fields, config);
     if (rc != TLV_OK) return rc;
-    return tlv_format_init(format, config, variable_decode, variable_measure, variable_encode);
+    rc = tlv_format_init(format, config, tlv_variable_decode, tlv_variable_measure,
+                         tlv_variable_encode);
+    if (rc == TLV_OK && config->constructed) format->is_constructed = tlv_variable_is_constructed;
+    return rc;
+}
+
+int tlv_variable_is_constructed(const void* context, const tlv_tag_t* tag) {
+    const tlv_variable_format_t* config = (const tlv_variable_format_t*)context;
+    return config ? tlv_constructed_bit_predicate(config->constructed, tag) : 0;
 }

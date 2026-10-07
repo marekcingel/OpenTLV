@@ -131,6 +131,7 @@ nav:
       - Implemented capabilities: formats/support.md
       - Configurable fixed-width TLV: formats/fixed/configurable.md
       - Configurable variable-width TLV: formats/variable.md
+      - Declarative field policy design: concepts/field-policies.md
       - Packed Tag/Length headers: formats/packed.md
       - Bluetooth LTV: formats/bluetooth/README.md
       - NFC Type 2 Tag framing: formats/nfc/README.md
