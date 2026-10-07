@@ -87,7 +87,11 @@ typedef struct tlv_query_diagnostic {
     const char* limit;              /**< Static resource name, or NULL. */
     size_t configured;              /**< Configured resource bound, when limit is present. */
     tlv_reader_diagnostic_t reader; /**< Original Reader diagnostic on Reader failure. */
-    tlv_codec_result_t codec;       /**< Original codec failure when kind is CODEC. */
+    /** @brief Original codec failure when kind is #TLV_QUERY_ERROR_CODEC.
+     *
+     * Reports #TLV_CODEC_ERR_INVALID_VALUE when a successful codec result violates the
+     * declared type, has nonzero size with NULL data, or contains invalid UTF-8. */
+    tlv_codec_result_t codec;
 } tlv_query_diagnostic_t;
 
 /** @brief Category of a Query expression's result. */

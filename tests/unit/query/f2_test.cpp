@@ -463,4 +463,40 @@ TEST(Unit_Tlv_QueryF2, ProviderScratchAlignmentAndResultValidation) {
     ASSERT_EQ(e.init(), TLV_OK);
     EXPECT_EQ(e.run({}), TLV_ERR_INVALID_VALUE);
     EXPECT_EQ(e.diagnostic.kind, TLV_QUERY_ERROR_CODEC);
+    EXPECT_EQ(e.diagnostic.codec, TLV_CODEC_ERR_INVALID_VALUE);
+    EXPECT_LT(e.diagnostic.begin, e.diagnostic.end);
+}
+
+TEST(Unit_Tlv_QueryF2, ProviderTextResultDiagnostics) {
+    struct Case {
+        bool               missing_data;
+        tlv_codec_result_t status;
+    };
+    const Case cases[] = {
+        {false, TLV_CODEC_OK}, {true, TLV_CODEC_OK}, {false, TLV_CODEC_ERR_UNSUPPORTED}};
+    for (const auto& test : cases) {
+        SCOPED_TRACE(test.missing_data);
+        SCOPED_TRACE(test.status);
+        Evaluation e;
+        for (auto& hook : e.hooks) {
+            if (hook.function != TLV_QUERY_TEXT) continue;
+            hook.context = &test;
+            hook.decode = [](const void* context, const tlv_tree_event_t*, const uint8_t*, size_t,
+                             void*, size_t, tlv_query_result_t* result) -> tlv_codec_result_t {
+                const auto&          test = *static_cast<const Case*>(context);
+                static const uint8_t invalid_utf8[] = {0xff};
+                result->kind = TLV_QUERY_RESULT_STRING;
+                result->data = test.missing_data ? nullptr : invalid_utf8;
+                result->size = 1;
+                return test.status;
+            };
+        }
+        ASSERT_EQ(e.compile("text(//5A)"), TLV_OK);
+        ASSERT_EQ(e.init(), TLV_OK);
+        EXPECT_EQ(e.run({0x5a, 1, 1}), TLV_ERR_INVALID_VALUE);
+        EXPECT_EQ(e.diagnostic.kind, TLV_QUERY_ERROR_CODEC);
+        EXPECT_EQ(e.diagnostic.codec,
+                  test.status == TLV_CODEC_OK ? TLV_CODEC_ERR_INVALID_VALUE : test.status);
+        EXPECT_LT(e.diagnostic.begin, e.diagnostic.end);
+    }
 }

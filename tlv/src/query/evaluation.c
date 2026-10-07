@@ -330,17 +330,21 @@ static tlv_result_t scalar_call(tlv_query_exec_t* e, eval_frame_t* f, const quer
             return query_error(d, TLV_ERR_INVALID_VALUE, TLV_QUERY_ERROR_CODEC, n->begin, n->end,
                                "strict complete-Value decoding");
         }
-        if (query_private_type(result.kind) != n->type || (result.size && !result.data))
+        if (query_private_type(result.kind) != n->type || (result.size && !result.data)) {
+            if (d) d->codec = TLV_CODEC_ERR_INVALID_VALUE;
             return query_error(d, TLV_ERR_INVALID_VALUE, TLV_QUERY_ERROR_CODEC, n->begin, n->end,
                                "declared codec result type");
+        }
         if (result.kind == TLV_QUERY_RESULT_INTEGER)
             f->value = signed_value(result.integer);
         else {
             tlv_result_t work = eval_charge(e, result.size, n, d);
             if (work != TLV_OK) return work;
-            if (tlv_utf8_validate(result.data, result.size) != TLV_OK)
+            if (tlv_utf8_validate(result.data, result.size) != TLV_OK) {
+                if (d) d->codec = TLV_CODEC_ERR_INVALID_VALUE;
                 return query_error(d, TLV_ERR_INVALID_VALUE, TLV_QUERY_ERROR_CODEC, n->begin,
                                    n->end, "UTF-8 decoded string");
+            }
             f->value.kind = V_STRING;
             f->value.data = result.data;
             f->value.size = result.size;
