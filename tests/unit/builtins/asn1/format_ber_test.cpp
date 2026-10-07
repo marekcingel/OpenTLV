@@ -28,9 +28,13 @@ const auto& ber_writer = tlv_format_ber;
 TEST(Unit_Tlv_Ber, InvalidAndNonminimalLengths) {
     tlv_size_t length = 42;
     size_t     used = 42;
-    for (uint8_t prefix : {0x80, 0xFF})
+    for (uint8_t prefix : {0x80, 0xFF}) {
+        used = 42;
         EXPECT_EQ(TLV_ERR_INVALID_LENGTH, static_cast<const tlv_field_composition_t*>(ber.context)
                                               ->read_length(nullptr, &prefix, 1, &length, &used));
+        EXPECT_EQ(42u, length);
+        EXPECT_EQ(1u, used);
+    }
     std::vector<uint8_t> overflow(sizeof(tlv_size_t) + 2, 0);
     overflow[0] = 0x80 | (sizeof(tlv_size_t) + 1);
     overflow[1] = 1;
@@ -444,6 +448,7 @@ TEST(Unit_Tlv_Ber, IdentifierPolicyIsSeparateFromVariableMechanics) {
 }
 
 TEST(Unit_Tlv_Ber, LeadingDigitPolicyKeepsErrorPrecedence) {
+    const auto* fields = static_cast<const tlv_field_composition_t*>(ber.context);
     const std::vector<std::vector<uint8_t>> bytes = {
         {0x9F, 0x80}, {0x9F, 0x80, 0x81}, {0x9F, 0x80, 0x81, 0x81, 0x81, 0x81, 0x81, 0x81, 1}};
     for (const auto& input : bytes) {
@@ -453,6 +458,19 @@ TEST(Unit_Tlv_Ber, LeadingDigitPolicyKeepsErrorPrecedence) {
                   tlv_ber_read_identifier(input.data(), input.size(), &tag, &used));
         EXPECT_EQ(1u, tag.size);
         EXPECT_EQ(99u, used);
+
+        // Reads reject the available prefix first; writes reject an invalid
+        // declared width before checking wire policy or destination capacity.
+        tag = tlv_tag(input.data(), input.size());
+        const auto expected =
+            input.size() > TLV_ASN1_TAG_MAX_SIZE ? TLV_ERR_INVALID_TAG_SIZE : TLV_ERR_INVALID_TAG;
+        EXPECT_EQ(expected, fields->write_tag(fields->context, &tag, nullptr, 0, &used));
+        EXPECT_EQ(99u, used);
+        uint8_t output[TLV_ASN1_TAG_MAX_SIZE + 1];
+        std::memset(output, 0xEE, sizeof(output));
+        EXPECT_EQ(expected, fields->write_tag(fields->context, &tag, output, 0, &used));
+        EXPECT_EQ(99u, used);
+        for (auto byte : output) EXPECT_EQ(0xEE, byte);
     }
 }
 

@@ -110,8 +110,8 @@ tlv_result_t tlv_packed_measure(const void* context, const tlv_element_t* elemen
     error->region = TLV_REGION_TAG;
     error->has_offset = 1;
     error->offset = envelope(&f->tag).offset;
+    if (!element->tag.data && element->tag.size) return TLV_ERR_NULL_ARG;
     if (element->tag.size != f->tag_size) return TLV_ERR_INVALID_TAG_SIZE;
-    if (!element->tag.data) return TLV_ERR_NULL_ARG;
     (void)tlv_read_uint(element->tag.data, f->tag_size, TLV_BYTE_ORDER_BIG_ENDIAN, &type);
     if (type > mask(f->tag.bit_width)) return TLV_ERR_INVALID_TAG;
     error->region = TLV_REGION_LENGTH;

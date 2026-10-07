@@ -27,6 +27,14 @@ The classifier receives the same Variable Format context as decode/measure/encod
 and locates its predicate there. The standalone bit predicate instead takes the
 bit configuration directly; these two callback contexts are not interchangeable.
 
+`tlv_variable_fields_init()` only initializes field composition. It validates
+the configured predicate but has no classifier slot in which to store it.
+Combining it with `tlv_fields_format_init()` therefore leaves `is_constructed`
+unset. A custom Format must supply that callback explicitly and respect the
+descriptor's context type: a field-composition descriptor needs a wrapper that
+retrieves the Variable configuration from the composition's `context` before
+calling `tlv_variable_is_constructed`.
+
 Every configuration, policy, predicate and forbidden-byte table must outlive all
 operations that use it. There is no allocation or hidden mutable state. Raw Tag
 identity and borrowed source ranges do not change. Classification tests canonical
@@ -34,12 +42,15 @@ Tag bytes, including with format-supplied identifiers; it does not validate Tags
 
 ## Encoding and error contracts
 
-Identifier prefix restrictions run before the remaining identifier is parsed,
-preserving EMV's error precedence on truncated or oversized inputs. Minimal
-identifier encoding means no redundant leading zero digits, and no escaped
-number that could have used the inline field. An escape value that is not the
-maximum inline number is supported. Comparison saturates above the inline range
-instead of narrowing arbitrary identifiers to a machine integer.
+When reading, identifier prefix restrictions run before the remaining identifier
+is parsed, preserving EMV's error precedence on truncated or oversized inputs.
+Writing validates the configuration and complete Tag width before inspecting
+wire bytes, so an oversized Tag reports INVALID_TAG_SIZE even if its leading
+byte is forbidden. Minimal identifier encoding means no redundant leading zero
+digits, and no escaped number that could have used the inline field. An escape
+value that is not the maximum inline number is supported. Comparison saturates
+above the inline range instead of narrowing arbitrary identifiers to a machine
+integer.
 
 Length form and long-width limits reject the offending prefix with consumed=1,
 even if its payload is absent. Other truncation reports the available field
@@ -57,6 +68,13 @@ one/two-byte identifiers, forbidden leading zero, nonzero first escaped payload,
 short/long lengths through two following octets and 65535, and bit 0x20 in Tag
 byte zero. Identifier and length minimality stay disabled to preserve existing
 EMV wire acceptance, including raw identifiers such as `9F 1C`.
+
+BER configures a nonzero first escaped identifier payload while leaving
+identifier minimality disabled. Its definite-length reader allows short and
+long forms without minimality, with at most 126 following octets and a maximum
+value of UINT64_MAX. The generic policies therefore reject reserved prefix FF
+and report count overflow as INVALID_LENGTH. BER's bounds resolver continues
+to recognize indefinite framing and handle EOC according to ASN.1 rules.
 
 DER/CER's shared identifier reader uses the generic minimal-number policy before
 applying ASN.1 universal-type semantics. Their minimal definite-length callback delegates to the generic

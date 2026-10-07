@@ -3,11 +3,18 @@
 
 #include "tlv/builtins/emv/format.h"
 #include "tlv/builtins/asn1/ber.h"
+#include "tlv/formats/variable.h"
 #include "tlv/reader/reader.h"
 #include "tlv/writer/writer.h"
 #include <gtest/gtest.h>
 #include <cstring>
 #include <vector>
+
+TEST(Unit_Tlv_EmvFormat, BuiltinConfigurationIsValid) {
+    const auto* config = static_cast<const tlv_variable_format_t*>(tlv_format_emv.context);
+    tlv_field_composition_t fields{};
+    EXPECT_EQ(TLV_OK, tlv_variable_fields_init(&fields, config));
+}
 
 TEST(Unit_Tlv_EmvFormat, EverySupportedIdentifierRetainsByteIdentity) {
     for (unsigned first = 1; first <= 255; ++first) {

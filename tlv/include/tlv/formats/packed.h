@@ -83,6 +83,9 @@ TLV_API tlv_result_t tlv_packed_decode(const void* context, const uint8_t* data,
 /**
  * @brief Measure packed encoding without accessing Value bytes.
  *
+ * A nonempty Tag with NULL bytes is rejected before checking its canonical
+ * width. An empty Tag reports #TLV_ERR_INVALID_TAG_SIZE.
+ *
  * @param[in] context Required immutable tlv_packed_layout_t.
  * @param[in] element Required element with readable Tag bytes.
  * @param[out] result Required encoding sizes; unchanged on failure.

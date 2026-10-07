@@ -2,6 +2,10 @@
 // Copyright (c) 2026 Marek Cingel
 
 #include "tlv/formats/packed.h"
+#include "tlv/config.h"
+#if OPENTLV_LLDP
+#include "tlv/builtins/lldp/lldp.h"
+#endif
 #include <gtest/gtest.h>
 #include <array>
 #include <cstring>
@@ -278,3 +282,49 @@ TEST(Unit_Tlv_Packed, RequiredPointersAndFailedOutputs) {
     EXPECT_EQ(0, wire[0]);
     EXPECT_EQ(0, wire[1]);
 }
+
+TEST(Unit_Tlv_Packed, NonemptyNullTagPrecedesWidthErrors) {
+    auto               config = layout();
+    const tlv_format_t formats[] = {
+        descriptor(config),
+#if OPENTLV_LLDP
+        tlv_format_lldp,
+#endif
+    };
+    for (const auto& format : formats) {
+        for (size_t size : {size_t{0}, size_t{1}, size_t{2}, SIZE_MAX}) {
+            SCOPED_TRACE(size);
+            const tlv_element_t element = {tlv_tag(nullptr, size), {nullptr, 0}};
+            const tlv_result_t  expected = size ? TLV_ERR_NULL_ARG : TLV_ERR_INVALID_TAG_SIZE;
+            tlv_encoding_t      encoding{11, 12, 13, 36};
+            tlv_format_error_t  error{};
+            EXPECT_EQ(expected, format.measure(format.context, &element, &encoding, &error));
+            EXPECT_EQ(TLV_REGION_TAG, error.region);
+            EXPECT_EQ(11u, encoding.header);
+            EXPECT_EQ(12u, encoding.value);
+            EXPECT_EQ(13u, encoding.trailer);
+            EXPECT_EQ(36u, encoding.total);
+            EXPECT_EQ(expected, tlv_format_measure(&format, &element, &encoding, &error));
+            EXPECT_EQ(36u, encoding.total);
+
+            std::array<uint8_t, 4> output{{0xCC, 0xCC, 0xCC, 0xCC}};
+            const auto             before = output;
+            size_t                 written = 99;
+            EXPECT_EQ(expected, format.encode(format.context, &element, output.data(),
+                                              output.size(), &written, &error));
+            EXPECT_EQ(99u, written);
+            EXPECT_EQ(before, output);
+            EXPECT_EQ(expected, tlv_format_encode(&format, &element, output.data(), output.size(),
+                                                  &written, &error));
+            EXPECT_EQ(99u, written);
+            EXPECT_EQ(before, output);
+        }
+    }
+}
+
+#if OPENTLV_LLDP
+TEST(Unit_Tlv_Packed, BuiltinLldpConfigurationIsValid) {
+    const auto* config = static_cast<const tlv_packed_layout_t*>(tlv_format_lldp.context);
+    EXPECT_EQ(TLV_OK, tlv_packed_layout_validate(config));
+}
+#endif

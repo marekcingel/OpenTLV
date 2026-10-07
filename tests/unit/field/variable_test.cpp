@@ -263,6 +263,43 @@ TEST(Unit_Tlv_VariablePolicies, IdentifierPrefixAndMinimality) {
               tlv_variable_identifier_read(&config, wide, sizeof(wide), &tag, &used));
 }
 
+TEST(Unit_Tlv_VariablePolicies, IdentifierWriteValidatesConfigurationAndSizeBeforePolicy) {
+    const uint8_t                   forbidden[] = {0xFF};
+    const tlv_identifier_policy_t   policy = {forbidden, sizeof(forbidden), 1, 0};
+    const tlv_variable_identifier_t config = {0x1F, 0x1F, 0x80, 0x7F, 2, &policy};
+    const uint8_t                   invalid[][3] = {{0xFF, 0x01, 0}, {0x9F, 0, 0}};
+    for (const auto& bytes : invalid) {
+        for (bool dry_run : {false, true}) {
+            std::array<uint8_t, 3> output = {{0xCC, 0xCC, 0xCC}};
+            const auto             before = output;
+            uint8_t*               destination = dry_run ? nullptr : output.data();
+            const size_t           capacity = dry_run ? 0 : output.size();
+            size_t                 used = 99;
+            auto                   tag = tlv_tag(bytes, sizeof(bytes));
+            EXPECT_EQ(TLV_ERR_INVALID_TAG_SIZE,
+                      tlv_variable_identifier_write(&config, &tag, destination, capacity, &used));
+            EXPECT_EQ(99u, used);
+            EXPECT_EQ(before, output);
+
+            // Once the width is valid, both leading-byte and zero-payload policies still apply.
+            tag.size = 2;
+            EXPECT_EQ(TLV_ERR_INVALID_TAG,
+                      tlv_variable_identifier_write(&config, &tag, destination, capacity, &used));
+            EXPECT_EQ(99u, used);
+            EXPECT_EQ(before, output);
+
+            auto invalid_config = config;
+            invalid_config.inline_mask = 0;
+            tag.size = sizeof(bytes);
+            EXPECT_EQ(
+                TLV_ERR_INVALID_ARG,
+                tlv_variable_identifier_write(&invalid_config, &tag, destination, capacity, &used));
+            EXPECT_EQ(99u, used);
+            EXPECT_EQ(before, output);
+        }
+    }
+}
+
 TEST(Unit_Tlv_VariablePolicies, SparseIdentifierMasksAndNonmaximalEscape) {
     const tlv_identifier_policy_t   policy = {nullptr, 0, 0, 1};
     const tlv_variable_identifier_t config = {0x50, 0x10, 1, 0xA0, 8, &policy};

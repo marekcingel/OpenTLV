@@ -96,8 +96,6 @@ tlv_result_t tlv_variable_identifier_write(const tlv_variable_identifier_t* conf
         return TLV_ERR_NULL_ARG;
     rc = identifier_validate(config);
     if (rc != TLV_OK) return rc;
-    rc = identifier_prefix(config, tag->data, tag->size);
-    if (rc != TLV_OK) return rc;
     if (!tag->size || tag->size > config->max_size) return TLV_ERR_INVALID_TAG_SIZE;
     rc = tlv_variable_identifier_read(config, tag->data, tag->size, &parsed, &count);
     if (rc == TLV_ERR_INVALID_TAG_SIZE) return rc;

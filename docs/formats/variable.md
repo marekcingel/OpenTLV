@@ -96,6 +96,8 @@ Indefinite lengths remain outside the definite primitive.
 Set the Format's `constructed` pointer to a `tlv_constructed_bit_t` to classify
 canonical Tag bytes by `(tag[byte_index] & mask) == value`. The mask must be
 nonzero and value may contain only masked bits. A missing byte never matches.
+`tlv_variable_format_init()` installs the corresponding classifier in the
+Format descriptor; the field-composition initializer alone does not.
 The generic Format callbacks are public, so a static descriptor can use
 `tlv_variable_decode`, `tlv_variable_measure`, `tlv_variable_encode` and
 `tlv_variable_is_constructed` with the same configuration as its context.
@@ -133,6 +135,17 @@ composition can be used through `tlv_fields_format_init()`. For more specialized
 composition, the standalone identifier and length helpers can be called from
 callbacks with a concrete format's own context.
 
+Field composition carries no constructed classifier. In particular,
+`tlv_variable_fields_init()` validates the configured predicate but does not
+install it, and `tlv_fields_format_init()` produces a descriptor without
+constructed classification. A custom Format must set `is_constructed`
+explicitly using a callback that accepts its actual descriptor context.
+The descriptor created by `tlv_fields_format_init()` has a
+`tlv_field_composition_t` context, so it cannot directly use
+`tlv_variable_is_constructed`, which expects a `tlv_variable_format_t`.
+A wrapper can obtain the Variable configuration from the composition's
+`context` and delegate to that classifier.
+
 The existing optional `tlv_field_composition_t.resolve` callback handles value
 boundary resolution for terminated TLV framing with VALUE scope. A concrete
 format can recognize its length marker before invoking the definite count
@@ -151,8 +164,12 @@ inside a child payload. The integration tests demonstrate a synthetic terminated
 container whose resolver skips complete definite children, including a child
 whose Value contains the trailer bytes.
 
-The primitives do not assign meaning to ASN.1 classes or numbers, constructed
-bits, EOC, EMV identifiers, dictionaries, or canonical restrictions.
+The primitives do not assign meaning to ASN.1 classes or numbers, EOC, EMV
+identifiers or dictionaries. Generic policies express byte restrictions and
+canonical encoding checks, while a constructed-bit predicate classifies Tag
+bytes according to the caller's configuration.
 [ASN.1 BER](asn1/ber.md#generic-mechanics-and-asn1-rules) composes these primitives
-with its own identifier, length and indefinite/EOC policy. DER/CER wrapper
-refactoring and independent EMV framing remain separate work.
+with generic identifier and definite-length policies while retaining its own
+indefinite/EOC handling. DER/CER reuse generic minimality policies while
+retaining ASN.1 universal-type rules. EMV uses a Variable configuration with
+generic callbacks.

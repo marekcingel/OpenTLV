@@ -86,6 +86,11 @@ TLV_API int tlv_variable_is_constructed(const void* context, const tlv_tag_t* ta
  * format may add a #tlv_resolve_bounds_fn for terminated TLV/VALUE framing;
  * it must provide matching canonical measure/encode callbacks to write trailers.
  * Standalone primitives also support compositions with a caller-defined context.
+ * Constructed classification is not part of field composition. The predicate
+ * is validated but is not installed by this function or tlv_fields_format_init().
+ * A concrete Format must supply its own is_constructed callback, accepting its
+ * descriptor context. A field-composition context requires a wrapper before
+ * calling tlv_variable_is_constructed(), which expects the Variable configuration.
  */
 TLV_API tlv_result_t tlv_variable_fields_init(tlv_field_composition_t* fields,
                                               const tlv_variable_format_t* config);
@@ -100,7 +105,9 @@ TLV_API tlv_result_t tlv_variable_fields_init(tlv_field_composition_t* fields,
  * @return #TLV_ERR_INVALID_ARG for invalid masks, widths, policies, predicate, ordering or scope.
  * @return #TLV_ERR_INVALID_BYTE_ORDER for unsupported length byte order.
  * @note No allocation occurs. The descriptor borrows config directly and can be
- * copied. No runtime engine or builtin is required.
+ * copied. If config supplies a constructed predicate, the descriptor installs
+ * tlv_variable_is_constructed(); otherwise it has no constructed classifier.
+ * No runtime engine or builtin is required.
  */
 TLV_API tlv_result_t tlv_variable_format_init(tlv_format_t* format,
                                               const tlv_variable_format_t* config);

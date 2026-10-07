@@ -23,9 +23,12 @@ BER composes the [generic Variable primitives](../variable.md) through the
 existing field-composition contract. Its immutable configuration selects inline
 mask/escape `1F`, continuation bit `80`, payload mask `7F`, an eight-byte
 identifier limit, and short/long length prefixes with big-endian count octets.
-The generic implementation owns identifier boundary detection and definite
-count decoding/encoding. `ber_internal.c` is now an ASN.1 policy adapter over
-those primitives; it does not own another copy of their algorithms.
+Declarative Identifier policy rejects a zero first escaped payload without
+requiring a minimal tag number. Length policy accepts nonminimal short/long
+forms with at most 126 count octets and values through `UINT64_MAX`.
+The generic implementation owns identifier boundary detection, definite
+count decoding/encoding and enforcement of these policies. `ber_internal.c`
+supplies the immutable configurations and callback adapters.
 
 The responsibilities are separated as follows:
 
@@ -33,9 +36,9 @@ The responsibilities are separated as follows:
 | --- | --- |
 | Class bits and primitive/constructed bit | ASN.1 accessors and `tlv_asn1_is_constructed()` interpret them; generic identifier handling preserves the raw bytes. |
 | Low/high-tag-number wire forms | Variable identifies inline/escaped boundaries; ASN.1 tag-number helpers interpret and construct numeric tag numbers. |
-| Identifier minimality | BER rejects a zero first continuation payload. The constructor uses low form below 31; raw parsing/writing retains acceptance of encodings such as `9F 1C` for compatibility. |
+| Identifier minimality | BER's Identifier policy rejects a zero first continuation payload. The constructor uses low form below 31; raw parsing/writing retains acceptance of encodings such as `9F 1C` for compatibility. |
 | UNIVERSAL restrictions | BER rejects tag zero in either form as an ordinary element. Other assignments, including reserved number 15, and type-specific primitive/constructed constraints are outside this raw API's validation. |
-| Definite lengths | Variable handles short/long counts and padding; BER selects big endian, rejects `FF`, and retains `TLV_ERR_INVALID_LENGTH` for numeric overflow. |
+| Definite lengths | Variable handles short/long counts and padding; BER selects big endian and Length policy limits that reject `FF` and retain `TLV_ERR_INVALID_LENGTH` for numeric overflow. |
 | Indefinite lengths | BER recognizes `80`, requires a constructed identifier, and resolves Value plus Trailer. The generic definite decoder does not assign indefinite semantics. |
 | End-of-Contents | BER recognizes `00 00` only at child boundaries within an indefinite scope. Primitive payload bytes are skipped as opaque data. |
 | Constructed traversal | BER supplies the nesting predicate and an allocation-free bounded scanner for indefinite boundaries. Definite parent bounds constrain nested scans. Generic Reader/Writer do not branch on BER. |
@@ -46,7 +49,8 @@ particularly sections 8.1.2–8.1.5. The raw compatibility behavior above is not
 complete ASN.1 identifier or value validation: accepting `9F 1C`, UNIVERSAL 15
 or arbitrary UNIVERSAL forms does not make those encodings conforming ASN.1.
 This refactoring preserves the public BER contract, including those limits.
-DER/CER wrappers, EMV framing, Definition and DOL are separate work.
+DER/CER add minimality and ASN.1 universal-type restrictions; EMV selects its
+own Variable policies. Definition and DOL are separate concerns.
 
 The public `tlv_ber_length_decode()` preserves both outputs on failure. Internal
 field callbacks additionally report the available Length prefix for diagnostics,
@@ -250,7 +254,7 @@ the required size in `*written` without writing. `TLV_BER_LENGTH_MAX_ENCODED_SIZ
 (9) is enough to hold the encoding of any `tlv_size_t` value, including
 `UINT64_MAX` (`88 FF FF FF FF FF FF FF FF`); it is smaller than the largest
 field `tlv_ber_length_decode` can still accept, since nonminimal input may use
-up to 127 length octets. Insufficient `out_capacity` returns
+up to 126 count octets after the prefix. Insufficient `out_capacity` returns
 `TLV_ERR_BUFFER_TOO_SHORT` with no partial write. Both functions leave their
 outputs unchanged on failure, and neither allocates or requires the length's
 value payload to be present.
