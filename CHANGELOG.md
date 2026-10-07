@@ -9,6 +9,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Fixed
 
+- Fix Clang builds of the C++ diagnostic tests with warnings treated as errors by matching the path-capacity loop counter's unsigned type. (#440)
 - Keep failed C++ Reader and Tree Reader initialization distinct from clean end-of-input in `at_end()`. (#440, #461)
 - Reject C++ Format, Writer workspace and Query identifier views borrowed from temporary owners. (#440, #458)
 - Preserve read-only C++ Document traversal through immutable Node handles, including Query selections and semantic diffs. (#440, #464)

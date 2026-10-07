@@ -50,7 +50,7 @@ TEST(Unit_Tlvpp_Diagnostic, PushPathAppendsTagsInOrder) {
 
 TEST(Unit_Tlvpp_Diagnostic, PushPathReturnsAnErrorWhenFull) {
     tlv::diagnostic_path path = tlv::make_diagnostic_path();
-    for (int i = 0; i < tlv::diagnostic_path_capacity; ++i)
+    for (size_t i = 0; i < tlv::diagnostic_path_capacity; ++i)
         ASSERT_TRUE(tlv::push_path(path, tlv::tag_bytes<0x01>()).has_value());
 
     tlv::expected<void, tlv::error> result = tlv::push_path(path, tlv::tag_bytes<0x02>());
