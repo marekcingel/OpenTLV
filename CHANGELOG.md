@@ -9,6 +9,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Fixed
 
+- Fix Clang builds with warnings treated as errors by fully initializing nested Fixed format configurations in capability, Query and fuzz tests. (#423)
 - Keep resumed Query Reader visits and existence checks independent of retained input history, including continuation after incremental input and visitor stops. (#536)
 - Reject Query workspace reinitialization detected after Document Format callbacks and release the Document callback scope on failure. (#536)
 - Keep retained Query feed, result iteration and status inspection independent of the number of previously retained spans; reject workspace reinitialization detected after callbacks and preserve failure diagnostics when binding is retried. (#536)

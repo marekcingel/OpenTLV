@@ -48,9 +48,10 @@ static int constructed(const void* context, const tlv_tag_t* tag) {
 #endif
 
 int main(void) {
-    tlv_fixed_format_t config = {{0}, {0}};
-    tlv_format_t       format;
-    const uint8_t      wire[] = {1, 1, 42};
+    tlv_fixed_format_t config = {
+        {0}, {0, TLV_BYTE_ORDER_UNKNOWN}, TLV_ELEMENT_ORDER_TLV, TLV_LENGTH_SCOPE_VALUE};
+    tlv_format_t  format;
+    const uint8_t wire[] = {1, 1, 42};
     config.identifier.size = 1;
     config.length.size = 1;
     config.length.byte_order = TLV_BYTE_ORDER_BIG_ENDIAN;

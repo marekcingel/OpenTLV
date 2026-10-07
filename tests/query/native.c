@@ -200,7 +200,8 @@ int main(int argc, char** argv) {
     void*              program = NULL;
     void*              workspace = NULL;
     void*              workspace_allocation = NULL;
-    tlv_fixed_format_t config = {{0}, {0}};
+    tlv_fixed_format_t config = {
+        {0}, {0, TLV_BYTE_ORDER_UNKNOWN}, TLV_ELEMENT_ORDER_TLV, TLV_LENGTH_SCOPE_VALUE};
     config.identifier.size = 1;
     config.length.size = 1;
     config.length.byte_order = TLV_BYTE_ORDER_BIG_ENDIAN;

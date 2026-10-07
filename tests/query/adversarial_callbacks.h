@@ -304,8 +304,9 @@ static int reader_aliases(void) {
     uint8_t*           wire = aligned(&shared);
     tlv_tree_frame_t*  frames = (tlv_tree_frame_t*)(wire + 1024);
     tlv_format_t*      format = (tlv_format_t*)(wire + 4096);
-    tlv_fixed_format_t config = {{0}, {0}};
-    const uint8_t      encoded[] = {0x70, 3, 1, 1, 9, 1, 1, 8};
+    tlv_fixed_format_t config = {
+        {0}, {0, TLV_BYTE_ORDER_UNKNOWN}, TLV_ELEMENT_ORDER_TLV, TLV_LENGTH_SCOPE_VALUE};
+    const uint8_t encoded[] = {0x70, 3, 1, 1, 9, 1, 1, 8};
     config.identifier.size = config.length.size = 1;
     config.length.byte_order = TLV_BYTE_ORDER_BIG_ENDIAN;
     CHECK(tlv_fixed_format_init(format, &config) == TLV_OK);
@@ -349,7 +350,8 @@ static int reader_aliases(void) {
 }
 #endif
 static int callbacks(void) {
-    tlv_fixed_format_t config = {{0}, {0}};
+    tlv_fixed_format_t config = {
+        {0}, {0, TLV_BYTE_ORDER_UNKNOWN}, TLV_ELEMENT_ORDER_TLV, TLV_LENGTH_SCOPE_VALUE};
     config.identifier.size = config.length.size = 1;
     config.length.byte_order = TLV_BYTE_ORDER_BIG_ENDIAN;
     tlv_format_t format;
@@ -497,7 +499,8 @@ static int raw_reinitialization(void) {
     }
 #if OPENTLV_READER
     const char*        selections[] = {"//01", "/70[child::01]"};
-    tlv_fixed_format_t config = {{0}, {0}};
+    tlv_fixed_format_t config = {
+        {0}, {0, TLV_BYTE_ORDER_UNKNOWN}, TLV_ELEMENT_ORDER_TLV, TLV_LENGTH_SCOPE_VALUE};
     config.identifier.size = config.length.size = 1;
     config.length.byte_order = TLV_BYTE_ORDER_BIG_ENDIAN;
     tlv_format_t format;
@@ -558,7 +561,8 @@ static int retained_resume_scale(void) {
     spans.first[0] = spans.first[1] = 1;
     spans.first[2] = 7;
     for (size_t i = 0; i < count - 1; ++i) memcpy(spans.later[i], spans.first, sizeof spans.first);
-    tlv_fixed_format_t config = {{0}, {0}};
+    tlv_fixed_format_t config = {
+        {0}, {0, TLV_BYTE_ORDER_UNKNOWN}, TLV_ELEMENT_ORDER_TLV, TLV_LENGTH_SCOPE_VALUE};
     config.identifier.size = config.length.size = 1;
     config.length.byte_order = TLV_BYTE_ORDER_BIG_ENDIAN;
     tlv_format_t format;
@@ -726,7 +730,8 @@ static int document_reinitialization(const tlv_document_options_t* options) {
 }
 /* Edit target collection may not alias the applied count or the copied Value. */
 static int edit_aliases(void) {
-    tlv_fixed_format_t config = {{0}, {0}};
+    tlv_fixed_format_t config = {
+        {0}, {0, TLV_BYTE_ORDER_UNKNOWN}, TLV_ELEMENT_ORDER_TLV, TLV_LENGTH_SCOPE_VALUE};
     config.identifier.size = config.length.size = 1;
     config.length.byte_order = TLV_BYTE_ORDER_BIG_ENDIAN;
     tlv_format_t format;

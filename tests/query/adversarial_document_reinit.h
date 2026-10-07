@@ -50,7 +50,8 @@ static tlv_result_t document_format_reinit_decode(const void* context, const uin
 }
 
 static int document_format_reinitialization(void) {
-    tlv_fixed_format_t config = {{0}, {0}};
+    tlv_fixed_format_t config = {
+        {0}, {0, TLV_BYTE_ORDER_UNKNOWN}, TLV_ELEMENT_ORDER_TLV, TLV_LENGTH_SCOPE_VALUE};
     config.identifier.size = config.length.size = 1;
     config.length.byte_order = TLV_BYTE_ORDER_BIG_ENDIAN;
     for (unsigned trigger = 0; trigger < 3; ++trigger)

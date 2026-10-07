@@ -61,7 +61,8 @@ int LLVMFuzzerTestOneInput(const uint8_t* data, size_t size) {
         wire[extent++] = data[i];
     }
     wire[1] = (uint8_t)(extent - 2);
-    tlv_fixed_format_t config = {{0}, {0}};
+    tlv_fixed_format_t config = {
+        {0}, {0, TLV_BYTE_ORDER_UNKNOWN}, TLV_ELEMENT_ORDER_TLV, TLV_LENGTH_SCOPE_VALUE};
     config.identifier.size = config.length.size = 1;
     config.length.byte_order = TLV_BYTE_ORDER_BIG_ENDIAN;
     tlv_format_t format;
