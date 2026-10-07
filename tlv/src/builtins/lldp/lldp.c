@@ -2,11 +2,7 @@
 // Copyright (c) 2026 Marek Cingel
 
 #include "tlv/builtins/lldp/lldp.h"
-#include "tlv/field/packed.h"
-#include <string.h>
-
-static const tlv_packed_field_t type_field = {2, 9, 7, TLV_BYTE_ORDER_BIG_ENDIAN};
-static const tlv_packed_field_t length_field = {2, 0, 9, TLV_BYTE_ORDER_BIG_ENDIAN};
+#include "tlv/formats/packed.h"
 
 /* Canonical Type bytes must survive subsequent decodes and shallow copies. */
 static const uint8_t identifiers[128] = {
@@ -18,77 +14,16 @@ static const uint8_t identifiers[128] = {
     95,  96,  97,  98,  99,  100, 101, 102, 103, 104, 105, 106, 107, 108, 109, 110, 111, 112, 113,
     114, 115, 116, 117, 118, 119, 120, 121, 122, 123, 124, 125, 126, 127};
 
-static tlv_result_t decode(const void* context, const uint8_t* data, size_t size,
-                           tlv_decoded_t* result, tlv_format_error_t* error) {
-    size_t length;
-    uint64_t type, count;
-    tlv_result_t rc;
-    (void)context;
-    error->region = TLV_REGION_HEADER;
-    error->has_offset = 1;
-    error->offset = 0;
-    error->has_required = 1;
-    error->required = 2;
-    if (size < 2) return TLV_ERR_BUFFER_TOO_SHORT;
-    error->tag = (tlv_range_t){0, 1, 1};
-    error->length = (tlv_range_t){0, 2, 1};
-    rc = tlv_packed_field_read(&type_field, data, size, &type);
-    if (rc != TLV_OK) return rc;
-    rc = tlv_packed_field_read(&length_field, data, size, &count);
-    if (rc != TLV_OK) return rc;
-    /* The configured nine-bit count fits every supported size_t. */
-    length = (size_t)count;
-    error->region = TLV_REGION_VALUE;
-    error->offset = 2;
-    error->required = length;
-    error->value = (tlv_range_t){2, length <= size - 2 ? length : size - 2, 1};
-    if (length > size - 2) return TLV_ERR_BUFFER_TOO_SHORT;
-    result->element.tag = tlv_tag(identifiers + (size_t)type, 1);
-    result->element.value = (tlv_value_t){data + 2, length};
-    result->source.header = (tlv_range_t){0, 2, 1};
-    result->source.tag = error->tag;
-    result->source.length = error->length;
-    result->source.value = (tlv_range_t){2, length, 1};
-    result->source.trailer = (tlv_range_t){2 + length, 0, 1};
-    result->source.size = 2 + length;
-    result->source.tag_binding = TLV_TAG_BINDING_FORMAT;
-    return TLV_OK;
-}
+static const tlv_packed_layout_t lldp_layout = {2,
+                                                {2, 9, 7, TLV_BYTE_ORDER_BIG_ENDIAN},
+                                                {2, 0, 9, TLV_BYTE_ORDER_BIG_ENDIAN},
+                                                TLV_LENGTH_SCOPE_VALUE,
+                                                identifiers,
+                                                1,
+                                                sizeof(identifiers)};
 
-static tlv_result_t measure(const void* context, const tlv_element_t* element,
-                            tlv_encoding_t* result, tlv_format_error_t* error) {
-    (void)context;
-    error->region = TLV_REGION_TAG;
-    error->has_offset = 1;
-    error->offset = 0;
-    if (element->tag.size != 1) return TLV_ERR_INVALID_TAG_SIZE;
-    if (element->tag.data[0] > 127) return TLV_ERR_INVALID_TAG;
-    error->region = TLV_REGION_LENGTH;
-    if (element->value.size > 511) return TLV_ERR_INVALID_LENGTH;
-    *result = (tlv_encoding_t){2, element->value.size, 0, 2 + element->value.size};
-    return TLV_OK;
-}
-
-static tlv_result_t encode(const void* context, const tlv_element_t* element, uint8_t* data,
-                           size_t capacity, size_t* written, tlv_format_error_t* error) {
-    tlv_encoding_t sizes;
-    size_t length;
-    tlv_result_t rc = measure(context, element, &sizes, error);
-    if (rc != TLV_OK) return rc;
-    /* The validated 0..511 range fits every supported native size_t. */
-    length = (size_t)element->value.size;
-    if (capacity < length + 2) return TLV_ERR_BUFFER_TOO_SHORT;
-    data[0] = data[1] = 0;
-    rc = tlv_packed_field_write(&type_field, data, capacity, element->tag.data[0]);
-    if (rc != TLV_OK) return rc;
-    rc = tlv_packed_field_write(&length_field, data, capacity, length);
-    if (rc != TLV_OK) return rc;
-    if (length) memcpy(data + 2, element->value.data, length);
-    *written = length + 2;
-    return TLV_OK;
-}
-
-const tlv_format_t tlv_format_lldp = {NULL, decode, measure, encode, NULL};
+const tlv_format_t tlv_format_lldp = {&lldp_layout, tlv_packed_decode, tlv_packed_measure,
+                                      tlv_packed_encode, NULL};
 
 static const tlv_definition_t types[] = {{{identifiers + 0, 1}, "End of LLDPDU"},
                                          {{identifiers + 1, 1}, "Chassis ID"},

@@ -166,7 +166,7 @@ contracts to generic consumers. Generic subsystems (`reader/`, `writer/`,
 A format mechanism that names no protocol -- it is parameterized entirely by
 caller-supplied widths and byte order, with no knowledge of any concrete
 wire standard -- lives under the separate top-level `formats/` instead. The
-configurable Fixed and Variable formats are current members; protocol-
+configurable Fixed, Variable and Packed formats are current members; protocol-
 agnostic mechanisms (not per-protocol formats) would join it there. This is
 narrower than the pre-#279 `tlv/formats/` (see Migration): that one held
 every concrete format regardless of whether it was protocol-specific, and was
@@ -198,7 +198,7 @@ tlv/
   codec/     codec.h, structure.h
   field/     encoding.h, fixed.h, packed.h, variable.h, escaped.h
   formats/
-    compose.h, fixed.h, variable.h, escaped.h
+    compose.h, fixed.h, variable.h, escaped.h, packed.h
   builtins/
     bluetooth/ bluetooth_ltv.h, ad_types.h
     asn1/      ber.h, der.h, cer.h, der_validation.h, cer_validation.h, der_schema.h

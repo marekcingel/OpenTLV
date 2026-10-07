@@ -33,6 +33,7 @@ Codec, validation, CLI and language-preset coverage, and
 | NFC Type 2 Tag TLV stream | [NFC Type 2 framing](nfc/README.md) | Contiguous data-area stream; caller handles padding and termination |
 | DHCPv4 options with Pad and End | [DHCPv4 option framing](dhcp/README.md) | Individual options; caller handles termination and packet semantics |
 | Bluetooth advertising data (length before type) | [Bluetooth LTV](bluetooth/README.md) | Values up to 254 bytes, no nesting |
+| Generic packed Tag/Length headers | [Packed configuration](packed.md) | Shared 1?8-byte header, canonical Tags, Value or Tag-plus-Value scope |
 | LLDP packed Type/Length headers | [LLDP TLV support](lldp/README.md) | Packed framing, base definitions, LLDPDU structural rules and value codecs |
 | Multi-byte tags or constructed indefinite values | [BER-TLV](asn1/ber.md) | Payload semantics are separate |
 | Canonical ASN.1 framing and nested checks | [DER](../standards/der/README.md) | Structural validation, not full semantic DER |

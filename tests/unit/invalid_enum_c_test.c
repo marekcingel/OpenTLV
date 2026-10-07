@@ -5,6 +5,7 @@
 #include "tlv/field/fixed.h"
 #include "tlv/formats/fixed.h"
 #include "tlv/formats/variable.h"
+#include "tlv/formats/packed.h"
 #include "tlv/reader/visitor.h"
 #include <string.h>
 
@@ -48,6 +49,18 @@ int tlv_test_invalid_enum_fields(void) {
                                             TLV_LENGTH_SCOPE_VALUE};
     CHECK(tlv_fixed_format_init(&format, &fixed) == TLV_ERR_INVALID_BYTE_ORDER);
     CHECK(tlv_variable_format_init(&format, &variable) == TLV_ERR_INVALID_BYTE_ORDER);
+    const uint8_t       packed_tags[] = {0, 1};
+    tlv_packed_layout_t packed = {1,
+                                  {1, 7, 1, TLV_BYTE_ORDER_BIG_ENDIAN},
+                                  {1, 0, 7, TLV_BYTE_ORDER_BIG_ENDIAN},
+                                  (tlv_length_scope_t)99,
+                                  packed_tags,
+                                  1,
+                                  sizeof(packed_tags)};
+    CHECK(tlv_packed_layout_validate(&packed) == TLV_ERR_INVALID_ARG);
+    packed.length_scope = TLV_LENGTH_SCOPE_VALUE;
+    packed.length.byte_order = order;
+    CHECK(tlv_packed_layout_validate(&packed) == TLV_ERR_INVALID_BYTE_ORDER);
     CHECK(value == 42 && used == 99 && memcmp(output, before, sizeof output) == 0);
     return 0;
 }

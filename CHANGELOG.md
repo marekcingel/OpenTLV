@@ -165,6 +165,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Added
 
+- Configure packed Tag/Length formats with immutable caller-owned identifier storage, explicit byte order and length scope; LLDP now uses the same generic framing callbacks. (#541)
 - Add a Rust/C ABI layout regression test for Fixed field and format configurations, checking member offsets and alignment as well as structure sizes. (#423)
 - Add standalone allocation-free fixed-width Identifier and Length operations in `tlv/field/fixed.h`, preserving raw identifier bytes and supporting explicit count byte order and NULL-output sizing independently of Format and optional capabilities. (#423)
 - Add reproducible Reader, Tree Reader and Document decode benchmarks, including a custom arena allocator comparison and recorded performance evidence. (#538)
