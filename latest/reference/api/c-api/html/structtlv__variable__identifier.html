@@ -92,10 +92,12 @@ Data Fields</h2></td></tr>
 <tr class="separator:a5286ab39021f6edcc7c2402b70cfcd7a"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:a16423c183cfc10d99882d2578109b509" id="r_a16423c183cfc10d99882d2578109b509"><td class="memItemLeft" align="right" valign="top">size_t&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="structtlv__variable__identifier.html#a16423c183cfc10d99882d2578109b509">max_size</a></td></tr>
 <tr class="separator:a16423c183cfc10d99882d2578109b509"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:abf1203defa1c0c2cfaebeb25618808ec" id="r_abf1203defa1c0c2cfaebeb25618808ec"><td class="memItemLeft" align="right" valign="top">const <a class="el" href="group__field__encoding.html#gaf618e6e53513d049c019f0b603838340">tlv_identifier_policy_t</a> *&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="structtlv__variable__identifier.html#abf1203defa1c0c2cfaebeb25618808ec">policy</a></td></tr>
+<tr class="separator:abf1203defa1c0c2cfaebeb25618808ec"><td class="memSeparator" colspan="2">&#160;</td></tr>
 </table>
 <a name="details" id="details"></a><h2 class="groupheader">Detailed Description</h2>
 <div class="textblock"><p>Inline identifier bits with an escape into continuation octets. </p>
-<p>One octet is sufficient unless <code>(first &amp; inline_mask) == escape</code>. In that case at least one continuation octet follows, ending when continuation_bit is clear. Only payload_mask and continuation_bit may be set in those octets. Zero payloads and nonminimal forms are accepted. Bits outside inline_mask in the first octet are preserved without interpretation. </p>
+<p>One octet is sufficient unless <code>(first &amp; inline_mask) == escape</code>. In that case at least one continuation octet follows, ending when continuation_bit is clear. Only payload_mask and continuation_bit may be set in those octets. Without a policy, zero payloads and nonminimal forms are accepted. Bits outside inline_mask in the first octet are preserved without interpretation. </p>
 </div><h2 class="groupheader">Field Documentation</h2>
 <a id="ac5f678e1e7f6a2acc27529c9122d36a4" name="ac5f678e1e7f6a2acc27529c9122d36a4"></a>
 <h2 class="memtitle"><span class="permalink"><a href="#ac5f678e1e7f6a2acc27529c9122d36a4">&#9670;&#160;</a></span>continuation_bit</h2>
@@ -169,6 +171,21 @@ Data Fields</h2></td></tr>
       </table>
 </div><div class="memdoc">
 <p>Nonzero payload mask, disjoint from continuation_bit. </p>
+
+</div>
+</div>
+<a id="abf1203defa1c0c2cfaebeb25618808ec" name="abf1203defa1c0c2cfaebeb25618808ec"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#abf1203defa1c0c2cfaebeb25618808ec">&#9670;&#160;</a></span>policy</h2>
+
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname">const <a class="el" href="group__field__encoding.html#gaf618e6e53513d049c019f0b603838340">tlv_identifier_policy_t</a>* tlv_variable_identifier::policy</td>
+        </tr>
+      </table>
+</div><div class="memdoc">
+<p>Optional borrowed immutable wire constraints. </p>
 
 </div>
 </div>

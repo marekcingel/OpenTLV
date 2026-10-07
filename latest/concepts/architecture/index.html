@@ -1466,6 +1466,62 @@
   
   
     <li class="md-nav__item">
+      <a href="../field-policies/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Declarative field policy design
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../formats/packed/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Packed Tag/Length headers
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
       <a href="../../formats/bluetooth/" class="md-nav__link">
         
   
@@ -3958,7 +4014,7 @@ contracts to generic consumers. Generic subsystems (<code>reader/</code>, <code>
 <p>A format mechanism that names no protocol -- it is parameterized entirely by
 caller-supplied widths and byte order, with no knowledge of any concrete
 wire standard -- lives under the separate top-level <code>formats/</code> instead. The
-configurable Fixed and Variable formats are current members; protocol-
+configurable Fixed, Variable and Packed formats are current members; protocol-
 agnostic mechanisms (not per-protocol formats) would join it there. This is
 narrower than the pre-#279 <code>tlv/formats/</code> (see Migration): that one held
 every concrete format regardless of whether it was protocol-specific, and was
@@ -3985,7 +4041,7 @@ retain their concrete rules and current component dependencies.</p>
 <a id="__codelineno-2-9" name="__codelineno-2-9" href="#__codelineno-2-9"></a>  codec/     codec.h, structure.h
 <a id="__codelineno-2-10" name="__codelineno-2-10" href="#__codelineno-2-10"></a>  field/     encoding.h, fixed.h, packed.h, variable.h, escaped.h
 <a id="__codelineno-2-11" name="__codelineno-2-11" href="#__codelineno-2-11"></a>  formats/
-<a id="__codelineno-2-12" name="__codelineno-2-12" href="#__codelineno-2-12"></a>    compose.h, fixed.h, variable.h, escaped.h
+<a id="__codelineno-2-12" name="__codelineno-2-12" href="#__codelineno-2-12"></a>    compose.h, fixed.h, variable.h, escaped.h, packed.h
 <a id="__codelineno-2-13" name="__codelineno-2-13" href="#__codelineno-2-13"></a>  builtins/
 <a id="__codelineno-2-14" name="__codelineno-2-14" href="#__codelineno-2-14"></a>    bluetooth/ bluetooth_ltv.h, ad_types.h
 <a id="__codelineno-2-15" name="__codelineno-2-15" href="#__codelineno-2-15"></a>    asn1/      ber.h, der.h, cer.h, der_validation.h, cer_validation.h, der_schema.h

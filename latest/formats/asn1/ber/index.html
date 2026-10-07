@@ -1471,6 +1471,62 @@
   
   
     <li class="md-nav__item">
+      <a href="../../../concepts/field-policies/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Declarative field policy design
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../packed/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Packed Tag/Length headers
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
       <a href="../../bluetooth/" class="md-nav__link">
         
   
@@ -3782,9 +3838,12 @@
 existing field-composition contract. Its immutable configuration selects inline
 mask/escape <code>1F</code>, continuation bit <code>80</code>, payload mask <code>7F</code>, an eight-byte
 identifier limit, and short/long length prefixes with big-endian count octets.
-The generic implementation owns identifier boundary detection and definite
-count decoding/encoding. <code>ber_internal.c</code> is now an ASN.1 policy adapter over
-those primitives; it does not own another copy of their algorithms.</p>
+Declarative Identifier policy rejects a zero first escaped payload without
+requiring a minimal tag number. Length policy accepts nonminimal short/long
+forms with at most 126 count octets and values through <code>UINT64_MAX</code>.
+The generic implementation owns identifier boundary detection, definite
+count decoding/encoding and enforcement of these policies. <code>ber_internal.c</code>
+supplies the immutable configurations and callback adapters.</p>
 <p>The responsibilities are separated as follows:</p>
 <table>
 <thead>
@@ -3804,7 +3863,7 @@ those primitives; it does not own another copy of their algorithms.</p>
 </tr>
 <tr>
 <td>Identifier minimality</td>
-<td>BER rejects a zero first continuation payload. The constructor uses low form below 31; raw parsing/writing retains acceptance of encodings such as <code>9F 1C</code> for compatibility.</td>
+<td>BER's Identifier policy rejects a zero first continuation payload. The constructor uses low form below 31; raw parsing/writing retains acceptance of encodings such as <code>9F 1C</code> for compatibility.</td>
 </tr>
 <tr>
 <td>UNIVERSAL restrictions</td>
@@ -3812,7 +3871,7 @@ those primitives; it does not own another copy of their algorithms.</p>
 </tr>
 <tr>
 <td>Definite lengths</td>
-<td>Variable handles short/long counts and padding; BER selects big endian, rejects <code>FF</code>, and retains <code>TLV_ERR_INVALID_LENGTH</code> for numeric overflow.</td>
+<td>Variable handles short/long counts and padding; BER selects big endian and Length policy limits that reject <code>FF</code> and retain <code>TLV_ERR_INVALID_LENGTH</code> for numeric overflow.</td>
 </tr>
 <tr>
 <td>Indefinite lengths</td>
@@ -3837,7 +3896,8 @@ particularly sections 8.1.2–8.1.5. The raw compatibility behavior above is not
 complete ASN.1 identifier or value validation: accepting <code>9F 1C</code>, UNIVERSAL 15
 or arbitrary UNIVERSAL forms does not make those encodings conforming ASN.1.
 This refactoring preserves the public BER contract, including those limits.
-DER/CER wrappers, EMV framing, Definition and DOL are separate work.</p>
+DER/CER add minimality and ASN.1 universal-type restrictions; EMV selects its
+own Variable policies. Definition and DOL are separate concerns.</p>
 <p>The public <code>tlv_ber_length_decode()</code> preserves both outputs on failure. Internal
 field callbacks additionally report the available Length prefix for diagnostics,
 including truncation and overflow. The BER adapter preserves this distinction
@@ -4012,7 +4072,7 @@ the required size in <code>*written</code> without writing. <code>TLV_BER_LENGTH
 (9) is enough to hold the encoding of any <code>tlv_size_t</code> value, including
 <code>UINT64_MAX</code> (<code>88 FF FF FF FF FF FF FF FF</code>); it is smaller than the largest
 field <code>tlv_ber_length_decode</code> can still accept, since nonminimal input may use
-up to 127 length octets. Insufficient <code>out_capacity</code> returns
+up to 126 count octets after the prefix. Insufficient <code>out_capacity</code> returns
 <code>TLV_ERR_BUFFER_TOO_SHORT</code> with no partial write. Both functions leave their
 outputs unchanged on failure, and neither allocates or requires the length's
 value payload to be present.</p>

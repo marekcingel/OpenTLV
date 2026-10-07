@@ -1466,6 +1466,62 @@
   
   
     <li class="md-nav__item">
+      <a href="../field-policies/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Declarative field policy design
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../formats/packed/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Packed Tag/Length headers
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
       <a href="../../formats/bluetooth/" class="md-nav__link">
         
   
@@ -3670,7 +3726,7 @@ configuration or that every combination is valid.</p>
 </tr>
 <tr>
 <td>Packed fields</td>
-<td>Unsigned fields within 1–8-byte backing integers; overlapping Tag/Length byte envelopes require complete Format callbacks.</td>
+<td>Unsigned fields within 1–8-byte backing integers; complete packed headers use <code>tlv_packed_layout_t</code> with immutable canonical Tag storage.</td>
 </tr>
 <tr>
 <td>Value boundaries</td>
@@ -3709,7 +3765,8 @@ LTV with Value-only length scope:</p>
 and count scope. Reuse the standalone primitives under <code>tlv/field/</code> or binary
 field adapters where they match the wire rules. Supplying a
 field callback is implementation work, even though the composition is generic.</p>
-<p>For a shared packed header, absent fields, extra header bytes, or generated
+<p>For a shared packed Tag/Length header, configure <a href="../../formats/packed/">Packed</a>.
+For absent fields, extra header bytes beyond the supplied layouts, or generated
 trailers, implement the complete <code>tlv_format_t</code> callback groups. Reader and Writer
 continue to use the same contracts; see <a href="../../formats/custom/">custom Formats</a>.
 A bounds resolver applies only to TLV/Value-scope framing in the field composer.
@@ -3759,7 +3816,7 @@ policy handled above wire mechanics.</p>
 <tr>
 <td>Inline/escaped continuation identifiers and short/long counts</td>
 <td>Configuration</td>
-<td><code>tlv_variable_format_t</code>; concrete reserved encodings and canonicality remain separate.</td>
+<td><code>tlv_variable_format_t</code> with optional identifier/length policies; ASN.1 universal semantics remain protocol-owned.</td>
 </tr>
 <tr>
 <td>Fixed identifiers with escape-prefixed counts</td>
@@ -3778,8 +3835,23 @@ policy handled above wire mechanics.</p>
 </tr>
 <tr>
 <td>Complete packed Tag/Length header</td>
-<td>Custom Format</td>
-<td>Compose packed helpers in decode/measure/encode; LLDP is an existing example, not a generic packed-format initializer.</td>
+<td>Configuration</td>
+<td><code>tlv_packed_layout_t</code> and <code>tlv_packed_decode</code> / <code>tlv_packed_measure</code> / <code>tlv_packed_encode</code>; LLDP is a configuration with immutable canonical Tags.</td>
+</tr>
+<tr>
+<td>Constructed bit predicate</td>
+<td>Configuration</td>
+<td><code>tlv_constructed_bit_t</code>; Variable Format borrows the predicate in its context.</td>
+</tr>
+<tr>
+<td>Identifier prefix, width and minimality constraints</td>
+<td>Configuration</td>
+<td>Variable encoding plus <code>tlv_identifier_policy_t</code>; raw Tag identity is preserved.</td>
+</tr>
+<tr>
+<td>Definite count form, width, maximum and minimality constraints</td>
+<td>Configuration</td>
+<td><code>tlv_length_policy_t</code>; indefinite/EOC and ASN.1 type rules remain protocol callbacks.</td>
 </tr>
 <tr>
 <td>Different sequential field encodings</td>
@@ -3802,9 +3874,9 @@ policy handled above wire mechanics.</p>
 <td>Complete callbacks validate framing and measure/encode it; no general padding/checksum configuration is supplied.</td>
 </tr>
 <tr>
-<td>Constructed classification</td>
+<td>Constructed classification beyond a masked Tag byte</td>
 <td>Custom Format</td>
-<td>Optional <code>is_constructed</code> predicate; generic Tree processing handles traversal. Fixed/Variable configurations alone keep Values opaque.</td>
+<td>Optional <code>is_constructed</code> callback; generic Tree processing handles traversal. Variable's configured bit predicate covers the mechanical bit-test case.</td>
 </tr>
 <tr>
 <td>Stream PAD/END handling and required termination</td>
@@ -3919,6 +3991,8 @@ compiler remain outside the binary TLV scope; see the
 configuration where possible, and isolate the remaining rules in callbacks or
 protocol containers. Verify truncation, malformed framing, borrowed lifetimes
 and semantic round trips against the shared contract before claiming support.</p>
+<p>See the <a href="../field-policies/">field policy design note</a> for EMV adoption and the
+intentional ASN.1-owned DER/CER callbacks.</p>
 
 
 

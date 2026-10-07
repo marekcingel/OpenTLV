@@ -1471,6 +1471,62 @@
   
   
     <li class="md-nav__item">
+      <a href="../../concepts/field-policies/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Declarative field policy design
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../packed/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Packed Tag/Length headers
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
       <a href="../bluetooth/" class="md-nav__link">
         
   
@@ -3688,8 +3744,9 @@ semantic content and source ranges. The semantic Tag borrows its exact source
 byte range by default; <code>TLV_TAG_BINDING_FORMAT</code> permits immutable format-supplied
 identifier storage for transformations such as packed fields. See the
 <a href="../lldp-review/">LLDP review</a>.
-An adapter for packed headers, length-before-type framing, padding, or a length
-that includes header bytes needs an explicit compatibility review. These formats
+Packed Tag/Length headers now have a <a href="../packed/">generic configuration</a>, used
+by LLDP. Further adapters for length-before-type framing, padding, or a length
+that includes header bytes need an explicit compatibility review. These formats
 are candidates, not a claim that every one fits the existing callbacks unchanged.
 Any contract extension should describe a reusable framing requirement rather than
 introducing protocol-specific branches in the generic parser.</p>
@@ -4003,7 +4060,7 @@ transformed identifiers. LLDPDU protocol conformance remains separate.</strong><
 <tr>
 <td>Bit-packed type and length, or flag bits sharing a field</td>
 <td>LLDP, LDP, RFC 5444, NAS half-octet IEIs</td>
-<td>Whole-header callbacks handle packing; <code>TLV_TAG_BINDING_FORMAT</code> permits canonical identifiers in immutable format storage. <a href="../lldp-review/">LLDP review</a>: framing adapter and presets implemented and tested, normative verification pending. Other candidates need individual review.</td>
+<td><code>tlv_packed_layout_t</code> configures definite packed Tag/Length framing; <code>TLV_TAG_BINDING_FORMAT</code> permits canonical identifiers in immutable format storage. <a href="../lldp-review/">LLDP review</a>: framing adapter and presets implemented and tested, normative verification pending. Other candidates need individual review.</td>
 </tr>
 <tr>
 <td>Length includes the header</td>

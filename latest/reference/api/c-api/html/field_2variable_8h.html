@@ -89,6 +89,12 @@ $(function() {
 </div><table class="memberdecls">
 <tr class="heading"><td colspan="2"><h2 class="groupheader"><a id="nested-classes" name="nested-classes"></a>
 Data Structures</h2></td></tr>
+<tr class="memitem:"><td class="memItemLeft" align="right" valign="top">struct &#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="structtlv__identifier__policy.html">tlv_identifier_policy</a></td></tr>
+<tr class="memdesc:"><td class="mdescLeft">&#160;</td><td class="mdescRight">Optional constraints on a variable identifier's wire representation.  <a href="structtlv__identifier__policy.html#details">More...</a><br /></td></tr>
+<tr class="separator:"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:"><td class="memItemLeft" align="right" valign="top">struct &#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="structtlv__length__policy.html">tlv_length_policy</a></td></tr>
+<tr class="memdesc:"><td class="mdescLeft">&#160;</td><td class="mdescRight">Allowed definite count forms and numeric limits.  <a href="structtlv__length__policy.html#details">More...</a><br /></td></tr>
+<tr class="separator:"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:"><td class="memItemLeft" align="right" valign="top">struct &#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="structtlv__variable__identifier.html">tlv_variable_identifier</a></td></tr>
 <tr class="memdesc:"><td class="mdescLeft">&#160;</td><td class="mdescRight">Inline identifier bits with an escape into continuation octets.  <a href="structtlv__variable__identifier.html#details">More...</a><br /></td></tr>
 <tr class="separator:"><td class="memSeparator" colspan="2">&#160;</td></tr>
@@ -98,6 +104,12 @@ Data Structures</h2></td></tr>
 </table><table class="memberdecls">
 <tr class="heading"><td colspan="2"><h2 class="groupheader"><a id="typedef-members" name="typedef-members"></a>
 Typedefs</h2></td></tr>
+<tr class="memitem:gaf618e6e53513d049c019f0b603838340" id="r_gaf618e6e53513d049c019f0b603838340"><td class="memItemLeft" align="right" valign="top">typedef struct <a class="el" href="structtlv__identifier__policy.html">tlv_identifier_policy</a>&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="group__field__encoding.html#gaf618e6e53513d049c019f0b603838340">tlv_identifier_policy_t</a></td></tr>
+<tr class="memdesc:gaf618e6e53513d049c019f0b603838340"><td class="mdescLeft">&#160;</td><td class="mdescRight">Optional constraints on a variable identifier's wire representation.  <br /></td></tr>
+<tr class="separator:gaf618e6e53513d049c019f0b603838340"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:gaa979632f424146077d386515ce837eae" id="r_gaa979632f424146077d386515ce837eae"><td class="memItemLeft" align="right" valign="top">typedef struct <a class="el" href="structtlv__length__policy.html">tlv_length_policy</a>&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="group__field__encoding.html#gaa979632f424146077d386515ce837eae">tlv_length_policy_t</a></td></tr>
+<tr class="memdesc:gaa979632f424146077d386515ce837eae"><td class="mdescLeft">&#160;</td><td class="mdescRight">Allowed definite count forms and numeric limits.  <br /></td></tr>
+<tr class="separator:gaa979632f424146077d386515ce837eae"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:ga6f571fc336adff5ecbcb18fdeb432846" id="r_ga6f571fc336adff5ecbcb18fdeb432846"><td class="memItemLeft" align="right" valign="top">typedef struct <a class="el" href="structtlv__variable__identifier.html">tlv_variable_identifier</a>&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="group__field__encoding.html#ga6f571fc336adff5ecbcb18fdeb432846">tlv_variable_identifier_t</a></td></tr>
 <tr class="memdesc:ga6f571fc336adff5ecbcb18fdeb432846"><td class="mdescLeft">&#160;</td><td class="mdescRight">Inline identifier bits with an escape into continuation octets.  <br /></td></tr>
 <tr class="separator:ga6f571fc336adff5ecbcb18fdeb432846"><td class="memSeparator" colspan="2">&#160;</td></tr>
@@ -122,7 +134,7 @@ Functions</h2></td></tr>
 </table>
 <a name="details" id="details"></a><h2 class="groupheader">Detailed Description</h2>
 <div class="textblock"><p>Configurable variable-width identifier and count primitives. </p>
-<p>Configurations are immutable and borrowed. No operation allocates. Identifiers retain their complete wire byte identity, including prefix bits; no numeric tag interpretation or minimality rule is imposed. Concrete formats supply their own validity rules. These primitives do not depend on any builtin. </p>
+<p>Configurations are immutable and borrowed. No operation allocates. Identifiers retain their complete wire byte identity, including prefix bits; no numeric tag interpretation is imposed. Optional declarative policies constrain wire encodings; protocol semantics remain in concrete formats. These primitives do not depend on any builtin. </p>
 </div></div><!-- contents -->
 <!-- start footer part -->
 <hr class="footer"/><address class="footer"><small>

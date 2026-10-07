@@ -53,6 +53,10 @@
          <lastmod>2026-10-07</lastmod>
     </url>
     <url>
+         <loc>https://marekcingel.github.io/OpenTLV/latest/concepts/field-policies/</loc>
+         <lastmod>2026-10-07</lastmod>
+    </url>
+    <url>
          <loc>https://marekcingel.github.io/OpenTLV/latest/concepts/format-capabilities/</loc>
          <lastmod>2026-10-07</lastmod>
     </url>
@@ -162,6 +166,10 @@
     </url>
     <url>
          <loc>https://marekcingel.github.io/OpenTLV/latest/formats/lldp-review/</loc>
+         <lastmod>2026-10-07</lastmod>
+    </url>
+    <url>
+         <loc>https://marekcingel.github.io/OpenTLV/latest/formats/packed/</loc>
          <lastmod>2026-10-07</lastmod>
     </url>
     <url>

@@ -90,11 +90,28 @@ Data Fields</h2></td></tr>
 <tr class="separator:ad32bd9313415db265fce50a722f45514"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:ac65aea37b4ec50c161bdf1fd67a0adbe" id="r_ac65aea37b4ec50c161bdf1fd67a0adbe"><td class="memItemLeft" align="right" valign="top"><a class="el" href="group__formats.html#ga13d583efddacc347efb0899f55d23953">tlv_length_scope_t</a>&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="structtlv__variable__format.html#ac65aea37b4ec50c161bdf1fd67a0adbe">length_scope</a></td></tr>
 <tr class="separator:ac65aea37b4ec50c161bdf1fd67a0adbe"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a02ce21d9f476d304a033e4ace0463172" id="r_a02ce21d9f476d304a033e4ace0463172"><td class="memItemLeft" align="right" valign="top">const <a class="el" href="group__formats.html#ga1baef9bfeac47e0ff4480d343104025a">tlv_constructed_bit_t</a> *&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="structtlv__variable__format.html#a02ce21d9f476d304a033e4ace0463172">constructed</a></td></tr>
+<tr class="separator:a02ce21d9f476d304a033e4ace0463172"><td class="memSeparator" colspan="2">&#160;</td></tr>
 </table>
 <a name="details" id="details"></a><h2 class="groupheader">Detailed Description</h2>
 <div class="textblock"><p>Definite variable-width field configuration for TLV or LTV. </p>
-<p>Length scope is applied using the actual encoded identifier width. This configuration describes framing only, without constructed or tag semantics. </p>
+<p>Length scope is applied using the actual encoded identifier width. This configuration describes framing and optional byte-based constructed classification. All policies and predicate storage are borrowed, immutable and must outlive users. </p>
 </div><h2 class="groupheader">Field Documentation</h2>
+<a id="a02ce21d9f476d304a033e4ace0463172" name="a02ce21d9f476d304a033e4ace0463172"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#a02ce21d9f476d304a033e4ace0463172">&#9670;&#160;</a></span>constructed</h2>
+
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname">const <a class="el" href="group__formats.html#ga1baef9bfeac47e0ff4480d343104025a">tlv_constructed_bit_t</a>* tlv_variable_format::constructed</td>
+        </tr>
+      </table>
+</div><div class="memdoc">
+<p>Optional borrowed Tag bit predicate. </p>
+
+</div>
+</div>
 <a id="ad32bd9313415db265fce50a722f45514" name="ad32bd9313415db265fce50a722f45514"></a>
 <h2 class="memtitle"><span class="permalink"><a href="#ad32bd9313415db265fce50a722f45514">&#9670;&#160;</a></span>element_order</h2>
 

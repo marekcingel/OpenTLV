@@ -88,10 +88,12 @@ Data Fields</h2></td></tr>
 <tr class="separator:abd8eb3fc87bc39a0745b034447aa6630"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:aec8204af2bde4699b095c5b4db90e980" id="r_aec8204af2bde4699b095c5b4db90e980"><td class="memItemLeft" align="right" valign="top"><a class="el" href="group__core.html#ga4706cf1001cdc65be8aa7f678487a366">tlv_byte_order_t</a>&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="structtlv__variable__length.html#aec8204af2bde4699b095c5b4db90e980">byte_order</a></td></tr>
 <tr class="separator:aec8204af2bde4699b095c5b4db90e980"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a551ae3d7b9f95fca71150a08cb3566ce" id="r_a551ae3d7b9f95fca71150a08cb3566ce"><td class="memItemLeft" align="right" valign="top">const <a class="el" href="group__field__encoding.html#gaa979632f424146077d386515ce837eae">tlv_length_policy_t</a> *&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="structtlv__variable__length.html#a551ae3d7b9f95fca71150a08cb3566ce">policy</a></td></tr>
+<tr class="separator:a551ae3d7b9f95fca71150a08cb3566ce"><td class="memSeparator" colspan="2">&#160;</td></tr>
 </table>
 <a name="details" id="details"></a><h2 class="groupheader">Detailed Description</h2>
 <div class="textblock"><p>Short unsigned count or a prefix specifying the following octet count. </p>
-<p>When long_form_bit is clear, payload_mask holds the count itself. Otherwise it holds the number of following full octets, interpreted in byte_order. Mask bits are packed from least to most significant, even for noncontiguous masks. Other prefix bits must be zero. A long-form octet count of zero has no definite count and is rejected by this primitive; a concrete format may recognize it in its bounds resolver. No prefix is reserved by a standard. Reading accepts padded and nonminimal counts that fit <a class="el" href="group__core.html#gaf15b8962e0139f0bfb17769739dcd9f8" title="Logical TLV value size.">tlv_size_t</a>. Writing uses short form when possible, otherwise the fewest full count octets. </p>
+<p>When long_form_bit is clear, payload_mask holds the count itself. Otherwise it holds the number of following full octets, interpreted in byte_order. Mask bits are packed from least to most significant, even for noncontiguous masks. Other prefix bits must be zero. A long-form octet count of zero has no definite count and is rejected by this primitive; a concrete format may recognize it in its bounds resolver. No prefix is reserved by a standard. Without a policy, reading accepts padded and nonminimal counts that fit <a class="el" href="group__core.html#gaf15b8962e0139f0bfb17769739dcd9f8" title="Logical TLV value size.">tlv_size_t</a>. Writing uses the shortest allowed form and full count width. </p>
 </div><h2 class="groupheader">Field Documentation</h2>
 <a id="aec8204af2bde4699b095c5b4db90e980" name="aec8204af2bde4699b095c5b4db90e980"></a>
 <h2 class="memtitle"><span class="permalink"><a href="#aec8204af2bde4699b095c5b4db90e980">&#9670;&#160;</a></span>byte_order</h2>
@@ -135,6 +137,21 @@ Data Fields</h2></td></tr>
       </table>
 </div><div class="memdoc">
 <p>Nonzero mask, disjoint from long_form_bit. </p>
+
+</div>
+</div>
+<a id="a551ae3d7b9f95fca71150a08cb3566ce" name="a551ae3d7b9f95fca71150a08cb3566ce"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#a551ae3d7b9f95fca71150a08cb3566ce">&#9670;&#160;</a></span>policy</h2>
+
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname">const <a class="el" href="group__field__encoding.html#gaa979632f424146077d386515ce837eae">tlv_length_policy_t</a>* tlv_variable_length::policy</td>
+        </tr>
+      </table>
+</div><div class="memdoc">
+<p>Optional borrowed immutable definite count policy. </p>
 
 </div>
 </div>

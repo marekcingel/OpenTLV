@@ -116,6 +116,7 @@ $(function() {
 <li>tlv_config_reader()&#160;:&#160;<a class="el" href="group__core.html#ga533abf64756ff20fc7df7cda885e3cef">config.h</a></li>
 <li>tlv_config_schema()&#160;:&#160;<a class="el" href="group__core.html#ga172cb71c16d2714bdcce7e83373038b0">config.h</a></li>
 <li>tlv_config_writer()&#160;:&#160;<a class="el" href="group__core.html#ga8401e4f41b3fc6264d0de4d111433911">config.h</a></li>
+<li>tlv_constructed_bit_predicate()&#160;:&#160;<a class="el" href="group__formats.html#ga867c2c58391ab8dccdec614eb64175c3">format.h</a></li>
 <li>tlv_copy_encoded()&#160;:&#160;<a class="el" href="group__copy.html#ga06d2f6add67c483b2c66da85faf0b942">copy.h</a></li>
 <li>tlv_copy_value()&#160;:&#160;<a class="el" href="group__copy.html#ga507fd97eab5d290360b2a5653a45283a">copy.h</a></li>
 <li>tlv_definition_find()&#160;:&#160;<a class="el" href="definition_8h.html#a4f3eee11f435919963ddbf725442b7d9">definition.h</a></li>
@@ -209,8 +210,12 @@ $(function() {
 <li>tlv_number_codec()&#160;:&#160;<a class="el" href="codec_2number_8h.html#a1e6339d37f83b773c934cf7aa7008c69">number.h</a></li>
 <li>tlv_number_decode()&#160;:&#160;<a class="el" href="codec_2number_8h.html#a242d10510d9e717da14121e5c28bb8c6">number.h</a></li>
 <li>tlv_number_encode()&#160;:&#160;<a class="el" href="codec_2number_8h.html#aeb2371c61c5939ad745ceedf6fe6e335">number.h</a></li>
+<li>tlv_packed_decode()&#160;:&#160;<a class="el" href="group__formats.html#ga818e850f3b361f6569840d1190312dbf">packed.h</a></li>
+<li>tlv_packed_encode()&#160;:&#160;<a class="el" href="group__formats.html#gafadac28bf71cd940a976067d4e0cb1d1">packed.h</a></li>
 <li>tlv_packed_field_read()&#160;:&#160;<a class="el" href="group__field__encoding.html#ga2f0bc6baee687d0d1f946119eaff728e">packed.h</a></li>
 <li>tlv_packed_field_write()&#160;:&#160;<a class="el" href="group__field__encoding.html#gad47b28afa3abe5fbc33c3b4cbbf3d989">packed.h</a></li>
+<li>tlv_packed_layout_validate()&#160;:&#160;<a class="el" href="group__formats.html#ga3f043ea51bf74cc2bac6975b2ea5fd0e">packed.h</a></li>
+<li>tlv_packed_measure()&#160;:&#160;<a class="el" href="group__formats.html#ga943cd166ce5362fd13b553936b4aee1b">packed.h</a></li>
 <li>tlv_query_builtin_hooks()&#160;:&#160;<a class="el" href="adapters_8h.html#a7909c0e6bb341baf14b3b6049ced9863">adapters.h</a></li>
 <li>tlv_query_codec_decode()&#160;:&#160;<a class="el" href="adapters_8h.html#ab2cda6b5853b463e1741f04258c88b90">adapters.h</a></li>
 <li>tlv_query_compile()&#160;:&#160;<a class="el" href="group__traversal.html#gaa13b5eda51d3d42dd141c17bc10e4ee1">program.h</a></li>
@@ -343,12 +348,16 @@ $(function() {
 <li>tlv_value_is_empty()&#160;:&#160;<a class="el" href="group__core.html#ga589216e85ef008bcb5533e4beb94dd71">value.h</a></li>
 <li>tlv_value_slice()&#160;:&#160;<a class="el" href="group__core.html#ga05a621f818f3dfde75e25ced0dcab6b7">value.h</a></li>
 <li>tlv_value_validate()&#160;:&#160;<a class="el" href="group__core.html#ga9d330a8cacc89909ea0d3e215da6614d">value.h</a></li>
+<li>tlv_variable_decode()&#160;:&#160;<a class="el" href="group__formats.html#ga639433d23d126ab9ece6d3224cfeff1c">variable.h</a></li>
+<li>tlv_variable_encode()&#160;:&#160;<a class="el" href="group__formats.html#ga1867ae3abee64d1db7918373b8aa0017">variable.h</a></li>
 <li>tlv_variable_fields_init()&#160;:&#160;<a class="el" href="group__formats.html#ga7d0d958ab8ec993b02b8230045580c1b">variable.h</a></li>
 <li>tlv_variable_format_init()&#160;:&#160;<a class="el" href="group__formats.html#ga68ed194abac8f01ace32853e31822957">variable.h</a></li>
 <li>tlv_variable_identifier_read()&#160;:&#160;<a class="el" href="group__field__encoding.html#gab96fa0fd2f00eaea14615ddfe4616577">variable.h</a></li>
 <li>tlv_variable_identifier_write()&#160;:&#160;<a class="el" href="group__field__encoding.html#ga1a1e8e03b3606f61f54aa243bd97eb5f">variable.h</a></li>
+<li>tlv_variable_is_constructed()&#160;:&#160;<a class="el" href="group__formats.html#gac8bf0f6774f5eec67fdf8a35c8d91fb6">variable.h</a></li>
 <li>tlv_variable_length_read()&#160;:&#160;<a class="el" href="group__field__encoding.html#ga72d26e71a434830afb98051697bef35b">variable.h</a></li>
 <li>tlv_variable_length_write()&#160;:&#160;<a class="el" href="group__field__encoding.html#gaa83a0cbd4983a982f7ba3eec98a76366">variable.h</a></li>
+<li>tlv_variable_measure()&#160;:&#160;<a class="el" href="group__formats.html#ga7d66e9648b84b61915ba45587cea38e6">variable.h</a></li>
 <li>tlv_version_git_branch()&#160;:&#160;<a class="el" href="group__core.html#ga2a091fb9757c0589f39288d2937ab3e3">version.h</a></li>
 <li>tlv_version_git_commit_hash()&#160;:&#160;<a class="el" href="group__core.html#ga705638427bddb22ed32f180560ecd94c">version.h</a></li>
 <li>tlv_version_git_repo()&#160;:&#160;<a class="el" href="group__core.html#ga8a21f768e2d80fda52775cfca8cf1c6f">version.h</a></li>

@@ -1466,6 +1466,62 @@
   
   
     <li class="md-nav__item">
+      <a href="../field-policies/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Declarative field policy design
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../formats/packed/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Packed Tag/Length headers
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
       <a href="../../formats/bluetooth/" class="md-nav__link">
         
   
@@ -3697,6 +3753,10 @@ the corresponding Format implementation.</p>
 only Value bytes; <code>TLV_LENGTH_SCOPE_TAG_AND_VALUE</code> counts the encoded identifier
 and Value bytes, excluding the Length field itself. Both orders support both
 scopes. In every case, <code>element.value.size</code> counts only Value bytes.</p>
+<p>For <a href="../../formats/packed/">packed headers</a>, Tag-plus-Value scope counts the
+minimal wire Tag byte envelope plus Value. A byte shared with Length belongs
+to that envelope; no separate Length-field size is added. Canonical Tag storage
+width does not affect the wire count.</p>
 <p>For one-byte Type and Length fields, these inputs describe the same semantic
 Tag <code>09</code> and Value <code>41 42</code>:</p>
 <table>

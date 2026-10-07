@@ -1551,6 +1551,62 @@
   
   
     <li class="md-nav__item">
+      <a href="../../concepts/field-policies/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Declarative field policy design
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../packed/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Packed Tag/Length headers
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
       <a href="../bluetooth/" class="md-nav__link">
         
   
@@ -3510,8 +3566,8 @@ than add protocol branches to the generic core. See the
 <a href="../#compare-formats">format comparison</a> for wire limits and the
 <a href="../../concepts/bindings/">binding matrix</a> for operation-level coverage.</p>
 <h2 id="native-and-tool-inventory">Native and tool inventory<a class="headerlink" href="#native-and-tool-inventory" title="Permanent link">&para;</a></h2>
-<p>Optional entries require their named CMake component and its parents. Fixed and
-Variable are always-built generic formats. The CLI column records registered
+<p>Optional entries require their named CMake component and its parents. Fixed,
+Variable and Packed are always-built generic formats. The CLI column records registered
 <code>--format</code> identifiers; a native preset without an entry is not available in
 the CLI today. EMV's dictionary/validation is separately selected by <code>--module emv</code>.</p>
 <table>
@@ -3533,8 +3589,15 @@ the CLI today. EMV's dictionary/validation is separately selected by <code>--mod
 <td><code>fixed</code></td>
 </tr>
 <tr>
-<td><a href="../variable/">Variable</a></td>
+<td><a href="../variable/">Variable with optional field policies</a></td>
 <td><code>tlv_variable_format_init</code></td>
+<td>Always built</td>
+<td>Native interop/custom Format</td>
+<td>Unavailable</td>
+</tr>
+<tr>
+<td><a href="../packed/">Packed</a></td>
+<td><code>tlv_packed_layout_t</code> with <code>tlv_packed_decode</code> / <code>tlv_packed_measure</code> / <code>tlv_packed_encode</code></td>
 <td>Always built</td>
 <td>Native interop/custom Format</td>
 <td>Unavailable</td>
@@ -3615,11 +3678,11 @@ is the authoritative description of dependency and disabled-component behavior.<
 </thead>
 <tbody>
 <tr>
-<td>Fixed / Variable</td>
+<td>Fixed / Variable / Packed</td>
 <td>Application supplied</td>
 <td>Application supplied</td>
 <td>Generic codecs selected explicitly</td>
-<td>Generic wire mechanics do not infer semantics</td>
+<td>Generic wire mechanics and optional declarative policies do not infer protocol semantics</td>
 </tr>
 <tr>
 <td>BER / ASN.1</td>
@@ -3706,6 +3769,14 @@ require their Cargo features. <code>Missing</code> means no public preset.</p>
 <td>Yes</td>
 <td>Yes</td>
 <td>Yes</td>
+</tr>
+<tr>
+<td>Packed configuration</td>
+<td>Native interop/custom Format</td>
+<td>Missing</td>
+<td>Missing</td>
+<td>Missing</td>
+<td>Missing</td>
 </tr>
 <tr>
 <td>Variable configuration</td>

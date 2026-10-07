@@ -16,7 +16,7 @@
         <link rel="prev" href="../fixed/configurable/">
       
       
-        <link rel="next" href="../bluetooth/">
+        <link rel="next" href="../../concepts/field-policies/">
       
       
         
@@ -1536,6 +1536,17 @@
 </li>
       
         <li class="md-nav__item">
+  <a href="#declarative-policies" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Declarative policies
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
   <a href="#concrete-rules-and-terminated-framing" class="md-nav__link">
     <span class="md-ellipsis">
       
@@ -1550,6 +1561,62 @@
   
 </nav>
       
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../concepts/field-policies/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Declarative field policy design
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../packed/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Packed Tag/Length headers
+  
+
+    
+  </span>
+  
+  
+
+      </a>
     </li>
   
 
@@ -3488,6 +3555,17 @@
 </li>
       
         <li class="md-nav__item">
+  <a href="#declarative-policies" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Declarative policies
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
   <a href="#concrete-rules-and-terminated-framing" class="md-nav__link">
     <span class="md-ellipsis">
       
@@ -3537,8 +3615,10 @@ the identifier. The configuration also bounds its complete byte width.</p>
 <p>The complete identifier is borrowed as raw bytes. Bits outside the inline mask
 in the first octet are preserved without interpretation. Additional octets may
 only contain the configured payload and continuation bits. Zero payloads,
-nonminimal encodings and identifiers wider than an integer are supported;
-concrete standards must enforce any stricter rules themselves.</p>
+nonminimal encodings and identifiers wider than an integer are supported
+without a policy. Optional <code>tlv_identifier_policy_t</code> constrains forbidden leading
+bytes, the first escaped payload and minimal number encoding. Protocol-specific
+type semantics remain in concrete standards.</p>
 <p><code>tlv_variable_identifier_read()</code> returns the borrowed identifier and consumed
 width. <code>tlv_variable_identifier_write()</code> validates a complete identifier and
 copies its bytes unchanged; NULL output with zero capacity measures it.</p>
@@ -3548,7 +3628,7 @@ mask. With the long-form bit clear, the payload is the count. With the bit set,
 the payload is the number of following count octets, in explicitly configured
 big or little endian order. Payload mask bits are packed from least to most
 significant, so the selector need not occupy the high bit.</p>
-<p><code>tlv_variable_length_read()</code> accepts nonminimal and zero-padded encodings if the
+<p>Without a policy, <code>tlv_variable_length_read()</code> accepts nonminimal and zero-padded encodings if the
 count fits <code>tlv_size_t</code>. It checks the complete field is available before checking
 numeric overflow. On wire errors, <code>consumed</code> reports the available field prefix
 for diagnostics; the count output remains unchanged. A zero long-form width is
@@ -3571,15 +3651,16 @@ escape pattern <code>0x20</code>, continuation bit 0, and payload bits 4–7:</p
 <div class="highlight"><pre><span></span><code><a id="__codelineno-0-1" name="__codelineno-0-1" href="#__codelineno-0-1"></a><span class="cp">#include</span><span class="w"> </span><span class="cpf">"tlv/formats/variable.h"</span>
 <a id="__codelineno-0-2" name="__codelineno-0-2" href="#__codelineno-0-2"></a>
 <a id="__codelineno-0-3" name="__codelineno-0-3" href="#__codelineno-0-3"></a><span class="k">static</span><span class="w"> </span><span class="k">const</span><span class="w"> </span><span class="n">tlv_variable_format_t</span><span class="w"> </span><span class="n">config</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="p">{</span>
-<a id="__codelineno-0-4" name="__codelineno-0-4" href="#__codelineno-0-4"></a><span class="w">    </span><span class="p">{</span><span class="mh">0x70</span><span class="p">,</span><span class="w"> </span><span class="mh">0x20</span><span class="p">,</span><span class="w"> </span><span class="mh">0x01</span><span class="p">,</span><span class="w"> </span><span class="mh">0xF0</span><span class="p">,</span><span class="w"> </span><span class="mi">8</span><span class="p">},</span>
-<a id="__codelineno-0-5" name="__codelineno-0-5" href="#__codelineno-0-5"></a><span class="w">    </span><span class="p">{</span><span class="mh">0x80</span><span class="p">,</span><span class="w"> </span><span class="mh">0x7F</span><span class="p">,</span><span class="w"> </span><span class="n">TLV_BYTE_ORDER_LITTLE_ENDIAN</span><span class="p">},</span>
+<a id="__codelineno-0-4" name="__codelineno-0-4" href="#__codelineno-0-4"></a><span class="w">    </span><span class="p">{</span><span class="mh">0x70</span><span class="p">,</span><span class="w"> </span><span class="mh">0x20</span><span class="p">,</span><span class="w"> </span><span class="mh">0x01</span><span class="p">,</span><span class="w"> </span><span class="mh">0xF0</span><span class="p">,</span><span class="w"> </span><span class="mi">8</span><span class="p">,</span><span class="w"> </span><span class="nb">NULL</span><span class="p">},</span>
+<a id="__codelineno-0-5" name="__codelineno-0-5" href="#__codelineno-0-5"></a><span class="w">    </span><span class="p">{</span><span class="mh">0x80</span><span class="p">,</span><span class="w"> </span><span class="mh">0x7F</span><span class="p">,</span><span class="w"> </span><span class="n">TLV_BYTE_ORDER_LITTLE_ENDIAN</span><span class="p">,</span><span class="w"> </span><span class="nb">NULL</span><span class="p">},</span>
 <a id="__codelineno-0-6" name="__codelineno-0-6" href="#__codelineno-0-6"></a><span class="w">    </span><span class="n">TLV_ELEMENT_ORDER_TLV</span><span class="p">,</span>
-<a id="__codelineno-0-7" name="__codelineno-0-7" href="#__codelineno-0-7"></a><span class="w">    </span><span class="n">TLV_LENGTH_SCOPE_VALUE</span>
-<a id="__codelineno-0-8" name="__codelineno-0-8" href="#__codelineno-0-8"></a><span class="p">};</span>
-<a id="__codelineno-0-9" name="__codelineno-0-9" href="#__codelineno-0-9"></a>
-<a id="__codelineno-0-10" name="__codelineno-0-10" href="#__codelineno-0-10"></a><span class="cm">/* In the caller: */</span>
-<a id="__codelineno-0-11" name="__codelineno-0-11" href="#__codelineno-0-11"></a><span class="n">tlv_format_t</span><span class="w"> </span><span class="n">format</span><span class="p">;</span>
-<a id="__codelineno-0-12" name="__codelineno-0-12" href="#__codelineno-0-12"></a><span class="n">tlv_result_t</span><span class="w"> </span><span class="n">result</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">tlv_variable_format_init</span><span class="p">(</span><span class="o">&amp;</span><span class="n">format</span><span class="p">,</span><span class="w"> </span><span class="o">&amp;</span><span class="n">config</span><span class="p">);</span>
+<a id="__codelineno-0-7" name="__codelineno-0-7" href="#__codelineno-0-7"></a><span class="w">    </span><span class="n">TLV_LENGTH_SCOPE_VALUE</span><span class="p">,</span>
+<a id="__codelineno-0-8" name="__codelineno-0-8" href="#__codelineno-0-8"></a><span class="w">    </span><span class="nb">NULL</span>
+<a id="__codelineno-0-9" name="__codelineno-0-9" href="#__codelineno-0-9"></a><span class="p">};</span>
+<a id="__codelineno-0-10" name="__codelineno-0-10" href="#__codelineno-0-10"></a>
+<a id="__codelineno-0-11" name="__codelineno-0-11" href="#__codelineno-0-11"></a><span class="cm">/* In the caller: */</span>
+<a id="__codelineno-0-12" name="__codelineno-0-12" href="#__codelineno-0-12"></a><span class="n">tlv_format_t</span><span class="w"> </span><span class="n">format</span><span class="p">;</span>
+<a id="__codelineno-0-13" name="__codelineno-0-13" href="#__codelineno-0-13"></a><span class="n">tlv_result_t</span><span class="w"> </span><span class="n">result</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">tlv_variable_format_init</span><span class="p">(</span><span class="o">&amp;</span><span class="n">format</span><span class="p">,</span><span class="w"> </span><span class="o">&amp;</span><span class="n">config</span><span class="p">);</span>
 </code></pre></div>
 <p>Under that configuration, <code>A5 B1 C0 02 AA BB</code> represents identifier <code>A5 B1 C0</code>,
 length 2 and value <code>AA BB</code>. The identifier's first octet selects escape; <code>B1</code>
@@ -3589,6 +3670,40 @@ The latter uses the actual variable identifier width. Decoding publishes borrowe
 Tag/Value and normal Header/Tag/Length/Value/Trailer source ranges. Ordinary
 encoding regenerates the length field; use <code>tlv_source_preserve()</code> to reproduce
 an unchanged source's nonminimal length bytes exactly.</p>
+<h2 id="declarative-policies">Declarative policies<a class="headerlink" href="#declarative-policies" title="Permanent link">&para;</a></h2>
+<p>The <a href="../../concepts/field-policies/">policy design note</a> defines the generic and
+protocol-owned boundaries, storage lifetimes and error precedence. Set the
+identifier and length <code>policy</code> pointers to immutable caller-owned constraints;
+NULL keeps the unconstrained wire primitives. Length policies select allowed
+short/long forms, maximum long-form octets, maximum count and minimal encoding.
+Indefinite lengths remain outside the definite primitive.</p>
+<p>Set the Format's <code>constructed</code> pointer to a <code>tlv_constructed_bit_t</code> to classify
+canonical Tag bytes by <code>(tag[byte_index] &amp; mask) == value</code>. The mask must be
+nonzero and value may contain only masked bits. A missing byte never matches.
+<code>tlv_variable_format_init()</code> installs the corresponding classifier in the
+Format descriptor; the field-composition initializer alone does not.
+The generic Format callbacks are public, so a static descriptor can use
+<code>tlv_variable_decode</code>, <code>tlv_variable_measure</code>, <code>tlv_variable_encode</code> and
+<code>tlv_variable_is_constructed</code> with the same configuration as its context.</p>
+<p>For example, an EMV-like proprietary format can allow three-byte identifiers,
+definite lengths through 65535, and minimal length encoding without adapters:</p>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-1-1" name="__codelineno-1-1" href="#__codelineno-1-1"></a><span class="k">static</span><span class="w"> </span><span class="k">const</span><span class="w"> </span><span class="kt">uint8_t</span><span class="w"> </span><span class="n">forbidden</span><span class="p">[]</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="p">{</span><span class="mi">0</span><span class="p">};</span>
+<a id="__codelineno-1-2" name="__codelineno-1-2" href="#__codelineno-1-2"></a><span class="k">static</span><span class="w"> </span><span class="k">const</span><span class="w"> </span><span class="n">tlv_identifier_policy_t</span><span class="w"> </span><span class="n">tag_policy</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="p">{</span><span class="n">forbidden</span><span class="p">,</span><span class="w"> </span><span class="mi">1</span><span class="p">,</span><span class="w"> </span><span class="mi">1</span><span class="p">,</span><span class="w"> </span><span class="mi">0</span><span class="p">};</span>
+<a id="__codelineno-1-3" name="__codelineno-1-3" href="#__codelineno-1-3"></a><span class="k">static</span><span class="w"> </span><span class="k">const</span><span class="w"> </span><span class="n">tlv_length_policy_t</span><span class="w"> </span><span class="n">length_policy</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="p">{</span><span class="mi">1</span><span class="p">,</span><span class="w"> </span><span class="mi">1</span><span class="p">,</span><span class="w"> </span><span class="mi">1</span><span class="p">,</span><span class="w"> </span><span class="mi">2</span><span class="p">,</span><span class="w"> </span><span class="mi">65535</span><span class="p">};</span>
+<a id="__codelineno-1-4" name="__codelineno-1-4" href="#__codelineno-1-4"></a><span class="k">static</span><span class="w"> </span><span class="k">const</span><span class="w"> </span><span class="n">tlv_constructed_bit_t</span><span class="w"> </span><span class="n">constructed</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="p">{</span><span class="mi">0</span><span class="p">,</span><span class="w"> </span><span class="mh">0x20</span><span class="p">,</span><span class="w"> </span><span class="mh">0x20</span><span class="p">};</span>
+<a id="__codelineno-1-5" name="__codelineno-1-5" href="#__codelineno-1-5"></a><span class="k">static</span><span class="w"> </span><span class="k">const</span><span class="w"> </span><span class="n">tlv_variable_format_t</span><span class="w"> </span><span class="n">constrained</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="p">{</span>
+<a id="__codelineno-1-6" name="__codelineno-1-6" href="#__codelineno-1-6"></a><span class="w">    </span><span class="p">{</span><span class="mh">0x1F</span><span class="p">,</span><span class="w"> </span><span class="mh">0x1F</span><span class="p">,</span><span class="w"> </span><span class="mh">0x80</span><span class="p">,</span><span class="w"> </span><span class="mh">0x7F</span><span class="p">,</span><span class="w"> </span><span class="mi">3</span><span class="p">,</span><span class="w"> </span><span class="o">&amp;</span><span class="n">tag_policy</span><span class="p">},</span>
+<a id="__codelineno-1-7" name="__codelineno-1-7" href="#__codelineno-1-7"></a><span class="w">    </span><span class="p">{</span><span class="mh">0x80</span><span class="p">,</span><span class="w"> </span><span class="mh">0x7F</span><span class="p">,</span><span class="w"> </span><span class="n">TLV_BYTE_ORDER_LITTLE_ENDIAN</span><span class="p">,</span><span class="w"> </span><span class="o">&amp;</span><span class="n">length_policy</span><span class="p">},</span>
+<a id="__codelineno-1-8" name="__codelineno-1-8" href="#__codelineno-1-8"></a><span class="w">    </span><span class="n">TLV_ELEMENT_ORDER_TLV</span><span class="p">,</span><span class="w"> </span><span class="n">TLV_LENGTH_SCOPE_VALUE</span><span class="p">,</span><span class="w"> </span><span class="o">&amp;</span><span class="n">constructed</span>
+<a id="__codelineno-1-9" name="__codelineno-1-9" href="#__codelineno-1-9"></a><span class="p">};</span>
+</code></pre></div>
+<p>The <a href="https://github.com/marekcingel/OpenTLV/blob/main/tests/integration/formats/variable_test.cpp">integration test</a> checks
+this configuration against a hand-written little-endian wire vector. EMV uses
+two-byte Tags and deliberately accepts nonminimal lengths; this example is not
+the EMV preset.</p>
+<p>The added policy and predicate pointers change the C configuration ABI. Rebuild
+native clients and matching bindings; zero-initialize or explicitly initialize
+all configuration members.</p>
 <h2 id="concrete-rules-and-terminated-framing">Concrete rules and terminated framing<a class="headerlink" href="#concrete-rules-and-terminated-framing" title="Permanent link">&para;</a></h2>
 <p><code>tlv_variable_fields_init()</code> from <code>tlv/formats/variable.h</code> creates a caller-owned
 <code>tlv_field_composition_t</code> from <code>tlv/formats/compose.h</code> with
@@ -3596,6 +3711,16 @@ variable field callbacks and a borrowed configuration context. A definite
 composition can be used through <code>tlv_fields_format_init()</code>. For more specialized
 composition, the standalone identifier and length helpers can be called from
 callbacks with a concrete format's own context.</p>
+<p>Field composition carries no constructed classifier. In particular,
+<code>tlv_variable_fields_init()</code> validates the configured predicate but does not
+install it, and <code>tlv_fields_format_init()</code> produces a descriptor without
+constructed classification. A custom Format must set <code>is_constructed</code>
+explicitly using a callback that accepts its actual descriptor context.
+The descriptor created by <code>tlv_fields_format_init()</code> has a
+<code>tlv_field_composition_t</code> context, so it cannot directly use
+<code>tlv_variable_is_constructed</code>, which expects a <code>tlv_variable_format_t</code>.
+A wrapper can obtain the Variable configuration from the composition's
+<code>context</code> and delegate to that classifier.</p>
 <p>The existing optional <code>tlv_field_composition_t.resolve</code> callback handles value
 boundary resolution for terminated TLV framing with VALUE scope. A concrete
 format can recognize its length marker before invoking the definite count
@@ -3611,11 +3736,15 @@ opaque Value bytes for a marker is insufficient when the same bytes can occur
 inside a child payload. The integration tests demonstrate a synthetic terminated
 container whose resolver skips complete definite children, including a child
 whose Value contains the trailer bytes.</p>
-<p>The primitives do not assign meaning to ASN.1 classes or numbers, constructed
-bits, EOC, EMV identifiers, dictionaries, or canonical restrictions.
+<p>The primitives do not assign meaning to ASN.1 classes or numbers, EOC, EMV
+identifiers or dictionaries. Generic policies express byte restrictions and
+canonical encoding checks, while a constructed-bit predicate classifies Tag
+bytes according to the caller's configuration.
 <a href="../asn1/ber/#generic-mechanics-and-asn1-rules">ASN.1 BER</a> composes these primitives
-with its own identifier, length and indefinite/EOC policy. DER/CER wrapper
-refactoring and independent EMV framing remain separate work.</p>
+with generic identifier and definite-length policies while retaining its own
+indefinite/EOC handling. DER/CER reuse generic minimality policies while
+retaining ASN.1 universal-type rules. EMV uses a Variable configuration with
+generic callbacks.</p>
 
 
 
@@ -3670,13 +3799,13 @@ refactoring and independent EMV framing remain separate work.</p>
         
         
           
-          <a href="../bluetooth/" class="md-footer__link md-footer__link--next" aria-label="Next: Bluetooth LTV">
+          <a href="../../concepts/field-policies/" class="md-footer__link md-footer__link--next" aria-label="Next: Declarative field policy design">
             <div class="md-footer__title">
               <span class="md-footer__direction">
                 Next
               </span>
               <div class="md-ellipsis">
-                Bluetooth LTV
+                Declarative field policy design
               </div>
             </div>
             <div class="md-footer__button md-icon">

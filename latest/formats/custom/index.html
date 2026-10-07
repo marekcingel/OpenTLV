@@ -1471,6 +1471,62 @@
   
   
     <li class="md-nav__item">
+      <a href="../../concepts/field-policies/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Declarative field policy design
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../packed/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Packed Tag/Length headers
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
       <a href="../bluetooth/" class="md-nav__link">
         
   
@@ -3569,7 +3625,8 @@ Storage must outlive all retained results and must not be reused as scratch.
 See the <a href="../../concepts/format-contract/#decoded-identifier-consistency">identifier contract</a>
 for validation, copying and lifetime rules. These semantics require a complete
 Format callback; sequential <code>tlv_field_composition_t</code> helpers still describe byte
-fields rather than packed bits.</p>
+fields rather than packed bits. For definite packed Tag/Length headers, use
+the supplied <a href="../packed/">Packed configuration</a> and its complete callbacks.</p>
 <h2 id="c-usage">C usage<a class="headerlink" href="#c-usage" title="Permanent link">&para;</a></h2>
 <p>Use the complete custom-format implementation in the
 <a href="https://github.com/marekcingel/OpenTLV/blob/main/examples/tlv/src/custom_format.c">C example</a>, which includes callback

@@ -1471,6 +1471,62 @@
   
   
     <li class="md-nav__item">
+      <a href="../../concepts/field-policies/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Declarative field policy design
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../packed/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Packed Tag/Length headers
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
       <a href="../bluetooth/" class="md-nav__link">
         
   
@@ -3806,10 +3862,12 @@ accept representable Values beyond those limits; apply Schema before treating
 them as valid LLDP fields. Compound codecs retain required prefixes, subtype
 checks and inner-length consistency. Rebuild consumers of the former symbols.</p>
 <p>For example, <code>06 02 00 78</code> becomes Tag <code>03</code> and Value <code>00 78</code>.</p>
-<p>The adapter composes two <code>tlv_packed_field_t</code> configurations from <code>tlv/field/packed.h</code>:
+<p>The descriptor uses a <a href="../packed/">generic packed layout</a> from
+<code>tlv/formats/packed.h</code> with two <code>tlv_packed_field_t</code> configurations:
 Type uses offset 9 and width 7; Length uses offset 0 and width 9. Both use
 two-byte big-endian storage. The primitive handles unsigned extraction and
-insertion; the adapter maps Type to canonical Tag bytes and validates framing.</p>
+insertion; the generic Format callbacks map Type to canonical Tag bytes and
+validate framing. LLDP supplies only the layout and immutable identifier table.</p>
 <p>Decoded Tags borrow a static immutable table with <code>TLV_TAG_BINDING_FORMAT</code>.
 Value borrows the original input. Source Header covers two bytes; the Tag wire
 envelope covers the first byte and Length covers both bytes, so they overlap.

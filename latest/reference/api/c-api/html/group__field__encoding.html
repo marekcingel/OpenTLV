@@ -89,8 +89,8 @@ Files</h2></td></tr>
 <tr class="memitem:field_2fixed_8h" id="r_field_2fixed_8h"><td class="memItemLeft" align="right" valign="top">file &#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="field_2fixed_8h.html">fixed.h</a></td></tr>
 <tr class="memdesc:field_2fixed_8h"><td class="mdescLeft">&#160;</td><td class="mdescRight">Fixed-width raw identifiers and unsigned count encodings. <br /></td></tr>
 <tr class="separator:"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:packed_8h" id="r_packed_8h"><td class="memItemLeft" align="right" valign="top">file &#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="packed_8h.html">packed.h</a></td></tr>
-<tr class="memdesc:packed_8h"><td class="mdescLeft">&#160;</td><td class="mdescRight">Unsigned packed bit-field extraction and insertion. <br /></td></tr>
+<tr class="memitem:field_2packed_8h" id="r_field_2packed_8h"><td class="memItemLeft" align="right" valign="top">file &#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="field_2packed_8h.html">packed.h</a></td></tr>
+<tr class="memdesc:field_2packed_8h"><td class="mdescLeft">&#160;</td><td class="mdescRight">Unsigned packed bit-field extraction and insertion. <br /></td></tr>
 <tr class="separator:"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:field_2variable_8h" id="r_field_2variable_8h"><td class="memItemLeft" align="right" valign="top">file &#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="field_2variable_8h.html">variable.h</a></td></tr>
 <tr class="memdesc:field_2variable_8h"><td class="mdescLeft">&#160;</td><td class="mdescRight">Configurable variable-width identifier and count primitives. <br /></td></tr>
@@ -109,6 +109,12 @@ Data Structures</h2></td></tr>
 <tr class="separator:"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:"><td class="memItemLeft" align="right" valign="top">struct &#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="structtlv__packed__field.html">tlv_packed_field</a></td></tr>
 <tr class="memdesc:"><td class="mdescLeft">&#160;</td><td class="mdescRight">One unsigned bit field within a fixed-size wire integer.  <a href="structtlv__packed__field.html#details">More...</a><br /></td></tr>
+<tr class="separator:"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:"><td class="memItemLeft" align="right" valign="top">struct &#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="structtlv__identifier__policy.html">tlv_identifier_policy</a></td></tr>
+<tr class="memdesc:"><td class="mdescLeft">&#160;</td><td class="mdescRight">Optional constraints on a variable identifier's wire representation.  <a href="structtlv__identifier__policy.html#details">More...</a><br /></td></tr>
+<tr class="separator:"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:"><td class="memItemLeft" align="right" valign="top">struct &#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="structtlv__length__policy.html">tlv_length_policy</a></td></tr>
+<tr class="memdesc:"><td class="mdescLeft">&#160;</td><td class="mdescRight">Allowed definite count forms and numeric limits.  <a href="structtlv__length__policy.html#details">More...</a><br /></td></tr>
 <tr class="separator:"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:"><td class="memItemLeft" align="right" valign="top">struct &#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="structtlv__variable__identifier.html">tlv_variable_identifier</a></td></tr>
 <tr class="memdesc:"><td class="mdescLeft">&#160;</td><td class="mdescRight">Inline identifier bits with an escape into continuation octets.  <a href="structtlv__variable__identifier.html#details">More...</a><br /></td></tr>
@@ -143,6 +149,12 @@ Typedefs</h2></td></tr>
 <tr class="memitem:ga6975503eb92e58c68b69207256ee70f1" id="r_ga6975503eb92e58c68b69207256ee70f1"><td class="memItemLeft" align="right" valign="top">typedef struct <a class="el" href="structtlv__packed__field.html">tlv_packed_field</a>&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="group__field__encoding.html#ga6975503eb92e58c68b69207256ee70f1">tlv_packed_field_t</a></td></tr>
 <tr class="memdesc:ga6975503eb92e58c68b69207256ee70f1"><td class="mdescLeft">&#160;</td><td class="mdescRight">One unsigned bit field within a fixed-size wire integer.  <br /></td></tr>
 <tr class="separator:ga6975503eb92e58c68b69207256ee70f1"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:gaf618e6e53513d049c019f0b603838340" id="r_gaf618e6e53513d049c019f0b603838340"><td class="memItemLeft" align="right" valign="top">typedef struct <a class="el" href="structtlv__identifier__policy.html">tlv_identifier_policy</a>&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="group__field__encoding.html#gaf618e6e53513d049c019f0b603838340">tlv_identifier_policy_t</a></td></tr>
+<tr class="memdesc:gaf618e6e53513d049c019f0b603838340"><td class="mdescLeft">&#160;</td><td class="mdescRight">Optional constraints on a variable identifier's wire representation.  <br /></td></tr>
+<tr class="separator:gaf618e6e53513d049c019f0b603838340"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:gaa979632f424146077d386515ce837eae" id="r_gaa979632f424146077d386515ce837eae"><td class="memItemLeft" align="right" valign="top">typedef struct <a class="el" href="structtlv__length__policy.html">tlv_length_policy</a>&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="group__field__encoding.html#gaa979632f424146077d386515ce837eae">tlv_length_policy_t</a></td></tr>
+<tr class="memdesc:gaa979632f424146077d386515ce837eae"><td class="mdescLeft">&#160;</td><td class="mdescRight">Allowed definite count forms and numeric limits.  <br /></td></tr>
+<tr class="separator:gaa979632f424146077d386515ce837eae"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:ga6f571fc336adff5ecbcb18fdeb432846" id="r_ga6f571fc336adff5ecbcb18fdeb432846"><td class="memItemLeft" align="right" valign="top">typedef struct <a class="el" href="structtlv__variable__identifier.html">tlv_variable_identifier</a>&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="group__field__encoding.html#ga6f571fc336adff5ecbcb18fdeb432846">tlv_variable_identifier_t</a></td></tr>
 <tr class="memdesc:ga6f571fc336adff5ecbcb18fdeb432846"><td class="mdescLeft">&#160;</td><td class="mdescRight">Inline identifier bits with an escape into continuation octets.  <br /></td></tr>
 <tr class="separator:ga6f571fc336adff5ecbcb18fdeb432846"><td class="memSeparator" colspan="2">&#160;</td></tr>
@@ -238,6 +250,40 @@ Functions</h2></td></tr>
 </div><div class="memdoc">
 
 <p>Encoding of an unsigned count as a fixed-width wire integer. </p>
+
+</div>
+</div>
+<a id="gaf618e6e53513d049c019f0b603838340" name="gaf618e6e53513d049c019f0b603838340"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#gaf618e6e53513d049c019f0b603838340">&#9670;&#160;</a></span>tlv_identifier_policy_t</h2>
+
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname">typedef struct <a class="el" href="structtlv__identifier__policy.html">tlv_identifier_policy</a> <a class="el" href="group__field__encoding.html#gaf618e6e53513d049c019f0b603838340">tlv_identifier_policy_t</a></td>
+        </tr>
+      </table>
+</div><div class="memdoc">
+
+<p>Optional constraints on a variable identifier's wire representation. </p>
+<p>Forbidden leading bytes and a zero first escaped payload are checked before parsing the rest of the identifier, including on truncated input. Minimality rejects redundant leading zero digits and escaped numbers that could be inline (the escape number itself cannot be inline). Payload bits are packed low to high; arbitrarily wide identifiers are checked without narrowing to uint64_t. Tables and policy are borrowed and must remain immutable for all operations. </p>
+
+</div>
+</div>
+<a id="gaa979632f424146077d386515ce837eae" name="gaa979632f424146077d386515ce837eae"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#gaa979632f424146077d386515ce837eae">&#9670;&#160;</a></span>tlv_length_policy_t</h2>
+
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname">typedef struct <a class="el" href="structtlv__length__policy.html">tlv_length_policy</a> <a class="el" href="group__field__encoding.html#gaa979632f424146077d386515ce837eae">tlv_length_policy_t</a></td>
+        </tr>
+      </table>
+</div><div class="memdoc">
+
+<p>Allowed definite count forms and numeric limits. </p>
+<p>At least one form must be allowed. Minimality uses the shortest allowed form: with short form disabled, zero uses one long-form octet. Decoding checks form and width limits before requiring the payload, then checks value/minimality. Counts outside max_value, including arithmetic overflow, are INVALID_LENGTH. Indefinite counts and terminated-value resolution are not part of this policy. </p>
 
 </div>
 </div>
@@ -337,7 +383,7 @@ An identifier or buffer error reported by the decoder. </dd></dl>
 </div><div class="memdoc">
 
 <p>Inline identifier bits with an escape into continuation octets. </p>
-<p>One octet is sufficient unless <code>(first &amp; inline_mask) == escape</code>. In that case at least one continuation octet follows, ending when continuation_bit is clear. Only payload_mask and continuation_bit may be set in those octets. Zero payloads and nonminimal forms are accepted. Bits outside inline_mask in the first octet are preserved without interpretation. </p>
+<p>One octet is sufficient unless <code>(first &amp; inline_mask) == escape</code>. In that case at least one continuation octet follows, ending when continuation_bit is clear. Only payload_mask and continuation_bit may be set in those octets. Without a policy, zero payloads and nonminimal forms are accepted. Bits outside inline_mask in the first octet are preserved without interpretation. </p>
 
 </div>
 </div>
@@ -354,7 +400,7 @@ An identifier or buffer error reported by the decoder. </dd></dl>
 </div><div class="memdoc">
 
 <p>Short unsigned count or a prefix specifying the following octet count. </p>
-<p>When long_form_bit is clear, payload_mask holds the count itself. Otherwise it holds the number of following full octets, interpreted in byte_order. Mask bits are packed from least to most significant, even for noncontiguous masks. Other prefix bits must be zero. A long-form octet count of zero has no definite count and is rejected by this primitive; a concrete format may recognize it in its bounds resolver. No prefix is reserved by a standard. Reading accepts padded and nonminimal counts that fit <a class="el" href="group__core.html#gaf15b8962e0139f0bfb17769739dcd9f8" title="Logical TLV value size.">tlv_size_t</a>. Writing uses short form when possible, otherwise the fewest full count octets. </p>
+<p>When long_form_bit is clear, payload_mask holds the count itself. Otherwise it holds the number of following full octets, interpreted in byte_order. Mask bits are packed from least to most significant, even for noncontiguous masks. Other prefix bits must be zero. A long-form octet count of zero has no definite count and is rejected by this primitive; a concrete format may recognize it in its bounds resolver. No prefix is reserved by a standard. Without a policy, reading accepts padded and nonminimal counts that fit <a class="el" href="group__core.html#gaf15b8962e0139f0bfb17769739dcd9f8" title="Logical TLV value size.">tlv_size_t</a>. Writing uses the shortest allowed form and full count width. </p>
 
 </div>
 </div>
@@ -1028,7 +1074,7 @@ An identifier or buffer error reported by the encoder.</dd></dl>
 <dd>
 <a class="el" href="group__core.html#gga516c7250563ee9332e2f45f2d203ae61a10505614abc0b8d1ef8e5eef944dc014">TLV_ERR_INVALID_TAG_SIZE</a> if the identifier would exceed max_size. </dd>
 <dd>
-<a class="el" href="group__core.html#gga516c7250563ee9332e2f45f2d203ae61ad733937761f1a5428fba8f9d2914b713">TLV_ERR_INVALID_TAG</a> for bits outside the continuation/payload masks. </dd></dl>
+<a class="el" href="group__core.html#gga516c7250563ee9332e2f45f2d203ae61ad733937761f1a5428fba8f9d2914b713">TLV_ERR_INVALID_TAG</a> for invalid bits or a policy violation. </dd></dl>
 <dl class="section note"><dt>Note</dt><dd>Validate required pointers, configuration, then available wire bytes. Incomplete input sets *consumed to size; other failures preserve consumed. The tag is unchanged on failure. No allocation occurs. </dd></dl>
 
 </div>
@@ -1162,15 +1208,15 @@ An identifier or buffer error reported by the encoder.</dd></dl>
 <dd>
 <a class="el" href="group__core.html#gga516c7250563ee9332e2f45f2d203ae61aa4a514ccb37d17b2cd7c7da47d2eab88">TLV_ERR_NULL_ARG</a> for a missing required pointer. </dd>
 <dd>
-<a class="el" href="group__core.html#gga516c7250563ee9332e2f45f2d203ae61a83b538a74c7058e8863132a6410b9d65">TLV_ERR_INVALID_ARG</a> for invalid masks. </dd>
+<a class="el" href="group__core.html#gga516c7250563ee9332e2f45f2d203ae61a83b538a74c7058e8863132a6410b9d65">TLV_ERR_INVALID_ARG</a> for invalid masks or policy configuration. </dd>
 <dd>
 <a class="el" href="group__core.html#gga516c7250563ee9332e2f45f2d203ae61a9e5b567aeff9d3d6549f5a2fdc9074f3">TLV_ERR_INVALID_BYTE_ORDER</a> for unsupported byte order. </dd>
 <dd>
 <a class="el" href="group__core.html#gga516c7250563ee9332e2f45f2d203ae61acbd34cf02b42e70e99648aef5b9ca8b3">TLV_ERR_BUFFER_TOO_SHORT</a> for an incomplete field. </dd>
 <dd>
-<a class="el" href="group__core.html#gga516c7250563ee9332e2f45f2d203ae61a11e399e826cabbe9fb215922485d3742">TLV_ERR_INVALID_LENGTH</a> for invalid prefix bits or zero long-form width. </dd>
+<a class="el" href="group__core.html#gga516c7250563ee9332e2f45f2d203ae61a11e399e826cabbe9fb215922485d3742">TLV_ERR_INVALID_LENGTH</a> for invalid prefix, zero long-form width or policy violation. </dd>
 <dd>
-<a class="el" href="group__core.html#gga516c7250563ee9332e2f45f2d203ae61a02f1494beef2c6ffc5f3ba9859fc6e2a">TLV_ERR_OVERFLOW</a> if the complete count exceeds <a class="el" href="group__core.html#gaf15b8962e0139f0bfb17769739dcd9f8" title="Logical TLV value size.">tlv_size_t</a>. </dd></dl>
+<a class="el" href="group__core.html#gga516c7250563ee9332e2f45f2d203ae61a02f1494beef2c6ffc5f3ba9859fc6e2a">TLV_ERR_OVERFLOW</a> if an unconstrained count exceeds <a class="el" href="group__core.html#gaf15b8962e0139f0bfb17769739dcd9f8" title="Logical TLV value size.">tlv_size_t</a>. </dd></dl>
 <dl class="section note"><dt>Note</dt><dd>Validate required pointers and configuration before inspecting wire bytes. Argument/configuration errors leave both outputs unchanged. Incomplete input reports the available prefix through consumed. </dd></dl>
 
 </div>
@@ -1234,11 +1280,11 @@ An identifier or buffer error reported by the encoder.</dd></dl>
 <dd>
 <a class="el" href="group__core.html#gga516c7250563ee9332e2f45f2d203ae61aa4a514ccb37d17b2cd7c7da47d2eab88">TLV_ERR_NULL_ARG</a> for missing pointers or NULL data with nonzero capacity. </dd>
 <dd>
-<a class="el" href="group__core.html#gga516c7250563ee9332e2f45f2d203ae61a83b538a74c7058e8863132a6410b9d65">TLV_ERR_INVALID_ARG</a> for invalid masks. </dd>
+<a class="el" href="group__core.html#gga516c7250563ee9332e2f45f2d203ae61a83b538a74c7058e8863132a6410b9d65">TLV_ERR_INVALID_ARG</a> for invalid masks or policy configuration. </dd>
 <dd>
 <a class="el" href="group__core.html#gga516c7250563ee9332e2f45f2d203ae61a9e5b567aeff9d3d6549f5a2fdc9074f3">TLV_ERR_INVALID_BYTE_ORDER</a> for unsupported byte order. </dd>
 <dd>
-<a class="el" href="group__core.html#gga516c7250563ee9332e2f45f2d203ae61a11e399e826cabbe9fb215922485d3742">TLV_ERR_INVALID_LENGTH</a> if the prefix cannot represent the required width. </dd>
+<a class="el" href="group__core.html#gga516c7250563ee9332e2f45f2d203ae61a11e399e826cabbe9fb215922485d3742">TLV_ERR_INVALID_LENGTH</a> for an unrepresentable width or policy violation. </dd>
 <dd>
 <a class="el" href="group__core.html#gga516c7250563ee9332e2f45f2d203ae61acbd34cf02b42e70e99648aef5b9ca8b3">TLV_ERR_BUFFER_TOO_SHORT</a> for insufficient destination capacity. </dd></dl>
 <dl class="section note"><dt>Note</dt><dd>Validate required pointers, configuration, count representability and capacity in that order. Outputs are unchanged on failure. No allocation occurs. </dd></dl>
