@@ -12,22 +12,21 @@ namespace cli {
 // decode's visitor: builds the versioned document (docs/cli/json-schema.md).
 // A primitive carries its raw "value"; a constructed element carries its
 // "children" instead, plus an explicit "length_mode" for BER.
-tlv_visit_result_t decode_command::visit_element(const tlv::element_view& element,
+tlv::visit_control decode_command::visit_element(const tlv::element_view& element,
                                                  std::size_t depth, std::size_t offset) {
-    const auto native = tlv::native::descriptor(element);
-    diagnostic_scope_visit(scope_, data(), &native, depth, format_->is_constructed);
+    diagnostic_scope_visit(scope_, data(), &element, depth, *format_);
     offset += base_;
     const bool indefinite = ber_ && data()[offset + element.tag().size()] == 0x80;
-    cli_presentation_visit(&presentation_, &native, depth, indefinite);
+    cli_presentation_visit(&presentation_, &element, depth, indefinite);
     nlohmann::ordered_json object;
     object["tag"] = hex_string(element.tag().as_bytes());
     if (bluetooth_module(options_)) {
-        json_bluetooth(object, &native, options_.decode != 0);
+        json_bluetooth(object, &element, options_.decode != 0);
     } else if (options_.module) {
-        json_emv(object, presentation_, &native, depth, options_.describe, false);
-        if (options_.decode) json_decode(object, presentation_, &native, depth);
+        json_emv(object, presentation_, &element, depth, options_.describe, false);
+        if (options_.decode) json_decode(object, presentation_, &element, depth);
     }
-    if (format_->is_constructed && format_->is_constructed(format_->context, &native.tag)) {
+    if (format_->is_constructed(element.tag())) {
         if (ber_) object["length_mode"] = indefinite ? "indefinite" : "definite";
         object["children"] = nlohmann::ordered_json::array();
     } else {
@@ -35,13 +34,13 @@ tlv_visit_result_t decode_command::visit_element(const tlv::element_view& elemen
     }
     document_flush(depth);
     document_stack_.push_back(std::move(object));
-    return TLV_VISIT_CONTINUE;
+    return tlv::visit_control::next;
 }
 
 void decode_command::render_output() {
     // A failed export prints nothing: a partial document would look like a
     // complete one. Recovery reports what it skipped in the document.
-    if (result_ != TLV_OK) return;
+    if (result_ != tlv::errc::ok) return;
     document_flush(0);
     nlohmann::ordered_json document;
     document["schema"] = json_model::schema_name;

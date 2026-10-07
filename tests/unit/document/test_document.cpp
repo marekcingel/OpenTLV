@@ -1,12 +1,26 @@
 // SPDX-License-Identifier: MIT
 // Copyright (c) 2026 Marek Cingel
 
+#include "tlv++/native.hpp"
+
 #include "controlled_format.h"
 #include "tlv++/document/document.hpp"
+// Override only the native allocator to force address reuse in the handle regression.
+#include "../../../tlv/src/document/document_internal.h"
 
 #include <gtest/gtest.h>
 
 #include <vector>
+#include <type_traits>
+
+static_assert(
+    std::is_same<decltype(std::declval<const tlv::document&>().first()), tlv::const_node>::value,
+    "A const Document must not expose mutable Nodes");
+static_assert(!std::is_convertible<tlv::const_node, tlv::node>::value,
+              "Read-only handles must not recover mutation");
+static_assert(
+    std::is_same<decltype(std::declval<tlv::const_node>().first_child()), tlv::const_node>::value,
+    "Read-only traversal must stay read-only");
 
 namespace {
 
@@ -30,17 +44,51 @@ int is_constructed(const void*, const tlv_tag_t* tag) {
 tlv::document_format format() {
     tlv_format_t constructed_format = controlled::format;
     constructed_format.is_constructed = is_constructed;
-    return tlv::document_format(constructed_format);
+    return tlv::document_format(tlv::native::borrow_format(constructed_format));
 }
 
 // 6F { 84 (AA BB), A5 { 50 (41 42) } }, 50 (FF)
 const Bytes sample = make(
     {0x6F, 0x0A, 0x84, 0x02, 0xAA, 0xBB, 0xA5, 0x04, 0x50, 0x02, 0x41, 0x42, 0x50, 0x01, 0xFF});
 
+struct ReusingAllocation {
+    tlv_allocator_t delegate{};
+    void*           slot = nullptr;
+    size_t          slot_size = 0;
+    bool            occupied = false;
+
+    ~ReusingAllocation() {
+        if (slot) delegate.release(delegate.context, slot);
+    }
+    static void* allocate(void* context, size_t size) {
+        auto& self = *static_cast<ReusingAllocation*>(context);
+        if (self.slot && !self.occupied && self.slot_size == size) {
+            self.occupied = true;
+            return self.slot;
+        }
+        auto memory = self.delegate.allocate(self.delegate.context, size);
+        if (memory && !self.slot) {
+            self.slot = memory;
+            self.slot_size = size;
+            self.occupied = true;
+        }
+        return memory;
+    }
+    static void release(void* context, void* memory) {
+        auto& self = *static_cast<ReusingAllocation*>(context);
+        if (memory == self.slot) {
+            EXPECT_TRUE(self.occupied);
+            self.occupied = false;
+        } else {
+            self.delegate.release(self.delegate.context, memory);
+        }
+    }
+};
+
 TEST(Unit_Tlvpp_Document, SelectedBuilderUsesPublishedRootAndResumesReader) {
     auto             config = format();
     tlv::tree_frame  frames[2]{};
-    tlv::tree_reader reader(view(sample), config.format, {frames, 2}, 2, 10);
+    tlv::tree_reader reader(view(sample), config.view(), {frames, 2}, 2, 10);
     auto             query = tlv::query::parse("6F/A5");
     ASSERT_TRUE(query);
     tlv::query_matcher matcher(*query);
@@ -92,7 +140,7 @@ TEST(Unit_Tlvpp_Document, SelectionInvalidatedByCursorAndBuilderOperations) {
         SCOPED_TRACE(operation);
         auto             config = format();
         tlv::tree_frame  frames[2]{};
-        tlv::tree_reader reader(view(sample), config.format, {frames, 2}, 2, 10);
+        tlv::tree_reader reader(view(sample), config.view(), {frames, 2}, 2, 10);
         EXPECT_FALSE(tlv::document_builder::current_subtree(reader));
         ASSERT_TRUE(reader.next());
         auto stop = [](const tlv::element_view&, size_t, size_t) { return TLV_VISIT_STOP; };
@@ -137,7 +185,7 @@ TEST(Unit_Tlvpp_Document, SelectionInvalidatedByCursorAndBuilderOperations) {
 TEST(Unit_Tlvpp_Document, SelectionUsesLatestPullAndIgnoresCallerItemChanges) {
     auto             config = format();
     tlv::tree_frame  frames[2]{};
-    tlv::tree_reader reader(view(sample), config.format, {frames, 2}, 2, 10);
+    tlv::tree_reader reader(view(sample), config.view(), {frames, 2}, 2, 10);
     auto             old = reader.next();
     ASSERT_TRUE(old);
     auto latest = reader.next();
@@ -156,7 +204,7 @@ TEST(Unit_Tlvpp_Document, WholeStreamBuilderResumesAfterInputReplacement) {
     auto             config = format();
     const auto       data = make({0x50, 1, 42});
     tlv::tree_frame  frames[1]{};
-    tlv::tree_reader reader(tlv::bytes(data.data(), 1), config.format, {frames, 1}, 1, 5,
+    tlv::tree_reader reader(tlv::bytes(data.data(), 1), config.view(), {frames, 1}, 1, 5,
                             tlv::input_mode::incremental);
     auto             builder = tlv::document_builder::create(reader);
     ASSERT_TRUE(builder);
@@ -300,9 +348,11 @@ TEST(Unit_Tlvpp_Document, MovedDocumentKeepsHandlesValid) {
 }
 
 TEST(Unit_Tlvpp_Document, CreatesWithoutDecoderAndChecksItOnlyForParsing) {
-    tlv::document_format write_only = format();
-    write_only.format.decode = nullptr;
-    auto created = tlv::document::create(write_only);
+    const auto original = format();
+    auto       descriptor = tlv::native::descriptor(original.view());
+    descriptor.decode = nullptr;
+    tlv::document_format write_only(tlv::native::borrow_format(descriptor));
+    auto                 created = tlv::document::create(write_only);
     ASSERT_TRUE(created.has_value());
     auto parsed = tlv::document::parse(view(sample), write_only);
     ASSERT_FALSE(parsed.has_value());
@@ -318,17 +368,17 @@ TEST(Unit_Tlvpp_Document, ExplicitDestinationPreservesTreeAndSubtreeBoundaries) 
     layout.element_order = TLV_ELEMENT_ORDER_LTV;
     destination.context = &layout;
     destination.is_constructed = is_constructed;
-    auto output = doc.encode(destination);
+    auto output = doc.encode(tlv::native::borrow_format(destination));
     ASSERT_TRUE(output.has_value());
     EXPECT_EQ(make({10, 0x6F, 2, 0x84, 0xAA, 0xBB, 4, 0xA5, 2, 0x50, 0x41, 0x42, 1, 0x50, 0xFF}),
               *output);
-    auto size = doc.encoded_size(destination);
+    auto size = doc.encoded_size(tlv::native::borrow_format(destination));
     ASSERT_TRUE(size.has_value());
     EXPECT_EQ(output->size(), *size);
-    auto subtree = doc.first().encode(destination);
+    auto subtree = doc.first().encode(tlv::native::borrow_format(destination));
     ASSERT_TRUE(subtree.has_value());
     EXPECT_EQ(Bytes(output->begin(), output->begin() + 12), *subtree);
-    auto subtree_size = doc.first().encoded_size(destination);
+    auto subtree_size = doc.first().encoded_size(tlv::native::borrow_format(destination));
     ASSERT_TRUE(subtree_size.has_value());
     EXPECT_EQ(subtree->size(), *subtree_size);
     auto original = doc.encode();
@@ -390,7 +440,8 @@ TEST(Unit_Tlvpp_Document, ErasureInvalidatesCopiesDescendantsAndIteratorsOnly) {
     EXPECT_EQ(TLV_ERR_INVALID_ARG, copy.set(tlv::bytes()).error().code);
     EXPECT_EQ(TLV_ERR_INVALID_ARG, copy.encode().error().code);
     EXPECT_EQ(TLV_ERR_INVALID_ARG, copy.encoded_size().error().code);
-    EXPECT_EQ(TLV_ERR_INVALID_ARG, copy.encode(controlled::format).error().code);
+    EXPECT_EQ(TLV_ERR_INVALID_ARG,
+              copy.encode(tlv::native::borrow_format(controlled::format)).error().code);
     copy.erase();
     EXPECT_EQ(make({0x50, 0x01, 0xFF}), *doc.encode());
     EXPECT_EQ(TLV_ERR_INVALID_ARG,
@@ -488,4 +539,70 @@ TEST(Unit_Tlvpp_Document, PrimitiveEditsAndChildErasurePreserveUnrelatedHandles)
     EXPECT_EQ(*other, sibling.next_same_tag());
     EXPECT_EQ(make({0x6F, 0x08, 0xA5, 0x04, 0x50, 0x02, 0x41, 0x42, 0xA5, 0x00, 0x50, 0x01, 0xFF}),
               *parsed->encode());
+}
+
+TEST(Unit_Tlvpp_Document, NativeNonretiringEditsPreserveRetainedHandles) {
+    auto parsed = tlv::document::parse(view(sample), format());
+    ASSERT_TRUE(parsed);
+    auto            root = parsed->first();
+    auto            primitive = root.first_child();
+    auto            nested = primitive.next();
+    auto            leaf = nested.first_child();
+    tlv::const_node read_only = primitive;
+    auto            native_document = tlv::native::handle(*parsed);
+    const auto      epoch = tlv_document_retire_epoch(native_document);
+    const auto      revision = tlv_document_revision(native_document);
+    const uint8_t   value = 0xCC;
+    ASSERT_EQ(TLV_OK, tlv_node_set_value(tlv::native::handle(primitive), &value, 1));
+    ASSERT_EQ(TLV_OK, tlv_document_insert(native_document, tlv::native::handle(root), nullptr,
+                                          TLV_TAG(0x52), nullptr, 0, nullptr));
+    EXPECT_EQ(epoch, tlv_document_retire_epoch(native_document));
+    EXPECT_EQ(revision + 2, tlv_document_revision(native_document));
+    EXPECT_EQ(tlv::byte(value), read_only.value().data()[0]);
+    EXPECT_EQ(tlv::tag_bytes<0xA5>(), nested.tag());
+    EXPECT_EQ(tlv::byte(0x41), leaf.value().data()[0]);
+    EXPECT_EQ(tlv::tag_bytes<0x52>(), nested.next().tag());
+
+    // A native constructed replacement retires descendants, but not its own handle.
+    ASSERT_EQ(TLV_OK, tlv_node_set_value(tlv::native::handle(nested), nullptr, 0));
+    EXPECT_EQ(epoch + 1, tlv_document_retire_epoch(native_document));
+    EXPECT_FALSE(leaf);
+    EXPECT_TRUE(nested);
+    EXPECT_FALSE(nested.first_child());
+    EXPECT_TRUE(root);
+    EXPECT_TRUE(read_only);
+}
+
+TEST(Unit_Tlvpp_Document, NativeEraseAndAddressReuseNeverReviveRetainedHandles) {
+    // The allocator state outlives the document and retains one freed node allocation.
+    ReusingAllocation allocation;
+    auto              parsed = tlv::document::create(format());
+    ASSERT_TRUE(parsed);
+    auto native_document = tlv::native::handle(*parsed);
+    allocation.delegate = native_document->allocator;
+    native_document->allocator = {&allocation, ReusingAllocation::allocate,
+                                  ReusingAllocation::release};
+    auto original = parsed->insert(tlv::tag_bytes<0x50>(), {});
+    ASSERT_TRUE(original);
+    auto            retained = *original;
+    tlv::const_node retained_const = retained;
+    auto            old_address = tlv::native::handle(retained);
+    const auto      old_identity = tlv_node_identity(old_address);
+    const auto      epoch = tlv_document_retire_epoch(native_document);
+    auto            unaffected = parsed->insert(tlv::tag_bytes<0x51>(), {});
+    ASSERT_TRUE(unaffected);
+
+    tlv_node_erase(old_address);
+    EXPECT_EQ(epoch + 1, tlv_document_retire_epoch(native_document));
+    // Do not inspect old handles until the same address belongs to a new identity.
+    auto replacement = parsed->insert(tlv::tag_bytes<0x50>(), {});
+    ASSERT_TRUE(replacement);
+    ASSERT_EQ(old_address, tlv::native::handle(*replacement));
+    EXPECT_NE(old_identity, tlv_node_identity(tlv::native::handle(*replacement)));
+    EXPECT_EQ(epoch + 1, tlv_document_retire_epoch(native_document));
+    EXPECT_FALSE(retained);
+    EXPECT_FALSE(retained_const);
+    EXPECT_FALSE(*original);
+    EXPECT_TRUE(*unaffected);
+    EXPECT_TRUE(*replacement);
 }

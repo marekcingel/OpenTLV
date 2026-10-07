@@ -88,7 +88,8 @@ TEST(Unit_Tlvpp_Semantics, NativeImportsRejectInvalidRepresentationBeforeByteAcc
 TEST(Unit_Tlvpp_Semantics, ValuesAndElementsCompareContentsAndBorrowStableInput) {
     const uint8_t input[] = {1, 2, 42, 43, 2, 0};
     const uint8_t copy[] = {42, 43};
-    tlv::reader<> reader(bytes(input, sizeof(input)), controlled::format);
+    tlv::reader<> reader(bytes(input, sizeof(input)),
+                         tlv::native::borrow_format(controlled::format));
     auto          decoded = reader.next_source();
     ASSERT_TRUE(decoded);
     const auto element = decoded->element;
@@ -111,7 +112,7 @@ TEST(Unit_Tlvpp_Semantics, ValuesAndElementsCompareContentsAndBorrowStableInput)
     ASSERT_TRUE(reader.next());
     EXPECT_EQ(tlv::byte{42}, element.value()[0]);
     tlv::byte     output[sizeof(input)]{};
-    tlv::writer<> writer(output, sizeof(output), controlled::format);
+    tlv::writer<> writer(output, sizeof(output), tlv::native::borrow_format(controlled::format));
     ASSERT_TRUE(writer.write(element.tag(), element.value()));
     ASSERT_EQ(4u, writer.size());
     EXPECT_EQ(0, std::memcmp(input, output, writer.size()));
@@ -137,7 +138,7 @@ TEST(Unit_Tlvpp_Semantics, PreservationDistinguishesAbsentAndExplicitlyEmptyIden
             result->source.size = 1;
             return TLV_OK;
         };
-        auto result = tlv::decode(format, bytes(&wire, 1));
+        auto result = tlv::decode(tlv::native::borrow_format(format), bytes(&wire, 1));
         ASSERT_TRUE(result);
         EXPECT_EQ(present, result->element.tag().present());
         const tlv::tag same(bytes(present ? &other : nullptr, 0));

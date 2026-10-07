@@ -18,7 +18,7 @@ contracts from the remaining full-edition normative audit.
 | C header | `tlv/builtins/lldp/lldp.h` |
 | Descriptor | `tlv_format_lldp` |
 | Definitions | `tlv_lldp_types`, lookup with `tlv_definition_find()` |
-| C++ header/preset | `tlv++/builtins/lldp/lldp.hpp`, `tlv::lldp_format()` |
+| C++ header/preset | `tlv++/builtins/lldp/lldp.hpp`, `tlv::lldp::format{}` |
 | CMake option | `OPENTLV_LLDP` (ON by default, independent of ASN.1 and Bluetooth) |
 | Availability query | `tlv_config_lldp()` |
 | Structural API | `tlv/builtins/lldp/schema.h`: `tlv_lldp_schema`, `tlv_lldp_validate()` |
@@ -167,7 +167,7 @@ All presets select the shared C descriptor; bindings do not reimplement packing.
 
 | Binding | Selection | Availability |
 | --- | --- | --- |
-| C++ | `tlv::lldp_format()` | Requires the LLDP C package |
+| C++ | `tlv::lldp::format{}` | Requires the LLDP C package |
 | Rust | `Format::Lldp`, name `lldp` | Cargo feature `lldp`, enabled by default |
 | Python | `Format.LLDP` | Member exists only when `_opentlv.HAS_LLDP` is true |
 | Lua | `opentlv.formats.lldp` | Field exists only when LLDP is built |
@@ -229,25 +229,18 @@ Format preset for traversal.
 
 #include "tlv++/tlv.hpp"
 #include "tlv++/builtins/lldp/lldp.hpp"
-#include "tlv/builtins/lldp/schema.h"
-#include "tlv/builtins/lldp/codec.h"
 
 int main() {
     const uint8_t    wire[] = {2, 2, 7, 'c', 4, 2, 7, 'p', 6, 2, 0, 120, 0, 0};
-    tlv_diagnostic_t diagnostic{};
-    if (tlv_lldp_validate(wire, sizeof(wire), 16, &diagnostic) != TLV_OK) return 1;
+    const tlv::bytes input(reinterpret_cast<const tlv::byte*>(wire), sizeof wire);
+    if (!tlv::lldp::validate(input, 16)) return 1;
     size_t count = 0;
     try {
         for (auto element :
              tlv::lldp::parse(tlv::bytes(reinterpret_cast<const tlv::byte*>(wire), sizeof(wire)))) {
             if (element.tag() == tlv::tag_bytes<3>()) {
-                uint16_t seconds = 0;
-                auto     value = element.value();
-                if (tlv_codec_decode(&tlv_lldp_codec_ttl,
-                                     reinterpret_cast<const uint8_t*>(value.data()), value.size(),
-                                     &seconds, sizeof(seconds)) != TLV_CODEC_OK ||
-                    seconds != 120)
-                    return 1;
+                auto seconds = element.decode<tlv::lldp::ttl_field>();
+                if (!seconds || *seconds != 120) return 1;
             }
             ++count;
         }

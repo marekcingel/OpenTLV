@@ -417,6 +417,9 @@ tlv_result_t tlv_node_set_value(tlv_node_t* node, const uint8_t* value, size_t l
         for (child = node->first; child; child = child->next) child->parent = node;
     }
     invalidate_locations(node);
+    /* Only published descendants count. Empty replacements cannot consume epochs;
+     * each increment retires at least one never-reused identity, so it cannot wrap. */
+    if (old_count) ++document->retire_epoch;
     ++document->revision;
     return TLV_OK;
 }
@@ -467,6 +470,7 @@ void tlv_node_erase(tlv_node_t* node) {
     node_unlink(node);
     document->count -= subtree_size(node);
     free_subtree(node);
+    ++document->retire_epoch;
     ++document->revision;
 }
 
@@ -495,6 +499,9 @@ uint64_t tlv_node_identity(const tlv_node_t* node) {
 }
 uint64_t tlv_document_revision(const tlv_document_t* document) {
     return document ? document->revision : 0;
+}
+uint64_t tlv_document_retire_epoch(const tlv_document_t* document) {
+    return document ? document->retire_epoch : 0;
 }
 int document_query_callback(tlv_document_t* document, int active) {
     if (active) {

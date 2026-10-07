@@ -10,6 +10,9 @@
 #include "tlv/config.h"
 #if OPENTLV_READER
 #include "tlv++/reader/reader.hpp"
+#if OPENTLV_SCHEMA
+#include "tlv/builtins/lldp/schema.h"
+#endif
 #endif
 #if OPENTLV_WRITER
 #include "tlv++/writer/builder.hpp"
@@ -21,6 +24,23 @@
 namespace tlv {
 /** @brief LLDP wire framing presets. */
 namespace lldp {
+#if OPENTLV_READER && OPENTLV_SCHEMA
+/**
+ * @brief Validate LLDP sequence rules and field constraints without allocation.
+ * @param data Borrowed complete LLDPDU.
+ * @param max_elements Maximum total element count, including the End element.
+ * @return Success or a canonical error with the diagnostic byte offset when known.
+ */
+inline expected<void, error> validate(bytes data, size_t max_elements = SIZE_MAX) {
+    tlv_diagnostic_t diagnostic{};
+    const auto rc = tlv_lldp_validate(reinterpret_cast<const uint8_t*>(data.data()), data.size(),
+                                      max_elements, &diagnostic);
+    if (rc == TLV_OK) return {};
+    auto failure = error::from_c(rc);
+    if (diagnostic.has_offset) failure = failure.at(diagnostic.offset, operation::schema);
+    return unexpected<error>(failure);
+}
+#endif
 /** @brief Built-in Format satisfying the generic C++ customization contract. */
 class format : public tlv::format {
 public:
@@ -77,6 +97,7 @@ TLV_NODISCARD inline detail::parsing_range<format> parse(bytes data) {
 
 } // namespace lldp
 
+namespace native {
 /**
  * @brief Returns the immutable LLDP framing preset.
  * @return The shared C descriptor with static lifetime.
@@ -86,5 +107,6 @@ TLV_NODISCARD inline detail::parsing_range<format> parse(bytes data) {
 inline const tlv_format_t& lldp_format() noexcept {
     return tlv_format_lldp;
 }
+} // namespace native
 } // namespace tlv
 #endif

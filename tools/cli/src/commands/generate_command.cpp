@@ -120,7 +120,7 @@ int generate_command::run() try {
     auto first = generator.generate(0);
     if (!first)
         return fail(3, (std::string("cannot generate case 0 for selected format/limits: ") +
-                        first.error().message)
+                        first.error().message())
                            .c_str());
     std::string output_dir(o.output_dir);
     while (output_dir.size() > 1 && (output_dir.back() == '/' || output_dir.back() == '\\'))
@@ -136,7 +136,7 @@ int generate_command::run() try {
         auto wire = i == 0 ? std::move(first) : generator.generate(i);
         if (!wire)
             return fail(3, (std::string("cannot generate case ") + std::to_string(i) + ": " +
-                            wire.error().message)
+                            wire.error().message())
                                .c_str());
         std::string json;
         if (o.json_output) {

@@ -123,8 +123,8 @@ TEST(Unit_Tlvpp_WriterBuilder, ClosingFailurePreservesFirstDiagnosticAndComplete
 }
 
 TEST(Unit_Tlvpp_WriterBuilder, SequentialTypedValuesAndSemanticElements) {
-    tlv::byte                                                       output[64]{};
-    tlv::writer<tlv::fixed_format<1, 1, TLV_BYTE_ORDER_BIG_ENDIAN>> writer(
+    tlv::byte                                                         output[64]{};
+    tlv::writer<tlv::fixed_format<1, 1, tlv::byte_order::big_endian>> writer(
         tlv::span<tlv::byte>(output, sizeof(output)));
     const uint8_t                  bytes[] = {0xAB, 0x00};
     const std::array<tlv::byte, 2> array{{tlv::byte{1}, tlv::byte{2}}};
@@ -149,9 +149,10 @@ TEST(Unit_Tlvpp_WriterBuilder, SequentialTypedValuesAndSemanticElements) {
 }
 
 TEST(Unit_Tlvpp_WriterBuilder, ByteTagTemplatesPreserveLeadingZeros) {
-    tlv::byte                                                       output[8]{};
-    tlv::writer<tlv::fixed_format<2, 1, TLV_BYTE_ORDER_BIG_ENDIAN>> writer(output, sizeof(output));
-    const tlv::byte                                                 value[] = {tlv::byte{0}};
+    tlv::byte                                                         output[8]{};
+    tlv::writer<tlv::fixed_format<2, 1, tlv::byte_order::big_endian>> writer(output,
+                                                                             sizeof(output));
+    const tlv::byte                                                   value[] = {tlv::byte{0}};
     ASSERT_TRUE((writer.write<0x00, 0x01>(value)));
     const uint8_t expected[] = {0, 1, 1, 0};
     EXPECT_EQ(sizeof(expected), writer.size());

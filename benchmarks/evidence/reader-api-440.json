@@ -1,0 +1,608 @@
+{
+  "schema": 1,
+  "compiler_c": "gcc (Ubuntu 13.3.0-6ubuntu2~24.04.1) 13.3.0",
+  "compiler_cpp": "g++ (Ubuntu 13.3.0-6ubuntu2~24.04.1) 13.3.0",
+  "cmake_flags": [
+    "-G",
+    "Ninja",
+    "-DCMAKE_BUILD_TYPE=Release",
+    "-DCMAKE_C_FLAGS_RELEASE=-O2 -DNDEBUG",
+    "-DOPENTLV_BUILD_CXX=OFF",
+    "-DOPENTLV_BUILD_SHARED_LIBS=OFF",
+    "-DOPENTLV_BUILD_TESTS=OFF",
+    "-DOPENTLV_BUILD_EXAMPLES=OFF",
+    "-DOPENTLV_BUILD_CLI=OFF",
+    "-DOPENTLV_BUILD_DOCS=OFF",
+    "-DOPENTLV_BUILD_BENCHMARKS=OFF"
+  ],
+  "cpp_flags": [
+    "-std=c++11",
+    "-O2",
+    "-DNDEBUG",
+    "-Wall",
+    "-Wextra",
+    "-Wpedantic",
+    "-Werror"
+  ],
+  "variants": {
+    "main": {
+      "source_commit": "89991d9f1505b04caeb068403e29099e3f3c066a",
+      "legacy_facade": true,
+      "source_patch": "",
+      "library_sha256": "a9eb42b2747d37404e49622cf8554fd0f442fbbfe37d8aa6d82eb5c195156d38",
+      "executable_sha256": "dd4225f22c91ec6829fe94e5d342cea8117df93fec8274cd5a38cc9b65164309",
+      "generated_config_sha256": "e19a115fd228452e08764955fba59ef5de53b4f74734b02c3b5f5f36ef64200f"
+    },
+    "prior": {
+      "source_commit": "a2d1fd3e26116b82fbeba0d5e00c7522c4c7abbe",
+      "legacy_facade": false,
+      "source_patch": "",
+      "library_sha256": "9d63a9b6f21f109f6ef52323d3f66a14ad5d196321c0b4e16a84cdfaea9710bb",
+      "executable_sha256": "6330ad0a762be3d9530ef9605da01814d5d358625003624b57f3c348788d3468",
+      "generated_config_sha256": "e19a115fd228452e08764955fba59ef5de53b4f74734b02c3b5f5f36ef64200f"
+    },
+    "candidate": {
+      "source_commit": "a2d1fd3e26116b82fbeba0d5e00c7522c4c7abbe",
+      "legacy_facade": false,
+      "source_patch": "diff --git a/tlv/include/tlv/format.h b/tlv/include/tlv/format.h\nindex 49211542..ad27d284 100644\n--- a/tlv/include/tlv/format.h\n+++ b/tlv/include/tlv/format.h\n@@ -75,7 +75,10 @@ typedef enum tlv_region {\n } tlv_region_t;\n \n /**\n- * @brief Format-produced failure detail, initialized to zero by the caller.\n+ * @brief Format-produced failure detail, initialized to zero before invoking callbacks.\n+ *\n+ * The core initializes callback storage. Public operation output guarantees are\n+ * documented on the individual entry points.\n  */\n typedef struct tlv_format_error {\n     tlv_region_t region; /**< Region being interpreted. */\n@@ -276,7 +279,8 @@ TLV_API int tlv_format_can_write(const tlv_format_t* format);\n  * @param[in]  data    Input, NULL only when size is zero.\n  * @param[in]  size    Native available extent.\n  * @param[out] decoded Complete result, unchanged on failure.\n- * @param[out] error   Optional failure detail; unchanged on success.\n+ * @param[out] error   Optional failure detail, fully initialized on every failure;\n+ *                    unchanged on success. Missing arguments yield empty detail.\n  *\n  * @return #TLV_OK on success.\n  * @return #TLV_ERR_END_OF_BUFFER if the input is empty.\ndiff --git a/tlv/src/format.c b/tlv/src/format.c\nindex 9a3f0cad..071ddd82 100644\n--- a/tlv/src/format.c\n+++ b/tlv/src/format.c\n@@ -55,7 +55,10 @@ tlv_result_t tlv_format_decode(const tlv_format_t* format, const uint8_t* data,\n     tlv_format_error_t detail = {0};\n     tlv_source_t* s = &result.source;\n     tlv_result_t rc;\n-    if (!tlv_format_can_read(format) || !decoded || (!data && size)) return TLV_ERR_NULL_ARG;\n+    if (!tlv_format_can_read(format) || !decoded || (!data && size)) {\n+        if (error) *error = detail;\n+        return TLV_ERR_NULL_ARG;\n+    }\n     if (!size) {\n         detail.has_offset = 1;\n         if (error) *error = detail;\ndiff --git a/tlv/src/reader/reader.c b/tlv/src/reader/reader.c\nindex e529aaa6..8f351a35 100644\n--- a/tlv/src/reader/reader.c\n+++ b/tlv/src/reader/reader.c\n@@ -24,8 +24,7 @@ static tlv_result_t tlv_read_impl(const uint8_t* data, size_t size, const tlv_fo\n     tlv_format_error_t error;\n     tlv_result_t rc;\n     if (!out_element || !consumed) return TLV_ERR_NULL_ARG;\n-    /* Invalid decode arguments can return before writing error detail. */\n-    if (diagnostic) memset(&error, 0, sizeof(error));\n+    /* Decode publishes complete error detail on every failure, including preflight. */\n     rc = tlv_format_decode(format, data, size, &decoded, diagnostic ? &error : NULL);\n     if (rc == TLV_OK) {\n         if (source) *source = decoded.source;\n",
+      "library_sha256": "3597c8eab82f3dbb7b849fcc14aaa9f21a018cc8bfa110a5884f8d4e8d339639",
+      "executable_sha256": "f5075df3a51cb416456407df88eb4780d6e1dcef6f77760cfd48a58aa1440471",
+      "generated_config_sha256": "e19a115fd228452e08764955fba59ef5de53b4f74734b02c3b5f5f36ef64200f"
+    }
+  },
+  "measurement": {
+    "started_at_utc": "2026-10-07T17:44:30.306063+00:00",
+    "repeats": 7,
+    "count": 2000000,
+    "warmup_count": 50000,
+    "shuffle_seed": 440,
+    "cpu": 2,
+    "cpu_model": "12th Gen Intel(R) Core(TM) i7-1255U",
+    "timer": "std::chrono::steady_clock elapsed nanoseconds",
+    "workloads": "Fixture allocation outside timer; Reader construction inside timer. range visits exactly count elements; other cases make exactly count calls. failed and incremental repeatedly decode a two-byte header missing its Value. Failure status is consumed; optional diagnostic fields are not inspected."
+  },
+  "summary": [
+    {
+      "variant": "main",
+      "format": "ber",
+      "work": "next",
+      "api": "cpp",
+      "median_ms": 180.021,
+      "min_ms": 177.711,
+      "max_ms": 183.03
+    },
+    {
+      "variant": "main",
+      "format": "ber",
+      "work": "range",
+      "api": "cpp",
+      "median_ms": 229.424,
+      "min_ms": 225.178,
+      "max_ms": 235.169
+    },
+    {
+      "variant": "main",
+      "format": "ber",
+      "work": "failed",
+      "api": "cpp",
+      "median_ms": 194.342,
+      "min_ms": 187.865,
+      "max_ms": 225.043
+    },
+    {
+      "variant": "main",
+      "format": "ber",
+      "work": "incremental",
+      "api": "cpp",
+      "median_ms": 179.52,
+      "min_ms": 170.371,
+      "max_ms": 185.012
+    },
+    {
+      "variant": "main",
+      "format": "ber",
+      "work": "next",
+      "api": "c",
+      "median_ms": 175.583,
+      "min_ms": 172.386,
+      "max_ms": 224.269
+    },
+    {
+      "variant": "main",
+      "format": "ber",
+      "work": "failed",
+      "api": "c",
+      "median_ms": 139.375,
+      "min_ms": 136.128,
+      "max_ms": 149.702
+    },
+    {
+      "variant": "main",
+      "format": "ber",
+      "work": "incremental",
+      "api": "c",
+      "median_ms": 160.706,
+      "min_ms": 136.361,
+      "max_ms": 165.232
+    },
+    {
+      "variant": "main",
+      "format": "ber",
+      "work": "next",
+      "api": "c_diag",
+      "median_ms": 202.597,
+      "min_ms": 194.85,
+      "max_ms": 222.908
+    },
+    {
+      "variant": "main",
+      "format": "ber",
+      "work": "failed",
+      "api": "c_diag",
+      "median_ms": 198.498,
+      "min_ms": 194.601,
+      "max_ms": 249.171
+    },
+    {
+      "variant": "main",
+      "format": "ber",
+      "work": "incremental",
+      "api": "c_diag",
+      "median_ms": 196.256,
+      "min_ms": 191.127,
+      "max_ms": 622.828
+    },
+    {
+      "variant": "main",
+      "format": "fixed",
+      "work": "next",
+      "api": "cpp",
+      "median_ms": 144.782,
+      "min_ms": 132.782,
+      "max_ms": 154.527
+    },
+    {
+      "variant": "main",
+      "format": "fixed",
+      "work": "range",
+      "api": "cpp",
+      "median_ms": 183.016,
+      "min_ms": 177.012,
+      "max_ms": 231.269
+    },
+    {
+      "variant": "main",
+      "format": "fixed",
+      "work": "failed",
+      "api": "cpp",
+      "median_ms": 153.591,
+      "min_ms": 147.244,
+      "max_ms": 255.564
+    },
+    {
+      "variant": "main",
+      "format": "fixed",
+      "work": "incremental",
+      "api": "cpp",
+      "median_ms": 128.095,
+      "min_ms": 122.19,
+      "max_ms": 154.211
+    },
+    {
+      "variant": "main",
+      "format": "fixed",
+      "work": "next",
+      "api": "c",
+      "median_ms": 129.541,
+      "min_ms": 126.985,
+      "max_ms": 135.561
+    },
+    {
+      "variant": "main",
+      "format": "fixed",
+      "work": "failed",
+      "api": "c",
+      "median_ms": 96.108,
+      "min_ms": 91.394,
+      "max_ms": 126.157
+    },
+    {
+      "variant": "main",
+      "format": "fixed",
+      "work": "incremental",
+      "api": "c",
+      "median_ms": 93.934,
+      "min_ms": 89.838,
+      "max_ms": 103.142
+    },
+    {
+      "variant": "main",
+      "format": "fixed",
+      "work": "next",
+      "api": "c_diag",
+      "median_ms": 158.697,
+      "min_ms": 151.742,
+      "max_ms": 166.317
+    },
+    {
+      "variant": "main",
+      "format": "fixed",
+      "work": "failed",
+      "api": "c_diag",
+      "median_ms": 154.072,
+      "min_ms": 147.802,
+      "max_ms": 204.151
+    },
+    {
+      "variant": "main",
+      "format": "fixed",
+      "work": "incremental",
+      "api": "c_diag",
+      "median_ms": 158.098,
+      "min_ms": 151.315,
+      "max_ms": 169.361
+    },
+    {
+      "variant": "prior",
+      "format": "ber",
+      "work": "next",
+      "api": "cpp",
+      "median_ms": 205.111,
+      "min_ms": 199.235,
+      "max_ms": 250.29
+    },
+    {
+      "variant": "prior",
+      "format": "ber",
+      "work": "range",
+      "api": "cpp",
+      "median_ms": 210.061,
+      "min_ms": 200.866,
+      "max_ms": 219.487
+    },
+    {
+      "variant": "prior",
+      "format": "ber",
+      "work": "failed",
+      "api": "cpp",
+      "median_ms": 325.669,
+      "min_ms": 306.814,
+      "max_ms": 362.086
+    },
+    {
+      "variant": "prior",
+      "format": "ber",
+      "work": "incremental",
+      "api": "cpp",
+      "median_ms": 335.205,
+      "min_ms": 308.532,
+      "max_ms": 382.332
+    },
+    {
+      "variant": "prior",
+      "format": "ber",
+      "work": "next",
+      "api": "c",
+      "median_ms": 174.458,
+      "min_ms": 171.244,
+      "max_ms": 183.349
+    },
+    {
+      "variant": "prior",
+      "format": "ber",
+      "work": "failed",
+      "api": "c",
+      "median_ms": 137.324,
+      "min_ms": 134.087,
+      "max_ms": 143.669
+    },
+    {
+      "variant": "prior",
+      "format": "ber",
+      "work": "incremental",
+      "api": "c",
+      "median_ms": 135.557,
+      "min_ms": 133.388,
+      "max_ms": 140.05
+    },
+    {
+      "variant": "prior",
+      "format": "ber",
+      "work": "next",
+      "api": "c_diag",
+      "median_ms": 199.171,
+      "min_ms": 195.493,
+      "max_ms": 228.334
+    },
+    {
+      "variant": "prior",
+      "format": "ber",
+      "work": "failed",
+      "api": "c_diag",
+      "median_ms": 204.197,
+      "min_ms": 193.775,
+      "max_ms": 234.967
+    },
+    {
+      "variant": "prior",
+      "format": "ber",
+      "work": "incremental",
+      "api": "c_diag",
+      "median_ms": 194.09,
+      "min_ms": 192.432,
+      "max_ms": 225.457
+    },
+    {
+      "variant": "prior",
+      "format": "fixed",
+      "work": "next",
+      "api": "cpp",
+      "median_ms": 161.031,
+      "min_ms": 155.113,
+      "max_ms": 206.766
+    },
+    {
+      "variant": "prior",
+      "format": "fixed",
+      "work": "range",
+      "api": "cpp",
+      "median_ms": 164.97,
+      "min_ms": 157.509,
+      "max_ms": 218.617
+    },
+    {
+      "variant": "prior",
+      "format": "fixed",
+      "work": "failed",
+      "api": "cpp",
+      "median_ms": 274.394,
+      "min_ms": 261.075,
+      "max_ms": 310.006
+    },
+    {
+      "variant": "prior",
+      "format": "fixed",
+      "work": "incremental",
+      "api": "cpp",
+      "median_ms": 269.604,
+      "min_ms": 262.438,
+      "max_ms": 282.17
+    },
+    {
+      "variant": "prior",
+      "format": "fixed",
+      "work": "next",
+      "api": "c",
+      "median_ms": 128.314,
+      "min_ms": 126.276,
+      "max_ms": 135.54
+    },
+    {
+      "variant": "prior",
+      "format": "fixed",
+      "work": "failed",
+      "api": "c",
+      "median_ms": 96.992,
+      "min_ms": 90.71,
+      "max_ms": 106.762
+    },
+    {
+      "variant": "prior",
+      "format": "fixed",
+      "work": "incremental",
+      "api": "c",
+      "median_ms": 92.784,
+      "min_ms": 88.736,
+      "max_ms": 147.964
+    },
+    {
+      "variant": "prior",
+      "format": "fixed",
+      "work": "next",
+      "api": "c_diag",
+      "median_ms": 158.076,
+      "min_ms": 150.167,
+      "max_ms": 159.383
+    },
+    {
+      "variant": "prior",
+      "format": "fixed",
+      "work": "failed",
+      "api": "c_diag",
+      "median_ms": 158.012,
+      "min_ms": 147.679,
+      "max_ms": 172.203
+    },
+    {
+      "variant": "prior",
+      "format": "fixed",
+      "work": "incremental",
+      "api": "c_diag",
+      "median_ms": 152.906,
+      "min_ms": 147.99,
+      "max_ms": 172.617
+    },
+    {
+      "variant": "candidate",
+      "format": "ber",
+      "work": "next",
+      "api": "cpp",
+      "median_ms": 182.948,
+      "min_ms": 180.38,
+      "max_ms": 198.013
+    },
+    {
+      "variant": "candidate",
+      "format": "ber",
+      "work": "range",
+      "api": "cpp",
+      "median_ms": 195.734,
+      "min_ms": 186.095,
+      "max_ms": 229.028
+    },
+    {
+      "variant": "candidate",
+      "format": "ber",
+      "work": "failed",
+      "api": "cpp",
+      "median_ms": 287.578,
+      "min_ms": 283.349,
+      "max_ms": 346.612
+    },
+    {
+      "variant": "candidate",
+      "format": "ber",
+      "work": "incremental",
+      "api": "cpp",
+      "median_ms": 299.132,
+      "min_ms": 284.42,
+      "max_ms": 363.635
+    },
+    {
+      "variant": "candidate",
+      "format": "ber",
+      "work": "next",
+      "api": "c",
+      "median_ms": 181.577,
+      "min_ms": 172.943,
+      "max_ms": 198.14
+    },
+    {
+      "variant": "candidate",
+      "format": "ber",
+      "work": "failed",
+      "api": "c",
+      "median_ms": 145.329,
+      "min_ms": 132.617,
+      "max_ms": 171.588
+    },
+    {
+      "variant": "candidate",
+      "format": "ber",
+      "work": "incremental",
+      "api": "c",
+      "median_ms": 137.799,
+      "min_ms": 132.777,
+      "max_ms": 272.791
+    },
+    {
+      "variant": "candidate",
+      "format": "ber",
+      "work": "next",
+      "api": "c_diag",
+      "median_ms": 179.012,
+      "min_ms": 174.264,
+      "max_ms": 196.187
+    },
+    {
+      "variant": "candidate",
+      "format": "ber",
+      "work": "failed",
+      "api": "c_diag",
+      "median_ms": 178.735,
+      "min_ms": 174.774,
+      "max_ms": 201.385
+    },
+    {
+      "variant": "candidate",
+      "format": "ber",
+      "work": "incremental",
+      "api": "c_diag",
+      "median_ms": 174.358,
+      "min_ms": 173.242,
+      "max_ms": 232.953
+    },
+    {
+      "variant": "candidate",
+      "format": "fixed",
+      "work": "next",
+      "api": "cpp",
+      "median_ms": 136.098,
+      "min_ms": 132.973,
+      "max_ms": 166.976
+    },
+    {
+      "variant": "candidate",
+      "format": "fixed",
+      "work": "range",
+      "api": "cpp",
+      "median_ms": 138.802,
+      "min_ms": 136.835,
+      "max_ms": 152.304
+    },
+    {
+      "variant": "candidate",
+      "format": "fixed",
+      "work": "failed",
+      "api": "cpp",
+      "median_ms": 242.397,
+      "min_ms": 237.388,
+      "max_ms": 253.061
+    },
+    {
+      "variant": "candidate",
+      "format": "fixed",
+      "work": "incremental",
+      "api": "cpp",
+      "median_ms": 244.884,
+      "min_ms": 237.522,
+      "max_ms": 253.047
+    },
+    {
+      "variant": "candidate",
+      "format": "fixed",
+      "work": "next",
+      "api": "c",
+      "median_ms": 132.215,
+      "min_ms": 126.755,
+      "max_ms": 144.948
+    },
+    {
+      "variant": "candidate",
+      "format": "fixed",
+      "work": "failed",
+      "api": "c",
+      "median_ms": 92.796,
+      "min_ms": 90.321,
+      "max_ms": 104.106
+    },
+    {
+      "variant": "candidate",
+      "format": "fixed",
+      "work": "incremental",
+      "api": "c",
+      "median_ms": 91.938,
+      "min_ms": 89.929,
+      "max_ms": 106.829
+    },
+    {
+      "variant": "candidate",
+      "format": "fixed",
+      "work": "next",
+      "api": "c_diag",
+      "median_ms": 135.717,
+      "min_ms": 128.87,
+      "max_ms": 154.055
+    },
+    {
+      "variant": "candidate",
+      "format": "fixed",
+      "work": "failed",
+      "api": "c_diag",
+      "median_ms": 130.94,
+      "min_ms": 127.223,
+      "max_ms": 247.907
+    },
+    {
+      "variant": "candidate",
+      "format": "fixed",
+      "work": "incremental",
+      "api": "c_diag",
+      "median_ms": 139.249,
+      "min_ms": 131.929,
+      "max_ms": 155.015
+    }
+  ],
+  "benchmark_source_lf_sha256": "61e58dab07330263d39ce344d8dab5c2b2c9c87c0b31c85f043b01680d3cbc26",
+  "raw_csv_lf_sha256": "e226dd33568766e56dfcc58c18dc88a185ad9dfb47f9e2bf26f27ffc2f6af102"
+}

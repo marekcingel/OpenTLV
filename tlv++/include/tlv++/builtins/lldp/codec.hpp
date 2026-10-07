@@ -105,7 +105,7 @@ using organisation_codec =
     detail::builtin_codec<organisation, tlv_lldp_organisation_t, &tlv_lldp_codec_organisation,
                           detail::lldp_organisation_conversion>;
 /** @brief Capability codec; see #tlv_lldp_codec_capabilities. */
-using capabilities_codec = tlv::codec_adapter<capabilities, &tlv_lldp_codec_capabilities>;
+using capabilities_codec = tlv::detail::codec_adapter<capabilities, &tlv_lldp_codec_capabilities>;
 /** @brief TTL codec, including zero; exchange and sequence policy remain separate. */
 using ttl_codec = tlv::uint16_be_codec;
 /** @brief Borrowed opaque text octets; no character conversion or terminator. */

@@ -72,8 +72,8 @@ Writer's result, diagnostics and callback exception behavior. See
 Framing entry points do not add Schema, Value or container validation.
 `tlv::dhcp::options_validate()` validates the options container separately;
 `tlv::ber::write_indefinite()` wraps an encoded child sequence in explicit
-indefinite framing. Existing flat native descriptor getters and low-level
-helper names remain source-compatible.
+indefinite framing. Legacy flat native descriptor getters are available under `tlv::native`; ordinary
+consumers use the domain Format presets.
 
 `tlv::ber::indefinite_format` is the generic preset for explicit constructed
 indefinite encoding. It rejects primitive writes. To measure a wrapped child
@@ -87,7 +87,10 @@ aggregate all enabled domains. Framing headers do not require their codec
 headers. All codecs support the generic `tlv::field` contract: `value_type`,
 `decode(bytes)` and `encode(value, output, capacity)`. Passing `nullptr, 0`
 to `encode` validates and measures the Value. Storage must not overlap input.
-The original C codec errors and semantic restrictions are preserved.
+The original codec errors and semantic restrictions are preserved. EMV dictionary
+codecs require both `OPENTLV_CODEC` and `OPENTLV_SCHEMA`, matching the canonical
+C package. Generic Query environments remain usable without Codec; automatic
+NUM/BCD/TEXT providers and ASN.1 conversions require Codec.
 
 | Namespace | Codec header under `tlv++/builtins/` | Coverage |
 | --- | --- | --- |

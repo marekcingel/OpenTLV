@@ -1,6 +1,7 @@
 // SPDX-License-Identifier: MIT
 // Copyright (c) 2026 Marek Cingel
 
+#include "tlv++/native.hpp"
 #include "tlv++/definition.hpp"
 #include "controlled_format.h"
 #include "tlv++/reader/tree.hpp"
@@ -17,18 +18,71 @@ int constructed(const void*, const tlv_tag_t* tag) {
 }
 const tlv_format_t format = {&controlled::format_layout, tlv_fields_decode, tlv_fields_measure,
                              tlv_fields_encode, constructed};
+size_t             decode_calls = 0;
+tlv_result_t       counted_decode(const void* context, const uint8_t* data, size_t size,
+                                  tlv_decoded_t* result, tlv_format_error_t* error) {
+    ++decode_calls; // Observe calls without changing the Format configuration or outcome.
+    return format.decode(context, data, size, result, error);
+}
 } // namespace
+
+TEST(Unit_Tlvpp_ReaderParity, PullFailuresDecodeOnceAndRetainDiagnosticContext) {
+    auto counted = format;
+    counted.decode = counted_decode;
+    const uint8_t data[] = {1, 1, 42, 2, 1, 43};
+    for (auto mode : {tlv::input_mode::final, tlv::input_mode::incremental}) {
+        decode_calls = 0;
+        tlv::reader<> reader(view(data, 5), tlv::native::borrow_format(counted), mode);
+        ASSERT_TRUE(reader.next());
+        ASSERT_EQ(1u, decode_calls);
+        const auto code = mode == tlv::input_mode::final ? tlv::errc::buffer_too_short
+                                                         : tlv::errc::need_more_data;
+        for (size_t retry = 0; retry < 2; ++retry) {
+            const auto result = reader.next();
+            ASSERT_FALSE(result);
+            EXPECT_EQ(2u + retry, decode_calls);
+            EXPECT_EQ(code, result.error().status());
+            EXPECT_EQ(tlv::operation::reader, result.error().stage());
+            EXPECT_EQ(mode == tlv::input_mode::final ? tlv::severity::error : tlv::severity::info,
+                      result.error().severity());
+            ASSERT_TRUE(result.error().has_offset());
+            EXPECT_EQ(5u, result.error().offset());
+            ASSERT_TRUE(result.error().has_tag());
+            EXPECT_EQ(tlv::tag_bytes<2>(), result.error().tag());
+            EXPECT_EQ(0u, result.error().depth());
+            EXPECT_EQ(nullptr, result.error().expected());
+            EXPECT_EQ(nullptr, result.error().actual());
+            EXPECT_EQ(3u, reader.offset());
+            EXPECT_EQ(3u, reader.consumed());
+        }
+        if (mode == tlv::input_mode::incremental) {
+            ASSERT_TRUE(reader.set_input(view(data, sizeof data), 0, tlv::input_mode::final));
+            ASSERT_TRUE(reader.next());
+            EXPECT_EQ(4u, decode_calls);
+            const auto eof = reader.next();
+            ASSERT_FALSE(eof);
+            EXPECT_EQ(tlv::errc::end_of_input, eof.error().status());
+            EXPECT_EQ(4u, decode_calls);
+            ASSERT_TRUE(eof.error().has_offset());
+            EXPECT_EQ(sizeof data, eof.error().offset());
+            EXPECT_FALSE(eof.error().has_tag());
+            EXPECT_EQ(0u, eof.error().depth());
+            EXPECT_TRUE(reader.at_end());
+        }
+    }
+}
 
 TEST(Unit_Tlvpp_ReaderParity, SingleElementSourceAndFailurePreservation) {
     const uint8_t data[] = {1, 1, 42, 2, 0};
     size_t        consumed = 99;
-    auto          result = tlv::read(view(data, sizeof(data)), format, consumed);
+    auto result = tlv::read(view(data, sizeof(data)), tlv::native::borrow_format(format), consumed);
     ASSERT_TRUE(result);
     EXPECT_EQ(3u, consumed);
     EXPECT_EQ(reinterpret_cast<const tlv::byte*>(data + 2), result->element.value().data());
     EXPECT_EQ(data, result->source.data);
     tlv::reader_diagnostic diagnostic{};
-    auto                   failure = tlv::read(view(data, 2), format, consumed, &diagnostic);
+    auto                   failure =
+        tlv::read(view(data, 2), tlv::native::borrow_format(format), consumed, &diagnostic);
     ASSERT_FALSE(failure);
     EXPECT_EQ(TLV_ERR_BUFFER_TOO_SHORT, failure.error().code);
     EXPECT_EQ(3u, consumed);
@@ -36,7 +90,8 @@ TEST(Unit_Tlvpp_ReaderParity, SingleElementSourceAndFailurePreservation) {
 
 TEST(Unit_Tlvpp_ReaderParity, IncrementalSourceOffsetsAndFinalTruncation) {
     const uint8_t data[] = {1, 1, 42, 2, 1, 43};
-    tlv::reader<> reader(view(data, 2), format, tlv::input_mode::incremental);
+    tlv::reader<> reader(view(data, 2), tlv::native::borrow_format(format),
+                         tlv::input_mode::incremental);
     tlv_reader_t  native{};
     ASSERT_EQ(TLV_OK, tlv_reader_init_incremental(&native, data, 2, &format));
     tlv_element_t          element{};
@@ -67,8 +122,8 @@ TEST(Unit_Tlvpp_ReaderParity, IncrementalSourceOffsetsAndFinalTruncation) {
 TEST(Unit_Tlvpp_TreeReaderParity, ValidationReportsMalformedChildWithoutRequestingMoreInput) {
     const uint8_t          data[] = {0x80, 2, 1, 1};
     tlv::tree_frame        frames[1]{};
-    tlv::tree_reader       reader(view(data, sizeof(data)), format, {frames, 1}, 1, 5,
-                                  tlv::input_mode::incremental);
+    tlv::tree_reader       reader(view(data, sizeof(data)), tlv::native::borrow_format(format),
+                                  {frames, 1}, 1, 5, tlv::input_mode::incremental);
     size_t                 offset = 99;
     tlv::reader_diagnostic diagnostic{};
     auto                   result = reader.validate(&offset, &diagnostic);
@@ -88,7 +143,8 @@ TEST(Unit_Tlvpp_QueryParity, MatcherOwnsQueryAfterTemporaryExpires) {
 
 TEST(Unit_Tlvpp_ReaderParity, VisitorStopThenResumeWithoutReplay) {
     const uint8_t data[] = {1, 0, 2, 0};
-    tlv::reader<> reader(view(data, sizeof(data)), format, tlv::input_mode::incremental);
+    tlv::reader<> reader(view(data, sizeof(data)), tlv::native::borrow_format(format),
+                         tlv::input_mode::incremental);
     size_t        count = 0;
     const auto    stop = [&](const tlv::element_view& value) {
         ++count;
@@ -112,7 +168,8 @@ TEST(Unit_Tlvpp_TreeReaderParity, EveryItemMatchesCanonicalCursor) {
     static_assert(!std::is_copy_constructible<tlv::tree_reader>::value, "frames must not alias");
     const uint8_t     data[] = {0x80, 6, 1, 0, 0x81, 2, 2, 0, 3, 0};
     tlv::tree_frame   frames[2]{}, native_frames[2]{};
-    tlv::tree_reader  reader(view(data, sizeof(data)), format, {frames, 2}, 2, 5);
+    tlv::tree_reader  reader(view(data, sizeof(data)), tlv::native::borrow_format(format),
+                             {frames, 2}, 2, 5);
     tlv_tree_reader_t native{};
     ASSERT_EQ(TLV_OK,
               tlv_tree_reader_init(&native, data, sizeof(data), &format, native_frames, 2, 2, 5));
@@ -139,7 +196,7 @@ TEST(Unit_Tlvpp_TreeReaderParity, EveryItemMatchesCanonicalCursor) {
 
 TEST(Unit_Tlvpp_TreeReaderParity, DescentLimitAllowsSkipAndCountsOnlyPublishedItems) {
     const uint8_t    data[] = {0x80, 2, 1, 0, 2, 0};
-    tlv::tree_reader reader(view(data, sizeof(data)), format, {}, 0, 2);
+    tlv::tree_reader reader(view(data, sizeof(data)), tlv::native::borrow_format(format), {}, 0, 2);
     ASSERT_TRUE(reader.next());
     auto limit = reader.next();
     ASSERT_FALSE(limit);
@@ -154,7 +211,8 @@ TEST(Unit_Tlvpp_TreeReaderParity, DescentLimitAllowsSkipAndCountsOnlyPublishedIt
 TEST(Unit_Tlvpp_TreeReaderParity, CompleteParentRequiredAndVisitorResumesAfterSkip) {
     const uint8_t    data[] = {0x80, 2, 1, 0, 2, 0};
     tlv::tree_frame  frames[1]{};
-    tlv::tree_reader reader(view(data, 3), format, {frames, 1}, 1, 3, tlv::input_mode::incremental);
+    tlv::tree_reader reader(view(data, 3), tlv::native::borrow_format(format), {frames, 1}, 1, 3,
+                            tlv::input_mode::incremental);
     auto             incomplete = reader.next();
     ASSERT_FALSE(incomplete);
     EXPECT_EQ(TLV_NEED_MORE_DATA, incomplete.error().code);
@@ -185,9 +243,10 @@ TEST(Unit_Tlvpp_QueryParity, MatchStateSurvivesStopAndInputReplacement) {
     EXPECT_EQ(0u, query->step(2).size());
     tlv::query_matcher matcher(*query);
     tlv::tree_frame    frames[1]{};
-    tlv::tree_reader reader(view(data, 6), format, {frames, 1}, 1, 5, tlv::input_mode::incremental);
-    size_t           count = 0;
-    const auto       stop = [&](const tlv::element_view&, size_t depth, size_t offset) {
+    tlv::tree_reader   reader(view(data, 6), tlv::native::borrow_format(format), {frames, 1}, 1, 5,
+                              tlv::input_mode::incremental);
+    size_t             count = 0;
+    const auto         stop = [&](const tlv::element_view&, size_t depth, size_t offset) {
         ++count;
         EXPECT_EQ(1u, depth);
         EXPECT_EQ(2u, offset);

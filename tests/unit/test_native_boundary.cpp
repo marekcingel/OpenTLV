@@ -93,9 +93,9 @@ TEST(Unit_Tlvpp_NativeBoundary, ReaderRetainsIncrementalAndDiagnosticContracts) 
 }
 
 TEST(Unit_Tlvpp_NativeBoundary, FixedViewUsesCanonicalMeasurementAndEncoding) {
-    using fixed = tlv::fixed_format<1, 1, TLV_BYTE_ORDER_BIG_ENDIAN>;
+    using fixed = tlv::fixed_format<1, 1, tlv::byte_order::big_endian>;
     const auto format = fixed::view();
-    EXPECT_EQ(&fixed::format(), &tlv::native::descriptor(format));
+    EXPECT_EQ(&tlv::native::descriptor(fixed::view()), &tlv::native::descriptor(format));
     const uint8_t data[] = {7, 2, 0xAB, 0xCD};
     auto          decoded = tlv::decode(format, view(data, sizeof(data)));
     ASSERT_TRUE(decoded);
@@ -248,10 +248,10 @@ TEST(Unit_Tlvpp_NativeBoundary, SchemaPreservesNamedDiagnosticsThroughFormatView
     const tlv_schema_entry_t     field{TLV_TAG(1), 1, 1, 0, "one", 0};
     const tlv_structure_rule_t   rule{&field, 1, 1, TLV_SCHEMA_PRIMITIVE, nullptr, 0};
     const tlv_structure_schema_t schema{&rule, 1, 0, nullptr, 0, TLV_SCHEMA_ORDER_ANY};
-    ASSERT_TRUE(tlv::validate(view(valid, sizeof(valid)), format, schema, 0, 2));
-    tlv::schema_diagnostic diagnostics[4]{};
-    auto count = tlv::validate_all_diag(view(invalid, sizeof(invalid)), format, schema, 0, 2,
-                                        diagnostics, 4);
+    ASSERT_TRUE(tlv::native::validate(view(valid, sizeof(valid)), format, schema, 0, 2));
+    tlv::native::schema_diagnostic diagnostics[4]{};
+    auto count = tlv::native::validate_all_diag(view(invalid, sizeof(invalid)), format, schema, 0,
+                                                2, diagnostics, 4);
     ASSERT_TRUE(count);
     EXPECT_EQ(2u, *count);
     EXPECT_EQ(TLV_SCHEMA_ISSUE_MISSING, diagnostics[0].kind);

@@ -1,6 +1,7 @@
 // SPDX-License-Identifier: MIT
 // Copyright (c) 2026 Marek Cingel
 
+#include "tlv++/native.hpp"
 #include "controlled_format.h"
 #include "tlv++/query/query.hpp"
 #include "tlv++/query/program.hpp"
@@ -48,12 +49,14 @@ TEST(Unit_Tlvpp_FullQuery, OwningCompilationRejectsChangingResolver) {
         *output = tlv_tag(&state.tag, 1);
         return TLV_OK;
     };
-    auto program = tlv::query_program::compile("//item", &options);
+    auto program =
+        tlv::query_program::compile("//item", tlv::native::borrow_query_settings(&options));
     ASSERT_FALSE(program);
     EXPECT_EQ(TLV_ERR_INVALID_ARG, program.error().code);
     EXPECT_EQ(TLV_QUERY_ERROR_STORAGE, program.error().diagnostic.kind);
     resolver.drift = false;
-    ASSERT_TRUE(tlv::query_program::compile("//item", &options));
+    ASSERT_TRUE(
+        tlv::query_program::compile("//item", tlv::native::borrow_query_settings(&options)));
 }
 
 TEST(Unit_Tlvpp_FullQuery, TypedBuilderAndResumablePull) {
@@ -64,7 +67,8 @@ TEST(Unit_Tlvpp_FullQuery, TypedBuilderAndResumablePull) {
     auto execution = tlv::query_execution::create(*program, 3, 100, 100000);
     ASSERT_TRUE(execution);
     tlv::tree_frame  frames[3]{};
-    tlv::tree_reader reader(bytes(input, sizeof input), format, {frames, 3}, 3, 100);
+    tlv::tree_reader reader(bytes(input, sizeof input), tlv::native::borrow_format(format),
+                            {frames, 3}, 3, 100);
     size_t           matches = 0;
     for (;;) {
         auto node = execution->next(reader);
@@ -85,7 +89,8 @@ TEST(Unit_Tlvpp_FullQuery, TypedBuilderAndResumablePull) {
 
 TEST(Unit_Tlvpp_QueryRanges, OrderedMatchesAndOwnedQuery) {
     tlv::tree_frame     frames[3]{};
-    tlv::tree_reader    reader(bytes(input, sizeof(input)), format, {frames, 3}, 3, 100);
+    tlv::tree_reader    reader(bytes(input, sizeof(input)), tlv::native::borrow_format(format),
+                               {frames, 3}, 3, 100);
     auto                selected = reader.select("6F/A5/50");
     auto                moved = std::move(selected);
     std::vector<size_t> offsets;
@@ -103,7 +108,8 @@ TEST(Unit_Tlvpp_FullQuery, ScalarsVariablesAndStopResume) {
     tlv_query_compile_options_init(&options);
     options.variables = &variable;
     options.variable_count = 1;
-    auto query = tlv::query_program::compile("count(//50[@len >= $minimum])", &options);
+    auto query = tlv::query_program::compile("count(//50[@len >= $minimum])",
+                                             tlv::native::borrow_query_settings(&options));
     ASSERT_TRUE(query);
     ASSERT_EQ(1u, query->variable_count());
     auto requirement = query->variable(0);
@@ -115,7 +121,8 @@ TEST(Unit_Tlvpp_FullQuery, ScalarsVariablesAndStopResume) {
     ASSERT_TRUE(execution);
     ASSERT_TRUE(execution->bind("minimum", int64_t(1)));
     tlv::tree_frame  frames[4]{};
-    tlv::tree_reader reader(bytes(input, sizeof input), format, {frames, 4}, 3, 100);
+    tlv::tree_reader reader(bytes(input, sizeof input), tlv::native::borrow_format(format),
+                            {frames, 4}, 3, 100);
     auto             visited =
         execution->visit(reader, [](const tlv::tree_event&) { return TLV_VISIT_CONTINUE; });
     ASSERT_TRUE(visited);
@@ -127,7 +134,8 @@ TEST(Unit_Tlvpp_FullQuery, ScalarsVariablesAndStopResume) {
     ASSERT_TRUE(selector);
     auto selected = tlv::query_execution::create(*selector, 3, 100, 100000);
     ASSERT_TRUE(selected);
-    tlv::tree_reader second(bytes(input, sizeof input), format, {frames, 4}, 3, 100);
+    tlv::tree_reader second(bytes(input, sizeof input), tlv::native::borrow_format(format),
+                            {frames, 4}, 3, 100);
     size_t           calls = 0;
     auto             stop = [&](const tlv::tree_event&) {
         ++calls;
@@ -151,7 +159,8 @@ TEST(Unit_Tlvpp_FullQuery, StreamingExistencePreservesCoverageAndMalformedSuffix
     ASSERT_TRUE(execution);
     ASSERT_TRUE(execution->pruning(false));
     tlv::tree_frame  frames[1]{};
-    tlv::tree_reader reader(bytes(broken, sizeof broken), format, {frames, 1}, 1, 10);
+    tlv::tree_reader reader(bytes(broken, sizeof broken), tlv::native::borrow_format(format),
+                            {frames, 1}, 1, 10);
     auto             found = execution->exists(reader, true);
     ASSERT_TRUE(found);
     EXPECT_TRUE(*found);
@@ -175,7 +184,7 @@ TEST(Unit_Tlvpp_FullQuery, ValidatedExternalImagePreservesScalarRequirements) {
     ASSERT_TRUE(compiled);
     const size_t          image_size = compiled->info().program_size;
     std::vector<uint64_t> image((image_size + 7) / 8);
-    std::memcpy(image.data(), compiled->c_program(), image_size);
+    std::memcpy(image.data(), tlv::native::handle(*compiled), image_size);
     size_t scratch_size = 0, alignment = 0;
     ASSERT_TRUE(tlv::query_program::load_scratch(image.data(), image_size, nullptr, scratch_size,
                                                  alignment));
@@ -192,7 +201,8 @@ TEST(Unit_Tlvpp_FullQuery, ValidatedExternalImagePreservesScalarRequirements) {
     auto execution = tlv::query_execution::create(*loaded, 3, 100, 100000);
     ASSERT_TRUE(execution);
     tlv::tree_frame  frames[4]{};
-    tlv::tree_reader reader(bytes(input, sizeof input), format, {frames, 4}, 3, 100);
+    tlv::tree_reader reader(bytes(input, sizeof input), tlv::native::borrow_format(format),
+                            {frames, 4}, 3, 100);
     ASSERT_TRUE(
         execution->visit(reader, [](const tlv::tree_event&) { return TLV_VISIT_CONTINUE; }));
     auto result = execution->result();
@@ -218,8 +228,8 @@ TEST(Unit_Tlvpp_FullQuery, CallerStorageAndRepeatedNeedMoreData) {
                                                     100000, nullptr, false);
     ASSERT_TRUE(execution);
     tlv::tree_frame  frames[4]{};
-    tlv::tree_reader reader(bytes(input, 10), format, {frames, 4}, 3, 100,
-                            tlv::input_mode::incremental);
+    tlv::tree_reader reader(bytes(input, 10), tlv::native::borrow_format(format), {frames, 4}, 3,
+                            100, tlv::input_mode::incremental);
     size_t           calls = 0;
     auto             visitor = [&](const tlv::tree_event&) {
         ++calls;
@@ -243,8 +253,8 @@ TEST(Unit_Tlvpp_FullQuery, ContextualSchemaAssertionsPreserveReaderFailures) {
     ASSERT_TRUE(contexts);
     auto condition = tlv::query_program::compile("not(exists(.//50)) or exists(.//84)");
     ASSERT_TRUE(condition);
-    tlv_schema_query_rule_t rule{contexts->c_program(), condition->c_program(), nullptr,
-                                 "label-requires-name"};
+    tlv_schema_query_rule_t rule{tlv::native::handle(*contexts), tlv::native::handle(*condition),
+                                 nullptr, "label-requires-name"};
     size_t                  a, b, alignment;
     ASSERT_EQ(TLV_OK, tlv_schema_query_size(&rule, 1, 3, 100, &a, &b, &alignment));
     tlv::detail::query_memory     selector(a), assertion(b);
@@ -277,7 +287,7 @@ TEST(Unit_Tlvpp_FullQuery, ContextualSchemaAssertionsPreserveReaderFailures) {
     EXPECT_STREQ("schema-contexts", diagnostic.query.limit);
     auto nested = tlv::query_program::compile("//A5");
     ASSERT_TRUE(nested);
-    rule.context = nested->c_program();
+    rule.context = tlv::native::handle(*nested);
     EXPECT_EQ(TLV_ERR_SCHEMA,
               tlv_schema_query_validate_buffer(input, sizeof input, &format, &rule, 1, 3, 100,
                                                100000, &workspace, &diagnostic));
@@ -288,7 +298,8 @@ TEST(Unit_Tlvpp_FullQuery, ContextualSchemaAssertionsPreserveReaderFailures) {
 
 #if OPENTLV_DOCUMENT
 TEST(Unit_Tlvpp_FullQuery, DocumentSnapshotsAndCompletedRemove) {
-    auto doc = tlv::document::parse(bytes(input, sizeof input), tlv::document_format(format));
+    auto doc = tlv::document::parse(bytes(input, sizeof input),
+                                    tlv::document_format(tlv::native::borrow_format(format)));
     ASSERT_TRUE(doc);
     auto query = tlv::query_program::compile("//50");
     ASSERT_TRUE(query);
@@ -308,45 +319,49 @@ TEST(Unit_Tlvpp_FullQuery, DocumentSnapshotsAndCompletedRemove) {
 }
 
 TEST(Unit_Tlvpp_FullQuery, NativeRevisionAndCallbackGuard) {
-    auto doc = tlv::document::parse(bytes(input, sizeof input), tlv::document_format(format));
+    auto doc = tlv::document::parse(bytes(input, sizeof input),
+                                    tlv::document_format(tlv::native::borrow_format(format)));
     ASSERT_TRUE(doc);
     auto query = tlv::query_program::compile("//50");
     ASSERT_TRUE(query);
     auto execution = tlv::query_execution::create(*query, 3, 100, 100000);
     ASSERT_TRUE(execution);
-    ASSERT_TRUE(doc->evaluate(*execution, nullptr, 0, nullptr));
-    auto revision = tlv_document_revision(doc->c_document());
+    ASSERT_TRUE(doc->evaluate(*execution, tlv::span<tlv::byte>{}));
+    auto revision = tlv_document_revision(tlv::native::handle(*doc));
     auto callback = [](tlv_node_t* node, void*) {
         tlv_node_erase(node);
         EXPECT_EQ(TLV_ERR_INVALID_ARG, tlv_node_set_value(node, nullptr, 0));
         return TLV_VISIT_STOP;
     };
     EXPECT_EQ(TLV_ERR_INVALID_ARG,
-              tlv_document_query_program_visit(execution->c_exec(), callback, nullptr));
-    EXPECT_EQ(revision + 1, tlv_document_revision(doc->c_document()));
+              tlv_document_query_program_visit(tlv::native::handle(*execution), callback, nullptr));
+    EXPECT_EQ(revision + 1, tlv_document_revision(tlv::native::handle(*doc)));
     doc->first().erase();
     EXPECT_FALSE(doc->next(*execution));
 }
 
 TEST(Unit_Tlvpp_FullQuery, NativeEditsInvalidateCheckedHandlesAndKeepUnaffectedNodes) {
-    auto doc = tlv::document::parse(bytes(input, sizeof input), tlv::document_format(format));
+    auto doc = tlv::document::parse(bytes(input, sizeof input),
+                                    tlv::document_format(tlv::native::borrow_format(format)));
     ASSERT_TRUE(doc);
     auto root = doc->first();
     auto untouched = root.next();
-    auto raw = root.c_node();
-    auto identity = tlv_document_node_identity(doc->c_document(), raw);
+    auto raw = tlv::native::handle(root);
+    auto identity = tlv_document_node_identity(tlv::native::handle(*doc), raw);
     tlv_node_erase(raw);
     EXPECT_FALSE(root);
     EXPECT_TRUE(untouched);
-    EXPECT_EQ(0u, tlv_document_node_identity(doc->c_document(), raw));
+    EXPECT_EQ(0u, tlv_document_node_identity(tlv::native::handle(*doc), raw));
     auto replacement = doc->insert(tlv::tag_bytes<0x6F>(), bytes(nullptr, 0));
     ASSERT_TRUE(replacement);
-    EXPECT_NE(identity, tlv_document_node_identity(doc->c_document(), replacement->c_node()));
+    EXPECT_NE(identity, tlv_document_node_identity(tlv::native::handle(*doc),
+                                                   tlv::native::handle(*replacement)));
     EXPECT_FALSE(root);
 }
 
 TEST(Unit_Tlvpp_FullQuery, ReplaceAndInsertUseInitialSelectionAndCopyAliasedValue) {
-    auto doc = tlv::document::parse(bytes(input, sizeof input), tlv::document_format(format));
+    auto doc = tlv::document::parse(bytes(input, sizeof input),
+                                    tlv::document_format(tlv::native::borrow_format(format)));
     ASSERT_TRUE(doc);
     auto query = tlv::query_program::compile("//50");
     ASSERT_TRUE(query);
@@ -372,55 +387,58 @@ TEST(Unit_Tlvpp_FullQuery, ReplaceAndInsertUseInitialSelectionAndCopyAliasedValu
 }
 
 TEST(Unit_Tlvpp_FullQuery, NativeEditCapacityAndAncestorDominance) {
-    auto doc = tlv::document::parse(bytes(input, sizeof input), tlv::document_format(format));
+    auto doc = tlv::document::parse(bytes(input, sizeof input),
+                                    tlv::document_format(tlv::native::borrow_format(format)));
     ASSERT_TRUE(doc);
     auto query = tlv::query_program::compile("//6F | //50");
     ASSERT_TRUE(query);
     auto execution = tlv::query_execution::create(*query, 3, 100, 100000);
     ASSERT_TRUE(execution);
-    ASSERT_TRUE(doc->evaluate(*execution, nullptr, 0, nullptr));
+    ASSERT_TRUE(doc->evaluate(*execution, tlv::span<tlv::byte>{}));
     size_t      applied = 99;
     tlv_node_t* targets[5]{};
-    auto        original = tlv_document_revision(doc->c_document());
+    auto        original = tlv_document_revision(tlv::native::handle(*doc));
     EXPECT_EQ(TLV_ERR_BUFFER_TOO_SHORT,
-              tlv_document_query_edit(doc->c_document(), execution->c_exec(),
+              tlv_document_query_edit(tlv::native::handle(*doc), tlv::native::handle(*execution),
                                       TLV_DOCUMENT_QUERY_REMOVE, tlv_tag(nullptr, 0), nullptr, 0,
                                       targets, 1, &applied));
     EXPECT_EQ(0u, applied);
-    EXPECT_EQ(original, tlv_document_revision(doc->c_document()));
+    EXPECT_EQ(original, tlv_document_revision(tlv::native::handle(*doc)));
     EXPECT_EQ(nullptr, targets[0]);
-    EXPECT_EQ(TLV_OK, tlv_document_query_edit(doc->c_document(), execution->c_exec(),
-                                              TLV_DOCUMENT_QUERY_REMOVE, tlv_tag(nullptr, 0),
-                                              nullptr, 0, targets, 5, &applied));
+    EXPECT_EQ(TLV_OK,
+              tlv_document_query_edit(tlv::native::handle(*doc), tlv::native::handle(*execution),
+                                      TLV_DOCUMENT_QUERY_REMOVE, tlv_tag(nullptr, 0), nullptr, 0,
+                                      targets, 5, &applied));
     EXPECT_EQ(3u, applied);
     EXPECT_TRUE(doc->empty());
 }
 
 TEST(Unit_Tlvpp_FullQuery, EditRetriesSameExecutionAfterShortTargetStorage) {
-    auto doc = tlv::document::parse(bytes(input, sizeof input), tlv::document_format(format));
+    auto doc = tlv::document::parse(bytes(input, sizeof input),
+                                    tlv::document_format(tlv::native::borrow_format(format)));
     ASSERT_TRUE(doc);
     auto query = tlv::query_program::compile("//50");
     ASSERT_TRUE(query);
     auto execution = tlv::query_execution::create(*query, 3, 100, 100000);
     ASSERT_TRUE(execution);
-    ASSERT_TRUE(doc->evaluate(*execution, nullptr, 0, nullptr));
-    auto* const cursor = execution->c_exec();
-    const auto  revision = tlv_document_revision(doc->c_document());
-    auto* const sentinel = doc->first().c_node();
+    ASSERT_TRUE(doc->evaluate(*execution, tlv::span<tlv::byte>{}));
+    auto* const cursor = tlv::native::handle(*execution);
+    const auto  revision = tlv_document_revision(tlv::native::handle(*doc));
+    auto* const sentinel = tlv::native::handle(doc->first());
     tlv_node_t* small[1] = {sentinel};
     size_t      applied = 99;
     ASSERT_EQ(TLV_ERR_BUFFER_TOO_SHORT,
-              tlv_document_query_edit(doc->c_document(), cursor, TLV_DOCUMENT_QUERY_REMOVE,
+              tlv_document_query_edit(tlv::native::handle(*doc), cursor, TLV_DOCUMENT_QUERY_REMOVE,
                                       tlv_tag(nullptr, 0), nullptr, 0, small, 1, &applied));
     EXPECT_EQ(0u, applied);
     EXPECT_EQ(sentinel, small[0]);
-    EXPECT_EQ(revision, tlv_document_revision(doc->c_document()));
+    EXPECT_EQ(revision, tlv_document_revision(tlv::native::handle(*doc)));
     EXPECT_EQ(7u, doc->size());
 
     // No re-evaluation or cursor reset between the failed call and this retry.
     tlv_node_t* sufficient[3]{};
     ASSERT_EQ(TLV_OK,
-              tlv_document_query_edit(doc->c_document(), cursor, TLV_DOCUMENT_QUERY_REMOVE,
+              tlv_document_query_edit(tlv::native::handle(*doc), cursor, TLV_DOCUMENT_QUERY_REMOVE,
                                       tlv_tag(nullptr, 0), nullptr, 0, sufficient, 3, &applied));
     EXPECT_EQ(3u, applied);
     EXPECT_EQ(4u, doc->size());
@@ -456,8 +474,8 @@ TEST(Unit_Tlvpp_FullQuery, InsertPreflightChecksActualValueLengthBeforeAllocatio
     ASSERT_TRUE(query);
     auto execution = tlv::query_execution::create(*query, 1, 10, 100000);
     ASSERT_TRUE(execution);
-    ASSERT_EQ(TLV_OK, tlv_document_query_evaluate(doc, execution->c_exec(), nullptr, nullptr, 0,
-                                                  nullptr, nullptr));
+    ASSERT_EQ(TLV_OK, tlv_document_query_evaluate(doc, tlv::native::handle(*execution), nullptr,
+                                                  nullptr, 0, nullptr, nullptr));
     const uint8_t tag = 0x50, value[] = {1, 2};
     tlv_node_t*   targets[1]{};
     size_t        applied = 99;
@@ -465,8 +483,9 @@ TEST(Unit_Tlvpp_FullQuery, InsertPreflightChecksActualValueLengthBeforeAllocatio
     // Length rejection must precede even the temporary Value copy: the old
     // zero-length preflight would instead reach allocation and return OOM.
     EXPECT_EQ(TLV_ERR_INVALID_LENGTH,
-              tlv_document_query_edit(doc, execution->c_exec(), TLV_DOCUMENT_QUERY_INSERT_AFTER,
-                                      tlv_tag(&tag, 1), value, sizeof value, targets, 1, &applied));
+              tlv_document_query_edit(doc, tlv::native::handle(*execution),
+                                      TLV_DOCUMENT_QUERY_INSERT_AFTER, tlv_tag(&tag, 1), value,
+                                      sizeof value, targets, 1, &applied));
     EXPECT_EQ(0u, applied);
     EXPECT_EQ(1u, tlv_document_count(doc));
     EXPECT_EQ(0u, tlv_document_revision(doc));
@@ -474,9 +493,11 @@ TEST(Unit_Tlvpp_FullQuery, InsertPreflightChecksActualValueLengthBeforeAllocatio
 }
 
 TEST(Unit_Tlvpp_FullQuery, DiffUsesOriginalPositionsAndExcludesUnselectedDescendants) {
-    auto left = tlv::document::parse(bytes(input, sizeof input), tlv::document_format(format));
+    auto left = tlv::document::parse(bytes(input, sizeof input),
+                                     tlv::document_format(tlv::native::borrow_format(format)));
     ASSERT_TRUE(left);
-    auto right = tlv::document::parse(bytes(input, sizeof input), tlv::document_format(format));
+    auto right = tlv::document::parse(bytes(input, sizeof input),
+                                      tlv::document_format(tlv::native::borrow_format(format)));
     ASSERT_TRUE(right);
     auto selector = tlv::query_program::compile("//50[2]");
     ASSERT_TRUE(selector);
@@ -515,7 +536,8 @@ TEST(Unit_Tlvpp_FullQuery, DiffUsesOriginalPositionsAndExcludesUnselectedDescend
 
 TEST(Unit_Tlvpp_FullQuery, MixedReplacementPrevalidatesConstructedValue) {
     const uint8_t fixture[] = {0x50, 1, 9, 0x6F, 0};
-    auto doc = tlv::document::parse(bytes(fixture, sizeof fixture), tlv::document_format(format));
+    auto doc = tlv::document::parse(bytes(fixture, sizeof fixture),
+                                    tlv::document_format(tlv::native::borrow_format(format)));
     ASSERT_TRUE(doc);
     auto all = tlv::query_program::compile("//50 | //6F");
     ASSERT_TRUE(all);
@@ -584,21 +606,22 @@ TEST(Unit_Tlvpp_FullQuery, CompiledDeferredFreeInvalidatesCurrentExecution) {
     ASSERT_TRUE(query);
     auto execution = tlv::query_execution::create(*query, 3, 100, 100000);
     ASSERT_TRUE(execution);
-    ASSERT_EQ(TLV_OK, tlv_document_query_evaluate(doc, execution->c_exec(), nullptr, nullptr, 0,
-                                                  nullptr, nullptr));
+    ASSERT_EQ(TLV_OK, tlv_document_query_evaluate(doc, tlv::native::handle(*execution), nullptr,
+                                                  nullptr, 0, nullptr, nullptr));
     auto callback = [](tlv_node_t*, void* context) {
         tlv_document_free(static_cast<tlv_document_t*>(context));
         return TLV_VISIT_CONTINUE;
     };
     EXPECT_EQ(TLV_ERR_INVALID_ARG,
-              tlv_document_query_program_visit(execution->c_exec(), callback, doc));
+              tlv_document_query_program_visit(tlv::native::handle(*execution), callback, doc));
     tlv_node_t* node = nullptr;
-    EXPECT_EQ(TLV_ERR_INVALID_ARG, tlv_document_query_next(execution->c_exec(), &node));
+    EXPECT_EQ(TLV_ERR_INVALID_ARG, tlv_document_query_next(tlv::native::handle(*execution), &node));
     EXPECT_FALSE(execution->result());
 }
 
 TEST(Unit_Tlvpp_FullQuery, DeferredEraseAncestorDominatesPendingDescendant) {
-    auto doc = tlv::document::parse(bytes(input, sizeof input), tlv::document_format(format));
+    auto doc = tlv::document::parse(bytes(input, sizeof input),
+                                    tlv::document_format(tlv::native::borrow_format(format)));
     ASSERT_TRUE(doc);
     tlv_query_t query;
     ASSERT_EQ(TLV_OK, tlv_query_parse("6F", &query, nullptr));
@@ -609,14 +632,14 @@ TEST(Unit_Tlvpp_FullQuery, DeferredEraseAncestorDominatesPendingDescendant) {
         return TLV_VISIT_CONTINUE;
     };
     EXPECT_EQ(TLV_ERR_INVALID_ARG,
-              tlv_document_query_visit(doc->c_document(), &query, callback, nullptr));
+              tlv_document_query_visit(tlv::native::handle(*doc), &query, callback, nullptr));
     EXPECT_EQ(5u, doc->size());
     EXPECT_EQ(0x6F, static_cast<unsigned>(doc->first().tag().data()[0]));
 }
 
 TEST(Unit_Tlvpp_FullQuery, InsertAndDepthLimitsArePrevalidated) {
     const uint8_t        fixture[] = {0x50, 0, 0x6F, 2, 0x50, 0};
-    tlv::document_format limited(format);
+    tlv::document_format limited(tlv::native::borrow_format(format));
     limited.max_depth = 1;
     auto doc = tlv::document::parse(bytes(fixture, sizeof fixture), limited);
     ASSERT_TRUE(doc);
@@ -632,11 +655,12 @@ TEST(Unit_Tlvpp_FullQuery, InsertAndDepthLimitsArePrevalidated) {
     EXPECT_EQ(3u, doc->size());
     auto execution = tlv::query_execution::create(*selector, 1, 10, 100000);
     ASSERT_TRUE(execution);
-    ASSERT_TRUE(doc->evaluate(*execution, nullptr, 0, nullptr));
+    ASSERT_TRUE(doc->evaluate(*execution, tlv::span<tlv::byte>{}));
     tlv_node_t* targets[2]{};
-    EXPECT_NE(TLV_OK, tlv_document_query_edit(doc->c_document(), execution->c_exec(),
-                                              TLV_DOCUMENT_QUERY_INSERT_AFTER, tlv_tag(nullptr, 1),
-                                              nullptr, 0, targets, 2, &applied));
+    EXPECT_NE(TLV_OK,
+              tlv_document_query_edit(tlv::native::handle(*doc), tlv::native::handle(*execution),
+                                      TLV_DOCUMENT_QUERY_INSERT_AFTER, tlv_tag(nullptr, 1), nullptr,
+                                      0, targets, 2, &applied));
     EXPECT_EQ(0u, applied);
     EXPECT_EQ(3u, doc->size());
 }
@@ -652,14 +676,15 @@ TEST(Unit_Tlvpp_FullQuery, AggregateInsertionLimitMakesNoChanges) {
     ASSERT_TRUE(query);
     auto execution = tlv::query_execution::create(*query, 1, 10, 100000);
     ASSERT_TRUE(execution);
-    ASSERT_EQ(TLV_OK, tlv_document_query_evaluate(doc, execution->c_exec(), nullptr, nullptr, 0,
-                                                  nullptr, nullptr));
+    ASSERT_EQ(TLV_OK, tlv_document_query_evaluate(doc, tlv::native::handle(*execution), nullptr,
+                                                  nullptr, 0, nullptr, nullptr));
     tlv_node_t*   targets[2]{};
     size_t        applied = 99;
     const uint8_t tag = 0x50;
     EXPECT_EQ(TLV_ERR_LIMIT,
-              tlv_document_query_edit(doc, execution->c_exec(), TLV_DOCUMENT_QUERY_INSERT_AFTER,
-                                      tlv_tag(&tag, 1), nullptr, 0, targets, 2, &applied));
+              tlv_document_query_edit(doc, tlv::native::handle(*execution),
+                                      TLV_DOCUMENT_QUERY_INSERT_AFTER, tlv_tag(&tag, 1), nullptr, 0,
+                                      targets, 2, &applied));
     EXPECT_EQ(0u, applied);
     EXPECT_EQ(2u, tlv_document_count(doc));
     EXPECT_EQ(0u, tlv_document_revision(doc));
@@ -672,9 +697,10 @@ TEST(Unit_Tlvpp_FullQuery, DocumentExecutionDetectsDestructionBeforeResultAccess
     auto execution = tlv::query_execution::create(*selector, 3, 100, 100000);
     ASSERT_TRUE(execution);
     {
-        auto doc = tlv::document::parse(bytes(input, sizeof input), tlv::document_format(format));
+        auto doc = tlv::document::parse(bytes(input, sizeof input),
+                                        tlv::document_format(tlv::native::borrow_format(format)));
         ASSERT_TRUE(doc);
-        ASSERT_TRUE(doc->evaluate(*execution, nullptr, 0, nullptr));
+        ASSERT_TRUE(doc->evaluate(*execution, tlv::span<tlv::byte>{}));
         ASSERT_TRUE(execution->result());
     }
     auto result = execution->result();
@@ -683,13 +709,15 @@ TEST(Unit_Tlvpp_FullQuery, DocumentExecutionDetectsDestructionBeforeResultAccess
 }
 
 TEST(Unit_Tlvpp_FullQuery, DocumentSchemaRunsTheSameContextualPrograms) {
-    auto doc = tlv::document::parse(bytes(input, sizeof input), tlv::document_format(format));
+    auto doc = tlv::document::parse(bytes(input, sizeof input),
+                                    tlv::document_format(tlv::native::borrow_format(format)));
     ASSERT_TRUE(doc);
     auto contexts = tlv::query_program::compile("//6F");
     ASSERT_TRUE(contexts);
     auto condition = tlv::query_program::compile("not(exists(.//50)) or exists(.//84)");
     ASSERT_TRUE(condition);
-    tlv_schema_query_rule_t rule{contexts->c_program(), condition->c_program(), nullptr, "name"};
+    tlv_schema_query_rule_t rule{tlv::native::handle(*contexts), tlv::native::handle(*condition),
+                                 nullptr, "name"};
     size_t                  a, b, alignment;
     ASSERT_EQ(TLV_OK, tlv_schema_query_size(&rule, 1, 3, 100, &a, &b, &alignment));
     tlv::detail::query_memory     selector(a), assertion(b);
@@ -698,26 +726,27 @@ TEST(Unit_Tlvpp_FullQuery, DocumentSchemaRunsTheSameContextualPrograms) {
                                     selected,        4, nullptr,          0};
     tlv_schema_query_diagnostic_t diagnostic{};
     EXPECT_EQ(TLV_ERR_SCHEMA,
-              tlv_schema_query_validate_document(doc->c_document(), &rule, 1, 3, 100, 100000, &w,
-                                                 nullptr, 0, nullptr, &diagnostic));
+              tlv_schema_query_validate_document(tlv::native::handle(*doc), &rule, 1, 3, 100,
+                                                 100000, &w, nullptr, 0, nullptr, &diagnostic));
     EXPECT_EQ(TLV_SCHEMA_ISSUE_ASSERTION, diagnostic.schema.kind);
     EXPECT_STREQ("name", diagnostic.schema.field);
 }
 
 TEST(Unit_Tlvpp_FullQuery, DocumentEnvironmentAcceptsCopiedDescriptorAndRejectsForeignPolicy) {
-    auto doc = tlv::document::parse(bytes(input, sizeof input), tlv::document_format(format));
+    auto doc = tlv::document::parse(bytes(input, sizeof input),
+                                    tlv::document_format(tlv::native::borrow_format(format)));
     ASSERT_TRUE(doc);
     tlv_query_environment_t environment{};
     environment.format = &format;
     auto query = tlv::query_program::compile("//50");
     ASSERT_TRUE(query);
-    auto results = doc->select(*query, &environment);
+    auto results = doc->select(*query, tlv::native::borrow_query_capabilities(&environment));
     ASSERT_TRUE(results);
     EXPECT_EQ(3u, results->size());
     auto foreign = format;
     foreign.is_constructed = nullptr;
     environment.format = &foreign;
-    auto rejected = doc->select(*query, &environment);
+    auto rejected = doc->select(*query, tlv::native::borrow_query_capabilities(&environment));
     ASSERT_FALSE(rejected);
     EXPECT_EQ(TLV_ERR_INVALID_ARG, rejected.error().code);
 }
@@ -745,15 +774,16 @@ TEST(Unit_Tlvpp_FullQuery, AllocatorFailurePreservesUneditedTargetsAndReportsPar
     ASSERT_TRUE(query);
     auto execution = tlv::query_execution::create(*query, 3, 100, 100000);
     ASSERT_TRUE(execution);
-    ASSERT_EQ(TLV_OK, tlv_document_query_evaluate(raw, execution->c_exec(), nullptr, nullptr, 0,
-                                                  nullptr, nullptr));
+    ASSERT_EQ(TLV_OK, tlv_document_query_evaluate(raw, tlv::native::handle(*execution), nullptr,
+                                                  nullptr, 0, nullptr, nullptr));
     tlv_node_t*   targets[3]{};
     const uint8_t replacement[] = {7};
     size_t        applied;
     state.remaining = 2; // Copy the shared replacement, then replace the first target.
     EXPECT_EQ(TLV_ERR_OUT_OF_MEMORY,
-              tlv_document_query_edit(raw, execution->c_exec(), TLV_DOCUMENT_QUERY_REPLACE,
-                                      tlv_tag(nullptr, 0), replacement, 1, targets, 3, &applied));
+              tlv_document_query_edit(raw, tlv::native::handle(*execution),
+                                      TLV_DOCUMENT_QUERY_REPLACE, tlv_tag(nullptr, 0), replacement,
+                                      1, targets, 3, &applied));
     EXPECT_EQ(1u, applied);
     EXPECT_EQ(7, tlv_node_value_data(targets[0])[0]);
     EXPECT_EQ(2, tlv_node_value_data(targets[1])[0]);
@@ -764,7 +794,8 @@ TEST(Unit_Tlvpp_FullQuery, AllocatorFailurePreservesUneditedTargetsAndReportsPar
 
 TEST(Unit_Tlvpp_QueryRanges, EmptyAndCompilationErrors) {
     tlv::tree_frame  frames[3]{};
-    tlv::tree_reader reader(bytes(input, sizeof(input)), format, {frames, 3}, 3, 100);
+    tlv::tree_reader reader(bytes(input, sizeof(input)), tlv::native::borrow_format(format),
+                            {frames, 3}, 3, 100);
     auto             selected = reader.select("6F/A5/51");
     EXPECT_EQ(selected.end(), selected.begin());
     try {
@@ -782,7 +813,8 @@ TEST(Unit_Tlvpp_QueryRanges, EmptyAndCompilationErrors) {
 TEST(Unit_Tlvpp_QueryRanges, MalformedTailIsNotEnd) {
     const uint8_t    broken[] = {0x50, 0, 0x51, 2};
     tlv::tree_frame  frames[1]{};
-    tlv::tree_reader reader(bytes(broken, sizeof(broken)), format, {frames, 1}, 1, 10);
+    tlv::tree_reader reader(bytes(broken, sizeof(broken)), tlv::native::borrow_format(format),
+                            {frames, 1}, 1, 10);
     auto             selected = reader.select("50");
     auto             it = selected.begin();
     ASSERT_NE(it, selected.end());
@@ -798,7 +830,7 @@ TEST(Unit_Tlvpp_QueryRanges, MalformedTailIsNotEnd) {
 TEST(Unit_Tlvpp_QueryRanges, IncrementalResumeAndIteratorCopies) {
     const uint8_t    flat[] = {0x50, 1, 1, 0x50, 1, 2};
     tlv::tree_frame  frames[1]{};
-    tlv::tree_reader reader(bytes(flat, 3), format, {frames, 1}, 1, 10,
+    tlv::tree_reader reader(bytes(flat, 3), tlv::native::borrow_format(format), {frames, 1}, 1, 10,
                             tlv::input_mode::incremental);
     auto             selected = reader.select("50");
     auto             it = selected.begin();
@@ -817,7 +849,8 @@ TEST(Unit_Tlvpp_QueryRanges, IncrementalResumeAndIteratorCopies) {
 
 TEST(Unit_Tlvpp_QueryRanges, LimitsApplyToUnmatchedItems) {
     tlv::tree_frame  frames[3]{};
-    tlv::tree_reader reader(bytes(input, sizeof(input)), format, {frames, 3}, 3, 1);
+    tlv::tree_reader reader(bytes(input, sizeof(input)), tlv::native::borrow_format(format),
+                            {frames, 3}, 3, 1);
     auto             selected = reader.select("51");
     auto             result = selected.next();
     ASSERT_FALSE(result);
@@ -826,7 +859,8 @@ TEST(Unit_Tlvpp_QueryRanges, LimitsApplyToUnmatchedItems) {
 
 #if OPENTLV_DOCUMENT
 TEST(Unit_Tlvpp_QueryRanges, DocumentSnapshotHandlesSurviveMoveAndInvalidateSafely) {
-    auto parsed = tlv::document::parse(bytes(input, sizeof(input)), tlv::document_format(format));
+    auto parsed = tlv::document::parse(bytes(input, sizeof(input)),
+                                       tlv::document_format(tlv::native::borrow_format(format)));
     ASSERT_TRUE(parsed);
     auto selected = parsed->select("6F/A5/50");
     ASSERT_EQ(2u, selected.size());
@@ -845,8 +879,8 @@ TEST(Unit_Tlvpp_QueryRanges, DocumentSnapshotHandlesSurviveMoveAndInvalidateSafe
 TEST(Unit_Tlvpp_QueryRanges, DocumentDestructionInvalidatesResults) {
     std::vector<tlv::node> selected;
     {
-        auto parsed =
-            tlv::document::parse(bytes(input, sizeof(input)), tlv::document_format(format));
+        auto parsed = tlv::document::parse(
+            bytes(input, sizeof(input)), tlv::document_format(tlv::native::borrow_format(format)));
         ASSERT_TRUE(parsed);
         selected = parsed->select("6F/A5/50");
     }
@@ -856,7 +890,8 @@ TEST(Unit_Tlvpp_QueryRanges, DocumentDestructionInvalidatesResults) {
 }
 
 TEST(Unit_Tlvpp_QueryRanges, DocumentSnapshotExcludesInsertionAndInvalidatesReplacedChildren) {
-    auto parsed = tlv::document::parse(bytes(input, sizeof(input)), tlv::document_format(format));
+    auto parsed = tlv::document::parse(bytes(input, sizeof(input)),
+                                       tlv::document_format(tlv::native::borrow_format(format)));
     ASSERT_TRUE(parsed);
     auto selected = parsed->select("6F/A5/50");
     auto parent = parsed->find(tlv::query::compile("6F/A5"));

@@ -34,6 +34,10 @@ jobs:
       - uses: actions/setup-python@v5
         with:
           python-version: '3.x'
+      - name: Check the public C++ consumer boundary
+        run: |
+          python scripts/test_cxx_boundary.py
+          python scripts/check_cxx_boundary.py
       - uses: pre-commit/action@v3.0.1
 
   cppcheck:

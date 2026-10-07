@@ -11,14 +11,60 @@
 #include "tlv/query/plan.h"
 #include "tlv/config.h"
 #include "tlv++/reader/tree.hpp"
+#include "tlv++/query/options.hpp"
 
 /** @file
  * @brief Full Query compilation and execution through the canonical C engine. */
 namespace tlv {
+namespace detail {
+struct query_program_access;
+}
+/** @brief Structured Query error category. */
+enum class query_issue {
+    none = TLV_QUERY_ERROR_NONE,                  /**< No failure. */
+    syntax = TLV_QUERY_ERROR_SYNTAX,              /**< Invalid expression. */
+    capability = TLV_QUERY_ERROR_CAPABILITY,      /**< Unavailable capability. */
+    limit = TLV_QUERY_ERROR_LIMIT,                /**< Exhausted budget. */
+    storage = TLV_QUERY_ERROR_STORAGE,            /**< Invalid storage. */
+    events = TLV_QUERY_ERROR_EVENTS,              /**< Invalid event sequence. */
+    source = TLV_QUERY_ERROR_SOURCE,              /**< Missing source locations. */
+    reader = TLV_QUERY_ERROR_READER,              /**< Wire Reader failure. */
+    binding = TLV_QUERY_ERROR_BINDING,            /**< Invalid variable binding. */
+    cardinality = TLV_QUERY_ERROR_CARDINALITY,    /**< Scalar cardinality mismatch. */
+    codec = TLV_QUERY_ERROR_CODEC,                /**< Value conversion failure. */
+    image_version = TLV_QUERY_ERROR_IMAGE_VERSION /**< Incompatible program image. */
+};
+/** @brief Scalar result borrowing immutable input, program or execution storage until reset. */
+struct query_value {
+    query_type kind;    /**< Result category; node sequences are consumed with next(). */
+    bool       boolean; /**< Boolean result when kind is boolean. */
+    int64_t    integer; /**< Integer result when kind is integer. */
+    tlv::bytes data;    /**< Bytes or UTF-8 text when kind is bytes or string. */
+};
 /** @brief Original native status and complete Query diagnostic, including Reader/codec detail. */
 struct query_failure {
     tlv_result_t code; /**< Original status, including NEED_MORE_DATA and END_OF_BUFFER. */
     tlv_query_diagnostic_t diagnostic; /**< Byte span, source, limit and codec context. */
+    /** @brief Canonical C++ operation status, preserving resumable input and EOF. */
+    errc status() const noexcept {
+        return static_cast<errc>(code);
+    }
+    /** @brief Immutable program-lifetime error description. */
+    const char* message() const noexcept {
+        return tlv::message(status());
+    }
+    /** @brief Category identifying the relevant subsystem detail. */
+    query_issue kind() const noexcept {
+        return static_cast<query_issue>(diagnostic.kind);
+    }
+    /** @brief Copy common diagnostic information while preserving Query detail on this object. */
+    tlv::error failure() const noexcept {
+        if (kind() == query_issue::reader)
+            return detail::reader_failed(code, diagnostic.reader, diagnostic.source_offset);
+        auto value = tlv::error(status(), operation::query);
+        return diagnostic.has_source_offset ? value.at(diagnostic.source_offset, operation::query)
+                                            : value;
+    }
 };
 /** @cond INTERNAL */
 namespace detail {
@@ -48,27 +94,37 @@ public:
     query_program(const query_program&) = default;
     /** @brief Share immutable ownership, leaving existing executions alive. */
     query_program& operator=(const query_program&) = default;
+    /** @brief Compile with C++ declarations and borrowed capabilities.
+     * @param text Query text, not retained.
+     * @param options Stationary declarations; names remain alive during compilation.
+     * @return Shared immutable program or complete Query failure; may allocate.
+     */
+    static expected<query_program, query_failure> compile(const std::string&   text,
+                                                          const query_options& options) {
+        return compile(text, options.view());
+    }
     /** @brief Compile bounded text with checked resolver stability and owned program storage.
      * @param text Query bytes, including any embedded NUL for native diagnostics.
      * @param options Initialized native options, including typed declarations and providers.
      * @return Shared program or full native failure; allocation exceptions propagate. */
-    static expected<query_program, query_failure>
-    compile(const std::string& text, const tlv_query_compile_options_t* options = nullptr) {
+    static expected<query_program, query_failure> compile(const std::string& text,
+                                                          query_settings     options = nullptr) {
+        const auto*            native_options = detail::query_options_access::get(options);
         size_t                 size = 0, alignment = 0;
         tlv_query_diagnostic_t d{};
-        auto rc = tlv_query_compile_prepare_size(text.data(), text.size(), options, &size,
+        auto rc = tlv_query_compile_prepare_size(text.data(), text.size(), native_options, &size,
                                                  &alignment, &d);
         if (rc != TLV_OK) return unexpected<query_failure>(detail::query_failed(rc, d));
         detail::query_memory     scratch(size);
         tlv_query_program_info_t info{};
         info.struct_size = sizeof info;
         const tlv_query_program_t* prepared = nullptr;
-        rc = tlv_query_compile_prepare(text.data(), text.size(), options, scratch.data(), size,
-                                       &prepared, &info, &d);
+        rc = tlv_query_compile_prepare(text.data(), text.size(), native_options, scratch.data(),
+                                       size, &prepared, &info, &d);
         if (rc != TLV_OK) return unexpected<query_failure>(detail::query_failed(rc, d));
         size_t validation_size = 0;
-        rc = tlv_query_program_load_scratch(prepared, info.program_size, options, &validation_size,
-                                            &alignment, &d);
+        rc = tlv_query_program_load_scratch(prepared, info.program_size, native_options,
+                                            &validation_size, &alignment, &d);
         if (rc != TLV_OK) return unexpected<query_failure>(detail::query_failed(rc, d));
         detail::query_memory validation(validation_size);
         auto                 memory = std::make_shared<detail::query_memory>(info.program_size);
@@ -88,15 +144,17 @@ public:
      * @return Borrowed program or full native diagnostic.
      * @note This is one native compile call. Use native compile_prepare followed by
      * commit_into for allocation-free detection of resolver changes across passes. */
-    static expected<query_program, query_failure>
-    compile_into(const char* text, size_t size, const tlv_query_compile_options_t* options,
-                 void* scratch, size_t scratch_size, void* storage, size_t capacity) {
+    static expected<query_program, query_failure> compile_into(const char* text, size_t size,
+                                                               query_settings options,
+                                                               void* scratch, size_t scratch_size,
+                                                               void* storage, size_t capacity) {
+        const auto* native_options = detail::query_options_access::get(options);
         if (!storage) return unexpected<query_failure>(detail::query_failed(TLV_ERR_NULL_ARG));
         query_program          result;
         tlv_query_diagnostic_t d{};
         result.info_.struct_size = sizeof result.info_;
-        auto rc = tlv_query_compile(text, size, options, scratch, scratch_size, storage, capacity,
-                                    &result.info_, &d);
+        auto rc = tlv_query_compile(text, size, native_options, scratch, scratch_size, storage,
+                                    capacity, &result.info_, &d);
         if (rc != TLV_OK) return unexpected<query_failure>(detail::query_failed(rc, d));
         result.program_ = static_cast<const tlv_query_program_t*>(storage);
         return result;
@@ -111,14 +169,16 @@ public:
      * @param capacity Available final program bytes.
      * @return Borrowed program or complete native failure. Failure preserves storage;
      * equal-size changes to resolved identifiers are rejected. */
-    static expected<query_program, query_failure>
-    commit_into(const void* prepared, size_t size, const tlv_query_compile_options_t* options,
-                void* scratch, size_t scratch_size, void* storage, size_t capacity) {
+    static expected<query_program, query_failure> commit_into(const void* prepared, size_t size,
+                                                              query_settings options, void* scratch,
+                                                              size_t scratch_size, void* storage,
+                                                              size_t capacity) {
+        const auto*   native_options = detail::query_options_access::get(options);
         query_program result;
         result.info_.struct_size = sizeof result.info_;
         tlv_query_diagnostic_t d{};
-        auto rc = tlv_query_compile_commit(prepared, size, options, scratch, scratch_size, storage,
-                                           capacity, &result.info_, &d);
+        auto rc = tlv_query_compile_commit(prepared, size, native_options, scratch, scratch_size,
+                                           storage, capacity, &result.info_, &d);
         if (rc != TLV_OK) return unexpected<query_failure>(detail::query_failed(rc, d));
         result.program_ = static_cast<const tlv_query_program_t*>(storage);
         return result;
@@ -131,10 +191,12 @@ public:
      * @param alignment Required scratch alignment output.
      * @return Success or complete native failure. Discovery does not validate instructions. */
     static expected<void, query_failure> load_scratch(const void* image, size_t size,
-                                                      const tlv_query_compile_options_t* options,
-                                                      size_t& bytes, size_t& alignment) {
+                                                      query_settings options, size_t& bytes,
+                                                      size_t& alignment) {
+        const auto*            native_options = detail::query_options_access::get(options);
         tlv_query_diagnostic_t d{};
-        auto rc = tlv_query_program_load_scratch(image, size, options, &bytes, &alignment, &d);
+        auto                   rc =
+            tlv_query_program_load_scratch(image, size, native_options, &bytes, &alignment, &d);
         if (rc != TLV_OK) return unexpected<query_failure>(detail::query_failed(rc, d));
         return {};
     }
@@ -147,14 +209,15 @@ public:
      * @return Borrowed program or complete native failure. No C++ allocation occurs.
      * @note Images have release-limited compatibility and are fully reconstructed
      * by the C validator before use. The returned program never owns the image. */
-    static expected<query_program, query_failure>
-    load_external(const void* image, size_t size, const tlv_query_compile_options_t* options,
-                  void* scratch, size_t capacity) {
+    static expected<query_program, query_failure> load_external(const void* image, size_t size,
+                                                                query_settings options,
+                                                                void* scratch, size_t capacity) {
+        const auto*   native_options = detail::query_options_access::get(options);
         query_program result;
         result.info_.struct_size = sizeof result.info_;
         tlv_query_diagnostic_t d{};
-        auto rc = tlv_query_program_load(image, size, options, scratch, capacity, &result.program_,
-                                         &result.info_, &d);
+        auto rc = tlv_query_program_load(image, size, native_options, scratch, capacity,
+                                         &result.program_, &result.info_, &d);
         if (rc != TLV_OK) return unexpected<query_failure>(detail::query_failed(rc, d));
         return result;
     }
@@ -178,6 +241,14 @@ public:
     const tlv_query_program_info_t& info() const {
         return info_;
     }
+    /** @brief Whole-expression backend requirement. */
+    query_level level() const noexcept {
+        return static_cast<query_level>(info_.level);
+    }
+    /** @brief Static expression result category. */
+    query_type result_type() const noexcept {
+        return static_cast<query_type>(info_.result_kind);
+    }
     /** @brief Number of unique referenced variables; unused declarations are excluded. */
     size_t variable_count() const {
         return tlv_query_program_variable_count(program_);
@@ -199,6 +270,10 @@ public:
     std::string explain() const {
         return render(true);
     }
+
+private:
+    friend class query_execution;
+    friend struct detail::query_program_access;
     /** @brief Borrow the immutable native program for interoperability. */
     const tlv_query_program_t* c_program() const {
         return program_;
@@ -233,6 +308,25 @@ private:
  * NEED_MORE_DATA preserves state and differs from final END_OF_BUFFER. */
 class query_execution {
 public:
+    /** @brief Allocate an independent execution using C++ capabilities.
+     * @param program Immutable program retained by value.
+     * @param depth Maximum nesting depth.
+     * @param nodes Candidate capacity including nonmatches.
+     * @param work Charged work budget.
+     * @param environment Borrowed stationary providers, alive through execution.
+     * @param retained Select retained evaluation instead of bounded S0/S1.
+     * @return Execution or canonical failure; allocation exceptions propagate.
+     */
+    static expected<query_execution, query_failure> create(const query_program& program,
+                                                           size_t depth, size_t nodes, size_t work,
+                                                           const query_environment& environment,
+                                                           bool retained = true) {
+        return create(program, depth, nodes, work, environment.view(), retained);
+    }
+    /** @brief Reject retaining providers from a temporary environment. */
+    static expected<query_execution, query_failure> create(const query_program&, size_t, size_t,
+                                                           size_t, const query_environment&&,
+                                                           bool = true) = delete;
     /** @brief Mutable continuations cannot be copied. */
     query_execution(const query_execution&) = delete;
     /** @brief Mutable continuations cannot be assigned by copy. */
@@ -266,9 +360,10 @@ public:
      * @param environment Compatible immutable borrowed providers.
      * @param retained True selects retained evaluation; false selects bounded S0/S1.
      * @return Independent continuation or native failure. */
-    static expected<query_execution, query_failure>
-    create(const query_program& program, size_t depth, size_t nodes, size_t work,
-           const tlv_query_environment_t* environment = nullptr, bool retained = true) {
+    static expected<query_execution, query_failure> create(const query_program& program,
+                                                           size_t depth, size_t nodes, size_t work,
+                                                           query_capabilities environment = nullptr,
+                                                           bool               retained = true) {
         size_t size = 0, alignment = 0;
         auto   rc = retained
                         ? tlv_query_eval_size(program.c_program(), depth, nodes, &size, &alignment)
@@ -292,12 +387,13 @@ public:
      * @return Execution or native failure. */
     static expected<query_execution, query_failure>
     external(const query_program& program, void* storage, size_t capacity, size_t depth,
-             size_t nodes, size_t work, const tlv_query_environment_t* environment = nullptr,
+             size_t nodes, size_t work, query_capabilities environment = nullptr,
              bool retained = true) {
         query_execution result(program);
         auto rc = retained
-                      ? tlv_query_eval_init(program.c_program(), environment, storage, capacity,
-                                            depth, nodes, work, &result.exec_)
+                      ? tlv_query_eval_init(program.c_program(),
+                                            detail::query_options_access::get(environment), storage,
+                                            capacity, depth, nodes, work, &result.exec_)
                       : (environment ? TLV_ERR_UNSUPPORTED_TYPE
                                      : tlv_query_exec_init(program.c_program(), storage, capacity,
                                                            depth, nodes, work, &result.exec_));
@@ -378,7 +474,8 @@ public:
             static tlv_visit_result_t call(const tlv_tree_event_t* event, void* context) {
                 auto& s = *static_cast<state*>(context);
                 try {
-                    return (*s.visitor)(detail::tree_access::borrow(*event));
+                    return static_cast<tlv_visit_result_t>(
+                        (*s.visitor)(detail::tree_access::borrow(*event)));
                 } catch (...) {
                     s.failure = std::current_exception();
                     return TLV_VISIT_ERROR;
@@ -402,6 +499,18 @@ public:
         auto               rc = tlv_query_exec_result(exec_, &out);
         if (rc != TLV_OK) return unexpected<query_failure>(detail::query_failed(rc));
         return out;
+    }
+    /** @brief Read a completed scalar with C++ categories and borrowed byte storage.
+     * @return Result or complete Query failure; does not allocate.
+     * @warning Borrowed data remains valid only until execution reset or input destruction.
+     */
+    expected<query_value, query_failure> scalar() const {
+        const auto value = result();
+        if (!value) return unexpected<query_failure>(value.error());
+        return query_value{static_cast<query_type>(value->kind),
+                           value->boolean != 0,
+                           value->integer,
+                           {reinterpret_cast<const byte*>(value->data), value->size}};
     }
     /** @brief Pull a finalized retained Tree result; END_OF_BUFFER means final exhaustion. */
     expected<tree_event, query_failure> next() {
@@ -432,6 +541,9 @@ public:
         if (!found) return unexpected<query_failure>(detail::query_failed(TLV_ERR_END_OF_BUFFER));
         return selected;
     }
+
+private:
+    friend struct detail::query_program_access;
     /** @brief Borrow native continuation for optional Document/Schema adapters. */
     tlv_query_exec_t* c_exec() const {
         return exec_;
@@ -453,5 +565,17 @@ private:
     bool                                  has_document_ = false;
     friend class document;
 };
+/// @cond INTERNAL
+namespace detail {
+struct query_program_access {
+    static const tlv_query_program_t* get(const query_program& value) {
+        return value.c_program();
+    }
+    static tlv_query_exec_t* get(query_execution& value) {
+        return value.c_exec();
+    }
+};
+} // namespace detail
+/// @endcond
 } // namespace tlv
 #endif

@@ -3,7 +3,7 @@
 Include `tlv/builtins/dhcp/dhcpv4.h` and select `tlv_format_dhcpv4`.
 C++ callers can include `tlv++/builtins/dhcp/dhcpv4.hpp` and use
 the typed `tlv::dhcp::format` with Reader/Writer or `tlv::dhcp::parse`.
-The compatibility getter `tlv::dhcpv4_format()` remains available.
+Native descriptor access is explicit through `tlv::native::descriptor`.
 The independent CMake option `OPENTLV_DHCP` defaults to `ON`;
 `tlv_config_dhcp()` reports the compiled library's availability.
 

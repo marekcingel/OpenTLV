@@ -19,6 +19,16 @@ namespace tlv {
 
 /** @brief C++ alias for the writer-specific diagnostic type, #tlv_writer_diagnostic_t. */
 using writer_diagnostic = tlv_writer_diagnostic_t;
+/// @cond INTERNAL
+namespace detail {
+inline error writer_failed(tlv_result_t code, const writer_diagnostic& diagnostic) noexcept {
+    return diagnostic.diagnostic.code == code
+               ? error_access::diagnostic(diagnostic.diagnostic, operation::writer,
+                                          diagnostic.has_tag ? &diagnostic.tag : nullptr)
+               : error::from_c(code).during(operation::writer);
+}
+} // namespace detail
+/// @endcond
 
 /**
  * @brief Measures exact caller-owned destination storage for an Element.
@@ -28,12 +38,15 @@ using writer_diagnostic = tlv_writer_diagnostic_t;
  * @return Native byte count or C error. Success does not allocate; errors may allocate.
  */
 TLV_NODISCARD inline expected<size_t, error> encoded_size(const element_view& value,
-                                                          const tlv_format_t& format,
+                                                          tlv::format         format,
                                                           writer_diagnostic* diagnostic = nullptr) {
+    writer_diagnostic local{};
+    if (!diagnostic) diagnostic = &local;
     size_t     size = 0;
     const auto raw = detail::semantic_access::get(value);
-    const auto rc = tlv_element_encoded_size_diag(&raw, &format, &size, diagnostic);
-    if (rc != TLV_OK) return unexpected<error>(error::from_c(rc));
+    const auto rc =
+        tlv_element_encoded_size_diag(&raw, &detail::format_access::get(format), &size, diagnostic);
+    if (rc != TLV_OK) return unexpected<error>(detail::writer_failed(rc, *diagnostic));
     return size;
 }
 
@@ -45,10 +58,11 @@ TLV_NODISCARD inline expected<size_t, error> encoded_size(const element_view& va
  * @return Required byte count, or the C measurement error.
  */
 TLV_NODISCARD inline expected<size_t, error> encoded_size(tlv::tag tag, size_t length,
-                                                          const tlv_format_t& format) {
+                                                          tlv::format format) {
     size_t     size = 0;
-    const auto rc = tlv_encoded_size(detail::semantic_access::get(tag), length, &format, &size);
-    if (rc != TLV_OK) return unexpected<error>(error::from_c(rc));
+    const auto rc = tlv_encoded_size(detail::semantic_access::get(tag), length,
+                                     &detail::format_access::get(format), &size);
+    if (rc != TLV_OK) return unexpected<error>(error::from_c(rc).during(operation::writer));
     return size;
 }
 
@@ -62,15 +76,17 @@ TLV_NODISCARD inline expected<size_t, error> encoded_size(tlv::tag tag, size_t l
  * @return Written byte count, or the canonical C error.
  * @warning A failing Format callback may modify output bytes; see tlv_write_element_diag().
  */
-TLV_NODISCARD inline expected<size_t, error> write(byte* data, size_t capacity,
-                                                   const tlv_format_t& format,
+TLV_NODISCARD inline expected<size_t, error> write(byte* data, size_t capacity, tlv::format format,
                                                    const element_view& value,
                                                    writer_diagnostic*  diagnostic = nullptr) {
+    writer_diagnostic local{};
+    if (!diagnostic) diagnostic = &local;
     size_t     written = 0;
     const auto raw = detail::semantic_access::get(value);
-    const auto rc = tlv_write_element_diag(reinterpret_cast<uint8_t*>(data), capacity, &format,
-                                           &raw, &written, diagnostic);
-    if (rc != TLV_OK) return unexpected<error>(error::from_c(rc));
+    const auto rc =
+        tlv_write_element_diag(reinterpret_cast<uint8_t*>(data), capacity,
+                               &detail::format_access::get(format), &raw, &written, diagnostic);
+    if (rc != TLV_OK) return unexpected<error>(detail::writer_failed(rc, *diagnostic));
     return written;
 }
 
@@ -85,15 +101,17 @@ TLV_NODISCARD inline expected<size_t, error> write(byte* data, size_t capacity,
  * @return Written byte count, or the canonical C error.
  * @warning A failing Format callback may modify output bytes; see tlv_write_diag().
  */
-TLV_NODISCARD inline expected<size_t, error> write(byte* data, size_t capacity,
-                                                   const tlv_format_t& format, tlv::tag tag,
-                                                   bytes              value,
+TLV_NODISCARD inline expected<size_t, error> write(byte* data, size_t capacity, tlv::format format,
+                                                   tlv::tag tag, bytes value,
                                                    writer_diagnostic* diagnostic = nullptr) {
+    writer_diagnostic local{};
+    if (!diagnostic) diagnostic = &local;
     size_t     written = 0;
     const auto rc = tlv_write_diag(
-        reinterpret_cast<uint8_t*>(data), capacity, &format, detail::semantic_access::get(tag),
-        reinterpret_cast<const uint8_t*>(value.data()), value.size(), &written, diagnostic);
-    if (rc != TLV_OK) return unexpected<error>(error::from_c(rc));
+        reinterpret_cast<uint8_t*>(data), capacity, &detail::format_access::get(format),
+        detail::semantic_access::get(tag), reinterpret_cast<const uint8_t*>(value.data()),
+        value.size(), &written, diagnostic);
+    if (rc != TLV_OK) return unexpected<error>(detail::writer_failed(rc, *diagnostic));
     return written;
 }
 
@@ -208,13 +226,8 @@ public:
      * @note On error the write position is unchanged.
      */
     TLV_NODISCARD expected<void, error> write(tlv::tag tag, bytes value) {
-        tlv_result_t rc =
-            tlv_writer_write(&impl_, detail::semantic_access::get(tag),
-                             reinterpret_cast<const uint8_t*>(value.data()), value.size());
-        if (rc != TLV_OK) {
-            return unexpected<error>(error::from_c(rc));
-        }
-        return {};
+        writer_diagnostic diagnostic{};
+        return write(tag, value, diagnostic);
     }
 
     /**
@@ -246,7 +259,7 @@ public:
                                                 reinterpret_cast<const uint8_t*>(value.data()),
                                                 value.size(), &out_diagnostic);
         if (rc != TLV_OK) {
-            return unexpected<error>(error::from_c(rc));
+            return unexpected<error>(detail::writer_failed(rc, out_diagnostic));
         }
         return {};
     }
@@ -277,9 +290,11 @@ public:
      */
     TLV_NODISCARD expected<void, error> write(const element_view& value,
                                               writer_diagnostic*  diagnostic = nullptr) {
+        writer_diagnostic local{};
+        if (!diagnostic) diagnostic = &local;
         const auto raw = detail::semantic_access::get(value);
         const auto rc = tlv_writer_write_element_diag(&impl_, &raw, diagnostic);
-        if (rc != TLV_OK) return unexpected<error>(error::from_c(rc));
+        if (rc != TLV_OK) return unexpected<error>(detail::writer_failed(rc, *diagnostic));
         return {};
     }
 
@@ -291,9 +306,11 @@ public:
      */
     TLV_NODISCARD expected<void, error> copy_encoded(bytes              encoded,
                                                      writer_diagnostic* diagnostic = nullptr) {
+        writer_diagnostic local{};
+        if (!diagnostic) diagnostic = &local;
         const auto rc = tlv_writer_copy_encoded_diag(
             &impl_, reinterpret_cast<const uint8_t*>(encoded.data()), encoded.size(), diagnostic);
-        if (rc != TLV_OK) return unexpected<error>(error::from_c(rc));
+        if (rc != TLV_OK) return unexpected<error>(detail::writer_failed(rc, *diagnostic));
         return {};
     }
 
@@ -308,9 +325,11 @@ public:
     TLV_NODISCARD expected<void, error> preserve(const tlv_source_t& original,
                                                  const element_view& value,
                                                  writer_diagnostic*  diagnostic = nullptr) {
+        writer_diagnostic local{};
+        if (!diagnostic) diagnostic = &local;
         const auto raw = detail::semantic_access::get(value);
         const auto rc = tlv_writer_preserve_diag(&impl_, &original, &raw, diagnostic);
-        if (rc != TLV_OK) return unexpected<error>(error::from_c(rc));
+        if (rc != TLV_OK) return unexpected<error>(detail::writer_failed(rc, *diagnostic));
         return {};
     }
 
@@ -354,44 +373,12 @@ public:
 /** @brief Runtime Format cursor; descriptor and context remain borrowed. */
 template <> class writer<tlv::format> : public detail::writer_base {
 public:
-    /** @brief Initialize from a borrowed C++ view or native descriptor. */
-    using detail::writer_base::writer_base;
+    /** @brief Borrow mutable output and a C++ Format with explicit lifetime. */
+    writer(byte* data, size_t capacity, tlv::format format)
+        : detail::writer_base(data, capacity, format) {}
+    /** @brief Borrow contiguous output and a C++ Format with explicit lifetime. */
+    writer(span<byte> output, tlv::format format) : detail::writer_base(output, format) {}
 };
-
-/** @brief Measure an Element using a C++ Format view.
- * @copydetails encoded_size(const element_view&, const tlv_format_t&, writer_diagnostic*)
- */
-TLV_NODISCARD inline expected<size_t, error> encoded_size(const element_view& value,
-                                                          tlv::format         format,
-                                                          writer_diagnostic* diagnostic = nullptr) {
-    return encoded_size(value, detail::format_access::get(format), diagnostic);
-}
-
-/** @brief Measure a Tag and Value length using a C++ Format view.
- * @copydetails encoded_size(tlv::tag, size_t, const tlv_format_t&)
- */
-TLV_NODISCARD inline expected<size_t, error> encoded_size(tlv::tag tag, size_t length,
-                                                          tlv::format format) {
-    return encoded_size(tag, length, detail::format_access::get(format));
-}
-
-/** @brief Write an Element using a C++ Format view.
- * @copydetails write(byte*, size_t, const tlv_format_t&, const element_view&, writer_diagnostic*)
- */
-TLV_NODISCARD inline expected<size_t, error> write(byte* data, size_t capacity, tlv::format format,
-                                                   const element_view& value,
-                                                   writer_diagnostic*  diagnostic = nullptr) {
-    return write(data, capacity, detail::format_access::get(format), value, diagnostic);
-}
-
-/** @brief Write a Tag and Value using a C++ Format view.
- * @copydetails write(byte*, size_t, const tlv_format_t&, tlv::tag, bytes, writer_diagnostic*)
- */
-TLV_NODISCARD inline expected<size_t, error> write(byte* data, size_t capacity, tlv::format format,
-                                                   tlv::tag tag, bytes value,
-                                                   writer_diagnostic* diagnostic = nullptr) {
-    return write(data, capacity, detail::format_access::get(format), tag, value, diagnostic);
-}
 
 } // namespace tlv
 

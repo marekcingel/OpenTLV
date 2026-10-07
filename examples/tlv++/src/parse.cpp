@@ -35,10 +35,10 @@ int main() {
                 std::cout << std::setw(2) << std::setfill('0') << static_cast<unsigned>(byte);
             std::cout << std::dec << '\n';
             ++count;
-            return TLV_VISIT_CONTINUE;
+            return tlv::visit_control::next;
         });
     if (!result) {
-        std::cerr << "Parse error: " << result.error().message << '\n';
+        std::cerr << "Parse error: " << result.error().message() << '\n';
         return 1;
     }
     return count == 4 ? 0 : 2;

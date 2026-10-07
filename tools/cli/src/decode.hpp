@@ -4,7 +4,8 @@
 #ifndef OPENTLV_CLI_DECODE_HPP
 #define OPENTLV_CLI_DECODE_HPP
 #include <string>
-#include "tlv/reader/visitor.h"
+#include "tlv++/types.hpp"
+#include "tlv++/visitor.hpp"
 
 namespace cli {
 
@@ -27,7 +28,7 @@ struct decode_result {
 // value is never modified; callers present it independently. Builds on the
 // codec layer only - no decoding logic is implemented here beyond formatting
 // the codec's own output.
-decode_result decode_emv_value(int context, const tlv_element_t* element);
+decode_result decode_emv_value(int context, const tlv::element_view* element);
 
 } // namespace cli
 #endif

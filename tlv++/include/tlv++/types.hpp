@@ -7,6 +7,7 @@
 #include <string>
 #include <stdexcept>
 #include "tlv++/compat.hpp"
+#include "tlv++/error.hpp"
 #include "tlv/element.h"
 
 /**
@@ -25,33 +26,10 @@ expected<typename Field::value_type, typed_error> decode_field(const element_vie
 }
 /// @endcond
 
-/**
- * @brief Idiomatic C++ error that wraps a C result code and its description.
- *
- * Returned in the error state of an `expected` by the tlv++ wrappers.
- *
- * @see tlv_result_t
- */
-struct error {
-    /** The C result code. */
-    tlv_result_t code;
-    /** Human-readable description of `code`, owned by this object. */
-    std::string message;
-
-    /**
-     * @brief Builds an error from a C result code.
-     *
-     * @param c_code C result code.
-     *
-     * @return An error whose message is tlv_strerror(`c_code`).
-     */
-    static error from_c(tlv_result_t c_code) {
-        return error{c_code, tlv_strerror(c_code)};
-    }
-};
-
 /** @brief Non-owning, read-only byte span; storage must outlive every copy. */
 using bytes = span<const byte>;
+/** @brief Logical wire length, independent of the host address-space width. */
+using wire_size = tlv_size_t;
 
 /// @cond INTERNAL
 namespace detail {
@@ -304,6 +282,13 @@ struct semantic_access {
 };
 } // namespace detail
 /// @endcond
+
+inline tlv::tag error::tag() const noexcept {
+    return has_tag_ ? detail::semantic_access::borrow(tag_) : tlv::tag{};
+}
+inline tlv::tag error::ancestor(size_t index) const noexcept {
+    return index < path_.length ? detail::semantic_access::borrow(path_.tags[index]) : tlv::tag{};
+}
 
 } // namespace tlv
 #endif

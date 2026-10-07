@@ -5,8 +5,8 @@
 #define OPENTLV_CLI_PRESENTATION_H
 #include <string>
 #include <vector>
-#include "tlv/definition.h"
-#include "tlv/reader/visitor.h"
+#include "tlv++/types.hpp"
+#include "tlv++/visitor.hpp"
 
 // Structured EMV dictionary metadata for one element, shared by the text
 // renderer (cli_presentation_emv, below) and the CLI's JSON output so both
@@ -23,7 +23,6 @@ struct cli_emv_info {
 // Authoritative descriptive name from the composed generic Definition.
 // Shared by dump annotations and the tag command.
 // Available only when the EMV module is enabled.
-std::string cli_emv_display_name(const tlv_definition_t* definition);
 
 typedef struct cli_presentation {
     const uint8_t*      data;
@@ -38,16 +37,17 @@ typedef struct cli_presentation {
 
 // Requires a successful reader-produced element. Checks native representability;
 // an invariant violation terminates rather than allowing truncated memory access.
-size_t cli_element_value_size(const tlv_element_t* element);
+size_t cli_element_value_size(const tlv::element_view* element);
 
 void cli_presentation_init(cli_presentation_t* p, const uint8_t* data, size_t size, int color,
                            int pretty);
 void cli_presentation_restore(cli_presentation_t* p);
-void cli_presentation_visit(cli_presentation_t* p, const tlv_element_t* element, size_t depth,
+void cli_presentation_visit(cli_presentation_t* p, const tlv::element_view* element, size_t depth,
                             int indefinite);
 void cli_presentation_prefix(const cli_presentation_t* p, size_t depth);
-void cli_presentation_emv(const cli_presentation_t* p, const tlv_element_t* element, size_t depth,
-                          int describe);
-cli_emv_info cli_presentation_emv_info(const cli_presentation_t* p, const tlv_element_t* element,
-                                       size_t depth, int describe);
+void cli_presentation_emv(const cli_presentation_t* p, const tlv::element_view* element,
+                          size_t depth, int describe);
+cli_emv_info cli_presentation_emv_info(const cli_presentation_t* p,
+                                       const tlv::element_view* element, size_t depth,
+                                       int describe);
 #endif

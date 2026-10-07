@@ -55,7 +55,10 @@ tlv_result_t tlv_format_decode(const tlv_format_t* format, const uint8_t* data, 
     tlv_format_error_t detail = {0};
     tlv_source_t* s = &result.source;
     tlv_result_t rc;
-    if (!tlv_format_can_read(format) || !decoded || (!data && size)) return TLV_ERR_NULL_ARG;
+    if (!tlv_format_can_read(format) || !decoded || (!data && size)) {
+        if (error) *error = detail;
+        return TLV_ERR_NULL_ARG;
+    }
     if (!size) {
         detail.has_offset = 1;
         if (error) *error = detail;

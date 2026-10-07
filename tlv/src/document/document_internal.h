@@ -26,6 +26,7 @@ struct tlv_document {
     tlv_node_t* last;
     size_t count;
     uint64_t revision;
+    uint64_t retire_epoch;
     size_t query_callbacks;
     int query_pending;
     uint64_t next_identity;

@@ -77,6 +77,7 @@ TLV_NODISCARD inline detail::parsing_range<format> parse(bytes data) {
 
 } // namespace dhcp
 
+namespace native {
 /**
  * @brief Returns the immutable DHCPv4 option framing preset.
  * @return The shared C descriptor with static lifetime.
@@ -86,5 +87,6 @@ TLV_NODISCARD inline detail::parsing_range<format> parse(bytes data) {
 inline const tlv_format_t& dhcpv4_format() noexcept {
     return tlv_format_dhcpv4;
 }
+} // namespace native
 } // namespace tlv
 #endif

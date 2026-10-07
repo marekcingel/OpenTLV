@@ -25,6 +25,11 @@ target_link_libraries(${PROJECT_NAME} PRIVATE
     benchmark::benchmark_main
 )
 
+if(OPENTLV_BUILD_CXX)
+    target_sources(${PROJECT_NAME} PRIVATE src/cxx_facade_benchmarks.cpp)
+    target_link_libraries(${PROJECT_NAME} PRIVATE tlv++)
+endif()
+
 opentlv_configure_compiler(${PROJECT_NAME})
 opentlv_copy_shared_runtime(${PROJECT_NAME})
 

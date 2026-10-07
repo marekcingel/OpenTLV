@@ -11,7 +11,7 @@ int main() {
     auto            document =
         tlv::document::parse({input, sizeof(input)}, tlv::document_format(tlv::ber::format{}));
     if (!document) {
-        std::cerr << document.error().message << '\n';
+        std::cerr << document.error().message() << '\n';
         return 1;
     }
     // Document owns its data; Nodes borrow this Document and cannot outlive it.

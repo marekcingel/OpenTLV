@@ -5,6 +5,7 @@
 #include "tlv++/tlv.hpp"
 #include <gtest/gtest.h>
 #include <cstring>
+#include <limits>
 #include <type_traits>
 
 namespace {
@@ -30,20 +31,21 @@ struct content_format : custom_cpp_format {
     tlv::expected<tlv::encoding, tlv::format_failure>
     measure(const tlv::measure_request& value) const noexcept {
         if (value.value_size && !value.content.data())
-            return tlv::unexpected<tlv::format_failure>(tlv::format_failure(TLV_ERR_NULL_ARG));
+            return tlv::unexpected<tlv::format_failure>(
+                tlv::format_failure(tlv::errc::null_argument));
         return custom_cpp_format::measure(value);
     }
 };
 struct logical_format {
     tlv::expected<tlv::encoding, tlv::format_failure>
     measure(const tlv::measure_request& value) const noexcept {
-        if (value.value_size > TLV_SIZE_MAX - 3)
-            return tlv::unexpected<tlv::format_failure>(tlv::format_failure(TLV_ERR_OVERFLOW));
+        if (value.value_size > (std::numeric_limits<tlv::wire_size>::max)() - 3)
+            return tlv::unexpected<tlv::format_failure>(tlv::format_failure(tlv::errc::overflow));
         return tlv::encoding{2, value.value_size, 1, value.value_size + 3};
     }
     tlv::expected<size_t, tlv::format_failure> encode(const tlv::element_view&,
                                                       tlv::span<tlv::byte>) const noexcept {
-        return tlv::unexpected<tlv::format_failure>(tlv::format_failure(TLV_ERR_INVALID_VALUE));
+        return tlv::unexpected<tlv::format_failure>(tlv::format_failure(tlv::errc::invalid_value));
     }
 };
 struct invalid_decode : custom_cpp_format {
@@ -73,7 +75,7 @@ struct move_only_format : read_only {
     move_only_format(move_only_format&&) = default;
 };
 struct customized_view : tlv::format {
-    customized_view() : tlv::format(tlv::fixed_format<1, 1, TLV_BYTE_ORDER_BIG_ENDIAN>::view()) {}
+    customized_view() : tlv::format(tlv::fixed_format<1, 1, tlv::byte_order::big_endian>::view()) {}
 };
 struct adapted_format {
     unsigned char trailer;
@@ -101,7 +103,7 @@ static_assert(!tlv::format_capabilities<write_only>::readable, "write-only capab
 static_assert(!std::is_copy_constructible<tlv::format_adapter<custom_cpp_format>>::value,
               "stable address");
 static_assert(!std::is_move_constructible<tlv::reader<custom_cpp_format>>::value, "stable cursor");
-static_assert(tlv::format_capabilities<tlv::fixed_format<1, 1, TLV_BYTE_ORDER_BIG_ENDIAN>>::valid,
+static_assert(tlv::format_capabilities<tlv::fixed_format<1, 1, tlv::byte_order::big_endian>>::valid,
               "fixed contract");
 #if OPENTLV_FORMAT_BER
 static_assert(tlv::format_capabilities<tlv::ber::format>::valid, "BER contract");
@@ -171,7 +173,7 @@ TEST(Unit_Tlvpp_CustomFormat, IncrementalAndMalformedInputDiagnostics) {
     tlv::reader_diagnostic         diagnostic{};
     auto                           incomplete = reader.next(diagnostic);
     ASSERT_FALSE(incomplete);
-    EXPECT_EQ(TLV_NEED_MORE_DATA, incomplete.error().code);
+    EXPECT_EQ(tlv::errc::need_more_data, incomplete.error().status());
     EXPECT_EQ(0u, reader.consumed());
     EXPECT_TRUE(diagnostic.has_required);
     EXPECT_EQ(4u, diagnostic.required);
@@ -181,7 +183,7 @@ TEST(Unit_Tlvpp_CustomFormat, IncrementalAndMalformedInputDiagnostics) {
     tlv::reader<custom_cpp_format> malformed(bytes(wire, 4));
     auto                           invalid = malformed.next(diagnostic);
     ASSERT_FALSE(invalid);
-    EXPECT_EQ(TLV_ERR_INVALID_VALUE, invalid.error().code);
+    EXPECT_EQ(tlv::errc::invalid_value, invalid.error().status());
     EXPECT_EQ(0u, malformed.consumed());
 }
 
@@ -216,7 +218,7 @@ TEST(Unit_Tlvpp_CustomFormat, TreeWriterAndQueryUseCanonicalMachinery) {
                                         EXPECT_EQ(tlv::tag_bytes<1>(), item.tag());
                                         EXPECT_EQ(1u, depth);
                                         ++matches;
-                                        return TLV_VISIT_CONTINUE;
+                                        return tlv::visit_control::next;
                                     }));
     EXPECT_EQ(1u, matches);
 }
@@ -265,21 +267,23 @@ TEST(Unit_Tlvpp_CustomFormat, BuiltinFormatUsesTheSameTypedReaderWriter) {
 
 TEST(Unit_Tlvpp_CustomFormat, LogicalSizeOnlyMeasurementDoesNotNarrow) {
     tlv::format_adapter<logical_format> format;
-    const tlv_size_t                    logical = UINT64_C(4294967296);
+    const tlv::wire_size                logical = UINT64_C(4294967296);
     auto measured = tlv::measure(format.view(),
                                  tlv::measure_request{tlv::tag_bytes<1>(), logical, tlv::bytes{}});
     ASSERT_TRUE(measured);
     EXPECT_EQ(logical, measured->value);
     EXPECT_EQ(logical + 3, measured->total);
-    auto overflow = tlv::measure(
-        format.view(), tlv::measure_request{tlv::tag_bytes<1>(), TLV_SIZE_MAX, tlv::bytes{}});
+    auto overflow = tlv::measure(format.view(),
+                                 tlv::measure_request{tlv::tag_bytes<1>(),
+                                                      (std::numeric_limits<tlv::wire_size>::max)(),
+                                                      tlv::bytes{}});
     ASSERT_FALSE(overflow);
-    EXPECT_EQ(TLV_ERR_OVERFLOW, overflow.error().code);
+    EXPECT_EQ(tlv::errc::overflow, overflow.error().status());
     const unsigned char content[] = {0};
     auto mismatch = tlv::measure(format.view(),
                                  tlv::measure_request{tlv::tag_bytes<1>(), 2, bytes(content, 1)});
     ASSERT_FALSE(mismatch);
-    EXPECT_EQ(TLV_ERR_INVALID_ARG, mismatch.error().code);
+    EXPECT_EQ(tlv::errc::invalid_argument, mismatch.error().status());
 }
 
 TEST(Unit_Tlvpp_CustomFormat, CoreRejectsInvalidCallbackResults) {
@@ -287,7 +291,7 @@ TEST(Unit_Tlvpp_CustomFormat, CoreRejectsInvalidCallbackResults) {
     tlv::reader<invalid_decode> broken(bytes(wire, sizeof(wire)));
     auto                        decoded = broken.next_source();
     ASSERT_FALSE(decoded);
-    EXPECT_EQ(TLV_ERR_INVALID_ARG, decoded.error().code);
+    EXPECT_EQ(tlv::errc::invalid_argument, decoded.error().status());
     EXPECT_EQ(0u, broken.consumed());
     tlv::reader<custom_cpp_format> reader(bytes(wire, sizeof(wire)));
     auto                           value = reader.next();
@@ -295,12 +299,12 @@ TEST(Unit_Tlvpp_CustomFormat, CoreRejectsInvalidCallbackResults) {
     tlv::format_adapter<invalid_measure> bad_measure;
     auto                                 measured = tlv::measure(bad_measure.view(), *value);
     ASSERT_FALSE(measured);
-    EXPECT_EQ(TLV_ERR_INVALID_ARG, measured.error().code);
+    EXPECT_EQ(tlv::errc::invalid_argument, measured.error().status());
     tlv::byte                   out[4]{};
     tlv::writer<invalid_encode> bad_encoder(out, sizeof(out));
     auto                        encoded = bad_encoder.write(*value);
     ASSERT_FALSE(encoded);
-    EXPECT_EQ(TLV_ERR_INVALID_LENGTH, encoded.error().code);
+    EXPECT_EQ(tlv::errc::invalid_length, encoded.error().status());
     EXPECT_EQ(0u, bad_encoder.size());
 }
 
@@ -325,7 +329,7 @@ TEST(Unit_Tlvpp_CustomFormat, ContentDependentMeasurementReceivesReadableValue) 
     auto unavailable =
         tlv::measure(format.view(), tlv::measure_request{item->tag(), 1, tlv::bytes{}});
     ASSERT_FALSE(unavailable);
-    EXPECT_EQ(TLV_ERR_NULL_ARG, unavailable.error().code);
+    EXPECT_EQ(tlv::errc::null_argument, unavailable.error().status());
     tlv::byte                   out[4]{};
     tlv::writer<content_format> writer(out, sizeof(out));
     ASSERT_TRUE(writer.write(*item));
@@ -350,8 +354,8 @@ void builtin_round_trip(const unsigned char* wire, size_t size, tlv::tag tag) {
 } // namespace
 TEST(Unit_Tlvpp_CustomFormat, ConfiguredBuiltinsUseIdenticalGenericContract) {
     const unsigned char simple[] = {1, 1, 0x7A};
-    builtin_round_trip<tlv::fixed_format<1, 1, TLV_BYTE_ORDER_BIG_ENDIAN>>(simple, sizeof(simple),
-                                                                           tlv::tag_bytes<1>());
+    builtin_round_trip<tlv::fixed_format<1, 1, tlv::byte_order::big_endian>>(simple, sizeof(simple),
+                                                                             tlv::tag_bytes<1>());
 #if OPENTLV_FORMAT_BER || OPENTLV_FORMAT_DER || OPENTLV_FORMAT_CER
     const unsigned char asn1[] = {4, 1, 0x7A};
 #endif

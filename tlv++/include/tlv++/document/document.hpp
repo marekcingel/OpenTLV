@@ -8,7 +8,6 @@
 #include <exception>
 #include <iterator>
 #include <memory>
-#include <unordered_map>
 #include <utility>
 #include <vector>
 
@@ -17,6 +16,7 @@
 #include "tlv++/reader/tree.hpp"
 #include "tlv++/types.hpp"
 #include "tlv++/codec/typed.hpp"
+#include "tlv++/writer/builder.hpp"
 #include "tlv/document/document.h"
 #include "tlv/writer/tree.h"
 
@@ -25,73 +25,27 @@
  * @brief C++ wrapper for the optional mutable TLV document.
  *
  * Available when the library is built with `OPENTLV_DOCUMENT` (see tlv/config.h).
- * Unlike the reader and writer wrappers, the document allocates, including
- * validity metadata when exposing a Node. Allocation failures in the C++ layer
- * throw std::bad_alloc; native allocation failures are returned as errors.
+ * Unlike the reader and writer wrappers, the document allocates its owned tree and one shared
+ * lifetime record. Node observation and handle copying do not allocate. Allocation failures in the
+ * C++ layer throw std::bad_alloc; native allocation failures are returned as errors.
  */
 
 namespace tlv {
+class node;
+class const_node;
+class document;
 
 /** @cond INTERNAL */
 namespace detail {
-// Metadata only: the canonical C Document remains the sole tree representation.
-struct node_token {
-    tlv_node_t* pointer;
-    uint64_t    identity;
-    uint64_t    revision;
-    node_token(tlv_node_t* value, uint64_t id, uint64_t version)
-        : pointer(value), identity(id), revision(version) {}
+struct document_access {
+    static tlv_node_t*           get(const node& value);
+    static const tlv_node_t*     get(const const_node& value);
+    static tlv_document_t*       get(document& value);
+    static const tlv_document_t* get(const document& value);
 };
+// Metadata only: the canonical C Document remains the sole tree representation.
 struct document_lifetime {
-    tlv_document_t*                                            document = nullptr;
-    std::unordered_map<tlv_node_t*, std::weak_ptr<node_token>> handles;
-
-    std::shared_ptr<node_token> track(tlv_node_t* pointer) {
-        if (!pointer) return {};
-        auto& entry = handles[pointer];
-        auto  token = entry.lock();
-        auto  identity = tlv_node_identity(pointer);
-        if (!identity) return {};
-        if (!token || token->identity != identity) {
-            if (token) token->pointer = nullptr;
-            token =
-                std::make_shared<node_token>(pointer, identity, tlv_document_revision(document));
-            entry = token;
-        }
-        return token;
-    }
-
-    std::vector<std::shared_ptr<node_token>> affected(tlv_node_t* root, bool include_root) {
-        std::vector<std::shared_ptr<node_token>> result;
-        for (auto it = handles.begin(); it != handles.end();) {
-            auto token = it->second.lock();
-            if (!token) {
-                it = handles.erase(it);
-                continue;
-            }
-            if (tlv_document_node_identity(document, token->pointer) != token->identity) {
-                token->pointer = nullptr;
-                it = handles.erase(it);
-                continue;
-            }
-            auto candidate = include_root ? token->pointer : tlv_node_parent(token->pointer);
-            for (; candidate; candidate = tlv_node_parent(candidate)) {
-                if (candidate == root) {
-                    result.push_back(token);
-                    break;
-                }
-            }
-            ++it;
-        }
-        return result;
-    }
-
-    void invalidate(const std::vector<std::shared_ptr<node_token>>& tokens) {
-        for (const auto& token : tokens) {
-            handles.erase(token->pointer);
-            token->pointer = nullptr;
-        }
-    }
+    tlv_document_t* document = nullptr;
 };
 } // namespace detail
 /** @endcond */
@@ -105,13 +59,22 @@ using document_source_location = tlv_document_source_location_t;
 /**
  * @brief A non-owning handle to one element of a #tlv::document.
  *
- * Copies share inexpensive validity metadata without owning the Document or its tree.
+ * Copies retain identity and retirement epoch and borrow one shared lifetime record.
+ * Node observation/copying allocates nothing. After an edit retires any Node, the first
+ * access through each retained handle performs an O(number of nodes) membership
+ * check before dereferencing it; subsequent accesses at that epoch are O(1).
+ * Insertions and primitive Value replacement preserve this cache because no Node
+ * retires. Borrowed Value bytes still invalidate when their Value is replaced.
+ * Handles do not own the Document or its tree.
  * Moving a Document preserves handles. Erasure invalidates the erased subtree;
  * replacing a constructed Value invalidates its descendants only. Destruction or
  * replacement of the owning Document invalidates all its handles. Invalid handles
  * test false and accessors return empty results; fallible operations return INVALID_ARG.
  * Tag and Value views borrow storage and must not be retained across invalidating
- * edits or destruction. Operations are not thread-safe.
+ * edits or destruction.
+ * @warning Operations are not thread-safe. Const access can update the handle's
+ * validity cache; externally synchronize concurrent access to a shared handle,
+ * including read-only access after a Document mutation has completed.
  */
 class node {
 public:
@@ -143,29 +106,33 @@ public:
         return child.template decode<Field>();
     }
     /** @brief Creates an empty handle. */
-    node() = default;
+    node() noexcept : pointer_(nullptr), identity_(0), retire_epoch_(0) {}
 
     /** @brief Reports whether the handle refers to an element. */
     explicit operator bool() const {
         return c_node() != nullptr;
     }
 
+private:
     /** @brief Borrow the underlying C node, or nullptr for an invalid handle.
      * @warning Never free the owner through this handle. Native edits are checked
-     * by revision and identity before exposing a retained Node again.
+     * by retirement epoch and identity before exposing a retained Node again.
      */
     tlv_node_t* c_node() const {
         auto owner = owner_.lock();
-        if (!owner || !token_ || !token_->pointer) return nullptr;
-        auto revision = tlv_document_revision(owner->document);
-        if (token_->revision != revision) {
-            if (tlv_document_node_identity(owner->document, token_->pointer) != token_->identity)
-                token_->pointer = nullptr;
-            token_->revision = revision;
+        if (!owner || !pointer_) return nullptr;
+        const auto epoch = tlv_document_retire_epoch(owner->document);
+        if (retire_epoch_ != epoch) {
+            // Membership is checked before dereferencing a potentially retired pointer.
+            // Identity rejects allocator address reuse after erase/replacement.
+            if (tlv_document_node_identity(owner->document, pointer_) != identity_)
+                pointer_ = nullptr;
+            retire_epoch_ = epoch;
         }
-        return token_->pointer;
+        return pointer_;
     }
 
+public:
     /** @brief The element's tag, borrowing the document; empty for an empty handle. */
     tlv::tag tag() const {
         return detail::semantic_access::borrow(tlv_node_tag(c_node()));
@@ -236,13 +203,14 @@ public:
      */
     TLV_NODISCARD expected<node, error> insert(tlv::tag wanted, bytes value, node before = node()) {
         auto owner = owner_.lock();
-        if (!c_node() || (before.token_ && !before))
-            return unexpected<error>(error::from_c(TLV_ERR_INVALID_ARG));
+        if (!c_node() || (before.identity_ && !before))
+            return unexpected<error>(
+                error::from_c(TLV_ERR_INVALID_ARG).during(operation::document));
         tlv_node_t* created = nullptr;
         auto        rc = tlv_document_insert(
             owner->document, c_node(), before.c_node(), detail::semantic_access::get(wanted),
             reinterpret_cast<const uint8_t*>(value.data()), value.size(), &created);
-        if (rc != TLV_OK) return unexpected<error>(error::from_c(rc));
+        if (rc != TLV_OK) return unexpected<error>(error::from_c(rc).during(operation::document));
         try {
             return related(created);
         } catch (...) {
@@ -266,13 +234,12 @@ public:
      */
     TLV_NODISCARD expected<void, error> set(bytes value) {
         auto owner = owner_.lock();
-        if (!c_node()) return unexpected<error>(error::from_c(TLV_ERR_INVALID_ARG));
-        auto affected = is_constructed() ? owner->affected(c_node(), false)
-                                         : std::vector<std::shared_ptr<detail::node_token>>{};
+        if (!c_node())
+            return unexpected<error>(
+                error::from_c(TLV_ERR_INVALID_ARG).during(operation::document));
         tlv_result_t rc = tlv_node_set_value(
             c_node(), reinterpret_cast<const uint8_t*>(value.data()), value.size());
-        if (rc != TLV_OK) return unexpected<error>(error::from_c(rc));
-        owner->invalidate(affected);
+        if (rc != TLV_OK) return unexpected<error>(error::from_c(rc).during(operation::document));
         return {};
     }
 
@@ -284,20 +251,18 @@ public:
     void erase() {
         auto owner = owner_.lock();
         if (!c_node()) return;
-        auto affected = owner->affected(c_node(), true);
-        auto pointer = c_node();
-        auto revision = tlv_document_revision(owner->document);
-        tlv_node_erase(pointer);
-        if (tlv_document_revision(owner->document) != revision) owner->invalidate(affected);
+        tlv_node_erase(c_node());
     }
 
     /** @brief Computes the encoded size of the element with its descendants; see
      * tlv_node_encoded_size(). */
     TLV_NODISCARD expected<size_t, error> encoded_size() const {
-        if (!c_node()) return unexpected<error>(error::from_c(TLV_ERR_INVALID_ARG));
+        if (!c_node())
+            return unexpected<error>(
+                error::from_c(TLV_ERR_INVALID_ARG).during(operation::document));
         size_t       size = 0;
         tlv_result_t rc = tlv_node_encoded_size(c_node(), &size);
-        if (rc != TLV_OK) return unexpected<error>(error::from_c(rc));
+        if (rc != TLV_OK) return unexpected<error>(error::from_c(rc).during(operation::document));
         return size;
     }
 
@@ -309,7 +274,7 @@ public:
         size_t            written = 0;
         tlv_result_t      rc =
             tlv_node_encode(c_node(), reinterpret_cast<uint8_t*>(out.data()), out.size(), &written);
-        if (rc != TLV_OK) return unexpected<error>(error::from_c(rc));
+        if (rc != TLV_OK) return unexpected<error>(error::from_c(rc).during(operation::document));
         out.resize(written);
         return out;
     }
@@ -320,19 +285,15 @@ public:
      * @return Exact size or the error from tlv_node_encoded_size_as().
      * @note Stages encoded children using the Document allocator; never changes the tree.
      */
-    TLV_NODISCARD expected<size_t, error> encoded_size(const tlv_format_t& format) const {
-        if (!c_node()) return unexpected<error>(error::from_c(TLV_ERR_INVALID_ARG));
-        size_t     size = 0;
-        const auto rc = tlv_node_encoded_size_as(c_node(), &format, &size);
-        if (rc != TLV_OK) return unexpected<error>(error::from_c(rc));
-        return size;
-    }
-
-    /** @brief Measure this subtree using a C++ Format view.
-     * @copydetails encoded_size(const tlv_format_t&) const
-     */
     TLV_NODISCARD expected<size_t, error> encoded_size(tlv::format format) const {
-        return encoded_size(detail::format_access::get(format));
+        if (!c_node())
+            return unexpected<error>(
+                error::from_c(TLV_ERR_INVALID_ARG).during(operation::document));
+        size_t     size = 0;
+        const auto rc =
+            tlv_node_encoded_size_as(c_node(), &detail::format_access::get(format), &size);
+        if (rc != TLV_OK) return unexpected<error>(error::from_c(rc).during(operation::document));
+        return size;
     }
 
     /**
@@ -341,23 +302,17 @@ public:
      * @return Owned bytes or the error from tlv_node_encode_as().
      * @note Identifiers are not remapped and the tree's original Format is unchanged.
      */
-    TLV_NODISCARD expected<std::vector<byte>, error> encode(const tlv_format_t& format) const {
+    TLV_NODISCARD expected<std::vector<byte>, error> encode(tlv::format format) const {
         auto size = encoded_size(format);
         if (!size.has_value()) return unexpected<error>(size.error());
         std::vector<byte> out(*size);
         size_t            written = 0;
-        const auto        rc = tlv_node_encode_as(
-            c_node(), &format, reinterpret_cast<uint8_t*>(out.data()), out.size(), &written);
-        if (rc != TLV_OK) return unexpected<error>(error::from_c(rc));
+        const auto        rc =
+            tlv_node_encode_as(c_node(), &detail::format_access::get(format),
+                               reinterpret_cast<uint8_t*>(out.data()), out.size(), &written);
+        if (rc != TLV_OK) return unexpected<error>(error::from_c(rc).during(operation::document));
         out.resize(written);
         return out;
-    }
-
-    /** @brief Encode this subtree using a C++ Format view.
-     * @copydetails encode(const tlv_format_t&) const
-     */
-    TLV_NODISCARD expected<std::vector<byte>, error> encode(tlv::format format) const {
-        return encode(detail::format_access::get(format));
     }
 
     /** @brief Compare node identity; all empty or invalid handles compare equal. */
@@ -372,7 +327,8 @@ public:
 
 private:
     node(tlv_node_t* pointer, const std::shared_ptr<detail::document_lifetime>& owner)
-        : owner_(owner), token_(owner->track(pointer)) {}
+        : owner_(owner), pointer_(pointer), identity_(tlv_node_identity(pointer)),
+          retire_epoch_(tlv_document_retire_epoch(owner->document)) {}
 
     node related(tlv_node_t* pointer) const {
         auto owner = owner_.lock();
@@ -380,8 +336,11 @@ private:
     }
 
     std::weak_ptr<detail::document_lifetime> owner_;
-    std::shared_ptr<detail::node_token>      token_;
+    mutable tlv_node_t*                      pointer_;
+    uint64_t                                 identity_;
+    mutable uint64_t                         retire_epoch_;
     friend class document;
+    friend struct detail::document_access;
 };
 
 /** @brief Forward iterator over sibling elements, yielding #tlv::node handles.
@@ -470,6 +429,168 @@ inline node_range node::children() const {
     return node_range(first_child());
 }
 
+class const_node_range;
+/**
+ * @brief Read-only checked Node handle; cannot recover mutable Node or native storage.
+ * Copies allocate nothing and retain the same validity and borrowed-view rules as node.
+ * @warning Read-only access does not imply thread safety. Const methods may update
+ * the validity cache after a Document mutation; concurrent access to the same
+ * handle requires external synchronization even when the Document is no longer mutating.
+ */
+class const_node {
+public:
+    /** @brief Create an empty read-only handle. */
+    const_node() = default;
+    /** @brief Restrict a mutable handle to observation. */
+    const_node(node value) : value_(std::move(value)) {}
+    /** @brief Whether this handle still identifies a live element. */
+    explicit operator bool() const {
+        return static_cast<bool>(value_);
+    }
+    /** @brief Borrow the identifier; invalid handles return an absent identifier. */
+    tlv::tag tag() const {
+        return value_.tag();
+    }
+    /** @brief Borrow immutable primitive Value bytes. */
+    value_view value() const {
+        return value_.value();
+    }
+    /** @brief Whether this element contains nested elements. */
+    bool is_constructed() const {
+        return value_.is_constructed();
+    }
+    /** @brief Copy optional retained source coordinates. */
+    document_source_location source_location() const {
+        return value_.source_location();
+    }
+    /** @brief Read-only first child, or empty. */
+    const_node first_child() const {
+        return value_.first_child();
+    }
+    /** @brief Read-only next sibling, or empty. */
+    const_node next() const {
+        return value_.next();
+    }
+    /** @brief Read-only next sibling with the same identifier, or empty. */
+    const_node next_same_tag() const {
+        return value_.next_same_tag();
+    }
+    /** @brief Read-only parent, or empty for roots. */
+    const_node parent() const {
+        return value_.parent();
+    }
+    /** @brief Find a direct child by byte identity. */
+    const_node find(tlv::tag wanted) const {
+        return value_.find(wanted);
+    }
+    /** @brief Borrow read-only child traversal. */
+    const_node_range children() const;
+    /** @brief Decode this field; borrowed results follow Document lifetime. */
+    template <typename Field> expected<typename Field::value_type, typed_error> decode() const {
+        return value_.template decode<Field>();
+    }
+    /** @brief Decode the first matching direct child. */
+    template <typename Field> expected<typename Field::value_type, typed_error> get() const {
+        return value_.template get<Field>();
+    }
+    /** @brief Measure this subtree using its original Format. */
+    expected<size_t, error> encoded_size() const {
+        return value_.encoded_size();
+    }
+    /** @brief Measure this subtree using a borrowed destination Format. */
+    expected<size_t, error> encoded_size(tlv::format format) const {
+        return value_.encoded_size(format);
+    }
+    /** @brief Encode an owning byte vector; may allocate. */
+    expected<std::vector<byte>, error> encode() const {
+        return value_.encode();
+    }
+    /** @brief Encode with a destination Format into an owning vector; may allocate. */
+    expected<std::vector<byte>, error> encode(tlv::format format) const {
+        return value_.encode(format);
+    }
+    /** @brief Compare checked node identity. */
+    friend bool operator==(const const_node& a, const const_node& b) {
+        return a.value_ == b.value_;
+    }
+    /** @brief Compare checked node identity. */
+    friend bool operator!=(const const_node& a, const const_node& b) {
+        return !(a == b);
+    }
+
+private:
+    node value_;
+    friend class document;
+    friend struct detail::document_access;
+};
+/** @brief Forward iterator that exposes only read-only checked Node handles. */
+class const_node_iterator {
+public:
+    /// @cond INTERNAL
+    using iterator_category = std::forward_iterator_tag;
+    using value_type = const_node;
+    using difference_type = std::ptrdiff_t;
+    using pointer = const const_node*;
+    using reference = const const_node&;
+    /// @endcond
+    /** @brief Begin at a sibling; an empty handle is end. */
+    explicit const_node_iterator(const_node current = {}) : current_(current) {}
+    /** @brief Observe the current handle. */
+    reference operator*() const {
+        return current_;
+    }
+    /** @brief Observe the current handle. */
+    pointer operator->() const {
+        return &current_;
+    }
+    /** @brief Advance to the next sibling. */
+    const_node_iterator& operator++() {
+        current_ = current_.next();
+        return *this;
+    }
+    /** @brief Advance and return the previous position. */
+    const_node_iterator operator++(int) {
+        auto old = *this;
+        ++*this;
+        return old;
+    }
+    /** @brief Compare positions, including invalidated/end positions. */
+    friend bool operator==(const const_node_iterator& a, const const_node_iterator& b) {
+        return a.current_ == b.current_;
+    }
+    /** @brief Compare positions. */
+    friend bool operator!=(const const_node_iterator& a, const const_node_iterator& b) {
+        return !(a == b);
+    }
+
+private:
+    const_node current_;
+};
+/** @brief Read-only sibling range; follows live links with the normal Node invalidation rules. */
+class const_node_range {
+public:
+    /** @brief Begin at the supplied read-only handle. */
+    explicit const_node_range(const_node first = {}) : first_(first) {}
+    /** @brief First sibling. */
+    const_node_iterator begin() const {
+        return const_node_iterator(first_);
+    }
+    /** @brief End position. */
+    const_node_iterator end() const {
+        return const_node_iterator();
+    }
+    /** @brief Whether the first handle is absent or invalidated. */
+    bool empty() const {
+        return !first_;
+    }
+
+private:
+    const_node first_;
+};
+inline const_node_range const_node::children() const {
+    return const_node_range(first_child());
+}
+
 /**
  * @brief Format and runtime resource limits of a #tlv::document.
  * @see @docs{guides/memory,format context ownership and lifetime}
@@ -479,7 +600,10 @@ struct document_format {
      * Format used for parsing and encoding; its contents are copied, its context is borrowed.
      * `format.is_constructed` selects nested values, or `nullptr` for opaque values.
      */
-    tlv_format_t format;
+private:
+    tlv_format_t descriptor_;
+
+public:
     /** Runtime maximum nesting depth (default TLV_TREE_DEFAULT_DEPTH). */
     size_t max_depth;
     /** Maximum number of elements, including nested ones. */
@@ -489,21 +613,19 @@ struct document_format {
      * Does not retain input bytes. See tlv_node_source_location for invalidation. */
     bool retain_source_locations;
 
-    /**
-     * @brief Bundles the format with the default limits.
-     *
-     * @param fmt Format.
+    /** @brief Copy a Format descriptor and borrow its immutable context.
+     * @param format Format whose context outlives every Document created with these options.
+     * @note Copies allocate nothing and use canonical default resource limits.
      */
-    document_format(const tlv_format_t& fmt)
-        : format(fmt), max_depth(TLV_TREE_DEFAULT_DEPTH),
+    document_format(tlv::format format)
+        : descriptor_(detail::format_access::get(format)), max_depth(TLV_TREE_DEFAULT_DEPTH),
           max_elements(TLV_DOCUMENT_DEFAULT_MAX_ELEMENTS), retain_source_locations(false) {}
-
-    /**
-     * @brief Copy a C++ Format's descriptor and apply default Document limits.
-     * @param fmt Borrowed Format view; the descriptor is copied and context remains borrowed.
-     * @note No allocation occurs. Context must outlive every Document created with these options.
-     */
-    document_format(tlv::format fmt) : document_format(detail::format_access::get(fmt)) {}
+    /** @brief Borrow these options' descriptor; the options and context must outlive the view. */
+    tlv::format view() const& noexcept {
+        return detail::format_access::borrow(descriptor_);
+    }
+    /** @brief Reject views into temporary options. */
+    tlv::format view() const&& = delete;
 };
 
 /**
@@ -517,6 +639,9 @@ struct document_format {
  * A document is move-only. Moving keeps every #tlv::node handle valid; the moved-from document
  * is empty and unusable except for destruction and assignment.
  *
+ * @warning Const access provides a read-only interface, not a concurrent-read guarantee.
+ * Externally synchronize concurrent access to the Document and shared handles;
+ * even const Node access may update a handle's validity cache after a mutation.
  * @warning The format callbacks' contexts are borrowed and must outlive the document.
  * Documents returned by document_builder also borrow the reader's Format descriptor.
  * @see @docs{guides/memory,format context ownership and lifetime}
@@ -577,6 +702,55 @@ public:
         return make(nullptr, format, nullptr);
     }
 
+    /** @brief Read-only first top-level element; never exposes mutation. */
+    const_node first() const {
+        return const_cast<document*>(this)->first();
+    }
+    /** @brief Read-only top-level siblings. */
+    const_node_range children() const {
+        return const_node_range(first());
+    }
+    /** @brief Begin read-only top-level traversal. */
+    const_node_iterator begin() const {
+        return children().begin();
+    }
+    /** @brief End read-only traversal. */
+    const_node_iterator end() const {
+        return const_node_iterator();
+    }
+    /** @brief Read-only lookup by byte identifier. */
+    const_node find(tlv::tag wanted) const {
+        return const_cast<document*>(this)->find(wanted);
+    }
+    /** @brief Read-only lookup by compiled path. */
+    const_node find(const query& path) const {
+        return const_cast<document*>(this)->find(path);
+    }
+    /** @brief Read-only snapshot of path matches; allocates the result vector. */
+    std::vector<const_node> select(const query& path) const {
+        auto values = const_cast<document*>(this)->select(path);
+        return std::vector<const_node>(values.begin(), values.end());
+    }
+    /** @brief Compile a path and obtain a read-only snapshot; throws query_error on syntax failure.
+     */
+    std::vector<const_node> select(const char* text) const {
+        return select(query::compile(text));
+    }
+    /** @brief Evaluate a compiled query and return read-only handles; may allocate. */
+    expected<std::vector<const_node>, query_failure>
+    select(const query_program& program, query_capabilities environment = nullptr,
+           size_t max_work = 100000000) const {
+        auto values = const_cast<document*>(this)->select(program, environment, max_work);
+        if (!values) return unexpected<query_failure>(values.error());
+        return std::vector<const_node>(values->begin(), values->end());
+    }
+    /** @brief Consume a checked read-only query result; preserves Query error and end outcomes. */
+    expected<const_node, query_failure> next(query_execution& execution) const {
+        auto value = const_cast<document*>(this)->next(execution);
+        if (!value) return unexpected<query_failure>(value.error());
+        return const_node(*value);
+    }
+
     /** @brief Number of elements, including nested ones. */
     size_t size() const {
         return tlv_document_count(impl_->handle.get());
@@ -588,12 +762,12 @@ public:
     }
 
     /** @brief The first top-level element, or an empty handle. */
-    node first() const {
+    node first() {
         return node(tlv_document_first(c_document()), impl_->lifetime);
     }
 
     /** @brief The top-level elements, in encoding order. */
-    node_range children() const {
+    node_range children() {
         return node_range(first());
     }
 
@@ -602,12 +776,12 @@ public:
      * an ancestor's constructed Value invalidates its iterator, which then
      * compares equal to end().
      */
-    node_iterator begin() const {
+    node_iterator begin() {
         return children().begin();
     }
 
     /** @brief End of top-level iteration. */
-    node_iterator end() const {
+    node_iterator end() {
         return node_iterator();
     }
 
@@ -618,7 +792,7 @@ public:
      *
      * @return The element, or an empty handle.
      */
-    node find(tlv::tag wanted) const {
+    node find(tlv::tag wanted) {
         return node(
             tlv_document_find(impl_->handle.get(), nullptr, detail::semantic_access::get(wanted)),
             impl_->lifetime);
@@ -633,7 +807,7 @@ public:
      *
      * @return The first addressed element in document order, or an empty handle.
      */
-    node find(const query& path) const {
+    node find(const query& path) {
         return node(tlv_document_find_path(impl_->handle.get(), &path.c_query()), impl_->lifetime);
     }
 
@@ -645,7 +819,7 @@ public:
      * invalidate handles following the normal Node contract; vector positions remain.
      * @throws std::bad_alloc If result storage or validity metadata allocation fails.
      */
-    std::vector<node> select(const query& path) const {
+    std::vector<node> select(const query& path) {
         struct collection {
             const document*           owner;
             std::vector<node>         results;
@@ -675,7 +849,7 @@ public:
      * @throws query_error On compilation failure, retaining the original text offset.
      * @throws std::bad_alloc On C++ result or handle allocation failure.
      */
-    std::vector<node> select(const char* text) const {
+    std::vector<node> select(const char* text) {
         return select(query::compile(text));
     }
 
@@ -687,9 +861,9 @@ public:
      * @note Allocates workspace, optional canonical Value snapshot and result handles.
      * Insertions after selection are excluded; handles follow the normal granular
      * Node invalidation rules. Selection always completes before returning results. */
-    expected<std::vector<node>, query_failure>
-    select(const query_program& program, const tlv_query_environment_t* environment = nullptr,
-           size_t max_work = 100000000) const {
+    expected<std::vector<node>, query_failure> select(const query_program& program,
+                                                      query_capabilities   environment = nullptr,
+                                                      size_t               max_work = 100000000) {
         if (program.info().result_kind != TLV_QUERY_RESULT_NODES)
             return unexpected<query_failure>(detail::query_failed(TLV_ERR_INVALID_ARG));
         auto execution = query_execution::create(program, impl_->max_depth, size() ? size() : 1,
@@ -709,6 +883,29 @@ public:
         return results;
     }
 
+    /** @brief Evaluate full Query with C++ snapshot and Writer storage views.
+     * @param execution Fresh retained execution, with variables already bound.
+     * @param values Caller-owned snapshot storage, alive through result consumption.
+     * @param staging Optional Writer workspace, needed for constructed Value snapshots.
+     * @param context Optional relative context in this Document.
+     * @return Complete Query failure or success; does not allocate.
+     * @warning Keep the Document and snapshot unchanged while consuming results.
+     */
+    expected<void, query_failure> evaluate(query_execution& execution, span<byte> values,
+                                           const writer_workspace* staging = nullptr,
+                                           node                    context = node()) const {
+        tlv_tree_writer_workspace_t raw{};
+        if (staging) {
+            raw.frames = staging->frames.data();
+            raw.frame_capacity = staging->frames.size();
+            raw.scratch = reinterpret_cast<uint8_t*>(staging->scratch.data());
+            raw.scratch_capacity = staging->scratch.size();
+        }
+        return evaluate(execution, reinterpret_cast<uint8_t*>(values.data()), values.size(),
+                        staging ? &raw : nullptr, context);
+    }
+
+private:
     /** @brief Evaluate full Query using caller-owned execution and optional Value staging.
      * @param execution Fresh retained continuation, with variables already bound.
      * @param values Stable snapshot destination, alive through result consumption.
@@ -720,7 +917,7 @@ public:
     expected<void, query_failure> evaluate(query_execution& execution, uint8_t* values,
                                            size_t capacity, tlv_tree_writer_workspace_t* staging,
                                            node context = node()) const {
-        if (context.token_ && (!context || context.owner_.lock() != impl_->lifetime))
+        if (context.identity_ && (!context || context.owner_.lock() != impl_->lifetime))
             return unexpected<query_failure>(detail::query_failed(TLV_ERR_INVALID_ARG));
         tlv_query_diagnostic_t d{};
         auto rc = tlv_document_query_evaluate(c_document(), execution.c_exec(), context.c_node(),
@@ -731,10 +928,11 @@ public:
         return {};
     }
 
+public:
     /** @brief Pull a checked Document handle from a completed execution for this Document.
      * @param execution Completed continuation, with this Document alive and unchanged.
      * @return Checked Node, END_OF_BUFFER, or native revision/state failure. */
-    expected<node, query_failure> next(query_execution& execution) const {
+    expected<node, query_failure> next(query_execution& execution) {
         if (!execution.has_document_ || execution.document_lifetime_.lock() != impl_->lifetime)
             return unexpected<query_failure>(detail::query_failed(TLV_ERR_INVALID_ARG));
         tlv_node_t* pointer = nullptr;
@@ -760,7 +958,7 @@ public:
      * @return Edited selected roots or native error. No matches succeeds with zero.
      * @note Preorder commits stop at the first failure; no rollback. Each native Value
      * replacement is atomic and respects Format/constructed parsing. Checked handles
-     * detect erased descendants lazily through native revision and identity. */
+     * detect erased descendants lazily through native retirement epoch and identity. */
     expected<size_t, query_failure> query_replace(const query_program& program, bytes value,
                                                   size_t* applied = nullptr) {
         return edit_query(program, TLV_DOCUMENT_QUERY_REPLACE, tlv_tag(nullptr, 0), value, applied);
@@ -796,14 +994,15 @@ public:
      */
     TLV_NODISCARD expected<node, error> insert(tlv::tag wanted, bytes value, node parent = node(),
                                                node before = node()) {
-        if ((parent.token_ && !parent) || (before.token_ && !before))
-            return unexpected<error>(error::from_c(TLV_ERR_INVALID_ARG));
+        if ((parent.identity_ && !parent) || (before.identity_ && !before))
+            return unexpected<error>(
+                error::from_c(TLV_ERR_INVALID_ARG).during(operation::document));
         tlv_node_t*  created = nullptr;
         tlv_result_t rc = tlv_document_insert(impl_->handle.get(), parent.c_node(), before.c_node(),
                                               detail::semantic_access::get(wanted),
                                               reinterpret_cast<const uint8_t*>(value.data()),
                                               value.size(), &created);
-        if (rc != TLV_OK) return unexpected<error>(error::from_c(rc));
+        if (rc != TLV_OK) return unexpected<error>(error::from_c(rc).during(operation::document));
         try {
             return node(created, impl_->lifetime);
         } catch (...) {
@@ -830,7 +1029,7 @@ public:
     TLV_NODISCARD expected<size_t, error> encoded_size() const {
         size_t       size = 0;
         tlv_result_t rc = tlv_document_encoded_size(impl_->handle.get(), &size);
-        if (rc != TLV_OK) return unexpected<error>(error::from_c(rc));
+        if (rc != TLV_OK) return unexpected<error>(error::from_c(rc).during(operation::document));
         return size;
     }
 
@@ -848,7 +1047,7 @@ public:
         size_t            written = 0;
         tlv_result_t      rc = tlv_document_encode(
             impl_->handle.get(), reinterpret_cast<uint8_t*>(out.data()), out.size(), &written);
-        if (rc != TLV_OK) return unexpected<error>(error::from_c(rc));
+        if (rc != TLV_OK) return unexpected<error>(error::from_c(rc).during(operation::document));
         out.resize(written);
         return out;
     }
@@ -859,18 +1058,12 @@ public:
      * @return Exact size or the error from tlv_document_encoded_size_as().
      * @note Stages encoded children using the Document allocator; never changes the tree.
      */
-    TLV_NODISCARD expected<size_t, error> encoded_size(const tlv_format_t& format) const {
-        size_t     size = 0;
-        const auto rc = tlv_document_encoded_size_as(impl_->handle.get(), &format, &size);
-        if (rc != TLV_OK) return unexpected<error>(error::from_c(rc));
-        return size;
-    }
-
-    /** @brief Measure this Document using a C++ Format view.
-     * @copydetails encoded_size(const tlv_format_t&) const
-     */
     TLV_NODISCARD expected<size_t, error> encoded_size(tlv::format format) const {
-        return encoded_size(detail::format_access::get(format));
+        size_t     size = 0;
+        const auto rc = tlv_document_encoded_size_as(impl_->handle.get(),
+                                                     &detail::format_access::get(format), &size);
+        if (rc != TLV_OK) return unexpected<error>(error::from_c(rc).during(operation::document));
+        return size;
     }
 
     /**
@@ -879,28 +1072,22 @@ public:
      * @return Owned bytes or the error from tlv_document_encode_as().
      * @note Identifiers are not remapped and the tree's original Format is unchanged.
      */
-    TLV_NODISCARD expected<std::vector<byte>, error> encode(const tlv_format_t& format) const {
+    TLV_NODISCARD expected<std::vector<byte>, error> encode(tlv::format format) const {
         auto size = encoded_size(format);
         if (!size.has_value()) return unexpected<error>(size.error());
         std::vector<byte> out(*size);
         size_t            written = 0;
         const auto        rc =
-            tlv_document_encode_as(impl_->handle.get(), &format,
+            tlv_document_encode_as(impl_->handle.get(), &detail::format_access::get(format),
                                    reinterpret_cast<uint8_t*>(out.data()), out.size(), &written);
-        if (rc != TLV_OK) return unexpected<error>(error::from_c(rc));
+        if (rc != TLV_OK) return unexpected<error>(error::from_c(rc).during(operation::document));
         out.resize(written);
         return out;
     }
 
-    /** @brief Encode this Document using a C++ Format view.
-     * @copydetails encode(const tlv_format_t&) const
-     */
-    TLV_NODISCARD expected<std::vector<byte>, error> encode(tlv::format format) const {
-        return encode(detail::format_access::get(format));
-    }
-
+private:
     /** @brief Borrow the underlying C document for interoperability.
-     * @warning Never free this handle. Native edits are checked by revision and identity
+     * @warning Never free this handle. Native edits are checked by retirement epoch and identity
      * when a retained Node is next accessed. Raw pointers must not outlive this owner.
      */
     tlv_document_t* c_document() const {
@@ -930,24 +1117,30 @@ private:
     static expected<document, error> make(const bytes* data, const document_format& format,
                                           size_t* error_offset) {
         std::unique_ptr<state> impl(new state());
-        impl->format = format.format;
+        impl->format = detail::format_access::get(format.view());
         impl->max_depth = format.max_depth;
 
         tlv_document_options_t options;
         tlv_result_t           rc = tlv_document_options_init(&options, &impl->format);
-        if (rc != TLV_OK) return unexpected<error>(error::from_c(rc));
+        if (rc != TLV_OK) return unexpected<error>(error::from_c(rc).during(operation::document));
         options.max_depth = format.max_depth;
         options.max_elements = format.max_elements;
         options.retain_source_locations = format.retain_source_locations;
 
         tlv_document_t* raw = nullptr;
+        size_t          location = SIZE_MAX;
         if (data) {
             rc = tlv_document_parse(reinterpret_cast<const uint8_t*>(data->data()), data->size(),
-                                    &options, &raw, error_offset);
+                                    &options, &raw, &location);
+            if (error_offset && location != SIZE_MAX) *error_offset = location;
         } else {
             rc = tlv_document_create(&options, &raw);
         }
-        if (rc != TLV_OK) return unexpected<error>(error::from_c(rc));
+        if (rc != TLV_OK) {
+            auto failure = error::from_c(rc).during(operation::document);
+            if (location != SIZE_MAX) failure = failure.at(location, operation::document);
+            return unexpected<error>(failure);
+        }
         impl->handle.reset(raw);
         return document(std::move(impl));
     }
@@ -1003,7 +1196,23 @@ private:
         return evaluate(execution, values.data(), values.size(), &staging);
     }
     friend class document_builder;
+    friend struct detail::document_access;
 };
+
+/// @cond INTERNAL
+inline tlv_node_t* detail::document_access::get(const node& value) {
+    return value.c_node();
+}
+inline const tlv_node_t* detail::document_access::get(const const_node& value) {
+    return value.value_.c_node();
+}
+inline tlv_document_t* detail::document_access::get(document& value) {
+    return value.c_document();
+}
+inline const tlv_document_t* detail::document_access::get(const document& value) {
+    return value.c_document();
+}
+/// @endcond
 
 /**
  * @brief Owning, resumable adapter over the canonical C Document Builder.
@@ -1052,7 +1261,9 @@ public:
     current_subtree(tree_reader& reader, size_t max_depth = TLV_TREE_DEFAULT_DEPTH,
                     size_t max_elements = TLV_DOCUMENT_DEFAULT_MAX_ELEMENTS,
                     bool   retain_source_locations = false) {
-        if (!reader.has_current_) return unexpected<error>(error::from_c(TLV_ERR_INVALID_ARG));
+        if (!reader.has_current_)
+            return unexpected<error>(
+                error::from_c(TLV_ERR_INVALID_ARG).during(operation::document));
         const tlv_tree_item_t root = reader.current_;
         return create_impl(reader, &root, max_depth, max_elements, retain_source_locations);
     }
@@ -1070,7 +1281,7 @@ public:
         std::unique_ptr<document::state> state(new document::state());
         tlv_document_t*                  raw = nullptr;
         auto rc = tlv_document_builder_consume(handle_.get(), &raw, error_offset, diagnostic);
-        if (rc != TLV_OK) return unexpected<error>(error::from_c(rc));
+        if (rc != TLV_OK) return unexpected<error>(error::from_c(rc).during(operation::document));
         state->handle.reset(raw);
         state->max_depth = max_depth_;
         return document(std::move(state));
@@ -1083,16 +1294,17 @@ private:
                                                          bool retain_source_locations) {
         reader.has_current_ = false;
         if (reader.init_result_ != TLV_OK)
-            return unexpected<error>(error::from_c(reader.init_result_));
+            return unexpected<error>(
+                error::from_c(reader.init_result_).during(operation::document));
         tlv_document_options_t options{};
         auto                   rc = tlv_document_options_init(&options, reader.impl_.input.format);
-        if (rc != TLV_OK) return unexpected<error>(error::from_c(rc));
+        if (rc != TLV_OK) return unexpected<error>(error::from_c(rc).during(operation::document));
         options.max_depth = max_depth;
         options.max_elements = max_elements;
         options.retain_source_locations = retain_source_locations;
         tlv_document_builder_t* raw = nullptr;
         rc = tlv_document_builder_create(&options, &reader.impl_, root, &raw);
-        if (rc != TLV_OK) return unexpected<error>(error::from_c(rc));
+        if (rc != TLV_OK) return unexpected<error>(error::from_c(rc).during(operation::document));
         return document_builder(raw, max_depth);
     }
 

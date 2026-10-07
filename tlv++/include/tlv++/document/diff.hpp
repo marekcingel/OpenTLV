@@ -9,7 +9,7 @@
 /** @file
  * @brief Minimal semantic Document diff with compiled Query filtering. */
 namespace tlv {
-/** @brief One direct node difference; constructed descendants are compared independently. */
+/** @brief One direct const_node difference; constructed descendants are compared independently. */
 enum class diff_kind {
     added,   /**< Present only on the right. */
     removed, /**< Present only on the left. */
@@ -19,19 +19,19 @@ enum class diff_kind {
 struct diff_entry {
     diff_kind   kind;  /**< Added, removed or changed direct node content. */
     std::string path;  /**< Raw tag plus same-tag sibling occurrence at every ancestor. */
-    node        left;  /**< Original left context, empty for additions. */
-    node        right; /**< Original right context, empty for removals. */
+    const_node  left;  /**< Original left context, empty for additions. */
+    const_node  right; /**< Original right context, empty for removals. */
 };
 /** @cond INTERNAL */
 namespace detail {
 struct diff_index {
-    std::map<std::string, node>        nodes;
-    std::map<tlv_node_t*, std::string> identities;
-    std::vector<std::string>           order;
+    std::map<std::string, const_node>        nodes;
+    std::map<const tlv_node_t*, std::string> identities;
+    std::vector<std::string>                 order;
 };
 inline diff_index index_document(const document& doc) {
     struct scope {
-        node                          next;
+        const_node                    next;
         std::string                   parent;
         std::map<std::string, size_t> counts;
     };
@@ -56,7 +56,7 @@ inline diff_index index_document(const document& doc) {
         }
         auto path = frame.parent + "/" + tag + "[" + std::to_string(++frame.counts[tag]) + "]";
         result.nodes.emplace(path, current);
-        result.identities.emplace(current.c_node(), path);
+        result.identities.emplace(document_access::get(current), path);
         result.order.push_back(path);
         if (current.is_constructed()) {
             scope children;
@@ -69,10 +69,10 @@ inline diff_index index_document(const document& doc) {
 }
 } // namespace detail
 /** @endcond */
-/** @brief Compare direct semantic node content selected on either original input.
+/** @brief Compare direct semantic const_node content selected on either original input.
  * @param left Original immutable owning Document.
  * @param right Original immutable owning Document.
- * @param where Optional compiled node selector, evaluated unchanged on each complete input.
+ * @param where Optional compiled const_node selector, evaluated unchanged on each complete input.
  * @return Changes in left preorder followed by right-only additions, or native Query failure.
  * @note Correspondence uses ancestor raw tags and same-tag sibling occurrence, never byte
  * offsets. Inserting a repeated tag may shift later correspondences; no heuristic alignment.
@@ -90,8 +90,8 @@ semantic_diff(const document& left, const document& right, const query_program* 
         if (!x) return unexpected<query_failure>(x.error());
         auto y = right.select(*where);
         if (!y) return unexpected<query_failure>(y.error());
-        for (const auto& n : *x) included.insert(a.identities.at(n.c_node()));
-        for (const auto& n : *y) included.insert(b.identities.at(n.c_node()));
+        for (const auto& n : *x) included.insert(a.identities.at(detail::document_access::get(n)));
+        for (const auto& n : *y) included.insert(b.identities.at(detail::document_access::get(n)));
     }
     std::vector<diff_entry> result;
     for (const auto& path : a.order) {
@@ -99,14 +99,14 @@ semantic_diff(const document& left, const document& right, const query_program* 
         auto lhs = a.nodes.at(path);
         auto rhs = b.nodes.find(path);
         if (rhs == b.nodes.end())
-            result.push_back({diff_kind::removed, path, lhs, node()});
+            result.push_back({diff_kind::removed, path, lhs, const_node()});
         else if (lhs.is_constructed() != rhs->second.is_constructed() ||
                  (!lhs.is_constructed() && lhs.value() != rhs->second.value()))
             result.push_back({diff_kind::changed, path, lhs, rhs->second});
     }
     for (const auto& path : b.order) {
         if (a.nodes.count(path) || (where && !included.count(path))) continue;
-        result.push_back({diff_kind::added, path, node(), b.nodes.at(path)});
+        result.push_back({diff_kind::added, path, const_node(), b.nodes.at(path)});
     }
     return result;
 }

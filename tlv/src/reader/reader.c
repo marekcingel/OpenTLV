@@ -24,8 +24,7 @@ static tlv_result_t tlv_read_impl(const uint8_t* data, size_t size, const tlv_fo
     tlv_format_error_t error;
     tlv_result_t rc;
     if (!out_element || !consumed) return TLV_ERR_NULL_ARG;
-    /* Invalid decode arguments can return before writing error detail. */
-    if (diagnostic) memset(&error, 0, sizeof(error));
+    /* Decode publishes complete error detail on every failure, including preflight. */
     rc = tlv_format_decode(format, data, size, &decoded, diagnostic ? &error : NULL);
     if (rc == TLV_OK) {
         if (source) *source = decoded.source;

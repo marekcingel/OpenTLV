@@ -74,15 +74,15 @@ int main() {
     const uint8_t    fixed_data[] = {1, 1, 42, 2, 0};
     const tlv::bytes fixed_input(reinterpret_cast<const tlv::byte*>(fixed_data),
                                  sizeof(fixed_data));
-    tlv::reader<tlv::fixed_format<1, 1, TLV_BYTE_ORDER_BIG_ENDIAN>> reader(fixed_input);
+    tlv::reader<tlv::fixed_format<1, 1, tlv::byte_order::big_endian>> reader(fixed_input);
     count = 0;
     for (auto element : reader) {
         if (element.tag() != (count == 0 ? tlv::tag_bytes<1>() : tlv::tag_bytes<2>())) return 8;
         ++count;
     }
     if (count != 2) return 9;
-    tlv::fixed_format<1, 1, TLV_BYTE_ORDER_BIG_ENDIAN> config;
-    tlv::tree_frame                                    frames[1]{};
+    tlv::fixed_format<1, 1, tlv::byte_order::big_endian> config;
+    tlv::tree_frame                                      frames[1]{};
     tlv::tree_reader tree(fixed_input, config.view(), {frames, 1}, 1, 10);
     auto             selected = tree.select("02");
     auto             selection = std::move(selected);

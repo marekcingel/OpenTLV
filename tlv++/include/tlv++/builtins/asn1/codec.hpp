@@ -118,11 +118,11 @@ struct asn1_iri_conversion {
 /// @endcond
 namespace asn1 {
 /** @brief Canonical Value codec; see #tlv_asn1_codec_boolean. */
-using boolean_codec = tlv::codec_adapter<bool, &tlv_asn1_codec_boolean>;
+using boolean_codec = tlv::detail::codec_adapter<bool, &tlv_asn1_codec_boolean>;
 /** @brief Canonical Value codec; see #tlv_asn1_codec_integer. */
-using integer_codec = tlv::codec_adapter<int64_t, &tlv_asn1_codec_integer>;
+using integer_codec = tlv::detail::codec_adapter<int64_t, &tlv_asn1_codec_integer>;
 /** @brief Canonical Value codec; see #tlv_asn1_codec_enumerated. */
-using enumerated_codec = tlv::codec_adapter<int64_t, &tlv_asn1_codec_enumerated>;
+using enumerated_codec = tlv::detail::codec_adapter<int64_t, &tlv_asn1_codec_enumerated>;
 /** @brief Canonical Value codec; see #tlv_asn1_codec_bit_string. */
 using bit_string_codec =
     detail::builtin_codec<bit_string, tlv_asn1_bit_string_t, &tlv_asn1_codec_bit_string,
@@ -133,11 +133,11 @@ using octet_string_codec =
 /** @brief ASN.1 NULL semantic value, with no content bytes. */
 struct null_value {};
 /** @brief Canonical Value codec; see #tlv_asn1_codec_null. */
-using null_codec = tlv::codec_adapter<null_value, &tlv_asn1_codec_null>;
+using null_codec = tlv::detail::codec_adapter<null_value, &tlv_asn1_codec_null>;
 /** @brief Canonical Value codec; see #tlv_asn1_codec_oid. */
-using oid_codec = tlv::codec_adapter<oid, &tlv_asn1_codec_oid>;
+using oid_codec = tlv::detail::codec_adapter<oid, &tlv_asn1_codec_oid>;
 /** @brief Canonical Value codec; see #tlv_asn1_codec_relative_oid. */
-using relative_oid_codec = tlv::codec_adapter<oid, &tlv_asn1_codec_relative_oid>;
+using relative_oid_codec = tlv::detail::codec_adapter<oid, &tlv_asn1_codec_relative_oid>;
 /** @brief Canonical Value codec; see #tlv_asn1_codec_utf8_string. */
 using utf8_string_codec =
     detail::builtin_string_codec<tlv_asn1_string_t, &tlv_asn1_codec_utf8_string, 1>;
@@ -160,7 +160,7 @@ using bmp_string_codec =
 using universal_string_codec =
     detail::builtin_string_codec<tlv_asn1_universal_string_t, &tlv_asn1_codec_universal_string, 4>;
 /** @brief Canonical Value codec; see #tlv_asn1_codec_utc_time. */
-using utc_time_codec = tlv::codec_adapter<utc_time, &tlv_asn1_codec_utc_time>;
+using utc_time_codec = tlv::detail::codec_adapter<utc_time, &tlv_asn1_codec_utc_time>;
 /** @brief Canonical Value codec; see #tlv_asn1_codec_generalized_time. */
 using generalized_time_codec = detail::builtin_codec<generalized_time, tlv_asn1_generalized_time_t,
                                                      &tlv_asn1_codec_generalized_time,
@@ -183,11 +183,11 @@ using general_string_codec =
 /** @brief Canonical Value codec; see #tlv_asn1_codec_time. */
 using time_codec = detail::builtin_string_codec<tlv_asn1_string_t, &tlv_asn1_codec_time, 1>;
 /** @brief Canonical Value codec; see #tlv_asn1_codec_date. */
-using date_codec = tlv::codec_adapter<date, &tlv_asn1_codec_date>;
+using date_codec = tlv::detail::codec_adapter<date, &tlv_asn1_codec_date>;
 /** @brief Canonical Value codec; see #tlv_asn1_codec_time_of_day. */
-using time_of_day_codec = tlv::codec_adapter<time_of_day, &tlv_asn1_codec_time_of_day>;
+using time_of_day_codec = tlv::detail::codec_adapter<time_of_day, &tlv_asn1_codec_time_of_day>;
 /** @brief Canonical Value codec; see #tlv_asn1_codec_date_time. */
-using date_time_codec = tlv::codec_adapter<date_time, &tlv_asn1_codec_date_time>;
+using date_time_codec = tlv::detail::codec_adapter<date_time, &tlv_asn1_codec_date_time>;
 /** @brief Canonical Value codec; see #tlv_asn1_codec_duration. */
 using duration_codec = detail::builtin_string_codec<tlv_asn1_string_t, &tlv_asn1_codec_duration, 1>;
 /** @brief Canonical Value codec; see #tlv_asn1_codec_oid_iri. */

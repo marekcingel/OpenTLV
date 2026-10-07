@@ -17,13 +17,13 @@ function(opentlv_check_fixed_format)
     endif()
     set(header "#include <tlv++/formats/fixed_format.hpp>\n")
     set(cases
-        "valid_minimum|1, 1, TLV_BYTE_ORDER_BIG_ENDIAN|1"
-        "valid_widest|255, 8, TLV_BYTE_ORDER_LITTLE_ENDIAN|1"
-        "zero_tag_width|0, 1, TLV_BYTE_ORDER_BIG_ENDIAN|0"
-        "zero_length_width|1, 0, TLV_BYTE_ORDER_BIG_ENDIAN|0"
-        "oversized_length_width|1, 9, TLV_BYTE_ORDER_BIG_ENDIAN|0"
-        "unknown_byte_order|1, 1, TLV_BYTE_ORDER_UNKNOWN|0"
-        "invalid_byte_order|1, 1, static_cast<tlv_byte_order_t>(99)|0")
+        "valid_minimum|1, 1, tlv::byte_order::big_endian|1"
+        "valid_widest|255, 8, tlv::byte_order::little_endian|1"
+        "zero_tag_width|0, 1, tlv::byte_order::big_endian|0"
+        "zero_length_width|1, 0, tlv::byte_order::big_endian|0"
+        "oversized_length_width|1, 9, tlv::byte_order::big_endian|0"
+        "unknown_byte_order|1, 1, static_cast<tlv::byte_order>(0)|0"
+        "invalid_byte_order|1, 1, static_cast<tlv::byte_order>(99)|0")
     foreach(case IN LISTS cases)
         string(REPLACE "|" ";" parts "${case}")
         list(GET parts 0 name)
@@ -33,8 +33,8 @@ function(opentlv_check_fixed_format)
         unset(${result} CACHE)
         check_cxx_source_compiles("${header}
             int main() {
-                const tlv_format_t& format = tlv::fixed_format<${arguments}>::format();
-                return format.decode == nullptr || format.encode == nullptr;
+                const auto format = tlv::fixed_format<${arguments}>::view();
+                return !format.readable() || !format.writable();
             }" ${result})
         if(valid AND NOT ${result})
             message(FATAL_ERROR "Valid fixed_format case ${name} must compile")

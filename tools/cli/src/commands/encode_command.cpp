@@ -14,7 +14,7 @@
 #include "input.hpp"
 #include "json_model.hpp"
 #include "tlv/config.h"
-#include "tlv/builtins/asn1/identifier.h"
+#include "tlv++/builtins/asn1/identifier.hpp"
 #include "tlv++/writer/writer.hpp"
 #if OPENTLV_FORMAT_BER
 #include "tlv++/builtins/asn1/ber.hpp"
@@ -31,7 +31,7 @@ namespace {
 // Builds the element list from --tag/--value.
 int specs_from_options(const cli::options& o, std::vector<cli::element_spec>& specs) {
     cli::element_spec spec;
-    int               rc = cli::decode_hex(o.tag, TLV_ASN1_TAG_MAX_SIZE, spec.tag);
+    int               rc = cli::decode_hex(o.tag, tlv::asn1::max_tag_size, spec.tag);
     if (rc == 3) return fail(2, "tag is longer than the longest tag a supported format accepts");
     if (rc) return rc;
     if (spec.tag.empty()) return fail(2, "tag must not be empty");
@@ -61,9 +61,9 @@ std::string hex_text(const std::vector<uint8_t>& bytes) {
 }
 
 // Reports a writer rejection with the offending element's tag.
-int write_failed(std::size_t index, tlv_result_t rc) {
-    std::cerr << "otlv: cannot encode element " << index << ": " << tlv_strerror(rc) << "\n";
-    return rc == TLV_ERR_OUT_OF_MEMORY ? 3 : 1;
+int write_failed(std::size_t index, tlv::errc rc) {
+    std::cerr << "otlv: cannot encode element " << index << ": " << tlv::message(rc) << "\n";
+    return rc == tlv::errc::out_of_memory ? 3 : 1;
 }
 
 // Encodes the elements of a JSON document with the format's writer. Children
@@ -87,10 +87,7 @@ public:
 
 private:
     bool is_constructed(tlv::tag tag) const {
-        const auto& descriptor = tlv::native::descriptor(format_);
-        const auto  identifier = tlv::native::descriptor(tag);
-        return descriptor.is_constructed &&
-               descriptor.is_constructed(descriptor.context, &identifier) != 0;
+        return format_.is_constructed(tag);
     }
 
     int reject(std::size_t index, const std::string& reason) {
@@ -131,7 +128,7 @@ private:
         if (element.indefinite) encoding_format = tlv::ber::indefinite_format{};
 #endif
         auto measured = tlv::encoded_size(tag, value->size(), encoding_format);
-        if (!measured) return write_failed(index, measured.error().code);
+        if (!measured) return write_failed(index, measured.error().status());
         const size_t size = *measured;
         if (size > SIZE_MAX - before) return fail(3, "encoded output too large");
         try {
@@ -143,12 +140,12 @@ private:
 #if OPENTLV_FORMAT_BER
         if (element.indefinite) {
             auto written = tlv::ber::write_indefinite({destination, size}, tag, byte_view(*value));
-            return written ? 0 : write_failed(index, written.error().code);
+            return written ? 0 : write_failed(index, written.error().status());
         }
 #endif
         tlv::writer<> writer(destination, size, format_);
         auto          written = writer.write(tag, *value);
-        return written ? 0 : write_failed(index, written.error().code);
+        return written ? 0 : write_failed(index, written.error().status());
     }
 
     tlv::format format_;
@@ -240,7 +237,7 @@ int encode_command::run() {
     // rejected element never yields partial output.
     for (i = 0; i < specs.size(); ++i) {
         auto size = tlv::encoded_size(make_tag(specs[i].tag), specs[i].value.size(), *format);
-        if (!size) return write_failed(i, size.error().code);
+        if (!size) return write_failed(i, size.error().status());
         if (total > SIZE_MAX - *size) return fail(3, "encoded output too large");
         total += *size;
     }
@@ -252,7 +249,7 @@ int encode_command::run() {
     tlv::writer<> writer(reinterpret_cast<tlv::byte*>(out.data()), out.size(), *format);
     for (i = 0; i < specs.size(); ++i) {
         auto written = writer.write(make_tag(specs[i].tag), specs[i].value);
-        if (!written) return write_failed(i, written.error().code);
+        if (!written) return write_failed(i, written.error().status());
     }
     return emit(o, out);
 }

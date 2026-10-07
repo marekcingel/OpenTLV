@@ -13,23 +13,21 @@
 #include "tlv/config.h"
 #include "bluetooth.hpp"
 #if OPENTLV_BLUETOOTH
-#include "tlv/builtins/bluetooth/ad_data.h"
+#include "tlv++/builtins/bluetooth/metadata.hpp"
 #endif
-#include "tlv/reader/reader.h"
 #if OPENTLV_FORMAT_BER
-#include "tlv/builtins/asn1/ber.h"
+#include "tlv++/builtins/asn1/ber.hpp"
 #endif
 #if OPENTLV_FORMAT_DER
-#include "tlv/builtins/asn1/der_validation.h"
 #endif
 
 using cli::fail;
 
 namespace {
 
-tlv_visit_result_t count_element(const tlv_element_t*, size_t, size_t, void* context) {
+tlv::visit_control count_element(const tlv::element_view*, size_t, size_t, void* context) {
     ++*static_cast<size_t*>(context);
-    return TLV_VISIT_CONTINUE;
+    return tlv::visit_control::next;
 }
 
 // Prints a text-mode "skipped" line inline, where the range sits in the input.
@@ -61,26 +59,23 @@ namespace cli {
 
 traversal_command::traversal_command(const options& o, std::vector<uint8_t> data)
     : options_(o), format_storage_(options_), base_(0), ber_(0), presentation_(), format_(NULL),
-      is_der_(false), scope_(), matches_(0), result_(TLV_OK), error_offset_(0), stage_(""),
+      is_der_(false), scope_(), matches_(0), result_(tlv::errc::ok), error_offset_(0), stage_(""),
       schema_diag_(), has_schema_diag_(false), data_(std::move(data)) {}
 
-tlv_visit_result_t traversal_command::visit_trampoline(const tlv_element_t* element,
+tlv::visit_control traversal_command::visit_trampoline(const tlv::element_view* element,
                                                        std::size_t depth, std::size_t offset,
                                                        void* context) {
-    auto view = tlv::native::borrow_element(*element);
-    if (!view) return TLV_VISIT_ERROR;
-    return static_cast<traversal_command*>(context)->visit_element(*view, depth, offset);
+    return static_cast<traversal_command*>(context)->visit_element(*element, depth, offset);
 }
 
-tlv_visit_result_t traversal_command::visit_element(const tlv::element_view& element,
+tlv::visit_control traversal_command::visit_element(const tlv::element_view& element,
                                                     std::size_t              depth, std::size_t) {
     // validate has no display visitor of its own; this one exists solely to
     // keep the diagnostic scope current, so a failure the traversal doesn't itself
     // annotate (a value that overruns its own container, not the whole
     // buffer) can still be reported with the path and boundary enclosing it.
-    const auto native = tlv::native::descriptor(element);
-    diagnostic_scope_visit(scope_, data(), &native, depth, format_->is_constructed);
-    return TLV_VISIT_CONTINUE;
+    diagnostic_scope_visit(scope_, data(), &element, depth, *format_);
+    return tlv::visit_control::next;
 }
 
 int traversal_command::prepare() {
@@ -115,59 +110,57 @@ std::string traversal_command::render_failure_diagnostic(diagnostic_format  diag
                                                          const char*        tag_hex_ptr,
                                                          const std::string& stage_name) {
     if (has_schema_diag_) return format_schema_diagnostic(schema_diag_, diag_format);
-    if (reader_diag_.diagnostic.code == result_) {
-        if (scope_.path.length) tlv_diagnostic_set_path(&reader_diag_.diagnostic, &scope_.path);
+    if (static_cast<tlv::errc>(reader_diag_.diagnostic.code) == result_) {
+        if (scope_.path.length) tlv::set_path(reader_diag_.diagnostic, scope_.path);
         return format_reader_diagnostic(reader_diag_, diag_format);
     }
-    tlv::diagnostic diag = tlv::make_diagnostic(result_, TLV_DIAGNOSTIC_SEVERITY_ERROR);
-    tlv_diagnostic_set_offset(&diag, error_offset_);
+    tlv::diagnostic diag = tlv::make_diagnostic(result_, tlv::severity::error);
+    tlv::set_offset(diag, error_offset_);
     return format_diagnostic(diag, diag_format, stage_name.c_str(), tag_hex_ptr);
 }
 
 // A DOL length is a single unsigned byte, not a BER length field. No value
 // bytes follow it. Reuse the public BER tag reader without fabricating TLVs.
-tlv_result_t traversal_command::visit_pdol(std::size_t* error_offset) {
+tlv::errc traversal_command::visit_pdol(std::size_t* error_offset) {
 #if OPENTLV_FORMAT_BER
     size_t pos = 0, count = 0;
     while (pos < size()) {
-        tlv_element_t element;
-        size_t        used, start = pos;
-        unsigned      requested;
-        tlv_result_t  rc;
+        size_t   used, start = pos;
+        unsigned requested;
         *error_offset = pos;
-        if (count == options_.max_elements) return TLV_ERR_LIMIT;
-        rc = tlv_ber_read_identifier(data() + pos, size() - pos, &element.tag, &used);
-        if (rc != TLV_OK) return rc;
-        if (element.tag.size > 2) return TLV_ERR_INVALID_TAG_SIZE;
+        if (count == options_.max_elements) return tlv::errc::limit;
+        const auto identifier = tlv::ber::read_identifier(
+            {reinterpret_cast<const tlv::byte*>(data() + pos), size() - pos}, used);
+        if (!identifier) return identifier.error().status();
+        if (identifier->size() > 2) return tlv::errc::invalid_tag_size;
+        const tlv::element_view element(*identifier, tlv::value_view{});
         pos += used;
         *error_offset = pos;
-        if (pos == size()) return TLV_ERR_BUFFER_TOO_SHORT;
+        if (pos == size()) return tlv::errc::buffer_too_short;
         requested = data()[pos++];
         ++count;
         if (!prints_pdol_annotations()) continue;
         // Annotation uses only the tag, never a requested length as a value element.
-        element.value.data = NULL;
-        element.value.size = 0;
         if (is_json(options_)) {
             nlohmann::json object;
             object["offset"] = start;
-            object["tag"] = hex_string(element.tag.data, element.tag.size);
+            object["tag"] = hex_string(element.tag().as_bytes());
             object["requested_length"] = requested;
             if (options_.module) json_emv(object, presentation_, &element, 0, options_.describe);
             json_root_.push_back(std::move(object));
             continue;
         }
         std::cout << "offset=" << start << " tag=";
-        print_tag(element.tag, presentation_.color != 0);
+        print_tag(element.tag(), presentation_.color != 0);
         std::cout << " requested-length=" << requested;
         if (options_.module) cli_presentation_emv(&presentation_, &element, 0, options_.describe);
         std::cout << "\n";
-        if (!std::cout) return TLV_ERR_VISITOR;
+        if (!std::cout) return tlv::errc::visitor;
     }
-    return TLV_OK;
+    return tlv::errc::ok;
 #else
     (void)error_offset;
-    return TLV_ERR_INVALID_ARG;
+    return tlv::errc::invalid_argument;
 #endif
 }
 
@@ -176,7 +169,7 @@ tlv_result_t traversal_command::visit_pdol(std::size_t* error_offset) {
 // input; where one does not, the CLI looks for the next offset a
 // plausible element starts at, and the bytes in between are recorded as
 // skipped. Resource limits are not damage and still fail the run.
-tlv_result_t traversal_command::visit_recovering(std::size_t* error_offset) {
+tlv::errc traversal_command::visit_recovering(std::size_t* error_offset) {
     const traversal_env env = {&options_, format_, is_der_};
     const bool          inline_text = prints_skipped_inline();
     size_t              pos = 0, budget = options_.max_elements;
@@ -190,36 +183,36 @@ tlv_result_t traversal_command::visit_recovering(std::size_t* error_offset) {
         skipping = false;
     };
     while (pos < size()) {
-        size_t                  consumed = 0, fault = pos, count = 0;
-        tlv_reader_diagnostic_t attempt{};
+        size_t                 consumed = 0, fault = pos, count = 0;
+        tlv::reader_diagnostic attempt{};
         auto decoded = tlv::read({reinterpret_cast<const tlv::byte*>(data() + pos), size() - pos},
-                                 tlv::native::borrow_format(*format_), consumed, &attempt);
-        tlv_result_t rc = decoded ? TLV_OK : decoded.error().code;
-        if (rc != TLV_OK) {
+                                 *format_, consumed, &attempt);
+        tlv::errc rc = decoded ? tlv::errc::ok : decoded.error().status();
+        if (rc != tlv::errc::ok) {
             if (attempt.diagnostic.has_offset) attempt.diagnostic.offset += pos;
             if (attempt.has_tag_offset) attempt.tag_offset += pos;
             if (attempt.has_length_offset) attempt.length_offset += pos;
             if (attempt.has_value_offset) attempt.value_offset += pos;
             if (attempt.has_enclosing_end) attempt.enclosing_end += pos;
         }
-        if (rc == TLV_OK) {
+        if (rc == tlv::errc::ok) {
             rc = visit_slice(env, data() + pos, consumed, pos, budget, count_element, &count,
                              &fault, &attempt);
-            if ((rc == TLV_ERR_LIMIT || rc == TLV_ERR_OUT_OF_MEMORY) && fault == pos) {
+            if ((rc == tlv::errc::limit || rc == tlv::errc::out_of_memory) && fault == pos) {
                 reader_diag_.has_tag = 1;
-                reader_diag_.tag = tlv::native::descriptor(decoded->element.tag());
+                tlv::set_tag(reader_diag_, decoded->element.tag());
             }
         }
-        if (rc == TLV_ERR_LIMIT || rc == TLV_ERR_OUT_OF_MEMORY) {
+        if (rc == tlv::errc::limit || rc == tlv::errc::out_of_memory) {
             *error_offset = fault;
             return rc;
         }
-        if (rc == TLV_OK) {
+        if (rc == tlv::errc::ok) {
             if (skipping) close_range(pos);
             base_ = pos;
             rc = visit_slice(env, data() + pos, consumed, pos, budget, visit_trampoline, this,
                              &fault);
-            if (rc != TLV_OK) {
+            if (rc != tlv::errc::ok) {
                 *error_offset = fault;
                 return rc;
             }
@@ -239,34 +232,34 @@ tlv_result_t traversal_command::visit_recovering(std::size_t* error_offset) {
         for (; pos < size(); ++pos) {
             size_t next_size = 0;
             if (tlv::read({reinterpret_cast<const tlv::byte*>(data() + pos), size() - pos},
-                          tlv::native::borrow_format(*format_), next_size))
+                          *format_, next_size))
                 break;
         }
     }
     if (skipping) close_range(size());
-    return TLV_OK;
+    return tlv::errc::ok;
 }
 
 int traversal_command::run() {
     auto selected = format_storage_.get();
     if (!selected) return fail(2, "unknown or disabled format; use otlv formats");
-    const tlv_format_t* format = &tlv::native::descriptor(*selected);
-    std::size_t         error_offset = 0;
-    tlv_result_t        result;
-    int                 is_ber = 0, is_der = 0, structured;
-    diagnostic_format   diag_format;
+    const tlv::format* format = &*selected;
+    std::size_t        error_offset = 0;
+    tlv::errc          result;
+    int                is_ber = 0, is_der = 0, structured;
+    diagnostic_format  diag_format;
     parse_diagnostic_format(options_.diagnostics, &diag_format);
     stage_ = "";
     has_schema_diag_ = false;
 
     if (!format) return fail(2, "unknown or disabled format; use otlv formats");
 #if OPENTLV_FORMAT_BER
-    is_ber = format == &tlv_format_ber;
+    is_ber = !std::strcmp(options_.format, "ber");
 #endif
 #if OPENTLV_FORMAT_DER
-    is_der = format == &tlv_format_der;
+    is_der = !std::strcmp(options_.format, "der");
 #endif
-    structured = format->is_constructed != NULL;
+    structured = format->has_constructed_classifier();
     if (options_.tree && !structured)
         return fail(2, "--tree requires a format with a constructed indicator");
 
@@ -284,17 +277,25 @@ int traversal_command::run() {
     diagnostic_scope_init(scope_, size());
     const traversal_env env = {&options_, format_, is_der_};
     std::size_t         significant = size();
-    result = TLV_OK;
+    result = tlv::errc::ok;
 #if OPENTLV_BLUETOOTH
-    if (bluetooth_module(options_))
-        result = tlv_bluetooth_ad_data_validate(data(), size(), &significant, &error_offset);
+    if (bluetooth_module(options_)) {
+        const auto container = tlv::bluetooth::validate_container(
+            {reinterpret_cast<const tlv::byte*>(data()), size()});
+        if (container)
+            significant = *container;
+        else {
+            result = container.error().status();
+            error_offset = container.error().offset();
+        }
+    }
 #endif
-    if (result != TLV_OK) {
+    if (result != tlv::errc::ok) {
         stage_ = "container ";
         // The container API reports an offset only. For a framing failure,
         // ask the public Tree Reader for its full raw identifier/field diagnostic.
         // Padding errors remain container diagnostics, not fake LTV elements.
-        if (result != TLV_ERR_INVALID_VALUE) {
+        if (result != tlv::errc::invalid_value) {
             std::size_t ignored = 0;
             visit_slice(env, data(), size(), 0, options_.max_elements, nullptr, nullptr, &ignored,
                         &reader_diag_);
@@ -309,19 +310,19 @@ int traversal_command::run() {
     result_ = result;
     error_offset_ = error_offset;
 
-    if (result_ == TLV_OK && options_.module && !options_.pdol) run_module_checks();
+    if (result_ == tlv::errc::ok && options_.module && !options_.pdol) run_module_checks();
 
     render_output();
 
     cli_presentation_restore(&presentation_);
     int rc = flush_stdout();
     if (rc) return rc;
-    if (result_ != TLV_OK) {
+    if (result_ != tlv::errc::ok) {
         std::string stage_name(stage_);
         if (!stage_name.empty() && stage_name.back() == ' ') stage_name.pop_back();
         std::string tag_hex;
         if (reader_diag_.has_tag)
-            tag_hex = hex_string(reader_diag_.tag.data, reader_diag_.tag.size);
+            tag_hex = hex_string(tlv::diagnostic_tag(reader_diag_).as_bytes());
         const char* tag_hex_ptr = tag_hex.empty() ? nullptr : tag_hex.c_str();
 
         const std::string rendered =
@@ -330,7 +331,7 @@ int traversal_command::run() {
             std::cerr << rendered << "\n";
         else
             std::cerr << "otlv: " << rendered << "\n";
-        return result_ == TLV_ERR_LIMIT || result_ == TLV_ERR_OUT_OF_MEMORY ? 3 : 1;
+        return result_ == tlv::errc::limit || result_ == tlv::errc::out_of_memory ? 3 : 1;
     }
     const int extra = after_success();
     if (extra) return extra;
@@ -344,16 +345,15 @@ int traversal_command::run() {
         // Never attempted for DER; see the same rationale where the final
         // wire-error case above excludes it.
         for (const skipped_range& range : skipped_) {
-            tlv_reader_diagnostic_t reader_diag;
-            std::string             rendered;
-            if (range.diagnostic.diagnostic.code == range.error) {
+            tlv::reader_diagnostic reader_diag;
+            std::string            rendered;
+            if (static_cast<tlv::errc>(range.diagnostic.diagnostic.code) == range.error) {
                 reader_diag = range.diagnostic;
-                reader_diag.diagnostic.severity = TLV_DIAGNOSTIC_SEVERITY_WARNING;
+                tlv::set_severity(reader_diag.diagnostic, tlv::severity::warning);
                 rendered = format_reader_diagnostic(reader_diag, diag_format);
             } else {
-                tlv::diagnostic diag =
-                    tlv::make_diagnostic(range.error, TLV_DIAGNOSTIC_SEVERITY_WARNING);
-                tlv_diagnostic_set_offset(&diag, range.error_offset);
+                tlv::diagnostic diag = tlv::make_diagnostic(range.error, tlv::severity::warning);
+                tlv::set_offset(diag, range.error_offset);
                 rendered = format_diagnostic(diag, diag_format, "", nullptr);
             }
             if (diag_format == diagnostic_format::json) {

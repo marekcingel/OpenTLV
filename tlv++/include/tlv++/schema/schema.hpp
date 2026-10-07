@@ -5,6 +5,8 @@
 #define OPENTLV_TLVPP_SCHEMA_HPP
 #include "tlv++/types.hpp"
 #include "tlv++/format.hpp"
+#include "tlv++/schema/definition.hpp"
+#include "tlv++/schema/report.hpp"
 #include "tlv/schema/schema.h"
 
 /**
@@ -14,6 +16,30 @@
 
 namespace tlv {
 
+/**
+ * @brief Validate wire structure against a C++ Schema without allocation.
+ * @param data Borrowed wire bytes.
+ * @param format Borrowed Format and immutable context.
+ * @param definition Borrowed Schema tables, names and identifiers.
+ * @param max_depth Maximum nesting depth, bounded by the canonical engine's capacity.
+ * @param max_elements Maximum element count.
+ * @return Success or a canonical error with the failure's absolute byte offset.
+ * @note Does not decode semantic Values; all borrows need only survive this call.
+ */
+inline expected<void, error> validate(bytes data, tlv::format format, schema definition,
+                                      size_t max_depth = TLV_SCHEMA_MAX_DEPTH,
+                                      size_t max_elements = SIZE_MAX) {
+    size_t     offset = 0;
+    const auto rc = tlv_schema_validate(reinterpret_cast<const uint8_t*>(data.data()), data.size(),
+                                        &detail::format_access::get(format),
+                                        detail::schema_access::get(definition), max_depth,
+                                        max_elements, &offset);
+    if (rc != TLV_OK) return unexpected<error>(error::from_c(rc).at(offset, operation::schema));
+    return {};
+}
+
+/** @brief Explicit interoperability with native Schema tables and diagnostic storage. */
+namespace native {
 /** @brief C++ alias for the schema-specific diagnostic type, #tlv_schema_diagnostic_t. */
 using schema_diagnostic = tlv_schema_diagnostic_t;
 /**
@@ -110,5 +136,6 @@ validate_all_diag(bytes data, tlv::format format, const tlv_structure_schema_t& 
     return validate_all_diag(data, detail::format_access::get(format), schema, max_depth,
                              max_elements, diagnostics, capacity, unknown, error_offset);
 }
+} // namespace native
 } // namespace tlv
 #endif

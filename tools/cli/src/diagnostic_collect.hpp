@@ -6,9 +6,10 @@
 #include <cstddef>
 #include <vector>
 #include <cstdint>
-#include "tlv/diagnostic.h"
-#include "tlv/reader/reader.h"
-#include "tlv/reader/visitor.h"
+#include "tlv++/diagnostic.hpp"
+#include "tlv++/format.hpp"
+#include "tlv++/types.hpp"
+#include "tlv++/visitor.hpp"
 
 // Collects the detail behind a traversal's diagnostic (the path enclosing it, and
 // enough of a reader diagnostic to describe it) independently of how that
@@ -23,7 +24,7 @@ namespace cli {
 // not be reused here. One instance is shared by every visitor of a single
 // traversal.
 struct diagnostic_scope {
-    tlv_diagnostic_path_t path;
+    tlv::diagnostic_path path;
     // end[d]: offset one past the value of the scope open at depth d;
     // end[0] is the whole input size.
     std::vector<size_t> end;
@@ -40,8 +41,8 @@ void diagnostic_scope_init(diagnostic_scope& scope, size_t size);
 // constructed value's absolute end from its borrowed pointer; `constructed`
 // is the same nesting predicate passed to the traversal, or `nullptr`.
 void diagnostic_scope_visit(diagnostic_scope& scope, const uint8_t* base,
-                            const tlv_element_t* element, std::size_t depth,
-                            tlv_is_constructed_fn constructed);
+                            const tlv::element_view* element, std::size_t depth,
+                            const tlv::format& format);
 
 } // namespace cli
 #endif

@@ -24,6 +24,56 @@ namespace tlv {
 /** @brief C++ alias for the reader-specific diagnostic type, #tlv_reader_diagnostic_t. */
 using reader_diagnostic = tlv_reader_diagnostic_t;
 
+/** @brief Wire field being read when a Reader failed. */
+enum class reader_phase {
+    tag = TLV_READER_OP_TAG,         /**< Identifier field. */
+    length = TLV_READER_OP_LENGTH,   /**< Length field. */
+    value = TLV_READER_OP_VALUE,     /**< Value bytes. */
+    trailer = TLV_READER_OP_TRAILER, /**< Closing framing. */
+    header = TLV_READER_OP_HEADER    /**< Complete header. */
+};
+/** @brief Reader phase in an existing diagnostic. */
+inline reader_phase phase(const reader_diagnostic& value) noexcept {
+    return static_cast<reader_phase>(value.operation);
+}
+/** @brief Immutable program-lifetime Reader phase name. */
+inline const char* message(reader_phase value) noexcept {
+    switch (value) {
+        case reader_phase::tag: return "tag";
+        case reader_phase::length: return "length";
+        case reader_phase::value: return "value";
+        case reader_phase::trailer: return "trailer";
+        case reader_phase::header: return "header";
+    }
+    return "unknown";
+}
+/** @brief Borrow a Reader diagnostic's identifier, or an absent identifier. */
+inline tlv::tag diagnostic_tag(const reader_diagnostic& value) noexcept {
+    return value.has_tag ? detail::semantic_access::borrow(value.tag) : tlv::tag{};
+}
+/** @brief Attach a borrowed identifier to a Reader diagnostic. */
+inline void set_tag(reader_diagnostic& value, tlv::tag identifier) noexcept {
+    value.tag = detail::semantic_access::get(identifier);
+    value.has_tag = 1;
+}
+/** @brief Borrow original Length octets, or an empty view when unavailable. */
+inline bytes raw_length(const reader_diagnostic& value) noexcept {
+    return value.has_raw_length
+               ? bytes(reinterpret_cast<const byte*>(value.raw_length.data), value.raw_length.size)
+               : bytes{};
+}
+/// @cond INTERNAL
+namespace detail {
+inline error reader_failed(tlv_result_t code, const reader_diagnostic& diagnostic,
+                           size_t offset) noexcept {
+    return diagnostic.diagnostic.code == code
+               ? error_access::diagnostic(diagnostic.diagnostic, operation::reader,
+                                          diagnostic.has_tag ? &diagnostic.tag : nullptr)
+               : error::from_c(code).at(offset, operation::reader);
+}
+} // namespace detail
+/// @endcond
+
 /**
  * @brief Exception raised by Reader iteration on any outcome other than final EOF.
  *
@@ -43,6 +93,14 @@ public:
     /** @brief Original C Reader result code. */
     tlv_result_t code() const noexcept {
         return code_;
+    }
+    /** @brief Canonical C++ status matching pull-based Reader errors. */
+    errc status() const noexcept {
+        return static_cast<errc>(code_);
+    }
+    /** @brief Copy the common structured failure without allocating. */
+    tlv::error failure() const noexcept {
+        return detail::reader_failed(code_, diagnostic_, offset_);
     }
     /** @brief Absolute offset of the element whose read failed. */
     size_t offset() const noexcept {
@@ -74,30 +132,23 @@ enum class input_mode {
  * @return Decoded element and source, or the original C Reader error.
  * @warning Input and Format storage must outlive the returned borrowed views.
  */
-TLV_NODISCARD inline expected<decoded, error> read(bytes data, const tlv_format_t& format,
-                                                   size_t&            consumed,
-                                                   reader_diagnostic* diagnostic = nullptr) {
-    tlv_decoded_t result{};
-    auto rc = tlv_read_source_diag(reinterpret_cast<const uint8_t*>(data.data()), data.size(),
-                                   &format, &result.element, &consumed, &result.source, diagnostic);
-    if (rc != TLV_OK) return unexpected<error>(error::from_c(rc));
-    return decoded{detail::semantic_access::borrow(result.element), result.source};
-}
-
-/** @brief Read one element using a borrowed C++ Format view.
- * @copydetails read(bytes, const tlv_format_t&, size_t&, reader_diagnostic*)
- */
 TLV_NODISCARD inline expected<decoded, error> read(bytes data, tlv::format format, size_t& consumed,
                                                    reader_diagnostic* diagnostic = nullptr) {
-    return read(data, detail::format_access::get(format), consumed, diagnostic);
+    tlv_decoded_t     result{};
+    reader_diagnostic local{};
+    auto*             report = diagnostic ? diagnostic : &local;
+    auto rc = tlv_read_source_diag(reinterpret_cast<const uint8_t*>(data.data()), data.size(),
+                                   &detail::format_access::get(format), &result.element, &consumed,
+                                   &result.source, report);
+    if (rc != TLV_OK) return unexpected<error>(detail::reader_failed(rc, *report, 0));
+    return decoded{detail::semantic_access::borrow(result.element), result.source};
 }
 
 /**
  * @brief Thin, safe C++ wrapper around #tlv_reader_t.
  *
  * Reads elements sequentially without copying value bytes. Successful reads
- * do not allocate; an error result carries a `std::string` message and
- * therefore may allocate.
+ * and returned errors do not allocate. Error descriptions have static lifetime.
  *
  * @warning The caller must keep the buffer, format, and format context
  *          alive for the lifetime of the reader and of any element it returns.
@@ -138,7 +189,7 @@ public:
      * @brief Creates a reader over a buffer.
      *
      * Invalid buffers or missing format callbacks are not reported here;
-     * they prevent reading, so at_end() returns `true` and next() returns an
+     * they prevent reading, so at_end() returns `false` and next() returns an
      * error.
      *
      * @param data   Encoded input; borrowed.
@@ -156,11 +207,12 @@ public:
     /**
      * @brief Reports whether the reader has consumed all input.
      *
-     * @return `true` if no further elements exist, or if the reader failed
-     *         to initialize.
+     * @return `true` only at a successfully initialized final input boundary.
+     * Initialization failure and exhausted incremental input are not clean EOF;
+     * next() reports their distinct outcomes.
      */
     TLV_NODISCARD bool at_end() const {
-        return !init_ok_ || tlv_reader_at_end(&impl_) != 0;
+        return init_ok_ && tlv_reader_at_end(&impl_) != 0;
     }
 
     /**
@@ -175,17 +227,9 @@ public:
      * @note On error the reader position is unchanged.
      */
     TLV_NODISCARD expected<element_view, error> next() {
-        if (!init_ok_) {
-            return unexpected<error>(error::from_c(TLV_ERR_NULL_ARG));
-        }
-
-        tlv_element_t raw{};
-        tlv_result_t  rc = tlv_reader_next(&impl_, &raw);
-        if (rc != TLV_OK) {
-            return unexpected<error>(error::from_c(rc));
-        }
-
-        return detail::semantic_access::borrow(raw);
+        // The C cursor initializes diagnostics on every failure; success never reads them.
+        reader_diagnostic diagnostic;
+        return next(diagnostic);
     }
 
     /**
@@ -206,7 +250,7 @@ public:
         tlv_element_t raw{};
         tlv_result_t  rc = tlv_reader_next_diag(&impl_, &raw, &out_diagnostic);
         if (rc != TLV_OK) {
-            return unexpected<error>(error::from_c(rc));
+            return unexpected<error>(detail::reader_failed(rc, out_diagnostic, offset()));
         }
 
         return detail::semantic_access::borrow(raw);
@@ -220,9 +264,11 @@ public:
      */
     TLV_NODISCARD expected<decoded, error> next_source(reader_diagnostic* diagnostic = nullptr) {
         if (!init_ok_) return unexpected<error>(error::from_c(TLV_ERR_NULL_ARG));
-        tlv_decoded_t result{};
-        auto rc = tlv_reader_next_source_diag(&impl_, &result.element, &result.source, diagnostic);
-        if (rc != TLV_OK) return unexpected<error>(error::from_c(rc));
+        tlv_decoded_t     result{};
+        reader_diagnostic local{};
+        auto*             report = diagnostic ? diagnostic : &local;
+        auto rc = tlv_reader_next_source_diag(&impl_, &result.element, &result.source, report);
+        if (rc != TLV_OK) return unexpected<error>(detail::reader_failed(rc, *report, offset()));
         return decoded{detail::semantic_access::borrow(result.element), result.source};
     }
 
@@ -279,13 +325,14 @@ private:
         // Only the cursor's final boundary is EOF. A callback returning END_OF_BUFFER
         // inside nonempty input remains an error.
         if (init_ok_ && at_end()) return false;
-        reader_diagnostic diagnostic{};
+        reader_diagnostic diagnostic;
         tlv_element_t     raw{};
         const auto        position = offset();
         const auto        rc =
             init_ok_ ? tlv_reader_next_diag(&impl_, &raw, &diagnostic) : TLV_ERR_NULL_ARG;
         if (rc != TLV_OK) {
             if (!init_ok_) {
+                diagnostic = {};
                 diagnostic.diagnostic.code = rc;
                 diagnostic.diagnostic.severity = TLV_DIAGNOSTIC_SEVERITY_ERROR;
                 diagnostic.diagnostic.has_offset = 1;
@@ -428,8 +475,10 @@ public:
  */
 template <> class reader<tlv::format> : public detail::reader_base {
 public:
-    /** @brief Initialize from a borrowed C++ view or native descriptor. */
-    using detail::reader_base::reader_base;
+    /** @brief Initialize from a borrowed C++ Format; explicit C interoperability uses
+     * native::borrow_format(). */
+    reader(bytes data, tlv::format format, input_mode mode = input_mode::final)
+        : detail::reader_base(data, format, mode) {}
 };
 
 /**
@@ -457,16 +506,6 @@ template <typename F> TLV_NODISCARD detail::parsing_range<F> parse(bytes data, F
  */
 template <typename F> TLV_NODISCARD detail::parsing_range<F> parse(bytes data) {
     return tlv::parse(data, F{});
-}
-
-/** @brief Parse final input with a borrowed native Format descriptor and context.
- * @param data Immutable borrowed final input.
- * @param format Native descriptor and context, which must outlive the range and results.
- * @return Single-pass range with the iteration error rules of parse(bytes, F).
- */
-TLV_NODISCARD inline detail::parsing_range<tlv::format> parse(bytes               data,
-                                                              const tlv_format_t& format) {
-    return tlv::parse(data, detail::format_access::borrow(format));
 }
 
 } // namespace tlv

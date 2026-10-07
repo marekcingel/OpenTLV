@@ -1,27 +1,17 @@
 // SPDX-License-Identifier: MIT
 // Copyright (c) 2026 Marek Cingel
 
-// Defines a fixed-width TLV format at runtime from tlv++: two tag bytes and a
-// one-byte length, using the raw C tlv_fixed_format_t/tlv_fixed_format_init
-// through the explicit tlv::native interoperability boundary. See tlv/formats/fixed.h and
-// docs/guides/memory.md#format-context-ownership-and-lifetime for why config
-// must outlive every reader and writer built from it.
+// Runtime configuration owns its state; cursors borrow the stable owner.
 #include <array>
 #include <iostream>
 
-#include "tlv/formats/fixed.h"
 #include "tlv++/tlv.hpp"
-#include "tlv++/native.hpp"
 
 int main() {
-    const tlv_fixed_format_t config = {{/* tag_size */ 2},
-                                       {/* length_size */ 1, TLV_BYTE_ORDER_BIG_ENDIAN},
-                                       TLV_ELEMENT_ORDER_TLV,
-                                       TLV_LENGTH_SCOPE_VALUE};
-    /* config must outlive every reader and writer built from format. */
-    tlv_format_t format;
-    if (tlv_fixed_format_init(&format, &config) != TLV_OK) return 1;
-    const auto format_view = tlv::native::borrow_format(format);
+    const tlv::runtime_fixed_format format(2, 1);
+    const auto                      selected = format.view();
+    if (!selected) return 1;
+    const auto format_view = *selected;
 
     std::array<tlv::byte, 16> buf{};
     tlv::writer<>             writer(buf.data(), buf.size(), format_view);
@@ -30,7 +20,7 @@ int main() {
     auto                           written =
         writer.write(tlv::tag_bytes<0x12, 0x34>(), tlv::bytes(value.data(), value.size()));
     if (!written) {
-        std::cerr << "write error: " << written.error().message << "\n";
+        std::cerr << "write error: " << written.error().message() << "\n";
         return 1;
     }
 

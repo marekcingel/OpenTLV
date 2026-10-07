@@ -7,7 +7,7 @@
 #include <iostream>
 
 using Counter = tlv::field<tlv::tag_constant<0x9F, 0x36>, uint16_t, tlv::uint16_be_codec>;
-using Format = tlv::fixed_format<2, 1, TLV_BYTE_ORDER_BIG_ENDIAN>;
+using Format = tlv::fixed_format<2, 1, tlv::byte_order::big_endian>;
 
 int main() {
     tlv::byte           output[5]{}, scratch[2]{};

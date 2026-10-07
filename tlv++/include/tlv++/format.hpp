@@ -45,6 +45,15 @@ public:
         return descriptor_->is_constructed != nullptr;
     }
 
+    /** @brief Classify an identifier through this Format; absent classifiers return false.
+     * @param identifier Borrowed identifier, used only during this call.
+     * @note This is wire classification, not semantic Schema validation. */
+    bool is_constructed(tlv::tag identifier) const noexcept {
+        const auto raw = detail::semantic_access::get(identifier);
+        return descriptor_->is_constructed &&
+               descriptor_->is_constructed(descriptor_->context, &raw) != 0;
+    }
+
 private:
     explicit format(const tlv_format_t& descriptor) noexcept : descriptor_(&descriptor) {}
     const tlv_format_t* descriptor_;
@@ -92,19 +101,18 @@ using encoding = tlv_encoding_t;
  *
  * @warning Input, descriptor and context must outlive the result and remain unchanged.
  */
-TLV_NODISCARD inline expected<decoded, error> decode(const tlv_format_t& format, bytes data) {
-    tlv_decoded_t result{};
-    auto rc = tlv_format_decode(&format, reinterpret_cast<const uint8_t*>(data.data()), data.size(),
-                                &result, nullptr);
-    if (rc != TLV_OK) return unexpected<error>(error::from_c(rc));
-    return decoded{detail::semantic_access::borrow(result.element), result.source};
-}
-
-/** @brief Decode using a borrowed C++ Format view.
- * @copydetails decode(const tlv_format_t&, bytes)
- */
 TLV_NODISCARD inline expected<decoded, error> decode(tlv::format format, bytes data) {
-    return decode(detail::format_access::get(format), data);
+    tlv_decoded_t      result{};
+    tlv_format_error_t diagnostic{};
+    auto rc = tlv_format_decode(&detail::format_access::get(format),
+                                reinterpret_cast<const uint8_t*>(data.data()), data.size(), &result,
+                                &diagnostic);
+    if (rc != TLV_OK) {
+        auto failure = error::from_c(rc).during(operation::format);
+        if (diagnostic.has_offset) failure = failure.at(diagnostic.offset, operation::format);
+        return unexpected<error>(failure);
+    }
+    return decoded{detail::semantic_access::borrow(result.element), result.source};
 }
 
 /**
@@ -115,21 +123,18 @@ TLV_NODISCARD inline expected<decoded, error> decode(tlv::format format, bytes d
  *
  * @return Exact logical sizes, or a C format error.
  */
-TLV_NODISCARD inline expected<encoding, error> measure(const tlv_format_t& format,
-                                                       const element_view& value) {
-    encoding   result{};
-    const auto raw = detail::semantic_access::get(value);
-    auto       rc = tlv_format_measure(&format, &raw, &result, nullptr);
-    if (rc != TLV_OK) return unexpected<error>(error::from_c(rc));
-    return result;
-}
-
-/** @brief Measure using a borrowed C++ Format view.
- * @copydetails measure(const tlv_format_t&, const element_view&)
- */
 TLV_NODISCARD inline expected<encoding, error> measure(tlv::format         format,
                                                        const element_view& value) {
-    return measure(detail::format_access::get(format), value);
+    encoding           result{};
+    tlv_format_error_t diagnostic{};
+    const auto         raw = detail::semantic_access::get(value);
+    auto rc = tlv_format_measure(&detail::format_access::get(format), &raw, &result, &diagnostic);
+    if (rc != TLV_OK) {
+        auto failure = error::from_c(rc).during(operation::format);
+        if (diagnostic.has_offset) failure = failure.at(diagnostic.offset, operation::format);
+        return unexpected<error>(failure);
+    }
+    return result;
 }
 
 /**
@@ -142,22 +147,19 @@ TLV_NODISCARD inline expected<encoding, error> measure(tlv::format         forma
  *
  * @return Written bytes, or a C format error. Callback failure may modify output.
  */
-TLV_NODISCARD inline expected<size_t, error>
-encode(const tlv_format_t& format, const element_view& value, byte* data, size_t capacity) {
-    size_t     written = 0;
-    const auto raw = detail::semantic_access::get(value);
-    auto rc = tlv_format_encode(&format, &raw, reinterpret_cast<uint8_t*>(data), capacity, &written,
-                                nullptr);
-    if (rc != TLV_OK) return unexpected<error>(error::from_c(rc));
-    return written;
-}
-
-/** @brief Encode using a borrowed C++ Format view.
- * @copydetails encode(const tlv_format_t&, const element_view&, byte*, size_t)
- */
 TLV_NODISCARD inline expected<size_t, error> encode(tlv::format format, const element_view& value,
                                                     byte* data, size_t capacity) {
-    return encode(detail::format_access::get(format), value, data, capacity);
+    size_t             written = 0;
+    tlv_format_error_t diagnostic{};
+    const auto         raw = detail::semantic_access::get(value);
+    auto rc = tlv_format_encode(&detail::format_access::get(format), &raw,
+                                reinterpret_cast<uint8_t*>(data), capacity, &written, &diagnostic);
+    if (rc != TLV_OK) {
+        auto failure = error::from_c(rc).during(operation::format);
+        if (diagnostic.has_offset) failure = failure.at(diagnostic.offset, operation::format);
+        return unexpected<error>(failure);
+    }
+    return written;
 }
 
 /**
@@ -178,7 +180,7 @@ preserve(const source& original, const element_view& value, byte* data, size_t c
     const auto raw = detail::semantic_access::get(value);
     auto       rc =
         tlv_source_preserve(&original, &raw, reinterpret_cast<uint8_t*>(data), capacity, &written);
-    if (rc != TLV_OK) return unexpected<error>(error::from_c(rc));
+    if (rc != TLV_OK) return unexpected<error>(error::from_c(rc).during(operation::format));
     return written;
 }
 

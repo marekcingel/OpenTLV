@@ -4,12 +4,12 @@
 #ifndef OPENTLV_CLI_DIAGNOSTIC_RENDER_HPP
 #define OPENTLV_CLI_DIAGNOSTIC_RENDER_HPP
 #include <string>
-#include "tlv/error.h"
+#include "tlv++/error.hpp"
 #include "tlv++/diagnostic.hpp"
 #include "tlv++/reader/reader.hpp"
 #include "tlv++/schema/schema.hpp"
 
-// Renders tlv::diagnostic and tlv::schema_diagnostic for otlv's --diagnostics
+// Renders tlv::diagnostic and tlv::validation_issue for otlv's --diagnostics
 // option. Kept separate from commands.cpp so this stays easy to lift into
 // tlv++ later: everything here operates on the library's own diagnostic
 // types, and only the JSON writer (nlohmann) and the symbolic error-name
@@ -23,9 +23,9 @@ enum class diagnostic_format { human, compact, json };
 // for anything else, leaving *out unchanged.
 bool parse_diagnostic_format(const char* name, diagnostic_format* out);
 
-// Returns the symbolic name of a result code, e.g. "TLV_ERR_SCHEMA_MISSING",
+// Returns the symbolic name of a result code, e.g. "tlv::errc::missing_field",
 // or "TLV_ERR_UNKNOWN" for a value with no matching case.
-const char* error_name(tlv_result_t code);
+const char* error_name(tlv::errc code);
 
 // Renders a base diagnostic: a format/read failure, or one skipped --recover
 // range. `stage`, when non-empty (for example "dictionary"), names the layer
@@ -38,8 +38,8 @@ std::string format_diagnostic(const tlv::diagnostic& diagnostic, diagnostic_form
 // Renders a schema violation, which already carries its own tag, path, field
 // name and expected-versus-actual detail computed by
 // tlv_schema_validate_all_diag().
-std::string format_schema_diagnostic(const tlv::schema_diagnostic& diagnostic,
-                                     diagnostic_format             format);
+std::string format_schema_diagnostic(const tlv::validation_issue& diagnostic,
+                                     diagnostic_format            format);
 
 // Renders a reader (wire-level parsing) diagnostic: which step failed, the
 // tag being processed if one was already decoded, and, for a value or

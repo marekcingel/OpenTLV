@@ -124,7 +124,7 @@ the other domain remains successful. Errors do not allocate.
 
 Available adapters are `uint8_codec`, `uint16_be_codec`, `uint16_le_codec`,
 `uint32_be_codec`, `uint32_le_codec`, and `int64_minimal_be_codec`. They delegate
-to the C Value codecs. `codec_adapter<T, &descriptor>` supports other C codecs
+to the C Value codecs. `tlv::native::codec_adapter<T, &descriptor>` (include `<tlv++/native.hpp>`) supports other C codecs
 when `T` is exactly their documented, default-constructible C representation.
 Do not use it to reinterpret an STL object as a C representation.
 
@@ -141,8 +141,8 @@ the third field parameter. Both mechanisms use this C++11 contract:
 ```cpp
 struct MyCodec {
     using value_type = MyType;
-    static tlv::expected<MyType, tlv_codec_result_t> decode(tlv::bytes input);
-    static tlv::expected<size_t, tlv_codec_result_t>
+    static tlv::expected<MyType, tlv::codec_errc> decode(tlv::bytes input);
+    static tlv::expected<size_t, tlv::codec_errc>
     encode(const MyType& value, tlv::byte* output, size_t capacity);
 };
 ```
@@ -154,8 +154,8 @@ never receive a tag or perform a registry lookup. Field instantiation checks
 the value type and return types. Owning/custom codec allocation exceptions
 propagate rather than being converted to framing errors.
 
-`writer.write<Field>(value)` stages Value bytes in a temporary vector and may
-allocate. For caller-owned staging use:
+`writer.write<Field>(value)` uses stack storage for Values up to 64 bytes and a
+temporary vector for larger Values. For caller-owned staging use:
 
 ```cpp
 tlv::byte scratch[2];

@@ -4,12 +4,12 @@
 #include "commands/version_command.hpp"
 #include <iostream>
 #include "diagnostics.hpp"
-#include "tlv/version.h"
+#include "tlv++/version.hpp"
 
 namespace cli {
 
 int version_command::run() {
-    std::cout << "otlv " << tlv_version_string() << "\n";
+    std::cout << "otlv " << tlv::version() << "\n";
     return flush_stdout();
 }
 

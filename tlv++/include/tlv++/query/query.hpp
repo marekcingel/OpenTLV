@@ -17,6 +17,11 @@
 
 namespace tlv {
 class query_range;
+/// @cond INTERNAL
+namespace detail {
+struct query_access;
+}
+/// @endcond
 
 /** @brief Query compilation failure with the original C error and text offset. */
 class query_error : public std::runtime_error {
@@ -27,6 +32,14 @@ public:
     /** @brief Original C compilation result. */
     tlv_result_t code() const noexcept {
         return code_;
+    }
+    /** @brief Canonical C++ status matching nonthrowing Query parsing. */
+    errc status() const noexcept {
+        return static_cast<errc>(code_);
+    }
+    /** @brief Copy the common structured failure without allocating. */
+    tlv::error failure() const noexcept {
+        return tlv::error(status(), operation::query).at(offset_, operation::query);
     }
     /** @brief Zero-based offending character or tag position. */
     size_t offset() const noexcept {
@@ -89,19 +102,40 @@ public:
         return tlv_query_count(&query_);
     }
 
+    /** @brief Return the canonical path spelling in an owning string.
+     * @return Uppercase identifiers joined by slashes; allocates result storage.
+     */
+    std::string format() const {
+        size_t required = 0;
+        tlv_query_format(&query_, nullptr, 0, &required);
+        std::string result(required, '\0');
+        if (required) {
+            tlv_query_format(&query_, &result[0], required, &required);
+            result.resize(required - 1);
+        }
+        return result;
+    }
+
     /**
      * @brief Return the tag at a zero-based query step, or an empty tag out of range.
      * @warning The returned bytes borrow this query and must not outlive it.
      */
-    tlv::tag step(size_t index) const {
+    tlv::tag step(size_t index) const& {
         return detail::semantic_access::borrow(tlv_query_step(&query_, index));
     }
+    /** @brief Reject identifier views into a temporary Query. */
+    tlv::tag step(size_t) const&& = delete;
 
-    /** @brief The underlying C query, for use with the C API. */
+private:
     const tlv_query_t& c_query() const {
         return query_;
     }
+    friend class query_range;
+    friend class query_matcher;
+    friend class document;
+    friend struct detail::query_access;
 
+public:
     /**
      * @brief Calls a visitor for every element the query addresses.
      *
@@ -130,39 +164,31 @@ public:
      */
     template <typename Visitor>
     TLV_NODISCARD expected<void, error>
-    visit_buffer(bytes data, const tlv_format_t& format, size_t max_depth, size_t max_elements,
+    visit_buffer(bytes data, tlv::format format, size_t max_depth, size_t max_elements,
                  Visitor&& visitor, size_t* error_offset = nullptr) const {
         detail::tree_visitor<Visitor> state{&visitor};
         tlv_result_t                  rc = tlv_query_visit_buffer(
-            reinterpret_cast<const uint8_t*>(data.data()), data.size(), &format, &query_, max_depth,
-            max_elements, &detail::tree_visitor<Visitor>::call, &state, error_offset);
+            reinterpret_cast<const uint8_t*>(data.data()), data.size(),
+            &detail::format_access::get(format), &query_, max_depth, max_elements,
+            &detail::tree_visitor<Visitor>::call, &state, error_offset);
         if (rc != TLV_OK) return unexpected<error>(error::from_c(rc));
         return {};
-    }
-
-    /** @brief Visit Query matches using a C++ Format view.
-     * @param data Immutable borrowed input.
-     * @param format Borrowed Format; absent constructed classification treats Values as opaque.
-     * @param max_depth Maximum traversal depth.
-     * @param max_elements Maximum traversed elements.
-     * @param visitor Callable taking Element, depth and offset, returning tlv_visit_result_t.
-     * @param error_offset Optional failure offset, unchanged on success.
-     * @return Success on EOF or STOP, or the original Query/Reader error.
-     * @warning Input, descriptor and context must outlive retained views. Callback effects
-     * are not rolled back. Allocation behavior is the same as for the native overload.
-     */
-    template <typename Visitor>
-    TLV_NODISCARD expected<void, error>
-    visit_buffer(bytes data, tlv::format format, size_t max_depth, size_t max_elements,
-                 Visitor&& visitor, size_t* error_offset = nullptr) const {
-        return visit_buffer(data, detail::format_access::get(format), max_depth, max_elements,
-                            std::forward<Visitor>(visitor), error_offset);
     }
 
 private:
     query() : query_() {}
     tlv_query_t query_;
 };
+
+/// @cond INTERNAL
+namespace detail {
+struct query_access {
+    static const tlv_query_t& get(const query& value) {
+        return value.c_query();
+    }
+};
+} // namespace detail
+/// @endcond
 
 /** @brief Lazy single-pass Query results yielding normal tree_item records.
  * @note next() preserves matching state across NEED_MORE_DATA. Only final EOF

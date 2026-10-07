@@ -209,6 +209,13 @@ field ranges and known logical requirements. Unknown is distinct from zero.
 Only in-buffer ranges can describe borrowed data. Generic diagnostics translate
 relative positions and never infer wire rules from an error code.
 
+`tlv_format_decode()` fully initializes a non-null failure-detail output on every
+failure, including missing arguments or a missing decode callback. Argument
+failures carry empty detail; an empty input has the known offset zero. On success,
+the caller's error output remains unchanged. The core still initializes callback
+result and error storage before the single decode invocation, so a callback may
+leave optional fields untouched.
+
 ## Size domains
 
 Logical Value and planned encoded sizes use `tlv_size_t`, always unsigned
