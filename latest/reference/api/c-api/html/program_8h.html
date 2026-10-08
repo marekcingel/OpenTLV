@@ -209,6 +209,8 @@ Enumerations</h2></td></tr>
 , <a class="el" href="group__traversal.html#gga66edcf242c8bc06318ff99b24f1ce0edadc9c39cddfb5b7f9f33fadaaa0f491e9">TLV_QUERY_ERROR_CARDINALITY</a>
 , <a class="el" href="group__traversal.html#gga66edcf242c8bc06318ff99b24f1ce0eda8c3fa940f82a96c6cc438c762d3a22ca">TLV_QUERY_ERROR_CODEC</a>
 , <a class="el" href="group__traversal.html#gga66edcf242c8bc06318ff99b24f1ce0edaf145d7642674247761d51128daf03fdf">TLV_QUERY_ERROR_IMAGE_VERSION</a>
+, <br />
+&#160;&#160;<a class="el" href="group__traversal.html#gga66edcf242c8bc06318ff99b24f1ce0edab8a837296c6eba65f3836f28d73448d6">TLV_QUERY_ERROR_STATE</a>
 <br />
  }</td></tr>
 <tr class="memdesc:ga66edcf242c8bc06318ff99b24f1ce0ed"><td class="mdescLeft">&#160;</td><td class="mdescRight">Query-specific diagnostic category; original result codes remain intact.  <a href="group__traversal.html#ga66edcf242c8bc06318ff99b24f1ce0ed">More...</a><br /></td></tr>
@@ -328,7 +330,7 @@ Functions</h2></td></tr>
 <dd>
 Execution workspace is exclusive: it must not overlap the program, environment descriptors, input/Tag/Value/Source spans or output objects. Outputs must not overlap one another or immutable borrowed data. Read-only input spans may alias each other and program payload; adjacent spans are valid. Detected execution/output overlap returns INVALID_ARG before writes, including diagnostic initialization. Feed, Reader visit/exists, result iteration and exec_info check live descriptors, bindings and delayed S1 spans without scanning retained history; callers must keep their outputs disjoint from all earlier borrowed event spans. Finish and exec_result also check the complete retained history. Opaque provider contexts remain caller-managed. </dd>
 <dd>
-Operations on the same execution from a visitor/provider/tag callback return INVALID_ARG without changing the outer execution; exec_info is readable. Independent executions are allowed. This is a synchronous reentrancy contract, not thread synchronization. Use exec_reset for recovery; raw initialization requires exclusive storage and is forbidden while that storage is active. </dd></dl>
+Operations on the same execution from a visitor/provider/tag callback return INVALID_STATE without changing the outer execution; exec_info is readable. Independent executions are allowed. This is a synchronous reentrancy contract, not thread synchronization. Use exec_reset for recovery; raw initialization requires exclusive storage and is forbidden while that storage is active. </dd></dl>
 </div></div><!-- contents -->
 <!-- start footer part -->
 <hr class="footer"/><address class="footer"><small>

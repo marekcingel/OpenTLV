@@ -3102,6 +3102,34 @@
   
   
     <li class="md-nav__item">
+      <a href="../../concepts/error-model/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Failure model design
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
       <a href="../../concepts/format-contract/" class="md-nav__link">
         
   
@@ -4066,7 +4094,7 @@ unchanged.</p>
 <code>tlv_tree_reader_skip_subtree()</code> to continue after its complete encoded extent.
 The skipped descendants are neither decoded nor counted. The same operation is
 available after a failed descent while that subtree remains pending. Calling it
-without a pending subtree returns <code>TLV_ERR_INVALID_ARG</code>. Event mode still emits
+without a pending subtree returns <code>TLV_ERR_INVALID_STATE</code>. Event mode still emits
 the matching END with <code>skipped=1</code>; Writer and Document reject omitted content.
 Node-only mode hides this closure. Skipping does not
 validate descendants; Format may already have inspected their framing while

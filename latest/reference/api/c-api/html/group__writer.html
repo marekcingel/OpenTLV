@@ -727,7 +727,7 @@ Any callback error, propagated unchanged.</dd></dl>
 </dl>
 <dl class="section return"><dt>Returns</dt><dd><a class="el" href="group__core.html#gga516c7250563ee9332e2f45f2d203ae61ac763c25dd3e807fae4d8078c3d3e94ed">TLV_OK</a> on success; <a class="el" href="group__core.html#gga516c7250563ee9332e2f45f2d203ae61aa4a514ccb37d17b2cd7c7da47d2eab88">TLV_ERR_NULL_ARG</a> for NULL writer. </dd>
 <dd>
-<a class="el" href="group__core.html#gga516c7250563ee9332e2f45f2d203ae61a83b538a74c7058e8863132a6410b9d65">TLV_ERR_INVALID_ARG</a> when no parent is open. </dd>
+<a class="el" href="group__core.html#gga516c7250563ee9332e2f45f2d203ae61aa9a17dc4b9c0e56681e4c8e458be09d2">TLV_ERR_INVALID_STATE</a> when no parent is open. </dd>
 <dd>
 <a class="el" href="group__core.html#gga516c7250563ee9332e2f45f2d203ae61acbd34cf02b42e70e99648aef5b9ca8b3">TLV_ERR_BUFFER_TOO_SHORT</a> for insufficient scratch or output storage. </dd>
 <dd>
@@ -797,7 +797,7 @@ Any Format measurement/encoding error, propagated unchanged. </dd></dl>
   </table>
   </dd>
 </dl>
-<dl class="section return"><dt>Returns</dt><dd><a class="el" href="group__core.html#gga516c7250563ee9332e2f45f2d203ae61ac763c25dd3e807fae4d8078c3d3e94ed">TLV_OK</a> if complete, <a class="el" href="group__core.html#gga516c7250563ee9332e2f45f2d203ae61a83b538a74c7058e8863132a6410b9d65">TLV_ERR_INVALID_ARG</a> for an open parent, or <a class="el" href="group__core.html#gga516c7250563ee9332e2f45f2d203ae61aa4a514ccb37d17b2cd7c7da47d2eab88">TLV_ERR_NULL_ARG</a> for NULL writer. Does not seal the cursor. </dd></dl>
+<dl class="section return"><dt>Returns</dt><dd><a class="el" href="group__core.html#gga516c7250563ee9332e2f45f2d203ae61ac763c25dd3e807fae4d8078c3d3e94ed">TLV_OK</a> if complete, <a class="el" href="group__core.html#gga516c7250563ee9332e2f45f2d203ae61aa9a17dc4b9c0e56681e4c8e458be09d2">TLV_ERR_INVALID_STATE</a> for an open parent, or <a class="el" href="group__core.html#gga516c7250563ee9332e2f45f2d203ae61aa4a514ccb37d17b2cd7c7da47d2eab88">TLV_ERR_NULL_ARG</a> for NULL writer. Does not seal the cursor. </dd></dl>
 
 </div>
 </div>
@@ -1061,7 +1061,7 @@ Any Format measurement/encoding error, propagated unchanged. </dd></dl>
   </table>
   </dd>
 </dl>
-<dl class="section return"><dt>Returns</dt><dd>Source/Writer result, including INVALID_ARG for missing END or skipped content. </dd></dl>
+<dl class="section return"><dt>Returns</dt><dd>Source/Writer result, including INVALID_VALUE for missing END, malformed depth or skipped content. </dd></dl>
 <dl class="section note"><dt>Note</dt><dd>Uses the storage, required-capacity and replay contracts of <a class="el" href="group__writer.html#gae10ae48fc054294c71cf6c1797225f1d" title="Measure a preorder tree through canonical Tree Writer encoding, without allocating.">tlv_tree_writer_measure()</a>. NEED_MORE_DATA aborts this one-shot helper; use a persistent Tree Writer and write_event() for resumable transformations. </dd></dl>
 
 </div>
@@ -1107,7 +1107,7 @@ Any Format measurement/encoding error, propagated unchanged. </dd></dl>
   </table>
   </dd>
 </dl>
-<dl class="section return"><dt>Returns</dt><dd>TLV_OK, TLV_ERR_NULL_ARG, or TLV_ERR_INVALID_ARG when parents are open. </dd></dl>
+<dl class="section return"><dt>Returns</dt><dd>TLV_OK, TLV_ERR_NULL_ARG, or TLV_ERR_INVALID_STATE when parents are open. </dd></dl>
 <dl class="section note"><dt>Note</dt><dd>begin() copies Tags in this mode; end() releases capacity on success. Failure preserves the configuration. Exhaustion at begin returns TLV_ERR_LIMIT. </dd></dl>
 
 </div>
@@ -1258,7 +1258,7 @@ Any Format measurement/encoding error, propagated unchanged. </dd></dl>
   </table>
   </dd>
 </dl>
-<dl class="section return"><dt>Returns</dt><dd>Underlying begin/write/end result; TLV_ERR_INVALID_ARG for malformed ordering, unknown kinds or skipped END; TLV_ERR_INVALID_TAG for incompatible destination classification. Errors preserve cursor and accumulated output. </dd></dl>
+<dl class="section return"><dt>Returns</dt><dd>Underlying begin/write/end result; TLV_ERR_INVALID_VALUE for malformed ordering, unknown kinds or skipped END; TLV_ERR_INVALID_TAG for incompatible destination classification. Errors preserve cursor and accumulated output. </dd></dl>
 <dl class="section warning"><dt>Warning</dt><dd>In borrowed mode BEGIN retains Tag until END. Configure tag storage to release input after every successful event. On failure retain the current event for retry; do not advance the producer. Source metadata is ignored. </dd></dl>
 
 </div>

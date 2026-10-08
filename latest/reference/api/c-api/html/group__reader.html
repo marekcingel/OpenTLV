@@ -824,7 +824,7 @@ On success <code>*out_diagnostic</code> is left unchanged. </dd></dl>
 <dd>
 <a class="el" href="group__core.html#gga516c7250563ee9332e2f45f2d203ae61aa4a514ccb37d17b2cd7c7da47d2eab88">TLV_ERR_NULL_ARG</a> for missing required pointers or Format callback. </dd>
 <dd>
-<a class="el" href="group__core.html#gga516c7250563ee9332e2f45f2d203ae61a83b538a74c7058e8863132a6410b9d65">TLV_ERR_INVALID_ARG</a> for invalid state, discard, size or final flag; final input cannot be reopened or extended without reinitialization. </dd>
+<a class="el" href="group__core.html#gga516c7250563ee9332e2f45f2d203ae61a83b538a74c7058e8863132a6410b9d65">TLV_ERR_INVALID_ARG</a> for corrupt cursor fields, discard, size or final flag; <a class="el" href="group__core.html#gga516c7250563ee9332e2f45f2d203ae61aa9a17dc4b9c0e56681e4c8e458be09d2">TLV_ERR_INVALID_STATE</a> for reopening or extending finalized input; final input cannot be reopened or extended without reinitialization. </dd>
 <dd>
 <a class="el" href="group__core.html#gga516c7250563ee9332e2f45f2d203ae61a02f1494beef2c6ffc5f3ba9859fc6e2a">TLV_ERR_OVERFLOW</a> if the new absolute window end exceeds SIZE_MAX. </dd></dl>
 <dl class="section note"><dt>Note</dt><dd>On failure the cursor is unchanged. After EOF, rebinding and discarding consumed bytes remain allowed if the absolute end is unchanged. </dd></dl>

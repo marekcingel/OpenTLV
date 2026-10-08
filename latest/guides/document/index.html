@@ -3108,6 +3108,34 @@
   
   
     <li class="md-nav__item">
+      <a href="../../concepts/error-model/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Failure model design
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
       <a href="../../concepts/format-contract/" class="md-nav__link">
         
   
@@ -4105,7 +4133,7 @@ of a constructed Value invalidates its descendants, preserving the parent and
 unrelated handles; failed edits preserve all handles. Destruction or move
 assignment over a Document invalidates handles to its previous tree.</p>
 <p>Invalid handles test false, navigation returns empty handles, and tag/value
-access returns empty views. Fallible Node operations return <code>TLV_ERR_INVALID_ARG</code>;
+access returns empty views. Fallible Node operations return <code>TLV_ERR_INVALID_STATE</code>;
 erasing an invalid handle does nothing. An iterator whose current node is
 invalidated compares equal to the end iterator. Capture the next sibling before
 erasing the current node if iteration must continue. Ranges borrow their first

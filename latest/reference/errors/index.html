@@ -2503,6 +2503,23 @@
     </span>
   </a>
   
+    <nav class="md-nav" aria-label="Codes">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#arguments-versus-lifecycle-state" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Arguments versus lifecycle state
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
 </li>
       
         <li class="md-nav__item">
@@ -3005,6 +3022,34 @@
     
   
     Core architectural rules
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../concepts/error-model/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Failure model design
   
 
     
@@ -3620,6 +3665,23 @@
     </span>
   </a>
   
+    <nav class="md-nav" aria-label="Codes">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#arguments-versus-lifecycle-state" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Arguments versus lifecycle state
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
 </li>
       
         <li class="md-nav__item">
@@ -3670,8 +3732,15 @@
 
 
 <h1 id="error-codes">Error codes<a class="headerlink" href="#error-codes" title="Permanent link">&para;</a></h1>
-<p>Every C function that can fail returns a <code>tlv_result_t</code> from <code>tlv/error.h</code>. Zero is
-success; nonzero results include errors, end-of-input and the resumable
+<p>This page describes the <strong>currently implemented API</strong>. The accepted
+<a href="../../concepts/error-model/">failure model</a> (#551) defines a replacement taxonomy,
+typed diagnostic layering, locations and propagation rules. Its implementation
+will break API and ABI compatibility; the target names and signatures are not
+available yet, except for <code>TLV_ERR_INVALID_STATE</code> and Query kind <code>STATE</code>, implemented by #552. The
+tables below describe the current codes and behavior.</p>
+<p>Core operations return a <code>tlv_result_t</code> from <code>tlv/error.h</code>; Codec operations
+currently have a separate <code>tlv_codec_result_t</code>. Zero is success; nonzero core
+results include errors, end-of-input and the resumable
 <code>TLV_NEED_MORE_DATA</code> condition. <code>tlv_strerror</code> returns a static, readable
 description of any code and <code>"unknown error"</code> for an unrecognized one; never free or
 modify the string. The Rust <code>Error</code> type maps every <code>TLV_ERR_*</code> code.</p>
@@ -3687,6 +3756,8 @@ return describes that result:</p>
   <code>diagnostic.code == rc</code>.</li>
 <li><code>tlv_query_diagnostic_t</code> has <code>kind != TLV_QUERY_ERROR_NONE</code>. A <code>READER</code> detail
   also has <code>reader.diagnostic.code == rc</code>; a <code>CODEC</code> detail has a non-OK codec result.</li>
+<li>An initialized Query diagnostic for <code>TLV_ERR_INVALID_STATE</code> has kind
+  <code>TLV_QUERY_ERROR_STATE</code>. Pre-initialization preservation exceptions below still apply.</li>
 <li>Schema Query has alternative detail channels: a false assertion sets
   <code>schema.diagnostic.code</code>, while an execution failure fills <code>query</code>.</li>
 </ul>
@@ -3711,12 +3782,12 @@ validation result in every entry.</p>
   or resources before producing detail. An enclosing API which has already
   initialized its own diagnostic must nevertheless describe a propagated error.</li>
 </ul>
-<p>Until the failure-model design in #551 is implemented, Query uses existing
-categories: <code>STORAGE</code> for compiler/plan arguments and capacities, <code>BINDING</code> for
-binding arguments, <code>CAPABILITY</code> for incompatible formats or hook configuration,
-and <code>EVENTS</code> for execution lifecycle and visitor/callback failures. Return codes
-and public layouts are unchanged. These choices are temporary classifications,
-not new result-taxonomy rules.</p>
+<p>Query now uses <code>STATE</code> for lifecycle/reentrancy failures and <code>EVENTS</code> with
+<code>INVALID_VALUE</code> for invalid structural feeds. Until the remaining
+<a href="../../concepts/error-model/#migration-inventory">failure-model migration</a>,
+<code>STORAGE</code> still covers compiler/plan arguments and capacities, <code>BINDING</code> covers
+binding arguments, <code>CAPABILITY</code> covers incompatible formats or hook configuration,
+and <code>EVENTS</code> also covers visitor/callback failures. Diagnostic layouts are unchanged.</p>
 <h3 id="regression-enforcement">Regression enforcement<a class="headerlink" href="#regression-enforcement" title="Permanent link">&para;</a></h3>
 <p><code>tests/diagnostic_assertions.h</code> checks the invariant after an operation, including
 calls shared by table-driven Query tests. Tests for pre-initialization rejection
@@ -3728,8 +3799,12 @@ functions with a diagnostic output. A directly populated return requires an
 adjacent <code>diagnostic-return:</code> comment explaining where its detail was set.
 This lexical check is deliberately conservative: indirect initialization,
 propagated variables and callback behavior require runtime tests; it is not a
-control-flow proof.</p>
+control-flow proof. A separate lexical rule rejects <code>INVALID_ARG</code> returns under
+<code>busy</code>, <code>finished</code>, <code>invalid</code> or <code>query_callbacks</code> member predicates, including
+pre-initialization checks. Diagnostic-return comments do not waive that rule.</p>
 <h2 id="codes">Codes<a class="headerlink" href="#codes" title="Permanent link">&para;</a></h2>
+<p>Numbers below describe this release. They are not stable ABI identifiers during
+the breaking #551 migration; <code>INVALID_STATE = 19</code> does not promise append-only enums.</p>
 <table>
 <thead>
 <tr>
@@ -3767,8 +3842,8 @@ control-flow proof.</p>
 <tr>
 <td><code>TLV_ERR_OUT_OF_MEMORY</code></td>
 <td>4</td>
-<td>An allocation failed.</td>
-<td>No current C core function returns it, because the core reads and writes without allocating. It is reserved for code that allocates.</td>
+<td>An owning operation could not obtain storage.</td>
+<td>Document allocation and allocation-size checks. Caller-supplied workspace exhaustion can currently use other codes; see the target failure model for the planned distinction.</td>
 </tr>
 <tr>
 <td><code>TLV_ERR_END_OF_BUFFER</code></td>
@@ -3797,8 +3872,8 @@ control-flow proof.</p>
 <tr>
 <td><code>TLV_ERR_SCHEMA</code></td>
 <td>9</td>
-<td>Input violates a schema rule.</td>
-<td>The error offset points at the offending element: a forbidden or unknown tag, a duplicate or excess occurrence, a kind mismatch, or an invalid rule table.</td>
+<td>A schema rule failed; some APIs also use it for an invalid schema definition.</td>
+<td>Forbidden or unknown tags, excess occurrences and kind mismatches. Fail-fast structural validation, Value-constraint and DER schema definition checks also use this code for invalid definitions; structural report preflight uses <code>TLV_ERR_INVALID_ARG</code>.</td>
 </tr>
 <tr>
 <td><code>TLV_ERR_INVALID_ARG</code></td>
@@ -3827,14 +3902,14 @@ control-flow proof.</p>
 <tr>
 <td><code>TLV_ERR_INVALID_VALUE</code></td>
 <td>14</td>
-<td>Universal primitive content is malformed or fails a canonical DER rule.</td>
-<td>Strict DER or CER functions and schema-aware DER validation: for example a noncanonical BOOLEAN, INTEGER, string or time value, or a wrongly ordered SET.</td>
+<td>Content or its interpretation is invalid.</td>
+<td>DER/CER canonical Value checks and SET ordering; Query codec, scalar cardinality and unavailable Source metadata failures; malformed structural event streams.</td>
 </tr>
 <tr>
 <td><code>TLV_ERR_UNSUPPORTED_TYPE</code></td>
 <td>15</td>
-<td>A universal tag number has no implemented canonical validation.</td>
-<td>Strict mode returns this instead of silently accepting a type it does not check; see the list in the <a href="../../standards/der/#strict-universal-value-validation">DER validation</a>.</td>
+<td>A type, Query capability or program-image version is unsupported.</td>
+<td>Strict ASN.1 validation rejects unchecked types; see <a href="../../standards/der/#strict-universal-value-validation">DER validation</a>. Query also uses this code outside ASN.1.</td>
 </tr>
 <tr>
 <td><code>TLV_ERR_SCHEMA_MISSING</code></td>
@@ -3854,8 +3929,27 @@ control-flow proof.</p>
 <td>Incremental input is exhausted or incomplete.</td>
 <td>Supply an extended window or declare EOF. No element is published and the cursor does not advance.</td>
 </tr>
+<tr>
+<td><code>TLV_ERR_INVALID_STATE</code></td>
+<td>19</td>
+<td>The operation is forbidden by the current lifecycle state.</td>
+<td>Reset a failed or used Query execution before reuse; leave the callback before mutating; close Tree Writer parents before finishing; only skip a pending Reader subtree. Stale Document results also use this code.</td>
+</tr>
 </tbody>
 </table>
+<h3 id="arguments-versus-lifecycle-state">Arguments versus lifecycle state<a class="headerlink" href="#arguments-versus-lifecycle-state" title="Permanent link">&para;</a></h3>
+<p><code>TLV_ERR_INVALID_STATE</code> distinguishes lifecycle/reentrancy rejection from
+<code>TLV_ERR_INVALID_ARG</code>, which still describes bad arguments, configuration,
+and overlap. Malformed structural event input uses <code>TLV_ERR_INVALID_VALUE</code>;
+new Query state diagnostics use <code>TLV_QUERY_ERROR_STATE</code>.
+A state rejection does not bypass pre-initialization guards: callback reentrancy
+and rejected continuation of failed executions preserve protected outputs and
+the original diagnostic. Repeated successful Query finish and normal iterator
+exhaustion retain their existing behavior. Reader input may be relocated after
+EOF, but cannot be reopened or extended.</p>
+<p>The node-only Tree Writer source callback returning impossible preorder depth
+still reports <code>INVALID_ARG</code>. Reclassifying callback contract violations to the
+planned <code>CALLBACK</code> result is separate follow-up work.</p>
 <h2 id="offsets-and-diagnosis">Offsets and diagnosis<a class="headerlink" href="#offsets-and-diagnosis" title="Permanent link">&para;</a></h2>
 <p>Diagnostic paths retain the outermost 32 enclosing tags. <code>path.omitted</code> counts
 innermost tags that did not fit; zero means the path is complete. Path text
@@ -3880,8 +3974,11 @@ configuration, total-size and destination-capacity errors use offset zero. The C
 reports its own <code>error_offset</code>; see the <a href="../../standards/cer/">CER validation</a>.</p>
 <p><code>TLV_ERR_SCHEMA_MISSING</code> is different from <code>TLV_ERR_SCHEMA</code>: its offset is the end of the
 parent's value, a scope boundary, and can coincide with the start of an unrelated sibling,
-so a tag read there is not reliably the cause. Every other schema violation returns
-<code>TLV_ERR_SCHEMA</code> with an offset anchored to the actual element.</p>
+so a tag read there is not reliably the cause. In the fail-fast generic
+<code>tlv_schema_validate()</code>, other structural input violations return <code>TLV_ERR_SCHEMA</code>
+with an offset anchored to the actual element; Value-length violations return
+<code>TLV_ERR_INVALID_LENGTH</code>. Report collection and builtin validators have their
+own documented result contracts.</p>
 <p>Custom format callback errors propagate unchanged through the generic reader and writer,
 so a custom format can return any of the codes above.</p>
 <h2 id="see-also">See also<a class="headerlink" href="#see-also" title="Permanent link">&para;</a></h2>

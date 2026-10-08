@@ -464,7 +464,7 @@ Functions</h2></td></tr>
   </dd>
 </dl>
 <dl class="section warning"><dt>Warning</dt><dd>Invalidates all node pointers, and the tag and value pointers, of the document. </dd></dl>
-<dl class="section note"><dt>Note</dt><dd>During a Query callback, destruction is deferred until the outermost visit returns from its callback. That visit returns INVALID_ARG; do not use the owner or any node after it returns. Repeated pending free requests release only once. </dd></dl>
+<dl class="section note"><dt>Note</dt><dd>During a Query callback, destruction is deferred until the outermost visit returns from its callback. That visit returns INVALID_STATE; do not use the owner or any node after it returns. Repeated pending free requests release only once. </dd></dl>
 
 </div>
 </div>
@@ -548,7 +548,9 @@ Functions</h2></td></tr>
 <dd>
 <a class="el" href="group__core.html#gga516c7250563ee9332e2f45f2d203ae61a614f23c9fdd07003fba404fd4b94d270">TLV_ERR_OUT_OF_MEMORY</a> if memory is exhausted. </dd>
 <dd>
-Any writer format error for the tag, or reader error for a constructed value. </dd></dl>
+Any writer format error for the tag, or reader error for a constructed value. </dd>
+<dd>
+<a class="el" href="group__core.html#gga516c7250563ee9332e2f45f2d203ae61aa9a17dc4b9c0e56681e4c8e458be09d2">TLV_ERR_INVALID_STATE</a> during a Query callback. </dd></dl>
 
 </div>
 </div>
@@ -687,7 +689,7 @@ Epochs never wrap: each increment retires a distinct Node identity, and identity
   </dd>
 </dl>
 <dl class="section return"><dt>Returns</dt><dd>Revision increased by every successful insert, erase or Value replacement. </dd></dl>
-<dl class="section note"><dt>Note</dt><dd>Failed edits preserve revision. This is not a destruction-safe handle; callers must retain the Document owner. Concurrent mutation requires external locking. Query callbacks reject fallible edits with INVALID_ARG. Void erase/free requests are deferred until the outermost Query callback on this Document returns; that visit ends with INVALID_ARG. Concurrent mutation requires exclusive access even when requested from a callback. Revisions wrap after UINT64_MAX edits. </dd></dl>
+<dl class="section note"><dt>Note</dt><dd>Failed edits preserve revision. This is not a destruction-safe handle; callers must retain the Document owner. Concurrent mutation requires external locking. Query callbacks reject fallible edits with INVALID_STATE. Void erase/free requests are deferred until the outermost Query callback on this Document returns; that visit ends with INVALID_STATE. Concurrent mutation requires exclusive access even when requested from a callback. Revisions wrap after UINT64_MAX edits. </dd></dl>
 
 </div>
 </div>
@@ -715,7 +717,7 @@ Epochs never wrap: each increment retires a distinct Node identity, and identity
   </dd>
 </dl>
 <dl class="section warning"><dt>Warning</dt><dd>Invalidates <code>node</code> and every node below it. </dd></dl>
-<dl class="section note"><dt>Note</dt><dd>During a Query callback, erase is deferred until the outermost visit returns from its callback, and that visit returns INVALID_ARG. Pending ancestor erasure dominates descendant requests; all borrowed nodes remain alive inside the callback. </dd></dl>
+<dl class="section note"><dt>Note</dt><dd>During a Query callback, erase is deferred until the outermost visit returns from its callback, and that visit returns INVALID_STATE. Pending ancestor erasure dominates descendant requests; all borrowed nodes remain alive inside the callback. </dd></dl>
 
 </div>
 </div>
@@ -899,6 +901,7 @@ Epochs never wrap: each increment retires a distinct Node identity, and identity
 <dd>
 Any reader error for a constructed node's value.</dd></dl>
 <dl class="section warning"><dt>Warning</dt><dd>Invalidates the previous value pointer of the node, and for a constructed node every child pointer. </dd></dl>
+<dl class="section return"><dt>Returns</dt><dd><a class="el" href="group__core.html#gga516c7250563ee9332e2f45f2d203ae61aa9a17dc4b9c0e56681e4c8e458be09d2">TLV_ERR_INVALID_STATE</a> during a Query callback. </dd></dl>
 
 </div>
 </div>

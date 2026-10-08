@@ -3063,6 +3063,34 @@
   
   
     <li class="md-nav__item">
+      <a href="../../concepts/error-model/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Failure model design
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
       <a href="../../concepts/format-contract/" class="md-nav__link">
         
   
@@ -3909,9 +3937,12 @@ methods are <code>query_remove</code>, <code>query_replace</code> and <code>quer
 successful edit rejects subsequent pulls/scalar access before exposing stale
 storage. Keep the native C Document alive until result consumption; its revision
 is not a destruction token. C++ snapshots retain granular checked Node semantics.
-During Query callbacks, fallible edits return INVALID_ARG. Void erase/free requests
+New lifecycle diagnostics use Query kind <code>STATE</code> with <code>INVALID_STATE</code>; malformed
+structural feeds use <code>EVENTS</code> with <code>INVALID_VALUE</code>. Reentrancy and failed-execution
+preflight guards preserve the original diagnostic instead of replacing it.
+During Query callbacks, fallible edits return INVALID_STATE. Void erase/free requests
 are deferred until the outermost Query callback on that Document returns; the
-visit then ends with INVALID_ARG. Pending ancestor erasure dominates descendants,
+visit then ends with INVALID_STATE. Pending ancestor erasure dominates descendants,
 and freeing dominates pending erasures. Borrowed nodes remain alive through that
 callback, but must not be used after the deferred operation is applied. A compiled
 visit invalidates its execution before returning from deferred mutation/destruction.</p>

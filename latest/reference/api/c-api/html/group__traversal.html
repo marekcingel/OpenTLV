@@ -412,6 +412,8 @@ Enumerations</h2></td></tr>
 , <a class="el" href="group__traversal.html#gga66edcf242c8bc06318ff99b24f1ce0edadc9c39cddfb5b7f9f33fadaaa0f491e9">TLV_QUERY_ERROR_CARDINALITY</a>
 , <a class="el" href="group__traversal.html#gga66edcf242c8bc06318ff99b24f1ce0eda8c3fa940f82a96c6cc438c762d3a22ca">TLV_QUERY_ERROR_CODEC</a>
 , <a class="el" href="group__traversal.html#gga66edcf242c8bc06318ff99b24f1ce0edaf145d7642674247761d51128daf03fdf">TLV_QUERY_ERROR_IMAGE_VERSION</a>
+, <br />
+&#160;&#160;<a class="el" href="group__traversal.html#gga66edcf242c8bc06318ff99b24f1ce0edab8a837296c6eba65f3836f28d73448d6">TLV_QUERY_ERROR_STATE</a>
 <br />
  }</td></tr>
 <tr class="memdesc:ga66edcf242c8bc06318ff99b24f1ce0ed"><td class="mdescLeft">&#160;</td><td class="mdescRight">Query-specific diagnostic category; original result codes remain intact.  <a href="group__traversal.html#ga66edcf242c8bc06318ff99b24f1ce0ed">More...</a><br /></td></tr>
@@ -750,11 +752,11 @@ Functions</h2></td></tr>
 </div><div class="memdoc">
 
 <p>Fixed-layout compiler/execution failure, initialized by diagnostic entry points. </p>
-<dl class="section note"><dt>Note</dt><dd>After initialization, every non-<a class="el" href="group__core.html#gga516c7250563ee9332e2f45f2d203ae61ac763c25dd3e807fae4d8078c3d3e94ed">TLV_OK</a> return has a kind other than <a class="el" href="group__traversal.html#gga66edcf242c8bc06318ff99b24f1ce0eda4da745616825a057de93d032e3f90f92">TLV_QUERY_ERROR_NONE</a>. Reader failures and <a class="el" href="group__core.html#gga516c7250563ee9332e2f45f2d203ae61ad90e4f5b2c36d63f9a93b92f1064a5e6">TLV_NEED_MORE_DATA</a> retain the returned code in <code>reader.diagnostic.code</code>. Success need not clear old detail. </dd>
+<dl class="section note"><dt>Note</dt><dd>After initialization, every non-<a class="el" href="group__core.html#gga516c7250563ee9332e2f45f2d203ae61ac763c25dd3e807fae4d8078c3d3e94ed">TLV_OK</a> return has a kind other than <a class="el" href="group__traversal.html#gga66edcf242c8bc06318ff99b24f1ce0eda4da745616825a057de93d032e3f90f92">TLV_QUERY_ERROR_NONE</a>. <a class="el" href="group__core.html#gga516c7250563ee9332e2f45f2d203ae61aa9a17dc4b9c0e56681e4c8e458be09d2">TLV_ERR_INVALID_STATE</a> has kind <a class="el" href="group__traversal.html#gga66edcf242c8bc06318ff99b24f1ce0edab8a837296c6eba65f3836f28d73448d6">TLV_QUERY_ERROR_STATE</a>. Reader failures and <a class="el" href="group__core.html#gga516c7250563ee9332e2f45f2d203ae61ad90e4f5b2c36d63f9a93b92f1064a5e6">TLV_NEED_MORE_DATA</a> retain the returned code in <code>reader.diagnostic.code</code>. Success need not clear old detail. </dd>
 <dd>
 Pre-initialization overlap, reentrancy and failed-execution guards leave this output untouched. Compiler prepare/commit/load preflight argument, extent and alignment checks can also reject before initialization. </dd>
 <dd>
-A valid bind, feed or finish call on an already failed execution returns INVALID_ARG without writing this object, preserving the original failure when it is reused. Inspect exec_info.invalid and reset before continuing. </dd>
+A valid bind, feed or finish call on an already failed execution returns INVALID_STATE without writing this object, preserving the original failure when it is reused. Inspect exec_info.invalid and reset before continuing. </dd>
 <dd>
 This value type is not extensible; changing its layout requires an ABI change. </dd></dl>
 
@@ -790,6 +792,7 @@ This value type is not extensible; changing its layout requires an ABI change. <
 </div><div class="memdoc">
 
 <p>Query-specific diagnostic category; original result codes remain intact. </p>
+<dl class="section note"><dt>Note</dt><dd>Numeric values are release-specific during the breaking failure-model migration. </dd></dl>
 
 </div>
 </div>
@@ -1373,6 +1376,7 @@ This value type is not extensible; changing its layout requires an ABI change. <
 </div><div class="memdoc">
 
 <p>Query-specific diagnostic category; original result codes remain intact. </p>
+<dl class="section note"><dt>Note</dt><dd>Numeric values are release-specific during the breaking failure-model migration. </dd></dl>
 <table class="fieldtable">
 <tr><th colspan="2">Enumerator</th></tr><tr><td class="fieldname"><a id="gga66edcf242c8bc06318ff99b24f1ce0eda4da745616825a057de93d032e3f90f92" name="gga66edcf242c8bc06318ff99b24f1ce0eda4da745616825a057de93d032e3f90f92"></a>TLV_QUERY_ERROR_NONE&#160;</td><td class="fielddoc"><p>No failure. </p>
 </td></tr>
@@ -1397,6 +1401,8 @@ This value type is not extensible; changing its layout requires an ABI change. <
 <tr><td class="fieldname"><a id="gga66edcf242c8bc06318ff99b24f1ce0eda8c3fa940f82a96c6cc438c762d3a22ca" name="gga66edcf242c8bc06318ff99b24f1ce0eda8c3fa940f82a96c6cc438c762d3a22ca"></a>TLV_QUERY_ERROR_CODEC&#160;</td><td class="fielddoc"><p>Strict Value decoding failed. </p>
 </td></tr>
 <tr><td class="fieldname"><a id="gga66edcf242c8bc06318ff99b24f1ce0edaf145d7642674247761d51128daf03fdf" name="gga66edcf242c8bc06318ff99b24f1ce0edaf145d7642674247761d51128daf03fdf"></a>TLV_QUERY_ERROR_IMAGE_VERSION&#160;</td><td class="fielddoc"><p>Internal image belongs to an incompatible release. </p>
+</td></tr>
+<tr><td class="fieldname"><a id="gga66edcf242c8bc06318ff99b24f1ce0edab8a837296c6eba65f3836f28d73448d6" name="gga66edcf242c8bc06318ff99b24f1ce0edab8a837296c6eba65f3836f28d73448d6"></a>TLV_QUERY_ERROR_STATE&#160;</td><td class="fielddoc"><p>Invalid lifecycle state or forbidden reentrancy. </p>
 </td></tr>
 </table>
 
@@ -2351,7 +2357,7 @@ struct_size must cover the prefix through result_kind. Writes are limited to min
   </table>
   </dd>
 </dl>
-<dl class="section return"><dt>Returns</dt><dd><a class="el" href="group__core.html#gga516c7250563ee9332e2f45f2d203ae61ac763c25dd3e807fae4d8078c3d3e94ed">TLV_OK</a>; <a class="el" href="group__core.html#gga516c7250563ee9332e2f45f2d203ae61aa4a514ccb37d17b2cd7c7da47d2eab88">TLV_ERR_NULL_ARG</a> for missing pointers; <a class="el" href="group__core.html#gga516c7250563ee9332e2f45f2d203ae61a83b538a74c7058e8863132a6410b9d65">TLV_ERR_INVALID_ARG</a> for unknown/duplicate/incompatible bindings or used execution. </dd></dl>
+<dl class="section return"><dt>Returns</dt><dd><a class="el" href="group__core.html#gga516c7250563ee9332e2f45f2d203ae61ac763c25dd3e807fae4d8078c3d3e94ed">TLV_OK</a>; <a class="el" href="group__core.html#gga516c7250563ee9332e2f45f2d203ae61aa4a514ccb37d17b2cd7c7da47d2eab88">TLV_ERR_NULL_ARG</a> for missing pointers; <a class="el" href="group__core.html#gga516c7250563ee9332e2f45f2d203ae61a83b538a74c7058e8863132a6410b9d65">TLV_ERR_INVALID_ARG</a> for unknown/duplicate/incompatible bindings; <a class="el" href="group__core.html#gga516c7250563ee9332e2f45f2d203ae61aa9a17dc4b9c0e56681e4c8e458be09d2">TLV_ERR_INVALID_STATE</a> for used execution or callback reentrancy. </dd></dl>
 <dl class="section note"><dt>Note</dt><dd>No text interpolation or allocation occurs. Span storage must remain alive and unchanged until reset. To copy a span, the caller copies into its own storage. Reinitialization clears all bindings. Rebinding during STOP/NEED_MORE_DATA is invalid. Invalid bindings leave state unchanged. All referenced variables must be bound before the first event, including variables in predicates with no matching nodes. </dd></dl>
 
 </div>
@@ -2390,7 +2396,7 @@ struct_size must cover the prefix through result_kind. Writes are limited to min
   </table>
   </dd>
 </dl>
-<dl class="section return"><dt>Returns</dt><dd><a class="el" href="group__core.html#gga516c7250563ee9332e2f45f2d203ae61ac763c25dd3e807fae4d8078c3d3e94ed">TLV_OK</a>; <a class="el" href="group__core.html#gga516c7250563ee9332e2f45f2d203ae61aa4a514ccb37d17b2cd7c7da47d2eab88">TLV_ERR_NULL_ARG</a> for NULL execution; <a class="el" href="group__core.html#gga516c7250563ee9332e2f45f2d203ae61a83b538a74c7058e8863132a6410b9d65">TLV_ERR_INVALID_ARG</a> for used execution or an out-of-budget identity. </dd></dl>
+<dl class="section return"><dt>Returns</dt><dd><a class="el" href="group__core.html#gga516c7250563ee9332e2f45f2d203ae61ac763c25dd3e807fae4d8078c3d3e94ed">TLV_OK</a>; <a class="el" href="group__core.html#gga516c7250563ee9332e2f45f2d203ae61aa4a514ccb37d17b2cd7c7da47d2eab88">TLV_ERR_NULL_ARG</a> for NULL execution; <a class="el" href="group__core.html#gga516c7250563ee9332e2f45f2d203ae61a83b538a74c7058e8863132a6410b9d65">TLV_ERR_INVALID_ARG</a> for an out-of-budget identity; <a class="el" href="group__core.html#gga516c7250563ee9332e2f45f2d203ae61aa9a17dc4b9c0e56681e4c8e458be09d2">TLV_ERR_INVALID_STATE</a> for used execution or reentrancy. </dd></dl>
 <dl class="section note"><dt>Note</dt><dd>Absolute paths still use the virtual root. Relative paths select children of this context; dot selects it. Missing context fails at EOF. Ancestor evidence includes outside ancestors. Retained evaluation keeps complete borrowed events until reset; failure preserves state. </dd></dl>
 
 </div>
@@ -2443,7 +2449,7 @@ struct_size must cover the prefix through result_kind. Writes are limited to min
   </table>
   </dd>
 </dl>
-<dl class="section return"><dt>Returns</dt><dd><a class="el" href="group__core.html#gga516c7250563ee9332e2f45f2d203ae61ac763c25dd3e807fae4d8078c3d3e94ed">TLV_OK</a>; <a class="el" href="group__core.html#gga516c7250563ee9332e2f45f2d203ae61a83b538a74c7058e8863132a6410b9d65">TLV_ERR_INVALID_ARG</a> for invalid sequence; <a class="el" href="group__core.html#gga516c7250563ee9332e2f45f2d203ae61a1e32eada09d59d834a685da1adeaaf97">TLV_ERR_LIMIT</a> for depth/elements/work; <a class="el" href="group__core.html#gga516c7250563ee9332e2f45f2d203ae61a07580ca64f30aa1a72a405fcbca72f10">TLV_ERR_INVALID_VALUE</a> for unavailable Source metadata; <a class="el" href="group__core.html#gga516c7250563ee9332e2f45f2d203ae61a6c282cdacb2900685e03295cf378282e">TLV_ERR_UNSUPPORTED_TYPE</a> for D programs without Document execution; <a class="el" href="group__core.html#gga516c7250563ee9332e2f45f2d203ae61aa4a514ccb37d17b2cd7c7da47d2eab88">TLV_ERR_NULL_ARG</a> for missing pointers. </dd></dl>
+<dl class="section return"><dt>Returns</dt><dd><a class="el" href="group__core.html#gga516c7250563ee9332e2f45f2d203ae61ac763c25dd3e807fae4d8078c3d3e94ed">TLV_OK</a>; <a class="el" href="group__core.html#gga516c7250563ee9332e2f45f2d203ae61a07580ca64f30aa1a72a405fcbca72f10">TLV_ERR_INVALID_VALUE</a> for malformed structural events; <a class="el" href="group__core.html#gga516c7250563ee9332e2f45f2d203ae61aa9a17dc4b9c0e56681e4c8e458be09d2">TLV_ERR_INVALID_STATE</a> for finished/failed execution or callback reentrancy; <a class="el" href="group__core.html#gga516c7250563ee9332e2f45f2d203ae61a1e32eada09d59d834a685da1adeaaf97">TLV_ERR_LIMIT</a> for depth/elements/work; <a class="el" href="group__core.html#gga516c7250563ee9332e2f45f2d203ae61a07580ca64f30aa1a72a405fcbca72f10">TLV_ERR_INVALID_VALUE</a> for unavailable Source metadata; <a class="el" href="group__core.html#gga516c7250563ee9332e2f45f2d203ae61a6c282cdacb2900685e03295cf378282e">TLV_ERR_UNSUPPORTED_TYPE</a> for D programs without Document execution; <a class="el" href="group__core.html#gga516c7250563ee9332e2f45f2d203ae61aa4a514ccb37d17b2cd7c7da47d2eab88">TLV_ERR_NULL_ARG</a> for missing pointers. </dd></dl>
 <dl class="section note"><dt>Note</dt><dd>Execution errors invalidate execution until reset and preserve matched. A call with required pointers present on an already failed execution preserves diagnostic as well; it does not report a second event error. Missing pointers are rejected without changing execution state. S1 accepts proven independent root scopes only; use exec_selected for delayed publications. S1 borrows one root's complete spans through its END, requiring stable backing storage across windows. S0 retains no borrowed payload; retained execution reports matched=0 and publishes results only after finish. Each node is emitted at most once, in preorder. Skipped END is rejected under the default full-validation policy. Values must be complete contiguous spans. </dd></dl>
 
 </div>
@@ -2482,8 +2488,8 @@ struct_size must cover the prefix through result_kind. Writes are limited to min
   </table>
   </dd>
 </dl>
-<dl class="section return"><dt>Returns</dt><dd><a class="el" href="group__core.html#gga516c7250563ee9332e2f45f2d203ae61ac763c25dd3e807fae4d8078c3d3e94ed">TLV_OK</a> on balanced EOF; <a class="el" href="group__core.html#gga516c7250563ee9332e2f45f2d203ae61a83b538a74c7058e8863132a6410b9d65">TLV_ERR_INVALID_ARG</a> on invalid/unbalanced feed; <a class="el" href="group__core.html#gga516c7250563ee9332e2f45f2d203ae61a6c282cdacb2900685e03295cf378282e">TLV_ERR_UNSUPPORTED_TYPE</a> for D programs without Document execution; <a class="el" href="group__core.html#gga516c7250563ee9332e2f45f2d203ae61aa4a514ccb37d17b2cd7c7da47d2eab88">TLV_ERR_NULL_ARG</a> for NULL execution. Repeated successful finish is harmless. </dd></dl>
-<dl class="section note"><dt>Note</dt><dd>Execution failures, including attempting D without Document, invalidate until reset. Callback and forbidden-overlap rejections preserve the outer state. Calling finish on an already failed execution returns INVALID_ARG without changing diagnostic, preserving the initial failure instead of reporting EOF. </dd></dl>
+<dl class="section return"><dt>Returns</dt><dd><a class="el" href="group__core.html#gga516c7250563ee9332e2f45f2d203ae61ac763c25dd3e807fae4d8078c3d3e94ed">TLV_OK</a> on balanced EOF; <a class="el" href="group__core.html#gga516c7250563ee9332e2f45f2d203ae61a07580ca64f30aa1a72a405fcbca72f10">TLV_ERR_INVALID_VALUE</a> for unclosed event parents; <a class="el" href="group__core.html#gga516c7250563ee9332e2f45f2d203ae61a83b538a74c7058e8863132a6410b9d65">TLV_ERR_INVALID_ARG</a> for a missing binding or a context absent from the input; <a class="el" href="group__core.html#gga516c7250563ee9332e2f45f2d203ae61aa9a17dc4b9c0e56681e4c8e458be09d2">TLV_ERR_INVALID_STATE</a> for a failed execution or callback reentrancy; <a class="el" href="group__core.html#gga516c7250563ee9332e2f45f2d203ae61a6c282cdacb2900685e03295cf378282e">TLV_ERR_UNSUPPORTED_TYPE</a> for D programs without Document execution; <a class="el" href="group__core.html#gga516c7250563ee9332e2f45f2d203ae61aa4a514ccb37d17b2cd7c7da47d2eab88">TLV_ERR_NULL_ARG</a> for NULL execution. Repeated successful finish is harmless. </dd></dl>
+<dl class="section note"><dt>Note</dt><dd>Execution failures, including attempting D without Document, invalidate until reset. Callback and forbidden-overlap rejections preserve the outer state. Calling finish on an already failed execution returns INVALID_STATE without changing diagnostic, preserving the initial failure instead of reporting EOF. </dd></dl>
 
 </div>
 </div>
@@ -2634,7 +2640,7 @@ struct_size must cover the prefix through result_kind. Writes are limited to min
   </table>
   </dd>
 </dl>
-<dl class="section return"><dt>Returns</dt><dd><a class="el" href="group__core.html#gga516c7250563ee9332e2f45f2d203ae61ac763c25dd3e807fae4d8078c3d3e94ed">TLV_OK</a>; <a class="el" href="group__core.html#gga516c7250563ee9332e2f45f2d203ae61aa4a514ccb37d17b2cd7c7da47d2eab88">TLV_ERR_NULL_ARG</a> for NULL; <a class="el" href="group__core.html#gga516c7250563ee9332e2f45f2d203ae61a83b538a74c7058e8863132a6410b9d65">TLV_ERR_INVALID_ARG</a> for used state. </dd></dl>
+<dl class="section return"><dt>Returns</dt><dd><a class="el" href="group__core.html#gga516c7250563ee9332e2f45f2d203ae61ac763c25dd3e807fae4d8078c3d3e94ed">TLV_OK</a>; <a class="el" href="group__core.html#gga516c7250563ee9332e2f45f2d203ae61aa4a514ccb37d17b2cd7c7da47d2eab88">TLV_ERR_NULL_ARG</a> for NULL; <a class="el" href="group__core.html#gga516c7250563ee9332e2f45f2d203ae61aa9a17dc4b9c0e56681e4c8e458be09d2">TLV_ERR_INVALID_STATE</a> for used state or reentrancy; <a class="el" href="group__core.html#gga516c7250563ee9332e2f45f2d203ae61a83b538a74c7058e8863132a6410b9d65">TLV_ERR_INVALID_ARG</a> for a retained execution. </dd></dl>
 <dl class="section note"><dt>Note</dt><dd>The adapter prunes only exhausted forward child plans with no possible descendant match. Descendant plans and selected relative contexts are conservatively drained. Malformed skipped descendants can be concealed; framing errors still propagate. </dd></dl>
 
 </div>
@@ -2662,7 +2668,7 @@ struct_size must cover the prefix through result_kind. Writes are limited to min
   </table>
   </dd>
 </dl>
-<dl class="section return"><dt>Returns</dt><dd><a class="el" href="group__core.html#gga516c7250563ee9332e2f45f2d203ae61ac763c25dd3e807fae4d8078c3d3e94ed">TLV_OK</a>; <a class="el" href="group__core.html#gga516c7250563ee9332e2f45f2d203ae61aa4a514ccb37d17b2cd7c7da47d2eab88">TLV_ERR_NULL_ARG</a> for NULL; <a class="el" href="group__core.html#gga516c7250563ee9332e2f45f2d203ae61a83b538a74c7058e8863132a6410b9d65">TLV_ERR_INVALID_ARG</a> during a callback. </dd></dl>
+<dl class="section return"><dt>Returns</dt><dd><a class="el" href="group__core.html#gga516c7250563ee9332e2f45f2d203ae61ac763c25dd3e807fae4d8078c3d3e94ed">TLV_OK</a>; <a class="el" href="group__core.html#gga516c7250563ee9332e2f45f2d203ae61aa4a514ccb37d17b2cd7c7da47d2eab88">TLV_ERR_NULL_ARG</a> for NULL; <a class="el" href="group__core.html#gga516c7250563ee9332e2f45f2d203ae61aa9a17dc4b9c0e56681e4c8e458be09d2">TLV_ERR_INVALID_STATE</a> during a callback. </dd></dl>
 <dl class="section note"><dt>Note</dt><dd>Clears bindings, context, pruning, counters, retained input and results. Program and environment must remain alive. No allocation occurs. Callback rejection preserves the outer execution. Raw init calls require exclusive workspace ownership and must never be used to overwrite workspace still active on a callback stack. </dd></dl>
 
 </div>
@@ -2701,7 +2707,9 @@ struct_size must cover the prefix through result_kind. Writes are limited to min
   </table>
   </dd>
 </dl>
-<dl class="section return"><dt>Returns</dt><dd>OK or NULL/invalid-state errors. </dd></dl>
+<dl class="section return"><dt>Returns</dt><dd><a class="el" href="group__core.html#gga516c7250563ee9332e2f45f2d203ae61ac763c25dd3e807fae4d8078c3d3e94ed">TLV_OK</a>, <a class="el" href="group__core.html#gga516c7250563ee9332e2f45f2d203ae61aa4a514ccb37d17b2cd7c7da47d2eab88">TLV_ERR_NULL_ARG</a>, or <a class="el" href="group__core.html#gga516c7250563ee9332e2f45f2d203ae61a83b538a74c7058e8863132a6410b9d65">TLV_ERR_INVALID_ARG</a> for overlap or a non-retained backend. </dd>
+<dd>
+<a class="el" href="group__core.html#gga516c7250563ee9332e2f45f2d203ae61aa9a17dc4b9c0e56681e4c8e458be09d2">TLV_ERR_INVALID_STATE</a> before finalization, after failure, during callbacks or for a stale Document revision. </dd></dl>
 
 </div>
 </div>
@@ -2739,7 +2747,7 @@ struct_size must cover the prefix through result_kind. Writes are limited to min
   </table>
   </dd>
 </dl>
-<dl class="section return"><dt>Returns</dt><dd>OK, NULL argument or invalid state. </dd></dl>
+<dl class="section return"><dt>Returns</dt><dd><a class="el" href="group__core.html#gga516c7250563ee9332e2f45f2d203ae61ac763c25dd3e807fae4d8078c3d3e94ed">TLV_OK</a>, <a class="el" href="group__core.html#gga516c7250563ee9332e2f45f2d203ae61aa4a514ccb37d17b2cd7c7da47d2eab88">TLV_ERR_NULL_ARG</a>, <a class="el" href="group__core.html#gga516c7250563ee9332e2f45f2d203ae61aa9a17dc4b9c0e56681e4c8e458be09d2">TLV_ERR_INVALID_STATE</a> for absent publication, failed execution or reentrancy; <a class="el" href="group__core.html#gga516c7250563ee9332e2f45f2d203ae61a83b538a74c7058e8863132a6410b9d65">TLV_ERR_INVALID_ARG</a> for the wrong backend or overlap. </dd></dl>
 <dl class="section note"><dt>Note</dt><dd>A matched END selects its original BEGIN. Complete spans borrow stable caller input; feeding another event supersedes this publication. No allocation or payload copy. </dd></dl>
 
 </div>
@@ -2939,7 +2947,9 @@ struct_size must cover the prefix through result_kind. Writes are limited to min
 <dd>
 <a class="el" href="group__core.html#gga516c7250563ee9332e2f45f2d203ae61aa4a514ccb37d17b2cd7c7da47d2eab88">TLV_ERR_NULL_ARG</a> for a missing pointer. </dd>
 <dd>
-<a class="el" href="group__core.html#gga516c7250563ee9332e2f45f2d203ae61a83b538a74c7058e8863132a6410b9d65">TLV_ERR_INVALID_ARG</a> for an uninitialized matcher or invalid/different Query. </dd></dl>
+<a class="el" href="group__core.html#gga516c7250563ee9332e2f45f2d203ae61aa9a17dc4b9c0e56681e4c8e458be09d2">TLV_ERR_INVALID_STATE</a> for an uninitialized matcher. </dd>
+<dd>
+<a class="el" href="group__core.html#gga516c7250563ee9332e2f45f2d203ae61a83b538a74c7058e8863132a6410b9d65">TLV_ERR_INVALID_ARG</a> for an invalid or different Query. </dd></dl>
 <dl class="section note"><dt>Note</dt><dd>Never allocates. Failure preserves matcher. The old Query must remain alive through this call. Use <a class="el" href="group__traversal.html#gafff68da0dab28a553e3b2c27c2c8188c" title="Prepares a matcher for one traversal.">tlv_query_matcher_init()</a> to reset a traversal. </dd></dl>
 
 </div>
@@ -3556,7 +3566,9 @@ struct_size must cover the prefix through result_kind. Writes are limited to min
   </table>
   </dd>
 </dl>
-<dl class="section return"><dt>Returns</dt><dd>OK, END_OF_BUFFER, or NULL/invalid-state errors. </dd></dl>
+<dl class="section return"><dt>Returns</dt><dd><a class="el" href="group__core.html#gga516c7250563ee9332e2f45f2d203ae61ac763c25dd3e807fae4d8078c3d3e94ed">TLV_OK</a>, <a class="el" href="group__core.html#gga516c7250563ee9332e2f45f2d203ae61ad3ea4a680040d2294498178b02b79878">TLV_ERR_END_OF_BUFFER</a>, <a class="el" href="group__core.html#gga516c7250563ee9332e2f45f2d203ae61aa4a514ccb37d17b2cd7c7da47d2eab88">TLV_ERR_NULL_ARG</a>, or <a class="el" href="group__core.html#gga516c7250563ee9332e2f45f2d203ae61a83b538a74c7058e8863132a6410b9d65">TLV_ERR_INVALID_ARG</a> for overlap or an incompatible backend/result type. </dd>
+<dd>
+<a class="el" href="group__core.html#gga516c7250563ee9332e2f45f2d203ae61aa9a17dc4b9c0e56681e4c8e458be09d2">TLV_ERR_INVALID_STATE</a> before finalization, after failure, during callbacks or for a stale Document revision. </dd></dl>
 
 </div>
 </div>
@@ -3603,6 +3615,7 @@ struct_size must cover the prefix through result_kind. Writes are limited to min
 </dl>
 <dl class="section return"><dt>Returns</dt><dd>OK, END_OF_BUFFER or native state/revision error; never allocates. </dd></dl>
 <dl class="section note"><dt>Note</dt><dd>The ordinal is scoped to one traversal/revision and is not <a class="el" href="group__document.html#ga7e0fefab0011e81c7a8e6ae97d3cde8f" title="Read a live node&#39;s immutable Document-local identity in constant time.">tlv_node_identity()</a>. </dd></dl>
+<dl class="section return"><dt>Returns</dt><dd><a class="el" href="group__core.html#gga516c7250563ee9332e2f45f2d203ae61aa9a17dc4b9c0e56681e4c8e458be09d2">TLV_ERR_INVALID_STATE</a> for the same lifecycle failures as <a class="el" href="group__traversal.html#gaebf39cf5036fd87b161eb0fed7ccbfa3" title="Pull finalized unique node events in document order.">tlv_query_result_next()</a>. </dd></dl>
 
 </div>
 </div>
@@ -4284,7 +4297,7 @@ Any other Reader error, propagated unchanged. </dd></dl>
 </dl>
 <dl class="section return"><dt>Returns</dt><dd><a class="el" href="group__core.html#gga516c7250563ee9332e2f45f2d203ae61ac763c25dd3e807fae4d8078c3d3e94ed">TLV_OK</a> when a pending nonempty constructed subtree was skipped. </dd>
 <dd>
-<a class="el" href="group__core.html#gga516c7250563ee9332e2f45f2d203ae61a83b538a74c7058e8863132a6410b9d65">TLV_ERR_INVALID_ARG</a> when there is no pending subtree. </dd>
+<a class="el" href="group__core.html#gga516c7250563ee9332e2f45f2d203ae61aa9a17dc4b9c0e56681e4c8e458be09d2">TLV_ERR_INVALID_STATE</a> when there is no pending subtree. </dd>
 <dd>
 <a class="el" href="group__core.html#gga516c7250563ee9332e2f45f2d203ae61aa4a514ccb37d17b2cd7c7da47d2eab88">TLV_ERR_NULL_ARG</a> for NULL reader. </dd></dl>
 <dl class="section note"><dt>Note</dt><dd>In event mode the next pull emits END with skipped=1; node-only mode hides this closure. Empty containers already have a pending ordinary END. May be called after a failed next() while descent is still pending. Skipped descendants do not count toward max_elements. No descendant validation occurs here; Format may already have scanned framing while decoding the parent. Closing enclosing scopes takes O(depth) work. </dd></dl>

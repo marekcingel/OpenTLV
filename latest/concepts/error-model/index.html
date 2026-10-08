@@ -10,13 +10,13 @@
       
       
       
-        <link rel="canonical" href="https://marekcingel.github.io/OpenTLV/latest/concepts/architectural-rules/">
+        <link rel="canonical" href="https://marekcingel.github.io/OpenTLV/latest/concepts/error-model/">
       
       
-        <link rel="prev" href="../processing-pipeline/">
+        <link rel="prev" href="../architectural-rules/">
       
       
-        <link rel="next" href="../error-model/">
+        <link rel="next" href="../format-contract/">
       
       
         
@@ -27,7 +27,7 @@
     
     
       
-        <title>Core architectural rules - OpenTLV</title>
+        <title>Failure model design - OpenTLV</title>
       
     
     
@@ -80,7 +80,7 @@
     <div data-md-component="skip">
       
         
-        <a href="#core-architectural-rules" class="md-skip">
+        <a href="#failure-model" class="md-skip">
           Skip to content
         </a>
       
@@ -131,7 +131,7 @@
         <div class="md-header__topic" data-md-component="header-topic">
           <span class="md-ellipsis">
             
-              Core architectural rules
+              Failure model design
             
           </span>
         </div>
@@ -2886,6 +2886,34 @@
                 
   
   
+  
+  
+    <li class="md-nav__item">
+      <a href="../architectural-rules/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Core architectural rules
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
     
   
   
@@ -2905,7 +2933,7 @@
   <span class="md-ellipsis">
     
   
-    Core architectural rules
+    Failure model design
   
 
     
@@ -2923,7 +2951,7 @@
   <span class="md-ellipsis">
     
   
-    Core architectural rules
+    Failure model design
   
 
     
@@ -2949,10 +2977,10 @@
     <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
       
         <li class="md-nav__item">
-  <a href="#1-generic-core-first" class="md-nav__link">
+  <a href="#one-failure-four-questions" class="md-nav__link">
     <span class="md-ellipsis">
       
-        1. Generic core first
+        One failure, four questions
       
     </span>
   </a>
@@ -2960,22 +2988,22 @@
 </li>
       
         <li class="md-nav__item">
-  <a href="#2-stable-conceptual-model" class="md-nav__link">
+  <a href="#result-taxonomy" class="md-nav__link">
     <span class="md-ellipsis">
       
-        2. Stable conceptual model
+        Result taxonomy
       
     </span>
   </a>
   
-    <nav class="md-nav" aria-label="2. Stable conceptual model">
+    <nav class="md-nav" aria-label="Result taxonomy">
       <ul class="md-nav__list">
         
           <li class="md-nav__item">
-  <a href="#definition" class="md-nav__link">
+  <a href="#admission-rule" class="md-nav__link">
     <span class="md-ellipsis">
       
-        Definition
+        Admission rule
       
     </span>
   </a>
@@ -2983,10 +3011,10 @@
 </li>
         
           <li class="md-nav__item">
-  <a href="#format" class="md-nav__link">
+  <a href="#target-results" class="md-nav__link">
     <span class="md-ellipsis">
       
-        Format
+        Target results
       
     </span>
   </a>
@@ -2994,54 +3022,10 @@
 </li>
         
           <li class="md-nav__item">
-  <a href="#field-encoding" class="md-nav__link">
+  <a href="#boundaries-and-precedence" class="md-nav__link">
     <span class="md-ellipsis">
       
-        Field Encoding
-      
-    </span>
-  </a>
-  
-</li>
-        
-          <li class="md-nav__item">
-  <a href="#layout" class="md-nav__link">
-    <span class="md-ellipsis">
-      
-        Layout
-      
-    </span>
-  </a>
-  
-</li>
-        
-          <li class="md-nav__item">
-  <a href="#element" class="md-nav__link">
-    <span class="md-ellipsis">
-      
-        Element
-      
-    </span>
-  </a>
-  
-</li>
-        
-          <li class="md-nav__item">
-  <a href="#schema" class="md-nav__link">
-    <span class="md-ellipsis">
-      
-        Schema
-      
-    </span>
-  </a>
-  
-</li>
-        
-          <li class="md-nav__item">
-  <a href="#codec" class="md-nav__link">
-    <span class="md-ellipsis">
-      
-        Codec
+        Boundaries and precedence
       
     </span>
   </a>
@@ -3054,10 +3038,77 @@
 </li>
       
         <li class="md-nav__item">
-  <a href="#3-declarative-descriptions-vs-runtime-objects" class="md-nav__link">
+  <a href="#typed-detail-and-common-diagnostics" class="md-nav__link">
     <span class="md-ellipsis">
       
-        3. Declarative descriptions vs runtime objects
+        Typed detail and common diagnostics
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Typed detail and common diagnostics">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#ownership-and-cost" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Ownership and cost
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#initialization-and-publication" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Initialization and publication
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#locations" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Locations
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Locations">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#replacing-offset-only-apis" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Replacing offset-only APIs
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#propagation-and-callbacks" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Propagation and callbacks
       
     </span>
   </a>
@@ -3065,219 +3116,93 @@
 </li>
       
         <li class="md-nav__item">
-  <a href="#4-phase-2-must-not-introduce-another-architecture" class="md-nav__link">
+  <a href="#migration-inventory" class="md-nav__link">
     <span class="md-ellipsis">
       
-        4. Phase 2 must not introduce another architecture
+        Migration inventory
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Migration inventory">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#every-current-common-result" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Every current common result
       
     </span>
   </a>
   
 </li>
-      
-        <li class="md-nav__item">
-  <a href="#5-runtime-compiled-native-are-implementation-strategies" class="md-nav__link">
+        
+          <li class="md-nav__item">
+  <a href="#every-current-codec-result" class="md-nav__link">
     <span class="md-ellipsis">
       
-        5. Runtime / compiled / native are implementation strategies
+        Every current Codec result
       
     </span>
   </a>
   
 </li>
-      
-        <li class="md-nav__item">
-  <a href="#6-tag-identifier-is-byte-identity" class="md-nav__link">
+        
+          <li class="md-nav__item">
+  <a href="#every-current-query-error-kind" class="md-nav__link">
     <span class="md-ellipsis">
       
-        6. Tag / identifier is byte identity
+        Every current Query error kind
       
     </span>
   </a>
   
 </li>
-      
-        <li class="md-nav__item">
-  <a href="#7-endianness-belongs-to-wire-interpretation" class="md-nav__link">
+        
+          <li class="md-nav__item">
+  <a href="#every-current-schema-issue-kind" class="md-nav__link">
     <span class="md-ellipsis">
       
-        7. Endianness belongs to wire interpretation
+        Every current Schema issue kind
       
     </span>
   </a>
   
 </li>
-      
-        <li class="md-nav__item">
-  <a href="#8-length-has-two-different-concepts" class="md-nav__link">
+        
+          <li class="md-nav__item">
+  <a href="#every-current-reader-and-writer-operation" class="md-nav__link">
     <span class="md-ellipsis">
       
-        8. Length has two different concepts
+        Every current Reader and Writer operation
       
     </span>
   </a>
   
 </li>
-      
-        <li class="md-nav__item">
-  <a href="#9-writer-regenerates-wire-representation" class="md-nav__link">
+        
+          <li class="md-nav__item">
+  <a href="#concrete-producer-changes" class="md-nav__link">
     <span class="md-ellipsis">
       
-        9. Writer regenerates wire representation
+        Concrete producer changes
       
     </span>
   </a>
   
 </li>
-      
-        <li class="md-nav__item">
-  <a href="#10-source-location-is-metadata-not-element-identity" class="md-nav__link">
-    <span class="md-ellipsis">
-      
-        10. Source location is metadata, not Element identity
-      
-    </span>
-  </a>
+        
+      </ul>
+    </nav>
   
 </li>
       
         <li class="md-nav__item">
-  <a href="#11-borrow-by-default" class="md-nav__link">
+  <a href="#implementation-handoff-and-validation" class="md-nav__link">
     <span class="md-ellipsis">
       
-        11. Borrow by default
-      
-    </span>
-  </a>
-  
-</li>
-      
-        <li class="md-nav__item">
-  <a href="#12-reader-must-not-require-schema-or-codec" class="md-nav__link">
-    <span class="md-ellipsis">
-      
-        12. Reader must not require Schema or Codec
-      
-    </span>
-  </a>
-  
-</li>
-      
-        <li class="md-nav__item">
-  <a href="#13-tlv-ltv-is-ordering-not-a-separate-architecture" class="md-nav__link">
-    <span class="md-ellipsis">
-      
-        13. TLV / LTV is ordering, not a separate architecture
-      
-    </span>
-  </a>
-  
-</li>
-      
-        <li class="md-nav__item">
-  <a href="#14-otlv-is-declarative" class="md-nav__link">
-    <span class="md-ellipsis">
-      
-        14. OTLV is declarative
-      
-    </span>
-  </a>
-  
-</li>
-      
-        <li class="md-nav__item">
-  <a href="#15-new-functionality-does-not-automatically-mean-a-new-layer" class="md-nav__link">
-    <span class="md-ellipsis">
-      
-        15. New functionality does not automatically mean a new layer
-      
-    </span>
-  </a>
-  
-</li>
-      
-        <li class="md-nav__item">
-  <a href="#16-standards-should-be-compositions-of-generic-primitives" class="md-nav__link">
-    <span class="md-ellipsis">
-      
-        16. Standards should be compositions of generic primitives
-      
-    </span>
-  </a>
-  
-</li>
-      
-        <li class="md-nav__item">
-  <a href="#17-phase-1-must-prove-genericity" class="md-nav__link">
-    <span class="md-ellipsis">
-      
-        17. Phase 1 must prove genericity
-      
-    </span>
-  </a>
-  
-</li>
-      
-        <li class="md-nav__item">
-  <a href="#18-features-must-remain-independently-usable" class="md-nav__link">
-    <span class="md-ellipsis">
-      
-        18. Features must remain independently usable
-      
-    </span>
-  </a>
-  
-</li>
-      
-        <li class="md-nav__item">
-  <a href="#19-bindings-expose-the-same-opentlv-model" class="md-nav__link">
-    <span class="md-ellipsis">
-      
-        19. Bindings expose the same OpenTLV model
-      
-    </span>
-  </a>
-  
-</li>
-      
-        <li class="md-nav__item">
-  <a href="#20-ergonomics-belong-above-the-stable-core" class="md-nav__link">
-    <span class="md-ellipsis">
-      
-        20. Ergonomics belong above the stable core
-      
-    </span>
-  </a>
-  
-</li>
-      
-        <li class="md-nav__item">
-  <a href="#21-diagnostics-must-preserve-useful-raw-context" class="md-nav__link">
-    <span class="md-ellipsis">
-      
-        21. Diagnostics must preserve useful raw context
-      
-    </span>
-  </a>
-  
-</li>
-      
-        <li class="md-nav__item">
-  <a href="#22-opentlv-scope-remains-binary-tlv" class="md-nav__link">
-    <span class="md-ellipsis">
-      
-        22. OpenTLV scope remains binary TLV
-      
-    </span>
-  </a>
-  
-</li>
-      
-        <li class="md-nav__item">
-  <a href="#architectural-invariant" class="md-nav__link">
-    <span class="md-ellipsis">
-      
-        Architectural invariant
+        Implementation handoff and validation
       
     </span>
   </a>
@@ -3288,34 +3213,6 @@
   
 </nav>
       
-    </li>
-  
-
-              
-            
-              
-                
-  
-  
-  
-  
-    <li class="md-nav__item">
-      <a href="../error-model/" class="md-nav__link">
-        
-  
-  
-  <span class="md-ellipsis">
-    
-  
-    Failure model design
-  
-
-    
-  </span>
-  
-  
-
-      </a>
     </li>
   
 
@@ -3887,10 +3784,10 @@
     <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
       
         <li class="md-nav__item">
-  <a href="#1-generic-core-first" class="md-nav__link">
+  <a href="#one-failure-four-questions" class="md-nav__link">
     <span class="md-ellipsis">
       
-        1. Generic core first
+        One failure, four questions
       
     </span>
   </a>
@@ -3898,22 +3795,22 @@
 </li>
       
         <li class="md-nav__item">
-  <a href="#2-stable-conceptual-model" class="md-nav__link">
+  <a href="#result-taxonomy" class="md-nav__link">
     <span class="md-ellipsis">
       
-        2. Stable conceptual model
+        Result taxonomy
       
     </span>
   </a>
   
-    <nav class="md-nav" aria-label="2. Stable conceptual model">
+    <nav class="md-nav" aria-label="Result taxonomy">
       <ul class="md-nav__list">
         
           <li class="md-nav__item">
-  <a href="#definition" class="md-nav__link">
+  <a href="#admission-rule" class="md-nav__link">
     <span class="md-ellipsis">
       
-        Definition
+        Admission rule
       
     </span>
   </a>
@@ -3921,10 +3818,10 @@
 </li>
         
           <li class="md-nav__item">
-  <a href="#format" class="md-nav__link">
+  <a href="#target-results" class="md-nav__link">
     <span class="md-ellipsis">
       
-        Format
+        Target results
       
     </span>
   </a>
@@ -3932,54 +3829,10 @@
 </li>
         
           <li class="md-nav__item">
-  <a href="#field-encoding" class="md-nav__link">
+  <a href="#boundaries-and-precedence" class="md-nav__link">
     <span class="md-ellipsis">
       
-        Field Encoding
-      
-    </span>
-  </a>
-  
-</li>
-        
-          <li class="md-nav__item">
-  <a href="#layout" class="md-nav__link">
-    <span class="md-ellipsis">
-      
-        Layout
-      
-    </span>
-  </a>
-  
-</li>
-        
-          <li class="md-nav__item">
-  <a href="#element" class="md-nav__link">
-    <span class="md-ellipsis">
-      
-        Element
-      
-    </span>
-  </a>
-  
-</li>
-        
-          <li class="md-nav__item">
-  <a href="#schema" class="md-nav__link">
-    <span class="md-ellipsis">
-      
-        Schema
-      
-    </span>
-  </a>
-  
-</li>
-        
-          <li class="md-nav__item">
-  <a href="#codec" class="md-nav__link">
-    <span class="md-ellipsis">
-      
-        Codec
+        Boundaries and precedence
       
     </span>
   </a>
@@ -3992,10 +3845,77 @@
 </li>
       
         <li class="md-nav__item">
-  <a href="#3-declarative-descriptions-vs-runtime-objects" class="md-nav__link">
+  <a href="#typed-detail-and-common-diagnostics" class="md-nav__link">
     <span class="md-ellipsis">
       
-        3. Declarative descriptions vs runtime objects
+        Typed detail and common diagnostics
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Typed detail and common diagnostics">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#ownership-and-cost" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Ownership and cost
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#initialization-and-publication" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Initialization and publication
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#locations" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Locations
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Locations">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#replacing-offset-only-apis" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Replacing offset-only APIs
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#propagation-and-callbacks" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Propagation and callbacks
       
     </span>
   </a>
@@ -4003,219 +3923,93 @@
 </li>
       
         <li class="md-nav__item">
-  <a href="#4-phase-2-must-not-introduce-another-architecture" class="md-nav__link">
+  <a href="#migration-inventory" class="md-nav__link">
     <span class="md-ellipsis">
       
-        4. Phase 2 must not introduce another architecture
+        Migration inventory
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Migration inventory">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#every-current-common-result" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Every current common result
       
     </span>
   </a>
   
 </li>
-      
-        <li class="md-nav__item">
-  <a href="#5-runtime-compiled-native-are-implementation-strategies" class="md-nav__link">
+        
+          <li class="md-nav__item">
+  <a href="#every-current-codec-result" class="md-nav__link">
     <span class="md-ellipsis">
       
-        5. Runtime / compiled / native are implementation strategies
+        Every current Codec result
       
     </span>
   </a>
   
 </li>
-      
-        <li class="md-nav__item">
-  <a href="#6-tag-identifier-is-byte-identity" class="md-nav__link">
+        
+          <li class="md-nav__item">
+  <a href="#every-current-query-error-kind" class="md-nav__link">
     <span class="md-ellipsis">
       
-        6. Tag / identifier is byte identity
+        Every current Query error kind
       
     </span>
   </a>
   
 </li>
-      
-        <li class="md-nav__item">
-  <a href="#7-endianness-belongs-to-wire-interpretation" class="md-nav__link">
+        
+          <li class="md-nav__item">
+  <a href="#every-current-schema-issue-kind" class="md-nav__link">
     <span class="md-ellipsis">
       
-        7. Endianness belongs to wire interpretation
+        Every current Schema issue kind
       
     </span>
   </a>
   
 </li>
-      
-        <li class="md-nav__item">
-  <a href="#8-length-has-two-different-concepts" class="md-nav__link">
+        
+          <li class="md-nav__item">
+  <a href="#every-current-reader-and-writer-operation" class="md-nav__link">
     <span class="md-ellipsis">
       
-        8. Length has two different concepts
+        Every current Reader and Writer operation
       
     </span>
   </a>
   
 </li>
-      
-        <li class="md-nav__item">
-  <a href="#9-writer-regenerates-wire-representation" class="md-nav__link">
+        
+          <li class="md-nav__item">
+  <a href="#concrete-producer-changes" class="md-nav__link">
     <span class="md-ellipsis">
       
-        9. Writer regenerates wire representation
+        Concrete producer changes
       
     </span>
   </a>
   
 </li>
-      
-        <li class="md-nav__item">
-  <a href="#10-source-location-is-metadata-not-element-identity" class="md-nav__link">
-    <span class="md-ellipsis">
-      
-        10. Source location is metadata, not Element identity
-      
-    </span>
-  </a>
+        
+      </ul>
+    </nav>
   
 </li>
       
         <li class="md-nav__item">
-  <a href="#11-borrow-by-default" class="md-nav__link">
+  <a href="#implementation-handoff-and-validation" class="md-nav__link">
     <span class="md-ellipsis">
       
-        11. Borrow by default
-      
-    </span>
-  </a>
-  
-</li>
-      
-        <li class="md-nav__item">
-  <a href="#12-reader-must-not-require-schema-or-codec" class="md-nav__link">
-    <span class="md-ellipsis">
-      
-        12. Reader must not require Schema or Codec
-      
-    </span>
-  </a>
-  
-</li>
-      
-        <li class="md-nav__item">
-  <a href="#13-tlv-ltv-is-ordering-not-a-separate-architecture" class="md-nav__link">
-    <span class="md-ellipsis">
-      
-        13. TLV / LTV is ordering, not a separate architecture
-      
-    </span>
-  </a>
-  
-</li>
-      
-        <li class="md-nav__item">
-  <a href="#14-otlv-is-declarative" class="md-nav__link">
-    <span class="md-ellipsis">
-      
-        14. OTLV is declarative
-      
-    </span>
-  </a>
-  
-</li>
-      
-        <li class="md-nav__item">
-  <a href="#15-new-functionality-does-not-automatically-mean-a-new-layer" class="md-nav__link">
-    <span class="md-ellipsis">
-      
-        15. New functionality does not automatically mean a new layer
-      
-    </span>
-  </a>
-  
-</li>
-      
-        <li class="md-nav__item">
-  <a href="#16-standards-should-be-compositions-of-generic-primitives" class="md-nav__link">
-    <span class="md-ellipsis">
-      
-        16. Standards should be compositions of generic primitives
-      
-    </span>
-  </a>
-  
-</li>
-      
-        <li class="md-nav__item">
-  <a href="#17-phase-1-must-prove-genericity" class="md-nav__link">
-    <span class="md-ellipsis">
-      
-        17. Phase 1 must prove genericity
-      
-    </span>
-  </a>
-  
-</li>
-      
-        <li class="md-nav__item">
-  <a href="#18-features-must-remain-independently-usable" class="md-nav__link">
-    <span class="md-ellipsis">
-      
-        18. Features must remain independently usable
-      
-    </span>
-  </a>
-  
-</li>
-      
-        <li class="md-nav__item">
-  <a href="#19-bindings-expose-the-same-opentlv-model" class="md-nav__link">
-    <span class="md-ellipsis">
-      
-        19. Bindings expose the same OpenTLV model
-      
-    </span>
-  </a>
-  
-</li>
-      
-        <li class="md-nav__item">
-  <a href="#20-ergonomics-belong-above-the-stable-core" class="md-nav__link">
-    <span class="md-ellipsis">
-      
-        20. Ergonomics belong above the stable core
-      
-    </span>
-  </a>
-  
-</li>
-      
-        <li class="md-nav__item">
-  <a href="#21-diagnostics-must-preserve-useful-raw-context" class="md-nav__link">
-    <span class="md-ellipsis">
-      
-        21. Diagnostics must preserve useful raw context
-      
-    </span>
-  </a>
-  
-</li>
-      
-        <li class="md-nav__item">
-  <a href="#22-opentlv-scope-remains-binary-tlv" class="md-nav__link">
-    <span class="md-ellipsis">
-      
-        22. OpenTLV scope remains binary TLV
-      
-    </span>
-  </a>
-  
-</li>
-      
-        <li class="md-nav__item">
-  <a href="#architectural-invariant" class="md-nav__link">
-    <span class="md-ellipsis">
-      
-        Architectural invariant
+        Implementation handoff and validation
       
     </span>
   </a>
@@ -4239,7 +4033,7 @@
 
 
   
-    <a href="https://github.com/marekcingel/OpenTLV/edit/main/docs/concepts/architectural-rules.md" title="Edit this page" class="md-content__button md-icon" rel="edit">
+    <a href="https://github.com/marekcingel/OpenTLV/edit/main/docs/concepts/error-model.md" title="Edit this page" class="md-content__button md-icon" rel="edit">
       
       <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M10 20H6V4h7v5h5v3.1l2-2V8l-6-6H6c-1.1 0-2 .9-2 2v16c0 1.1.9 2 2 2h4zm10.2-7c.1 0 .3.1.4.2l1.3 1.3c.2.2.2.6 0 .8l-1 1-2.1-2.1 1-1c.1-.1.2-.2.4-.2m0 3.9L14.1 23H12v-2.1l6.1-6.1z"/></svg>
     </a>
@@ -4247,601 +4041,815 @@
   
 
 
-<h1 id="core-architectural-rules">Core architectural rules<a class="headerlink" href="#core-architectural-rules" title="Permanent link">&para;</a></h1>
-<p>These rules guide OpenTLV design, implementation and review. They define the
-shared conceptual model and dependency boundaries for current and future work.
-The <a href="../architecture/">architecture overview</a> maps these concepts to the current
-repository; the <a href="../format-contract/">Format and Element contract</a> specifies the
-current C API invariants.</p>
-<p>The <a href="https://github.com/marekcingel/OpenTLV/blob/main/ROADMAP.md">roadmap</a> defines four architectural phases: Execution
-Foundation, Runtime Model &amp; OTLV, Protocol Inference, and Compilation. Phase 4
-completes the planned
-foundational architecture; future SemVer major releases do not imply more phases.</p>
-<p>The <a href="../architecture/#conceptual-model">architecture overview</a> is the canonical
-technical model; this page states its constraints. Protocol Inference is planned
-Phase 3, consuming and validating the Phase 2
-semantic model before Phase 4 Compilation. It reuses the same Reader, execution
-contracts and canonical model rather than adding an inference-specific parser.
-Incomplete candidates, alternatives and evidence belong to construction and
-analysis; they must not weaken the immutable executable model contract.
-Rules for <code>.otlv</code>, runtime models and generated implementations constrain future
-design; they do not claim that these facilities are already implemented.</p>
-<h2 id="1-generic-core-first">1. Generic core first<a class="headerlink" href="#1-generic-core-first" title="Permanent link">&para;</a></h2>
-<p>OpenTLV core must contain only generic TLV mechanisms.</p>
-<ul>
-<li>No EMV-specific logic in core.</li>
-<li>No ASN.1-specific logic in core.</li>
-<li>No Bluetooth-specific logic in core.</li>
-<li>Standards and protocols are built on top of generic primitives.</li>
-<li>Dependency direction is always:</li>
-</ul>
-<div class="highlight"><pre><span></span><code><a id="__codelineno-0-1" name="__codelineno-0-1" href="#__codelineno-0-1"></a>extensions / standards / presets
-<a id="__codelineno-0-2" name="__codelineno-0-2" href="#__codelineno-0-2"></a>              |
-<a id="__codelineno-0-3" name="__codelineno-0-3" href="#__codelineno-0-3"></a>              v
-<a id="__codelineno-0-4" name="__codelineno-0-4" href="#__codelineno-0-4"></a>             core
-</code></pre></div>
-<p>Core must never depend on a specific standard.</p>
-<hr />
-<h2 id="2-stable-conceptual-model">2. Stable conceptual model<a class="headerlink" href="#2-stable-conceptual-model" title="Permanent link">&para;</a></h2>
-<p>OpenTLV separates reusable descriptions, their implementation and the
-operations that produce or consume runtime representations:</p>
-<div class="highlight"><pre><span></span><code><a id="__codelineno-1-1" name="__codelineno-1-1" href="#__codelineno-1-1"></a>REUSABLE DESCRIPTIONS
-<a id="__codelineno-1-2" name="__codelineno-1-2" href="#__codelineno-1-2"></a>Definition    Format    Field Encoding    Schema    Codec
-<a id="__codelineno-1-3" name="__codelineno-1-3" href="#__codelineno-1-3"></a>
-<a id="__codelineno-1-4" name="__codelineno-1-4" href="#__codelineno-1-4"></a>FORMAT CONSTRUCTION (implementation choices)
-<a id="__codelineno-1-5" name="__codelineno-1-5" href="#__codelineno-1-5"></a>Field Encoding + composition rules -- optional helpers --+
-<a id="__codelineno-1-6" name="__codelineno-1-6" href="#__codelineno-1-6"></a>Direct implementation ----------------------------------+--&gt; Format contract
-<a id="__codelineno-1-7" name="__codelineno-1-7" href="#__codelineno-1-7"></a>
-<a id="__codelineno-1-8" name="__codelineno-1-8" href="#__codelineno-1-8"></a>OPERATIONS                              RUNTIME REPRESENTATIONS
-<a id="__codelineno-1-9" name="__codelineno-1-9" href="#__codelineno-1-9"></a>wire bytes -- Reader using Format ----&gt; Element + source Layout
-<a id="__codelineno-1-10" name="__codelineno-1-10" href="#__codelineno-1-10"></a>wire bytes &lt;-- Writer using Format ---- Element
-<a id="__codelineno-1-11" name="__codelineno-1-11" href="#__codelineno-1-11"></a>
-<a id="__codelineno-1-12" name="__codelineno-1-12" href="#__codelineno-1-12"></a>Definition, Schema and Codec are optional, not processing stages.
-</code></pre></div>
-<p>Composition belongs to Format rather than adding a canonical layer. Generic
-composition helpers are optional; a Format can implement the same complete
-contract directly. Reader and Writer use Format without requiring Definition,
-Schema or Codec. Writer can encode an Element without a previously parsed
-source Layout. Layout records source ranges for a concrete encoded instance.
-See the <a href="../architecture/#conceptual-model">conceptual model</a> for the mapping to
-the current implementation.</p>
-<p>Their responsibilities must remain separated.</p>
-<h3 id="definition">Definition<a class="headerlink" href="#definition" title="Permanent link">&para;</a></h3>
-<p>Provides a minimal registry of identifiers and their descriptive names.</p>
-<p>It answers:</p>
-<blockquote>
-<p>What identifier is this, and what is its descriptive name in this registry?</p>
-</blockquote>
-<p>It must not define how the identifier is encoded on wire.</p>
-<p>Identifier meaning is scoped to a registry; a name is not a unique domain
-identity. Generic Definition must not acquire codec pointers, schema references,
-ASN.1 types, EMV value kinds, length rules or other standard-specific metadata.
-Standards may own richer dictionaries that compose these capabilities, optionally
-reusing Definition entries. A dictionary is domain composition, not a new
-mandatory layer; a factory is only a possible implementation choice.
-Definition lookup is not a required parsing step.</p>
-<p>See the <a href="../definition-boundaries/">Definition boundary audit</a> for the evidence
-and the separate assessment of logical identity versus identifier mapping.</p>
-<h3 id="format">Format<a class="headerlink" href="#format" title="Permanent link">&para;</a></h3>
-<p>Defines how an element is represented on wire.</p>
-<p>It answers:</p>
-<blockquote>
-<p>How do I find Tag / Length / Value in these bytes?</p>
-</blockquote>
-<p>Examples of Format properties:</p>
-<ul>
-<li>field ordering</li>
-<li>tag encoding</li>
-<li>length encoding</li>
-<li>fixed/variable widths</li>
-<li>endian rules</li>
-<li>constructed representation</li>
-<li>length scope</li>
-<li>additional Header fields and Trailer framing</li>
-</ul>
-<p>Format must not interpret the semantic meaning of Value.</p>
-<h3 id="field-encoding">Field Encoding<a class="headerlink" href="#field-encoding" title="Permanent link">&para;</a></h3>
-<p>Provides reusable mechanics at two levels:</p>
-<ul>
-<li>Low-level bit, byte and integer primitives, including packed unsigned fields.</li>
-<li>Identifier and Length encodings, including fixed-width, variable-width and
-  escape-prefixed fields and their read/write callback contracts.</li>
-</ul>
-<p>These mechanics live under <code>tlv/field/</code> and do not describe complete elements.
-Format may compose them with field ordering, length scope, tag-only selection
-and boundary resolution through the optional helpers in <code>tlv/formats/compose.h</code>.
-Composition is part of Format, not a separate architectural layer.
-Configurations embed the reusable Identifier and Length descriptions; adapters
-follow the single-field validation and prefix-reporting contract in <code>tlv/field/</code>.
-Protocol-specific restrictions remain in the standard implementation; field
-mechanics do not interpret Value semantics. Call these mechanisms field
-encodings; reserve Codec for conversion
-between Value bytes and application values.</p>
-<h3 id="layout">Layout<a class="headerlink" href="#layout" title="Permanent link">&para;</a></h3>
-<p>Represents where the parts of one concrete encoded element are located in the source bytes.</p>
-<p>Examples:</p>
-<ul>
-<li>Header range</li>
-<li>optional Tag range</li>
-<li>optional Length range</li>
-<li>Value range</li>
-<li>Trailer range</li>
-<li>complete element range</li>
-</ul>
-<p>Layout is runtime information produced while parsing.</p>
-<p>In the current C API, <code>tlv_source_t</code> and <code>tlv_range_t</code> carry this information;
-<code>tlv_decoded_t</code> pairs it with the semantic Element. Reusable configuration
-belongs to Format composition; Layout is reserved for the ranges of a concrete
-decoded instance.</p>
-<p>Format defines the rules.
-Layout describes the result of applying those rules to concrete bytes.</p>
-<h3 id="element">Element<a class="headerlink" href="#element" title="Permanent link">&para;</a></h3>
-<p><code>tlv_element_t</code> is the format-independent representation of a recognized TLV element.</p>
-<p>Conceptually:</p>
-<div class="highlight"><pre><span></span><code><a id="__codelineno-2-1" name="__codelineno-2-1" href="#__codelineno-2-1"></a>Element
-<a id="__codelineno-2-2" name="__codelineno-2-2" href="#__codelineno-2-2"></a>├── Identifier / Tag
-<a id="__codelineno-2-3" name="__codelineno-2-3" href="#__codelineno-2-3"></a>├── Length
-<a id="__codelineno-2-4" name="__codelineno-2-4" href="#__codelineno-2-4"></a>└── Value
-</code></pre></div>
-<p>Length here means the logical Value byte count, currently <code>tlv_element_t.value.size</code>.
-It is not an additional raw Length field. An identifier or an explicit wire
-Length field may be absent if the Format permits it.</p>
-<p>It must not contain Format-specific parsing state.</p>
-<p>It is the common boundary reused by Reader, Schema, Codec, Document,
-Query, diagnostics, bindings, runtime formats and generated/native formats.</p>
-<p>Do not introduce parallel representations such as:</p>
-<div class="highlight"><pre><span></span><code><a id="__codelineno-3-1" name="__codelineno-3-1" href="#__codelineno-3-1"></a>runtime_element_t
-<a id="__codelineno-3-2" name="__codelineno-3-2" href="#__codelineno-3-2"></a>compiled_element_t
-<a id="__codelineno-3-3" name="__codelineno-3-3" href="#__codelineno-3-3"></a>ber_element_t
-<a id="__codelineno-3-4" name="__codelineno-3-4" href="#__codelineno-3-4"></a>emv_element_t
-</code></pre></div>
-<p>unless they represent genuinely different concepts.</p>
-<h3 id="schema">Schema<a class="headerlink" href="#schema" title="Permanent link">&para;</a></h3>
-<p>Defines how elements may be composed.</p>
-<p>It answers:</p>
-<blockquote>
-<p>Where may this element occur and under what constraints?</p>
-</blockquote>
-<p>Examples:</p>
-<ul>
-<li>required / optional</li>
-<li>occurrence counts</li>
-<li>nesting</li>
-<li>ordering constraints</li>
-<li>allowed children</li>
-<li>structural constraints</li>
-</ul>
-<p>Schema must not define wire encoding.</p>
-<h3 id="codec">Codec<a class="headerlink" href="#codec" title="Permanent link">&para;</a></h3>
-<p>Interprets the bytes contained in Value.</p>
-<p>It answers:</p>
-<blockquote>
-<p>What do these Value bytes mean?</p>
-</blockquote>
-<p>Examples:</p>
-<ul>
-<li>INTEGER</li>
-<li>BOOLEAN</li>
-<li>STRING</li>
-<li>ENUM</li>
-<li>date/time</li>
-<li>protocol-specific semantic values</li>
-</ul>
-<p>Codec operates on Value, not on the wire representation of the complete element.
-Standards should reuse generic value codecs and declarative codec configuration
-where their Value encoding and C representation match. Extract reusable
-conversion primitives rather than duplicating them across standards; retain
-specialized codecs for domain semantics that generic composition cannot express.
-Native and future <code>.otlv</code> dictionaries must compose the same contracts, differing
-in construction and ownership rather than creating parallel semantic models.
-The caller or domain dictionary selects a value codec for a tag in context before
-invoking it. A value codec does not look up its enclosing tag in a Definition
-registry or dictionary to decide what it is decoding.
-Structure codecs may compose Reader/Writer, Schema and value codecs to map
-complete objects. They still delegate wire interpretation to Format.</p>
-<hr />
-<h2 id="3-declarative-descriptions-vs-runtime-objects">3. Declarative descriptions vs runtime objects<a class="headerlink" href="#3-declarative-descriptions-vs-runtime-objects" title="Permanent link">&para;</a></h2>
-<p>Definition, Format, Field Encoding, Schema and Codec are descriptions/contracts.</p>
-<p>Element and Layout are runtime representations. Document is the core owned
-representation built on these primitives.</p>
-<p>Do not create architectural layers merely because a new runtime object is needed.</p>
-<hr />
-<h2 id="4-phase-2-must-not-introduce-another-architecture">4. Phase 2 must not introduce another architecture<a class="headerlink" href="#4-phase-2-must-not-introduce-another-architecture" title="Permanent link">&para;</a></h2>
-<p>Phase 2 dynamically configures the same abstractions established by Phase 1.</p>
-<p>Runtime:</p>
-<div class="highlight"><pre><span></span><code><a id="__codelineno-4-1" name="__codelineno-4-1" href="#__codelineno-4-1"></a>runtime Definition
-<a id="__codelineno-4-2" name="__codelineno-4-2" href="#__codelineno-4-2"></a>runtime Format composition / Field Encoding configuration
-<a id="__codelineno-4-3" name="__codelineno-4-3" href="#__codelineno-4-3"></a>runtime Schema
-<a id="__codelineno-4-4" name="__codelineno-4-4" href="#__codelineno-4-4"></a>runtime Codec
-</code></pre></div>
-<p>must implement the same contracts as their compile-time/native equivalents.</p>
-<p>Phase 2 must not introduce:</p>
-<div class="highlight"><pre><span></span><code><a id="__codelineno-5-1" name="__codelineno-5-1" href="#__codelineno-5-1"></a>RuntimeFormat
-<a id="__codelineno-5-2" name="__codelineno-5-2" href="#__codelineno-5-2"></a>RuntimeSchema
-<a id="__codelineno-5-3" name="__codelineno-5-3" href="#__codelineno-5-3"></a>RuntimeElement
-<a id="__codelineno-5-4" name="__codelineno-5-4" href="#__codelineno-5-4"></a>RuntimeValidator
-</code></pre></div>
-<p>as parallel architectural concepts.</p>
-<p>Runtime configuration is another implementation strategy of the same model.
-Phase 2 describes the complete wire, structural and semantic model together:</p>
-<div class="highlight"><pre><span></span><code><a id="__codelineno-6-1" name="__codelineno-6-1" href="#__codelineno-6-1"></a>.otlv → AST → semantic analysis and symbol resolution → IR → tlv_model_t → execution descriptors
-</code></pre></div>
-<p>The canonical internal IR lowers to the existing execution contracts.
-<code>tlv_format_t</code> remains a lightweight execution descriptor, not the canonical
-semantic representation of a Format. The planned immutable <code>tlv_model_t</code> owns
-the loaded model and supports introspection; it does not replace Element or
-other execution contracts. Model construction/loading may allocate, while TLV
-processing with an already constructed immutable model should remain
-allocation-free using explicit buffers and workspaces. Explicitly owning
-operations such as Document retain their storage requirements.</p>
-<p>See the <a href="../runtime-model/">Phase 2 runtime model and canonical IR</a> for the
-complete pipeline, ownership and lifetime requirements, allocation boundary
-and the distinction between semantic IR and execution descriptors.</p>
-<hr />
-<h2 id="5-runtime-compiled-native-are-implementation-strategies">5. Runtime / compiled / native are implementation strategies<a class="headerlink" href="#5-runtime-compiled-native-are-implementation-strategies" title="Permanent link">&para;</a></h2>
-<p>A layer may be implemented as:</p>
-<ul>
-<li>runtime configuration</li>
-<li>generated/compiled representation</li>
-<li>hand-optimized native implementation</li>
-</ul>
-<p>but all implementations must preserve the same contract and semantics.</p>
-<p>For example:</p>
-<div class="highlight"><pre><span></span><code><a id="__codelineno-7-1" name="__codelineno-7-1" href="#__codelineno-7-1"></a>generic runtime BER Format
-<a id="__codelineno-7-2" name="__codelineno-7-2" href="#__codelineno-7-2"></a>generated BER Format
-<a id="__codelineno-7-3" name="__codelineno-7-3" href="#__codelineno-7-3"></a>optimized native BER Format
-</code></pre></div>
-<p>must still behave as the same conceptual Format.</p>
-<p>Phase 4 reuses the same OTLV frontend and canonical IR for optimization and
-code generation. Runtime lowering and compiled implementations must preserve
-equivalent OTLV semantics. Optimization must not create a second OpenTLV API.</p>
-<hr />
-<h2 id="6-tag-identifier-is-byte-identity">6. Tag / identifier is byte identity<a class="headerlink" href="#6-tag-identifier-is-byte-identity" title="Permanent link">&para;</a></h2>
-<p>A TLV identifier is fundamentally a sequence of bytes.</p>
-<p>Do not treat a Tag as a host integer.</p>
-<p>Therefore:</p>
-<ul>
-<li>no implicit endian conversion</li>
-<li>no numeric normalization</li>
-<li>no architecture-dependent representation</li>
-<li>comparison is based on bytes</li>
-<li>representation must be deterministic across platforms</li>
-</ul>
-<p>Conceptually:</p>
-<div class="highlight"><pre><span></span><code><a id="__codelineno-8-1" name="__codelineno-8-1" href="#__codelineno-8-1"></a>identifier = { bytes, size }
-</code></pre></div>
-<p>The same wire identifier must have the same identity on little-endian
-and big-endian machines.</p>
-<hr />
-<h2 id="7-endianness-belongs-to-wire-interpretation">7. Endianness belongs to wire interpretation<a class="headerlink" href="#7-endianness-belongs-to-wire-interpretation" title="Permanent link">&para;</a></h2>
-<p>Endianness describes how numeric fields encoded on wire are interpreted.</p>
-<p>It must never depend on CPU endianness.</p>
-<p>For example:</p>
-<div class="highlight"><pre><span></span><code><a id="__codelineno-9-1" name="__codelineno-9-1" href="#__codelineno-9-1"></a>wire length = big-endian
-</code></pre></div>
-<p>means OpenTLV interprets it as big-endian on every architecture.</p>
-<p>The host CPU may affect which optimized implementation is used,
-but never the externally visible result.</p>
-<hr />
-<h2 id="8-length-has-two-different-concepts">8. Length has two different concepts<a class="headerlink" href="#8-length-has-two-different-concepts" title="Permanent link">&para;</a></h2>
-<p>Do not confuse:</p>
+<h1 id="failure-model">Failure model<a class="headerlink" href="#failure-model" title="Permanent link">&para;</a></h1>
+<p>This is the accepted design for <a href="https://github.com/marekcingel/OpenTLV/issues/551">#551</a>,
+for authors of C capabilities and language facades. Read the
+<a href="../architectural-rules/">architectural rules</a> and
+<a href="../../reference/errors/">current error reference</a> first.</p>
+<p><strong>Status: design decided; lifecycle result implemented by #552; remaining API
+and binding migration is separate work.</strong> This page defines the target contract.
+<code>TLV_ERR_INVALID_STATE</code> and <code>TLV_QUERY_ERROR_STATE</code> are now public; other new
+target names are not yet public declarations. The reference page continues to describe the running
+implementation. This design does not preserve source, binary, enum-number or
+diagnostic-layout compatibility. Removed names get no aliases, compatibility
+wrappers or deprecation period. Native consumers and bindings migrate together.</p>
+<h2 id="one-failure-four-questions">One failure, four questions<a class="headerlink" href="#one-failure-four-questions" title="Permanent link">&para;</a></h2>
+<p>For example, a missing mandatory field and a malformed schema definition are
+different failures even if the same validator detects both:</p>
+<table>
+<thead>
+<tr>
+<th>Question</th>
+<th>Missing mandatory field</th>
+<th>Invalid occurrence bounds in a schema</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Result: what failed?</td>
+<td><code>TLV_ERR_SCHEMA</code></td>
+<td><code>TLV_ERR_INVALID_SCHEMA</code></td>
+</tr>
+<tr>
+<td>Detail: what happened in this layer?</td>
+<td>Schema <code>MISSING</code>, expected tag and occurrence count</td>
+<td>Schema definition detail, minimum greater than maximum</td>
+</tr>
+<tr>
+<td>Location: where is the evidence?</td>
+<td>Enclosing scope end or insertion point; absent tag is not an element at that byte</td>
+<td>Definition location if available; otherwise unknown</td>
+</tr>
+<tr>
+<td>Propagation: what does an enclosing operation retain?</td>
+<td>Same result and Schema detail</td>
+<td>Same result and definition detail</td>
+</tr>
+</tbody>
+</table>
+<p>Results describe reusable failure classes. Detail identifies the detecting
+layer, operation and reason. Location identifies evidence without changing the
+result class. Propagation adds context without replacing the original cause.
+Protocol names, universal tag numbers and builtin-specific policies belong in
+detail, never in the common result enum.</p>
+<h2 id="result-taxonomy">Result taxonomy<a class="headerlink" href="#result-taxonomy" title="Permanent link">&para;</a></h2>
+<h3 id="admission-rule">Admission rule<a class="headerlink" href="#admission-rule" title="Permanent link">&para;</a></h3>
+<p>Add a result only when it denotes a distinct, protocol-independent condition
+with a different caller response that cannot be expressed by an existing class.
+The distinction must remain useful without diagnostics and across native,
+runtime-configured and generated implementations. Name prefixes such as
+<code>INVALID_</code> do not decide membership. A new layer, operation, missing field,
+syntax production or protocol restriction alone does not justify a result.</p>
+<p>There are three kinds of outcome: success, control status and failure. A caller
+must not treat every nonzero result as a fatal error. <code>TLV_OK</code> remains zero;
+this design makes no other promise about numeric assignments.</p>
+<h3 id="target-results">Target results<a class="headerlink" href="#target-results" title="Permanent link">&para;</a></h3>
+<table>
+<thead>
+<tr>
+<th>Target result</th>
+<th>Meaning and caller response</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>TLV_OK</code></td>
+<td>Operation completed successfully.</td>
+</tr>
+<tr>
+<td><code>TLV_END</code></td>
+<td>Normal end of an iteration or an empty single-read region. No element is published.</td>
+</tr>
+<tr>
+<td><code>TLV_NEED_MORE_DATA</code></td>
+<td>Non-final incremental input is insufficient; extend the window or declare EOF and resume.</td>
+</tr>
+<tr>
+<td><code>TLV_ERR_TRUNCATED</code></td>
+<td>Final input ends inside a required representation. Supply a complete input; increasing output or workspace capacity cannot repair it.</td>
+</tr>
+<tr>
+<td><code>TLV_ERR_BUFFER_TOO_SHORT</code></td>
+<td>Caller-supplied destination or workspace capacity is insufficient. Supply the required capacity; detail identifies the buffer and its units.</td>
+</tr>
+<tr>
+<td><code>TLV_ERR_NULL_ARG</code></td>
+<td>A required pointer is NULL. Empty spans may use NULL where documented.</td>
+</tr>
+<tr>
+<td><code>TLV_ERR_INVALID_ARG</code></td>
+<td>API configuration or an argument descriptor is invalid: alignment, overlap, option value, inconsistent extent, missing mandatory callback or contradictory configuration. Correct the call.</td>
+</tr>
+<tr>
+<td><code>TLV_ERR_INVALID_STATE</code></td>
+<td>The object or operation sequence is invalid: stale handle, uninitialized/failed execution, forbidden reentrancy or operation after finalization. Correct the lifecycle or reset.</td>
+</tr>
+<tr>
+<td><code>TLV_ERR_INVALID_SCHEMA</code></td>
+<td>A schema definition is internally invalid, independent of the data being validated. Correct the definition.</td>
+</tr>
+<tr>
+<td><code>TLV_ERR_SYNTAX</code></td>
+<td>Text does not conform to the requested language grammar. Correct the text; Query and future OTLV share this class.</td>
+</tr>
+<tr>
+<td><code>TLV_ERR_UNSUPPORTED</code></td>
+<td>A valid requested capability, operation, representation version or configuration is not implemented by this provider/backend. Choose a supporting implementation or change the request.</td>
+</tr>
+<tr>
+<td><code>TLV_ERR_INVALID_TAG</code></td>
+<td>An identifier violates the selected wire Format's identifier rules.</td>
+</tr>
+<tr>
+<td><code>TLV_ERR_INVALID_TAG_SIZE</code></td>
+<td>Identifier byte count is outside the operation's supported range. This remains distinct from malformed identifier bytes.</td>
+</tr>
+<tr>
+<td><code>TLV_ERR_INVALID_LENGTH</code></td>
+<td>A wire Length encoding or encoded length is invalid for the selected Format. Schema Value-length constraints use <code>SCHEMA</code>.</td>
+</tr>
+<tr>
+<td><code>TLV_ERR_INVALID_VALUE</code></td>
+<td>Data or its application representation is invalid for the requested interpretation: malformed Value content, canonicality violation, type/cardinality mismatch or malformed stored program image. It is not a fallback for configuration, lifecycle or callback defects.</td>
+</tr>
+<tr>
+<td><code>TLV_ERR_SCHEMA</code></td>
+<td>Input violates a valid structural or semantic schema constraint, including absence of required content.</td>
+</tr>
+<tr>
+<td><code>TLV_ERR_LIMIT</code></td>
+<td>A valid configured processing budget is exceeded: depth, elements, work or logical input/value size. Raising the budget may permit processing.</td>
+</tr>
+<tr>
+<td><code>TLV_ERR_OVERFLOW</code></td>
+<td>Arithmetic or numeric conversion exceeds its logical numeric range.</td>
+</tr>
+<tr>
+<td><code>TLV_ERR_NATIVE_SIZE</code></td>
+<td>A valid logical quantity cannot be addressed by the host's <code>size_t</code>. Keep this separate from logical arithmetic overflow.</td>
+</tr>
+<tr>
+<td><code>TLV_ERR_OUT_OF_MEMORY</code></td>
+<td>An explicitly allocating operation's allocation failed. Caller workspace shortage is not allocation failure.</td>
+</tr>
+<tr>
+<td><code>TLV_ERR_VISITOR</code></td>
+<td>A visitor explicitly requests an error stop through its valid control result. Normal early stop is success.</td>
+</tr>
+<tr>
+<td><code>TLV_ERR_CALLBACK</code></td>
+<td>A callback violates its declared contract: invalid return discriminator, impossible extent, wrong successful result type or other invalid success payload. Correct the provider.</td>
+</tr>
+</tbody>
+</table>
+<h3 id="boundaries-and-precedence">Boundaries and precedence<a class="headerlink" href="#boundaries-and-precedence" title="Permanent link">&para;</a></h3>
+<p><code>INVALID_ARG</code> validates how an operation is requested; <code>INVALID_VALUE</code> validates
+the data being interpreted. An invalid codec configuration is <code>INVALID_ARG</code>;
+bytes that fail a valid codec configuration are <code>INVALID_VALUE</code>. Query text
+syntax is <code>SYNTAX</code>; a valid expression with incompatible operand types is
+<code>INVALID_VALUE</code> with a type detail. A corrupt internal program image is
+<code>INVALID_VALUE</code> with image detail, while insufficient caller storage is
+<code>BUFFER_TOO_SHORT</code> and a recognized incompatible image version is <code>UNSUPPORTED</code>.
+An invalid event stream is data (<code>INVALID_VALUE</code>); calling feed on a failed
+execution is lifecycle misuse (<code>INVALID_STATE</code>).</p>
+<p><code>INVALID_SCHEMA</code> applies to malformed constraints, rule/group tables,
+references and schema graphs. A NULL top-level required schema pointer is still
+<code>NULL_ARG</code>; a missing required reference inside a supplied schema definition is
+<code>INVALID_SCHEMA</code>. A well-formed schema that uses an unimplemented feature is
+<code>UNSUPPORTED</code>. Model loading uses these same classes: malformed syntax is
+<code>SYNTAX</code>, an invalid Schema description is <code>INVALID_SCHEMA</code>, and unresolved
+non-Schema model symbols are <code>INVALID_VALUE</code> with model detail. There is no
+protocol-specific or universal catch-all model error.</p>
+<p>Resource classification depends on the resource, not when it was exhausted:</p>
+<table>
+<thead>
+<tr>
+<th>Condition</th>
+<th>Result</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Depth/work/elements exceed a valid configured processing maximum</td>
+<td><code>LIMIT</code></td>
+</tr>
+<tr>
+<td>Caller frame array, arena, compilation scratch or report storage is too small for a required operation</td>
+<td><code>BUFFER_TOO_SHORT</code></td>
+</tr>
+<tr>
+<td>Maximum has an illegal value or contradicts other options</td>
+<td><code>INVALID_ARG</code></td>
+</tr>
+<tr>
+<td>Valid configuration exceeds a fixed implementation capability</td>
+<td><code>UNSUPPORTED</code></td>
+</tr>
+<tr>
+<td>Allocation requested by an owning operation fails</td>
+<td><code>OUT_OF_MEMORY</code></td>
+</tr>
+<tr>
+<td>Optional diagnostic path cannot retain another tag</td>
+<td>Mark the path truncated; do not replace the operation's result</td>
+</tr>
+</tbody>
+</table>
+<p>Zero is a valid inclusive budget where the API defines it that way; it is not
+automatically invalid configuration. A report API that explicitly permits
+partial collection reports stored/omitted counts and retains the aggregate
+validation result instead of substituting a capacity error. The standalone
+path-push helper reports <code>BUFFER_TOO_SHORT</code> when it records an omission.</p>
+<p>Validate required pointers and safe extents before dereferencing, reject
+forbidden overlap and reentrancy before writing diagnostics, then validate
+configuration/state before processing data. Within data processing, retain the
+first failure in the operation's documented traversal order. More specific
+semantic distinctions do not authorize speculative reads or a second callback
+invocation. Existing safe validation ordering remains relevant: NULL Tag bytes
+precede width checks; width checks precede content policy checks.</p>
+<p>Missing required content is always <code>SCHEMA</code> with <code>MISSING</code> detail. Remove
+<code>SCHEMA_MISSING</code>; its former location distinction is represented explicitly.
+This covers generic Schema, DHCP End requirements, LLDP mandatory fields and
+DER required components, including a missing required root. There is no
+exception based on which builtin performs the validation. Mandatory framing
+bytes missing inside a wire element instead produce <code>TRUNCATED</code>; semantic
+schema requirements must not be inferred by the generic Reader.</p>
+<h2 id="typed-detail-and-common-diagnostics">Typed detail and common diagnostics<a class="headerlink" href="#typed-detail-and-common-diagnostics" title="Permanent link">&para;</a></h2>
+<p>Keep <code>tlv_diagnostic_t</code> as the common diagnostic base and keep specialized
+Reader, Writer, Schema and Query value types. The target Query diagnostic
+embeds the common base and retains typed Query span, resource, binding,
+cardinality, codec and Reader detail. Replace the present instruction that
+layers must use context nodes <em>instead of</em> specialized types: typed detail is
+the normal machine-readable extension; borrowed text contexts are optional
+human-readable enrichment. Programs must not parse context strings to classify
+an error.</p>
+<p>The base carries the returned result, severity, origin layer, primary location
+and optional path/expected/actual information. Specialized detail identifies the
+operation and reason, including the original lower-layer detail when delegated.
+Result and detail are orthogonal: <code>READER</code> may legitimately accompany
+<code>INVALID_TAG</code>, <code>LIMIT</code>, <code>BUFFER_TOO_SHORT</code> or <code>NEED_MORE_DATA</code>. The mapping tables
+below constrain combinations rather than requiring a function from kind to
+result. Detail is discriminated; inactive fields must not be interpreted.</p>
+<p>Query detail kind <code>STATE</code> is implemented by #552. Add <code>ARGUMENT</code>, <code>TYPE</code>, <code>IMAGE</code>
+and <code>CALLBACK</code> for
+the cases currently forced into <code>STORAGE</code>, <code>EVENTS</code> or <code>CAPABILITY</code>. Keep
+<code>IMAGE_VERSION</code> for a recognized version mismatch. <code>CODEC</code> denotes conversion
+context; a callback contract violation during conversion uses <code>CALLBACK</code> and
+records the codec operation and reported result, including a reported <code>OK</code>.
+Ordinary invalid encoded values remain <code>CODEC</code> plus <code>INVALID_VALUE</code>.</p>
+<p>Schema input findings retain <code>MISSING</code>, <code>DUPLICATE</code>, <code>UNEXPECTED</code>, <code>KIND</code>,
+<code>LENGTH</code>, <code>ORDER</code> and <code>ASSERTION</code>; add <code>VALUE</code> for a direct semantic constraint
+violation. Schema definition failures have a separate typed definition reason
+(invalid bounds, rule/group entry, reference, enum or graph), not an input
+finding attached to fictitious wire bytes.</p>
+<h3 id="ownership-and-cost">Ownership and cost<a class="headerlink" href="#ownership-and-cost" title="Permanent link">&para;</a></h3>
+<p>Diagnostics remain allocation-free, caller-owned and optional. Shared result
+and detail vocabulary is available without linking Reader, Query or Codec
+implementations. No successful parsing path must format strings, allocate,
+collect paths or build context chains for an unrequested diagnostic.</p>
+<p>The target common base stores a bounded path by value, with an explicit
+presence flag and <code>omitted</code> count. It retains the outermost 32 enclosing tags;
+the omitted count saturates. Path entries copy Tag spans, not Tag bytes, so
+their immutable backing storage must outlive the diagnostic. The affected Tag
+is separate from enclosing ancestors. Bounded inline storage avoids pointers
+from an embedded base into its enclosing specialized object. Native copies
+preserve valid external borrows without pointer rebasing. Query span and
+resource numbers are inline; expected/actual text and context chains may borrow
+external storage with explicit lifetimes. Do not attach stack-local strings,
+paths or context nodes to an escaping diagnostic.</p>
+<p>Bindings that retain diagnostics beyond those lifetimes copy the relevant
+bytes, paths and text into language-owned storage. They expose the same result,
+detail discriminator, location domain and omitted count through the idiomatic
+facade. They must not reconstruct semantic causes from messages or offsets.</p>
+<h3 id="initialization-and-publication">Initialization and publication<a class="headerlink" href="#initialization-and-publication" title="Permanent link">&para;</a></h3>
+<p>Retain the contract established by #548: after diagnostic initialization,
+every non-OK return has <code>diagnostic.code == rc</code>, including propagated control
+status. Query also has a meaningful active detail; Reader control statuses use
+<code>READER</code>. Diagnostic initialization is an explicit publication boundary, not
+permission to overwrite aliased input, an active callback's output or the first
+failure of an already failed execution.</p>
+<p>Pre-initialization argument, overlap, reentrancy and failed-continuation guards
+may leave diagnostic outputs untouched as documented. A wrapper that has
+already initialized its own output must describe a delegated failure even
+when the lower call rejected before publishing detail. Initialize absent
+fields instead of copying uninitialized lower-layer storage. On success,
+diagnostics need not be cleared; callers inspect them only with the result.
+Individual report findings describe their own errors rather than copying an
+aggregate result into every record.</p>
+<p>Control status does not invalidate an incremental execution. Preserve its
+documented resume/reset behavior. Severity is presentation metadata, not the
+test for success, resumability or lifecycle validity.</p>
+<h2 id="locations">Locations<a class="headerlink" href="#locations" title="Permanent link">&para;</a></h2>
+<p>Location is a generic diagnostic value; it is not Element identity. The target
+location records a domain and an anchor kind, with checked coordinates. A
+domain distinguishes input wire bytes, would-be output wire bytes, expression
+text and definition text. Each API identifies the source object and origin
+associated with these coordinates; two offsets in different inputs cannot be
+compared without that context. Native definitions without text use a typed
+rule/component index rather than invented definition byte offsets.</p>
+<table>
+<thead>
+<tr>
+<th>Anchor kind</th>
+<th>Contract</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Unknown</td>
+<td>No byte position is known. Do not interpret numeric fields.</td>
+</tr>
+<tr>
+<td>Point</td>
+<td>A known byte position, possibly zero or EOF. It does not assert that an element starts there.</td>
+</tr>
+<tr>
+<td>Span</td>
+<td>Half-open <code>[begin, end)</code> evidence range in one domain; <code>begin &lt;= end</code>, and an empty EOF span is valid.</td>
+</tr>
+<tr>
+<td>Scope end</td>
+<td>Boundary of the enclosing Value or top-level region; appropriate for unordered missing content.</td>
+</tr>
+<tr>
+<td>Insertion point</td>
+<td>Known position at which missing ordered content would begin. No offending element exists there.</td>
+</tr>
+</tbody>
+</table>
+<p>Absence of a location differs from a known zero offset, empty EOF span or
+truncated path. A span describes bytes actually available. Required lengths,
+declared lengths and an enclosing boundary are separate typed quantities; do
+not extend an evidence span beyond its source to show missing bytes. Coordinate
+conversion uses checked arithmetic. If optional location enrichment cannot be
+represented, retain the original failure and mark the location unknown rather
+than returning a new overflow error.</p>
+<p>Reader locations are relative to the documented input origin, including the
+absolute origin of an incremental window. Query expression spans and input
+Source offsets remain separate. On Reader/Codec propagation, the original
+input location stays primary and the Query expression span is related context;
+do not overwrite one with the other. If the lower layer gives a Value-relative
+position, translate it only when the Value origin is known. Without it, retain
+the local domain/origin information or mark the enclosing source position
+unknown. Do not manufacture an absolute offset.</p>
+<p>Preserve #549's useful DER write semantics: locations refer to would-be output
+with enclosing headers and canonical SET order. A missing SEQUENCE component
+uses an insertion point; a missing SET component uses scope end. If computing
+that layout encounters a later callback or scratch failure, preserve the first
+result and mark its location unknown. Do not retry callbacks merely to obtain
+a location. Argument/configuration/capacity errors have unknown byte location
+unless the operation actually knows relevant evidence.</p>
+<h3 id="replacing-offset-only-apis">Replacing offset-only APIs<a class="headerlink" href="#replacing-offset-only-apis" title="Permanent link">&para;</a></h3>
+<p>Replace public failure-reporting <code>size_t* error_offset</code> parameters with the
+appropriate common or typed diagnostic output in the implementation work.
+Remove the offset-only signatures; there is no compatibility wrapper or zero
+sentinel convention in the target API. Operations needing no diagnostic pass
+NULL. This concerns error outputs, not ordinary cursor or source-range APIs.</p>
+<p>Migrate each producer at the point where its coordinate origin and anchor kind
+are known. Update all callers, builtin adapters, tests, examples and bindings
+in the same change. Do not infer <code>has_location</code> from <code>offset != 0</code>, or recover
+the missing anchor kind from an old result code. Existing offset-zero fallback
+cases become unknown; actual failures at byte zero remain located.</p>
+<h2 id="propagation-and-callbacks">Propagation and callbacks<a class="headerlink" href="#propagation-and-callbacks" title="Permanent link">&para;</a></h2>
+<p>Use one result domain throughout the target C API: Codec operations and their
+callbacks return <code>tlv_result_t</code>. Remove <code>tlv_codec_result_t</code> and its independent
+success/error enum. A codec remains a Value converter; sharing error vocabulary
+does not make it a wire parser or require Reader/Schema dependencies. Structure
+codecs already compose those capabilities and must preserve their results.
+The target typed codec diagnostic can carry Reader or Schema cause detail
+when it delegates, as well as its conversion operation and representation.
+Codec entry points, descriptor callbacks and Query conversion hooks receive an
+optional typed diagnostic output so that this cause can cross the callback
+boundary. When NULL, only the common result is propagated. Adding this output
+is part of the breaking callback-signature migration, not a second conversion
+engine or a required allocation.</p>
 <ol>
-<li>encoded Length field</li>
-<li>logical Value size</li>
+<li>Propagate a lower-layer result unchanged when the operation delegates that
+   work. Add layer/operation context and preserve its typed cause and location.</li>
+<li>When there is only a result and no lower diagnostic, preserve that result
+   and origin with unknown detail/location; do not invent a cause.</li>
+<li>Reject a callback's invalid success payload or invalid return discriminator
+   as <code>CALLBACK</code>. Record the violated contract and reported result. A callback
+   legitimately returning an error is not itself a callback contract failure.</li>
+<li>Admit control statuses only where the callback contract explicitly allows
+   them. Returning <code>END</code> from a callback required to produce one encoded Value
+   is a contract violation, not end of an enclosing Reader iteration.</li>
+<li>A deliberate visitor error stop is <code>VISITOR</code>; an unknown visit result is
+   <code>CALLBACK</code>; a deliberate normal stop is <code>OK</code>. Preserve any separately
+   documented richer visitor error channel without fabricating one.</li>
 </ol>
-<p>The wire Length representation may contain:</p>
+<p>There is no target codec-to-core or core-to-codec lossy conversion. In
+particular, structure validation must not collapse <code>LIMIT</code>, <code>TRUNCATED</code>,
+<code>INVALID_SCHEMA</code> or <code>SCHEMA</code> into an invalid-structure bucket. The historical
+mapping below is for changing producers, not a runtime compatibility adapter.</p>
+<p>Reader resource failures within Query retain Reader origin and <code>READER</code>
+detail. An exhausted Reader processing budget remains <code>LIMIT</code>; Query does not
+rewrite it into its own <code>LIMIT</code> detail. The intent of
+<code>TreeResourceLimitsHaveOwnedSafeReaderDiagnostics</code> remains mandatory. Its
+frame-capacity case changes to <code>BUFFER_TOO_SHORT</code>, while depth/element budget
+cases remain <code>LIMIT</code>. All preserve safe absent fields and Reader provenance.</p>
+<h2 id="migration-inventory">Migration inventory<a class="headerlink" href="#migration-inventory" title="Permanent link">&para;</a></h2>
+<p>This inventory is based on the public vocabulary at <code>977a60e7</code>, after
+issues #548, #549 and #550. It covers every current common result, codec result, Query error
+kind, Schema issue kind and Reader/Writer operation. Rows with multiple target
+outcomes require classification at the producer, not an enum-wide replacement.
+Names in the target columns omit <code>TLV_ERR_</code> where unambiguous.</p>
+<h3 id="every-current-common-result">Every current common result<a class="headerlink" href="#every-current-common-result" title="Permanent link">&para;</a></h3>
+<table>
+<thead>
+<tr>
+<th>Current code</th>
+<th>Target classification</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>TLV_OK</code></td>
+<td>Keep <code>TLV_OK</code>.</td>
+</tr>
+<tr>
+<td><code>TLV_ERR_BUFFER_TOO_SHORT</code></td>
+<td>Final incomplete input -&gt; <code>TRUNCATED</code>; non-final incremental input -&gt; <code>TLV_NEED_MORE_DATA</code>; destination/workspace shortage -&gt; <code>BUFFER_TOO_SHORT</code>.</td>
+</tr>
+<tr>
+<td><code>TLV_ERR_INVALID_LENGTH</code></td>
+<td>Wire encoding/range -&gt; <code>INVALID_LENGTH</code>; Schema Value-length rule -&gt; <code>SCHEMA</code> + <code>LENGTH</code>; malformed length configuration -&gt; <code>INVALID_ARG</code>.</td>
+</tr>
+<tr>
+<td><code>TLV_ERR_NULL_ARG</code></td>
+<td>Missing required pointer -&gt; <code>NULL_ARG</code>; invalid non-NULL descriptor currently lumped here -&gt; <code>INVALID_ARG</code>.</td>
+</tr>
+<tr>
+<td><code>TLV_ERR_OUT_OF_MEMORY</code></td>
+<td>Actual allocation failure -&gt; <code>OUT_OF_MEMORY</code>; allocation-size arithmetic overflow currently lumped here -&gt; <code>OVERFLOW</code>, or <code>NATIVE_SIZE</code> when the logical size is valid but not host-addressable.</td>
+</tr>
+<tr>
+<td><code>TLV_ERR_END_OF_BUFFER</code></td>
+<td>Normal exhaustion -&gt; <code>TLV_END</code>; missing mandatory schema content -&gt; <code>SCHEMA</code> + <code>MISSING</code>; exhaustion inside a required encoding -&gt; <code>TRUNCATED</code>.</td>
+</tr>
+<tr>
+<td><code>TLV_ERR_INVALID_TAG</code></td>
+<td>Invalid wire identifier -&gt; <code>INVALID_TAG</code>; valid identifier rejected only by a schema -&gt; <code>SCHEMA</code> + <code>UNEXPECTED</code> or <code>KIND</code>.</td>
+</tr>
+<tr>
+<td><code>TLV_ERR_VISITOR</code></td>
+<td>Explicit error stop -&gt; <code>VISITOR</code>; unknown visitor result -&gt; <code>CALLBACK</code>.</td>
+</tr>
+<tr>
+<td><code>TLV_ERR_LIMIT</code></td>
+<td>Processing budget -&gt; <code>LIMIT</code>; caller storage/frame shortage -&gt; <code>BUFFER_TOO_SHORT</code>; invalid option -&gt; <code>INVALID_ARG</code>; valid request beyond a fixed implementation capability -&gt; <code>UNSUPPORTED</code>; optional path truncation -&gt; omission metadata.</td>
+</tr>
+<tr>
+<td><code>TLV_ERR_SCHEMA</code></td>
+<td>Input violation -&gt; <code>SCHEMA</code> with finding detail; invalid schema definition -&gt; <code>INVALID_SCHEMA</code>; a callback contradicting its own declared result -&gt; <code>CALLBACK</code>.</td>
+</tr>
+<tr>
+<td><code>TLV_ERR_INVALID_ARG</code></td>
+<td>API configuration/storage descriptors -&gt; <code>INVALID_ARG</code>; lifecycle/reentrancy -&gt; <code>INVALID_STATE</code>; text grammar -&gt; <code>SYNTAX</code>; invalid schema definition -&gt; <code>INVALID_SCHEMA</code>; unsupported capability -&gt; <code>UNSUPPORTED</code>; invalid data/image/types/bindings -&gt; <code>INVALID_VALUE</code>; provider contract violation -&gt; <code>CALLBACK</code>.</td>
+</tr>
+<tr>
+<td><code>TLV_ERR_INVALID_TAG_SIZE</code></td>
+<td>Keep operation-specific identifier-width class; an invalid configured width is <code>INVALID_ARG</code>.</td>
+</tr>
+<tr>
+<td><code>TLV_ERR_INVALID_BYTE_ORDER</code></td>
+<td>Unknown enum/configuration -&gt; <code>INVALID_ARG</code>; valid but unimplemented order -&gt; <code>UNSUPPORTED</code>. Remove the old result.</td>
+</tr>
+<tr>
+<td><code>TLV_ERR_OVERFLOW</code></td>
+<td>Keep logical numeric/arithmetic overflow.</td>
+</tr>
+<tr>
+<td><code>TLV_ERR_INVALID_VALUE</code></td>
+<td>Invalid interpreted data/canonicality -&gt; <code>INVALID_VALUE</code>; Schema constraint -&gt; <code>SCHEMA</code>; bad callback success payload -&gt; <code>CALLBACK</code>; invalid configuration -&gt; <code>INVALID_ARG</code>.</td>
+</tr>
+<tr>
+<td><code>TLV_ERR_UNSUPPORTED_TYPE</code></td>
+<td><code>UNSUPPORTED</code> with type/capability/version detail. Remove the old name.</td>
+</tr>
+<tr>
+<td><code>TLV_ERR_SCHEMA_MISSING</code></td>
+<td><code>SCHEMA</code> + <code>MISSING</code> and explicit scope-end/insertion location. Remove the old result.</td>
+</tr>
+<tr>
+<td><code>TLV_ERR_NATIVE_SIZE</code></td>
+<td>Keep host-addressability distinction.</td>
+</tr>
+<tr>
+<td><code>TLV_NEED_MORE_DATA</code></td>
+<td>Keep resumable control status; never convert a non-final shortage into a fatal error.</td>
+</tr>
+</tbody>
+</table>
+<h3 id="every-current-codec-result">Every current Codec result<a class="headerlink" href="#every-current-codec-result" title="Permanent link">&para;</a></h3>
+<table>
+<thead>
+<tr>
+<th>Current code</th>
+<th>Target producer result and detail</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>TLV_CODEC_OK</code></td>
+<td><code>TLV_OK</code>; invalid successful payload is detected by the caller as <code>CALLBACK</code>.</td>
+</tr>
+<tr>
+<td><code>TLV_CODEC_ERR_NULL_ARG</code></td>
+<td><code>NULL_ARG</code> for a missing pointer; <code>INVALID_ARG</code> for invalid non-NULL configuration/descriptor.</td>
+</tr>
+<tr>
+<td><code>TLV_CODEC_ERR_BUFFER_TOO_SHORT</code></td>
+<td>Destination/workspace shortage -&gt; <code>BUFFER_TOO_SHORT</code>; incomplete required encoded structure -&gt; <code>TRUNCATED</code>. A complete Value of the wrong codec width is <code>INVALID_VALUE</code>.</td>
+</tr>
+<tr>
+<td><code>TLV_CODEC_ERR_INVALID_VALUE</code></td>
+<td>Invalid Value or application representation -&gt; <code>INVALID_VALUE</code>; invalid configuration -&gt; <code>INVALID_ARG</code>; detected provider breach -&gt; <code>CALLBACK</code>.</td>
+</tr>
+<tr>
+<td><code>TLV_CODEC_ERR_UNSUPPORTED</code></td>
+<td><code>UNSUPPORTED</code>; preserve conversion direction/capability detail.</td>
+</tr>
+<tr>
+<td><code>TLV_CODEC_ERR_INVALID_STRUCTURE</code></td>
+<td>Remove the catch-all and preserve the actual Reader/Schema/resource result and cause. A malformed supplied object with no lower-layer failure is <code>INVALID_VALUE</code>.</td>
+</tr>
+</tbody>
+</table>
+<p>C++ <code>codec_errc</code> and <code>typed_error</code> projections and all other language mappings
+must adopt the shared result domain. Preserve codec operation detail without
+retaining a second semantic result taxonomy. No numeric casts between the old
+enums constitute a migration.</p>
+<h3 id="every-current-query-error-kind">Every current Query error kind<a class="headerlink" href="#every-current-query-error-kind" title="Permanent link">&para;</a></h3>
+<table>
+<thead>
+<tr>
+<th>Current kind</th>
+<th>Target result/detail rule</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>TLV_QUERY_ERROR_NONE</code></td>
+<td>No active failure detail. Not valid after initialized non-OK publication.</td>
+</tr>
+<tr>
+<td><code>TLV_QUERY_ERROR_SYNTAX</code></td>
+<td><code>SYNTAX</code> + <code>SYNTAX</code> for grammar; resource exhaustion while parsing remains <code>LIMIT</code> + <code>LIMIT</code>; static type errors move to <code>INVALID_VALUE</code> + <code>TYPE</code>.</td>
+</tr>
+<tr>
+<td><code>TLV_QUERY_ERROR_CAPABILITY</code></td>
+<td><code>UNSUPPORTED</code> + <code>CAPABILITY</code> for unavailable features; invalid environment/hook/format configuration -&gt; <code>INVALID_ARG</code> + <code>ARGUMENT</code>; type failure -&gt; <code>INVALID_VALUE</code> + <code>TYPE</code>; Tag adapter errors retain the original result and adapter detail under <code>CAPABILITY</code>.</td>
+</tr>
+<tr>
+<td><code>TLV_QUERY_ERROR_LIMIT</code></td>
+<td><code>LIMIT</code> + <code>LIMIT</code> for Query processing budgets; caller storage shortage -&gt; <code>BUFFER_TOO_SHORT</code> + <code>STORAGE</code>.</td>
+</tr>
+<tr>
+<td><code>TLV_QUERY_ERROR_STORAGE</code></td>
+<td><code>BUFFER_TOO_SHORT</code> + <code>STORAGE</code> for capacity; invalid alignment/extents/overlap/options -&gt; <code>INVALID_ARG</code> + <code>ARGUMENT</code>, subject to pre-initialization guards.</td>
+</tr>
+<tr>
+<td><code>TLV_QUERY_ERROR_EVENTS</code></td>
+<td>Invalid structural feed -&gt; <code>INVALID_VALUE</code> + <code>EVENTS</code>; lifecycle/reentrancy -&gt; <code>INVALID_STATE</code> + <code>STATE</code>; deliberate visitor error -&gt; <code>VISITOR</code> + <code>CALLBACK</code>; callback contract violation -&gt; <code>CALLBACK</code> + <code>CALLBACK</code>.</td>
+</tr>
+<tr>
+<td><code>TLV_QUERY_ERROR_SOURCE</code></td>
+<td>Required metadata absent on supplied data -&gt; <code>INVALID_VALUE</code> + <code>SOURCE</code>; backend cannot provide the requested metadata at all -&gt; <code>UNSUPPORTED</code> + <code>SOURCE</code>. Neither invents an offset.</td>
+</tr>
+<tr>
+<td><code>TLV_QUERY_ERROR_READER</code></td>
+<td>Preserve the Reader result and typed detail, including <code>LIMIT</code>, <code>BUFFER_TOO_SHORT</code>, <code>TLV_END</code> or <code>TLV_NEED_MORE_DATA</code>.</td>
+</tr>
+<tr>
+<td><code>TLV_QUERY_ERROR_BINDING</code></td>
+<td>Missing/unknown/duplicate/incompatible variable binding -&gt; <code>INVALID_VALUE</code> + <code>BINDING</code>; NULL API pointer -&gt; <code>NULL_ARG</code> + <code>ARGUMENT</code>; invalid binding array extent -&gt; <code>INVALID_ARG</code> + <code>ARGUMENT</code>.</td>
+</tr>
+<tr>
+<td><code>TLV_QUERY_ERROR_CARDINALITY</code></td>
+<td><code>INVALID_VALUE</code> + <code>CARDINALITY</code>; expected/actual counts are typed detail.</td>
+</tr>
+<tr>
+<td><code>TLV_QUERY_ERROR_CODEC</code></td>
+<td>Preserve the shared result and typed conversion cause under <code>CODEC</code>; bad successful hook payload -&gt; <code>CALLBACK</code> + <code>CALLBACK</code>.</td>
+</tr>
+<tr>
+<td><code>TLV_QUERY_ERROR_IMAGE_VERSION</code></td>
+<td>Recognized incompatible version -&gt; <code>UNSUPPORTED</code> + <code>IMAGE_VERSION</code>; malformed image -&gt; <code>INVALID_VALUE</code> + <code>IMAGE</code>.</td>
+</tr>
+</tbody>
+</table>
+<p>Adapter failures under <code>CAPABILITY</code> are propagation, not a claim that their
+result is <code>UNSUPPORTED</code>. Invalid adapter success payloads instead use
+<code>CALLBACK</code>. Query-owned numeric overflow remains <code>OVERFLOW</code> with <code>TYPE</code> detail;
+do not label it an unsupported feature.</p>
+<h3 id="every-current-schema-issue-kind">Every current Schema issue kind<a class="headerlink" href="#every-current-schema-issue-kind" title="Permanent link">&para;</a></h3>
+<table>
+<thead>
+<tr>
+<th>Current kind</th>
+<th>Target result/detail rule</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>TLV_SCHEMA_ISSUE_MISSING</code></td>
+<td><code>SCHEMA</code> + <code>MISSING</code>; absent Tag and scope-end/insertion anchor.</td>
+</tr>
+<tr>
+<td><code>TLV_SCHEMA_ISSUE_DUPLICATE</code></td>
+<td><code>SCHEMA</code> + <code>DUPLICATE</code>; maximum and actual occurrence counts.</td>
+</tr>
+<tr>
+<td><code>TLV_SCHEMA_ISSUE_UNEXPECTED</code></td>
+<td><code>SCHEMA</code> + <code>UNEXPECTED</code>; prohibited/unknown Tag in context.</td>
+</tr>
+<tr>
+<td><code>TLV_SCHEMA_ISSUE_KIND</code></td>
+<td><code>SCHEMA</code> + <code>KIND</code>; required/actual primitive or constructed form.</td>
+</tr>
+<tr>
+<td><code>TLV_SCHEMA_ISSUE_LENGTH</code></td>
+<td><code>SCHEMA</code> + <code>LENGTH</code>; Value size, bounds and multiple.</td>
+</tr>
+<tr>
+<td><code>TLV_SCHEMA_ISSUE_ORDER</code></td>
+<td><code>SCHEMA</code> + <code>ORDER</code>; schema ordering rule and offending element.</td>
+</tr>
+<tr>
+<td><code>TLV_SCHEMA_ISSUE_ASSERTION</code></td>
+<td><code>SCHEMA</code> + <code>ASSERTION</code> for false boolean assertions. Query evaluation errors preserve their own result and Query detail instead.</td>
+</tr>
+</tbody>
+</table>
+<h3 id="every-current-reader-and-writer-operation">Every current Reader and Writer operation<a class="headerlink" href="#every-current-reader-and-writer-operation" title="Permanent link">&para;</a></h3>
+<p>Operation identifies the failed step, not a result class. All retain their
+typed operation names; propagated callbacks retain that same step and cause.</p>
+<table>
+<thead>
+<tr>
+<th>Current operation</th>
+<th>Target interpretation</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>TLV_READER_OP_TAG</code></td>
+<td>Identifier decoding.</td>
+</tr>
+<tr>
+<td><code>TLV_READER_OP_LENGTH</code></td>
+<td>Length decoding; whole-header operations use <code>HEADER</code> when the Format can identify them as such.</td>
+</tr>
+<tr>
+<td><code>TLV_READER_OP_VALUE</code></td>
+<td>Available Value extent or enclosing boundary.</td>
+</tr>
+<tr>
+<td><code>TLV_READER_OP_TRAILER</code></td>
+<td>Trailer/terminator framing.</td>
+</tr>
+<tr>
+<td><code>TLV_READER_OP_HEADER</code></td>
+<td>Whole header or an unnamed header field.</td>
+</tr>
+<tr>
+<td><code>TLV_WRITER_OP_TAG</code></td>
+<td>Identifier encoding.</td>
+</tr>
+<tr>
+<td><code>TLV_WRITER_OP_LENGTH</code></td>
+<td>Length encoding.</td>
+</tr>
+<tr>
+<td><code>TLV_WRITER_OP_VALUE</code></td>
+<td>Value publication.</td>
+</tr>
+<tr>
+<td><code>TLV_WRITER_OP_HEADER</code></td>
+<td>Header framing.</td>
+</tr>
+<tr>
+<td><code>TLV_WRITER_OP_TRAILER</code></td>
+<td>Trailer framing.</td>
+</tr>
+<tr>
+<td><code>TLV_WRITER_OP_COPY</code></td>
+<td>Raw encoded copy.</td>
+</tr>
+<tr>
+<td><code>TLV_WRITER_OP_PRESERVE</code></td>
+<td>Exact source preservation; changed semantic content is <code>INVALID_VALUE</code>.</td>
+</tr>
+<tr>
+<td><code>TLV_WRITER_OP_BEGIN</code></td>
+<td>Begin constructed output.</td>
+</tr>
+<tr>
+<td><code>TLV_WRITER_OP_END</code></td>
+<td>End constructed output; scratch shortage is <code>BUFFER_TOO_SHORT</code>, while invalid lifecycle is <code>INVALID_STATE</code>.</td>
+</tr>
+</tbody>
+</table>
+<p>The remaining control vocabulary is unchanged: <code>TLV_VISIT_CONTINUE</code> continues,
+<code>TLV_VISIT_STOP</code> succeeds early, and <code>TLV_VISIT_ERROR</code> produces <code>VISITOR</code>.
+<code>TLV_DIAGNOSTIC_SEVERITY_ERROR</code>, <code>WARNING</code> and <code>INFO</code> remain presentation levels.
+Unknown visitor discriminators produce <code>CALLBACK</code>.</p>
+<h3 id="concrete-producer-changes">Concrete producer changes<a class="headerlink" href="#concrete-producer-changes" title="Permanent link">&para;</a></h3>
+<table>
+<thead>
+<tr>
+<th>Current producer or behavior</th>
+<th>Required target change</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>tlv_value_constraint_validate()</code> returns <code>SCHEMA</code> for invalid bounds, enum or allowed-values storage</td>
+<td>Validate the definition as <code>INVALID_SCHEMA</code>; valid constraints rejecting data produce <code>SCHEMA</code> + <code>VALUE</code>.</td>
+</tr>
+<tr>
+<td>Generic Schema rule/group validation uses <code>SCHEMA</code> in fail-fast validation and <code>INVALID_ARG</code> in report preflight</td>
+<td>Invalid definition -&gt; <code>INVALID_SCHEMA</code>, independent of which validation entry point is called.</td>
+</tr>
+<tr>
+<td>Generic Schema/LLDP/DHCP required-field checks and DER missing components differ</td>
+<td><code>SCHEMA</code> + <code>MISSING</code>; preserve builtin-owned requirements and explicit location anchors.</td>
+</tr>
+<tr>
+<td>DER maximum depth exceeds <code>TLV_DER_MAX_DEPTH</code></td>
+<td>Valid request beyond implementation capability -&gt; <code>UNSUPPORTED</code>; actual input exceeding the accepted configured depth remains <code>LIMIT</code>.</td>
+</tr>
+<tr>
+<td>DER arena/scratch and Tree Reader frame exhaustion use <code>LIMIT</code></td>
+<td><code>BUFFER_TOO_SHORT</code> with named workspace and capacity units.</td>
+</tr>
+<tr>
+<td>DER required component has a different callback presence/size between measurement and encoding</td>
+<td><code>CALLBACK</code>, not input <code>SCHEMA</code> or <code>INVALID_VALUE</code>.</td>
+</tr>
+<tr>
+<td>Query successful codec hook returns wrong type, nonempty NULL data or invalid UTF-8</td>
+<td><code>CALLBACK</code>; record successful provider result and the violated output contract instead of inventing a codec failure.</td>
+</tr>
+<tr>
+<td>Query currently maps every codec error to <code>INVALID_VALUE</code></td>
+<td>Propagate the new shared result and conversion detail.</td>
+</tr>
+<tr>
+<td>Structure Codec collapses all validation failures</td>
+<td>Preserve the original Reader/Schema result and detail.</td>
+</tr>
+<tr>
+<td>Query lifecycle/provider/argument failures use temporary #548 categories</td>
+<td>Apply the Query table while retaining pre-initialization safety guards.</td>
+</tr>
+<tr>
+<td>Diagnostic path overflows its optional inline capacity</td>
+<td>Retain outer ancestors and <code>omitted</code>; do not turn a deeper input error into a location-collection error.</td>
+</tr>
+</tbody>
+</table>
+<h2 id="implementation-handoff-and-validation">Implementation handoff and validation<a class="headerlink" href="#implementation-handoff-and-validation" title="Permanent link">&para;</a></h2>
+<p>This design completes #551. Issue #552 implements <code>INVALID_STATE</code>, Query kind
+<code>STATE</code>, facade mappings and <code>INVALID_VALUE</code> for malformed structural feeds.
+Other Query detail kinds, callback payload classifications and result classes
+remain until their migration. In particular, impossible preorder depth returned
+by a Tree Writer source callback still uses <code>INVALID_ARG</code>; the planned <code>CALLBACK</code>
+result is follow-up work. No append-only or numeric ABI guarantee is attached to
+<code>INVALID_STATE = 19</code> or <code>STATE = 12</code>. The complete target API is not yet available.
+The follow-up implementation replaces enums/signatures/layouts directly and
+updates their Doxygen contracts. It must cover common result strings, all
+native producers, C++ facades, Go/Rust/Python/Lua/JS-WASM, CLI rendering and
+binding ownership/ABI declarations together. Rebuild native clients; regenerate
+ABI snapshots and serialized internal Query images as needed. Do not preserve
+obsolete enum numbers or introduce a translation mode for the old behavior.</p>
+<p>Implementation acceptance requires the following semantic checks, in addition
+to documentation and build checks:</p>
 <ul>
-<li>fixed-width integer</li>
-<li>variable-width integer</li>
-<li>continuation encoding</li>
-<li>protocol-specific representation</li>
+<li>Every result and detail in the inventory has a target producer classification;
+  no old enum name, codec conversion table or offset-only error signature remains.</li>
+<li>Invalid schema definitions are distinguishable from input violations before
+  validating data; missing requirements behave uniformly across builtins.</li>
+<li>Final truncation, non-final shortage, normal EOF, destination shortage,
+  workspace shortage and processing budgets have distinct specified outcomes.</li>
+<li>Reader and Codec failures survive Query/Schema/Document composition with their
+  result, origin and typed detail. Reader limit tests include the frame-capacity
+  reclassification and safe absent detail.</li>
+<li>Legitimate callback errors, valid early stops and invalid successful callback
+  payloads exercise separate paths; providers are not called twice for diagnosis.</li>
+<li>Locations cover known zero, unknown, empty EOF spans, nested origins, absent
+  ordered/unordered components, DER hypothetical output and truncated paths.</li>
+<li>Existing #548 aliasing, reentrancy, failed-execution and diagnostic publication
+  tests remain effective under the target codes and kinds. #549/#550 coverage
+  retains output-position and path information.</li>
+<li>Unit, integration, standalone fuzz assertions, capability-disabled builds,
+  ABI checks and public binding conformance use the same target semantics.
+  Targeted local success must be reported separately from full hosted coverage.</li>
 </ul>
-<p>while the resulting logical value size is represented using OpenTLV's
-size type.</p>
-<p>Never assume:</p>
-<div class="highlight"><pre><span></span><code><a id="__codelineno-10-1" name="__codelineno-10-1" href="#__codelineno-10-1"></a>encoded length bytes == size_t
-</code></pre></div>
-<p>and never perform unchecked conversions to <code>size_t</code>.</p>
-<hr />
-<h2 id="9-writer-regenerates-wire-representation">9. Writer regenerates wire representation<a class="headerlink" href="#9-writer-regenerates-wire-representation" title="Permanent link">&para;</a></h2>
-<p>An Element represents logical TLV information.</p>
-<p>When writing an Element using a Format, the Writer generates the wire
-representation required by the destination Format.</p>
-<p>Therefore a parsed Length encoding must not force the Writer to reproduce
-the original Length bytes unless an explicit lossless/raw mode requires it.</p>
-<p>In the current API, exact preservation uses <code>tlv_source_preserve()</code> with the
-original immutable source and semantically unchanged content. Changed content
-requires fresh encoding; preservation must reject it rather than reuse stale
-framing. A destination Format may reject identifiers or values it cannot
-represent; conversion does not implicitly remap identifier identity.</p>
-<p>This enables transformations such as:</p>
-<div class="highlight"><pre><span></span><code><a id="__codelineno-11-1" name="__codelineno-11-1" href="#__codelineno-11-1"></a>source Format A
-<a id="__codelineno-11-2" name="__codelineno-11-2" href="#__codelineno-11-2"></a>    ↓
-<a id="__codelineno-11-3" name="__codelineno-11-3" href="#__codelineno-11-3"></a>  Element
-<a id="__codelineno-11-4" name="__codelineno-11-4" href="#__codelineno-11-4"></a>    ↓
-<a id="__codelineno-11-5" name="__codelineno-11-5" href="#__codelineno-11-5"></a>destination Format B
-</code></pre></div>
-<hr />
-<h2 id="10-source-location-is-metadata-not-element-identity">10. Source location is metadata, not Element identity<a class="headerlink" href="#10-source-location-is-metadata-not-element-identity" title="Permanent link">&para;</a></h2>
-<p>Source offsets/ranges are important for:</p>
-<ul>
-<li>diagnostics</li>
-<li>editors</li>
-<li>Wireshark integration</li>
-<li>highlighting</li>
-<li>Document</li>
-<li>Query results</li>
-</ul>
-<p>but they do not define the logical Element.</p>
-<p>Therefore source location belongs to Reader/Layout/Source/Diagnostics metadata,
-rather than polluting the format-independent Element contract.</p>
-<hr />
-<h2 id="11-borrow-by-default">11. Borrow by default<a class="headerlink" href="#11-borrow-by-default" title="Permanent link">&para;</a></h2>
-<p>Core parsing should remain zero/minimal-copy.</p>
-<p>Parsed elements normally borrow their Value and identifier bytes from the
-input buffer. Formats with transformed identifiers may borrow immutable
-format-supplied identifier storage under the <a href="../format-contract/#decoded-identifier-consistency">Format contract</a>;
-Value still borrows the input. All borrowed storage must outlive retained results.</p>
-<p>Therefore:</p>
-<ul>
-<li>Element does not own the source buffer.</li>
-<li>Reader/document lifetime contracts must be explicit.</li>
-<li>Bindings may provide safer ownership wrappers.</li>
-<li>Core must not silently allocate just to simplify ownership.</li>
-</ul>
-<hr />
-<h2 id="12-reader-must-not-require-schema-or-codec">12. Reader must not require Schema or Codec<a class="headerlink" href="#12-reader-must-not-require-schema-or-codec" title="Permanent link">&para;</a></h2>
-<p>The basic parser pipeline must work as:</p>
-<div class="highlight"><pre><span></span><code><a id="__codelineno-12-1" name="__codelineno-12-1" href="#__codelineno-12-1"></a>bytes
-<a id="__codelineno-12-2" name="__codelineno-12-2" href="#__codelineno-12-2"></a>  ↓
-<a id="__codelineno-12-3" name="__codelineno-12-3" href="#__codelineno-12-3"></a>Format
-<a id="__codelineno-12-4" name="__codelineno-12-4" href="#__codelineno-12-4"></a>  ↓
-<a id="__codelineno-12-5" name="__codelineno-12-5" href="#__codelineno-12-5"></a>Reader
-<a id="__codelineno-12-6" name="__codelineno-12-6" href="#__codelineno-12-6"></a>  ↓
-<a id="__codelineno-12-7" name="__codelineno-12-7" href="#__codelineno-12-7"></a>Element
-</code></pre></div>
-<p>Schema and Codec are optional higher-level functionality.</p>
-<p>Therefore it must always be possible to parse unknown TLV data without
-having a Schema or Codec.</p>
-<hr />
-<h2 id="13-tlv-ltv-is-ordering-not-a-separate-architecture">13. TLV / LTV is ordering, not a separate architecture<a class="headerlink" href="#13-tlv-ltv-is-ordering-not-a-separate-architecture" title="Permanent link">&para;</a></h2>
-<p>TLV and LTV describe field ordering.</p>
-<p>For example:</p>
-<div class="highlight"><pre><span></span><code><a id="__codelineno-13-1" name="__codelineno-13-1" href="#__codelineno-13-1"></a>TLV = Tag → Length → Value
-<a id="__codelineno-13-2" name="__codelineno-13-2" href="#__codelineno-13-2"></a>LTV = Length → Tag → Value
-</code></pre></div>
-<p>Generic Format configuration should represent this as field ordering.</p>
-<p>Do not create completely separate parser architectures merely because
-the fields appear in a different order.</p>
-<p>Bluetooth LTV can therefore reuse generic ordering primitives while keeping
-Bluetooth-specific semantics inside the Bluetooth extension.</p>
-<hr />
-<h2 id="14-otlv-is-declarative">14. OTLV is declarative<a class="headerlink" href="#14-otlv-is-declarative" title="Permanent link">&para;</a></h2>
-<p><code>.otlv</code> must describe data, not implement programs.</p>
-<p>Do not introduce general control-flow constructs such as:</p>
-<div class="highlight"><pre><span></span><code><a id="__codelineno-14-1" name="__codelineno-14-1" href="#__codelineno-14-1"></a>if / else
-<a id="__codelineno-14-2" name="__codelineno-14-2" href="#__codelineno-14-2"></a>for
-<a id="__codelineno-14-3" name="__codelineno-14-3" href="#__codelineno-14-3"></a>while
-<a id="__codelineno-14-4" name="__codelineno-14-4" href="#__codelineno-14-4"></a>switch
-<a id="__codelineno-14-5" name="__codelineno-14-5" href="#__codelineno-14-5"></a>break
-<a id="__codelineno-14-6" name="__codelineno-14-6" href="#__codelineno-14-6"></a>continue
-</code></pre></div>
-<p>Use declarative primitives instead:</p>
-<ul>
-<li>variants</li>
-<li>identifiers</li>
-<li>ranges</li>
-<li>counts</li>
-<li>repetition</li>
-<li>continuation</li>
-<li>until</li>
-<li>size</li>
-<li>references</li>
-<li>constraints</li>
-</ul>
-<p>If OpenTLV needs a general-purpose programming language to describe a TLV
-format, the abstraction is probably wrong.</p>
-<hr />
-<h2 id="15-new-functionality-does-not-automatically-mean-a-new-layer">15. New functionality does not automatically mean a new layer<a class="headerlink" href="#15-new-functionality-does-not-automatically-mean-a-new-layer" title="Permanent link">&para;</a></h2>
-<p>Before adding another architectural layer, determine whether the concept is
-actually:</p>
-<ul>
-<li>a Format property</li>
-<li>Schema constraint</li>
-<li>Codec</li>
-<li>Definition metadata</li>
-<li>Layout/runtime metadata</li>
-<li>reusable primitive</li>
-<li>extension</li>
-<li>preset</li>
-<li>tooling</li>
-</ul>
-<p>A module is a reusable unit that may provide any subset of OpenTLV capabilities:
-Definition, Format, Schema and Codec. A definition-only module or a format-only
-module is valid. Module describes composition; it adds no architectural layer.</p>
-<p>Builtins are functionality implemented natively and optionally compiled into
-OpenTLV. They remain independent of modules and of the future <code>.otlv</code> runtime
-interpreter. <code>.otlv</code> is a runtime description, not a requirement for using a
-builtin. Native C, runtime <code>.otlv</code> and future generated code must supply the
-same contracts to the generic core. No runtime engine is introduced here.</p>
-<hr />
-<h2 id="16-standards-should-be-compositions-of-generic-primitives">16. Standards should be compositions of generic primitives<a class="headerlink" href="#16-standards-should-be-compositions-of-generic-primitives" title="Permanent link">&para;</a></h2>
-<p>A standard implementation should ideally look like:</p>
-<div class="highlight"><pre><span></span><code><a id="__codelineno-15-1" name="__codelineno-15-1" href="#__codelineno-15-1"></a>generic OpenTLV primitives
-<a id="__codelineno-15-2" name="__codelineno-15-2" href="#__codelineno-15-2"></a>          +
-<a id="__codelineno-15-3" name="__codelineno-15-3" href="#__codelineno-15-3"></a>    standard configuration
-<a id="__codelineno-15-4" name="__codelineno-15-4" href="#__codelineno-15-4"></a>          +
-<a id="__codelineno-15-5" name="__codelineno-15-5" href="#__codelineno-15-5"></a>  standard-specific semantics
-</code></pre></div>
-<p>rather than:</p>
-<div class="highlight"><pre><span></span><code><a id="__codelineno-16-1" name="__codelineno-16-1" href="#__codelineno-16-1"></a>completely separate parser
-</code></pre></div>
-<p>Examples:</p>
-<ul>
-<li>Bluetooth may be a preset/configuration over generic Fixed/LTV primitives.</li>
-<li>BER uses generic Format mechanisms plus BER-specific rules.</li>
-<li>EMV builds on generic TLV + Schema + Codec + Definition functionality.</li>
-</ul>
-<p>Whenever a standard exposes a reusable concept, move the concept into the
-generic layer and keep only the standard-specific policy in the extension.</p>
-<hr />
-<h2 id="17-phase-1-must-prove-genericity">17. Phase 1 must prove genericity<a class="headerlink" href="#17-phase-1-must-prove-genericity" title="Permanent link">&para;</a></h2>
-<p>Phase 1 discovers, generalizes, validates and stabilizes the generic C execution
-foundation. Independent standards such as BER/EMV, Bluetooth, LLDP, DHCP, NFC
-and future formats serve as a playground for discovering missing primitives
-and refining the shared taxonomy, not as a claim of implemented support.</p>
-<p>Phase 2 requirements guide Phase 1 design without requiring premature runtime
-model implementation. For every generic primitive, ask:</p>
-<ol>
-<li>Can it represent the required real-world TLV format generically?</li>
-<li>Could a future declarative model and canonical IR describe it completely?</li>
-<li>Could both runtime lowering and future code generation consume it?</li>
-</ol>
-<p>Before considering it complete, it should demonstrate that genuinely
-different TLV families can be represented without protocol-specific hacks.</p>
-<p>The architecture should be tested against formats with differences such as:</p>
-<ul>
-<li>TLV vs LTV</li>
-<li>fixed vs variable fields</li>
-<li>different tag encodings</li>
-<li>different length encodings</li>
-<li>different endian rules</li>
-<li>primitive / constructed elements</li>
-<li>BER-style formats</li>
-<li>Bluetooth-style formats</li>
-<li>absent explicit Tag or Length fields</li>
-<li>additional Header fields and Trailer framing</li>
-<li>semantic round trips and exact preservation of unchanged source bytes</li>
-</ul>
-<p>If supporting another legitimate TLV format requires bypassing the core
-architecture, the Phase 1 abstraction is not generic enough yet.</p>
-<hr />
-<h2 id="18-features-must-remain-independently-usable">18. Features must remain independently usable<a class="headerlink" href="#18-features-must-remain-independently-usable" title="Permanent link">&para;</a></h2>
-<p>Users should be able to use only the parts they need.</p>
-<p>For example:</p>
-<div class="highlight"><pre><span></span><code><a id="__codelineno-17-1" name="__codelineno-17-1" href="#__codelineno-17-1"></a>Reader only
-<a id="__codelineno-17-2" name="__codelineno-17-2" href="#__codelineno-17-2"></a>Reader + Schema
-<a id="__codelineno-17-3" name="__codelineno-17-3" href="#__codelineno-17-3"></a>Reader + Codec
-<a id="__codelineno-17-4" name="__codelineno-17-4" href="#__codelineno-17-4"></a>Document + Query
-<a id="__codelineno-17-5" name="__codelineno-17-5" href="#__codelineno-17-5"></a>full runtime OTLV stack
-</code></pre></div>
-<p>Capabilities compose through explicit integrations rather than mandatory
-ownership dependencies. Core primitives form the stable foundation; Reader,
-Writer, Document, Query, Schema and Codec are capabilities above that foundation.
-Document is an owned tree, not intrinsically the output of Reader. Wire import,
-wire serialization and query evaluation belong to their integration boundaries.</p>
-<p>The build graph must implement <strong>pay only for what you use</strong>: disabling a
-capability excludes its implementation while unrelated capabilities remain usable.
-Linker dead stripping alone does not satisfy this requirement. Convenient binding
-methods such as <code>document.parse()</code> or <code>document.write()</code> do not change C dependency
-ownership. Future Dump, export, model and inference operations should compose with
-their data sources rather than becoming intrinsic Document responsibilities.</p>
-<p>Disabled functionality must introduce no unnecessary:</p>
-<ul>
-<li>runtime cost</li>
-<li>binary-size cost</li>
-<li>dependency cost</li>
-</ul>
-<p>Higher layers depend on lower layers, not the reverse.</p>
-<hr />
-<h2 id="19-bindings-expose-the-same-opentlv-model">19. Bindings expose the same OpenTLV model<a class="headerlink" href="#19-bindings-expose-the-same-opentlv-model" title="Permanent link">&para;</a></h2>
-<p>Rust, Python, Go, Java, Lua, WASM and other bindings should not invent
-different conceptual APIs.</p>
-<p>The language ergonomics may differ, but users should still recognize:</p>
-<ul>
-<li>Format</li>
-<li>Reader</li>
-<li>Writer</li>
-<li>Element</li>
-<li>Schema</li>
-<li>Codec</li>
-<li>Document</li>
-<li>Query</li>
-<li>Diagnostics</li>
-</ul>
-<p>Learning OpenTLV in one language should transfer to another language.</p>
-<p>Every supported binding must expose the complete public C capability set
-through its public, idiomatic language facade. Raw FFI access alone does not
-satisfy parity, and users must not need to bypass the facade for advanced
-operations. Exposing raw FFI publicly is optional.</p>
-<p>The facade adapts ownership, lifetimes, iteration and error handling while
-delegating processing semantics to the C engine. It must not implement an
-independent parser, tree traversal engine, Query semantics or wire encoder.
-See the <a href="../bindings/#capability-parity-through-the-public-facade">binding capability contract</a>
-for scope, ownership requirements and how existing gaps are tracked.</p>
-<hr />
-<h2 id="20-ergonomics-belong-above-the-stable-core">20. Ergonomics belong above the stable core<a class="headerlink" href="#20-ergonomics-belong-above-the-stable-core" title="Permanent link">&para;</a></h2>
-<p>The C core defines the stable low-level contracts.</p>
-<p>Higher-level APIs may provide:</p>
-<ul>
-<li>RAII</li>
-<li>ownership</li>
-<li>iterators</li>
-<li>exceptions/results</li>
-<li>Pythonic APIs</li>
-<li>Rust lifetimes</li>
-<li>Java objects</li>
-<li>Lua tables/userdata</li>
-</ul>
-<p>without changing the semantics of the underlying OpenTLV model.</p>
-<hr />
-<h2 id="21-diagnostics-must-preserve-useful-raw-context">21. Diagnostics must preserve useful raw context<a class="headerlink" href="#21-diagnostics-must-preserve-useful-raw-context" title="Permanent link">&para;</a></h2>
-<p>Diagnostics should be layered on top of the normal parsing model rather than
-requiring a separate parser.</p>
-<p>Useful diagnostic information includes:</p>
-<ul>
-<li>error code</li>
-<li>source offset</li>
-<li>identifier/tag</li>
-<li>path</li>
-<li>expected value</li>
-<li>actual value</li>
-<li>schema context</li>
-<li>raw/declared length information where relevant</li>
-</ul>
-<p>Fast paths that do not request diagnostics should not be forced to pay the
-full diagnostics cost.</p>
-<p>The <a href="../error-model/">failure model</a> decides the target Result / Detail / Location /
-Propagation contract (#551). Results classify generic conditions; protocol and
-operation specifics belong in typed detail. Invalid schema definitions are
-distinct from input violations, and location shape does not determine a result
-class. Higher layers preserve delegated results and cause detail. Common
-diagnostics may be embedded in specialized value types; text contexts do not
-replace machine-readable detail.</p>
-<p>The design permits breaking enum, signature and layout replacement, including
-a shared result domain for Codec. These are implementation requirements, not
-claims about the current ABI. The <a href="../../reference/errors/">error reference</a>
-documents the implemented behavior until that migration is complete.</p>
-<hr />
-<h2 id="22-opentlv-scope-remains-binary-tlv">22. OpenTLV scope remains binary TLV<a class="headerlink" href="#22-opentlv-scope-remains-binary-tlv" title="Permanent link">&para;</a></h2>
-<p>Even when implementing ASN.1-related functionality, OpenTLV remains focused
-on binary TLV representation.</p>
-<p>For ASN.1/X.680/X.690 this means reusing relevant concepts across:</p>
-<div class="highlight"><pre><span></span><code><a id="__codelineno-18-1" name="__codelineno-18-1" href="#__codelineno-18-1"></a>Format
-<a id="__codelineno-18-2" name="__codelineno-18-2" href="#__codelineno-18-2"></a>Schema
-<a id="__codelineno-18-3" name="__codelineno-18-3" href="#__codelineno-18-3"></a>Codec
-</code></pre></div>
-<p>without turning OpenTLV core into:</p>
-<ul>
-<li>an ASN.1 language parser</li>
-<li>ASN.1 AST</li>
-<li>module/import system</li>
-<li>complete ASN.1 compiler</li>
-<li>complete ASN.1 constraint language</li>
-</ul>
-<p>Generic capabilities discovered while implementing ASN.1 should become
-OpenTLV primitives where appropriate.</p>
-<hr />
-<h2 id="architectural-invariant">Architectural invariant<a class="headerlink" href="#architectural-invariant" title="Permanent link">&para;</a></h2>
-<p>A useful test for every future OpenTLV feature is:</p>
-<blockquote>
-<p>Can this functionality be expressed using the existing generic contracts
-without teaching the core about a particular protocol or creating a parallel
-representation of the same concept?</p>
-</blockquote>
-<p>If yes, compose the existing architecture.</p>
-<p>If no, first determine whether OpenTLV is missing a genuinely generic primitive
-before introducing protocol-specific machinery.</p>
+<p>Use this inventory to implement producer changes, then update the
+<a href="../../reference/errors/">error reference</a> to the resulting public API. Keep
+protocol policy in builtins and generic error semantics in the common contract.</p>
 
 
 
@@ -4879,7 +4887,7 @@ before introducing protocol-specific machinery.</p>
       <nav class="md-footer__inner md-grid" aria-label="Footer" >
         
           
-          <a href="../processing-pipeline/" class="md-footer__link md-footer__link--prev" aria-label="Previous: Processing pipeline">
+          <a href="../architectural-rules/" class="md-footer__link md-footer__link--prev" aria-label="Previous: Core architectural rules">
             <div class="md-footer__button md-icon">
               
               <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M20 11v2H8l5.5 5.5-1.42 1.42L4.16 12l7.92-7.92L13.5 5.5 8 11z"/></svg>
@@ -4889,20 +4897,20 @@ before introducing protocol-specific machinery.</p>
                 Previous
               </span>
               <div class="md-ellipsis">
-                Processing pipeline
+                Core architectural rules
               </div>
             </div>
           </a>
         
         
           
-          <a href="../error-model/" class="md-footer__link md-footer__link--next" aria-label="Next: Failure model design">
+          <a href="../format-contract/" class="md-footer__link md-footer__link--next" aria-label="Next: Format and Element contract">
             <div class="md-footer__title">
               <span class="md-footer__direction">
                 Next
               </span>
               <div class="md-ellipsis">
-                Failure model design
+                Format and Element contract
               </div>
             </div>
             <div class="md-footer__button md-icon">

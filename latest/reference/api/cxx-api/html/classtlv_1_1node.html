@@ -169,7 +169,7 @@ Friends</h2></td></tr>
 </table>
 <a name="details" id="details"></a><h2 class="groupheader">Detailed Description</h2>
 <div class="textblock"><p>A non-owning handle to one element of a <a class="el" href="classtlv_1_1document.html" title="An owned, mutable TLV document.">tlv::document</a>. </p>
-<p>Copies retain identity and retirement epoch and borrow one shared lifetime record. Node observation/copying allocates nothing. After an edit retires any Node, the first access through each retained handle performs an O(number of nodes) membership check before dereferencing it; subsequent accesses at that epoch are O(1). Insertions and primitive Value replacement preserve this cache because no Node retires. Borrowed Value bytes still invalidate when their Value is replaced. Handles do not own the Document or its tree. Moving a Document preserves handles. Erasure invalidates the erased subtree; replacing a constructed Value invalidates its descendants only. Destruction or replacement of the owning Document invalidates all its handles. Invalid handles test false and accessors return empty results; fallible operations return INVALID_ARG. Tag and Value views borrow storage and must not be retained across invalidating edits or destruction. </p><dl class="section warning"><dt>Warning</dt><dd>Operations are not thread-safe. Const access can update the handle's validity cache; externally synchronize concurrent access to a shared handle, including read-only access after a Document mutation has completed. </dd></dl>
+<p>Copies retain identity and retirement epoch and borrow one shared lifetime record. Node observation/copying allocates nothing. After an edit retires any Node, the first access through each retained handle performs an O(number of nodes) membership check before dereferencing it; subsequent accesses at that epoch are O(1). Insertions and primitive Value replacement preserve this cache because no Node retires. Borrowed Value bytes still invalidate when their Value is replaced. Handles do not own the Document or its tree. Moving a Document preserves handles. Erasure invalidates the erased subtree; replacing a constructed Value invalidates its descendants only. Destruction or replacement of the owning Document invalidates all its handles. Invalid handles test false and accessors return empty results; fallible operations return INVALID_STATE. Tag and Value views borrow storage and must not be retained across invalidating edits or destruction. </p><dl class="section warning"><dt>Warning</dt><dd>Operations are not thread-safe. Const access can update the handle's validity cache; externally synchronize concurrent access to a shared handle, including read-only access after a Document mutation has completed. </dd></dl>
 </div><h2 class="groupheader">Constructor &amp; Destructor Documentation</h2>
 <a id="a9fde6ac58e64c18d9adde1232d8f84a3" name="a9fde6ac58e64c18d9adde1232d8f84a3"></a>
 <h2 class="memtitle"><span class="permalink"><a href="#a9fde6ac58e64c18d9adde1232d8f84a3">&#9670;&#160;</a></span>node()</h2>
@@ -565,7 +565,7 @@ template&lt;typename Field &gt; </div>
   </table>
   </dd>
 </dl>
-<dl class="section return"><dt>Returns</dt><dd>New child or the C insertion error; invalid handles return INVALID_ARG. </dd></dl>
+<dl class="section return"><dt>Returns</dt><dd>New child or the C insertion error; invalid handles return INVALID_STATE. </dd></dl>
 <dl class="section note"><dt>Note</dt><dd>Existing handles and iterators remain valid. Failed insertion changes nothing. </dd></dl>
 
 </div>
