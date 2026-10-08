@@ -256,7 +256,7 @@ Format policy still applies to complete-element writes: the BER indefinite
 preset only encodes constructed elements, while CER selects definite framing
 for primitive elements and indefinite framing for constructed elements.
 
-## Reader → transform → Writer
+## Reader â†’ transform â†’ Writer
 
 Pull `tlv_tree_reader_next_event()` and pass each successful event directly to
 `tlv_tree_writer_write_event()`, optionally modifying node content between them.
@@ -272,7 +272,7 @@ structural stream.
 
 Input and output remain separate. In default mode BEGIN borrows its Tag until END.
 Use `tlv_tree_writer_set_tag_storage()` with disjoint caller-owned bytes to retain
-open Tags independently of a replaceable Reader buffer; exhaustion returns LIMIT.
+open Tags independently of a replaceable Reader buffer; exhaustion returns `BUFFER_TOO_SHORT`.
 On Writer failure retain the current event for retry before pulling another one.
 NEED_MORE_DATA publishes nothing and does not close scopes. No Document is required;
 Tree Reader still requires a complete parent before BEGIN. Format conversion may
@@ -348,7 +348,8 @@ If storage is too small, `required_data` and/or `required_scratch` identify the
 next required capacities. The caller may grow storage and restart from a fresh
 source. These fields are reset for every call; a callback returning
 `TLV_ERR_BUFFER_TOO_SHORT` does not set them and must not trigger a storage retry.
-Frame exhaustion and configured traversal limits return `TLV_ERR_LIMIT`.
+Frame exhaustion returns `TLV_ERR_BUFFER_TOO_SHORT`; exceeding a configured
+traversal budget returns `TLV_ERR_LIMIT`.
 
 This operation never allocates or recurses. It can call both Format measure and
 encode callbacks, and failures may modify workspace bytes. Source Tags remain

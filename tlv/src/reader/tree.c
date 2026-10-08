@@ -91,7 +91,8 @@ tlv_result_t tlv_tree_reader_next_event_diag(tlv_tree_reader_t* reader, tlv_tree
     input = reader->input;
     depth = reader->depth;
     if (reader->descend_pending) {
-        if (depth == reader->max_depth || depth == reader->capacity) return TLV_ERR_LIMIT;
+        if (depth == reader->max_depth) return TLV_ERR_LIMIT;
+        if (depth == reader->capacity) return TLV_ERR_BUFFER_TOO_SHORT;
         ++depth;
         input.size = reader->pending.end - input.base_offset;
         input.final_input = 1;

@@ -191,7 +191,7 @@ TEST(Unit_Tlvpp_IterableReader, InvalidInitializationAndCallbackEndAreNotEmptyRa
         (void)custom.begin();
         FAIL() << "callback END_OF_BUFFER inside input is not final EOF";
     } catch (const tlv::parse_error& failure) {
-        EXPECT_EQ(TLV_ERR_END_OF_BUFFER, failure.code());
+        EXPECT_EQ(TLV_ERR_CALLBACK, failure.code());
         EXPECT_FALSE(failure.failure().has_offset());
         EXPECT_FALSE(failure.failure().has_tag());
         EXPECT_EQ(0u, failure.failure().depth());

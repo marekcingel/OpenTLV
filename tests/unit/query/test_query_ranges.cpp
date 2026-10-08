@@ -53,8 +53,8 @@ TEST(Unit_Tlvpp_FullQuery, OwningCompilationRejectsChangingResolver) {
     auto program =
         tlv::query_program::compile("//item", tlv::native::borrow_query_settings(&options));
     ASSERT_FALSE(program);
-    EXPECT_EQ(TLV_ERR_INVALID_ARG, program.error().code);
-    EXPECT_EQ(TLV_QUERY_ERROR_STORAGE, program.error().diagnostic.kind);
+    EXPECT_EQ(TLV_ERR_INVALID_VALUE, program.error().code);
+    EXPECT_EQ(TLV_QUERY_ERROR_IMAGE, program.error().diagnostic.kind);
     resolver.drift = false;
     ASSERT_TRUE(
         tlv::query_program::compile("//item", tlv::native::borrow_query_settings(&options)));

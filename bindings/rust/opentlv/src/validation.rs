@@ -145,7 +145,7 @@ impl Format {
     /// Returns [`Error::InvalidArg`] at offset zero for formats other than DER/CER.
     ///
     /// A [`ValidationError`]: [`Error::Limit`] if a limit is exceeded,
-    /// [`Error::InvalidValue`] or [`Error::UnsupportedType`] for content that
+    /// [`Error::InvalidValue`] or [`Error::Unsupported`] for content that
     /// fails [`Strictness::Strict`], or another error for malformed or
     /// noncanonical input.
     ///

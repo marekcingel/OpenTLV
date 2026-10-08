@@ -198,13 +198,13 @@ per-segment for a type the "Segmentable" column marks "Yes"). Every type marked
 including generic TIME/DATE/TIME-OF-DAY/DATE-TIME/DURATION/OID-IRI/RELATIVE-OID-IRI:
 their content is still validated, exactly as an ordinary primitive value.
 
-Recognized but explicitly unsupported (return `TLV_ERR_UNSUPPORTED_TYPE` in strict
+Recognized but explicitly unsupported (return `TLV_ERR_UNSUPPORTED` in strict
 mode rather than being silently accepted): any UNIVERSAL primitive tag number
 beyond 36. Unlike every case above, this one is never checked at all — CER only
 attempts universal-value validation for a tag number 36 or below in the first
 place, so an unrecognized higher number is accepted structurally (not reported
 as unsupported), a difference from DER's shared dispatch, which returns
-`TLV_ERR_UNSUPPORTED_TYPE` unconditionally for any number it does not recognize.
+`TLV_ERR_UNSUPPORTED` unconditionally for any number it does not recognize.
 
 ## Errors, offsets and limits
 

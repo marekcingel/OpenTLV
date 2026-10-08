@@ -10,6 +10,15 @@ import (
 	"testing"
 )
 
+func TestCallbackAndUnsupportedStatusIdentity(t *testing.T) {
+	if opentlv.ErrUnsupported.Error() != "unsupported capability" {
+		t.Fatal("unsupported capability mapping differs from the native enum")
+	}
+	if errors.Is(opentlv.ErrCallback, opentlv.ErrInvalidValue) || opentlv.ErrCallback.Error() != "callback contract violated" {
+		t.Fatal("provider defects must remain distinct from invalid data")
+	}
+}
+
 func TestParseErrorSnapshotAndAbsoluteOffsets(t *testing.T) {
 	f, _ := opentlv.NewFixed(opentlv.FixedConfig{TagSize: 1, LengthSize: 1, ByteOrder: opentlv.BigEndian})
 	// First publish and discard one element, then publish another before failing.
@@ -72,21 +81,21 @@ func TestWriteErrorAndCapacityCompatibility(t *testing.T) {
 		t.Fatalf("capacity chain: %v", err)
 	}
 	_, err = opentlv.Builtin(opentlv.FormatKind(-1))
-	if !errors.Is(err, opentlv.ErrUnsupportedType) || errors.Is(err, opentlv.ErrInvalidArg) {
+	if !errors.Is(err, opentlv.ErrUnsupported) || errors.Is(err, opentlv.ErrInvalidArg) {
 		t.Fatal(err)
 	}
 }
 
 func TestNestedDocumentFailureAndLimits(t *testing.T) {
 	f, err := opentlv.Builtin(opentlv.BER)
-	if errors.Is(err, opentlv.ErrUnsupportedType) {
+	if errors.Is(err, opentlv.ErrUnsupported) {
 		t.Skip("BER disabled")
 	}
 	if err != nil {
 		t.Fatal(err)
 	}
 	d, err := opentlv.Parse([]byte{0x30, 3, 2, 2, 42}, f)
-	if errors.Is(err, opentlv.ErrUnsupportedType) {
+	if errors.Is(err, opentlv.ErrUnsupported) {
 		t.Skip("Document disabled")
 	}
 	var parsed *opentlv.ParseError
@@ -107,7 +116,7 @@ func TestDocumentParseDiagnostics(t *testing.T) {
 	f, _ := opentlv.NewFixed(opentlv.FixedConfig{TagSize: 1, LengthSize: 1, ByteOrder: opentlv.BigEndian})
 	input := []byte{1, 0, 2, 2, 42}
 	d, err := opentlv.Parse(input, f)
-	if errors.Is(err, opentlv.ErrUnsupportedType) {
+	if errors.Is(err, opentlv.ErrUnsupported) {
 		t.Skip("Document disabled")
 	}
 	var parsed *opentlv.ParseError

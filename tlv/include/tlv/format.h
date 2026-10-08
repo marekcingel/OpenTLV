@@ -178,6 +178,10 @@ typedef struct tlv_decoded {
  * @return A wire or buffer error reported by the format.
  *
  * @note Callbacks never allocate or retain data. The core initializes outputs.
+ * @note Allowed results are #TLV_OK and any defined `TLV_ERR_*` error except
+ * #TLV_ERR_END_OF_BUFFER. #TLV_NEED_MORE_DATA, #TLV_ERR_END_OF_BUFFER and unknown
+ * result values violate the callback contract and are reported as #TLV_ERR_CALLBACK.
+ * Use #TLV_ERR_BUFFER_TOO_SHORT for incomplete input, including an empty field.
  */
 typedef tlv_result_t (*tlv_decode_fn)(const void* context, const uint8_t* data, size_t size,
                                       tlv_decoded_t* result, tlv_format_error_t* error);
@@ -194,6 +198,9 @@ typedef tlv_result_t (*tlv_decode_fn)(const void* context, const uint8_t* data, 
  * @return #TLV_OK on success.
  * @return #TLV_ERR_OVERFLOW if logical size arithmetic overflows.
  * @return A format error if the semantic input cannot be represented.
+ * @note Allowed results are #TLV_OK and any defined `TLV_ERR_*` error except
+ * #TLV_ERR_END_OF_BUFFER. #TLV_NEED_MORE_DATA, #TLV_ERR_END_OF_BUFFER and unknown
+ * result values violate the callback contract and are reported as #TLV_ERR_CALLBACK.
  */
 typedef tlv_result_t (*tlv_measure_fn)(const void* context, const tlv_element_t* element,
                                        tlv_encoding_t* encoding, tlv_format_error_t* error);
@@ -212,6 +219,9 @@ typedef tlv_result_t (*tlv_measure_fn)(const void* context, const tlv_element_t*
  * @return A format error if encoding fails.
  *
  * @warning On failure, destination bytes are unspecified.
+ * @note Allowed results are #TLV_OK and any defined `TLV_ERR_*` error except
+ * #TLV_ERR_END_OF_BUFFER. #TLV_NEED_MORE_DATA, #TLV_ERR_END_OF_BUFFER and unknown
+ * result values violate the callback contract and are reported as #TLV_ERR_CALLBACK.
  */
 typedef tlv_result_t (*tlv_encode_fn)(const void* context, const tlv_element_t* element,
                                       uint8_t* data, size_t capacity, size_t* written,
@@ -283,10 +293,11 @@ TLV_API int tlv_format_can_write(const tlv_format_t* format);
  *                    unchanged on success. Missing arguments yield empty detail.
  *
  * @return #TLV_OK on success.
- * @return #TLV_ERR_END_OF_BUFFER if the input is empty.
+ * @return #TLV_ERR_END_OF_BUFFER if the input is empty, without calling the decoder.
+ * This wrapper status is not an allowed decoder callback result.
  * @return #TLV_ERR_NULL_ARG for a missing required argument or decode callback.
- * @return #TLV_ERR_INVALID_ARG if the decoder produces inconsistent source ranges.
- * @return Any decoder error, propagated unchanged.
+ * @return #TLV_ERR_CALLBACK if the decoder violates its result or source-range contract.
+ * @return Any permitted decoder error, propagated unchanged; see the callback result contract.
  */
 TLV_API tlv_result_t tlv_format_decode(const tlv_format_t* format, const uint8_t* data, size_t size,
                                        tlv_decoded_t* decoded, tlv_format_error_t* error);
@@ -302,8 +313,8 @@ TLV_API tlv_result_t tlv_format_decode(const tlv_format_t* format, const uint8_t
  * @return #TLV_OK on success.
  * @return #TLV_ERR_OVERFLOW if logical size arithmetic overflows.
  * @return #TLV_ERR_NULL_ARG for a missing required argument or write capability.
- * @return #TLV_ERR_INVALID_ARG if the measured framing sizes are inconsistent.
- * @return Any measurement error, propagated unchanged.
+ * @return #TLV_ERR_CALLBACK if the callback result or measured framing sizes are inconsistent.
+ * @return Any permitted measurement error, propagated unchanged; see the callback result contract.
  */
 TLV_API tlv_result_t tlv_format_measure(const tlv_format_t* format, const tlv_element_t* element,
                                         tlv_encoding_t* encoding, tlv_format_error_t* error);
@@ -322,8 +333,10 @@ TLV_API tlv_result_t tlv_format_measure(const tlv_format_t* format, const tlv_el
  * @return #TLV_ERR_NATIVE_SIZE if the encoded size exceeds `SIZE_MAX`.
  * @return #TLV_ERR_BUFFER_TOO_SHORT if the destination cannot hold the element.
  * @return #TLV_ERR_NULL_ARG for a missing required argument or write capability.
- * @return #TLV_ERR_INVALID_LENGTH if the encoded size differs from measurement.
- * @return Any measurement or encoder error, propagated unchanged.
+ * @return #TLV_ERR_CALLBACK if the callback result is invalid or the encoded size differs from
+ * measurement.
+ * @return Any permitted measurement or encoder error, propagated unchanged; see the callback
+ * contracts.
  *
  * @note Preflight errors leave destination unchanged; callback errors may modify it.
  */

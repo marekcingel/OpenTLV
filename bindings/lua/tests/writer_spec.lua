@@ -178,7 +178,8 @@ describe("Lua Tree Writer", function()
         failure(function() w:begin(bytes(0xE1)) end)
         for _, opts in ipairs({{frame_capacity = 0}, {max_elements = 0}}) do
             w = tlv.tree_writer(tlv.formats.ber, opts)
-            failure(function() w:begin(bytes(0xE1)) end, tlv.errors.LIMIT)
+            failure(function() w:begin(bytes(0xE1)) end,
+                    opts.frame_capacity == 0 and tlv.errors.BUFFER_TOO_SHORT or tlv.errors.LIMIT)
         end
         w = tlv.tree_writer(tlv.formats.ber, {max_depth = 0})
         w:begin(bytes(0xE1))

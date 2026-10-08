@@ -696,7 +696,7 @@ TEST(Unit_Tlv_FormatContract, DecodeRejectsInconsistentTagWithoutPublishingOutpu
         tlv_decoded_t result{};
         result.source.size = 99;
         result.element.tag = tlv_tag(&external_tag, 1);
-        EXPECT_EQ(TLV_ERR_INVALID_ARG,
+        EXPECT_EQ(TLV_ERR_CALLBACK,
                   tlv_format_decode(&format, wire, sizeof(wire), &result, nullptr));
         EXPECT_EQ(99u, result.source.size);
         EXPECT_EQ(&external_tag, result.element.tag.data);

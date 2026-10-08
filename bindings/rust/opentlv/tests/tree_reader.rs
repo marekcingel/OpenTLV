@@ -181,7 +181,7 @@ fn event_measurement_and_bounded_tag_storage() {
         .measure_events(events[..2].iter().cloned().map(Ok))
         .is_err());
     writer.set_tag_capacity(Some(0)).unwrap();
-    assert_eq!(writer.write_event(&events[0]), Err(Error::Limit));
+    assert_eq!(writer.write_event(&events[0]), Err(Error::BufferTooShort));
     writer.set_tag_capacity(Some(1)).unwrap();
     for event in &events {
         writer.write_event(event).unwrap();

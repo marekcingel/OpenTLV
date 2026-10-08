@@ -216,7 +216,7 @@ int main(int argc, char** argv) {
         scalar(*result);
         return 0;
 #else
-        return fail({TLV_ERR_UNSUPPORTED_TYPE, {}});
+        return fail({TLV_ERR_UNSUPPORTED, {}});
 #endif
     }
     tlv::tree_frame frames[128];

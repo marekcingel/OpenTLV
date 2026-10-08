@@ -133,7 +133,7 @@ TEST(Unit_Tlv_Diagnostic, PathPushRetainsOutermostTagsAndCountsOmittedTags) {
     for (int i = 0; i < TLV_DIAGNOSTIC_PATH_MAX; ++i)
         ASSERT_EQ(TLV_OK, tlv_diagnostic_path_push(&path, TLV_TAG(0x01)));
 
-    EXPECT_EQ(TLV_ERR_LIMIT, tlv_diagnostic_path_push(&path, TLV_TAG(0x02)));
+    EXPECT_EQ(TLV_ERR_BUFFER_TOO_SHORT, tlv_diagnostic_path_push(&path, TLV_TAG(0x02)));
     EXPECT_EQ(static_cast<size_t>(TLV_DIAGNOSTIC_PATH_MAX), path.length);
     EXPECT_EQ(1u, path.omitted);
     for (size_t i = 0; i < path.length; ++i)
@@ -256,7 +256,7 @@ TEST(Unit_Tlv_Diagnostic, TruncatedPathUnwindsBeforeReplacingASibling) {
     tlv_diagnostic_path_init(&path);
     for (size_t i = 0; i < 40; ++i) {
         tags[i] = static_cast<uint8_t>(i + 1);
-        EXPECT_EQ(i < TLV_DIAGNOSTIC_PATH_MAX ? TLV_OK : TLV_ERR_LIMIT,
+        EXPECT_EQ(i < TLV_DIAGNOSTIC_PATH_MAX ? TLV_OK : TLV_ERR_BUFFER_TOO_SHORT,
                   tlv_diagnostic_path_push(&path, tlv_tag(&tags[i], 1)));
     }
     ASSERT_EQ(32u, path.length);
@@ -269,7 +269,7 @@ TEST(Unit_Tlv_Diagnostic, TruncatedPathUnwindsBeforeReplacingASibling) {
     EXPECT_EQ(31u, path.length);
     EXPECT_EQ(TLV_OK, tlv_diagnostic_path_push(&path, TLV_TAG(0x77)));
     EXPECT_TRUE(tlv_tag_equal(path.tags[31], TLV_TAG(0x77)));
-    EXPECT_EQ(TLV_ERR_LIMIT, tlv_diagnostic_path_push(&path, TLV_TAG(0x88)));
+    EXPECT_EQ(TLV_ERR_BUFFER_TOO_SHORT, tlv_diagnostic_path_push(&path, TLV_TAG(0x88)));
     tlv_diagnostic_path_init(&path);
     EXPECT_EQ(0u, path.length);
     EXPECT_EQ(0u, path.omitted);
@@ -278,7 +278,7 @@ TEST(Unit_Tlv_Diagnostic, TruncatedPathUnwindsBeforeReplacingASibling) {
 TEST(Unit_Tlv_Diagnostic, TruncatedPathStringMarksOmissionsAndMeasuresSuffix) {
     tlv_diagnostic_path_t path{};
     for (size_t i = 0; i < 40; ++i)
-        ASSERT_EQ(i < TLV_DIAGNOSTIC_PATH_MAX ? TLV_OK : TLV_ERR_LIMIT,
+        ASSERT_EQ(i < TLV_DIAGNOSTIC_PATH_MAX ? TLV_OK : TLV_ERR_BUFFER_TOO_SHORT,
                   tlv_diagnostic_path_push(&path, TLV_TAG(0x6F)));
     std::string expected = "6F";
     for (size_t i = 1; i < 32; ++i) expected += " > 6F";
@@ -293,6 +293,6 @@ TEST(Unit_Tlv_Diagnostic, TruncatedPathStringMarksOmissionsAndMeasuresSuffix) {
     EXPECT_EQ(TLV_OK, tlv_diagnostic_path_string(&path, output.data(), output.size(), &length));
     EXPECT_EQ(expected, output.data());
     path.omitted = SIZE_MAX;
-    EXPECT_EQ(TLV_ERR_LIMIT, tlv_diagnostic_path_push(&path, TLV_TAG(0x77)));
+    EXPECT_EQ(TLV_ERR_BUFFER_TOO_SHORT, tlv_diagnostic_path_push(&path, TLV_TAG(0x77)));
     EXPECT_EQ(SIZE_MAX, path.omitted);
 }

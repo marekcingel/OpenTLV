@@ -22,9 +22,9 @@ local semantic = tlv.query_program("//demo:leaf[class()=7 and number()=90]", fix
 local semantic_loaded = tlv.query_program_load(semantic:image(), fixed, tag_options)
 fails(function() tlv.query_program_load(semantic:image(), fixed,
     {resolve=tag_options.resolve, tags={id=302, class_of=tag_options.tags.class_of,
-                                       number_of=tag_options.tags.number_of}}) end, tlv.errors.INVALID_ARG)
+                                       number_of=tag_options.tags.number_of}}) end, tlv.errors.INVALID_VALUE)
 fails(function() tlv.query_program("number(//5A)", f,
-    {tags={id=303, class_of=function() return 0 end}}) end, tlv.errors.UNSUPPORTED_TYPE)
+    {tags={id=303, class_of=function() return 0 end}}) end, tlv.errors.UNSUPPORTED)
 if tlv.formats.emv then
     assert(tlv.query_emv_resolve("emv", "PAN") == b(0x5a))
     local emv = tlv.query_program("count(//emv:PAN)", tlv.formats.emv,
@@ -51,7 +51,7 @@ semantic_execution:close()
 local changed = 0
 fails(function() tlv.query_program("//named", f, {resolve=function()
     changed = changed + 1; return changed == 1 and b(0x5a) or b(0x5b)
-end}) end, tlv.errors.INVALID_ARG)
+end}) end, tlv.errors.INVALID_VALUE)
 local registry = {a={{tag=b(0x5a), name="leaf"}}, b={{tag=b(0x5a), name="leaf"}}}
 local definition_resolve = tlv.query_definition_resolver(registry)
 registry.a[1].name = "changed"
@@ -90,7 +90,7 @@ local le = loaded_custom:execution()
 le:set_input(b(0x5a, 1, 4))
 le:visit(function() end)
 assert(le:result() == 40)
-fails(function() tlv.query_program_load(custom:image(), f) end, 10)
+fails(function() tlv.query_program_load(custom:image(), f) end, tlv.errors.INVALID_VALUE)
 local tp = tlv.query_program("text(//5A)", f, {providers = {
     text = {id = 102, max_result_bytes = 3, decode = function() return "a\0b" end}
 }})
@@ -264,7 +264,7 @@ if tlv.formats.ber then
     assert(bounded.query.limit == "schema-contexts")
     fails(function() tlv.query_schema_validate(rules, good, {max_work=1}) end, tlv.errors.LIMIT)
     fails(function() tlv.query_schema_validate({{context=rules[1].context,
-        assertion=tlv.query_program("count(.)", f)}}, good) end, tlv.errors.INVALID_ARG)
+        assertion=tlv.query_program("count(.)", f)}}, good) end, tlv.errors.INVALID_VALUE)
     if tlv.document then
         local empty_root = tlv.query_program("value(//70)", f):execution({max_depth=0})
         empty_root:evaluate_document(tlv.document(b(0x70,0), f))
@@ -273,7 +273,7 @@ if tlv.formats.ber then
         local reverse = {{context=tlv.query_program("//5A[2]", f),
                           assertion=tlv.query_program("exists(preceding::5A)", f)}}
         local siblings = b(0x70,6,0x5a,1,1,0x5a,1,2)
-        fails(function() tlv.query_schema_validate(reverse, siblings) end, tlv.errors.UNSUPPORTED_TYPE)
+        fails(function() tlv.query_schema_validate(reverse, siblings) end, tlv.errors.UNSUPPORTED)
         tlv.query_schema_validate(reverse, tlv.document(siblings, f))
         local doc = tlv.document(good, f)
         tlv.query_schema_validate(rules, doc)

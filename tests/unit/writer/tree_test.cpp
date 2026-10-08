@@ -103,7 +103,7 @@ TEST(Unit_Tlv_TreeWriter, LimitsAndEmptyParentsHaveDeterministicState) {
     EXPECT_EQ(TLV_ERR_LIMIT, tlv_tree_writer_write_element(&writer, &leaf));
     ASSERT_EQ(TLV_OK, tlv_tree_writer_init(&writer, data, sizeof(data), &format, nullptr, 0,
                                            nullptr, 0, 100, SIZE_MAX));
-    EXPECT_EQ(TLV_ERR_LIMIT, tlv_tree_writer_begin(&writer, parent));
+    EXPECT_EQ(TLV_ERR_BUFFER_TOO_SHORT, tlv_tree_writer_begin(&writer, parent));
     EXPECT_EQ(TLV_OK, tlv_tree_writer_write_element(&writer, &leaf));
     ASSERT_EQ(TLV_OK, tlv_tree_writer_init(&writer, data, sizeof(data), &format, frames, 1, nullptr,
                                            0, 0, SIZE_MAX));
@@ -407,15 +407,15 @@ TEST(Unit_Tlv_TreeWriter, MeasurementRejectsInvalidTopologyAndRespectsBounds) {
     tlv_tree_writer_workspace_t workspace{&frame, 1, data, 16, scratch, 16, 0, 0};
     size_t                      size = 99;
     Source                      bad_depth{{{leaf, 0, 0}, {leaf, 1, 0}}};
-    EXPECT_EQ(TLV_ERR_INVALID_ARG, tlv_tree_writer_measure(&format, Source::next, &bad_depth,
-                                                           &workspace, 2, 2, &size, nullptr));
+    EXPECT_EQ(TLV_ERR_CALLBACK, tlv_tree_writer_measure(&format, Source::next, &bad_depth,
+                                                        &workspace, 2, 2, &size, nullptr));
     Source bad_kind{{{{parent, {}}, 0, 0}}};
     EXPECT_EQ(TLV_ERR_INVALID_TAG, tlv_tree_writer_measure(&format, Source::next, &bad_kind,
                                                            &workspace, 2, 2, &size, nullptr));
     for (int limit = 0; limit < 3; ++limit) {
         Source source{{{{parent, {}}, 0, 1}, {leaf, 1, 0}}};
         workspace.frame_capacity = limit == 0 ? 0 : 1;
-        EXPECT_EQ(TLV_ERR_LIMIT,
+        EXPECT_EQ(limit == 0 ? TLV_ERR_BUFFER_TOO_SHORT : TLV_ERR_LIMIT,
                   tlv_tree_writer_measure(&format, Source::next, &source, &workspace,
                                           limit == 1 ? 0 : 1, limit == 2 ? 1 : 2, &size, nullptr));
         EXPECT_EQ(99u, size);

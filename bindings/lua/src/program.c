@@ -1439,7 +1439,7 @@ static int query_schema_validate(lua_State* L) {
 #if OPENTLV_DOCUMENT
         document = opentlv_lua_document_native(L, 2);
 #else
-        return query_error(L, TLV_ERR_UNSUPPORTED_TYPE, NULL);
+        return query_error(L, TLV_ERR_UNSUPPORTED, NULL);
 #endif
     }
     if (!lua_checkstack(L, 16)) return query_error(L, TLV_ERR_OUT_OF_MEMORY, NULL);
@@ -1495,7 +1495,7 @@ static int emv_resolve(lua_State* L) {
     lua_pushlstring(L, (const char*)tag.data, tag.size);
     return 1;
 #else
-    return opentlv_lua_raise(L, TLV_ERR_UNSUPPORTED_TYPE, 0, 0);
+    return opentlv_lua_raise(L, TLV_ERR_UNSUPPORTED, 0, 0);
 #endif
 }
 void opentlv_lua_open_program(lua_State* L, int module_index) {

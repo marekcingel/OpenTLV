@@ -103,7 +103,7 @@ TLV_API void tlv_diagnostic_path_init(tlv_diagnostic_path_t* path);
  * @return #TLV_OK on success.
  * @return #TLV_ERR_NULL_ARG if `path` is `NULL`.
  * @return #TLV_ERR_INVALID_ARG if `path->length` exceeds #TLV_DIAGNOSTIC_PATH_MAX.
- * @return #TLV_ERR_LIMIT if the tag cannot be retained: the outermost stored
+ * @return #TLV_ERR_BUFFER_TOO_SHORT if the tag cannot be retained: the outermost stored
  *         tags remain unchanged and `omitted` increments, saturating at SIZE_MAX.
  *         This descent must still be paired with a pop when unwinding.
  */

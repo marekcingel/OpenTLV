@@ -315,7 +315,7 @@ int main(int argc, char** argv) {
     }
 #else
     if (document_mode) {
-        rc = TLV_ERR_UNSUPPORTED_TYPE;
+        rc = TLV_ERR_UNSUPPORTED;
         goto done;
     }
 #endif

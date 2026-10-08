@@ -117,19 +117,19 @@ TEST(Unit_Tlv_Reader, RejectsInvalidCallbackResultsAndPropagatesErrors) {
     Config        config;
     auto          format = make_format(&config);
     config.tag_bytes = 0;
-    expect_failure(data, sizeof(data), &format, TLV_ERR_INVALID_TAG);
+    expect_failure(data, sizeof(data), &format, TLV_ERR_CALLBACK);
     config.tag_bytes = std::numeric_limits<size_t>::max();
-    expect_failure(data, sizeof(data), &format, TLV_ERR_INVALID_TAG);
+    expect_failure(data, sizeof(data), &format, TLV_ERR_CALLBACK);
     config = Config{};
     format = make_format(&config);
     // An empty semantic Tag cannot describe a nonempty source Tag range.
     config.tag_size = 0;
-    expect_failure(data, sizeof(data), &format, TLV_ERR_INVALID_ARG);
+    expect_failure(data, sizeof(data), &format, TLV_ERR_CALLBACK);
     // A tag that claims bytes but has no pointer is malformed.
     config = Config{};
     format = make_format(&config);
     config.tag_without_data = true;
-    expect_failure(data, sizeof(data), &format, TLV_ERR_INVALID_TAG);
+    expect_failure(data, sizeof(data), &format, TLV_ERR_CALLBACK);
     config = Config{};
     format = make_format(&config);
     config.value_bytes = std::numeric_limits<size_t>::max();
@@ -138,7 +138,7 @@ TEST(Unit_Tlv_Reader, RejectsInvalidCallbackResultsAndPropagatesErrors) {
         *used = std::numeric_limits<size_t>::max();
         return TLV_OK;
     };
-    expect_failure(data, sizeof(data), &format, TLV_ERR_INVALID_LENGTH);
+    expect_failure(data, sizeof(data), &format, TLV_ERR_CALLBACK);
     format = make_format(&config);
     config.tag_error = TLV_ERR_INVALID_TAG;
     expect_failure(data, sizeof(data), &format, TLV_ERR_INVALID_TAG);

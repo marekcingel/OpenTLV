@@ -248,7 +248,7 @@ PyObject* opentlv_python_query_emv_resolve(PyObject* module, PyObject* args) {
     if (rc != TLV_OK) return failure(rc, NULL);
     return PyBytes_FromStringAndSize((const char*)tag.data, (Py_ssize_t)tag.size);
 #else
-    return failure(TLV_ERR_UNSUPPORTED_TYPE, NULL);
+    return failure(TLV_ERR_UNSUPPORTED, NULL);
 #endif
 }
 
@@ -974,7 +974,7 @@ PyObject* opentlv_python_query_schema(PyObject* module, PyObject* args) {
     if (PyErr_Occurred() || !format) {
         free(rules);
         Py_XDECREF(format_owner);
-        return PyErr_Occurred() ? NULL : failure(TLV_ERR_UNSUPPORTED_TYPE, NULL);
+        return PyErr_Occurred() ? NULL : failure(TLV_ERR_UNSUPPORTED, NULL);
     }
     tlv_schema_query_diagnostic_t diagnostic;
     tlv_result_t                  rc = opentlv_binding_schema_run(

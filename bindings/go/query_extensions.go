@@ -25,7 +25,7 @@ type QueryResolver func(namespace, name string) ([]byte, error)
 
 // QueryEMV resolves native EMV base-dictionary symbols in the emv namespace or
 // without a namespace, including PAN/pan. A library without EMV support returns
-// ErrUnsupportedType during compilation.
+// ErrUnsupported during compilation.
 func QueryEMV() QueryResolver {
 	return func(namespace, name string) ([]byte, error) {
 		tag, code := capi.ResolveEMV(namespace, name)

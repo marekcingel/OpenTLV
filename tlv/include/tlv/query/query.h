@@ -249,7 +249,8 @@ TLV_API tlv_result_t tlv_query_visit(tlv_tree_reader_t* reader, tlv_query_matche
  * @return #TLV_OK at the end of input, or when the visitor returns #TLV_VISIT_STOP.
  * @return #TLV_ERR_NULL_ARG if `query` or `visitor` is `NULL`, or as for tlv_tree_reader_visit().
  * @return Any error of tlv_query_matcher_init() for an invalid `query`.
- * @return #TLV_ERR_VISITOR if the visitor returns #TLV_VISIT_ERROR or an unknown result.
+ * @return #TLV_ERR_VISITOR if the visitor returns #TLV_VISIT_ERROR.
+ * @return #TLV_ERR_CALLBACK if the visitor returns an unknown result.
  * @return Any other error of tlv_tree_reader_visit(), propagated unchanged.
  *
  * @note Never allocates and does not recurse. No match is not an error: the

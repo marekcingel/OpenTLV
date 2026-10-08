@@ -30,16 +30,18 @@ enum class errc {
     visitor = TLV_ERR_VISITOR,                       /**< Visitor requested failure. */
     limit = TLV_ERR_LIMIT,                           /**< Configured limit exceeded. */
     schema = TLV_ERR_SCHEMA,                         /**< Schema violation. */
+    callback = TLV_ERR_CALLBACK,                     /**< Callback contract violation. */
     invalid_state = TLV_ERR_INVALID_STATE,           /**< Operation forbidden by lifecycle state. */
     invalid_argument = TLV_ERR_INVALID_ARG,          /**< Invalid argument. */
     invalid_tag_size = TLV_ERR_INVALID_TAG_SIZE,     /**< Invalid identifier width. */
     invalid_byte_order = TLV_ERR_INVALID_BYTE_ORDER, /**< Unsupported byte order. */
     overflow = TLV_ERR_OVERFLOW,                     /**< Numeric overflow. */
     invalid_value = TLV_ERR_INVALID_VALUE,           /**< Invalid semantic value. */
-    unsupported_type = TLV_ERR_UNSUPPORTED_TYPE,     /**< Unsupported value type. */
-    invalid_schema = TLV_ERR_INVALID_SCHEMA,         /**< Invalid schema definition. */
-    native_size = TLV_ERR_NATIVE_SIZE,               /**< Logical size exceeds address space. */
-    need_more_data = TLV_NEED_MORE_DATA              /**< Non-final input needs continuation. */
+    unsupported =
+        TLV_ERR_UNSUPPORTED, /**< Requested capability or representation is not implemented. */
+    invalid_schema = TLV_ERR_INVALID_SCHEMA, /**< Invalid schema definition. */
+    native_size = TLV_ERR_NATIVE_SIZE,       /**< Logical size exceeds address space. */
+    need_more_data = TLV_NEED_MORE_DATA      /**< Non-final input needs continuation. */
 };
 /** @brief Name an operation status using immutable program-lifetime text; never allocates. */
 inline const char* message(errc code) noexcept {
@@ -58,13 +60,14 @@ inline const char* name(errc code) noexcept {
         case errc::visitor: return "TLV_ERR_VISITOR";
         case errc::limit: return "TLV_ERR_LIMIT";
         case errc::schema: return "TLV_ERR_SCHEMA";
+        case errc::callback: return "TLV_ERR_CALLBACK";
         case errc::invalid_state: return "TLV_ERR_INVALID_STATE";
         case errc::invalid_argument: return "TLV_ERR_INVALID_ARG";
         case errc::invalid_tag_size: return "TLV_ERR_INVALID_TAG_SIZE";
         case errc::invalid_byte_order: return "TLV_ERR_INVALID_BYTE_ORDER";
         case errc::overflow: return "TLV_ERR_OVERFLOW";
         case errc::invalid_value: return "TLV_ERR_INVALID_VALUE";
-        case errc::unsupported_type: return "TLV_ERR_UNSUPPORTED_TYPE";
+        case errc::unsupported: return "TLV_ERR_UNSUPPORTED";
         case errc::invalid_schema: return "TLV_ERR_INVALID_SCHEMA";
         case errc::native_size: return "TLV_ERR_NATIVE_SIZE";
         case errc::need_more_data: return "TLV_NEED_MORE_DATA";

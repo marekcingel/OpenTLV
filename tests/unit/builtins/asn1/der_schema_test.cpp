@@ -35,6 +35,51 @@ tlv_result_t Read(const std::vector<uint8_t>& data, const tlv_der_schema_type_t&
 
 } // namespace
 
+TEST(Unit_Tlv_DerSchema, CallbackContractAndWorkspaceFailuresRemainDistinct) {
+    struct State {
+        int      mode;
+        unsigned calls;
+    } state{};
+    auto encode = [](const void* context, const tlv_der_schema_component_t*, size_t, uint8_t* data,
+                     size_t, size_t* written, int* absent) -> tlv_result_t {
+        auto& s = *const_cast<State*>(static_cast<const State*>(context));
+        ++s.calls;
+        *written = 1;
+        *absent = s.mode == 2 && s.calls > 1;
+        if (s.mode == 3) return TLV_ERR_INVALID_VALUE;
+        if (s.mode == 4) return TLV_ERR_END_OF_BUFFER;
+        if (s.mode == 5) return static_cast<tlv_result_t>(21);
+        if (data) {
+            data[0] = 1;
+            if (s.mode == 1) *written = 0;
+        }
+        return TLV_OK;
+    };
+    for (int mode = 0; mode <= 5; ++mode) {
+        for (bool detailed : {false, true}) {
+            state = {mode, 0};
+            uint8_t destination[8], arena[32]{};
+            std::memset(destination, 0xa5, sizeof destination);
+            size_t                  written = 99;
+            tlv_schema_diagnostic_t diagnostic{};
+            const auto              expected = mode == 0   ? TLV_ERR_BUFFER_TOO_SHORT
+                                               : mode == 3 ? TLV_ERR_INVALID_VALUE
+                                                           : TLV_ERR_CALLBACK;
+            EXPECT_EQ(expected,
+                      tlv_der_schema_write(destination, sizeof destination, &kInteger, encode,
+                                           &state, nullptr, arena, mode == 0 ? 0 : sizeof arena,
+                                           nullptr, 0, &written, detailed ? &diagnostic : nullptr));
+            EXPECT_EQ(99u, written);
+            for (auto byte : destination) EXPECT_EQ(0xa5, byte);
+            EXPECT_LE(state.calls, 3u);
+            if (detailed) {
+                EXPECT_EQ(expected, diagnostic.diagnostic.code);
+                EXPECT_FALSE(diagnostic.diagnostic.has_offset);
+            }
+        }
+    }
+}
+
 TEST(Unit_Tlv_DerSchema, InvalidDefinitionPrecedesInputAndCallbacks) {
     const tlv_value_constraint_t invalid = {
         static_cast<tlv_value_constraint_kind_t>(99), 0, 0, nullptr, 0, nullptr};
@@ -110,7 +155,7 @@ TEST(Unit_Tlv_DerSchema, DefinitionGraphErrorsAreNotInputOrCapabilityFailures) {
     root.kind = TLV_DER_SCHEMA_SEQUENCE;
     root.components = &element;
     root.component_count = TLV_DER_SCHEMA_MAX_COMPONENTS + 1;
-    EXPECT_EQ(TLV_ERR_UNSUPPORTED_TYPE, tlv_der_schema_check(&root, &diagnostic));
+    EXPECT_EQ(TLV_ERR_UNSUPPORTED, tlv_der_schema_check(&root, &diagnostic));
     EXPECT_EQ(TLV_SCHEMA_ISSUE_NONE, diagnostic.kind);
     EXPECT_FALSE(diagnostic.diagnostic.has_offset);
     EXPECT_EQ(TLV_ERR_NULL_ARG, tlv_der_schema_check(nullptr, &diagnostic));
@@ -819,7 +864,7 @@ TEST(Unit_Tlv_DerSchema, WriteSizeQueryReportsSameSchemaOffset) {
     tlv_der_schema_limits_t limits = tlv_der_schema_default_limits;
     limits.base.max_depth = TLV_DER_MAX_DEPTH + 1;
     offset.diagnostic.offset = 99;
-    EXPECT_EQ(TLV_ERR_LIMIT,
+    EXPECT_EQ(TLV_ERR_UNSUPPORTED,
               tlv_der_schema_write(nullptr, 0, &root, ScriptEncode, &script, &limits, arena,
                                    sizeof(arena), nullptr, 0, &written, &offset));
     EXPECT_EQ(0u, offset.diagnostic.offset);
@@ -975,13 +1020,13 @@ TEST(Unit_Tlv_DerSchema, DefinitionCapacityAndTransparentDepthAreSeparateBounds)
         edges[i] = Required(types[i + 1]);
         types[i] = {TLV_DER_SCHEMA_SEQUENCE, 0, &edges[i], 1, nullptr, 0, 0, nullptr, 0};
     }
-    EXPECT_EQ(TLV_ERR_UNSUPPORTED_TYPE, tlv_der_schema_check(types, nullptr));
+    EXPECT_EQ(TLV_ERR_UNSUPPORTED, tlv_der_schema_check(types, nullptr));
     EXPECT_EQ(TLV_OK, tlv_der_schema_check(types + 1, nullptr));
     for (size_t i = 0; i <= TLV_DER_SCHEMA_MAX_TYPE_DEPTH; ++i)
         types[i].kind = TLV_DER_SCHEMA_CHOICE;
-    EXPECT_EQ(TLV_ERR_UNSUPPORTED_TYPE, tlv_der_schema_check(types, nullptr));
+    EXPECT_EQ(TLV_ERR_UNSUPPORTED, tlv_der_schema_check(types, nullptr));
     // Restrict the reachable graph so this rejection comes only from CHOICE depth.
     types[TLV_DER_SCHEMA_MAX_TYPE_DEPTH + 1] = kInteger;
-    EXPECT_EQ(TLV_ERR_UNSUPPORTED_TYPE, tlv_der_schema_check(types, nullptr));
+    EXPECT_EQ(TLV_ERR_UNSUPPORTED, tlv_der_schema_check(types, nullptr));
     EXPECT_EQ(TLV_OK, tlv_der_schema_check(types + 1, nullptr));
 }

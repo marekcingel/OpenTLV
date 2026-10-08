@@ -30,7 +30,8 @@ extern "C" {
  *                callback; copied Elements borrow input or immutable Format storage.
  * @param context Caller context passed to tlv_reader_visit().
  *
- * @return A #tlv_visit_result_t. Any unknown value is treated as an error.
+ * @return A #tlv_visit_result_t. Unknown values produce #TLV_ERR_CALLBACK; #TLV_VISIT_ERROR
+ * produces #TLV_ERR_VISITOR.
  */
 typedef tlv_visit_result_t (*tlv_visitor_t)(const tlv_element_t* element, void* context);
 

@@ -76,7 +76,8 @@ TEST(Unit_Tlv_Tree, DepthAndCapacityLimitsAllowSkippingPendingSubtrees) {
         ASSERT_EQ(TLV_OK, tlv_tree_reader_next(&reader, &item));
         EXPECT_EQ(2u, tlv_tree_reader_consumed(&reader));
         for (int i = 0; i < 2; ++i) {
-            EXPECT_EQ(TLV_ERR_LIMIT, tlv_tree_reader_next(&reader, &item));
+            EXPECT_EQ(capacity_limit ? TLV_ERR_BUFFER_TOO_SHORT : TLV_ERR_LIMIT,
+                      tlv_tree_reader_next(&reader, &item));
             EXPECT_EQ(0u, item.offset);
             EXPECT_EQ(2u, tlv_tree_reader_offset(&reader));
             EXPECT_EQ(99u, frame.end);
@@ -266,7 +267,7 @@ TEST(Unit_Tlv_Tree, OpaqueFormatDoesNotInspectValuesAndPropagatesCallbackErrors)
     };
     ASSERT_EQ(TLV_OK, tlv_tree_reader_init_incremental(&reader, data, sizeof(data), &bad, nullptr,
                                                        0, 0, 1));
-    EXPECT_EQ(TLV_ERR_END_OF_BUFFER, tlv_tree_reader_next(&reader, &item));
+    EXPECT_EQ(TLV_ERR_CALLBACK, tlv_tree_reader_next(&reader, &item));
     EXPECT_FALSE(tlv_tree_reader_at_end(&reader));
     EXPECT_EQ(0u, reader.count);
 }
@@ -378,7 +379,7 @@ TEST(Unit_Tlv_Tree, EventWriterRejectsDepthAndSupportsRetryAfterTagLimit) {
     EXPECT_EQ(TLV_ERR_INVALID_VALUE, tlv_tree_writer_write_event(&writer, &event));
     event.depth = 0;
     ASSERT_EQ(TLV_OK, tlv_tree_writer_set_tag_storage(&writer, tag_storage, 0));
-    EXPECT_EQ(TLV_ERR_LIMIT, tlv_tree_writer_write_event(&writer, &event));
+    EXPECT_EQ(TLV_ERR_BUFFER_TOO_SHORT, tlv_tree_writer_write_event(&writer, &event));
     EXPECT_EQ(0u, writer.count);
     ASSERT_EQ(TLV_OK, tlv_tree_writer_set_tag_storage(&writer, tag_storage, 1));
     ASSERT_EQ(TLV_OK, tlv_tree_writer_write_event(&writer, &event));

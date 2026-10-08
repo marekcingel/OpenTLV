@@ -51,7 +51,7 @@ func TestQueryDocumentEditsAndErrors(t *testing.T) {
 
 func TestQueryNestedDuplicateBranches(t *testing.T) {
 	f, err := opentlv.Builtin(opentlv.BER)
-	if errors.Is(err, opentlv.ErrUnsupportedType) {
+	if errors.Is(err, opentlv.ErrUnsupported) {
 		t.Skip("BER disabled")
 	}
 	if err != nil {

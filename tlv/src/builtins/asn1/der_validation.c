@@ -86,7 +86,9 @@ static tlv_result_t traverse(const uint8_t* data, size_t size, size_t base, size
             tlv_visit_result_t visit =
                 visitor(&element, initial_depth + level, base + pos, context);
             if (visit == TLV_VISIT_STOP) return TLV_OK;
-            if (visit != TLV_VISIT_CONTINUE) return fail(TLV_ERR_VISITOR, base + pos, error_offset);
+            if (visit != TLV_VISIT_CONTINUE)
+                return fail(visit == TLV_VISIT_ERROR ? TLV_ERR_VISITOR : TLV_ERR_CALLBACK,
+                            base + pos, error_offset);
         }
         if (tlv_asn1_tag_is_constructed(&element.tag) && element.value.size) {
             /* Report the first child's tag for a depth-limit failure. */
@@ -105,8 +107,8 @@ static tlv_result_t visit_impl(const uint8_t* data, size_t size, const tlv_der_l
                                size_t* error_offset) {
     if (!limits) limits = &tlv_der_default_limits;
     if (!data && size) return fail(TLV_ERR_NULL_ARG, 0, error_offset);
-    if (limits->max_depth > TLV_DER_MAX_DEPTH || size > limits->max_input_size)
-        return fail(TLV_ERR_LIMIT, 0, error_offset);
+    if (limits->max_depth > TLV_DER_MAX_DEPTH) return fail(TLV_ERR_UNSUPPORTED, 0, error_offset);
+    if (size > limits->max_input_size) return fail(TLV_ERR_LIMIT, 0, error_offset);
     return traverse(data, size, 0, 0, 0, limits, visitor, context, 0, NULL, NULL, strict,
                     error_offset);
 }
@@ -129,8 +131,8 @@ static tlv_result_t read_impl(const uint8_t* data, size_t size, const tlv_der_li
     tlv_result_t rc;
     if (!limits) limits = &tlv_der_default_limits;
     if ((!data && size) || !element || !consumed) return fail(TLV_ERR_NULL_ARG, 0, error_offset);
-    if (limits->max_depth > TLV_DER_MAX_DEPTH || size > limits->max_input_size)
-        return fail(TLV_ERR_LIMIT, 0, error_offset);
+    if (limits->max_depth > TLV_DER_MAX_DEPTH) return fail(TLV_ERR_UNSUPPORTED, 0, error_offset);
+    if (size > limits->max_input_size) return fail(TLV_ERR_LIMIT, 0, error_offset);
     if (!size) return fail(TLV_ERR_END_OF_BUFFER, 0, error_offset);
     rc = traverse(data, size, 0, 0, 0, limits, NULL, NULL, 1, &result, &used, strict, error_offset);
     if (rc == TLV_OK) {
@@ -161,8 +163,8 @@ static tlv_result_t write_impl(uint8_t* data, size_t capacity, tlv_tag_t tag, co
         return fail(TLV_ERR_NULL_ARG, 0, error_offset);
     rc = tlv_encoded_size(tag, length, &tlv_format_der, &total);
     if (rc != TLV_OK) return fail(rc, rc == TLV_ERR_INVALID_LENGTH ? tag.size : 0, error_offset);
-    if (limits->max_depth > TLV_DER_MAX_DEPTH || total > limits->max_input_size ||
-        !limits->max_elements)
+    if (limits->max_depth > TLV_DER_MAX_DEPTH) return fail(TLV_ERR_UNSUPPORTED, 0, error_offset);
+    if (total > limits->max_input_size || !limits->max_elements)
         return fail(TLV_ERR_LIMIT, 0, error_offset);
     if (length > limits->max_value_size) return fail(TLV_ERR_LIMIT, tag.size, error_offset);
     if (strict && tlv_asn1_tag_class(&tag) == TLV_ASN1_UNIVERSAL &&

@@ -106,7 +106,7 @@ func TestQueryTagAdaptersAndCheckedResolvers(t *testing.T) {
 		}
 		return []byte{0x5b}, nil
 	}
-	if p, err := tlv.CompileQuery("//app:payload", options); !errors.Is(err, tlv.ErrInvalidArg) {
+	if p, err := tlv.CompileQuery("//app:payload", options); !errors.Is(err, tlv.ErrInvalidValue) {
 		if p != nil {
 			p.Close()
 		}
@@ -175,7 +175,7 @@ func TestQueryDefinitionsFixedFormatsAndSourceFeeds(t *testing.T) {
 		t.Fatal(err)
 	}
 	doc, err := tlv.Parse([]byte{3, 0x12, 0x34, 0x56}, independentFormat)
-	if errors.Is(err, tlv.ErrUnsupportedType) {
+	if errors.Is(err, tlv.ErrUnsupported) {
 		return // Buffer extensions remain available without the Document component.
 	}
 	if err != nil {
@@ -236,7 +236,7 @@ func TestDocumentSourceLocationsSupportGlobalAxes(t *testing.T) {
 	}
 	doc, err := tlv.ParseWithOptions([]byte{0x50, 0, 0x57, 1, 0xaa}, format,
 		tlv.DocumentOptions{MaxDepth: 4, MaxElements: 4, RetainSourceLocations: true})
-	if errors.Is(err, tlv.ErrUnsupportedType) {
+	if errors.Is(err, tlv.ErrUnsupported) {
 		t.Skip(err)
 	}
 	if err != nil {

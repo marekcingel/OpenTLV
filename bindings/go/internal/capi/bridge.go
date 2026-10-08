@@ -33,11 +33,12 @@ const (
 	InvalidByteOrder Code = C.TLV_ERR_INVALID_BYTE_ORDER
 	Overflow         Code = C.TLV_ERR_OVERFLOW
 	InvalidValue     Code = C.TLV_ERR_INVALID_VALUE
-	UnsupportedType  Code = C.TLV_ERR_UNSUPPORTED_TYPE
+	Unsupported      Code = C.TLV_ERR_UNSUPPORTED
 	InvalidSchema    Code = C.TLV_ERR_INVALID_SCHEMA
 	NativeSize       Code = C.TLV_ERR_NATIVE_SIZE
 	NeedMoreData     Code = C.TLV_NEED_MORE_DATA
 	InvalidState     Code = C.TLV_ERR_INVALID_STATE
+	Callback         Code = C.TLV_ERR_CALLBACK
 )
 
 // String copies the native status description into Go storage.
@@ -87,7 +88,7 @@ func NewFixed(config FixedConfig) (Format, Code) {
 // Builtin selects a compiled-in preset; unavailable or unknown kinds are unsupported.
 func Builtin(kind Kind) (Format, Code) {
 	if kind < BER || kind > NFCType2 {
-		return Format{}, UnsupportedType
+		return Format{}, Unsupported
 	}
 	f := Format{config: C.go_format{kind: C.int(kind)}}
 	return f, Code(C.go_format_check(f.config))

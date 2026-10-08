@@ -70,7 +70,7 @@ facades require a frontend-enabled library.
 
 `OPENTLV_QUERY_SET_OPERATIONS=OFF` omits union/intersection/difference execution
 from both backends. Compilation and static-plan validation reject these operations
-with `TLV_ERR_UNSUPPORTED_TYPE`; enabled operations preserve the same semantics.
+with `TLV_ERR_UNSUPPORTED`; enabled operations preserve the same semantics.
 Document-only navigation additionally requires `OPENTLV_DOCUMENT`. These are
 capability choices within the same plan and execution architecture. Further
 operation-family switches and automatic `.otlv` code generation are future work.

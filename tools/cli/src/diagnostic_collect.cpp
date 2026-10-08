@@ -28,7 +28,7 @@ void diagnostic_scope_visit(diagnostic_scope& scope, const uint8_t* base,
     if (!pushed) {
         // A full path has already counted this frame in omitted. Continue the
         // traversal with that explicit truncation and unwind it on later visits.
-        assert(pushed.error().status() == tlv::errc::limit);
+        assert(pushed.error().status() == tlv::errc::buffer_too_short);
     }
 }
 

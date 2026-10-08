@@ -22,6 +22,10 @@ extern "C" {
  * All functions here are allocation-free and use no C recursion. All limits
  * are inclusive, and zero is a real limit. Passing `NULL` limits selects
  * #tlv_cer_default_limits.
+ *
+ * A valid max_depth beyond the fixed implementation capacity returns
+ * #TLV_ERR_UNSUPPORTED. Exceeding an accepted processing budget returns
+ * #TLV_ERR_LIMIT. Unknown visitor results return #TLV_ERR_CALLBACK.
  */
 
 /** @addtogroup builtins
@@ -58,7 +62,8 @@ typedef struct tlv_cer_limits {
      * per-segment framing overhead.
      */
     size_t max_value_size;
-    /** Bounds the total visited elements, including each string segment. */
+    /** Bounds the total visited elements, including each string segment. Zero is
+     * a valid budget; requiring any element returns #TLV_ERR_LIMIT. */
     size_t max_elements;
 } tlv_cer_limits_t;
 
@@ -201,7 +206,7 @@ TLV_API tlv_result_t tlv_cer_write(uint8_t* data, size_t capacity, tlv_tag_t tag
  *
  * @return #TLV_ERR_INVALID_VALUE for a recognized type with invalid or
  *         noncanonical content.
- * @return #TLV_ERR_UNSUPPORTED_TYPE for a universal type without an
+ * @return #TLV_ERR_UNSUPPORTED for a universal type without an
  *         implemented canonical rule, including constructed ones.
  * @return Otherwise any result of tlv_cer_read().
  *

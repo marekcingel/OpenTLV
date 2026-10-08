@@ -111,7 +111,7 @@ tlv_result_t tlv_schema_check(const tlv_structure_schema_t* schema,
                 if (tables[i] == child) break;
             if (i < count) continue;
             if (count == TLV_SCHEMA_MAX_TABLES) {
-                rc = TLV_ERR_UNSUPPORTED_TYPE;
+                rc = TLV_ERR_UNSUPPORTED;
                 goto done;
             }
             tables[count++] = child;

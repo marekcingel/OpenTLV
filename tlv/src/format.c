@@ -3,6 +3,7 @@
 
 #include "tlv/format.h"
 #include "tlv/size.h"
+#include "callback_internal.h"
 #include <string.h>
 
 int tlv_constructed_bit_predicate(const void* context, const tlv_tag_t* tag) {
@@ -65,6 +66,7 @@ tlv_result_t tlv_format_decode(const tlv_format_t* format, const uint8_t* data, 
         return TLV_ERR_END_OF_BUFFER;
     }
     rc = format->decode(format->context, data, size, &result, &detail);
+    rc = tlv_callback_result(rc, 0);
     if (rc == TLV_OK) {
         if (!s->header.present || !s->value.present || !s->trailer.present || !s->size ||
             s->size > size || s->header.offset != 0 || !range_valid(s->header, s->size) ||
@@ -76,7 +78,7 @@ tlv_result_t tlv_format_decode(const tlv_format_t* format, const uint8_t* data, 
             result.element.value.size != s->value.size ||
             result.element.value.data != data + s->value.offset ||
             !tag_binding_valid(&result, data))
-            rc = TLV_ERR_INVALID_ARG;
+            rc = TLV_ERR_CALLBACK;
     }
     if (rc != TLV_OK) {
         /* Never publish an out-of-buffer borrowed diagnostic range. */
@@ -103,12 +105,14 @@ tlv_result_t tlv_format_measure(const tlv_format_t* format, const tlv_element_t*
         (element->tag.size && !element->tag.data))
         return TLV_ERR_NULL_ARG;
     rc = format->measure(format->context, element, &result, &detail);
+    rc = tlv_callback_result(rc, 0);
     if (rc == TLV_OK) {
+        /* Success promises representable exact sizes; a wrapping sum violates
+         * that promise, unlike an OVERFLOW explicitly reported by the provider. */
         rc = tlv_size_add(result.header, result.value, &total);
         if (rc == TLV_OK) rc = tlv_size_add(total, result.trailer, &total);
-        if (rc == TLV_OK &&
-            (!total || result.value != element->value.size || result.total != total))
-            rc = TLV_ERR_INVALID_ARG;
+        if (rc != TLV_OK || !total || result.value != element->value.size || result.total != total)
+            rc = TLV_ERR_CALLBACK;
     }
     if (rc != TLV_OK) {
         if (error) *error = detail;
@@ -142,7 +146,8 @@ tlv_result_t tlv_format_encode(const tlv_format_t* format, const tlv_element_t* 
         return TLV_ERR_BUFFER_TOO_SHORT;
     }
     rc = format->encode(format->context, element, data, capacity, &used, &detail);
-    if (rc == TLV_OK && used != total) rc = TLV_ERR_INVALID_LENGTH;
+    rc = tlv_callback_result(rc, 0);
+    if (rc == TLV_OK && used != total) rc = TLV_ERR_CALLBACK;
     if (rc != TLV_OK) {
         if (error) *error = detail;
         return rc;

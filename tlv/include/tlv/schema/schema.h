@@ -30,7 +30,7 @@ enum { TLV_SCHEMA_MAX_DEPTH = 64 };
 
 /** @brief Maximum distinct tables in one structural schema definition graph.
  * Shared and recursive references count once, independently of input nesting.
- * Exceeding this allocation-free checking capacity returns #TLV_ERR_UNSUPPORTED_TYPE.
+ * Exceeding this allocation-free checking capacity returns #TLV_ERR_UNSUPPORTED.
  */
 enum { TLV_SCHEMA_MAX_TABLES = 256 };
 
@@ -386,7 +386,7 @@ TLV_API void tlv_schema_diagnostic_init(tlv_schema_diagnostic_t* diagnostic);
  * @param schema Borrowed schema graph.
  * @param diagnostic Optional failure detail; definition errors have unknown byte location.
  * @return #TLV_OK, #TLV_ERR_NULL_ARG, #TLV_ERR_INVALID_SCHEMA, or
- * #TLV_ERR_UNSUPPORTED_TYPE when the definition exceeds bounded checking capacity.
+ * #TLV_ERR_UNSUPPORTED when the definition exceeds bounded checking capacity.
  */
 TLV_API tlv_result_t tlv_schema_check(const tlv_structure_schema_t* schema,
                                       tlv_schema_diagnostic_t* diagnostic);

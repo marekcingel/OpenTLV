@@ -26,7 +26,7 @@ static tlv_result_t append_item(tlv_document_builder_t* builder, const tlv_tree_
     tlv_result_t rc;
     if (item->depth < builder->source_depth) return TLV_ERR_INVALID_VALUE;
     depth = item->depth - builder->source_depth;
-    if (depth > SIZE_MAX - builder->target_depth) return TLV_ERR_LIMIT;
+    if (depth > SIZE_MAX - builder->target_depth) return TLV_ERR_OVERFLOW;
     rc = tlv_size_to_native(item->element.value.size, &length);
     if (rc == TLV_OK)
         rc = document_create_node(builder->document, builder->container, item->element.tag,

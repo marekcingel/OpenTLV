@@ -107,11 +107,11 @@ class ValueOverflowError(OpenTLVError):
 
 
 class InvalidValueError(OpenTLVError):
-    """Universal primitive content is malformed or fails a canonical DER rule."""
+    """Data or its application representation is invalid for the requested interpretation."""
 
 
-class UnsupportedTypeError(OpenTLVError):
-    """A universal tag number has no implemented canonical validation."""
+class UnsupportedError(OpenTLVError):
+    """A valid requested capability or representation is not implemented."""
 
 
 class InvalidSchemaError(OpenTLVError):
@@ -130,6 +130,10 @@ class InvalidStateError(OpenTLVError):
     """The operation is forbidden by the current lifecycle state."""
 
 
+class CallbackError(OpenTLVError):
+    """A provider violated its callback contract."""
+
+
 # Keyed by tlv_result_t; mirrors tlv/include/tlv/error.h.
 _ERROR_TYPES = {
     1: BufferTooShortError,
@@ -146,11 +150,12 @@ _ERROR_TYPES = {
     12: InvalidByteOrderError,
     13: ValueOverflowError,
     14: InvalidValueError,
-    15: UnsupportedTypeError,
+    15: UnsupportedError,
     16: InvalidSchemaError,
     17: NativeSizeError,
     18: NeedMoreDataError,
     19: InvalidStateError,
+    20: CallbackError,
 }
 
 

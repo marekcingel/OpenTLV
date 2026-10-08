@@ -154,8 +154,8 @@ static int pattern_bounds(void) {
         if (capacity < 2) {
             p = &static_plan.header;
             CHECK(tlv_query_plan_open(image, header->reserved, &p, &diagnostic) ==
-                  TLV_ERR_INVALID_ARG);
-            CHECK(p == &static_plan.header && diagnostic.kind == TLV_QUERY_ERROR_STORAGE);
+                  TLV_ERR_INVALID_VALUE);
+            CHECK(p == &static_plan.header && diagnostic.kind == TLV_QUERY_ERROR_IMAGE);
         } else {
             CHECK(tlv_query_plan_open(image, header->reserved, &p, NULL) == TLV_OK);
             for (int retained = 0; retained < 2; ++retained)
@@ -184,7 +184,7 @@ static int pattern_bounds(void) {
     nodes[5].end = UINT32_MAX;
     CHECK(tlv_query_plan_open(image, header->reserved, &p, NULL) == TLV_OK);
     nodes[5].end = nodes[5].begin - 1;
-    CHECK(tlv_query_plan_open(image, header->reserved, &p, NULL) == TLV_ERR_INVALID_ARG);
+    CHECK(tlv_query_plan_open(image, header->reserved, &p, NULL) == TLV_ERR_INVALID_VALUE);
     return 0;
 }
 
@@ -255,29 +255,29 @@ int main(void) {
     tlv_query_plan_t* header = (tlv_query_plan_t*)damaged;
     header->version++;
     CHECK(tlv_query_plan_open(damaged, static_plan.header.reserved, &p, NULL) ==
-          TLV_ERR_UNSUPPORTED_TYPE);
+          TLV_ERR_UNSUPPORTED);
     header->version--;
     tlv_query_instruction_t* nodes = (tlv_query_instruction_t*)(header + 1);
     nodes[4].left = 4;
     CHECK(tlv_query_plan_open(damaged, static_plan.header.reserved, &p, NULL) ==
-          TLV_ERR_INVALID_ARG);
+          TLV_ERR_INVALID_VALUE);
     nodes[4].left = 2;
     nodes[3].data_offset = UINT32_MAX;
     CHECK(tlv_query_plan_open(damaged, static_plan.header.reserved, &p, NULL) ==
-          TLV_ERR_INVALID_ARG);
+          TLV_ERR_INVALID_VALUE);
     nodes[3].data_offset = 1;
     header->level = TLV_QUERY_S1;
     CHECK(tlv_query_plan_open(damaged, static_plan.header.reserved, &p, NULL) ==
-          TLV_ERR_INVALID_ARG);
+          TLV_ERR_INVALID_VALUE);
     header->level = TLV_QUERY_S0;
     nodes[2].selector = UINT32_MAX;
     CHECK(tlv_query_plan_open(damaged, static_plan.header.reserved, &p, NULL) ==
-          TLV_ERR_INVALID_ARG);
+          TLV_ERR_INVALID_VALUE);
     nodes[2].selector = TLV_QUERY_META_LEN;
     nodes[1].resolved = 2;
     nodes[1].mask_offset = UINT32_MAX;
     CHECK(tlv_query_plan_open(damaged, static_plan.header.reserved, &p, NULL) ==
-          TLV_ERR_INVALID_ARG);
+          TLV_ERR_INVALID_VALUE);
     nodes[1].resolved = 1;
     nodes[1].mask_offset = 0;
     nodes[6].op = TLV_QUERY_OP_UNION;
@@ -285,7 +285,7 @@ int main(void) {
     CHECK(tlv_query_plan_open(damaged, static_plan.header.reserved, &p, NULL) == TLV_OK);
 #else
     CHECK(tlv_query_plan_open(damaged, static_plan.header.reserved, &p, NULL) ==
-          TLV_ERR_UNSUPPORTED_TYPE);
+          TLV_ERR_UNSUPPORTED);
 #endif
 #if OPENTLV_QUERY_FRONTEND
     uint32_t                    scratch[8192], image[4096];
@@ -304,7 +304,7 @@ int main(void) {
     tlv_query_program_info_t unsupported = {0};
     unsupported.struct_size = sizeof unsupported;
     CHECK(tlv_query_compile("01 | 02", 7, &options, scratch, sizeof scratch, NULL, 0, &unsupported,
-                            NULL) == TLV_ERR_UNSUPPORTED_TYPE);
+                            NULL) == TLV_ERR_UNSUPPORTED);
 #endif
     /* Destroy source spelling: execution and named binding must still work. */
     tlv_query_plan_t* compiled = (tlv_query_plan_t*)image;

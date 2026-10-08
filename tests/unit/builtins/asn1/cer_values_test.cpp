@@ -280,7 +280,7 @@ TEST(Unit_Tlv_CerValues, UnrecognizedNumberBeyond36SkipsValueValidation) {
      * <=36 (see cer_validation.c's "recognized_universal" gate); a number beyond
      * that, like 37 here (needing the high-tag-number form), is therefore
      * always structurally accepted in strict mode, with no possible
-     * UNSUPPORTED_TYPE outcome the way DER has via tag 37 in
+     * UNSUPPORTED outcome the way DER has via tag 37 in
      * der_values_test.cpp. */
     tlv_tag_t tag{};
     uint8_t   storage[TLV_ASN1_TAG_MAX_SIZE];

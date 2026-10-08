@@ -95,7 +95,7 @@ unsafe fn tag_lookup(
         &adapter.number
     };
     let Some(callback) = callback else {
-        return native::TLV_ERR_UNSUPPORTED_TYPE;
+        return native::TLV_ERR_UNSUPPORTED;
     };
     match catch_unwind(AssertUnwindSafe(|| callback(bytes))) {
         Ok(Ok(value)) => {

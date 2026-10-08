@@ -34,7 +34,7 @@ static tlv_result_t bindings_ready(tlv_query_exec_t* e, tlv_query_diagnostic_t* 
     for (size_t i = 0; i < e->program->count; ++i)
         if (nodes[i].op == Q_VARIABLE && !execution_bindings(e)[nodes[i].variable_slot].kind) {
             e->invalid = 1;
-            return query_error(d, TLV_ERR_INVALID_ARG, TLV_QUERY_ERROR_BINDING, nodes[i].begin,
+            return query_error(d, TLV_ERR_INVALID_VALUE, TLV_QUERY_ERROR_BINDING, nodes[i].begin,
                                nodes[i].end, "bound variable");
         }
     return TLV_OK;
@@ -62,13 +62,14 @@ static size_t pattern_capacity(const tlv_query_program_t* p) {
 tlv_result_t tlv_query_exec_size(const tlv_query_program_t* p, size_t depth, size_t* bytes,
                                  size_t* alignment) {
     if (!p || !bytes || !alignment) return TLV_ERR_NULL_ARG;
-    if (!query_program_valid(p)) return TLV_ERR_INVALID_ARG;
+    if ((uintptr_t)p % sizeof(uint32_t)) return TLV_ERR_INVALID_ARG;
+    if (!query_program_valid(p)) return TLV_ERR_INVALID_VALUE;
     if (query_overlap(p, p->reserved, bytes, sizeof *bytes) ||
         query_overlap(p, p->reserved, alignment, sizeof *alignment) ||
         query_overlap(bytes, sizeof *bytes, alignment, sizeof *alignment))
         return TLV_ERR_INVALID_ARG;
-    if (!query_plan_supported(p)) return TLV_ERR_UNSUPPORTED_TYPE;
-    if (p->level > TLV_QUERY_S1) return TLV_ERR_UNSUPPORTED_TYPE;
+    if (!query_plan_supported(p)) return TLV_ERR_UNSUPPORTED;
+    if (p->level > TLV_QUERY_S1) return TLV_ERR_UNSUPPORTED;
     size_t count = (size_t)p->count + p->variable_count;
     if (depth == SIZE_MAX || count > (SIZE_MAX - sizeof(tlv_query_exec_t)) / sizeof(query_value_t))
         return TLV_ERR_OVERFLOW;
@@ -103,7 +104,7 @@ tlv_result_t tlv_query_exec_bind(tlv_query_exec_t* e, const char* name,
                            "fresh execution before binding");
     if (query_private_type(type) != V_NUMBER && query_private_type(type) != V_BYTES &&
         query_private_type(type) != V_STRING)
-        return query_error(d, TLV_ERR_INVALID_ARG, TLV_QUERY_ERROR_BINDING, 0, 0,
+        return query_error(d, TLV_ERR_INVALID_VALUE, TLV_QUERY_ERROR_BINDING, 0, 0,
                            "integer, bytes or string binding");
     const query_node_t* nodes = query_nodes(e->program);
     query_value_t* bindings = execution_bindings(e);
@@ -113,11 +114,11 @@ tlv_result_t tlv_query_exec_bind(tlv_query_exec_t* e, const char* name,
         if (n->op != Q_VARIABLE || !query_variable_name(e->program, n, name)) continue;
         found = 1;
         if (n->type != query_private_type(type) || bindings[n->variable_slot].kind)
-            return query_error(d, TLV_ERR_INVALID_ARG, TLV_QUERY_ERROR_BINDING, n->begin, n->end,
+            return query_error(d, TLV_ERR_INVALID_VALUE, TLV_QUERY_ERROR_BINDING, n->begin, n->end,
                                "unbound variable of declared type");
     }
     if (!found)
-        return query_error(d, TLV_ERR_INVALID_ARG, TLV_QUERY_ERROR_BINDING, 0, 0,
+        return query_error(d, TLV_ERR_INVALID_VALUE, TLV_QUERY_ERROR_BINDING, 0, 0,
                            "variable referenced by program");
 #if SIZE_MAX > INT64_MAX
     if (type != TLV_QUERY_RESULT_INTEGER && size > INT64_MAX)
@@ -215,7 +216,7 @@ static tlv_result_t compare(tlv_query_exec_t* e, query_value_t a, query_value_t 
 tlv_result_t tlv_query_exec_context(tlv_query_exec_t* e, size_t ordinal) {
     if (!e) return TLV_ERR_NULL_ARG;
     if (e->busy) return TLV_ERR_INVALID_STATE;
-    if (!e->retained && e->program->level == TLV_QUERY_S1) return TLV_ERR_UNSUPPORTED_TYPE;
+    if (!e->retained && e->program->level == TLV_QUERY_S1) return TLV_ERR_UNSUPPORTED;
     if (e->elements || e->open || e->invalid || e->finished) return TLV_ERR_INVALID_STATE;
     if (ordinal >= e->max_elements) return TLV_ERR_INVALID_ARG;
     e->has_context = 1;
@@ -565,7 +566,7 @@ static tlv_result_t evaluate(tlv_query_exec_t* e, const tlv_tree_event_t* event,
                 rc = query_function_eval(e, event, n, &out, d);
                 if (rc != TLV_OK) return rc;
                 break;
-            default: return TLV_ERR_UNSUPPORTED_TYPE;
+            default: return TLV_ERR_UNSUPPORTED;
         }
     store_value:
         values[i] = out;
@@ -650,7 +651,7 @@ static tlv_result_t s1_feed(tlv_query_exec_t* e, const tlv_tree_event_t* event, 
                             tlv_query_diagnostic_t* d) {
     const query_node_t* nodes = query_nodes(e->program);
     uint32_t filter = query_s1_filter(nodes, e->program->count, e->program->root);
-    if (e->has_context) return TLV_ERR_UNSUPPORTED_TYPE;
+    if (e->has_context) return TLV_ERR_UNSUPPORTED;
     if (event->kind == TLV_TREE_END) return event->depth == 0 ? s1_decide(e, matched, d) : TLV_OK;
     if (!event->depth) {
         memset(execution_values(e), 0, e->program->count * sizeof(query_value_t));
@@ -724,7 +725,7 @@ tlv_result_t tlv_query_exec_feed(tlv_query_exec_t* e, const tlv_tree_event_t* ev
         if (rc != TLV_OK) goto failure;
     }
     if (e->program->level == TLV_QUERY_D && !e->document_backend) {
-        rc = query_error(d, TLV_ERR_UNSUPPORTED_TYPE, TLV_QUERY_ERROR_CAPABILITY, 0, 0,
+        rc = query_error(d, TLV_ERR_UNSUPPORTED, TLV_QUERY_ERROR_CAPABILITY, 0, 0,
                          "Document execution required");
         goto failure;
     }
@@ -837,7 +838,7 @@ tlv_result_t tlv_query_exec_finish(tlv_query_exec_t* e, tlv_query_diagnostic_t* 
                            "required execution arguments");
     if (e->program->level == TLV_QUERY_D && !e->document_backend) {
         e->invalid = 1;
-        return query_error(d, TLV_ERR_UNSUPPORTED_TYPE, TLV_QUERY_ERROR_CAPABILITY, 0, 0,
+        return query_error(d, TLV_ERR_UNSUPPORTED, TLV_QUERY_ERROR_CAPABILITY, 0, 0,
                            "Document execution required");
     }
     if (!e->elements) {
@@ -902,7 +903,7 @@ tlv_result_t tlv_query_program_visit(tlv_tree_reader_t* reader, tlv_query_exec_t
         return query_error(d, TLV_ERR_INVALID_STATE, TLV_QUERY_ERROR_STATE, 0, 0,
                            "execution reset after failure");
     if (e->program->level == TLV_QUERY_D || e->document_backend)
-        return query_error(d, TLV_ERR_UNSUPPORTED_TYPE, TLV_QUERY_ERROR_CAPABILITY, 0, 0,
+        return query_error(d, TLV_ERR_UNSUPPORTED, TLV_QUERY_ERROR_CAPABILITY, 0, 0,
                            "Document execution required");
     if (e->retained && e->environment && e->environment->format &&
         !query_format_compatible(reader->input.format, e->environment->format))
@@ -982,8 +983,9 @@ tlv_result_t tlv_query_program_visit(tlv_tree_reader_t* reader, tlv_query_exec_t
             if (result == TLV_VISIT_STOP) return TLV_OK;
             if (result != TLV_VISIT_CONTINUE) {
                 e->invalid = 1;
-                return query_error(d, TLV_ERR_VISITOR, TLV_QUERY_ERROR_EVENTS, 0, 0,
-                                   "visitor continue or stop");
+                return query_error(d,
+                                   result == TLV_VISIT_ERROR ? TLV_ERR_VISITOR : TLV_ERR_CALLBACK,
+                                   TLV_QUERY_ERROR_CALLBACK, 0, 0, "visitor continue or stop");
             }
         }
     }
@@ -1007,8 +1009,8 @@ retained_results:
         if (action == TLV_VISIT_STOP) return TLV_OK;
         if (action != TLV_VISIT_CONTINUE) {
             e->invalid = 1;
-            return query_error(d, TLV_ERR_VISITOR, TLV_QUERY_ERROR_EVENTS, 0, 0,
-                               "visitor continue or stop");
+            return query_error(d, action == TLV_VISIT_ERROR ? TLV_ERR_VISITOR : TLV_ERR_CALLBACK,
+                               TLV_QUERY_ERROR_CALLBACK, 0, 0, "visitor continue or stop");
         }
     }
 }

@@ -44,6 +44,10 @@ extern "C" {
  * @return A framing or buffer error reported by the resolver.
  *
  * @note Definite counts need not fit the input yet.
+ * @note Allowed results are #TLV_OK and any defined `TLV_ERR_*` error except
+ * #TLV_ERR_END_OF_BUFFER. #TLV_NEED_MORE_DATA, #TLV_ERR_END_OF_BUFFER and unknown
+ * result values violate the callback contract and are reported as #TLV_ERR_CALLBACK.
+ * Use #TLV_ERR_BUFFER_TOO_SHORT for incomplete input, including an empty field.
  */
 typedef tlv_result_t (*tlv_resolve_bounds_fn)(const void* context, const tlv_tag_t* tag,
                                               const uint8_t* data, size_t size, size_t* length_size,
@@ -75,6 +79,10 @@ typedef enum tlv_length_scope {
  * A count including the identifier is normalized here, not in Reader/Writer.
  * Both write callbacks must support NULL output with zero capacity: measurement
  * queries their widths through the same callbacks used for encoding.
+ * All field callbacks and the resolver accept only #TLV_OK or defined `TLV_ERR_*`
+ * errors other than #TLV_ERR_END_OF_BUFFER. Incomplete input uses
+ * #TLV_ERR_BUFFER_TOO_SHORT; control statuses and unknown results become
+ * #TLV_ERR_CALLBACK.
  */
 typedef struct tlv_field_composition {
     const void* context;               /**< Immutable encoding context. */

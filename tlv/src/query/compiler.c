@@ -520,17 +520,21 @@ static tlv_result_t resolve_name(const char* text, size_t begin, size_t end,
                                  const tlv_query_compile_options_t* o, tlv_tag_t* tag,
                                  tlv_query_diagnostic_t* d) {
     if (!o->resolve)
-        return query_error(d, TLV_ERR_UNSUPPORTED_TYPE, TLV_QUERY_ERROR_CAPABILITY, begin, end,
+        return query_error(d, TLV_ERR_UNSUPPORTED, TLV_QUERY_ERROR_CAPABILITY, begin, end,
                            "compile-time name resolver");
     size_t colon = begin;
     while (colon < end && text[colon] != ':') ++colon;
     tlv_result_t rc = o->resolve(
         o->resolve_context, colon < end ? text + begin : NULL, colon < end ? colon - begin : 0,
         text + (colon < end ? colon + 1 : begin), end - (colon < end ? colon + 1 : begin), tag);
+    rc = tlv_callback_result(rc, 0);
     if (rc != TLV_OK)
         return query_error(d, rc, TLV_QUERY_ERROR_CAPABILITY, begin, end,
                            "one unambiguous symbolic name");
-    if (!tag->size || !tag->data || tag->size > o->max_resolved_tag)
+    if (!tag->size || !tag->data)
+        return query_error(d, TLV_ERR_CALLBACK, TLV_QUERY_ERROR_CALLBACK, begin, end,
+                           "nonempty resolver identifier");
+    if (tag->size > o->max_resolved_tag)
         return query_limit(d, "resolved-tag", o->max_resolved_tag, begin, end);
     return TLV_OK;
 }
@@ -562,8 +566,8 @@ static tlv_result_t analyze(const char* text, query_node_t* nodes, size_t count,
         query_node_t* n = &nodes[i];
 #if !OPENTLV_QUERY_SET_OPERATIONS
         if (n->op >= Q_UNION && n->op <= Q_EXCEPT)
-            return query_error(d, TLV_ERR_UNSUPPORTED_TYPE, TLV_QUERY_ERROR_CAPABILITY, n->begin,
-                               n->end, "Query set operations enabled");
+            return query_error(d, TLV_ERR_UNSUPPORTED, TLV_QUERY_ERROR_CAPABILITY, n->begin, n->end,
+                               "Query set operations enabled");
 #endif
         if (n->op >= Q_EQ && n->op <= Q_GE) {
             uint32_t sides[2] = {n->left, n->right};
@@ -614,7 +618,7 @@ static tlv_result_t analyze(const char* text, query_node_t* nodes, size_t count,
                 if (query_hex((unsigned char)text[j]) < 0 && text[j] != '?' && text[j] != '*')
                     raw = 0;
             if (!raw) {
-                tlv_tag_t tag;
+                tlv_tag_t tag = {0};
                 tlv_result_t rc = resolve_name(text, n->begin, n->end, o, &tag, d);
                 if (rc != TLV_OK) return rc;
                 n->resolved = 1;
@@ -661,7 +665,7 @@ static tlv_result_t analyze(const char* text, query_node_t* nodes, size_t count,
                     break;
                 }
             if (!found)
-                return query_error(d, TLV_ERR_INVALID_ARG, TLV_QUERY_ERROR_BINDING, n->begin,
+                return query_error(d, TLV_ERR_INVALID_VALUE, TLV_QUERY_ERROR_BINDING, n->begin,
                                    n->end, "declared typed variable");
         }
         if (n->op == Q_META || n->op == Q_LITERAL) n->type = V_NUMBER;
@@ -714,16 +718,20 @@ static tlv_result_t analyze(const char* text, query_node_t* nodes, size_t count,
                     goto types;
                 const query_node_t *ns = &nodes[args[0]], *symbol = &nodes[args[1]];
                 if (!o->resolve)
-                    return query_error(d, TLV_ERR_UNSUPPORTED_TYPE, TLV_QUERY_ERROR_CAPABILITY,
-                                       n->begin, n->end, "name resolver");
-                tlv_tag_t tag;
+                    return query_error(d, TLV_ERR_UNSUPPORTED, TLV_QUERY_ERROR_CAPABILITY, n->begin,
+                                       n->end, "name resolver");
+                tlv_tag_t tag = {0};
                 tlv_result_t rc = o->resolve(
                     o->resolve_context, (const char*)payload + ns->data_offset, ns->data_size,
                     (const char*)payload + symbol->data_offset, symbol->data_size, &tag);
+                rc = tlv_callback_result(rc, 0);
                 if (rc != TLV_OK)
                     return query_error(d, rc, TLV_QUERY_ERROR_CAPABILITY, n->begin, n->end,
                                        "one symbolic name");
-                if (!tag.data || !tag.size || tag.size > o->max_resolved_tag)
+                if (!tag.data || !tag.size)
+                    return query_error(d, TLV_ERR_CALLBACK, TLV_QUERY_ERROR_CALLBACK, n->begin,
+                                       n->end, "nonempty resolver identifier");
+                if (tag.size > o->max_resolved_tag)
                     return query_limit(d, "resolved-tag", o->max_resolved_tag, n->begin, n->end);
                 n->op = Q_TEST;
                 n->left = n->right = QUERY_NONE;
@@ -737,8 +745,8 @@ static tlv_result_t analyze(const char* text, query_node_t* nodes, size_t count,
                 continue;
             }
             if (f == F_UNKNOWN)
-                return query_error(d, TLV_ERR_UNSUPPORTED_TYPE, TLV_QUERY_ERROR_CAPABILITY,
-                                   n->begin, n->end, "closed supported Query function");
+                return query_error(d, TLV_ERR_UNSUPPORTED, TLV_QUERY_ERROR_CAPABILITY, n->begin,
+                                   n->end, "closed supported Query function");
             if ((f == F_VALUE || f == F_LEN || f == F_TAG || f == F_CLASS || f == F_NUMBER ||
                  f == F_CONSTRUCTED) &&
                 arity > 1)
@@ -786,8 +794,8 @@ static tlv_result_t analyze(const char* text, query_node_t* nodes, size_t count,
                         if ((unsigned)o->environment->hooks[j].function == f - F_NUM)
                             hook = &o->environment->hooks[j];
                 if (!hook)
-                    return query_error(d, TLV_ERR_UNSUPPORTED_TYPE, TLV_QUERY_ERROR_CAPABILITY,
-                                       n->begin, n->end, "conversion provider");
+                    return query_error(d, TLV_ERR_UNSUPPORTED, TLV_QUERY_ERROR_CAPABILITY, n->begin,
+                                       n->end, "conversion provider");
                 n->hook_id = hook->id;
                 n->scratch_size = (uint32_t)((hook->scratch_size + 15) & ~(size_t)15);
                 if (n->scratch_size > *codec_stride) *codec_stride = n->scratch_size;
@@ -819,14 +827,14 @@ static tlv_result_t analyze(const char* text, query_node_t* nodes, size_t count,
                 if (!o->environment || !o->environment->tags || !o->environment->tags->id ||
                     (f == F_CLASS ? !o->environment->tags->class_of
                                   : !o->environment->tags->number_of))
-                    return query_error(d, TLV_ERR_UNSUPPORTED_TYPE, TLV_QUERY_ERROR_CAPABILITY,
-                                       n->begin, n->end, "semantic tag provider");
+                    return query_error(d, TLV_ERR_UNSUPPORTED, TLV_QUERY_ERROR_CAPABILITY, n->begin,
+                                       n->end, "semantic tag provider");
                 *level = TLV_QUERY_D;
             }
             if (f == F_CONSTRUCTED) {
                 if (o->environment && !o->environment->format)
-                    return query_error(d, TLV_ERR_UNSUPPORTED_TYPE, TLV_QUERY_ERROR_CAPABILITY,
-                                       n->begin, n->end, "Format for constructed predicate");
+                    return query_error(d, TLV_ERR_UNSUPPORTED, TLV_QUERY_ERROR_CAPABILITY, n->begin,
+                                       n->end, "Format for constructed predicate");
                 *level = TLV_QUERY_D;
             }
         }
@@ -917,7 +925,7 @@ static tlv_result_t analyze(const char* text, query_node_t* nodes, size_t count,
         return query_error(d, TLV_ERR_INVALID_ARG, TLV_QUERY_ERROR_SYNTAX, n->begin, n->end,
                            "valid Query operand/arity");
     types:
-        return query_error(d, TLV_ERR_INVALID_ARG, TLV_QUERY_ERROR_CAPABILITY, n->begin, n->end,
+        return query_error(d, TLV_ERR_INVALID_VALUE, TLV_QUERY_ERROR_TYPE, n->begin, n->end,
                            "compatible expression types");
     }
     if (nodes[root].type != V_NODE) *level = TLV_QUERY_D;
@@ -1245,21 +1253,24 @@ static tlv_result_t image_header(const void* image, size_t size, tlv_query_progr
         return query_error(diagnostic, TLV_ERR_NULL_ARG, TLV_QUERY_ERROR_STORAGE, 0, 0,
                            "required compiler arguments");
     if (size < sizeof *header)
-        return query_error(diagnostic, TLV_ERR_INVALID_ARG, TLV_QUERY_ERROR_STORAGE, 0, 0,
+        return query_error(diagnostic, TLV_ERR_INVALID_VALUE, TLV_QUERY_ERROR_IMAGE, 0, 0,
                            "complete image header");
     memcpy(header, image, sizeof *header);
-    if (header->magic != QUERY_MAGIC || header->version != QUERY_IMAGE_VERSION)
-        return query_error(diagnostic, TLV_ERR_UNSUPPORTED_TYPE, TLV_QUERY_ERROR_IMAGE_VERSION, 0,
-                           0, "same-release native-endian Query image");
+    if (header->magic != QUERY_MAGIC)
+        return query_error(diagnostic, TLV_ERR_INVALID_VALUE, TLV_QUERY_ERROR_IMAGE, 0, 0,
+                           "recognized Query image magic");
+    if (header->version != QUERY_IMAGE_VERSION)
+        return query_error(diagnostic, TLV_ERR_UNSUPPORTED, TLV_QUERY_ERROR_IMAGE_VERSION, 0, 0,
+                           "same-release native-endian Query image");
     if (!header->count || header->count > (UINT32_MAX - sizeof *header) / sizeof(query_node_t))
-        return query_error(diagnostic, TLV_ERR_INVALID_ARG, TLV_QUERY_ERROR_STORAGE, 0, 0,
+        return query_error(diagnostic, TLV_ERR_INVALID_VALUE, TLV_QUERY_ERROR_IMAGE, 0, 0,
                            "bounded image instruction count");
     size_t offset = sizeof *header + (size_t)header->count * sizeof(query_node_t);
     if (header->reserved != size || header->text_offset != offset || offset >= size ||
         !header->text_size || header->text_size >= size - offset ||
         header->payload_size != size - offset - header->text_size - 1 ||
         ((const char*)image)[offset + header->text_size] != 0)
-        return query_error(diagnostic, TLV_ERR_INVALID_ARG, TLV_QUERY_ERROR_STORAGE, 0, 0,
+        return query_error(diagnostic, TLV_ERR_INVALID_VALUE, TLV_QUERY_ERROR_IMAGE, 0, 0,
                            "bounded image text and payload");
     return TLV_OK;
 }
@@ -1334,7 +1345,7 @@ tlv_result_t tlv_query_program_load(const void* image, size_t size,
                            scratch, offset, reconstructed, size, &info, diagnostic);
     if (rc != TLV_OK) return rc;
     if (info.program_size != size || memcmp(image, reconstructed, size))
-        return query_error(diagnostic, TLV_ERR_INVALID_ARG, TLV_QUERY_ERROR_STORAGE, 0, 0,
+        return query_error(diagnostic, TLV_ERR_INVALID_VALUE, TLV_QUERY_ERROR_IMAGE, 0, 0,
                            "canonical validated Query image and matching capabilities");
     *program = (const tlv_query_program_t*)image;
     if (output_info) {
@@ -1348,12 +1359,13 @@ tlv_result_t tlv_query_program_load(const void* image, size_t size,
 tlv_result_t tlv_query_program_format(const tlv_query_program_t* p, char* output, size_t capacity,
                                       size_t* required) {
     if (!p || !required || (!output && capacity)) return TLV_ERR_NULL_ARG;
-    if (!query_program_valid(p)) return TLV_ERR_INVALID_ARG;
+    if ((uintptr_t)p % sizeof(uint32_t)) return TLV_ERR_INVALID_ARG;
+    if (!query_program_valid(p)) return TLV_ERR_INVALID_VALUE;
     if (query_overlap(p, p->reserved, output, capacity) ||
         query_overlap(p, p->reserved, required, sizeof *required) ||
         query_overlap(output, capacity, required, sizeof *required))
         return TLV_ERR_INVALID_ARG;
-    if (!p->text_size) return TLV_ERR_UNSUPPORTED_TYPE;
+    if (!p->text_size) return TLV_ERR_UNSUPPORTED;
     size_t count, length;
     tlv_result_t rc =
         lex(query_text(p), p->text_size, UINT32_MAX, NULL, &count, NULL, NULL, &length);

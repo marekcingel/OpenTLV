@@ -291,7 +291,7 @@ TEST(Unit_Tlvpp_CustomFormat, CoreRejectsInvalidCallbackResults) {
     tlv::reader<invalid_decode> broken(bytes(wire, sizeof(wire)));
     auto                        decoded = broken.next_source();
     ASSERT_FALSE(decoded);
-    EXPECT_EQ(tlv::errc::invalid_argument, decoded.error().status());
+    EXPECT_EQ(tlv::errc::callback, decoded.error().status());
     EXPECT_EQ(0u, broken.consumed());
     tlv::reader<custom_cpp_format> reader(bytes(wire, sizeof(wire)));
     auto                           value = reader.next();
@@ -299,12 +299,12 @@ TEST(Unit_Tlvpp_CustomFormat, CoreRejectsInvalidCallbackResults) {
     tlv::format_adapter<invalid_measure> bad_measure;
     auto                                 measured = tlv::measure(bad_measure.view(), *value);
     ASSERT_FALSE(measured);
-    EXPECT_EQ(tlv::errc::invalid_argument, measured.error().status());
+    EXPECT_EQ(tlv::errc::callback, measured.error().status());
     tlv::byte                   out[4]{};
     tlv::writer<invalid_encode> bad_encoder(out, sizeof(out));
     auto                        encoded = bad_encoder.write(*value);
     ASSERT_FALSE(encoded);
-    EXPECT_EQ(tlv::errc::invalid_length, encoded.error().status());
+    EXPECT_EQ(tlv::errc::callback, encoded.error().status());
     EXPECT_EQ(0u, bad_encoder.size());
 }
 

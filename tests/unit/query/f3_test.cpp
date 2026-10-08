@@ -133,7 +133,7 @@ TEST(Unit_Tlv_QueryF3, WholePlanRequirementsAndDocumentRejection) {
               TLV_OK);
     EXPECT_EQ(TLV_DIAGNOSTIC_RESULT(e.diagnostic, tlv_query_program_visit(&reader, e.exec, noop,
                                                                           nullptr, &e.diagnostic)),
-              TLV_ERR_UNSUPPORTED_TYPE);
+              TLV_ERR_UNSUPPORTED);
     EXPECT_EQ(e.diagnostic.kind, TLV_QUERY_ERROR_CAPABILITY);
     tlv_tree_event_t event{};
     ASSERT_EQ(tlv_tree_reader_next_event(&reader, &event), TLV_OK);
@@ -157,7 +157,7 @@ TEST(Unit_Tlv_QueryF3, DocumentOnlyFeedFailureRequiresReset) {
         EXPECT_FALSE(info.invalid);
         EXPECT_EQ(TLV_DIAGNOSTIC_RESULT(
                       e.diagnostic, tlv_query_exec_feed(e.exec, &event, &matched, &e.diagnostic)),
-                  TLV_ERR_UNSUPPORTED_TYPE);
+                  TLV_ERR_UNSUPPORTED);
         EXPECT_EQ(e.diagnostic.kind, TLV_QUERY_ERROR_CAPABILITY);
         EXPECT_EQ(matched, 9);
         ASSERT_EQ(tlv_query_exec_info(e.exec, &info), TLV_OK);

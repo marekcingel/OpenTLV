@@ -57,7 +57,7 @@ TEST(Unit_Tlvpp_Diagnostic, PushPathReturnsAnErrorWhenFull) {
     tlv::expected<void, tlv::error> result = tlv::push_path(path, tlv::tag_bytes<0x02>());
 
     ASSERT_FALSE(result.has_value());
-    EXPECT_EQ(tlv::errc::limit, result.error().status());
+    EXPECT_EQ(tlv::errc::buffer_too_short, result.error().status());
     EXPECT_EQ(1u, path.omitted);
     tlv::pop_path(path);
     EXPECT_EQ(0u, path.omitted);

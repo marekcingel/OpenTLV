@@ -226,7 +226,7 @@ enum { TLV_DER_SCHEMA_MAX_TYPE_DEPTH = 32 };
 
 /** @brief Maximum distinct types in a checked DER schema definition graph.
  * Shared and recursive types count once. Exceeding this allocation-free checking
- * capacity returns #TLV_ERR_UNSUPPORTED_TYPE.
+ * capacity returns #TLV_ERR_UNSUPPORTED.
  */
 enum { TLV_DER_SCHEMA_MAX_TYPES = 256 };
 
@@ -281,7 +281,7 @@ extern TLV_API const tlv_der_schema_limits_t tlv_der_schema_default_limits;
  * @return #TLV_OK if the schema is consistent.
  * @return #TLV_ERR_INVALID_SCHEMA for an invalid definition.
  * @return #TLV_ERR_NULL_ARG for a NULL root.
- * @return #TLV_ERR_UNSUPPORTED_TYPE for a graph exceeding fixed checking capacity.
+ * @return #TLV_ERR_UNSUPPORTED for a graph exceeding fixed checking capacity.
  */
 TLV_API tlv_result_t tlv_der_schema_check(const tlv_der_schema_type_t* root,
                                           tlv_schema_diagnostic_t* diagnostic);
@@ -360,11 +360,14 @@ TLV_API tlv_result_t tlv_der_schema_read(const uint8_t* data, size_t size,
  * @param[out] absent    Set nonzero to report absence.
  *
  * @return #TLV_OK on success (including reporting absence), or an error
- *         code that propagates unchanged.
+ *         permitted error code that propagates unchanged.
  *
  * @note A #TLV_DER_REQUIRED component, or an element below a SET OF's or
  *       SEQUENCE OF's `min_elements`, reporting absent is a caller/schema
  *       mismatch (#TLV_ERR_SCHEMA).
+ * @note Allowed results are #TLV_OK and any defined `TLV_ERR_*` error except
+ * #TLV_ERR_END_OF_BUFFER. #TLV_NEED_MORE_DATA, #TLV_ERR_END_OF_BUFFER and unknown
+ * result values violate the callback contract and are reported as #TLV_ERR_CALLBACK.
  */
 typedef tlv_result_t (*tlv_der_schema_encode_fn)(const void* context,
                                                  const tlv_der_schema_component_t* component,
@@ -444,8 +447,11 @@ typedef struct tlv_der_schema_record {
  *         partial output.
  * @return #TLV_ERR_INVALID_SCHEMA for an invalid definition, before callbacks.
  * @return #TLV_ERR_BUFFER_TOO_SHORT if the destination is insufficient.
- * @return #TLV_ERR_LIMIT if scratch storage or a configured limit is exceeded.
- * @return Any callback error, propagated unchanged unless an earlier schema/value
+ * @return #TLV_ERR_LIMIT if a valid configured processing limit is exceeded.
+ * @return #TLV_ERR_BUFFER_TOO_SHORT if caller scratch storage is insufficient.
+ * @return #TLV_ERR_UNSUPPORTED if max_depth exceeds the implementation capability.
+ * @return #TLV_ERR_CALLBACK if the encode callback violates its result or presence/size contract.
+ * @return Any permitted callback error, propagated unchanged unless an earlier schema/value
  *         failure has already been retained while locating its offset.
  *
  * @note The destination and `written` remain unchanged on error; scratch is

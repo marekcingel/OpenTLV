@@ -205,7 +205,7 @@ TEST(Integration_Tlv_Der, LimitsAndWriterValidation) {
         EXPECT_EQ(99u, written);
     }
     limits.max_depth = TLV_DER_MAX_DEPTH + 1;
-    EXPECT_EQ(TLV_ERR_LIMIT, tlv_der_visit(nullptr, 0, &limits, nullptr, nullptr, &offset));
+    EXPECT_EQ(TLV_ERR_UNSUPPORTED, tlv_der_visit(nullptr, 0, &limits, nullptr, nullptr, &offset));
     limits = {0, 2, 0, 1};
     EXPECT_EQ(TLV_OK, tlv_der_visit(data + 4, 2, &limits, nullptr, nullptr, &offset));
     const uint8_t invalid[] = {0x04, 0x81, 0};

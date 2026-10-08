@@ -76,7 +76,7 @@ opentlv_binding_schema_run(const uint8_t* data, size_t size, const void* documen
     (void)value_capacity;
     (void)measure_values;
     if (rc == TLV_OK)
-        rc = document ? TLV_ERR_UNSUPPORTED_TYPE
+        rc = document ? TLV_ERR_UNSUPPORTED
                       : tlv_schema_query_validate_buffer(data, size, format, rules, count, depth,
                                                          nodes, work, &workspace, diagnostic);
 #endif

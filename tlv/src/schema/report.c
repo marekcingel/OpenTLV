@@ -55,7 +55,8 @@ static void add_issue(collector_t* c, tlv_schema_issue_kind_t kind, const tlv_ta
     diagnostic->tag = *tag;
     tlv_diagnostic_path_init(&diagnostic->path);
     for (size_t i = 1; i <= c->depth; ++i) {
-        if (tlv_diagnostic_path_push(&diagnostic->path, c->frames[i].tag) == TLV_ERR_LIMIT) {
+        if (tlv_diagnostic_path_push(&diagnostic->path, c->frames[i].tag) ==
+            TLV_ERR_BUFFER_TOO_SHORT) {
             diagnostic->path.omitted += c->depth - i;
             break;
         }

@@ -31,7 +31,7 @@ type DocumentOptions struct {
 }
 
 // Parse copies a complete input into an owned Document using C default limits.
-// Native failures return *ParseError; disabled support matches ErrUnsupportedType.
+// Native failures return *ParseError; disabled support matches ErrUnsupported.
 func Parse(data []byte, format Format) (*Document, error) {
 	return parseDocument(data, format, DocumentOptions{}, true)
 }

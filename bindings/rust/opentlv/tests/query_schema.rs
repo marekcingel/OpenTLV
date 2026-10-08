@@ -144,7 +144,7 @@ fn original_reader_and_invalid_rule_failures_are_not_assertion_failures() {
                 .unwrap_err()
                 .failure
                 .error,
-            Error::InvalidArg
+            Error::InvalidValue
         );
     }
     assert!(rule("//5A", "1 = 1").named("invalid\0name").is_err());
@@ -242,7 +242,7 @@ fn document_supports_reverse_axes_and_bounded_canonical_values() {
             .unwrap_err()
             .failure
             .error,
-        Error::UnsupportedType
+        Error::Unsupported
     );
     schema
         .validate_document(&document, QuerySchemaLimits::default())

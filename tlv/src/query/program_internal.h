@@ -2,6 +2,7 @@
 // Copyright (c) 2026 Marek Cingel
 #ifndef OPENTLV_QUERY_PROGRAM_INTERNAL_H
 #define OPENTLV_QUERY_PROGRAM_INTERNAL_H
+#include "../callback_internal.h"
 #include "tlv/query/plan.h"
 #include "tlv/config.h"
 #include <stdint.h>
@@ -367,7 +368,9 @@ static inline tlv_result_t query_error(tlv_query_diagnostic_t* d, tlv_result_t c
                                        tlv_query_error_kind_t kind, size_t begin, size_t end,
                                        const char* expected) {
     if (d) {
-        d->kind = code == TLV_ERR_INVALID_STATE ? TLV_QUERY_ERROR_STATE : kind;
+        d->kind = code == TLV_ERR_INVALID_STATE ? TLV_QUERY_ERROR_STATE
+                  : code == TLV_ERR_CALLBACK    ? TLV_QUERY_ERROR_CALLBACK
+                                                : kind;
         d->begin = begin;
         d->end = end;
         d->expected = expected;

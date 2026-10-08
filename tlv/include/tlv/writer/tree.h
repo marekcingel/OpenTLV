@@ -68,7 +68,7 @@ typedef struct tlv_tree_writer {
  * @param[in] capacity Available bytes; an explicit empty Tag consumes one byte.
  * @return TLV_OK, TLV_ERR_NULL_ARG, or TLV_ERR_INVALID_STATE when parents are open.
  * @note begin() copies Tags in this mode; end() releases capacity on success.
- * Failure preserves the configuration. Exhaustion at begin returns TLV_ERR_LIMIT.
+ * Failure preserves the configuration. Exhaustion at begin returns #TLV_ERR_BUFFER_TOO_SHORT.
  */
 TLV_API tlv_result_t tlv_tree_writer_set_tag_storage(tlv_tree_writer_t* writer, uint8_t* data,
                                                      size_t capacity);
@@ -129,7 +129,8 @@ TLV_API tlv_result_t tlv_tree_writer_init(tlv_tree_writer_t* writer, uint8_t* da
  * or copied when tlv_tree_writer_set_tag_storage() has configured storage.
  * @return #TLV_OK on success; #TLV_ERR_NULL_ARG for NULL writer or invalid Tag pointer.
  * @return #TLV_ERR_INVALID_TAG if Format does not classify tag as constructed.
- * @return #TLV_ERR_LIMIT if frame capacity, item depth or element count is exhausted.
+ * @return #TLV_ERR_LIMIT if the configured item depth or element count is exhausted.
+ * @return #TLV_ERR_BUFFER_TOO_SHORT if frame or tag storage capacity is exhausted.
  * @note Failure leaves state and output unchanged. Wire representability is
  *       checked at end(), once the Value is known. Empty parents require end().
  * @warning Tag bytes must remain immutable and must not overlap output, scratch,
@@ -288,7 +289,9 @@ TLV_API tlv_result_t tlv_tree_writer_measure_events(const tlv_format_t* format,
  * @return #TLV_OK on success; source and Writer errors propagated unchanged.
  * @return #TLV_ERR_INVALID_ARG for invalid preorder depth; #TLV_ERR_INVALID_TAG
  *         for a constructed classification incompatible with the destination Format.
- * @return #TLV_ERR_LIMIT for insufficient frames or exceeded traversal limits.
+ * @return #TLV_ERR_LIMIT for exceeded traversal budgets.
+ * @return #TLV_ERR_BUFFER_TOO_SHORT for insufficient caller workspace.
+ * @return #TLV_ERR_CALLBACK for an invalid provider result or impossible preorder depth.
  * @return #TLV_ERR_BUFFER_TOO_SHORT on workspace exhaustion. Only this storage
  *         check sets required_data/required_scratch above capacity; callback errors,
  *         even with the same code, leave both zero. Requirements reset on each call.

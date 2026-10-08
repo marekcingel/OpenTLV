@@ -1,6 +1,7 @@
 // SPDX-License-Identifier: MIT
 // Copyright (c) 2026 Marek Cingel
 
+#include "../../callback_internal.h"
 #include "tlv/builtins/asn1/der_schema.h"
 #include "der_validation_internal.h"
 #include "asn1_values_internal.h"
@@ -223,8 +224,7 @@ static tlv_result_t check_type(const tlv_der_schema_type_t* type) {
         case TLV_DER_SCHEMA_SET:
         case TLV_DER_SCHEMA_CHOICE:
             if (type->component_count && !type->components) return TLV_ERR_INVALID_SCHEMA;
-            if (type->component_count > TLV_DER_SCHEMA_MAX_COMPONENTS)
-                return TLV_ERR_UNSUPPORTED_TYPE;
+            if (type->component_count > TLV_DER_SCHEMA_MAX_COMPONENTS) return TLV_ERR_UNSUPPORTED;
             components = type->components;
             count = type->component_count;
             break;
@@ -271,7 +271,7 @@ static tlv_result_t check_choice_path(schema_graph_t* graph, size_t node, size_t
     size_t height = 1;
     if (graph->state[node] == 1) return TLV_ERR_INVALID_SCHEMA;
     if (graph->state[node] == 2) return TLV_OK;
-    if (depth >= TLV_DER_SCHEMA_MAX_TYPE_DEPTH) return TLV_ERR_UNSUPPORTED_TYPE;
+    if (depth >= TLV_DER_SCHEMA_MAX_TYPE_DEPTH) return TLV_ERR_UNSUPPORTED;
     graph->state[node] = 1;
     for (size_t i = 0; i < type->component_count; ++i) {
         const tlv_der_schema_component_t* c = &type->components[i];
@@ -282,7 +282,7 @@ static tlv_result_t check_choice_path(schema_graph_t* graph, size_t node, size_t
             if (height < 1 + graph->choice_height[child]) height = 1 + graph->choice_height[child];
         }
     }
-    if (height > TLV_DER_SCHEMA_MAX_TYPE_DEPTH) return TLV_ERR_UNSUPPORTED_TYPE;
+    if (height > TLV_DER_SCHEMA_MAX_TYPE_DEPTH) return TLV_ERR_UNSUPPORTED;
     graph->choice_height[node] = height;
     graph->state[node] = 2;
     return TLV_OK;
@@ -349,7 +349,7 @@ static tlv_result_t check_graph(const tlv_der_schema_type_t* root) {
         for (size_t i = 0; i < count; ++i) {
             const tlv_der_schema_type_t* child = components[i].type;
             if (type_index(&graph, child) < graph.count) continue;
-            if (graph.count == TLV_DER_SCHEMA_MAX_TYPES) return TLV_ERR_UNSUPPORTED_TYPE;
+            if (graph.count == TLV_DER_SCHEMA_MAX_TYPES) return TLV_ERR_UNSUPPORTED;
             graph.types[graph.count++] = child;
         }
     }
@@ -666,8 +666,9 @@ static tlv_result_t read_input(const uint8_t* data, size_t size, const tlv_der_s
     if (!limits) limits = &tlv_der_schema_default_limits;
     if ((!data && size) || !root || !element || !consumed)
         return fail(TLV_ERR_NULL_ARG, 0, error_offset);
-    if (limits->base.max_depth > TLV_DER_MAX_DEPTH || size > limits->base.max_input_size)
-        return fail(TLV_ERR_LIMIT, 0, error_offset);
+    if (limits->base.max_depth > TLV_DER_MAX_DEPTH)
+        return fail(TLV_ERR_UNSUPPORTED, 0, error_offset);
+    if (size > limits->base.max_input_size) return fail(TLV_ERR_LIMIT, 0, error_offset);
     if (!size) return missing(0, error_offset, diagnostic, TLV_SCHEMA_ANCHOR_SCOPE_END);
 
     ctx.data = data;
@@ -827,7 +828,7 @@ static tlv_result_t wrap_and_store(der_schema_write_ctx_t* wctx, tlv_tag_t tag, 
     }
     if (rc != TLV_OK) return rc;
     new_off = arena_alloc(wctx, total);
-    if (new_off == (size_t)-1) return TLV_ERR_LIMIT;
+    if (new_off == (size_t)-1) return TLV_ERR_BUFFER_TOO_SHORT;
     if (deferred != TLV_OK) wctx->failure_owner = new_off;
     if (wctx->failure != TLV_OK) {
         /* Generate framing even for invalid Value bytes, solely to locate the
@@ -874,15 +875,17 @@ static tlv_result_t encode_leaf_content(der_schema_write_ctx_t* wctx,
     size_t content_len, off, written;
     int absent = 0;
     tlv_result_t rc = wctx->encode(wctx->context, component, index, NULL, 0, &content_len, &absent);
+    rc = tlv_callback_result(rc, 0);
     if (rc != TLV_OK) return rc;
-    if (absent) return TLV_ERR_SCHEMA;
+    if (absent) return TLV_ERR_CALLBACK;
     off = arena_alloc(wctx, content_len);
-    if (off == (size_t)-1) return TLV_ERR_LIMIT;
+    if (off == (size_t)-1) return TLV_ERR_BUFFER_TOO_SHORT;
     absent = 0;
     rc = wctx->encode(wctx->context, component, index, wctx->arena + off, content_len, &written,
                       &absent);
+    rc = tlv_callback_result(rc, 0);
     if (rc != TLV_OK) return rc;
-    if (absent || written != content_len) return TLV_ERR_INVALID_VALUE;
+    if (absent || written != content_len) return TLV_ERR_CALLBACK;
     *out_off = off;
     *out_len = written;
     return TLV_OK;
@@ -922,7 +925,7 @@ static tlv_result_t encode_children_concat(der_schema_write_ctx_t* wctx,
         total += len;
     }
     base = arena_alloc(wctx, total);
-    if (base == (size_t)-1) return TLV_ERR_LIMIT;
+    if (base == (size_t)-1) return TLV_ERR_BUFFER_TOO_SHORT;
     pos = base;
     for (i = 0; i < present; ++i) {
         memcpy(wctx->arena + pos, wctx->arena + offs[i], lens[i]);
@@ -993,7 +996,7 @@ static tlv_result_t encode_set_content(der_schema_write_ctx_t* wctx,
     }
     for (i = 0; i < present; ++i) total += lens[i];
     base = arena_alloc(wctx, total);
-    if (base == (size_t)-1) return TLV_ERR_LIMIT;
+    if (base == (size_t)-1) return TLV_ERR_BUFFER_TOO_SHORT;
     pos = base;
     for (i = 0; i < present; ++i) {
         memcpy(wctx->arena + pos, wctx->arena + offs[i], lens[i]);
@@ -1027,7 +1030,7 @@ static tlv_result_t encode_set_of_content(der_schema_write_ctx_t* wctx,
             encode_at(wctx, type->element, count, depth, 0, &element_absent, &off, &len);
         if (rc != TLV_OK) return rc;
         if (element_absent) break;
-        if (count >= wctx->scratch_capacity) return TLV_ERR_LIMIT;
+        if (count >= wctx->scratch_capacity) return TLV_ERR_BUFFER_TOO_SHORT;
         wctx->scratch[count].offset = off;
         wctx->scratch[count].length = len;
         ++count;
@@ -1059,7 +1062,7 @@ static tlv_result_t encode_set_of_content(der_schema_write_ctx_t* wctx,
     }
     for (i = 0; i < count; ++i) total += wctx->scratch[i].length;
     base = arena_alloc(wctx, total);
-    if (base == (size_t)-1) return TLV_ERR_LIMIT;
+    if (base == (size_t)-1) return TLV_ERR_BUFFER_TOO_SHORT;
     pos = base;
     for (i = 0; i < count; ++i) {
         memcpy(wctx->arena + pos, wctx->arena + wctx->scratch[i].offset, wctx->scratch[i].length);
@@ -1093,7 +1096,7 @@ static tlv_result_t encode_sequence_of_content(der_schema_write_ctx_t* wctx,
             encode_at(wctx, type->element, count, depth, 0, &element_absent, &off, &len);
         if (rc != TLV_OK) return rc;
         if (element_absent) break;
-        if (count >= wctx->scratch_capacity) return TLV_ERR_LIMIT;
+        if (count >= wctx->scratch_capacity) return TLV_ERR_BUFFER_TOO_SHORT;
         wctx->scratch[count].offset = off;
         wctx->scratch[count].length = len;
         ++count;
@@ -1111,7 +1114,7 @@ static tlv_result_t encode_sequence_of_content(der_schema_write_ctx_t* wctx,
     }
     for (i = 0; i < count; ++i) total += wctx->scratch[i].length;
     base = arena_alloc(wctx, total);
-    if (base == (size_t)-1) return TLV_ERR_LIMIT;
+    if (base == (size_t)-1) return TLV_ERR_BUFFER_TOO_SHORT;
     pos = base;
     for (i = 0; i < count; ++i) {
         memcpy(wctx->arena + pos, wctx->arena + wctx->scratch[i].offset, wctx->scratch[i].length);
@@ -1232,6 +1235,7 @@ static tlv_result_t encode_at(der_schema_write_ctx_t* wctx,
 
     *absent = 0;
     rc = wctx->encode(wctx->context, component, index, NULL, 0, &ignored_size, absent);
+    rc = tlv_callback_result(rc, 0);
     if (rc != TLV_OK) return rc;
     /* Whether an absent component/element is acceptable here is a caller
      * decision, not this function's: a plain SEQUENCE/SET component's
@@ -1309,7 +1313,8 @@ static tlv_result_t write_input(uint8_t* data, size_t capacity, const tlv_der_sc
     if ((!data && capacity) || !root || !encode || !written ||
         (!scratch_bytes && scratch_bytes_capacity) || (!scratch && scratch_capacity))
         return fail(TLV_ERR_NULL_ARG, 0, error_offset);
-    if (limits->base.max_depth > TLV_DER_MAX_DEPTH) return fail(TLV_ERR_LIMIT, 0, error_offset);
+    if (limits->base.max_depth > TLV_DER_MAX_DEPTH)
+        return fail(TLV_ERR_UNSUPPORTED, 0, error_offset);
 
     wctx.arena = scratch_bytes;
     wctx.arena_capacity = scratch_bytes_capacity;

@@ -360,6 +360,6 @@ tlv_result_t tlv_asn1_validate_universal_value(uint64_t number, const uint8_t* v
         case 34: return tlv_asn1_validate_duration(value, length);
         case 35: return tlv_asn1_validate_oid_iri(value, length);
         case 36: return tlv_asn1_validate_relative_oid_iri(value, length);
-        default: return TLV_ERR_UNSUPPORTED_TYPE;
+        default: return TLV_ERR_UNSUPPORTED;
     }
 }

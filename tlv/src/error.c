@@ -8,6 +8,7 @@ const char* tlv_strerror(tlv_result_t result) {
         case TLV_NEED_MORE_DATA: return "need more data";
         case TLV_ERR_NATIVE_SIZE: return "native address space exceeded";
         case TLV_ERR_INVALID_STATE: return "invalid state";
+        case TLV_ERR_CALLBACK: return "callback contract violated";
         case TLV_ERR_INVALID_ARG: return "invalid argument";
         case TLV_ERR_INVALID_BYTE_ORDER: return "invalid byte order";
         case TLV_ERR_OVERFLOW: return "numeric overflow";
@@ -23,8 +24,8 @@ const char* tlv_strerror(tlv_result_t result) {
         case TLV_ERR_LIMIT: return "resource limit exceeded";
         case TLV_ERR_SCHEMA: return "schema constraint violated";
         case TLV_ERR_INVALID_SCHEMA: return "invalid schema definition";
-        case TLV_ERR_INVALID_VALUE: return "invalid or noncanonical value";
-        case TLV_ERR_UNSUPPORTED_TYPE: return "unsupported type or capability";
+        case TLV_ERR_INVALID_VALUE: return "invalid data or application representation";
+        case TLV_ERR_UNSUPPORTED: return "unsupported capability";
         default: return "unknown error";
     }
 }

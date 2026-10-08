@@ -138,7 +138,7 @@ fn changing_resolver_output_with_equal_size_is_rejected() {
     let failure = QueryProgram::compile("//app:payload", &options)
         .err()
         .unwrap();
-    assert_eq!(failure.error, Error::InvalidArg);
+    assert_eq!(failure.error, Error::InvalidValue);
     assert!(calls.load(Ordering::Relaxed) >= 2);
     for panic in [false, true] {
         options.resolver = Some(QueryResolver::new(move |_, _| {

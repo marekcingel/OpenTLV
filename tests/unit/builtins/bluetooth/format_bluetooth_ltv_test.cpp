@@ -185,6 +185,6 @@ TEST(Unit_Tlv_BluetoothLtv, RejectsDecoderThatMakesNoProgress) {
     tlv_element_t element{};
     size_t        consumed = 99;
     const uint8_t data[] = {1, 2, 3};
-    EXPECT_EQ(TLV_ERR_INVALID_ARG, tlv_read(data, sizeof(data), &reader, &element, &consumed));
+    EXPECT_EQ(TLV_ERR_CALLBACK, tlv_read(data, sizeof(data), &reader, &element, &consumed));
     EXPECT_EQ(99u, consumed);
 }

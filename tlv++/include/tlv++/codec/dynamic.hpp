@@ -37,7 +37,7 @@ inline error to_error(codec_errc code) noexcept {
         case codec_errc::ok: status = errc::ok; break;
         case codec_errc::null_argument: status = errc::null_argument; break;
         case codec_errc::buffer_too_short: status = errc::buffer_too_short; break;
-        case codec_errc::unsupported: status = errc::unsupported_type; break;
+        case codec_errc::unsupported: status = errc::unsupported; break;
         case codec_errc::invalid_structure:
         case codec_errc::invalid_value: break;
     }

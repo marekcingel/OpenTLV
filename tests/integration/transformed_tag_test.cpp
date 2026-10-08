@@ -158,8 +158,7 @@ TEST(Integration_Tlv_TransformedTag, BoundsAndRejectedCallbacksDoNotPublishResul
         };
         tlv_decoded_t decoded{};
         decoded.source.size = 99;
-        EXPECT_EQ(TLV_ERR_INVALID_ARG,
-                  tlv_format_decode(&bad, wire, sizeof(wire), &decoded, nullptr));
+        EXPECT_EQ(TLV_ERR_CALLBACK, tlv_format_decode(&bad, wire, sizeof(wire), &decoded, nullptr));
         EXPECT_EQ(99u, decoded.source.size);
     }
 }

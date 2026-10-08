@@ -82,8 +82,8 @@ TEST(Unit_Tlv_SchemaFailure, RecursiveDefinitionsAndCapabilityBoundsAreDistinct)
         schemas[i] = {&rules[i], 1, 0, nullptr, 0, TLV_SCHEMA_ORDER_ANY};
     }
     tlv_schema_diagnostic_t diagnostic{};
-    EXPECT_EQ(TLV_ERR_UNSUPPORTED_TYPE, tlv_schema_check(schemas, &diagnostic));
-    EXPECT_EQ(TLV_ERR_UNSUPPORTED_TYPE, diagnostic.diagnostic.code);
+    EXPECT_EQ(TLV_ERR_UNSUPPORTED, tlv_schema_check(schemas, &diagnostic));
+    EXPECT_EQ(TLV_ERR_UNSUPPORTED, diagnostic.diagnostic.code);
     EXPECT_EQ(TLV_SCHEMA_ISSUE_NONE, diagnostic.kind);
     EXPECT_FALSE(diagnostic.diagnostic.has_offset);
     rules[TLV_SCHEMA_MAX_TABLES - 1].children = nullptr;

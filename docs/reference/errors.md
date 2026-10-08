@@ -5,7 +5,8 @@ This page describes the **currently implemented API**. The accepted
 typed diagnostic layering, locations and propagation rules. Its implementation
 will break API and ABI compatibility; the target names and signatures are not
 available yet, except for `TLV_ERR_INVALID_STATE` and Query kind `STATE` (#552),
-and `TLV_ERR_INVALID_SCHEMA` with Schema failure classification (#553). The
+`TLV_ERR_INVALID_SCHEMA` with Schema failure classification (#553), and
+`TLV_ERR_UNSUPPORTED`/`TLV_ERR_CALLBACK` with resource and callback classification (#554). The
 tables below describe the current codes and behavior.
 
 Core operations return a `tlv_result_t` from `tlv/error.h`; Codec operations
@@ -92,22 +93,23 @@ the breaking #551 migration; `INVALID_STATE = 19` does not promise append-only e
 | `TLV_ERR_BUFFER_TOO_SHORT` | 1 | A supplied buffer is too small for the data or the output. | Reading: more bytes are required to complete the header, value or trailer (incomplete input). Writing: the output capacity is smaller than `tlv_encoded_size` reports. |
 | `TLV_ERR_INVALID_LENGTH` | 2 | A length is malformed or invalid for the wire encoding. | The format's length limits (for example the length width for [configurable fixed-width TLV](../formats/fixed/configurable.md)), or the reserved BER length prefix `FF`. |
 | `TLV_ERR_NULL_ARG` | 3 | A required pointer argument is `NULL`. | Required outputs and descriptors; `NULL` data is valid only with size zero. |
-| `TLV_ERR_OUT_OF_MEMORY` | 4 | An owning operation could not obtain storage. | Document allocation and allocation-size checks. Caller-supplied workspace exhaustion can currently use other codes; see the target failure model for the planned distinction. |
+| `TLV_ERR_OUT_OF_MEMORY` | 4 | An owning operation could not obtain storage. | Document allocation and allocation-size checks. Caller-supplied workspace exhaustion uses `BUFFER_TOO_SHORT`. |
 | `TLV_ERR_END_OF_BUFFER` | 5 | No further element exists, or the input is empty. | Normal end of iteration with `tlv_reader_next`; for a single read, empty input. |
 | `TLV_ERR_INVALID_TAG` | 6 | A tag is malformed or invalid for the format or standard. | Malformed BER identifier digits, or a tag the selected format rejects. Incomplete identifiers return `TLV_ERR_BUFFER_TOO_SHORT`. |
 | `TLV_ERR_VISITOR` | 7 | A visitor callback requested an error stop. | Your visitor returned `TLV_VISIT_ERROR` or an unknown result. |
-| `TLV_ERR_LIMIT` | 8 | A configured depth, size or element-count limit was exceeded. | The limits passed to the Tree Reader or validation function, available frame capacity, `TLV_BER_MAX_DEPTH` (64). Limits are inclusive and zero is a real limit. |
+| `TLV_ERR_LIMIT` | 8 | A configured depth, size or element-count limit was exceeded. | The limits passed to the Tree Reader or validation function, `TLV_BER_MAX_DEPTH` (64). Limits are inclusive and zero is a real limit. |
 | `TLV_ERR_SCHEMA` | 9 | Input violates a valid schema. | Missing or forbidden fields, excess occurrences, kind/order mismatches, and length or Value constraints. Schema detail identifies the reason, including `MISSING`. |
-| `TLV_ERR_INVALID_ARG` | 10 | An argument has an invalid value that no more specific code describes. | A required callback missing from a format descriptor, or an invalid option value. |
+| `TLV_ERR_INVALID_ARG` | 10 | An API configuration or argument descriptor is invalid. | A required callback missing from a format descriptor, or an invalid option value. |
 | `TLV_ERR_INVALID_TAG_SIZE` | 11 | A tag size is outside the range the operation or format supports. | A tag length the selected format rejects (for example more than 8 bytes for BER, CER and DER, or a tag width different from the configured Fixed width), or an empty tag where the operation needs bytes. Also the numeric tag conversions for empty tags and tags longer than 8 bytes. `tlv_tag_t` itself has no size limit. |
 | `TLV_ERR_INVALID_BYTE_ORDER` | 12 | A byte order is unknown or unsupported. | The `TLV_BYTE_ORDER_*` value passed to the integer conversion functions in `tlv/endian.h` and `tlv/tag.h`, or `tlv_fixed_format_t.length.byte_order` in [configurable fixed-width TLV](../formats/fixed/configurable.md). |
 | `TLV_ERR_OVERFLOW` | 13 | An unsigned value cannot fit the requested numeric width, or logical size arithmetic overflows. | The value against the destination width in the same integer conversion functions. |
-| `TLV_ERR_INVALID_VALUE` | 14 | Content or its interpretation is invalid. | DER/CER canonical Value checks and SET ordering; Query codec, scalar cardinality and unavailable Source metadata failures; malformed structural event streams. |
-| `TLV_ERR_UNSUPPORTED_TYPE` | 15 | A type, Query capability or program-image version is unsupported. | Strict ASN.1 validation rejects unchecked types; see [DER validation](../standards/der/README.md#strict-universal-value-validation). Query also uses this code outside ASN.1; Schema definition checks use it for valid graphs exceeding fixed checking capacity. |
+| `TLV_ERR_INVALID_VALUE` | 14 | Content or its interpretation is invalid. | DER/CER canonical Value checks and SET ordering; Query operand types, variable bindings, malformed images, legacy codec failures and scalar cardinality; malformed structural event streams. Configuration and provider contract violations use separate results. |
+| `TLV_ERR_UNSUPPORTED` | 15 | A type, Query capability or program-image version is unsupported. | Strict ASN.1 validation rejects unchecked types; see [DER validation](../standards/der/README.md#strict-universal-value-validation). Query also uses this code outside ASN.1; Schema definition checks use it for valid graphs exceeding fixed checking capacity. |
 | `TLV_ERR_INVALID_SCHEMA` | 16 | A schema definition is invalid independently of input. | Constraint kinds and bounds, required references, rule/group tables and DER type definitions. |
 | `TLV_ERR_NATIVE_SIZE` | 17 | A logical size exceeds the native address space. | Checked conversion to `size_t`; the logical quantity itself remains valid. |
 | `TLV_NEED_MORE_DATA` | 18 | Incremental input is exhausted or incomplete. | Supply an extended window or declare EOF. No element is published and the cursor does not advance. |
 | `TLV_ERR_INVALID_STATE` | 19 | The operation is forbidden by the current lifecycle state. | Reset a failed or used Query execution before reuse; leave the callback before mutating; close Tree Writer parents before finishing; only skip a pending Reader subtree. Stale Document results also use this code. |
+| `TLV_ERR_CALLBACK` | 20 | A callback violates its declared contract. | Invalid discriminator or success payload; correct the provider. Legitimate provider failures keep their original result. |
 
 ### Arguments versus lifecycle state
 
@@ -121,9 +123,33 @@ the original diagnostic. Repeated successful Query finish and normal iterator
 exhaustion retain their existing behavior. Reader input may be relocated after
 EOF, but cannot be reopened or extended.
 
-The node-only Tree Writer source callback returning impossible preorder depth
-still reports `INVALID_ARG`. Reclassifying callback contract violations to the
-planned `CALLBACK` result is separate follow-up work.
+### Capabilities, resources and callbacks
+
+`UNSUPPORTED` replaces the former `UNSUPPORTED_TYPE` name without an alias.
+A valid DER/CER `max_depth` above the fixed implementation capacity is
+`UNSUPPORTED`; exceeding an accepted depth or element budget is `LIMIT`.
+Invalid options and inconsistent API descriptors are `INVALID_ARG`.
+Caller-provided frame arrays, tag storage, DER byte arenas and sorting records
+that cannot hold the required data produce `BUFFER_TOO_SHORT`.
+
+Callback errors that satisfy the callback contract retain their result. Invalid
+return discriminators, forbidden control statuses and inconsistent successful
+payloads produce `CALLBACK`. This includes Format source/framing sizes, Field
+Encoding extents, DER presence/size changes and impossible preorder depths.
+Explicit visitor error stops remain `VISITOR`; unknown visitor actions are
+`CALLBACK`, while normal early stop remains success.
+
+Query hook output with a wrong type, nonempty NULL span or invalid UTF-8 returns
+`CALLBACK` with Query kind `CALLBACK`, preserving the reported codec result
+(including `TLV_CODEC_OK`). Legacy ordinary codec failures still use
+`INVALID_VALUE` plus `CODEC` until the shared result migration in #556.
+Malformed stored images use `INVALID_VALUE` plus `IMAGE`; a recognized image
+with an incompatible version uses `UNSUPPORTED` plus `IMAGE_VERSION`.
+
+Optional path truncation keeps the operation's original result and increments
+`path.omitted`. The standalone path-push helper reports `BUFFER_TOO_SHORT`.
+Reports that explicitly permit partial collection retain their validation
+result and stored/omitted counts.
 
 ## Offsets and diagnosis
 

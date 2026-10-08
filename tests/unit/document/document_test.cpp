@@ -403,13 +403,13 @@ TEST(Unit_Tlv_Document, RetirementEpochRemainsBoundedAtIdentityExhaustion) {
         EXPECT_EQ(UINT64_MAX - 1, tlv_document_retire_epoch(doc.get()));
     }
     const Bytes child = {0x50, 0};
-    EXPECT_EQ(TLV_ERR_LIMIT, tlv_node_set_value(last, child.data(), child.size()));
+    EXPECT_EQ(TLV_ERR_OVERFLOW, tlv_node_set_value(last, child.data(), child.size()));
     EXPECT_EQ(UINT64_MAX - 1, tlv_document_retire_epoch(doc.get()));
     EXPECT_EQ(1u, tlv_document_count(doc.get()));
     tlv_node_erase(last);
     EXPECT_EQ(UINT64_MAX, tlv_document_retire_epoch(doc.get()));
     EXPECT_EQ(0u, tlv_document_count(doc.get()));
-    EXPECT_EQ(TLV_ERR_LIMIT,
+    EXPECT_EQ(TLV_ERR_OVERFLOW,
               tlv_document_insert(doc.get(), nullptr, nullptr, TLV_TAG(0x50), nullptr, 0, nullptr));
     EXPECT_EQ(UINT64_MAX, tlv_document_retire_epoch(doc.get()));
 }
@@ -424,7 +424,7 @@ TEST(Unit_Tlv_Document, IdentityExhaustionDuringDetachedReplacementPreservesReti
     doc.get()->retire_epoch = UINT64_MAX - 3;
     const auto  revision = tlv_document_revision(doc.get());
     const Bytes replacement = {0x51, 0, 0x52, 0};
-    EXPECT_EQ(TLV_ERR_LIMIT, tlv_node_set_value(parent, replacement.data(), replacement.size()));
+    EXPECT_EQ(TLV_ERR_OVERFLOW, tlv_node_set_value(parent, replacement.data(), replacement.size()));
     EXPECT_EQ(UINT64_MAX, doc.get()->next_identity);
     EXPECT_EQ(UINT64_MAX - 3, tlv_document_retire_epoch(doc.get()));
     EXPECT_EQ(revision, tlv_document_revision(doc.get()));

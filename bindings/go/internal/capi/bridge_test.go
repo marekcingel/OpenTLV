@@ -126,7 +126,7 @@ func TestFormatValidation(t *testing.T) {
 		}
 	}
 	for _, kind := range []Kind{Fixed, -1, 999} {
-		if _, code := Builtin(kind); code != UnsupportedType {
+		if _, code := Builtin(kind); code != Unsupported {
 			t.Fatal(code)
 		}
 	}
@@ -154,7 +154,7 @@ func TestBuiltins(t *testing.T) {
 		{NFCType2, []byte{3, 1, 42}, []byte{3}, []byte{42}},
 	} {
 		f, code := Builtin(tc.kind)
-		if code == UnsupportedType {
+		if code == Unsupported {
 			t.Logf("preset %d disabled", tc.kind)
 			continue
 		}

@@ -22,6 +22,10 @@ extern "C" {
  * All functions here are allocation-free and use no C recursion. All limits
  * are inclusive, and zero is a real limit. Passing `NULL` limits selects
  * #tlv_der_default_limits.
+ *
+ * A valid max_depth beyond the fixed implementation capacity returns
+ * #TLV_ERR_UNSUPPORTED. Exceeding an accepted processing budget returns
+ * #TLV_ERR_LIMIT. Unknown visitor results return #TLV_ERR_CALLBACK.
  */
 
 /** @addtogroup builtins
@@ -44,7 +48,8 @@ typedef struct tlv_der_limits {
     size_t max_input_size;
     /** Bounds each value. */
     size_t max_value_size;
-    /** Bounds the total visited elements. */
+    /** Bounds the total visited elements. Zero is a valid budget: any operation
+     * requiring an element returns #TLV_ERR_LIMIT, not #TLV_ERR_INVALID_ARG. */
     size_t max_elements;
 } tlv_der_limits_t;
 
@@ -158,7 +163,7 @@ TLV_API tlv_result_t tlv_der_write(uint8_t* data, size_t capacity, tlv_tag_t tag
  *
  * @return #TLV_ERR_INVALID_VALUE for a recognized universal type with
  *         invalid or noncanonical content.
- * @return #TLV_ERR_UNSUPPORTED_TYPE for a universal type without an
+ * @return #TLV_ERR_UNSUPPORTED for a universal type without an
  *         implemented canonical rule.
  * @return Otherwise any result of tlv_der_read().
  *

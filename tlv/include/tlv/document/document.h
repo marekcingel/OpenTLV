@@ -96,7 +96,7 @@ typedef struct tlv_allocator {
  * @brief Format descriptor and limits of a document.
  * @note The Format need not provide read/write callbacks for programmatic trees.
  * Nonempty constructed wire values require OPENTLV_READER; without it, insert
- * and set_value return TLV_ERR_UNSUPPORTED_TYPE without changing the tree.
+ * and set_value return TLV_ERR_UNSUPPORTED without changing the tree.
  *
  * Initialize with tlv_document_options_init(). The document copies this
  * structure, but the format, the format's context and the allocator context are

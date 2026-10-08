@@ -2,6 +2,7 @@
 // Copyright (c) 2026 Marek Cingel
 #include "program_internal.h"
 #include "../utf8_internal.h"
+#include "../codec/result_internal.h"
 #include <stdio.h>
 
 /* The shared retained backend indexes canonical events, never reparses wire bytes.
@@ -105,12 +106,14 @@ static tlv_result_t add_size(size_t* size, size_t count, size_t width) {
 tlv_result_t tlv_query_eval_size(const tlv_query_program_t* p, size_t depth, size_t nodes,
                                  size_t* bytes, size_t* alignment) {
     if (!p || !bytes || !alignment) return TLV_ERR_NULL_ARG;
-    if (!query_program_valid(p) || !nodes) return TLV_ERR_INVALID_ARG;
+    if ((uintptr_t)p % sizeof(uint32_t)) return TLV_ERR_INVALID_ARG;
+    if (!query_program_valid(p)) return TLV_ERR_INVALID_VALUE;
+    if (!nodes) return TLV_ERR_INVALID_ARG;
     if (query_overlap(p, p->reserved, bytes, sizeof *bytes) ||
         query_overlap(p, p->reserved, alignment, sizeof *alignment) ||
         query_overlap(bytes, sizeof *bytes, alignment, sizeof *alignment))
         return TLV_ERR_INVALID_ARG;
-    if (!query_plan_supported(p)) return TLV_ERR_UNSUPPORTED_TYPE;
+    if (!query_plan_supported(p)) return TLV_ERR_UNSUPPORTED;
     if (depth == SIZE_MAX || nodes == SIZE_MAX) return TLV_ERR_OVERFLOW;
     size_t size = sizeof(tlv_query_exec_t), count = (size_t)p->count + p->variable_count;
     if (add_size(&size, count, sizeof(query_value_t)) != TLV_OK ||
@@ -155,13 +158,13 @@ static tlv_result_t compatible(const tlv_query_program_t* p, const tlv_query_env
                     if (e->hooks[j].id == n->hook_id) h = &e->hooks[j];
             if (!h || !h->decode || (unsigned)h->function != f - F_NUM ||
                 h->scratch_size > n->scratch_size)
-                return TLV_ERR_UNSUPPORTED_TYPE;
+                return TLV_ERR_UNSUPPORTED;
         }
         if ((f == F_CLASS || f == F_NUMBER) &&
             (!e || !e->tags || e->tags->id != p->tag_id ||
              (f == F_CLASS ? !e->tags->class_of : !e->tags->number_of)))
-            return TLV_ERR_UNSUPPORTED_TYPE;
-        if (f == F_CONSTRUCTED && (!e || !e->format)) return TLV_ERR_UNSUPPORTED_TYPE;
+            return TLV_ERR_UNSUPPORTED;
+        if (f == F_CONSTRUCTED && (!e || !e->format)) return TLV_ERR_UNSUPPORTED;
     }
     return TLV_OK;
 }
@@ -309,6 +312,7 @@ static tlv_result_t scalar_call(tlv_query_exec_t* e, eval_frame_t* f, const quer
                               ? tag->class_of(tag->context, &event->element.tag, &number)
                               : tag->number_of(tag->context, &event->element.tag, &number);
         if (!e->busy) return TLV_ERR_INVALID_STATE;
+        rc = tlv_callback_result(rc, 0);
         if (rc != TLV_OK)
             return query_error(d, rc, TLV_QUERY_ERROR_CAPABILITY, n->begin, n->end,
                                "valid tag decomposition");
@@ -325,14 +329,19 @@ static tlv_result_t scalar_call(tlv_query_exec_t* e, eval_frame_t* f, const quer
                          eval_codec_scratch(e) + instruction * e->program->codec_stride,
                          hook->scratch_size, &result);
         if (!e->busy) return TLV_ERR_INVALID_STATE;
+        if (!tlv_codec_result_valid(rc)) {
+            if (d) d->codec = rc;
+            return query_error(d, TLV_ERR_CALLBACK, TLV_QUERY_ERROR_CALLBACK, n->begin, n->end,
+                               "valid codec result discriminator");
+        }
         if (rc != TLV_CODEC_OK) {
             if (d) d->codec = rc;
             return query_error(d, TLV_ERR_INVALID_VALUE, TLV_QUERY_ERROR_CODEC, n->begin, n->end,
                                "strict complete-Value decoding");
         }
         if (query_private_type(result.kind) != n->type || (result.size && !result.data)) {
-            if (d) d->codec = TLV_CODEC_ERR_INVALID_VALUE;
-            return query_error(d, TLV_ERR_INVALID_VALUE, TLV_QUERY_ERROR_CODEC, n->begin, n->end,
+            if (d) d->codec = rc;
+            return query_error(d, TLV_ERR_CALLBACK, TLV_QUERY_ERROR_CALLBACK, n->begin, n->end,
                                "declared codec result type");
         }
         if (result.kind == TLV_QUERY_RESULT_INTEGER)
@@ -341,9 +350,9 @@ static tlv_result_t scalar_call(tlv_query_exec_t* e, eval_frame_t* f, const quer
             tlv_result_t work = eval_charge(e, result.size, n, d);
             if (work != TLV_OK) return work;
             if (tlv_utf8_validate(result.data, result.size) != TLV_OK) {
-                if (d) d->codec = TLV_CODEC_ERR_INVALID_VALUE;
-                return query_error(d, TLV_ERR_INVALID_VALUE, TLV_QUERY_ERROR_CODEC, n->begin,
-                                   n->end, "UTF-8 decoded string");
+                if (d) d->codec = rc;
+                return query_error(d, TLV_ERR_CALLBACK, TLV_QUERY_ERROR_CALLBACK, n->begin, n->end,
+                                   "UTF-8 decoded string");
             }
             f->value.kind = V_STRING;
             f->value.data = result.data;
@@ -774,11 +783,12 @@ tlv_result_t tlv_query_result_next_ordinal(tlv_query_exec_t* e, tlv_tree_event_t
 tlv_result_t tlv_query_program_explain(const tlv_query_program_t* p, char* output, size_t capacity,
                                        size_t* required) {
     if (!p || !required || (!output && capacity)) return TLV_ERR_NULL_ARG;
+    if ((uintptr_t)p % sizeof(uint32_t)) return TLV_ERR_INVALID_ARG;
+    if (!query_program_valid(p)) return TLV_ERR_INVALID_VALUE;
     if (query_overlap(p, p->reserved, output, capacity) ||
         query_overlap(p, p->reserved, required, sizeof *required) ||
         query_overlap(output, capacity, required, sizeof *required))
         return TLV_ERR_INVALID_ARG;
-    if (!query_program_valid(p)) return TLV_ERR_INVALID_ARG;
     size_t total = 0;
     for (unsigned pass = 0; pass < 2; ++pass) {
         size_t pos = 0;

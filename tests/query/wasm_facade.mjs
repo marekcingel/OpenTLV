@@ -134,7 +134,7 @@ const custom = api.compileQuery("num(//5A)", { providers });
 assert.equal(custom.evaluate(hexToBytes("5a0103")), -30);
 assert.equal(metadataSeen.at(-1).offset, 0);
 const customImage = custom.image();
-assert.throws(() => api.QueryProgram.load(customImage), error => error.code === 10);
+assert.throws(() => api.QueryProgram.load(customImage), error => error.code === 14 && error.query.kind === 15);
 const customLoaded = api.QueryProgram.load(customImage, { providers });
 assert.equal(customLoaded.evaluate(hexToBytes("5a0104")), -40);
 const ongoing = custom.execution().setInput(hexToBytes("5a0105"));
@@ -289,7 +289,7 @@ assert.throws(() => api.compileQuery("//name('a','missing')", { resolve: definit
 let resolutions = 0;
 assert.throws(() => api.compileQuery("//name('a','changing')", {
   resolve: () => Uint8Array.of(++resolutions === 1 ? 0x5a : 0x5b),
-}), error => error.code === 10);
+}), error => error.code === 14 && error.query.kind === 15);
 assert.ok(resolutions >= 2);
 const resolverMarker = { resolver: "failed" };
 assert.throws(() => api.compileQuery("//name('a','x')", { resolve() { throw resolverMarker; } }), error => error === resolverMarker);
@@ -311,7 +311,7 @@ const tagged = api.compileQuery("//*[number()=4660]", { format: fixedFormat, tag
 assert.equal(tagged.evaluate(fixedInput).length, 1);
 assert.throws(() => api.compileQuery("//*[class()=1]", { format: fixedFormat, tags: adapter }), error => error.code === 15);
 const taggedImage = tagged.image();
-assert.throws(() => api.loadQuery(taggedImage, { format: fixedFormat, tags: { ...adapter, id: 312 } }), error => error.code === 10);
+assert.throws(() => api.loadQuery(taggedImage, { format: fixedFormat, tags: { ...adapter, id: 312 } }), error => error.code === 14 && error.query.kind === 15);
 const taggedLoaded = api.loadQuery(taggedImage, { format: fixedFormat, tags: adapter });
 const taggedExecution = taggedLoaded.execution().setInput(fixedInput);
 const fixedDocument = api.document(fixedInput, { format: fixedFormat });
