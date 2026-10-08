@@ -9,6 +9,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Fixed
 
+- Fix Visitor fuzz checks after the diagnostic migration: accept initialized diagnostics on successful traversal and validate failure coordinates only when their location is known. (#555)
 - Avoid systematic generator seed/case-index collisions by mixing both inputs in separate stages. Bump the deterministic generator algorithm to version 2; regenerate corpora and their metadata to replay the new output. (#503)
 - Fix Rust Clippy and Clang warning-as-error builds after the diagnostic migration; derive Rust Query source offsets from the common location without duplicate error storage. (#555)
 - Reject misaligned Query program pointers before reading their contents, and report malformed Schema Query programs and incompatible rule result types as `INVALID_VALUE` with image/type diagnostics. Clarify callback result contracts and the general invalid-data error message. (#554)
