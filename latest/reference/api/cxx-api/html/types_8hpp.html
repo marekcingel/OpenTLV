@@ -87,13 +87,11 @@ $(function() {
 <div class="textblock"><code>#include &lt;string&gt;</code><br />
 <code>#include &lt;stdexcept&gt;</code><br />
 <code>#include &quot;<a class="el" href="compat_8hpp.html">tlv++/compat.hpp</a>&quot;</code><br />
+<code>#include &quot;<a class="el" href="error_8hpp.html">tlv++/error.hpp</a>&quot;</code><br />
 <code>#include &quot;<a class="elRef" href="../../c-api/html/element_8h.html">tlv/element.h</a>&quot;</code><br />
 </div><table class="memberdecls">
 <tr class="heading"><td colspan="2"><h2 class="groupheader"><a id="nested-classes" name="nested-classes"></a>
 Classes</h2></td></tr>
-<tr class="memitem:"><td class="memItemLeft" align="right" valign="top">struct &#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="structtlv_1_1error.html">tlv::error</a></td></tr>
-<tr class="memdesc:"><td class="mdescLeft">&#160;</td><td class="mdescRight">Idiomatic C++ error that wraps a C result code and its description.  <a href="structtlv_1_1error.html#details">More...</a><br /></td></tr>
-<tr class="separator:"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:"><td class="memItemLeft" align="right" valign="top">class &#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classtlv_1_1tag.html">tlv::tag</a></td></tr>
 <tr class="memdesc:"><td class="mdescLeft">&#160;</td><td class="mdescRight">Read-only borrowed identifier with byte identity, independent of Format.  <a href="classtlv_1_1tag.html#details">More...</a><br /></td></tr>
 <tr class="separator:"><td class="memSeparator" colspan="2">&#160;</td></tr>
@@ -115,6 +113,9 @@ Typedefs</h2></td></tr>
 <tr class="memitem:a2abe7003a70af047ef9acae17f31f75d" id="r_a2abe7003a70af047ef9acae17f31f75d"><td class="memItemLeft" align="right" valign="top">using&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="namespacetlv.html#a2abe7003a70af047ef9acae17f31f75d">tlv::bytes</a> = <a class="el" href="classtlv_1_1span.html">span</a>&lt; const <a class="el" href="namespacetlv.html#aa91df798a712d88cf7d2f1f63a539b51">byte</a> &gt;</td></tr>
 <tr class="memdesc:a2abe7003a70af047ef9acae17f31f75d"><td class="mdescLeft">&#160;</td><td class="mdescRight">Non-owning, read-only byte span; storage must outlive every copy.  <br /></td></tr>
 <tr class="separator:a2abe7003a70af047ef9acae17f31f75d"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a57dd102e96981cb34a37b1a8f6781541" id="r_a57dd102e96981cb34a37b1a8f6781541"><td class="memItemLeft" align="right" valign="top">using&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="namespacetlv.html#a57dd102e96981cb34a37b1a8f6781541">tlv::wire_size</a> = <a class="elRef" href="../../c-api/html/group__core.html#gaf15b8962e0139f0bfb17769739dcd9f8">tlv_size_t</a></td></tr>
+<tr class="memdesc:a57dd102e96981cb34a37b1a8f6781541"><td class="mdescLeft">&#160;</td><td class="mdescRight">Logical wire length, independent of the host address-space width.  <br /></td></tr>
+<tr class="separator:a57dd102e96981cb34a37b1a8f6781541"><td class="memSeparator" colspan="2">&#160;</td></tr>
 </table><table class="memberdecls">
 <tr class="heading"><td colspan="2"><h2 class="groupheader"><a id="func-members" name="func-members"></a>
 Functions</h2></td></tr>

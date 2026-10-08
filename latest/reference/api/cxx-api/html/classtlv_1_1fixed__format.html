@@ -111,12 +111,12 @@ Public Member Functions</h2></td></tr>
 <tr class="memitem:a3b2f7327afff1e2660e2aba411182840 inherit pub_methods_classtlv_1_1format" id="r_a3b2f7327afff1e2660e2aba411182840"><td class="memItemLeft" align="right" valign="top">bool&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classtlv_1_1format.html#a3b2f7327afff1e2660e2aba411182840">has_constructed_classifier</a> () const noexcept</td></tr>
 <tr class="memdesc:a3b2f7327afff1e2660e2aba411182840 inherit pub_methods_classtlv_1_1format"><td class="mdescLeft">&#160;</td><td class="mdescRight">Whether the Format can classify constructed identifiers.  <br /></td></tr>
 <tr class="separator:a3b2f7327afff1e2660e2aba411182840 inherit pub_methods_classtlv_1_1format"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:add52775e86575490bcb492fb7dced20e inherit pub_methods_classtlv_1_1format" id="r_add52775e86575490bcb492fb7dced20e"><td class="memItemLeft" align="right" valign="top">bool&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classtlv_1_1format.html#add52775e86575490bcb492fb7dced20e">is_constructed</a> (<a class="el" href="classtlv_1_1tag.html">tlv::tag</a> identifier) const noexcept</td></tr>
+<tr class="memdesc:add52775e86575490bcb492fb7dced20e inherit pub_methods_classtlv_1_1format"><td class="mdescLeft">&#160;</td><td class="mdescRight">Classify an identifier through this Format; absent classifiers return false.  <br /></td></tr>
+<tr class="separator:add52775e86575490bcb492fb7dced20e inherit pub_methods_classtlv_1_1format"><td class="memSeparator" colspan="2">&#160;</td></tr>
 </table><table class="memberdecls">
 <tr class="heading"><td colspan="2"><h2 class="groupheader"><a id="pub-static-methods" name="pub-static-methods"></a>
 Static Public Member Functions</h2></td></tr>
-<tr class="memitem:a48a56d7f314f41c7c52396939fc2c6f1" id="r_a48a56d7f314f41c7c52396939fc2c6f1"><td class="memItemLeft" align="right" valign="top">static const <a class="elRef" href="../../c-api/html/group__formats.html#gac461da7e8d46362fa8e09694efb0b062">tlv_format_t</a> &amp;&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classtlv_1_1fixed__format.html#a48a56d7f314f41c7c52396939fc2c6f1">format</a> ()</td></tr>
-<tr class="memdesc:a48a56d7f314f41c7c52396939fc2c6f1"><td class="mdescLeft">&#160;</td><td class="mdescRight">Returns the descriptor for this format.  <br /></td></tr>
-<tr class="separator:a48a56d7f314f41c7c52396939fc2c6f1"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:a62e91e91f7ed9c91a8a96577d3264306" id="r_a62e91e91f7ed9c91a8a96577d3264306"><td class="memItemLeft" align="right" valign="top">static <a class="el" href="classtlv_1_1format.html">tlv::format</a>&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classtlv_1_1fixed__format.html#a62e91e91f7ed9c91a8a96577d3264306">view</a> () noexcept</td></tr>
 <tr class="memdesc:a62e91e91f7ed9c91a8a96577d3264306"><td class="mdescLeft">&#160;</td><td class="mdescRight">Return an allocation-free C++ view of this fixed-width Format.  <br /></td></tr>
 <tr class="separator:a62e91e91f7ed9c91a8a96577d3264306"><td class="memSeparator" colspan="2">&#160;</td></tr>
@@ -134,7 +134,7 @@ Static Public Attributes</h2></td></tr>
 <tr class="separator:af2632f171dc9da409f360cd6da390e89"><td class="memSeparator" colspan="2">&#160;</td></tr>
 </table>
 <a name="details" id="details"></a><h2 class="groupheader">Detailed Description</h2>
-<div class="textblock"><div class="compoundTemplParams">template&lt;std::size_t TagWidth, std::size_t LengthWidth, <a class="elRef" href="../../c-api/html/group__core.html#ga4706cf1001cdc65be8aa7f678487a366">tlv_byte_order_t</a> Order&gt;<br />
+<div class="textblock"><div class="compoundTemplParams">template&lt;std::size_t TagWidth, std::size_t LengthWidth, <a class="el" href="namespacetlv.html#a1072b00b459d45beabdf75288239cdbc">byte_order</a> Order = byte_order::big_endian&gt;<br />
 class tlv::fixed_format&lt; TagWidth, LengthWidth, Order &gt;</div><p>A fixed-width TLV format selected at compile time. </p>
 <p>A thin, <code>static_assert</code>-checked wrapper around the C <code>tlv_fixed_format_t</code>/tlv_fixed_format_init(): every read and write goes through that same C implementation, so behavior is identical to the runtime-configured C format for the same widths and byte order, not merely equivalent to it.</p>
 <p>Every element is <code>TagWidth</code> raw tag bytes, then a length field of <code>LengthWidth</code> bytes in byte order <code>Order</code>, then that many value bytes. The length counts only the value; it excludes the header. Tag bytes are copied unchanged in wire order, so <code>Order</code> applies to the length field only. Tags read by this format borrow the input bytes.</p>
@@ -149,7 +149,7 @@ class tlv::fixed_format&lt; TagWidth, LengthWidth, Order &gt;</div><p>A fixed-wi
 <td class="markdownTableBodyNone"><code>Order</code>   </td><td class="markdownTableBodyNone"><a class="elRef" href="../../c-api/html/group__core.html#gga37f63335a549ed6d3c6c2d3ccc1d0875a72bce499f639e5249c8ee6be29f313d5">TLV_BYTE_ORDER_BIG_ENDIAN</a>, <a class="elRef" href="../../c-api/html/group__core.html#gga37f63335a549ed6d3c6c2d3ccc1d0875aa09207eb116bd6d31b320a879d90cfe5">TLV_BYTE_ORDER_LITTLE_ENDIAN</a>   </td></tr>
 </table>
 <p>Any other value fails to compile with a <code>static_assert</code>.</p>
-<p>The descriptor returned by <a class="el" href="classtlv_1_1fixed__format.html#a48a56d7f314f41c7c52396939fc2c6f1" title="Returns the descriptor for this format.">format()</a> has static storage duration, so it never needs lifetime management; its context is a static <code>tlv_fixed_format_t</code> built from <code>TagWidth</code>, <code>LengthWidth</code> and <code>Order</code> with the same static storage duration. The format performs no allocation and reads values in place. Errors match the C <code>tlv_fixed_format_t</code>-based format for the same widths and byte order:</p><ul>
+<p>The descriptor returned by format() has static storage duration, so it never needs lifetime management; its context is a static <code>tlv_fixed_format_t</code> built from <code>TagWidth</code>, <code>LengthWidth</code> and <code>Order</code> with the same static storage duration. The format performs no allocation and reads values in place. Errors match the C <code>tlv_fixed_format_t</code>-based format for the same widths and byte order:</p><ul>
 <li><a class="elRef" href="../../c-api/html/group__core.html#gga516c7250563ee9332e2f45f2d203ae61acbd34cf02b42e70e99648aef5b9ca8b3">TLV_ERR_BUFFER_TOO_SHORT</a> when the input holds fewer bytes than a field needs, or the output has less capacity than a field needs;</li>
 <li><a class="elRef" href="../../c-api/html/group__core.html#gga516c7250563ee9332e2f45f2d203ae61a10505614abc0b8d1ef8e5eef944dc014">TLV_ERR_INVALID_TAG_SIZE</a> when a written tag is not <code>TagWidth</code> bytes;</li>
 <li><a class="elRef" href="../../c-api/html/group__core.html#gga516c7250563ee9332e2f45f2d203ae61a11e399e826cabbe9fb215922485d3742">TLV_ERR_INVALID_LENGTH</a> when a value length exceeds the largest value <code>LengthWidth</code> bytes can hold, or a decoded length does not fit in <code>size_t</code>.</li>
@@ -162,8 +162,8 @@ class tlv::fixed_format&lt; TagWidth, LengthWidth, Order &gt;</div><p>A fixed-wi
   </table>
   </dd>
 </dl>
-<dl class="section note"><dt>Note</dt><dd>Uses the always-available C Fixed format implementation; <a class="el" href="classtlv_1_1fixed__format.html#a48a56d7f314f41c7c52396939fc2c6f1" title="Returns the descriptor for this format.">format()</a> delegates to <a class="elRef" href="../../c-api/html/group__formats.html#ga42dd642a7d68261d64df08528ad6cf7e">tlv_fixed_format_init()</a>. </dd></dl>
-<dl class="section see"><dt>See also</dt><dd><a class="elRef" href="../../c-api/html/group__formats.html#ga0e550d1a72f37c704449cff92bb105df">tlv_fixed_format_t</a> for the same <a class="el" href="classtlv_1_1format.html" title="Copyable, allocation-free view of an immutable wire Format.">format</a> chosen at runtime instead of compile time (<a class="elRef" href="../../c-api/html/formats_2fixed_8h.html">tlv/formats/fixed.h</a>), usable from C++ via <code><a class="el" href="classtlv_1_1writer.html" title="Generic sequential writer using the canonical C engine.">tlv::writer</a>&lt;&gt;</code>/<code><a class="el" href="classtlv_1_1reader.html" title="Generic sequential reader using the canonical C engine.">tlv::reader</a>&lt;&gt;</code>'s <code>const <a class="elRef" href="../../c-api/html/group__formats.html#gac461da7e8d46362fa8e09694efb0b062">tlv_format_t</a>&amp;</code> constructor parameter directly, with no wrapper of its own needed. </dd>
+<dl class="section note"><dt>Note</dt><dd>Uses the always-available canonical C Fixed format implementation. </dd></dl>
+<dl class="section see"><dt>See also</dt><dd><a class="el" href="classtlv_1_1runtime__fixed__format.html" title="Immutable runtime Format owner with explicit borrowed views.">runtime_fixed_format</a> for widths and policies selected at runtime. </dd>
 <dd>
 <a href="https://marekcingel.github.io/OpenTLV/guides/memory/">format context ownership and lifetime</a> </dd></dl>
 </div><h2 class="groupheader">Constructor &amp; Destructor Documentation</h2>
@@ -173,7 +173,7 @@ class tlv::fixed_format&lt; TagWidth, LengthWidth, Order &gt;</div><p>A fixed-wi
 <div class="memitem">
 <div class="memproto">
 <div class="memtemplate">
-template&lt;std::size_t TagWidth, std::size_t LengthWidth, <a class="elRef" href="../../c-api/html/group__core.html#ga4706cf1001cdc65be8aa7f678487a366">tlv_byte_order_t</a> Order&gt; </div>
+template&lt;std::size_t TagWidth, std::size_t LengthWidth, <a class="el" href="namespacetlv.html#a1072b00b459d45beabdf75288239cdbc">byte_order</a> Order = byte_order::big_endian&gt; </div>
 <table class="mlabels">
   <tr>
   <td class="mlabels-left">
@@ -197,43 +197,13 @@ template&lt;std::size_t TagWidth, std::size_t LengthWidth, <a class="elRef" href
 </div>
 </div>
 <h2 class="groupheader">Member Function Documentation</h2>
-<a id="a48a56d7f314f41c7c52396939fc2c6f1" name="a48a56d7f314f41c7c52396939fc2c6f1"></a>
-<h2 class="memtitle"><span class="permalink"><a href="#a48a56d7f314f41c7c52396939fc2c6f1">&#9670;&#160;</a></span>format()</h2>
-
-<div class="memitem">
-<div class="memproto">
-<div class="memtemplate">
-template&lt;std::size_t TagWidth, std::size_t LengthWidth, <a class="elRef" href="../../c-api/html/group__core.html#ga4706cf1001cdc65be8aa7f678487a366">tlv_byte_order_t</a> Order&gt; </div>
-<table class="mlabels">
-  <tr>
-  <td class="mlabels-left">
-      <table class="memname">
-        <tr>
-          <td class="memname">static const <a class="elRef" href="../../c-api/html/group__formats.html#gac461da7e8d46362fa8e09694efb0b062">tlv_format_t</a> &amp; <a class="el" href="classtlv_1_1fixed__format.html">tlv::fixed_format</a>&lt; TagWidth, LengthWidth, Order &gt;::format </td>
-          <td>(</td>
-          <td class="paramname"></td><td>)</td>
-          <td></td>
-        </tr>
-      </table>
-  </td>
-  <td class="mlabels-right">
-<span class="mlabels"><span class="mlabel">inline</span><span class="mlabel">static</span></span>  </td>
-  </tr>
-</table>
-</div><div class="memdoc">
-
-<p>Returns the descriptor for this format. </p>
-<dl class="section return"><dt>Returns</dt><dd>A borrowed, immutable descriptor that lives for the whole program. </dd></dl>
-
-</div>
-</div>
 <a id="a62e91e91f7ed9c91a8a96577d3264306" name="a62e91e91f7ed9c91a8a96577d3264306"></a>
 <h2 class="memtitle"><span class="permalink"><a href="#a62e91e91f7ed9c91a8a96577d3264306">&#9670;&#160;</a></span>view()</h2>
 
 <div class="memitem">
 <div class="memproto">
 <div class="memtemplate">
-template&lt;std::size_t TagWidth, std::size_t LengthWidth, <a class="elRef" href="../../c-api/html/group__core.html#ga4706cf1001cdc65be8aa7f678487a366">tlv_byte_order_t</a> Order&gt; </div>
+template&lt;std::size_t TagWidth, std::size_t LengthWidth, <a class="el" href="namespacetlv.html#a1072b00b459d45beabdf75288239cdbc">byte_order</a> Order = byte_order::big_endian&gt; </div>
 <table class="mlabels">
   <tr>
   <td class="mlabels-left">
@@ -254,7 +224,7 @@ template&lt;std::size_t TagWidth, std::size_t LengthWidth, <a class="elRef" href
 
 <p>Return an allocation-free C++ view of this fixed-width Format. </p>
 <dl class="section return"><dt>Returns</dt><dd>Copyable view with program-lifetime descriptor and context. </dd></dl>
-<dl class="section note"><dt>Note</dt><dd>Uses the same canonical implementation and configuration as <a class="el" href="classtlv_1_1fixed__format.html#a48a56d7f314f41c7c52396939fc2c6f1" title="Returns the descriptor for this format.">format()</a>. </dd></dl>
+<dl class="section note"><dt>Note</dt><dd>Uses the canonical fixed Format implementation and immutable configuration. </dd></dl>
 
 </div>
 </div>
@@ -265,7 +235,7 @@ template&lt;std::size_t TagWidth, std::size_t LengthWidth, <a class="elRef" href
 <div class="memitem">
 <div class="memproto">
 <div class="memtemplate">
-template&lt;std::size_t TagWidth, std::size_t LengthWidth, <a class="elRef" href="../../c-api/html/group__core.html#ga4706cf1001cdc65be8aa7f678487a366">tlv_byte_order_t</a> Order&gt; </div>
+template&lt;std::size_t TagWidth, std::size_t LengthWidth, <a class="el" href="namespacetlv.html#a1072b00b459d45beabdf75288239cdbc">byte_order</a> Order&gt; </div>
 <table class="mlabels">
   <tr>
   <td class="mlabels-left">
@@ -291,7 +261,7 @@ template&lt;std::size_t TagWidth, std::size_t LengthWidth, <a class="elRef" href
 <div class="memitem">
 <div class="memproto">
 <div class="memtemplate">
-template&lt;std::size_t TagWidth, std::size_t LengthWidth, <a class="elRef" href="../../c-api/html/group__core.html#ga4706cf1001cdc65be8aa7f678487a366">tlv_byte_order_t</a> Order&gt; </div>
+template&lt;std::size_t TagWidth, std::size_t LengthWidth, <a class="el" href="namespacetlv.html#a1072b00b459d45beabdf75288239cdbc">byte_order</a> Order&gt; </div>
 <table class="mlabels">
   <tr>
   <td class="mlabels-left">
@@ -319,7 +289,7 @@ template&lt;std::size_t TagWidth, std::size_t LengthWidth, <a class="elRef" href
 <div class="memitem">
 <div class="memproto">
 <div class="memtemplate">
-template&lt;std::size_t TagWidth, std::size_t LengthWidth, <a class="elRef" href="../../c-api/html/group__core.html#ga4706cf1001cdc65be8aa7f678487a366">tlv_byte_order_t</a> Order&gt; </div>
+template&lt;std::size_t TagWidth, std::size_t LengthWidth, <a class="el" href="namespacetlv.html#a1072b00b459d45beabdf75288239cdbc">byte_order</a> Order&gt; </div>
 <table class="mlabels">
   <tr>
   <td class="mlabels-left">

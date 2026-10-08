@@ -95,11 +95,8 @@ Public Member Functions</h2></td></tr>
 <tr class="memdesc:a2ee7f21a362afc3d548fbebfae6de374"><td class="mdescLeft">&#160;</td><td class="mdescRight">Compile a text path and select its matches.  <br /></td></tr>
 <tr class="separator:a2ee7f21a362afc3d548fbebfae6de374"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:a0f11ef3e39ba28726ced614cbcd6eb02" id="r_a0f11ef3e39ba28726ced614cbcd6eb02"><td class="memItemLeft" align="right" valign="top">&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classtlv_1_1tree__reader.html#a0f11ef3e39ba28726ced614cbcd6eb02">tree_reader</a> (<a class="el" href="namespacetlv.html#a2abe7003a70af047ef9acae17f31f75d">bytes</a> data, <a class="el" href="classtlv_1_1format.html">tlv::format</a> <a class="el" href="classtlv_1_1format.html">format</a>, <a class="el" href="classtlv_1_1span.html">span</a>&lt; <a class="el" href="namespacetlv.html#aa70bacfa123d58a717da39cb7fd97a77">tree_frame</a> &gt; frames, size_t max_depth, size_t max_elements, <a class="el" href="namespacetlv.html#a6d141be87a05679c237c4d7f5b941c15">input_mode</a> mode=<a class="el" href="namespacetlv.html#a6d141be87a05679c237c4d7f5b941c15a2a1585a864d9e67627c6ae04c807a2c5">input_mode::final</a>)</td></tr>
-<tr class="memdesc:a0f11ef3e39ba28726ced614cbcd6eb02"><td class="mdescLeft">&#160;</td><td class="mdescRight">Initialize bounded traversal using a C++ Format view.  <br /></td></tr>
+<tr class="memdesc:a0f11ef3e39ba28726ced614cbcd6eb02"><td class="mdescLeft">&#160;</td><td class="mdescRight">Initialize traversal over borrowed input and frame storage.  <br /></td></tr>
 <tr class="separator:a0f11ef3e39ba28726ced614cbcd6eb02"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:a188b525ae67bcec383e6f919fde3ca63" id="r_a188b525ae67bcec383e6f919fde3ca63"><td class="memItemLeft" align="right" valign="top">&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classtlv_1_1tree__reader.html#a188b525ae67bcec383e6f919fde3ca63">tree_reader</a> (<a class="el" href="namespacetlv.html#a2abe7003a70af047ef9acae17f31f75d">bytes</a> data, const <a class="elRef" href="../../c-api/html/group__formats.html#gac461da7e8d46362fa8e09694efb0b062">tlv_format_t</a> &amp;<a class="el" href="classtlv_1_1format.html">format</a>, <a class="el" href="classtlv_1_1span.html">span</a>&lt; <a class="el" href="namespacetlv.html#aa70bacfa123d58a717da39cb7fd97a77">tree_frame</a> &gt; frames, size_t max_depth, size_t max_elements, <a class="el" href="namespacetlv.html#a6d141be87a05679c237c4d7f5b941c15">input_mode</a> mode=<a class="el" href="namespacetlv.html#a6d141be87a05679c237c4d7f5b941c15a2a1585a864d9e67627c6ae04c807a2c5">input_mode::final</a>)</td></tr>
-<tr class="memdesc:a188b525ae67bcec383e6f919fde3ca63"><td class="mdescLeft">&#160;</td><td class="mdescRight">Initialize traversal over borrowed input and frame storage.  <br /></td></tr>
-<tr class="separator:a188b525ae67bcec383e6f919fde3ca63"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:a3b334c9ba589d16cb5fe788c3f2e8977" id="r_a3b334c9ba589d16cb5fe788c3f2e8977"><td class="memItemLeft" align="right" valign="top">&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classtlv_1_1tree__reader.html#a3b334c9ba589d16cb5fe788c3f2e8977">tree_reader</a> (const <a class="el" href="classtlv_1_1tree__reader.html">tree_reader</a> &amp;)=delete</td></tr>
 <tr class="memdesc:a3b334c9ba589d16cb5fe788c3f2e8977"><td class="mdescLeft">&#160;</td><td class="mdescRight">Copying a cursor would share mutable frame storage and is prohibited.  <br /></td></tr>
 <tr class="separator:a3b334c9ba589d16cb5fe788c3f2e8977"><td class="memSeparator" colspan="2">&#160;</td></tr>
@@ -125,13 +122,13 @@ Public Member Functions</h2></td></tr>
 <tr class="memdesc:ae58425e689b09f1a26fe65ddb561e7ff"><td class="mdescLeft">&#160;</td><td class="mdescRight">Absolute traversal frontier in bytes.  <br /></td></tr>
 <tr class="separator:ae58425e689b09f1a26fe65ddb561e7ff"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:a6b43d7af405ea2a6eff04edc2739836d" id="r_a6b43d7af405ea2a6eff04edc2739836d"><td class="memItemLeft" align="right" valign="top">bool&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classtlv_1_1tree__reader.html#a6b43d7af405ea2a6eff04edc2739836d">at_end</a> () const</td></tr>
-<tr class="memdesc:a6b43d7af405ea2a6eff04edc2739836d"><td class="mdescLeft">&#160;</td><td class="mdescRight">True at final exhaustion or when initialization failed.  <br /></td></tr>
+<tr class="memdesc:a6b43d7af405ea2a6eff04edc2739836d"><td class="mdescLeft">&#160;</td><td class="mdescRight">True only at a successfully initialized final input boundary.  <br /></td></tr>
 <tr class="separator:a6b43d7af405ea2a6eff04edc2739836d"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:ab894206bdb93dfd799293152987e117a" id="r_ab894206bdb93dfd799293152987e117a"><td class="memItemLeft" align="right" valign="top"><a class="el" href="classtlv_1_1expected.html">expected</a>&lt; void, <a class="el" href="structtlv_1_1error.html">error</a> &gt;&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classtlv_1_1tree__reader.html#ab894206bdb93dfd799293152987e117a">validate</a> (size_t *error_offset=nullptr, <a class="el" href="namespacetlv.html#aec6151f23d86b874b79d9d2ae021e568">reader_diagnostic</a> *<a class="el" href="namespacetlv.html#a00ca9c69c35ef11f6a22b7eda1b115ba">diagnostic</a>=nullptr)</td></tr>
 <tr class="memdesc:ab894206bdb93dfd799293152987e117a"><td class="mdescLeft">&#160;</td><td class="mdescRight">Validate remaining traversal without a callback using the C Visitor engine.  <br /></td></tr>
 <tr class="separator:ab894206bdb93dfd799293152987e117a"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:ab1551f6a071bad184c3d9b89f87e8dca" id="r_ab1551f6a071bad184c3d9b89f87e8dca"><td class="memTemplParams" colspan="2">template&lt;typename Visitor &gt; </td></tr>
-<tr class="memitem:ab1551f6a071bad184c3d9b89f87e8dca"><td class="memTemplItemLeft" align="right" valign="top"><a class="el" href="classtlv_1_1expected.html">expected</a>&lt; void, <a class="el" href="structtlv_1_1error.html">error</a> &gt;&#160;</td><td class="memTemplItemRight" valign="bottom"><a class="el" href="classtlv_1_1tree__reader.html#ab1551f6a071bad184c3d9b89f87e8dca">visit</a> (Visitor &amp;&amp;visitor, size_t *error_offset=nullptr, <a class="el" href="namespacetlv.html#aec6151f23d86b874b79d9d2ae021e568">reader_diagnostic</a> *<a class="el" href="namespacetlv.html#a00ca9c69c35ef11f6a22b7eda1b115ba">diagnostic</a>=nullptr)</td></tr>
+<tr class="memitem:ab1551f6a071bad184c3d9b89f87e8dca"><td class="memTemplItemLeft" align="right" valign="top"><a class="el" href="classtlv_1_1expected.html">expected</a>&lt; void, <a class="el" href="structtlv_1_1error.html">error</a> &gt;&#160;</td><td class="memTemplItemRight" valign="bottom"><a class="el" href="classtlv_1_1tree__reader.html#ab1551f6a071bad184c3d9b89f87e8dca">visit</a> (Visitor &amp;&amp;<a class="el" href="namespacetlv.html#ab9d10b8185e9a80cd73b5a0ef633a22ca127870930d65c57ee65fcc47f2170d38">visitor</a>, size_t *error_offset=nullptr, <a class="el" href="namespacetlv.html#aec6151f23d86b874b79d9d2ae021e568">reader_diagnostic</a> *<a class="el" href="namespacetlv.html#a00ca9c69c35ef11f6a22b7eda1b115ba">diagnostic</a>=nullptr)</td></tr>
 <tr class="memdesc:ab1551f6a071bad184c3d9b89f87e8dca"><td class="mdescLeft">&#160;</td><td class="mdescRight">Visit remaining items using the canonical C Visitor engine.  <br /></td></tr>
 <tr class="separator:ab1551f6a071bad184c3d9b89f87e8dca"><td class="memSeparator" colspan="2">&#160;</td></tr>
 </table><table class="memberdecls">
@@ -148,10 +145,10 @@ Friends</h2></td></tr>
 </table>
 <a name="details" id="details"></a><h2 class="groupheader">Detailed Description</h2>
 <div class="textblock"><p>Bounded preorder traversal with incremental input and subtree control. </p>
-<dl class="section warning"><dt>Warning</dt><dd>Input, Format and context must outlive returned views. Frames must remain writable and alive throughout traversal and must not overlap input. Successful pull operations allocate nothing; error messages may allocate. Only the last successful explicit <a class="el" href="classtlv_1_1tree__reader.html#a5a3a79e2cc3ada934014cc52c93823e6" title="Publish the next complete borrowed preorder item.">next()</a> selects a subtree for Document building. Every pull, skip, input replacement, validation, visitor or builder creation attempt invalidates the previous selection, including failed attempts. </dd></dl>
+<dl class="section warning"><dt>Warning</dt><dd>Input, Format and context must outlive returned views. Frames must remain writable and alive throughout traversal and must not overlap input. Pull operations and returned structured errors do not allocate. Only the last successful explicit <a class="el" href="namespacetlv.html#a7077398db8e6583f741d8db7271d7515ad0cab90d8d20d57e2f2b9be52f7dd25d">next()</a> selects a subtree for Document building. Every pull, skip, input replacement, validation, visitor or builder creation attempt invalidates the previous selection, including failed attempts. </dd></dl>
 </div><h2 class="groupheader">Constructor &amp; Destructor Documentation</h2>
 <a id="a0f11ef3e39ba28726ced614cbcd6eb02" name="a0f11ef3e39ba28726ced614cbcd6eb02"></a>
-<h2 class="memtitle"><span class="permalink"><a href="#a0f11ef3e39ba28726ced614cbcd6eb02">&#9670;&#160;</a></span>tree_reader() <span class="overload">[1/3]</span></h2>
+<h2 class="memtitle"><span class="permalink"><a href="#a0f11ef3e39ba28726ced614cbcd6eb02">&#9670;&#160;</a></span>tree_reader() <span class="overload">[1/2]</span></h2>
 
 <div class="memitem">
 <div class="memproto">
@@ -208,82 +205,6 @@ Friends</h2></td></tr>
 </table>
 </div><div class="memdoc">
 
-<p>Initialize bounded traversal using a C++ Format view. </p>
-<dl class="params"><dt>Parameters</dt><dd>
-  <table class="params">
-    <tr><td class="paramname">data</td><td>Immutable input window. </td></tr>
-    <tr><td class="paramname">format</td><td>Borrowed readable Format and context. </td></tr>
-    <tr><td class="paramname">frames</td><td>Writable structural storage, one frame per entered nonempty parent. </td></tr>
-    <tr><td class="paramname">max_depth</td><td>Largest allowed item depth; zero permits roots only. </td></tr>
-    <tr><td class="paramname">max_elements</td><td>Publication limit; skipped descendants do not count. </td></tr>
-    <tr><td class="paramname">mode</td><td>Whether the input is final or resumable. </td></tr>
-  </table>
-  </dd>
-</dl>
-<dl class="section note"><dt>Note</dt><dd>Initialization errors are reported by subsequent operations.   </dd>
-<dd>
-The view may be temporary; its descriptor and context remain borrowed. </dd></dl>
-
-</div>
-</div>
-<a id="a188b525ae67bcec383e6f919fde3ca63" name="a188b525ae67bcec383e6f919fde3ca63"></a>
-<h2 class="memtitle"><span class="permalink"><a href="#a188b525ae67bcec383e6f919fde3ca63">&#9670;&#160;</a></span>tree_reader() <span class="overload">[2/3]</span></h2>
-
-<div class="memitem">
-<div class="memproto">
-<table class="mlabels">
-  <tr>
-  <td class="mlabels-left">
-      <table class="memname">
-        <tr>
-          <td class="memname">tlv::tree_reader::tree_reader </td>
-          <td>(</td>
-          <td class="paramtype"><a class="el" href="namespacetlv.html#a2abe7003a70af047ef9acae17f31f75d">bytes</a>&#160;</td>
-          <td class="paramname"><em>data</em>, </td>
-        </tr>
-        <tr>
-          <td class="paramkey"></td>
-          <td></td>
-          <td class="paramtype">const <a class="elRef" href="../../c-api/html/group__formats.html#gac461da7e8d46362fa8e09694efb0b062">tlv_format_t</a> &amp;&#160;</td>
-          <td class="paramname"><em>format</em>, </td>
-        </tr>
-        <tr>
-          <td class="paramkey"></td>
-          <td></td>
-          <td class="paramtype"><a class="el" href="classtlv_1_1span.html">span</a>&lt; <a class="el" href="namespacetlv.html#aa70bacfa123d58a717da39cb7fd97a77">tree_frame</a> &gt;&#160;</td>
-          <td class="paramname"><em>frames</em>, </td>
-        </tr>
-        <tr>
-          <td class="paramkey"></td>
-          <td></td>
-          <td class="paramtype">size_t&#160;</td>
-          <td class="paramname"><em>max_depth</em>, </td>
-        </tr>
-        <tr>
-          <td class="paramkey"></td>
-          <td></td>
-          <td class="paramtype">size_t&#160;</td>
-          <td class="paramname"><em>max_elements</em>, </td>
-        </tr>
-        <tr>
-          <td class="paramkey"></td>
-          <td></td>
-          <td class="paramtype"><a class="el" href="namespacetlv.html#a6d141be87a05679c237c4d7f5b941c15">input_mode</a>&#160;</td>
-          <td class="paramname"><em>mode</em> = <code><a class="el" href="namespacetlv.html#a6d141be87a05679c237c4d7f5b941c15a2a1585a864d9e67627c6ae04c807a2c5">input_mode::final</a></code>&#160;</td>
-        </tr>
-        <tr>
-          <td></td>
-          <td>)</td>
-          <td></td><td></td>
-        </tr>
-      </table>
-  </td>
-  <td class="mlabels-right">
-<span class="mlabels"><span class="mlabel">inline</span></span>  </td>
-  </tr>
-</table>
-</div><div class="memdoc">
-
 <p>Initialize traversal over borrowed input and frame storage. </p>
 <dl class="params"><dt>Parameters</dt><dd>
   <table class="params">
@@ -301,7 +222,7 @@ The view may be temporary; its descriptor and context remain borrowed. </dd></dl
 </div>
 </div>
 <a id="a3b334c9ba589d16cb5fe788c3f2e8977" name="a3b334c9ba589d16cb5fe788c3f2e8977"></a>
-<h2 class="memtitle"><span class="permalink"><a href="#a3b334c9ba589d16cb5fe788c3f2e8977">&#9670;&#160;</a></span>tree_reader() <span class="overload">[3/3]</span></h2>
+<h2 class="memtitle"><span class="permalink"><a href="#a3b334c9ba589d16cb5fe788c3f2e8977">&#9670;&#160;</a></span>tree_reader() <span class="overload">[2/2]</span></h2>
 
 <div class="memitem">
 <div class="memproto">
@@ -352,7 +273,8 @@ The view may be temporary; its descriptor and context remain borrowed. </dd></dl
 </table>
 </div><div class="memdoc">
 
-<p>True at final exhaustion or when initialization failed. </p>
+<p>True only at a successfully initialized final input boundary. </p>
+<dl class="section return"><dt>Returns</dt><dd>False after initialization failure or while waiting for more input; <a class="el" href="namespacetlv.html#a7077398db8e6583f741d8db7271d7515ad0cab90d8d20d57e2f2b9be52f7dd25d">next()</a> reports the corresponding error or resumable pause. </dd></dl>
 
 </div>
 </div>
@@ -582,7 +504,7 @@ The view may be temporary; its descriptor and context remain borrowed. </dd></dl
   </table>
   </dd>
 </dl>
-<dl class="section return"><dt>Returns</dt><dd>Lazy borrowed single-pass selection; include <a class="el" href="query_8hpp.html" title="C++ wrapper for path queries over TLV data.">query/query.hpp</a> to use it. </dd></dl>
+<dl class="section return"><dt>Returns</dt><dd>Lazy borrowed single-pass selection; include <a class="el" href="query_2query_8hpp.html" title="C++ wrapper for path queries over TLV data.">query/query.hpp</a> to use it. </dd></dl>
 <dl class="section warning"><dt>Warning</dt><dd>Do not interleave cursor operations except input replacement after NEED_MORE_DATA. Reader, frames, input and Format retain their normal lifetimes. </dd></dl>
 
 </div>
@@ -762,7 +684,7 @@ template&lt;typename Visitor &gt; </div>
 <p>Visit remaining items using the canonical C Visitor engine. </p>
 <dl class="params"><dt>Parameters</dt><dd>
   <table class="params">
-    <tr><td class="paramdir"></td><td class="paramname">visitor</td><td>Callable taking Element, depth and absolute offset, returning tlv_visit_result_t. </td></tr>
+    <tr><td class="paramdir"></td><td class="paramname">visitor</td><td>Callable taking Element, depth and absolute offset, returning visit_control. </td></tr>
     <tr><td class="paramdir">[out]</td><td class="paramname">error_offset</td><td>Optional absolute failure offset; unchanged on success. </td></tr>
     <tr><td class="paramdir">[out]</td><td class="paramname">diagnostic</td><td>Optional Reader detail, cleared at entry for a valid cursor. </td></tr>
   </table>
@@ -864,7 +786,7 @@ template&lt;typename Visitor &gt; </div>
 </div>
 <hr/>The documentation for this class was generated from the following files:<ul>
 <li>tlv++/reader/<a class="el" href="reader_2tree_8hpp.html">tree.hpp</a></li>
-<li>tlv++/query/<a class="el" href="query_8hpp.html">query.hpp</a></li>
+<li>tlv++/query/<a class="el" href="query_2query_8hpp.html">query.hpp</a></li>
 </ul>
 </div><!-- contents -->
 <!-- start footer part -->

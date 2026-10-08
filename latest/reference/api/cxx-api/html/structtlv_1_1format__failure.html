@@ -91,6 +91,21 @@ Public Member Functions</h2></td></tr>
 <tr class="memitem:a3bbeb4c09d9e0b90297051c30b6ca972" id="r_a3bbeb4c09d9e0b90297051c30b6ca972"><td class="memItemLeft" align="right" valign="top">&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="structtlv_1_1format__failure.html#a3bbeb4c09d9e0b90297051c30b6ca972">format_failure</a> (<a class="elRef" href="../../c-api/html/group__core.html#ga164d2817a32e5d7b7aa1472e887b47c3">tlv_result_t</a> <a class="el" href="structtlv_1_1format__failure.html#a5a1d3b69cfb98778bb29e2718b82b0cf">code</a>, <a class="elRef" href="../../c-api/html/group__formats.html#gaf56623f95321491247ba733426e0333f">tlv_format_error_t</a> <a class="el" href="structtlv_1_1format__failure.html#a202b9f8ef182077647201e1e38799208">detail</a>={}) noexcept</td></tr>
 <tr class="memdesc:a3bbeb4c09d9e0b90297051c30b6ca972"><td class="mdescLeft">&#160;</td><td class="mdescRight">Construct a failure without allocating a message.  <br /></td></tr>
 <tr class="separator:a3bbeb4c09d9e0b90297051c30b6ca972"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a00b55b7e085a7c3799a32f43bf3cfece" id="r_a00b55b7e085a7c3799a32f43bf3cfece"><td class="memItemLeft" align="right" valign="top">&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="structtlv_1_1format__failure.html#a00b55b7e085a7c3799a32f43bf3cfece">format_failure</a> (<a class="el" href="namespacetlv.html#ab9d10b8185e9a80cd73b5a0ef633a22c">errc</a> <a class="el" href="structtlv_1_1format__failure.html#a5a1d3b69cfb98778bb29e2718b82b0cf">code</a>) noexcept</td></tr>
+<tr class="memdesc:a00b55b7e085a7c3799a32f43bf3cfece"><td class="mdescLeft">&#160;</td><td class="mdescRight">Report a canonical C++ status without exposing native enum values.  <br /></td></tr>
+<tr class="separator:a00b55b7e085a7c3799a32f43bf3cfece"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:ad918283843d5b0f2583218c1a3161bac" id="r_ad918283843d5b0f2583218c1a3161bac"><td class="memItemLeft" align="right" valign="top"><a class="el" href="namespacetlv.html#ab9d10b8185e9a80cd73b5a0ef633a22c">errc</a>&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="structtlv_1_1format__failure.html#ad918283843d5b0f2583218c1a3161bac">status</a> () const noexcept</td></tr>
+<tr class="memdesc:ad918283843d5b0f2583218c1a3161bac"><td class="mdescLeft">&#160;</td><td class="mdescRight">Canonical C++ outcome.  <br /></td></tr>
+<tr class="separator:ad918283843d5b0f2583218c1a3161bac"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:adb1fb824dccd7a2a5546171745c63f13" id="r_adb1fb824dccd7a2a5546171745c63f13"><td class="memItemLeft" align="right" valign="top">const char *&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="structtlv_1_1format__failure.html#adb1fb824dccd7a2a5546171745c63f13">message</a> () const noexcept</td></tr>
+<tr class="memdesc:adb1fb824dccd7a2a5546171745c63f13"><td class="mdescLeft">&#160;</td><td class="mdescRight">Static canonical description, without allocating.  <br /></td></tr>
+<tr class="separator:adb1fb824dccd7a2a5546171745c63f13"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:ac4df28655cda9120ebfc0723badc4c40" id="r_ac4df28655cda9120ebfc0723badc4c40"><td class="memItemLeft" align="right" valign="top"><a class="el" href="structtlv_1_1error.html">tlv::error</a>&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="structtlv_1_1format__failure.html#ac4df28655cda9120ebfc0723badc4c40">failure</a> () const noexcept</td></tr>
+<tr class="memdesc:ac4df28655cda9120ebfc0723badc4c40"><td class="mdescLeft">&#160;</td><td class="mdescRight">Copy common metadata; relative framing details remain available on this failure.  <br /></td></tr>
+<tr class="separator:ac4df28655cda9120ebfc0723badc4c40"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a1349f49957d3d7f75ba252e8d1f6757c" id="r_a1349f49957d3d7f75ba252e8d1f6757c"><td class="memItemLeft" align="right" valign="top"><a class="el" href="structtlv_1_1format__failure.html">format_failure</a>&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="structtlv_1_1format__failure.html#a1349f49957d3d7f75ba252e8d1f6757c">at</a> (<a class="el" href="namespacetlv.html#a05620bcc688c15765fb53922c84147b9">wire_region</a> region, size_t offset, <a class="el" href="namespacetlv.html#a57dd102e96981cb34a37b1a8f6781541">wire_size</a> required) const noexcept</td></tr>
+<tr class="memdesc:a1349f49957d3d7f75ba252e8d1f6757c"><td class="mdescLeft">&#160;</td><td class="mdescRight">Return a copy with element-relative offset and required input/output extent.  <br /></td></tr>
+<tr class="separator:a1349f49957d3d7f75ba252e8d1f6757c"><td class="memSeparator" colspan="2">&#160;</td></tr>
 </table><table class="memberdecls">
 <tr class="heading"><td colspan="2"><h2 class="groupheader"><a id="pub-attribs" name="pub-attribs"></a>
 Public Attributes</h2></td></tr>
@@ -105,7 +120,7 @@ Public Attributes</h2></td></tr>
 <div class="textblock"><p>Allocation-free Format failure with optional relative wire diagnostics. </p>
 </div><h2 class="groupheader">Constructor &amp; Destructor Documentation</h2>
 <a id="a3bbeb4c09d9e0b90297051c30b6ca972" name="a3bbeb4c09d9e0b90297051c30b6ca972"></a>
-<h2 class="memtitle"><span class="permalink"><a href="#a3bbeb4c09d9e0b90297051c30b6ca972">&#9670;&#160;</a></span>format_failure()</h2>
+<h2 class="memtitle"><span class="permalink"><a href="#a3bbeb4c09d9e0b90297051c30b6ca972">&#9670;&#160;</a></span>format_failure() <span class="overload">[1/2]</span></h2>
 
 <div class="memitem">
 <div class="memproto">
@@ -146,6 +161,169 @@ Public Attributes</h2></td></tr>
   </table>
   </dd>
 </dl>
+
+</div>
+</div>
+<a id="a00b55b7e085a7c3799a32f43bf3cfece" name="a00b55b7e085a7c3799a32f43bf3cfece"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#a00b55b7e085a7c3799a32f43bf3cfece">&#9670;&#160;</a></span>format_failure() <span class="overload">[2/2]</span></h2>
+
+<div class="memitem">
+<div class="memproto">
+<table class="mlabels">
+  <tr>
+  <td class="mlabels-left">
+      <table class="memname">
+        <tr>
+          <td class="memname">tlv::format_failure::format_failure </td>
+          <td>(</td>
+          <td class="paramtype"><a class="el" href="namespacetlv.html#ab9d10b8185e9a80cd73b5a0ef633a22c">errc</a>&#160;</td>
+          <td class="paramname"><em>code</em></td><td>)</td>
+          <td></td>
+        </tr>
+      </table>
+  </td>
+  <td class="mlabels-right">
+<span class="mlabels"><span class="mlabel">inline</span><span class="mlabel">explicit</span><span class="mlabel">noexcept</span></span>  </td>
+  </tr>
+</table>
+</div><div class="memdoc">
+
+<p>Report a canonical C++ status without exposing native enum values. </p>
+
+</div>
+</div>
+<h2 class="groupheader">Member Function Documentation</h2>
+<a id="a1349f49957d3d7f75ba252e8d1f6757c" name="a1349f49957d3d7f75ba252e8d1f6757c"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#a1349f49957d3d7f75ba252e8d1f6757c">&#9670;&#160;</a></span>at()</h2>
+
+<div class="memitem">
+<div class="memproto">
+<table class="mlabels">
+  <tr>
+  <td class="mlabels-left">
+      <table class="memname">
+        <tr>
+          <td class="memname"><a class="el" href="structtlv_1_1format__failure.html">format_failure</a> tlv::format_failure::at </td>
+          <td>(</td>
+          <td class="paramtype"><a class="el" href="namespacetlv.html#a05620bcc688c15765fb53922c84147b9">wire_region</a>&#160;</td>
+          <td class="paramname"><em>region</em>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype">size_t&#160;</td>
+          <td class="paramname"><em>offset</em>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype"><a class="el" href="namespacetlv.html#a57dd102e96981cb34a37b1a8f6781541">wire_size</a>&#160;</td>
+          <td class="paramname"><em>required</em>&#160;</td>
+        </tr>
+        <tr>
+          <td></td>
+          <td>)</td>
+          <td></td><td> const</td>
+        </tr>
+      </table>
+  </td>
+  <td class="mlabels-right">
+<span class="mlabels"><span class="mlabel">inline</span><span class="mlabel">noexcept</span></span>  </td>
+  </tr>
+</table>
+</div><div class="memdoc">
+
+<p>Return a copy with element-relative offset and required input/output extent. </p>
+<dl class="params"><dt>Parameters</dt><dd>
+  <table class="params">
+    <tr><td class="paramname">region</td><td>Failed wire field. </td></tr>
+    <tr><td class="paramname">offset</td><td>Byte offset relative to the element start. </td></tr>
+    <tr><td class="paramname">required</td><td>Total required bytes, without narrowing logical wire sizes. </td></tr>
+  </table>
+  </dd>
+</dl>
+<dl class="section return"><dt>Returns</dt><dd>Enriched failure; no allocation or ownership transfer occurs. </dd></dl>
+
+</div>
+</div>
+<a id="ac4df28655cda9120ebfc0723badc4c40" name="ac4df28655cda9120ebfc0723badc4c40"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#ac4df28655cda9120ebfc0723badc4c40">&#9670;&#160;</a></span>failure()</h2>
+
+<div class="memitem">
+<div class="memproto">
+<table class="mlabels">
+  <tr>
+  <td class="mlabels-left">
+      <table class="memname">
+        <tr>
+          <td class="memname"><a class="el" href="structtlv_1_1error.html">tlv::error</a> tlv::format_failure::failure </td>
+          <td>(</td>
+          <td class="paramname"></td><td>)</td>
+          <td> const</td>
+        </tr>
+      </table>
+  </td>
+  <td class="mlabels-right">
+<span class="mlabels"><span class="mlabel">inline</span><span class="mlabel">noexcept</span></span>  </td>
+  </tr>
+</table>
+</div><div class="memdoc">
+
+<p>Copy common metadata; relative framing details remain available on this failure. </p>
+
+</div>
+</div>
+<a id="adb1fb824dccd7a2a5546171745c63f13" name="adb1fb824dccd7a2a5546171745c63f13"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#adb1fb824dccd7a2a5546171745c63f13">&#9670;&#160;</a></span>message()</h2>
+
+<div class="memitem">
+<div class="memproto">
+<table class="mlabels">
+  <tr>
+  <td class="mlabels-left">
+      <table class="memname">
+        <tr>
+          <td class="memname">const char * tlv::format_failure::message </td>
+          <td>(</td>
+          <td class="paramname"></td><td>)</td>
+          <td> const</td>
+        </tr>
+      </table>
+  </td>
+  <td class="mlabels-right">
+<span class="mlabels"><span class="mlabel">inline</span><span class="mlabel">noexcept</span></span>  </td>
+  </tr>
+</table>
+</div><div class="memdoc">
+
+<p>Static canonical description, without allocating. </p>
+
+</div>
+</div>
+<a id="ad918283843d5b0f2583218c1a3161bac" name="ad918283843d5b0f2583218c1a3161bac"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#ad918283843d5b0f2583218c1a3161bac">&#9670;&#160;</a></span>status()</h2>
+
+<div class="memitem">
+<div class="memproto">
+<table class="mlabels">
+  <tr>
+  <td class="mlabels-left">
+      <table class="memname">
+        <tr>
+          <td class="memname"><a class="el" href="namespacetlv.html#ab9d10b8185e9a80cd73b5a0ef633a22c">errc</a> tlv::format_failure::status </td>
+          <td>(</td>
+          <td class="paramname"></td><td>)</td>
+          <td> const</td>
+        </tr>
+      </table>
+  </td>
+  <td class="mlabels-right">
+<span class="mlabels"><span class="mlabel">inline</span><span class="mlabel">noexcept</span></span>  </td>
+  </tr>
+</table>
+</div><div class="memdoc">
+
+<p>Canonical C++ outcome. </p>
 
 </div>
 </div>

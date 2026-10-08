@@ -3254,6 +3254,34 @@
   
   
     <li class="md-nav__item">
+      <a href="../../development/valgrind/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Valgrind checks
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
       <a href="../../development/reader-decode-performance/" class="md-nav__link">
         
   
@@ -3262,6 +3290,34 @@
     
   
     Reader decode performance
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../development/cxx-facade-performance/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    C++ facade performance
   
 
     
@@ -3892,6 +3948,12 @@ Successful decoding must consume at least one byte so sequential reads progress.
 field ranges and known logical requirements. Unknown is distinct from zero.
 Only in-buffer ranges can describe borrowed data. Generic diagnostics translate
 relative positions and never infer wire rules from an error code.</p>
+<p><code>tlv_format_decode()</code> fully initializes a non-null failure-detail output on every
+failure, including missing arguments or a missing decode callback. Argument
+failures carry empty detail; an empty input has the known offset zero. On success,
+the caller's error output remains unchanged. The core still initializes callback
+result and error storage before the single decode invocation, so a callback may
+leave optional fields untouched.</p>
 <h2 id="size-domains">Size domains<a class="headerlink" href="#size-domains" title="Permanent link">&para;</a></h2>
 <p>Logical Value and planned encoded sizes use <code>tlv_size_t</code>, always unsigned
 64-bit. <code>tlv_format_measure()</code> works before a native destination exists and

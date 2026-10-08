@@ -76,6 +76,7 @@ $(function() {
   <div class="summary">
 <a href="#nested-classes">Classes</a> &#124;
 <a href="#typedef-members">Typedefs</a> &#124;
+<a href="#enum-members">Enumerations</a> &#124;
 <a href="#func-members">Functions</a>  </div>
   <div class="headertitle"><div class="title">tlv::dhcp Namespace Reference</div></div>
 </div><!--header-->
@@ -89,21 +90,33 @@ Classes</h2></td></tr>
 <tr class="memitem:"><td class="memItemLeft" align="right" valign="top">class &#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classtlv_1_1dhcp_1_1format.html">format</a></td></tr>
 <tr class="memdesc:"><td class="mdescLeft">&#160;</td><td class="mdescRight">Built-in Format satisfying the generic C++ customization contract.  <a href="classtlv_1_1dhcp_1_1format.html#details">More...</a><br /></td></tr>
 <tr class="separator:"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:"><td class="memItemLeft" align="right" valign="top">struct &#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="structtlv_1_1dhcp_1_1options__rules.html">options_rules</a></td></tr>
+<tr class="memdesc:"><td class="mdescLeft">&#160;</td><td class="mdescRight">Value configuration for DHCP options container validation.  <a href="structtlv_1_1dhcp_1_1options__rules.html#details">More...</a><br /></td></tr>
+<tr class="separator:"><td class="memSeparator" colspan="2">&#160;</td></tr>
 </table><table class="memberdecls">
 <tr class="heading"><td colspan="2"><h2 class="groupheader"><a id="typedef-members" name="typedef-members"></a>
 Typedefs</h2></td></tr>
-<tr class="memitem:aa07414099f66e24a9a7c4041c08eb5b6" id="r_aa07414099f66e24a9a7c4041c08eb5b6"><td class="memItemLeft" align="right" valign="top">using&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="namespacetlv_1_1dhcp.html#aa07414099f66e24a9a7c4041c08eb5b6">message_type_codec</a> = <a class="el" href="namespacetlv.html#a1d7a698c5c2079a5d64c0ead6a945612">tlv::uint8_codec</a></td></tr>
+<tr class="memitem:aa07414099f66e24a9a7c4041c08eb5b6" id="r_aa07414099f66e24a9a7c4041c08eb5b6"><td class="memItemLeft" align="right" valign="top">using&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="namespacetlv_1_1dhcp.html#aa07414099f66e24a9a7c4041c08eb5b6">message_type_codec</a> = <a class="el" href="namespacetlv.html#ab3b27dc7d0096b9d584e42a691be0372">tlv::uint8_codec</a></td></tr>
 <tr class="memdesc:aa07414099f66e24a9a7c4041c08eb5b6"><td class="mdescLeft">&#160;</td><td class="mdescRight">Message Type byte codec; preserves unassigned values without exchange validation.  <br /></td></tr>
 <tr class="separator:aa07414099f66e24a9a7c4041c08eb5b6"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:a9797d9247b375dc31f3c902f8dcf47e8" id="r_a9797d9247b375dc31f3c902f8dcf47e8"><td class="memItemLeft" align="right" valign="top">using&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="namespacetlv_1_1dhcp.html#a9797d9247b375dc31f3c902f8dcf47e8">message_type_field</a> = <a class="el" href="structtlv_1_1field.html">tlv::field</a>&lt; <a class="el" href="structtlv_1_1tag__constant.html">tlv::tag_constant</a>&lt; 0x35 &gt;, <a class="el" href="structtlv_1_1codec__adapter.html#a851cecb1f3a004c60020d15b9728abd2">message_type_codec::value_type</a>, <a class="el" href="namespacetlv_1_1dhcp.html#aa07414099f66e24a9a7c4041c08eb5b6">message_type_codec</a> &gt;</td></tr>
+<tr class="memitem:a9797d9247b375dc31f3c902f8dcf47e8" id="r_a9797d9247b375dc31f3c902f8dcf47e8"><td class="memItemLeft" align="right" valign="top">using&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="namespacetlv_1_1dhcp.html#a9797d9247b375dc31f3c902f8dcf47e8">message_type_field</a> = <a class="el" href="structtlv_1_1field.html">tlv::field</a>&lt; <a class="el" href="structtlv_1_1tag__constant.html">tlv::tag_constant</a>&lt; 0x35 &gt;, message_type_codec::value_type, <a class="el" href="namespacetlv_1_1dhcp.html#aa07414099f66e24a9a7c4041c08eb5b6">message_type_codec</a> &gt;</td></tr>
 <tr class="memdesc:a9797d9247b375dc31f3c902f8dcf47e8"><td class="mdescLeft">&#160;</td><td class="mdescRight">DHCPv4 Message Type option (53).  <br /></td></tr>
 <tr class="separator:a9797d9247b375dc31f3c902f8dcf47e8"><td class="memSeparator" colspan="2">&#160;</td></tr>
 </table><table class="memberdecls">
+<tr class="heading"><td colspan="2"><h2 class="groupheader"><a id="enum-members" name="enum-members"></a>
+Enumerations</h2></td></tr>
+<tr class="memitem:a91aab106cd2f9bc1c0380dd821fead98" id="r_a91aab106cd2f9bc1c0380dd821fead98"><td class="memItemLeft" align="right" valign="top">enum class &#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="namespacetlv_1_1dhcp.html#a91aab106cd2f9bc1c0380dd821fead98">tail_policy</a> { <a class="el" href="namespacetlv_1_1dhcp.html#a91aab106cd2f9bc1c0380dd821fead98ab70cdb878a204fecf91c7dd1af312421">padding</a> = TLV_DHCPV4_OPTIONS_TAIL_PAD
+, <a class="el" href="namespacetlv_1_1dhcp.html#a91aab106cd2f9bc1c0380dd821fead98aa2e4822a98337283e39f7b60acf85ec9">empty</a> = TLV_DHCPV4_OPTIONS_TAIL_EMPTY
+, <a class="el" href="namespacetlv_1_1dhcp.html#a91aab106cd2f9bc1c0380dd821fead98a567bc1d268f135496de3d5b946b691f3">ignore</a> = TLV_DHCPV4_OPTIONS_TAIL_IGNORE
+ }</td></tr>
+<tr class="memdesc:a91aab106cd2f9bc1c0380dd821fead98"><td class="mdescLeft">&#160;</td><td class="mdescRight">Policy for bytes after the first End option.  <a href="namespacetlv_1_1dhcp.html#a91aab106cd2f9bc1c0380dd821fead98">More...</a><br /></td></tr>
+<tr class="separator:a91aab106cd2f9bc1c0380dd821fead98"><td class="memSeparator" colspan="2">&#160;</td></tr>
+</table><table class="memberdecls">
 <tr class="heading"><td colspan="2"><h2 class="groupheader"><a id="func-members" name="func-members"></a>
 Functions</h2></td></tr>
-<tr class="memitem:a6c4f76e2d13cfe9defdd42d55ada83fc" id="r_a6c4f76e2d13cfe9defdd42d55ada83fc"><td class="memItemLeft" align="right" valign="top"><a class="el" href="classtlv_1_1expected.html">expected</a>&lt; size_t, <a class="el" href="structtlv_1_1error.html">error</a> &gt;&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="namespacetlv_1_1dhcp.html#a6c4f76e2d13cfe9defdd42d55ada83fc">options_validate</a> (<a class="el" href="namespacetlv.html#a2abe7003a70af047ef9acae17f31f75d">bytes</a> data, const <a class="elRef" href="../../c-api/html/container_8h.html#aa83e18018ede957bfbce4e6d27e4024a">tlv_dhcpv4_options_rules_t</a> *rules=nullptr, size_t max_elements=SIZE_MAX, <a class="elRef" href="../../c-api/html/group__diagnostics.html#ga2118f30a61e0b0b3ba5d20c73a740b2e">tlv_diagnostic_t</a> *<a class="el" href="namespacetlv.html#a00ca9c69c35ef11f6a22b7eda1b115ba">diagnostic</a>=nullptr)</td></tr>
-<tr class="memdesc:a6c4f76e2d13cfe9defdd42d55ada83fc"><td class="mdescLeft">&#160;</td><td class="mdescRight">Validate a DHCPv4 options region through the canonical container validator.  <br /></td></tr>
-<tr class="separator:a6c4f76e2d13cfe9defdd42d55ada83fc"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a0345cf8497a662313786d9585aad73f7" id="r_a0345cf8497a662313786d9585aad73f7"><td class="memItemLeft" align="right" valign="top"><a class="el" href="classtlv_1_1expected.html">expected</a>&lt; size_t, <a class="el" href="structtlv_1_1error.html">error</a> &gt;&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="namespacetlv_1_1dhcp.html#a0345cf8497a662313786d9585aad73f7">options_validate</a> (<a class="el" href="namespacetlv.html#a2abe7003a70af047ef9acae17f31f75d">bytes</a> data, <a class="el" href="structtlv_1_1dhcp_1_1options__rules.html">options_rules</a> rules={}, size_t max_elements=SIZE_MAX, <a class="elRef" href="../../c-api/html/group__diagnostics.html#ga2118f30a61e0b0b3ba5d20c73a740b2e">tlv_diagnostic_t</a> *<a class="el" href="namespacetlv.html#a00ca9c69c35ef11f6a22b7eda1b115ba">diagnostic</a>=nullptr)</td></tr>
+<tr class="memdesc:a0345cf8497a662313786d9585aad73f7"><td class="mdescLeft">&#160;</td><td class="mdescRight">Validate a DHCPv4 options region through the canonical container validator.  <br /></td></tr>
+<tr class="separator:a0345cf8497a662313786d9585aad73f7"><td class="memSeparator" colspan="2">&#160;</td></tr>
 </table>
 <a name="details" id="details"></a><h2 class="groupheader">Detailed Description</h2>
 <div class="textblock"><p>DHCPv4 option Value semantics. </p>
@@ -117,7 +130,7 @@ Functions</h2></td></tr>
 <div class="memproto">
       <table class="memname">
         <tr>
-          <td class="memname">using <a class="el" href="namespacetlv_1_1dhcp.html#aa07414099f66e24a9a7c4041c08eb5b6">tlv::dhcp::message_type_codec</a> = typedef <a class="el" href="namespacetlv.html#a1d7a698c5c2079a5d64c0ead6a945612">tlv::uint8_codec</a></td>
+          <td class="memname">using <a class="el" href="namespacetlv_1_1dhcp.html#aa07414099f66e24a9a7c4041c08eb5b6">tlv::dhcp::message_type_codec</a> = typedef <a class="el" href="namespacetlv.html#ab3b27dc7d0096b9d584e42a691be0372">tlv::uint8_codec</a></td>
         </tr>
       </table>
 </div><div class="memdoc">
@@ -133,7 +146,7 @@ Functions</h2></td></tr>
 <div class="memproto">
       <table class="memname">
         <tr>
-          <td class="memname">using <a class="el" href="namespacetlv_1_1dhcp.html#a9797d9247b375dc31f3c902f8dcf47e8">tlv::dhcp::message_type_field</a> = typedef <a class="el" href="structtlv_1_1field.html">tlv::field</a>&lt;<a class="el" href="structtlv_1_1tag__constant.html">tlv::tag_constant</a>&lt;0x35&gt;, <a class="el" href="structtlv_1_1codec__adapter.html#a851cecb1f3a004c60020d15b9728abd2">message_type_codec::value_type</a>, <a class="el" href="namespacetlv_1_1dhcp.html#aa07414099f66e24a9a7c4041c08eb5b6">message_type_codec</a>&gt;</td>
+          <td class="memname">using <a class="el" href="namespacetlv_1_1dhcp.html#a9797d9247b375dc31f3c902f8dcf47e8">tlv::dhcp::message_type_field</a> = typedef <a class="el" href="structtlv_1_1field.html">tlv::field</a>&lt;<a class="el" href="structtlv_1_1tag__constant.html">tlv::tag_constant</a>&lt;0x35&gt;, message_type_codec::value_type, <a class="el" href="namespacetlv_1_1dhcp.html#aa07414099f66e24a9a7c4041c08eb5b6">message_type_codec</a>&gt;</td>
         </tr>
       </table>
 </div><div class="memdoc">
@@ -142,9 +155,42 @@ Functions</h2></td></tr>
 
 </div>
 </div>
+<h2 class="groupheader">Enumeration Type Documentation</h2>
+<a id="a91aab106cd2f9bc1c0380dd821fead98" name="a91aab106cd2f9bc1c0380dd821fead98"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#a91aab106cd2f9bc1c0380dd821fead98">&#9670;&#160;</a></span>tail_policy</h2>
+
+<div class="memitem">
+<div class="memproto">
+<table class="mlabels">
+  <tr>
+  <td class="mlabels-left">
+      <table class="memname">
+        <tr>
+          <td class="memname">enum class <a class="el" href="namespacetlv_1_1dhcp.html#a91aab106cd2f9bc1c0380dd821fead98">tlv::dhcp::tail_policy</a></td>
+        </tr>
+      </table>
+  </td>
+  <td class="mlabels-right">
+<span class="mlabels"><span class="mlabel">strong</span></span>  </td>
+  </tr>
+</table>
+</div><div class="memdoc">
+
+<p>Policy for bytes after the first End option. </p>
+<table class="fieldtable">
+<tr><th colspan="2">Enumerator</th></tr><tr><td class="fieldname"><a id="a91aab106cd2f9bc1c0380dd821fead98ab70cdb878a204fecf91c7dd1af312421" name="a91aab106cd2f9bc1c0380dd821fead98ab70cdb878a204fecf91c7dd1af312421"></a>padding&#160;</td><td class="fielddoc"><p>Require zero padding. </p>
+</td></tr>
+<tr><td class="fieldname"><a id="a91aab106cd2f9bc1c0380dd821fead98aa2e4822a98337283e39f7b60acf85ec9" name="a91aab106cd2f9bc1c0380dd821fead98aa2e4822a98337283e39f7b60acf85ec9"></a>empty&#160;</td><td class="fielddoc"><p>Require End to be the last byte. </p>
+</td></tr>
+<tr><td class="fieldname"><a id="a91aab106cd2f9bc1c0380dd821fead98a567bc1d268f135496de3d5b946b691f3" name="a91aab106cd2f9bc1c0380dd821fead98a567bc1d268f135496de3d5b946b691f3"></a>ignore&#160;</td><td class="fielddoc"><p>Ignore the remaining bytes. </p>
+</td></tr>
+</table>
+
+</div>
+</div>
 <h2 class="groupheader">Function Documentation</h2>
-<a id="a6c4f76e2d13cfe9defdd42d55ada83fc" name="a6c4f76e2d13cfe9defdd42d55ada83fc"></a>
-<h2 class="memtitle"><span class="permalink"><a href="#a6c4f76e2d13cfe9defdd42d55ada83fc">&#9670;&#160;</a></span>options_validate()</h2>
+<a id="a0345cf8497a662313786d9585aad73f7" name="a0345cf8497a662313786d9585aad73f7"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#a0345cf8497a662313786d9585aad73f7">&#9670;&#160;</a></span>options_validate()</h2>
 
 <div class="memitem">
 <div class="memproto">
@@ -161,8 +207,8 @@ Functions</h2></td></tr>
         <tr>
           <td class="paramkey"></td>
           <td></td>
-          <td class="paramtype">const <a class="elRef" href="../../c-api/html/container_8h.html#aa83e18018ede957bfbce4e6d27e4024a">tlv_dhcpv4_options_rules_t</a> *&#160;</td>
-          <td class="paramname"><em>rules</em> = <code>nullptr</code>, </td>
+          <td class="paramtype"><a class="el" href="structtlv_1_1dhcp_1_1options__rules.html">options_rules</a>&#160;</td>
+          <td class="paramname"><em>rules</em> = <code>{}</code>, </td>
         </tr>
         <tr>
           <td class="paramkey"></td>
@@ -193,14 +239,14 @@ Functions</h2></td></tr>
 <dl class="params"><dt>Parameters</dt><dd>
   <table class="params">
     <tr><td class="paramname">data</td><td>Borrowed options bytes, without packet header or magic cookie. </td></tr>
-    <tr><td class="paramname">rules</td><td>Optional rules; nullptr requires End and a zero-only tail. </td></tr>
+    <tr><td class="paramname">rules</td><td>Container policy; defaults to required End and zero-only padding. </td></tr>
     <tr><td class="paramname">max_elements</td><td>Element limit including Pad and End; zero permits none. </td></tr>
     <tr><td class="paramname">diagnostic</td><td>Optional diagnostic, reset on every call. </td></tr>
   </table>
   </dd>
 </dl>
 <dl class="section return"><dt>Returns</dt><dd>Significant prefix size through End, or the original C error. </dd></dl>
-<dl class="section note"><dt>Note</dt><dd>Successful validation allocates nothing and retains no input. Building an error description may allocate. Output storage must not overlap input. </dd></dl>
+<dl class="section note"><dt>Note</dt><dd>Validation and error reporting allocate nothing and retain no input. Output storage must not overlap input. </dd></dl>
 <dl class="section see"><dt>See also</dt><dd><a class="elRef" href="../../c-api/html/container_8h.html#a44dc4ef9763852b33667034857b67516">tlv_dhcpv4_options_validate</a> </dd></dl>
 
 </div>

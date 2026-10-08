@@ -137,7 +137,7 @@ Data Structures</h2></td></tr>
 <tr class="memdesc:"><td class="mdescLeft">&#160;</td><td class="mdescRight">An optional, buffer-relative field range.  <a href="structtlv__range.html#details">More...</a><br /></td></tr>
 <tr class="separator:"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:"><td class="memItemLeft" align="right" valign="top">struct &#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="structtlv__format__error.html">tlv_format_error</a></td></tr>
-<tr class="memdesc:"><td class="mdescLeft">&#160;</td><td class="mdescRight">Format-produced failure detail, initialized to zero by the caller.  <a href="structtlv__format__error.html#details">More...</a><br /></td></tr>
+<tr class="memdesc:"><td class="mdescLeft">&#160;</td><td class="mdescRight">Format-produced failure detail, initialized to zero before invoking callbacks.  <a href="structtlv__format__error.html#details">More...</a><br /></td></tr>
 <tr class="separator:"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:"><td class="memItemLeft" align="right" valign="top">struct &#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="structtlv__encoding.html">tlv_encoding</a></td></tr>
 <tr class="memdesc:"><td class="mdescLeft">&#160;</td><td class="mdescRight">Logical framing sizes, before any native buffer conversion.  <a href="structtlv__encoding.html#details">More...</a><br /></td></tr>
@@ -188,7 +188,7 @@ Typedefs</h2></td></tr>
 <tr class="memdesc:gac45403098beb7f00913a375a99693f7e"><td class="mdescLeft">&#160;</td><td class="mdescRight">Wire region involved in an operation.  <br /></td></tr>
 <tr class="separator:gac45403098beb7f00913a375a99693f7e"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:gaf56623f95321491247ba733426e0333f" id="r_gaf56623f95321491247ba733426e0333f"><td class="memItemLeft" align="right" valign="top">typedef struct <a class="el" href="structtlv__format__error.html">tlv_format_error</a>&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="group__formats.html#gaf56623f95321491247ba733426e0333f">tlv_format_error_t</a></td></tr>
-<tr class="memdesc:gaf56623f95321491247ba733426e0333f"><td class="mdescLeft">&#160;</td><td class="mdescRight">Format-produced failure detail, initialized to zero by the caller.  <br /></td></tr>
+<tr class="memdesc:gaf56623f95321491247ba733426e0333f"><td class="mdescLeft">&#160;</td><td class="mdescRight">Format-produced failure detail, initialized to zero before invoking callbacks.  <br /></td></tr>
 <tr class="separator:gaf56623f95321491247ba733426e0333f"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:ga41a69be060b77335ad4032b16727738d" id="r_ga41a69be060b77335ad4032b16727738d"><td class="memItemLeft" align="right" valign="top">typedef struct <a class="el" href="structtlv__encoding.html">tlv_encoding</a>&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="group__formats.html#ga41a69be060b77335ad4032b16727738d">tlv_encoding_t</a></td></tr>
 <tr class="memdesc:ga41a69be060b77335ad4032b16727738d"><td class="mdescLeft">&#160;</td><td class="mdescRight">Logical framing sizes, before any native buffer conversion.  <br /></td></tr>
@@ -711,7 +711,8 @@ A format error if encoding fails.</dd></dl>
       </table>
 </div><div class="memdoc">
 
-<p>Format-produced failure detail, initialized to zero by the caller. </p>
+<p>Format-produced failure detail, initialized to zero before invoking callbacks. </p>
+<p>The core initializes callback storage. Public operation output guarantees are documented on the individual entry points. </p>
 
 </div>
 </div>
@@ -2747,7 +2748,7 @@ A format error if the semantic input cannot be represented.   </dd></dl>
     <tr><td class="paramdir">[in]</td><td class="paramname">data</td><td>Input, NULL only when size is zero. </td></tr>
     <tr><td class="paramdir">[in]</td><td class="paramname">size</td><td>Native available extent. </td></tr>
     <tr><td class="paramdir">[out]</td><td class="paramname">decoded</td><td>Complete result, unchanged on failure. </td></tr>
-    <tr><td class="paramdir">[out]</td><td class="paramname">error</td><td>Optional failure detail; unchanged on success.</td></tr>
+    <tr><td class="paramdir">[out]</td><td class="paramname">error</td><td>Optional failure detail, fully initialized on every failure; unchanged on success. Missing arguments yield empty detail.</td></tr>
   </table>
   </dd>
 </dl>

@@ -5,7 +5,7 @@
 <meta http-equiv="X-UA-Compatible" content="IE=11"/>
 <meta name="generator" content="Doxygen 1.9.8"/>
 <meta name="viewport" content="width=device-width, initial-scale=1"/>
-<title>OpenTLV C++ API: tlv++/detail/visitor.hpp File Reference</title>
+<title>OpenTLV C++ API: tlv++/visitor.hpp File Reference</title>
 <link href="tabs.css" rel="stylesheet" type="text/css"/>
 <script type="text/javascript" src="jquery.js"></script>
 <script type="text/javascript" src="dynsections.js"></script>
@@ -69,30 +69,38 @@ $(function() {
 
 <div id="nav-path" class="navpath">
   <ul>
-<li class="navelem"><a class="el" href="dir_bb4de694aed7e68e236ea99f4ab65f5c.html">tlv++</a></li><li class="navelem"><a class="el" href="dir_7a7a8055658cceb01c17cbea0af3206d.html">detail</a></li>  </ul>
+<li class="navelem"><a class="el" href="dir_bb4de694aed7e68e236ea99f4ab65f5c.html">tlv++</a></li>  </ul>
 </div>
 </div><!-- top -->
 <div class="header">
   <div class="summary">
-<a href="#namespaces">Namespaces</a>  </div>
+<a href="#namespaces">Namespaces</a> &#124;
+<a href="#enum-members">Enumerations</a>  </div>
   <div class="headertitle"><div class="title">visitor.hpp File Reference</div></div>
 </div><!--header-->
 <div class="contents">
 
-<p>Internal synchronous visitor trampolines for the canonical C engine.  
+<p>Synchronous C++ traversal control.  
 <a href="#details">More...</a></p>
 <div class="textblock"><code>#include &quot;<a class="elRef" href="../../c-api/html/visitor_8h.html">tlv/reader/visitor.h</a>&quot;</code><br />
-<code>#include &quot;<a class="el" href="types_8hpp.html">tlv++/types.hpp</a>&quot;</code><br />
-<code>#include &lt;type_traits&gt;</code><br />
 </div><table class="memberdecls">
 <tr class="heading"><td colspan="2"><h2 class="groupheader"><a id="namespaces" name="namespaces"></a>
 Namespaces</h2></td></tr>
 <tr class="memitem:namespacetlv" id="r_namespacetlv"><td class="memItemLeft" align="right" valign="top">namespace &#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="namespacetlv.html">tlv</a></td></tr>
 <tr class="memdesc:namespacetlv"><td class="mdescLeft">&#160;</td><td class="mdescRight">Public C++ wrappers, value types, codec traits and helpers for OpenTLV. <br /></td></tr>
 <tr class="separator:"><td class="memSeparator" colspan="2">&#160;</td></tr>
+</table><table class="memberdecls">
+<tr class="heading"><td colspan="2"><h2 class="groupheader"><a id="enum-members" name="enum-members"></a>
+Enumerations</h2></td></tr>
+<tr class="memitem:a7077398db8e6583f741d8db7271d7515" id="r_a7077398db8e6583f741d8db7271d7515"><td class="memItemLeft" align="right" valign="top">enum class &#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="namespacetlv.html#a7077398db8e6583f741d8db7271d7515">tlv::visit_control</a> { <a class="el" href="namespacetlv.html#a7077398db8e6583f741d8db7271d7515ad0cab90d8d20d57e2f2b9be52f7dd25d">tlv::next</a> = TLV_VISIT_CONTINUE
+, <a class="el" href="namespacetlv.html#a7077398db8e6583f741d8db7271d7515aef399b2d446bb37b7c32ad2cc1b6045b">tlv::stop</a> = TLV_VISIT_STOP
+, <a class="el" href="namespacetlv.html#a7077398db8e6583f741d8db7271d7515acb5e100e5a9a3e7f6d1fd97512215282">tlv::error</a> = TLV_VISIT_ERROR
+ }</td></tr>
+<tr class="memdesc:a7077398db8e6583f741d8db7271d7515"><td class="mdescLeft">&#160;</td><td class="mdescRight">Synchronous visitor decision; stopping succeeds without consuming another element.  <a href="namespacetlv.html#a7077398db8e6583f741d8db7271d7515">More...</a><br /></td></tr>
+<tr class="separator:a7077398db8e6583f741d8db7271d7515"><td class="memSeparator" colspan="2">&#160;</td></tr>
 </table>
 <a name="details" id="details"></a><h2 class="groupheader">Detailed Description</h2>
-<div class="textblock"><p>Internal synchronous visitor trampolines for the canonical C engine. </p>
+<div class="textblock"><p>Synchronous C++ traversal control. </p>
 </div></div><!-- contents -->
 <!-- start footer part -->
 <hr class="footer"/><address class="footer"><small>

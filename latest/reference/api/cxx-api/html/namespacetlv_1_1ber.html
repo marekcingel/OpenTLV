@@ -75,7 +75,8 @@ $(function() {
 <div class="header">
   <div class="summary">
 <a href="#nested-classes">Classes</a> &#124;
-<a href="#func-members">Functions</a>  </div>
+<a href="#func-members">Functions</a> &#124;
+<a href="#var-members">Variables</a>  </div>
   <div class="headertitle"><div class="title">tlv::ber Namespace Reference</div></div>
 </div><!--header-->
 <div class="contents">
@@ -94,13 +95,68 @@ Classes</h2></td></tr>
 </table><table class="memberdecls">
 <tr class="heading"><td colspan="2"><h2 class="groupheader"><a id="func-members" name="func-members"></a>
 Functions</h2></td></tr>
+<tr class="memitem:a83eb6e9fe4c657dcfaf3e7921d4ed712" id="r_a83eb6e9fe4c657dcfaf3e7921d4ed712"><td class="memItemLeft" align="right" valign="top"><a class="el" href="classtlv_1_1expected.html">expected</a>&lt; <a class="el" href="classtlv_1_1tag.html">tlv::tag</a>, <a class="el" href="structtlv_1_1error.html">error</a> &gt;&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="namespacetlv_1_1ber.html#a83eb6e9fe4c657dcfaf3e7921d4ed712">read_identifier</a> (<a class="el" href="namespacetlv.html#a2abe7003a70af047ef9acae17f31f75d">bytes</a> input, size_t &amp;consumed)</td></tr>
+<tr class="memdesc:a83eb6e9fe4c657dcfaf3e7921d4ed712"><td class="mdescLeft">&#160;</td><td class="mdescRight">Read one canonical BER identifier without reading its Length or Value.  <br /></td></tr>
+<tr class="separator:a83eb6e9fe4c657dcfaf3e7921d4ed712"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:a82cbd14f17b406e7516fbd6fc58b68ae" id="r_a82cbd14f17b406e7516fbd6fc58b68ae"><td class="memItemLeft" align="right" valign="top"><a class="el" href="classtlv_1_1expected.html">expected</a>&lt; size_t, <a class="el" href="structtlv_1_1error.html">error</a> &gt;&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="namespacetlv_1_1ber.html#a82cbd14f17b406e7516fbd6fc58b68ae">write_indefinite</a> (<a class="el" href="classtlv_1_1span.html">span</a>&lt; <a class="el" href="namespacetlv.html#aa91df798a712d88cf7d2f1f63a539b51">byte</a> &gt; output, <a class="el" href="classtlv_1_1tag.html">tlv::tag</a> <a class="el" href="classtlv_1_1tag.html">tag</a>, <a class="el" href="namespacetlv.html#a2abe7003a70af047ef9acae17f31f75d">bytes</a> children)</td></tr>
 <tr class="memdesc:a82cbd14f17b406e7516fbd6fc58b68ae"><td class="mdescLeft">&#160;</td><td class="mdescRight">Wrap encoded children in explicit BER indefinite-length framing.  <br /></td></tr>
 <tr class="separator:a82cbd14f17b406e7516fbd6fc58b68ae"><td class="memSeparator" colspan="2">&#160;</td></tr>
+</table><table class="memberdecls">
+<tr class="heading"><td colspan="2"><h2 class="groupheader"><a id="var-members" name="var-members"></a>
+Variables</h2></td></tr>
+<tr class="memitem:ad6aad7b2247f929491ab860f58dac111" id="r_ad6aad7b2247f929491ab860f58dac111"><td class="memItemLeft" align="right" valign="top">constexpr size_t&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="namespacetlv_1_1ber.html#ad6aad7b2247f929491ab860f58dac111">max_tag_size</a> = <a class="elRef" href="../../c-api/html/group__formats.html#ggab04a0655cd1e3bcac5e8f48c18df1a57adb6bdd38d8e01027743ce1a4fd82ff4e">TLV_ASN1_TAG_MAX_SIZE</a></td></tr>
+<tr class="memdesc:ad6aad7b2247f929491ab860f58dac111"><td class="mdescLeft">&#160;</td><td class="mdescRight">Largest supported BER identifier width in bytes.  <br /></td></tr>
+<tr class="separator:ad6aad7b2247f929491ab860f58dac111"><td class="memSeparator" colspan="2">&#160;</td></tr>
 </table>
 <a name="details" id="details"></a><h2 class="groupheader">Detailed Description</h2>
 <div class="textblock"><p>BER-specific types backed by generic OpenTLV operations. </p>
 </div><h2 class="groupheader">Function Documentation</h2>
+<a id="a83eb6e9fe4c657dcfaf3e7921d4ed712" name="a83eb6e9fe4c657dcfaf3e7921d4ed712"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#a83eb6e9fe4c657dcfaf3e7921d4ed712">&#9670;&#160;</a></span>read_identifier()</h2>
+
+<div class="memitem">
+<div class="memproto">
+<table class="mlabels">
+  <tr>
+  <td class="mlabels-left">
+      <table class="memname">
+        <tr>
+          <td class="memname"><a class="el" href="classtlv_1_1expected.html">expected</a>&lt; <a class="el" href="classtlv_1_1tag.html">tlv::tag</a>, <a class="el" href="structtlv_1_1error.html">error</a> &gt; tlv::ber::read_identifier </td>
+          <td>(</td>
+          <td class="paramtype"><a class="el" href="namespacetlv.html#a2abe7003a70af047ef9acae17f31f75d">bytes</a>&#160;</td>
+          <td class="paramname"><em>input</em>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype">size_t &amp;&#160;</td>
+          <td class="paramname"><em>consumed</em>&#160;</td>
+        </tr>
+        <tr>
+          <td></td>
+          <td>)</td>
+          <td></td><td></td>
+        </tr>
+      </table>
+  </td>
+  <td class="mlabels-right">
+<span class="mlabels"><span class="mlabel">inline</span></span>  </td>
+  </tr>
+</table>
+</div><div class="memdoc">
+
+<p>Read one canonical BER identifier without reading its Length or Value. </p>
+<dl class="params"><dt>Parameters</dt><dd>
+  <table class="params">
+    <tr><td class="paramname">input</td><td>Borrowed immutable input. </td></tr>
+    <tr><td class="paramname">consumed</td><td>Identifier byte count, unchanged on failure. </td></tr>
+  </table>
+  </dd>
+</dl>
+<dl class="section return"><dt>Returns</dt><dd>Borrowed identifier or canonical wire error; no allocation occurs. </dd></dl>
+
+</div>
+</div>
 <a id="a82cbd14f17b406e7516fbd6fc58b68ae" name="a82cbd14f17b406e7516fbd6fc58b68ae"></a>
 <h2 class="memtitle"><span class="permalink"><a href="#a82cbd14f17b406e7516fbd6fc58b68ae">&#9670;&#160;</a></span>write_indefinite()</h2>
 
@@ -151,7 +207,32 @@ Functions</h2></td></tr>
   </dd>
 </dl>
 <dl class="section return"><dt>Returns</dt><dd>Written bytes, or the original C error. </dd></dl>
-<dl class="section note"><dt>Note</dt><dd>Successful encoding allocates nothing; failure leaves the destination unchanged. An error description may allocate. Measure using <a class="el" href="namespacetlv.html#a9daf93c0983963ae4ce08538cae33dbf" title="Measure logical framing without a destination buffer.">tlv::measure</a> and <a class="el" href="classtlv_1_1ber_1_1indefinite__format.html" title="BER preset writing constructed elements with indefinite length and EOC.">indefinite_format</a>. </dd></dl>
+<dl class="section note"><dt>Note</dt><dd>Successful encoding allocates nothing; failure leaves the destination unchanged. An error description may allocate. Measure using <a class="el" href="namespacetlv.html#a341cd18692efb5c62b54bfc30a7bbfc3" title="Measure logical framing without a destination buffer.">tlv::measure</a> and <a class="el" href="classtlv_1_1ber_1_1indefinite__format.html" title="BER preset writing constructed elements with indefinite length and EOC.">indefinite_format</a>. </dd></dl>
+
+</div>
+</div>
+<h2 class="groupheader">Variable Documentation</h2>
+<a id="ad6aad7b2247f929491ab860f58dac111" name="ad6aad7b2247f929491ab860f58dac111"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#ad6aad7b2247f929491ab860f58dac111">&#9670;&#160;</a></span>max_tag_size</h2>
+
+<div class="memitem">
+<div class="memproto">
+<table class="mlabels">
+  <tr>
+  <td class="mlabels-left">
+      <table class="memname">
+        <tr>
+          <td class="memname">constexpr size_t tlv::ber::max_tag_size = <a class="elRef" href="../../c-api/html/group__formats.html#ggab04a0655cd1e3bcac5e8f48c18df1a57adb6bdd38d8e01027743ce1a4fd82ff4e">TLV_ASN1_TAG_MAX_SIZE</a></td>
+        </tr>
+      </table>
+  </td>
+  <td class="mlabels-right">
+<span class="mlabels"><span class="mlabel">constexpr</span></span>  </td>
+  </tr>
+</table>
+</div><div class="memdoc">
+
+<p>Largest supported BER identifier width in bytes. </p>
 
 </div>
 </div>

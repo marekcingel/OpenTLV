@@ -11,7 +11,7 @@ var searchData=
   ['release_8',['release',['../../../c-api/html/structtlv__allocator.html#a59680de45a4041e88dbd1fb798b3f145',1,'tlv_allocator']]],
   ['representation_9',['representation',['../../../c-api/html/structtlv__query__codec__adapter.html#addd878b0971211e54e5da05cccc7f48d',1,'tlv_query_codec_adapter::representation'],['../../../c-api/html/structtlv__schema__number.html#a1fee3a4d0e523c11fcd7371aa6ed51a4',1,'tlv_schema_number::representation']]],
   ['requested_5flength_10',['requested_length',['../../../c-api/html/structtlv__dol__entry.html#ad7d90dafcda0066d578a7277cf26cff5',1,'tlv_dol_entry']]],
-  ['require_5fend_11',['require_end',['../../../c-api/html/structtlv__dhcpv4__options__rules.html#aae41c64c0030ca43b1880e318a63ed31',1,'tlv_dhcpv4_options_rules']]],
+  ['require_5fend_11',['require_end',['../structtlv_1_1dhcp_1_1options__rules.html#a7381a53de410feeed976ebd3d4c2b5eb',1,'tlv::dhcp::options_rules::require_end'],['../../../c-api/html/structtlv__dhcpv4__options__rules.html#aae41c64c0030ca43b1880e318a63ed31',1,'tlv_dhcpv4_options_rules::require_end']]],
   ['require_5fminimal_12',['require_minimal',['../../../c-api/html/structtlv__identifier__policy.html#a855b399f696722552a82e602d91fa845',1,'tlv_identifier_policy::require_minimal'],['../../../c-api/html/structtlv__length__policy.html#aa7e9b64049a7596409b0b9b8b4f2f5bd',1,'tlv_length_policy::require_minimal']]],
   ['required_13',['required',['../../../c-api/html/structtlv__format__error.html#a7331ba0ddc0d90f4debf39fc366d4760',1,'tlv_format_error::required'],['../../../c-api/html/structtlv__reader__diagnostic.html#a8dd6095780b51576e9d19c0a289ad469',1,'tlv_reader_diagnostic::required'],['../../../c-api/html/structtlv__writer__diagnostic.html#a894638824c3f1e0af2a1285ab1faccda',1,'tlv_writer_diagnostic::required']]],
   ['required_5fdata_14',['required_data',['../../../c-api/html/structtlv__tree__writer__workspace.html#a422c1ff269934ece1444932f12e86d7c',1,'tlv_tree_writer_workspace']]],
@@ -25,7 +25,7 @@ var searchData=
   ['resume_22',['resume',['../../../c-api/html/structtlv__tree__frame.html#af9e72ee95b29a377a48ab361f4824c17',1,'tlv_tree_frame']]],
   ['retain_5fsource_5flocations_23',['retain_source_locations',['../../../c-api/html/structtlv__document__options.html#a4b2ad502662ff853c7b76ddfd965849e',1,'tlv_document_options::retain_source_locations'],['../structtlv_1_1document__format.html#adc7b38d12144f9900b6f3e10fa97f1ea',1,'tlv::document_format::retain_source_locations']]],
   ['reuse_24',['reuse',['../../../c-api/html/structtlv__query__instruction.html#a11dcfc9f2e85fd5000c0f0deef6de407',1,'tlv_query_instruction']]],
-  ['right_25',['right',['../../../c-api/html/structtlv__query__instruction.html#a0d02ac0a30fefbafee6e7a82656a0dba',1,'tlv_query_instruction::right'],['../structtlv_1_1diff__entry.html#a3bca469528a9a8367ce191f3b90a22db',1,'tlv::diff_entry::right']]],
+  ['right_25',['right',['../../../c-api/html/structtlv__query__instruction.html#a0d02ac0a30fefbafee6e7a82656a0dba',1,'tlv_query_instruction::right'],['../structtlv_1_1diff__entry.html#a7e436ff068cbd358f616d2e34b8b1af4',1,'tlv::diff_entry::right']]],
   ['root_26',['root',['../../../c-api/html/structtlv__query__program.html#a9361d5f733b1436902b27b99db4dca4c',1,'tlv_query_program']]],
   ['rule_27',['rule',['../../../c-api/html/structtlv__schema__query__diagnostic.html#a2d7906c8187a67e71a85d04b33e680fa',1,'tlv_schema_query_diagnostic']]],
   ['rules_28',['rules',['../../../c-api/html/structtlv__structure__schema.html#ad62cc59285c58f7e141b9caa00d1d241',1,'tlv_structure_schema']]]

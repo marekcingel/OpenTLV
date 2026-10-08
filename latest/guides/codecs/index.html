@@ -3248,6 +3248,34 @@
   
   
     <li class="md-nav__item">
+      <a href="../../development/valgrind/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Valgrind checks
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
       <a href="../../development/reader-decode-performance/" class="md-nav__link">
         
   
@@ -3256,6 +3284,34 @@
     
   
     Reader decode performance
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../development/cxx-facade-performance/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    C++ facade performance
   
 
     
@@ -3767,7 +3823,7 @@ failures retain their original <code>codec_code</code> and <code>framing_code</c
 the other domain remains successful. Errors do not allocate.</p>
 <p>Available adapters are <code>uint8_codec</code>, <code>uint16_be_codec</code>, <code>uint16_le_codec</code>,
 <code>uint32_be_codec</code>, <code>uint32_le_codec</code>, and <code>int64_minimal_be_codec</code>. They delegate
-to the C Value codecs. <code>codec_adapter&lt;T, &amp;descriptor&gt;</code> supports other C codecs
+to the C Value codecs. <code>tlv::native::codec_adapter&lt;T, &amp;descriptor&gt;</code> (include <code>&lt;tlv++/native.hpp&gt;</code>) supports other C codecs
 when <code>T</code> is exactly their documented, default-constructible C representation.
 Do not use it to reinterpret an STL object as a C representation.</p>
 <p>Defaults exist for <code>uint8_t</code>, <code>value_view</code> and <code>std::string</code>. Strings own the
@@ -3780,8 +3836,8 @@ an explicit conversion with the desired policy.</p>
 the third field parameter. Both mechanisms use this C++11 contract:</p>
 <div class="highlight"><pre><span></span><code><a id="__codelineno-5-1" name="__codelineno-5-1" href="#__codelineno-5-1"></a><span class="k">struct</span><span class="w"> </span><span class="nc">MyCodec</span><span class="w"> </span><span class="p">{</span>
 <a id="__codelineno-5-2" name="__codelineno-5-2" href="#__codelineno-5-2"></a><span class="w">    </span><span class="k">using</span><span class="w"> </span><span class="n">value_type</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">MyType</span><span class="p">;</span>
-<a id="__codelineno-5-3" name="__codelineno-5-3" href="#__codelineno-5-3"></a><span class="w">    </span><span class="k">static</span><span class="w"> </span><span class="n">tlv</span><span class="o">::</span><span class="n">expected</span><span class="o">&lt;</span><span class="n">MyType</span><span class="p">,</span><span class="w"> </span><span class="n">tlv_codec_result_t</span><span class="o">&gt;</span><span class="w"> </span><span class="n">decode</span><span class="p">(</span><span class="n">tlv</span><span class="o">::</span><span class="n">bytes</span><span class="w"> </span><span class="n">input</span><span class="p">);</span>
-<a id="__codelineno-5-4" name="__codelineno-5-4" href="#__codelineno-5-4"></a><span class="w">    </span><span class="k">static</span><span class="w"> </span><span class="n">tlv</span><span class="o">::</span><span class="n">expected</span><span class="o">&lt;</span><span class="kt">size_t</span><span class="p">,</span><span class="w"> </span><span class="n">tlv_codec_result_t</span><span class="o">&gt;</span>
+<a id="__codelineno-5-3" name="__codelineno-5-3" href="#__codelineno-5-3"></a><span class="w">    </span><span class="k">static</span><span class="w"> </span><span class="n">tlv</span><span class="o">::</span><span class="n">expected</span><span class="o">&lt;</span><span class="n">MyType</span><span class="p">,</span><span class="w"> </span><span class="n">tlv</span><span class="o">::</span><span class="n">codec_errc</span><span class="o">&gt;</span><span class="w"> </span><span class="n">decode</span><span class="p">(</span><span class="n">tlv</span><span class="o">::</span><span class="n">bytes</span><span class="w"> </span><span class="n">input</span><span class="p">);</span>
+<a id="__codelineno-5-4" name="__codelineno-5-4" href="#__codelineno-5-4"></a><span class="w">    </span><span class="k">static</span><span class="w"> </span><span class="n">tlv</span><span class="o">::</span><span class="n">expected</span><span class="o">&lt;</span><span class="kt">size_t</span><span class="p">,</span><span class="w"> </span><span class="n">tlv</span><span class="o">::</span><span class="n">codec_errc</span><span class="o">&gt;</span>
 <a id="__codelineno-5-5" name="__codelineno-5-5" href="#__codelineno-5-5"></a><span class="w">    </span><span class="n">encode</span><span class="p">(</span><span class="k">const</span><span class="w"> </span><span class="n">MyType</span><span class="o">&amp;</span><span class="w"> </span><span class="n">value</span><span class="p">,</span><span class="w"> </span><span class="n">tlv</span><span class="o">::</span><span class="kt">byte</span><span class="o">*</span><span class="w"> </span><span class="n">output</span><span class="p">,</span><span class="w"> </span><span class="kt">size_t</span><span class="w"> </span><span class="n">capacity</span><span class="p">);</span>
 <a id="__codelineno-5-6" name="__codelineno-5-6" href="#__codelineno-5-6"></a><span class="p">};</span>
 </code></pre></div>
@@ -3791,8 +3847,8 @@ normal encode respects capacity and reports the same count. Codec operations
 never receive a tag or perform a registry lookup. Field instantiation checks
 the value type and return types. Owning/custom codec allocation exceptions
 propagate rather than being converted to framing errors.</p>
-<p><code>writer.write&lt;Field&gt;(value)</code> stages Value bytes in a temporary vector and may
-allocate. For caller-owned staging use:</p>
+<p><code>writer.write&lt;Field&gt;(value)</code> uses stack storage for Values up to 64 bytes and a
+temporary vector for larger Values. For caller-owned staging use:</p>
 <div class="highlight"><pre><span></span><code><a id="__codelineno-6-1" name="__codelineno-6-1" href="#__codelineno-6-1"></a><span class="n">tlv</span><span class="o">::</span><span class="kt">byte</span><span class="w"> </span><span class="n">scratch</span><span class="p">[</span><span class="mi">2</span><span class="p">];</span>
 <a id="__codelineno-6-2" name="__codelineno-6-2" href="#__codelineno-6-2"></a><span class="k">auto</span><span class="w"> </span><span class="n">result</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">writer</span><span class="p">.</span><span class="n">write</span><span class="o">&lt;</span><span class="n">Counter</span><span class="o">&gt;</span><span class="p">(</span><span class="kt">uint16_t</span><span class="p">{</span><span class="mi">42</span><span class="p">},</span><span class="w"> </span><span class="p">{</span><span class="n">scratch</span><span class="p">,</span><span class="w"> </span><span class="k">sizeof</span><span class="p">(</span><span class="n">scratch</span><span class="p">)});</span>
 </code></pre></div>

@@ -3204,6 +3204,34 @@
   
   
     <li class="md-nav__item">
+      <a href="../valgrind/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Valgrind checks
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
       <a href="../reader-decode-performance/" class="md-nav__link">
         
   
@@ -3212,6 +3240,34 @@
     
   
     Reader decode performance
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../cxx-facade-performance/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    C++ facade performance
   
 
     
@@ -3690,8 +3746,20 @@ question, so the expensive checks stay off the path of everyday development.</p>
 <td style="text-align: center;">yes</td>
 </tr>
 <tr>
-<td>Benchmarks (build only)</td>
-<td style="text-align: center;">if benchmarks or <code>tlv</code> changed</td>
+<td><a href="../valgrind/#memcheck-ci-scope">Valgrind Memcheck</a> (plain GCC Debug C/C++ tests)</td>
+<td style="text-align: center;">shorter, optional selection for native/test/CMake/Memcheck changes; full with <code>memcheck-full</code> label</td>
+<td style="text-align: center;">full weekly</td>
+<td style="text-align: center;">full</td>
+</tr>
+<tr>
+<td><a href="../valgrind/#compare-instruction-counts-and-native-timings">Callgrind and native comparison</a> (informational)</td>
+<td style="text-align: center;">if native sources, benchmarks, CMake or Callgrind tooling changed</td>
+<td style="text-align: center;">same</td>
+<td style="text-align: center;"></td>
+</tr>
+<tr>
+<td>Google Benchmark build and advisory Query timings</td>
+<td style="text-align: center;">if benchmarks, <code>tlv</code> or CMake changed</td>
 <td style="text-align: center;">same</td>
 <td style="text-align: center;">yes</td>
 </tr>
@@ -3743,8 +3811,23 @@ it runs in parallel with the Clang build. CodeQL and fuzzing also run weekly on
 on it. If you make one of these checks a required status check in branch
 protection, a pull request that skips it stays pending, so require only the
 checks that always run (pre-commit and the Clang build).</p>
-<p>Benchmarks are never run in CI. They are only built, when they or the library
-change, to confirm they still compile; run them locally.</p>
+<p>Memcheck remains optional and non-blocking on PRs, including those requesting
+the full suite with the <code>memcheck-full</code> label; do not add it to required branch
+protection or repository ruleset checks. Every Memcheck run still reports a
+failed job on memory errors. Its shorter PR selection keeps all C/C++ unit and
+integration cases and omits the expensive Query conformance matrices. Full Memcheck runs weekly on
+<code>main</code> (Sunday at 02:17 UTC), on release tags, or by manual dispatch. Memory
+errors confined to the omitted matrices may therefore wait until the next full
+run to be detected. Adding the label or dispatching a full run closes that gap
+for a particular change.</p>
+<p>The <code>benchmarks.yml</code> workflow builds the Google Benchmark suites and records
+selected native Query phase, matcher, streaming and scaling measurements in a
+Clang Release build. These shared-runner timings and Query budget checks are
+advisory; run the full benchmark suite locally as needed. The separate Callgrind
+workflow runs four fixed C workloads under Callgrind and in native Release
+builds to compare the baseline and candidate revisions. Instruction and timing
+thresholds are informational. Memcheck errors fail its independent job in every
+scope; its PR check is not required for merging.</p>
 <h2 id="releasing">Releasing<a class="headerlink" href="#releasing" title="Permanent link">&para;</a></h2>
 <ol>
 <li>Update <code>CHANGELOG.md</code> and the version, and merge to <code>main</code>.</li>

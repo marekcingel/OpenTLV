@@ -94,7 +94,7 @@ Classes</h2></td></tr>
 <a name="details" id="details"></a><h2 class="groupheader">Detailed Description</h2>
 <div class="textblock"><p>Thin, safe C++ wrapper around <a class="elRef" href="../../c-api/html/group__reader.html#gabf4c5d3902d19aaea312759ab513f034">tlv_reader_t</a>. </p>
 <p>Thin C++ wrapper around <a class="elRef" href="../../c-api/html/group__writer.html#gab60fe025fad90cee69e0d2d92eb5d259">tlv_writer_t</a>.</p>
-<p>Reads elements sequentially without copying value bytes. Successful reads do not allocate; an error result carries a <code>std::string</code> message and therefore may allocate.</p>
+<p>Reads elements sequentially without copying value bytes. Successful reads and returned errors do not allocate. Error descriptions have static lifetime.</p>
 <dl class="section warning"><dt>Warning</dt><dd>The caller must keep the buffer, format, and format context alive for the lifetime of the reader and of any element it returns. </dd></dl>
 <dl class="section see"><dt>See also</dt><dd><a href="https://marekcingel.github.io/OpenTLV/guides/memory/">format context ownership and lifetime</a></dd></dl>
 <p>Writes elements sequentially into a caller-owned buffer. Successful writes do not allocate; an error result carries a <code>std::string</code> message and therefore may allocate.</p>

@@ -121,7 +121,7 @@ Public Member Functions</h2></td></tr>
 </table>
 <a name="details" id="details"></a><h2 class="groupheader">Detailed Description</h2>
 <div class="textblock"><p>Lazy single-pass Query results yielding normal <a class="el" href="structtlv_1_1tree__item.html" title="Complete borrowed element with source, depth, offset and classification.">tree_item</a> records. </p>
-<dl class="section note"><dt>Note</dt><dd><a class="el" href="classtlv_1_1query__range.html#ac5829cd5ee2013677b1df6b6862b1642" title="Pull the next match, or original Reader error including NEED_MORE_DATA.">next()</a> preserves matching state across NEED_MORE_DATA. Only final EOF ends iteration; other outcomes throw <a class="el" href="classtlv_1_1parse__error.html" title="Exception raised by Reader iteration on any outcome other than final EOF.">parse_error</a> from <a class="el" href="classtlv_1_1query__range.html#af62f91d60f1e0da0884a9208f142fd4d" title="Consume through the next match; throw parse_error on non-EOF failure.">begin()</a> or increment. Moving the range invalidates its iterators. Range, Reader, frames, input and Format must outlive their respective borrowed uses. Successful pulls allocate nothing. Query matching is performed entirely by the C engine. </dd></dl>
+<dl class="section note"><dt>Note</dt><dd><a class="el" href="namespacetlv.html#a7077398db8e6583f741d8db7271d7515ad0cab90d8d20d57e2f2b9be52f7dd25d">next()</a> preserves matching state across NEED_MORE_DATA. Only final EOF ends iteration; other outcomes throw <a class="el" href="classtlv_1_1parse__error.html" title="Exception raised by Reader iteration on any outcome other than final EOF.">parse_error</a> from <a class="el" href="classtlv_1_1query__range.html#af62f91d60f1e0da0884a9208f142fd4d" title="Consume through the next match; throw parse_error on non-EOF failure.">begin()</a> or increment. Moving the range invalidates its iterators. Range, Reader, frames, input and Format must outlive their respective borrowed uses. Successful pulls allocate nothing. Query matching is performed entirely by the C engine. </dd></dl>
 </div><h2 class="groupheader">Constructor &amp; Destructor Documentation</h2>
 <a id="a949a030cd461f022162fdafd6f7ce1a2" name="a949a030cd461f022162fdafd6f7ce1a2"></a>
 <h2 class="memtitle"><span class="permalink"><a href="#a949a030cd461f022162fdafd6f7ce1a2">&#9670;&#160;</a></span>query_range() <span class="overload">[1/3]</span></h2>
@@ -365,7 +365,7 @@ Public Member Functions</h2></td></tr>
 </div>
 </div>
 <hr/>The documentation for this class was generated from the following file:<ul>
-<li>tlv++/query/<a class="el" href="query_8hpp.html">query.hpp</a></li>
+<li>tlv++/query/<a class="el" href="query_2query_8hpp.html">query.hpp</a></li>
 </ul>
 </div><!-- contents -->
 <!-- start footer part -->

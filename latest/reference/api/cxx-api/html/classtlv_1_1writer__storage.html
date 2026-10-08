@@ -96,9 +96,12 @@ Public Member Functions</h2></td></tr>
 <tr class="memitem:a1799bd990b3a14c65b1631f24f864d8a" id="r_a1799bd990b3a14c65b1631f24f864d8a"><td class="memItemLeft" align="right" valign="top"><a class="el" href="classtlv_1_1writer__storage.html">writer_storage</a> &amp;&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classtlv_1_1writer__storage.html#a1799bd990b3a14c65b1631f24f864d8a">operator=</a> (const <a class="el" href="classtlv_1_1writer__storage.html">writer_storage</a> &amp;)=delete</td></tr>
 <tr class="memdesc:a1799bd990b3a14c65b1631f24f864d8a"><td class="mdescLeft">&#160;</td><td class="mdescRight">Prohibit replacement of storage borrowed by a Writer.  <br /></td></tr>
 <tr class="separator:a1799bd990b3a14c65b1631f24f864d8a"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:a9337b82af030bb4d2e39b26757209638" id="r_a9337b82af030bb4d2e39b26757209638"><td class="memItemLeft" align="right" valign="top"><a class="el" href="structtlv_1_1writer__workspace.html">writer_workspace</a>&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classtlv_1_1writer__storage.html#a9337b82af030bb4d2e39b26757209638">view</a> (size_t max_depth=Depth, size_t max_elements=SIZE_MAX) noexcept</td></tr>
-<tr class="memdesc:a9337b82af030bb4d2e39b26757209638"><td class="mdescLeft">&#160;</td><td class="mdescRight">Borrow this storage for one Writer, with explicit traversal limits.  <br /></td></tr>
-<tr class="separator:a9337b82af030bb4d2e39b26757209638"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:aa31aa8c13bcd390ddd8af9402433d5bb" id="r_aa31aa8c13bcd390ddd8af9402433d5bb"><td class="memItemLeft" align="right" valign="top"><a class="el" href="structtlv_1_1writer__workspace.html">writer_workspace</a>&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classtlv_1_1writer__storage.html#aa31aa8c13bcd390ddd8af9402433d5bb">view</a> (size_t max_depth=Depth, size_t max_elements=SIZE_MAX) &amp;noexcept</td></tr>
+<tr class="memdesc:aa31aa8c13bcd390ddd8af9402433d5bb"><td class="mdescLeft">&#160;</td><td class="mdescRight">Borrow this storage for one Writer, with explicit traversal limits.  <br /></td></tr>
+<tr class="separator:aa31aa8c13bcd390ddd8af9402433d5bb"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:ab5b06fe40f57afac9e7a26b9da5260a1" id="r_ab5b06fe40f57afac9e7a26b9da5260a1"><td class="memItemLeft" align="right" valign="top"><a class="el" href="structtlv_1_1writer__workspace.html">writer_workspace</a>&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classtlv_1_1writer__storage.html#ab5b06fe40f57afac9e7a26b9da5260a1">view</a> (size_t=Depth, size_t=SIZE_MAX) &amp;&amp;=delete</td></tr>
+<tr class="memdesc:ab5b06fe40f57afac9e7a26b9da5260a1"><td class="mdescLeft">&#160;</td><td class="mdescRight">Reject borrowing construction storage from a temporary owner.  <br /></td></tr>
+<tr class="separator:ab5b06fe40f57afac9e7a26b9da5260a1"><td class="memSeparator" colspan="2">&#160;</td></tr>
 </table>
 <a name="details" id="details"></a><h2 class="groupheader">Detailed Description</h2>
 <div class="textblock"><div class="compoundTemplParams">template&lt;size_t ScratchCapacity, size_t Depth = TLV_TREE_DEFAULT_DEPTH&gt;<br />
@@ -202,8 +205,8 @@ template&lt;size_t ScratchCapacity, size_t Depth = TLV_TREE_DEFAULT_DEPTH&gt; </
 
 </div>
 </div>
-<a id="a9337b82af030bb4d2e39b26757209638" name="a9337b82af030bb4d2e39b26757209638"></a>
-<h2 class="memtitle"><span class="permalink"><a href="#a9337b82af030bb4d2e39b26757209638">&#9670;&#160;</a></span>view()</h2>
+<a id="aa31aa8c13bcd390ddd8af9402433d5bb" name="aa31aa8c13bcd390ddd8af9402433d5bb"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#aa31aa8c13bcd390ddd8af9402433d5bb">&#9670;&#160;</a></span>view() <span class="overload">[1/2]</span></h2>
 
 <div class="memitem">
 <div class="memproto">
@@ -228,7 +231,7 @@ template&lt;size_t ScratchCapacity, size_t Depth = TLV_TREE_DEFAULT_DEPTH&gt; </
         <tr>
           <td></td>
           <td>)</td>
-          <td></td><td></td>
+          <td></td><td> &amp;</td>
         </tr>
       </table>
   </td>
@@ -247,6 +250,46 @@ template&lt;size_t ScratchCapacity, size_t Depth = TLV_TREE_DEFAULT_DEPTH&gt; </
   </dd>
 </dl>
 <dl class="section return"><dt>Returns</dt><dd>View valid while this object remains alive and stationary. </dd></dl>
+
+</div>
+</div>
+<a id="ab5b06fe40f57afac9e7a26b9da5260a1" name="ab5b06fe40f57afac9e7a26b9da5260a1"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#ab5b06fe40f57afac9e7a26b9da5260a1">&#9670;&#160;</a></span>view() <span class="overload">[2/2]</span></h2>
+
+<div class="memitem">
+<div class="memproto">
+<div class="memtemplate">
+template&lt;size_t ScratchCapacity, size_t Depth = TLV_TREE_DEFAULT_DEPTH&gt; </div>
+<table class="mlabels">
+  <tr>
+  <td class="mlabels-left">
+      <table class="memname">
+        <tr>
+          <td class="memname"><a class="el" href="structtlv_1_1writer__workspace.html">writer_workspace</a> <a class="el" href="classtlv_1_1writer__storage.html">tlv::writer_storage</a>&lt; ScratchCapacity, Depth &gt;::view </td>
+          <td>(</td>
+          <td class="paramtype">size_t&#160;</td>
+          <td class="paramname"> = <code>Depth</code>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype">size_t&#160;</td>
+          <td class="paramname"> = <code>SIZE_MAX</code>&#160;</td>
+        </tr>
+        <tr>
+          <td></td>
+          <td>)</td>
+          <td></td><td> &amp;&amp;</td>
+        </tr>
+      </table>
+  </td>
+  <td class="mlabels-right">
+<span class="mlabels"><span class="mlabel">delete</span></span>  </td>
+  </tr>
+</table>
+</div><div class="memdoc">
+
+<p>Reject borrowing construction storage from a temporary owner. </p>
 
 </div>
 </div>

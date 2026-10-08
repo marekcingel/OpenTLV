@@ -74,7 +74,9 @@ $(function() {
 </div><!-- top -->
 <div class="header">
   <div class="summary">
+<a href="#nested-classes">Classes</a> &#124;
 <a href="#namespaces">Namespaces</a> &#124;
+<a href="#enum-members">Enumerations</a> &#124;
 <a href="#func-members">Functions</a>  </div>
   <div class="headertitle"><div class="title">container.hpp File Reference</div></div>
 </div><!--header-->
@@ -85,23 +87,41 @@ $(function() {
 <div class="textblock"><code>#include &quot;<a class="elRef" href="../../c-api/html/container_8h.html">tlv/builtins/dhcp/container.h</a>&quot;</code><br />
 <code>#include &quot;<a class="el" href="types_8hpp.html">tlv++/types.hpp</a>&quot;</code><br />
 </div><table class="memberdecls">
+<tr class="heading"><td colspan="2"><h2 class="groupheader"><a id="nested-classes" name="nested-classes"></a>
+Classes</h2></td></tr>
+<tr class="memitem:"><td class="memItemLeft" align="right" valign="top">struct &#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="structtlv_1_1dhcp_1_1options__rules.html">tlv::dhcp::options_rules</a></td></tr>
+<tr class="memdesc:"><td class="mdescLeft">&#160;</td><td class="mdescRight">Value configuration for DHCP options container validation.  <a href="structtlv_1_1dhcp_1_1options__rules.html#details">More...</a><br /></td></tr>
+<tr class="separator:"><td class="memSeparator" colspan="2">&#160;</td></tr>
+</table><table class="memberdecls">
 <tr class="heading"><td colspan="2"><h2 class="groupheader"><a id="namespaces" name="namespaces"></a>
 Namespaces</h2></td></tr>
 <tr class="memitem:namespacetlv" id="r_namespacetlv"><td class="memItemLeft" align="right" valign="top">namespace &#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="namespacetlv.html">tlv</a></td></tr>
 <tr class="memdesc:namespacetlv"><td class="mdescLeft">&#160;</td><td class="mdescRight">Public C++ wrappers, value types, codec traits and helpers for OpenTLV. <br /></td></tr>
 <tr class="separator:"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:namespacetlv_1_1native" id="r_namespacetlv_1_1native"><td class="memItemLeft" align="right" valign="top">namespace &#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="namespacetlv_1_1native.html">tlv::native</a></td></tr>
+<tr class="memdesc:namespacetlv_1_1native"><td class="mdescLeft">&#160;</td><td class="mdescRight">Explicit C interoperability; ordinary C++ code uses public C++ types. <br /></td></tr>
+<tr class="separator:"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:namespacetlv_1_1dhcp" id="r_namespacetlv_1_1dhcp"><td class="memItemLeft" align="right" valign="top">namespace &#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="namespacetlv_1_1dhcp.html">tlv::dhcp</a></td></tr>
 <tr class="memdesc:namespacetlv_1_1dhcp"><td class="mdescLeft">&#160;</td><td class="mdescRight">DHCPv4 option Value semantics. <br /></td></tr>
 <tr class="separator:"><td class="memSeparator" colspan="2">&#160;</td></tr>
 </table><table class="memberdecls">
+<tr class="heading"><td colspan="2"><h2 class="groupheader"><a id="enum-members" name="enum-members"></a>
+Enumerations</h2></td></tr>
+<tr class="memitem:a91aab106cd2f9bc1c0380dd821fead98" id="r_a91aab106cd2f9bc1c0380dd821fead98"><td class="memItemLeft" align="right" valign="top">enum class &#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="namespacetlv_1_1dhcp.html#a91aab106cd2f9bc1c0380dd821fead98">tlv::dhcp::tail_policy</a> { <a class="el" href="namespacetlv_1_1dhcp.html#a91aab106cd2f9bc1c0380dd821fead98ab70cdb878a204fecf91c7dd1af312421">tlv::dhcp::padding</a> = TLV_DHCPV4_OPTIONS_TAIL_PAD
+, <a class="el" href="namespacetlv_1_1dhcp.html#a91aab106cd2f9bc1c0380dd821fead98aa2e4822a98337283e39f7b60acf85ec9">tlv::dhcp::empty</a> = TLV_DHCPV4_OPTIONS_TAIL_EMPTY
+, <a class="el" href="namespacetlv_1_1dhcp.html#a91aab106cd2f9bc1c0380dd821fead98a567bc1d268f135496de3d5b946b691f3">tlv::dhcp::ignore</a> = TLV_DHCPV4_OPTIONS_TAIL_IGNORE
+ }</td></tr>
+<tr class="memdesc:a91aab106cd2f9bc1c0380dd821fead98"><td class="mdescLeft">&#160;</td><td class="mdescRight">Policy for bytes after the first End option.  <a href="namespacetlv_1_1dhcp.html#a91aab106cd2f9bc1c0380dd821fead98">More...</a><br /></td></tr>
+<tr class="separator:a91aab106cd2f9bc1c0380dd821fead98"><td class="memSeparator" colspan="2">&#160;</td></tr>
+</table><table class="memberdecls">
 <tr class="heading"><td colspan="2"><h2 class="groupheader"><a id="func-members" name="func-members"></a>
 Functions</h2></td></tr>
-<tr class="memitem:a5d2c6a54d4c82610c3b43fc19aa12951" id="r_a5d2c6a54d4c82610c3b43fc19aa12951"><td class="memItemLeft" align="right" valign="top"><a class="elRef" href="../../c-api/html/group__core.html#ga164d2817a32e5d7b7aa1472e887b47c3">tlv_result_t</a>&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="namespacetlv.html#a5d2c6a54d4c82610c3b43fc19aa12951">tlv::dhcpv4_options_validate</a> (const uint8_t *data, size_t size, const <a class="elRef" href="../../c-api/html/container_8h.html#aa83e18018ede957bfbce4e6d27e4024a">tlv_dhcpv4_options_rules_t</a> *rules, size_t max_elements, size_t &amp;significant_size, <a class="elRef" href="../../c-api/html/group__diagnostics.html#ga2118f30a61e0b0b3ba5d20c73a740b2e">tlv_diagnostic_t</a> *<a class="el" href="namespacetlv.html#a00ca9c69c35ef11f6a22b7eda1b115ba">diagnostic</a>=nullptr) noexcept</td></tr>
-<tr class="memdesc:a5d2c6a54d4c82610c3b43fc19aa12951"><td class="mdescLeft">&#160;</td><td class="mdescRight">Validates a borrowed DHCPv4 options region using the C contract.  <br /></td></tr>
-<tr class="separator:a5d2c6a54d4c82610c3b43fc19aa12951"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:a6c4f76e2d13cfe9defdd42d55ada83fc" id="r_a6c4f76e2d13cfe9defdd42d55ada83fc"><td class="memItemLeft" align="right" valign="top"><a class="el" href="classtlv_1_1expected.html">expected</a>&lt; size_t, <a class="el" href="structtlv_1_1error.html">error</a> &gt;&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="namespacetlv_1_1dhcp.html#a6c4f76e2d13cfe9defdd42d55ada83fc">tlv::dhcp::options_validate</a> (<a class="el" href="namespacetlv.html#a2abe7003a70af047ef9acae17f31f75d">bytes</a> data, const <a class="elRef" href="../../c-api/html/container_8h.html#aa83e18018ede957bfbce4e6d27e4024a">tlv_dhcpv4_options_rules_t</a> *rules=nullptr, size_t max_elements=SIZE_MAX, <a class="elRef" href="../../c-api/html/group__diagnostics.html#ga2118f30a61e0b0b3ba5d20c73a740b2e">tlv_diagnostic_t</a> *<a class="el" href="namespacetlv.html#a00ca9c69c35ef11f6a22b7eda1b115ba">diagnostic</a>=nullptr)</td></tr>
-<tr class="memdesc:a6c4f76e2d13cfe9defdd42d55ada83fc"><td class="mdescLeft">&#160;</td><td class="mdescRight">Validate a DHCPv4 options region through the canonical container validator.  <br /></td></tr>
-<tr class="separator:a6c4f76e2d13cfe9defdd42d55ada83fc"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:aac90874ef59445b14dce539db09486a6" id="r_aac90874ef59445b14dce539db09486a6"><td class="memItemLeft" align="right" valign="top"><a class="elRef" href="../../c-api/html/group__core.html#ga164d2817a32e5d7b7aa1472e887b47c3">tlv_result_t</a>&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="namespacetlv_1_1native.html#aac90874ef59445b14dce539db09486a6">tlv::native::dhcpv4_options_validate</a> (const uint8_t *data, size_t size, const <a class="elRef" href="../../c-api/html/container_8h.html#aa83e18018ede957bfbce4e6d27e4024a">tlv_dhcpv4_options_rules_t</a> *rules, size_t max_elements, size_t &amp;significant_size, <a class="elRef" href="../../c-api/html/group__diagnostics.html#ga2118f30a61e0b0b3ba5d20c73a740b2e">tlv_diagnostic_t</a> *<a class="el" href="namespacetlv.html#a00ca9c69c35ef11f6a22b7eda1b115ba">diagnostic</a>=nullptr) noexcept</td></tr>
+<tr class="memdesc:aac90874ef59445b14dce539db09486a6"><td class="mdescLeft">&#160;</td><td class="mdescRight">Validates a borrowed DHCPv4 options region using the C contract.  <br /></td></tr>
+<tr class="separator:aac90874ef59445b14dce539db09486a6"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a0345cf8497a662313786d9585aad73f7" id="r_a0345cf8497a662313786d9585aad73f7"><td class="memItemLeft" align="right" valign="top"><a class="el" href="classtlv_1_1expected.html">expected</a>&lt; size_t, <a class="el" href="structtlv_1_1error.html">error</a> &gt;&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="namespacetlv_1_1dhcp.html#a0345cf8497a662313786d9585aad73f7">tlv::dhcp::options_validate</a> (<a class="el" href="namespacetlv.html#a2abe7003a70af047ef9acae17f31f75d">bytes</a> data, <a class="el" href="structtlv_1_1dhcp_1_1options__rules.html">options_rules</a> rules={}, size_t max_elements=SIZE_MAX, <a class="elRef" href="../../c-api/html/group__diagnostics.html#ga2118f30a61e0b0b3ba5d20c73a740b2e">tlv_diagnostic_t</a> *<a class="el" href="namespacetlv.html#a00ca9c69c35ef11f6a22b7eda1b115ba">diagnostic</a>=nullptr)</td></tr>
+<tr class="memdesc:a0345cf8497a662313786d9585aad73f7"><td class="mdescLeft">&#160;</td><td class="mdescRight">Validate a DHCPv4 options region through the canonical container validator.  <br /></td></tr>
+<tr class="separator:a0345cf8497a662313786d9585aad73f7"><td class="memSeparator" colspan="2">&#160;</td></tr>
 </table>
 <a name="details" id="details"></a><h2 class="groupheader">Detailed Description</h2>
 <div class="textblock"><p>C++ access to shared DHCPv4 options container validation. </p>

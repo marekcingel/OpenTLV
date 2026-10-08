@@ -74,38 +74,346 @@ $(function() {
 </div><!-- top -->
 <div class="header">
   <div class="summary">
+<a href="#pub-methods">Public Member Functions</a> &#124;
 <a href="#pub-static-methods">Static Public Member Functions</a> &#124;
 <a href="#pub-attribs">Public Attributes</a> &#124;
+<a href="#friends">Friends</a> &#124;
 <a href="structtlv_1_1error-members.html">List of all members</a>  </div>
   <div class="headertitle"><div class="title">tlv::error Struct Reference</div></div>
 </div><!--header-->
 <div class="contents">
 
-<p>Idiomatic C++ error that wraps a C result code and its description.  
+<p>Allocation-free operation error with optional absolute byte offset.  
  <a href="structtlv_1_1error.html#details">More...</a></p>
 
-<p><code>#include &lt;types.hpp&gt;</code></p>
+<p><code>#include &lt;error.hpp&gt;</code></p>
 <table class="memberdecls">
+<tr class="heading"><td colspan="2"><h2 class="groupheader"><a id="pub-methods" name="pub-methods"></a>
+Public Member Functions</h2></td></tr>
+<tr class="memitem:aa80e4021c21b83b692bfa7a1da29dc13" id="r_aa80e4021c21b83b692bfa7a1da29dc13"><td class="memItemLeft" align="right" valign="top">const char *&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="structtlv_1_1error.html#aa80e4021c21b83b692bfa7a1da29dc13">message</a> () const noexcept</td></tr>
+<tr class="memdesc:aa80e4021c21b83b692bfa7a1da29dc13"><td class="mdescLeft">&#160;</td><td class="mdescRight">Borrowed NUL-terminated description, never null for library errors.  <br /></td></tr>
+<tr class="separator:aa80e4021c21b83b692bfa7a1da29dc13"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:af9d8a29d16864824544282ad83bee5af" id="r_af9d8a29d16864824544282ad83bee5af"><td class="memItemLeft" align="right" valign="top">&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="structtlv_1_1error.html#af9d8a29d16864824544282ad83bee5af">error</a> (<a class="el" href="namespacetlv.html#ab9d10b8185e9a80cd73b5a0ef633a22c">errc</a> <a class="el" href="namespacetlv.html#a05620bcc688c15765fb53922c84147b9a2063c1608d6e0baf80249c42e2be5804">value</a>, <a class="el" href="namespacetlv.html#ada14a13dc88de11a2411e12027d8ad14">operation</a> <a class="el" href="structtlv_1_1error.html#a94746617f7a6e157d826099a8517ffd8">stage</a>=<a class="el" href="namespacetlv.html#ada14a13dc88de11a2411e12027d8ad14ad415f0e30c471dfdd9bc4f827329ef48">operation::unspecified</a>) noexcept</td></tr>
+<tr class="memdesc:af9d8a29d16864824544282ad83bee5af"><td class="mdescLeft">&#160;</td><td class="mdescRight">Construct an error with a program-lifetime canonical description.  <br /></td></tr>
+<tr class="separator:af9d8a29d16864824544282ad83bee5af"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:ada97724c3c9825d697686b56596a7e7c" id="r_ada97724c3c9825d697686b56596a7e7c"><td class="memItemLeft" align="right" valign="top">&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="structtlv_1_1error.html#ada97724c3c9825d697686b56596a7e7c">error</a> (<a class="elRef" href="../../c-api/html/group__core.html#ga164d2817a32e5d7b7aa1472e887b47c3">tlv_result_t</a> <a class="el" href="namespacetlv.html#a05620bcc688c15765fb53922c84147b9a2063c1608d6e0baf80249c42e2be5804">value</a>, const char *description) noexcept</td></tr>
+<tr class="memdesc:ada97724c3c9825d697686b56596a7e7c"><td class="mdescLeft">&#160;</td><td class="mdescRight">Construct an interoperability error with borrowed description.  <br /></td></tr>
+<tr class="separator:ada97724c3c9825d697686b56596a7e7c"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a9a686fc25a03fdc9a84470d31cbcc90c" id="r_a9a686fc25a03fdc9a84470d31cbcc90c"><td class="memItemLeft" align="right" valign="top"><a class="el" href="namespacetlv.html#ab9d10b8185e9a80cd73b5a0ef633a22c">errc</a>&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="structtlv_1_1error.html#a9a686fc25a03fdc9a84470d31cbcc90c">status</a> () const noexcept</td></tr>
+<tr class="memdesc:a9a686fc25a03fdc9a84470d31cbcc90c"><td class="mdescLeft">&#160;</td><td class="mdescRight">Canonical C++ status, including distinct EOF and resumable input.  <br /></td></tr>
+<tr class="separator:a9a686fc25a03fdc9a84470d31cbcc90c"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a94746617f7a6e157d826099a8517ffd8" id="r_a94746617f7a6e157d826099a8517ffd8"><td class="memItemLeft" align="right" valign="top"><a class="el" href="namespacetlv.html#ada14a13dc88de11a2411e12027d8ad14">operation</a>&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="structtlv_1_1error.html#a94746617f7a6e157d826099a8517ffd8">stage</a> () const noexcept</td></tr>
+<tr class="memdesc:a94746617f7a6e157d826099a8517ffd8"><td class="mdescLeft">&#160;</td><td class="mdescRight">Subsystem responsible for this failure.  <br /></td></tr>
+<tr class="separator:a94746617f7a6e157d826099a8517ffd8"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a9e3920207d8878b6835a663044ca4d8d" id="r_a9e3920207d8878b6835a663044ca4d8d"><td class="memItemLeft" align="right" valign="top"><a class="el" href="namespacetlv.html#a066bba7bde757c31179a8585a37ae760">tlv::severity</a>&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="structtlv_1_1error.html#a9e3920207d8878b6835a663044ca4d8d">severity</a> () const noexcept</td></tr>
+<tr class="memdesc:a9e3920207d8878b6835a663044ca4d8d"><td class="mdescLeft">&#160;</td><td class="mdescRight">Severity of this diagnostic; operation errors default to error.  <br /></td></tr>
+<tr class="separator:a9e3920207d8878b6835a663044ca4d8d"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:afb11e5286309cc54142d98d0c8a89dd6" id="r_afb11e5286309cc54142d98d0c8a89dd6"><td class="memItemLeft" align="right" valign="top">bool&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="structtlv_1_1error.html#afb11e5286309cc54142d98d0c8a89dd6">has_offset</a> () const noexcept</td></tr>
+<tr class="memdesc:afb11e5286309cc54142d98d0c8a89dd6"><td class="mdescLeft">&#160;</td><td class="mdescRight">Whether <a class="el" href="structtlv_1_1error.html#a6140b63c1bfee3fedc88dfd392efe6c1" title="Absolute byte offset, valid only when has_offset() is true.">offset()</a> contains a known location.  <br /></td></tr>
+<tr class="separator:afb11e5286309cc54142d98d0c8a89dd6"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a6140b63c1bfee3fedc88dfd392efe6c1" id="r_a6140b63c1bfee3fedc88dfd392efe6c1"><td class="memItemLeft" align="right" valign="top">std::size_t&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="structtlv_1_1error.html#a6140b63c1bfee3fedc88dfd392efe6c1">offset</a> () const noexcept</td></tr>
+<tr class="memdesc:a6140b63c1bfee3fedc88dfd392efe6c1"><td class="mdescLeft">&#160;</td><td class="mdescRight">Absolute byte offset, valid only when <a class="el" href="structtlv_1_1error.html#afb11e5286309cc54142d98d0c8a89dd6" title="Whether offset() contains a known location.">has_offset()</a> is true.  <br /></td></tr>
+<tr class="separator:a6140b63c1bfee3fedc88dfd392efe6c1"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:aab6aea9ae5ed687e1b375c3789124c2c" id="r_aab6aea9ae5ed687e1b375c3789124c2c"><td class="memItemLeft" align="right" valign="top">bool&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="structtlv_1_1error.html#aab6aea9ae5ed687e1b375c3789124c2c">has_tag</a> () const noexcept</td></tr>
+<tr class="memdesc:aab6aea9ae5ed687e1b375c3789124c2c"><td class="mdescLeft">&#160;</td><td class="mdescRight">Whether tag() identifies the failing element; identifier bytes remain borrowed.  <br /></td></tr>
+<tr class="separator:aab6aea9ae5ed687e1b375c3789124c2c"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:aaadfcce99b5ade3c430704a3ca4ff170" id="r_aaadfcce99b5ade3c430704a3ca4ff170"><td class="memItemLeft" align="right" valign="top"><a class="el" href="classtlv_1_1tag.html">tlv::tag</a>&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="structtlv_1_1error.html#aaadfcce99b5ade3c430704a3ca4ff170">tag</a> () const noexcept</td></tr>
+<tr class="memdesc:aaadfcce99b5ade3c430704a3ca4ff170"><td class="mdescLeft">&#160;</td><td class="mdescRight">Borrow the failing identifier, or an absent identifier when unavailable.  <br /></td></tr>
+<tr class="separator:aaadfcce99b5ade3c430704a3ca4ff170"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a2c11bae3aadeb2388994f924c27da625" id="r_a2c11bae3aadeb2388994f924c27da625"><td class="memItemLeft" align="right" valign="top">size_t&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="structtlv_1_1error.html#a2c11bae3aadeb2388994f924c27da625">depth</a> () const noexcept</td></tr>
+<tr class="memdesc:a2c11bae3aadeb2388994f924c27da625"><td class="mdescLeft">&#160;</td><td class="mdescRight">Number of enclosing identifiers copied into this error.  <br /></td></tr>
+<tr class="separator:a2c11bae3aadeb2388994f924c27da625"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:af3d2fb5dea48cec300a97b8bb2301431" id="r_af3d2fb5dea48cec300a97b8bb2301431"><td class="memItemLeft" align="right" valign="top"><a class="el" href="classtlv_1_1tag.html">tlv::tag</a>&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="structtlv_1_1error.html#af3d2fb5dea48cec300a97b8bb2301431">ancestor</a> (size_t index) const noexcept</td></tr>
+<tr class="memdesc:af3d2fb5dea48cec300a97b8bb2301431"><td class="mdescLeft">&#160;</td><td class="mdescRight">Borrow an enclosing identifier; out-of-range indices return an absent identifier.  <br /></td></tr>
+<tr class="separator:af3d2fb5dea48cec300a97b8bb2301431"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:afccb3ada249bd33766f26aae57a560d6" id="r_afccb3ada249bd33766f26aae57a560d6"><td class="memItemLeft" align="right" valign="top">const char *&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="structtlv_1_1error.html#afccb3ada249bd33766f26aae57a560d6">expected</a> () const noexcept</td></tr>
+<tr class="memdesc:afccb3ada249bd33766f26aae57a560d6"><td class="mdescLeft">&#160;</td><td class="mdescRight">Optional borrowed expected constraint description.  <br /></td></tr>
+<tr class="separator:afccb3ada249bd33766f26aae57a560d6"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:ab1890cba3d5965cd691810719d624539" id="r_ab1890cba3d5965cd691810719d624539"><td class="memItemLeft" align="right" valign="top">const char *&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="structtlv_1_1error.html#ab1890cba3d5965cd691810719d624539">actual</a> () const noexcept</td></tr>
+<tr class="memdesc:ab1890cba3d5965cd691810719d624539"><td class="mdescLeft">&#160;</td><td class="mdescRight">Optional borrowed observed-value description.  <br /></td></tr>
+<tr class="separator:ab1890cba3d5965cd691810719d624539"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:afd22794e9fe0b61492f6f5661c6940ef" id="r_afd22794e9fe0b61492f6f5661c6940ef"><td class="memItemLeft" align="right" valign="top"><a class="el" href="structtlv_1_1error.html">error</a>&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="structtlv_1_1error.html#afd22794e9fe0b61492f6f5661c6940ef">during</a> (<a class="el" href="namespacetlv.html#ada14a13dc88de11a2411e12027d8ad14">operation</a> <a class="el" href="structtlv_1_1error.html#a94746617f7a6e157d826099a8517ffd8">stage</a>) const noexcept</td></tr>
+<tr class="memdesc:afd22794e9fe0b61492f6f5661c6940ef"><td class="mdescLeft">&#160;</td><td class="mdescRight">Return a copy annotated with a subsystem, without inventing a location.  <br /></td></tr>
+<tr class="separator:afd22794e9fe0b61492f6f5661c6940ef"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a488bce25cec1a775b5db3a5fbf204fb7" id="r_a488bce25cec1a775b5db3a5fbf204fb7"><td class="memItemLeft" align="right" valign="top"><a class="el" href="structtlv_1_1error.html">error</a>&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="structtlv_1_1error.html#a488bce25cec1a775b5db3a5fbf204fb7">at</a> (std::size_t <a class="el" href="structtlv_1_1error.html#a6140b63c1bfee3fedc88dfd392efe6c1">offset</a>, <a class="el" href="namespacetlv.html#ada14a13dc88de11a2411e12027d8ad14">operation</a> <a class="el" href="structtlv_1_1error.html#a94746617f7a6e157d826099a8517ffd8">stage</a>) const noexcept</td></tr>
+<tr class="memdesc:a488bce25cec1a775b5db3a5fbf204fb7"><td class="mdescLeft">&#160;</td><td class="mdescRight">Return an enriched copy without modifying the original or allocating.  <br /></td></tr>
+<tr class="separator:a488bce25cec1a775b5db3a5fbf204fb7"><td class="memSeparator" colspan="2">&#160;</td></tr>
+</table><table class="memberdecls">
 <tr class="heading"><td colspan="2"><h2 class="groupheader"><a id="pub-static-methods" name="pub-static-methods"></a>
 Static Public Member Functions</h2></td></tr>
-<tr class="memitem:aa8a240155b76d53763c77fe67c2956a6" id="r_aa8a240155b76d53763c77fe67c2956a6"><td class="memItemLeft" align="right" valign="top">static <a class="el" href="structtlv_1_1error.html">error</a>&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="structtlv_1_1error.html#aa8a240155b76d53763c77fe67c2956a6">from_c</a> (<a class="elRef" href="../../c-api/html/group__core.html#ga164d2817a32e5d7b7aa1472e887b47c3">tlv_result_t</a> c_code)</td></tr>
-<tr class="memdesc:aa8a240155b76d53763c77fe67c2956a6"><td class="mdescLeft">&#160;</td><td class="mdescRight">Builds an error from a C result code.  <br /></td></tr>
-<tr class="separator:aa8a240155b76d53763c77fe67c2956a6"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a0d11cb807b4a9ad9ec1817cdea345848" id="r_a0d11cb807b4a9ad9ec1817cdea345848"><td class="memItemLeft" align="right" valign="top">static <a class="el" href="structtlv_1_1error.html">error</a>&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="structtlv_1_1error.html#a0d11cb807b4a9ad9ec1817cdea345848">from_c</a> (<a class="elRef" href="../../c-api/html/group__core.html#ga164d2817a32e5d7b7aa1472e887b47c3">tlv_result_t</a> <a class="el" href="namespacetlv.html#a05620bcc688c15765fb53922c84147b9a2063c1608d6e0baf80249c42e2be5804">value</a>) noexcept</td></tr>
+<tr class="memdesc:a0d11cb807b4a9ad9ec1817cdea345848"><td class="mdescLeft">&#160;</td><td class="mdescRight">Translate a native code without allocating.  <br /></td></tr>
+<tr class="separator:a0d11cb807b4a9ad9ec1817cdea345848"><td class="memSeparator" colspan="2">&#160;</td></tr>
 </table><table class="memberdecls">
 <tr class="heading"><td colspan="2"><h2 class="groupheader"><a id="pub-attribs" name="pub-attribs"></a>
 Public Attributes</h2></td></tr>
 <tr class="memitem:a95ae94d214e3a104026eeaa4bb7bf769" id="r_a95ae94d214e3a104026eeaa4bb7bf769"><td class="memItemLeft" align="right" valign="top"><a class="elRef" href="../../c-api/html/group__core.html#ga164d2817a32e5d7b7aa1472e887b47c3">tlv_result_t</a>&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="structtlv_1_1error.html#a95ae94d214e3a104026eeaa4bb7bf769">code</a></td></tr>
+<tr class="memdesc:a95ae94d214e3a104026eeaa4bb7bf769"><td class="mdescLeft">&#160;</td><td class="mdescRight">Native status retained for transitional interoperability.  <br /></td></tr>
 <tr class="separator:a95ae94d214e3a104026eeaa4bb7bf769"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:a1a43671daebbe5a8e4d47b4859ad46d9" id="r_a1a43671daebbe5a8e4d47b4859ad46d9"><td class="memItemLeft" align="right" valign="top">std::string&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="structtlv_1_1error.html#a1a43671daebbe5a8e4d47b4859ad46d9">message</a></td></tr>
-<tr class="separator:a1a43671daebbe5a8e4d47b4859ad46d9"><td class="memSeparator" colspan="2">&#160;</td></tr>
+</table><table class="memberdecls">
+<tr class="heading"><td colspan="2"><h2 class="groupheader"><a id="friends" name="friends"></a>
+Friends</h2></td></tr>
+<tr class="memitem:a5aa0814eafb185264ebd11a615e0ae2f" id="r_a5aa0814eafb185264ebd11a615e0ae2f"><td class="memItemLeft" align="right" valign="top">struct&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="structtlv_1_1error.html#a5aa0814eafb185264ebd11a615e0ae2f">detail::error_access</a></td></tr>
+<tr class="separator:a5aa0814eafb185264ebd11a615e0ae2f"><td class="memSeparator" colspan="2">&#160;</td></tr>
 </table>
 <a name="details" id="details"></a><h2 class="groupheader">Detailed Description</h2>
-<div class="textblock"><p>Idiomatic C++ error that wraps a C result code and its description. </p>
-<p>Returned in the error state of an <code>expected</code> by the tlv++ wrappers.</p>
-<dl class="section see"><dt>See also</dt><dd><a class="elRef" href="../../c-api/html/group__core.html#ga164d2817a32e5d7b7aa1472e887b47c3">tlv_result_t</a> </dd></dl>
-</div><h2 class="groupheader">Member Function Documentation</h2>
-<a id="aa8a240155b76d53763c77fe67c2956a6" name="aa8a240155b76d53763c77fe67c2956a6"></a>
-<h2 class="memtitle"><span class="permalink"><a href="#aa8a240155b76d53763c77fe67c2956a6">&#9670;&#160;</a></span>from_c()</h2>
+<div class="textblock"><p>Allocation-free operation error with optional absolute byte offset. </p>
+<p>Text is borrowed, normally from immutable program-lifetime library strings. Custom descriptions must outlive every error copy. Numeric context is copied. </p><dl class="section note"><dt>Note</dt><dd>Every error contains a full inline diagnostic path. Its storage also contributes to sizeof(expected&lt;T, error&gt;) for successful results, although success does not construct an error. Check sizes when budgeting stack or retained results. </dd></dl>
+</div><h2 class="groupheader">Constructor &amp; Destructor Documentation</h2>
+<a id="af9d8a29d16864824544282ad83bee5af" name="af9d8a29d16864824544282ad83bee5af"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#af9d8a29d16864824544282ad83bee5af">&#9670;&#160;</a></span>error() <span class="overload">[1/2]</span></h2>
+
+<div class="memitem">
+<div class="memproto">
+<table class="mlabels">
+  <tr>
+  <td class="mlabels-left">
+      <table class="memname">
+        <tr>
+          <td class="memname">tlv::error::error </td>
+          <td>(</td>
+          <td class="paramtype"><a class="el" href="namespacetlv.html#ab9d10b8185e9a80cd73b5a0ef633a22c">errc</a>&#160;</td>
+          <td class="paramname"><em>value</em>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype"><a class="el" href="namespacetlv.html#ada14a13dc88de11a2411e12027d8ad14">operation</a>&#160;</td>
+          <td class="paramname"><em>stage</em> = <code><a class="el" href="namespacetlv.html#ada14a13dc88de11a2411e12027d8ad14ad415f0e30c471dfdd9bc4f827329ef48">operation::unspecified</a></code>&#160;</td>
+        </tr>
+        <tr>
+          <td></td>
+          <td>)</td>
+          <td></td><td></td>
+        </tr>
+      </table>
+  </td>
+  <td class="mlabels-right">
+<span class="mlabels"><span class="mlabel">inline</span><span class="mlabel">explicit</span><span class="mlabel">noexcept</span></span>  </td>
+  </tr>
+</table>
+</div><div class="memdoc">
+
+<p>Construct an error with a program-lifetime canonical description. </p>
+
+</div>
+</div>
+<a id="ada97724c3c9825d697686b56596a7e7c" name="ada97724c3c9825d697686b56596a7e7c"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#ada97724c3c9825d697686b56596a7e7c">&#9670;&#160;</a></span>error() <span class="overload">[2/2]</span></h2>
+
+<div class="memitem">
+<div class="memproto">
+<table class="mlabels">
+  <tr>
+  <td class="mlabels-left">
+      <table class="memname">
+        <tr>
+          <td class="memname">tlv::error::error </td>
+          <td>(</td>
+          <td class="paramtype"><a class="elRef" href="../../c-api/html/group__core.html#ga164d2817a32e5d7b7aa1472e887b47c3">tlv_result_t</a>&#160;</td>
+          <td class="paramname"><em>value</em>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype">const char *&#160;</td>
+          <td class="paramname"><em>description</em>&#160;</td>
+        </tr>
+        <tr>
+          <td></td>
+          <td>)</td>
+          <td></td><td></td>
+        </tr>
+      </table>
+  </td>
+  <td class="mlabels-right">
+<span class="mlabels"><span class="mlabel">inline</span><span class="mlabel">noexcept</span></span>  </td>
+  </tr>
+</table>
+</div><div class="memdoc">
+
+<p>Construct an interoperability error with borrowed description. </p>
+
+</div>
+</div>
+<h2 class="groupheader">Member Function Documentation</h2>
+<a id="ab1890cba3d5965cd691810719d624539" name="ab1890cba3d5965cd691810719d624539"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#ab1890cba3d5965cd691810719d624539">&#9670;&#160;</a></span>actual()</h2>
+
+<div class="memitem">
+<div class="memproto">
+<table class="mlabels">
+  <tr>
+  <td class="mlabels-left">
+      <table class="memname">
+        <tr>
+          <td class="memname">const char * tlv::error::actual </td>
+          <td>(</td>
+          <td class="paramname"></td><td>)</td>
+          <td> const</td>
+        </tr>
+      </table>
+  </td>
+  <td class="mlabels-right">
+<span class="mlabels"><span class="mlabel">inline</span><span class="mlabel">noexcept</span></span>  </td>
+  </tr>
+</table>
+</div><div class="memdoc">
+
+<p>Optional borrowed observed-value description. </p>
+
+</div>
+</div>
+<a id="af3d2fb5dea48cec300a97b8bb2301431" name="af3d2fb5dea48cec300a97b8bb2301431"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#af3d2fb5dea48cec300a97b8bb2301431">&#9670;&#160;</a></span>ancestor()</h2>
+
+<div class="memitem">
+<div class="memproto">
+<table class="mlabels">
+  <tr>
+  <td class="mlabels-left">
+      <table class="memname">
+        <tr>
+          <td class="memname"><a class="el" href="classtlv_1_1tag.html">tlv::tag</a> tlv::error::ancestor </td>
+          <td>(</td>
+          <td class="paramtype">size_t&#160;</td>
+          <td class="paramname"><em>index</em></td><td>)</td>
+          <td> const</td>
+        </tr>
+      </table>
+  </td>
+  <td class="mlabels-right">
+<span class="mlabels"><span class="mlabel">inline</span><span class="mlabel">noexcept</span></span>  </td>
+  </tr>
+</table>
+</div><div class="memdoc">
+
+<p>Borrow an enclosing identifier; out-of-range indices return an absent identifier. </p>
+
+</div>
+</div>
+<a id="a488bce25cec1a775b5db3a5fbf204fb7" name="a488bce25cec1a775b5db3a5fbf204fb7"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#a488bce25cec1a775b5db3a5fbf204fb7">&#9670;&#160;</a></span>at()</h2>
+
+<div class="memitem">
+<div class="memproto">
+<table class="mlabels">
+  <tr>
+  <td class="mlabels-left">
+      <table class="memname">
+        <tr>
+          <td class="memname"><a class="el" href="structtlv_1_1error.html">error</a> tlv::error::at </td>
+          <td>(</td>
+          <td class="paramtype">std::size_t&#160;</td>
+          <td class="paramname"><em>offset</em>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype"><a class="el" href="namespacetlv.html#ada14a13dc88de11a2411e12027d8ad14">operation</a>&#160;</td>
+          <td class="paramname"><em>stage</em>&#160;</td>
+        </tr>
+        <tr>
+          <td></td>
+          <td>)</td>
+          <td></td><td> const</td>
+        </tr>
+      </table>
+  </td>
+  <td class="mlabels-right">
+<span class="mlabels"><span class="mlabel">inline</span><span class="mlabel">noexcept</span></span>  </td>
+  </tr>
+</table>
+</div><div class="memdoc">
+
+<p>Return an enriched copy without modifying the original or allocating. </p>
+
+</div>
+</div>
+<a id="a2c11bae3aadeb2388994f924c27da625" name="a2c11bae3aadeb2388994f924c27da625"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#a2c11bae3aadeb2388994f924c27da625">&#9670;&#160;</a></span>depth()</h2>
+
+<div class="memitem">
+<div class="memproto">
+<table class="mlabels">
+  <tr>
+  <td class="mlabels-left">
+      <table class="memname">
+        <tr>
+          <td class="memname">size_t tlv::error::depth </td>
+          <td>(</td>
+          <td class="paramname"></td><td>)</td>
+          <td> const</td>
+        </tr>
+      </table>
+  </td>
+  <td class="mlabels-right">
+<span class="mlabels"><span class="mlabel">inline</span><span class="mlabel">noexcept</span></span>  </td>
+  </tr>
+</table>
+</div><div class="memdoc">
+
+<p>Number of enclosing identifiers copied into this error. </p>
+
+</div>
+</div>
+<a id="afd22794e9fe0b61492f6f5661c6940ef" name="afd22794e9fe0b61492f6f5661c6940ef"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#afd22794e9fe0b61492f6f5661c6940ef">&#9670;&#160;</a></span>during()</h2>
+
+<div class="memitem">
+<div class="memproto">
+<table class="mlabels">
+  <tr>
+  <td class="mlabels-left">
+      <table class="memname">
+        <tr>
+          <td class="memname"><a class="el" href="structtlv_1_1error.html">error</a> tlv::error::during </td>
+          <td>(</td>
+          <td class="paramtype"><a class="el" href="namespacetlv.html#ada14a13dc88de11a2411e12027d8ad14">operation</a>&#160;</td>
+          <td class="paramname"><em>stage</em></td><td>)</td>
+          <td> const</td>
+        </tr>
+      </table>
+  </td>
+  <td class="mlabels-right">
+<span class="mlabels"><span class="mlabel">inline</span><span class="mlabel">noexcept</span></span>  </td>
+  </tr>
+</table>
+</div><div class="memdoc">
+
+<p>Return a copy annotated with a subsystem, without inventing a location. </p>
+
+</div>
+</div>
+<a id="afccb3ada249bd33766f26aae57a560d6" name="afccb3ada249bd33766f26aae57a560d6"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#afccb3ada249bd33766f26aae57a560d6">&#9670;&#160;</a></span>expected()</h2>
+
+<div class="memitem">
+<div class="memproto">
+<table class="mlabels">
+  <tr>
+  <td class="mlabels-left">
+      <table class="memname">
+        <tr>
+          <td class="memname">const char * tlv::error::expected </td>
+          <td>(</td>
+          <td class="paramname"></td><td>)</td>
+          <td> const</td>
+        </tr>
+      </table>
+  </td>
+  <td class="mlabels-right">
+<span class="mlabels"><span class="mlabel">inline</span><span class="mlabel">noexcept</span></span>  </td>
+  </tr>
+</table>
+</div><div class="memdoc">
+
+<p>Optional borrowed expected constraint description. </p>
+
+</div>
+</div>
+<a id="a0d11cb807b4a9ad9ec1817cdea345848" name="a0d11cb807b4a9ad9ec1817cdea345848"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#a0d11cb807b4a9ad9ec1817cdea345848">&#9670;&#160;</a></span>from_c()</h2>
 
 <div class="memitem">
 <div class="memproto">
@@ -117,25 +425,257 @@ Public Attributes</h2></td></tr>
           <td class="memname">static <a class="el" href="structtlv_1_1error.html">error</a> tlv::error::from_c </td>
           <td>(</td>
           <td class="paramtype"><a class="elRef" href="../../c-api/html/group__core.html#ga164d2817a32e5d7b7aa1472e887b47c3">tlv_result_t</a>&#160;</td>
-          <td class="paramname"><em>c_code</em></td><td>)</td>
+          <td class="paramname"><em>value</em></td><td>)</td>
           <td></td>
         </tr>
       </table>
   </td>
   <td class="mlabels-right">
-<span class="mlabels"><span class="mlabel">inline</span><span class="mlabel">static</span></span>  </td>
+<span class="mlabels"><span class="mlabel">inline</span><span class="mlabel">static</span><span class="mlabel">noexcept</span></span>  </td>
   </tr>
 </table>
 </div><div class="memdoc">
 
-<p>Builds an error from a C result code. </p>
-<dl class="params"><dt>Parameters</dt><dd>
-  <table class="params">
-    <tr><td class="paramname">c_code</td><td>C result code.</td></tr>
-  </table>
-  </dd>
-</dl>
-<dl class="section return"><dt>Returns</dt><dd>An error whose message is tlv_strerror(<code>c_code</code>). </dd></dl>
+<p>Translate a native code without allocating. </p>
+
+</div>
+</div>
+<a id="afb11e5286309cc54142d98d0c8a89dd6" name="afb11e5286309cc54142d98d0c8a89dd6"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#afb11e5286309cc54142d98d0c8a89dd6">&#9670;&#160;</a></span>has_offset()</h2>
+
+<div class="memitem">
+<div class="memproto">
+<table class="mlabels">
+  <tr>
+  <td class="mlabels-left">
+      <table class="memname">
+        <tr>
+          <td class="memname">bool tlv::error::has_offset </td>
+          <td>(</td>
+          <td class="paramname"></td><td>)</td>
+          <td> const</td>
+        </tr>
+      </table>
+  </td>
+  <td class="mlabels-right">
+<span class="mlabels"><span class="mlabel">inline</span><span class="mlabel">noexcept</span></span>  </td>
+  </tr>
+</table>
+</div><div class="memdoc">
+
+<p>Whether <a class="el" href="structtlv_1_1error.html#a6140b63c1bfee3fedc88dfd392efe6c1" title="Absolute byte offset, valid only when has_offset() is true.">offset()</a> contains a known location. </p>
+
+</div>
+</div>
+<a id="aab6aea9ae5ed687e1b375c3789124c2c" name="aab6aea9ae5ed687e1b375c3789124c2c"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#aab6aea9ae5ed687e1b375c3789124c2c">&#9670;&#160;</a></span>has_tag()</h2>
+
+<div class="memitem">
+<div class="memproto">
+<table class="mlabels">
+  <tr>
+  <td class="mlabels-left">
+      <table class="memname">
+        <tr>
+          <td class="memname">bool tlv::error::has_tag </td>
+          <td>(</td>
+          <td class="paramname"></td><td>)</td>
+          <td> const</td>
+        </tr>
+      </table>
+  </td>
+  <td class="mlabels-right">
+<span class="mlabels"><span class="mlabel">inline</span><span class="mlabel">noexcept</span></span>  </td>
+  </tr>
+</table>
+</div><div class="memdoc">
+
+<p>Whether tag() identifies the failing element; identifier bytes remain borrowed. </p>
+
+</div>
+</div>
+<a id="aa80e4021c21b83b692bfa7a1da29dc13" name="aa80e4021c21b83b692bfa7a1da29dc13"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#aa80e4021c21b83b692bfa7a1da29dc13">&#9670;&#160;</a></span>message()</h2>
+
+<div class="memitem">
+<div class="memproto">
+<table class="mlabels">
+  <tr>
+  <td class="mlabels-left">
+      <table class="memname">
+        <tr>
+          <td class="memname">const char * tlv::error::message </td>
+          <td>(</td>
+          <td class="paramname"></td><td>)</td>
+          <td> const</td>
+        </tr>
+      </table>
+  </td>
+  <td class="mlabels-right">
+<span class="mlabels"><span class="mlabel">inline</span><span class="mlabel">noexcept</span></span>  </td>
+  </tr>
+</table>
+</div><div class="memdoc">
+
+<p>Borrowed NUL-terminated description, never null for library errors. </p>
+
+</div>
+</div>
+<a id="a6140b63c1bfee3fedc88dfd392efe6c1" name="a6140b63c1bfee3fedc88dfd392efe6c1"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#a6140b63c1bfee3fedc88dfd392efe6c1">&#9670;&#160;</a></span>offset()</h2>
+
+<div class="memitem">
+<div class="memproto">
+<table class="mlabels">
+  <tr>
+  <td class="mlabels-left">
+      <table class="memname">
+        <tr>
+          <td class="memname">std::size_t tlv::error::offset </td>
+          <td>(</td>
+          <td class="paramname"></td><td>)</td>
+          <td> const</td>
+        </tr>
+      </table>
+  </td>
+  <td class="mlabels-right">
+<span class="mlabels"><span class="mlabel">inline</span><span class="mlabel">noexcept</span></span>  </td>
+  </tr>
+</table>
+</div><div class="memdoc">
+
+<p>Absolute byte offset, valid only when <a class="el" href="structtlv_1_1error.html#afb11e5286309cc54142d98d0c8a89dd6" title="Whether offset() contains a known location.">has_offset()</a> is true. </p>
+
+</div>
+</div>
+<a id="a9e3920207d8878b6835a663044ca4d8d" name="a9e3920207d8878b6835a663044ca4d8d"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#a9e3920207d8878b6835a663044ca4d8d">&#9670;&#160;</a></span>severity()</h2>
+
+<div class="memitem">
+<div class="memproto">
+<table class="mlabels">
+  <tr>
+  <td class="mlabels-left">
+      <table class="memname">
+        <tr>
+          <td class="memname"><a class="el" href="namespacetlv.html#a066bba7bde757c31179a8585a37ae760">tlv::severity</a> tlv::error::severity </td>
+          <td>(</td>
+          <td class="paramname"></td><td>)</td>
+          <td> const</td>
+        </tr>
+      </table>
+  </td>
+  <td class="mlabels-right">
+<span class="mlabels"><span class="mlabel">inline</span><span class="mlabel">noexcept</span></span>  </td>
+  </tr>
+</table>
+</div><div class="memdoc">
+
+<p>Severity of this diagnostic; operation errors default to error. </p>
+
+</div>
+</div>
+<a id="a94746617f7a6e157d826099a8517ffd8" name="a94746617f7a6e157d826099a8517ffd8"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#a94746617f7a6e157d826099a8517ffd8">&#9670;&#160;</a></span>stage()</h2>
+
+<div class="memitem">
+<div class="memproto">
+<table class="mlabels">
+  <tr>
+  <td class="mlabels-left">
+      <table class="memname">
+        <tr>
+          <td class="memname"><a class="el" href="namespacetlv.html#ada14a13dc88de11a2411e12027d8ad14">operation</a> tlv::error::stage </td>
+          <td>(</td>
+          <td class="paramname"></td><td>)</td>
+          <td> const</td>
+        </tr>
+      </table>
+  </td>
+  <td class="mlabels-right">
+<span class="mlabels"><span class="mlabel">inline</span><span class="mlabel">noexcept</span></span>  </td>
+  </tr>
+</table>
+</div><div class="memdoc">
+
+<p>Subsystem responsible for this failure. </p>
+
+</div>
+</div>
+<a id="a9a686fc25a03fdc9a84470d31cbcc90c" name="a9a686fc25a03fdc9a84470d31cbcc90c"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#a9a686fc25a03fdc9a84470d31cbcc90c">&#9670;&#160;</a></span>status()</h2>
+
+<div class="memitem">
+<div class="memproto">
+<table class="mlabels">
+  <tr>
+  <td class="mlabels-left">
+      <table class="memname">
+        <tr>
+          <td class="memname"><a class="el" href="namespacetlv.html#ab9d10b8185e9a80cd73b5a0ef633a22c">errc</a> tlv::error::status </td>
+          <td>(</td>
+          <td class="paramname"></td><td>)</td>
+          <td> const</td>
+        </tr>
+      </table>
+  </td>
+  <td class="mlabels-right">
+<span class="mlabels"><span class="mlabel">inline</span><span class="mlabel">noexcept</span></span>  </td>
+  </tr>
+</table>
+</div><div class="memdoc">
+
+<p>Canonical C++ status, including distinct EOF and resumable input. </p>
+
+</div>
+</div>
+<a id="aaadfcce99b5ade3c430704a3ca4ff170" name="aaadfcce99b5ade3c430704a3ca4ff170"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#aaadfcce99b5ade3c430704a3ca4ff170">&#9670;&#160;</a></span>tag()</h2>
+
+<div class="memitem">
+<div class="memproto">
+<table class="mlabels">
+  <tr>
+  <td class="mlabels-left">
+      <table class="memname">
+        <tr>
+          <td class="memname"><a class="el" href="classtlv_1_1tag.html">tlv::tag</a> tlv::error::tag </td>
+          <td>(</td>
+          <td class="paramname"></td><td>)</td>
+          <td> const</td>
+        </tr>
+      </table>
+  </td>
+  <td class="mlabels-right">
+<span class="mlabels"><span class="mlabel">inline</span><span class="mlabel">noexcept</span></span>  </td>
+  </tr>
+</table>
+</div><div class="memdoc">
+
+<p>Borrow the failing identifier, or an absent identifier when unavailable. </p>
+
+</div>
+</div>
+<h2 class="groupheader">Friends And Related Symbol Documentation</h2>
+<a id="a5aa0814eafb185264ebd11a615e0ae2f" name="a5aa0814eafb185264ebd11a615e0ae2f"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#a5aa0814eafb185264ebd11a615e0ae2f">&#9670;&#160;</a></span>detail::error_access</h2>
+
+<div class="memitem">
+<div class="memproto">
+<table class="mlabels">
+  <tr>
+  <td class="mlabels-left">
+      <table class="memname">
+        <tr>
+          <td class="memname">friend struct detail::error_access</td>
+        </tr>
+      </table>
+  </td>
+  <td class="mlabels-right">
+<span class="mlabels"><span class="mlabel">friend</span></span>  </td>
+  </tr>
+</table>
+</div><div class="memdoc">
 
 </div>
 </div>
@@ -151,26 +691,13 @@ Public Attributes</h2></td></tr>
         </tr>
       </table>
 </div><div class="memdoc">
-<p>The C result code. </p>
+
+<p>Native status retained for transitional interoperability. </p>
 
 </div>
 </div>
-<a id="a1a43671daebbe5a8e4d47b4859ad46d9" name="a1a43671daebbe5a8e4d47b4859ad46d9"></a>
-<h2 class="memtitle"><span class="permalink"><a href="#a1a43671daebbe5a8e4d47b4859ad46d9">&#9670;&#160;</a></span>message</h2>
-
-<div class="memitem">
-<div class="memproto">
-      <table class="memname">
-        <tr>
-          <td class="memname">std::string tlv::error::message</td>
-        </tr>
-      </table>
-</div><div class="memdoc">
-<p>Human-readable description of <code>code</code>, owned by this object. </p>
-
-</div>
-</div>
-<hr/>The documentation for this struct was generated from the following file:<ul>
+<hr/>The documentation for this struct was generated from the following files:<ul>
+<li>tlv++/<a class="el" href="error_8hpp.html">error.hpp</a></li>
 <li>tlv++/<a class="el" href="types_8hpp.html">types.hpp</a></li>
 </ul>
 </div><!-- contents -->

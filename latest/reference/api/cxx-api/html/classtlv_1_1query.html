@@ -76,6 +76,7 @@ $(function() {
   <div class="summary">
 <a href="#pub-methods">Public Member Functions</a> &#124;
 <a href="#pub-static-methods">Static Public Member Functions</a> &#124;
+<a href="#friends">Friends</a> &#124;
 <a href="classtlv_1_1query-members.html">List of all members</a>  </div>
   <div class="headertitle"><div class="title">tlv::query Class Reference</div></div>
 </div><!--header-->
@@ -94,19 +95,18 @@ Public Member Functions</h2></td></tr>
 <tr class="memitem:a2cd66da393d6b030f76a61cf7c6b1a67" id="r_a2cd66da393d6b030f76a61cf7c6b1a67"><td class="memItemLeft" align="right" valign="top">size_t&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classtlv_1_1query.html#a2cd66da393d6b030f76a61cf7c6b1a67">size</a> () const</td></tr>
 <tr class="memdesc:a2cd66da393d6b030f76a61cf7c6b1a67"><td class="mdescLeft">&#160;</td><td class="mdescRight">Number of tags in the query, which is the depth of the addressed elements plus one.  <br /></td></tr>
 <tr class="separator:a2cd66da393d6b030f76a61cf7c6b1a67"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:a2d7b5fafdb4e8e66fd0384275413ceaa" id="r_a2d7b5fafdb4e8e66fd0384275413ceaa"><td class="memItemLeft" align="right" valign="top"><a class="el" href="classtlv_1_1tag.html">tlv::tag</a>&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classtlv_1_1query.html#a2d7b5fafdb4e8e66fd0384275413ceaa">step</a> (size_t index) const</td></tr>
-<tr class="memdesc:a2d7b5fafdb4e8e66fd0384275413ceaa"><td class="mdescLeft">&#160;</td><td class="mdescRight">Return the tag at a zero-based query step, or an empty tag out of range.  <br /></td></tr>
-<tr class="separator:a2d7b5fafdb4e8e66fd0384275413ceaa"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:a6a572a70987101556156fc697cd1e8fd" id="r_a6a572a70987101556156fc697cd1e8fd"><td class="memItemLeft" align="right" valign="top">const <a class="elRef" href="../../c-api/html/group__traversal.html#ga976e323bdf21f26674eb8ad393f2e2e5">tlv_query_t</a> &amp;&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classtlv_1_1query.html#a6a572a70987101556156fc697cd1e8fd">c_query</a> () const</td></tr>
-<tr class="memdesc:a6a572a70987101556156fc697cd1e8fd"><td class="mdescLeft">&#160;</td><td class="mdescRight">The underlying C query, for use with the C API.  <br /></td></tr>
-<tr class="separator:a6a572a70987101556156fc697cd1e8fd"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:a3c9394c8a02409b1521eca26aedc5f29" id="r_a3c9394c8a02409b1521eca26aedc5f29"><td class="memTemplParams" colspan="2">template&lt;typename Visitor &gt; </td></tr>
-<tr class="memitem:a3c9394c8a02409b1521eca26aedc5f29"><td class="memTemplItemLeft" align="right" valign="top"><a class="el" href="classtlv_1_1expected.html">expected</a>&lt; void, <a class="el" href="structtlv_1_1error.html">error</a> &gt;&#160;</td><td class="memTemplItemRight" valign="bottom"><a class="el" href="classtlv_1_1query.html#a3c9394c8a02409b1521eca26aedc5f29">visit_buffer</a> (<a class="el" href="namespacetlv.html#a2abe7003a70af047ef9acae17f31f75d">bytes</a> data, const <a class="elRef" href="../../c-api/html/group__formats.html#gac461da7e8d46362fa8e09694efb0b062">tlv_format_t</a> &amp;<a class="el" href="classtlv_1_1format.html">format</a>, size_t max_depth, size_t max_elements, Visitor &amp;&amp;visitor, size_t *error_offset=nullptr) const</td></tr>
-<tr class="memdesc:a3c9394c8a02409b1521eca26aedc5f29"><td class="mdescLeft">&#160;</td><td class="mdescRight">Calls a visitor for every element the query addresses.  <br /></td></tr>
-<tr class="separator:a3c9394c8a02409b1521eca26aedc5f29"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a61d7a8f4d9e454c53868881914d62024" id="r_a61d7a8f4d9e454c53868881914d62024"><td class="memItemLeft" align="right" valign="top">std::string&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classtlv_1_1query.html#a61d7a8f4d9e454c53868881914d62024">format</a> () const</td></tr>
+<tr class="memdesc:a61d7a8f4d9e454c53868881914d62024"><td class="mdescLeft">&#160;</td><td class="mdescRight">Return the canonical path spelling in an owning string.  <br /></td></tr>
+<tr class="separator:a61d7a8f4d9e454c53868881914d62024"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a7d31c4adb698ef096123ef49356052a0" id="r_a7d31c4adb698ef096123ef49356052a0"><td class="memItemLeft" align="right" valign="top"><a class="el" href="classtlv_1_1tag.html">tlv::tag</a>&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classtlv_1_1query.html#a7d31c4adb698ef096123ef49356052a0">step</a> (size_t index) const &amp;</td></tr>
+<tr class="memdesc:a7d31c4adb698ef096123ef49356052a0"><td class="mdescLeft">&#160;</td><td class="mdescRight">Return the tag at a zero-based query step, or an empty tag out of range.  <br /></td></tr>
+<tr class="separator:a7d31c4adb698ef096123ef49356052a0"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:aad00eb35527e7f8c9fae7b4b7a0defb8" id="r_aad00eb35527e7f8c9fae7b4b7a0defb8"><td class="memItemLeft" align="right" valign="top"><a class="el" href="classtlv_1_1tag.html">tlv::tag</a>&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classtlv_1_1query.html#aad00eb35527e7f8c9fae7b4b7a0defb8">step</a> (size_t) const &amp;&amp;=delete</td></tr>
+<tr class="memdesc:aad00eb35527e7f8c9fae7b4b7a0defb8"><td class="mdescLeft">&#160;</td><td class="mdescRight">Reject identifier views into a temporary Query.  <br /></td></tr>
+<tr class="separator:aad00eb35527e7f8c9fae7b4b7a0defb8"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:a97537fb91c283e5cb9400fb0198c7d17" id="r_a97537fb91c283e5cb9400fb0198c7d17"><td class="memTemplParams" colspan="2">template&lt;typename Visitor &gt; </td></tr>
-<tr class="memitem:a97537fb91c283e5cb9400fb0198c7d17"><td class="memTemplItemLeft" align="right" valign="top"><a class="el" href="classtlv_1_1expected.html">expected</a>&lt; void, <a class="el" href="structtlv_1_1error.html">error</a> &gt;&#160;</td><td class="memTemplItemRight" valign="bottom"><a class="el" href="classtlv_1_1query.html#a97537fb91c283e5cb9400fb0198c7d17">visit_buffer</a> (<a class="el" href="namespacetlv.html#a2abe7003a70af047ef9acae17f31f75d">bytes</a> data, <a class="el" href="classtlv_1_1format.html">tlv::format</a> <a class="el" href="classtlv_1_1format.html">format</a>, size_t max_depth, size_t max_elements, Visitor &amp;&amp;visitor, size_t *error_offset=nullptr) const</td></tr>
-<tr class="memdesc:a97537fb91c283e5cb9400fb0198c7d17"><td class="mdescLeft">&#160;</td><td class="mdescRight">Visit Query matches using a C++ Format view.  <br /></td></tr>
+<tr class="memitem:a97537fb91c283e5cb9400fb0198c7d17"><td class="memTemplItemLeft" align="right" valign="top"><a class="el" href="classtlv_1_1expected.html">expected</a>&lt; void, <a class="el" href="structtlv_1_1error.html">error</a> &gt;&#160;</td><td class="memTemplItemRight" valign="bottom"><a class="el" href="classtlv_1_1query.html#a97537fb91c283e5cb9400fb0198c7d17">visit_buffer</a> (<a class="el" href="namespacetlv.html#a2abe7003a70af047ef9acae17f31f75d">bytes</a> data, <a class="el" href="classtlv_1_1format.html">tlv::format</a> <a class="el" href="classtlv_1_1format.html">format</a>, size_t max_depth, size_t max_elements, Visitor &amp;&amp;<a class="el" href="namespacetlv.html#ab9d10b8185e9a80cd73b5a0ef633a22ca127870930d65c57ee65fcc47f2170d38">visitor</a>, size_t *error_offset=nullptr) const</td></tr>
+<tr class="memdesc:a97537fb91c283e5cb9400fb0198c7d17"><td class="mdescLeft">&#160;</td><td class="mdescRight">Calls a visitor for every element the query addresses.  <br /></td></tr>
 <tr class="separator:a97537fb91c283e5cb9400fb0198c7d17"><td class="memSeparator" colspan="2">&#160;</td></tr>
 </table><table class="memberdecls">
 <tr class="heading"><td colspan="2"><h2 class="groupheader"><a id="pub-static-methods" name="pub-static-methods"></a>
@@ -117,38 +117,22 @@ Static Public Member Functions</h2></td></tr>
 <tr class="memitem:a14847e1e517af00592812012d260df8f" id="r_a14847e1e517af00592812012d260df8f"><td class="memItemLeft" align="right" valign="top">static <a class="el" href="classtlv_1_1expected.html">expected</a>&lt; <a class="el" href="classtlv_1_1query.html">query</a>, <a class="el" href="structtlv_1_1error.html">error</a> &gt;&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classtlv_1_1query.html#a14847e1e517af00592812012d260df8f">parse</a> (const char *text, size_t *error_offset=nullptr)</td></tr>
 <tr class="memdesc:a14847e1e517af00592812012d260df8f"><td class="mdescLeft">&#160;</td><td class="mdescRight">Parses the text of a query.  <br /></td></tr>
 <tr class="separator:a14847e1e517af00592812012d260df8f"><td class="memSeparator" colspan="2">&#160;</td></tr>
+</table><table class="memberdecls">
+<tr class="heading"><td colspan="2"><h2 class="groupheader"><a id="friends" name="friends"></a>
+Friends</h2></td></tr>
+<tr class="memitem:a232cd2562e558f6f6b88e2fb6321b413" id="r_a232cd2562e558f6f6b88e2fb6321b413"><td class="memItemLeft" align="right" valign="top">class&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classtlv_1_1query.html#a232cd2562e558f6f6b88e2fb6321b413">query_range</a></td></tr>
+<tr class="separator:a232cd2562e558f6f6b88e2fb6321b413"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:ab9f5beddc2f1b0ae0b8a0147c207d3b2" id="r_ab9f5beddc2f1b0ae0b8a0147c207d3b2"><td class="memItemLeft" align="right" valign="top">class&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classtlv_1_1query.html#ab9f5beddc2f1b0ae0b8a0147c207d3b2">query_matcher</a></td></tr>
+<tr class="separator:ab9f5beddc2f1b0ae0b8a0147c207d3b2"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a7c20332b4481f29ace969e40cfce5f5f" id="r_a7c20332b4481f29ace969e40cfce5f5f"><td class="memItemLeft" align="right" valign="top">class&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classtlv_1_1query.html#a7c20332b4481f29ace969e40cfce5f5f">document</a></td></tr>
+<tr class="separator:a7c20332b4481f29ace969e40cfce5f5f"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a37d637a670590a3e1982dbc0fee773ee" id="r_a37d637a670590a3e1982dbc0fee773ee"><td class="memItemLeft" align="right" valign="top">struct&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classtlv_1_1query.html#a37d637a670590a3e1982dbc0fee773ee">detail::query_access</a></td></tr>
+<tr class="separator:a37d637a670590a3e1982dbc0fee773ee"><td class="memSeparator" colspan="2">&#160;</td></tr>
 </table>
 <a name="details" id="details"></a><h2 class="groupheader">Detailed Description</h2>
 <div class="textblock"><p>A parsed path query such as <code>6F/A5/50</code>. </p>
 <p>Wraps <a class="elRef" href="../../c-api/html/group__traversal.html#ga976e323bdf21f26674eb8ad393f2e2e5">tlv_query_t</a>; the query language is described in <a class="elRef" href="../../c-api/html/query_2query_8h.html">tlv/query/query.h</a>. The object is a small self-contained value; it never allocates and does not refer to the text it was parsed from. </p>
 </div><h2 class="groupheader">Member Function Documentation</h2>
-<a id="a6a572a70987101556156fc697cd1e8fd" name="a6a572a70987101556156fc697cd1e8fd"></a>
-<h2 class="memtitle"><span class="permalink"><a href="#a6a572a70987101556156fc697cd1e8fd">&#9670;&#160;</a></span>c_query()</h2>
-
-<div class="memitem">
-<div class="memproto">
-<table class="mlabels">
-  <tr>
-  <td class="mlabels-left">
-      <table class="memname">
-        <tr>
-          <td class="memname">const <a class="elRef" href="../../c-api/html/group__traversal.html#ga976e323bdf21f26674eb8ad393f2e2e5">tlv_query_t</a> &amp; tlv::query::c_query </td>
-          <td>(</td>
-          <td class="paramname"></td><td>)</td>
-          <td> const</td>
-        </tr>
-      </table>
-  </td>
-  <td class="mlabels-right">
-<span class="mlabels"><span class="mlabel">inline</span></span>  </td>
-  </tr>
-</table>
-</div><div class="memdoc">
-
-<p>The underlying C query, for use with the C API. </p>
-
-</div>
-</div>
 <a id="a66873fd47c90ba778ea6426d6dc66ca5" name="a66873fd47c90ba778ea6426d6dc66ca5"></a>
 <h2 class="memtitle"><span class="permalink"><a href="#a66873fd47c90ba778ea6426d6dc66ca5">&#9670;&#160;</a></span>compile()</h2>
 
@@ -181,6 +165,34 @@ Static Public Member Functions</h2></td></tr>
   </dd>
 </dl>
 <dl class="section return"><dt>Returns</dt><dd>Self-contained compiled Query. </dd></dl>
+
+</div>
+</div>
+<a id="a61d7a8f4d9e454c53868881914d62024" name="a61d7a8f4d9e454c53868881914d62024"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#a61d7a8f4d9e454c53868881914d62024">&#9670;&#160;</a></span>format()</h2>
+
+<div class="memitem">
+<div class="memproto">
+<table class="mlabels">
+  <tr>
+  <td class="mlabels-left">
+      <table class="memname">
+        <tr>
+          <td class="memname">std::string tlv::query::format </td>
+          <td>(</td>
+          <td class="paramname"></td><td>)</td>
+          <td> const</td>
+        </tr>
+      </table>
+  </td>
+  <td class="mlabels-right">
+<span class="mlabels"><span class="mlabel">inline</span></span>  </td>
+  </tr>
+</table>
+</div><div class="memdoc">
+
+<p>Return the canonical path spelling in an owning string. </p>
+<dl class="section return"><dt>Returns</dt><dd>Uppercase identifiers joined by slashes; allocates result storage. </dd></dl>
 
 </div>
 </div>
@@ -294,8 +306,8 @@ Static Public Member Functions</h2></td></tr>
 
 </div>
 </div>
-<a id="a2d7b5fafdb4e8e66fd0384275413ceaa" name="a2d7b5fafdb4e8e66fd0384275413ceaa"></a>
-<h2 class="memtitle"><span class="permalink"><a href="#a2d7b5fafdb4e8e66fd0384275413ceaa">&#9670;&#160;</a></span>step()</h2>
+<a id="a7d31c4adb698ef096123ef49356052a0" name="a7d31c4adb698ef096123ef49356052a0"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#a7d31c4adb698ef096123ef49356052a0">&#9670;&#160;</a></span>step() <span class="overload">[1/2]</span></h2>
 
 <div class="memitem">
 <div class="memproto">
@@ -308,7 +320,7 @@ Static Public Member Functions</h2></td></tr>
           <td>(</td>
           <td class="paramtype">size_t&#160;</td>
           <td class="paramname"><em>index</em></td><td>)</td>
-          <td> const</td>
+          <td> const &amp;</td>
         </tr>
       </table>
   </td>
@@ -323,92 +335,36 @@ Static Public Member Functions</h2></td></tr>
 
 </div>
 </div>
-<a id="a3c9394c8a02409b1521eca26aedc5f29" name="a3c9394c8a02409b1521eca26aedc5f29"></a>
-<h2 class="memtitle"><span class="permalink"><a href="#a3c9394c8a02409b1521eca26aedc5f29">&#9670;&#160;</a></span>visit_buffer() <span class="overload">[1/2]</span></h2>
+<a id="aad00eb35527e7f8c9fae7b4b7a0defb8" name="aad00eb35527e7f8c9fae7b4b7a0defb8"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#aad00eb35527e7f8c9fae7b4b7a0defb8">&#9670;&#160;</a></span>step() <span class="overload">[2/2]</span></h2>
 
 <div class="memitem">
 <div class="memproto">
-<div class="memtemplate">
-template&lt;typename Visitor &gt; </div>
 <table class="mlabels">
   <tr>
   <td class="mlabels-left">
       <table class="memname">
         <tr>
-          <td class="memname"><a class="el" href="classtlv_1_1expected.html">expected</a>&lt; void, <a class="el" href="structtlv_1_1error.html">error</a> &gt; tlv::query::visit_buffer </td>
+          <td class="memname"><a class="el" href="classtlv_1_1tag.html">tlv::tag</a> tlv::query::step </td>
           <td>(</td>
-          <td class="paramtype"><a class="el" href="namespacetlv.html#a2abe7003a70af047ef9acae17f31f75d">bytes</a>&#160;</td>
-          <td class="paramname"><em>data</em>, </td>
-        </tr>
-        <tr>
-          <td class="paramkey"></td>
-          <td></td>
-          <td class="paramtype">const <a class="elRef" href="../../c-api/html/group__formats.html#gac461da7e8d46362fa8e09694efb0b062">tlv_format_t</a> &amp;&#160;</td>
-          <td class="paramname"><em>format</em>, </td>
-        </tr>
-        <tr>
-          <td class="paramkey"></td>
-          <td></td>
           <td class="paramtype">size_t&#160;</td>
-          <td class="paramname"><em>max_depth</em>, </td>
-        </tr>
-        <tr>
-          <td class="paramkey"></td>
-          <td></td>
-          <td class="paramtype">size_t&#160;</td>
-          <td class="paramname"><em>max_elements</em>, </td>
-        </tr>
-        <tr>
-          <td class="paramkey"></td>
-          <td></td>
-          <td class="paramtype">Visitor &amp;&amp;&#160;</td>
-          <td class="paramname"><em>visitor</em>, </td>
-        </tr>
-        <tr>
-          <td class="paramkey"></td>
-          <td></td>
-          <td class="paramtype">size_t *&#160;</td>
-          <td class="paramname"><em>error_offset</em> = <code>nullptr</code>&#160;</td>
-        </tr>
-        <tr>
-          <td></td>
-          <td>)</td>
-          <td></td><td> const</td>
+          <td class="paramname"></td><td>)</td>
+          <td> const &amp;&amp;</td>
         </tr>
       </table>
   </td>
   <td class="mlabels-right">
-<span class="mlabels"><span class="mlabel">inline</span></span>  </td>
+<span class="mlabels"><span class="mlabel">delete</span></span>  </td>
   </tr>
 </table>
 </div><div class="memdoc">
 
-<p>Calls a visitor for every element the query addresses. </p>
-<p>Wraps tlv_query_visit_buffer(): elements are visited in document order and the rules for limits, offsets and errors are the same. Nothing is allocated and the entries passed to the visitor borrow <code>data</code>.</p>
-<dl class="tparams"><dt>Template Parameters</dt><dd>
-  <table class="tparams">
-    <tr><td class="paramname">Visitor</td><td>Callable invoked as <code>visitor(element_view, depth, absolute_offset)</code> returning <a class="elRef" href="../../c-api/html/tree_8h.html#a5685cbc116854f9874253489cb769622">tlv_visit_result_t</a>, as for <a class="el" href="classtlv_1_1tree__reader.html#ab1551f6a071bad184c3d9b89f87e8dca" title="Visit remaining items using the canonical C Visitor engine.">tree_reader::visit()</a>.</td></tr>
-  </table>
-  </dd>
-</dl>
-<dl class="params"><dt>Parameters</dt><dd>
-  <table class="params">
-    <tr><td class="paramname">data</td><td>Encoded input; borrowed. </td></tr>
-    <tr><td class="paramname">format</td><td>Reader format. A <code>nullptr</code> <code>format.is_constructed</code> treats every value as opaque, in which case only one-tag queries can match. </td></tr>
-    <tr><td class="paramname">max_depth</td><td>Runtime depth limit; the convenience API owns TLV_QUERY_MAX_STEPS frames. </td></tr>
-    <tr><td class="paramname">max_elements</td><td>Bound on all traversed elements. </td></tr>
-    <tr><td class="paramname">visitor</td><td>Visitor callable; returning <a class="elRef" href="../../c-api/html/tree_8h.html#a32dd2f26caa5ae7507636430b13cc961adbda0be9ca29c754fea87575ba560d01">TLV_VISIT_STOP</a> succeeds immediately, <a class="elRef" href="../../c-api/html/tree_8h.html#a32dd2f26caa5ae7507636430b13cc961a1e6076c71ec8c7a08aa0c5e47cc1a74b">TLV_VISIT_ERROR</a> fails. </td></tr>
-    <tr><td class="paramname">error_offset</td><td>Optional. On failure receives the failing element's absolute offset; unchanged on success.</td></tr>
-  </table>
-  </dd>
-</dl>
-<dl class="section return"><dt>Returns</dt><dd>Success, also when nothing matched, or the error of tlv_query_visit_buffer().</dd></dl>
-<dl class="section warning"><dt>Warning</dt><dd>Visitor side effects are not rolled back on error. </dd></dl>
+<p>Reject identifier views into a temporary Query. </p>
 
 </div>
 </div>
 <a id="a97537fb91c283e5cb9400fb0198c7d17" name="a97537fb91c283e5cb9400fb0198c7d17"></a>
-<h2 class="memtitle"><span class="permalink"><a href="#a97537fb91c283e5cb9400fb0198c7d17">&#9670;&#160;</a></span>visit_buffer() <span class="overload">[2/2]</span></h2>
+<h2 class="memtitle"><span class="permalink"><a href="#a97537fb91c283e5cb9400fb0198c7d17">&#9670;&#160;</a></span>visit_buffer()</h2>
 
 <div class="memitem">
 <div class="memproto">
@@ -467,25 +423,121 @@ template&lt;typename Visitor &gt; </div>
 </table>
 </div><div class="memdoc">
 
-<p>Visit Query matches using a C++ Format view. </p>
-<dl class="params"><dt>Parameters</dt><dd>
-  <table class="params">
-    <tr><td class="paramname">data</td><td>Immutable borrowed input. </td></tr>
-    <tr><td class="paramname">format</td><td>Borrowed Format; absent constructed classification treats Values as opaque. </td></tr>
-    <tr><td class="paramname">max_depth</td><td>Maximum traversal depth. </td></tr>
-    <tr><td class="paramname">max_elements</td><td>Maximum traversed elements. </td></tr>
-    <tr><td class="paramname">visitor</td><td>Callable taking Element, depth and offset, returning tlv_visit_result_t. </td></tr>
-    <tr><td class="paramname">error_offset</td><td>Optional failure offset, unchanged on success. </td></tr>
+<p>Calls a visitor for every element the query addresses. </p>
+<p>Wraps tlv_query_visit_buffer(): elements are visited in document order and the rules for limits, offsets and errors are the same. Nothing is allocated and the entries passed to the visitor borrow <code>data</code>.</p>
+<dl class="tparams"><dt>Template Parameters</dt><dd>
+  <table class="tparams">
+    <tr><td class="paramname">Visitor</td><td>Callable invoked as <code><a class="el" href="namespacetlv.html#ab9d10b8185e9a80cd73b5a0ef633a22ca127870930d65c57ee65fcc47f2170d38">visitor(element_view, depth, absolute_offset)</a></code> returning <a class="elRef" href="../../c-api/html/tree_8h.html#a5685cbc116854f9874253489cb769622">tlv_visit_result_t</a>, as for <a class="el" href="classtlv_1_1tree__reader.html#ab1551f6a071bad184c3d9b89f87e8dca" title="Visit remaining items using the canonical C Visitor engine.">tree_reader::visit()</a>.</td></tr>
   </table>
   </dd>
 </dl>
-<dl class="section return"><dt>Returns</dt><dd>Success on EOF or STOP, or the original Query/Reader error. </dd></dl>
-<dl class="section warning"><dt>Warning</dt><dd>Input, descriptor and context must outlive retained views. Callback effects are not rolled back. Allocation behavior is the same as for the native overload. </dd></dl>
+<dl class="params"><dt>Parameters</dt><dd>
+  <table class="params">
+    <tr><td class="paramname">data</td><td>Encoded input; borrowed. </td></tr>
+    <tr><td class="paramname">format</td><td>Reader format. A <code>nullptr</code> <code><a class="el" href="classtlv_1_1format.html#add52775e86575490bcb492fb7dced20e" title="Classify an identifier through this Format; absent classifiers return false.">format.is_constructed</a></code> treats every value as opaque, in which case only one-tag queries can match. </td></tr>
+    <tr><td class="paramname">max_depth</td><td>Runtime depth limit; the convenience API owns TLV_QUERY_MAX_STEPS frames. </td></tr>
+    <tr><td class="paramname">max_elements</td><td>Bound on all traversed elements. </td></tr>
+    <tr><td class="paramname">visitor</td><td>Visitor callable; returning <a class="elRef" href="../../c-api/html/tree_8h.html#a32dd2f26caa5ae7507636430b13cc961adbda0be9ca29c754fea87575ba560d01">TLV_VISIT_STOP</a> succeeds immediately, <a class="elRef" href="../../c-api/html/tree_8h.html#a32dd2f26caa5ae7507636430b13cc961a1e6076c71ec8c7a08aa0c5e47cc1a74b">TLV_VISIT_ERROR</a> fails. </td></tr>
+    <tr><td class="paramname">error_offset</td><td>Optional. On failure receives the failing element's absolute offset; unchanged on success.</td></tr>
+  </table>
+  </dd>
+</dl>
+<dl class="section return"><dt>Returns</dt><dd>Success, also when nothing matched, or the error of tlv_query_visit_buffer().</dd></dl>
+<dl class="section warning"><dt>Warning</dt><dd>Visitor side effects are not rolled back on error. </dd></dl>
+
+</div>
+</div>
+<h2 class="groupheader">Friends And Related Symbol Documentation</h2>
+<a id="a37d637a670590a3e1982dbc0fee773ee" name="a37d637a670590a3e1982dbc0fee773ee"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#a37d637a670590a3e1982dbc0fee773ee">&#9670;&#160;</a></span>detail::query_access</h2>
+
+<div class="memitem">
+<div class="memproto">
+<table class="mlabels">
+  <tr>
+  <td class="mlabels-left">
+      <table class="memname">
+        <tr>
+          <td class="memname">friend struct detail::query_access</td>
+        </tr>
+      </table>
+  </td>
+  <td class="mlabels-right">
+<span class="mlabels"><span class="mlabel">friend</span></span>  </td>
+  </tr>
+</table>
+</div><div class="memdoc">
+
+</div>
+</div>
+<a id="a7c20332b4481f29ace969e40cfce5f5f" name="a7c20332b4481f29ace969e40cfce5f5f"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#a7c20332b4481f29ace969e40cfce5f5f">&#9670;&#160;</a></span>document</h2>
+
+<div class="memitem">
+<div class="memproto">
+<table class="mlabels">
+  <tr>
+  <td class="mlabels-left">
+      <table class="memname">
+        <tr>
+          <td class="memname">friend class <a class="el" href="classtlv_1_1document.html">document</a></td>
+        </tr>
+      </table>
+  </td>
+  <td class="mlabels-right">
+<span class="mlabels"><span class="mlabel">friend</span></span>  </td>
+  </tr>
+</table>
+</div><div class="memdoc">
+
+</div>
+</div>
+<a id="ab9f5beddc2f1b0ae0b8a0147c207d3b2" name="ab9f5beddc2f1b0ae0b8a0147c207d3b2"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#ab9f5beddc2f1b0ae0b8a0147c207d3b2">&#9670;&#160;</a></span>query_matcher</h2>
+
+<div class="memitem">
+<div class="memproto">
+<table class="mlabels">
+  <tr>
+  <td class="mlabels-left">
+      <table class="memname">
+        <tr>
+          <td class="memname">friend class <a class="el" href="classtlv_1_1query__matcher.html">query_matcher</a></td>
+        </tr>
+      </table>
+  </td>
+  <td class="mlabels-right">
+<span class="mlabels"><span class="mlabel">friend</span></span>  </td>
+  </tr>
+</table>
+</div><div class="memdoc">
+
+</div>
+</div>
+<a id="a232cd2562e558f6f6b88e2fb6321b413" name="a232cd2562e558f6f6b88e2fb6321b413"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#a232cd2562e558f6f6b88e2fb6321b413">&#9670;&#160;</a></span>query_range</h2>
+
+<div class="memitem">
+<div class="memproto">
+<table class="mlabels">
+  <tr>
+  <td class="mlabels-left">
+      <table class="memname">
+        <tr>
+          <td class="memname">friend class <a class="el" href="classtlv_1_1query__range.html">query_range</a></td>
+        </tr>
+      </table>
+  </td>
+  <td class="mlabels-right">
+<span class="mlabels"><span class="mlabel">friend</span></span>  </td>
+  </tr>
+</table>
+</div><div class="memdoc">
 
 </div>
 </div>
 <hr/>The documentation for this class was generated from the following file:<ul>
-<li>tlv++/query/<a class="el" href="query_8hpp.html">query.hpp</a></li>
+<li>tlv++/query/<a class="el" href="query_2query_8hpp.html">query.hpp</a></li>
 </ul>
 </div><!-- contents -->
 <!-- start footer part -->

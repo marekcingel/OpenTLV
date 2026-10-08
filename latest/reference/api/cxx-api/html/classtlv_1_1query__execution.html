@@ -101,10 +101,10 @@ Public Member Functions</h2></td></tr>
 <tr class="memitem:a1d217760042bd9f05f0a3911c034de3e" id="r_a1d217760042bd9f05f0a3911c034de3e"><td class="memItemLeft" align="right" valign="top"><a class="el" href="classtlv_1_1query__execution.html">query_execution</a> &amp;&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classtlv_1_1query__execution.html#a1d217760042bd9f05f0a3911c034de3e">operator=</a> (<a class="el" href="classtlv_1_1query__execution.html">query_execution</a> &amp;&amp;other) noexcept</td></tr>
 <tr class="memdesc:a1d217760042bd9f05f0a3911c034de3e"><td class="mdescLeft">&#160;</td><td class="mdescRight">Transfer continuation ownership.  <br /></td></tr>
 <tr class="separator:a1d217760042bd9f05f0a3911c034de3e"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:a18cb7bdaa3aeb5e249380c00808c0702" id="r_a18cb7bdaa3aeb5e249380c00808c0702"><td class="memItemLeft" align="right" valign="top"><a class="el" href="classtlv_1_1expected.html">expected</a>&lt; void, <a class="el" href="structtlv_1_1query__failure.html">query_failure</a> &gt;&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classtlv_1_1query__execution.html#a18cb7bdaa3aeb5e249380c00808c0702">bind</a> (const char *name, int64_t value)</td></tr>
+<tr class="memitem:a18cb7bdaa3aeb5e249380c00808c0702" id="r_a18cb7bdaa3aeb5e249380c00808c0702"><td class="memItemLeft" align="right" valign="top"><a class="el" href="classtlv_1_1expected.html">expected</a>&lt; void, <a class="el" href="structtlv_1_1query__failure.html">query_failure</a> &gt;&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classtlv_1_1query__execution.html#a18cb7bdaa3aeb5e249380c00808c0702">bind</a> (const char *<a class="el" href="namespacetlv.html#afcb2c3a60be44b7aff8aa6c1a01327ae">name</a>, int64_t <a class="el" href="namespacetlv.html#a05620bcc688c15765fb53922c84147b9a2063c1608d6e0baf80249c42e2be5804">value</a>)</td></tr>
 <tr class="memdesc:a18cb7bdaa3aeb5e249380c00808c0702"><td class="mdescLeft">&#160;</td><td class="mdescRight">Bind a declared integer variable before execution.  <br /></td></tr>
 <tr class="separator:a18cb7bdaa3aeb5e249380c00808c0702"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:acb4cc76fea290f31feefa01c10a0d1ed" id="r_acb4cc76fea290f31feefa01c10a0d1ed"><td class="memItemLeft" align="right" valign="top"><a class="el" href="classtlv_1_1expected.html">expected</a>&lt; void, <a class="el" href="structtlv_1_1query__failure.html">query_failure</a> &gt;&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classtlv_1_1query__execution.html#acb4cc76fea290f31feefa01c10a0d1ed">bind</a> (const char *name, <a class="el" href="namespacetlv.html#a2abe7003a70af047ef9acae17f31f75d">bytes</a> value, bool string=false)</td></tr>
+<tr class="memitem:acb4cc76fea290f31feefa01c10a0d1ed" id="r_acb4cc76fea290f31feefa01c10a0d1ed"><td class="memItemLeft" align="right" valign="top"><a class="el" href="classtlv_1_1expected.html">expected</a>&lt; void, <a class="el" href="structtlv_1_1query__failure.html">query_failure</a> &gt;&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classtlv_1_1query__execution.html#acb4cc76fea290f31feefa01c10a0d1ed">bind</a> (const char *<a class="el" href="namespacetlv.html#afcb2c3a60be44b7aff8aa6c1a01327ae">name</a>, <a class="el" href="namespacetlv.html#a2abe7003a70af047ef9acae17f31f75d">bytes</a> <a class="el" href="namespacetlv.html#a05620bcc688c15765fb53922c84147b9a2063c1608d6e0baf80249c42e2be5804">value</a>, bool <a class="el" href="namespacetlv.html#a76daf0c21f3f7b947a18a5cc7b61b6edab45cffe084dd3d20d928bee85e7b0f21">string</a>=false)</td></tr>
 <tr class="memdesc:acb4cc76fea290f31feefa01c10a0d1ed"><td class="mdescLeft">&#160;</td><td class="mdescRight">Bind borrowed bytes or UTF-8 string before execution; no interpolation/copy.  <br /></td></tr>
 <tr class="separator:acb4cc76fea290f31feefa01c10a0d1ed"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:a51e8cafc57258f4a5800eb1dace2ad1a" id="r_a51e8cafc57258f4a5800eb1dace2ad1a"><td class="memItemLeft" align="right" valign="top"><a class="el" href="classtlv_1_1expected.html">expected</a>&lt; void, <a class="el" href="structtlv_1_1query__failure.html">query_failure</a> &gt;&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classtlv_1_1query__execution.html#a51e8cafc57258f4a5800eb1dace2ad1a">context</a> (size_t ordinal)</td></tr>
@@ -123,33 +123,41 @@ Public Member Functions</h2></td></tr>
 <tr class="memdesc:a2ab9c4f5a2db3b7db7ea3a4d7d102152"><td class="mdescLeft">&#160;</td><td class="mdescRight">Test existence with explicit early-return or full-validation behavior.  <br /></td></tr>
 <tr class="separator:a2ab9c4f5a2db3b7db7ea3a4d7d102152"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:a129d7b730fdb5fe6e51a2e29b40cff14" id="r_a129d7b730fdb5fe6e51a2e29b40cff14"><td class="memTemplParams" colspan="2">template&lt;typename Visitor &gt; </td></tr>
-<tr class="memitem:a129d7b730fdb5fe6e51a2e29b40cff14"><td class="memTemplItemLeft" align="right" valign="top"><a class="el" href="classtlv_1_1expected.html">expected</a>&lt; void, <a class="el" href="structtlv_1_1query__failure.html">query_failure</a> &gt;&#160;</td><td class="memTemplItemRight" valign="bottom"><a class="el" href="classtlv_1_1query__execution.html#a129d7b730fdb5fe6e51a2e29b40cff14">visit</a> (<a class="el" href="classtlv_1_1tree__reader.html">tree_reader</a> &amp;<a class="el" href="classtlv_1_1reader.html">reader</a>, Visitor &amp;&amp;visitor)</td></tr>
+<tr class="memitem:a129d7b730fdb5fe6e51a2e29b40cff14"><td class="memTemplItemLeft" align="right" valign="top"><a class="el" href="classtlv_1_1expected.html">expected</a>&lt; void, <a class="el" href="structtlv_1_1query__failure.html">query_failure</a> &gt;&#160;</td><td class="memTemplItemRight" valign="bottom"><a class="el" href="classtlv_1_1query__execution.html#a129d7b730fdb5fe6e51a2e29b40cff14">visit</a> (<a class="el" href="classtlv_1_1tree__reader.html">tree_reader</a> &amp;<a class="el" href="classtlv_1_1reader.html">reader</a>, Visitor &amp;&amp;<a class="el" href="namespacetlv.html#ab9d10b8185e9a80cd73b5a0ef633a22ca127870930d65c57ee65fcc47f2170d38">visitor</a>)</td></tr>
 <tr class="memdesc:a129d7b730fdb5fe6e51a2e29b40cff14"><td class="mdescLeft">&#160;</td><td class="mdescRight">Visit borrowed Tree results, preserving STOP/NEED_MORE_DATA continuation.  <br /></td></tr>
 <tr class="separator:a129d7b730fdb5fe6e51a2e29b40cff14"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:a31b5b8547b34008fcef7fbc545241dbc" id="r_a31b5b8547b34008fcef7fbc545241dbc"><td class="memItemLeft" align="right" valign="top"><a class="el" href="classtlv_1_1expected.html">expected</a>&lt; <a class="elRef" href="../../c-api/html/group__traversal.html#ga0da4f42a4d34072621292fbd8f681d77">tlv_query_result_t</a>, <a class="el" href="structtlv_1_1query__failure.html">query_failure</a> &gt;&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classtlv_1_1query__execution.html#a31b5b8547b34008fcef7fbc545241dbc">result</a> () const</td></tr>
 <tr class="memdesc:a31b5b8547b34008fcef7fbc545241dbc"><td class="mdescLeft">&#160;</td><td class="mdescRight">Read a finalized scalar; returned spans borrow this execution's owners.  <br /></td></tr>
 <tr class="separator:a31b5b8547b34008fcef7fbc545241dbc"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:abc0e45ce4b80d65d74c9313f4b73430b" id="r_abc0e45ce4b80d65d74c9313f4b73430b"><td class="memItemLeft" align="right" valign="top"><a class="el" href="classtlv_1_1expected.html">expected</a>&lt; <a class="el" href="structtlv_1_1query__value.html">query_value</a>, <a class="el" href="structtlv_1_1query__failure.html">query_failure</a> &gt;&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classtlv_1_1query__execution.html#abc0e45ce4b80d65d74c9313f4b73430b">scalar</a> () const</td></tr>
+<tr class="memdesc:abc0e45ce4b80d65d74c9313f4b73430b"><td class="mdescLeft">&#160;</td><td class="mdescRight">Read a completed scalar with C++ categories and borrowed byte storage.  <br /></td></tr>
+<tr class="separator:abc0e45ce4b80d65d74c9313f4b73430b"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:a5cce96f95850c0ad414b11ccc2f07228" id="r_a5cce96f95850c0ad414b11ccc2f07228"><td class="memItemLeft" align="right" valign="top"><a class="el" href="classtlv_1_1expected.html">expected</a>&lt; <a class="el" href="structtlv_1_1tree__event.html">tree_event</a>, <a class="el" href="structtlv_1_1query__failure.html">query_failure</a> &gt;&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classtlv_1_1query__execution.html#a5cce96f95850c0ad414b11ccc2f07228">next</a> ()</td></tr>
 <tr class="memdesc:a5cce96f95850c0ad414b11ccc2f07228"><td class="mdescLeft">&#160;</td><td class="mdescRight">Pull a finalized retained Tree result; END_OF_BUFFER means final exhaustion.  <br /></td></tr>
 <tr class="separator:a5cce96f95850c0ad414b11ccc2f07228"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:aea5d376f367ab1b43da236cfd7ffaa97" id="r_aea5d376f367ab1b43da236cfd7ffaa97"><td class="memItemLeft" align="right" valign="top"><a class="el" href="classtlv_1_1expected.html">expected</a>&lt; <a class="el" href="structtlv_1_1tree__event.html">tree_event</a>, <a class="el" href="structtlv_1_1query__failure.html">query_failure</a> &gt;&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classtlv_1_1query__execution.html#aea5d376f367ab1b43da236cfd7ffaa97">next</a> (<a class="el" href="classtlv_1_1tree__reader.html">tree_reader</a> &amp;<a class="el" href="classtlv_1_1reader.html">reader</a>)</td></tr>
 <tr class="memdesc:aea5d376f367ab1b43da236cfd7ffaa97"><td class="mdescLeft">&#160;</td><td class="mdescRight">Resume Tree selection until one borrowed node, final EOF or NEED_MORE_DATA.  <br /></td></tr>
 <tr class="separator:aea5d376f367ab1b43da236cfd7ffaa97"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:abcc9b2bba27dae1f46b1d08d75873776" id="r_abcc9b2bba27dae1f46b1d08d75873776"><td class="memItemLeft" align="right" valign="top"><a class="elRef" href="../../c-api/html/group__traversal.html#gacff0d3ed0386caf2464d098ae952ebb7">tlv_query_exec_t</a> *&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classtlv_1_1query__execution.html#abcc9b2bba27dae1f46b1d08d75873776">c_exec</a> () const</td></tr>
-<tr class="memdesc:abcc9b2bba27dae1f46b1d08d75873776"><td class="mdescLeft">&#160;</td><td class="mdescRight">Borrow native continuation for optional Document/Schema adapters.  <br /></td></tr>
-<tr class="separator:abcc9b2bba27dae1f46b1d08d75873776"><td class="memSeparator" colspan="2">&#160;</td></tr>
 </table><table class="memberdecls">
 <tr class="heading"><td colspan="2"><h2 class="groupheader"><a id="pub-static-methods" name="pub-static-methods"></a>
 Static Public Member Functions</h2></td></tr>
-<tr class="memitem:a4acb02e8278462d6ff31b48d18a52a6e" id="r_a4acb02e8278462d6ff31b48d18a52a6e"><td class="memItemLeft" align="right" valign="top">static <a class="el" href="classtlv_1_1expected.html">expected</a>&lt; <a class="el" href="classtlv_1_1query__execution.html">query_execution</a>, <a class="el" href="structtlv_1_1query__failure.html">query_failure</a> &gt;&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classtlv_1_1query__execution.html#a4acb02e8278462d6ff31b48d18a52a6e">create</a> (const <a class="el" href="classtlv_1_1query__program.html">query_program</a> &amp;program, size_t depth, size_t nodes, size_t work, const <a class="elRef" href="../../c-api/html/group__traversal.html#gaf2f1c0d8fe278eb32c61e19e7b108a48">tlv_query_environment_t</a> *environment=nullptr, bool retained=true)</td></tr>
-<tr class="memdesc:a4acb02e8278462d6ff31b48d18a52a6e"><td class="mdescLeft">&#160;</td><td class="mdescRight">Allocate the selected workspace with explicit depth, element and work bounds.  <br /></td></tr>
-<tr class="separator:a4acb02e8278462d6ff31b48d18a52a6e"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:aa3504323b69d4f14718e8e63ba0e5a5e" id="r_aa3504323b69d4f14718e8e63ba0e5a5e"><td class="memItemLeft" align="right" valign="top">static <a class="el" href="classtlv_1_1expected.html">expected</a>&lt; <a class="el" href="classtlv_1_1query__execution.html">query_execution</a>, <a class="el" href="structtlv_1_1query__failure.html">query_failure</a> &gt;&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classtlv_1_1query__execution.html#aa3504323b69d4f14718e8e63ba0e5a5e">external</a> (const <a class="el" href="classtlv_1_1query__program.html">query_program</a> &amp;program, void *storage, size_t capacity, size_t depth, size_t nodes, size_t work, const <a class="elRef" href="../../c-api/html/group__traversal.html#gaf2f1c0d8fe278eb32c61e19e7b108a48">tlv_query_environment_t</a> *environment=nullptr, bool retained=true)</td></tr>
-<tr class="memdesc:aa3504323b69d4f14718e8e63ba0e5a5e"><td class="mdescLeft">&#160;</td><td class="mdescRight">Initialize aligned caller storage without allocation.  <br /></td></tr>
-<tr class="separator:aa3504323b69d4f14718e8e63ba0e5a5e"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:adf0debaf44669429fc61a5e6ad539b27" id="r_adf0debaf44669429fc61a5e6ad539b27"><td class="memItemLeft" align="right" valign="top">static <a class="el" href="classtlv_1_1expected.html">expected</a>&lt; <a class="el" href="classtlv_1_1query__execution.html">query_execution</a>, <a class="el" href="structtlv_1_1query__failure.html">query_failure</a> &gt;&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classtlv_1_1query__execution.html#adf0debaf44669429fc61a5e6ad539b27">create</a> (const <a class="el" href="classtlv_1_1query__program.html">query_program</a> &amp;program, size_t depth, size_t <a class="el" href="namespacetlv.html#a76daf0c21f3f7b947a18a5cc7b61b6edaca15fd43dfaeb80eb8c125735e0479b0">nodes</a>, size_t work, const <a class="el" href="classtlv_1_1query__environment.html">query_environment</a> &amp;environment, bool <a class="el" href="namespacetlv.html#a28d5150c5fdfb025e3e866d8254237cba59fcc6f95cc4c7f5ab1ff33f516582d2">retained</a>=true)</td></tr>
+<tr class="memdesc:adf0debaf44669429fc61a5e6ad539b27"><td class="mdescLeft">&#160;</td><td class="mdescRight">Allocate an independent execution using C++ capabilities.  <br /></td></tr>
+<tr class="separator:adf0debaf44669429fc61a5e6ad539b27"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a823aa2045f97d696966e7af7d2f93404" id="r_a823aa2045f97d696966e7af7d2f93404"><td class="memItemLeft" align="right" valign="top">static <a class="el" href="classtlv_1_1expected.html">expected</a>&lt; <a class="el" href="classtlv_1_1query__execution.html">query_execution</a>, <a class="el" href="structtlv_1_1query__failure.html">query_failure</a> &gt;&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classtlv_1_1query__execution.html#a823aa2045f97d696966e7af7d2f93404">create</a> (const <a class="el" href="classtlv_1_1query__program.html">query_program</a> &amp;, size_t, size_t, size_t, const <a class="el" href="classtlv_1_1query__environment.html">query_environment</a> &amp;&amp;, bool=true)=delete</td></tr>
+<tr class="memdesc:a823aa2045f97d696966e7af7d2f93404"><td class="mdescLeft">&#160;</td><td class="mdescRight">Reject retaining providers from a temporary environment.  <br /></td></tr>
+<tr class="separator:a823aa2045f97d696966e7af7d2f93404"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a28339e26442edb69f6519c96ba63402d" id="r_a28339e26442edb69f6519c96ba63402d"><td class="memItemLeft" align="right" valign="top">static <a class="el" href="classtlv_1_1expected.html">expected</a>&lt; <a class="el" href="classtlv_1_1query__execution.html">query_execution</a>, <a class="el" href="structtlv_1_1query__failure.html">query_failure</a> &gt;&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classtlv_1_1query__execution.html#a28339e26442edb69f6519c96ba63402d">create</a> (const <a class="el" href="classtlv_1_1query__program.html">query_program</a> &amp;program, size_t depth, size_t <a class="el" href="namespacetlv.html#a76daf0c21f3f7b947a18a5cc7b61b6edaca15fd43dfaeb80eb8c125735e0479b0">nodes</a>, size_t work, <a class="el" href="classtlv_1_1query__capabilities.html">query_capabilities</a> environment=nullptr, bool <a class="el" href="namespacetlv.html#a28d5150c5fdfb025e3e866d8254237cba59fcc6f95cc4c7f5ab1ff33f516582d2">retained</a>=true)</td></tr>
+<tr class="memdesc:a28339e26442edb69f6519c96ba63402d"><td class="mdescLeft">&#160;</td><td class="mdescRight">Allocate the selected workspace with explicit depth, element and work bounds.  <br /></td></tr>
+<tr class="separator:a28339e26442edb69f6519c96ba63402d"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a310bf038b9d7fc8d6881aa6f720077d0" id="r_a310bf038b9d7fc8d6881aa6f720077d0"><td class="memItemLeft" align="right" valign="top">static <a class="el" href="classtlv_1_1expected.html">expected</a>&lt; <a class="el" href="classtlv_1_1query__execution.html">query_execution</a>, <a class="el" href="structtlv_1_1query__failure.html">query_failure</a> &gt;&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classtlv_1_1query__execution.html#a310bf038b9d7fc8d6881aa6f720077d0">external</a> (const <a class="el" href="classtlv_1_1query__program.html">query_program</a> &amp;program, void *<a class="el" href="namespacetlv.html#a7bcb5c918f4c7e096cd783d894a7ffd5addecebdea58b5f264d27f1f7909bab74">storage</a>, size_t capacity, size_t depth, size_t <a class="el" href="namespacetlv.html#a76daf0c21f3f7b947a18a5cc7b61b6edaca15fd43dfaeb80eb8c125735e0479b0">nodes</a>, size_t work, <a class="el" href="classtlv_1_1query__capabilities.html">query_capabilities</a> environment=nullptr, bool <a class="el" href="namespacetlv.html#a28d5150c5fdfb025e3e866d8254237cba59fcc6f95cc4c7f5ab1ff33f516582d2">retained</a>=true)</td></tr>
+<tr class="memdesc:a310bf038b9d7fc8d6881aa6f720077d0"><td class="mdescLeft">&#160;</td><td class="mdescRight">Initialize aligned caller storage without allocation.  <br /></td></tr>
+<tr class="separator:a310bf038b9d7fc8d6881aa6f720077d0"><td class="memSeparator" colspan="2">&#160;</td></tr>
 </table><table class="memberdecls">
 <tr class="heading"><td colspan="2"><h2 class="groupheader"><a id="friends" name="friends"></a>
 Friends</h2></td></tr>
+<tr class="memitem:acc321acb04e9348f7bed6de1bd31cd02" id="r_acc321acb04e9348f7bed6de1bd31cd02"><td class="memItemLeft" align="right" valign="top">struct&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classtlv_1_1query__execution.html#acc321acb04e9348f7bed6de1bd31cd02">detail::query_program_access</a></td></tr>
+<tr class="separator:acc321acb04e9348f7bed6de1bd31cd02"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:a7c20332b4481f29ace969e40cfce5f5f" id="r_a7c20332b4481f29ace969e40cfce5f5f"><td class="memItemLeft" align="right" valign="top">class&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classtlv_1_1query__execution.html#a7c20332b4481f29ace969e40cfce5f5f">document</a></td></tr>
 <tr class="separator:a7c20332b4481f29ace969e40cfce5f5f"><td class="memSeparator" colspan="2">&#160;</td></tr>
 </table>
@@ -295,33 +303,6 @@ Friends</h2></td></tr>
 
 </div>
 </div>
-<a id="abcc9b2bba27dae1f46b1d08d75873776" name="abcc9b2bba27dae1f46b1d08d75873776"></a>
-<h2 class="memtitle"><span class="permalink"><a href="#abcc9b2bba27dae1f46b1d08d75873776">&#9670;&#160;</a></span>c_exec()</h2>
-
-<div class="memitem">
-<div class="memproto">
-<table class="mlabels">
-  <tr>
-  <td class="mlabels-left">
-      <table class="memname">
-        <tr>
-          <td class="memname"><a class="elRef" href="../../c-api/html/group__traversal.html#gacff0d3ed0386caf2464d098ae952ebb7">tlv_query_exec_t</a> * tlv::query_execution::c_exec </td>
-          <td>(</td>
-          <td class="paramname"></td><td>)</td>
-          <td> const</td>
-        </tr>
-      </table>
-  </td>
-  <td class="mlabels-right">
-<span class="mlabels"><span class="mlabel">inline</span></span>  </td>
-  </tr>
-</table>
-</div><div class="memdoc">
-
-<p>Borrow native continuation for optional Document/Schema adapters. </p>
-
-</div>
-</div>
 <a id="a51e8cafc57258f4a5800eb1dace2ad1a" name="a51e8cafc57258f4a5800eb1dace2ad1a"></a>
 <h2 class="memtitle"><span class="permalink"><a href="#a51e8cafc57258f4a5800eb1dace2ad1a">&#9670;&#160;</a></span>context()</h2>
 
@@ -357,8 +338,70 @@ Friends</h2></td></tr>
 
 </div>
 </div>
-<a id="a4acb02e8278462d6ff31b48d18a52a6e" name="a4acb02e8278462d6ff31b48d18a52a6e"></a>
-<h2 class="memtitle"><span class="permalink"><a href="#a4acb02e8278462d6ff31b48d18a52a6e">&#9670;&#160;</a></span>create()</h2>
+<a id="a823aa2045f97d696966e7af7d2f93404" name="a823aa2045f97d696966e7af7d2f93404"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#a823aa2045f97d696966e7af7d2f93404">&#9670;&#160;</a></span>create() <span class="overload">[1/3]</span></h2>
+
+<div class="memitem">
+<div class="memproto">
+<table class="mlabels">
+  <tr>
+  <td class="mlabels-left">
+      <table class="memname">
+        <tr>
+          <td class="memname">static <a class="el" href="classtlv_1_1expected.html">expected</a>&lt; <a class="el" href="classtlv_1_1query__execution.html">query_execution</a>, <a class="el" href="structtlv_1_1query__failure.html">query_failure</a> &gt; tlv::query_execution::create </td>
+          <td>(</td>
+          <td class="paramtype">const <a class="el" href="classtlv_1_1query__program.html">query_program</a> &amp;&#160;</td>
+          <td class="paramname">, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype">size_t&#160;</td>
+          <td class="paramname">, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype">size_t&#160;</td>
+          <td class="paramname">, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype">size_t&#160;</td>
+          <td class="paramname">, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype">const <a class="el" href="classtlv_1_1query__environment.html">query_environment</a> &amp;&amp;&#160;</td>
+          <td class="paramname">, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype">bool&#160;</td>
+          <td class="paramname"> = <code>true</code>&#160;</td>
+        </tr>
+        <tr>
+          <td></td>
+          <td>)</td>
+          <td></td><td></td>
+        </tr>
+      </table>
+  </td>
+  <td class="mlabels-right">
+<span class="mlabels"><span class="mlabel">static</span><span class="mlabel">delete</span></span>  </td>
+  </tr>
+</table>
+</div><div class="memdoc">
+
+<p>Reject retaining providers from a temporary environment. </p>
+
+</div>
+</div>
+<a id="adf0debaf44669429fc61a5e6ad539b27" name="adf0debaf44669429fc61a5e6ad539b27"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#adf0debaf44669429fc61a5e6ad539b27">&#9670;&#160;</a></span>create() <span class="overload">[2/3]</span></h2>
 
 <div class="memitem">
 <div class="memproto">
@@ -393,7 +436,81 @@ Friends</h2></td></tr>
         <tr>
           <td class="paramkey"></td>
           <td></td>
-          <td class="paramtype">const <a class="elRef" href="../../c-api/html/group__traversal.html#gaf2f1c0d8fe278eb32c61e19e7b108a48">tlv_query_environment_t</a> *&#160;</td>
+          <td class="paramtype">const <a class="el" href="classtlv_1_1query__environment.html">query_environment</a> &amp;&#160;</td>
+          <td class="paramname"><em>environment</em>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype">bool&#160;</td>
+          <td class="paramname"><em>retained</em> = <code>true</code>&#160;</td>
+        </tr>
+        <tr>
+          <td></td>
+          <td>)</td>
+          <td></td><td></td>
+        </tr>
+      </table>
+  </td>
+  <td class="mlabels-right">
+<span class="mlabels"><span class="mlabel">inline</span><span class="mlabel">static</span></span>  </td>
+  </tr>
+</table>
+</div><div class="memdoc">
+
+<p>Allocate an independent execution using C++ capabilities. </p>
+<dl class="params"><dt>Parameters</dt><dd>
+  <table class="params">
+    <tr><td class="paramname">program</td><td>Immutable program retained by value. </td></tr>
+    <tr><td class="paramname">depth</td><td>Maximum nesting depth. </td></tr>
+    <tr><td class="paramname">nodes</td><td>Candidate capacity including nonmatches. </td></tr>
+    <tr><td class="paramname">work</td><td>Charged work budget. </td></tr>
+    <tr><td class="paramname">environment</td><td>Borrowed stationary providers, alive through execution. </td></tr>
+    <tr><td class="paramname">retained</td><td>Select retained evaluation instead of bounded S0/S1. </td></tr>
+  </table>
+  </dd>
+</dl>
+<dl class="section return"><dt>Returns</dt><dd>Execution or canonical failure; allocation exceptions propagate. </dd></dl>
+
+</div>
+</div>
+<a id="a28339e26442edb69f6519c96ba63402d" name="a28339e26442edb69f6519c96ba63402d"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#a28339e26442edb69f6519c96ba63402d">&#9670;&#160;</a></span>create() <span class="overload">[3/3]</span></h2>
+
+<div class="memitem">
+<div class="memproto">
+<table class="mlabels">
+  <tr>
+  <td class="mlabels-left">
+      <table class="memname">
+        <tr>
+          <td class="memname">static <a class="el" href="classtlv_1_1expected.html">expected</a>&lt; <a class="el" href="classtlv_1_1query__execution.html">query_execution</a>, <a class="el" href="structtlv_1_1query__failure.html">query_failure</a> &gt; tlv::query_execution::create </td>
+          <td>(</td>
+          <td class="paramtype">const <a class="el" href="classtlv_1_1query__program.html">query_program</a> &amp;&#160;</td>
+          <td class="paramname"><em>program</em>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype">size_t&#160;</td>
+          <td class="paramname"><em>depth</em>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype">size_t&#160;</td>
+          <td class="paramname"><em>nodes</em>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype">size_t&#160;</td>
+          <td class="paramname"><em>work</em>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype"><a class="el" href="classtlv_1_1query__capabilities.html">query_capabilities</a>&#160;</td>
           <td class="paramname"><em>environment</em> = <code>nullptr</code>, </td>
         </tr>
         <tr>
@@ -478,8 +595,8 @@ Friends</h2></td></tr>
 
 </div>
 </div>
-<a id="aa3504323b69d4f14718e8e63ba0e5a5e" name="aa3504323b69d4f14718e8e63ba0e5a5e"></a>
-<h2 class="memtitle"><span class="permalink"><a href="#aa3504323b69d4f14718e8e63ba0e5a5e">&#9670;&#160;</a></span>external()</h2>
+<a id="a310bf038b9d7fc8d6881aa6f720077d0" name="a310bf038b9d7fc8d6881aa6f720077d0"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#a310bf038b9d7fc8d6881aa6f720077d0">&#9670;&#160;</a></span>external()</h2>
 
 <div class="memitem">
 <div class="memproto">
@@ -526,7 +643,7 @@ Friends</h2></td></tr>
         <tr>
           <td class="paramkey"></td>
           <td></td>
-          <td class="paramtype">const <a class="elRef" href="../../c-api/html/group__traversal.html#gaf2f1c0d8fe278eb32c61e19e7b108a48">tlv_query_environment_t</a> *&#160;</td>
+          <td class="paramtype"><a class="el" href="classtlv_1_1query__capabilities.html">query_capabilities</a>&#160;</td>
           <td class="paramname"><em>environment</em> = <code>nullptr</code>, </td>
         </tr>
         <tr>
@@ -803,6 +920,35 @@ Friends</h2></td></tr>
 
 </div>
 </div>
+<a id="abc0e45ce4b80d65d74c9313f4b73430b" name="abc0e45ce4b80d65d74c9313f4b73430b"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#abc0e45ce4b80d65d74c9313f4b73430b">&#9670;&#160;</a></span>scalar()</h2>
+
+<div class="memitem">
+<div class="memproto">
+<table class="mlabels">
+  <tr>
+  <td class="mlabels-left">
+      <table class="memname">
+        <tr>
+          <td class="memname"><a class="el" href="classtlv_1_1expected.html">expected</a>&lt; <a class="el" href="structtlv_1_1query__value.html">query_value</a>, <a class="el" href="structtlv_1_1query__failure.html">query_failure</a> &gt; tlv::query_execution::scalar </td>
+          <td>(</td>
+          <td class="paramname"></td><td>)</td>
+          <td> const</td>
+        </tr>
+      </table>
+  </td>
+  <td class="mlabels-right">
+<span class="mlabels"><span class="mlabel">inline</span></span>  </td>
+  </tr>
+</table>
+</div><div class="memdoc">
+
+<p>Read a completed scalar with C++ categories and borrowed byte storage. </p>
+<dl class="section return"><dt>Returns</dt><dd>Result or complete Query failure; does not allocate. </dd></dl>
+<dl class="section warning"><dt>Warning</dt><dd>Borrowed data remains valid only until execution reset or input destruction. </dd></dl>
+
+</div>
+</div>
 <a id="a129d7b730fdb5fe6e51a2e29b40cff14" name="a129d7b730fdb5fe6e51a2e29b40cff14"></a>
 <h2 class="memtitle"><span class="permalink"><a href="#a129d7b730fdb5fe6e51a2e29b40cff14">&#9670;&#160;</a></span>visit()</h2>
 
@@ -852,6 +998,28 @@ template&lt;typename Visitor &gt; </div>
 </div>
 </div>
 <h2 class="groupheader">Friends And Related Symbol Documentation</h2>
+<a id="acc321acb04e9348f7bed6de1bd31cd02" name="acc321acb04e9348f7bed6de1bd31cd02"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#acc321acb04e9348f7bed6de1bd31cd02">&#9670;&#160;</a></span>detail::query_program_access</h2>
+
+<div class="memitem">
+<div class="memproto">
+<table class="mlabels">
+  <tr>
+  <td class="mlabels-left">
+      <table class="memname">
+        <tr>
+          <td class="memname">friend struct detail::query_program_access</td>
+        </tr>
+      </table>
+  </td>
+  <td class="mlabels-right">
+<span class="mlabels"><span class="mlabel">friend</span></span>  </td>
+  </tr>
+</table>
+</div><div class="memdoc">
+
+</div>
+</div>
 <a id="a7c20332b4481f29ace969e40cfce5f5f" name="a7c20332b4481f29ace969e40cfce5f5f"></a>
 <h2 class="memtitle"><span class="permalink"><a href="#a7c20332b4481f29ace969e40cfce5f5f">&#9670;&#160;</a></span>document</h2>
 

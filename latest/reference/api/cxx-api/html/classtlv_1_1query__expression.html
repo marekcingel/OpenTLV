@@ -91,14 +91,14 @@ Public Member Functions</h2></td></tr>
 <tr class="memdesc:a9b6c9deee98eca21a87516b616bd67a0"><td class="mdescLeft">&#160;</td><td class="mdescRight">Adopt bounded expression text, including embedded NUL for C diagnostics.  <br /></td></tr>
 <tr class="separator:a9b6c9deee98eca21a87516b616bd67a0"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:a17b7a23d732d90e835ff6f9dfe37b70b" id="r_a17b7a23d732d90e835ff6f9dfe37b70b"><td class="memItemLeft" align="right" valign="top">const std::string &amp;&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classtlv_1_1query__expression.html#a17b7a23d732d90e835ff6f9dfe37b70b">text</a> () const</td></tr>
-<tr class="memdesc:a17b7a23d732d90e835ff6f9dfe37b70b"><td class="mdescLeft">&#160;</td><td class="mdescRight">Borrow generated text; no syntax validity is implied before <a class="el" href="classtlv_1_1query__expression.html#a903577298cd3005e9a39f8758bced907" title="Compile composed text with typed variable declarations and borrowed providers.">compile()</a>.  <br /></td></tr>
+<tr class="memdesc:a17b7a23d732d90e835ff6f9dfe37b70b"><td class="mdescLeft">&#160;</td><td class="mdescRight">Borrow generated text; no syntax validity is implied before <a class="el" href="classtlv_1_1query__expression.html#a7caac316c455aa112c499f9f322590a5" title="Compile composed text with typed variable declarations and borrowed providers.">compile()</a>.  <br /></td></tr>
 <tr class="separator:a17b7a23d732d90e835ff6f9dfe37b70b"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:a903577298cd3005e9a39f8758bced907" id="r_a903577298cd3005e9a39f8758bced907"><td class="memItemLeft" align="right" valign="top"><a class="el" href="classtlv_1_1expected.html">expected</a>&lt; <a class="el" href="classtlv_1_1query__program.html">query_program</a>, <a class="el" href="structtlv_1_1query__failure.html">query_failure</a> &gt;&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classtlv_1_1query__expression.html#a903577298cd3005e9a39f8758bced907">compile</a> (const <a class="elRef" href="../../c-api/html/group__traversal.html#gaf426eeab5c08024d576603e4102962ec">tlv_query_compile_options_t</a> *options=nullptr) const</td></tr>
-<tr class="memdesc:a903577298cd3005e9a39f8758bced907"><td class="mdescLeft">&#160;</td><td class="mdescRight">Compile composed text with typed variable declarations and borrowed providers.  <br /></td></tr>
-<tr class="separator:a903577298cd3005e9a39f8758bced907"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a7caac316c455aa112c499f9f322590a5" id="r_a7caac316c455aa112c499f9f322590a5"><td class="memItemLeft" align="right" valign="top"><a class="el" href="classtlv_1_1expected.html">expected</a>&lt; <a class="el" href="classtlv_1_1query__program.html">query_program</a>, <a class="el" href="structtlv_1_1query__failure.html">query_failure</a> &gt;&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classtlv_1_1query__expression.html#a7caac316c455aa112c499f9f322590a5">compile</a> (<a class="el" href="classtlv_1_1query__settings.html">query_settings</a> options=nullptr) const</td></tr>
+<tr class="memdesc:a7caac316c455aa112c499f9f322590a5"><td class="mdescLeft">&#160;</td><td class="mdescRight">Compile composed text with typed variable declarations and borrowed providers.  <br /></td></tr>
+<tr class="separator:a7caac316c455aa112c499f9f322590a5"><td class="memSeparator" colspan="2">&#160;</td></tr>
 </table>
 <a name="details" id="details"></a><h2 class="groupheader">Detailed Description</h2>
-<div class="textblock"><div class="compoundTemplParams">template&lt;<a class="elRef" href="../../c-api/html/group__traversal.html#ga9e9451c7cc7e346182993d0d95065837">tlv_query_result_kind_t</a> Kind&gt;<br />
+<div class="textblock"><div class="compoundTemplParams">template&lt;<a class="el" href="namespacetlv.html#a76daf0c21f3f7b947a18a5cc7b61b6ed">query_type</a> Kind&gt;<br />
 class tlv::query_expression&lt; Kind &gt;</div><p>Typed expression text, validated only when compiled through the canonical C engine. </p>
 <dl class="tparams"><dt>Template Parameters</dt><dd>
   <table class="tparams">
@@ -113,7 +113,7 @@ class tlv::query_expression&lt; Kind &gt;</div><p>Typed expression text, validat
 <div class="memitem">
 <div class="memproto">
 <div class="memtemplate">
-template&lt;<a class="elRef" href="../../c-api/html/group__traversal.html#ga9e9451c7cc7e346182993d0d95065837">tlv_query_result_kind_t</a> Kind&gt; </div>
+template&lt;<a class="el" href="namespacetlv.html#a76daf0c21f3f7b947a18a5cc7b61b6ed">query_type</a> Kind&gt; </div>
 <table class="mlabels">
   <tr>
   <td class="mlabels-left">
@@ -138,13 +138,13 @@ template&lt;<a class="elRef" href="../../c-api/html/group__traversal.html#ga9e94
 </div>
 </div>
 <h2 class="groupheader">Member Function Documentation</h2>
-<a id="a903577298cd3005e9a39f8758bced907" name="a903577298cd3005e9a39f8758bced907"></a>
-<h2 class="memtitle"><span class="permalink"><a href="#a903577298cd3005e9a39f8758bced907">&#9670;&#160;</a></span>compile()</h2>
+<a id="a7caac316c455aa112c499f9f322590a5" name="a7caac316c455aa112c499f9f322590a5"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#a7caac316c455aa112c499f9f322590a5">&#9670;&#160;</a></span>compile()</h2>
 
 <div class="memitem">
 <div class="memproto">
 <div class="memtemplate">
-template&lt;<a class="elRef" href="../../c-api/html/group__traversal.html#ga9e9451c7cc7e346182993d0d95065837">tlv_query_result_kind_t</a> Kind&gt; </div>
+template&lt;<a class="el" href="namespacetlv.html#a76daf0c21f3f7b947a18a5cc7b61b6ed">query_type</a> Kind&gt; </div>
 <table class="mlabels">
   <tr>
   <td class="mlabels-left">
@@ -152,7 +152,7 @@ template&lt;<a class="elRef" href="../../c-api/html/group__traversal.html#ga9e94
         <tr>
           <td class="memname"><a class="el" href="classtlv_1_1expected.html">expected</a>&lt; <a class="el" href="classtlv_1_1query__program.html">query_program</a>, <a class="el" href="structtlv_1_1query__failure.html">query_failure</a> &gt; <a class="el" href="classtlv_1_1query__expression.html">tlv::query_expression</a>&lt; Kind &gt;::compile </td>
           <td>(</td>
-          <td class="paramtype">const <a class="elRef" href="../../c-api/html/group__traversal.html#gaf426eeab5c08024d576603e4102962ec">tlv_query_compile_options_t</a> *&#160;</td>
+          <td class="paramtype"><a class="el" href="classtlv_1_1query__settings.html">query_settings</a>&#160;</td>
           <td class="paramname"><em>options</em> = <code>nullptr</code></td><td>)</td>
           <td> const</td>
         </tr>
@@ -167,7 +167,7 @@ template&lt;<a class="elRef" href="../../c-api/html/group__traversal.html#ga9e94
 <p>Compile composed text with typed variable declarations and borrowed providers. </p>
 <dl class="params"><dt>Parameters</dt><dd>
   <table class="params">
-    <tr><td class="paramname">options</td><td>Native initialized compiler environment. </td></tr>
+    <tr><td class="paramname">options</td><td>Borrowed compiler settings. </td></tr>
   </table>
   </dd>
 </dl>
@@ -181,7 +181,7 @@ template&lt;<a class="elRef" href="../../c-api/html/group__traversal.html#ga9e94
 <div class="memitem">
 <div class="memproto">
 <div class="memtemplate">
-template&lt;<a class="elRef" href="../../c-api/html/group__traversal.html#ga9e9451c7cc7e346182993d0d95065837">tlv_query_result_kind_t</a> Kind&gt; </div>
+template&lt;<a class="el" href="namespacetlv.html#a76daf0c21f3f7b947a18a5cc7b61b6ed">query_type</a> Kind&gt; </div>
 <table class="mlabels">
   <tr>
   <td class="mlabels-left">
@@ -200,7 +200,7 @@ template&lt;<a class="elRef" href="../../c-api/html/group__traversal.html#ga9e94
 </table>
 </div><div class="memdoc">
 
-<p>Borrow generated text; no syntax validity is implied before <a class="el" href="classtlv_1_1query__expression.html#a903577298cd3005e9a39f8758bced907" title="Compile composed text with typed variable declarations and borrowed providers.">compile()</a>. </p>
+<p>Borrow generated text; no syntax validity is implied before <a class="el" href="classtlv_1_1query__expression.html#a7caac316c455aa112c499f9f322590a5" title="Compile composed text with typed variable declarations and borrowed providers.">compile()</a>. </p>
 
 </div>
 </div>

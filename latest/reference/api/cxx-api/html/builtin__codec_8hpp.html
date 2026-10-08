@@ -79,7 +79,8 @@ $(function() {
 
 <p>Internal adapters for standard-specific C Value representations.  
 <a href="#details">More...</a></p>
-<div class="textblock"><code>#include &quot;<a class="el" href="typed_8hpp.html">tlv++/codec/typed.hpp</a>&quot;</code><br />
+<div class="textblock"><code>#include &quot;<a class="el" href="dynamic_8hpp.html">tlv++/codec/dynamic.hpp</a>&quot;</code><br />
+<code>#include &quot;<a class="el" href="typed_8hpp.html">tlv++/codec/typed.hpp</a>&quot;</code><br />
 </div><a name="details" id="details"></a><h2 class="groupheader">Detailed Description</h2>
 <div class="textblock"><p>Internal adapters for standard-specific C Value representations. </p>
 <p>Codecs interpret Value only, delegate validation to the canonical C engine, and implement the generic typed-field contract. Successful operations allocate nothing. Borrowed results require immutable input to outlive every retained copy. Encode storage must be disjoint from all borrowed input; nullptr/0 validates and measures. Codec errors are propagated unchanged. </p>

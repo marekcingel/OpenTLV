@@ -10,5 +10,8 @@ var searchData=
   ['variable_5fslot_7',['variable_slot',['../../../c-api/html/structtlv__query__instruction.html#ac2a32b982cf5b600ddacab178f9c2b34',1,'tlv_query_instruction']]],
   ['variable_5fslots_8',['variable_slots',['../../../c-api/html/structtlv__query__program__info.html#a69e7f90de070c0d7ed27dc0784016f74',1,'tlv_query_program_info']]],
   ['variables_9',['variables',['../../../c-api/html/structtlv__query__compile__options.html#a1268b467e015a1d4e18ecd88a3b02628',1,'tlv_query_compile_options']]],
-  ['version_10',['version',['../../../c-api/html/structtlv__query__program.html#a68ecab185b029dd490f8bc7348028bca',1,'tlv_query_program']]]
+  ['verification_5ffailed_10',['verification_failed',['../namespacetlv_1_1emv.html#a1962c5134ee99e30ef9fc12015a14aed',1,'tlv::emv']]],
+  ['verification_5fsucceeded_11',['verification_succeeded',['../namespacetlv_1_1emv.html#a9db9fbec583f96bd71d9a3f5c093ed7a',1,'tlv::emv']]],
+  ['version_12',['version',['../../../c-api/html/structtlv__query__program.html#a68ecab185b029dd490f8bc7348028bca',1,'tlv_query_program']]],
+  ['voice_13',['voice',['../namespacetlv_1_1emv.html#a81c248deec7a6b39d7d88c4fbffe0940',1,'tlv::emv']]]
 ];

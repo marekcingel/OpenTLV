@@ -136,7 +136,7 @@ Public Member Functions</h2></td></tr>
 <tr class="memdesc:a94bfcff6b9e9be58604c0fb1c1f31863"><td class="mdescLeft">&#160;</td><td class="mdescRight">Absolute offset of the next element.  <br /></td></tr>
 <tr class="separator:a94bfcff6b9e9be58604c0fb1c1f31863"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:aa21166d5451e1ef31b32cce7102080f0" id="r_aa21166d5451e1ef31b32cce7102080f0"><td class="memTemplParams" colspan="2">template&lt;typename Visitor &gt; </td></tr>
-<tr class="memitem:aa21166d5451e1ef31b32cce7102080f0"><td class="memTemplItemLeft" align="right" valign="top"><a class="el" href="classtlv_1_1expected.html">expected</a>&lt; void, <a class="el" href="structtlv_1_1error.html">error</a> &gt;&#160;</td><td class="memTemplItemRight" valign="bottom"><a class="el" href="classtlv_1_1detail_1_1reader__base.html#aa21166d5451e1ef31b32cce7102080f0">visit</a> (Visitor &amp;&amp;visitor, <a class="el" href="namespacetlv.html#aec6151f23d86b874b79d9d2ae021e568">reader_diagnostic</a> *<a class="el" href="namespacetlv.html#a00ca9c69c35ef11f6a22b7eda1b115ba">diagnostic</a>=nullptr)</td></tr>
+<tr class="memitem:aa21166d5451e1ef31b32cce7102080f0"><td class="memTemplItemLeft" align="right" valign="top"><a class="el" href="classtlv_1_1expected.html">expected</a>&lt; void, <a class="el" href="structtlv_1_1error.html">error</a> &gt;&#160;</td><td class="memTemplItemRight" valign="bottom"><a class="el" href="classtlv_1_1detail_1_1reader__base.html#aa21166d5451e1ef31b32cce7102080f0">visit</a> (Visitor &amp;&amp;<a class="el" href="namespacetlv.html#ab9d10b8185e9a80cd73b5a0ef633a22ca127870930d65c57ee65fcc47f2170d38">visitor</a>, <a class="el" href="namespacetlv.html#aec6151f23d86b874b79d9d2ae021e568">reader_diagnostic</a> *<a class="el" href="namespacetlv.html#a00ca9c69c35ef11f6a22b7eda1b115ba">diagnostic</a>=nullptr)</td></tr>
 <tr class="memdesc:aa21166d5451e1ef31b32cce7102080f0"><td class="mdescLeft">&#160;</td><td class="mdescRight">Visit remaining elements through the C Visitor engine.  <br /></td></tr>
 <tr class="separator:aa21166d5451e1ef31b32cce7102080f0"><td class="memSeparator" colspan="2">&#160;</td></tr>
 </table><table class="memberdecls">
@@ -260,7 +260,7 @@ Friends</h2></td></tr>
 </div><div class="memdoc">
 
 <p>Creates a reader over a buffer. </p>
-<p>Invalid buffers or missing format callbacks are not reported here; they prevent reading, so <a class="el" href="classtlv_1_1detail_1_1reader__base.html#a570d3d67936fb183e662f46ce12d3418" title="Reports whether the reader has consumed all input.">at_end()</a> returns <code>true</code> and <a class="el" href="classtlv_1_1detail_1_1reader__base.html#a21da748c1c1fe71f15efd83a7accb24f" title="Reads the next element and advances the reader.">next()</a> returns an error.</p>
+<p>Invalid buffers or missing format callbacks are not reported here; they prevent reading, so <a class="el" href="classtlv_1_1detail_1_1reader__base.html#a570d3d67936fb183e662f46ce12d3418" title="Reports whether the reader has consumed all input.">at_end()</a> returns <code>false</code> and <a class="el" href="classtlv_1_1detail_1_1reader__base.html#a21da748c1c1fe71f15efd83a7accb24f" title="Reads the next element and advances the reader.">next()</a> returns an error.</p>
 <dl class="params"><dt>Parameters</dt><dd>
   <table class="params">
     <tr><td class="paramname">data</td><td>Encoded input; borrowed. </td></tr>
@@ -297,7 +297,7 @@ Friends</h2></td></tr>
 </div><div class="memdoc">
 
 <p>Reports whether the reader has consumed all input. </p>
-<dl class="section return"><dt>Returns</dt><dd><code>true</code> if no further elements exist, or if the reader failed to initialize. </dd></dl>
+<dl class="section return"><dt>Returns</dt><dd><code>true</code> only at a successfully initialized final input boundary. Initialization failure and exhausted incremental input are not clean EOF; <a class="el" href="classtlv_1_1detail_1_1reader__base.html#a21da748c1c1fe71f15efd83a7accb24f" title="Reads the next element and advances the reader.">next()</a> reports their distinct outcomes. </dd></dl>
 
 </div>
 </div>

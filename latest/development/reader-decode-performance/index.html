@@ -13,10 +13,10 @@
         <link rel="canonical" href="https://marekcingel.github.io/OpenTLV/latest/development/reader-decode-performance/">
       
       
-        <link rel="prev" href="../fuzzing/">
+        <link rel="prev" href="../valgrind/">
       
       
-        <link rel="next" href="../indefinite-boundary-reuse/">
+        <link rel="next" href="../cxx-facade-performance/">
       
       
         
@@ -3110,6 +3110,34 @@
                 
   
   
+  
+  
+    <li class="md-nav__item">
+      <a href="../valgrind/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Valgrind checks
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
     
   
   
@@ -3259,6 +3287,34 @@
   
 </nav>
       
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../cxx-facade-performance/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    C++ facade performance
+  
+
+    
+  </span>
+  
+  
+
+      </a>
     </li>
   
 
@@ -3662,6 +3718,10 @@
 <a href="https://github.com/marekcingel/OpenTLV/issues/538">#538</a>. Reader, Tree Reader and
 Document use the same canonical Format decoder. No public declaration, ABI,
 allocation policy, borrowed lifetime or wire behavior changes.</p>
+<p>This page records the #538 implementation and measurements. A later
+<a href="../cxx-facade-performance/#c-diagnostic-follow-up">#440 C++ facade follow-up</a>
+also removes the outer Reader clear for diagnostic calls after making Format
+argument-failure output deterministic. The historical results below are unchanged.</p>
 <h2 id="scope-and-decisions">Scope and decisions<a class="headerlink" href="#scope-and-decisions" title="Permanent link">&para;</a></h2>
 <p>The issue's instrumented profile identified Reader, Format and field-composition
 decoding as investigation targets. Its percentages are not uninstrumented cost
@@ -3907,7 +3967,7 @@ input, workspace and lifetime constraints for a future design.</p>
       <nav class="md-footer__inner md-grid" aria-label="Footer" >
         
           
-          <a href="../fuzzing/" class="md-footer__link md-footer__link--prev" aria-label="Previous: Fuzzing">
+          <a href="../valgrind/" class="md-footer__link md-footer__link--prev" aria-label="Previous: Valgrind checks">
             <div class="md-footer__button md-icon">
               
               <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M20 11v2H8l5.5 5.5-1.42 1.42L4.16 12l7.92-7.92L13.5 5.5 8 11z"/></svg>
@@ -3917,20 +3977,20 @@ input, workspace and lifetime constraints for a future design.</p>
                 Previous
               </span>
               <div class="md-ellipsis">
-                Fuzzing
+                Valgrind checks
               </div>
             </div>
           </a>
         
         
           
-          <a href="../indefinite-boundary-reuse/" class="md-footer__link md-footer__link--next" aria-label="Next: Indefinite boundary reuse follow-up">
+          <a href="../cxx-facade-performance/" class="md-footer__link md-footer__link--next" aria-label="Next: C++ facade performance">
             <div class="md-footer__title">
               <span class="md-footer__direction">
                 Next
               </span>
               <div class="md-ellipsis">
-                Indefinite boundary reuse follow-up
+                C++ facade performance
               </div>
             </div>
             <div class="md-footer__button md-icon">

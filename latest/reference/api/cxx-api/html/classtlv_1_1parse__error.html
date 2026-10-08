@@ -99,6 +99,12 @@ Public Member Functions</h2></td></tr>
 <tr class="memitem:aed5edcecadb205307a8bce3815b0d37b" id="r_aed5edcecadb205307a8bce3815b0d37b"><td class="memItemLeft" align="right" valign="top"><a class="elRef" href="../../c-api/html/group__core.html#ga164d2817a32e5d7b7aa1472e887b47c3">tlv_result_t</a>&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classtlv_1_1parse__error.html#aed5edcecadb205307a8bce3815b0d37b">code</a> () const noexcept</td></tr>
 <tr class="memdesc:aed5edcecadb205307a8bce3815b0d37b"><td class="mdescLeft">&#160;</td><td class="mdescRight">Original C Reader result code.  <br /></td></tr>
 <tr class="separator:aed5edcecadb205307a8bce3815b0d37b"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a73dbdc80fc3bb335fcddfdd61d90735d" id="r_a73dbdc80fc3bb335fcddfdd61d90735d"><td class="memItemLeft" align="right" valign="top"><a class="el" href="namespacetlv.html#ab9d10b8185e9a80cd73b5a0ef633a22c">errc</a>&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classtlv_1_1parse__error.html#a73dbdc80fc3bb335fcddfdd61d90735d">status</a> () const noexcept</td></tr>
+<tr class="memdesc:a73dbdc80fc3bb335fcddfdd61d90735d"><td class="mdescLeft">&#160;</td><td class="mdescRight">Canonical C++ status matching pull-based Reader errors.  <br /></td></tr>
+<tr class="separator:a73dbdc80fc3bb335fcddfdd61d90735d"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:aace9d035e46349a2d36bada1665ce0d1" id="r_aace9d035e46349a2d36bada1665ce0d1"><td class="memItemLeft" align="right" valign="top"><a class="el" href="structtlv_1_1error.html">tlv::error</a>&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classtlv_1_1parse__error.html#aace9d035e46349a2d36bada1665ce0d1">failure</a> () const noexcept</td></tr>
+<tr class="memdesc:aace9d035e46349a2d36bada1665ce0d1"><td class="mdescLeft">&#160;</td><td class="mdescRight">Copy the common structured failure without allocating.  <br /></td></tr>
+<tr class="separator:aace9d035e46349a2d36bada1665ce0d1"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:a0d648af184d4b1581399e65c4760a54d" id="r_a0d648af184d4b1581399e65c4760a54d"><td class="memItemLeft" align="right" valign="top">size_t&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classtlv_1_1parse__error.html#a0d648af184d4b1581399e65c4760a54d">offset</a> () const noexcept</td></tr>
 <tr class="memdesc:a0d648af184d4b1581399e65c4760a54d"><td class="mdescLeft">&#160;</td><td class="mdescRight">Absolute offset of the element whose read failed.  <br /></td></tr>
 <tr class="separator:a0d648af184d4b1581399e65c4760a54d"><td class="memSeparator" colspan="2">&#160;</td></tr>
@@ -217,6 +223,33 @@ Public Member Functions</h2></td></tr>
 
 </div>
 </div>
+<a id="aace9d035e46349a2d36bada1665ce0d1" name="aace9d035e46349a2d36bada1665ce0d1"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#aace9d035e46349a2d36bada1665ce0d1">&#9670;&#160;</a></span>failure()</h2>
+
+<div class="memitem">
+<div class="memproto">
+<table class="mlabels">
+  <tr>
+  <td class="mlabels-left">
+      <table class="memname">
+        <tr>
+          <td class="memname"><a class="el" href="structtlv_1_1error.html">tlv::error</a> tlv::parse_error::failure </td>
+          <td>(</td>
+          <td class="paramname"></td><td>)</td>
+          <td> const</td>
+        </tr>
+      </table>
+  </td>
+  <td class="mlabels-right">
+<span class="mlabels"><span class="mlabel">inline</span><span class="mlabel">noexcept</span></span>  </td>
+  </tr>
+</table>
+</div><div class="memdoc">
+
+<p>Copy the common structured failure without allocating. </p>
+
+</div>
+</div>
 <a id="a0d648af184d4b1581399e65c4760a54d" name="a0d648af184d4b1581399e65c4760a54d"></a>
 <h2 class="memtitle"><span class="permalink"><a href="#a0d648af184d4b1581399e65c4760a54d">&#9670;&#160;</a></span>offset()</h2>
 
@@ -241,6 +274,33 @@ Public Member Functions</h2></td></tr>
 </div><div class="memdoc">
 
 <p>Absolute offset of the element whose read failed. </p>
+
+</div>
+</div>
+<a id="a73dbdc80fc3bb335fcddfdd61d90735d" name="a73dbdc80fc3bb335fcddfdd61d90735d"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#a73dbdc80fc3bb335fcddfdd61d90735d">&#9670;&#160;</a></span>status()</h2>
+
+<div class="memitem">
+<div class="memproto">
+<table class="mlabels">
+  <tr>
+  <td class="mlabels-left">
+      <table class="memname">
+        <tr>
+          <td class="memname"><a class="el" href="namespacetlv.html#ab9d10b8185e9a80cd73b5a0ef633a22c">errc</a> tlv::parse_error::status </td>
+          <td>(</td>
+          <td class="paramname"></td><td>)</td>
+          <td> const</td>
+        </tr>
+      </table>
+  </td>
+  <td class="mlabels-right">
+<span class="mlabels"><span class="mlabel">inline</span><span class="mlabel">noexcept</span></span>  </td>
+  </tr>
+</table>
+</div><div class="memdoc">
+
+<p>Canonical C++ status matching pull-based Reader errors. </p>
 
 </div>
 </div>

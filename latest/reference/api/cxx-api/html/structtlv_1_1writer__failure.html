@@ -88,6 +88,12 @@ $(function() {
 <table class="memberdecls">
 <tr class="heading"><td colspan="2"><h2 class="groupheader"><a id="pub-methods" name="pub-methods"></a>
 Public Member Functions</h2></td></tr>
+<tr class="memitem:a3665a90745f398d085a65501a3edbfb1" id="r_a3665a90745f398d085a65501a3edbfb1"><td class="memItemLeft" align="right" valign="top"><a class="el" href="namespacetlv.html#ab9d10b8185e9a80cd73b5a0ef633a22c">errc</a>&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="structtlv_1_1writer__failure.html#a3665a90745f398d085a65501a3edbfb1">status</a> () const noexcept</td></tr>
+<tr class="memdesc:a3665a90745f398d085a65501a3edbfb1"><td class="mdescLeft">&#160;</td><td class="mdescRight">Canonical C++ operation status.  <br /></td></tr>
+<tr class="separator:a3665a90745f398d085a65501a3edbfb1"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a42d45af483870f97549419d6b543e3c3" id="r_a42d45af483870f97549419d6b543e3c3"><td class="memItemLeft" align="right" valign="top"><a class="el" href="structtlv_1_1error.html">tlv::error</a>&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="structtlv_1_1writer__failure.html#a42d45af483870f97549419d6b543e3c3">failure</a> () const noexcept</td></tr>
+<tr class="memdesc:a42d45af483870f97549419d6b543e3c3"><td class="mdescLeft">&#160;</td><td class="mdescRight">Copy the common structured failure without allocating.  <br /></td></tr>
+<tr class="separator:a42d45af483870f97549419d6b543e3c3"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:a21d7fc193b5f14854cd0332bbc0d9890" id="r_a21d7fc193b5f14854cd0332bbc0d9890"><td class="memItemLeft" align="right" valign="top">const char *&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="structtlv_1_1writer__failure.html#a21d7fc193b5f14854cd0332bbc0d9890">message</a> () const noexcept</td></tr>
 <tr class="memdesc:a21d7fc193b5f14854cd0332bbc0d9890"><td class="mdescLeft">&#160;</td><td class="mdescRight">Borrow a static description; no allocation or ownership transfer.  <br /></td></tr>
 <tr class="separator:a21d7fc193b5f14854cd0332bbc0d9890"><td class="memSeparator" colspan="2">&#160;</td></tr>
@@ -101,6 +107,33 @@ Public Attributes</h2></td></tr>
 <a name="details" id="details"></a><h2 class="groupheader">Detailed Description</h2>
 <div class="textblock"><p>Writer failure without an allocating message string. </p>
 </div><h2 class="groupheader">Member Function Documentation</h2>
+<a id="a42d45af483870f97549419d6b543e3c3" name="a42d45af483870f97549419d6b543e3c3"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#a42d45af483870f97549419d6b543e3c3">&#9670;&#160;</a></span>failure()</h2>
+
+<div class="memitem">
+<div class="memproto">
+<table class="mlabels">
+  <tr>
+  <td class="mlabels-left">
+      <table class="memname">
+        <tr>
+          <td class="memname"><a class="el" href="structtlv_1_1error.html">tlv::error</a> tlv::writer_failure::failure </td>
+          <td>(</td>
+          <td class="paramname"></td><td>)</td>
+          <td> const</td>
+        </tr>
+      </table>
+  </td>
+  <td class="mlabels-right">
+<span class="mlabels"><span class="mlabel">inline</span><span class="mlabel">noexcept</span></span>  </td>
+  </tr>
+</table>
+</div><div class="memdoc">
+
+<p>Copy the common structured failure without allocating. </p>
+
+</div>
+</div>
 <a id="a21d7fc193b5f14854cd0332bbc0d9890" name="a21d7fc193b5f14854cd0332bbc0d9890"></a>
 <h2 class="memtitle"><span class="permalink"><a href="#a21d7fc193b5f14854cd0332bbc0d9890">&#9670;&#160;</a></span>message()</h2>
 
@@ -125,6 +158,33 @@ Public Attributes</h2></td></tr>
 </div><div class="memdoc">
 
 <p>Borrow a static description; no allocation or ownership transfer. </p>
+
+</div>
+</div>
+<a id="a3665a90745f398d085a65501a3edbfb1" name="a3665a90745f398d085a65501a3edbfb1"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#a3665a90745f398d085a65501a3edbfb1">&#9670;&#160;</a></span>status()</h2>
+
+<div class="memitem">
+<div class="memproto">
+<table class="mlabels">
+  <tr>
+  <td class="mlabels-left">
+      <table class="memname">
+        <tr>
+          <td class="memname"><a class="el" href="namespacetlv.html#ab9d10b8185e9a80cd73b5a0ef633a22c">errc</a> tlv::writer_failure::status </td>
+          <td>(</td>
+          <td class="paramname"></td><td>)</td>
+          <td> const</td>
+        </tr>
+      </table>
+  </td>
+  <td class="mlabels-right">
+<span class="mlabels"><span class="mlabel">inline</span><span class="mlabel">noexcept</span></span>  </td>
+  </tr>
+</table>
+</div><div class="memdoc">
+
+<p>Canonical C++ operation status. </p>
 
 </div>
 </div>

@@ -83,7 +83,8 @@ $(function() {
 
 <p>C++11 typed fields and tag-independent Value codec customization.  
 <a href="#details">More...</a></p>
-<div class="textblock"><code>#include &lt;type_traits&gt;</code><br />
+<div class="textblock"><code>#include &quot;<a class="el" href="dynamic_8hpp.html">tlv++/codec/dynamic.hpp</a>&quot;</code><br />
+<code>#include &lt;type_traits&gt;</code><br />
 <code>#include &lt;vector&gt;</code><br />
 <code>#include &quot;<a class="el" href="types_8hpp.html">tlv++/types.hpp</a>&quot;</code><br />
 <code>#include &quot;<a class="el" href="typed__error_8hpp.html">tlv++/codec/typed_error.hpp</a>&quot;</code><br />
@@ -97,9 +98,6 @@ Classes</h2></td></tr>
 <tr class="separator:"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:"><td class="memItemLeft" align="right" valign="top">struct &#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="structtlv_1_1tag__constant_3_4.html">tlv::tag_constant&lt;&gt;</a></td></tr>
 <tr class="memdesc:"><td class="mdescLeft">&#160;</td><td class="mdescRight">Absent identifier provider for Formats supporting tagless elements.  <a href="structtlv_1_1tag__constant_3_4.html#details">More...</a><br /></td></tr>
-<tr class="separator:"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:"><td class="memItemLeft" align="right" valign="top">struct &#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="structtlv_1_1codec__adapter.html">tlv::codec_adapter&lt; T, Descriptor &gt;</a></td></tr>
-<tr class="memdesc:"><td class="mdescLeft">&#160;</td><td class="mdescRight">Adapt a C Value descriptor with its exact C representation.  <a href="structtlv_1_1codec__adapter.html#details">More...</a><br /></td></tr>
 <tr class="separator:"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:"><td class="memItemLeft" align="right" valign="top">struct &#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="structtlv_1_1codec.html">tlv::codec&lt; T &gt;</a></td></tr>
 <tr class="memdesc:"><td class="mdescLeft">&#160;</td><td class="mdescRight">Default Value codec customization point, independent of tags.  <a href="structtlv_1_1codec.html#details">More...</a><br /></td></tr>
@@ -125,28 +123,28 @@ Namespaces</h2></td></tr>
 </table><table class="memberdecls">
 <tr class="heading"><td colspan="2"><h2 class="groupheader"><a id="typedef-members" name="typedef-members"></a>
 Typedefs</h2></td></tr>
-<tr class="memitem:a1d7a698c5c2079a5d64c0ead6a945612" id="r_a1d7a698c5c2079a5d64c0ead6a945612"><td class="memItemLeft" align="right" valign="top">using&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="namespacetlv.html#a1d7a698c5c2079a5d64c0ead6a945612">tlv::uint8_codec</a> = <a class="el" href="structtlv_1_1codec__adapter.html">codec_adapter</a>&lt; uint8_t, &amp;<a class="elRef" href="../../c-api/html/values_8h.html#af32720386bd4480a5ec873793a5fd7e8">tlv_codec_uint8</a> &gt;</td></tr>
-<tr class="memdesc:a1d7a698c5c2079a5d64c0ead6a945612"><td class="mdescLeft">&#160;</td><td class="mdescRight">One-byte unsigned integer codec.  <br /></td></tr>
-<tr class="separator:a1d7a698c5c2079a5d64c0ead6a945612"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:ac17cfc6624fbea79afde730d8c020d60" id="r_ac17cfc6624fbea79afde730d8c020d60"><td class="memItemLeft" align="right" valign="top">using&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="namespacetlv.html#ac17cfc6624fbea79afde730d8c020d60">tlv::uint16_be_codec</a> = <a class="el" href="structtlv_1_1codec__adapter.html">codec_adapter</a>&lt; uint16_t, &amp;<a class="elRef" href="../../c-api/html/values_8h.html#a4019a00d5e6489aa11b1f092f08813a1">tlv_codec_uint16_be</a> &gt;</td></tr>
-<tr class="memdesc:ac17cfc6624fbea79afde730d8c020d60"><td class="mdescLeft">&#160;</td><td class="mdescRight">Two-byte big-endian unsigned integer codec.  <br /></td></tr>
-<tr class="separator:ac17cfc6624fbea79afde730d8c020d60"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:aae65394f4ed3298dad2addfd880d6581" id="r_aae65394f4ed3298dad2addfd880d6581"><td class="memItemLeft" align="right" valign="top">using&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="namespacetlv.html#aae65394f4ed3298dad2addfd880d6581">tlv::uint16_le_codec</a> = <a class="el" href="structtlv_1_1codec__adapter.html">codec_adapter</a>&lt; uint16_t, &amp;<a class="elRef" href="../../c-api/html/values_8h.html#a72d1faf0ff645ca471616cc11dd3cc55">tlv_codec_uint16_le</a> &gt;</td></tr>
-<tr class="memdesc:aae65394f4ed3298dad2addfd880d6581"><td class="mdescLeft">&#160;</td><td class="mdescRight">Two-byte little-endian unsigned integer codec.  <br /></td></tr>
-<tr class="separator:aae65394f4ed3298dad2addfd880d6581"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:aa8bd35a61129aae0bee455fe98bfccd6" id="r_aa8bd35a61129aae0bee455fe98bfccd6"><td class="memItemLeft" align="right" valign="top">using&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="namespacetlv.html#aa8bd35a61129aae0bee455fe98bfccd6">tlv::uint32_be_codec</a> = <a class="el" href="structtlv_1_1codec__adapter.html">codec_adapter</a>&lt; uint32_t, &amp;<a class="elRef" href="../../c-api/html/values_8h.html#a39604e94ab9045001a56d4115d66b8b3">tlv_codec_uint32_be</a> &gt;</td></tr>
-<tr class="memdesc:aa8bd35a61129aae0bee455fe98bfccd6"><td class="mdescLeft">&#160;</td><td class="mdescRight">Four-byte big-endian unsigned integer codec.  <br /></td></tr>
-<tr class="separator:aa8bd35a61129aae0bee455fe98bfccd6"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:a66c4127b8b832f064e0ca3d9b5bfd4f1" id="r_a66c4127b8b832f064e0ca3d9b5bfd4f1"><td class="memItemLeft" align="right" valign="top">using&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="namespacetlv.html#a66c4127b8b832f064e0ca3d9b5bfd4f1">tlv::uint32_le_codec</a> = <a class="el" href="structtlv_1_1codec__adapter.html">codec_adapter</a>&lt; uint32_t, &amp;<a class="elRef" href="../../c-api/html/values_8h.html#a1bb77924e725b108040b7eab108759da">tlv_codec_uint32_le</a> &gt;</td></tr>
-<tr class="memdesc:a66c4127b8b832f064e0ca3d9b5bfd4f1"><td class="mdescLeft">&#160;</td><td class="mdescRight">Four-byte little-endian unsigned integer codec.  <br /></td></tr>
-<tr class="separator:a66c4127b8b832f064e0ca3d9b5bfd4f1"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:a54999e662ac563ec305eac2994996279" id="r_a54999e662ac563ec305eac2994996279"><td class="memItemLeft" align="right" valign="top">using&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="namespacetlv.html#a54999e662ac563ec305eac2994996279">tlv::int64_minimal_be_codec</a> = <a class="el" href="structtlv_1_1codec__adapter.html">codec_adapter</a>&lt; int64_t, &amp;<a class="elRef" href="../../c-api/html/values_8h.html#a667cbb1ea2eab461846509eb7607ecf7">tlv_codec_int64_minimal_be</a> &gt;</td></tr>
-<tr class="memdesc:a54999e662ac563ec305eac2994996279"><td class="mdescLeft">&#160;</td><td class="mdescRight">Minimal big-endian two's-complement signed integer codec.  <br /></td></tr>
-<tr class="separator:a54999e662ac563ec305eac2994996279"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:ab3b27dc7d0096b9d584e42a691be0372" id="r_ab3b27dc7d0096b9d584e42a691be0372"><td class="memItemLeft" align="right" valign="top">using&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="namespacetlv.html#ab3b27dc7d0096b9d584e42a691be0372">tlv::uint8_codec</a> = detail::codec_adapter&lt; uint8_t, &amp;<a class="elRef" href="../../c-api/html/values_8h.html#af32720386bd4480a5ec873793a5fd7e8">tlv_codec_uint8</a> &gt;</td></tr>
+<tr class="memdesc:ab3b27dc7d0096b9d584e42a691be0372"><td class="mdescLeft">&#160;</td><td class="mdescRight">One-byte unsigned integer codec.  <br /></td></tr>
+<tr class="separator:ab3b27dc7d0096b9d584e42a691be0372"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a02125a69d18364ecb67d33e539d57a3a" id="r_a02125a69d18364ecb67d33e539d57a3a"><td class="memItemLeft" align="right" valign="top">using&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="namespacetlv.html#a02125a69d18364ecb67d33e539d57a3a">tlv::uint16_be_codec</a> = detail::codec_adapter&lt; uint16_t, &amp;<a class="elRef" href="../../c-api/html/values_8h.html#a4019a00d5e6489aa11b1f092f08813a1">tlv_codec_uint16_be</a> &gt;</td></tr>
+<tr class="memdesc:a02125a69d18364ecb67d33e539d57a3a"><td class="mdescLeft">&#160;</td><td class="mdescRight">Two-byte big-endian unsigned integer codec.  <br /></td></tr>
+<tr class="separator:a02125a69d18364ecb67d33e539d57a3a"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a848735f8eeba00aac57678f57a604a1f" id="r_a848735f8eeba00aac57678f57a604a1f"><td class="memItemLeft" align="right" valign="top">using&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="namespacetlv.html#a848735f8eeba00aac57678f57a604a1f">tlv::uint16_le_codec</a> = detail::codec_adapter&lt; uint16_t, &amp;<a class="elRef" href="../../c-api/html/values_8h.html#a72d1faf0ff645ca471616cc11dd3cc55">tlv_codec_uint16_le</a> &gt;</td></tr>
+<tr class="memdesc:a848735f8eeba00aac57678f57a604a1f"><td class="mdescLeft">&#160;</td><td class="mdescRight">Two-byte little-endian unsigned integer codec.  <br /></td></tr>
+<tr class="separator:a848735f8eeba00aac57678f57a604a1f"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a4c1f4c9e0f77cf4774303fcb03ee62f1" id="r_a4c1f4c9e0f77cf4774303fcb03ee62f1"><td class="memItemLeft" align="right" valign="top">using&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="namespacetlv.html#a4c1f4c9e0f77cf4774303fcb03ee62f1">tlv::uint32_be_codec</a> = detail::codec_adapter&lt; uint32_t, &amp;<a class="elRef" href="../../c-api/html/values_8h.html#a39604e94ab9045001a56d4115d66b8b3">tlv_codec_uint32_be</a> &gt;</td></tr>
+<tr class="memdesc:a4c1f4c9e0f77cf4774303fcb03ee62f1"><td class="mdescLeft">&#160;</td><td class="mdescRight">Four-byte big-endian unsigned integer codec.  <br /></td></tr>
+<tr class="separator:a4c1f4c9e0f77cf4774303fcb03ee62f1"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a1115b85a7e7ac7708e1e8a2251f8c992" id="r_a1115b85a7e7ac7708e1e8a2251f8c992"><td class="memItemLeft" align="right" valign="top">using&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="namespacetlv.html#a1115b85a7e7ac7708e1e8a2251f8c992">tlv::uint32_le_codec</a> = detail::codec_adapter&lt; uint32_t, &amp;<a class="elRef" href="../../c-api/html/values_8h.html#a1bb77924e725b108040b7eab108759da">tlv_codec_uint32_le</a> &gt;</td></tr>
+<tr class="memdesc:a1115b85a7e7ac7708e1e8a2251f8c992"><td class="mdescLeft">&#160;</td><td class="mdescRight">Four-byte little-endian unsigned integer codec.  <br /></td></tr>
+<tr class="separator:a1115b85a7e7ac7708e1e8a2251f8c992"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:abf4434168f2a3ab3312a2bfbbb2fcd05" id="r_abf4434168f2a3ab3312a2bfbbb2fcd05"><td class="memItemLeft" align="right" valign="top">using&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="namespacetlv.html#abf4434168f2a3ab3312a2bfbbb2fcd05">tlv::int64_minimal_be_codec</a> = detail::codec_adapter&lt; int64_t, &amp;<a class="elRef" href="../../c-api/html/values_8h.html#a667cbb1ea2eab461846509eb7607ecf7">tlv_codec_int64_minimal_be</a> &gt;</td></tr>
+<tr class="memdesc:abf4434168f2a3ab3312a2bfbbb2fcd05"><td class="mdescLeft">&#160;</td><td class="mdescRight">Minimal big-endian two's-complement signed integer codec.  <br /></td></tr>
+<tr class="separator:abf4434168f2a3ab3312a2bfbbb2fcd05"><td class="memSeparator" colspan="2">&#160;</td></tr>
 </table>
 <a name="details" id="details"></a><h2 class="groupheader">Detailed Description</h2>
 <div class="textblock"><p>C++11 typed fields and tag-independent Value codec customization. </p>
-<p>A codec exposes value_type, decode(bytes) returning expected&lt;value_type, tlv_codec_result_t&gt;, and encode(const value_type&amp;, byte*, size_t) returning expected&lt;size_t, tlv_codec_result_t&gt;. Encode with nullptr and zero capacity validates and measures the value. Implementations must respect capacity and report the exact byte count. Input and output must not overlap. Schema owns contextual length, occurrence and nesting constraints. </p>
+<p>A codec exposes value_type, decode(bytes) returning expected&lt;value_type, codec_errc&gt;, and encode(const value_type&amp;, byte*, size_t) returning expected&lt;size_t, codec_errc&gt;. Encode with nullptr and zero capacity validates and measures the value. Implementations must respect capacity and report the exact byte count. Input and output must not overlap. Schema owns contextual length, occurrence and nesting constraints. </p>
 </div></div><!-- contents -->
 <!-- start footer part -->
 <hr class="footer"/><address class="footer"><small>

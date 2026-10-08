@@ -74,6 +74,7 @@ $(function() {
 </div><!-- top -->
 <div class="header">
   <div class="summary">
+<a href="#pub-methods">Public Member Functions</a> &#124;
 <a href="#pub-attribs">Public Attributes</a> &#124;
 <a href="structtlv_1_1query__failure-members.html">List of all members</a>  </div>
   <div class="headertitle"><div class="title">tlv::query_failure Struct Reference</div></div>
@@ -85,6 +86,21 @@ $(function() {
 
 <p><code>#include &lt;program.hpp&gt;</code></p>
 <table class="memberdecls">
+<tr class="heading"><td colspan="2"><h2 class="groupheader"><a id="pub-methods" name="pub-methods"></a>
+Public Member Functions</h2></td></tr>
+<tr class="memitem:a39e9d1492b2991897fede2f4f8b96717" id="r_a39e9d1492b2991897fede2f4f8b96717"><td class="memItemLeft" align="right" valign="top"><a class="el" href="namespacetlv.html#ab9d10b8185e9a80cd73b5a0ef633a22c">errc</a>&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="structtlv_1_1query__failure.html#a39e9d1492b2991897fede2f4f8b96717">status</a> () const noexcept</td></tr>
+<tr class="memdesc:a39e9d1492b2991897fede2f4f8b96717"><td class="mdescLeft">&#160;</td><td class="mdescRight">Canonical C++ operation status, preserving resumable input and EOF.  <br /></td></tr>
+<tr class="separator:a39e9d1492b2991897fede2f4f8b96717"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a389e1e0bab8c1fba6aa452a5c1201e0e" id="r_a389e1e0bab8c1fba6aa452a5c1201e0e"><td class="memItemLeft" align="right" valign="top">const char *&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="structtlv_1_1query__failure.html#a389e1e0bab8c1fba6aa452a5c1201e0e">message</a> () const noexcept</td></tr>
+<tr class="memdesc:a389e1e0bab8c1fba6aa452a5c1201e0e"><td class="mdescLeft">&#160;</td><td class="mdescRight">Immutable program-lifetime error description.  <br /></td></tr>
+<tr class="separator:a389e1e0bab8c1fba6aa452a5c1201e0e"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a75b8f31d4e0b1c2d1ed7cfca047e0e1d" id="r_a75b8f31d4e0b1c2d1ed7cfca047e0e1d"><td class="memItemLeft" align="right" valign="top"><a class="el" href="namespacetlv.html#a7bcb5c918f4c7e096cd783d894a7ffd5">query_issue</a>&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="structtlv_1_1query__failure.html#a75b8f31d4e0b1c2d1ed7cfca047e0e1d">kind</a> () const noexcept</td></tr>
+<tr class="memdesc:a75b8f31d4e0b1c2d1ed7cfca047e0e1d"><td class="mdescLeft">&#160;</td><td class="mdescRight">Category identifying the relevant subsystem detail.  <br /></td></tr>
+<tr class="separator:a75b8f31d4e0b1c2d1ed7cfca047e0e1d"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a9ca757b3c7724aa17a1f92a1058eb811" id="r_a9ca757b3c7724aa17a1f92a1058eb811"><td class="memItemLeft" align="right" valign="top"><a class="el" href="structtlv_1_1error.html">tlv::error</a>&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="structtlv_1_1query__failure.html#a9ca757b3c7724aa17a1f92a1058eb811">failure</a> () const noexcept</td></tr>
+<tr class="memdesc:a9ca757b3c7724aa17a1f92a1058eb811"><td class="mdescLeft">&#160;</td><td class="mdescRight">Copy common diagnostic information while preserving Query detail on this object.  <br /></td></tr>
+<tr class="separator:a9ca757b3c7724aa17a1f92a1058eb811"><td class="memSeparator" colspan="2">&#160;</td></tr>
+</table><table class="memberdecls">
 <tr class="heading"><td colspan="2"><h2 class="groupheader"><a id="pub-attribs" name="pub-attribs"></a>
 Public Attributes</h2></td></tr>
 <tr class="memitem:a833769230f2213c7405420dab72f67d8" id="r_a833769230f2213c7405420dab72f67d8"><td class="memItemLeft" align="right" valign="top"><a class="elRef" href="../../c-api/html/group__core.html#ga164d2817a32e5d7b7aa1472e887b47c3">tlv_result_t</a>&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="structtlv_1_1query__failure.html#a833769230f2213c7405420dab72f67d8">code</a></td></tr>
@@ -94,7 +110,116 @@ Public Attributes</h2></td></tr>
 </table>
 <a name="details" id="details"></a><h2 class="groupheader">Detailed Description</h2>
 <div class="textblock"><p>Original native status and complete Query diagnostic, including Reader/codec detail. </p>
-</div><h2 class="groupheader">Member Data Documentation</h2>
+</div><h2 class="groupheader">Member Function Documentation</h2>
+<a id="a9ca757b3c7724aa17a1f92a1058eb811" name="a9ca757b3c7724aa17a1f92a1058eb811"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#a9ca757b3c7724aa17a1f92a1058eb811">&#9670;&#160;</a></span>failure()</h2>
+
+<div class="memitem">
+<div class="memproto">
+<table class="mlabels">
+  <tr>
+  <td class="mlabels-left">
+      <table class="memname">
+        <tr>
+          <td class="memname"><a class="el" href="structtlv_1_1error.html">tlv::error</a> tlv::query_failure::failure </td>
+          <td>(</td>
+          <td class="paramname"></td><td>)</td>
+          <td> const</td>
+        </tr>
+      </table>
+  </td>
+  <td class="mlabels-right">
+<span class="mlabels"><span class="mlabel">inline</span><span class="mlabel">noexcept</span></span>  </td>
+  </tr>
+</table>
+</div><div class="memdoc">
+
+<p>Copy common diagnostic information while preserving Query detail on this object. </p>
+
+</div>
+</div>
+<a id="a75b8f31d4e0b1c2d1ed7cfca047e0e1d" name="a75b8f31d4e0b1c2d1ed7cfca047e0e1d"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#a75b8f31d4e0b1c2d1ed7cfca047e0e1d">&#9670;&#160;</a></span>kind()</h2>
+
+<div class="memitem">
+<div class="memproto">
+<table class="mlabels">
+  <tr>
+  <td class="mlabels-left">
+      <table class="memname">
+        <tr>
+          <td class="memname"><a class="el" href="namespacetlv.html#a7bcb5c918f4c7e096cd783d894a7ffd5">query_issue</a> tlv::query_failure::kind </td>
+          <td>(</td>
+          <td class="paramname"></td><td>)</td>
+          <td> const</td>
+        </tr>
+      </table>
+  </td>
+  <td class="mlabels-right">
+<span class="mlabels"><span class="mlabel">inline</span><span class="mlabel">noexcept</span></span>  </td>
+  </tr>
+</table>
+</div><div class="memdoc">
+
+<p>Category identifying the relevant subsystem detail. </p>
+
+</div>
+</div>
+<a id="a389e1e0bab8c1fba6aa452a5c1201e0e" name="a389e1e0bab8c1fba6aa452a5c1201e0e"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#a389e1e0bab8c1fba6aa452a5c1201e0e">&#9670;&#160;</a></span>message()</h2>
+
+<div class="memitem">
+<div class="memproto">
+<table class="mlabels">
+  <tr>
+  <td class="mlabels-left">
+      <table class="memname">
+        <tr>
+          <td class="memname">const char * tlv::query_failure::message </td>
+          <td>(</td>
+          <td class="paramname"></td><td>)</td>
+          <td> const</td>
+        </tr>
+      </table>
+  </td>
+  <td class="mlabels-right">
+<span class="mlabels"><span class="mlabel">inline</span><span class="mlabel">noexcept</span></span>  </td>
+  </tr>
+</table>
+</div><div class="memdoc">
+
+<p>Immutable program-lifetime error description. </p>
+
+</div>
+</div>
+<a id="a39e9d1492b2991897fede2f4f8b96717" name="a39e9d1492b2991897fede2f4f8b96717"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#a39e9d1492b2991897fede2f4f8b96717">&#9670;&#160;</a></span>status()</h2>
+
+<div class="memitem">
+<div class="memproto">
+<table class="mlabels">
+  <tr>
+  <td class="mlabels-left">
+      <table class="memname">
+        <tr>
+          <td class="memname"><a class="el" href="namespacetlv.html#ab9d10b8185e9a80cd73b5a0ef633a22c">errc</a> tlv::query_failure::status </td>
+          <td>(</td>
+          <td class="paramname"></td><td>)</td>
+          <td> const</td>
+        </tr>
+      </table>
+  </td>
+  <td class="mlabels-right">
+<span class="mlabels"><span class="mlabel">inline</span><span class="mlabel">noexcept</span></span>  </td>
+  </tr>
+</table>
+</div><div class="memdoc">
+
+<p>Canonical C++ operation status, preserving resumable input and EOF. </p>
+
+</div>
+</div>
+<h2 class="groupheader">Member Data Documentation</h2>
 <a id="a833769230f2213c7405420dab72f67d8" name="a833769230f2213c7405420dab72f67d8"></a>
 <h2 class="memtitle"><span class="permalink"><a href="#a833769230f2213c7405420dab72f67d8">&#9670;&#160;</a></span>code</h2>
 

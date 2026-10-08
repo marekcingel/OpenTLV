@@ -87,14 +87,14 @@ $(function() {
 <code>#include &lt;exception&gt;</code><br />
 <code>#include &lt;iterator&gt;</code><br />
 <code>#include &lt;memory&gt;</code><br />
-<code>#include &lt;unordered_map&gt;</code><br />
 <code>#include &lt;utility&gt;</code><br />
 <code>#include &lt;vector&gt;</code><br />
-<code>#include &quot;<a class="el" href="query_8hpp.html">tlv++/query/query.hpp</a>&quot;</code><br />
+<code>#include &quot;<a class="el" href="query_2query_8hpp.html">tlv++/query/query.hpp</a>&quot;</code><br />
 <code>#include &quot;<a class="el" href="program_8hpp.html">tlv++/query/program.hpp</a>&quot;</code><br />
 <code>#include &quot;<a class="el" href="reader_2tree_8hpp.html">tlv++/reader/tree.hpp</a>&quot;</code><br />
 <code>#include &quot;<a class="el" href="types_8hpp.html">tlv++/types.hpp</a>&quot;</code><br />
 <code>#include &quot;<a class="el" href="typed_8hpp.html">tlv++/codec/typed.hpp</a>&quot;</code><br />
+<code>#include &quot;<a class="el" href="writer_2builder_8hpp.html">tlv++/writer/builder.hpp</a>&quot;</code><br />
 <code>#include &quot;<a class="elRef" href="../../c-api/html/document_8h.html">tlv/document/document.h</a>&quot;</code><br />
 <code>#include &quot;<a class="elRef" href="../../c-api/html/writer_2tree_8h.html">tlv/writer/tree.h</a>&quot;</code><br />
 </div><table class="memberdecls">
@@ -108,6 +108,15 @@ Classes</h2></td></tr>
 <tr class="separator:"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:"><td class="memItemLeft" align="right" valign="top">class &#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classtlv_1_1node__range.html">tlv::node_range</a></td></tr>
 <tr class="memdesc:"><td class="mdescLeft">&#160;</td><td class="mdescRight">A borrowed range of siblings, for range-based <code>for</code> loops.  <a href="classtlv_1_1node__range.html#details">More...</a><br /></td></tr>
+<tr class="separator:"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:"><td class="memItemLeft" align="right" valign="top">class &#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classtlv_1_1const__node.html">tlv::const_node</a></td></tr>
+<tr class="memdesc:"><td class="mdescLeft">&#160;</td><td class="mdescRight">Read-only checked Node handle; cannot recover mutable Node or native storage. Copies allocate nothing and retain the same validity and borrowed-view rules as node.  <a href="classtlv_1_1const__node.html#details">More...</a><br /></td></tr>
+<tr class="separator:"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:"><td class="memItemLeft" align="right" valign="top">class &#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classtlv_1_1const__node__iterator.html">tlv::const_node_iterator</a></td></tr>
+<tr class="memdesc:"><td class="mdescLeft">&#160;</td><td class="mdescRight">Forward iterator that exposes only read-only checked Node handles.  <a href="classtlv_1_1const__node__iterator.html#details">More...</a><br /></td></tr>
+<tr class="separator:"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:"><td class="memItemLeft" align="right" valign="top">class &#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classtlv_1_1const__node__range.html">tlv::const_node_range</a></td></tr>
+<tr class="memdesc:"><td class="mdescLeft">&#160;</td><td class="mdescRight">Read-only sibling range; follows live links with the normal Node invalidation rules.  <a href="classtlv_1_1const__node__range.html#details">More...</a><br /></td></tr>
 <tr class="separator:"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:"><td class="memItemLeft" align="right" valign="top">struct &#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="structtlv_1_1document__format.html">tlv::document_format</a></td></tr>
 <tr class="memdesc:"><td class="mdescLeft">&#160;</td><td class="mdescRight">Format and runtime resource limits of a <a class="el" href="classtlv_1_1document.html" title="An owned, mutable TLV document.">tlv::document</a>.  <a href="structtlv_1_1document__format.html#details">More...</a><br /></td></tr>
@@ -133,7 +142,7 @@ Typedefs</h2></td></tr>
 </table>
 <a name="details" id="details"></a><h2 class="groupheader">Detailed Description</h2>
 <div class="textblock"><p>C++ wrapper for the optional mutable TLV document. </p>
-<p>Available when the library is built with <code>OPENTLV_DOCUMENT</code> (see <a class="elRef" href="../../c-api/html/config_8h.html">tlv/config.h</a>). Unlike the reader and writer wrappers, the document allocates, including validity metadata when exposing a Node. Allocation failures in the C++ layer throw std::bad_alloc; native allocation failures are returned as errors. </p>
+<p>Available when the library is built with <code>OPENTLV_DOCUMENT</code> (see <a class="elRef" href="../../c-api/html/config_8h.html">tlv/config.h</a>). Unlike the reader and writer wrappers, the document allocates its owned tree and one shared lifetime record. Node observation and handle copying do not allocate. Allocation failures in the C++ layer throw std::bad_alloc; native allocation failures are returned as errors. </p>
 </div></div><!-- contents -->
 <!-- start footer part -->
 <hr class="footer"/><address class="footer"><small>

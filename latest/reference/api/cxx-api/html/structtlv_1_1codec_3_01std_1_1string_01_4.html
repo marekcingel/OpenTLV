@@ -93,12 +93,12 @@ Public Types</h2></td></tr>
 </table><table class="memberdecls">
 <tr class="heading"><td colspan="2"><h2 class="groupheader"><a id="pub-static-methods" name="pub-static-methods"></a>
 Static Public Member Functions</h2></td></tr>
-<tr class="memitem:a9d0512309912e460b257cb0b91c9e4b5" id="r_a9d0512309912e460b257cb0b91c9e4b5"><td class="memItemLeft" align="right" valign="top">static <a class="el" href="classtlv_1_1expected.html">expected</a>&lt; std::string, <a class="elRef" href="../../c-api/html/group__codecs.html#ga6033534ecdbfc36953062aed6279562f">tlv_codec_result_t</a> &gt;&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="structtlv_1_1codec_3_01std_1_1string_01_4.html#a9d0512309912e460b257cb0b91c9e4b5">decode</a> (<a class="el" href="namespacetlv.html#a2abe7003a70af047ef9acae17f31f75d">bytes</a> input)</td></tr>
-<tr class="memdesc:a9d0512309912e460b257cb0b91c9e4b5"><td class="mdescLeft">&#160;</td><td class="mdescRight">Copy arbitrary Value bytes into an owning string; may allocate.  <br /></td></tr>
-<tr class="separator:a9d0512309912e460b257cb0b91c9e4b5"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:a93bb13ed5da60b691ec13f358bf79636" id="r_a93bb13ed5da60b691ec13f358bf79636"><td class="memItemLeft" align="right" valign="top">static <a class="el" href="classtlv_1_1expected.html">expected</a>&lt; size_t, <a class="elRef" href="../../c-api/html/group__codecs.html#ga6033534ecdbfc36953062aed6279562f">tlv_codec_result_t</a> &gt;&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="structtlv_1_1codec_3_01std_1_1string_01_4.html#a93bb13ed5da60b691ec13f358bf79636">encode</a> (const std::string &amp;value, <a class="el" href="namespacetlv.html#aa91df798a712d88cf7d2f1f63a539b51">byte</a> *output, size_t capacity)</td></tr>
-<tr class="memdesc:a93bb13ed5da60b691ec13f358bf79636"><td class="mdescLeft">&#160;</td><td class="mdescRight">Copy or measure the string's exact bytes, without a trailing NUL.  <br /></td></tr>
-<tr class="separator:a93bb13ed5da60b691ec13f358bf79636"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a12560a413f40671cd9ad4a067bb1c583" id="r_a12560a413f40671cd9ad4a067bb1c583"><td class="memItemLeft" align="right" valign="top">static <a class="el" href="classtlv_1_1expected.html">expected</a>&lt; std::string, <a class="el" href="namespacetlv.html#aa12a2d260f443407813879992167be54">codec_errc</a> &gt;&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="structtlv_1_1codec_3_01std_1_1string_01_4.html#a12560a413f40671cd9ad4a067bb1c583">decode</a> (<a class="el" href="namespacetlv.html#a2abe7003a70af047ef9acae17f31f75d">bytes</a> input)</td></tr>
+<tr class="memdesc:a12560a413f40671cd9ad4a067bb1c583"><td class="mdescLeft">&#160;</td><td class="mdescRight">Copy arbitrary Value bytes into an owning string; may allocate.  <br /></td></tr>
+<tr class="separator:a12560a413f40671cd9ad4a067bb1c583"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a9d5db67c7b41881956f8c81c65a38f3a" id="r_a9d5db67c7b41881956f8c81c65a38f3a"><td class="memItemLeft" align="right" valign="top">static <a class="el" href="classtlv_1_1expected.html">expected</a>&lt; size_t, <a class="el" href="namespacetlv.html#aa12a2d260f443407813879992167be54">codec_errc</a> &gt;&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="structtlv_1_1codec_3_01std_1_1string_01_4.html#a9d5db67c7b41881956f8c81c65a38f3a">encode</a> (const std::string &amp;<a class="el" href="namespacetlv.html#a05620bcc688c15765fb53922c84147b9a2063c1608d6e0baf80249c42e2be5804">value</a>, <a class="el" href="namespacetlv.html#aa91df798a712d88cf7d2f1f63a539b51">byte</a> *output, size_t capacity)</td></tr>
+<tr class="memdesc:a9d5db67c7b41881956f8c81c65a38f3a"><td class="mdescLeft">&#160;</td><td class="mdescRight">Copy or measure the string's exact bytes, without a trailing NUL.  <br /></td></tr>
+<tr class="separator:a9d5db67c7b41881956f8c81c65a38f3a"><td class="memSeparator" colspan="2">&#160;</td></tr>
 </table>
 <a name="details" id="details"></a><h2 class="groupheader">Detailed Description</h2>
 <div class="textblock"><p>Byte-preserving owning string codec, including embedded NUL; no UTF-8 policy. </p>
@@ -119,8 +119,8 @@ Static Public Member Functions</h2></td></tr>
 </div>
 </div>
 <h2 class="groupheader">Member Function Documentation</h2>
-<a id="a9d0512309912e460b257cb0b91c9e4b5" name="a9d0512309912e460b257cb0b91c9e4b5"></a>
-<h2 class="memtitle"><span class="permalink"><a href="#a9d0512309912e460b257cb0b91c9e4b5">&#9670;&#160;</a></span>decode()</h2>
+<a id="a12560a413f40671cd9ad4a067bb1c583" name="a12560a413f40671cd9ad4a067bb1c583"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#a12560a413f40671cd9ad4a067bb1c583">&#9670;&#160;</a></span>decode()</h2>
 
 <div class="memitem">
 <div class="memproto">
@@ -129,7 +129,7 @@ Static Public Member Functions</h2></td></tr>
   <td class="mlabels-left">
       <table class="memname">
         <tr>
-          <td class="memname">static <a class="el" href="classtlv_1_1expected.html">expected</a>&lt; std::string, <a class="elRef" href="../../c-api/html/group__codecs.html#ga6033534ecdbfc36953062aed6279562f">tlv_codec_result_t</a> &gt; <a class="el" href="structtlv_1_1codec.html">tlv::codec</a>&lt; std::string &gt;::decode </td>
+          <td class="memname">static <a class="el" href="classtlv_1_1expected.html">expected</a>&lt; std::string, <a class="el" href="namespacetlv.html#aa12a2d260f443407813879992167be54">codec_errc</a> &gt; <a class="el" href="structtlv_1_1codec.html">tlv::codec</a>&lt; std::string &gt;::decode </td>
           <td>(</td>
           <td class="paramtype"><a class="el" href="namespacetlv.html#a2abe7003a70af047ef9acae17f31f75d">bytes</a>&#160;</td>
           <td class="paramname"><em>input</em></td><td>)</td>
@@ -154,8 +154,8 @@ Static Public Member Functions</h2></td></tr>
 
 </div>
 </div>
-<a id="a93bb13ed5da60b691ec13f358bf79636" name="a93bb13ed5da60b691ec13f358bf79636"></a>
-<h2 class="memtitle"><span class="permalink"><a href="#a93bb13ed5da60b691ec13f358bf79636">&#9670;&#160;</a></span>encode()</h2>
+<a id="a9d5db67c7b41881956f8c81c65a38f3a" name="a9d5db67c7b41881956f8c81c65a38f3a"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#a9d5db67c7b41881956f8c81c65a38f3a">&#9670;&#160;</a></span>encode()</h2>
 
 <div class="memitem">
 <div class="memproto">
@@ -164,7 +164,7 @@ Static Public Member Functions</h2></td></tr>
   <td class="mlabels-left">
       <table class="memname">
         <tr>
-          <td class="memname">static <a class="el" href="classtlv_1_1expected.html">expected</a>&lt; size_t, <a class="elRef" href="../../c-api/html/group__codecs.html#ga6033534ecdbfc36953062aed6279562f">tlv_codec_result_t</a> &gt; <a class="el" href="structtlv_1_1codec.html">tlv::codec</a>&lt; std::string &gt;::encode </td>
+          <td class="memname">static <a class="el" href="classtlv_1_1expected.html">expected</a>&lt; size_t, <a class="el" href="namespacetlv.html#aa12a2d260f443407813879992167be54">codec_errc</a> &gt; <a class="el" href="structtlv_1_1codec.html">tlv::codec</a>&lt; std::string &gt;::encode </td>
           <td>(</td>
           <td class="paramtype">const std::string &amp;&#160;</td>
           <td class="paramname"><em>value</em>, </td>

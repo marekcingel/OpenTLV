@@ -1,4 +1,4 @@
 var searchData=
 [
-  ['input_5fmode_0',['input_mode',['../namespacetlv.html#a6d141be87a05679c237c4d7f5b941c15',1,'tlv']]]
+  ['diff_5fkind_0',['diff_kind',['../namespacetlv.html#a4488f7d6dbbe5b904e0cd1b5c8049edf',1,'tlv']]]
 ];

@@ -14,7 +14,7 @@ var searchData=
   ['aip_5ffield_11',['aip_field',['../namespacetlv_1_1emv.html#aa81fb12ef3d423f120404c014f9dc047',1,'tlv::emv']]],
   ['amount_5fauthorised_5fbinary_5fcodec_12',['amount_authorised_binary_codec',['../namespacetlv_1_1emv.html#a1aad7c86f53146b1fd8671d9d5f69a75',1,'tlv::emv']]],
   ['amount_5fauthorised_5fbinary_5ffield_13',['amount_authorised_binary_field',['../namespacetlv_1_1emv.html#a4e4164d826b5425b0b06a658bbbf085b',1,'tlv::emv']]],
-  ['amount_5fcodec_14',['amount_codec',['../namespacetlv_1_1emv.html#abce86e70945c9badaa5feccf49085311',1,'tlv::emv']]],
+  ['amount_5fcodec_14',['amount_codec',['../namespacetlv_1_1emv.html#ada3d6b03ebe0e18307e008892658d8df',1,'tlv::emv']]],
   ['amount_5fother_5fbinary_5fcodec_15',['amount_other_binary_codec',['../namespacetlv_1_1emv.html#aac6ae0b775a1c5bb0faf5679b3ad03cd',1,'tlv::emv']]],
   ['amount_5fother_5fbinary_5ffield_16',['amount_other_binary_field',['../namespacetlv_1_1emv.html#af32513707001371466d0484f01c188c7',1,'tlv::emv']]],
   ['amount_5fother_5fcodec_17',['amount_other_codec',['../namespacetlv_1_1emv.html#a245df599e0b3e9988d2fdaf8a56cadb1',1,'tlv::emv']]],

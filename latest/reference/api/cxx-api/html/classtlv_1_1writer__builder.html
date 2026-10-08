@@ -96,15 +96,15 @@ Public Member Functions</h2></td></tr>
 <tr class="memitem:a264bd6b184cd6475f0800bb2e8a433c4" id="r_a264bd6b184cd6475f0800bb2e8a433c4"><td class="memItemLeft" align="right" valign="top"><a class="el" href="classtlv_1_1writer__builder.html">writer_builder</a> &amp;&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classtlv_1_1writer__builder.html#a264bd6b184cd6475f0800bb2e8a433c4">operator=</a> (const <a class="el" href="classtlv_1_1writer__builder.html">writer_builder</a> &amp;)=delete</td></tr>
 <tr class="memdesc:a264bd6b184cd6475f0800bb2e8a433c4"><td class="mdescLeft">&#160;</td><td class="mdescRight">A cursor cannot be assigned while sharing active caller-owned frames.  <br /></td></tr>
 <tr class="separator:a264bd6b184cd6475f0800bb2e8a433c4"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:a4a2b1b97daf1c54bb14355308f234e3b" id="r_a4a2b1b97daf1c54bb14355308f234e3b"><td class="memItemLeft" align="right" valign="top">void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classtlv_1_1writer__builder.html#a4a2b1b97daf1c54bb14355308f234e3b">write</a> (const <a class="el" href="classtlv_1_1element__view.html">element_view</a> &amp;value) noexcept</td></tr>
+<tr class="memitem:a4a2b1b97daf1c54bb14355308f234e3b" id="r_a4a2b1b97daf1c54bb14355308f234e3b"><td class="memItemLeft" align="right" valign="top">void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classtlv_1_1writer__builder.html#a4a2b1b97daf1c54bb14355308f234e3b">write</a> (const <a class="el" href="classtlv_1_1element__view.html">element_view</a> &amp;<a class="el" href="namespacetlv.html#a05620bcc688c15765fb53922c84147b9a2063c1608d6e0baf80249c42e2be5804">value</a>) noexcept</td></tr>
 <tr class="memdesc:a4a2b1b97daf1c54bb14355308f234e3b"><td class="mdescLeft">&#160;</td><td class="mdescRight">Encode one semantic Element; content is borrowed only for this call.  <br /></td></tr>
 <tr class="separator:a4a2b1b97daf1c54bb14355308f234e3b"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:abd6f58fb607f33d6b39961d96705772d" id="r_abd6f58fb607f33d6b39961d96705772d"><td class="memTemplParams" colspan="2">template&lt;typename T &gt; </td></tr>
-<tr class="memitem:abd6f58fb607f33d6b39961d96705772d"><td class="memTemplItemLeft" align="right" valign="top">auto&#160;</td><td class="memTemplItemRight" valign="bottom"><a class="el" href="classtlv_1_1writer__builder.html#abd6f58fb607f33d6b39961d96705772d">write</a> (<a class="el" href="classtlv_1_1tag.html">tlv::tag</a> <a class="el" href="classtlv_1_1tag.html">tag</a>, const T &amp;value) noexcept(noexcept(detail::writer_bytes(value))) -&gt; decltype(detail::writer_bytes(value), void())</td></tr>
+<tr class="memitem:abd6f58fb607f33d6b39961d96705772d"><td class="memTemplItemLeft" align="right" valign="top">auto&#160;</td><td class="memTemplItemRight" valign="bottom"><a class="el" href="classtlv_1_1writer__builder.html#abd6f58fb607f33d6b39961d96705772d">write</a> (<a class="el" href="classtlv_1_1tag.html">tlv::tag</a> <a class="el" href="classtlv_1_1tag.html">tag</a>, const T &amp;<a class="el" href="namespacetlv.html#a05620bcc688c15765fb53922c84147b9a2063c1608d6e0baf80249c42e2be5804">value</a>) noexcept(noexcept(detail::writer_bytes(<a class="el" href="namespacetlv.html#a05620bcc688c15765fb53922c84147b9a2063c1608d6e0baf80249c42e2be5804">value</a>))) -&gt; decltype(detail::writer_bytes(<a class="el" href="namespacetlv.html#a05620bcc688c15765fb53922c84147b9a2063c1608d6e0baf80249c42e2be5804">value</a>), void())</td></tr>
 <tr class="memdesc:abd6f58fb607f33d6b39961d96705772d"><td class="mdescLeft">&#160;</td><td class="mdescRight">Borrow a supported byte sequence or text and encode one Element.  <br /></td></tr>
 <tr class="separator:abd6f58fb607f33d6b39961d96705772d"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:abdeeba9951527aa428c98bd1348aecc5" id="r_abdeeba9951527aa428c98bd1348aecc5"><td class="memTemplParams" colspan="2">template&lt;uint8_t... TagBytes, typename T &gt; </td></tr>
-<tr class="memitem:abdeeba9951527aa428c98bd1348aecc5"><td class="memTemplItemLeft" align="right" valign="top">auto&#160;</td><td class="memTemplItemRight" valign="bottom"><a class="el" href="classtlv_1_1writer__builder.html#abdeeba9951527aa428c98bd1348aecc5">write</a> (const T &amp;value) noexcept(noexcept(detail::writer_bytes(value))) -&gt; decltype(detail::writer_bytes(value), void())</td></tr>
+<tr class="memitem:abdeeba9951527aa428c98bd1348aecc5"><td class="memTemplItemLeft" align="right" valign="top">auto&#160;</td><td class="memTemplItemRight" valign="bottom"><a class="el" href="classtlv_1_1writer__builder.html#abdeeba9951527aa428c98bd1348aecc5">write</a> (const T &amp;<a class="el" href="namespacetlv.html#a05620bcc688c15765fb53922c84147b9a2063c1608d6e0baf80249c42e2be5804">value</a>) noexcept(noexcept(detail::writer_bytes(<a class="el" href="namespacetlv.html#a05620bcc688c15765fb53922c84147b9a2063c1608d6e0baf80249c42e2be5804">value</a>))) -&gt; decltype(detail::writer_bytes(<a class="el" href="namespacetlv.html#a05620bcc688c15765fb53922c84147b9a2063c1608d6e0baf80249c42e2be5804">value</a>), void())</td></tr>
 <tr class="memdesc:abdeeba9951527aa428c98bd1348aecc5"><td class="mdescLeft">&#160;</td><td class="mdescRight">Write with static identifier bytes and the same Value rules as write(tag, value).  <br /></td></tr>
 <tr class="separator:abdeeba9951527aa428c98bd1348aecc5"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:a13e912b65cc9d3fee79edb7b7ba336a8" id="r_a13e912b65cc9d3fee79edb7b7ba336a8"><td class="memTemplParams" colspan="2">template&lt;typename Callback &gt; </td></tr>
@@ -256,7 +256,7 @@ template&lt;uint8_t... TagBytes, typename Callback &gt; </div>
 </dl>
 <dl class="params"><dt>Parameters</dt><dd>
   <table class="params">
-    <tr><td class="paramname">callback</td><td>Scoped child writes; follows constructed(tag, callback). </td></tr>
+    <tr><td class="paramname">callback</td><td>Scoped child writes; follows <a class="el" href="namespacetlv.html#a91c94d547d099a47ea70e1756de89285a8410d2e13f27265124ada7a31fb11856">constructed(tag, callback)</a>. </td></tr>
   </table>
   </dd>
 </dl>
@@ -505,7 +505,7 @@ template&lt;uint8_t... TagBytes, typename T &gt; </div>
           <td>(</td>
           <td class="paramtype">const T &amp;&#160;</td>
           <td class="paramname"><em>value</em></td><td>)</td>
-          <td> -&gt; decltype(detail::writer_bytes(value), void()) </td>
+          <td> -&gt; decltype(detail::writer_bytes(<a class="el" href="namespacetlv.html#a05620bcc688c15765fb53922c84147b9a2063c1608d6e0baf80249c42e2be5804">value</a>), void()) </td>
         </tr>
       </table>
   </td>
@@ -557,7 +557,7 @@ template&lt;typename T &gt; </div>
         <tr>
           <td></td>
           <td>)</td>
-          <td></td><td> -&gt; decltype(detail::writer_bytes(value), void()) </td>
+          <td></td><td> -&gt; decltype(detail::writer_bytes(<a class="el" href="namespacetlv.html#a05620bcc688c15765fb53922c84147b9a2063c1608d6e0baf80249c42e2be5804">value</a>), void()) </td>
         </tr>
       </table>
   </td>

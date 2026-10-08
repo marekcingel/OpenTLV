@@ -3182,6 +3182,34 @@
   
   
     <li class="md-nav__item">
+      <a href="../../development/valgrind/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Valgrind checks
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
       <a href="../../development/reader-decode-performance/" class="md-nav__link">
         
   
@@ -3190,6 +3218,34 @@
     
   
     Reader decode performance
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../development/cxx-facade-performance/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    C++ facade performance
   
 
     
@@ -3646,8 +3702,8 @@ Writer's result, diagnostics and callback exception behavior. See
 <p>Framing entry points do not add Schema, Value or container validation.
 <code>tlv::dhcp::options_validate()</code> validates the options container separately;
 <code>tlv::ber::write_indefinite()</code> wraps an encoded child sequence in explicit
-indefinite framing. Existing flat native descriptor getters and low-level
-helper names remain source-compatible.</p>
+indefinite framing. Legacy flat native descriptor getters are available under <code>tlv::native</code>; ordinary
+consumers use the domain Format presets.</p>
 <p><code>tlv::ber::indefinite_format</code> is the generic preset for explicit constructed
 indefinite encoding. It rejects primitive writes. To measure a wrapped child
 sequence, pass this preset and its semantic Element to <code>tlv::measure</code>; the
@@ -3658,7 +3714,10 @@ aggregate all enabled domains. Framing headers do not require their codec
 headers. All codecs support the generic <code>tlv::field</code> contract: <code>value_type</code>,
 <code>decode(bytes)</code> and <code>encode(value, output, capacity)</code>. Passing <code>nullptr, 0</code>
 to <code>encode</code> validates and measures the Value. Storage must not overlap input.
-The original C codec errors and semantic restrictions are preserved.</p>
+The original codec errors and semantic restrictions are preserved. EMV dictionary
+codecs require both <code>OPENTLV_CODEC</code> and <code>OPENTLV_SCHEMA</code>, matching the canonical
+C package. Generic Query environments remain usable without Codec; automatic
+NUM/BCD/TEXT providers and ASN.1 conversions require Codec.</p>
 <table>
 <thead>
 <tr>

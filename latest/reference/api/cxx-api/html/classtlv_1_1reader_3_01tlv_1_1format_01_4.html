@@ -74,6 +74,7 @@ $(function() {
 </div><!-- top -->
 <div class="header">
   <div class="summary">
+<a href="#pub-methods">Public Member Functions</a> &#124;
 <a href="classtlv_1_1reader_3_01tlv_1_1format_01_4-members.html">List of all members</a>  </div>
   <div class="headertitle"><div class="title">tlv::reader&lt; tlv::format &gt; Class Reference</div></div>
 </div><!--header-->
@@ -93,12 +94,11 @@ Inheritance diagram for tlv::reader&lt; tlv::format &gt;:</div>
   </map>
 </div></div>
 <table class="memberdecls">
-<tr class="heading"><td colspan="2"><h2 class="groupheader"><a id="inherited" name="inherited"></a>
-Additional Inherited Members</h2></td></tr>
-<tr class="inherit_header pub_types_classtlv_1_1detail_1_1reader__base"><td colspan="2" onclick="javascript:toggleInherit('pub_types_classtlv_1_1detail_1_1reader__base')"><img src="closed.png" alt="-"/>&#160;Public Types inherited from <a class="el" href="classtlv_1_1detail_1_1reader__base.html">tlv::detail::reader_base</a></td></tr>
-<tr class="memitem:a8ca9842712c4d548c2b099c1b4ab78ea inherit pub_types_classtlv_1_1detail_1_1reader__base" id="r_a8ca9842712c4d548c2b099c1b4ab78ea"><td class="memItemLeft" align="right" valign="top">using&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classtlv_1_1detail_1_1reader__base.html#a8ca9842712c4d548c2b099c1b4ab78ea">iterator</a> = <a class="el" href="classtlv_1_1detail_1_1reader__base.html#ae959017970659e8e90ce16752b4e86a0">reader_iterator</a></td></tr>
-<tr class="memdesc:a8ca9842712c4d548c2b099c1b4ab78ea inherit pub_types_classtlv_1_1detail_1_1reader__base"><td class="mdescLeft">&#160;</td><td class="mdescRight">C++11 single-pass input iterator yielding borrowed Element views.  <br /></td></tr>
-<tr class="separator:a8ca9842712c4d548c2b099c1b4ab78ea inherit pub_types_classtlv_1_1detail_1_1reader__base"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="heading"><td colspan="2"><h2 class="groupheader"><a id="pub-methods" name="pub-methods"></a>
+Public Member Functions</h2></td></tr>
+<tr class="memitem:afd1642bada116de5092aa35a8152b986" id="r_afd1642bada116de5092aa35a8152b986"><td class="memItemLeft" align="right" valign="top">&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classtlv_1_1reader_3_01tlv_1_1format_01_4.html#afd1642bada116de5092aa35a8152b986">reader</a> (<a class="el" href="namespacetlv.html#a2abe7003a70af047ef9acae17f31f75d">bytes</a> data, <a class="el" href="classtlv_1_1format.html">tlv::format</a> <a class="el" href="classtlv_1_1format.html">format</a>, <a class="el" href="namespacetlv.html#a6d141be87a05679c237c4d7f5b941c15">input_mode</a> mode=<a class="el" href="namespacetlv.html#a6d141be87a05679c237c4d7f5b941c15a2a1585a864d9e67627c6ae04c807a2c5">input_mode::final</a>)</td></tr>
+<tr class="memdesc:afd1642bada116de5092aa35a8152b986"><td class="mdescLeft">&#160;</td><td class="mdescRight">Initialize from a borrowed C++ Format; explicit C interoperability uses <a class="el" href="namespacetlv_1_1native.html#a598c3035b9798c6a78f28512eeeaa6a3" title="Borrow an existing immutable C Format without copying or allocation.">native::borrow_format()</a>.  <br /></td></tr>
+<tr class="separator:afd1642bada116de5092aa35a8152b986"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="inherit_header pub_methods_classtlv_1_1detail_1_1reader__base"><td colspan="2" onclick="javascript:toggleInherit('pub_methods_classtlv_1_1detail_1_1reader__base')"><img src="closed.png" alt="-"/>&#160;Public Member Functions inherited from <a class="el" href="classtlv_1_1detail_1_1reader__base.html">tlv::detail::reader_base</a></td></tr>
 <tr class="memitem:a823c65241e52f804b56afdb32a428846 inherit pub_methods_classtlv_1_1detail_1_1reader__base" id="r_a823c65241e52f804b56afdb32a428846"><td class="memItemLeft" align="right" valign="top"><a class="el" href="classtlv_1_1detail_1_1reader__base.html#a8ca9842712c4d548c2b099c1b4ab78ea">iterator</a>&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classtlv_1_1detail_1_1reader__base.html#a823c65241e52f804b56afdb32a428846">begin</a> ()</td></tr>
 <tr class="memdesc:a823c65241e52f804b56afdb32a428846 inherit pub_methods_classtlv_1_1detail_1_1reader__base"><td class="mdescLeft">&#160;</td><td class="mdescRight">Consume and publish the next element at the current cursor position.  <br /></td></tr>
@@ -134,14 +134,66 @@ Additional Inherited Members</h2></td></tr>
 <tr class="memdesc:a94bfcff6b9e9be58604c0fb1c1f31863 inherit pub_methods_classtlv_1_1detail_1_1reader__base"><td class="mdescLeft">&#160;</td><td class="mdescRight">Absolute offset of the next element.  <br /></td></tr>
 <tr class="separator:a94bfcff6b9e9be58604c0fb1c1f31863 inherit pub_methods_classtlv_1_1detail_1_1reader__base"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:aa21166d5451e1ef31b32cce7102080f0 inherit pub_methods_classtlv_1_1detail_1_1reader__base" id="r_aa21166d5451e1ef31b32cce7102080f0"><td class="memTemplParams" colspan="2">template&lt;typename Visitor &gt; </td></tr>
-<tr class="memitem:aa21166d5451e1ef31b32cce7102080f0 inherit pub_methods_classtlv_1_1detail_1_1reader__base"><td class="memTemplItemLeft" align="right" valign="top"><a class="el" href="classtlv_1_1expected.html">expected</a>&lt; void, <a class="el" href="structtlv_1_1error.html">error</a> &gt;&#160;</td><td class="memTemplItemRight" valign="bottom"><a class="el" href="classtlv_1_1detail_1_1reader__base.html#aa21166d5451e1ef31b32cce7102080f0">visit</a> (Visitor &amp;&amp;visitor, <a class="el" href="namespacetlv.html#aec6151f23d86b874b79d9d2ae021e568">reader_diagnostic</a> *<a class="el" href="namespacetlv.html#a00ca9c69c35ef11f6a22b7eda1b115ba">diagnostic</a>=nullptr)</td></tr>
+<tr class="memitem:aa21166d5451e1ef31b32cce7102080f0 inherit pub_methods_classtlv_1_1detail_1_1reader__base"><td class="memTemplItemLeft" align="right" valign="top"><a class="el" href="classtlv_1_1expected.html">expected</a>&lt; void, <a class="el" href="structtlv_1_1error.html">error</a> &gt;&#160;</td><td class="memTemplItemRight" valign="bottom"><a class="el" href="classtlv_1_1detail_1_1reader__base.html#aa21166d5451e1ef31b32cce7102080f0">visit</a> (Visitor &amp;&amp;<a class="el" href="namespacetlv.html#ab9d10b8185e9a80cd73b5a0ef633a22ca127870930d65c57ee65fcc47f2170d38">visitor</a>, <a class="el" href="namespacetlv.html#aec6151f23d86b874b79d9d2ae021e568">reader_diagnostic</a> *<a class="el" href="namespacetlv.html#a00ca9c69c35ef11f6a22b7eda1b115ba">diagnostic</a>=nullptr)</td></tr>
 <tr class="memdesc:aa21166d5451e1ef31b32cce7102080f0 inherit pub_methods_classtlv_1_1detail_1_1reader__base"><td class="mdescLeft">&#160;</td><td class="mdescRight">Visit remaining elements through the C Visitor engine.  <br /></td></tr>
 <tr class="separator:aa21166d5451e1ef31b32cce7102080f0 inherit pub_methods_classtlv_1_1detail_1_1reader__base"><td class="memSeparator" colspan="2">&#160;</td></tr>
+</table><table class="memberdecls">
+<tr class="heading"><td colspan="2"><h2 class="groupheader"><a id="inherited" name="inherited"></a>
+Additional Inherited Members</h2></td></tr>
+<tr class="inherit_header pub_types_classtlv_1_1detail_1_1reader__base"><td colspan="2" onclick="javascript:toggleInherit('pub_types_classtlv_1_1detail_1_1reader__base')"><img src="closed.png" alt="-"/>&#160;Public Types inherited from <a class="el" href="classtlv_1_1detail_1_1reader__base.html">tlv::detail::reader_base</a></td></tr>
+<tr class="memitem:a8ca9842712c4d548c2b099c1b4ab78ea inherit pub_types_classtlv_1_1detail_1_1reader__base" id="r_a8ca9842712c4d548c2b099c1b4ab78ea"><td class="memItemLeft" align="right" valign="top">using&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classtlv_1_1detail_1_1reader__base.html#a8ca9842712c4d548c2b099c1b4ab78ea">iterator</a> = <a class="el" href="classtlv_1_1detail_1_1reader__base.html#ae959017970659e8e90ce16752b4e86a0">reader_iterator</a></td></tr>
+<tr class="memdesc:a8ca9842712c4d548c2b099c1b4ab78ea inherit pub_types_classtlv_1_1detail_1_1reader__base"><td class="mdescLeft">&#160;</td><td class="mdescRight">C++11 single-pass input iterator yielding borrowed Element views.  <br /></td></tr>
+<tr class="separator:a8ca9842712c4d548c2b099c1b4ab78ea inherit pub_types_classtlv_1_1detail_1_1reader__base"><td class="memSeparator" colspan="2">&#160;</td></tr>
 </table>
 <a name="details" id="details"></a><h2 class="groupheader">Detailed Description</h2>
 <div class="textblock"><p>Iterable runtime Format cursor; descriptor and context remain borrowed. </p>
 <p>Iteration follows <a class="el" href="classtlv_1_1detail_1_1reader__base.html#a823c65241e52f804b56afdb32a428846" title="Consume and publish the next element at the current cursor position.">reader::begin()</a>; explicit cursor operations retain expected-based error handling. </p>
-</div><hr/>The documentation for this class was generated from the following file:<ul>
+</div><h2 class="groupheader">Constructor &amp; Destructor Documentation</h2>
+<a id="afd1642bada116de5092aa35a8152b986" name="afd1642bada116de5092aa35a8152b986"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#afd1642bada116de5092aa35a8152b986">&#9670;&#160;</a></span>reader()</h2>
+
+<div class="memitem">
+<div class="memproto">
+<table class="mlabels">
+  <tr>
+  <td class="mlabels-left">
+      <table class="memname">
+        <tr>
+          <td class="memname"><a class="el" href="classtlv_1_1reader.html">tlv::reader</a>&lt; <a class="el" href="classtlv_1_1format.html">tlv::format</a> &gt;::reader </td>
+          <td>(</td>
+          <td class="paramtype"><a class="el" href="namespacetlv.html#a2abe7003a70af047ef9acae17f31f75d">bytes</a>&#160;</td>
+          <td class="paramname"><em>data</em>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype"><a class="el" href="classtlv_1_1format.html">tlv::format</a>&#160;</td>
+          <td class="paramname"><em>format</em>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype"><a class="el" href="namespacetlv.html#a6d141be87a05679c237c4d7f5b941c15">input_mode</a>&#160;</td>
+          <td class="paramname"><em>mode</em> = <code><a class="el" href="namespacetlv.html#a6d141be87a05679c237c4d7f5b941c15a2a1585a864d9e67627c6ae04c807a2c5">input_mode::final</a></code>&#160;</td>
+        </tr>
+        <tr>
+          <td></td>
+          <td>)</td>
+          <td></td><td></td>
+        </tr>
+      </table>
+  </td>
+  <td class="mlabels-right">
+<span class="mlabels"><span class="mlabel">inline</span></span>  </td>
+  </tr>
+</table>
+</div><div class="memdoc">
+
+<p>Initialize from a borrowed C++ Format; explicit C interoperability uses <a class="el" href="namespacetlv_1_1native.html#a598c3035b9798c6a78f28512eeeaa6a3" title="Borrow an existing immutable C Format without copying or allocation.">native::borrow_format()</a>. </p>
+
+</div>
+</div>
+<hr/>The documentation for this class was generated from the following file:<ul>
 <li>tlv++/reader/<a class="el" href="reader_8hpp.html">reader.hpp</a></li>
 </ul>
 </div><!-- contents -->

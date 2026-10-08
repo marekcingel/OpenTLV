@@ -75,7 +75,10 @@ $(function() {
 <div class="header">
   <div class="summary">
 <a href="#nested-classes">Classes</a> &#124;
-<a href="#typedef-members">Typedefs</a>  </div>
+<a href="#typedef-members">Typedefs</a> &#124;
+<a href="#enum-members">Enumerations</a> &#124;
+<a href="#func-members">Functions</a> &#124;
+<a href="#var-members">Variables</a>  </div>
   <div class="headertitle"><div class="title">tlv::emv Namespace Reference</div></div>
 </div><!--header-->
 <div class="contents">
@@ -85,6 +88,12 @@ $(function() {
 <table class="memberdecls">
 <tr class="heading"><td colspan="2"><h2 class="groupheader"><a id="nested-classes" name="nested-classes"></a>
 Classes</h2></td></tr>
+<tr class="memitem:"><td class="memItemLeft" align="right" valign="top">class &#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classtlv_1_1emv_1_1dictionary.html">dictionary</a></td></tr>
+<tr class="memdesc:"><td class="mdescLeft">&#160;</td><td class="mdescRight">Copyable built-in dictionary view; selection and lookup allocate nothing.  <a href="classtlv_1_1emv_1_1dictionary.html#details">More...</a><br /></td></tr>
+<tr class="separator:"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:"><td class="memItemLeft" align="right" valign="top">class &#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classtlv_1_1emv_1_1dictionary__entry.html">dictionary_entry</a></td></tr>
+<tr class="memdesc:"><td class="mdescLeft">&#160;</td><td class="mdescRight">Immutable built-in dictionary entry; all returned data has program lifetime.  <a href="classtlv_1_1emv_1_1dictionary__entry.html#details">More...</a><br /></td></tr>
+<tr class="separator:"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:"><td class="memItemLeft" align="right" valign="top">class &#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classtlv_1_1emv_1_1format.html">format</a></td></tr>
 <tr class="memdesc:"><td class="mdescLeft">&#160;</td><td class="mdescRight">Built-in Format satisfying the generic C++ customization contract.  <a href="classtlv_1_1emv_1_1format.html#details">More...</a><br /></td></tr>
 <tr class="separator:"><td class="memSeparator" colspan="2">&#160;</td></tr>
@@ -118,9 +127,9 @@ Typedefs</h2></td></tr>
 <tr class="memitem:a5dea3e9a7a55d2d735e1de4986fb4853" id="r_a5dea3e9a7a55d2d735e1de4986fb4853"><td class="memItemLeft" align="right" valign="top">using&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="namespacetlv_1_1emv.html#a5dea3e9a7a55d2d735e1de4986fb4853">track2</a> = <a class="elRef" href="../../c-api/html/structtlv__emv__track2__t.html">tlv_emv_track2_t</a></td></tr>
 <tr class="memdesc:a5dea3e9a7a55d2d735e1de4986fb4853"><td class="mdescLeft">&#160;</td><td class="mdescRight">Self-contained EMV track2 value; see <a class="elRef" href="../../c-api/html/structtlv__emv__track2__t.html">tlv_emv_track2_t</a>.  <br /></td></tr>
 <tr class="separator:a5dea3e9a7a55d2d735e1de4986fb4853"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:abce86e70945c9badaa5feccf49085311" id="r_abce86e70945c9badaa5feccf49085311"><td class="memItemLeft" align="right" valign="top">using&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="namespacetlv_1_1emv.html#abce86e70945c9badaa5feccf49085311">amount_codec</a> = <a class="el" href="structtlv_1_1codec__adapter.html">tlv::codec_adapter</a>&lt; uint64_t, &amp;<a class="elRef" href="../../c-api/html/group__codecs.html#ga50927eb38e1526e39099baf48ce69748">tlv_emv_codec_amount</a> &gt;</td></tr>
-<tr class="memdesc:abce86e70945c9badaa5feccf49085311"><td class="mdescLeft">&#160;</td><td class="mdescRight">Amount in unscaled minor units, encoded as six BCD bytes; see <a class="elRef" href="../../c-api/html/group__codecs.html#ga50927eb38e1526e39099baf48ce69748">tlv_emv_codec_amount</a>.  <br /></td></tr>
-<tr class="separator:abce86e70945c9badaa5feccf49085311"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:ada3d6b03ebe0e18307e008892658d8df" id="r_ada3d6b03ebe0e18307e008892658d8df"><td class="memItemLeft" align="right" valign="top">using&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="namespacetlv_1_1emv.html#ada3d6b03ebe0e18307e008892658d8df">amount_codec</a> = tlv::detail::codec_adapter&lt; uint64_t, &amp;<a class="elRef" href="../../c-api/html/group__codecs.html#ga50927eb38e1526e39099baf48ce69748">tlv_emv_codec_amount</a> &gt;</td></tr>
+<tr class="memdesc:ada3d6b03ebe0e18307e008892658d8df"><td class="mdescLeft">&#160;</td><td class="mdescRight">Amount in unscaled minor units, encoded as six BCD bytes; see <a class="elRef" href="../../c-api/html/group__codecs.html#ga50927eb38e1526e39099baf48ce69748">tlv_emv_codec_amount</a>.  <br /></td></tr>
+<tr class="separator:ada3d6b03ebe0e18307e008892658d8df"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:a4a2d18f7f2bafdd73c0eb322dc39c00a" id="r_a4a2d18f7f2bafdd73c0eb322dc39c00a"><td class="memItemLeft" align="right" valign="top">using&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="namespacetlv_1_1emv.html#a4a2d18f7f2bafdd73c0eb322dc39c00a">iin_codec</a> = detail::emv_dictionary_value_codec&lt; uint64_t, detail::emv_dictionary_codec_provider&lt; <a class="elRef" href="../../c-api/html/group__builtins.html#ggab29f1aa0fa23a7292f008334812b6509a74ce8a3185f9b46b3bf4722357e95fba">TLV_EMV_CONTEXT_BASE</a>, <a class="el" href="structtlv_1_1tag__constant.html">tlv::tag_constant</a>&lt; 0x42 &gt; &gt; &gt;</td></tr>
 <tr class="memdesc:a4a2d18f7f2bafdd73c0eb322dc39c00a"><td class="mdescLeft">&#160;</td><td class="mdescRight">Value codec using the canonical dictionary descriptor and its existing constraints.  <br /></td></tr>
 <tr class="separator:a4a2d18f7f2bafdd73c0eb322dc39c00a"><td class="memSeparator" colspan="2">&#160;</td></tr>
@@ -619,6 +628,106 @@ Typedefs</h2></td></tr>
 <tr class="memitem:af59adf2a8be71546c52e5e1657511da1" id="r_af59adf2a8be71546c52e5e1657511da1"><td class="memItemLeft" align="right" valign="top">using&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="namespacetlv_1_1emv.html#af59adf2a8be71546c52e5e1657511da1">biometric_verification_verification_biometric_type_field</a> = <a class="el" href="structtlv_1_1field.html">tlv::field</a>&lt; <a class="el" href="structtlv_1_1tag__constant.html">tlv::tag_constant</a>&lt; 0x81 &gt;, biometric_verification_verification_biometric_type_codec::value_type, <a class="el" href="namespacetlv_1_1emv.html#a652a0b100b13f9d07d41848f3d5090b2">biometric_verification_verification_biometric_type_codec</a> &gt;</td></tr>
 <tr class="memdesc:af59adf2a8be71546c52e5e1657511da1"><td class="mdescLeft">&#160;</td><td class="mdescRight">EMV verification biometric type field in the explicit BIOMETRIC_VERIFICATION context.  <br /></td></tr>
 <tr class="separator:af59adf2a8be71546c52e5e1657511da1"><td class="memSeparator" colspan="2">&#160;</td></tr>
+</table><table class="memberdecls">
+<tr class="heading"><td colspan="2"><h2 class="groupheader"><a id="enum-members" name="enum-members"></a>
+Enumerations</h2></td></tr>
+<tr class="memitem:aa959d59989dd77536001e52cca63366f" id="r_aa959d59989dd77536001e52cca63366f"><td class="memItemLeft" align="right" valign="top">enum class &#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="namespacetlv_1_1emv.html#aa959d59989dd77536001e52cca63366f">context</a> { <br />
+&#160;&#160;<a class="el" href="namespacetlv_1_1emv.html#aa959d59989dd77536001e52cca63366fa593616de15330c0fb2d55e55410bf994">base</a> = TLV_EMV_CONTEXT_BASE
+, <a class="el" href="namespacetlv_1_1emv.html#aa959d59989dd77536001e52cca63366faf67169dfbf72c4ca285e9ee12e3e9ac5">bit</a> = TLV_EMV_CONTEXT_BIT
+, <a class="el" href="namespacetlv_1_1emv.html#aa959d59989dd77536001e52cca63366fa3ea53dd7919fd4c58650bbf13485831b">bht</a> = TLV_EMV_CONTEXT_BHT
+, <a class="el" href="namespacetlv_1_1emv.html#aa959d59989dd77536001e52cca63366faaaf5e30c85fe1c39b34796a98ebd2e13">bht_format</a> = TLV_EMV_CONTEXT_BHT_FORMAT
+, <br />
+&#160;&#160;<a class="el" href="namespacetlv_1_1emv.html#aa959d59989dd77536001e52cca63366fa15e924b6ea2c649691413214a1c9fc9c">bit_group</a> = TLV_EMV_CONTEXT_BIT_GROUP
+, <a class="el" href="namespacetlv_1_1emv.html#aa959d59989dd77536001e52cca63366faf4640313ff61e05dd961b39a18f500c6">biometric_counters</a> = TLV_EMV_CONTEXT_BIOMETRIC_COUNTERS
+, <a class="el" href="namespacetlv_1_1emv.html#aa959d59989dd77536001e52cca63366fa36624d474bfab22e8b04a8586524bc16">biometric_attempts</a> = TLV_EMV_CONTEXT_BIOMETRIC_ATTEMPTS
+, <a class="el" href="namespacetlv_1_1emv.html#aa959d59989dd77536001e52cca63366fa9757d3603080d3fe1ab023b873337515">biometric_verification</a> = TLV_EMV_CONTEXT_BIOMETRIC_VERIFICATION
+, <br />
+&#160;&#160;<a class="el" href="namespacetlv_1_1emv.html#aa959d59989dd77536001e52cca63366fa8d7b3d6b83c0a517eac07e1aac94b773">unchanged</a> = TLV_EMV_CONTEXT_COUNT
+<br />
+ }</td></tr>
+<tr class="memdesc:aa959d59989dd77536001e52cca63366f"><td class="mdescLeft">&#160;</td><td class="mdescRight">Explicit EMV dictionary context; lookups never fall back to base.  <a href="namespacetlv_1_1emv.html#aa959d59989dd77536001e52cca63366f">More...</a><br /></td></tr>
+<tr class="separator:aa959d59989dd77536001e52cca63366f"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a3e34321f42512cc1d9c9df25d93e9ae5" id="r_a3e34321f42512cc1d9c9df25d93e9ae5"><td class="memItemLeft" align="right" valign="top">enum class &#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="namespacetlv_1_1emv.html#a3e34321f42512cc1d9c9df25d93e9ae5">value_kind</a> { <br />
+&#160;&#160;<a class="el" href="namespacetlv_1_1emv.html#a3e34321f42512cc1d9c9df25d93e9ae5a4b3a6218bb3e3a7303e8a171a60fcf92">bytes</a> = TLV_EMV_VALUE_BYTES
+, <a class="el" href="namespacetlv_1_1emv.html#a3e34321f42512cc1d9c9df25d93e9ae5a1cb251ec0d568de6a929b520c4aed8d1">text</a> = TLV_EMV_VALUE_TEXT
+, <a class="el" href="namespacetlv_1_1emv.html#a3e34321f42512cc1d9c9df25d93e9ae5a8410d2e13f27265124ada7a31fb11856">constructed</a> = TLV_EMV_VALUE_TEMPLATE
+, <a class="el" href="namespacetlv_1_1emv.html#a3e34321f42512cc1d9c9df25d93e9ae5ab1bc248a7ff2b2e95569f56de68615df">number</a> = TLV_EMV_VALUE_NUMBER
+, <br />
+&#160;&#160;<a class="el" href="namespacetlv_1_1emv.html#a3e34321f42512cc1d9c9df25d93e9ae5a4e5868d676cb634aa75b125a0f741abf">flags</a> = TLV_EMV_VALUE_FLAGS
+, <a class="el" href="namespacetlv_1_1emv.html#a3e34321f42512cc1d9c9df25d93e9ae5aa2aacbd15b619a9b9e5581a6c33bd2b1">digits</a> = TLV_EMV_VALUE_DIGITS
+, <a class="el" href="namespacetlv_1_1emv.html#a3e34321f42512cc1d9c9df25d93e9ae5a5fc732311905cb27e82d67f4f6511f7f">date</a> = TLV_EMV_VALUE_DATE
+, <a class="el" href="namespacetlv_1_1emv.html#a3e34321f42512cc1d9c9df25d93e9ae5a07cc694b9b3fc636710fa08b6922c42b">time</a> = TLV_EMV_VALUE_TIME
+, <br />
+&#160;&#160;<a class="el" href="namespacetlv_1_1emv.html#a3e34321f42512cc1d9c9df25d93e9ae5ae268443e43d93dab7ebef303bbe9642f">account</a> = TLV_EMV_VALUE_ACCOUNT
+, <a class="el" href="namespacetlv_1_1emv.html#a3e34321f42512cc1d9c9df25d93e9ae5ac67f5d22489b668f323380c7e2d96e89">cryptogram</a> = TLV_EMV_VALUE_CRYPTOGRAM
+, <a class="el" href="namespacetlv_1_1emv.html#a3e34321f42512cc1d9c9df25d93e9ae5af3e7c0bc4df84b454539b998ac0d6bb9">biometric</a> = TLV_EMV_VALUE_BIOMETRIC
+, <a class="el" href="namespacetlv_1_1emv.html#a3e34321f42512cc1d9c9df25d93e9ae5adc5956007bf23f4c9cdb51df7879aac2">number_list</a> = TLV_EMV_VALUE_NUMBER_LIST
+, <br />
+&#160;&#160;<a class="el" href="namespacetlv_1_1emv.html#a3e34321f42512cc1d9c9df25d93e9ae5ab95ced68995cc062aa8dc98d26cda6b0">afl</a> = TLV_EMV_VALUE_AFL
+, <a class="el" href="namespacetlv_1_1emv.html#a3e34321f42512cc1d9c9df25d93e9ae5a1cce834be316398d181e7b113969ca0c">cvm_result</a> = TLV_EMV_VALUE_CVM_RESULT
+, <a class="el" href="namespacetlv_1_1emv.html#a3e34321f42512cc1d9c9df25d93e9ae5a19e30036c11c75aa4b319d05555a4983">track2</a> = TLV_EMV_VALUE_TRACK2
+, <a class="el" href="namespacetlv_1_1emv.html#a3e34321f42512cc1d9c9df25d93e9ae5aad921d60486366258809553a3db49a4a">unknown</a> = TLV_EMV_VALUE_UNKNOWN
+<br />
+ }</td></tr>
+<tr class="memdesc:a3e34321f42512cc1d9c9df25d93e9ae5"><td class="mdescLeft">&#160;</td><td class="mdescRight">Representation category of the immutable built-in presentation profile.  <a href="namespacetlv_1_1emv.html#a3e34321f42512cc1d9c9df25d93e9ae5">More...</a><br /></td></tr>
+<tr class="separator:a3e34321f42512cc1d9c9df25d93e9ae5"><td class="memSeparator" colspan="2">&#160;</td></tr>
+</table><table class="memberdecls">
+<tr class="heading"><td colspan="2"><h2 class="groupheader"><a id="func-members" name="func-members"></a>
+Functions</h2></td></tr>
+<tr class="memitem:ae854b6a93825432238f33a939f115415" id="r_ae854b6a93825432238f33a939f115415"><td class="memItemLeft" align="right" valign="top"><a class="el" href="classtlv_1_1schema.html">tlv::schema</a>&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="namespacetlv_1_1emv.html#ae854b6a93825432238f33a939f115415">structural_schema</a> () noexcept</td></tr>
+<tr class="memdesc:ae854b6a93825432238f33a939f115415"><td class="mdescLeft">&#160;</td><td class="mdescRight">Program-lifetime EMV structural Schema; dictionary length policy stays separate.  <br /></td></tr>
+<tr class="separator:ae854b6a93825432238f33a939f115415"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a2ae031a8209af7ea5fbb3537c818715b" id="r_a2ae031a8209af7ea5fbb3537c818715b"><td class="memItemLeft" align="right" valign="top">const char *&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="namespacetlv_1_1emv.html#a2ae031a8209af7ea5fbb3537c818715b">description</a> (<a class="el" href="namespacetlv_1_1emv.html#a3e34321f42512cc1d9c9df25d93e9ae5">value_kind</a> <a class="el" href="namespacetlv.html#a0e9dc5e120173d6322fc63d2d1fc09c3ad939aaf7d2291c6f69ceecee94880d7c">kind</a>) noexcept</td></tr>
+<tr class="memdesc:a2ae031a8209af7ea5fbb3537c818715b"><td class="mdescLeft">&#160;</td><td class="mdescRight">Program-lifetime description of a built-in representation category.  <br /></td></tr>
+<tr class="separator:a2ae031a8209af7ea5fbb3537c818715b"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:aadf7e18be318328e0097b553020e4253" id="r_aadf7e18be318328e0097b553020e4253"><td class="memItemLeft" align="right" valign="top"><a class="el" href="namespacetlv_1_1emv.html#aa959d59989dd77536001e52cca63366f">context</a>&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="namespacetlv_1_1emv.html#aadf7e18be318328e0097b553020e4253">child_context</a> (<a class="el" href="namespacetlv_1_1emv.html#aa959d59989dd77536001e52cca63366f">context</a> parent, <a class="el" href="classtlv_1_1tag.html">tlv::tag</a> identifier) noexcept</td></tr>
+<tr class="memdesc:aadf7e18be318328e0097b553020e4253"><td class="mdescLeft">&#160;</td><td class="mdescRight">Determine an identifier's child context, or <a class="el" href="namespacetlv_1_1emv.html#aa959d59989dd77536001e52cca63366fa8d7b3d6b83c0a517eac07e1aac94b773">context::unchanged</a>.  <br /></td></tr>
+<tr class="separator:aadf7e18be318328e0097b553020e4253"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:acb01bb4e307cfeae2df65753f3590188" id="r_acb01bb4e307cfeae2df65753f3590188"><td class="memItemLeft" align="right" valign="top">void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="namespacetlv_1_1emv.html#acb01bb4e307cfeae2df65753f3590188">configure_query</a> (<a class="el" href="classtlv_1_1query__options.html">query_options</a> &amp;options)</td></tr>
+<tr class="memdesc:acb01bb4e307cfeae2df65753f3590188"><td class="mdescLeft">&#160;</td><td class="mdescRight">Select canonical EMV symbolic name resolution during compilation.  <br /></td></tr>
+<tr class="separator:acb01bb4e307cfeae2df65753f3590188"><td class="memSeparator" colspan="2">&#160;</td></tr>
+</table><table class="memberdecls">
+<tr class="heading"><td colspan="2"><h2 class="groupheader"><a id="var-members" name="var-members"></a>
+Variables</h2></td></tr>
+<tr class="memitem:acc4c8cab96d861e3b457f8d6b131a157" id="r_acc4c8cab96d861e3b457f8d6b131a157"><td class="memItemLeft" align="right" valign="top">constexpr <a class="elRef" href="../../c-api/html/group__codecs.html#ga5fea94eb6f0d75aef6fe7b3a2fb0567a">account</a>&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="namespacetlv_1_1emv.html#acc4c8cab96d861e3b457f8d6b131a157">savings_account</a> = <a class="elRef" href="../../c-api/html/group__codecs.html#gga5fea94eb6f0d75aef6fe7b3a2fb0567aa0bc78f898e9179e90fc480d0011b5d25">TLV_EMV_ACCOUNT_SAVINGS</a></td></tr>
+<tr class="memdesc:acc4c8cab96d861e3b457f8d6b131a157"><td class="mdescLeft">&#160;</td><td class="mdescRight">Savings account selection.  <br /></td></tr>
+<tr class="separator:acc4c8cab96d861e3b457f8d6b131a157"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:abb40cfd0e100b2350d240aae7b53bc4d" id="r_abb40cfd0e100b2350d240aae7b53bc4d"><td class="memItemLeft" align="right" valign="top">constexpr <a class="elRef" href="../../c-api/html/group__codecs.html#ga5fea94eb6f0d75aef6fe7b3a2fb0567a">account</a>&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="namespacetlv_1_1emv.html#abb40cfd0e100b2350d240aae7b53bc4d">debit_account</a> = <a class="elRef" href="../../c-api/html/group__codecs.html#gga5fea94eb6f0d75aef6fe7b3a2fb0567aab77f1f5725c7119e8778c4f494377082">TLV_EMV_ACCOUNT_CHEQUE_DEBIT</a></td></tr>
+<tr class="memdesc:abb40cfd0e100b2350d240aae7b53bc4d"><td class="mdescLeft">&#160;</td><td class="mdescRight">Cheque/debit account selection.  <br /></td></tr>
+<tr class="separator:abb40cfd0e100b2350d240aae7b53bc4d"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:ad8a4eaa98ca9ba7111ca0ab3e860946f" id="r_ad8a4eaa98ca9ba7111ca0ab3e860946f"><td class="memItemLeft" align="right" valign="top">constexpr <a class="elRef" href="../../c-api/html/group__codecs.html#ga5fea94eb6f0d75aef6fe7b3a2fb0567a">account</a>&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="namespacetlv_1_1emv.html#ad8a4eaa98ca9ba7111ca0ab3e860946f">credit_account</a> = <a class="elRef" href="../../c-api/html/group__codecs.html#gga5fea94eb6f0d75aef6fe7b3a2fb0567aa05c5f885825ec3c9733c2917b6857866">TLV_EMV_ACCOUNT_CREDIT</a></td></tr>
+<tr class="memdesc:ad8a4eaa98ca9ba7111ca0ab3e860946f"><td class="mdescLeft">&#160;</td><td class="mdescRight">Credit account selection.  <br /></td></tr>
+<tr class="separator:ad8a4eaa98ca9ba7111ca0ab3e860946f"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:ab10f0ba3ed5e4e884cae15337c2185c1" id="r_ab10f0ba3ed5e4e884cae15337c2185c1"><td class="memItemLeft" align="right" valign="top">constexpr auto&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="namespacetlv_1_1emv.html#ab10f0ba3ed5e4e884cae15337c2185c1">aac</a> = <a class="elRef" href="../../c-api/html/group__codecs.html#ggad9ef9a150810bfd246dd8f3b25bd01ffacb3533d8220b95a1b6e44dbe8c6b4bb2">TLV_EMV_CRYPTOGRAM_AAC</a></td></tr>
+<tr class="memdesc:ab10f0ba3ed5e4e884cae15337c2185c1"><td class="mdescLeft">&#160;</td><td class="mdescRight">Application authentication cryptogram.  <br /></td></tr>
+<tr class="separator:ab10f0ba3ed5e4e884cae15337c2185c1"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a08567af785ebc875e418bcb510afec73" id="r_a08567af785ebc875e418bcb510afec73"><td class="memItemLeft" align="right" valign="top">constexpr auto&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="namespacetlv_1_1emv.html#a08567af785ebc875e418bcb510afec73">tc</a> = <a class="elRef" href="../../c-api/html/group__codecs.html#ggad9ef9a150810bfd246dd8f3b25bd01ffae997824441b1e96acd8f70850e9e2709">TLV_EMV_CRYPTOGRAM_TC</a></td></tr>
+<tr class="memdesc:a08567af785ebc875e418bcb510afec73"><td class="mdescLeft">&#160;</td><td class="mdescRight">Transaction certificate.  <br /></td></tr>
+<tr class="separator:a08567af785ebc875e418bcb510afec73"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:ac8314803b9ebc20ea7bf1c6bb065ce8f" id="r_ac8314803b9ebc20ea7bf1c6bb065ce8f"><td class="memItemLeft" align="right" valign="top">constexpr auto&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="namespacetlv_1_1emv.html#ac8314803b9ebc20ea7bf1c6bb065ce8f">arqc</a> = <a class="elRef" href="../../c-api/html/group__codecs.html#ggad9ef9a150810bfd246dd8f3b25bd01ffa353baabfbceb3e50209eea17307b3ac4">TLV_EMV_CRYPTOGRAM_ARQC</a></td></tr>
+<tr class="memdesc:ac8314803b9ebc20ea7bf1c6bb065ce8f"><td class="mdescLeft">&#160;</td><td class="mdescRight">Authorization request cryptogram.  <br /></td></tr>
+<tr class="separator:ac8314803b9ebc20ea7bf1c6bb065ce8f"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:ac6c7cdf29c4de24bd0634f4998e47c2e" id="r_ac6c7cdf29c4de24bd0634f4998e47c2e"><td class="memItemLeft" align="right" valign="top">constexpr <a class="elRef" href="../../c-api/html/group__codecs.html#gaaf0044fa9cb624a58696e6660ffea8e2">biometric</a>&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="namespacetlv_1_1emv.html#ac6c7cdf29c4de24bd0634f4998e47c2e">facial</a> = <a class="elRef" href="../../c-api/html/group__codecs.html#ggaaf0044fa9cb624a58696e6660ffea8e2a2f1bb1465d7e375f6d4f546fdc56c00f">TLV_EMV_BIOMETRIC_FACIAL</a></td></tr>
+<tr class="memdesc:ac6c7cdf29c4de24bd0634f4998e47c2e"><td class="mdescLeft">&#160;</td><td class="mdescRight">Facial biometric representation.  <br /></td></tr>
+<tr class="separator:ac6c7cdf29c4de24bd0634f4998e47c2e"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a81c248deec7a6b39d7d88c4fbffe0940" id="r_a81c248deec7a6b39d7d88c4fbffe0940"><td class="memItemLeft" align="right" valign="top">constexpr <a class="elRef" href="../../c-api/html/group__codecs.html#gaaf0044fa9cb624a58696e6660ffea8e2">biometric</a>&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="namespacetlv_1_1emv.html#a81c248deec7a6b39d7d88c4fbffe0940">voice</a> = <a class="elRef" href="../../c-api/html/group__codecs.html#ggaaf0044fa9cb624a58696e6660ffea8e2a0a741b4a29622b86c7b10fc397f2145f">TLV_EMV_BIOMETRIC_VOICE</a></td></tr>
+<tr class="memdesc:a81c248deec7a6b39d7d88c4fbffe0940"><td class="mdescLeft">&#160;</td><td class="mdescRight">Voice biometric representation.  <br /></td></tr>
+<tr class="separator:a81c248deec7a6b39d7d88c4fbffe0940"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a5b431ffb70aeaa3b368aedcd54316314" id="r_a5b431ffb70aeaa3b368aedcd54316314"><td class="memItemLeft" align="right" valign="top">constexpr <a class="elRef" href="../../c-api/html/group__codecs.html#gaaf0044fa9cb624a58696e6660ffea8e2">biometric</a>&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="namespacetlv_1_1emv.html#a5b431ffb70aeaa3b368aedcd54316314">finger</a> = <a class="elRef" href="../../c-api/html/group__codecs.html#ggaaf0044fa9cb624a58696e6660ffea8e2a0e741f19fc4273a66894f11fce95d231">TLV_EMV_BIOMETRIC_FINGER</a></td></tr>
+<tr class="memdesc:a5b431ffb70aeaa3b368aedcd54316314"><td class="mdescLeft">&#160;</td><td class="mdescRight">Finger biometric representation.  <br /></td></tr>
+<tr class="separator:a5b431ffb70aeaa3b368aedcd54316314"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:ac61eefba5d8be459d377bb26d3f7f01e" id="r_ac61eefba5d8be459d377bb26d3f7f01e"><td class="memItemLeft" align="right" valign="top">constexpr <a class="elRef" href="../../c-api/html/group__codecs.html#gaaf0044fa9cb624a58696e6660ffea8e2">biometric</a>&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="namespacetlv_1_1emv.html#ac61eefba5d8be459d377bb26d3f7f01e">iris</a> = <a class="elRef" href="../../c-api/html/group__codecs.html#ggaaf0044fa9cb624a58696e6660ffea8e2a85c30a661b9e8ecd2f4c4bdf1bb93ad3">TLV_EMV_BIOMETRIC_IRIS</a></td></tr>
+<tr class="memdesc:ac61eefba5d8be459d377bb26d3f7f01e"><td class="mdescLeft">&#160;</td><td class="mdescRight">Iris biometric representation.  <br /></td></tr>
+<tr class="separator:ac61eefba5d8be459d377bb26d3f7f01e"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a171a28c41ba5b9214d9dfa4e86ca5dbb" id="r_a171a28c41ba5b9214d9dfa4e86ca5dbb"><td class="memItemLeft" align="right" valign="top">constexpr <a class="elRef" href="../../c-api/html/group__codecs.html#gaaf0044fa9cb624a58696e6660ffea8e2">biometric</a>&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="namespacetlv_1_1emv.html#a171a28c41ba5b9214d9dfa4e86ca5dbb">palm</a> = <a class="elRef" href="../../c-api/html/group__codecs.html#ggaaf0044fa9cb624a58696e6660ffea8e2aaadb07e35b692f6ee5d38bd23cff2f54">TLV_EMV_BIOMETRIC_PALM</a></td></tr>
+<tr class="memdesc:a171a28c41ba5b9214d9dfa4e86ca5dbb"><td class="mdescLeft">&#160;</td><td class="mdescRight">Palm biometric representation.  <br /></td></tr>
+<tr class="separator:a171a28c41ba5b9214d9dfa4e86ca5dbb"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a1962c5134ee99e30ef9fc12015a14aed" id="r_a1962c5134ee99e30ef9fc12015a14aed"><td class="memItemLeft" align="right" valign="top">constexpr auto&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="namespacetlv_1_1emv.html#a1962c5134ee99e30ef9fc12015a14aed">verification_failed</a> = <a class="elRef" href="../../c-api/html/group__builtins.html#ga26667980419c999f413e8820d27a262a">TLV_EMV_CVM_RESULT_FAILED</a></td></tr>
+<tr class="memdesc:a1962c5134ee99e30ef9fc12015a14aed"><td class="mdescLeft">&#160;</td><td class="mdescRight">Failed cardholder verification.  <br /></td></tr>
+<tr class="separator:a1962c5134ee99e30ef9fc12015a14aed"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a9db9fbec583f96bd71d9a3f5c093ed7a" id="r_a9db9fbec583f96bd71d9a3f5c093ed7a"><td class="memItemLeft" align="right" valign="top">constexpr auto&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="namespacetlv_1_1emv.html#a9db9fbec583f96bd71d9a3f5c093ed7a">verification_succeeded</a> = <a class="elRef" href="../../c-api/html/group__builtins.html#ga42ff70975e0edb752e4236ef903dfe26">TLV_EMV_CVM_RESULT_SUCCESSFUL</a></td></tr>
+<tr class="memdesc:a9db9fbec583f96bd71d9a3f5c093ed7a"><td class="mdescLeft">&#160;</td><td class="mdescRight">Successful cardholder verification.  <br /></td></tr>
+<tr class="separator:a9db9fbec583f96bd71d9a3f5c093ed7a"><td class="memSeparator" colspan="2">&#160;</td></tr>
 </table>
 <a name="details" id="details"></a><h2 class="groupheader">Detailed Description</h2>
 <div class="textblock"><p>EMV Contact Book 3 Value semantics and explicitly scoped dictionary fields. </p>
@@ -854,14 +963,14 @@ Typedefs</h2></td></tr>
 
 </div>
 </div>
-<a id="abce86e70945c9badaa5feccf49085311" name="abce86e70945c9badaa5feccf49085311"></a>
-<h2 class="memtitle"><span class="permalink"><a href="#abce86e70945c9badaa5feccf49085311">&#9670;&#160;</a></span>amount_codec</h2>
+<a id="ada3d6b03ebe0e18307e008892658d8df" name="ada3d6b03ebe0e18307e008892658d8df"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#ada3d6b03ebe0e18307e008892658d8df">&#9670;&#160;</a></span>amount_codec</h2>
 
 <div class="memitem">
 <div class="memproto">
       <table class="memname">
         <tr>
-          <td class="memname">using <a class="el" href="namespacetlv_1_1emv.html#abce86e70945c9badaa5feccf49085311">tlv::emv::amount_codec</a> = typedef <a class="el" href="structtlv_1_1codec__adapter.html">tlv::codec_adapter</a>&lt;uint64_t, &amp;<a class="elRef" href="../../c-api/html/group__codecs.html#ga50927eb38e1526e39099baf48ce69748">tlv_emv_codec_amount</a>&gt;</td>
+          <td class="memname">using <a class="el" href="namespacetlv_1_1emv.html#ada3d6b03ebe0e18307e008892658d8df">tlv::emv::amount_codec</a> = typedef tlv::detail::codec_adapter&lt;uint64_t, &amp;<a class="elRef" href="../../c-api/html/group__codecs.html#ga50927eb38e1526e39099baf48ce69748">tlv_emv_codec_amount</a>&gt;</td>
         </tr>
       </table>
 </div><div class="memdoc">
@@ -3520,6 +3629,551 @@ Typedefs</h2></td></tr>
 </div><div class="memdoc">
 
 <p>EMV upper consecutive offline limit field in the explicit BASE context. </p>
+
+</div>
+</div>
+<h2 class="groupheader">Enumeration Type Documentation</h2>
+<a id="aa959d59989dd77536001e52cca63366f" name="aa959d59989dd77536001e52cca63366f"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#aa959d59989dd77536001e52cca63366f">&#9670;&#160;</a></span>context</h2>
+
+<div class="memitem">
+<div class="memproto">
+<table class="mlabels">
+  <tr>
+  <td class="mlabels-left">
+      <table class="memname">
+        <tr>
+          <td class="memname">enum class <a class="el" href="namespacetlv_1_1emv.html#aa959d59989dd77536001e52cca63366f">tlv::emv::context</a></td>
+        </tr>
+      </table>
+  </td>
+  <td class="mlabels-right">
+<span class="mlabels"><span class="mlabel">strong</span></span>  </td>
+  </tr>
+</table>
+</div><div class="memdoc">
+
+<p>Explicit EMV dictionary context; lookups never fall back to base. </p>
+<table class="fieldtable">
+<tr><th colspan="2">Enumerator</th></tr><tr><td class="fieldname"><a id="aa959d59989dd77536001e52cca63366fa593616de15330c0fb2d55e55410bf994" name="aa959d59989dd77536001e52cca63366fa593616de15330c0fb2d55e55410bf994"></a>base&#160;</td><td class="fielddoc"><p>Ordinary application data. </p>
+</td></tr>
+<tr><td class="fieldname"><a id="aa959d59989dd77536001e52cca63366faf67169dfbf72c4ca285e9ee12e3e9ac5" name="aa959d59989dd77536001e52cca63366faf67169dfbf72c4ca285e9ee12e3e9ac5"></a>bit&#160;</td><td class="fielddoc"><p>Biometric information template. </p>
+</td></tr>
+<tr><td class="fieldname"><a id="aa959d59989dd77536001e52cca63366fa3ea53dd7919fd4c58650bbf13485831b" name="aa959d59989dd77536001e52cca63366fa3ea53dd7919fd4c58650bbf13485831b"></a>bht&#160;</td><td class="fielddoc"><p>Biometric header template. </p>
+</td></tr>
+<tr><td class="fieldname"><a id="aa959d59989dd77536001e52cca63366faaaf5e30c85fe1c39b34796a98ebd2e13" name="aa959d59989dd77536001e52cca63366faaaf5e30c85fe1c39b34796a98ebd2e13"></a>bht_format&#160;</td><td class="fielddoc"><p>Biometric header format. </p>
+</td></tr>
+<tr><td class="fieldname"><a id="aa959d59989dd77536001e52cca63366fa15e924b6ea2c649691413214a1c9fc9c" name="aa959d59989dd77536001e52cca63366fa15e924b6ea2c649691413214a1c9fc9c"></a>bit_group&#160;</td><td class="fielddoc"><p>Biometric information group. </p>
+</td></tr>
+<tr><td class="fieldname"><a id="aa959d59989dd77536001e52cca63366faf4640313ff61e05dd961b39a18f500c6" name="aa959d59989dd77536001e52cca63366faf4640313ff61e05dd961b39a18f500c6"></a>biometric_counters&#160;</td><td class="fielddoc"><p>Counters. </p>
+</td></tr>
+<tr><td class="fieldname"><a id="aa959d59989dd77536001e52cca63366fa36624d474bfab22e8b04a8586524bc16" name="aa959d59989dd77536001e52cca63366fa36624d474bfab22e8b04a8586524bc16"></a>biometric_attempts&#160;</td><td class="fielddoc"><p>Attempts. </p>
+</td></tr>
+<tr><td class="fieldname"><a id="aa959d59989dd77536001e52cca63366fa9757d3603080d3fe1ab023b873337515" name="aa959d59989dd77536001e52cca63366fa9757d3603080d3fe1ab023b873337515"></a>biometric_verification&#160;</td><td class="fielddoc"><p>Verification. </p>
+</td></tr>
+<tr><td class="fieldname"><a id="aa959d59989dd77536001e52cca63366fa8d7b3d6b83c0a517eac07e1aac94b773" name="aa959d59989dd77536001e52cca63366fa8d7b3d6b83c0a517eac07e1aac94b773"></a>unchanged&#160;</td><td class="fielddoc"><p>Tag does not introduce a child context. </p>
+</td></tr>
+</table>
+
+</div>
+</div>
+<a id="a3e34321f42512cc1d9c9df25d93e9ae5" name="a3e34321f42512cc1d9c9df25d93e9ae5"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#a3e34321f42512cc1d9c9df25d93e9ae5">&#9670;&#160;</a></span>value_kind</h2>
+
+<div class="memitem">
+<div class="memproto">
+<table class="mlabels">
+  <tr>
+  <td class="mlabels-left">
+      <table class="memname">
+        <tr>
+          <td class="memname">enum class <a class="el" href="namespacetlv_1_1emv.html#a3e34321f42512cc1d9c9df25d93e9ae5">tlv::emv::value_kind</a></td>
+        </tr>
+      </table>
+  </td>
+  <td class="mlabels-right">
+<span class="mlabels"><span class="mlabel">strong</span></span>  </td>
+  </tr>
+</table>
+</div><div class="memdoc">
+
+<p>Representation category of the immutable built-in presentation profile. </p>
+<table class="fieldtable">
+<tr><th colspan="2">Enumerator</th></tr><tr><td class="fieldname"><a id="a3e34321f42512cc1d9c9df25d93e9ae5a4b3a6218bb3e3a7303e8a171a60fcf92" name="a3e34321f42512cc1d9c9df25d93e9ae5a4b3a6218bb3e3a7303e8a171a60fcf92"></a>bytes&#160;</td><td class="fielddoc"><p>Opaque bytes. </p>
+</td></tr>
+<tr><td class="fieldname"><a id="a3e34321f42512cc1d9c9df25d93e9ae5a1cb251ec0d568de6a929b520c4aed8d1" name="a3e34321f42512cc1d9c9df25d93e9ae5a1cb251ec0d568de6a929b520c4aed8d1"></a>text&#160;</td><td class="fielddoc"><p>Opaque text bytes. </p>
+</td></tr>
+<tr><td class="fieldname"><a id="a3e34321f42512cc1d9c9df25d93e9ae5a8410d2e13f27265124ada7a31fb11856" name="a3e34321f42512cc1d9c9df25d93e9ae5a8410d2e13f27265124ada7a31fb11856"></a>constructed&#160;</td><td class="fielddoc"><p>Semantic template. </p>
+</td></tr>
+<tr><td class="fieldname"><a id="a3e34321f42512cc1d9c9df25d93e9ae5ab1bc248a7ff2b2e95569f56de68615df" name="a3e34321f42512cc1d9c9df25d93e9ae5ab1bc248a7ff2b2e95569f56de68615df"></a>number&#160;</td><td class="fielddoc"><p>uint64_t number. </p>
+</td></tr>
+<tr><td class="fieldname"><a id="a3e34321f42512cc1d9c9df25d93e9ae5a4e5868d676cb634aa75b125a0f741abf" name="a3e34321f42512cc1d9c9df25d93e9ae5a4e5868d676cb634aa75b125a0f741abf"></a>flags&#160;</td><td class="fielddoc"><p>uint64_t bits. </p>
+</td></tr>
+<tr><td class="fieldname"><a id="a3e34321f42512cc1d9c9df25d93e9ae5aa2aacbd15b619a9b9e5581a6c33bd2b1" name="a3e34321f42512cc1d9c9df25d93e9ae5aa2aacbd15b619a9b9e5581a6c33bd2b1"></a>digits&#160;</td><td class="fielddoc"><p>NUL-terminated char array. </p>
+</td></tr>
+<tr><td class="fieldname"><a id="a3e34321f42512cc1d9c9df25d93e9ae5a5fc732311905cb27e82d67f4f6511f7f" name="a3e34321f42512cc1d9c9df25d93e9ae5a5fc732311905cb27e82d67f4f6511f7f"></a>date&#160;</td><td class="fielddoc"><p><a class="el" href="namespacetlv_1_1emv.html#a69ce8d520a74b9249a7686b9b4d45337" title="Self-contained EMV date value; see tlv_emv_date_t.">emv::date</a>. </p>
+</td></tr>
+<tr><td class="fieldname"><a id="a3e34321f42512cc1d9c9df25d93e9ae5a07cc694b9b3fc636710fa08b6922c42b" name="a3e34321f42512cc1d9c9df25d93e9ae5a07cc694b9b3fc636710fa08b6922c42b"></a>time&#160;</td><td class="fielddoc"><p><a class="el" href="namespacetlv_1_1emv.html#a43d629228bfaa24c51f610c0453401da" title="Self-contained EMV time value; see tlv_emv_time_t.">emv::time</a>. </p>
+</td></tr>
+<tr><td class="fieldname"><a id="a3e34321f42512cc1d9c9df25d93e9ae5ae268443e43d93dab7ebef303bbe9642f" name="a3e34321f42512cc1d9c9df25d93e9ae5ae268443e43d93dab7ebef303bbe9642f"></a>account&#160;</td><td class="fielddoc"><p><a class="el" href="namespacetlv_1_1emv.html#a862e001d24a590526127f52c2c44cf51" title="Self-contained EMV account value; see tlv_emv_account_type_t.">emv::account</a>. </p>
+</td></tr>
+<tr><td class="fieldname"><a id="a3e34321f42512cc1d9c9df25d93e9ae5ac67f5d22489b668f323380c7e2d96e89" name="a3e34321f42512cc1d9c9df25d93e9ae5ac67f5d22489b668f323380c7e2d96e89"></a>cryptogram&#160;</td><td class="fielddoc"><p><a class="el" href="namespacetlv_1_1emv.html#a490449668c680b102569103b851871e2" title="Self-contained EMV cryptogram value; see tlv_emv_cryptogram_info_t.">emv::cryptogram</a>. </p>
+</td></tr>
+<tr><td class="fieldname"><a id="a3e34321f42512cc1d9c9df25d93e9ae5af3e7c0bc4df84b454539b998ac0d6bb9" name="a3e34321f42512cc1d9c9df25d93e9ae5af3e7c0bc4df84b454539b998ac0d6bb9"></a>biometric&#160;</td><td class="fielddoc"><p><a class="el" href="namespacetlv_1_1emv.html#a7d1e09acf1a2fd2608a15a6c3cc72056" title="Self-contained EMV biometric value; see tlv_emv_biometric_type_t.">emv::biometric</a>. </p>
+</td></tr>
+<tr><td class="fieldname"><a id="a3e34321f42512cc1d9c9df25d93e9ae5adc5956007bf23f4c9cdb51df7879aac2" name="a3e34321f42512cc1d9c9df25d93e9ae5adc5956007bf23f4c9cdb51df7879aac2"></a>number_list&#160;</td><td class="fielddoc"><p><a class="el" href="namespacetlv_1_1emv.html#a6d293b7d21085f74a50815d4e52da538" title="Self-contained EMV number list value; see tlv_emv_number_list_t.">emv::number_list</a>. </p>
+</td></tr>
+<tr><td class="fieldname"><a id="a3e34321f42512cc1d9c9df25d93e9ae5ab95ced68995cc062aa8dc98d26cda6b0" name="a3e34321f42512cc1d9c9df25d93e9ae5ab95ced68995cc062aa8dc98d26cda6b0"></a>afl&#160;</td><td class="fielddoc"><p><a class="el" href="namespacetlv_1_1emv.html#a854bacf537d915d29704b1870535d0f6" title="Self-contained EMV afl value; see tlv_emv_afl_t.">emv::afl</a>. </p>
+</td></tr>
+<tr><td class="fieldname"><a id="a3e34321f42512cc1d9c9df25d93e9ae5a1cce834be316398d181e7b113969ca0c" name="a3e34321f42512cc1d9c9df25d93e9ae5a1cce834be316398d181e7b113969ca0c"></a>cvm_result&#160;</td><td class="fielddoc"><p><a class="el" href="namespacetlv_1_1emv.html#a3c3fa4d1f58fec29865a7f9dff6224d1" title="Self-contained EMV cvm result value; see tlv_emv_cvm_result_t.">emv::cvm_result</a>. </p>
+</td></tr>
+<tr><td class="fieldname"><a id="a3e34321f42512cc1d9c9df25d93e9ae5a19e30036c11c75aa4b319d05555a4983" name="a3e34321f42512cc1d9c9df25d93e9ae5a19e30036c11c75aa4b319d05555a4983"></a>track2&#160;</td><td class="fielddoc"><p><a class="el" href="namespacetlv_1_1emv.html#a5dea3e9a7a55d2d735e1de4986fb4853" title="Self-contained EMV track2 value; see tlv_emv_track2_t.">emv::track2</a>. </p>
+</td></tr>
+<tr><td class="fieldname"><a id="a3e34321f42512cc1d9c9df25d93e9ae5aad921d60486366258809553a3db49a4a" name="a3e34321f42512cc1d9c9df25d93e9ae5aad921d60486366258809553a3db49a4a"></a>unknown&#160;</td><td class="fielddoc"><p>No built-in presentation contract. </p>
+</td></tr>
+</table>
+
+</div>
+</div>
+<h2 class="groupheader">Function Documentation</h2>
+<a id="aadf7e18be318328e0097b553020e4253" name="aadf7e18be318328e0097b553020e4253"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#aadf7e18be318328e0097b553020e4253">&#9670;&#160;</a></span>child_context()</h2>
+
+<div class="memitem">
+<div class="memproto">
+<table class="mlabels">
+  <tr>
+  <td class="mlabels-left">
+      <table class="memname">
+        <tr>
+          <td class="memname"><a class="el" href="namespacetlv_1_1emv.html#aa959d59989dd77536001e52cca63366f">context</a> tlv::emv::child_context </td>
+          <td>(</td>
+          <td class="paramtype"><a class="el" href="namespacetlv_1_1emv.html#aa959d59989dd77536001e52cca63366f">context</a>&#160;</td>
+          <td class="paramname"><em>parent</em>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype"><a class="el" href="classtlv_1_1tag.html">tlv::tag</a>&#160;</td>
+          <td class="paramname"><em>identifier</em>&#160;</td>
+        </tr>
+        <tr>
+          <td></td>
+          <td>)</td>
+          <td></td><td></td>
+        </tr>
+      </table>
+  </td>
+  <td class="mlabels-right">
+<span class="mlabels"><span class="mlabel">inline</span><span class="mlabel">noexcept</span></span>  </td>
+  </tr>
+</table>
+</div><div class="memdoc">
+
+<p>Determine an identifier's child context, or <a class="el" href="namespacetlv_1_1emv.html#aa959d59989dd77536001e52cca63366fa8d7b3d6b83c0a517eac07e1aac94b773">context::unchanged</a>. </p>
+
+</div>
+</div>
+<a id="acb01bb4e307cfeae2df65753f3590188" name="acb01bb4e307cfeae2df65753f3590188"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#acb01bb4e307cfeae2df65753f3590188">&#9670;&#160;</a></span>configure_query()</h2>
+
+<div class="memitem">
+<div class="memproto">
+<table class="mlabels">
+  <tr>
+  <td class="mlabels-left">
+      <table class="memname">
+        <tr>
+          <td class="memname">void tlv::emv::configure_query </td>
+          <td>(</td>
+          <td class="paramtype"><a class="el" href="classtlv_1_1query__options.html">query_options</a> &amp;&#160;</td>
+          <td class="paramname"><em>options</em></td><td>)</td>
+          <td></td>
+        </tr>
+      </table>
+  </td>
+  <td class="mlabels-right">
+<span class="mlabels"><span class="mlabel">inline</span></span>  </td>
+  </tr>
+</table>
+</div><div class="memdoc">
+
+<p>Select canonical EMV symbolic name resolution during compilation. </p>
+<dl class="params"><dt>Parameters</dt><dd>
+  <table class="params">
+    <tr><td class="paramname">options</td><td>Compiler configuration, modified before compilation only. </td></tr>
+  </table>
+  </dd>
+</dl>
+<dl class="section note"><dt>Note</dt><dd>Does not allocate or add tag interpretation to the generic engine. </dd></dl>
+
+</div>
+</div>
+<a id="a2ae031a8209af7ea5fbb3537c818715b" name="a2ae031a8209af7ea5fbb3537c818715b"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#a2ae031a8209af7ea5fbb3537c818715b">&#9670;&#160;</a></span>description()</h2>
+
+<div class="memitem">
+<div class="memproto">
+<table class="mlabels">
+  <tr>
+  <td class="mlabels-left">
+      <table class="memname">
+        <tr>
+          <td class="memname">const char * tlv::emv::description </td>
+          <td>(</td>
+          <td class="paramtype"><a class="el" href="namespacetlv_1_1emv.html#a3e34321f42512cc1d9c9df25d93e9ae5">value_kind</a>&#160;</td>
+          <td class="paramname"><em>kind</em></td><td>)</td>
+          <td></td>
+        </tr>
+      </table>
+  </td>
+  <td class="mlabels-right">
+<span class="mlabels"><span class="mlabel">inline</span><span class="mlabel">noexcept</span></span>  </td>
+  </tr>
+</table>
+</div><div class="memdoc">
+
+<p>Program-lifetime description of a built-in representation category. </p>
+
+</div>
+</div>
+<a id="ae854b6a93825432238f33a939f115415" name="ae854b6a93825432238f33a939f115415"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#ae854b6a93825432238f33a939f115415">&#9670;&#160;</a></span>structural_schema()</h2>
+
+<div class="memitem">
+<div class="memproto">
+<table class="mlabels">
+  <tr>
+  <td class="mlabels-left">
+      <table class="memname">
+        <tr>
+          <td class="memname"><a class="el" href="classtlv_1_1schema.html">tlv::schema</a> tlv::emv::structural_schema </td>
+          <td>(</td>
+          <td class="paramname"></td><td>)</td>
+          <td></td>
+        </tr>
+      </table>
+  </td>
+  <td class="mlabels-right">
+<span class="mlabels"><span class="mlabel">inline</span><span class="mlabel">noexcept</span></span>  </td>
+  </tr>
+</table>
+</div><div class="memdoc">
+
+<p>Program-lifetime EMV structural Schema; dictionary length policy stays separate. </p>
+
+</div>
+</div>
+<h2 class="groupheader">Variable Documentation</h2>
+<a id="ab10f0ba3ed5e4e884cae15337c2185c1" name="ab10f0ba3ed5e4e884cae15337c2185c1"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#ab10f0ba3ed5e4e884cae15337c2185c1">&#9670;&#160;</a></span>aac</h2>
+
+<div class="memitem">
+<div class="memproto">
+<table class="mlabels">
+  <tr>
+  <td class="mlabels-left">
+      <table class="memname">
+        <tr>
+          <td class="memname">constexpr auto tlv::emv::aac = <a class="elRef" href="../../c-api/html/group__codecs.html#ggad9ef9a150810bfd246dd8f3b25bd01ffacb3533d8220b95a1b6e44dbe8c6b4bb2">TLV_EMV_CRYPTOGRAM_AAC</a></td>
+        </tr>
+      </table>
+  </td>
+  <td class="mlabels-right">
+<span class="mlabels"><span class="mlabel">constexpr</span></span>  </td>
+  </tr>
+</table>
+</div><div class="memdoc">
+
+<p>Application authentication cryptogram. </p>
+
+</div>
+</div>
+<a id="ac8314803b9ebc20ea7bf1c6bb065ce8f" name="ac8314803b9ebc20ea7bf1c6bb065ce8f"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#ac8314803b9ebc20ea7bf1c6bb065ce8f">&#9670;&#160;</a></span>arqc</h2>
+
+<div class="memitem">
+<div class="memproto">
+<table class="mlabels">
+  <tr>
+  <td class="mlabels-left">
+      <table class="memname">
+        <tr>
+          <td class="memname">constexpr auto tlv::emv::arqc = <a class="elRef" href="../../c-api/html/group__codecs.html#ggad9ef9a150810bfd246dd8f3b25bd01ffa353baabfbceb3e50209eea17307b3ac4">TLV_EMV_CRYPTOGRAM_ARQC</a></td>
+        </tr>
+      </table>
+  </td>
+  <td class="mlabels-right">
+<span class="mlabels"><span class="mlabel">constexpr</span></span>  </td>
+  </tr>
+</table>
+</div><div class="memdoc">
+
+<p>Authorization request cryptogram. </p>
+
+</div>
+</div>
+<a id="ad8a4eaa98ca9ba7111ca0ab3e860946f" name="ad8a4eaa98ca9ba7111ca0ab3e860946f"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#ad8a4eaa98ca9ba7111ca0ab3e860946f">&#9670;&#160;</a></span>credit_account</h2>
+
+<div class="memitem">
+<div class="memproto">
+<table class="mlabels">
+  <tr>
+  <td class="mlabels-left">
+      <table class="memname">
+        <tr>
+          <td class="memname">constexpr <a class="elRef" href="../../c-api/html/group__codecs.html#ga5fea94eb6f0d75aef6fe7b3a2fb0567a">account</a> tlv::emv::credit_account = <a class="elRef" href="../../c-api/html/group__codecs.html#gga5fea94eb6f0d75aef6fe7b3a2fb0567aa05c5f885825ec3c9733c2917b6857866">TLV_EMV_ACCOUNT_CREDIT</a></td>
+        </tr>
+      </table>
+  </td>
+  <td class="mlabels-right">
+<span class="mlabels"><span class="mlabel">constexpr</span></span>  </td>
+  </tr>
+</table>
+</div><div class="memdoc">
+
+<p>Credit account selection. </p>
+
+</div>
+</div>
+<a id="abb40cfd0e100b2350d240aae7b53bc4d" name="abb40cfd0e100b2350d240aae7b53bc4d"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#abb40cfd0e100b2350d240aae7b53bc4d">&#9670;&#160;</a></span>debit_account</h2>
+
+<div class="memitem">
+<div class="memproto">
+<table class="mlabels">
+  <tr>
+  <td class="mlabels-left">
+      <table class="memname">
+        <tr>
+          <td class="memname">constexpr <a class="elRef" href="../../c-api/html/group__codecs.html#ga5fea94eb6f0d75aef6fe7b3a2fb0567a">account</a> tlv::emv::debit_account = <a class="elRef" href="../../c-api/html/group__codecs.html#gga5fea94eb6f0d75aef6fe7b3a2fb0567aab77f1f5725c7119e8778c4f494377082">TLV_EMV_ACCOUNT_CHEQUE_DEBIT</a></td>
+        </tr>
+      </table>
+  </td>
+  <td class="mlabels-right">
+<span class="mlabels"><span class="mlabel">constexpr</span></span>  </td>
+  </tr>
+</table>
+</div><div class="memdoc">
+
+<p>Cheque/debit account selection. </p>
+
+</div>
+</div>
+<a id="ac6c7cdf29c4de24bd0634f4998e47c2e" name="ac6c7cdf29c4de24bd0634f4998e47c2e"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#ac6c7cdf29c4de24bd0634f4998e47c2e">&#9670;&#160;</a></span>facial</h2>
+
+<div class="memitem">
+<div class="memproto">
+<table class="mlabels">
+  <tr>
+  <td class="mlabels-left">
+      <table class="memname">
+        <tr>
+          <td class="memname">constexpr <a class="elRef" href="../../c-api/html/group__codecs.html#gaaf0044fa9cb624a58696e6660ffea8e2">biometric</a> tlv::emv::facial = <a class="elRef" href="../../c-api/html/group__codecs.html#ggaaf0044fa9cb624a58696e6660ffea8e2a2f1bb1465d7e375f6d4f546fdc56c00f">TLV_EMV_BIOMETRIC_FACIAL</a></td>
+        </tr>
+      </table>
+  </td>
+  <td class="mlabels-right">
+<span class="mlabels"><span class="mlabel">constexpr</span></span>  </td>
+  </tr>
+</table>
+</div><div class="memdoc">
+
+<p>Facial biometric representation. </p>
+
+</div>
+</div>
+<a id="a5b431ffb70aeaa3b368aedcd54316314" name="a5b431ffb70aeaa3b368aedcd54316314"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#a5b431ffb70aeaa3b368aedcd54316314">&#9670;&#160;</a></span>finger</h2>
+
+<div class="memitem">
+<div class="memproto">
+<table class="mlabels">
+  <tr>
+  <td class="mlabels-left">
+      <table class="memname">
+        <tr>
+          <td class="memname">constexpr <a class="elRef" href="../../c-api/html/group__codecs.html#gaaf0044fa9cb624a58696e6660ffea8e2">biometric</a> tlv::emv::finger = <a class="elRef" href="../../c-api/html/group__codecs.html#ggaaf0044fa9cb624a58696e6660ffea8e2a0e741f19fc4273a66894f11fce95d231">TLV_EMV_BIOMETRIC_FINGER</a></td>
+        </tr>
+      </table>
+  </td>
+  <td class="mlabels-right">
+<span class="mlabels"><span class="mlabel">constexpr</span></span>  </td>
+  </tr>
+</table>
+</div><div class="memdoc">
+
+<p>Finger biometric representation. </p>
+
+</div>
+</div>
+<a id="ac61eefba5d8be459d377bb26d3f7f01e" name="ac61eefba5d8be459d377bb26d3f7f01e"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#ac61eefba5d8be459d377bb26d3f7f01e">&#9670;&#160;</a></span>iris</h2>
+
+<div class="memitem">
+<div class="memproto">
+<table class="mlabels">
+  <tr>
+  <td class="mlabels-left">
+      <table class="memname">
+        <tr>
+          <td class="memname">constexpr <a class="elRef" href="../../c-api/html/group__codecs.html#gaaf0044fa9cb624a58696e6660ffea8e2">biometric</a> tlv::emv::iris = <a class="elRef" href="../../c-api/html/group__codecs.html#ggaaf0044fa9cb624a58696e6660ffea8e2a85c30a661b9e8ecd2f4c4bdf1bb93ad3">TLV_EMV_BIOMETRIC_IRIS</a></td>
+        </tr>
+      </table>
+  </td>
+  <td class="mlabels-right">
+<span class="mlabels"><span class="mlabel">constexpr</span></span>  </td>
+  </tr>
+</table>
+</div><div class="memdoc">
+
+<p>Iris biometric representation. </p>
+
+</div>
+</div>
+<a id="a171a28c41ba5b9214d9dfa4e86ca5dbb" name="a171a28c41ba5b9214d9dfa4e86ca5dbb"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#a171a28c41ba5b9214d9dfa4e86ca5dbb">&#9670;&#160;</a></span>palm</h2>
+
+<div class="memitem">
+<div class="memproto">
+<table class="mlabels">
+  <tr>
+  <td class="mlabels-left">
+      <table class="memname">
+        <tr>
+          <td class="memname">constexpr <a class="elRef" href="../../c-api/html/group__codecs.html#gaaf0044fa9cb624a58696e6660ffea8e2">biometric</a> tlv::emv::palm = <a class="elRef" href="../../c-api/html/group__codecs.html#ggaaf0044fa9cb624a58696e6660ffea8e2aaadb07e35b692f6ee5d38bd23cff2f54">TLV_EMV_BIOMETRIC_PALM</a></td>
+        </tr>
+      </table>
+  </td>
+  <td class="mlabels-right">
+<span class="mlabels"><span class="mlabel">constexpr</span></span>  </td>
+  </tr>
+</table>
+</div><div class="memdoc">
+
+<p>Palm biometric representation. </p>
+
+</div>
+</div>
+<a id="acc4c8cab96d861e3b457f8d6b131a157" name="acc4c8cab96d861e3b457f8d6b131a157"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#acc4c8cab96d861e3b457f8d6b131a157">&#9670;&#160;</a></span>savings_account</h2>
+
+<div class="memitem">
+<div class="memproto">
+<table class="mlabels">
+  <tr>
+  <td class="mlabels-left">
+      <table class="memname">
+        <tr>
+          <td class="memname">constexpr <a class="elRef" href="../../c-api/html/group__codecs.html#ga5fea94eb6f0d75aef6fe7b3a2fb0567a">account</a> tlv::emv::savings_account = <a class="elRef" href="../../c-api/html/group__codecs.html#gga5fea94eb6f0d75aef6fe7b3a2fb0567aa0bc78f898e9179e90fc480d0011b5d25">TLV_EMV_ACCOUNT_SAVINGS</a></td>
+        </tr>
+      </table>
+  </td>
+  <td class="mlabels-right">
+<span class="mlabels"><span class="mlabel">constexpr</span></span>  </td>
+  </tr>
+</table>
+</div><div class="memdoc">
+
+<p>Savings account selection. </p>
+
+</div>
+</div>
+<a id="a08567af785ebc875e418bcb510afec73" name="a08567af785ebc875e418bcb510afec73"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#a08567af785ebc875e418bcb510afec73">&#9670;&#160;</a></span>tc</h2>
+
+<div class="memitem">
+<div class="memproto">
+<table class="mlabels">
+  <tr>
+  <td class="mlabels-left">
+      <table class="memname">
+        <tr>
+          <td class="memname">constexpr auto tlv::emv::tc = <a class="elRef" href="../../c-api/html/group__codecs.html#ggad9ef9a150810bfd246dd8f3b25bd01ffae997824441b1e96acd8f70850e9e2709">TLV_EMV_CRYPTOGRAM_TC</a></td>
+        </tr>
+      </table>
+  </td>
+  <td class="mlabels-right">
+<span class="mlabels"><span class="mlabel">constexpr</span></span>  </td>
+  </tr>
+</table>
+</div><div class="memdoc">
+
+<p>Transaction certificate. </p>
+
+</div>
+</div>
+<a id="a1962c5134ee99e30ef9fc12015a14aed" name="a1962c5134ee99e30ef9fc12015a14aed"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#a1962c5134ee99e30ef9fc12015a14aed">&#9670;&#160;</a></span>verification_failed</h2>
+
+<div class="memitem">
+<div class="memproto">
+<table class="mlabels">
+  <tr>
+  <td class="mlabels-left">
+      <table class="memname">
+        <tr>
+          <td class="memname">constexpr auto tlv::emv::verification_failed = <a class="elRef" href="../../c-api/html/group__builtins.html#ga26667980419c999f413e8820d27a262a">TLV_EMV_CVM_RESULT_FAILED</a></td>
+        </tr>
+      </table>
+  </td>
+  <td class="mlabels-right">
+<span class="mlabels"><span class="mlabel">constexpr</span></span>  </td>
+  </tr>
+</table>
+</div><div class="memdoc">
+
+<p>Failed cardholder verification. </p>
+
+</div>
+</div>
+<a id="a9db9fbec583f96bd71d9a3f5c093ed7a" name="a9db9fbec583f96bd71d9a3f5c093ed7a"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#a9db9fbec583f96bd71d9a3f5c093ed7a">&#9670;&#160;</a></span>verification_succeeded</h2>
+
+<div class="memitem">
+<div class="memproto">
+<table class="mlabels">
+  <tr>
+  <td class="mlabels-left">
+      <table class="memname">
+        <tr>
+          <td class="memname">constexpr auto tlv::emv::verification_succeeded = <a class="elRef" href="../../c-api/html/group__builtins.html#ga42ff70975e0edb752e4236ef903dfe26">TLV_EMV_CVM_RESULT_SUCCESSFUL</a></td>
+        </tr>
+      </table>
+  </td>
+  <td class="mlabels-right">
+<span class="mlabels"><span class="mlabel">constexpr</span></span>  </td>
+  </tr>
+</table>
+</div><div class="memdoc">
+
+<p>Successful cardholder verification. </p>
+
+</div>
+</div>
+<a id="a81c248deec7a6b39d7d88c4fbffe0940" name="a81c248deec7a6b39d7d88c4fbffe0940"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#a81c248deec7a6b39d7d88c4fbffe0940">&#9670;&#160;</a></span>voice</h2>
+
+<div class="memitem">
+<div class="memproto">
+<table class="mlabels">
+  <tr>
+  <td class="mlabels-left">
+      <table class="memname">
+        <tr>
+          <td class="memname">constexpr <a class="elRef" href="../../c-api/html/group__codecs.html#gaaf0044fa9cb624a58696e6660ffea8e2">biometric</a> tlv::emv::voice = <a class="elRef" href="../../c-api/html/group__codecs.html#ggaaf0044fa9cb624a58696e6660ffea8e2a0a741b4a29622b86c7b10fc397f2145f">TLV_EMV_BIOMETRIC_VOICE</a></td>
+        </tr>
+      </table>
+  </td>
+  <td class="mlabels-right">
+<span class="mlabels"><span class="mlabel">constexpr</span></span>  </td>
+  </tr>
+</table>
+</div><div class="memdoc">
+
+<p>Voice biometric representation. </p>
 
 </div>
 </div>

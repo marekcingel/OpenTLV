@@ -3204,6 +3204,34 @@
   
   
     <li class="md-nav__item">
+      <a href="../../development/valgrind/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Valgrind checks
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
       <a href="../../development/reader-decode-performance/" class="md-nav__link">
         
   
@@ -3212,6 +3240,34 @@
     
   
     Reader decode performance
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../development/cxx-facade-performance/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    C++ facade performance
   
 
     
@@ -3583,7 +3639,7 @@
 <p>Include <code>tlv/builtins/dhcp/dhcpv4.h</code> and select <code>tlv_format_dhcpv4</code>.
 C++ callers can include <code>tlv++/builtins/dhcp/dhcpv4.hpp</code> and use
 the typed <code>tlv::dhcp::format</code> with Reader/Writer or <code>tlv::dhcp::parse</code>.
-The compatibility getter <code>tlv::dhcpv4_format()</code> remains available.
+Native descriptor access is explicit through <code>tlv::native::descriptor</code>.
 The independent CMake option <code>OPENTLV_DHCP</code> defaults to <code>ON</code>;
 <code>tlv_config_dhcp()</code> reports the compiled library's availability.</p>
 <p>The descriptor implements the option framing in

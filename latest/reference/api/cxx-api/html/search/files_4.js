@@ -7,5 +7,6 @@ var searchData=
   ['encoding_2eh_4',['encoding.h',['../../../c-api/html/encoding_8h.html',1,'']]],
   ['endian_2eh_5',['endian.h',['../../../c-api/html/endian_8h.html',1,'']]],
   ['error_2eh_6',['error.h',['../../../c-api/html/error_8h.html',1,'']]],
-  ['escaped_2eh_7',['escaped.h',['../../../c-api/html/field_2escaped_8h.html',1,'(Global Namespace)'],['../../../c-api/html/formats_2escaped_8h.html',1,'(Global Namespace)']]]
+  ['error_2ehpp_7',['error.hpp',['../error_8hpp.html',1,'']]],
+  ['escaped_2eh_8',['escaped.h',['../../../c-api/html/field_2escaped_8h.html',1,'(Global Namespace)'],['../../../c-api/html/formats_2escaped_8h.html',1,'(Global Namespace)']]]
 ];

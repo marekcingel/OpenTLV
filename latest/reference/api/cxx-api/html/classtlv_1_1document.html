@@ -104,55 +104,85 @@ Public Member Functions</h2></td></tr>
 <tr class="memitem:a40afd1d0ba93a40a3aa0cc09895fda63" id="r_a40afd1d0ba93a40a3aa0cc09895fda63"><td class="memItemLeft" align="right" valign="top"><a class="el" href="classtlv_1_1document.html">document</a> &amp;&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classtlv_1_1document.html#a40afd1d0ba93a40a3aa0cc09895fda63">operator=</a> (<a class="el" href="classtlv_1_1document.html">document</a> &amp;&amp;other) noexcept</td></tr>
 <tr class="memdesc:a40afd1d0ba93a40a3aa0cc09895fda63"><td class="mdescLeft">&#160;</td><td class="mdescRight">Takes over another document, freeing the current one.  <br /></td></tr>
 <tr class="separator:a40afd1d0ba93a40a3aa0cc09895fda63"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a38d35a47a6b271e20a39ecca11d1de1d" id="r_a38d35a47a6b271e20a39ecca11d1de1d"><td class="memItemLeft" align="right" valign="top"><a class="el" href="classtlv_1_1const__node.html">const_node</a>&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classtlv_1_1document.html#a38d35a47a6b271e20a39ecca11d1de1d">first</a> () const</td></tr>
+<tr class="memdesc:a38d35a47a6b271e20a39ecca11d1de1d"><td class="mdescLeft">&#160;</td><td class="mdescRight">Read-only first top-level element; never exposes mutation.  <br /></td></tr>
+<tr class="separator:a38d35a47a6b271e20a39ecca11d1de1d"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a3b594d151c663d2afc9f9f3d6a41b1eb" id="r_a3b594d151c663d2afc9f9f3d6a41b1eb"><td class="memItemLeft" align="right" valign="top"><a class="el" href="classtlv_1_1const__node__range.html">const_node_range</a>&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classtlv_1_1document.html#a3b594d151c663d2afc9f9f3d6a41b1eb">children</a> () const</td></tr>
+<tr class="memdesc:a3b594d151c663d2afc9f9f3d6a41b1eb"><td class="mdescLeft">&#160;</td><td class="mdescRight">Read-only top-level siblings.  <br /></td></tr>
+<tr class="separator:a3b594d151c663d2afc9f9f3d6a41b1eb"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:ab0e1a0e587b665599a2859ea683ef548" id="r_ab0e1a0e587b665599a2859ea683ef548"><td class="memItemLeft" align="right" valign="top"><a class="el" href="classtlv_1_1const__node__iterator.html">const_node_iterator</a>&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classtlv_1_1document.html#ab0e1a0e587b665599a2859ea683ef548">begin</a> () const</td></tr>
+<tr class="memdesc:ab0e1a0e587b665599a2859ea683ef548"><td class="mdescLeft">&#160;</td><td class="mdescRight">Begin read-only top-level traversal.  <br /></td></tr>
+<tr class="separator:ab0e1a0e587b665599a2859ea683ef548"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a4fa5e1e493990e51061a895e492d5a81" id="r_a4fa5e1e493990e51061a895e492d5a81"><td class="memItemLeft" align="right" valign="top"><a class="el" href="classtlv_1_1const__node__iterator.html">const_node_iterator</a>&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classtlv_1_1document.html#a4fa5e1e493990e51061a895e492d5a81">end</a> () const</td></tr>
+<tr class="memdesc:a4fa5e1e493990e51061a895e492d5a81"><td class="mdescLeft">&#160;</td><td class="mdescRight">End read-only traversal.  <br /></td></tr>
+<tr class="separator:a4fa5e1e493990e51061a895e492d5a81"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a5e16871d2118b8bc5c54ccd9c233d495" id="r_a5e16871d2118b8bc5c54ccd9c233d495"><td class="memItemLeft" align="right" valign="top"><a class="el" href="classtlv_1_1const__node.html">const_node</a>&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classtlv_1_1document.html#a5e16871d2118b8bc5c54ccd9c233d495">find</a> (<a class="el" href="classtlv_1_1tag.html">tlv::tag</a> wanted) const</td></tr>
+<tr class="memdesc:a5e16871d2118b8bc5c54ccd9c233d495"><td class="mdescLeft">&#160;</td><td class="mdescRight">Read-only lookup by byte identifier.  <br /></td></tr>
+<tr class="separator:a5e16871d2118b8bc5c54ccd9c233d495"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:acca4bc517b8cad0c03c35f51196d17a6" id="r_acca4bc517b8cad0c03c35f51196d17a6"><td class="memItemLeft" align="right" valign="top"><a class="el" href="classtlv_1_1const__node.html">const_node</a>&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classtlv_1_1document.html#acca4bc517b8cad0c03c35f51196d17a6">find</a> (const <a class="el" href="classtlv_1_1query.html">query</a> &amp;path) const</td></tr>
+<tr class="memdesc:acca4bc517b8cad0c03c35f51196d17a6"><td class="mdescLeft">&#160;</td><td class="mdescRight">Read-only lookup by compiled path.  <br /></td></tr>
+<tr class="separator:acca4bc517b8cad0c03c35f51196d17a6"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a91a2669aa6fe17173f8110159203760f" id="r_a91a2669aa6fe17173f8110159203760f"><td class="memItemLeft" align="right" valign="top">std::vector&lt; <a class="el" href="classtlv_1_1const__node.html">const_node</a> &gt;&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classtlv_1_1document.html#a91a2669aa6fe17173f8110159203760f">select</a> (const <a class="el" href="classtlv_1_1query.html">query</a> &amp;path) const</td></tr>
+<tr class="memdesc:a91a2669aa6fe17173f8110159203760f"><td class="mdescLeft">&#160;</td><td class="mdescRight">Read-only snapshot of path matches; allocates the result vector.  <br /></td></tr>
+<tr class="separator:a91a2669aa6fe17173f8110159203760f"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a31ef41de29c8bb3c3cca41d02c735275" id="r_a31ef41de29c8bb3c3cca41d02c735275"><td class="memItemLeft" align="right" valign="top">std::vector&lt; <a class="el" href="classtlv_1_1const__node.html">const_node</a> &gt;&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classtlv_1_1document.html#a31ef41de29c8bb3c3cca41d02c735275">select</a> (const char *text) const</td></tr>
+<tr class="memdesc:a31ef41de29c8bb3c3cca41d02c735275"><td class="mdescLeft">&#160;</td><td class="mdescRight">Compile a path and obtain a read-only snapshot; throws <a class="el" href="classtlv_1_1query__error.html" title="Query compilation failure with the original C error and text offset.">query_error</a> on syntax failure.  <br /></td></tr>
+<tr class="separator:a31ef41de29c8bb3c3cca41d02c735275"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a8b3fd4527693f2bb6093a58183b4d637" id="r_a8b3fd4527693f2bb6093a58183b4d637"><td class="memItemLeft" align="right" valign="top"><a class="el" href="classtlv_1_1expected.html">expected</a>&lt; std::vector&lt; <a class="el" href="classtlv_1_1const__node.html">const_node</a> &gt;, <a class="el" href="structtlv_1_1query__failure.html">query_failure</a> &gt;&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classtlv_1_1document.html#a8b3fd4527693f2bb6093a58183b4d637">select</a> (const <a class="el" href="classtlv_1_1query__program.html">query_program</a> &amp;program, <a class="el" href="classtlv_1_1query__capabilities.html">query_capabilities</a> environment=nullptr, size_t max_work=100000000) const</td></tr>
+<tr class="memdesc:a8b3fd4527693f2bb6093a58183b4d637"><td class="mdescLeft">&#160;</td><td class="mdescRight">Evaluate a compiled query and return read-only handles; may allocate.  <br /></td></tr>
+<tr class="separator:a8b3fd4527693f2bb6093a58183b4d637"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:af658654130aa28ad0967b88a2bad6b5c" id="r_af658654130aa28ad0967b88a2bad6b5c"><td class="memItemLeft" align="right" valign="top"><a class="el" href="classtlv_1_1expected.html">expected</a>&lt; <a class="el" href="classtlv_1_1const__node.html">const_node</a>, <a class="el" href="structtlv_1_1query__failure.html">query_failure</a> &gt;&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classtlv_1_1document.html#af658654130aa28ad0967b88a2bad6b5c">next</a> (<a class="el" href="classtlv_1_1query__execution.html">query_execution</a> &amp;execution) const</td></tr>
+<tr class="memdesc:af658654130aa28ad0967b88a2bad6b5c"><td class="mdescLeft">&#160;</td><td class="mdescRight">Consume a checked read-only query result; preserves Query error and end outcomes.  <br /></td></tr>
+<tr class="separator:af658654130aa28ad0967b88a2bad6b5c"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:a88f7e5693ade570f9f9137db51c56ba2" id="r_a88f7e5693ade570f9f9137db51c56ba2"><td class="memItemLeft" align="right" valign="top">size_t&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classtlv_1_1document.html#a88f7e5693ade570f9f9137db51c56ba2">size</a> () const</td></tr>
 <tr class="memdesc:a88f7e5693ade570f9f9137db51c56ba2"><td class="mdescLeft">&#160;</td><td class="mdescRight">Number of elements, including nested ones.  <br /></td></tr>
 <tr class="separator:a88f7e5693ade570f9f9137db51c56ba2"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:ab282d4bf848bbec43bc078b63f04d4f9" id="r_ab282d4bf848bbec43bc078b63f04d4f9"><td class="memItemLeft" align="right" valign="top">bool&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classtlv_1_1document.html#ab282d4bf848bbec43bc078b63f04d4f9">empty</a> () const</td></tr>
 <tr class="memdesc:ab282d4bf848bbec43bc078b63f04d4f9"><td class="mdescLeft">&#160;</td><td class="mdescRight">Reports whether the document has no elements.  <br /></td></tr>
 <tr class="separator:ab282d4bf848bbec43bc078b63f04d4f9"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:a33394ccc8be6b179ea3bb055a9efb110" id="r_a33394ccc8be6b179ea3bb055a9efb110"><td class="memItemLeft" align="right" valign="top"><a class="el" href="classtlv_1_1node.html">node</a>&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classtlv_1_1document.html#a33394ccc8be6b179ea3bb055a9efb110">first</a> () const</td></tr>
-<tr class="memdesc:a33394ccc8be6b179ea3bb055a9efb110"><td class="mdescLeft">&#160;</td><td class="mdescRight">The first top-level element, or an empty handle.  <br /></td></tr>
-<tr class="separator:a33394ccc8be6b179ea3bb055a9efb110"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:a3cb9fd5d1c821cf3e9626cdd387d06f1" id="r_a3cb9fd5d1c821cf3e9626cdd387d06f1"><td class="memItemLeft" align="right" valign="top"><a class="el" href="classtlv_1_1node__range.html">node_range</a>&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classtlv_1_1document.html#a3cb9fd5d1c821cf3e9626cdd387d06f1">children</a> () const</td></tr>
-<tr class="memdesc:a3cb9fd5d1c821cf3e9626cdd387d06f1"><td class="mdescLeft">&#160;</td><td class="mdescRight">The top-level elements, in encoding order.  <br /></td></tr>
-<tr class="separator:a3cb9fd5d1c821cf3e9626cdd387d06f1"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:a9cb0fb13938387e09b1293552facd053" id="r_a9cb0fb13938387e09b1293552facd053"><td class="memItemLeft" align="right" valign="top"><a class="el" href="classtlv_1_1node__iterator.html">node_iterator</a>&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classtlv_1_1document.html#a9cb0fb13938387e09b1293552facd053">begin</a> () const</td></tr>
-<tr class="memdesc:a9cb0fb13938387e09b1293552facd053"><td class="mdescLeft">&#160;</td><td class="mdescRight">Begin iteration over top-level elements in encoding order.  <br /></td></tr>
-<tr class="separator:a9cb0fb13938387e09b1293552facd053"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:af970d559a4a8f19f4ff24a807b39119a" id="r_af970d559a4a8f19f4ff24a807b39119a"><td class="memItemLeft" align="right" valign="top"><a class="el" href="classtlv_1_1node__iterator.html">node_iterator</a>&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classtlv_1_1document.html#af970d559a4a8f19f4ff24a807b39119a">end</a> () const</td></tr>
-<tr class="memdesc:af970d559a4a8f19f4ff24a807b39119a"><td class="mdescLeft">&#160;</td><td class="mdescRight">End of top-level iteration.  <br /></td></tr>
-<tr class="separator:af970d559a4a8f19f4ff24a807b39119a"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:ae206987a6e03c7bac4a489c8e4bc4283" id="r_ae206987a6e03c7bac4a489c8e4bc4283"><td class="memItemLeft" align="right" valign="top"><a class="el" href="classtlv_1_1node.html">node</a>&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classtlv_1_1document.html#ae206987a6e03c7bac4a489c8e4bc4283">find</a> (<a class="el" href="classtlv_1_1tag.html">tlv::tag</a> wanted) const</td></tr>
-<tr class="memdesc:ae206987a6e03c7bac4a489c8e4bc4283"><td class="mdescLeft">&#160;</td><td class="mdescRight">Finds the first top-level element with a tag.  <br /></td></tr>
-<tr class="separator:ae206987a6e03c7bac4a489c8e4bc4283"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:a721db8298fc9c2ec7adccadc75288321" id="r_a721db8298fc9c2ec7adccadc75288321"><td class="memItemLeft" align="right" valign="top"><a class="el" href="classtlv_1_1node.html">node</a>&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classtlv_1_1document.html#a721db8298fc9c2ec7adccadc75288321">find</a> (const <a class="el" href="classtlv_1_1query.html">query</a> &amp;path) const</td></tr>
-<tr class="memdesc:a721db8298fc9c2ec7adccadc75288321"><td class="mdescLeft">&#160;</td><td class="mdescRight">Finds the first element addressed by a path query such as <code>6F/A5/50</code>.  <br /></td></tr>
-<tr class="separator:a721db8298fc9c2ec7adccadc75288321"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:a2907ddc33ed25f7214e3f1aafec4d594" id="r_a2907ddc33ed25f7214e3f1aafec4d594"><td class="memItemLeft" align="right" valign="top">std::vector&lt; <a class="el" href="classtlv_1_1node.html">node</a> &gt;&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classtlv_1_1document.html#a2907ddc33ed25f7214e3f1aafec4d594">select</a> (const <a class="el" href="classtlv_1_1query.html">query</a> &amp;path) const</td></tr>
-<tr class="memdesc:a2907ddc33ed25f7214e3f1aafec4d594"><td class="mdescLeft">&#160;</td><td class="mdescRight">Select all matching Nodes in Document order.  <br /></td></tr>
-<tr class="separator:a2907ddc33ed25f7214e3f1aafec4d594"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:a2f5f1955526f4f07314ce7c2342c174d" id="r_a2f5f1955526f4f07314ce7c2342c174d"><td class="memItemLeft" align="right" valign="top">std::vector&lt; <a class="el" href="classtlv_1_1node.html">node</a> &gt;&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classtlv_1_1document.html#a2f5f1955526f4f07314ce7c2342c174d">select</a> (const char *text) const</td></tr>
-<tr class="memdesc:a2f5f1955526f4f07314ce7c2342c174d"><td class="mdescLeft">&#160;</td><td class="mdescRight">Compile a text path and select all matching Nodes.  <br /></td></tr>
-<tr class="separator:a2f5f1955526f4f07314ce7c2342c174d"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:aa11d56f6e79e17826e0e89082f22be2e" id="r_aa11d56f6e79e17826e0e89082f22be2e"><td class="memItemLeft" align="right" valign="top"><a class="el" href="classtlv_1_1expected.html">expected</a>&lt; std::vector&lt; <a class="el" href="classtlv_1_1node.html">node</a> &gt;, <a class="el" href="structtlv_1_1query__failure.html">query_failure</a> &gt;&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classtlv_1_1document.html#aa11d56f6e79e17826e0e89082f22be2e">select</a> (const <a class="el" href="classtlv_1_1query__program.html">query_program</a> &amp;program, const <a class="elRef" href="../../c-api/html/group__traversal.html#gaf2f1c0d8fe278eb32c61e19e7b108a48">tlv_query_environment_t</a> *environment=nullptr, size_t max_work=100000000) const</td></tr>
-<tr class="memdesc:aa11d56f6e79e17826e0e89082f22be2e"><td class="mdescLeft">&#160;</td><td class="mdescRight">Complete full-language selection and return checked Node snapshots.  <br /></td></tr>
-<tr class="separator:aa11d56f6e79e17826e0e89082f22be2e"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:a6c4440f6e479eed0e3983b24a2eacf5d" id="r_a6c4440f6e479eed0e3983b24a2eacf5d"><td class="memItemLeft" align="right" valign="top"><a class="el" href="classtlv_1_1expected.html">expected</a>&lt; void, <a class="el" href="structtlv_1_1query__failure.html">query_failure</a> &gt;&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classtlv_1_1document.html#a6c4440f6e479eed0e3983b24a2eacf5d">evaluate</a> (<a class="el" href="classtlv_1_1query__execution.html">query_execution</a> &amp;execution, uint8_t *values, size_t capacity, <a class="elRef" href="../../c-api/html/group__writer.html#gab9db909d8cb7eb930d06a32e07a72fd8">tlv_tree_writer_workspace_t</a> *staging, <a class="el" href="classtlv_1_1node.html">node</a> context=<a class="el" href="classtlv_1_1node.html">node</a>()) const</td></tr>
-<tr class="memdesc:a6c4440f6e479eed0e3983b24a2eacf5d"><td class="mdescLeft">&#160;</td><td class="mdescRight">Evaluate full Query using caller-owned execution and optional Value staging.  <br /></td></tr>
-<tr class="separator:a6c4440f6e479eed0e3983b24a2eacf5d"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:a7d2575bae9235c1aec35ea9257b29f5b" id="r_a7d2575bae9235c1aec35ea9257b29f5b"><td class="memItemLeft" align="right" valign="top"><a class="el" href="classtlv_1_1expected.html">expected</a>&lt; <a class="el" href="classtlv_1_1node.html">node</a>, <a class="el" href="structtlv_1_1query__failure.html">query_failure</a> &gt;&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classtlv_1_1document.html#a7d2575bae9235c1aec35ea9257b29f5b">next</a> (<a class="el" href="classtlv_1_1query__execution.html">query_execution</a> &amp;execution) const</td></tr>
-<tr class="memdesc:a7d2575bae9235c1aec35ea9257b29f5b"><td class="mdescLeft">&#160;</td><td class="mdescRight">Pull a checked Document handle from a completed execution for this Document.  <br /></td></tr>
-<tr class="separator:a7d2575bae9235c1aec35ea9257b29f5b"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:af801b84ec08139d008d19d7ce1b39d9d" id="r_af801b84ec08139d008d19d7ce1b39d9d"><td class="memItemLeft" align="right" valign="top"><a class="el" href="classtlv_1_1node.html">node</a>&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classtlv_1_1document.html#af801b84ec08139d008d19d7ce1b39d9d">first</a> ()</td></tr>
+<tr class="memdesc:af801b84ec08139d008d19d7ce1b39d9d"><td class="mdescLeft">&#160;</td><td class="mdescRight">The first top-level element, or an empty handle.  <br /></td></tr>
+<tr class="separator:af801b84ec08139d008d19d7ce1b39d9d"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:aeda1b6d706580f602f8546f69ce747dc" id="r_aeda1b6d706580f602f8546f69ce747dc"><td class="memItemLeft" align="right" valign="top"><a class="el" href="classtlv_1_1node__range.html">node_range</a>&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classtlv_1_1document.html#aeda1b6d706580f602f8546f69ce747dc">children</a> ()</td></tr>
+<tr class="memdesc:aeda1b6d706580f602f8546f69ce747dc"><td class="mdescLeft">&#160;</td><td class="mdescRight">The top-level elements, in encoding order.  <br /></td></tr>
+<tr class="separator:aeda1b6d706580f602f8546f69ce747dc"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a65478cb03797b03424cba43cce6edc0b" id="r_a65478cb03797b03424cba43cce6edc0b"><td class="memItemLeft" align="right" valign="top"><a class="el" href="classtlv_1_1node__iterator.html">node_iterator</a>&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classtlv_1_1document.html#a65478cb03797b03424cba43cce6edc0b">begin</a> ()</td></tr>
+<tr class="memdesc:a65478cb03797b03424cba43cce6edc0b"><td class="mdescLeft">&#160;</td><td class="mdescRight">Begin iteration over top-level elements in encoding order.  <br /></td></tr>
+<tr class="separator:a65478cb03797b03424cba43cce6edc0b"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a881b739fffbf599afee5fbcee799ba8f" id="r_a881b739fffbf599afee5fbcee799ba8f"><td class="memItemLeft" align="right" valign="top"><a class="el" href="classtlv_1_1node__iterator.html">node_iterator</a>&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classtlv_1_1document.html#a881b739fffbf599afee5fbcee799ba8f">end</a> ()</td></tr>
+<tr class="memdesc:a881b739fffbf599afee5fbcee799ba8f"><td class="mdescLeft">&#160;</td><td class="mdescRight">End of top-level iteration.  <br /></td></tr>
+<tr class="separator:a881b739fffbf599afee5fbcee799ba8f"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a69e25b8a69f0e65ee680848fd055ea75" id="r_a69e25b8a69f0e65ee680848fd055ea75"><td class="memItemLeft" align="right" valign="top"><a class="el" href="classtlv_1_1node.html">node</a>&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classtlv_1_1document.html#a69e25b8a69f0e65ee680848fd055ea75">find</a> (<a class="el" href="classtlv_1_1tag.html">tlv::tag</a> wanted)</td></tr>
+<tr class="memdesc:a69e25b8a69f0e65ee680848fd055ea75"><td class="mdescLeft">&#160;</td><td class="mdescRight">Finds the first top-level element with a tag.  <br /></td></tr>
+<tr class="separator:a69e25b8a69f0e65ee680848fd055ea75"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a3056d409ec3c9079793eba4389415924" id="r_a3056d409ec3c9079793eba4389415924"><td class="memItemLeft" align="right" valign="top"><a class="el" href="classtlv_1_1node.html">node</a>&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classtlv_1_1document.html#a3056d409ec3c9079793eba4389415924">find</a> (const <a class="el" href="classtlv_1_1query.html">query</a> &amp;path)</td></tr>
+<tr class="memdesc:a3056d409ec3c9079793eba4389415924"><td class="mdescLeft">&#160;</td><td class="mdescRight">Finds the first element addressed by a path query such as <code>6F/A5/50</code>.  <br /></td></tr>
+<tr class="separator:a3056d409ec3c9079793eba4389415924"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:ab85c865445c883cea28a0f7a425e9ebe" id="r_ab85c865445c883cea28a0f7a425e9ebe"><td class="memItemLeft" align="right" valign="top">std::vector&lt; <a class="el" href="classtlv_1_1node.html">node</a> &gt;&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classtlv_1_1document.html#ab85c865445c883cea28a0f7a425e9ebe">select</a> (const <a class="el" href="classtlv_1_1query.html">query</a> &amp;path)</td></tr>
+<tr class="memdesc:ab85c865445c883cea28a0f7a425e9ebe"><td class="mdescLeft">&#160;</td><td class="mdescRight">Select all matching Nodes in Document order.  <br /></td></tr>
+<tr class="separator:ab85c865445c883cea28a0f7a425e9ebe"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a5a13cbd84a8efaf507b710020fb7e7eb" id="r_a5a13cbd84a8efaf507b710020fb7e7eb"><td class="memItemLeft" align="right" valign="top">std::vector&lt; <a class="el" href="classtlv_1_1node.html">node</a> &gt;&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classtlv_1_1document.html#a5a13cbd84a8efaf507b710020fb7e7eb">select</a> (const char *text)</td></tr>
+<tr class="memdesc:a5a13cbd84a8efaf507b710020fb7e7eb"><td class="mdescLeft">&#160;</td><td class="mdescRight">Compile a text path and select all matching Nodes.  <br /></td></tr>
+<tr class="separator:a5a13cbd84a8efaf507b710020fb7e7eb"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:aefe2a3c13377b141625462e29a2ad7d6" id="r_aefe2a3c13377b141625462e29a2ad7d6"><td class="memItemLeft" align="right" valign="top"><a class="el" href="classtlv_1_1expected.html">expected</a>&lt; std::vector&lt; <a class="el" href="classtlv_1_1node.html">node</a> &gt;, <a class="el" href="structtlv_1_1query__failure.html">query_failure</a> &gt;&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classtlv_1_1document.html#aefe2a3c13377b141625462e29a2ad7d6">select</a> (const <a class="el" href="classtlv_1_1query__program.html">query_program</a> &amp;program, <a class="el" href="classtlv_1_1query__capabilities.html">query_capabilities</a> environment=nullptr, size_t max_work=100000000)</td></tr>
+<tr class="memdesc:aefe2a3c13377b141625462e29a2ad7d6"><td class="mdescLeft">&#160;</td><td class="mdescRight">Complete full-language selection and return checked Node snapshots.  <br /></td></tr>
+<tr class="separator:aefe2a3c13377b141625462e29a2ad7d6"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a0d4799427105db208f9f242c85d8fa2b" id="r_a0d4799427105db208f9f242c85d8fa2b"><td class="memItemLeft" align="right" valign="top"><a class="el" href="classtlv_1_1expected.html">expected</a>&lt; void, <a class="el" href="structtlv_1_1query__failure.html">query_failure</a> &gt;&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classtlv_1_1document.html#a0d4799427105db208f9f242c85d8fa2b">evaluate</a> (<a class="el" href="classtlv_1_1query__execution.html">query_execution</a> &amp;execution, <a class="el" href="classtlv_1_1span.html">span</a>&lt; <a class="el" href="namespacetlv.html#aa91df798a712d88cf7d2f1f63a539b51">byte</a> &gt; values, const <a class="el" href="structtlv_1_1writer__workspace.html">writer_workspace</a> *staging=nullptr, <a class="el" href="classtlv_1_1node.html">node</a> context=<a class="el" href="classtlv_1_1node.html">node</a>()) const</td></tr>
+<tr class="memdesc:a0d4799427105db208f9f242c85d8fa2b"><td class="mdescLeft">&#160;</td><td class="mdescRight">Evaluate full Query with C++ snapshot and Writer storage views.  <br /></td></tr>
+<tr class="separator:a0d4799427105db208f9f242c85d8fa2b"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a8685a30a41406a5b11abb03919317f74" id="r_a8685a30a41406a5b11abb03919317f74"><td class="memItemLeft" align="right" valign="top"><a class="el" href="classtlv_1_1expected.html">expected</a>&lt; <a class="el" href="classtlv_1_1node.html">node</a>, <a class="el" href="structtlv_1_1query__failure.html">query_failure</a> &gt;&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classtlv_1_1document.html#a8685a30a41406a5b11abb03919317f74">next</a> (<a class="el" href="classtlv_1_1query__execution.html">query_execution</a> &amp;execution)</td></tr>
+<tr class="memdesc:a8685a30a41406a5b11abb03919317f74"><td class="mdescLeft">&#160;</td><td class="mdescRight">Pull a checked Document handle from a completed execution for this Document.  <br /></td></tr>
+<tr class="separator:a8685a30a41406a5b11abb03919317f74"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:ab5555a72c5513ad449505de6943ffbb3" id="r_ab5555a72c5513ad449505de6943ffbb3"><td class="memItemLeft" align="right" valign="top"><a class="el" href="classtlv_1_1expected.html">expected</a>&lt; size_t, <a class="el" href="structtlv_1_1query__failure.html">query_failure</a> &gt;&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classtlv_1_1document.html#ab5555a72c5513ad449505de6943ffbb3">query_remove</a> (const <a class="el" href="classtlv_1_1query__program.html">query_program</a> &amp;program)</td></tr>
 <tr class="memdesc:ab5555a72c5513ad449505de6943ffbb3"><td class="mdescLeft">&#160;</td><td class="mdescRight">Remove completed selection, with ancestors dominating selected descendants.  <br /></td></tr>
 <tr class="separator:ab5555a72c5513ad449505de6943ffbb3"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:a0e87d50fa00aca9ff523b2eb1f97c814" id="r_a0e87d50fa00aca9ff523b2eb1f97c814"><td class="memItemLeft" align="right" valign="top"><a class="el" href="classtlv_1_1expected.html">expected</a>&lt; size_t, <a class="el" href="structtlv_1_1query__failure.html">query_failure</a> &gt;&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classtlv_1_1document.html#a0e87d50fa00aca9ff523b2eb1f97c814">query_replace</a> (const <a class="el" href="classtlv_1_1query__program.html">query_program</a> &amp;program, <a class="el" href="namespacetlv.html#a2abe7003a70af047ef9acae17f31f75d">bytes</a> value, size_t *applied=nullptr)</td></tr>
+<tr class="memitem:a0e87d50fa00aca9ff523b2eb1f97c814" id="r_a0e87d50fa00aca9ff523b2eb1f97c814"><td class="memItemLeft" align="right" valign="top"><a class="el" href="classtlv_1_1expected.html">expected</a>&lt; size_t, <a class="el" href="structtlv_1_1query__failure.html">query_failure</a> &gt;&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classtlv_1_1document.html#a0e87d50fa00aca9ff523b2eb1f97c814">query_replace</a> (const <a class="el" href="classtlv_1_1query__program.html">query_program</a> &amp;program, <a class="el" href="namespacetlv.html#a2abe7003a70af047ef9acae17f31f75d">bytes</a> <a class="el" href="namespacetlv.html#a05620bcc688c15765fb53922c84147b9a2063c1608d6e0baf80249c42e2be5804">value</a>, size_t *applied=nullptr)</td></tr>
 <tr class="memdesc:a0e87d50fa00aca9ff523b2eb1f97c814"><td class="mdescLeft">&#160;</td><td class="mdescRight">Replace Values selected against the initial tree; selected ancestors dominate.  <br /></td></tr>
 <tr class="separator:a0e87d50fa00aca9ff523b2eb1f97c814"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:a1033e443647b08509ec3628bc58c75f6" id="r_a1033e443647b08509ec3628bc58c75f6"><td class="memItemLeft" align="right" valign="top"><a class="el" href="classtlv_1_1expected.html">expected</a>&lt; size_t, <a class="el" href="structtlv_1_1query__failure.html">query_failure</a> &gt;&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classtlv_1_1document.html#a1033e443647b08509ec3628bc58c75f6">query_insert_after</a> (const <a class="el" href="classtlv_1_1query__program.html">query_program</a> &amp;program, <a class="el" href="classtlv_1_1tag.html">tlv::tag</a> <a class="el" href="classtlv_1_1tag.html">tag</a>, <a class="el" href="namespacetlv.html#a2abe7003a70af047ef9acae17f31f75d">bytes</a> value, size_t *applied=nullptr)</td></tr>
+<tr class="memitem:a1033e443647b08509ec3628bc58c75f6" id="r_a1033e443647b08509ec3628bc58c75f6"><td class="memItemLeft" align="right" valign="top"><a class="el" href="classtlv_1_1expected.html">expected</a>&lt; size_t, <a class="el" href="structtlv_1_1query__failure.html">query_failure</a> &gt;&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classtlv_1_1document.html#a1033e443647b08509ec3628bc58c75f6">query_insert_after</a> (const <a class="el" href="classtlv_1_1query__program.html">query_program</a> &amp;program, <a class="el" href="classtlv_1_1tag.html">tlv::tag</a> <a class="el" href="classtlv_1_1tag.html">tag</a>, <a class="el" href="namespacetlv.html#a2abe7003a70af047ef9acae17f31f75d">bytes</a> <a class="el" href="namespacetlv.html#a05620bcc688c15765fb53922c84147b9a2063c1608d6e0baf80249c42e2be5804">value</a>, size_t *applied=nullptr)</td></tr>
 <tr class="memdesc:a1033e443647b08509ec3628bc58c75f6"><td class="mdescLeft">&#160;</td><td class="mdescRight">Insert one sibling immediately after every node in the initial selection.  <br /></td></tr>
 <tr class="separator:a1033e443647b08509ec3628bc58c75f6"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:a798d214cd8448b9ddc3fb408e273bba9" id="r_a798d214cd8448b9ddc3fb408e273bba9"><td class="memItemLeft" align="right" valign="top"><a class="el" href="classtlv_1_1expected.html">expected</a>&lt; <a class="el" href="classtlv_1_1node.html">node</a>, <a class="el" href="structtlv_1_1error.html">error</a> &gt;&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classtlv_1_1document.html#a798d214cd8448b9ddc3fb408e273bba9">insert</a> (<a class="el" href="classtlv_1_1tag.html">tlv::tag</a> wanted, <a class="el" href="namespacetlv.html#a2abe7003a70af047ef9acae17f31f75d">bytes</a> value, <a class="el" href="classtlv_1_1node.html">node</a> parent=<a class="el" href="classtlv_1_1node.html">node</a>(), <a class="el" href="classtlv_1_1node.html">node</a> before=<a class="el" href="classtlv_1_1node.html">node</a>())</td></tr>
+<tr class="memitem:a798d214cd8448b9ddc3fb408e273bba9" id="r_a798d214cd8448b9ddc3fb408e273bba9"><td class="memItemLeft" align="right" valign="top"><a class="el" href="classtlv_1_1expected.html">expected</a>&lt; <a class="el" href="classtlv_1_1node.html">node</a>, <a class="el" href="structtlv_1_1error.html">error</a> &gt;&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classtlv_1_1document.html#a798d214cd8448b9ddc3fb408e273bba9">insert</a> (<a class="el" href="classtlv_1_1tag.html">tlv::tag</a> wanted, <a class="el" href="namespacetlv.html#a2abe7003a70af047ef9acae17f31f75d">bytes</a> <a class="el" href="namespacetlv.html#a05620bcc688c15765fb53922c84147b9a2063c1608d6e0baf80249c42e2be5804">value</a>, <a class="el" href="classtlv_1_1node.html">node</a> parent=<a class="el" href="classtlv_1_1node.html">node</a>(), <a class="el" href="classtlv_1_1node.html">node</a> before=<a class="el" href="classtlv_1_1node.html">node</a>())</td></tr>
 <tr class="memdesc:a798d214cd8448b9ddc3fb408e273bba9"><td class="mdescLeft">&#160;</td><td class="mdescRight">Inserts a new element.  <br /></td></tr>
 <tr class="separator:a798d214cd8448b9ddc3fb408e273bba9"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:a2a25eade2516788e70f49fd26ad9dc0c" id="r_a2a25eade2516788e70f49fd26ad9dc0c"><td class="memItemLeft" align="right" valign="top">bool&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classtlv_1_1document.html#a2a25eade2516788e70f49fd26ad9dc0c">erase</a> (<a class="el" href="classtlv_1_1tag.html">tlv::tag</a> wanted)</td></tr>
@@ -164,21 +194,12 @@ Public Member Functions</h2></td></tr>
 <tr class="memitem:aec2ac27f2f69570b4a7a1a24197a75ed" id="r_aec2ac27f2f69570b4a7a1a24197a75ed"><td class="memItemLeft" align="right" valign="top"><a class="el" href="classtlv_1_1expected.html">expected</a>&lt; std::vector&lt; <a class="el" href="namespacetlv.html#aa91df798a712d88cf7d2f1f63a539b51">byte</a> &gt;, <a class="el" href="structtlv_1_1error.html">error</a> &gt;&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classtlv_1_1document.html#aec2ac27f2f69570b4a7a1a24197a75ed">encode</a> () const</td></tr>
 <tr class="memdesc:aec2ac27f2f69570b4a7a1a24197a75ed"><td class="mdescLeft">&#160;</td><td class="mdescRight">Encodes the document into a new vector with the writer format.  <br /></td></tr>
 <tr class="separator:aec2ac27f2f69570b4a7a1a24197a75ed"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:ab6c67ec63cb30430a8150d88573c4816" id="r_ab6c67ec63cb30430a8150d88573c4816"><td class="memItemLeft" align="right" valign="top"><a class="el" href="classtlv_1_1expected.html">expected</a>&lt; size_t, <a class="el" href="structtlv_1_1error.html">error</a> &gt;&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classtlv_1_1document.html#ab6c67ec63cb30430a8150d88573c4816">encoded_size</a> (const <a class="elRef" href="../../c-api/html/group__formats.html#gac461da7e8d46362fa8e09694efb0b062">tlv_format_t</a> &amp;<a class="el" href="classtlv_1_1format.html">format</a>) const</td></tr>
-<tr class="memdesc:ab6c67ec63cb30430a8150d88573c4816"><td class="mdescLeft">&#160;</td><td class="mdescRight">Measure this document with an explicit destination Format.  <br /></td></tr>
-<tr class="separator:ab6c67ec63cb30430a8150d88573c4816"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:a43f1c151f7e8f403aa9b9f820957cf02" id="r_a43f1c151f7e8f403aa9b9f820957cf02"><td class="memItemLeft" align="right" valign="top"><a class="el" href="classtlv_1_1expected.html">expected</a>&lt; size_t, <a class="el" href="structtlv_1_1error.html">error</a> &gt;&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classtlv_1_1document.html#a43f1c151f7e8f403aa9b9f820957cf02">encoded_size</a> (<a class="el" href="classtlv_1_1format.html">tlv::format</a> <a class="el" href="classtlv_1_1format.html">format</a>) const</td></tr>
-<tr class="memdesc:a43f1c151f7e8f403aa9b9f820957cf02"><td class="mdescLeft">&#160;</td><td class="mdescRight">Measure this Document using a C++ Format view.  <br /></td></tr>
+<tr class="memdesc:a43f1c151f7e8f403aa9b9f820957cf02"><td class="mdescLeft">&#160;</td><td class="mdescRight">Measure this document with an explicit destination Format.  <br /></td></tr>
 <tr class="separator:a43f1c151f7e8f403aa9b9f820957cf02"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:ad69c1fa8656932f55da4b3f305187c6a" id="r_ad69c1fa8656932f55da4b3f305187c6a"><td class="memItemLeft" align="right" valign="top"><a class="el" href="classtlv_1_1expected.html">expected</a>&lt; std::vector&lt; <a class="el" href="namespacetlv.html#aa91df798a712d88cf7d2f1f63a539b51">byte</a> &gt;, <a class="el" href="structtlv_1_1error.html">error</a> &gt;&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classtlv_1_1document.html#ad69c1fa8656932f55da4b3f305187c6a">encode</a> (const <a class="elRef" href="../../c-api/html/group__formats.html#gac461da7e8d46362fa8e09694efb0b062">tlv_format_t</a> &amp;<a class="el" href="classtlv_1_1format.html">format</a>) const</td></tr>
-<tr class="memdesc:ad69c1fa8656932f55da4b3f305187c6a"><td class="mdescLeft">&#160;</td><td class="mdescRight">Encode this document with an explicit destination Format.  <br /></td></tr>
-<tr class="separator:ad69c1fa8656932f55da4b3f305187c6a"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:adb9e80369e370d316e0cdb9c3cc477c2" id="r_adb9e80369e370d316e0cdb9c3cc477c2"><td class="memItemLeft" align="right" valign="top"><a class="el" href="classtlv_1_1expected.html">expected</a>&lt; std::vector&lt; <a class="el" href="namespacetlv.html#aa91df798a712d88cf7d2f1f63a539b51">byte</a> &gt;, <a class="el" href="structtlv_1_1error.html">error</a> &gt;&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classtlv_1_1document.html#adb9e80369e370d316e0cdb9c3cc477c2">encode</a> (<a class="el" href="classtlv_1_1format.html">tlv::format</a> <a class="el" href="classtlv_1_1format.html">format</a>) const</td></tr>
-<tr class="memdesc:adb9e80369e370d316e0cdb9c3cc477c2"><td class="mdescLeft">&#160;</td><td class="mdescRight">Encode this Document using a C++ Format view.  <br /></td></tr>
+<tr class="memdesc:adb9e80369e370d316e0cdb9c3cc477c2"><td class="mdescLeft">&#160;</td><td class="mdescRight">Encode this document with an explicit destination Format.  <br /></td></tr>
 <tr class="separator:adb9e80369e370d316e0cdb9c3cc477c2"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:a735ba41724e8105c486f42ce1afaac37" id="r_a735ba41724e8105c486f42ce1afaac37"><td class="memItemLeft" align="right" valign="top"><a class="elRef" href="../../c-api/html/group__document.html#gad50a36ea444832274667f45cb81dab83">tlv_document_t</a> *&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classtlv_1_1document.html#a735ba41724e8105c486f42ce1afaac37">c_document</a> () const</td></tr>
-<tr class="memdesc:a735ba41724e8105c486f42ce1afaac37"><td class="mdescLeft">&#160;</td><td class="mdescRight">Borrow the underlying C document for interoperability.  <br /></td></tr>
-<tr class="separator:a735ba41724e8105c486f42ce1afaac37"><td class="memSeparator" colspan="2">&#160;</td></tr>
 </table><table class="memberdecls">
 <tr class="heading"><td colspan="2"><h2 class="groupheader"><a id="pub-static-methods" name="pub-static-methods"></a>
 Static Public Member Functions</h2></td></tr>
@@ -193,12 +214,16 @@ Static Public Member Functions</h2></td></tr>
 Friends</h2></td></tr>
 <tr class="memitem:a39848b78fca670e8aed4510059a796ec" id="r_a39848b78fca670e8aed4510059a796ec"><td class="memItemLeft" align="right" valign="top">class&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classtlv_1_1document.html#a39848b78fca670e8aed4510059a796ec">document_builder</a></td></tr>
 <tr class="separator:a39848b78fca670e8aed4510059a796ec"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a1720dfaef5430e7920b5433c6ba80d96" id="r_a1720dfaef5430e7920b5433c6ba80d96"><td class="memItemLeft" align="right" valign="top">struct&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classtlv_1_1document.html#a1720dfaef5430e7920b5433c6ba80d96">detail::document_access</a></td></tr>
+<tr class="separator:a1720dfaef5430e7920b5433c6ba80d96"><td class="memSeparator" colspan="2">&#160;</td></tr>
 </table>
 <a name="details" id="details"></a><h2 class="groupheader">Detailed Description</h2>
 <div class="textblock"><p>An owned, mutable TLV document. </p>
 <p>Wraps <a class="elRef" href="../../c-api/html/group__document.html#gad50a36ea444832274667f45cb81dab83">tlv_document_t</a>. Unlike the reader and visitor wrappers, a document copies the data it is given, allocates memory and lets the data be searched, changed and encoded again. It is independent of the zero-copy APIs: nothing in the core depends on it, and it never refers to the buffer it was parsed from.</p>
 <p>A document is move-only. Moving keeps every <a class="el" href="classtlv_1_1node.html" title="A non-owning handle to one element of a tlv::document.">tlv::node</a> handle valid; the moved-from document is empty and unusable except for destruction and assignment.</p>
-<dl class="section warning"><dt>Warning</dt><dd>The format callbacks' contexts are borrowed and must outlive the document. Documents returned by <a class="el" href="classtlv_1_1document__builder.html" title="Owning, resumable adapter over the canonical C Document Builder.">document_builder</a> also borrow the reader's Format descriptor. </dd></dl>
+<dl class="section warning"><dt>Warning</dt><dd>Const access provides a read-only interface, not a concurrent-read guarantee. Externally synchronize concurrent access to the Document and shared handles; even const Node access may update a handle's validity cache after a mutation. </dd>
+<dd>
+The format callbacks' contexts are borrowed and must outlive the document. Documents returned by <a class="el" href="classtlv_1_1document__builder.html" title="Owning, resumable adapter over the canonical C Document Builder.">document_builder</a> also borrow the reader's Format descriptor. </dd></dl>
 <dl class="section see"><dt>See also</dt><dd><a href="https://marekcingel.github.io/OpenTLV/guides/memory/">format context ownership and lifetime</a> </dd></dl>
 </div><h2 class="groupheader">Constructor &amp; Destructor Documentation</h2>
 <a id="a21d3dd045aa4ead04d484d876746bd05" name="a21d3dd045aa4ead04d484d876746bd05"></a>
@@ -256,8 +281,8 @@ Friends</h2></td></tr>
 </div>
 </div>
 <h2 class="groupheader">Member Function Documentation</h2>
-<a id="a9cb0fb13938387e09b1293552facd053" name="a9cb0fb13938387e09b1293552facd053"></a>
-<h2 class="memtitle"><span class="permalink"><a href="#a9cb0fb13938387e09b1293552facd053">&#9670;&#160;</a></span>begin()</h2>
+<a id="a65478cb03797b03424cba43cce6edc0b" name="a65478cb03797b03424cba43cce6edc0b"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#a65478cb03797b03424cba43cce6edc0b">&#9670;&#160;</a></span>begin() <span class="overload">[1/2]</span></h2>
 
 <div class="memitem">
 <div class="memproto">
@@ -269,7 +294,7 @@ Friends</h2></td></tr>
           <td class="memname"><a class="el" href="classtlv_1_1node__iterator.html">node_iterator</a> tlv::document::begin </td>
           <td>(</td>
           <td class="paramname"></td><td>)</td>
-          <td> const</td>
+          <td></td>
         </tr>
       </table>
   </td>
@@ -280,12 +305,12 @@ Friends</h2></td></tr>
 </div><div class="memdoc">
 
 <p>Begin iteration over top-level elements in encoding order. </p>
-<dl class="section note"><dt>Note</dt><dd>Insertion preserves iterators. Erasing the current node or replacing an ancestor's constructed Value invalidates its iterator, which then compares equal to <a class="el" href="classtlv_1_1document.html#af970d559a4a8f19f4ff24a807b39119a" title="End of top-level iteration.">end()</a>. </dd></dl>
+<dl class="section note"><dt>Note</dt><dd>Insertion preserves iterators. Erasing the current node or replacing an ancestor's constructed Value invalidates its iterator, which then compares equal to <a class="el" href="classtlv_1_1document.html#a881b739fffbf599afee5fbcee799ba8f" title="End of top-level iteration.">end()</a>. </dd></dl>
 
 </div>
 </div>
-<a id="a735ba41724e8105c486f42ce1afaac37" name="a735ba41724e8105c486f42ce1afaac37"></a>
-<h2 class="memtitle"><span class="permalink"><a href="#a735ba41724e8105c486f42ce1afaac37">&#9670;&#160;</a></span>c_document()</h2>
+<a id="ab0e1a0e587b665599a2859ea683ef548" name="ab0e1a0e587b665599a2859ea683ef548"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#ab0e1a0e587b665599a2859ea683ef548">&#9670;&#160;</a></span>begin() <span class="overload">[2/2]</span></h2>
 
 <div class="memitem">
 <div class="memproto">
@@ -294,7 +319,7 @@ Friends</h2></td></tr>
   <td class="mlabels-left">
       <table class="memname">
         <tr>
-          <td class="memname"><a class="elRef" href="../../c-api/html/group__document.html#gad50a36ea444832274667f45cb81dab83">tlv_document_t</a> * tlv::document::c_document </td>
+          <td class="memname"><a class="el" href="classtlv_1_1const__node__iterator.html">const_node_iterator</a> tlv::document::begin </td>
           <td>(</td>
           <td class="paramname"></td><td>)</td>
           <td> const</td>
@@ -307,13 +332,12 @@ Friends</h2></td></tr>
 </table>
 </div><div class="memdoc">
 
-<p>Borrow the underlying C document for interoperability. </p>
-<dl class="section warning"><dt>Warning</dt><dd>Never free this handle. Native edits are checked by revision and identity when a retained Node is next accessed. Raw pointers must not outlive this owner. </dd></dl>
+<p>Begin read-only top-level traversal. </p>
 
 </div>
 </div>
-<a id="a3cb9fd5d1c821cf3e9626cdd387d06f1" name="a3cb9fd5d1c821cf3e9626cdd387d06f1"></a>
-<h2 class="memtitle"><span class="permalink"><a href="#a3cb9fd5d1c821cf3e9626cdd387d06f1">&#9670;&#160;</a></span>children()</h2>
+<a id="aeda1b6d706580f602f8546f69ce747dc" name="aeda1b6d706580f602f8546f69ce747dc"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#aeda1b6d706580f602f8546f69ce747dc">&#9670;&#160;</a></span>children() <span class="overload">[1/2]</span></h2>
 
 <div class="memitem">
 <div class="memproto">
@@ -325,7 +349,7 @@ Friends</h2></td></tr>
           <td class="memname"><a class="el" href="classtlv_1_1node__range.html">node_range</a> tlv::document::children </td>
           <td>(</td>
           <td class="paramname"></td><td>)</td>
-          <td> const</td>
+          <td></td>
         </tr>
       </table>
   </td>
@@ -336,6 +360,33 @@ Friends</h2></td></tr>
 </div><div class="memdoc">
 
 <p>The top-level elements, in encoding order. </p>
+
+</div>
+</div>
+<a id="a3b594d151c663d2afc9f9f3d6a41b1eb" name="a3b594d151c663d2afc9f9f3d6a41b1eb"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#a3b594d151c663d2afc9f9f3d6a41b1eb">&#9670;&#160;</a></span>children() <span class="overload">[2/2]</span></h2>
+
+<div class="memitem">
+<div class="memproto">
+<table class="mlabels">
+  <tr>
+  <td class="mlabels-left">
+      <table class="memname">
+        <tr>
+          <td class="memname"><a class="el" href="classtlv_1_1const__node__range.html">const_node_range</a> tlv::document::children </td>
+          <td>(</td>
+          <td class="paramname"></td><td>)</td>
+          <td> const</td>
+        </tr>
+      </table>
+  </td>
+  <td class="mlabels-right">
+<span class="mlabels"><span class="mlabel">inline</span></span>  </td>
+  </tr>
+</table>
+</div><div class="memdoc">
+
+<p>Read-only top-level siblings. </p>
 
 </div>
 </div>
@@ -403,7 +454,7 @@ Friends</h2></td></tr>
 </div>
 </div>
 <a id="aec2ac27f2f69570b4a7a1a24197a75ed" name="aec2ac27f2f69570b4a7a1a24197a75ed"></a>
-<h2 class="memtitle"><span class="permalink"><a href="#aec2ac27f2f69570b4a7a1a24197a75ed">&#9670;&#160;</a></span>encode() <span class="overload">[1/3]</span></h2>
+<h2 class="memtitle"><span class="permalink"><a href="#aec2ac27f2f69570b4a7a1a24197a75ed">&#9670;&#160;</a></span>encode() <span class="overload">[1/2]</span></h2>
 
 <div class="memitem">
 <div class="memproto">
@@ -431,8 +482,8 @@ Friends</h2></td></tr>
 
 </div>
 </div>
-<a id="ad69c1fa8656932f55da4b3f305187c6a" name="ad69c1fa8656932f55da4b3f305187c6a"></a>
-<h2 class="memtitle"><span class="permalink"><a href="#ad69c1fa8656932f55da4b3f305187c6a">&#9670;&#160;</a></span>encode() <span class="overload">[2/3]</span></h2>
+<a id="adb9e80369e370d316e0cdb9c3cc477c2" name="adb9e80369e370d316e0cdb9c3cc477c2"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#adb9e80369e370d316e0cdb9c3cc477c2">&#9670;&#160;</a></span>encode() <span class="overload">[2/2]</span></h2>
 
 <div class="memitem">
 <div class="memproto">
@@ -443,7 +494,7 @@ Friends</h2></td></tr>
         <tr>
           <td class="memname"><a class="el" href="classtlv_1_1expected.html">expected</a>&lt; std::vector&lt; <a class="el" href="namespacetlv.html#aa91df798a712d88cf7d2f1f63a539b51">byte</a> &gt;, <a class="el" href="structtlv_1_1error.html">error</a> &gt; tlv::document::encode </td>
           <td>(</td>
-          <td class="paramtype">const <a class="elRef" href="../../c-api/html/group__formats.html#gac461da7e8d46362fa8e09694efb0b062">tlv_format_t</a> &amp;&#160;</td>
+          <td class="paramtype"><a class="el" href="classtlv_1_1format.html">tlv::format</a>&#160;</td>
           <td class="paramname"><em>format</em></td><td>)</td>
           <td> const</td>
         </tr>
@@ -467,44 +518,8 @@ Friends</h2></td></tr>
 
 </div>
 </div>
-<a id="adb9e80369e370d316e0cdb9c3cc477c2" name="adb9e80369e370d316e0cdb9c3cc477c2"></a>
-<h2 class="memtitle"><span class="permalink"><a href="#adb9e80369e370d316e0cdb9c3cc477c2">&#9670;&#160;</a></span>encode() <span class="overload">[3/3]</span></h2>
-
-<div class="memitem">
-<div class="memproto">
-<table class="mlabels">
-  <tr>
-  <td class="mlabels-left">
-      <table class="memname">
-        <tr>
-          <td class="memname"><a class="el" href="classtlv_1_1expected.html">expected</a>&lt; std::vector&lt; <a class="el" href="namespacetlv.html#aa91df798a712d88cf7d2f1f63a539b51">byte</a> &gt;, <a class="el" href="structtlv_1_1error.html">error</a> &gt; tlv::document::encode </td>
-          <td>(</td>
-          <td class="paramtype"><a class="el" href="classtlv_1_1format.html">tlv::format</a>&#160;</td>
-          <td class="paramname"><em>format</em></td><td>)</td>
-          <td> const</td>
-        </tr>
-      </table>
-  </td>
-  <td class="mlabels-right">
-<span class="mlabels"><span class="mlabel">inline</span></span>  </td>
-  </tr>
-</table>
-</div><div class="memdoc">
-
-<p>Encode this Document using a C++ Format view. </p>
-<dl class="params"><dt>Parameters</dt><dd>
-  <table class="params">
-    <tr><td class="paramname">format</td><td>Borrowed writable Format as for encoded_size(format). </td></tr>
-  </table>
-  </dd>
-</dl>
-<dl class="section return"><dt>Returns</dt><dd>Owned bytes or the error from tlv_document_encode_as(). </dd></dl>
-<dl class="section note"><dt>Note</dt><dd>Identifiers are not remapped and the tree's original Format is unchanged.   </dd></dl>
-
-</div>
-</div>
 <a id="a540a6d7fbf6c56c899370626c6f2da69" name="a540a6d7fbf6c56c899370626c6f2da69"></a>
-<h2 class="memtitle"><span class="permalink"><a href="#a540a6d7fbf6c56c899370626c6f2da69">&#9670;&#160;</a></span>encoded_size() <span class="overload">[1/3]</span></h2>
+<h2 class="memtitle"><span class="permalink"><a href="#a540a6d7fbf6c56c899370626c6f2da69">&#9670;&#160;</a></span>encoded_size() <span class="overload">[1/2]</span></h2>
 
 <div class="memitem">
 <div class="memproto">
@@ -530,8 +545,8 @@ Friends</h2></td></tr>
 
 </div>
 </div>
-<a id="ab6c67ec63cb30430a8150d88573c4816" name="ab6c67ec63cb30430a8150d88573c4816"></a>
-<h2 class="memtitle"><span class="permalink"><a href="#ab6c67ec63cb30430a8150d88573c4816">&#9670;&#160;</a></span>encoded_size() <span class="overload">[2/3]</span></h2>
+<a id="a43f1c151f7e8f403aa9b9f820957cf02" name="a43f1c151f7e8f403aa9b9f820957cf02"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#a43f1c151f7e8f403aa9b9f820957cf02">&#9670;&#160;</a></span>encoded_size() <span class="overload">[2/2]</span></h2>
 
 <div class="memitem">
 <div class="memproto">
@@ -542,7 +557,7 @@ Friends</h2></td></tr>
         <tr>
           <td class="memname"><a class="el" href="classtlv_1_1expected.html">expected</a>&lt; size_t, <a class="el" href="structtlv_1_1error.html">error</a> &gt; tlv::document::encoded_size </td>
           <td>(</td>
-          <td class="paramtype">const <a class="elRef" href="../../c-api/html/group__formats.html#gac461da7e8d46362fa8e09694efb0b062">tlv_format_t</a> &amp;&#160;</td>
+          <td class="paramtype"><a class="el" href="classtlv_1_1format.html">tlv::format</a>&#160;</td>
           <td class="paramname"><em>format</em></td><td>)</td>
           <td> const</td>
         </tr>
@@ -566,44 +581,8 @@ Friends</h2></td></tr>
 
 </div>
 </div>
-<a id="a43f1c151f7e8f403aa9b9f820957cf02" name="a43f1c151f7e8f403aa9b9f820957cf02"></a>
-<h2 class="memtitle"><span class="permalink"><a href="#a43f1c151f7e8f403aa9b9f820957cf02">&#9670;&#160;</a></span>encoded_size() <span class="overload">[3/3]</span></h2>
-
-<div class="memitem">
-<div class="memproto">
-<table class="mlabels">
-  <tr>
-  <td class="mlabels-left">
-      <table class="memname">
-        <tr>
-          <td class="memname"><a class="el" href="classtlv_1_1expected.html">expected</a>&lt; size_t, <a class="el" href="structtlv_1_1error.html">error</a> &gt; tlv::document::encoded_size </td>
-          <td>(</td>
-          <td class="paramtype"><a class="el" href="classtlv_1_1format.html">tlv::format</a>&#160;</td>
-          <td class="paramname"><em>format</em></td><td>)</td>
-          <td> const</td>
-        </tr>
-      </table>
-  </td>
-  <td class="mlabels-right">
-<span class="mlabels"><span class="mlabel">inline</span></span>  </td>
-  </tr>
-</table>
-</div><div class="memdoc">
-
-<p>Measure this Document using a C++ Format view. </p>
-<dl class="params"><dt>Parameters</dt><dd>
-  <table class="params">
-    <tr><td class="paramname">format</td><td>Borrowed writable Format; must preserve constructed classification. </td></tr>
-  </table>
-  </dd>
-</dl>
-<dl class="section return"><dt>Returns</dt><dd>Exact size or the error from tlv_document_encoded_size_as(). </dd></dl>
-<dl class="section note"><dt>Note</dt><dd>Stages encoded children using the Document allocator; never changes the tree.   </dd></dl>
-
-</div>
-</div>
-<a id="af970d559a4a8f19f4ff24a807b39119a" name="af970d559a4a8f19f4ff24a807b39119a"></a>
-<h2 class="memtitle"><span class="permalink"><a href="#af970d559a4a8f19f4ff24a807b39119a">&#9670;&#160;</a></span>end()</h2>
+<a id="a881b739fffbf599afee5fbcee799ba8f" name="a881b739fffbf599afee5fbcee799ba8f"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#a881b739fffbf599afee5fbcee799ba8f">&#9670;&#160;</a></span>end() <span class="overload">[1/2]</span></h2>
 
 <div class="memitem">
 <div class="memproto">
@@ -613,6 +592,33 @@ Friends</h2></td></tr>
       <table class="memname">
         <tr>
           <td class="memname"><a class="el" href="classtlv_1_1node__iterator.html">node_iterator</a> tlv::document::end </td>
+          <td>(</td>
+          <td class="paramname"></td><td>)</td>
+          <td></td>
+        </tr>
+      </table>
+  </td>
+  <td class="mlabels-right">
+<span class="mlabels"><span class="mlabel">inline</span></span>  </td>
+  </tr>
+</table>
+</div><div class="memdoc">
+
+<p>End of top-level iteration. </p>
+
+</div>
+</div>
+<a id="a4fa5e1e493990e51061a895e492d5a81" name="a4fa5e1e493990e51061a895e492d5a81"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#a4fa5e1e493990e51061a895e492d5a81">&#9670;&#160;</a></span>end() <span class="overload">[2/2]</span></h2>
+
+<div class="memitem">
+<div class="memproto">
+<table class="mlabels">
+  <tr>
+  <td class="mlabels-left">
+      <table class="memname">
+        <tr>
+          <td class="memname"><a class="el" href="classtlv_1_1const__node__iterator.html">const_node_iterator</a> tlv::document::end </td>
           <td>(</td>
           <td class="paramname"></td><td>)</td>
           <td> const</td>
@@ -625,7 +631,7 @@ Friends</h2></td></tr>
 </table>
 </div><div class="memdoc">
 
-<p>End of top-level iteration. </p>
+<p>End read-only traversal. </p>
 
 </div>
 </div>
@@ -664,8 +670,8 @@ Friends</h2></td></tr>
 
 </div>
 </div>
-<a id="a6c4440f6e479eed0e3983b24a2eacf5d" name="a6c4440f6e479eed0e3983b24a2eacf5d"></a>
-<h2 class="memtitle"><span class="permalink"><a href="#a6c4440f6e479eed0e3983b24a2eacf5d">&#9670;&#160;</a></span>evaluate()</h2>
+<a id="a0d4799427105db208f9f242c85d8fa2b" name="a0d4799427105db208f9f242c85d8fa2b"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#a0d4799427105db208f9f242c85d8fa2b">&#9670;&#160;</a></span>evaluate()</h2>
 
 <div class="memitem">
 <div class="memproto">
@@ -682,20 +688,14 @@ Friends</h2></td></tr>
         <tr>
           <td class="paramkey"></td>
           <td></td>
-          <td class="paramtype">uint8_t *&#160;</td>
+          <td class="paramtype"><a class="el" href="classtlv_1_1span.html">span</a>&lt; <a class="el" href="namespacetlv.html#aa91df798a712d88cf7d2f1f63a539b51">byte</a> &gt;&#160;</td>
           <td class="paramname"><em>values</em>, </td>
         </tr>
         <tr>
           <td class="paramkey"></td>
           <td></td>
-          <td class="paramtype">size_t&#160;</td>
-          <td class="paramname"><em>capacity</em>, </td>
-        </tr>
-        <tr>
-          <td class="paramkey"></td>
-          <td></td>
-          <td class="paramtype"><a class="elRef" href="../../c-api/html/group__writer.html#gab9db909d8cb7eb930d06a32e07a72fd8">tlv_tree_writer_workspace_t</a> *&#160;</td>
-          <td class="paramname"><em>staging</em>, </td>
+          <td class="paramtype">const <a class="el" href="structtlv_1_1writer__workspace.html">writer_workspace</a> *&#160;</td>
+          <td class="paramname"><em>staging</em> = <code>nullptr</code>, </td>
         </tr>
         <tr>
           <td class="paramkey"></td>
@@ -716,24 +716,23 @@ Friends</h2></td></tr>
 </table>
 </div><div class="memdoc">
 
-<p>Evaluate full Query using caller-owned execution and optional Value staging. </p>
+<p>Evaluate full Query with C++ snapshot and Writer storage views. </p>
 <dl class="params"><dt>Parameters</dt><dd>
   <table class="params">
-    <tr><td class="paramname">execution</td><td>Fresh retained continuation, with variables already bound. </td></tr>
-    <tr><td class="paramname">values</td><td>Stable snapshot destination, alive through result consumption. </td></tr>
-    <tr><td class="paramname">capacity</td><td>Snapshot capacity. </td></tr>
-    <tr><td class="paramname">staging</td><td>Bounded Writer staging, or NULL when Values are unnecessary. </td></tr>
-    <tr><td class="paramname">context</td><td>Optional checked node selecting relative context. </td></tr>
+    <tr><td class="paramname">execution</td><td>Fresh retained execution, with variables already bound. </td></tr>
+    <tr><td class="paramname">values</td><td>Caller-owned snapshot storage, alive through result consumption. </td></tr>
+    <tr><td class="paramname">staging</td><td>Optional Writer workspace, needed for constructed Value snapshots. </td></tr>
+    <tr><td class="paramname">context</td><td>Optional relative context in this Document. </td></tr>
   </table>
   </dd>
 </dl>
-<dl class="section return"><dt>Returns</dt><dd>Native diagnostic; successful evaluation allocates nothing. </dd></dl>
-<dl class="section warning"><dt>Warning</dt><dd>Keep Document alive and unchanged until consuming execution results. </dd></dl>
+<dl class="section return"><dt>Returns</dt><dd>Complete Query failure or success; does not allocate. </dd></dl>
+<dl class="section warning"><dt>Warning</dt><dd>Keep the Document and snapshot unchanged while consuming results. </dd></dl>
 
 </div>
 </div>
-<a id="a721db8298fc9c2ec7adccadc75288321" name="a721db8298fc9c2ec7adccadc75288321"></a>
-<h2 class="memtitle"><span class="permalink"><a href="#a721db8298fc9c2ec7adccadc75288321">&#9670;&#160;</a></span>find() <span class="overload">[1/2]</span></h2>
+<a id="a3056d409ec3c9079793eba4389415924" name="a3056d409ec3c9079793eba4389415924"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#a3056d409ec3c9079793eba4389415924">&#9670;&#160;</a></span>find() <span class="overload">[1/4]</span></h2>
 
 <div class="memitem">
 <div class="memproto">
@@ -746,7 +745,7 @@ Friends</h2></td></tr>
           <td>(</td>
           <td class="paramtype">const <a class="el" href="classtlv_1_1query.html">query</a> &amp;&#160;</td>
           <td class="paramname"><em>path</em></td><td>)</td>
-          <td> const</td>
+          <td></td>
         </tr>
       </table>
   </td>
@@ -768,8 +767,36 @@ Friends</h2></td></tr>
 
 </div>
 </div>
-<a id="ae206987a6e03c7bac4a489c8e4bc4283" name="ae206987a6e03c7bac4a489c8e4bc4283"></a>
-<h2 class="memtitle"><span class="permalink"><a href="#ae206987a6e03c7bac4a489c8e4bc4283">&#9670;&#160;</a></span>find() <span class="overload">[2/2]</span></h2>
+<a id="acca4bc517b8cad0c03c35f51196d17a6" name="acca4bc517b8cad0c03c35f51196d17a6"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#acca4bc517b8cad0c03c35f51196d17a6">&#9670;&#160;</a></span>find() <span class="overload">[2/4]</span></h2>
+
+<div class="memitem">
+<div class="memproto">
+<table class="mlabels">
+  <tr>
+  <td class="mlabels-left">
+      <table class="memname">
+        <tr>
+          <td class="memname"><a class="el" href="classtlv_1_1const__node.html">const_node</a> tlv::document::find </td>
+          <td>(</td>
+          <td class="paramtype">const <a class="el" href="classtlv_1_1query.html">query</a> &amp;&#160;</td>
+          <td class="paramname"><em>path</em></td><td>)</td>
+          <td> const</td>
+        </tr>
+      </table>
+  </td>
+  <td class="mlabels-right">
+<span class="mlabels"><span class="mlabel">inline</span></span>  </td>
+  </tr>
+</table>
+</div><div class="memdoc">
+
+<p>Read-only lookup by compiled path. </p>
+
+</div>
+</div>
+<a id="a69e25b8a69f0e65ee680848fd055ea75" name="a69e25b8a69f0e65ee680848fd055ea75"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#a69e25b8a69f0e65ee680848fd055ea75">&#9670;&#160;</a></span>find() <span class="overload">[3/4]</span></h2>
 
 <div class="memitem">
 <div class="memproto">
@@ -782,7 +809,7 @@ Friends</h2></td></tr>
           <td>(</td>
           <td class="paramtype"><a class="el" href="classtlv_1_1tag.html">tlv::tag</a>&#160;</td>
           <td class="paramname"><em>wanted</em></td><td>)</td>
-          <td> const</td>
+          <td></td>
         </tr>
       </table>
   </td>
@@ -803,8 +830,36 @@ Friends</h2></td></tr>
 
 </div>
 </div>
-<a id="a33394ccc8be6b179ea3bb055a9efb110" name="a33394ccc8be6b179ea3bb055a9efb110"></a>
-<h2 class="memtitle"><span class="permalink"><a href="#a33394ccc8be6b179ea3bb055a9efb110">&#9670;&#160;</a></span>first()</h2>
+<a id="a5e16871d2118b8bc5c54ccd9c233d495" name="a5e16871d2118b8bc5c54ccd9c233d495"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#a5e16871d2118b8bc5c54ccd9c233d495">&#9670;&#160;</a></span>find() <span class="overload">[4/4]</span></h2>
+
+<div class="memitem">
+<div class="memproto">
+<table class="mlabels">
+  <tr>
+  <td class="mlabels-left">
+      <table class="memname">
+        <tr>
+          <td class="memname"><a class="el" href="classtlv_1_1const__node.html">const_node</a> tlv::document::find </td>
+          <td>(</td>
+          <td class="paramtype"><a class="el" href="classtlv_1_1tag.html">tlv::tag</a>&#160;</td>
+          <td class="paramname"><em>wanted</em></td><td>)</td>
+          <td> const</td>
+        </tr>
+      </table>
+  </td>
+  <td class="mlabels-right">
+<span class="mlabels"><span class="mlabel">inline</span></span>  </td>
+  </tr>
+</table>
+</div><div class="memdoc">
+
+<p>Read-only lookup by byte identifier. </p>
+
+</div>
+</div>
+<a id="af801b84ec08139d008d19d7ce1b39d9d" name="af801b84ec08139d008d19d7ce1b39d9d"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#af801b84ec08139d008d19d7ce1b39d9d">&#9670;&#160;</a></span>first() <span class="overload">[1/2]</span></h2>
 
 <div class="memitem">
 <div class="memproto">
@@ -814,6 +869,33 @@ Friends</h2></td></tr>
       <table class="memname">
         <tr>
           <td class="memname"><a class="el" href="classtlv_1_1node.html">node</a> tlv::document::first </td>
+          <td>(</td>
+          <td class="paramname"></td><td>)</td>
+          <td></td>
+        </tr>
+      </table>
+  </td>
+  <td class="mlabels-right">
+<span class="mlabels"><span class="mlabel">inline</span></span>  </td>
+  </tr>
+</table>
+</div><div class="memdoc">
+
+<p>The first top-level element, or an empty handle. </p>
+
+</div>
+</div>
+<a id="a38d35a47a6b271e20a39ecca11d1de1d" name="a38d35a47a6b271e20a39ecca11d1de1d"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#a38d35a47a6b271e20a39ecca11d1de1d">&#9670;&#160;</a></span>first() <span class="overload">[2/2]</span></h2>
+
+<div class="memitem">
+<div class="memproto">
+<table class="mlabels">
+  <tr>
+  <td class="mlabels-left">
+      <table class="memname">
+        <tr>
+          <td class="memname"><a class="el" href="classtlv_1_1const__node.html">const_node</a> tlv::document::first </td>
           <td>(</td>
           <td class="paramname"></td><td>)</td>
           <td> const</td>
@@ -826,7 +908,7 @@ Friends</h2></td></tr>
 </table>
 </div><div class="memdoc">
 
-<p>The first top-level element, or an empty handle. </p>
+<p>Read-only first top-level element; never exposes mutation. </p>
 
 </div>
 </div>
@@ -928,8 +1010,8 @@ template&lt;typename Field &gt; </div>
 
 </div>
 </div>
-<a id="a7d2575bae9235c1aec35ea9257b29f5b" name="a7d2575bae9235c1aec35ea9257b29f5b"></a>
-<h2 class="memtitle"><span class="permalink"><a href="#a7d2575bae9235c1aec35ea9257b29f5b">&#9670;&#160;</a></span>next()</h2>
+<a id="a8685a30a41406a5b11abb03919317f74" name="a8685a30a41406a5b11abb03919317f74"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#a8685a30a41406a5b11abb03919317f74">&#9670;&#160;</a></span>next() <span class="overload">[1/2]</span></h2>
 
 <div class="memitem">
 <div class="memproto">
@@ -942,7 +1024,7 @@ template&lt;typename Field &gt; </div>
           <td>(</td>
           <td class="paramtype"><a class="el" href="classtlv_1_1query__execution.html">query_execution</a> &amp;&#160;</td>
           <td class="paramname"><em>execution</em></td><td>)</td>
-          <td> const</td>
+          <td></td>
         </tr>
       </table>
   </td>
@@ -960,6 +1042,34 @@ template&lt;typename Field &gt; </div>
   </dd>
 </dl>
 <dl class="section return"><dt>Returns</dt><dd>Checked Node, END_OF_BUFFER, or native revision/state failure. </dd></dl>
+
+</div>
+</div>
+<a id="af658654130aa28ad0967b88a2bad6b5c" name="af658654130aa28ad0967b88a2bad6b5c"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#af658654130aa28ad0967b88a2bad6b5c">&#9670;&#160;</a></span>next() <span class="overload">[2/2]</span></h2>
+
+<div class="memitem">
+<div class="memproto">
+<table class="mlabels">
+  <tr>
+  <td class="mlabels-left">
+      <table class="memname">
+        <tr>
+          <td class="memname"><a class="el" href="classtlv_1_1expected.html">expected</a>&lt; <a class="el" href="classtlv_1_1const__node.html">const_node</a>, <a class="el" href="structtlv_1_1query__failure.html">query_failure</a> &gt; tlv::document::next </td>
+          <td>(</td>
+          <td class="paramtype"><a class="el" href="classtlv_1_1query__execution.html">query_execution</a> &amp;&#160;</td>
+          <td class="paramname"><em>execution</em></td><td>)</td>
+          <td> const</td>
+        </tr>
+      </table>
+  </td>
+  <td class="mlabels-right">
+<span class="mlabels"><span class="mlabel">inline</span></span>  </td>
+  </tr>
+</table>
+</div><div class="memdoc">
+
+<p>Consume a checked read-only query result; preserves Query error and end outcomes. </p>
 
 </div>
 </div>
@@ -1218,12 +1328,12 @@ template&lt;typename Field &gt; </div>
   </dd>
 </dl>
 <dl class="section return"><dt>Returns</dt><dd>Edited selected roots or native error. No matches succeeds with zero. </dd></dl>
-<dl class="section note"><dt>Note</dt><dd>Preorder commits stop at the first failure; no rollback. Each native Value replacement is atomic and respects Format/constructed parsing. Checked handles detect erased descendants lazily through native revision and identity. </dd></dl>
+<dl class="section note"><dt>Note</dt><dd>Preorder commits stop at the first failure; no rollback. Each native Value replacement is atomic and respects Format/constructed parsing. Checked handles detect erased descendants lazily through native retirement epoch and identity. </dd></dl>
 
 </div>
 </div>
-<a id="a2f5f1955526f4f07314ce7c2342c174d" name="a2f5f1955526f4f07314ce7c2342c174d"></a>
-<h2 class="memtitle"><span class="permalink"><a href="#a2f5f1955526f4f07314ce7c2342c174d">&#9670;&#160;</a></span>select() <span class="overload">[1/3]</span></h2>
+<a id="a5a13cbd84a8efaf507b710020fb7e7eb" name="a5a13cbd84a8efaf507b710020fb7e7eb"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#a5a13cbd84a8efaf507b710020fb7e7eb">&#9670;&#160;</a></span>select() <span class="overload">[1/6]</span></h2>
 
 <div class="memitem">
 <div class="memproto">
@@ -1236,7 +1346,7 @@ template&lt;typename Field &gt; </div>
           <td>(</td>
           <td class="paramtype">const char *&#160;</td>
           <td class="paramname"><em>text</em></td><td>)</td>
-          <td> const</td>
+          <td></td>
         </tr>
       </table>
   </td>
@@ -1253,7 +1363,7 @@ template&lt;typename Field &gt; </div>
   </table>
   </dd>
 </dl>
-<dl class="section return"><dt>Returns</dt><dd>Snapshot with the lifetime and mutation rules of select(const query&amp;). </dd></dl>
+<dl class="section return"><dt>Returns</dt><dd>Snapshot with the lifetime and mutation rules of <a class="el" href="classtlv_1_1document.html#ab85c865445c883cea28a0f7a425e9ebe" title="Select all matching Nodes in Document order.">select(const query&amp;)</a>. </dd></dl>
 <dl class="exception"><dt>Exceptions</dt><dd>
   <table class="exception">
     <tr><td class="paramname"><a class="el" href="classtlv_1_1query__error.html" title="Query compilation failure with the original C error and text offset.">query_error</a></td><td>On compilation failure, retaining the original text offset. </td></tr>
@@ -1264,8 +1374,36 @@ template&lt;typename Field &gt; </div>
 
 </div>
 </div>
-<a id="a2907ddc33ed25f7214e3f1aafec4d594" name="a2907ddc33ed25f7214e3f1aafec4d594"></a>
-<h2 class="memtitle"><span class="permalink"><a href="#a2907ddc33ed25f7214e3f1aafec4d594">&#9670;&#160;</a></span>select() <span class="overload">[2/3]</span></h2>
+<a id="a31ef41de29c8bb3c3cca41d02c735275" name="a31ef41de29c8bb3c3cca41d02c735275"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#a31ef41de29c8bb3c3cca41d02c735275">&#9670;&#160;</a></span>select() <span class="overload">[2/6]</span></h2>
+
+<div class="memitem">
+<div class="memproto">
+<table class="mlabels">
+  <tr>
+  <td class="mlabels-left">
+      <table class="memname">
+        <tr>
+          <td class="memname">std::vector&lt; <a class="el" href="classtlv_1_1const__node.html">const_node</a> &gt; tlv::document::select </td>
+          <td>(</td>
+          <td class="paramtype">const char *&#160;</td>
+          <td class="paramname"><em>text</em></td><td>)</td>
+          <td> const</td>
+        </tr>
+      </table>
+  </td>
+  <td class="mlabels-right">
+<span class="mlabels"><span class="mlabel">inline</span></span>  </td>
+  </tr>
+</table>
+</div><div class="memdoc">
+
+<p>Compile a path and obtain a read-only snapshot; throws <a class="el" href="classtlv_1_1query__error.html" title="Query compilation failure with the original C error and text offset.">query_error</a> on syntax failure. </p>
+
+</div>
+</div>
+<a id="ab85c865445c883cea28a0f7a425e9ebe" name="ab85c865445c883cea28a0f7a425e9ebe"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#ab85c865445c883cea28a0f7a425e9ebe">&#9670;&#160;</a></span>select() <span class="overload">[3/6]</span></h2>
 
 <div class="memitem">
 <div class="memproto">
@@ -1278,7 +1416,7 @@ template&lt;typename Field &gt; </div>
           <td>(</td>
           <td class="paramtype">const <a class="el" href="classtlv_1_1query.html">query</a> &amp;&#160;</td>
           <td class="paramname"><em>path</em></td><td>)</td>
-          <td> const</td>
+          <td></td>
         </tr>
       </table>
   </td>
@@ -1306,8 +1444,36 @@ template&lt;typename Field &gt; </div>
 
 </div>
 </div>
-<a id="aa11d56f6e79e17826e0e89082f22be2e" name="aa11d56f6e79e17826e0e89082f22be2e"></a>
-<h2 class="memtitle"><span class="permalink"><a href="#aa11d56f6e79e17826e0e89082f22be2e">&#9670;&#160;</a></span>select() <span class="overload">[3/3]</span></h2>
+<a id="a91a2669aa6fe17173f8110159203760f" name="a91a2669aa6fe17173f8110159203760f"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#a91a2669aa6fe17173f8110159203760f">&#9670;&#160;</a></span>select() <span class="overload">[4/6]</span></h2>
+
+<div class="memitem">
+<div class="memproto">
+<table class="mlabels">
+  <tr>
+  <td class="mlabels-left">
+      <table class="memname">
+        <tr>
+          <td class="memname">std::vector&lt; <a class="el" href="classtlv_1_1const__node.html">const_node</a> &gt; tlv::document::select </td>
+          <td>(</td>
+          <td class="paramtype">const <a class="el" href="classtlv_1_1query.html">query</a> &amp;&#160;</td>
+          <td class="paramname"><em>path</em></td><td>)</td>
+          <td> const</td>
+        </tr>
+      </table>
+  </td>
+  <td class="mlabels-right">
+<span class="mlabels"><span class="mlabel">inline</span></span>  </td>
+  </tr>
+</table>
+</div><div class="memdoc">
+
+<p>Read-only snapshot of path matches; allocates the result vector. </p>
+
+</div>
+</div>
+<a id="aefe2a3c13377b141625462e29a2ad7d6" name="aefe2a3c13377b141625462e29a2ad7d6"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#aefe2a3c13377b141625462e29a2ad7d6">&#9670;&#160;</a></span>select() <span class="overload">[5/6]</span></h2>
 
 <div class="memitem">
 <div class="memproto">
@@ -1324,7 +1490,61 @@ template&lt;typename Field &gt; </div>
         <tr>
           <td class="paramkey"></td>
           <td></td>
-          <td class="paramtype">const <a class="elRef" href="../../c-api/html/group__traversal.html#gaf2f1c0d8fe278eb32c61e19e7b108a48">tlv_query_environment_t</a> *&#160;</td>
+          <td class="paramtype"><a class="el" href="classtlv_1_1query__capabilities.html">query_capabilities</a>&#160;</td>
+          <td class="paramname"><em>environment</em> = <code>nullptr</code>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype">size_t&#160;</td>
+          <td class="paramname"><em>max_work</em> = <code>100000000</code>&#160;</td>
+        </tr>
+        <tr>
+          <td></td>
+          <td>)</td>
+          <td></td><td></td>
+        </tr>
+      </table>
+  </td>
+  <td class="mlabels-right">
+<span class="mlabels"><span class="mlabel">inline</span></span>  </td>
+  </tr>
+</table>
+</div><div class="memdoc">
+
+<p>Complete full-language selection and return checked Node snapshots. </p>
+<dl class="params"><dt>Parameters</dt><dd>
+  <table class="params">
+    <tr><td class="paramname">program</td><td>Immutable compiled full Query with node result kind. </td></tr>
+    <tr><td class="paramname">environment</td><td>Optional compatible native providers, borrowed for the call. </td></tr>
+    <tr><td class="paramname">max_work</td><td>Explicit charged execution budget. </td></tr>
+  </table>
+  </dd>
+</dl>
+<dl class="section return"><dt>Returns</dt><dd>Document-order unique checked handles or full native diagnostic. </dd></dl>
+<dl class="section note"><dt>Note</dt><dd>Allocates workspace, optional canonical Value snapshot and result handles. Insertions after selection are excluded; handles follow the normal granular Node invalidation rules. Selection always completes before returning results. </dd></dl>
+
+</div>
+</div>
+<a id="a8b3fd4527693f2bb6093a58183b4d637" name="a8b3fd4527693f2bb6093a58183b4d637"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#a8b3fd4527693f2bb6093a58183b4d637">&#9670;&#160;</a></span>select() <span class="overload">[6/6]</span></h2>
+
+<div class="memitem">
+<div class="memproto">
+<table class="mlabels">
+  <tr>
+  <td class="mlabels-left">
+      <table class="memname">
+        <tr>
+          <td class="memname"><a class="el" href="classtlv_1_1expected.html">expected</a>&lt; std::vector&lt; <a class="el" href="classtlv_1_1const__node.html">const_node</a> &gt;, <a class="el" href="structtlv_1_1query__failure.html">query_failure</a> &gt; tlv::document::select </td>
+          <td>(</td>
+          <td class="paramtype">const <a class="el" href="classtlv_1_1query__program.html">query_program</a> &amp;&#160;</td>
+          <td class="paramname"><em>program</em>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype"><a class="el" href="classtlv_1_1query__capabilities.html">query_capabilities</a>&#160;</td>
           <td class="paramname"><em>environment</em> = <code>nullptr</code>, </td>
         </tr>
         <tr>
@@ -1346,17 +1566,7 @@ template&lt;typename Field &gt; </div>
 </table>
 </div><div class="memdoc">
 
-<p>Complete full-language selection and return checked Node snapshots. </p>
-<dl class="params"><dt>Parameters</dt><dd>
-  <table class="params">
-    <tr><td class="paramname">program</td><td>Immutable compiled full Query with node result kind. </td></tr>
-    <tr><td class="paramname">environment</td><td>Optional compatible native providers, borrowed for the call. </td></tr>
-    <tr><td class="paramname">max_work</td><td>Explicit charged execution budget. </td></tr>
-  </table>
-  </dd>
-</dl>
-<dl class="section return"><dt>Returns</dt><dd>Document-order unique checked handles or full native diagnostic. </dd></dl>
-<dl class="section note"><dt>Note</dt><dd>Allocates workspace, optional canonical Value snapshot and result handles. Insertions after selection are excluded; handles follow the normal granular Node invalidation rules. Selection always completes before returning results. </dd></dl>
+<p>Evaluate a compiled query and return read-only handles; may allocate. </p>
 
 </div>
 </div>
@@ -1388,6 +1598,28 @@ template&lt;typename Field &gt; </div>
 </div>
 </div>
 <h2 class="groupheader">Friends And Related Symbol Documentation</h2>
+<a id="a1720dfaef5430e7920b5433c6ba80d96" name="a1720dfaef5430e7920b5433c6ba80d96"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#a1720dfaef5430e7920b5433c6ba80d96">&#9670;&#160;</a></span>detail::document_access</h2>
+
+<div class="memitem">
+<div class="memproto">
+<table class="mlabels">
+  <tr>
+  <td class="mlabels-left">
+      <table class="memname">
+        <tr>
+          <td class="memname">friend struct detail::document_access</td>
+        </tr>
+      </table>
+  </td>
+  <td class="mlabels-right">
+<span class="mlabels"><span class="mlabel">friend</span></span>  </td>
+  </tr>
+</table>
+</div><div class="memdoc">
+
+</div>
+</div>
 <a id="a39848b78fca670e8aed4510059a796ec" name="a39848b78fca670e8aed4510059a796ec"></a>
 <h2 class="memtitle"><span class="permalink"><a href="#a39848b78fca670e8aed4510059a796ec">&#9670;&#160;</a></span>document_builder</h2>
 
