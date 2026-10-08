@@ -169,16 +169,20 @@ static tlv_result_t buffer_evaluate(const uint8_t* data, size_t size, const tlv_
         }
         return rc;
     }
+    tlv_reader_diagnostic_t original;
     for (;;) {
         tlv_tree_event_t event;
-        /* Tree argument/resource failures intentionally leave Reader detail untouched. */
-        tlv_reader_diagnostic_t original = {0};
-        rc = tlv_tree_reader_next_event_diag(&reader, &event, &original);
+        /* Tree preflight failures leave detail untouched. Reset only the marker;
+         * materialize missing detail on failure, never on the successful event path. */
+        if (diagnostic) original.diagnostic.code = TLV_OK;
+        rc = tlv_tree_reader_next_event_diag(&reader, &event, diagnostic ? &original : NULL);
         if (rc == TLV_ERR_END_OF_BUFFER) return tlv_query_exec_finish(exec, diagnostic);
         if (rc != TLV_OK) {
             if (diagnostic) {
-                if (original.diagnostic.code == TLV_OK)
+                if (original.diagnostic.code == TLV_OK) {
+                    tlv_reader_diagnostic_init(&original);
                     tlv_diagnostic_init(&original.diagnostic, rc, TLV_DIAGNOSTIC_SEVERITY_ERROR);
+                }
                 memset(diagnostic, 0, sizeof *diagnostic);
                 diagnostic->kind =
                     rc == TLV_ERR_INVALID_STATE ? TLV_QUERY_ERROR_STATE : TLV_QUERY_ERROR_READER;

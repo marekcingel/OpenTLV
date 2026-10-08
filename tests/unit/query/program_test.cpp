@@ -1083,6 +1083,16 @@ TEST(Unit_Tlv_QueryProgram, TreeResourceLimitsHaveOwnedSafeReaderDiagnostics) {
         EXPECT_EQ(nullptr, detail.tag.data);
         EXPECT_EQ(0u, detail.tag.size);
         EXPECT_EQ(0, detail.has_raw_length);
+        EXPECT_EQ(0u, detail.diagnostic.path.length);
+        EXPECT_EQ(0u, detail.diagnostic.path.omitted);
+
+        ASSERT_EQ(TLV_OK, tlv_query_exec_reset(exec));
+        ASSERT_EQ(TLV_OK, tlv_tree_reader_init(&reader, wire, sizeof wire, &format, frames,
+                                               resource == 0 ? 0 : 4, resource == 1 ? 0 : 4,
+                                               resource == 2 ? 0 : 8));
+        selected.clear();
+        EXPECT_EQ(resource == 0 ? TLV_ERR_BUFFER_TOO_SHORT : TLV_ERR_LIMIT,
+                  tlv_query_program_visit(&reader, exec, collect_event, &selected, nullptr));
     }
 
     tlv_schema_query_rule_t rule = {selector.get(), assertion.get(), nullptr, "limited"};
@@ -1117,6 +1127,11 @@ TEST(Unit_Tlv_QueryProgram, TreeResourceLimitsHaveOwnedSafeReaderDiagnostics) {
     EXPECT_EQ(nullptr, diagnostic.query.reader.tag.data);
     EXPECT_EQ(0, diagnostic.query.reader.has_tag);
     EXPECT_EQ(0, diagnostic.query.reader.has_raw_length);
+    EXPECT_EQ(TLV_LOCATION_UNKNOWN, diagnostic.query.reader.diagnostic.location.kind);
+    EXPECT_EQ(0u, diagnostic.query.reader.diagnostic.path.length);
+    EXPECT_EQ(0u, diagnostic.query.reader.diagnostic.path.omitted);
+    EXPECT_EQ(TLV_ERR_LIMIT, tlv_schema_query_validate_buffer(wire, sizeof wire, &format, &rule, 1,
+                                                              0, 8, 100000, &workspace, nullptr));
 }
 
 TEST(Unit_Tlv_QueryProgram, EventFeedRejectsUnbalancedEventsAndMissingSource) {

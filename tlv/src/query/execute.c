@@ -916,10 +916,12 @@ tlv_result_t tlv_query_program_visit(tlv_tree_reader_t* reader, tlv_query_exec_t
         if (rc != TLV_OK)
             return query_failure(d, rc, TLV_QUERY_ERROR_EVENTS, "valid execution operation");
     }
+    tlv_reader_diagnostic_t reader_diag;
     for (;;) {
         tlv_tree_event_t event;
-        /* Tree argument/resource failures intentionally leave Reader detail untouched. */
-        tlv_reader_diagnostic_t reader_diag = {0};
+        /* Tree preflight failures leave detail untouched. Reset only the marker;
+         * materialize missing detail on failure, never on the successful event path. */
+        if (d) reader_diag.diagnostic.code = TLV_OK;
         e->busy = 1;
         tlv_result_t rc = tlv_tree_reader_next_event_diag(reader, &event, d ? &reader_diag : NULL);
         if (!e->busy) {
@@ -946,8 +948,10 @@ tlv_result_t tlv_query_program_visit(tlv_tree_reader_t* reader, tlv_query_exec_t
         if (rc != TLV_OK) {
             e->invalid = 1;
             if (d) {
-                if (reader_diag.diagnostic.code == TLV_OK)
+                if (reader_diag.diagnostic.code == TLV_OK) {
+                    tlv_reader_diagnostic_init(&reader_diag);
                     tlv_diagnostic_init(&reader_diag.diagnostic, rc, TLV_DIAGNOSTIC_SEVERITY_ERROR);
+                }
                 d->kind =
                     rc == TLV_ERR_INVALID_STATE ? TLV_QUERY_ERROR_STATE : TLV_QUERY_ERROR_READER;
                 d->reader = reader_diag;
