@@ -88,39 +88,33 @@ static tlv_result_t check_table(const tlv_structure_schema_t* schema) {
 
 tlv_result_t tlv_schema_check(const tlv_structure_schema_t* schema,
                               tlv_schema_diagnostic_t* diagnostic) {
-    const tlv_structure_schema_t* stack[TLV_SCHEMA_MAX_DEPTH + 1];
-    size_t next[TLV_SCHEMA_MAX_DEPTH + 1];
-    size_t depth = 0;
+    const tlv_structure_schema_t* tables[TLV_SCHEMA_MAX_TABLES];
+    size_t count = 1;
     tlv_result_t rc;
     if (diagnostic) tlv_schema_diagnostic_init(diagnostic);
     if (!schema) {
         rc = TLV_ERR_NULL_ARG;
         goto done;
     }
-    stack[0] = schema;
-    next[0] = 0;
-    rc = check_table(schema);
-    if (rc != TLV_OK) goto done;
-    for (;;) {
-        const tlv_structure_schema_t* current = stack[depth];
-        if (next[depth] == current->count) {
-            if (!depth) break;
-            --depth;
-        } else {
-            const tlv_structure_schema_t* child = current->rules[next[depth]++].children;
+    tables[0] = schema;
+    /* Enqueue each identity once. Every queued table is checked before success,
+     * including tables reached through cycles or absent optional fields. */
+    for (size_t next = 0; next < count; ++next) {
+        const tlv_structure_schema_t* current = tables[next];
+        rc = check_table(current);
+        if (rc != TLV_OK) goto done;
+        for (size_t rule = 0; rule < current->count; ++rule) {
+            const tlv_structure_schema_t* child = current->rules[rule].children;
             size_t i;
             if (!child) continue;
-            for (i = 0; i <= depth; ++i)
-                if (stack[i] == child) break;
-            if (i <= depth) continue;
-            rc = check_table(child);
-            if (rc != TLV_OK) goto done;
-            if (depth == TLV_SCHEMA_MAX_DEPTH) {
+            for (i = 0; i < count; ++i)
+                if (tables[i] == child) break;
+            if (i < count) continue;
+            if (count == TLV_SCHEMA_MAX_TABLES) {
                 rc = TLV_ERR_UNSUPPORTED_TYPE;
                 goto done;
             }
-            stack[++depth] = child;
-            next[depth] = 0;
+            tables[count++] = child;
         }
     }
     rc = TLV_OK;

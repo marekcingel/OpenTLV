@@ -104,7 +104,7 @@ TEST(Unit_Tlv_DerSchema, DefinitionGraphErrorsAreNotInputOrCapabilityFailures) {
     EXPECT_FALSE(diagnostic.diagnostic.has_offset);
     auto element = Required(root);
     root.element = &element;
-    EXPECT_EQ(TLV_ERR_INVALID_SCHEMA, tlv_der_schema_check(&root, &diagnostic));
+    EXPECT_EQ(TLV_OK, tlv_der_schema_check(&root, &diagnostic));
     element.type = &kInteger;
     EXPECT_EQ(TLV_OK, tlv_der_schema_check(&root, &diagnostic));
     root.kind = TLV_DER_SCHEMA_SEQUENCE;
@@ -823,4 +823,165 @@ TEST(Unit_Tlv_DerSchema, WriteSizeQueryReportsSameSchemaOffset) {
               tlv_der_schema_write(nullptr, 0, &root, ScriptEncode, &script, &limits, arena,
                                    sizeof(arena), nullptr, 0, &written, &offset));
     EXPECT_EQ(0u, offset.diagnostic.offset);
+}
+
+TEST(Unit_Tlv_DerSchema, SharedDagAndDeepUnusedDefinitionsHaveBoundedCheckingWork) {
+    tlv_der_schema_type_t      types[40]{};
+    tlv_der_schema_component_t components[40][2]{};
+    for (size_t i = 0; i < 40; ++i) {
+        types[i] = {TLV_DER_SCHEMA_SEQUENCE, 0, components[i], 2, nullptr, 0, 0, nullptr, 0};
+        for (size_t j = 0; j < 2; ++j) {
+            components[i][j] = Required(i + 1 < 40 ? types[i + 1] : kInteger);
+            components[i][j].presence = TLV_DER_OPTIONAL;
+        }
+    }
+    EXPECT_EQ(TLV_OK, tlv_der_schema_check(types, nullptr));
+    EXPECT_EQ(TLV_OK, Read({0x30, 0}, types[0]));
+    std::vector<uint8_t> output;
+    ASSERT_EQ(TLV_OK, Write(types[0],
+                            {{&components[0][0], 0, false, {}}, {&components[0][1], 0, false, {}}},
+                            &output));
+    EXPECT_EQ((std::vector<uint8_t>{0x30, 0}), output);
+    components[39][1].type = nullptr;
+    EXPECT_EQ(TLV_ERR_INVALID_SCHEMA, Read({0x30, 0}, types[0]));
+}
+
+TEST(Unit_Tlv_DerSchema, RecursiveContainersReadAndWriteUnderLiveDepthLimits) {
+    for (auto kind : {TLV_DER_SCHEMA_SEQUENCE_OF, TLV_DER_SCHEMA_SET_OF}) {
+        tlv_der_schema_type_t root = {kind, 0, nullptr, 0, nullptr, 0, SIZE_MAX, nullptr, 0};
+        auto                  element = Required(root);
+        root.element = &element;
+        const uint8_t              tag = kind == TLV_DER_SCHEMA_SET_OF ? 0x31 : 0x30;
+        const std::vector<uint8_t> wire = {tag, 2, tag, 0};
+        EXPECT_EQ(TLV_OK, Read(wire, root));
+        tlv_der_schema_limits_t limits = tlv_der_schema_default_limits;
+        limits.base.max_depth = 1;
+        EXPECT_EQ(TLV_ERR_LIMIT, Read(wire, root, nullptr, nullptr, &limits));
+        struct State {
+            const tlv_der_schema_component_t* element;
+            size_t                            calls;
+        };
+        State state{&element, 0};
+        auto  encode = [](const void* context, const tlv_der_schema_component_t* component, size_t,
+                          uint8_t*, size_t, size_t* written, int* absent) -> tlv_result_t {
+            auto* state = const_cast<State*>(static_cast<const State*>(context));
+            *written = 0;
+            *absent = component == state->element && state->calls++ != 0;
+            return TLV_OK;
+        };
+        uint8_t                 arena[128]{}, output[16]{};
+        tlv_der_schema_record_t records[4]{};
+        size_t                  written = 999;
+        EXPECT_EQ(TLV_OK,
+                  tlv_der_schema_write(output, sizeof(output), &root, encode, &state, nullptr,
+                                       arena, sizeof(arena), records, 4, &written, nullptr));
+        ASSERT_EQ(wire.size(), written);
+        EXPECT_EQ(0, std::memcmp(output, wire.data(), written));
+        state.calls = 0;
+        written = 999;
+        EXPECT_EQ(TLV_ERR_LIMIT,
+                  tlv_der_schema_write(output, sizeof(output), &root, encode, &state, &limits,
+                                       arena, sizeof(arena), records, 4, &written, nullptr));
+        EXPECT_EQ(999u, written);
+    }
+}
+
+TEST(Unit_Tlv_DerSchema, TransparentCyclesAreRejectedEvenInsideProductiveCycles) {
+    tlv_der_schema_type_t choice = {
+        TLV_DER_SCHEMA_CHOICE, 0, nullptr, 1, nullptr, 0, 0, nullptr, 0};
+    auto alternative = Required(choice);
+    choice.components = &alternative;
+    tlv_schema_diagnostic_t diagnostic{};
+    EXPECT_EQ(TLV_ERR_INVALID_SCHEMA, tlv_der_schema_check(&choice, &diagnostic));
+    EXPECT_EQ(TLV_SCHEMA_ISSUE_DEFINITION, diagnostic.kind);
+    EXPECT_FALSE(diagnostic.diagnostic.has_offset);
+    // A consuming edge elsewhere in the graph must not hide this CHOICE self-loop.
+    tlv_der_schema_component_t members[2] = {Required(choice), Required(choice)};
+    tlv_der_schema_type_t      sequence = {
+        TLV_DER_SCHEMA_SEQUENCE, 0, members, 2, nullptr, 0, 0, nullptr, 0};
+    members[0] = Required(sequence);
+    members[0].presence = TLV_DER_OPTIONAL;
+    EXPECT_EQ(TLV_ERR_INVALID_SCHEMA, tlv_der_schema_check(&sequence, nullptr));
+    // EXPLICIT consumes an identifier, allowing a finite branch to end recursion.
+    tlv_der_schema_component_t alternatives[2] = {Required(choice), Required(kInteger)};
+    alternatives[0].tagging = TLV_DER_TAG_EXPLICIT;
+    alternatives[0].tag_class = TLV_ASN1_CONTEXT_SPECIFIC;
+    alternatives[0].tag_number = 0;
+    choice.components = alternatives;
+    choice.component_count = 2;
+    EXPECT_EQ(TLV_OK, tlv_der_schema_check(&choice, nullptr));
+    EXPECT_EQ(TLV_OK, Read({0xa0, 3, 2, 1, 1}, choice));
+    std::vector<uint8_t> deep = {2, 1, 1};
+    for (size_t i = 0; i < 36; ++i) {
+        deep.insert(deep.begin(), static_cast<uint8_t>(deep.size()));
+        deep.insert(deep.begin(), 0xa0);
+    }
+    tlv_der_schema_limits_t limits = tlv_der_schema_default_limits;
+    limits.base.max_depth = 40;
+    EXPECT_EQ(TLV_OK, Read(deep, choice, nullptr, nullptr, &limits));
+    limits.base.max_depth = 35;
+    EXPECT_EQ(TLV_ERR_LIMIT, Read(deep, choice, nullptr, nullptr, &limits));
+    struct State {
+        const tlv_der_schema_component_t* recursive;
+        size_t                            wrappers;
+    } state{&alternatives[0], 0};
+    auto encode = [](const void* context, const tlv_der_schema_component_t* component, size_t,
+                     uint8_t* data, size_t capacity, size_t* written, int* absent) -> tlv_result_t {
+        auto* state = const_cast<State*>(static_cast<const State*>(context));
+        *absent = component == state->recursive && state->wrappers++ == 36;
+        *written = component->type->kind == TLV_DER_SCHEMA_UNIVERSAL ? 1 : 0;
+        if (data && *written) {
+            if (!capacity) return TLV_ERR_BUFFER_TOO_SHORT;
+            data[0] = 1;
+        }
+        return TLV_OK;
+    };
+    uint8_t arena[4096]{}, output[128]{};
+    size_t  written = 999;
+    limits.base.max_depth = 40;
+    ASSERT_EQ(TLV_OK, tlv_der_schema_write(output, sizeof(output), &choice, encode, &state, &limits,
+                                           arena, sizeof(arena), nullptr, 0, &written, nullptr));
+    ASSERT_EQ(deep.size(), written);
+    EXPECT_EQ(0, std::memcmp(output, deep.data(), written));
+    state.wrappers = 0;
+    written = 999;
+    limits.base.max_depth = 35;
+    EXPECT_EQ(TLV_ERR_LIMIT,
+              tlv_der_schema_write(output, sizeof(output), &choice, encode, &state, &limits, arena,
+                                   sizeof(arena), nullptr, 0, &written, nullptr));
+    EXPECT_EQ(999u, written);
+}
+
+TEST(Unit_Tlv_DerSchema, RecursiveExplicitContainersKeepWireDepthAcrossFrames) {
+    tlv_der_schema_type_t root = {
+        TLV_DER_SCHEMA_SEQUENCE_OF, 0, nullptr, 0, nullptr, 0, SIZE_MAX, nullptr, 0};
+    auto element = Required(root);
+    element.tagging = TLV_DER_TAG_EXPLICIT;
+    element.tag_class = TLV_ASN1_CONTEXT_SPECIFIC;
+    root.element = &element;
+    const std::vector<uint8_t> wire = {0x30, 8, 0xa0, 6, 0x30, 4, 0xa0, 2, 0x30, 0};
+    tlv_der_schema_limits_t    limits = tlv_der_schema_default_limits;
+    limits.base.max_depth = 5;
+    EXPECT_EQ(TLV_OK, Read(wire, root, nullptr, nullptr, &limits));
+    limits.base.max_depth = 4;
+    EXPECT_EQ(TLV_ERR_LIMIT, Read(wire, root, nullptr, nullptr, &limits));
+}
+
+TEST(Unit_Tlv_DerSchema, DefinitionCapacityAndTransparentDepthAreSeparateBounds) {
+    tlv_der_schema_type_t      types[TLV_DER_SCHEMA_MAX_TYPES + 1]{};
+    tlv_der_schema_component_t edges[TLV_DER_SCHEMA_MAX_TYPES]{};
+    types[TLV_DER_SCHEMA_MAX_TYPES] = kInteger;
+    for (size_t i = 0; i < TLV_DER_SCHEMA_MAX_TYPES; ++i) {
+        edges[i] = Required(types[i + 1]);
+        types[i] = {TLV_DER_SCHEMA_SEQUENCE, 0, &edges[i], 1, nullptr, 0, 0, nullptr, 0};
+    }
+    EXPECT_EQ(TLV_ERR_UNSUPPORTED_TYPE, tlv_der_schema_check(types, nullptr));
+    EXPECT_EQ(TLV_OK, tlv_der_schema_check(types + 1, nullptr));
+    for (size_t i = 0; i <= TLV_DER_SCHEMA_MAX_TYPE_DEPTH; ++i)
+        types[i].kind = TLV_DER_SCHEMA_CHOICE;
+    EXPECT_EQ(TLV_ERR_UNSUPPORTED_TYPE, tlv_der_schema_check(types, nullptr));
+    // Restrict the reachable graph so this rejection comes only from CHOICE depth.
+    types[TLV_DER_SCHEMA_MAX_TYPE_DEPTH + 1] = kInteger;
+    EXPECT_EQ(TLV_ERR_UNSUPPORTED_TYPE, tlv_der_schema_check(types, nullptr));
+    EXPECT_EQ(TLV_OK, tlv_der_schema_check(types + 1, nullptr));
 }

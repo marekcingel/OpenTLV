@@ -28,6 +28,12 @@ extern "C" {
 /** @brief Nesting capacity of the Schema validators' local traversal storage. */
 enum { TLV_SCHEMA_MAX_DEPTH = 64 };
 
+/** @brief Maximum distinct tables in one structural schema definition graph.
+ * Shared and recursive references count once, independently of input nesting.
+ * Exceeding this allocation-free checking capacity returns #TLV_ERR_UNSUPPORTED_TYPE.
+ */
+enum { TLV_SCHEMA_MAX_TABLES = 256 };
+
 /**
  * @brief Length rule for one tag in a #tlv_schema_t.
  *
@@ -373,7 +379,10 @@ TLV_API void tlv_schema_diagnostic_init(tlv_schema_diagnostic_t* diagnostic);
 
 /**
  * @brief Checks every reachable structural schema table independently of input.
- * Recursive references are supported; the active ancestor chain is checked once.
+ * Shared and recursive references are supported; every distinct table is checked once.
+ * The worklist holds at most #TLV_SCHEMA_MAX_TABLES identities. Pointer lookup is linear
+ * in the number of discovered tables, in addition to each table's local rule/group checks.
+ * Definition graph depth is independent of the input nesting limit.
  * @param schema Borrowed schema graph.
  * @param diagnostic Optional failure detail; definition errors have unknown byte location.
  * @return #TLV_OK, #TLV_ERR_NULL_ARG, #TLV_ERR_INVALID_SCHEMA, or

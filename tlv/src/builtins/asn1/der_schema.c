@@ -110,8 +110,10 @@ static int type_is_constructed(const tlv_der_schema_type_t* type) {
  * nothing matches or the bound is exceeded. The returned component always
  * has tagging != TLV_DER_TAG_NONE, or an untagged type with a fixed kind
  * (UNIVERSAL/SEQUENCE/SET/SET_OF) or is untagged ANY. */
-static const tlv_der_schema_component_t* resolve_at(const tlv_der_schema_component_t* component,
-                                                    const tlv_tag_t* wire_tag, size_t depth) {
+static const tlv_der_schema_component_t* resolve_tag(const tlv_der_schema_component_t* component,
+                                                     const tlv_tag_t* wire_tag, size_t depth,
+                                                     const tlv_der_schema_type_t** failed,
+                                                     size_t* failed_count) {
     owned_tag_t expected;
     if (depth > TLV_DER_SCHEMA_MAX_TYPE_DEPTH) return NULL;
     if (component->tagging != TLV_DER_TAG_NONE) {
@@ -125,15 +127,27 @@ static const tlv_der_schema_component_t* resolve_at(const tlv_der_schema_compone
     if (component->type->kind == TLV_DER_SCHEMA_ANY) return component;
     if (component->type->kind == TLV_DER_SCHEMA_CHOICE) {
         size_t i;
+        for (i = 0; i < *failed_count; ++i)
+            if (failed[i] == component->type) return NULL;
         for (i = 0; i < component->type->component_count; ++i) {
-            const tlv_der_schema_component_t* resolved =
-                resolve_at(&component->type->components[i], wire_tag, depth + 1);
+            const tlv_der_schema_component_t* resolved = resolve_tag(
+                &component->type->components[i], wire_tag, depth + 1, failed, failed_count);
             if (resolved) return resolved;
         }
+        if (*failed_count < TLV_DER_SCHEMA_MAX_TYPES) failed[(*failed_count)++] = component->type;
         return NULL;
     }
     if (kind_identifier(component->type, &expected) != TLV_OK) return NULL;
     return tags_equal(&expected, wire_tag) ? component : NULL;
+}
+
+/* Cache only failed untagged CHOICE resolutions. A shared type has the same
+ * answer for this wire tag, regardless of the path used to reach it. */
+static const tlv_der_schema_component_t* resolve_at(const tlv_der_schema_component_t* component,
+                                                    const tlv_tag_t* wire_tag, size_t depth) {
+    const tlv_der_schema_type_t* failed[TLV_DER_SCHEMA_MAX_TYPES];
+    size_t failed_count = 0;
+    return resolve_tag(component, wire_tag, depth, failed, &failed_count);
 }
 
 static int is_default_equal(const uint8_t* data, size_t elem_base, size_t elem_used,
@@ -167,102 +181,7 @@ static tlv_result_t validate_leaf_constraint(const tlv_der_schema_type_t* type, 
 
 /* ---- Schema self-check ---------------------------------------------- */
 
-static tlv_result_t check_component(const tlv_der_schema_component_t* component, int in_choice,
-                                    size_t depth, const tlv_der_schema_type_t** ancestors);
-
-static tlv_result_t check_type(const tlv_der_schema_type_t* type, size_t depth,
-                               const tlv_der_schema_type_t** ancestors) {
-    size_t i, j;
-    tlv_result_t rc;
-    if (!type) return TLV_ERR_INVALID_SCHEMA;
-    for (i = 0; i < depth && i <= TLV_DER_SCHEMA_MAX_TYPE_DEPTH; ++i)
-        if (ancestors[i] == type) return TLV_ERR_INVALID_SCHEMA;
-    if (depth > TLV_DER_SCHEMA_MAX_TYPE_DEPTH) return TLV_ERR_UNSUPPORTED_TYPE;
-    ancestors[depth] = type;
-    if (type->kind == TLV_DER_SCHEMA_UNIVERSAL && type->constraint &&
-        type->constraint->value_constraint) {
-        rc = tlv_value_constraint_check(type->constraint->value_constraint);
-        if (rc != TLV_OK) return rc;
-    }
-    switch (type->kind) {
-        case TLV_DER_SCHEMA_UNIVERSAL:
-            if (type->constraint) {
-                if (type->constraint->min_length > type->constraint->max_length)
-                    return TLV_ERR_INVALID_SCHEMA;
-                if (type->constraint->value_constraint && type->universal_number != 2 &&
-                    type->universal_number != 10)
-                    return TLV_ERR_INVALID_SCHEMA;
-            }
-            return TLV_OK;
-        case TLV_DER_SCHEMA_ANY: return TLV_OK;
-        case TLV_DER_SCHEMA_SEQUENCE:
-            if (type->component_count && !type->components) return TLV_ERR_INVALID_SCHEMA;
-            if (type->component_count > TLV_DER_SCHEMA_MAX_COMPONENTS)
-                return TLV_ERR_UNSUPPORTED_TYPE;
-            for (i = 0; i < type->component_count; ++i) {
-                rc = check_component(&type->components[i], 0, depth, ancestors);
-                if (rc != TLV_OK) return rc;
-            }
-            return TLV_OK;
-        case TLV_DER_SCHEMA_SET:
-        case TLV_DER_SCHEMA_CHOICE:
-            if (type->component_count && !type->components) return TLV_ERR_INVALID_SCHEMA;
-            if (type->component_count > TLV_DER_SCHEMA_MAX_COMPONENTS)
-                return TLV_ERR_UNSUPPORTED_TYPE;
-            for (i = 0; i < type->component_count; ++i) {
-                const tlv_der_schema_component_t* c = &type->components[i];
-                rc = check_component(c, type->kind == TLV_DER_SCHEMA_CHOICE, depth, ancestors);
-                if (rc != TLV_OK) return rc;
-                /* An untagged ANY component has no fixed identifier (it matches
-                 * any tag); that wildcard is only unambiguous as a SEQUENCE
-                 * component, where position rather than tag disambiguates it. */
-                if (c->tagging == TLV_DER_TAG_NONE && c->type->kind == TLV_DER_SCHEMA_ANY)
-                    return TLV_ERR_INVALID_SCHEMA;
-            }
-            /* Direct components must have pairwise-distinct effective identifiers
-             * (X.680 §26 for SET, §29 for CHOICE): for every component with a
-             * single fixed identifier (tagged, or untagged UNIVERSAL/SEQUENCE/
-             * SET/SET-OF), no other sibling may resolve that same wire tag.
-             * A sibling with an untagged nested CHOICE is still checked from the
-             * fixed side (as the "other" component j below) via resolve_at's own
-             * CHOICE expansion, but this does not enumerate the alternatives of
-             * an untagged CHOICE used as the probing component i itself against
-             * its siblings -- a documented limitation of this convenience check;
-             * the CHOICE's own alternatives are still checked for mutual
-             * distinctness when its type is visited recursively above. */
-            for (i = 0; i < type->component_count; ++i) {
-                const tlv_der_schema_component_t* ci = &type->components[i];
-                owned_tag_t probe;
-                tlv_tag_t probe_view;
-                if (ci->tagging != TLV_DER_TAG_NONE) {
-                    int constructed =
-                        ci->tagging == TLV_DER_TAG_EXPLICIT ? 1 : type_is_constructed(ci->type);
-                    if (owned_make(ci->tag_class, constructed, ci->tag_number, &probe) != TLV_OK)
-                        return TLV_ERR_INVALID_SCHEMA;
-                } else if (ci->type->kind == TLV_DER_SCHEMA_CHOICE) {
-                    continue;
-                } else if (kind_identifier(ci->type, &probe) != TLV_OK) {
-                    return TLV_ERR_INVALID_SCHEMA;
-                }
-                probe_view = owned_view(&probe);
-                for (j = 0; j < type->component_count; ++j) {
-                    if (j != i && resolve_at(&type->components[j], &probe_view, 0) != NULL)
-                        return TLV_ERR_INVALID_SCHEMA;
-                }
-            }
-            return TLV_OK;
-        case TLV_DER_SCHEMA_SET_OF:
-        case TLV_DER_SCHEMA_SEQUENCE_OF:
-            if (!type->element) return TLV_ERR_INVALID_SCHEMA;
-            if (type->min_elements > type->max_elements) return TLV_ERR_INVALID_SCHEMA;
-            if (type->element->presence != TLV_DER_REQUIRED) return TLV_ERR_INVALID_SCHEMA;
-            return check_component(type->element, 0, depth, ancestors);
-        default: return TLV_ERR_INVALID_SCHEMA;
-    }
-}
-
-static tlv_result_t check_component(const tlv_der_schema_component_t* component, int in_choice,
-                                    size_t depth, const tlv_der_schema_type_t** ancestors) {
+static tlv_result_t check_component(const tlv_der_schema_component_t* component, int in_choice) {
     if (!component || !component->type) return TLV_ERR_INVALID_SCHEMA;
     if (component->presence < TLV_DER_REQUIRED || component->presence > TLV_DER_DEFAULT ||
         component->tagging < TLV_DER_TAG_NONE || component->tagging > TLV_DER_TAG_EXPLICIT ||
@@ -277,13 +196,179 @@ static tlv_result_t check_component(const tlv_der_schema_component_t* component,
         (component->type->kind == TLV_DER_SCHEMA_CHOICE ||
          component->type->kind == TLV_DER_SCHEMA_ANY))
         return TLV_ERR_INVALID_SCHEMA;
-    return check_type(component->type, depth + 1, ancestors);
+    return TLV_OK;
+}
+
+/* Check local descriptors only. Graph identity and transparent CHOICE paths
+ * are handled separately so sharing and productive recursion need no recursion
+ * over the complete definition graph. */
+static tlv_result_t check_type(const tlv_der_schema_type_t* type) {
+    size_t count = 0;
+    const tlv_der_schema_component_t* components = NULL;
+    tlv_result_t rc;
+    switch (type->kind) {
+        case TLV_DER_SCHEMA_UNIVERSAL:
+            if (type->constraint) {
+                if (type->constraint->min_length > type->constraint->max_length)
+                    return TLV_ERR_INVALID_SCHEMA;
+                if (type->constraint->value_constraint) {
+                    if (type->universal_number != 2 && type->universal_number != 10)
+                        return TLV_ERR_INVALID_SCHEMA;
+                    return tlv_value_constraint_check(type->constraint->value_constraint);
+                }
+            }
+            return TLV_OK;
+        case TLV_DER_SCHEMA_ANY: return TLV_OK;
+        case TLV_DER_SCHEMA_SEQUENCE:
+        case TLV_DER_SCHEMA_SET:
+        case TLV_DER_SCHEMA_CHOICE:
+            if (type->component_count && !type->components) return TLV_ERR_INVALID_SCHEMA;
+            if (type->component_count > TLV_DER_SCHEMA_MAX_COMPONENTS)
+                return TLV_ERR_UNSUPPORTED_TYPE;
+            components = type->components;
+            count = type->component_count;
+            break;
+        case TLV_DER_SCHEMA_SET_OF:
+        case TLV_DER_SCHEMA_SEQUENCE_OF:
+            if (!type->element || type->min_elements > type->max_elements ||
+                type->element->presence != TLV_DER_REQUIRED)
+                return TLV_ERR_INVALID_SCHEMA;
+            components = type->element;
+            count = 1;
+            break;
+        default: return TLV_ERR_INVALID_SCHEMA;
+    }
+    for (size_t i = 0; i < count; ++i) {
+        const tlv_der_schema_component_t* c = &components[i];
+        rc = check_component(c, type->kind == TLV_DER_SCHEMA_CHOICE);
+        if (rc != TLV_OK) return rc;
+        if ((type->kind == TLV_DER_SCHEMA_SET || type->kind == TLV_DER_SCHEMA_CHOICE) &&
+            c->tagging == TLV_DER_TAG_NONE && c->type->kind == TLV_DER_SCHEMA_ANY)
+            return TLV_ERR_INVALID_SCHEMA;
+    }
+    return TLV_OK;
+}
+
+typedef struct schema_graph {
+    const tlv_der_schema_type_t* types[TLV_DER_SCHEMA_MAX_TYPES];
+    size_t count;
+    unsigned char state[TLV_DER_SCHEMA_MAX_TYPES]; /* 0 unseen, 1 active, 2 complete */
+    size_t choice_height[TLV_DER_SCHEMA_MAX_TYPES];
+} schema_graph_t;
+
+static size_t type_index(const schema_graph_t* graph, const tlv_der_schema_type_t* type) {
+    size_t i;
+    for (i = 0; i < graph->count; ++i)
+        if (graph->types[i] == type) break;
+    return i;
+}
+
+/* Only an untagged CHOICE-to-CHOICE edge remains at the same wire position.
+ * Containers and explicit wrappers consume an identifier before descending.
+ * Memoized heights also check longer paths to a previously completed node. */
+static tlv_result_t check_choice_path(schema_graph_t* graph, size_t node, size_t depth) {
+    const tlv_der_schema_type_t* type = graph->types[node];
+    size_t height = 1;
+    if (graph->state[node] == 1) return TLV_ERR_INVALID_SCHEMA;
+    if (graph->state[node] == 2) return TLV_OK;
+    if (depth >= TLV_DER_SCHEMA_MAX_TYPE_DEPTH) return TLV_ERR_UNSUPPORTED_TYPE;
+    graph->state[node] = 1;
+    for (size_t i = 0; i < type->component_count; ++i) {
+        const tlv_der_schema_component_t* c = &type->components[i];
+        if (c->tagging == TLV_DER_TAG_NONE && c->type->kind == TLV_DER_SCHEMA_CHOICE) {
+            size_t child = type_index(graph, c->type);
+            tlv_result_t rc = check_choice_path(graph, child, depth + 1);
+            if (rc != TLV_OK) return rc;
+            if (height < 1 + graph->choice_height[child]) height = 1 + graph->choice_height[child];
+        }
+    }
+    if (height > TLV_DER_SCHEMA_MAX_TYPE_DEPTH) return TLV_ERR_UNSUPPORTED_TYPE;
+    graph->choice_height[node] = height;
+    graph->state[node] = 2;
+    return TLV_OK;
+}
+
+static tlv_result_t check_identifiers(const tlv_der_schema_type_t* type) {
+    size_t i, j;
+    if (type->kind != TLV_DER_SCHEMA_SET && type->kind != TLV_DER_SCHEMA_CHOICE) return TLV_OK;
+    /* Direct components must have pairwise-distinct effective identifiers
+     * (X.680 §26 for SET, §29 for CHOICE): for every component with a
+     * single fixed identifier (tagged, or untagged UNIVERSAL/SEQUENCE/
+     * SET/SET-OF), no other sibling may resolve that same wire tag.
+     * A sibling with an untagged nested CHOICE is still checked from the
+     * fixed side (as the "other" component j below) via resolve_at's own
+     * CHOICE expansion, but this does not enumerate the alternatives of
+     * an untagged CHOICE used as the probing component i itself against
+     * its siblings -- a documented limitation of this convenience check;
+     * the CHOICE's own alternatives are still checked for mutual
+     * distinctness when its type is checked separately. */
+    for (i = 0; i < type->component_count; ++i) {
+        const tlv_der_schema_component_t* ci = &type->components[i];
+        owned_tag_t probe;
+        tlv_tag_t probe_view;
+        if (ci->tagging != TLV_DER_TAG_NONE) {
+            int constructed =
+                ci->tagging == TLV_DER_TAG_EXPLICIT ? 1 : type_is_constructed(ci->type);
+            if (owned_make(ci->tag_class, constructed, ci->tag_number, &probe) != TLV_OK)
+                return TLV_ERR_INVALID_SCHEMA;
+        } else if (ci->type->kind == TLV_DER_SCHEMA_CHOICE) {
+            continue;
+        } else if (kind_identifier(ci->type, &probe) != TLV_OK) {
+            return TLV_ERR_INVALID_SCHEMA;
+        }
+        probe_view = owned_view(&probe);
+        for (j = 0; j < type->component_count; ++j) {
+            if (j != i && resolve_at(&type->components[j], &probe_view, 0) != NULL)
+                return TLV_ERR_INVALID_SCHEMA;
+        }
+    }
+    return TLV_OK;
+}
+
+static tlv_result_t check_graph(const tlv_der_schema_type_t* root) {
+    schema_graph_t graph;
+    tlv_result_t rc;
+    graph.count = 1;
+    graph.types[0] = root;
+    memset(graph.state, 0, sizeof(graph.state));
+    for (size_t node = 0; node < graph.count; ++node) {
+        const tlv_der_schema_type_t* type = graph.types[node];
+        const tlv_der_schema_component_t* components = NULL;
+        size_t count = 0;
+        rc = check_type(type);
+        if (rc != TLV_OK) return rc;
+        if (type->kind == TLV_DER_SCHEMA_SEQUENCE || type->kind == TLV_DER_SCHEMA_SET ||
+            type->kind == TLV_DER_SCHEMA_CHOICE) {
+            components = type->components;
+            count = type->component_count;
+        } else if (type->kind == TLV_DER_SCHEMA_SEQUENCE_OF ||
+                   type->kind == TLV_DER_SCHEMA_SET_OF) {
+            components = type->element;
+            count = 1;
+        }
+        for (size_t i = 0; i < count; ++i) {
+            const tlv_der_schema_type_t* child = components[i].type;
+            if (type_index(&graph, child) < graph.count) continue;
+            if (graph.count == TLV_DER_SCHEMA_MAX_TYPES) return TLV_ERR_UNSUPPORTED_TYPE;
+            graph.types[graph.count++] = child;
+        }
+    }
+    /* Run before identifier resolution, which relies on finite CHOICE paths. */
+    for (size_t node = 0; node < graph.count; ++node) {
+        if (graph.types[node]->kind != TLV_DER_SCHEMA_CHOICE) continue;
+        rc = check_choice_path(&graph, node, 0);
+        if (rc != TLV_OK) return rc;
+    }
+    for (size_t node = 0; node < graph.count; ++node) {
+        rc = check_identifiers(graph.types[node]);
+        if (rc != TLV_OK) return rc;
+    }
+    return TLV_OK;
 }
 
 tlv_result_t tlv_der_schema_check(const tlv_der_schema_type_t* root,
                                   tlv_schema_diagnostic_t* diagnostic) {
-    const tlv_der_schema_type_t* ancestors[TLV_DER_SCHEMA_MAX_TYPE_DEPTH + 1];
-    tlv_result_t rc = root ? check_type(root, 0, ancestors) : TLV_ERR_NULL_ARG;
+    tlv_result_t rc = root ? check_graph(root) : TLV_ERR_NULL_ARG;
     if (diagnostic) {
         tlv_schema_diagnostic_init(diagnostic);
         diagnostic->diagnostic.code = rc;
@@ -309,6 +394,7 @@ typedef struct der_schema_ctx {
 typedef struct der_schema_frame {
     const tlv_der_schema_type_t* type;
     size_t start, end, pos;
+    size_t depth;                    /* Wire depth, including EXPLICIT wrappers. */
     size_t next_component;           /* SEQUENCE */
     uint64_t seen;                   /* SET: bitmap over type->components */
     int has_prev;                    /* SET/SET_OF */
@@ -366,8 +452,7 @@ static tlv_result_t dispatch_any(der_schema_ctx_t* ctx, size_t value_offset, siz
 static tlv_result_t handle_matched_element(der_schema_ctx_t* ctx, tlv_element_t element,
                                            size_t used, size_t elem_base,
                                            const tlv_der_schema_component_t* component,
-                                           size_t depth, size_t schema_depth,
-                                           der_schema_frame_t* stack, int* level) {
+                                           size_t depth, der_schema_frame_t* stack, int* level) {
     size_t value_length, value_offset;
     tlv_result_t rc;
     rc = tlv_size_to_native(element.value.size, &value_length);
@@ -377,8 +462,6 @@ static tlv_result_t handle_matched_element(der_schema_ctx_t* ctx, tlv_element_t 
     if (component->tagging == TLV_DER_TAG_EXPLICIT) {
         tlv_element_t inner = {0};
         size_t inner_used = 0;
-        if (schema_depth > TLV_DER_SCHEMA_MAX_TYPE_DEPTH)
-            return fail(TLV_ERR_SCHEMA, elem_base, ctx->error_offset);
         rc = read_one(ctx, value_offset, value_length, depth + 1, &inner, &inner_used);
         if (rc != TLV_OK) return rc;
         if (inner_used != value_length)
@@ -399,7 +482,7 @@ static tlv_result_t handle_matched_element(der_schema_ctx_t* ctx, tlv_element_t 
             resolved = resolve_at(&synthetic, &inner.tag, 0);
             if (!resolved) return fail(TLV_ERR_INVALID_TAG, value_offset, ctx->error_offset);
             return handle_matched_element(ctx, inner, inner_used, value_offset, resolved, depth + 1,
-                                          schema_depth + 1, stack, level);
+                                          stack, level);
         }
     }
 
@@ -422,6 +505,7 @@ static tlv_result_t handle_matched_element(der_schema_ctx_t* ctx, tlv_element_t 
                 return fail(TLV_ERR_LIMIT, value_offset, ctx->error_offset);
             ++*level;
             stack[*level].type = component->type;
+            stack[*level].depth = depth;
             stack[*level].start = value_offset;
             stack[*level].end = value_offset + value_length;
             stack[*level].pos = value_offset;
@@ -440,7 +524,7 @@ static tlv_result_t process_sequence(der_schema_ctx_t* ctx, der_schema_frame_t* 
     size_t used, elem_base = frame->pos;
     tlv_result_t rc;
 
-    rc = read_one(ctx, frame->pos, frame->end - frame->pos, *level + 1, &element, &used);
+    rc = read_one(ctx, frame->pos, frame->end - frame->pos, frame->depth + 1, &element, &used);
     if (rc != TLV_OK) return rc;
     while (frame->next_component < frame->type->component_count) {
         const tlv_der_schema_component_t* comp = &frame->type->components[frame->next_component];
@@ -450,7 +534,7 @@ static tlv_result_t process_sequence(der_schema_ctx_t* ctx, der_schema_frame_t* 
                 return fail(TLV_ERR_INVALID_VALUE, elem_base, ctx->error_offset);
             ++frame->next_component;
             frame->pos = elem_base + used;
-            return handle_matched_element(ctx, element, used, elem_base, resolved, *level + 1, 0,
+            return handle_matched_element(ctx, element, used, elem_base, resolved, frame->depth + 1,
                                           stack, level);
         }
         if (comp->presence == TLV_DER_REQUIRED)
@@ -468,7 +552,7 @@ static tlv_result_t process_sequence(der_schema_ctx_t* ctx, der_schema_frame_t* 
         if (rc != TLV_OK) return fail(rc, elem_base, ctx->error_offset);
         value_offset = elem_base + used - value_length;
         rc = dispatch_any(ctx, value_offset, value_length,
-                          tlv_asn1_tag_is_constructed(&element.tag), *level + 1);
+                          tlv_asn1_tag_is_constructed(&element.tag), frame->depth + 1);
         if (rc != TLV_OK) return rc;
         frame->pos = elem_base + used;
         return TLV_OK;
@@ -483,7 +567,7 @@ static tlv_result_t process_set(der_schema_ctx_t* ctx, der_schema_frame_t* stack
     tlv_result_t rc;
     const tlv_der_schema_component_t* resolved = NULL;
 
-    rc = read_one(ctx, frame->pos, frame->end - frame->pos, *level + 1, &element, &used);
+    rc = read_one(ctx, frame->pos, frame->end - frame->pos, frame->depth + 1, &element, &used);
     if (rc != TLV_OK) return rc;
     for (i = 0; i < frame->type->component_count; ++i) {
         const tlv_der_schema_component_t* r =
@@ -512,7 +596,7 @@ static tlv_result_t process_set(der_schema_ctx_t* ctx, der_schema_frame_t* stack
     frame->prev_tag = element.tag;
     frame->has_prev = 1;
     frame->pos = elem_base + used;
-    return handle_matched_element(ctx, element, used, elem_base, resolved, *level + 1, 0, stack,
+    return handle_matched_element(ctx, element, used, elem_base, resolved, frame->depth + 1, stack,
                                   level);
 }
 
@@ -525,7 +609,7 @@ static tlv_result_t process_set_of(der_schema_ctx_t* ctx, der_schema_frame_t* st
 
     if (frame->element_count == frame->type->max_elements)
         return fail(TLV_ERR_SCHEMA, elem_base, ctx->error_offset);
-    rc = read_one(ctx, frame->pos, frame->end - frame->pos, *level + 1, &element, &used);
+    rc = read_one(ctx, frame->pos, frame->end - frame->pos, frame->depth + 1, &element, &used);
     if (rc != TLV_OK) return rc;
     resolved = resolve_at(frame->type->element, &element.tag, 0);
     if (!resolved) return fail(TLV_ERR_SCHEMA, elem_base, ctx->error_offset);
@@ -540,7 +624,7 @@ static tlv_result_t process_set_of(der_schema_ctx_t* ctx, der_schema_frame_t* st
     frame->has_prev = 1;
     ++frame->element_count;
     frame->pos = elem_base + used;
-    return handle_matched_element(ctx, element, used, elem_base, resolved, *level + 1, 0, stack,
+    return handle_matched_element(ctx, element, used, elem_base, resolved, frame->depth + 1, stack,
                                   level);
 }
 
@@ -556,13 +640,13 @@ static tlv_result_t process_sequence_of(der_schema_ctx_t* ctx, der_schema_frame_
 
     if (frame->element_count == frame->type->max_elements)
         return fail(TLV_ERR_SCHEMA, elem_base, ctx->error_offset);
-    rc = read_one(ctx, frame->pos, frame->end - frame->pos, *level + 1, &element, &used);
+    rc = read_one(ctx, frame->pos, frame->end - frame->pos, frame->depth + 1, &element, &used);
     if (rc != TLV_OK) return rc;
     resolved = resolve_at(frame->type->element, &element.tag, 0);
     if (!resolved) return fail(TLV_ERR_SCHEMA, elem_base, ctx->error_offset);
     ++frame->element_count;
     frame->pos = elem_base + used;
-    return handle_matched_element(ctx, element, used, elem_base, resolved, *level + 1, 0, stack,
+    return handle_matched_element(ctx, element, used, elem_base, resolved, frame->depth + 1, stack,
                                   level);
 }
 
@@ -605,7 +689,7 @@ static tlv_result_t read_input(const uint8_t* data, size_t size, const tlv_der_s
     resolved = resolve_at(&synthetic, &root_element.tag, 0);
     if (!resolved) return fail(TLV_ERR_INVALID_TAG, 0, error_offset);
 
-    rc = handle_matched_element(&ctx, root_element, root_used, 0, resolved, 0, 0, stack, &level);
+    rc = handle_matched_element(&ctx, root_element, root_used, 0, resolved, 0, stack, &level);
     if (rc != TLV_OK) return rc;
 
     while (level >= 0) {
@@ -1169,10 +1253,9 @@ static tlv_result_t encode_at(der_schema_write_ctx_t* wctx,
         if (rc != TLV_OK) return rc;
         if (component->tagging == TLV_DER_TAG_EXPLICIT) {
             int inner_absent = 0;
-            if (schema_depth > TLV_DER_SCHEMA_MAX_TYPE_DEPTH) return TLV_ERR_SCHEMA;
-            rc = produce_natural_encoding(wctx, component->type, component, index, depth + 1,
-                                          schema_depth + 1, &inner_absent, &content_off,
-                                          &content_len);
+            if (depth >= wctx->limits->base.max_depth) return TLV_ERR_LIMIT;
+            rc = produce_natural_encoding(wctx, component->type, component, index, depth + 1, 0,
+                                          &inner_absent, &content_off, &content_len);
             if (rc != TLV_OK) return rc;
             if (inner_absent) {
                 content_off = wctx->arena_used;

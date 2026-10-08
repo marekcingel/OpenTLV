@@ -551,6 +551,16 @@ used. No tag lookup, allocation or mandatory registry is involved. EMV numeric
 entries use this adapter; LLDP tests exercise it against TTL field constraints
 with an explicitly selected `uint64_t` representation.
 
+## Definition graph checks
+
+`tlv_schema_check` and structural validators check each distinct table once per
+call, including optional child definitions absent from the input. Shared and
+recursive references are supported. The allocation-free worklist holds at most
+`TLV_SCHEMA_MAX_TABLES` (256) table identities and uses linear pointer lookup,
+plus each table's local rule/group checks. Exhausting this fixed capacity returns
+`TLV_ERR_UNSUPPORTED_TYPE`. Definition depth is independent of the input nesting
+limit (`TLV_SCHEMA_MAX_DEPTH`); no global cache or checked-handle lifetime is added.
+
 ## Next step
 
 Next: [Codec](codecs.md) to interpret Value bytes; framing remains the Format responsibility.

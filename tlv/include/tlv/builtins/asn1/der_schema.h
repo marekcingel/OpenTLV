@@ -218,11 +218,17 @@ struct tlv_der_schema_type {
 /**
  * @brief Bound on schema type-graph recursion while resolving a single wire position.
  *
- * Covers CHOICE alternatives and EXPLICIT unwrapping. Schemas are trusted,
- * caller-authored static data, not attacker input; this only guards against
- * an accidentally self-referential table.
+ * Bounds consecutive untagged CHOICE resolution steps. Such cycles are invalid
+ * definitions. Containers and EXPLICIT wrappers consume wire identifiers, so their
+ * recursion is instead bounded by runtime input/output depth.
  */
 enum { TLV_DER_SCHEMA_MAX_TYPE_DEPTH = 32 };
+
+/** @brief Maximum distinct types in a checked DER schema definition graph.
+ * Shared and recursive types count once. Exceeding this allocation-free checking
+ * capacity returns #TLV_ERR_UNSUPPORTED_TYPE.
+ */
+enum { TLV_DER_SCHEMA_MAX_TYPES = 256 };
 
 /**
  * @brief Maximum direct components of one SEQUENCE, SET or CHOICE.
@@ -257,14 +263,17 @@ extern TLV_API const tlv_der_schema_limits_t tlv_der_schema_default_limits;
  * Verifies distinct effective identifiers among a SET's or CHOICE's direct
  * components; that CHOICE alternatives are #TLV_DER_REQUIRED with no default;
  * that no CHOICE-typed component uses IMPLICIT tagging; that `component_count`
- * is within #TLV_DER_SCHEMA_MAX_COMPONENTS; that type-graph depth is within
- * #TLV_DER_SCHEMA_MAX_TYPE_DEPTH; that a leaf's `constraint->min_length` is at
+ * is within #TLV_DER_SCHEMA_MAX_COMPONENTS; that untagged CHOICE paths are acyclic
+ * and within #TLV_DER_SCHEMA_MAX_TYPE_DEPTH; that a leaf's `constraint->min_length` is at
  * most `max_length`; and that a leaf's `constraint->value_constraint` is only
  * set when `universal_number` is 2 (INTEGER) or 10 (ENUMERATED).
  *
  * Also checks constraint kinds, bounds and backing storage. Read and write
  * perform this definition check before inspecting input or invoking callbacks.
- * Checking uses bounded local storage and no heap allocation.
+ * Checks each distinct type once, up to #TLV_DER_SCHEMA_MAX_TYPES, with linear
+ * identity lookup and bounded local storage, without heap allocation. Container
+ * and tagged recursion is supported; definition graph depth is not input depth.
+ * Does not attempt to prove that every recursive type has a finite value.
  *
  * @param[in]  root         Root type to check.
  * @param[out] diagnostic Optional definition failure detail; byte location is unknown.

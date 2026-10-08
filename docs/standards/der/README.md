@@ -204,11 +204,12 @@ OF's or SEQUENCE OF's element, carries a tagging mode (untagged,
 `TLV_DER_TAG_EXPLICIT`, with a class and number for the latter two) and a
 presence (`TLV_DER_REQUIRED`, `TLV_DER_OPTIONAL`, or `TLV_DER_DEFAULT` with a
 complete canonical encoding to compare against). `tlv_der_schema_check`
-validates a hand-authored table's internal consistency once (distinct SET/
-CHOICE component tags, CHOICE alternatives required with no default, no
-IMPLICIT tagging of a CHOICE or ANY component, and bounds on component count
-and type-graph depth); `tlv_der_schema_read`/`tlv_der_schema_write` also
-enforce the depth bound live and do not require it to have been called first.
+validates a hand-authored graph's internal consistency (distinct SET/CHOICE
+component tags, CHOICE alternatives required with no default, no IMPLICIT tagging
+of CHOICE or ANY, and bounded transparent CHOICE paths). Read and write perform
+this check before processing input or invoking callbacks. Shared types are
+checked once per call; recursive containers and tagged recursion are supported.
+Wire nesting is bounded separately by the runtime limits.
 
 A `TLV_DER_SCHEMA_UNIVERSAL` leaf's optional `constraint`
 (`tlv_der_schema_leaf_constraint_t`) adds ASN.1 `SIZE` and value-range checks
@@ -287,11 +288,15 @@ rather than silently accepted.
 `max_set_elements`, which bounds `tlv_der_schema_write`'s SET OF sort-record
 and SEQUENCE OF composition-record capacity; `tlv_der_schema_default_limits`
 mirrors `tlv_der_default_limits`.
-`TLV_DER_SCHEMA_MAX_TYPE_DEPTH` (32) bounds CHOICE/EXPLICIT resolution
-recursion over the schema's own type graph — trusted, caller-authored data,
-not attacker input — guarding only against an accidentally self-referential
-table. `TLV_DER_SCHEMA_MAX_COMPONENTS` (64) bounds a single SEQUENCE, SET or
-CHOICE's direct component count.
+`TLV_DER_SCHEMA_MAX_TYPE_DEPTH` (32) bounds consecutive untagged CHOICE
+resolution steps. Non-consuming cycles are invalid definitions; recursive
+containers and EXPLICIT wrappers instead consume identifiers and follow the
+runtime depth limit. `TLV_DER_SCHEMA_MAX_TYPES` (256) bounds distinct type
+identities in the allocation-free definition worklist, which uses linear pointer
+lookup. `TLV_DER_SCHEMA_MAX_COMPONENTS` (64) bounds a single SEQUENCE, SET or
+CHOICE's direct component count. Exceeding these fixed checking capacities
+returns `TLV_ERR_UNSUPPORTED_TYPE`. The checker does not attempt to prove that
+every recursive type has a finite value.
 
 Existing `tlv_der_read`/`visit`/`write` (and their `_strict` counterparts) and
 the generic `tlv_structure_schema_t` engine are unaffected: this is a purely

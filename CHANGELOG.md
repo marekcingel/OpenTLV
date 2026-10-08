@@ -9,6 +9,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Fixed
 
+- Avoid exponential definition checks for shared Schema graphs, preserve recursive DER schemas that consume input, and bound definition checking by distinct tables/types separately from wire nesting. Reject non-consuming CHOICE cycles and correct the Python Schema doctest. (#553)
 - Fix C++ consumer-boundary CI checks by updating interoperability baselines for the Schema diagnostic and result-code migration. (#553)
 - Keep omitted diagnostic-path counts numeric in JS/WASM and align diagnostic regression tests with the C++ consumer-boundary checks. (#548, #550)
 - Report would-be DER output positions for schema write failures, including missing required components, leaf constraints, nested headers and SET ordering. (#549)

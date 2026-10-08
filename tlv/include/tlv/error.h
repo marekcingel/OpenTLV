@@ -63,7 +63,7 @@ typedef enum tlv_result {
     TLV_ERR_OVERFLOW = 13,
     /** Universal primitive content is malformed or fails a canonical DER rule. */
     TLV_ERR_INVALID_VALUE = 14,
-    /** Universal tag number has no implemented canonical validation. */
+    /** A valid requested type or capability is not supported by the implementation. */
     TLV_ERR_UNSUPPORTED_TYPE = 15,
     /** A schema definition is invalid, independently of the input being validated. */
     TLV_ERR_INVALID_SCHEMA = 16,

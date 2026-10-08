@@ -237,7 +237,7 @@ class StructureSchema:
     >>> schema.validate(b"")
     Traceback (most recent call last):
         ...
-    opentlv.error.SchemaError: input violates a schema constraint
+    opentlv.error.SchemaError: schema constraint violated
     """
 
     __slots__ = ("rules", "allow_unknown", "order", "groups")

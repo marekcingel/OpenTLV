@@ -70,14 +70,14 @@ TEST(Unit_Tlv_SchemaFailure, ConstraintDefinitionAndInputRemainDistinct) {
 
 TEST(Unit_Tlv_SchemaFailure, RecursiveDefinitionsAndCapabilityBoundsAreDistinct) {
     const tlv_schema_entry_t field = {TLV_TAG(1), 0, SIZE_MAX, 0, "recursive", 0};
-    tlv_structure_schema_t   schemas[TLV_SCHEMA_MAX_DEPTH + 3]{};
-    tlv_structure_rule_t     rules[TLV_SCHEMA_MAX_DEPTH + 3]{};
-    for (size_t i = 0; i < TLV_SCHEMA_MAX_DEPTH + 3; ++i) {
+    tlv_structure_schema_t   schemas[TLV_SCHEMA_MAX_TABLES + 1]{};
+    tlv_structure_rule_t     rules[TLV_SCHEMA_MAX_TABLES + 1]{};
+    for (size_t i = 0; i < TLV_SCHEMA_MAX_TABLES + 1; ++i) {
         rules[i] = {&field,
                     0,
                     1,
                     TLV_SCHEMA_CONSTRUCTED,
-                    i < TLV_SCHEMA_MAX_DEPTH + 2 ? &schemas[i + 1] : nullptr,
+                    i < TLV_SCHEMA_MAX_TABLES ? &schemas[i + 1] : nullptr,
                     0};
         schemas[i] = {&rules[i], 1, 0, nullptr, 0, TLV_SCHEMA_ORDER_ANY};
     }
@@ -86,10 +86,32 @@ TEST(Unit_Tlv_SchemaFailure, RecursiveDefinitionsAndCapabilityBoundsAreDistinct)
     EXPECT_EQ(TLV_ERR_UNSUPPORTED_TYPE, diagnostic.diagnostic.code);
     EXPECT_EQ(TLV_SCHEMA_ISSUE_NONE, diagnostic.kind);
     EXPECT_FALSE(diagnostic.diagnostic.has_offset);
+    rules[TLV_SCHEMA_MAX_TABLES - 1].children = nullptr;
+    EXPECT_EQ(TLV_OK, tlv_schema_check(schemas, &diagnostic));
     rules[0].children = schemas;
     EXPECT_EQ(TLV_OK, tlv_schema_check(schemas, &diagnostic));
     EXPECT_EQ(TLV_OK, diagnostic.diagnostic.code);
     EXPECT_EQ(TLV_ERR_NULL_ARG, tlv_schema_check(nullptr, &diagnostic));
     EXPECT_EQ(TLV_SCHEMA_ISSUE_NONE, diagnostic.kind);
     EXPECT_FALSE(diagnostic.diagnostic.has_offset);
+}
+
+TEST(Unit_Tlv_SchemaFailure, SharedDagIsCheckedByIdentityIncludingUnvisitedDefinitions) {
+    const tlv_schema_entry_t fields[] = {{TLV_TAG(1), 0, SIZE_MAX, 0, "a", 0},
+                                         {TLV_TAG(2), 0, SIZE_MAX, 0, "b", 0}};
+    tlv_structure_schema_t   tables[40]{};
+    tlv_structure_rule_t     rules[40][2]{};
+    for (size_t i = 0; i < 40; ++i) {
+        tables[i] = {rules[i], 2, 0, nullptr, 0, TLV_SCHEMA_ORDER_ANY};
+        for (size_t j = 0; j < 2; ++j)
+            rules[i][j] = {
+                &fields[j], 0, 1, TLV_SCHEMA_CONSTRUCTED, i + 1 < 40 ? &tables[i + 1] : nullptr, 0};
+    }
+    EXPECT_EQ(TLV_OK, tlv_schema_check(tables, nullptr));
+    EXPECT_EQ(TLV_OK, tlv_schema_validate(nullptr, 0, &controlled::format, tables, 0, 0, nullptr));
+    tlv_schema_diagnostic_report_t report{};
+    EXPECT_EQ(TLV_OK, tlv_schema_validate_all_diag(nullptr, 0, &controlled::format, tables, 0, 0,
+                                                   TLV_SCHEMA_UNKNOWN_BY_SCHEMA, &report, nullptr));
+    rules[39][1].entry = nullptr;
+    EXPECT_EQ(TLV_ERR_INVALID_SCHEMA, tlv_schema_check(tables, nullptr));
 }
