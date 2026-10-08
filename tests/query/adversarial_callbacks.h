@@ -138,19 +138,19 @@ static void reenter(callback_state* s) {
     tlv_query_result_t result;
     int                matched = 123;
     ++s->calls;
-    if (tlv_query_exec_feed(s->exec, &input, &matched, NULL) != TLV_ERR_INVALID_ARG ||
+    if (tlv_query_exec_feed(s->exec, &input, &matched, NULL) != TLV_ERR_INVALID_STATE ||
         matched != 123)
         ++s->errors;
-    if (tlv_query_exec_finish(s->exec, NULL) != TLV_ERR_INVALID_ARG) ++s->errors;
-    if (tlv_query_exec_reset(s->exec) != TLV_ERR_INVALID_ARG) ++s->errors;
+    if (tlv_query_exec_finish(s->exec, NULL) != TLV_ERR_INVALID_STATE) ++s->errors;
+    if (tlv_query_exec_reset(s->exec) != TLV_ERR_INVALID_STATE) ++s->errors;
     if (tlv_query_exec_bind(s->exec, "n", TLV_QUERY_RESULT_INTEGER, 1, NULL, 0, NULL) !=
-        TLV_ERR_INVALID_ARG)
+        TLV_ERR_INVALID_STATE)
         ++s->errors;
-    if (tlv_query_exec_context(s->exec, 0) != TLV_ERR_INVALID_ARG) ++s->errors;
-    if (tlv_query_exec_pruning(s->exec, 1) != TLV_ERR_INVALID_ARG) ++s->errors;
-    if (tlv_query_exec_result(s->exec, &result) != TLV_ERR_INVALID_ARG) ++s->errors;
-    if (tlv_query_exec_selected(s->exec, &out) != TLV_ERR_INVALID_ARG) ++s->errors;
-    if (tlv_query_result_next(s->exec, &out) != TLV_ERR_INVALID_ARG) ++s->errors;
+    if (tlv_query_exec_context(s->exec, 0) != TLV_ERR_INVALID_STATE) ++s->errors;
+    if (tlv_query_exec_pruning(s->exec, 1) != TLV_ERR_INVALID_STATE) ++s->errors;
+    if (tlv_query_exec_result(s->exec, &result) != TLV_ERR_INVALID_STATE) ++s->errors;
+    if (tlv_query_exec_selected(s->exec, &out) != TLV_ERR_INVALID_STATE) ++s->errors;
+    if (tlv_query_result_next(s->exec, &out) != TLV_ERR_INVALID_STATE) ++s->errors;
 }
 static tlv_result_t resolve(const void* context, const char* ns, size_t ns_size, const char* name,
                             size_t size, tlv_tag_t* tag) {
@@ -179,19 +179,19 @@ static void               mutate(callback_state* s) {
         case 3:
         case 4:
             if (tlv_node_set_value(s->mutation == 4 && parent ? parent : node, &value, 1) !=
-                TLV_ERR_INVALID_ARG)
+                TLV_ERR_INVALID_STATE)
                 ++s->errors;
             break;
         case 5:
         case 6:
             if (tlv_document_insert(s->document, parent,
                                     s->mutation == 5 ? node : tlv_node_next(node), tlv_tag(&tag, 1),
-                                    &value, 1, NULL) != TLV_ERR_INVALID_ARG)
+                                    &value, 1, NULL) != TLV_ERR_INVALID_STATE)
                 ++s->errors;
             break;
         case 7:
             if (tlv_document_query_program_visit(s->exec, document_visitor, s) !=
-                TLV_ERR_INVALID_ARG)
+                TLV_ERR_INVALID_STATE)
                 ++s->errors;
             break;
         case 8: tlv_document_free(s->document); break;
@@ -386,7 +386,7 @@ static int callbacks(void) {
             CHECK(state.calls && !state.errors);
             tlv_query_result_t result;
             CHECK(tlv_query_exec_result(state.exec, &result) ==
-                  (failed ? TLV_ERR_INVALID_ARG : TLV_OK));
+                  (failed ? TLV_ERR_INVALID_STATE : TLV_OK));
             if (!failed) CHECK(result.integer == 1);
         }
     }
@@ -495,12 +495,12 @@ static int raw_reinitialization(void) {
             CHECK(tlv_query_exec_feed(state.exec, &input, &matched, NULL) == TLV_OK);
         tlv_query_diagnostic_t diagnostic = {0};
         tlv_result_t           rc = tlv_query_exec_finish(state.exec, &diagnostic);
-        CHECK(rc == TLV_ERR_INVALID_ARG);
+        CHECK(rc == TLV_ERR_INVALID_STATE);
         CHECK(test_query_diagnostic_matches(rc, &diagnostic));
         CHECK(state.calls == 1 && state.status == TLV_OK);
         CHECK(tlv_query_exec_info(state.exec, &info) == TLV_OK && info.invalid && !info.finished);
         tlv_query_result_t result;
-        CHECK(tlv_query_exec_result(state.exec, &result) == TLV_ERR_INVALID_ARG);
+        CHECK(tlv_query_exec_result(state.exec, &result) == TLV_ERR_INVALID_STATE);
     }
 #if OPENTLV_READER
     const char*        selections[] = {"//01", "/70[child::01]"};
@@ -531,7 +531,7 @@ static int raw_reinitialization(void) {
             tlv_query_diagnostic_t diagnostic = {0};
             tlv_result_t rc = tlv_query_program_visit(&reader, state.exec, reinitializing_event,
                                                       &state, &diagnostic);
-            CHECK(rc == TLV_ERR_INVALID_ARG);
+            CHECK(rc == TLV_ERR_INVALID_STATE);
             CHECK(test_query_diagnostic_matches(rc, &diagnostic));
             CHECK(state.calls == 1 && state.status == TLV_OK);
             CHECK(tlv_query_exec_info(state.exec, &info) == TLV_OK && info.invalid &&
@@ -721,10 +721,10 @@ static int document_reinitialization(const tlv_document_options_t* options) {
         CHECK(tlv_document_query_evaluate(state.document, state.exec, NULL, NULL, 0, NULL, NULL) ==
               TLV_OK);
         CHECK(tlv_document_query_program_visit(state.exec, reinitialize_visitor, &state) ==
-              TLV_ERR_INVALID_ARG);
+              TLV_ERR_INVALID_STATE);
         CHECK(state.calls == 1 && !state.errors);
         tlv_query_result_t result;
-        CHECK(tlv_query_exec_result(state.exec, &result) == TLV_ERR_INVALID_ARG);
+        CHECK(tlv_query_exec_result(state.exec, &result) == TLV_ERR_INVALID_STATE);
         if (mutation != 2) {
             const uint8_t value = 7, tag = 1;
             tlv_node_t*   root = tlv_document_first(state.document);
@@ -836,13 +836,13 @@ static int documents(void) {
                 rc = tlv_document_query_program_visit(state.exec, document_visitor, &state);
             }
             int invalid = mutation == 1 || mutation == 2 || mutation == 8 || mutation == 9;
-            CHECK(rc == (invalid ? TLV_ERR_INVALID_ARG : TLV_OK));
+            CHECK(rc == (invalid ? TLV_ERR_INVALID_STATE : TLV_OK));
             CHECK(state.calls && !state.errors);
             if (invalid) {
                 tlv_query_result_t output;
                 tlv_node_t*        node = NULL;
-                CHECK(tlv_query_exec_result(state.exec, &output) == TLV_ERR_INVALID_ARG);
-                CHECK(tlv_document_query_next(state.exec, &node) == TLV_ERR_INVALID_ARG);
+                CHECK(tlv_query_exec_result(state.exec, &output) == TLV_ERR_INVALID_STATE);
+                CHECK(tlv_document_query_next(state.exec, &node) == TLV_ERR_INVALID_STATE);
             }
             CHECK(tlv_query_exec_reset(state.exec) == TLV_OK);
             if (mutation != 8) tlv_document_free(state.document);

@@ -165,10 +165,10 @@ TEST(Unit_Tlv_QueryF3, DocumentOnlyFeedFailureRequiresReset) {
         EXPECT_FALSE(info.finished);
         EXPECT_FALSE(info.full_validation);
         EXPECT_EQ(info.elements, 0u);
-        EXPECT_EQ(tlv_query_exec_feed(e.exec, &event, &matched, nullptr), TLV_ERR_INVALID_ARG);
+        EXPECT_EQ(tlv_query_exec_feed(e.exec, &event, &matched, nullptr), TLV_ERR_INVALID_STATE);
         EXPECT_EQ(matched, 9);
         EXPECT_EQ(TLV_DIAGNOSTIC_RESULT(e.diagnostic, tlv_query_exec_finish(e.exec, &e.diagnostic)),
-                  TLV_ERR_INVALID_ARG);
+                  TLV_ERR_INVALID_STATE);
         ASSERT_EQ(e.init(), TLV_OK);
     }
 }
@@ -260,7 +260,7 @@ TEST(Unit_Tlv_QueryF3, CandidatesExactCapacityOverflowAndSourceLessIdentity) {
     EXPECT_EQ(e.diagnostic.configured, 2u);
     EXPECT_TRUE(selected.empty());
     EXPECT_EQ(TLV_DIAGNOSTIC_RESULT(e.diagnostic, tlv_query_exec_finish(e.exec, &e.diagnostic)),
-              TLV_ERR_INVALID_ARG);
+              TLV_ERR_INVALID_STATE);
     ASSERT_EQ(e.compile("//5A[last()] | //5A"), TLV_OK);
     ASSERT_EQ(e.init(2), TLV_OK);
     uint8_t          tag = 0x5a;
@@ -378,7 +378,7 @@ TEST(Unit_Tlv_QueryF3, DocumentInitializationFailuresCarryDetail) {
     ASSERT_EQ(TLV_OK, tlv_document_parse(wire, sizeof wire, &options, &document, nullptr));
     ASSERT_EQ(TLV_OK, tlv_document_query_evaluate(document, e.exec, nullptr, nullptr, 0, nullptr,
                                                   &e.diagnostic));
-    EXPECT_EQ(TLV_ERR_INVALID_ARG,
+    EXPECT_EQ(TLV_ERR_INVALID_STATE,
               TLV_DIAGNOSTIC_RESULT(e.diagnostic,
                                     tlv_document_query_evaluate(document, e.exec, nullptr, nullptr,
                                                                 0, nullptr, &e.diagnostic)));

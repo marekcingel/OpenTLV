@@ -157,7 +157,7 @@ int LLVMFuzzerTestOneInput(const uint8_t* data, size_t size) {
                     TLV_ERR_VISITOR ||
                 rejected.count != 1 || rejected.offsets[0] != matches[0].offsets[0] ||
                 tlv_query_program_visit(&reader, failed, collect, &rejected, NULL) !=
-                    TLV_ERR_INVALID_ARG)
+                    TLV_ERR_INVALID_STATE)
                 abort();
             tlv_query_exec_info_t status = {0};
             status.struct_size = sizeof status;
@@ -237,7 +237,7 @@ int LLVMFuzzerTestOneInput(const uint8_t* data, size_t size) {
                 diagnostic.codec != expected_codec || !diagnostic.has_source_offset ||
                 diagnostic.source_offset != 0 || diagnostic.begin >= diagnostic.end ||
                 tlv_query_program_visit(&reader, conversion_exec, collect, &matches[2], NULL) !=
-                    TLV_ERR_INVALID_ARG)
+                    TLV_ERR_INVALID_STATE)
                 abort();
         } else {
             tlv_query_result_t result;

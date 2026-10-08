@@ -7,6 +7,7 @@ const char* tlv_strerror(tlv_result_t result) {
     switch (result) {
         case TLV_NEED_MORE_DATA: return "need more data";
         case TLV_ERR_NATIVE_SIZE: return "native address space exceeded";
+        case TLV_ERR_INVALID_STATE: return "invalid state";
         case TLV_ERR_INVALID_ARG: return "invalid argument";
         case TLV_ERR_INVALID_BYTE_ORDER: return "invalid byte order";
         case TLV_ERR_OVERFLOW: return "numeric overflow";

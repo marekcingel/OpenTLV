@@ -1028,7 +1028,8 @@ TEST(Unit_Tlv_DocumentBuilder, QuerySelectedSubtreeNormalizesDepthAndLeavesNextS
     EXPECT_EQ(12u, item.offset);
     EXPECT_EQ(0u, item.depth);
     tlv_document_t* repeated = nullptr;
-    EXPECT_EQ(TLV_ERR_INVALID_ARG, tlv_document_builder_consume(raw, &repeated, nullptr, nullptr));
+    EXPECT_EQ(TLV_ERR_INVALID_STATE,
+              tlv_document_builder_consume(raw, &repeated, nullptr, nullptr));
     EXPECT_EQ(nullptr, repeated);
     // The result remains mutable through the existing API.
     const uint8_t replacement = 7;
@@ -1090,7 +1091,7 @@ TEST(Unit_Tlv_DocumentBuilder, PreservesReaderDiagnosticsAfterWindowReplacement)
     EXPECT_EQ(expected.value_offset, actual.value_offset);
     EXPECT_EQ(expected.declared_length, actual.declared_length);
     EXPECT_EQ(expected.enclosing_end, actual.enclosing_end);
-    EXPECT_EQ(TLV_ERR_INVALID_ARG,
+    EXPECT_EQ(TLV_ERR_INVALID_STATE,
               tlv_document_builder_consume(raw, &doc.handle, nullptr, nullptr));
 }
 
@@ -1186,7 +1187,8 @@ TEST(Unit_Tlv_DocumentBuilder, EmptyFinalStreamAndArgumentValidation) {
     tlv_tree_item_t root;
     ASSERT_EQ(TLV_OK, tlv_tree_reader_next(&reader, &root));
     tlv_document_builder_t* rejected = nullptr;
-    EXPECT_EQ(TLV_ERR_INVALID_ARG, tlv_document_builder_create(&opts, &reader, nullptr, &rejected));
+    EXPECT_EQ(TLV_ERR_INVALID_STATE,
+              tlv_document_builder_create(&opts, &reader, nullptr, &rejected));
     opts.max_elements = 0;
     EXPECT_EQ(TLV_ERR_LIMIT, tlv_document_builder_create(&opts, &reader, &root, &rejected));
     EXPECT_EQ(nullptr, rejected);
@@ -1436,10 +1438,10 @@ TEST(Unit_Tlv_Document, RetirementEpochAdvancesWhenDeferredEraseActuallyCommits)
         EXPECT_EQ(state.revision, tlv_document_revision(state.document));
         EXPECT_EQ(state.root_identity, tlv_document_node_identity(state.document, node));
         EXPECT_NE(nullptr, tlv_node_first_child(node));
-        EXPECT_EQ(TLV_ERR_INVALID_ARG, tlv_node_set_value(node, nullptr, 0));
+        EXPECT_EQ(TLV_ERR_INVALID_STATE, tlv_node_set_value(node, nullptr, 0));
         return TLV_VISIT_CONTINUE;
     };
-    EXPECT_EQ(TLV_ERR_INVALID_ARG, tlv_document_query_visit(doc.get(), &query, callback, &state));
+    EXPECT_EQ(TLV_ERR_INVALID_STATE, tlv_document_query_visit(doc.get(), &query, callback, &state));
     EXPECT_EQ(1u, state.calls);
     EXPECT_EQ(epoch + 1, tlv_document_retire_epoch(doc.get()));
     EXPECT_EQ(revision + 1, tlv_document_revision(doc.get()));

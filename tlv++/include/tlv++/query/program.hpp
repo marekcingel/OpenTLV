@@ -491,10 +491,12 @@ public:
         if (rc != TLV_OK) return unexpected<query_failure>(detail::query_failed(rc, d));
         return {};
     }
-    /** @brief Read a finalized scalar; returned spans borrow this execution's owners. */
+    /** @brief Read a finalized scalar; returned spans borrow this execution's owners.
+     * @return Result or INVALID_STATE before completion, after failure, during callbacks or
+     * when the backing Document has expired or changed; other native errors propagate. */
     expected<tlv_query_result_t, query_failure> result() const {
         if (has_document_ && document_lifetime_.expired())
-            return unexpected<query_failure>(detail::query_failed(TLV_ERR_INVALID_ARG));
+            return unexpected<query_failure>(detail::query_failed(TLV_ERR_INVALID_STATE));
         tlv_query_result_t out{};
         auto               rc = tlv_query_exec_result(exec_, &out);
         if (rc != TLV_OK) return unexpected<query_failure>(detail::query_failed(rc));
@@ -512,10 +514,12 @@ public:
                            value->integer,
                            {reinterpret_cast<const byte*>(value->data), value->size}};
     }
-    /** @brief Pull a finalized retained Tree result; END_OF_BUFFER means final exhaustion. */
+    /** @brief Pull a finalized retained Tree result; END_OF_BUFFER means final exhaustion.
+     * @return Event or INVALID_STATE before completion, after failure, during callbacks or
+     * when the backing Document has expired or changed; other native errors propagate. */
     expected<tree_event, query_failure> next() {
         if (has_document_ && document_lifetime_.expired())
-            return unexpected<query_failure>(detail::query_failed(TLV_ERR_INVALID_ARG));
+            return unexpected<query_failure>(detail::query_failed(TLV_ERR_INVALID_STATE));
         tlv_tree_event_t out{};
         auto             rc = tlv_query_result_next(exec_, &out);
         if (rc != TLV_OK) return unexpected<query_failure>(detail::query_failed(rc));

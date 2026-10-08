@@ -138,9 +138,9 @@ tlv_result_t tlv_document_builder_create(const tlv_document_options_t* options,
     *builder = NULL;
     if (!options || !reader) return TLV_ERR_NULL_ARG;
     if (options->format != reader->input.format) return TLV_ERR_INVALID_ARG;
-    if ((!root && reader->count) ||
-        (root && (root->source.format != options->format || !root->source.size ||
-                  root->offset > SIZE_MAX - root->source.size)))
+    if (!root && reader->count) return TLV_ERR_INVALID_STATE;
+    if (root && (root->source.format != options->format || !root->source.size ||
+                 root->offset > SIZE_MAX - root->source.size))
         return TLV_ERR_INVALID_ARG;
     rc = tlv_document_create(options, &document);
     if (rc != TLV_OK) return rc;
@@ -175,7 +175,7 @@ tlv_result_t tlv_document_builder_consume(tlv_document_builder_t* builder,
     if (!document) return TLV_ERR_NULL_ARG;
     *document = NULL;
     if (!builder) return TLV_ERR_NULL_ARG;
-    if (!builder->document) return TLV_ERR_INVALID_ARG;
+    if (!builder->document) return TLV_ERR_INVALID_STATE;
     rc = consume_tree(builder, error_offset, diagnostic);
     if (rc == TLV_NEED_MORE_DATA) return rc;
     if (rc == TLV_OK)

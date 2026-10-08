@@ -108,8 +108,8 @@ static int execute(const tlv_query_program_t* p, unsigned seed, size_t capacity,
     out.limit = diagnostic.limit;
     if (out.status != TLV_OK) {
         tlv_query_result_t result{};
-        CHECK(tlv_query_exec_result(e, &result) == TLV_ERR_INVALID_ARG);
-        CHECK(tlv_query_exec_finish(e, nullptr) == TLV_ERR_INVALID_ARG);
+        CHECK(tlv_query_exec_result(e, &result) == TLV_ERR_INVALID_STATE);
+        CHECK(tlv_query_exec_finish(e, nullptr) == TLV_ERR_INVALID_STATE);
         CHECK(tlv_query_exec_reset(e) == TLV_OK);
         return 0;
     }

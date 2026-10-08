@@ -122,7 +122,7 @@ static int node_gc(lua_State* L) {
 
 static int document_gc(lua_State* L) {
     document_t* self = (document_t*)luaL_checkudata(L, 1, DOCUMENT_MT);
-    if (self->query_active) return opentlv_lua_raise(L, TLV_ERR_INVALID_ARG, 0, 0);
+    if (self->query_active) return opentlv_lua_raise(L, TLV_ERR_INVALID_STATE, 0, 0);
     for (node_handle_t* handle = self->handles; handle; handle = handle->next) handle->node = NULL;
     tlv_document_free(self->document);
     self->document = NULL;
@@ -256,7 +256,7 @@ static int document_query(lua_State* L) {
 }
 
 static int set_value(lua_State* L, document_t* owner, tlv_node_t* node, int arg) {
-    if (owner->query_active) return opentlv_lua_raise(L, TLV_ERR_INVALID_ARG, 0, 0);
+    if (owner->query_active) return opentlv_lua_raise(L, TLV_ERR_INVALID_STATE, 0, 0);
     size_t         length;
     const uint8_t* value = (const uint8_t*)luaL_checklstring(L, arg, &length);
     mark_handles(owner, node, 0);
@@ -279,7 +279,7 @@ static int document_set(lua_State* L) {
 
 static int document_erase(lua_State* L) {
     document_t* self = check_document(L, 1);
-    if (self->query_active) return opentlv_lua_raise(L, TLV_ERR_INVALID_ARG, 0, 0);
+    if (self->query_active) return opentlv_lua_raise(L, TLV_ERR_INVALID_STATE, 0, 0);
     tlv_node_t* node = resolve_node(L, self, 2);
     if (!node) {
         lua_pushboolean(L, 0);
@@ -295,7 +295,7 @@ static int document_erase(lua_State* L) {
 /* insert(binary_tag, value, parent?, before?) */
 static int document_insert(lua_State* L) {
     document_t* self = check_document(L, 1);
-    if (self->query_active) return opentlv_lua_raise(L, TLV_ERR_INVALID_ARG, 0, 0);
+    if (self->query_active) return opentlv_lua_raise(L, TLV_ERR_INVALID_STATE, 0, 0);
     size_t         tag_size, length;
     const uint8_t* tag_data = (const uint8_t*)luaL_checklstring(L, 2, &tag_size);
     const uint8_t* value = (const uint8_t*)luaL_checklstring(L, 3, &length);
@@ -405,7 +405,7 @@ static int node_set(lua_State* L) {
 }
 static int node_erase(lua_State* L) {
     node_handle_t* self = check_node(L, 1);
-    if (self->owner->query_active) return opentlv_lua_raise(L, TLV_ERR_INVALID_ARG, 0, 0);
+    if (self->owner->query_active) return opentlv_lua_raise(L, TLV_ERR_INVALID_STATE, 0, 0);
     tlv_node_t* node = self->node;
     mark_handles(self->owner, node, 1);
     invalidate_marked(self->owner);

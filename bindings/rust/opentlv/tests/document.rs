@@ -61,7 +61,7 @@ fn current_subtree_cannot_reuse_a_stale_selection() {
                 .err()
                 .unwrap()
                 .error,
-            Error::InvalidArg
+            Error::InvalidState
         );
     }
 }
@@ -79,7 +79,7 @@ fn builder_resumes_and_materializes_selected_subtree_without_sibling_decode() {
         builder.set_input(&second, 2, true).unwrap();
         let document = builder.consume().unwrap();
         assert_eq!(document.encode().unwrap(), [1, 0, 2, 1, 42]);
-        assert_eq!(builder.consume().err().unwrap().error, Error::InvalidArg);
+        assert_eq!(builder.consume().err().unwrap().error, Error::InvalidState);
     }
     let input = [0x30, 3, 4, 1, 42, 4, 2];
     let mut reader = TreeReader::new(&input, Format::Ber, 4, 4, 20, true).unwrap();

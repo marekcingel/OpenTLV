@@ -99,8 +99,8 @@ tlv_result_t tlv_reader_set_input(tlv_reader_t* reader, const uint8_t* data, siz
     if (!data && size) return TLV_ERR_NULL_ARG;
     if (discard > reader->pos || (final_input != 0 && final_input != 1)) return TLV_ERR_INVALID_ARG;
     retained = reader->size - discard;
-    if (size < retained || (reader->final_input && (!final_input || size != retained)))
-        return TLV_ERR_INVALID_ARG;
+    if (size < retained) return TLV_ERR_INVALID_ARG;
+    if (reader->final_input && (!final_input || size != retained)) return TLV_ERR_INVALID_STATE;
     base = reader->base_offset + discard; /* Already bounded by the old window end. */
     if (size > SIZE_MAX - base) return TLV_ERR_OVERFLOW;
     reader->data = data;

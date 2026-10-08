@@ -178,7 +178,7 @@ TEST(Unit_Tlvpp_Document, SelectionInvalidatedByCursorAndBuilderOperations) {
         }
         auto rejected = tlv::document_builder::current_subtree(reader);
         ASSERT_FALSE(rejected);
-        EXPECT_EQ(TLV_ERR_INVALID_ARG, rejected.error().code);
+        EXPECT_EQ(TLV_ERR_INVALID_STATE, rejected.error().code);
     }
 }
 
@@ -437,16 +437,16 @@ TEST(Unit_Tlvpp_Document, ErasureInvalidatesCopiesDescendantsAndIteratorsOnly) {
     EXPECT_EQ(0u, copy.value().size());
     EXPECT_FALSE(copy.parent());
     EXPECT_FALSE(copy.find(tlv::tag_bytes<0x50>()));
-    EXPECT_EQ(TLV_ERR_INVALID_ARG, copy.set(tlv::bytes()).error().code);
-    EXPECT_EQ(TLV_ERR_INVALID_ARG, copy.encode().error().code);
-    EXPECT_EQ(TLV_ERR_INVALID_ARG, copy.encoded_size().error().code);
-    EXPECT_EQ(TLV_ERR_INVALID_ARG,
+    EXPECT_EQ(TLV_ERR_INVALID_STATE, copy.set(tlv::bytes()).error().code);
+    EXPECT_EQ(TLV_ERR_INVALID_STATE, copy.encode().error().code);
+    EXPECT_EQ(TLV_ERR_INVALID_STATE, copy.encoded_size().error().code);
+    EXPECT_EQ(TLV_ERR_INVALID_STATE,
               copy.encode(tlv::native::borrow_format(controlled::format)).error().code);
     copy.erase();
     EXPECT_EQ(make({0x50, 0x01, 0xFF}), *doc.encode());
-    EXPECT_EQ(TLV_ERR_INVALID_ARG,
+    EXPECT_EQ(TLV_ERR_INVALID_STATE,
               doc.insert(tlv::tag_bytes<0x50>(), tlv::bytes(), child).error().code);
-    EXPECT_EQ(TLV_ERR_INVALID_ARG,
+    EXPECT_EQ(TLV_ERR_INVALID_STATE,
               doc.insert(tlv::tag_bytes<0x50>(), tlv::bytes(), tlv::node(), copy).error().code);
 }
 
@@ -500,7 +500,7 @@ TEST(Unit_Tlvpp_Document, DestructionAndMoveAssignmentInvalidateOnlyPreviousOwne
     }
     EXPECT_FALSE(retained);
     EXPECT_TRUE(retained_range.empty());
-    EXPECT_EQ(TLV_ERR_INVALID_ARG,
+    EXPECT_EQ(TLV_ERR_INVALID_STATE,
               retained.insert(tlv::tag_bytes<0x50>(), tlv::bytes()).error().code);
     auto source = tlv::document::parse(view(sample), format());
     auto destination = tlv::document::parse(view(sample), format());

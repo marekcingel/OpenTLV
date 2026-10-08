@@ -4,7 +4,8 @@ This page describes the **currently implemented API**. The accepted
 [failure model](../concepts/error-model.md) (#551) defines a replacement taxonomy,
 typed diagnostic layering, locations and propagation rules. Its implementation
 will break API and ABI compatibility; the target names and signatures are not
-available yet. The tables below retain the current codes and behavior.
+available yet, except for `TLV_ERR_INVALID_STATE`, implemented by #552. The
+tables below describe the current codes and behavior.
 
 Core operations return a `tlv_result_t` from `tlv/error.h`; Codec operations
 currently have a separate `tlv_codec_result_t`. Zero is success; nonzero core
@@ -57,8 +58,9 @@ Until the [failure-model migration](../concepts/error-model.md#migration-invento
 is implemented, Query uses existing
 categories: `STORAGE` for compiler/plan arguments and capacities, `BINDING` for
 binding arguments, `CAPABILITY` for incompatible formats or hook configuration,
-and `EVENTS` for execution lifecycle and visitor/callback failures. Return codes
-and public layouts are unchanged. These choices are temporary classifications,
+and `EVENTS` for execution lifecycle and visitor/callback failures. #552 changes
+lifecycle results to `TLV_ERR_INVALID_STATE` without changing diagnostic kinds
+or public layouts. These choices are temporary classifications,
 not new result-taxonomy rules.
 
 ### Regression enforcement
@@ -99,6 +101,19 @@ control-flow proof.
 | `TLV_ERR_SCHEMA_MISSING` | 16 | A required field is absent. | Its offset is the end of the enclosing parent's value, not an element; see below. |
 | `TLV_ERR_NATIVE_SIZE` | 17 | A logical size exceeds the native address space. | Checked conversion to `size_t`; the logical quantity itself remains valid. |
 | `TLV_NEED_MORE_DATA` | 18 | Incremental input is exhausted or incomplete. | Supply an extended window or declare EOF. No element is published and the cursor does not advance. |
+| `TLV_ERR_INVALID_STATE` | 19 | The operation is forbidden by the current lifecycle state. | Reset a failed or used Query execution before reuse; leave the callback before mutating; close Tree Writer parents before finishing; only skip a pending Reader subtree. Stale Document results also use this code. |
+
+### Arguments versus lifecycle state
+
+`TLV_ERR_INVALID_STATE` distinguishes lifecycle/reentrancy rejection from
+`TLV_ERR_INVALID_ARG`, which still describes bad arguments, configuration,
+overlap and malformed event input. Query retains its existing detail categories
+(`BINDING` or `EVENTS` for state failures) until the remaining #551 migration.
+A state rejection does not bypass pre-initialization guards: callback reentrancy
+and rejected continuation of failed executions preserve protected outputs and
+the original diagnostic. Repeated successful Query finish and normal iterator
+exhaustion retain their existing behavior. Reader input may be relocated after
+EOF, but cannot be reopened or extended.
 
 ## Offsets and diagnosis
 

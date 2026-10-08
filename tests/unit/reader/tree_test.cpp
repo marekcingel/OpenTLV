@@ -95,10 +95,10 @@ TEST(Unit_Tlv_Tree, SkipDoesNotDecodeMalformedDescendants) {
     tlv_tree_reader_t reader;
     ASSERT_EQ(TLV_OK, tlv_tree_reader_init(&reader, data, sizeof(data), &format, nullptr, 0, 0, 2));
     tlv_tree_item_t item{};
-    EXPECT_EQ(TLV_ERR_INVALID_ARG, tlv_tree_reader_skip_subtree(&reader));
+    EXPECT_EQ(TLV_ERR_INVALID_STATE, tlv_tree_reader_skip_subtree(&reader));
     ASSERT_EQ(TLV_OK, tlv_tree_reader_next(&reader, &item));
     ASSERT_EQ(TLV_OK, tlv_tree_reader_skip_subtree(&reader));
-    EXPECT_EQ(TLV_ERR_INVALID_ARG, tlv_tree_reader_skip_subtree(&reader));
+    EXPECT_EQ(TLV_ERR_INVALID_STATE, tlv_tree_reader_skip_subtree(&reader));
     ASSERT_EQ(TLV_OK, tlv_tree_reader_next(&reader, &item));
     EXPECT_EQ(3u, item.offset);
 }
@@ -222,7 +222,7 @@ TEST(Unit_Tlv_Tree, FinalityAndInvalidUpdatesPreserveTraversal) {
     EXPECT_EQ(before.count, reader.count);
     ASSERT_EQ(TLV_OK, tlv_tree_reader_set_input(&reader, data, sizeof(data), 0, 1));
     EXPECT_EQ(TLV_ERR_BUFFER_TOO_SHORT, tlv_tree_reader_next(&reader, &item));
-    EXPECT_EQ(TLV_ERR_INVALID_ARG, tlv_tree_reader_set_input(&reader, data, sizeof(data), 0, 0));
+    EXPECT_EQ(TLV_ERR_INVALID_STATE, tlv_tree_reader_set_input(&reader, data, sizeof(data), 0, 0));
     ASSERT_EQ(TLV_OK,
               tlv_tree_reader_init_incremental(&reader, nullptr, 0, &format, nullptr, 0, 0, 0));
     EXPECT_FALSE(tlv_tree_reader_at_end(&reader));
@@ -382,7 +382,7 @@ TEST(Unit_Tlv_Tree, EventWriterRejectsDepthAndSupportsRetryAfterTagLimit) {
     EXPECT_EQ(0u, writer.count);
     ASSERT_EQ(TLV_OK, tlv_tree_writer_set_tag_storage(&writer, tag_storage, 1));
     ASSERT_EQ(TLV_OK, tlv_tree_writer_write_event(&writer, &event));
-    EXPECT_EQ(TLV_ERR_INVALID_ARG, tlv_tree_writer_set_tag_storage(&writer, nullptr, 0));
+    EXPECT_EQ(TLV_ERR_INVALID_STATE, tlv_tree_writer_set_tag_storage(&writer, nullptr, 0));
     event = {};
     event.kind = TLV_TREE_END;
     ASSERT_EQ(TLV_OK, tlv_tree_writer_write_event(&writer, &event));
@@ -415,7 +415,7 @@ TEST(Unit_Tlv_Tree, EventSplitsAreTransactionalAndEmptyContainersNeedNoFrame) {
     ASSERT_EQ(TLV_OK, tlv_tree_reader_init(&reader, data + 2, 2, &format, nullptr, 0, 0, 1));
     ASSERT_EQ(TLV_OK, tlv_tree_reader_next_event(&reader, &event));
     EXPECT_EQ(TLV_TREE_BEGIN, event.kind);
-    EXPECT_EQ(TLV_ERR_INVALID_ARG, tlv_tree_reader_skip_subtree(&reader));
+    EXPECT_EQ(TLV_ERR_INVALID_STATE, tlv_tree_reader_skip_subtree(&reader));
     ASSERT_EQ(TLV_OK, tlv_tree_reader_next_event(&reader, &event));
     EXPECT_EQ(TLV_TREE_END, event.kind);
     EXPECT_FALSE(event.skipped);

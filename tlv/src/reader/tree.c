@@ -150,7 +150,7 @@ tlv_result_t tlv_tree_reader_next(tlv_tree_reader_t* reader, tlv_tree_item_t* it
 
 tlv_result_t tlv_tree_reader_skip_subtree(tlv_tree_reader_t* reader) {
     if (!reader) return TLV_ERR_NULL_ARG;
-    if (!reader->descend_pending) return TLV_ERR_INVALID_ARG;
+    if (!reader->descend_pending) return TLV_ERR_INVALID_STATE;
     reader->input.pos = reader->pending.resume - reader->input.base_offset;
     reader->descend_pending = 0;
     reader->end_pending = reader->skipped = 1;

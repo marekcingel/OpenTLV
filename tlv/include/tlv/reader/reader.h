@@ -183,7 +183,8 @@ TLV_API tlv_result_t tlv_reader_init_incremental(tlv_reader_t* reader, const uin
  * @param[in] final_input Exactly 0 or 1; 1 declares EOF at the new window end.
  * @return #TLV_OK on success.
  * @return #TLV_ERR_NULL_ARG for missing required pointers or Format callback.
- * @return #TLV_ERR_INVALID_ARG for invalid state, discard, size or final flag;
+ * @return #TLV_ERR_INVALID_ARG for corrupt cursor fields, discard, size or final flag;
+ * #TLV_ERR_INVALID_STATE for reopening or extending finalized input;
  *         final input cannot be reopened or extended without reinitialization.
  * @return #TLV_ERR_OVERFLOW if the new absolute window end exceeds SIZE_MAX.
  * @note On failure the cursor is unchanged. After EOF, rebinding and discarding

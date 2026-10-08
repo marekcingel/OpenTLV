@@ -230,7 +230,7 @@ static void destroy_execution(PyObject* capsule) {
 static execution* get_execution(PyObject* capsule) {
     execution* self = PyCapsule_GetPointer(capsule, EXECUTION_NAME);
     if (self && self->busy) {
-        PyErr_SetString(PyExc_RuntimeError, "Query execution is active in a callback");
+        failure(TLV_ERR_INVALID_STATE, NULL);
         return NULL;
     }
     return self;
@@ -751,8 +751,8 @@ PyObject* opentlv_python_execution_feed(PyObject* module, PyObject* args) {
         return NULL;
     execution* self = get_execution(capsule);
     if (!self) return NULL;
-    if (self->reader || self->document || depth < 0 || offset < 0)
-        return failure(TLV_ERR_INVALID_ARG, NULL);
+    if (self->reader || self->document) return failure(TLV_ERR_INVALID_STATE, NULL);
+    if (depth < 0 || offset < 0) return failure(TLV_ERR_INVALID_ARG, NULL);
     char *     tag_data, *value_data;
     Py_ssize_t tag_size, value_size;
     if (PyBytes_AsStringAndSize(tag, &tag_data, &tag_size) < 0 ||
@@ -793,7 +793,7 @@ PyObject* opentlv_python_execution_finish(PyObject* module, PyObject* capsule) {
     (void)module;
     execution* self = get_execution(capsule);
     if (!self) return NULL;
-    if (self->reader || self->document) return failure(TLV_ERR_INVALID_ARG, NULL);
+    if (self->reader || self->document) return failure(TLV_ERR_INVALID_STATE, NULL);
     tlv_query_diagnostic_t diagnostic;
     self->busy = 1;
     tlv_result_t rc = tlv_query_exec_finish(self->native, &diagnostic);
@@ -810,7 +810,7 @@ PyObject* opentlv_python_execution_visit(PyObject* module, PyObject* args) {
     execution* self = get_execution(capsule);
     if (!self) return NULL;
     if (self->document || (self->reader && self->reader != reader_capsule))
-        return failure(TLV_ERR_INVALID_ARG, NULL);
+        return failure(TLV_ERR_INVALID_STATE, NULL);
     if (!existence && !PyCallable_Check(callback)) {
         PyErr_SetString(PyExc_TypeError, "Query visitor must be callable");
         return NULL;
@@ -889,8 +889,8 @@ PyObject* opentlv_python_execution_document(PyObject* module, PyObject* args) {
         return NULL;
     execution* self = get_execution(capsule);
     if (!self) return NULL;
-    if (!self->retained || self->reader || self->document || value_capacity < 0)
-        return failure(TLV_ERR_INVALID_ARG, NULL);
+    if (self->reader || self->document) return failure(TLV_ERR_INVALID_STATE, NULL);
+    if (!self->retained || value_capacity < 0) return failure(TLV_ERR_INVALID_ARG, NULL);
     tlv_document_t* document = opentlv_python_document_pointer(document_capsule);
     if (!document) return NULL;
     tlv_node_t* node = context == Py_None ? NULL : PyLong_AsVoidPtr(context);

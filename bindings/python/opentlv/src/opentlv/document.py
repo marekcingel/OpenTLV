@@ -10,7 +10,7 @@ from weakref import WeakValueDictionary
 
 import _opentlv as _native
 
-from opentlv.error import _from_native
+from opentlv.error import _from_native, InvalidStateError
 from opentlv.format import Format, _resolve_format, _format_specification
 from opentlv.tag import Tag
 from opentlv.cursor import TreeReader
@@ -237,7 +237,7 @@ class Document:
 
     def _assert_mutable(self):
         if self._query_active:
-            raise RuntimeError("Document is active in Query evaluation")
+            raise InvalidStateError(19)
 
     def _lifetime(self, ptr):
         if self._capsule is None:

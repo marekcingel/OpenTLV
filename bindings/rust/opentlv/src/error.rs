@@ -53,6 +53,8 @@ pub enum Error {
     NativeSize,
     /// Non-final input is exhausted or incomplete; this condition is resumable.
     NeedMoreData,
+    /// The operation is forbidden by the current lifecycle state.
+    InvalidState,
     /// A result code not known to this crate; carries the raw code.
     Unknown(i32),
 }
@@ -83,6 +85,7 @@ impl Error {
             native::TLV_ERR_SCHEMA_MISSING => Error::SchemaMissing,
             native::TLV_ERR_NATIVE_SIZE => Error::NativeSize,
             native::TLV_NEED_MORE_DATA => Error::NeedMoreData,
+            native::TLV_ERR_INVALID_STATE => Error::InvalidState,
             other => Error::Unknown(other),
         })
     }
@@ -108,6 +111,7 @@ impl Error {
             Error::SchemaMissing => native::TLV_ERR_SCHEMA_MISSING,
             Error::NativeSize => native::TLV_ERR_NATIVE_SIZE,
             Error::NeedMoreData => native::TLV_NEED_MORE_DATA,
+            Error::InvalidState => native::TLV_ERR_INVALID_STATE,
             Error::Unknown(code) => code,
         }
     }
@@ -136,7 +140,7 @@ impl error::Error for Error {}
 mod tests {
     use super::*;
 
-    const KNOWN: [(i32, Error); 17] = [
+    const KNOWN: [(i32, Error); 19] = [
         (1, Error::BufferTooShort),
         (2, Error::InvalidLength),
         (3, Error::NullArg),
@@ -154,6 +158,8 @@ mod tests {
         (15, Error::UnsupportedType),
         (16, Error::SchemaMissing),
         (17, Error::NativeSize),
+        (18, Error::NeedMoreData),
+        (19, Error::InvalidState),
     ];
 
     #[test]

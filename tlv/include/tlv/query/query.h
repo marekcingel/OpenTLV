@@ -160,7 +160,8 @@ typedef union tlv_query_matcher {
  * @param[in] query Required equivalent Query; must outlive further matching.
  * @return #TLV_OK on success.
  * @return #TLV_ERR_NULL_ARG for a missing pointer.
- * @return #TLV_ERR_INVALID_ARG for an uninitialized matcher or invalid/different Query.
+ * @return #TLV_ERR_INVALID_STATE for an uninitialized matcher.
+ * @return #TLV_ERR_INVALID_ARG for an invalid or different Query.
  * @note Never allocates. Failure preserves matcher. The old Query must remain
  * alive through this call. Use tlv_query_matcher_init() to reset a traversal.
  */

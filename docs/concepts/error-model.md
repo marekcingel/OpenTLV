@@ -5,9 +5,10 @@ for authors of C capabilities and language facades. Read the
 [architectural rules](architectural-rules.md) and
 [current error reference](../reference/errors.md) first.
 
-**Status: design decided; C API and binding migration is separate work.** This
-page defines the target contract. Names described as target names are not yet
-public declarations. The reference page continues to describe the running
+**Status: design decided; lifecycle result implemented by #552; remaining API
+and binding migration is separate work.** This page defines the target contract.
+`TLV_ERR_INVALID_STATE` is now public; other new target names are not yet public
+declarations. The reference page continues to describe the running
 implementation. This design does not preserve source, binary, enum-number or
 diagnostic-layout compatibility. Removed names get no aliases, compatibility
 wrappers or deprecation period. Native consumers and bindings migrate together.
@@ -428,7 +429,10 @@ Unknown visitor discriminators produce `CALLBACK`.
 
 ## Implementation handoff and validation
 
-This design completes #551; it does not claim that the target API is available.
+This design completes #551. Issue #552 implements `INVALID_STATE` and its
+facade mappings; existing Query detail kinds, callback payload classifications
+and other result classes remain until their migration. It does not claim that
+the complete target API is available.
 The follow-up implementation replaces enums/signatures/layouts directly and
 updates their Doxygen contracts. It must cover common result strings, all
 native producers, C++ facades, Go/Rust/Python/Lua/JS-WASM, CLI rendering and

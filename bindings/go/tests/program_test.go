@@ -112,14 +112,14 @@ func TestQuerySchemaProviderLifetimeAndDocumentGuards(t *testing.T) {
 			if metadata == nil || !bytes.Equal(metadata.Tag, []byte{0x5a}) {
 				t.Error("missing metadata")
 			}
-			if err := doc.Close(); !errors.Is(err, tlv.ErrInvalidArg) {
+			if err := doc.Close(); !errors.Is(err, tlv.ErrInvalidState) {
 				t.Error("close allowed", err)
 			}
 			root, err := doc.Element(0)
 			if err != nil {
 				t.Fatal(err)
 			}
-			if err := root.Erase(); !errors.Is(err, tlv.ErrInvalidArg) {
+			if err := root.Erase(); !errors.Is(err, tlv.ErrInvalidState) {
 				t.Error("mutation allowed", err)
 			}
 			context.Close()
@@ -296,7 +296,7 @@ func TestQueryRawFeedsImmediateRetainedAndMalformed(t *testing.T) {
 		} else if item == nil || item.Offset != 7 {
 			t.Fatal(item)
 		}
-		if err := q.SetInput([]byte{0x5a, 0}, 0, true); !errors.Is(err, tlv.ErrInvalidArg) {
+		if err := q.SetInput([]byte{0x5a, 0}, 0, true); !errors.Is(err, tlv.ErrInvalidState) {
 			t.Fatal(err)
 		}
 		if err := q.Finish(); err != nil {
@@ -352,7 +352,7 @@ func TestQueryCompletedDocumentEditRetryAndOverlap(t *testing.T) {
 	if applied, err := q.EditDocument(tlv.QueryReplace, nil, []byte{9}, 3); applied != 3 || err != nil {
 		t.Fatal(applied, err)
 	}
-	if _, err := q.NextDocument(); !errors.Is(err, tlv.ErrInvalidArg) {
+	if _, err := q.NextDocument(); !errors.Is(err, tlv.ErrInvalidState) {
 		t.Fatal(err)
 	}
 	if err := q.Reset(); err != nil {
@@ -440,7 +440,7 @@ func TestCompiledStreamingContinuationOwnershipAndReentry(t *testing.T) {
 		if match.Offset != 3 {
 			t.Fatal(match)
 		}
-		if !errors.Is(q.Reset(), tlv.ErrInvalidArg) || !errors.Is(q.Close(), tlv.ErrInvalidArg) {
+		if !errors.Is(q.Reset(), tlv.ErrInvalidState) || !errors.Is(q.Close(), tlv.ErrInvalidState) {
 			t.Fatal("callback reentry")
 		}
 		p.Close() // Existing execution keeps its immutable native program alive.
@@ -518,7 +518,7 @@ func TestCompiledDocumentRevisionAndClose(t *testing.T) {
 	if err := node.SetValue([]byte{7}); err != nil {
 		t.Fatal(err)
 	}
-	if _, err := q.NextDocument(); !errors.Is(err, tlv.ErrInvalidArg) {
+	if _, err := q.NextDocument(); !errors.Is(err, tlv.ErrInvalidState) {
 		t.Fatal("revision", err)
 	}
 	if err := q.Reset(); err != nil {
@@ -528,7 +528,7 @@ func TestCompiledDocumentRevisionAndClose(t *testing.T) {
 		t.Fatal(err)
 	}
 	_ = d.Close()
-	if _, err := q.NextDocument(); !errors.Is(err, tlv.ErrInvalidArg) {
+	if _, err := q.NextDocument(); !errors.Is(err, tlv.ErrInvalidState) {
 		t.Fatal("closed document", err)
 	}
 	if err := q.Reset(); err != nil {

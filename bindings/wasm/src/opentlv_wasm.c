@@ -1288,9 +1288,10 @@ void opentlv_wasm_execution_free(opentlv_wasm_execution_t* q) {
 }
 const char* opentlv_wasm_execution_input(opentlv_wasm_execution_t* q, const uint8_t* data,
                                          size_t size, size_t discard, int final) {
-    tlv_result_t rc =
-        q->document || q->fed || (!q->has_reader && discard) ? TLV_ERR_INVALID_ARG : TLV_OK;
-    wasm_pin_t* pin = rc == TLV_OK ? wasm_pin(q, data, size) : NULL;
+    tlv_result_t rc = q->document || q->fed         ? TLV_ERR_INVALID_STATE
+                      : (!q->has_reader && discard) ? TLV_ERR_INVALID_ARG
+                                                    : TLV_OK;
+    wasm_pin_t*  pin = rc == TLV_OK ? wasm_pin(q, data, size) : NULL;
     if (rc == TLV_OK && !pin) rc = TLV_ERR_OUT_OF_MEMORY;
     if (rc == TLV_OK)
         rc = q->has_reader ? tlv_tree_reader_set_input(&q->reader, pin->data, size, discard, final)
@@ -1345,7 +1346,7 @@ const char* opentlv_wasm_execution_feed(opentlv_wasm_execution_t* q, int kind, c
                                         size_t tag_size, const uint8_t* value, size_t value_size,
                                         size_t depth, size_t offset, int skipped) {
     tlv_query_diagnostic_t diagnostic = {0};
-    tlv_result_t           rc = q->has_reader || q->document ? TLV_ERR_INVALID_ARG : TLV_OK;
+    tlv_result_t           rc = q->has_reader || q->document ? TLV_ERR_INVALID_STATE : TLV_OK;
     tlv_tree_event_t       event = {0};
     int                    matched = 0;
     if (rc == TLV_OK) {
@@ -1377,8 +1378,9 @@ const char* opentlv_wasm_execution_feed(opentlv_wasm_execution_t* q, int kind, c
 const char* opentlv_wasm_execution_feed_source(opentlv_wasm_execution_t* q, int kind,
                                                const uint8_t* source, size_t size, size_t depth,
                                                size_t offset, int skipped) {
-    tlv_result_t rc =
-        q->has_reader || q->document || kind == TLV_TREE_END ? TLV_ERR_INVALID_ARG : TLV_OK;
+    tlv_result_t           rc = q->has_reader || q->document ? TLV_ERR_INVALID_STATE
+                                : kind == TLV_TREE_END       ? TLV_ERR_INVALID_ARG
+                                                             : TLV_OK;
     tlv_query_diagnostic_t diagnostic = {0};
     tlv_tree_event_t       event = {0};
     int                    matched = 0;
@@ -1558,7 +1560,9 @@ const char* opentlv_wasm_execution_document(opentlv_wasm_execution_t* q,
     tlv_query_diagnostic_t d = {0};
     tlv_result_t           rc = TLV_ERR_UNSUPPORTED_TYPE;
 #if OPENTLV_DOCUMENT
-    rc = !q->retained || q->has_reader || q->document ? TLV_ERR_INVALID_ARG : TLV_OK;
+    rc = q->has_reader || q->document ? TLV_ERR_INVALID_STATE
+         : !q->retained               ? TLV_ERR_INVALID_ARG
+                                      : TLV_OK;
     tlv_tree_writer_workspace_t staging = {0};
     if (rc == TLV_OK && q->program->info.constructed_values_required) {
         if (q->depth == SIZE_MAX || q->depth + 1 > SIZE_MAX / sizeof *staging.frames)

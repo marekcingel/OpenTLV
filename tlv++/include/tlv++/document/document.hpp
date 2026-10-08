@@ -69,7 +69,7 @@ using document_source_location = tlv_document_source_location_t;
  * Moving a Document preserves handles. Erasure invalidates the erased subtree;
  * replacing a constructed Value invalidates its descendants only. Destruction or
  * replacement of the owning Document invalidates all its handles. Invalid handles
- * test false and accessors return empty results; fallible operations return INVALID_ARG.
+ * test false and accessors return empty results; fallible operations return INVALID_STATE.
  * Tag and Value views borrow storage and must not be retained across invalidating
  * edits or destruction.
  * @warning Operations are not thread-safe. Const access can update the handle's
@@ -198,14 +198,14 @@ public:
      * @param wanted New child's Tag; copied.
      * @param value New child's Value; copied and parsed if constructed.
      * @param before Direct child to precede, or an empty handle to append.
-     * @return New child or the C insertion error; invalid handles return INVALID_ARG.
+     * @return New child or the C insertion error; invalid handles return INVALID_STATE.
      * @note Existing handles and iterators remain valid. Failed insertion changes nothing.
      */
     TLV_NODISCARD expected<node, error> insert(tlv::tag wanted, bytes value, node before = node()) {
         auto owner = owner_.lock();
         if (!c_node() || (before.identity_ && !before))
             return unexpected<error>(
-                error::from_c(TLV_ERR_INVALID_ARG).during(operation::document));
+                error::from_c(TLV_ERR_INVALID_STATE).during(operation::document));
         tlv_node_t* created = nullptr;
         auto        rc = tlv_document_insert(
             owner->document, c_node(), before.c_node(), detail::semantic_access::get(wanted),
@@ -236,7 +236,7 @@ public:
         auto owner = owner_.lock();
         if (!c_node())
             return unexpected<error>(
-                error::from_c(TLV_ERR_INVALID_ARG).during(operation::document));
+                error::from_c(TLV_ERR_INVALID_STATE).during(operation::document));
         tlv_result_t rc = tlv_node_set_value(
             c_node(), reinterpret_cast<const uint8_t*>(value.data()), value.size());
         if (rc != TLV_OK) return unexpected<error>(error::from_c(rc).during(operation::document));
@@ -259,7 +259,7 @@ public:
     TLV_NODISCARD expected<size_t, error> encoded_size() const {
         if (!c_node())
             return unexpected<error>(
-                error::from_c(TLV_ERR_INVALID_ARG).during(operation::document));
+                error::from_c(TLV_ERR_INVALID_STATE).during(operation::document));
         size_t       size = 0;
         tlv_result_t rc = tlv_node_encoded_size(c_node(), &size);
         if (rc != TLV_OK) return unexpected<error>(error::from_c(rc).during(operation::document));
@@ -288,7 +288,7 @@ public:
     TLV_NODISCARD expected<size_t, error> encoded_size(tlv::format format) const {
         if (!c_node())
             return unexpected<error>(
-                error::from_c(TLV_ERR_INVALID_ARG).during(operation::document));
+                error::from_c(TLV_ERR_INVALID_STATE).during(operation::document));
         size_t     size = 0;
         const auto rc =
             tlv_node_encoded_size_as(c_node(), &detail::format_access::get(format), &size);
@@ -917,7 +917,9 @@ private:
     expected<void, query_failure> evaluate(query_execution& execution, uint8_t* values,
                                            size_t capacity, tlv_tree_writer_workspace_t* staging,
                                            node context = node()) const {
-        if (context.identity_ && (!context || context.owner_.lock() != impl_->lifetime))
+        if (context.identity_ && !context)
+            return unexpected<query_failure>(detail::query_failed(TLV_ERR_INVALID_STATE));
+        if (context.identity_ && context.owner_.lock() != impl_->lifetime)
             return unexpected<query_failure>(detail::query_failed(TLV_ERR_INVALID_ARG));
         tlv_query_diagnostic_t d{};
         auto rc = tlv_document_query_evaluate(c_document(), execution.c_exec(), context.c_node(),
@@ -931,9 +933,12 @@ private:
 public:
     /** @brief Pull a checked Document handle from a completed execution for this Document.
      * @param execution Completed continuation, with this Document alive and unchanged.
-     * @return Checked Node, END_OF_BUFFER, or native revision/state failure. */
+     * @return Checked Node, END_OF_BUFFER, or INVALID_STATE for missing, expired or stale
+     * Document execution; INVALID_ARG for an execution owned by a different Document. */
     expected<node, query_failure> next(query_execution& execution) {
-        if (!execution.has_document_ || execution.document_lifetime_.lock() != impl_->lifetime)
+        if (!execution.has_document_ || execution.document_lifetime_.expired())
+            return unexpected<query_failure>(detail::query_failed(TLV_ERR_INVALID_STATE));
+        if (execution.document_lifetime_.lock() != impl_->lifetime)
             return unexpected<query_failure>(detail::query_failed(TLV_ERR_INVALID_ARG));
         tlv_node_t* pointer = nullptr;
         auto        rc = tlv_document_query_next(execution.c_exec(), &pointer);
@@ -996,7 +1001,7 @@ public:
                                                node before = node()) {
         if ((parent.identity_ && !parent) || (before.identity_ && !before))
             return unexpected<error>(
-                error::from_c(TLV_ERR_INVALID_ARG).during(operation::document));
+                error::from_c(TLV_ERR_INVALID_STATE).during(operation::document));
         tlv_node_t*  created = nullptr;
         tlv_result_t rc = tlv_document_insert(impl_->handle.get(), parent.c_node(), before.c_node(),
                                               detail::semantic_access::get(wanted),
@@ -1252,7 +1257,7 @@ public:
      * @param max_depth Maximum materialized depth relative to the selected root.
      * @param max_elements Maximum materialized node count.
      * @param retain_source_locations Preserve absolute Reader coordinates of selected nodes.
-     * @return Builder, INVALID_ARG if selection was invalidated, or original C error.
+     * @return Builder, INVALID_STATE if selection was invalidated, or original C error.
      * @note Root content is copied immediately without another pull. This attempt
      * consumes selection, even on failure. Pulls, skips, input replacement,
      * validation, visitors and builder creation invalidate selection.
@@ -1263,7 +1268,7 @@ public:
                     bool   retain_source_locations = false) {
         if (!reader.has_current_)
             return unexpected<error>(
-                error::from_c(TLV_ERR_INVALID_ARG).during(operation::document));
+                error::from_c(TLV_ERR_INVALID_STATE).during(operation::document));
         const tlv_tree_item_t root = reader.current_;
         return create_impl(reader, &root, max_depth, max_elements, retain_source_locations);
     }

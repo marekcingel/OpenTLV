@@ -28,7 +28,7 @@ TEST(Unit_Tlv_Incremental, EmptyOpenInputRequiresDataUntilExplicitEof) {
     ASSERT_EQ(TLV_OK, tlv_reader_set_input(&reader, nullptr, 0, 0, 1));
     EXPECT_TRUE(tlv_reader_at_end(&reader));
     EXPECT_EQ(TLV_ERR_END_OF_BUFFER, tlv_reader_next(&reader, &element));
-    EXPECT_EQ(TLV_ERR_INVALID_ARG, tlv_reader_set_input(&reader, nullptr, 0, 0, 0));
+    EXPECT_EQ(TLV_ERR_INVALID_STATE, tlv_reader_set_input(&reader, nullptr, 0, 0, 0));
     EXPECT_STREQ("need more data", tlv_strerror(TLV_NEED_MORE_DATA));
 }
 
@@ -168,8 +168,8 @@ TEST(Unit_Tlv_Incremental, RejectsInvalidWindowUpdatesTransactionally) {
     EXPECT_EQ(TLV_ERR_NULL_ARG, tlv_reader_set_input(&reader, nullptr, 1, 2, 0));
     EXPECT_EQ(0, std::memcmp(before, &reader, sizeof(reader)));
     ASSERT_EQ(TLV_OK, tlv_reader_set_input(&reader, wire, sizeof(wire), 0, 1));
-    EXPECT_EQ(TLV_ERR_INVALID_ARG, tlv_reader_set_input(&reader, wire, sizeof(wire) + 1, 0, 1));
-    EXPECT_EQ(TLV_ERR_INVALID_ARG, tlv_reader_set_input(&reader, wire, sizeof(wire), 0, 0));
+    EXPECT_EQ(TLV_ERR_INVALID_STATE, tlv_reader_set_input(&reader, wire, sizeof(wire) + 1, 0, 1));
+    EXPECT_EQ(TLV_ERR_INVALID_STATE, tlv_reader_set_input(&reader, wire, sizeof(wire), 0, 0));
     EXPECT_EQ(TLV_ERR_NULL_ARG, tlv_reader_set_input(nullptr, nullptr, 0, 0, 0));
 }
 

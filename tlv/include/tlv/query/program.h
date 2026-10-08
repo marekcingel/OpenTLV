@@ -32,7 +32,7 @@ extern "C" {
  * Finish and exec_result also check the complete retained history.
  * Opaque provider contexts remain caller-managed.
  * @note Operations on the same execution from a visitor/provider/tag callback
- * return INVALID_ARG without changing the outer execution; exec_info is readable.
+ * return INVALID_STATE without changing the outer execution; exec_info is readable.
  * Independent executions are allowed. This is a synchronous reentrancy contract,
  * not thread synchronization. Use exec_reset for recovery; raw initialization
  * requires exclusive storage and is forbidden while that storage is active.
@@ -80,7 +80,7 @@ typedef enum tlv_query_decision_timing {
  * this output untouched. Compiler prepare/commit/load preflight argument,
  * extent and alignment checks can also reject before initialization.
  * @note A valid bind, feed or finish call on an already failed execution returns
- * INVALID_ARG without writing this object, preserving the original failure when
+ * INVALID_STATE without writing this object, preserving the original failure when
  * it is reused. Inspect exec_info.invalid and reset before continuing.
  * @note This value type is not extensible; changing its layout requires an ABI change. */
 typedef struct tlv_query_diagnostic {
@@ -486,7 +486,7 @@ TLV_API tlv_result_t tlv_query_exec_init(const tlv_query_program_t* program, voi
 
 /** @brief Reset an initialized execution, preserving its program, providers and budgets.
  * @param[in,out] exec Live initialized execution; may be finished or failed.
- * @return #TLV_OK; #TLV_ERR_NULL_ARG for NULL; #TLV_ERR_INVALID_ARG during a callback.
+ * @return #TLV_OK; #TLV_ERR_NULL_ARG for NULL; #TLV_ERR_INVALID_STATE during a callback.
  * @note Clears bindings, context, pruning, counters, retained input and results.
  * Program and environment must remain alive. No allocation occurs. Callback rejection
  * preserves the outer execution. Raw init calls require exclusive workspace ownership
@@ -502,7 +502,8 @@ TLV_API tlv_result_t tlv_query_exec_reset(tlv_query_exec_t* exec);
  * @param[in] size Span bytes, ignored for integer bindings.
  * @param[out] diagnostic Optional binding failure detail.
  * @return #TLV_OK; #TLV_ERR_NULL_ARG for missing pointers; #TLV_ERR_INVALID_ARG
- * for unknown/duplicate/incompatible bindings or used execution.
+ * for unknown/duplicate/incompatible bindings; #TLV_ERR_INVALID_STATE for used execution
+ * or callback reentrancy.
  * @note No text interpolation or allocation occurs. Span storage must remain alive
  * and unchanged until reset. To copy a span, the caller copies into its own storage.
  * Reinitialization clears all bindings. Rebinding during STOP/NEED_MORE_DATA is invalid.
@@ -518,7 +519,7 @@ TLV_API tlv_result_t tlv_query_exec_bind(tlv_query_exec_t* exec, const char* nam
  * @param[in,out] exec Required fresh execution; no event may have been consumed.
  * @param[in] ordinal Zero-based preorder identity below the element budget.
  * @return #TLV_OK; #TLV_ERR_NULL_ARG for NULL execution; #TLV_ERR_INVALID_ARG
- * for used execution or an out-of-budget identity.
+ * for an out-of-budget identity; #TLV_ERR_INVALID_STATE for used execution or reentrancy.
  * @note Absolute paths still use the virtual root. Relative paths select children
  * of this context; dot selects it. Missing context fails at EOF. Ancestor
  * evidence includes outside ancestors. Retained evaluation keeps complete borrowed events until
@@ -541,7 +542,8 @@ typedef struct tlv_query_exec_info {
  * @brief Enable or disable proven subtree pruning before feeding events.
  * @param[in,out] exec Required fresh execution.
  * @param[in] enabled Zero disables; nonzero explicitly permits partial validation.
- * @return #TLV_OK; #TLV_ERR_NULL_ARG for NULL; #TLV_ERR_INVALID_ARG for used state.
+ * @return #TLV_OK; #TLV_ERR_NULL_ARG for NULL; #TLV_ERR_INVALID_STATE for used state or reentrancy;
+ * #TLV_ERR_INVALID_ARG for a retained execution.
  * @note The adapter prunes only exhausted forward child plans with no possible
  * descendant match. Descendant plans and selected relative contexts are conservatively
  * drained. Malformed skipped descendants can be concealed; framing errors still propagate.
@@ -566,7 +568,8 @@ TLV_API tlv_result_t tlv_query_exec_info(const tlv_query_exec_t* exec, tlv_query
  * borrows its complete spans until reset.
  * @param[out] matched Required zero/one result; S1 END selects its original BEGIN.
  * @param[out] diagnostic Optional failure detail.
- * @return #TLV_OK; #TLV_ERR_INVALID_ARG for invalid sequence;
+ * @return #TLV_OK; #TLV_ERR_INVALID_ARG for malformed events;
+ * #TLV_ERR_INVALID_STATE for finished/failed execution or callback reentrancy;
  * #TLV_ERR_LIMIT for depth/elements/work; #TLV_ERR_INVALID_VALUE for
  * unavailable Source metadata; #TLV_ERR_UNSUPPORTED_TYPE for D programs without
  * Document execution; #TLV_ERR_NULL_ARG for missing pointers.
@@ -588,7 +591,8 @@ TLV_API tlv_result_t tlv_query_exec_feed(tlv_query_exec_t* exec, const tlv_tree_
 /** @brief Read the node selected by the most recent successful S1 feed.
  * @param[in] exec S1 execution whose most recent feed reported matched=1.
  * @param[out] event Original complete BEGIN/ELEMENT metadata, unchanged on failure.
- * @return OK, NULL argument or invalid state.
+ * @return #TLV_OK, #TLV_ERR_NULL_ARG, #TLV_ERR_INVALID_STATE for absent publication,
+ * failed execution or reentrancy; #TLV_ERR_INVALID_ARG for the wrong backend or overlap.
  * @note A matched END selects its original BEGIN. Complete spans borrow stable caller
  * input; feeding another event supersedes this publication. No allocation or payload copy. */
 TLV_API tlv_result_t tlv_query_exec_selected(const tlv_query_exec_t* exec, tlv_tree_event_t* event);
@@ -598,11 +602,12 @@ TLV_API tlv_result_t tlv_query_exec_selected(const tlv_query_exec_t* exec, tlv_t
  * @param[in,out] exec Required active execution.
  * @param[out] diagnostic Optional failure detail.
  * @return #TLV_OK on balanced EOF; #TLV_ERR_INVALID_ARG on invalid/unbalanced
- * feed; #TLV_ERR_UNSUPPORTED_TYPE for D programs without Document execution;
+ * feed; #TLV_ERR_INVALID_STATE for a failed execution or callback reentrancy;
+ * #TLV_ERR_UNSUPPORTED_TYPE for D programs without Document execution;
  * #TLV_ERR_NULL_ARG for NULL execution. Repeated successful finish is harmless.
  * @note Execution failures, including attempting D without Document, invalidate
  * until reset. Callback and forbidden-overlap rejections preserve the outer state.
- * Calling finish on an already failed execution returns INVALID_ARG without
+ * Calling finish on an already failed execution returns INVALID_STATE without
  * changing diagnostic, preserving the initial failure instead of reporting EOF.
  */
 TLV_API tlv_result_t tlv_query_exec_finish(tlv_query_exec_t* exec,
@@ -630,6 +635,8 @@ typedef tlv_visit_result_t (*tlv_query_event_visitor_t)(const tlv_tree_event_t* 
  * resume to final EOF for full structural coverage. Retained execution validates input before
  * callbacks and retains borrowed spans until reset; its STOP resumes the finalized sequence. No
  * Schema/DER semantic validation is implied. Replace input only under Reader frontier rules.
+ * @return #TLV_ERR_INVALID_STATE for reentrancy, a failed execution or callback workspace
+ * invalidation.
  */
 TLV_API tlv_result_t tlv_query_program_visit(tlv_tree_reader_t* reader, tlv_query_exec_t* exec,
                                              tlv_query_event_visitor_t visitor, void* context,
@@ -647,6 +654,7 @@ TLV_API tlv_result_t tlv_query_program_visit(tlv_tree_reader_t* reader, tlv_quer
  * @note Matches observed earlier in this execution remain part of existence.
  * Early-return success has partial coverage; inspect exec_info or resume with
  * early_return zero. A malformed suffix still fails full-validation mode.
+ * @return #TLV_ERR_INVALID_STATE for reentrancy or a failed execution.
  */
 TLV_API tlv_result_t tlv_query_program_exists(tlv_tree_reader_t* reader, tlv_query_exec_t* exec,
                                               int early_return, int* found,
@@ -690,14 +698,22 @@ TLV_API tlv_result_t tlv_query_eval_init(const tlv_query_program_t* program,
 /** @brief Read a finalized scalar or node result category.
  * @param[in] exec Successfully finished retained execution.
  * @param[out] result Tagged output, unchanged before completion/error.
- * @return OK or NULL/invalid-state errors. */
+ * @return #TLV_OK, #TLV_ERR_NULL_ARG, or #TLV_ERR_INVALID_ARG for overlap or a
+ * non-retained backend.
+ * @return #TLV_ERR_INVALID_STATE before finalization, after failure, during callbacks or for a
+ * stale Document revision.
+ */
 TLV_API tlv_result_t tlv_query_exec_result(const tlv_query_exec_t* exec,
                                            tlv_query_result_t* result);
 
 /** @brief Pull finalized unique node events in document order.
  * @param[in,out] exec Successfully finished retained node-result execution.
  * @param[out] event Matching event, unchanged on exhaustion/error.
- * @return OK, END_OF_BUFFER, or NULL/invalid-state errors. */
+ * @return #TLV_OK, #TLV_ERR_END_OF_BUFFER, #TLV_ERR_NULL_ARG, or
+ * #TLV_ERR_INVALID_ARG for overlap or an incompatible backend/result type.
+ * @return #TLV_ERR_INVALID_STATE before finalization, after failure, during callbacks or for a
+ * stale Document revision.
+ */
 TLV_API tlv_result_t tlv_query_result_next(tlv_query_exec_t* exec, tlv_tree_event_t* event);
 
 /** @brief Pull a finalized node and its zero-based traversal ordinal.
@@ -705,7 +721,9 @@ TLV_API tlv_result_t tlv_query_result_next(tlv_query_exec_t* exec, tlv_tree_even
  * @param event Borrowed matching event, unchanged on failure.
  * @param ordinal Original input preorder position, independent of Source offsets.
  * @return OK, END_OF_BUFFER or native state/revision error; never allocates.
- * @note The ordinal is scoped to one traversal/revision and is not tlv_node_identity(). */
+ * @note The ordinal is scoped to one traversal/revision and is not tlv_node_identity().
+ * @return #TLV_ERR_INVALID_STATE for the same lifecycle failures as tlv_query_result_next().
+ */
 TLV_API tlv_result_t tlv_query_result_next_ordinal(tlv_query_exec_t* exec, tlv_tree_event_t* event,
                                                    size_t* ordinal);
 

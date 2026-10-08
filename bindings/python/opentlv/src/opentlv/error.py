@@ -123,6 +123,10 @@ class NeedMoreDataError(OpenTLVError):
     """Non-final input is exhausted or incomplete; supply more data or EOF."""
 
 
+class InvalidStateError(OpenTLVError):
+    """The operation is forbidden by the current lifecycle state."""
+
+
 # Keyed by tlv_result_t; mirrors tlv/include/tlv/error.h.
 _ERROR_TYPES = {
     1: BufferTooShortError,
@@ -143,6 +147,7 @@ _ERROR_TYPES = {
     16: SchemaMissingError,
     17: NativeSizeError,
     18: NeedMoreDataError,
+    19: InvalidStateError,
 }
 
 

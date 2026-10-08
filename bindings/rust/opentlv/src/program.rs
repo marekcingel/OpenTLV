@@ -1337,7 +1337,10 @@ impl<'a> QueryExecution<'a> {
         context: Option<&crate::Node<'_, 'a>>,
         value_capacity: Option<usize>,
     ) -> ProgramResult<()> {
-        if !self.retained || self.document.is_some() {
+        if self.document.is_some() {
+            return plain(native::TLV_ERR_INVALID_STATE);
+        }
+        if !self.retained {
             return plain(native::TLV_ERR_INVALID_ARG);
         }
         let mut frames = Vec::<native::tlv_tree_writer_frame_t>::new();

@@ -149,7 +149,7 @@ func validateQuerySchema(rules []QueryRule, input []byte, document *Document, fo
 	var nativeDocument *capi.Document
 	if document != nil {
 		if !document.valid() {
-			return programError(capi.InvalidArg, capi.ProgramDiagnostic{})
+			return programError(capi.InvalidState, capi.ProgramDiagnostic{})
 		}
 		document.queryActive++
 		defer func() { document.queryActive-- }()
@@ -176,7 +176,7 @@ func ValidateQueryBuffer(rules []QueryRule, input []byte, format Format, limits 
 // Close and edits during providers are rejected; programs stay retained for the call.
 func ValidateQueryDocument(rules []QueryRule, document *Document, limits QuerySchemaLimits) error {
 	if !document.valid() {
-		return programError(capi.InvalidArg, capi.ProgramDiagnostic{})
+		return programError(capi.InvalidState, capi.ProgramDiagnostic{})
 	}
 	return validateQuerySchema(rules, nil, document, document.format, limits)
 }
@@ -267,12 +267,12 @@ func (p *QueryProgram) Close() {
 }
 func (p *QueryProgram) lock() error {
 	if p == nil || p.state == nil {
-		return programError(capi.InvalidArg, capi.ProgramDiagnostic{})
+		return programError(capi.InvalidState, capi.ProgramDiagnostic{})
 	}
 	p.state.mutex.Lock()
 	if p.state.native == nil {
 		p.state.mutex.Unlock()
-		return programError(capi.InvalidArg, capi.ProgramDiagnostic{})
+		return programError(capi.InvalidState, capi.ProgramDiagnostic{})
 	}
 	return nil
 }
@@ -356,7 +356,7 @@ func (p *QueryProgram) Execution(limits QueryLimits, retained bool) (*QueryExecu
 }
 func (q *QueryExecution) check() error {
 	if q == nil || q.native == nil || q.busy || (q.document != nil && !q.document.valid()) {
-		return programError(capi.InvalidArg, capi.ProgramDiagnostic{})
+		return programError(capi.InvalidState, capi.ProgramDiagnostic{})
 	}
 	return nil
 }
@@ -367,7 +367,7 @@ func (q *QueryExecution) Close() error {
 		return nil
 	}
 	if q.busy {
-		return programError(capi.InvalidArg, capi.ProgramDiagnostic{})
+		return programError(capi.InvalidState, capi.ProgramDiagnostic{})
 	}
 	q.program.mutex.Lock()
 	defer q.program.mutex.Unlock()
@@ -381,7 +381,7 @@ func (q *QueryExecution) Close() error {
 // Reset clears terminal/suspended state, bindings and retained windows/snapshot.
 func (q *QueryExecution) Reset() error {
 	if q == nil || q.native == nil || q.busy {
-		return programError(capi.InvalidArg, capi.ProgramDiagnostic{})
+		return programError(capi.InvalidState, capi.ProgramDiagnostic{})
 	}
 	code := q.native.Reset()
 	if code == capi.OK {
@@ -622,7 +622,7 @@ func (q *QueryExecution) EvaluateDocument(document *Document, context Node, valu
 	q.busy = true
 	defer func() { q.busy = false }()
 	if !document.valid() {
-		return programError(capi.InvalidArg, capi.ProgramDiagnostic{})
+		return programError(capi.InvalidState, capi.ProgramDiagnostic{})
 	}
 	if context.owner != nil && (!context.Valid() || context.owner.documentState != document.documentState) {
 		return programError(capi.InvalidArg, capi.ProgramDiagnostic{})
@@ -658,7 +658,10 @@ func (q *QueryExecution) EditDocument(kind QueryEditKind, tag, value []byte, tar
 	if err := q.check(); err != nil {
 		return 0, err
 	}
-	if q.document == nil || q.document.queryActive > 0 || targetCapacity < 0 {
+	if q.document == nil || q.document.queryActive > 0 {
+		return 0, programError(capi.InvalidState, capi.ProgramDiagnostic{})
+	}
+	if targetCapacity < 0 {
 		return 0, programError(capi.InvalidArg, capi.ProgramDiagnostic{})
 	}
 	q.busy = true

@@ -70,7 +70,7 @@ TEST(Unit_Tlv_TreeWriter, NestedAndSequentialOutputPublishesOnlyClosedRoots) {
     ASSERT_EQ(TLV_OK, tlv_tree_writer_begin(&writer, inner));
     ASSERT_EQ(TLV_OK, tlv_tree_writer_write_element(&writer, &leaf));
     EXPECT_EQ(2u, tlv_tree_writer_size(&writer));
-    EXPECT_EQ(TLV_ERR_INVALID_ARG, tlv_tree_writer_finish(&writer));
+    EXPECT_EQ(TLV_ERR_INVALID_STATE, tlv_tree_writer_finish(&writer));
     ASSERT_EQ(TLV_OK, tlv_tree_writer_end(&writer));
     EXPECT_EQ(2u, tlv_tree_writer_size(&writer));
     ASSERT_EQ(TLV_OK, tlv_tree_writer_end(&writer));
@@ -79,7 +79,7 @@ TEST(Unit_Tlv_TreeWriter, NestedAndSequentialOutputPublishesOnlyClosedRoots) {
     ASSERT_EQ(sizeof(expected), tlv_tree_writer_size(&writer));
     EXPECT_EQ(0, std::memcmp(data, expected, sizeof(expected)));
     EXPECT_EQ(5u, writer.count);
-    EXPECT_EQ(TLV_ERR_INVALID_ARG, tlv_tree_writer_end(&writer));
+    EXPECT_EQ(TLV_ERR_INVALID_STATE, tlv_tree_writer_end(&writer));
 }
 
 TEST(Unit_Tlv_TreeWriter, LimitsAndEmptyParentsHaveDeterministicState) {

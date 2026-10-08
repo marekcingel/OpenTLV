@@ -81,7 +81,9 @@ typedef enum tlv_result {
     /** A valid logical quantity exceeds the host address space. */
     TLV_ERR_NATIVE_SIZE = 17,
     /** Non-final Reader input is exhausted or incomplete; supply more bytes or mark it final. */
-    TLV_NEED_MORE_DATA = 18
+    TLV_NEED_MORE_DATA = 18,
+    /** The operation is not allowed in the object's current lifecycle state. */
+    TLV_ERR_INVALID_STATE = 19
 } tlv_result_t;
 
 /**

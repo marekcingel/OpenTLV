@@ -160,9 +160,9 @@ TLV_API tlv_document_source_location_t tlv_node_source_location(const tlv_node_t
  * @return Revision increased by every successful insert, erase or Value replacement.
  * @note Failed edits preserve revision. This is not a destruction-safe handle;
  * callers must retain the Document owner. Concurrent mutation requires external locking.
- * Query callbacks reject fallible edits with INVALID_ARG. Void erase/free requests
+ * Query callbacks reject fallible edits with INVALID_STATE. Void erase/free requests
  * are deferred until the outermost Query callback on this Document returns;
- * that visit ends with INVALID_ARG. Concurrent mutation requires exclusive access
+ * that visit ends with INVALID_STATE. Concurrent mutation requires exclusive access
  * even when requested from a callback. Revisions wrap after UINT64_MAX edits. */
 TLV_API uint64_t tlv_document_revision(const tlv_document_t* document);
 
@@ -235,6 +235,8 @@ typedef enum tlv_document_query_edit_kind {
  * collection. Any successful edit invalidates the execution's whole-document revision.
  * REPLACE stores identical bytes on primitive targets but parses them as children on
  * constructed targets. Overlap filtering is O(target count * depth), allocation-free.
+ * @return #TLV_ERR_INVALID_STATE during callbacks, for stale results or after result iteration has
+ * begun.
  */
 TLV_API tlv_result_t tlv_document_query_edit(tlv_document_t* document, struct tlv_query_exec* exec,
                                              tlv_document_query_edit_kind_t kind, tlv_tag_t tag,
@@ -270,7 +272,8 @@ typedef struct tlv_document_builder tlv_document_builder_t;
  * @param[out] builder Required output; NULL on failure.
  * @return #TLV_OK on success.
  * @return #TLV_ERR_NULL_ARG for missing required arguments.
- * @return #TLV_ERR_INVALID_ARG for a format mismatch, a non-fresh whole-stream cursor,
+ * @return #TLV_ERR_INVALID_STATE for a non-fresh whole-stream cursor.
+ * @return #TLV_ERR_INVALID_ARG for a format mismatch,
  *         or an invalid root extent.
  * @return #TLV_ERR_LIMIT if the root exceeds document limits.
  * @return #TLV_ERR_OUT_OF_MEMORY if allocation fails.
@@ -306,7 +309,7 @@ TLV_API tlv_result_t tlv_document_builder_create(const tlv_document_options_t* o
  * @return #TLV_OK when the completed document is transferred to the caller.
  * @return #TLV_NEED_MORE_DATA when more input is needed; builder state is retained.
  * @return #TLV_ERR_NULL_ARG for missing required arguments.
- * @return #TLV_ERR_INVALID_ARG if already completed or failed.
+ * @return #TLV_ERR_INVALID_STATE if already completed or failed.
  * @return #TLV_ERR_LIMIT if document or reader limits are exceeded.
  * @return #TLV_ERR_OUT_OF_MEMORY if node allocation fails.
  * @return Any other Tree Reader error, propagated unchanged.
@@ -394,7 +397,7 @@ TLV_API tlv_result_t tlv_document_parse(const uint8_t* data, size_t size,
  *
  * @warning Invalidates all node pointers, and the tag and value pointers, of the document.
  * @note During a Query callback, destruction is deferred until the outermost visit
- * returns from its callback. That visit returns INVALID_ARG; do not use the owner
+ * returns from its callback. That visit returns INVALID_STATE; do not use the owner
  * or any node after it returns. Repeated pending free requests release only once.
  */
 TLV_API void tlv_document_free(tlv_document_t* document);
@@ -461,6 +464,7 @@ typedef tlv_visit_result_t (*tlv_document_query_visitor_t)(tlv_node_t* node, voi
  * @warning Do not mutate or destroy the Document during traversal. Nodes borrow it.
  * Callback effects are not rolled back on failure.
  * @note Never allocates.
+ * @return #TLV_ERR_INVALID_STATE if a callback requests deferred erasure or destruction.
  */
 TLV_API tlv_result_t tlv_document_query_visit(const tlv_document_t* document,
                                               const tlv_query_t* query,
@@ -513,7 +517,9 @@ TLV_API tlv_result_t tlv_document_query_value_size(const tlv_document_t* documen
  * operation returns from its callbacks, then invalidate execution. Borrowed node and
  * Value spans remain alive during callbacks. Outside those operations the caller must
  * keep the Document alive; this API does not retain ownership or synchronize threads.
- * Include tlv/query/program.h and, when needed, tlv/writer/tree.h for type definitions. */
+ * Include tlv/query/program.h and, when needed, tlv/writer/tree.h for type definitions.
+ * @return #TLV_ERR_INVALID_STATE for used execution, callback reentrancy or callback invalidation.
+ */
 TLV_API tlv_result_t tlv_document_query_evaluate(const tlv_document_t* document,
                                                  struct tlv_query_exec* exec,
                                                  const tlv_node_t* context, void* values,
@@ -528,7 +534,10 @@ TLV_API tlv_result_t tlv_document_query_evaluate(const tlv_document_t* document,
  * @note Document and Value storage must remain alive and unchanged. First is one pull;
  * all is repeated pulls. Any successful Document edit rejects subsequent pulls
  * before dereferencing retained nodes. Iteration allocates nothing and also works
- * without Source. Keep the native Document alive; revision is not a destruction token. */
+ * without Source. Keep the native Document alive; revision is not a destruction token.
+ * @return #TLV_ERR_INVALID_STATE for unfinished/failed execution, reentrancy or a stale Document
+ * revision.
+ */
 TLV_API tlv_result_t tlv_document_query_next(struct tlv_query_exec* exec, tlv_node_t** node);
 
 /** @brief Visit remaining finalized Document results; STOP resumes after the delivered node.
@@ -538,7 +547,9 @@ TLV_API tlv_result_t tlv_document_query_next(struct tlv_query_exec* exec, tlv_no
  * @return OK on exhaustion/STOP, VISITOR on callback error (terminal), or pull errors.
  * @warning Previously delivered callbacks are never rolled back. Erase/free requests
  * are deferred until callback return and invalidate this execution. Same-execution
- * feed, finish, reset, bind and nested visits are rejected without altering it. */
+ * feed, finish, reset, bind and nested visits are rejected without altering it.
+ * @return #TLV_ERR_INVALID_STATE for callback reentrancy, invalidated results or deferred mutation.
+ */
 TLV_API tlv_result_t tlv_document_query_program_visit(struct tlv_query_exec* exec,
                                                       tlv_document_query_visitor_t visitor,
                                                       void* context);
@@ -626,6 +637,7 @@ TLV_API size_t tlv_node_value_size(const tlv_node_t* node);
  *
  * @warning Invalidates the previous value pointer of the node, and for a constructed node
  *          every child pointer.
+ * @return #TLV_ERR_INVALID_STATE during a Query callback.
  */
 TLV_API tlv_result_t tlv_node_set_value(tlv_node_t* node, const uint8_t* value, size_t length);
 
@@ -653,6 +665,7 @@ TLV_API tlv_result_t tlv_node_set_value(tlv_node_t* node, const uint8_t* value, 
  * @return #TLV_ERR_LIMIT if the depth or element limit would be exceeded.
  * @return #TLV_ERR_OUT_OF_MEMORY if memory is exhausted.
  * @return Any writer format error for the tag, or reader error for a constructed value.
+ * @return #TLV_ERR_INVALID_STATE during a Query callback.
  */
 TLV_API tlv_result_t tlv_document_insert(tlv_document_t* document, tlv_node_t* parent,
                                          const tlv_node_t* before, tlv_tag_t tag,
@@ -665,7 +678,7 @@ TLV_API tlv_result_t tlv_document_insert(tlv_document_t* document, tlv_node_t* p
  *
  * @warning Invalidates `node` and every node below it.
  * @note During a Query callback, erase is deferred until the outermost visit returns
- * from its callback, and that visit returns INVALID_ARG. Pending ancestor erasure
+ * from its callback, and that visit returns INVALID_STATE. Pending ancestor erasure
  * dominates descendant requests; all borrowed nodes remain alive inside the callback.
  */
 TLV_API void tlv_node_erase(tlv_node_t* node);

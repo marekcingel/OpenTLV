@@ -1059,6 +1059,8 @@ extern "C" {
 pub const TLV_ERR_NATIVE_SIZE: tlv_result_t = 17;
 /// Incremental Reader requires more bytes or explicit EOF.
 pub const TLV_NEED_MORE_DATA: tlv_result_t = 18;
+/// Operation forbidden by the current lifecycle state.
+pub const TLV_ERR_INVALID_STATE: tlv_result_t = 19;
 
 extern "C" {
     /// Decode semantic content and original source information.
