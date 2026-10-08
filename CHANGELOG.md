@@ -9,6 +9,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Fixed
 
+- Fix C++ consumer-boundary CI checks by updating interoperability baselines for the Schema diagnostic and result-code migration. (#553)
 - Keep omitted diagnostic-path counts numeric in JS/WASM and align diagnostic regression tests with the C++ consumer-boundary checks. (#548, #550)
 - Report would-be DER output positions for schema write failures, including missing required components, leaf constraints, nested headers and SET ordering. (#549)
 - Populate initialized Query and Reader visitor diagnostics on every failure, preserve propagated detail, and enforce the result/diagnostic contract with shared test assertions and a CI source guard. (#548)
