@@ -1,0 +1,7 @@
+# These tests check scripts or source structure, not native C/C++ execution.
+# The launcher regression must itself run outside the instrumented process tree.
+set(CTEST_CUSTOM_MEMCHECK_IGNORE
+    architecture-pipeline
+    Property_infrastructure
+    Property_query_infrastructure
+    memcheck-launcher)

@@ -78,10 +78,11 @@ TEST(Unit_Tlv_Writer, ElementSizingChecksLogicalAndNativeOverflowWithoutReadingV
         EXPECT_EQ(77u, required);
     }
     element.value.size = 0;
-    const auto before = diagnostic;
+    unsigned char before[sizeof(diagnostic)];
+    std::memcpy(before, &diagnostic, sizeof(diagnostic));
     EXPECT_EQ(TLV_OK, tlv_element_encoded_size_diag(&element, &format, &required, &diagnostic));
     EXPECT_EQ(1u, required);
-    EXPECT_EQ(0, std::memcmp(&before, &diagnostic, sizeof(before)));
+    EXPECT_EQ(0, std::memcmp(before, &diagnostic, sizeof(before)));
 }
 
 TEST(Unit_Tlv_Writer, PreserveValidatesContentAndNeverTreatsEmptyCursorAsSizing) {

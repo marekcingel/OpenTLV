@@ -50,6 +50,7 @@ option(OPENTLV_BUILD_PROPERTY_TESTS "Build deterministic generated-corpus proper
 option(OPENTLV_BUILD_CLI_TESTS "Build dependency-free CLI integration tests" ${OPENTLV_BUILD_TESTS})
 option(OPENTLV_BUILD_BENCHMARKS "Build Google Benchmark performance suites" OFF)
 option(OPENTLV_BUILD_FUZZING "Build C API fuzz targets with libFuzzer, ASan and UBSan" OFF)
+option(OPENTLV_BUILD_MEMCHECK "Enable native Linux CTest Valgrind Memcheck runs" OFF)
 option(OPENTLV_WARNINGS_AS_ERRORS "Treat OpenTLV compiler warnings as errors" ON)
 
 include(cmake/format_options.cmake)
@@ -96,6 +97,7 @@ endif()
 
 
 include(cmake/compiler.cmake)
+include(cmake/memcheck.cmake)
 include(GNUInstallDirs)
 
 include(cmake/clang_format.cmake)

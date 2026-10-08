@@ -91,4 +91,11 @@ opentlv_configure_compiler(${test_target})
 opentlv_copy_shared_runtime(${test_target})
 
 include(GoogleTest)
-gtest_discover_tests(${test_target} DISCOVERY_TIMEOUT 30 PROPERTIES LABELS ${test_group})
+if(OPENTLV_BUILD_MEMCHECK)
+    # Run every GoogleTest case with one Valgrind startup per binary.
+    add_test(NAME ${test_target} COMMAND ${test_target})
+    set_tests_properties(${test_target} PROPERTIES LABELS ${test_group})
+    opentlv_memcheck_timeout(${test_target} 3600)
+else()
+    gtest_discover_tests(${test_target} DISCOVERY_TIMEOUT 30 PROPERTIES LABELS ${test_group})
+endif()

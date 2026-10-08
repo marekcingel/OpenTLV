@@ -10,7 +10,8 @@ template <typename T, typename U>
 void check(const tlv_codec_t& codec, const U& uuid, const uint8_t* wire, size_t width) {
     for (size_t length = 0; length <= width + 2; ++length) {
         SCOPED_TRACE(length);
-        T             value = {};
+        T value;
+        std::memset(&value, 0, sizeof(value));
         unsigned char before[sizeof(value)];
         std::memcpy(before, &value, sizeof(value));
         const auto rc = tlv_codec_decode(&codec, wire, length, &value, sizeof(value));

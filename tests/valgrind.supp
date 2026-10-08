@@ -1,0 +1,7 @@
+# SPDX-License-Identifier: MIT
+# Copyright (c) 2026 Marek Cingel
+#
+# Project-specific Valgrind Memcheck suppressions.
+# Intentionally empty: do not suppress OpenTLV, GoogleTest or Query findings.
+# Add a suppression only for a demonstrated external-runtime issue, documenting
+# its affected version, upstream reference and narrowly matching stack here.

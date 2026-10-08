@@ -34,7 +34,9 @@ question, so the expensive checks stay off the path of everyday development.
 | CodeQL (required by the repository rules) | always | yes | yes |
 | C ABI compatibility (`abidiff`, see [ABI](abi-compatibility.md)) | if `tlv`, CMake or `scripts/abi/check.py` changed | yes | yes |
 | Fuzzing | | yes | yes |
-| Benchmarks (build only) | if benchmarks or `tlv` changed | same | yes |
+| [Valgrind Memcheck](valgrind.md#memcheck-ci-scope) (plain GCC Debug C/C++ tests) | shorter, optional selection for native/test/CMake/Memcheck changes; full with `memcheck-full` label | full weekly | full |
+| [Callgrind and native comparison](valgrind.md#compare-instruction-counts-and-native-timings) (informational) | if native sources, benchmarks, CMake or Callgrind tooling changed | same | |
+| Google Benchmark build and advisory Query timings | if benchmarks, `tlv` or CMake changed | same | yes |
 | Rust bindings on Linux | if Rust, `tlv` or CMake changed | yes | yes |
 | Rust bindings on Windows and macOS | | | yes |
 | WebAssembly build and smoke test | if `tlv`, WebAssembly or CMake changed | yes | yes |
@@ -55,8 +57,24 @@ on it. If you make one of these checks a required status check in branch
 protection, a pull request that skips it stays pending, so require only the
 checks that always run (pre-commit and the Clang build).
 
-Benchmarks are never run in CI. They are only built, when they or the library
-change, to confirm they still compile; run them locally.
+Memcheck remains optional and non-blocking on PRs, including those requesting
+the full suite with the `memcheck-full` label; do not add it to required branch
+protection or repository ruleset checks. Every Memcheck run still reports a
+failed job on memory errors. Its shorter PR selection keeps all C/C++ unit and
+integration cases and omits the expensive Query conformance matrices. Full Memcheck runs weekly on
+`main` (Sunday at 02:17 UTC), on release tags, or by manual dispatch. Memory
+errors confined to the omitted matrices may therefore wait until the next full
+run to be detected. Adding the label or dispatching a full run closes that gap
+for a particular change.
+
+The `benchmarks.yml` workflow builds the Google Benchmark suites and records
+selected native Query phase, matcher, streaming and scaling measurements in a
+Clang Release build. These shared-runner timings and Query budget checks are
+advisory; run the full benchmark suite locally as needed. The separate Callgrind
+workflow runs four fixed C workloads under Callgrind and in native Release
+builds to compare the baseline and candidate revisions. Instruction and timing
+thresholds are informational. Memcheck errors fail its independent job in every
+scope; its PR check is not required for merging.
 
 ## Releasing
 

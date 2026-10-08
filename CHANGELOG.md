@@ -9,6 +9,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Fixed
 
+- Initialize the complete Query compilation information output and make transactional test snapshots safe to inspect under memory checkers. (#560)
 - Avoid redundant C Reader diagnostic clearing on successful decoding, and initialize Format failure detail for invalid arguments while preserving callback initialization and single-decode behavior. (#440, #452, #461)
 - Avoid redundant diagnostic initialization and full error copies in C++ Reader pulls while retaining failure context and one decode per call. (#440, #452, #460, #461)
 - Keep C++ Document handle validation constant-time after insertion and primitive Value replacement, using a separate node-retirement epoch while preserving stale-handle checks after erasure and subtree replacement. (#440, #459)
@@ -97,6 +98,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Changed
 
+- Keep all C/C++ unit and integration tests in a shorter, optional PR Memcheck run; run the full Query conformance matrices weekly, on release tags, manually, or with the `memcheck-full` PR label. (#560)
 - **Breaking:** Return `false` from C++ Reader and Tree Reader `at_end()` after failed initialization instead of treating it as end-of-input. Callers must handle `next()` failures to terminate or recover. (#440, #461)
 - Check native usage in mixed C++ test fixtures against per-symbol occurrence baselines, and scan `.cc`, `.cxx` and `.inl` files for public/native boundary violations. (#440, #468)
 - Implement CLI parsing, writing, validation, metadata, decoding, Query and diagnostics through the public C++ facade. (#440, #467)
@@ -185,6 +187,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Added
 
+- Add informational Callgrind instruction-count and native Release timing comparisons for Reader, Writer, Document and Query, with baseline/candidate reports and downloadable profiling evidence. (#560)
+- Add opt-in CTest Valgrind Memcheck integration and Ubuntu CI coverage for the C and C++ suites, including native subprocesses used by Query conformance tests. (#560)
 - Add a reproducible comparison of native and C++ Reader APIs across revisions, retaining raw measurements and build provenance. (#440)
 - Add reproducible C++ Reader and Document benchmarks covering successful pulls, failures, incremental recovery, primitive edit loops and retained-handle validation. (#440, #459)
 - Add `tlv_document_retire_epoch()` independently of the mutation revision used by Query. Updated C++ Document headers require a native library that exports this entry point. (#440, #459)

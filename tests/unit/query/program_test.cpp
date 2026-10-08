@@ -72,6 +72,59 @@ std::vector<size_t> run(Program& p, const std::vector<uint8_t>& data,
 }
 } // namespace
 
+TEST(Unit_Tlv_QueryProgram, InfoBytesAreDefinedAcrossCompilationEntryPoints) {
+    const std::string text = "//5A";
+    size_t            bytes, alignment;
+    ASSERT_EQ(TLV_OK, tlv_query_compile_scratch(text.data(), text.size(), nullptr, &bytes,
+                                                &alignment, nullptr));
+    std::vector<uint64_t>    scratch((bytes + 7) / 8);
+    tlv_query_program_info_t info;
+    std::memset(&info, 0xa5, sizeof info);
+    info.struct_size = sizeof info;
+    ASSERT_EQ(TLV_OK, tlv_query_compile(text.data(), text.size(), nullptr, scratch.data(), bytes,
+                                        nullptr, 0, &info, nullptr));
+    const size_t  program_size = info.program_size;
+    unsigned char expected[sizeof info];
+    std::memcpy(expected, &info, sizeof info);
+    std::vector<uint64_t> storage((program_size + 7) / 8);
+    auto                  reset_info = [&] {
+        std::memset(&info, 0x5a, sizeof info);
+        info.struct_size = sizeof info;
+    };
+    // Read the complete published extent under Memcheck, including padding.
+    // Byte snapshots also verify deterministic output from all publication paths.
+    reset_info();
+    ASSERT_EQ(TLV_OK, tlv_query_compile(text.data(), text.size(), nullptr, scratch.data(), bytes,
+                                        storage.data(), program_size, &info, nullptr));
+    EXPECT_EQ(0, std::memcmp(expected, &info, sizeof info));
+
+    ASSERT_EQ(TLV_OK, tlv_query_compile_prepare_size(text.data(), text.size(), nullptr, &bytes,
+                                                     &alignment, nullptr));
+    std::vector<uint64_t>      preparation((bytes + 7) / 8);
+    const tlv_query_program_t* prepared = nullptr;
+    reset_info();
+    ASSERT_EQ(TLV_OK,
+              tlv_query_compile_prepare(text.data(), text.size(), nullptr, preparation.data(),
+                                        bytes, &prepared, &info, nullptr));
+    EXPECT_EQ(0, std::memcmp(expected, &info, sizeof info));
+
+    ASSERT_EQ(TLV_OK, tlv_query_program_load_scratch(prepared, program_size, nullptr, &bytes,
+                                                     &alignment, nullptr));
+    std::vector<uint64_t>      validation((bytes + 7) / 8);
+    const tlv_query_program_t* loaded = nullptr;
+    reset_info();
+    ASSERT_EQ(TLV_OK, tlv_query_program_load(prepared, program_size, nullptr, validation.data(),
+                                             bytes, &loaded, &info, nullptr));
+    EXPECT_EQ(0, std::memcmp(expected, &info, sizeof info));
+    EXPECT_EQ(prepared, loaded);
+
+    reset_info();
+    ASSERT_EQ(TLV_OK,
+              tlv_query_compile_commit(prepared, program_size, nullptr, validation.data(), bytes,
+                                       storage.data(), program_size, &info, nullptr));
+    EXPECT_EQ(0, std::memcmp(expected, &info, sizeof info));
+}
+
 TEST(Unit_Tlv_QueryProgram, CheckedCompilationRejectsResolverDriftAndPreservesOutputs) {
     struct Resolver {
         uint8_t      tag = 0x5a;
@@ -107,8 +160,10 @@ TEST(Unit_Tlv_QueryProgram, CheckedCompilationRejectsResolverDriftAndPreservesOu
               tlv_query_compile_prepare(text.data(), text.size(), &options, preparation.data(),
                                         bytes, &prepared, &info, &diagnostic));
     EXPECT_EQ(1u, resolver.calls);
-    const auto snapshot = preparation;
-    const auto original_info = info;
+    const auto    snapshot = preparation;
+    unsigned char original_info[sizeof info];
+    std::memcpy(original_info, &info, sizeof info);
+    const auto program_size = info.program_size;
     size_t     validation_bytes;
     ASSERT_EQ(TLV_OK, tlv_query_program_load_scratch(prepared, info.program_size, &options,
                                                      &validation_bytes, &alignment, &diagnostic));
@@ -116,9 +171,8 @@ TEST(Unit_Tlv_QueryProgram, CheckedCompilationRejectsResolverDriftAndPreservesOu
     std::vector<uint64_t> output((info.program_size + 7) / 8, UINT64_C(0xcacacacacacacaca));
     const auto            original_output = output;
     auto                  commit = [&](size_t scratch_size, size_t capacity) {
-        return tlv_query_compile_commit(prepared, original_info.program_size, &options,
-                                        validation.data(), scratch_size, output.data(), capacity,
-                                        &info, &diagnostic);
+        return tlv_query_compile_commit(prepared, program_size, &options, validation.data(),
+                                        scratch_size, output.data(), capacity, &info, &diagnostic);
     };
     EXPECT_EQ(TLV_ERR_BUFFER_TOO_SHORT, commit(validation_bytes, info.program_size - 1));
     EXPECT_EQ(TLV_ERR_BUFFER_TOO_SHORT, commit(validation_bytes - 1, info.program_size));
@@ -127,7 +181,7 @@ TEST(Unit_Tlv_QueryProgram, CheckedCompilationRejectsResolverDriftAndPreservesOu
     EXPECT_EQ(TLV_ERR_INVALID_ARG, commit(validation_bytes, info.program_size));
     EXPECT_EQ(TLV_QUERY_ERROR_STORAGE, diagnostic.kind);
     EXPECT_EQ(original_output, output);
-    EXPECT_EQ(0, std::memcmp(&original_info, &info, sizeof info));
+    EXPECT_EQ(0, std::memcmp(original_info, &info, sizeof info));
     EXPECT_EQ(snapshot, preparation);
     resolver.status = TLV_ERR_INVALID_VALUE;
     EXPECT_NE(TLV_OK, commit(validation_bytes, info.program_size));
@@ -1161,11 +1215,13 @@ TEST(Unit_Tlv_Query, BoundedParsingFormattingAndCorruptAccess) {
     EXPECT_EQ('?', output[0]);
     ASSERT_EQ(TLV_OK, tlv_query_format(&query, output, sizeof output, &required));
     EXPECT_STREQ("6F/50", output);
-    auto   copy = query;
+    unsigned char before[sizeof query];
+    std::memcpy(before, &query, sizeof query);
     size_t offset = 99;
     EXPECT_EQ(TLV_ERR_INVALID_ARG, tlv_query_parse_n("6F\0/50", 6, &query, &offset));
     EXPECT_EQ(2u, offset);
-    EXPECT_EQ(0, std::memcmp(&query, &copy, sizeof query));
+    EXPECT_EQ(0, std::memcmp(&query, before, sizeof query));
+    tlv_query_t copy;
     std::memset(&copy, 0xFF, sizeof copy);
     EXPECT_EQ(0u, tlv_query_count(&copy));
     EXPECT_EQ(0u, tlv_query_step(&copy, 0).size);

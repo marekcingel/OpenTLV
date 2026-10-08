@@ -2,6 +2,12 @@ cmake_minimum_required(VERSION 3.16)
 
 project(tests LANGUAGES C)
 
+if(OPENTLV_BUILD_MEMCHECK)
+    add_test(NAME memcheck-launcher
+        COMMAND "${Python3_EXECUTABLE}" "${CMAKE_CURRENT_SOURCE_DIR}/memcheck_launcher_test.py")
+    set_tests_properties(memcheck-launcher PROPERTIES LABELS "infrastructure;no-memcheck")
+endif()
+
 add_executable(capability-contract capabilities.c)
 get_target_property(_capability_sources tlv SOURCES)
 file(GENERATE OUTPUT "${OpenTLV_BINARY_DIR}/capability-sources.txt"

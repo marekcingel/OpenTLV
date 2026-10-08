@@ -183,6 +183,7 @@ nav:
       - Where documentation belongs: development/documentation-layout.md
       - Documentation audit: development/documentation-audit.md
       - Fuzzing: development/fuzzing.md
+      - Valgrind checks: development/valgrind.md
       - Reader decode performance: development/reader-decode-performance.md
       - C++ facade performance: development/cxx-facade-performance.md
       - Indefinite boundary reuse follow-up: development/indefinite-boundary-reuse.md
