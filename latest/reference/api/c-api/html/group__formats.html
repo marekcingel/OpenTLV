@@ -565,7 +565,9 @@ Variables</h2></td></tr>
 <a class="el" href="group__core.html#gga516c7250563ee9332e2f45f2d203ae61acbd34cf02b42e70e99648aef5b9ca8b3">TLV_ERR_BUFFER_TOO_SHORT</a> when more input bytes are required to complete the header, value or trailer. Malformed wire data must use its specific error code instead; Reader propagates this distinction. </dd>
 <dd>
 A wire or buffer error reported by the format.</dd></dl>
-<dl class="section note"><dt>Note</dt><dd>Callbacks never allocate or retain data. The core initializes outputs. </dd></dl>
+<dl class="section note"><dt>Note</dt><dd>Callbacks never allocate or retain data. The core initializes outputs. </dd>
+<dd>
+Allowed results are <a class="el" href="group__core.html#gga516c7250563ee9332e2f45f2d203ae61ac763c25dd3e807fae4d8078c3d3e94ed">TLV_OK</a> and any defined <code>TLV_ERR_*</code> error except <a class="el" href="group__core.html#gga516c7250563ee9332e2f45f2d203ae61ad3ea4a680040d2294498178b02b79878">TLV_ERR_END_OF_BUFFER</a>. <a class="el" href="group__core.html#gga516c7250563ee9332e2f45f2d203ae61ad90e4f5b2c36d63f9a93b92f1064a5e6">TLV_NEED_MORE_DATA</a>, <a class="el" href="group__core.html#gga516c7250563ee9332e2f45f2d203ae61ad3ea4a680040d2294498178b02b79878">TLV_ERR_END_OF_BUFFER</a> and unknown result values violate the callback contract and are reported as <a class="el" href="group__core.html#gga516c7250563ee9332e2f45f2d203ae61adc3ffd285317edbc89e61fa26935e3c2">TLV_ERR_CALLBACK</a>. Use <a class="el" href="group__core.html#gga516c7250563ee9332e2f45f2d203ae61acbd34cf02b42e70e99648aef5b9ca8b3">TLV_ERR_BUFFER_TOO_SHORT</a> for incomplete input, including an empty field. </dd></dl>
 
 </div>
 </div>
@@ -629,6 +631,7 @@ A wire or buffer error reported by the format.</dd></dl>
 <dd>
 A format error if encoding fails.</dd></dl>
 <dl class="section warning"><dt>Warning</dt><dd>On failure, destination bytes are unspecified. </dd></dl>
+<dl class="section note"><dt>Note</dt><dd>Allowed results are <a class="el" href="group__core.html#gga516c7250563ee9332e2f45f2d203ae61ac763c25dd3e807fae4d8078c3d3e94ed">TLV_OK</a> and any defined <code>TLV_ERR_*</code> error except <a class="el" href="group__core.html#gga516c7250563ee9332e2f45f2d203ae61ad3ea4a680040d2294498178b02b79878">TLV_ERR_END_OF_BUFFER</a>. <a class="el" href="group__core.html#gga516c7250563ee9332e2f45f2d203ae61ad90e4f5b2c36d63f9a93b92f1064a5e6">TLV_NEED_MORE_DATA</a>, <a class="el" href="group__core.html#gga516c7250563ee9332e2f45f2d203ae61ad3ea4a680040d2294498178b02b79878">TLV_ERR_END_OF_BUFFER</a> and unknown result values violate the callback contract and are reported as <a class="el" href="group__core.html#gga516c7250563ee9332e2f45f2d203ae61adc3ffd285317edbc89e61fa26935e3c2">TLV_ERR_CALLBACK</a>. </dd></dl>
 
 </div>
 </div>
@@ -678,7 +681,7 @@ A format error if encoding fails.</dd></dl>
 </div><div class="memdoc">
 
 <p>Borrowed field encoding composition for a contiguous header and value. </p>
-<p>The optional bounds resolver supports terminated values on the TLV path. It returns a validated trailer; formats with an encoder-dependent trailer implement the canonical measure/encode operations directly instead. A count including the identifier is normalized here, not in Reader/Writer. Both write callbacks must support NULL output with zero capacity: measurement queries their widths through the same callbacks used for encoding. </p>
+<p>The optional bounds resolver supports terminated values on the TLV path. It returns a validated trailer; formats with an encoder-dependent trailer implement the canonical measure/encode operations directly instead. A count including the identifier is normalized here, not in Reader/Writer. Both write callbacks must support NULL output with zero capacity: measurement queries their widths through the same callbacks used for encoding. All field callbacks and the resolver accept only <a class="el" href="group__core.html#gga516c7250563ee9332e2f45f2d203ae61ac763c25dd3e807fae4d8078c3d3e94ed">TLV_OK</a> or defined <code>TLV_ERR_*</code> errors other than <a class="el" href="group__core.html#gga516c7250563ee9332e2f45f2d203ae61ad3ea4a680040d2294498178b02b79878">TLV_ERR_END_OF_BUFFER</a>. Incomplete input uses <a class="el" href="group__core.html#gga516c7250563ee9332e2f45f2d203ae61acbd34cf02b42e70e99648aef5b9ca8b3">TLV_ERR_BUFFER_TOO_SHORT</a>; control statuses and unknown results become <a class="el" href="group__core.html#gga516c7250563ee9332e2f45f2d203ae61adc3ffd285317edbc89e61fa26935e3c2">TLV_ERR_CALLBACK</a>. </p>
 
 </div>
 </div>
@@ -801,6 +804,7 @@ A format error if encoding fails.</dd></dl>
 <a class="el" href="group__core.html#gga516c7250563ee9332e2f45f2d203ae61a02f1494beef2c6ffc5f3ba9859fc6e2a">TLV_ERR_OVERFLOW</a> if logical size arithmetic overflows. </dd>
 <dd>
 A format error if the semantic input cannot be represented. </dd></dl>
+<dl class="section note"><dt>Note</dt><dd>Allowed results are <a class="el" href="group__core.html#gga516c7250563ee9332e2f45f2d203ae61ac763c25dd3e807fae4d8078c3d3e94ed">TLV_OK</a> and any defined <code>TLV_ERR_*</code> error except <a class="el" href="group__core.html#gga516c7250563ee9332e2f45f2d203ae61ad3ea4a680040d2294498178b02b79878">TLV_ERR_END_OF_BUFFER</a>. <a class="el" href="group__core.html#gga516c7250563ee9332e2f45f2d203ae61ad90e4f5b2c36d63f9a93b92f1064a5e6">TLV_NEED_MORE_DATA</a>, <a class="el" href="group__core.html#gga516c7250563ee9332e2f45f2d203ae61ad3ea4a680040d2294498178b02b79878">TLV_ERR_END_OF_BUFFER</a> and unknown result values violate the callback contract and are reported as <a class="el" href="group__core.html#gga516c7250563ee9332e2f45f2d203ae61adc3ffd285317edbc89e61fa26935e3c2">TLV_ERR_CALLBACK</a>. </dd></dl>
 
 </div>
 </div>
@@ -883,7 +887,9 @@ A format error if the semantic input cannot be represented. </dd></dl>
 <dl class="section return"><dt>Returns</dt><dd><a class="el" href="group__core.html#gga516c7250563ee9332e2f45f2d203ae61ac763c25dd3e807fae4d8078c3d3e94ed">TLV_OK</a> on success. </dd>
 <dd>
 A framing or buffer error reported by the resolver.</dd></dl>
-<dl class="section note"><dt>Note</dt><dd>Definite counts need not fit the input yet. </dd></dl>
+<dl class="section note"><dt>Note</dt><dd>Definite counts need not fit the input yet. </dd>
+<dd>
+Allowed results are <a class="el" href="group__core.html#gga516c7250563ee9332e2f45f2d203ae61ac763c25dd3e807fae4d8078c3d3e94ed">TLV_OK</a> and any defined <code>TLV_ERR_*</code> error except <a class="el" href="group__core.html#gga516c7250563ee9332e2f45f2d203ae61ad3ea4a680040d2294498178b02b79878">TLV_ERR_END_OF_BUFFER</a>. <a class="el" href="group__core.html#gga516c7250563ee9332e2f45f2d203ae61ad90e4f5b2c36d63f9a93b92f1064a5e6">TLV_NEED_MORE_DATA</a>, <a class="el" href="group__core.html#gga516c7250563ee9332e2f45f2d203ae61ad3ea4a680040d2294498178b02b79878">TLV_ERR_END_OF_BUFFER</a> and unknown result values violate the callback contract and are reported as <a class="el" href="group__core.html#gga516c7250563ee9332e2f45f2d203ae61adc3ffd285317edbc89e61fa26935e3c2">TLV_ERR_CALLBACK</a>. Use <a class="el" href="group__core.html#gga516c7250563ee9332e2f45f2d203ae61acbd34cf02b42e70e99648aef5b9ca8b3">TLV_ERR_BUFFER_TOO_SHORT</a> for incomplete input, including an empty field. </dd></dl>
 
 </div>
 </div>
@@ -1750,7 +1756,9 @@ An error code for invalid arguments, a non-constructed or invalid tag, malformed
 <a class="el" href="group__core.html#gga516c7250563ee9332e2f45f2d203ae61acbd34cf02b42e70e99648aef5b9ca8b3">TLV_ERR_BUFFER_TOO_SHORT</a> when more input bytes are required to complete the header, value or trailer. Malformed wire data must use its specific error code instead; Reader propagates this distinction. </dd>
 <dd>
 A wire or buffer error reported by the format.</dd></dl>
-<dl class="section note"><dt>Note</dt><dd>Callbacks never allocate or retain data. The core initializes outputs.   </dd></dl>
+<dl class="section note"><dt>Note</dt><dd>Callbacks never allocate or retain data. The core initializes outputs. </dd>
+<dd>
+Allowed results are <a class="el" href="group__core.html#gga516c7250563ee9332e2f45f2d203ae61ac763c25dd3e807fae4d8078c3d3e94ed">TLV_OK</a> and any defined <code>TLV_ERR_*</code> error except <a class="el" href="group__core.html#gga516c7250563ee9332e2f45f2d203ae61ad3ea4a680040d2294498178b02b79878">TLV_ERR_END_OF_BUFFER</a>. <a class="el" href="group__core.html#gga516c7250563ee9332e2f45f2d203ae61ad90e4f5b2c36d63f9a93b92f1064a5e6">TLV_NEED_MORE_DATA</a>, <a class="el" href="group__core.html#gga516c7250563ee9332e2f45f2d203ae61ad3ea4a680040d2294498178b02b79878">TLV_ERR_END_OF_BUFFER</a> and unknown result values violate the callback contract and are reported as <a class="el" href="group__core.html#gga516c7250563ee9332e2f45f2d203ae61adc3ffd285317edbc89e61fa26935e3c2">TLV_ERR_CALLBACK</a>. Use <a class="el" href="group__core.html#gga516c7250563ee9332e2f45f2d203ae61acbd34cf02b42e70e99648aef5b9ca8b3">TLV_ERR_BUFFER_TOO_SHORT</a> for incomplete input, including an empty field.   </dd></dl>
 
 </div>
 </div>
@@ -1819,7 +1827,8 @@ A wire or buffer error reported by the format.</dd></dl>
 <dl class="section return"><dt>Returns</dt><dd><a class="el" href="group__core.html#gga516c7250563ee9332e2f45f2d203ae61ac763c25dd3e807fae4d8078c3d3e94ed">TLV_OK</a> on success. </dd>
 <dd>
 A format error if encoding fails.</dd></dl>
-<dl class="section warning"><dt>Warning</dt><dd>On failure, destination bytes are unspecified.   </dd></dl>
+<dl class="section warning"><dt>Warning</dt><dd>On failure, destination bytes are unspecified. </dd></dl>
+<dl class="section note"><dt>Note</dt><dd>Allowed results are <a class="el" href="group__core.html#gga516c7250563ee9332e2f45f2d203ae61ac763c25dd3e807fae4d8078c3d3e94ed">TLV_OK</a> and any defined <code>TLV_ERR_*</code> error except <a class="el" href="group__core.html#gga516c7250563ee9332e2f45f2d203ae61ad3ea4a680040d2294498178b02b79878">TLV_ERR_END_OF_BUFFER</a>. <a class="el" href="group__core.html#gga516c7250563ee9332e2f45f2d203ae61ad90e4f5b2c36d63f9a93b92f1064a5e6">TLV_NEED_MORE_DATA</a>, <a class="el" href="group__core.html#gga516c7250563ee9332e2f45f2d203ae61ad3ea4a680040d2294498178b02b79878">TLV_ERR_END_OF_BUFFER</a> and unknown result values violate the callback contract and are reported as <a class="el" href="group__core.html#gga516c7250563ee9332e2f45f2d203ae61adc3ffd285317edbc89e61fa26935e3c2">TLV_ERR_CALLBACK</a>.   </dd></dl>
 
 </div>
 </div>
@@ -1875,7 +1884,8 @@ A format error if encoding fails.</dd></dl>
 <dd>
 <a class="el" href="group__core.html#gga516c7250563ee9332e2f45f2d203ae61a02f1494beef2c6ffc5f3ba9859fc6e2a">TLV_ERR_OVERFLOW</a> if logical size arithmetic overflows. </dd>
 <dd>
-A format error if the semantic input cannot be represented.   </dd></dl>
+A format error if the semantic input cannot be represented. </dd></dl>
+<dl class="section note"><dt>Note</dt><dd>Allowed results are <a class="el" href="group__core.html#gga516c7250563ee9332e2f45f2d203ae61ac763c25dd3e807fae4d8078c3d3e94ed">TLV_OK</a> and any defined <code>TLV_ERR_*</code> error except <a class="el" href="group__core.html#gga516c7250563ee9332e2f45f2d203ae61ad3ea4a680040d2294498178b02b79878">TLV_ERR_END_OF_BUFFER</a>. <a class="el" href="group__core.html#gga516c7250563ee9332e2f45f2d203ae61ad90e4f5b2c36d63f9a93b92f1064a5e6">TLV_NEED_MORE_DATA</a>, <a class="el" href="group__core.html#gga516c7250563ee9332e2f45f2d203ae61ad3ea4a680040d2294498178b02b79878">TLV_ERR_END_OF_BUFFER</a> and unknown result values violate the callback contract and are reported as <a class="el" href="group__core.html#gga516c7250563ee9332e2f45f2d203ae61adc3ffd285317edbc89e61fa26935e3c2">TLV_ERR_CALLBACK</a>.   </dd></dl>
 
 </div>
 </div>
@@ -2204,7 +2214,9 @@ A format error if the semantic input cannot be represented.   </dd></dl>
 <a class="el" href="group__core.html#gga516c7250563ee9332e2f45f2d203ae61acbd34cf02b42e70e99648aef5b9ca8b3">TLV_ERR_BUFFER_TOO_SHORT</a> when more input bytes are required to complete the header, value or trailer. Malformed wire data must use its specific error code instead; Reader propagates this distinction. </dd>
 <dd>
 A wire or buffer error reported by the format.</dd></dl>
-<dl class="section note"><dt>Note</dt><dd>Callbacks never allocate or retain data. The core initializes outputs.   </dd>
+<dl class="section note"><dt>Note</dt><dd>Callbacks never allocate or retain data. The core initializes outputs. </dd>
+<dd>
+Allowed results are <a class="el" href="group__core.html#gga516c7250563ee9332e2f45f2d203ae61ac763c25dd3e807fae4d8078c3d3e94ed">TLV_OK</a> and any defined <code>TLV_ERR_*</code> error except <a class="el" href="group__core.html#gga516c7250563ee9332e2f45f2d203ae61ad3ea4a680040d2294498178b02b79878">TLV_ERR_END_OF_BUFFER</a>. <a class="el" href="group__core.html#gga516c7250563ee9332e2f45f2d203ae61ad90e4f5b2c36d63f9a93b92f1064a5e6">TLV_NEED_MORE_DATA</a>, <a class="el" href="group__core.html#gga516c7250563ee9332e2f45f2d203ae61ad3ea4a680040d2294498178b02b79878">TLV_ERR_END_OF_BUFFER</a> and unknown result values violate the callback contract and are reported as <a class="el" href="group__core.html#gga516c7250563ee9332e2f45f2d203ae61adc3ffd285317edbc89e61fa26935e3c2">TLV_ERR_CALLBACK</a>. Use <a class="el" href="group__core.html#gga516c7250563ee9332e2f45f2d203ae61acbd34cf02b42e70e99648aef5b9ca8b3">TLV_ERR_BUFFER_TOO_SHORT</a> for incomplete input, including an empty field.   </dd>
 <dd>
 context points to a valid immutable <a class="el" href="group__formats.html#gad9c901588b3c62fc04ae9888b889cc0b" title="Fixed identifiers composed with escape-prefixed lengths.">tlv_escaped_format_t</a>. </dd></dl>
 
@@ -2275,8 +2287,10 @@ context points to a valid immutable <a class="el" href="group__formats.html#gad9
 <dl class="section return"><dt>Returns</dt><dd><a class="el" href="group__core.html#gga516c7250563ee9332e2f45f2d203ae61ac763c25dd3e807fae4d8078c3d3e94ed">TLV_OK</a> on success. </dd>
 <dd>
 A format error if encoding fails.</dd></dl>
-<dl class="section warning"><dt>Warning</dt><dd>On failure, destination bytes are unspecified.   </dd></dl>
-<dl class="section note"><dt>Note</dt><dd>context points to a valid immutable <a class="el" href="group__formats.html#gad9c901588b3c62fc04ae9888b889cc0b" title="Fixed identifiers composed with escape-prefixed lengths.">tlv_escaped_format_t</a>. </dd></dl>
+<dl class="section warning"><dt>Warning</dt><dd>On failure, destination bytes are unspecified. </dd></dl>
+<dl class="section note"><dt>Note</dt><dd>Allowed results are <a class="el" href="group__core.html#gga516c7250563ee9332e2f45f2d203ae61ac763c25dd3e807fae4d8078c3d3e94ed">TLV_OK</a> and any defined <code>TLV_ERR_*</code> error except <a class="el" href="group__core.html#gga516c7250563ee9332e2f45f2d203ae61ad3ea4a680040d2294498178b02b79878">TLV_ERR_END_OF_BUFFER</a>. <a class="el" href="group__core.html#gga516c7250563ee9332e2f45f2d203ae61ad90e4f5b2c36d63f9a93b92f1064a5e6">TLV_NEED_MORE_DATA</a>, <a class="el" href="group__core.html#gga516c7250563ee9332e2f45f2d203ae61ad3ea4a680040d2294498178b02b79878">TLV_ERR_END_OF_BUFFER</a> and unknown result values violate the callback contract and are reported as <a class="el" href="group__core.html#gga516c7250563ee9332e2f45f2d203ae61adc3ffd285317edbc89e61fa26935e3c2">TLV_ERR_CALLBACK</a>.   </dd>
+<dd>
+context points to a valid immutable <a class="el" href="group__formats.html#gad9c901588b3c62fc04ae9888b889cc0b" title="Fixed identifiers composed with escape-prefixed lengths.">tlv_escaped_format_t</a>. </dd></dl>
 
 </div>
 </div>
@@ -2376,8 +2390,10 @@ A format error if encoding fails.</dd></dl>
 <dd>
 <a class="el" href="group__core.html#gga516c7250563ee9332e2f45f2d203ae61a02f1494beef2c6ffc5f3ba9859fc6e2a">TLV_ERR_OVERFLOW</a> if logical size arithmetic overflows. </dd>
 <dd>
-A format error if the semantic input cannot be represented.   </dd></dl>
-<dl class="section note"><dt>Note</dt><dd>context points to a valid immutable <a class="el" href="group__formats.html#gad9c901588b3c62fc04ae9888b889cc0b" title="Fixed identifiers composed with escape-prefixed lengths.">tlv_escaped_format_t</a>. </dd></dl>
+A format error if the semantic input cannot be represented. </dd></dl>
+<dl class="section note"><dt>Note</dt><dd>Allowed results are <a class="el" href="group__core.html#gga516c7250563ee9332e2f45f2d203ae61ac763c25dd3e807fae4d8078c3d3e94ed">TLV_OK</a> and any defined <code>TLV_ERR_*</code> error except <a class="el" href="group__core.html#gga516c7250563ee9332e2f45f2d203ae61ad3ea4a680040d2294498178b02b79878">TLV_ERR_END_OF_BUFFER</a>. <a class="el" href="group__core.html#gga516c7250563ee9332e2f45f2d203ae61ad90e4f5b2c36d63f9a93b92f1064a5e6">TLV_NEED_MORE_DATA</a>, <a class="el" href="group__core.html#gga516c7250563ee9332e2f45f2d203ae61ad3ea4a680040d2294498178b02b79878">TLV_ERR_END_OF_BUFFER</a> and unknown result values violate the callback contract and are reported as <a class="el" href="group__core.html#gga516c7250563ee9332e2f45f2d203ae61adc3ffd285317edbc89e61fa26935e3c2">TLV_ERR_CALLBACK</a>.   </dd>
+<dd>
+context points to a valid immutable <a class="el" href="group__formats.html#gad9c901588b3c62fc04ae9888b889cc0b" title="Fixed identifiers composed with escape-prefixed lengths.">tlv_escaped_format_t</a>. </dd></dl>
 
 </div>
 </div>
@@ -2442,7 +2458,9 @@ A format error if the semantic input cannot be represented.   </dd></dl>
 <a class="el" href="group__core.html#gga516c7250563ee9332e2f45f2d203ae61acbd34cf02b42e70e99648aef5b9ca8b3">TLV_ERR_BUFFER_TOO_SHORT</a> when more input bytes are required to complete the header, value or trailer. Malformed wire data must use its specific error code instead; Reader propagates this distinction. </dd>
 <dd>
 A wire or buffer error reported by the format.</dd></dl>
-<dl class="section note"><dt>Note</dt><dd>Callbacks never allocate or retain data. The core initializes outputs.   </dd></dl>
+<dl class="section note"><dt>Note</dt><dd>Callbacks never allocate or retain data. The core initializes outputs. </dd>
+<dd>
+Allowed results are <a class="el" href="group__core.html#gga516c7250563ee9332e2f45f2d203ae61ac763c25dd3e807fae4d8078c3d3e94ed">TLV_OK</a> and any defined <code>TLV_ERR_*</code> error except <a class="el" href="group__core.html#gga516c7250563ee9332e2f45f2d203ae61ad3ea4a680040d2294498178b02b79878">TLV_ERR_END_OF_BUFFER</a>. <a class="el" href="group__core.html#gga516c7250563ee9332e2f45f2d203ae61ad90e4f5b2c36d63f9a93b92f1064a5e6">TLV_NEED_MORE_DATA</a>, <a class="el" href="group__core.html#gga516c7250563ee9332e2f45f2d203ae61ad3ea4a680040d2294498178b02b79878">TLV_ERR_END_OF_BUFFER</a> and unknown result values violate the callback contract and are reported as <a class="el" href="group__core.html#gga516c7250563ee9332e2f45f2d203ae61adc3ffd285317edbc89e61fa26935e3c2">TLV_ERR_CALLBACK</a>. Use <a class="el" href="group__core.html#gga516c7250563ee9332e2f45f2d203ae61acbd34cf02b42e70e99648aef5b9ca8b3">TLV_ERR_BUFFER_TOO_SHORT</a> for incomplete input, including an empty field.   </dd></dl>
 
 </div>
 </div>
@@ -2511,7 +2529,8 @@ A wire or buffer error reported by the format.</dd></dl>
 <dl class="section return"><dt>Returns</dt><dd><a class="el" href="group__core.html#gga516c7250563ee9332e2f45f2d203ae61ac763c25dd3e807fae4d8078c3d3e94ed">TLV_OK</a> on success. </dd>
 <dd>
 A format error if encoding fails.</dd></dl>
-<dl class="section warning"><dt>Warning</dt><dd>On failure, destination bytes are unspecified.   </dd></dl>
+<dl class="section warning"><dt>Warning</dt><dd>On failure, destination bytes are unspecified. </dd></dl>
+<dl class="section note"><dt>Note</dt><dd>Allowed results are <a class="el" href="group__core.html#gga516c7250563ee9332e2f45f2d203ae61ac763c25dd3e807fae4d8078c3d3e94ed">TLV_OK</a> and any defined <code>TLV_ERR_*</code> error except <a class="el" href="group__core.html#gga516c7250563ee9332e2f45f2d203ae61ad3ea4a680040d2294498178b02b79878">TLV_ERR_END_OF_BUFFER</a>. <a class="el" href="group__core.html#gga516c7250563ee9332e2f45f2d203ae61ad90e4f5b2c36d63f9a93b92f1064a5e6">TLV_NEED_MORE_DATA</a>, <a class="el" href="group__core.html#gga516c7250563ee9332e2f45f2d203ae61ad3ea4a680040d2294498178b02b79878">TLV_ERR_END_OF_BUFFER</a> and unknown result values violate the callback contract and are reported as <a class="el" href="group__core.html#gga516c7250563ee9332e2f45f2d203ae61adc3ffd285317edbc89e61fa26935e3c2">TLV_ERR_CALLBACK</a>.   </dd></dl>
 
 </div>
 </div>
@@ -2607,7 +2626,8 @@ A format error if encoding fails.</dd></dl>
 <dd>
 <a class="el" href="group__core.html#gga516c7250563ee9332e2f45f2d203ae61a02f1494beef2c6ffc5f3ba9859fc6e2a">TLV_ERR_OVERFLOW</a> if logical size arithmetic overflows. </dd>
 <dd>
-A format error if the semantic input cannot be represented.   </dd></dl>
+A format error if the semantic input cannot be represented. </dd></dl>
+<dl class="section note"><dt>Note</dt><dd>Allowed results are <a class="el" href="group__core.html#gga516c7250563ee9332e2f45f2d203ae61ac763c25dd3e807fae4d8078c3d3e94ed">TLV_OK</a> and any defined <code>TLV_ERR_*</code> error except <a class="el" href="group__core.html#gga516c7250563ee9332e2f45f2d203ae61ad3ea4a680040d2294498178b02b79878">TLV_ERR_END_OF_BUFFER</a>. <a class="el" href="group__core.html#gga516c7250563ee9332e2f45f2d203ae61ad90e4f5b2c36d63f9a93b92f1064a5e6">TLV_NEED_MORE_DATA</a>, <a class="el" href="group__core.html#gga516c7250563ee9332e2f45f2d203ae61ad3ea4a680040d2294498178b02b79878">TLV_ERR_END_OF_BUFFER</a> and unknown result values violate the callback contract and are reported as <a class="el" href="group__core.html#gga516c7250563ee9332e2f45f2d203ae61adc3ffd285317edbc89e61fa26935e3c2">TLV_ERR_CALLBACK</a>.   </dd></dl>
 
 </div>
 </div>
@@ -2754,13 +2774,13 @@ A format error if the semantic input cannot be represented.   </dd></dl>
 </dl>
 <dl class="section return"><dt>Returns</dt><dd><a class="el" href="group__core.html#gga516c7250563ee9332e2f45f2d203ae61ac763c25dd3e807fae4d8078c3d3e94ed">TLV_OK</a> on success. </dd>
 <dd>
-<a class="el" href="group__core.html#gga516c7250563ee9332e2f45f2d203ae61ad3ea4a680040d2294498178b02b79878">TLV_ERR_END_OF_BUFFER</a> if the input is empty. </dd>
+<a class="el" href="group__core.html#gga516c7250563ee9332e2f45f2d203ae61ad3ea4a680040d2294498178b02b79878">TLV_ERR_END_OF_BUFFER</a> if the input is empty, without calling the decoder. This wrapper status is not an allowed decoder callback result. </dd>
 <dd>
 <a class="el" href="group__core.html#gga516c7250563ee9332e2f45f2d203ae61aa4a514ccb37d17b2cd7c7da47d2eab88">TLV_ERR_NULL_ARG</a> for a missing required argument or decode callback. </dd>
 <dd>
-<a class="el" href="group__core.html#gga516c7250563ee9332e2f45f2d203ae61a83b538a74c7058e8863132a6410b9d65">TLV_ERR_INVALID_ARG</a> if the decoder produces inconsistent source ranges. </dd>
+<a class="el" href="group__core.html#gga516c7250563ee9332e2f45f2d203ae61adc3ffd285317edbc89e61fa26935e3c2">TLV_ERR_CALLBACK</a> if the decoder violates its result or source-range contract. </dd>
 <dd>
-Any decoder error, propagated unchanged. </dd></dl>
+Any permitted decoder error, propagated unchanged; see the callback result contract. </dd></dl>
 
 </div>
 </div>
@@ -2834,9 +2854,9 @@ Any decoder error, propagated unchanged. </dd></dl>
 <dd>
 <a class="el" href="group__core.html#gga516c7250563ee9332e2f45f2d203ae61aa4a514ccb37d17b2cd7c7da47d2eab88">TLV_ERR_NULL_ARG</a> for a missing required argument or write capability. </dd>
 <dd>
-<a class="el" href="group__core.html#gga516c7250563ee9332e2f45f2d203ae61a11e399e826cabbe9fb215922485d3742">TLV_ERR_INVALID_LENGTH</a> if the encoded size differs from measurement. </dd>
+<a class="el" href="group__core.html#gga516c7250563ee9332e2f45f2d203ae61adc3ffd285317edbc89e61fa26935e3c2">TLV_ERR_CALLBACK</a> if the callback result is invalid or the encoded size differs from measurement. </dd>
 <dd>
-Any measurement or encoder error, propagated unchanged.</dd></dl>
+Any permitted measurement or encoder error, propagated unchanged; see the callback contracts.</dd></dl>
 <dl class="section note"><dt>Note</dt><dd>Preflight errors leave destination unchanged; callback errors may modify it. </dd></dl>
 
 </div>
@@ -2956,9 +2976,9 @@ Any measurement or encoder error, propagated unchanged.</dd></dl>
 <dd>
 <a class="el" href="group__core.html#gga516c7250563ee9332e2f45f2d203ae61aa4a514ccb37d17b2cd7c7da47d2eab88">TLV_ERR_NULL_ARG</a> for a missing required argument or write capability. </dd>
 <dd>
-<a class="el" href="group__core.html#gga516c7250563ee9332e2f45f2d203ae61a83b538a74c7058e8863132a6410b9d65">TLV_ERR_INVALID_ARG</a> if the measured framing sizes are inconsistent. </dd>
+<a class="el" href="group__core.html#gga516c7250563ee9332e2f45f2d203ae61adc3ffd285317edbc89e61fa26935e3c2">TLV_ERR_CALLBACK</a> if the callback result or measured framing sizes are inconsistent. </dd>
 <dd>
-Any measurement error, propagated unchanged. </dd></dl>
+Any permitted measurement error, propagated unchanged; see the callback result contract. </dd></dl>
 
 </div>
 </div>
@@ -3334,7 +3354,9 @@ Configuration errors from <a class="el" href="group__formats.html#ga3f043ea51bf7
 <a class="el" href="group__core.html#gga516c7250563ee9332e2f45f2d203ae61acbd34cf02b42e70e99648aef5b9ca8b3">TLV_ERR_BUFFER_TOO_SHORT</a> when more input bytes are required to complete the header, value or trailer. Malformed wire data must use its specific error code instead; Reader propagates this distinction. </dd>
 <dd>
 A wire or buffer error reported by the format.</dd></dl>
-<dl class="section note"><dt>Note</dt><dd>Callbacks never allocate or retain data. The core initializes outputs.   </dd>
+<dl class="section note"><dt>Note</dt><dd>Callbacks never allocate or retain data. The core initializes outputs. </dd>
+<dd>
+Allowed results are <a class="el" href="group__core.html#gga516c7250563ee9332e2f45f2d203ae61ac763c25dd3e807fae4d8078c3d3e94ed">TLV_OK</a> and any defined <code>TLV_ERR_*</code> error except <a class="el" href="group__core.html#gga516c7250563ee9332e2f45f2d203ae61ad3ea4a680040d2294498178b02b79878">TLV_ERR_END_OF_BUFFER</a>. <a class="el" href="group__core.html#gga516c7250563ee9332e2f45f2d203ae61ad90e4f5b2c36d63f9a93b92f1064a5e6">TLV_NEED_MORE_DATA</a>, <a class="el" href="group__core.html#gga516c7250563ee9332e2f45f2d203ae61ad3ea4a680040d2294498178b02b79878">TLV_ERR_END_OF_BUFFER</a> and unknown result values violate the callback contract and are reported as <a class="el" href="group__core.html#gga516c7250563ee9332e2f45f2d203ae61adc3ffd285317edbc89e61fa26935e3c2">TLV_ERR_CALLBACK</a>. Use <a class="el" href="group__core.html#gga516c7250563ee9332e2f45f2d203ae61acbd34cf02b42e70e99648aef5b9ca8b3">TLV_ERR_BUFFER_TOO_SHORT</a> for incomplete input, including an empty field.   </dd>
 <dd>
 context points to a valid immutable <a class="el" href="group__formats.html#gac48cc0a54a1c860cf2fb7edd3917d8c5" title="Fixed binary TLV framing with identifier-selected tag-only elements.">tlv_tagged_binary_composition_t</a>. </dd></dl>
 
@@ -3405,8 +3427,10 @@ context points to a valid immutable <a class="el" href="group__formats.html#gac4
 <dl class="section return"><dt>Returns</dt><dd><a class="el" href="group__core.html#gga516c7250563ee9332e2f45f2d203ae61ac763c25dd3e807fae4d8078c3d3e94ed">TLV_OK</a> on success. </dd>
 <dd>
 A format error if encoding fails.</dd></dl>
-<dl class="section warning"><dt>Warning</dt><dd>On failure, destination bytes are unspecified.   </dd></dl>
-<dl class="section note"><dt>Note</dt><dd>context points to a valid immutable <a class="el" href="group__formats.html#gac48cc0a54a1c860cf2fb7edd3917d8c5" title="Fixed binary TLV framing with identifier-selected tag-only elements.">tlv_tagged_binary_composition_t</a>. Tag-only elements with nonempty Value return <a class="el" href="group__core.html#gga516c7250563ee9332e2f45f2d203ae61a11e399e826cabbe9fb215922485d3742">TLV_ERR_INVALID_LENGTH</a>. </dd></dl>
+<dl class="section warning"><dt>Warning</dt><dd>On failure, destination bytes are unspecified. </dd></dl>
+<dl class="section note"><dt>Note</dt><dd>Allowed results are <a class="el" href="group__core.html#gga516c7250563ee9332e2f45f2d203ae61ac763c25dd3e807fae4d8078c3d3e94ed">TLV_OK</a> and any defined <code>TLV_ERR_*</code> error except <a class="el" href="group__core.html#gga516c7250563ee9332e2f45f2d203ae61ad3ea4a680040d2294498178b02b79878">TLV_ERR_END_OF_BUFFER</a>. <a class="el" href="group__core.html#gga516c7250563ee9332e2f45f2d203ae61ad90e4f5b2c36d63f9a93b92f1064a5e6">TLV_NEED_MORE_DATA</a>, <a class="el" href="group__core.html#gga516c7250563ee9332e2f45f2d203ae61ad3ea4a680040d2294498178b02b79878">TLV_ERR_END_OF_BUFFER</a> and unknown result values violate the callback contract and are reported as <a class="el" href="group__core.html#gga516c7250563ee9332e2f45f2d203ae61adc3ffd285317edbc89e61fa26935e3c2">TLV_ERR_CALLBACK</a>.   </dd>
+<dd>
+context points to a valid immutable <a class="el" href="group__formats.html#gac48cc0a54a1c860cf2fb7edd3917d8c5" title="Fixed binary TLV framing with identifier-selected tag-only elements.">tlv_tagged_binary_composition_t</a>. Tag-only elements with nonempty Value return <a class="el" href="group__core.html#gga516c7250563ee9332e2f45f2d203ae61a11e399e826cabbe9fb215922485d3742">TLV_ERR_INVALID_LENGTH</a>. </dd></dl>
 
 </div>
 </div>
@@ -3506,8 +3530,10 @@ A format error if encoding fails.</dd></dl>
 <dd>
 <a class="el" href="group__core.html#gga516c7250563ee9332e2f45f2d203ae61a02f1494beef2c6ffc5f3ba9859fc6e2a">TLV_ERR_OVERFLOW</a> if logical size arithmetic overflows. </dd>
 <dd>
-A format error if the semantic input cannot be represented.   </dd></dl>
-<dl class="section note"><dt>Note</dt><dd>context points to a valid immutable <a class="el" href="group__formats.html#gac48cc0a54a1c860cf2fb7edd3917d8c5" title="Fixed binary TLV framing with identifier-selected tag-only elements.">tlv_tagged_binary_composition_t</a>. Tag-only elements with nonempty Value return <a class="el" href="group__core.html#gga516c7250563ee9332e2f45f2d203ae61a11e399e826cabbe9fb215922485d3742">TLV_ERR_INVALID_LENGTH</a>. </dd></dl>
+A format error if the semantic input cannot be represented. </dd></dl>
+<dl class="section note"><dt>Note</dt><dd>Allowed results are <a class="el" href="group__core.html#gga516c7250563ee9332e2f45f2d203ae61ac763c25dd3e807fae4d8078c3d3e94ed">TLV_OK</a> and any defined <code>TLV_ERR_*</code> error except <a class="el" href="group__core.html#gga516c7250563ee9332e2f45f2d203ae61ad3ea4a680040d2294498178b02b79878">TLV_ERR_END_OF_BUFFER</a>. <a class="el" href="group__core.html#gga516c7250563ee9332e2f45f2d203ae61ad90e4f5b2c36d63f9a93b92f1064a5e6">TLV_NEED_MORE_DATA</a>, <a class="el" href="group__core.html#gga516c7250563ee9332e2f45f2d203ae61ad3ea4a680040d2294498178b02b79878">TLV_ERR_END_OF_BUFFER</a> and unknown result values violate the callback contract and are reported as <a class="el" href="group__core.html#gga516c7250563ee9332e2f45f2d203ae61adc3ffd285317edbc89e61fa26935e3c2">TLV_ERR_CALLBACK</a>.   </dd>
+<dd>
+context points to a valid immutable <a class="el" href="group__formats.html#gac48cc0a54a1c860cf2fb7edd3917d8c5" title="Fixed binary TLV framing with identifier-selected tag-only elements.">tlv_tagged_binary_composition_t</a>. Tag-only elements with nonempty Value return <a class="el" href="group__core.html#gga516c7250563ee9332e2f45f2d203ae61a11e399e826cabbe9fb215922485d3742">TLV_ERR_INVALID_LENGTH</a>. </dd></dl>
 
 </div>
 </div>
@@ -3572,7 +3598,9 @@ A format error if the semantic input cannot be represented.   </dd></dl>
 <a class="el" href="group__core.html#gga516c7250563ee9332e2f45f2d203ae61acbd34cf02b42e70e99648aef5b9ca8b3">TLV_ERR_BUFFER_TOO_SHORT</a> when more input bytes are required to complete the header, value or trailer. Malformed wire data must use its specific error code instead; Reader propagates this distinction. </dd>
 <dd>
 A wire or buffer error reported by the format.</dd></dl>
-<dl class="section note"><dt>Note</dt><dd>Callbacks never allocate or retain data. The core initializes outputs.   </dd>
+<dl class="section note"><dt>Note</dt><dd>Callbacks never allocate or retain data. The core initializes outputs. </dd>
+<dd>
+Allowed results are <a class="el" href="group__core.html#gga516c7250563ee9332e2f45f2d203ae61ac763c25dd3e807fae4d8078c3d3e94ed">TLV_OK</a> and any defined <code>TLV_ERR_*</code> error except <a class="el" href="group__core.html#gga516c7250563ee9332e2f45f2d203ae61ad3ea4a680040d2294498178b02b79878">TLV_ERR_END_OF_BUFFER</a>. <a class="el" href="group__core.html#gga516c7250563ee9332e2f45f2d203ae61ad90e4f5b2c36d63f9a93b92f1064a5e6">TLV_NEED_MORE_DATA</a>, <a class="el" href="group__core.html#gga516c7250563ee9332e2f45f2d203ae61ad3ea4a680040d2294498178b02b79878">TLV_ERR_END_OF_BUFFER</a> and unknown result values violate the callback contract and are reported as <a class="el" href="group__core.html#gga516c7250563ee9332e2f45f2d203ae61adc3ffd285317edbc89e61fa26935e3c2">TLV_ERR_CALLBACK</a>. Use <a class="el" href="group__core.html#gga516c7250563ee9332e2f45f2d203ae61acbd34cf02b42e70e99648aef5b9ca8b3">TLV_ERR_BUFFER_TOO_SHORT</a> for incomplete input, including an empty field.   </dd>
 <dd>
 context points to a valid immutable <a class="el" href="group__formats.html#ga79a98df4e19855014ce69d3b7ac9f95c" title="Field encoding composition with identifier-selected tag-only elements.">tlv_tagged_fields_composition_t</a>. </dd></dl>
 
@@ -3643,8 +3671,10 @@ context points to a valid immutable <a class="el" href="group__formats.html#ga79
 <dl class="section return"><dt>Returns</dt><dd><a class="el" href="group__core.html#gga516c7250563ee9332e2f45f2d203ae61ac763c25dd3e807fae4d8078c3d3e94ed">TLV_OK</a> on success. </dd>
 <dd>
 A format error if encoding fails.</dd></dl>
-<dl class="section warning"><dt>Warning</dt><dd>On failure, destination bytes are unspecified.   </dd></dl>
-<dl class="section note"><dt>Note</dt><dd>context points to a valid immutable <a class="el" href="group__formats.html#ga79a98df4e19855014ce69d3b7ac9f95c" title="Field encoding composition with identifier-selected tag-only elements.">tlv_tagged_fields_composition_t</a>. </dd></dl>
+<dl class="section warning"><dt>Warning</dt><dd>On failure, destination bytes are unspecified. </dd></dl>
+<dl class="section note"><dt>Note</dt><dd>Allowed results are <a class="el" href="group__core.html#gga516c7250563ee9332e2f45f2d203ae61ac763c25dd3e807fae4d8078c3d3e94ed">TLV_OK</a> and any defined <code>TLV_ERR_*</code> error except <a class="el" href="group__core.html#gga516c7250563ee9332e2f45f2d203ae61ad3ea4a680040d2294498178b02b79878">TLV_ERR_END_OF_BUFFER</a>. <a class="el" href="group__core.html#gga516c7250563ee9332e2f45f2d203ae61ad90e4f5b2c36d63f9a93b92f1064a5e6">TLV_NEED_MORE_DATA</a>, <a class="el" href="group__core.html#gga516c7250563ee9332e2f45f2d203ae61ad3ea4a680040d2294498178b02b79878">TLV_ERR_END_OF_BUFFER</a> and unknown result values violate the callback contract and are reported as <a class="el" href="group__core.html#gga516c7250563ee9332e2f45f2d203ae61adc3ffd285317edbc89e61fa26935e3c2">TLV_ERR_CALLBACK</a>.   </dd>
+<dd>
+context points to a valid immutable <a class="el" href="group__formats.html#ga79a98df4e19855014ce69d3b7ac9f95c" title="Field encoding composition with identifier-selected tag-only elements.">tlv_tagged_fields_composition_t</a>. </dd></dl>
 
 </div>
 </div>
@@ -3744,8 +3774,10 @@ A tag encoder error for an unrepresentable table identifier. </dd></dl>
 <dd>
 <a class="el" href="group__core.html#gga516c7250563ee9332e2f45f2d203ae61a02f1494beef2c6ffc5f3ba9859fc6e2a">TLV_ERR_OVERFLOW</a> if logical size arithmetic overflows. </dd>
 <dd>
-A format error if the semantic input cannot be represented.   </dd></dl>
-<dl class="section note"><dt>Note</dt><dd>context points to a valid immutable <a class="el" href="group__formats.html#ga79a98df4e19855014ce69d3b7ac9f95c" title="Field encoding composition with identifier-selected tag-only elements.">tlv_tagged_fields_composition_t</a>. Nonempty tag-only Values return <a class="el" href="group__core.html#gga516c7250563ee9332e2f45f2d203ae61a11e399e826cabbe9fb215922485d3742">TLV_ERR_INVALID_LENGTH</a>. </dd></dl>
+A format error if the semantic input cannot be represented. </dd></dl>
+<dl class="section note"><dt>Note</dt><dd>Allowed results are <a class="el" href="group__core.html#gga516c7250563ee9332e2f45f2d203ae61ac763c25dd3e807fae4d8078c3d3e94ed">TLV_OK</a> and any defined <code>TLV_ERR_*</code> error except <a class="el" href="group__core.html#gga516c7250563ee9332e2f45f2d203ae61ad3ea4a680040d2294498178b02b79878">TLV_ERR_END_OF_BUFFER</a>. <a class="el" href="group__core.html#gga516c7250563ee9332e2f45f2d203ae61ad90e4f5b2c36d63f9a93b92f1064a5e6">TLV_NEED_MORE_DATA</a>, <a class="el" href="group__core.html#gga516c7250563ee9332e2f45f2d203ae61ad3ea4a680040d2294498178b02b79878">TLV_ERR_END_OF_BUFFER</a> and unknown result values violate the callback contract and are reported as <a class="el" href="group__core.html#gga516c7250563ee9332e2f45f2d203ae61adc3ffd285317edbc89e61fa26935e3c2">TLV_ERR_CALLBACK</a>.   </dd>
+<dd>
+context points to a valid immutable <a class="el" href="group__formats.html#ga79a98df4e19855014ce69d3b7ac9f95c" title="Field encoding composition with identifier-selected tag-only elements.">tlv_tagged_fields_composition_t</a>. Nonempty tag-only Values return <a class="el" href="group__core.html#gga516c7250563ee9332e2f45f2d203ae61a11e399e826cabbe9fb215922485d3742">TLV_ERR_INVALID_LENGTH</a>. </dd></dl>
 
 </div>
 </div>
@@ -3810,7 +3842,9 @@ A format error if the semantic input cannot be represented.   </dd></dl>
 <a class="el" href="group__core.html#gga516c7250563ee9332e2f45f2d203ae61acbd34cf02b42e70e99648aef5b9ca8b3">TLV_ERR_BUFFER_TOO_SHORT</a> when more input bytes are required to complete the header, value or trailer. Malformed wire data must use its specific error code instead; Reader propagates this distinction. </dd>
 <dd>
 A wire or buffer error reported by the format.</dd></dl>
-<dl class="section note"><dt>Note</dt><dd>Callbacks never allocate or retain data. The core initializes outputs.   </dd>
+<dl class="section note"><dt>Note</dt><dd>Callbacks never allocate or retain data. The core initializes outputs. </dd>
+<dd>
+Allowed results are <a class="el" href="group__core.html#gga516c7250563ee9332e2f45f2d203ae61ac763c25dd3e807fae4d8078c3d3e94ed">TLV_OK</a> and any defined <code>TLV_ERR_*</code> error except <a class="el" href="group__core.html#gga516c7250563ee9332e2f45f2d203ae61ad3ea4a680040d2294498178b02b79878">TLV_ERR_END_OF_BUFFER</a>. <a class="el" href="group__core.html#gga516c7250563ee9332e2f45f2d203ae61ad90e4f5b2c36d63f9a93b92f1064a5e6">TLV_NEED_MORE_DATA</a>, <a class="el" href="group__core.html#gga516c7250563ee9332e2f45f2d203ae61ad3ea4a680040d2294498178b02b79878">TLV_ERR_END_OF_BUFFER</a> and unknown result values violate the callback contract and are reported as <a class="el" href="group__core.html#gga516c7250563ee9332e2f45f2d203ae61adc3ffd285317edbc89e61fa26935e3c2">TLV_ERR_CALLBACK</a>. Use <a class="el" href="group__core.html#gga516c7250563ee9332e2f45f2d203ae61acbd34cf02b42e70e99648aef5b9ca8b3">TLV_ERR_BUFFER_TOO_SHORT</a> for incomplete input, including an empty field.   </dd>
 <dd>
 context must point to a valid immutable tlv_variable_format_t. </dd></dl>
 
@@ -3881,8 +3915,10 @@ context must point to a valid immutable tlv_variable_format_t. </dd></dl>
 <dl class="section return"><dt>Returns</dt><dd><a class="el" href="group__core.html#gga516c7250563ee9332e2f45f2d203ae61ac763c25dd3e807fae4d8078c3d3e94ed">TLV_OK</a> on success. </dd>
 <dd>
 A format error if encoding fails.</dd></dl>
-<dl class="section warning"><dt>Warning</dt><dd>On failure, destination bytes are unspecified.   </dd></dl>
-<dl class="section note"><dt>Note</dt><dd>context must point to a valid immutable tlv_variable_format_t. </dd></dl>
+<dl class="section warning"><dt>Warning</dt><dd>On failure, destination bytes are unspecified. </dd></dl>
+<dl class="section note"><dt>Note</dt><dd>Allowed results are <a class="el" href="group__core.html#gga516c7250563ee9332e2f45f2d203ae61ac763c25dd3e807fae4d8078c3d3e94ed">TLV_OK</a> and any defined <code>TLV_ERR_*</code> error except <a class="el" href="group__core.html#gga516c7250563ee9332e2f45f2d203ae61ad3ea4a680040d2294498178b02b79878">TLV_ERR_END_OF_BUFFER</a>. <a class="el" href="group__core.html#gga516c7250563ee9332e2f45f2d203ae61ad90e4f5b2c36d63f9a93b92f1064a5e6">TLV_NEED_MORE_DATA</a>, <a class="el" href="group__core.html#gga516c7250563ee9332e2f45f2d203ae61ad3ea4a680040d2294498178b02b79878">TLV_ERR_END_OF_BUFFER</a> and unknown result values violate the callback contract and are reported as <a class="el" href="group__core.html#gga516c7250563ee9332e2f45f2d203ae61adc3ffd285317edbc89e61fa26935e3c2">TLV_ERR_CALLBACK</a>.   </dd>
+<dd>
+context must point to a valid immutable tlv_variable_format_t. </dd></dl>
 
 </div>
 </div>
@@ -4067,8 +4103,10 @@ A format error if encoding fails.</dd></dl>
 <dd>
 <a class="el" href="group__core.html#gga516c7250563ee9332e2f45f2d203ae61a02f1494beef2c6ffc5f3ba9859fc6e2a">TLV_ERR_OVERFLOW</a> if logical size arithmetic overflows. </dd>
 <dd>
-A format error if the semantic input cannot be represented.   </dd></dl>
-<dl class="section note"><dt>Note</dt><dd>context must point to a valid immutable tlv_variable_format_t. </dd></dl>
+A format error if the semantic input cannot be represented. </dd></dl>
+<dl class="section note"><dt>Note</dt><dd>Allowed results are <a class="el" href="group__core.html#gga516c7250563ee9332e2f45f2d203ae61ac763c25dd3e807fae4d8078c3d3e94ed">TLV_OK</a> and any defined <code>TLV_ERR_*</code> error except <a class="el" href="group__core.html#gga516c7250563ee9332e2f45f2d203ae61ad3ea4a680040d2294498178b02b79878">TLV_ERR_END_OF_BUFFER</a>. <a class="el" href="group__core.html#gga516c7250563ee9332e2f45f2d203ae61ad90e4f5b2c36d63f9a93b92f1064a5e6">TLV_NEED_MORE_DATA</a>, <a class="el" href="group__core.html#gga516c7250563ee9332e2f45f2d203ae61ad3ea4a680040d2294498178b02b79878">TLV_ERR_END_OF_BUFFER</a> and unknown result values violate the callback contract and are reported as <a class="el" href="group__core.html#gga516c7250563ee9332e2f45f2d203ae61adc3ffd285317edbc89e61fa26935e3c2">TLV_ERR_CALLBACK</a>.   </dd>
+<dd>
+context must point to a valid immutable tlv_variable_format_t. </dd></dl>
 
 </div>
 </div>

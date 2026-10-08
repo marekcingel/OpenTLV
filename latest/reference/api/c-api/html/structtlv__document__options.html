@@ -95,7 +95,7 @@ Data Fields</h2></td></tr>
 </table>
 <a name="details" id="details"></a><h2 class="groupheader">Detailed Description</h2>
 <div class="textblock"><p>Format descriptor and limits of a document. </p>
-<dl class="section note"><dt>Note</dt><dd>The Format need not provide read/write callbacks for programmatic trees. Nonempty constructed wire values require OPENTLV_READER; without it, insert and set_value return TLV_ERR_UNSUPPORTED_TYPE without changing the tree.</dd></dl>
+<dl class="section note"><dt>Note</dt><dd>The Format need not provide read/write callbacks for programmatic trees. Nonempty constructed wire values require OPENTLV_READER; without it, insert and set_value return TLV_ERR_UNSUPPORTED without changing the tree.</dd></dl>
 <p>Initialize with <a class="el" href="group__document.html#ga791216f14e3bce57eea8ba84830c9096" title="Fills options with the given format and the default limits.">tlv_document_options_init()</a>. The document copies this structure, but the format, the format's context and the allocator context are borrowed and must outlive the document. </p><dl class="section see"><dt>See also</dt><dd><a href="https://marekcingel.github.io/OpenTLV/guides/memory/">format context ownership and lifetime</a> </dd></dl>
 </div><h2 class="groupheader">Field Documentation</h2>
 <a id="a0e2f53c9f3d13eb9f709bf4fe2eff380" name="a0e2f53c9f3d13eb9f709bf4fe2eff380"></a>

@@ -414,6 +414,9 @@ Enumerations</h2></td></tr>
 , <a class="el" href="group__traversal.html#gga66edcf242c8bc06318ff99b24f1ce0edaf145d7642674247761d51128daf03fdf">TLV_QUERY_ERROR_IMAGE_VERSION</a>
 , <br />
 &#160;&#160;<a class="el" href="group__traversal.html#gga66edcf242c8bc06318ff99b24f1ce0edab8a837296c6eba65f3836f28d73448d6">TLV_QUERY_ERROR_STATE</a>
+, <a class="el" href="group__traversal.html#gga66edcf242c8bc06318ff99b24f1ce0eda6b1d3f123241519789f685f72517ddb7">TLV_QUERY_ERROR_CALLBACK</a>
+, <a class="el" href="group__traversal.html#gga66edcf242c8bc06318ff99b24f1ce0eda46154792343ccc1134ae20627ecd9287">TLV_QUERY_ERROR_TYPE</a>
+, <a class="el" href="group__traversal.html#gga66edcf242c8bc06318ff99b24f1ce0eda066ed2a13452638b722699d00f74afd5">TLV_QUERY_ERROR_IMAGE</a>
 <br />
  }</td></tr>
 <tr class="memdesc:ga66edcf242c8bc06318ff99b24f1ce0ed"><td class="mdescLeft">&#160;</td><td class="mdescRight">Query-specific diagnostic category; original result codes remain intact.  <a href="group__traversal.html#ga66edcf242c8bc06318ff99b24f1ce0ed">More...</a><br /></td></tr>
@@ -1270,7 +1273,7 @@ This value type is not extensible; changing its layout requires an ABI change. <
   </table>
   </dd>
 </dl>
-<dl class="section return"><dt>Returns</dt><dd>A <a class="el" href="tree_8h.html#a5685cbc116854f9874253489cb769622" title="Value a visitor callback returns to control traversal.">tlv_visit_result_t</a>. Any unknown value is treated as an error. </dd></dl>
+<dl class="section return"><dt>Returns</dt><dd>A <a class="el" href="tree_8h.html#a5685cbc116854f9874253489cb769622" title="Value a visitor callback returns to control traversal.">tlv_visit_result_t</a>. Unknown values produce <a class="el" href="group__core.html#gga516c7250563ee9332e2f45f2d203ae61adc3ffd285317edbc89e61fa26935e3c2">TLV_ERR_CALLBACK</a>; <a class="el" href="tree_8h.html#a32dd2f26caa5ae7507636430b13cc961a1e6076c71ec8c7a08aa0c5e47cc1a74b">TLV_VISIT_ERROR</a> produces <a class="el" href="group__core.html#gga516c7250563ee9332e2f45f2d203ae61a8698f95616bfbe8d38147acebb9a5f4d">TLV_ERR_VISITOR</a>. </dd></dl>
 
 </div>
 </div>
@@ -1403,6 +1406,12 @@ This value type is not extensible; changing its layout requires an ABI change. <
 <tr><td class="fieldname"><a id="gga66edcf242c8bc06318ff99b24f1ce0edaf145d7642674247761d51128daf03fdf" name="gga66edcf242c8bc06318ff99b24f1ce0edaf145d7642674247761d51128daf03fdf"></a>TLV_QUERY_ERROR_IMAGE_VERSION&#160;</td><td class="fielddoc"><p>Internal image belongs to an incompatible release. </p>
 </td></tr>
 <tr><td class="fieldname"><a id="gga66edcf242c8bc06318ff99b24f1ce0edab8a837296c6eba65f3836f28d73448d6" name="gga66edcf242c8bc06318ff99b24f1ce0edab8a837296c6eba65f3836f28d73448d6"></a>TLV_QUERY_ERROR_STATE&#160;</td><td class="fielddoc"><p>Invalid lifecycle state or forbidden reentrancy. </p>
+</td></tr>
+<tr><td class="fieldname"><a id="gga66edcf242c8bc06318ff99b24f1ce0eda6b1d3f123241519789f685f72517ddb7" name="gga66edcf242c8bc06318ff99b24f1ce0eda6b1d3f123241519789f685f72517ddb7"></a>TLV_QUERY_ERROR_CALLBACK&#160;</td><td class="fielddoc"><p>Callback contract violation or explicit visitor error. </p>
+</td></tr>
+<tr><td class="fieldname"><a id="gga66edcf242c8bc06318ff99b24f1ce0eda46154792343ccc1134ae20627ecd9287" name="gga66edcf242c8bc06318ff99b24f1ce0eda46154792343ccc1134ae20627ecd9287"></a>TLV_QUERY_ERROR_TYPE&#160;</td><td class="fielddoc"><p>Incompatible expression operand types. </p>
+</td></tr>
+<tr><td class="fieldname"><a id="gga66edcf242c8bc06318ff99b24f1ce0eda066ed2a13452638b722699d00f74afd5" name="gga66edcf242c8bc06318ff99b24f1ce0eda066ed2a13452638b722699d00f74afd5"></a>TLV_QUERY_ERROR_IMAGE&#160;</td><td class="fielddoc"><p>Malformed stored program image. </p>
 </td></tr>
 </table>
 
@@ -1778,7 +1787,7 @@ This value type is not extensible; changing its layout requires an ABI change. <
 </dl>
 <dl class="section return"><dt>Returns</dt><dd><a class="el" href="group__core.html#gga516c7250563ee9332e2f45f2d203ae61ac763c25dd3e807fae4d8078c3d3e94ed">TLV_OK</a> for a supported Query program or sizing pass. </dd>
 <dd>
-<a class="el" href="group__core.html#gga516c7250563ee9332e2f45f2d203ae61a6c282cdacb2900685e03295cf378282e">TLV_ERR_UNSUPPORTED_TYPE</a> for recognized later-phase capabilities. </dd>
+<a class="el" href="group__core.html#gga516c7250563ee9332e2f45f2d203ae61a09879563fe6271975928879b0de69bc1">TLV_ERR_UNSUPPORTED</a> for recognized later-phase capabilities. </dd>
 <dd>
 <a class="el" href="group__core.html#gga516c7250563ee9332e2f45f2d203ae61acbd34cf02b42e70e99648aef5b9ca8b3">TLV_ERR_BUFFER_TOO_SHORT</a> for insufficient scratch/output; info is populated for insufficient program output, not insufficient scratch. </dd>
 <dd>
@@ -2284,7 +2293,9 @@ struct_size must cover the prefix through result_kind. Writes are limited to min
   </table>
   </dd>
 </dl>
-<dl class="section return"><dt>Returns</dt><dd>OK or NULL/invalid-image/capacity/overflow errors. No hidden node set. </dd></dl>
+<dl class="section return"><dt>Returns</dt><dd>OK or NULL/invalid-image/capacity/overflow errors. No hidden node set. * </dd>
+<dd>
+<a class="el" href="group__core.html#gga516c7250563ee9332e2f45f2d203ae61a83b538a74c7058e8863132a6410b9d65">TLV_ERR_INVALID_ARG</a> for a misaligned program pointer; <a class="el" href="group__core.html#gga516c7250563ee9332e2f45f2d203ae61a07580ca64f30aa1a72a405fcbca72f10">TLV_ERR_INVALID_VALUE</a> for malformed readable program contents. </dd></dl>
 
 </div>
 </div>
@@ -2357,7 +2368,7 @@ struct_size must cover the prefix through result_kind. Writes are limited to min
   </table>
   </dd>
 </dl>
-<dl class="section return"><dt>Returns</dt><dd><a class="el" href="group__core.html#gga516c7250563ee9332e2f45f2d203ae61ac763c25dd3e807fae4d8078c3d3e94ed">TLV_OK</a>; <a class="el" href="group__core.html#gga516c7250563ee9332e2f45f2d203ae61aa4a514ccb37d17b2cd7c7da47d2eab88">TLV_ERR_NULL_ARG</a> for missing pointers; <a class="el" href="group__core.html#gga516c7250563ee9332e2f45f2d203ae61a83b538a74c7058e8863132a6410b9d65">TLV_ERR_INVALID_ARG</a> for unknown/duplicate/incompatible bindings; <a class="el" href="group__core.html#gga516c7250563ee9332e2f45f2d203ae61aa9a17dc4b9c0e56681e4c8e458be09d2">TLV_ERR_INVALID_STATE</a> for used execution or callback reentrancy. </dd></dl>
+<dl class="section return"><dt>Returns</dt><dd><a class="el" href="group__core.html#gga516c7250563ee9332e2f45f2d203ae61ac763c25dd3e807fae4d8078c3d3e94ed">TLV_OK</a>; <a class="el" href="group__core.html#gga516c7250563ee9332e2f45f2d203ae61aa4a514ccb37d17b2cd7c7da47d2eab88">TLV_ERR_NULL_ARG</a> for missing pointers; <a class="el" href="group__core.html#gga516c7250563ee9332e2f45f2d203ae61a83b538a74c7058e8863132a6410b9d65">TLV_ERR_INVALID_ARG</a> for an invalid storage descriptor; <a class="el" href="group__core.html#gga516c7250563ee9332e2f45f2d203ae61a07580ca64f30aa1a72a405fcbca72f10">TLV_ERR_INVALID_VALUE</a> for unknown/duplicate/incompatible bindings; <a class="el" href="group__core.html#gga516c7250563ee9332e2f45f2d203ae61aa9a17dc4b9c0e56681e4c8e458be09d2">TLV_ERR_INVALID_STATE</a> for used execution or callback reentrancy. </dd></dl>
 <dl class="section note"><dt>Note</dt><dd>No text interpolation or allocation occurs. Span storage must remain alive and unchanged until reset. To copy a span, the caller copies into its own storage. Reinitialization clears all bindings. Rebinding during STOP/NEED_MORE_DATA is invalid. Invalid bindings leave state unchanged. All referenced variables must be bound before the first event, including variables in predicates with no matching nodes. </dd></dl>
 
 </div>
@@ -2449,7 +2460,7 @@ struct_size must cover the prefix through result_kind. Writes are limited to min
   </table>
   </dd>
 </dl>
-<dl class="section return"><dt>Returns</dt><dd><a class="el" href="group__core.html#gga516c7250563ee9332e2f45f2d203ae61ac763c25dd3e807fae4d8078c3d3e94ed">TLV_OK</a>; <a class="el" href="group__core.html#gga516c7250563ee9332e2f45f2d203ae61a07580ca64f30aa1a72a405fcbca72f10">TLV_ERR_INVALID_VALUE</a> for malformed structural events; <a class="el" href="group__core.html#gga516c7250563ee9332e2f45f2d203ae61aa9a17dc4b9c0e56681e4c8e458be09d2">TLV_ERR_INVALID_STATE</a> for finished/failed execution or callback reentrancy; <a class="el" href="group__core.html#gga516c7250563ee9332e2f45f2d203ae61a1e32eada09d59d834a685da1adeaaf97">TLV_ERR_LIMIT</a> for depth/elements/work; <a class="el" href="group__core.html#gga516c7250563ee9332e2f45f2d203ae61a07580ca64f30aa1a72a405fcbca72f10">TLV_ERR_INVALID_VALUE</a> for unavailable Source metadata; <a class="el" href="group__core.html#gga516c7250563ee9332e2f45f2d203ae61a6c282cdacb2900685e03295cf378282e">TLV_ERR_UNSUPPORTED_TYPE</a> for D programs without Document execution; <a class="el" href="group__core.html#gga516c7250563ee9332e2f45f2d203ae61aa4a514ccb37d17b2cd7c7da47d2eab88">TLV_ERR_NULL_ARG</a> for missing pointers. </dd></dl>
+<dl class="section return"><dt>Returns</dt><dd><a class="el" href="group__core.html#gga516c7250563ee9332e2f45f2d203ae61ac763c25dd3e807fae4d8078c3d3e94ed">TLV_OK</a>; <a class="el" href="group__core.html#gga516c7250563ee9332e2f45f2d203ae61a07580ca64f30aa1a72a405fcbca72f10">TLV_ERR_INVALID_VALUE</a> for malformed structural events; <a class="el" href="group__core.html#gga516c7250563ee9332e2f45f2d203ae61aa9a17dc4b9c0e56681e4c8e458be09d2">TLV_ERR_INVALID_STATE</a> for finished/failed execution or callback reentrancy; <a class="el" href="group__core.html#gga516c7250563ee9332e2f45f2d203ae61a1e32eada09d59d834a685da1adeaaf97">TLV_ERR_LIMIT</a> for depth/elements/work; <a class="el" href="group__core.html#gga516c7250563ee9332e2f45f2d203ae61a07580ca64f30aa1a72a405fcbca72f10">TLV_ERR_INVALID_VALUE</a> for unavailable Source metadata; <a class="el" href="group__core.html#gga516c7250563ee9332e2f45f2d203ae61a09879563fe6271975928879b0de69bc1">TLV_ERR_UNSUPPORTED</a> for D programs without Document execution; <a class="el" href="group__core.html#gga516c7250563ee9332e2f45f2d203ae61aa4a514ccb37d17b2cd7c7da47d2eab88">TLV_ERR_NULL_ARG</a> for missing pointers. </dd></dl>
 <dl class="section note"><dt>Note</dt><dd>Execution errors invalidate execution until reset and preserve matched. A call with required pointers present on an already failed execution preserves diagnostic as well; it does not report a second event error. Missing pointers are rejected without changing execution state. S1 accepts proven independent root scopes only; use exec_selected for delayed publications. S1 borrows one root's complete spans through its END, requiring stable backing storage across windows. S0 retains no borrowed payload; retained execution reports matched=0 and publishes results only after finish. Each node is emitted at most once, in preorder. Skipped END is rejected under the default full-validation policy. Values must be complete contiguous spans. </dd></dl>
 
 </div>
@@ -2488,7 +2499,7 @@ struct_size must cover the prefix through result_kind. Writes are limited to min
   </table>
   </dd>
 </dl>
-<dl class="section return"><dt>Returns</dt><dd><a class="el" href="group__core.html#gga516c7250563ee9332e2f45f2d203ae61ac763c25dd3e807fae4d8078c3d3e94ed">TLV_OK</a> on balanced EOF; <a class="el" href="group__core.html#gga516c7250563ee9332e2f45f2d203ae61a07580ca64f30aa1a72a405fcbca72f10">TLV_ERR_INVALID_VALUE</a> for unclosed event parents; <a class="el" href="group__core.html#gga516c7250563ee9332e2f45f2d203ae61a83b538a74c7058e8863132a6410b9d65">TLV_ERR_INVALID_ARG</a> for a missing binding or a context absent from the input; <a class="el" href="group__core.html#gga516c7250563ee9332e2f45f2d203ae61aa9a17dc4b9c0e56681e4c8e458be09d2">TLV_ERR_INVALID_STATE</a> for a failed execution or callback reentrancy; <a class="el" href="group__core.html#gga516c7250563ee9332e2f45f2d203ae61a6c282cdacb2900685e03295cf378282e">TLV_ERR_UNSUPPORTED_TYPE</a> for D programs without Document execution; <a class="el" href="group__core.html#gga516c7250563ee9332e2f45f2d203ae61aa4a514ccb37d17b2cd7c7da47d2eab88">TLV_ERR_NULL_ARG</a> for NULL execution. Repeated successful finish is harmless. </dd></dl>
+<dl class="section return"><dt>Returns</dt><dd><a class="el" href="group__core.html#gga516c7250563ee9332e2f45f2d203ae61ac763c25dd3e807fae4d8078c3d3e94ed">TLV_OK</a> on balanced EOF; <a class="el" href="group__core.html#gga516c7250563ee9332e2f45f2d203ae61a07580ca64f30aa1a72a405fcbca72f10">TLV_ERR_INVALID_VALUE</a> for unclosed event parents; <a class="el" href="group__core.html#gga516c7250563ee9332e2f45f2d203ae61a83b538a74c7058e8863132a6410b9d65">TLV_ERR_INVALID_ARG</a> for a missing binding or a context absent from the input; <a class="el" href="group__core.html#gga516c7250563ee9332e2f45f2d203ae61aa9a17dc4b9c0e56681e4c8e458be09d2">TLV_ERR_INVALID_STATE</a> for a failed execution or callback reentrancy; <a class="el" href="group__core.html#gga516c7250563ee9332e2f45f2d203ae61a09879563fe6271975928879b0de69bc1">TLV_ERR_UNSUPPORTED</a> for D programs without Document execution; <a class="el" href="group__core.html#gga516c7250563ee9332e2f45f2d203ae61aa4a514ccb37d17b2cd7c7da47d2eab88">TLV_ERR_NULL_ARG</a> for NULL execution. Repeated successful finish is harmless. </dd></dl>
 <dl class="section note"><dt>Note</dt><dd>Execution failures, including attempting D without Document, invalidate until reset. Callback and forbidden-overlap rejections preserve the outer state. Calling finish on an already failed execution returns INVALID_STATE without changing diagnostic, preserving the initial failure instead of reporting EOF. </dd></dl>
 
 </div>
@@ -2800,9 +2811,9 @@ struct_size must cover the prefix through result_kind. Writes are limited to min
   </table>
   </dd>
 </dl>
-<dl class="section return"><dt>Returns</dt><dd><a class="el" href="group__core.html#gga516c7250563ee9332e2f45f2d203ae61ac763c25dd3e807fae4d8078c3d3e94ed">TLV_OK</a>; <a class="el" href="group__core.html#gga516c7250563ee9332e2f45f2d203ae61aa4a514ccb37d17b2cd7c7da47d2eab88">TLV_ERR_NULL_ARG</a> for missing pointers; <a class="el" href="group__core.html#gga516c7250563ee9332e2f45f2d203ae61a02f1494beef2c6ffc5f3ba9859fc6e2a">TLV_ERR_OVERFLOW</a> for arithmetic overflow; <a class="el" href="group__core.html#gga516c7250563ee9332e2f45f2d203ae61a6c282cdacb2900685e03295cf378282e">TLV_ERR_UNSUPPORTED_TYPE</a> for unsupported plans. </dd>
+<dl class="section return"><dt>Returns</dt><dd><a class="el" href="group__core.html#gga516c7250563ee9332e2f45f2d203ae61ac763c25dd3e807fae4d8078c3d3e94ed">TLV_OK</a>; <a class="el" href="group__core.html#gga516c7250563ee9332e2f45f2d203ae61aa4a514ccb37d17b2cd7c7da47d2eab88">TLV_ERR_NULL_ARG</a> for missing pointers; <a class="el" href="group__core.html#gga516c7250563ee9332e2f45f2d203ae61a02f1494beef2c6ffc5f3ba9859fc6e2a">TLV_ERR_OVERFLOW</a> for arithmetic overflow; <a class="el" href="group__core.html#gga516c7250563ee9332e2f45f2d203ae61a09879563fe6271975928879b0de69bc1">TLV_ERR_UNSUPPORTED</a> for unsupported plans. </dd>
 <dd>
-<a class="el" href="group__core.html#gga516c7250563ee9332e2f45f2d203ae61a83b538a74c7058e8863132a6410b9d65">TLV_ERR_INVALID_ARG</a> for misalignment or inconsistent internal image. </dd></dl>
+<a class="el" href="group__core.html#gga516c7250563ee9332e2f45f2d203ae61a83b538a74c7058e8863132a6410b9d65">TLV_ERR_INVALID_ARG</a> for misalignment; <a class="el" href="group__core.html#gga516c7250563ee9332e2f45f2d203ae61a07580ca64f30aa1a72a405fcbca72f10">TLV_ERR_INVALID_VALUE</a> for an inconsistent internal image. </dd></dl>
 <dl class="section note"><dt>Note</dt><dd>Checks the readable image produced by this release's compiler once; this pointer-only API cannot validate arbitrary or truncated external storage. </dd></dl>
 
 </div>
@@ -3199,7 +3210,7 @@ struct_size must cover the prefix through result_kind. Writes are limited to min
   </table>
   </dd>
 </dl>
-<dl class="section return"><dt>Returns</dt><dd>OK, NULL_ARG, INVALID_ARG for malformed plans, or UNSUPPORTED_TYPE for incompatible versions or unavailable execution capabilities. </dd></dl>
+<dl class="section return"><dt>Returns</dt><dd>OK, NULL_ARG, INVALID_ARG for malformed plans, or UNSUPPORTED for incompatible versions or unavailable execution capabilities. </dd></dl>
 <dl class="section note"><dt>Note</dt><dd>No allocation, parsing, name resolution or planning occurs. Runtime provider compatibility is checked by eval_init. Resolved names are copied raw tag bytes; changing their model mapping requires rebuilding the plan. Hook and semantic-tag IDs denote application-owned immutable semantic contracts, not internal schema indices. Keep their meaning stable or assign new IDs. Image, program output and diagnostic must be disjoint. Overlap is rejected before writes, including diagnostic initialization. A contains literal larger than pattern_capacity is a malformed plan; dynamic patterns exceeding that bound fail during execution in every backend. </dd></dl>
 
 </div>
@@ -3252,7 +3263,9 @@ struct_size must cover the prefix through result_kind. Writes are limited to min
   </table>
   </dd>
 </dl>
-<dl class="section return"><dt>Returns</dt><dd>OK or pointer/image/capacity errors. </dd></dl>
+<dl class="section return"><dt>Returns</dt><dd>OK or pointer/image/capacity errors. * </dd>
+<dd>
+<a class="el" href="group__core.html#gga516c7250563ee9332e2f45f2d203ae61a83b538a74c7058e8863132a6410b9d65">TLV_ERR_INVALID_ARG</a> for a misaligned program pointer; <a class="el" href="group__core.html#gga516c7250563ee9332e2f45f2d203ae61a07580ca64f30aa1a72a405fcbca72f10">TLV_ERR_INVALID_VALUE</a> for malformed readable program contents. </dd></dl>
 
 </div>
 </div>
@@ -3295,7 +3308,7 @@ struct_size must cover the prefix through result_kind. Writes are limited to min
 </div><div class="memdoc">
 
 <p>Canonically format retained program source, including size discovery. </p>
-<dl class="section note"><dt>Note</dt><dd>Requires the Query frontend and retained source text. Static plans without source return UNSUPPORTED_TYPE; explain is available without source. </dd></dl>
+<dl class="section note"><dt>Note</dt><dd>Requires the Query frontend and retained source text. Static plans without source return UNSUPPORTED; explain is available without source. </dd></dl>
 <dl class="params"><dt>Parameters</dt><dd>
   <table class="params">
     <tr><td class="paramdir">[in]</td><td class="paramname">program</td><td>Required live program returned by compile. </td></tr>
@@ -3307,7 +3320,7 @@ struct_size must cover the prefix through result_kind. Writes are limited to min
 </dl>
 <dl class="section return"><dt>Returns</dt><dd><a class="el" href="group__core.html#gga516c7250563ee9332e2f45f2d203ae61ac763c25dd3e807fae4d8078c3d3e94ed">TLV_OK</a> on discovery/write; <a class="el" href="group__core.html#gga516c7250563ee9332e2f45f2d203ae61aa4a514ccb37d17b2cd7c7da47d2eab88">TLV_ERR_NULL_ARG</a> for missing arguments; <a class="el" href="group__core.html#gga516c7250563ee9332e2f45f2d203ae61acbd34cf02b42e70e99648aef5b9ca8b3">TLV_ERR_BUFFER_TOO_SHORT</a> with required set and output unchanged. </dd></dl>
 <dl class="section note"><dt>Note</dt><dd>Never allocates. Output and required must not overlap program storage. </dd></dl>
-<dl class="section return"><dt>Returns</dt><dd><a class="el" href="group__core.html#gga516c7250563ee9332e2f45f2d203ae61a83b538a74c7058e8863132a6410b9d65">TLV_ERR_INVALID_ARG</a> for misalignment or inconsistent internal image. </dd></dl>
+<dl class="section return"><dt>Returns</dt><dd><a class="el" href="group__core.html#gga516c7250563ee9332e2f45f2d203ae61a83b538a74c7058e8863132a6410b9d65">TLV_ERR_INVALID_ARG</a> for misalignment; <a class="el" href="group__core.html#gga516c7250563ee9332e2f45f2d203ae61a07580ca64f30aa1a72a405fcbca72f10">TLV_ERR_INVALID_VALUE</a> for an inconsistent internal image. </dd></dl>
 
 </div>
 </div>
@@ -3387,7 +3400,7 @@ struct_size must cover the prefix through result_kind. Writes are limited to min
   </table>
   </dd>
 </dl>
-<dl class="section return"><dt>Returns</dt><dd>OK, NULL_ARG, INVALID_ARG, BUFFER_TOO_SHORT, LIMIT, OVERFLOW, or UNSUPPORTED_TYPE for incompatible version/capabilities. </dd></dl>
+<dl class="section return"><dt>Returns</dt><dd>OK, NULL_ARG, INVALID_ARG, BUFFER_TOO_SHORT, LIMIT, OVERFLOW, or UNSUPPORTED for incompatible version/capabilities. </dd></dl>
 <dl class="section note"><dt>Note</dt><dd>Recompiles bounded embedded text and compares every byte with the trusted compiler output, validating all private instruction, index, type, constant, transition and optimization fields before publication. Environment resolvers must be deterministic and hook IDs/contracts must match. Scratch must not overlap image or outputs. No allocation, recursion or image writes occur. On success the image may reside in ROM; keep it alive and unchanged throughout execution. Same-release, same-endian 32/64-bit targets share uint32 image fields; environment contracts and private layout must also match. Checksums cannot replace validation. </dd></dl>
 
 </div>
@@ -3454,7 +3467,7 @@ struct_size must cover the prefix through result_kind. Writes are limited to min
   </table>
   </dd>
 </dl>
-<dl class="section return"><dt>Returns</dt><dd>OK, NULL_ARG, INVALID_ARG, LIMIT, OVERFLOW, or UNSUPPORTED_TYPE for an incompatible image version or byte order. This call does not validate instructions. </dd></dl>
+<dl class="section return"><dt>Returns</dt><dd>OK, NULL_ARG, INVALID_ARG, LIMIT, OVERFLOW, or UNSUPPORTED for an incompatible image version or byte order. This call does not validate instructions. </dd></dl>
 <dl class="section note"><dt>Note</dt><dd>No allocation or recursion. The image may be unaligned for discovery. Internal images use native-endian uint32 fields and the release's private layout; no persistent or cross-release compatibility is promised. Call load before use. </dd></dl>
 
 </div>
@@ -4045,7 +4058,9 @@ Any Reader error, propagated unchanged without retrying the decode. </dd></dl>
 <dd>
 <a class="el" href="group__core.html#gga516c7250563ee9332e2f45f2d203ae61acbd34cf02b42e70e99648aef5b9ca8b3">TLV_ERR_BUFFER_TOO_SHORT</a> for incomplete final input or a child that exceeds its complete parent's value. Appending cannot repair the latter. </dd>
 <dd>
-<a class="el" href="group__core.html#gga516c7250563ee9332e2f45f2d203ae61a1e32eada09d59d834a685da1adeaaf97">TLV_ERR_LIMIT</a> when depth, frame capacity or element count is exhausted. </dd>
+<a class="el" href="group__core.html#gga516c7250563ee9332e2f45f2d203ae61a1e32eada09d59d834a685da1adeaaf97">TLV_ERR_LIMIT</a> when the configured depth or element count is exhausted. </dd>
+<dd>
+<a class="el" href="group__core.html#gga516c7250563ee9332e2f45f2d203ae61acbd34cf02b42e70e99648aef5b9ca8b3">TLV_ERR_BUFFER_TOO_SHORT</a> when caller frame capacity is exhausted. </dd>
 <dd>
 <a class="el" href="group__core.html#gga516c7250563ee9332e2f45f2d203ae61aa4a514ccb37d17b2cd7c7da47d2eab88">TLV_ERR_NULL_ARG</a> for a NULL cursor or item. </dd>
 <dd>

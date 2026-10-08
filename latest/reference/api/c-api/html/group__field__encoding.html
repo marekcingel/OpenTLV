@@ -334,6 +334,7 @@ Functions</h2></td></tr>
 <a class="el" href="group__core.html#gga516c7250563ee9332e2f45f2d203ae61a83b538a74c7058e8863132a6410b9d65">TLV_ERR_INVALID_ARG</a> or <a class="el" href="group__core.html#gga516c7250563ee9332e2f45f2d203ae61a9e5b567aeff9d3d6549f5a2fdc9074f3">TLV_ERR_INVALID_BYTE_ORDER</a> for invalid configuration. </dd>
 <dd>
 A length or buffer error reported by the decoder. </dd></dl>
+<dl class="section note"><dt>Note</dt><dd>Allowed results are <a class="el" href="group__core.html#gga516c7250563ee9332e2f45f2d203ae61ac763c25dd3e807fae4d8078c3d3e94ed">TLV_OK</a> and any defined <code>TLV_ERR_*</code> error except <a class="el" href="group__core.html#gga516c7250563ee9332e2f45f2d203ae61ad3ea4a680040d2294498178b02b79878">TLV_ERR_END_OF_BUFFER</a>. <a class="el" href="group__core.html#gga516c7250563ee9332e2f45f2d203ae61ad90e4f5b2c36d63f9a93b92f1064a5e6">TLV_NEED_MORE_DATA</a>, <a class="el" href="group__core.html#gga516c7250563ee9332e2f45f2d203ae61ad3ea4a680040d2294498178b02b79878">TLV_ERR_END_OF_BUFFER</a> and unknown result values violate the callback contract and are reported as <a class="el" href="group__core.html#gga516c7250563ee9332e2f45f2d203ae61adc3ffd285317edbc89e61fa26935e3c2">TLV_ERR_CALLBACK</a>. Use <a class="el" href="group__core.html#gga516c7250563ee9332e2f45f2d203ae61acbd34cf02b42e70e99648aef5b9ca8b3">TLV_ERR_BUFFER_TOO_SHORT</a> for incomplete input, including an empty field. </dd></dl>
 
 </div>
 </div>
@@ -367,6 +368,7 @@ A length or buffer error reported by the decoder. </dd></dl>
 <a class="el" href="group__core.html#gga516c7250563ee9332e2f45f2d203ae61a83b538a74c7058e8863132a6410b9d65">TLV_ERR_INVALID_ARG</a> or <a class="el" href="group__core.html#gga516c7250563ee9332e2f45f2d203ae61a9e5b567aeff9d3d6549f5a2fdc9074f3">TLV_ERR_INVALID_BYTE_ORDER</a> for invalid configuration. </dd>
 <dd>
 An identifier or buffer error reported by the decoder. </dd></dl>
+<dl class="section note"><dt>Note</dt><dd>Allowed results are <a class="el" href="group__core.html#gga516c7250563ee9332e2f45f2d203ae61ac763c25dd3e807fae4d8078c3d3e94ed">TLV_OK</a> and any defined <code>TLV_ERR_*</code> error except <a class="el" href="group__core.html#gga516c7250563ee9332e2f45f2d203ae61ad3ea4a680040d2294498178b02b79878">TLV_ERR_END_OF_BUFFER</a>. <a class="el" href="group__core.html#gga516c7250563ee9332e2f45f2d203ae61ad90e4f5b2c36d63f9a93b92f1064a5e6">TLV_NEED_MORE_DATA</a>, <a class="el" href="group__core.html#gga516c7250563ee9332e2f45f2d203ae61ad3ea4a680040d2294498178b02b79878">TLV_ERR_END_OF_BUFFER</a> and unknown result values violate the callback contract and are reported as <a class="el" href="group__core.html#gga516c7250563ee9332e2f45f2d203ae61adc3ffd285317edbc89e61fa26935e3c2">TLV_ERR_CALLBACK</a>. Use <a class="el" href="group__core.html#gga516c7250563ee9332e2f45f2d203ae61acbd34cf02b42e70e99648aef5b9ca8b3">TLV_ERR_BUFFER_TOO_SHORT</a> for incomplete input, including an empty field. </dd></dl>
 
 </div>
 </div>
@@ -434,7 +436,9 @@ An identifier or buffer error reported by the decoder. </dd></dl>
 <a class="el" href="group__core.html#gga516c7250563ee9332e2f45f2d203ae61a83b538a74c7058e8863132a6410b9d65">TLV_ERR_INVALID_ARG</a> or <a class="el" href="group__core.html#gga516c7250563ee9332e2f45f2d203ae61a9e5b567aeff9d3d6549f5a2fdc9074f3">TLV_ERR_INVALID_BYTE_ORDER</a> for invalid configuration. </dd>
 <dd>
 A length or buffer error reported by the encoder.</dd></dl>
-<dl class="section note"><dt>Note</dt><dd>Validation follows the shared Field Encoding order; failed writes preserve outputs. </dd></dl>
+<dl class="section note"><dt>Note</dt><dd>Validation follows the shared Field Encoding order; failed writes preserve outputs. </dd>
+<dd>
+Allowed results are <a class="el" href="group__core.html#gga516c7250563ee9332e2f45f2d203ae61ac763c25dd3e807fae4d8078c3d3e94ed">TLV_OK</a> and any defined <code>TLV_ERR_*</code> error except <a class="el" href="group__core.html#gga516c7250563ee9332e2f45f2d203ae61ad3ea4a680040d2294498178b02b79878">TLV_ERR_END_OF_BUFFER</a>. <a class="el" href="group__core.html#gga516c7250563ee9332e2f45f2d203ae61ad90e4f5b2c36d63f9a93b92f1064a5e6">TLV_NEED_MORE_DATA</a>, <a class="el" href="group__core.html#gga516c7250563ee9332e2f45f2d203ae61ad3ea4a680040d2294498178b02b79878">TLV_ERR_END_OF_BUFFER</a> and unknown result values violate the callback contract and are reported as <a class="el" href="group__core.html#gga516c7250563ee9332e2f45f2d203ae61adc3ffd285317edbc89e61fa26935e3c2">TLV_ERR_CALLBACK</a>. </dd></dl>
 
 </div>
 </div>
@@ -468,7 +472,9 @@ A length or buffer error reported by the encoder.</dd></dl>
 <a class="el" href="group__core.html#gga516c7250563ee9332e2f45f2d203ae61a83b538a74c7058e8863132a6410b9d65">TLV_ERR_INVALID_ARG</a> or <a class="el" href="group__core.html#gga516c7250563ee9332e2f45f2d203ae61a9e5b567aeff9d3d6549f5a2fdc9074f3">TLV_ERR_INVALID_BYTE_ORDER</a> for invalid configuration. </dd>
 <dd>
 An identifier or buffer error reported by the encoder.</dd></dl>
-<dl class="section note"><dt>Note</dt><dd>Validation follows the shared Field Encoding order; failed writes preserve outputs. </dd></dl>
+<dl class="section note"><dt>Note</dt><dd>Validation follows the shared Field Encoding order; failed writes preserve outputs. </dd>
+<dd>
+Allowed results are <a class="el" href="group__core.html#gga516c7250563ee9332e2f45f2d203ae61ac763c25dd3e807fae4d8078c3d3e94ed">TLV_OK</a> and any defined <code>TLV_ERR_*</code> error except <a class="el" href="group__core.html#gga516c7250563ee9332e2f45f2d203ae61ad3ea4a680040d2294498178b02b79878">TLV_ERR_END_OF_BUFFER</a>. <a class="el" href="group__core.html#gga516c7250563ee9332e2f45f2d203ae61ad90e4f5b2c36d63f9a93b92f1064a5e6">TLV_NEED_MORE_DATA</a>, <a class="el" href="group__core.html#gga516c7250563ee9332e2f45f2d203ae61ad3ea4a680040d2294498178b02b79878">TLV_ERR_END_OF_BUFFER</a> and unknown result values violate the callback contract and are reported as <a class="el" href="group__core.html#gga516c7250563ee9332e2f45f2d203ae61adc3ffd285317edbc89e61fa26935e3c2">TLV_ERR_CALLBACK</a>. </dd></dl>
 
 </div>
 </div>

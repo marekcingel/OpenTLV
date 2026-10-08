@@ -140,7 +140,8 @@ Variables</h2></td></tr>
 </table>
 <a name="details" id="details"></a><h2 class="groupheader">Detailed Description</h2>
 <div class="textblock"><p>Bounded recursive CER validation, traversal and canonical writing. </p>
-<p>All functions here are allocation-free and use no C recursion. All limits are inclusive, and zero is a real limit. Passing <code>NULL</code> limits selects <a class="el" href="group__builtins.html#gab03dbd676ea2e0a58faa3a58aeadbf16" title="Default limits used when a function receives NULL limits.">tlv_cer_default_limits</a>. </p>
+<p>All functions here are allocation-free and use no C recursion. All limits are inclusive, and zero is a real limit. Passing <code>NULL</code> limits selects <a class="el" href="group__builtins.html#gab03dbd676ea2e0a58faa3a58aeadbf16" title="Default limits used when a function receives NULL limits.">tlv_cer_default_limits</a>.</p>
+<p>A valid max_depth beyond the fixed implementation capacity returns <a class="el" href="group__core.html#gga516c7250563ee9332e2f45f2d203ae61a09879563fe6271975928879b0de69bc1">TLV_ERR_UNSUPPORTED</a>. Exceeding an accepted processing budget returns <a class="el" href="group__core.html#gga516c7250563ee9332e2f45f2d203ae61a1e32eada09d59d834a685da1adeaaf97">TLV_ERR_LIMIT</a>. Unknown visitor results return <a class="el" href="group__core.html#gga516c7250563ee9332e2f45f2d203ae61adc3ffd285317edbc89e61fa26935e3c2">TLV_ERR_CALLBACK</a>. </p>
 </div></div><!-- contents -->
 <!-- start footer part -->
 <hr class="footer"/><address class="footer"><small>

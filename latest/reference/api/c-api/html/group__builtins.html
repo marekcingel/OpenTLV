@@ -3185,7 +3185,7 @@ Another error code for malformed or noncanonical input.</dd></dl>
 <p>Identical contract, offsets and limits, but every UNIVERSAL-class element it encounters (including nested ones) also has its content validated against ASN.1 CER canonical rules. For a segmentable constructed value this includes every string segment, validated per segment as it is encountered without ever concatenating them. Non-UNIVERSAL values are unaffected, matching the non-strict function.</p>
 <dl class="section return"><dt>Returns</dt><dd><a class="el" href="group__core.html#gga516c7250563ee9332e2f45f2d203ae61a07580ca64f30aa1a72a405fcbca72f10">TLV_ERR_INVALID_VALUE</a> for a recognized type with invalid or noncanonical content. </dd>
 <dd>
-<a class="el" href="group__core.html#gga516c7250563ee9332e2f45f2d203ae61a6c282cdacb2900685e03295cf378282e">TLV_ERR_UNSUPPORTED_TYPE</a> for a universal type without an implemented canonical rule, including constructed ones. </dd>
+<a class="el" href="group__core.html#gga516c7250563ee9332e2f45f2d203ae61a09879563fe6271975928879b0de69bc1">TLV_ERR_UNSUPPORTED</a> for a universal type without an implemented canonical rule, including constructed ones. </dd>
 <dd>
 Otherwise any result of <a class="el" href="group__builtins.html#ga4da1b2c5d4c53883833dec9c90224f26" title="Validates one complete CER element, including all descendants.">tlv_cer_read()</a>.</dd></dl>
 <dl class="section see"><dt>See also</dt><dd>docs/standards/cer/README.md for the supported-type table. </dd></dl>
@@ -3449,7 +3449,7 @@ Another error code for malformed or noncanonical input.</dd></dl>
 <p>Identical contract, offsets and limits, but every UNIVERSAL-class primitive element (including nested ones) also has its content validated against ASN.1 DER canonical rules. Non-UNIVERSAL and constructed values are unaffected, matching the non-strict function.</p>
 <dl class="section return"><dt>Returns</dt><dd><a class="el" href="group__core.html#gga516c7250563ee9332e2f45f2d203ae61a07580ca64f30aa1a72a405fcbca72f10">TLV_ERR_INVALID_VALUE</a> for a recognized universal type with invalid or noncanonical content. </dd>
 <dd>
-<a class="el" href="group__core.html#gga516c7250563ee9332e2f45f2d203ae61a6c282cdacb2900685e03295cf378282e">TLV_ERR_UNSUPPORTED_TYPE</a> for a universal type without an implemented canonical rule. </dd>
+<a class="el" href="group__core.html#gga516c7250563ee9332e2f45f2d203ae61a09879563fe6271975928879b0de69bc1">TLV_ERR_UNSUPPORTED</a> for a universal type without an implemented canonical rule. </dd>
 <dd>
 Otherwise any result of <a class="el" href="group__builtins.html#ga9014234adef8d51b3960fea1e0b641a6" title="Validates one complete DER element, including all descendants.">tlv_der_read()</a>.</dd></dl>
 <dl class="section see"><dt>See also</dt><dd>docs/standards/der/README.md for the supported-type table. </dd></dl>

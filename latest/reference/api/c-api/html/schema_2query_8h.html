@@ -158,7 +158,7 @@ Functions</h2></td></tr>
 </div><div class="memdoc">
 
 <p>Rule-aware failure preserving native Query/Reader/codec diagnostics. </p>
-<dl class="section note"><dt>Note</dt><dd>After initialization, a failed assertion sets <code>schema.diagnostic.code</code> to the return code; an execution failure sets <code>query.kind</code> to a non-NONE category. Preflight rejection before initialization leaves both untouched. </dd></dl>
+<dl class="section note"><dt>Note</dt><dd>After initialization, a failed assertion sets <code>schema.diagnostic.code</code> to the return code; an execution failure sets <code>query.kind</code> to a non-NONE category. Invalid program contents initialize <code>query.kind</code> to IMAGE; incompatible rule result types initialize it to TYPE, both with <a class="el" href="group__core.html#gga516c7250563ee9332e2f45f2d203ae61a07580ca64f30aa1a72a405fcbca72f10">TLV_ERR_INVALID_VALUE</a>. Other preflight rejection before initialization leaves both untouched. </dd></dl>
 
 </div>
 </div>
@@ -264,7 +264,9 @@ Functions</h2></td></tr>
   </table>
   </dd>
 </dl>
-<dl class="section return"><dt>Returns</dt><dd>Native sizing/type/capacity error or OK; outputs unchanged on failure. </dd></dl>
+<dl class="section return"><dt>Returns</dt><dd><a class="el" href="group__core.html#gga516c7250563ee9332e2f45f2d203ae61a83b538a74c7058e8863132a6410b9d65">TLV_ERR_INVALID_ARG</a> for misaligned programs; <a class="el" href="group__core.html#gga516c7250563ee9332e2f45f2d203ae61a07580ca64f30aa1a72a405fcbca72f10">TLV_ERR_INVALID_VALUE</a> for malformed program contents or a non-node selector/non-boolean assertion. </dd>
+<dd>
+Other native sizing/capacity error or OK; outputs unchanged on failure. </dd></dl>
 <dl class="section note"><dt>Note</dt><dd>Context arrays and Reader frames are additional explicit storage. Rules reuse the two workspaces sequentially; Document Value snapshot and owning tree are separate. </dd></dl>
 
 </div>
@@ -359,7 +361,7 @@ Functions</h2></td></tr>
   </table>
   </dd>
 </dl>
-<dl class="section return"><dt>Returns</dt><dd>OK, SCHEMA for false assertion, or native storage/Reader/Query failure. </dd></dl>
+<dl class="section return"><dt>Returns</dt><dd>OK, SCHEMA for false assertion, or native storage/Reader/Query failure. Invalid program contents and rule result types return <a class="el" href="group__core.html#gga516c7250563ee9332e2f45f2d203ae61a07580ca64f30aa1a72a405fcbca72f10">TLV_ERR_INVALID_VALUE</a> with Query kind IMAGE or TYPE and the failing rule index. </dd></dl>
 <dl class="section note"><dt>Note</dt><dd>Rejects all D rules before input traversal. Every context uses the original whole input and normal Query relative-context semantics. Full structural coverage; no subtree pruning. Work is O(sum of selector and per-context assertion executions). No allocation or independent path/expression evaluator. </dd></dl>
 
 </div>

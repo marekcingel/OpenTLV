@@ -651,7 +651,9 @@ Any callback error, propagated unchanged.</dd></dl>
 <dd>
 <a class="el" href="group__core.html#gga516c7250563ee9332e2f45f2d203ae61ad733937761f1a5428fba8f9d2914b713">TLV_ERR_INVALID_TAG</a> if Format does not classify tag as constructed. </dd>
 <dd>
-<a class="el" href="group__core.html#gga516c7250563ee9332e2f45f2d203ae61a1e32eada09d59d834a685da1adeaaf97">TLV_ERR_LIMIT</a> if frame capacity, item depth or element count is exhausted. </dd></dl>
+<a class="el" href="group__core.html#gga516c7250563ee9332e2f45f2d203ae61a1e32eada09d59d834a685da1adeaaf97">TLV_ERR_LIMIT</a> if the configured item depth or element count is exhausted. </dd>
+<dd>
+<a class="el" href="group__core.html#gga516c7250563ee9332e2f45f2d203ae61acbd34cf02b42e70e99648aef5b9ca8b3">TLV_ERR_BUFFER_TOO_SHORT</a> if frame or tag storage capacity is exhausted. </dd></dl>
 <dl class="section note"><dt>Note</dt><dd>Failure leaves state and output unchanged. Wire representability is checked at end(), once the Value is known. Empty parents require end(). </dd></dl>
 <dl class="section warning"><dt>Warning</dt><dd>Tag bytes must remain immutable and must not overlap output, scratch, cursor, frame or Tag storage. Without configured Tag storage, begin retains Tag. </dd></dl>
 
@@ -977,7 +979,11 @@ Any Format measurement/encoding error, propagated unchanged. </dd></dl>
 <dd>
 <a class="el" href="group__core.html#gga516c7250563ee9332e2f45f2d203ae61a83b538a74c7058e8863132a6410b9d65">TLV_ERR_INVALID_ARG</a> for invalid preorder depth; <a class="el" href="group__core.html#gga516c7250563ee9332e2f45f2d203ae61ad733937761f1a5428fba8f9d2914b713">TLV_ERR_INVALID_TAG</a> for a constructed classification incompatible with the destination Format. </dd>
 <dd>
-<a class="el" href="group__core.html#gga516c7250563ee9332e2f45f2d203ae61a1e32eada09d59d834a685da1adeaaf97">TLV_ERR_LIMIT</a> for insufficient frames or exceeded traversal limits. </dd>
+<a class="el" href="group__core.html#gga516c7250563ee9332e2f45f2d203ae61a1e32eada09d59d834a685da1adeaaf97">TLV_ERR_LIMIT</a> for exceeded traversal budgets. </dd>
+<dd>
+<a class="el" href="group__core.html#gga516c7250563ee9332e2f45f2d203ae61acbd34cf02b42e70e99648aef5b9ca8b3">TLV_ERR_BUFFER_TOO_SHORT</a> for insufficient caller workspace. </dd>
+<dd>
+<a class="el" href="group__core.html#gga516c7250563ee9332e2f45f2d203ae61adc3ffd285317edbc89e61fa26935e3c2">TLV_ERR_CALLBACK</a> for an invalid provider result or impossible preorder depth. </dd>
 <dd>
 <a class="el" href="group__core.html#gga516c7250563ee9332e2f45f2d203ae61acbd34cf02b42e70e99648aef5b9ca8b3">TLV_ERR_BUFFER_TOO_SHORT</a> on workspace exhaustion. Only this storage check sets required_data/required_scratch above capacity; callback errors, even with the same code, leave both zero. Requirements reset on each call. </dd></dl>
 <dl class="section note"><dt>Note</dt><dd>After increasing storage, restart with a fresh source. Requirements are a lower bound discovered during traversal, not a prediction of final size. </dd></dl>
@@ -1108,7 +1114,7 @@ Any Format measurement/encoding error, propagated unchanged. </dd></dl>
   </dd>
 </dl>
 <dl class="section return"><dt>Returns</dt><dd>TLV_OK, TLV_ERR_NULL_ARG, or TLV_ERR_INVALID_STATE when parents are open. </dd></dl>
-<dl class="section note"><dt>Note</dt><dd>begin() copies Tags in this mode; end() releases capacity on success. Failure preserves the configuration. Exhaustion at begin returns TLV_ERR_LIMIT. </dd></dl>
+<dl class="section note"><dt>Note</dt><dd>begin() copies Tags in this mode; end() releases capacity on success. Failure preserves the configuration. Exhaustion at begin returns <a class="el" href="group__core.html#gga516c7250563ee9332e2f45f2d203ae61acbd34cf02b42e70e99648aef5b9ca8b3">TLV_ERR_BUFFER_TOO_SHORT</a>. </dd></dl>
 
 </div>
 </div>

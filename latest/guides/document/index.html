@@ -3921,7 +3921,7 @@ import needs a readable Format and encoding needs a writable Format. Its
 <code>format-&gt;is_constructed</code> predicate says which tags hold nested elements.
 Nonempty Values of those tags are wire data parsed into child nodes; this requires
 Reader. Without Reader, nonempty constructed insert/set-value returns
-<code>TLV_ERR_UNSUPPORTED_TYPE</code> atomically. Empty constructed nodes can receive children
+<code>TLV_ERR_UNSUPPORTED</code> atomically. Empty constructed nodes can receive children
 through programmatic insertion. Every primitive Value stays an
 opaque byte string. Without a predicate (BER's own descriptor already sets
 one) the document is a flat list.</p>

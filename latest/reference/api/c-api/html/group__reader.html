@@ -234,7 +234,7 @@ Functions</h2></td></tr>
 <dd>
 <a class="el" href="group__core.html#gga516c7250563ee9332e2f45f2d203ae61acbd34cf02b42e70e99648aef5b9ca8b3">TLV_ERR_BUFFER_TOO_SHORT</a> if the header, value or trailer is incomplete. </dd>
 <dd>
-Any callback error, propagated unchanged.</dd></dl>
+A permitted decoder error, propagated unchanged. Invalid control statuses, unknown callback results and invalid successful outputs become <a class="el" href="group__core.html#gga516c7250563ee9332e2f45f2d203ae61adc3ffd285317edbc89e61fa26935e3c2">TLV_ERR_CALLBACK</a>; see <a class="el" href="group__formats.html#ga8d1eee0db90bbfbabc928219225ad143" title="Decode one complete element and validate its framing.">tlv_decode_fn</a>.</dd></dl>
 <dl class="section note"><dt>Note</dt><dd>On failure both outputs remain unchanged. </dd></dl>
 <dl class="section warning"><dt>Warning</dt><dd>The caller must keep <code>data</code> alive and unchanged while any part of <code>out_element</code> is used. Format-supplied identifier storage must likewise outlive every retained Tag. </dd></dl>
 

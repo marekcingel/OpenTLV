@@ -4046,10 +4046,12 @@
 for authors of C capabilities and language facades. Read the
 <a href="../architectural-rules/">architectural rules</a> and
 <a href="../../reference/errors/">current error reference</a> first.</p>
-<p><strong>Status: design decided; lifecycle result implemented by #552; Schema classification implemented by #553; remaining API
-and binding migration is separate work.</strong> This page defines the target contract.
-<code>TLV_ERR_INVALID_STATE</code>, <code>TLV_QUERY_ERROR_STATE</code> and <code>TLV_ERR_INVALID_SCHEMA</code> are now public; other new
-target names are not yet public declarations. The reference page continues to describe the running
+<p><strong>Status: design decided; lifecycle implemented by #552, Schema classification
+by #553, and capability/resource/callback results by #554. Remaining API and binding
+migration is separate work.</strong> This page defines the target contract.
+<code>TLV_ERR_INVALID_STATE</code>, <code>TLV_ERR_INVALID_SCHEMA</code>, <code>TLV_ERR_UNSUPPORTED</code> and
+<code>TLV_ERR_CALLBACK</code> are public, together with Query kinds <code>STATE</code>, <code>CALLBACK</code>,
+<code>TYPE</code> and <code>IMAGE</code>. Other new target names are not yet public declarations. The reference page continues to describe the running
 implementation. This design does not preserve source, binary, enum-number or
 diagnostic-layout compatibility. Removed names get no aliases, compatibility
 wrappers or deprecation period. Native consumers and bindings migrate together.</p>
@@ -4290,9 +4292,9 @@ Result and detail are orthogonal: <code>READER</code> may legitimately accompany
 <code>INVALID_TAG</code>, <code>LIMIT</code>, <code>BUFFER_TOO_SHORT</code> or <code>NEED_MORE_DATA</code>. The mapping tables
 below constrain combinations rather than requiring a function from kind to
 result. Detail is discriminated; inactive fields must not be interpreted.</p>
-<p>Query detail kind <code>STATE</code> is implemented by #552. Add <code>ARGUMENT</code>, <code>TYPE</code>, <code>IMAGE</code>
-and <code>CALLBACK</code> for
-the cases currently forced into <code>STORAGE</code>, <code>EVENTS</code> or <code>CAPABILITY</code>. Keep
+<p>Query detail kind <code>STATE</code> is implemented by #552; <code>TYPE</code>, <code>IMAGE</code> and <code>CALLBACK</code>
+by #554. <code>ARGUMENT</code> remains to be added for cases currently forced into
+<code>STORAGE</code>, <code>EVENTS</code> or <code>CAPABILITY</code>. Keep
 <code>IMAGE_VERSION</code> for a recognized version mismatch. <code>CODEC</code> denotes conversion
 context; a callback contract violation during conversion uses <code>CALLBACK</code> and
 records the codec operation and reported result, including a reported <code>OK</code>.
@@ -4524,8 +4526,8 @@ Names in the target columns omit <code>TLV_ERR_</code> where unambiguous.</p>
 <td>Invalid interpreted data/canonicality -&gt; <code>INVALID_VALUE</code>; Schema constraint -&gt; <code>SCHEMA</code>; bad callback success payload -&gt; <code>CALLBACK</code>; invalid configuration -&gt; <code>INVALID_ARG</code>.</td>
 </tr>
 <tr>
-<td><code>TLV_ERR_UNSUPPORTED_TYPE</code></td>
-<td><code>UNSUPPORTED</code> with type/capability/version detail. Remove the old name.</td>
+<td>Former <code>TLV_ERR_UNSUPPORTED_TYPE</code></td>
+<td>Replaced by <code>UNSUPPORTED</code> with type/capability/version detail in #554.</td>
 </tr>
 <tr>
 <td><code>TLV_ERR_SCHEMA_MISSING</code></td>
@@ -4812,11 +4814,11 @@ Unknown visitor discriminators produce <code>CALLBACK</code>.</p>
 </table>
 <h2 id="implementation-handoff-and-validation">Implementation handoff and validation<a class="headerlink" href="#implementation-handoff-and-validation" title="Permanent link">&para;</a></h2>
 <p>This design completes #551. Issue #552 implements <code>INVALID_STATE</code>, Query kind
-<code>STATE</code>, facade mappings and <code>INVALID_VALUE</code> for malformed structural feeds.
-Other Query detail kinds, callback payload classifications and result classes
-remain until their migration. In particular, impossible preorder depth returned
-by a Tree Writer source callback still uses <code>INVALID_ARG</code>; the planned <code>CALLBACK</code>
-result is follow-up work. No append-only or numeric ABI guarantee is attached to
+<code>STATE</code>, facade mappings and <code>INVALID_VALUE</code> for malformed structural feeds.</p>
+<p>Issue #554 implements unsupported capability, workspace and callback classifications
+including impossible preorder depth returned by a Tree Writer source callback.
+The separate Codec result domain and its lossless propagation migrate in #556;
+other Query detail kinds and the remaining result classes are follow-up work. No append-only or numeric ABI guarantee is attached to
 <code>INVALID_STATE = 19</code> or <code>STATE = 12</code>. The complete target API is not yet available.
 The follow-up implementation replaces enums/signatures/layouts directly and
 updates their Doxygen contracts. It must cover common result strings, all

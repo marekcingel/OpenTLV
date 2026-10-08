@@ -3833,8 +3833,8 @@ effects from earlier elements persist if later validation fails.</p>
 <p>Copy the default struct and change individual fields to customize limits. All
 limits are inclusive, and zero is a real limit. A depth of zero allows only
 top-level elements (including empty constructed values). <code>max_depth</code> must not
-exceed <code>TLV_DER_MAX_DEPTH</code> (64); invalid configurations and exceeded limits
-return <code>TLV_ERR_LIMIT</code>. Traversal uses a fixed array of 65 offsets, no heap
+exceed <code>TLV_DER_MAX_DEPTH</code> (64); a request above this implementation capability
+returns <code>TLV_ERR_UNSUPPORTED</code>. Exceeded processing budgets return <code>TLV_ERR_LIMIT</code>. Traversal uses a fixed array of 65 offsets, no heap
 allocations and no C recursion. Work is linear in visited framing bytes and
 element count; primitive value bytes are not scanned.</p>
 <h2 id="encode">Encode<a class="headerlink" href="#encode" title="Permanent link">&para;</a></h2>
@@ -3875,7 +3875,7 @@ are validated structurally only, exactly as with the non-strict functions.
 <code>tlv_der_read</code>, <code>tlv_der_visit</code> and <code>tlv_der_write</code> themselves are unchanged.</p>
 <p>Recognized types with invalid or noncanonical content return
 <code>TLV_ERR_INVALID_VALUE</code>. A UNIVERSAL primitive tag number without an
-implemented rule returns <code>TLV_ERR_UNSUPPORTED_TYPE</code> instead of silently
+implemented rule returns <code>TLV_ERR_UNSUPPORTED</code> instead of silently
 passing, so callers can tell "checked and canonical" apart from "not checked".</p>
 <table>
 <thead>
@@ -3923,7 +3923,7 @@ against the fuller RFC 3987 IRI-label restrictions. Structured types
 (SEQUENCE, SET, EXTERNAL, EMBEDDED PDV, CHARACTER STRING) have no additional
 value semantics in this scope, and CHOICE/ANY have no wire tag of their own,
 so neither applies here.</p>
-<p>Recognized but explicitly unsupported (return <code>TLV_ERR_UNSUPPORTED_TYPE</code> in
+<p>Recognized but explicitly unsupported (return <code>TLV_ERR_UNSUPPORTED</code> in
 strict mode rather than being silently accepted): any UNIVERSAL primitive tag
 number beyond 36. See <a href="../../formats/asn1/ber/#universal-type-value-codecs"><code>tlv/builtins/asn1/asn1_codec.h</code></a>
 for the matching value codecs.</p>
@@ -3967,7 +3967,7 @@ the raw content in bytes (an ASN.1 <code>SIZE</code> constraint, for example <co
 STRING (SIZE(1..16))</code>), and <code>value_constraint</code> (a borrowed
 <a href="../../guides/schemas/#value-constraints-on-decoded-values"><code>tlv_value_constraint_t</code></a>)
 checks the leaf's decoded value, valid only when <code>universal_number</code> is 2
-(INTEGER) or 10 (ENUMERATED) — the two universal types X.680 allows a
+(INTEGER) or 10 (ENUMERATED) â€” the two universal types X.680 allows a
 value-range or named-number constraint on, for example <code>INTEGER (0..255)</code>.
 <code>tlv_der_schema_check</code> rejects <code>min_length &gt; max_length</code> and a
 <code>value_constraint</code> on any other universal type; <code>tlv_der_schema_read</code> and
@@ -3976,7 +3976,7 @@ value-range or named-number constraint on, for example <code>INTEGER (0..255)</c
 marker (<code>...</code>): when set, <code>tlv_der_schema_read</code> accepts and skips, as one or
 more opaque well-formed DER-TLV elements (validated the same way as an <code>ANY</code>
 component but not otherwise interpreted), any content left over once every
-declared component has been matched or skipped — instead of rejecting it as
+declared component has been matched or skipped â€” instead of rejecting it as
 a schema violation. <code>extensible</code> is ignored for every other kind, does not
 waive a <code>TLV_DER_REQUIRED</code> declared component, and has no effect on
 <code>tlv_der_schema_write</code> (which only ever writes the components a schema
@@ -4000,7 +4000,7 @@ definitions return <code>TLV_ERR_INVALID_SCHEMA</code> before input or callbacks
 processed and have no byte location. Missing required input or output returns
 <code>TLV_ERR_SCHEMA</code> with <code>kind = TLV_SCHEMA_ISSUE_MISSING</code>; <code>anchor</code> distinguishes
 scope ends from insertion points. Valid graphs exceeding fixed checking capacity
-return <code>TLV_ERR_UNSUPPORTED_TYPE</code>. The broader result migration is separate work.</p>
+return <code>TLV_ERR_UNSUPPORTED</code>. The broader result migration is separate work.</p>
 <p><code>tlv_der_schema_read</code> rejects a SET whose components are not encoded in
 ascending tag order and a SET OF whose elements are not encoded in ascending
 order of their complete encodings (both violations return
@@ -4016,7 +4016,7 @@ order the callback produced them (using the same <code>scratch</code>/<code>scra
 records, just without sorting), and omits a DEFAULT component whose complete
 encoding equals its <code>default_encoding</code>. Unlike <code>tlv_der_write</code>, it always
 composes the complete output in a caller-supplied <code>scratch_bytes</code> arena first
-— needed to compare and reorder content before committing to it — so
+â€” needed to compare and reorder content before committing to it â€” so
 <code>scratch_bytes</code> and <code>scratch_bytes_capacity</code> are required even for a
 <code>NULL</code>-<code>data</code> size query; size <code>scratch_bytes_capacity</code> generously, since
 composing nested content can temporarily use more arena space than the final
@@ -4037,7 +4037,7 @@ runtime depth limit. <code>TLV_DER_SCHEMA_MAX_TYPES</code> (256) bounds distinct
 identities in the allocation-free definition worklist, which uses linear pointer
 lookup. <code>TLV_DER_SCHEMA_MAX_COMPONENTS</code> (64) bounds a single SEQUENCE, SET or
 CHOICE's direct component count. Exceeding these fixed checking capacities
-returns <code>TLV_ERR_UNSUPPORTED_TYPE</code>. The checker does not attempt to prove that
+returns <code>TLV_ERR_UNSUPPORTED</code>. The checker does not attempt to prove that
 every recursive type has a finite value.</p>
 <p>Existing <code>tlv_der_read</code>/<code>visit</code>/<code>write</code> (and their <code>_strict</code> counterparts) and
 the generic <code>tlv_structure_schema_t</code> engine are unaffected: this is a purely

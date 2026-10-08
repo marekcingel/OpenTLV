@@ -4082,8 +4082,9 @@ cursor. Copying a cursor does not copy its frame array; independent traversals
 need independent structural storage. The caller may release or overwrite a
 returned item object immediately; this does not alter traversal state.</p>
 <p><code>max_elements</code> bounds published nodes, including BEGIN parents; END does not count.
-Zero permits only empty input. Depth or storage exhaustion returns
-<code>TLV_ERR_LIMIT</code> when attempting to descend, after the parent has been returned.
+Zero permits only empty input. Exceeding the depth budget returns <code>TLV_ERR_LIMIT</code>;
+insufficient frame storage returns <code>TLV_ERR_BUFFER_TOO_SHORT</code> when attempting
+to descend, after the parent has been returned.
 Event errors and <code>NEED_MORE_DATA</code> preserve the cursor, frames, and event output.
 The node-only projection may first consume pending ENDs left by a Builder.
 <code>tlv_tree_reader_next_diag()</code> retains Reader diagnostics and absolute offsets

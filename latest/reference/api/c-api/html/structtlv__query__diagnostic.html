@@ -101,7 +101,7 @@ Data Fields</h2></td></tr>
 <tr class="memitem:a468b1d1b53536a21c80ebbe3e1f1d80e" id="r_a468b1d1b53536a21c80ebbe3e1f1d80e"><td class="memItemLeft" align="right" valign="top"><a class="el" href="reader_2diagnostic_8h.html#a24371a524a13cd9d1cd22b3db640de85">tlv_reader_diagnostic_t</a>&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="structtlv__query__diagnostic.html#a468b1d1b53536a21c80ebbe3e1f1d80e">reader</a></td></tr>
 <tr class="separator:a468b1d1b53536a21c80ebbe3e1f1d80e"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:a40f4205ba340eab13960cd1d91414f99" id="r_a40f4205ba340eab13960cd1d91414f99"><td class="memItemLeft" align="right" valign="top"><a class="el" href="group__codecs.html#ga6033534ecdbfc36953062aed6279562f">tlv_codec_result_t</a>&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="structtlv__query__diagnostic.html#a40f4205ba340eab13960cd1d91414f99">codec</a></td></tr>
-<tr class="memdesc:a40f4205ba340eab13960cd1d91414f99"><td class="mdescLeft">&#160;</td><td class="mdescRight">Original codec failure when kind is <a class="el" href="group__traversal.html#gga66edcf242c8bc06318ff99b24f1ce0eda8c3fa940f82a96c6cc438c762d3a22ca">TLV_QUERY_ERROR_CODEC</a>.  <br /></td></tr>
+<tr class="memdesc:a40f4205ba340eab13960cd1d91414f99"><td class="mdescLeft">&#160;</td><td class="mdescRight">Original codec result for <a class="el" href="group__traversal.html#gga66edcf242c8bc06318ff99b24f1ce0eda8c3fa940f82a96c6cc438c762d3a22ca">TLV_QUERY_ERROR_CODEC</a> or a conversion <a class="el" href="group__traversal.html#gga66edcf242c8bc06318ff99b24f1ce0eda6b1d3f123241519789f685f72517ddb7">TLV_QUERY_ERROR_CALLBACK</a>.  <br /></td></tr>
 <tr class="separator:a40f4205ba340eab13960cd1d91414f99"><td class="memSeparator" colspan="2">&#160;</td></tr>
 </table>
 <a name="details" id="details"></a><h2 class="groupheader">Detailed Description</h2>
@@ -141,8 +141,8 @@ This value type is not extensible; changing its layout requires an ABI change. <
       </table>
 </div><div class="memdoc">
 
-<p>Original codec failure when kind is <a class="el" href="group__traversal.html#gga66edcf242c8bc06318ff99b24f1ce0eda8c3fa940f82a96c6cc438c762d3a22ca">TLV_QUERY_ERROR_CODEC</a>. </p>
-<p>Reports <a class="el" href="group__codecs.html#gga5aefdf4a40140da8025256c425474b1aa2dde6f557037bd68cdf6004636648291">TLV_CODEC_ERR_INVALID_VALUE</a> when a successful codec result violates the declared type, has nonzero size with NULL data, or contains invalid UTF-8. </p>
+<p>Original codec result for <a class="el" href="group__traversal.html#gga66edcf242c8bc06318ff99b24f1ce0eda8c3fa940f82a96c6cc438c762d3a22ca">TLV_QUERY_ERROR_CODEC</a> or a conversion <a class="el" href="group__traversal.html#gga66edcf242c8bc06318ff99b24f1ce0eda6b1d3f123241519789f685f72517ddb7">TLV_QUERY_ERROR_CALLBACK</a>. </p>
+<p>Preserves <a class="el" href="group__codecs.html#gga5aefdf4a40140da8025256c425474b1aac7febd810d4499676ac656cfaac83e51">TLV_CODEC_OK</a> when a successful codec result violates the declared type, has nonzero size with NULL data, or contains invalid UTF-8. The operation then returns <a class="el" href="group__core.html#gga516c7250563ee9332e2f45f2d203ae61adc3ffd285317edbc89e61fa26935e3c2">TLV_ERR_CALLBACK</a>; expected identifies the violated output contract. </p>
 
 </div>
 </div>

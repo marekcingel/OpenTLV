@@ -4320,7 +4320,7 @@ call, including optional child definitions absent from the input. Shared and
 recursive references are supported. The allocation-free worklist holds at most
 <code>TLV_SCHEMA_MAX_TABLES</code> (256) table identities and uses linear pointer lookup,
 plus each table's local rule/group checks. Exhausting this fixed capacity returns
-<code>TLV_ERR_UNSUPPORTED_TYPE</code>. Definition depth is independent of the input nesting
+<code>TLV_ERR_UNSUPPORTED</code>. Definition depth is independent of the input nesting
 limit (<code>TLV_SCHEMA_MAX_DEPTH</code>); no global cache or checked-handle lifetime is added.</p>
 <h2 id="next-step">Next step<a class="headerlink" href="#next-step" title="Permanent link">&para;</a></h2>
 <p>Next: <a href="../codecs/">Codec</a> to interpret Value bytes; framing remains the Format responsibility.</p>

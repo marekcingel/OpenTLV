@@ -3830,7 +3830,7 @@ the independent C static-plan test remains enabled. Existing source-compilation
 facades require a frontend-enabled library.</p>
 <p><code>OPENTLV_QUERY_SET_OPERATIONS=OFF</code> omits union/intersection/difference execution
 from both backends. Compilation and static-plan validation reject these operations
-with <code>TLV_ERR_UNSUPPORTED_TYPE</code>; enabled operations preserve the same semantics.
+with <code>TLV_ERR_UNSUPPORTED</code>; enabled operations preserve the same semantics.
 Document-only navigation additionally requires <code>OPENTLV_DOCUMENT</code>. These are
 capability choices within the same plan and execution architecture. Further
 operation-family switches and automatic <code>.otlv</code> code generation are future work.</p>

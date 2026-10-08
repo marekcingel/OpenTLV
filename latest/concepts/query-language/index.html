@@ -4054,7 +4054,7 @@ including types, constants, indices, guards, optimization and capability fields.
 The original compile options, typed declarations, deterministic resolver and
 compatible environment are required. A checksum cannot replace validation.</p>
 <p>Internal image version 5 uses native-endian uint32 fields, relative offsets and
-no pointers. Wrong version/byte order returns UNSUPPORTED_TYPE and IMAGE_VERSION
+no pointers. Wrong version/byte order returns UNSUPPORTED and IMAGE_VERSION
 diagnostics before node access. No cross-release serialized-IR compatibility is
 promised. Same-endian 32/64-bit sharing requires matching private layout and
 environment contracts; reconstruction checks compatibility. Aligned immutable

@@ -919,10 +919,10 @@
 </li>
       
         <li class="md-nav__item">
-  <a href="#reader-transform-writer" class="md-nav__link">
+  <a href="#reader-a-transform-a-writer" class="md-nav__link">
     <span class="md-ellipsis">
       
-        Reader → transform → Writer
+        Reader â†’ transform â†’ Writer
       
     </span>
   </a>
@@ -3783,10 +3783,10 @@
 </li>
       
         <li class="md-nav__item">
-  <a href="#reader-transform-writer" class="md-nav__link">
+  <a href="#reader-a-transform-a-writer" class="md-nav__link">
     <span class="md-ellipsis">
       
-        Reader → transform → Writer
+        Reader â†’ transform â†’ Writer
       
     </span>
   </a>
@@ -4081,7 +4081,7 @@ infers capabilities from Format identity nor bypasses <code>measure/encode</code
 Format policy still applies to complete-element writes: the BER indefinite
 preset only encodes constructed elements, while CER selects definite framing
 for primitive elements and indefinite framing for constructed elements.</p>
-<h2 id="reader-transform-writer">Reader → transform → Writer<a class="headerlink" href="#reader-transform-writer" title="Permanent link">&para;</a></h2>
+<h2 id="reader-a-transform-a-writer">Reader â†’ transform â†’ Writer<a class="headerlink" href="#reader-a-transform-a-writer" title="Permanent link">&para;</a></h2>
 <p>Pull <code>tlv_tree_reader_next_event()</code> and pass each successful event directly to
 <code>tlv_tree_writer_write_event()</code>, optionally modifying node content between them.
 BEGIN opens the destination Tag and ignores the original parent Value; ELEMENT
@@ -4094,7 +4094,7 @@ skipped END rather than write it twice. Query matches alone are not a balanced
 structural stream.</p>
 <p>Input and output remain separate. In default mode BEGIN borrows its Tag until END.
 Use <code>tlv_tree_writer_set_tag_storage()</code> with disjoint caller-owned bytes to retain
-open Tags independently of a replaceable Reader buffer; exhaustion returns LIMIT.
+open Tags independently of a replaceable Reader buffer; exhaustion returns <code>BUFFER_TOO_SHORT</code>.
 On Writer failure retain the current event for retry before pulling another one.
 NEED_MORE_DATA publishes nothing and does not close scopes. No Document is required;
 Tree Reader still requires a complete parent before BEGIN. Format conversion may
@@ -4162,7 +4162,8 @@ the complete encoding; <code>tlv_writer_copy_encoded()</code> can reuse it.</p>
 next required capacities. The caller may grow storage and restart from a fresh
 source. These fields are reset for every call; a callback returning
 <code>TLV_ERR_BUFFER_TOO_SHORT</code> does not set them and must not trigger a storage retry.
-Frame exhaustion and configured traversal limits return <code>TLV_ERR_LIMIT</code>.</p>
+Frame exhaustion returns <code>TLV_ERR_BUFFER_TOO_SHORT</code>; exceeding a configured
+traversal budget returns <code>TLV_ERR_LIMIT</code>.</p>
 <p>This operation never allocates or recurses. It can call both Format measure and
 encode callbacks, and failures may modify workspace bytes. Source Tags remain
 borrowed through completion. Formats and sources must be deterministic when
