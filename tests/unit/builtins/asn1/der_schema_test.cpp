@@ -391,7 +391,7 @@ tlv_result_t ScriptEncode(const void* context, const tlv_der_schema_component_t*
         *absent = 0;
         if (data) {
             if (capacity < entry.bytes.size()) return TLV_ERR_BUFFER_TOO_SHORT;
-            std::memcpy(data, entry.bytes.data(), entry.bytes.size());
+            if (!entry.bytes.empty()) std::memcpy(data, entry.bytes.data(), entry.bytes.size());
         }
         *written = entry.bytes.size();
         return TLV_OK;
@@ -517,7 +517,9 @@ TEST(Unit_Tlv_DerSchema, WriteRejectsValueOutsideConstraint) {
 
     std::vector<uint8_t> output;
     /* 0x0100 == 256, outside [0, 255]. */
-    EXPECT_EQ(TLV_ERR_SCHEMA, Write(seq, {{&component, 0, true, {0x01, 0x00}}}, &output));
+    size_t offset = 99;
+    EXPECT_EQ(TLV_ERR_SCHEMA, Write(seq, {{&component, 0, true, {0x01, 0x00}}}, &output, &offset));
+    EXPECT_EQ(4u, offset);
 
     ASSERT_EQ(TLV_OK, Write(seq, {{&component, 0, true, {0x05}}}, &output));
     const std::vector<uint8_t> expected = {0x30, 0x03, 0x02, 0x01, 0x05};
@@ -529,7 +531,9 @@ TEST(Unit_Tlv_DerSchema, WriteMissingRequiredFails) {
     const tlv_der_schema_type_t seq = {
         TLV_DER_SCHEMA_SEQUENCE, 0, components, 1, nullptr, 0, 0, nullptr, 0};
     std::vector<uint8_t> output;
-    EXPECT_EQ(TLV_ERR_SCHEMA, Write(seq, {}, &output));
+    size_t               offset = 99;
+    EXPECT_EQ(TLV_ERR_SCHEMA, Write(seq, {}, &output, &offset));
+    EXPECT_EQ(2u, offset);
 }
 
 TEST(Unit_Tlv_DerSchema, WriteRoundTripsThroughRead) {
@@ -543,4 +547,187 @@ TEST(Unit_Tlv_DerSchema, WriteRoundTripsThroughRead) {
     size_t consumed = 0;
     EXPECT_EQ(TLV_OK, Read(output, set_type, &consumed));
     EXPECT_EQ(output.size(), consumed);
+}
+
+TEST(Unit_Tlv_DerSchema, WriteMissingRequiredMatchesReadPosition) {
+    for (auto kind : {TLV_DER_SCHEMA_SEQUENCE, TLV_DER_SCHEMA_SET}) {
+        tlv_der_schema_component_t  components[] = {Required(kInteger), Required(kOctetString)};
+        const tlv_der_schema_type_t root = {kind, 0, components, 2, nullptr, 0, 0, nullptr, 0};
+        std::vector<uint8_t>        output;
+        size_t                      offset = 99;
+        EXPECT_EQ(TLV_ERR_SCHEMA, Write(root, {}, &output, &offset));
+        EXPECT_EQ(2u, offset);
+        EXPECT_EQ(TLV_ERR_SCHEMA,
+                  Write(root, {{&components[1], 0, true, {0x55}}}, &output, &offset));
+        EXPECT_EQ(kind == TLV_DER_SCHEMA_SEQUENCE ? 2u : 5u, offset);
+        size_t read_offset = 99;
+        EXPECT_EQ(
+            TLV_ERR_SCHEMA,
+            Read({static_cast<uint8_t>(kind == TLV_DER_SCHEMA_SET ? 0x31 : 0x30), 3, 4, 1, 0x55},
+                 root, nullptr, &read_offset));
+        EXPECT_EQ(read_offset, offset);
+    }
+}
+
+TEST(Unit_Tlv_DerSchema, WriteNestedMissingAccountsForLongHeadersAndSetOrder) {
+    tlv_der_schema_component_t  missing = Required(kInteger);
+    const tlv_der_schema_type_t inner = {
+        TLV_DER_SCHEMA_SEQUENCE, 0, &missing, 1, nullptr, 0, 0, nullptr, 0};
+    tlv_der_schema_component_t  components[] = {Required(inner), Required(kOctetString)};
+    const tlv_der_schema_type_t root = {
+        TLV_DER_SCHEMA_SET, 0, components, 2, nullptr, 0, 0, nullptr, 0};
+    std::vector<uint8_t> output;
+    size_t               offset = 99;
+    EXPECT_EQ(TLV_ERR_SCHEMA,
+              Write(root, {{&components[1], 0, true, std::vector<uint8_t>(128, 0x55)}}, &output,
+                    &offset));
+    // SET header (3), sorted OCTET STRING (3+128), empty SEQUENCE header (2).
+    EXPECT_EQ(136u, offset);
+    std::vector<uint8_t> wire = {0x31, 0x81, 0x85, 4, 0x81, 0x80};
+    wire.insert(wire.end(), 128, 0x55);
+    wire.insert(wire.end(), {0x30, 0});
+    size_t read_offset = 99;
+    EXPECT_EQ(TLV_ERR_SCHEMA, Read(wire, root, nullptr, &read_offset));
+    EXPECT_EQ(read_offset, offset);
+}
+
+TEST(Unit_Tlv_DerSchema, WriteNestedSequenceMissingIncludesPrecedingSibling) {
+    tlv_der_schema_component_t  missing = Required(kInteger);
+    const tlv_der_schema_type_t inner = {
+        TLV_DER_SCHEMA_SEQUENCE, 0, &missing, 1, nullptr, 0, 0, nullptr, 0};
+    tlv_der_schema_component_t  components[] = {Required(kBoolean), Required(inner)};
+    const tlv_der_schema_type_t root = {
+        TLV_DER_SCHEMA_SEQUENCE, 0, components, 2, nullptr, 0, 0, nullptr, 0};
+    std::vector<uint8_t> output;
+    size_t               offset = 99;
+    EXPECT_EQ(TLV_ERR_SCHEMA, Write(root, {{&components[0], 0, true, {0xff}}}, &output, &offset));
+    EXPECT_EQ(7u, offset);
+}
+
+TEST(Unit_Tlv_DerSchema, WriteLeafOffsetIncludesTaggingAndSortedSiblings) {
+    const tlv_der_schema_leaf_constraint_t size = {2, 4, nullptr};
+    const tlv_der_schema_type_t            leaf = {
+        TLV_DER_SCHEMA_UNIVERSAL, 4, nullptr, 0, nullptr, 0, 0, &size, 0};
+    for (auto tagging : {TLV_DER_TAG_NONE, TLV_DER_TAG_IMPLICIT, TLV_DER_TAG_EXPLICIT}) {
+        tlv_der_schema_component_t components[] = {Required(leaf), Required(kInteger)};
+        components[0].tagging = tagging;
+        if (tagging != TLV_DER_TAG_NONE) {
+            components[0].tag_class = TLV_ASN1_CONTEXT_SPECIFIC;
+            components[0].tag_number = 32;
+        }
+        const tlv_der_schema_type_t root = {
+            TLV_DER_SCHEMA_SET, 0, components, 2, nullptr, 0, 0, nullptr, 0};
+        std::vector<uint8_t> output;
+        size_t               offset = 99;
+        EXPECT_EQ(TLV_ERR_SCHEMA,
+                  Write(root, {{&components[0], 0, true, {0x55}}, {&components[1], 0, true, {1}}},
+                        &output, &offset));
+        EXPECT_EQ(tagging == TLV_DER_TAG_NONE       ? 7u
+                  : tagging == TLV_DER_TAG_IMPLICIT ? 8u
+                                                    : 10u,
+                  offset);
+    }
+}
+
+TEST(Unit_Tlv_DerSchema, WriteInvalidEmptyIntegerOffsetIsNotDoubleCounted) {
+    tlv_der_schema_component_t  component = Required(kInteger);
+    const tlv_der_schema_type_t root = {
+        TLV_DER_SCHEMA_SEQUENCE, 0, &component, 1, nullptr, 0, 0, nullptr, 0};
+    std::vector<uint8_t> output;
+    size_t               offset = 99, read_offset = 99;
+    const tlv_result_t   rc = Read({0x30, 2, 2, 0}, root, nullptr, &read_offset);
+    EXPECT_NE(TLV_OK, rc);
+    EXPECT_EQ(rc, Write(root, {{&component, 0, true, {}}}, &output, &offset));
+    EXPECT_EQ(read_offset, offset);
+    const std::vector<ScriptEntry> script = {{&component, 0, true, {}}};
+    uint8_t                        arena[1] = {};
+    size_t                         written = 77;
+    offset = 99;
+    EXPECT_EQ(rc, tlv_der_schema_write(nullptr, 0, &root, ScriptEncode, &script, nullptr, arena,
+                                       sizeof(arena), nullptr, 0, &written, &offset));
+    EXPECT_EQ(0u, offset);
+    EXPECT_EQ(77u, written);
+}
+
+TEST(Unit_Tlv_DerSchema, WriteCollectionCountOffsetsMatchRead) {
+    for (auto kind : {TLV_DER_SCHEMA_SEQUENCE_OF, TLV_DER_SCHEMA_SET_OF}) {
+        tlv_der_schema_component_t element = Required(kInteger);
+        tlv_der_schema_type_t      root = {kind, 0, nullptr, 0, &element, 2, 2, nullptr, 0};
+        std::vector<uint8_t>       output;
+        size_t                     offset = 99;
+        EXPECT_EQ(TLV_ERR_SCHEMA, Write(root, {{&element, 0, true, {1}}}, &output, &offset));
+        EXPECT_EQ(5u, offset);
+        root.min_elements = 0;
+        root.max_elements = 1;
+        EXPECT_EQ(TLV_ERR_SCHEMA, Write(root, {{&element, 0, true, {2}}, {&element, 1, true, {1}}},
+                                        &output, &offset));
+        EXPECT_EQ(5u, offset);
+    }
+}
+
+TEST(Unit_Tlv_DerSchema, WriteFailurePreservesDestinationAndWritten) {
+    tlv_der_schema_component_t  component = Required(kInteger);
+    const tlv_der_schema_type_t root = {
+        TLV_DER_SCHEMA_SEQUENCE, 0, &component, 1, nullptr, 0, 0, nullptr, 0};
+    std::vector<ScriptEntry> script;
+    uint8_t                  destination[] = {0xaa, 0xbb};
+    uint8_t                  arena[64] = {};
+    size_t                   written = 77, offset = 99;
+    EXPECT_EQ(TLV_ERR_SCHEMA,
+              tlv_der_schema_write(destination, sizeof(destination), &root, ScriptEncode, &script,
+                                   nullptr, arena, sizeof(arena), nullptr, 0, &written, &offset));
+    EXPECT_EQ(2u, offset);
+    EXPECT_EQ(77u, written);
+    EXPECT_EQ(0xaa, destination[0]);
+    EXPECT_EQ(0xbb, destination[1]);
+    EXPECT_EQ(TLV_ERR_NULL_ARG,
+              tlv_der_schema_write(destination, sizeof(destination), nullptr, ScriptEncode, &script,
+                                   nullptr, arena, sizeof(arena), nullptr, 0, &written, &offset));
+    EXPECT_EQ(0u, offset);
+    script.push_back({&component, 0, true, {1}});
+    offset = 99;
+    EXPECT_EQ(TLV_ERR_BUFFER_TOO_SHORT,
+              tlv_der_schema_write(destination, sizeof(destination), &root, ScriptEncode, &script,
+                                   nullptr, arena, sizeof(arena), nullptr, 0, &written, &offset));
+    EXPECT_EQ(0u, offset);
+    EXPECT_EQ(77u, written);
+}
+
+TEST(Unit_Tlv_DerSchema, WritePreservesFirstFailureWhenOffsetCompositionCannotFinish) {
+    tlv_der_schema_component_t  components[] = {Required(kInteger), Required(kOctetString)};
+    const tlv_der_schema_type_t root = {
+        TLV_DER_SCHEMA_SEQUENCE, 0, components, 2, nullptr, 0, 0, nullptr, 0};
+    const std::vector<ScriptEntry> script = {{&components[1], 0, true, {0x55}}};
+    uint8_t                        arena[1] = {};
+    size_t                         written = 77, offset = 99;
+    // Missing first component wins over later scratch exhaustion.
+    EXPECT_EQ(TLV_ERR_SCHEMA,
+              tlv_der_schema_write(nullptr, 0, &root, ScriptEncode, &script, nullptr, arena,
+                                   sizeof(arena), nullptr, 0, &written, &offset));
+    EXPECT_EQ(0u, offset);
+    EXPECT_EQ(77u, written);
+    EXPECT_EQ(TLV_ERR_SCHEMA,
+              tlv_der_schema_write(nullptr, 0, &root, ScriptEncode, &script, nullptr, arena,
+                                   sizeof(arena), nullptr, 0, &written, nullptr));
+}
+
+TEST(Unit_Tlv_DerSchema, WriteSizeQueryReportsSameSchemaOffset) {
+    tlv_der_schema_component_t  missing = Required(kInteger);
+    const tlv_der_schema_type_t root = {
+        TLV_DER_SCHEMA_SEQUENCE, 0, &missing, 1, nullptr, 0, 0, nullptr, 0};
+    const std::vector<ScriptEntry> script;
+    uint8_t                        arena[16] = {};
+    size_t                         written = 77, offset = 99;
+    EXPECT_EQ(TLV_ERR_SCHEMA,
+              tlv_der_schema_write(nullptr, 0, &root, ScriptEncode, &script, nullptr, arena,
+                                   sizeof(arena), nullptr, 0, &written, &offset));
+    EXPECT_EQ(2u, offset);
+    EXPECT_EQ(77u, written);
+    tlv_der_schema_limits_t limits = tlv_der_schema_default_limits;
+    limits.base.max_depth = TLV_DER_MAX_DEPTH + 1;
+    offset = 99;
+    EXPECT_EQ(TLV_ERR_LIMIT,
+              tlv_der_schema_write(nullptr, 0, &root, ScriptEncode, &script, &limits, arena,
+                                   sizeof(arena), nullptr, 0, &written, &offset));
+    EXPECT_EQ(0u, offset);
 }

@@ -1,5 +1,6 @@
 // SPDX-License-Identifier: MIT
 // Copyright (c) 2026 Marek Cingel
+#include "../../diagnostic_assertions.h"
 #include "tlv/query/adapters.h"
 #include "tlv/document/document.h"
 #include "tlv/writer/tree.h"
@@ -61,18 +62,21 @@ struct Evaluation {
     }
     tlv_result_t compile(const std::string& text) {
         size_t size, alignment;
-        auto   rc = tlv_query_compile_scratch(text.data(), text.size(), &options, &size, &alignment,
-                                              &diagnostic);
+        auto   rc = TLV_DIAGNOSTIC_RESULT(
+            diagnostic, tlv_query_compile_scratch(text.data(), text.size(), &options, &size,
+                                                  &alignment, &diagnostic));
         if (rc != TLV_OK) return rc;
         Buffer scratch(size, alignment);
-        rc = tlv_query_compile(text.data(), text.size(), &options, scratch.data, size, nullptr, 0,
-                               &info, &diagnostic);
+        rc = TLV_DIAGNOSTIC_RESULT(diagnostic, tlv_query_compile(text.data(), text.size(), &options,
+                                                                 scratch.data, size, nullptr, 0,
+                                                                 &info, &diagnostic));
         if (rc != TLV_OK) return rc;
         program_storage.resize(info.program_size + 16);
         void* storage = reinterpret_cast<void*>(
             (reinterpret_cast<uintptr_t>(program_storage.data()) + 15) & ~uintptr_t(15));
-        rc = tlv_query_compile(text.data(), text.size(), &options, scratch.data, size, storage,
-                               info.program_size, &info, &diagnostic);
+        rc = TLV_DIAGNOSTIC_RESULT(
+            diagnostic, tlv_query_compile(text.data(), text.size(), &options, scratch.data, size,
+                                          storage, info.program_size, &info, &diagnostic));
         program = static_cast<const tlv_query_program_t*>(storage);
         return rc;
     }
@@ -92,7 +96,8 @@ struct Evaluation {
         auto              rc =
             tlv_tree_reader_init(&reader, wire.data(), wire.size(), &format, frames, 16, 16, 1000);
         if (rc != TLV_OK) return rc;
-        rc = tlv_query_program_visit(&reader, exec, noop, selected, &diagnostic);
+        rc = TLV_DIAGNOSTIC_RESULT(
+            diagnostic, tlv_query_program_visit(&reader, exec, noop, selected, &diagnostic));
         if (rc != TLV_OK) return rc;
         rc = tlv_query_exec_result(exec, &result);
         return rc;
@@ -126,7 +131,8 @@ TEST(Unit_Tlv_QueryF3, WholePlanRequirementsAndDocumentRejection) {
     tlv_tree_reader_t reader;
     ASSERT_EQ(tlv_tree_reader_init(&reader, wire, sizeof wire, &e.format, frames, 16, 16, 100),
               TLV_OK);
-    EXPECT_EQ(tlv_query_program_visit(&reader, e.exec, noop, nullptr, &e.diagnostic),
+    EXPECT_EQ(TLV_DIAGNOSTIC_RESULT(e.diagnostic, tlv_query_program_visit(&reader, e.exec, noop,
+                                                                          nullptr, &e.diagnostic)),
               TLV_ERR_UNSUPPORTED_TYPE);
     EXPECT_EQ(e.diagnostic.kind, TLV_QUERY_ERROR_CAPABILITY);
     tlv_tree_event_t event{};
@@ -149,7 +155,8 @@ TEST(Unit_Tlv_QueryF3, DocumentOnlyFeedFailureRequiresReset) {
         int matched = 9;
         ASSERT_EQ(tlv_query_exec_info(e.exec, &info), TLV_OK);
         EXPECT_FALSE(info.invalid);
-        EXPECT_EQ(tlv_query_exec_feed(e.exec, &event, &matched, &e.diagnostic),
+        EXPECT_EQ(TLV_DIAGNOSTIC_RESULT(
+                      e.diagnostic, tlv_query_exec_feed(e.exec, &event, &matched, &e.diagnostic)),
                   TLV_ERR_UNSUPPORTED_TYPE);
         EXPECT_EQ(e.diagnostic.kind, TLV_QUERY_ERROR_CAPABILITY);
         EXPECT_EQ(matched, 9);
@@ -160,7 +167,8 @@ TEST(Unit_Tlv_QueryF3, DocumentOnlyFeedFailureRequiresReset) {
         EXPECT_EQ(info.elements, 0u);
         EXPECT_EQ(tlv_query_exec_feed(e.exec, &event, &matched, nullptr), TLV_ERR_INVALID_ARG);
         EXPECT_EQ(matched, 9);
-        EXPECT_EQ(tlv_query_exec_finish(e.exec, &e.diagnostic), TLV_ERR_INVALID_ARG);
+        EXPECT_EQ(TLV_DIAGNOSTIC_RESULT(e.diagnostic, tlv_query_exec_finish(e.exec, &e.diagnostic)),
+                  TLV_ERR_INVALID_ARG);
         ASSERT_EQ(e.init(), TLV_OK);
     }
 }
@@ -200,7 +208,10 @@ TEST(Unit_Tlv_QueryF3, S1ScopePublicationStopResumeAndMalformedSuffix) {
         tlv_tree_reader_init(&reader, malformed, sizeof malformed, &e.format, frames, 16, 16, 100),
         TLV_OK);
     selected.clear();
-    EXPECT_NE(tlv_query_program_visit(&reader, e.exec, noop, &selected, &e.diagnostic), TLV_OK);
+    EXPECT_NE(
+        TLV_DIAGNOSTIC_RESULT(
+            e.diagnostic, tlv_query_program_visit(&reader, e.exec, noop, &selected, &e.diagnostic)),
+        TLV_OK);
     EXPECT_EQ(e.diagnostic.kind, TLV_QUERY_ERROR_READER);
     EXPECT_EQ(selected, std::vector<size_t>({0})); // previous callback remains observable
 }
@@ -248,7 +259,8 @@ TEST(Unit_Tlv_QueryF3, CandidatesExactCapacityOverflowAndSourceLessIdentity) {
     EXPECT_STREQ(e.diagnostic.limit, "candidates");
     EXPECT_EQ(e.diagnostic.configured, 2u);
     EXPECT_TRUE(selected.empty());
-    EXPECT_EQ(tlv_query_exec_finish(e.exec, &e.diagnostic), TLV_ERR_INVALID_ARG);
+    EXPECT_EQ(TLV_DIAGNOSTIC_RESULT(e.diagnostic, tlv_query_exec_finish(e.exec, &e.diagnostic)),
+              TLV_ERR_INVALID_ARG);
     ASSERT_EQ(e.compile("//5A[last()] | //5A"), TLV_OK);
     ASSERT_EQ(e.init(2), TLV_OK);
     uint8_t          tag = 0x5a;
@@ -297,11 +309,15 @@ TEST(Unit_Tlv_QueryF3, DeferredWindowsRetainStablePayloadAndResume) {
                                                16, 100),
               TLV_OK);
     std::vector<size_t> selected;
-    EXPECT_EQ(tlv_query_program_visit(&reader, e.exec, noop, &selected, &e.diagnostic),
-              TLV_NEED_MORE_DATA);
+    EXPECT_EQ(
+        TLV_DIAGNOSTIC_RESULT(
+            e.diagnostic, tlv_query_program_visit(&reader, e.exec, noop, &selected, &e.diagnostic)),
+        TLV_NEED_MORE_DATA);
     EXPECT_EQ(selected, std::vector<size_t>({0}));
-    EXPECT_EQ(tlv_query_program_visit(&reader, e.exec, noop, &selected, &e.diagnostic),
-              TLV_NEED_MORE_DATA);
+    EXPECT_EQ(
+        TLV_DIAGNOSTIC_RESULT(
+            e.diagnostic, tlv_query_program_visit(&reader, e.exec, noop, &selected, &e.diagnostic)),
+        TLV_NEED_MORE_DATA);
     ASSERT_EQ(tlv_tree_reader_set_input(&reader, second, sizeof second, sizeof first, 1), TLV_OK);
     ASSERT_EQ(tlv_query_program_visit(&reader, e.exec, noop, &selected, &e.diagnostic), TLV_OK);
     EXPECT_EQ(selected, std::vector<size_t>({0, 4}));
@@ -311,8 +327,10 @@ TEST(Unit_Tlv_QueryF3, DeferredWindowsRetainStablePayloadAndResume) {
                                                16, 100),
               TLV_OK);
     selected.clear();
-    EXPECT_EQ(tlv_query_program_visit(&reader, e.exec, noop, &selected, &e.diagnostic),
-              TLV_NEED_MORE_DATA);
+    EXPECT_EQ(
+        TLV_DIAGNOSTIC_RESULT(
+            e.diagnostic, tlv_query_program_visit(&reader, e.exec, noop, &selected, &e.diagnostic)),
+        TLV_NEED_MORE_DATA);
     EXPECT_TRUE(selected.empty());
     ASSERT_EQ(tlv_tree_reader_set_input(&reader, second, sizeof second, sizeof first, 1), TLV_OK);
     ASSERT_EQ(tlv_query_program_visit(&reader, e.exec, noop, &selected, &e.diagnostic), TLV_OK);
@@ -345,6 +363,38 @@ TEST(Unit_Tlv_QueryF3, DeepAndWideInputsHaveIndependentResourceBounds) {
                 e.diagnostic.kind == TLV_QUERY_ERROR_LIMIT);
 }
 #if OPENTLV_DOCUMENT
+TEST(Unit_Tlv_QueryF3, DocumentInitializationFailuresCarryDetail) {
+    Evaluation e;
+    ASSERT_EQ(TLV_OK, e.compile("//*"));
+    ASSERT_EQ(TLV_OK, e.init());
+    EXPECT_EQ(TLV_ERR_NULL_ARG,
+              TLV_DIAGNOSTIC_RESULT(e.diagnostic,
+                                    tlv_document_query_evaluate(nullptr, e.exec, nullptr, nullptr,
+                                                                0, nullptr, &e.diagnostic)));
+    tlv_document_options_t options;
+    ASSERT_EQ(TLV_OK, tlv_document_options_init(&options, &e.format));
+    const uint8_t   wire[] = {0x5a, 0};
+    tlv_document_t* document = nullptr;
+    ASSERT_EQ(TLV_OK, tlv_document_parse(wire, sizeof wire, &options, &document, nullptr));
+    ASSERT_EQ(TLV_OK, tlv_document_query_evaluate(document, e.exec, nullptr, nullptr, 0, nullptr,
+                                                  &e.diagnostic));
+    EXPECT_EQ(TLV_ERR_INVALID_ARG,
+              TLV_DIAGNOSTIC_RESULT(e.diagnostic,
+                                    tlv_document_query_evaluate(document, e.exec, nullptr, nullptr,
+                                                                0, nullptr, &e.diagnostic)));
+    EXPECT_EQ(TLV_QUERY_ERROR_EVENTS, e.diagnostic.kind);
+    tlv_format_t incompatible = e.format;
+    incompatible.is_constructed = nullptr;
+    e.environment.format = &incompatible;
+    ASSERT_EQ(TLV_OK, e.init());
+    EXPECT_EQ(TLV_ERR_INVALID_ARG,
+              TLV_DIAGNOSTIC_RESULT(e.diagnostic,
+                                    tlv_document_query_evaluate(document, e.exec, nullptr, nullptr,
+                                                                0, nullptr, &e.diagnostic)));
+    EXPECT_EQ(TLV_QUERY_ERROR_CAPABILITY, e.diagnostic.kind);
+    tlv_document_free(document);
+}
+
 TEST(Unit_Tlv_QueryF3, DocumentAxesContextMutationValuesAndScalar) {
     Evaluation             e;
     tlv_document_options_t options;
@@ -442,8 +492,9 @@ TEST(Unit_Tlv_QueryF3, DocumentStopResumeSourceErrorsAndResourceLimits) {
     EXPECT_EQ(selected.size(), 3u);
     ASSERT_EQ(e.compile("//5A[@offset=0]"), TLV_OK);
     ASSERT_EQ(e.init(), TLV_OK);
-    EXPECT_EQ(tlv_document_query_evaluate(document, e.exec, nullptr, values.data(), values.size(),
-                                          &staging, &e.diagnostic),
+    EXPECT_EQ(TLV_DIAGNOSTIC_RESULT(e.diagnostic, tlv_document_query_evaluate(
+                                                      document, e.exec, nullptr, values.data(),
+                                                      values.size(), &staging, &e.diagnostic)),
               TLV_ERR_INVALID_VALUE);
     EXPECT_EQ(e.diagnostic.kind, TLV_QUERY_ERROR_SOURCE);
     EXPECT_FALSE(e.diagnostic.has_source_offset);
@@ -451,19 +502,22 @@ TEST(Unit_Tlv_QueryF3, DocumentStopResumeSourceErrorsAndResourceLimits) {
     ASSERT_EQ(e.init(), TLV_OK);
     ASSERT_EQ(e.compile("value(/70)"), TLV_OK);
     ASSERT_EQ(e.init(), TLV_OK);
-    EXPECT_EQ(
-        tlv_document_query_evaluate(document, e.exec, nullptr, nullptr, 0, &staging, &e.diagnostic),
-        TLV_ERR_LIMIT);
+    EXPECT_EQ(TLV_DIAGNOSTIC_RESULT(e.diagnostic,
+                                    tlv_document_query_evaluate(document, e.exec, nullptr, nullptr,
+                                                                0, &staging, &e.diagnostic)),
+              TLV_ERR_LIMIT);
     EXPECT_STREQ(e.diagnostic.limit, "document-values");
     ASSERT_EQ(e.compile("//*"), TLV_OK);
     ASSERT_EQ(e.init(2), TLV_OK);
-    EXPECT_EQ(tlv_document_query_evaluate(document, e.exec, nullptr, values.data(), values.size(),
-                                          &staging, &e.diagnostic),
+    EXPECT_EQ(TLV_DIAGNOSTIC_RESULT(e.diagnostic, tlv_document_query_evaluate(
+                                                      document, e.exec, nullptr, values.data(),
+                                                      values.size(), &staging, &e.diagnostic)),
               TLV_ERR_LIMIT);
     EXPECT_STREQ(e.diagnostic.limit, "candidates");
     ASSERT_EQ(e.init(4, 1), TLV_OK);
-    EXPECT_EQ(tlv_document_query_evaluate(document, e.exec, nullptr, values.data(), values.size(),
-                                          &staging, &e.diagnostic),
+    EXPECT_EQ(TLV_DIAGNOSTIC_RESULT(e.diagnostic, tlv_document_query_evaluate(
+                                                      document, e.exec, nullptr, values.data(),
+                                                      values.size(), &staging, &e.diagnostic)),
               TLV_ERR_LIMIT);
     EXPECT_STREQ(e.diagnostic.limit, "work");
     tlv_document_free(document);
@@ -536,9 +590,10 @@ TEST(Unit_Tlv_QueryF3, RetainedDocumentLocationsMatchStreamingAndSupportDocument
     ASSERT_EQ(tlv_node_set_value(leaf, nullptr, 0), TLV_OK);
     ASSERT_EQ(e.compile("//50[1]/following::57[@offset > 0]"), TLV_OK);
     ASSERT_EQ(e.init(), TLV_OK);
-    EXPECT_EQ(
-        tlv_document_query_evaluate(doc.get(), e.exec, nullptr, nullptr, 0, nullptr, &e.diagnostic),
-        TLV_ERR_INVALID_VALUE);
+    EXPECT_EQ(TLV_DIAGNOSTIC_RESULT(e.diagnostic,
+                                    tlv_document_query_evaluate(doc.get(), e.exec, nullptr, nullptr,
+                                                                0, nullptr, &e.diagnostic)),
+              TLV_ERR_INVALID_VALUE);
     EXPECT_EQ(e.diagnostic.kind, TLV_QUERY_ERROR_SOURCE);
     EXPECT_FALSE(e.diagnostic.has_source_offset);
 }
@@ -734,8 +789,9 @@ TEST(Unit_Tlv_QueryF3, DocumentSnapshotSlicesAndWorkIgnoreStagingCapacity) {
                                               &e.diagnostic),
                   TLV_OK);
         ASSERT_EQ(e.init(4, threshold - 1), TLV_OK);
-        EXPECT_EQ(tlv_document_query_evaluate(document, e.exec, nullptr, values, capacity, &staging,
-                                              &e.diagnostic),
+        EXPECT_EQ(TLV_DIAGNOSTIC_RESULT(
+                      e.diagnostic, tlv_document_query_evaluate(document, e.exec, nullptr, values,
+                                                                capacity, &staging, &e.diagnostic)),
                   TLV_ERR_LIMIT);
         EXPECT_STREQ(e.diagnostic.limit, "work");
     }

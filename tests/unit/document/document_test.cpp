@@ -1,6 +1,7 @@
 // SPDX-License-Identifier: MIT
 // Copyright (c) 2026 Marek Cingel
 
+#include "../../diagnostic_assertions.h"
 #include "controlled_format.h"
 #include "tlv/config.h"
 #include "tlv/document/document.h"
@@ -1073,13 +1074,16 @@ TEST(Unit_Tlv_DocumentBuilder, PreservesReaderDiagnosticsAfterWindowReplacement)
     tlv_reader_diagnostic_init(&actual);
     size_t offset = 999;
     EXPECT_EQ(TLV_ERR_BUFFER_TOO_SHORT,
-              tlv_document_builder_consume(raw, &doc.handle, &offset, &actual));
+              TLV_DIAGNOSTIC_RESULT(
+                  actual, tlv_document_builder_consume(raw, &doc.handle, &offset, &actual)));
     EXPECT_EQ(nullptr, doc.handle);
     EXPECT_EQ(4u, offset);
     tlv_reader_diagnostic_t expected;
     tlv_reader_diagnostic_init(&expected);
     tlv_tree_item_t item;
-    ASSERT_EQ(TLV_ERR_BUFFER_TOO_SHORT, tlv_tree_reader_next_diag(&reader, &item, &expected));
+    ASSERT_EQ(
+        TLV_ERR_BUFFER_TOO_SHORT,
+        TLV_DIAGNOSTIC_RESULT(expected, tlv_tree_reader_next_diag(&reader, &item, &expected)));
     EXPECT_EQ(expected.diagnostic.code, actual.diagnostic.code);
     EXPECT_EQ(expected.diagnostic.offset, actual.diagnostic.offset);
     EXPECT_EQ(expected.operation, actual.operation);

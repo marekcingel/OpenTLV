@@ -1,6 +1,7 @@
 // SPDX-License-Identifier: MIT
 // Copyright (c) 2026 Marek Cingel
 
+#include "../diagnostic_assertions.h"
 #include "tlv/formats/compose.h"
 #include "tlv/reader/reader.h"
 #include "tlv/writer/writer.h"
@@ -489,8 +490,10 @@ TEST(Unit_Tlv_Format, MissingDecodeArgumentsDoNotPublishUninitializedDiagnosticF
         size_t                  consumed = 99;
         tlv_reader_diagnostic_t diagnostic;
         std::memset(&diagnostic, 0xAA, sizeof(diagnostic));
-        EXPECT_EQ(TLV_ERR_NULL_ARG, tlv_read_diag(format == &fixed ? nullptr : data, sizeof(data),
-                                                  format, &element, &consumed, &diagnostic));
+        EXPECT_EQ(TLV_ERR_NULL_ARG,
+                  TLV_DIAGNOSTIC_RESULT(diagnostic, tlv_read_diag(format == &fixed ? nullptr : data,
+                                                                  sizeof(data), format, &element,
+                                                                  &consumed, &diagnostic)));
         EXPECT_EQ(99u, consumed);
         EXPECT_EQ(TLV_ERR_NULL_ARG, diagnostic.diagnostic.code);
         EXPECT_EQ(TLV_READER_OP_HEADER, diagnostic.operation);

@@ -302,7 +302,7 @@ TEST(Integration_Tlv_SchemaReport, RejectsInvalidArgumentsAndRuleTables) {
     EXPECT_EQ(TLV_ERR_INVALID_ARG, call(&nullRules, TLV_SCHEMA_UNKNOWN_BY_SCHEMA, &report));
 }
 
-TEST(Integration_Tlv_SchemaReport, LimitsSchemaNestingToThePathCapacity) {
+TEST(Integration_Tlv_SchemaReport, LimitsSchemaNestingIndependentlyOfPathCapacity) {
     static tlv_structure_schema_t   recursive;
     static tlv_structure_rule_t     recursiveRules[1];
     static const tlv_schema_entry_t recursiveField = {TLV_TAG(0x6F), 0, SIZE_MAX, 0, nullptr, 0};
@@ -315,8 +315,15 @@ TEST(Integration_Tlv_SchemaReport, LimitsSchemaNestingToThePathCapacity) {
         wire.insert(wire.begin(), 0x6F);
     }
     DiagOutcome out = runDiag(wire, recursive);
-    EXPECT_EQ(TLV_ERR_LIMIT, out.rc);
+    EXPECT_EQ(TLV_OK, out.rc);
     EXPECT_EQ(0u, out.count);
+    tlv_schema_diagnostic_t        diagnostic{};
+    tlv_schema_diagnostic_report_t report{&diagnostic, 1, 0};
+    EXPECT_EQ(TLV_ERR_LIMIT,
+              tlv_schema_validate_all_diag(wire.data(), wire.size(), &tlv_format_ber, &recursive,
+                                           TLV_DIAGNOSTIC_PATH_MAX, 1000,
+                                           TLV_SCHEMA_UNKNOWN_BY_SCHEMA, &report, nullptr));
+    EXPECT_EQ(0u, report.count);
 
     Wire shallow = {0x6F, 0x00};
     for (int i = 1; i < TLV_DIAGNOSTIC_PATH_MAX; ++i) {
@@ -479,5 +486,37 @@ TEST(Integration_Tlv_SchemaReport, MissingFieldReferenceIsRejectedWithoutDerefer
         const auto diagnostics = runDiag(wire, schema);
         EXPECT_EQ(TLV_ERR_INVALID_ARG, diagnostics.rc);
         EXPECT_EQ(0u, diagnostics.count);
+    }
+}
+
+TEST(Integration_Tlv_SchemaReport, DeepPathsKeepRootPrefixAndCountInnerOmissions) {
+    for (size_t depth : {31u, 32u, 33u, 40u, 63u}) {
+        SCOPED_TRACE(depth);
+        std::vector<uint8_t>                tags(depth);
+        std::vector<tlv_schema_entry_t>     entries(depth + 1);
+        std::vector<tlv_structure_rule_t>   rules(depth + 1);
+        std::vector<tlv_structure_schema_t> schemas(depth + 1);
+        entries[depth] = {TLV_TAG(0x04), 1, 1, 0, "leaf", 0};
+        rules[depth] = {&entries[depth], 1, 1, TLV_SCHEMA_PRIMITIVE, nullptr, 0};
+        schemas[depth] = {&rules[depth], 1, 0, nullptr, 0, TLV_SCHEMA_ORDER_ANY};
+        Wire wire = {0x04, 0};
+        for (size_t i = depth; i-- > 0;) {
+            tags[i] = static_cast<uint8_t>(0xa0 + i % 30);
+            entries[i] = {tlv_tag(&tags[i], 1), 0, SIZE_MAX, 0, "container", 0};
+            rules[i] = {&entries[i], 1, 1, TLV_SCHEMA_CONSTRUCTED, &schemas[i + 1], 0};
+            schemas[i] = {&rules[i], 1, 0, nullptr, 0, TLV_SCHEMA_ORDER_ANY};
+            wire.insert(wire.begin(), {tags[i], static_cast<uint8_t>(wire.size())});
+        }
+        tlv_schema_diagnostic_t        diagnostic{};
+        tlv_schema_diagnostic_report_t report{&diagnostic, 1, 0};
+        ASSERT_EQ(TLV_ERR_SCHEMA, tlv_schema_validate_all_diag(
+                                      wire.data(), wire.size(), &tlv_format_ber, &schemas[0], 64,
+                                      100, TLV_SCHEMA_UNKNOWN_BY_SCHEMA, &report, nullptr));
+        ASSERT_EQ(1u, report.count);
+        const size_t retained = depth < 32 ? depth : 32;
+        ASSERT_EQ(retained, diagnostic.path.length);
+        EXPECT_EQ(depth - retained, diagnostic.path.omitted);
+        for (size_t i = 0; i < retained; ++i)
+            EXPECT_TRUE(tlv_tag_equal(tlv_tag(&tags[i], 1), diagnostic.path.tags[i]));
     }
 }

@@ -533,10 +533,11 @@ static PyObject* schema_diagnostic_value(const tlv_schema_diagnostic_t* diagnost
                                           : Py_NewRef(Py_None);
     /* N consumes each reference, including on failure. */
     return Py_BuildValue(
-        "(iiisNNNziNNNKI)", (int)diagnostic->diagnostic.code, (int)diagnostic->diagnostic.severity,
+        "(iiisNNNziNNNKIK)", (int)diagnostic->diagnostic.code, (int)diagnostic->diagnostic.severity,
         (int)diagnostic->kind, tlv_schema_issue_kind_string(diagnostic->kind), tag, path, offset,
         diagnostic->field, diagnostic->is_group, occurs, length, form,
-        (unsigned long long)diagnostic->length_multiple, (unsigned int)diagnostic->length_flags);
+        (unsigned long long)diagnostic->length_multiple, (unsigned int)diagnostic->length_flags,
+        (unsigned long long)diagnostic->path.omitted);
 }
 
 static PyObject* schema_diagnostic_report(const Py_buffer* buffer, const tlv_format_t* format,

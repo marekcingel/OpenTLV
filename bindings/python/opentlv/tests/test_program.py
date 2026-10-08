@@ -404,3 +404,15 @@ def test_document_select_owns_checked_handles_and_scalar_values():
     nodes = document.select(QueryProgram("//5A"))
     assert len({node.identity for node in nodes}) == 2
     assert bytes(nodes[0].value) == b"\x01"
+
+
+def test_query_schema_deep_diagnostic_retains_omitted_count():
+    schema = QuerySchema([QueryRule(QueryProgram("//5A"), QueryProgram("1 = 0"))])
+    wire = b"\x5a\x00"
+    for level in range(35):
+        wire = bytes([0x70 if level == 34 else 0x30, len(wire)]) + wire
+    with pytest.raises(SchemaError) as caught:
+        schema.validate_buffer(wire)
+    detail = caught.value.schema
+    assert detail["path"] == (b"\x70",) + (b"\x30",) * 31
+    assert detail["path_omitted"] == 3

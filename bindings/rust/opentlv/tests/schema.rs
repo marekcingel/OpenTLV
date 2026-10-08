@@ -532,3 +532,45 @@ fn configured_fixed_schema_validation_and_reports() {
         .unwrap();
     assert_eq!(report.diagnostics[0].length.as_ref().unwrap().actual, 1);
 }
+
+#[test]
+fn deep_report_preserves_outermost_path_and_omitted_count() {
+    use opentlv::UnknownPolicy;
+    let mut schema = StructureSchema::new(
+        [StructureRule::new(Tag::from_bytes(&[4])).length(1, 8)],
+        false,
+    );
+    let mut wire = vec![4, 0];
+    for level in 0..35 {
+        let tag = if level == 34 { 0x70 } else { 0x30 };
+        schema = StructureSchema::new(
+            [StructureRule::new(Tag::from_bytes(&[tag])).children(schema)],
+            false,
+        );
+        let mut enclosing = vec![tag, wire.len() as u8];
+        enclosing.extend(wire);
+        wire = enclosing;
+    }
+    let report = schema
+        .validate_diagnostics(
+            &wire,
+            Format::Ber,
+            &ValidationLimits {
+                max_depth: 40,
+                max_elements: 100,
+            },
+            UnknownPolicy::BySchema,
+            1,
+        )
+        .unwrap();
+    drop(schema);
+    drop(wire);
+    let issue = &report.diagnostics[0];
+    assert_eq!(issue.path.len(), 32);
+    assert_eq!(issue.path[0], Tag::from_bytes(&[0x70]));
+    assert!(issue.path[1..]
+        .iter()
+        .all(|tag| *tag == Tag::from_bytes(&[0x30])));
+    assert_eq!(issue.path_omitted, 3);
+    assert_eq!(issue.tag, Tag::from_bytes(&[4]));
+}

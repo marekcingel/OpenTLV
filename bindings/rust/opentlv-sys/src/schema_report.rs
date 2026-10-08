@@ -11,6 +11,8 @@ pub struct tlv_diagnostic_path_t {
     pub tags: [tlv_tag_t; 32],
     /// Valid prefix length.
     pub length: usize,
+    /// Number of innermost scope Tags omitted after the retained outer prefix.
+    pub omitted: usize,
 }
 /// Detailed native Schema violation.
 #[repr(C)]

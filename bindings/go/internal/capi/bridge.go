@@ -135,6 +135,7 @@ type Diagnostic struct {
 	DeclaredLength, Available, EnclosingEnd, Required, Length OptionalSize
 	Contexts                                                  []DiagnosticContext
 	Path                                                      [][]byte
+	PathOmitted                                               uint64
 }
 
 func bytePointer(data []byte) *C.uint8_t {
@@ -163,6 +164,7 @@ func diagnostic(d C.tlv_diagnostic_t, operation C.int) Diagnostic {
 		result.Contexts = append(result.Contexts, DiagnosticContext{C.GoString(c.layer), C.GoString(c.key), C.GoString(c.value)})
 	}
 	if d.path != nil {
+		result.PathOmitted = uint64(d.path.omitted)
 		for i := 0; i < int(d.path.length); i++ {
 			t := d.path.tags[i]
 			result.Path = append(result.Path, bytes.Clone(nativeBytes(t.data, t.size)))

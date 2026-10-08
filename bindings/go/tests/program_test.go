@@ -535,3 +535,27 @@ func TestCompiledDocumentRevisionAndClose(t *testing.T) {
 		t.Fatal(err)
 	}
 }
+
+func TestQuerySchemaDiagnosticPathTruncation(t *testing.T) {
+	format, err := tlv.Builtin(tlv.BER)
+	if err != nil {
+		t.Skip("BER disabled")
+	}
+	rules := []tlv.QueryRule{{Context: compiled(t, "//5A", nil), Assertion: compiled(t, "1 = 0", nil)}}
+	wire := []byte{0x5a, 0}
+	for level := 0; level < 35; level++ {
+		tag := byte(0x30)
+		if level == 34 {
+			tag = 0x70
+		}
+		wire = append([]byte{tag, byte(len(wire))}, wire...)
+	}
+	var detail *tlv.QuerySchemaError
+	if err := tlv.ValidateQueryBuffer(rules, wire, format, tlv.DefaultQuerySchemaLimits()); !errors.As(err, &detail) {
+		t.Fatal(err)
+	}
+	clear(wire)
+	if len(detail.Path) != 32 || detail.PathOmitted != 3 || !bytes.Equal(detail.Path[0], []byte{0x70}) {
+		t.Fatalf("lost truncation metadata: %+v", detail)
+	}
+}

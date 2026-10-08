@@ -1,6 +1,7 @@
 // SPDX-License-Identifier: MIT
 // Copyright (c) 2026 Marek Cingel
 
+#include "../../diagnostic_assertions.h"
 #include "controlled_format.h"
 #include "tlv/writer/tree.h"
 #include <gtest/gtest.h>
@@ -123,7 +124,9 @@ TEST(Unit_Tlv_TreeWriter, ScratchAndOutputShortagesPreserveAccumulatedBytes) {
         ASSERT_EQ(TLV_OK, tlv_tree_writer_write_element(&writer, &leaf));
         for (int i = 0; i < 2; ++i) {
             tlv_writer_diagnostic_t diagnostic{};
-            EXPECT_EQ(TLV_ERR_BUFFER_TOO_SHORT, tlv_tree_writer_end_diag(&writer, &diagnostic));
+            EXPECT_EQ(
+                TLV_ERR_BUFFER_TOO_SHORT,
+                TLV_DIAGNOSTIC_RESULT(diagnostic, tlv_tree_writer_end_diag(&writer, &diagnostic)));
             EXPECT_EQ(1u, writer.depth);
             EXPECT_EQ(2u, writer.output.pos);
             EXPECT_EQ(1, data[0]);
@@ -149,7 +152,9 @@ TEST(Unit_Tlv_TreeWriter, EncoderFailureRestoresValueAndPreservesFinalPrefix) {
     ASSERT_EQ(TLV_OK, tlv_tree_writer_write_element(&writer, &leaf));
     for (int i = 0; i < 2; ++i) {
         tlv_writer_diagnostic_t diagnostic{};
-        EXPECT_EQ(TLV_ERR_INVALID_LENGTH, tlv_tree_writer_end_diag(&writer, &diagnostic));
+        EXPECT_EQ(
+            TLV_ERR_INVALID_LENGTH,
+            TLV_DIAGNOSTIC_RESULT(diagnostic, tlv_tree_writer_end_diag(&writer, &diagnostic)));
         EXPECT_EQ(TLV_WRITER_OP_LENGTH, diagnostic.operation);
         EXPECT_EQ(3u, diagnostic.diagnostic.offset);
         EXPECT_EQ(1u, writer.depth);
@@ -357,8 +362,9 @@ TEST(Unit_Tlv_TreeWriter, MeasurementReportsOnlyItsOwnStorageShortagesForReplay)
     size_t                      size = 99;
     tlv_writer_diagnostic_t     diagnostic{};
     EXPECT_EQ(TLV_ERR_BUFFER_TOO_SHORT,
-              tlv_tree_writer_measure(&format, Source::next, &source, &workspace, 1, 2, &size,
-                                      &diagnostic));
+              TLV_DIAGNOSTIC_RESULT(diagnostic,
+                                    tlv_tree_writer_measure(&format, Source::next, &source,
+                                                            &workspace, 1, 2, &size, &diagnostic)));
     EXPECT_EQ(4u, workspace.required_data);
     EXPECT_EQ(2u, workspace.required_scratch);
     EXPECT_EQ(99u, size);
@@ -377,8 +383,9 @@ TEST(Unit_Tlv_TreeWriter, MeasurementReportsOnlyItsOwnStorageShortagesForReplay)
     source.position = 0;
     size = 99;
     EXPECT_EQ(TLV_ERR_BUFFER_TOO_SHORT,
-              tlv_tree_writer_measure(&failing, Source::next, &source, &workspace, 1, 2, &size,
-                                      &diagnostic));
+              TLV_DIAGNOSTIC_RESULT(diagnostic,
+                                    tlv_tree_writer_measure(&failing, Source::next, &source,
+                                                            &workspace, 1, 2, &size, &diagnostic)));
     EXPECT_EQ(0u, workspace.required_data);
     EXPECT_EQ(0u, workspace.required_scratch);
     EXPECT_EQ(99u, size);
@@ -387,8 +394,9 @@ TEST(Unit_Tlv_TreeWriter, MeasurementReportsOnlyItsOwnStorageShortagesForReplay)
     };
     source.position = 0;
     EXPECT_EQ(TLV_ERR_BUFFER_TOO_SHORT,
-              tlv_tree_writer_measure(&failing, Source::next, &source, &workspace, 1, 2, &size,
-                                      &diagnostic));
+              TLV_DIAGNOSTIC_RESULT(diagnostic,
+                                    tlv_tree_writer_measure(&failing, Source::next, &source,
+                                                            &workspace, 1, 2, &size, &diagnostic)));
     EXPECT_EQ(0u, workspace.required_data);
     EXPECT_EQ(0u, workspace.required_scratch);
 }
@@ -431,8 +439,9 @@ TEST(Unit_Tlv_TreeWriter, MeasurementKeepsAbsoluteDiagnosticsAndPropagatesSource
     size_t                  size = 99;
     tlv_writer_diagnostic_t diagnostic{};
     EXPECT_EQ(TLV_ERR_INVALID_LENGTH,
-              tlv_tree_writer_measure(&failing, Source::next, &source, &workspace, 1, 3, &size,
-                                      &diagnostic));
+              TLV_DIAGNOSTIC_RESULT(diagnostic,
+                                    tlv_tree_writer_measure(&failing, Source::next, &source,
+                                                            &workspace, 1, 3, &size, &diagnostic)));
     EXPECT_EQ(3u, diagnostic.diagnostic.offset);
     EXPECT_EQ(TLV_WRITER_OP_LENGTH, diagnostic.operation);
     EXPECT_EQ(99u, size);
@@ -449,11 +458,14 @@ TEST(Unit_Tlv_TreeWriter, MeasurementKeepsAbsoluteDiagnosticsAndPropagatesSource
     };
     source.position = 0;
     EXPECT_EQ(TLV_ERR_INVALID_LENGTH,
-              tlv_tree_writer_measure(&failing, Source::next, &source, &workspace, 1, 3, &size,
-                                      &diagnostic));
+              TLV_DIAGNOSTIC_RESULT(diagnostic,
+                                    tlv_tree_writer_measure(&failing, Source::next, &source,
+                                                            &workspace, 1, 3, &size, &diagnostic)));
     EXPECT_EQ(3u, diagnostic.diagnostic.offset);
     const auto fail_source = [](void*, tlv_element_t*, size_t*, int*) { return TLV_ERR_VISITOR; };
-    EXPECT_EQ(TLV_ERR_VISITOR, tlv_tree_writer_measure(&format, fail_source, nullptr, &workspace, 1,
-                                                       3, &size, &diagnostic));
+    EXPECT_EQ(TLV_ERR_VISITOR,
+              TLV_DIAGNOSTIC_RESULT(diagnostic,
+                                    tlv_tree_writer_measure(&format, fail_source, nullptr,
+                                                            &workspace, 1, 3, &size, &diagnostic)));
     EXPECT_EQ(TLV_ERR_VISITOR, diagnostic.diagnostic.code);
 }

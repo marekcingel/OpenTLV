@@ -40,6 +40,10 @@ typedef enum tlv_reader_operation {
  * A field not applicable to the failure that produced the diagnostic is left
  * unset, indicated by its paired `has_*` flag being zero.
  *
+ * Once initialized by an operation, a non-#TLV_OK return has the same code in
+ * `diagnostic.code`. Preflight checks which run before initialization leave
+ * this object untouched. A successful call need not clear earlier detail.
+ *
  * @see tlv_reader_diagnostic_init
  */
 typedef struct tlv_reader_diagnostic {

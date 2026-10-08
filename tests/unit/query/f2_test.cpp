@@ -1,5 +1,6 @@
 // SPDX-License-Identifier: MIT
 // Copyright (c) 2026 Marek Cingel
+#include "../../diagnostic_assertions.h"
 #include "tlv/query/adapters.h"
 #include "tlv/builtins/emv/query.h"
 #include "tlv/builtins/asn1/query.h"
@@ -56,18 +57,21 @@ struct Evaluation {
     }
     tlv_result_t compile(const std::string& text) {
         size_t size, alignment;
-        auto   rc = tlv_query_compile_scratch(text.data(), text.size(), &options, &size, &alignment,
-                                              &diagnostic);
+        auto   rc = TLV_DIAGNOSTIC_RESULT(
+            diagnostic, tlv_query_compile_scratch(text.data(), text.size(), &options, &size,
+                                                  &alignment, &diagnostic));
         if (rc != TLV_OK) return rc;
         Buffer scratch(size, alignment);
-        rc = tlv_query_compile(text.data(), text.size(), &options, scratch.data, size, nullptr, 0,
-                               &info, &diagnostic);
+        rc = TLV_DIAGNOSTIC_RESULT(diagnostic, tlv_query_compile(text.data(), text.size(), &options,
+                                                                 scratch.data, size, nullptr, 0,
+                                                                 &info, &diagnostic));
         if (rc != TLV_OK) return rc;
         program_storage.resize(info.program_size + 16);
         void* storage = reinterpret_cast<void*>(
             (reinterpret_cast<uintptr_t>(program_storage.data()) + 15) & ~uintptr_t(15));
-        rc = tlv_query_compile(text.data(), text.size(), &options, scratch.data, size, storage,
-                               info.program_size, &info, &diagnostic);
+        rc = TLV_DIAGNOSTIC_RESULT(
+            diagnostic, tlv_query_compile(text.data(), text.size(), &options, scratch.data, size,
+                                          storage, info.program_size, &info, &diagnostic));
         program = static_cast<const tlv_query_program_t*>(storage);
         return rc;
     }
@@ -87,7 +91,8 @@ struct Evaluation {
         auto              rc =
             tlv_tree_reader_init(&reader, wire.data(), wire.size(), &format, frames, 16, 16, 1000);
         if (rc != TLV_OK) return rc;
-        rc = tlv_query_program_visit(&reader, exec, noop, selected, &diagnostic);
+        rc = TLV_DIAGNOSTIC_RESULT(
+            diagnostic, tlv_query_program_visit(&reader, exec, noop, selected, &diagnostic));
         if (rc != TLV_OK) return rc;
         rc = tlv_query_exec_result(exec, &result);
         return rc;
@@ -412,7 +417,8 @@ TEST(Unit_Tlv_QueryF2, IncrementalFinalizationAndAncestorPositions) {
     ASSERT_EQ(tlv_tree_reader_init_incremental(&reader, first, sizeof first, &e.format, frames, 16,
                                                16, 10),
               TLV_OK);
-    EXPECT_EQ(tlv_query_program_visit(&reader, e.exec, noop, nullptr, &e.diagnostic),
+    EXPECT_EQ(TLV_DIAGNOSTIC_RESULT(e.diagnostic, tlv_query_program_visit(&reader, e.exec, noop,
+                                                                          nullptr, &e.diagnostic)),
               TLV_NEED_MORE_DATA);
     tlv_query_result_t output{};
     output.integer = 999;

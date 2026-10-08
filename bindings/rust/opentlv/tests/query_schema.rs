@@ -311,3 +311,23 @@ fn document_source_locations_support_global_axes() {
         .validate_document(&plain, QuerySchemaLimits::default())
         .is_err());
 }
+
+#[test]
+fn deep_assertion_preserves_outermost_path_and_omitted_count() {
+    let schema = QuerySchema::new(vec![rule("//5A", "1 = 0")], Format::Ber);
+    let mut wire = vec![0x5a, 0];
+    for level in 0..35 {
+        let mut enclosing = vec![if level == 34 { 0x70 } else { 0x30 }, wire.len() as u8];
+        enclosing.extend(wire);
+        wire = enclosing;
+    }
+    let detail = schema
+        .validate_buffer(&wire, QuerySchemaLimits::default())
+        .unwrap_err()
+        .schema
+        .unwrap();
+    assert_eq!(detail.path.len(), 32);
+    assert_eq!(detail.path[0].as_bytes(), &[0x70]);
+    assert!(detail.path[1..].iter().all(|tag| tag.as_bytes() == [0x30]));
+    assert_eq!(detail.path_omitted, 3);
+}

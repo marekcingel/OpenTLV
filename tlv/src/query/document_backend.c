@@ -91,16 +91,22 @@ tlv_result_t tlv_document_query_evaluate(const tlv_document_t* document, tlv_que
          query_output_overlap(e, staging->scratch, staging->scratch_capacity)))
         return TLV_ERR_INVALID_ARG;
     query_diag_init(d);
-    if (!document || !e || (!storage && capacity)) return TLV_ERR_NULL_ARG;
+    if (!document || !e || (!storage && capacity))
+        return query_error(d, TLV_ERR_NULL_ARG, TLV_QUERY_ERROR_STORAGE, 0, 0,
+                           "required Document execution arguments");
     if (document->query_callbacks || !e->retained || e->elements || e->open || e->finished ||
         e->invalid || e->has_context || (context && !document_contains(document, context)))
-        return TLV_ERR_INVALID_ARG;
+        return query_error(d, TLV_ERR_INVALID_ARG, TLV_QUERY_ERROR_EVENTS, 0, 0,
+                           "fresh Document execution and valid context");
     const tlv_format_t* format = document_format(document);
     if (e->environment && e->environment->format &&
         !query_format_compatible(e->environment->format, format))
-        return TLV_ERR_INVALID_ARG;
+        return query_error(d, TLV_ERR_INVALID_ARG, TLV_QUERY_ERROR_CAPABILITY, 0, 0,
+                           "compatible Document format");
     int values = query_program_needs_values(e->program);
-    if (values && !staging) return TLV_ERR_NULL_ARG;
+    if (values && !staging)
+        return query_error(d, TLV_ERR_NULL_ARG, TLV_QUERY_ERROR_STORAGE, 0, 0,
+                           "required Document execution arguments");
     document_query_callback((tlv_document_t*)document, 1);
     e->document_backend = 1;
     e->document_owner = document;
@@ -183,7 +189,8 @@ failed:
         }
     }
     if (rc != TLV_OK) e->invalid = 1;
-    return rc;
+    return query_failure(d, rc, TLV_QUERY_ERROR_EVENTS,
+                         "Document evaluation or Value snapshot failed");
 }
 tlv_result_t tlv_document_query_next(tlv_query_exec_t* e, tlv_node_t** node) {
     if (!e || !node) return TLV_ERR_NULL_ARG;

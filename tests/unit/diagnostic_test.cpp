@@ -2,8 +2,11 @@
 // Copyright (c) 2026 Marek Cingel
 
 #include "tlv/diagnostic.h"
+#include "../diagnostic_invariant.h"
 #include <gtest/gtest.h>
 #include <cstring>
+#include <string>
+#include <vector>
 
 TEST(Unit_Tlv_Diagnostic, InitSetsCodeAndSeverityAndZeroesEverythingElse) {
     tlv_diagnostic_t diagnostic;
@@ -105,6 +108,7 @@ TEST(Unit_Tlv_Diagnostic, PathInitStartsEmpty) {
     tlv_diagnostic_path_init(&path);
 
     EXPECT_EQ(0u, path.length);
+    EXPECT_EQ(0u, path.omitted);
 }
 
 TEST(Unit_Tlv_Diagnostic, PathInitIgnoresANullPath) {
@@ -123,7 +127,7 @@ TEST(Unit_Tlv_Diagnostic, PathPushAppendsTagsInOrder) {
     EXPECT_TRUE(tlv_tag_equal(path.tags[1], TLV_TAG(0xA5)));
 }
 
-TEST(Unit_Tlv_Diagnostic, PathPushReturnsLimitWhenFullAndLeavesThePathUnchanged) {
+TEST(Unit_Tlv_Diagnostic, PathPushRetainsOutermostTagsAndCountsOmittedTags) {
     tlv_diagnostic_path_t path;
     tlv_diagnostic_path_init(&path);
     for (int i = 0; i < TLV_DIAGNOSTIC_PATH_MAX; ++i)
@@ -131,6 +135,9 @@ TEST(Unit_Tlv_Diagnostic, PathPushReturnsLimitWhenFullAndLeavesThePathUnchanged)
 
     EXPECT_EQ(TLV_ERR_LIMIT, tlv_diagnostic_path_push(&path, TLV_TAG(0x02)));
     EXPECT_EQ(static_cast<size_t>(TLV_DIAGNOSTIC_PATH_MAX), path.length);
+    EXPECT_EQ(1u, path.omitted);
+    for (size_t i = 0; i < path.length; ++i)
+        EXPECT_TRUE(tlv_tag_equal(path.tags[i], TLV_TAG(0x01)));
 }
 
 TEST(Unit_Tlv_Diagnostic, PathPushReturnsNullArgForANullPath) {
@@ -214,4 +221,71 @@ TEST(Unit_Tlv_Diagnostic, PathStringReturnsNullArgForANullPath) {
     char buffer[8];
     EXPECT_EQ(TLV_ERR_NULL_ARG,
               tlv_diagnostic_path_string(nullptr, buffer, sizeof(buffer), nullptr));
+}
+
+TEST(Unit_Tlv_Diagnostic, InvariantHelperRejectsEmptyAndMismatchedFailureDetail) {
+    tlv_diagnostic_t base{};
+    EXPECT_FALSE(test_diagnostic_matches(TLV_ERR_VISITOR, &base));
+    base.code = TLV_ERR_INVALID_ARG;
+    EXPECT_FALSE(test_diagnostic_matches(TLV_ERR_VISITOR, &base));
+    base.code = TLV_ERR_VISITOR;
+    EXPECT_TRUE(test_diagnostic_matches(TLV_ERR_VISITOR, &base));
+    EXPECT_TRUE(test_diagnostic_matches(TLV_OK, &base));
+    tlv_query_diagnostic_t query{};
+    EXPECT_FALSE(test_query_diagnostic_matches(TLV_ERR_INVALID_ARG, &query));
+    query.kind = TLV_QUERY_ERROR_READER;
+    EXPECT_FALSE(test_query_diagnostic_matches(TLV_NEED_MORE_DATA, &query));
+    query.reader.diagnostic.code = TLV_NEED_MORE_DATA;
+    EXPECT_TRUE(test_query_diagnostic_matches(TLV_NEED_MORE_DATA, &query));
+    query.kind = TLV_QUERY_ERROR_CODEC;
+    EXPECT_FALSE(test_query_diagnostic_matches(TLV_ERR_INVALID_VALUE, &query));
+    query.codec = TLV_CODEC_ERR_INVALID_VALUE;
+    EXPECT_TRUE(test_query_diagnostic_matches(TLV_ERR_INVALID_VALUE, &query));
+}
+
+TEST(Unit_Tlv_Diagnostic, TruncatedPathUnwindsBeforeReplacingASibling) {
+    uint8_t               tags[40]{};
+    tlv_diagnostic_path_t path;
+    tlv_diagnostic_path_init(&path);
+    for (size_t i = 0; i < 40; ++i) {
+        tags[i] = static_cast<uint8_t>(i + 1);
+        EXPECT_EQ(i < TLV_DIAGNOSTIC_PATH_MAX ? TLV_OK : TLV_ERR_LIMIT,
+                  tlv_diagnostic_path_push(&path, tlv_tag(&tags[i], 1)));
+    }
+    ASSERT_EQ(32u, path.length);
+    EXPECT_EQ(8u, path.omitted);
+    for (size_t i = 0; i < path.length; ++i) EXPECT_EQ(i + 1, path.tags[i].data[0]);
+    for (size_t i = 0; i < 8; ++i) tlv_diagnostic_path_pop(&path);
+    EXPECT_EQ(32u, path.length);
+    EXPECT_EQ(0u, path.omitted);
+    tlv_diagnostic_path_pop(&path);
+    EXPECT_EQ(31u, path.length);
+    EXPECT_EQ(TLV_OK, tlv_diagnostic_path_push(&path, TLV_TAG(0x77)));
+    EXPECT_TRUE(tlv_tag_equal(path.tags[31], TLV_TAG(0x77)));
+    EXPECT_EQ(TLV_ERR_LIMIT, tlv_diagnostic_path_push(&path, TLV_TAG(0x88)));
+    tlv_diagnostic_path_init(&path);
+    EXPECT_EQ(0u, path.length);
+    EXPECT_EQ(0u, path.omitted);
+}
+
+TEST(Unit_Tlv_Diagnostic, TruncatedPathStringMarksOmissionsAndMeasuresSuffix) {
+    tlv_diagnostic_path_t path{};
+    for (size_t i = 0; i < 40; ++i)
+        ASSERT_EQ(i < TLV_DIAGNOSTIC_PATH_MAX ? TLV_OK : TLV_ERR_LIMIT,
+                  tlv_diagnostic_path_push(&path, TLV_TAG(0x6F)));
+    std::string expected = "6F";
+    for (size_t i = 1; i < 32; ++i) expected += " > 6F";
+    expected += " > ...";
+    size_t length = 0;
+    EXPECT_EQ(TLV_ERR_BUFFER_TOO_SHORT, tlv_diagnostic_path_string(&path, nullptr, 0, &length));
+    EXPECT_EQ(expected.size(), length);
+    std::vector<char> output(length + 1, 'x');
+    EXPECT_EQ(TLV_ERR_BUFFER_TOO_SHORT,
+              tlv_diagnostic_path_string(&path, output.data(), length, nullptr));
+    EXPECT_EQ('\0', output[0]);
+    EXPECT_EQ(TLV_OK, tlv_diagnostic_path_string(&path, output.data(), output.size(), &length));
+    EXPECT_EQ(expected, output.data());
+    path.omitted = SIZE_MAX;
+    EXPECT_EQ(TLV_ERR_LIMIT, tlv_diagnostic_path_push(&path, TLV_TAG(0x77)));
+    EXPECT_EQ(SIZE_MAX, path.omitted);
 }

@@ -9,6 +9,9 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Fixed
 
+- Keep omitted diagnostic-path counts numeric in JS/WASM and align diagnostic regression tests with the C++ consumer-boundary checks. (#548, #550)
+- Report would-be DER output positions for schema write failures, including missing required components, leaf constraints, nested headers and SET ordering. (#549)
+- Populate initialized Query and Reader visitor diagnostics on every failure, preserve propagated detail, and enforce the result/diagnostic contract with shared test assertions and a CI source guard. (#548)
 - Initialize the complete Query compilation information output and make transactional test snapshots safe to inspect under memory checkers. (#560)
 - Avoid redundant C Reader diagnostic clearing on successful decoding, and initialize Format failure detail for invalid arguments while preserving callback initialization and single-decode behavior. (#440, #452, #461)
 - Avoid redundant diagnostic initialization and full error copies in C++ Reader pulls while retaining failure context and one decode per call. (#440, #452, #460, #461)
@@ -98,6 +101,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Changed
 
+- Retain the outermost diagnostic path tags consistently across Schema and Query, expose the omitted-tag count in native APIs and bindings, mark truncated paths in CLI output, and keep Schema reporting at its structural depth limit. Adding `tlv_diagnostic_path_t.omitted` changes the public ABI and requires rebuilding native clients. (#550)
 - Keep all C/C++ unit and integration tests in a shorter, optional PR Memcheck run; run the full Query conformance matrices weekly, on release tags, manually, or with the `memcheck-full` PR label. (#560)
 - **Breaking:** Return `false` from C++ Reader and Tree Reader `at_end()` after failed initialization instead of treating it as end-of-input. Callers must handle `next()` failures to terminate or recover. (#440, #461)
 - Check native usage in mixed C++ test fixtures against per-symbol occurrence baselines, and scan `.cc`, `.cxx` and `.inl` files for public/native boundary violations. (#440, #468)

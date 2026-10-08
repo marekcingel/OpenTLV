@@ -1,6 +1,7 @@
 // SPDX-License-Identifier: MIT
 // Copyright (c) 2026 Marek Cingel
 
+#include "../../diagnostic_assertions.h"
 #include "controlled_format.h"
 #include "tlv/reader/tree.h"
 #include "tlv/writer/tree.h"
@@ -164,7 +165,9 @@ TEST(Unit_Tlv_Tree, RelocationWhileNestedRetainsOnlyStructuralOffsets) {
     EXPECT_EQ(6u, item.offset);
     EXPECT_EQ(2u, item.depth);
     tlv_reader_diagnostic_t diagnostic{};
-    EXPECT_EQ(TLV_NEED_MORE_DATA, tlv_tree_reader_next_diag(&reader, &item, &diagnostic));
+    EXPECT_EQ(
+        TLV_NEED_MORE_DATA,
+        TLV_DIAGNOSTIC_RESULT(diagnostic, tlv_tree_reader_next_diag(&reader, &item, &diagnostic)));
     EXPECT_EQ(9u, diagnostic.diagnostic.offset);
     EXPECT_EQ(8u, tlv_tree_reader_offset(&reader));
     ASSERT_EQ(TLV_OK, tlv_tree_reader_set_input(&reader, third, 4, 0, 1));
@@ -187,7 +190,9 @@ TEST(Unit_Tlv_Tree, ChildErrorsCannotBorrowBytesOutsideTheParent) {
     ASSERT_EQ(TLV_OK, tlv_tree_reader_set_input(&reader, relocated, sizeof(relocated), 2, 0));
     tlv_reader_diagnostic_t diagnostic{};
     for (int i = 0; i < 2; ++i) {
-        EXPECT_EQ(TLV_ERR_BUFFER_TOO_SHORT, tlv_tree_reader_next_diag(&reader, &item, &diagnostic));
+        EXPECT_EQ(TLV_ERR_BUFFER_TOO_SHORT,
+                  TLV_DIAGNOSTIC_RESULT(diagnostic,
+                                        tlv_tree_reader_next_diag(&reader, &item, &diagnostic)));
         EXPECT_EQ(4u, diagnostic.diagnostic.offset);
         EXPECT_EQ(5u, diagnostic.enclosing_end);
         EXPECT_EQ(2u, diagnostic.required);

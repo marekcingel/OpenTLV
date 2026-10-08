@@ -124,6 +124,8 @@ inline diagnostic_path make_diagnostic_path() {
  * @param tag  Tag of the element being descended into; borrowed.
  *
  * @return Success, or #error::from_c wrapping #TLV_ERR_LIMIT if the path is already full.
+ * @note Overflow retains the outermost tags and increments path.omitted. Pair every
+ *       push, including an overflowing push, with a pop when leaving that scope.
  */
 inline expected<void, error> push_path(diagnostic_path& path, tlv::tag tag) {
     tlv_result_t rc = tlv_diagnostic_path_push(&path, detail::semantic_access::get(tag));
@@ -134,7 +136,8 @@ inline expected<void, error> push_path(diagnostic_path& path, tlv::tag tag) {
 /**
  * @brief Pops the last tag off a path.
  *
- * Wraps tlv_diagnostic_path_pop(). Popping an empty path is a no-op.
+ * Wraps tlv_diagnostic_path_pop(). Omitted scopes are removed before retained tags.
+ * Popping an empty path is a no-op.
  *
  * @param path Path to update.
  */

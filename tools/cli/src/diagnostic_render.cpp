@@ -16,12 +16,17 @@ std::string hex_offset(size_t offset) {
     return out.str();
 }
 
-// tlv::diagnostic_path never holds more than TLV_DIAGNOSTIC_PATH_MAX (32)
-// tags; this comfortably bounds their hex-plus-separator text.
 std::string path_string(const tlv::diagnostic_path& path) {
-    char       buf[512];
-    const auto length = tlv::format_path(path, {buf, sizeof buf});
-    return length ? std::string(buf, *length) : std::string();
+    // Bound the text from the retained byte identifiers, separators, marker and
+    // terminator: even 32 valid long BER tags can exceed a 512-byte buffer.
+    size_t capacity = 1 + path.length * 3 + (path.omitted ? 3 : 0);
+    for (size_t i = 0; i < path.length; ++i)
+        capacity += tlv::path_tag(path, i).as_bytes().size() * 2;
+    std::string buffer(capacity, '\0');
+    const auto  length = tlv::format_path(path, {&buffer[0], buffer.size()});
+    if (!length) return std::string();
+    buffer.resize(*length);
+    return buffer;
 }
 
 std::string hex_tag(tlv::tag tag) {
@@ -116,7 +121,10 @@ std::string diagnostic_json(const tlv::diagnostic& d, const char* stage, const c
     nlohmann::json object;
     set_header_json(object, d);
     if (tag_hex) object["tag"] = tag_hex;
-    if (d.path) object["path"] = path_string(*d.path);
+    if (d.path) {
+        object["path"] = path_string(*d.path);
+        if (d.path->omitted) object["path_omitted"] = d.path->omitted;
+    }
     if (stage && *stage) object["stage"] = stage;
     append_trailer_json(object, d);
     return object.dump();
@@ -155,7 +163,10 @@ std::string schema_json(const tlv::validation_issue& d) {
     nlohmann::json object;
     set_header_json(object, d.diagnostic());
     object["kind"] = tlv::message(d.kind());
-    if (d.depth()) object["path"] = path_string(d.path());
+    if (d.depth()) {
+        object["path"] = path_string(d.path());
+        if (d.path().omitted) object["path_omitted"] = d.path().omitted;
+    }
     object["tag"] = hex_tag(d.tag());
     if (d.field()) object["field"] = d.field();
     if (d.has_length()) {
@@ -208,7 +219,10 @@ std::string reader_compact(const tlv::reader_diagnostic& d) {
 std::string reader_json(const tlv::reader_diagnostic& d) {
     nlohmann::json object;
     set_header_json(object, d.diagnostic);
-    if (d.diagnostic.path) object["path"] = path_string(*d.diagnostic.path);
+    if (d.diagnostic.path) {
+        object["path"] = path_string(*d.diagnostic.path);
+        if (d.diagnostic.path->omitted) object["path_omitted"] = d.diagnostic.path->omitted;
+    }
     if (d.has_tag) object["tag"] = hex_tag(tlv::diagnostic_tag(d));
     object["operation"] = tlv::message(tlv::phase(d));
     if (d.has_raw_length) object["raw_length"] = hex_tag(tlv::tag(tlv::raw_length(d)));

@@ -141,6 +141,10 @@ struct error {
     size_t depth() const noexcept {
         return path_.length;
     }
+    /** @brief Number of innermost enclosing identifiers omitted after the retained outer prefix. */
+    size_t omitted_depth() const noexcept {
+        return path_.omitted;
+    }
     /** @brief Borrow an enclosing identifier; out-of-range indices return an absent identifier. */
     tlv::tag ancestor(size_t index) const noexcept;
     /** @brief Optional borrowed expected constraint description. */

@@ -604,10 +604,11 @@ tlv_result_t tlv_der_schema_read(const uint8_t* data, size_t size,
  * wrap_and_store copies that content right after a freshly written tag and
  * length -- reusing tlv_der_write_strict itself for the header bytes and,
  * for free, a redundant but harmless re-validation that the result is
- * canonical DER. Once composed, a region's bytes never move again, so error
- * offsets from this internal composition are not meaningful positions in
- * the eventual output and are reported as 0, matching tlv_der_write's own
- * convention for configuration errors. */
+ * canonical DER. With an error_offset output, a schema/value failure is
+ * retained while composition finishes in scratch only. Its owning region and
+ * relative offset follow concatenation, SET sorting and wrapping, so the final
+ * location is output-relative rather than an arena address. No failed encoding
+ * is published, and the successful path performs no extra callback or parse. */
 
 typedef struct der_schema_write_ctx {
     uint8_t* arena;
@@ -618,7 +619,36 @@ typedef struct der_schema_write_ctx {
     const tlv_der_schema_limits_t* limits;
     tlv_der_schema_record_t* scratch;
     size_t scratch_capacity;
+    int locate_failure;
+    tlv_result_t failure;
+    size_t failure_owner;
+    size_t failure_offset;
 } der_schema_write_ctx_t;
+
+/* Only data/schema failures with a known framing interpretation are deferred.
+ * Argument, capacity, configuration and callback failures remain fail-fast. */
+static int composition_failure(tlv_result_t rc) {
+    return rc == TLV_ERR_SCHEMA || rc == TLV_ERR_SCHEMA_MISSING || rc == TLV_ERR_INVALID_VALUE ||
+           rc == TLV_ERR_INVALID_LENGTH || rc == TLV_ERR_INVALID_TAG;
+}
+
+static tlv_result_t defer_failure(der_schema_write_ctx_t* wctx, tlv_result_t rc, size_t owner,
+                                  size_t offset) {
+    if (!wctx->locate_failure || !composition_failure(rc)) return rc;
+    if (wctx->failure == TLV_OK) {
+        wctx->failure = rc;
+        wctx->failure_owner = owner;
+        wctx->failure_offset = offset;
+    }
+    return TLV_OK;
+}
+
+static void relocate_failure(der_schema_write_ctx_t* wctx, size_t from, size_t to, size_t prefix) {
+    if (wctx->failure != TLV_OK && wctx->failure_owner == from) {
+        wctx->failure_owner = to;
+        wctx->failure_offset += prefix;
+    }
+}
 
 static size_t arena_alloc(der_schema_write_ctx_t* wctx, size_t length) {
     size_t offset = wctx->arena_used;
@@ -629,15 +659,35 @@ static size_t arena_alloc(der_schema_write_ctx_t* wctx, size_t length) {
 
 static tlv_result_t wrap_and_store(der_schema_write_ctx_t* wctx, tlv_tag_t tag, size_t content_off,
                                    size_t content_len, size_t* out_off, size_t* out_len) {
-    size_t total, new_off;
-    tlv_result_t rc = tlv_der_write_strict(NULL, 0, tag, wctx->arena + content_off, content_len,
-                                           &wctx->limits->base, &total, NULL);
+    size_t total, new_off, relative_error = 0;
+    tlv_result_t deferred = TLV_OK;
+    tlv_result_t rc;
+    if (wctx->failure != TLV_OK) {
+        rc = tlv_encoded_size(tag, content_len, &tlv_format_der, &total);
+    } else {
+        rc = tlv_der_write_strict(NULL, 0, tag, wctx->arena + content_off, content_len,
+                                  &wctx->limits->base, &total, &relative_error);
+        if (rc != TLV_OK && wctx->locate_failure && composition_failure(rc)) {
+            deferred = rc;
+            (void)defer_failure(wctx, deferred, SIZE_MAX, relative_error);
+            rc = tlv_encoded_size(tag, content_len, &tlv_format_der, &total);
+        }
+    }
     if (rc != TLV_OK) return rc;
     new_off = arena_alloc(wctx, total);
     if (new_off == (size_t)-1) return TLV_ERR_LIMIT;
-    rc = tlv_der_write_strict(wctx->arena + new_off, total, tag, wctx->arena + content_off,
-                              content_len, &wctx->limits->base, out_len, NULL);
+    if (deferred != TLV_OK) wctx->failure_owner = new_off;
+    if (wctx->failure != TLV_OK) {
+        /* Generate framing even for invalid Value bytes, solely to locate the
+         * retained failure. These bytes can never reach the destination. */
+        rc = tlv_write(wctx->arena + new_off, total, &tlv_format_der, tag,
+                       wctx->arena + content_off, content_len, out_len);
+    } else {
+        rc = tlv_der_write_strict(wctx->arena + new_off, total, tag, wctx->arena + content_off,
+                                  content_len, &wctx->limits->base, out_len, NULL);
+    }
     if (rc != TLV_OK) return rc;
+    if (deferred == TLV_OK) relocate_failure(wctx, content_off, new_off, total - content_len);
     *out_off = new_off;
     return TLV_OK;
 }
@@ -695,6 +745,8 @@ static tlv_result_t encode_children_concat(der_schema_write_ctx_t* wctx,
                                            size_t* out_len) {
     size_t offs[TLV_DER_SCHEMA_MAX_COMPONENTS], lens[TLV_DER_SCHEMA_MAX_COMPONENTS];
     size_t present = 0, i, total = 0, base, pos;
+    int missing = 0;
+    size_t missing_offset = 0;
     for (i = 0; i < count; ++i) {
         int component_absent = 0;
         size_t off, len;
@@ -702,7 +754,14 @@ static tlv_result_t encode_children_concat(der_schema_write_ctx_t* wctx,
             encode_at(wctx, &components[i], 0, depth, 0, &component_absent, &off, &len);
         if (rc != TLV_OK) return rc;
         if (component_absent) {
-            if (components[i].presence == TLV_DER_REQUIRED) return TLV_ERR_SCHEMA;
+            if (components[i].presence == TLV_DER_REQUIRED) {
+                if (wctx->failure == TLV_OK) {
+                    missing = 1;
+                    missing_offset = total;
+                }
+                rc = defer_failure(wctx, TLV_ERR_SCHEMA, SIZE_MAX, 0);
+                if (rc != TLV_OK) return rc;
+            }
             continue;
         }
         offs[present] = off;
@@ -715,7 +774,12 @@ static tlv_result_t encode_children_concat(der_schema_write_ctx_t* wctx,
     pos = base;
     for (i = 0; i < present; ++i) {
         memcpy(wctx->arena + pos, wctx->arena + offs[i], lens[i]);
+        relocate_failure(wctx, offs[i], base, pos - base);
         pos += lens[i];
+    }
+    if (missing) {
+        wctx->failure_owner = base;
+        wctx->failure_offset = missing_offset;
     }
     *out_off = base;
     *out_len = total;
@@ -730,6 +794,7 @@ static tlv_result_t encode_set_content(der_schema_write_ctx_t* wctx,
     size_t offs[TLV_DER_SCHEMA_MAX_COMPONENTS], lens[TLV_DER_SCHEMA_MAX_COMPONENTS];
     owned_tag_t tags[TLV_DER_SCHEMA_MAX_COMPONENTS];
     size_t present = 0, i, total = 0, base, pos;
+    int missing = 0;
     for (i = 0; i < type->component_count; ++i) {
         int component_absent = 0;
         size_t off, len;
@@ -738,7 +803,11 @@ static tlv_result_t encode_set_content(der_schema_write_ctx_t* wctx,
             encode_at(wctx, &type->components[i], 0, depth, 0, &component_absent, &off, &len);
         if (rc != TLV_OK) return rc;
         if (component_absent) {
-            if (type->components[i].presence == TLV_DER_REQUIRED) return TLV_ERR_SCHEMA;
+            if (type->components[i].presence == TLV_DER_REQUIRED) {
+                if (wctx->failure == TLV_OK) missing = 1;
+                rc = defer_failure(wctx, TLV_ERR_SCHEMA, SIZE_MAX, 0);
+                if (rc != TLV_OK) return rc;
+            }
             continue;
         }
         rc = component_tag(&type->components[i], &tag);
@@ -776,7 +845,12 @@ static tlv_result_t encode_set_content(der_schema_write_ctx_t* wctx,
     pos = base;
     for (i = 0; i < present; ++i) {
         memcpy(wctx->arena + pos, wctx->arena + offs[i], lens[i]);
+        relocate_failure(wctx, offs[i], base, pos - base);
         pos += lens[i];
+    }
+    if (missing) {
+        wctx->failure_owner = base;
+        wctx->failure_offset = total;
     }
     *out_off = base;
     *out_len = total;
@@ -793,6 +867,7 @@ static tlv_result_t encode_set_of_content(der_schema_write_ctx_t* wctx,
                                           const tlv_der_schema_type_t* type, size_t depth,
                                           size_t* out_off, size_t* out_len) {
     size_t count = 0, i, total = 0, base, pos;
+    int cardinality = 0;
     for (;;) {
         int element_absent = 0;
         size_t off, len;
@@ -804,9 +879,18 @@ static tlv_result_t encode_set_of_content(der_schema_write_ctx_t* wctx,
         wctx->scratch[count].offset = off;
         wctx->scratch[count].length = len;
         ++count;
-        if (count > type->max_elements) return TLV_ERR_SCHEMA;
+        if (count > type->max_elements) {
+            if (wctx->failure == TLV_OK) cardinality = 1;
+            rc = defer_failure(wctx, TLV_ERR_SCHEMA, SIZE_MAX, 0);
+            if (rc != TLV_OK) return rc;
+        }
     }
-    if (count < type->min_elements) return TLV_ERR_SCHEMA;
+    if (count < type->min_elements) {
+        tlv_result_t rc;
+        if (wctx->failure == TLV_OK) cardinality = 2;
+        rc = defer_failure(wctx, TLV_ERR_SCHEMA, SIZE_MAX, 0);
+        if (rc != TLV_OK) return rc;
+    }
     for (i = 1; i < count; ++i) {
         tlv_der_schema_record_t cur = wctx->scratch[i];
         size_t j = i;
@@ -827,7 +911,13 @@ static tlv_result_t encode_set_of_content(der_schema_write_ctx_t* wctx,
     pos = base;
     for (i = 0; i < count; ++i) {
         memcpy(wctx->arena + pos, wctx->arena + wctx->scratch[i].offset, wctx->scratch[i].length);
+        relocate_failure(wctx, wctx->scratch[i].offset, base, pos - base);
+        if (cardinality == 1 && i == type->max_elements) wctx->failure_offset = pos - base;
         pos += wctx->scratch[i].length;
+    }
+    if (cardinality) {
+        wctx->failure_owner = base;
+        if (cardinality == 2) wctx->failure_offset = total;
     }
     *out_off = base;
     *out_len = total;
@@ -843,6 +933,7 @@ static tlv_result_t encode_sequence_of_content(der_schema_write_ctx_t* wctx,
                                                const tlv_der_schema_type_t* type, size_t depth,
                                                size_t* out_off, size_t* out_len) {
     size_t count = 0, i, total = 0, base, pos;
+    int cardinality = 0;
     for (;;) {
         int element_absent = 0;
         size_t off, len;
@@ -854,16 +945,31 @@ static tlv_result_t encode_sequence_of_content(der_schema_write_ctx_t* wctx,
         wctx->scratch[count].offset = off;
         wctx->scratch[count].length = len;
         ++count;
-        if (count > type->max_elements) return TLV_ERR_SCHEMA;
+        if (count > type->max_elements) {
+            if (wctx->failure == TLV_OK) cardinality = 1;
+            rc = defer_failure(wctx, TLV_ERR_SCHEMA, SIZE_MAX, 0);
+            if (rc != TLV_OK) return rc;
+        }
     }
-    if (count < type->min_elements) return TLV_ERR_SCHEMA;
+    if (count < type->min_elements) {
+        tlv_result_t rc;
+        if (wctx->failure == TLV_OK) cardinality = 2;
+        rc = defer_failure(wctx, TLV_ERR_SCHEMA, SIZE_MAX, 0);
+        if (rc != TLV_OK) return rc;
+    }
     for (i = 0; i < count; ++i) total += wctx->scratch[i].length;
     base = arena_alloc(wctx, total);
     if (base == (size_t)-1) return TLV_ERR_LIMIT;
     pos = base;
     for (i = 0; i < count; ++i) {
         memcpy(wctx->arena + pos, wctx->arena + wctx->scratch[i].offset, wctx->scratch[i].length);
+        relocate_failure(wctx, wctx->scratch[i].offset, base, pos - base);
+        if (cardinality == 1 && i == type->max_elements) wctx->failure_offset = pos - base;
         pos += wctx->scratch[i].length;
+    }
+    if (cardinality) {
+        wctx->failure_owner = base;
+        if (cardinality == 2) wctx->failure_offset = total;
     }
     *out_off = base;
     *out_len = total;
@@ -910,7 +1016,8 @@ static tlv_result_t produce_raw_content(der_schema_write_ctx_t* wctx,
             tlv_result_t rc =
                 encode_leaf_content(wctx, callback_component, index, out_off, out_len);
             if (rc != TLV_OK) return rc;
-            return validate_leaf_constraint(type, wctx->arena + *out_off, *out_len);
+            rc = validate_leaf_constraint(type, wctx->arena + *out_off, *out_len);
+            return rc == TLV_OK ? TLV_OK : defer_failure(wctx, rc, *out_off, 0);
         }
         case TLV_DER_SCHEMA_ANY:
             return encode_leaf_content(wctx, callback_component, index, out_off, out_len);
@@ -999,7 +1106,12 @@ static tlv_result_t encode_at(der_schema_write_ctx_t* wctx,
                                           schema_depth + 1, &inner_absent, &content_off,
                                           &content_len);
             if (rc != TLV_OK) return rc;
-            if (inner_absent) return TLV_ERR_SCHEMA;
+            if (inner_absent) {
+                content_off = wctx->arena_used;
+                content_len = 0;
+                rc = defer_failure(wctx, TLV_ERR_SCHEMA, content_off, 0);
+                if (rc != TLV_OK) return rc;
+            }
         } else {
             rc = produce_raw_content(wctx, component->type, component, index, depth, &content_off,
                                      &content_len);
@@ -1009,7 +1121,8 @@ static tlv_result_t encode_at(der_schema_write_ctx_t* wctx,
         if (rc != TLV_OK) return rc;
     }
 
-    if (!*absent && component->presence == TLV_DER_DEFAULT && component->default_encoding &&
+    if (!*absent && !(wctx->failure != TLV_OK && wctx->failure_owner == *out_off) &&
+        component->presence == TLV_DER_DEFAULT && component->default_encoding &&
         *out_len == component->default_encoding_length) {
         int matches_default = 1;
         if (*out_len) {
@@ -1054,6 +1167,10 @@ tlv_result_t tlv_der_schema_write(uint8_t* data, size_t capacity, const tlv_der_
     wctx.limits = limits;
     wctx.scratch = scratch;
     wctx.scratch_capacity = scratch_capacity;
+    wctx.locate_failure = error_offset != NULL;
+    wctx.failure = TLV_OK;
+    wctx.failure_owner = SIZE_MAX;
+    wctx.failure_offset = 0;
 
     synthetic.type = root;
     synthetic.tagging = TLV_DER_TAG_NONE;
@@ -1064,6 +1181,12 @@ tlv_result_t tlv_der_schema_write(uint8_t* data, size_t capacity, const tlv_der_
     synthetic.default_encoding_length = 0;
 
     rc = encode_at(&wctx, &synthetic, 0, 0, 0, &absent, &root_off, &root_len);
+    if (wctx.failure != TLV_OK) {
+        /* A secondary callback/storage failure can prevent complete framing.
+         * Preserve the original result, with no invented output location. */
+        size_t offset = rc == TLV_OK && wctx.failure_owner == root_off ? wctx.failure_offset : 0;
+        return fail(wctx.failure, offset, error_offset);
+    }
     if (rc != TLV_OK) return fail(rc, 0, error_offset);
     if (root_len > limits->base.max_input_size) return fail(TLV_ERR_LIMIT, 0, error_offset);
     if (data) {

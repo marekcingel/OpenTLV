@@ -35,6 +35,7 @@ TEST(Unit_Tlvpp_Diagnostic, MakeDiagnosticPathStartsEmpty) {
     tlv::diagnostic_path path = tlv::make_diagnostic_path();
 
     EXPECT_EQ(0u, path.length);
+    EXPECT_EQ(0u, path.omitted);
 }
 
 TEST(Unit_Tlvpp_Diagnostic, PushPathAppendsTagsInOrder) {
@@ -57,6 +58,10 @@ TEST(Unit_Tlvpp_Diagnostic, PushPathReturnsAnErrorWhenFull) {
 
     ASSERT_FALSE(result.has_value());
     EXPECT_EQ(tlv::errc::limit, result.error().status());
+    EXPECT_EQ(1u, path.omitted);
+    tlv::pop_path(path);
+    EXPECT_EQ(0u, path.omitted);
+    EXPECT_EQ(tlv::diagnostic_path_capacity, path.length);
 }
 
 TEST(Unit_Tlvpp_Diagnostic, PopPathRemovesTheLastTag) {

@@ -6,6 +6,7 @@
 #include <stdlib.h>
 #include <string.h>
 #include "adversarial_plan.h"
+#include "../diagnostic_invariant.h"
 
 /* Public API only. Fixed arenas also make this driver usable with an entirely
  * MSan-instrumented C runtime, without an uninstrumented C++ standard library. */
@@ -63,11 +64,13 @@ static int sequence(const tlv_query_program_t* p, int retained, const char* oper
     CHECK(initialize(p, retained, &memory, &e, &bytes) == 0);
     trace = operations;
     for (step = 0; operations[step]; ++step) {
-        tlv_tree_event_t   input = event(), output;
-        tlv_query_result_t scalar;
-        unsigned char      before[sizeof output], scalar_before[sizeof scalar];
-        tlv_result_t       rc, expected = TLV_OK;
-        int                matched = 79;
+        tlv_tree_event_t       input = event(), output;
+        tlv_query_result_t     scalar;
+        unsigned char          before[sizeof output], scalar_before[sizeof scalar];
+        tlv_result_t           rc, expected = TLV_OK;
+        int                    matched = 79;
+        int                    was_invalid = invalid;
+        tlv_query_diagnostic_t diagnostic = {0};
         /* Struct assignment need not copy padding in transactional snapshots. */
         memset(&output, 0xa5, sizeof output);
         memcpy(before, &output, sizeof output);
@@ -76,7 +79,7 @@ static int sequence(const tlv_query_program_t* p, int retained, const char* oper
         switch (operations[step]) {
             case 'B':
                 expected = bound || nodes || invalid || finished ? TLV_ERR_INVALID_ARG : TLV_OK;
-                rc = tlv_query_exec_bind(e, "n", TLV_QUERY_RESULT_INTEGER, 1, NULL, 0, NULL);
+                rc = tlv_query_exec_bind(e, "n", TLV_QUERY_RESULT_INTEGER, 1, NULL, 0, &diagnostic);
                 if (expected == TLV_OK) bound = 1;
                 break;
             case 'F':
@@ -92,12 +95,12 @@ static int sequence(const tlv_query_program_t* p, int retained, const char* oper
                     invalid = 1;
                 } else
                     ++nodes;
-                rc = tlv_query_exec_feed(e, &input, &matched, NULL);
+                rc = tlv_query_exec_feed(e, &input, &matched, &diagnostic);
                 CHECK(matched == (expected == TLV_OK ? !retained : 79));
                 break;
             case 'N':
                 expected = TLV_ERR_NULL_ARG;
-                rc = tlv_query_exec_feed(e, NULL, &matched, NULL);
+                rc = tlv_query_exec_feed(e, NULL, &matched, &diagnostic);
                 CHECK(matched == 79);
                 break;
             case 'X':
@@ -106,7 +109,7 @@ static int sequence(const tlv_query_program_t* p, int retained, const char* oper
                     invalid = 1;
                 } else
                     finished = 1;
-                rc = tlv_query_exec_finish(e, NULL);
+                rc = tlv_query_exec_finish(e, &diagnostic);
                 break;
             case 'R':
                 rc = tlv_query_exec_reset(e);
@@ -140,6 +143,10 @@ static int sequence(const tlv_query_program_t* p, int retained, const char* oper
             default: CHECK(0); return 1;
         }
         CHECK(rc == expected);
+        /* Failed continuations are rejected before initialization; all other
+         * diagnostic-producing transitions must describe their result. */
+        if ((!was_invalid && strchr("BFEX", operations[step])) || operations[step] == 'N')
+            CHECK(test_query_diagnostic_matches(rc, &diagnostic));
         CHECK(memcmp(immutable, p, p->reserved) == 0);
         tlv_query_exec_info_t info = {0};
         info.struct_size = sizeof info;

@@ -1,6 +1,7 @@
 // SPDX-License-Identifier: MIT
 // Copyright (c) 2026 Marek Cingel
 
+#include "../../../diagnostic_assertions.h"
 #include "tlv/builtins/dhcp/dhcpv4.h"
 #include "tlv/builtins/dhcp/options.h"
 #include "tlv/builtins/dhcp/container.h"
@@ -134,8 +135,9 @@ TEST(Integration_Tlv_Dhcpv4, QueryAndDocumentTreatPadAndEndAsOrdinaryElements) {
 #endif
     size_t           significant = 999;
     tlv_diagnostic_t diagnostic{};
-    EXPECT_EQ(TLV_ERR_SCHEMA, tlv_dhcpv4_options_validate(wire, sizeof(wire), nullptr, 5,
-                                                          &significant, &diagnostic));
+    EXPECT_EQ(TLV_ERR_SCHEMA, TLV_DIAGNOSTIC_RESULT(diagnostic, tlv_dhcpv4_options_validate(
+                                                                    wire, sizeof(wire), nullptr, 5,
+                                                                    &significant, &diagnostic)));
     EXPECT_EQ(6u, diagnostic.offset);
 }
 
@@ -177,7 +179,8 @@ TEST(Integration_Tlv_Dhcpv4, ReaderTruncationReportsAbsoluteOffsetsWithoutAdvanc
         for (int i = 0; i < 3; ++i) ASSERT_EQ(TLV_OK, tlv_reader_next(&reader, &element));
         const auto              previous = element;
         tlv_reader_diagnostic_t error{};
-        EXPECT_EQ(TLV_ERR_BUFFER_TOO_SHORT, tlv_reader_next_diag(&reader, &element, &error));
+        EXPECT_EQ(TLV_ERR_BUFFER_TOO_SHORT,
+                  TLV_DIAGNOSTIC_RESULT(error, tlv_reader_next_diag(&reader, &element, &error)));
         EXPECT_EQ(4u, reader.pos);
         EXPECT_TRUE(tlv_tag_equal(previous.tag, element.tag));
         EXPECT_EQ(previous.value.data, element.value.data);

@@ -2,6 +2,7 @@
 // Copyright (c) 2026 Marek Cingel
 
 /* Out-of-range enum values are tested in C, without invalid C++ enum loads. */
+#include "../diagnostic_invariant.h"
 #include "tlv/field/fixed.h"
 #include "tlv/formats/fixed.h"
 #include "tlv/formats/variable.h"
@@ -96,7 +97,8 @@ int tlv_test_invalid_enum_visitors(void) {
     size_t                  count = 0, offset = 99;
     CHECK(tlv_reader_init(&reader, flat, sizeof flat, &format) == TLV_OK);
     CHECK(tlv_reader_visit_diag(&reader, invalid_once, &count, &diagnostic) == TLV_ERR_VISITOR);
-    CHECK(tlv_reader_offset(&reader) == 2 && count == 1 && diagnostic.diagnostic.code == TLV_OK);
+    CHECK(tlv_reader_offset(&reader) == 2 && count == 1 &&
+          test_diagnostic_matches(TLV_ERR_VISITOR, &diagnostic.diagnostic));
     CHECK(tlv_reader_visit(&reader, invalid_once, &count) == TLV_OK && count == 2);
     tlv_tree_frame_t  frames[1];
     tlv_tree_reader_t tree;

@@ -264,3 +264,19 @@ def test_schema_fixed_format_validation_and_reports():
         schema.validate(data, format)
     assert schema.validate_diagnostics(data, format).total_count == 1
     assert schema.validate_diagnostics(data, format).diagnostics[0].length.actual == 1
+
+
+def test_deep_report_retains_outer_path_and_omitted_count():
+    schema = StructureSchema([StructureRule(b"\x04", min_length=1)])
+    wire = b"\x04\x00"
+    for level in range(35):
+        tag = b"\x70" if level == 34 else b"\x30"
+        schema = StructureSchema([StructureRule(tag, children=schema)])
+        wire = tag + bytes([len(wire)]) + wire
+    issue = schema.validate_diagnostics(wire, max_depth=40).diagnostics[0]
+    del schema, wire
+    assert len(issue.path) == 32
+    assert issue.path[0] == Tag(b"\x70")
+    assert issue.path[1:] == (Tag(b"\x30"),) * 31
+    assert issue.path_omitted == 3
+    assert issue.tag == Tag(b"\x04")

@@ -137,7 +137,9 @@ tlv_result_t tlv_query_plan_open(const void* image, size_t size,
                       diagnostic ? sizeof *diagnostic : 0))
         return TLV_ERR_INVALID_ARG;
     query_diag_init(diagnostic);
-    if (!image || !program) return TLV_ERR_NULL_ARG;
+    if (!image || !program)
+        return query_error(diagnostic, TLV_ERR_NULL_ARG, TLV_QUERY_ERROR_STORAGE, 0, 0,
+                           "required plan arguments");
     if ((uintptr_t)image % sizeof(uint32_t) || size < sizeof(tlv_query_program_t))
         return query_error(diagnostic, TLV_ERR_INVALID_ARG, TLV_QUERY_ERROR_STORAGE, 0, 0,
                            "aligned bounded plan");

@@ -222,6 +222,16 @@ assert.deepEqual(schemaFailure.schema.path, ["70"]);
 assert.equal(schemaFailure.schema.offset, 2);
 assert.equal(schemaFailure.schema.field, "one");
 assert.equal(schemaFailure.schema.expected, "contextual Query assertion true");
+assert.equal(schemaFailure.schema.path_omitted, 0);
+let deepSchemaInput = new Uint8Array([0x5a, 1, 2]);
+for (let level = 0; level < 35; ++level)
+  deepSchemaInput = new Uint8Array([level === 34 ? 0x70 : 0x30, deepSchemaInput.length, ...deepSchemaInput]);
+assert.throws(() => schema.validateBuffer(deepSchemaInput), error => {
+  assert.deepEqual(error.schema.path, ["70", ...Array(31).fill("30")]);
+  assert.equal(error.schema.path_omitted, 3);
+  return error.schema.kind_name === "assertion";
+});
+
 assert.throws(() => schema.validateBuffer(goodSchemaInput, { max_contexts: 0 }),
   error => error.query.limit === "schema-contexts");
 assert.throws(() => schema.validateBuffer(goodSchemaInput, { max_work: 1 }), error => error.query.limit === "work");
@@ -434,4 +444,5 @@ assert.throws(() => diagnosticProgram.evaluate(hexToBytes("5a82010200")), error 
 diagnosticProgram.close();
 assert.equal(readerFailure.query.reader.declared_length, 258);
 assert.equal(readerFailure.query.reader.tag, "5A");
+assert.equal(readerFailure.query.reader.path_omitted, 0);
 console.log("JS/WASM extensions: checked resolvers, Tag adapters, Formats, Source feeds, ordinals and V1 passed");

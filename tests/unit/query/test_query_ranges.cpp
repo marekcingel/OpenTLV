@@ -1,6 +1,7 @@
 // SPDX-License-Identifier: MIT
 // Copyright (c) 2026 Marek Cingel
 
+#include "../../diagnostic_assertions.h"
 #include "tlv++/native.hpp"
 #include "controlled_format.h"
 #include "tlv++/query/query.hpp"
@@ -264,8 +265,9 @@ TEST(Unit_Tlvpp_FullQuery, ContextualSchemaAssertionsPreserveReaderFailures) {
                                             selected,        4, frames,           4};
     tlv_schema_query_diagnostic_t diagnostic{};
     EXPECT_EQ(TLV_ERR_SCHEMA,
-              tlv_schema_query_validate_buffer(input, sizeof input, &format, &rule, 1, 3, 100,
-                                               100000, &workspace, &diagnostic));
+              TLV_DIAGNOSTIC_RESULT(diagnostic, tlv_schema_query_validate_buffer(
+                                                    input, sizeof input, &format, &rule, 1, 3, 100,
+                                                    100000, &workspace, &diagnostic)));
     EXPECT_EQ(0u, diagnostic.rule);
     EXPECT_STREQ("label-requires-name", diagnostic.schema.field);
     EXPECT_EQ(4u, diagnostic.schema.diagnostic.offset);
@@ -275,22 +277,26 @@ TEST(Unit_Tlvpp_FullQuery, ContextualSchemaAssertionsPreserveReaderFailures) {
     malformed.push_back(0x50);
     malformed.push_back(10);
     EXPECT_NE(TLV_ERR_SCHEMA,
-              tlv_schema_query_validate_buffer(malformed.data(), malformed.size(), &format, &rule,
-                                               1, 3, 100, 100000, &workspace, &diagnostic));
+              TLV_DIAGNOSTIC_RESULT(
+                  diagnostic, tlv_schema_query_validate_buffer(malformed.data(), malformed.size(),
+                                                               &format, &rule, 1, 3, 100, 100000,
+                                                               &workspace, &diagnostic)));
     EXPECT_EQ(TLV_QUERY_ERROR_READER, diagnostic.query.kind);
     EXPECT_EQ(TLV_OK, tlv_schema_query_validate_buffer(nullptr, 0, nullptr, nullptr, 0, 0, 0, 0,
                                                        nullptr, nullptr));
     workspace.context_capacity = 1;
     EXPECT_EQ(TLV_ERR_LIMIT,
-              tlv_schema_query_validate_buffer(input, sizeof input, &format, &rule, 1, 3, 100,
-                                               100000, &workspace, &diagnostic));
+              TLV_DIAGNOSTIC_RESULT(diagnostic, tlv_schema_query_validate_buffer(
+                                                    input, sizeof input, &format, &rule, 1, 3, 100,
+                                                    100000, &workspace, &diagnostic)));
     EXPECT_STREQ("schema-contexts", diagnostic.query.limit);
     auto nested = tlv::query_program::compile("//A5");
     ASSERT_TRUE(nested);
     rule.context = tlv::native::handle(*nested);
     EXPECT_EQ(TLV_ERR_SCHEMA,
-              tlv_schema_query_validate_buffer(input, sizeof input, &format, &rule, 1, 3, 100,
-                                               100000, &workspace, &diagnostic));
+              TLV_DIAGNOSTIC_RESULT(diagnostic, tlv_schema_query_validate_buffer(
+                                                    input, sizeof input, &format, &rule, 1, 3, 100,
+                                                    100000, &workspace, &diagnostic)));
     ASSERT_EQ(1u, diagnostic.schema.path.length);
     EXPECT_EQ(0x6F, diagnostic.schema.path.tags[0].data[0]);
     EXPECT_STREQ("assertion", tlv_schema_issue_kind_string(diagnostic.schema.kind));
@@ -726,8 +732,9 @@ TEST(Unit_Tlvpp_FullQuery, DocumentSchemaRunsTheSameContextualPrograms) {
                                     selected,        4, nullptr,          0};
     tlv_schema_query_diagnostic_t diagnostic{};
     EXPECT_EQ(TLV_ERR_SCHEMA,
-              tlv_schema_query_validate_document(tlv::native::handle(*doc), &rule, 1, 3, 100,
-                                                 100000, &w, nullptr, 0, nullptr, &diagnostic));
+              TLV_DIAGNOSTIC_RESULT(diagnostic, tlv_schema_query_validate_document(
+                                                    tlv::native::handle(*doc), &rule, 1, 3, 100,
+                                                    100000, &w, nullptr, 0, nullptr, &diagnostic)));
     EXPECT_EQ(TLV_SCHEMA_ISSUE_ASSERTION, diagnostic.schema.kind);
     EXPECT_STREQ("name", diagnostic.schema.field);
 }

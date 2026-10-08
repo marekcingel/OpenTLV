@@ -1,6 +1,7 @@
 // SPDX-License-Identifier: MIT
 // Copyright (c) 2026 Marek Cingel
 
+#include "../../diagnostic_assertions.h"
 #include "tlv++/native.hpp"
 #include "tlv++/definition.hpp"
 #include "controlled_format.h"
@@ -98,7 +99,8 @@ TEST(Unit_Tlvpp_ReaderParity, IncrementalSourceOffsetsAndFinalTruncation) {
     tlv::reader_diagnostic expected{}, actual{};
     auto                   failure = reader.next_source(&actual);
     ASSERT_FALSE(failure);
-    EXPECT_EQ(tlv_reader_next_diag(&native, &element, &expected), failure.error().code);
+    EXPECT_EQ(TLV_DIAGNOSTIC_RESULT(expected, tlv_reader_next_diag(&native, &element, &expected)),
+              failure.error().code);
     EXPECT_EQ(expected.diagnostic.offset, actual.diagnostic.offset);
     EXPECT_EQ(expected.operation, actual.operation);
     EXPECT_FALSE(reader.at_end());

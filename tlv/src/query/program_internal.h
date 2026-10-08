@@ -382,4 +382,12 @@ static inline tlv_result_t query_limit(tlv_query_diagnostic_t* d, const char* na
     }
     return query_error(d, TLV_ERR_LIMIT, TLV_QUERY_ERROR_LIMIT, begin, end, NULL);
 }
+
+/* Preserve richer detail from a callee; supply context only when none was set. */
+static inline tlv_result_t query_failure(tlv_query_diagnostic_t* d, tlv_result_t rc,
+                                         tlv_query_error_kind_t kind, const char* expected) {
+    if (rc != TLV_OK && d && d->kind == TLV_QUERY_ERROR_NONE)
+        query_error(d, rc, kind, 0, 0, expected);
+    return rc;
+}
 #endif

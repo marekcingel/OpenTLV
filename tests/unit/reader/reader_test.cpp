@@ -1,6 +1,7 @@
 // SPDX-License-Identifier: MIT
 // Copyright (c) 2026 Marek Cingel
 
+#include "../../diagnostic_assertions.h"
 #include "controlled_format.h"
 #include "tlv/reader/reader.h"
 #include <gtest/gtest.h>
@@ -179,8 +180,10 @@ TEST(Unit_Tlv_ReaderDiagnostic, ReadDiagReportsValueExceedingAvailableBytes) {
     size_t                  consumed = 0;
     tlv_reader_diagnostic_t diagnostic;
 
-    ASSERT_EQ(TLV_ERR_BUFFER_TOO_SHORT, tlv_read_diag(data, sizeof(data), &controlled::format,
-                                                      &element, &consumed, &diagnostic));
+    ASSERT_EQ(
+        TLV_ERR_BUFFER_TOO_SHORT,
+        TLV_DIAGNOSTIC_RESULT(diagnostic, tlv_read_diag(data, sizeof(data), &controlled::format,
+                                                        &element, &consumed, &diagnostic)));
 
     EXPECT_EQ(TLV_ERR_BUFFER_TOO_SHORT, diagnostic.diagnostic.code);
     EXPECT_EQ(TLV_DIAGNOSTIC_SEVERITY_ERROR, diagnostic.diagnostic.severity);
@@ -210,7 +213,8 @@ TEST(Unit_Tlv_ReaderDiagnostic, ReadDiagReportsEmptyInputAtHeader) {
     tlv_reader_diagnostic_t diagnostic;
 
     ASSERT_EQ(TLV_ERR_END_OF_BUFFER,
-              tlv_read_diag(nullptr, 0, &controlled::format, &element, &consumed, &diagnostic));
+              TLV_DIAGNOSTIC_RESULT(diagnostic, tlv_read_diag(nullptr, 0, &controlled::format,
+                                                              &element, &consumed, &diagnostic)));
 
     EXPECT_EQ(TLV_ERR_END_OF_BUFFER, diagnostic.diagnostic.code);
     EXPECT_EQ(TLV_READER_OP_HEADER, diagnostic.operation);
@@ -225,8 +229,10 @@ TEST(Unit_Tlv_ReaderDiagnostic, ReadDiagReportsATruncatedLengthWithTheDecodedTag
     size_t                  consumed = 0;
     tlv_reader_diagnostic_t diagnostic;
 
-    ASSERT_EQ(TLV_ERR_BUFFER_TOO_SHORT, tlv_read_diag(data, sizeof(data), &controlled::format,
-                                                      &element, &consumed, &diagnostic));
+    ASSERT_EQ(
+        TLV_ERR_BUFFER_TOO_SHORT,
+        TLV_DIAGNOSTIC_RESULT(diagnostic, tlv_read_diag(data, sizeof(data), &controlled::format,
+                                                        &element, &consumed, &diagnostic)));
 
     EXPECT_EQ(TLV_ERR_BUFFER_TOO_SHORT, diagnostic.diagnostic.code);
     EXPECT_EQ(TLV_READER_OP_LENGTH, diagnostic.operation);
@@ -248,7 +254,9 @@ TEST(Unit_Tlv_ReaderDiagnostic, ReaderNextDiagReportsOffsetsAbsoluteWithinTheBuf
     EXPECT_EQ(3u, reader.pos);
 
     tlv_reader_diagnostic_t diagnostic;
-    ASSERT_EQ(TLV_ERR_BUFFER_TOO_SHORT, tlv_reader_next_diag(&reader, &element, &diagnostic));
+    ASSERT_EQ(
+        TLV_ERR_BUFFER_TOO_SHORT,
+        TLV_DIAGNOSTIC_RESULT(diagnostic, tlv_reader_next_diag(&reader, &element, &diagnostic)));
 
     ASSERT_NE(0, diagnostic.diagnostic.has_offset);
     EXPECT_EQ(5u, diagnostic.diagnostic.offset);
@@ -273,7 +281,9 @@ TEST(Unit_Tlv_ReaderDiagnostic, ReaderNextDiagReportsEndOfBufferAtTheCurrentPosi
     EXPECT_TRUE(tlv_reader_at_end(&reader));
 
     tlv_reader_diagnostic_t diagnostic;
-    ASSERT_EQ(TLV_ERR_END_OF_BUFFER, tlv_reader_next_diag(&reader, &element, &diagnostic));
+    ASSERT_EQ(
+        TLV_ERR_END_OF_BUFFER,
+        TLV_DIAGNOSTIC_RESULT(diagnostic, tlv_reader_next_diag(&reader, &element, &diagnostic)));
     EXPECT_EQ(TLV_READER_OP_HEADER, diagnostic.operation);
     EXPECT_EQ(0, diagnostic.has_tag_offset);
     EXPECT_EQ(sizeof(data), diagnostic.diagnostic.offset);
@@ -314,9 +324,12 @@ TEST(Unit_Tlv_ReaderCursor, PreservesStateAndOutputsForEveryIncompletePrefix) {
             tlv_reader_diagnostic_t diagnostic{};
             const auto expected = size == 2 ? TLV_ERR_END_OF_BUFFER : TLV_ERR_BUFFER_TOO_SHORT;
             EXPECT_EQ(expected, tlv_reader_next(&reader, &element));
-            EXPECT_EQ(expected, tlv_reader_next_diag(&reader, &element, &diagnostic));
             EXPECT_EQ(expected,
-                      tlv_reader_next_source_diag(&reader, &element, &source, &diagnostic));
+                      TLV_DIAGNOSTIC_RESULT(diagnostic,
+                                            tlv_reader_next_diag(&reader, &element, &diagnostic)));
+            EXPECT_EQ(expected, TLV_DIAGNOSTIC_RESULT(
+                                    diagnostic, tlv_reader_next_source_diag(&reader, &element,
+                                                                            &source, &diagnostic)));
             EXPECT_EQ(before.pos, reader.pos);
             EXPECT_EQ(before.data, reader.data);
             EXPECT_EQ(before.size, reader.size);
@@ -371,7 +384,9 @@ TEST(Unit_Tlv_ReaderCursor, DoesNotRecoverOrReinterpretFormatErrors) {
     tlv_element_t element = {TLV_TAG(0xEE), {data, 42}};
     for (int repeat = 0; repeat != 2; ++repeat) {
         tlv_reader_diagnostic_t diagnostic{};
-        EXPECT_EQ(TLV_ERR_INVALID_TAG, tlv_reader_next_diag(&reader, &element, &diagnostic));
+        EXPECT_EQ(TLV_ERR_INVALID_TAG,
+                  TLV_DIAGNOSTIC_RESULT(diagnostic,
+                                        tlv_reader_next_diag(&reader, &element, &diagnostic)));
         EXPECT_EQ(TLV_ERR_INVALID_TAG, diagnostic.diagnostic.code);
         EXPECT_EQ(TLV_READER_OP_TAG, diagnostic.operation);
         EXPECT_EQ(0u, diagnostic.diagnostic.offset);
@@ -423,7 +438,8 @@ TEST(Unit_Tlv_ReaderCursor, RejectsInvalidStateAndArgumentsWithoutAdvancing) {
     tlv_element_t           element{};
     tlv_reader_diagnostic_t diagnostic{};
     EXPECT_EQ(TLV_ERR_NULL_ARG,
-              tlv_reader_next_source_diag(&reader, &element, nullptr, &diagnostic));
+              TLV_DIAGNOSTIC_RESULT(diagnostic, tlv_reader_next_source_diag(&reader, &element,
+                                                                            nullptr, &diagnostic)));
     EXPECT_EQ(TLV_ERR_NULL_ARG, diagnostic.diagnostic.code);
     EXPECT_EQ(TLV_ERR_NULL_ARG, tlv_reader_next(&reader, nullptr));
     EXPECT_EQ(TLV_ERR_NULL_ARG, tlv_reader_next(nullptr, &element));
@@ -431,7 +447,9 @@ TEST(Unit_Tlv_ReaderCursor, RejectsInvalidStateAndArgumentsWithoutAdvancing) {
     reader.pos = sizeof(data) + 1;
     EXPECT_FALSE(tlv_reader_at_end(&reader));
     EXPECT_EQ(TLV_ERR_INVALID_ARG, tlv_reader_next(&reader, &element));
-    EXPECT_EQ(TLV_ERR_INVALID_ARG, tlv_reader_next_diag(&reader, &element, &diagnostic));
+    EXPECT_EQ(
+        TLV_ERR_INVALID_ARG,
+        TLV_DIAGNOSTIC_RESULT(diagnostic, tlv_reader_next_diag(&reader, &element, &diagnostic)));
     EXPECT_EQ(sizeof(data) + 1, reader.pos);
     EXPECT_EQ(reader.pos, diagnostic.diagnostic.offset);
     EXPECT_FALSE(tlv_reader_at_end(nullptr));

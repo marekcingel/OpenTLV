@@ -2,6 +2,7 @@
 // Copyright (c) 2026 Marek Cingel
 
 #include "tlv/diagnostic.h"
+#include <stdint.h>
 #include <string.h>
 
 void tlv_diagnostic_init(tlv_diagnostic_t* diagnostic, tlv_result_t code,
@@ -36,18 +37,26 @@ void tlv_diagnostic_set_path(tlv_diagnostic_t* diagnostic, const tlv_diagnostic_
 void tlv_diagnostic_path_init(tlv_diagnostic_path_t* path) {
     if (path == NULL) return;
     path->length = 0;
+    path->omitted = 0;
 }
 
 tlv_result_t tlv_diagnostic_path_push(tlv_diagnostic_path_t* path, tlv_tag_t tag) {
     if (path == NULL) return TLV_ERR_NULL_ARG;
-    if (path->length == TLV_DIAGNOSTIC_PATH_MAX) return TLV_ERR_LIMIT;
+    if (path->length > TLV_DIAGNOSTIC_PATH_MAX) return TLV_ERR_INVALID_ARG;
+    if (path->length == TLV_DIAGNOSTIC_PATH_MAX || path->omitted) {
+        if (path->omitted != SIZE_MAX) ++path->omitted;
+        return TLV_ERR_LIMIT;
+    }
     path->tags[path->length++] = tag;
     return TLV_OK;
 }
 
 void tlv_diagnostic_path_pop(tlv_diagnostic_path_t* path) {
-    if (path == NULL || path->length == 0) return;
-    --path->length;
+    if (path == NULL) return;
+    if (path->omitted)
+        --path->omitted;
+    else if (path->length)
+        --path->length;
 }
 
 tlv_result_t tlv_diagnostic_path_string(const tlv_diagnostic_path_t* path, char* out,
@@ -72,6 +81,13 @@ tlv_result_t tlv_diagnostic_path_string(const tlv_diagnostic_path_t* path, char*
                 if (needed + k + 1 < capacity) out[needed + k] = sep[k];
             }
             needed += 3;
+        }
+    }
+    if (path->omitted) {
+        const char* suffix = path->length ? " > ..." : "...";
+        for (size_t i = 0; suffix[i]; ++i) {
+            if (needed + 1 < capacity) out[needed] = suffix[i];
+            ++needed;
         }
     }
     if (length) *length = needed;

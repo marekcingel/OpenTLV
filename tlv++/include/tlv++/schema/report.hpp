@@ -54,9 +54,13 @@ public:
     bool is_group() const noexcept {
         return raw_.is_group != 0;
     }
-    /** @brief Number of enclosing identifiers. */
+    /** @brief Number of retained outermost enclosing identifiers. */
     size_t depth() const noexcept {
         return raw_.path.length;
+    }
+    /** @brief Number of innermost enclosing identifiers omitted after the retained outer prefix. */
+    size_t omitted_depth() const noexcept {
+        return raw_.path.omitted;
     }
     /** @brief Borrow an enclosing identifier; returns absent when index is out of range. */
     tlv::tag ancestor(size_t index) const noexcept {
