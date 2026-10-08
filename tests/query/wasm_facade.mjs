@@ -96,15 +96,15 @@ assert.throws(() => query.next(), error => error.code === 18);
 query.setInput(hexToBytes("5a01015a0102"));
 query.visit(match => {
   assert.equal(match.offset, 3);
-  assert.throws(() => query.close(), error => error.code === 19);
-  assert.throws(() => query.reset(), error => error.code === 19);
+  assert.throws(() => query.close(), error => error.code === 19 && error.query.kind === 12);
+  assert.throws(() => query.reset(), error => error.code === 19 && error.query.kind === 12);
   return false;
 });
 assert.equal(query.next(), null);
 query.reset().setInput(hexToBytes("5a00"));
 const failure = new Error("callback failure");
 assert.throws(() => query.visit(() => { throw failure; }), error => error === failure);
-assert.throws(() => query.next(), error => error.code === 19);
+assert.throws(() => query.next(), error => error.code === 19 && error.query.kind === 12);
 query.reset().setInput(hexToBytes("5a005a"));
 assert.equal(query.exists({ early_return: true }), true);
 assert.equal(query.info.full_validation, 0);
@@ -117,11 +117,11 @@ const selection = selected.execution().evaluateDocument(document);
 const node = selection.next();
 assert.deepEqual(node.value, hexToBytes("01"));
 node.setValue(hexToBytes("07"));
-assert.throws(() => selection.next(), error => error.code === 19);
+assert.throws(() => selection.next(), error => error.code === 19 && error.query.kind === 12);
 selection.reset().evaluateDocument(document);
 assert.deepEqual(selection.next().value, hexToBytes("07"));
 document.close();
-assert.throws(() => selection.next(), error => error.code === 19);
+assert.throws(() => selection.next(), error => error.code === 19 && error.query.kind === 12);
 selection.reset(); selection.close(); selected.close();
 console.log(`JS/WASM public Query facade: ${cases.length} fixtures, ${checks} backend/window checks passed`);
 
@@ -157,7 +157,7 @@ const reentrant = api.compileQuery("num(//5A)", { providers: {
   num: { id: 103, decode: () => { active.reset(); return 1; } },
 } });
 active = reentrant.execution().setInput(hexToBytes("5a00"));
-assert.throws(() => active.finish(), error => error.code === 19);
+assert.throws(() => active.finish(), error => error.code === 19 && error.query.kind === 12);
 active.reset(); active.close(); reentrant.close();
 const exceptional = api.compileQuery("num(//5A)", { providers: {
   num: { id: 104, decode: () => { throw null; } },
@@ -168,7 +168,7 @@ console.log("JS/WASM custom providers: lifetime, image compatibility, bounded re
 const feedProgram = api.compileQuery("//5A");
 const feedExecution = feedProgram.execution({ retained: false });
 assert.equal(feedExecution.feed({ kind: "element", tag: hexToBytes("5a"), value: hexToBytes("01") }).offset, 0);
-assert.throws(() => feedExecution.setInput(hexToBytes("5a00")), error => error.code === 19);
+assert.throws(() => feedExecution.setInput(hexToBytes("5a00")), error => error.code === 19 && error.query.kind === 12);
 feedExecution.finish();
 assert.equal(feedExecution.info.full_validation, 1);
 feedExecution.reset();
@@ -189,7 +189,7 @@ assert.throws(() => editing.editDocument("replace", { value: hexToBytes("09"), t
   error => error.code === 1 && error.applied === 0);
 assert.deepEqual(editingDocument.first.firstChild.value, hexToBytes("01"));
 assert.equal(editing.editDocument("replace", { value: hexToBytes("09"), target_capacity: 3 }), 3);
-assert.throws(() => editing.next(), error => error.code === 19);
+assert.throws(() => editing.next(), error => error.code === 19 && error.query.kind === 12);
 editing.reset().evaluateDocument(editingDocument);
 assert.equal(editing.editDocument("insert_after", { tag: hexToBytes("5b"), value: hexToBytes("04") }), 3);
 const ancestorProgram = api.compileQuery("//70 | //5A");
@@ -252,10 +252,10 @@ const schemaProviderAssertion = api.compileQuery("num(.) = 1", { providers: { nu
   id: 201, decode(value, metadata) {
     if (throwSchemaProvider) throw schemaMarker;
     assert.deepEqual(metadata.tag, hexToBytes("5a"));
-    assert.throws(() => schemaDocument.close(), error => error.code === 19);
-    assert.throws(() => schemaDocument.first.erase(), error => error.code === 19);
-    assert.throws(() => schemaProvider.close(), error => error.code === 19);
-    assert.throws(() => schemaProvider.validateDocument(schemaDocument), error => error.code === 19);
+    assert.throws(() => schemaDocument.close(), error => error.code === 19 && error.query.kind === 12);
+    assert.throws(() => schemaDocument.first.erase(), error => error.code === 19 && error.query.kind === 12);
+    assert.throws(() => schemaProvider.close(), error => error.code === 19 && error.query.kind === 12);
+    assert.throws(() => schemaProvider.validateDocument(schemaDocument), error => error.code === 19 && error.query.kind === 12);
     return value[0];
   },
 } } });
@@ -322,12 +322,12 @@ taggedExecution.close(); fixedDocument.close();
 let tagExecution;
 const tagMarker = { tag: "failed" };
 const tagErrors = api.compileQuery("//*[class()=1]", { tags: { id: 313, classOf() {
-  assert.throws(() => tagExecution.reset(), error => error.code === 19);
+  assert.throws(() => tagExecution.reset(), error => error.code === 19 && error.query.kind === 12);
   throw tagMarker;
 } } });
 tagExecution = tagErrors.execution().setInput(hexToBytes("5a00"));
 assert.throws(() => tagExecution.next(), error => error === tagMarker);
-assert.throws(() => tagExecution.next(), error => error.code === 19);
+assert.throws(() => tagExecution.next(), error => error.code === 19 && error.query.kind === 12);
 tagExecution.reset(); tagExecution.close(); tagErrors.close();
 for (const marker of [null, undefined, new api.QueryError(5)]) {
   const p = api.compileQuery("//*[number()=1]", { tags: { id: 314, numberOf() { throw marker; } } });
@@ -359,7 +359,7 @@ const formatMarker = { format: "failed" };
 customFormat = api.Format.custom({
   decode(input) {
     if (formatFailure) throw formatMarker;
-    assert.throws(() => customFormat.close(), error => error.code === 19);
+    assert.throws(() => customFormat.close(), error => error.code === 19 && error.query.kind === 12);
     if (input.length < 2 || input.length < input[1] + 2) return { code: 1 };
     return { tag: Uint8Array.of(input[0] ^ 0xff), header: { offset: 0, size: 2 },
       tagRange: { offset: 0, size: 1 }, lengthRange: { offset: 1, size: 1 },
@@ -370,7 +370,7 @@ customFormat = api.Format.custom({
     return { header: 2, value: element.valueSize };
   },
   encode(element) {
-    if (customDocument) assert.throws(() => customDocument.close(), error => error.code === 19);
+    if (customDocument) assert.throws(() => customDocument.close(), error => error.code === 19 && error.query.kind === 12);
     return Uint8Array.of(element.tag[0] ^ 0xff, element.valueSize, ...element.value);
   },
 });

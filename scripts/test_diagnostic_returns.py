@@ -2,7 +2,7 @@
 # SPDX-License-Identifier: MIT
 # Copyright (c) 2026 Marek Cingel
 import unittest
-from check_diagnostic_returns import violations
+from check_diagnostic_returns import lifecycle_violations, violations
 
 
 class DiagnosticReturns(unittest.TestCase):
@@ -39,6 +39,58 @@ class DiagnosticReturns(unittest.TestCase):
     def test_helper_and_propagated_results_are_outside_lexical_guard(self):
         self.assertFalse(self.check('query_diag_init(d); return query_error(d, TLV_ERR_INVALID_ARG, 1, 0, 0, 0);'))
         self.assertFalse(self.check('query_diag_init(d); return rc;'))
+
+
+class LifecycleReturns(unittest.TestCase):
+    def check(self, body):
+        return lifecycle_violations('tlv_result_t f(exec_t* e) {\n' + body + '\n}')
+
+    def test_direct_returns_without_diagnostics(self):
+        for member in ('busy', 'finished', 'invalid', 'query_callbacks'):
+            for access in ('e->', 'state.'):
+                self.assertEqual(self.check(f'if ({access}{member}) return TLV_ERR_INVALID_ARG;'),
+                                 [(2, 'f', member)])
+
+    def test_query_error_and_multiline_compound_condition(self):
+        self.assertEqual(self.check('if (e &&\n (e->busy || e->invalid || overlap(e))) {\n'
+                                    '  query_diag_init(d);\n'
+                                    '  return query_error(d, TLV_ERR_INVALID_ARG, EVENTS, 0, 0, "fresh");\n'
+                                    '}'), [(5, 'f', 'busy')])
+        self.assertTrue(self.check('if (!e->finished && ready(e))\n return TLV_ERR_INVALID_ARG;'))
+
+    def test_comments_strings_and_unrelated_identifiers(self):
+        self.assertFalse(self.check('/* if (e->busy) return TLV_ERR_INVALID_ARG; */\n'
+                                    'const char* s = "if (e->invalid) return TLV_ERR_INVALID_ARG;";\n'
+                                    'if (invalid || finished || busy || query_callbacks) return TLV_ERR_INVALID_ARG;\n'
+                                    'if (e->invalid_argument || e->finished_count) return TLV_ERR_INVALID_ARG;\n'
+                                    'if (bad /* e->busy */) return TLV_ERR_INVALID_ARG;'))
+
+    def test_correct_state_and_propagated_errors(self):
+        self.assertFalse(self.check('if (e->busy) return TLV_ERR_INVALID_STATE;\n'
+                                    'if (e->invalid) return query_error(d, TLV_ERR_INVALID_STATE, STATE);\n'
+                                    'if (e->finished) return rc;'))
+
+    def test_sibling_nested_and_else_argument_checks(self):
+        self.assertFalse(self.check('if (e->busy) return TLV_ERR_INVALID_STATE;\n'
+                                    'if (overlap) return TLV_ERR_INVALID_ARG;\n'
+                                    'if (e->finished) { if (overlap) return TLV_ERR_INVALID_ARG; }\n'
+                                    'if (e->invalid) return TLV_ERR_INVALID_STATE;\n'
+                                    'else return TLV_ERR_INVALID_ARG;\n'
+                                    'if (e->busy) { if (valid) return TLV_OK; else return TLV_ERR_INVALID_ARG; }'))
+        self.assertTrue(self.check('if (valid) { if (e->busy) return TLV_ERR_INVALID_ARG; }'))
+        self.assertTrue(self.check('if (valid) return TLV_OK; else if (e->busy) return TLV_ERR_INVALID_ARG;'))
+        self.assertTrue(self.check('if (e->busy) { if (ready) return TLV_OK; return TLV_ERR_INVALID_ARG; }'))
+
+    def test_diagnostic_comment_cannot_suppress_lifecycle_mapping(self):
+        self.assertTrue(self.check('if (e->invalid) {\n'
+                                   '/* diagnostic-return: keep original diagnostic. */\n'
+                                   'return TLV_ERR_INVALID_ARG;\n}'))
+
+    def test_function_names_and_line_numbers(self):
+        self.assertEqual(lifecycle_violations('int ok(void) { return TLV_OK; }\n'
+                                              'int rejected(exec_t* e) {\n'
+                                              '  if (e->busy) return TLV_ERR_INVALID_ARG;\n}'),
+                         [(3, 'rejected', 'busy')])
 
 
 if __name__ == '__main__':

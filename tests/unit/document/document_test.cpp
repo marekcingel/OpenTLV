@@ -1057,6 +1057,26 @@ TEST(Unit_Tlv_DocumentBuilder, PrimitiveAndEmptyConstructedRootsDoNotReadMalform
     }
 }
 
+TEST(Unit_Tlv_DocumentBuilder, InconsistentSubtreeDepthIsInvalidValue) {
+    auto              opts = options();
+    tlv_tree_frame_t  frames[4];
+    tlv_tree_reader_t reader;
+    ASSERT_EQ(TLV_OK, tlv_tree_reader_init(&reader, sample.data(), sample.size(), opts.format,
+                                           frames, 4, 4, 20));
+    tlv_tree_item_t root;
+    ASSERT_EQ(TLV_OK, tlv_tree_reader_next(&reader, &root));
+    root.depth = 2;
+    tlv_document_builder_t* raw = nullptr;
+    ASSERT_EQ(TLV_OK, tlv_document_builder_create(&opts, &reader, &root, &raw));
+    Builder builder(raw, tlv_document_builder_free);
+    Doc     doc;
+    EXPECT_EQ(TLV_ERR_INVALID_VALUE,
+              tlv_document_builder_consume(raw, &doc.handle, nullptr, nullptr));
+    EXPECT_EQ(nullptr, doc.handle);
+    EXPECT_EQ(TLV_ERR_INVALID_STATE,
+              tlv_document_builder_consume(raw, &doc.handle, nullptr, nullptr));
+}
+
 TEST(Unit_Tlv_DocumentBuilder, PreservesReaderDiagnosticsAfterWindowReplacement) {
     auto              opts = options();
     const Bytes       first = {0x50, 0};

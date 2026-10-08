@@ -131,7 +131,8 @@ static tlv_result_t buffer_evaluate(const uint8_t* data, size_t size, const tlv_
     if (rc != TLV_OK) {
         if (diagnostic) {
             query_diag_init(diagnostic);
-            diagnostic->kind = TLV_QUERY_ERROR_READER;
+            diagnostic->kind =
+                rc == TLV_ERR_INVALID_STATE ? TLV_QUERY_ERROR_STATE : TLV_QUERY_ERROR_READER;
             tlv_diagnostic_init(&diagnostic->reader.diagnostic, rc, TLV_DIAGNOSTIC_SEVERITY_ERROR);
         }
         return rc;
@@ -147,7 +148,8 @@ static tlv_result_t buffer_evaluate(const uint8_t* data, size_t size, const tlv_
                 if (original.diagnostic.code == TLV_OK)
                     tlv_diagnostic_init(&original.diagnostic, rc, TLV_DIAGNOSTIC_SEVERITY_ERROR);
                 memset(diagnostic, 0, sizeof *diagnostic);
-                diagnostic->kind = TLV_QUERY_ERROR_READER;
+                diagnostic->kind =
+                    rc == TLV_ERR_INVALID_STATE ? TLV_QUERY_ERROR_STATE : TLV_QUERY_ERROR_READER;
                 diagnostic->reader = original;
             }
             return rc;

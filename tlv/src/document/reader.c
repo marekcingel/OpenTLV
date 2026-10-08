@@ -24,7 +24,7 @@ static tlv_result_t append_item(tlv_document_builder_t* builder, const tlv_tree_
     tlv_node_t* created;
     size_t depth, length;
     tlv_result_t rc;
-    if (item->depth < builder->source_depth) return TLV_ERR_INVALID_ARG;
+    if (item->depth < builder->source_depth) return TLV_ERR_INVALID_VALUE;
     depth = item->depth - builder->source_depth;
     if (depth > SIZE_MAX - builder->target_depth) return TLV_ERR_LIMIT;
     rc = tlv_size_to_native(item->element.value.size, &length);
@@ -60,7 +60,7 @@ static tlv_result_t consume_tree(tlv_document_builder_t* builder, size_t* error_
             return rc;
         }
         if (event.kind == TLV_TREE_END) {
-            if (event.skipped || !builder->container) return TLV_ERR_INVALID_ARG;
+            if (event.skipped || !builder->container) return TLV_ERR_INVALID_VALUE;
             builder->container = builder->container->parent;
             if (builder->subtree && event.depth == builder->source_depth) builder->subtree_done = 1;
         } else {

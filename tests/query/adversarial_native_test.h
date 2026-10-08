@@ -161,7 +161,7 @@ static int native_profiles(void) {
     tlv_tree_event_t output;
     CHECK(tlv_query_exec_selected(e, &output) == TLV_OK && output.element.tag.data[0] == 0x70);
     CHECK(tlv_query_exec_selected(e, &output) == TLV_OK);
-    CHECK(tlv_query_exec_feed(e, &input, &matched, NULL) == TLV_ERR_INVALID_ARG);
+    CHECK(tlv_query_exec_feed(e, &input, &matched, NULL) == TLV_ERR_INVALID_VALUE);
     CHECK(tlv_query_exec_selected(e, &output) == TLV_ERR_INVALID_STATE);
     return 0;
 }

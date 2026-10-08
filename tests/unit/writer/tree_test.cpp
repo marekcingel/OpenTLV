@@ -429,6 +429,46 @@ TEST(Unit_Tlv_TreeWriter, MeasurementRejectsInvalidTopologyAndRespectsBounds) {
               tlv_tree_writer_measure(&format, nullptr, nullptr, &zero, 0, 0, &size, nullptr));
 }
 
+TEST(Unit_Tlv_TreeWriter, EventMeasurementRejectsMalformedStreamsAsInvalidValues) {
+    struct Events {
+        tlv_tree_event_t    input{};
+        bool                supplied = false;
+        static tlv_result_t next(void* context, tlv_tree_event_t* event) {
+            auto& source = *static_cast<Events*>(context);
+            if (source.supplied) return TLV_ERR_END_OF_BUFFER;
+            *event = source.input;
+            source.supplied = true;
+            return TLV_OK;
+        }
+    };
+    for (int malformed = 0; malformed < 5; ++malformed) {
+        SCOPED_TRACE(malformed);
+        Events source;
+        source.input.kind = TLV_TREE_ELEMENT;
+        source.input.element = leaf;
+        switch (malformed) {
+            case 0: source.input.kind = TLV_TREE_END; break;
+            case 1: source.input.depth = 1; break;
+            case 2: source.input.skipped = 1; break;
+            case 3: source.input.kind = static_cast<tlv_tree_event_kind_t>(99); break;
+            case 4:
+                source.input.kind = TLV_TREE_BEGIN;
+                source.input.element.tag = parent;
+                break;
+        }
+        uint8_t                     data[16]{}, scratch[16]{};
+        tlv_tree_writer_frame_t     frame{};
+        tlv_tree_writer_workspace_t workspace{&frame, 1, data, 16, scratch, 16, 0, 0};
+        tlv_writer_diagnostic_t     diagnostic{};
+        size_t                      size = 99;
+        EXPECT_EQ(TLV_ERR_INVALID_VALUE,
+                  TLV_DIAGNOSTIC_RESULT(diagnostic, tlv_tree_writer_measure_events(
+                                                        &format, Events::next, &source, &workspace,
+                                                        2, 2, &size, &diagnostic)));
+        EXPECT_EQ(99u, size);
+    }
+}
+
 TEST(Unit_Tlv_TreeWriter, MeasurementKeepsAbsoluteDiagnosticsAndPropagatesSourceErrors) {
     uint8_t                     data[32]{}, scratch[32]{};
     tlv_tree_writer_frame_t     frame{};

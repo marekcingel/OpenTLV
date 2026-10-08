@@ -213,8 +213,9 @@ def test_provider_exception_and_execution_reentry_are_preserved():
     program = QueryProgram("num(//5A)", providers={"num": QueryProvider(103, decode)})
     execution = program.execution()
     reader = TreeReader(b"\x5a\0")
-    with pytest.raises(InvalidStateError):
+    with pytest.raises(InvalidStateError) as error:
         execution.visit(reader, lambda match: None)
+    assert error.value.query["query_kind"] == 12
     execution.reset()
     def failure(value, metadata):
         raise LookupError("provider failed")
@@ -312,12 +313,30 @@ def test_callback_exception_reentry_terminal_failure_and_reset():
     execution = QueryProgram("//5A").execution(retained=False)
     def callback(match):
         execution.reset()
-    with pytest.raises(InvalidStateError):
+    with pytest.raises(InvalidStateError) as error:
         execution.visit(TreeReader(WIRE), callback)
+    assert error.value.query["query_kind"] == 12
     assert execution.info["invalid"]
     execution.reset()
     assert execution.exists(TreeReader(WIRE))
     assert execution.info["full_validation"]
+
+
+def test_unfinished_result_reports_state_and_reset_recovers():
+    from opentlv import TreeEvent, TreeEventKind
+    execution = QueryProgram("count(//5A)").execution()
+    with pytest.raises(InvalidStateError) as error:
+        execution.result()
+    assert error.value.query["query_kind"] == 12
+    with pytest.raises(InvalidValueError) as malformed:
+        execution.feed(TreeEvent(TreeEventKind.END, None, 0))
+    assert malformed.value.query["query_kind"] == 5
+    with pytest.raises(InvalidStateError) as retried:
+        execution.finish()
+    assert retried.value.query["query_kind"] == 12
+    execution.reset()
+    execution.finish()
+    assert execution.result() == 0
 
 
 def test_explicit_short_workspace_candidate_limit_and_early_coverage():

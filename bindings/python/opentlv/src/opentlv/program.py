@@ -239,7 +239,9 @@ class QuerySchema:
     def _validate(self, input, *, max_depth=64, max_nodes=1024, max_work=10000000,
                   max_contexts=None, value_capacity=None):
         if self._busy:
-            raise InvalidStateError(19)
+            error = InvalidStateError(19)
+            error.query = {"query_kind": 12}
+            raise error
         self._busy = True
         try:
             _call(_native.query_schema, self._native_rules, input, _format_specification(self._format),

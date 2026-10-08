@@ -72,6 +72,12 @@ static void field(lua_State* L, const char* name, size_t value) {
     lua_setfield(L, -2, name);
 }
 static void push_query_error(lua_State* L, tlv_result_t code, const tlv_query_diagnostic_t* d) {
+    tlv_query_diagnostic_t state = {0};
+    if (code == TLV_ERR_INVALID_STATE) {
+        if (d) state = *d;
+        state.kind = TLV_QUERY_ERROR_STATE;
+        d = &state;
+    }
     if (!d) {
         opentlv_lua_push_error(L, code, 0, 0);
         return;
@@ -105,20 +111,26 @@ static int provider_active(lua_State* L) {
     return active;
 }
 static program_t* program(lua_State* L, int index) {
-    if (provider_active(L)) luaL_error(L, "Query provider is active");
+    if (provider_active(L)) {
+        query_error(L, TLV_ERR_INVALID_STATE, NULL);
+        return NULL;
+    }
     program_t* p = luaL_checkudata(L, index, PROGRAM_MT);
-    if (p->callback_active) luaL_error(L, "Query provider is active");
+    if (p->callback_active) {
+        query_error(L, TLV_ERR_INVALID_STATE, NULL);
+        return NULL;
+    }
     return p;
 }
 static execution_t* execution(lua_State* L) {
     if (provider_active(L)) {
-        opentlv_lua_raise(L, TLV_ERR_INVALID_STATE, 0, 0);
+        query_error(L, TLV_ERR_INVALID_STATE, NULL);
         return NULL;
     }
     if (!lua_checkstack(L, 16)) luaL_error(L, "Query callback stack unavailable");
     execution_t* q = luaL_checkudata(L, 1, EXECUTION_MT);
     if (!q->exec || q->busy || q->program->callback_active) {
-        opentlv_lua_raise(L, TLV_ERR_INVALID_STATE, 0, 0);
+        query_error(L, TLV_ERR_INVALID_STATE, NULL);
         return NULL;
     }
 #if OPENTLV_DOCUMENT

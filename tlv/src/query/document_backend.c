@@ -97,7 +97,7 @@ tlv_result_t tlv_document_query_evaluate(const tlv_document_t* document, tlv_que
                            "required Document execution arguments");
     if (document->query_callbacks || e->elements || e->open || e->finished || e->invalid ||
         e->has_context)
-        return query_error(d, TLV_ERR_INVALID_STATE, TLV_QUERY_ERROR_EVENTS, 0, 0,
+        return query_error(d, TLV_ERR_INVALID_STATE, TLV_QUERY_ERROR_STATE, 0, 0,
                            "fresh Document execution outside callbacks");
     if (!e->retained || (context && !document_contains(document, context)))
         return query_error(d, TLV_ERR_INVALID_ARG, TLV_QUERY_ERROR_EVENTS, 0, 0,

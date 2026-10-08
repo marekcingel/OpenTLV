@@ -23,6 +23,9 @@ import (
 	"unsafe"
 )
 
+// QueryErrorState is the native lifecycle and reentrancy diagnostic category.
+const QueryErrorState = int(C.TLV_QUERY_ERROR_STATE)
+
 // ProgramDiagnostic copies all Query fields and the original Reader diagnostic.
 type ProgramDiagnostic struct {
 	Kind                                 int

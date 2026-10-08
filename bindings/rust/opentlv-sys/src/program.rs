@@ -3,6 +3,9 @@
 //! Native full-language Query ABI, versioned together with the C headers.
 use super::*;
 
+/// Query lifecycle or callback reentrancy failure category.
+pub const TLV_QUERY_ERROR_STATE: c_int = 12;
+
 macro_rules! record {
     ($name:ident { $($field:ident: $type:ty),* $(,)? }) => {
         #[doc = concat!("Native ", stringify!($name), " layout.")]

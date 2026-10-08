@@ -367,7 +367,7 @@ static inline tlv_result_t query_error(tlv_query_diagnostic_t* d, tlv_result_t c
                                        tlv_query_error_kind_t kind, size_t begin, size_t end,
                                        const char* expected) {
     if (d) {
-        d->kind = kind;
+        d->kind = code == TLV_ERR_INVALID_STATE ? TLV_QUERY_ERROR_STATE : kind;
         d->begin = begin;
         d->end = end;
         d->expected = expected;
@@ -383,11 +383,12 @@ static inline tlv_result_t query_limit(tlv_query_diagnostic_t* d, const char* na
     return query_error(d, TLV_ERR_LIMIT, TLV_QUERY_ERROR_LIMIT, begin, end, NULL);
 }
 
-/* Preserve richer detail from a callee; supply context only when none was set. */
+/* Preserve callee detail; state results always have their own top-level kind. */
 static inline tlv_result_t query_failure(tlv_query_diagnostic_t* d, tlv_result_t rc,
                                          tlv_query_error_kind_t kind, const char* expected) {
     if (rc != TLV_OK && d && d->kind == TLV_QUERY_ERROR_NONE)
         query_error(d, rc, kind, 0, 0, expected);
+    if (rc == TLV_ERR_INVALID_STATE && d) d->kind = TLV_QUERY_ERROR_STATE;
     return rc;
 }
 #endif

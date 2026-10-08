@@ -462,7 +462,7 @@ PyObject* opentlv_python_program_create(PyObject* module, PyObject* args) {
         config.optimize = PyObject_IsTrue(value);
         if (config.optimize < 0) goto python_error;
     }
-    tlv_query_diagnostic_t diagnostic;
+    tlv_query_diagnostic_t diagnostic = {0};
     size_t                 bytes, alignment;
     tlv_result_t rc = image ? tlv_query_program_load_scratch(data, (size_t)length, &config, &bytes,
                                                              &alignment, &diagnostic)
@@ -714,7 +714,7 @@ PyObject* opentlv_python_execution_bind(PyObject* module, PyObject* args) {
     if (PyErr_Occurred()) return NULL;
     /* Append before publishing borrowed storage to C; failure leaves C untouched. */
     if (PyList_Append(self->bindings, value) < 0) return NULL;
-    tlv_query_diagnostic_t diagnostic;
+    tlv_query_diagnostic_t diagnostic = {0};
     tlv_result_t rc = tlv_query_exec_bind(self->native, name, (tlv_query_result_kind_t)type, number,
                                           (const uint8_t*)data, (size_t)size, &diagnostic);
     if (rc != TLV_OK) return failure(rc, &diagnostic);
@@ -775,7 +775,7 @@ PyObject* opentlv_python_execution_feed(PyObject* module, PyObject* args) {
         PyList_Append(self->inputs, source) < 0)
         return NULL;
     int                    matched;
-    tlv_query_diagnostic_t diagnostic;
+    tlv_query_diagnostic_t diagnostic = {0};
     self->busy = 1;
     tlv_result_t rc = tlv_query_exec_feed(self->native, &event, &matched, &diagnostic);
     self->busy = 0;
@@ -794,7 +794,7 @@ PyObject* opentlv_python_execution_finish(PyObject* module, PyObject* capsule) {
     execution* self = get_execution(capsule);
     if (!self) return NULL;
     if (self->reader || self->document) return failure(TLV_ERR_INVALID_STATE, NULL);
-    tlv_query_diagnostic_t diagnostic;
+    tlv_query_diagnostic_t diagnostic = {0};
     self->busy = 1;
     tlv_result_t rc = tlv_query_exec_finish(self->native, &diagnostic);
     self->busy = 0;
@@ -824,7 +824,7 @@ PyObject* opentlv_python_execution_visit(PyObject* module, PyObject* args) {
     }
     if (!self->reader) self->reader = Py_NewRef(reader_capsule);
     self->busy = 1;
-    tlv_query_diagnostic_t diagnostic;
+    tlv_query_diagnostic_t diagnostic = {0};
     int                    found = 0;
     tlv_result_t           rc =
         existence
@@ -918,7 +918,7 @@ PyObject* opentlv_python_execution_document(PyObject* module, PyObject* args) {
         staging.scratch_capacity = (size_t)value_capacity;
     }
     self->document = Py_NewRef(document_capsule);
-    tlv_query_diagnostic_t diagnostic;
+    tlv_query_diagnostic_t diagnostic = {0};
     self->busy = 1;
     tlv_result_t rc = tlv_document_query_evaluate(
         document, self->native, node, self->values.data, self->values.size,

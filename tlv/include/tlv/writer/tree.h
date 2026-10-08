@@ -78,7 +78,7 @@ TLV_API tlv_result_t tlv_tree_writer_set_tag_storage(tlv_tree_writer_t* writer, 
  * @param[in,out] writer Initialized cursor; required.
  * @param[in] event Required event. BEGIN opens its Tag (ignoring source Value),
  * ELEMENT writes a primitive, END closes the innermost parent. Depth must match.
- * @return Underlying begin/write/end result; TLV_ERR_INVALID_ARG for malformed
+ * @return Underlying begin/write/end result; TLV_ERR_INVALID_VALUE for malformed
  * ordering, unknown kinds or skipped END; TLV_ERR_INVALID_TAG for incompatible
  * destination classification. Errors preserve cursor and accumulated output.
  * @warning In borrowed mode BEGIN retains Tag until END. Configure tag storage
@@ -256,7 +256,8 @@ typedef tlv_result_t (*tlv_tree_event_next_fn)(void* context, tlv_tree_event_t* 
  * @param[in] max_elements Maximum BEGIN/ELEMENT count; END does not count.
  * @param[out] size Exact encoded size on success; unchanged otherwise.
  * @param[out] diagnostic Optional Writer failure detail.
- * @return Source/Writer result, including INVALID_ARG for missing END or skipped content.
+ * @return Source/Writer result, including INVALID_VALUE for missing END, malformed depth or skipped
+ * content.
  * @note Uses the storage, required-capacity and replay contracts of
  * tlv_tree_writer_measure(). NEED_MORE_DATA aborts this one-shot helper; use a
  * persistent Tree Writer and write_event() for resumable transformations.

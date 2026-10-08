@@ -90,7 +90,7 @@ static int sequence(const tlv_query_program_t* p, int retained, const char* oper
                 if (invalid || finished)
                     expected = TLV_ERR_INVALID_STATE;
                 else if (!bound || operations[step] == 'E') {
-                    expected = TLV_ERR_INVALID_ARG;
+                    expected = !bound ? TLV_ERR_INVALID_ARG : TLV_ERR_INVALID_VALUE;
                     invalid = 1;
                 } else if (nodes == 3) {
                     expected = TLV_ERR_LIMIT;
@@ -293,10 +293,14 @@ static int diagnostics(const tlv_query_program_t* p) {
             input.offset = 17;
             matched = 79;
             tlv_query_diagnostic_t d;
-            CHECK(tlv_query_exec_feed(e, &input, &matched, &d) == TLV_ERR_INVALID_ARG);
+            int                    bad_span = malformed == 4 || malformed == 5;
+            CHECK(tlv_query_exec_feed(e, &input, &matched, &d) ==
+                  (bad_span ? TLV_ERR_INVALID_ARG : TLV_ERR_INVALID_VALUE));
             CHECK(matched == 79 && d.kind == TLV_QUERY_ERROR_EVENTS);
             CHECK(d.expected &&
-                  !strcmp(d.expected, "balanced complete canonical events without pruning"));
+                  !strcmp(d.expected, bad_span
+                                          ? "valid event span arguments"
+                                          : "balanced complete canonical events without pruning"));
             CHECK(d.has_source_offset && d.source_offset == 17 && !d.limit);
             if (!retained)
                 memcpy(reference[malformed], &d, sizeof d);

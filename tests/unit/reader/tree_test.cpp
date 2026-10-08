@@ -333,7 +333,7 @@ TEST(Unit_Tlv_Tree, EventSkipIsBalancedAndWriterRejectsOmittedContent) {
     ASSERT_EQ(TLV_OK,
               tlv_tree_writer_init(&writer, output, 8, &format, &frame, 1, scratch, 8, 1, 1));
     ASSERT_EQ(TLV_OK, tlv_tree_writer_begin(&writer, tlv_tag(data, 1)));
-    EXPECT_EQ(TLV_ERR_INVALID_ARG, tlv_tree_writer_write_event(&writer, &event));
+    EXPECT_EQ(TLV_ERR_INVALID_VALUE, tlv_tree_writer_write_event(&writer, &event));
     EXPECT_EQ(1u, writer.depth);
 }
 
@@ -375,7 +375,7 @@ TEST(Unit_Tlv_Tree, EventWriterRejectsDepthAndSupportsRetryAfterTagLimit) {
     event.kind = TLV_TREE_BEGIN;
     event.element.tag = tlv_tag(tag, 1);
     event.depth = 1;
-    EXPECT_EQ(TLV_ERR_INVALID_ARG, tlv_tree_writer_write_event(&writer, &event));
+    EXPECT_EQ(TLV_ERR_INVALID_VALUE, tlv_tree_writer_write_event(&writer, &event));
     event.depth = 0;
     ASSERT_EQ(TLV_OK, tlv_tree_writer_set_tag_storage(&writer, tag_storage, 0));
     EXPECT_EQ(TLV_ERR_LIMIT, tlv_tree_writer_write_event(&writer, &event));
@@ -386,7 +386,7 @@ TEST(Unit_Tlv_Tree, EventWriterRejectsDepthAndSupportsRetryAfterTagLimit) {
     event = {};
     event.kind = TLV_TREE_END;
     ASSERT_EQ(TLV_OK, tlv_tree_writer_write_event(&writer, &event));
-    EXPECT_EQ(TLV_ERR_INVALID_ARG, tlv_tree_writer_write_event(&writer, &event));
+    EXPECT_EQ(TLV_ERR_INVALID_VALUE, tlv_tree_writer_write_event(&writer, &event));
     EXPECT_EQ(0u, writer.tags_used);
 }
 

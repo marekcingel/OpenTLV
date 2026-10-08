@@ -770,7 +770,9 @@ static void query_status(builder_t* b, tlv_result_t code, const tlv_query_diagno
     builder_text(b, "{\"code\":");
     builder_number(b, code);
     builder_text(b, ",\"query\":{\"kind\":");
-    builder_number(b, d ? d->kind : 0);
+    builder_number(b, code == TLV_ERR_INVALID_STATE ? TLV_QUERY_ERROR_STATE
+                      : d                           ? d->kind
+                                                    : TLV_QUERY_ERROR_NONE);
     builder_text(b, ",\"begin\":");
     builder_number(b, d ? d->begin : 0);
     builder_text(b, ",\"end\":");
@@ -792,7 +794,8 @@ static void query_status(builder_t* b, tlv_result_t code, const tlv_query_diagno
             builder_text(b, ",\"source_offset\":");
             builder_number(b, d->source_offset);
         }
-        if (d->kind == TLV_QUERY_ERROR_READER) query_reader_diagnostic(b, &d->reader);
+        if (d->kind == TLV_QUERY_ERROR_READER || d->reader.diagnostic.code != TLV_OK)
+            query_reader_diagnostic(b, &d->reader);
     }
     builder_text(b, "}");
 }

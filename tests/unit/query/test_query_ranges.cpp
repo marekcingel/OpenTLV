@@ -713,6 +713,7 @@ TEST(Unit_Tlvpp_FullQuery, DocumentExecutionDetectsDestructionBeforeResultAccess
     auto result = execution->result();
     ASSERT_FALSE(result);
     EXPECT_EQ(TLV_ERR_INVALID_STATE, result.error().code);
+    EXPECT_EQ(tlv::query_issue::state, result.error().kind());
 }
 
 TEST(Unit_Tlvpp_FullQuery, DocumentSchemaRunsTheSameContextualPrograms) {

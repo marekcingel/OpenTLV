@@ -49,20 +49,22 @@ typedef enum tlv_query_level {
     TLV_QUERY_D   /**< Document navigation and bounded work. */
 } tlv_query_level_t;
 
-/** @brief Query-specific diagnostic category; original result codes remain intact. */
+/** @brief Query-specific diagnostic category; original result codes remain intact.
+ * @note Numeric values are release-specific during the breaking failure-model migration. */
 typedef enum tlv_query_error_kind {
-    TLV_QUERY_ERROR_NONE,         /**< No failure. */
-    TLV_QUERY_ERROR_SYNTAX,       /**< Invalid token or grammar. */
-    TLV_QUERY_ERROR_CAPABILITY,   /**< Recognized feature unavailable in this backend. */
-    TLV_QUERY_ERROR_LIMIT,        /**< Named capacity or work budget exhausted. */
-    TLV_QUERY_ERROR_STORAGE,      /**< Invalid storage or alignment. */
-    TLV_QUERY_ERROR_EVENTS,       /**< Unbalanced or otherwise invalid structural feed. */
-    TLV_QUERY_ERROR_SOURCE,       /**< Requested Source property unavailable. */
-    TLV_QUERY_ERROR_READER,       /**< Original Reader failure; reader detail is preserved. */
-    TLV_QUERY_ERROR_BINDING,      /**< Missing, unknown, duplicate or incompatible variable. */
-    TLV_QUERY_ERROR_CARDINALITY,  /**< Scalar conversion did not receive exactly one node. */
-    TLV_QUERY_ERROR_CODEC,        /**< Strict Value decoding failed. */
-    TLV_QUERY_ERROR_IMAGE_VERSION /**< Internal image belongs to an incompatible release. */
+    TLV_QUERY_ERROR_NONE,          /**< No failure. */
+    TLV_QUERY_ERROR_SYNTAX,        /**< Invalid token or grammar. */
+    TLV_QUERY_ERROR_CAPABILITY,    /**< Recognized feature unavailable in this backend. */
+    TLV_QUERY_ERROR_LIMIT,         /**< Named capacity or work budget exhausted. */
+    TLV_QUERY_ERROR_STORAGE,       /**< Invalid storage or alignment. */
+    TLV_QUERY_ERROR_EVENTS,        /**< Unbalanced or otherwise invalid structural feed. */
+    TLV_QUERY_ERROR_SOURCE,        /**< Requested Source property unavailable. */
+    TLV_QUERY_ERROR_READER,        /**< Original Reader failure; reader detail is preserved. */
+    TLV_QUERY_ERROR_BINDING,       /**< Missing, unknown, duplicate or incompatible variable. */
+    TLV_QUERY_ERROR_CARDINALITY,   /**< Scalar conversion did not receive exactly one node. */
+    TLV_QUERY_ERROR_CODEC,         /**< Strict Value decoding failed. */
+    TLV_QUERY_ERROR_IMAGE_VERSION, /**< Internal image belongs to an incompatible release. */
+    TLV_QUERY_ERROR_STATE          /**< Invalid lifecycle state or forbidden reentrancy. */
 } tlv_query_error_kind_t;
 
 /** @brief Earliest publication frontier for the conservatively selected backend. */
@@ -74,7 +76,8 @@ typedef enum tlv_query_decision_timing {
 
 /** @brief Fixed-layout compiler/execution failure, initialized by diagnostic entry points.
  * @note After initialization, every non-#TLV_OK return has a kind other than
- * #TLV_QUERY_ERROR_NONE. Reader failures and #TLV_NEED_MORE_DATA retain the
+ * #TLV_QUERY_ERROR_NONE. #TLV_ERR_INVALID_STATE has kind #TLV_QUERY_ERROR_STATE.
+ * Reader failures and #TLV_NEED_MORE_DATA retain the
  * returned code in `reader.diagnostic.code`. Success need not clear old detail.
  * @note Pre-initialization overlap, reentrancy and failed-execution guards leave
  * this output untouched. Compiler prepare/commit/load preflight argument,
@@ -92,7 +95,8 @@ typedef struct tlv_query_diagnostic {
     const char* expected;           /**< Static expected-token description, or NULL. */
     const char* limit;              /**< Static resource name, or NULL. */
     size_t configured;              /**< Configured resource bound, when limit is present. */
-    tlv_reader_diagnostic_t reader; /**< Original Reader diagnostic on Reader failure. */
+    tlv_reader_diagnostic_t reader; /**< Original Reader detail, also retained under STATE for a
+                                       Reader state failure. */
     /** @brief Original codec failure when kind is #TLV_QUERY_ERROR_CODEC.
      *
      * Reports #TLV_CODEC_ERR_INVALID_VALUE when a successful codec result violates the
@@ -568,7 +572,7 @@ TLV_API tlv_result_t tlv_query_exec_info(const tlv_query_exec_t* exec, tlv_query
  * borrows its complete spans until reset.
  * @param[out] matched Required zero/one result; S1 END selects its original BEGIN.
  * @param[out] diagnostic Optional failure detail.
- * @return #TLV_OK; #TLV_ERR_INVALID_ARG for malformed events;
+ * @return #TLV_OK; #TLV_ERR_INVALID_VALUE for malformed structural events;
  * #TLV_ERR_INVALID_STATE for finished/failed execution or callback reentrancy;
  * #TLV_ERR_LIMIT for depth/elements/work; #TLV_ERR_INVALID_VALUE for
  * unavailable Source metadata; #TLV_ERR_UNSUPPORTED_TYPE for D programs without
@@ -601,10 +605,11 @@ TLV_API tlv_result_t tlv_query_exec_selected(const tlv_query_exec_t* exec, tlv_t
  * @brief Complete the virtual root at final EOF and require balanced events.
  * @param[in,out] exec Required active execution.
  * @param[out] diagnostic Optional failure detail.
- * @return #TLV_OK on balanced EOF; #TLV_ERR_INVALID_ARG on invalid/unbalanced
- * feed; #TLV_ERR_INVALID_STATE for a failed execution or callback reentrancy;
- * #TLV_ERR_UNSUPPORTED_TYPE for D programs without Document execution;
- * #TLV_ERR_NULL_ARG for NULL execution. Repeated successful finish is harmless.
+ * @return #TLV_OK on balanced EOF; #TLV_ERR_INVALID_VALUE for unclosed event parents;
+ * #TLV_ERR_INVALID_ARG for a missing binding or a context absent from the input;
+ * #TLV_ERR_INVALID_STATE for a failed execution or callback reentrancy; #TLV_ERR_UNSUPPORTED_TYPE
+ * for D programs without Document execution; #TLV_ERR_NULL_ARG for NULL execution. Repeated
+ * successful finish is harmless.
  * @note Execution failures, including attempting D without Document, invalidate
  * until reset. Callback and forbidden-overlap rejections preserve the outer state.
  * Calling finish on an already failed execution returns INVALID_STATE without

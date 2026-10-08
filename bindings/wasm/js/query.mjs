@@ -9,7 +9,7 @@ export function queryFacade(wasm) {
     constructor(code, query = {}, applied = 0, rule = null, schema = null) {
       super(`OpenTLV Query status ${code}`);
       this.code = code;
-      this.query = Object.freeze(query);
+      this.query = Object.freeze(code === 19 ? { ...query, kind: 12 } : query);
       this.applied = applied;
       this.rule = rule;
       this.schema = schema;

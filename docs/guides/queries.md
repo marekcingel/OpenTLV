@@ -193,6 +193,9 @@ Native compiled result cursors use whole-Document revision invalidation: any
 successful edit rejects subsequent pulls/scalar access before exposing stale
 storage. Keep the native C Document alive until result consumption; its revision
 is not a destruction token. C++ snapshots retain granular checked Node semantics.
+New lifecycle diagnostics use Query kind `STATE` with `INVALID_STATE`; malformed
+structural feeds use `EVENTS` with `INVALID_VALUE`. Reentrancy and failed-execution
+preflight guards preserve the original diagnostic instead of replacing it.
 During Query callbacks, fallible edits return INVALID_STATE. Void erase/free requests
 are deferred until the outermost Query callback on that Document returns; the
 visit then ends with INVALID_STATE. Pending ancestor erasure dominates descendants,

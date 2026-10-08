@@ -7,8 +7,8 @@ for authors of C capabilities and language facades. Read the
 
 **Status: design decided; lifecycle result implemented by #552; remaining API
 and binding migration is separate work.** This page defines the target contract.
-`TLV_ERR_INVALID_STATE` is now public; other new target names are not yet public
-declarations. The reference page continues to describe the running
+`TLV_ERR_INVALID_STATE` and `TLV_QUERY_ERROR_STATE` are now public; other new
+target names are not yet public declarations. The reference page continues to describe the running
 implementation. This design does not preserve source, binary, enum-number or
 diagnostic-layout compatibility. Removed names get no aliases, compatibility
 wrappers or deprecation period. Native consumers and bindings migrate together.
@@ -146,7 +146,8 @@ Result and detail are orthogonal: `READER` may legitimately accompany
 below constrain combinations rather than requiring a function from kind to
 result. Detail is discriminated; inactive fields must not be interpreted.
 
-Add Query detail kinds `ARGUMENT`, `STATE`, `TYPE`, `IMAGE` and `CALLBACK` for
+Query detail kind `STATE` is implemented by #552. Add `ARGUMENT`, `TYPE`, `IMAGE`
+and `CALLBACK` for
 the cases currently forced into `STORAGE`, `EVENTS` or `CAPABILITY`. Keep
 `IMAGE_VERSION` for a recognized version mismatch. `CODEC` denotes conversion
 context; a callback contract violation during conversion uses `CALLBACK` and
@@ -429,10 +430,13 @@ Unknown visitor discriminators produce `CALLBACK`.
 
 ## Implementation handoff and validation
 
-This design completes #551. Issue #552 implements `INVALID_STATE` and its
-facade mappings; existing Query detail kinds, callback payload classifications
-and other result classes remain until their migration. It does not claim that
-the complete target API is available.
+This design completes #551. Issue #552 implements `INVALID_STATE`, Query kind
+`STATE`, facade mappings and `INVALID_VALUE` for malformed structural feeds.
+Other Query detail kinds, callback payload classifications and result classes
+remain until their migration. In particular, impossible preorder depth returned
+by a Tree Writer source callback still uses `INVALID_ARG`; the planned `CALLBACK`
+result is follow-up work. No append-only or numeric ABI guarantee is attached to
+`INVALID_STATE = 19` or `STATE = 12`. The complete target API is not yet available.
 The follow-up implementation replaces enums/signatures/layouts directly and
 updates their Doxygen contracts. It must cover common result strings, all
 native producers, C++ facades, Go/Rust/Python/Lua/JS-WASM, CLI rendering and

@@ -134,18 +134,25 @@ static int loader_aliases(void) {
     return 0;
 }
 static void reenter(callback_state* s) {
-    tlv_tree_event_t   input = event(), out;
-    tlv_query_result_t result;
-    int                matched = 123;
+    tlv_tree_event_t       input = event(), out;
+    tlv_query_result_t     result;
+    tlv_query_diagnostic_t diagnostic;
+    unsigned char          original[sizeof diagnostic];
+    memset(&diagnostic, 0xa5, sizeof diagnostic);
+    memcpy(original, &diagnostic, sizeof diagnostic);
+    int matched = 123;
     ++s->calls;
-    if (tlv_query_exec_feed(s->exec, &input, &matched, NULL) != TLV_ERR_INVALID_STATE ||
+    if (tlv_query_exec_feed(s->exec, &input, &matched, &diagnostic) != TLV_ERR_INVALID_STATE ||
         matched != 123)
         ++s->errors;
-    if (tlv_query_exec_finish(s->exec, NULL) != TLV_ERR_INVALID_STATE) ++s->errors;
+    if (memcmp(original, &diagnostic, sizeof diagnostic)) ++s->errors;
+    if (tlv_query_exec_finish(s->exec, &diagnostic) != TLV_ERR_INVALID_STATE) ++s->errors;
+    if (memcmp(original, &diagnostic, sizeof diagnostic)) ++s->errors;
     if (tlv_query_exec_reset(s->exec) != TLV_ERR_INVALID_STATE) ++s->errors;
-    if (tlv_query_exec_bind(s->exec, "n", TLV_QUERY_RESULT_INTEGER, 1, NULL, 0, NULL) !=
+    if (tlv_query_exec_bind(s->exec, "n", TLV_QUERY_RESULT_INTEGER, 1, NULL, 0, &diagnostic) !=
         TLV_ERR_INVALID_STATE)
         ++s->errors;
+    if (memcmp(original, &diagnostic, sizeof diagnostic)) ++s->errors;
     if (tlv_query_exec_context(s->exec, 0) != TLV_ERR_INVALID_STATE) ++s->errors;
     if (tlv_query_exec_pruning(s->exec, 1) != TLV_ERR_INVALID_STATE) ++s->errors;
     if (tlv_query_exec_result(s->exec, &result) != TLV_ERR_INVALID_STATE) ++s->errors;

@@ -63,7 +63,7 @@ tlv_result_t tlv_tree_writer_write_event_diag(tlv_tree_writer_t* writer,
          event->kind != TLV_TREE_END) ||
         (event->kind == TLV_TREE_END ? (!writer->depth || event->depth != writer->depth - 1)
                                      : event->depth != writer->depth))
-        return tree_error(diagnostic, TLV_ERR_INVALID_ARG, operation, writer->output.pos, NULL);
+        return tree_error(diagnostic, TLV_ERR_INVALID_VALUE, operation, writer->output.pos, NULL);
     if (event->kind == TLV_TREE_BEGIN)
         return tlv_tree_writer_begin_diag(writer, event->element.tag, diagnostic);
     if (event->kind == TLV_TREE_END) return tlv_tree_writer_end_diag(writer, diagnostic);
@@ -316,7 +316,7 @@ tlv_result_t tree_writer_measure_events_observed(
              event.kind != TLV_TREE_END) ||
             (event.kind == TLV_TREE_END ? (!writer.depth || event.depth != writer.depth - 1)
                                         : event.depth != writer.depth))
-            return tree_error(diagnostic, TLV_ERR_INVALID_ARG, TLV_WRITER_OP_VALUE,
+            return tree_error(diagnostic, TLV_ERR_INVALID_VALUE, TLV_WRITER_OP_VALUE,
                               writer.output.pos, NULL);
         if (charge) {
             rc = charge(charge_context, 1);
@@ -354,7 +354,9 @@ tlv_result_t tree_writer_measure_events_observed(
         }
         if (rc != TLV_OK) return rc;
     }
-    rc = tlv_tree_writer_finish(&writer);
-    if (rc == TLV_OK) *size = tlv_tree_writer_size(&writer);
-    return rc;
+    if (writer.depth)
+        return tree_error(diagnostic, TLV_ERR_INVALID_VALUE, TLV_WRITER_OP_END, writer.output.pos,
+                          NULL);
+    *size = tlv_tree_writer_size(&writer);
+    return TLV_OK;
 }

@@ -217,19 +217,19 @@ tlv_result_t query_retained_feed(tlv_query_exec_t* e, const tlv_tree_event_t* ev
                                  tlv_query_diagnostic_t* d) {
     if (event->depth >= e->depth_capacity)
         return query_limit(d, "depth", e->depth_capacity - 1, 0, 0);
-    if (event->skipped) return TLV_ERR_INVALID_ARG;
+    if (event->skipped) return TLV_ERR_INVALID_VALUE;
     tlv_result_t work = eval_charge(e, 1, &query_nodes(e->program)[e->program->root], d);
     if (work != TLV_OK) return work;
     retained_node_t* nodes = eval_nodes(e);
     if (event->kind == TLV_TREE_END) {
-        if (!e->open || event->depth != e->open - 1) return TLV_ERR_INVALID_ARG;
+        if (!e->open || event->depth != e->open - 1) return TLV_ERR_INVALID_VALUE;
         size_t index = ((size_t*)(eval_base(e)))[event->depth];
         nodes[index].end = e->elements;
         return TLV_OK;
     }
     if (event->depth != e->open ||
         (event->kind != TLV_TREE_BEGIN && event->kind != TLV_TREE_ELEMENT))
-        return TLV_ERR_INVALID_ARG;
+        return TLV_ERR_INVALID_VALUE;
     if (e->elements == e->node_capacity)
         return query_limit(d, "candidates", e->node_capacity, 0, 0);
     retained_node_t* n = &nodes[e->elements];

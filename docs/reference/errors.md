@@ -4,7 +4,7 @@ This page describes the **currently implemented API**. The accepted
 [failure model](../concepts/error-model.md) (#551) defines a replacement taxonomy,
 typed diagnostic layering, locations and propagation rules. Its implementation
 will break API and ABI compatibility; the target names and signatures are not
-available yet, except for `TLV_ERR_INVALID_STATE`, implemented by #552. The
+available yet, except for `TLV_ERR_INVALID_STATE` and Query kind `STATE`, implemented by #552. The
 tables below describe the current codes and behavior.
 
 Core operations return a `tlv_result_t` from `tlv/error.h`; Codec operations
@@ -28,6 +28,8 @@ return describes that result:
   `diagnostic.code == rc`.
 - `tlv_query_diagnostic_t` has `kind != TLV_QUERY_ERROR_NONE`. A `READER` detail
   also has `reader.diagnostic.code == rc`; a `CODEC` detail has a non-OK codec result.
+- An initialized Query diagnostic for `TLV_ERR_INVALID_STATE` has kind
+  `TLV_QUERY_ERROR_STATE`. Pre-initialization preservation exceptions below still apply.
 - Schema Query has alternative detail channels: a false assertion sets
   `schema.diagnostic.code`, while an execution failure fills `query`.
 
@@ -54,14 +56,12 @@ Pre-initialization checks leave the diagnostic untouched. In particular:
   or resources before producing detail. An enclosing API which has already
   initialized its own diagnostic must nevertheless describe a propagated error.
 
-Until the [failure-model migration](../concepts/error-model.md#migration-inventory)
-is implemented, Query uses existing
-categories: `STORAGE` for compiler/plan arguments and capacities, `BINDING` for
-binding arguments, `CAPABILITY` for incompatible formats or hook configuration,
-and `EVENTS` for execution lifecycle and visitor/callback failures. #552 changes
-lifecycle results to `TLV_ERR_INVALID_STATE` without changing diagnostic kinds
-or public layouts. These choices are temporary classifications,
-not new result-taxonomy rules.
+Query now uses `STATE` for lifecycle/reentrancy failures and `EVENTS` with
+`INVALID_VALUE` for invalid structural feeds. Until the remaining
+[failure-model migration](../concepts/error-model.md#migration-inventory),
+`STORAGE` still covers compiler/plan arguments and capacities, `BINDING` covers
+binding arguments, `CAPABILITY` covers incompatible formats or hook configuration,
+and `EVENTS` also covers visitor/callback failures. Diagnostic layouts are unchanged.
 
 ### Regression enforcement
 
@@ -76,9 +76,14 @@ functions with a diagnostic output. A directly populated return requires an
 adjacent `diagnostic-return:` comment explaining where its detail was set.
 This lexical check is deliberately conservative: indirect initialization,
 propagated variables and callback behavior require runtime tests; it is not a
-control-flow proof.
+control-flow proof. A separate lexical rule rejects `INVALID_ARG` returns under
+`busy`, `finished`, `invalid` or `query_callbacks` member predicates, including
+pre-initialization checks. Diagnostic-return comments do not waive that rule.
 
 ## Codes
+
+Numbers below describe this release. They are not stable ABI identifiers during
+the breaking #551 migration; `INVALID_STATE = 19` does not promise append-only enums.
 
 | Code | Value | Meaning | What to check |
 | --- | --- | --- | --- |
@@ -96,7 +101,7 @@ control-flow proof.
 | `TLV_ERR_INVALID_TAG_SIZE` | 11 | A tag size is outside the range the operation or format supports. | A tag length the selected format rejects (for example more than 8 bytes for BER, CER and DER, or a tag width different from the configured Fixed width), or an empty tag where the operation needs bytes. Also the numeric tag conversions for empty tags and tags longer than 8 bytes. `tlv_tag_t` itself has no size limit. |
 | `TLV_ERR_INVALID_BYTE_ORDER` | 12 | A byte order is unknown or unsupported. | The `TLV_BYTE_ORDER_*` value passed to the integer conversion functions in `tlv/endian.h` and `tlv/tag.h`, or `tlv_fixed_format_t.length.byte_order` in [configurable fixed-width TLV](../formats/fixed/configurable.md). |
 | `TLV_ERR_OVERFLOW` | 13 | An unsigned value cannot fit the requested numeric width, or logical size arithmetic overflows. | The value against the destination width in the same integer conversion functions. |
-| `TLV_ERR_INVALID_VALUE` | 14 | Content or its interpretation is invalid. | DER/CER canonical Value checks and SET ordering; Query codec, scalar cardinality and unavailable Source metadata failures. |
+| `TLV_ERR_INVALID_VALUE` | 14 | Content or its interpretation is invalid. | DER/CER canonical Value checks and SET ordering; Query codec, scalar cardinality and unavailable Source metadata failures; malformed structural event streams. |
 | `TLV_ERR_UNSUPPORTED_TYPE` | 15 | A type, Query capability or program-image version is unsupported. | Strict ASN.1 validation rejects unchecked types; see [DER validation](../standards/der/README.md#strict-universal-value-validation). Query also uses this code outside ASN.1. |
 | `TLV_ERR_SCHEMA_MISSING` | 16 | A required field is absent. | Its offset is the end of the enclosing parent's value, not an element; see below. |
 | `TLV_ERR_NATIVE_SIZE` | 17 | A logical size exceeds the native address space. | Checked conversion to `size_t`; the logical quantity itself remains valid. |
@@ -107,13 +112,17 @@ control-flow proof.
 
 `TLV_ERR_INVALID_STATE` distinguishes lifecycle/reentrancy rejection from
 `TLV_ERR_INVALID_ARG`, which still describes bad arguments, configuration,
-overlap and malformed event input. Query retains its existing detail categories
-(`BINDING` or `EVENTS` for state failures) until the remaining #551 migration.
+and overlap. Malformed structural event input uses `TLV_ERR_INVALID_VALUE`;
+new Query state diagnostics use `TLV_QUERY_ERROR_STATE`.
 A state rejection does not bypass pre-initialization guards: callback reentrancy
 and rejected continuation of failed executions preserve protected outputs and
 the original diagnostic. Repeated successful Query finish and normal iterator
 exhaustion retain their existing behavior. Reader input may be relocated after
 EOF, but cannot be reopened or extended.
+
+The node-only Tree Writer source callback returning impossible preorder depth
+still reports `INVALID_ARG`. Reclassifying callback contract violations to the
+planned `CALLBACK` result is separate follow-up work.
 
 ## Offsets and diagnosis
 

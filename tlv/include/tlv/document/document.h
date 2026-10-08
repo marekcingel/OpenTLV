@@ -310,6 +310,7 @@ TLV_API tlv_result_t tlv_document_builder_create(const tlv_document_options_t* o
  * @return #TLV_NEED_MORE_DATA when more input is needed; builder state is retained.
  * @return #TLV_ERR_NULL_ARG for missing required arguments.
  * @return #TLV_ERR_INVALID_STATE if already completed or failed.
+ * @return #TLV_ERR_INVALID_VALUE for inconsistent structural depth or skipped events.
  * @return #TLV_ERR_LIMIT if document or reader limits are exceeded.
  * @return #TLV_ERR_OUT_OF_MEMORY if node allocation fails.
  * @return Any other Tree Reader error, propagated unchanged.

@@ -7,6 +7,9 @@ local function fails(run, code)
     local ok, err = pcall(run)
     assert(not ok, "expected failure")
     if code then assert(type(err) == "table" and err.code == code, tostring(err)) end
+    if code == tlv.errors.INVALID_STATE then
+        assert(err.query and err.query.kind == 12, "missing Query STATE diagnostic")
+    end
     return err
 end
 local options = {variables = {min = "integer"}, optimize = true}
@@ -100,10 +103,15 @@ local failing = tlv.query_program("num(//5A)", f, {providers = {
 failing:set_input(b(0x5a, 0))
 assert(tostring(fails(function() failing:visit(function() end) end)):find("provider failed", 1, true))
 failing:reset()
-local reentry
-reentry = tlv.query_program("num(//5A)", f, {providers = {
-    num = {id = 104, decode = function() reentry:reset(); return 1 end}
-}}):execution()
+local reentry, reentry_program
+reentry_program = tlv.query_program("num(//5A)", f, {providers = {
+    num = {id = 104, decode = function()
+        fails(function() reentry_program:info() end, tlv.errors.INVALID_STATE)
+        reentry:reset()
+        return 1
+    end}
+}})
+reentry = reentry_program:execution()
 reentry:set_input(b(0x5a, 0))
 fails(function() reentry:visit(function() end) end, tlv.errors.INVALID_STATE)
 reentry:reset()
@@ -145,8 +153,9 @@ fails(function() feeding:set_input(b(0x5a, 0)) end, tlv.errors.INVALID_STATE)
 feeding:finish()
 assert(feeding:info().full_validation == 1)
 feeding:reset()
-fails(function() feeding:feed({kind = "end"}) end, 10)
+fails(function() feeding:feed({kind = "end"}) end, tlv.errors.INVALID_VALUE)
 assert(feeding:info().invalid == 1)
+fails(function() feeding:finish() end, tlv.errors.INVALID_STATE)
 feeding:reset(); feeding:close(); feeding:close()
 local retained_feed = feed_program:execution()
 assert(retained_feed:feed({kind = "element", tag = b(0x5a), offset = 7}) == nil)

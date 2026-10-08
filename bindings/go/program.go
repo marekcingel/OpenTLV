@@ -35,6 +35,9 @@ func programError(code capi.Code, d capi.ProgramDiagnostic) error {
 	if code == capi.OK {
 		return nil
 	}
+	if code == capi.InvalidState {
+		d.Kind = capi.QueryErrorState
+	}
 	return &ProgramError{StatusError: StatusError{code: code}, Kind: d.Kind,
 		Begin: d.Begin, End: d.End, SourceOffset: d.SourceOffset, HasSourceOffset: d.HasSourceOffset,
 		Configured: d.Configured, Expected: d.Expected, Limit: d.Limit, Codec: d.Codec, Reader: publicDiagnostic(d.Reader)}

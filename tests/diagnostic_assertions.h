@@ -39,8 +39,9 @@ template <typename Diagnostic> tlv_result_t result(tlv_result_t rc, const Diagno
 } // namespace diagnostic_test
 
 // Evaluate the operation exactly once before examining its diagnostic. Success
-// need not clear a reused diagnostic. Preflight/alias tests assert unchanged
-// storage separately instead of using this post-initialization helper.
+// need not clear a reused diagnostic. Preflight/alias and rejected continuation
+// tests assert unchanged storage separately instead of using this
+// post-initialization helper (including INVALID_STATE => STATE).
 #define TLV_DIAGNOSTIC_RESULT(diagnostic, expression)                                              \
     ([&]() {                                                                                       \
         const auto diagnostic_result = (expression);                                               \

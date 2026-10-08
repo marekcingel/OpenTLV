@@ -28,6 +28,8 @@ extern "C" {
  * otherwise, an error leaves its output parameters unchanged. Which codes a
  * function can return is documented on that function.
  *
+ * @note Numeric values, including INVALID_STATE=19, are release-specific during
+ * the breaking failure-model migration and are not a stable ABI numbering contract.
  * @see tlv_strerror
  */
 typedef enum tlv_result {
