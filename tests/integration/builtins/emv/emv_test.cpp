@@ -98,10 +98,10 @@ TEST(Integration_Tlv_Emv, AllDefinitionsUseEmvFramingAndSchemas) {
             EXPECT_EQ(TLV_OK, tlv_emv_validate_length(definition, entry.min_length));
             EXPECT_EQ(TLV_OK, tlv_emv_validate_length(definition, entry.max_length));
             if (entry.min_length)
-                EXPECT_EQ(TLV_ERR_INVALID_LENGTH,
+                EXPECT_EQ(TLV_ERR_SCHEMA,
                           tlv_emv_validate_length(definition, entry.min_length - 1));
             if (entry.max_length != SIZE_MAX)
-                EXPECT_EQ(TLV_ERR_INVALID_LENGTH,
+                EXPECT_EQ(TLV_ERR_SCHEMA,
                           tlv_emv_validate_length(definition, entry.max_length + 1));
 
             const size_t length =
@@ -226,7 +226,7 @@ TEST(Integration_Tlv_Emv, FramingSchemaAndValueValidationAreIndependent) {
               tlv_codec_decode(&tlv_emv_codec_amount, element.value.data, element.value.size,
                                &amount, sizeof(amount)));
     ASSERT_EQ(TLV_OK, tlv_reader_next(&reader, &element));
-    EXPECT_EQ(TLV_ERR_INVALID_LENGTH,
+    EXPECT_EQ(TLV_ERR_SCHEMA,
               tlv_schema_validate_length(tlv_schema_find(&tlv_emv_schema, &element.tag),
                                          element.value.size));
     ASSERT_EQ(TLV_OK, tlv_reader_next(&reader, &element));

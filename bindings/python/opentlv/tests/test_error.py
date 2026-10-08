@@ -4,6 +4,7 @@
 import _opentlv as native
 
 from opentlv.error import (
+    InvalidSchemaError,
     BufferTooShortError,
     EndOfBufferError,
     InvalidArgError,
@@ -20,7 +21,7 @@ from opentlv.error import (
     OpenTLVError,
     OutOfMemoryError,
     SchemaError,
-    SchemaMissingError,
+    SchemaError,
     UnsupportedTypeError,
     ValueOverflowError,
     VisitorError,
@@ -43,7 +44,7 @@ KNOWN = [
     (13, ValueOverflowError),
     (14, InvalidValueError),
     (15, UnsupportedTypeError),
-    (16, SchemaMissingError),
+    (16, InvalidSchemaError),
     (17, NativeSizeError),
     (18, NeedMoreDataError),
     (19, InvalidStateError),

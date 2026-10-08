@@ -32,7 +32,7 @@ int main(void) {
     CHECK(entry && entry->codec);
     CHECK(tlv_tag_equal(entry->definition->tag, tlv_emv_tag_amount_authorised));
     CHECK(tlv_emv_validate_length(entry, 6) == TLV_OK);
-    CHECK(tlv_emv_validate_length(entry, 5) == TLV_ERR_INVALID_LENGTH);
+    CHECK(tlv_emv_validate_length(entry, 5) == TLV_ERR_SCHEMA);
     CHECK(tlv_codec_decode(entry->codec, element.value.data, 6, &amount, sizeof(amount)) ==
           TLV_CODEC_OK);
     CHECK(amount == 1234);

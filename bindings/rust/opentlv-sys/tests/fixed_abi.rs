@@ -127,6 +127,7 @@ fn fixed_and_diagnostic_layouts_match_c() {
         member_offset!(tlv_schema_diagnostic_t, actual_constructed),
         member_offset!(tlv_schema_diagnostic_t, length_multiple),
         member_offset!(tlv_schema_diagnostic_t, length_flags),
+        member_offset!(tlv_schema_diagnostic_t, anchor),
         size_of::<tlv_schema_query_diagnostic_t>(),
         align_of::<tlv_schema_query_diagnostic_t>(),
         member_offset!(tlv_schema_query_diagnostic_t, rule),

@@ -1009,7 +1009,8 @@ TLV_API const tlv_emv_definition_t* tlv_emv_find(tlv_emv_context_t context, cons
  *
  * @return #TLV_OK if the length is permitted.
  * @return #TLV_ERR_NULL_ARG if `definition` is `NULL`.
- * @return #TLV_ERR_INVALID_LENGTH if the length is not permitted.
+ * @return #TLV_ERR_SCHEMA if the length is not permitted.
+ * @return #TLV_ERR_INVALID_SCHEMA if the length bounds are reversed.
  *
  * @note This is not a transaction validator: key-dependent lengths,
  *       required and duplicate tags, template membership, and cryptographic

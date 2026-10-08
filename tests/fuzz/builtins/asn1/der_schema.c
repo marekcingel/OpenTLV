@@ -64,17 +64,19 @@ static void check_der_schema(const tlv_der_schema_type_t* root, const uint8_t* d
                              const tlv_der_schema_limits_t* limits) {
     const tlv_der_schema_limits_t* actual = limits ? limits : &tlv_der_schema_default_limits;
     tlv_element_t                  element = fuzz_sentinel(data), before = element;
-    size_t                         consumed = SIZE_MAX, error = SIZE_MAX;
+    size_t                         consumed = SIZE_MAX;
+    tlv_schema_diagnostic_t        error;
     tlv_result_t rc = tlv_der_schema_read(data, size, root, limits, &element, &consumed, &error);
     if (rc == TLV_OK) {
         FUZZ_CHECK(consumed > 0 && consumed <= size);
         fuzz_element_bounds(&element, data, consumed);
         FUZZ_CHECK(size <= actual->base.max_input_size);
         FUZZ_CHECK(element.value.size <= actual->base.max_value_size);
-        FUZZ_CHECK(error == SIZE_MAX);
+        FUZZ_CHECK(error.diagnostic.code == TLV_OK);
     } else {
         fuzz_unchanged(&element, &before);
-        FUZZ_CHECK(consumed == SIZE_MAX && error <= size);
+        FUZZ_CHECK(consumed == SIZE_MAX && error.diagnostic.code == rc);
+        FUZZ_CHECK(!error.diagnostic.has_offset || error.diagnostic.offset <= size);
     }
 }
 

@@ -16,6 +16,32 @@ static tlv_result_t fail(tlv_result_t rc, size_t offset, size_t* error_offset) {
     return rc;
 }
 
+static tlv_result_t missing(size_t offset, size_t* error_offset,
+                            tlv_schema_diagnostic_t* diagnostic, tlv_schema_anchor_t anchor) {
+    if (diagnostic) {
+        diagnostic->kind = TLV_SCHEMA_ISSUE_MISSING;
+        diagnostic->anchor = anchor;
+    }
+    return fail(TLV_ERR_SCHEMA, offset, error_offset);
+}
+
+static tlv_result_t publish(tlv_result_t rc, size_t offset, int located,
+                            tlv_schema_diagnostic_t* diagnostic) {
+    if (diagnostic) {
+        diagnostic->diagnostic.code = rc;
+        if (rc != TLV_OK) {
+            diagnostic->diagnostic.severity = TLV_DIAGNOSTIC_SEVERITY_ERROR;
+            if (located) {
+                tlv_diagnostic_set_offset(&diagnostic->diagnostic, offset);
+                if (diagnostic->anchor == TLV_SCHEMA_ANCHOR_UNKNOWN)
+                    diagnostic->anchor = TLV_SCHEMA_ANCHOR_ELEMENT;
+            } else
+                diagnostic->anchor = TLV_SCHEMA_ANCHOR_UNKNOWN;
+        }
+    }
+    return rc;
+}
+
 /* ITU-T X.690 identifier rule shared with builtins/asn1/der.c and
  * asn1_internal.c: EXTERNAL (8), EMBEDDED PDV (11), SEQUENCE (16), SET (17)
  * and CHARACTER STRING (29) are the only assigned universal numbers (<=36)
@@ -134,8 +160,7 @@ static tlv_result_t validate_leaf_constraint(const tlv_der_schema_type_t* type, 
         if (tlv_codec_decode(&tlv_asn1_codec_integer, data, length, &value, sizeof(value)) !=
             TLV_CODEC_OK)
             return TLV_ERR_INVALID_VALUE;
-        if (tlv_value_constraint_validate(constraint->value_constraint, value) != TLV_OK)
-            return TLV_ERR_SCHEMA;
+        return tlv_value_constraint_validate(constraint->value_constraint, value);
     }
     return TLV_OK;
 }
@@ -143,43 +168,56 @@ static tlv_result_t validate_leaf_constraint(const tlv_der_schema_type_t* type, 
 /* ---- Schema self-check ---------------------------------------------- */
 
 static tlv_result_t check_component(const tlv_der_schema_component_t* component, int in_choice,
-                                    size_t depth);
+                                    size_t depth, const tlv_der_schema_type_t** ancestors);
 
-static tlv_result_t check_type(const tlv_der_schema_type_t* type, size_t depth) {
+static tlv_result_t check_type(const tlv_der_schema_type_t* type, size_t depth,
+                               const tlv_der_schema_type_t** ancestors) {
     size_t i, j;
     tlv_result_t rc;
-    if (!type) return TLV_ERR_SCHEMA;
-    if (depth > TLV_DER_SCHEMA_MAX_TYPE_DEPTH) return TLV_ERR_SCHEMA;
+    if (!type) return TLV_ERR_INVALID_SCHEMA;
+    for (i = 0; i < depth && i <= TLV_DER_SCHEMA_MAX_TYPE_DEPTH; ++i)
+        if (ancestors[i] == type) return TLV_ERR_INVALID_SCHEMA;
+    if (depth > TLV_DER_SCHEMA_MAX_TYPE_DEPTH) return TLV_ERR_UNSUPPORTED_TYPE;
+    ancestors[depth] = type;
+    if (type->kind == TLV_DER_SCHEMA_UNIVERSAL && type->constraint &&
+        type->constraint->value_constraint) {
+        rc = tlv_value_constraint_check(type->constraint->value_constraint);
+        if (rc != TLV_OK) return rc;
+    }
     switch (type->kind) {
         case TLV_DER_SCHEMA_UNIVERSAL:
             if (type->constraint) {
                 if (type->constraint->min_length > type->constraint->max_length)
-                    return TLV_ERR_SCHEMA;
+                    return TLV_ERR_INVALID_SCHEMA;
                 if (type->constraint->value_constraint && type->universal_number != 2 &&
                     type->universal_number != 10)
-                    return TLV_ERR_SCHEMA;
+                    return TLV_ERR_INVALID_SCHEMA;
             }
             return TLV_OK;
         case TLV_DER_SCHEMA_ANY: return TLV_OK;
         case TLV_DER_SCHEMA_SEQUENCE:
-            if (type->component_count > TLV_DER_SCHEMA_MAX_COMPONENTS) return TLV_ERR_SCHEMA;
+            if (type->component_count && !type->components) return TLV_ERR_INVALID_SCHEMA;
+            if (type->component_count > TLV_DER_SCHEMA_MAX_COMPONENTS)
+                return TLV_ERR_UNSUPPORTED_TYPE;
             for (i = 0; i < type->component_count; ++i) {
-                rc = check_component(&type->components[i], 0, depth);
+                rc = check_component(&type->components[i], 0, depth, ancestors);
                 if (rc != TLV_OK) return rc;
             }
             return TLV_OK;
         case TLV_DER_SCHEMA_SET:
         case TLV_DER_SCHEMA_CHOICE:
-            if (type->component_count > TLV_DER_SCHEMA_MAX_COMPONENTS) return TLV_ERR_SCHEMA;
+            if (type->component_count && !type->components) return TLV_ERR_INVALID_SCHEMA;
+            if (type->component_count > TLV_DER_SCHEMA_MAX_COMPONENTS)
+                return TLV_ERR_UNSUPPORTED_TYPE;
             for (i = 0; i < type->component_count; ++i) {
                 const tlv_der_schema_component_t* c = &type->components[i];
-                rc = check_component(c, type->kind == TLV_DER_SCHEMA_CHOICE, depth);
+                rc = check_component(c, type->kind == TLV_DER_SCHEMA_CHOICE, depth, ancestors);
                 if (rc != TLV_OK) return rc;
                 /* An untagged ANY component has no fixed identifier (it matches
                  * any tag); that wildcard is only unambiguous as a SEQUENCE
                  * component, where position rather than tag disambiguates it. */
                 if (c->tagging == TLV_DER_TAG_NONE && c->type->kind == TLV_DER_SCHEMA_ANY)
-                    return TLV_ERR_SCHEMA;
+                    return TLV_ERR_INVALID_SCHEMA;
             }
             /* Direct components must have pairwise-distinct effective identifiers
              * (X.680 §26 for SET, §29 for CHOICE): for every component with a
@@ -200,47 +238,58 @@ static tlv_result_t check_type(const tlv_der_schema_type_t* type, size_t depth) 
                     int constructed =
                         ci->tagging == TLV_DER_TAG_EXPLICIT ? 1 : type_is_constructed(ci->type);
                     if (owned_make(ci->tag_class, constructed, ci->tag_number, &probe) != TLV_OK)
-                        return TLV_ERR_SCHEMA;
+                        return TLV_ERR_INVALID_SCHEMA;
                 } else if (ci->type->kind == TLV_DER_SCHEMA_CHOICE) {
                     continue;
                 } else if (kind_identifier(ci->type, &probe) != TLV_OK) {
-                    return TLV_ERR_SCHEMA;
+                    return TLV_ERR_INVALID_SCHEMA;
                 }
                 probe_view = owned_view(&probe);
                 for (j = 0; j < type->component_count; ++j) {
                     if (j != i && resolve_at(&type->components[j], &probe_view, 0) != NULL)
-                        return TLV_ERR_SCHEMA;
+                        return TLV_ERR_INVALID_SCHEMA;
                 }
             }
             return TLV_OK;
         case TLV_DER_SCHEMA_SET_OF:
         case TLV_DER_SCHEMA_SEQUENCE_OF:
-            if (!type->element) return TLV_ERR_SCHEMA;
-            if (type->min_elements > type->max_elements) return TLV_ERR_SCHEMA;
-            if (type->element->presence != TLV_DER_REQUIRED) return TLV_ERR_SCHEMA;
-            return check_component(type->element, 0, depth);
-        default: return TLV_ERR_SCHEMA;
+            if (!type->element) return TLV_ERR_INVALID_SCHEMA;
+            if (type->min_elements > type->max_elements) return TLV_ERR_INVALID_SCHEMA;
+            if (type->element->presence != TLV_DER_REQUIRED) return TLV_ERR_INVALID_SCHEMA;
+            return check_component(type->element, 0, depth, ancestors);
+        default: return TLV_ERR_INVALID_SCHEMA;
     }
 }
 
 static tlv_result_t check_component(const tlv_der_schema_component_t* component, int in_choice,
-                                    size_t depth) {
-    if (!component || !component->type) return TLV_ERR_SCHEMA;
+                                    size_t depth, const tlv_der_schema_type_t** ancestors) {
+    if (!component || !component->type) return TLV_ERR_INVALID_SCHEMA;
+    if (component->presence < TLV_DER_REQUIRED || component->presence > TLV_DER_DEFAULT ||
+        component->tagging < TLV_DER_TAG_NONE || component->tagging > TLV_DER_TAG_EXPLICIT ||
+        component->tag_class < TLV_ASN1_UNIVERSAL || component->tag_class > TLV_ASN1_PRIVATE)
+        return TLV_ERR_INVALID_SCHEMA;
     if (in_choice && (component->presence != TLV_DER_REQUIRED || component->default_encoding))
-        return TLV_ERR_SCHEMA;
+        return TLV_ERR_INVALID_SCHEMA;
     if (component->presence == TLV_DER_DEFAULT &&
         (!component->default_encoding || !component->default_encoding_length))
-        return TLV_ERR_SCHEMA;
+        return TLV_ERR_INVALID_SCHEMA;
     if (component->tagging == TLV_DER_TAG_IMPLICIT &&
         (component->type->kind == TLV_DER_SCHEMA_CHOICE ||
          component->type->kind == TLV_DER_SCHEMA_ANY))
-        return TLV_ERR_SCHEMA;
-    return check_type(component->type, depth + 1);
+        return TLV_ERR_INVALID_SCHEMA;
+    return check_type(component->type, depth + 1, ancestors);
 }
 
-tlv_result_t tlv_der_schema_check(const tlv_der_schema_type_t* root, size_t* error_offset) {
-    if (!root) return fail(TLV_ERR_NULL_ARG, 0, error_offset);
-    return fail(check_type(root, 0), 0, error_offset);
+tlv_result_t tlv_der_schema_check(const tlv_der_schema_type_t* root,
+                                  tlv_schema_diagnostic_t* diagnostic) {
+    const tlv_der_schema_type_t* ancestors[TLV_DER_SCHEMA_MAX_TYPE_DEPTH + 1];
+    tlv_result_t rc = root ? check_type(root, 0, ancestors) : TLV_ERR_NULL_ARG;
+    if (diagnostic) {
+        tlv_schema_diagnostic_init(diagnostic);
+        diagnostic->diagnostic.code = rc;
+        if (rc == TLV_ERR_INVALID_SCHEMA) diagnostic->kind = TLV_SCHEMA_ISSUE_DEFINITION;
+    }
+    return rc;
 }
 
 /* ---- Schema-aware DER reader ----------------------------------------- */
@@ -254,6 +303,7 @@ typedef struct der_schema_ctx {
     const tlv_der_schema_limits_t* limits;
     size_t element_count;
     size_t* error_offset;
+    tlv_schema_diagnostic_t* diagnostic;
 } der_schema_ctx_t;
 
 typedef struct der_schema_frame {
@@ -404,7 +454,8 @@ static tlv_result_t process_sequence(der_schema_ctx_t* ctx, der_schema_frame_t* 
                                           stack, level);
         }
         if (comp->presence == TLV_DER_REQUIRED)
-            return fail(TLV_ERR_SCHEMA, elem_base, ctx->error_offset);
+            return missing(elem_base, ctx->error_offset, ctx->diagnostic,
+                           TLV_SCHEMA_ANCHOR_INSERTION);
         ++frame->next_component;
     }
     if (frame->type->extensible) {
@@ -515,10 +566,10 @@ static tlv_result_t process_sequence_of(der_schema_ctx_t* ctx, der_schema_frame_
                                   level);
 }
 
-tlv_result_t tlv_der_schema_read(const uint8_t* data, size_t size,
-                                 const tlv_der_schema_type_t* root,
-                                 const tlv_der_schema_limits_t* limits, tlv_element_t* element,
-                                 size_t* consumed, size_t* error_offset) {
+static tlv_result_t read_input(const uint8_t* data, size_t size, const tlv_der_schema_type_t* root,
+                               const tlv_der_schema_limits_t* limits, tlv_element_t* element,
+                               size_t* consumed, size_t* error_offset,
+                               tlv_schema_diagnostic_t* diagnostic) {
     der_schema_ctx_t ctx;
     der_schema_frame_t stack[TLV_DER_MAX_DEPTH + 1];
     int level = -1;
@@ -533,12 +584,13 @@ tlv_result_t tlv_der_schema_read(const uint8_t* data, size_t size,
         return fail(TLV_ERR_NULL_ARG, 0, error_offset);
     if (limits->base.max_depth > TLV_DER_MAX_DEPTH || size > limits->base.max_input_size)
         return fail(TLV_ERR_LIMIT, 0, error_offset);
-    if (!size) return fail(TLV_ERR_END_OF_BUFFER, 0, error_offset);
+    if (!size) return missing(0, error_offset, diagnostic, TLV_SCHEMA_ANCHOR_SCOPE_END);
 
     ctx.data = data;
     ctx.limits = limits;
     ctx.element_count = 0;
     ctx.error_offset = error_offset;
+    ctx.diagnostic = diagnostic;
 
     rc = read_one(&ctx, 0, size, 0, &root_element, &root_used);
     if (rc != TLV_OK) return rc;
@@ -564,17 +616,20 @@ tlv_result_t tlv_der_schema_read(const uint8_t* data, size_t size,
                 size_t i;
                 for (i = frame->next_component; i < frame->type->component_count; ++i)
                     if (frame->type->components[i].presence == TLV_DER_REQUIRED)
-                        end_rc = fail(TLV_ERR_SCHEMA, frame->end, error_offset);
+                        end_rc = missing(frame->end, error_offset, diagnostic,
+                                         TLV_SCHEMA_ANCHOR_SCOPE_END);
             } else if (frame->type->kind == TLV_DER_SCHEMA_SET) {
                 size_t i;
                 for (i = 0; i < frame->type->component_count; ++i)
                     if (!(frame->seen & ((uint64_t)1 << i)) &&
                         frame->type->components[i].presence == TLV_DER_REQUIRED)
-                        end_rc = fail(TLV_ERR_SCHEMA, frame->end, error_offset);
+                        end_rc = missing(frame->end, error_offset, diagnostic,
+                                         TLV_SCHEMA_ANCHOR_SCOPE_END);
             } else if (frame->type->kind == TLV_DER_SCHEMA_SET_OF ||
                        frame->type->kind == TLV_DER_SCHEMA_SEQUENCE_OF) {
                 if (frame->element_count < frame->type->min_elements)
-                    end_rc = fail(TLV_ERR_SCHEMA, frame->end, error_offset);
+                    end_rc =
+                        missing(frame->end, error_offset, diagnostic, TLV_SCHEMA_ANCHOR_SCOPE_END);
             }
             if (end_rc != TLV_OK) return end_rc;
             --level;
@@ -620,6 +675,7 @@ typedef struct der_schema_write_ctx {
     tlv_der_schema_record_t* scratch;
     size_t scratch_capacity;
     int locate_failure;
+    tlv_schema_diagnostic_t* diagnostic;
     tlv_result_t failure;
     size_t failure_owner;
     size_t failure_offset;
@@ -628,19 +684,31 @@ typedef struct der_schema_write_ctx {
 /* Only data/schema failures with a known framing interpretation are deferred.
  * Argument, capacity, configuration and callback failures remain fail-fast. */
 static int composition_failure(tlv_result_t rc) {
-    return rc == TLV_ERR_SCHEMA || rc == TLV_ERR_SCHEMA_MISSING || rc == TLV_ERR_INVALID_VALUE ||
-           rc == TLV_ERR_INVALID_LENGTH || rc == TLV_ERR_INVALID_TAG;
+    return rc == TLV_ERR_SCHEMA || rc == TLV_ERR_INVALID_VALUE || rc == TLV_ERR_INVALID_LENGTH ||
+           rc == TLV_ERR_INVALID_TAG;
 }
 
 static tlv_result_t defer_failure(der_schema_write_ctx_t* wctx, tlv_result_t rc, size_t owner,
                                   size_t offset) {
     if (!wctx->locate_failure || !composition_failure(rc)) return rc;
     if (wctx->failure == TLV_OK) {
+        if (wctx->diagnostic && rc == TLV_ERR_SCHEMA &&
+            wctx->diagnostic->kind == TLV_SCHEMA_ISSUE_NONE)
+            wctx->diagnostic->kind = TLV_SCHEMA_ISSUE_VALUE;
         wctx->failure = rc;
         wctx->failure_owner = owner;
         wctx->failure_offset = offset;
     }
     return TLV_OK;
+}
+
+static tlv_result_t defer_missing(der_schema_write_ctx_t* wctx, size_t owner,
+                                  tlv_schema_anchor_t anchor) {
+    if (wctx->diagnostic && wctx->failure == TLV_OK) {
+        wctx->diagnostic->kind = TLV_SCHEMA_ISSUE_MISSING;
+        wctx->diagnostic->anchor = anchor;
+    }
+    return defer_failure(wctx, TLV_ERR_SCHEMA, owner, 0);
 }
 
 static void relocate_failure(der_schema_write_ctx_t* wctx, size_t from, size_t to, size_t prefix) {
@@ -759,7 +827,7 @@ static tlv_result_t encode_children_concat(der_schema_write_ctx_t* wctx,
                     missing = 1;
                     missing_offset = total;
                 }
-                rc = defer_failure(wctx, TLV_ERR_SCHEMA, SIZE_MAX, 0);
+                rc = defer_missing(wctx, SIZE_MAX, TLV_SCHEMA_ANCHOR_INSERTION);
                 if (rc != TLV_OK) return rc;
             }
             continue;
@@ -767,8 +835,8 @@ static tlv_result_t encode_children_concat(der_schema_write_ctx_t* wctx,
         offs[present] = off;
         lens[present] = len;
         ++present;
+        total += len;
     }
-    for (i = 0; i < present; ++i) total += lens[i];
     base = arena_alloc(wctx, total);
     if (base == (size_t)-1) return TLV_ERR_LIMIT;
     pos = base;
@@ -805,7 +873,7 @@ static tlv_result_t encode_set_content(der_schema_write_ctx_t* wctx,
         if (component_absent) {
             if (type->components[i].presence == TLV_DER_REQUIRED) {
                 if (wctx->failure == TLV_OK) missing = 1;
-                rc = defer_failure(wctx, TLV_ERR_SCHEMA, SIZE_MAX, 0);
+                rc = defer_missing(wctx, SIZE_MAX, TLV_SCHEMA_ANCHOR_SCOPE_END);
                 if (rc != TLV_OK) return rc;
             }
             continue;
@@ -888,7 +956,7 @@ static tlv_result_t encode_set_of_content(der_schema_write_ctx_t* wctx,
     if (count < type->min_elements) {
         tlv_result_t rc;
         if (wctx->failure == TLV_OK) cardinality = 2;
-        rc = defer_failure(wctx, TLV_ERR_SCHEMA, SIZE_MAX, 0);
+        rc = defer_missing(wctx, SIZE_MAX, TLV_SCHEMA_ANCHOR_SCOPE_END);
         if (rc != TLV_OK) return rc;
     }
     for (i = 1; i < count; ++i) {
@@ -954,7 +1022,7 @@ static tlv_result_t encode_sequence_of_content(der_schema_write_ctx_t* wctx,
     if (count < type->min_elements) {
         tlv_result_t rc;
         if (wctx->failure == TLV_OK) cardinality = 2;
-        rc = defer_failure(wctx, TLV_ERR_SCHEMA, SIZE_MAX, 0);
+        rc = defer_missing(wctx, SIZE_MAX, TLV_SCHEMA_ANCHOR_SCOPE_END);
         if (rc != TLV_OK) return rc;
     }
     for (i = 0; i < count; ++i) total += wctx->scratch[i].length;
@@ -1109,7 +1177,7 @@ static tlv_result_t encode_at(der_schema_write_ctx_t* wctx,
             if (inner_absent) {
                 content_off = wctx->arena_used;
                 content_len = 0;
-                rc = defer_failure(wctx, TLV_ERR_SCHEMA, content_off, 0);
+                rc = defer_missing(wctx, content_off, TLV_SCHEMA_ANCHOR_SCOPE_END);
                 if (rc != TLV_OK) return rc;
             }
         } else {
@@ -1142,11 +1210,12 @@ static tlv_result_t encode_at(der_schema_write_ctx_t* wctx,
     return TLV_OK;
 }
 
-tlv_result_t tlv_der_schema_write(uint8_t* data, size_t capacity, const tlv_der_schema_type_t* root,
-                                  tlv_der_schema_encode_fn encode, const void* context,
-                                  const tlv_der_schema_limits_t* limits, uint8_t* scratch_bytes,
-                                  size_t scratch_bytes_capacity, tlv_der_schema_record_t* scratch,
-                                  size_t scratch_capacity, size_t* written, size_t* error_offset) {
+static tlv_result_t write_input(uint8_t* data, size_t capacity, const tlv_der_schema_type_t* root,
+                                tlv_der_schema_encode_fn encode, const void* context,
+                                const tlv_der_schema_limits_t* limits, uint8_t* scratch_bytes,
+                                size_t scratch_bytes_capacity, tlv_der_schema_record_t* scratch,
+                                size_t scratch_capacity, size_t* written, size_t* error_offset,
+                                tlv_schema_diagnostic_t* diagnostic, int* located) {
     der_schema_write_ctx_t wctx;
     tlv_der_schema_component_t synthetic;
     int absent = 0;
@@ -1167,7 +1236,8 @@ tlv_result_t tlv_der_schema_write(uint8_t* data, size_t capacity, const tlv_der_
     wctx.limits = limits;
     wctx.scratch = scratch;
     wctx.scratch_capacity = scratch_capacity;
-    wctx.locate_failure = error_offset != NULL;
+    wctx.locate_failure = diagnostic != NULL;
+    wctx.diagnostic = diagnostic;
     wctx.failure = TLV_OK;
     wctx.failure_owner = SIZE_MAX;
     wctx.failure_offset = 0;
@@ -1184,10 +1254,15 @@ tlv_result_t tlv_der_schema_write(uint8_t* data, size_t capacity, const tlv_der_
     if (wctx.failure != TLV_OK) {
         /* A secondary callback/storage failure can prevent complete framing.
          * Preserve the original result, with no invented output location. */
-        size_t offset = rc == TLV_OK && wctx.failure_owner == root_off ? wctx.failure_offset : 0;
+        *located = rc == TLV_OK && wctx.failure_owner == root_off;
+        size_t offset = *located ? wctx.failure_offset : 0;
         return fail(wctx.failure, offset, error_offset);
     }
     if (rc != TLV_OK) return fail(rc, 0, error_offset);
+    if (absent) {
+        *located = 1;
+        return missing(0, error_offset, diagnostic, TLV_SCHEMA_ANCHOR_INSERTION);
+    }
     if (root_len > limits->base.max_input_size) return fail(TLV_ERR_LIMIT, 0, error_offset);
     if (data) {
         if (root_len > capacity) return fail(TLV_ERR_BUFFER_TOO_SHORT, 0, error_offset);
@@ -1195,4 +1270,41 @@ tlv_result_t tlv_der_schema_write(uint8_t* data, size_t capacity, const tlv_der_
     }
     *written = root_len;
     return TLV_OK;
+}
+
+tlv_result_t tlv_der_schema_read(const uint8_t* data, size_t size,
+                                 const tlv_der_schema_type_t* root,
+                                 const tlv_der_schema_limits_t* limits, tlv_element_t* element,
+                                 size_t* consumed, tlv_schema_diagnostic_t* diagnostic) {
+    size_t offset = 0;
+    tlv_result_t rc;
+    if (diagnostic) tlv_schema_diagnostic_init(diagnostic);
+    if ((!data && size) || !root || !element || !consumed)
+        return publish(TLV_ERR_NULL_ARG, 0, 0, diagnostic);
+    rc = tlv_der_schema_check(root, diagnostic);
+    if (rc != TLV_OK) return rc;
+    rc = read_input(data, size, root, limits, element, consumed, diagnostic ? &offset : NULL,
+                    diagnostic);
+    return publish(rc, offset, !limits || limits->base.max_depth <= TLV_DER_MAX_DEPTH, diagnostic);
+}
+
+tlv_result_t tlv_der_schema_write(uint8_t* data, size_t capacity, const tlv_der_schema_type_t* root,
+                                  tlv_der_schema_encode_fn encode, const void* context,
+                                  const tlv_der_schema_limits_t* limits, uint8_t* scratch_bytes,
+                                  size_t scratch_bytes_capacity, tlv_der_schema_record_t* scratch,
+                                  size_t scratch_capacity, size_t* written,
+                                  tlv_schema_diagnostic_t* diagnostic) {
+    size_t offset = 0;
+    int located = 0;
+    tlv_result_t rc;
+    if (diagnostic) tlv_schema_diagnostic_init(diagnostic);
+    if ((!data && capacity) || !root || !encode || !written ||
+        (!scratch_bytes && scratch_bytes_capacity) || (!scratch && scratch_capacity))
+        return publish(TLV_ERR_NULL_ARG, 0, 0, diagnostic);
+    rc = tlv_der_schema_check(root, diagnostic);
+    if (rc != TLV_OK) return rc;
+    rc = write_input(data, capacity, root, encode, context, limits, scratch_bytes,
+                     scratch_bytes_capacity, scratch, scratch_capacity, written, &offset,
+                     diagnostic, &located);
+    return publish(rc, offset, located, diagnostic);
 }

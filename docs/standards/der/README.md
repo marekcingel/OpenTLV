@@ -243,10 +243,18 @@ const tlv_der_schema_component_t set_components[] = {
 const tlv_der_schema_type_t set_type = {TLV_DER_SCHEMA_SET, 0, set_components, 2};
 
 tlv_element_t element;
-size_t consumed, error_offset;
+size_t consumed;
+tlv_schema_diagnostic_t diagnostic;
 tlv_result_t rc = tlv_der_schema_read(data, size, &set_type, NULL,
-                                      &element, &consumed, &error_offset);
+                                      &element, &consumed, &diagnostic);
 ```
+
+Schema read, write and self-check use `tlv_schema_diagnostic_t`. Malformed
+definitions return `TLV_ERR_INVALID_SCHEMA` before input or callbacks are
+processed and have no byte location. Missing required input or output returns
+`TLV_ERR_SCHEMA` with `kind = TLV_SCHEMA_ISSUE_MISSING`; `anchor` distinguishes
+scope ends from insertion points. Valid graphs exceeding fixed checking capacity
+return `TLV_ERR_UNSUPPORTED_TYPE`. The broader result migration is separate work.
 
 `tlv_der_schema_read` rejects a SET whose components are not encoded in
 ascending tag order and a SET OF whose elements are not encoded in ascending

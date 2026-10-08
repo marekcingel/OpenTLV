@@ -5,12 +5,11 @@ import pytest
 
 from opentlv import (
     Format,
-    InvalidLengthError,
     Kind,
     LengthRule,
     LengthSchema,
     SchemaError,
-    SchemaMissingError,
+    InvalidSchemaError,
     StructureRule,
     StructureSchema,
     Tag,
@@ -23,9 +22,9 @@ def test_length_schema_validates_within_bounds():
     schema = LengthSchema([LengthRule(tag, 2, 4)])
     schema.validate_length(tag, 2)
     schema.validate_length(tag, 4)
-    with pytest.raises(InvalidLengthError):
+    with pytest.raises(SchemaError):
         schema.validate_length(tag, 1)
-    with pytest.raises(InvalidLengthError):
+    with pytest.raises(SchemaError):
         schema.validate_length(tag, 5)
 
 
@@ -39,7 +38,7 @@ def test_length_schema_exact_requires_one_length():
     tag = Tag(b"\x01")
     schema = LengthSchema([LengthRule.exact(tag, 3)])
     schema.validate_length(tag, 3)
-    with pytest.raises(InvalidLengthError):
+    with pytest.raises(SchemaError):
         schema.validate_length(tag, 4)
 
 
@@ -64,12 +63,12 @@ def test_length_constraints_use_native_endpoint_and_multiple_semantics():
     schema = LengthSchema([LengthRule(tag, 2, 8, flags=1, length_multiple=2)])
     schema.validate_length(tag, 2)
     schema.validate_length(tag, 8)
-    with pytest.raises(InvalidLengthError):
+    with pytest.raises(SchemaError):
         schema.validate_length(tag, 4)
     schema = LengthSchema([LengthRule(tag, 0, 8, length_multiple=3)])
     schema.validate_length(tag, 0)
     schema.validate_length(tag, 6)
-    with pytest.raises(InvalidLengthError):
+    with pytest.raises(SchemaError):
         schema.validate_length(tag, 8)
 
 
@@ -88,9 +87,11 @@ def test_structure_schema_accepts_a_present_required_field():
 
 def test_structure_schema_reports_a_missing_required_field():
     schema = StructureSchema([StructureRule(Tag(b"\x01"), min_occurs=1, max_occurs=1)])
-    with pytest.raises(SchemaMissingError) as excinfo:
+    with pytest.raises(SchemaError) as excinfo:
         schema.validate(b"")
     assert excinfo.value.offset == 0
+    assert excinfo.value.kind == "missing"
+    assert excinfo.value.anchor == 2
 
 
 def test_structure_schema_rejects_an_unknown_tag_by_default():
@@ -112,7 +113,7 @@ def test_structure_schema_rejects_excess_occurrences():
 
 def test_structure_schema_enforces_length_bounds():
     schema = StructureSchema([StructureRule(Tag(b"\x01"), min_length=2, max_length=2)])
-    with pytest.raises(InvalidLengthError):
+    with pytest.raises(SchemaError):
         schema.validate(bytes([0x01, 0x01, 0xAA]))
 
 
@@ -133,7 +134,7 @@ def test_structure_schema_validates_nested_children_in_ber():
 
     empty_outer = Writer(Format.BER)
     empty_outer.write(outer_tag, b"")
-    with pytest.raises(SchemaMissingError):
+    with pytest.raises(SchemaError):
         outer_schema.validate(empty_outer.bytes(), format=Format.BER)
 
 
@@ -157,7 +158,7 @@ def test_native_sequence_and_alternative_group_constraints():
     choice = StructureSchema([StructureRule(b"\x01", group=7), StructureRule(b"\x02", group=7)],
                              groups=[StructureGroup(7, 1, 1)])
     choice.validate(bytes.fromhex("0200"))
-    with pytest.raises(SchemaMissingError):
+    with pytest.raises(SchemaError):
         choice.validate(b"")
     with pytest.raises(SchemaError):
         choice.validate(bytes.fromhex("01000200"))
@@ -167,10 +168,10 @@ def test_structural_length_policies_and_invalid_group_are_native():
     schema = StructureSchema([StructureRule(b"\x04", min_length=2, max_length=8,
                                            flags=1, length_multiple=2)])
     schema.validate(bytes.fromhex("04020000"))
-    with pytest.raises(InvalidLengthError):
+    with pytest.raises(SchemaError):
         schema.validate(bytes.fromhex("040400000000"))
     schema = StructureSchema([StructureRule(b"\x04", group=7)])
-    with pytest.raises(SchemaError):
+    with pytest.raises(InvalidSchemaError):
         schema.validate(bytes.fromhex("0400"))
 def test_bounded_schema_reports_copy_paths_and_count_omitted_issues():
     from opentlv import UnknownPolicy, BufferTooShortError
@@ -184,7 +185,8 @@ def test_bounded_schema_reports_copy_paths_and_count_omitted_issues():
     allowed = schema.validate_diagnostics(bytes.fromhex("0200"), unknown=UnknownPolicy.ALLOW)
     assert allowed.total_count == 1
     assert allowed.diagnostics[0].kind_name == "missing"
-    assert allowed.diagnostics[0].offset is None
+    assert allowed.diagnostics[0].offset == 2
+    assert allowed.diagnostics[0].anchor == 2
     with pytest.raises(BufferTooShortError):
         schema.validate_diagnostics(bytes.fromhex("0201"))
 
@@ -231,7 +233,8 @@ def test_detailed_schema_group_bounds_capacity_and_wire_errors():
     issue = schema.validate_diagnostics(b"").diagnostics[0]
     assert issue.is_group and issue.field == "choice"
     assert issue.occurrences == SchemaBounds(1, 1, 0)
-    assert issue.offset is None
+    assert issue.offset == 0
+    assert issue.anchor == 2
     duplicate = schema.validate_diagnostics(bytes.fromhex("04000400")).diagnostics[0]
     assert duplicate.occurrences == SchemaBounds(1, 1, 2)
     assert duplicate.offset == 2
@@ -260,7 +263,7 @@ def test_schema_fixed_format_validation_and_reports():
     schema = StructureSchema([StructureRule(b"\x00\x04", min_length=2)])
     schema.validate(bytes.fromhex("000402000102"), format)
     data = bytes.fromhex("000401002A")
-    with pytest.raises(InvalidLengthError):
+    with pytest.raises(SchemaError):
         schema.validate(data, format)
     assert schema.validate_diagnostics(data, format).total_count == 1
     assert schema.validate_diagnostics(data, format).diagnostics[0].length.actual == 1
@@ -280,3 +283,16 @@ def test_deep_report_retains_outer_path_and_omitted_count():
     assert issue.path[1:] == (Tag(b"\x30"),) * 31
     assert issue.path_omitted == 3
     assert issue.tag == Tag(b"\x04")
+
+
+def test_invalid_definition_is_independent_of_input():
+    invalid_child = StructureSchema([StructureRule(b"\x04", min_length=2, max_length=1)])
+    schema = StructureSchema([StructureRule(b"\x30", children=invalid_child)])
+    for data in (b"", b"\x30"):
+        with pytest.raises(InvalidSchemaError) as failure:
+            schema.validate(data)
+        assert failure.value.offset is None
+        assert failure.value.kind == "definition"
+        with pytest.raises(InvalidSchemaError) as failure:
+            schema.validate_diagnostics(data)
+        assert failure.value.offset is None

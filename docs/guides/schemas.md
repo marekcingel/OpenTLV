@@ -55,7 +55,7 @@ if (rule == NULL) {
     /* Unknown tag: the application decides whether to accept or reject it. */
 } else {
     tlv_result_t result = tlv_schema_validate_length(rule, element.value.size);
-    /* TLV_OK or TLV_ERR_INVALID_LENGTH. */
+    /* TLV_OK or TLV_ERR_SCHEMA for these valid length rules. */
     (void)result;
 }
 ```
@@ -121,8 +121,8 @@ static const tlv_structure_rule_t rules[] = {
     {&rules_fields[1], 0, SIZE_MAX, TLV_SCHEMA_ANY, NULL, 0}
 };
 static const tlv_structure_schema_t message = {rules, 2, 0, NULL, 0, TLV_SCHEMA_ORDER_ANY};
-size_t offset;
-tlv_result_t rc = tlv_schema_validate(data, size, format, &message, 16, 1000, &offset);
+tlv_schema_diagnostic_t diagnostic;
+tlv_result_t rc = tlv_schema_validate(data, size, format, &message, 16, 1000, &diagnostic);
 if (rc != TLV_OK) return 1;
 ```
 
@@ -152,7 +152,7 @@ if (!result) return 1;
 ```
 
 `tlv::validate` wraps `tlv_schema_validate` and returns an `expected<void, error>`
-instead of a result code and out-parameter offset. Runnable version:
+with the Schema reason and optional byte position. Runnable version:
 [validate.cpp](https://github.com/marekcingel/OpenTLV/blob/main/examples/tlv++/src/validate.cpp).
 
 ///
@@ -194,7 +194,7 @@ schema.validate(data, format=opentlv.Format.BER)
 ```
 
 `StructureSchema.validate()` runs the same C validator and raises
-`SchemaMissingError`, `SchemaError` or `InvalidLengthError` instead of
+`InvalidSchemaError` for malformed definitions or `SchemaError` for input violations instead of
 returning a result code; see [Using OpenTLV from Python](python.md#validating).
 Runnable version, with a two-level nested schema:
 [validate.py](https://github.com/marekcingel/OpenTLV/blob/main/bindings/python/opentlv/examples/validate.py)
@@ -220,17 +220,16 @@ Lua returns a validation report with `ok`, native status and owned diagnostics. 
 
 ///
 
-`tlv_schema_validate` checks complete framing and nesting, then lengths,
-occurrences and child membership. It never decodes values. Invalid rule tables,
-unknown tags, excessive occurrences and kind mismatches return `TLV_ERR_SCHEMA`,
-with the offset anchored to the actual offending element; length failures
-retain `TLV_ERR_INVALID_LENGTH`, anchored the same way. A missing required
-field (an occurrence count below its rule's `min_occurs`) instead returns
-`TLV_ERR_SCHEMA_MISSING`, with the offset at the end of its parent's value - a
-scope boundary rather than an element, which can coincide with the start of
-an unrelated sibling in the enclosing scope. Distinguish the two codes before
-using the offset to look up a tag. Framing and resource errors propagate.
-Success leaves the offset unchanged.
+`tlv_schema_validate` checks the complete reachable definition before input.
+Malformed rule/group tables return `TLV_ERR_INVALID_SCHEMA`, independently of
+whether input visits the affected branch. Valid tables rejecting lengths,
+occurrences, membership or element kind return `TLV_ERR_SCHEMA`.
+
+The optional `tlv_schema_diagnostic_t` identifies the reason. Required absence
+uses `TLV_SCHEMA_ISSUE_MISSING` and a `TLV_SCHEMA_ANCHOR_SCOPE_END` position.
+That boundary can coincide with an unrelated sibling; do not decode a tag there.
+Definition errors have unknown byte location. Framing and resource results
+propagate. The output diagnostic is reset on entry.
 
 No allocation or C recursion is used. Each scope is rescanned for each rule and
 each group; complexity is `O((rules + groups) * (rules + elements))` per scope.

@@ -985,6 +985,7 @@ const char* opentlv_wasm_schema_validate(opentlv_wasm_program_t* owner, const ui
     builder_text(&owner->reply, "\",\"field\":");
     builder_json_string(&owner->reply, diagnostic.schema.field ? diagnostic.schema.field : "");
     query_field(&owner->reply, "kind", diagnostic.schema.kind);
+    query_field(&owner->reply, "anchor", diagnostic.schema.anchor);
     builder_text(&owner->reply, ",\"kind_name\":");
     builder_json_string(&owner->reply, tlv_schema_issue_kind_string(diagnostic.schema.kind));
     query_field(&owner->reply, "code", diagnostic.schema.diagnostic.code);

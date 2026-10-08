@@ -32,12 +32,11 @@ namespace lldp {
  * @return Success or a canonical error with the diagnostic byte offset when known.
  */
 inline expected<void, error> validate(bytes data, size_t max_elements = SIZE_MAX) {
-    tlv_diagnostic_t diagnostic{};
+    tlv_schema_diagnostic_t diagnostic{};
     const auto rc = tlv_lldp_validate(reinterpret_cast<const uint8_t*>(data.data()), data.size(),
                                       max_elements, &diagnostic);
     if (rc == TLV_OK) return {};
-    auto failure = error::from_c(rc);
-    if (diagnostic.has_offset) failure = failure.at(diagnostic.offset, operation::schema);
+    auto failure = detail::error_access::schema(diagnostic);
     return unexpected<error>(failure);
 }
 #endif

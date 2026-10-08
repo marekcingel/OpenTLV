@@ -22,7 +22,7 @@ describe("opentlv.errors", function()
         assert(opentlv.errors.OVERFLOW == 13)
         assert(opentlv.errors.INVALID_VALUE == 14)
         assert(opentlv.errors.UNSUPPORTED_TYPE == 15)
-        assert(opentlv.errors.SCHEMA_MISSING == 16)
+        assert(opentlv.errors.INVALID_SCHEMA == 16)
     end)
 end)
 

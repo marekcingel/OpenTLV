@@ -204,7 +204,7 @@ TEST(Integration_Tlvpp, ValidateEnforcesChoiceGroupOccurrence) {
 
     auto neither = tlv::native::validate(tlv::bytes(), tlv_format_ber, schema, 0, 4);
     ASSERT_FALSE(neither);
-    EXPECT_EQ(TLV_ERR_SCHEMA_MISSING, neither.error().code);
+    EXPECT_EQ(TLV_ERR_SCHEMA, neither.error().code);
 
     const uint8_t both[] = {1, 0, 2, 0};
     auto          too_many =

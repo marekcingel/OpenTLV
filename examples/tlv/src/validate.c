@@ -52,7 +52,7 @@ int main(void) {
 
     result = tlv_schema_validate(incomplete, sizeof(incomplete), &tlv_format_ber, &top_schema,
                                  TLV_TREE_DEFAULT_DEPTH, 16, NULL);
-    if (result != TLV_ERR_SCHEMA_MISSING) {
+    if (result != TLV_ERR_SCHEMA) {
         fprintf(stderr, "expected a missing-field error, got %s\n", tlv_strerror(result));
         return 1;
     }

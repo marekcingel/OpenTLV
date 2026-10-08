@@ -8,14 +8,14 @@
 #include <gtest/gtest.h>
 
 TEST(Integration_Tlv_DhcpContainer, SignificantPrefixPreservesPadAndEnd) {
-    const uint8_t    wire[] = {0, 53, 1, 3, 0, 255, 0, 0};
-    size_t           significant = 999;
-    tlv_diagnostic_t diagnostic{};
+    const uint8_t           wire[] = {0, 53, 1, 3, 0, 255, 0, 0};
+    size_t                  significant = 999;
+    tlv_schema_diagnostic_t diagnostic{};
     ASSERT_EQ(TLV_OK, tlv_dhcpv4_options_validate(wire, sizeof(wire), nullptr, 4, &significant,
                                                   &diagnostic));
     EXPECT_EQ(6u, significant);
-    EXPECT_EQ(TLV_OK, diagnostic.code);
-    EXPECT_FALSE(diagnostic.has_offset);
+    EXPECT_EQ(TLV_OK, diagnostic.diagnostic.code);
+    EXPECT_FALSE(diagnostic.diagnostic.has_offset);
     tlv_reader_t reader;
     ASSERT_EQ(TLV_OK, tlv_reader_init(&reader, wire, significant, &tlv_format_dhcpv4));
     for (uint8_t code : {0, 53, 0, 255}) {
@@ -35,43 +35,45 @@ TEST(Integration_Tlv_DhcpContainer, ValuesUnknownCodesAndRepeatedOptionsAreOpaqu
 }
 
 TEST(Integration_Tlv_DhcpContainer, TailPoliciesStopAtFirstEnd) {
-    const uint8_t    wire[] = {0, 255, 0, 255, 53};
-    size_t           significant = 999;
-    tlv_diagnostic_t diagnostic{};
+    const uint8_t           wire[] = {0, 255, 0, 255, 53};
+    size_t                  significant = 999;
+    tlv_schema_diagnostic_t diagnostic{};
     EXPECT_EQ(TLV_ERR_SCHEMA, TLV_DIAGNOSTIC_RESULT(diagnostic, tlv_dhcpv4_options_validate(
                                                                     wire, sizeof(wire), nullptr, 2,
                                                                     &significant, &diagnostic)));
-    EXPECT_EQ(3u, diagnostic.offset);
+    EXPECT_EQ(3u, diagnostic.diagnostic.offset);
     EXPECT_EQ(999u, significant);
     tlv_dhcpv4_options_rules_t rules{1, TLV_DHCPV4_OPTIONS_TAIL_EMPTY};
     EXPECT_EQ(TLV_ERR_SCHEMA, TLV_DIAGNOSTIC_RESULT(diagnostic, tlv_dhcpv4_options_validate(
                                                                     wire, sizeof(wire), &rules, 2,
                                                                     &significant, &diagnostic)));
-    EXPECT_EQ(2u, diagnostic.offset);
+    EXPECT_EQ(2u, diagnostic.diagnostic.offset);
     EXPECT_EQ(TLV_OK, tlv_dhcpv4_options_validate(wire, 2, &rules, 2, &significant, nullptr));
     rules.tail = TLV_DHCPV4_OPTIONS_TAIL_IGNORE;
     EXPECT_EQ(TLV_OK, tlv_dhcpv4_options_validate(wire, sizeof(wire), &rules, 2, &significant,
                                                   &diagnostic));
     EXPECT_EQ(2u, significant);
-    EXPECT_EQ(TLV_OK, diagnostic.code);
-    EXPECT_FALSE(diagnostic.has_offset);
+    EXPECT_EQ(TLV_OK, diagnostic.diagnostic.code);
+    EXPECT_FALSE(diagnostic.diagnostic.has_offset);
 }
 
 TEST(Integration_Tlv_DhcpContainer, MissingAndOptionalEndIncludingEmptyAndAllPad) {
-    const uint8_t    wire[] = {0, 0};
-    size_t           significant = 999;
-    tlv_diagnostic_t diagnostic{};
-    EXPECT_EQ(TLV_ERR_SCHEMA_MISSING,
+    const uint8_t           wire[] = {0, 0};
+    size_t                  significant = 999;
+    tlv_schema_diagnostic_t diagnostic{};
+    EXPECT_EQ(TLV_ERR_SCHEMA,
               TLV_DIAGNOSTIC_RESULT(
                   diagnostic, tlv_dhcpv4_options_validate(wire, sizeof(wire), nullptr, SIZE_MAX,
                                                           &significant, &diagnostic)));
-    EXPECT_EQ(sizeof(wire), diagnostic.offset);
+    EXPECT_EQ(sizeof(wire), diagnostic.diagnostic.offset);
+    EXPECT_EQ(TLV_SCHEMA_ISSUE_MISSING, diagnostic.kind);
+    EXPECT_EQ(TLV_SCHEMA_ANCHOR_SCOPE_END, diagnostic.anchor);
+    EXPECT_TRUE(diagnostic.diagnostic.has_offset);
     EXPECT_EQ(999u, significant);
-    EXPECT_EQ(
-        TLV_ERR_SCHEMA_MISSING,
-        TLV_DIAGNOSTIC_RESULT(diagnostic, tlv_dhcpv4_options_validate(nullptr, 0, nullptr, 0,
-                                                                      &significant, &diagnostic)));
-    EXPECT_EQ(0u, diagnostic.offset);
+    EXPECT_EQ(TLV_ERR_SCHEMA, TLV_DIAGNOSTIC_RESULT(diagnostic, tlv_dhcpv4_options_validate(
+                                                                    nullptr, 0, nullptr, 0,
+                                                                    &significant, &diagnostic)));
+    EXPECT_EQ(0u, diagnostic.diagnostic.offset);
     const tlv_dhcpv4_options_rules_t rules{0, TLV_DHCPV4_OPTIONS_TAIL_PAD};
     EXPECT_EQ(TLV_OK,
               tlv_dhcpv4_options_validate(wire, sizeof(wire), &rules, 2, &significant, nullptr));
@@ -81,16 +83,16 @@ TEST(Integration_Tlv_DhcpContainer, MissingAndOptionalEndIncludingEmptyAndAllPad
 }
 
 TEST(Integration_Tlv_DhcpContainer, LimitsIncludePadAndEndButExcludeTail) {
-    const uint8_t    wire[] = {0, 53, 1, 3, 0, 255, 0, 0};
-    const size_t     offsets[] = {0, 1, 4, 5};
-    size_t           significant = 999;
-    tlv_diagnostic_t diagnostic{};
+    const uint8_t           wire[] = {0, 53, 1, 3, 0, 255, 0, 0};
+    const size_t            offsets[] = {0, 1, 4, 5};
+    size_t                  significant = 999;
+    tlv_schema_diagnostic_t diagnostic{};
     for (size_t limit = 0; limit < 4; ++limit) {
         EXPECT_EQ(TLV_ERR_LIMIT,
                   TLV_DIAGNOSTIC_RESULT(
                       diagnostic, tlv_dhcpv4_options_validate(wire, sizeof(wire), nullptr, limit,
                                                               &significant, &diagnostic)));
-        EXPECT_EQ(offsets[limit], diagnostic.offset);
+        EXPECT_EQ(offsets[limit], diagnostic.diagnostic.offset);
         EXPECT_EQ(999u, significant);
     }
     EXPECT_EQ(TLV_OK,
@@ -109,15 +111,15 @@ TEST(Integration_Tlv_DhcpContainer, TruncationPreservesReaderFieldOffsets) {
         ASSERT_EQ(
             TLV_ERR_BUFFER_TOO_SHORT,
             TLV_DIAGNOSTIC_RESULT(expected, tlv_reader_next_diag(&reader, &element, &expected)));
-        size_t           significant = 999;
-        tlv_diagnostic_t diagnostic{};
+        size_t                  significant = 999;
+        tlv_schema_diagnostic_t diagnostic{};
         EXPECT_EQ(TLV_ERR_BUFFER_TOO_SHORT,
                   TLV_DIAGNOSTIC_RESULT(diagnostic,
                                         tlv_dhcpv4_options_validate(wire, size, nullptr, SIZE_MAX,
                                                                     &significant, &diagnostic)));
-        EXPECT_TRUE(diagnostic.has_offset);
-        EXPECT_EQ(expected.diagnostic.offset, diagnostic.offset);
-        EXPECT_EQ(TLV_ERR_BUFFER_TOO_SHORT, diagnostic.code);
+        EXPECT_TRUE(diagnostic.diagnostic.has_offset);
+        EXPECT_EQ(expected.diagnostic.offset, diagnostic.diagnostic.offset);
+        EXPECT_EQ(TLV_ERR_BUFFER_TOO_SHORT, diagnostic.diagnostic.code);
         EXPECT_EQ(999u, significant);
         EXPECT_EQ(
             TLV_ERR_BUFFER_TOO_SHORT,
@@ -126,12 +128,12 @@ TEST(Integration_Tlv_DhcpContainer, TruncationPreservesReaderFieldOffsets) {
 }
 
 TEST(Integration_Tlv_DhcpContainer, InvalidArgumentsPreserveOutput) {
-    size_t           significant = 999;
-    tlv_diagnostic_t diagnostic{};
+    size_t                  significant = 999;
+    tlv_schema_diagnostic_t diagnostic{};
     EXPECT_EQ(TLV_ERR_NULL_ARG, TLV_DIAGNOSTIC_RESULT(diagnostic, tlv_dhcpv4_options_validate(
                                                                       nullptr, 1, nullptr, SIZE_MAX,
                                                                       &significant, &diagnostic)));
-    EXPECT_EQ(0u, diagnostic.offset);
+    EXPECT_EQ(0u, diagnostic.diagnostic.offset);
     EXPECT_EQ(TLV_ERR_NULL_ARG,
               tlv_dhcpv4_options_validate(nullptr, 0, nullptr, SIZE_MAX, nullptr, nullptr));
     const tlv_dhcpv4_options_rules_t rules{1, static_cast<tlv_dhcpv4_options_tail_t>(99)};
@@ -139,6 +141,6 @@ TEST(Integration_Tlv_DhcpContainer, InvalidArgumentsPreserveOutput) {
         TLV_ERR_INVALID_ARG,
         TLV_DIAGNOSTIC_RESULT(diagnostic, tlv_dhcpv4_options_validate(nullptr, 0, &rules, SIZE_MAX,
                                                                       &significant, &diagnostic)));
-    EXPECT_EQ(0u, diagnostic.offset);
+    EXPECT_EQ(0u, diagnostic.diagnostic.offset);
     EXPECT_EQ(999u, significant);
 }

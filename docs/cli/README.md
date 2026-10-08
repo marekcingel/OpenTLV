@@ -506,15 +506,12 @@ tags), and not with `--pdol` (a DOL's tag/length pairs are not a TLV
 structure to check against a schema).
 A schema violation is reported like any other failure, but prefixed with
 `schema` to keep it distinguishable from a format/framing error. A missing
-mandatory tag reports the distinct `TLV_ERR_SCHEMA_MISSING`, without a `tag=`
-field (its offset is the end of the enclosing element's value, not a tag);
-every other violation (a forbidden/unknown/duplicate tag reports
-`TLV_ERR_SCHEMA`, a length outside bounds reports `TLV_ERR_INVALID_LENGTH`)
-includes the offending tag:
+mandatory tag uses `TLV_ERR_SCHEMA` with `missing` detail. The reported Tag
+comes from the Schema, and its byte position is the enclosing scope end.
 
-```sh
+```console
 $ otlv validate --format ber --module emv --hex "6F00"
-otlv: schema TLV_ERR_SCHEMA_MISSING at byte 2: required schema field missing
+otlv: schema TLV_ERR_SCHEMA at byte 2 tag=84: schema constraint violated
 ```
 
 The exit code contract is unchanged (1 for a schema violation, 3 for an
@@ -757,10 +754,10 @@ mismatch), computed directly by the schema check, so it is unaffected by
 that BER limitation. A dictionary-length violation (`--emv-check
 dictionary`) is labeled `dictionary` (see [EMV checks](#emv-checks)) and
 similarly reports the permitted-versus-actual length and the dictionary
-field name. `TLV_ERR_SCHEMA_MISSING` (a missing mandatory tag) reports the
-tag that is absent and the offset of its enclosing element — both borrowed
-from the schema itself, and so reliable — since the missing tag itself has
-no position of its own.
+field name. Missing mandatory tags use `TLV_ERR_SCHEMA` with `missing`
+detail, the absent tag from the schema, and the enclosing scope end. JSON's
+`anchor` identifies this boundary (`2`), separately from an existing element
+(`1`), insertion point (`3`) or unknown position (`0`).
 
 Formatting is presentation only, layered on top of the library's structured
 diagnostics; see [Diagnostics](../guides/diagnostics.md) for the underlying

@@ -2,6 +2,7 @@
 // Copyright (c) 2026 Marek Cingel
 
 #include "tlv/schema/constraint.h"
+
 #include <gtest/gtest.h>
 
 namespace {
@@ -41,7 +42,7 @@ TEST(Unit_Tlv_Constraint, RangeAcceptsInclusiveBoundsAndRejectsOutside) {
 TEST(Unit_Tlv_Constraint, ReversedRangeBoundsAlwaysFail) {
     const tlv_value_constraint_t reversed = {
         TLV_VALUE_CONSTRAINT_RANGE, 10, 5, nullptr, 0, nullptr};
-    EXPECT_EQ(TLV_ERR_SCHEMA, tlv_value_constraint_validate(&reversed, 7));
+    EXPECT_EQ(TLV_ERR_INVALID_SCHEMA, tlv_value_constraint_validate(&reversed, 7));
 }
 
 TEST(Unit_Tlv_Constraint, AllowedValuesAcceptsMembersAndRejectsOthers) {
@@ -60,13 +61,13 @@ TEST(Unit_Tlv_Constraint, EmptyAllowedValuesRejectsEverything) {
 TEST(Unit_Tlv_Constraint, NullAllowedValuesWithNonzeroCountFails) {
     const tlv_value_constraint_t invalid = {
         TLV_VALUE_CONSTRAINT_ALLOWED_VALUES, 0, 0, nullptr, 3, nullptr};
-    EXPECT_EQ(TLV_ERR_SCHEMA, tlv_value_constraint_validate(&invalid, 0));
+    EXPECT_EQ(TLV_ERR_INVALID_SCHEMA, tlv_value_constraint_validate(&invalid, 0));
 }
 
 TEST(Unit_Tlv_Constraint, UnrecognizedKindFails) {
     tlv_value_constraint_t unknown = none_constraint;
     unknown.kind = static_cast<tlv_value_constraint_kind_t>(99);
-    EXPECT_EQ(TLV_ERR_SCHEMA, tlv_value_constraint_validate(&unknown, 0));
+    EXPECT_EQ(TLV_ERR_INVALID_SCHEMA, tlv_value_constraint_validate(&unknown, 0));
 }
 
 TEST(Unit_Tlv_Constraint, NullConstraintFails) {

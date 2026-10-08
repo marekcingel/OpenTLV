@@ -139,7 +139,7 @@ if (rc == TLV_ERR_SCHEMA) {
         const tlv_schema_diagnostic_t* d = &diagnostics[i];
         char path[64];
         tlv_diagnostic_path_string(&d->path, path, sizeof(path), NULL);
-        /* d->diagnostic.code   == TLV_ERR_SCHEMA_MISSING, TLV_ERR_INVALID_LENGTH or TLV_ERR_SCHEMA
+        /* d->diagnostic.code   == TLV_ERR_SCHEMA; kind distinguishes missing, length and other findings
          * d->diagnostic.offset == the offset of the affected element, when d->diagnostic.has_offset
          * path                == the scopes enclosing d->tag, for example "6F > A5 > BF0C > 61"
          * d->field             == the rule's schema name for d->tag, or NULL if it has none */

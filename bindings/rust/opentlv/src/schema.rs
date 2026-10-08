@@ -189,7 +189,8 @@ impl LengthSchema {
     /// # Errors
     ///
     /// [`Error::Schema`] if the schema has no rule for `tag`,
-    /// [`Error::InvalidLength`] if the length is out of the rule's bounds.
+    /// [`Error::Schema`] if the length is out of the rule's bounds,
+    /// and [`Error::InvalidSchema`] for reversed bounds.
     pub fn validate_length(&self, tag: &Tag, length: usize) -> Result<()> {
         let entry = self.find_raw(tag).ok_or(Error::Schema)?;
         // SAFETY: `entry` is a valid, initialized entry.
@@ -413,6 +414,8 @@ pub struct SchemaDiagnostic {
     pub kind: i32,
     /// Name returned by the C kind helper.
     pub kind_name: String,
+    /// Byte-position meaning: unknown, element, scope end or insertion.
+    pub anchor: i32,
     /// Affected tag, separate from the enclosing path.
     pub tag: Tag,
     /// Retained outermost enclosing scope tags.
@@ -469,6 +472,7 @@ impl SchemaDiagnostic {
             severity: item.diagnostic.severity,
             kind: item.kind,
             kind_name,
+            anchor: item.anchor,
             // SAFETY: affected tag borrows still-live storage.
             tag: unsafe { Tag::from_raw(&item.tag) }?,
             path,
@@ -604,7 +608,12 @@ impl StructureSchema {
         unknown: UnknownPolicy,
         capacity: usize,
     ) -> std::result::Result<SchemaDiagnosticReport, SchemaError> {
-        let convert = |error| SchemaError { error, offset: 0 };
+        let convert = |error| SchemaError {
+            error,
+            offset: None,
+            kind: 0,
+            anchor: 0,
+        };
         let mut storage = Vec::<std::mem::MaybeUninit<native::tlv_schema_diagnostic_t>>::new();
         storage
             .try_reserve_exact(capacity)
@@ -633,7 +642,17 @@ impl StructureSchema {
         if code != native::TLV_OK && code != native::TLV_ERR_SCHEMA {
             return Err(SchemaError {
                 error: Error::from_code(code).unwrap(),
-                offset,
+                offset: if code == native::TLV_ERR_INVALID_SCHEMA {
+                    None
+                } else {
+                    Some(offset)
+                },
+                kind: if code == native::TLV_ERR_INVALID_SCHEMA {
+                    9
+                } else {
+                    0
+                },
+                anchor: 0,
             });
         }
         let mut diagnostics = Vec::new();
@@ -781,9 +800,10 @@ impl StructureSchema {
     /// # Errors
     ///
     /// A [`SchemaError`] carrying the C library's error and the offset of the
-    /// failure: [`Error::SchemaMissing`] for an absent required field,
-    /// [`Error::Schema`] for other rule violations, [`Error::InvalidLength`]
-    /// for a length failure, or a reader error such as [`Error::Limit`].
+    /// failure: [`Error::Schema`] with missing detail for an absent required field,
+    /// [`Error::Schema`] for other rule violations including length constraints,
+    /// [`Error::InvalidSchema`] for a malformed definition, or a reader error
+    /// such as [`Error::Limit`].
     pub fn validate(
         &self,
         data: &[u8],
@@ -809,9 +829,9 @@ impl StructureSchema {
         format: *const native::tlv_format_t,
         limits: &ValidationLimits,
     ) -> std::result::Result<(), SchemaError> {
-        let mut offset = 0usize;
+        let mut diagnostic: native::tlv_schema_diagnostic_t = unsafe { std::mem::zeroed() };
         // SAFETY: `data` is a valid slice; the format and schema tables are
-        // valid for the call and immutable; `offset` is a writable `usize`.
+        // valid for the call and immutable; `diagnostic` is writable native storage.
         let code = unsafe {
             native::tlv_schema_validate(
                 data.as_ptr(),
@@ -820,12 +840,21 @@ impl StructureSchema {
                 self.as_raw(),
                 limits.max_depth,
                 limits.max_elements,
-                &mut offset,
+                &mut diagnostic,
             )
         };
         match Error::from_code(code) {
             None => Ok(()),
-            Some(error) => Err(SchemaError { error, offset }),
+            Some(error) => Err(SchemaError {
+                error,
+                offset: if diagnostic.diagnostic.has_offset != 0 {
+                    Some(diagnostic.diagnostic.offset)
+                } else {
+                    None
+                },
+                kind: diagnostic.kind,
+                anchor: diagnostic.anchor,
+            }),
         }
     }
 }
@@ -857,14 +886,21 @@ impl Default for ValidationLimits {
 pub struct SchemaError {
     /// The error reported by the C library.
     pub error: Error,
-    /// Offset of the failure in the input. For [`Error::SchemaMissing`] this
-    /// is the end of the parent's value, not an element.
-    pub offset: usize,
+    /// Known byte position; use anchor to distinguish scope end from an element.
+    /// Definition errors have no input position.
+    pub offset: Option<usize>,
+    /// Canonical Schema reason.
+    pub kind: i32,
+    /// Canonical Schema location anchor.
+    pub anchor: i32,
 }
 
 impl fmt::Display for SchemaError {
     fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
-        write!(f, "{} at offset {}", self.error, self.offset)
+        match self.offset {
+            Some(offset) => write!(f, "{} at offset {}", self.error, offset),
+            None => write!(f, "{}", self.error),
+        }
     }
 }
 

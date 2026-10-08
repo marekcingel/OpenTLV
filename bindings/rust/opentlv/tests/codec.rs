@@ -51,7 +51,7 @@ fn dictionary_definitions_expose_metadata() {
     );
     assert_eq!(afl.display_label(), Some("Application File Locator (AFL)"));
     assert_eq!(afl.validate_length(8), Ok(()));
-    assert_eq!(afl.validate_length(5), Err(Error::InvalidLength));
+    assert_eq!(afl.validate_length(5), Err(Error::Schema));
 
     let label = emv::find(Context::Base, &tag(&[0x50])).unwrap();
     assert_eq!(label.kind(), ValueKind::Text);

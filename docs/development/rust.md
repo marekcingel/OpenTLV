@@ -105,8 +105,8 @@ Both schema types wrap the C library's tables; validation runs in C.
 schemas. `StructureSchema::validate` takes the data, a `Format` (which decides
 which tags are constructed) and `ValidationLimits`, and returns
 `Result<(), SchemaError>`. `SchemaError` carries the C `Error`
-(`Schema`, `SchemaMissing`, `InvalidLength`, `Limit`, ...) and the failing
-offset.
+(`Schema`, `InvalidSchema`, `Limit`, ...) and the optional failing
+offset plus Schema kind and anchor.
 
 ```rust
 let tag = opentlv::Tag::from_bytes(&[0x84]);

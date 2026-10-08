@@ -214,7 +214,7 @@ TEST(Unit_Tlv_BluetoothAdCodec, FieldLengthsAndValueSemanticsAreIndependent) {
         const auto  type = field->tag.data[0];
         if (type == 8 || type == 9) {
             EXPECT_EQ(TLV_OK, tlv_schema_validate_length(field, 248));
-            EXPECT_EQ(TLV_ERR_INVALID_LENGTH, tlv_schema_validate_length(field, 249));
+            EXPECT_EQ(TLV_ERR_SCHEMA, tlv_schema_validate_length(field, 249));
             check_span(tlv_bluetooth_ad_codec_local_name, std::vector<uint8_t>(249, 'a'),
                        TLV_CODEC_OK);
             EXPECT_EQ(TLV_OK, tlv_schema_validate_length(field, 1));

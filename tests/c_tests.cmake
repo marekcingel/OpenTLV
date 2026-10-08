@@ -7,6 +7,7 @@ set(HEADERS
 
 set(SOURCES
     architecture_test.cpp
+    schema/failure_test.cpp
     attributes_c_test.c
     attributes_test.cpp
     builtins/asn1/asn1_codec_test.cpp

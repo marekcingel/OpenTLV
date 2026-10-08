@@ -26,5 +26,5 @@ TEST(Integration_Tlv_Schema, ReaderParsesUnknownTagsAndLengthsOutsideSchema) {
     ASSERT_EQ(TLV_OK, tlv_reader_next(&reader, &element));
     const auto* entry = tlv_schema_find(&schema, &element.tag);
     ASSERT_NE(nullptr, entry);
-    EXPECT_EQ(TLV_ERR_INVALID_LENGTH, tlv_schema_validate_length(entry, element.value.size));
+    EXPECT_EQ(TLV_ERR_SCHEMA, tlv_schema_validate_length(entry, element.value.size));
 }

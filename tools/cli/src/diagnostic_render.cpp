@@ -163,6 +163,7 @@ std::string schema_json(const tlv::validation_issue& d) {
     nlohmann::json object;
     set_header_json(object, d.diagnostic());
     object["kind"] = tlv::message(d.kind());
+    object["anchor"] = static_cast<int>(d.error().anchor());
     if (d.depth()) {
         object["path"] = path_string(d.path());
         if (d.path().omitted) object["path_omitted"] = d.path().omitted;

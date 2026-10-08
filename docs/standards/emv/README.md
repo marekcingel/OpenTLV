@@ -294,12 +294,11 @@ and issuer for a generic schema and are accepted unchecked at the root.
 #include "tlv/builtins/emv/emv_schema.h"
 
 /* Inside a function; wire/size hold one or more concatenated EMV elements. */
-size_t       offset;
+tlv_schema_diagnostic_t diagnostic;
 tlv_result_t rc = tlv_schema_validate(wire, size, &tlv_format_emv, &tlv_emv_structure_schema,
-                                      64, 100000, &offset);
-/* TLV_OK, or an element-anchored TLV_ERR_SCHEMA/TLV_ERR_INVALID_LENGTH, or
- * TLV_ERR_SCHEMA_MISSING (a missing required tag) with offset at the end of
- * its parent's value instead - see tlv/schema/schema.h. */
+                                      64, 100000, &diagnostic);
+/* TLV_ERR_SCHEMA describes input violations. MISSING detail anchors at the
+ * enclosing scope end. Invalid definitions return TLV_ERR_INVALID_SCHEMA. */
 ```
 
 This backs the `opentlv` CLI's `validate --module emv`.

@@ -32,14 +32,8 @@ fn length_schema_finds_and_validates() {
 
     assert_eq!(schema.validate_length(&tag(&[0x01]), 2), Ok(()));
     assert_eq!(schema.validate_length(&tag(&[0x01]), 4), Ok(()));
-    assert_eq!(
-        schema.validate_length(&tag(&[0x01]), 1),
-        Err(Error::InvalidLength)
-    );
-    assert_eq!(
-        schema.validate_length(&tag(&[0x01]), 5),
-        Err(Error::InvalidLength)
-    );
+    assert_eq!(schema.validate_length(&tag(&[0x01]), 1), Err(Error::Schema));
+    assert_eq!(schema.validate_length(&tag(&[0x01]), 5), Err(Error::Schema));
     assert_eq!(schema.validate_length(&tag(&[0x03]), 1), Err(Error::Schema));
 }
 
@@ -60,10 +54,7 @@ fn emv_length_schema_uses_the_builtin_dictionary() {
         Some(LengthRule::exact(amount.clone(), 6))
     );
     assert_eq!(schema.validate_length(&amount, 6), Ok(()));
-    assert_eq!(
-        schema.validate_length(&amount, 5),
-        Err(Error::InvalidLength)
-    );
+    assert_eq!(schema.validate_length(&amount, 5), Err(Error::Schema));
     // Contexts are explicit: 9F02 is not part of the biometric context.
     assert_eq!(LengthSchema::emv_for(Context::Bht).find(&amount), None);
 }
@@ -105,9 +96,9 @@ fn missing_required_field_reports_schema_missing() {
     let err = message_schema()
         .validate(&[0x02, 0x00], Format::Ber, &limits())
         .unwrap_err();
-    assert_eq!(err.error, Error::SchemaMissing);
+    assert_eq!(err.error, Error::Schema);
     // Reported at the end of the parent's value: here the end of the input.
-    assert_eq!(err.offset, 2);
+    assert_eq!(err.offset, Some(2));
 }
 
 #[test]
@@ -125,7 +116,7 @@ fn length_violation_reports_invalid_length_at_the_element() {
     let err = message_schema()
         .validate(&data, Format::Ber, &limits())
         .unwrap_err();
-    assert_eq!((err.error, err.offset), (Error::InvalidLength, 0));
+    assert_eq!((err.error, err.offset), (Error::Schema, Some(0)));
 }
 
 #[test]
@@ -134,7 +125,7 @@ fn unknown_tag_is_rejected_unless_allowed() {
     let lenient = StructureSchema::new([StructureRule::new(tag(&[0x01]))], true);
     let data = [0x01, 0x00, 0x09, 0x00];
     let err = strict.validate(&data, Format::Ber, &limits()).unwrap_err();
-    assert_eq!((err.error, err.offset), (Error::Schema, 2));
+    assert_eq!((err.error, err.offset), (Error::Schema, Some(2)));
     assert_eq!(lenient.validate(&data, Format::Ber, &limits()), Ok(()));
 }
 
@@ -201,12 +192,12 @@ fn emv_structure_schema_validates_an_fci() {
     let err = schema
         .validate(&[0x6F, 0x00], Format::Ber, &limits())
         .unwrap_err();
-    assert_eq!(err.error, Error::SchemaMissing);
+    assert_eq!(err.error, Error::Schema);
 
     // Application Label is not allowed directly under the FCI template.
     let bad = [0x6F, 0x0A, 0x84, 0x05, 1, 2, 3, 4, 5, 0x50, 0x01, 0x41];
     let err = schema.validate(&bad, Format::Ber, &limits()).unwrap_err();
-    assert_eq!((err.error, err.offset), (Error::Schema, 9));
+    assert_eq!((err.error, err.offset), (Error::Schema, Some(9)));
 }
 
 #[test]
@@ -220,7 +211,7 @@ fn emv_structure_schema_validates_a_gpo_response() {
     let err = schema
         .validate(&missing_afl, Format::Ber, &limits())
         .unwrap_err();
-    assert_eq!(err.error, Error::SchemaMissing);
+    assert_eq!(err.error, Error::Schema);
 }
 
 #[test]
@@ -255,7 +246,7 @@ fn schemas_hold_tags_longer_than_any_built_in_format_accepts() {
     let schema = LengthSchema::new([LengthRule::exact(long.clone(), 3)]);
     assert_eq!(schema.find(&long), Some(LengthRule::exact(long.clone(), 3)));
     assert_eq!(schema.validate_length(&long, 3), Ok(()));
-    assert_eq!(schema.validate_length(&long, 4), Err(Error::InvalidLength));
+    assert_eq!(schema.validate_length(&long, 4), Err(Error::Schema));
     // A tag that differs only in its last byte is a different tag.
     let other = tag(&[1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 13]);
     assert_eq!(schema.find(&other), None);
@@ -288,7 +279,7 @@ fn length_schema_retains_native_endpoint_and_multiple_constraints() {
     assert_eq!(schema.find(&tag).unwrap().length_multiple, 2);
     assert!(schema.validate_length(&tag, 2).is_ok());
     assert!(schema.validate_length(&tag, 8).is_ok());
-    assert_eq!(schema.validate_length(&tag, 4), Err(Error::InvalidLength));
+    assert_eq!(schema.validate_length(&tag, 4), Err(Error::Schema));
 }
 #[test]
 fn sequence_and_alternative_groups_delegate_to_c_after_move() {
@@ -311,7 +302,7 @@ fn sequence_and_alternative_groups_delegate_to_c_after_move() {
             .validate(&[2, 0, 1, 0], Format::Ber, &limits)
             .unwrap_err()
             .offset,
-        2
+        Some(2)
     );
     let choice = StructureSchema::with_constraints(
         [
@@ -331,7 +322,7 @@ fn sequence_and_alternative_groups_delegate_to_c_after_move() {
     moved.validate(&[2, 0], Format::Ber, &limits).unwrap();
     assert_eq!(
         moved.validate(&[], Format::Ber, &limits).unwrap_err().error,
-        Error::SchemaMissing
+        Error::Schema
     );
     assert_eq!(
         moved
@@ -370,7 +361,8 @@ fn bounded_reports_keep_total_and_owned_paths() {
     assert_eq!(report.diagnostics[0].kind_name, "missing");
     assert!(report.diagnostics[0].path.is_empty());
     assert_eq!(report.diagnostics[0].tag, Tag::from_bytes(&[1]));
-    assert_eq!(report.diagnostics[0].offset, None);
+    assert_eq!(report.diagnostics[0].offset, Some(2));
+    assert_eq!(report.diagnostics[0].anchor, 2);
 }
 
 #[test]
@@ -481,7 +473,8 @@ fn detailed_group_report_capacity_and_wire_failure() {
             actual: 0
         })
     );
-    assert_eq!(issue.offset, None);
+    assert_eq!(issue.offset, Some(0));
+    assert_eq!(issue.anchor, 2);
     let report = schema
         .validate_diagnostics(&[5, 0], Format::Ber, &limits, UnknownPolicy::BySchema, 0)
         .unwrap();

@@ -29,12 +29,12 @@ namespace tlv {
 inline expected<void, error> validate(bytes data, tlv::format format, schema definition,
                                       size_t max_depth = TLV_SCHEMA_MAX_DEPTH,
                                       size_t max_elements = SIZE_MAX) {
-    size_t     offset = 0;
+    tlv_schema_diagnostic_t diagnostic{};
     const auto rc = tlv_schema_validate(reinterpret_cast<const uint8_t*>(data.data()), data.size(),
                                         &detail::format_access::get(format),
                                         detail::schema_access::get(definition), max_depth,
-                                        max_elements, &offset);
-    if (rc != TLV_OK) return unexpected<error>(error::from_c(rc).at(offset, operation::schema));
+                                        max_elements, &diagnostic);
+    if (rc != TLV_OK) return unexpected<error>(detail::error_access::schema(diagnostic));
     return {};
 }
 
@@ -54,20 +54,19 @@ using schema_diagnostic = tlv_schema_diagnostic_t;
  * @param schema        Structural schema; borrowed.
  * @param max_depth     Maximum nesting depth.
  * @param max_elements  Maximum total elements.
- * @param error_offset  Optional. On failure receives the offset of the
- *                      failure; see tlv_schema_validate().
+ * @param diagnostic Optional typed Schema failure and location.
  *
  * @return Success if the data conforms; otherwise the error of
  *         tlv_schema_validate(), including #TLV_ERR_SCHEMA and
- *         #TLV_ERR_SCHEMA_MISSING.
+ *         #TLV_ERR_INVALID_SCHEMA.
  */
 TLV_NODISCARD inline expected<void, error> validate(bytes data, const tlv_format_t& format,
                                                     const tlv_structure_schema_t& schema,
                                                     size_t max_depth, size_t max_elements,
-                                                    size_t* error_offset = nullptr) {
+                                                    tlv_schema_diagnostic_t* diagnostic = nullptr) {
     tlv_result_t rc =
         tlv_schema_validate(reinterpret_cast<const uint8_t*>(data.data()), data.size(), &format,
-                            &schema, max_depth, max_elements, error_offset);
+                            &schema, max_depth, max_elements, diagnostic);
     if (rc != TLV_OK) return unexpected<error>(error::from_c(rc));
     return {};
 }
@@ -113,14 +112,14 @@ validate_all_diag(bytes data, const tlv_format_t& format, const tlv_structure_sc
 }
 /** @brief Validate a structure using a C++ Format view.
  * @copydetails validate(bytes, const tlv_format_t&, const tlv_structure_schema_t&, size_t, size_t,
- * size_t*)
+ * tlv_schema_diagnostic_t*)
  */
 TLV_NODISCARD inline expected<void, error> validate(bytes data, tlv::format format,
                                                     const tlv_structure_schema_t& schema,
                                                     size_t max_depth, size_t max_elements,
-                                                    size_t* error_offset = nullptr) {
+                                                    tlv_schema_diagnostic_t* diagnostic = nullptr) {
     return validate(data, detail::format_access::get(format), schema, max_depth, max_elements,
-                    error_offset);
+                    diagnostic);
 }
 
 /** @brief Collect structure diagnostics using a C++ Format view.

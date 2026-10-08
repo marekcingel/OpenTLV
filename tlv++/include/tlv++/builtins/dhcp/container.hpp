@@ -25,10 +25,10 @@ namespace native {
  *       rules or other outputs. Requires `OPENTLV_DHCP=ON`.
  * @see tlv_dhcpv4_options_validate
  */
-inline tlv_result_t dhcpv4_options_validate(const uint8_t* data, size_t size,
-                                            const tlv_dhcpv4_options_rules_t* rules,
-                                            size_t max_elements, size_t& significant_size,
-                                            tlv_diagnostic_t* diagnostic = nullptr) noexcept {
+inline tlv_result_t
+dhcpv4_options_validate(const uint8_t* data, size_t size, const tlv_dhcpv4_options_rules_t* rules,
+                        size_t max_elements, size_t& significant_size,
+                        tlv_schema_diagnostic_t* diagnostic = nullptr) noexcept {
     return tlv_dhcpv4_options_validate(data, size, rules, max_elements, &significant_size,
                                        diagnostic);
 }
@@ -64,17 +64,16 @@ struct options_rules {
  */
 TLV_NODISCARD inline expected<size_t, error>
 options_validate(bytes data, options_rules rules = {}, size_t max_elements = SIZE_MAX,
-                 tlv_diagnostic_t* diagnostic = nullptr) {
+                 tlv_schema_diagnostic_t* diagnostic = nullptr) {
     const tlv_dhcpv4_options_rules_t raw{rules.require_end ? 1 : 0,
                                          static_cast<tlv_dhcpv4_options_tail_t>(rules.tail)};
-    tlv_diagnostic_t                 local{};
+    tlv_schema_diagnostic_t          local{};
     if (!diagnostic) diagnostic = &local;
     size_t     significant_size = 0;
     const auto rc =
         tlv_dhcpv4_options_validate(reinterpret_cast<const uint8_t*>(data.data()), data.size(),
                                     &raw, max_elements, &significant_size, diagnostic);
-    if (rc != TLV_OK)
-        return unexpected<error>(detail::error_access::diagnostic(*diagnostic, operation::reader));
+    if (rc != TLV_OK) return unexpected<error>(detail::error_access::schema(*diagnostic));
     return significant_size;
 }
 } // namespace dhcp

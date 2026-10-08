@@ -164,7 +164,7 @@ impl Definition {
     ///
     /// # Errors
     ///
-    /// [`Error::InvalidLength`] if the length is not permitted.
+    /// [`Error::Schema`] if the length is not permitted.
     pub fn validate_length(&self, length: usize) -> Result<()> {
         // SAFETY: `self.raw` is a valid definition.
         Error::check(unsafe { native::tlv_emv_validate_length(self.raw, length) })

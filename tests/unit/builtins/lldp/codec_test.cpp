@@ -184,7 +184,7 @@ TEST(Unit_Tlv_LldpCodec, SchemaOwnsOuterLengthPolicy) {
         const uint8_t type = field->tag.data[0];
         if (type != 1 && type != 2 && type != 4 && type != 5 && type != 6 && type != 127) continue;
         EXPECT_EQ(TLV_OK, tlv_schema_validate_length(field, field->max_length));
-        EXPECT_EQ(TLV_ERR_INVALID_LENGTH, tlv_schema_validate_length(field, field->max_length + 1));
+        EXPECT_EQ(TLV_ERR_SCHEMA, tlv_schema_validate_length(field, field->max_length + 1));
         std::vector<uint8_t> bytes(1024, 'x');
         if (type == 1 || type == 2) {
             bytes[0] = 7;

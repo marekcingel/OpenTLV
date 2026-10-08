@@ -8,6 +8,7 @@
 #include "tlv/builtins/asn1/der_validation.h"
 #include "tlv/builtins/asn1/der.h"
 #include "tlv/schema/constraint.h"
+#include "tlv/schema/schema.h"
 #include "tlv/element.h"
 #include "tlv/export.h"
 
@@ -261,24 +262,26 @@ extern TLV_API const tlv_der_schema_limits_t tlv_der_schema_default_limits;
  * most `max_length`; and that a leaf's `constraint->value_constraint` is only
  * set when `universal_number` is 2 (INTEGER) or 10 (ENUMERATED).
  *
- * Intended to validate a hand-authored table once (for example in a unit
- * test). tlv_der_schema_read() and tlv_der_schema_write() already enforce the
- * depth bound live and do not require this to have been called first.
+ * Also checks constraint kinds, bounds and backing storage. Read and write
+ * perform this definition check before inspecting input or invoking callbacks.
+ * Checking uses bounded local storage and no heap allocation.
  *
  * @param[in]  root         Root type to check.
- * @param[out] error_offset Optional. When set, always 0: the offset is
- *                          schema-relative, not input-relative.
+ * @param[out] diagnostic Optional definition failure detail; byte location is unknown.
  *
  * @return #TLV_OK if the schema is consistent.
- * @return #TLV_ERR_SCHEMA or another error code describing the inconsistency.
+ * @return #TLV_ERR_INVALID_SCHEMA for an invalid definition.
+ * @return #TLV_ERR_NULL_ARG for a NULL root.
+ * @return #TLV_ERR_UNSUPPORTED_TYPE for a graph exceeding fixed checking capacity.
  */
-TLV_API tlv_result_t tlv_der_schema_check(const tlv_der_schema_type_t* root, size_t* error_offset);
+TLV_API tlv_result_t tlv_der_schema_check(const tlv_der_schema_type_t* root,
+                                          tlv_schema_diagnostic_t* diagnostic);
 
 /**
  * @brief Validates encoded data against a schema.
  *
  * Reports the single complete element consumed, with the same zero-copy,
- * `error_offset` and limit conventions as tlv_der_read_strict(). Every
+ * limit conventions as tlv_der_read_strict(). Every
  * UNIVERSAL leaf is content-validated, including its `constraint` when set
  * (raw content length bounds, and a decoded INTEGER/ENUMERATED value-range or
  * allowed-values check); SET and SET OF wire order is checked (SEQUENCE OF
@@ -294,10 +297,12 @@ TLV_API tlv_result_t tlv_der_schema_check(const tlv_der_schema_type_t* root, siz
  * @param[in]  limits       Limits, or `NULL` for #tlv_der_schema_default_limits.
  * @param[out] element         Receives the element; its value borrows `data`.
  * @param[out] consumed     Receives the encoded size of the element.
- * @param[out] error_offset Optional. Offset of the failure, as for tlv_der_read_strict().
+ * @param[out] diagnostic Optional first failure. Missing content has MISSING
+ * detail and a SCOPE_END or INSERTION anchor. Definition errors are unlocated.
  *
  * @return #TLV_OK if the data conforms.
- * @return #TLV_ERR_SCHEMA and related codes for schema violations.
+ * @return #TLV_ERR_SCHEMA for input violations, including an absent required root.
+ * @return #TLV_ERR_INVALID_SCHEMA for an invalid definition, before input processing.
  * @return Any error of tlv_der_read_strict().
  *
  * @warning The caller must keep `data` alive while `element` is used.
@@ -306,7 +311,7 @@ TLV_API tlv_result_t tlv_der_schema_read(const uint8_t* data, size_t size,
                                          const tlv_der_schema_type_t* root,
                                          const tlv_der_schema_limits_t* limits,
                                          tlv_element_t* element, size_t* consumed,
-                                         size_t* error_offset);
+                                         tlv_schema_diagnostic_t* diagnostic);
 
 /**
  * @brief Callback supplying one component's raw inner content for tlv_der_schema_write().
@@ -413,7 +418,7 @@ typedef struct tlv_der_schema_record {
  *                              SEQUENCE OF.
  * @param[in]  scratch_capacity Number of records in `scratch`.
  * @param[out] written          Receives the encoded (or required) size.
- * @param[out] error_offset     Optional. Offset of the failure, using the
+ * @param[out] diagnostic       Optional first failure, using the
  *                              would-be-output conventions of tlv_der_write().
  *                              A missing SEQUENCE component points where it
  *                              would start; a missing SET component points to
@@ -422,23 +427,26 @@ typedef struct tlv_der_schema_record {
  *                              to the Value.
  *                              Nested headers and canonical SET ordering are
  *                              included. Argument, configuration and capacity
- *                              failures have offset zero.
+ *                              failures have unknown byte location.
  *
  * @return #TLV_OK on success.
  * @return #TLV_ERR_SCHEMA for a schema violation, including a missing
  *         #TLV_DER_REQUIRED component; this fails deterministically without
  *         partial output.
+ * @return #TLV_ERR_INVALID_SCHEMA for an invalid definition, before callbacks.
  * @return #TLV_ERR_BUFFER_TOO_SHORT if the destination is insufficient.
  * @return #TLV_ERR_LIMIT if scratch storage or a configured limit is exceeded.
  * @return Any callback error, propagated unchanged unless an earlier schema/value
  *         failure has already been retained while locating its offset.
  *
  * @note The destination and `written` remain unchanged on error; scratch is
- *       working storage. When `error_offset` is supplied, composition may
+ *       working storage. When `diagnostic` is supplied, composition may
  *       continue after a schema/value failure to determine enclosing lengths
  *       and ordering, including callbacks for remaining components. The first
  *       failure is preserved. If a subsequent callback or scratch failure
- *       prevents completing that composition, its offset is zero.
+ *       prevents completing that composition, its byte location is unknown.
+ *       MISSING detail distinguishes absent content from other schema violations;
+ *       an absent required root has INSERTION anchor at output offset zero.
  */
 TLV_API tlv_result_t tlv_der_schema_write(uint8_t* data, size_t capacity,
                                           const tlv_der_schema_type_t* root,
@@ -446,7 +454,7 @@ TLV_API tlv_result_t tlv_der_schema_write(uint8_t* data, size_t capacity,
                                           const tlv_der_schema_limits_t* limits,
                                           uint8_t* scratch_bytes, size_t scratch_bytes_capacity,
                                           tlv_der_schema_record_t* scratch, size_t scratch_capacity,
-                                          size_t* written, size_t* error_offset);
+                                          size_t* written, tlv_schema_diagnostic_t* diagnostic);
 
 #ifdef __cplusplus
 }

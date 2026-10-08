@@ -101,8 +101,9 @@ TLV_API const tlv_schema_entry_t* tlv_schema_find(const tlv_schema_t* schema, co
  * @param[in] length Value length to check.
  *
  * @return #TLV_OK if the length satisfies both the bounds and the multiple.
- * @return #TLV_ERR_INVALID_LENGTH for an out-of-range length, a non-multiple,
- *         an excluded intermediate length or reversed bounds.
+ * @return #TLV_ERR_SCHEMA for an out-of-range length, a non-multiple,
+ *         or an excluded intermediate length under a valid rule.
+ * @return #TLV_ERR_INVALID_SCHEMA for reversed bounds.
  * @return #TLV_ERR_NULL_ARG if `entry` is `NULL`.
  */
 TLV_API tlv_result_t tlv_schema_validate_length(const tlv_schema_entry_t* entry, size_t length);
@@ -227,59 +228,10 @@ typedef struct tlv_structure_schema {
     tlv_schema_order_t order;
 } tlv_structure_schema_t;
 
-#if OPENTLV_READER
-/**
- * @brief Validates framing, nesting, lengths, occurrence counts, ordering,
- * alternative groups and child membership.
- *
- * Never decodes values. All tables are borrowed and immutable during use.
- * Limits and offsets follow Tree Reader. Uses TLV_SCHEMA_MAX_DEPTH structural frames
- * and bounded schema-context storage
- * without allocation or recursion. Counts are checked by rescanning each
- * scope per rule and per group: O((rules + groups) * (rules + elements)) per
- * scope. Input and schema errors leave no partial application objects.
- *
- * A scope whose #tlv_structure_schema_t::order is #TLV_SCHEMA_ORDER_SEQUENCE
- * additionally requires matched elements to appear in the same relative
- * order as their rules are listed. A scope with a nonempty
- * #tlv_structure_schema_t::groups additionally requires, for each group, the
- * total occurrences of its member tags to be within the group's own
- * `min_occurs`/`max_occurs`, on top of each member's own per-rule bounds.
- *
- * `format->is_constructed` receives `format->context`; `NULL` treats values as
- * opaque.
- *
- * @param[in]  data          Encoded input.
- * @param[in]  size          Input size in bytes.
- * @param[in]  format        Reader format.
- * @param[in]  schema        Structural schema to validate against.
- * @param[in]  max_depth     Runtime nesting limit; actual depth is also bounded by
- * TLV_SCHEMA_MAX_DEPTH.
- * @param[in]  max_elements  Maximum total elements, as for tlv_tree_reader_visit().
- * @param[out] error_offset  Optional. Receives the offset of the failure; see below.
- *
- * @return #TLV_OK if the data conforms to the schema.
- * @return #TLV_ERR_SCHEMA_MISSING if a required field or group is absent (an
- *         occurrence count below its rule's or group's `min_occurs`). The
- *         offset is the end of the parent's value: a scope boundary, not an
- *         element, which can coincide with the start of an unrelated sibling
- *         in the enclosing scope.
- * @return #TLV_ERR_SCHEMA for every other violation (forbidden or unknown
- *         tag, an occurrence count above a rule's or group's `max_occurs`,
- *         kind mismatch, an out-of-order element in a #TLV_SCHEMA_ORDER_SEQUENCE
- *         scope, an invalid rule or group table), with the offset anchored to
- *         the offending element.
- * @return #TLV_ERR_INVALID_LENGTH for a length failure, also element-anchored.
- * @return Any other error of tlv_tree_reader_visit().
- */
-TLV_API tlv_result_t tlv_schema_validate(const uint8_t* data, size_t size,
-                                         const tlv_format_t* format,
-                                         const tlv_structure_schema_t* schema, size_t max_depth,
-                                         size_t max_elements, size_t* error_offset);
-#endif
-
-/** @brief Kind of violation found by tlv_schema_validate_all_diag(). */
+/** @brief Schema failure detail, independent of the common result. */
 typedef enum tlv_schema_issue_kind {
+    /** No Schema-specific detail (success or a delegated error). */
+    TLV_SCHEMA_ISSUE_NONE = 0,
     /** A required tag is absent: its occurrence count is below `min_occurs`. */
     TLV_SCHEMA_ISSUE_MISSING = 1,
     /** A tag occurs more often than `max_occurs` allows. */
@@ -294,7 +246,11 @@ typedef enum tlv_schema_issue_kind {
      * #tlv_structure_schema_t::order is #TLV_SCHEMA_ORDER_SEQUENCE. */
     TLV_SCHEMA_ISSUE_ORDER,
     /** Contextual compiled Query boolean assertion failed. */
-    TLV_SCHEMA_ISSUE_ASSERTION
+    TLV_SCHEMA_ISSUE_ASSERTION,
+    /** Input Value violates a valid semantic constraint. */
+    TLV_SCHEMA_ISSUE_VALUE,
+    /** Invalid schema definition; byte location is unknown. */
+    TLV_SCHEMA_ISSUE_DEFINITION
 } tlv_schema_issue_kind_t;
 
 /** @brief Unknown-tag policy applied by tlv_schema_validate_all_diag(). */
@@ -317,13 +273,24 @@ typedef enum tlv_schema_unknown_policy {
  */
 TLV_API const char* tlv_schema_issue_kind_string(tlv_schema_issue_kind_t kind);
 
+/** @brief Meaning of a Schema diagnostic byte position. */
+typedef enum tlv_schema_anchor {
+    /** No byte position is known. */
+    TLV_SCHEMA_ANCHOR_UNKNOWN = 0,
+    /** Position of evidence in an existing element. */
+    TLV_SCHEMA_ANCHOR_ELEMENT,
+    /** End of the enclosing scope; no element exists at this position. */
+    TLV_SCHEMA_ANCHOR_SCOPE_END,
+    /** Position at which absent ordered content would be inserted. */
+    TLV_SCHEMA_ANCHOR_INSERTION
+} tlv_schema_anchor_t;
+
 /**
- * @brief Structured detail for one violation found by tlv_schema_validate_all_diag().
+ * @brief Structured Schema failure detail shared by validation and definition checks.
  *
- * Pairs a #tlv_diagnostic_t (code, severity and the offset of the affected
- * element) with the schema-specific detail needed to explain the violation:
- * which rule or #tlv_structure_group_t it breaks, the tag involved, the
- * enclosing path, the schema field or group name if it has one, and the
+ * Pairs a #tlv_diagnostic_t (code, severity and an optional byte position) with the schema-specific
+ * detail needed to explain the violation: which rule or #tlv_structure_group_t it breaks, the tag
+ * involved, the enclosing path, the schema field or group name if it has one, and the
  * expected-versus-actual detail for whichever of `kind`'s cases applies. A
  * field not applicable to `kind` is left unset, indicated by its paired
  * `has_*` flag being zero. Every field is a fixed-size value or a borrowed
@@ -345,7 +312,7 @@ TLV_API const char* tlv_schema_issue_kind_string(tlv_schema_issue_kind_t kind);
  * @see tlv_schema_diagnostic_init
  */
 typedef struct tlv_schema_diagnostic {
-    /** Code (derived from `kind`), severity and offset of the affected element. */
+    /** Common result, severity and optional byte offset; interpret with anchor. */
     tlv_diagnostic_t diagnostic;
     /** Which rule was violated; see #tlv_schema_issue_kind_t. */
     tlv_schema_issue_kind_t kind;
@@ -393,6 +360,8 @@ typedef struct tlv_schema_diagnostic {
     size_t length_multiple;
     /** Schema length-policy flags, including #TLV_SCHEMA_LENGTH_ENDPOINTS, when has_length. */
     uint32_t length_flags;
+    /** Meaning of diagnostic.offset, or UNKNOWN when has_offset is false. */
+    tlv_schema_anchor_t anchor;
 } tlv_schema_diagnostic_t;
 
 /**
@@ -401,6 +370,61 @@ typedef struct tlv_schema_diagnostic {
  * @param[out] diagnostic Diagnostic to initialize; must not be `NULL`.
  */
 TLV_API void tlv_schema_diagnostic_init(tlv_schema_diagnostic_t* diagnostic);
+
+/**
+ * @brief Checks every reachable structural schema table independently of input.
+ * Recursive references are supported; the active ancestor chain is checked once.
+ * @param schema Borrowed schema graph.
+ * @param diagnostic Optional failure detail; definition errors have unknown byte location.
+ * @return #TLV_OK, #TLV_ERR_NULL_ARG, #TLV_ERR_INVALID_SCHEMA, or
+ * #TLV_ERR_UNSUPPORTED_TYPE when the definition exceeds bounded checking capacity.
+ */
+TLV_API tlv_result_t tlv_schema_check(const tlv_structure_schema_t* schema,
+                                      tlv_schema_diagnostic_t* diagnostic);
+
+#if OPENTLV_READER
+/**
+ * @brief Validates framing, nesting, lengths, occurrence counts, ordering,
+ * alternative groups and child membership.
+ *
+ * Never decodes values. All tables are borrowed and immutable during use.
+ * Limits and offsets follow Tree Reader. Uses TLV_SCHEMA_MAX_DEPTH structural frames
+ * and bounded schema-context storage
+ * without allocation or recursion. Counts are checked by rescanning each
+ * scope per rule and per group: O((rules + groups) * (rules + elements)) per
+ * scope. Input and schema errors leave no partial application objects.
+ *
+ * A scope whose #tlv_structure_schema_t::order is #TLV_SCHEMA_ORDER_SEQUENCE
+ * additionally requires matched elements to appear in the same relative
+ * order as their rules are listed. A scope with a nonempty
+ * #tlv_structure_schema_t::groups additionally requires, for each group, the
+ * total occurrences of its member tags to be within the group's own
+ * `min_occurs`/`max_occurs`, on top of each member's own per-rule bounds.
+ *
+ * `format->is_constructed` receives `format->context`; `NULL` treats values as
+ * opaque.
+ *
+ * @param[in]  data          Encoded input.
+ * @param[in]  size          Input size in bytes.
+ * @param[in]  format        Reader format.
+ * @param[in]  schema        Structural schema to validate against.
+ * @param[in]  max_depth     Runtime nesting limit; actual depth is also bounded by
+ * TLV_SCHEMA_MAX_DEPTH.
+ * @param[in]  max_elements  Maximum total elements, as for tlv_tree_reader_visit().
+ * @param[out] diagnostic Optional first failure, including kind and location anchor.
+ * Definition and argument failures have no byte location.
+ *
+ * @return #TLV_OK if the data conforms to the schema.
+ * @return #TLV_ERR_INVALID_SCHEMA for an invalid definition, checked before input.
+ * @return #TLV_ERR_SCHEMA for a valid schema rejecting input, including MISSING.
+ * @return #TLV_ERR_NULL_ARG for a missing required pointer.
+ * @return Any other error of tlv_tree_reader_visit().
+ */
+TLV_API tlv_result_t tlv_schema_validate(const uint8_t* data, size_t size,
+                                         const tlv_format_t* format,
+                                         const tlv_structure_schema_t* schema, size_t max_depth,
+                                         size_t max_elements, tlv_schema_diagnostic_t* diagnostic);
+#endif
 
 /**
  * @brief Caller-provided storage for the violations of tlv_schema_validate_all_diag().
@@ -435,6 +459,10 @@ typedef struct tlv_schema_diagnostic_report {
  * checked: an element rejected as unexpected or of the wrong form is not
  * descended into, but its siblings are checked.
  *
+ * The entire reachable definition is checked before reading input. Missing
+ * findings use the enclosing scope end, with SCOPE_END anchor, including offset
+ * zero at an empty root.
+ *
  * Violations are recorded in scope order; the order of violations within one
  * scope is not part of the contract.
  *
@@ -455,7 +483,8 @@ typedef struct tlv_schema_diagnostic_report {
  * @return #TLV_ERR_SCHEMA if at least one violation was found; `report->count`
  *         is their total number, of which the first `report->capacity` are stored.
  * @return #TLV_ERR_NULL_ARG for missing required arguments.
- * @return #TLV_ERR_INVALID_ARG for an invalid rule or group table, or an invalid `unknown` value.
+ * @return #TLV_ERR_INVALID_SCHEMA for an invalid rule or group table.
+ * @return #TLV_ERR_INVALID_ARG for an invalid `unknown` value.
  * @return #TLV_ERR_LIMIT if the schema nests deeper than #TLV_DIAGNOSTIC_PATH_MAX
  *         tags, or as for tlv_tree_reader_visit().
  * @return Any other error of tlv_tree_reader_visit().

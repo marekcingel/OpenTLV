@@ -351,19 +351,14 @@ if(HAS_EMV)
     # tags, length constraints and nesting, with a tag/offset diagnostic
     # distinguishable from an ordinary format error.
     check(0 "^$" validate --format ber --module emv --hex "6F098407A0000000031010") # DF Name only.
-    # Missing mandatory DF Name: the distinct TLV_ERR_SCHEMA_MISSING is
-    # reported with tlv_schema_validate_all_diag()'s own tag (the absent
-    # field, borrowed from the schema) and offset (the enclosing FCI
-    # Template's tag, not the end of its value as tlv_schema_validate() would
-    # report), both reliable since they come from the diagnostic itself
-    # rather than a re-read of the input.
-    check(1 "^otlv: schema TLV_ERR_SCHEMA_MISSING at byte 0 tag=84: required schema field missing\n$"
+    # Missing mandatory DF Name is a schema finding anchored at the scope end.
+    check(1 "^otlv: schema TLV_ERR_SCHEMA at byte 2 tag=84: schema constraint violated\n$"
         validate --format ber --module emv --hex "6F00" --diagnostics compact)
     check(1 "schema TLV_ERR_SCHEMA at byte 11 tag=50:" # Application Label forbidden directly under the FCI Template.
         validate --format ber --module emv --hex "6F0C8407A0000000031010500141" --diagnostics compact)
     check(1 "schema TLV_ERR_SCHEMA at byte 11 tag=84:" validate --format ber --module emv # Duplicate DF Name.
         --hex "6F128407A00000000310108407A0000000031010" --diagnostics compact)
-    check(1 "schema TLV_ERR_INVALID_LENGTH at byte 2 tag=84:" # DF Name shorter than the dictionary minimum.
+    check(1 "schema TLV_ERR_SCHEMA at byte 2 tag=84:" # DF Name shorter than the dictionary minimum.
         validate --format ber --module emv --hex "6F048402AABB" --diagnostics compact)
     # A violation nested two levels down (87 inside the optional A5 inside
     # 6F) reports the full enclosing path, not just its immediate parent.
@@ -372,25 +367,22 @@ if(HAS_EMV)
     check(0 "^$" validate --format ber --module emv # A nested, known-optional FCI Proprietary Template child.
         --hex "6F0C84053132333435A503500141")
     check(0 "^$" validate --format ber --module emv --hex "770A82021980940408010100") # GPO response format 2: AIP + AFL.
-    check(1 "^otlv: schema TLV_ERR_SCHEMA_MISSING at byte 0 tag=94: required schema field missing\n$"
+    check(1 "^otlv: schema TLV_ERR_SCHEMA at byte 6 tag=94: schema constraint violated\n$"
         validate --format ber --module emv --hex "770482021980" --diagnostics compact) # Missing mandatory AFL.
     check(0 "^$" validate --format ber --module emv --hex "7003DF0100") # Unmodeled top-level template: accepted unchecked.
     check(1 "^otlv: TLV_ERR_BUFFER_TOO_SHORT" # A plain format error is not labeled "schema".
         validate --format ber --module emv --hex "6F0AFF" --diagnostics compact)
-    # A missing-required-field's offset now anchors the enclosing FCI
-    # Template's own tag (here, the same 6F at offset 0 that starts the whole
-    # input), not a value-end boundary that could coincide with the unrelated
-    # sibling GPO response (770A...) that follows.
-    check(1 "^otlv: schema TLV_ERR_SCHEMA_MISSING at byte 0 tag=84: required schema field missing\n$"
+    # A missing field keeps its scope-end anchor even when another root follows.
+    check(1 "^otlv: schema TLV_ERR_SCHEMA at byte 2 tag=84: schema constraint violated\n$"
         validate --format ber --module emv --hex "6F00770A82021980940408010100" --diagnostics compact)
     check(0 "tag=6F" dump --format ber --module emv --hex "6F00") # dump's --module never runs schema checks.
 
     # --diagnostics (#264): human (the default) and json render the same
     # tlv_schema_diagnostic_t as compact, which is exercised throughout this
     # file and matches the pre-#264 wording.
-    check(1 "^otlv: error: required schema field missing\n\ncode: TLV_ERR_SCHEMA_MISSING\noffset: 0x0 \\(0\\)\npath: 6F\ntag: 84\nfield: df_name\nexpected occurrences: 1\\.\\.1\nactual occurrences: 0\n$"
+    check(1 "^otlv: error: schema constraint violated\n\ncode: TLV_ERR_SCHEMA\noffset: 0x2 \\(2\\)\npath: 6F\ntag: 84\nfield: df_name\nexpected occurrences: 1\\.\\.1\nactual occurrences: 0\n$"
         validate --format ber --module emv --hex "6F00")
-    check(1 "\"code\":\"TLV_ERR_SCHEMA_MISSING\",\"field\":\"df_name\",\"kind\":\"missing\",\"max_occurs\":1,\"message\":\"required schema field missing\",\"min_occurs\":1,\"occurs\":0,\"offset\":0,\"path\":\"6F\",\"severity\":\"error\",\"tag\":\"84\""
+    check(1 "\"code\":\"TLV_ERR_SCHEMA\",\"field\":\"df_name\",\"kind\":\"missing\",\"max_occurs\":1,\"message\":\"schema constraint violated\",\"min_occurs\":1,\"occurs\":0,\"offset\":2,\"path\":\"6F\",\"severity\":\"error\",\"tag\":\"84\""
         validate --format ber --module emv --hex "6F00" --diagnostics json)
 else()
     check(2 "EMV module is disabled" dump --format ber --hex " " --module emv)
@@ -846,16 +838,16 @@ if(HAS_EMV)
     # Dictionary check: known tags must have a permitted length; unknown tags
     # are not errors. The default check stays the structure check.
     check(0 "^$" validate --format ber --module emv --emv-check dictionary --hex "9F0206000000001000 DF010100")
-    check(1 "^otlv: dictionary TLV_ERR_INVALID_LENGTH at byte 0 tag=9F02: " validate --format ber --module emv --emv-check dictionary --hex "9F02050000000010" --diagnostics compact)
-    check(1 "^otlv: dictionary TLV_ERR_INVALID_LENGTH at byte 7 tag=9F02: " validate --format ber --module emv --emv-check dictionary --hex "DF010100 5A0112 9F02050000000010" --diagnostics compact)
+    check(1 "^otlv: dictionary TLV_ERR_SCHEMA at byte 0 tag=9F02: " validate --format ber --module emv --emv-check dictionary --hex "9F02050000000010" --diagnostics compact)
+    check(1 "^otlv: dictionary TLV_ERR_SCHEMA at byte 7 tag=9F02: " validate --format ber --module emv --emv-check dictionary --hex "DF010100 5A0112 9F02050000000010" --diagnostics compact)
     check(0 "^$" validate --format ber --module emv --hex "9F02050000000010")
     check(0 "^$" validate --format ber --module emv --emv-check structure --hex "9F02050000000010")
     # The dictionary check reaches the children of known templates.
-    check(1 "^otlv: dictionary TLV_ERR_INVALID_LENGTH at byte 2 tag=84: " validate --format ber --module emv --emv-check dictionary --hex "6F0684045A0301AA" --diagnostics compact)
+    check(1 "^otlv: dictionary TLV_ERR_SCHEMA at byte 2 tag=84: " validate --format ber --module emv --emv-check dictionary --hex "6F0684045A0301AA" --diagnostics compact)
     # all runs the structure check first, then the dictionary check.
     check(0 "^$" validate --format ber --module emv --emv-check all --hex "6F098407A0000000031010")
-    check(1 "^otlv: schema TLV_ERR_SCHEMA_MISSING at byte 0 tag=84: " validate --format ber --module emv --emv-check all --hex "6F00" --diagnostics compact)
-    check(1 "^otlv: dictionary TLV_ERR_INVALID_LENGTH at byte 11 tag=9F02: " validate --format ber --module emv --emv-check all --hex "6F098407A0000000031010 9F02050000000010" --diagnostics compact)
+    check(1 "^otlv: schema TLV_ERR_SCHEMA at byte 2 tag=84: " validate --format ber --module emv --emv-check all --hex "6F00" --diagnostics compact)
+    check(1 "^otlv: dictionary TLV_ERR_SCHEMA at byte 11 tag=9F02: " validate --format ber --module emv --emv-check all --hex "6F098407A0000000031010 9F02050000000010" --diagnostics compact)
     # A framing error is still reported before any EMV check runs.
     check(1 "^otlv: TLV_ERR_BUFFER_TOO_SHORT" validate --format ber --module emv --emv-check dictionary --hex "9F0206" --diagnostics compact)
     check(3 "TLV_ERR_LIMIT" validate --format ber --module emv --emv-check dictionary --max-elements 0 --hex "9F02050000000010")
@@ -863,15 +855,15 @@ if(HAS_EMV)
     # Application Interchange Profile (2 bytes) in the base context and a
     # 1-byte Biometric Subtype inside a Biometric Header Template.
     check(0 "^$" validate --format ber --module emv --emv-check dictionary --hex "82020101")
-    check(1 "dictionary TLV_ERR_INVALID_LENGTH at byte 0 tag=82: " validate --format ber --module emv --emv-check dictionary --emv-context bht --hex "82020101" --diagnostics compact)
+    check(1 "dictionary TLV_ERR_SCHEMA at byte 0 tag=82: " validate --format ber --module emv --emv-check dictionary --emv-context bht --hex "82020101" --diagnostics compact)
     check(0 "^$" validate --format ber --module emv --emv-check dictionary --emv-context bht --hex "820101")
-    check(1 "dictionary TLV_ERR_INVALID_LENGTH at byte 5 tag=82: " validate --format ber --module emv --emv-check dictionary --hex "7F6006A10482020101" --diagnostics compact)
+    check(1 "dictionary TLV_ERR_SCHEMA at byte 5 tag=82: " validate --format ber --module emv --emv-check dictionary --hex "7F6006A10482020101" --diagnostics compact)
     # The same violation, nested two levels down (82 inside A1 inside 7F60),
     # also reports the enclosing path, the permitted-versus-actual length,
     # and the dictionary field name -- in both human and json.
     check(1 "path: 7F60 > A1\nstage: dictionary\nexpected: 1\\.\\.1\nactual: 2\ndictionary field: biometric_subtype"
         validate --format ber --module emv --emv-check dictionary --hex "7F6006A10482020101")
-    check(1 "\"expected\":\"1..1\",\"message\":\"invalid length encoding\",\"offset\":5,\"path\":\"7F60 > A1\",\"severity\":\"error\",\"stage\":\"dictionary\",\"tag\":\"82\""
+    check(1 "\"expected\":\"1..1\",\"message\":\"schema constraint violated\",\"offset\":5,\"path\":\"7F60 > A1\",\"severity\":\"error\",\"stage\":\"dictionary\",\"tag\":\"82\""
         validate --format ber --module emv --emv-check dictionary --hex "7F6006A10482020101" --diagnostics json)
     check(0 "^$" validate --format ber --module emv --emv-check dictionary --hex "7F6005A103820101")
 else()

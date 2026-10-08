@@ -52,16 +52,16 @@ extern TLV_API const tlv_structure_schema_t tlv_lldp_schema;
  *             Offsets are relative to data; descriptions have static lifetime.
  * @return #TLV_OK on structural success, with or without an End TLV.
  * @return #TLV_ERR_NULL_ARG for nonempty NULL input.
- * @return #TLV_ERR_SCHEMA_MISSING if a mandatory Type is absent.
+ * @return #TLV_ERR_SCHEMA with MISSING detail if a mandatory Type is absent.
  * @return #TLV_ERR_SCHEMA for duplicate constrained Types, wrong prefix, or
  *         content following End.
- * @return #TLV_ERR_INVALID_LENGTH for a base Type length violation.
+ * @return #TLV_ERR_SCHEMA with LENGTH detail for a base Type length violation.
  * @return #TLV_ERR_LIMIT when the generic element limit is exceeded.
  * @return Any framing error from generic Reader/Schema.
  * @see tlv_lldp_schema, tlv_codec_decode
  */
 TLV_API tlv_result_t tlv_lldp_validate(const uint8_t* data, size_t size, size_t max_elements,
-                                       tlv_diagnostic_t* diagnostic);
+                                       tlv_schema_diagnostic_t* diagnostic);
 
 #ifdef __cplusplus
 }

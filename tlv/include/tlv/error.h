@@ -65,21 +65,8 @@ typedef enum tlv_result {
     TLV_ERR_INVALID_VALUE = 14,
     /** Universal tag number has no implemented canonical validation. */
     TLV_ERR_UNSUPPORTED_TYPE = 15,
-    /**
-     * A required field is absent (tlv_schema_validate()).
-     *
-     * Reported when a rule's `min_occurs` exceeds its actual occurrence
-     * count. It is distinct from #TLV_ERR_SCHEMA because its error offset is
-     * the end of the enclosing parent's value: a scope boundary, not an
-     * element. That offset can coincide with the start of an unrelated
-     * sibling in the parent scope, so a tag read there is not reliably the
-     * cause.
-     *
-     * Every other tlv_schema_validate() violation (forbidden or unknown tag,
-     * duplicate or excess occurrence, kind mismatch, invalid rule table)
-     * returns #TLV_ERR_SCHEMA with an offset anchored to the actual element.
-     */
-    TLV_ERR_SCHEMA_MISSING = 16,
+    /** A schema definition is invalid, independently of the input being validated. */
+    TLV_ERR_INVALID_SCHEMA = 16,
     /** A valid logical quantity exceeds the host address space. */
     TLV_ERR_NATIVE_SIZE = 17,
     /** Non-final Reader input is exhausted or incomplete; supply more bytes or mark it final. */

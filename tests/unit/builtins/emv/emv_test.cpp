@@ -77,7 +77,7 @@ TEST(Unit_Tlv_Emv, PublicTagConstantsMatchDefinitions) {
         for (size_t length = 0; length <= 260; ++length) {
             const bool permitted = length >= expected.min_length && length <= expected.max_length &&
                                    (length - expected.min_length) % expected.step == 0;
-            EXPECT_EQ(permitted ? TLV_OK : TLV_ERR_INVALID_LENGTH,
+            EXPECT_EQ(permitted ? TLV_OK : TLV_ERR_SCHEMA,
                       tlv_schema_validate_length(entry->schema, length));
             EXPECT_EQ(tlv_schema_validate_length(entry->schema, length),
                       tlv_emv_validate_length(entry, length));
@@ -121,7 +121,7 @@ TEST(Unit_Tlv_Emv, ContextPreventsTagCollisions) {
     EXPECT_EQ(TLV_EMV_VALUE_NUMBER, tlv_emv_builtin_value_kind(amount));
     EXPECT_EQ(TLV_EMV_VALUE_BIOMETRIC, tlv_emv_builtin_value_kind(biometric));
     EXPECT_EQ(TLV_OK, tlv_emv_validate_length(amount, 4));
-    EXPECT_EQ(TLV_ERR_INVALID_LENGTH, tlv_emv_validate_length(biometric, 4));
+    EXPECT_EQ(TLV_ERR_SCHEMA, tlv_emv_validate_length(biometric, 4));
     EXPECT_EQ(nullptr, find(tlv_emv_tag_tvr, TLV_EMV_CONTEXT_BHT));
     EXPECT_EQ(1u, find(tlv_emv_tag_aip, TLV_EMV_CONTEXT_BHT)->schema->max_length);
     const auto* counter = find(tlv_emv_tag_iris_try_counter, TLV_EMV_CONTEXT_BIOMETRIC_COUNTERS);
@@ -198,15 +198,14 @@ TEST(Unit_Tlv_Emv, NonContiguousLengthRules) {
             EXPECT_EQ(tlv_emv_validate_length(definition, length),
                       tlv_schema_validate_length(definition->schema, length));
     }
-    EXPECT_EQ(TLV_ERR_INVALID_LENGTH, tlv_emv_validate_length(find(tlv_emv_tag_afl), 5));
-    EXPECT_EQ(TLV_ERR_INVALID_LENGTH, tlv_schema_validate_length(find(tlv_emv_tag_afl)->schema, 5));
-    EXPECT_EQ(TLV_ERR_INVALID_LENGTH, tlv_emv_validate_length(find(tlv_emv_tag_cvm_list), 11));
-    EXPECT_EQ(TLV_ERR_INVALID_LENGTH, tlv_emv_validate_length(find(tlv_emv_tag_bic), 9));
-    EXPECT_EQ(TLV_ERR_INVALID_LENGTH,
-              tlv_emv_validate_length(find(tlv_emv_tag_language_preference), 3));
-    EXPECT_EQ(TLV_ERR_INVALID_LENGTH,
+    EXPECT_EQ(TLV_ERR_SCHEMA, tlv_emv_validate_length(find(tlv_emv_tag_afl), 5));
+    EXPECT_EQ(TLV_ERR_SCHEMA, tlv_schema_validate_length(find(tlv_emv_tag_afl)->schema, 5));
+    EXPECT_EQ(TLV_ERR_SCHEMA, tlv_emv_validate_length(find(tlv_emv_tag_cvm_list), 11));
+    EXPECT_EQ(TLV_ERR_SCHEMA, tlv_emv_validate_length(find(tlv_emv_tag_bic), 9));
+    EXPECT_EQ(TLV_ERR_SCHEMA, tlv_emv_validate_length(find(tlv_emv_tag_language_preference), 3));
+    EXPECT_EQ(TLV_ERR_SCHEMA,
               tlv_emv_validate_length(find(tlv_emv_tag_issuer_public_key_exponent), 2));
-    EXPECT_EQ(TLV_ERR_INVALID_LENGTH,
+    EXPECT_EQ(TLV_ERR_SCHEMA,
               tlv_emv_validate_length(find(tlv_emv_tag_application_reference_currency), 3));
 }
 
@@ -596,7 +595,7 @@ TEST(Unit_Tlv_Emv, CallerOwnedMetadataDoesNotInferRepresentationFromTag) {
     EXPECT_EQ(1u, written);
     EXPECT_STREQ("caller", tlv_emv_symbol(&entry));
     EXPECT_EQ(TLV_OK, tlv_emv_validate_length(&entry, 1));
-    EXPECT_EQ(TLV_ERR_INVALID_LENGTH, tlv_emv_validate_length(&entry, 2));
+    EXPECT_EQ(TLV_ERR_SCHEMA, tlv_emv_validate_length(&entry, 2));
     EXPECT_EQ(TLV_OK, tlv_emv_validate_length(&entry, 3));
     const tlv_emv_dictionary_t dictionary{&entry, 1};
     EXPECT_EQ(&entry, tlv_emv_dictionary_find(&dictionary, &tag));
