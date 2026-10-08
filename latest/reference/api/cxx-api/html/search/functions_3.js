@@ -12,7 +12,7 @@ var searchData=
   ['description_9',['description',['../namespacetlv_1_1emv.html#a2ae031a8209af7ea5fbb3537c818715b',1,'tlv::emv']]],
   ['descriptor_10',['descriptor',['../namespacetlv_1_1native.html#a70de2604a252c5ff8ec9aa16778cff5f',1,'tlv::native::descriptor(element_view view) noexcept'],['../namespacetlv_1_1native.html#a7574ffe74322ee86be823585cd905b0d',1,'tlv::native::descriptor(value_view view) noexcept'],['../namespacetlv_1_1native.html#ac868e00be16dfef24123d5a153ded65a',1,'tlv::native::descriptor(tlv::tag view) noexcept'],['../namespacetlv_1_1native.html#a9dd78e136779029e1ebd0c9ceb762283',1,'tlv::native::descriptor(tlv::format view) noexcept']]],
   ['dhcpv4_5fformat_11',['dhcpv4_format',['../namespacetlv_1_1native.html#a4a0de67b163ab23349e153c41c588bf4',1,'tlv::native']]],
-  ['dhcpv4_5foptions_5fvalidate_12',['dhcpv4_options_validate',['../namespacetlv_1_1native.html#aac90874ef59445b14dce539db09486a6',1,'tlv::native']]],
+  ['dhcpv4_5foptions_5fvalidate_12',['dhcpv4_options_validate',['../namespacetlv_1_1native.html#aa151b041ea3b30d4cfbe664ed3dc9d41',1,'tlv::native']]],
   ['diagnostic_13',['diagnostic',['../classtlv_1_1parse__error.html#a90b2dca3f3e675ef186a67f3ff906308',1,'tlv::parse_error::diagnostic()'],['../classtlv_1_1validation__issue.html#abe301d7f733d8c7a207db40a01b8e995',1,'tlv::validation_issue::diagnostic()']]],
   ['diagnostic_5ftag_14',['diagnostic_tag',['../namespacetlv.html#a7dafe4e57351dc6767b1768b056cf758',1,'tlv']]],
   ['dictionary_15',['dictionary',['../classtlv_1_1emv_1_1dictionary.html#afb3bfb871713c7f5e3551b9dcf85dd11',1,'tlv::emv::dictionary']]],

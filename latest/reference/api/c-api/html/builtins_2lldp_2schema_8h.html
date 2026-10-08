@@ -86,9 +86,9 @@ $(function() {
 </div><table class="memberdecls">
 <tr class="heading"><td colspan="2"><h2 class="groupheader"><a id="func-members" name="func-members"></a>
 Functions</h2></td></tr>
-<tr class="memitem:ab289f496202a51701c7ed20431224d6c" id="r_ab289f496202a51701c7ed20431224d6c"><td class="memItemLeft" align="right" valign="top"><a class="el" href="group__core.html#ga164d2817a32e5d7b7aa1472e887b47c3">tlv_result_t</a>&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="builtins_2lldp_2schema_8h.html#ab289f496202a51701c7ed20431224d6c">tlv_lldp_validate</a> (const uint8_t *data, size_t size, size_t max_elements, <a class="el" href="group__diagnostics.html#ga2118f30a61e0b0b3ba5d20c73a740b2e">tlv_diagnostic_t</a> *diagnostic)</td></tr>
-<tr class="memdesc:ab289f496202a51701c7ed20431224d6c"><td class="mdescLeft">&#160;</td><td class="mdescRight">Validates base lengths/occurrences, mandatory prefix and optional End.  <br /></td></tr>
-<tr class="separator:ab289f496202a51701c7ed20431224d6c"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a605b5d3021fb909a788d3b1345441e39" id="r_a605b5d3021fb909a788d3b1345441e39"><td class="memItemLeft" align="right" valign="top"><a class="el" href="group__core.html#ga164d2817a32e5d7b7aa1472e887b47c3">tlv_result_t</a>&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="builtins_2lldp_2schema_8h.html#a605b5d3021fb909a788d3b1345441e39">tlv_lldp_validate</a> (const uint8_t *data, size_t size, size_t max_elements, <a class="el" href="group__schemas.html#ga76559fb9baaff706b34cab6954926c98">tlv_schema_diagnostic_t</a> *diagnostic)</td></tr>
+<tr class="memdesc:a605b5d3021fb909a788d3b1345441e39"><td class="mdescLeft">&#160;</td><td class="mdescRight">Validates base lengths/occurrences, mandatory prefix and optional End.  <br /></td></tr>
+<tr class="separator:a605b5d3021fb909a788d3b1345441e39"><td class="memSeparator" colspan="2">&#160;</td></tr>
 </table><table class="memberdecls">
 <tr class="heading"><td colspan="2"><h2 class="groupheader"><a id="var-members" name="var-members"></a>
 Variables</h2></td></tr>
@@ -100,8 +100,8 @@ Variables</h2></td></tr>
 <div class="textblock"><p>LLDPDU structural rules and sequence validation above generic Reader. </p>
 <dl class="section note"><dt>Note</dt><dd>Requires <code>OPENTLV_LLDP=ON</code>. Ethernet headers and padding are excluded. </dd></dl>
 </div><h2 class="groupheader">Function Documentation</h2>
-<a id="ab289f496202a51701c7ed20431224d6c" name="ab289f496202a51701c7ed20431224d6c"></a>
-<h2 class="memtitle"><span class="permalink"><a href="#ab289f496202a51701c7ed20431224d6c">&#9670;&#160;</a></span>tlv_lldp_validate()</h2>
+<a id="a605b5d3021fb909a788d3b1345441e39" name="a605b5d3021fb909a788d3b1345441e39"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#a605b5d3021fb909a788d3b1345441e39">&#9670;&#160;</a></span>tlv_lldp_validate()</h2>
 
 <div class="memitem">
 <div class="memproto">
@@ -127,7 +127,7 @@ Variables</h2></td></tr>
         <tr>
           <td class="paramkey"></td>
           <td></td>
-          <td class="paramtype"><a class="el" href="group__diagnostics.html#ga2118f30a61e0b0b3ba5d20c73a740b2e">tlv_diagnostic_t</a> *&#160;</td>
+          <td class="paramtype"><a class="el" href="group__schemas.html#ga76559fb9baaff706b34cab6954926c98">tlv_schema_diagnostic_t</a> *&#160;</td>
           <td class="paramname"><em>diagnostic</em>&#160;</td>
         </tr>
         <tr>
@@ -154,11 +154,11 @@ Variables</h2></td></tr>
 <dd>
 <a class="el" href="group__core.html#gga516c7250563ee9332e2f45f2d203ae61aa4a514ccb37d17b2cd7c7da47d2eab88">TLV_ERR_NULL_ARG</a> for nonempty NULL input. </dd>
 <dd>
-<a class="el" href="group__core.html#gga516c7250563ee9332e2f45f2d203ae61a9e93735f4f45c97989c940ff2fb68792">TLV_ERR_SCHEMA_MISSING</a> if a mandatory Type is absent. </dd>
+<a class="el" href="group__core.html#gga516c7250563ee9332e2f45f2d203ae61afe701b08473c7ec9597853fe737a62b4">TLV_ERR_SCHEMA</a> with MISSING detail if a mandatory Type is absent. </dd>
 <dd>
 <a class="el" href="group__core.html#gga516c7250563ee9332e2f45f2d203ae61afe701b08473c7ec9597853fe737a62b4">TLV_ERR_SCHEMA</a> for duplicate constrained Types, wrong prefix, or content following End. </dd>
 <dd>
-<a class="el" href="group__core.html#gga516c7250563ee9332e2f45f2d203ae61a11e399e826cabbe9fb215922485d3742">TLV_ERR_INVALID_LENGTH</a> for a base Type length violation. </dd>
+<a class="el" href="group__core.html#gga516c7250563ee9332e2f45f2d203ae61afe701b08473c7ec9597853fe737a62b4">TLV_ERR_SCHEMA</a> with LENGTH detail for a base Type length violation. </dd>
 <dd>
 <a class="el" href="group__core.html#gga516c7250563ee9332e2f45f2d203ae61a1e32eada09d59d834a685da1adeaaf97">TLV_ERR_LIMIT</a> when the generic element limit is exceeded. </dd>
 <dd>
@@ -190,7 +190,7 @@ Any framing error from generic Reader/Schema. </dd></dl>
 
 <p>Static base TLV length and occurrence schema for an LLDPDU. </p>
 <p>Requires one each of Chassis ID (2..256 bytes), Port ID (2..256), and TTL (2). End (0 bytes), text Types 4..6 (0..255), and Capabilities (4) may each occur at most once. Management Address (9..167) and Organisational (4..511) may repeat. Unknown Types are accepted. All Values remain primitive.</p>
-<p>Use with tlv_format_lldp. This unordered schema does not check the mandatory prefix or End position; use <a class="el" href="builtins_2lldp_2schema_8h.html#ab289f496202a51701c7ed20431224d6c" title="Validates base lengths/occurrences, mandatory prefix and optional End.">tlv_lldp_validate()</a> for those sequence rules. Does not decode Values or enforce subtype-specific or vendor constraints. </p>
+<p>Use with tlv_format_lldp. This unordered schema does not check the mandatory prefix or End position; use <a class="el" href="builtins_2lldp_2schema_8h.html#a605b5d3021fb909a788d3b1345441e39" title="Validates base lengths/occurrences, mandatory prefix and optional End.">tlv_lldp_validate()</a> for those sequence rules. Does not decode Values or enforce subtype-specific or vendor constraints. </p>
 
 </div>
 </div>

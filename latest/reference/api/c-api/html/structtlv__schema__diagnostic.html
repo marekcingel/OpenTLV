@@ -75,7 +75,7 @@ $(function() {
 </div><!--header-->
 <div class="contents">
 
-<p>Structured detail for one violation found by tlv_schema_validate_all_diag().  
+<p>Structured Schema failure detail shared by validation and definition checks.  
  <a href="structtlv__schema__diagnostic.html#details">More...</a></p>
 
 <p><code>#include &lt;schema.h&gt;</code></p>
@@ -120,10 +120,12 @@ Data Fields</h2></td></tr>
 <tr class="separator:ab314a9325c1f7d0de54bf88701bc0fa1"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:ab155844647b309fc9ccf17c3ff1a767d" id="r_ab155844647b309fc9ccf17c3ff1a767d"><td class="memItemLeft" align="right" valign="top">uint32_t&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="structtlv__schema__diagnostic.html#ab155844647b309fc9ccf17c3ff1a767d">length_flags</a></td></tr>
 <tr class="separator:ab155844647b309fc9ccf17c3ff1a767d"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:aa6c2dca48afb0e0dffc1b9965e23750b" id="r_aa6c2dca48afb0e0dffc1b9965e23750b"><td class="memItemLeft" align="right" valign="top"><a class="el" href="group__schemas.html#ga0e01fb84adb27a5a80a2c6193d1391a9">tlv_schema_anchor_t</a>&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="structtlv__schema__diagnostic.html#aa6c2dca48afb0e0dffc1b9965e23750b">anchor</a></td></tr>
+<tr class="separator:aa6c2dca48afb0e0dffc1b9965e23750b"><td class="memSeparator" colspan="2">&#160;</td></tr>
 </table>
 <a name="details" id="details"></a><h2 class="groupheader">Detailed Description</h2>
-<div class="textblock"><p>Structured detail for one violation found by tlv_schema_validate_all_diag(). </p>
-<p>Pairs a <a class="el" href="group__diagnostics.html#ga2118f30a61e0b0b3ba5d20c73a740b2e" title="A structured diagnostic: a stable code plus the state that produced it.">tlv_diagnostic_t</a> (code, severity and the offset of the affected element) with the schema-specific detail needed to explain the violation: which rule or <a class="el" href="group__schemas.html#ga0e910d012f13f14d54d2dc0746cacfc9" title="A CHOICE-like group of mutually related alternative rules.">tlv_structure_group_t</a> it breaks, the tag involved, the enclosing path, the schema field or group name if it has one, and the expected-versus-actual detail for whichever of <code>kind</code>'s cases applies. A field not applicable to <code>kind</code> is left unset, indicated by its paired <code>has_*</code> flag being zero. Every field is a fixed-size value or a borrowed pointer, so filling one never allocates.</p>
+<div class="textblock"><p>Structured Schema failure detail shared by validation and definition checks. </p>
+<p>Pairs a <a class="el" href="group__diagnostics.html#ga2118f30a61e0b0b3ba5d20c73a740b2e" title="A structured diagnostic: a stable code plus the state that produced it.">tlv_diagnostic_t</a> (code, severity and an optional byte position) with the schema-specific detail needed to explain the violation: which rule or <a class="el" href="group__schemas.html#ga0e910d012f13f14d54d2dc0746cacfc9" title="A CHOICE-like group of mutually related alternative rules.">tlv_structure_group_t</a> it breaks, the tag involved, the enclosing path, the schema field or group name if it has one, and the expected-versus-actual detail for whichever of <code>kind</code>'s cases applies. A field not applicable to <code>kind</code> is left unset, indicated by its paired <code>has_*</code> flag being zero. Every field is a fixed-size value or a borrowed pointer, so filling one never allocates.</p>
 <p><a class="el" href="group__schemas.html#ggae8780ff71af2d72d1dcb5f8189af7dfda45498156b89c6b1e0fd85997a96f3e2e">TLV_SCHEMA_ISSUE_MISSING</a> and <a class="el" href="group__schemas.html#ggae8780ff71af2d72d1dcb5f8189af7dfda05f1c3f3b1d70fc6f313a508592fdaeb">TLV_SCHEMA_ISSUE_DUPLICATE</a> can be reported against a <a class="el" href="group__schemas.html#ga0e910d012f13f14d54d2dc0746cacfc9" title="A CHOICE-like group of mutually related alternative rules.">tlv_structure_group_t</a> instead of a single <a class="el" href="group__schemas.html#gacd252f1238fc84a85a4ebc66d17aeeab" title="Structural rule for one tag within a single parent.">tlv_structure_rule_t</a>, signaled by <code>is_group</code>: <code>tag</code> is then the group's first member rule's tag (missing) or the actual offending member's tag (duplicate), <code>field</code> is the group's <code>name</code>, and the occurrence fields are the group's own bounds and summed occurrences rather than one rule's.</p>
 <p><code>diagnostic.path</code> is left <code>NULL</code>; <code>path</code> below holds the same information as a plain value so that copying a <code>tlv_schema_diagnostic_t</code> out of a report array never leaves a dangling self-reference. A caller that wants <code>path</code> reachable through <code>diagnostic.path</code> sets it explicitly with <a class="el" href="group__diagnostics.html#ga572c3f8fa1a23f08b059a2e8614a6732" title="Sets the hierarchical path a diagnostic refers to.">tlv_diagnostic_set_path()</a> after the copy has a stable address.</p>
 <dl class="section see"><dt>See also</dt><dd><a class="el" href="group__schemas.html#ga3b0f2029a9060eab1d2fddc71269bd3e" title="Resets a schema diagnostic to all-unset.">tlv_schema_diagnostic_init</a> </dd></dl>
@@ -158,6 +160,21 @@ Data Fields</h2></td></tr>
 
 </div>
 </div>
+<a id="aa6c2dca48afb0e0dffc1b9965e23750b" name="aa6c2dca48afb0e0dffc1b9965e23750b"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#aa6c2dca48afb0e0dffc1b9965e23750b">&#9670;&#160;</a></span>anchor</h2>
+
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname"><a class="el" href="group__schemas.html#ga0e01fb84adb27a5a80a2c6193d1391a9">tlv_schema_anchor_t</a> tlv_schema_diagnostic::anchor</td>
+        </tr>
+      </table>
+</div><div class="memdoc">
+<p>Meaning of diagnostic.offset, or UNKNOWN when has_offset is false. </p>
+
+</div>
+</div>
 <a id="a087446c2e7bc844a34787bef34233407" name="a087446c2e7bc844a34787bef34233407"></a>
 <h2 class="memtitle"><span class="permalink"><a href="#a087446c2e7bc844a34787bef34233407">&#9670;&#160;</a></span>diagnostic</h2>
 
@@ -169,7 +186,7 @@ Data Fields</h2></td></tr>
         </tr>
       </table>
 </div><div class="memdoc">
-<p>Code (derived from <code>kind</code>), severity and offset of the affected element. </p>
+<p>Common result, severity and optional byte offset; interpret with anchor. </p>
 
 </div>
 </div>
@@ -274,7 +291,7 @@ Data Fields</h2></td></tr>
         </tr>
       </table>
 </div><div class="memdoc">
-<p>Which rule was violated; see <a class="el" href="group__schemas.html#ga3227a53ef45b23ad3a68daf7a412be6d" title="Kind of violation found by tlv_schema_validate_all_diag().">tlv_schema_issue_kind_t</a>. </p>
+<p>Which rule was violated; see <a class="el" href="group__schemas.html#ga3227a53ef45b23ad3a68daf7a412be6d" title="Schema failure detail, independent of the common result.">tlv_schema_issue_kind_t</a>. </p>
 
 </div>
 </div>
@@ -289,7 +306,7 @@ Data Fields</h2></td></tr>
         </tr>
       </table>
 </div><div class="memdoc">
-<p>Schema length-policy flags, including <a class="el" href="group__schemas.html#ggaae05225933a42f81e7c4a9fb286596f9acc3339f15dea2994e9d305ae3c4d518a">TLV_SCHEMA_LENGTH_ENDPOINTS</a>, when has_length. </p>
+<p>Schema length-policy flags, including <a class="el" href="group__schemas.html#ggaaf8fd5f0e57d456151c951e0f3715fc4acc3339f15dea2994e9d305ae3c4d518a">TLV_SCHEMA_LENGTH_ENDPOINTS</a>, when has_length. </p>
 
 </div>
 </div>

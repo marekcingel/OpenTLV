@@ -4497,13 +4497,10 @@ tags), and not with <code>--pdol</code> (a DOL's tag/length pairs are not a TLV
 structure to check against a schema).
 A schema violation is reported like any other failure, but prefixed with
 <code>schema</code> to keep it distinguishable from a format/framing error. A missing
-mandatory tag reports the distinct <code>TLV_ERR_SCHEMA_MISSING</code>, without a <code>tag=</code>
-field (its offset is the end of the enclosing element's value, not a tag);
-every other violation (a forbidden/unknown/duplicate tag reports
-<code>TLV_ERR_SCHEMA</code>, a length outside bounds reports <code>TLV_ERR_INVALID_LENGTH</code>)
-includes the offending tag:</p>
-<div class="highlight"><pre><span></span><code><a id="__codelineno-21-1" name="__codelineno-21-1" href="#__codelineno-21-1"></a>$<span class="w"> </span>otlv<span class="w"> </span>validate<span class="w"> </span>--format<span class="w"> </span>ber<span class="w"> </span>--module<span class="w"> </span>emv<span class="w"> </span>--hex<span class="w"> </span><span class="s2">"6F00"</span>
-<a id="__codelineno-21-2" name="__codelineno-21-2" href="#__codelineno-21-2"></a>otlv:<span class="w"> </span>schema<span class="w"> </span>TLV_ERR_SCHEMA_MISSING<span class="w"> </span>at<span class="w"> </span>byte<span class="w"> </span><span class="m">2</span>:<span class="w"> </span>required<span class="w"> </span>schema<span class="w"> </span>field<span class="w"> </span>missing
+mandatory tag uses <code>TLV_ERR_SCHEMA</code> with <code>missing</code> detail. The reported Tag
+comes from the Schema, and its byte position is the enclosing scope end.</p>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-21-1" name="__codelineno-21-1" href="#__codelineno-21-1"></a><span class="gp">$ </span>otlv<span class="w"> </span>validate<span class="w"> </span>--format<span class="w"> </span>ber<span class="w"> </span>--module<span class="w"> </span>emv<span class="w"> </span>--hex<span class="w"> </span><span class="s2">"6F00"</span>
+<a id="__codelineno-21-2" name="__codelineno-21-2" href="#__codelineno-21-2"></a><span class="go">otlv: schema TLV_ERR_SCHEMA at byte 2 tag=84: schema constraint violated</span>
 </code></pre></div>
 <p>The exit code contract is unchanged (1 for a schema violation, 3 for an
 exceeded limit). Unmodeled top-level tags, such as the Read Record Template,
@@ -4784,10 +4781,10 @@ mismatch), computed directly by the schema check, so it is unaffected by
 that BER limitation. A dictionary-length violation (<code>--emv-check
 dictionary</code>) is labeled <code>dictionary</code> (see <a href="#emv-checks">EMV checks</a>) and
 similarly reports the permitted-versus-actual length and the dictionary
-field name. <code>TLV_ERR_SCHEMA_MISSING</code> (a missing mandatory tag) reports the
-tag that is absent and the offset of its enclosing element — both borrowed
-from the schema itself, and so reliable — since the missing tag itself has
-no position of its own.</p>
+field name. Missing mandatory tags use <code>TLV_ERR_SCHEMA</code> with <code>missing</code>
+detail, the absent tag from the schema, and the enclosing scope end. JSON's
+<code>anchor</code> identifies this boundary (<code>2</code>), separately from an existing element
+(<code>1</code>), insertion point (<code>3</code>) or unknown position (<code>0</code>).</p>
 <p>Formatting is presentation only, layered on top of the library's structured
 diagnostics; see <a href="../guides/diagnostics/">Diagnostics</a> for the underlying
 model.</p>

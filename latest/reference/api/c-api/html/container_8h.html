@@ -84,7 +84,7 @@ $(function() {
 
 <p>DHCPv4 options sequence validation above generic Reader.  
 <a href="#details">More...</a></p>
-<div class="textblock"><code>#include &quot;<a class="el" href="diagnostic_8h.html">tlv/diagnostic.h</a>&quot;</code><br />
+<div class="textblock"><code>#include &quot;<a class="el" href="schema_2schema_8h.html">tlv/schema/schema.h</a>&quot;</code><br />
 </div><table class="memberdecls">
 <tr class="heading"><td colspan="2"><h2 class="groupheader"><a id="nested-classes" name="nested-classes"></a>
 Data Structures</h2></td></tr>
@@ -112,9 +112,9 @@ Enumerations</h2></td></tr>
 </table><table class="memberdecls">
 <tr class="heading"><td colspan="2"><h2 class="groupheader"><a id="func-members" name="func-members"></a>
 Functions</h2></td></tr>
-<tr class="memitem:a44dc4ef9763852b33667034857b67516" id="r_a44dc4ef9763852b33667034857b67516"><td class="memItemLeft" align="right" valign="top"><a class="el" href="group__core.html#ga164d2817a32e5d7b7aa1472e887b47c3">tlv_result_t</a>&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="container_8h.html#a44dc4ef9763852b33667034857b67516">tlv_dhcpv4_options_validate</a> (const uint8_t *data, size_t size, const <a class="el" href="container_8h.html#aa83e18018ede957bfbce4e6d27e4024a">tlv_dhcpv4_options_rules_t</a> *rules, size_t max_elements, size_t *significant_size, <a class="el" href="group__diagnostics.html#ga2118f30a61e0b0b3ba5d20c73a740b2e">tlv_diagnostic_t</a> *diagnostic)</td></tr>
-<tr class="memdesc:a44dc4ef9763852b33667034857b67516"><td class="mdescLeft">&#160;</td><td class="mdescRight">Validates option framing, termination and trailing bytes without allocation.  <br /></td></tr>
-<tr class="separator:a44dc4ef9763852b33667034857b67516"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a171cad7865620d1a57c69b4cb9eaecbf" id="r_a171cad7865620d1a57c69b4cb9eaecbf"><td class="memItemLeft" align="right" valign="top"><a class="el" href="group__core.html#ga164d2817a32e5d7b7aa1472e887b47c3">tlv_result_t</a>&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="container_8h.html#a171cad7865620d1a57c69b4cb9eaecbf">tlv_dhcpv4_options_validate</a> (const uint8_t *data, size_t size, const <a class="el" href="container_8h.html#aa83e18018ede957bfbce4e6d27e4024a">tlv_dhcpv4_options_rules_t</a> *rules, size_t max_elements, size_t *significant_size, <a class="el" href="group__schemas.html#ga76559fb9baaff706b34cab6954926c98">tlv_schema_diagnostic_t</a> *diagnostic)</td></tr>
+<tr class="memdesc:a171cad7865620d1a57c69b4cb9eaecbf"><td class="mdescLeft">&#160;</td><td class="mdescRight">Validates option framing, termination and trailing bytes without allocation.  <br /></td></tr>
+<tr class="separator:a171cad7865620d1a57c69b4cb9eaecbf"><td class="memSeparator" colspan="2">&#160;</td></tr>
 </table>
 <a name="details" id="details"></a><h2 class="groupheader">Detailed Description</h2>
 <div class="textblock"><p>DHCPv4 options sequence validation above generic Reader. </p>
@@ -178,8 +178,8 @@ Functions</h2></td></tr>
 </div>
 </div>
 <h2 class="groupheader">Function Documentation</h2>
-<a id="a44dc4ef9763852b33667034857b67516" name="a44dc4ef9763852b33667034857b67516"></a>
-<h2 class="memtitle"><span class="permalink"><a href="#a44dc4ef9763852b33667034857b67516">&#9670;&#160;</a></span>tlv_dhcpv4_options_validate()</h2>
+<a id="a171cad7865620d1a57c69b4cb9eaecbf" name="a171cad7865620d1a57c69b4cb9eaecbf"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#a171cad7865620d1a57c69b4cb9eaecbf">&#9670;&#160;</a></span>tlv_dhcpv4_options_validate()</h2>
 
 <div class="memitem">
 <div class="memproto">
@@ -217,7 +217,7 @@ Functions</h2></td></tr>
         <tr>
           <td class="paramkey"></td>
           <td></td>
-          <td class="paramtype"><a class="el" href="group__diagnostics.html#ga2118f30a61e0b0b3ba5d20c73a740b2e">tlv_diagnostic_t</a> *&#160;</td>
+          <td class="paramtype"><a class="el" href="group__schemas.html#ga76559fb9baaff706b34cab6954926c98">tlv_schema_diagnostic_t</a> *&#160;</td>
           <td class="paramname"><em>diagnostic</em>&#160;</td>
         </tr>
         <tr>
@@ -237,7 +237,7 @@ Functions</h2></td></tr>
     <tr><td class="paramdir">[in]</td><td class="paramname">rules</td><td>Rules, or NULL for required End and a zero-only tail. </td></tr>
     <tr><td class="paramdir">[in]</td><td class="paramname">max_elements</td><td>Maximum elements including Pad and End, excluding the tail. Zero permits none; SIZE_MAX imposes no count limit. The limit is checked before decoding the next element. </td></tr>
     <tr><td class="paramdir">[out]</td><td class="paramname">significant_size</td><td>Required; receives the prefix size through End, or size if End is absent and optional. </td></tr>
-    <tr><td class="paramdir">[out]</td><td class="paramname">diagnostic</td><td>Optional first-failure diagnostic, reset on each call. Offsets are relative to data: the failing Reader field, first forbidden tail byte, next element at the limit, or size for missing End. Argument errors use offset zero. Descriptions have static lifetime. </td></tr>
+    <tr><td class="paramdir">[out]</td><td class="paramname">diagnostic</td><td>Optional first-failure diagnostic, reset on each call. Offsets are relative to data: the failing Reader field, first forbidden tail byte, next element at the limit, or size for missing End. Argument errors have unknown byte location. Descriptions have static lifetime. </td></tr>
   </table>
   </dd>
 </dl>
@@ -247,7 +247,7 @@ Functions</h2></td></tr>
 <dd>
 <a class="el" href="group__core.html#gga516c7250563ee9332e2f45f2d203ae61a83b538a74c7058e8863132a6410b9d65">TLV_ERR_INVALID_ARG</a> for an unknown tail policy. </dd>
 <dd>
-<a class="el" href="group__core.html#gga516c7250563ee9332e2f45f2d203ae61a9e93735f4f45c97989c940ff2fb68792">TLV_ERR_SCHEMA_MISSING</a> if required End is absent. </dd>
+<a class="el" href="group__core.html#gga516c7250563ee9332e2f45f2d203ae61afe701b08473c7ec9597853fe737a62b4">TLV_ERR_SCHEMA</a> with MISSING detail and SCOPE_END anchor if End is absent. </dd>
 <dd>
 <a class="el" href="group__core.html#gga516c7250563ee9332e2f45f2d203ae61afe701b08473c7ec9597853fe737a62b4">TLV_ERR_SCHEMA</a> for a forbidden tail byte. </dd>
 <dd>

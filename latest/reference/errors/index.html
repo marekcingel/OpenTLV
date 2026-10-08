@@ -3736,7 +3736,8 @@
 <a href="../../concepts/error-model/">failure model</a> (#551) defines a replacement taxonomy,
 typed diagnostic layering, locations and propagation rules. Its implementation
 will break API and ABI compatibility; the target names and signatures are not
-available yet, except for <code>TLV_ERR_INVALID_STATE</code> and Query kind <code>STATE</code>, implemented by #552. The
+available yet, except for <code>TLV_ERR_INVALID_STATE</code> and Query kind <code>STATE</code> (#552),
+and <code>TLV_ERR_INVALID_SCHEMA</code> with Schema failure classification (#553). The
 tables below describe the current codes and behavior.</p>
 <p>Core operations return a <code>tlv_result_t</code> from <code>tlv/error.h</code>; Codec operations
 currently have a separate <code>tlv_codec_result_t</code>. Zero is success; nonzero core
@@ -3872,8 +3873,8 @@ the breaking #551 migration; <code>INVALID_STATE = 19</code> does not promise ap
 <tr>
 <td><code>TLV_ERR_SCHEMA</code></td>
 <td>9</td>
-<td>A schema rule failed; some APIs also use it for an invalid schema definition.</td>
-<td>Forbidden or unknown tags, excess occurrences and kind mismatches. Fail-fast structural validation, Value-constraint and DER schema definition checks also use this code for invalid definitions; structural report preflight uses <code>TLV_ERR_INVALID_ARG</code>.</td>
+<td>Input violates a valid schema.</td>
+<td>Missing or forbidden fields, excess occurrences, kind/order mismatches, and length or Value constraints. Schema detail identifies the reason, including <code>MISSING</code>.</td>
 </tr>
 <tr>
 <td><code>TLV_ERR_INVALID_ARG</code></td>
@@ -3909,13 +3910,13 @@ the breaking #551 migration; <code>INVALID_STATE = 19</code> does not promise ap
 <td><code>TLV_ERR_UNSUPPORTED_TYPE</code></td>
 <td>15</td>
 <td>A type, Query capability or program-image version is unsupported.</td>
-<td>Strict ASN.1 validation rejects unchecked types; see <a href="../../standards/der/#strict-universal-value-validation">DER validation</a>. Query also uses this code outside ASN.1.</td>
+<td>Strict ASN.1 validation rejects unchecked types; see <a href="../../standards/der/#strict-universal-value-validation">DER validation</a>. Query also uses this code outside ASN.1; Schema definition checks use it for valid graphs exceeding fixed checking capacity.</td>
 </tr>
 <tr>
-<td><code>TLV_ERR_SCHEMA_MISSING</code></td>
+<td><code>TLV_ERR_INVALID_SCHEMA</code></td>
 <td>16</td>
-<td>A required field is absent.</td>
-<td>Its offset is the end of the enclosing parent's value, not an element; see below.</td>
+<td>A schema definition is invalid independently of input.</td>
+<td>Constraint kinds and bounds, required references, rule/group tables and DER type definitions.</td>
 </tr>
 <tr>
 <td><code>TLV_ERR_NATIVE_SIZE</code></td>
@@ -3960,10 +3961,10 @@ DER output, accounting for enclosing headers and canonical SET ordering. A
 missing required SEQUENCE component points where it would start; a missing SET
 component points to the enclosing content end. For an empty SEQUENCE the offset
 is 2. Leaf constraints point to the Value bytes. Argument, configuration and
-capacity failures use zero. When an offset is requested,
+capacity failures have unknown byte location. When a diagnostic is requested,
 composition can visit remaining components after detecting a failure. If a
 later callback or scratch failure prevents completing the hypothetical encoding,
-the original result is retained with offset zero. The destination and <code>written</code>
+the original result and detail are retained with unknown byte location. The destination and <code>written</code>
 remain unchanged on failure.</p>
 <p>Several APIs report an <code>error_offset</code> that is changed only on failure. For the DER validation
 functions it identifies the start of the failing field, relative to the input: tag
@@ -3972,13 +3973,23 @@ value start, including missing fields at the end of the input. Value-size limits
 the length field and depth or count limits to the first disallowed element. Argument,
 configuration, total-size and destination-capacity errors use offset zero. The CER validation
 reports its own <code>error_offset</code>; see the <a href="../../standards/cer/">CER validation</a>.</p>
-<p><code>TLV_ERR_SCHEMA_MISSING</code> is different from <code>TLV_ERR_SCHEMA</code>: its offset is the end of the
-parent's value, a scope boundary, and can coincide with the start of an unrelated sibling,
-so a tag read there is not reliably the cause. In the fail-fast generic
-<code>tlv_schema_validate()</code>, other structural input violations return <code>TLV_ERR_SCHEMA</code>
-with an offset anchored to the actual element; Value-length violations return
-<code>TLV_ERR_INVALID_LENGTH</code>. Report collection and builtin validators have their
-own documented result contracts.</p>
+<p>Schema validators distinguish invalid definitions (<code>TLV_ERR_INVALID_SCHEMA</code>) from
+valid definitions rejecting input (<code>TLV_ERR_SCHEMA</code>). Length constraints are Schema
+violations; malformed wire Length encodings still use <code>TLV_ERR_INVALID_LENGTH</code>.
+Missing required fields, groups, DHCP End and DER components/root use <code>SCHEMA</code>
+with <code>TLV_SCHEMA_ISSUE_MISSING</code>, consistently across generic Schema and builtins.
+<code>TLV_ERR_SCHEMA_MISSING</code> has been removed without an alias.</p>
+<p><code>tlv_schema_validate()</code>, DER schema check/read/write, LLDP and DHCP container
+validation return <code>tlv_schema_diagnostic_t</code> detail when requested. Its <code>anchor</code>
+distinguishes an existing element, scope end, insertion point and unknown position.
+A missing field is not an element at its anchor; never decode a tag there to
+explain the failure. Generic report findings now use scope end for missing fields,
+including known offset zero for an empty root. Definition failures have no input
+byte location. The remaining offset-only APIs migrate separately under #555.</p>
+<p>The Schema diagnostic layout and affected signatures changed in #553. Rebuild
+native clients and use the matching binding version. C++ errors expose
+<code>schema_kind()</code> and <code>anchor()</code>; Python uses <code>InvalidSchemaError</code> for definitions
+and <code>SchemaError</code> with <code>kind="missing"</code> for required absence.</p>
 <p>Custom format callback errors propagate unchanged through the generic reader and writer,
 so a custom format can return any of the codes above.</p>
 <h2 id="see-also">See also<a class="headerlink" href="#see-also" title="Permanent link">&para;</a></h2>

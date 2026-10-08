@@ -3950,10 +3950,10 @@ keyword arguments on the constructor instead. <code>children</code> nests anothe
 which tags are constructed depends on <code>format</code> (BER, CER and DER nest by
 their constructed bit; Fixed formats never nest, so
 <code>children</code> only applies to BER, CER or DER data). <code>schema.validate()</code> raises
-<code>SchemaMissingError</code> for an absent required field, <code>SchemaError</code> for other
-rule violations (an unknown tag when <code>allow_unknown</code> is <code>False</code>, too many
-occurrences, a kind mismatch), or <code>InvalidLengthError</code> for a length failure,
-each carrying the failing <code>offset</code>.</p>
+<code>InvalidSchemaError</code> for an invalid definition, or <code>SchemaError</code> for input
+violations, including lengths and required absence. Inspect <code>kind</code> and <code>anchor</code>
+with the optional <code>offset</code>: missing content has <code>kind="missing"</code>, while an
+invalid definition has no input offset.</p>
 <p>Runnable version, validating the document <code>parse.py</code> reads, and rejecting an
 incomplete one:
 <a href="https://github.com/marekcingel/OpenTLV/blob/main/bindings/python/opentlv/examples/validate.py">validate.py</a>

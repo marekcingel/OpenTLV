@@ -20,5 +20,5 @@ var searchData=
   ['operator_5b_5d_17',['operator[]',['../classtlv_1_1value__view.html#a6678a4b46cbaac2df20f96ec25800396',1,'tlv::value_view::operator[]()'],['../classtlv_1_1span.html#ab87b031b0e1bca83a53613de87ab4fc6',1,'tlv::span::operator[]()'],['../classtlv_1_1tag.html#aa73ba865e6bff8a250b32e2bb9496227',1,'tlv::tag::operator[]()']]],
   ['operator_7c_7c_18',['operator||',['../namespacetlv.html#aabf99939b7e8c790ebe6d94a1013e23c',1,'tlv::operator||()'],['../namespacetlv_1_1static__query.html#aeaa8ba73f08488c29eb5038d614e4a9b',1,'tlv::static_query::operator||()']]],
   ['options_5frules_19',['options_rules',['../structtlv_1_1dhcp_1_1options__rules.html#aae6f9bc5ce731b504da796b01e8c0995',1,'tlv::dhcp::options_rules']]],
-  ['options_5fvalidate_20',['options_validate',['../namespacetlv_1_1dhcp.html#a0345cf8497a662313786d9585aad73f7',1,'tlv::dhcp']]]
+  ['options_5fvalidate_20',['options_validate',['../namespacetlv_1_1dhcp.html#aeeb25bf5a63ec201558fc0e0663b6c8e',1,'tlv::dhcp']]]
 ];

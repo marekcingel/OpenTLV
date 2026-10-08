@@ -442,14 +442,14 @@ Enumerations</h2></td></tr>
  }</td></tr>
 <tr class="memdesc:gaa33f785f75e65e8d241ed825b2b713ed"><td class="mdescLeft">&#160;</td><td class="mdescRight">Closed conversion-function selectors; no arbitrary function execution.  <a href="group__traversal.html#gaa33f785f75e65e8d241ed825b2b713ed">More...</a><br /></td></tr>
 <tr class="separator:gaa33f785f75e65e8d241ed825b2b713ed"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:ga6b7b47dd702d9e331586d485013fd1ea" id="r_ga6b7b47dd702d9e331586d485013fd1ea"><td class="memItemLeft" align="right" valign="top">enum &#160;</td><td class="memItemRight" valign="bottom">{ <a class="el" href="group__traversal.html#gga6b7b47dd702d9e331586d485013fd1eaa6e916ad17ed0c10580e0541c0b859b13">TLV_QUERY_MAX_STEPS</a> = 65
+<tr class="memitem:gaf9bdc3014f3d54c426b6d2df10de4960" id="r_gaf9bdc3014f3d54c426b6d2df10de4960"><td class="memItemLeft" align="right" valign="top">enum &#160;</td><td class="memItemRight" valign="bottom">{ <a class="el" href="group__traversal.html#ggaf9bdc3014f3d54c426b6d2df10de4960a6e916ad17ed0c10580e0541c0b859b13">TLV_QUERY_MAX_STEPS</a> = 65
  }</td></tr>
-<tr class="memdesc:ga6b7b47dd702d9e331586d485013fd1ea"><td class="mdescLeft">&#160;</td><td class="mdescRight">Capacity of the inline query path; independent of Tree Reader limits.  <a href="group__traversal.html#ga6b7b47dd702d9e331586d485013fd1ea">More...</a><br /></td></tr>
-<tr class="separator:ga6b7b47dd702d9e331586d485013fd1ea"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:gaf9bdc3014f3d54c426b6d2df10de4960" id="r_gaf9bdc3014f3d54c426b6d2df10de4960"><td class="memItemLeft" align="right" valign="top">enum &#160;</td><td class="memItemRight" valign="bottom">{ <a class="el" href="group__traversal.html#ggaf9bdc3014f3d54c426b6d2df10de4960a25e94ebacffefe124afbbf879cd6ce7c">TLV_QUERY_MAX_BYTES</a> = 512
- }</td></tr>
-<tr class="memdesc:gaf9bdc3014f3d54c426b6d2df10de4960"><td class="mdescLeft">&#160;</td><td class="mdescRight">Maximum total number of tag bytes in a query, across all of its tags.  <a href="group__traversal.html#gaf9bdc3014f3d54c426b6d2df10de4960">More...</a><br /></td></tr>
+<tr class="memdesc:gaf9bdc3014f3d54c426b6d2df10de4960"><td class="mdescLeft">&#160;</td><td class="mdescRight">Capacity of the inline query path; independent of Tree Reader limits.  <a href="group__traversal.html#gaf9bdc3014f3d54c426b6d2df10de4960">More...</a><br /></td></tr>
 <tr class="separator:gaf9bdc3014f3d54c426b6d2df10de4960"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:gadb49720dc49f7d4e4cf9adbf2948e409" id="r_gadb49720dc49f7d4e4cf9adbf2948e409"><td class="memItemLeft" align="right" valign="top">enum &#160;</td><td class="memItemRight" valign="bottom">{ <a class="el" href="group__traversal.html#ggadb49720dc49f7d4e4cf9adbf2948e409a25e94ebacffefe124afbbf879cd6ce7c">TLV_QUERY_MAX_BYTES</a> = 512
+ }</td></tr>
+<tr class="memdesc:gadb49720dc49f7d4e4cf9adbf2948e409"><td class="mdescLeft">&#160;</td><td class="mdescRight">Maximum total number of tag bytes in a query, across all of its tags.  <a href="group__traversal.html#gadb49720dc49f7d4e4cf9adbf2948e409">More...</a><br /></td></tr>
+<tr class="separator:gadb49720dc49f7d4e4cf9adbf2948e409"><td class="memSeparator" colspan="2">&#160;</td></tr>
 </table><table class="memberdecls">
 <tr class="heading"><td colspan="2"><h2 class="groupheader"><a id="func-members" name="func-members"></a>
 Functions</h2></td></tr>
@@ -1118,7 +1118,7 @@ This value type is not extensible; changing its layout requires an ABI change. <
 </div><div class="memdoc">
 
 <p>A parsed query: the tags to follow from a top-level element down to the addressed ones. </p>
-<p>The opaque storage is self-contained: it holds a copy of every tag's bytes, never allocates and never points to other memory, so it can be copied freely. Build it with <a class="el" href="group__traversal.html#gac6cc1fdb84b230eec2b4bd26e5da8385" title="Parses the text of a query.">tlv_query_parse()</a> and read its tags with <a class="el" href="group__traversal.html#ga1d2bf69dfc017ebbac2be367da2d9c23" title="Returns one tag of a query.">tlv_query_step()</a>; a zero-initialized query has no tags and is rejected by the functions that take one. Each tag may have any length as long as all tags together stay within <a class="el" href="group__traversal.html#ggaf9bdc3014f3d54c426b6d2df10de4960a25e94ebacffefe124afbbf879cd6ce7c">TLV_QUERY_MAX_BYTES</a>. sizeof(tlv_query_t) is 648 bytes; alignment is that of uint64_t on the target. Do not inspect opaque members. </p>
+<p>The opaque storage is self-contained: it holds a copy of every tag's bytes, never allocates and never points to other memory, so it can be copied freely. Build it with <a class="el" href="group__traversal.html#gac6cc1fdb84b230eec2b4bd26e5da8385" title="Parses the text of a query.">tlv_query_parse()</a> and read its tags with <a class="el" href="group__traversal.html#ga1d2bf69dfc017ebbac2be367da2d9c23" title="Returns one tag of a query.">tlv_query_step()</a>; a zero-initialized query has no tags and is rejected by the functions that take one. Each tag may have any length as long as all tags together stay within <a class="el" href="group__traversal.html#ggadb49720dc49f7d4e4cf9adbf2948e409a25e94ebacffefe124afbbf879cd6ce7c">TLV_QUERY_MAX_BYTES</a>. sizeof(tlv_query_t) is 648 bytes; alignment is that of uint64_t on the target. Do not inspect opaque members. </p>
 
 </div>
 </div>
@@ -1275,25 +1275,6 @@ This value type is not extensible; changing its layout requires an ABI change. <
 </div>
 </div>
 <h2 class="groupheader">Enumeration Type Documentation</h2>
-<a id="ga6b7b47dd702d9e331586d485013fd1ea" name="ga6b7b47dd702d9e331586d485013fd1ea"></a>
-<h2 class="memtitle"><span class="permalink"><a href="#ga6b7b47dd702d9e331586d485013fd1ea">&#9670;&#160;</a></span>anonymous enum</h2>
-
-<div class="memitem">
-<div class="memproto">
-      <table class="memname">
-        <tr>
-          <td class="memname">anonymous enum</td>
-        </tr>
-      </table>
-</div><div class="memdoc">
-
-<p>Capacity of the inline query path; independent of Tree Reader limits. </p>
-<table class="fieldtable">
-<tr><th colspan="2">Enumerator</th></tr><tr><td class="fieldname"><a id="gga6b7b47dd702d9e331586d485013fd1eaa6e916ad17ed0c10580e0541c0b859b13" name="gga6b7b47dd702d9e331586d485013fd1eaa6e916ad17ed0c10580e0541c0b859b13"></a>TLV_QUERY_MAX_STEPS&#160;</td><td class="fielddoc"></td></tr>
-</table>
-
-</div>
-</div>
 <a id="gaf9bdc3014f3d54c426b6d2df10de4960" name="gaf9bdc3014f3d54c426b6d2df10de4960"></a>
 <h2 class="memtitle"><span class="permalink"><a href="#gaf9bdc3014f3d54c426b6d2df10de4960">&#9670;&#160;</a></span>anonymous enum</h2>
 
@@ -1306,9 +1287,28 @@ This value type is not extensible; changing its layout requires an ABI change. <
       </table>
 </div><div class="memdoc">
 
+<p>Capacity of the inline query path; independent of Tree Reader limits. </p>
+<table class="fieldtable">
+<tr><th colspan="2">Enumerator</th></tr><tr><td class="fieldname"><a id="ggaf9bdc3014f3d54c426b6d2df10de4960a6e916ad17ed0c10580e0541c0b859b13" name="ggaf9bdc3014f3d54c426b6d2df10de4960a6e916ad17ed0c10580e0541c0b859b13"></a>TLV_QUERY_MAX_STEPS&#160;</td><td class="fielddoc"></td></tr>
+</table>
+
+</div>
+</div>
+<a id="gadb49720dc49f7d4e4cf9adbf2948e409" name="gadb49720dc49f7d4e4cf9adbf2948e409"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#gadb49720dc49f7d4e4cf9adbf2948e409">&#9670;&#160;</a></span>anonymous enum</h2>
+
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname">anonymous enum</td>
+        </tr>
+      </table>
+</div><div class="memdoc">
+
 <p>Maximum total number of tag bytes in a query, across all of its tags. </p>
 <table class="fieldtable">
-<tr><th colspan="2">Enumerator</th></tr><tr><td class="fieldname"><a id="ggaf9bdc3014f3d54c426b6d2df10de4960a25e94ebacffefe124afbbf879cd6ce7c" name="ggaf9bdc3014f3d54c426b6d2df10de4960a25e94ebacffefe124afbbf879cd6ce7c"></a>TLV_QUERY_MAX_BYTES&#160;</td><td class="fielddoc"></td></tr>
+<tr><th colspan="2">Enumerator</th></tr><tr><td class="fieldname"><a id="ggadb49720dc49f7d4e4cf9adbf2948e409a25e94ebacffefe124afbbf879cd6ce7c" name="ggadb49720dc49f7d4e4cf9adbf2948e409a25e94ebacffefe124afbbf879cd6ce7c"></a>TLV_QUERY_MAX_BYTES&#160;</td><td class="fielddoc"></td></tr>
 </table>
 
 </div>
@@ -2904,7 +2904,7 @@ struct_size must cover the prefix through result_kind. Writes are limited to min
 <dd>
 <a class="el" href="group__core.html#gga516c7250563ee9332e2f45f2d203ae61aa4a514ccb37d17b2cd7c7da47d2eab88">TLV_ERR_NULL_ARG</a> if <code>matcher</code> or <code>query</code> is <code>NULL</code>. </dd>
 <dd>
-<a class="el" href="group__core.html#gga516c7250563ee9332e2f45f2d203ae61a83b538a74c7058e8863132a6410b9d65">TLV_ERR_INVALID_ARG</a> if <code>query</code> has no tags or more than <a class="el" href="group__traversal.html#gga6b7b47dd702d9e331586d485013fd1eaa6e916ad17ed0c10580e0541c0b859b13">TLV_QUERY_MAX_STEPS</a>.</dd></dl>
+<a class="el" href="group__core.html#gga516c7250563ee9332e2f45f2d203ae61a83b538a74c7058e8863132a6410b9d65">TLV_ERR_INVALID_ARG</a> if <code>query</code> has no tags or more than <a class="el" href="group__traversal.html#ggaf9bdc3014f3d54c426b6d2df10de4960a6e916ad17ed0c10580e0541c0b859b13">TLV_QUERY_MAX_STEPS</a>.</dd></dl>
 <dl class="section note"><dt>Note</dt><dd>Never allocates. On failure <code>*matcher</code> is unchanged. </dd></dl>
 
 </div>
@@ -3048,7 +3048,7 @@ struct_size must cover the prefix through result_kind. Writes are limited to min
 <dd>
 <a class="el" href="group__core.html#gga516c7250563ee9332e2f45f2d203ae61a83b538a74c7058e8863132a6410b9d65">TLV_ERR_INVALID_ARG</a> for a syntax error: an empty step, an odd number of digits, or a character other than a hexadecimal digit or <code>/</code>. </dd>
 <dd>
-<a class="el" href="group__core.html#gga516c7250563ee9332e2f45f2d203ae61a1e32eada09d59d834a685da1adeaaf97">TLV_ERR_LIMIT</a> if the query has more than <a class="el" href="group__traversal.html#gga6b7b47dd702d9e331586d485013fd1eaa6e916ad17ed0c10580e0541c0b859b13">TLV_QUERY_MAX_STEPS</a> tags or more than <a class="el" href="group__traversal.html#ggaf9bdc3014f3d54c426b6d2df10de4960a25e94ebacffefe124afbbf879cd6ce7c">TLV_QUERY_MAX_BYTES</a> tag bytes in total.</dd></dl>
+<a class="el" href="group__core.html#gga516c7250563ee9332e2f45f2d203ae61a1e32eada09d59d834a685da1adeaaf97">TLV_ERR_LIMIT</a> if the query has more than <a class="el" href="group__traversal.html#ggaf9bdc3014f3d54c426b6d2df10de4960a6e916ad17ed0c10580e0541c0b859b13">TLV_QUERY_MAX_STEPS</a> tags or more than <a class="el" href="group__traversal.html#ggadb49720dc49f7d4e4cf9adbf2948e409a25e94ebacffefe124afbbf879cd6ce7c">TLV_QUERY_MAX_BYTES</a> tag bytes in total.</dd></dl>
 <dl class="section note"><dt>Note</dt><dd>Never allocates. On failure <code>*query</code> is unchanged. </dd></dl>
 
 </div>

@@ -120,10 +120,10 @@ Enumerations</h2></td></tr>
  }</td></tr>
 <tr class="memdesc:ga729a8f4831990a946f096b7f3db4ce7d"><td class="mdescLeft">&#160;</td><td class="mdescRight">How serious a <a class="el" href="group__diagnostics.html#ga2118f30a61e0b0b3ba5d20c73a740b2e" title="A structured diagnostic: a stable code plus the state that produced it.">tlv_diagnostic_t</a> is.  <a href="group__diagnostics.html#ga729a8f4831990a946f096b7f3db4ce7d">More...</a><br /></td></tr>
 <tr class="separator:ga729a8f4831990a946f096b7f3db4ce7d"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:gaaf105ae5beaca1dee30ae54530691fce" id="r_gaaf105ae5beaca1dee30ae54530691fce"><td class="memItemLeft" align="right" valign="top">enum &#160;</td><td class="memItemRight" valign="bottom">{ <a class="el" href="group__diagnostics.html#ggaaf105ae5beaca1dee30ae54530691fceae375da42dfacade67967c61e3f9c0057">TLV_DIAGNOSTIC_PATH_MAX</a> = 32
+<tr class="memitem:ga80155586fa275b28773c9b203f52caba" id="r_ga80155586fa275b28773c9b203f52caba"><td class="memItemLeft" align="right" valign="top">enum &#160;</td><td class="memItemRight" valign="bottom">{ <a class="el" href="group__diagnostics.html#gga80155586fa275b28773c9b203f52cabaae375da42dfacade67967c61e3f9c0057">TLV_DIAGNOSTIC_PATH_MAX</a> = 32
  }</td></tr>
-<tr class="memdesc:gaaf105ae5beaca1dee30ae54530691fce"><td class="mdescLeft">&#160;</td><td class="mdescRight">Maximum number of tags a <a class="el" href="group__diagnostics.html#ga72515e07c0b698c80077f8f144d4e33e" title="Bounded, allocation-free stack of the tags enclosing a tlv_diagnostic_t.">tlv_diagnostic_path_t</a> can hold.  <a href="group__diagnostics.html#gaaf105ae5beaca1dee30ae54530691fce">More...</a><br /></td></tr>
-<tr class="separator:gaaf105ae5beaca1dee30ae54530691fce"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memdesc:ga80155586fa275b28773c9b203f52caba"><td class="mdescLeft">&#160;</td><td class="mdescRight">Maximum number of tags a <a class="el" href="group__diagnostics.html#ga72515e07c0b698c80077f8f144d4e33e" title="Bounded, allocation-free stack of the tags enclosing a tlv_diagnostic_t.">tlv_diagnostic_path_t</a> can hold.  <a href="group__diagnostics.html#ga80155586fa275b28773c9b203f52caba">More...</a><br /></td></tr>
+<tr class="separator:ga80155586fa275b28773c9b203f52caba"><td class="memSeparator" colspan="2">&#160;</td></tr>
 </table><table class="memberdecls">
 <tr class="heading"><td colspan="2"><h2 class="groupheader"><a id="func-members" name="func-members"></a>
 Functions</h2></td></tr>
@@ -188,7 +188,7 @@ Functions</h2></td></tr>
 </div><div class="memdoc">
 
 <p>Bounded, allocation-free stack of the tags enclosing a <a class="el" href="group__diagnostics.html#ga2118f30a61e0b0b3ba5d20c73a740b2e" title="A structured diagnostic: a stable code plus the state that produced it.">tlv_diagnostic_t</a>. </p>
-<p>A caller that traverses nested constructed TLVs, for example with <a class="el" href="group__traversal.html#ga9da3c187f455de47fb13b6dbb1681d66" title="Visit remaining preorder items from an initialized Tree Reader.">tlv_tree_reader_visit()</a> or by recursing into a value's bytes, builds a path by calling <a class="el" href="group__diagnostics.html#ga9dcad106e7fcf65699ecb0bfc305c15f" title="Pushes a tag onto the end of a path.">tlv_diagnostic_path_push()</a> with the tag of each element it descends into and <a class="el" href="group__diagnostics.html#gafc1535fda14d5f60d3a9b4f443b38d47" title="Pops the last tag off a path.">tlv_diagnostic_path_pop()</a> when it returns to the parent. <code>tags</code> then lists the enclosing elements outermost first, so it identifies the branch of a document that led to a diagnostic even when the same tag repeats at different depths. Paths retain the outermost <a class="el" href="group__diagnostics.html#ggaaf105ae5beaca1dee30ae54530691fceae375da42dfacade67967c61e3f9c0057">TLV_DIAGNOSTIC_PATH_MAX</a> tags; <code>omitted</code> counts the innermost tags that did not fit. A nonzero <code>omitted</code> marks an incomplete path. Nothing is copied or allocated: pushing a tag stores its borrowed <code>data</code>/<code>size</code> pair, which must stay valid, and unchanged, for as long as the path is used.</p>
+<p>A caller that traverses nested constructed TLVs, for example with <a class="el" href="group__traversal.html#ga9da3c187f455de47fb13b6dbb1681d66" title="Visit remaining preorder items from an initialized Tree Reader.">tlv_tree_reader_visit()</a> or by recursing into a value's bytes, builds a path by calling <a class="el" href="group__diagnostics.html#ga9dcad106e7fcf65699ecb0bfc305c15f" title="Pushes a tag onto the end of a path.">tlv_diagnostic_path_push()</a> with the tag of each element it descends into and <a class="el" href="group__diagnostics.html#gafc1535fda14d5f60d3a9b4f443b38d47" title="Pops the last tag off a path.">tlv_diagnostic_path_pop()</a> when it returns to the parent. <code>tags</code> then lists the enclosing elements outermost first, so it identifies the branch of a document that led to a diagnostic even when the same tag repeats at different depths. Paths retain the outermost <a class="el" href="group__diagnostics.html#gga80155586fa275b28773c9b203f52cabaae375da42dfacade67967c61e3f9c0057">TLV_DIAGNOSTIC_PATH_MAX</a> tags; <code>omitted</code> counts the innermost tags that did not fit. A nonzero <code>omitted</code> marks an incomplete path. Nothing is copied or allocated: pushing a tag stores its borrowed <code>data</code>/<code>size</code> pair, which must stay valid, and unchanged, for as long as the path is used.</p>
 <p>Path tracking is entirely opt-in: a <a class="el" href="group__diagnostics.html#ga2118f30a61e0b0b3ba5d20c73a740b2e" title="A structured diagnostic: a stable code plus the state that produced it.">tlv_diagnostic_t</a> that is never given a path costs nothing beyond the one <code>NULL</code> pointer in <code>path</code>. </p>
 
 </div>
@@ -222,15 +222,15 @@ Functions</h2></td></tr>
 </div><div class="memdoc">
 
 <p>A structured diagnostic: a stable code plus the state that produced it. </p>
-<p>The core representation is independent of any wire format, schema or higher-level protocol. A format, schema or application layer enriches a diagnostic that a lower layer produced by chaining <a class="el" href="group__diagnostics.html#ga9294663a1d15f6e62a5a84433931f692" title="One piece of context a layer has attached to a tlv_diagnostic_t.">tlv_diagnostic_context_t</a> entries onto <code>contexts</code> with <a class="el" href="group__diagnostics.html#ga5bb5f0bb7eb066ffc093e012714c8a33" title="Attaches one context entry to a diagnostic.">tlv_diagnostic_add_context()</a>, instead of defining its own diagnostic type. Rendering a diagnostic for humans is a separate concern, not part of this type.</p>
+<p>The core representation is independent of any wire format, schema or higher-level protocol. A format, schema or application layer enriches a diagnostic that a lower layer produced by chaining <a class="el" href="group__diagnostics.html#ga9294663a1d15f6e62a5a84433931f692" title="One piece of context a layer has attached to a tlv_diagnostic_t.">tlv_diagnostic_context_t</a> entries onto <code>contexts</code> with <a class="el" href="group__diagnostics.html#ga5bb5f0bb7eb066ffc093e012714c8a33" title="Attaches one context entry to a diagnostic.">tlv_diagnostic_add_context()</a>. Specialized types may embed this common base and add machine-readable detail; text contexts do not replace typed reasons. Rendering a diagnostic for humans is a separate concern, not part of this type.</p>
 <p>After an API initializes this output, a non-<a class="el" href="group__core.html#gga516c7250563ee9332e2f45f2d203ae61ac763c25dd3e807fae4d8078c3d3e94ed">TLV_OK</a> return sets <code>code</code> to that result, including end-of-input and resumable status. This also applies to the active diagnostic in embedding types. Documented pre-initialization checks leave it untouched. Successful calls need not clear previous detail; diagnostic report collections describe individual findings.</p>
 <p>Every field is a fixed-size value or a borrowed pointer; a diagnostic never allocates and never owns the memory it points to. </p>
 
 </div>
 </div>
 <h2 class="groupheader">Enumeration Type Documentation</h2>
-<a id="gaaf105ae5beaca1dee30ae54530691fce" name="gaaf105ae5beaca1dee30ae54530691fce"></a>
-<h2 class="memtitle"><span class="permalink"><a href="#gaaf105ae5beaca1dee30ae54530691fce">&#9670;&#160;</a></span>anonymous enum</h2>
+<a id="ga80155586fa275b28773c9b203f52caba" name="ga80155586fa275b28773c9b203f52caba"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#ga80155586fa275b28773c9b203f52caba">&#9670;&#160;</a></span>anonymous enum</h2>
 
 <div class="memitem">
 <div class="memproto">
@@ -243,7 +243,7 @@ Functions</h2></td></tr>
 
 <p>Maximum number of tags a <a class="el" href="group__diagnostics.html#ga72515e07c0b698c80077f8f144d4e33e" title="Bounded, allocation-free stack of the tags enclosing a tlv_diagnostic_t.">tlv_diagnostic_path_t</a> can hold. </p>
 <table class="fieldtable">
-<tr><th colspan="2">Enumerator</th></tr><tr><td class="fieldname"><a id="ggaaf105ae5beaca1dee30ae54530691fceae375da42dfacade67967c61e3f9c0057" name="ggaaf105ae5beaca1dee30ae54530691fceae375da42dfacade67967c61e3f9c0057"></a>TLV_DIAGNOSTIC_PATH_MAX&#160;</td><td class="fielddoc"></td></tr>
+<tr><th colspan="2">Enumerator</th></tr><tr><td class="fieldname"><a id="gga80155586fa275b28773c9b203f52cabaae375da42dfacade67967c61e3f9c0057" name="gga80155586fa275b28773c9b203f52cabaae375da42dfacade67967c61e3f9c0057"></a>TLV_DIAGNOSTIC_PATH_MAX&#160;</td><td class="fielddoc"></td></tr>
 </table>
 
 </div>
@@ -469,7 +469,7 @@ Functions</h2></td></tr>
 <dd>
 <a class="el" href="group__core.html#gga516c7250563ee9332e2f45f2d203ae61aa4a514ccb37d17b2cd7c7da47d2eab88">TLV_ERR_NULL_ARG</a> if <code>path</code> is <code>NULL</code>. </dd>
 <dd>
-<a class="el" href="group__core.html#gga516c7250563ee9332e2f45f2d203ae61a83b538a74c7058e8863132a6410b9d65">TLV_ERR_INVALID_ARG</a> if <code>path-&gt;length</code> exceeds <a class="el" href="group__diagnostics.html#ggaaf105ae5beaca1dee30ae54530691fceae375da42dfacade67967c61e3f9c0057">TLV_DIAGNOSTIC_PATH_MAX</a>. </dd>
+<a class="el" href="group__core.html#gga516c7250563ee9332e2f45f2d203ae61a83b538a74c7058e8863132a6410b9d65">TLV_ERR_INVALID_ARG</a> if <code>path-&gt;length</code> exceeds <a class="el" href="group__diagnostics.html#gga80155586fa275b28773c9b203f52cabaae375da42dfacade67967c61e3f9c0057">TLV_DIAGNOSTIC_PATH_MAX</a>. </dd>
 <dd>
 <a class="el" href="group__core.html#gga516c7250563ee9332e2f45f2d203ae61a1e32eada09d59d834a685da1adeaaf97">TLV_ERR_LIMIT</a> if the tag cannot be retained: the outermost stored tags remain unchanged and <code>omitted</code> increments, saturating at SIZE_MAX. This descent must still be paired with a pop when unwinding. </dd></dl>
 
@@ -528,7 +528,7 @@ Functions</h2></td></tr>
 <dd>
 <a class="el" href="group__core.html#gga516c7250563ee9332e2f45f2d203ae61aa4a514ccb37d17b2cd7c7da47d2eab88">TLV_ERR_NULL_ARG</a> if <code>path</code> or a required <code>out</code> is <code>NULL</code>. </dd>
 <dd>
-<a class="el" href="group__core.html#gga516c7250563ee9332e2f45f2d203ae61a83b538a74c7058e8863132a6410b9d65">TLV_ERR_INVALID_ARG</a> if <code>path-&gt;length</code> exceeds <a class="el" href="group__diagnostics.html#ggaaf105ae5beaca1dee30ae54530691fceae375da42dfacade67967c61e3f9c0057">TLV_DIAGNOSTIC_PATH_MAX</a> or a tag in <code>path</code> is invalid. </dd>
+<a class="el" href="group__core.html#gga516c7250563ee9332e2f45f2d203ae61a83b538a74c7058e8863132a6410b9d65">TLV_ERR_INVALID_ARG</a> if <code>path-&gt;length</code> exceeds <a class="el" href="group__diagnostics.html#gga80155586fa275b28773c9b203f52cabaae375da42dfacade67967c61e3f9c0057">TLV_DIAGNOSTIC_PATH_MAX</a> or a tag in <code>path</code> is invalid. </dd>
 <dd>
 <a class="el" href="group__core.html#gga516c7250563ee9332e2f45f2d203ae61acbd34cf02b42e70e99648aef5b9ca8b3">TLV_ERR_BUFFER_TOO_SHORT</a> if <code>capacity</code> is below <code>*length + 1</code>. </dd></dl>
 

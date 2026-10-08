@@ -1025,6 +1025,17 @@
 </li>
       
         <li class="md-nav__item">
+  <a href="#definition-graph-checks" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Definition graph checks
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
   <a href="#next-step" class="md-nav__link">
     <span class="md-ellipsis">
       
@@ -3738,6 +3749,17 @@
 </li>
       
         <li class="md-nav__item">
+  <a href="#definition-graph-checks" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Definition graph checks
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
   <a href="#next-step" class="md-nav__link">
     <span class="md-ellipsis">
       
@@ -3822,7 +3844,7 @@ extended <code>tlv_schema_diagnostic_t</code>; <code>tlv_schema_entry_t</code> r
 <a id="__codelineno-1-19" name="__codelineno-1-19" href="#__codelineno-1-19"></a><span class="w">    </span><span class="cm">/* Unknown tag: the application decides whether to accept or reject it. */</span>
 <a id="__codelineno-1-20" name="__codelineno-1-20" href="#__codelineno-1-20"></a><span class="p">}</span><span class="w"> </span><span class="k">else</span><span class="w"> </span><span class="p">{</span>
 <a id="__codelineno-1-21" name="__codelineno-1-21" href="#__codelineno-1-21"></a><span class="w">    </span><span class="n">tlv_result_t</span><span class="w"> </span><span class="n">result</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">tlv_schema_validate_length</span><span class="p">(</span><span class="n">rule</span><span class="p">,</span><span class="w"> </span><span class="n">element</span><span class="p">.</span><span class="n">value</span><span class="p">.</span><span class="n">size</span><span class="p">);</span>
-<a id="__codelineno-1-22" name="__codelineno-1-22" href="#__codelineno-1-22"></a><span class="w">    </span><span class="cm">/* TLV_OK or TLV_ERR_INVALID_LENGTH. */</span>
+<a id="__codelineno-1-22" name="__codelineno-1-22" href="#__codelineno-1-22"></a><span class="w">    </span><span class="cm">/* TLV_OK or TLV_ERR_SCHEMA for these valid length rules. */</span>
 <a id="__codelineno-1-23" name="__codelineno-1-23" href="#__codelineno-1-23"></a><span class="w">    </span><span class="p">(</span><span class="kt">void</span><span class="p">)</span><span class="n">result</span><span class="p">;</span>
 <a id="__codelineno-1-24" name="__codelineno-1-24" href="#__codelineno-1-24"></a><span class="p">}</span>
 </code></pre></div>
@@ -3880,8 +3902,8 @@ bytes long. Unknown tags are rejected. Validate the same BER input, for example
 <a id="__codelineno-2-10" name="__codelineno-2-10" href="#__codelineno-2-10"></a><span class="w">    </span><span class="p">{</span><span class="o">&amp;</span><span class="n">rules_fields</span><span class="p">[</span><span class="mi">1</span><span class="p">],</span><span class="w"> </span><span class="mi">0</span><span class="p">,</span><span class="w"> </span><span class="n">SIZE_MAX</span><span class="p">,</span><span class="w"> </span><span class="n">TLV_SCHEMA_ANY</span><span class="p">,</span><span class="w"> </span><span class="nb">NULL</span><span class="p">,</span><span class="w"> </span><span class="mi">0</span><span class="p">}</span>
 <a id="__codelineno-2-11" name="__codelineno-2-11" href="#__codelineno-2-11"></a><span class="p">};</span>
 <a id="__codelineno-2-12" name="__codelineno-2-12" href="#__codelineno-2-12"></a><span class="k">static</span><span class="w"> </span><span class="k">const</span><span class="w"> </span><span class="n">tlv_structure_schema_t</span><span class="w"> </span><span class="n">message</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="p">{</span><span class="n">rules</span><span class="p">,</span><span class="w"> </span><span class="mi">2</span><span class="p">,</span><span class="w"> </span><span class="mi">0</span><span class="p">,</span><span class="w"> </span><span class="nb">NULL</span><span class="p">,</span><span class="w"> </span><span class="mi">0</span><span class="p">,</span><span class="w"> </span><span class="n">TLV_SCHEMA_ORDER_ANY</span><span class="p">};</span>
-<a id="__codelineno-2-13" name="__codelineno-2-13" href="#__codelineno-2-13"></a><span class="kt">size_t</span><span class="w"> </span><span class="n">offset</span><span class="p">;</span>
-<a id="__codelineno-2-14" name="__codelineno-2-14" href="#__codelineno-2-14"></a><span class="n">tlv_result_t</span><span class="w"> </span><span class="n">rc</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">tlv_schema_validate</span><span class="p">(</span><span class="n">data</span><span class="p">,</span><span class="w"> </span><span class="n">size</span><span class="p">,</span><span class="w"> </span><span class="n">format</span><span class="p">,</span><span class="w"> </span><span class="o">&amp;</span><span class="n">message</span><span class="p">,</span><span class="w"> </span><span class="mi">16</span><span class="p">,</span><span class="w"> </span><span class="mi">1000</span><span class="p">,</span><span class="w"> </span><span class="o">&amp;</span><span class="n">offset</span><span class="p">);</span>
+<a id="__codelineno-2-13" name="__codelineno-2-13" href="#__codelineno-2-13"></a><span class="n">tlv_schema_diagnostic_t</span><span class="w"> </span><span class="n">diagnostic</span><span class="p">;</span>
+<a id="__codelineno-2-14" name="__codelineno-2-14" href="#__codelineno-2-14"></a><span class="n">tlv_result_t</span><span class="w"> </span><span class="n">rc</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">tlv_schema_validate</span><span class="p">(</span><span class="n">data</span><span class="p">,</span><span class="w"> </span><span class="n">size</span><span class="p">,</span><span class="w"> </span><span class="n">format</span><span class="p">,</span><span class="w"> </span><span class="o">&amp;</span><span class="n">message</span><span class="p">,</span><span class="w"> </span><span class="mi">16</span><span class="p">,</span><span class="w"> </span><span class="mi">1000</span><span class="p">,</span><span class="w"> </span><span class="o">&amp;</span><span class="n">diagnostic</span><span class="p">);</span>
 <a id="__codelineno-2-15" name="__codelineno-2-15" href="#__codelineno-2-15"></a><span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="n">rc</span><span class="w"> </span><span class="o">!=</span><span class="w"> </span><span class="n">TLV_OK</span><span class="p">)</span><span class="w"> </span><span class="k">return</span><span class="w"> </span><span class="mi">1</span><span class="p">;</span>
 </code></pre></div>
 <p>Runnable version, validating a two-level nested schema and rejecting a
@@ -3905,7 +3927,7 @@ document missing a required field:
 <a id="__codelineno-3-14" name="__codelineno-3-14" href="#__codelineno-3-14"></a><span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="o">!</span><span class="n">result</span><span class="p">)</span><span class="w"> </span><span class="k">return</span><span class="w"> </span><span class="mi">1</span><span class="p">;</span>
 </code></pre></div>
 <p><code>tlv::validate</code> wraps <code>tlv_schema_validate</code> and returns an <code>expected&lt;void, error&gt;</code>
-instead of a result code and out-parameter offset. Runnable version:
+with the Schema reason and optional byte position. Runnable version:
 <a href="https://github.com/marekcingel/OpenTLV/blob/main/examples/tlv++/src/validate.cpp">validate.cpp</a>.</p>
 </div>
 <div class="tabbed-block">
@@ -3937,7 +3959,7 @@ version, with a two-level nested schema:
 <a id="__codelineno-5-6" name="__codelineno-5-6" href="#__codelineno-5-6"></a><span class="n">schema</span><span class="o">.</span><span class="n">validate</span><span class="p">(</span><span class="n">data</span><span class="p">,</span> <span class="nb">format</span><span class="o">=</span><span class="n">opentlv</span><span class="o">.</span><span class="n">Format</span><span class="o">.</span><span class="n">BER</span><span class="p">)</span>
 </code></pre></div>
 <p><code>StructureSchema.validate()</code> runs the same C validator and raises
-<code>SchemaMissingError</code>, <code>SchemaError</code> or <code>InvalidLengthError</code> instead of
+<code>InvalidSchemaError</code> for malformed definitions or <code>SchemaError</code> for input violations instead of
 returning a result code; see <a href="../python/#validating">Using OpenTLV from Python</a>.
 Runnable version, with a two-level nested schema:
 <a href="https://github.com/marekcingel/OpenTLV/blob/main/bindings/python/opentlv/examples/validate.py">validate.py</a>
@@ -3958,17 +3980,15 @@ Runnable version, with a two-level nested schema:
 </div>
 </div>
 </div>
-<p><code>tlv_schema_validate</code> checks complete framing and nesting, then lengths,
-occurrences and child membership. It never decodes values. Invalid rule tables,
-unknown tags, excessive occurrences and kind mismatches return <code>TLV_ERR_SCHEMA</code>,
-with the offset anchored to the actual offending element; length failures
-retain <code>TLV_ERR_INVALID_LENGTH</code>, anchored the same way. A missing required
-field (an occurrence count below its rule's <code>min_occurs</code>) instead returns
-<code>TLV_ERR_SCHEMA_MISSING</code>, with the offset at the end of its parent's value - a
-scope boundary rather than an element, which can coincide with the start of
-an unrelated sibling in the enclosing scope. Distinguish the two codes before
-using the offset to look up a tag. Framing and resource errors propagate.
-Success leaves the offset unchanged.</p>
+<p><code>tlv_schema_validate</code> checks the complete reachable definition before input.
+Malformed rule/group tables return <code>TLV_ERR_INVALID_SCHEMA</code>, independently of
+whether input visits the affected branch. Valid tables rejecting lengths,
+occurrences, membership or element kind return <code>TLV_ERR_SCHEMA</code>.</p>
+<p>The optional <code>tlv_schema_diagnostic_t</code> identifies the reason. Required absence
+uses <code>TLV_SCHEMA_ISSUE_MISSING</code> and a <code>TLV_SCHEMA_ANCHOR_SCOPE_END</code> position.
+That boundary can coincide with an unrelated sibling; do not decode a tag there.
+Definition errors have unknown byte location. Framing and resource results
+propagate. The output diagnostic is reset on entry.</p>
 <p>No allocation or C recursion is used. Each scope is rescanned for each rule and
 each group; complexity is <code>O((rules + groups) * (rules + elements))</code> per scope.
 Tables must remain immutable. Sibling order is a schema concern only when a
@@ -4294,6 +4314,14 @@ caller-owned storage. Keep configuration and Schema alive and immutable while
 used. No tag lookup, allocation or mandatory registry is involved. EMV numeric
 entries use this adapter; LLDP tests exercise it against TTL field constraints
 with an explicitly selected <code>uint64_t</code> representation.</p>
+<h2 id="definition-graph-checks">Definition graph checks<a class="headerlink" href="#definition-graph-checks" title="Permanent link">&para;</a></h2>
+<p><code>tlv_schema_check</code> and structural validators check each distinct table once per
+call, including optional child definitions absent from the input. Shared and
+recursive references are supported. The allocation-free worklist holds at most
+<code>TLV_SCHEMA_MAX_TABLES</code> (256) table identities and uses linear pointer lookup,
+plus each table's local rule/group checks. Exhausting this fixed capacity returns
+<code>TLV_ERR_UNSUPPORTED_TYPE</code>. Definition depth is independent of the input nesting
+limit (<code>TLV_SCHEMA_MAX_DEPTH</code>); no global cache or checked-handle lifetime is added.</p>
 <h2 id="next-step">Next step<a class="headerlink" href="#next-step" title="Permanent link">&para;</a></h2>
 <p>Next: <a href="../codecs/">Codec</a> to interpret Value bytes; framing remains the Format responsibility.</p>
 

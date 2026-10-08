@@ -3969,8 +3969,8 @@ need no <code>unsafe</code>.</p>
 schemas. <code>StructureSchema::validate</code> takes the data, a <code>Format</code> (which decides
 which tags are constructed) and <code>ValidationLimits</code>, and returns
 <code>Result&lt;(), SchemaError&gt;</code>. <code>SchemaError</code> carries the C <code>Error</code>
-(<code>Schema</code>, <code>SchemaMissing</code>, <code>InvalidLength</code>, <code>Limit</code>, ...) and the failing
-offset.</p>
+(<code>Schema</code>, <code>InvalidSchema</code>, <code>Limit</code>, ...) and the optional failing
+offset plus Schema kind and anchor.</p>
 <div class="highlight"><pre><span></span><code><a id="__codelineno-2-1" name="__codelineno-2-1" href="#__codelineno-2-1"></a><span class="kd">let</span><span class="w"> </span><span class="n">tag</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">opentlv</span><span class="p">::</span><span class="n">Tag</span><span class="p">::</span><span class="n">from_bytes</span><span class="p">(</span><span class="o">&amp;</span><span class="p">[</span><span class="mh">0x84</span><span class="p">]);</span>
 <a id="__codelineno-2-2" name="__codelineno-2-2" href="#__codelineno-2-2"></a><span class="kd">let</span><span class="w"> </span><span class="n">schema</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">opentlv</span><span class="p">::</span><span class="n">StructureSchema</span><span class="p">::</span><span class="n">new</span><span class="p">(</span>
 <a id="__codelineno-2-3" name="__codelineno-2-3" href="#__codelineno-2-3"></a><span class="w">    </span><span class="p">[</span><span class="n">opentlv</span><span class="p">::</span><span class="n">StructureRule</span><span class="p">::</span><span class="n">new</span><span class="p">(</span><span class="n">tag</span><span class="p">).</span><span class="n">length</span><span class="p">(</span><span class="mi">5</span><span class="p">,</span><span class="w"> </span><span class="mi">16</span><span class="p">).</span><span class="n">required_once</span><span class="p">()],</span>

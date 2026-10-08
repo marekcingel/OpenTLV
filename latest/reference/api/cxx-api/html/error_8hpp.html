@@ -86,6 +86,7 @@ $(function() {
 <a href="#details">More...</a></p>
 <div class="textblock"><code>#include &quot;<a class="elRef" href="../../c-api/html/error_8h.html">tlv/error.h</a>&quot;</code><br />
 <code>#include &quot;<a class="elRef" href="../../c-api/html/diagnostic_8h.html">tlv/diagnostic.h</a>&quot;</code><br />
+<code>#include &quot;<a class="elRef" href="../../c-api/html/schema_2schema_8h.html">tlv/schema/schema.h</a>&quot;</code><br />
 <code>#include &lt;cstddef&gt;</code><br />
 </div><table class="memberdecls">
 <tr class="heading"><td colspan="2"><h2 class="groupheader"><a id="nested-classes" name="nested-classes"></a>
@@ -124,7 +125,7 @@ Enumerations</h2></td></tr>
 , <a class="el" href="namespacetlv.html#ab9d10b8185e9a80cd73b5a0ef633a22ca24fe18195f0e29f8d3ef5ad3110cfc24">tlv::invalid_value</a> = TLV_ERR_INVALID_VALUE
 , <br />
 &#160;&#160;<a class="el" href="namespacetlv.html#ab9d10b8185e9a80cd73b5a0ef633a22ca3babaf56ad7c1d71fe447e5bfc6352ff">tlv::unsupported_type</a> = TLV_ERR_UNSUPPORTED_TYPE
-, <a class="el" href="namespacetlv.html#ab9d10b8185e9a80cd73b5a0ef633a22ca5ac1975aa5d9e092d334e9a64ddc9d37">tlv::missing_field</a> = TLV_ERR_SCHEMA_MISSING
+, <a class="el" href="namespacetlv.html#ab9d10b8185e9a80cd73b5a0ef633a22ca63d28c4a1c67cfd6fbb0fcb24cc34585">tlv::invalid_schema</a> = TLV_ERR_INVALID_SCHEMA
 , <a class="el" href="namespacetlv.html#ab9d10b8185e9a80cd73b5a0ef633a22caa2bdee755c9d473d1ed3ed0fd1683dd4">tlv::native_size</a> = TLV_ERR_NATIVE_SIZE
 , <a class="el" href="namespacetlv.html#ab9d10b8185e9a80cd73b5a0ef633a22ca14e09d0c3397651da4ed57851df3caa8">tlv::need_more_data</a> = TLV_NEED_MORE_DATA
 <br />
@@ -151,6 +152,30 @@ Enumerations</h2></td></tr>
  }</td></tr>
 <tr class="memdesc:a066bba7bde757c31179a8585a37ae760"><td class="mdescLeft">&#160;</td><td class="mdescRight">Common diagnostic severity across all C++ operations.  <a href="namespacetlv.html#a066bba7bde757c31179a8585a37ae760">More...</a><br /></td></tr>
 <tr class="separator:a066bba7bde757c31179a8585a37ae760"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a0e9dc5e120173d6322fc63d2d1fc09c3" id="r_a0e9dc5e120173d6322fc63d2d1fc09c3"><td class="memItemLeft" align="right" valign="top">enum class &#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="namespacetlv.html#a0e9dc5e120173d6322fc63d2d1fc09c3">tlv::schema_issue</a> { <br />
+&#160;&#160;<a class="el" href="namespacetlv.html#a0e9dc5e120173d6322fc63d2d1fc09c3a334c4a4c42fdb79d7ebc3e73b517e6f8">tlv::none</a> = TLV_SCHEMA_ISSUE_NONE
+, <a class="el" href="namespacetlv.html#a0e9dc5e120173d6322fc63d2d1fc09c3a2063c1608d6e0baf80249c42e2be5804">tlv::value</a> = TLV_SCHEMA_ISSUE_VALUE
+, <a class="el" href="namespacetlv.html#a0e9dc5e120173d6322fc63d2d1fc09c3a30618b3b44fa316257d07e387759fae5">tlv::definition</a> = TLV_SCHEMA_ISSUE_DEFINITION
+, <a class="el" href="namespacetlv.html#a0e9dc5e120173d6322fc63d2d1fc09c3aea21841da70e6405af19fabc4ff8bdd9">tlv::missing</a> = TLV_SCHEMA_ISSUE_MISSING
+, <br />
+&#160;&#160;<a class="el" href="namespacetlv.html#a0e9dc5e120173d6322fc63d2d1fc09c3a24f1b0a79473250c195c7fb84e393392">tlv::duplicate</a> = TLV_SCHEMA_ISSUE_DUPLICATE
+, <a class="el" href="namespacetlv.html#a0e9dc5e120173d6322fc63d2d1fc09c3a73992dc32ee268c15ab79a4ff84cd323">tlv::unexpected</a> = TLV_SCHEMA_ISSUE_UNEXPECTED
+, <a class="el" href="namespacetlv.html#a0e9dc5e120173d6322fc63d2d1fc09c3ad939aaf7d2291c6f69ceecee94880d7c">tlv::kind</a> = TLV_SCHEMA_ISSUE_KIND
+, <a class="el" href="namespacetlv.html#a0e9dc5e120173d6322fc63d2d1fc09c3a2fa47f7c65fec19cc163b195725e3844">tlv::length</a> = TLV_SCHEMA_ISSUE_LENGTH
+, <br />
+&#160;&#160;<a class="el" href="namespacetlv.html#a0e9dc5e120173d6322fc63d2d1fc09c3a70a17ffa722a3985b86d30b034ad06d7">tlv::order</a> = TLV_SCHEMA_ISSUE_ORDER
+, <a class="el" href="namespacetlv.html#a0e9dc5e120173d6322fc63d2d1fc09c3a2a7639f0b1870ad2e6b2d8c7b810ba11">tlv::assertion</a> = TLV_SCHEMA_ISSUE_ASSERTION
+<br />
+ }</td></tr>
+<tr class="memdesc:a0e9dc5e120173d6322fc63d2d1fc09c3"><td class="mdescLeft">&#160;</td><td class="mdescRight">Category of structural Schema violation.  <a href="namespacetlv.html#a0e9dc5e120173d6322fc63d2d1fc09c3">More...</a><br /></td></tr>
+<tr class="separator:a0e9dc5e120173d6322fc63d2d1fc09c3"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a2daf3f938a5ac0228275c60e641cc490" id="r_a2daf3f938a5ac0228275c60e641cc490"><td class="memItemLeft" align="right" valign="top">enum class &#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="namespacetlv.html#a2daf3f938a5ac0228275c60e641cc490">tlv::schema_anchor</a> { <a class="el" href="namespacetlv.html#a2daf3f938a5ac0228275c60e641cc490aad921d60486366258809553a3db49a4a">tlv::unknown</a> = TLV_SCHEMA_ANCHOR_UNKNOWN
+, <a class="el" href="namespacetlv.html#a2daf3f938a5ac0228275c60e641cc490a8e2dcfd7e7e24b1ca76c1193f645902b">tlv::element</a> = TLV_SCHEMA_ANCHOR_ELEMENT
+, <a class="el" href="namespacetlv.html#a2daf3f938a5ac0228275c60e641cc490aa57532cf94be2676d5f55f48336c7597">tlv::scope_end</a> = TLV_SCHEMA_ANCHOR_SCOPE_END
+, <a class="el" href="namespacetlv.html#a2daf3f938a5ac0228275c60e641cc490ae0e39b991692259764469b25bfe10b47">tlv::insertion</a> = TLV_SCHEMA_ANCHOR_INSERTION
+ }</td></tr>
+<tr class="memdesc:a2daf3f938a5ac0228275c60e641cc490"><td class="mdescLeft">&#160;</td><td class="mdescRight">Meaning of a Schema failure's byte offset.  <a href="namespacetlv.html#a2daf3f938a5ac0228275c60e641cc490">More...</a><br /></td></tr>
+<tr class="separator:a2daf3f938a5ac0228275c60e641cc490"><td class="memSeparator" colspan="2">&#160;</td></tr>
 </table><table class="memberdecls">
 <tr class="heading"><td colspan="2"><h2 class="groupheader"><a id="func-members" name="func-members"></a>
 Functions</h2></td></tr>
@@ -160,11 +185,11 @@ Functions</h2></td></tr>
 <tr class="memitem:afcb2c3a60be44b7aff8aa6c1a01327ae" id="r_afcb2c3a60be44b7aff8aa6c1a01327ae"><td class="memItemLeft" align="right" valign="top">const char *&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="namespacetlv.html#afcb2c3a60be44b7aff8aa6c1a01327ae">tlv::name</a> (<a class="el" href="namespacetlv.html#ab9d10b8185e9a80cd73b5a0ef633a22c">errc</a> code) noexcept</td></tr>
 <tr class="memdesc:afcb2c3a60be44b7aff8aa6c1a01327ae"><td class="mdescLeft">&#160;</td><td class="mdescRight">Stable symbolic spelling of a canonical status, for logs and serialized diagnostics.  <br /></td></tr>
 <tr class="separator:afcb2c3a60be44b7aff8aa6c1a01327ae"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:ae07f918496e530d0e05b6e515423189e" id="r_ae07f918496e530d0e05b6e515423189e"><td class="memItemLeft" align="right" valign="top"><a class="el" href="structtlv_1_1error.html">error</a>&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="namespacetlv.html#ae07f918496e530d0e05b6e515423189e">tlv::to_error</a> (const <a class="el" href="structtlv_1_1error.html">error</a> &amp;<a class="el" href="namespacetlv.html#a05620bcc688c15765fb53922c84147b9a2063c1608d6e0baf80249c42e2be5804">value</a>) noexcept</td></tr>
+<tr class="memitem:ae07f918496e530d0e05b6e515423189e" id="r_ae07f918496e530d0e05b6e515423189e"><td class="memItemLeft" align="right" valign="top"><a class="el" href="structtlv_1_1error.html">error</a>&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="namespacetlv.html#ae07f918496e530d0e05b6e515423189e">tlv::to_error</a> (const <a class="el" href="structtlv_1_1error.html">error</a> &amp;<a class="el" href="namespacetlv.html#a0e9dc5e120173d6322fc63d2d1fc09c3a2063c1608d6e0baf80249c42e2be5804">value</a>) noexcept</td></tr>
 <tr class="memdesc:ae07f918496e530d0e05b6e515423189e"><td class="mdescLeft">&#160;</td><td class="mdescRight">Project an ordinary error into the common diagnostic contract without allocation.  <br /></td></tr>
 <tr class="separator:ae07f918496e530d0e05b6e515423189e"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:a942643412b3c375036bc5d9ce9ec99a1" id="r_a942643412b3c375036bc5d9ce9ec99a1"><td class="memTemplParams" colspan="2">template&lt;typename Failure &gt; </td></tr>
-<tr class="memitem:a942643412b3c375036bc5d9ce9ec99a1"><td class="memTemplItemLeft" align="right" valign="top"><a class="el" href="structtlv_1_1error.html">error</a>&#160;</td><td class="memTemplItemRight" valign="bottom"><a class="el" href="namespacetlv.html#a942643412b3c375036bc5d9ce9ec99a1">tlv::to_error</a> (const Failure &amp;<a class="el" href="namespacetlv.html#a05620bcc688c15765fb53922c84147b9a2063c1608d6e0baf80249c42e2be5804">value</a>) noexcept</td></tr>
+<tr class="memitem:a942643412b3c375036bc5d9ce9ec99a1"><td class="memTemplItemLeft" align="right" valign="top"><a class="el" href="structtlv_1_1error.html">error</a>&#160;</td><td class="memTemplItemRight" valign="bottom"><a class="el" href="namespacetlv.html#a942643412b3c375036bc5d9ce9ec99a1">tlv::to_error</a> (const Failure &amp;<a class="el" href="namespacetlv.html#a0e9dc5e120173d6322fc63d2d1fc09c3a2063c1608d6e0baf80249c42e2be5804">value</a>) noexcept</td></tr>
 <tr class="memdesc:a942643412b3c375036bc5d9ce9ec99a1"><td class="mdescLeft">&#160;</td><td class="mdescRight">Project a specialized failure while retaining its detailed original error object.  <br /></td></tr>
 <tr class="separator:a942643412b3c375036bc5d9ce9ec99a1"><td class="memSeparator" colspan="2">&#160;</td></tr>
 </table>
