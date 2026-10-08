@@ -172,7 +172,14 @@ static void raise_reader_error(tlv_result_t code, const tlv_reader_diagnostic_t*
 }
 
 void opentlv_python_raise_query(tlv_result_t code, const tlv_query_diagnostic_t* diagnostic) {
-    raise_reader_error(code, diagnostic && diagnostic->kind == TLV_QUERY_ERROR_READER
+    tlv_query_diagnostic_t state = {0};
+    if (code == TLV_ERR_INVALID_STATE) {
+        if (diagnostic) state = *diagnostic;
+        state.kind = TLV_QUERY_ERROR_STATE;
+        diagnostic = &state;
+    }
+    raise_reader_error(code, diagnostic && (diagnostic->kind == TLV_QUERY_ERROR_READER ||
+                                            diagnostic->reader.diagnostic.code != TLV_OK)
                                  ? &diagnostic->reader
                                  : NULL);
     if (!diagnostic || !PyErr_ExceptionMatches(opentlv_python_error)) return;

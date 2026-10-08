@@ -176,6 +176,7 @@ nav:
       - Runtime model and canonical IR: concepts/runtime-model.md
       - Processing pipeline: concepts/processing-pipeline.md
       - Core architectural rules: concepts/architectural-rules.md
+      - Failure model design: concepts/error-model.md
       - Format and Element contract: concepts/format-contract.md
       - Definition boundaries: concepts/definition-boundaries.md
       - Development workflow: development/workflow.md

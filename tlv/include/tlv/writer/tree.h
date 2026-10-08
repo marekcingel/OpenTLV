@@ -66,7 +66,7 @@ typedef struct tlv_tree_writer {
  * @param[in,out] data Caller-owned storage, disjoint from all other storage and inputs.
  * NULL with zero capacity restores borrowed-Tag mode. Storage must outlive use.
  * @param[in] capacity Available bytes; an explicit empty Tag consumes one byte.
- * @return TLV_OK, TLV_ERR_NULL_ARG, or TLV_ERR_INVALID_ARG when parents are open.
+ * @return TLV_OK, TLV_ERR_NULL_ARG, or TLV_ERR_INVALID_STATE when parents are open.
  * @note begin() copies Tags in this mode; end() releases capacity on success.
  * Failure preserves the configuration. Exhaustion at begin returns TLV_ERR_LIMIT.
  */
@@ -78,7 +78,7 @@ TLV_API tlv_result_t tlv_tree_writer_set_tag_storage(tlv_tree_writer_t* writer, 
  * @param[in,out] writer Initialized cursor; required.
  * @param[in] event Required event. BEGIN opens its Tag (ignoring source Value),
  * ELEMENT writes a primitive, END closes the innermost parent. Depth must match.
- * @return Underlying begin/write/end result; TLV_ERR_INVALID_ARG for malformed
+ * @return Underlying begin/write/end result; TLV_ERR_INVALID_VALUE for malformed
  * ordering, unknown kinds or skipped END; TLV_ERR_INVALID_TAG for incompatible
  * destination classification. Errors preserve cursor and accumulated output.
  * @warning In borrowed mode BEGIN retains Tag until END. Configure tag storage
@@ -176,7 +176,7 @@ TLV_API tlv_result_t tlv_tree_writer_write_element_diag(tlv_tree_writer_t* write
  * @brief Close the innermost parent using its complete accumulated Value.
  * @param[in,out] writer Initialized cursor; required.
  * @return #TLV_OK on success; #TLV_ERR_NULL_ARG for NULL writer.
- * @return #TLV_ERR_INVALID_ARG when no parent is open.
+ * @return #TLV_ERR_INVALID_STATE when no parent is open.
  * @return #TLV_ERR_BUFFER_TOO_SHORT for insufficient scratch or output storage.
  * @return Any Format measurement/encoding error, propagated unchanged.
  * @note On failure, cursor, active frames and all previously accumulated output
@@ -198,7 +198,7 @@ TLV_API tlv_result_t tlv_tree_writer_end_diag(tlv_tree_writer_t* writer,
 /**
  * @brief Verify that every begin has a matching end, without changing state.
  * @param[in] writer Initialized cursor; required.
- * @return #TLV_OK if complete, #TLV_ERR_INVALID_ARG for an open parent,
+ * @return #TLV_OK if complete, #TLV_ERR_INVALID_STATE for an open parent,
  *         or #TLV_ERR_NULL_ARG for NULL writer. Does not seal the cursor.
  */
 TLV_API tlv_result_t tlv_tree_writer_finish(const tlv_tree_writer_t* writer);
@@ -256,7 +256,8 @@ typedef tlv_result_t (*tlv_tree_event_next_fn)(void* context, tlv_tree_event_t* 
  * @param[in] max_elements Maximum BEGIN/ELEMENT count; END does not count.
  * @param[out] size Exact encoded size on success; unchanged otherwise.
  * @param[out] diagnostic Optional Writer failure detail.
- * @return Source/Writer result, including INVALID_ARG for missing END or skipped content.
+ * @return Source/Writer result, including INVALID_VALUE for missing END, malformed depth or skipped
+ * content.
  * @note Uses the storage, required-capacity and replay contracts of
  * tlv_tree_writer_measure(). NEED_MORE_DATA aborts this one-shot helper; use a
  * persistent Tree Writer and write_event() for resumable transformations.

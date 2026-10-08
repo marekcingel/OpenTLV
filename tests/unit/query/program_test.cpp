@@ -53,6 +53,38 @@ struct Program {
 int constructed(const void*, const tlv_tag_t* tag) {
     return tag->size == 1 && tag->data[0] == 0x70;
 }
+
+TEST(Unit_Tlv_QueryProgram, LifecycleErrorsDifferFromArgumentsAndResetRecovers) {
+    Program p;
+    ASSERT_EQ(TLV_OK, p.compile("//*"));
+    size_t bytes, alignment;
+    ASSERT_EQ(TLV_OK, tlv_query_exec_size(p.get(), 4, &bytes, &alignment));
+    std::vector<uint64_t> storage((bytes + 7) / 8);
+    tlv_query_exec_t*     exec = nullptr;
+    ASSERT_EQ(TLV_OK, tlv_query_exec_init(p.get(), storage.data(), bytes, 4, 8, 10000, &exec));
+    EXPECT_EQ(TLV_ERR_INVALID_ARG, tlv_query_exec_context(exec, 8));
+    ASSERT_EQ(TLV_OK, tlv_query_exec_finish(exec, &p.diagnostic));
+    EXPECT_EQ(TLV_OK, tlv_query_exec_finish(exec, &p.diagnostic));
+    EXPECT_EQ(TLV_ERR_INVALID_STATE, tlv_query_exec_context(exec, 0));
+    EXPECT_EQ(TLV_ERR_INVALID_STATE,
+              TLV_DIAGNOSTIC_RESULT(p.diagnostic,
+                                    tlv_query_exec_bind(exec, "unused", TLV_QUERY_RESULT_INTEGER, 0,
+                                                        nullptr, 0, &p.diagnostic)));
+    EXPECT_EQ(TLV_QUERY_ERROR_STATE, p.diagnostic.kind);
+    tlv_tree_event_t event{};
+    event.kind = TLV_TREE_ELEMENT;
+    int matched = 79;
+    EXPECT_EQ(TLV_ERR_INVALID_STATE,
+              TLV_DIAGNOSTIC_RESULT(p.diagnostic,
+                                    tlv_query_exec_feed(exec, &event, &matched, &p.diagnostic)));
+    EXPECT_EQ(TLV_QUERY_ERROR_STATE, p.diagnostic.kind);
+    EXPECT_EQ(79, matched);
+    ASSERT_EQ(TLV_OK, tlv_query_exec_reset(exec));
+    EXPECT_EQ(TLV_ERR_INVALID_ARG, tlv_query_exec_context(exec, 8));
+    EXPECT_EQ(TLV_OK, tlv_query_exec_context(exec, 0));
+    EXPECT_EQ(TLV_OK, tlv_query_exec_feed(exec, &event, &matched, &p.diagnostic));
+    EXPECT_STREQ("invalid state", tlv_strerror(TLV_ERR_INVALID_STATE));
+}
 tlv_visit_result_t collect_event(const tlv_tree_event_t* event, void* context) {
     static_cast<std::vector<size_t>*>(context)->push_back(event->offset);
     return TLV_VISIT_CONTINUE;
@@ -504,7 +536,7 @@ TEST(Unit_Tlv_QueryProgram, AdversarialContainsChargesLinearBytesAndExactWorkBou
         if (rc == TLV_OK) rc = tlv_query_exec_finish(exec, &p.diagnostic);
         EXPECT_EQ(TLV_ERR_LIMIT, rc);
         EXPECT_STREQ("work", p.diagnostic.limit);
-        EXPECT_EQ(TLV_ERR_INVALID_ARG, tlv_query_exec_feed(exec, &event, &matched, nullptr));
+        EXPECT_EQ(TLV_ERR_INVALID_STATE, tlv_query_exec_feed(exec, &event, &matched, nullptr));
     }
 }
 
@@ -746,7 +778,7 @@ TEST(Unit_Tlv_QueryProgram, TypedBindingsAreIndependentAndNeverQueryText) {
     ASSERT_EQ(TLV_OK, tlv_query_exec_feed(b, &event, &matched, &p.diagnostic));
     EXPECT_EQ(0, matched);
     EXPECT_EQ(
-        TLV_ERR_INVALID_ARG,
+        TLV_ERR_INVALID_STATE,
         TLV_DIAGNOSTIC_RESULT(p.diagnostic, tlv_query_exec_bind(a, "min", TLV_QUERY_RESULT_INTEGER,
                                                                 0, nullptr, 0, &p.diagnostic)));
     ASSERT_EQ(TLV_OK, tlv_query_exec_init(p.get(), first.data(), bytes, 2, 10, 1000, &a));
@@ -1106,7 +1138,7 @@ TEST(Unit_Tlv_QueryProgram, EventFeedRejectsUnbalancedEventsAndMissingSource) {
     EXPECT_EQ(TLV_QUERY_ERROR_SOURCE, p.diagnostic.kind);
     ASSERT_EQ(TLV_OK, tlv_query_exec_init(p.get(), workspace.data(), bytes, 4, 100, 1000, &exec));
     event.kind = TLV_TREE_END;
-    EXPECT_EQ(TLV_ERR_INVALID_ARG,
+    EXPECT_EQ(TLV_ERR_INVALID_VALUE,
               TLV_DIAGNOSTIC_RESULT(p.diagnostic,
                                     tlv_query_exec_feed(exec, &event, &matched, &p.diagnostic)));
 }
@@ -1311,9 +1343,9 @@ TEST(Unit_Tlv_QueryProgram, InitializedFailuresAlwaysCarryDiagnosticDetail) {
     tlv_query_exec_t*     exec = nullptr;
     ASSERT_EQ(TLV_OK, tlv_query_exec_init(p.get(), storage.data(), bytes, 4, 10, 10000, &exec));
     ASSERT_EQ(TLV_OK, tlv_query_exec_finish(exec, &d));
-    EXPECT_EQ(TLV_ERR_INVALID_ARG,
+    EXPECT_EQ(TLV_ERR_INVALID_STATE,
               TLV_DIAGNOSTIC_RESULT(d, tlv_query_exec_feed(exec, &event, &matched, &d)));
-    EXPECT_EQ(TLV_QUERY_ERROR_EVENTS, d.kind);
+    EXPECT_EQ(TLV_QUERY_ERROR_STATE, d.kind);
     EXPECT_EQ(77, matched);
     auto  image = p.storage;
     auto* header = reinterpret_cast<tlv_query_program_t*>(image.data());
@@ -1353,8 +1385,9 @@ TEST(Unit_Tlv_QueryProgram, VisitorFailureAndIncrementalStatusCarryDetail) {
         EXPECT_STREQ("visitor continue or stop", d.expected);
         // exists initializes its diagnostic even when the execution is poisoned.
         int found = 77;
-        EXPECT_EQ(TLV_ERR_INVALID_ARG,
+        EXPECT_EQ(TLV_ERR_INVALID_STATE,
                   TLV_DIAGNOSTIC_RESULT(d, tlv_query_program_exists(&reader, exec, 0, &found, &d)));
+        EXPECT_EQ(TLV_QUERY_ERROR_STATE, d.kind);
         EXPECT_EQ(77, found);
         ASSERT_EQ(TLV_OK, tlv_query_exec_reset(exec));
         ASSERT_EQ(TLV_OK, tlv_tree_reader_init_incremental(&reader, wire, 1, &controlled::format,
@@ -1364,6 +1397,73 @@ TEST(Unit_Tlv_QueryProgram, VisitorFailureAndIncrementalStatusCarryDetail) {
             TLV_DIAGNOSTIC_RESULT(d, tlv_query_program_visit(&reader, exec, fail, nullptr, &d)));
         EXPECT_EQ(TLV_QUERY_ERROR_READER, d.kind);
         EXPECT_EQ(TLV_NEED_MORE_DATA, d.reader.diagnostic.code);
+    }
+}
+
+TEST(Unit_Tlv_QueryProgram, PropagatedReaderStateUsesStateKindAndPreservesReaderDetail) {
+    Program p;
+    ASSERT_EQ(TLV_OK, p.compile("//*"));
+    for (bool retained : {false, true}) {
+        size_t bytes, alignment;
+        ASSERT_EQ(TLV_OK, retained ? tlv_query_eval_size(p.get(), 4, 8, &bytes, &alignment)
+                                   : tlv_query_exec_size(p.get(), 4, &bytes, &alignment));
+        std::vector<uint64_t> storage((bytes + 7) / 8);
+        tlv_query_exec_t*     exec = nullptr;
+        ASSERT_EQ(TLV_OK, retained ? tlv_query_eval_init(p.get(), nullptr, storage.data(), bytes, 4,
+                                                         8, 10000, &exec)
+                                   : tlv_query_exec_init(p.get(), storage.data(), bytes, 4, 8,
+                                                         10000, &exec));
+        auto format = controlled::format;
+        format.decode = [](const void*, const uint8_t*, size_t, tlv_decoded_t*,
+                           tlv_format_error_t* error) {
+            error->region = TLV_REGION_VALUE;
+            error->has_offset = 1;
+            error->offset = 1;
+            return TLV_ERR_INVALID_STATE;
+        };
+        const uint8_t     wire[] = {0x5a, 0};
+        tlv_tree_reader_t reader;
+        tlv_tree_frame_t  frames[4];
+        ASSERT_EQ(TLV_OK,
+                  tlv_tree_reader_init(&reader, wire, sizeof wire, &format, frames, 4, 4, 8));
+        tlv_query_diagnostic_t diagnostic{};
+        auto visitor = [](const tlv_tree_event_t*, void*) { return TLV_VISIT_CONTINUE; };
+        EXPECT_EQ(TLV_ERR_INVALID_STATE,
+                  TLV_DIAGNOSTIC_RESULT(diagnostic, tlv_query_program_visit(&reader, exec, visitor,
+                                                                            nullptr, &diagnostic)));
+        EXPECT_EQ(TLV_QUERY_ERROR_STATE, diagnostic.kind);
+        EXPECT_EQ(TLV_ERR_INVALID_STATE, diagnostic.reader.diagnostic.code);
+        EXPECT_EQ(TLV_READER_OP_VALUE, diagnostic.reader.operation);
+        EXPECT_EQ(1u, diagnostic.reader.diagnostic.offset);
+    }
+}
+
+TEST(Unit_Tlv_QueryProgram, UnclosedFeedIsInvalidValueAndRetainsItsFailureDetail) {
+    Program p;
+    ASSERT_EQ(TLV_OK, p.compile("//*"));
+    for (bool retained : {false, true}) {
+        size_t bytes, alignment;
+        ASSERT_EQ(TLV_OK, retained ? tlv_query_eval_size(p.get(), 4, 8, &bytes, &alignment)
+                                   : tlv_query_exec_size(p.get(), 4, &bytes, &alignment));
+        std::vector<uint64_t> storage((bytes + 7) / 8);
+        tlv_query_exec_t*     exec = nullptr;
+        ASSERT_EQ(TLV_OK, retained ? tlv_query_eval_init(p.get(), nullptr, storage.data(), bytes, 4,
+                                                         8, 10000, &exec)
+                                   : tlv_query_exec_init(p.get(), storage.data(), bytes, 4, 8,
+                                                         10000, &exec));
+        tlv_tree_event_t event{};
+        event.kind = TLV_TREE_BEGIN;
+        int matched = 79;
+        ASSERT_EQ(TLV_OK, tlv_query_exec_feed(exec, &event, &matched, &p.diagnostic));
+        EXPECT_EQ(TLV_ERR_INVALID_VALUE,
+                  TLV_DIAGNOSTIC_RESULT(p.diagnostic, tlv_query_exec_finish(exec, &p.diagnostic)));
+        EXPECT_EQ(TLV_QUERY_ERROR_EVENTS, p.diagnostic.kind);
+        unsigned char original[sizeof p.diagnostic];
+        std::memcpy(original, &p.diagnostic, sizeof original);
+        EXPECT_EQ(TLV_ERR_INVALID_STATE, tlv_query_exec_finish(exec, &p.diagnostic));
+        EXPECT_EQ(0, std::memcmp(original, &p.diagnostic, sizeof original));
+        ASSERT_EQ(TLV_OK, tlv_query_exec_reset(exec));
+        EXPECT_EQ(TLV_OK, tlv_query_exec_finish(exec, &p.diagnostic));
     }
 }
 

@@ -740,7 +740,8 @@ void go_query_execution_free(go_query_execution* q) {
 }
 tlv_result_t go_query_input(go_query_execution* q, const uint8_t* data, size_t size, size_t discard,
                             int final_input) {
-    if (q->has_document || q->fed || (!q->has_reader && discard)) return TLV_ERR_INVALID_ARG;
+    if (q->has_document || q->fed) return TLV_ERR_INVALID_STATE;
+    if (!q->has_reader && discard) return TLV_ERR_INVALID_ARG;
     query_buffer* buffer = query_buffer_new(data, size);
     if (!buffer) return TLV_ERR_OUT_OF_MEMORY;
     tlv_result_t rc;
@@ -766,7 +767,7 @@ tlv_result_t go_query_feed(go_query_execution* q, int kind, const uint8_t* tag, 
                            const uint8_t* value, size_t value_size, size_t depth, size_t offset,
                            int skipped, tlv_tree_event_t* event, int* matched,
                            tlv_query_diagnostic_t* diagnostic) {
-    if (q->has_reader || q->has_document) return TLV_ERR_INVALID_ARG;
+    if (q->has_reader || q->has_document) return TLV_ERR_INVALID_STATE;
     query_buffer* tags = query_buffer_new(tag, tag_size);
     query_buffer* values = query_buffer_new(value, value_size);
     if (!tags || !values) {
@@ -799,7 +800,7 @@ static tlv_visit_result_t query_drain(const tlv_tree_event_t* event, void* conte
 tlv_result_t go_query_feed_encoded(go_query_execution* q, const uint8_t* data, size_t size,
                                    size_t depth, size_t offset, tlv_tree_event_t* event,
                                    int* matched, tlv_query_diagnostic_t* diagnostic) {
-    if (q->has_reader || q->has_document) return TLV_ERR_INVALID_ARG;
+    if (q->has_reader || q->has_document) return TLV_ERR_INVALID_STATE;
     query_buffer* buffer = query_buffer_new(data, size);
     if (!buffer) return TLV_ERR_OUT_OF_MEMORY;
     tlv_reader_t            reader;
@@ -841,12 +842,12 @@ tlv_result_t go_query_finish(go_query_execution* q, tlv_query_diagnostic_t* diag
 }
 tlv_result_t go_query_visit(go_query_execution* q, tlv_query_event_visitor_t visitor, void* context,
                             tlv_query_diagnostic_t* diagnostic) {
-    if (!q->has_reader || q->has_document) return TLV_ERR_INVALID_ARG;
+    if (!q->has_reader || q->has_document) return TLV_ERR_INVALID_STATE;
     return tlv_query_program_visit(&q->reader, q->exec, visitor, context, diagnostic);
 }
 tlv_result_t go_query_exists(go_query_execution* q, int early_return, int* found,
                              tlv_query_diagnostic_t* diagnostic) {
-    if (!q->has_reader || q->has_document) return TLV_ERR_INVALID_ARG;
+    if (!q->has_reader || q->has_document) return TLV_ERR_INVALID_STATE;
     return tlv_query_program_exists(&q->reader, q->exec, early_return, found, diagnostic);
 }
 tlv_result_t go_query_bind(go_query_execution* q, const char* name, tlv_query_result_kind_t type,
@@ -867,7 +868,8 @@ tlv_result_t go_query_bind(go_query_execution* q, const char* name, tlv_query_re
 tlv_result_t go_query_document(go_query_execution* q, const go_document* document, void* context,
                                size_t capacity, tlv_query_diagnostic_t* diagnostic) {
 #if OPENTLV_DOCUMENT
-    if (!q->retained || q->has_reader || q->has_document) return TLV_ERR_INVALID_ARG;
+    if (q->has_reader || q->has_document) return TLV_ERR_INVALID_STATE;
+    if (!q->retained) return TLV_ERR_INVALID_ARG;
     query_format_environment(&document->format, &q->program->environment, &q->environment);
     if (q->depth == SIZE_MAX || q->depth + 1 > SIZE_MAX / sizeof(tlv_tree_writer_frame_t))
         return TLV_ERR_OVERFLOW;

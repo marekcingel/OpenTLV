@@ -386,7 +386,7 @@ tlv_result_t tlv_node_set_value(tlv_node_t* node, const uint8_t* value, size_t l
     tlv_result_t rc;
     if (!node || (!value && length)) return TLV_ERR_NULL_ARG;
     document = node->document;
-    if (document->query_callbacks) return TLV_ERR_INVALID_ARG;
+    if (document->query_callbacks) return TLV_ERR_INVALID_STATE;
     if (!node->constructed) {
         uint8_t* copy = copy_bytes(document, value, length);
         if (length && !copy) return TLV_ERR_OUT_OF_MEMORY;
@@ -432,7 +432,7 @@ tlv_result_t tlv_document_insert(tlv_document_t* document, tlv_node_t* parent,
     tlv_encoding_t probe_size;
     tlv_result_t rc;
     if (!document || (!value && length) || !tag_valid(tag)) return TLV_ERR_NULL_ARG;
-    if (document->query_callbacks) return TLV_ERR_INVALID_ARG;
+    if (document->query_callbacks) return TLV_ERR_INVALID_STATE;
     if (parent && (parent->document != document || !parent->constructed))
         return TLV_ERR_INVALID_ARG;
     if (before && (before->document != document || before->parent != parent))
@@ -534,7 +534,7 @@ int document_query_callback(tlv_document_t* document, int active) {
 tlv_result_t document_edit_targets(tlv_document_t* document, tlv_node_t** targets, size_t count,
                                    tlv_document_query_edit_kind_t kind, tlv_tag_t tag,
                                    const uint8_t* value, size_t size, size_t* applied) {
-    if (document->query_callbacks) return TLV_ERR_INVALID_ARG;
+    if (document->query_callbacks) return TLV_ERR_INVALID_STATE;
     if (!count) return TLV_OK;
 #ifndef NDEBUG
     /* Private input comes directly from the unique preorder Query cursor. */

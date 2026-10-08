@@ -25,6 +25,14 @@ func compiled(t *testing.T, text string, variables map[string]tlv.QueryType) *tl
 	return p
 }
 
+func queryState(t *testing.T, err error) {
+	t.Helper()
+	var detail *tlv.ProgramError
+	if !errors.Is(err, tlv.ErrInvalidState) || !errors.As(err, &detail) || detail.Kind != 12 {
+		t.Fatalf("expected Query INVALID_STATE / STATE, got %#v", err)
+	}
+}
+
 func TestQuerySchemaOwnedDiagnosticsAndBounds(t *testing.T) {
 	f, err := tlv.Builtin(tlv.BER)
 	if err != nil {
@@ -112,14 +120,14 @@ func TestQuerySchemaProviderLifetimeAndDocumentGuards(t *testing.T) {
 			if metadata == nil || !bytes.Equal(metadata.Tag, []byte{0x5a}) {
 				t.Error("missing metadata")
 			}
-			if err := doc.Close(); !errors.Is(err, tlv.ErrInvalidArg) {
+			if err := doc.Close(); !errors.Is(err, tlv.ErrInvalidState) {
 				t.Error("close allowed", err)
 			}
 			root, err := doc.Element(0)
 			if err != nil {
 				t.Fatal(err)
 			}
-			if err := root.Erase(); !errors.Is(err, tlv.ErrInvalidArg) {
+			if err := root.Erase(); !errors.Is(err, tlv.ErrInvalidState) {
 				t.Error("mutation allowed", err)
 			}
 			context.Close()
@@ -296,9 +304,7 @@ func TestQueryRawFeedsImmediateRetainedAndMalformed(t *testing.T) {
 		} else if item == nil || item.Offset != 7 {
 			t.Fatal(item)
 		}
-		if err := q.SetInput([]byte{0x5a, 0}, 0, true); !errors.Is(err, tlv.ErrInvalidArg) {
-			t.Fatal(err)
-		}
+		queryState(t, q.SetInput([]byte{0x5a, 0}, 0, true))
 		if err := q.Finish(); err != nil {
 			t.Fatal(err)
 		}
@@ -314,13 +320,14 @@ func TestQueryRawFeedsImmediateRetainedAndMalformed(t *testing.T) {
 		if err := q.Reset(); err != nil {
 			t.Fatal(err)
 		}
-		if _, err := q.Feed(tlv.QueryEvent{Kind: tlv.QueryEnd}); !errors.Is(err, tlv.ErrInvalidArg) {
+		if _, err := q.Feed(tlv.QueryEvent{Kind: tlv.QueryEnd}); !errors.Is(err, tlv.ErrInvalidValue) {
 			t.Fatal(err)
 		}
 		info, err := q.Info()
 		if err != nil || info["invalid"] != 1 {
 			t.Fatal(info, err)
 		}
+		queryState(t, q.Finish())
 		if err := q.Reset(); err != nil {
 			t.Fatal(err)
 		}
@@ -352,9 +359,8 @@ func TestQueryCompletedDocumentEditRetryAndOverlap(t *testing.T) {
 	if applied, err := q.EditDocument(tlv.QueryReplace, nil, []byte{9}, 3); applied != 3 || err != nil {
 		t.Fatal(applied, err)
 	}
-	if _, err := q.NextDocument(); !errors.Is(err, tlv.ErrInvalidArg) {
-		t.Fatal(err)
-	}
+	_, stateError := q.NextDocument()
+	queryState(t, stateError)
 	if err := q.Reset(); err != nil {
 		t.Fatal(err)
 	}
@@ -440,9 +446,8 @@ func TestCompiledStreamingContinuationOwnershipAndReentry(t *testing.T) {
 		if match.Offset != 3 {
 			t.Fatal(match)
 		}
-		if !errors.Is(q.Reset(), tlv.ErrInvalidArg) || !errors.Is(q.Close(), tlv.ErrInvalidArg) {
-			t.Fatal("callback reentry")
-		}
+		queryState(t, q.Reset())
+		queryState(t, q.Close())
 		p.Close() // Existing execution keeps its immutable native program alive.
 		runtime.GC()
 		return tlv.QueryStop
@@ -518,9 +523,8 @@ func TestCompiledDocumentRevisionAndClose(t *testing.T) {
 	if err := node.SetValue([]byte{7}); err != nil {
 		t.Fatal(err)
 	}
-	if _, err := q.NextDocument(); !errors.Is(err, tlv.ErrInvalidArg) {
-		t.Fatal("revision", err)
-	}
+	_, stateError := q.NextDocument()
+	queryState(t, stateError)
 	if err := q.Reset(); err != nil {
 		t.Fatal(err)
 	}
@@ -528,9 +532,8 @@ func TestCompiledDocumentRevisionAndClose(t *testing.T) {
 		t.Fatal(err)
 	}
 	_ = d.Close()
-	if _, err := q.NextDocument(); !errors.Is(err, tlv.ErrInvalidArg) {
-		t.Fatal("closed document", err)
-	}
+	_, stateError = q.NextDocument()
+	queryState(t, stateError)
 	if err := q.Reset(); err != nil {
 		t.Fatal(err)
 	}

@@ -42,7 +42,7 @@ tlv_result_t tlv_tree_writer_init(tlv_tree_writer_t* writer, uint8_t* data, size
 tlv_result_t tlv_tree_writer_set_tag_storage(tlv_tree_writer_t* writer, uint8_t* data,
                                              size_t capacity) {
     if (!writer || (!data && capacity)) return TLV_ERR_NULL_ARG;
-    if (writer->depth) return TLV_ERR_INVALID_ARG;
+    if (writer->depth) return TLV_ERR_INVALID_STATE;
     writer->tags = data;
     writer->tags_capacity = capacity;
     writer->tags_used = 0;
@@ -63,7 +63,7 @@ tlv_result_t tlv_tree_writer_write_event_diag(tlv_tree_writer_t* writer,
          event->kind != TLV_TREE_END) ||
         (event->kind == TLV_TREE_END ? (!writer->depth || event->depth != writer->depth - 1)
                                      : event->depth != writer->depth))
-        return tree_error(diagnostic, TLV_ERR_INVALID_ARG, operation, writer->output.pos, NULL);
+        return tree_error(diagnostic, TLV_ERR_INVALID_VALUE, operation, writer->output.pos, NULL);
     if (event->kind == TLV_TREE_BEGIN)
         return tlv_tree_writer_begin_diag(writer, event->element.tag, diagnostic);
     if (event->kind == TLV_TREE_END) return tlv_tree_writer_end_diag(writer, diagnostic);
@@ -141,7 +141,7 @@ tlv_result_t tlv_tree_writer_end_diag(tlv_tree_writer_t* writer,
     size_t length;
     tlv_result_t rc;
     if (!writer || !writer->depth)
-        return tree_error(diagnostic, writer ? TLV_ERR_INVALID_ARG : TLV_ERR_NULL_ARG,
+        return tree_error(diagnostic, writer ? TLV_ERR_INVALID_STATE : TLV_ERR_NULL_ARG,
                           TLV_WRITER_OP_END, writer ? writer->output.pos : 0, NULL);
     frame = writer->frames[writer->depth - 1];
     length = writer->output.pos - frame.start;
@@ -178,7 +178,7 @@ tlv_result_t tlv_tree_writer_end(tlv_tree_writer_t* writer) {
 
 tlv_result_t tlv_tree_writer_finish(const tlv_tree_writer_t* writer) {
     if (!writer) return TLV_ERR_NULL_ARG;
-    return writer->depth ? TLV_ERR_INVALID_ARG : TLV_OK;
+    return writer->depth ? TLV_ERR_INVALID_STATE : TLV_OK;
 }
 
 size_t tlv_tree_writer_size(const tlv_tree_writer_t* writer) {
@@ -316,7 +316,7 @@ tlv_result_t tree_writer_measure_events_observed(
              event.kind != TLV_TREE_END) ||
             (event.kind == TLV_TREE_END ? (!writer.depth || event.depth != writer.depth - 1)
                                         : event.depth != writer.depth))
-            return tree_error(diagnostic, TLV_ERR_INVALID_ARG, TLV_WRITER_OP_VALUE,
+            return tree_error(diagnostic, TLV_ERR_INVALID_VALUE, TLV_WRITER_OP_VALUE,
                               writer.output.pos, NULL);
         if (charge) {
             rc = charge(charge_context, 1);
@@ -354,7 +354,9 @@ tlv_result_t tree_writer_measure_events_observed(
         }
         if (rc != TLV_OK) return rc;
     }
-    rc = tlv_tree_writer_finish(&writer);
-    if (rc == TLV_OK) *size = tlv_tree_writer_size(&writer);
-    return rc;
+    if (writer.depth)
+        return tree_error(diagnostic, TLV_ERR_INVALID_VALUE, TLV_WRITER_OP_END, writer.output.pos,
+                          NULL);
+    *size = tlv_tree_writer_size(&writer);
+    return TLV_OK;
 }

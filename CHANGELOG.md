@@ -101,6 +101,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Changed
 
+- Distinguish Query lifecycle diagnostics with `STATE`, classify malformed structural feeds as `INVALID_VALUE`, and guard against lifecycle regressions to `INVALID_ARG`. Result and diagnostic enum numbers remain release-specific during the failure-model migration. (#551, #552)
+- Return `TLV_ERR_INVALID_STATE` for lifecycle and callback reentrancy failures in Query, Reader, Writer and Document, and expose the distinction through C++ and language bindings. Callers that previously matched these failures as `TLV_ERR_INVALID_ARG` must update their error handling. (#552)
 - Retain the outermost diagnostic path tags consistently across Schema and Query, expose the omitted-tag count in native APIs and bindings, mark truncated paths in CLI output, and keep Schema reporting at its structural depth limit. Adding `tlv_diagnostic_path_t.omitted` changes the public ABI and requires rebuilding native clients. (#550)
 - Keep all C/C++ unit and integration tests in a shorter, optional PR Memcheck run; run the full Query conformance matrices weekly, on release tags, manually, or with the `memcheck-full` PR label. (#560)
 - **Breaking:** Return `false` from C++ Reader and Tree Reader `at_end()` after failed initialization instead of treating it as end-of-input. Callers must handle `next()` failures to terminate or recover. (#440, #461)
@@ -191,6 +193,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Added
 
+- Define the target failure model, including shared result classes, typed diagnostics, explicit locations and propagation rules, with a migration inventory for the planned breaking API changes. (#551)
 - Add informational Callgrind instruction-count and native Release timing comparisons for Reader, Writer, Document and Query, with baseline/candidate reports and downloadable profiling evidence. (#560)
 - Add opt-in CTest Valgrind Memcheck integration and Ubuntu CI coverage for the C and C++ suites, including native subprocesses used by Query conformance tests. (#560)
 - Add a reproducible comparison of native and C++ Reader APIs across revisions, retaining raw measurements and build provenance. (#440)

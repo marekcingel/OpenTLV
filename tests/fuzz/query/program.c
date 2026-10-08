@@ -99,7 +99,7 @@ int LLVMFuzzerTestOneInput(const uint8_t* data, size_t size) {
         event.element.value.size = size;
         int matched;
         if (tlv_query_exec_feed(exec, &event, &matched, &diagnostic) != TLV_OK) {
-            if (tlv_query_exec_feed(exec, &event, &matched, NULL) != TLV_ERR_INVALID_ARG) abort();
+            if (tlv_query_exec_feed(exec, &event, &matched, NULL) != TLV_ERR_INVALID_STATE) abort();
             break;
         }
     }

@@ -2,7 +2,7 @@
 # Copyright (c) 2026 Marek Cingel
 import gc
 import pytest
-from opentlv import (QueryProgram, TreeReader, Visit, Document, InvalidArgError,
+from opentlv import (QueryProgram, TreeReader, Visit, Document, InvalidArgError, InvalidStateError,
                      NeedMoreDataError, LimitError, BufferTooShortError, QueryProvider,
                      InvalidValueError, QueryRule, QuerySchema, SchemaError, UnsupportedTypeError)
 from opentlv import (QueryTagAdapter, QueryDefinitionResolver, Definition, DefinitionRegistry,
@@ -149,7 +149,7 @@ def test_query_schema_provider_lifetime_exception_reentry_and_document_guards():
     def decode(value, metadata):
         assert metadata.element.tag.data == b"\x5a"
         for action in actions:
-            with pytest.raises(RuntimeError):
+            with pytest.raises(InvalidStateError):
                 action()
         return value[0]
     providers = {"num": QueryProvider(201, decode)}
@@ -213,8 +213,9 @@ def test_provider_exception_and_execution_reentry_are_preserved():
     program = QueryProgram("num(//5A)", providers={"num": QueryProvider(103, decode)})
     execution = program.execution()
     reader = TreeReader(b"\x5a\0")
-    with pytest.raises(RuntimeError, match="active in a callback"):
+    with pytest.raises(InvalidStateError) as error:
         execution.visit(reader, lambda match: None)
+    assert error.value.query["query_kind"] == 12
     execution.reset()
     def failure(value, metadata):
         raise LookupError("provider failed")
@@ -234,7 +235,7 @@ def test_completed_document_edits_preserve_short_selection_and_overlap():
     with pytest.raises(ValueError, match="no longer valid"):
         old_node.value
     assert document.encode() == bytes.fromhex("70065a01095a01095a0109")
-    with pytest.raises(InvalidArgError):
+    with pytest.raises(InvalidStateError):
         execution.next()
     execution.reset()
     execution.evaluate_document(document)
@@ -312,12 +313,30 @@ def test_callback_exception_reentry_terminal_failure_and_reset():
     execution = QueryProgram("//5A").execution(retained=False)
     def callback(match):
         execution.reset()
-    with pytest.raises(RuntimeError):
+    with pytest.raises(InvalidStateError) as error:
         execution.visit(TreeReader(WIRE), callback)
+    assert error.value.query["query_kind"] == 12
     assert execution.info["invalid"]
     execution.reset()
     assert execution.exists(TreeReader(WIRE))
     assert execution.info["full_validation"]
+
+
+def test_unfinished_result_reports_state_and_reset_recovers():
+    from opentlv import TreeEvent, TreeEventKind
+    execution = QueryProgram("count(//5A)").execution()
+    with pytest.raises(InvalidStateError) as error:
+        execution.result()
+    assert error.value.query["query_kind"] == 12
+    with pytest.raises(InvalidValueError) as malformed:
+        execution.feed(TreeEvent(TreeEventKind.END, None, 0))
+    assert malformed.value.query["query_kind"] == 5
+    with pytest.raises(InvalidStateError) as retried:
+        execution.finish()
+    assert retried.value.query["query_kind"] == 12
+    execution.reset()
+    execution.finish()
+    assert execution.result() == 0
 
 
 def test_explicit_short_workspace_candidate_limit_and_early_coverage():
@@ -364,7 +383,7 @@ def test_document_reverse_axis_revision_context_and_close_guards():
     execution.reset()
     execution.evaluate_document(document)
     document.insert(b"\x5a", b"x")
-    with pytest.raises(InvalidArgError):
+    with pytest.raises(InvalidStateError):
         execution.next()
     scalar = QueryProgram("count(//5A)").execution()
     scalar.evaluate_document(document)

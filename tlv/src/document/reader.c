@@ -24,7 +24,7 @@ static tlv_result_t append_item(tlv_document_builder_t* builder, const tlv_tree_
     tlv_node_t* created;
     size_t depth, length;
     tlv_result_t rc;
-    if (item->depth < builder->source_depth) return TLV_ERR_INVALID_ARG;
+    if (item->depth < builder->source_depth) return TLV_ERR_INVALID_VALUE;
     depth = item->depth - builder->source_depth;
     if (depth > SIZE_MAX - builder->target_depth) return TLV_ERR_LIMIT;
     rc = tlv_size_to_native(item->element.value.size, &length);
@@ -60,7 +60,7 @@ static tlv_result_t consume_tree(tlv_document_builder_t* builder, size_t* error_
             return rc;
         }
         if (event.kind == TLV_TREE_END) {
-            if (event.skipped || !builder->container) return TLV_ERR_INVALID_ARG;
+            if (event.skipped || !builder->container) return TLV_ERR_INVALID_VALUE;
             builder->container = builder->container->parent;
             if (builder->subtree && event.depth == builder->source_depth) builder->subtree_done = 1;
         } else {
@@ -138,9 +138,9 @@ tlv_result_t tlv_document_builder_create(const tlv_document_options_t* options,
     *builder = NULL;
     if (!options || !reader) return TLV_ERR_NULL_ARG;
     if (options->format != reader->input.format) return TLV_ERR_INVALID_ARG;
-    if ((!root && reader->count) ||
-        (root && (root->source.format != options->format || !root->source.size ||
-                  root->offset > SIZE_MAX - root->source.size)))
+    if (!root && reader->count) return TLV_ERR_INVALID_STATE;
+    if (root && (root->source.format != options->format || !root->source.size ||
+                 root->offset > SIZE_MAX - root->source.size))
         return TLV_ERR_INVALID_ARG;
     rc = tlv_document_create(options, &document);
     if (rc != TLV_OK) return rc;
@@ -175,7 +175,7 @@ tlv_result_t tlv_document_builder_consume(tlv_document_builder_t* builder,
     if (!document) return TLV_ERR_NULL_ARG;
     *document = NULL;
     if (!builder) return TLV_ERR_NULL_ARG;
-    if (!builder->document) return TLV_ERR_INVALID_ARG;
+    if (!builder->document) return TLV_ERR_INVALID_STATE;
     rc = consume_tree(builder, error_offset, diagnostic);
     if (rc == TLV_NEED_MORE_DATA) return rc;
     if (rc == TLV_OK)

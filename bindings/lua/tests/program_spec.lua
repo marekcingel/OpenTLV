@@ -7,6 +7,9 @@ local function fails(run, code)
     local ok, err = pcall(run)
     assert(not ok, "expected failure")
     if code then assert(type(err) == "table" and err.code == code, tostring(err)) end
+    if code == tlv.errors.INVALID_STATE then
+        assert(err.query and err.query.kind == 12, "missing Query STATE diagnostic")
+    end
     return err
 end
 local options = {variables = {min = "integer"}, optimize = true}
@@ -100,19 +103,24 @@ local failing = tlv.query_program("num(//5A)", f, {providers = {
 failing:set_input(b(0x5a, 0))
 assert(tostring(fails(function() failing:visit(function() end) end)):find("provider failed", 1, true))
 failing:reset()
-local reentry
-reentry = tlv.query_program("num(//5A)", f, {providers = {
-    num = {id = 104, decode = function() reentry:reset(); return 1 end}
-}}):execution()
+local reentry, reentry_program
+reentry_program = tlv.query_program("num(//5A)", f, {providers = {
+    num = {id = 104, decode = function()
+        fails(function() reentry_program:info() end, tlv.errors.INVALID_STATE)
+        reentry:reset()
+        return 1
+    end}
+}})
+reentry = reentry_program:execution()
 reentry:set_input(b(0x5a, 0))
-fails(function() reentry:visit(function() end) end, 10)
+fails(function() reentry:visit(function() end) end, tlv.errors.INVALID_STATE)
 reentry:reset()
 local feed_program = tlv.query_program("//5A", f)
 local protected_feed = feed_program:execution({retained=false})
 local metadata_reads = 0
 local guarded_event = setmetatable({kind="element", source=b(0x5a,0)}, {__index=function()
     metadata_reads = metadata_reads + 1
-    fails(function() protected_feed:close() end, tlv.errors.INVALID_ARG)
+    fails(function() protected_feed:close() end, tlv.errors.INVALID_STATE)
 end})
 assert(protected_feed:feed(guarded_event).tag == b(0x5a) and metadata_reads > 0)
 protected_feed:finish()
@@ -141,12 +149,13 @@ protected_feed:reset(); protected_feed:close()
 local feeding = feed_program:execution({retained = false})
 local selected = feeding:feed({kind = "element", tag = b(0x5a), value = b(1), offset = 7})
 assert(selected.offset == 7)
-fails(function() feeding:set_input(b(0x5a, 0)) end, 10)
+fails(function() feeding:set_input(b(0x5a, 0)) end, tlv.errors.INVALID_STATE)
 feeding:finish()
 assert(feeding:info().full_validation == 1)
 feeding:reset()
-fails(function() feeding:feed({kind = "end"}) end, 10)
+fails(function() feeding:feed({kind = "end"}) end, tlv.errors.INVALID_VALUE)
 assert(feeding:info().invalid == 1)
+fails(function() feeding:finish() end, tlv.errors.INVALID_STATE)
 feeding:reset(); feeding:close(); feeding:close()
 local retained_feed = feed_program:execution()
 assert(retained_feed:feed({kind = "element", tag = b(0x5a), offset = 7}) == nil)
@@ -164,7 +173,7 @@ q:set_input(b(0x5a,1,9,0x5a,2,8,7))
 q:visit(function() error("scalar emitted node") end)
 assert(q:result() == 1)
 q:close()
-fails(function() q:result() end, tlv.errors.INVALID_ARG)
+fails(function() q:result() end, tlv.errors.INVALID_STATE)
 
 local streaming = tlv.query_program("//5A", f):execution({retained = false})
 streaming:set_input(b(0x5a,1,9),0,false)
@@ -175,8 +184,8 @@ collectgarbage("collect")
 streaming:set_input(b(0x5a,1,9,0x5a,1,8),0,true)
 streaming:visit(function(match)
     assert(match.offset == 3)
-    fails(function() streaming:reset() end, tlv.errors.INVALID_ARG)
-    fails(function() streaming:close() end, tlv.errors.INVALID_ARG)
+    fails(function() streaming:reset() end, tlv.errors.INVALID_STATE)
+    fails(function() streaming:close() end, tlv.errors.INVALID_STATE)
     return false
 end)
 assert(streaming:next() == nil)
@@ -184,7 +193,7 @@ streaming:reset()
 assert(first.value == b(9))
 streaming:set_input(b(0x5a,0))
 assert(fails(function() streaming:visit(function() error("callback failure") end) end):match("callback failure"))
-fails(function() streaming:next() end, tlv.errors.INVALID_ARG)
+fails(function() streaming:next() end, tlv.errors.INVALID_STATE)
 streaming:reset()
 streaming:set_input(b(0x5a,0,0x5a))
 assert(streaming:exists(true))
@@ -206,7 +215,7 @@ if tlv.document and tlv.formats.ber then
     assert(short.applied == 0)
     assert(editing:edit_document("replace",nil,b(9),3) == 3)
     fails(function() old_node:tag() end)
-    fails(function() editing:next() end,10)
+    fails(function() editing:next() end,tlv.errors.INVALID_STATE)
     editing:reset(); editing:evaluate_document(edit_doc)
     assert(editing:edit_document("insert_after",b(0x5b),b(4),3) == 3)
     local ancestors = tlv.query_program("//70 | //5A",f):execution()
@@ -225,7 +234,7 @@ if tlv.document and tlv.formats.ber then
     local node = selected:next()
     assert(node:value()==b(1) and node:identity()>0)
     node:set(b(7))
-    fails(function() selected:next() end,tlv.errors.INVALID_ARG)
+    fails(function() selected:next() end,tlv.errors.INVALID_STATE)
     selected:reset();selected:evaluate_document(doc)
     assert(selected:next():value()==b(7))
     selected:close()
@@ -281,7 +290,7 @@ if tlv.formats.ber then
                 assert(metadata.tag == b(0x5a))
                 fails(function() doc:close() end)
                 fails(function() root:erase() end)
-                fails(function() tlv.query_schema_validate(provider_rules, doc) end, tlv.errors.INVALID_ARG)
+                fails(function() tlv.query_schema_validate(provider_rules, doc) end, tlv.errors.INVALID_STATE)
                 provider_rules[1] = nil
                 collectgarbage("collect")
                 return string.byte(value)
@@ -304,7 +313,7 @@ if tlv.formats.ber then
                     local function finalize()
                         finalized = true
                         local ok, err = pcall(guarded.close, guarded)
-                        blocked = not ok and type(err) == "table" and err.code == tlv.errors.INVALID_ARG
+                        blocked = not ok and type(err) == "table" and err.code == tlv.errors.INVALID_STATE
                     end
                     local pending
                     if newproxy then

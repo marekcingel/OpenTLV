@@ -37,6 +37,7 @@ const (
 	SchemaMissing    Code = C.TLV_ERR_SCHEMA_MISSING
 	NativeSize       Code = C.TLV_ERR_NATIVE_SIZE
 	NeedMoreData     Code = C.TLV_NEED_MORE_DATA
+	InvalidState     Code = C.TLV_ERR_INVALID_STATE
 )
 
 // String copies the native status description into Go storage.

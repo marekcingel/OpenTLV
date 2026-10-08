@@ -4,6 +4,30 @@ use opentlv::{
     Error, Format, ProgramOptions, QueryBinding, QueryCodecError, QueryConversion, QueryDecoded,
     QueryProgram, QueryProvider, QueryType, QueryValue, TreeReader, Visit,
 };
+
+#[test]
+fn unfinished_result_reports_state_and_reset_recovers() {
+    let program = QueryProgram::compile("count(//5A)", &ProgramOptions::default()).unwrap();
+    let mut execution = program.execution(4, 20, 100000, true).unwrap();
+    let failure = execution.result().unwrap_err();
+    assert_eq!(failure.error, Error::InvalidState);
+    assert_eq!(failure.kind, opentlv_sys::TLV_QUERY_ERROR_STATE);
+    let malformed = execution
+        .feed_event(opentlv::QueryEvent::End {
+            depth: 0,
+            offset: 0,
+            skipped: false,
+        })
+        .unwrap_err();
+    assert_eq!(malformed.error, Error::InvalidValue);
+    assert_eq!(malformed.kind, 5);
+    let retried = execution.finish().unwrap_err();
+    assert_eq!(retried.error, Error::InvalidState);
+    assert_eq!(retried.kind, opentlv_sys::TLV_QUERY_ERROR_STATE);
+    execution.reset().unwrap();
+    execution.finish().unwrap();
+    assert_eq!(execution.result().unwrap(), QueryValue::Integer(0));
+}
 #[test]
 fn custom_providers_keep_lifetimes_and_validate_image_requirements() {
     let calls = std::sync::Arc::new(std::sync::atomic::AtomicUsize::new(0));
@@ -272,6 +296,11 @@ fn document_reverse_axes_context_and_scalar_snapshot() {
         QueryProgram::compile("//50[preceding-sibling::5A]", &ProgramOptions::default()).unwrap();
     let mut execution = program.execution(4, 20, 100000, true).unwrap();
     execution.evaluate_document(&document, None, None).unwrap();
+    let failure = execution
+        .evaluate_document(&document, None, None)
+        .unwrap_err();
+    assert_eq!(failure.error, Error::InvalidState);
+    assert_eq!(failure.kind, opentlv_sys::TLV_QUERY_ERROR_STATE);
     assert_eq!(
         execution.next_document().unwrap().unwrap().tag().as_bytes(),
         &[0x50]

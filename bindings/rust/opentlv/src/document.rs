@@ -55,7 +55,7 @@ impl<'r, 'a> DocumentBuilder<'r, 'a> {
         max_depth: usize,
         max_elements: usize,
     ) -> DocResult<Self> {
-        let root = reader.current.take().ok_or(Error::InvalidArg)?;
+        let root = reader.current.take().ok_or(Error::InvalidState)?;
         Self::create(reader, &root, max_depth, max_elements)
     }
 

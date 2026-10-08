@@ -143,10 +143,10 @@ TEST(Unit_Tlv_QueryF2, CardinalityAndValidationPrecedeScalarPublication) {
     ASSERT_EQ(TLV_OK, e.init());
     tlv_query_result_t sentinel{};
     sentinel.integer = 99;
-    EXPECT_EQ(TLV_ERR_INVALID_ARG, tlv_query_exec_result(e.exec, &sentinel));
+    EXPECT_EQ(TLV_ERR_INVALID_STATE, tlv_query_exec_result(e.exec, &sentinel));
     EXPECT_EQ(99, sentinel.integer);
     EXPECT_NE(TLV_OK, e.run({0x5a, 0, 0x84}));
-    EXPECT_EQ(TLV_ERR_INVALID_ARG, tlv_query_exec_result(e.exec, &sentinel));
+    EXPECT_EQ(TLV_ERR_INVALID_STATE, tlv_query_exec_result(e.exec, &sentinel));
     EXPECT_EQ(99, sentinel.integer);
 }
 TEST(Unit_Tlv_QueryF2, PositionLastChainedPredicatesAndDeferredSetAlgebra) {
@@ -422,7 +422,7 @@ TEST(Unit_Tlv_QueryF2, IncrementalFinalizationAndAncestorPositions) {
               TLV_NEED_MORE_DATA);
     tlv_query_result_t output{};
     output.integer = 999;
-    EXPECT_EQ(tlv_query_exec_result(e.exec, &output), TLV_ERR_INVALID_ARG);
+    EXPECT_EQ(tlv_query_exec_result(e.exec, &output), TLV_ERR_INVALID_STATE);
     EXPECT_EQ(output.integer, 999);
     ASSERT_EQ(tlv_tree_reader_set_input(&reader, rest, sizeof rest, sizeof first, 1), TLV_OK);
     ASSERT_EQ(tlv_query_program_visit(&reader, e.exec, noop, nullptr, &e.diagnostic), TLV_OK);

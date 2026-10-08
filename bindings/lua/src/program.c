@@ -72,6 +72,12 @@ static void field(lua_State* L, const char* name, size_t value) {
     lua_setfield(L, -2, name);
 }
 static void push_query_error(lua_State* L, tlv_result_t code, const tlv_query_diagnostic_t* d) {
+    tlv_query_diagnostic_t state = {0};
+    if (code == TLV_ERR_INVALID_STATE) {
+        if (d) state = *d;
+        state.kind = TLV_QUERY_ERROR_STATE;
+        d = &state;
+    }
     if (!d) {
         opentlv_lua_push_error(L, code, 0, 0);
         return;
@@ -105,20 +111,26 @@ static int provider_active(lua_State* L) {
     return active;
 }
 static program_t* program(lua_State* L, int index) {
-    if (provider_active(L)) luaL_error(L, "Query provider is active");
+    if (provider_active(L)) {
+        query_error(L, TLV_ERR_INVALID_STATE, NULL);
+        return NULL;
+    }
     program_t* p = luaL_checkudata(L, index, PROGRAM_MT);
-    if (p->callback_active) luaL_error(L, "Query provider is active");
+    if (p->callback_active) {
+        query_error(L, TLV_ERR_INVALID_STATE, NULL);
+        return NULL;
+    }
     return p;
 }
 static execution_t* execution(lua_State* L) {
     if (provider_active(L)) {
-        opentlv_lua_raise(L, TLV_ERR_INVALID_ARG, 0, 0);
+        query_error(L, TLV_ERR_INVALID_STATE, NULL);
         return NULL;
     }
     if (!lua_checkstack(L, 16)) luaL_error(L, "Query callback stack unavailable");
     execution_t* q = luaL_checkudata(L, 1, EXECUTION_MT);
     if (!q->exec || q->busy || q->program->callback_active) {
-        opentlv_lua_raise(L, TLV_ERR_INVALID_ARG, 0, 0);
+        query_error(L, TLV_ERR_INVALID_STATE, NULL);
         return NULL;
     }
 #if OPENTLV_DOCUMENT
@@ -160,10 +172,10 @@ static int execution_call(lua_State* L, lua_CFunction function, int reset) {
     lua_pushcfunction(L, function);
     execution_t* q;
     if (reset) {
-        if (provider_active(L)) return query_error(L, TLV_ERR_INVALID_ARG, NULL);
+        if (provider_active(L)) return query_error(L, TLV_ERR_INVALID_STATE, NULL);
         q = luaL_checkudata(L, 1, EXECUTION_MT);
         if (!q->exec || q->busy || q->program->callback_active)
-            return query_error(L, TLV_ERR_INVALID_ARG, NULL);
+            return query_error(L, TLV_ERR_INVALID_STATE, NULL);
     } else {
         q = execution(L);
         lua_pop(L, 1);
@@ -192,7 +204,7 @@ static int execution_call(lua_State* L, lua_CFunction function, int reset) {
 }
 static int program_gc(lua_State* L) {
     program_t* p = luaL_checkudata(L, 1, PROGRAM_MT);
-    if (p->callback_active) return query_error(L, TLV_ERR_INVALID_ARG, NULL);
+    if (p->callback_active) return query_error(L, TLV_ERR_INVALID_STATE, NULL);
     luaL_unref(L, LUA_REGISTRYINDEX, p->image_ref);
     luaL_unref(L, LUA_REGISTRYINDEX, p->format_ref);
     luaL_unref(L, LUA_REGISTRYINDEX, p->provider_invoke_ref);
@@ -490,7 +502,7 @@ static int definition_resolver(lua_State* L) {
     return 1;
 }
 static int compile(lua_State* L, int image) {
-    if (provider_active(L)) return query_error(L, TLV_ERR_INVALID_ARG, NULL);
+    if (provider_active(L)) return query_error(L, TLV_ERR_INVALID_STATE, NULL);
     size_t      length;
     const char* text = luaL_checklstring(L, 1, &length);
     lua_settop(L, 3);
@@ -771,7 +783,7 @@ static int program_variables(lua_State* L) {
 }
 static int execution_gc(lua_State* L) {
     execution_t* q = luaL_checkudata(L, 1, EXECUTION_MT);
-    if (q->busy) return query_error(L, TLV_ERR_INVALID_ARG, NULL);
+    if (q->busy) return query_error(L, TLV_ERR_INVALID_STATE, NULL);
     int* refs[] = {&q->program_ref, &q->storage_ref,  &q->frames_ref,
                    &q->pins_ref,    &q->document_ref, &q->values_ref};
     for (size_t i = 0; i < sizeof refs / sizeof *refs; ++i) {
@@ -860,7 +872,7 @@ static void pin(lua_State* L, execution_t* q, int index) {
 }
 static int execution_input_run(lua_State* L) {
     execution_t* q = protected_execution(L);
-    if (q->fed) return query_error(L, TLV_ERR_INVALID_ARG, NULL);
+    if (q->fed) return query_error(L, TLV_ERR_INVALID_STATE, NULL);
     size_t         size;
     const uint8_t* data = (const uint8_t*)luaL_checklstring(L, 2, &size);
     size_t         discard = 0;
@@ -870,8 +882,8 @@ static int execution_input_run(lua_State* L) {
         discard = (size_t)value;
     }
     int final = lua_isnoneornil(L, 4) || lua_toboolean(L, 4);
-    if (q->document_ref != LUA_NOREF || (!q->has_reader && discard))
-        return query_error(L, TLV_ERR_INVALID_ARG, NULL);
+    if (q->document_ref != LUA_NOREF) return query_error(L, TLV_ERR_INVALID_STATE, NULL);
+    if (!q->has_reader && discard) return query_error(L, TLV_ERR_INVALID_ARG, NULL);
     pin(L, q, 2);
     tlv_result_t rc =
         q->has_reader ? tlv_tree_reader_set_input(&q->reader, data, size, discard, final)
@@ -931,7 +943,7 @@ static int execution_feed_run(lua_State* L) {
     q->program->callback_failed = 0;
     q->program->callback_error_index = lua_gettop(L);
     if (q->has_reader || q->document_ref != LUA_NOREF)
-        return query_error(L, TLV_ERR_INVALID_ARG, NULL);
+        return query_error(L, TLV_ERR_INVALID_STATE, NULL);
     luaL_checktype(L, 2, LUA_TTABLE);
     tlv_tree_event_t event = {0};
     lua_getfield(L, 2, "kind");
@@ -1056,7 +1068,7 @@ static int execution_next_run(lua_State* L) {
         if (rc != TLV_OK) return query_error(L, rc, NULL);
         return push_match(L, &event);
     }
-    if (!q->has_reader) return query_error(L, TLV_ERR_INVALID_ARG, NULL);
+    if (!q->has_reader) return query_error(L, TLV_ERR_INVALID_STATE, NULL);
     pull_t       item = {0};
     tlv_result_t rc = tlv_query_program_visit(&q->reader, q->exec, pull, &item, &diagnostic);
     if (rc != TLV_OK) return provider_error(L, q->program, rc, &diagnostic);
@@ -1135,9 +1147,9 @@ static int execution_result(lua_State* L) {
 }
 static int execution_exists_run(lua_State* L) {
     execution_t* q = protected_execution(L);
-    if (q->fed) return query_error(L, TLV_ERR_INVALID_ARG, NULL);
+    if (q->fed) return query_error(L, TLV_ERR_INVALID_STATE, NULL);
     if (!q->has_reader || q->document_ref != LUA_NOREF)
-        return query_error(L, TLV_ERR_INVALID_ARG, NULL);
+        return query_error(L, TLV_ERR_INVALID_STATE, NULL);
     int                    found = 0;
     tlv_query_diagnostic_t diagnostic = {0};
     tlv_result_t           rc =
@@ -1191,7 +1203,7 @@ static int execution_visit_run(lua_State* L) {
     execution_t* q = protected_execution(L);
     luaL_checktype(L, 2, LUA_TFUNCTION);
     if (!q->has_reader || q->document_ref != LUA_NOREF)
-        return query_error(L, TLV_ERR_INVALID_ARG, NULL);
+        return query_error(L, TLV_ERR_INVALID_STATE, NULL);
     lua_settop(L, 2);
     luaL_checkstack(L, 8, "Query callback stack");
     lua_pushcfunction(L, invoke);
@@ -1340,8 +1352,9 @@ static int execution_document(lua_State* L) {
     lua_pushcfunction(L, execution_document_run);
     execution_t* q = execution(L);
     lua_pop(L, 1); /* execution()'s error slot; the protected call uses its own. */
-    if (!q->retained || q->has_reader || q->document_ref != LUA_NOREF)
-        return query_error(L, TLV_ERR_INVALID_ARG, NULL);
+    if (q->has_reader || q->document_ref != LUA_NOREF)
+        return query_error(L, TLV_ERR_INVALID_STATE, NULL);
+    if (!q->retained) return query_error(L, TLV_ERR_INVALID_ARG, NULL);
     opentlv_lua_document_query_guard(L, 2, 1);
     q->busy = 1;
     for (int i = 1; i <= 4; ++i) lua_pushvalue(L, i);
@@ -1362,7 +1375,7 @@ static int schema_error_projection(lua_State* L) {
     return 1;
 }
 static int query_schema_validate(lua_State* L) {
-    if (provider_active(L)) return query_error(L, TLV_ERR_INVALID_ARG, NULL);
+    if (provider_active(L)) return query_error(L, TLV_ERR_INVALID_STATE, NULL);
     lua_settop(L, 3);
     luaL_checktype(L, 1, LUA_TTABLE);
     size_t count;

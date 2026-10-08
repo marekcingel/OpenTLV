@@ -243,7 +243,11 @@ fn check(code: i32, diagnostic: &native::tlv_query_diagnostic_t) -> ProgramResul
             };
             ProgramError {
                 error,
-                kind: diagnostic.kind,
+                kind: if code == native::TLV_ERR_INVALID_STATE {
+                    native::TLV_QUERY_ERROR_STATE
+                } else {
+                    diagnostic.kind
+                },
                 begin: diagnostic.begin,
                 end: diagnostic.end,
                 source_offset: (diagnostic.has_source_offset != 0)
@@ -252,7 +256,8 @@ fn check(code: i32, diagnostic: &native::tlv_query_diagnostic_t) -> ProgramResul
                 limit: text(diagnostic.limit),
                 configured: diagnostic.configured,
                 codec: diagnostic.codec,
-                reader: (diagnostic.kind == 7)
+                reader: (diagnostic.kind == 7
+                    || diagnostic.reader.diagnostic.code != native::TLV_OK)
                     .then(|| Box::new(ReaderDiagnostic::from_raw(&diagnostic.reader))),
             }
         }
@@ -1120,7 +1125,7 @@ impl<'a> QueryExecution<'a> {
         check(rc, &diagnostic)
     }
     /// Pull a finalized retained node after raw event feeding, without a Reader.
-    /// Returns None at exhaustion; before finish, C reports an invalid argument.
+    /// Returns None at exhaustion; before finish, reports InvalidState with Query STATE detail.
     pub fn next_result(&mut self) -> ProgramResult<Option<QueryMatch<'_>>> {
         self.next_result_with_ordinal()
             .map(|value| value.map(|(matched, _)| matched))
@@ -1337,7 +1342,10 @@ impl<'a> QueryExecution<'a> {
         context: Option<&crate::Node<'_, 'a>>,
         value_capacity: Option<usize>,
     ) -> ProgramResult<()> {
-        if !self.retained || self.document.is_some() {
+        if self.document.is_some() {
+            return plain(native::TLV_ERR_INVALID_STATE);
+        }
+        if !self.retained {
             return plain(native::TLV_ERR_INVALID_ARG);
         }
         let mut frames = Vec::<native::tlv_tree_writer_frame_t>::new();

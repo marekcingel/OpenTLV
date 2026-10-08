@@ -29,6 +29,8 @@ var (
 	ErrSchemaMissing    = StatusError{code: capi.SchemaMissing}
 	ErrNativeSize       = StatusError{code: capi.NativeSize}
 	ErrNeedMoreData     = StatusError{code: capi.NeedMoreData}
+	// ErrInvalidState reports lifecycle or callback reentrancy misuse.
+	ErrInvalidState = StatusError{code: capi.InvalidState}
 )
 
 // Is compares native error identity independently of diagnostic detail.

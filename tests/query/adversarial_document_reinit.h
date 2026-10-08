@@ -89,7 +89,7 @@ static int document_format_reinitialization(void) {
             tlv_query_diagnostic_t diagnostic = {0};
             tlv_result_t rc = tlv_document_query_evaluate(state.document, state.exec, NULL, values,
                                                           sizeof values, &staging, &diagnostic);
-            CHECK(rc == TLV_ERR_INVALID_ARG);
+            CHECK(rc == TLV_ERR_INVALID_STATE);
             CHECK(test_query_diagnostic_matches(rc, &diagnostic));
             CHECK(state.calls == 1 && !state.errors);
             tlv_query_exec_info_t info = {0};
@@ -97,7 +97,7 @@ static int document_format_reinitialization(void) {
             CHECK(tlv_query_exec_info(state.exec, &info) == TLV_OK && info.invalid &&
                   !info.finished && !info.elements);
             tlv_query_result_t result;
-            CHECK(tlv_query_exec_result(state.exec, &result) == TLV_ERR_INVALID_ARG);
+            CHECK(tlv_query_exec_result(state.exec, &result) == TLV_ERR_INVALID_STATE);
             CHECK(tlv_query_exec_reset(state.exec) == TLV_OK);
             if (mutation != 2) {
                 /* The failed evaluation must release the original Document scope. */

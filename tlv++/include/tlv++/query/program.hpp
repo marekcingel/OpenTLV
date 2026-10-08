@@ -21,18 +21,19 @@ struct query_program_access;
 }
 /** @brief Structured Query error category. */
 enum class query_issue {
-    none = TLV_QUERY_ERROR_NONE,                  /**< No failure. */
-    syntax = TLV_QUERY_ERROR_SYNTAX,              /**< Invalid expression. */
-    capability = TLV_QUERY_ERROR_CAPABILITY,      /**< Unavailable capability. */
-    limit = TLV_QUERY_ERROR_LIMIT,                /**< Exhausted budget. */
-    storage = TLV_QUERY_ERROR_STORAGE,            /**< Invalid storage. */
-    events = TLV_QUERY_ERROR_EVENTS,              /**< Invalid event sequence. */
-    source = TLV_QUERY_ERROR_SOURCE,              /**< Missing source locations. */
-    reader = TLV_QUERY_ERROR_READER,              /**< Wire Reader failure. */
-    binding = TLV_QUERY_ERROR_BINDING,            /**< Invalid variable binding. */
-    cardinality = TLV_QUERY_ERROR_CARDINALITY,    /**< Scalar cardinality mismatch. */
-    codec = TLV_QUERY_ERROR_CODEC,                /**< Value conversion failure. */
-    image_version = TLV_QUERY_ERROR_IMAGE_VERSION /**< Incompatible program image. */
+    none = TLV_QUERY_ERROR_NONE,                   /**< No failure. */
+    syntax = TLV_QUERY_ERROR_SYNTAX,               /**< Invalid expression. */
+    capability = TLV_QUERY_ERROR_CAPABILITY,       /**< Unavailable capability. */
+    limit = TLV_QUERY_ERROR_LIMIT,                 /**< Exhausted budget. */
+    storage = TLV_QUERY_ERROR_STORAGE,             /**< Invalid storage. */
+    events = TLV_QUERY_ERROR_EVENTS,               /**< Invalid event sequence. */
+    source = TLV_QUERY_ERROR_SOURCE,               /**< Missing source locations. */
+    reader = TLV_QUERY_ERROR_READER,               /**< Wire Reader failure. */
+    binding = TLV_QUERY_ERROR_BINDING,             /**< Invalid variable binding. */
+    cardinality = TLV_QUERY_ERROR_CARDINALITY,     /**< Scalar cardinality mismatch. */
+    codec = TLV_QUERY_ERROR_CODEC,                 /**< Value conversion failure. */
+    image_version = TLV_QUERY_ERROR_IMAGE_VERSION, /**< Incompatible program image. */
+    state = TLV_QUERY_ERROR_STATE                  /**< Invalid lifecycle or callback reentrancy. */
 };
 /** @brief Scalar result borrowing immutable input, program or execution storage until reset. */
 struct query_value {
@@ -59,7 +60,7 @@ struct query_failure {
     }
     /** @brief Copy common diagnostic information while preserving Query detail on this object. */
     tlv::error failure() const noexcept {
-        if (kind() == query_issue::reader)
+        if (kind() == query_issue::reader || diagnostic.reader.diagnostic.code != TLV_OK)
             return detail::reader_failed(code, diagnostic.reader, diagnostic.source_offset);
         auto value = tlv::error(status(), operation::query);
         return diagnostic.has_source_offset ? value.at(diagnostic.source_offset, operation::query)
@@ -80,6 +81,7 @@ struct query_memory {
     }
 };
 inline query_failure query_failed(tlv_result_t rc, tlv_query_diagnostic_t d = {}) {
+    if (rc == TLV_ERR_INVALID_STATE) d.kind = TLV_QUERY_ERROR_STATE;
     return {rc, d};
 }
 } // namespace detail
@@ -491,10 +493,12 @@ public:
         if (rc != TLV_OK) return unexpected<query_failure>(detail::query_failed(rc, d));
         return {};
     }
-    /** @brief Read a finalized scalar; returned spans borrow this execution's owners. */
+    /** @brief Read a finalized scalar; returned spans borrow this execution's owners.
+     * @return Result or INVALID_STATE before completion, after failure, during callbacks or
+     * when the backing Document has expired or changed; other native errors propagate. */
     expected<tlv_query_result_t, query_failure> result() const {
         if (has_document_ && document_lifetime_.expired())
-            return unexpected<query_failure>(detail::query_failed(TLV_ERR_INVALID_ARG));
+            return unexpected<query_failure>(detail::query_failed(TLV_ERR_INVALID_STATE));
         tlv_query_result_t out{};
         auto               rc = tlv_query_exec_result(exec_, &out);
         if (rc != TLV_OK) return unexpected<query_failure>(detail::query_failed(rc));
@@ -512,10 +516,12 @@ public:
                            value->integer,
                            {reinterpret_cast<const byte*>(value->data), value->size}};
     }
-    /** @brief Pull a finalized retained Tree result; END_OF_BUFFER means final exhaustion. */
+    /** @brief Pull a finalized retained Tree result; END_OF_BUFFER means final exhaustion.
+     * @return Event or INVALID_STATE before completion, after failure, during callbacks or
+     * when the backing Document has expired or changed; other native errors propagate. */
     expected<tree_event, query_failure> next() {
         if (has_document_ && document_lifetime_.expired())
-            return unexpected<query_failure>(detail::query_failed(TLV_ERR_INVALID_ARG));
+            return unexpected<query_failure>(detail::query_failed(TLV_ERR_INVALID_STATE));
         tlv_tree_event_t out{};
         auto             rc = tlv_query_result_next(exec_, &out);
         if (rc != TLV_OK) return unexpected<query_failure>(detail::query_failed(rc));

@@ -198,7 +198,7 @@ TLV_API tlv_result_t tlv_tree_reader_next_diag(tlv_tree_reader_t* reader, tlv_tr
  *
  * @param[in,out] reader Initialized cursor; required.
  * @return #TLV_OK when a pending nonempty constructed subtree was skipped.
- * @return #TLV_ERR_INVALID_ARG when there is no pending subtree.
+ * @return #TLV_ERR_INVALID_STATE when there is no pending subtree.
  * @return #TLV_ERR_NULL_ARG for NULL reader.
  * @note In event mode the next pull emits END with skipped=1; node-only mode
  * hides this closure. Empty containers already have a pending ordinary END.

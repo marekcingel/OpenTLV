@@ -4,7 +4,7 @@
 import gc
 import pytest
 from opentlv import (TreeWriter, Element, Tag, Format, BufferTooShortError,
-                     InvalidArgError, LimitError)
+                     InvalidArgError, InvalidStateError, InvalidValueError, LimitError)
 
 
 def test_tree_writer_retains_tags_and_only_exposes_finalized_output():
@@ -16,7 +16,7 @@ def test_tree_writer_retains_tags_and_only_exposes_finalized_output():
     gc.collect()
     writer.write(Element(Tag(b"\x04"), memoryview(b"\x2a")))
     assert writer.bytes() == b""
-    with pytest.raises(InvalidArgError):
+    with pytest.raises(InvalidStateError):
         writer.finish()
     writer.end()
     assert writer.finish() == b"\x30\x03\x04\x01\x2a"
@@ -40,7 +40,7 @@ def test_scratch_exhaustion_leaves_parent_open():
     writer.write(Element(Tag(b"\x04"), memoryview(b"\x2a")))
     with pytest.raises(BufferTooShortError):
         writer.end()
-    with pytest.raises(InvalidArgError):
+    with pytest.raises(InvalidStateError):
         writer.finish()
     assert writer.bytes() == b""
 
@@ -102,7 +102,7 @@ def test_canonical_events_roundtrip_and_skipped_rejection():
     reader.skip_subtree()
     end = reader.next_event()
     assert end.kind == TreeEventKind.END and end.skipped and end.item is None
-    with pytest.raises(InvalidArgError):
+    with pytest.raises(InvalidValueError):
         writer.write_event(end)
 
 
@@ -130,7 +130,7 @@ def test_event_measurement_and_bounded_tags():
     while not reader.at_end:
         events.append(reader.next_event())
     assert TreeWriter.measure_events(events, 32) == data
-    with pytest.raises(InvalidArgError):
+    with pytest.raises(InvalidValueError):
         TreeWriter.measure_events(events[:-1], 32)
     writer = TreeWriter(32)
     writer.set_tag_capacity(0)

@@ -241,6 +241,13 @@ TEST(Unit_Tlv_Diagnostic, InvariantHelperRejectsEmptyAndMismatchedFailureDetail)
     EXPECT_FALSE(test_query_diagnostic_matches(TLV_ERR_INVALID_VALUE, &query));
     query.codec = TLV_CODEC_ERR_INVALID_VALUE;
     EXPECT_TRUE(test_query_diagnostic_matches(TLV_ERR_INVALID_VALUE, &query));
+    for (auto kind : {TLV_QUERY_ERROR_EVENTS, TLV_QUERY_ERROR_BINDING, TLV_QUERY_ERROR_READER}) {
+        query.kind = kind;
+        query.reader.diagnostic.code = TLV_ERR_INVALID_STATE;
+        EXPECT_FALSE(test_query_diagnostic_matches(TLV_ERR_INVALID_STATE, &query));
+    }
+    query.kind = TLV_QUERY_ERROR_STATE;
+    EXPECT_TRUE(test_query_diagnostic_matches(TLV_ERR_INVALID_STATE, &query));
 }
 
 TEST(Unit_Tlv_Diagnostic, TruncatedPathUnwindsBeforeReplacingASibling) {

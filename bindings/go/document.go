@@ -57,7 +57,7 @@ func parseDocument(data []byte, format Format, options DocumentOptions, defaults
 // node content snapshots already returned remain valid.
 func (d *Document) Close() error {
 	if d.valid() && d.queryActive > 0 {
-		return StatusError{code: capi.InvalidArg}
+		return StatusError{code: capi.InvalidState}
 	}
 	if d.valid() {
 		d.native.Close()
@@ -103,7 +103,7 @@ func (n Node) Valid() bool {
 // Identity returns the canonical C node identity while this checked handle is valid.
 func (n Node) Identity() (uint64, error) {
 	if !n.Valid() {
-		return 0, StatusError{code: capi.InvalidArg}
+		return 0, StatusError{code: capi.InvalidState}
 	}
 	return n.native.Identity(), nil
 }
@@ -153,7 +153,7 @@ func (n Node) Parent() Node {
 // empty Value; inspect Children instead. Source ranges are unavailable.
 func (n Node) Element() (Element, error) {
 	if !n.Valid() {
-		return Element{}, StatusError{code: capi.InvalidArg}
+		return Element{}, StatusError{code: capi.InvalidState}
 	}
 	e, _ := n.owner.native.Read(n.native)
 	return elementFromNative(e, 0), nil
@@ -179,7 +179,7 @@ func (d *Document) changed() { d.generation++; d.source = nil }
 // constructed node. Failure leaves the tree and all handles unchanged.
 func (n Node) SetValue(value []byte) error {
 	if !n.Valid() || n.owner.queryActive > 0 {
-		return StatusError{code: capi.InvalidArg}
+		return StatusError{code: capi.InvalidState}
 	}
 	_, code := n.owner.native.Edit(n.native, capi.Node{}, nil, value, 0)
 	if code != capi.OK {
@@ -192,7 +192,7 @@ func (n Node) SetValue(value []byte) error {
 // Erase removes this node and descendants and invalidates all node handles.
 func (n Node) Erase() error {
 	if !n.Valid() || n.owner.queryActive > 0 {
-		return StatusError{code: capi.InvalidArg}
+		return StatusError{code: capi.InvalidState}
 	}
 	_, code := n.owner.native.Edit(n.native, capi.Node{}, nil, nil, 1)
 	if code != capi.OK {
@@ -207,11 +207,14 @@ func (n Node) Erase() error {
 // Success invalidates existing handles and returns a fresh handle to the new node.
 func (d *Document) Insert(parent, before Node, element Element) (Node, error) {
 	if !d.valid() || d.queryActive > 0 {
-		return Node{}, StatusError{code: capi.InvalidArg}
+		return Node{}, StatusError{code: capi.InvalidState}
 	}
 	for _, n := range []Node{parent, before} {
 		if n.owner != nil || n.native.Valid() {
-			if !n.Valid() || n.owner.documentState != d.documentState {
+			if !n.Valid() {
+				return Node{}, StatusError{code: capi.InvalidState}
+			}
+			if n.owner.documentState != d.documentState {
 				return Node{}, StatusError{code: capi.InvalidArg}
 			}
 		}
@@ -227,7 +230,7 @@ func (d *Document) Insert(parent, before Node, element Element) (Node, error) {
 // Encode regenerates the whole document through C Tree Writer in its Format.
 func (d *Document) Encode() ([]byte, error) {
 	if !d.valid() {
-		return nil, StatusError{code: capi.InvalidArg}
+		return nil, StatusError{code: capi.InvalidState}
 	}
 	return d.EncodeAs(d.format)
 }

@@ -58,7 +58,7 @@ static int native_document(const tlv_query_program_t* p, size_t kind) {
     /* A successful edit between public calls invalidates all result access. */
     const uint8_t replacement = 7;
     CHECK(tlv_node_set_value(tlv_document_first(document), &replacement, 1) == TLV_OK);
-    CHECK(tlv_query_exec_result(e, &result) == TLV_ERR_INVALID_ARG);
+    CHECK(tlv_query_exec_result(e, &result) == TLV_ERR_INVALID_STATE);
     CHECK(tlv_query_exec_reset(e) == TLV_OK);
     tlv_document_free(document);
     return 0;
@@ -105,7 +105,7 @@ static int native_profiles(void) {
         CHECK(initialize(p, 1, &memory, &e, &bytes) == 0);
         if (levels[kind] == TLV_QUERY_D) {
             CHECK(tlv_query_exec_finish(e, NULL) == TLV_ERR_UNSUPPORTED_TYPE);
-            CHECK(tlv_query_exec_finish(e, NULL) == TLV_ERR_INVALID_ARG);
+            CHECK(tlv_query_exec_finish(e, NULL) == TLV_ERR_INVALID_STATE);
             CHECK(tlv_query_exec_reset(e) == TLV_OK);
             continue;
         }
@@ -138,7 +138,7 @@ static int native_profiles(void) {
         /* Invalid calls after EOF preserve the result. Reset removes publication. */
         CHECK(tlv_query_exec_finish(e, NULL) == TLV_OK);
         CHECK(tlv_query_exec_reset(e) == TLV_OK);
-        CHECK(tlv_query_exec_result(e, &result) == TLV_ERR_INVALID_ARG);
+        CHECK(tlv_query_exec_result(e, &result) == TLV_ERR_INVALID_STATE);
     }
     /* S1 publication survives selected/selected, but terminal malformed feed
      * hides it. This is the delayed-match counterpart of generated S0 sequences. */
@@ -161,7 +161,7 @@ static int native_profiles(void) {
     tlv_tree_event_t output;
     CHECK(tlv_query_exec_selected(e, &output) == TLV_OK && output.element.tag.data[0] == 0x70);
     CHECK(tlv_query_exec_selected(e, &output) == TLV_OK);
-    CHECK(tlv_query_exec_feed(e, &input, &matched, NULL) == TLV_ERR_INVALID_ARG);
-    CHECK(tlv_query_exec_selected(e, &output) == TLV_ERR_INVALID_ARG);
+    CHECK(tlv_query_exec_feed(e, &input, &matched, NULL) == TLV_ERR_INVALID_VALUE);
+    CHECK(tlv_query_exec_selected(e, &output) == TLV_ERR_INVALID_STATE);
     return 0;
 }

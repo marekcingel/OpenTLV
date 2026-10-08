@@ -217,19 +217,19 @@ tlv_result_t query_retained_feed(tlv_query_exec_t* e, const tlv_tree_event_t* ev
                                  tlv_query_diagnostic_t* d) {
     if (event->depth >= e->depth_capacity)
         return query_limit(d, "depth", e->depth_capacity - 1, 0, 0);
-    if (event->skipped) return TLV_ERR_INVALID_ARG;
+    if (event->skipped) return TLV_ERR_INVALID_VALUE;
     tlv_result_t work = eval_charge(e, 1, &query_nodes(e->program)[e->program->root], d);
     if (work != TLV_OK) return work;
     retained_node_t* nodes = eval_nodes(e);
     if (event->kind == TLV_TREE_END) {
-        if (!e->open || event->depth != e->open - 1) return TLV_ERR_INVALID_ARG;
+        if (!e->open || event->depth != e->open - 1) return TLV_ERR_INVALID_VALUE;
         size_t index = ((size_t*)(eval_base(e)))[event->depth];
         nodes[index].end = e->elements;
         return TLV_OK;
     }
     if (event->depth != e->open ||
         (event->kind != TLV_TREE_BEGIN && event->kind != TLV_TREE_ELEMENT))
-        return TLV_ERR_INVALID_ARG;
+        return TLV_ERR_INVALID_VALUE;
     if (e->elements == e->node_capacity)
         return query_limit(d, "candidates", e->node_capacity, 0, 0);
     retained_node_t* n = &nodes[e->elements];
@@ -298,7 +298,7 @@ static tlv_result_t scalar_call(tlv_query_exec_t* e, eval_frame_t* f, const quer
         const tlv_format_t* format = e->environment->format;
         int constructed =
             format->is_constructed && format->is_constructed(format->context, &event->element.tag);
-        if (!e->busy) return TLV_ERR_INVALID_ARG;
+        if (!e->busy) return TLV_ERR_INVALID_STATE;
         f->value.number = constructed;
         return TLV_OK;
     }
@@ -308,7 +308,7 @@ static tlv_result_t scalar_call(tlv_query_exec_t* e, eval_frame_t* f, const quer
         tlv_result_t rc = fn == F_CLASS
                               ? tag->class_of(tag->context, &event->element.tag, &number)
                               : tag->number_of(tag->context, &event->element.tag, &number);
-        if (!e->busy) return TLV_ERR_INVALID_ARG;
+        if (!e->busy) return TLV_ERR_INVALID_STATE;
         if (rc != TLV_OK)
             return query_error(d, rc, TLV_QUERY_ERROR_CAPABILITY, n->begin, n->end,
                                "valid tag decomposition");
@@ -324,7 +324,7 @@ static tlv_result_t scalar_call(tlv_query_exec_t* e, eval_frame_t* f, const quer
             hook->decode(hook->context, event, f->a.data, f->a.size,
                          eval_codec_scratch(e) + instruction * e->program->codec_stride,
                          hook->scratch_size, &result);
-        if (!e->busy) return TLV_ERR_INVALID_ARG;
+        if (!e->busy) return TLV_ERR_INVALID_STATE;
         if (rc != TLV_CODEC_OK) {
             if (d) d->codec = rc;
             return query_error(d, TLV_ERR_INVALID_VALUE, TLV_QUERY_ERROR_CODEC, n->begin, n->end,
@@ -545,7 +545,7 @@ tlv_result_t query_retained_finish(tlv_query_exec_t* e, tlv_query_diagnostic_t* 
                 f->arg_count = args_of(instructions, n, f->args);
                 if (!f->arg_count) {
                     rc = scalar_call(e, f, n, f->instruction, d);
-                    if (!e->busy) return TLV_ERR_INVALID_ARG;
+                    if (!e->busy) return TLV_ERR_INVALID_STATE;
                     if (rc != TLV_OK) return eval_failure(e, f, rc, d);
                     goto complete;
                 }
@@ -612,7 +612,7 @@ tlv_result_t query_retained_finish(tlv_query_exec_t* e, tlv_query_diagnostic_t* 
                 continue;
             }
             rc = scalar_call(e, f, n, f->instruction, d);
-            if (!e->busy) return TLV_ERR_INVALID_ARG;
+            if (!e->busy) return TLV_ERR_INVALID_STATE;
             if (rc != TLV_OK) return eval_failure(e, f, rc, d);
             if (f->value.kind == V_NODE && f->value.number && f->context < e->elements)
                 out[f->context] = 1;
@@ -726,22 +726,23 @@ tlv_result_t query_retained_finish(tlv_query_exec_t* e, tlv_query_diagnostic_t* 
 }
 tlv_result_t tlv_query_exec_result(const tlv_query_exec_t* e, tlv_query_result_t* result) {
     if (!e || !result) return TLV_ERR_NULL_ARG;
-    if (e->busy || e->invalid || query_output_overlap(e, result, sizeof *result))
-        return TLV_ERR_INVALID_ARG;
+    if (e->busy || e->invalid) return TLV_ERR_INVALID_STATE;
+    if (query_output_overlap(e, result, sizeof *result)) return TLV_ERR_INVALID_ARG;
     if (e->document_current && !e->document_current(e->document_owner, e->document_revision))
-        return TLV_ERR_INVALID_ARG;
-    if (!e->retained || !e->finished || e->invalid) return TLV_ERR_INVALID_ARG;
+        return TLV_ERR_INVALID_STATE;
+    if (!e->finished || e->invalid) return TLV_ERR_INVALID_STATE;
+    if (!e->retained) return TLV_ERR_INVALID_ARG;
     *result = e->result;
     return TLV_OK;
 }
 static tlv_result_t result_next(tlv_query_exec_t* e, tlv_tree_event_t* event, size_t* ordinal) {
     if (!e || !event) return TLV_ERR_NULL_ARG;
-    if (e->busy || e->invalid || query_output_overlap_live(e, event, sizeof *event))
-        return TLV_ERR_INVALID_ARG;
+    if (e->busy || e->invalid) return TLV_ERR_INVALID_STATE;
+    if (query_output_overlap_live(e, event, sizeof *event)) return TLV_ERR_INVALID_ARG;
     if (e->document_current && !e->document_current(e->document_owner, e->document_revision))
-        return TLV_ERR_INVALID_ARG;
-    if (!e->retained || !e->finished || e->invalid || e->result.kind != TLV_QUERY_RESULT_NODES)
-        return TLV_ERR_INVALID_ARG;
+        return TLV_ERR_INVALID_STATE;
+    if (!e->finished || e->invalid) return TLV_ERR_INVALID_STATE;
+    if (!e->retained || e->result.kind != TLV_QUERY_RESULT_NODES) return TLV_ERR_INVALID_ARG;
     while (e->result_cursor < e->elements) {
         size_t i = e->result_cursor;
         if (frame_set(e, 0, 0)[i]) {
@@ -814,8 +815,8 @@ const uint8_t* query_document_end(tlv_query_exec_t* e) {
 }
 tlv_result_t query_document_next(tlv_query_exec_t* e, void** handle) {
     if (!e || !handle) return TLV_ERR_NULL_ARG;
-    if (!e->document_backend || !e->finished || e->invalid ||
-        e->result.kind != TLV_QUERY_RESULT_NODES)
+    if (!e->finished || e->invalid) return TLV_ERR_INVALID_STATE;
+    if (!e->document_backend || e->result.kind != TLV_QUERY_RESULT_NODES)
         return TLV_ERR_INVALID_ARG;
     while (e->result_cursor < e->elements) {
         size_t i = e->result_cursor++;
@@ -829,8 +830,8 @@ tlv_result_t query_document_next(tlv_query_exec_t* e, void** handle) {
 
 tlv_result_t query_document_result_count(const tlv_query_exec_t* e, size_t* count) {
     if (!e || !count) return TLV_ERR_NULL_ARG;
-    if (!e->document_backend || !e->finished || e->invalid ||
-        e->result.kind != TLV_QUERY_RESULT_NODES)
+    if (!e->finished || e->invalid) return TLV_ERR_INVALID_STATE;
+    if (!e->document_backend || e->result.kind != TLV_QUERY_RESULT_NODES)
         return TLV_ERR_INVALID_ARG;
     size_t total = 0;
     for (size_t i = 0; i < e->elements; ++i)

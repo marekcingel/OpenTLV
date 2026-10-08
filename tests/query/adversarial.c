@@ -78,7 +78,9 @@ static int sequence(const tlv_query_program_t* p, int retained, const char* oper
         memcpy(scalar_before, &scalar, sizeof scalar);
         switch (operations[step]) {
             case 'B':
-                expected = bound || nodes || invalid || finished ? TLV_ERR_INVALID_ARG : TLV_OK;
+                expected = nodes || invalid || finished ? TLV_ERR_INVALID_STATE
+                           : bound                      ? TLV_ERR_INVALID_ARG
+                                                        : TLV_OK;
                 rc = tlv_query_exec_bind(e, "n", TLV_QUERY_RESULT_INTEGER, 1, NULL, 0, &diagnostic);
                 if (expected == TLV_OK) bound = 1;
                 break;
@@ -86,9 +88,9 @@ static int sequence(const tlv_query_program_t* p, int retained, const char* oper
             case 'E':
                 if (operations[step] == 'E') input.kind = TLV_TREE_END;
                 if (invalid || finished)
-                    expected = TLV_ERR_INVALID_ARG;
+                    expected = TLV_ERR_INVALID_STATE;
                 else if (!bound || operations[step] == 'E') {
-                    expected = TLV_ERR_INVALID_ARG;
+                    expected = !bound ? TLV_ERR_INVALID_ARG : TLV_ERR_INVALID_VALUE;
                     invalid = 1;
                 } else if (nodes == 3) {
                     expected = TLV_ERR_LIMIT;
@@ -105,7 +107,7 @@ static int sequence(const tlv_query_program_t* p, int retained, const char* oper
                 break;
             case 'X':
                 if (invalid || !bound) {
-                    expected = TLV_ERR_INVALID_ARG;
+                    expected = invalid ? TLV_ERR_INVALID_STATE : TLV_ERR_INVALID_ARG;
                     invalid = 1;
                 } else
                     finished = 1;
@@ -117,12 +119,14 @@ static int sequence(const tlv_query_program_t* p, int retained, const char* oper
                 nodes = cursor = 0;
                 break;
             case 'S':
-                expected = TLV_ERR_INVALID_ARG;
+                expected = invalid ? TLV_ERR_INVALID_STATE : TLV_ERR_INVALID_ARG;
                 rc = tlv_query_exec_selected(e, &output);
                 CHECK(memcmp(&output, before, sizeof output) == 0);
                 break;
             case 'V':
-                expected = retained && finished && !invalid ? TLV_OK : TLV_ERR_INVALID_ARG;
+                expected = !finished || invalid ? TLV_ERR_INVALID_STATE
+                           : retained           ? TLV_OK
+                                                : TLV_ERR_INVALID_ARG;
                 rc = tlv_query_exec_result(e, &scalar);
                 if (expected == TLV_OK)
                     CHECK(scalar.kind == TLV_QUERY_RESULT_NODES);
@@ -130,9 +134,10 @@ static int sequence(const tlv_query_program_t* p, int retained, const char* oper
                     CHECK(memcmp(&scalar, scalar_before, sizeof scalar) == 0);
                 break;
             case 'P':
-                expected = !retained || !finished || invalid ? TLV_ERR_INVALID_ARG
-                           : cursor == nodes                 ? TLV_ERR_END_OF_BUFFER
-                                                             : TLV_OK;
+                expected = !finished || invalid ? TLV_ERR_INVALID_STATE
+                           : !retained          ? TLV_ERR_INVALID_ARG
+                           : cursor == nodes    ? TLV_ERR_END_OF_BUFFER
+                                                : TLV_OK;
                 rc = tlv_query_result_next(e, &output);
                 if (expected == TLV_OK) {
                     ++cursor;
@@ -288,10 +293,14 @@ static int diagnostics(const tlv_query_program_t* p) {
             input.offset = 17;
             matched = 79;
             tlv_query_diagnostic_t d;
-            CHECK(tlv_query_exec_feed(e, &input, &matched, &d) == TLV_ERR_INVALID_ARG);
+            int                    bad_span = malformed == 4 || malformed == 5;
+            CHECK(tlv_query_exec_feed(e, &input, &matched, &d) ==
+                  (bad_span ? TLV_ERR_INVALID_ARG : TLV_ERR_INVALID_VALUE));
             CHECK(matched == 79 && d.kind == TLV_QUERY_ERROR_EVENTS);
             CHECK(d.expected &&
-                  !strcmp(d.expected, "balanced complete canonical events without pruning"));
+                  !strcmp(d.expected, bad_span
+                                          ? "valid event span arguments"
+                                          : "balanced complete canonical events without pruning"));
             CHECK(d.has_source_offset && d.source_offset == 17 && !d.limit);
             if (!retained)
                 memcpy(reference[malformed], &d, sizeof d);
@@ -299,7 +308,7 @@ static int diagnostics(const tlv_query_program_t* p) {
                 CHECK(!memcmp(reference[malformed], &d, sizeof d));
             unsigned char original[sizeof d];
             memcpy(original, &d, sizeof d);
-            CHECK(tlv_query_exec_finish(e, &d) == TLV_ERR_INVALID_ARG);
+            CHECK(tlv_query_exec_finish(e, &d) == TLV_ERR_INVALID_STATE);
             CHECK(!memcmp(original, &d, sizeof d));
         }
         /* LIMIT detail survives rejected feed/finish continuations until reset. */
@@ -314,15 +323,15 @@ static int diagnostics(const tlv_query_program_t* p) {
         CHECK(d.limit && !strcmp(d.limit, retained ? "candidates" : "elements"));
         unsigned char original[sizeof d];
         memcpy(original, &d, sizeof d);
-        CHECK(tlv_query_exec_finish(e, &d) == TLV_ERR_INVALID_ARG);
+        CHECK(tlv_query_exec_finish(e, &d) == TLV_ERR_INVALID_STATE);
         CHECK(!memcmp(original, &d, sizeof d));
-        CHECK(tlv_query_exec_feed(e, &input, &matched, &d) == TLV_ERR_INVALID_ARG);
+        CHECK(tlv_query_exec_feed(e, &input, &matched, &d) == TLV_ERR_INVALID_STATE);
         CHECK(!memcmp(original, &d, sizeof d));
         CHECK(tlv_query_exec_bind(e, "n", TLV_QUERY_RESULT_INTEGER, 1, NULL, 0, &d) ==
-              TLV_ERR_INVALID_ARG);
+              TLV_ERR_INVALID_STATE);
         CHECK(!memcmp(original, &d, sizeof d));
-        CHECK(tlv_query_exec_context(e, 0) == TLV_ERR_INVALID_ARG);
-        CHECK(tlv_query_exec_pruning(e, 1) == TLV_ERR_INVALID_ARG);
+        CHECK(tlv_query_exec_context(e, 0) == TLV_ERR_INVALID_STATE);
+        CHECK(tlv_query_exec_pruning(e, 1) == TLV_ERR_INVALID_STATE);
         CHECK(!memcmp(original, &d, sizeof d));
         CHECK(tlv_query_exec_reset(e) == TLV_OK);
         CHECK(tlv_query_exec_bind(e, "n", TLV_QUERY_RESULT_INTEGER, 1, NULL, 0, NULL) == TLV_OK);

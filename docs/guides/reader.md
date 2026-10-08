@@ -254,7 +254,7 @@ After receiving a nonempty constructed item, call
 `tlv_tree_reader_skip_subtree()` to continue after its complete encoded extent.
 The skipped descendants are neither decoded nor counted. The same operation is
 available after a failed descent while that subtree remains pending. Calling it
-without a pending subtree returns `TLV_ERR_INVALID_ARG`. Event mode still emits
+without a pending subtree returns `TLV_ERR_INVALID_STATE`. Event mode still emits
 the matching END with `skipped=1`; Writer and Document reject omitted content.
 Node-only mode hides this closure. Skipping does not
 validate descendants; Format may already have inspected their framing while

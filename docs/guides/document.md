@@ -299,7 +299,7 @@ unrelated handles; failed edits preserve all handles. Destruction or move
 assignment over a Document invalidates handles to its previous tree.
 
 Invalid handles test false, navigation returns empty handles, and tag/value
-access returns empty views. Fallible Node operations return `TLV_ERR_INVALID_ARG`;
+access returns empty views. Fallible Node operations return `TLV_ERR_INVALID_STATE`;
 erasing an invalid handle does nothing. An iterator whose current node is
 invalidated compares equal to the end iterator. Capture the next sibling before
 erasing the current node if iteration must continue. Ranges borrow their first

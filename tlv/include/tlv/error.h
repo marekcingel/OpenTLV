@@ -28,6 +28,8 @@ extern "C" {
  * otherwise, an error leaves its output parameters unchanged. Which codes a
  * function can return is documented on that function.
  *
+ * @note Numeric values, including INVALID_STATE=19, are release-specific during
+ * the breaking failure-model migration and are not a stable ABI numbering contract.
  * @see tlv_strerror
  */
 typedef enum tlv_result {
@@ -81,7 +83,9 @@ typedef enum tlv_result {
     /** A valid logical quantity exceeds the host address space. */
     TLV_ERR_NATIVE_SIZE = 17,
     /** Non-final Reader input is exhausted or incomplete; supply more bytes or mark it final. */
-    TLV_NEED_MORE_DATA = 18
+    TLV_NEED_MORE_DATA = 18,
+    /** The operation is not allowed in the object's current lifecycle state. */
+    TLV_ERR_INVALID_STATE = 19
 } tlv_result_t;
 
 /**

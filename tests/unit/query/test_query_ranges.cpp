@@ -336,10 +336,10 @@ TEST(Unit_Tlvpp_FullQuery, NativeRevisionAndCallbackGuard) {
     auto revision = tlv_document_revision(tlv::native::handle(*doc));
     auto callback = [](tlv_node_t* node, void*) {
         tlv_node_erase(node);
-        EXPECT_EQ(TLV_ERR_INVALID_ARG, tlv_node_set_value(node, nullptr, 0));
+        EXPECT_EQ(TLV_ERR_INVALID_STATE, tlv_node_set_value(node, nullptr, 0));
         return TLV_VISIT_STOP;
     };
-    EXPECT_EQ(TLV_ERR_INVALID_ARG,
+    EXPECT_EQ(TLV_ERR_INVALID_STATE,
               tlv_document_query_program_visit(tlv::native::handle(*execution), callback, nullptr));
     EXPECT_EQ(revision + 1, tlv_document_revision(tlv::native::handle(*doc)));
     doc->first().erase();
@@ -599,7 +599,7 @@ TEST(Unit_Tlvpp_FullQuery, DeferredFreeReleasesDocumentAfterNestedCallbacks) {
         EXPECT_EQ(7u, tlv_document_count(ctx.doc));
         return TLV_VISIT_STOP;
     };
-    EXPECT_EQ(TLV_ERR_INVALID_ARG, tlv_document_query_visit(doc, &ctx.query, outer, &ctx));
+    EXPECT_EQ(TLV_ERR_INVALID_STATE, tlv_document_query_visit(doc, &ctx.query, outer, &ctx));
     EXPECT_EQ(0u, allocations.live);
 }
 
@@ -618,10 +618,11 @@ TEST(Unit_Tlvpp_FullQuery, CompiledDeferredFreeInvalidatesCurrentExecution) {
         tlv_document_free(static_cast<tlv_document_t*>(context));
         return TLV_VISIT_CONTINUE;
     };
-    EXPECT_EQ(TLV_ERR_INVALID_ARG,
+    EXPECT_EQ(TLV_ERR_INVALID_STATE,
               tlv_document_query_program_visit(tlv::native::handle(*execution), callback, doc));
     tlv_node_t* node = nullptr;
-    EXPECT_EQ(TLV_ERR_INVALID_ARG, tlv_document_query_next(tlv::native::handle(*execution), &node));
+    EXPECT_EQ(TLV_ERR_INVALID_STATE,
+              tlv_document_query_next(tlv::native::handle(*execution), &node));
     EXPECT_FALSE(execution->result());
 }
 
@@ -637,7 +638,7 @@ TEST(Unit_Tlvpp_FullQuery, DeferredEraseAncestorDominatesPendingDescendant) {
         tlv_node_erase(node);
         return TLV_VISIT_CONTINUE;
     };
-    EXPECT_EQ(TLV_ERR_INVALID_ARG,
+    EXPECT_EQ(TLV_ERR_INVALID_STATE,
               tlv_document_query_visit(tlv::native::handle(*doc), &query, callback, nullptr));
     EXPECT_EQ(5u, doc->size());
     EXPECT_EQ(0x6F, static_cast<unsigned>(doc->first().tag().data()[0]));
@@ -711,7 +712,8 @@ TEST(Unit_Tlvpp_FullQuery, DocumentExecutionDetectsDestructionBeforeResultAccess
     }
     auto result = execution->result();
     ASSERT_FALSE(result);
-    EXPECT_EQ(TLV_ERR_INVALID_ARG, result.error().code);
+    EXPECT_EQ(TLV_ERR_INVALID_STATE, result.error().code);
+    EXPECT_EQ(tlv::query_issue::state, result.error().kind());
 }
 
 TEST(Unit_Tlvpp_FullQuery, DocumentSchemaRunsTheSameContextualPrograms) {

@@ -29,6 +29,7 @@ enum class errc {
     visitor = TLV_ERR_VISITOR,                       /**< Visitor requested failure. */
     limit = TLV_ERR_LIMIT,                           /**< Configured limit exceeded. */
     schema = TLV_ERR_SCHEMA,                         /**< Schema violation. */
+    invalid_state = TLV_ERR_INVALID_STATE,           /**< Operation forbidden by lifecycle state. */
     invalid_argument = TLV_ERR_INVALID_ARG,          /**< Invalid argument. */
     invalid_tag_size = TLV_ERR_INVALID_TAG_SIZE,     /**< Invalid identifier width. */
     invalid_byte_order = TLV_ERR_INVALID_BYTE_ORDER, /**< Unsupported byte order. */
@@ -56,6 +57,7 @@ inline const char* name(errc code) noexcept {
         case errc::visitor: return "TLV_ERR_VISITOR";
         case errc::limit: return "TLV_ERR_LIMIT";
         case errc::schema: return "TLV_ERR_SCHEMA";
+        case errc::invalid_state: return "TLV_ERR_INVALID_STATE";
         case errc::invalid_argument: return "TLV_ERR_INVALID_ARG";
         case errc::invalid_tag_size: return "TLV_ERR_INVALID_TAG_SIZE";
         case errc::invalid_byte_order: return "TLV_ERR_INVALID_BYTE_ORDER";
