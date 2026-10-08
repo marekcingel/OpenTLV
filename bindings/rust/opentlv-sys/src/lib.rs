@@ -57,10 +57,10 @@ pub const TLV_ERR_INVALID_BYTE_ORDER: tlv_result_t = 12;
 pub const TLV_ERR_OVERFLOW: tlv_result_t = 13;
 /// Primitive content is malformed (`TLV_ERR_INVALID_VALUE`).
 pub const TLV_ERR_INVALID_VALUE: tlv_result_t = 14;
-/// A universal tag has no implemented validation (`TLV_ERR_UNSUPPORTED_TYPE`).
+/// A requested type or capability is unsupported (`TLV_ERR_UNSUPPORTED_TYPE`).
 pub const TLV_ERR_UNSUPPORTED_TYPE: tlv_result_t = 15;
-/// A required schema field is absent (`TLV_ERR_SCHEMA_MISSING`).
-pub const TLV_ERR_SCHEMA_MISSING: tlv_result_t = 16;
+/// A schema definition is invalid (`TLV_ERR_INVALID_SCHEMA`).
+pub const TLV_ERR_INVALID_SCHEMA: tlv_result_t = 16;
 
 /// Byte order of a multi-byte integer (`tlv_byte_order_t`).
 pub type tlv_byte_order_t = c_int;
@@ -874,7 +874,7 @@ extern "C" {
         schema: *const tlv_structure_schema_t,
         max_depth: usize,
         max_elements: usize,
-        error_offset: *mut usize,
+        diagnostic: *mut tlv_schema_diagnostic_t,
     ) -> tlv_result_t;
 
     /// Structural schema for common EMV top-level data objects.

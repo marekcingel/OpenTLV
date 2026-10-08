@@ -150,7 +150,8 @@ TLV_API tlv_result_t tlv_diagnostic_path_string(const tlv_diagnostic_path_t* pat
  * higher-level protocol. A format, schema or application layer
  * enriches a diagnostic that a lower layer produced by chaining
  * #tlv_diagnostic_context_t entries onto `contexts` with
- * tlv_diagnostic_add_context(), instead of defining its own diagnostic type.
+ * tlv_diagnostic_add_context(). Specialized types may embed this common base
+ * and add machine-readable detail; text contexts do not replace typed reasons.
  * Rendering a diagnostic for humans is a separate concern, not part of this
  * type.
  *

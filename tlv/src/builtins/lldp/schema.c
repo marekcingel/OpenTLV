@@ -4,6 +4,7 @@
 #include "tlv/builtins/lldp/schema.h"
 #include "tlv/builtins/lldp/lldp.h"
 #include "tlv/reader/reader.h"
+#include <string.h>
 
 static const uint8_t identifiers[] = {0, 1, 2, 3, 4, 5, 6, 7, 8, 127};
 static const tlv_schema_entry_t fields[] = {
@@ -33,36 +34,43 @@ static const tlv_structure_rule_t rules[] = {
 const tlv_structure_schema_t tlv_lldp_schema = {
     rules, sizeof(rules) / sizeof(rules[0]), 1, NULL, 0, TLV_SCHEMA_ORDER_ANY};
 
-static tlv_result_t failure(tlv_diagnostic_t* diagnostic, tlv_result_t rc, size_t offset,
+static tlv_result_t failure(tlv_schema_diagnostic_t* diagnostic, tlv_result_t rc, size_t offset,
                             const char* expected) {
     if (diagnostic) {
-        tlv_diagnostic_init(diagnostic, rc, TLV_DIAGNOSTIC_SEVERITY_ERROR);
-        tlv_diagnostic_set_offset(diagnostic, offset);
-        diagnostic->expected = expected;
-        diagnostic->actual = tlv_strerror(rc);
+        tlv_diagnostic_init(&diagnostic->diagnostic, rc, TLV_DIAGNOSTIC_SEVERITY_ERROR);
+        if (rc != TLV_ERR_NULL_ARG && rc != TLV_ERR_INVALID_ARG) {
+            tlv_diagnostic_set_offset(&diagnostic->diagnostic, offset);
+            diagnostic->anchor = TLV_SCHEMA_ANCHOR_ELEMENT;
+        }
+        if (rc == TLV_ERR_SCHEMA) diagnostic->kind = TLV_SCHEMA_ISSUE_UNEXPECTED;
+        diagnostic->diagnostic.expected = expected;
+        diagnostic->diagnostic.actual = tlv_strerror(rc);
     }
     return rc;
 }
 
 tlv_result_t tlv_lldp_validate(const uint8_t* data, size_t size, size_t max_elements,
-                               tlv_diagnostic_t* diagnostic) {
+                               tlv_schema_diagnostic_t* diagnostic) {
     tlv_reader_t reader;
     tlv_element_t element;
     size_t offset = 0, index = 0;
     tlv_result_t rc;
-    if (diagnostic) tlv_diagnostic_init(diagnostic, TLV_OK, TLV_DIAGNOSTIC_SEVERITY_INFO);
+    if (diagnostic) memset(diagnostic, 0, sizeof(*diagnostic));
     if (!data && size) return failure(diagnostic, TLV_ERR_NULL_ARG, 0, "non-NULL TLV region");
     rc = tlv_schema_validate(data, size, &tlv_format_lldp, &tlv_lldp_schema, 0, max_elements,
-                             &offset);
-    if (rc != TLV_OK) return failure(diagnostic, rc, offset, "LLDP base lengths and occurrences");
+                             diagnostic);
+    if (rc != TLV_OK) return rc;
     rc = tlv_reader_init(&reader, data, size, &tlv_format_lldp);
     if (rc != TLV_OK) return failure(diagnostic, rc, 0, "readable LLDP region");
     while (!tlv_reader_at_end(&reader)) {
         offset = reader.pos;
         rc = tlv_reader_next(&reader, &element);
         if (rc != TLV_OK) return failure(diagnostic, rc, offset, "complete LLDP TLV");
-        if (index < 3 && element.tag.data[0] != index + 1)
-            return failure(diagnostic, TLV_ERR_SCHEMA, offset, "Chassis ID, Port ID, TTL prefix");
+        if (index < 3 && element.tag.data[0] != index + 1) {
+            rc = failure(diagnostic, TLV_ERR_SCHEMA, offset, "Chassis ID, Port ID, TTL prefix");
+            if (diagnostic) diagnostic->kind = TLV_SCHEMA_ISSUE_ORDER;
+            return rc;
+        }
         if (element.tag.data[0] == 0 && !tlv_reader_at_end(&reader))
             return failure(diagnostic, TLV_ERR_SCHEMA, reader.pos, "end of region after End TLV");
         ++index;

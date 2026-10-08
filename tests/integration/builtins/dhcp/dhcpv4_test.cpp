@@ -133,12 +133,12 @@ TEST(Integration_Tlv_Dhcpv4, QueryAndDocumentTreatPadAndEndAsOrdinaryElements) {
 #else
     (void)lengths;
 #endif
-    size_t           significant = 999;
-    tlv_diagnostic_t diagnostic{};
+    size_t                  significant = 999;
+    tlv_schema_diagnostic_t diagnostic{};
     EXPECT_EQ(TLV_ERR_SCHEMA, TLV_DIAGNOSTIC_RESULT(diagnostic, tlv_dhcpv4_options_validate(
                                                                     wire, sizeof(wire), nullptr, 5,
                                                                     &significant, &diagnostic)));
-    EXPECT_EQ(6u, diagnostic.offset);
+    EXPECT_EQ(6u, diagnostic.diagnostic.offset);
 }
 
 TEST(Integration_Tlv_Dhcpv4, GenericSchemaKeepsValueConstraintsSeparateFromContainerPolicy) {
@@ -158,11 +158,11 @@ TEST(Integration_Tlv_Dhcpv4, GenericSchemaKeepsValueConstraintsSeparateFromConta
     tlv_element_t element{};
     ASSERT_EQ(TLV_OK, tlv_reader_init(&reader, invalid, sizeof(invalid), &tlv_format_dhcpv4));
     while (!tlv_reader_at_end(&reader)) ASSERT_EQ(TLV_OK, tlv_reader_next(&reader, &element));
-    size_t offset = 999;
-    EXPECT_EQ(
-        TLV_ERR_INVALID_LENGTH,
-        tlv_schema_validate(invalid, sizeof(invalid), &tlv_format_dhcpv4, &schema, 0, 3, &offset));
-    EXPECT_EQ(1u, offset);
+
+    tlv_schema_diagnostic_t offset{};
+    EXPECT_EQ(TLV_ERR_SCHEMA, tlv_schema_validate(invalid, sizeof(invalid), &tlv_format_dhcpv4,
+                                                  &schema, 0, 3, &offset));
+    EXPECT_EQ(1u, offset.diagnostic.offset);
     size_t significant = 0;
     EXPECT_EQ(TLV_OK, tlv_dhcpv4_options_validate(invalid, sizeof(invalid), nullptr, 3,
                                                   &significant, nullptr));

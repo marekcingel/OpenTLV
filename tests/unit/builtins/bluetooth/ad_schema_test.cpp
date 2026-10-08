@@ -28,8 +28,11 @@ Wire element(uint8_t tag, size_t length) {
 }
 
 tlv_result_t validate(const Wire& wire, size_t* offset = nullptr) {
-    return tlv_schema_validate(wire.data(), wire.size(), &tlv_format_bluetooth_ltv,
-                               &tlv_bluetooth_ad_schema, 1, 64, offset);
+    tlv_schema_diagnostic_t diagnostic{};
+    const auto rc = tlv_schema_validate(wire.data(), wire.size(), &tlv_format_bluetooth_ltv,
+                                        &tlv_bluetooth_ad_schema, 1, 64, &diagnostic);
+    if (offset) *offset = diagnostic.diagnostic.offset;
+    return rc;
 }
 
 void append(Wire& wire, const Wire& suffix) {
@@ -61,7 +64,7 @@ TEST(Unit_Tlv_BluetoothAdSchema, ValueLengthsAreIndependentOfFraming) {
                                        &used));
             EXPECT_EQ(wire.size(), used);
             const bool valid = length >= test.min && length <= test.max && length % test.width == 0;
-            EXPECT_EQ(valid ? TLV_OK : TLV_ERR_INVALID_LENGTH, validate(wire));
+            EXPECT_EQ(valid ? TLV_OK : TLV_ERR_SCHEMA, validate(wire));
         }
     }
 }
@@ -92,7 +95,7 @@ TEST(Unit_Tlv_BluetoothAdSchema, OptionalFieldsAndSharedOccurrenceLimits) {
 TEST(Unit_Tlv_BluetoothAdSchema, ReportsLengthMultipleAndExactLengthAtElementOffsets) {
     const Wire wire = {2, 0xFE, 0, 4, 3, 0x0F, 0x18, 0, 3, 0x0A, 0xFC, 0xFD};
     size_t     offset = SIZE_MAX;
-    EXPECT_EQ(TLV_ERR_INVALID_LENGTH, validate(wire, &offset));
+    EXPECT_EQ(TLV_ERR_SCHEMA, validate(wire, &offset));
     EXPECT_EQ(3u, offset);
     tlv_schema_diagnostic_t        diagnostics[2] = {};
     tlv_schema_diagnostic_report_t detailed = {diagnostics, 2, 0};
@@ -120,7 +123,7 @@ TEST(Unit_Tlv_BluetoothAdSchema, ReportsLengthMultipleAndExactLengthAtElementOff
 
 TEST(Unit_Tlv_BluetoothAdSchema, ExamplesPaddingAndTruncation) {
     EXPECT_EQ(TLV_OK, validate({2, 0x0A, 0xFC}));
-    EXPECT_EQ(TLV_ERR_INVALID_LENGTH, validate({3, 0x0A, 0xFC, 0xFD}));
+    EXPECT_EQ(TLV_ERR_SCHEMA, validate({3, 0x0A, 0xFC, 0xFD}));
     EXPECT_EQ(TLV_ERR_INVALID_LENGTH, validate({2, 1, 6, 0, 0}));
     EXPECT_EQ(TLV_ERR_BUFFER_TOO_SHORT, validate({3, 0x0A, 0xFC}));
     EXPECT_EQ(TLV_OK, validate({1, 0xFE}));

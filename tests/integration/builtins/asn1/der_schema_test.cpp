@@ -34,9 +34,9 @@ TEST(Integration_Tlv_DerSchema, SchemaRejectsNonCanonicalSetOrderGenericDerAccep
      * order: 31 06 04 01 01 02 01 05. */
     const std::vector<uint8_t> misordered = {0x31, 0x06, 0x04, 0x01, 0x01, 0x02, 0x01, 0x05};
 
-    size_t        schema_offset = 0;
-    tlv_element_t schema_element{};
-    size_t        schema_consumed = 0;
+    tlv_schema_diagnostic_t schema_offset{};
+    tlv_element_t           schema_element{};
+    size_t                  schema_consumed = 0;
     EXPECT_EQ(TLV_ERR_INVALID_VALUE,
               tlv_der_schema_read(misordered.data(), misordered.size(), &set_type, nullptr,
                                   &schema_element, &schema_consumed, &schema_offset));
@@ -128,8 +128,9 @@ TEST(Integration_Tlv_DerSchema, CompositeStructureRoundTrips) {
                                            records.data(), records.size(), &written, nullptr));
     output.resize(written);
 
-    tlv_element_t element{};
-    size_t        consumed = 0, error_offset = 0;
+    tlv_element_t           element{};
+    size_t                  consumed = 0;
+    tlv_schema_diagnostic_t error_offset{};
     ASSERT_EQ(TLV_OK, tlv_der_schema_read(output.data(), output.size(), &root, nullptr, &element,
                                           &consumed, &error_offset));
     EXPECT_EQ(output.size(), consumed);

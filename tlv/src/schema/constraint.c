@@ -3,10 +3,25 @@
 
 #include "tlv/schema/constraint.h"
 
+tlv_result_t tlv_value_constraint_check(const tlv_value_constraint_t* constraint) {
+    if (!constraint) return TLV_ERR_NULL_ARG;
+    switch (constraint->kind) {
+        case TLV_VALUE_CONSTRAINT_NONE: return TLV_OK;
+        case TLV_VALUE_CONSTRAINT_RANGE:
+            return constraint->min_value <= constraint->max_value ? TLV_OK : TLV_ERR_INVALID_SCHEMA;
+        case TLV_VALUE_CONSTRAINT_ALLOWED_VALUES:
+            return !constraint->allowed_values_count || constraint->allowed_values
+                       ? TLV_OK
+                       : TLV_ERR_INVALID_SCHEMA;
+        default: return TLV_ERR_INVALID_SCHEMA;
+    }
+}
+
 tlv_result_t tlv_value_constraint_validate(const tlv_value_constraint_t* constraint,
                                            int64_t value) {
     size_t i;
-    if (!constraint) return TLV_ERR_NULL_ARG;
+    tlv_result_t rc = tlv_value_constraint_check(constraint);
+    if (rc != TLV_OK) return rc;
     switch (constraint->kind) {
         case TLV_VALUE_CONSTRAINT_NONE: return TLV_OK;
         case TLV_VALUE_CONSTRAINT_RANGE:

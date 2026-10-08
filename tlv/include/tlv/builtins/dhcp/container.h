@@ -4,7 +4,7 @@
 #ifndef OPENTLV_BUILTINS_DHCP_CONTAINER_H
 #define OPENTLV_BUILTINS_DHCP_CONTAINER_H
 
-#include "tlv/diagnostic.h"
+#include "tlv/schema/schema.h"
 
 /** @file
  * @brief DHCPv4 options sequence validation above generic Reader.
@@ -55,12 +55,12 @@ typedef struct tlv_dhcpv4_options_rules {
  * @param[out] diagnostic Optional first-failure diagnostic, reset on each call.
  *                       Offsets are relative to data: the failing Reader field,
  *                       first forbidden tail byte, next element at the limit,
- *                       or size for missing End. Argument errors use offset zero.
+ *                       or size for missing End. Argument errors have unknown byte location.
  *                       Descriptions have static lifetime.
  * @return #TLV_OK on success. Empty input succeeds only with optional End.
  * @return #TLV_ERR_NULL_ARG for a missing required pointer.
  * @return #TLV_ERR_INVALID_ARG for an unknown tail policy.
- * @return #TLV_ERR_SCHEMA_MISSING if required End is absent.
+ * @return #TLV_ERR_SCHEMA with MISSING detail and SCOPE_END anchor if End is absent.
  * @return #TLV_ERR_SCHEMA for a forbidden tail byte.
  * @return #TLV_ERR_LIMIT when the element limit would be exceeded.
  * @return #TLV_ERR_BUFFER_TOO_SHORT for a truncated option.
@@ -72,7 +72,7 @@ typedef struct tlv_dhcpv4_options_rules {
 TLV_API tlv_result_t tlv_dhcpv4_options_validate(const uint8_t* data, size_t size,
                                                  const tlv_dhcpv4_options_rules_t* rules,
                                                  size_t max_elements, size_t* significant_size,
-                                                 tlv_diagnostic_t* diagnostic);
+                                                 tlv_schema_diagnostic_t* diagnostic);
 
 #ifdef __cplusplus
 }

@@ -69,8 +69,7 @@ struct typed_error {
     tlv::error failure() const noexcept {
         if (kind == typed_errc::codec) return to_error(codec_status());
         if (kind == typed_errc::framing) return tlv::error(framing_status(), operation::writer);
-        const auto code =
-            kind == typed_errc::missing_field ? errc::missing_field : errc::invalid_argument;
+        const auto code = kind == typed_errc::missing_field ? errc::schema : errc::invalid_argument;
         return tlv::error(static_cast<tlv_result_t>(code), message()).during(operation::codec);
     }
     /** @brief Preserve a Writer error.

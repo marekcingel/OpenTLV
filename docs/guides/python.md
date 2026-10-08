@@ -141,10 +141,10 @@ keyword arguments on the constructor instead. `children` nests another
 which tags are constructed depends on `format` (BER, CER and DER nest by
 their constructed bit; Fixed formats never nest, so
 `children` only applies to BER, CER or DER data). `schema.validate()` raises
-`SchemaMissingError` for an absent required field, `SchemaError` for other
-rule violations (an unknown tag when `allow_unknown` is `False`, too many
-occurrences, a kind mismatch), or `InvalidLengthError` for a length failure,
-each carrying the failing `offset`.
+`InvalidSchemaError` for an invalid definition, or `SchemaError` for input
+violations, including lengths and required absence. Inspect `kind` and `anchor`
+with the optional `offset`: missing content has `kind="missing"`, while an
+invalid definition has no input offset.
 
 Runnable version, validating the document `parse.py` reads, and rejecting an
 incomplete one:

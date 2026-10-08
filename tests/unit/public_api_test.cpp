@@ -103,7 +103,7 @@ TEST(Unit_Tlvpp, PublicSchemaReportsMissingFieldAndBoundedViolations) {
     const tlv::byte               input[] = {tlv::byte(1), tlv::byte(1), tlv::byte(0x41)};
     auto result = tlv::validate({input, sizeof input}, format, schema.view());
     ASSERT_FALSE(result);
-    EXPECT_EQ(tlv::errc::missing_field, result.error().status());
+    EXPECT_EQ(tlv::errc::schema, result.error().status());
     EXPECT_TRUE(result.error().has_offset());
     EXPECT_EQ(sizeof input, result.error().offset());
     EXPECT_EQ(tlv::operation::schema, result.error().stage());

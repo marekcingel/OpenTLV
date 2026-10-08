@@ -119,8 +119,8 @@ void opentlv_lua_register_error_codes(lua_State* L, int module_table_index) {
     lua_setfield(L, -2, "UNSUPPORTED_TYPE");
     lua_pushinteger(L, TLV_ERR_NATIVE_SIZE);
     lua_setfield(L, -2, "NATIVE_SIZE");
-    lua_pushinteger(L, TLV_ERR_SCHEMA_MISSING);
-    lua_setfield(L, -2, "SCHEMA_MISSING");
+    lua_pushinteger(L, TLV_ERR_INVALID_SCHEMA);
+    lua_setfield(L, -2, "INVALID_SCHEMA");
     lua_setfield(L, module_table_index, "errors");
 }
 

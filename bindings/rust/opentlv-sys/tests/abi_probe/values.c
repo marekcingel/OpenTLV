@@ -71,6 +71,7 @@ size_t opentlv_test_fixed_abi(size_t index) {
                              offsetof(tlv_schema_diagnostic_t, actual_constructed),
                              offsetof(tlv_schema_diagnostic_t, length_multiple),
                              offsetof(tlv_schema_diagnostic_t, length_flags),
+                             offsetof(tlv_schema_diagnostic_t, anchor),
                              sizeof(tlv_schema_query_diagnostic_t),
                              offsetof(struct schema_query_alignment, value),
                              offsetof(tlv_schema_query_diagnostic_t, rule),

@@ -5,9 +5,9 @@ for authors of C capabilities and language facades. Read the
 [architectural rules](architectural-rules.md) and
 [current error reference](../reference/errors.md) first.
 
-**Status: design decided; lifecycle result implemented by #552; remaining API
+**Status: design decided; lifecycle result implemented by #552; Schema classification implemented by #553; remaining API
 and binding migration is separate work.** This page defines the target contract.
-`TLV_ERR_INVALID_STATE` and `TLV_QUERY_ERROR_STATE` are now public; other new
+`TLV_ERR_INVALID_STATE`, `TLV_QUERY_ERROR_STATE` and `TLV_ERR_INVALID_SCHEMA` are now public; other new
 target names are not yet public declarations. The reference page continues to describe the running
 implementation. This design does not preserve source, binary, enum-number or
 diagnostic-layout compatibility. Removed names get no aliases, compatibility

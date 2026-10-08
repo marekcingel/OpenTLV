@@ -51,7 +51,7 @@ int main() {
 
     auto rejected = tlv::validate(tlv::bytes(incomplete.data(), incomplete.size()),
                                   tlv::ber::format{}, top_schema.view(), 64, 16);
-    if (rejected || rejected.error().status() != tlv::errc::missing_field) {
+    if (rejected || rejected.error().status() != tlv::errc::schema) {
         std::cerr << "expected a missing-field error\n";
         return 1;
     }

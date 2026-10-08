@@ -9,6 +9,9 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Fixed
 
+- Use a general error message for unsupported types or capabilities, including Schema definitions exceeding fixed checking capacity. (#553)
+- Avoid exponential definition checks for shared Schema graphs, preserve recursive DER schemas that consume input, and bound definition checking by distinct tables/types separately from wire nesting. Reject non-consuming CHOICE cycles and correct the Python Schema doctest. (#553)
+- Fix C++ consumer-boundary CI checks by updating interoperability baselines for the Schema diagnostic and result-code migration. (#553)
 - Keep omitted diagnostic-path counts numeric in JS/WASM and align diagnostic regression tests with the C++ consumer-boundary checks. (#548, #550)
 - Report would-be DER output positions for schema write failures, including missing required components, leaf constraints, nested headers and SET ordering. (#549)
 - Populate initialized Query and Reader visitor diagnostics on every failure, preserve propagated detail, and enforce the result/diagnostic contract with shared test assertions and a CI source guard. (#548)
@@ -101,6 +104,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Changed
 
+- Distinguish invalid Schema definitions (`TLV_ERR_INVALID_SCHEMA`) from input violations. Required absence now returns `TLV_ERR_SCHEMA` with `MISSING` detail across generic Schema, DHCP, LLDP and DER. Replace `SCHEMA_MISSING` and affected offset-only outputs with typed Schema diagnostics and explicit location anchors; update native callers and bindings and rebuild for the changed API/ABI. (#553)
 - Distinguish Query lifecycle diagnostics with `STATE`, classify malformed structural feeds as `INVALID_VALUE`, and guard against lifecycle regressions to `INVALID_ARG`. Result and diagnostic enum numbers remain release-specific during the failure-model migration. (#551, #552)
 - Return `TLV_ERR_INVALID_STATE` for lifecycle and callback reentrancy failures in Query, Reader, Writer and Document, and expose the distinction through C++ and language bindings. Callers that previously matched these failures as `TLV_ERR_INVALID_ARG` must update their error handling. (#552)
 - Retain the outermost diagnostic path tags consistently across Schema and Query, expose the omitted-tag count in native APIs and bindings, mark truncated paths in CLI output, and keep Schema reporting at its structural depth limit. Adding `tlv_diagnostic_path_t.omitted` changes the public ABI and requires rebuilding native clients. (#550)

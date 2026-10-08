@@ -4,14 +4,19 @@
 #include "tlv/builtins/dhcp/container.h"
 #include "tlv/builtins/dhcp/dhcpv4.h"
 #include "tlv/reader/reader.h"
+#include <string.h>
 
-static tlv_result_t failure(tlv_diagnostic_t* diagnostic, tlv_result_t rc, size_t offset,
+static tlv_result_t failure(tlv_schema_diagnostic_t* diagnostic, tlv_result_t rc, size_t offset,
                             const char* expected) {
     if (diagnostic) {
-        tlv_diagnostic_init(diagnostic, rc, TLV_DIAGNOSTIC_SEVERITY_ERROR);
-        tlv_diagnostic_set_offset(diagnostic, offset);
-        diagnostic->expected = expected;
-        diagnostic->actual = tlv_strerror(rc);
+        tlv_diagnostic_init(&diagnostic->diagnostic, rc, TLV_DIAGNOSTIC_SEVERITY_ERROR);
+        if (rc != TLV_ERR_NULL_ARG && rc != TLV_ERR_INVALID_ARG) {
+            tlv_diagnostic_set_offset(&diagnostic->diagnostic, offset);
+            diagnostic->anchor = TLV_SCHEMA_ANCHOR_ELEMENT;
+        }
+        if (rc == TLV_ERR_SCHEMA) diagnostic->kind = TLV_SCHEMA_ISSUE_UNEXPECTED;
+        diagnostic->diagnostic.expected = expected;
+        diagnostic->diagnostic.actual = tlv_strerror(rc);
     }
     return rc;
 }
@@ -19,12 +24,12 @@ static tlv_result_t failure(tlv_diagnostic_t* diagnostic, tlv_result_t rc, size_
 tlv_result_t tlv_dhcpv4_options_validate(const uint8_t* data, size_t size,
                                          const tlv_dhcpv4_options_rules_t* rules,
                                          size_t max_elements, size_t* significant_size,
-                                         tlv_diagnostic_t* diagnostic) {
+                                         tlv_schema_diagnostic_t* diagnostic) {
     const tlv_dhcpv4_options_rules_t defaults = {1, TLV_DHCPV4_OPTIONS_TAIL_PAD};
     tlv_reader_t reader;
     size_t count = 0;
     tlv_result_t rc;
-    if (diagnostic) tlv_diagnostic_init(diagnostic, TLV_OK, TLV_DIAGNOSTIC_SEVERITY_INFO);
+    if (diagnostic) memset(diagnostic, 0, sizeof(*diagnostic));
     if (!significant_size || (!data && size))
         return failure(diagnostic, TLV_ERR_NULL_ARG, 0, "valid input and output storage");
     if (!rules) rules = &defaults;
@@ -41,7 +46,11 @@ tlv_result_t tlv_dhcpv4_options_validate(const uint8_t* data, size_t size,
         if (diagnostic) {
             tlv_reader_diagnostic_t detail;
             rc = tlv_reader_next_diag(&reader, &element, &detail);
-            if (rc != TLV_OK) *diagnostic = detail.diagnostic;
+            if (rc != TLV_OK) {
+                diagnostic->diagnostic = detail.diagnostic;
+                diagnostic->anchor = detail.diagnostic.has_offset ? TLV_SCHEMA_ANCHOR_ELEMENT
+                                                                  : TLV_SCHEMA_ANCHOR_UNKNOWN;
+            }
         } else {
             rc = tlv_reader_next(&reader, &element);
         }
@@ -61,8 +70,18 @@ tlv_result_t tlv_dhcpv4_options_validate(const uint8_t* data, size_t size,
             return TLV_OK;
         }
     }
-    if (rules->require_end)
-        return failure(diagnostic, TLV_ERR_SCHEMA_MISSING, size, "DHCP End option");
+    if (rules->require_end) {
+        static const uint8_t end_tag = 255;
+        rc = failure(diagnostic, TLV_ERR_SCHEMA, size, "DHCP End option");
+        if (diagnostic) {
+            diagnostic->kind = TLV_SCHEMA_ISSUE_MISSING;
+            diagnostic->anchor = TLV_SCHEMA_ANCHOR_SCOPE_END;
+            diagnostic->tag = tlv_tag(&end_tag, 1);
+            diagnostic->has_occurs = 1;
+            diagnostic->min_occurs = diagnostic->max_occurs = 1;
+        }
+        return rc;
+    }
     *significant_size = size;
     return TLV_OK;
 }

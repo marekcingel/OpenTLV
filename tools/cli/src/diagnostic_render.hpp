@@ -23,7 +23,7 @@ enum class diagnostic_format { human, compact, json };
 // for anything else, leaving *out unchanged.
 bool parse_diagnostic_format(const char* name, diagnostic_format* out);
 
-// Returns the symbolic name of a result code, e.g. "tlv::errc::missing_field",
+// Returns the symbolic name of a result code, e.g. "tlv::errc::schema",
 // or "TLV_ERR_UNKNOWN" for a value with no matching case.
 const char* error_name(tlv::errc code);
 

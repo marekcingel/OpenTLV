@@ -52,6 +52,6 @@ fn main() {
     let rejected = top_schema
         .validate(&INCOMPLETE, Format::Ber, &limits)
         .expect_err("a required field is missing");
-    assert_eq!(rejected.error, Error::SchemaMissing);
+    assert_eq!(rejected.error, Error::Schema);
     println!("Incomplete document rejected: {}", rejected.error);
 }

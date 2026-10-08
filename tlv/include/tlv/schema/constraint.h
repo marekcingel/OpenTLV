@@ -67,9 +67,17 @@ typedef struct tlv_value_constraint {
 } tlv_value_constraint_t;
 
 /**
+ * @brief Checks a value constraint definition without inspecting input data.
+ * @param constraint Borrowed definition.
+ * @return #TLV_OK, #TLV_ERR_NULL_ARG for NULL, or #TLV_ERR_INVALID_SCHEMA for
+ * invalid kind, reversed bounds or missing allowed-values storage.
+ */
+TLV_API tlv_result_t tlv_value_constraint_check(const tlv_value_constraint_t* constraint);
+
+/**
  * @brief Validates a decoded scalar value against a constraint.
  *
- * Checks only the value, independently of decoding; combine with
+ * Checks the definition first, then the value, independently of decoding; combine with
  * tlv_codec_decode() (or an equivalent) to validate an ASN.1-style value
  * range or allowed-value set on a raw TLV element's content.
  *
@@ -78,7 +86,8 @@ typedef struct tlv_value_constraint {
  *
  * @return #TLV_OK if `constraint->kind` is #TLV_VALUE_CONSTRAINT_NONE, or `value` satisfies
  *         the constraint.
- * @return #TLV_ERR_SCHEMA if `value` violates the constraint, `kind` is unrecognized,
+ * @return #TLV_ERR_SCHEMA if `value` violates a valid constraint.
+ * @return #TLV_ERR_INVALID_SCHEMA if `kind` is unrecognized,
  *         #TLV_VALUE_CONSTRAINT_RANGE has `min_value > max_value`, or
  *         #TLV_VALUE_CONSTRAINT_ALLOWED_VALUES has a `NULL` `allowed_values` with a nonzero
  *         `allowed_values_count`.

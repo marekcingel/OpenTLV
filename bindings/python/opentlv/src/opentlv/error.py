@@ -32,8 +32,11 @@ class OpenTLVError(Exception):
                  required: Optional[int] = None, available: Optional[int] = None,
                  raw_length: Optional[bytes] = None, declared_length: Optional[int] = None,
                  tag_offset: Optional[int] = None, length_offset: Optional[int] = None,
-                 value_offset: Optional[int] = None, enclosing_end: Optional[int] = None) -> None:
+                 value_offset: Optional[int] = None, enclosing_end: Optional[int] = None, kind: Optional[str] = None,
+                 anchor: Optional[int] = None) -> None:
         super().__init__(_native.strerror(code))
+        self.kind = kind
+        self.anchor = anchor
         self.code = code
         self.offset = offset
         self.expected = expected
@@ -111,8 +114,8 @@ class UnsupportedTypeError(OpenTLVError):
     """A universal tag number has no implemented canonical validation."""
 
 
-class SchemaMissingError(OpenTLVError):
-    """A required schema field is absent."""
+class InvalidSchemaError(OpenTLVError):
+    """A schema definition is invalid independently of the input."""
 
 
 class NativeSizeError(OpenTLVError):
@@ -144,7 +147,7 @@ _ERROR_TYPES = {
     13: ValueOverflowError,
     14: InvalidValueError,
     15: UnsupportedTypeError,
-    16: SchemaMissingError,
+    16: InvalidSchemaError,
     17: NativeSizeError,
     18: NeedMoreDataError,
     19: InvalidStateError,
@@ -167,7 +170,8 @@ def _from_native(error: "_native.Error") -> OpenTLVError:
                        required=fields.get("required"), available=fields.get("available"),
                        raw_length=fields.get("raw_length"), declared_length=fields.get("declared_length"),
                        tag_offset=fields.get("tag_offset"), length_offset=fields.get("length_offset"),
-                       value_offset=fields.get("value_offset"), enclosing_end=fields.get("enclosing_end"))
+                       value_offset=fields.get("value_offset"), enclosing_end=fields.get("enclosing_end"),
+                       kind=fields.get("kind"), anchor=fields.get("anchor"))
     # Preserve every Query field alongside the original typed Reader/status error.
     result.query = {key: fields.get(key) for key in (
         "query_kind", "begin", "end", "source_offset", "query_expected",

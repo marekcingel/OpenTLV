@@ -26,7 +26,7 @@ var (
 	ErrOverflow         = StatusError{code: capi.Overflow}
 	ErrInvalidValue     = StatusError{code: capi.InvalidValue}
 	ErrUnsupportedType  = StatusError{code: capi.UnsupportedType}
-	ErrSchemaMissing    = StatusError{code: capi.SchemaMissing}
+	ErrInvalidSchema    = StatusError{code: capi.InvalidSchema}
 	ErrNativeSize       = StatusError{code: capi.NativeSize}
 	ErrNeedMoreData     = StatusError{code: capi.NeedMoreData}
 	// ErrInvalidState reports lifecycle or callback reentrancy misuse.

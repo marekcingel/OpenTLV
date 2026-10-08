@@ -250,7 +250,7 @@ static void raise_code_and_offset(tlv_result_t code, size_t offset) {
         return;
     }
     if (dict_set(fields, "code", PyLong_FromLong((long)code)) < 0 ||
-        dict_set(fields, "offset", PyLong_FromSize_t(offset)) < 0) {
+        dict_set_size_or_none(fields, "offset", code != TLV_ERR_INVALID_SCHEMA, offset) < 0) {
         Py_DECREF(fields);
         return;
     }
@@ -539,12 +539,13 @@ static PyObject* schema_diagnostic_value(const tlv_schema_diagnostic_t* diagnost
                                                           diagnostic->actual_constructed)
                                           : Py_NewRef(Py_None);
     /* N consumes each reference, including on failure. */
-    return Py_BuildValue(
-        "(iiisNNNziNNNKIK)", (int)diagnostic->diagnostic.code, (int)diagnostic->diagnostic.severity,
-        (int)diagnostic->kind, tlv_schema_issue_kind_string(diagnostic->kind), tag, path, offset,
-        diagnostic->field, diagnostic->is_group, occurs, length, form,
-        (unsigned long long)diagnostic->length_multiple, (unsigned int)diagnostic->length_flags,
-        (unsigned long long)diagnostic->path.omitted);
+    return Py_BuildValue("(iiisNNNziNNNKIKi)", (int)diagnostic->diagnostic.code,
+                         (int)diagnostic->diagnostic.severity, (int)diagnostic->kind,
+                         tlv_schema_issue_kind_string(diagnostic->kind), tag, path, offset,
+                         diagnostic->field, diagnostic->is_group, occurs, length, form,
+                         (unsigned long long)diagnostic->length_multiple,
+                         (unsigned int)diagnostic->length_flags,
+                         (unsigned long long)diagnostic->path.omitted, (int)diagnostic->anchor);
 }
 
 static PyObject* schema_diagnostic_report(const Py_buffer* buffer, const tlv_format_t* format,
@@ -658,7 +659,7 @@ static PyObject* _opentlv_structure_validate(PyObject* module, PyObject* args) {
         return NULL;
     }
 
-    size_t error_offset = 0;
+    tlv_schema_diagnostic_t diagnostic;
     if (report_capacity >= 0) {
         PyObject* result = schema_diagnostic_report(&buffer, format, schema, (size_t)max_depth,
                                                     (size_t)max_elements, (size_t)report_capacity,
@@ -669,11 +670,22 @@ static PyObject* _opentlv_structure_validate(PyObject* module, PyObject* args) {
     }
     tlv_result_t code =
         tlv_schema_validate((const uint8_t*)buffer.buf, (size_t)buffer.len, format, schema,
-                            (size_t)max_depth, (size_t)max_elements, &error_offset);
+                            (size_t)max_depth, (size_t)max_elements, &diagnostic);
     free_structure_schema(schema);
     PyBuffer_Release(&buffer);
     if (code != TLV_OK) {
-        raise_code_and_offset(code, error_offset);
+        PyObject* fields = PyDict_New();
+        if (!fields) return NULL;
+        if (dict_set(fields, "code", PyLong_FromLong(code)) < 0 ||
+            dict_set_size_or_none(fields, "offset", diagnostic.diagnostic.has_offset,
+                                  diagnostic.diagnostic.offset) < 0 ||
+            dict_set(fields, "kind",
+                     PyUnicode_FromString(tlv_schema_issue_kind_string(diagnostic.kind))) < 0 ||
+            dict_set(fields, "anchor", PyLong_FromLong(diagnostic.anchor)) < 0) {
+            Py_DECREF(fields);
+            return NULL;
+        }
+        raise_error(fields);
         return NULL;
     }
     Py_RETURN_NONE;

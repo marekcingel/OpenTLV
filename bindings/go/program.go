@@ -103,6 +103,7 @@ type QuerySchemaError struct {
 	Diagnostic
 	Rule    int
 	Kind    int
+	Anchor  int // Native Schema position: unknown, element, scope end, insertion.
 	Field   string
 	Failure *ProgramError
 }
@@ -166,7 +167,7 @@ func validateQuerySchema(rules []QueryRule, input []byte, document *Document, fo
 	}
 	failure := programError(code, detail.Query).(*ProgramError)
 	return &QuerySchemaError{Diagnostic: publicDiagnostic(detail.Schema), Rule: detail.Rule,
-		Kind: detail.Kind, Field: detail.Field, Failure: failure}
+		Kind: detail.Kind, Anchor: detail.Anchor, Field: detail.Field, Failure: failure}
 }
 
 // ValidateQueryBuffer delegates contextual assertions to C over a copied complete

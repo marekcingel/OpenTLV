@@ -128,6 +128,7 @@ type QueryRule struct {
 }
 type QuerySchemaLimits struct{ Depth, Nodes, Work, Contexts, ValueCapacity int }
 type QuerySchemaDiagnostic struct {
+	Anchor int
 	Rule   int
 	Field  string
 	Kind   int
@@ -236,7 +237,7 @@ func ValidateQuerySchema(rules []QueryRule, data []byte, document *Document, for
 			&workspace, values, C.size_t(capacity), &staging, &nativeDetail))
 	}
 	detail := QuerySchemaDiagnostic{Rule: int(nativeDetail.rule), Field: C.GoString(nativeDetail.schema.field),
-		Kind: int(nativeDetail.schema.kind), Schema: diagnostic(nativeDetail.schema.diagnostic, 0),
+		Kind: int(nativeDetail.schema.kind), Anchor: int(nativeDetail.schema.anchor), Schema: diagnostic(nativeDetail.schema.diagnostic, 0),
 		Query: programDiagnostic(nativeDetail.query, code)}
 	detail.Schema.Tag = bytes.Clone(nativeBytes(nativeDetail.schema.tag.data, nativeDetail.schema.tag.size))
 	detail.Schema.HasTag = nativeDetail.schema.tag.size != 0

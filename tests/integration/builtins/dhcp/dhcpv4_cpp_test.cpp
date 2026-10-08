@@ -6,9 +6,9 @@
 #include <cstring>
 
 TEST(Integration_Tlvpp_Dhcpv4, ContainerUsesSharedRulesAndDiagnostics) {
-    const uint8_t    wire[] = {0, 53, 1, 3, 0, 255, 0};
-    size_t           significant = 999;
-    tlv_diagnostic_t diagnostic{};
+    const uint8_t           wire[] = {0, 53, 1, 3, 0, 255, 0};
+    size_t                  significant = 999;
+    tlv_schema_diagnostic_t diagnostic{};
     ASSERT_EQ(TLV_OK,
               tlv::native::dhcpv4_options_validate(wire, sizeof(wire), nullptr, 4, significant));
     EXPECT_EQ(6u, significant);
@@ -16,7 +16,7 @@ TEST(Integration_Tlvpp_Dhcpv4, ContainerUsesSharedRulesAndDiagnostics) {
     EXPECT_EQ(TLV_ERR_SCHEMA, tlv::native::dhcpv4_options_validate(wire, sizeof(wire), &rules, 4,
                                                                    significant, &diagnostic));
     EXPECT_EQ(6u, significant);
-    EXPECT_EQ(6u, diagnostic.offset);
+    EXPECT_EQ(6u, diagnostic.diagnostic.offset);
 }
 
 TEST(Integration_Tlvpp_Dhcpv4, SharedPresetReaderWriterRoundTrip) {

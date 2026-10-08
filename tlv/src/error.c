@@ -22,9 +22,9 @@ const char* tlv_strerror(tlv_result_t result) {
         case TLV_ERR_VISITOR: return "visitor error";
         case TLV_ERR_LIMIT: return "resource limit exceeded";
         case TLV_ERR_SCHEMA: return "schema constraint violated";
-        case TLV_ERR_SCHEMA_MISSING: return "required schema field missing";
+        case TLV_ERR_INVALID_SCHEMA: return "invalid schema definition";
         case TLV_ERR_INVALID_VALUE: return "invalid or noncanonical value";
-        case TLV_ERR_UNSUPPORTED_TYPE: return "unsupported universal type";
+        case TLV_ERR_UNSUPPORTED_TYPE: return "unsupported type or capability";
         default: return "unknown error";
     }
 }

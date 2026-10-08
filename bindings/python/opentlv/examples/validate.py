@@ -38,7 +38,7 @@ def main() -> None:
 
     try:
         top_schema.validate(INCOMPLETE, format=opentlv.Format.BER)
-    except opentlv.SchemaMissingError as error:
+    except opentlv.SchemaError as error:
         print(f"Incomplete document rejected: {error}")
 
 

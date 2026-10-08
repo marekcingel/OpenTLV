@@ -39,14 +39,6 @@ typedef struct violation_detail {
     const tlv_structure_group_t* group;
 } violation_detail_t;
 
-static tlv_result_t code_for_kind(tlv_schema_issue_kind_t kind) {
-    switch (kind) {
-        case TLV_SCHEMA_ISSUE_MISSING: return TLV_ERR_SCHEMA_MISSING;
-        case TLV_SCHEMA_ISSUE_LENGTH: return TLV_ERR_INVALID_LENGTH;
-        default: return TLV_ERR_SCHEMA;
-    }
-}
-
 static void add_issue(collector_t* c, tlv_schema_issue_kind_t kind, const tlv_tag_t* tag,
                       const size_t* offset, const violation_detail_t* detail) {
     tlv_schema_diagnostic_report_t* report = c->diag_report;
@@ -54,10 +46,12 @@ static void add_issue(collector_t* c, tlv_schema_issue_kind_t kind, const tlv_ta
     if (report->count++ >= report->capacity) return;
     diagnostic = &report->diagnostics[report->count - 1];
     memset(diagnostic, 0, sizeof(*diagnostic));
-    tlv_diagnostic_init(&diagnostic->diagnostic, code_for_kind(kind),
-                        TLV_DIAGNOSTIC_SEVERITY_ERROR);
+    tlv_diagnostic_init(&diagnostic->diagnostic, TLV_ERR_SCHEMA, TLV_DIAGNOSTIC_SEVERITY_ERROR);
     if (offset) tlv_diagnostic_set_offset(&diagnostic->diagnostic, *offset);
     diagnostic->kind = kind;
+    diagnostic->anchor = !offset                            ? TLV_SCHEMA_ANCHOR_UNKNOWN
+                         : kind == TLV_SCHEMA_ISSUE_MISSING ? TLV_SCHEMA_ANCHOR_SCOPE_END
+                                                            : TLV_SCHEMA_ANCHOR_ELEMENT;
     diagnostic->tag = *tag;
     tlv_diagnostic_path_init(&diagnostic->path);
     for (size_t i = 1; i <= c->depth; ++i) {
@@ -101,49 +95,11 @@ static void add_issue(collector_t* c, tlv_schema_issue_kind_t kind, const tlv_ta
     }
 }
 
-static int group_index(const tlv_structure_schema_t* schema, uint32_t id) {
-    for (size_t g = 0; g < schema->group_count; ++g)
-        if (schema->groups[g].id == id) return (int)g;
-    return -1;
-}
-
-static tlv_result_t check_table(const tlv_structure_schema_t* schema) {
-    if (!schema->rules && schema->count) return TLV_ERR_INVALID_ARG;
-    if (!schema->groups && schema->group_count) return TLV_ERR_INVALID_ARG;
-    if (schema->order != TLV_SCHEMA_ORDER_ANY && schema->order != TLV_SCHEMA_ORDER_SEQUENCE)
-        return TLV_ERR_INVALID_ARG;
-    for (size_t g = 0; g < schema->group_count; ++g) {
-        const tlv_structure_group_t* group = &schema->groups[g];
-        int has_member = 0;
-        if (!group->id || group->min_occurs > group->max_occurs) return TLV_ERR_INVALID_ARG;
-        for (size_t h = 0; h < g; ++h)
-            if (schema->groups[h].id == group->id) return TLV_ERR_INVALID_ARG;
-        for (size_t i = 0; i < schema->count; ++i)
-            if (schema->rules[i].group == group->id) has_member = 1;
-        if (!has_member) return TLV_ERR_INVALID_ARG;
-    }
-    for (size_t i = 0; i < schema->count; ++i) {
-        const tlv_structure_rule_t* rule = &schema->rules[i];
-        if (!rule->entry || !rule->entry->tag.size || !rule->entry->tag.data ||
-            rule->entry->min_length > rule->entry->max_length ||
-            rule->min_occurs > rule->max_occurs || rule->kind < TLV_SCHEMA_ANY ||
-            rule->kind > TLV_SCHEMA_CONSTRUCTED ||
-            (rule->children && rule->kind != TLV_SCHEMA_CONSTRUCTED) ||
-            (rule->group && group_index(schema, rule->group) < 0) ||
-            (rule->group && rule->min_occurs != 0))
-            return TLV_ERR_INVALID_ARG;
-        for (size_t j = 0; j < i; ++j)
-            if (same_tag(&rule->entry->tag, &schema->rules[j].entry->tag))
-                return TLV_ERR_INVALID_ARG;
-    }
-    return TLV_OK;
-}
-
 /* Checks the rule table of a scope and its occurrence counts. */
 static tlv_result_t check_scope(const uint8_t* data, const tlv_format_t* format, collector_t* c,
                                 const frame_t* frame) {
-    tlv_result_t rc = check_table(frame->schema);
-    if (rc != TLV_OK) return rc;
+    tlv_result_t rc;
+
     for (size_t i = 0; i < frame->schema->count; ++i) {
         const tlv_structure_rule_t* rule = &frame->schema->rules[i];
         size_t count = 0, pos = frame->start;
@@ -160,8 +116,7 @@ static tlv_result_t check_scope(const uint8_t* data, const tlv_format_t* format,
         }
         if (count < rule->min_occurs) {
             violation_detail_t detail = {rule, 1, count, 0, 0, 0, 0, NULL};
-            add_issue(c, TLV_SCHEMA_ISSUE_MISSING, &rule->entry->tag,
-                      c->depth ? &frame->offset : NULL, &detail);
+            add_issue(c, TLV_SCHEMA_ISSUE_MISSING, &rule->entry->tag, &frame->end, &detail);
         }
     }
     for (size_t g = 0; g < frame->schema->group_count; ++g) {
@@ -191,8 +146,7 @@ static tlv_result_t check_scope(const uint8_t* data, const tlv_format_t* format,
         }
         if (count < group->min_occurs) {
             violation_detail_t detail = {NULL, 1, count, 0, 0, 0, 0, group};
-            add_issue(c, TLV_SCHEMA_ISSUE_MISSING, first_tag, c->depth ? &frame->offset : NULL,
-                      &detail);
+            add_issue(c, TLV_SCHEMA_ISSUE_MISSING, first_tag, &frame->end, &detail);
         }
     }
     if (frame->schema->order == TLV_SCHEMA_ORDER_SEQUENCE) {
@@ -311,6 +265,8 @@ tlv_result_t tlv_schema_validate_all_diag(const uint8_t* data, size_t size,
     if (!schema || (!report->diagnostics && report->capacity)) return TLV_ERR_NULL_ARG;
     if (unknown < TLV_SCHEMA_UNKNOWN_BY_SCHEMA || unknown > TLV_SCHEMA_UNKNOWN_REJECT)
         return TLV_ERR_INVALID_ARG;
+    rc = tlv_schema_check(schema, NULL);
+    if (rc != TLV_OK) return rc;
     memset(&c, 0, sizeof(c));
     c.diag_report = report;
     rc = validate_all(data, size, format, schema, max_depth, max_elements, unknown, &c,

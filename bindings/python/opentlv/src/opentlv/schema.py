@@ -61,7 +61,7 @@ class LengthSchema:
     >>> schema.validate_length(tag, 5)
     Traceback (most recent call last):
         ...
-    opentlv.error.InvalidLengthError: invalid length encoding
+    opentlv.error.SchemaError: schema constraint violated
     """
 
     __slots__ = ("_rules",)
@@ -86,7 +86,8 @@ class LengthSchema:
         """Checks that a value of `length` bytes is permitted for `tag`.
 
         Raises `SchemaError` if the schema has no rule for `tag`, or
-        `InvalidLengthError` if `length` is out of the rule's bounds.
+        `SchemaError` if `length` is out of the rule's bounds.
+        Raises `InvalidSchemaError` for reversed bounds.
         """
         tag_bytes = tag.data if isinstance(tag, Tag) else bytes(tag)
         try:
@@ -192,6 +193,7 @@ class SchemaDiagnostic:
     length_multiple: int
     length_flags: int
     path_omitted: int = 0
+    anchor: int = 0
 
 
 @dataclass(frozen=True)
@@ -235,7 +237,7 @@ class StructureSchema:
     >>> schema.validate(b"")
     Traceback (most recent call last):
         ...
-    opentlv.error.SchemaMissingError: required schema field missing
+    opentlv.error.SchemaError: schema constraint violated
     """
 
     __slots__ = ("rules", "allow_unknown", "order", "groups")
@@ -261,9 +263,10 @@ class StructureSchema:
         `max_elements` bound traversal the same way `Reader` does not need
         to, since validation may recurse into nested elements.
 
-        Raises `SchemaMissingError` for an absent required field,
-        `SchemaError` for other rule violations, `InvalidLengthError` for a
-        length failure, or a reading error such as `LimitError`.
+        Raises `SchemaError` with `kind="missing"` for an absent required field,
+        `SchemaError` for other rule violations including length constraints,
+        `InvalidSchemaError` for an invalid definition, or a reading error
+        such as `LimitError`.
         """
         format = _schema_format(format)
         try:
@@ -290,9 +293,9 @@ class StructureSchema:
                 SchemaBounds(*occurs) if occurs is not None else None,
                 SchemaBounds(*length) if length is not None else None,
                 (Kind(form[0]), bool(form[1])) if form is not None else None,
-                multiple, flags, path_omitted)
+                multiple, flags, path_omitted, anchor)
             for code, severity, kind, name, tag, path, offset, field, group,
-                occurs, length, form, multiple, flags, path_omitted in items))
+                occurs, length, form, multiple, flags, path_omitted, anchor in items))
 
     def __len__(self) -> int:
         return len(self.rules)

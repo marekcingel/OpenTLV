@@ -23,12 +23,15 @@ TEST(Unit_Tlv_BluetoothAdData, AcceptsEmptyAndZeroPadding) {
 }
 
 TEST(Unit_Tlv_BluetoothAdData, ReturnsPrefixForReaderAndSchema) {
-    const uint8_t data[] = {2, 1, 6, 0, 0, 0};
-    size_t        significant = 99, offset = 99;
+    const uint8_t           data[] = {2, 1, 6, 0, 0, 0};
+    size_t                  significant = 99;
+    tlv_schema_diagnostic_t offset{};
+    offset.diagnostic.offset = 99;
     for (size_t size = 3; size <= sizeof(data); ++size) {
-        ASSERT_EQ(TLV_OK, tlv_bluetooth_ad_data_validate(data, size, &significant, &offset));
+        ASSERT_EQ(TLV_OK, tlv_bluetooth_ad_data_validate(data, size, &significant,
+                                                         &offset.diagnostic.offset));
         EXPECT_EQ(3u, significant);
-        EXPECT_EQ(99u, offset);
+        EXPECT_EQ(99u, offset.diagnostic.offset);
     }
     tlv_reader_t  reader;
     tlv_element_t element;

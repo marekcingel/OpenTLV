@@ -34,7 +34,7 @@ const (
 	Overflow         Code = C.TLV_ERR_OVERFLOW
 	InvalidValue     Code = C.TLV_ERR_INVALID_VALUE
 	UnsupportedType  Code = C.TLV_ERR_UNSUPPORTED_TYPE
-	SchemaMissing    Code = C.TLV_ERR_SCHEMA_MISSING
+	InvalidSchema    Code = C.TLV_ERR_INVALID_SCHEMA
 	NativeSize       Code = C.TLV_ERR_NATIVE_SIZE
 	NeedMoreData     Code = C.TLV_NEED_MORE_DATA
 	InvalidState     Code = C.TLV_ERR_INVALID_STATE

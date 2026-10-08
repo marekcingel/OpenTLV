@@ -34,9 +34,8 @@ TEST(Integration_Tlv_Lldp, StructuralRulesCanBorrowExistingFieldSchemas) {
     auto invalid = base_lldpdu;
     invalid[9] = 1;
     invalid.pop_back();
-    EXPECT_EQ(TLV_ERR_INVALID_LENGTH,
-              tlv_schema_validate(invalid.data(), invalid.size(), &tlv_format_lldp, &schema, 8, 100,
-                                  nullptr));
+    EXPECT_EQ(TLV_ERR_SCHEMA, tlv_schema_validate(invalid.data(), invalid.size(), &tlv_format_lldp,
+                                                  &schema, 8, 100, nullptr));
     // Explicit uint64_t composition, not the builtin TTL's uint16_t representation.
     const tlv_schema_number_t ttl = {rules[3].entry, {TLV_NUMBER_BINARY_BE, 0, 0}};
     const auto                codec = tlv_schema_number_codec(&ttl);
@@ -51,10 +50,10 @@ TEST(Integration_Tlv_Lldp, StructuralRulesCanBorrowExistingFieldSchemas) {
 }
 
 TEST(Integration_Tlv_Lldp, SchemaMandatoryPrefixOptionalEndAndDiagnostics) {
-    tlv_diagnostic_t diagnostic{};
+    tlv_schema_diagnostic_t diagnostic{};
     EXPECT_EQ(TLV_OK, tlv_lldp_validate(base_lldpdu.data(), base_lldpdu.size(), 3, &diagnostic));
-    EXPECT_EQ(TLV_OK, diagnostic.code);
-    EXPECT_FALSE(diagnostic.has_offset);
+    EXPECT_EQ(TLV_OK, diagnostic.diagnostic.code);
+    EXPECT_FALSE(diagnostic.diagnostic.has_offset);
     auto wire = base_lldpdu;
     wire.insert(wire.end(), {0, 0});
     EXPECT_EQ(TLV_OK, tlv_lldp_validate(wire.data(), wire.size(), 4, nullptr));
@@ -62,28 +61,31 @@ TEST(Integration_Tlv_Lldp, SchemaMandatoryPrefixOptionalEndAndDiagnostics) {
     EXPECT_EQ(TLV_ERR_SCHEMA,
               TLV_DIAGNOSTIC_RESULT(diagnostic,
                                     tlv_lldp_validate(wire.data(), wire.size(), 5, &diagnostic)));
-    EXPECT_EQ(14u, diagnostic.offset);
-    EXPECT_STREQ("end of region after End TLV", diagnostic.expected);
+    EXPECT_EQ(14u, diagnostic.diagnostic.offset);
+    EXPECT_STREQ("end of region after End TLV", diagnostic.diagnostic.expected);
     wire = base_lldpdu;
     wire[0] = 4;
     wire[4] = 2;
     EXPECT_EQ(TLV_ERR_SCHEMA,
               TLV_DIAGNOSTIC_RESULT(diagnostic,
                                     tlv_lldp_validate(wire.data(), wire.size(), 3, &diagnostic)));
-    EXPECT_EQ(0u, diagnostic.offset);
-    EXPECT_STREQ("Chassis ID, Port ID, TTL prefix", diagnostic.expected);
-    EXPECT_EQ(TLV_ERR_SCHEMA_MISSING,
+    EXPECT_EQ(0u, diagnostic.diagnostic.offset);
+    EXPECT_STREQ("Chassis ID, Port ID, TTL prefix", diagnostic.diagnostic.expected);
+    EXPECT_EQ(TLV_SCHEMA_ISSUE_ORDER, diagnostic.kind);
+    EXPECT_EQ(TLV_ERR_SCHEMA,
               TLV_DIAGNOSTIC_RESULT(diagnostic,
                                     tlv_lldp_validate(base_lldpdu.data(), 8, 3, &diagnostic)));
-    EXPECT_EQ(8u, diagnostic.offset);
-    EXPECT_EQ(TLV_ERR_SCHEMA_MISSING,
+    EXPECT_EQ(8u, diagnostic.diagnostic.offset);
+    EXPECT_EQ(TLV_SCHEMA_ISSUE_MISSING, diagnostic.kind);
+    EXPECT_EQ(TLV_SCHEMA_ANCHOR_SCOPE_END, diagnostic.anchor);
+    EXPECT_EQ(TLV_ERR_SCHEMA,
               TLV_DIAGNOSTIC_RESULT(diagnostic, tlv_lldp_validate(nullptr, 0, 3, &diagnostic)));
     EXPECT_EQ(TLV_ERR_NULL_ARG,
               TLV_DIAGNOSTIC_RESULT(diagnostic, tlv_lldp_validate(nullptr, 1, 3, &diagnostic)));
     EXPECT_EQ(TLV_ERR_LIMIT, TLV_DIAGNOSTIC_RESULT(diagnostic, tlv_lldp_validate(base_lldpdu.data(),
                                                                                  base_lldpdu.size(),
                                                                                  2, &diagnostic)));
-    EXPECT_EQ(8u, diagnostic.offset);
+    EXPECT_EQ(8u, diagnostic.diagnostic.offset);
     EXPECT_EQ(TLV_ERR_LIMIT, tlv_lldp_validate(base_lldpdu.data(), base_lldpdu.size(), 0, nullptr));
 }
 
@@ -117,11 +119,11 @@ TEST(Integration_Tlv_Lldp, SchemaRejectsDuplicatesLengthsAndTruncation) {
                                               {16, 8, 0, 0, 0, 0, 0, 0, 0, 0}}) {
         auto wire = base_lldpdu;
         wire.insert(wire.end(), extra.begin(), extra.end());
-        tlv_diagnostic_t diagnostic{};
-        EXPECT_EQ(TLV_ERR_INVALID_LENGTH,
+        tlv_schema_diagnostic_t diagnostic{};
+        EXPECT_EQ(TLV_ERR_SCHEMA,
                   TLV_DIAGNOSTIC_RESULT(
                       diagnostic, tlv_lldp_validate(wire.data(), wire.size(), 20, &diagnostic)));
-        EXPECT_EQ(base_lldpdu.size(), diagnostic.offset);
+        EXPECT_EQ(base_lldpdu.size(), diagnostic.diagnostic.offset);
     }
     auto wire = base_lldpdu;
     wire.push_back(0xFE);
@@ -192,7 +194,7 @@ TEST(Integration_Tlv_Lldp, DocumentQueryCodecEditAndStructuralRevalidation) {
     // Structural validation stays opt-in even after a Document edit.
     ASSERT_EQ(TLV_OK, tlv_node_set_value(ttl_node, value, 1));
     ASSERT_EQ(TLV_OK, tlv_document_encode(doc.get(), wire.data(), wire.size(), &written));
-    EXPECT_EQ(TLV_ERR_INVALID_LENGTH, tlv_lldp_validate(wire.data(), written, 3, nullptr));
+    EXPECT_EQ(TLV_ERR_SCHEMA, tlv_lldp_validate(wire.data(), written, 3, nullptr));
 }
 #endif
 
@@ -210,7 +212,7 @@ TEST(Integration_Tlv_Lldp, SchemaLengthBoundariesRemainSeparateFromFraming) {
             wire.push_back(static_cast<uint8_t>((bounds.type << 1) | (length >> 8)));
             wire.push_back(static_cast<uint8_t>(length));
             wire.insert(wire.end(), length, 0);
-            EXPECT_EQ(length <= bounds.maximum ? TLV_OK : TLV_ERR_INVALID_LENGTH,
+            EXPECT_EQ(length <= bounds.maximum ? TLV_OK : TLV_ERR_SCHEMA,
                       tlv_lldp_validate(wire.data(), wire.size(), 4, nullptr));
         }
     }

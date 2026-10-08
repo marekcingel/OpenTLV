@@ -56,6 +56,8 @@ pub struct tlv_schema_diagnostic_t {
     pub length_multiple: usize,
     /// Corresponding C field.
     pub length_flags: u32,
+    /// Schema byte-position anchor (unknown, element, scope end, insertion).
+    pub anchor: c_int,
 }
 /// Caller-owned detailed report storage.
 #[repr(C)]

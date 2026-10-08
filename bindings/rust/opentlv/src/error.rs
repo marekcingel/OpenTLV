@@ -47,8 +47,8 @@ pub enum Error {
     InvalidValue,
     /// A universal tag number has no implemented canonical validation.
     UnsupportedType,
-    /// A required schema field is absent.
-    SchemaMissing,
+    /// A schema definition is invalid independently of input.
+    InvalidSchema,
     /// A logical size exceeds the host address space.
     NativeSize,
     /// Non-final input is exhausted or incomplete; this condition is resumable.
@@ -82,7 +82,7 @@ impl Error {
             native::TLV_ERR_OVERFLOW => Error::Overflow,
             native::TLV_ERR_INVALID_VALUE => Error::InvalidValue,
             native::TLV_ERR_UNSUPPORTED_TYPE => Error::UnsupportedType,
-            native::TLV_ERR_SCHEMA_MISSING => Error::SchemaMissing,
+            native::TLV_ERR_INVALID_SCHEMA => Error::InvalidSchema,
             native::TLV_ERR_NATIVE_SIZE => Error::NativeSize,
             native::TLV_NEED_MORE_DATA => Error::NeedMoreData,
             native::TLV_ERR_INVALID_STATE => Error::InvalidState,
@@ -108,7 +108,7 @@ impl Error {
             Error::Overflow => native::TLV_ERR_OVERFLOW,
             Error::InvalidValue => native::TLV_ERR_INVALID_VALUE,
             Error::UnsupportedType => native::TLV_ERR_UNSUPPORTED_TYPE,
-            Error::SchemaMissing => native::TLV_ERR_SCHEMA_MISSING,
+            Error::InvalidSchema => native::TLV_ERR_INVALID_SCHEMA,
             Error::NativeSize => native::TLV_ERR_NATIVE_SIZE,
             Error::NeedMoreData => native::TLV_NEED_MORE_DATA,
             Error::InvalidState => native::TLV_ERR_INVALID_STATE,
@@ -156,7 +156,7 @@ mod tests {
         (13, Error::Overflow),
         (14, Error::InvalidValue),
         (15, Error::UnsupportedType),
-        (16, Error::SchemaMissing),
+        (16, Error::InvalidSchema),
         (17, Error::NativeSize),
         (18, Error::NeedMoreData),
         (19, Error::InvalidState),

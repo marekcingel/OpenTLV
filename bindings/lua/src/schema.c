@@ -224,6 +224,8 @@ void opentlv_lua_push_schema_diagnostic(lua_State* L, const tlv_schema_diagnosti
     opentlv_lua_push_diagnostic(L, &diagnostic);
     lua_pushstring(L, tlv_schema_issue_kind_string(detail->kind));
     lua_setfield(L, -2, "kind");
+    lua_pushinteger(L, detail->anchor);
+    lua_setfield(L, -2, "anchor");
     lua_pushlstring(L, detail->tag.data ? (const char*)detail->tag.data : "", detail->tag.size);
     lua_setfield(L, -2, "tag");
     if (detail->field) {

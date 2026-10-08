@@ -5,6 +5,7 @@
 #define OPENTLV_TLVPP_ERROR_HPP
 #include "tlv/error.h"
 #include "tlv/diagnostic.h"
+#include "tlv/schema/schema.h"
 #include <cstddef>
 
 /** @file
@@ -36,7 +37,7 @@ enum class errc {
     overflow = TLV_ERR_OVERFLOW,                     /**< Numeric overflow. */
     invalid_value = TLV_ERR_INVALID_VALUE,           /**< Invalid semantic value. */
     unsupported_type = TLV_ERR_UNSUPPORTED_TYPE,     /**< Unsupported value type. */
-    missing_field = TLV_ERR_SCHEMA_MISSING,          /**< Required field is absent. */
+    invalid_schema = TLV_ERR_INVALID_SCHEMA,         /**< Invalid schema definition. */
     native_size = TLV_ERR_NATIVE_SIZE,               /**< Logical size exceeds address space. */
     need_more_data = TLV_NEED_MORE_DATA              /**< Non-final input needs continuation. */
 };
@@ -64,7 +65,7 @@ inline const char* name(errc code) noexcept {
         case errc::overflow: return "TLV_ERR_OVERFLOW";
         case errc::invalid_value: return "TLV_ERR_INVALID_VALUE";
         case errc::unsupported_type: return "TLV_ERR_UNSUPPORTED_TYPE";
-        case errc::missing_field: return "TLV_ERR_SCHEMA_MISSING";
+        case errc::invalid_schema: return "TLV_ERR_INVALID_SCHEMA";
         case errc::native_size: return "TLV_ERR_NATIVE_SIZE";
         case errc::need_more_data: return "TLV_NEED_MORE_DATA";
     }
@@ -86,6 +87,26 @@ enum class severity {
     error = TLV_DIAGNOSTIC_SEVERITY_ERROR,     /**< Operation failed. */
     warning = TLV_DIAGNOSTIC_SEVERITY_WARNING, /**< Recoverable observation. */
     info = TLV_DIAGNOSTIC_SEVERITY_INFO        /**< Informational observation. */
+};
+/** @brief Category of structural Schema violation. */
+enum class schema_issue {
+    none = TLV_SCHEMA_ISSUE_NONE,             /**< No Schema reason. */
+    value = TLV_SCHEMA_ISSUE_VALUE,           /**< Semantic Value constraint. */
+    definition = TLV_SCHEMA_ISSUE_DEFINITION, /**< Malformed definition. */
+    missing = TLV_SCHEMA_ISSUE_MISSING,       /**< Required field or group absent. */
+    duplicate = TLV_SCHEMA_ISSUE_DUPLICATE,   /**< Too many occurrences. */
+    unexpected = TLV_SCHEMA_ISSUE_UNEXPECTED, /**< Unknown or forbidden identifier. */
+    kind = TLV_SCHEMA_ISSUE_KIND,             /**< Primitive/constructed mismatch. */
+    length = TLV_SCHEMA_ISSUE_LENGTH,         /**< Invalid Value length. */
+    order = TLV_SCHEMA_ISSUE_ORDER,           /**< Invalid sibling order. */
+    assertion = TLV_SCHEMA_ISSUE_ASSERTION    /**< Query assertion failed. */
+};
+/** @brief Meaning of a Schema failure's byte offset. */
+enum class schema_anchor {
+    unknown = TLV_SCHEMA_ANCHOR_UNKNOWN,     /**< No byte location. */
+    element = TLV_SCHEMA_ANCHOR_ELEMENT,     /**< Existing element evidence. */
+    scope_end = TLV_SCHEMA_ANCHOR_SCOPE_END, /**< End of enclosing scope. */
+    insertion = TLV_SCHEMA_ANCHOR_INSERTION  /**< Missing ordered content. */
 };
 /**
  * @brief Allocation-free operation error with optional absolute byte offset.
@@ -124,6 +145,14 @@ struct error {
     /** @brief Severity of this diagnostic; operation errors default to error. */
     tlv::severity severity() const noexcept {
         return severity_;
+    }
+    /** @brief Typed Schema reason, or none for other failures. */
+    schema_issue schema_kind() const noexcept {
+        return schema_kind_;
+    }
+    /** @brief Schema location meaning, or unknown for other failures. */
+    schema_anchor anchor() const noexcept {
+        return anchor_;
     }
     /** @brief Whether offset() contains a known location. */
     bool has_offset() const noexcept {
@@ -173,6 +202,8 @@ struct error {
     }
 
 private:
+    schema_issue          schema_kind_ = schema_issue::none;
+    schema_anchor         anchor_ = schema_anchor::unknown;
     const char*           message_;
     operation             stage_ = operation::unspecified;
     std::size_t           offset_ = 0;
@@ -200,6 +231,13 @@ template <typename Failure> inline error to_error(const Failure& value) noexcept
 /// @cond INTERNAL
 namespace detail {
 struct error_access {
+    static error schema(const tlv_schema_diagnostic_t& value) noexcept {
+        error result = diagnostic(value.diagnostic, operation::schema,
+                                  value.tag.size ? &value.tag : nullptr, &value.path);
+        result.schema_kind_ = static_cast<schema_issue>(value.kind);
+        result.anchor_ = static_cast<schema_anchor>(value.anchor);
+        return result;
+    }
     static error diagnostic(const tlv_diagnostic_t& value, operation stage,
                             const tlv_tag_t*             tag = nullptr,
                             const tlv_diagnostic_path_t* path = nullptr) noexcept {

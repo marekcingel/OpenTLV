@@ -10,8 +10,12 @@
 
 namespace {
 tlv_result_t validate(const std::vector<uint8_t>& wire, size_t* offset = nullptr) {
-    return tlv_schema_validate(wire.data(), wire.size(), &tlv_format_emv, &tlv_emv_structure_schema,
-                               TLV_TREE_DEFAULT_DEPTH, 1000, offset);
+    tlv_schema_diagnostic_t diagnostic{};
+    auto                    rc =
+        tlv_schema_validate(wire.data(), wire.size(), &tlv_format_emv, &tlv_emv_structure_schema,
+                            TLV_TREE_DEFAULT_DEPTH, 1000, &diagnostic);
+    if (offset) *offset = diagnostic.diagnostic.offset;
+    return rc;
 }
 } // namespace
 
@@ -29,8 +33,7 @@ TEST(Integration_Tlv_EmvSchema, StructuralScopesBorrowDictionaryFields) {
             if (rule.children) pending.push_back(rule.children);
         }
     }
-    EXPECT_EQ(TLV_ERR_INVALID_LENGTH,
-              validate({0x77, 0x0B, 0x82, 2, 0, 0, 0x94, 5, 0, 0, 0, 0, 0}));
+    EXPECT_EQ(TLV_ERR_SCHEMA, validate({0x77, 0x0B, 0x82, 2, 0, 0, 0x94, 5, 0, 0, 0, 0, 0}));
 }
 
 TEST(Integration_Tlv_EmvSchema, AcceptsAnFciTemplateWithJustAMandatoryDfName) {
@@ -43,7 +46,7 @@ TEST(Integration_Tlv_EmvSchema, AcceptsAnFciTemplateWithJustAMandatoryDfName) {
 TEST(Integration_Tlv_EmvSchema, RejectsAnFciTemplateMissingTheMandatoryDfName) {
     const std::vector<uint8_t> wire{0x6F, 0x00};
     size_t                     offset = 99;
-    EXPECT_EQ(TLV_ERR_SCHEMA_MISSING, validate(wire, &offset));
+    EXPECT_EQ(TLV_ERR_SCHEMA, validate(wire, &offset));
     EXPECT_EQ(2u, offset); // The end of the empty FCI Template's value.
 }
 
@@ -66,7 +69,7 @@ TEST(Integration_Tlv_EmvSchema, RejectsADfNameShorterThanTheDictionaryMinimum) {
     // DF Name's dictionary length is 5..16; two bytes is too short.
     const std::vector<uint8_t> wire{0x6F, 0x04, 0x84, 0x02, 0xAA, 0xBB};
     size_t                     offset = 0;
-    EXPECT_EQ(TLV_ERR_INVALID_LENGTH, validate(wire, &offset));
+    EXPECT_EQ(TLV_ERR_SCHEMA, validate(wire, &offset));
     EXPECT_EQ(2u, offset);
 }
 
@@ -93,7 +96,7 @@ TEST(Integration_Tlv_EmvSchema, AcceptsAGpoResponseFormat2WithExactlyAipAndAfl) 
 
 TEST(Integration_Tlv_EmvSchema, RejectsAGpoResponseFormat2MissingTheMandatoryAfl) {
     const std::vector<uint8_t> wire{0x77, 0x04, 0x82, 0x02, 0x19, 0x80};
-    EXPECT_EQ(TLV_ERR_SCHEMA_MISSING, validate(wire));
+    EXPECT_EQ(TLV_ERR_SCHEMA, validate(wire));
 }
 
 TEST(Integration_Tlv_EmvSchema, AcceptsUnmodeledTopLevelTagsUnchecked) {
@@ -107,13 +110,13 @@ TEST(Integration_Tlv_EmvSchema, AcceptsUnmodeledTopLevelTagsUnchecked) {
 TEST(Integration_Tlv_EmvSchema, MissingFieldReportsTheDistinctCodeEvenWhenASiblingFollows) {
     // A malformed, empty FCI Template immediately followed by a valid GPO
     // response: the missing-DF-Name offset (2) is also where the next
-    // sibling happens to start, so the distinct TLV_ERR_SCHEMA_MISSING code
+    // sibling happens to start, so the distinct TLV_ERR_SCHEMA code
     // (rather than TLV_ERR_SCHEMA) is what tells a caller not to treat a tag
     // read at that offset as the cause.
     const std::vector<uint8_t> wire{0x6F, 0x00, 0x77, 0x0A, 0x82, 0x02, 0x19,
                                     0x80, 0x94, 0x04, 0x08, 0x01, 0x01, 0x00};
     size_t                     offset = 0;
-    EXPECT_EQ(TLV_ERR_SCHEMA_MISSING, validate(wire, &offset));
+    EXPECT_EQ(TLV_ERR_SCHEMA, validate(wire, &offset));
     EXPECT_EQ(2u, offset);
 }
 
@@ -123,7 +126,7 @@ TEST(Integration_Tlv_EmvSchema, AcceptsSeveralTopLevelTemplatesConcatenated) {
                                     0x94, 0x04, 0x08, 0x01, 0x01, 0x00};
     // The malformed FCI (DF Name too short) is caught before the second element.
     size_t offset = 0;
-    EXPECT_EQ(TLV_ERR_INVALID_LENGTH, validate(wire, &offset));
+    EXPECT_EQ(TLV_ERR_SCHEMA, validate(wire, &offset));
     EXPECT_EQ(2u, offset);
 }
 
@@ -143,7 +146,7 @@ TEST(Integration_Tlv_EmvSchema, ReportsFciViolationsWithPathsInOnePass) {
         EXPECT_STREQ("6F", text);
         if (issues[i].kind == TLV_SCHEMA_ISSUE_MISSING) {
             EXPECT_TRUE(tlv_tag_equal(TLV_TAG(0x84), issues[i].tag));
-            EXPECT_EQ(0u, issues[i].diagnostic.offset);
+            EXPECT_EQ(wire.size(), issues[i].diagnostic.offset);
         } else {
             EXPECT_EQ(TLV_SCHEMA_ISSUE_UNEXPECTED, issues[i].kind);
             EXPECT_TRUE(tlv_tag_equal(TLV_TAG(0x50), issues[i].tag));

@@ -11,16 +11,6 @@
  * @brief Bounded validation reports with borrowed C++ diagnostic views.
  */
 namespace tlv {
-/** @brief Category of structural Schema violation. */
-enum class schema_issue {
-    missing = TLV_SCHEMA_ISSUE_MISSING,       /**< Required field or group absent. */
-    duplicate = TLV_SCHEMA_ISSUE_DUPLICATE,   /**< Too many occurrences. */
-    unexpected = TLV_SCHEMA_ISSUE_UNEXPECTED, /**< Unknown or forbidden identifier. */
-    kind = TLV_SCHEMA_ISSUE_KIND,             /**< Primitive/constructed mismatch. */
-    length = TLV_SCHEMA_ISSUE_LENGTH,         /**< Invalid Value length. */
-    order = TLV_SCHEMA_ISSUE_ORDER,           /**< Invalid sibling order. */
-    assertion = TLV_SCHEMA_ISSUE_ASSERTION    /**< Query assertion failed. */
-};
 /** @brief Program-lifetime name of a Schema violation category. */
 inline const char* message(schema_issue kind) noexcept {
     return tlv_schema_issue_kind_string(static_cast<tlv_schema_issue_kind_t>(kind));
@@ -39,8 +29,7 @@ public:
     }
     /** @brief Canonical status and absolute wire offset. */
     tlv::error error() const noexcept {
-        return detail::error_access::diagnostic(raw_.diagnostic, operation::schema, &raw_.tag,
-                                                &raw_.path);
+        return detail::error_access::schema(raw_);
     }
     /** @brief Affected identifier, borrowed from input, Format or Schema. */
     tlv::tag tag() const noexcept {
@@ -161,7 +150,9 @@ public:
             max_elements, static_cast<tlv_schema_unknown_policy_t>(unknown), &report, &offset);
         total_ = report.count;
         if (rc != TLV_OK && rc != TLV_ERR_SCHEMA)
-            return unexpected<error>(error::from_c(rc).at(offset, operation::schema));
+            return unexpected<error>(rc == TLV_ERR_INVALID_SCHEMA
+                                         ? error::from_c(rc).during(operation::schema)
+                                         : error::from_c(rc).at(offset, operation::schema));
         return total_;
     }
     /** @brief Number of retained violations. */

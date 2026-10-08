@@ -18,12 +18,12 @@ const tlv_schema_entry_t* tlv_schema_find(const tlv_schema_t* schema, const tlv_
 
 tlv_result_t tlv_schema_validate_length(const tlv_schema_entry_t* entry, size_t length) {
     if (!entry) return TLV_ERR_NULL_ARG;
-    if (entry->min_length > entry->max_length || length < entry->min_length ||
-        length > entry->max_length ||
+    if (entry->min_length > entry->max_length) return TLV_ERR_INVALID_SCHEMA;
+    if (length < entry->min_length || length > entry->max_length ||
         ((entry->flags & TLV_SCHEMA_LENGTH_ENDPOINTS) && length != entry->min_length &&
          length != entry->max_length) ||
         (entry->length_multiple && length % entry->length_multiple != 0))
-        return TLV_ERR_INVALID_LENGTH;
+        return TLV_ERR_SCHEMA;
     return TLV_OK;
 }
 
@@ -34,6 +34,9 @@ void tlv_schema_diagnostic_init(tlv_schema_diagnostic_t* diagnostic) {
 
 const char* tlv_schema_issue_kind_string(tlv_schema_issue_kind_t kind) {
     switch (kind) {
+        case TLV_SCHEMA_ISSUE_NONE: return "none";
+        case TLV_SCHEMA_ISSUE_VALUE: return "value";
+        case TLV_SCHEMA_ISSUE_DEFINITION: return "definition";
         case TLV_SCHEMA_ISSUE_MISSING: return "missing";
         case TLV_SCHEMA_ISSUE_DUPLICATE: return "duplicate";
         case TLV_SCHEMA_ISSUE_UNEXPECTED: return "unexpected";
@@ -43,4 +46,83 @@ const char* tlv_schema_issue_kind_string(tlv_schema_issue_kind_t kind) {
         case TLV_SCHEMA_ISSUE_ASSERTION: return "assertion";
     }
     return "unknown";
+}
+
+static int group_index(const tlv_structure_schema_t* schema, uint32_t id) {
+    for (size_t g = 0; g < schema->group_count; ++g)
+        if (schema->groups[g].id == id) return (int)g;
+    return -1;
+}
+
+static tlv_result_t check_table(const tlv_structure_schema_t* schema) {
+    if (!schema->rules && schema->count) return TLV_ERR_INVALID_SCHEMA;
+    if (!schema->groups && schema->group_count) return TLV_ERR_INVALID_SCHEMA;
+    if (schema->order != TLV_SCHEMA_ORDER_ANY && schema->order != TLV_SCHEMA_ORDER_SEQUENCE)
+        return TLV_ERR_INVALID_SCHEMA;
+    for (size_t g = 0; g < schema->group_count; ++g) {
+        const tlv_structure_group_t* group = &schema->groups[g];
+        int has_member = 0;
+        if (!group->id || group->min_occurs > group->max_occurs) return TLV_ERR_INVALID_SCHEMA;
+        for (size_t h = 0; h < g; ++h)
+            if (schema->groups[h].id == group->id) return TLV_ERR_INVALID_SCHEMA;
+        for (size_t i = 0; i < schema->count; ++i)
+            if (schema->rules[i].group == group->id) has_member = 1;
+        if (!has_member) return TLV_ERR_INVALID_SCHEMA;
+    }
+    for (size_t i = 0; i < schema->count; ++i) {
+        const tlv_structure_rule_t* rule = &schema->rules[i];
+        if (!rule->entry || !rule->entry->tag.size || !rule->entry->tag.data ||
+            rule->entry->min_length > rule->entry->max_length ||
+            rule->min_occurs > rule->max_occurs || rule->kind < TLV_SCHEMA_ANY ||
+            rule->kind > TLV_SCHEMA_CONSTRUCTED ||
+            (rule->children && rule->kind != TLV_SCHEMA_CONSTRUCTED) ||
+            (rule->group && group_index(schema, rule->group) < 0) ||
+            (rule->group && rule->min_occurs != 0))
+            return TLV_ERR_INVALID_SCHEMA;
+        for (size_t j = 0; j < i; ++j)
+            if (tlv_tag_equal(rule->entry->tag, schema->rules[j].entry->tag))
+                return TLV_ERR_INVALID_SCHEMA;
+    }
+    return TLV_OK;
+}
+
+tlv_result_t tlv_schema_check(const tlv_structure_schema_t* schema,
+                              tlv_schema_diagnostic_t* diagnostic) {
+    const tlv_structure_schema_t* tables[TLV_SCHEMA_MAX_TABLES];
+    size_t count = 1;
+    tlv_result_t rc;
+    if (diagnostic) tlv_schema_diagnostic_init(diagnostic);
+    if (!schema) {
+        rc = TLV_ERR_NULL_ARG;
+        goto done;
+    }
+    tables[0] = schema;
+    /* Enqueue each identity once. Every queued table is checked before success,
+     * including tables reached through cycles or absent optional fields. */
+    for (size_t next = 0; next < count; ++next) {
+        const tlv_structure_schema_t* current = tables[next];
+        rc = check_table(current);
+        if (rc != TLV_OK) goto done;
+        for (size_t rule = 0; rule < current->count; ++rule) {
+            const tlv_structure_schema_t* child = current->rules[rule].children;
+            size_t i;
+            if (!child) continue;
+            for (i = 0; i < count; ++i)
+                if (tables[i] == child) break;
+            if (i < count) continue;
+            if (count == TLV_SCHEMA_MAX_TABLES) {
+                rc = TLV_ERR_UNSUPPORTED_TYPE;
+                goto done;
+            }
+            tables[count++] = child;
+        }
+    }
+    rc = TLV_OK;
+done:
+    if (diagnostic && rc != TLV_OK) {
+        diagnostic->diagnostic.code = rc;
+        diagnostic->diagnostic.severity = TLV_DIAGNOSTIC_SEVERITY_ERROR;
+        if (rc == TLV_ERR_INVALID_SCHEMA) diagnostic->kind = TLV_SCHEMA_ISSUE_DEFINITION;
+    }
+    return rc;
 }
