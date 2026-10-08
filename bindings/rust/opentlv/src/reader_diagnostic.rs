@@ -44,6 +44,13 @@ pub struct ReaderDiagnostic {
 
 impl ReaderDiagnostic {
     pub(crate) unsafe fn from_raw(raw: &native::tlv_reader_diagnostic_t) -> Self {
+        // SAFETY: the caller retains all borrowed diagnostic storage.
+        unsafe { Self::from_parts(&raw.diagnostic, &raw.detail) }
+    }
+    pub(crate) unsafe fn from_parts(
+        common: &native::tlv_diagnostic_t,
+        raw: &native::tlv_reader_detail_t,
+    ) -> Self {
         unsafe fn bytes(ptr: *const u8, size: usize) -> Vec<u8> {
             if size == 0 {
                 Vec::new()
@@ -65,15 +72,15 @@ impl ReaderDiagnostic {
             }
         }
         Self {
-            location: crate::Location::from_raw(raw.diagnostic.location),
-            path: (raw.diagnostic.has_path != 0).then(|| {
-                raw.diagnostic.path.tags[..raw.diagnostic.path.length]
+            location: crate::Location::from_raw(common.location),
+            path: (common.has_path != 0).then(|| {
+                common.path.tags[..common.path.length]
                     .iter()
                     .map(|tag| unsafe { bytes(tag.data, tag.size) })
                     .collect()
             }),
-            path_omitted: raw.diagnostic.path.omitted,
-            offset: (raw.diagnostic.location.kind != 0).then_some(raw.diagnostic.location.begin),
+            path_omitted: common.path.omitted,
+            offset: (common.location.kind != 0).then_some(common.location.begin),
             operation: raw.operation,
             // SAFETY: the caller keeps diagnostic buffers alive for these copies.
             tag: (raw.has_tag != 0).then(|| unsafe { bytes(raw.tag.data, raw.tag.size) }),
@@ -87,8 +94,8 @@ impl ReaderDiagnostic {
             available: (raw.has_available != 0).then_some(raw.available),
             enclosing_end: (raw.has_enclosing_end != 0).then_some(raw.enclosing_end),
             // SAFETY: descriptions remain live until after this conversion.
-            expected: unsafe { text(raw.diagnostic.expected) },
-            actual: unsafe { text(raw.diagnostic.actual) },
+            expected: unsafe { text(common.expected) },
+            actual: unsafe { text(common.actual) },
         }
     }
 }

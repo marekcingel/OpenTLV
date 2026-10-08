@@ -1107,10 +1107,10 @@ TEST(Unit_Tlv_DocumentBuilder, PreservesReaderDiagnosticsAfterWindowReplacement)
         TLV_DIAGNOSTIC_RESULT(expected, tlv_tree_reader_next_diag(&reader, &item, &expected)));
     EXPECT_EQ(expected.diagnostic.code, actual.diagnostic.code);
     EXPECT_EQ(expected.diagnostic.location.begin, actual.diagnostic.location.begin);
-    EXPECT_EQ(expected.operation, actual.operation);
-    EXPECT_EQ(expected.value_offset, actual.value_offset);
-    EXPECT_EQ(expected.declared_length, actual.declared_length);
-    EXPECT_EQ(expected.enclosing_end, actual.enclosing_end);
+    EXPECT_EQ(expected.detail.operation, actual.detail.operation);
+    EXPECT_EQ(expected.detail.value_offset, actual.detail.value_offset);
+    EXPECT_EQ(expected.detail.declared_length, actual.detail.declared_length);
+    EXPECT_EQ(expected.detail.enclosing_end, actual.detail.enclosing_end);
     EXPECT_EQ(TLV_ERR_INVALID_STATE, tlv_document_builder_consume(raw, &doc.handle, nullptr));
 }
 

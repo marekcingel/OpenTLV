@@ -403,14 +403,14 @@ TEST(Integration_Tlv_Architecture, TreeCursorDiagnosticsKeepAbsoluteOffsetsAndPa
               visit_tree_input_diag(data, sizeof(data), &constructed_format, 8, 8, nullptr, nullptr,
                                     &error_offset, &diagnostic));
     EXPECT_EQ(4u, error_offset);
-    EXPECT_EQ(TLV_READER_OP_VALUE, diagnostic.operation);
+    EXPECT_EQ(TLV_READER_OP_VALUE, diagnostic.detail.operation);
     EXPECT_EQ(6u, diagnostic.diagnostic.location.begin);
-    EXPECT_EQ(4u, diagnostic.tag_offset);
-    EXPECT_EQ(5u, diagnostic.length_offset);
-    EXPECT_EQ(6u, diagnostic.value_offset);
-    EXPECT_EQ(7u, diagnostic.enclosing_end);
-    EXPECT_EQ(1u, diagnostic.available);
-    EXPECT_EQ(2u, diagnostic.declared_length);
+    EXPECT_EQ(4u, diagnostic.detail.tag_offset);
+    EXPECT_EQ(5u, diagnostic.detail.length_offset);
+    EXPECT_EQ(6u, diagnostic.detail.value_offset);
+    EXPECT_EQ(7u, diagnostic.detail.enclosing_end);
+    EXPECT_EQ(1u, diagnostic.detail.available);
+    EXPECT_EQ(2u, diagnostic.detail.declared_length);
 }
 
 TEST(Integration_Tlv_Architecture, SequentialTraversalDoesNotRecoverPastInvalidInput) {

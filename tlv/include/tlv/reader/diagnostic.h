@@ -27,28 +27,14 @@ typedef enum tlv_reader_operation {
 } tlv_reader_operation_t;
 
 /**
- * @brief Structured detail for a failed tlv_read() or tlv_reader_next() call.
- *
- * Pairs a #tlv_diagnostic_t with the reader-specific state needed to locate a
- * parsing failure precisely: which step failed, the tag being processed if
- * one was already decoded, the offsets of the fields involved, and the sizes
- * that made the operation fail. Every field is a fixed-size value or a
- * borrowed pointer, so filling one never allocates. Diagnostic `tag` borrows
- * the raw wire envelope reported in the format error; for transformed
- * identifiers this is not the canonical semantic Tag.
- *
- * A field not applicable to the failure that produced the diagnostic is left
- * unset, indicated by its paired `has_*` flag being zero.
- *
- * Once initialized by an operation, a non-#TLV_OK return has the same code in
- * `diagnostic.code`. Preflight checks which run before initialization leave
- * this object untouched. A successful call need not clear earlier detail.
- *
- * @see tlv_reader_diagnostic_init
+ * @brief Reader-specific failure evidence without common diagnostic metadata.
+ * @note Fields with a zero has_* flag are unset. Tag and raw-length bytes borrow
+ * the original wire storage, which must outlive this detail. The tag is the wire
+ * envelope reported by Format, not a transformed semantic identifier.
+ * @note This fixed-size value contains no result, location or path. It can be
+ * embedded beside one shared #tlv_diagnostic_t without duplicating that storage.
  */
-typedef struct tlv_reader_diagnostic {
-    /** Code, severity, the offset of the failing field, and any expected/actual text. */
-    tlv_diagnostic_t diagnostic;
+typedef struct tlv_reader_detail {
     /** Parsing step that failed. */
     tlv_reader_operation_t operation;
     /** Nonzero if `tag` was decoded before the failure. */
@@ -98,5 +84,20 @@ typedef struct tlv_reader_diagnostic {
     int has_required;
     /** Required region size in bytes, not an absolute offset or an additional byte count. */
     tlv_size_t required;
+} tlv_reader_detail_t;
+
+/**
+ * @brief Common failure diagnostic paired with Reader-specific evidence.
+ * @note Once initialized, diagnostic.code matches the non-OK result. Preflight
+ * checks before initialization leave this object untouched; success need not
+ * clear earlier detail. No allocation occurs. Borrowed detail follows the
+ * lifetime contract of #tlv_reader_detail_t.
+ * @see tlv_reader_diagnostic_init
+ */
+typedef struct tlv_reader_diagnostic {
+    /** Result, severity, primary location and the single owned path. */
+    tlv_diagnostic_t diagnostic;
+    /** Parsing step, borrowed field bytes and optional bounds. */
+    tlv_reader_detail_t detail;
 } tlv_reader_diagnostic_t;
 #endif

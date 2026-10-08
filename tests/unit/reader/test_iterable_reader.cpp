@@ -139,8 +139,8 @@ TEST(Unit_Tlvpp_IterableReader, FirstFailureThrowsWithCanonicalDiagnosticAndNoCo
         EXPECT_EQ(0u, failure.offset());
         EXPECT_EQ(expected.diagnostic.location.begin,
                   failure.diagnostic().diagnostic.location.begin);
-        EXPECT_EQ(expected.operation, failure.diagnostic().operation);
-        EXPECT_EQ(expected.declared_length, failure.diagnostic().declared_length);
+        EXPECT_EQ(expected.detail.operation, failure.diagnostic().detail.operation);
+        EXPECT_EQ(expected.detail.declared_length, failure.diagnostic().detail.declared_length);
     }
     EXPECT_EQ(0u, reader.consumed());
     EXPECT_THROW((void)reader.begin(), tlv::parse_error);

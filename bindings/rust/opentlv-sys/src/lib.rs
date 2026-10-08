@@ -1287,8 +1287,15 @@ pub struct tlv_location_t {
 #[repr(C)]
 #[derive(Clone, Copy, Debug)]
 pub struct tlv_reader_diagnostic_t {
-    /// Corresponding C field.
+    /// Common result, location and path.
     pub diagnostic: tlv_diagnostic_t,
+    /// Reader-specific evidence.
+    pub detail: tlv_reader_detail_t,
+}
+/// Native Reader-specific evidence without common diagnostic metadata.
+#[repr(C)]
+#[derive(Clone, Copy, Debug)]
+pub struct tlv_reader_detail_t {
     /// Corresponding C field.
     pub operation: c_int,
     /// Corresponding C field.

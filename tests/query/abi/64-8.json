@@ -22,6 +22,35 @@
       "has_path": 56,
       "path": 64
     },
+    "tlv_reader_detail_t": {
+      "size": 160,
+      "alignment": 8,
+      "operation": 0,
+      "has_tag": 4,
+      "tag": 8,
+      "has_tag_offset": 24,
+      "tag_offset": 32,
+      "has_length_offset": 40,
+      "length_offset": 48,
+      "has_value_offset": 56,
+      "value_offset": 64,
+      "has_declared_length": 72,
+      "declared_length": 80,
+      "has_raw_length": 88,
+      "raw_length": 96,
+      "has_available": 112,
+      "available": 120,
+      "has_enclosing_end": 128,
+      "enclosing_end": 136,
+      "has_required": 144,
+      "required": 152
+    },
+    "tlv_reader_diagnostic_t": {
+      "size": 752,
+      "alignment": 8,
+      "diagnostic": 0,
+      "detail": 592
+    },
     "tlv_schema_definition_location_t": {
       "size": 24,
       "alignment": 8,
@@ -75,13 +104,15 @@
       "invalid": 40
     },
     "tlv_query_diagnostic_t": {
-      "size": 1400,
+      "size": 808,
       "alignment": 8,
       "diagnostic": 0,
       "kind": 592,
+      "has_reader": 596,
       "begin": 600,
       "end": 608,
-      "reader": 640
+      "reader": 640,
+      "codec": 800
     },
     "tlv_query_result_t": {
       "size": 32,

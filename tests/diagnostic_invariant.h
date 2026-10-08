@@ -12,8 +12,7 @@ static inline int test_query_diagnostic_matches(tlv_result_t                  rc
     return rc == TLV_OK ||
            (diagnostic->diagnostic.code == rc && diagnostic->kind != TLV_QUERY_ERROR_NONE &&
             (rc != TLV_ERR_INVALID_STATE || diagnostic->kind == TLV_QUERY_ERROR_STATE) &&
-            (diagnostic->kind != TLV_QUERY_ERROR_READER ||
-             test_diagnostic_matches(rc, &diagnostic->reader.diagnostic)) &&
+            (diagnostic->kind != TLV_QUERY_ERROR_READER || diagnostic->has_reader) &&
             (diagnostic->kind != TLV_QUERY_ERROR_CODEC || diagnostic->codec != TLV_CODEC_OK));
 }
 #endif

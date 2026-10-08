@@ -82,9 +82,11 @@ static void push_query_error(lua_State* L, tlv_result_t code, const tlv_query_di
         opentlv_lua_push_error(L, code, 0, 0);
         return;
     }
-    tlv_reader_diagnostic_t primary = d->reader;
-    primary.diagnostic = d->diagnostic;
-    opentlv_lua_push_reader_error(L, code, &primary);
+    opentlv_lua_push_diagnostic(L, &d->diagnostic);
+    field(L, "code", code);
+    lua_pushstring(L, tlv_strerror(code));
+    lua_setfield(L, -2, "message");
+    if (d->has_reader) opentlv_lua_add_reader_detail(L, &d->reader);
     lua_newtable(L);
     field(L, "kind", d->kind);
     field(L, "begin", d->begin);

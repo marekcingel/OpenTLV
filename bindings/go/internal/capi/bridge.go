@@ -269,7 +269,11 @@ func writerDiagnostic(r C.go_write_result, tag []byte) Diagnostic {
 }
 
 func readerDiagnostic(native C.tlv_reader_diagnostic_t, code Code) Diagnostic {
-	d := diagnostic(native.diagnostic, C.int(native.operation))
+	return readerDiagnosticParts(native.diagnostic, native.detail, code)
+}
+
+func readerDiagnosticParts(common C.tlv_diagnostic_t, native C.tlv_reader_detail_t, code Code) Diagnostic {
+	d := diagnostic(common, C.int(native.operation))
 	d.Code = code
 	d.HasTag = native.has_tag != 0
 	if d.HasTag {

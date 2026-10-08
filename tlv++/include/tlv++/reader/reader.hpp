@@ -23,6 +23,8 @@ namespace tlv {
 
 /** @brief C++ alias for the reader-specific diagnostic type, #tlv_reader_diagnostic_t. */
 using reader_diagnostic = tlv_reader_diagnostic_t;
+/** @brief Reader-specific evidence without common diagnostic metadata. */
+using reader_detail = tlv_reader_detail_t;
 
 /** @brief Wire field being read when a Reader failed. */
 enum class reader_phase {
@@ -33,8 +35,12 @@ enum class reader_phase {
     header = TLV_READER_OP_HEADER    /**< Complete header. */
 };
 /** @brief Reader phase in an existing diagnostic. */
-inline reader_phase phase(const reader_diagnostic& value) noexcept {
+inline reader_phase phase(const reader_detail& value) noexcept {
     return static_cast<reader_phase>(value.operation);
+}
+/** @brief Apply phase to the Reader-specific part of a complete diagnostic. */
+inline reader_phase phase(const reader_diagnostic& value) noexcept {
+    return phase(value.detail);
 }
 /** @brief Immutable program-lifetime Reader phase name. */
 inline const char* message(reader_phase value) noexcept {
@@ -48,19 +54,31 @@ inline const char* message(reader_phase value) noexcept {
     return "unknown";
 }
 /** @brief Borrow a Reader diagnostic's identifier, or an absent identifier. */
-inline tlv::tag diagnostic_tag(const reader_diagnostic& value) noexcept {
+inline tlv::tag diagnostic_tag(const reader_detail& value) noexcept {
     return value.has_tag ? detail::semantic_access::borrow(value.tag) : tlv::tag{};
 }
+/** @brief Apply diagnostic_tag to the Reader-specific part of a complete diagnostic. */
+inline tlv::tag diagnostic_tag(const reader_diagnostic& value) noexcept {
+    return diagnostic_tag(value.detail);
+}
 /** @brief Attach a borrowed identifier to a Reader diagnostic. */
-inline void set_tag(reader_diagnostic& value, tlv::tag identifier) noexcept {
+inline void set_tag(reader_detail& value, tlv::tag identifier) noexcept {
     value.tag = detail::semantic_access::get(identifier);
     value.has_tag = 1;
 }
+/** @brief Apply set_tag to the Reader-specific part of a complete diagnostic. */
+inline void set_tag(reader_diagnostic& value, tlv::tag identifier) noexcept {
+    set_tag(value.detail, identifier);
+}
 /** @brief Borrow original Length octets, or an empty view when unavailable. */
-inline bytes raw_length(const reader_diagnostic& value) noexcept {
+inline bytes raw_length(const reader_detail& value) noexcept {
     return value.has_raw_length
                ? bytes(reinterpret_cast<const byte*>(value.raw_length.data), value.raw_length.size)
                : bytes{};
+}
+/** @brief Apply raw_length to the Reader-specific part of a complete diagnostic. */
+inline bytes raw_length(const reader_diagnostic& value) noexcept {
+    return raw_length(value.detail);
 }
 /// @cond INTERNAL
 namespace detail {
@@ -68,7 +86,8 @@ inline error reader_failed(tlv_result_t code, const reader_diagnostic& diagnosti
                            size_t /*offset*/) noexcept {
     return diagnostic.diagnostic.code == code
                ? error_access::diagnostic(diagnostic.diagnostic, operation::reader,
-                                          diagnostic.has_tag ? &diagnostic.tag : nullptr)
+                                          diagnostic.detail.has_tag ? &diagnostic.detail.tag
+                                                                    : nullptr)
                : error::from_c(code).during(operation::reader);
 }
 } // namespace detail
@@ -335,7 +354,7 @@ private:
                 diagnostic = {};
                 diagnostic.diagnostic.code = rc;
                 diagnostic.diagnostic.severity = TLV_DIAGNOSTIC_SEVERITY_ERROR;
-                diagnostic.operation = TLV_READER_OP_HEADER;
+                diagnostic.detail.operation = TLV_READER_OP_HEADER;
             }
             throw parse_error(rc, position, diagnostic);
         }

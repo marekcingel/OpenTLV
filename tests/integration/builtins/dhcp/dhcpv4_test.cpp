@@ -187,16 +187,16 @@ TEST(Integration_Tlv_Dhcpv4, ReaderTruncationReportsAbsoluteOffsetsWithoutAdvanc
         EXPECT_EQ(previous.value.size, element.value.size);
         EXPECT_TRUE(error.diagnostic.location.kind);
         EXPECT_EQ(size == 5 ? 5u : 6u, error.diagnostic.location.begin);
-        EXPECT_EQ(size == 5 ? TLV_READER_OP_LENGTH : TLV_READER_OP_VALUE, error.operation);
-        EXPECT_TRUE(error.has_tag);
-        EXPECT_TRUE(tlv_tag_equal(TLV_TAG(53), error.tag));
-        EXPECT_EQ(4u, error.tag_offset);
+        EXPECT_EQ(size == 5 ? TLV_READER_OP_LENGTH : TLV_READER_OP_VALUE, error.detail.operation);
+        EXPECT_TRUE(error.detail.has_tag);
+        EXPECT_TRUE(tlv_tag_equal(TLV_TAG(53), error.detail.tag));
+        EXPECT_EQ(4u, error.detail.tag_offset);
         if (size > 5) {
-            EXPECT_TRUE(error.has_declared_length);
-            EXPECT_EQ(2u, error.declared_length);
-            EXPECT_TRUE(error.has_raw_length);
-            ASSERT_EQ(1u, error.raw_length.size);
-            EXPECT_EQ(wire + 5, error.raw_length.data);
+            EXPECT_TRUE(error.detail.has_declared_length);
+            EXPECT_EQ(2u, error.detail.declared_length);
+            EXPECT_TRUE(error.detail.has_raw_length);
+            ASSERT_EQ(1u, error.detail.raw_length.size);
+            EXPECT_EQ(wire + 5, error.detail.raw_length.data);
         }
     }
 }

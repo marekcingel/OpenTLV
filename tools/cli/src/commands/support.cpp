@@ -137,10 +137,10 @@ tlv::errc visit_slice(const traversal_env& env, const uint8_t* slice, std::size_
         if (result != tlv::errc::ok && diagnostic &&
             tlv::status(diagnostic->diagnostic) != tlv::errc::ok) {
             tlv::translate_location(diagnostic->diagnostic.location, base);
-            if (diagnostic->has_tag_offset) diagnostic->tag_offset += base;
-            if (diagnostic->has_length_offset) diagnostic->length_offset += base;
-            if (diagnostic->has_value_offset) diagnostic->value_offset += base;
-            if (diagnostic->has_enclosing_end) diagnostic->enclosing_end += base;
+            if (diagnostic->detail.has_tag_offset) diagnostic->detail.tag_offset += base;
+            if (diagnostic->detail.has_length_offset) diagnostic->detail.length_offset += base;
+            if (diagnostic->detail.has_value_offset) diagnostic->detail.value_offset += base;
+            if (diagnostic->detail.has_enclosing_end) diagnostic->detail.enclosing_end += base;
         }
     }
     if (result != tlv::errc::ok) *error_offset = base + relative;

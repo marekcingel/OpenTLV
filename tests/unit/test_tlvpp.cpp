@@ -179,11 +179,11 @@ TEST(Unit_Tlvpp, ReaderNextDiagReportsValueExceedingAvailableBytes) {
     ASSERT_FALSE(e.has_value());
     EXPECT_TRUE(e.error().code == TLV_ERR_BUFFER_TOO_SHORT);
     EXPECT_EQ(TLV_ERR_BUFFER_TOO_SHORT, diagnostic.diagnostic.code);
-    EXPECT_EQ(TLV_READER_OP_VALUE, diagnostic.operation);
-    ASSERT_TRUE(diagnostic.has_declared_length);
-    EXPECT_EQ(6u, diagnostic.declared_length);
-    ASSERT_TRUE(diagnostic.has_available);
-    EXPECT_EQ(0u, diagnostic.available);
+    EXPECT_EQ(TLV_READER_OP_VALUE, diagnostic.detail.operation);
+    ASSERT_TRUE(diagnostic.detail.has_declared_length);
+    EXPECT_EQ(6u, diagnostic.detail.declared_length);
+    ASSERT_TRUE(diagnostic.detail.has_available);
+    EXPECT_EQ(0u, diagnostic.detail.available);
 }
 
 // --- Codec concept test ---

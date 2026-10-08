@@ -195,9 +195,9 @@ TEST(Unit_Tlv_Tree, ChildErrorsCannotBorrowBytesOutsideTheParent) {
                   TLV_DIAGNOSTIC_RESULT(diagnostic,
                                         tlv_tree_reader_next_diag(&reader, &item, &diagnostic)));
         EXPECT_EQ(4u, diagnostic.diagnostic.location.begin);
-        EXPECT_EQ(5u, diagnostic.enclosing_end);
-        EXPECT_EQ(2u, diagnostic.required);
-        EXPECT_EQ(1u, diagnostic.available);
+        EXPECT_EQ(5u, diagnostic.detail.enclosing_end);
+        EXPECT_EQ(2u, diagnostic.detail.required);
+        EXPECT_EQ(1u, diagnostic.detail.available);
         EXPECT_EQ(1u, reader.count);
         EXPECT_EQ(0u, reader.depth);
         EXPECT_EQ(99u, frame.end);

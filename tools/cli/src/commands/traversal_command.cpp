@@ -193,16 +193,16 @@ tlv::errc traversal_command::visit_recovering(std::size_t* error_offset) {
         tlv::errc rc = decoded ? tlv::errc::ok : decoded.error().status();
         if (rc != tlv::errc::ok) {
             tlv::translate_location(attempt.diagnostic.location, pos);
-            if (attempt.has_tag_offset) attempt.tag_offset += pos;
-            if (attempt.has_length_offset) attempt.length_offset += pos;
-            if (attempt.has_value_offset) attempt.value_offset += pos;
-            if (attempt.has_enclosing_end) attempt.enclosing_end += pos;
+            if (attempt.detail.has_tag_offset) attempt.detail.tag_offset += pos;
+            if (attempt.detail.has_length_offset) attempt.detail.length_offset += pos;
+            if (attempt.detail.has_value_offset) attempt.detail.value_offset += pos;
+            if (attempt.detail.has_enclosing_end) attempt.detail.enclosing_end += pos;
         }
         if (rc == tlv::errc::ok) {
             rc = visit_slice(env, data() + pos, consumed, pos, budget, count_element, &count,
                              &fault, &attempt);
             if ((rc == tlv::errc::limit || rc == tlv::errc::out_of_memory) && fault == pos) {
-                reader_diag_.has_tag = 1;
+                reader_diag_.detail.has_tag = 1;
                 tlv::set_tag(reader_diag_, decoded->element.tag());
             }
         }
@@ -316,7 +316,7 @@ int traversal_command::run() {
         std::string stage_name(stage_);
         if (!stage_name.empty() && stage_name.back() == ' ') stage_name.pop_back();
         std::string tag_hex;
-        if (reader_diag_.has_tag)
+        if (reader_diag_.detail.has_tag)
             tag_hex = hex_string(tlv::diagnostic_tag(reader_diag_).as_bytes());
         const char* tag_hex_ptr = tag_hex.empty() ? nullptr : tag_hex.c_str();
 

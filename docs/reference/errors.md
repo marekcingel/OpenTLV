@@ -29,7 +29,7 @@ return describes that result:
 - `tlv_diagnostic_t` and the active diagnostic in an embedding type have
   `diagnostic.code == rc`.
 - `tlv_query_diagnostic_t` has `kind != TLV_QUERY_ERROR_NONE`. A `READER` detail
-  also has `reader.diagnostic.code == rc`; a `CODEC` detail has a non-OK codec result.
+  sets `has_reader` and stores its result, location and path only in `diagnostic`; a `CODEC` detail has a non-OK codec result.
 - An initialized Query diagnostic for `TLV_ERR_INVALID_STATE` has kind
   `TLV_QUERY_ERROR_STATE`. Pre-initialization preservation exceptions below still apply.
 - Schema Query has alternative detail channels: a false assertion sets

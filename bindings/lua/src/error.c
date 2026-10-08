@@ -149,13 +149,17 @@ void opentlv_lua_push_reader_error(lua_State* L, tlv_result_t code,
     tlv_diagnostic_t diagnostic = diag->diagnostic;
     diagnostic.code = code;
     opentlv_lua_push_diagnostic(L, &diagnostic);
-    const char* operation = opentlv_lua_reader_operation_name(diag->operation);
+    opentlv_lua_add_reader_detail(L, &diag->detail);
+}
+
+void opentlv_lua_add_reader_detail(lua_State* L, const tlv_reader_detail_t* detail) {
+    const char* operation = opentlv_lua_reader_operation_name(detail->operation);
     if (operation != NULL) {
         lua_pushstring(L, operation);
         lua_setfield(L, -2, "operation");
     }
-    if (diag->has_tag) {
-        lua_pushlstring(L, (const char*)diag->tag.data, diag->tag.size);
+    if (detail->has_tag) {
+        lua_pushlstring(L, (const char*)detail->tag.data, detail->tag.size);
         lua_setfield(L, -2, "tag");
     }
 }

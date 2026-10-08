@@ -102,7 +102,7 @@ TEST(Unit_Tlvpp_ReaderParity, IncrementalSourceOffsetsAndFinalTruncation) {
     EXPECT_EQ(TLV_DIAGNOSTIC_RESULT(expected, tlv_reader_next_diag(&native, &element, &expected)),
               failure.error().code);
     EXPECT_EQ(expected.diagnostic.location.begin, actual.diagnostic.location.begin);
-    EXPECT_EQ(expected.operation, actual.operation);
+    EXPECT_EQ(expected.detail.operation, actual.detail.operation);
     EXPECT_FALSE(reader.at_end());
     EXPECT_EQ(0u, reader.consumed());
     ASSERT_TRUE(reader.set_input(view(data, 4), 0, tlv::input_mode::incremental));

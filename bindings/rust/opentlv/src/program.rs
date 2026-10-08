@@ -268,9 +268,12 @@ fn check(code: i32, diagnostic: &native::tlv_query_diagnostic_t) -> ProgramResul
                 limit: text(diagnostic.limit),
                 configured: diagnostic.configured,
                 codec: diagnostic.codec,
-                reader: (diagnostic.kind == 7
-                    || diagnostic.reader.diagnostic.code != native::TLV_OK)
-                    .then(|| Box::new(ReaderDiagnostic::from_raw(&diagnostic.reader))),
+                reader: (diagnostic.has_reader != 0).then(|| {
+                    Box::new(ReaderDiagnostic::from_parts(
+                        &diagnostic.diagnostic,
+                        &diagnostic.reader,
+                    ))
+                }),
             }
         }
     })

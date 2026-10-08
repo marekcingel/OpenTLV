@@ -55,7 +55,7 @@ void validate_command::run_module_checks() {
             self.error_offset_ = offset;
             tlv::set_location(self.reader_diag_.diagnostic, tlv::location_domain::input,
                               tlv::location_kind::point, offset, offset);
-            self.reader_diag_.has_tag = 1;
+            self.reader_diag_.detail.has_tag = 1;
             tlv::set_tag(self.reader_diag_, element->tag());
             self.stage_ = "codec ";
             return tlv::visit_control::stop;

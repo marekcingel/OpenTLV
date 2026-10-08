@@ -81,7 +81,7 @@ typedef enum tlv_query_decision_timing {
  * @note After initialization, every non-#TLV_OK return has a kind other than
  * #TLV_QUERY_ERROR_NONE. #TLV_ERR_INVALID_STATE has kind #TLV_QUERY_ERROR_STATE.
  * Reader failures and #TLV_NEED_MORE_DATA retain the
- * returned code in `reader.diagnostic.code`. Success need not clear old detail.
+ * returned code in `diagnostic.code` and set `has_reader`. Success need not clear old detail.
  * @note Pre-initialization overlap, reentrancy and failed-execution guards leave
  * this output untouched. Compiler prepare/commit/load preflight argument,
  * extent and alignment checks can also reject before initialization.
@@ -92,14 +92,16 @@ typedef enum tlv_query_decision_timing {
 typedef struct tlv_query_diagnostic {
     tlv_diagnostic_t diagnostic; /**< Common result and primary evidence location. */
     tlv_query_error_kind_t kind; /**< Query failure category. */
-    size_t begin;                /**< Related expression span start, inclusive. */
-    size_t end;           /**< Related expression span end, exclusive; may equal begin at EOF.
-                             Primary evidence may instead be in INPUT coordinates. */
-    const char* expected; /**< Static expected-token description, or NULL. */
-    const char* limit;    /**< Static resource name, or NULL. */
-    size_t configured;    /**< Configured resource bound, when limit is present. */
-    tlv_reader_diagnostic_t reader; /**< Original Reader detail, also retained under STATE for a
-                                       Reader state failure. */
+    int has_reader; /**< Nonzero when reader contains lower-layer evidence, including under STATE.
+                     */
+    size_t begin;   /**< Related expression span start, inclusive. */
+    size_t end;     /**< Related expression span end, exclusive; may equal begin at EOF.
+                       Primary evidence may instead be in INPUT coordinates. */
+    const char* expected;       /**< Static expected-token description, or NULL. */
+    const char* limit;          /**< Static resource name, or NULL. */
+    size_t configured;          /**< Configured resource bound, when limit is present. */
+    tlv_reader_detail_t reader; /**< Original Reader detail when has_reader is nonzero.
+                                  Result, location and path live only in diagnostic. */
     /** @brief Original codec result for #TLV_QUERY_ERROR_CODEC or a conversion
      * #TLV_QUERY_ERROR_CALLBACK.
      *

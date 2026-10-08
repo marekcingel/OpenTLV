@@ -189,22 +189,22 @@ TEST(Unit_Tlv_ReaderDiagnostic, ReadDiagReportsValueExceedingAvailableBytes) {
     EXPECT_EQ(TLV_DIAGNOSTIC_SEVERITY_ERROR, diagnostic.diagnostic.severity);
     ASSERT_NE(0, diagnostic.diagnostic.location.kind);
     EXPECT_EQ(2u, diagnostic.diagnostic.location.begin);
-    EXPECT_EQ(TLV_READER_OP_VALUE, diagnostic.operation);
-    ASSERT_NE(0, diagnostic.has_tag);
-    ASSERT_EQ(1u, diagnostic.tag.size);
-    EXPECT_EQ(0xAB, diagnostic.tag.data[0]);
-    ASSERT_NE(0, diagnostic.has_tag_offset);
-    EXPECT_EQ(0u, diagnostic.tag_offset);
-    ASSERT_NE(0, diagnostic.has_length_offset);
-    EXPECT_EQ(1u, diagnostic.length_offset);
-    ASSERT_NE(0, diagnostic.has_value_offset);
-    EXPECT_EQ(2u, diagnostic.value_offset);
-    ASSERT_NE(0, diagnostic.has_declared_length);
-    EXPECT_EQ(6u, diagnostic.declared_length);
-    ASSERT_NE(0, diagnostic.has_available);
-    EXPECT_EQ(4u, diagnostic.available);
-    ASSERT_NE(0, diagnostic.has_enclosing_end);
-    EXPECT_EQ(sizeof(data), diagnostic.enclosing_end);
+    EXPECT_EQ(TLV_READER_OP_VALUE, diagnostic.detail.operation);
+    ASSERT_NE(0, diagnostic.detail.has_tag);
+    ASSERT_EQ(1u, diagnostic.detail.tag.size);
+    EXPECT_EQ(0xAB, diagnostic.detail.tag.data[0]);
+    ASSERT_NE(0, diagnostic.detail.has_tag_offset);
+    EXPECT_EQ(0u, diagnostic.detail.tag_offset);
+    ASSERT_NE(0, diagnostic.detail.has_length_offset);
+    EXPECT_EQ(1u, diagnostic.detail.length_offset);
+    ASSERT_NE(0, diagnostic.detail.has_value_offset);
+    EXPECT_EQ(2u, diagnostic.detail.value_offset);
+    ASSERT_NE(0, diagnostic.detail.has_declared_length);
+    EXPECT_EQ(6u, diagnostic.detail.declared_length);
+    ASSERT_NE(0, diagnostic.detail.has_available);
+    EXPECT_EQ(4u, diagnostic.detail.available);
+    ASSERT_NE(0, diagnostic.detail.has_enclosing_end);
+    EXPECT_EQ(sizeof(data), diagnostic.detail.enclosing_end);
 }
 
 TEST(Unit_Tlv_ReaderDiagnostic, ReadDiagReportsEmptyInputAtHeader) {
@@ -217,10 +217,10 @@ TEST(Unit_Tlv_ReaderDiagnostic, ReadDiagReportsEmptyInputAtHeader) {
                                                               &element, &consumed, &diagnostic)));
 
     EXPECT_EQ(TLV_ERR_END_OF_BUFFER, diagnostic.diagnostic.code);
-    EXPECT_EQ(TLV_READER_OP_HEADER, diagnostic.operation);
-    EXPECT_EQ(0, diagnostic.has_tag);
-    ASSERT_NE(0, diagnostic.has_available);
-    EXPECT_EQ(0u, diagnostic.available);
+    EXPECT_EQ(TLV_READER_OP_HEADER, diagnostic.detail.operation);
+    EXPECT_EQ(0, diagnostic.detail.has_tag);
+    ASSERT_NE(0, diagnostic.detail.has_available);
+    EXPECT_EQ(0u, diagnostic.detail.available);
 }
 
 TEST(Unit_Tlv_ReaderDiagnostic, ReadDiagReportsATruncatedLengthWithTheDecodedTag) {
@@ -235,13 +235,13 @@ TEST(Unit_Tlv_ReaderDiagnostic, ReadDiagReportsATruncatedLengthWithTheDecodedTag
                                                         &element, &consumed, &diagnostic)));
 
     EXPECT_EQ(TLV_ERR_BUFFER_TOO_SHORT, diagnostic.diagnostic.code);
-    EXPECT_EQ(TLV_READER_OP_LENGTH, diagnostic.operation);
+    EXPECT_EQ(TLV_READER_OP_LENGTH, diagnostic.detail.operation);
     ASSERT_NE(0, diagnostic.diagnostic.location.kind);
     EXPECT_EQ(1u, diagnostic.diagnostic.location.begin);
-    ASSERT_NE(0, diagnostic.has_tag);
-    EXPECT_EQ(0xAB, diagnostic.tag.data[0]);
-    ASSERT_NE(0, diagnostic.has_length_offset);
-    EXPECT_EQ(1u, diagnostic.length_offset);
+    ASSERT_NE(0, diagnostic.detail.has_tag);
+    EXPECT_EQ(0xAB, diagnostic.detail.tag.data[0]);
+    ASSERT_NE(0, diagnostic.detail.has_length_offset);
+    EXPECT_EQ(1u, diagnostic.detail.length_offset);
 }
 
 TEST(Unit_Tlv_ReaderDiagnostic, ReaderNextDiagReportsOffsetsAbsoluteWithinTheBuffer) {
@@ -260,14 +260,14 @@ TEST(Unit_Tlv_ReaderDiagnostic, ReaderNextDiagReportsOffsetsAbsoluteWithinTheBuf
 
     ASSERT_NE(0, diagnostic.diagnostic.location.kind);
     EXPECT_EQ(5u, diagnostic.diagnostic.location.begin);
-    ASSERT_NE(0, diagnostic.has_tag_offset);
-    EXPECT_EQ(3u, diagnostic.tag_offset);
-    ASSERT_NE(0, diagnostic.has_length_offset);
-    EXPECT_EQ(4u, diagnostic.length_offset);
-    ASSERT_NE(0, diagnostic.has_value_offset);
-    EXPECT_EQ(5u, diagnostic.value_offset);
-    ASSERT_NE(0, diagnostic.has_enclosing_end);
-    EXPECT_EQ(sizeof(data), diagnostic.enclosing_end);
+    ASSERT_NE(0, diagnostic.detail.has_tag_offset);
+    EXPECT_EQ(3u, diagnostic.detail.tag_offset);
+    ASSERT_NE(0, diagnostic.detail.has_length_offset);
+    EXPECT_EQ(4u, diagnostic.detail.length_offset);
+    ASSERT_NE(0, diagnostic.detail.has_value_offset);
+    EXPECT_EQ(5u, diagnostic.detail.value_offset);
+    ASSERT_NE(0, diagnostic.detail.has_enclosing_end);
+    EXPECT_EQ(sizeof(data), diagnostic.detail.enclosing_end);
     EXPECT_EQ(3u, reader.pos);
 }
 
@@ -284,8 +284,8 @@ TEST(Unit_Tlv_ReaderDiagnostic, ReaderNextDiagReportsEndOfBufferAtTheCurrentPosi
     ASSERT_EQ(
         TLV_ERR_END_OF_BUFFER,
         TLV_DIAGNOSTIC_RESULT(diagnostic, tlv_reader_next_diag(&reader, &element, &diagnostic)));
-    EXPECT_EQ(TLV_READER_OP_HEADER, diagnostic.operation);
-    EXPECT_EQ(0, diagnostic.has_tag_offset);
+    EXPECT_EQ(TLV_READER_OP_HEADER, diagnostic.detail.operation);
+    EXPECT_EQ(0, diagnostic.detail.has_tag_offset);
     EXPECT_EQ(sizeof(data), diagnostic.diagnostic.location.begin);
 }
 
@@ -297,13 +297,13 @@ TEST(Unit_Tlv_ReaderDiagnostic, InitResetsEveryFieldAndIgnoresANullDiagnostic) {
 
     EXPECT_EQ(TLV_OK, diagnostic.diagnostic.code);
     EXPECT_EQ(0, diagnostic.diagnostic.location.kind);
-    EXPECT_EQ(0, diagnostic.has_tag);
-    EXPECT_EQ(0, diagnostic.has_tag_offset);
-    EXPECT_EQ(0, diagnostic.has_length_offset);
-    EXPECT_EQ(0, diagnostic.has_value_offset);
-    EXPECT_EQ(0, diagnostic.has_declared_length);
-    EXPECT_EQ(0, diagnostic.has_available);
-    EXPECT_EQ(0, diagnostic.has_enclosing_end);
+    EXPECT_EQ(0, diagnostic.detail.has_tag);
+    EXPECT_EQ(0, diagnostic.detail.has_tag_offset);
+    EXPECT_EQ(0, diagnostic.detail.has_length_offset);
+    EXPECT_EQ(0, diagnostic.detail.has_value_offset);
+    EXPECT_EQ(0, diagnostic.detail.has_declared_length);
+    EXPECT_EQ(0, diagnostic.detail.has_available);
+    EXPECT_EQ(0, diagnostic.detail.has_enclosing_end);
 
     tlv_reader_diagnostic_init(nullptr);
 }
@@ -341,7 +341,7 @@ TEST(Unit_Tlv_ReaderCursor, PreservesStateAndOutputsForEveryIncompletePrefix) {
             EXPECT_EQ(original_source.data, source.data);
             EXPECT_EQ(original_source.size, source.size);
             EXPECT_EQ(expected, diagnostic.diagnostic.code);
-            EXPECT_EQ(size, diagnostic.enclosing_end);
+            EXPECT_EQ(size, diagnostic.detail.enclosing_end);
             EXPECT_EQ(size == 2, tlv_reader_at_end(&reader) != 0);
         }
     }
@@ -388,7 +388,7 @@ TEST(Unit_Tlv_ReaderCursor, DoesNotRecoverOrReinterpretFormatErrors) {
                   TLV_DIAGNOSTIC_RESULT(diagnostic,
                                         tlv_reader_next_diag(&reader, &element, &diagnostic)));
         EXPECT_EQ(TLV_ERR_INVALID_TAG, diagnostic.diagnostic.code);
-        EXPECT_EQ(TLV_READER_OP_TAG, diagnostic.operation);
+        EXPECT_EQ(TLV_READER_OP_TAG, diagnostic.detail.operation);
         EXPECT_EQ(0u, diagnostic.diagnostic.location.begin);
         EXPECT_EQ(0u, reader.pos);
         EXPECT_FALSE(tlv_reader_at_end(&reader));
@@ -414,15 +414,15 @@ TEST(Unit_Tlv_ReaderCursor, SourceAndElementRequireOnlyOneFormatDecode) {
     tlv_element_t           element{};
     tlv_source_t            source{};
     tlv_reader_diagnostic_t diagnostic{};
-    diagnostic.has_available = 1;
-    diagnostic.available = 123;
+    diagnostic.detail.has_available = 1;
+    diagnostic.detail.available = 123;
     ASSERT_EQ(TLV_OK, tlv_reader_next_source_diag(&reader, &element, &source, &diagnostic));
     ASSERT_EQ(TLV_OK, tlv_reader_next_source_diag(&reader, &element, &source, &diagnostic));
     EXPECT_EQ(2u, counter.calls);
     EXPECT_EQ(data + 2, source.data);
     EXPECT_EQ(&format, source.format);
     EXPECT_EQ(element.tag.data, source.element.tag.data);
-    EXPECT_EQ(123u, diagnostic.available);
+    EXPECT_EQ(123u, diagnostic.detail.available);
     EXPECT_EQ(TLV_ERR_END_OF_BUFFER,
               tlv_reader_next_source_diag(&reader, &element, &source, nullptr));
     EXPECT_EQ(2u, counter.calls);

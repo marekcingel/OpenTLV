@@ -404,7 +404,6 @@ static inline tlv_result_t query_failure(tlv_query_diagnostic_t* d, tlv_result_t
         query_error_unlocated(d, rc, kind, expected);
     if (rc == TLV_ERR_INVALID_STATE && d) d->kind = TLV_QUERY_ERROR_STATE;
     if (d && rc != TLV_OK) {
-        if (d->reader.diagnostic.code == rc) d->diagnostic = d->reader.diagnostic;
         d->diagnostic.code = rc;
     }
     return rc;

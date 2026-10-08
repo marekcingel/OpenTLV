@@ -286,11 +286,11 @@ TEST(Integration_Tlv_Lldp, TruncationReportsWireRegionsAndDoesNotAdvance) {
                   TLV_DIAGNOSTIC_RESULT(error, tlv_reader_next_diag(&reader, &element, &error)));
         EXPECT_EQ(0u, reader.pos);
         EXPECT_TRUE(tlv_tag_equal(TLV_TAG(42), element.tag));
-        EXPECT_EQ(size == 1 ? TLV_READER_OP_HEADER : TLV_READER_OP_VALUE, error.operation);
+        EXPECT_EQ(size == 1 ? TLV_READER_OP_HEADER : TLV_READER_OP_VALUE, error.detail.operation);
         EXPECT_EQ(size == 1 ? 0u : 2u, error.diagnostic.location.begin);
         if (size > 1) {
-            EXPECT_TRUE(error.has_declared_length);
-            EXPECT_EQ(256u, error.declared_length);
+            EXPECT_TRUE(error.detail.has_declared_length);
+            EXPECT_EQ(256u, error.detail.declared_length);
         }
     }
 }

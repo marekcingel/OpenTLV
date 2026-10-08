@@ -273,9 +273,9 @@ TEST(Unit_Tlv_Visitor, TreeDiagnosticsDecodeOnceAndResourceErrorsCarryCode) {
                                     tlv_tree_reader_visit(&reader, nullptr, nullptr, &diagnostic)));
     EXPECT_EQ(2u, reads);
     EXPECT_EQ(4u, diagnostic.diagnostic.location.begin);
-    EXPECT_EQ(5u, diagnostic.enclosing_end);
-    EXPECT_EQ(2u, diagnostic.required);
-    EXPECT_EQ(1u, diagnostic.available);
+    EXPECT_EQ(5u, diagnostic.detail.enclosing_end);
+    EXPECT_EQ(2u, diagnostic.detail.required);
+    EXPECT_EQ(1u, diagnostic.detail.available);
     for (size_t capacity : {size_t(0), size_t(1)}) {
         ASSERT_EQ(TLV_OK, tlv_tree_reader_init(&reader, malformed, sizeof(malformed), &format,
                                                frames, capacity, 1, 1));
@@ -287,7 +287,7 @@ TEST(Unit_Tlv_Visitor, TreeDiagnosticsDecodeOnceAndResourceErrorsCarryCode) {
         EXPECT_EQ(capacity == 0 ? TLV_ERR_BUFFER_TOO_SHORT : TLV_ERR_LIMIT,
                   diagnostic.diagnostic.code);
         EXPECT_FALSE(diagnostic.diagnostic.location.kind);
-        EXPECT_FALSE(diagnostic.has_tag);
+        EXPECT_FALSE(diagnostic.detail.has_tag);
         EXPECT_EQ(TLV_OK, tlv_tree_reader_skip_subtree(&reader));
         EXPECT_EQ(TLV_OK, tlv_tree_reader_visit(&reader, nullptr, nullptr, &diagnostic));
     }
@@ -314,7 +314,7 @@ TEST(Unit_Tlv_Visitor, InitializedArgumentAndCallbackFailuresCarryDiagnostics) {
                                     tlv_reader_visit_diag(&reader, collect, &visits, &diagnostic)));
     EXPECT_EQ(2u, diagnostic.diagnostic.location.begin);
     EXPECT_TRUE(diagnostic.diagnostic.location.kind);
-    EXPECT_FALSE(diagnostic.has_tag);
+    EXPECT_FALSE(diagnostic.detail.has_tag);
     tlv_tree_reader_t tree;
     ASSERT_EQ(TLV_OK, tlv_tree_reader_init(&tree, wire, sizeof wire, &controlled::format, nullptr,
                                            0, 0, 10));

@@ -44,6 +44,19 @@ struct align_tlv_schema_definition_location_t {
     tlv_schema_definition_location_t value;
 };
 
+struct align_tlv_reader_detail_t {
+    char                prefix;
+    tlv_reader_detail_t value;
+};
+struct align_tlv_reader_diagnostic_t {
+    char                    prefix;
+    tlv_reader_diagnostic_t value;
+};
+struct align_tlv_query_diagnostic_t {
+    char                   prefix;
+    tlv_query_diagnostic_t value;
+};
+
 size_t opentlv_test_fixed_abi(size_t index) {
     const size_t values[] = {sizeof(tlv_fixed_identifier_t),
                              offsetof(struct identifier_alignment, value),
@@ -105,6 +118,43 @@ size_t opentlv_test_fixed_abi(size_t index) {
                              offsetof(tlv_schema_diagnostic_t, actual_constructed),
                              offsetof(tlv_schema_diagnostic_t, length_multiple),
                              offsetof(tlv_schema_diagnostic_t, length_flags),
+                             sizeof(tlv_reader_detail_t),
+                             offsetof(struct align_tlv_reader_detail_t, value),
+                             offsetof(tlv_reader_detail_t, operation),
+                             offsetof(tlv_reader_detail_t, has_tag),
+                             offsetof(tlv_reader_detail_t, tag),
+                             offsetof(tlv_reader_detail_t, has_tag_offset),
+                             offsetof(tlv_reader_detail_t, tag_offset),
+                             offsetof(tlv_reader_detail_t, has_length_offset),
+                             offsetof(tlv_reader_detail_t, length_offset),
+                             offsetof(tlv_reader_detail_t, has_value_offset),
+                             offsetof(tlv_reader_detail_t, value_offset),
+                             offsetof(tlv_reader_detail_t, has_declared_length),
+                             offsetof(tlv_reader_detail_t, declared_length),
+                             offsetof(tlv_reader_detail_t, has_raw_length),
+                             offsetof(tlv_reader_detail_t, raw_length),
+                             offsetof(tlv_reader_detail_t, has_available),
+                             offsetof(tlv_reader_detail_t, available),
+                             offsetof(tlv_reader_detail_t, has_enclosing_end),
+                             offsetof(tlv_reader_detail_t, enclosing_end),
+                             offsetof(tlv_reader_detail_t, has_required),
+                             offsetof(tlv_reader_detail_t, required),
+                             sizeof(tlv_reader_diagnostic_t),
+                             offsetof(struct align_tlv_reader_diagnostic_t, value),
+                             offsetof(tlv_reader_diagnostic_t, diagnostic),
+                             offsetof(tlv_reader_diagnostic_t, detail),
+                             sizeof(tlv_query_diagnostic_t),
+                             offsetof(struct align_tlv_query_diagnostic_t, value),
+                             offsetof(tlv_query_diagnostic_t, diagnostic),
+                             offsetof(tlv_query_diagnostic_t, kind),
+                             offsetof(tlv_query_diagnostic_t, has_reader),
+                             offsetof(tlv_query_diagnostic_t, begin),
+                             offsetof(tlv_query_diagnostic_t, end),
+                             offsetof(tlv_query_diagnostic_t, expected),
+                             offsetof(tlv_query_diagnostic_t, limit),
+                             offsetof(tlv_query_diagnostic_t, configured),
+                             offsetof(tlv_query_diagnostic_t, reader),
+                             offsetof(tlv_query_diagnostic_t, codec),
                              sizeof(tlv_schema_query_diagnostic_t),
                              offsetof(struct schema_query_alignment, value),
                              offsetof(tlv_schema_query_diagnostic_t, rule),

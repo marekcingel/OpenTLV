@@ -175,8 +175,8 @@ TEST(Unit_Tlvpp_CustomFormat, IncrementalAndMalformedInputDiagnostics) {
     ASSERT_FALSE(incomplete);
     EXPECT_EQ(tlv::errc::need_more_data, incomplete.error().status());
     EXPECT_EQ(0u, reader.consumed());
-    EXPECT_TRUE(diagnostic.has_required);
-    EXPECT_EQ(4u, diagnostic.required);
+    EXPECT_TRUE(diagnostic.detail.has_required);
+    EXPECT_EQ(4u, diagnostic.detail.required);
     ASSERT_TRUE(reader.set_input(bytes(wire, 4), 0, tlv::input_mode::final));
     ASSERT_TRUE(reader.next());
     wire[3] = 0;

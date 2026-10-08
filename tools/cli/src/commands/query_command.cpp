@@ -60,11 +60,11 @@ int query_command::run() {
             detail["configured"] = d.configured;
         }
         if (failure.kind() == tlv::query_issue::codec) detail["codec"] = d.codec;
-        if (failure.kind() == tlv::query_issue::reader) {
-            detail["reader"] = {{"code", static_cast<tlv::errc>(d.reader.diagnostic.code)},
+        if (d.has_reader) {
+            detail["reader"] = {{"code", static_cast<tlv::errc>(d.diagnostic.code)},
                                 {"operation", d.reader.operation}};
-            if (d.reader.diagnostic.location.kind)
-                detail["reader"]["offset"] = d.reader.diagnostic.location.begin;
+            if (d.diagnostic.location.kind)
+                detail["reader"]["offset"] = d.diagnostic.location.begin;
             if (d.reader.has_tag)
                 detail["reader"]["tag"] = hex_string(tlv::diagnostic_tag(d.reader).as_bytes());
         }

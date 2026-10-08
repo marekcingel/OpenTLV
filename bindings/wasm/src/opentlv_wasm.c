@@ -712,25 +712,26 @@ static void query_unsigned(builder_t* b, uint64_t value) {
     (void)snprintf(text, sizeof text, "%llu", (unsigned long long)value);
     builder_json_string(b, text);
 }
-static void query_reader_diagnostic(builder_t* b, const tlv_reader_diagnostic_t* r) {
+static void query_reader_diagnostic(builder_t* b, const tlv_diagnostic_t* common,
+                                    const tlv_reader_detail_t* r) {
     builder_text(b, ",\"reader\":{\"code\":");
-    builder_number(b, r->diagnostic.code);
-    write_location(b, &r->diagnostic.location);
+    builder_number(b, common->code);
+    write_location(b, &common->location);
     builder_text(b, ",\"severity\":");
-    builder_number(b, r->diagnostic.severity);
+    builder_number(b, common->severity);
     builder_text(b, ",\"operation\":");
     builder_number(b, r->operation);
-    if (r->diagnostic.location.kind) {
+    if (common->location.kind) {
         builder_text(b, ",\"offset\":");
-        builder_number(b, r->diagnostic.location.begin);
+        builder_number(b, common->location.begin);
     }
-    if (r->diagnostic.expected) {
+    if (common->expected) {
         builder_text(b, ",\"expected\":");
-        builder_json_string(b, r->diagnostic.expected);
+        builder_json_string(b, common->expected);
     }
-    if (r->diagnostic.actual) {
+    if (common->actual) {
         builder_text(b, ",\"actual\":");
-        builder_json_string(b, r->diagnostic.actual);
+        builder_json_string(b, common->actual);
     }
     if (r->has_tag) {
         builder_text(b, ",\"tag\":\"");
@@ -764,19 +765,19 @@ static void query_reader_diagnostic(builder_t* b, const tlv_reader_diagnostic_t*
         query_unsigned(b, r->required);
     }
     builder_text(b, ",\"path\":[");
-    if (r->diagnostic.has_path)
-        for (size_t i = 0; i < r->diagnostic.path.length; ++i) {
-            const tlv_tag_t* tag = r->diagnostic.path.tags + i;
+    if (common->has_path)
+        for (size_t i = 0; i < common->path.length; ++i) {
+            const tlv_tag_t* tag = common->path.tags + i;
             if (i) builder_text(b, ",");
             builder_text(b, "\"");
             builder_hex(b, tag->data, tag->size);
             builder_text(b, "\"");
         }
     builder_text(b, "],\"path_omitted\":");
-    builder_number(b, r->diagnostic.has_path ? r->diagnostic.path.omitted : 0);
+    builder_number(b, common->has_path ? common->path.omitted : 0);
     builder_text(b, ",\"contexts\":[");
     int first = 1;
-    for (const tlv_diagnostic_context_t* c = r->diagnostic.contexts; c; c = c->next) {
+    for (const tlv_diagnostic_context_t* c = common->contexts; c; c = c->next) {
         if (!first) builder_text(b, ",");
         first = 0;
         builder_text(b, "{\"layer\":");
@@ -821,8 +822,7 @@ static void query_status(builder_t* b, tlv_result_t code, const tlv_query_diagno
             builder_text(b, ",\"source_offset\":");
             builder_number(b, d->diagnostic.location.begin);
         }
-        if (d->kind == TLV_QUERY_ERROR_READER || d->reader.diagnostic.code != TLV_OK)
-            query_reader_diagnostic(b, &d->reader);
+        if (d->has_reader) query_reader_diagnostic(b, &d->diagnostic, &d->reader);
     }
     builder_text(b, "}");
 }

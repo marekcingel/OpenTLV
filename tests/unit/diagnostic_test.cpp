@@ -282,8 +282,9 @@ TEST(Unit_Tlv_Diagnostic, InvariantHelperRejectsEmptyAndMismatchedFailureDetail)
     EXPECT_FALSE(test_query_diagnostic_matches(TLV_ERR_INVALID_ARG, &query));
     query.kind = TLV_QUERY_ERROR_READER;
     EXPECT_FALSE(test_query_diagnostic_matches(TLV_NEED_MORE_DATA, &query));
-    query.reader.diagnostic.code = TLV_NEED_MORE_DATA;
     query.diagnostic.code = TLV_NEED_MORE_DATA;
+    EXPECT_FALSE(test_query_diagnostic_matches(TLV_NEED_MORE_DATA, &query));
+    query.has_reader = 1;
     EXPECT_TRUE(test_query_diagnostic_matches(TLV_NEED_MORE_DATA, &query));
     query.kind = TLV_QUERY_ERROR_CODEC;
     EXPECT_FALSE(test_query_diagnostic_matches(TLV_ERR_INVALID_VALUE, &query));
@@ -292,12 +293,37 @@ TEST(Unit_Tlv_Diagnostic, InvariantHelperRejectsEmptyAndMismatchedFailureDetail)
     EXPECT_TRUE(test_query_diagnostic_matches(TLV_ERR_INVALID_VALUE, &query));
     for (auto kind : {TLV_QUERY_ERROR_EVENTS, TLV_QUERY_ERROR_BINDING, TLV_QUERY_ERROR_READER}) {
         query.kind = kind;
-        query.reader.diagnostic.code = TLV_ERR_INVALID_STATE;
+        query.diagnostic.code = TLV_ERR_INVALID_STATE;
         EXPECT_FALSE(test_query_diagnostic_matches(TLV_ERR_INVALID_STATE, &query));
     }
     query.kind = TLV_QUERY_ERROR_STATE;
     query.diagnostic.code = TLV_ERR_INVALID_STATE;
     EXPECT_TRUE(test_query_diagnostic_matches(TLV_ERR_INVALID_STATE, &query));
+}
+
+TEST(Unit_Tlv_Diagnostic, QueryCopyOwnsOnePathAndPreservesReaderDetail) {
+    uint8_t                tag[] = {0x70};
+    tlv_query_diagnostic_t original{};
+    original.kind = TLV_QUERY_ERROR_READER;
+    original.has_reader = 1;
+    original.reader.operation = TLV_READER_OP_VALUE;
+    original.reader.has_required = 1;
+    original.reader.required = 7;
+    tlv_diagnostic_init(&original.diagnostic, TLV_ERR_BUFFER_TOO_SHORT,
+                        TLV_DIAGNOSTIC_SEVERITY_ERROR);
+    tlv_diagnostic_path_t path{};
+    ASSERT_EQ(TLV_OK, tlv_diagnostic_path_push(&path, tlv_tag(tag, sizeof tag)));
+    tlv_diagnostic_set_path(&original.diagnostic, &path);
+    const tlv_query_diagnostic_t copy = original;
+    original = {};
+    path = {};
+    EXPECT_TRUE(test_query_diagnostic_matches(TLV_ERR_BUFFER_TOO_SHORT, &copy));
+    ASSERT_TRUE(copy.diagnostic.has_path);
+    ASSERT_EQ(1u, copy.diagnostic.path.length);
+    EXPECT_EQ(tag, copy.diagnostic.path.tags[0].data);
+    EXPECT_EQ(TLV_READER_OP_VALUE, copy.reader.operation);
+    EXPECT_TRUE(copy.reader.has_required);
+    EXPECT_EQ(7u, copy.reader.required);
 }
 
 TEST(Unit_Tlv_Diagnostic, TruncatedPathUnwindsBeforeReplacingASibling) {

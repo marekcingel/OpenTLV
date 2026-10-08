@@ -92,14 +92,14 @@ tlv_result_t rc = tlv_read_diag(data, size, &format, &element, &consumed, &diagn
 if (rc != TLV_OK) {
     /* diagnostic.diagnostic.code   == rc
      * diagnostic.diagnostic.location.begin == the offset of the field that failed
-     * diagnostic.operation         == which step failed (tag, length, value or trailer)
-     * diagnostic.declared_length / diagnostic.available, when set, describe
+     * diagnostic.detail.operation         == which step failed (tag, length, value or trailer)
+     * diagnostic.detail.declared_length / diagnostic.detail.available, when set, describe
      * a value or trailer that didn't fit the input */
 }
 ```
 
 For a tag whose declared value length exceeds the bytes left in the input,
-`diagnostic.operation` is `TLV_READER_OP_VALUE`, `diagnostic.has_tag` is set,
+`diagnostic.detail.operation` is `TLV_READER_OP_VALUE`, `diagnostic.detail.has_tag` is set,
 and `declared_length`/`available` report the mismatch directly, without
 having to re-parse the input to find it. Every field is a fixed-size value or
 a borrowed pointer, so filling a `tlv_reader_diagnostic_t` never allocates,
@@ -107,6 +107,13 @@ and `tag` borrows the input like any tag a reader produces.
 
 `tlv_reader_next_diag()` reports the same fields with offsets absolute within
 the reader's buffer, not relative to the element being read.
+
+Reader-specific evidence lives in `tlv_reader_detail_t`. A standalone Reader
+failure pairs it with one common diagnostic as `diagnostic` and `detail`.
+Query embeds the same detail as `reader`, guarded by `has_reader`, while
+`query.diagnostic` is the sole result, location and path for the failure.
+Reader causes remain present under Query `STATE`; pure Query failures leave
+`has_reader` unset. Neither representation contains self-referential pointers.
 
 ## Writer diagnostics
 
