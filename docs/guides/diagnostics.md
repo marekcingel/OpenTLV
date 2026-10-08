@@ -183,8 +183,13 @@ tlv_diagnostic_path_t path;
 tlv_diagnostic_path_init(&path);
 
 tlv_visit_result_t on_element(const tlv_element_t* element, size_t depth, size_t offset, void* context) {
-    while (path.length > depth) tlv_diagnostic_path_pop(&path);
-    if (format.is_constructed(format.context, &element->tag)) tlv_diagnostic_path_push(&path, element->tag);
+    while (path.length > depth || path.omitted > depth - path.length)
+        tlv_diagnostic_path_pop(&path);
+    if (format.is_constructed(format.context, &element->tag)) {
+        tlv_result_t rc = tlv_diagnostic_path_push(&path, element->tag);
+        /* LIMIT records an omitted tag; traversal can still continue. */
+        if (rc != TLV_OK && rc != TLV_ERR_LIMIT) return TLV_VISIT_STOP;
+    }
     /* ... validate element, using `path` as the location of the current element's parent ... */
     return TLV_VISIT_CONTINUE;
 }
@@ -212,8 +217,22 @@ tlv_diagnostic_path_string(diagnostic.path, text, sizeof(text), NULL);
 /* text == "6F > A5 > BF0C > 61" for the element enclosing the failing 4F */
 ```
 
-Pushing beyond `TLV_DIAGNOSTIC_PATH_MAX` tags returns `TLV_ERR_LIMIT` and
-leaves the path unchanged. Nothing is copied or allocated: a pushed tag
+Every path producer retains the outermost `TLV_DIAGNOSTIC_PATH_MAX` tags (32).
+Pushing beyond that capacity returns `TLV_ERR_LIMIT`, preserves the retained
+tags and increments `path.omitted`, the number of omitted innermost tags
+(saturating at `SIZE_MAX`). A pop consumes an omitted tag before removing a
+retained tag, so returning from a deep subtree restores the correct parent.
+Initialization clears both counts. Formatted truncated paths end in `> ...`;
+CLI JSON diagnostics also include `path_omitted` when nonzero. The full logical
+depth is `length + omitted` when that sum is representable.
+
+Structural Schema reports and buffer/Document Schema Query assertions use the
+same root-prefix policy. Their affected tag remains separate from the enclosing
+path. Diagnostic capacity does not reduce Schema's structural depth limit.
+Adding `omitted` changes the public path and embedding Schema diagnostic ABI;
+rebuild native clients and bindings against the updated headers/library.
+
+Nothing is copied or allocated: a pushed tag
 borrows the input like any tag a reader produces, and `path` itself must stay
 valid, and unchanged, for as long as the diagnostic is used. Tracking a path
 is entirely opt-in: a diagnostic that is never given one, and code that never

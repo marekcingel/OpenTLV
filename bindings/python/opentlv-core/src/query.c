@@ -1002,12 +1002,13 @@ PyObject* opentlv_python_query_schema(PyObject* module, PyObject* args) {
                                ? PyLong_FromSize_t(schema->diagnostic.offset)
                                : Py_NewRef(Py_None);
         PyObject* detail = Py_BuildValue(
-            "{s:i,s:i,s:i,s:s,s:y#,s:z,s:N,s:N,s:z,s:z}", "code", (int)schema->diagnostic.code,
+            "{s:i,s:i,s:i,s:s,s:y#,s:z,s:N,s:N,s:z,s:z,s:K}", "code", (int)schema->diagnostic.code,
             "severity", (int)schema->diagnostic.severity, "kind", (int)schema->kind, "kind_name",
             tlv_schema_issue_kind_string(schema->kind), "tag",
             schema->tag.size ? (const char*)schema->tag.data : "", (Py_ssize_t)schema->tag.size,
             "field", schema->field, "path", path, "offset", offset, "expected",
-            schema->diagnostic.expected, "actual", schema->diagnostic.actual);
+            schema->diagnostic.expected, "actual", schema->diagnostic.actual, "path_omitted",
+            (unsigned long long)schema->path.omitted);
         if (!detail) return NULL;
         PyObject* details =
             Py_BuildValue("{s:n,s:N}", "rule", (Py_ssize_t)diagnostic.rule, "schema", detail);

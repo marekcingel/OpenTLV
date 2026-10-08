@@ -68,6 +68,8 @@ type Diagnostic struct {
 	DeclaredLength, Available, EnclosingEnd, Required, Length OptionalSize
 	Contexts                                                  []DiagnosticContext
 	Path                                                      [][]byte
+	// PathOmitted counts innermost scopes beyond the retained outermost Path.
+	PathOmitted uint64
 }
 
 // ParseError describes a native Reader or Document parsing failure.
@@ -107,7 +109,7 @@ func publicDiagnostic(d capi.Diagnostic) Diagnostic {
 		Tag: d.Tag, RawLength: d.RawLength, HasTag: d.HasTag, HasRawLength: d.HasRawLength,
 		TagOffset: size(d.TagOffset), LengthOffset: size(d.LengthOffset), ValueOffset: size(d.ValueOffset),
 		DeclaredLength: size(d.DeclaredLength), Available: size(d.Available), EnclosingEnd: size(d.EnclosingEnd),
-		Required: size(d.Required), Length: size(d.Length), Path: d.Path}
+		Required: size(d.Required), Length: size(d.Length), Path: d.Path, PathOmitted: d.PathOmitted}
 	for _, c := range d.Contexts {
 		result.Contexts = append(result.Contexts, DiagnosticContext{c.Layer, c.Key, c.Value})
 	}

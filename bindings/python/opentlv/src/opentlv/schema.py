@@ -173,7 +173,10 @@ class SchemaBounds:
 
 @dataclass(frozen=True)
 class SchemaDiagnostic:
-    """Owned C diagnostic; path contains enclosing scopes, tag is separate."""
+    """Owned C diagnostic; path retains outermost scopes, tag is separate.
+
+    path_omitted counts innermost scopes beyond the native path capacity.
+    """
     code: int
     severity: int
     kind: int
@@ -188,6 +191,7 @@ class SchemaDiagnostic:
     form: tuple[Kind, bool] | None
     length_multiple: int
     length_flags: int
+    path_omitted: int = 0
 
 
 @dataclass(frozen=True)
@@ -286,9 +290,9 @@ class StructureSchema:
                 SchemaBounds(*occurs) if occurs is not None else None,
                 SchemaBounds(*length) if length is not None else None,
                 (Kind(form[0]), bool(form[1])) if form is not None else None,
-                multiple, flags)
+                multiple, flags, path_omitted)
             for code, severity, kind, name, tag, path, offset, field, group,
-                occurs, length, form, multiple, flags in items))
+                occurs, length, form, multiple, flags, path_omitted in items))
 
     def __len__(self) -> int:
         return len(self.rules)

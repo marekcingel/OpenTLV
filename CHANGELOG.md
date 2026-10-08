@@ -100,6 +100,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Changed
 
+- Retain the outermost diagnostic path tags consistently across Schema and Query, expose the omitted-tag count in native APIs and bindings, mark truncated paths in CLI output, and keep Schema reporting at its structural depth limit. Adding `tlv_diagnostic_path_t.omitted` changes the public ABI and requires rebuilding native clients. (#550)
 - Keep all C/C++ unit and integration tests in a shorter, optional PR Memcheck run; run the full Query conformance matrices weekly, on release tags, manually, or with the `memcheck-full` PR label. (#560)
 - **Breaking:** Return `false` from C++ Reader and Tree Reader `at_end()` after failed initialization instead of treating it as end-of-input. Callers must handle `next()` failures to terminate or recover. (#440, #461)
 - Check native usage in mixed C++ test fixtures against per-symbol occurrence baselines, and scan `.cc`, `.cxx` and `.inl` files for public/native boundary violations. (#440, #468)

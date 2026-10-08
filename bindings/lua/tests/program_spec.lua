@@ -243,6 +243,12 @@ if tlv.formats.ber then
     local failed = fails(function() tlv.query_schema_validate(rules, bad) end, tlv.errors.SCHEMA)
     assert(failed.rule == 0 and failed.schema.kind == "assertion")
     assert(failed.schema.tag == b(0x5a) and failed.schema.path[1] == b(0x70))
+    assert(failed.schema.path_omitted == 0)
+    local deep = b(0x5a, 1, 2)
+    for level = 1, 35 do deep = b(level == 35 and 0x70 or 0x30, #deep) .. deep end
+    local truncated = fails(function() tlv.query_schema_validate(rules, deep) end, tlv.errors.SCHEMA)
+    assert(#truncated.schema.path == 32 and truncated.schema.path[1] == b(0x70))
+    assert(truncated.schema.path_omitted == 3)
     assert(failed.schema.offset == 2 and failed.schema.field == "one")
     assert(failed.schema.expected == "contextual Query assertion true")
     local bounded = fails(function() tlv.query_schema_validate(rules, good, {max_contexts=0}) end, tlv.errors.LIMIT)

@@ -68,17 +68,20 @@ tlv_result_t tlv_schema_query_validate_document(const tlv_document_t* document,
                     diagnostic->schema.field = rules[i].name;
                     diagnostic->schema.diagnostic.code = TLV_ERR_SCHEMA;
                     diagnostic->schema.diagnostic.expected = "contextual Query assertion true";
-                    // Fill enclosing tags outermost first, within the normal diagnostic bound.
-                    tlv_tag_t ancestors[TLV_DIAGNOSTIC_PATH_MAX];
+                    /* Count the complete ancestry, then fill the retained root
+                     * prefix in reverse as parent links walk inward to outward. */
+                    tlv_diagnostic_path_t* path = &diagnostic->schema.path;
                     size_t parents = 0;
                     for (tlv_node_t* p = tlv_node_parent(w->contexts[j].node); p;
+                         p = tlv_node_parent(p))
+                        ++parents;
+                    path->length =
+                        parents < TLV_DIAGNOSTIC_PATH_MAX ? parents : TLV_DIAGNOSTIC_PATH_MAX;
+                    path->omitted = parents - path->length;
+                    for (tlv_node_t* p = tlv_node_parent(w->contexts[j].node); p;
                          p = tlv_node_parent(p)) {
-                        if (parents == TLV_DIAGNOSTIC_PATH_MAX) break;
-                        ancestors[parents++] = tlv_node_tag(p);
+                        if (--parents < path->length) path->tags[parents] = tlv_node_tag(p);
                     }
-                    while (parents)
-                        (void)tlv_diagnostic_path_push(&diagnostic->schema.path,
-                                                       ancestors[--parents]);
                 }
                 /* diagnostic-return: schema.diagnostic.code is set for the failed assertion above.
                  */
@@ -171,7 +174,9 @@ static void context_path(const uint8_t* data, size_t size, const tlv_format_t* f
         if (ordinal++ == wanted) {
             size_t count =
                 event.depth < TLV_DIAGNOSTIC_PATH_MAX ? event.depth : TLV_DIAGNOSTIC_PATH_MAX;
-            for (size_t i = 0; i < count; ++i) (void)tlv_diagnostic_path_push(path, ancestors[i]);
+            memcpy(path->tags, ancestors, count * sizeof(*ancestors));
+            path->length = count;
+            path->omitted = event.depth - count;
             return;
         }
         if (event.depth < TLV_DIAGNOSTIC_PATH_MAX) ancestors[event.depth] = event.element.tag;

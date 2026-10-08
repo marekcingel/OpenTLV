@@ -176,6 +176,8 @@ void opentlv_lua_push_diagnostic(lua_State* L, const tlv_diagnostic_t* diagnosti
             lua_rawseti(L, -2, (int)i + 1);
         }
         lua_setfield(L, -2, "path");
+        lua_pushinteger(L, (lua_Integer)diagnostic->path->omitted);
+        lua_setfield(L, -2, "path_omitted");
     }
     if (diagnostic->contexts) {
         lua_newtable(L);

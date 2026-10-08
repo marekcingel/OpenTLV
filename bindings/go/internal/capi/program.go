@@ -237,6 +237,7 @@ func ValidateQuerySchema(rules []QueryRule, data []byte, document *Document, for
 		Query: programDiagnostic(nativeDetail.query, code)}
 	detail.Schema.Tag = bytes.Clone(nativeBytes(nativeDetail.schema.tag.data, nativeDetail.schema.tag.size))
 	detail.Schema.HasTag = nativeDetail.schema.tag.size != 0
+	detail.Schema.PathOmitted = uint64(nativeDetail.schema.path.omitted)
 	for index := 0; index < int(nativeDetail.schema.path.length); index++ {
 		tag := nativeDetail.schema.path.tags[index]
 		detail.Schema.Path = append(detail.Schema.Path, bytes.Clone(nativeBytes(tag.data, tag.size)))

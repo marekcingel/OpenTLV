@@ -94,6 +94,11 @@ control-flow proof.
 
 ## Offsets and diagnosis
 
+Diagnostic paths retain the outermost 32 enclosing tags. `path.omitted` counts
+innermost tags that did not fit; zero means the path is complete. Path text
+marks omissions with `> ...`. The affected tag is still available separately
+in Schema diagnostics. See [Hierarchical paths](../guides/diagnostics.md#hierarchical-paths).
+
 `tlv_der_schema_write()` reports schema/value failures relative to the would-be
 DER output, accounting for enclosing headers and canonical SET ordering. A
 missing required SEQUENCE component points where it would start; a missing SET

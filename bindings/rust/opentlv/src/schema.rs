@@ -415,8 +415,10 @@ pub struct SchemaDiagnostic {
     pub kind_name: String,
     /// Affected tag, separate from the enclosing path.
     pub tag: Tag,
-    /// Enclosing scope tags.
+    /// Retained outermost enclosing scope tags.
     pub path: Vec<Tag>,
+    /// Number of innermost enclosing scopes omitted from `path`.
+    pub path_omitted: usize,
     /// Affected source offset, when available.
     pub offset: Option<usize>,
     /// Owned native description of the expected condition.
@@ -470,6 +472,7 @@ impl SchemaDiagnostic {
             // SAFETY: affected tag borrows still-live storage.
             tag: unsafe { Tag::from_raw(&item.tag) }?,
             path,
+            path_omitted: item.path.omitted,
             offset: (item.diagnostic.has_offset != 0).then_some(item.diagnostic.offset),
             expected: if item.diagnostic.expected.is_null() {
                 None

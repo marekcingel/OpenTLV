@@ -105,7 +105,8 @@ and is registered as `Integration_lua_writer`, including reduced builds.
 `opentlv.schema { rules = {...} }` creates an immutable structural schema.
 `schema:validate(data, format, options)` returns `ok`, `code`, a bounded
 `diagnostics` array, `total_count` and `truncated`. All rules and diagnostic
-details originate from the C schema validator. See the
+details originate from the C schema validator. Diagnostic `path` retains the
+outermost scopes; `path_omitted` counts innermost scopes beyond its capacity. See the
 [Schema guide](../../docs/guides/lua.md#structural-schemas) and runnable
 [`examples/schema.lua`](examples/schema.lua).
 The standalone `tests/schema_spec.lua` is registered as `Integration_lua_schema`

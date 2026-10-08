@@ -4,7 +4,10 @@
 //! Compare the FFI mirror with sizeof/alignment/offsetof from the C headers.
 //! The small C probe uses CMake and the target's native C compiler.
 
-use opentlv_sys::{tlv_fixed_format_t, tlv_fixed_identifier_t, tlv_fixed_length_t};
+use opentlv_sys::{
+    tlv_diagnostic_path_t, tlv_fixed_format_t, tlv_fixed_identifier_t, tlv_fixed_length_t,
+    tlv_schema_diagnostic_t, tlv_schema_query_diagnostic_t,
+};
 use std::mem::{align_of, size_of, MaybeUninit};
 use std::path::PathBuf;
 use std::process::{Command, Output};
@@ -34,7 +37,7 @@ fn run(command: &mut Command) -> Output {
 }
 
 #[test]
-fn fixed_field_and_format_layouts_match_c() {
+fn fixed_and_diagnostic_layouts_match_c() {
     let manifest = PathBuf::from(env!("CARGO_MANIFEST_DIR"));
     let stamp = SystemTime::now()
         .duration_since(UNIX_EPOCH)
@@ -98,10 +101,41 @@ fn fixed_field_and_format_layouts_match_c() {
         member_offset!(tlv_fixed_format_t, length),
         member_offset!(tlv_fixed_format_t, element_order),
         member_offset!(tlv_fixed_format_t, length_scope),
+        size_of::<tlv_diagnostic_path_t>(),
+        align_of::<tlv_diagnostic_path_t>(),
+        member_offset!(tlv_diagnostic_path_t, tags),
+        member_offset!(tlv_diagnostic_path_t, length),
+        member_offset!(tlv_diagnostic_path_t, omitted),
+        size_of::<tlv_schema_diagnostic_t>(),
+        align_of::<tlv_schema_diagnostic_t>(),
+        member_offset!(tlv_schema_diagnostic_t, diagnostic),
+        member_offset!(tlv_schema_diagnostic_t, kind),
+        member_offset!(tlv_schema_diagnostic_t, tag),
+        member_offset!(tlv_schema_diagnostic_t, path),
+        member_offset!(tlv_schema_diagnostic_t, field),
+        member_offset!(tlv_schema_diagnostic_t, is_group),
+        member_offset!(tlv_schema_diagnostic_t, has_occurs),
+        member_offset!(tlv_schema_diagnostic_t, min_occurs),
+        member_offset!(tlv_schema_diagnostic_t, max_occurs),
+        member_offset!(tlv_schema_diagnostic_t, occurs),
+        member_offset!(tlv_schema_diagnostic_t, has_length),
+        member_offset!(tlv_schema_diagnostic_t, min_length),
+        member_offset!(tlv_schema_diagnostic_t, max_length),
+        member_offset!(tlv_schema_diagnostic_t, actual_length),
+        member_offset!(tlv_schema_diagnostic_t, has_form),
+        member_offset!(tlv_schema_diagnostic_t, expected_form),
+        member_offset!(tlv_schema_diagnostic_t, actual_constructed),
+        member_offset!(tlv_schema_diagnostic_t, length_multiple),
+        member_offset!(tlv_schema_diagnostic_t, length_flags),
+        size_of::<tlv_schema_query_diagnostic_t>(),
+        align_of::<tlv_schema_query_diagnostic_t>(),
+        member_offset!(tlv_schema_query_diagnostic_t, rule),
+        member_offset!(tlv_schema_query_diagnostic_t, schema),
+        member_offset!(tlv_schema_query_diagnostic_t, query),
     ];
     assert_eq!(
         native, rust,
-        "Rust Fixed FFI layout differs from the C headers"
+        "Rust Fixed or diagnostic FFI layout differs from the C headers"
     );
     std::fs::remove_dir_all(&build).expect("cannot clean up C ABI probe build directory");
 }

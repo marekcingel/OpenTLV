@@ -64,8 +64,10 @@ enum { TLV_DIAGNOSTIC_PATH_MAX = 32 };
  * calling tlv_diagnostic_path_push() with the tag of each element it
  * descends into and tlv_diagnostic_path_pop() when it returns to the
  * parent. `tags` then lists the enclosing elements outermost first, so it
- * identifies the exact branch of a document that led to a diagnostic even
- * when the same tag repeats at different depths. Nothing is copied or
+ * identifies the branch of a document that led to a diagnostic even when
+ * the same tag repeats at different depths. Paths retain the outermost
+ * #TLV_DIAGNOSTIC_PATH_MAX tags; `omitted` counts the innermost tags that
+ * did not fit. A nonzero `omitted` marks an incomplete path. Nothing is copied or
  * allocated: pushing a tag stores its borrowed `data`/`size` pair, which
  * must stay valid, and unchanged, for as long as the path is used.
  *
@@ -77,6 +79,8 @@ typedef struct tlv_diagnostic_path {
     tlv_tag_t tags[TLV_DIAGNOSTIC_PATH_MAX];
     /** Number of valid entries in `tags`. */
     size_t length;
+    /** Number of omitted innermost tags; zero for a complete path. Saturates at SIZE_MAX. */
+    size_t omitted;
 } tlv_diagnostic_path_t;
 
 /**
@@ -98,8 +102,10 @@ TLV_API void tlv_diagnostic_path_init(tlv_diagnostic_path_t* path);
  *
  * @return #TLV_OK on success.
  * @return #TLV_ERR_NULL_ARG if `path` is `NULL`.
- * @return #TLV_ERR_LIMIT if the path already holds #TLV_DIAGNOSTIC_PATH_MAX
- *         tags; `path` is unchanged.
+ * @return #TLV_ERR_INVALID_ARG if `path->length` exceeds #TLV_DIAGNOSTIC_PATH_MAX.
+ * @return #TLV_ERR_LIMIT if the tag cannot be retained: the outermost stored
+ *         tags remain unchanged and `omitted` increments, saturating at SIZE_MAX.
+ *         This descent must still be paired with a pop when unwinding.
  */
 TLV_API tlv_result_t tlv_diagnostic_path_push(tlv_diagnostic_path_t* path, tlv_tag_t tag);
 
@@ -107,7 +113,9 @@ TLV_API tlv_result_t tlv_diagnostic_path_push(tlv_diagnostic_path_t* path, tlv_t
  * @brief Pops the last tag off a path.
  *
  * Call this when returning from the constructed element last pushed, after
- * visiting its children. Popping an empty path is a no-op.
+ * visiting its children. Omitted tags are popped before retained tags, so
+ * unwinding a truncated subtree preserves its outer ancestors. Popping an
+ * empty path is a no-op.
  *
  * @param[in,out] path Path to update; must not be `NULL`.
  */
@@ -117,7 +125,8 @@ TLV_API void tlv_diagnostic_path_pop(tlv_diagnostic_path_t* path);
  * @brief Formats a path as uppercase hexadecimal tags joined by `" > "`.
  *
  * For example `"6F > A5 > BF0C > 61 > 4F"`. An empty path formats as an
- * empty string. The text is NUL-terminated when it fits.
+ * empty string. A truncated path ends in `" > ..."` (or `"..."` when no
+ * tags are retained). The text is NUL-terminated when it fits.
  *
  * @param[in]  path     Path to format.
  * @param[out] out      Destination; may be `NULL` only if `capacity` is zero.

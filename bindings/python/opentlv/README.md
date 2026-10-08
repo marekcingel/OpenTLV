@@ -31,3 +31,7 @@ See
 for build instructions and scope, and [Using OpenTLV from
 Python](https://marekcingel.github.io/OpenTLV/guides/python/) for reading,
 writing and error handling.
+
+Schema diagnostic `path` values retain the outermost enclosing tags; `path_omitted`
+counts innermost scopes beyond the native path capacity. Query Schema error
+dictionaries expose the same `path_omitted` field.

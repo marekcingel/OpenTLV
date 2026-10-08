@@ -6,7 +6,13 @@ if(NOT OPENTLV_SOURCE_DIR)
 endif()
 
 # Compile the real public types independently of the Rust FFI mirror. Only an
-# export header is generated; visibility macros have no effect on struct layout.
+# export header and feature configuration are generated. The diagnostic layouts
+# are independent of feature availability; enable the core API for its headers.
+foreach(capability IN ITEMS READER WRITER DOCUMENT QUERY SCHEMA CODEC)
+    set(OPENTLV_${capability} ON)
+endforeach()
+configure_file("${OPENTLV_SOURCE_DIR}/tlv/resources/config.h.in"
+    "${CMAKE_CURRENT_BINARY_DIR}/include/tlv/config.h")
 include(GenerateExportHeader)
 add_library(abi_values STATIC values.c)
 set_target_properties(abi_values PROPERTIES C_STANDARD 99 C_STANDARD_REQUIRED ON)

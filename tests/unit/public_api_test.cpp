@@ -195,6 +195,7 @@ TEST(Unit_Tlvpp, CommonErrorPreservesFullPathAfterDiagnosticStorageExpires) {
             identifiers[i] = static_cast<tlv::byte>(i + 1);
             ASSERT_TRUE(tlv::push_path(path, tlv::tag({&identifiers[i], 1})));
         }
+        ASSERT_FALSE(tlv::push_path(path, tlv::tag_bytes<0xFF>()));
         tlv::reader_diagnostic diagnostic{};
         diagnostic.diagnostic =
             tlv::make_diagnostic(tlv::errc::invalid_value, tlv::severity::warning);
@@ -213,6 +214,7 @@ TEST(Unit_Tlvpp, CommonErrorPreservesFullPathAfterDiagnosticStorageExpires) {
     ASSERT_TRUE(copied.has_tag());
     EXPECT_EQ(tlv::tag_bytes<0xFE>(), copied.tag());
     ASSERT_EQ(tlv::diagnostic_path_capacity, copied.depth());
+    EXPECT_EQ(1u, copied.omitted_depth());
     for (size_t i = 0; i < copied.depth(); ++i)
         EXPECT_EQ(tlv::tag({&identifiers[i], 1}), copied.ancestor(i));
     EXPECT_TRUE(copied.ancestor(copied.depth()).empty());

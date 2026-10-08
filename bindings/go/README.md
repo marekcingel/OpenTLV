@@ -376,6 +376,9 @@ Run `go run ./examples/codec`, and with Document enabled,
 
 ## Errors and diagnostics
 
+Diagnostic `Path` retains outermost enclosing tags, and `PathOmitted` counts
+innermost scopes beyond the native path capacity.
+
 Use `errors.Is(err, opentlv.ErrInvalidTag)` (or another named `Err` value)
 for stable error matching. Use `errors.As` to obtain `*ParseError`,
 `*WriteError`, the existing value `StatusError`, or `CapacityError`.

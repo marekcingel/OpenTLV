@@ -747,7 +747,9 @@ static void query_reader_diagnostic(builder_t* b, const tlv_reader_diagnostic_t*
             builder_hex(b, tag->data, tag->size);
             builder_text(b, "\"");
         }
-    builder_text(b, "],\"contexts\":[");
+    builder_text(b, "],\"path_omitted\":");
+    query_unsigned(b, r->diagnostic.path ? r->diagnostic.path->omitted : 0);
+    builder_text(b, ",\"contexts\":[");
     int first = 1;
     for (const tlv_diagnostic_context_t* c = r->diagnostic.contexts; c; c = c->next) {
         if (!first) builder_text(b, ",");
@@ -1007,7 +1009,8 @@ const char* opentlv_wasm_schema_validate(opentlv_wasm_program_t* owner, const ui
                     diagnostic.schema.path.tags[i].size);
         builder_text(&owner->reply, "\"");
     }
-    builder_text(&owner->reply, "]");
+    builder_text(&owner->reply, "],\"path_omitted\":");
+    query_unsigned(&owner->reply, diagnostic.schema.path.omitted);
     builder_text(&owner->reply, "}");
     return query_reply(&owner->reply);
 }

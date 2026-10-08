@@ -60,8 +60,12 @@ static void add_issue(collector_t* c, tlv_schema_issue_kind_t kind, const tlv_ta
     diagnostic->kind = kind;
     diagnostic->tag = *tag;
     tlv_diagnostic_path_init(&diagnostic->path);
-    for (size_t i = 1; i <= c->depth; ++i)
-        (void)tlv_diagnostic_path_push(&diagnostic->path, c->frames[i].tag);
+    for (size_t i = 1; i <= c->depth; ++i) {
+        if (tlv_diagnostic_path_push(&diagnostic->path, c->frames[i].tag) == TLV_ERR_LIMIT) {
+            diagnostic->path.omitted += c->depth - i;
+            break;
+        }
+    }
     if (detail && detail->group) {
         const tlv_structure_group_t* group = detail->group;
         diagnostic->field = group->name;
@@ -222,7 +226,7 @@ static tlv_result_t validate_all(const uint8_t* data, size_t size, const tlv_for
                                  const tlv_structure_schema_t* schema, size_t max_depth,
                                  size_t max_elements, tlv_schema_unknown_policy_t unknown,
                                  collector_t* c, size_t* error_offset) {
-    frame_t stack[TLV_DIAGNOSTIC_PATH_MAX + 1];
+    frame_t stack[TLV_SCHEMA_MAX_DEPTH + 1];
     tlv_tree_frame_t frames[TLV_SCHEMA_MAX_DEPTH];
     tlv_tree_reader_t reader;
     tlv_result_t rc = schema_check_tree(data, size, format, max_depth, max_elements, error_offset);
@@ -277,7 +281,7 @@ static tlv_result_t validate_all(const uint8_t* data, size_t size, const tlv_for
             }
             if (kind_ok && rule->children) {
                 size_t start = (size_t)(element.value.data - data);
-                if (c->depth == TLV_DIAGNOSTIC_PATH_MAX) {
+                if (c->depth == TLV_SCHEMA_MAX_DEPTH) {
                     if (error_offset) *error_offset = pos;
                     return TLV_ERR_LIMIT;
                 }
