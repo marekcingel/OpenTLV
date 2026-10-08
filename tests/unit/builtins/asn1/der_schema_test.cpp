@@ -29,7 +29,7 @@ tlv_result_t Read(const std::vector<uint8_t>& data, const tlv_der_schema_type_t&
     tlv_schema_diagnostic_t diagnostic{};
     tlv_result_t rc = tlv_der_schema_read(data.data(), data.size(), &root, limits, &element,
                                           consumed ? consumed : &local_consumed, &diagnostic);
-    if (error_offset) *error_offset = diagnostic.diagnostic.offset;
+    if (error_offset) *error_offset = diagnostic.diagnostic.location.begin;
     return rc;
 }
 
@@ -74,7 +74,7 @@ TEST(Unit_Tlv_DerSchema, CallbackContractAndWorkspaceFailuresRemainDistinct) {
             EXPECT_LE(state.calls, 3u);
             if (detailed) {
                 EXPECT_EQ(expected, diagnostic.diagnostic.code);
-                EXPECT_FALSE(diagnostic.diagnostic.has_offset);
+                EXPECT_FALSE(diagnostic.diagnostic.location.kind);
             }
         }
     }
@@ -89,7 +89,7 @@ TEST(Unit_Tlv_DerSchema, InvalidDefinitionPrecedesInputAndCallbacks) {
     tlv_schema_diagnostic_t diagnostic{};
     EXPECT_EQ(TLV_ERR_INVALID_SCHEMA, tlv_der_schema_check(&type, &diagnostic));
     EXPECT_EQ(TLV_SCHEMA_ISSUE_DEFINITION, diagnostic.kind);
-    EXPECT_FALSE(diagnostic.diagnostic.has_offset);
+    EXPECT_FALSE(diagnostic.diagnostic.location.kind);
     tlv_element_t element{};
     size_t        consumed = 123;
     EXPECT_EQ(TLV_ERR_INVALID_SCHEMA,
@@ -107,7 +107,7 @@ TEST(Unit_Tlv_DerSchema, InvalidDefinitionPrecedesInputAndCallbacks) {
                                    0, &written, &diagnostic));
     EXPECT_EQ(0, calls);
     EXPECT_EQ(123u, written);
-    EXPECT_FALSE(diagnostic.diagnostic.has_offset);
+    EXPECT_FALSE(diagnostic.diagnostic.location.kind);
 }
 
 TEST(Unit_Tlv_DerSchema, RequiredRootHasMissingDetailForReadAndWrite) {
@@ -118,9 +118,9 @@ TEST(Unit_Tlv_DerSchema, RequiredRootHasMissingDetailForReadAndWrite) {
                                                   &consumed, &diagnostic));
     EXPECT_EQ(TLV_ERR_SCHEMA, diagnostic.diagnostic.code);
     EXPECT_EQ(TLV_SCHEMA_ISSUE_MISSING, diagnostic.kind);
-    EXPECT_EQ(TLV_SCHEMA_ANCHOR_SCOPE_END, diagnostic.anchor);
-    EXPECT_TRUE(diagnostic.diagnostic.has_offset);
-    EXPECT_EQ(0u, diagnostic.diagnostic.offset);
+    EXPECT_EQ(TLV_LOCATION_SCOPE_END, diagnostic.diagnostic.location.kind);
+    EXPECT_TRUE(diagnostic.diagnostic.location.kind);
+    EXPECT_EQ(0u, diagnostic.diagnostic.location.begin);
     EXPECT_EQ(123u, consumed);
     auto absent = [](const void*, const tlv_der_schema_component_t*, size_t, uint8_t*, size_t,
                      size_t* written, int* missing) -> tlv_result_t {
@@ -132,9 +132,9 @@ TEST(Unit_Tlv_DerSchema, RequiredRootHasMissingDetailForReadAndWrite) {
     EXPECT_EQ(TLV_ERR_SCHEMA, tlv_der_schema_write(nullptr, 0, &kInteger, absent, nullptr, nullptr,
                                                    nullptr, 0, nullptr, 0, &written, &diagnostic));
     EXPECT_EQ(TLV_SCHEMA_ISSUE_MISSING, diagnostic.kind);
-    EXPECT_EQ(TLV_SCHEMA_ANCHOR_INSERTION, diagnostic.anchor);
-    EXPECT_TRUE(diagnostic.diagnostic.has_offset);
-    EXPECT_EQ(0u, diagnostic.diagnostic.offset);
+    EXPECT_EQ(TLV_LOCATION_INSERTION, diagnostic.diagnostic.location.kind);
+    EXPECT_TRUE(diagnostic.diagnostic.location.kind);
+    EXPECT_EQ(0u, diagnostic.diagnostic.location.begin);
     EXPECT_EQ(123u, written);
     EXPECT_EQ(TLV_ERR_SCHEMA, tlv_der_schema_write(nullptr, 0, &kInteger, absent, nullptr, nullptr,
                                                    nullptr, 0, nullptr, 0, &written, nullptr));
@@ -146,7 +146,7 @@ TEST(Unit_Tlv_DerSchema, DefinitionGraphErrorsAreNotInputOrCapabilityFailures) {
     tlv_schema_diagnostic_t diagnostic{};
     EXPECT_EQ(TLV_ERR_INVALID_SCHEMA, tlv_der_schema_check(&root, &diagnostic));
     EXPECT_EQ(TLV_SCHEMA_ISSUE_DEFINITION, diagnostic.kind);
-    EXPECT_FALSE(diagnostic.diagnostic.has_offset);
+    EXPECT_FALSE(diagnostic.diagnostic.location.kind);
     auto element = Required(root);
     root.element = &element;
     EXPECT_EQ(TLV_OK, tlv_der_schema_check(&root, &diagnostic));
@@ -157,7 +157,7 @@ TEST(Unit_Tlv_DerSchema, DefinitionGraphErrorsAreNotInputOrCapabilityFailures) {
     root.component_count = TLV_DER_SCHEMA_MAX_COMPONENTS + 1;
     EXPECT_EQ(TLV_ERR_UNSUPPORTED, tlv_der_schema_check(&root, &diagnostic));
     EXPECT_EQ(TLV_SCHEMA_ISSUE_NONE, diagnostic.kind);
-    EXPECT_FALSE(diagnostic.diagnostic.has_offset);
+    EXPECT_FALSE(diagnostic.diagnostic.location.kind);
     EXPECT_EQ(TLV_ERR_NULL_ARG, tlv_der_schema_check(nullptr, &diagnostic));
     EXPECT_EQ(TLV_ERR_NULL_ARG, diagnostic.diagnostic.code);
 }
@@ -553,7 +553,7 @@ tlv_result_t Write(const tlv_der_schema_type_t& root, const std::vector<ScriptEn
         tlv_der_schema_write(output->data(), output->size(), &root, ScriptEncode, &script, nullptr,
                              arena.data(), arena.size(), records.data(), records.size(), &written,
                              error_offset ? &diagnostic : nullptr);
-    if (error_offset) *error_offset = diagnostic.diagnostic.offset;
+    if (error_offset) *error_offset = diagnostic.diagnostic.location.begin;
     output->resize(rc == TLV_OK ? written : 0);
     return rc;
 }
@@ -772,15 +772,16 @@ TEST(Unit_Tlv_DerSchema, WriteInvalidEmptyIntegerOffsetIsNotDoubleCounted) {
     tlv_schema_diagnostic_t offset{};
     const tlv_result_t      rc = Read({0x30, 2, 2, 0}, root, nullptr, &read_offset);
     EXPECT_NE(TLV_OK, rc);
-    EXPECT_EQ(rc, Write(root, {{&component, 0, true, {}}}, &output, &offset.diagnostic.offset));
-    EXPECT_EQ(read_offset, offset.diagnostic.offset);
+    EXPECT_EQ(rc,
+              Write(root, {{&component, 0, true, {}}}, &output, &offset.diagnostic.location.begin));
+    EXPECT_EQ(read_offset, offset.diagnostic.location.begin);
     const std::vector<ScriptEntry> script = {{&component, 0, true, {}}};
     uint8_t                        arena[1] = {};
     size_t                         written = 77;
-    offset.diagnostic.offset = 99;
+    offset.diagnostic.location.begin = 99;
     EXPECT_EQ(rc, tlv_der_schema_write(nullptr, 0, &root, ScriptEncode, &script, nullptr, arena,
                                        sizeof(arena), nullptr, 0, &written, &offset));
-    EXPECT_EQ(0u, offset.diagnostic.offset);
+    EXPECT_EQ(0u, offset.diagnostic.location.begin);
     EXPECT_EQ(77u, written);
 }
 
@@ -812,20 +813,20 @@ TEST(Unit_Tlv_DerSchema, WriteFailurePreservesDestinationAndWritten) {
     EXPECT_EQ(TLV_ERR_SCHEMA,
               tlv_der_schema_write(destination, sizeof(destination), &root, ScriptEncode, &script,
                                    nullptr, arena, sizeof(arena), nullptr, 0, &written, &offset));
-    EXPECT_EQ(2u, offset.diagnostic.offset);
+    EXPECT_EQ(2u, offset.diagnostic.location.begin);
     EXPECT_EQ(77u, written);
     EXPECT_EQ(0xaa, destination[0]);
     EXPECT_EQ(0xbb, destination[1]);
     EXPECT_EQ(TLV_ERR_NULL_ARG,
               tlv_der_schema_write(destination, sizeof(destination), nullptr, ScriptEncode, &script,
                                    nullptr, arena, sizeof(arena), nullptr, 0, &written, &offset));
-    EXPECT_EQ(0u, offset.diagnostic.offset);
+    EXPECT_EQ(0u, offset.diagnostic.location.begin);
     script.push_back({&component, 0, true, {1}});
-    offset.diagnostic.offset = 99;
+    offset.diagnostic.location.begin = 99;
     EXPECT_EQ(TLV_ERR_BUFFER_TOO_SHORT,
               tlv_der_schema_write(destination, sizeof(destination), &root, ScriptEncode, &script,
                                    nullptr, arena, sizeof(arena), nullptr, 0, &written, &offset));
-    EXPECT_EQ(0u, offset.diagnostic.offset);
+    EXPECT_EQ(0u, offset.diagnostic.location.begin);
     EXPECT_EQ(77u, written);
 }
 
@@ -841,7 +842,7 @@ TEST(Unit_Tlv_DerSchema, WritePreservesFirstFailureWhenOffsetCompositionCannotFi
     EXPECT_EQ(TLV_ERR_SCHEMA,
               tlv_der_schema_write(nullptr, 0, &root, ScriptEncode, &script, nullptr, arena,
                                    sizeof(arena), nullptr, 0, &written, &offset));
-    EXPECT_EQ(0u, offset.diagnostic.offset);
+    EXPECT_EQ(0u, offset.diagnostic.location.begin);
     EXPECT_EQ(77u, written);
     EXPECT_EQ(TLV_ERR_SCHEMA,
               tlv_der_schema_write(nullptr, 0, &root, ScriptEncode, &script, nullptr, arena,
@@ -859,15 +860,15 @@ TEST(Unit_Tlv_DerSchema, WriteSizeQueryReportsSameSchemaOffset) {
     EXPECT_EQ(TLV_ERR_SCHEMA,
               tlv_der_schema_write(nullptr, 0, &root, ScriptEncode, &script, nullptr, arena,
                                    sizeof(arena), nullptr, 0, &written, &offset));
-    EXPECT_EQ(2u, offset.diagnostic.offset);
+    EXPECT_EQ(2u, offset.diagnostic.location.begin);
     EXPECT_EQ(77u, written);
     tlv_der_schema_limits_t limits = tlv_der_schema_default_limits;
     limits.base.max_depth = TLV_DER_MAX_DEPTH + 1;
-    offset.diagnostic.offset = 99;
+    offset.diagnostic.location.begin = 99;
     EXPECT_EQ(TLV_ERR_UNSUPPORTED,
               tlv_der_schema_write(nullptr, 0, &root, ScriptEncode, &script, &limits, arena,
                                    sizeof(arena), nullptr, 0, &written, &offset));
-    EXPECT_EQ(0u, offset.diagnostic.offset);
+    EXPECT_EQ(0u, offset.diagnostic.location.begin);
 }
 
 TEST(Unit_Tlv_DerSchema, SharedDagAndDeepUnusedDefinitionsHaveBoundedCheckingWork) {
@@ -939,7 +940,7 @@ TEST(Unit_Tlv_DerSchema, TransparentCyclesAreRejectedEvenInsideProductiveCycles)
     tlv_schema_diagnostic_t diagnostic{};
     EXPECT_EQ(TLV_ERR_INVALID_SCHEMA, tlv_der_schema_check(&choice, &diagnostic));
     EXPECT_EQ(TLV_SCHEMA_ISSUE_DEFINITION, diagnostic.kind);
-    EXPECT_FALSE(diagnostic.diagnostic.has_offset);
+    EXPECT_FALSE(diagnostic.diagnostic.location.kind);
     // A consuming edge elsewhere in the graph must not hide this CHOICE self-loop.
     tlv_der_schema_component_t members[2] = {Required(choice), Required(choice)};
     tlv_der_schema_type_t      sequence = {

@@ -40,10 +40,11 @@ expected<void, error> visit(bytes data, limits resources, Visitor&& visitor) {
     const tlv_der_limits_t        raw{resources.depth, resources.input, resources.value,
                                       resources.elements};
     detail::tree_visitor<Visitor> adapter{&visitor};
-    size_t                        offset = 0;
+    tlv_diagnostic_t              diagnostic{};
     const auto rc = tlv_der_visit(reinterpret_cast<const uint8_t*>(data.data()), data.size(), &raw,
-                                  &detail::tree_visitor<Visitor>::call, &adapter, &offset);
-    if (rc != TLV_OK) return unexpected<error>(error::from_c(rc).at(offset, operation::reader));
+                                  &detail::tree_visitor<Visitor>::call, &adapter, &diagnostic);
+    if (rc != TLV_OK)
+        return unexpected<error>(detail::error_access::diagnostic(diagnostic, operation::reader));
     return {};
 }
 #endif

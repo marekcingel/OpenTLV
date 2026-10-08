@@ -138,7 +138,7 @@ TEST(Integration_Tlv_Dhcpv4, QueryAndDocumentTreatPadAndEndAsOrdinaryElements) {
     EXPECT_EQ(TLV_ERR_SCHEMA, TLV_DIAGNOSTIC_RESULT(diagnostic, tlv_dhcpv4_options_validate(
                                                                     wire, sizeof(wire), nullptr, 5,
                                                                     &significant, &diagnostic)));
-    EXPECT_EQ(6u, diagnostic.diagnostic.offset);
+    EXPECT_EQ(6u, diagnostic.diagnostic.location.begin);
 }
 
 TEST(Integration_Tlv_Dhcpv4, GenericSchemaKeepsValueConstraintsSeparateFromContainerPolicy) {
@@ -162,7 +162,7 @@ TEST(Integration_Tlv_Dhcpv4, GenericSchemaKeepsValueConstraintsSeparateFromConta
     tlv_schema_diagnostic_t offset{};
     EXPECT_EQ(TLV_ERR_SCHEMA, tlv_schema_validate(invalid, sizeof(invalid), &tlv_format_dhcpv4,
                                                   &schema, 0, 3, &offset));
-    EXPECT_EQ(1u, offset.diagnostic.offset);
+    EXPECT_EQ(1u, offset.diagnostic.location.begin);
     size_t significant = 0;
     EXPECT_EQ(TLV_OK, tlv_dhcpv4_options_validate(invalid, sizeof(invalid), nullptr, 3,
                                                   &significant, nullptr));
@@ -185,8 +185,8 @@ TEST(Integration_Tlv_Dhcpv4, ReaderTruncationReportsAbsoluteOffsetsWithoutAdvanc
         EXPECT_TRUE(tlv_tag_equal(previous.tag, element.tag));
         EXPECT_EQ(previous.value.data, element.value.data);
         EXPECT_EQ(previous.value.size, element.value.size);
-        EXPECT_TRUE(error.diagnostic.has_offset);
-        EXPECT_EQ(size == 5 ? 5u : 6u, error.diagnostic.offset);
+        EXPECT_TRUE(error.diagnostic.location.kind);
+        EXPECT_EQ(size == 5 ? 5u : 6u, error.diagnostic.location.begin);
         EXPECT_EQ(size == 5 ? TLV_READER_OP_LENGTH : TLV_READER_OP_VALUE, error.operation);
         EXPECT_TRUE(error.has_tag);
         EXPECT_TRUE(tlv_tag_equal(TLV_TAG(53), error.tag));

@@ -362,7 +362,10 @@ fn bounded_reports_keep_total_and_owned_paths() {
     assert!(report.diagnostics[0].path.is_empty());
     assert_eq!(report.diagnostics[0].tag, Tag::from_bytes(&[1]));
     assert_eq!(report.diagnostics[0].offset, Some(2));
-    assert_eq!(report.diagnostics[0].anchor, 2);
+    assert_eq!(
+        report.diagnostics[0].location.kind,
+        opentlv::LocationKind::ScopeEnd
+    );
 }
 
 #[test]
@@ -474,7 +477,7 @@ fn detailed_group_report_capacity_and_wire_failure() {
         })
     );
     assert_eq!(issue.offset, Some(0));
-    assert_eq!(issue.anchor, 2);
+    assert_eq!(issue.location.kind, opentlv::LocationKind::ScopeEnd);
     let report = schema
         .validate_diagnostics(&[5, 0], Format::Ber, &limits, UnknownPolicy::BySchema, 0)
         .unwrap();

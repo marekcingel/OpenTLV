@@ -301,7 +301,9 @@ static int diagnostics(const tlv_query_program_t* p) {
                   !strcmp(d.expected, bad_span
                                           ? "valid event span arguments"
                                           : "balanced complete canonical events without pruning"));
-            CHECK(d.has_source_offset && d.source_offset == 17 && !d.limit);
+            CHECK((d.diagnostic.location.domain == TLV_LOCATION_INPUT &&
+                   d.diagnostic.location.kind != TLV_LOCATION_UNKNOWN) &&
+                  d.diagnostic.location.begin == 17 && !d.limit);
             if (!retained)
                 memcpy(reference[malformed], &d, sizeof d);
             else

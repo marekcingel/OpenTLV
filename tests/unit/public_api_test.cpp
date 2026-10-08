@@ -199,7 +199,8 @@ TEST(Unit_Tlvpp, CommonErrorPreservesFullPathAfterDiagnosticStorageExpires) {
         tlv::reader_diagnostic diagnostic{};
         diagnostic.diagnostic =
             tlv::make_diagnostic(tlv::errc::invalid_value, tlv::severity::warning);
-        tlv::set_offset(diagnostic.diagnostic, SIZE_MAX - 1);
+        tlv::set_location(diagnostic.diagnostic, tlv::location_domain::input,
+                          tlv::location_kind::point, SIZE_MAX - 1, SIZE_MAX - 1);
         tlv::set_path(diagnostic.diagnostic, path);
         tlv::set_tag(diagnostic, tlv::tag_bytes<0xFE>());
         diagnostic.diagnostic.expected = "canonical value";

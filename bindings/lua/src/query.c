@@ -192,11 +192,15 @@ static int matcher_visit(lua_State* L) {
 const tlv_query_t* opentlv_lua_check_query(lua_State* L, int arg, tlv_query_t* scratch) {
     if (lua_type(L, arg) == LUA_TUSERDATA)
         return (const tlv_query_t*)luaL_checkudata(L, arg, QUERY_MT);
-    size_t       length;
-    const char*  text = luaL_checklstring(L, arg, &length);
-    size_t       offset = 0;
-    tlv_result_t code = tlv_query_parse_n(text, length, scratch, &offset);
-    if (code != TLV_OK) opentlv_lua_raise(L, code, 1, offset);
+    size_t           length;
+    const char*      text = luaL_checklstring(L, arg, &length);
+    tlv_diagnostic_t offset = {0};
+    tlv_result_t     code = tlv_query_parse_n(text, length, scratch, &offset);
+    if (code != TLV_OK) {
+        offset.code = code;
+        opentlv_lua_push_diagnostic(L, &offset);
+        lua_error(L);
+    }
     return scratch;
 }
 

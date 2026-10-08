@@ -180,8 +180,13 @@ static uint8_t* copy_bytes(const tlv_document_t* document, const uint8_t* data, 
 
 /* ---- Parsing --------------------------------------------------------------------------- */
 
-void document_set_offset(size_t* out, size_t offset) {
-    if (out) *out = offset;
+void document_set_offset(tlv_reader_diagnostic_t* out, size_t offset) {
+    if (out) {
+        memset(out, 0, sizeof *out);
+        out->diagnostic.code = TLV_ERR_LIMIT;
+        tlv_diagnostic_set_location(&out->diagnostic, TLV_LOCATION_INPUT, TLV_LOCATION_POINT,
+                                    offset, offset);
+    }
 }
 
 /*
@@ -189,11 +194,11 @@ void document_set_offset(size_t* out, size_t offset) {
  */
 tlv_result_t document_create_node(tlv_document_t* document, tlv_node_t* parent, tlv_tag_t tag,
                                   const uint8_t* value, size_t length, int constructed,
-                                  size_t depth, size_t element_offset, size_t* error_offset,
-                                  tlv_node_t** created) {
+                                  size_t depth, size_t element_offset,
+                                  tlv_reader_diagnostic_t* diagnostic, tlv_node_t** created) {
     tlv_node_t* node;
     if (depth > document->options.max_depth || document->count >= document->options.max_elements) {
-        document_set_offset(error_offset, element_offset);
+        document_set_offset(diagnostic, element_offset);
         return TLV_ERR_LIMIT;
     }
     size_t node_size =
@@ -225,34 +230,36 @@ tlv_result_t document_create_node(tlv_document_t* document, tlv_node_t* parent, 
 
 #if !OPENTLV_READER
 tlv_result_t document_parse_list(tlv_document_t* document, tlv_node_t* parent, const uint8_t* data,
-                                 size_t size, size_t depth, size_t base, size_t* error_offset) {
+                                 size_t size, size_t depth, size_t base,
+                                 tlv_reader_diagnostic_t* diagnostic) {
     (void)document;
     (void)parent;
     (void)data;
     (void)depth;
     (void)base;
-    (void)error_offset;
+    (void)diagnostic;
     return size ? TLV_ERR_UNSUPPORTED : TLV_OK;
 }
 #endif
 
 static tlv_result_t build_node(tlv_document_t* document, tlv_node_t* parent, tlv_tag_t tag,
                                const uint8_t* value, size_t length, size_t depth, size_t value_base,
-                               size_t element_offset, size_t* error_offset, tlv_node_t** created) {
+                               size_t element_offset, tlv_reader_diagnostic_t* diagnostic,
+                               tlv_node_t** created) {
     tlv_node_t* node;
     int constructed =
         document->options.format->is_constructed &&
         document->options.format->is_constructed(document->options.format->context, &tag);
     tlv_result_t rc = document_create_node(document, parent, tag, value, length, constructed, depth,
-                                           element_offset, error_offset, &node);
+                                           element_offset, diagnostic, &node);
     if (rc != TLV_OK) return rc;
     if (node->constructed && length) {
         if (depth == document->options.max_depth) {
-            document_set_offset(error_offset, value_base);
+            document_set_offset(diagnostic, value_base);
             rc = TLV_ERR_LIMIT;
         } else {
             rc = document_parse_list(document, node, value, length, depth + 1, value_base,
-                                     error_offset);
+                                     diagnostic);
         }
     }
     if (rc != TLV_OK) {

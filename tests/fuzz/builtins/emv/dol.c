@@ -14,12 +14,14 @@ static tlv_result_t visit_count(const tlv_dol_entry_t* entry, size_t index, void
 }
 
 static void check_dol_read(const uint8_t* data, size_t size, const tlv_dol_limits_t* limits) {
-    size_t       count = 0, error = SIZE_MAX;
+    size_t           count = 0;
+    tlv_diagnostic_t error = {0};
+    error.location.begin = SIZE_MAX;
     tlv_result_t rc = tlv_dol_read(data, size, limits, visit_count, &count, &error);
     if (rc == TLV_OK)
-        FUZZ_CHECK(error == SIZE_MAX);
+        FUZZ_CHECK(error.location.begin == SIZE_MAX);
     else
-        FUZZ_CHECK(error <= size);
+        FUZZ_CHECK(error.location.begin <= size);
 }
 
 /* Every third entry (by wire position) is reported unavailable; the rest
@@ -52,16 +54,20 @@ static tlv_result_t resolve(const tlv_dol_entry_t* entry, size_t index, size_t s
 }
 
 static void check_dol_write(const uint8_t* data, size_t size, const tlv_dol_limits_t* limits) {
-    static uint8_t buffer[65536];
-    size_t         written = SIZE_MAX, error = SIZE_MAX;
-    size_t         produced = SIZE_MAX, error2 = SIZE_MAX;
-    tlv_result_t   rc, rc2;
+    static uint8_t   buffer[65536];
+    size_t           written = SIZE_MAX;
+    tlv_diagnostic_t error = {0};
+    error.location.begin = SIZE_MAX;
+    size_t           produced = SIZE_MAX;
+    tlv_diagnostic_t error2 = {0};
+    error2.location.begin = SIZE_MAX;
+    tlv_result_t rc, rc2;
 
     rc = tlv_dol_write(data, size, NULL, 0, limits, NULL, NULL, &written, &error);
     if (rc == TLV_OK)
-        FUZZ_CHECK(error == SIZE_MAX);
+        FUZZ_CHECK(error.location.begin == SIZE_MAX);
     else
-        FUZZ_CHECK(error <= size);
+        FUZZ_CHECK(error.location.begin <= size);
 
     rc2 = tlv_dol_write(data, size, buffer, sizeof(buffer), limits, resolve, NULL, &produced,
                         &error2);

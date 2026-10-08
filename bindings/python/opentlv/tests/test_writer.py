@@ -4,7 +4,7 @@
 import pytest
 
 from opentlv import (BufferTooShortError, Element, FixedFormat, Format,
-                     InvalidTagSizeError, Reader, Tag, Writer,
+                     InvalidTagSizeError, Location, Reader, Tag, Writer,
                      element_encoded_size, encoded_size)
 
 
@@ -22,6 +22,7 @@ def test_measure_allocate_write_into_exact_caller_storage(format):
     with pytest.raises(BufferTooShortError) as exc:
         writer.write_element(element)
     assert exc.value.offset == required
+    assert exc.value.location == Location("output", "point", required, required)
     assert exc.value.required == required
     assert writer.position == required
     assert storage == b"\x04\x03abc"

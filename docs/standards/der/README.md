@@ -39,9 +39,10 @@ does not convert arbitrary BER or repair noncanonical input.
 
 const uint8_t input[] = {0x30, 3, 0x02, 1, 42};
 tlv_element_t element;
-size_t consumed, error_offset;
+size_t consumed;
+tlv_diagnostic_t diagnostic;
 tlv_result_t rc = tlv_der_read(input, sizeof(input), NULL,
-                              &element, &consumed, &error_offset);
+                              &element, &consumed, &diagnostic);
 if (rc == TLV_OK) {
     tlv_asn1_class_t cls = tlv_asn1_tag_class(&element.tag); /* UNIVERSAL */
     int constructed = tlv_asn1_tag_is_constructed(&element.tag); /* 1 */
@@ -71,7 +72,7 @@ capacity return `TLV_ERR_INVALID_TAG_SIZE`; invalid encodings return
 
 ## Traverse and limit work
 
-`tlv_der_visit(data, size, limits, visitor, context, &error_offset)` processes all
+`tlv_der_visit(data, size, limits, visitor, context, &diagnostic)` processes all
 concatenated elements in preorder, including nested constructed values. A NULL
 visitor performs validation only. Empty input succeeds. Each callback receives
 a temporary element, its depth (top-level is zero), and its absolute tag offset.
@@ -104,14 +105,15 @@ uint8_t tag_bytes[TLV_ASN1_TAG_MAX_SIZE]; /* the tag borrows these bytes */
 tlv_tag_t tag;
 const uint8_t children[] = {0x02, 1, 42};
 uint8_t output[5];
-size_t required, written, error_offset;
+size_t required, written;
+tlv_diagnostic_t diagnostic;
 tlv_result_t rc = tlv_der_tag_make(TLV_ASN1_UNIVERSAL, 1, 16, tag_bytes, &tag);
 if (rc == TLV_OK)
     rc = tlv_der_write(NULL, 0, tag, children, sizeof(children), NULL,
-                       &required, &error_offset);
+                       &required, &diagnostic);
 if (rc == TLV_OK && required <= sizeof(output))
     rc = tlv_der_write(output, sizeof(output), tag, children, sizeof(children),
-                       NULL, &written, &error_offset);
+                       NULL, &written, &diagnostic);
 /* Success: output contains 30 03 02 01 2A. */
 ```
 
@@ -304,13 +306,13 @@ additive layer.
 
 ## Errors and generic I/O
 
-Optional `error_offset` is changed only on failure. It identifies the **start of
-the failing field**, relative to the supplied input (or would-be encoded output):
+Optional `diagnostic` reports the original result and an explicit location on failure. Its INPUT/OUTPUT point identifies the **start of the failing field**, relative
+to the supplied input or would-be encoded output:
 tag errors point to the tag, length errors to the length prefix, and truncated
 values to their value start. This includes missing fields at the end of input.
 Value-size limits point to the length field; depth/count limits point to the
 first disallowed element. Argument, configuration, total-size and destination
-capacity errors use offset zero. Nested offsets remain absolute. Truncated
+capacity errors have UNKNOWN location. Nested offsets remain absolute. Truncated
 children cannot consume bytes beyond their parent's declared value boundary.
 
 `tlv_format_der` also works with generic C and C++ readers and writers. It

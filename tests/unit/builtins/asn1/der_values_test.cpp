@@ -30,12 +30,14 @@ std::vector<uint8_t> wrap(uint8_t tag_byte, const std::vector<uint8_t>& content)
 void check(uint8_t tag_byte, const std::vector<uint8_t>& content, tlv_result_t expect) {
     const std::vector<uint8_t> data = wrap(tag_byte, content);
     tlv_element_t              element{};
-    size_t                     consumed = 0, offset = 99;
+    size_t                     consumed = 0;
+    tlv_diagnostic_t           offset = {};
+    offset.location.begin = 99;
     EXPECT_EQ(TLV_OK,
               tlv_der_read(data.data(), data.size(), nullptr, &element, &consumed, nullptr));
     EXPECT_EQ(expect,
               tlv_der_read_strict(data.data(), data.size(), nullptr, &element, &consumed, &offset));
-    if (expect != TLV_OK) EXPECT_EQ(data.size() - content.size(), offset);
+    if (expect != TLV_OK) EXPECT_EQ(data.size() - content.size(), offset.location.begin);
 }
 
 /* Same as wrap()/check(), but for a universal tag number that may need the
@@ -58,12 +60,14 @@ std::vector<uint8_t> wrap_number(uint64_t number, const std::vector<uint8_t>& co
 void check_number(uint64_t number, const std::vector<uint8_t>& content, tlv_result_t expect) {
     const std::vector<uint8_t> data = wrap_number(number, content);
     tlv_element_t              element{};
-    size_t                     consumed = 0, offset = 99;
+    size_t                     consumed = 0;
+    tlv_diagnostic_t           offset = {};
+    offset.location.begin = 99;
     EXPECT_EQ(TLV_OK,
               tlv_der_read(data.data(), data.size(), nullptr, &element, &consumed, nullptr));
     EXPECT_EQ(expect,
               tlv_der_read_strict(data.data(), data.size(), nullptr, &element, &consumed, &offset));
-    if (expect != TLV_OK) EXPECT_EQ(data.size() - content.size(), offset);
+    if (expect != TLV_OK) EXPECT_EQ(data.size() - content.size(), offset.location.begin);
 }
 
 } // namespace
@@ -292,21 +296,24 @@ TEST(Unit_Tlv_DerValues, NonUniversalClassesAreUnaffected) {
 }
 
 TEST(Unit_Tlv_DerValues, NestedValueReportsOffsetOfOffendingElement) {
-    const uint8_t data[] = {0x30, 6, 0x02, 1, 0, 0x01, 1, 1};
-    tlv_element_t element{};
-    size_t        consumed = 0, offset = 99;
+    const uint8_t    data[] = {0x30, 6, 0x02, 1, 0, 0x01, 1, 1};
+    tlv_element_t    element{};
+    size_t           consumed = 0;
+    tlv_diagnostic_t offset = {};
+    offset.location.begin = 99;
     EXPECT_EQ(TLV_ERR_INVALID_VALUE,
               tlv_der_read_strict(data, sizeof(data), nullptr, &element, &consumed, &offset));
-    EXPECT_EQ(7u, offset);
+    EXPECT_EQ(7u, offset.location.begin);
 }
 
 TEST(Unit_Tlv_DerValues, VisitStrictVisitsAndReportsInvalidContent) {
-    const uint8_t data[] = {0x01, 1, 0x02};
-    size_t        offset = 99;
+    const uint8_t    data[] = {0x01, 1, 0x02};
+    tlv_diagnostic_t offset = {};
+    offset.location.begin = 99;
     EXPECT_EQ(TLV_OK, tlv_der_visit(data, sizeof(data), nullptr, nullptr, nullptr, nullptr));
     EXPECT_EQ(TLV_ERR_INVALID_VALUE,
               tlv_der_visit_strict(data, sizeof(data), nullptr, nullptr, nullptr, &offset));
-    EXPECT_EQ(2u, offset);
+    EXPECT_EQ(2u, offset.location.begin);
 }
 
 TEST(Unit_Tlv_DerValues, WriteStrictLeavesOutputAndWrittenUnchangedOnFailure) {
@@ -314,12 +321,13 @@ TEST(Unit_Tlv_DerValues, WriteStrictLeavesOutputAndWrittenUnchangedOnFailure) {
     const uint8_t   bad_value[] = {0x02};
     uint8_t         output[8];
     std::fill(std::begin(output), std::end(output), 0xEE);
-    size_t written = 99, offset = 0, required = 99;
+    size_t           written = 99, required = 99;
+    tlv_diagnostic_t offset = {};
     EXPECT_EQ(TLV_ERR_INVALID_VALUE,
               tlv_der_write_strict(output, sizeof(output), tag, bad_value, sizeof(bad_value),
                                    nullptr, &written, &offset));
     EXPECT_EQ(99u, written);
-    EXPECT_EQ(2u, offset); /* value start: 1 tag byte + 1 length byte */
+    EXPECT_EQ(2u, offset.location.begin); /* value start: 1 tag byte + 1 length byte */
     for (auto byte : output) EXPECT_EQ(0xEE, byte);
     EXPECT_EQ(TLV_ERR_INVALID_VALUE,
               tlv_der_write_strict(nullptr, 0, tag, bad_value, sizeof(bad_value), nullptr,

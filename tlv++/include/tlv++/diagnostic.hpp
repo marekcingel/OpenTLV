@@ -51,9 +51,17 @@ inline diagnostic make_diagnostic(errc code, severity level = severity::error) n
                         static_cast<tlv_diagnostic_severity_t>(level));
     return result;
 }
-/** @brief Attach an absolute byte offset to a common diagnostic. */
-inline void set_offset(diagnostic& value, size_t offset) noexcept {
-    tlv_diagnostic_set_offset(&value, offset);
+/** @brief Attach evidence in an explicit coordinate domain to a common diagnostic.
+ * @param value Diagnostic to update without changing its result or other detail.
+ * @param domain Coordinate space of the evidence.
+ * @param kind Point, half-open span, scope end or insertion boundary.
+ * @param begin Inclusive start, or the boundary position.
+ * @param end Exclusive end; must equal begin for points and boundaries.
+ * @note Invalid coordinates clear the optional location. */
+inline void set_location(diagnostic& value, location_domain domain, location_kind kind,
+                         size_t begin, size_t end) noexcept {
+    tlv_diagnostic_set_location(&value, static_cast<tlv_location_domain_t>(domain),
+                                static_cast<tlv_location_kind_t>(kind), begin, end);
 }
 /** @brief Format a hierarchical identifier path into caller-owned character storage.
  * @param path Borrowed enclosing identifiers.
@@ -151,7 +159,7 @@ inline void pop_path(diagnostic_path& path) {
  * Wraps tlv_diagnostic_set_path(); the same borrowing and lifetime rules apply.
  *
  * @param target Diagnostic to update.
- * @param path   Borrowed path of enclosing tags.
+ * @param path   Path copied by value; identifier bytes remain borrowed.
  */
 inline void set_path(diagnostic& target, const diagnostic_path& path) {
     tlv_diagnostic_set_path(&target, &path);

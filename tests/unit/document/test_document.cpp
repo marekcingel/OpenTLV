@@ -312,10 +312,10 @@ TEST(Unit_Tlvpp_Document, ReportsErrorsAndKeepsTheDocumentUnchanged) {
     EXPECT_NE(TLV_OK, result.error().code);
     EXPECT_EQ(sample, *doc.encode());
 
-    size_t offset = 0;
-    auto   broken = tlv::document::parse(view(make({0x50, 0x00, 0x50, 0x05})), format(), &offset);
+    tlv_reader_diagnostic_t offset{};
+    auto broken = tlv::document::parse(view(make({0x50, 0x00, 0x50, 0x05})), format(), &offset);
     ASSERT_FALSE(broken.has_value());
-    EXPECT_EQ(2u, offset);
+    EXPECT_EQ(4u, offset.diagnostic.location.begin);
 
     tlv::document_format limited = format();
     limited.max_elements = 2;

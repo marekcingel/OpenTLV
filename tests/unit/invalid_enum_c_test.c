@@ -94,7 +94,9 @@ int tlv_test_invalid_enum_visitors(void) {
     const uint8_t           flat[] = {1, 0, 2, 0}, nested[] = {0xE1, 2, 1, 0, 2, 0};
     tlv_reader_t            reader;
     tlv_reader_diagnostic_t diagnostic;
-    size_t                  count = 0, offset = 99;
+    size_t                  count = 0;
+    tlv_reader_diagnostic_t offset = {0};
+    offset.diagnostic.location.begin = 99;
     CHECK(tlv_reader_init(&reader, flat, sizeof flat, &format) == TLV_OK);
     CHECK(tlv_reader_visit_diag(&reader, invalid_once, &count, &diagnostic) == TLV_ERR_CALLBACK);
     CHECK(tlv_reader_offset(&reader) == 2 && count == 1 &&
@@ -105,7 +107,7 @@ int tlv_test_invalid_enum_visitors(void) {
     count = 0;
     CHECK(tlv_tree_reader_init(&tree, nested, sizeof nested, &format, frames, 1, 1, 3) == TLV_OK);
     CHECK(tlv_tree_reader_visit(&tree, tree_invalid_once, &count, &offset) == TLV_ERR_CALLBACK);
-    CHECK(count == 1 && offset == 0);
+    CHECK(count == 1 && offset.diagnostic.location.begin == 0);
     CHECK(tlv_tree_reader_visit(&tree, tree_invalid_once, &count, &offset) == TLV_OK);
     CHECK(count == 3 && tlv_tree_reader_at_end(&tree));
     return 0;

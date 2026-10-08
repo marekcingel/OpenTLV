@@ -2,6 +2,7 @@
 // Copyright (c) 2026 Marek Cingel
 #define PY_SSIZE_T_CLEAN
 #include "query.h"
+#include "location.h"
 #include "reader.h"
 #include "format.h"
 #include <tlv/query/adapters.h>
@@ -986,10 +987,10 @@ PyObject* opentlv_python_query_schema(PyObject* module, PyObject* args) {
     if (rc != TLV_OK) {
         if (PyErr_Occurred()) return NULL;
         const tlv_schema_diagnostic_t* schema = &diagnostic.schema;
-        PyObject*                      path = PyTuple_New((Py_ssize_t)schema->path.length);
+        PyObject* path = PyTuple_New((Py_ssize_t)schema->diagnostic.path.length);
         if (!path) return NULL;
-        for (size_t i = 0; i < schema->path.length; ++i) {
-            tlv_tag_t tag = schema->path.tags[i];
+        for (size_t i = 0; i < schema->diagnostic.path.length; ++i) {
+            tlv_tag_t tag = schema->diagnostic.path.tags[i];
             PyObject* value =
                 PyBytes_FromStringAndSize((const char*)tag.data, (Py_ssize_t)tag.size);
             if (!value) {
@@ -998,8 +999,8 @@ PyObject* opentlv_python_query_schema(PyObject* module, PyObject* args) {
             }
             PyTuple_SetItem(path, (Py_ssize_t)i, value);
         }
-        PyObject* offset = schema->diagnostic.has_offset
-                               ? PyLong_FromSize_t(schema->diagnostic.offset)
+        PyObject* offset = schema->diagnostic.location.kind
+                               ? PyLong_FromSize_t(schema->diagnostic.location.begin)
                                : Py_NewRef(Py_None);
         PyObject* detail = Py_BuildValue(
             "{s:i,s:i,s:i,s:s,s:y#,s:z,s:N,s:N,s:z,s:z,s:K}", "code", (int)schema->diagnostic.code,
@@ -1008,8 +1009,15 @@ PyObject* opentlv_python_query_schema(PyObject* module, PyObject* args) {
             schema->tag.size ? (const char*)schema->tag.data : "", (Py_ssize_t)schema->tag.size,
             "field", schema->field, "path", path, "offset", offset, "expected",
             schema->diagnostic.expected, "actual", schema->diagnostic.actual, "path_omitted",
-            (unsigned long long)schema->path.omitted);
+            (unsigned long long)schema->diagnostic.path.omitted);
         if (!detail) return NULL;
+        PyObject* location = opentlv_python_location(&schema->diagnostic.location);
+        if (!location || PyDict_SetItemString(detail, "location", location) < 0) {
+            Py_XDECREF(location);
+            Py_DECREF(detail);
+            return NULL;
+        }
+        Py_DECREF(location);
         PyObject* details =
             Py_BuildValue("{s:n,s:N}", "rule", (Py_ssize_t)diagnostic.rule, "schema", detail);
         if (!details) return NULL;

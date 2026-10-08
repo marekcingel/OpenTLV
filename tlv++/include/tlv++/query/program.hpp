@@ -63,11 +63,9 @@ struct query_failure {
     }
     /** @brief Copy common diagnostic information while preserving Query detail on this object. */
     tlv::error failure() const noexcept {
-        if (kind() == query_issue::reader || diagnostic.reader.diagnostic.code != TLV_OK)
-            return detail::reader_failed(code, diagnostic.reader, diagnostic.source_offset);
-        auto value = tlv::error(status(), operation::query);
-        return diagnostic.has_source_offset ? value.at(diagnostic.source_offset, operation::query)
-                                            : value;
+        auto common = diagnostic.diagnostic;
+        common.code = code;
+        return detail::error_access::diagnostic(common, operation::query);
     }
 };
 /** @cond INTERNAL */

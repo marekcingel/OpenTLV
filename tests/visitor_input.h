@@ -25,7 +25,9 @@ inline tlv_result_t visit_tree_input_diag(const uint8_t* data, size_t size,
         if (offset) *offset = 0;
         return rc;
     }
-    return tlv_tree_reader_visit_diag(&reader, visitor, context, offset, diagnostic);
+    rc = tlv_tree_reader_visit(&reader, visitor, context, diagnostic);
+    if (rc != TLV_OK && offset) *offset = tlv_tree_reader_offset(&reader);
+    return rc;
 }
 inline tlv_result_t visit_tree_input(const uint8_t* data, size_t size, const tlv_format_t* format,
                                      size_t depth, size_t count, tlv_tree_visitor_t visitor,

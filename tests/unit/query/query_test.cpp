@@ -5,6 +5,21 @@
 #include "tlv/query/query.h"
 #include <gtest/gtest.h>
 #include <string>
+
+TEST(Unit_Tlv_Query, LocationsDistinguishSyntaxEvidenceAndEmptyEof) {
+    tlv_query_t      query{};
+    tlv_diagnostic_t diagnostic{};
+    EXPECT_EQ(TLV_ERR_INVALID_ARG, tlv_query_parse_n("GG", 2, &query, &diagnostic));
+    EXPECT_EQ(TLV_ERR_INVALID_ARG, diagnostic.code);
+    EXPECT_EQ(TLV_LOCATION_EXPRESSION, diagnostic.location.domain);
+    EXPECT_EQ(TLV_LOCATION_SPAN, diagnostic.location.kind);
+    EXPECT_EQ(0u, diagnostic.location.begin);
+    EXPECT_EQ(1u, diagnostic.location.end);
+    EXPECT_EQ(TLV_ERR_INVALID_ARG, tlv_query_parse_n("01/", 3, &query, &diagnostic));
+    EXPECT_EQ(3u, diagnostic.location.begin);
+    EXPECT_EQ(3u, diagnostic.location.end);
+    EXPECT_EQ(TLV_ERR_INVALID_ARG, tlv_query_parse_n("01/", 3, &query, nullptr));
+}
 #include "../../../tlv/src/query/v1_internal.h"
 #include <vector>
 
@@ -66,8 +81,10 @@ Outcome visit_buffer(const char* text, const std::vector<uint8_t>& input = data,
     Visit        visit = {&run.matches, result};
     tlv_format_t format = controlled::format;
     format.is_constructed = predicate;
+    tlv_reader_diagnostic_t diagnostic{};
     run.rc = tlv_query_visit_buffer(input.data(), input.size(), &format, &query, max_depth,
-                                    max_elements, collect, &visit, &run.error_offset);
+                                    max_elements, collect, &visit, &diagnostic);
+    run.error_offset = diagnostic.diagnostic.location.begin;
     return run;
 }
 } // namespace
@@ -115,10 +132,11 @@ TEST(Unit_Tlv_Query, RejectsSyntaxErrorsAtTheOffendingPosition) {
                           {"6F//50", 3}, {"6", 0},   {"6F/5", 3},   {"6G", 1},
                           {"6F 50", 2},  {" 6F", 0}, {"6F/50 ", 5}, {"0x6F", 1}};
     for (const Case& c : cases) {
-        tlv_query_t query = {};
-        size_t      offset = 99;
+        tlv_query_t      query = {};
+        tlv_diagnostic_t offset = {};
+        offset.location.begin = 99;
         EXPECT_EQ(TLV_ERR_INVALID_ARG, tlv_query_parse(c.text, &query, &offset)) << c.text;
-        EXPECT_EQ(c.offset, offset) << c.text;
+        EXPECT_EQ(c.offset, offset.location.begin) << c.text;
         EXPECT_EQ(0u, tlv_query_count(&query)) << c.text;
     }
 }
@@ -130,9 +148,10 @@ TEST(Unit_Tlv_Query, RejectsInvalidArgumentsAndLimits) {
 
     std::string wide;
     for (int i = 0; i <= TLV_QUERY_MAX_BYTES; ++i) wide += "AB";
-    size_t offset = 99;
+    tlv_diagnostic_t offset = {};
+    offset.location.begin = 99;
     EXPECT_EQ(TLV_ERR_LIMIT, tlv_query_parse(("6F/" + wide).c_str(), &query, &offset));
-    EXPECT_EQ(3u, offset);
+    EXPECT_EQ(3u, offset.location.begin);
     std::string exact;
     for (int i = 0; i < TLV_QUERY_MAX_BYTES; ++i) exact += "AB";
     EXPECT_EQ(TLV_OK, tlv_query_parse(exact.c_str(), &query, nullptr));
@@ -142,9 +161,9 @@ TEST(Unit_Tlv_Query, RejectsInvalidArgumentsAndLimits) {
     for (int i = 1; i < TLV_QUERY_MAX_STEPS; ++i) deepest += "/6F";
     EXPECT_EQ(TLV_OK, tlv_query_parse(deepest.c_str(), &query, nullptr));
     EXPECT_EQ(static_cast<size_t>(TLV_QUERY_MAX_STEPS), tlv_query_count(&query));
-    offset = 99;
+    offset.location.begin = 99;
     EXPECT_EQ(TLV_ERR_LIMIT, tlv_query_parse((deepest + "/6F").c_str(), &query, &offset));
-    EXPECT_EQ(deepest.size() + 1, offset);
+    EXPECT_EQ(deepest.size() + 1, offset.location.begin);
     EXPECT_EQ(static_cast<size_t>(TLV_QUERY_MAX_STEPS),
               tlv_query_count(&query)); // Unchanged on failure.
 }
@@ -237,7 +256,7 @@ TEST(Unit_Tlv_Query, PropagatesTraversalErrorsAndLimits) {
     std::vector<uint8_t> truncated(data.begin(), data.begin() + 14);
     const Outcome        run = visit_buffer("6F/A5/50", truncated);
     EXPECT_EQ(TLV_ERR_BUFFER_TOO_SHORT, run.rc);
-    EXPECT_EQ(12u, run.error_offset);
+    EXPECT_EQ(14u, run.error_offset);
     EXPECT_EQ(1u, run.matches.size());
 }
 

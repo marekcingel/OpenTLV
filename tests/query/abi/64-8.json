@@ -2,6 +2,33 @@
   "version": 1,
   "pointer_bits": 64,
   "types": {
+    "tlv_location_t": {
+      "size": 24,
+      "alignment": 8,
+      "domain": 0,
+      "kind": 4,
+      "begin": 8,
+      "end": 16
+    },
+    "tlv_diagnostic_t": {
+      "size": 592,
+      "alignment": 8,
+      "code": 0,
+      "severity": 4,
+      "location": 8,
+      "expected": 32,
+      "actual": 40,
+      "contexts": 48,
+      "has_path": 56,
+      "path": 64
+    },
+    "tlv_schema_definition_location_t": {
+      "size": 24,
+      "alignment": 8,
+      "kind": 0,
+      "owner": 8,
+      "index": 16
+    },
     "tlv_query_t": {
       "size": 648,
       "alignment": 8
@@ -48,20 +75,22 @@
       "invalid": 40
     },
     "tlv_query_diagnostic_t": {
-      "size": 288,
+      "size": 1400,
       "alignment": 8,
-      "kind": 0,
-      "begin": 8,
-      "end": 16,
-      "reader": 64
+      "diagnostic": 0,
+      "kind": 592,
+      "begin": 600,
+      "end": 608,
+      "reader": 640
     },
     "tlv_query_result_t": {
-      "size": 24,
+      "size": 32,
       "alignment": 8,
       "kind": 0,
       "boolean": 4,
       "integer": 8,
-      "data": 16
+      "data": 16,
+      "size_offset": 24
     },
     "tlv_query_compile_options_t": {
       "size": 112,

@@ -115,7 +115,10 @@ std::string traversal_command::render_failure_diagnostic(diagnostic_format  diag
         return format_reader_diagnostic(reader_diag_, diag_format);
     }
     tlv::diagnostic diag = tlv::make_diagnostic(result_, tlv::severity::error);
-    tlv::set_offset(diag, error_offset_);
+    diag.location = reader_diag_.diagnostic.location;
+    if (options_.pdol)
+        tlv::set_location(diag, tlv::location_domain::input, tlv::location_kind::point,
+                          error_offset_, error_offset_);
     return format_diagnostic(diag, diag_format, stage_name.c_str(), tag_hex_ptr);
 }
 
@@ -189,7 +192,7 @@ tlv::errc traversal_command::visit_recovering(std::size_t* error_offset) {
                                  *format_, consumed, &attempt);
         tlv::errc rc = decoded ? tlv::errc::ok : decoded.error().status();
         if (rc != tlv::errc::ok) {
-            if (attempt.diagnostic.has_offset) attempt.diagnostic.offset += pos;
+            tlv::translate_location(attempt.diagnostic.location, pos);
             if (attempt.has_tag_offset) attempt.tag_offset += pos;
             if (attempt.has_length_offset) attempt.length_offset += pos;
             if (attempt.has_value_offset) attempt.value_offset += pos;
@@ -281,7 +284,7 @@ int traversal_command::run() {
 #if OPENTLV_BLUETOOTH
     if (bluetooth_module(options_)) {
         const auto container = tlv::bluetooth::validate_container(
-            {reinterpret_cast<const tlv::byte*>(data()), size()});
+            {reinterpret_cast<const tlv::byte*>(data()), size()}, &reader_diag_);
         if (container)
             significant = *container;
         else {
@@ -292,14 +295,6 @@ int traversal_command::run() {
 #endif
     if (result != tlv::errc::ok) {
         stage_ = "container ";
-        // The container API reports an offset only. For a framing failure,
-        // ask the public Tree Reader for its full raw identifier/field diagnostic.
-        // Padding errors remain container diagnostics, not fake LTV elements.
-        if (result != tlv::errc::invalid_value) {
-            std::size_t ignored = 0;
-            visit_slice(env, data(), size(), 0, options_.max_elements, nullptr, nullptr, &ignored,
-                        &reader_diag_);
-        }
     } else if (options_.pdol)
         result = visit_pdol(&error_offset);
     else if (options_.recover)
@@ -353,7 +348,8 @@ int traversal_command::run() {
                 rendered = format_reader_diagnostic(reader_diag, diag_format);
             } else {
                 tlv::diagnostic diag = tlv::make_diagnostic(range.error, tlv::severity::warning);
-                tlv::set_offset(diag, range.error_offset);
+                tlv::set_location(diag, tlv::location_domain::input, tlv::location_kind::point,
+                                  range.error_offset, range.error_offset);
                 rendered = format_diagnostic(diag, diag_format, "", nullptr);
             }
             if (diag_format == diagnostic_format::json) {

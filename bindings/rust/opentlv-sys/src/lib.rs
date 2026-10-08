@@ -941,7 +941,7 @@ extern "C" {
         limits: *const tlv_der_limits_t,
         element: *mut tlv_element_t,
         consumed: *mut usize,
-        error_offset: *mut usize,
+        diagnostic: *mut tlv_diagnostic_t,
     ) -> tlv_result_t;
     /// Strict counterpart of [`tlv_der_read`].
     pub fn tlv_der_read_strict(
@@ -950,7 +950,7 @@ extern "C" {
         limits: *const tlv_der_limits_t,
         element: *mut tlv_element_t,
         consumed: *mut usize,
-        error_offset: *mut usize,
+        diagnostic: *mut tlv_diagnostic_t,
     ) -> tlv_result_t;
     /// Validates all concatenated DER elements recursively.
     pub fn tlv_der_visit(
@@ -959,7 +959,7 @@ extern "C" {
         limits: *const tlv_der_limits_t,
         visitor: Option<tlv_der_visitor_t>,
         context: *mut c_void,
-        error_offset: *mut usize,
+        diagnostic: *mut tlv_diagnostic_t,
     ) -> tlv_result_t;
     /// Strict counterpart of [`tlv_der_visit`].
     pub fn tlv_der_visit_strict(
@@ -968,7 +968,7 @@ extern "C" {
         limits: *const tlv_der_limits_t,
         visitor: Option<tlv_der_visitor_t>,
         context: *mut c_void,
-        error_offset: *mut usize,
+        diagnostic: *mut tlv_diagnostic_t,
     ) -> tlv_result_t;
     /// Writes a canonical DER element.
     pub fn tlv_der_write(
@@ -979,7 +979,7 @@ extern "C" {
         length: usize,
         limits: *const tlv_der_limits_t,
         written: *mut usize,
-        error_offset: *mut usize,
+        diagnostic: *mut tlv_diagnostic_t,
     ) -> tlv_result_t;
     /// Strict counterpart of [`tlv_der_write`].
     pub fn tlv_der_write_strict(
@@ -990,7 +990,7 @@ extern "C" {
         length: usize,
         limits: *const tlv_der_limits_t,
         written: *mut usize,
-        error_offset: *mut usize,
+        diagnostic: *mut tlv_diagnostic_t,
     ) -> tlv_result_t;
 
     /// Default CER limits.
@@ -1002,7 +1002,7 @@ extern "C" {
         limits: *const tlv_cer_limits_t,
         element: *mut tlv_element_t,
         consumed: *mut usize,
-        error_offset: *mut usize,
+        diagnostic: *mut tlv_diagnostic_t,
     ) -> tlv_result_t;
     /// Strict counterpart of [`tlv_cer_read`].
     pub fn tlv_cer_read_strict(
@@ -1011,7 +1011,7 @@ extern "C" {
         limits: *const tlv_cer_limits_t,
         element: *mut tlv_element_t,
         consumed: *mut usize,
-        error_offset: *mut usize,
+        diagnostic: *mut tlv_diagnostic_t,
     ) -> tlv_result_t;
     /// Validates all concatenated CER elements recursively.
     pub fn tlv_cer_visit(
@@ -1020,7 +1020,7 @@ extern "C" {
         limits: *const tlv_cer_limits_t,
         visitor: Option<tlv_cer_visitor_t>,
         context: *mut c_void,
-        error_offset: *mut usize,
+        diagnostic: *mut tlv_diagnostic_t,
     ) -> tlv_result_t;
     /// Strict counterpart of [`tlv_cer_visit`].
     pub fn tlv_cer_visit_strict(
@@ -1029,7 +1029,7 @@ extern "C" {
         limits: *const tlv_cer_limits_t,
         visitor: Option<tlv_cer_visitor_t>,
         context: *mut c_void,
-        error_offset: *mut usize,
+        diagnostic: *mut tlv_diagnostic_t,
     ) -> tlv_result_t;
     /// Writes a canonical CER element.
     pub fn tlv_cer_write(
@@ -1040,7 +1040,7 @@ extern "C" {
         length: usize,
         limits: *const tlv_cer_limits_t,
         written: *mut usize,
-        error_offset: *mut usize,
+        diagnostic: *mut tlv_diagnostic_t,
     ) -> tlv_result_t;
     /// Strict counterpart of [`tlv_cer_write`].
     pub fn tlv_cer_write_strict(
@@ -1051,7 +1051,7 @@ extern "C" {
         length: usize,
         limits: *const tlv_cer_limits_t,
         written: *mut usize,
-        error_offset: *mut usize,
+        diagnostic: *mut tlv_diagnostic_t,
     ) -> tlv_result_t;
 }
 
@@ -1191,13 +1191,13 @@ extern "C" {
     pub fn tlv_query_parse(
         text: *const c_char,
         query: *mut tlv_query_t,
-        offset: *mut usize,
+        diagnostic: *mut tlv_diagnostic_t,
     ) -> tlv_result_t;
     pub fn tlv_query_parse_n(
         text: *const c_char,
         size: usize,
         query: *mut tlv_query_t,
-        offset: *mut usize,
+        diagnostic: *mut tlv_diagnostic_t,
     ) -> tlv_result_t;
     pub fn tlv_query_count(query: *const tlv_query_t) -> usize;
     pub fn tlv_query_format(
@@ -1227,24 +1227,24 @@ extern "C" {
             unsafe extern "C" fn(*const tlv_element_t, usize, usize, *mut c_void) -> c_int,
         >,
         context: *mut c_void,
-        error_offset: *mut usize,
+        diagnostic: *mut tlv_reader_diagnostic_t,
     ) -> tlv_result_t;
 }
 
 extern "C" {
-    pub fn tlv_reader_visit_diag(
-        reader: *mut tlv_reader_t,
-        visitor: Option<unsafe extern "C" fn(*const tlv_element_t, *mut c_void) -> c_int>,
-        context: *mut c_void,
-        diagnostic: *mut tlv_reader_diagnostic_t,
-    ) -> tlv_result_t;
-    pub fn tlv_tree_reader_visit_diag(
+    /// Visit the remaining tree with optional structured failure detail.
+    pub fn tlv_tree_reader_visit(
         reader: *mut tlv_tree_reader_t,
         visitor: Option<
             unsafe extern "C" fn(*const tlv_element_t, usize, usize, *mut c_void) -> c_int,
         >,
         context: *mut c_void,
-        error_offset: *mut usize,
+        diagnostic: *mut tlv_reader_diagnostic_t,
+    ) -> tlv_result_t;
+    pub fn tlv_reader_visit_diag(
+        reader: *mut tlv_reader_t,
+        visitor: Option<unsafe extern "C" fn(*const tlv_element_t, *mut c_void) -> c_int>,
+        context: *mut c_void,
         diagnostic: *mut tlv_reader_diagnostic_t,
     ) -> tlv_result_t;
 }
@@ -1253,22 +1253,35 @@ extern "C" {
 #[repr(C)]
 #[derive(Clone, Copy, Debug)]
 pub struct tlv_diagnostic_t {
-    /// Corresponding C field.
+    /// Stable result.
     pub code: tlv_result_t,
-    /// Corresponding C field.
+    /// Severity.
     pub severity: c_int,
-    /// Corresponding C field.
-    pub has_offset: c_int,
-    /// Corresponding C field.
-    pub offset: usize,
-    /// Corresponding C field.
+    /// Primary evidence location.
+    pub location: tlv_location_t,
+    /// Borrowed expected text.
     pub expected: *const c_char,
-    /// Corresponding C field.
+    /// Borrowed actual text.
     pub actual: *const c_char,
-    /// Corresponding C field.
+    /// Borrowed contexts.
     pub contexts: *const c_void,
-    /// Corresponding C field.
-    pub path: *const c_void,
+    /// Whether the enclosing path was tracked.
+    pub has_path: c_int,
+    /// Path copied by value; identifier bytes remain borrowed.
+    pub path: tlv_diagnostic_path_t,
+}
+/// Native coordinate domain and checked half-open bounds.
+#[repr(C)]
+#[derive(Clone, Copy, Debug, Default)]
+pub struct tlv_location_t {
+    /// Coordinate domain.
+    pub domain: c_int,
+    /// Anchor kind, zero for unknown.
+    pub kind: c_int,
+    /// Inclusive start.
+    pub begin: usize,
+    /// Exclusive end; equal to begin for points and boundaries.
+    pub end: usize,
 }
 /// Native tlv_reader_diagnostic state.
 #[repr(C)]

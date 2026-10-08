@@ -201,6 +201,8 @@ unsafe extern "C" fn decode_provider(
 /// Complete owned native failure, independent of input/program lifetime.
 #[derive(Clone, Debug)]
 pub struct ProgramError {
+    /// Primary evidence coordinates; Query spans remain related expression context.
+    pub location: crate::Location,
     /// Original native status, including resumable NEED_MORE_DATA.
     pub error: Error,
     /// Native Query diagnostic category.
@@ -242,6 +244,7 @@ fn check(code: i32, diagnostic: &native::tlv_query_diagnostic_t) -> ProgramResul
                 (!p.is_null()).then(|| CStr::from_ptr(p).to_string_lossy().into_owned())
             };
             ProgramError {
+                location: crate::Location::from_raw(diagnostic.diagnostic.location),
                 error,
                 kind: if code == native::TLV_ERR_INVALID_STATE {
                     native::TLV_QUERY_ERROR_STATE
@@ -250,8 +253,9 @@ fn check(code: i32, diagnostic: &native::tlv_query_diagnostic_t) -> ProgramResul
                 },
                 begin: diagnostic.begin,
                 end: diagnostic.end,
-                source_offset: (diagnostic.has_source_offset != 0)
-                    .then_some(diagnostic.source_offset),
+                source_offset: (diagnostic.diagnostic.location.domain == 1
+                    && diagnostic.diagnostic.location.kind != 0)
+                    .then_some(diagnostic.diagnostic.location.begin),
                 expected: text(diagnostic.expected),
                 limit: text(diagnostic.limit),
                 configured: diagnostic.configured,
@@ -979,6 +983,7 @@ pub enum QueryEvent<'a> {
 unsafe fn project<'a>(event: &native::tlv_tree_event_t) -> ProgramResult<QueryMatch<'a>> {
     Ok(QueryMatch {
         element: unsafe { Element::from_raw(&event.element) }.map_err(|e| ProgramError {
+            location: crate::Location::default(),
             error: e,
             kind: 0,
             begin: 0,
@@ -1357,6 +1362,7 @@ impl<'a> QueryExecution<'a> {
             capacity = match value_capacity {
                 Some(value) => value,
                 None => document.encoded_size().map_err(|error| ProgramError {
+                    location: crate::Location::default(),
                     error,
                     kind: 0,
                     begin: 0,

@@ -6,6 +6,13 @@ import { resolve } from "node:path";
 import { pathToFileURL } from "node:url";
 const { loadOpenTLV, hexToBytes } = await import(pathToFileURL(resolve(process.argv[2], "opentlv.mjs")));
 const api = await loadOpenTLV();
+assert.throws(() => api.compileQuery("/"), error => {
+  assert.equal(error.location.domain, "expression");
+  assert.equal(error.location.kind, "span");
+  assert.equal(error.location.begin, 1);
+  assert.equal(error.location.end, 1);
+  return true;
+});
 const cases = JSON.parse(await readFile(process.argv[3], "utf8"));
 const hex = bytes => Buffer.from(bytes).toString("hex");
 function scalar(value) {

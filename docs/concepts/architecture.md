@@ -612,7 +612,7 @@ optional implementations that work without the future `.otlv` interpreter.
 The old names have no compatibility aliases. Reconfigure existing builds using
 `OPENTLV_EMV`; an old cache entry does not control the renamed option. Rust
 `default_limits()` now returns a `Result`; bounded validation operations reject
-formats other than DER/CER with `InvalidArg` at offset zero. Reader/Writer keep
+formats other than DER/CER with `InvalidArg` and unknown location. Reader/Writer keep
 using their selected Format directly. Standard guides now live in `standards/`.
 
 CLI `--module emv` selects the existing native EMV definitions, schemas and

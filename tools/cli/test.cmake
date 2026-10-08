@@ -382,7 +382,7 @@ if(HAS_EMV)
     # file and matches the pre-#264 wording.
     check(1 "^otlv: error: schema constraint violated\n\ncode: TLV_ERR_SCHEMA\noffset: 0x2 \\(2\\)\npath: 6F\ntag: 84\nfield: df_name\nexpected occurrences: 1\\.\\.1\nactual occurrences: 0\n$"
         validate --format ber --module emv --hex "6F00")
-    check(1 "\"code\":\"TLV_ERR_SCHEMA\",\"field\":\"df_name\",\"kind\":\"missing\",\"max_occurs\":1,\"message\":\"schema constraint violated\",\"min_occurs\":1,\"occurs\":0,\"offset\":2,\"path\":\"6F\",\"severity\":\"error\",\"tag\":\"84\""
+    check(1 "\"code\":\"TLV_ERR_SCHEMA\",\"field\":\"df_name\",\"kind\":\"missing\",\"location\":\\{\"begin\":2,\"domain\":\"input\",\"end\":2,\"kind\":\"scope_end\"\\},\"max_occurs\":1,\"message\":\"schema constraint violated\",\"min_occurs\":1,\"occurs\":0,\"offset\":2,\"path\":\"6F\",\"severity\":\"error\",\"tag\":\"84\""
         validate --format ber --module emv --hex "6F00" --diagnostics json)
 else()
     check(2 "EMV module is disabled" dump --format ber --hex " " --module emv)
@@ -396,7 +396,7 @@ if(HAS_BER)
     # and available bytes when a value overruns its input.
     check(1 "^otlv: error: buffer too short\n\ncode: TLV_ERR_BUFFER_TOO_SHORT\noffset: 0x2 \\(2\\)\ntag: 04\nwhile reading: value\nraw length: 02\ndeclared length: 2\navailable: 1\n$"
         validate --format ber --hex "0402AA")
-    check(1 "^{\"available\":1,\"code\":\"TLV_ERR_BUFFER_TOO_SHORT\",\"declared_length\":2,\"message\":\"buffer too short\",\"offset\":2,\"operation\":\"value\",\"raw_length\":\"02\",\"severity\":\"error\",\"tag\":\"04\"}\n$"
+    check(1 "^{\"available\":1,\"code\":\"TLV_ERR_BUFFER_TOO_SHORT\",\"declared_length\":2,\"location\":{\"begin\":2,\"domain\":\"input\",\"end\":2,\"kind\":\"point\"},\"message\":\"buffer too short\",\"offset\":2,\"operation\":\"value\",\"raw_length\":\"02\",\"severity\":\"error\",\"tag\":\"04\"}\n$"
         validate --format ber --hex "0402AA" --diagnostics json)
 endif()
 if(HAS_DER)
@@ -863,7 +863,7 @@ if(HAS_EMV)
     # and the dictionary field name -- in both human and json.
     check(1 "path: 7F60 > A1\nstage: dictionary\nexpected: 1\\.\\.1\nactual: 2\ndictionary field: biometric_subtype"
         validate --format ber --module emv --emv-check dictionary --hex "7F6006A10482020101")
-    check(1 "\"expected\":\"1..1\",\"message\":\"schema constraint violated\",\"offset\":5,\"path\":\"7F60 > A1\",\"severity\":\"error\",\"stage\":\"dictionary\",\"tag\":\"82\""
+    check(1 "\"expected\":\"1..1\",\"location\":{\"begin\":5,\"domain\":\"input\",\"end\":5,\"kind\":\"point\"},\"message\":\"schema constraint violated\",\"offset\":5,\"path\":\"7F60 > A1\",\"severity\":\"error\",\"stage\":\"dictionary\",\"tag\":\"82\""
         validate --format ber --module emv --emv-check dictionary --hex "7F6006A10482020101" --diagnostics json)
     check(0 "^$" validate --format ber --module emv --emv-check dictionary --hex "7F6005A103820101")
 else()
@@ -892,7 +892,7 @@ if(HAS_BER)
     # json wraps each skipped range's diagnostic with the range it recovered
     # from, since a schema-free tlv_diagnostic_t has no room for that itself.
     run_cli(4 "offset=0 tag=5A length=1 value=12\nskipped offset=3 length=2 error=TLV_ERR_INVALID_TAG error-offset=3\noffset=5 tag=5A length=1 value=34\n"
-        "^\\{\"available\":5,\"code\":\"TLV_ERR_INVALID_TAG\",\"message\":\"invalid tag\",\"offset\":3,\"operation\":\"tag\",\"severity\":\"warning\",\"skipped_length\":2,\"skipped_offset\":3\\}\notlv: output is incomplete: recovery skipped 1 range\\(s\\), 2 byte\\(s\\) in total\n$"
+        "^\\{\"available\":5,\"code\":\"TLV_ERR_INVALID_TAG\",\"location\":{\"begin\":3,\"domain\":\"input\",\"end\":3,\"kind\":\"point\"},\"message\":\"invalid tag\",\"offset\":3,\"operation\":\"tag\",\"severity\":\"warning\",\"skipped_length\":2,\"skipped_offset\":3\\}\notlv: output is incomplete: recovery skipped 1 range\\(s\\), 2 byte\\(s\\) in total\n$"
         dump --format ber --hex "${damaged}" --recover --diagnostics json)
     # Without --recover the same input fails at the first error, and validate
     # stays strict.
@@ -930,7 +930,7 @@ if(HAS_BER)
         dump --format ber --hex "30800401AA0000 0000" --recover)
 
     # Resource limits are not damage: they fail the run with exit 3.
-    check(3 "TLV_ERR_LIMIT at byte 3 tag=5A" dump --format ber --hex "5A0112 5A0134" --recover --max-elements 1 --diagnostics compact)
+    check(3 "TLV_ERR_LIMIT at unknown location tag=5A" dump --format ber --hex "5A0112 5A0134" --recover --max-elements 1 --diagnostics compact)
     check(3 "input-size limit" dump --format ber --hex "5A0112" --recover --max-input-size 2)
     check(3 "TLV_ERR_LIMIT" dump --format ber --hex "E1035A0112 0000" --recover --tree --max-depth 0)
     run_cli(3 "" "TLV_ERR_LIMIT" decode --format ber --hex "E1035A0112 0000" --recover --max-depth 0)

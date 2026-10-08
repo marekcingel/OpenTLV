@@ -419,8 +419,8 @@ static tlv_result_t eval_failure(tlv_query_exec_t* e, const eval_frame_t* f, tlv
                                     ? e->document_metadata(node->handle, 0, &offset)
                                     : query_source_metadata(&node->event, 0, &offset);
         if (location == TLV_OK) {
-            d->has_source_offset = 1;
-            d->source_offset = offset;
+            tlv_diagnostic_set_location(&d->diagnostic, TLV_LOCATION_INPUT, TLV_LOCATION_POINT,
+                                        offset, offset);
         }
     }
     return rc;

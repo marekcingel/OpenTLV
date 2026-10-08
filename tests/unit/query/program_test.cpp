@@ -1076,7 +1076,7 @@ TEST(Unit_Tlv_QueryProgram, TreeResourceLimitsHaveOwnedSafeReaderDiagnostics) {
         EXPECT_EQ(TLV_QUERY_ERROR_READER, selector.diagnostic.kind);
         EXPECT_EQ(resource == 0 ? TLV_ERR_BUFFER_TOO_SHORT : TLV_ERR_LIMIT, detail.diagnostic.code);
         EXPECT_EQ(TLV_DIAGNOSTIC_SEVERITY_ERROR, detail.diagnostic.severity);
-        EXPECT_EQ(0, detail.diagnostic.has_offset);
+        EXPECT_EQ(0, detail.diagnostic.location.kind);
         EXPECT_EQ(nullptr, detail.diagnostic.expected);
         EXPECT_EQ(nullptr, detail.diagnostic.actual);
         EXPECT_EQ(0, detail.has_tag);
@@ -1309,9 +1309,10 @@ TEST(Unit_Tlv_Query, BoundedParsingFormattingAndCorruptAccess) {
     EXPECT_STREQ("6F/50", output);
     unsigned char before[sizeof query];
     std::memcpy(before, &query, sizeof query);
-    size_t offset = 99;
+    tlv_diagnostic_t offset = {};
+    offset.location.begin = 99;
     EXPECT_EQ(TLV_ERR_INVALID_ARG, tlv_query_parse_n("6F\0/50", 6, &query, &offset));
-    EXPECT_EQ(2u, offset);
+    EXPECT_EQ(2u, offset.location.begin);
     EXPECT_EQ(0, std::memcmp(&query, before, sizeof query));
     tlv_query_t copy;
     std::memset(&copy, 0xFF, sizeof copy);
@@ -1441,7 +1442,7 @@ TEST(Unit_Tlv_QueryProgram, PropagatedReaderStateUsesStateKindAndPreservesReader
         EXPECT_EQ(TLV_QUERY_ERROR_STATE, diagnostic.kind);
         EXPECT_EQ(TLV_ERR_INVALID_STATE, diagnostic.reader.diagnostic.code);
         EXPECT_EQ(TLV_READER_OP_VALUE, diagnostic.reader.operation);
-        EXPECT_EQ(1u, diagnostic.reader.diagnostic.offset);
+        EXPECT_EQ(1u, diagnostic.reader.diagnostic.location.begin);
     }
 }
 
@@ -1585,10 +1586,10 @@ TEST(Unit_Tlv_QueryProgram, DeepSchemaPathsMatchBetweenBufferAndDocument) {
                   tlv_schema_query_validate_buffer(wire.data(), wire.size(), &nested_format, &rule,
                                                    1, 64, 100, 1000000, &workspace, &diagnostic));
         const size_t retained = depth < 32 ? depth : 32;
-        ASSERT_EQ(retained, diagnostic.schema.path.length);
-        EXPECT_EQ(depth - retained, diagnostic.schema.path.omitted);
+        ASSERT_EQ(retained, diagnostic.schema.diagnostic.path.length);
+        EXPECT_EQ(depth - retained, diagnostic.schema.diagnostic.path.omitted);
         for (size_t i = 0; i < retained; ++i)
-            EXPECT_EQ(0x80 + i, diagnostic.schema.path.tags[i].data[0]);
+            EXPECT_EQ(0x80 + i, diagnostic.schema.diagnostic.path.tags[i].data[0]);
 #if OPENTLV_DOCUMENT && OPENTLV_READER && OPENTLV_WRITER
         tlv_document_options_t options;
         ASSERT_EQ(TLV_OK, tlv_document_options_init(&options, &nested_format));
@@ -1601,11 +1602,12 @@ TEST(Unit_Tlv_QueryProgram, DeepSchemaPathsMatchBetweenBufferAndDocument) {
         ASSERT_EQ(TLV_ERR_SCHEMA, tlv_schema_query_validate_document(
                                       document.get(), &rule, 1, 64, 100, 1000000, &workspace,
                                       nullptr, 0, nullptr, &doc_diagnostic));
-        ASSERT_EQ(retained, doc_diagnostic.schema.path.length);
-        EXPECT_EQ(diagnostic.schema.path.omitted, doc_diagnostic.schema.path.omitted);
+        ASSERT_EQ(retained, doc_diagnostic.schema.diagnostic.path.length);
+        EXPECT_EQ(diagnostic.schema.diagnostic.path.omitted,
+                  doc_diagnostic.schema.diagnostic.path.omitted);
         for (size_t i = 0; i < retained; ++i)
-            EXPECT_TRUE(
-                tlv_tag_equal(diagnostic.schema.path.tags[i], doc_diagnostic.schema.path.tags[i]));
+            EXPECT_TRUE(tlv_tag_equal(diagnostic.schema.diagnostic.path.tags[i],
+                                      doc_diagnostic.schema.diagnostic.path.tags[i]));
 #endif
     }
 }

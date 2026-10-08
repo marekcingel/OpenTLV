@@ -8,6 +8,12 @@ use std::{ffi::CStr, slice};
 /// Structured detail from the canonical Reader, safe to retain after input replacement.
 #[derive(Clone, Debug, Default)]
 pub struct ReaderDiagnostic {
+    /// Primary evidence coordinates.
+    pub location: crate::Location,
+    /// Retained enclosing Tag bytes; None means no path was tracked.
+    pub path: Option<Vec<Vec<u8>>>,
+    /// Number of omitted innermost scopes.
+    pub path_omitted: usize,
     /// Absolute failing field offset.
     pub offset: Option<usize>,
     /// C Reader operation code (tag, length, value, trailer or header).
@@ -59,7 +65,15 @@ impl ReaderDiagnostic {
             }
         }
         Self {
-            offset: (raw.diagnostic.has_offset != 0).then_some(raw.diagnostic.offset),
+            location: crate::Location::from_raw(raw.diagnostic.location),
+            path: (raw.diagnostic.has_path != 0).then(|| {
+                raw.diagnostic.path.tags[..raw.diagnostic.path.length]
+                    .iter()
+                    .map(|tag| unsafe { bytes(tag.data, tag.size) })
+                    .collect()
+            }),
+            path_omitted: raw.diagnostic.path.omitted,
+            offset: (raw.diagnostic.location.kind != 0).then_some(raw.diagnostic.location.begin),
             operation: raw.operation,
             // SAFETY: the caller keeps diagnostic buffers alive for these copies.
             tag: (raw.has_tag != 0).then(|| unsafe { bytes(raw.tag.data, raw.tag.size) }),

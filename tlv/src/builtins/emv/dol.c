@@ -7,8 +7,17 @@
 
 const tlv_dol_limits_t tlv_dol_default_limits = {1000, TLV_DOL_MAX_VALUE_LENGTH};
 
-static tlv_result_t fail(tlv_result_t rc, size_t offset, size_t* error_offset) {
-    if (error_offset) *error_offset = offset;
+static tlv_result_t fail(tlv_result_t rc, size_t offset, tlv_diagnostic_t* diagnostic) {
+    if (diagnostic) {
+        tlv_diagnostic_init(diagnostic, rc, TLV_DIAGNOSTIC_SEVERITY_ERROR);
+        tlv_diagnostic_set_location(diagnostic, TLV_LOCATION_INPUT, TLV_LOCATION_POINT, offset,
+                                    offset);
+    }
+    return rc;
+}
+
+static tlv_result_t unlocated(tlv_result_t rc, tlv_diagnostic_t* diagnostic) {
+    if (diagnostic) tlv_diagnostic_init(diagnostic, rc, TLV_DIAGNOSTIC_SEVERITY_ERROR);
     return rc;
 }
 
@@ -27,19 +36,19 @@ static tlv_result_t read_entry(const uint8_t* data, size_t size, size_t offset,
 }
 
 tlv_result_t tlv_dol_read(const uint8_t* data, size_t size, const tlv_dol_limits_t* limits,
-                          tlv_dol_visit_fn visit, void* context, size_t* error_offset) {
+                          tlv_dol_visit_fn visit, void* context, tlv_diagnostic_t* diagnostic) {
     size_t offset = 0, count = 0;
     if (!limits) limits = &tlv_dol_default_limits;
-    if ((!data && size) || !visit) return fail(TLV_ERR_NULL_ARG, 0, error_offset);
+    if ((!data && size) || !visit) return unlocated(TLV_ERR_NULL_ARG, diagnostic);
     while (offset < size) {
         tlv_dol_entry_t entry;
         size_t used;
         tlv_result_t rc;
-        if (count == limits->max_entries) return fail(TLV_ERR_LIMIT, offset, error_offset);
+        if (count == limits->max_entries) return fail(TLV_ERR_LIMIT, offset, diagnostic);
         rc = read_entry(data, size, offset, &entry, &used);
-        if (rc != TLV_OK) return fail(rc, offset, error_offset);
+        if (rc != TLV_OK) return fail(rc, offset, diagnostic);
         rc = visit(&entry, count, context);
-        if (rc != TLV_OK) return fail(rc, offset, error_offset);
+        if (rc != TLV_OK) return fail(rc, offset, diagnostic);
         ++count;
         offset += used;
     }
@@ -55,21 +64,21 @@ tlv_result_t tlv_dol_read(const uint8_t* data, size_t size, const tlv_dol_limits
 static tlv_result_t produce_entry(const tlv_dol_entry_t* entry, size_t index,
                                   tlv_dol_resolve_fn resolve, void* context,
                                   const tlv_dol_limits_t* limits, uint8_t* segment,
-                                  size_t dol_offset, size_t* error_offset) {
+                                  size_t dol_offset, tlv_diagnostic_t* diagnostic) {
     size_t available_length = 0;
     tlv_dol_format_t format = TLV_DOL_FORMAT_BINARY;
     int absent = 0;
     tlv_result_t rc =
         resolve(entry, index, 0, NULL, 0, &available_length, &format, &absent, context);
-    if (rc != TLV_OK) return fail(rc, dol_offset, error_offset);
+    if (rc != TLV_OK) return fail(rc, dol_offset, diagnostic);
     if (absent) {
         memset(segment, 0, entry->requested_length);
         return TLV_OK;
     }
     if (available_length > limits->max_value_length)
-        return fail(TLV_ERR_LIMIT, dol_offset, error_offset);
+        return fail(TLV_ERR_LIMIT, dol_offset, diagnostic);
     if (format != TLV_DOL_FORMAT_BINARY && format != TLV_DOL_FORMAT_NUMERIC)
-        return fail(TLV_ERR_INVALID_ARG, dol_offset, error_offset);
+        return fail(TLV_ERR_INVALID_ARG, dol_offset, diagnostic);
 
     if (available_length <= entry->requested_length) {
         size_t pad = entry->requested_length - available_length;
@@ -80,40 +89,40 @@ static tlv_result_t produce_entry(const tlv_dol_entry_t* entry, size_t index,
         if (available_length) {
             rc = resolve(entry, index, 0, segment + prefix, available_length, &available_length,
                          &format, &absent, context);
-            if (rc != TLV_OK) return fail(rc, dol_offset, error_offset);
+            if (rc != TLV_OK) return fail(rc, dol_offset, diagnostic);
         }
     } else {
         size_t skip =
             format == TLV_DOL_FORMAT_NUMERIC ? available_length - entry->requested_length : 0;
         rc = resolve(entry, index, skip, segment, entry->requested_length, &available_length,
                      &format, &absent, context);
-        if (rc != TLV_OK) return fail(rc, dol_offset, error_offset);
+        if (rc != TLV_OK) return fail(rc, dol_offset, diagnostic);
     }
     return TLV_OK;
 }
 
 tlv_result_t tlv_dol_write(const uint8_t* dol, size_t dol_size, uint8_t* data, size_t capacity,
                            const tlv_dol_limits_t* limits, tlv_dol_resolve_fn resolve,
-                           void* context, size_t* written, size_t* error_offset) {
+                           void* context, size_t* written, tlv_diagnostic_t* diagnostic) {
     size_t offset = 0, count = 0, total = 0;
     if (!limits) limits = &tlv_dol_default_limits;
     if ((!dol && dol_size) || !written || (!data && capacity) || (!resolve && data))
-        return fail(TLV_ERR_NULL_ARG, 0, error_offset);
+        return unlocated(TLV_ERR_NULL_ARG, diagnostic);
     if (limits->max_value_length > TLV_DOL_MAX_VALUE_LENGTH)
-        return fail(TLV_ERR_LIMIT, 0, error_offset);
+        return unlocated(TLV_ERR_LIMIT, diagnostic);
 
     while (offset < dol_size) {
         tlv_dol_entry_t entry;
         size_t used;
         tlv_result_t rc;
-        if (count == limits->max_entries) return fail(TLV_ERR_LIMIT, offset, error_offset);
+        if (count == limits->max_entries) return fail(TLV_ERR_LIMIT, offset, diagnostic);
         rc = read_entry(dol, dol_size, offset, &entry, &used);
-        if (rc != TLV_OK) return fail(rc, offset, error_offset);
+        if (rc != TLV_OK) return fail(rc, offset, diagnostic);
         if (data) {
             if (total + entry.requested_length > capacity)
-                return fail(TLV_ERR_BUFFER_TOO_SHORT, offset, error_offset);
+                return fail(TLV_ERR_BUFFER_TOO_SHORT, offset, diagnostic);
             rc = produce_entry(&entry, count, resolve, context, limits, data + total, offset,
-                               error_offset);
+                               diagnostic);
             if (rc != TLV_OK) return rc;
         }
         total += entry.requested_length;

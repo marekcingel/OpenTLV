@@ -247,7 +247,7 @@ and resumes at the complete encoded end, so BER EOCs are skipped correctly.
 
 Initialize `tlv_tree_reader_t` with caller-owned frames, a runtime depth limit
 and an element limit, then call `tlv_tree_reader_visit(&reader, visitor, context,
-error_offset)`. The Format classifies constructed tags; Visitor consumes the
+diagnostic)`. The Format classifies constructed tags; Visitor consumes the
 canonical Tree Reader stream.
 
 See also the [C API reference: formats](../reference/c-api.md#formats).

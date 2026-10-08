@@ -109,7 +109,14 @@ tlv::errc visit_slice(const traversal_env& env, const uint8_t* slice, std::size_
                                                : tlv::visit_control::next;
                             });
         result = status ? tlv::errc::ok : status.error().status();
-        if (!status) relative = status.error().offset();
+        if (!status) {
+            relative = status.error().offset();
+            if (diagnostic) {
+                diagnostic->diagnostic = tlv::make_diagnostic(result, tlv::severity::error);
+                diagnostic->diagnostic.location = status.error().location();
+                tlv::translate_location(diagnostic->diagnostic.location, base);
+            }
+        }
     } else
 #endif
     {
@@ -123,12 +130,13 @@ tlv::errc visit_slice(const traversal_env& env, const uint8_t* slice, std::size_
                                 [&](const tlv::element_view& element, size_t depth, size_t offset) {
                                     return visitor(&element, depth, offset, context);
                                 },
-                                &relative, diagnostic)
-                          : reader.validate(&relative, diagnostic);
+                                diagnostic)
+                          : reader.validate(diagnostic);
         result = status ? tlv::errc::ok : status.error().status();
+        if (!status && status.error().has_offset()) relative = status.error().offset();
         if (result != tlv::errc::ok && diagnostic &&
             tlv::status(diagnostic->diagnostic) != tlv::errc::ok) {
-            if (diagnostic->diagnostic.has_offset) diagnostic->diagnostic.offset += base;
+            tlv::translate_location(diagnostic->diagnostic.location, base);
             if (diagnostic->has_tag_offset) diagnostic->tag_offset += base;
             if (diagnostic->has_length_offset) diagnostic->length_offset += base;
             if (diagnostic->has_value_offset) diagnostic->value_offset += base;

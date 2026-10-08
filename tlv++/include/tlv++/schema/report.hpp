@@ -45,15 +45,15 @@ public:
     }
     /** @brief Number of retained outermost enclosing identifiers. */
     size_t depth() const noexcept {
-        return raw_.path.length;
+        return raw_.diagnostic.path.length;
     }
     /** @brief Number of innermost enclosing identifiers omitted after the retained outer prefix. */
     size_t omitted_depth() const noexcept {
-        return raw_.path.omitted;
+        return raw_.diagnostic.path.omitted;
     }
     /** @brief Borrow an enclosing identifier; returns absent when index is out of range. */
     tlv::tag ancestor(size_t index) const noexcept {
-        return index < depth() ? detail::semantic_access::borrow(raw_.path.tags[index])
+        return index < depth() ? detail::semantic_access::borrow(raw_.diagnostic.path.tags[index])
                                : tlv::tag{};
     }
     /** @brief Whether occurrence details are available. */
@@ -74,7 +74,7 @@ public:
     }
     /** @brief Copied enclosing path; identifier bytes remain borrowed. */
     diagnostic_path path() const noexcept {
-        return raw_.path;
+        return raw_.diagnostic.path;
     }
     /** @brief Whether length constraint details are available. */
     bool has_length() const noexcept {
@@ -110,9 +110,7 @@ public:
     }
 
 private:
-    explicit validation_issue(tlv_schema_diagnostic_t raw) noexcept : raw_(raw) {
-        raw_.diagnostic.path = nullptr;
-    }
+    explicit validation_issue(tlv_schema_diagnostic_t raw) noexcept : raw_(raw) {}
     tlv_schema_diagnostic_t raw_;
     template <size_t> friend class validation_report;
 };
@@ -143,16 +141,14 @@ public:
                                      size_t         max_depth = TLV_SCHEMA_MAX_DEPTH,
                                      size_t         max_elements = SIZE_MAX) {
         tlv_schema_diagnostic_report_t report{storage_.data(), Capacity, 0};
-        size_t                         offset = 0;
+        tlv_schema_diagnostic_t        diagnostic{};
         const auto                     rc = tlv_schema_validate_all_diag(
             reinterpret_cast<const uint8_t*>(input.data()), input.size(),
             &detail::format_access::get(format), detail::schema_access::get(definition), max_depth,
-            max_elements, static_cast<tlv_schema_unknown_policy_t>(unknown), &report, &offset);
+            max_elements, static_cast<tlv_schema_unknown_policy_t>(unknown), &report, &diagnostic);
         total_ = report.count;
         if (rc != TLV_OK && rc != TLV_ERR_SCHEMA)
-            return unexpected<error>(rc == TLV_ERR_INVALID_SCHEMA
-                                         ? error::from_c(rc).during(operation::schema)
-                                         : error::from_c(rc).at(offset, operation::schema));
+            return unexpected<error>(detail::error_access::schema(diagnostic));
         return total_;
     }
     /** @brief Number of retained violations. */

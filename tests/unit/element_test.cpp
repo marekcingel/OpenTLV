@@ -654,7 +654,7 @@ TEST(Unit_Tlv_FormatContract, ReaderDiagnosticsDoNotDecodeAgain) {
                                                               &consumed, &diagnostic)));
     EXPECT_EQ(1u, context.calls);
     EXPECT_EQ(99u, consumed);
-    EXPECT_EQ(5u, diagnostic.diagnostic.offset);
+    EXPECT_EQ(5u, diagnostic.diagnostic.location.begin);
     EXPECT_TRUE(diagnostic.has_tag);
     ASSERT_EQ(1u, diagnostic.tag.size);
     EXPECT_EQ(7, diagnostic.tag.data[0]);

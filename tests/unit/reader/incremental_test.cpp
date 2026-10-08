@@ -96,7 +96,7 @@ TEST(Unit_Tlv_Incremental, RelocatedWindowsPreserveLogicalOffsetsAndOldBorrowedV
     ASSERT_EQ(
         TLV_NEED_MORE_DATA,
         TLV_DIAGNOSTIC_RESULT(diagnostic, tlv_reader_next_diag(&reader, &element, &diagnostic)));
-    EXPECT_EQ(5u, diagnostic.diagnostic.offset);
+    EXPECT_EQ(5u, diagnostic.diagnostic.location.begin);
     ASSERT_EQ(TLV_OK, tlv_reader_set_input(&reader, second, sizeof(second), 3, 0));
     EXPECT_EQ(3u, tlv_reader_offset(&reader));
     EXPECT_EQ(0u, tlv_reader_consumed(&reader));
@@ -108,7 +108,7 @@ TEST(Unit_Tlv_Incremental, RelocatedWindowsPreserveLogicalOffsetsAndOldBorrowedV
     ASSERT_EQ(
         TLV_NEED_MORE_DATA,
         TLV_DIAGNOSTIC_RESULT(diagnostic, tlv_reader_next_diag(&reader, &element, &diagnostic)));
-    EXPECT_EQ(8u, diagnostic.diagnostic.offset);
+    EXPECT_EQ(8u, diagnostic.diagnostic.location.begin);
     EXPECT_EQ(7u, diagnostic.tag_offset);
     EXPECT_EQ(8u, diagnostic.length_offset);
     EXPECT_EQ(8u, diagnostic.enclosing_end);
@@ -122,7 +122,7 @@ TEST(Unit_Tlv_Incremental, RelocatedWindowsPreserveLogicalOffsetsAndOldBorrowedV
     EXPECT_EQ(
         TLV_ERR_END_OF_BUFFER,
         TLV_DIAGNOSTIC_RESULT(diagnostic, tlv_reader_next_diag(&reader, &element, &diagnostic)));
-    EXPECT_EQ(9u, diagnostic.diagnostic.offset);
+    EXPECT_EQ(9u, diagnostic.diagnostic.location.begin);
 }
 
 TEST(Unit_Tlv_Incremental, CallerCanSlideWithinBoundedStorageAcrossManyElements) {
@@ -216,7 +216,7 @@ TEST(Unit_Tlv_Incremental, AbsoluteOffsetOverflowIsRejectedWithoutPublishing) {
     EXPECT_EQ(
         TLV_ERR_END_OF_BUFFER,
         TLV_DIAGNOSTIC_RESULT(diagnostic, tlv_reader_next_diag(&reader, &element, &diagnostic)));
-    EXPECT_EQ(SIZE_MAX, diagnostic.diagnostic.offset);
+    EXPECT_EQ(SIZE_MAX, diagnostic.diagnostic.location.begin);
 }
 
 TEST(Unit_Tlv_Incremental, FixedHeaderReportsKnownRequiredExtent) {

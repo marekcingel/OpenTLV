@@ -501,7 +501,8 @@ TEST(Unit_Tlv_QueryF3, DocumentStopResumeSourceErrorsAndResourceLimits) {
                                                       values.size(), &staging, &e.diagnostic)),
               TLV_ERR_INVALID_VALUE);
     EXPECT_EQ(e.diagnostic.kind, TLV_QUERY_ERROR_SOURCE);
-    EXPECT_FALSE(e.diagnostic.has_source_offset);
+    EXPECT_FALSE((e.diagnostic.diagnostic.location.domain == TLV_LOCATION_INPUT &&
+                  e.diagnostic.diagnostic.location.kind != TLV_LOCATION_UNKNOWN));
     ASSERT_EQ(e.compile("//*"), TLV_OK);
     ASSERT_EQ(e.init(), TLV_OK);
     ASSERT_EQ(e.compile("value(/70)"), TLV_OK);
@@ -599,7 +600,8 @@ TEST(Unit_Tlv_QueryF3, RetainedDocumentLocationsMatchStreamingAndSupportDocument
                                                                 0, nullptr, &e.diagnostic)),
               TLV_ERR_INVALID_VALUE);
     EXPECT_EQ(e.diagnostic.kind, TLV_QUERY_ERROR_SOURCE);
-    EXPECT_FALSE(e.diagnostic.has_source_offset);
+    EXPECT_FALSE((e.diagnostic.diagnostic.location.domain == TLV_LOCATION_INPUT &&
+                  e.diagnostic.diagnostic.location.kind != TLV_LOCATION_UNKNOWN));
 }
 
 TEST(Unit_Tlv_QueryF3, DocumentLocationPreservesEmptyHeaderAndZeroOffset) {

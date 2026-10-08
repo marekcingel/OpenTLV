@@ -182,8 +182,9 @@ TEST(Unit_Tlv_QueryF2, StrictCodecErrorsAndEagerBooleanEvaluation) {
         EXPECT_EQ(TLV_ERR_INVALID_VALUE, e.run({0x5a, 1, 0xff}));
         EXPECT_EQ(TLV_QUERY_ERROR_CODEC, e.diagnostic.kind);
         EXPECT_EQ(TLV_CODEC_ERR_INVALID_VALUE, e.diagnostic.codec);
-        EXPECT_TRUE(e.diagnostic.has_source_offset);
-        EXPECT_EQ(0u, e.diagnostic.source_offset);
+        EXPECT_TRUE((e.diagnostic.diagnostic.location.domain == TLV_LOCATION_INPUT &&
+                     e.diagnostic.diagnostic.location.kind != TLV_LOCATION_UNKNOWN));
+        EXPECT_EQ(0u, e.diagnostic.diagnostic.location.begin);
         EXPECT_LT(e.diagnostic.begin, e.diagnostic.end);
     }
     Evaluation e;

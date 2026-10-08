@@ -14,7 +14,7 @@ tlv_result_t validate(const std::vector<uint8_t>& wire, size_t* offset = nullptr
     auto                    rc =
         tlv_schema_validate(wire.data(), wire.size(), &tlv_format_emv, &tlv_emv_structure_schema,
                             TLV_TREE_DEFAULT_DEPTH, 1000, &diagnostic);
-    if (offset) *offset = diagnostic.diagnostic.offset;
+    if (offset) *offset = diagnostic.diagnostic.location.begin;
     return rc;
 }
 } // namespace
@@ -142,15 +142,16 @@ TEST(Integration_Tlv_EmvSchema, ReportsFciViolationsWithPathsInOnePass) {
     ASSERT_EQ(2u, report.count);
     char text[32];
     for (size_t i = 0; i < report.count; ++i) {
-        ASSERT_EQ(TLV_OK, tlv_diagnostic_path_string(&issues[i].path, text, sizeof(text), nullptr));
+        ASSERT_EQ(TLV_OK, tlv_diagnostic_path_string(&issues[i].diagnostic.path, text, sizeof(text),
+                                                     nullptr));
         EXPECT_STREQ("6F", text);
         if (issues[i].kind == TLV_SCHEMA_ISSUE_MISSING) {
             EXPECT_TRUE(tlv_tag_equal(TLV_TAG(0x84), issues[i].tag));
-            EXPECT_EQ(wire.size(), issues[i].diagnostic.offset);
+            EXPECT_EQ(wire.size(), issues[i].diagnostic.location.begin);
         } else {
             EXPECT_EQ(TLV_SCHEMA_ISSUE_UNEXPECTED, issues[i].kind);
             EXPECT_TRUE(tlv_tag_equal(TLV_TAG(0x50), issues[i].tag));
-            EXPECT_EQ(2u, issues[i].diagnostic.offset);
+            EXPECT_EQ(2u, issues[i].diagnostic.location.begin);
         }
     }
 }

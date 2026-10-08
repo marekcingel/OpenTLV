@@ -65,11 +65,11 @@ inline bytes raw_length(const reader_diagnostic& value) noexcept {
 /// @cond INTERNAL
 namespace detail {
 inline error reader_failed(tlv_result_t code, const reader_diagnostic& diagnostic,
-                           size_t offset) noexcept {
+                           size_t /*offset*/) noexcept {
     return diagnostic.diagnostic.code == code
                ? error_access::diagnostic(diagnostic.diagnostic, operation::reader,
                                           diagnostic.has_tag ? &diagnostic.tag : nullptr)
-               : error::from_c(code).at(offset, operation::reader);
+               : error::from_c(code).during(operation::reader);
 }
 } // namespace detail
 /// @endcond
@@ -335,8 +335,6 @@ private:
                 diagnostic = {};
                 diagnostic.diagnostic.code = rc;
                 diagnostic.diagnostic.severity = TLV_DIAGNOSTIC_SEVERITY_ERROR;
-                diagnostic.diagnostic.has_offset = 1;
-                diagnostic.diagnostic.offset = position;
                 diagnostic.operation = TLV_READER_OP_HEADER;
             }
             throw parse_error(rc, position, diagnostic);

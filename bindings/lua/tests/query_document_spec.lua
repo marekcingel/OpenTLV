@@ -15,6 +15,13 @@ local function failure(run, code)
 end
 
 describe("Lua Query", function()
+    it("preserves expression locations including known zero and empty EOF", function()
+        for _, case in ipairs({{"GG", 0, 1}, {"01/", 3, 3}, {"", 0, 0}}) do
+            local err = failure(function() tlv.query(case[1]) end, tlv.errors.INVALID_ARG)
+            assert(err.location.domain == "expression" and err.location.kind == "span")
+            assert(err.location.begin == case[2] and err.location["end"] == case[3])
+        end
+    end)
     it("owns resumable matcher state across STOP, windows, rebind and callback errors", function()
         local matcher = tlv.query("01"):matcher(fixed)
         matcher:set_input(data:sub(1, 3), 0, false)

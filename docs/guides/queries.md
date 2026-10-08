@@ -297,9 +297,9 @@ tlv_result_t rc = tlv_query_parse("6F/A5/50", &query, &text_offset);
 /* On TLV_ERR_INVALID_ARG, text_offset is the index of the offending character. */
 if (rc != TLV_OK) return 1;
 
-size_t error_offset;
+tlv_reader_diagnostic_t diagnostic;
 rc = tlv_query_visit_buffer(data, size, &tlv_format_ber, &query, TLV_TREE_DEFAULT_DEPTH, 100000, print_match,
-                    NULL, &error_offset);
+                    NULL, &diagnostic);
 if (rc != TLV_OK) return 1;
 ```
 
@@ -312,7 +312,7 @@ malformed data after the last match is reported, and `max_depth` and
 
 For incremental input or caller-selected traversal storage, initialize a
 `tlv_tree_reader_t` and a `tlv_query_matcher_t`, then call
-`tlv_query_visit(&reader, &matcher, print_match, NULL, &error_offset)`.
+`tlv_query_visit(&reader, &matcher, print_match, NULL, &diagnostic)`.
 Retain both states across STOP or `TLV_NEED_MORE_DATA`; replace input using
 `tlv_tree_reader_set_input()` before resuming. The buffer convenience function
 owns `TLV_QUERY_MAX_STEPS` frames, while the cursor API uses caller-owned frames.

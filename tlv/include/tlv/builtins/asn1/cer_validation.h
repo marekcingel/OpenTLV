@@ -5,6 +5,7 @@
 #define OPENTLV_BUILTINS_ASN1_CER_VALIDATION_H
 
 #include "tlv/error.h"
+#include "tlv/diagnostic.h"
 #include "tlv/config.h"
 #include "tlv/builtins/asn1/cer.h"
 #include "tlv/tree.h"
@@ -115,7 +116,7 @@ typedef tlv_visit_result_t (*tlv_cer_visitor_t)(const tlv_element_t* element, si
  * @param[in]  limits       Limits, or `NULL` for #tlv_cer_default_limits.
  * @param[out] element         Receives the element; its value borrows `data`.
  * @param[out] consumed     Receives the encoded size of the element.
- * @param[out] error_offset Optional. On failure receives the start of the
+ * @param[out] diagnostic Optional. On failure receives an INPUT point at the start of the
  *                          failing tag, length, value or (missing, truncated
  *                          or unexpected) EOC field; nested and per-segment
  *                          offsets are relative to `data`. Argument and
@@ -126,11 +127,12 @@ typedef tlv_visit_result_t (*tlv_cer_visitor_t)(const tlv_element_t* element, si
  * @return #TLV_ERR_LIMIT if a limit is exceeded.
  * @return Another error code for malformed or noncanonical input.
  *
- * @note Outputs other than `error_offset` remain unchanged on failure.
+ * @note Outputs other than `diagnostic` remain unchanged on failure.
  * @warning The caller must keep `data` alive while `element` is used.
  */
 TLV_API tlv_result_t tlv_cer_read(const uint8_t* data, size_t size, const tlv_cer_limits_t* limits,
-                                  tlv_element_t* element, size_t* consumed, size_t* error_offset);
+                                  tlv_element_t* element, size_t* consumed,
+                                  tlv_diagnostic_t* diagnostic);
 
 /**
  * @brief Validates all concatenated CER elements recursively.
@@ -143,7 +145,7 @@ TLV_API tlv_result_t tlv_cer_read(const uint8_t* data, size_t size, const tlv_ce
  * @param[in]  limits       Limits, or `NULL` for #tlv_cer_default_limits.
  * @param[in]  visitor      Callback per element; `NULL` validates only.
  * @param[in]  context      Passed to the visitor unchanged.
- * @param[out] error_offset Optional; see tlv_cer_read().
+ * @param[out] diagnostic Optional; see tlv_cer_read().
  *
  * @return #TLV_OK on success, including a visitor stop.
  * @return #TLV_ERR_VISITOR if the visitor requests an error stop.
@@ -152,7 +154,8 @@ TLV_API tlv_result_t tlv_cer_read(const uint8_t* data, size_t size, const tlv_ce
  * @warning Callback side effects are not rolled back on errors.
  */
 TLV_API tlv_result_t tlv_cer_visit(const uint8_t* data, size_t size, const tlv_cer_limits_t* limits,
-                                   tlv_cer_visitor_t visitor, void* context, size_t* error_offset);
+                                   tlv_cer_visitor_t visitor, void* context,
+                                   tlv_diagnostic_t* diagnostic);
 
 #if OPENTLV_WRITER
 /**
@@ -179,7 +182,7 @@ TLV_API tlv_result_t tlv_cer_visit(const uint8_t* data, size_t size, const tlv_c
  * @param[in]  length       Value length in bytes.
  * @param[in]  limits       Limits, or `NULL` for #tlv_cer_default_limits.
  * @param[out] written      Receives the encoded (or required) size.
- * @param[out] error_offset Optional. Offset of the failure relative to the
+ * @param[out] diagnostic Optional. OUTPUT location relative to the
  *                          would-be output, using the read conventions.
  *
  * @return #TLV_OK on success.
@@ -191,7 +194,7 @@ TLV_API tlv_result_t tlv_cer_visit(const uint8_t* data, size_t size, const tlv_c
 TLV_API tlv_result_t tlv_cer_write(uint8_t* data, size_t capacity, tlv_tag_t tag,
                                    const uint8_t* value, size_t length,
                                    const tlv_cer_limits_t* limits, size_t* written,
-                                   size_t* error_offset);
+                                   tlv_diagnostic_t* diagnostic);
 #endif
 
 /**
@@ -214,7 +217,7 @@ TLV_API tlv_result_t tlv_cer_write(uint8_t* data, size_t capacity, tlv_tag_t tag
  */
 TLV_API tlv_result_t tlv_cer_read_strict(const uint8_t* data, size_t size,
                                          const tlv_cer_limits_t* limits, tlv_element_t* element,
-                                         size_t* consumed, size_t* error_offset);
+                                         size_t* consumed, tlv_diagnostic_t* diagnostic);
 /**
  * @brief Strict counterpart of tlv_cer_visit().
  *
@@ -224,7 +227,7 @@ TLV_API tlv_result_t tlv_cer_read_strict(const uint8_t* data, size_t size,
  */
 TLV_API tlv_result_t tlv_cer_visit_strict(const uint8_t* data, size_t size,
                                           const tlv_cer_limits_t* limits, tlv_cer_visitor_t visitor,
-                                          void* context, size_t* error_offset);
+                                          void* context, tlv_diagnostic_t* diagnostic);
 #if OPENTLV_WRITER
 /**
  * @brief Strict counterpart of tlv_cer_write().
@@ -237,7 +240,7 @@ TLV_API tlv_result_t tlv_cer_visit_strict(const uint8_t* data, size_t size,
 TLV_API tlv_result_t tlv_cer_write_strict(uint8_t* data, size_t capacity, tlv_tag_t tag,
                                           const uint8_t* value, size_t length,
                                           const tlv_cer_limits_t* limits, size_t* written,
-                                          size_t* error_offset);
+                                          tlv_diagnostic_t* diagnostic);
 #endif
 
 #if OPENTLV_WRITER
@@ -271,7 +274,7 @@ TLV_API tlv_result_t tlv_cer_write_strict(uint8_t* data, size_t capacity, tlv_ta
  * @param[in]  content_length Content length in bytes.
  * @param[in]  limits         Limits, or `NULL` for #tlv_cer_default_limits.
  * @param[out] written        Receives the encoded (or required) size.
- * @param[out] error_offset   Optional. Offset of the failure, using
+ * @param[out] diagnostic   Optional. Offset of the failure, using
  *                            tlv_cer_write()'s would-be-output-relative
  *                            conventions.
  *
@@ -287,7 +290,7 @@ TLV_API tlv_result_t tlv_cer_write_strict(uint8_t* data, size_t capacity, tlv_ta
 TLV_API tlv_result_t tlv_cer_write_segmented_string(uint8_t* data, size_t capacity, tlv_tag_t tag,
                                                     const uint8_t* content, size_t content_length,
                                                     const tlv_cer_limits_t* limits, size_t* written,
-                                                    size_t* error_offset);
+                                                    tlv_diagnostic_t* diagnostic);
 #endif
 
 #ifdef __cplusplus

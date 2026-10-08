@@ -22,20 +22,20 @@ import (
 // PathQuery contains self-contained native storage, never C pointers into Go.
 type PathQuery struct{ raw C.tlv_query_t }
 
-func ParsePath(text string) (*PathQuery, Code, OptionalSize) {
+func ParsePath(text string) (*PathQuery, Code, Diagnostic) {
 	query := &PathQuery{}
 	input := []byte(text)
 	// C rejects empty input; a nonnull pointer keeps its status INVALID_ARG.
 	if len(input) == 0 {
 		input = []byte{0}
 	}
-	offset := ^C.size_t(0)
-	code := Code(C.tlv_query_parse_n((*C.char)(unsafe.Pointer(bytePointer(input))), C.size_t(len(text)), &query.raw, &offset))
+	var detail C.tlv_diagnostic_t
+	code := Code(C.tlv_query_parse_n((*C.char)(unsafe.Pointer(bytePointer(input))), C.size_t(len(text)), &query.raw, &detail))
 	runtime.KeepAlive(input)
 	if code != OK {
-		return nil, code, OptionalSize{Value: uint64(offset), Present: offset != ^C.size_t(0)}
+		return nil, code, diagnostic(detail, 0)
 	}
-	return query, OK, OptionalSize{}
+	return query, OK, Diagnostic{}
 }
 
 func (q *PathQuery) Count() int {

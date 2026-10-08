@@ -28,7 +28,8 @@ pub struct tlv_query_exec_t {
     _private: [u8; 0],
 }
 record!(tlv_query_diagnostic_t {
-    kind: c_int, begin: usize, end: usize, source_offset: usize, has_source_offset: c_int,
+    diagnostic: tlv_diagnostic_t,
+    kind: c_int, begin: usize, end: usize,
     expected: *const c_char, limit: *const c_char, configured: usize,
     reader: tlv_reader_diagnostic_t, codec: tlv_codec_result_t,
 });

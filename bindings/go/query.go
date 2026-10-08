@@ -26,9 +26,9 @@ func (d *Document) Query(path string) ([]Node, error) {
 	if !d.valid() {
 		return nil, &QueryError{Diagnostic: Diagnostic{Message: capi.InvalidArg.String()}, status: StatusError{code: capi.InvalidArg}}
 	}
-	matches, code, offset := d.native.Query(path)
+	matches, code, detail := d.native.Query(path)
 	if code != capi.OK {
-		return nil, &QueryError{Diagnostic: Diagnostic{Message: code.String(), Offset: offset.Value, HasOffset: offset.Present}, status: StatusError{code: code}}
+		return nil, &QueryError{Diagnostic: publicDiagnostic(detail), status: StatusError{code: code}}
 	}
 	result := make([]Node, len(matches))
 	for i, n := range matches {

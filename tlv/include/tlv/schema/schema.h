@@ -279,17 +279,24 @@ typedef enum tlv_schema_unknown_policy {
  */
 TLV_API const char* tlv_schema_issue_kind_string(tlv_schema_issue_kind_t kind);
 
-/** @brief Meaning of a Schema diagnostic byte position. */
-typedef enum tlv_schema_anchor {
-    /** No byte position is known. */
-    TLV_SCHEMA_ANCHOR_UNKNOWN = 0,
-    /** Position of evidence in an existing element. */
-    TLV_SCHEMA_ANCHOR_ELEMENT,
-    /** End of the enclosing scope; no element exists at this position. */
-    TLV_SCHEMA_ANCHOR_SCOPE_END,
-    /** Position at which absent ordered content would be inserted. */
-    TLV_SCHEMA_ANCHOR_INSERTION
-} tlv_schema_anchor_t;
+/** @brief Native definition object identified by a Schema diagnostic. */
+typedef enum tlv_schema_definition_kind {
+    TLV_SCHEMA_DEFINITION_UNKNOWN = 0, /**< No definition object was identified. */
+    TLV_SCHEMA_DEFINITION_TABLE,       /**< The owner is a structural Schema table. */
+    TLV_SCHEMA_DEFINITION_RULE,        /**< Indexed rule in the owner Schema table. */
+    TLV_SCHEMA_DEFINITION_GROUP,       /**< Indexed group in the owner Schema table. */
+    TLV_SCHEMA_DEFINITION_TYPE,        /**< The owner is a DER Schema type. */
+    TLV_SCHEMA_DEFINITION_COMPONENT    /**< Indexed component in the owner DER type. */
+} tlv_schema_definition_kind_t;
+
+/** @brief Native definition evidence, independent of wire/text byte locations.
+ * @note The API determines the owner's type. For DER OF types, component index zero
+ * denotes the element descriptor. The owner is borrowed from the supplied definition. */
+typedef struct tlv_schema_definition_location {
+    tlv_schema_definition_kind_t kind; /**< Active object kind, or UNKNOWN. */
+    const void* owner; /**< Borrowed Schema table or DER type, valid for known kind. */
+    size_t index;      /**< Rule/group/component index for indexed kinds. */
+} tlv_schema_definition_location_t;
 
 /**
  * @brief Structured Schema failure detail shared by validation and definition checks.
@@ -309,24 +316,22 @@ typedef enum tlv_schema_anchor {
  * group's `name`, and the occurrence fields are the group's own bounds and
  * summed occurrences rather than one rule's.
  *
- * `diagnostic.path` is left `NULL`; `path` below holds the same information
- * as a plain value so that copying a `tlv_schema_diagnostic_t` out of a
- * report array never leaves a dangling self-reference. A caller that wants
- * `path` reachable through `diagnostic.path` sets it explicitly with
- * tlv_diagnostic_set_path() after the copy has a stable address.
+ * The common base owns its bounded path value, so copies retain valid external
+ * Tag borrows without self-references. Native definition failures identify the
+ * owning table/type and offending member independently of byte locations.
  *
  * @see tlv_schema_diagnostic_init
  */
 typedef struct tlv_schema_diagnostic {
-    /** Common result, severity and optional byte offset; interpret with anchor. */
+    /** Common result, severity, primary location and enclosing path. */
     tlv_diagnostic_t diagnostic;
     /** Which rule was violated; see #tlv_schema_issue_kind_t. */
     tlv_schema_issue_kind_t kind;
     /** Affected tag; for #TLV_SCHEMA_ISSUE_MISSING, the tag that is absent. Borrows the input
      * buffer, immutable format identifier storage, or the schema for a missing tag. */
     tlv_tag_t tag;
-    /** Tags of the scopes enclosing `tag`, outermost first; does not include `tag` itself. */
-    tlv_diagnostic_path_t path;
+    /** Faulty native definition object, or UNKNOWN for input violations. */
+    tlv_schema_definition_location_t definition;
     /** Borrowed schema name for `tag` (the violated rule's `entry->name`, or the violated group's
      * `name` when `is_group` is nonzero), or `NULL` if it has none or no rule matched
      * (#TLV_SCHEMA_ISSUE_UNEXPECTED). */
@@ -366,8 +371,6 @@ typedef struct tlv_schema_diagnostic {
     size_t length_multiple;
     /** Schema length-policy flags, including #TLV_SCHEMA_LENGTH_ENDPOINTS, when has_length. */
     uint32_t length_flags;
-    /** Meaning of diagnostic.offset, or UNKNOWN when has_offset is false. */
-    tlv_schema_anchor_t anchor;
 } tlv_schema_diagnostic_t;
 
 /**
@@ -485,8 +488,9 @@ typedef struct tlv_schema_diagnostic_report {
  * @param[in]     unknown       Policy for tags without a rule.
  * @param[in,out] report        Receives the violations; `count` is set on #TLV_OK
  *                              and #TLV_ERR_SCHEMA and is zero on other errors.
- * @param[out]    error_offset  Optional. Receives the failing offset for errors
- *                              other than #TLV_ERR_SCHEMA; see tlv_tree_reader_visit().
+ * @param[out] diagnostic Optional fatal failure detail, including native definition
+ *                        indices or an INPUT location relative to data. Individual
+ *                        schema findings and their paths are stored in report.
  *
  * @return #TLV_OK if the data conforms; `report->count` is zero.
  * @return #TLV_ERR_SCHEMA if at least one violation was found; `report->count`
@@ -506,7 +510,7 @@ TLV_API tlv_result_t tlv_schema_validate_all_diag(const uint8_t* data, size_t si
                                                   size_t max_depth, size_t max_elements,
                                                   tlv_schema_unknown_policy_t unknown,
                                                   tlv_schema_diagnostic_report_t* report,
-                                                  size_t* error_offset);
+                                                  tlv_schema_diagnostic_t* diagnostic);
 #endif
 
 #ifdef __cplusplus

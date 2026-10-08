@@ -5,6 +5,7 @@
 #define OPENTLV_QUERY_H
 
 #include "tlv/error.h"
+#include "tlv/diagnostic.h"
 #include "tlv/config.h"
 #include "tlv/tree.h"
 #if OPENTLV_READER
@@ -73,9 +74,9 @@ typedef union tlv_query {
  *
  * @param[in]  text         NUL-terminated query text.
  * @param[out] query        Receives the parsed query.
- * @param[out] error_offset Optional. On failure receives the index in `text` of
- *                          the offending character, or of the start of the
- *                          offending tag; unchanged on success.
+ * @param[out] diagnostic Optional EXPRESSION span relative to text. Invalid characters
+ *                        span one byte; incomplete tags span their available text,
+ *                        including an empty span at EOF. Unchanged on success.
  *
  * @return #TLV_OK on success.
  * @return #TLV_ERR_NULL_ARG if `text` or `query` is `NULL`.
@@ -86,14 +87,15 @@ typedef union tlv_query {
  *
  * @note Never allocates. On failure `*query` is unchanged.
  */
-TLV_API tlv_result_t tlv_query_parse(const char* text, tlv_query_t* query, size_t* error_offset);
+TLV_API tlv_result_t tlv_query_parse(const char* text, tlv_query_t* query,
+                                     tlv_diagnostic_t* diagnostic);
 
 /**
  * @brief Parse a bounded V1 ASCII path without requiring a terminator.
  * @param[in] text Required readable span of exactly size bytes; not retained.
  * @param[in] size Text length in bytes, excluding any terminator.
  * @param[out] query Required self-contained output, unchanged on failure.
- * @param[out] error_offset Optional offending byte offset; unchanged on success.
+ * @param[out] diagnostic Optional failure detail with an expression span; unchanged on success.
  * @return #TLV_OK on success.
  * @return #TLV_ERR_NULL_ARG for a missing required pointer.
  * @return #TLV_ERR_INVALID_ARG for empty text, embedded NUL, non-ASCII or invalid V1 syntax.
@@ -101,7 +103,7 @@ TLV_API tlv_result_t tlv_query_parse(const char* text, tlv_query_t* query, size_
  * @note Never allocates or reads outside the supplied span. Output may overlap text.
  */
 TLV_API tlv_result_t tlv_query_parse_n(const char* text, size_t size, tlv_query_t* query,
-                                       size_t* error_offset);
+                                       tlv_diagnostic_t* diagnostic);
 
 /**
  * @brief Return the validated V1 step count.
@@ -209,7 +211,7 @@ TLV_API int tlv_query_matcher_visit(tlv_query_matcher_t* matcher, const tlv_tag_
  * replacement.
  * @param[in] visitor Required callback for matches; follows tlv_tree_reader_visit().
  * @param[in] context Optional opaque callback context.
- * @param[out] error_offset Optional absolute failure offset; unchanged on success.
+ * @param[out] diagnostic Optional original Reader detail with absolute INPUT coordinates.
  * @return #TLV_ERR_NULL_ARG for missing reader, matcher, query or callback.
  * @return Any result of tlv_tree_reader_visit(), including #TLV_NEED_MORE_DATA.
  * @warning Keep the matcher's query alive and unchanged. Use a fresh matcher at
@@ -217,7 +219,7 @@ TLV_API int tlv_query_matcher_visit(tlv_query_matcher_t* matcher, const tlv_tag_
  */
 TLV_API tlv_result_t tlv_query_visit(tlv_tree_reader_t* reader, tlv_query_matcher_t* matcher,
                                      tlv_tree_visitor_t visitor, void* context,
-                                     size_t* error_offset);
+                                     tlv_reader_diagnostic_t* diagnostic);
 
 /**
  * @brief Calls a visitor for every element a query addresses.
@@ -243,8 +245,9 @@ TLV_API tlv_result_t tlv_query_visit(tlv_tree_reader_t* reader, tlv_query_matche
  * @param[in]  visitor       Callback per addressed element. Required. Its element
  *                           borrows `data` and is valid only during the call.
  * @param[in]  context       Passed to the visitor unchanged; may be `NULL`.
- * @param[out] error_offset  Optional. On failure receives the failing element's
- *                           absolute offset; unchanged on success.
+ * @param[out] diagnostic Optional Reader detail. INPUT coordinates are relative to data;
+ *                        unavailable evidence remains UNKNOWN. Borrowed Tag bytes
+ *                        and Format text must outlive diagnostic use.
  *
  * @return #TLV_OK at the end of input, or when the visitor returns #TLV_VISIT_STOP.
  * @return #TLV_ERR_NULL_ARG if `query` or `visitor` is `NULL`, or as for tlv_tree_reader_visit().
@@ -263,7 +266,7 @@ TLV_API tlv_result_t tlv_query_visit_buffer(const uint8_t* data, size_t size,
                                             const tlv_format_t* format, const tlv_query_t* query,
                                             size_t max_depth, size_t max_elements,
                                             tlv_tree_visitor_t visitor, void* context,
-                                            size_t* error_offset);
+                                            tlv_reader_diagnostic_t* diagnostic);
 
 #endif
 

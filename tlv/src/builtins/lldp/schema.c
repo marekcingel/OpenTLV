@@ -39,8 +39,9 @@ static tlv_result_t failure(tlv_schema_diagnostic_t* diagnostic, tlv_result_t rc
     if (diagnostic) {
         tlv_diagnostic_init(&diagnostic->diagnostic, rc, TLV_DIAGNOSTIC_SEVERITY_ERROR);
         if (rc != TLV_ERR_NULL_ARG && rc != TLV_ERR_INVALID_ARG) {
-            tlv_diagnostic_set_offset(&diagnostic->diagnostic, offset);
-            diagnostic->anchor = TLV_SCHEMA_ANCHOR_ELEMENT;
+            tlv_diagnostic_set_location(&diagnostic->diagnostic, TLV_LOCATION_INPUT,
+                                        TLV_LOCATION_POINT, offset, offset);
+            diagnostic->diagnostic.location.kind = TLV_LOCATION_POINT;
         }
         if (rc == TLV_ERR_SCHEMA) diagnostic->kind = TLV_SCHEMA_ISSUE_UNEXPECTED;
         diagnostic->diagnostic.expected = expected;

@@ -31,6 +31,19 @@ struct schema_query_alignment {
     tlv_schema_query_diagnostic_t value;
 };
 
+struct align_tlv_location_t {
+    char           prefix;
+    tlv_location_t value;
+};
+struct align_tlv_diagnostic_t {
+    char             prefix;
+    tlv_diagnostic_t value;
+};
+struct align_tlv_schema_definition_location_t {
+    char                             prefix;
+    tlv_schema_definition_location_t value;
+};
+
 size_t opentlv_test_fixed_abi(size_t index) {
     const size_t values[] = {sizeof(tlv_fixed_identifier_t),
                              offsetof(struct identifier_alignment, value),
@@ -45,6 +58,27 @@ size_t opentlv_test_fixed_abi(size_t index) {
                              offsetof(tlv_fixed_format_t, length),
                              offsetof(tlv_fixed_format_t, element_order),
                              offsetof(tlv_fixed_format_t, length_scope),
+                             sizeof(tlv_location_t),
+                             offsetof(struct align_tlv_location_t, value),
+                             offsetof(tlv_location_t, domain),
+                             offsetof(tlv_location_t, kind),
+                             offsetof(tlv_location_t, begin),
+                             offsetof(tlv_location_t, end),
+                             sizeof(tlv_diagnostic_t),
+                             offsetof(struct align_tlv_diagnostic_t, value),
+                             offsetof(tlv_diagnostic_t, code),
+                             offsetof(tlv_diagnostic_t, severity),
+                             offsetof(tlv_diagnostic_t, location),
+                             offsetof(tlv_diagnostic_t, expected),
+                             offsetof(tlv_diagnostic_t, actual),
+                             offsetof(tlv_diagnostic_t, contexts),
+                             offsetof(tlv_diagnostic_t, has_path),
+                             offsetof(tlv_diagnostic_t, path),
+                             sizeof(tlv_schema_definition_location_t),
+                             offsetof(struct align_tlv_schema_definition_location_t, value),
+                             offsetof(tlv_schema_definition_location_t, kind),
+                             offsetof(tlv_schema_definition_location_t, owner),
+                             offsetof(tlv_schema_definition_location_t, index),
                              sizeof(tlv_diagnostic_path_t),
                              offsetof(struct path_alignment, value),
                              offsetof(tlv_diagnostic_path_t, tags),
@@ -55,7 +89,7 @@ size_t opentlv_test_fixed_abi(size_t index) {
                              offsetof(tlv_schema_diagnostic_t, diagnostic),
                              offsetof(tlv_schema_diagnostic_t, kind),
                              offsetof(tlv_schema_diagnostic_t, tag),
-                             offsetof(tlv_schema_diagnostic_t, path),
+                             offsetof(tlv_schema_diagnostic_t, definition),
                              offsetof(tlv_schema_diagnostic_t, field),
                              offsetof(tlv_schema_diagnostic_t, is_group),
                              offsetof(tlv_schema_diagnostic_t, has_occurs),
@@ -71,7 +105,6 @@ size_t opentlv_test_fixed_abi(size_t index) {
                              offsetof(tlv_schema_diagnostic_t, actual_constructed),
                              offsetof(tlv_schema_diagnostic_t, length_multiple),
                              offsetof(tlv_schema_diagnostic_t, length_flags),
-                             offsetof(tlv_schema_diagnostic_t, anchor),
                              sizeof(tlv_schema_query_diagnostic_t),
                              offsetof(struct schema_query_alignment, value),
                              offsetof(tlv_schema_query_diagnostic_t, rule),

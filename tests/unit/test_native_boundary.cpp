@@ -136,7 +136,7 @@ TEST(Unit_Tlvpp_NativeBoundary, TemporaryViewPreservesWriterFailureAndSourceCont
     ASSERT_FALSE(failed);
     EXPECT_EQ(TLV_ERR_BUFFER_TOO_SHORT, failed.error().code);
     EXPECT_EQ(6u, writer.size());
-    EXPECT_EQ(6u, diagnostic.diagnostic.offset);
+    EXPECT_EQ(6u, diagnostic.diagnostic.location.begin);
 }
 
 TEST(Unit_Tlvpp_NativeBoundary, InvalidBorrowedDescriptorReportsEngineErrors) {

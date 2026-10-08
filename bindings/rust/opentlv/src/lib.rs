@@ -154,3 +154,6 @@ mod tests {
         assert!(!super::version().is_empty());
     }
 }
+
+mod location;
+pub use location::{Location, LocationDomain, LocationKind};

@@ -167,8 +167,9 @@ opentlv_wasm_parse(const uint8_t* data, size_t size, const char* format, const c
 /* tlv_result_t of the parse; 0 (TLV_OK) on success. */
 OPENTLV_WASM_API int opentlv_wasm_result_code(const opentlv_wasm_result_t* result);
 
-/* Input offset at which the parse failed; 0 on success. */
-OPENTLV_WASM_API size_t opentlv_wasm_result_error_offset(const opentlv_wasm_result_t* result);
+/* Primary location, borrowed from result; NULL for NULL result. Inspect only on failure. */
+OPENTLV_WASM_API const tlv_location_t*
+opentlv_wasm_result_location(const opentlv_wasm_result_t* result);
 
 /* NUL-terminated JSON document, owned by the result. */
 OPENTLV_WASM_API const char* opentlv_wasm_result_json(const opentlv_wasm_result_t* result);

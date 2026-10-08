@@ -679,14 +679,15 @@ public:
      *
      * @param data         Encoded input; copied, so it may be released afterwards.
      * @param format       Format descriptor and limits; copied.
-     * @param error_offset Optional. On a malformed input receives the absolute offset of the
-     *                     offending element.
+     * @param diagnostic Optional original Reader detail with INPUT coordinates relative
+     *                   to data. Tag and text views remain borrowed.
      *
      * @return The document, or the error of tlv_document_parse().
      */
-    TLV_NODISCARD static expected<document, error> parse(bytes data, const document_format& format,
-                                                         size_t* error_offset = nullptr) {
-        return make(&data, format, error_offset);
+    TLV_NODISCARD static expected<document, error>
+    parse(bytes data, const document_format& format,
+          tlv_reader_diagnostic_t* diagnostic = nullptr) {
+        return make(&data, format, diagnostic);
     }
 
     /**
@@ -839,7 +840,7 @@ public:
         auto       rc = tlv_document_query_visit(impl_->handle.get(), &path.c_query(),
                                                  &collection::append, &state);
         if (state.failure) std::rethrow_exception(state.failure);
-        if (rc != TLV_OK) throw query_error(rc, 0);
+        if (rc != TLV_OK) throw query_error(rc, tlv_diagnostic_t{});
         return std::move(state.results);
     }
 
@@ -1120,7 +1121,7 @@ private:
     }
 
     static expected<document, error> make(const bytes* data, const document_format& format,
-                                          size_t* error_offset) {
+                                          tlv_reader_diagnostic_t* diagnostic) {
         std::unique_ptr<state> impl(new state());
         impl->format = detail::format_access::get(format.view());
         impl->max_depth = format.max_depth;
@@ -1132,18 +1133,19 @@ private:
         options.max_elements = format.max_elements;
         options.retain_source_locations = format.retain_source_locations;
 
-        tlv_document_t* raw = nullptr;
-        size_t          location = SIZE_MAX;
+        tlv_document_t*         raw = nullptr;
+        tlv_reader_diagnostic_t local{};
+        if (!diagnostic) diagnostic = &local;
         if (data) {
             rc = tlv_document_parse(reinterpret_cast<const uint8_t*>(data->data()), data->size(),
-                                    &options, &raw, &location);
-            if (error_offset && location != SIZE_MAX) *error_offset = location;
+                                    &options, &raw, diagnostic);
         } else {
             rc = tlv_document_create(&options, &raw);
         }
         if (rc != TLV_OK) {
             auto failure = error::from_c(rc).during(operation::document);
-            if (location != SIZE_MAX) failure = failure.at(location, operation::document);
+            diagnostic->diagnostic.code = rc;
+            failure = detail::error_access::diagnostic(diagnostic->diagnostic, operation::document);
             return unexpected<error>(failure);
         }
         impl->handle.reset(raw);
@@ -1275,18 +1277,22 @@ public:
 
     /**
      * @brief Consume available items and return the owning document when complete.
-     * @param error_offset Optional absolute source failure offset.
      * @param diagnostic Optional borrowed Reader failure detail.
      * @return Document, NEED_MORE_DATA with continuation retained, or terminal error.
      * @note Selected subtrees leave the following sibling unread. Completion and
      * terminal errors end consumption; destroying this builder discards unfinished work.
      */
-    TLV_NODISCARD expected<document, error> consume(size_t*            error_offset = nullptr,
-                                                    reader_diagnostic* diagnostic = nullptr) {
+    TLV_NODISCARD expected<document, error> consume(reader_diagnostic* diagnostic = nullptr) {
+        reader_diagnostic local{};
+        if (!diagnostic) diagnostic = &local;
         std::unique_ptr<document::state> state(new document::state());
         tlv_document_t*                  raw = nullptr;
-        auto rc = tlv_document_builder_consume(handle_.get(), &raw, error_offset, diagnostic);
-        if (rc != TLV_OK) return unexpected<error>(error::from_c(rc).during(operation::document));
+        auto rc = tlv_document_builder_consume(handle_.get(), &raw, diagnostic);
+        if (rc != TLV_OK) {
+            diagnostic->diagnostic.code = rc;
+            return unexpected<error>(
+                detail::error_access::diagnostic(diagnostic->diagnostic, operation::document));
+        }
         state->handle.reset(raw);
         state->max_depth = max_depth_;
         return document(std::move(state));

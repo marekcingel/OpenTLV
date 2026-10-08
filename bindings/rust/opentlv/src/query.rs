@@ -18,11 +18,11 @@ pub struct QueryError {
     /// Original C result code.
     pub error: Error,
     /// Byte offset in the query text.
-    pub offset: usize,
+    pub location: crate::Location,
 }
 impl std::fmt::Display for QueryError {
     fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
-        write!(f, "{} at query byte {}", self.error, self.offset)
+        write!(f, "{} at {:?}", self.error, self.location)
     }
 }
 impl std::error::Error for QueryError {}
@@ -31,17 +31,21 @@ impl Query {
     /// Parse using C's path grammar; embedded NUL is rejected, never truncated.
     pub fn parse(text: &str) -> std::result::Result<Self, QueryError> {
         let mut raw = MaybeUninit::uninit();
-        let mut offset = 0;
+        // SAFETY: all-zero native diagnostics have no active borrowed fields.
+        let mut diagnostic: native::tlv_diagnostic_t = unsafe { std::mem::zeroed() };
         // SAFETY: Readable bounded UTF-8 input and writable outputs.
         let code = unsafe {
             native::tlv_query_parse_n(
                 text.as_ptr().cast(),
                 text.len(),
                 raw.as_mut_ptr(),
-                &mut offset,
+                &mut diagnostic,
             )
         };
-        Error::check(code).map_err(|error| QueryError { error, offset })?;
+        Error::check(code).map_err(|error| QueryError {
+            error,
+            location: crate::Location::from_raw(diagnostic.location),
+        })?;
         // SAFETY: successful C parse initialized all storage.
         Ok(Self {
             raw: unsafe { raw.assume_init() },

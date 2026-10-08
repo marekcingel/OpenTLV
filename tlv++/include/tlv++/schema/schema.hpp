@@ -88,8 +88,7 @@ TLV_NODISCARD inline expected<void, error> validate(bytes data, const tlv_format
  *                      `nullptr` only if `capacity` is zero.
  * @param capacity      Number of entries `diagnostics` can hold.
  * @param unknown       Policy for tags without a rule.
- * @param error_offset  Optional. On a wire-level failure receives the offset
- *                      of the failure; see tlv_schema_validate_all_diag().
+ * @param diagnostic Optional fatal failure detail, including location and definition indices.
  *
  * @return The total number of violations, which is zero if the data conforms
  *         and can exceed `capacity`; otherwise the error of
@@ -102,12 +101,17 @@ validate_all_diag(bytes data, const tlv_format_t& format, const tlv_structure_sc
                   size_t max_depth, size_t max_elements, schema_diagnostic* diagnostics,
                   size_t                      capacity,
                   tlv_schema_unknown_policy_t unknown = TLV_SCHEMA_UNKNOWN_BY_SCHEMA,
-                  size_t*                     error_offset = nullptr) {
+                  tlv_schema_diagnostic_t*    diagnostic = nullptr) {
     tlv_schema_diagnostic_report_t report = {diagnostics, capacity, 0};
+    tlv_schema_diagnostic_t        local{};
+    auto*                          failure = diagnostic ? diagnostic : &local;
     tlv_result_t rc = tlv_schema_validate_all_diag(reinterpret_cast<const uint8_t*>(data.data()),
                                                    data.size(), &format, &schema, max_depth,
-                                                   max_elements, unknown, &report, error_offset);
-    if (rc != TLV_OK && rc != TLV_ERR_SCHEMA) return unexpected<error>(error::from_c(rc));
+                                                   max_elements, unknown, &report, failure);
+    if (rc != TLV_OK && rc != TLV_ERR_SCHEMA) {
+        failure->diagnostic.code = rc;
+        return unexpected<error>(detail::error_access::schema(*failure));
+    }
     return report.count;
 }
 /** @brief Validate a structure using a C++ Format view.
@@ -124,16 +128,16 @@ TLV_NODISCARD inline expected<void, error> validate(bytes data, tlv::format form
 
 /** @brief Collect structure diagnostics using a C++ Format view.
  * @copydetails validate_all_diag(bytes, const tlv_format_t&, const tlv_structure_schema_t&, size_t,
- * size_t, schema_diagnostic*, size_t, tlv_schema_unknown_policy_t, size_t*)
+ * size_t, schema_diagnostic*, size_t, tlv_schema_unknown_policy_t, tlv_schema_diagnostic_t*)
  */
 TLV_NODISCARD inline expected<size_t, error>
 validate_all_diag(bytes data, tlv::format format, const tlv_structure_schema_t& schema,
                   size_t max_depth, size_t max_elements, schema_diagnostic* diagnostics,
                   size_t                      capacity,
                   tlv_schema_unknown_policy_t unknown = TLV_SCHEMA_UNKNOWN_BY_SCHEMA,
-                  size_t*                     error_offset = nullptr) {
+                  tlv_schema_diagnostic_t*    diagnostic = nullptr) {
     return validate_all_diag(data, detail::format_access::get(format), schema, max_depth,
-                             max_elements, diagnostics, capacity, unknown, error_offset);
+                             max_elements, diagnostics, capacity, unknown, diagnostic);
 }
 } // namespace native
 } // namespace tlv

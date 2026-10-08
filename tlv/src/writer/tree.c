@@ -11,7 +11,8 @@ static tlv_result_t tree_error(tlv_writer_diagnostic_t* diagnostic, tlv_result_t
     if (diagnostic) {
         tlv_writer_diagnostic_init(diagnostic);
         tlv_diagnostic_init(&diagnostic->diagnostic, rc, TLV_DIAGNOSTIC_SEVERITY_ERROR);
-        tlv_diagnostic_set_offset(&diagnostic->diagnostic, offset);
+        tlv_diagnostic_set_location(&diagnostic->diagnostic, TLV_LOCATION_OUTPUT,
+                                    TLV_LOCATION_POINT, offset, offset);
         diagnostic->operation = operation;
         if (tag) {
             diagnostic->has_tag = 1;
@@ -198,12 +199,7 @@ static tlv_result_t measure_storage(tlv_tree_writer_t* writer, const tlv_element
     tlv_result_t rc =
         tlv_element_encoded_size_diag(element, writer->output.format, &encoded, diagnostic);
     if (rc != TLV_OK) {
-        if (diagnostic && diagnostic->diagnostic.has_offset) {
-            if (diagnostic->diagnostic.offset <= SIZE_MAX - start)
-                diagnostic->diagnostic.offset += start;
-            else
-                diagnostic->diagnostic.has_offset = 0;
-        }
+        if (diagnostic) tlv_location_translate(&diagnostic->diagnostic.location, start);
         return rc;
     }
     if (encoded > SIZE_MAX - start)

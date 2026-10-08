@@ -17,6 +17,6 @@
  * traversal and the schema-aware DER validator/encoder. */
 tlv_result_t tlv_der_read_element(const uint8_t* data, size_t size, size_t base,
                                   const tlv_der_limits_t* limits, tlv_element_t* element,
-                                  size_t* consumed, size_t* error_offset);
+                                  size_t* consumed, tlv_diagnostic_t* diagnostic);
 
 #endif /* OPENTLV_DER_VALIDATION_INTERNAL_H */

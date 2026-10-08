@@ -13,7 +13,8 @@ static void diag_start(tlv_reader_diagnostic_t* diagnostic, tlv_result_t code,
     tlv_diagnostic_init(&diagnostic->diagnostic, code,
                         code == TLV_NEED_MORE_DATA ? TLV_DIAGNOSTIC_SEVERITY_INFO
                                                    : TLV_DIAGNOSTIC_SEVERITY_ERROR);
-    tlv_diagnostic_set_offset(&diagnostic->diagnostic, offset);
+    tlv_diagnostic_set_location(&diagnostic->diagnostic, TLV_LOCATION_INPUT, TLV_LOCATION_POINT,
+                                offset, offset);
     diagnostic->operation = operation;
 }
 
@@ -39,7 +40,8 @@ static tlv_result_t tlv_read_impl(const uint8_t* data, size_t size, const tlv_fo
         if (error.region == TLV_REGION_VALUE) operation = TLV_READER_OP_VALUE;
         if (error.region == TLV_REGION_TRAILER) operation = TLV_READER_OP_TRAILER;
         diag_start(diagnostic, rc, operation, error.offset);
-        diagnostic->diagnostic.has_offset = error.has_offset;
+        if (!error.has_offset || error.offset > size)
+            memset(&diagnostic->diagnostic.location, 0, sizeof diagnostic->diagnostic.location);
         diagnostic->has_tag_offset = error.tag.present;
         diagnostic->tag_offset = error.tag.offset;
         diagnostic->has_tag = error.tag.present;
@@ -144,8 +146,11 @@ static tlv_result_t reader_next(tlv_reader_t* reader, tlv_element_t* out_element
     tlv_result_t rc = reader_valid(reader);
     if (rc == TLV_OK && !out_element) rc = TLV_ERR_NULL_ARG;
     if (rc != TLV_OK) {
-        if (out_diagnostic)
+        if (out_diagnostic) {
             diag_start(out_diagnostic, rc, TLV_READER_OP_HEADER, reader ? reader->pos : 0);
+            memset(&out_diagnostic->diagnostic.location, 0,
+                   sizeof out_diagnostic->diagnostic.location);
+        }
         return rc;
     }
     offset = tlv_reader_offset(reader);
@@ -167,10 +172,10 @@ static tlv_result_t reader_next(tlv_reader_t* reader, tlv_element_t* out_element
     } else if (out_diagnostic) {
         const size_t remaining = reader->size - reader->pos;
         /* A callback may not know a bounded failure offset. Do not wrap it. */
-        if (out_diagnostic->diagnostic.offset > remaining)
-            out_diagnostic->diagnostic.has_offset = 0;
+        if (out_diagnostic->diagnostic.location.begin > remaining)
+            out_diagnostic->diagnostic.location.kind = TLV_LOCATION_UNKNOWN;
         if (out_diagnostic->value_offset > remaining) out_diagnostic->has_value_offset = 0;
-        if (out_diagnostic->diagnostic.has_offset) out_diagnostic->diagnostic.offset += offset;
+        tlv_location_translate(&out_diagnostic->diagnostic.location, offset);
         if (out_diagnostic->has_tag_offset) out_diagnostic->tag_offset += offset;
         if (out_diagnostic->has_length_offset) out_diagnostic->length_offset += offset;
         if (out_diagnostic->has_value_offset) out_diagnostic->value_offset += offset;

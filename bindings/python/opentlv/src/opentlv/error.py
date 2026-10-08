@@ -6,6 +6,7 @@
 from __future__ import annotations
 
 from typing import Optional
+from opentlv.location import Location
 
 import _opentlv as _native
 
@@ -16,7 +17,9 @@ class OpenTLVError(Exception):
     Mirrors a non-zero ``tlv_result_t`` from the OpenTLV C API. `code` is the
     raw result code; the rest carry the structured diagnostic detail the C
     API reports for a failed operation, when available, and are `None`
-    otherwise. `offset`, `expected`, `actual`, `operation` and `tag` apply to
+    otherwise. `location` always holds a `Location`; its kind is `unknown`
+    when evidence is unavailable. `offset` projects its known start.
+    `offset`, `expected`, `actual`, `operation` and `tag` apply to
     both reading and writing failures; `length`, `required` and `available`
     describe buffer bounds (`length` is writer-only). Reader `required` is the
     required extent of the failing region. Field offsets and enclosing_end
@@ -33,10 +36,10 @@ class OpenTLVError(Exception):
                  raw_length: Optional[bytes] = None, declared_length: Optional[int] = None,
                  tag_offset: Optional[int] = None, length_offset: Optional[int] = None,
                  value_offset: Optional[int] = None, enclosing_end: Optional[int] = None, kind: Optional[str] = None,
-                 anchor: Optional[int] = None) -> None:
+                 location: Location | None = None) -> None:
         super().__init__(_native.strerror(code))
+        self.location = location if location is not None else Location()
         self.kind = kind
-        self.anchor = anchor
         self.code = code
         self.offset = offset
         self.expected = expected
@@ -176,7 +179,10 @@ def _from_native(error: "_native.Error") -> OpenTLVError:
                        raw_length=fields.get("raw_length"), declared_length=fields.get("declared_length"),
                        tag_offset=fields.get("tag_offset"), length_offset=fields.get("length_offset"),
                        value_offset=fields.get("value_offset"), enclosing_end=fields.get("enclosing_end"),
-                       kind=fields.get("kind"), anchor=fields.get("anchor"))
+                       kind=fields.get("kind"),
+                       location=Location(**fields.get("location", {})))
+    result.definition_kind = fields.get("definition_kind", 0)
+    result.definition_index = fields.get("definition_index")
     # Preserve every Query field alongside the original typed Reader/status error.
     result.query = {key: fields.get(key) for key in (
         "query_kind", "begin", "end", "source_offset", "query_expected",

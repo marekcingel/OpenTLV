@@ -116,7 +116,7 @@ TEST(Unit_Tlv_Writer, PreserveValidatesContentAndNeverTreatsEmptyCursorAsSizing)
               TLV_DIAGNOSTIC_RESULT(diagnostic, tlv_writer_preserve_diag(&writer, &decoded.source,
                                                                          &element, &diagnostic)));
     EXPECT_EQ(2u, writer.pos);
-    EXPECT_EQ(2u, diagnostic.diagnostic.offset);
+    EXPECT_EQ(2u, diagnostic.diagnostic.location.begin);
     EXPECT_EQ(0, output[2]);
     ASSERT_EQ(TLV_OK, tlv_writer_preserve(&writer, &decoded.source, &decoded.element));
     EXPECT_EQ(0, std::memcmp(output + 2, original, sizeof(original)));
@@ -149,7 +149,7 @@ TEST(Unit_Tlv_Writer, ElementCallbackFailureKeepsPositionAndSupportsRetry) {
     EXPECT_EQ(1u, writer.pos);
     EXPECT_EQ(0xAA, output[0]);
     EXPECT_EQ(0xEE, output[1]);
-    EXPECT_EQ(2u, diagnostic.diagnostic.offset);
+    EXPECT_EQ(2u, diagnostic.diagnostic.location.begin);
     EXPECT_EQ(TLV_WRITER_OP_TRAILER, diagnostic.operation);
     format.encode = controlled::format.encode;
     EXPECT_EQ(TLV_OK, tlv_writer_write_element(&writer, &element));
@@ -176,7 +176,7 @@ TEST(Unit_Tlv_Writer, MeasureAndRawCopyDiagnosticsHaveApplicableFields) {
               TLV_DIAGNOSTIC_RESULT(diagnostic,
                                     tlv_writer_copy_encoded_diag(&writer, &raw, 1, &diagnostic)));
     EXPECT_EQ(2u, writer.pos);
-    EXPECT_EQ(2u, diagnostic.diagnostic.offset);
+    EXPECT_EQ(2u, diagnostic.diagnostic.location.begin);
     EXPECT_EQ(1u, diagnostic.required);
     EXPECT_FALSE(diagnostic.has_tag);
     EXPECT_EQ(TLV_WRITER_OP_COPY, diagnostic.operation);
@@ -538,8 +538,8 @@ TEST(Unit_Tlv_WriterDiagnostic, WriteDiagReportsRequiredSizeExceedingAvailableCa
     EXPECT_EQ(5u, written);
     EXPECT_EQ(TLV_ERR_BUFFER_TOO_SHORT, diagnostic.diagnostic.code);
     EXPECT_EQ(TLV_DIAGNOSTIC_SEVERITY_ERROR, diagnostic.diagnostic.severity);
-    ASSERT_NE(0, diagnostic.diagnostic.has_offset);
-    EXPECT_EQ(0u, diagnostic.diagnostic.offset);
+    ASSERT_NE(0, diagnostic.diagnostic.location.kind);
+    EXPECT_EQ(0u, diagnostic.diagnostic.location.begin);
     EXPECT_EQ(TLV_WRITER_OP_VALUE, diagnostic.operation);
     ASSERT_NE(0, diagnostic.has_tag);
     ASSERT_EQ(1u, diagnostic.tag.size);
@@ -581,8 +581,8 @@ TEST(Unit_Tlv_WriterDiagnostic, WriteDiagReportsAnUnsupportedLengthWithTheValida
 
     EXPECT_EQ(TLV_ERR_INVALID_LENGTH, diagnostic.diagnostic.code);
     EXPECT_EQ(TLV_WRITER_OP_LENGTH, diagnostic.operation);
-    ASSERT_NE(0, diagnostic.diagnostic.has_offset);
-    EXPECT_EQ(1u, diagnostic.diagnostic.offset);
+    ASSERT_NE(0, diagnostic.diagnostic.location.kind);
+    EXPECT_EQ(1u, diagnostic.diagnostic.location.begin);
     ASSERT_NE(0, diagnostic.has_tag);
     EXPECT_EQ(0xFF, diagnostic.tag.data[0]);
     ASSERT_NE(0, diagnostic.has_length);
@@ -603,8 +603,8 @@ TEST(Unit_Tlv_WriterDiagnostic, WriterWriteDiagReportsOffsetsAbsoluteWithinTheBu
               TLV_DIAGNOSTIC_RESULT(diagnostic, tlv_writer_write_diag(&writer, tag, value,
                                                                       sizeof(value), &diagnostic)));
 
-    ASSERT_NE(0, diagnostic.diagnostic.has_offset);
-    EXPECT_EQ(2u, diagnostic.diagnostic.offset);
+    ASSERT_NE(0, diagnostic.diagnostic.location.kind);
+    EXPECT_EQ(2u, diagnostic.diagnostic.location.begin);
     ASSERT_NE(0, diagnostic.has_required);
     EXPECT_EQ(5u, diagnostic.required);
     ASSERT_NE(0, diagnostic.has_available);
@@ -622,8 +622,7 @@ TEST(Unit_Tlv_WriterDiagnostic, WriterWriteDiagReportsInvalidStateAtTheCurrentPo
     ASSERT_EQ(TLV_ERR_BUFFER_TOO_SHORT,
               TLV_DIAGNOSTIC_RESULT(diagnostic,
                                     tlv_writer_write_diag(&writer, tag, nullptr, 0, &diagnostic)));
-    ASSERT_NE(0, diagnostic.diagnostic.has_offset);
-    EXPECT_EQ(writer.capacity + 1, diagnostic.diagnostic.offset);
+    EXPECT_EQ(TLV_LOCATION_UNKNOWN, diagnostic.diagnostic.location.kind);
     ASSERT_NE(0, diagnostic.has_available);
     EXPECT_EQ(0u, diagnostic.available);
 }
@@ -635,7 +634,7 @@ TEST(Unit_Tlv_WriterDiagnostic, InitResetsEveryFieldAndIgnoresANullDiagnostic) {
     tlv_writer_diagnostic_init(&diagnostic);
 
     EXPECT_EQ(TLV_OK, diagnostic.diagnostic.code);
-    EXPECT_EQ(0, diagnostic.diagnostic.has_offset);
+    EXPECT_EQ(0, diagnostic.diagnostic.location.kind);
     EXPECT_EQ(0, diagnostic.has_tag);
     EXPECT_EQ(0, diagnostic.has_length);
     EXPECT_EQ(0, diagnostic.has_required);

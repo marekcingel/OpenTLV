@@ -82,9 +82,9 @@ tlv_document_options_t options;
 tlv_document_options_init(&options, &tlv_format_ber);
 
 tlv_document_t* document;
-size_t error_offset;
-tlv_result_t rc = tlv_document_parse(data, size, &options, &document, &error_offset);
-if (rc != TLV_OK) { /* error_offset is the offset of the offending element */ }
+tlv_reader_diagnostic_t diagnostic;
+tlv_result_t rc = tlv_document_parse(data, size, &options, &document, &diagnostic);
+if (rc != TLV_OK) { /* diagnostic retains the Reader failure and its primary INPUT location */ }
 ```
 
 `tlv_document_options_init()` also sets the limits, which you can change before
@@ -107,7 +107,7 @@ tlv_document_builder_t* builder = NULL;
 tlv_document_t* document = NULL;
 tlv_result_t rc = tlv_document_builder_create(&options, &reader, NULL, &builder);
 if (rc == TLV_OK) {
-    rc = tlv_document_builder_consume(builder, &document, &error_offset, NULL);
+    rc = tlv_document_builder_consume(builder, &document, &diagnostic);
     /* On TLV_NEED_MORE_DATA, retain builder, replace/extend reader input with
        tlv_tree_reader_set_input(), and call consume again. */
 }
@@ -128,7 +128,8 @@ document. A whole-stream builder publishes only at final end. A terminal error
 discards the unfinished nodes; the reader is not rolled back. The optional
 `tlv_reader_diagnostic_t` output forwards Reader diagnostics with absolute
 offsets and their original borrowed lifetime. Allocation failures and document
-limits report the current item's absolute offset through `error_offset`.
+limits report a point at the current item when known; preflight failures may
+have UNKNOWN location. No sentinel or zero-offset fallback is used.
 
 ### Materializing a selected subtree
 

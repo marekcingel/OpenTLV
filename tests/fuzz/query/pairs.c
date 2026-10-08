@@ -236,8 +236,10 @@ int LLVMFuzzerTestOneInput(const uint8_t* data, size_t size) {
                     (provider.status == TLV_CODEC_OK ? TLV_ERR_CALLBACK : TLV_ERR_INVALID_VALUE) ||
                 diagnostic.kind != (provider.status == TLV_CODEC_OK ? TLV_QUERY_ERROR_CALLBACK
                                                                     : TLV_QUERY_ERROR_CODEC) ||
-                diagnostic.codec != expected_codec || !diagnostic.has_source_offset ||
-                diagnostic.source_offset != 0 || diagnostic.begin >= diagnostic.end ||
+                diagnostic.codec != expected_codec ||
+                !(diagnostic.diagnostic.location.domain == TLV_LOCATION_INPUT &&
+                  diagnostic.diagnostic.location.kind != TLV_LOCATION_UNKNOWN) ||
+                diagnostic.diagnostic.location.begin != 0 || diagnostic.begin >= diagnostic.end ||
                 tlv_query_program_visit(&reader, conversion_exec, collect, &matches[2], NULL) !=
                     TLV_ERR_INVALID_STATE)
                 abort();

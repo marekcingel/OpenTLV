@@ -60,7 +60,6 @@ extern "C" {
     pub fn tlv_document_builder_consume(
         builder: *mut tlv_document_builder_t,
         document: *mut *mut tlv_document_t,
-        offset: *mut usize,
         diagnostic: *mut tlv_reader_diagnostic_t,
     ) -> tlv_result_t;
     pub fn tlv_document_builder_free(builder: *mut tlv_document_builder_t);
@@ -77,7 +76,7 @@ extern "C" {
         size: usize,
         options: *const tlv_document_options_t,
         document: *mut *mut tlv_document_t,
-        offset: *mut usize,
+        diagnostic: *mut tlv_reader_diagnostic_t,
     ) -> tlv_result_t;
     pub fn tlv_document_free(document: *mut tlv_document_t);
     pub fn tlv_document_count(document: *const tlv_document_t) -> usize;

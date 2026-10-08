@@ -106,6 +106,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Changed
 
+- Unify failure locations across C, C++ and language bindings with explicit coordinate domains, points, spans, scope ends and insertion positions. Query embeds the common diagnostic; paths are copied inline and native Schema failures identify definition entries. This breaks source and ABI compatibility: offset-only failure outputs and Schema-specific anchors are removed without aliases. Rebuild native clients and bindings. (#555)
 - Distinguish unsupported capabilities, processing budgets, caller workspace shortages and callback contract violations across the core and bindings. Replace `UNSUPPORTED_TYPE` with `UNSUPPORTED`, add `CALLBACK`, and classify Query type, binding and malformed-image failures as `INVALID_VALUE`. Update callers for the breaking result names and semantics. (#554)
 - Distinguish invalid Schema definitions (`TLV_ERR_INVALID_SCHEMA`) from input violations. Required absence now returns `TLV_ERR_SCHEMA` with `MISSING` detail across generic Schema, DHCP, LLDP and DER. Replace `SCHEMA_MISSING` and affected offset-only outputs with typed Schema diagnostics and explicit location anchors; update native callers and bindings and rebuild for the changed API/ABI. (#553)
 - Distinguish Query lifecycle diagnostics with `STATE`, classify malformed structural feeds as `INVALID_VALUE`, and guard against lifecycle regressions to `INVALID_ARG`. Result and diagnostic enum numbers remain release-specific during the failure-model migration. (#551, #552)

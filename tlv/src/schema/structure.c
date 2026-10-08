@@ -25,9 +25,11 @@ static void occurrence(tlv_schema_diagnostic_t* diagnostic, const tlv_structure_
     diagnostic->occurs = count;
 }
 
-static tlv_result_t invalid(size_t offset, size_t* error_offset,
+static tlv_result_t invalid(size_t offset, tlv_diagnostic_t* location,
                             tlv_schema_diagnostic_t* diagnostic) {
-    if (error_offset) *error_offset = offset;
+    if (location)
+        tlv_diagnostic_set_location(location, TLV_LOCATION_INPUT, TLV_LOCATION_POINT, offset,
+                                    offset);
     if (diagnostic && diagnostic->kind == TLV_SCHEMA_ISSUE_NONE)
         diagnostic->kind = TLV_SCHEMA_ISSUE_UNEXPECTED;
     return TLV_ERR_SCHEMA;
@@ -35,19 +37,21 @@ static tlv_result_t invalid(size_t offset, size_t* error_offset,
 
 /* Distinct from invalid(): offset is the end of the enclosing scope, not an
  * element, so it must not be presented as the location of a tag. */
-static tlv_result_t missing(size_t offset, size_t* error_offset,
+static tlv_result_t missing(size_t offset, tlv_diagnostic_t* location,
                             tlv_schema_diagnostic_t* diagnostic) {
-    if (error_offset) *error_offset = offset;
+    if (location)
+        tlv_diagnostic_set_location(location, TLV_LOCATION_INPUT, TLV_LOCATION_POINT, offset,
+                                    offset);
     if (diagnostic) {
         diagnostic->kind = TLV_SCHEMA_ISSUE_MISSING;
-        diagnostic->anchor = TLV_SCHEMA_ANCHOR_SCOPE_END;
+        diagnostic->diagnostic.location.kind = TLV_LOCATION_SCOPE_END;
     }
     return TLV_ERR_SCHEMA;
 }
 
 static tlv_result_t check_scope(const uint8_t* data, const tlv_format_t* format,
                                 const tlv_structure_schema_t* current, size_t start, size_t end,
-                                size_t* error_offset, tlv_schema_diagnostic_t* diagnostic) {
+                                tlv_diagnostic_t* location, tlv_schema_diagnostic_t* diagnostic) {
     for (size_t i = 0; i < current->count; ++i) {
         const tlv_structure_rule_t* rule = &current->rules[i];
         size_t count = 0, pos = start;
@@ -56,13 +60,15 @@ static tlv_result_t check_scope(const uint8_t* data, const tlv_format_t* format,
             size_t used;
             tlv_result_t rc = tlv_read(data + pos, end - pos, format, &element, &used);
             if (rc != TLV_OK) {
-                if (error_offset) *error_offset = pos;
+                if (location)
+                    tlv_diagnostic_set_location(location, TLV_LOCATION_INPUT, TLV_LOCATION_POINT,
+                                                pos, pos);
                 return rc;
             }
             if (same_tag(&rule->entry->tag, &element.tag)) {
                 if (count == rule->max_occurs) {
                     occurrence(diagnostic, rule, NULL, count + 1, TLV_SCHEMA_ISSUE_DUPLICATE);
-                    return invalid(pos, error_offset, diagnostic);
+                    return invalid(pos, location, diagnostic);
                 }
                 ++count;
             }
@@ -70,7 +76,7 @@ static tlv_result_t check_scope(const uint8_t* data, const tlv_format_t* format,
         }
         if (count < rule->min_occurs) {
             occurrence(diagnostic, rule, NULL, count, TLV_SCHEMA_ISSUE_MISSING);
-            return missing(end, error_offset, diagnostic);
+            return missing(end, location, diagnostic);
         }
     }
     for (size_t g = 0; g < current->group_count; ++g) {
@@ -81,7 +87,9 @@ static tlv_result_t check_scope(const uint8_t* data, const tlv_format_t* format,
             size_t used;
             tlv_result_t rc = tlv_read(data + pos, end - pos, format, &element, &used);
             if (rc != TLV_OK) {
-                if (error_offset) *error_offset = pos;
+                if (location)
+                    tlv_diagnostic_set_location(location, TLV_LOCATION_INPUT, TLV_LOCATION_POINT,
+                                                pos, pos);
                 return rc;
             }
             for (size_t i = 0; i < current->count; ++i)
@@ -90,7 +98,7 @@ static tlv_result_t check_scope(const uint8_t* data, const tlv_format_t* format,
                     if (count == group->max_occurs) {
                         occurrence(diagnostic, &current->rules[i], group, count + 1,
                                    TLV_SCHEMA_ISSUE_DUPLICATE);
-                        return invalid(pos, error_offset, diagnostic);
+                        return invalid(pos, location, diagnostic);
                     }
                     ++count;
                     break;
@@ -106,7 +114,7 @@ static tlv_result_t check_scope(const uint8_t* data, const tlv_format_t* format,
                         break;
                     }
             }
-            return missing(end, error_offset, diagnostic);
+            return missing(end, location, diagnostic);
         }
     }
     if (current->order == TLV_SCHEMA_ORDER_SEQUENCE) {
@@ -118,14 +126,16 @@ static tlv_result_t check_scope(const uint8_t* data, const tlv_format_t* format,
             size_t used;
             tlv_result_t rc = tlv_read(data + pos, end - pos, format, &element, &used);
             if (rc != TLV_OK) {
-                if (error_offset) *error_offset = pos;
+                if (location)
+                    tlv_diagnostic_set_location(location, TLV_LOCATION_INPUT, TLV_LOCATION_POINT,
+                                                pos, pos);
                 return rc;
             }
             for (size_t i = 0; i < current->count; ++i)
                 if (same_tag(&current->rules[i].entry->tag, &element.tag)) {
                     if (have_last && i < last_index) {
                         if (diagnostic) diagnostic->kind = TLV_SCHEMA_ISSUE_ORDER;
-                        return invalid(pos, error_offset, diagnostic);
+                        return invalid(pos, location, diagnostic);
                     }
                     last_index = i;
                     have_last = 1;
@@ -139,19 +149,20 @@ static tlv_result_t check_scope(const uint8_t* data, const tlv_format_t* format,
 
 static tlv_result_t validate_input(const uint8_t* data, size_t size, const tlv_format_t* format,
                                    const tlv_structure_schema_t* schema, size_t max_depth,
-                                   size_t max_elements, size_t* error_offset,
+                                   size_t max_elements, tlv_diagnostic_t* location,
                                    tlv_schema_diagnostic_t* diagnostic) {
     const tlv_structure_schema_t* scopes[TLV_SCHEMA_MAX_DEPTH + 1];
     tlv_tree_frame_t frames[TLV_SCHEMA_MAX_DEPTH];
     tlv_tree_reader_t reader;
     tlv_result_t rc;
     if (!schema) {
-        if (error_offset) *error_offset = 0;
+        if (location)
+            tlv_diagnostic_set_location(location, TLV_LOCATION_INPUT, TLV_LOCATION_POINT, 0, 0);
         return TLV_ERR_NULL_ARG;
     }
-    rc = schema_check_tree(data, size, format, max_depth, max_elements, error_offset);
+    rc = schema_check_tree(data, size, format, max_depth, max_elements, location);
     if (rc != TLV_OK) return rc;
-    rc = check_scope(data, format, schema, 0, size, error_offset, diagnostic);
+    rc = check_scope(data, format, schema, 0, size, location, diagnostic);
     if (rc != TLV_OK) return rc;
     rc = tlv_tree_reader_init(&reader, data, size, format, frames, TLV_SCHEMA_MAX_DEPTH, max_depth,
                               max_elements);
@@ -164,7 +175,10 @@ static tlv_result_t validate_input(const uint8_t* data, size_t size, const tlv_f
         size_t value_length;
         rc = tlv_tree_reader_next(&reader, &item);
         if (rc != TLV_OK) {
-            if (error_offset) *error_offset = tlv_tree_reader_offset(&reader);
+            if (location)
+                tlv_diagnostic_set_location(location, TLV_LOCATION_INPUT, TLV_LOCATION_POINT,
+                                            tlv_tree_reader_offset(&reader),
+                                            tlv_tree_reader_offset(&reader));
             return rc;
         }
         current = scopes[item.depth];
@@ -174,12 +188,14 @@ static tlv_result_t validate_input(const uint8_t* data, size_t size, const tlv_f
                 break;
             }
         if (!rule) {
-            if (!current->allow_unknown) return invalid(item.offset, error_offset, diagnostic);
+            if (!current->allow_unknown) return invalid(item.offset, location, diagnostic);
         } else {
             rc = tlv_size_to_native(item.element.value.size, &value_length);
             if (rc == TLV_OK) rc = tlv_schema_validate_length(rule->entry, value_length);
             if (rc != TLV_OK) {
-                if (error_offset) *error_offset = item.offset;
+                if (location)
+                    tlv_diagnostic_set_location(location, TLV_LOCATION_INPUT, TLV_LOCATION_POINT,
+                                                item.offset, item.offset);
                 if (diagnostic && rc == TLV_ERR_SCHEMA) {
                     diagnostic->kind = TLV_SCHEMA_ISSUE_LENGTH;
                     diagnostic->tag = rule->entry->tag;
@@ -193,12 +209,12 @@ static tlv_result_t validate_input(const uint8_t* data, size_t size, const tlv_f
             if ((rule->kind == TLV_SCHEMA_PRIMITIVE && item.constructed) ||
                 (rule->kind == TLV_SCHEMA_CONSTRUCTED && !item.constructed)) {
                 if (diagnostic) diagnostic->kind = TLV_SCHEMA_ISSUE_KIND;
-                return invalid(item.offset, error_offset, diagnostic);
+                return invalid(item.offset, location, diagnostic);
             }
             if (rule->children) {
                 size_t start = item.offset + item.source.value.offset;
                 rc = check_scope(data, format, rule->children, start, start + value_length,
-                                 error_offset, diagnostic);
+                                 location, diagnostic);
                 if (rc != TLV_OK) return rc;
                 if (value_length) {
                     if (item.depth == TLV_SCHEMA_MAX_DEPTH) return TLV_ERR_LIMIT;
@@ -219,7 +235,6 @@ static tlv_result_t validate_input(const uint8_t* data, size_t size, const tlv_f
 tlv_result_t tlv_schema_validate(const uint8_t* data, size_t size, const tlv_format_t* format,
                                  const tlv_structure_schema_t* schema, size_t max_depth,
                                  size_t max_elements, tlv_schema_diagnostic_t* diagnostic) {
-    size_t offset = 0;
     tlv_result_t rc;
     if (diagnostic) tlv_schema_diagnostic_init(diagnostic);
     if (!schema || !format || (!data && size)) {
@@ -228,16 +243,11 @@ tlv_result_t tlv_schema_validate(const uint8_t* data, size_t size, const tlv_for
         rc = tlv_schema_check(schema, diagnostic);
         if (rc != TLV_OK) return rc;
         rc = validate_input(data, size, format, schema, max_depth, max_elements,
-                            diagnostic ? &offset : NULL, diagnostic);
+                            diagnostic ? &diagnostic->diagnostic : NULL, diagnostic);
     }
     if (diagnostic && rc != TLV_OK) {
         diagnostic->diagnostic.code = rc;
         diagnostic->diagnostic.severity = TLV_DIAGNOSTIC_SEVERITY_ERROR;
-        if (rc != TLV_ERR_NULL_ARG && rc != TLV_ERR_INVALID_ARG) {
-            tlv_diagnostic_set_offset(&diagnostic->diagnostic, offset);
-            if (diagnostic->anchor == TLV_SCHEMA_ANCHOR_UNKNOWN)
-                diagnostic->anchor = TLV_SCHEMA_ANCHOR_ELEMENT;
-        }
     }
     return rc;
 }

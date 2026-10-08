@@ -10,7 +10,6 @@ use std::{
     marker::PhantomData,
     mem::MaybeUninit,
     panic::{catch_unwind, resume_unwind, AssertUnwindSafe},
-    ptr,
 };
 
 /// Action returned by a Visitor callback.
@@ -85,18 +84,13 @@ pub(crate) unsafe fn run<'a, F: FnMut(Element<'a>, usize, usize) -> Visit>(
         native::tlv_reader_diagnostic_init(diagnostic.as_mut_ptr());
         let opaque = (&mut context as *mut Context<'a, F>).cast();
         let code = if !matcher.is_null() {
-            let mut offset = 0;
             let code = native::tlv_query_visit(
                 tree,
                 matcher,
                 Some(tree_callback::<F>),
                 opaque,
-                &mut offset,
+                diagnostic.as_mut_ptr(),
             );
-            if code != native::TLV_OK {
-                (*diagnostic.as_mut_ptr()).diagnostic.has_offset = 1;
-                (*diagnostic.as_mut_ptr()).diagnostic.offset = offset;
-            }
             code
         } else if tree.is_null() {
             native::tlv_reader_visit_diag(
@@ -106,11 +100,10 @@ pub(crate) unsafe fn run<'a, F: FnMut(Element<'a>, usize, usize) -> Visit>(
                 diagnostic.as_mut_ptr(),
             )
         } else {
-            native::tlv_tree_reader_visit_diag(
+            native::tlv_tree_reader_visit(
                 tree,
                 Some(tree_callback::<F>),
                 opaque,
-                ptr::null_mut(),
                 diagnostic.as_mut_ptr(),
             )
         };

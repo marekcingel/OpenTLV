@@ -302,8 +302,6 @@ TLV_API tlv_result_t tlv_document_builder_create(const tlv_document_options_t* o
  * @param[in,out] builder Active builder; required.
  * @param[out] document Required output; receives the owned document on success,
  *                      otherwise NULL. Release with tlv_document_free().
- * @param[out] error_offset Optional absolute source offset on traversal or node
- *                         creation failure, including NEED_MORE_DATA; unchanged on success.
  * @param[out] diagnostic Optional borrowed Reader failure detail, with the same
  *                       lifetime and update rules as tlv_tree_reader_next_diag().
  * @return #TLV_OK when the completed document is transferred to the caller.
@@ -318,7 +316,7 @@ TLV_API tlv_result_t tlv_document_builder_create(const tlv_document_options_t* o
  *       Only NEED_MORE_DATA is resumable. The cursor is not rolled back on failure.
  */
 TLV_API tlv_result_t tlv_document_builder_consume(tlv_document_builder_t* builder,
-                                                  tlv_document_t** document, size_t* error_offset,
+                                                  tlv_document_t** document,
                                                   tlv_reader_diagnostic_t* diagnostic);
 
 /**
@@ -374,9 +372,9 @@ TLV_API tlv_result_t tlv_document_create(const tlv_document_options_t* options,
  * @param[in]  options      Format descriptor and limits; copied.
  * @param[out] document     Receives the document; free it with tlv_document_free(). Set to
  *                          `NULL` on failure.
- * @param[out] error_offset Optional. On traversal or node creation failure, receives the
- *                          offending element's absolute offset; unchanged on success or
- *                          failure before traversal starts.
+ * @param[out] diagnostic Optional Reader failure detail. Primary INPUT coordinates are
+ *                        absolute in data; argument/allocation failures may be unlocated.
+ *                        Tag, path and text borrows must outlive diagnostic use.
  *
  * @return #TLV_OK on success.
  * @return Any error of tlv_document_create().
@@ -387,7 +385,8 @@ TLV_API tlv_result_t tlv_document_create(const tlv_document_options_t* options,
  */
 TLV_API tlv_result_t tlv_document_parse(const uint8_t* data, size_t size,
                                         const tlv_document_options_t* options,
-                                        tlv_document_t** document, size_t* error_offset);
+                                        tlv_document_t** document,
+                                        tlv_reader_diagnostic_t* diagnostic);
 
 #endif
 

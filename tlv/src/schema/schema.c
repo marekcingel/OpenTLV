@@ -54,13 +54,18 @@ static int group_index(const tlv_structure_schema_t* schema, uint32_t id) {
     return -1;
 }
 
-static tlv_result_t check_table(const tlv_structure_schema_t* schema) {
+static tlv_result_t check_table(const tlv_structure_schema_t* schema,
+                                tlv_schema_definition_location_t* location) {
+    if (location)
+        *location = (tlv_schema_definition_location_t){TLV_SCHEMA_DEFINITION_TABLE, schema, 0};
     if (!schema->rules && schema->count) return TLV_ERR_INVALID_SCHEMA;
     if (!schema->groups && schema->group_count) return TLV_ERR_INVALID_SCHEMA;
     if (schema->order != TLV_SCHEMA_ORDER_ANY && schema->order != TLV_SCHEMA_ORDER_SEQUENCE)
         return TLV_ERR_INVALID_SCHEMA;
     for (size_t g = 0; g < schema->group_count; ++g) {
         const tlv_structure_group_t* group = &schema->groups[g];
+        if (location)
+            *location = (tlv_schema_definition_location_t){TLV_SCHEMA_DEFINITION_GROUP, schema, g};
         int has_member = 0;
         if (!group->id || group->min_occurs > group->max_occurs) return TLV_ERR_INVALID_SCHEMA;
         for (size_t h = 0; h < g; ++h)
@@ -71,6 +76,8 @@ static tlv_result_t check_table(const tlv_structure_schema_t* schema) {
     }
     for (size_t i = 0; i < schema->count; ++i) {
         const tlv_structure_rule_t* rule = &schema->rules[i];
+        if (location)
+            *location = (tlv_schema_definition_location_t){TLV_SCHEMA_DEFINITION_RULE, schema, i};
         if (!rule->entry || !rule->entry->tag.size || !rule->entry->tag.data ||
             rule->entry->min_length > rule->entry->max_length ||
             rule->min_occurs > rule->max_occurs || rule->kind < TLV_SCHEMA_ANY ||
@@ -101,7 +108,7 @@ tlv_result_t tlv_schema_check(const tlv_structure_schema_t* schema,
      * including tables reached through cycles or absent optional fields. */
     for (size_t next = 0; next < count; ++next) {
         const tlv_structure_schema_t* current = tables[next];
-        rc = check_table(current);
+        rc = check_table(current, diagnostic ? &diagnostic->definition : NULL);
         if (rc != TLV_OK) goto done;
         for (size_t rule = 0; rule < current->count; ++rule) {
             const tlv_structure_schema_t* child = current->rules[rule].children;
@@ -119,6 +126,8 @@ tlv_result_t tlv_schema_check(const tlv_structure_schema_t* schema,
     }
     rc = TLV_OK;
 done:
+    if (diagnostic && rc == TLV_OK)
+        memset(&diagnostic->definition, 0, sizeof diagnostic->definition);
     if (diagnostic && rc != TLV_OK) {
         diagnostic->diagnostic.code = rc;
         diagnostic->diagnostic.severity = TLV_DIAGNOSTIC_SEVERITY_ERROR;

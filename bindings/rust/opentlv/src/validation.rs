@@ -6,7 +6,7 @@
 //!
 //! Bounded operations on [`Format::Der`] and [`Format::Cer`] enforce canonical
 //! encoding rules and resource [`Limits`]. Other formats return
-//! [`Error::InvalidArg`] at offset zero. All checks run in the C library.
+//! [`Error::InvalidArg`] with unknown location. All checks run in the C library.
 
 use std::error;
 use std::fmt;
@@ -49,15 +49,21 @@ pub struct Limits {
 pub struct ValidationError {
     /// The error reported by the C library.
     pub error: Error,
-    /// Offset of the failing tag, length or value field, relative to the input
-    /// (or to the would-be output when writing); 0 for argument and
-    /// input-limit errors.
-    pub offset: usize,
+    /// Primary evidence in input or would-be output coordinates.
+    /// Argument/configuration failures have unknown location.
+    pub location: crate::Location,
 }
 
 impl fmt::Display for ValidationError {
     fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
-        write!(f, "{} at offset {}", self.error, self.offset)
+        match self.location.offset() {
+            Some(offset) => write!(
+                f,
+                "{} at offset {} ({:?} {:?})",
+                self.error, offset, self.location.domain, self.location.kind
+            ),
+            None => write!(f, "{}", self.error),
+        }
     }
 }
 
@@ -93,10 +99,16 @@ impl Limits {
     }
 }
 
-fn outcome(code: native::tlv_result_t, offset: usize) -> Result<(), ValidationError> {
+fn outcome(
+    code: native::tlv_result_t,
+    diagnostic: native::tlv_diagnostic_t,
+) -> Result<(), ValidationError> {
     match Error::from_code(code) {
         None => Ok(()),
-        Some(error) => Err(ValidationError { error, offset }),
+        Some(error) => Err(ValidationError {
+            error,
+            location: crate::Location::from_raw(diagnostic.location),
+        }),
     }
 }
 
@@ -130,7 +142,7 @@ impl Format {
                 _ => {
                     return Err(ValidationError {
                         error: Error::InvalidArg,
-                        offset: 0,
+                        location: crate::Location::default(),
                     })
                 }
             })
@@ -163,44 +175,55 @@ impl Format {
         limits: &Limits,
         strictness: Strictness,
     ) -> Result<(), ValidationError> {
-        let mut offset = 0usize;
+        // SAFETY: zero diagnostic has no active borrows.
+        let mut diagnostic: native::tlv_diagnostic_t = unsafe { std::mem::zeroed() };
         let (ptr, len) = (data.as_ptr(), data.len());
         let no_context = ptr::null_mut();
         // SAFETY: `data` is a valid slice, the limits are valid for the call,
         // there is no visitor, and `offset` is a writable `usize`.
         let code = unsafe {
             match (self, strictness) {
-                (Format::Der, Strictness::Canonical) => {
-                    native::tlv_der_visit(ptr, len, &limits.der(), None, no_context, &mut offset)
-                }
+                (Format::Der, Strictness::Canonical) => native::tlv_der_visit(
+                    ptr,
+                    len,
+                    &limits.der(),
+                    None,
+                    no_context,
+                    &mut diagnostic,
+                ),
                 (Format::Der, Strictness::Strict) => native::tlv_der_visit_strict(
                     ptr,
                     len,
                     &limits.der(),
                     None,
                     no_context,
-                    &mut offset,
+                    &mut diagnostic,
                 ),
-                (Format::Cer, Strictness::Canonical) => {
-                    native::tlv_cer_visit(ptr, len, &limits.cer(), None, no_context, &mut offset)
-                }
+                (Format::Cer, Strictness::Canonical) => native::tlv_cer_visit(
+                    ptr,
+                    len,
+                    &limits.cer(),
+                    None,
+                    no_context,
+                    &mut diagnostic,
+                ),
                 (Format::Cer, Strictness::Strict) => native::tlv_cer_visit_strict(
                     ptr,
                     len,
                     &limits.cer(),
                     None,
                     no_context,
-                    &mut offset,
+                    &mut diagnostic,
                 ),
                 _ => {
                     return Err(ValidationError {
                         error: Error::InvalidArg,
-                        offset: 0,
+                        location: crate::Location::default(),
                     })
                 }
             }
         };
-        outcome(code, offset)
+        outcome(code, diagnostic)
     }
 
     /// Validates the first complete element of `data` and returns it with the
@@ -222,48 +245,63 @@ impl Format {
     ) -> Result<(Element<'a>, usize), ValidationError> {
         let mut element = MaybeUninit::<native::tlv_element_t>::uninit();
         let mut consumed = 0usize;
-        let mut offset = 0usize;
+        // SAFETY: zero diagnostic has no active borrows.
+        let mut diagnostic: native::tlv_diagnostic_t = unsafe { std::mem::zeroed() };
         let (ptr, len) = (data.as_ptr(), data.len());
         let out = element.as_mut_ptr();
         // SAFETY: `data` is a valid slice, the limits are valid for the call,
         // and `out`, `consumed` and `offset` are writable.
         let code = unsafe {
             match (self, strictness) {
-                (Format::Der, Strictness::Canonical) => {
-                    native::tlv_der_read(ptr, len, &limits.der(), out, &mut consumed, &mut offset)
-                }
+                (Format::Der, Strictness::Canonical) => native::tlv_der_read(
+                    ptr,
+                    len,
+                    &limits.der(),
+                    out,
+                    &mut consumed,
+                    &mut diagnostic,
+                ),
                 (Format::Der, Strictness::Strict) => native::tlv_der_read_strict(
                     ptr,
                     len,
                     &limits.der(),
                     out,
                     &mut consumed,
-                    &mut offset,
+                    &mut diagnostic,
                 ),
-                (Format::Cer, Strictness::Canonical) => {
-                    native::tlv_cer_read(ptr, len, &limits.cer(), out, &mut consumed, &mut offset)
-                }
+                (Format::Cer, Strictness::Canonical) => native::tlv_cer_read(
+                    ptr,
+                    len,
+                    &limits.cer(),
+                    out,
+                    &mut consumed,
+                    &mut diagnostic,
+                ),
                 (Format::Cer, Strictness::Strict) => native::tlv_cer_read_strict(
                     ptr,
                     len,
                     &limits.cer(),
                     out,
                     &mut consumed,
-                    &mut offset,
+                    &mut diagnostic,
                 ),
                 _ => {
                     return Err(ValidationError {
                         error: Error::InvalidArg,
-                        offset: 0,
+                        location: crate::Location::default(),
                     })
                 }
             }
         };
-        outcome(code, offset)?;
+        outcome(code, diagnostic)?;
         // SAFETY: the read succeeded, so `element` is initialized and its value
         // borrows `data`, which lives for `'a`.
-        let element = unsafe { Element::from_raw(&element.assume_init()) }
-            .map_err(|error| ValidationError { error, offset: 0 })?;
+        let element = unsafe { Element::from_raw(&element.assume_init()) }.map_err(|error| {
+            ValidationError {
+                error,
+                location: crate::Location::default(),
+            }
+        })?;
         Ok((element, consumed))
     }
 
@@ -277,7 +315,8 @@ impl Format {
         capacity: usize,
     ) -> Result<usize, ValidationError> {
         let mut written = 0usize;
-        let mut offset = 0usize;
+        // SAFETY: zero diagnostic has no active borrows.
+        let mut diagnostic: native::tlv_diagnostic_t = unsafe { std::mem::zeroed() };
         let (vptr, vlen) = (value.as_ptr(), value.len());
         // SAFETY: `data` is null with zero capacity (a size query) or a
         // writable buffer of `capacity` bytes; `value` is a valid slice that
@@ -293,7 +332,7 @@ impl Format {
                     vlen,
                     &limits.der(),
                     &mut written,
-                    &mut offset,
+                    &mut diagnostic,
                 ),
                 (Format::Der, Strictness::Strict) => native::tlv_der_write_strict(
                     data,
@@ -303,7 +342,7 @@ impl Format {
                     vlen,
                     &limits.der(),
                     &mut written,
-                    &mut offset,
+                    &mut diagnostic,
                 ),
                 (Format::Cer, Strictness::Canonical) => native::tlv_cer_write(
                     data,
@@ -313,7 +352,7 @@ impl Format {
                     vlen,
                     &limits.cer(),
                     &mut written,
-                    &mut offset,
+                    &mut diagnostic,
                 ),
                 (Format::Cer, Strictness::Strict) => native::tlv_cer_write_strict(
                     data,
@@ -323,17 +362,17 @@ impl Format {
                     vlen,
                     &limits.cer(),
                     &mut written,
-                    &mut offset,
+                    &mut diagnostic,
                 ),
                 _ => {
                     return Err(ValidationError {
                         error: Error::InvalidArg,
-                        offset: 0,
+                        location: crate::Location::default(),
                     })
                 }
             }
         };
-        outcome(code, offset)?;
+        outcome(code, diagnostic)?;
         Ok(written)
     }
 

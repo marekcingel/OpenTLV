@@ -146,20 +146,17 @@ public:
 
     /**
      * @brief Validate remaining traversal without a callback using the C Visitor engine.
-     * @param[out] error_offset Optional absolute failure offset; unchanged on success.
      * @param[out] diagnostic Optional Reader detail, cleared at entry for a valid cursor.
      * @return Success at EOF; NEED_MORE_DATA or the original C error otherwise.
      * @note This checks framing and traversal limits, not Schema or value semantics.
      */
-    TLV_NODISCARD expected<void, error> validate(size_t*            error_offset = nullptr,
-                                                 reader_diagnostic* diagnostic = nullptr) {
+    TLV_NODISCARD expected<void, error> validate(reader_diagnostic* diagnostic = nullptr) {
         has_current_ = false;
         reader_diagnostic local{};
         if (!diagnostic) diagnostic = &local;
-        const auto rc =
-            init_result_ == TLV_OK
-                ? tlv_tree_reader_visit_diag(&impl_, nullptr, nullptr, error_offset, diagnostic)
-                : init_result_;
+        const auto rc = init_result_ == TLV_OK
+                            ? tlv_tree_reader_visit(&impl_, nullptr, nullptr, diagnostic)
+                            : init_result_;
         if (rc != TLV_OK)
             return unexpected<error>(detail::reader_failed(rc, *diagnostic, offset()));
         return {};
@@ -169,22 +166,21 @@ public:
      * @brief Visit remaining items using the canonical C Visitor engine.
      * @param visitor Callable taking Element, depth and absolute offset, returning
      * visit_control.
-     * @param[out] error_offset Optional absolute failure offset; unchanged on success.
      * @param[out] diagnostic Optional Reader detail, cleared at entry for a valid cursor.
      * @return Success at EOF or STOP; NEED_MORE_DATA or original C error otherwise.
      * @warning Do not mutate cursor, frames, input or Format in callbacks. Effects
      * are not rolled back. STOP leaves the current item published for resume or skip.
      */
     template <typename Visitor>
-    TLV_NODISCARD expected<void, error> visit(Visitor&& visitor, size_t* error_offset = nullptr,
+    TLV_NODISCARD expected<void, error> visit(Visitor&&          visitor,
                                               reader_diagnostic* diagnostic = nullptr) {
         has_current_ = false;
         if (init_result_ != TLV_OK) return result(init_result_);
         detail::tree_visitor<Visitor> context{&visitor};
         reader_diagnostic             local{};
         if (!diagnostic) diagnostic = &local;
-        const auto rc = tlv_tree_reader_visit_diag(&impl_, &detail::tree_visitor<Visitor>::call,
-                                                   &context, error_offset, diagnostic);
+        const auto rc = tlv_tree_reader_visit(&impl_, &detail::tree_visitor<Visitor>::call,
+                                              &context, diagnostic);
         if (rc != TLV_OK)
             return unexpected<error>(detail::reader_failed(rc, *diagnostic, offset()));
         return {};

@@ -157,7 +157,7 @@ to validate padding and obtain the significant prefix first.
 ## Advertising Data containers and padding
 
 Include `tlv/builtins/bluetooth/ad_data.h` and call
-`tlv_bluetooth_ad_data_validate(data, size, &significant_size, &error_offset)`
+`tlv_bluetooth_ad_data_validate(data, size, &significant_size, &diagnostic)`
 before processing a padded Advertising Data buffer. This helper is available
 with `OPENTLV_BLUETOOTH=ON` and uses the generic reader with the
 strict Bluetooth LTV format. It allocates nothing and leaves the input unchanged.
@@ -174,11 +174,11 @@ Unknown AD types and empty values are accepted; schema and value-codec checks
 remain separate.
 
 A nonzero byte after padding starts returns `TLV_ERR_INVALID_VALUE`, with
-`error_offset` pointing to the first offending byte. Truncated structures
+`diagnostic.diagnostic.location` identifying the first offending INPUT byte. Truncated structures
 retain the generic reader error and failing-field offset, even when their
 available value bytes end in zeros. `significant_size` is required and remains
-unchanged on failure. `error_offset` is optional, unchanged on success, and
-zero for argument errors. Output storage must not overlap the input or each
+unchanged on failure. `diagnostic` is optional and unchanged on success; argument errors have
+UNKNOWN location. Output storage must not overlap the input or each
 other. Never strip trailing zeros by scanning backward: they may belong to
 the final value.
 

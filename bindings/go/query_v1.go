@@ -12,17 +12,17 @@ type Query struct{ native *capi.PathQuery }
 // ParseQuery delegates bounded V1 parsing to C, preserving syntax error offsets.
 // V1 allows at most 65 steps and 512 total Tag bytes.
 func ParseQuery(text string) (Query, error) {
-	query, code, offset := capi.ParsePath(text)
+	query, code, detail := capi.ParsePath(text)
 	if code != capi.OK {
-		return Query{}, pathQueryError(code, offset)
+		return Query{}, pathQueryError(code, detail)
 	}
 	return Query{native: query}, nil
 }
-func pathQueryError(code capi.Code, offset capi.OptionalSize) error {
+func pathQueryError(code capi.Code, detail capi.Diagnostic) error {
 	if code == capi.OK {
 		return nil
 	}
-	return &QueryError{Diagnostic: Diagnostic{Message: code.String(), Offset: offset.Value, HasOffset: offset.Present}, status: StatusError{code: code}}
+	return &QueryError{Diagnostic: publicDiagnostic(detail), status: StatusError{code: code}}
 }
 
 // Count returns the number of Tag steps, or zero for an uninitialized Query.
@@ -39,7 +39,7 @@ func (q Query) Step(index int) ([]byte, bool) {
 // Format returns the canonical uppercase path produced by the native formatter.
 func (q Query) Format() (string, error) {
 	text, code := q.native.Format()
-	return text, pathQueryError(code, capi.OptionalSize{})
+	return text, pathQueryError(code, capi.Diagnostic{})
 }
 
 // Matcher starts independent matching over a preorder stream. It owns a stable
@@ -47,7 +47,7 @@ func (q Query) Format() (string, error) {
 func (q Query) Matcher() (*QueryMatcher, error) {
 	matcher, code := q.native.Matcher()
 	if code != capi.OK {
-		return nil, pathQueryError(code, capi.OptionalSize{})
+		return nil, pathQueryError(code, capi.Diagnostic{})
 	}
 	return &QueryMatcher{native: matcher}, nil
 }
@@ -68,25 +68,25 @@ func (m *QueryMatcher) Close() {
 // Tag bytes are borrowed only for this call.
 func (m *QueryMatcher) Feed(tag []byte, depth int) (bool, error) {
 	if m == nil {
-		return false, pathQueryError(capi.InvalidArg, capi.OptionalSize{})
+		return false, pathQueryError(capi.InvalidArg, capi.Diagnostic{})
 	}
 	matched, code := m.native.Feed(tag, depth)
-	return matched, pathQueryError(code, capi.OptionalSize{})
+	return matched, pathQueryError(code, capi.Diagnostic{})
 }
 
 // Reset starts another preorder traversal using the same Query.
 func (m *QueryMatcher) Reset() error {
 	if m == nil {
-		return pathQueryError(capi.InvalidArg, capi.OptionalSize{})
+		return pathQueryError(capi.InvalidArg, capi.Diagnostic{})
 	}
-	return pathQueryError(m.native.Reset(), capi.OptionalSize{})
+	return pathQueryError(m.native.Reset(), capi.Diagnostic{})
 }
 
 // Rebind replaces the owned Query with an equivalent copy while preserving
 // suspended matching. A different path is rejected without changing state.
 func (m *QueryMatcher) Rebind(query Query) error {
 	if m == nil {
-		return pathQueryError(capi.InvalidArg, capi.OptionalSize{})
+		return pathQueryError(capi.InvalidArg, capi.Diagnostic{})
 	}
-	return pathQueryError(m.native.Rebind(query.native), capi.OptionalSize{})
+	return pathQueryError(m.native.Rebind(query.native), capi.Diagnostic{})
 }

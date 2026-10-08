@@ -57,8 +57,8 @@ TEST(Integration_Tlv_Reader, CursorDistinguishesIncompleteTagLengthValueAndTrail
             EXPECT_EQ(2u, reader.pos);
             EXPECT_EQ(data, element.tag.data);
             EXPECT_EQ(TLV_ERR_BUFFER_TOO_SHORT, diagnostic.diagnostic.code);
-            EXPECT_GE(diagnostic.diagnostic.offset, 2u);
-            EXPECT_LE(diagnostic.diagnostic.offset, size);
+            EXPECT_GE(diagnostic.diagnostic.location.begin, 2u);
+            EXPECT_LE(diagnostic.diagnostic.location.begin, size);
             EXPECT_EQ(size, diagnostic.enclosing_end);
         }
     }
@@ -90,7 +90,7 @@ TEST(Integration_Tlv_Reader, CursorReturnsMalformedInputWithoutScanningForLaterE
                                         tlv_reader_next_diag(&reader, &element, &diagnostic)));
         EXPECT_EQ(2u, reader.pos);
         EXPECT_EQ(data, element.tag.data);
-        EXPECT_EQ(3u, diagnostic.diagnostic.offset);
+        EXPECT_EQ(3u, diagnostic.diagnostic.location.begin);
         EXPECT_EQ(TLV_READER_OP_LENGTH, diagnostic.operation);
     }
 }

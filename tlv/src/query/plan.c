@@ -140,19 +140,19 @@ tlv_result_t tlv_query_plan_open(const void* image, size_t size,
         return TLV_ERR_INVALID_ARG;
     query_diag_init(diagnostic);
     if (!image || !program)
-        return query_error(diagnostic, TLV_ERR_NULL_ARG, TLV_QUERY_ERROR_STORAGE, 0, 0,
-                           "required plan arguments");
+        return query_error_unlocated(diagnostic, TLV_ERR_NULL_ARG, TLV_QUERY_ERROR_STORAGE,
+                                     "required plan arguments");
     if ((uintptr_t)image % sizeof(uint32_t))
-        return query_error(diagnostic, TLV_ERR_INVALID_ARG, TLV_QUERY_ERROR_STORAGE, 0, 0,
-                           "aligned bounded plan");
+        return query_error_unlocated(diagnostic, TLV_ERR_INVALID_ARG, TLV_QUERY_ERROR_STORAGE,
+                                     "aligned bounded plan");
     if (size < sizeof(tlv_query_program_t))
-        return query_error(diagnostic, TLV_ERR_INVALID_VALUE, TLV_QUERY_ERROR_IMAGE, 0, 0,
-                           "complete plan header");
+        return query_error_unlocated(diagnostic, TLV_ERR_INVALID_VALUE, TLV_QUERY_ERROR_IMAGE,
+                                     "complete plan header");
     const tlv_query_program_t* p = image;
     if (p->magic != QUERY_MAGIC) goto invalid;
     if (p->version != QUERY_IMAGE_VERSION)
-        return query_error(diagnostic, TLV_ERR_UNSUPPORTED, TLV_QUERY_ERROR_IMAGE_VERSION, 0, 0,
-                           "compatible native plan version and byte order");
+        return query_error_unlocated(diagnostic, TLV_ERR_UNSUPPORTED, TLV_QUERY_ERROR_IMAGE_VERSION,
+                                     "compatible native plan version and byte order");
     /* Establish the complete extent before any instruction/payload dereference. */
     if (size > UINT32_MAX || p->reserved != size || !p->count ||
         p->count > (size - sizeof *p) / sizeof(query_node_t))
@@ -163,13 +163,13 @@ tlv_result_t tlv_query_plan_open(const void* image, size_t size,
         goto invalid;
     if (!query_program_valid(p) || !plan_types(p)) goto invalid;
     if (!query_plan_supported(p))
-        return query_error(diagnostic, TLV_ERR_UNSUPPORTED, TLV_QUERY_ERROR_CAPABILITY, 0, 0,
-                           "available plan operation families");
+        return query_error_unlocated(diagnostic, TLV_ERR_UNSUPPORTED, TLV_QUERY_ERROR_CAPABILITY,
+                                     "available plan operation families");
     *program = p;
     return TLV_OK;
 invalid:
-    return query_error(diagnostic, TLV_ERR_INVALID_VALUE, TLV_QUERY_ERROR_IMAGE, 0, 0,
-                       "valid execution plan");
+    return query_error_unlocated(diagnostic, TLV_ERR_INVALID_VALUE, TLV_QUERY_ERROR_IMAGE,
+                                 "valid execution plan");
 }
 
 tlv_result_t tlv_query_plan_info(const tlv_query_program_t* p, tlv_query_program_info_t* info) {

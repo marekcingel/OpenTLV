@@ -11,6 +11,25 @@ import (
 	"testing"
 )
 
+func TestV1FailureLocationsIncludeKnownZeroAndEmptyEOF(t *testing.T) {
+	for _, test := range []struct {
+		text       string
+		begin, end uint64
+	}{
+		{"GG", 0, 1}, {"01/", 3, 3}, {"", 0, 0},
+	} {
+		_, err := tlv.ParseQuery(test.text)
+		var detail *tlv.QueryError
+		if !errors.As(err, &detail) {
+			t.Fatalf("%q: %v", test.text, err)
+		}
+		want := tlv.Location{Domain: tlv.LocationExpression, Kind: tlv.LocationSpan, Begin: test.begin, End: test.end}
+		if detail.Location != want {
+			t.Fatalf("%q: got %+v, want %+v", test.text, detail.Location, want)
+		}
+	}
+}
+
 func TestV1QueryNativeFormattingMatchingAndRebinding(t *testing.T) {
 	query, err := tlv.ParseQuery("6f/a5/50")
 	if err != nil {

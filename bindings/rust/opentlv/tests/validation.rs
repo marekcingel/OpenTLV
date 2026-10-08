@@ -62,7 +62,11 @@ fn errors_carry_the_offset_of_the_failure() {
     let err: ValidationError = Format::Der
         .validate(&data, &limits, Strictness::Canonical)
         .unwrap_err();
-    assert!(err.offset >= 3, "offset {}", err.offset);
+    assert!(
+        err.location.offset().unwrap() >= 3,
+        "offset {}",
+        err.location.offset().unwrap()
+    );
     assert_eq!(Error::from(err), err.error);
     assert!(err.to_string().contains("offset"));
 }
@@ -215,7 +219,7 @@ fn canonical_operations_reject_other_formats_without_writing() {
     let limits = Format::Der.default_limits().unwrap();
     let expected = ValidationError {
         error: Error::InvalidArg,
-        offset: 0,
+        location: opentlv::Location::default(),
     };
     for format in Format::ALL {
         if matches!(format, Format::Der | Format::Cer) {

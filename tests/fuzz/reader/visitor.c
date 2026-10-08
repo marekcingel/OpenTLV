@@ -5,8 +5,9 @@
 
 static void check_visit(const uint8_t* data, size_t size, size_t format, size_t depth,
                         size_t elements, size_t stop_at, tlv_visit_result_t action) {
-    fuzz_visit_context ctx = {0};
-    size_t             error = SIZE_MAX;
+    fuzz_visit_context      ctx = {0};
+    tlv_reader_diagnostic_t error = {0};
+    error.diagnostic.location.begin = SIZE_MAX;
     ctx.data = data;
     ctx.size = size;
     ctx.max_depth = depth;
@@ -20,18 +21,19 @@ static void check_visit(const uint8_t* data, size_t size, size_t format, size_t 
                                            TLV_TREE_DEFAULT_DEPTH, depth, elements);
     if (rc == TLV_OK) rc = tlv_tree_reader_visit(&reader, fuzz_visit, &ctx, &error);
     if (rc == TLV_OK)
-        FUZZ_CHECK(error == SIZE_MAX);
+        FUZZ_CHECK(error.diagnostic.location.begin == SIZE_MAX);
     else
-        FUZZ_CHECK(error <= size);
+        FUZZ_CHECK(error.diagnostic.location.begin <= size);
     if (stop_at && ctx.count == stop_at) {
         FUZZ_CHECK(rc == (action == TLV_VISIT_STOP ? TLV_OK : TLV_ERR_VISITOR));
     }
     if (!stop_at) {
-        size_t other_error = SIZE_MAX;
+        tlv_reader_diagnostic_t other_error = {0};
+        other_error.diagnostic.location.begin = SIZE_MAX;
         FUZZ_CHECK(tlv_tree_reader_init(&reader, data, size, fuzz_formats[format].format, frames,
                                         TLV_TREE_DEFAULT_DEPTH, depth, elements) == TLV_OK);
         FUZZ_CHECK(rc == tlv_tree_reader_visit(&reader, NULL, NULL, &other_error));
-        FUZZ_CHECK(error == other_error);
+        FUZZ_CHECK(error.diagnostic.location.begin == other_error.diagnostic.location.begin);
     }
 }
 

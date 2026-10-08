@@ -161,7 +161,20 @@ void opentlv_lua_push_reader_error(lua_State* L, tlv_result_t code,
 }
 
 void opentlv_lua_push_diagnostic(lua_State* L, const tlv_diagnostic_t* diagnostic) {
-    opentlv_lua_push_error(L, diagnostic->code, diagnostic->has_offset, diagnostic->offset);
+    opentlv_lua_push_error(L, diagnostic->code, diagnostic->location.kind,
+                           diagnostic->location.begin);
+    lua_newtable(L);
+    lua_pushstring(L, tlv_location_domain_string(diagnostic->location.domain));
+    lua_setfield(L, -2, "domain");
+    lua_pushstring(L, tlv_location_kind_string(diagnostic->location.kind));
+    lua_setfield(L, -2, "kind");
+    if (diagnostic->location.kind != TLV_LOCATION_UNKNOWN) {
+        lua_pushinteger(L, (lua_Integer)diagnostic->location.begin);
+        lua_setfield(L, -2, "begin");
+        lua_pushinteger(L, (lua_Integer)diagnostic->location.end);
+        lua_setfield(L, -2, "end");
+    }
+    lua_setfield(L, -2, "location");
     lua_pushstring(L, tlv_diagnostic_severity_string(diagnostic->severity));
     lua_setfield(L, -2, "severity");
     if (diagnostic->expected) {
@@ -172,15 +185,15 @@ void opentlv_lua_push_diagnostic(lua_State* L, const tlv_diagnostic_t* diagnosti
         lua_pushstring(L, diagnostic->actual);
         lua_setfield(L, -2, "actual");
     }
-    if (diagnostic->path) {
+    if (diagnostic->has_path) {
         lua_newtable(L);
-        for (size_t i = 0; i < diagnostic->path->length; ++i) {
-            tlv_tag_t tag = diagnostic->path->tags[i];
+        for (size_t i = 0; i < diagnostic->path.length; ++i) {
+            tlv_tag_t tag = diagnostic->path.tags[i];
             lua_pushlstring(L, tag.data ? (const char*)tag.data : "", tag.size);
             lua_rawseti(L, -2, (int)i + 1);
         }
         lua_setfield(L, -2, "path");
-        lua_pushinteger(L, (lua_Integer)diagnostic->path->omitted);
+        lua_pushinteger(L, (lua_Integer)diagnostic->path.omitted);
         lua_setfield(L, -2, "path_omitted");
     }
     if (diagnostic->contexts) {

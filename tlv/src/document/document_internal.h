@@ -3,6 +3,7 @@
 #ifndef OPENTLV_DOCUMENT_INTERNAL_H
 #define OPENTLV_DOCUMENT_INTERNAL_H
 #include "tlv/document/document.h"
+#include "tlv/reader/diagnostic.h"
 /* Optional source location, then tag bytes, follow in the same allocation. */
 struct tlv_node {
     uint64_t identity;
@@ -36,13 +37,14 @@ void* document_memory_allocate(const tlv_document_t* document, size_t size);
 void document_memory_release(const tlv_document_t* document, void* memory);
 tlv_tag_t document_node_tag(const tlv_node_t* node);
 tlv_document_source_location_t* document_node_location(tlv_node_t* node);
-void document_set_offset(size_t* out, size_t offset);
+void document_set_offset(tlv_reader_diagnostic_t* out, size_t offset);
 tlv_result_t document_create_node(tlv_document_t* document, tlv_node_t* parent, tlv_tag_t tag,
                                   const uint8_t* value, size_t length, int constructed,
-                                  size_t depth, size_t element_offset, size_t* error_offset,
-                                  tlv_node_t** created);
+                                  size_t depth, size_t element_offset,
+                                  tlv_reader_diagnostic_t* diagnostic, tlv_node_t** created);
 tlv_result_t document_parse_list(tlv_document_t* document, tlv_node_t* parent, const uint8_t* data,
-                                 size_t size, size_t depth, size_t base, size_t* error_offset);
+                                 size_t size, size_t depth, size_t base,
+                                 tlv_reader_diagnostic_t* diagnostic);
 
 /* Metadata bridge for optional consumers; topology remains public node navigation. */
 const tlv_format_t* document_format(const tlv_document_t* document);

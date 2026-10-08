@@ -74,9 +74,10 @@ tlv_result_t tlv_schema_query_validate_document(const tlv_document_t* document,
                     diagnostic->schema.field = rules[i].name;
                     diagnostic->schema.diagnostic.code = TLV_ERR_SCHEMA;
                     diagnostic->schema.diagnostic.expected = "contextual Query assertion true";
+                    diagnostic->schema.diagnostic.has_path = 1;
                     /* Count the complete ancestry, then fill the retained root
                      * prefix in reverse as parent links walk inward to outward. */
-                    tlv_diagnostic_path_t* path = &diagnostic->schema.path;
+                    tlv_diagnostic_path_t* path = &diagnostic->schema.diagnostic.path;
                     size_t parents = 0;
                     for (tlv_node_t* p = tlv_node_parent(w->contexts[j].node); p;
                          p = tlv_node_parent(p))
@@ -128,8 +129,8 @@ static tlv_result_t schema_query_requirements(const tlv_schema_query_rule_t* rul
                 memset(diagnostic, 0, sizeof *diagnostic);
                 diagnostic->rule = i;
             }
-            return query_error(diagnostic ? &diagnostic->query : NULL, TLV_ERR_INVALID_VALUE, kind,
-                               0, 0, expected);
+            return query_error_unlocated(diagnostic ? &diagnostic->query : NULL,
+                                         TLV_ERR_INVALID_VALUE, kind, expected);
         }
         size_t bytes, align;
         tlv_result_t rc = tlv_query_eval_size(rules[i].context, depth, nodes, &bytes, &align);
@@ -291,11 +292,13 @@ tlv_result_t tlv_schema_query_validate_buffer(const uint8_t* data, size_t size,
                     diagnostic->schema.field = rules[i].name;
                     diagnostic->schema.diagnostic.code = TLV_ERR_SCHEMA;
                     diagnostic->schema.diagnostic.expected = "contextual Query assertion true";
+                    diagnostic->schema.diagnostic.has_path = 1;
                     if (w->contexts[j].event.source.data)
-                        tlv_diagnostic_set_offset(&diagnostic->schema.diagnostic,
-                                                  w->contexts[j].event.offset);
+                        tlv_diagnostic_set_location(
+                            &diagnostic->schema.diagnostic, TLV_LOCATION_INPUT, TLV_LOCATION_POINT,
+                            w->contexts[j].event.offset, w->contexts[j].event.offset);
                     context_path(data, size, format, depth, nodes, w, w->contexts[j].ordinal,
-                                 &diagnostic->schema.path);
+                                 &diagnostic->schema.diagnostic.path);
                 }
                 /* diagnostic-return: schema.diagnostic.code is set for the failed assertion above.
                  */

@@ -67,7 +67,7 @@ TEST(Unit_Tlvpp, CanonicalWriterMeasuresPreservesAndCopiesIntoCallerStorage) {
     EXPECT_FALSE(writer.write(decoded.element, &diagnostic).has_value());
     EXPECT_EQ(9u, writer.size());
     EXPECT_EQ(3u, diagnostic.required);
-    EXPECT_EQ(9u, diagnostic.diagnostic.offset);
+    EXPECT_EQ(9u, diagnostic.diagnostic.location.begin);
 }
 
 #if OPENTLV_LLDP

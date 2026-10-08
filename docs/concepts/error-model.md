@@ -6,7 +6,7 @@ for authors of C capabilities and language facades. Read the
 [current error reference](../reference/errors.md) first.
 
 **Status: design decided; lifecycle implemented by #552, Schema classification
-by #553, and capability/resource/callback results by #554. Remaining API and binding
+by #553, capability/resource/callback results by #554, and common locations by #555. Remaining API and binding
 migration is separate work.** This page defines the target contract.
 `TLV_ERR_INVALID_STATE`, `TLV_ERR_INVALID_SCHEMA`, `TLV_ERR_UNSUPPORTED` and
 `TLV_ERR_CALLBACK` are public, together with Query kinds `STATE`, `CALLBACK`,

@@ -27,8 +27,10 @@ struct query_access;
 class query_error : public std::runtime_error {
 public:
     /** @brief Retain compilation error code and offending text position. */
-    query_error(tlv_result_t code, size_t offset)
-        : std::runtime_error(tlv_strerror(code)), code_(code), offset_(offset) {}
+    query_error(tlv_result_t code, tlv_diagnostic_t diagnostic)
+        : std::runtime_error(tlv_strerror(code)), code_(code), diagnostic_(diagnostic) {
+        diagnostic_.code = code;
+    }
     /** @brief Original C compilation result. */
     tlv_result_t code() const noexcept {
         return code_;
@@ -39,16 +41,20 @@ public:
     }
     /** @brief Copy the common structured failure without allocating. */
     tlv::error failure() const noexcept {
-        return tlv::error(status(), operation::query).at(offset_, operation::query);
+        return detail::error_access::diagnostic(diagnostic_, operation::query);
     }
     /** @brief Zero-based offending character or tag position. */
     size_t offset() const noexcept {
-        return offset_;
+        return diagnostic_.location.begin;
+    }
+    /** @brief Primary expression evidence, or unknown when no text position is available. */
+    tlv_location_t location() const noexcept {
+        return diagnostic_.location;
     }
 
 private:
-    tlv_result_t code_;
-    size_t       offset_;
+    tlv_result_t     code_;
+    tlv_diagnostic_t diagnostic_;
 };
 /**
  * @brief A parsed path query such as `6F/A5/50`.
@@ -64,9 +70,9 @@ public:
      * @return Self-contained compiled Query.
      */
     static query compile(const char* text) {
-        size_t offset = 0;
-        auto   result = parse(text, &offset);
-        if (!result) throw query_error(result.error().code, offset);
+        tlv_diagnostic_t diagnostic{};
+        auto             result = parse(text, &diagnostic);
+        if (!result) throw query_error(result.error().code, diagnostic);
         return *result;
     }
 
@@ -83,16 +89,22 @@ public:
      * Wraps tlv_query_parse().
      *
      * @param text         NUL-terminated query text.
-     * @param error_offset Optional. On failure receives the index in `text` of
+     * @param diagnostic Optional. On failure receives the index in `text` of
      *                     the offending character; see tlv_query_parse().
      *
      * @return The query, or the error of tlv_query_parse().
      */
-    TLV_NODISCARD static expected<query, error> parse(const char* text,
-                                                      size_t*     error_offset = nullptr) {
+    TLV_NODISCARD static expected<query, error> parse(const char*       text,
+                                                      tlv_diagnostic_t* diagnostic = nullptr) {
+        tlv_diagnostic_t local{};
+        if (!diagnostic) diagnostic = &local;
         query        result;
-        tlv_result_t rc = tlv_query_parse(text, &result.query_, error_offset);
-        if (rc != TLV_OK) return unexpected<error>(error::from_c(rc));
+        tlv_result_t rc = tlv_query_parse(text, &result.query_, diagnostic);
+        if (rc != TLV_OK) {
+            diagnostic->code = rc;
+            return unexpected<error>(
+                detail::error_access::diagnostic(*diagnostic, operation::query));
+        }
         return result;
     }
 
@@ -155,7 +167,7 @@ public:
      * @param max_elements  Bound on all traversed elements.
      * @param visitor       Visitor callable; returning #TLV_VISIT_STOP succeeds
      *                      immediately, #TLV_VISIT_ERROR fails.
-     * @param error_offset  Optional. On failure receives the failing element's
+     * @param diagnostic  Optional. On failure receives the failing element's
      *                      absolute offset; unchanged on success.
      *
      * @return Success, also when nothing matched, or the error of tlv_query_visit_buffer().
@@ -165,13 +177,19 @@ public:
     template <typename Visitor>
     TLV_NODISCARD expected<void, error>
     visit_buffer(bytes data, tlv::format format, size_t max_depth, size_t max_elements,
-                 Visitor&& visitor, size_t* error_offset = nullptr) const {
+                 Visitor&& visitor, tlv_reader_diagnostic_t* diagnostic = nullptr) const {
+        tlv_reader_diagnostic_t local{};
+        if (!diagnostic) diagnostic = &local;
         detail::tree_visitor<Visitor> state{&visitor};
         tlv_result_t                  rc = tlv_query_visit_buffer(
             reinterpret_cast<const uint8_t*>(data.data()), data.size(),
             &detail::format_access::get(format), &query_, max_depth, max_elements,
-            &detail::tree_visitor<Visitor>::call, &state, error_offset);
-        if (rc != TLV_OK) return unexpected<error>(error::from_c(rc));
+            &detail::tree_visitor<Visitor>::call, &state, diagnostic);
+        if (rc != TLV_OK) {
+            diagnostic->diagnostic.code = rc;
+            return unexpected<error>(
+                detail::error_access::diagnostic(diagnostic->diagnostic, operation::query));
+        }
         return {};
     }
 
@@ -368,22 +386,28 @@ public:
      * @brief Visit matching items from a C++ Tree Reader, preserving match state.
      * @param reader Cursor at the start of a tree or a previous matching continuation.
      * @param visitor Callable taking Element, depth and offset, returning tlv_visit_result_t.
-     * @param[out] error_offset Optional failure offset; unchanged on success.
+     * @param[out] diagnostic Optional failure offset; unchanged on success.
      * @return Success on EOF or STOP; NEED_MORE_DATA or original C error otherwise.
      * @warning Do not interleave unmatched pulls or mutate the cursor in callbacks.
      * Callback effects are not rolled back; retained Elements borrow input or Format.
      */
     template <typename Visitor>
     TLV_NODISCARD expected<void, error> visit(tree_reader& reader, Visitor&& visitor,
-                                              size_t* error_offset = nullptr) {
+                                              tlv_reader_diagnostic_t* diagnostic = nullptr) {
         reader.has_current_ = false;
         if (init_result_ != TLV_OK) return unexpected<error>(error::from_c(init_result_));
         if (reader.init_result_ != TLV_OK)
             return unexpected<error>(error::from_c(reader.init_result_));
+        tlv_reader_diagnostic_t local{};
+        if (!diagnostic) diagnostic = &local;
         detail::tree_visitor<Visitor> context{&visitor};
         auto rc = tlv_query_visit(&reader.impl_, &impl_, &detail::tree_visitor<Visitor>::call,
-                                  &context, error_offset);
-        if (rc != TLV_OK) return unexpected<error>(error::from_c(rc));
+                                  &context, diagnostic);
+        if (rc != TLV_OK) {
+            diagnostic->diagnostic.code = rc;
+            return unexpected<error>(
+                detail::error_access::diagnostic(diagnostic->diagnostic, operation::query));
+        }
         return {};
     }
 

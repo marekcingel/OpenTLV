@@ -15,7 +15,7 @@ TEST(Integration_Tlv_DhcpContainer, SignificantPrefixPreservesPadAndEnd) {
                                                   &diagnostic));
     EXPECT_EQ(6u, significant);
     EXPECT_EQ(TLV_OK, diagnostic.diagnostic.code);
-    EXPECT_FALSE(diagnostic.diagnostic.has_offset);
+    EXPECT_FALSE(diagnostic.diagnostic.location.kind);
     tlv_reader_t reader;
     ASSERT_EQ(TLV_OK, tlv_reader_init(&reader, wire, significant, &tlv_format_dhcpv4));
     for (uint8_t code : {0, 53, 0, 255}) {
@@ -41,20 +41,20 @@ TEST(Integration_Tlv_DhcpContainer, TailPoliciesStopAtFirstEnd) {
     EXPECT_EQ(TLV_ERR_SCHEMA, TLV_DIAGNOSTIC_RESULT(diagnostic, tlv_dhcpv4_options_validate(
                                                                     wire, sizeof(wire), nullptr, 2,
                                                                     &significant, &diagnostic)));
-    EXPECT_EQ(3u, diagnostic.diagnostic.offset);
+    EXPECT_EQ(3u, diagnostic.diagnostic.location.begin);
     EXPECT_EQ(999u, significant);
     tlv_dhcpv4_options_rules_t rules{1, TLV_DHCPV4_OPTIONS_TAIL_EMPTY};
     EXPECT_EQ(TLV_ERR_SCHEMA, TLV_DIAGNOSTIC_RESULT(diagnostic, tlv_dhcpv4_options_validate(
                                                                     wire, sizeof(wire), &rules, 2,
                                                                     &significant, &diagnostic)));
-    EXPECT_EQ(2u, diagnostic.diagnostic.offset);
+    EXPECT_EQ(2u, diagnostic.diagnostic.location.begin);
     EXPECT_EQ(TLV_OK, tlv_dhcpv4_options_validate(wire, 2, &rules, 2, &significant, nullptr));
     rules.tail = TLV_DHCPV4_OPTIONS_TAIL_IGNORE;
     EXPECT_EQ(TLV_OK, tlv_dhcpv4_options_validate(wire, sizeof(wire), &rules, 2, &significant,
                                                   &diagnostic));
     EXPECT_EQ(2u, significant);
     EXPECT_EQ(TLV_OK, diagnostic.diagnostic.code);
-    EXPECT_FALSE(diagnostic.diagnostic.has_offset);
+    EXPECT_FALSE(diagnostic.diagnostic.location.kind);
 }
 
 TEST(Integration_Tlv_DhcpContainer, MissingAndOptionalEndIncludingEmptyAndAllPad) {
@@ -65,15 +65,15 @@ TEST(Integration_Tlv_DhcpContainer, MissingAndOptionalEndIncludingEmptyAndAllPad
               TLV_DIAGNOSTIC_RESULT(
                   diagnostic, tlv_dhcpv4_options_validate(wire, sizeof(wire), nullptr, SIZE_MAX,
                                                           &significant, &diagnostic)));
-    EXPECT_EQ(sizeof(wire), diagnostic.diagnostic.offset);
+    EXPECT_EQ(sizeof(wire), diagnostic.diagnostic.location.begin);
     EXPECT_EQ(TLV_SCHEMA_ISSUE_MISSING, diagnostic.kind);
-    EXPECT_EQ(TLV_SCHEMA_ANCHOR_SCOPE_END, diagnostic.anchor);
-    EXPECT_TRUE(diagnostic.diagnostic.has_offset);
+    EXPECT_EQ(TLV_LOCATION_SCOPE_END, diagnostic.diagnostic.location.kind);
+    EXPECT_TRUE(diagnostic.diagnostic.location.kind);
     EXPECT_EQ(999u, significant);
     EXPECT_EQ(TLV_ERR_SCHEMA, TLV_DIAGNOSTIC_RESULT(diagnostic, tlv_dhcpv4_options_validate(
                                                                     nullptr, 0, nullptr, 0,
                                                                     &significant, &diagnostic)));
-    EXPECT_EQ(0u, diagnostic.diagnostic.offset);
+    EXPECT_EQ(0u, diagnostic.diagnostic.location.begin);
     const tlv_dhcpv4_options_rules_t rules{0, TLV_DHCPV4_OPTIONS_TAIL_PAD};
     EXPECT_EQ(TLV_OK,
               tlv_dhcpv4_options_validate(wire, sizeof(wire), &rules, 2, &significant, nullptr));
@@ -92,7 +92,7 @@ TEST(Integration_Tlv_DhcpContainer, LimitsIncludePadAndEndButExcludeTail) {
                   TLV_DIAGNOSTIC_RESULT(
                       diagnostic, tlv_dhcpv4_options_validate(wire, sizeof(wire), nullptr, limit,
                                                               &significant, &diagnostic)));
-        EXPECT_EQ(offsets[limit], diagnostic.diagnostic.offset);
+        EXPECT_EQ(offsets[limit], diagnostic.diagnostic.location.begin);
         EXPECT_EQ(999u, significant);
     }
     EXPECT_EQ(TLV_OK,
@@ -117,8 +117,8 @@ TEST(Integration_Tlv_DhcpContainer, TruncationPreservesReaderFieldOffsets) {
                   TLV_DIAGNOSTIC_RESULT(diagnostic,
                                         tlv_dhcpv4_options_validate(wire, size, nullptr, SIZE_MAX,
                                                                     &significant, &diagnostic)));
-        EXPECT_TRUE(diagnostic.diagnostic.has_offset);
-        EXPECT_EQ(expected.diagnostic.offset, diagnostic.diagnostic.offset);
+        EXPECT_TRUE(diagnostic.diagnostic.location.kind);
+        EXPECT_EQ(expected.diagnostic.location.begin, diagnostic.diagnostic.location.begin);
         EXPECT_EQ(TLV_ERR_BUFFER_TOO_SHORT, diagnostic.diagnostic.code);
         EXPECT_EQ(999u, significant);
         EXPECT_EQ(
@@ -133,7 +133,7 @@ TEST(Integration_Tlv_DhcpContainer, InvalidArgumentsPreserveOutput) {
     EXPECT_EQ(TLV_ERR_NULL_ARG, TLV_DIAGNOSTIC_RESULT(diagnostic, tlv_dhcpv4_options_validate(
                                                                       nullptr, 1, nullptr, SIZE_MAX,
                                                                       &significant, &diagnostic)));
-    EXPECT_EQ(0u, diagnostic.diagnostic.offset);
+    EXPECT_EQ(0u, diagnostic.diagnostic.location.begin);
     EXPECT_EQ(TLV_ERR_NULL_ARG,
               tlv_dhcpv4_options_validate(nullptr, 0, nullptr, SIZE_MAX, nullptr, nullptr));
     const tlv_dhcpv4_options_rules_t rules{1, static_cast<tlv_dhcpv4_options_tail_t>(99)};
@@ -141,6 +141,6 @@ TEST(Integration_Tlv_DhcpContainer, InvalidArgumentsPreserveOutput) {
         TLV_ERR_INVALID_ARG,
         TLV_DIAGNOSTIC_RESULT(diagnostic, tlv_dhcpv4_options_validate(nullptr, 0, &rules, SIZE_MAX,
                                                                       &significant, &diagnostic)));
-    EXPECT_EQ(0u, diagnostic.diagnostic.offset);
+    EXPECT_EQ(0u, diagnostic.diagnostic.location.begin);
     EXPECT_EQ(999u, significant);
 }

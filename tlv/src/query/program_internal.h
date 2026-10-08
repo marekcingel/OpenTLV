@@ -368,6 +368,9 @@ static inline tlv_result_t query_error(tlv_query_diagnostic_t* d, tlv_result_t c
                                        tlv_query_error_kind_t kind, size_t begin, size_t end,
                                        const char* expected) {
     if (d) {
+        tlv_diagnostic_init(&d->diagnostic, code, TLV_DIAGNOSTIC_SEVERITY_ERROR);
+        tlv_diagnostic_set_location(&d->diagnostic, TLV_LOCATION_EXPRESSION, TLV_LOCATION_SPAN,
+                                    begin, end);
         d->kind = code == TLV_ERR_INVALID_STATE ? TLV_QUERY_ERROR_STATE
                   : code == TLV_ERR_CALLBACK    ? TLV_QUERY_ERROR_CALLBACK
                                                 : kind;
@@ -376,6 +379,14 @@ static inline tlv_result_t query_error(tlv_query_diagnostic_t* d, tlv_result_t c
         d->expected = expected;
     }
     return code;
+}
+/* Admission/lifecycle failures have no expression evidence, even at byte zero. */
+static inline tlv_result_t query_error_unlocated(tlv_query_diagnostic_t* d, tlv_result_t code,
+                                                 tlv_query_error_kind_t kind,
+                                                 const char* expected) {
+    tlv_result_t rc = query_error(d, code, kind, 0, 0, expected);
+    if (d) memset(&d->diagnostic.location, 0, sizeof d->diagnostic.location);
+    return rc;
 }
 static inline tlv_result_t query_limit(tlv_query_diagnostic_t* d, const char* name,
                                        size_t configured, size_t begin, size_t end) {
@@ -390,8 +401,12 @@ static inline tlv_result_t query_limit(tlv_query_diagnostic_t* d, const char* na
 static inline tlv_result_t query_failure(tlv_query_diagnostic_t* d, tlv_result_t rc,
                                          tlv_query_error_kind_t kind, const char* expected) {
     if (rc != TLV_OK && d && d->kind == TLV_QUERY_ERROR_NONE)
-        query_error(d, rc, kind, 0, 0, expected);
+        query_error_unlocated(d, rc, kind, expected);
     if (rc == TLV_ERR_INVALID_STATE && d) d->kind = TLV_QUERY_ERROR_STATE;
+    if (d && rc != TLV_OK) {
+        if (d->reader.diagnostic.code == rc) d->diagnostic = d->reader.diagnostic;
+        d->diagnostic.code = rc;
+    }
     return rc;
 }
 #endif

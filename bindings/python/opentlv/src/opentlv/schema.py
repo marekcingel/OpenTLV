@@ -4,6 +4,7 @@
 """Length schemas and structural schemas for validating TLV data."""
 
 from __future__ import annotations
+from opentlv.location import Location
 
 import enum
 import struct
@@ -193,7 +194,9 @@ class SchemaDiagnostic:
     length_multiple: int
     length_flags: int
     path_omitted: int = 0
-    anchor: int = 0
+    location: Location = Location()
+    definition_kind: int = 0
+    definition_index: int = 0
 
 
 @dataclass(frozen=True)
@@ -293,9 +296,9 @@ class StructureSchema:
                 SchemaBounds(*occurs) if occurs is not None else None,
                 SchemaBounds(*length) if length is not None else None,
                 (Kind(form[0]), bool(form[1])) if form is not None else None,
-                multiple, flags, path_omitted, anchor)
+                multiple, flags, path_omitted, Location(**location), definition_kind, definition_index)
             for code, severity, kind, name, tag, path, offset, field, group,
-                occurs, length, form, multiple, flags, path_omitted, anchor in items))
+                occurs, length, form, multiple, flags, path_omitted, location, definition_kind, definition_index in items))
 
     def __len__(self) -> int:
         return len(self.rules)

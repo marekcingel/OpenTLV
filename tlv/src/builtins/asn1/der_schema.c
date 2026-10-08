@@ -12,32 +12,32 @@
 const tlv_der_schema_limits_t tlv_der_schema_default_limits = {
     {32, (size_t)16 * 1024 * 1024, (size_t)16 * 1024 * 1024, 100000}, 10000};
 
-static tlv_result_t fail(tlv_result_t rc, size_t offset, size_t* error_offset) {
-    if (error_offset) *error_offset = offset;
+static tlv_result_t fail(tlv_result_t rc, size_t offset, tlv_diagnostic_t* location) {
+    if (location) {
+        location->code = rc;
+        tlv_location_kind_t kind = location->location.kind;
+        if (kind != TLV_LOCATION_SCOPE_END && kind != TLV_LOCATION_INSERTION)
+            kind = TLV_LOCATION_POINT;
+        tlv_diagnostic_set_location(location, TLV_LOCATION_INPUT, kind, offset, offset);
+    }
     return rc;
 }
 
-static tlv_result_t missing(size_t offset, size_t* error_offset,
-                            tlv_schema_diagnostic_t* diagnostic, tlv_schema_anchor_t anchor) {
+static tlv_result_t missing(size_t offset, tlv_diagnostic_t* location,
+                            tlv_schema_diagnostic_t* diagnostic, tlv_location_kind_t anchor) {
     if (diagnostic) {
         diagnostic->kind = TLV_SCHEMA_ISSUE_MISSING;
-        diagnostic->anchor = anchor;
+        diagnostic->diagnostic.location.kind = anchor;
     }
-    return fail(TLV_ERR_SCHEMA, offset, error_offset);
+    return fail(TLV_ERR_SCHEMA, offset, location);
 }
 
-static tlv_result_t publish(tlv_result_t rc, size_t offset, int located,
+static tlv_result_t publish(tlv_result_t rc, tlv_location_domain_t domain,
                             tlv_schema_diagnostic_t* diagnostic) {
     if (diagnostic) {
         diagnostic->diagnostic.code = rc;
-        if (rc != TLV_OK) {
-            diagnostic->diagnostic.severity = TLV_DIAGNOSTIC_SEVERITY_ERROR;
-            if (located) {
-                tlv_diagnostic_set_offset(&diagnostic->diagnostic, offset);
-                if (diagnostic->anchor == TLV_SCHEMA_ANCHOR_UNKNOWN)
-                    diagnostic->anchor = TLV_SCHEMA_ANCHOR_ELEMENT;
-            } else
-                diagnostic->anchor = TLV_SCHEMA_ANCHOR_UNKNOWN;
+        if (rc != TLV_OK && diagnostic->diagnostic.location.kind != TLV_LOCATION_UNKNOWN) {
+            diagnostic->diagnostic.location.domain = domain;
         }
     }
     return rc;
@@ -203,7 +203,10 @@ static tlv_result_t check_component(const tlv_der_schema_component_t* component,
 /* Check local descriptors only. Graph identity and transparent CHOICE paths
  * are handled separately so sharing and productive recursion need no recursion
  * over the complete definition graph. */
-static tlv_result_t check_type(const tlv_der_schema_type_t* type) {
+static tlv_result_t check_type(const tlv_der_schema_type_t* type,
+                               tlv_schema_definition_location_t* location) {
+    if (location)
+        *location = (tlv_schema_definition_location_t){TLV_SCHEMA_DEFINITION_TYPE, type, 0};
     size_t count = 0;
     const tlv_der_schema_component_t* components = NULL;
     tlv_result_t rc;
@@ -240,6 +243,9 @@ static tlv_result_t check_type(const tlv_der_schema_type_t* type) {
     }
     for (size_t i = 0; i < count; ++i) {
         const tlv_der_schema_component_t* c = &components[i];
+        if (location)
+            *location =
+                (tlv_schema_definition_location_t){TLV_SCHEMA_DEFINITION_COMPONENT, type, i};
         rc = check_component(c, type->kind == TLV_DER_SCHEMA_CHOICE);
         if (rc != TLV_OK) return rc;
         if ((type->kind == TLV_DER_SCHEMA_SET || type->kind == TLV_DER_SCHEMA_CHOICE) &&
@@ -266,7 +272,11 @@ static size_t type_index(const schema_graph_t* graph, const tlv_der_schema_type_
 /* Only an untagged CHOICE-to-CHOICE edge remains at the same wire position.
  * Containers and explicit wrappers consume an identifier before descending.
  * Memoized heights also check longer paths to a previously completed node. */
-static tlv_result_t check_choice_path(schema_graph_t* graph, size_t node, size_t depth) {
+static tlv_result_t check_choice_path(schema_graph_t* graph, size_t node, size_t depth,
+                                      tlv_schema_definition_location_t* location) {
+    if (location)
+        *location =
+            (tlv_schema_definition_location_t){TLV_SCHEMA_DEFINITION_TYPE, graph->types[node], 0};
     const tlv_der_schema_type_t* type = graph->types[node];
     size_t height = 1;
     if (graph->state[node] == 1) return TLV_ERR_INVALID_SCHEMA;
@@ -277,7 +287,7 @@ static tlv_result_t check_choice_path(schema_graph_t* graph, size_t node, size_t
         const tlv_der_schema_component_t* c = &type->components[i];
         if (c->tagging == TLV_DER_TAG_NONE && c->type->kind == TLV_DER_SCHEMA_CHOICE) {
             size_t child = type_index(graph, c->type);
-            tlv_result_t rc = check_choice_path(graph, child, depth + 1);
+            tlv_result_t rc = check_choice_path(graph, child, depth + 1, location);
             if (rc != TLV_OK) return rc;
             if (height < 1 + graph->choice_height[child]) height = 1 + graph->choice_height[child];
         }
@@ -288,7 +298,8 @@ static tlv_result_t check_choice_path(schema_graph_t* graph, size_t node, size_t
     return TLV_OK;
 }
 
-static tlv_result_t check_identifiers(const tlv_der_schema_type_t* type) {
+static tlv_result_t check_identifiers(const tlv_der_schema_type_t* type,
+                                      tlv_schema_definition_location_t* location) {
     size_t i, j;
     if (type->kind != TLV_DER_SCHEMA_SET && type->kind != TLV_DER_SCHEMA_CHOICE) return TLV_OK;
     /* Direct components must have pairwise-distinct effective identifiers
@@ -304,6 +315,9 @@ static tlv_result_t check_identifiers(const tlv_der_schema_type_t* type) {
      * distinctness when its type is checked separately. */
     for (i = 0; i < type->component_count; ++i) {
         const tlv_der_schema_component_t* ci = &type->components[i];
+        if (location)
+            *location =
+                (tlv_schema_definition_location_t){TLV_SCHEMA_DEFINITION_COMPONENT, type, i};
         owned_tag_t probe;
         tlv_tag_t probe_view;
         if (ci->tagging != TLV_DER_TAG_NONE) {
@@ -325,7 +339,8 @@ static tlv_result_t check_identifiers(const tlv_der_schema_type_t* type) {
     return TLV_OK;
 }
 
-static tlv_result_t check_graph(const tlv_der_schema_type_t* root) {
+static tlv_result_t check_graph(const tlv_der_schema_type_t* root,
+                                tlv_schema_definition_location_t* location) {
     schema_graph_t graph;
     tlv_result_t rc;
     graph.count = 1;
@@ -335,7 +350,7 @@ static tlv_result_t check_graph(const tlv_der_schema_type_t* root) {
         const tlv_der_schema_type_t* type = graph.types[node];
         const tlv_der_schema_component_t* components = NULL;
         size_t count = 0;
-        rc = check_type(type);
+        rc = check_type(type, location);
         if (rc != TLV_OK) return rc;
         if (type->kind == TLV_DER_SCHEMA_SEQUENCE || type->kind == TLV_DER_SCHEMA_SET ||
             type->kind == TLV_DER_SCHEMA_CHOICE) {
@@ -356,11 +371,11 @@ static tlv_result_t check_graph(const tlv_der_schema_type_t* root) {
     /* Run before identifier resolution, which relies on finite CHOICE paths. */
     for (size_t node = 0; node < graph.count; ++node) {
         if (graph.types[node]->kind != TLV_DER_SCHEMA_CHOICE) continue;
-        rc = check_choice_path(&graph, node, 0);
+        rc = check_choice_path(&graph, node, 0, location);
         if (rc != TLV_OK) return rc;
     }
     for (size_t node = 0; node < graph.count; ++node) {
-        rc = check_identifiers(graph.types[node]);
+        rc = check_identifiers(graph.types[node], location);
         if (rc != TLV_OK) return rc;
     }
     return TLV_OK;
@@ -368,9 +383,11 @@ static tlv_result_t check_graph(const tlv_der_schema_type_t* root) {
 
 tlv_result_t tlv_der_schema_check(const tlv_der_schema_type_t* root,
                                   tlv_schema_diagnostic_t* diagnostic) {
-    tlv_result_t rc = root ? check_graph(root) : TLV_ERR_NULL_ARG;
+    if (diagnostic) tlv_schema_diagnostic_init(diagnostic);
+    tlv_result_t rc =
+        root ? check_graph(root, diagnostic ? &diagnostic->definition : NULL) : TLV_ERR_NULL_ARG;
     if (diagnostic) {
-        tlv_schema_diagnostic_init(diagnostic);
+        if (rc == TLV_OK) memset(&diagnostic->definition, 0, sizeof diagnostic->definition);
         diagnostic->diagnostic.code = rc;
         if (rc == TLV_ERR_INVALID_SCHEMA) diagnostic->kind = TLV_SCHEMA_ISSUE_DEFINITION;
     }
@@ -387,7 +404,7 @@ typedef struct der_schema_ctx {
     const uint8_t* data;
     const tlv_der_schema_limits_t* limits;
     size_t element_count;
-    size_t* error_offset;
+    tlv_diagnostic_t* location;
     tlv_schema_diagnostic_t* diagnostic;
 } der_schema_ctx_t;
 
@@ -407,9 +424,9 @@ static tlv_result_t read_one(der_schema_ctx_t* ctx, size_t offset, size_t size, 
                              tlv_element_t* element, size_t* used) {
     tlv_result_t rc;
     if (depth > ctx->limits->base.max_depth || ctx->element_count == ctx->limits->base.max_elements)
-        return fail(TLV_ERR_LIMIT, offset, ctx->error_offset);
+        return fail(TLV_ERR_LIMIT, offset, ctx->location);
     rc = tlv_der_read_element(ctx->data + offset, size, offset, &ctx->limits->base, element, used,
-                              ctx->error_offset);
+                              ctx->location);
     if (rc != TLV_OK) return rc;
     ++ctx->element_count;
     return TLV_OK;
@@ -432,7 +449,7 @@ static tlv_visit_result_t der_schema_count_visitor(const tlv_element_t* element,
 static tlv_result_t dispatch_any(der_schema_ctx_t* ctx, size_t value_offset, size_t value_length,
                                  int constructed, size_t depth) {
     tlv_der_limits_t sub_limits;
-    size_t sub_offset = 0, visited = 0;
+    size_t visited = 0;
     tlv_result_t rc;
     if (!constructed) return TLV_OK;
     sub_limits.max_depth =
@@ -443,9 +460,12 @@ static tlv_result_t dispatch_any(der_schema_ctx_t* ctx, size_t value_offset, siz
                                   ? ctx->limits->base.max_elements - ctx->element_count
                                   : 0;
     rc = tlv_der_visit(ctx->data + value_offset, value_length, &sub_limits,
-                       der_schema_count_visitor, &visited, &sub_offset);
+                       der_schema_count_visitor, &visited, ctx->location);
     ctx->element_count += visited;
-    if (rc != TLV_OK) return fail(rc, value_offset + sub_offset, ctx->error_offset);
+    if (rc != TLV_OK) {
+        if (ctx->location) tlv_location_translate(&ctx->location->location, value_offset);
+        return rc;
+    }
     return TLV_OK;
 }
 
@@ -456,7 +476,7 @@ static tlv_result_t handle_matched_element(der_schema_ctx_t* ctx, tlv_element_t 
     size_t value_length, value_offset;
     tlv_result_t rc;
     rc = tlv_size_to_native(element.value.size, &value_length);
-    if (rc != TLV_OK) return fail(rc, elem_base, ctx->error_offset);
+    if (rc != TLV_OK) return fail(rc, elem_base, ctx->location);
     value_offset = elem_base + used - value_length;
 
     if (component->tagging == TLV_DER_TAG_EXPLICIT) {
@@ -465,7 +485,7 @@ static tlv_result_t handle_matched_element(der_schema_ctx_t* ctx, tlv_element_t 
         rc = read_one(ctx, value_offset, value_length, depth + 1, &inner, &inner_used);
         if (rc != TLV_OK) return rc;
         if (inner_used != value_length)
-            return fail(TLV_ERR_INVALID_VALUE, value_offset + inner_used, ctx->error_offset);
+            return fail(TLV_ERR_INVALID_VALUE, value_offset + inner_used, ctx->location);
         if (component->type->kind == TLV_DER_SCHEMA_ANY)
             return dispatch_any(ctx, value_offset, inner_used,
                                 tlv_asn1_tag_is_constructed(&inner.tag), depth + 1);
@@ -480,7 +500,7 @@ static tlv_result_t handle_matched_element(der_schema_ctx_t* ctx, tlv_element_t 
             synthetic.default_encoding = NULL;
             synthetic.default_encoding_length = 0;
             resolved = resolve_at(&synthetic, &inner.tag, 0);
-            if (!resolved) return fail(TLV_ERR_INVALID_TAG, value_offset, ctx->error_offset);
+            if (!resolved) return fail(TLV_ERR_INVALID_TAG, value_offset, ctx->location);
             return handle_matched_element(ctx, inner, inner_used, value_offset, resolved, depth + 1,
                                           stack, level);
         }
@@ -490,9 +510,9 @@ static tlv_result_t handle_matched_element(der_schema_ctx_t* ctx, tlv_element_t 
         case TLV_DER_SCHEMA_UNIVERSAL:
             rc = tlv_asn1_validate_universal_value(component->type->universal_number,
                                                    element.value.data, value_length);
-            if (rc != TLV_OK) return fail(rc, value_offset, ctx->error_offset);
+            if (rc != TLV_OK) return fail(rc, value_offset, ctx->location);
             rc = validate_leaf_constraint(component->type, element.value.data, value_length);
-            if (rc != TLV_OK) return fail(rc, value_offset, ctx->error_offset);
+            if (rc != TLV_OK) return fail(rc, value_offset, ctx->location);
             return TLV_OK;
         case TLV_DER_SCHEMA_ANY:
             return dispatch_any(ctx, value_offset, value_length,
@@ -502,7 +522,7 @@ static tlv_result_t handle_matched_element(der_schema_ctx_t* ctx, tlv_element_t 
         case TLV_DER_SCHEMA_SET_OF:
         case TLV_DER_SCHEMA_SEQUENCE_OF:
             if (depth == ctx->limits->base.max_depth)
-                return fail(TLV_ERR_LIMIT, value_offset, ctx->error_offset);
+                return fail(TLV_ERR_LIMIT, value_offset, ctx->location);
             ++*level;
             stack[*level].type = component->type;
             stack[*level].depth = depth;
@@ -514,7 +534,7 @@ static tlv_result_t handle_matched_element(der_schema_ctx_t* ctx, tlv_element_t 
             stack[*level].has_prev = 0;
             stack[*level].element_count = 0;
             return TLV_OK;
-        default: return fail(TLV_ERR_SCHEMA, elem_base, ctx->error_offset);
+        default: return fail(TLV_ERR_SCHEMA, elem_base, ctx->location);
     }
 }
 
@@ -531,15 +551,14 @@ static tlv_result_t process_sequence(der_schema_ctx_t* ctx, der_schema_frame_t* 
         const tlv_der_schema_component_t* resolved = resolve_at(comp, &element.tag, 0);
         if (resolved) {
             if (is_default_equal(ctx->data, elem_base, used, comp))
-                return fail(TLV_ERR_INVALID_VALUE, elem_base, ctx->error_offset);
+                return fail(TLV_ERR_INVALID_VALUE, elem_base, ctx->location);
             ++frame->next_component;
             frame->pos = elem_base + used;
             return handle_matched_element(ctx, element, used, elem_base, resolved, frame->depth + 1,
                                           stack, level);
         }
         if (comp->presence == TLV_DER_REQUIRED)
-            return missing(elem_base, ctx->error_offset, ctx->diagnostic,
-                           TLV_SCHEMA_ANCHOR_INSERTION);
+            return missing(elem_base, ctx->location, ctx->diagnostic, TLV_LOCATION_INSERTION);
         ++frame->next_component;
     }
     if (frame->type->extensible) {
@@ -549,7 +568,7 @@ static tlv_result_t process_sequence(der_schema_ctx_t* ctx, der_schema_frame_t* 
          * element (like an ANY component) without further interpretation. */
         size_t value_length, value_offset;
         rc = tlv_size_to_native(element.value.size, &value_length);
-        if (rc != TLV_OK) return fail(rc, elem_base, ctx->error_offset);
+        if (rc != TLV_OK) return fail(rc, elem_base, ctx->location);
         value_offset = elem_base + used - value_length;
         rc = dispatch_any(ctx, value_offset, value_length,
                           tlv_asn1_tag_is_constructed(&element.tag), frame->depth + 1);
@@ -557,7 +576,7 @@ static tlv_result_t process_sequence(der_schema_ctx_t* ctx, der_schema_frame_t* 
         frame->pos = elem_base + used;
         return TLV_OK;
     }
-    return fail(TLV_ERR_SCHEMA, elem_base, ctx->error_offset);
+    return fail(TLV_ERR_SCHEMA, elem_base, ctx->location);
 }
 
 static tlv_result_t process_set(der_schema_ctx_t* ctx, der_schema_frame_t* stack, int* level) {
@@ -578,9 +597,9 @@ static tlv_result_t process_set(der_schema_ctx_t* ctx, der_schema_frame_t* stack
             break;
         }
     }
-    if (!resolved) return fail(TLV_ERR_SCHEMA, elem_base, ctx->error_offset);
+    if (!resolved) return fail(TLV_ERR_SCHEMA, elem_base, ctx->location);
     if (frame->seen & ((uint64_t)1 << matched_index))
-        return fail(TLV_ERR_SCHEMA, elem_base, ctx->error_offset);
+        return fail(TLV_ERR_SCHEMA, elem_base, ctx->location);
     if (frame->has_prev) {
         tlv_asn1_class_t pc = tlv_asn1_tag_class(&frame->prev_tag),
                          cc = tlv_asn1_tag_class(&element.tag);
@@ -588,10 +607,10 @@ static tlv_result_t process_set(der_schema_ctx_t* ctx, der_schema_frame_t* stack
         int known = tlv_der_tag_number(&frame->prev_tag, &pn) == TLV_OK &&
                     tlv_der_tag_number(&element.tag, &cn) == TLV_OK;
         int ordered = known && (pc < cc || (pc == cc && pn < cn));
-        if (!ordered) return fail(TLV_ERR_INVALID_VALUE, elem_base, ctx->error_offset);
+        if (!ordered) return fail(TLV_ERR_INVALID_VALUE, elem_base, ctx->location);
     }
     if (is_default_equal(ctx->data, elem_base, used, &frame->type->components[matched_index]))
-        return fail(TLV_ERR_INVALID_VALUE, elem_base, ctx->error_offset);
+        return fail(TLV_ERR_INVALID_VALUE, elem_base, ctx->location);
     frame->seen |= (uint64_t)1 << matched_index;
     frame->prev_tag = element.tag;
     frame->has_prev = 1;
@@ -608,16 +627,16 @@ static tlv_result_t process_set_of(der_schema_ctx_t* ctx, der_schema_frame_t* st
     const tlv_der_schema_component_t* resolved;
 
     if (frame->element_count == frame->type->max_elements)
-        return fail(TLV_ERR_SCHEMA, elem_base, ctx->error_offset);
+        return fail(TLV_ERR_SCHEMA, elem_base, ctx->location);
     rc = read_one(ctx, frame->pos, frame->end - frame->pos, frame->depth + 1, &element, &used);
     if (rc != TLV_OK) return rc;
     resolved = resolve_at(frame->type->element, &element.tag, 0);
-    if (!resolved) return fail(TLV_ERR_SCHEMA, elem_base, ctx->error_offset);
+    if (!resolved) return fail(TLV_ERR_SCHEMA, elem_base, ctx->location);
     if (frame->has_prev) {
         size_t common = frame->prev_length < used ? frame->prev_length : used;
         int cmp = memcmp(ctx->data + frame->prev_offset, ctx->data + elem_base, common);
         int in_order = cmp < 0 || (cmp == 0 && frame->prev_length <= used);
-        if (!in_order) return fail(TLV_ERR_INVALID_VALUE, elem_base, ctx->error_offset);
+        if (!in_order) return fail(TLV_ERR_INVALID_VALUE, elem_base, ctx->location);
     }
     frame->prev_offset = elem_base;
     frame->prev_length = used;
@@ -639,11 +658,11 @@ static tlv_result_t process_sequence_of(der_schema_ctx_t* ctx, der_schema_frame_
     const tlv_der_schema_component_t* resolved;
 
     if (frame->element_count == frame->type->max_elements)
-        return fail(TLV_ERR_SCHEMA, elem_base, ctx->error_offset);
+        return fail(TLV_ERR_SCHEMA, elem_base, ctx->location);
     rc = read_one(ctx, frame->pos, frame->end - frame->pos, frame->depth + 1, &element, &used);
     if (rc != TLV_OK) return rc;
     resolved = resolve_at(frame->type->element, &element.tag, 0);
-    if (!resolved) return fail(TLV_ERR_SCHEMA, elem_base, ctx->error_offset);
+    if (!resolved) return fail(TLV_ERR_SCHEMA, elem_base, ctx->location);
     ++frame->element_count;
     frame->pos = elem_base + used;
     return handle_matched_element(ctx, element, used, elem_base, resolved, frame->depth + 1, stack,
@@ -652,7 +671,7 @@ static tlv_result_t process_sequence_of(der_schema_ctx_t* ctx, der_schema_frame_
 
 static tlv_result_t read_input(const uint8_t* data, size_t size, const tlv_der_schema_type_t* root,
                                const tlv_der_schema_limits_t* limits, tlv_element_t* element,
-                               size_t* consumed, size_t* error_offset,
+                               size_t* consumed, tlv_diagnostic_t* location,
                                tlv_schema_diagnostic_t* diagnostic) {
     der_schema_ctx_t ctx;
     der_schema_frame_t stack[TLV_DER_MAX_DEPTH + 1];
@@ -664,17 +683,15 @@ static tlv_result_t read_input(const uint8_t* data, size_t size, const tlv_der_s
     const tlv_der_schema_component_t* resolved;
 
     if (!limits) limits = &tlv_der_schema_default_limits;
-    if ((!data && size) || !root || !element || !consumed)
-        return fail(TLV_ERR_NULL_ARG, 0, error_offset);
-    if (limits->base.max_depth > TLV_DER_MAX_DEPTH)
-        return fail(TLV_ERR_UNSUPPORTED, 0, error_offset);
-    if (size > limits->base.max_input_size) return fail(TLV_ERR_LIMIT, 0, error_offset);
-    if (!size) return missing(0, error_offset, diagnostic, TLV_SCHEMA_ANCHOR_SCOPE_END);
+    if ((!data && size) || !root || !element || !consumed) return TLV_ERR_NULL_ARG;
+    if (limits->base.max_depth > TLV_DER_MAX_DEPTH) return TLV_ERR_UNSUPPORTED;
+    if (size > limits->base.max_input_size) return TLV_ERR_LIMIT;
+    if (!size) return missing(0, location, diagnostic, TLV_LOCATION_SCOPE_END);
 
     ctx.data = data;
     ctx.limits = limits;
     ctx.element_count = 0;
-    ctx.error_offset = error_offset;
+    ctx.location = location;
     ctx.diagnostic = diagnostic;
 
     rc = read_one(&ctx, 0, size, 0, &root_element, &root_used);
@@ -688,7 +705,7 @@ static tlv_result_t read_input(const uint8_t* data, size_t size, const tlv_der_s
     synthetic.default_encoding = NULL;
     synthetic.default_encoding_length = 0;
     resolved = resolve_at(&synthetic, &root_element.tag, 0);
-    if (!resolved) return fail(TLV_ERR_INVALID_TAG, 0, error_offset);
+    if (!resolved) return fail(TLV_ERR_INVALID_TAG, 0, location);
 
     rc = handle_matched_element(&ctx, root_element, root_used, 0, resolved, 0, stack, &level);
     if (rc != TLV_OK) return rc;
@@ -701,20 +718,17 @@ static tlv_result_t read_input(const uint8_t* data, size_t size, const tlv_der_s
                 size_t i;
                 for (i = frame->next_component; i < frame->type->component_count; ++i)
                     if (frame->type->components[i].presence == TLV_DER_REQUIRED)
-                        end_rc = missing(frame->end, error_offset, diagnostic,
-                                         TLV_SCHEMA_ANCHOR_SCOPE_END);
+                        end_rc = missing(frame->end, location, diagnostic, TLV_LOCATION_SCOPE_END);
             } else if (frame->type->kind == TLV_DER_SCHEMA_SET) {
                 size_t i;
                 for (i = 0; i < frame->type->component_count; ++i)
                     if (!(frame->seen & ((uint64_t)1 << i)) &&
                         frame->type->components[i].presence == TLV_DER_REQUIRED)
-                        end_rc = missing(frame->end, error_offset, diagnostic,
-                                         TLV_SCHEMA_ANCHOR_SCOPE_END);
+                        end_rc = missing(frame->end, location, diagnostic, TLV_LOCATION_SCOPE_END);
             } else if (frame->type->kind == TLV_DER_SCHEMA_SET_OF ||
                        frame->type->kind == TLV_DER_SCHEMA_SEQUENCE_OF) {
                 if (frame->element_count < frame->type->min_elements)
-                    end_rc =
-                        missing(frame->end, error_offset, diagnostic, TLV_SCHEMA_ANCHOR_SCOPE_END);
+                    end_rc = missing(frame->end, location, diagnostic, TLV_LOCATION_SCOPE_END);
             }
             if (end_rc != TLV_OK) return end_rc;
             --level;
@@ -725,7 +739,7 @@ static tlv_result_t read_input(const uint8_t* data, size_t size, const tlv_der_s
             case TLV_DER_SCHEMA_SET: rc = process_set(&ctx, stack, &level); break;
             case TLV_DER_SCHEMA_SET_OF: rc = process_set_of(&ctx, stack, &level); break;
             case TLV_DER_SCHEMA_SEQUENCE_OF: rc = process_sequence_of(&ctx, stack, &level); break;
-            default: rc = fail(TLV_ERR_SCHEMA, frame->pos, error_offset); break;
+            default: rc = fail(TLV_ERR_SCHEMA, frame->pos, location); break;
         }
         if (rc != TLV_OK) return rc;
     }
@@ -744,7 +758,7 @@ static tlv_result_t read_input(const uint8_t* data, size_t size, const tlv_der_s
  * wrap_and_store copies that content right after a freshly written tag and
  * length -- reusing tlv_der_write_strict itself for the header bytes and,
  * for free, a redundant but harmless re-validation that the result is
- * canonical DER. With an error_offset output, a schema/value failure is
+ * canonical DER. With an location output, a schema/value failure is
  * retained while composition finishes in scratch only. Its owning region and
  * relative offset follow concatenation, SET sorting and wrapping, so the final
  * location is output-relative rather than an arena address. No failed encoding
@@ -764,6 +778,7 @@ typedef struct der_schema_write_ctx {
     tlv_result_t failure;
     size_t failure_owner;
     size_t failure_offset;
+    int failure_location_known;
 } der_schema_write_ctx_t;
 
 /* Only data/schema failures with a known framing interpretation are deferred.
@@ -783,15 +798,16 @@ static tlv_result_t defer_failure(der_schema_write_ctx_t* wctx, tlv_result_t rc,
         wctx->failure = rc;
         wctx->failure_owner = owner;
         wctx->failure_offset = offset;
+        wctx->failure_location_known = 1;
     }
     return TLV_OK;
 }
 
 static tlv_result_t defer_missing(der_schema_write_ctx_t* wctx, size_t owner,
-                                  tlv_schema_anchor_t anchor) {
+                                  tlv_location_kind_t anchor) {
     if (wctx->diagnostic && wctx->failure == TLV_OK) {
         wctx->diagnostic->kind = TLV_SCHEMA_ISSUE_MISSING;
-        wctx->diagnostic->anchor = anchor;
+        wctx->diagnostic->diagnostic.location.kind = anchor;
     }
     return defer_failure(wctx, TLV_ERR_SCHEMA, owner, 0);
 }
@@ -799,7 +815,10 @@ static tlv_result_t defer_missing(der_schema_write_ctx_t* wctx, size_t owner,
 static void relocate_failure(der_schema_write_ctx_t* wctx, size_t from, size_t to, size_t prefix) {
     if (wctx->failure != TLV_OK && wctx->failure_owner == from) {
         wctx->failure_owner = to;
-        wctx->failure_offset += prefix;
+        if (prefix > SIZE_MAX - wctx->failure_offset)
+            wctx->failure_location_known = 0;
+        else
+            wctx->failure_offset += prefix;
     }
 }
 
@@ -812,7 +831,8 @@ static size_t arena_alloc(der_schema_write_ctx_t* wctx, size_t length) {
 
 static tlv_result_t wrap_and_store(der_schema_write_ctx_t* wctx, tlv_tag_t tag, size_t content_off,
                                    size_t content_len, size_t* out_off, size_t* out_len) {
-    size_t total, new_off, relative_error = 0;
+    size_t total, new_off;
+    tlv_diagnostic_t relative_error = {0};
     tlv_result_t deferred = TLV_OK;
     tlv_result_t rc;
     if (wctx->failure != TLV_OK) {
@@ -822,7 +842,8 @@ static tlv_result_t wrap_and_store(der_schema_write_ctx_t* wctx, tlv_tag_t tag, 
                                   &wctx->limits->base, &total, &relative_error);
         if (rc != TLV_OK && wctx->locate_failure && composition_failure(rc)) {
             deferred = rc;
-            (void)defer_failure(wctx, deferred, SIZE_MAX, relative_error);
+            (void)defer_failure(wctx, deferred, SIZE_MAX, relative_error.location.begin);
+            wctx->failure_location_known = relative_error.location.kind != TLV_LOCATION_UNKNOWN;
             rc = tlv_encoded_size(tag, content_len, &tlv_format_der, &total);
         }
     }
@@ -914,7 +935,7 @@ static tlv_result_t encode_children_concat(der_schema_write_ctx_t* wctx,
                     missing = 1;
                     missing_offset = total;
                 }
-                rc = defer_missing(wctx, SIZE_MAX, TLV_SCHEMA_ANCHOR_INSERTION);
+                rc = defer_missing(wctx, SIZE_MAX, TLV_LOCATION_INSERTION);
                 if (rc != TLV_OK) return rc;
             }
             continue;
@@ -960,7 +981,7 @@ static tlv_result_t encode_set_content(der_schema_write_ctx_t* wctx,
         if (component_absent) {
             if (type->components[i].presence == TLV_DER_REQUIRED) {
                 if (wctx->failure == TLV_OK) missing = 1;
-                rc = defer_missing(wctx, SIZE_MAX, TLV_SCHEMA_ANCHOR_SCOPE_END);
+                rc = defer_missing(wctx, SIZE_MAX, TLV_LOCATION_SCOPE_END);
                 if (rc != TLV_OK) return rc;
             }
             continue;
@@ -1043,7 +1064,7 @@ static tlv_result_t encode_set_of_content(der_schema_write_ctx_t* wctx,
     if (count < type->min_elements) {
         tlv_result_t rc;
         if (wctx->failure == TLV_OK) cardinality = 2;
-        rc = defer_missing(wctx, SIZE_MAX, TLV_SCHEMA_ANCHOR_SCOPE_END);
+        rc = defer_missing(wctx, SIZE_MAX, TLV_LOCATION_SCOPE_END);
         if (rc != TLV_OK) return rc;
     }
     for (i = 1; i < count; ++i) {
@@ -1109,7 +1130,7 @@ static tlv_result_t encode_sequence_of_content(der_schema_write_ctx_t* wctx,
     if (count < type->min_elements) {
         tlv_result_t rc;
         if (wctx->failure == TLV_OK) cardinality = 2;
-        rc = defer_missing(wctx, SIZE_MAX, TLV_SCHEMA_ANCHOR_SCOPE_END);
+        rc = defer_missing(wctx, SIZE_MAX, TLV_LOCATION_SCOPE_END);
         if (rc != TLV_OK) return rc;
     }
     for (i = 0; i < count; ++i) total += wctx->scratch[i].length;
@@ -1264,7 +1285,7 @@ static tlv_result_t encode_at(der_schema_write_ctx_t* wctx,
             if (inner_absent) {
                 content_off = wctx->arena_used;
                 content_len = 0;
-                rc = defer_missing(wctx, content_off, TLV_SCHEMA_ANCHOR_SCOPE_END);
+                rc = defer_missing(wctx, content_off, TLV_LOCATION_SCOPE_END);
                 if (rc != TLV_OK) return rc;
             }
         } else {
@@ -1301,8 +1322,9 @@ static tlv_result_t write_input(uint8_t* data, size_t capacity, const tlv_der_sc
                                 tlv_der_schema_encode_fn encode, const void* context,
                                 const tlv_der_schema_limits_t* limits, uint8_t* scratch_bytes,
                                 size_t scratch_bytes_capacity, tlv_der_schema_record_t* scratch,
-                                size_t scratch_capacity, size_t* written, size_t* error_offset,
-                                tlv_schema_diagnostic_t* diagnostic, int* located) {
+                                size_t scratch_capacity, size_t* written,
+                                tlv_diagnostic_t* location, tlv_schema_diagnostic_t* diagnostic,
+                                int* located) {
     der_schema_write_ctx_t wctx;
     tlv_der_schema_component_t synthetic;
     int absent = 0;
@@ -1312,9 +1334,8 @@ static tlv_result_t write_input(uint8_t* data, size_t capacity, const tlv_der_sc
     if (!limits) limits = &tlv_der_schema_default_limits;
     if ((!data && capacity) || !root || !encode || !written ||
         (!scratch_bytes && scratch_bytes_capacity) || (!scratch && scratch_capacity))
-        return fail(TLV_ERR_NULL_ARG, 0, error_offset);
-    if (limits->base.max_depth > TLV_DER_MAX_DEPTH)
-        return fail(TLV_ERR_UNSUPPORTED, 0, error_offset);
+        return TLV_ERR_NULL_ARG;
+    if (limits->base.max_depth > TLV_DER_MAX_DEPTH) return TLV_ERR_UNSUPPORTED;
 
     wctx.arena = scratch_bytes;
     wctx.arena_capacity = scratch_bytes_capacity;
@@ -1329,6 +1350,7 @@ static tlv_result_t write_input(uint8_t* data, size_t capacity, const tlv_der_sc
     wctx.failure = TLV_OK;
     wctx.failure_owner = SIZE_MAX;
     wctx.failure_offset = 0;
+    wctx.failure_location_known = 0;
 
     synthetic.type = root;
     synthetic.tagging = TLV_DER_TAG_NONE;
@@ -1342,18 +1364,18 @@ static tlv_result_t write_input(uint8_t* data, size_t capacity, const tlv_der_sc
     if (wctx.failure != TLV_OK) {
         /* A secondary callback/storage failure can prevent complete framing.
          * Preserve the original result, with no invented output location. */
-        *located = rc == TLV_OK && wctx.failure_owner == root_off;
+        *located = rc == TLV_OK && wctx.failure_owner == root_off && wctx.failure_location_known;
         size_t offset = *located ? wctx.failure_offset : 0;
-        return fail(wctx.failure, offset, error_offset);
+        return fail(wctx.failure, offset, location);
     }
-    if (rc != TLV_OK) return fail(rc, 0, error_offset);
+    if (rc != TLV_OK) return rc;
     if (absent) {
         *located = 1;
-        return missing(0, error_offset, diagnostic, TLV_SCHEMA_ANCHOR_INSERTION);
+        return missing(0, location, diagnostic, TLV_LOCATION_INSERTION);
     }
-    if (root_len > limits->base.max_input_size) return fail(TLV_ERR_LIMIT, 0, error_offset);
+    if (root_len > limits->base.max_input_size) return TLV_ERR_LIMIT;
     if (data) {
-        if (root_len > capacity) return fail(TLV_ERR_BUFFER_TOO_SHORT, 0, error_offset);
+        if (root_len > capacity) return TLV_ERR_BUFFER_TOO_SHORT;
         if (root_len) memcpy(data, wctx.arena + root_off, root_len);
     }
     *written = root_len;
@@ -1364,16 +1386,15 @@ tlv_result_t tlv_der_schema_read(const uint8_t* data, size_t size,
                                  const tlv_der_schema_type_t* root,
                                  const tlv_der_schema_limits_t* limits, tlv_element_t* element,
                                  size_t* consumed, tlv_schema_diagnostic_t* diagnostic) {
-    size_t offset = 0;
     tlv_result_t rc;
     if (diagnostic) tlv_schema_diagnostic_init(diagnostic);
     if ((!data && size) || !root || !element || !consumed)
-        return publish(TLV_ERR_NULL_ARG, 0, 0, diagnostic);
+        return publish(TLV_ERR_NULL_ARG, TLV_LOCATION_DOMAIN_UNKNOWN, diagnostic);
     rc = tlv_der_schema_check(root, diagnostic);
     if (rc != TLV_OK) return rc;
-    rc = read_input(data, size, root, limits, element, consumed, diagnostic ? &offset : NULL,
-                    diagnostic);
-    return publish(rc, offset, !limits || limits->base.max_depth <= TLV_DER_MAX_DEPTH, diagnostic);
+    rc = read_input(data, size, root, limits, element, consumed,
+                    diagnostic ? &diagnostic->diagnostic : NULL, diagnostic);
+    return publish(rc, TLV_LOCATION_INPUT, diagnostic);
 }
 
 tlv_result_t tlv_der_schema_write(uint8_t* data, size_t capacity, const tlv_der_schema_type_t* root,
@@ -1382,17 +1403,18 @@ tlv_result_t tlv_der_schema_write(uint8_t* data, size_t capacity, const tlv_der_
                                   size_t scratch_bytes_capacity, tlv_der_schema_record_t* scratch,
                                   size_t scratch_capacity, size_t* written,
                                   tlv_schema_diagnostic_t* diagnostic) {
-    size_t offset = 0;
     int located = 0;
     tlv_result_t rc;
     if (diagnostic) tlv_schema_diagnostic_init(diagnostic);
     if ((!data && capacity) || !root || !encode || !written ||
         (!scratch_bytes && scratch_bytes_capacity) || (!scratch && scratch_capacity))
-        return publish(TLV_ERR_NULL_ARG, 0, 0, diagnostic);
+        return publish(TLV_ERR_NULL_ARG, TLV_LOCATION_DOMAIN_UNKNOWN, diagnostic);
     rc = tlv_der_schema_check(root, diagnostic);
     if (rc != TLV_OK) return rc;
     rc = write_input(data, capacity, root, encode, context, limits, scratch_bytes,
-                     scratch_bytes_capacity, scratch, scratch_capacity, written, &offset,
-                     diagnostic, &located);
-    return publish(rc, offset, located, diagnostic);
+                     scratch_bytes_capacity, scratch, scratch_capacity, written,
+                     diagnostic ? &diagnostic->diagnostic : NULL, diagnostic, &located);
+    if (diagnostic && !located)
+        memset(&diagnostic->diagnostic.location, 0, sizeof diagnostic->diagnostic.location);
+    return publish(rc, TLV_LOCATION_OUTPUT, diagnostic);
 }

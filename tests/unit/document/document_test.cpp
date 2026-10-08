@@ -72,8 +72,11 @@ struct Doc {
 
 Doc parse(const Bytes& data, const tlv_document_options_t& opts = options(),
           size_t* offset = nullptr) {
-    Doc doc;
-    EXPECT_EQ(TLV_OK, tlv_document_parse(data.data(), data.size(), &opts, &doc.handle, offset));
+    Doc                     doc;
+    tlv_reader_diagnostic_t diagnostic{};
+    EXPECT_EQ(TLV_OK,
+              tlv_document_parse(data.data(), data.size(), &opts, &doc.handle, &diagnostic));
+    if (offset) *offset = diagnostic.diagnostic.location.begin;
     return doc;
 }
 
@@ -628,13 +631,13 @@ TEST(Unit_Tlv_Document, EnforcesDepthAndElementLimits) {
     opts.max_depth = 3;
     EXPECT_EQ(TLV_OK, tlv_document_parse(deep.data(), deep.size(), &opts, &ok.handle, nullptr));
 
-    size_t offset = 0;
-    Doc    rejected;
+    tlv_reader_diagnostic_t offset = {};
+    Doc                     rejected;
     opts.max_depth = 2;
     EXPECT_EQ(TLV_ERR_LIMIT,
               tlv_document_parse(deep.data(), deep.size(), &opts, &rejected.handle, &offset));
     EXPECT_EQ(nullptr, rejected.handle);
-    EXPECT_EQ(6u, offset);
+    EXPECT_EQ(TLV_LOCATION_UNKNOWN, offset.diagnostic.location.kind);
 
     opts.max_depth = 3;
     opts.max_elements = 3;
@@ -685,18 +688,18 @@ TEST(Unit_Tlv_Document, EnforcesDepthAndElementLimits) {
 
 TEST(Unit_Tlv_Document, ReportsAbsoluteOffsetOfMalformedNestedInput) {
     // The nested 50 claims five bytes but only one follows.
-    const Bytes            wire = {0x50, 0x00, 0x6F, 0x04, 0x84, 0x00, 0x50, 0x05};
-    tlv_document_options_t opts = options();
-    tlv_document_t*        doc = nullptr;
-    size_t                 offset = 0;
+    const Bytes             wire = {0x50, 0x00, 0x6F, 0x04, 0x84, 0x00, 0x50, 0x05};
+    tlv_document_options_t  opts = options();
+    tlv_document_t*         doc = nullptr;
+    tlv_reader_diagnostic_t offset = {};
     EXPECT_NE(TLV_OK, tlv_document_parse(wire.data(), wire.size(), &opts, &doc, &offset));
     EXPECT_EQ(nullptr, doc);
-    EXPECT_EQ(6u, offset);
+    EXPECT_EQ(8u, offset.diagnostic.location.begin);
 
     const Bytes truncated = {0x50, 0x05, 0x01};
-    offset = 99;
+    offset.diagnostic.location.begin = 99;
     EXPECT_NE(TLV_OK, tlv_document_parse(truncated.data(), truncated.size(), &opts, &doc, &offset));
-    EXPECT_EQ(0u, offset);
+    EXPECT_EQ(2u, offset.diagnostic.location.begin);
 }
 
 TEST(Unit_Tlv_Document, RejectsInvalidArguments) {
@@ -973,17 +976,17 @@ TEST(Unit_Tlv_DocumentBuilder, IncrementalInputOwnsPublishedDataAndTransfersOnly
     ASSERT_EQ(TLV_OK, tlv_document_builder_create(&opts, &reader, nullptr, &raw));
     Builder builder(raw, tlv_document_builder_free);
     Doc     doc;
-    EXPECT_EQ(TLV_NEED_MORE_DATA, tlv_document_builder_consume(raw, &doc.handle, nullptr, nullptr));
+    EXPECT_EQ(TLV_NEED_MORE_DATA, tlv_document_builder_consume(raw, &doc.handle, nullptr));
     EXPECT_EQ(nullptr, doc.handle);
-    EXPECT_EQ(TLV_NEED_MORE_DATA, tlv_document_builder_consume(raw, &doc.handle, nullptr, nullptr));
+    EXPECT_EQ(TLV_NEED_MORE_DATA, tlv_document_builder_consume(raw, &doc.handle, nullptr));
     window.assign(window.size(), 0);
     // A partial constructed root must not publish or duplicate any nodes.
     ASSERT_EQ(TLV_OK, tlv_tree_reader_set_input(&reader, sample.data(), 3, 3, 0));
-    EXPECT_EQ(TLV_NEED_MORE_DATA, tlv_document_builder_consume(raw, &doc.handle, nullptr, nullptr));
+    EXPECT_EQ(TLV_NEED_MORE_DATA, tlv_document_builder_consume(raw, &doc.handle, nullptr));
     EXPECT_EQ(nullptr, doc.handle);
     ASSERT_EQ(TLV_OK, tlv_tree_reader_set_input(&reader, sample.data(), sample.size(), 0, 1));
     size_t offset = 999;
-    ASSERT_EQ(TLV_OK, tlv_document_builder_consume(raw, &doc.handle, &offset, nullptr));
+    ASSERT_EQ(TLV_OK, tlv_document_builder_consume(raw, &doc.handle, nullptr));
     EXPECT_EQ(999u, offset);
     builder.reset();
     Bytes expected = {0x50, 1, 0xAB};
@@ -1018,7 +1021,7 @@ TEST(Unit_Tlv_DocumentBuilder, QuerySelectedSubtreeNormalizesDepthAndLeavesNextS
     ASSERT_EQ(TLV_OK, tlv_document_builder_create(&opts, &reader, &item, &raw));
     Builder builder(raw, tlv_document_builder_free);
     Doc     doc;
-    ASSERT_EQ(TLV_OK, tlv_document_builder_consume(raw, &doc.handle, nullptr, nullptr));
+    ASSERT_EQ(TLV_OK, tlv_document_builder_consume(raw, &doc.handle, nullptr));
     EXPECT_EQ(Bytes({0xA5, 4, 0x50, 2, 0x41, 0x42}), encode(doc.get()));
     EXPECT_EQ(nullptr, tlv_node_parent(tlv_document_first(doc.get())));
     EXPECT_EQ(6u, tlv_node_source_location(tlv_document_first(doc.get())).offset);
@@ -1028,8 +1031,7 @@ TEST(Unit_Tlv_DocumentBuilder, QuerySelectedSubtreeNormalizesDepthAndLeavesNextS
     EXPECT_EQ(12u, item.offset);
     EXPECT_EQ(0u, item.depth);
     tlv_document_t* repeated = nullptr;
-    EXPECT_EQ(TLV_ERR_INVALID_STATE,
-              tlv_document_builder_consume(raw, &repeated, nullptr, nullptr));
+    EXPECT_EQ(TLV_ERR_INVALID_STATE, tlv_document_builder_consume(raw, &repeated, nullptr));
     EXPECT_EQ(nullptr, repeated);
     // The result remains mutable through the existing API.
     const uint8_t replacement = 7;
@@ -1050,7 +1052,7 @@ TEST(Unit_Tlv_DocumentBuilder, PrimitiveAndEmptyConstructedRootsDoNotReadMalform
         ASSERT_EQ(TLV_OK, tlv_document_builder_create(&opts, &reader, &root, &raw));
         Builder builder(raw, tlv_document_builder_free);
         Doc     doc;
-        ASSERT_EQ(TLV_OK, tlv_document_builder_consume(raw, &doc.handle, nullptr, nullptr));
+        ASSERT_EQ(TLV_OK, tlv_document_builder_consume(raw, &doc.handle, nullptr));
         EXPECT_EQ(Bytes({tag, 0}), encode(doc.get()));
         EXPECT_EQ(2u, tlv_tree_reader_offset(&reader));
         EXPECT_EQ(TLV_ERR_BUFFER_TOO_SHORT, tlv_tree_reader_next(&reader, &root));
@@ -1070,11 +1072,9 @@ TEST(Unit_Tlv_DocumentBuilder, InconsistentSubtreeDepthIsInvalidValue) {
     ASSERT_EQ(TLV_OK, tlv_document_builder_create(&opts, &reader, &root, &raw));
     Builder builder(raw, tlv_document_builder_free);
     Doc     doc;
-    EXPECT_EQ(TLV_ERR_INVALID_VALUE,
-              tlv_document_builder_consume(raw, &doc.handle, nullptr, nullptr));
+    EXPECT_EQ(TLV_ERR_INVALID_VALUE, tlv_document_builder_consume(raw, &doc.handle, nullptr));
     EXPECT_EQ(nullptr, doc.handle);
-    EXPECT_EQ(TLV_ERR_INVALID_STATE,
-              tlv_document_builder_consume(raw, &doc.handle, nullptr, nullptr));
+    EXPECT_EQ(TLV_ERR_INVALID_STATE, tlv_document_builder_consume(raw, &doc.handle, nullptr));
 }
 
 TEST(Unit_Tlv_DocumentBuilder, PreservesReaderDiagnosticsAfterWindowReplacement) {
@@ -1089,16 +1089,16 @@ TEST(Unit_Tlv_DocumentBuilder, PreservesReaderDiagnosticsAfterWindowReplacement)
     ASSERT_EQ(TLV_OK, tlv_document_builder_create(&opts, &reader, nullptr, &raw));
     Builder builder(raw, tlv_document_builder_free);
     Doc     doc;
-    ASSERT_EQ(TLV_NEED_MORE_DATA, tlv_document_builder_consume(raw, &doc.handle, nullptr, nullptr));
+    ASSERT_EQ(TLV_NEED_MORE_DATA, tlv_document_builder_consume(raw, &doc.handle, nullptr));
     ASSERT_EQ(TLV_OK, tlv_tree_reader_set_input(&reader, bad.data(), bad.size(), first.size(), 1));
     tlv_reader_diagnostic_t actual;
     tlv_reader_diagnostic_init(&actual);
-    size_t offset = 999;
-    EXPECT_EQ(TLV_ERR_BUFFER_TOO_SHORT,
-              TLV_DIAGNOSTIC_RESULT(
-                  actual, tlv_document_builder_consume(raw, &doc.handle, &offset, &actual)));
+    EXPECT_EQ(
+        TLV_ERR_BUFFER_TOO_SHORT,
+        TLV_DIAGNOSTIC_RESULT(actual, tlv_document_builder_consume(raw, &doc.handle, &actual)));
     EXPECT_EQ(nullptr, doc.handle);
-    EXPECT_EQ(4u, offset);
+    EXPECT_EQ(TLV_LOCATION_INPUT, actual.diagnostic.location.domain);
+    EXPECT_EQ(6u, actual.diagnostic.location.begin);
     tlv_reader_diagnostic_t expected;
     tlv_reader_diagnostic_init(&expected);
     tlv_tree_item_t item;
@@ -1106,13 +1106,12 @@ TEST(Unit_Tlv_DocumentBuilder, PreservesReaderDiagnosticsAfterWindowReplacement)
         TLV_ERR_BUFFER_TOO_SHORT,
         TLV_DIAGNOSTIC_RESULT(expected, tlv_tree_reader_next_diag(&reader, &item, &expected)));
     EXPECT_EQ(expected.diagnostic.code, actual.diagnostic.code);
-    EXPECT_EQ(expected.diagnostic.offset, actual.diagnostic.offset);
+    EXPECT_EQ(expected.diagnostic.location.begin, actual.diagnostic.location.begin);
     EXPECT_EQ(expected.operation, actual.operation);
     EXPECT_EQ(expected.value_offset, actual.value_offset);
     EXPECT_EQ(expected.declared_length, actual.declared_length);
     EXPECT_EQ(expected.enclosing_end, actual.enclosing_end);
-    EXPECT_EQ(TLV_ERR_INVALID_STATE,
-              tlv_document_builder_consume(raw, &doc.handle, nullptr, nullptr));
+    EXPECT_EQ(TLV_ERR_INVALID_STATE, tlv_document_builder_consume(raw, &doc.handle, nullptr));
 }
 
 TEST(Unit_Tlv_DocumentBuilder, AllocationFailureAndCancellationReleaseAllOwnedMemory) {
@@ -1130,7 +1129,7 @@ TEST(Unit_Tlv_DocumentBuilder, AllocationFailureAndCancellationReleaseAllOwnedMe
         tlv_document_builder_t* builder = nullptr;
         auto                    rc = tlv_document_builder_create(&opts, &reader, nullptr, &builder);
         tlv_document_t*         doc = nullptr;
-        if (rc == TLV_OK) rc = tlv_document_builder_consume(builder, &doc, nullptr, nullptr);
+        if (rc == TLV_OK) rc = tlv_document_builder_consume(builder, &doc, nullptr);
         if (rc == TLV_OK) {
             succeeded = true;
             arena.fail_at = SIZE_MAX;
@@ -1155,8 +1154,7 @@ TEST(Unit_Tlv_DocumentBuilder, AllocationFailureAndCancellationReleaseAllOwnedMe
     tlv_document_builder_t* builder = nullptr;
     ASSERT_EQ(TLV_OK, tlv_document_builder_create(&opts, &reader, nullptr, &builder));
     Doc doc;
-    ASSERT_EQ(TLV_NEED_MORE_DATA,
-              tlv_document_builder_consume(builder, &doc.handle, nullptr, nullptr));
+    ASSERT_EQ(TLV_NEED_MORE_DATA, tlv_document_builder_consume(builder, &doc.handle, nullptr));
     tlv_document_builder_free(builder);
     EXPECT_EQ(nullptr, doc.handle);
     EXPECT_TRUE(arena.live.empty());
@@ -1175,7 +1173,7 @@ TEST(Unit_Tlv_DocumentBuilder, EnforcesDocumentAndReaderLimitsSeparately) {
         ASSERT_EQ(TLV_OK, tlv_document_builder_create(&opts, &reader, nullptr, &raw));
         Builder builder(raw, tlv_document_builder_free);
         Doc     doc;
-        EXPECT_EQ(TLV_ERR_LIMIT, tlv_document_builder_consume(raw, &doc.handle, nullptr, nullptr));
+        EXPECT_EQ(TLV_ERR_LIMIT, tlv_document_builder_consume(raw, &doc.handle, nullptr));
         EXPECT_EQ(nullptr, doc.handle);
     }
 }
@@ -1195,10 +1193,9 @@ TEST(Unit_Tlv_DocumentBuilder, EmptyFinalStreamAndArgumentValidation) {
     ASSERT_EQ(TLV_OK, tlv_document_builder_create(&opts, &reader, nullptr, &raw));
     Builder builder(raw, tlv_document_builder_free);
     Doc     doc;
-    EXPECT_EQ(TLV_ERR_NULL_ARG, tlv_document_builder_consume(raw, nullptr, nullptr, nullptr));
-    EXPECT_EQ(TLV_ERR_NULL_ARG,
-              tlv_document_builder_consume(nullptr, &doc.handle, nullptr, nullptr));
-    ASSERT_EQ(TLV_OK, tlv_document_builder_consume(raw, &doc.handle, nullptr, nullptr));
+    EXPECT_EQ(TLV_ERR_NULL_ARG, tlv_document_builder_consume(raw, nullptr, nullptr));
+    EXPECT_EQ(TLV_ERR_NULL_ARG, tlv_document_builder_consume(nullptr, &doc.handle, nullptr));
+    ASSERT_EQ(TLV_OK, tlv_document_builder_consume(raw, &doc.handle, nullptr));
     EXPECT_EQ(0u, tlv_document_count(doc.get()));
     tlv_document_builder_free(nullptr);
 
@@ -1246,7 +1243,7 @@ TEST(Unit_Tlv_DocumentBuilder, SelectedIndefiniteSubtreeStopsAfterTrailers) {
     ASSERT_EQ(TLV_OK, tlv_document_builder_create(&opts, &reader, &item, &raw));
     Builder builder(raw, tlv_document_builder_free);
     Doc     doc;
-    ASSERT_EQ(TLV_OK, tlv_document_builder_consume(raw, &doc.handle, nullptr, nullptr));
+    ASSERT_EQ(TLV_OK, tlv_document_builder_consume(raw, &doc.handle, nullptr));
     EXPECT_EQ(Bytes({0xE2, 3, 0x04, 1, 0xAA}), encode(doc.get()));
     // Builder consumes its selected END, leaving enclosing closure for the caller.
     EXPECT_EQ(9u, tlv_tree_reader_offset(&reader));

@@ -5,6 +5,16 @@ use opentlv::{Error, Format, Reader, TreeReader};
 use opentlv::{Query, Visit};
 
 #[test]
+fn syntax_locations_distinguish_known_zero_and_empty_eof() {
+    for (text, begin, end) in [("GG", 0, 1), ("01/", 3, 3), ("", 0, 0)] {
+        let error = Query::parse(text).unwrap_err();
+        assert_eq!(error.location.domain, opentlv::LocationDomain::Expression);
+        assert_eq!(error.location.kind, opentlv::LocationKind::Span);
+        assert_eq!((error.location.begin, error.location.end), (begin, end));
+    }
+}
+
+#[test]
 fn incremental_reader_retains_views_and_absolute_diagnostics() {
     let data = [4, 1, 42, 4, 1, 43];
     let mut reader = Reader::incremental(&data[..2], Format::Ber);
@@ -117,7 +127,7 @@ fn query_matching_is_resumable_and_owns_its_query() {
         })
         .unwrap();
     assert_eq!(offsets, [2, 4, 8]);
-    assert_eq!(Query::parse("30/").unwrap_err().offset, 3);
+    assert_eq!(Query::parse("30/").unwrap_err().location.offset(), Some(3));
 }
 
 #[test]
