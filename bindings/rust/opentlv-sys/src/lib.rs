@@ -57,7 +57,7 @@ pub const TLV_ERR_INVALID_BYTE_ORDER: tlv_result_t = 12;
 pub const TLV_ERR_OVERFLOW: tlv_result_t = 13;
 /// Primitive content is malformed (`TLV_ERR_INVALID_VALUE`).
 pub const TLV_ERR_INVALID_VALUE: tlv_result_t = 14;
-/// A universal tag has no implemented validation (`TLV_ERR_UNSUPPORTED_TYPE`).
+/// A requested type or capability is unsupported (`TLV_ERR_UNSUPPORTED_TYPE`).
 pub const TLV_ERR_UNSUPPORTED_TYPE: tlv_result_t = 15;
 /// A schema definition is invalid (`TLV_ERR_INVALID_SCHEMA`).
 pub const TLV_ERR_INVALID_SCHEMA: tlv_result_t = 16;
