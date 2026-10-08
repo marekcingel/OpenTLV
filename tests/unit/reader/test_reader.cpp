@@ -249,6 +249,7 @@ TEST(Unit_Tlvpp_QueryParity, MatchStateSurvivesStopAndInputReplacement) {
     const auto         stop = [&](const tlv::element_view&, size_t depth, size_t offset) {
         ++count;
         EXPECT_EQ(1u, depth);
+        EXPECT_EQ(2u, offset);
         return TLV_VISIT_STOP;
     };
     ASSERT_TRUE(matcher.visit(reader, stop));

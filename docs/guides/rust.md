@@ -191,6 +191,11 @@ matches; `next_result_with_ordinal()` also returns native preorder identity.
 Owning workspace and `execution_external` are available with explicit bounds;
 the latter borrows caller storage. Rust lifetimes preserve program, input and
 Document ownership; errors retain native Query spans and diagnostic detail.
+`ProgramError.location` holds primary evidence. `source_offset()` projects its
+start only for known INPUT locations, including zero; expression spans and
+unknown locations return `None`. `expected` and `limit` use owned immutable
+`Box<str>` values (inspect with `as_deref()`), keeping ordinary and edit errors
+compact without discarding detail.
 `ProgramOptions.providers` holds `QueryProvider` values for the closed NUM, BCD,
 TEXT and DATE conversions. Each owns a stable ID, scratch limit and `Send + Sync`
 callback. Callbacks receive bytes and optional owned metadata; return

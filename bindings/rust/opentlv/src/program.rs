@@ -211,18 +211,24 @@ pub struct ProgramError {
     pub begin: usize,
     /// Exclusive Query byte offset.
     pub end: usize,
-    /// Original input offset when Source metadata exists.
-    pub source_offset: Option<usize>,
-    /// Owned native expected-token or type description.
-    pub expected: Option<String>,
-    /// Named exhausted resource, when present.
-    pub limit: Option<String>,
+    /// Owned immutable native expected-token or type description.
+    pub expected: Option<Box<str>>,
+    /// Owned immutable name of the exhausted resource, when present.
+    pub limit: Option<Box<str>>,
     /// Configured bound for the named resource.
     pub configured: usize,
     /// Original native codec status.
     pub codec: i32,
     /// Owned original Reader diagnostic for Reader failures.
     pub reader: Option<Box<ReaderDiagnostic>>,
+}
+impl ProgramError {
+    /// Known primary input offset, derived from `location` without duplicate storage.
+    pub fn source_offset(&self) -> Option<usize> {
+        (self.location.domain == crate::LocationDomain::Input)
+            .then(|| self.location.offset())
+            .flatten()
+    }
 }
 impl std::fmt::Display for ProgramError {
     fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
@@ -241,7 +247,12 @@ fn check(code: i32, diagnostic: &native::tlv_query_diagnostic_t) -> ProgramResul
         // SAFETY: diagnostics come from C; descriptions are static NUL-terminated strings.
         unsafe {
             let text = |p: *const std::os::raw::c_char| {
-                (!p.is_null()).then(|| CStr::from_ptr(p).to_string_lossy().into_owned())
+                (!p.is_null()).then(|| {
+                    CStr::from_ptr(p)
+                        .to_string_lossy()
+                        .into_owned()
+                        .into_boxed_str()
+                })
             };
             ProgramError {
                 location: crate::Location::from_raw(diagnostic.diagnostic.location),
@@ -253,9 +264,6 @@ fn check(code: i32, diagnostic: &native::tlv_query_diagnostic_t) -> ProgramResul
                 },
                 begin: diagnostic.begin,
                 end: diagnostic.end,
-                source_offset: (diagnostic.diagnostic.location.domain == 1
-                    && diagnostic.diagnostic.location.kind != 0)
-                    .then_some(diagnostic.diagnostic.location.begin),
                 expected: text(diagnostic.expected),
                 limit: text(diagnostic.limit),
                 configured: diagnostic.configured,
@@ -988,7 +996,6 @@ unsafe fn project<'a>(event: &native::tlv_tree_event_t) -> ProgramResult<QueryMa
             kind: 0,
             begin: 0,
             end: 0,
-            source_offset: None,
             expected: None,
             limit: None,
             configured: 0,
@@ -1367,7 +1374,6 @@ impl<'a> QueryExecution<'a> {
                     kind: 0,
                     begin: 0,
                     end: 0,
-                    source_offset: None,
                     expected: None,
                     limit: None,
                     configured: 0,

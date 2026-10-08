@@ -84,14 +84,13 @@ pub(crate) unsafe fn run<'a, F: FnMut(Element<'a>, usize, usize) -> Visit>(
         native::tlv_reader_diagnostic_init(diagnostic.as_mut_ptr());
         let opaque = (&mut context as *mut Context<'a, F>).cast();
         let code = if !matcher.is_null() {
-            let code = native::tlv_query_visit(
+            native::tlv_query_visit(
                 tree,
                 matcher,
                 Some(tree_callback::<F>),
                 opaque,
                 diagnostic.as_mut_ptr(),
-            );
-            code
+            )
         } else if tree.is_null() {
             native::tlv_reader_visit_diag(
                 reader,
