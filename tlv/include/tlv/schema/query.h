@@ -64,6 +64,10 @@ typedef struct tlv_schema_query_diagnostic {
  * @return #TLV_ERR_INVALID_ARG for misaligned programs; #TLV_ERR_INVALID_VALUE for
  * malformed program contents or a non-node selector/non-boolean assertion.
  * @return Other native sizing/capacity error or OK; outputs unchanged on failure.
+ * @note This sizing function has no diagnostic output. Only
+ * tlv_schema_query_validate_buffer() and, when enabled,
+ * tlv_schema_query_validate_document() report Query kind IMAGE or TYPE and the
+ * failing rule index through their optional diagnostic output.
  * @note Context arrays and Reader frames are additional explicit storage. Rules reuse
  * the two workspaces sequentially; Document Value snapshot and owning tree are separate. */
 TLV_API tlv_result_t tlv_schema_query_size(const tlv_schema_query_rule_t* rules, size_t count,
