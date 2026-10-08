@@ -269,16 +269,16 @@ TEST(Unit_Tlv_QueryF2, EnvironmentMismatchIsRejectedBeforeInput) {
     Evaluation e;
     ASSERT_EQ(TLV_OK, e.compile("num(//5A)"));
     e.hooks[0].id += 100;
-    EXPECT_EQ(TLV_ERR_UNSUPPORTED_TYPE, e.init());
+    EXPECT_EQ(TLV_ERR_UNSUPPORTED, e.init());
     e.hooks[0].id -= 100;
     e.hooks[0].decode = nullptr;
-    EXPECT_EQ(TLV_ERR_UNSUPPORTED_TYPE, e.init());
+    EXPECT_EQ(TLV_ERR_UNSUPPORTED, e.init());
     Evaluation flat;
-    EXPECT_EQ(TLV_ERR_UNSUPPORTED_TYPE, flat.compile("class()"));
-    EXPECT_EQ(TLV_ERR_UNSUPPORTED_TYPE, flat.compile("number()"));
+    EXPECT_EQ(TLV_ERR_UNSUPPORTED, flat.compile("class()"));
+    EXPECT_EQ(TLV_ERR_UNSUPPORTED, flat.compile("number()"));
     EXPECT_EQ(TLV_ERR_INVALID_ARG, flat.compile("text()"));
-    EXPECT_EQ(TLV_ERR_INVALID_ARG, flat.compile("value(x'00')"));
-    EXPECT_EQ(TLV_ERR_INVALID_ARG, flat.compile("'text' = x'74657874'"));
+    EXPECT_EQ(TLV_ERR_INVALID_VALUE, flat.compile("value(x'00')"));
+    EXPECT_EQ(TLV_ERR_INVALID_VALUE, flat.compile("'text' = x'74657874'"));
 }
 #if OPENTLV_FORMAT_BER
 TEST(Unit_Tlv_QueryF2, Asn1CapabilitiesAndUtcDateAdapter) {
@@ -467,9 +467,9 @@ TEST(Unit_Tlv_QueryF2, ProviderScratchAlignmentAndResultValidation) {
     EXPECT_EQ(state.calls, 2u);
     state.bad = true;
     ASSERT_EQ(e.init(), TLV_OK);
-    EXPECT_EQ(e.run({}), TLV_ERR_INVALID_VALUE);
-    EXPECT_EQ(e.diagnostic.kind, TLV_QUERY_ERROR_CODEC);
-    EXPECT_EQ(e.diagnostic.codec, TLV_CODEC_ERR_INVALID_VALUE);
+    EXPECT_EQ(e.run({}), TLV_ERR_CALLBACK);
+    EXPECT_EQ(e.diagnostic.kind, TLV_QUERY_ERROR_CALLBACK);
+    EXPECT_EQ(e.diagnostic.codec, TLV_CODEC_OK);
     EXPECT_LT(e.diagnostic.begin, e.diagnostic.end);
 }
 
@@ -499,10 +499,11 @@ TEST(Unit_Tlv_QueryF2, ProviderTextResultDiagnostics) {
         }
         ASSERT_EQ(e.compile("text(//5A)"), TLV_OK);
         ASSERT_EQ(e.init(), TLV_OK);
-        EXPECT_EQ(e.run({0x5a, 1, 1}), TLV_ERR_INVALID_VALUE);
-        EXPECT_EQ(e.diagnostic.kind, TLV_QUERY_ERROR_CODEC);
-        EXPECT_EQ(e.diagnostic.codec,
-                  test.status == TLV_CODEC_OK ? TLV_CODEC_ERR_INVALID_VALUE : test.status);
+        EXPECT_EQ(e.run({0x5a, 1, 1}),
+                  test.status == TLV_CODEC_OK ? TLV_ERR_CALLBACK : TLV_ERR_INVALID_VALUE);
+        EXPECT_EQ(e.diagnostic.kind,
+                  test.status == TLV_CODEC_OK ? TLV_QUERY_ERROR_CALLBACK : TLV_QUERY_ERROR_CODEC);
+        EXPECT_EQ(e.diagnostic.codec, test.status);
         EXPECT_LT(e.diagnostic.begin, e.diagnostic.end);
     }
 }

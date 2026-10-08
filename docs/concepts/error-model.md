@@ -5,10 +5,12 @@ for authors of C capabilities and language facades. Read the
 [architectural rules](architectural-rules.md) and
 [current error reference](../reference/errors.md) first.
 
-**Status: design decided; lifecycle result implemented by #552; Schema classification implemented by #553; remaining API
-and binding migration is separate work.** This page defines the target contract.
-`TLV_ERR_INVALID_STATE`, `TLV_QUERY_ERROR_STATE` and `TLV_ERR_INVALID_SCHEMA` are now public; other new
-target names are not yet public declarations. The reference page continues to describe the running
+**Status: design decided; lifecycle implemented by #552, Schema classification
+by #553, and capability/resource/callback results by #554. Remaining API and binding
+migration is separate work.** This page defines the target contract.
+`TLV_ERR_INVALID_STATE`, `TLV_ERR_INVALID_SCHEMA`, `TLV_ERR_UNSUPPORTED` and
+`TLV_ERR_CALLBACK` are public, together with Query kinds `STATE`, `CALLBACK`,
+`TYPE` and `IMAGE`. Other new target names are not yet public declarations. The reference page continues to describe the running
 implementation. This design does not preserve source, binary, enum-number or
 diagnostic-layout compatibility. Removed names get no aliases, compatibility
 wrappers or deprecation period. Native consumers and bindings migrate together.
@@ -146,9 +148,9 @@ Result and detail are orthogonal: `READER` may legitimately accompany
 below constrain combinations rather than requiring a function from kind to
 result. Detail is discriminated; inactive fields must not be interpreted.
 
-Query detail kind `STATE` is implemented by #552. Add `ARGUMENT`, `TYPE`, `IMAGE`
-and `CALLBACK` for
-the cases currently forced into `STORAGE`, `EVENTS` or `CAPABILITY`. Keep
+Query detail kind `STATE` is implemented by #552; `TYPE`, `IMAGE` and `CALLBACK`
+by #554. `ARGUMENT` remains to be added for cases currently forced into
+`STORAGE`, `EVENTS` or `CAPABILITY`. Keep
 `IMAGE_VERSION` for a recognized version mismatch. `CODEC` denotes conversion
 context; a callback contract violation during conversion uses `CALLBACK` and
 records the codec operation and reported result, including a reported `OK`.
@@ -330,7 +332,7 @@ Names in the target columns omit `TLV_ERR_` where unambiguous.
 | `TLV_ERR_INVALID_BYTE_ORDER` | Unknown enum/configuration -> `INVALID_ARG`; valid but unimplemented order -> `UNSUPPORTED`. Remove the old result. |
 | `TLV_ERR_OVERFLOW` | Keep logical numeric/arithmetic overflow. |
 | `TLV_ERR_INVALID_VALUE` | Invalid interpreted data/canonicality -> `INVALID_VALUE`; Schema constraint -> `SCHEMA`; bad callback success payload -> `CALLBACK`; invalid configuration -> `INVALID_ARG`. |
-| `TLV_ERR_UNSUPPORTED_TYPE` | `UNSUPPORTED` with type/capability/version detail. Remove the old name. |
+| Former `TLV_ERR_UNSUPPORTED_TYPE` | Replaced by `UNSUPPORTED` with type/capability/version detail in #554. |
 | `TLV_ERR_SCHEMA_MISSING` | `SCHEMA` + `MISSING` and explicit scope-end/insertion location. Remove the old result. |
 | `TLV_ERR_NATIVE_SIZE` | Keep host-addressability distinction. |
 | `TLV_NEED_MORE_DATA` | Keep resumable control status; never convert a non-final shortage into a fatal error. |
@@ -432,10 +434,11 @@ Unknown visitor discriminators produce `CALLBACK`.
 
 This design completes #551. Issue #552 implements `INVALID_STATE`, Query kind
 `STATE`, facade mappings and `INVALID_VALUE` for malformed structural feeds.
-Other Query detail kinds, callback payload classifications and result classes
-remain until their migration. In particular, impossible preorder depth returned
-by a Tree Writer source callback still uses `INVALID_ARG`; the planned `CALLBACK`
-result is follow-up work. No append-only or numeric ABI guarantee is attached to
+
+Issue #554 implements unsupported capability, workspace and callback classifications
+including impossible preorder depth returned by a Tree Writer source callback.
+The separate Codec result domain and its lossless propagation migrate in #556;
+other Query detail kinds and the remaining result classes are follow-up work. No append-only or numeric ABI guarantee is attached to
 `INVALID_STATE = 19` or `STATE = 12`. The complete target API is not yet available.
 The follow-up implementation replaces enums/signatures/layouts directly and
 updates their Doxygen contracts. It must cover common result strings, all

@@ -99,7 +99,7 @@ func TestQuerySchemaOwnedDiagnosticsAndBounds(t *testing.T) {
 	}
 	reverse := []tlv.QueryRule{{Context: compiled(t, "//5A[2]", nil), Assertion: compiled(t, "exists(preceding::5A)", nil)}}
 	siblings := []byte{0x70, 6, 0x5a, 1, 1, 0x5a, 1, 2}
-	if err := tlv.ValidateQueryBuffer(reverse, siblings, f, limits); !errors.Is(err, tlv.ErrUnsupportedType) {
+	if err := tlv.ValidateQueryBuffer(reverse, siblings, f, limits); !errors.Is(err, tlv.ErrUnsupported) {
 		t.Fatal(err)
 	}
 	if err := tlv.ValidateQueryDocument(reverse, document(t, siblings, f), limits); err != nil {

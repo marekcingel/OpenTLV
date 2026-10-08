@@ -934,7 +934,7 @@ int opentlv_wasm_program_emv_resolver(opentlv_wasm_program_t* p) {
     p->options.resolve_context = NULL;
     return TLV_OK;
 #else
-    return TLV_ERR_UNSUPPORTED_TYPE;
+    return TLV_ERR_UNSUPPORTED;
 #endif
 }
 int opentlv_wasm_resolved_tag(opentlv_wasm_program_t* p, tlv_tag_t* result, const uint8_t* tag,
@@ -1431,7 +1431,7 @@ const char* opentlv_wasm_execution_operation(opentlv_wasm_execution_t* q, int op
 #if OPENTLV_DOCUMENT
                 rc = tlv_document_query_next(q->exec, &node);
 #else
-                rc = TLV_ERR_UNSUPPORTED_TYPE;
+                rc = TLV_ERR_UNSUPPORTED;
 #endif
             } else if (q->fed && q->retained)
                 rc = tlv_query_result_next(q->exec, &event);
@@ -1502,7 +1502,7 @@ const char* opentlv_wasm_execution_operation(opentlv_wasm_execution_t* q, int op
 }
 opentlv_wasm_document_t* opentlv_wasm_document_new(opentlv_wasm_program_t* p, const uint8_t* data,
                                                    size_t size, int retain_source_locations) {
-    tlv_result_t             rc = TLV_ERR_UNSUPPORTED_TYPE;
+    tlv_result_t             rc = TLV_ERR_UNSUPPORTED;
     opentlv_wasm_document_t* doc = NULL;
 #if OPENTLV_DOCUMENT
     doc = calloc(1, sizeof *doc);
@@ -1539,7 +1539,7 @@ void opentlv_wasm_document_free(opentlv_wasm_document_t* doc) {
 }
 const char* opentlv_wasm_document_encode(opentlv_wasm_document_t* doc) {
     builder_t*   b = &doc->program->reply;
-    tlv_result_t rc = TLV_ERR_UNSUPPORTED_TYPE;
+    tlv_result_t rc = TLV_ERR_UNSUPPORTED;
     uint8_t*     data = NULL;
     size_t       length = 0;
 #if OPENTLV_DOCUMENT
@@ -1562,7 +1562,7 @@ const char* opentlv_wasm_document_encode(opentlv_wasm_document_t* doc) {
 const char* opentlv_wasm_execution_document(opentlv_wasm_execution_t* q,
                                             opentlv_wasm_document_t* doc, size_t capacity) {
     tlv_query_diagnostic_t d = {0};
-    tlv_result_t           rc = TLV_ERR_UNSUPPORTED_TYPE;
+    tlv_result_t           rc = TLV_ERR_UNSUPPORTED;
 #if OPENTLV_DOCUMENT
     rc = q->has_reader || q->document ? TLV_ERR_INVALID_STATE
          : !q->retained               ? TLV_ERR_INVALID_ARG
@@ -1604,7 +1604,7 @@ const char* opentlv_wasm_execution_document(opentlv_wasm_execution_t* q,
 const char* opentlv_wasm_execution_edit(opentlv_wasm_execution_t* q, int kind, const uint8_t* tag,
                                         size_t tag_size, const uint8_t* value, size_t value_size,
                                         size_t capacity) {
-    tlv_result_t rc = TLV_ERR_UNSUPPORTED_TYPE;
+    tlv_result_t rc = TLV_ERR_UNSUPPORTED;
     size_t       applied = 0;
 #if OPENTLV_DOCUMENT
     rc = q->document ? TLV_OK : TLV_ERR_INVALID_ARG;
@@ -1633,7 +1633,7 @@ const char* opentlv_wasm_document_node(opentlv_wasm_document_t* doc, size_t addr
                                        const char* identity, int operation, const uint8_t* data,
                                        size_t size) {
     builder_t*   b = &doc->program->reply;
-    tlv_result_t rc = TLV_ERR_UNSUPPORTED_TYPE;
+    tlv_result_t rc = TLV_ERR_UNSUPPORTED;
 #if OPENTLV_DOCUMENT
     tlv_node_t* node = (tlv_node_t*)(uintptr_t)address;
     rc = TLV_OK;

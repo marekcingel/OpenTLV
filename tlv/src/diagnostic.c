@@ -45,7 +45,7 @@ tlv_result_t tlv_diagnostic_path_push(tlv_diagnostic_path_t* path, tlv_tag_t tag
     if (path->length > TLV_DIAGNOSTIC_PATH_MAX) return TLV_ERR_INVALID_ARG;
     if (path->length == TLV_DIAGNOSTIC_PATH_MAX || path->omitted) {
         if (path->omitted != SIZE_MAX) ++path->omitted;
-        return TLV_ERR_LIMIT;
+        return TLV_ERR_BUFFER_TOO_SHORT;
     }
     path->tags[path->length++] = tag;
     return TLV_OK;

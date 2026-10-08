@@ -25,12 +25,14 @@ var (
 	ErrInvalidByteOrder = StatusError{code: capi.InvalidByteOrder}
 	ErrOverflow         = StatusError{code: capi.Overflow}
 	ErrInvalidValue     = StatusError{code: capi.InvalidValue}
-	ErrUnsupportedType  = StatusError{code: capi.UnsupportedType}
+	ErrUnsupported      = StatusError{code: capi.Unsupported}
 	ErrInvalidSchema    = StatusError{code: capi.InvalidSchema}
 	ErrNativeSize       = StatusError{code: capi.NativeSize}
 	ErrNeedMoreData     = StatusError{code: capi.NeedMoreData}
 	// ErrInvalidState reports lifecycle or callback reentrancy misuse.
 	ErrInvalidState = StatusError{code: capi.InvalidState}
+	// ErrCallback reports a provider contract violation.
+	ErrCallback = StatusError{code: capi.Callback}
 )
 
 // Is compares native error identity independently of diagnostic detail.

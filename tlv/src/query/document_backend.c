@@ -235,7 +235,7 @@ tlv_result_t tlv_document_query_program_visit(tlv_query_exec_t* e,
         if (action == TLV_VISIT_STOP) return TLV_OK;
         if (action != TLV_VISIT_CONTINUE) {
             e->invalid = 1;
-            return TLV_ERR_VISITOR;
+            return action == TLV_VISIT_ERROR ? TLV_ERR_VISITOR : TLV_ERR_CALLBACK;
         }
     }
 }

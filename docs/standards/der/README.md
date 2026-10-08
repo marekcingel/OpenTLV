@@ -92,8 +92,8 @@ All DER operations accept NULL limits for `tlv_der_default_limits`:
 Copy the default struct and change individual fields to customize limits. All
 limits are inclusive, and zero is a real limit. A depth of zero allows only
 top-level elements (including empty constructed values). `max_depth` must not
-exceed `TLV_DER_MAX_DEPTH` (64); invalid configurations and exceeded limits
-return `TLV_ERR_LIMIT`. Traversal uses a fixed array of 65 offsets, no heap
+exceed `TLV_DER_MAX_DEPTH` (64); a request above this implementation capability
+returns `TLV_ERR_UNSUPPORTED`. Exceeded processing budgets return `TLV_ERR_LIMIT`. Traversal uses a fixed array of 65 offsets, no heap
 allocations and no C recursion. Work is linear in visited framing bytes and
 element count; primitive value bytes are not scanned.
 
@@ -142,7 +142,7 @@ are validated structurally only, exactly as with the non-strict functions.
 
 Recognized types with invalid or noncanonical content return
 `TLV_ERR_INVALID_VALUE`. A UNIVERSAL primitive tag number without an
-implemented rule returns `TLV_ERR_UNSUPPORTED_TYPE` instead of silently
+implemented rule returns `TLV_ERR_UNSUPPORTED` instead of silently
 passing, so callers can tell "checked and canonical" apart from "not checked".
 
 | Group | Supported types |
@@ -170,7 +170,7 @@ against the fuller RFC 3987 IRI-label restrictions. Structured types
 value semantics in this scope, and CHOICE/ANY have no wire tag of their own,
 so neither applies here.
 
-Recognized but explicitly unsupported (return `TLV_ERR_UNSUPPORTED_TYPE` in
+Recognized but explicitly unsupported (return `TLV_ERR_UNSUPPORTED` in
 strict mode rather than being silently accepted): any UNIVERSAL primitive tag
 number beyond 36. See [`tlv/builtins/asn1/asn1_codec.h`](../../formats/asn1/ber.md#universal-type-value-codecs)
 for the matching value codecs.
@@ -218,7 +218,7 @@ the raw content in bytes (an ASN.1 `SIZE` constraint, for example `OCTET
 STRING (SIZE(1..16))`), and `value_constraint` (a borrowed
 [`tlv_value_constraint_t`](../../guides/schemas.md#value-constraints-on-decoded-values))
 checks the leaf's decoded value, valid only when `universal_number` is 2
-(INTEGER) or 10 (ENUMERATED) — the two universal types X.680 allows a
+(INTEGER) or 10 (ENUMERATED) â€” the two universal types X.680 allows a
 value-range or named-number constraint on, for example `INTEGER (0..255)`.
 `tlv_der_schema_check` rejects `min_length > max_length` and a
 `value_constraint` on any other universal type; `tlv_der_schema_read` and
@@ -228,7 +228,7 @@ A `TLV_DER_SCHEMA_SEQUENCE`'s `extensible` flag models an ASN.1 extension
 marker (`...`): when set, `tlv_der_schema_read` accepts and skips, as one or
 more opaque well-formed DER-TLV elements (validated the same way as an `ANY`
 component but not otherwise interpreted), any content left over once every
-declared component has been matched or skipped — instead of rejecting it as
+declared component has been matched or skipped â€” instead of rejecting it as
 a schema violation. `extensible` is ignored for every other kind, does not
 waive a `TLV_DER_REQUIRED` declared component, and has no effect on
 `tlv_der_schema_write` (which only ever writes the components a schema
@@ -255,7 +255,7 @@ definitions return `TLV_ERR_INVALID_SCHEMA` before input or callbacks are
 processed and have no byte location. Missing required input or output returns
 `TLV_ERR_SCHEMA` with `kind = TLV_SCHEMA_ISSUE_MISSING`; `anchor` distinguishes
 scope ends from insertion points. Valid graphs exceeding fixed checking capacity
-return `TLV_ERR_UNSUPPORTED_TYPE`. The broader result migration is separate work.
+return `TLV_ERR_UNSUPPORTED`. The broader result migration is separate work.
 
 `tlv_der_schema_read` rejects a SET whose components are not encoded in
 ascending tag order and a SET OF whose elements are not encoded in ascending
@@ -272,7 +272,7 @@ order the callback produced them (using the same `scratch`/`scratch_capacity`
 records, just without sorting), and omits a DEFAULT component whose complete
 encoding equals its `default_encoding`. Unlike `tlv_der_write`, it always
 composes the complete output in a caller-supplied `scratch_bytes` arena first
-— needed to compare and reorder content before committing to it — so
+â€” needed to compare and reorder content before committing to it â€” so
 `scratch_bytes` and `scratch_bytes_capacity` are required even for a
 `NULL`-`data` size query; size `scratch_bytes_capacity` generously, since
 composing nested content can temporarily use more arena space than the final
@@ -295,7 +295,7 @@ runtime depth limit. `TLV_DER_SCHEMA_MAX_TYPES` (256) bounds distinct type
 identities in the allocation-free definition worklist, which uses linear pointer
 lookup. `TLV_DER_SCHEMA_MAX_COMPONENTS` (64) bounds a single SEQUENCE, SET or
 CHOICE's direct component count. Exceeding these fixed checking capacities
-returns `TLV_ERR_UNSUPPORTED_TYPE`. The checker does not attempt to prove that
+returns `TLV_ERR_UNSUPPORTED`. The checker does not attempt to prove that
 every recursive type has a finite value.
 
 Existing `tlv_der_read`/`visit`/`write` (and their `_strict` counterparts) and

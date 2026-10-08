@@ -187,8 +187,8 @@ tlv_visit_result_t on_element(const tlv_element_t* element, size_t depth, size_t
         tlv_diagnostic_path_pop(&path);
     if (format.is_constructed(format.context, &element->tag)) {
         tlv_result_t rc = tlv_diagnostic_path_push(&path, element->tag);
-        /* LIMIT records an omitted tag; traversal can still continue. */
-        if (rc != TLV_OK && rc != TLV_ERR_LIMIT) return TLV_VISIT_STOP;
+        /* BUFFER_TOO_SHORT records an omitted tag; traversal can still continue. */
+        if (rc != TLV_OK && rc != TLV_ERR_BUFFER_TOO_SHORT) return TLV_VISIT_STOP;
     }
     /* ... validate element, using `path` as the location of the current element's parent ... */
     return TLV_VISIT_CONTINUE;
@@ -218,7 +218,7 @@ tlv_diagnostic_path_string(diagnostic.path, text, sizeof(text), NULL);
 ```
 
 Every path producer retains the outermost `TLV_DIAGNOSTIC_PATH_MAX` tags (32).
-Pushing beyond that capacity returns `TLV_ERR_LIMIT`, preserves the retained
+Pushing beyond that capacity returns `TLV_ERR_BUFFER_TOO_SHORT`, preserves the retained
 tags and increments `path.omitted`, the number of omitted innermost tags
 (saturating at `SIZE_MAX`). A pop consumes an omitted tag before removing a
 retained tag, so returning from a deep subtree restores the correct parent.

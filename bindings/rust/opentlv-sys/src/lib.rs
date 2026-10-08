@@ -57,8 +57,8 @@ pub const TLV_ERR_INVALID_BYTE_ORDER: tlv_result_t = 12;
 pub const TLV_ERR_OVERFLOW: tlv_result_t = 13;
 /// Primitive content is malformed (`TLV_ERR_INVALID_VALUE`).
 pub const TLV_ERR_INVALID_VALUE: tlv_result_t = 14;
-/// A requested type or capability is unsupported (`TLV_ERR_UNSUPPORTED_TYPE`).
-pub const TLV_ERR_UNSUPPORTED_TYPE: tlv_result_t = 15;
+/// A requested type or capability is unsupported (`TLV_ERR_UNSUPPORTED`).
+pub const TLV_ERR_UNSUPPORTED: tlv_result_t = 15;
 /// A schema definition is invalid (`TLV_ERR_INVALID_SCHEMA`).
 pub const TLV_ERR_INVALID_SCHEMA: tlv_result_t = 16;
 
@@ -1061,6 +1061,7 @@ pub const TLV_ERR_NATIVE_SIZE: tlv_result_t = 17;
 pub const TLV_NEED_MORE_DATA: tlv_result_t = 18;
 /// Operation forbidden by the current lifecycle state.
 pub const TLV_ERR_INVALID_STATE: tlv_result_t = 19;
+pub const TLV_ERR_CALLBACK: tlv_result_t = 20;
 
 extern "C" {
     /// Decode semantic content and original source information.

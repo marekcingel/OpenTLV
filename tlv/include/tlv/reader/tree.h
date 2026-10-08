@@ -169,7 +169,8 @@ TLV_API tlv_result_t tlv_tree_reader_set_input(tlv_tree_reader_t* reader, const 
  * @return #TLV_ERR_END_OF_BUFFER for exhausted final input.
  * @return #TLV_ERR_BUFFER_TOO_SHORT for incomplete final input or a child that
  *         exceeds its complete parent's value. Appending cannot repair the latter.
- * @return #TLV_ERR_LIMIT when depth, frame capacity or element count is exhausted.
+ * @return #TLV_ERR_LIMIT when the configured depth or element count is exhausted.
+ * @return #TLV_ERR_BUFFER_TOO_SHORT when caller frame capacity is exhausted.
  * @return #TLV_ERR_NULL_ARG for a NULL cursor or item.
  * @return Any other Reader error, propagated unchanged.
  * @note Node-only pulls hide pending END events, including those left by a

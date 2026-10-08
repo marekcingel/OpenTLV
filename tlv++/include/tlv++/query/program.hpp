@@ -33,6 +33,9 @@ enum class query_issue {
     cardinality = TLV_QUERY_ERROR_CARDINALITY,     /**< Scalar cardinality mismatch. */
     codec = TLV_QUERY_ERROR_CODEC,                 /**< Value conversion failure. */
     image_version = TLV_QUERY_ERROR_IMAGE_VERSION, /**< Incompatible program image. */
+    type = TLV_QUERY_ERROR_TYPE,                   /**< Incompatible expression types. */
+    image = TLV_QUERY_ERROR_IMAGE,                 /**< Malformed stored program image. */
+    callback = TLV_QUERY_ERROR_CALLBACK,           /**< Callback failure. */
     state = TLV_QUERY_ERROR_STATE                  /**< Invalid lifecycle or callback reentrancy. */
 };
 /** @brief Scalar result borrowing immutable input, program or execution storage until reset. */
@@ -289,7 +292,7 @@ private:
 #if OPENTLV_QUERY_FRONTEND
         if (!explain) fn = tlv_query_program_format;
 #else
-        if (!explain) throw std::runtime_error(tlv_strerror(TLV_ERR_UNSUPPORTED_TYPE));
+        if (!explain) throw std::runtime_error(tlv_strerror(TLV_ERR_UNSUPPORTED));
 #endif
         auto rc = fn(program_, nullptr, 0, &size);
         if (rc != TLV_OK) throw std::runtime_error(tlv_strerror(rc));
@@ -396,7 +399,7 @@ public:
                       ? tlv_query_eval_init(program.c_program(),
                                             detail::query_options_access::get(environment), storage,
                                             capacity, depth, nodes, work, &result.exec_)
-                      : (environment ? TLV_ERR_UNSUPPORTED_TYPE
+                      : (environment ? TLV_ERR_UNSUPPORTED
                                      : tlv_query_exec_init(program.c_program(), storage, capacity,
                                                            depth, nodes, work, &result.exec_));
         if (rc != TLV_OK) return unexpected<query_failure>(detail::query_failed(rc));

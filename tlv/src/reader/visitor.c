@@ -42,8 +42,11 @@ tlv_result_t tlv_tree_reader_visit_diag(tlv_tree_reader_t* reader, tlv_tree_visi
             tlv_visit_result_t result = visitor(&item.element, item.depth, item.offset, context);
             if (result == TLV_VISIT_STOP) return TLV_OK;
             if (result != TLV_VISIT_CONTINUE)
-                return tree_error(visitor_error(diagnostic, TLV_ERR_VISITOR, 1, item.offset),
-                                  item.offset, error_offset);
+                return tree_error(
+                    visitor_error(diagnostic,
+                                  result == TLV_VISIT_ERROR ? TLV_ERR_VISITOR : TLV_ERR_CALLBACK, 1,
+                                  item.offset),
+                    item.offset, error_offset);
         }
     }
     return TLV_OK;
@@ -67,7 +70,8 @@ tlv_result_t tlv_reader_visit_diag(tlv_reader_t* reader, tlv_visitor_t visitor, 
         switch (visitor(&element, context)) {
             case TLV_VISIT_CONTINUE: break;
             case TLV_VISIT_STOP: return TLV_OK;
-            default: return visitor_error(diagnostic, TLV_ERR_VISITOR, 1, offset);
+            case TLV_VISIT_ERROR: return visitor_error(diagnostic, TLV_ERR_VISITOR, 1, offset);
+            default: return visitor_error(diagnostic, TLV_ERR_CALLBACK, 1, offset);
         }
     }
     return TLV_OK;

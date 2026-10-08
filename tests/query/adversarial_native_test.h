@@ -74,8 +74,7 @@ static int native_profiles(void) {
         const tlv_query_program_t* image = native_plans[kind];
 #if !OPENTLV_DOCUMENT
         if (levels[kind] == TLV_QUERY_D) {
-            CHECK(tlv_query_plan_open(image, image->reserved, &p, NULL) ==
-                  TLV_ERR_UNSUPPORTED_TYPE);
+            CHECK(tlv_query_plan_open(image, image->reserved, &p, NULL) == TLV_ERR_UNSUPPORTED);
             continue;
         }
 #endif
@@ -104,7 +103,7 @@ static int native_profiles(void) {
         size_t            bytes;
         CHECK(initialize(p, 1, &memory, &e, &bytes) == 0);
         if (levels[kind] == TLV_QUERY_D) {
-            CHECK(tlv_query_exec_finish(e, NULL) == TLV_ERR_UNSUPPORTED_TYPE);
+            CHECK(tlv_query_exec_finish(e, NULL) == TLV_ERR_UNSUPPORTED);
             CHECK(tlv_query_exec_finish(e, NULL) == TLV_ERR_INVALID_STATE);
             CHECK(tlv_query_exec_reset(e) == TLV_OK);
             continue;

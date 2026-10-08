@@ -4,7 +4,7 @@ import gc
 import pytest
 from opentlv import (QueryProgram, TreeReader, Visit, Document, InvalidArgError, InvalidStateError,
                      NeedMoreDataError, LimitError, BufferTooShortError, QueryProvider,
-                     InvalidValueError, QueryRule, QuerySchema, SchemaError, UnsupportedTypeError)
+                     InvalidValueError, CallbackError, QueryRule, QuerySchema, SchemaError, UnsupportedError)
 from opentlv import (QueryTagAdapter, QueryDefinitionResolver, Definition, DefinitionRegistry,
                      FixedFormat, Query, query_emv_resolve)
 
@@ -51,7 +51,7 @@ def test_query_tag_adapter_dynamic_resolver_fixed_format_and_owned_image():
     assert seen == [("demo", "leaf"), ("demo", "leaf")]
     loaded = QueryProgram.load(program.image(), format=FixedFormat(2, 2, "little"),
                                resolve=resolve, tags=tags)
-    with pytest.raises(InvalidArgError):
+    with pytest.raises(InvalidValueError):
         QueryProgram.load(program.image(), format=FixedFormat(2, 2, "little"), resolve=resolve,
                           tags=QueryTagAdapter(302, tags.class_of, tags.number_of))
     document = Document(wire, FixedFormat(2, 2, "little"))
@@ -72,7 +72,7 @@ def test_query_resolver_drift_definition_ambiguity_and_callback_errors():
     def changing(namespace, name):
         calls.append(name)
         return b"\x5a" if len(calls) == 1 else b"\x5b"
-    with pytest.raises(InvalidArgError):
+    with pytest.raises(InvalidValueError):
         QueryProgram("//named", resolve=changing)
     marker = ValueError("resolver exception")
     def throwing(*args):
@@ -93,7 +93,7 @@ def test_query_resolver_drift_definition_ambiguity_and_callback_errors():
     with pytest.raises(ValueError) as failure:
         bad.evaluate(bytes.fromhex("5a00"))
     assert failure.value is marker
-    with pytest.raises(UnsupportedTypeError):
+    with pytest.raises(UnsupportedError):
         QueryProgram("number(//5A)", tags=QueryTagAdapter(304, class_of=lambda raw: 1))
 
 
@@ -134,7 +134,7 @@ def test_query_schema_buffer_document_owned_diagnostics_and_limits():
     reverse = QuerySchema([QueryRule(QueryProgram("//5A[2]"),
                                     QueryProgram("exists(preceding::5A)"))])
     siblings = bytes.fromhex("70065a01015a0102")
-    with pytest.raises(UnsupportedTypeError):
+    with pytest.raises(UnsupportedError):
         reverse.validate_buffer(siblings)
     reverse.validate_document(Document(siblings))
     empty_root = QueryProgram("value(//70)").execution(max_depth=0)
@@ -188,7 +188,7 @@ def test_custom_conversion_provider_lifetime_images_and_backends():
     assert calls[-1][1].element.tag.data == b"\x5a"
     loaded = QueryProgram.load(program.image(), providers={"num": QueryProvider(101, decode)})
     assert loaded.evaluate(bytes.fromhex("5a0104")) == 40
-    with pytest.raises(InvalidArgError):
+    with pytest.raises(InvalidValueError):
         QueryProgram.load(program.image())
     execution = program.execution()
     document = Document(bytes.fromhex("5a0102"))
@@ -265,7 +265,7 @@ def test_full_language_variables_scalar_and_image_roundtrip():
     loaded = QueryProgram.load(program.image(), variables={"minimum": int})
     assert loaded.format() == program.format()
     assert loaded.evaluate(WIRE, bindings={"minimum": 2}) == 0
-    with pytest.raises(InvalidArgError) as error:
+    with pytest.raises(InvalidValueError) as error:
         QueryProgram.load(program.image()[:-1], variables={"minimum": int})
     assert error.value.query is not None
     assert "instructions" in program.info
@@ -435,3 +435,13 @@ def test_query_schema_deep_diagnostic_retains_omitted_count():
     detail = caught.value.schema
     assert detail["path"] == (b"\x70",) + (b"\x30",) * 31
     assert detail["path_omitted"] == 3
+
+
+def test_invalid_successful_provider_output_is_callback_failure():
+    program = QueryProgram("num(//5A)", providers={
+        "num": QueryProvider(104, lambda value, metadata: "wrong type", max_result_bytes=32)})
+    with pytest.raises(CallbackError) as failed:
+        program.evaluate(bytes.fromhex("5a0103"))
+    assert failed.value.code == 20
+    assert failed.value.query["query_kind"] == 13
+    assert failed.value.query["codec"] == 0

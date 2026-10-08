@@ -43,10 +43,10 @@ pub enum Error {
     InvalidByteOrder,
     /// An unsigned value cannot fit the requested numeric width.
     Overflow,
-    /// Universal primitive content is malformed or fails a canonical rule.
+    /// Data or its application representation is invalid for the requested interpretation.
     InvalidValue,
-    /// A universal tag number has no implemented canonical validation.
-    UnsupportedType,
+    /// A valid requested capability or representation is not implemented.
+    Unsupported,
     /// A schema definition is invalid independently of input.
     InvalidSchema,
     /// A logical size exceeds the host address space.
@@ -55,6 +55,8 @@ pub enum Error {
     NeedMoreData,
     /// The operation is forbidden by the current lifecycle state.
     InvalidState,
+    /// A provider violated its callback contract.
+    Callback,
     /// A result code not known to this crate; carries the raw code.
     Unknown(i32),
 }
@@ -81,11 +83,12 @@ impl Error {
             native::TLV_ERR_INVALID_BYTE_ORDER => Error::InvalidByteOrder,
             native::TLV_ERR_OVERFLOW => Error::Overflow,
             native::TLV_ERR_INVALID_VALUE => Error::InvalidValue,
-            native::TLV_ERR_UNSUPPORTED_TYPE => Error::UnsupportedType,
+            native::TLV_ERR_UNSUPPORTED => Error::Unsupported,
             native::TLV_ERR_INVALID_SCHEMA => Error::InvalidSchema,
             native::TLV_ERR_NATIVE_SIZE => Error::NativeSize,
             native::TLV_NEED_MORE_DATA => Error::NeedMoreData,
             native::TLV_ERR_INVALID_STATE => Error::InvalidState,
+            native::TLV_ERR_CALLBACK => Error::Callback,
             other => Error::Unknown(other),
         })
     }
@@ -107,11 +110,12 @@ impl Error {
             Error::InvalidByteOrder => native::TLV_ERR_INVALID_BYTE_ORDER,
             Error::Overflow => native::TLV_ERR_OVERFLOW,
             Error::InvalidValue => native::TLV_ERR_INVALID_VALUE,
-            Error::UnsupportedType => native::TLV_ERR_UNSUPPORTED_TYPE,
+            Error::Unsupported => native::TLV_ERR_UNSUPPORTED,
             Error::InvalidSchema => native::TLV_ERR_INVALID_SCHEMA,
             Error::NativeSize => native::TLV_ERR_NATIVE_SIZE,
             Error::NeedMoreData => native::TLV_NEED_MORE_DATA,
             Error::InvalidState => native::TLV_ERR_INVALID_STATE,
+            Error::Callback => native::TLV_ERR_CALLBACK,
             Error::Unknown(code) => code,
         }
     }
@@ -140,7 +144,7 @@ impl error::Error for Error {}
 mod tests {
     use super::*;
 
-    const KNOWN: [(i32, Error); 19] = [
+    const KNOWN: [(i32, Error); 20] = [
         (1, Error::BufferTooShort),
         (2, Error::InvalidLength),
         (3, Error::NullArg),
@@ -155,11 +159,12 @@ mod tests {
         (12, Error::InvalidByteOrder),
         (13, Error::Overflow),
         (14, Error::InvalidValue),
-        (15, Error::UnsupportedType),
+        (15, Error::Unsupported),
         (16, Error::InvalidSchema),
         (17, Error::NativeSize),
         (18, Error::NeedMoreData),
         (19, Error::InvalidState),
+        (20, Error::Callback),
     ];
 
     #[test]

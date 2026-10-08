@@ -69,7 +69,7 @@ static tlv_result_t resolve(go_format config, tlv_format_t* format, tlv_fixed_fo
 #if OPENTLV_NFC
         case GO_FORMAT_NFC_TYPE2: *format = tlv_format_nfc_type2; return TLV_OK;
 #endif
-        default: return TLV_ERR_UNSUPPORTED_TYPE;
+        default: return TLV_ERR_UNSUPPORTED;
     }
 }
 
@@ -138,7 +138,7 @@ go_document* go_document_parse(go_format config, const uint8_t* data, size_t siz
     (void)elements;
     (void)defaults;
     (void)retain_source_locations;
-    *code = TLV_ERR_UNSUPPORTED_TYPE;
+    *code = TLV_ERR_UNSUPPORTED;
     return NULL;
 #endif
 }
@@ -199,7 +199,7 @@ int go_document_query(go_document* d, const char* text, void*** nodes, size_t* c
     (void)nodes;
     (void)count;
     (void)error_offset;
-    return TLV_ERR_UNSUPPORTED_TYPE;
+    return TLV_ERR_UNSUPPORTED;
 #endif
 }
 void go_query_free(void** nodes) {
@@ -259,7 +259,7 @@ int go_document_edit(go_document* d, void* n, void* before, const uint8_t* tag, 
     (void)value_size;
     (void)operation;
     (void)result;
-    return TLV_ERR_UNSUPPORTED_TYPE;
+    return TLV_ERR_UNSUPPORTED;
 #endif
 }
 
@@ -279,7 +279,7 @@ go_write_result go_document_encode(go_document* d, go_format config, uint8_t* da
     (void)data;
     (void)capacity;
     (void)measure;
-    r.code = TLV_ERR_UNSUPPORTED_TYPE;
+    r.code = TLV_ERR_UNSUPPORTED;
 #endif
     return r;
 }
@@ -645,7 +645,7 @@ tlv_result_t go_query_schema_document(go_document* document, const tlv_schema_qu
     (void)capacity;
     (void)staging;
     (void)diagnostic;
-    return TLV_ERR_UNSUPPORTED_TYPE;
+    return TLV_ERR_UNSUPPORTED;
 #endif
 }
 const tlv_query_program_t* go_query_native(const go_query_program* p) {
@@ -906,7 +906,7 @@ tlv_result_t go_query_document(go_query_execution* q, const go_document* documen
     (void)context;
     (void)capacity;
     (void)diagnostic;
-    return TLV_ERR_UNSUPPORTED_TYPE;
+    return TLV_ERR_UNSUPPORTED;
 #endif
 }
 tlv_result_t go_query_edit(go_query_execution* q, go_document* document, int kind,
@@ -932,7 +932,7 @@ tlv_result_t go_query_edit(go_query_execution* q, go_document* document, int kin
     (void)value;
     (void)value_size;
     (void)capacity;
-    return TLV_ERR_UNSUPPORTED_TYPE;
+    return TLV_ERR_UNSUPPORTED;
 #endif
 }
 tlv_result_t go_query_document_next(go_query_execution* q, void** node) {
@@ -944,7 +944,7 @@ tlv_result_t go_query_document_next(go_query_execution* q, void** node) {
 #else
     (void)q;
     (void)node;
-    return TLV_ERR_UNSUPPORTED_TYPE;
+    return TLV_ERR_UNSUPPORTED;
 #endif
 }
 uint64_t go_query_node_identity(void* node) {

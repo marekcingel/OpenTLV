@@ -126,7 +126,8 @@ static tlv_result_t traverse(const uint8_t* data, size_t size, size_t base, size
                                                base + lvl->tag_offset, context);
                 if (v == TLV_VISIT_STOP) return TLV_OK;
                 if (v != TLV_VISIT_CONTINUE)
-                    return fail(TLV_ERR_VISITOR, base + lvl->tag_offset, error_offset);
+                    return fail(v == TLV_VISIT_ERROR ? TLV_ERR_VISITOR : TLV_ERR_CALLBACK,
+                                base + lvl->tag_offset, error_offset);
             }
             if (one && depth == 0) {
                 *first = constructed_element;
@@ -242,7 +243,8 @@ static tlv_result_t traverse(const uint8_t* data, size_t size, size_t base, size
                     visitor(&element, initial_depth + depth, base + elem_start, context);
                 if (v == TLV_VISIT_STOP) return TLV_OK;
                 if (v != TLV_VISIT_CONTINUE)
-                    return fail(TLV_ERR_VISITOR, base + elem_start, error_offset);
+                    return fail(v == TLV_VISIT_ERROR ? TLV_ERR_VISITOR : TLV_ERR_CALLBACK,
+                                base + elem_start, error_offset);
             }
         }
     }
@@ -253,8 +255,8 @@ static tlv_result_t visit_impl(const uint8_t* data, size_t size, const tlv_cer_l
                                size_t* error_offset) {
     if (!limits) limits = &tlv_cer_default_limits;
     if (!data && size) return fail(TLV_ERR_NULL_ARG, 0, error_offset);
-    if (limits->max_depth > TLV_CER_MAX_DEPTH || size > limits->max_input_size)
-        return fail(TLV_ERR_LIMIT, 0, error_offset);
+    if (limits->max_depth > TLV_CER_MAX_DEPTH) return fail(TLV_ERR_UNSUPPORTED, 0, error_offset);
+    if (size > limits->max_input_size) return fail(TLV_ERR_LIMIT, 0, error_offset);
     return traverse(data, size, 0, 0, 0, limits, visitor, context, 0, NULL, NULL, strict, NULL,
                     error_offset);
 }
@@ -277,8 +279,8 @@ static tlv_result_t read_impl(const uint8_t* data, size_t size, const tlv_cer_li
     tlv_result_t rc;
     if (!limits) limits = &tlv_cer_default_limits;
     if ((!data && size) || !element || !consumed) return fail(TLV_ERR_NULL_ARG, 0, error_offset);
-    if (limits->max_depth > TLV_CER_MAX_DEPTH || size > limits->max_input_size)
-        return fail(TLV_ERR_LIMIT, 0, error_offset);
+    if (limits->max_depth > TLV_CER_MAX_DEPTH) return fail(TLV_ERR_UNSUPPORTED, 0, error_offset);
+    if (size > limits->max_input_size) return fail(TLV_ERR_LIMIT, 0, error_offset);
     if (!size) return fail(TLV_ERR_END_OF_BUFFER, 0, error_offset);
     rc = traverse(data, size, 0, 0, 0, limits, NULL, NULL, 1, &result, &used, strict, NULL,
                   error_offset);
@@ -332,8 +334,8 @@ static tlv_result_t write_impl(uint8_t* data, size_t capacity, tlv_tag_t tag, co
     if (!limits) limits = &tlv_cer_default_limits;
     if ((!data && capacity) || (!value && length) || !written)
         return fail(TLV_ERR_NULL_ARG, 0, error_offset);
-    if (limits->max_depth > TLV_CER_MAX_DEPTH || !limits->max_elements)
-        return fail(TLV_ERR_LIMIT, 0, error_offset);
+    if (limits->max_depth > TLV_CER_MAX_DEPTH) return fail(TLV_ERR_UNSUPPORTED, 0, error_offset);
+    if (!limits->max_elements) return fail(TLV_ERR_LIMIT, 0, error_offset);
     rc = tlv_cer_fields.write_tag(NULL, &tag, NULL, 0, &tag_size);
     if (rc != TLV_OK) return fail(rc, 0, error_offset);
 
@@ -433,8 +435,8 @@ tlv_result_t tlv_cer_write_segmented_string(uint8_t* data, size_t capacity, tlv_
     if (!limits) limits = &tlv_cer_default_limits;
     if ((!data && capacity) || (!content && content_length) || !written)
         return fail(TLV_ERR_NULL_ARG, 0, error_offset);
-    if (limits->max_depth > TLV_CER_MAX_DEPTH || !limits->max_elements)
-        return fail(TLV_ERR_LIMIT, 0, error_offset);
+    if (limits->max_depth > TLV_CER_MAX_DEPTH) return fail(TLV_ERR_UNSUPPORTED, 0, error_offset);
+    if (!limits->max_elements) return fail(TLV_ERR_LIMIT, 0, error_offset);
     if (tlv_asn1_tag_class(&tag) != TLV_ASN1_UNIVERSAL || tlv_asn1_tag_is_constructed(&tag))
         return fail(TLV_ERR_INVALID_ARG, 0, error_offset);
     rc = tlv_cer_fields.write_tag(NULL, &tag, NULL, 0, &tag_size);

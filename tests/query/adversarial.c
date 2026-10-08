@@ -79,7 +79,7 @@ static int sequence(const tlv_query_program_t* p, int retained, const char* oper
         switch (operations[step]) {
             case 'B':
                 expected = nodes || invalid || finished ? TLV_ERR_INVALID_STATE
-                           : bound                      ? TLV_ERR_INVALID_ARG
+                           : bound                      ? TLV_ERR_INVALID_VALUE
                                                         : TLV_OK;
                 rc = tlv_query_exec_bind(e, "n", TLV_QUERY_RESULT_INTEGER, 1, NULL, 0, &diagnostic);
                 if (expected == TLV_OK) bound = 1;
@@ -90,7 +90,7 @@ static int sequence(const tlv_query_program_t* p, int retained, const char* oper
                 if (invalid || finished)
                     expected = TLV_ERR_INVALID_STATE;
                 else if (!bound || operations[step] == 'E') {
-                    expected = !bound ? TLV_ERR_INVALID_ARG : TLV_ERR_INVALID_VALUE;
+                    expected = TLV_ERR_INVALID_VALUE;
                     invalid = 1;
                 } else if (nodes == 3) {
                     expected = TLV_ERR_LIMIT;
@@ -107,7 +107,7 @@ static int sequence(const tlv_query_program_t* p, int retained, const char* oper
                 break;
             case 'X':
                 if (invalid || !bound) {
-                    expected = invalid ? TLV_ERR_INVALID_STATE : TLV_ERR_INVALID_ARG;
+                    expected = invalid ? TLV_ERR_INVALID_STATE : TLV_ERR_INVALID_VALUE;
                     invalid = 1;
                 } else
                     finished = 1;

@@ -10,6 +10,34 @@
 #include <limits>
 #include <vector>
 
+TEST(Unit_Tlv_Format, ProviderResultsAreDistinctFromInvalidSuccessPayloads) {
+    struct State {
+        tlv_result_t result;
+        unsigned     calls;
+    } state{};
+    tlv_format_t format{};
+    format.context = &state;
+    format.decode = [](const void* context, const uint8_t*, size_t, tlv_decoded_t*,
+                       tlv_format_error_t*) -> tlv_result_t {
+        auto& s = *const_cast<State*>(static_cast<const State*>(context));
+        ++s.calls;
+        return s.result;
+    };
+    const uint8_t data[] = {1};
+    for (auto result : {TLV_OK, TLV_ERR_INVALID_VALUE, TLV_ERR_LIMIT, TLV_ERR_BUFFER_TOO_SHORT,
+                        TLV_ERR_END_OF_BUFFER, TLV_NEED_MORE_DATA, static_cast<tlv_result_t>(21)}) {
+        state = {result, 0};
+        tlv_decoded_t decoded{};
+        decoded.source.size = 99;
+        const bool invalid = result == TLV_OK || result == TLV_ERR_END_OF_BUFFER ||
+                             result == TLV_NEED_MORE_DATA || result == 21;
+        EXPECT_EQ(invalid ? TLV_ERR_CALLBACK : result,
+                  tlv_format_decode(&format, data, sizeof data, &decoded, nullptr));
+        EXPECT_EQ(99u, decoded.source.size);
+        EXPECT_EQ(1u, state.calls);
+    }
+}
+
 namespace {
 // Two raw tag bytes, and a configurable fixed-width little-endian length.
 const size_t width = 2;
@@ -126,7 +154,7 @@ TEST(Unit_Tlv_Format, InvalidCallbackSizesAndErrorsDoNotAdvance) {
     tlv_reader_t  reader;
     tlv_element_t element{};
     ASSERT_EQ(TLV_OK, tlv_reader_init(&reader, data, sizeof(data), &format));
-    EXPECT_EQ(TLV_ERR_INVALID_TAG, tlv_reader_next(&reader, &element));
+    EXPECT_EQ(TLV_ERR_CALLBACK, tlv_reader_next(&reader, &element));
     EXPECT_EQ(0u, reader.pos);
     layout = fixed_layout;
     layout.read_length = [](const void*, const uint8_t*, size_t, tlv_size_t* length, size_t* used) {
@@ -140,7 +168,7 @@ TEST(Unit_Tlv_Format, InvalidCallbackSizesAndErrorsDoNotAdvance) {
         *used = std::numeric_limits<size_t>::max();
         return TLV_OK;
     };
-    EXPECT_EQ(TLV_ERR_INVALID_LENGTH, tlv_reader_next(&reader, &element));
+    EXPECT_EQ(TLV_ERR_CALLBACK, tlv_reader_next(&reader, &element));
     tlv_field_composition_t output_layout = fixed_writer_layout;
     tlv_format_t            output_format = fixed_writer;
     output_format.context = &output_layout;
@@ -155,7 +183,7 @@ TEST(Unit_Tlv_Format, InvalidCallbackSizesAndErrorsDoNotAdvance) {
         *used = data ? 3 : 2;
         return TLV_OK;
     };
-    EXPECT_EQ(TLV_ERR_INVALID_LENGTH, tlv_writer_write(&writer, (TLV_TAG(1, 2)), nullptr, 0));
+    EXPECT_EQ(TLV_ERR_CALLBACK, tlv_writer_write(&writer, (TLV_TAG(1, 2)), nullptr, 0));
     EXPECT_EQ(0u, writer.pos);
 }
 
@@ -393,7 +421,7 @@ TEST(Unit_Tlv_Format, DecodeCallbacksPublishCompletePartialOrAbsentFailureDetail
                      << "result=" << probe.result << " partial_detail=" << probe.partial_detail
                      << " inconsistent_source=" << probe.inconsistent_source);
         const tlv_format_t format = {&probe, probed_decode, nullptr, nullptr, nullptr};
-        const auto         failure = probe.inconsistent_source ? TLV_ERR_INVALID_ARG : probe.result;
+        const auto         failure = probe.inconsistent_source ? TLV_ERR_CALLBACK : probe.result;
         for (bool diagnostic : {false, true}) {
             calls = 0;
             tlv_format_error_t error = stale_error;
@@ -420,7 +448,7 @@ TEST(Unit_Tlv_Format, FailedDecodeCallbacksPreservePublishedOutputsAcrossReaderP
     for (int mode : {1, 2, 3}) {
         SCOPED_TRACE(mode);
         const tlv_format_t format = {&mode, initialized_decode, nullptr, nullptr, nullptr};
-        const tlv_result_t failure = mode == 1   ? TLV_ERR_INVALID_ARG
+        const tlv_result_t failure = mode == 1   ? TLV_ERR_CALLBACK
                                      : mode == 2 ? TLV_ERR_INVALID_LENGTH
                                                  : TLV_ERR_BUFFER_TOO_SHORT;
         tlv_decoded_t      decoded{};

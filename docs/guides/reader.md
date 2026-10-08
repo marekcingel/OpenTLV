@@ -240,8 +240,9 @@ need independent structural storage. The caller may release or overwrite a
 returned item object immediately; this does not alter traversal state.
 
 `max_elements` bounds published nodes, including BEGIN parents; END does not count.
-Zero permits only empty input. Depth or storage exhaustion returns
-`TLV_ERR_LIMIT` when attempting to descend, after the parent has been returned.
+Zero permits only empty input. Exceeding the depth budget returns `TLV_ERR_LIMIT`;
+insufficient frame storage returns `TLV_ERR_BUFFER_TOO_SHORT` when attempting
+to descend, after the parent has been returned.
 Event errors and `NEED_MORE_DATA` preserve the cursor, frames, and event output.
 The node-only projection may first consume pending ENDs left by a Builder.
 `tlv_tree_reader_next_diag()` retains Reader diagnostics and absolute offsets

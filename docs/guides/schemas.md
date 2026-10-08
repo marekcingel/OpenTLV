@@ -558,7 +558,7 @@ call, including optional child definitions absent from the input. Shared and
 recursive references are supported. The allocation-free worklist holds at most
 `TLV_SCHEMA_MAX_TABLES` (256) table identities and uses linear pointer lookup,
 plus each table's local rule/group checks. Exhausting this fixed capacity returns
-`TLV_ERR_UNSUPPORTED_TYPE`. Definition depth is independent of the input nesting
+`TLV_ERR_UNSUPPORTED`. Definition depth is independent of the input nesting
 limit (`TLV_SCHEMA_MAX_DEPTH`); no global cache or checked-handle lifetime is added.
 
 ## Next step

@@ -129,7 +129,7 @@ static int loader_aliases(void) {
     const tlv_query_program_t* loaded = NULL;
     tlv_query_diagnostic_t     diagnostic;
     CHECK(tlv_query_program_load(aligned(&memory), p->reserved, NULL, aligned(&before), bytes,
-                                 &loaded, NULL, &diagnostic) == TLV_ERR_UNSUPPORTED_TYPE);
+                                 &loaded, NULL, &diagnostic) == TLV_ERR_UNSUPPORTED);
     CHECK(!loaded && diagnostic.kind == TLV_QUERY_ERROR_IMAGE_VERSION);
     return 0;
 }

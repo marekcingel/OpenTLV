@@ -24,13 +24,11 @@ enum class failure { eof, truncated_value, incremental, initialization };
 struct write_only_format {
     tlv::expected<tlv::encoding, tlv::format_failure>
     measure(const tlv::measure_request&) const noexcept {
-        return tlv::unexpected<tlv::format_failure>(
-            tlv::format_failure(tlv::errc::unsupported_type));
+        return tlv::unexpected<tlv::format_failure>(tlv::format_failure(tlv::errc::unsupported));
     }
     tlv::expected<size_t, tlv::format_failure> encode(const tlv::element_view&,
                                                       tlv::span<tlv::byte>) const noexcept {
-        return tlv::unexpected<tlv::format_failure>(
-            tlv::format_failure(tlv::errc::unsupported_type));
+        return tlv::unexpected<tlv::format_failure>(tlv::format_failure(tlv::errc::unsupported));
     }
 };
 

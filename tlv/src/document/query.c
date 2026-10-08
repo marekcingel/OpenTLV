@@ -22,7 +22,8 @@ tlv_result_t tlv_document_query_visit(const tlv_document_t* document, const tlv_
             tlv_visit_result_t result = visitor(node, context);
             if (document_query_callback((tlv_document_t*)document, 0)) return TLV_ERR_INVALID_STATE;
             if (result == TLV_VISIT_STOP) return TLV_OK;
-            if (result != TLV_VISIT_CONTINUE) return TLV_ERR_VISITOR;
+            if (result != TLV_VISIT_CONTINUE)
+                return result == TLV_VISIT_ERROR ? TLV_ERR_VISITOR : TLV_ERR_CALLBACK;
         }
         if (node->first) {
             node = node->first;

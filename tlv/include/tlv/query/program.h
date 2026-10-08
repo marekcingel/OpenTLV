@@ -64,7 +64,10 @@ typedef enum tlv_query_error_kind {
     TLV_QUERY_ERROR_CARDINALITY,   /**< Scalar conversion did not receive exactly one node. */
     TLV_QUERY_ERROR_CODEC,         /**< Strict Value decoding failed. */
     TLV_QUERY_ERROR_IMAGE_VERSION, /**< Internal image belongs to an incompatible release. */
-    TLV_QUERY_ERROR_STATE          /**< Invalid lifecycle state or forbidden reentrancy. */
+    TLV_QUERY_ERROR_STATE,         /**< Invalid lifecycle state or forbidden reentrancy. */
+    TLV_QUERY_ERROR_CALLBACK,      /**< Callback contract violation or explicit visitor error. */
+    TLV_QUERY_ERROR_TYPE,          /**< Incompatible expression operand types. */
+    TLV_QUERY_ERROR_IMAGE          /**< Malformed stored program image. */
 } tlv_query_error_kind_t;
 
 /** @brief Earliest publication frontier for the conservatively selected backend. */
@@ -97,10 +100,12 @@ typedef struct tlv_query_diagnostic {
     size_t configured;              /**< Configured resource bound, when limit is present. */
     tlv_reader_diagnostic_t reader; /**< Original Reader detail, also retained under STATE for a
                                        Reader state failure. */
-    /** @brief Original codec failure when kind is #TLV_QUERY_ERROR_CODEC.
+    /** @brief Original codec result for #TLV_QUERY_ERROR_CODEC or a conversion
+     * #TLV_QUERY_ERROR_CALLBACK.
      *
-     * Reports #TLV_CODEC_ERR_INVALID_VALUE when a successful codec result violates the
-     * declared type, has nonzero size with NULL data, or contains invalid UTF-8. */
+     * Preserves #TLV_CODEC_OK when a successful codec result violates the declared type,
+     * has nonzero size with NULL data, or contains invalid UTF-8. The operation then
+     * returns #TLV_ERR_CALLBACK; expected identifies the violated output contract. */
     tlv_codec_result_t codec;
 } tlv_query_diagnostic_t;
 
@@ -311,7 +316,7 @@ TLV_API tlv_result_t tlv_query_compile_scratch(const char* text, size_t size,
  * @param[in,out] info Required requirements output; set struct_size to the writable extent.
  * @param[out] diagnostic Optional failure detail.
  * @return #TLV_OK for a supported Query program or sizing pass.
- * @return #TLV_ERR_UNSUPPORTED_TYPE for recognized later-phase capabilities.
+ * @return #TLV_ERR_UNSUPPORTED for recognized later-phase capabilities.
  * @return #TLV_ERR_BUFFER_TOO_SHORT for insufficient scratch/output; info is
  * populated for insufficient program output, not insufficient scratch.
  * @return #TLV_ERR_INVALID_ARG for syntax/options/alignment; #TLV_ERR_NULL_ARG
@@ -399,7 +404,7 @@ TLV_API tlv_result_t tlv_query_compile_commit(const void* prepared, size_t prepa
  * @param[out] bytes Required validation scratch size, unchanged on failure.
  * @param[out] alignment Required scratch alignment, unchanged on failure.
  * @param[out] diagnostic Optional failure detail.
- * @return OK, NULL_ARG, INVALID_ARG, LIMIT, OVERFLOW, or UNSUPPORTED_TYPE for
+ * @return OK, NULL_ARG, INVALID_ARG, LIMIT, OVERFLOW, or UNSUPPORTED for
  * an incompatible image version or byte order. This call does not validate instructions.
  * @note No allocation or recursion. The image may be unaligned for discovery.
  * Internal images use native-endian uint32 fields and the release's private layout;
@@ -422,7 +427,7 @@ TLV_API tlv_result_t tlv_query_program_load_scratch(const void* image, size_t si
  * unchanged on failure.
  * @param[out] diagnostic Optional failure detail.
  * @return OK, NULL_ARG, INVALID_ARG, BUFFER_TOO_SHORT, LIMIT, OVERFLOW, or
- * UNSUPPORTED_TYPE for incompatible version/capabilities.
+ * UNSUPPORTED for incompatible version/capabilities.
  * @note Recompiles bounded embedded text and compares every byte with the trusted
  * compiler output, validating all private instruction, index, type, constant,
  * transition and optimization fields before publication. Environment resolvers
@@ -442,7 +447,7 @@ TLV_API tlv_result_t tlv_query_program_load(const void* image, size_t size,
 /**
  * @brief Canonically format retained program source, including size discovery.
  * @note Requires the Query frontend and retained source text. Static plans without
- * source return UNSUPPORTED_TYPE; explain is available without source.
+ * source return UNSUPPORTED; explain is available without source.
  * @param[in] program Required live program returned by compile.
  * @param[out] output Optional output; NULL requires capacity zero.
  * @param[in] capacity Available bytes including terminator.
@@ -450,7 +455,8 @@ TLV_API tlv_result_t tlv_query_program_load(const void* image, size_t size,
  * @return #TLV_OK on discovery/write; #TLV_ERR_NULL_ARG for missing arguments;
  * #TLV_ERR_BUFFER_TOO_SHORT with required set and output unchanged.
  * @note Never allocates. Output and required must not overlap program storage.
- * @return #TLV_ERR_INVALID_ARG for misalignment or inconsistent internal image.
+ * @return #TLV_ERR_INVALID_ARG for misalignment; #TLV_ERR_INVALID_VALUE for an
+ * inconsistent internal image.
  */
 TLV_API tlv_result_t tlv_query_program_format(const tlv_query_program_t* program, char* output,
                                               size_t capacity, size_t* required);
@@ -462,8 +468,9 @@ TLV_API tlv_result_t tlv_query_program_format(const tlv_query_program_t* program
  * @param[out] bytes Required exact workspace size.
  * @param[out] alignment Required workspace alignment.
  * @return #TLV_OK; #TLV_ERR_NULL_ARG for missing pointers; #TLV_ERR_OVERFLOW
- * for arithmetic overflow; #TLV_ERR_UNSUPPORTED_TYPE for unsupported plans.
- * @return #TLV_ERR_INVALID_ARG for misalignment or inconsistent internal image.
+ * for arithmetic overflow; #TLV_ERR_UNSUPPORTED for unsupported plans.
+ * @return #TLV_ERR_INVALID_ARG for misalignment; #TLV_ERR_INVALID_VALUE for an
+ * inconsistent internal image.
  * @note Checks the readable image produced by this release's compiler once;
  * this pointer-only API cannot validate arbitrary or truncated external storage.
  */
@@ -506,6 +513,7 @@ TLV_API tlv_result_t tlv_query_exec_reset(tlv_query_exec_t* exec);
  * @param[in] size Span bytes, ignored for integer bindings.
  * @param[out] diagnostic Optional binding failure detail.
  * @return #TLV_OK; #TLV_ERR_NULL_ARG for missing pointers; #TLV_ERR_INVALID_ARG
+ * for an invalid storage descriptor; #TLV_ERR_INVALID_VALUE
  * for unknown/duplicate/incompatible bindings; #TLV_ERR_INVALID_STATE for used execution
  * or callback reentrancy.
  * @note No text interpolation or allocation occurs. Span storage must remain alive
@@ -575,7 +583,7 @@ TLV_API tlv_result_t tlv_query_exec_info(const tlv_query_exec_t* exec, tlv_query
  * @return #TLV_OK; #TLV_ERR_INVALID_VALUE for malformed structural events;
  * #TLV_ERR_INVALID_STATE for finished/failed execution or callback reentrancy;
  * #TLV_ERR_LIMIT for depth/elements/work; #TLV_ERR_INVALID_VALUE for
- * unavailable Source metadata; #TLV_ERR_UNSUPPORTED_TYPE for D programs without
+ * unavailable Source metadata; #TLV_ERR_UNSUPPORTED for D programs without
  * Document execution; #TLV_ERR_NULL_ARG for missing pointers.
  * @note Execution errors invalidate execution until reset and preserve matched.
  * A call with required pointers present on an already failed execution preserves
@@ -607,7 +615,7 @@ TLV_API tlv_result_t tlv_query_exec_selected(const tlv_query_exec_t* exec, tlv_t
  * @param[out] diagnostic Optional failure detail.
  * @return #TLV_OK on balanced EOF; #TLV_ERR_INVALID_VALUE for unclosed event parents;
  * #TLV_ERR_INVALID_ARG for a missing binding or a context absent from the input;
- * #TLV_ERR_INVALID_STATE for a failed execution or callback reentrancy; #TLV_ERR_UNSUPPORTED_TYPE
+ * #TLV_ERR_INVALID_STATE for a failed execution or callback reentrancy; #TLV_ERR_UNSUPPORTED
  * for D programs without Document execution; #TLV_ERR_NULL_ARG for NULL execution. Repeated
  * successful finish is harmless.
  * @note Execution failures, including attempting D without Document, invalidate

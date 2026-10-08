@@ -4,7 +4,7 @@
 import gc
 import pytest
 from opentlv import (TreeWriter, Element, Tag, Format, BufferTooShortError,
-                     InvalidArgError, InvalidStateError, InvalidValueError, LimitError)
+                     CallbackError, InvalidArgError, InvalidStateError, InvalidValueError, LimitError)
 
 
 def test_tree_writer_retains_tags_and_only_exposes_finalized_output():
@@ -68,9 +68,9 @@ def test_measurement_exposes_workspace_requirements_and_validates_source():
     with pytest.raises(BufferTooShortError) as failed:
         TreeWriter.measure(measurement_items(), 2)
     assert failed.value.required_data == 3
-    with pytest.raises(InvalidArgError):
+    with pytest.raises(CallbackError):
         TreeWriter.measure([(Element(Tag(b"\x04"), memoryview(b"")), 1, False)], 32)
-    with pytest.raises(LimitError):
+    with pytest.raises(BufferTooShortError):
         TreeWriter.measure(measurement_items(), 32, frame_capacity=0)
 
 
@@ -134,7 +134,7 @@ def test_event_measurement_and_bounded_tags():
         TreeWriter.measure_events(events[:-1], 32)
     writer = TreeWriter(32)
     writer.set_tag_capacity(0)
-    with pytest.raises(LimitError):
+    with pytest.raises(BufferTooShortError):
         writer.write_event(events[0])
     writer.set_tag_capacity(1)
     for event in events:

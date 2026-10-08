@@ -14,7 +14,7 @@ static tlv_result_t query_emv_resolve(const char* ns, size_t ns_size, const char
     return tlv_emv_query_resolve(NULL, ns, ns_size, name, name_size, tag);
 #else
     (void)ns; (void)ns_size; (void)name; (void)name_size; (void)tag;
-    return TLV_ERR_UNSUPPORTED_TYPE;
+    return TLV_ERR_UNSUPPORTED;
 #endif
 }
 */
@@ -50,7 +50,7 @@ func goQueryTagLookup(handle C.uintptr_t, kind C.int, data *C.uint8_t, size C.si
 		callback = provider.Number
 	}
 	if callback == nil {
-		return C.TLV_ERR_UNSUPPORTED_TYPE
+		return C.TLV_ERR_UNSUPPORTED
 	}
 	result, status := callback(bytes.Clone(nativeBytes(data, size)))
 	if status == OK {

@@ -252,7 +252,7 @@ TEST(Unit_Tlv_DerValues, OidIriAndRelativeOidIri) {
     check_number(36, {'/', 'a'}, TLV_ERR_INVALID_VALUE);
 }
 
-TEST(Unit_Tlv_DerValues, UnsupportedTypesAreExplicitInStrictMode) {
+TEST(Unit_Tlv_DerValues, UnsupportedsAreExplicitInStrictMode) {
     /* Every primitive-capable universal number through 36 now has an
      * implemented rule (0 and 15 are reserved and rejected earlier, at tag
      * validation, and 8/11/16/17/29 must be constructed, so strict mode never
@@ -269,7 +269,7 @@ TEST(Unit_Tlv_DerValues, UnsupportedTypesAreExplicitInStrictMode) {
               tlv_der_write(data.data(), data.size(), tag, nullptr, 0, nullptr, &written, nullptr));
     tlv_element_t element{};
     size_t        consumed = 0;
-    EXPECT_EQ(TLV_ERR_UNSUPPORTED_TYPE,
+    EXPECT_EQ(TLV_ERR_UNSUPPORTED,
               tlv_der_read_strict(data.data(), data.size(), nullptr, &element, &consumed, nullptr));
 }
 

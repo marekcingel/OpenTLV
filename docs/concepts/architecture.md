@@ -311,7 +311,7 @@ Wire import is a Reader + Document integration (`document/reader.c`), serializat
 is a Writer + Document integration (`document/writer.c`), and path matching is a
 Query + Document integration (`document/query.c`). Nonempty constructed Values
 passed to insert/set-value are encoded children and require Reader; without it,
-these operations return `TLV_ERR_UNSUPPORTED_TYPE` without changing the tree.
+these operations return `TLV_ERR_UNSUPPORTED` without changing the tree.
 Empty constructed nodes and programmatically inserted children remain available.
 Compiled Document Query currently also needs Reader and Writer for its Value
 snapshot; Query-specific execution dependency cleanup remains separate.

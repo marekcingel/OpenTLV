@@ -166,7 +166,7 @@ extern "C" {
  * @param[in] size Exact byte extent, excluding any trailing C structure padding.
  * @param[out] program Borrowed execution handle, set only on success.
  * @param[out] diagnostic Optional initialized error detail.
- * @return OK, NULL_ARG, INVALID_ARG for malformed plans, or UNSUPPORTED_TYPE
+ * @return OK, NULL_ARG, INVALID_ARG for malformed plans, or UNSUPPORTED
  * for incompatible versions or unavailable execution capabilities.
  * @note No allocation, parsing, name resolution or planning occurs. Runtime
  * provider compatibility is checked by eval_init. Resolved names are copied raw

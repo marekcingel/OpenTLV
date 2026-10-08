@@ -84,7 +84,7 @@ func TestReaderRejectsEveryTruncatedElementPrefix(t *testing.T) {
 
 func TestReaderMalformedBER(t *testing.T) {
 	format, err := opentlv.Builtin(opentlv.BER)
-	if errors.Is(err, opentlv.ErrUnsupportedType) {
+	if errors.Is(err, opentlv.ErrUnsupported) {
 		t.Skip("BER disabled")
 	}
 	if err != nil {

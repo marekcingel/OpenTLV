@@ -81,7 +81,7 @@ static tlv_result_t validate_character_segment(uint64_t number, unsigned width,
         case 21:
         case 25:
         case 27: return tlv_asn1_validate_octet_string(value, length);
-        default: return TLV_ERR_UNSUPPORTED_TYPE; /* unreachable: no other number reaches here */
+        default: return TLV_ERR_UNSUPPORTED; /* unreachable: no other number reaches here */
     }
 }
 

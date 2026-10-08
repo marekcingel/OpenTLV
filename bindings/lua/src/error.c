@@ -87,6 +87,8 @@ void opentlv_lua_register_error_codes(lua_State* L, int module_table_index) {
     lua_setfield(L, -2, "NEED_MORE_DATA");
     lua_pushinteger(L, TLV_ERR_INVALID_STATE);
     lua_setfield(L, -2, "INVALID_STATE");
+    lua_pushinteger(L, TLV_ERR_CALLBACK);
+    lua_setfield(L, -2, "CALLBACK");
     lua_pushinteger(L, TLV_ERR_BUFFER_TOO_SHORT);
     lua_setfield(L, -2, "BUFFER_TOO_SHORT");
     lua_pushinteger(L, TLV_ERR_INVALID_LENGTH);
@@ -115,8 +117,8 @@ void opentlv_lua_register_error_codes(lua_State* L, int module_table_index) {
     lua_setfield(L, -2, "OVERFLOW");
     lua_pushinteger(L, TLV_ERR_INVALID_VALUE);
     lua_setfield(L, -2, "INVALID_VALUE");
-    lua_pushinteger(L, TLV_ERR_UNSUPPORTED_TYPE);
-    lua_setfield(L, -2, "UNSUPPORTED_TYPE");
+    lua_pushinteger(L, TLV_ERR_UNSUPPORTED);
+    lua_setfield(L, -2, "UNSUPPORTED");
     lua_pushinteger(L, TLV_ERR_NATIVE_SIZE);
     lua_setfield(L, -2, "NATIVE_SIZE");
     lua_pushinteger(L, TLV_ERR_INVALID_SCHEMA);

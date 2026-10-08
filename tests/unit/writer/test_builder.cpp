@@ -255,7 +255,7 @@ TEST(Unit_Tlvpp_WriterBuilder, FrameDepthAndElementLimitsAreIndependent) {
                         });
                     });
     ASSERT_FALSE(frames);
-    EXPECT_EQ(TLV_ERR_LIMIT, frames.error().code);
+    EXPECT_EQ(TLV_ERR_BUFFER_TOO_SHORT, frames.error().code);
     EXPECT_FALSE(called);
     auto depth = tlv::encode(output, tlv::native::borrow_format(format), storage.view(0),
                              [](tlv::writer_builder& writer) {

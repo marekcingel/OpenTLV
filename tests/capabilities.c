@@ -142,7 +142,7 @@ int main(void) {
 #if !OPENTLV_READER
         {
             uint64_t revision = tlv_document_revision(document);
-            CHECK(tlv_node_set_value(parent, wire, sizeof wire) == TLV_ERR_UNSUPPORTED_TYPE);
+            CHECK(tlv_node_set_value(parent, wire, sizeof wire) == TLV_ERR_UNSUPPORTED);
             CHECK(tlv_document_revision(document) == revision);
             CHECK(tlv_node_first_child(parent) == child && tlv_document_count(document) == 2);
         }

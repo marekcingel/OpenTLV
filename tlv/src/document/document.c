@@ -200,7 +200,7 @@ tlv_result_t document_create_node(tlv_document_t* document, tlv_node_t* parent, 
         sizeof *node +
         (document->options.retain_source_locations ? sizeof(tlv_document_source_location_t) : 0);
     if (tag.size > SIZE_MAX - node_size) return TLV_ERR_OUT_OF_MEMORY;
-    if (document->next_identity == UINT64_MAX) return TLV_ERR_LIMIT;
+    if (document->next_identity == UINT64_MAX) return TLV_ERR_OVERFLOW;
     node = (tlv_node_t*)document_memory_allocate(document, node_size + tag.size);
     if (!node) return TLV_ERR_OUT_OF_MEMORY;
     memset(node, 0, node_size);
@@ -232,7 +232,7 @@ tlv_result_t document_parse_list(tlv_document_t* document, tlv_node_t* parent, c
     (void)depth;
     (void)base;
     (void)error_offset;
-    return size ? TLV_ERR_UNSUPPORTED_TYPE : TLV_OK;
+    return size ? TLV_ERR_UNSUPPORTED : TLV_OK;
 }
 #endif
 

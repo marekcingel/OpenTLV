@@ -18,11 +18,12 @@ from opentlv.error import (
     NativeSizeError,
     NeedMoreDataError,
     InvalidStateError,
+    CallbackError,
     OpenTLVError,
     OutOfMemoryError,
     SchemaError,
     SchemaError,
-    UnsupportedTypeError,
+    UnsupportedError,
     ValueOverflowError,
     VisitorError,
     _from_native,
@@ -43,11 +44,12 @@ KNOWN = [
     (12, InvalidByteOrderError),
     (13, ValueOverflowError),
     (14, InvalidValueError),
-    (15, UnsupportedTypeError),
+    (15, UnsupportedError),
     (16, InvalidSchemaError),
     (17, NativeSizeError),
     (18, NeedMoreDataError),
     (19, InvalidStateError),
+    (20, CallbackError),
 ]
 
 

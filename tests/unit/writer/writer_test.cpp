@@ -70,7 +70,7 @@ TEST(Unit_Tlv_Writer, ElementSizingChecksLogicalAndNativeOverflowWithoutReadingV
     tlv_element_t           element = {tag, {nullptr, std::numeric_limits<tlv_size_t>::max()}};
     size_t                  required = 77;
     tlv_writer_diagnostic_t diagnostic{};
-    EXPECT_EQ(TLV_ERR_OVERFLOW,
+    EXPECT_EQ(TLV_ERR_CALLBACK,
               TLV_DIAGNOSTIC_RESULT(diagnostic, tlv_element_encoded_size_diag(
                                                     &element, &format, &required, &diagnostic)));
     EXPECT_EQ(77u, required);
@@ -279,11 +279,11 @@ TEST(Unit_Tlv_Writer, OverflowAndCallbackFailuresPreserveOutput) {
         *used = dst ? 2 : 1;
         return TLV_OK;
     };
-    EXPECT_EQ(TLV_ERR_INVALID_TAG, tlv_write(data, 4, &format, tag, nullptr, 0, &size));
+    EXPECT_EQ(TLV_ERR_CALLBACK, tlv_write(data, 4, &format, tag, nullptr, 0, &size));
     format_layout.write_tag = [](const void*, const tlv_tag_t*, uint8_t*, size_t, size_t*) {
         return TLV_ERR_END_OF_BUFFER;
     };
-    EXPECT_EQ(TLV_ERR_END_OF_BUFFER, tlv_encoded_size(tag, 0, &format, &size));
+    EXPECT_EQ(TLV_ERR_CALLBACK, tlv_encoded_size(tag, 0, &format, &size));
     EXPECT_EQ(99u, size);
 }
 

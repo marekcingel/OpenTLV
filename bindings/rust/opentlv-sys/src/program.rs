@@ -5,6 +5,9 @@ use super::*;
 
 /// Query lifecycle or callback reentrancy failure category.
 pub const TLV_QUERY_ERROR_STATE: c_int = 12;
+pub const TLV_QUERY_ERROR_CALLBACK: c_int = 13;
+pub const TLV_QUERY_ERROR_TYPE: c_int = 14;
+pub const TLV_QUERY_ERROR_IMAGE: c_int = 15;
 
 macro_rules! record {
     ($name:ident { $($field:ident: $type:ty),* $(,)? }) => {

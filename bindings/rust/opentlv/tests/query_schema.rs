@@ -242,7 +242,7 @@ fn document_supports_reverse_axes_and_bounded_canonical_values() {
             .unwrap_err()
             .failure
             .error,
-        Error::UnsupportedType
+        Error::Unsupported
     );
     schema
         .validate_document(&document, QuerySchemaLimits::default())

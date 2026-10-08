@@ -104,6 +104,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Changed
 
+- Distinguish unsupported capabilities, processing budgets, caller workspace shortages and callback contract violations across the core and bindings. Replace `UNSUPPORTED_TYPE` with `UNSUPPORTED`, add `CALLBACK`, and classify Query type, binding and malformed-image failures as `INVALID_VALUE`. Update callers for the breaking result names and semantics. (#554)
 - Distinguish invalid Schema definitions (`TLV_ERR_INVALID_SCHEMA`) from input violations. Required absence now returns `TLV_ERR_SCHEMA` with `MISSING` detail across generic Schema, DHCP, LLDP and DER. Replace `SCHEMA_MISSING` and affected offset-only outputs with typed Schema diagnostics and explicit location anchors; update native callers and bindings and rebuild for the changed API/ABI. (#553)
 - Distinguish Query lifecycle diagnostics with `STATE`, classify malformed structural feeds as `INVALID_VALUE`, and guard against lifecycle regressions to `INVALID_ARG`. Result and diagnostic enum numbers remain release-specific during the failure-model migration. (#551, #552)
 - Return `TLV_ERR_INVALID_STATE` for lifecycle and callback reentrancy failures in Query, Reader, Writer and Document, and expose the distinction through C++ and language bindings. Callers that previously matched these failures as `TLV_ERR_INVALID_ARG` must update their error handling. (#552)

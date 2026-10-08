@@ -69,7 +69,7 @@ tlv_result_t tlv_asn1_validate_relative_oid_iri(const uint8_t* value, size_t len
 /* Dispatches a UNIVERSAL tag number to the validator above for one complete
  * primitive element's content, shared by DER and CER so both report identical results
  * for the value rules ITU-T X.690 §11 documents as common to both encodings.
- * Returns TLV_ERR_UNSUPPORTED_TYPE for a UNIVERSAL number with no
+ * Returns TLV_ERR_UNSUPPORTED for a UNIVERSAL number with no
  * implemented canonical content rule. */
 tlv_result_t tlv_asn1_validate_universal_value(uint64_t number, const uint8_t* value,
                                                size_t length);

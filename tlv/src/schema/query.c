@@ -204,7 +204,7 @@ tlv_result_t tlv_schema_query_validate_buffer(const uint8_t* data, size_t size,
         return TLV_ERR_BUFFER_TOO_SHORT;
     for (size_t i = 0; i < count; ++i)
         if (rules[i].context->level == TLV_QUERY_D || rules[i].assertion->level == TLV_QUERY_D)
-            return TLV_ERR_UNSUPPORTED_TYPE;
+            return TLV_ERR_UNSUPPORTED;
     if (diagnostic) memset(diagnostic, 0, sizeof *diagnostic);
     for (size_t i = 0; i < count; ++i) {
         if (diagnostic) diagnostic->rule = i;

@@ -96,15 +96,15 @@ int tlv_test_invalid_enum_visitors(void) {
     tlv_reader_diagnostic_t diagnostic;
     size_t                  count = 0, offset = 99;
     CHECK(tlv_reader_init(&reader, flat, sizeof flat, &format) == TLV_OK);
-    CHECK(tlv_reader_visit_diag(&reader, invalid_once, &count, &diagnostic) == TLV_ERR_VISITOR);
+    CHECK(tlv_reader_visit_diag(&reader, invalid_once, &count, &diagnostic) == TLV_ERR_CALLBACK);
     CHECK(tlv_reader_offset(&reader) == 2 && count == 1 &&
-          test_diagnostic_matches(TLV_ERR_VISITOR, &diagnostic.diagnostic));
+          test_diagnostic_matches(TLV_ERR_CALLBACK, &diagnostic.diagnostic));
     CHECK(tlv_reader_visit(&reader, invalid_once, &count) == TLV_OK && count == 2);
     tlv_tree_frame_t  frames[1];
     tlv_tree_reader_t tree;
     count = 0;
     CHECK(tlv_tree_reader_init(&tree, nested, sizeof nested, &format, frames, 1, 1, 3) == TLV_OK);
-    CHECK(tlv_tree_reader_visit(&tree, tree_invalid_once, &count, &offset) == TLV_ERR_VISITOR);
+    CHECK(tlv_tree_reader_visit(&tree, tree_invalid_once, &count, &offset) == TLV_ERR_CALLBACK);
     CHECK(count == 1 && offset == 0);
     CHECK(tlv_tree_reader_visit(&tree, tree_invalid_once, &count, &offset) == TLV_OK);
     CHECK(count == 3 && tlv_tree_reader_at_end(&tree));

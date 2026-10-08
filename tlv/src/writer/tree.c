@@ -2,6 +2,7 @@
 // Copyright (c) 2026 Marek Cingel
 
 #include "tree_internal.h"
+#include "../callback_internal.h"
 #include <string.h>
 
 static tlv_result_t tree_error(tlv_writer_diagnostic_t* diagnostic, tlv_result_t rc,
@@ -85,9 +86,10 @@ tlv_result_t tlv_tree_writer_begin_diag(tlv_tree_writer_t* writer, tlv_tag_t tag
     tlv_result_t rc = TLV_OK;
     if (!writer || (tag.size && !tag.data))
         rc = TLV_ERR_NULL_ARG;
-    else if (writer->depth > writer->max_depth || writer->count >= writer->max_elements ||
-             writer->depth >= writer->capacity)
+    else if (writer->depth > writer->max_depth || writer->count >= writer->max_elements)
         rc = TLV_ERR_LIMIT;
+    else if (writer->depth >= writer->capacity)
+        rc = TLV_ERR_BUFFER_TOO_SHORT;
     else if (!writer->output.format->is_constructed ||
              !writer->output.format->is_constructed(writer->output.format->context, &tag))
         rc = TLV_ERR_INVALID_TAG;
@@ -97,8 +99,8 @@ tlv_result_t tlv_tree_writer_begin_diag(tlv_tree_writer_t* writer, tlv_tag_t tag
     if (writer->tags && tag.data) {
         const size_t size = tag.size ? tag.size : 1;
         if (size > writer->tags_capacity - writer->tags_used)
-            return tree_error(diagnostic, TLV_ERR_LIMIT, TLV_WRITER_OP_BEGIN, writer->output.pos,
-                              &tag);
+            return tree_error(diagnostic, TLV_ERR_BUFFER_TOO_SHORT, TLV_WRITER_OP_BEGIN,
+                              writer->output.pos, &tag);
         if (tag.size) memcpy(writer->tags + writer->tags_used, tag.data, tag.size);
         tag.data = writer->tags + writer->tags_used;
         writer->tags_used += size;
@@ -250,11 +252,12 @@ static tlv_result_t preorder_event(void* context, tlv_tree_event_t* event) {
         int constructed = 0;
         rc = source->next(source->context, &source->pending.element, &source->pending.depth,
                           &constructed);
+        rc = tlv_callback_result(rc, 1);
         if (rc == TLV_ERR_END_OF_BUFFER) {
             source->done = 1;
         } else {
             if (rc != TLV_OK) return rc;
-            if (source->pending.depth > source->open) return TLV_ERR_INVALID_ARG;
+            if (source->pending.depth > source->open) return TLV_ERR_CALLBACK;
             source->pending.kind = constructed ? TLV_TREE_BEGIN : TLV_TREE_ELEMENT;
             source->available = 1;
         }
@@ -306,7 +309,7 @@ tlv_result_t tree_writer_measure_events_observed(
     if (rc != TLV_OK) return rc;
     for (;;) {
         tlv_tree_event_t event = {0};
-        rc = next(context, &event);
+        rc = tlv_callback_result(next(context, &event), 1);
         if (rc == TLV_ERR_END_OF_BUFFER) break;
         if (rc != TLV_OK)
             return tree_error(diagnostic, rc, TLV_WRITER_OP_VALUE, writer.output.pos, NULL);

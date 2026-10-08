@@ -301,7 +301,7 @@
       "query": "//5A[@len > $min]",
       "wire": "",
       "diagnostic": {
-        "code": 10,
+        "code": 14,
         "kind": 8
       }
     },

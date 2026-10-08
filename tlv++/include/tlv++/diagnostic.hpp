@@ -123,7 +123,7 @@ inline diagnostic_path make_diagnostic_path() {
  * @param path Path to update.
  * @param tag  Tag of the element being descended into; borrowed.
  *
- * @return Success, or #error::from_c wrapping #TLV_ERR_LIMIT if the path is already full.
+ * @return Success, or #error::from_c wrapping #TLV_ERR_BUFFER_TOO_SHORT if the path is full.
  * @note Overflow retains the outermost tags and increments path.omitted. Pair every
  *       push, including an overflowing push, with a pop when leaving that scope.
  */
