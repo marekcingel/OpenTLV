@@ -107,8 +107,11 @@ Public Member Functions</h2></td></tr>
 <tr class="memdesc:aef84c49a16d0ac8ca1c503cb343d5ba5"><td class="mdescLeft">&#160;</td><td class="mdescRight">Whether this violation concerns an alternative group.  <br /></td></tr>
 <tr class="separator:aef84c49a16d0ac8ca1c503cb343d5ba5"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:ac4b9b13880160831826cc605052c27f2" id="r_ac4b9b13880160831826cc605052c27f2"><td class="memItemLeft" align="right" valign="top">size_t&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classtlv_1_1validation__issue.html#ac4b9b13880160831826cc605052c27f2">depth</a> () const noexcept</td></tr>
-<tr class="memdesc:ac4b9b13880160831826cc605052c27f2"><td class="mdescLeft">&#160;</td><td class="mdescRight">Number of enclosing identifiers.  <br /></td></tr>
+<tr class="memdesc:ac4b9b13880160831826cc605052c27f2"><td class="mdescLeft">&#160;</td><td class="mdescRight">Number of retained outermost enclosing identifiers.  <br /></td></tr>
 <tr class="separator:ac4b9b13880160831826cc605052c27f2"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a2eda199d85f0ad73482c85a2b5d8d30f" id="r_a2eda199d85f0ad73482c85a2b5d8d30f"><td class="memItemLeft" align="right" valign="top">size_t&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classtlv_1_1validation__issue.html#a2eda199d85f0ad73482c85a2b5d8d30f">omitted_depth</a> () const noexcept</td></tr>
+<tr class="memdesc:a2eda199d85f0ad73482c85a2b5d8d30f"><td class="mdescLeft">&#160;</td><td class="mdescRight">Number of innermost enclosing identifiers omitted after the retained outer prefix.  <br /></td></tr>
+<tr class="separator:a2eda199d85f0ad73482c85a2b5d8d30f"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:aed90d4d55f460e459b3f74df841ca9dc" id="r_aed90d4d55f460e459b3f74df841ca9dc"><td class="memItemLeft" align="right" valign="top"><a class="el" href="classtlv_1_1tag.html">tlv::tag</a>&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classtlv_1_1validation__issue.html#aed90d4d55f460e459b3f74df841ca9dc">ancestor</a> (size_t index) const noexcept</td></tr>
 <tr class="memdesc:aed90d4d55f460e459b3f74df841ca9dc"><td class="mdescLeft">&#160;</td><td class="mdescRight">Borrow an enclosing identifier; returns absent when index is out of range.  <br /></td></tr>
 <tr class="separator:aed90d4d55f460e459b3f74df841ca9dc"><td class="memSeparator" colspan="2">&#160;</td></tr>
@@ -268,7 +271,7 @@ Friends</h2></td></tr>
 </table>
 </div><div class="memdoc">
 
-<p>Number of enclosing identifiers. </p>
+<p>Number of retained outermost enclosing identifiers. </p>
 
 </div>
 </div>
@@ -674,6 +677,33 @@ Friends</h2></td></tr>
 </div><div class="memdoc">
 
 <p>Observed occurrence count, valid when <a class="el" href="classtlv_1_1validation__issue.html#a076a6a90d96a6fd1bef13758fbb2aecd" title="Whether occurrence details are available.">has_occurrences()</a>. </p>
+
+</div>
+</div>
+<a id="a2eda199d85f0ad73482c85a2b5d8d30f" name="a2eda199d85f0ad73482c85a2b5d8d30f"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#a2eda199d85f0ad73482c85a2b5d8d30f">&#9670;&#160;</a></span>omitted_depth()</h2>
+
+<div class="memitem">
+<div class="memproto">
+<table class="mlabels">
+  <tr>
+  <td class="mlabels-left">
+      <table class="memname">
+        <tr>
+          <td class="memname">size_t tlv::validation_issue::omitted_depth </td>
+          <td>(</td>
+          <td class="paramname"></td><td>)</td>
+          <td> const</td>
+        </tr>
+      </table>
+  </td>
+  <td class="mlabels-right">
+<span class="mlabels"><span class="mlabel">inline</span><span class="mlabel">noexcept</span></span>  </td>
+  </tr>
+</table>
+</div><div class="memdoc">
+
+<p>Number of innermost enclosing identifiers omitted after the retained outer prefix. </p>
 
 </div>
 </div>

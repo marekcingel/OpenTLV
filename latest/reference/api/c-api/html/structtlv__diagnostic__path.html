@@ -86,10 +86,12 @@ Data Fields</h2></td></tr>
 <tr class="separator:adf217c1d0119f95076e6dfa60a2063be"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:a62744e0e4db2d1d1d8dc83ccbfb8d536" id="r_a62744e0e4db2d1d1d8dc83ccbfb8d536"><td class="memItemLeft" align="right" valign="top">size_t&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="structtlv__diagnostic__path.html#a62744e0e4db2d1d1d8dc83ccbfb8d536">length</a></td></tr>
 <tr class="separator:a62744e0e4db2d1d1d8dc83ccbfb8d536"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a6de579bcbcc29f6eebc95e8f305e736c" id="r_a6de579bcbcc29f6eebc95e8f305e736c"><td class="memItemLeft" align="right" valign="top">size_t&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="structtlv__diagnostic__path.html#a6de579bcbcc29f6eebc95e8f305e736c">omitted</a></td></tr>
+<tr class="separator:a6de579bcbcc29f6eebc95e8f305e736c"><td class="memSeparator" colspan="2">&#160;</td></tr>
 </table>
 <a name="details" id="details"></a><h2 class="groupheader">Detailed Description</h2>
 <div class="textblock"><p>Bounded, allocation-free stack of the tags enclosing a <a class="el" href="group__diagnostics.html#ga2118f30a61e0b0b3ba5d20c73a740b2e" title="A structured diagnostic: a stable code plus the state that produced it.">tlv_diagnostic_t</a>. </p>
-<p>A caller that traverses nested constructed TLVs, for example with <a class="el" href="group__traversal.html#ga9da3c187f455de47fb13b6dbb1681d66" title="Visit remaining preorder items from an initialized Tree Reader.">tlv_tree_reader_visit()</a> or by recursing into a value's bytes, builds a path by calling <a class="el" href="group__diagnostics.html#ga9dcad106e7fcf65699ecb0bfc305c15f" title="Pushes a tag onto the end of a path.">tlv_diagnostic_path_push()</a> with the tag of each element it descends into and <a class="el" href="group__diagnostics.html#gafc1535fda14d5f60d3a9b4f443b38d47" title="Pops the last tag off a path.">tlv_diagnostic_path_pop()</a> when it returns to the parent. <code>tags</code> then lists the enclosing elements outermost first, so it identifies the exact branch of a document that led to a diagnostic even when the same tag repeats at different depths. Nothing is copied or allocated: pushing a tag stores its borrowed <code>data</code>/<code>size</code> pair, which must stay valid, and unchanged, for as long as the path is used.</p>
+<p>A caller that traverses nested constructed TLVs, for example with <a class="el" href="group__traversal.html#ga9da3c187f455de47fb13b6dbb1681d66" title="Visit remaining preorder items from an initialized Tree Reader.">tlv_tree_reader_visit()</a> or by recursing into a value's bytes, builds a path by calling <a class="el" href="group__diagnostics.html#ga9dcad106e7fcf65699ecb0bfc305c15f" title="Pushes a tag onto the end of a path.">tlv_diagnostic_path_push()</a> with the tag of each element it descends into and <a class="el" href="group__diagnostics.html#gafc1535fda14d5f60d3a9b4f443b38d47" title="Pops the last tag off a path.">tlv_diagnostic_path_pop()</a> when it returns to the parent. <code>tags</code> then lists the enclosing elements outermost first, so it identifies the branch of a document that led to a diagnostic even when the same tag repeats at different depths. Paths retain the outermost <a class="el" href="group__diagnostics.html#ggaaf105ae5beaca1dee30ae54530691fceae375da42dfacade67967c61e3f9c0057">TLV_DIAGNOSTIC_PATH_MAX</a> tags; <code>omitted</code> counts the innermost tags that did not fit. A nonzero <code>omitted</code> marks an incomplete path. Nothing is copied or allocated: pushing a tag stores its borrowed <code>data</code>/<code>size</code> pair, which must stay valid, and unchanged, for as long as the path is used.</p>
 <p>Path tracking is entirely opt-in: a <a class="el" href="group__diagnostics.html#ga2118f30a61e0b0b3ba5d20c73a740b2e" title="A structured diagnostic: a stable code plus the state that produced it.">tlv_diagnostic_t</a> that is never given a path costs nothing beyond the one <code>NULL</code> pointer in <code>path</code>. </p>
 </div><h2 class="groupheader">Field Documentation</h2>
 <a id="a62744e0e4db2d1d1d8dc83ccbfb8d536" name="a62744e0e4db2d1d1d8dc83ccbfb8d536"></a>
@@ -104,6 +106,21 @@ Data Fields</h2></td></tr>
       </table>
 </div><div class="memdoc">
 <p>Number of valid entries in <code>tags</code>. </p>
+
+</div>
+</div>
+<a id="a6de579bcbcc29f6eebc95e8f305e736c" name="a6de579bcbcc29f6eebc95e8f305e736c"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#a6de579bcbcc29f6eebc95e8f305e736c">&#9670;&#160;</a></span>omitted</h2>
+
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname">size_t tlv_diagnostic_path::omitted</td>
+        </tr>
+      </table>
+</div><div class="memdoc">
+<p>Number of omitted innermost tags; zero for a complete path. Saturates at SIZE_MAX. </p>
 
 </div>
 </div>

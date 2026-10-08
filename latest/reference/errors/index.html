@@ -2467,6 +2467,34 @@
     <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
       
         <li class="md-nav__item">
+  <a href="#result-and-diagnostic-invariant" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Result and diagnostic invariant
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Result and diagnostic invariant">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#regression-enforcement" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Regression enforcement
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
   <a href="#codes" class="md-nav__link">
     <span class="md-ellipsis">
       
@@ -3556,6 +3584,34 @@
     <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
       
         <li class="md-nav__item">
+  <a href="#result-and-diagnostic-invariant" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Result and diagnostic invariant
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Result and diagnostic invariant">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#regression-enforcement" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Regression enforcement
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
   <a href="#codes" class="md-nav__link">
     <span class="md-ellipsis">
       
@@ -3623,6 +3679,56 @@ modify the string. The Rust <code>Error</code> type maps every <code>TLV_ERR_*</
 writer also keeps its position unchanged on failure, but an encoding callback failure can
 leave modified bytes beyond that position. Each function documents which codes it can
 return; this page explains what each code means and what to check first.</p>
+<h2 id="result-and-diagnostic-invariant">Result and diagnostic invariant<a class="headerlink" href="#result-and-diagnostic-invariant" title="Permanent link">&para;</a></h2>
+<p>When an API initializes a non-NULL diagnostic output, every subsequent non-OK
+return describes that result:</p>
+<ul>
+<li><code>tlv_diagnostic_t</code> and the active diagnostic in an embedding type have
+  <code>diagnostic.code == rc</code>.</li>
+<li><code>tlv_query_diagnostic_t</code> has <code>kind != TLV_QUERY_ERROR_NONE</code>. A <code>READER</code> detail
+  also has <code>reader.diagnostic.code == rc</code>; a <code>CODEC</code> detail has a non-OK codec result.</li>
+<li>Schema Query has alternative detail channels: a false assertion sets
+  <code>schema.diagnostic.code</code>, while an execution failure fills <code>query</code>.</li>
+</ul>
+<p>The rule includes <code>TLV_ERR_END_OF_BUFFER</code> and <code>TLV_NEED_MORE_DATA</code> when returned
+through an initialized diagnostic channel. These are still normal iteration or
+resumption conditions where the API says so. Query represents resumable Reader
+status as <code>READER</code>; this does not poison the execution.</p>
+<p>Diagnostics are failure outputs, so the general unchanged-output rule above does
+not prevent filling them on failure. A successful call need not clear an old
+diagnostic; inspect it only in conjunction with the returned result. Report
+collections describe individual findings, rather than repeating an aggregate
+validation result in every entry.</p>
+<p>Pre-initialization checks leave the diagnostic untouched. In particular:</p>
+<ul>
+<li>Query overlap checks protect borrowed input and execution storage. Reentrant
+  calls and rejected continuations of failed executions preserve the outer or
+  original failure. Do not move initialization ahead of these guards.</li>
+<li>Compiler prepare/commit/load entry points can reject required arguments,
+  output extents, alignment or overlapping storage before their first diagnostic
+  initialization (including initialization by a delegated compiler call).</li>
+<li>Low-level Reader/Tree and Schema entry points can reject preflight arguments
+  or resources before producing detail. An enclosing API which has already
+  initialized its own diagnostic must nevertheless describe a propagated error.</li>
+</ul>
+<p>Until the failure-model design in #551 is implemented, Query uses existing
+categories: <code>STORAGE</code> for compiler/plan arguments and capacities, <code>BINDING</code> for
+binding arguments, <code>CAPABILITY</code> for incompatible formats or hook configuration,
+and <code>EVENTS</code> for execution lifecycle and visitor/callback failures. Return codes
+and public layouts are unchanged. These choices are temporary classifications,
+not new result-taxonomy rules.</p>
+<h3 id="regression-enforcement">Regression enforcement<a class="headerlink" href="#regression-enforcement" title="Permanent link">&para;</a></h3>
+<p><code>tests/diagnostic_assertions.h</code> checks the invariant after an operation, including
+calls shared by table-driven Query tests. Tests for pre-initialization rejection
+instead verify that protected outputs remain unchanged.</p>
+<p>Run <code>python scripts/test_diagnostic_returns.py</code> and
+<code>python scripts/check_diagnostic_returns.py</code> for the CI source guard. The guard
+reports direct error returns after explicit diagnostic initialization in C
+functions with a diagnostic output. A directly populated return requires an
+adjacent <code>diagnostic-return:</code> comment explaining where its detail was set.
+This lexical check is deliberately conservative: indirect initialization,
+propagated variables and callback behavior require runtime tests; it is not a
+control-flow proof.</p>
 <h2 id="codes">Codes<a class="headerlink" href="#codes" title="Permanent link">&para;</a></h2>
 <table>
 <thead>
@@ -3751,6 +3857,20 @@ return; this page explains what each code means and what to check first.</p>
 </tbody>
 </table>
 <h2 id="offsets-and-diagnosis">Offsets and diagnosis<a class="headerlink" href="#offsets-and-diagnosis" title="Permanent link">&para;</a></h2>
+<p>Diagnostic paths retain the outermost 32 enclosing tags. <code>path.omitted</code> counts
+innermost tags that did not fit; zero means the path is complete. Path text
+marks omissions with <code>&gt; ...</code>. The affected tag is still available separately
+in Schema diagnostics. See <a href="../../guides/diagnostics/#hierarchical-paths">Hierarchical paths</a>.</p>
+<p><code>tlv_der_schema_write()</code> reports schema/value failures relative to the would-be
+DER output, accounting for enclosing headers and canonical SET ordering. A
+missing required SEQUENCE component points where it would start; a missing SET
+component points to the enclosing content end. For an empty SEQUENCE the offset
+is 2. Leaf constraints point to the Value bytes. Argument, configuration and
+capacity failures use zero. When an offset is requested,
+composition can visit remaining components after detecting a failure. If a
+later callback or scratch failure prevents completing the hypothetical encoding,
+the original result is retained with offset zero. The destination and <code>written</code>
+remain unchanged on failure.</p>
 <p>Several APIs report an <code>error_offset</code> that is changed only on failure. For the DER validation
 functions it identifies the start of the failing field, relative to the input: tag
 errors point to the tag, length errors to the length prefix, and truncated values to their

@@ -158,6 +158,7 @@ Functions</h2></td></tr>
 </div><div class="memdoc">
 
 <p>Rule-aware failure preserving native Query/Reader/codec diagnostics. </p>
+<dl class="section note"><dt>Note</dt><dd>After initialization, a failed assertion sets <code>schema.diagnostic.code</code> to the return code; an execution failure sets <code>query.kind</code> to a non-NONE category. Preflight rejection before initialization leaves both untouched. </dd></dl>
 
 </div>
 </div>

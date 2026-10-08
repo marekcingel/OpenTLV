@@ -1207,7 +1207,7 @@ Any error of <a class="el" href="group__builtins.html#ga841d77dcad83748039e53734
     <tr><td class="paramdir">[out]</td><td class="paramname">scratch</td><td>SET OF sort / SEQUENCE OF composition records; <code>NULL</code> only for a schema with no SET OF or SEQUENCE OF. </td></tr>
     <tr><td class="paramdir">[in]</td><td class="paramname">scratch_capacity</td><td>Number of records in <code>scratch</code>. </td></tr>
     <tr><td class="paramdir">[out]</td><td class="paramname">written</td><td>Receives the encoded (or required) size. </td></tr>
-    <tr><td class="paramdir">[out]</td><td class="paramname">error_offset</td><td>Optional. Offset of the failure, using the would-be-output conventions of tlv_der_write().</td></tr>
+    <tr><td class="paramdir">[out]</td><td class="paramname">error_offset</td><td>Optional. Offset of the failure, using the would-be-output conventions of tlv_der_write(). A missing SEQUENCE component points where it would start; a missing SET component points to the enclosing content end. Both point just after the header when empty. Leaf constraints point to the Value. Nested headers and canonical SET ordering are included. Argument, configuration and capacity failures have offset zero.</td></tr>
   </table>
   </dd>
 </dl>
@@ -1215,10 +1215,12 @@ Any error of <a class="el" href="group__builtins.html#ga841d77dcad83748039e53734
 <dd>
 <a class="el" href="group__core.html#gga516c7250563ee9332e2f45f2d203ae61afe701b08473c7ec9597853fe737a62b4">TLV_ERR_SCHEMA</a> for a schema violation, including a missing <a class="el" href="group__schemas.html#ggaf5151939698b214c757c2cc214f04f73a6b15618fe859fc6b8b423831f5df0b55">TLV_DER_REQUIRED</a> component; this fails deterministically without partial output. </dd>
 <dd>
-<a class="el" href="group__core.html#gga516c7250563ee9332e2f45f2d203ae61acbd34cf02b42e70e99648aef5b9ca8b3">TLV_ERR_BUFFER_TOO_SHORT</a> if <code>capacity</code> or a scratch buffer is insufficient. </dd>
+<a class="el" href="group__core.html#gga516c7250563ee9332e2f45f2d203ae61acbd34cf02b42e70e99648aef5b9ca8b3">TLV_ERR_BUFFER_TOO_SHORT</a> if the destination is insufficient. </dd>
 <dd>
-Any callback error, propagated unchanged.</dd></dl>
-<dl class="section note"><dt>Note</dt><dd>All outputs remain unchanged on error. </dd></dl>
+<a class="el" href="group__core.html#gga516c7250563ee9332e2f45f2d203ae61a1e32eada09d59d834a685da1adeaaf97">TLV_ERR_LIMIT</a> if scratch storage or a configured limit is exceeded. </dd>
+<dd>
+Any callback error, propagated unchanged unless an earlier schema/value failure has already been retained while locating its offset.</dd></dl>
+<dl class="section note"><dt>Note</dt><dd>The destination and <code>written</code> remain unchanged on error; scratch is working storage. When <code>error_offset</code> is supplied, composition may continue after a schema/value failure to determine enclosing lengths and ordering, including callbacks for remaining components. The first failure is preserved. If a subsequent callback or scratch failure prevents completing that composition, its offset is zero. </dd></dl>
 
 </div>
 </div>

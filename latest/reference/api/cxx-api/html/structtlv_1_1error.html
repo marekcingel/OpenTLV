@@ -123,6 +123,9 @@ Public Member Functions</h2></td></tr>
 <tr class="memitem:a2c11bae3aadeb2388994f924c27da625" id="r_a2c11bae3aadeb2388994f924c27da625"><td class="memItemLeft" align="right" valign="top">size_t&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="structtlv_1_1error.html#a2c11bae3aadeb2388994f924c27da625">depth</a> () const noexcept</td></tr>
 <tr class="memdesc:a2c11bae3aadeb2388994f924c27da625"><td class="mdescLeft">&#160;</td><td class="mdescRight">Number of enclosing identifiers copied into this error.  <br /></td></tr>
 <tr class="separator:a2c11bae3aadeb2388994f924c27da625"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a1692445f459a265d116ef513581ad695" id="r_a1692445f459a265d116ef513581ad695"><td class="memItemLeft" align="right" valign="top">size_t&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="structtlv_1_1error.html#a1692445f459a265d116ef513581ad695">omitted_depth</a> () const noexcept</td></tr>
+<tr class="memdesc:a1692445f459a265d116ef513581ad695"><td class="mdescLeft">&#160;</td><td class="mdescRight">Number of innermost enclosing identifiers omitted after the retained outer prefix.  <br /></td></tr>
+<tr class="separator:a1692445f459a265d116ef513581ad695"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:af3d2fb5dea48cec300a97b8bb2301431" id="r_af3d2fb5dea48cec300a97b8bb2301431"><td class="memItemLeft" align="right" valign="top"><a class="el" href="classtlv_1_1tag.html">tlv::tag</a>&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="structtlv_1_1error.html#af3d2fb5dea48cec300a97b8bb2301431">ancestor</a> (size_t index) const noexcept</td></tr>
 <tr class="memdesc:af3d2fb5dea48cec300a97b8bb2301431"><td class="mdescLeft">&#160;</td><td class="mdescRight">Borrow an enclosing identifier; out-of-range indices return an absent identifier.  <br /></td></tr>
 <tr class="separator:af3d2fb5dea48cec300a97b8bb2301431"><td class="memSeparator" colspan="2">&#160;</td></tr>
@@ -545,6 +548,33 @@ Friends</h2></td></tr>
 </div><div class="memdoc">
 
 <p>Absolute byte offset, valid only when <a class="el" href="structtlv_1_1error.html#afb11e5286309cc54142d98d0c8a89dd6" title="Whether offset() contains a known location.">has_offset()</a> is true. </p>
+
+</div>
+</div>
+<a id="a1692445f459a265d116ef513581ad695" name="a1692445f459a265d116ef513581ad695"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#a1692445f459a265d116ef513581ad695">&#9670;&#160;</a></span>omitted_depth()</h2>
+
+<div class="memitem">
+<div class="memproto">
+<table class="mlabels">
+  <tr>
+  <td class="mlabels-left">
+      <table class="memname">
+        <tr>
+          <td class="memname">size_t tlv::error::omitted_depth </td>
+          <td>(</td>
+          <td class="paramname"></td><td>)</td>
+          <td> const</td>
+        </tr>
+      </table>
+  </td>
+  <td class="mlabels-right">
+<span class="mlabels"><span class="mlabel">inline</span><span class="mlabel">noexcept</span></span>  </td>
+  </tr>
+</table>
+</div><div class="memdoc">
+
+<p>Number of innermost enclosing identifiers omitted after the retained outer prefix. </p>
 
 </div>
 </div>

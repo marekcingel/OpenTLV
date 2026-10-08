@@ -106,7 +106,11 @@ Data Fields</h2></td></tr>
 </table>
 <a name="details" id="details"></a><h2 class="groupheader">Detailed Description</h2>
 <div class="textblock"><p>Fixed-layout compiler/execution failure, initialized by diagnostic entry points. </p>
-<dl class="section note"><dt>Note</dt><dd>A valid bind, feed or finish call on an already failed execution returns INVALID_ARG without writing this object, preserving the original failure when it is reused. Inspect exec_info.invalid and reset before continuing. </dd>
+<dl class="section note"><dt>Note</dt><dd>After initialization, every non-<a class="el" href="group__core.html#gga516c7250563ee9332e2f45f2d203ae61ac763c25dd3e807fae4d8078c3d3e94ed">TLV_OK</a> return has a kind other than <a class="el" href="group__traversal.html#gga66edcf242c8bc06318ff99b24f1ce0eda4da745616825a057de93d032e3f90f92">TLV_QUERY_ERROR_NONE</a>. Reader failures and <a class="el" href="group__core.html#gga516c7250563ee9332e2f45f2d203ae61ad90e4f5b2c36d63f9a93b92f1064a5e6">TLV_NEED_MORE_DATA</a> retain the returned code in <code>reader.diagnostic.code</code>. Success need not clear old detail. </dd>
+<dd>
+Pre-initialization overlap, reentrancy and failed-execution guards leave this output untouched. Compiler prepare/commit/load preflight argument, extent and alignment checks can also reject before initialization. </dd>
+<dd>
+A valid bind, feed or finish call on an already failed execution returns INVALID_ARG without writing this object, preserving the original failure when it is reused. Inspect exec_info.invalid and reset before continuing. </dd>
 <dd>
 This value type is not extensible; changing its layout requires an ABI change. </dd></dl>
 </div><h2 class="groupheader">Field Documentation</h2>

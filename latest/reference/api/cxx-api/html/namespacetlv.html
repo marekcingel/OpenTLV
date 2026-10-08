@@ -4069,7 +4069,7 @@ template&lt;typename F &gt; </div>
 </div><div class="memdoc">
 
 <p>Pops the last tag off a path. </p>
-<p>Wraps <a class="elRef" href="../../c-api/html/group__diagnostics.html#gafc1535fda14d5f60d3a9b4f443b38d47">tlv_diagnostic_path_pop()</a>. Popping an empty path is a no-op.</p>
+<p>Wraps <a class="elRef" href="../../c-api/html/group__diagnostics.html#gafc1535fda14d5f60d3a9b4f443b38d47">tlv_diagnostic_path_pop()</a>. Omitted scopes are removed before retained tags. Popping an empty path is a no-op.</p>
 <dl class="params"><dt>Parameters</dt><dd>
   <table class="params">
     <tr><td class="paramname">path</td><td>Path to update. </td></tr>
@@ -4184,6 +4184,7 @@ template&lt;typename F &gt; </div>
   </dd>
 </dl>
 <dl class="section return"><dt>Returns</dt><dd>Success, or <a class="el" href="structtlv_1_1error.html#a0d11cb807b4a9ad9ec1817cdea345848" title="Translate a native code without allocating.">error::from_c</a> wrapping <a class="elRef" href="../../c-api/html/group__core.html#gga516c7250563ee9332e2f45f2d203ae61a1e32eada09d59d834a685da1adeaaf97">TLV_ERR_LIMIT</a> if the path is already full. </dd></dl>
+<dl class="section note"><dt>Note</dt><dd>Overflow retains the outermost tags and increments path.omitted. Pair every push, including an overflowing push, with a pop when leaving that scope. </dd></dl>
 
 </div>
 </div>
