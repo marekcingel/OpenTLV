@@ -415,15 +415,30 @@ typedef struct tlv_der_schema_record {
  * @param[out] written          Receives the encoded (or required) size.
  * @param[out] error_offset     Optional. Offset of the failure, using the
  *                              would-be-output conventions of tlv_der_write().
+ *                              A missing SEQUENCE component points where it
+ *                              would start; a missing SET component points to
+ *                              the enclosing content end. Both point just after
+ *                              the header when empty. Leaf constraints point
+ *                              to the Value.
+ *                              Nested headers and canonical SET ordering are
+ *                              included. Argument, configuration and capacity
+ *                              failures have offset zero.
  *
  * @return #TLV_OK on success.
  * @return #TLV_ERR_SCHEMA for a schema violation, including a missing
  *         #TLV_DER_REQUIRED component; this fails deterministically without
  *         partial output.
- * @return #TLV_ERR_BUFFER_TOO_SHORT if `capacity` or a scratch buffer is insufficient.
- * @return Any callback error, propagated unchanged.
+ * @return #TLV_ERR_BUFFER_TOO_SHORT if the destination is insufficient.
+ * @return #TLV_ERR_LIMIT if scratch storage or a configured limit is exceeded.
+ * @return Any callback error, propagated unchanged unless an earlier schema/value
+ *         failure has already been retained while locating its offset.
  *
- * @note All outputs remain unchanged on error.
+ * @note The destination and `written` remain unchanged on error; scratch is
+ *       working storage. When `error_offset` is supplied, composition may
+ *       continue after a schema/value failure to determine enclosing lengths
+ *       and ordering, including callbacks for remaining components. The first
+ *       failure is preserved. If a subsequent callback or scratch failure
+ *       prevents completing that composition, its offset is zero.
  */
 TLV_API tlv_result_t tlv_der_schema_write(uint8_t* data, size_t capacity,
                                           const tlv_der_schema_type_t* root,

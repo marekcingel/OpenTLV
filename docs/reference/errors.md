@@ -94,6 +94,17 @@ control-flow proof.
 
 ## Offsets and diagnosis
 
+`tlv_der_schema_write()` reports schema/value failures relative to the would-be
+DER output, accounting for enclosing headers and canonical SET ordering. A
+missing required SEQUENCE component points where it would start; a missing SET
+component points to the enclosing content end. For an empty SEQUENCE the offset
+is 2. Leaf constraints point to the Value bytes. Argument, configuration and
+capacity failures use zero. When an offset is requested,
+composition can visit remaining components after detecting a failure. If a
+later callback or scratch failure prevents completing the hypothetical encoding,
+the original result is retained with offset zero. The destination and `written`
+remain unchanged on failure.
+
 Several APIs report an `error_offset` that is changed only on failure. For the DER validation
 functions it identifies the start of the failing field, relative to the input: tag
 errors point to the tag, length errors to the length prefix, and truncated values to their

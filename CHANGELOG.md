@@ -9,6 +9,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Fixed
 
+- Report would-be DER output positions for schema write failures, including missing required components, leaf constraints, nested headers and SET ordering. (#549)
 - Populate initialized Query and Reader visitor diagnostics on every failure, preserve propagated detail, and enforce the result/diagnostic contract with shared test assertions and a CI source guard. (#548)
 - Initialize the complete Query compilation information output and make transactional test snapshots safe to inspect under memory checkers. (#560)
 - Avoid redundant C Reader diagnostic clearing on successful decoding, and initialize Format failure detail for invalid arguments while preserving callback initialization and single-decode behavior. (#440, #452, #461)
