@@ -938,6 +938,10 @@ tlv_result_t tlv_query_program_visit(tlv_tree_reader_t* reader, tlv_query_exec_t
         }
         if (rc == TLV_NEED_MORE_DATA) {
             if (d) {
+                if (reader_diag.diagnostic.code == TLV_OK) {
+                    tlv_reader_diagnostic_init(&reader_diag);
+                    tlv_diagnostic_init(&reader_diag.diagnostic, rc, TLV_DIAGNOSTIC_SEVERITY_INFO);
+                }
                 d->kind = TLV_QUERY_ERROR_READER;
                 d->reader = reader_diag;
                 d->reader.diagnostic.code = rc;

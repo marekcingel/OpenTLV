@@ -9,6 +9,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Fixed
 
+- Initialize missing Reader diagnostic detail when Query returns `NEED_MORE_DATA`, preserving informational severity and avoiding uninitialized diagnostic copies. (#555)
 - Avoid clearing full Reader diagnostics for every Query and Schema Query event, and skip Reader diagnostic collection when Schema Query callers do not request it. (#555)
 - Fix Visitor fuzz checks after the diagnostic migration: accept initialized diagnostics on successful traversal and validate failure coordinates only when their location is known. (#555)
 - Avoid systematic generator seed/case-index collisions by mixing both inputs in separate stages. Bump the deterministic generator algorithm to version 2; regenerate corpora and their metadata to replay the new output. (#503)
