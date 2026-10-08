@@ -2,6 +2,7 @@
 // Copyright (c) 2026 Marek Cingel
 #include "program_internal.h"
 #include "../utf8_internal.h"
+#include "../codec/result_internal.h"
 #include <stdio.h>
 
 /* The shared retained backend indexes canonical events, never reparses wire bytes.
@@ -105,6 +106,7 @@ static tlv_result_t add_size(size_t* size, size_t count, size_t width) {
 tlv_result_t tlv_query_eval_size(const tlv_query_program_t* p, size_t depth, size_t nodes,
                                  size_t* bytes, size_t* alignment) {
     if (!p || !bytes || !alignment) return TLV_ERR_NULL_ARG;
+    if ((uintptr_t)p % sizeof(uint32_t)) return TLV_ERR_INVALID_ARG;
     if (!query_program_valid(p)) return TLV_ERR_INVALID_VALUE;
     if (!nodes) return TLV_ERR_INVALID_ARG;
     if (query_overlap(p, p->reserved, bytes, sizeof *bytes) ||
@@ -327,9 +329,7 @@ static tlv_result_t scalar_call(tlv_query_exec_t* e, eval_frame_t* f, const quer
                          eval_codec_scratch(e) + instruction * e->program->codec_stride,
                          hook->scratch_size, &result);
         if (!e->busy) return TLV_ERR_INVALID_STATE;
-        if (rc != TLV_CODEC_OK && rc != TLV_CODEC_ERR_NULL_ARG &&
-            rc != TLV_CODEC_ERR_BUFFER_TOO_SHORT && rc != TLV_CODEC_ERR_INVALID_VALUE &&
-            rc != TLV_CODEC_ERR_UNSUPPORTED && rc != TLV_CODEC_ERR_INVALID_STRUCTURE) {
+        if (!tlv_codec_result_valid(rc)) {
             if (d) d->codec = rc;
             return query_error(d, TLV_ERR_CALLBACK, TLV_QUERY_ERROR_CALLBACK, n->begin, n->end,
                                "valid codec result discriminator");
@@ -783,11 +783,12 @@ tlv_result_t tlv_query_result_next_ordinal(tlv_query_exec_t* e, tlv_tree_event_t
 tlv_result_t tlv_query_program_explain(const tlv_query_program_t* p, char* output, size_t capacity,
                                        size_t* required) {
     if (!p || !required || (!output && capacity)) return TLV_ERR_NULL_ARG;
+    if ((uintptr_t)p % sizeof(uint32_t)) return TLV_ERR_INVALID_ARG;
+    if (!query_program_valid(p)) return TLV_ERR_INVALID_VALUE;
     if (query_overlap(p, p->reserved, output, capacity) ||
         query_overlap(p, p->reserved, required, sizeof *required) ||
         query_overlap(output, capacity, required, sizeof *required))
         return TLV_ERR_INVALID_ARG;
-    if (!query_program_valid(p)) return TLV_ERR_INVALID_VALUE;
     size_t total = 0;
     for (unsigned pass = 0; pass < 2; ++pass) {
         size_t pos = 0;

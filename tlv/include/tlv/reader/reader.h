@@ -46,7 +46,9 @@ extern "C" {
  * @return #TLV_ERR_INVALID_TAG_SIZE for an empty tag or an unsupported tag size.
  * @return #TLV_ERR_INVALID_LENGTH if the length field is malformed.
  * @return #TLV_ERR_BUFFER_TOO_SHORT if the header, value or trailer is incomplete.
- * @return Any callback error, propagated unchanged.
+ * @return A permitted decoder error, propagated unchanged. Invalid control statuses,
+ * unknown callback results and invalid successful outputs become #TLV_ERR_CALLBACK;
+ * see #tlv_decode_fn.
  *
  * @note On failure both outputs remain unchanged.
  * @warning The caller must keep `data` alive and unchanged while any part of `out_element` is used.

@@ -264,7 +264,7 @@ if tlv.formats.ber then
     assert(bounded.query.limit == "schema-contexts")
     fails(function() tlv.query_schema_validate(rules, good, {max_work=1}) end, tlv.errors.LIMIT)
     fails(function() tlv.query_schema_validate({{context=rules[1].context,
-        assertion=tlv.query_program("count(.)", f)}}, good) end, tlv.errors.INVALID_ARG)
+        assertion=tlv.query_program("count(.)", f)}}, good) end, tlv.errors.INVALID_VALUE)
     if tlv.document then
         local empty_root = tlv.query_program("value(//70)", f):execution({max_depth=0})
         empty_root:evaluate_document(tlv.document(b(0x70,0), f))

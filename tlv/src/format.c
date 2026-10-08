@@ -107,6 +107,8 @@ tlv_result_t tlv_format_measure(const tlv_format_t* format, const tlv_element_t*
     rc = format->measure(format->context, element, &result, &detail);
     rc = tlv_callback_result(rc, 0);
     if (rc == TLV_OK) {
+        /* Success promises representable exact sizes; a wrapping sum violates
+         * that promise, unlike an OVERFLOW explicitly reported by the provider. */
         rc = tlv_size_add(result.header, result.value, &total);
         if (rc == TLV_OK) rc = tlv_size_add(total, result.trailer, &total);
         if (rc != TLV_OK || !total || result.value != element->value.size || result.total != total)

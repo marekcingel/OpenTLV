@@ -129,7 +129,7 @@ def test_query_schema_buffer_document_owned_diagnostics_and_limits():
     assert limit.value.query["limit"] == "schema-contexts"
     with pytest.raises(LimitError):
         schema.validate_buffer(good, max_work=1)
-    with pytest.raises(InvalidArgError):
+    with pytest.raises(InvalidValueError):
         QuerySchema([QueryRule(QueryProgram("//5A"), QueryProgram("count(.)"))]).validate_buffer(good)
     reverse = QuerySchema([QueryRule(QueryProgram("//5A[2]"),
                                     QueryProgram("exists(preceding::5A)"))])

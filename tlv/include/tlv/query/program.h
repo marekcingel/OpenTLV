@@ -681,7 +681,10 @@ TLV_API tlv_result_t tlv_query_program_exists(tlv_tree_reader_t* reader, tlv_que
  * @param[in] max_nodes Explicit nonzero retained-node capacity.
  * @param[out] bytes Required caller workspace bytes.
  * @param[out] alignment Required alignment.
- * @return OK or NULL/invalid-image/capacity/overflow errors. No hidden node set. */
+ * @return OK or NULL/invalid-image/capacity/overflow errors. No hidden node set. * @return
+ * #TLV_ERR_INVALID_ARG for a misaligned program pointer; #TLV_ERR_INVALID_VALUE for malformed
+ * readable program contents.
+ */
 TLV_API tlv_result_t tlv_query_eval_size(const tlv_query_program_t* program, size_t max_depth,
                                          size_t max_nodes, size_t* bytes, size_t* alignment);
 
@@ -745,7 +748,9 @@ TLV_API tlv_result_t tlv_query_result_next_ordinal(tlv_query_exec_t* exec, tlv_t
  * @param[out] output Optional destination, NULL with zero capacity for sizing.
  * @param[in] capacity Output bytes including terminator.
  * @param[out] required Required bytes including terminator.
- * @return OK or pointer/image/capacity errors. */
+ * @return OK or pointer/image/capacity errors. * @return #TLV_ERR_INVALID_ARG for a misaligned
+ * program pointer; #TLV_ERR_INVALID_VALUE for malformed readable program contents.
+ */
 TLV_API tlv_result_t tlv_query_program_explain(const tlv_query_program_t* program, char* output,
                                                size_t capacity, size_t* required);
 

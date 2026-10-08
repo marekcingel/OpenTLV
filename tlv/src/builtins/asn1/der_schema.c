@@ -292,7 +292,7 @@ static tlv_result_t check_identifiers(const tlv_der_schema_type_t* type) {
     size_t i, j;
     if (type->kind != TLV_DER_SCHEMA_SET && type->kind != TLV_DER_SCHEMA_CHOICE) return TLV_OK;
     /* Direct components must have pairwise-distinct effective identifiers
-     * (X.680 Ã‚Â§26 for SET, Ã‚Â§29 for CHOICE): for every component with a
+     * (X.680 §26 for SET, §29 for CHOICE): for every component with a
      * single fixed identifier (tagged, or untagged UNIVERSAL/SEQUENCE/
      * SET/SET-OF), no other sibling may resolve that same wire tag.
      * A sibling with an untagged nested CHOICE is still checked from the
@@ -942,7 +942,7 @@ static tlv_result_t encode_children_concat(der_schema_write_ctx_t* wctx,
 }
 
 /* SET content: present components concatenated in ascending effective-tag
- * order (X.690 Ã‚Â§11.5). Fixed-size local arrays: schema-bounded, as above. */
+ * order (X.690 §11.5). Fixed-size local arrays: schema-bounded, as above. */
 static tlv_result_t encode_set_content(der_schema_write_ctx_t* wctx,
                                        const tlv_der_schema_type_t* type, size_t depth,
                                        size_t* out_off, size_t* out_len) {
@@ -1014,7 +1014,7 @@ static tlv_result_t encode_set_content(der_schema_write_ctx_t* wctx,
 
 /* SET OF content: elements produced by repeated calls to type->element's
  * callback (index 0, 1, ...) until one reports absence, then concatenated in
- * ascending complete-encoding order (X.690 Ã‚Â§11.6). Unlike SET's schema-
+ * ascending complete-encoding order (X.690 §11.6). Unlike SET's schema-
  * bounded component count, the element count is caller/data-driven, so
  * records live in the caller-supplied scratch array (scratch_capacity
  * bounds it, matching tlv_der_schema_limits_t.max_set_elements). */

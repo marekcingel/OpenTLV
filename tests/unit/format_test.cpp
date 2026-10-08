@@ -2,6 +2,8 @@
 // Copyright (c) 2026 Marek Cingel
 
 #include "../diagnostic_assertions.h"
+#include "../../tlv/src/callback_internal.h"
+#include "../../tlv/src/codec/result_internal.h"
 #include "tlv/formats/compose.h"
 #include "tlv/reader/reader.h"
 #include "tlv/writer/writer.h"
@@ -9,6 +11,22 @@
 #include <cstring>
 #include <limits>
 #include <vector>
+
+TEST(Unit_Tlv_Format, CallbackResultDomainsPreserveErrorsAndRejectControlStatuses) {
+    for (int code = TLV_OK; code <= TLV_ERR_CALLBACK; ++code) {
+        const auto result = static_cast<tlv_result_t>(code);
+        for (int allow_end : {0, 1}) {
+            const bool rejected =
+                result == TLV_NEED_MORE_DATA || (result == TLV_ERR_END_OF_BUFFER && !allow_end);
+            EXPECT_EQ(rejected ? TLV_ERR_CALLBACK : result, tlv_callback_result(result, allow_end));
+        }
+    }
+    EXPECT_EQ(TLV_ERR_CALLBACK, tlv_callback_result(static_cast<tlv_result_t>(21), 1));
+    for (int code = TLV_CODEC_OK; code <= TLV_CODEC_ERR_INVALID_STRUCTURE; ++code)
+        EXPECT_TRUE(tlv_codec_result_valid(static_cast<tlv_codec_result_t>(code)));
+    EXPECT_FALSE(tlv_codec_result_valid(static_cast<tlv_codec_result_t>(7)));
+    EXPECT_STREQ("invalid data or application representation", tlv_strerror(TLV_ERR_INVALID_VALUE));
+}
 
 TEST(Unit_Tlv_Format, ProviderResultsAreDistinctFromInvalidSuccessPayloads) {
     struct State {

@@ -62,7 +62,8 @@ typedef struct tlv_cer_limits {
      * per-segment framing overhead.
      */
     size_t max_value_size;
-    /** Bounds the total visited elements, including each string segment. */
+    /** Bounds the total visited elements, including each string segment. Zero is
+     * a valid budget; requiring any element returns #TLV_ERR_LIMIT. */
     size_t max_elements;
 } tlv_cer_limits_t;
 

@@ -45,7 +45,9 @@ typedef struct tlv_schema_query_workspace {
 /** @brief Rule-aware failure preserving native Query/Reader/codec diagnostics.
  * @note After initialization, a failed assertion sets `schema.diagnostic.code`
  * to the return code; an execution failure sets `query.kind` to a non-NONE
- * category. Preflight rejection before initialization leaves both untouched. */
+ * category. Invalid program contents initialize `query.kind` to IMAGE; incompatible
+ * rule result types initialize it to TYPE, both with #TLV_ERR_INVALID_VALUE.
+ * Other preflight rejection before initialization leaves both untouched. */
 typedef struct tlv_schema_query_diagnostic {
     size_t rule;                    /**< Zero-based failing rule. */
     tlv_schema_diagnostic_t schema; /**< Failed boolean context, field=name, expected=true. */
@@ -59,7 +61,9 @@ typedef struct tlv_schema_query_diagnostic {
  * @param selector Required largest selector workspace bytes among all rules.
  * @param assertion Required largest assertion workspace bytes among all rules.
  * @param alignment Required common alignment for both workspaces.
- * @return Native sizing/type/capacity error or OK; outputs unchanged on failure.
+ * @return #TLV_ERR_INVALID_ARG for misaligned programs; #TLV_ERR_INVALID_VALUE for
+ * malformed program contents or a non-node selector/non-boolean assertion.
+ * @return Other native sizing/capacity error or OK; outputs unchanged on failure.
  * @note Context arrays and Reader frames are additional explicit storage. Rules reuse
  * the two workspaces sequentially; Document Value snapshot and owning tree are separate. */
 TLV_API tlv_result_t tlv_schema_query_size(const tlv_schema_query_rule_t* rules, size_t count,
@@ -77,6 +81,8 @@ TLV_API tlv_result_t tlv_schema_query_size(const tlv_schema_query_rule_t* rules,
  * @param workspace Caller storage, disjoint from input/programs.
  * @param diagnostic Optional structured failure; Reader failures remain their original codes.
  * @return OK, SCHEMA for false assertion, or native storage/Reader/Query failure.
+ * Invalid program contents and rule result types return #TLV_ERR_INVALID_VALUE
+ * with Query kind IMAGE or TYPE and the failing rule index.
  * @note Rejects all D rules before input traversal. Every context uses the original
  * whole input and normal Query relative-context semantics. Full structural coverage;
  * no subtree pruning. Work is O(sum of selector and per-context assertion executions).
@@ -99,6 +105,8 @@ TLV_API tlv_result_t tlv_schema_query_validate_buffer(
  * @param staging Bounded Writer frames/scratch when Values are required.
  * @param diagnostic Optional original engine and Schema context failure.
  * @return OK, SCHEMA for false, or original Query/Writer/capacity failure.
+ * Invalid program contents and rule result types return #TLV_ERR_INVALID_VALUE
+ * with Query kind IMAGE or TYPE and the failing rule index.
  * @note No allocation. D uses the same VM and original Document contexts. Historical
  * Source offsets are unavailable. Structural Schema rules remain separately optional. */
 TLV_API tlv_result_t tlv_schema_query_validate_document(

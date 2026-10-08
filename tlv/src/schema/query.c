@@ -4,6 +4,11 @@
 #include "../query/program_internal.h"
 #include <string.h>
 
+static tlv_result_t schema_query_requirements(const tlv_schema_query_rule_t* rules, size_t count,
+                                              size_t depth, size_t nodes, size_t* selector,
+                                              size_t* assertion, size_t* alignment,
+                                              tlv_schema_query_diagnostic_t* diagnostic);
+
 #if OPENTLV_DOCUMENT && OPENTLV_READER && OPENTLV_WRITER
 tlv_result_t tlv_schema_query_validate_document(const tlv_document_t* document,
                                                 const tlv_schema_query_rule_t* rules, size_t count,
@@ -15,7 +20,8 @@ tlv_result_t tlv_schema_query_validate_document(const tlv_document_t* document,
     if (!count) return TLV_OK;
     if (!document || !w || (!w->contexts && w->context_capacity)) return TLV_ERR_NULL_ARG;
     size_t a, b, alignment;
-    tlv_result_t rc = tlv_schema_query_size(rules, count, depth, nodes, &a, &b, &alignment);
+    tlv_result_t rc =
+        schema_query_requirements(rules, count, depth, nodes, &a, &b, &alignment, diagnostic);
     if (rc != TLV_OK) return rc;
     if (w->selector_size < a || w->assertion_size < b) return TLV_ERR_BUFFER_TOO_SHORT;
     if (diagnostic) memset(diagnostic, 0, sizeof *diagnostic);
@@ -93,19 +99,38 @@ tlv_result_t tlv_schema_query_validate_document(const tlv_document_t* document,
 }
 #endif
 
-tlv_result_t tlv_schema_query_size(const tlv_schema_query_rule_t* rules, size_t count, size_t depth,
-                                   size_t nodes, size_t* selector, size_t* assertion,
-                                   size_t* alignment) {
+static tlv_result_t schema_query_requirements(const tlv_schema_query_rule_t* rules, size_t count,
+                                              size_t depth, size_t nodes, size_t* selector,
+                                              size_t* assertion, size_t* alignment,
+                                              tlv_schema_query_diagnostic_t* diagnostic) {
     if ((!rules && count) || !selector || !assertion || !alignment) return TLV_ERR_NULL_ARG;
     size_t selected = 0, asserted = 0, aligned = 1;
     for (size_t i = 0; i < count; ++i) {
         if (!rules[i].context || !rules[i].assertion) return TLV_ERR_NULL_ARG;
-        if (!query_program_valid(rules[i].context) || !query_program_valid(rules[i].assertion) ||
-            query_public_type(query_nodes(rules[i].context)[rules[i].context->root].type) !=
-                TLV_QUERY_RESULT_NODES ||
-            query_public_type(query_nodes(rules[i].assertion)[rules[i].assertion->root].type) !=
-                TLV_QUERY_RESULT_BOOL)
+        if ((uintptr_t)rules[i].context % sizeof(uint32_t) ||
+            (uintptr_t)rules[i].assertion % sizeof(uint32_t))
             return TLV_ERR_INVALID_ARG;
+        tlv_query_error_kind_t kind = TLV_QUERY_ERROR_NONE;
+        const char* expected = NULL;
+        if (!query_program_valid(rules[i].context) || !query_program_valid(rules[i].assertion)) {
+            kind = TLV_QUERY_ERROR_IMAGE;
+            expected = "valid Schema Query program image";
+        } else if (query_public_type(query_nodes(rules[i].context)[rules[i].context->root].type) !=
+                       TLV_QUERY_RESULT_NODES ||
+                   query_public_type(
+                       query_nodes(rules[i].assertion)[rules[i].assertion->root].type) !=
+                       TLV_QUERY_RESULT_BOOL) {
+            kind = TLV_QUERY_ERROR_TYPE;
+            expected = "node context selector and boolean assertion";
+        }
+        if (kind != TLV_QUERY_ERROR_NONE) {
+            if (diagnostic) {
+                memset(diagnostic, 0, sizeof *diagnostic);
+                diagnostic->rule = i;
+            }
+            return query_error(diagnostic ? &diagnostic->query : NULL, TLV_ERR_INVALID_VALUE, kind,
+                               0, 0, expected);
+        }
         size_t bytes, align;
         tlv_result_t rc = tlv_query_eval_size(rules[i].context, depth, nodes, &bytes, &align);
         if (rc != TLV_OK) return rc;
@@ -120,6 +145,12 @@ tlv_result_t tlv_schema_query_size(const tlv_schema_query_rule_t* rules, size_t 
     *assertion = asserted;
     *alignment = aligned;
     return TLV_OK;
+}
+tlv_result_t tlv_schema_query_size(const tlv_schema_query_rule_t* rules, size_t count, size_t depth,
+                                   size_t nodes, size_t* selector, size_t* assertion,
+                                   size_t* alignment) {
+    return schema_query_requirements(rules, count, depth, nodes, selector, assertion, alignment,
+                                     NULL);
 }
 static tlv_result_t buffer_evaluate(const uint8_t* data, size_t size, const tlv_format_t* format,
                                     tlv_query_exec_t* exec, size_t depth, size_t nodes,
@@ -194,8 +225,8 @@ tlv_result_t tlv_schema_query_validate_buffer(const uint8_t* data, size_t size,
     if ((!data && size) || !format || !w || (!w->contexts && w->context_capacity))
         return TLV_ERR_NULL_ARG;
     size_t selector_size, assertion_size, alignment;
-    tlv_result_t rc = tlv_schema_query_size(rules, count, depth, nodes, &selector_size,
-                                            &assertion_size, &alignment);
+    tlv_result_t rc = schema_query_requirements(rules, count, depth, nodes, &selector_size,
+                                                &assertion_size, &alignment, diagnostic);
     if (rc != TLV_OK) return rc;
     if (!w->selector || !w->assertion || (uintptr_t)w->selector % alignment ||
         (uintptr_t)w->assertion % alignment)

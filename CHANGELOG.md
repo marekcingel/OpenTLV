@@ -9,6 +9,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Fixed
 
+- Reject misaligned Query program pointers before reading their contents, and report malformed Schema Query programs and incompatible rule result types as `INVALID_VALUE` with image/type diagnostics. Clarify callback result contracts and the general invalid-data error message. (#554)
 - Fix JS/WASM Query facade CI tests by aligning program-image error expectations with `INVALID_VALUE` and the `IMAGE` diagnostic kind. (#554)
 - Use a general error message for unsupported types or capabilities, including Schema definitions exceeding fixed checking capacity. (#553)
 - Avoid exponential definition checks for shared Schema graphs, preserve recursive DER schemas that consume input, and bound definition checking by distinct tables/types separately from wire nesting. Reject non-consuming CHOICE cycles and correct the Python Schema doctest. (#553)

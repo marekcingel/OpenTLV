@@ -144,7 +144,7 @@ fn original_reader_and_invalid_rule_failures_are_not_assertion_failures() {
                 .unwrap_err()
                 .failure
                 .error,
-            Error::InvalidArg
+            Error::InvalidValue
         );
     }
     assert!(rule("//5A", "1 = 1").named("invalid\0name").is_err());

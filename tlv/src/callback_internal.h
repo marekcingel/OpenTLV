@@ -30,8 +30,10 @@ static inline tlv_result_t tlv_callback_result(tlv_result_t result, int allow_en
         case TLV_ERR_NATIVE_SIZE:
         case TLV_ERR_INVALID_STATE:
         case TLV_ERR_CALLBACK: return result;
-        default: return TLV_ERR_CALLBACK;
+        case TLV_NEED_MORE_DATA: return TLV_ERR_CALLBACK;
     }
+    /* No default: -Wswitch must diagnose newly added result enumerators. */
+    return TLV_ERR_CALLBACK;
 }
 
 #endif

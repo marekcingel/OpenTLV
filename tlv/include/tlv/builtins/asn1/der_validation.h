@@ -48,7 +48,8 @@ typedef struct tlv_der_limits {
     size_t max_input_size;
     /** Bounds each value. */
     size_t max_value_size;
-    /** Bounds the total visited elements. */
+    /** Bounds the total visited elements. Zero is a valid budget: any operation
+     * requiring an element returns #TLV_ERR_LIMIT, not #TLV_ERR_INVALID_ARG. */
     size_t max_elements;
 } tlv_der_limits_t;
 

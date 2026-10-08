@@ -957,6 +957,9 @@ TEST(Unit_Tlv_QueryProgram, CorruptInternalImagesAreRejectedBeforeExecutionOrFor
         size_t     bytes = 777, alignment = 777, required = 777;
         EXPECT_EQ(expected, tlv_query_exec_size(p, 4, &bytes, &alignment)) << mutation;
         EXPECT_EQ(777u, bytes);
+        EXPECT_EQ(expected, tlv_query_eval_size(p, 4, 8, &bytes, &alignment)) << mutation;
+        EXPECT_EQ(777u, bytes);
+        EXPECT_EQ(777u, alignment);
         uint64_t          workspace[4096];
         tlv_query_exec_t* exec = nullptr;
         EXPECT_EQ(expected,
@@ -965,6 +968,10 @@ TEST(Unit_Tlv_QueryProgram, CorruptInternalImagesAreRejectedBeforeExecutionOrFor
         EXPECT_EQ(nullptr, exec);
         char output[64] = "unchanged";
         EXPECT_EQ(expected, tlv_query_program_format(p, output, sizeof output, &required))
+            << mutation;
+        EXPECT_STREQ("unchanged", output);
+        EXPECT_EQ(777u, required);
+        EXPECT_EQ(expected, tlv_query_program_explain(p, output, sizeof output, &required))
             << mutation;
         EXPECT_STREQ("unchanged", output);
         EXPECT_EQ(777u, required);
@@ -1479,6 +1486,72 @@ TEST(Unit_Tlv_QueryProgram, InvalidHookConfigurationCarriesCapabilityDetail) {
               TLV_DIAGNOSTIC_RESULT(
                   d, tlv_query_compile_scratch("5A", 2, &options, &bytes, &alignment, &d)));
     EXPECT_EQ(TLV_QUERY_ERROR_CAPABILITY, d.kind);
+}
+
+TEST(Unit_Tlv_QueryProgram, SchemaRuleImagesTypesAndAlignmentRemainDistinct) {
+    Program selector, assertion, number;
+    ASSERT_EQ(TLV_OK, selector.compile("//5A"));
+    ASSERT_EQ(TLV_OK, assertion.compile("exists(//5A)"));
+    ASSERT_EQ(TLV_OK, number.compile("count(//5A)"));
+#if OPENTLV_DOCUMENT && OPENTLV_READER && OPENTLV_WRITER
+    tlv_document_t*        raw = nullptr;
+    tlv_document_options_t options;
+    ASSERT_EQ(TLV_OK, tlv_document_options_init(&options, &controlled::format));
+    ASSERT_EQ(TLV_OK, tlv_document_create(&options, &raw));
+    std::unique_ptr<tlv_document_t, decltype(&tlv_document_free)> document(raw, tlv_document_free);
+#endif
+    for (bool context : {false, true}) {
+        for (int defect = 0; defect < 3; ++defect) {
+            SCOPED_TRACE(defect);
+            auto  damaged = context ? selector.storage : assertion.storage;
+            auto* image = reinterpret_cast<tlv_query_program_t*>(damaged.data());
+            const tlv_query_program_t* invalid = image;
+            if (defect == 0)
+                invalid = reinterpret_cast<const tlv_query_program_t*>(
+                    reinterpret_cast<const char*>(image) + 1);
+            else if (defect == 1)
+                image->magic = 0;
+            else
+                invalid = number.get();
+            tlv_schema_query_rule_t rules[] = {{selector.get(), assertion.get(), nullptr, "valid"},
+                                               {context ? invalid : selector.get(),
+                                                context ? assertion.get() : invalid, nullptr,
+                                                "invalid"}};
+            const auto expected = defect == 0 ? TLV_ERR_INVALID_ARG : TLV_ERR_INVALID_VALUE;
+            size_t     a = 777, b = 777, alignment = 777;
+            EXPECT_EQ(expected, tlv_schema_query_size(rules, 2, 4, 8, &a, &b, &alignment));
+            EXPECT_EQ(777u, a);
+            EXPECT_EQ(777u, b);
+            EXPECT_EQ(777u, alignment);
+            tlv_schema_query_workspace_t workspace{};
+            for (bool detailed : {false, true}) {
+                tlv_schema_query_diagnostic_t diagnostic{};
+                diagnostic.rule = 777;
+                auto check = [&] {
+                    if (!detailed) return;
+                    if (defect == 0)
+                        EXPECT_EQ(777u, diagnostic.rule);
+                    else {
+                        EXPECT_EQ(1u, diagnostic.rule);
+                        EXPECT_EQ(defect == 1 ? TLV_QUERY_ERROR_IMAGE : TLV_QUERY_ERROR_TYPE,
+                                  diagnostic.query.kind);
+                    }
+                };
+                EXPECT_EQ(expected, tlv_schema_query_validate_buffer(
+                                        nullptr, 0, &controlled::format, rules, 2, 4, 8, 1000,
+                                        &workspace, detailed ? &diagnostic : nullptr));
+                check();
+#if OPENTLV_DOCUMENT && OPENTLV_READER && OPENTLV_WRITER
+                diagnostic = {};
+                diagnostic.rule = 777;
+                EXPECT_EQ(expected, tlv_schema_query_validate_document(
+                                        document.get(), rules, 2, 4, 8, 1000, &workspace, nullptr,
+                                        0, nullptr, detailed ? &diagnostic : nullptr));
+                check();
+#endif
+            }
+        }
+    }
 }
 
 TEST(Unit_Tlv_QueryProgram, DeepSchemaPathsMatchBetweenBufferAndDocument) {

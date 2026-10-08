@@ -360,11 +360,14 @@ TLV_API tlv_result_t tlv_der_schema_read(const uint8_t* data, size_t size,
  * @param[out] absent    Set nonzero to report absence.
  *
  * @return #TLV_OK on success (including reporting absence), or an error
- *         code that propagates unchanged.
+ *         permitted error code that propagates unchanged.
  *
  * @note A #TLV_DER_REQUIRED component, or an element below a SET OF's or
  *       SEQUENCE OF's `min_elements`, reporting absent is a caller/schema
  *       mismatch (#TLV_ERR_SCHEMA).
+ * @note Allowed results are #TLV_OK and any defined `TLV_ERR_*` error except
+ * #TLV_ERR_END_OF_BUFFER. #TLV_NEED_MORE_DATA, #TLV_ERR_END_OF_BUFFER and unknown
+ * result values violate the callback contract and are reported as #TLV_ERR_CALLBACK.
  */
 typedef tlv_result_t (*tlv_der_schema_encode_fn)(const void* context,
                                                  const tlv_der_schema_component_t* component,
@@ -448,7 +451,7 @@ typedef struct tlv_der_schema_record {
  * @return #TLV_ERR_BUFFER_TOO_SHORT if caller scratch storage is insufficient.
  * @return #TLV_ERR_UNSUPPORTED if max_depth exceeds the implementation capability.
  * @return #TLV_ERR_CALLBACK if the encode callback violates its result or presence/size contract.
- * @return Any callback error, propagated unchanged unless an earlier schema/value
+ * @return Any permitted callback error, propagated unchanged unless an earlier schema/value
  *         failure has already been retained while locating its offset.
  *
  * @note The destination and `written` remain unchanged on error; scratch is
