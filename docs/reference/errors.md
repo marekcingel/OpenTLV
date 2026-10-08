@@ -11,6 +11,63 @@ writer also keeps its position unchanged on failure, but an encoding callback fa
 leave modified bytes beyond that position. Each function documents which codes it can
 return; this page explains what each code means and what to check first.
 
+## Result and diagnostic invariant
+
+When an API initializes a non-NULL diagnostic output, every subsequent non-OK
+return describes that result:
+
+- `tlv_diagnostic_t` and the active diagnostic in an embedding type have
+  `diagnostic.code == rc`.
+- `tlv_query_diagnostic_t` has `kind != TLV_QUERY_ERROR_NONE`. A `READER` detail
+  also has `reader.diagnostic.code == rc`; a `CODEC` detail has a non-OK codec result.
+- Schema Query has alternative detail channels: a false assertion sets
+  `schema.diagnostic.code`, while an execution failure fills `query`.
+
+The rule includes `TLV_ERR_END_OF_BUFFER` and `TLV_NEED_MORE_DATA` when returned
+through an initialized diagnostic channel. These are still normal iteration or
+resumption conditions where the API says so. Query represents resumable Reader
+status as `READER`; this does not poison the execution.
+
+Diagnostics are failure outputs, so the general unchanged-output rule above does
+not prevent filling them on failure. A successful call need not clear an old
+diagnostic; inspect it only in conjunction with the returned result. Report
+collections describe individual findings, rather than repeating an aggregate
+validation result in every entry.
+
+Pre-initialization checks leave the diagnostic untouched. In particular:
+
+- Query overlap checks protect borrowed input and execution storage. Reentrant
+  calls and rejected continuations of failed executions preserve the outer or
+  original failure. Do not move initialization ahead of these guards.
+- Compiler prepare/commit/load entry points can reject required arguments,
+  output extents, alignment or overlapping storage before their first diagnostic
+  initialization (including initialization by a delegated compiler call).
+- Low-level Reader/Tree and Schema entry points can reject preflight arguments
+  or resources before producing detail. An enclosing API which has already
+  initialized its own diagnostic must nevertheless describe a propagated error.
+
+Until the failure-model design in #551 is implemented, Query uses existing
+categories: `STORAGE` for compiler/plan arguments and capacities, `BINDING` for
+binding arguments, `CAPABILITY` for incompatible formats or hook configuration,
+and `EVENTS` for execution lifecycle and visitor/callback failures. Return codes
+and public layouts are unchanged. These choices are temporary classifications,
+not new result-taxonomy rules.
+
+### Regression enforcement
+
+`tests/diagnostic_assertions.h` checks the invariant after an operation, including
+calls shared by table-driven Query tests. Tests for pre-initialization rejection
+instead verify that protected outputs remain unchanged.
+
+Run `python scripts/test_diagnostic_returns.py` and
+`python scripts/check_diagnostic_returns.py` for the CI source guard. The guard
+reports direct error returns after explicit diagnostic initialization in C
+functions with a diagnostic output. A directly populated return requires an
+adjacent `diagnostic-return:` comment explaining where its detail was set.
+This lexical check is deliberately conservative: indirect initialization,
+propagated variables and callback behavior require runtime tests; it is not a
+control-flow proof.
+
 ## Codes
 
 | Code | Value | Meaning | What to check |

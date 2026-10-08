@@ -1,6 +1,7 @@
 // SPDX-License-Identifier: MIT
 // Copyright (c) 2026 Marek Cingel
 
+#include "../diagnostic_assertions.h"
 #include "visitor_input.h"
 #include "tlv/formats/compose.h"
 #include "tlv/reader/reader.h"
@@ -206,10 +207,21 @@ TEST(Integration_Tlv_Pipeline, BuilderPreservesAbsoluteDiagnosticsAndReaderLimit
         std::unique_ptr<tlv_document_builder_t, decltype(&tlv_document_builder_free)> builder(
             raw, tlv_document_builder_free);
         tlv_document_t*         doc = nullptr;
-        tlv_reader_diagnostic_t diagnostic{};
-        size_t                  offset = 99;
-        EXPECT_EQ(limited ? TLV_ERR_LIMIT : TLV_ERR_BUFFER_TOO_SHORT,
-                  tlv_document_builder_consume(raw, &doc, &offset, &diagnostic));
+        tlv_reader_diagnostic_t diagnostic;
+        std::memset(&diagnostic, 0, sizeof diagnostic);
+        diagnostic.diagnostic.code = TLV_ERR_VISITOR;
+        unsigned char before[sizeof diagnostic];
+        std::memcpy(before, &diagnostic, sizeof diagnostic);
+        size_t offset = 99;
+        auto   rc = tlv_document_builder_consume(raw, &doc, &offset, &diagnostic);
+        EXPECT_EQ(limited ? TLV_ERR_LIMIT : TLV_ERR_BUFFER_TOO_SHORT, rc);
+        if (limited) {
+            // Builder delegates without initializing detail: Reader resource
+            // preflight leaves this diagnostic untouched.
+            EXPECT_EQ(0, std::memcmp(before, &diagnostic, sizeof diagnostic));
+        } else {
+            diagnostic_test::result(rc, diagnostic);
+        }
         EXPECT_EQ(nullptr, doc);
         EXPECT_EQ(4u, offset);
         if (!limited) {

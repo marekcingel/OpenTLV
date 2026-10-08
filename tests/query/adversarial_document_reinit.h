@@ -86,9 +86,11 @@ static int document_format_reinitialization(void) {
             staging.frames = frames;
             staging.frame_capacity = 8;
             state.active = 1;
-            CHECK(tlv_document_query_evaluate(state.document, state.exec, NULL, values,
-                                              sizeof values, &staging,
-                                              NULL) == TLV_ERR_INVALID_ARG);
+            tlv_query_diagnostic_t diagnostic = {0};
+            tlv_result_t rc = tlv_document_query_evaluate(state.document, state.exec, NULL, values,
+                                                          sizeof values, &staging, &diagnostic);
+            CHECK(rc == TLV_ERR_INVALID_ARG);
+            CHECK(test_query_diagnostic_matches(rc, &diagnostic));
             CHECK(state.calls == 1 && !state.errors);
             tlv_query_exec_info_t info = {0};
             info.struct_size = sizeof info;

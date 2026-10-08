@@ -1,6 +1,7 @@
 // SPDX-License-Identifier: MIT
 // Copyright (c) 2026 Marek Cingel
 
+#include "../../diagnostic_assertions.h"
 #include "tlv/config.h"
 #include "tlv/reader/reader.h"
 #include "tlv/formats/fixed.h"
@@ -106,12 +107,16 @@ TEST(Integration_Tlv_Incremental, MissingEocReportsTrailerExtentThenTruncationAt
     ASSERT_EQ(TLV_OK, tlv_reader_init_incremental(&reader, wire, sizeof(wire), &tlv_format_ber));
     tlv_element_t           element{};
     tlv_reader_diagnostic_t diagnostic{};
-    ASSERT_EQ(TLV_NEED_MORE_DATA, tlv_reader_next_diag(&reader, &element, &diagnostic));
+    ASSERT_EQ(
+        TLV_NEED_MORE_DATA,
+        TLV_DIAGNOSTIC_RESULT(diagnostic, tlv_reader_next_diag(&reader, &element, &diagnostic)));
     EXPECT_EQ(TLV_READER_OP_TRAILER, diagnostic.operation);
     EXPECT_TRUE(diagnostic.has_required);
     EXPECT_EQ(2u, diagnostic.required);
     EXPECT_EQ(1u, diagnostic.available);
     ASSERT_EQ(TLV_OK, tlv_reader_set_input(&reader, wire, sizeof(wire), 0, 1));
-    EXPECT_EQ(TLV_ERR_BUFFER_TOO_SHORT, tlv_reader_next_diag(&reader, &element, &diagnostic));
+    EXPECT_EQ(
+        TLV_ERR_BUFFER_TOO_SHORT,
+        TLV_DIAGNOSTIC_RESULT(diagnostic, tlv_reader_next_diag(&reader, &element, &diagnostic)));
 }
 #endif

@@ -1,6 +1,7 @@
 // SPDX-License-Identifier: MIT
 // Copyright (c) 2026 Marek Cingel
 
+#include "../../diagnostic_assertions.h"
 #include "controlled_format.h"
 #include "tlv/reader/reader.h"
 #include "tlv/writer/writer.h"
@@ -44,8 +45,10 @@ TEST(Unit_Tlv_Writer, ElementMeasurementUsesContentAndIncludesTrailer) {
     uint8_t                 output[4] = {0xAA, 0xAA, 0xAA, 0xAA};
     tlv_writer_diagnostic_t diagnostic{};
     size_t                  written = 99;
-    EXPECT_EQ(TLV_ERR_BUFFER_TOO_SHORT,
-              tlv_write_element_diag(output, 3, &content_format, &element, &written, &diagnostic));
+    EXPECT_EQ(
+        TLV_ERR_BUFFER_TOO_SHORT,
+        TLV_DIAGNOSTIC_RESULT(diagnostic, tlv_write_element_diag(output, 3, &content_format,
+                                                                 &element, &written, &diagnostic)));
     EXPECT_EQ(required, written);
     EXPECT_EQ(required, diagnostic.required);
     for (auto byte : output) EXPECT_EQ(0xAA, byte);
@@ -68,13 +71,16 @@ TEST(Unit_Tlv_Writer, ElementSizingChecksLogicalAndNativeOverflowWithoutReadingV
     size_t                  required = 77;
     tlv_writer_diagnostic_t diagnostic{};
     EXPECT_EQ(TLV_ERR_OVERFLOW,
-              tlv_element_encoded_size_diag(&element, &format, &required, &diagnostic));
+              TLV_DIAGNOSTIC_RESULT(diagnostic, tlv_element_encoded_size_diag(
+                                                    &element, &format, &required, &diagnostic)));
     EXPECT_EQ(77u, required);
     EXPECT_FALSE(diagnostic.has_available);
     if (sizeof(size_t) < sizeof(tlv_size_t)) {
         element.value.size = std::numeric_limits<size_t>::max();
         EXPECT_EQ(TLV_ERR_NATIVE_SIZE,
-                  tlv_element_encoded_size_diag(&element, &format, &required, &diagnostic));
+                  TLV_DIAGNOSTIC_RESULT(
+                      diagnostic,
+                      tlv_element_encoded_size_diag(&element, &format, &required, &diagnostic)));
         EXPECT_EQ(77u, required);
     }
     element.value.size = 0;
@@ -93,8 +99,10 @@ TEST(Unit_Tlv_Writer, PreserveValidatesContentAndNeverTreatsEmptyCursorAsSizing)
     tlv_writer_t writer{};
     ASSERT_EQ(TLV_OK, tlv_writer_init(&writer, nullptr, 0, &controlled::format));
     tlv_writer_diagnostic_t diagnostic{};
-    EXPECT_EQ(TLV_ERR_BUFFER_TOO_SHORT,
-              tlv_writer_preserve_diag(&writer, &decoded.source, &decoded.element, &diagnostic));
+    EXPECT_EQ(
+        TLV_ERR_BUFFER_TOO_SHORT,
+        TLV_DIAGNOSTIC_RESULT(diagnostic, tlv_writer_preserve_diag(&writer, &decoded.source,
+                                                                   &decoded.element, &diagnostic)));
     EXPECT_EQ(0u, writer.pos);
     EXPECT_EQ(sizeof(original), diagnostic.required);
     EXPECT_EQ(TLV_WRITER_OP_PRESERVE, diagnostic.operation);
@@ -105,7 +113,8 @@ TEST(Unit_Tlv_Writer, PreserveValidatesContentAndNeverTreatsEmptyCursorAsSizing)
     auto          element = decoded.element;
     element.value.data = &changed;
     EXPECT_EQ(TLV_ERR_INVALID_ARG,
-              tlv_writer_preserve_diag(&writer, &decoded.source, &element, &diagnostic));
+              TLV_DIAGNOSTIC_RESULT(diagnostic, tlv_writer_preserve_diag(&writer, &decoded.source,
+                                                                         &element, &diagnostic)));
     EXPECT_EQ(2u, writer.pos);
     EXPECT_EQ(2u, diagnostic.diagnostic.offset);
     EXPECT_EQ(0, output[2]);
@@ -134,7 +143,9 @@ TEST(Unit_Tlv_Writer, ElementCallbackFailureKeepsPositionAndSupportsRetry) {
     ASSERT_EQ(TLV_OK, tlv_writer_copy_encoded(&writer, &prefix, 1));
     const tlv_element_t     element = {tag, {nullptr, 0}};
     tlv_writer_diagnostic_t diagnostic{};
-    EXPECT_EQ(TLV_ERR_INVALID_VALUE, tlv_writer_write_element_diag(&writer, &element, &diagnostic));
+    EXPECT_EQ(TLV_ERR_INVALID_VALUE,
+              TLV_DIAGNOSTIC_RESULT(diagnostic,
+                                    tlv_writer_write_element_diag(&writer, &element, &diagnostic)));
     EXPECT_EQ(1u, writer.pos);
     EXPECT_EQ(0xAA, output[0]);
     EXPECT_EQ(0xEE, output[1]);
@@ -150,7 +161,9 @@ TEST(Unit_Tlv_Writer, MeasureAndRawCopyDiagnosticsHaveApplicableFields) {
     tlv_writer_diagnostic_t diagnostic{};
     const tlv_element_t     invalid = {tag, {nullptr, 256}};
     EXPECT_EQ(TLV_ERR_INVALID_LENGTH,
-              tlv_element_encoded_size_diag(&invalid, &controlled::format, &size, &diagnostic));
+              TLV_DIAGNOSTIC_RESULT(diagnostic,
+                                    tlv_element_encoded_size_diag(&invalid, &controlled::format,
+                                                                  &size, &diagnostic)));
     EXPECT_EQ(77u, size);
     EXPECT_FALSE(diagnostic.has_available);
     EXPECT_EQ(TLV_WRITER_OP_LENGTH, diagnostic.operation);
@@ -160,7 +173,8 @@ TEST(Unit_Tlv_Writer, MeasureAndRawCopyDiagnosticsHaveApplicableFields) {
     ASSERT_EQ(TLV_OK, tlv_writer_write(&writer, tag, nullptr, 0));
     const uint8_t raw = 0xAA;
     EXPECT_EQ(TLV_ERR_BUFFER_TOO_SHORT,
-              tlv_writer_copy_encoded_diag(&writer, &raw, 1, &diagnostic));
+              TLV_DIAGNOSTIC_RESULT(diagnostic,
+                                    tlv_writer_copy_encoded_diag(&writer, &raw, 1, &diagnostic)));
     EXPECT_EQ(2u, writer.pos);
     EXPECT_EQ(2u, diagnostic.diagnostic.offset);
     EXPECT_EQ(1u, diagnostic.required);
@@ -517,8 +531,9 @@ TEST(Unit_Tlv_WriterDiagnostic, WriteDiagReportsRequiredSizeExceedingAvailableCa
     tlv_writer_diagnostic_t diagnostic;
 
     ASSERT_EQ(TLV_ERR_BUFFER_TOO_SHORT,
-              tlv_write_diag(data, sizeof(data), &controlled::format, tag, value, sizeof(value),
-                             &written, &diagnostic));
+              TLV_DIAGNOSTIC_RESULT(diagnostic,
+                                    tlv_write_diag(data, sizeof(data), &controlled::format, tag,
+                                                   value, sizeof(value), &written, &diagnostic)));
 
     EXPECT_EQ(5u, written);
     EXPECT_EQ(TLV_ERR_BUFFER_TOO_SHORT, diagnostic.diagnostic.code);
@@ -543,8 +558,9 @@ TEST(Unit_Tlv_WriterDiagnostic, WriteDiagReportsAnUnsupportedTag) {
     tlv_writer_diagnostic_t diagnostic;
 
     ASSERT_EQ(TLV_ERR_INVALID_TAG_SIZE,
-              tlv_write_diag(data, sizeof(data), &controlled::format, tlv_tag_t{}, nullptr, 0,
-                             &written, &diagnostic));
+              TLV_DIAGNOSTIC_RESULT(diagnostic, tlv_write_diag(data, sizeof(data),
+                                                               &controlled::format, tlv_tag_t{},
+                                                               nullptr, 0, &written, &diagnostic)));
 
     EXPECT_EQ(TLV_ERR_INVALID_TAG_SIZE, diagnostic.diagnostic.code);
     EXPECT_EQ(TLV_WRITER_OP_TAG, diagnostic.operation);
@@ -558,8 +574,10 @@ TEST(Unit_Tlv_WriterDiagnostic, WriteDiagReportsAnUnsupportedLengthWithTheValida
     size_t                  written = 0;
     tlv_writer_diagnostic_t diagnostic;
 
-    ASSERT_EQ(TLV_ERR_INVALID_LENGTH, tlv_write_diag(data, sizeof(data), &controlled::format, tag,
-                                                     value, 256, &written, &diagnostic));
+    ASSERT_EQ(
+        TLV_ERR_INVALID_LENGTH,
+        TLV_DIAGNOSTIC_RESULT(diagnostic, tlv_write_diag(data, sizeof(data), &controlled::format,
+                                                         tag, value, 256, &written, &diagnostic)));
 
     EXPECT_EQ(TLV_ERR_INVALID_LENGTH, diagnostic.diagnostic.code);
     EXPECT_EQ(TLV_WRITER_OP_LENGTH, diagnostic.operation);
@@ -582,7 +600,8 @@ TEST(Unit_Tlv_WriterDiagnostic, WriterWriteDiagReportsOffsetsAbsoluteWithinTheBu
     const uint8_t           value[] = {0x11, 0x22, 0x33};
     tlv_writer_diagnostic_t diagnostic;
     ASSERT_EQ(TLV_ERR_BUFFER_TOO_SHORT,
-              tlv_writer_write_diag(&writer, tag, value, sizeof(value), &diagnostic));
+              TLV_DIAGNOSTIC_RESULT(diagnostic, tlv_writer_write_diag(&writer, tag, value,
+                                                                      sizeof(value), &diagnostic)));
 
     ASSERT_NE(0, diagnostic.diagnostic.has_offset);
     EXPECT_EQ(2u, diagnostic.diagnostic.offset);
@@ -601,7 +620,8 @@ TEST(Unit_Tlv_WriterDiagnostic, WriterWriteDiagReportsInvalidStateAtTheCurrentPo
 
     tlv_writer_diagnostic_t diagnostic;
     ASSERT_EQ(TLV_ERR_BUFFER_TOO_SHORT,
-              tlv_writer_write_diag(&writer, tag, nullptr, 0, &diagnostic));
+              TLV_DIAGNOSTIC_RESULT(diagnostic,
+                                    tlv_writer_write_diag(&writer, tag, nullptr, 0, &diagnostic)));
     ASSERT_NE(0, diagnostic.diagnostic.has_offset);
     EXPECT_EQ(writer.capacity + 1, diagnostic.diagnostic.offset);
     ASSERT_NE(0, diagnostic.has_available);

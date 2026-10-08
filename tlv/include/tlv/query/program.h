@@ -73,6 +73,12 @@ typedef enum tlv_query_decision_timing {
 } tlv_query_decision_timing_t;
 
 /** @brief Fixed-layout compiler/execution failure, initialized by diagnostic entry points.
+ * @note After initialization, every non-#TLV_OK return has a kind other than
+ * #TLV_QUERY_ERROR_NONE. Reader failures and #TLV_NEED_MORE_DATA retain the
+ * returned code in `reader.diagnostic.code`. Success need not clear old detail.
+ * @note Pre-initialization overlap, reentrancy and failed-execution guards leave
+ * this output untouched. Compiler prepare/commit/load preflight argument,
+ * extent and alignment checks can also reject before initialization.
  * @note A valid bind, feed or finish call on an already failed execution returns
  * INVALID_ARG without writing this object, preserving the original failure when
  * it is reused. Inspect exec_info.invalid and reset before continuing.

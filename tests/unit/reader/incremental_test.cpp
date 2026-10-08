@@ -1,6 +1,7 @@
 // SPDX-License-Identifier: MIT
 // Copyright (c) 2026 Marek Cingel
 
+#include "../../diagnostic_assertions.h"
 #include "controlled_format.h"
 #include "tlv/reader/reader.h"
 #include "tlv/formats/fixed.h"
@@ -15,7 +16,9 @@ TEST(Unit_Tlv_Incremental, EmptyOpenInputRequiresDataUntilExplicitEof) {
     tlv_reader_diagnostic_t diagnostic{};
     for (int i = 0; i < 2; ++i) {
         EXPECT_FALSE(tlv_reader_at_end(&reader));
-        EXPECT_EQ(TLV_NEED_MORE_DATA, tlv_reader_next_diag(&reader, &element, &diagnostic));
+        EXPECT_EQ(TLV_NEED_MORE_DATA,
+                  TLV_DIAGNOSTIC_RESULT(diagnostic,
+                                        tlv_reader_next_diag(&reader, &element, &diagnostic)));
         EXPECT_EQ(TLV_NEED_MORE_DATA, diagnostic.diagnostic.code);
         EXPECT_EQ(TLV_DIAGNOSTIC_SEVERITY_INFO, diagnostic.diagnostic.severity);
         EXPECT_EQ(0u, diagnostic.available);
@@ -64,12 +67,16 @@ TEST(Unit_Tlv_Incremental, FinalInputReportsTruncationAndPreservesRequiredExtent
               tlv_reader_init_incremental(&reader, wire, sizeof(wire), &controlled::format));
     tlv_element_t           element{};
     tlv_reader_diagnostic_t diagnostic{};
-    ASSERT_EQ(TLV_NEED_MORE_DATA, tlv_reader_next_diag(&reader, &element, &diagnostic));
+    ASSERT_EQ(
+        TLV_NEED_MORE_DATA,
+        TLV_DIAGNOSTIC_RESULT(diagnostic, tlv_reader_next_diag(&reader, &element, &diagnostic)));
     EXPECT_TRUE(diagnostic.has_required);
     EXPECT_EQ(5u, diagnostic.required);
     EXPECT_EQ(1u, diagnostic.available);
     ASSERT_EQ(TLV_OK, tlv_reader_set_input(&reader, wire, sizeof(wire), 0, 1));
-    ASSERT_EQ(TLV_ERR_BUFFER_TOO_SHORT, tlv_reader_next_diag(&reader, &element, &diagnostic));
+    ASSERT_EQ(
+        TLV_ERR_BUFFER_TOO_SHORT,
+        TLV_DIAGNOSTIC_RESULT(diagnostic, tlv_reader_next_diag(&reader, &element, &diagnostic)));
     EXPECT_EQ(TLV_DIAGNOSTIC_SEVERITY_ERROR, diagnostic.diagnostic.severity);
     EXPECT_EQ(5u, diagnostic.required);
     EXPECT_EQ(0u, tlv_reader_offset(&reader));
@@ -86,7 +93,9 @@ TEST(Unit_Tlv_Incremental, RelocatedWindowsPreserveLogicalOffsetsAndOldBorrowedV
     tlv_element_t retained{}, element{};
     ASSERT_EQ(TLV_OK, tlv_reader_next(&reader, &retained));
     tlv_reader_diagnostic_t diagnostic{};
-    ASSERT_EQ(TLV_NEED_MORE_DATA, tlv_reader_next_diag(&reader, &element, &diagnostic));
+    ASSERT_EQ(
+        TLV_NEED_MORE_DATA,
+        TLV_DIAGNOSTIC_RESULT(diagnostic, tlv_reader_next_diag(&reader, &element, &diagnostic)));
     EXPECT_EQ(5u, diagnostic.diagnostic.offset);
     ASSERT_EQ(TLV_OK, tlv_reader_set_input(&reader, second, sizeof(second), 3, 0));
     EXPECT_EQ(3u, tlv_reader_offset(&reader));
@@ -96,7 +105,9 @@ TEST(Unit_Tlv_Incremental, RelocatedWindowsPreserveLogicalOffsetsAndOldBorrowedV
     EXPECT_EQ(second, source.data);
     EXPECT_EQ(second + 2, element.value.data);
     EXPECT_EQ(7u, tlv_reader_offset(&reader));
-    ASSERT_EQ(TLV_NEED_MORE_DATA, tlv_reader_next_diag(&reader, &element, &diagnostic));
+    ASSERT_EQ(
+        TLV_NEED_MORE_DATA,
+        TLV_DIAGNOSTIC_RESULT(diagnostic, tlv_reader_next_diag(&reader, &element, &diagnostic)));
     EXPECT_EQ(8u, diagnostic.diagnostic.offset);
     EXPECT_EQ(7u, diagnostic.tag_offset);
     EXPECT_EQ(8u, diagnostic.length_offset);
@@ -108,7 +119,9 @@ TEST(Unit_Tlv_Incremental, RelocatedWindowsPreserveLogicalOffsetsAndOldBorrowedV
     EXPECT_EQ(0xAA, retained.value.data[0]);
     ASSERT_EQ(TLV_OK, tlv_reader_set_input(&reader, nullptr, 0, 2, 1));
     EXPECT_EQ(9u, tlv_reader_offset(&reader));
-    EXPECT_EQ(TLV_ERR_END_OF_BUFFER, tlv_reader_next_diag(&reader, &element, &diagnostic));
+    EXPECT_EQ(
+        TLV_ERR_END_OF_BUFFER,
+        TLV_DIAGNOSTIC_RESULT(diagnostic, tlv_reader_next_diag(&reader, &element, &diagnostic)));
     EXPECT_EQ(9u, diagnostic.diagnostic.offset);
 }
 
@@ -170,7 +183,9 @@ TEST(Unit_Tlv_Incremental, PartialDiscardAndAppendPreserveTheUnconsumedBoundary)
     EXPECT_EQ(1u, tlv_reader_consumed(&reader));
     EXPECT_EQ(2u, tlv_reader_offset(&reader));
     tlv_reader_diagnostic_t diagnostic{};
-    ASSERT_EQ(TLV_NEED_MORE_DATA, tlv_reader_next_diag(&reader, &element, &diagnostic));
+    ASSERT_EQ(
+        TLV_NEED_MORE_DATA,
+        TLV_DIAGNOSTIC_RESULT(diagnostic, tlv_reader_next_diag(&reader, &element, &diagnostic)));
     EXPECT_FALSE(diagnostic.has_required); // Custom Format does not know the missing extent.
     ASSERT_EQ(TLV_OK, tlv_reader_set_input(&reader, wire + 1, 4, 0, 1));
     ASSERT_EQ(TLV_OK, tlv_reader_next(&reader, &element));
@@ -198,7 +213,9 @@ TEST(Unit_Tlv_Incremental, AbsoluteOffsetOverflowIsRejectedWithoutPublishing) {
     EXPECT_EQ(0u, reader.size);
     ASSERT_EQ(TLV_OK, tlv_reader_set_input(&reader, nullptr, 0, 0, 1));
     tlv_reader_diagnostic_t diagnostic{};
-    EXPECT_EQ(TLV_ERR_END_OF_BUFFER, tlv_reader_next_diag(&reader, &element, &diagnostic));
+    EXPECT_EQ(
+        TLV_ERR_END_OF_BUFFER,
+        TLV_DIAGNOSTIC_RESULT(diagnostic, tlv_reader_next_diag(&reader, &element, &diagnostic)));
     EXPECT_EQ(SIZE_MAX, diagnostic.diagnostic.offset);
 }
 
@@ -213,7 +230,9 @@ TEST(Unit_Tlv_Incremental, FixedHeaderReportsKnownRequiredExtent) {
         ASSERT_EQ(TLV_OK, tlv_reader_init_incremental(&reader, wire, size, &format));
         tlv_reader_diagnostic_t diagnostic{};
         tlv_element_t           element{};
-        ASSERT_EQ(TLV_NEED_MORE_DATA, tlv_reader_next_diag(&reader, &element, &diagnostic));
+        ASSERT_EQ(TLV_NEED_MORE_DATA,
+                  TLV_DIAGNOSTIC_RESULT(diagnostic,
+                                        tlv_reader_next_diag(&reader, &element, &diagnostic)));
         EXPECT_TRUE(diagnostic.has_required);
         EXPECT_EQ(2u, diagnostic.required);
         EXPECT_EQ(1u, diagnostic.available);

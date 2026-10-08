@@ -493,7 +493,10 @@ static int raw_reinitialization(void) {
         int              matched;
         for (unsigned i = 0; i < 3; ++i)
             CHECK(tlv_query_exec_feed(state.exec, &input, &matched, NULL) == TLV_OK);
-        CHECK(tlv_query_exec_finish(state.exec, NULL) == TLV_ERR_INVALID_ARG);
+        tlv_query_diagnostic_t diagnostic = {0};
+        tlv_result_t           rc = tlv_query_exec_finish(state.exec, &diagnostic);
+        CHECK(rc == TLV_ERR_INVALID_ARG);
+        CHECK(test_query_diagnostic_matches(rc, &diagnostic));
         CHECK(state.calls == 1 && state.status == TLV_OK);
         CHECK(tlv_query_exec_info(state.exec, &info) == TLV_OK && info.invalid && !info.finished);
         tlv_query_result_t result;
@@ -525,8 +528,11 @@ static int raw_reinitialization(void) {
             tlv_tree_frame_t  frames[4];
             CHECK(tlv_tree_reader_init(&reader, wire, sizeof wire, &format, frames, 4, 3, 4) ==
                   TLV_OK);
-            CHECK(tlv_query_program_visit(&reader, state.exec, reinitializing_event, &state,
-                                          NULL) == TLV_ERR_INVALID_ARG);
+            tlv_query_diagnostic_t diagnostic = {0};
+            tlv_result_t rc = tlv_query_program_visit(&reader, state.exec, reinitializing_event,
+                                                      &state, &diagnostic);
+            CHECK(rc == TLV_ERR_INVALID_ARG);
+            CHECK(test_query_diagnostic_matches(rc, &diagnostic));
             CHECK(state.calls == 1 && state.status == TLV_OK);
             CHECK(tlv_query_exec_info(state.exec, &info) == TLV_OK && info.invalid &&
                   !info.finished);

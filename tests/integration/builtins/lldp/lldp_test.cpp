@@ -1,6 +1,7 @@
 // SPDX-License-Identifier: MIT
 // Copyright (c) 2026 Marek Cingel
 
+#include "../../../diagnostic_assertions.h"
 #include "tlv/builtins/lldp/lldp.h"
 #include "tlv/builtins/lldp/codec.h"
 #include "tlv/builtins/lldp/schema.h"
@@ -58,21 +59,30 @@ TEST(Integration_Tlv_Lldp, SchemaMandatoryPrefixOptionalEndAndDiagnostics) {
     wire.insert(wire.end(), {0, 0});
     EXPECT_EQ(TLV_OK, tlv_lldp_validate(wire.data(), wire.size(), 4, nullptr));
     wire.insert(wire.end(), {10, 0});
-    EXPECT_EQ(TLV_ERR_SCHEMA, tlv_lldp_validate(wire.data(), wire.size(), 5, &diagnostic));
+    EXPECT_EQ(TLV_ERR_SCHEMA,
+              TLV_DIAGNOSTIC_RESULT(diagnostic,
+                                    tlv_lldp_validate(wire.data(), wire.size(), 5, &diagnostic)));
     EXPECT_EQ(14u, diagnostic.offset);
     EXPECT_STREQ("end of region after End TLV", diagnostic.expected);
     wire = base_lldpdu;
     wire[0] = 4;
     wire[4] = 2;
-    EXPECT_EQ(TLV_ERR_SCHEMA, tlv_lldp_validate(wire.data(), wire.size(), 3, &diagnostic));
+    EXPECT_EQ(TLV_ERR_SCHEMA,
+              TLV_DIAGNOSTIC_RESULT(diagnostic,
+                                    tlv_lldp_validate(wire.data(), wire.size(), 3, &diagnostic)));
     EXPECT_EQ(0u, diagnostic.offset);
     EXPECT_STREQ("Chassis ID, Port ID, TTL prefix", diagnostic.expected);
-    EXPECT_EQ(TLV_ERR_SCHEMA_MISSING, tlv_lldp_validate(base_lldpdu.data(), 8, 3, &diagnostic));
+    EXPECT_EQ(TLV_ERR_SCHEMA_MISSING,
+              TLV_DIAGNOSTIC_RESULT(diagnostic,
+                                    tlv_lldp_validate(base_lldpdu.data(), 8, 3, &diagnostic)));
     EXPECT_EQ(8u, diagnostic.offset);
-    EXPECT_EQ(TLV_ERR_SCHEMA_MISSING, tlv_lldp_validate(nullptr, 0, 3, &diagnostic));
-    EXPECT_EQ(TLV_ERR_NULL_ARG, tlv_lldp_validate(nullptr, 1, 3, &diagnostic));
-    EXPECT_EQ(TLV_ERR_LIMIT,
-              tlv_lldp_validate(base_lldpdu.data(), base_lldpdu.size(), 2, &diagnostic));
+    EXPECT_EQ(TLV_ERR_SCHEMA_MISSING,
+              TLV_DIAGNOSTIC_RESULT(diagnostic, tlv_lldp_validate(nullptr, 0, 3, &diagnostic)));
+    EXPECT_EQ(TLV_ERR_NULL_ARG,
+              TLV_DIAGNOSTIC_RESULT(diagnostic, tlv_lldp_validate(nullptr, 1, 3, &diagnostic)));
+    EXPECT_EQ(TLV_ERR_LIMIT, TLV_DIAGNOSTIC_RESULT(diagnostic, tlv_lldp_validate(base_lldpdu.data(),
+                                                                                 base_lldpdu.size(),
+                                                                                 2, &diagnostic)));
     EXPECT_EQ(8u, diagnostic.offset);
     EXPECT_EQ(TLV_ERR_LIMIT, tlv_lldp_validate(base_lldpdu.data(), base_lldpdu.size(), 0, nullptr));
 }
@@ -109,7 +119,8 @@ TEST(Integration_Tlv_Lldp, SchemaRejectsDuplicatesLengthsAndTruncation) {
         wire.insert(wire.end(), extra.begin(), extra.end());
         tlv_diagnostic_t diagnostic{};
         EXPECT_EQ(TLV_ERR_INVALID_LENGTH,
-                  tlv_lldp_validate(wire.data(), wire.size(), 20, &diagnostic));
+                  TLV_DIAGNOSTIC_RESULT(
+                      diagnostic, tlv_lldp_validate(wire.data(), wire.size(), 20, &diagnostic)));
         EXPECT_EQ(base_lldpdu.size(), diagnostic.offset);
     }
     auto wire = base_lldpdu;
@@ -269,7 +280,8 @@ TEST(Integration_Tlv_Lldp, TruncationReportsWireRegionsAndDoesNotAdvance) {
         tlv_element_t element{};
         element.tag = TLV_TAG(42);
         tlv_reader_diagnostic_t error{};
-        EXPECT_EQ(TLV_ERR_BUFFER_TOO_SHORT, tlv_reader_next_diag(&reader, &element, &error));
+        EXPECT_EQ(TLV_ERR_BUFFER_TOO_SHORT,
+                  TLV_DIAGNOSTIC_RESULT(error, tlv_reader_next_diag(&reader, &element, &error)));
         EXPECT_EQ(0u, reader.pos);
         EXPECT_TRUE(tlv_tag_equal(TLV_TAG(42), element.tag));
         EXPECT_EQ(size == 1 ? TLV_READER_OP_HEADER : TLV_READER_OP_VALUE, error.operation);

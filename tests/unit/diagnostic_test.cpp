@@ -2,6 +2,7 @@
 // Copyright (c) 2026 Marek Cingel
 
 #include "tlv/diagnostic.h"
+#include "../diagnostic_invariant.h"
 #include <gtest/gtest.h>
 #include <cstring>
 
@@ -214,4 +215,24 @@ TEST(Unit_Tlv_Diagnostic, PathStringReturnsNullArgForANullPath) {
     char buffer[8];
     EXPECT_EQ(TLV_ERR_NULL_ARG,
               tlv_diagnostic_path_string(nullptr, buffer, sizeof(buffer), nullptr));
+}
+
+TEST(Unit_Tlv_Diagnostic, InvariantHelperRejectsEmptyAndMismatchedFailureDetail) {
+    tlv_diagnostic_t base{};
+    EXPECT_FALSE(test_diagnostic_matches(TLV_ERR_VISITOR, &base));
+    base.code = TLV_ERR_INVALID_ARG;
+    EXPECT_FALSE(test_diagnostic_matches(TLV_ERR_VISITOR, &base));
+    base.code = TLV_ERR_VISITOR;
+    EXPECT_TRUE(test_diagnostic_matches(TLV_ERR_VISITOR, &base));
+    EXPECT_TRUE(test_diagnostic_matches(TLV_OK, &base));
+    tlv_query_diagnostic_t query{};
+    EXPECT_FALSE(test_query_diagnostic_matches(TLV_ERR_INVALID_ARG, &query));
+    query.kind = TLV_QUERY_ERROR_READER;
+    EXPECT_FALSE(test_query_diagnostic_matches(TLV_NEED_MORE_DATA, &query));
+    query.reader.diagnostic.code = TLV_NEED_MORE_DATA;
+    EXPECT_TRUE(test_query_diagnostic_matches(TLV_NEED_MORE_DATA, &query));
+    query.kind = TLV_QUERY_ERROR_CODEC;
+    EXPECT_FALSE(test_query_diagnostic_matches(TLV_ERR_INVALID_VALUE, &query));
+    query.codec = TLV_CODEC_ERR_INVALID_VALUE;
+    EXPECT_TRUE(test_query_diagnostic_matches(TLV_ERR_INVALID_VALUE, &query));
 }

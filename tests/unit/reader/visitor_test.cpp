@@ -1,6 +1,7 @@
 // SPDX-License-Identifier: MIT
 // Copyright (c) 2026 Marek Cingel
 
+#include "../../diagnostic_assertions.h"
 #include "visitor_input.h"
 #include "controlled_format.h"
 #include "tlv/reader/visitor.h"
@@ -113,8 +114,9 @@ TEST(Unit_Tlv_Visitor, CursorArgumentsAndCallbackErrors) {
         tlv_reader_diagnostic_t diagnostic{};
         diagnostic.diagnostic.code = TLV_ERR_VISITOR;
         EXPECT_EQ(result == TLV_VISIT_STOP ? TLV_OK : TLV_ERR_VISITOR,
-                  tlv_reader_visit_diag(&reader, collect, &visits, &diagnostic));
-        EXPECT_EQ(TLV_OK, diagnostic.diagnostic.code);
+                  TLV_DIAGNOSTIC_RESULT(
+                      diagnostic, tlv_reader_visit_diag(&reader, collect, &visits, &diagnostic)));
+        EXPECT_EQ(result == TLV_VISIT_STOP ? TLV_OK : TLV_ERR_VISITOR, diagnostic.diagnostic.code);
         EXPECT_EQ(2u, tlv_reader_offset(&reader));
         EXPECT_EQ(TLV_OK, tlv_reader_visit(&reader, collect, &visits));
         EXPECT_EQ(2u, visits.count);
@@ -167,11 +169,15 @@ TEST(Unit_Tlv_Visitor, IncrementalSequentialResumeAndAbsoluteDiagnostics) {
               tlv_reader_init_incremental(&reader, initial, sizeof(initial), &controlled::format));
     Visits                  visits;
     tlv_reader_diagnostic_t diagnostic{};
-    EXPECT_EQ(TLV_NEED_MORE_DATA, tlv_reader_visit_diag(&reader, collect, &visits, &diagnostic));
+    EXPECT_EQ(TLV_NEED_MORE_DATA,
+              TLV_DIAGNOSTIC_RESULT(diagnostic,
+                                    tlv_reader_visit_diag(&reader, collect, &visits, &diagnostic)));
     EXPECT_EQ(1u, visits.count);
     EXPECT_EQ(3u, diagnostic.diagnostic.offset);
     ASSERT_EQ(TLV_OK, tlv_reader_set_input(&reader, replacement, 1, 2, 0));
-    EXPECT_EQ(TLV_NEED_MORE_DATA, tlv_reader_visit_diag(&reader, collect, &visits, &diagnostic));
+    EXPECT_EQ(TLV_NEED_MORE_DATA,
+              TLV_DIAGNOSTIC_RESULT(diagnostic,
+                                    tlv_reader_visit_diag(&reader, collect, &visits, &diagnostic)));
     EXPECT_EQ(3u, diagnostic.diagnostic.offset);
     ASSERT_EQ(TLV_OK, tlv_reader_set_input(&reader, replacement, sizeof(replacement), 0, 1));
     EXPECT_EQ(TLV_OK, tlv_reader_visit_diag(&reader, collect, &visits, &diagnostic));
@@ -196,15 +202,17 @@ TEST(Unit_Tlv_Visitor, IncrementalTreePublishesCompleteParentsAndPreservesOffset
     };
     size_t                  error = 99;
     tlv_reader_diagnostic_t diagnostic{};
-    EXPECT_EQ(TLV_NEED_MORE_DATA,
-              tlv_tree_reader_visit_diag(&reader, callback, &offsets, &error, &diagnostic));
+    EXPECT_EQ(TLV_NEED_MORE_DATA, TLV_DIAGNOSTIC_RESULT(diagnostic, tlv_tree_reader_visit_diag(
+                                                                        &reader, callback, &offsets,
+                                                                        &error, &diagnostic)));
     EXPECT_TRUE(offsets.empty());
     ASSERT_EQ(TLV_OK, tlv_tree_reader_set_input(&reader, initial, sizeof(initial), 0, 0));
     EXPECT_EQ(TLV_NEED_MORE_DATA, tlv_tree_reader_visit(&reader, callback, &offsets, &error));
     EXPECT_EQ((std::vector<size_t>{0, 2}), offsets);
     ASSERT_EQ(TLV_OK, tlv_tree_reader_set_input(&reader, replacement, 2, 4, 0));
-    EXPECT_EQ(TLV_NEED_MORE_DATA,
-              tlv_tree_reader_visit_diag(&reader, callback, &offsets, &error, &diagnostic));
+    EXPECT_EQ(TLV_NEED_MORE_DATA, TLV_DIAGNOSTIC_RESULT(diagnostic, tlv_tree_reader_visit_diag(
+                                                                        &reader, callback, &offsets,
+                                                                        &error, &diagnostic)));
     EXPECT_EQ(4u, error);
     EXPECT_EQ(6u, diagnostic.diagnostic.offset);
     ASSERT_EQ(TLV_OK, tlv_tree_reader_set_input(&reader, replacement, sizeof(replacement), 0, 1));
@@ -237,7 +245,7 @@ TEST(Unit_Tlv_Visitor, CallerFramesAllowDepthBeyondDefaultDepth) {
     EXPECT_EQ(depth + 1, count);
 }
 
-TEST(Unit_Tlv_Visitor, TreeDiagnosticsDecodeOnceAndResourceErrorsRemainClear) {
+TEST(Unit_Tlv_Visitor, TreeDiagnosticsDecodeOnceAndResourceErrorsCarryCode) {
     const uint8_t malformed[] = {0xE1, 3, 1, 2, 0xAB};
     size_t        reads = 0;
     auto          layout = controlled::format_layout;
@@ -255,8 +263,10 @@ TEST(Unit_Tlv_Visitor, TreeDiagnosticsDecodeOnceAndResourceErrorsRemainClear) {
                                            1, 1, 2));
     tlv_reader_diagnostic_t diagnostic{};
     size_t                  offset = 99;
-    EXPECT_EQ(TLV_ERR_BUFFER_TOO_SHORT,
-              tlv_tree_reader_visit_diag(&reader, nullptr, nullptr, &offset, &diagnostic));
+    EXPECT_EQ(
+        TLV_ERR_BUFFER_TOO_SHORT,
+        TLV_DIAGNOSTIC_RESULT(diagnostic, tlv_tree_reader_visit_diag(&reader, nullptr, nullptr,
+                                                                     &offset, &diagnostic)));
     EXPECT_EQ(2u, reads);
     EXPECT_EQ(2u, offset);
     EXPECT_EQ(4u, diagnostic.diagnostic.offset);
@@ -267,12 +277,58 @@ TEST(Unit_Tlv_Visitor, TreeDiagnosticsDecodeOnceAndResourceErrorsRemainClear) {
         ASSERT_EQ(TLV_OK, tlv_tree_reader_init(&reader, malformed, sizeof(malformed), &format,
                                                frames, capacity, 1, 1));
         reads = 0;
-        EXPECT_EQ(TLV_ERR_LIMIT,
-                  tlv_tree_reader_visit_diag(&reader, nullptr, nullptr, &offset, &diagnostic));
+        EXPECT_EQ(TLV_ERR_LIMIT, TLV_DIAGNOSTIC_RESULT(diagnostic, tlv_tree_reader_visit_diag(
+                                                                       &reader, nullptr, nullptr,
+                                                                       &offset, &diagnostic)));
         EXPECT_EQ(1u, reads);
         EXPECT_EQ(2u, offset);
-        EXPECT_EQ(TLV_OK, diagnostic.diagnostic.code);
+        EXPECT_EQ(TLV_ERR_LIMIT, diagnostic.diagnostic.code);
+        EXPECT_FALSE(diagnostic.diagnostic.has_offset);
+        EXPECT_FALSE(diagnostic.has_tag);
         EXPECT_EQ(TLV_OK, tlv_tree_reader_skip_subtree(&reader));
         EXPECT_EQ(TLV_OK, tlv_tree_reader_visit(&reader, nullptr, nullptr, &offset));
     }
+}
+
+TEST(Unit_Tlv_Visitor, InitializedArgumentAndCallbackFailuresCarryDiagnostics) {
+    tlv_reader_diagnostic_t diagnostic{};
+    EXPECT_EQ(TLV_ERR_NULL_ARG,
+              TLV_DIAGNOSTIC_RESULT(diagnostic,
+                                    tlv_reader_visit_diag(nullptr, collect, nullptr, &diagnostic)));
+    EXPECT_FALSE(diagnostic.diagnostic.has_offset);
+    size_t error_offset = 77;
+    EXPECT_EQ(TLV_ERR_NULL_ARG, TLV_DIAGNOSTIC_RESULT(diagnostic, tlv_tree_reader_visit_diag(
+                                                                      nullptr, nullptr, nullptr,
+                                                                      &error_offset, &diagnostic)));
+    EXPECT_EQ(0u, error_offset);
+    const uint8_t wire[] = {1, 0, 2, 0};
+    tlv_reader_t  reader;
+    ASSERT_EQ(TLV_OK, tlv_reader_init(&reader, wire, sizeof wire, &controlled::format));
+    Visits visits;
+    visits.finish_after = 2;
+    visits.result = TLV_VISIT_ERROR;
+    EXPECT_EQ(TLV_ERR_VISITOR,
+              TLV_DIAGNOSTIC_RESULT(diagnostic,
+                                    tlv_reader_visit_diag(&reader, collect, &visits, &diagnostic)));
+    EXPECT_EQ(2u, diagnostic.diagnostic.offset);
+    EXPECT_TRUE(diagnostic.diagnostic.has_offset);
+    EXPECT_FALSE(diagnostic.has_tag);
+    tlv_tree_reader_t tree;
+    ASSERT_EQ(TLV_OK, tlv_tree_reader_init(&tree, wire, sizeof wire, &controlled::format, nullptr,
+                                           0, 0, 10));
+    auto fail = [](const tlv_element_t*, size_t, size_t offset, void*) {
+        return offset == 2 ? TLV_VISIT_ERROR : TLV_VISIT_CONTINUE;
+    };
+    EXPECT_EQ(TLV_ERR_VISITOR, TLV_DIAGNOSTIC_RESULT(diagnostic, tlv_tree_reader_visit_diag(
+                                                                     &tree, fail, nullptr,
+                                                                     &error_offset, &diagnostic)));
+    EXPECT_EQ(2u, error_offset);
+    EXPECT_EQ(error_offset, diagnostic.diagnostic.offset);
+    EXPECT_TRUE(diagnostic.diagnostic.has_offset);
+    ASSERT_EQ(TLV_OK, tlv_tree_reader_init(&tree, wire, sizeof wire, &controlled::format, nullptr,
+                                           0, 0, 0));
+    EXPECT_EQ(TLV_ERR_LIMIT, TLV_DIAGNOSTIC_RESULT(diagnostic, tlv_tree_reader_visit_diag(
+                                                                   &tree, fail, nullptr,
+                                                                   &error_offset, &diagnostic)));
+    EXPECT_FALSE(diagnostic.diagnostic.has_offset);
 }

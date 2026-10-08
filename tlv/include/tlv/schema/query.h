@@ -42,7 +42,10 @@ typedef struct tlv_schema_query_workspace {
     tlv_tree_frame_t* frames; /**< Borrowed Reader stack, at least max_depth+1 entries. */
     size_t frame_capacity;    /**< Reader stack entries. */
 } tlv_schema_query_workspace_t;
-/** @brief Rule-aware failure preserving native Query/Reader/codec diagnostics. */
+/** @brief Rule-aware failure preserving native Query/Reader/codec diagnostics.
+ * @note After initialization, a failed assertion sets `schema.diagnostic.code`
+ * to the return code; an execution failure sets `query.kind` to a non-NONE
+ * category. Preflight rejection before initialization leaves both untouched. */
 typedef struct tlv_schema_query_diagnostic {
     size_t rule;                    /**< Zero-based failing rule. */
     tlv_schema_diagnostic_t schema; /**< Failed boolean context, field=name, expected=true. */

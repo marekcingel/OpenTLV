@@ -1,6 +1,7 @@
 // SPDX-License-Identifier: MIT
 // Copyright (c) 2026 Marek Cingel
 
+#include "../../diagnostic_assertions.h"
 #include "tlv/builtins/asn1/ber.h"
 #include "tlv/reader/reader.h"
 #include <gtest/gtest.h>
@@ -51,7 +52,8 @@ TEST(Integration_Tlv_Reader, CursorDistinguishesIncompleteTagLengthValueAndTrail
         for (int repeat = 0; repeat != 2; ++repeat) {
             tlv_reader_diagnostic_t diagnostic{};
             EXPECT_EQ(TLV_ERR_BUFFER_TOO_SHORT,
-                      tlv_reader_next_diag(&reader, &element, &diagnostic));
+                      TLV_DIAGNOSTIC_RESULT(diagnostic,
+                                            tlv_reader_next_diag(&reader, &element, &diagnostic)));
             EXPECT_EQ(2u, reader.pos);
             EXPECT_EQ(data, element.tag.data);
             EXPECT_EQ(TLV_ERR_BUFFER_TOO_SHORT, diagnostic.diagnostic.code);
@@ -83,7 +85,9 @@ TEST(Integration_Tlv_Reader, CursorReturnsMalformedInputWithoutScanningForLaterE
     ASSERT_EQ(TLV_OK, tlv_reader_next(&reader, &element));
     tlv_reader_diagnostic_t diagnostic{};
     for (int repeat = 0; repeat != 2; ++repeat) {
-        EXPECT_EQ(TLV_ERR_INVALID_LENGTH, tlv_reader_next_diag(&reader, &element, &diagnostic));
+        EXPECT_EQ(TLV_ERR_INVALID_LENGTH,
+                  TLV_DIAGNOSTIC_RESULT(diagnostic,
+                                        tlv_reader_next_diag(&reader, &element, &diagnostic)));
         EXPECT_EQ(2u, reader.pos);
         EXPECT_EQ(data, element.tag.data);
         EXPECT_EQ(3u, diagnostic.diagnostic.offset);

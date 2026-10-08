@@ -145,6 +145,12 @@ TLV_API tlv_result_t tlv_diagnostic_path_string(const tlv_diagnostic_path_t* pat
  * Rendering a diagnostic for humans is a separate concern, not part of this
  * type.
  *
+ * After an API initializes this output, a non-#TLV_OK return sets `code` to
+ * that result, including end-of-input and resumable status. This also applies
+ * to the active diagnostic in embedding types. Documented pre-initialization
+ * checks leave it untouched. Successful calls need not clear previous detail;
+ * diagnostic report collections describe individual findings.
+ *
  * Every field is a fixed-size value or a borrowed pointer; a diagnostic never
  * allocates and never owns the memory it points to.
  */
