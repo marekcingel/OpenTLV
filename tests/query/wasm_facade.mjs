@@ -444,4 +444,5 @@ assert.throws(() => diagnosticProgram.evaluate(hexToBytes("5a82010200")), error 
 diagnosticProgram.close();
 assert.equal(readerFailure.query.reader.declared_length, 258);
 assert.equal(readerFailure.query.reader.tag, "5A");
+assert.equal(readerFailure.query.reader.path_omitted, 0);
 console.log("JS/WASM extensions: checked resolvers, Tag adapters, Formats, Source feeds, ordinals and V1 passed");

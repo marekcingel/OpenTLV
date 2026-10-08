@@ -15,7 +15,6 @@
 #endif
 #include <gtest/gtest.h>
 #include <vector>
-#include <memory>
 #include <cstdlib>
 #include <cstring>
 
@@ -915,57 +914,3 @@ TEST(Unit_Tlvpp_QueryRanges, DocumentSnapshotExcludesInsertionAndInvalidatesRepl
     EXPECT_EQ(1u, parsed->select("6F/A5/50").size());
 }
 #endif
-
-TEST(Unit_Tlvpp_FullQuery, DeepSchemaPathsMatchBetweenBufferAndDocument) {
-    auto contexts = tlv::query_program::compile("//50");
-    auto condition = tlv::query_program::compile("exists(5A)");
-    ASSERT_TRUE(contexts);
-    ASSERT_TRUE(condition);
-    auto nested_format = controlled::format;
-    nested_format.is_constructed = [](const void*, const tlv_tag_t* tag) {
-        return tag->data[0] >= 0x80 ? 1 : 0;
-    };
-    tlv_schema_query_rule_t rule{tlv::native::handle(*contexts), tlv::native::handle(*condition),
-                                 nullptr, "deep"};
-    size_t                  a, b, alignment;
-    ASSERT_EQ(TLV_OK, tlv_schema_query_size(&rule, 1, 64, 100, &a, &b, &alignment));
-    tlv::detail::query_memory    selector(a), assertion(b);
-    tlv_schema_query_context_t   selected[1]{};
-    tlv_tree_frame_t             frames[64]{};
-    tlv_schema_query_workspace_t workspace{selector.data(), a, assertion.data(), b,
-                                           selected,        1, frames,           64};
-    for (size_t depth : {31u, 32u, 33u, 40u}) {
-        SCOPED_TRACE(depth);
-        std::vector<uint8_t> wire = {0x50, 0};
-        for (size_t i = depth; i-- > 0;)
-            wire.insert(wire.begin(),
-                        {static_cast<uint8_t>(0x80 + i), static_cast<uint8_t>(wire.size())});
-        tlv_schema_query_diagnostic_t diagnostic{};
-        ASSERT_EQ(TLV_ERR_SCHEMA,
-                  tlv_schema_query_validate_buffer(wire.data(), wire.size(), &nested_format, &rule,
-                                                   1, 64, 100, 1000000, &workspace, &diagnostic));
-        const size_t retained = depth < 32 ? depth : 32;
-        ASSERT_EQ(retained, diagnostic.schema.path.length);
-        EXPECT_EQ(depth - retained, diagnostic.schema.path.omitted);
-        for (size_t i = 0; i < retained; ++i)
-            EXPECT_EQ(0x80 + i, diagnostic.schema.path.tags[i].data[0]);
-#if OPENTLV_DOCUMENT
-        tlv_document_options_t options;
-        ASSERT_EQ(TLV_OK, tlv_document_options_init(&options, &nested_format));
-        options.max_depth = 64;
-        tlv_document_t* raw = nullptr;
-        ASSERT_EQ(TLV_OK, tlv_document_parse(wire.data(), wire.size(), &options, &raw, nullptr));
-        std::unique_ptr<tlv_document_t, decltype(&tlv_document_free)> document(raw,
-                                                                               tlv_document_free);
-        tlv_schema_query_diagnostic_t                                 doc_diagnostic{};
-        ASSERT_EQ(TLV_ERR_SCHEMA, tlv_schema_query_validate_document(
-                                      document.get(), &rule, 1, 64, 100, 1000000, &workspace,
-                                      nullptr, 0, nullptr, &doc_diagnostic));
-        ASSERT_EQ(retained, doc_diagnostic.schema.path.length);
-        EXPECT_EQ(diagnostic.schema.path.omitted, doc_diagnostic.schema.path.omitted);
-        for (size_t i = 0; i < retained; ++i)
-            EXPECT_TRUE(
-                tlv_tag_equal(diagnostic.schema.path.tags[i], doc_diagnostic.schema.path.tags[i]));
-#endif
-    }
-}

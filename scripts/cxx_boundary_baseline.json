@@ -344,8 +344,9 @@
       }
     },
     "tests/unit/query/test_query_ranges.cpp": {
-      "reason": "Native feed, program and Document handle interoperability.",
+      "reason": "Native feed, program and Document handle interoperability. Shared diagnostic-result assertions check these existing native parity calls.",
       "symbols": {
+        "TLV_DIAGNOSTIC_RESULT": 5,
         "TLV_DOCUMENT_QUERY_INSERT_AFTER": 3,
         "TLV_DOCUMENT_QUERY_REMOVE": 4,
         "TLV_DOCUMENT_QUERY_REPLACE": 1,
@@ -429,8 +430,9 @@
       }
     },
     "tests/unit/reader/test_reader.cpp": {
-      "reason": "Reader and Tree Reader diagnostic/event parity with native cursors.",
+      "reason": "Reader and Tree Reader diagnostic/event parity with native cursors. Shared diagnostic-result assertions check these existing native parity calls.",
       "symbols": {
+        "TLV_DIAGNOSTIC_RESULT": 1,
         "TLV_ERR_BUFFER_TOO_SHORT": 3,
         "TLV_ERR_END_OF_BUFFER": 1,
         "TLV_ERR_LIMIT": 1,

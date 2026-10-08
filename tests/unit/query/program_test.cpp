@@ -9,6 +9,10 @@
 #include <cstring>
 #include <string>
 #include <vector>
+#if OPENTLV_DOCUMENT && OPENTLV_READER && OPENTLV_WRITER
+#include "tlv/document/document.h"
+#include <memory>
+#endif
 #if defined(_WIN32)
 #ifndef NOMINMAX
 #define NOMINMAX
@@ -1375,4 +1379,60 @@ TEST(Unit_Tlv_QueryProgram, InvalidHookConfigurationCarriesCapabilityDetail) {
               TLV_DIAGNOSTIC_RESULT(
                   d, tlv_query_compile_scratch("5A", 2, &options, &bytes, &alignment, &d)));
     EXPECT_EQ(TLV_QUERY_ERROR_CAPABILITY, d.kind);
+}
+
+TEST(Unit_Tlv_QueryProgram, DeepSchemaPathsMatchBetweenBufferAndDocument) {
+    Program contexts, condition;
+    ASSERT_EQ(TLV_OK, contexts.compile("//50"));
+    ASSERT_EQ(TLV_OK, condition.compile("exists(5A)"));
+    auto nested_format = controlled::format;
+    nested_format.is_constructed = [](const void*, const tlv_tag_t* tag) {
+        return tag->data[0] >= 0x80 ? 1 : 0;
+    };
+    tlv_schema_query_rule_t rule{contexts.get(), condition.get(), nullptr, "deep"};
+    size_t                  a, b, alignment;
+    ASSERT_EQ(TLV_OK, tlv_schema_query_size(&rule, 1, 64, 100, &a, &b, &alignment));
+    std::vector<uint8_t> selector_storage(a + alignment), assertion_storage(b + alignment);
+    auto                 aligned = [alignment](std::vector<uint8_t>& storage) {
+        return reinterpret_cast<void*>(
+            (reinterpret_cast<uintptr_t>(storage.data()) + alignment - 1) & ~(alignment - 1));
+    };
+    tlv_schema_query_context_t   selected[1]{};
+    tlv_tree_frame_t             frames[64]{};
+    tlv_schema_query_workspace_t workspace{
+        aligned(selector_storage), a, aligned(assertion_storage), b, selected, 1, frames, 64};
+    for (size_t depth : {31u, 32u, 33u, 40u}) {
+        SCOPED_TRACE(depth);
+        std::vector<uint8_t> wire = {0x50, 0};
+        for (size_t i = depth; i-- > 0;)
+            wire.insert(wire.begin(),
+                        {static_cast<uint8_t>(0x80 + i), static_cast<uint8_t>(wire.size())});
+        tlv_schema_query_diagnostic_t diagnostic{};
+        ASSERT_EQ(TLV_ERR_SCHEMA,
+                  tlv_schema_query_validate_buffer(wire.data(), wire.size(), &nested_format, &rule,
+                                                   1, 64, 100, 1000000, &workspace, &diagnostic));
+        const size_t retained = depth < 32 ? depth : 32;
+        ASSERT_EQ(retained, diagnostic.schema.path.length);
+        EXPECT_EQ(depth - retained, diagnostic.schema.path.omitted);
+        for (size_t i = 0; i < retained; ++i)
+            EXPECT_EQ(0x80 + i, diagnostic.schema.path.tags[i].data[0]);
+#if OPENTLV_DOCUMENT && OPENTLV_READER && OPENTLV_WRITER
+        tlv_document_options_t options;
+        ASSERT_EQ(TLV_OK, tlv_document_options_init(&options, &nested_format));
+        options.max_depth = 64;
+        tlv_document_t* raw = nullptr;
+        ASSERT_EQ(TLV_OK, tlv_document_parse(wire.data(), wire.size(), &options, &raw, nullptr));
+        std::unique_ptr<tlv_document_t, decltype(&tlv_document_free)> document(raw,
+                                                                               tlv_document_free);
+        tlv_schema_query_diagnostic_t                                 doc_diagnostic{};
+        ASSERT_EQ(TLV_ERR_SCHEMA, tlv_schema_query_validate_document(
+                                      document.get(), &rule, 1, 64, 100, 1000000, &workspace,
+                                      nullptr, 0, nullptr, &doc_diagnostic));
+        ASSERT_EQ(retained, doc_diagnostic.schema.path.length);
+        EXPECT_EQ(diagnostic.schema.path.omitted, doc_diagnostic.schema.path.omitted);
+        for (size_t i = 0; i < retained; ++i)
+            EXPECT_TRUE(
+                tlv_tag_equal(diagnostic.schema.path.tags[i], doc_diagnostic.schema.path.tags[i]));
+#endif
+    }
 }
