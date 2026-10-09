@@ -118,7 +118,7 @@ private:
  * @brief Borrowed Schema whose definition was checked once, for repeated validation.
  *
  * Validation through this handle runs the same engine as validation with the
- * plain #schema but skips the per-call definition check. Runtime limits are
+ * plain `tlv::schema` but skips the per-call definition check. Runtime limits are
  * still checked on every call. Copies share the same borrowed Schema.
  * @warning The Schema storage must stay alive and unchanged while the handle is
  * used; mutation is not detected. Prepare again after changing the definition.

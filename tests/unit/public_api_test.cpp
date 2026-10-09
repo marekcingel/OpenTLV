@@ -149,8 +149,7 @@ TEST(Unit_Tlvpp, CheckedSchemaValidatesLikePlainSchema) {
     EXPECT_EQ(tlv::schema_issue::missing, report.at(0).kind());
     EXPECT_STREQ("first", report.at(0).field());
     // Runtime limits are still checked through the prepared handle.
-    EXPECT_FALSE(
-        report.validate({valid, sizeof valid}, format, *checked, {}, TLV_SCHEMA_MAX_DEPTH, 0));
+    EXPECT_FALSE(report.validate({valid, sizeof valid}, format, *checked, {}, 8, 0));
 
     const tlv::schema_storage<1> invalid({{tlv::tag_bytes<1>(),
                                            tlv::bounds(2, 1),
