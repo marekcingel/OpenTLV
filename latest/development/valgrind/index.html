@@ -3712,8 +3712,9 @@
 This checks invalid memory accesses, uses of uninitialized memory, and leaks in
 a plain native build. It complements the <a href="../fuzzing/">sanitized fuzz targets</a>
 and Query sanitizer jobs.</p>
-<p>A separate workflow compares Reader, Writer, Document and Query instruction
-counts with Callgrind, then measures matching workloads without instrumentation.
+<p>A separate workflow compares Reader, Writer, Document, Query and Schema
+instruction counts with Callgrind, then measures matching workloads without
+instrumentation.
 These checks have separate jobs and build directories:</p>
 <table>
 <thead>
@@ -3918,7 +3919,7 @@ status and source-file hashes. A dirty checkout's recorded commit SHA identifies
 its parent revision, not the exact code measured; retain its metadata and changes
 when reproducing a local result. Sources must remain unchanged during the run.</p>
 <p>Callgrind measures <code>Ir</code>, the number of executed machine instructions, for each
-of Reader, Writer, Document and Query separately. The report gives baseline and
+workload separately. The report gives baseline and
 candidate counts, absolute differences, percentage differences, and function
 costs. Both the percentage and absolute instruction thresholds must be exceeded
 to flag a workload. For example, <code>--threshold-percent 5
@@ -3928,9 +3929,9 @@ comparison command fail. Tool, build, workload and report failures return a
 nonzero status and must be investigated before interpreting any available data.
 If the baseline count is zero, the percentage is undefined and only the absolute
 threshold applies.</p>
-<p>All four workloads use the <code>ber-flat-256x16-v1</code> input: 256 flat primitive BER
-elements, tags <code>0x80</code> through <code>0x8f</code> repeated, and 16 bytes per value, for 4,608
-wire bytes. Value byte <code>j</code> in element <code>i</code> is <code>(i + j) % 256</code>. Input preparation,
+<p>The Reader, Writer, Document and Query workloads use the <code>ber-flat-256x16-v1</code>
+input: 256 flat primitive BER elements, tags <code>0x80</code> through <code>0x8f</code> repeated, and
+16 bytes per value, for 4,608 wire bytes. Value byte <code>j</code> in element <code>i</code> is <code>(i + j) % 256</code>. Input preparation,
 Query compilation and Query workspace allocation happen before measurement.
 One warmup validates the result before the measured loop; each iteration also
 checks its result. The full Writer output comparison runs outside measurement.</p>
@@ -3960,8 +3961,51 @@ checks its result. The full Writer output comparison runs outside measurement.</
 </tr>
 </tbody>
 </table>
+<p>The Schema workloads separate definition checking from input processing. Every
+<code>tlv_schema_validate()</code> and <code>tlv_der_schema_read()</code> call first checks the whole
+reachable definition, so each complete workload has a definition-check-only
+counterpart (<code>tlv_schema_check()</code> or <code>tlv_der_schema_check()</code>) on the same
+schema. Generic Schema validates with the BER Format; DER Schema reads one root
+element. Schemas and inputs are built before measurement in
+<code>benchmarks/callgrind/schema_workloads.h</code>, which the Google Benchmark suite also
+uses.</p>
+<table>
+<thead>
+<tr>
+<th>Schema shape</th>
+<th>Generic workloads</th>
+<th>DER workloads</th>
+<th>Input</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Shared graph, small input</td>
+<td><code>schema_check_shared</code>, <code>schema_validate_shared</code></td>
+<td><code>der_schema_check_shared</code>, <code>der_schema_read_shared</code></td>
+<td><code>30 00</code> against 200 distinct tables or types. Each references the next two, so most are shared.</td>
+</tr>
+<tr>
+<td>Small schema, large input</td>
+<td><code>schema_check_flat</code>, <code>schema_validate_flat</code></td>
+<td><code>der_schema_check_flat</code>, <code>der_schema_read_flat</code></td>
+<td><code>ber-flat-256x16-v1</code> against 16 primitive rules, or the same values as a DER <code>SEQUENCE OF OCTET STRING</code> (4,612 bytes).</td>
+</tr>
+<tr>
+<td>Recursive schema, nested input</td>
+<td><code>schema_check_recursive</code>, <code>schema_validate_recursive</code></td>
+<td><code>der_schema_check_recursive</code>, <code>der_schema_read_recursive</code></td>
+<td><code>T = SEQUENCE OF T</code> with one root holding 16 chains of 20 nested empty SEQUENCEs (644 bytes).</td>
+</tr>
+</tbody>
+</table>
+<p>Definition-check-only workloads read no input and report zero input bytes, so
+the report gives no throughput for them. Its <strong>Schema definition-check share</strong>
+table lists, per revision, the check's instructions per call and its share of
+the complete workload. A change to definition checking shows there separately
+from input processing.</p>
 <p>Callgrind collects only the measured loop. Native timing brackets the same loop
-with a monotonic clock. Throughput is the 4,608 input bytes multiplied by the
+with a monotonic clock. Throughput is the workload's input bytes multiplied by the
 iteration count and divided by elapsed time; it describes the complete workload,
 including the initialization and validation above. Output checksums must agree
 between versions and measurement modes after accounting for iteration counts.
