@@ -76,7 +76,8 @@ $(function() {
   <div class="summary">
 <a href="#nested-classes">Data Structures</a> &#124;
 <a href="#typedef-members">Typedefs</a> &#124;
-<a href="#enum-members">Enumerations</a>  </div>
+<a href="#enum-members">Enumerations</a> &#124;
+<a href="#func-members">Functions</a>  </div>
   <div class="headertitle"><div class="title">diagnostic.h File Reference<div class="ingroups"><a class="el" href="group__reader.html">Reader</a></div></div></div>
 </div><!--header-->
 <div class="contents">
@@ -121,6 +122,12 @@ Enumerations</h2></td></tr>
  }</td></tr>
 <tr class="memdesc:a1eb19dea4cfcbb788587e7a3208430a9"><td class="mdescLeft">&#160;</td><td class="mdescRight">Which parsing step a <a class="el" href="reader_2diagnostic_8h.html#a24371a524a13cd9d1cd22b3db640de85" title="Common failure diagnostic paired with Reader-specific evidence.">tlv_reader_diagnostic_t</a> reports on.  <a href="reader_2diagnostic_8h.html#a1eb19dea4cfcbb788587e7a3208430a9">More...</a><br /></td></tr>
 <tr class="separator:a1eb19dea4cfcbb788587e7a3208430a9"><td class="memSeparator" colspan="2">&#160;</td></tr>
+</table><table class="memberdecls">
+<tr class="heading"><td colspan="2"><h2 class="groupheader"><a id="func-members" name="func-members"></a>
+Functions</h2></td></tr>
+<tr class="memitem:a480124a6d9d49edaa60c3d4486633292" id="r_a480124a6d9d49edaa60c3d4486633292"><td class="memItemLeft" align="right" valign="top">const char *&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="reader_2diagnostic_8h.html#a480124a6d9d49edaa60c3d4486633292">tlv_reader_operation_string</a> (<a class="el" href="reader_2diagnostic_8h.html#abf8b5b14db678fec0ef62a89e62ed22f">tlv_reader_operation_t</a> value)</td></tr>
+<tr class="memdesc:a480124a6d9d49edaa60c3d4486633292"><td class="mdescLeft">&#160;</td><td class="mdescRight">Returns the diagnostic name of a reader operation.  <br /></td></tr>
+<tr class="separator:a480124a6d9d49edaa60c3d4486633292"><td class="memSeparator" colspan="2">&#160;</td></tr>
 </table>
 <a name="details" id="details"></a><h2 class="groupheader">Detailed Description</h2>
 <div class="textblock"><p>Reader diagnostic vocabulary usable without the Reader implementation. </p>
@@ -204,6 +211,35 @@ This fixed-size value contains no result, location or path. It can be embedded b
 <tr><td class="fieldname"><a id="a1eb19dea4cfcbb788587e7a3208430a9a0b6cdce18686e6622750671413c7b328" name="a1eb19dea4cfcbb788587e7a3208430a9a0b6cdce18686e6622750671413c7b328"></a>TLV_READER_OP_HEADER&#160;</td><td class="fielddoc"><p>An unnamed header field or complete header. </p>
 </td></tr>
 </table>
+
+</div>
+</div>
+<h2 class="groupheader">Function Documentation</h2>
+<a id="a480124a6d9d49edaa60c3d4486633292" name="a480124a6d9d49edaa60c3d4486633292"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#a480124a6d9d49edaa60c3d4486633292">&#9670;&#160;</a></span>tlv_reader_operation_string()</h2>
+
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname">const char * tlv_reader_operation_string </td>
+          <td>(</td>
+          <td class="paramtype"><a class="el" href="reader_2diagnostic_8h.html#abf8b5b14db678fec0ef62a89e62ed22f">tlv_reader_operation_t</a>&#160;</td>
+          <td class="paramname"><em>value</em></td><td>)</td>
+          <td></td>
+        </tr>
+      </table>
+</div><div class="memdoc">
+
+<p>Returns the diagnostic name of a reader operation. </p>
+<dl class="params"><dt>Parameters</dt><dd>
+  <table class="params">
+    <tr><td class="paramdir">[in]</td><td class="paramname">value</td><td>Diagnostic enum value. </td></tr>
+  </table>
+  </dd>
+</dl>
+<dl class="section return"><dt>Returns</dt><dd>A static NUL-terminated string, or <code>"unknown"</code> for an unrecognized value. </dd></dl>
+<dl class="section note"><dt>Note</dt><dd>Never returns NULL or allocates. Do not free or modify the string. Available even when the corresponding capability is disabled. </dd></dl>
 
 </div>
 </div>

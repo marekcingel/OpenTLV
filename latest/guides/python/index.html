@@ -4036,8 +4036,13 @@ base class. <code>OpenTLVError.code</code> is the raw result code, and <code>str
 the C <code>tlv_strerror</code> text. When the C API reports structured diagnostic
 detail for the failure, <code>offset</code>, <code>expected</code>, <code>actual</code>, <code>operation</code> and <code>tag</code>
 carry it, for both a <code>Reader</code> and a <code>Writer</code> failure; <code>length</code>, <code>required</code>
-and <code>available</code> carry additional detail only a <code>Writer</code> failure reports.
+and <code>available</code> carry buffer bounds (<code>length</code> is Writer-only).
 Fields the failure does not report are <code>None</code>.</p>
+<p>Query failures retain common <code>location</code>, <code>severity</code>, <code>path</code>, <code>path_omitted</code>
+and <code>contexts</code> even without a Reader cause. <code>error.query["query_kind"]</code> is a
+<code>QueryErrorKind</code>, for example <code>QueryErrorKind.SYNTAX</code>; its <code>label</code> property
+returns the C spelling. Codec and Schema categories are typed too. See the
+<a href="../../reference/errors/#binding-diagnostics">binding diagnostic reference</a>.</p>
 <div class="highlight"><pre><span></span><code><a id="__codelineno-8-1" name="__codelineno-8-1" href="#__codelineno-8-1"></a><span class="k">try</span><span class="p">:</span>
 <a id="__codelineno-8-2" name="__codelineno-8-2" href="#__codelineno-8-2"></a>    <span class="nb">list</span><span class="p">(</span><span class="n">opentlv</span><span class="o">.</span><span class="n">Reader</span><span class="p">(</span><span class="n">truncated</span><span class="p">))</span>
 <a id="__codelineno-8-3" name="__codelineno-8-3" href="#__codelineno-8-3"></a><span class="k">except</span> <span class="n">opentlv</span><span class="o">.</span><span class="n">BufferTooShortError</span> <span class="k">as</span> <span class="n">error</span><span class="p">:</span>

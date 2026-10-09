@@ -416,7 +416,7 @@ Functions</h2></td></tr>
   </table>
   </dd>
 </dl>
-<dl class="section return"><dt>Returns</dt><dd>The first matching child in encoding order, or <code>NULL</code>. </dd></dl>
+<dl class="section return"><dt>Returns</dt><dd>The first matching child in encoding order, or <code>NULL</code> for no match, an invalid Tag, or a NULL Document when searching the top level. This lookup has no separate failure channel; it does not validate parent ownership. </dd></dl>
 
 </div>
 </div>

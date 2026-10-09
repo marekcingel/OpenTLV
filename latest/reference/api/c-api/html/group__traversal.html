@@ -462,6 +462,9 @@ Functions</h2></td></tr>
 <tr class="memitem:gae02e9019bf985c5a234784acd32a0763" id="r_gae02e9019bf985c5a234784acd32a0763"><td class="memItemLeft" align="right" valign="top"><a class="el" href="group__core.html#ga164d2817a32e5d7b7aa1472e887b47c3">tlv_result_t</a>&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="group__traversal.html#gae02e9019bf985c5a234784acd32a0763">tlv_query_plan_info</a> (const <a class="el" href="group__traversal.html#ga45bdea1007b9780dba5559a2190f569d">tlv_query_program_t</a> *program, <a class="el" href="group__traversal.html#gaf947e208c6f97e68c59bf5573887d2ca">tlv_query_program_info_t</a> *info)</td></tr>
 <tr class="memdesc:gae02e9019bf985c5a234784acd32a0763"><td class="mdescLeft">&#160;</td><td class="mdescRight">Inspect requirements of a validated immutable plan without the frontend.  <br /></td></tr>
 <tr class="separator:gae02e9019bf985c5a234784acd32a0763"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:ga581352132e5389327797f9cd282465ab" id="r_ga581352132e5389327797f9cd282465ab"><td class="memItemLeft" align="right" valign="top">const char *&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="group__traversal.html#ga581352132e5389327797f9cd282465ab">tlv_query_error_kind_string</a> (<a class="el" href="group__traversal.html#gafc4c0883612ef05066fbbd5afc6306d5">tlv_query_error_kind_t</a> value)</td></tr>
+<tr class="memdesc:ga581352132e5389327797f9cd282465ab"><td class="mdescLeft">&#160;</td><td class="mdescRight">Returns the diagnostic name of a query error kind.  <br /></td></tr>
+<tr class="separator:ga581352132e5389327797f9cd282465ab"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:ga7b03002e8b3fb150a6ab43d6d21e5634" id="r_ga7b03002e8b3fb150a6ab43d6d21e5634"><td class="memItemLeft" align="right" valign="top">size_t&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="group__traversal.html#ga7b03002e8b3fb150a6ab43d6d21e5634">tlv_query_program_variable_count</a> (const <a class="el" href="group__traversal.html#ga45bdea1007b9780dba5559a2190f569d">tlv_query_program_t</a> *program)</td></tr>
 <tr class="memdesc:ga7b03002e8b3fb150a6ab43d6d21e5634"><td class="mdescLeft">&#160;</td><td class="mdescRight">Count unique referenced variables in first-reference order.  <br /></td></tr>
 <tr class="separator:ga7b03002e8b3fb150a6ab43d6d21e5634"><td class="memSeparator" colspan="2">&#160;</td></tr>
@@ -2157,6 +2160,34 @@ struct_size must cover the prefix through result_kind. Writes are limited to min
 </dl>
 <dl class="section return"><dt>Returns</dt><dd>Step count, or zero for NULL, zero-initialized or corrupt storage. </dd></dl>
 <dl class="section note"><dt>Note</dt><dd>Never allocates. O(step count) validation; storage remains unchanged. </dd></dl>
+
+</div>
+</div>
+<a id="ga581352132e5389327797f9cd282465ab" name="ga581352132e5389327797f9cd282465ab"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#ga581352132e5389327797f9cd282465ab">&#9670;&#160;</a></span>tlv_query_error_kind_string()</h2>
+
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname">const char * tlv_query_error_kind_string </td>
+          <td>(</td>
+          <td class="paramtype"><a class="el" href="group__traversal.html#gafc4c0883612ef05066fbbd5afc6306d5">tlv_query_error_kind_t</a>&#160;</td>
+          <td class="paramname"><em>value</em></td><td>)</td>
+          <td></td>
+        </tr>
+      </table>
+</div><div class="memdoc">
+
+<p>Returns the diagnostic name of a query error kind. </p>
+<dl class="params"><dt>Parameters</dt><dd>
+  <table class="params">
+    <tr><td class="paramdir">[in]</td><td class="paramname">value</td><td>Diagnostic enum value. </td></tr>
+  </table>
+  </dd>
+</dl>
+<dl class="section return"><dt>Returns</dt><dd>A static NUL-terminated string, or <code>"unknown"</code> for an unrecognized value. </dd></dl>
+<dl class="section note"><dt>Note</dt><dd>Never returns NULL or allocates. Do not free or modify the string. Available even when the corresponding capability is disabled. </dd></dl>
 
 </div>
 </div>

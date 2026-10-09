@@ -97,7 +97,7 @@ Public Member Functions</h2></td></tr>
 <tr class="memdesc:a722b7c7ec63856a6f5fe81a3fa98d50b"><td class="mdescLeft">&#160;</td><td class="mdescRight">Consume a canonical event, checking depth and destination classification.  <br /></td></tr>
 <tr class="separator:a722b7c7ec63856a6f5fe81a3fa98d50b"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:a45e353ea9aedc5825ce32072c2a024fc" id="r_a45e353ea9aedc5825ce32072c2a024fc"><td class="memItemLeft" align="right" valign="top"><a class="el" href="classtlv_1_1expected.html">expected</a>&lt; void, <a class="el" href="structtlv_1_1error.html">error</a> &gt;&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classtlv_1_1tree__writer.html#a45e353ea9aedc5825ce32072c2a024fc">begin</a> (<a class="el" href="classtlv_1_1tag.html">tlv::tag</a> <a class="el" href="classtlv_1_1tag.html">tag</a>, <a class="el" href="namespacetlv.html#a1df134eb9e2b476155eb324618396e4d">writer_diagnostic</a> *<a class="el" href="namespacetlv.html#a00ca9c69c35ef11f6a22b7eda1b115ba">diagnostic</a>=nullptr)</td></tr>
-<tr class="memdesc:a45e353ea9aedc5825ce32072c2a024fc"><td class="mdescLeft">&#160;</td><td class="mdescRight">Open a constructed parent; Tag bytes remain borrowed until <a class="el" href="classtlv_1_1tree__writer.html#ad9c0b588f32b62932a9435fa815740ed" title="Close the innermost parent; failures preserve accumulated output and cursor.">end()</a>.  <br /></td></tr>
+<tr class="memdesc:a45e353ea9aedc5825ce32072c2a024fc"><td class="mdescLeft">&#160;</td><td class="mdescRight">Open a constructed parent; Tag bytes remain borrowed until <a class="el" href="namespacetlv.html#a047694bc3dd10e75e2dc596b4654abf3a7f021a1415b86f2d013b2618fb31ae53">end()</a>.  <br /></td></tr>
 <tr class="separator:a45e353ea9aedc5825ce32072c2a024fc"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:a28fc0fe5f3854f19b7f200b621034e9f" id="r_a28fc0fe5f3854f19b7f200b621034e9f"><td class="memItemLeft" align="right" valign="top"><a class="el" href="classtlv_1_1expected.html">expected</a>&lt; void, <a class="el" href="structtlv_1_1error.html">error</a> &gt;&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classtlv_1_1tree__writer.html#a28fc0fe5f3854f19b7f200b621034e9f">write</a> (const <a class="el" href="classtlv_1_1element__view.html">element_view</a> &amp;<a class="el" href="namespacetlv.html#a0e9dc5e120173d6322fc63d2d1fc09c3a2063c1608d6e0baf80249c42e2be5804">value</a>, <a class="el" href="namespacetlv.html#a1df134eb9e2b476155eb324618396e4d">writer_diagnostic</a> *<a class="el" href="namespacetlv.html#a00ca9c69c35ef11f6a22b7eda1b115ba">diagnostic</a>=nullptr)</td></tr>
 <tr class="memdesc:a28fc0fe5f3854f19b7f200b621034e9f"><td class="mdescLeft">&#160;</td><td class="mdescRight">Append a primitive or complete subtree without retaining its Element.  <br /></td></tr>
@@ -114,7 +114,7 @@ Public Member Functions</h2></td></tr>
 </table>
 <a name="details" id="details"></a><h2 class="groupheader">Detailed Description</h2>
 <div class="textblock"><p>Iterative bounded writer with the storage and failure contracts of <a class="elRef" href="../../c-api/html/group__writer.html#ga16a0fb1e3ceca1143a5e3d79e99588f3">tlv_tree_writer_t</a>. </p>
-<p>Operations and returned structured errors do not allocate. Output, frames, scratch and immutable Format/context must outlive this cursor. Only <a class="el" href="classtlv_1_1tree__writer.html#a717823f46deb9796a913d0fc0e577887" title="Return the final output prefix size, excluding open roots; zero on init failure.">size()</a> bytes form a final prefix; open subtrees occupy provisional storage. </p>
+<p>Operations and returned structured errors do not allocate. Output, frames, scratch and immutable Format/context must outlive this cursor. Only <a class="el" href="namespacetlv.html#a410ac284e31ff7048dc535bdcac064a2af7bd60b75b29d79b660a2859395c1a24">size()</a> bytes form a final prefix; open subtrees occupy provisional storage. </p>
 </div><h2 class="groupheader">Constructor &amp; Destructor Documentation</h2>
 <a id="a55db5f590d9b4c4b4deacc92638366b6" name="a55db5f590d9b4c4b4deacc92638366b6"></a>
 <h2 class="memtitle"><span class="permalink"><a href="#a55db5f590d9b4c4b4deacc92638366b6">&#9670;&#160;</a></span>tree_writer()</h2>
@@ -246,7 +246,7 @@ Public Member Functions</h2></td></tr>
 </table>
 </div><div class="memdoc">
 
-<p>Open a constructed parent; Tag bytes remain borrowed until <a class="el" href="classtlv_1_1tree__writer.html#ad9c0b588f32b62932a9435fa815740ed" title="Close the innermost parent; failures preserve accumulated output and cursor.">end()</a>. </p>
+<p>Open a constructed parent; Tag bytes remain borrowed until <a class="el" href="namespacetlv.html#a047694bc3dd10e75e2dc596b4654abf3a7f021a1415b86f2d013b2618fb31ae53">end()</a>. </p>
 <dl class="params"><dt>Parameters</dt><dd>
   <table class="params">
     <tr><td class="paramname">tag</td><td>Immutable identifier disjoint from all writable storage. </td></tr>

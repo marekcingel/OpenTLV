@@ -97,7 +97,7 @@ struct tlv::is_tlv_codec&lt; T &gt;</div><p>Trait for the legacy application pay
 <p><code>T</code> satisfies the trait when it provides:</p><ul>
 <li>a static member <code>tag</code> convertible to <a class="el" href="classtlv_1_1tag.html" title="Read-only borrowed identifier with byte identity, independent of Format.">tlv::tag</a>. The tag only borrows its bytes, so they must have static storage (for example <code>static const <a class="el" href="classtlv_1_1tag.html" title="Read-only borrowed identifier with byte identity, independent of Format.">tlv::tag</a> tag;</code> defined with <code><a class="el" href="namespacetlv.html#a577b84832327b25989a0567c05db0607" title="Borrow a literal identifier from immutable program-lifetime storage.">tlv::tag_bytes</a>&lt;...&gt;()</code>),</li>
 <li><code>void encode(std::vector&lt;byte&gt;&amp;) const</code> appending its encoded value, and</li>
-<li>a static <code>decode(bytes)</code> returning the decoded value.</li>
+<li>a static <code><a class="el" href="namespacetlv.html#a0e6dec4706a8d713e39ab60230d357fea5b93625023a1c2180221257849744b59">decode(bytes)</a></code> returning the decoded value.</li>
 </ul>
 <p>Implementations live outside the library core. C++20 and later expose the same check as the TlvCodec concept. In C++11 through C++17 it remains an ordinary trait so the API can use SFINAE. For reusable tag-independent Value conversion, use codec&lt;T&gt; and field instead.</p>
 <dl class="tparams"><dt>Template Parameters</dt><dd>

@@ -2545,10 +2545,43 @@
 </li>
       
         <li class="md-nav__item">
+  <a href="#diagnostic-enum-names" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Diagnostic enum names
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#lookup-and-pointer-returning-apis" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Lookup and pointer-returning APIs
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
   <a href="#conversion-failures" class="md-nav__link">
     <span class="md-ellipsis">
       
         Conversion failures
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#binding-diagnostics" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Binding diagnostics
       
     </span>
   </a>
@@ -3729,10 +3762,43 @@
 </li>
       
         <li class="md-nav__item">
+  <a href="#diagnostic-enum-names" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Diagnostic enum names
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#lookup-and-pointer-returning-apis" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Lookup and pointer-returning APIs
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
   <a href="#conversion-failures" class="md-nav__link">
     <span class="md-ellipsis">
       
         Conversion failures
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#binding-diagnostics" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Binding diagnostics
       
     </span>
   </a>
@@ -3778,12 +3844,12 @@
 <h1 id="error-codes">Error codes<a class="headerlink" href="#error-codes" title="Permanent link">&para;</a></h1>
 <p>This page describes the <strong>currently implemented API</strong>. The accepted
 <a href="../../concepts/error-model/">failure model</a> (#551) defines a replacement taxonomy,
-typed diagnostic layering, locations and propagation rules. Its implementation
-will break API and ABI compatibility; the target names and signatures are not
-available yet, except for <code>TLV_ERR_INVALID_STATE</code> and Query kind <code>STATE</code> (#552),
-<code>TLV_ERR_INVALID_SCHEMA</code> with Schema failure classification (#553), and
-<code>TLV_ERR_UNSUPPORTED</code>/<code>TLV_ERR_CALLBACK</code> with resource and callback classification (#554). The
-tables below describe the current codes and behavior.</p>
+typed diagnostic layering, locations and propagation rules. Migration proceeds
+through breaking API and ABI changes: lifecycle (#552),
+Schema classification (#553), resource/callback classification (#554), locations
+(#555), shared Codec results and propagation (#556), and diagnostic names and
+Document lookup failure channels (#557). The tables below describe the current
+codes, not target names still awaiting implementation.</p>
 <p>Core and Codec operations return the shared <code>tlv_result_t</code> from <code>tlv/error.h</code>. Zero is success; nonzero core
 results include errors, end-of-input and the resumable
 <code>TLV_NEED_MORE_DATA</code> condition. <code>tlv_strerror</code> returns a static, readable
@@ -3832,7 +3898,8 @@ validation result in every entry.</p>
 <a href="../../concepts/error-model/#migration-inventory">failure-model migration</a>,
 <code>STORAGE</code> still covers compiler/plan arguments and capacities, <code>BINDING</code> covers
 binding arguments, <code>CAPABILITY</code> covers incompatible formats or hook configuration,
-and <code>EVENTS</code> also covers visitor/callback failures. Diagnostic layouts are unchanged.</p>
+while visitor/provider failures use <code>CALLBACK</code>. Diagnostic layouts changed in
+issues #553, #555 and #556; rebuild native consumers with matching headers and bindings.</p>
 <h3 id="regression-enforcement">Regression enforcement<a class="headerlink" href="#regression-enforcement" title="Permanent link">&para;</a></h3>
 <p><code>tests/diagnostic_assertions.h</code> checks the invariant after an operation, including
 calls shared by table-driven Query tests. Tests for pre-initialization rejection
@@ -3906,7 +3973,7 @@ the breaking #551 migration; <code>INVALID_STATE = 19</code> does not promise ap
 <td><code>TLV_ERR_VISITOR</code></td>
 <td>7</td>
 <td>A visitor callback requested an error stop.</td>
-<td>Your visitor returned <code>TLV_VISIT_ERROR</code> or an unknown result.</td>
+<td>Your visitor returned <code>TLV_VISIT_ERROR</code>. Unknown visitor results produce <code>CALLBACK</code>.</td>
 </tr>
 <tr>
 <td><code>TLV_ERR_LIMIT</code></td>
@@ -4064,8 +4131,123 @@ byte location; <code>definition.kind</code>, <code>owner</code> and <code>index<
 native clients and use the matching binding version. C++ errors expose
 <code>schema_kind()</code>, <code>location()</code> and <code>definition()</code>; Python uses <code>InvalidSchemaError</code> for definitions
 and <code>SchemaError</code> with <code>kind="missing"</code> for required absence.</p>
-<p>Custom format callback errors propagate unchanged through the generic reader and writer,
-so a custom format can return any of the codes above.</p>
+<p>Custom Format callback failures permitted by the callback contract propagate
+unchanged through the generic Reader and Writer. Unknown results, forbidden
+control statuses and invalid successful payloads become <code>TLV_ERR_CALLBACK</code>;
+see the public callback contracts in <code>tlv/format.h</code>.</p>
+<h2 id="diagnostic-enum-names">Diagnostic enum names<a class="headerlink" href="#diagnostic-enum-names" title="Permanent link">&para;</a></h2>
+<p>The C library owns the diagnostic names; callers need no parallel name tables.
+Each function below returns a static NUL-terminated string, never NULL, with
+<code>"unknown"</code> for an unrecognized value. Names use lowercase words and underscores
+(for example <code>"image_version"</code>). Do not free or modify the returned storage.
+These functions remain available with the processing capabilities disabled.</p>
+<table>
+<thead>
+<tr>
+<th>Diagnostic value</th>
+<th>Name function</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Severity</td>
+<td><code>tlv_diagnostic_severity_string()</code></td>
+</tr>
+<tr>
+<td>Location domain / anchor</td>
+<td><code>tlv_location_domain_string()</code> / <code>tlv_location_kind_string()</code></td>
+</tr>
+<tr>
+<td>Query failure kind</td>
+<td><code>tlv_query_error_kind_string()</code></td>
+</tr>
+<tr>
+<td>Reader / Writer operation</td>
+<td><code>tlv_reader_operation_string()</code> / <code>tlv_writer_operation_string()</code></td>
+</tr>
+<tr>
+<td>Schema finding / definition object</td>
+<td><code>tlv_schema_issue_kind_string()</code> / <code>tlv_schema_definition_kind_string()</code></td>
+</tr>
+<tr>
+<td>Codec operation / delegated cause / callback violation</td>
+<td><code>tlv_codec_operation_string()</code> / <code>tlv_codec_cause_string()</code> / <code>tlv_codec_violation_string()</code></td>
+</tr>
+</tbody>
+</table>
+<p><code>tlv_strerror()</code> separately describes results, with <code>"unknown error"</code> as its
+fallback. Enum-name strings describe detail; they do not replace result codes.</p>
+<h2 id="lookup-and-pointer-returning-apis">Lookup and pointer-returning APIs<a class="headerlink" href="#lookup-and-pointer-returning-apis" title="Permanent link">&para;</a></h2>
+<p><code>tlv_document_find_path(document, query, &amp;node)</code> returns <code>TLV_OK</code> with the first
+match, or <code>TLV_OK</code> with NULL when the search completed without a match. Invalid
+queries and arguments retain the original failure result and leave <code>node</code>
+unchanged, even on an empty Document. The former pointer-returning signature
+has been replaced without a compatibility wrapper. Rebuild native callers.
+C++ path lookup throws <code>query_error</code>; Rust uses <code>Result&lt;Option&lt;Node&gt;&gt;</code> and
+<code>Result&lt;Option&lt;NodeMut&gt;&gt;</code>; Python and Lua raise the native failure category.</p>
+<p>The remaining exported pointer-returning APIs have these explicit contracts;
+none performs a delegated fallible traversal or allocation:</p>
+<table>
+<thead>
+<tr>
+<th>API family</th>
+<th>Pointer / NULL contract</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Document <code>first</code>, Node <code>first_child</code>, <code>next</code>, <code>parent</code>, <code>next_same_tag</code></td>
+<td>Borrowed node; NULL for no such node or a NULL input.</td>
+</tr>
+<tr>
+<td><code>tlv_document_find()</code></td>
+<td>Borrowed first direct match; NULL for no match, invalid Tag, or absent top-level Document. Parent ownership is a caller precondition.</td>
+</tr>
+<tr>
+<td><code>tlv_node_value_data()</code></td>
+<td>Borrowed primitive bytes; NULL for NULL node, empty Value, or constructed node.</td>
+</tr>
+<tr>
+<td><code>tlv_definition_find()</code>, <code>tlv_schema_find()</code></td>
+<td>Borrowed entry; NULL for no match or rejected arguments/table descriptor. They skip invalid entry Tags and do not validate complete definitions.</td>
+</tr>
+<tr>
+<td><code>tlv_value_constraint_name()</code></td>
+<td>Borrowed name; NULL for unavailable table/name, wrong constraint kind, or no match.</td>
+</tr>
+<tr>
+<td><code>tlv_asn1_named_bit_find()</code></td>
+<td>Borrowed name; NULL for no match or a NULL entry name. The caller supplies a valid table extent.</td>
+</tr>
+<tr>
+<td>EMV <code>dictionary_for</code>, <code>schema_for</code></td>
+<td>Static table; NULL for invalid context.</td>
+</tr>
+<tr>
+<td>EMV <code>dictionary_find</code>, <code>find</code></td>
+<td>Borrowed entry; NULL for no match or invalid lookup arguments/context.</td>
+</tr>
+<tr>
+<td><code>tlv_emv_symbol()</code>, <code>tlv_emv_display_label()</code></td>
+<td>Borrowed/static optional text; NULL for absent metadata/label, including NULL input.</td>
+</tr>
+<tr>
+<td><code>tlv_query_builtin_hooks()</code></td>
+<td>Non-NULL static provider array; optional count output.</td>
+</tr>
+<tr>
+<td>Version string and Git metadata accessors</td>
+<td>Non-NULL static build metadata; no prerelease is an empty string, unavailable Git metadata uses <code>"unknown"</code>.</td>
+</tr>
+<tr>
+<td>Diagnostic name functions, <code>tlv_strerror()</code>, <code>tlv_emv_value_kind_description()</code></td>
+<td>Non-NULL static text with the documented unknown-value fallback.</td>
+</tr>
+</tbody>
+</table>
+<p>A NULL lookup result alone therefore does not distinguish absence from rejected
+arguments unless the API has a separate result channel. Follow each header's
+argument, extent and lifetime preconditions.</p>
 <h2 id="conversion-failures">Conversion failures<a class="headerlink" href="#conversion-failures" title="Permanent link">&para;</a></h2>
 <p>Codec, Structure Codec and Query conversions return the same <code>tlv_result_t</code>.
 The separate Codec enum, constants and strerror entry point were removed in #556.
@@ -4076,6 +4258,59 @@ Invalid callback discriminators or successful output contracts report <code>CALL
 while preserving the callback's reported value, including <code>OK</code>.</p>
 <p>This changes callback signatures and the Query diagnostic layout. Rebuild native
 clients and use matching bindings. Valid conversion bytes are unchanged.</p>
+<h2 id="binding-diagnostics">Binding diagnostics<a class="headerlink" href="#binding-diagnostics" title="Permanent link">&para;</a></h2>
+<p>Bindings use the C result domain, including resumable <code>NEED_MORE_DATA</code>, and
+preserve the independent detail, primary location and delegated cause. Category
+names come from the C string functions; an unrecognized value is named
+<code>unknown</code>. A raw callback <code>reported</code> result stays numeric so invalid provider
+results remain inspectable.</p>
+<table>
+<thead>
+<tr>
+<th>Facade</th>
+<th>Diagnostic categories</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>C++</td>
+<td><code>errc</code>, <code>query_issue</code>, <code>reader_phase</code>, <code>writer_phase</code>, <code>schema_issue</code>, <code>schema_definition_kind</code>, <code>codec_phase</code>, <code>codec_cause</code>, <code>codec_violation</code>; <code>message(category)</code> calls C.</td>
+</tr>
+<tr>
+<td>Rust</td>
+<td><code>Error</code> and typed <code>QueryErrorKind</code>, <code>ReaderOperation</code>, <code>WriterOperation</code>, <code>SchemaIssue</code>, <code>SchemaDefinitionKind</code>, <code>CodecOperation</code>, <code>CodecCause</code>, <code>CodecViolation</code>, <code>Severity</code>; category <code>name()</code> calls C. Categories are <code>#[non_exhaustive]</code>; <code>Unrecognized(RawCategory)</code> retains unrecognized values.</td>
+</tr>
+<tr>
+<td>Python</td>
+<td>Typed result exceptions; Query <code>query["query_kind"]</code>, Schema report fields and Codec detail fields use <code>IntEnum</code> categories exported by <code>opentlv</code>. Their <code>label</code> property calls C. Reader/Writer <code>operation</code> remains a canonical string.</td>
+</tr>
+<tr>
+<td>Go</td>
+<td><code>errors.Is</code> classifies results and <code>errors.As</code> retrieves owned details. <code>ProgramError.Kind</code>, <code>QuerySchemaError.Kind</code> and Codec categories are typed; <code>String()</code> calls C. Reader/Writer errors expose typed <code>Phase()</code> methods; <code>Diagnostic.ReaderPhase()</code> and <code>WriterPhase()</code> type Query Reader causes too.</td>
+</tr>
+<tr>
+<td>Lua</td>
+<td>Error tables preserve result <code>code</code>, <code>location</code>, optional path and contexts. <code>query.kind_name</code> and Codec <code>operation_name</code>, <code>cause_name</code>, <code>violation_name</code> come from C alongside numeric values.</td>
+</tr>
+<tr>
+<td>JS/WASM</td>
+<td><code>QueryError</code> carries the C message, structured <code>location</code> and owned Query evidence. <code>query.kind_name</code>, Reader <code>operation_name</code> and Codec names accompany numeric categories. Common evidence appears once in <code>query.diagnostic</code>.</td>
+</tr>
+</tbody>
+</table>
+<p>For example, Rust consumers match <code>failure.kind == QueryErrorKind::Syntax</code>;
+Python consumers compare <code>error.query["query_kind"] is QueryErrorKind.SYNTAX</code>.
+Use <code>.as_raw()</code> in Rust when an external protocol explicitly requires the C
+integer. These diagnostic field changes are source-breaking; rebuild bindings
+against the matching C library.</p>
+<p>Unknown locations have no meaningful numeric coordinates. A known point at
+zero is distinct from absence. Related Query expression spans do not replace
+the primary input/output/Value location. Retained paths hold outermost scopes;
+<code>path_omitted</code> counts omitted innermost scopes. Go's <code>HasReader</code> guards the
+Reader-specific part of a Query failure.</p>
+<p>CLI diagnostics identify the location domain and anchor kind. Compact output
+includes truncated paths and omitted counts; Query JSON includes common
+diagnostic metadata and delegated Codec or Reader evidence.</p>
 <h2 id="see-also">See also<a class="headerlink" href="#see-also" title="Permanent link">&para;</a></h2>
 <ul>
 <li><a href="../c-api/">C API reference</a> for the documented codes per function.</li>

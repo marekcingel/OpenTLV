@@ -77,6 +77,7 @@ $(function() {
 <a href="#nested-classes">Classes</a> &#124;
 <a href="#namespaces">Namespaces</a> &#124;
 <a href="#typedef-members">Typedefs</a> &#124;
+<a href="#enum-members">Enumerations</a> &#124;
 <a href="#func-members">Functions</a>  </div>
   <div class="headertitle"><div class="title">writer.hpp File Reference</div></div>
 </div><!--header-->
@@ -116,8 +117,33 @@ Typedefs</h2></td></tr>
 <tr class="memdesc:a1df134eb9e2b476155eb324618396e4d"><td class="mdescLeft">&#160;</td><td class="mdescRight">C++ alias for the writer-specific diagnostic type, <a class="elRef" href="../../c-api/html/group__writer.html#ga62e12d2578bd1747a55ff04c0649aea5">tlv_writer_diagnostic_t</a>.  <br /></td></tr>
 <tr class="separator:a1df134eb9e2b476155eb324618396e4d"><td class="memSeparator" colspan="2">&#160;</td></tr>
 </table><table class="memberdecls">
+<tr class="heading"><td colspan="2"><h2 class="groupheader"><a id="enum-members" name="enum-members"></a>
+Enumerations</h2></td></tr>
+<tr class="memitem:a047694bc3dd10e75e2dc596b4654abf3" id="r_a047694bc3dd10e75e2dc596b4654abf3"><td class="memItemLeft" align="right" valign="top">enum class &#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="namespacetlv.html#a047694bc3dd10e75e2dc596b4654abf3">tlv::writer_phase</a> { <br />
+&#160;&#160;<a class="el" href="namespacetlv.html#a047694bc3dd10e75e2dc596b4654abf3ae4d23e841d8e8804190027bce3180fa5">tlv::tag</a> = TLV_WRITER_OP_TAG
+, <a class="el" href="namespacetlv.html#a047694bc3dd10e75e2dc596b4654abf3a2fa47f7c65fec19cc163b195725e3844">tlv::length</a> = TLV_WRITER_OP_LENGTH
+, <a class="el" href="namespacetlv.html#a047694bc3dd10e75e2dc596b4654abf3a2063c1608d6e0baf80249c42e2be5804">tlv::value</a> = TLV_WRITER_OP_VALUE
+, <a class="el" href="namespacetlv.html#a047694bc3dd10e75e2dc596b4654abf3a099fb995346f31c749f6e40db0f395e3">tlv::header</a> = TLV_WRITER_OP_HEADER
+, <br />
+&#160;&#160;<a class="el" href="namespacetlv.html#a047694bc3dd10e75e2dc596b4654abf3a93707f725009f066ecf17dd8f6409a66">tlv::trailer</a> = TLV_WRITER_OP_TRAILER
+, <a class="el" href="namespacetlv.html#a047694bc3dd10e75e2dc596b4654abf3a12cba3ee81cf4a793796a51b6327c678">tlv::copy</a> = TLV_WRITER_OP_COPY
+, <a class="el" href="namespacetlv.html#a047694bc3dd10e75e2dc596b4654abf3aec4875cf2d241556a0965f7237864693">tlv::preserve</a> = TLV_WRITER_OP_PRESERVE
+, <a class="el" href="namespacetlv.html#a047694bc3dd10e75e2dc596b4654abf3a8d589afa4dfaeeed85fff5aa78e5ff6a">tlv::begin</a> = TLV_WRITER_OP_BEGIN
+, <br />
+&#160;&#160;<a class="el" href="namespacetlv.html#a047694bc3dd10e75e2dc596b4654abf3a7f021a1415b86f2d013b2618fb31ae53">tlv::end</a> = TLV_WRITER_OP_END
+<br />
+ }</td></tr>
+<tr class="memdesc:a047694bc3dd10e75e2dc596b4654abf3"><td class="mdescLeft">&#160;</td><td class="mdescRight">Typed writer phase diagnostic category.  <a href="namespacetlv.html#a047694bc3dd10e75e2dc596b4654abf3">More...</a><br /></td></tr>
+<tr class="separator:a047694bc3dd10e75e2dc596b4654abf3"><td class="memSeparator" colspan="2">&#160;</td></tr>
+</table><table class="memberdecls">
 <tr class="heading"><td colspan="2"><h2 class="groupheader"><a id="func-members" name="func-members"></a>
 Functions</h2></td></tr>
+<tr class="memitem:a932653fc31e67a6a7a23f163084fcde3" id="r_a932653fc31e67a6a7a23f163084fcde3"><td class="memItemLeft" align="right" valign="top">const char *&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="namespacetlv.html#a932653fc31e67a6a7a23f163084fcde3">tlv::message</a> (<a class="el" href="namespacetlv.html#a047694bc3dd10e75e2dc596b4654abf3">writer_phase</a> <a class="el" href="namespacetlv.html#a0e9dc5e120173d6322fc63d2d1fc09c3a2063c1608d6e0baf80249c42e2be5804">value</a>) noexcept</td></tr>
+<tr class="memdesc:a932653fc31e67a6a7a23f163084fcde3"><td class="mdescLeft">&#160;</td><td class="mdescRight">Canonical static name, or unknown for unrecognized categories.  <br /></td></tr>
+<tr class="separator:a932653fc31e67a6a7a23f163084fcde3"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a85a677677e9828e3e2e015a7ff141353" id="r_a85a677677e9828e3e2e015a7ff141353"><td class="memItemLeft" align="right" valign="top"><a class="el" href="namespacetlv.html#a047694bc3dd10e75e2dc596b4654abf3">writer_phase</a>&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="namespacetlv.html#a85a677677e9828e3e2e015a7ff141353">tlv::phase</a> (const <a class="el" href="namespacetlv.html#a1df134eb9e2b476155eb324618396e4d">writer_diagnostic</a> &amp;<a class="el" href="namespacetlv.html#a0e9dc5e120173d6322fc63d2d1fc09c3a2063c1608d6e0baf80249c42e2be5804">value</a>) noexcept</td></tr>
+<tr class="memdesc:a85a677677e9828e3e2e015a7ff141353"><td class="mdescLeft">&#160;</td><td class="mdescRight">Typed operation associated with Writer evidence.  <br /></td></tr>
+<tr class="separator:a85a677677e9828e3e2e015a7ff141353"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:ab155ce7066af5f5848d1d4f8a1a14e55" id="r_ab155ce7066af5f5848d1d4f8a1a14e55"><td class="memItemLeft" align="right" valign="top"><a class="el" href="classtlv_1_1expected.html">expected</a>&lt; size_t, <a class="el" href="structtlv_1_1error.html">error</a> &gt;&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="namespacetlv.html#ab155ce7066af5f5848d1d4f8a1a14e55">tlv::encoded_size</a> (const <a class="el" href="classtlv_1_1element__view.html">element_view</a> &amp;<a class="el" href="namespacetlv.html#a0e9dc5e120173d6322fc63d2d1fc09c3a2063c1608d6e0baf80249c42e2be5804">value</a>, <a class="el" href="classtlv_1_1format.html">tlv::format</a> <a class="el" href="classtlv_1_1format.html">format</a>, <a class="el" href="namespacetlv.html#a1df134eb9e2b476155eb324618396e4d">writer_diagnostic</a> *<a class="el" href="namespacetlv.html#a00ca9c69c35ef11f6a22b7eda1b115ba">diagnostic</a>=nullptr)</td></tr>
 <tr class="memdesc:ab155ce7066af5f5848d1d4f8a1a14e55"><td class="mdescLeft">&#160;</td><td class="mdescRight">Measures exact caller-owned destination storage for an Element.  <br /></td></tr>
 <tr class="separator:ab155ce7066af5f5848d1d4f8a1a14e55"><td class="memSeparator" colspan="2">&#160;</td></tr>

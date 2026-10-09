@@ -75,7 +75,9 @@ $(function() {
 <div class="header">
   <div class="summary">
 <a href="#nested-classes">Classes</a> &#124;
-<a href="#namespaces">Namespaces</a>  </div>
+<a href="#namespaces">Namespaces</a> &#124;
+<a href="#enum-members">Enumerations</a> &#124;
+<a href="#func-members">Functions</a>  </div>
   <div class="headertitle"><div class="title">dynamic.hpp File Reference</div></div>
 </div><!--header-->
 <div class="contents">
@@ -104,6 +106,44 @@ Namespaces</h2></td></tr>
 <tr class="memitem:namespacetlv" id="r_namespacetlv"><td class="memItemLeft" align="right" valign="top">namespace &#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="namespacetlv.html">tlv</a></td></tr>
 <tr class="memdesc:namespacetlv"><td class="mdescLeft">&#160;</td><td class="mdescRight">Public C++ wrappers, value types, codec traits and helpers for OpenTLV. <br /></td></tr>
 <tr class="separator:"><td class="memSeparator" colspan="2">&#160;</td></tr>
+</table><table class="memberdecls">
+<tr class="heading"><td colspan="2"><h2 class="groupheader"><a id="enum-members" name="enum-members"></a>
+Enumerations</h2></td></tr>
+<tr class="memitem:a410ac284e31ff7048dc535bdcac064a2" id="r_a410ac284e31ff7048dc535bdcac064a2"><td class="memItemLeft" align="right" valign="top">enum class &#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="namespacetlv.html#a410ac284e31ff7048dc535bdcac064a2">tlv::codec_violation</a> { <br />
+&#160;&#160;<a class="el" href="namespacetlv.html#a410ac284e31ff7048dc535bdcac064a2a334c4a4c42fdb79d7ebc3e73b517e6f8">tlv::none</a> = TLV_CODEC_VIOLATION_NONE
+, <a class="el" href="namespacetlv.html#a410ac284e31ff7048dc535bdcac064a2ab4a88417b3d0170d754c647c30b7216a">tlv::result</a> = TLV_CODEC_VIOLATION_RESULT
+, <a class="el" href="namespacetlv.html#a410ac284e31ff7048dc535bdcac064a2af7bd60b75b29d79b660a2859395c1a24">tlv::size</a> = TLV_CODEC_VIOLATION_SIZE
+, <a class="el" href="namespacetlv.html#a410ac284e31ff7048dc535bdcac064a2a599dcce2998a6b40b1e38e8c6006cb0a">tlv::type</a> = TLV_CODEC_VIOLATION_TYPE
+, <br />
+&#160;&#160;<a class="el" href="namespacetlv.html#a410ac284e31ff7048dc535bdcac064a2a30df7f629fcf6b940bcaef5faf2490bb">tlv::utf8</a> = TLV_CODEC_VIOLATION_UTF8
+<br />
+ }</td></tr>
+<tr class="memdesc:a410ac284e31ff7048dc535bdcac064a2"><td class="mdescLeft">&#160;</td><td class="mdescRight">Typed codec violation diagnostic category.  <a href="namespacetlv.html#a410ac284e31ff7048dc535bdcac064a2">More...</a><br /></td></tr>
+<tr class="separator:a410ac284e31ff7048dc535bdcac064a2"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a91405148dda4604c55fd30e57b5f91b1" id="r_a91405148dda4604c55fd30e57b5f91b1"><td class="memItemLeft" align="right" valign="top">enum class &#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="namespacetlv.html#a91405148dda4604c55fd30e57b5f91b1">tlv::codec_cause</a> { <a class="el" href="namespacetlv.html#a91405148dda4604c55fd30e57b5f91b1a334c4a4c42fdb79d7ebc3e73b517e6f8">tlv::none</a> = TLV_CODEC_CAUSE_NONE
+, <a class="el" href="namespacetlv.html#a91405148dda4604c55fd30e57b5f91b1a1de9b0a30075ae8c303eb420c103c320">tlv::reader</a> = TLV_CODEC_CAUSE_READER
+, <a class="el" href="namespacetlv.html#a91405148dda4604c55fd30e57b5f91b1ac9550d5fad73447fc24ba47f95d1c6b7">tlv::schema</a> = TLV_CODEC_CAUSE_SCHEMA
+ }</td></tr>
+<tr class="memdesc:a91405148dda4604c55fd30e57b5f91b1"><td class="mdescLeft">&#160;</td><td class="mdescRight">Typed codec cause diagnostic category.  <a href="namespacetlv.html#a91405148dda4604c55fd30e57b5f91b1">More...</a><br /></td></tr>
+<tr class="separator:a91405148dda4604c55fd30e57b5f91b1"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a0e6dec4706a8d713e39ab60230d357fe" id="r_a0e6dec4706a8d713e39ab60230d357fe"><td class="memItemLeft" align="right" valign="top">enum class &#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="namespacetlv.html#a0e6dec4706a8d713e39ab60230d357fe">tlv::codec_phase</a> { <a class="el" href="namespacetlv.html#a0e6dec4706a8d713e39ab60230d357fea5b93625023a1c2180221257849744b59">tlv::decode</a> = TLV_CODEC_OP_DECODE
+, <a class="el" href="namespacetlv.html#a0e6dec4706a8d713e39ab60230d357fea97a57645a3f0e1518f8c9f4d340d4c4f">tlv::encode</a> = TLV_CODEC_OP_ENCODE
+, <a class="el" href="namespacetlv.html#a0e6dec4706a8d713e39ab60230d357fea2925f77709f2db1f915deadc2940db88">tlv::measure</a> = TLV_CODEC_OP_MEASURE
+ }</td></tr>
+<tr class="memdesc:a0e6dec4706a8d713e39ab60230d357fe"><td class="mdescLeft">&#160;</td><td class="mdescRight">Typed codec phase diagnostic category.  <a href="namespacetlv.html#a0e6dec4706a8d713e39ab60230d357fe">More...</a><br /></td></tr>
+<tr class="separator:a0e6dec4706a8d713e39ab60230d357fe"><td class="memSeparator" colspan="2">&#160;</td></tr>
+</table><table class="memberdecls">
+<tr class="heading"><td colspan="2"><h2 class="groupheader"><a id="func-members" name="func-members"></a>
+Functions</h2></td></tr>
+<tr class="memitem:acb44a1bf847bc642f359faaf28c18b5f" id="r_acb44a1bf847bc642f359faaf28c18b5f"><td class="memItemLeft" align="right" valign="top">const char *&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="namespacetlv.html#acb44a1bf847bc642f359faaf28c18b5f">tlv::message</a> (<a class="el" href="namespacetlv.html#a410ac284e31ff7048dc535bdcac064a2">codec_violation</a> <a class="el" href="namespacetlv.html#a0e9dc5e120173d6322fc63d2d1fc09c3a2063c1608d6e0baf80249c42e2be5804">value</a>) noexcept</td></tr>
+<tr class="memdesc:acb44a1bf847bc642f359faaf28c18b5f"><td class="mdescLeft">&#160;</td><td class="mdescRight">Canonical static name, or unknown for unrecognized categories.  <br /></td></tr>
+<tr class="separator:acb44a1bf847bc642f359faaf28c18b5f"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:af8e1e79d88b17b237ce67a28353b20a9" id="r_af8e1e79d88b17b237ce67a28353b20a9"><td class="memItemLeft" align="right" valign="top">const char *&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="namespacetlv.html#af8e1e79d88b17b237ce67a28353b20a9">tlv::message</a> (<a class="el" href="namespacetlv.html#a91405148dda4604c55fd30e57b5f91b1">codec_cause</a> <a class="el" href="namespacetlv.html#a0e9dc5e120173d6322fc63d2d1fc09c3a2063c1608d6e0baf80249c42e2be5804">value</a>) noexcept</td></tr>
+<tr class="memdesc:af8e1e79d88b17b237ce67a28353b20a9"><td class="mdescLeft">&#160;</td><td class="mdescRight">Canonical static name, or unknown for unrecognized categories.  <br /></td></tr>
+<tr class="separator:af8e1e79d88b17b237ce67a28353b20a9"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a89b5b396bcbf283522be809826d64095" id="r_a89b5b396bcbf283522be809826d64095"><td class="memItemLeft" align="right" valign="top">const char *&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="namespacetlv.html#a89b5b396bcbf283522be809826d64095">tlv::message</a> (<a class="el" href="namespacetlv.html#a0e6dec4706a8d713e39ab60230d357fe">codec_phase</a> <a class="el" href="namespacetlv.html#a0e9dc5e120173d6322fc63d2d1fc09c3a2063c1608d6e0baf80249c42e2be5804">value</a>) noexcept</td></tr>
+<tr class="memdesc:a89b5b396bcbf283522be809826d64095"><td class="mdescLeft">&#160;</td><td class="mdescRight">Canonical static name, or unknown for unrecognized categories.  <br /></td></tr>
+<tr class="separator:a89b5b396bcbf283522be809826d64095"><td class="memSeparator" colspan="2">&#160;</td></tr>
 </table>
 <a name="details" id="details"></a><h2 class="groupheader">Detailed Description</h2>
 <div class="textblock"><p>Runtime-selected Value codecs over caller-owned typed storage. </p>

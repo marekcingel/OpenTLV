@@ -148,6 +148,15 @@ Enumerations</h2></td></tr>
 </table><table class="memberdecls">
 <tr class="heading"><td colspan="2"><h2 class="groupheader"><a id="func-members" name="func-members"></a>
 Functions</h2></td></tr>
+<tr class="memitem:ab96fd536b66d2f3297ffcf11592b5827" id="r_ab96fd536b66d2f3297ffcf11592b5827"><td class="memItemLeft" align="right" valign="top">const char *&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="codec_2diagnostic_8h.html#ab96fd536b66d2f3297ffcf11592b5827">tlv_codec_operation_string</a> (<a class="el" href="codec_2diagnostic_8h.html#ab5e99555c73a7de7caa482417563c421">tlv_codec_operation_t</a> value)</td></tr>
+<tr class="memdesc:ab96fd536b66d2f3297ffcf11592b5827"><td class="mdescLeft">&#160;</td><td class="mdescRight">Returns the diagnostic name of a codec operation.  <br /></td></tr>
+<tr class="separator:ab96fd536b66d2f3297ffcf11592b5827"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a594fed83994e9f476716415aeb8fabbc" id="r_a594fed83994e9f476716415aeb8fabbc"><td class="memItemLeft" align="right" valign="top">const char *&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="codec_2diagnostic_8h.html#a594fed83994e9f476716415aeb8fabbc">tlv_codec_cause_string</a> (<a class="el" href="codec_2diagnostic_8h.html#a0dd254bfd5fba84c0f4398a9daf83da2">tlv_codec_cause_t</a> value)</td></tr>
+<tr class="memdesc:a594fed83994e9f476716415aeb8fabbc"><td class="mdescLeft">&#160;</td><td class="mdescRight">Returns the diagnostic name of a codec cause.  <br /></td></tr>
+<tr class="separator:a594fed83994e9f476716415aeb8fabbc"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a080a5ff0c88d5694011b1d01de2b7598" id="r_a080a5ff0c88d5694011b1d01de2b7598"><td class="memItemLeft" align="right" valign="top">const char *&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="codec_2diagnostic_8h.html#a080a5ff0c88d5694011b1d01de2b7598">tlv_codec_violation_string</a> (<a class="el" href="codec_2diagnostic_8h.html#ab3cabc7cfcb95ba774f8cbb20f0c28d1">tlv_codec_violation_t</a> value)</td></tr>
+<tr class="memdesc:a080a5ff0c88d5694011b1d01de2b7598"><td class="mdescLeft">&#160;</td><td class="mdescRight">Returns the diagnostic name of a codec violation.  <br /></td></tr>
+<tr class="separator:a080a5ff0c88d5694011b1d01de2b7598"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:a316bd8a3f86160b264da40666ef2e89c" id="r_a316bd8a3f86160b264da40666ef2e89c"><td class="memItemLeft" align="right" valign="top">void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="codec_2diagnostic_8h.html#a316bd8a3f86160b264da40666ef2e89c">tlv_codec_diagnostic_init</a> (<a class="el" href="codec_2diagnostic_8h.html#a59f8458396cf6b5047ba62210725b13c">tlv_codec_diagnostic_t</a> *diagnostic, <a class="el" href="codec_2diagnostic_8h.html#ab5e99555c73a7de7caa482417563c421">tlv_codec_operation_t</a> operation)</td></tr>
 <tr class="memdesc:a316bd8a3f86160b264da40666ef2e89c"><td class="mdescLeft">&#160;</td><td class="mdescRight">Clear optional conversion evidence for a new operation.  <br /></td></tr>
 <tr class="separator:a316bd8a3f86160b264da40666ef2e89c"><td class="memSeparator" colspan="2">&#160;</td></tr>
@@ -335,6 +344,34 @@ Functions</h2></td></tr>
 </div>
 </div>
 <h2 class="groupheader">Function Documentation</h2>
+<a id="a594fed83994e9f476716415aeb8fabbc" name="a594fed83994e9f476716415aeb8fabbc"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#a594fed83994e9f476716415aeb8fabbc">&#9670;&#160;</a></span>tlv_codec_cause_string()</h2>
+
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname">const char * tlv_codec_cause_string </td>
+          <td>(</td>
+          <td class="paramtype"><a class="el" href="codec_2diagnostic_8h.html#a0dd254bfd5fba84c0f4398a9daf83da2">tlv_codec_cause_t</a>&#160;</td>
+          <td class="paramname"><em>value</em></td><td>)</td>
+          <td></td>
+        </tr>
+      </table>
+</div><div class="memdoc">
+
+<p>Returns the diagnostic name of a codec cause. </p>
+<dl class="params"><dt>Parameters</dt><dd>
+  <table class="params">
+    <tr><td class="paramdir">[in]</td><td class="paramname">value</td><td>Diagnostic enum value. </td></tr>
+  </table>
+  </dd>
+</dl>
+<dl class="section return"><dt>Returns</dt><dd>A static NUL-terminated string, or <code>"unknown"</code> for an unrecognized value. </dd></dl>
+<dl class="section note"><dt>Note</dt><dd>Never returns NULL or allocates. Do not free or modify the string. Available even when the corresponding capability is disabled. </dd></dl>
+
+</div>
+</div>
 <a id="a316bd8a3f86160b264da40666ef2e89c" name="a316bd8a3f86160b264da40666ef2e89c"></a>
 <h2 class="memtitle"><span class="permalink"><a href="#a316bd8a3f86160b264da40666ef2e89c">&#9670;&#160;</a></span>tlv_codec_diagnostic_init()</h2>
 
@@ -415,6 +452,62 @@ Functions</h2></td></tr>
   </dd>
 </dl>
 <dl class="section return"><dt>Returns</dt><dd>result. Decode may preserve NEED_MORE_DATA with informational severity. </dd></dl>
+
+</div>
+</div>
+<a id="ab96fd536b66d2f3297ffcf11592b5827" name="ab96fd536b66d2f3297ffcf11592b5827"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#ab96fd536b66d2f3297ffcf11592b5827">&#9670;&#160;</a></span>tlv_codec_operation_string()</h2>
+
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname">const char * tlv_codec_operation_string </td>
+          <td>(</td>
+          <td class="paramtype"><a class="el" href="codec_2diagnostic_8h.html#ab5e99555c73a7de7caa482417563c421">tlv_codec_operation_t</a>&#160;</td>
+          <td class="paramname"><em>value</em></td><td>)</td>
+          <td></td>
+        </tr>
+      </table>
+</div><div class="memdoc">
+
+<p>Returns the diagnostic name of a codec operation. </p>
+<dl class="params"><dt>Parameters</dt><dd>
+  <table class="params">
+    <tr><td class="paramdir">[in]</td><td class="paramname">value</td><td>Diagnostic enum value. </td></tr>
+  </table>
+  </dd>
+</dl>
+<dl class="section return"><dt>Returns</dt><dd>A static NUL-terminated string, or <code>"unknown"</code> for an unrecognized value. </dd></dl>
+<dl class="section note"><dt>Note</dt><dd>Never returns NULL or allocates. Do not free or modify the string. Available even when the corresponding capability is disabled. </dd></dl>
+
+</div>
+</div>
+<a id="a080a5ff0c88d5694011b1d01de2b7598" name="a080a5ff0c88d5694011b1d01de2b7598"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#a080a5ff0c88d5694011b1d01de2b7598">&#9670;&#160;</a></span>tlv_codec_violation_string()</h2>
+
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname">const char * tlv_codec_violation_string </td>
+          <td>(</td>
+          <td class="paramtype"><a class="el" href="codec_2diagnostic_8h.html#ab3cabc7cfcb95ba774f8cbb20f0c28d1">tlv_codec_violation_t</a>&#160;</td>
+          <td class="paramname"><em>value</em></td><td>)</td>
+          <td></td>
+        </tr>
+      </table>
+</div><div class="memdoc">
+
+<p>Returns the diagnostic name of a codec violation. </p>
+<dl class="params"><dt>Parameters</dt><dd>
+  <table class="params">
+    <tr><td class="paramdir">[in]</td><td class="paramname">value</td><td>Diagnostic enum value. </td></tr>
+  </table>
+  </dd>
+</dl>
+<dl class="section return"><dt>Returns</dt><dd>A static NUL-terminated string, or <code>"unknown"</code> for an unrecognized value. </dd></dl>
+<dl class="section note"><dt>Note</dt><dd>Never returns NULL or allocates. Do not free or modify the string. Available even when the corresponding capability is disabled. </dd></dl>
 
 </div>
 </div>

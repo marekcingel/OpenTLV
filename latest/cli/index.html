@@ -4409,7 +4409,8 @@ Document. <code>--backend document</code> selects owning Document materializatio
 <code>auto</code> chooses retained streaming for S0-S2 and materializes D. Input is already
 owned by the CLI; retained payloads borrow that input. The owning C++ convenience
 and CLI allocate program/workspace/result storage; the C engine does not allocate.
-Document output reports source offsets as unavailable (<code>null</code> in JSON).</p>
+The Document backend retains input coordinates, so its matches report the same
+source offsets as streaming and <code>@offset</code>/<code>@hlen</code> are available in both.</p>
 <p><code>--explain</code> writes JSON to stderr with normalized Query, language/result/level,
 chosen backend, program/scratch sizing and alignment, capacities, work budget,
 validation policy and an explicitly unstable internal logical IR. It does not

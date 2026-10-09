@@ -3880,6 +3880,10 @@ and <code>Reset</code> preserve canonical continuation and validation behavior.
 scalars. Input and match bytes are copied and retained as required. Callback
 panics invalidate an execution until reset; reentrant operations are rejected.
 Call <code>Close</code> for deterministic cleanup. <code>ProgramError</code> retains Query diagnostics.
+Its <code>Kind</code> is a <code>QueryErrorKind</code> with canonical <code>String()</code> names; use
+<code>QueryErrorKindSyntax</code> or <code>QueryErrorKindState</code> instead of numeric literals.
+Common <code>Diagnostic</code> evidence survives failures without a Reader cause;
+<code>HasReader</code> guards the separate <code>Reader</code> detail.
 See <a href="https://github.com/marekcingel/OpenTLV/blob/main/bindings/go/tests/program_test.go">consumer tests</a>.</p>
 <p><code>ProgramOptions.Providers</code> maps <code>QueryNum</code>, <code>QueryBCD</code>, <code>QueryText</code> and <code>QueryDate</code>
 to <code>QueryProvider</code> values. Each owns a stable nonzero ID and a <code>Decode</code> callback

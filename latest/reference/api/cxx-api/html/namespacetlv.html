@@ -251,7 +251,7 @@ Classes</h2></td></tr>
 <tr class="memdesc:"><td class="mdescLeft">&#160;</td><td class="mdescRight">Stationary Query capabilities borrowing immutable Format and provider contexts.  <a href="classtlv_1_1query__environment.html#details">More...</a><br /></td></tr>
 <tr class="separator:"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:"><td class="memItemLeft" align="right" valign="top">class &#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classtlv_1_1query__error.html">query_error</a></td></tr>
-<tr class="memdesc:"><td class="mdescLeft">&#160;</td><td class="mdescRight">Query compilation failure with the original C error and text offset.  <a href="classtlv_1_1query__error.html#details">More...</a><br /></td></tr>
+<tr class="memdesc:"><td class="mdescLeft">&#160;</td><td class="mdescRight">Query compilation or lookup failure with the original C error and location.  <a href="classtlv_1_1query__error.html#details">More...</a><br /></td></tr>
 <tr class="separator:"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:"><td class="memItemLeft" align="right" valign="top">class &#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classtlv_1_1query__execution.html">query_execution</a></td></tr>
 <tr class="memdesc:"><td class="mdescLeft">&#160;</td><td class="mdescRight">Independent move-only Query continuation, retaining its compiled program. Borrowed input and environments must remain stable until destruction/reset. Byte/string scalars and Tree events borrow input/program/workspace; copy explicitly for owned results. NEED_MORE_DATA preserves state and differs from final END_OF_BUFFER.  <a href="classtlv_1_1query__execution.html#details">More...</a><br /></td></tr>
@@ -446,7 +446,7 @@ Typedefs</h2></td></tr>
 <tr class="memdesc:aac7ce2fb952523ed254ce316a65a386b"><td class="mdescLeft">&#160;</td><td class="mdescRight">Opaque structural Writer frame storage; contents belong to the active Writer.  <br /></td></tr>
 <tr class="separator:aac7ce2fb952523ed254ce316a65a386b"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:ab17c45337fcf91eb2d6e5477b0fbe06d" id="r_ab17c45337fcf91eb2d6e5477b0fbe06d"><td class="memItemLeft" align="right" valign="top">using&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="namespacetlv.html#ab17c45337fcf91eb2d6e5477b0fbe06d">tree_writer_frame</a> = <a class="elRef" href="../../c-api/html/group__writer.html#gac48be24a305bd17c0a57ebc45b7a771f">tlv_tree_writer_frame_t</a></td></tr>
-<tr class="memdesc:ab17c45337fcf91eb2d6e5477b0fbe06d"><td class="mdescLeft">&#160;</td><td class="mdescRight">Caller-owned Tree Writer frame; retains a borrowed Tag until end().  <br /></td></tr>
+<tr class="memdesc:ab17c45337fcf91eb2d6e5477b0fbe06d"><td class="mdescLeft">&#160;</td><td class="mdescRight">Caller-owned Tree Writer frame; retains a borrowed Tag until <a class="el" href="namespacetlv.html#a047694bc3dd10e75e2dc596b4654abf3a7f021a1415b86f2d013b2618fb31ae53">end()</a>.  <br /></td></tr>
 <tr class="separator:ab17c45337fcf91eb2d6e5477b0fbe06d"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:a57b8cb8121f7e7c4f797dee062d94717" id="r_a57b8cb8121f7e7c4f797dee062d94717"><td class="memItemLeft" align="right" valign="top">using&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="namespacetlv.html#a57b8cb8121f7e7c4f797dee062d94717">tree_writer_workspace</a> = <a class="elRef" href="../../c-api/html/group__writer.html#gab9db909d8cb7eb930d06a32e07a72fd8">tlv_tree_writer_workspace_t</a></td></tr>
 <tr class="memdesc:a57b8cb8121f7e7c4f797dee062d94717"><td class="mdescLeft">&#160;</td><td class="mdescRight">Borrowed bounded staging storage and required-capacity results for tree measurement.  <br /></td></tr>
@@ -457,6 +457,29 @@ Typedefs</h2></td></tr>
 </table><table class="memberdecls">
 <tr class="heading"><td colspan="2"><h2 class="groupheader"><a id="enum-members" name="enum-members"></a>
 Enumerations</h2></td></tr>
+<tr class="memitem:a410ac284e31ff7048dc535bdcac064a2" id="r_a410ac284e31ff7048dc535bdcac064a2"><td class="memItemLeft" align="right" valign="top">enum class &#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="namespacetlv.html#a410ac284e31ff7048dc535bdcac064a2">codec_violation</a> { <br />
+&#160;&#160;<a class="el" href="namespacetlv.html#a410ac284e31ff7048dc535bdcac064a2a334c4a4c42fdb79d7ebc3e73b517e6f8">none</a> = TLV_CODEC_VIOLATION_NONE
+, <a class="el" href="namespacetlv.html#a410ac284e31ff7048dc535bdcac064a2ab4a88417b3d0170d754c647c30b7216a">result</a> = TLV_CODEC_VIOLATION_RESULT
+, <a class="el" href="namespacetlv.html#a410ac284e31ff7048dc535bdcac064a2af7bd60b75b29d79b660a2859395c1a24">size</a> = TLV_CODEC_VIOLATION_SIZE
+, <a class="el" href="namespacetlv.html#a410ac284e31ff7048dc535bdcac064a2a599dcce2998a6b40b1e38e8c6006cb0a">type</a> = TLV_CODEC_VIOLATION_TYPE
+, <br />
+&#160;&#160;<a class="el" href="namespacetlv.html#a410ac284e31ff7048dc535bdcac064a2a30df7f629fcf6b940bcaef5faf2490bb">utf8</a> = TLV_CODEC_VIOLATION_UTF8
+<br />
+ }</td></tr>
+<tr class="memdesc:a410ac284e31ff7048dc535bdcac064a2"><td class="mdescLeft">&#160;</td><td class="mdescRight">Typed codec violation diagnostic category.  <a href="namespacetlv.html#a410ac284e31ff7048dc535bdcac064a2">More...</a><br /></td></tr>
+<tr class="separator:a410ac284e31ff7048dc535bdcac064a2"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a91405148dda4604c55fd30e57b5f91b1" id="r_a91405148dda4604c55fd30e57b5f91b1"><td class="memItemLeft" align="right" valign="top">enum class &#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="namespacetlv.html#a91405148dda4604c55fd30e57b5f91b1">codec_cause</a> { <a class="el" href="namespacetlv.html#a91405148dda4604c55fd30e57b5f91b1a334c4a4c42fdb79d7ebc3e73b517e6f8">none</a> = TLV_CODEC_CAUSE_NONE
+, <a class="el" href="namespacetlv.html#a91405148dda4604c55fd30e57b5f91b1a1de9b0a30075ae8c303eb420c103c320">reader</a> = TLV_CODEC_CAUSE_READER
+, <a class="el" href="namespacetlv.html#a91405148dda4604c55fd30e57b5f91b1ac9550d5fad73447fc24ba47f95d1c6b7">schema</a> = TLV_CODEC_CAUSE_SCHEMA
+ }</td></tr>
+<tr class="memdesc:a91405148dda4604c55fd30e57b5f91b1"><td class="mdescLeft">&#160;</td><td class="mdescRight">Typed codec cause diagnostic category.  <a href="namespacetlv.html#a91405148dda4604c55fd30e57b5f91b1">More...</a><br /></td></tr>
+<tr class="separator:a91405148dda4604c55fd30e57b5f91b1"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a0e6dec4706a8d713e39ab60230d357fe" id="r_a0e6dec4706a8d713e39ab60230d357fe"><td class="memItemLeft" align="right" valign="top">enum class &#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="namespacetlv.html#a0e6dec4706a8d713e39ab60230d357fe">codec_phase</a> { <a class="el" href="namespacetlv.html#a0e6dec4706a8d713e39ab60230d357fea5b93625023a1c2180221257849744b59">decode</a> = TLV_CODEC_OP_DECODE
+, <a class="el" href="namespacetlv.html#a0e6dec4706a8d713e39ab60230d357fea97a57645a3f0e1518f8c9f4d340d4c4f">encode</a> = TLV_CODEC_OP_ENCODE
+, <a class="el" href="namespacetlv.html#a0e6dec4706a8d713e39ab60230d357fea2925f77709f2db1f915deadc2940db88">measure</a> = TLV_CODEC_OP_MEASURE
+ }</td></tr>
+<tr class="memdesc:a0e6dec4706a8d713e39ab60230d357fe"><td class="mdescLeft">&#160;</td><td class="mdescRight">Typed codec phase diagnostic category.  <a href="namespacetlv.html#a0e6dec4706a8d713e39ab60230d357fe">More...</a><br /></td></tr>
+<tr class="separator:a0e6dec4706a8d713e39ab60230d357fe"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:aa48ac98faeceb89c29a22a63051a3836" id="r_aa48ac98faeceb89c29a22a63051a3836"><td class="memItemLeft" align="right" valign="top">enum class &#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="namespacetlv.html#aa48ac98faeceb89c29a22a63051a3836">typed_errc</a> { <br />
 &#160;&#160;<a class="el" href="namespacetlv.html#aa48ac98faeceb89c29a22a63051a3836a5ac1975aa5d9e092d334e9a64ddc9d37">missing_field</a>
 , <a class="el" href="namespacetlv.html#aa48ac98faeceb89c29a22a63051a3836ad24ce3998d939542c9d64d6f56530bc4">tag_mismatch</a>
@@ -477,6 +500,18 @@ Enumerations</h2></td></tr>
  }</td></tr>
 <tr class="memdesc:a4488f7d6dbbe5b904e0cd1b5c8049edf"><td class="mdescLeft">&#160;</td><td class="mdescRight">One direct const_node difference; constructed descendants are compared independently.  <a href="namespacetlv.html#a4488f7d6dbbe5b904e0cd1b5c8049edf">More...</a><br /></td></tr>
 <tr class="separator:a4488f7d6dbbe5b904e0cd1b5c8049edf"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a9589938dbd11333ff8444739191ced14" id="r_a9589938dbd11333ff8444739191ced14"><td class="memItemLeft" align="right" valign="top">enum class &#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="namespacetlv.html#a9589938dbd11333ff8444739191ced14">schema_definition_kind</a> { <br />
+&#160;&#160;<a class="el" href="namespacetlv.html#a9589938dbd11333ff8444739191ced14aad921d60486366258809553a3db49a4a">unknown</a> = TLV_SCHEMA_DEFINITION_UNKNOWN
+, <a class="el" href="namespacetlv.html#a9589938dbd11333ff8444739191ced14aaab9e1de16f38176f86d7a92ba337a8d">table</a> = TLV_SCHEMA_DEFINITION_TABLE
+, <a class="el" href="namespacetlv.html#a9589938dbd11333ff8444739191ced14a981c1e7b3795da18687613fbd66d4954">rule</a> = TLV_SCHEMA_DEFINITION_RULE
+, <a class="el" href="namespacetlv.html#a9589938dbd11333ff8444739191ced14adb0f6f37ebeb6ea09489124345af2a45">group</a> = TLV_SCHEMA_DEFINITION_GROUP
+, <br />
+&#160;&#160;<a class="el" href="namespacetlv.html#a9589938dbd11333ff8444739191ced14a599dcce2998a6b40b1e38e8c6006cb0a">type</a> = TLV_SCHEMA_DEFINITION_TYPE
+, <a class="el" href="namespacetlv.html#a9589938dbd11333ff8444739191ced14a700c216fb376666eaeda0c892e8bdc09">component</a> = TLV_SCHEMA_DEFINITION_COMPONENT
+<br />
+ }</td></tr>
+<tr class="memdesc:a9589938dbd11333ff8444739191ced14"><td class="mdescLeft">&#160;</td><td class="mdescRight">Typed schema definition kind diagnostic category.  <a href="namespacetlv.html#a9589938dbd11333ff8444739191ced14">More...</a><br /></td></tr>
+<tr class="separator:a9589938dbd11333ff8444739191ced14"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:ab9d10b8185e9a80cd73b5a0ef633a22c" id="r_ab9d10b8185e9a80cd73b5a0ef633a22c"><td class="memItemLeft" align="right" valign="top">enum class &#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="namespacetlv.html#ab9d10b8185e9a80cd73b5a0ef633a22c">errc</a> { <br />
 &#160;&#160;<a class="el" href="namespacetlv.html#ab9d10b8185e9a80cd73b5a0ef633a22ca444bcb3a3fcf8389296c49467f27e1d6">ok</a> = TLV_OK
 , <a class="el" href="namespacetlv.html#ab9d10b8185e9a80cd73b5a0ef633a22caf3476e64ac4a56f9900e0e8c1fb761a7">buffer_too_short</a> = TLV_ERR_BUFFER_TOO_SHORT
@@ -675,12 +710,37 @@ Enumerations</h2></td></tr>
  }</td></tr>
 <tr class="memdesc:a7077398db8e6583f741d8db7271d7515"><td class="mdescLeft">&#160;</td><td class="mdescRight">Synchronous visitor decision; stopping succeeds without consuming another element.  <a href="namespacetlv.html#a7077398db8e6583f741d8db7271d7515">More...</a><br /></td></tr>
 <tr class="separator:a7077398db8e6583f741d8db7271d7515"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a047694bc3dd10e75e2dc596b4654abf3" id="r_a047694bc3dd10e75e2dc596b4654abf3"><td class="memItemLeft" align="right" valign="top">enum class &#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="namespacetlv.html#a047694bc3dd10e75e2dc596b4654abf3">writer_phase</a> { <br />
+&#160;&#160;<a class="el" href="namespacetlv.html#a047694bc3dd10e75e2dc596b4654abf3ae4d23e841d8e8804190027bce3180fa5">tag</a> = TLV_WRITER_OP_TAG
+, <a class="el" href="namespacetlv.html#a047694bc3dd10e75e2dc596b4654abf3a2fa47f7c65fec19cc163b195725e3844">length</a> = TLV_WRITER_OP_LENGTH
+, <a class="el" href="namespacetlv.html#a047694bc3dd10e75e2dc596b4654abf3a2063c1608d6e0baf80249c42e2be5804">value</a> = TLV_WRITER_OP_VALUE
+, <a class="el" href="namespacetlv.html#a047694bc3dd10e75e2dc596b4654abf3a099fb995346f31c749f6e40db0f395e3">header</a> = TLV_WRITER_OP_HEADER
+, <br />
+&#160;&#160;<a class="el" href="namespacetlv.html#a047694bc3dd10e75e2dc596b4654abf3a93707f725009f066ecf17dd8f6409a66">trailer</a> = TLV_WRITER_OP_TRAILER
+, <a class="el" href="namespacetlv.html#a047694bc3dd10e75e2dc596b4654abf3a12cba3ee81cf4a793796a51b6327c678">copy</a> = TLV_WRITER_OP_COPY
+, <a class="el" href="namespacetlv.html#a047694bc3dd10e75e2dc596b4654abf3aec4875cf2d241556a0965f7237864693">preserve</a> = TLV_WRITER_OP_PRESERVE
+, <a class="el" href="namespacetlv.html#a047694bc3dd10e75e2dc596b4654abf3a8d589afa4dfaeeed85fff5aa78e5ff6a">begin</a> = TLV_WRITER_OP_BEGIN
+, <br />
+&#160;&#160;<a class="el" href="namespacetlv.html#a047694bc3dd10e75e2dc596b4654abf3a7f021a1415b86f2d013b2618fb31ae53">end</a> = TLV_WRITER_OP_END
+<br />
+ }</td></tr>
+<tr class="memdesc:a047694bc3dd10e75e2dc596b4654abf3"><td class="mdescLeft">&#160;</td><td class="mdescRight">Typed writer phase diagnostic category.  <a href="namespacetlv.html#a047694bc3dd10e75e2dc596b4654abf3">More...</a><br /></td></tr>
+<tr class="separator:a047694bc3dd10e75e2dc596b4654abf3"><td class="memSeparator" colspan="2">&#160;</td></tr>
 </table><table class="memberdecls">
 <tr class="heading"><td colspan="2"><h2 class="groupheader"><a id="func-members" name="func-members"></a>
 Functions</h2></td></tr>
 <tr class="memitem:a20ef4bc4d3e4ad4b1515472f4fe099ae" id="r_a20ef4bc4d3e4ad4b1515472f4fe099ae"><td class="memItemLeft" align="right" valign="top"><a class="el" href="classtlv_1_1expected.html">expected</a>&lt; size_t, <a class="el" href="structtlv_1_1error.html">error</a> &gt;&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="namespacetlv.html#a20ef4bc4d3e4ad4b1515472f4fe099ae">ber_write_indefinite</a> (<a class="el" href="namespacetlv.html#aa91df798a712d88cf7d2f1f63a539b51">byte</a> *data, size_t capacity, <a class="el" href="classtlv_1_1tag.html">tlv::tag</a> <a class="el" href="classtlv_1_1tag.html">tag</a>, <a class="el" href="namespacetlv.html#a2abe7003a70af047ef9acae17f31f75d">bytes</a> children)</td></tr>
 <tr class="memdesc:a20ef4bc4d3e4ad4b1515472f4fe099ae"><td class="mdescLeft">&#160;</td><td class="mdescRight">Writes explicit BER indefinite framing around an already encoded child sequence.  <br /></td></tr>
 <tr class="separator:a20ef4bc4d3e4ad4b1515472f4fe099ae"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:acb44a1bf847bc642f359faaf28c18b5f" id="r_acb44a1bf847bc642f359faaf28c18b5f"><td class="memItemLeft" align="right" valign="top">const char *&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="namespacetlv.html#acb44a1bf847bc642f359faaf28c18b5f">message</a> (<a class="el" href="namespacetlv.html#a410ac284e31ff7048dc535bdcac064a2">codec_violation</a> <a class="el" href="namespacetlv.html#a0e9dc5e120173d6322fc63d2d1fc09c3a2063c1608d6e0baf80249c42e2be5804">value</a>) noexcept</td></tr>
+<tr class="memdesc:acb44a1bf847bc642f359faaf28c18b5f"><td class="mdescLeft">&#160;</td><td class="mdescRight">Canonical static name, or unknown for unrecognized categories.  <br /></td></tr>
+<tr class="separator:acb44a1bf847bc642f359faaf28c18b5f"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:af8e1e79d88b17b237ce67a28353b20a9" id="r_af8e1e79d88b17b237ce67a28353b20a9"><td class="memItemLeft" align="right" valign="top">const char *&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="namespacetlv.html#af8e1e79d88b17b237ce67a28353b20a9">message</a> (<a class="el" href="namespacetlv.html#a91405148dda4604c55fd30e57b5f91b1">codec_cause</a> <a class="el" href="namespacetlv.html#a0e9dc5e120173d6322fc63d2d1fc09c3a2063c1608d6e0baf80249c42e2be5804">value</a>) noexcept</td></tr>
+<tr class="memdesc:af8e1e79d88b17b237ce67a28353b20a9"><td class="mdescLeft">&#160;</td><td class="mdescRight">Canonical static name, or unknown for unrecognized categories.  <br /></td></tr>
+<tr class="separator:af8e1e79d88b17b237ce67a28353b20a9"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a89b5b396bcbf283522be809826d64095" id="r_a89b5b396bcbf283522be809826d64095"><td class="memItemLeft" align="right" valign="top">const char *&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="namespacetlv.html#a89b5b396bcbf283522be809826d64095">message</a> (<a class="el" href="namespacetlv.html#a0e6dec4706a8d713e39ab60230d357fe">codec_phase</a> <a class="el" href="namespacetlv.html#a0e9dc5e120173d6322fc63d2d1fc09c3a2063c1608d6e0baf80249c42e2be5804">value</a>) noexcept</td></tr>
+<tr class="memdesc:a89b5b396bcbf283522be809826d64095"><td class="mdescLeft">&#160;</td><td class="mdescRight">Canonical static name, or unknown for unrecognized categories.  <br /></td></tr>
+<tr class="separator:a89b5b396bcbf283522be809826d64095"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:a44ccaf14db8d774f58626fac6bc15dd8" id="r_a44ccaf14db8d774f58626fac6bc15dd8"><td class="memTemplParams" colspan="2">template&lt;typename T &gt; </td></tr>
 <tr class="memitem:a44ccaf14db8d774f58626fac6bc15dd8"><td class="memTemplItemLeft" align="right" valign="top"><a class="el" href="classtlv_1_1expected.html">expected</a>&lt; T, <a class="el" href="structtlv_1_1codec__failure.html">codec_failure</a> &gt;&#160;</td><td class="memTemplItemRight" valign="bottom"><a class="el" href="namespacetlv.html#a44ccaf14db8d774f58626fac6bc15dd8">decode_structure</a> (const <a class="elRef" href="../../c-api/html/group__codecs.html#gaa8040b111c69624c529f37ede0fae9ce">tlv_structure_codec_t</a> &amp;<a class="el" href="structtlv_1_1codec.html">codec</a>, <a class="el" href="namespacetlv.html#a2abe7003a70af047ef9acae17f31f75d">bytes</a> data)</td></tr>
 <tr class="memdesc:a44ccaf14db8d774f58626fac6bc15dd8"><td class="mdescLeft">&#160;</td><td class="mdescRight">Validates and decodes a complete sequence into an application object.  <br /></td></tr>
@@ -711,7 +771,7 @@ Functions</h2></td></tr>
 <tr class="memitem:ac21543dad24955a172717e44c22ea4cd" id="r_ac21543dad24955a172717e44c22ea4cd"><td class="memItemLeft" align="right" valign="top"><a class="el" href="namespacetlv.html#a00ca9c69c35ef11f6a22b7eda1b115ba">diagnostic</a>&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="namespacetlv.html#ac21543dad24955a172717e44c22ea4cd">make_diagnostic</a> (<a class="el" href="namespacetlv.html#ab9d10b8185e9a80cd73b5a0ef633a22c">errc</a> code, <a class="el" href="namespacetlv.html#a066bba7bde757c31179a8585a37ae760">severity</a> level=<a class="el" href="namespacetlv.html#a066bba7bde757c31179a8585a37ae760acb5e100e5a9a3e7f6d1fd97512215282">severity::error</a>) noexcept</td></tr>
 <tr class="memdesc:ac21543dad24955a172717e44c22ea4cd"><td class="mdescLeft">&#160;</td><td class="mdescRight">Initialize common diagnostic metadata using C++ status and severity.  <br /></td></tr>
 <tr class="separator:ac21543dad24955a172717e44c22ea4cd"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:a785654eaf977a9bef21cbecc005f568d" id="r_a785654eaf977a9bef21cbecc005f568d"><td class="memItemLeft" align="right" valign="top">void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="namespacetlv.html#a785654eaf977a9bef21cbecc005f568d">set_location</a> (<a class="el" href="namespacetlv.html#a00ca9c69c35ef11f6a22b7eda1b115ba">diagnostic</a> &amp;<a class="el" href="namespacetlv.html#a0e9dc5e120173d6322fc63d2d1fc09c3a2063c1608d6e0baf80249c42e2be5804">value</a>, <a class="el" href="namespacetlv.html#a55a9e58b26605c8d07848f7a2721b1d7">location_domain</a> <a class="el" href="namespacetlv.html#ad34af8ea6e99862f3fa9038d4e15794b">domain</a>, <a class="el" href="namespacetlv.html#a1d189f8757dea18406596d1c3c5ff3eb">location_kind</a> <a class="el" href="namespacetlv.html#a4a6c54ee451ccac7733e7582ab64d736">kind</a>, size_t begin, size_t end) noexcept</td></tr>
+<tr class="memitem:a785654eaf977a9bef21cbecc005f568d" id="r_a785654eaf977a9bef21cbecc005f568d"><td class="memItemLeft" align="right" valign="top">void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="namespacetlv.html#a785654eaf977a9bef21cbecc005f568d">set_location</a> (<a class="el" href="namespacetlv.html#a00ca9c69c35ef11f6a22b7eda1b115ba">diagnostic</a> &amp;<a class="el" href="namespacetlv.html#a0e9dc5e120173d6322fc63d2d1fc09c3a2063c1608d6e0baf80249c42e2be5804">value</a>, <a class="el" href="namespacetlv.html#a55a9e58b26605c8d07848f7a2721b1d7">location_domain</a> <a class="el" href="namespacetlv.html#ad34af8ea6e99862f3fa9038d4e15794b">domain</a>, <a class="el" href="namespacetlv.html#a1d189f8757dea18406596d1c3c5ff3eb">location_kind</a> <a class="el" href="namespacetlv.html#a4a6c54ee451ccac7733e7582ab64d736">kind</a>, size_t <a class="el" href="namespacetlv.html#a047694bc3dd10e75e2dc596b4654abf3a8d589afa4dfaeeed85fff5aa78e5ff6a">begin</a>, size_t <a class="el" href="namespacetlv.html#a047694bc3dd10e75e2dc596b4654abf3a7f021a1415b86f2d013b2618fb31ae53">end</a>) noexcept</td></tr>
 <tr class="memdesc:a785654eaf977a9bef21cbecc005f568d"><td class="mdescLeft">&#160;</td><td class="mdescRight">Attach evidence in an explicit coordinate domain to a common diagnostic.  <br /></td></tr>
 <tr class="separator:a785654eaf977a9bef21cbecc005f568d"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:a047407a6f84fd28cfcc413a4af612dba" id="r_a047407a6f84fd28cfcc413a4af612dba"><td class="memItemLeft" align="right" valign="top"><a class="el" href="classtlv_1_1expected.html">expected</a>&lt; size_t, <a class="el" href="structtlv_1_1error.html">error</a> &gt;&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="namespacetlv.html#a047407a6f84fd28cfcc413a4af612dba">format_path</a> (const <a class="el" href="namespacetlv.html#a362165fd39d879542d984a7aa5c5f1af">diagnostic_path</a> &amp;path, <a class="el" href="classtlv_1_1span.html">span</a>&lt; char &gt; <a class="el" href="namespacetlv.html#a55a9e58b26605c8d07848f7a2721b1d7a78e6221f6393d1356681db398f14ce6d">output</a>)</td></tr>
@@ -735,6 +795,9 @@ Functions</h2></td></tr>
 <tr class="memitem:a08e5dd4c84ca47ded5fba1c2b27d2b81" id="r_a08e5dd4c84ca47ded5fba1c2b27d2b81"><td class="memItemLeft" align="right" valign="top"><a class="el" href="classtlv_1_1expected.html">expected</a>&lt; std::vector&lt; <a class="el" href="structtlv_1_1diff__entry.html">diff_entry</a> &gt;, <a class="el" href="structtlv_1_1query__failure.html">query_failure</a> &gt;&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="namespacetlv.html#a08e5dd4c84ca47ded5fba1c2b27d2b81">semantic_diff</a> (const <a class="el" href="classtlv_1_1document.html">document</a> &amp;left, const <a class="el" href="classtlv_1_1document.html">document</a> &amp;right, const <a class="el" href="classtlv_1_1query__program.html">query_program</a> *<a class="el" href="namespacetlv.html#a0a62bd79fd8b9075283dec7a3874ede5">where</a>=nullptr)</td></tr>
 <tr class="memdesc:a08e5dd4c84ca47ded5fba1c2b27d2b81"><td class="mdescLeft">&#160;</td><td class="mdescRight">Compare direct semantic <a class="el" href="classtlv_1_1const__node.html" title="Read-only checked Node handle; cannot recover mutable Node or native storage. Copies allocate nothing...">const_node</a> content selected on either original input.  <br /></td></tr>
 <tr class="separator:a08e5dd4c84ca47ded5fba1c2b27d2b81"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:aae988d3af5bb5af26a364adfb96d31ff" id="r_aae988d3af5bb5af26a364adfb96d31ff"><td class="memItemLeft" align="right" valign="top">const char *&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="namespacetlv.html#aae988d3af5bb5af26a364adfb96d31ff">message</a> (<a class="el" href="namespacetlv.html#a9589938dbd11333ff8444739191ced14">schema_definition_kind</a> <a class="el" href="namespacetlv.html#a0e9dc5e120173d6322fc63d2d1fc09c3a2063c1608d6e0baf80249c42e2be5804">value</a>) noexcept</td></tr>
+<tr class="memdesc:aae988d3af5bb5af26a364adfb96d31ff"><td class="mdescLeft">&#160;</td><td class="mdescRight">Canonical static name, or unknown for unrecognized categories.  <br /></td></tr>
+<tr class="separator:aae988d3af5bb5af26a364adfb96d31ff"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:a2ceb003e671ad82a71b9b83e8c063a1f" id="r_a2ceb003e671ad82a71b9b83e8c063a1f"><td class="memItemLeft" align="right" valign="top">const char *&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="namespacetlv.html#a2ceb003e671ad82a71b9b83e8c063a1f">message</a> (<a class="el" href="namespacetlv.html#ab9d10b8185e9a80cd73b5a0ef633a22c">errc</a> code) noexcept</td></tr>
 <tr class="memdesc:a2ceb003e671ad82a71b9b83e8c063a1f"><td class="mdescLeft">&#160;</td><td class="mdescRight">Name an operation status using immutable program-lifetime text; never allocates.  <br /></td></tr>
 <tr class="separator:a2ceb003e671ad82a71b9b83e8c063a1f"><td class="memSeparator" colspan="2">&#160;</td></tr>
@@ -825,6 +888,9 @@ Functions</h2></td></tr>
 <tr class="memitem:a41624c15a79371b8a93a22d371e9cb5c" id="r_a41624c15a79371b8a93a22d371e9cb5c"><td class="memItemLeft" align="right" valign="top"><a class="el" href="namespacetlv.html#aa961dbb21de6f09aeb02459df2676264">query_boolean</a>&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="namespacetlv.html#a41624c15a79371b8a93a22d371e9cb5c">operator!</a> (const <a class="el" href="namespacetlv.html#aa961dbb21de6f09aeb02459df2676264">query_boolean</a> &amp;a)</td></tr>
 <tr class="memdesc:a41624c15a79371b8a93a22d371e9cb5c"><td class="mdescLeft">&#160;</td><td class="mdescRight">Compose boolean negation using the native function.  <br /></td></tr>
 <tr class="separator:a41624c15a79371b8a93a22d371e9cb5c"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a799802adfe5143cae17ef8f7f509477c" id="r_a799802adfe5143cae17ef8f7f509477c"><td class="memItemLeft" align="right" valign="top">const char *&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="namespacetlv.html#a799802adfe5143cae17ef8f7f509477c">message</a> (<a class="el" href="namespacetlv.html#a7bcb5c918f4c7e096cd783d894a7ffd5">query_issue</a> <a class="el" href="namespacetlv.html#a0e9dc5e120173d6322fc63d2d1fc09c3a2063c1608d6e0baf80249c42e2be5804">value</a>) noexcept</td></tr>
+<tr class="memdesc:a799802adfe5143cae17ef8f7f509477c"><td class="mdescLeft">&#160;</td><td class="mdescRight">Canonical static Query category name, including unknown values.  <br /></td></tr>
+<tr class="separator:a799802adfe5143cae17ef8f7f509477c"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:afe9d31d2a00160499f44e858c792ec41" id="r_afe9d31d2a00160499f44e858c792ec41"><td class="memItemLeft" align="right" valign="top"><a class="el" href="namespacetlv.html#af07267eb385ace7511c163689eda8e1f">reader_phase</a>&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="namespacetlv.html#afe9d31d2a00160499f44e858c792ec41">phase</a> (const <a class="el" href="namespacetlv.html#ac5d9db3c32ccfcde27637a234d10e250">reader_detail</a> &amp;<a class="el" href="namespacetlv.html#a0e9dc5e120173d6322fc63d2d1fc09c3a2063c1608d6e0baf80249c42e2be5804">value</a>) noexcept</td></tr>
 <tr class="memdesc:afe9d31d2a00160499f44e858c792ec41"><td class="mdescLeft">&#160;</td><td class="mdescRight">Reader phase in an existing diagnostic.  <br /></td></tr>
 <tr class="separator:afe9d31d2a00160499f44e858c792ec41"><td class="memSeparator" colspan="2">&#160;</td></tr>
@@ -904,6 +970,12 @@ Functions</h2></td></tr>
 <tr class="memitem:a81f91995a35b2f569c4a44d6abb43afc"><td class="memTemplItemLeft" align="right" valign="top"><a class="el" href="classtlv_1_1expected.html">expected</a>&lt; size_t, <a class="el" href="structtlv_1_1error.html">error</a> &gt;&#160;</td><td class="memTemplItemRight" valign="bottom"><a class="el" href="namespacetlv.html#a81f91995a35b2f569c4a44d6abb43afc">measure_tree_events</a> (<a class="el" href="classtlv_1_1format.html">tlv::format</a> <a class="el" href="classtlv_1_1format.html">format</a>, Source &amp;&amp;<a class="el" href="namespacetlv.html#a7077398db8e6583f741d8db7271d7515ad0cab90d8d20d57e2f2b9be52f7dd25d">next</a>, <a class="el" href="namespacetlv.html#a57b8cb8121f7e7c4f797dee062d94717">tree_writer_workspace</a> &amp;workspace, size_t max_depth=<a class="elRef" href="../../c-api/html/defaults_8h.html#a80155586fa275b28773c9b203f52cabaad3b9801dae9cea1796aee28b0cdbfce2">TLV_TREE_DEFAULT_DEPTH</a>, size_t max_elements=SIZE_MAX, <a class="el" href="namespacetlv.html#a1df134eb9e2b476155eb324618396e4d">writer_diagnostic</a> *<a class="el" href="namespacetlv.html#a00ca9c69c35ef11f6a22b7eda1b115ba">diagnostic</a>=nullptr)</td></tr>
 <tr class="memdesc:a81f91995a35b2f569c4a44d6abb43afc"><td class="mdescLeft">&#160;</td><td class="mdescRight">Measure and stage a balanced canonical event stream through C.  <br /></td></tr>
 <tr class="separator:a81f91995a35b2f569c4a44d6abb43afc"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a932653fc31e67a6a7a23f163084fcde3" id="r_a932653fc31e67a6a7a23f163084fcde3"><td class="memItemLeft" align="right" valign="top">const char *&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="namespacetlv.html#a932653fc31e67a6a7a23f163084fcde3">message</a> (<a class="el" href="namespacetlv.html#a047694bc3dd10e75e2dc596b4654abf3">writer_phase</a> <a class="el" href="namespacetlv.html#a0e9dc5e120173d6322fc63d2d1fc09c3a2063c1608d6e0baf80249c42e2be5804">value</a>) noexcept</td></tr>
+<tr class="memdesc:a932653fc31e67a6a7a23f163084fcde3"><td class="mdescLeft">&#160;</td><td class="mdescRight">Canonical static name, or unknown for unrecognized categories.  <br /></td></tr>
+<tr class="separator:a932653fc31e67a6a7a23f163084fcde3"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a85a677677e9828e3e2e015a7ff141353" id="r_a85a677677e9828e3e2e015a7ff141353"><td class="memItemLeft" align="right" valign="top"><a class="el" href="namespacetlv.html#a047694bc3dd10e75e2dc596b4654abf3">writer_phase</a>&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="namespacetlv.html#a85a677677e9828e3e2e015a7ff141353">phase</a> (const <a class="el" href="namespacetlv.html#a1df134eb9e2b476155eb324618396e4d">writer_diagnostic</a> &amp;<a class="el" href="namespacetlv.html#a0e9dc5e120173d6322fc63d2d1fc09c3a2063c1608d6e0baf80249c42e2be5804">value</a>) noexcept</td></tr>
+<tr class="memdesc:a85a677677e9828e3e2e015a7ff141353"><td class="mdescLeft">&#160;</td><td class="mdescRight">Typed operation associated with Writer evidence.  <br /></td></tr>
+<tr class="separator:a85a677677e9828e3e2e015a7ff141353"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:ab155ce7066af5f5848d1d4f8a1a14e55" id="r_ab155ce7066af5f5848d1d4f8a1a14e55"><td class="memItemLeft" align="right" valign="top"><a class="el" href="classtlv_1_1expected.html">expected</a>&lt; size_t, <a class="el" href="structtlv_1_1error.html">error</a> &gt;&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="namespacetlv.html#ab155ce7066af5f5848d1d4f8a1a14e55">encoded_size</a> (const <a class="el" href="classtlv_1_1element__view.html">element_view</a> &amp;<a class="el" href="namespacetlv.html#a0e9dc5e120173d6322fc63d2d1fc09c3a2063c1608d6e0baf80249c42e2be5804">value</a>, <a class="el" href="classtlv_1_1format.html">tlv::format</a> <a class="el" href="classtlv_1_1format.html">format</a>, <a class="el" href="namespacetlv.html#a1df134eb9e2b476155eb324618396e4d">writer_diagnostic</a> *<a class="el" href="namespacetlv.html#a00ca9c69c35ef11f6a22b7eda1b115ba">diagnostic</a>=nullptr)</td></tr>
 <tr class="memdesc:ab155ce7066af5f5848d1d4f8a1a14e55"><td class="mdescLeft">&#160;</td><td class="mdescRight">Measures exact caller-owned destination storage for an Element.  <br /></td></tr>
 <tr class="separator:ab155ce7066af5f5848d1d4f8a1a14e55"><td class="memSeparator" colspan="2">&#160;</td></tr>
@@ -1244,7 +1316,7 @@ Variables</h2></td></tr>
       </table>
 </div><div class="memdoc">
 
-<p>Caller-owned Tree Writer frame; retains a borrowed Tag until end(). </p>
+<p>Caller-owned Tree Writer frame; retains a borrowed Tag until <a class="el" href="namespacetlv.html#a047694bc3dd10e75e2dc596b4654abf3a7f021a1415b86f2d013b2618fb31ae53">end()</a>. </p>
 
 </div>
 </div>
@@ -1440,6 +1512,106 @@ Variables</h2></td></tr>
 <tr><th colspan="2">Enumerator</th></tr><tr><td class="fieldname"><a id="a1072b00b459d45beabdf75288239cdbca999a58c75466038ed7fbeaf3bd45e6e9" name="a1072b00b459d45beabdf75288239cdbca999a58c75466038ed7fbeaf3bd45e6e9"></a>big_endian&#160;</td><td class="fielddoc"><p>Most significant byte first. </p>
 </td></tr>
 <tr><td class="fieldname"><a id="a1072b00b459d45beabdf75288239cdbca60ee1a7a6ea81cfd79115721fc09e1f0" name="a1072b00b459d45beabdf75288239cdbca60ee1a7a6ea81cfd79115721fc09e1f0"></a>little_endian&#160;</td><td class="fielddoc"><p>Least significant byte first. </p>
+</td></tr>
+</table>
+
+</div>
+</div>
+<a id="a91405148dda4604c55fd30e57b5f91b1" name="a91405148dda4604c55fd30e57b5f91b1"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#a91405148dda4604c55fd30e57b5f91b1">&#9670;&#160;</a></span>codec_cause</h2>
+
+<div class="memitem">
+<div class="memproto">
+<table class="mlabels">
+  <tr>
+  <td class="mlabels-left">
+      <table class="memname">
+        <tr>
+          <td class="memname">enum class <a class="el" href="namespacetlv.html#a91405148dda4604c55fd30e57b5f91b1">tlv::codec_cause</a></td>
+        </tr>
+      </table>
+  </td>
+  <td class="mlabels-right">
+<span class="mlabels"><span class="mlabel">strong</span></span>  </td>
+  </tr>
+</table>
+</div><div class="memdoc">
+
+<p>Typed codec cause diagnostic category. </p>
+<table class="fieldtable">
+<tr><th colspan="2">Enumerator</th></tr><tr><td class="fieldname"><a id="a91405148dda4604c55fd30e57b5f91b1a334c4a4c42fdb79d7ebc3e73b517e6f8" name="a91405148dda4604c55fd30e57b5f91b1a334c4a4c42fdb79d7ebc3e73b517e6f8"></a>none&#160;</td><td class="fielddoc"><p>Canonical none category. </p>
+</td></tr>
+<tr><td class="fieldname"><a id="a91405148dda4604c55fd30e57b5f91b1a1de9b0a30075ae8c303eb420c103c320" name="a91405148dda4604c55fd30e57b5f91b1a1de9b0a30075ae8c303eb420c103c320"></a>reader&#160;</td><td class="fielddoc"><p>Canonical reader category. </p>
+</td></tr>
+<tr><td class="fieldname"><a id="a91405148dda4604c55fd30e57b5f91b1ac9550d5fad73447fc24ba47f95d1c6b7" name="a91405148dda4604c55fd30e57b5f91b1ac9550d5fad73447fc24ba47f95d1c6b7"></a>schema&#160;</td><td class="fielddoc"><p>Canonical schema category. </p>
+</td></tr>
+</table>
+
+</div>
+</div>
+<a id="a0e6dec4706a8d713e39ab60230d357fe" name="a0e6dec4706a8d713e39ab60230d357fe"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#a0e6dec4706a8d713e39ab60230d357fe">&#9670;&#160;</a></span>codec_phase</h2>
+
+<div class="memitem">
+<div class="memproto">
+<table class="mlabels">
+  <tr>
+  <td class="mlabels-left">
+      <table class="memname">
+        <tr>
+          <td class="memname">enum class <a class="el" href="namespacetlv.html#a0e6dec4706a8d713e39ab60230d357fe">tlv::codec_phase</a></td>
+        </tr>
+      </table>
+  </td>
+  <td class="mlabels-right">
+<span class="mlabels"><span class="mlabel">strong</span></span>  </td>
+  </tr>
+</table>
+</div><div class="memdoc">
+
+<p>Typed codec phase diagnostic category. </p>
+<table class="fieldtable">
+<tr><th colspan="2">Enumerator</th></tr><tr><td class="fieldname"><a id="a0e6dec4706a8d713e39ab60230d357fea5b93625023a1c2180221257849744b59" name="a0e6dec4706a8d713e39ab60230d357fea5b93625023a1c2180221257849744b59"></a>decode&#160;</td><td class="fielddoc"><p>Canonical decode category. </p>
+</td></tr>
+<tr><td class="fieldname"><a id="a0e6dec4706a8d713e39ab60230d357fea97a57645a3f0e1518f8c9f4d340d4c4f" name="a0e6dec4706a8d713e39ab60230d357fea97a57645a3f0e1518f8c9f4d340d4c4f"></a>encode&#160;</td><td class="fielddoc"><p>Canonical encode category. </p>
+</td></tr>
+<tr><td class="fieldname"><a id="a0e6dec4706a8d713e39ab60230d357fea2925f77709f2db1f915deadc2940db88" name="a0e6dec4706a8d713e39ab60230d357fea2925f77709f2db1f915deadc2940db88"></a>measure&#160;</td><td class="fielddoc"><p>Canonical measure category. </p>
+</td></tr>
+</table>
+
+</div>
+</div>
+<a id="a410ac284e31ff7048dc535bdcac064a2" name="a410ac284e31ff7048dc535bdcac064a2"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#a410ac284e31ff7048dc535bdcac064a2">&#9670;&#160;</a></span>codec_violation</h2>
+
+<div class="memitem">
+<div class="memproto">
+<table class="mlabels">
+  <tr>
+  <td class="mlabels-left">
+      <table class="memname">
+        <tr>
+          <td class="memname">enum class <a class="el" href="namespacetlv.html#a410ac284e31ff7048dc535bdcac064a2">tlv::codec_violation</a></td>
+        </tr>
+      </table>
+  </td>
+  <td class="mlabels-right">
+<span class="mlabels"><span class="mlabel">strong</span></span>  </td>
+  </tr>
+</table>
+</div><div class="memdoc">
+
+<p>Typed codec violation diagnostic category. </p>
+<table class="fieldtable">
+<tr><th colspan="2">Enumerator</th></tr><tr><td class="fieldname"><a id="a410ac284e31ff7048dc535bdcac064a2a334c4a4c42fdb79d7ebc3e73b517e6f8" name="a410ac284e31ff7048dc535bdcac064a2a334c4a4c42fdb79d7ebc3e73b517e6f8"></a>none&#160;</td><td class="fielddoc"><p>Canonical none category. </p>
+</td></tr>
+<tr><td class="fieldname"><a id="a410ac284e31ff7048dc535bdcac064a2ab4a88417b3d0170d754c647c30b7216a" name="a410ac284e31ff7048dc535bdcac064a2ab4a88417b3d0170d754c647c30b7216a"></a>result&#160;</td><td class="fielddoc"><p>Canonical result category. </p>
+</td></tr>
+<tr><td class="fieldname"><a id="a410ac284e31ff7048dc535bdcac064a2af7bd60b75b29d79b660a2859395c1a24" name="a410ac284e31ff7048dc535bdcac064a2af7bd60b75b29d79b660a2859395c1a24"></a>size&#160;</td><td class="fielddoc"><p>Canonical size category. </p>
+</td></tr>
+<tr><td class="fieldname"><a id="a410ac284e31ff7048dc535bdcac064a2a599dcce2998a6b40b1e38e8c6006cb0a" name="a410ac284e31ff7048dc535bdcac064a2a599dcce2998a6b40b1e38e8c6006cb0a"></a>type&#160;</td><td class="fielddoc"><p>Canonical type category. </p>
+</td></tr>
+<tr><td class="fieldname"><a id="a410ac284e31ff7048dc535bdcac064a2a30df7f629fcf6b940bcaef5faf2490bb" name="a410ac284e31ff7048dc535bdcac064a2a30df7f629fcf6b940bcaef5faf2490bb"></a>utf8&#160;</td><td class="fielddoc"><p>Canonical utf8 category. </p>
 </td></tr>
 </table>
 
@@ -1915,6 +2087,44 @@ Variables</h2></td></tr>
 
 </div>
 </div>
+<a id="a9589938dbd11333ff8444739191ced14" name="a9589938dbd11333ff8444739191ced14"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#a9589938dbd11333ff8444739191ced14">&#9670;&#160;</a></span>schema_definition_kind</h2>
+
+<div class="memitem">
+<div class="memproto">
+<table class="mlabels">
+  <tr>
+  <td class="mlabels-left">
+      <table class="memname">
+        <tr>
+          <td class="memname">enum class <a class="el" href="namespacetlv.html#a9589938dbd11333ff8444739191ced14">tlv::schema_definition_kind</a></td>
+        </tr>
+      </table>
+  </td>
+  <td class="mlabels-right">
+<span class="mlabels"><span class="mlabel">strong</span></span>  </td>
+  </tr>
+</table>
+</div><div class="memdoc">
+
+<p>Typed schema definition kind diagnostic category. </p>
+<table class="fieldtable">
+<tr><th colspan="2">Enumerator</th></tr><tr><td class="fieldname"><a id="a9589938dbd11333ff8444739191ced14aad921d60486366258809553a3db49a4a" name="a9589938dbd11333ff8444739191ced14aad921d60486366258809553a3db49a4a"></a>unknown&#160;</td><td class="fielddoc"><p>Canonical unknown category. </p>
+</td></tr>
+<tr><td class="fieldname"><a id="a9589938dbd11333ff8444739191ced14aaab9e1de16f38176f86d7a92ba337a8d" name="a9589938dbd11333ff8444739191ced14aaab9e1de16f38176f86d7a92ba337a8d"></a>table&#160;</td><td class="fielddoc"><p>Canonical table category. </p>
+</td></tr>
+<tr><td class="fieldname"><a id="a9589938dbd11333ff8444739191ced14a981c1e7b3795da18687613fbd66d4954" name="a9589938dbd11333ff8444739191ced14a981c1e7b3795da18687613fbd66d4954"></a>rule&#160;</td><td class="fielddoc"><p>Canonical rule category. </p>
+</td></tr>
+<tr><td class="fieldname"><a id="a9589938dbd11333ff8444739191ced14adb0f6f37ebeb6ea09489124345af2a45" name="a9589938dbd11333ff8444739191ced14adb0f6f37ebeb6ea09489124345af2a45"></a>group&#160;</td><td class="fielddoc"><p>Canonical group category. </p>
+</td></tr>
+<tr><td class="fieldname"><a id="a9589938dbd11333ff8444739191ced14a599dcce2998a6b40b1e38e8c6006cb0a" name="a9589938dbd11333ff8444739191ced14a599dcce2998a6b40b1e38e8c6006cb0a"></a>type&#160;</td><td class="fielddoc"><p>Canonical type category. </p>
+</td></tr>
+<tr><td class="fieldname"><a id="a9589938dbd11333ff8444739191ced14a700c216fb376666eaeda0c892e8bdc09" name="a9589938dbd11333ff8444739191ced14a700c216fb376666eaeda0c892e8bdc09"></a>component&#160;</td><td class="fielddoc"><p>Canonical component category. </p>
+</td></tr>
+</table>
+
+</div>
+</div>
 <a id="a0e9dc5e120173d6322fc63d2d1fc09c3" name="a0e9dc5e120173d6322fc63d2d1fc09c3"></a>
 <h2 class="memtitle"><span class="permalink"><a href="#a0e9dc5e120173d6322fc63d2d1fc09c3">&#9670;&#160;</a></span>schema_issue</h2>
 
@@ -2193,6 +2403,50 @@ Variables</h2></td></tr>
 
 </div>
 </div>
+<a id="a047694bc3dd10e75e2dc596b4654abf3" name="a047694bc3dd10e75e2dc596b4654abf3"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#a047694bc3dd10e75e2dc596b4654abf3">&#9670;&#160;</a></span>writer_phase</h2>
+
+<div class="memitem">
+<div class="memproto">
+<table class="mlabels">
+  <tr>
+  <td class="mlabels-left">
+      <table class="memname">
+        <tr>
+          <td class="memname">enum class <a class="el" href="namespacetlv.html#a047694bc3dd10e75e2dc596b4654abf3">tlv::writer_phase</a></td>
+        </tr>
+      </table>
+  </td>
+  <td class="mlabels-right">
+<span class="mlabels"><span class="mlabel">strong</span></span>  </td>
+  </tr>
+</table>
+</div><div class="memdoc">
+
+<p>Typed writer phase diagnostic category. </p>
+<table class="fieldtable">
+<tr><th colspan="2">Enumerator</th></tr><tr><td class="fieldname"><a id="a047694bc3dd10e75e2dc596b4654abf3ae4d23e841d8e8804190027bce3180fa5" name="a047694bc3dd10e75e2dc596b4654abf3ae4d23e841d8e8804190027bce3180fa5"></a>tag&#160;</td><td class="fielddoc"><p>Canonical tag category. </p>
+</td></tr>
+<tr><td class="fieldname"><a id="a047694bc3dd10e75e2dc596b4654abf3a2fa47f7c65fec19cc163b195725e3844" name="a047694bc3dd10e75e2dc596b4654abf3a2fa47f7c65fec19cc163b195725e3844"></a>length&#160;</td><td class="fielddoc"><p>Canonical length category. </p>
+</td></tr>
+<tr><td class="fieldname"><a id="a047694bc3dd10e75e2dc596b4654abf3a2063c1608d6e0baf80249c42e2be5804" name="a047694bc3dd10e75e2dc596b4654abf3a2063c1608d6e0baf80249c42e2be5804"></a>value&#160;</td><td class="fielddoc"><p>Canonical value category. </p>
+</td></tr>
+<tr><td class="fieldname"><a id="a047694bc3dd10e75e2dc596b4654abf3a099fb995346f31c749f6e40db0f395e3" name="a047694bc3dd10e75e2dc596b4654abf3a099fb995346f31c749f6e40db0f395e3"></a>header&#160;</td><td class="fielddoc"><p>Canonical header category. </p>
+</td></tr>
+<tr><td class="fieldname"><a id="a047694bc3dd10e75e2dc596b4654abf3a93707f725009f066ecf17dd8f6409a66" name="a047694bc3dd10e75e2dc596b4654abf3a93707f725009f066ecf17dd8f6409a66"></a>trailer&#160;</td><td class="fielddoc"><p>Canonical trailer category. </p>
+</td></tr>
+<tr><td class="fieldname"><a id="a047694bc3dd10e75e2dc596b4654abf3a12cba3ee81cf4a793796a51b6327c678" name="a047694bc3dd10e75e2dc596b4654abf3a12cba3ee81cf4a793796a51b6327c678"></a>copy&#160;</td><td class="fielddoc"><p>Canonical copy category. </p>
+</td></tr>
+<tr><td class="fieldname"><a id="a047694bc3dd10e75e2dc596b4654abf3aec4875cf2d241556a0965f7237864693" name="a047694bc3dd10e75e2dc596b4654abf3aec4875cf2d241556a0965f7237864693"></a>preserve&#160;</td><td class="fielddoc"><p>Canonical preserve category. </p>
+</td></tr>
+<tr><td class="fieldname"><a id="a047694bc3dd10e75e2dc596b4654abf3a8d589afa4dfaeeed85fff5aa78e5ff6a" name="a047694bc3dd10e75e2dc596b4654abf3a8d589afa4dfaeeed85fff5aa78e5ff6a"></a>begin&#160;</td><td class="fielddoc"><p>Canonical begin category. </p>
+</td></tr>
+<tr><td class="fieldname"><a id="a047694bc3dd10e75e2dc596b4654abf3a7f021a1415b86f2d013b2618fb31ae53" name="a047694bc3dd10e75e2dc596b4654abf3a7f021a1415b86f2d013b2618fb31ae53"></a>end&#160;</td><td class="fielddoc"><p>Canonical end category. </p>
+</td></tr>
+</table>
+
+</div>
+</div>
 <h2 class="groupheader">Function Documentation</h2>
 <a id="a5ce58d107ecb735b70e8754f43860b35" name="a5ce58d107ecb735b70e8754f43860b35"></a>
 <h2 class="memtitle"><span class="permalink"><a href="#a5ce58d107ecb735b70e8754f43860b35">&#9670;&#160;</a></span>add_context()</h2>
@@ -2352,7 +2606,7 @@ template&lt;typename T &gt; </div>
 <p>Wraps <a class="elRef" href="../../c-api/html/group__formats.html#gaf2e0f147f54e46645447b4fe5fc9dc0d">tlv_ber_write_indefinite()</a>.</p>
 <dl class="params"><dt>Parameters</dt><dd>
   <table class="params">
-    <tr><td class="paramname">data</td><td>Destination buffer. Insufficient capacity, including nullptr/0, reports BUFFER_TOO_SHORT; use <a class="el" href="namespacetlv.html#a341cd18692efb5c62b54bfc30a7bbfc3" title="Measure logical framing without a destination buffer.">measure()</a> with <a class="el" href="classtlv_1_1ber_1_1indefinite__format.html" title="BER preset writing constructed elements with indefinite length and EOC.">ber::indefinite_format</a> to determine the required size. </td></tr>
+    <tr><td class="paramname">data</td><td>Destination buffer. Insufficient capacity, including nullptr/0, reports BUFFER_TOO_SHORT; use <a class="el" href="namespacetlv.html#a0e6dec4706a8d713e39ab60230d357fea2925f77709f2db1f915deadc2940db88">measure()</a> with <a class="el" href="classtlv_1_1ber_1_1indefinite__format.html" title="BER preset writing constructed elements with indefinite length and EOC.">ber::indefinite_format</a> to determine the required size. </td></tr>
     <tr><td class="paramname">capacity</td><td>Destination capacity in bytes. </td></tr>
     <tr><td class="paramname">tag</td><td>Constructed element tag. </td></tr>
     <tr><td class="paramname">children</td><td>Already encoded children, without the enclosing EOC. Must not overlap the destination.</td></tr>
@@ -2752,7 +3006,7 @@ template&lt;typename F , typename Output , typename Callback &gt; </div>
   <table class="params">
     <tr><td class="paramname">output</td><td>Borrowed mutable byte storage, never resized. </td></tr>
     <tr><td class="paramname">workspace</td><td>Disjoint caller-owned frames and scratch. </td></tr>
-    <tr><td class="paramname">callback</td><td>Scoped writes; follows the runtime <a class="el" href="namespacetlv.html#a132c6264760d0d8b4c6f8bc31350f4e3" title="Encode current semantic content, regenerating framing.">encode()</a> callback contract. </td></tr>
+    <tr><td class="paramname">callback</td><td>Scoped writes; follows the runtime <a class="el" href="namespacetlv.html#a0e6dec4706a8d713e39ab60230d357fea97a57645a3f0e1518f8c9f4d340d4c4f">encode()</a> callback contract. </td></tr>
     <tr><td class="paramname">format</td><td>Immutable Format configuration, owned for the operation. </td></tr>
     <tr><td class="paramname">diagnostic</td><td>Optional C operation failure detail. </td></tr>
   </table>
@@ -2988,7 +3242,7 @@ template&lt;typename Output , typename Callback &gt; </div>
   <table class="params">
     <tr><td class="paramname">staging</td><td>Mutable byte span, array or container holding the full encoding on success. </td></tr>
     <tr><td class="paramname">format</td><td>Borrowed immutable Format and context. </td></tr>
-    <tr><td class="paramname">workspace</td><td>Disjoint frames and scratch, as for <a class="el" href="namespacetlv.html#a132c6264760d0d8b4c6f8bc31350f4e3" title="Encode current semantic content, regenerating framing.">encode()</a>. </td></tr>
+    <tr><td class="paramname">workspace</td><td>Disjoint frames and scratch, as for <a class="el" href="namespacetlv.html#a0e6dec4706a8d713e39ab60230d357fea97a57645a3f0e1518f8c9f4d340d4c4f">encode()</a>. </td></tr>
     <tr><td class="paramname">callback</td><td>Scoped writes, executed once. Content-dependent Formats see encoded children. </td></tr>
     <tr><td class="paramname">diagnostic</td><td>Optional C failure detail. </td></tr>
   </table>
@@ -3697,8 +3951,92 @@ template&lt;typename Source &gt; </div>
 
 </div>
 </div>
+<a id="af8e1e79d88b17b237ce67a28353b20a9" name="af8e1e79d88b17b237ce67a28353b20a9"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#af8e1e79d88b17b237ce67a28353b20a9">&#9670;&#160;</a></span>message() <span class="overload">[1/12]</span></h2>
+
+<div class="memitem">
+<div class="memproto">
+<table class="mlabels">
+  <tr>
+  <td class="mlabels-left">
+      <table class="memname">
+        <tr>
+          <td class="memname">const char * tlv::message </td>
+          <td>(</td>
+          <td class="paramtype"><a class="el" href="namespacetlv.html#a91405148dda4604c55fd30e57b5f91b1">codec_cause</a>&#160;</td>
+          <td class="paramname"><em>value</em></td><td>)</td>
+          <td></td>
+        </tr>
+      </table>
+  </td>
+  <td class="mlabels-right">
+<span class="mlabels"><span class="mlabel">inline</span><span class="mlabel">noexcept</span></span>  </td>
+  </tr>
+</table>
+</div><div class="memdoc">
+
+<p>Canonical static name, or unknown for unrecognized categories. </p>
+
+</div>
+</div>
+<a id="a89b5b396bcbf283522be809826d64095" name="a89b5b396bcbf283522be809826d64095"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#a89b5b396bcbf283522be809826d64095">&#9670;&#160;</a></span>message() <span class="overload">[2/12]</span></h2>
+
+<div class="memitem">
+<div class="memproto">
+<table class="mlabels">
+  <tr>
+  <td class="mlabels-left">
+      <table class="memname">
+        <tr>
+          <td class="memname">const char * tlv::message </td>
+          <td>(</td>
+          <td class="paramtype"><a class="el" href="namespacetlv.html#a0e6dec4706a8d713e39ab60230d357fe">codec_phase</a>&#160;</td>
+          <td class="paramname"><em>value</em></td><td>)</td>
+          <td></td>
+        </tr>
+      </table>
+  </td>
+  <td class="mlabels-right">
+<span class="mlabels"><span class="mlabel">inline</span><span class="mlabel">noexcept</span></span>  </td>
+  </tr>
+</table>
+</div><div class="memdoc">
+
+<p>Canonical static name, or unknown for unrecognized categories. </p>
+
+</div>
+</div>
+<a id="acb44a1bf847bc642f359faaf28c18b5f" name="acb44a1bf847bc642f359faaf28c18b5f"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#acb44a1bf847bc642f359faaf28c18b5f">&#9670;&#160;</a></span>message() <span class="overload">[3/12]</span></h2>
+
+<div class="memitem">
+<div class="memproto">
+<table class="mlabels">
+  <tr>
+  <td class="mlabels-left">
+      <table class="memname">
+        <tr>
+          <td class="memname">const char * tlv::message </td>
+          <td>(</td>
+          <td class="paramtype"><a class="el" href="namespacetlv.html#a410ac284e31ff7048dc535bdcac064a2">codec_violation</a>&#160;</td>
+          <td class="paramname"><em>value</em></td><td>)</td>
+          <td></td>
+        </tr>
+      </table>
+  </td>
+  <td class="mlabels-right">
+<span class="mlabels"><span class="mlabel">inline</span><span class="mlabel">noexcept</span></span>  </td>
+  </tr>
+</table>
+</div><div class="memdoc">
+
+<p>Canonical static name, or unknown for unrecognized categories. </p>
+
+</div>
+</div>
 <a id="a2ceb003e671ad82a71b9b83e8c063a1f" name="a2ceb003e671ad82a71b9b83e8c063a1f"></a>
-<h2 class="memtitle"><span class="permalink"><a href="#a2ceb003e671ad82a71b9b83e8c063a1f">&#9670;&#160;</a></span>message() <span class="overload">[1/6]</span></h2>
+<h2 class="memtitle"><span class="permalink"><a href="#a2ceb003e671ad82a71b9b83e8c063a1f">&#9670;&#160;</a></span>message() <span class="overload">[4/12]</span></h2>
 
 <div class="memitem">
 <div class="memproto">
@@ -3726,7 +4064,7 @@ template&lt;typename Source &gt; </div>
 </div>
 </div>
 <a id="a72f03296288306e0b8037a48d47f1958" name="a72f03296288306e0b8037a48d47f1958"></a>
-<h2 class="memtitle"><span class="permalink"><a href="#a72f03296288306e0b8037a48d47f1958">&#9670;&#160;</a></span>message() <span class="overload">[2/6]</span></h2>
+<h2 class="memtitle"><span class="permalink"><a href="#a72f03296288306e0b8037a48d47f1958">&#9670;&#160;</a></span>message() <span class="overload">[5/12]</span></h2>
 
 <div class="memitem">
 <div class="memproto">
@@ -3754,7 +4092,7 @@ template&lt;typename Source &gt; </div>
 </div>
 </div>
 <a id="ad8fce5704689ff442fd829b803cf3bf4" name="ad8fce5704689ff442fd829b803cf3bf4"></a>
-<h2 class="memtitle"><span class="permalink"><a href="#ad8fce5704689ff442fd829b803cf3bf4">&#9670;&#160;</a></span>message() <span class="overload">[3/6]</span></h2>
+<h2 class="memtitle"><span class="permalink"><a href="#ad8fce5704689ff442fd829b803cf3bf4">&#9670;&#160;</a></span>message() <span class="overload">[6/12]</span></h2>
 
 <div class="memitem">
 <div class="memproto">
@@ -3781,8 +4119,36 @@ template&lt;typename Source &gt; </div>
 
 </div>
 </div>
+<a id="a799802adfe5143cae17ef8f7f509477c" name="a799802adfe5143cae17ef8f7f509477c"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#a799802adfe5143cae17ef8f7f509477c">&#9670;&#160;</a></span>message() <span class="overload">[7/12]</span></h2>
+
+<div class="memitem">
+<div class="memproto">
+<table class="mlabels">
+  <tr>
+  <td class="mlabels-left">
+      <table class="memname">
+        <tr>
+          <td class="memname">const char * tlv::message </td>
+          <td>(</td>
+          <td class="paramtype"><a class="el" href="namespacetlv.html#a7bcb5c918f4c7e096cd783d894a7ffd5">query_issue</a>&#160;</td>
+          <td class="paramname"><em>value</em></td><td>)</td>
+          <td></td>
+        </tr>
+      </table>
+  </td>
+  <td class="mlabels-right">
+<span class="mlabels"><span class="mlabel">inline</span><span class="mlabel">noexcept</span></span>  </td>
+  </tr>
+</table>
+</div><div class="memdoc">
+
+<p>Canonical static Query category name, including unknown values. </p>
+
+</div>
+</div>
 <a id="a7624e6d763f1e247dea4282bf81831e8" name="a7624e6d763f1e247dea4282bf81831e8"></a>
-<h2 class="memtitle"><span class="permalink"><a href="#a7624e6d763f1e247dea4282bf81831e8">&#9670;&#160;</a></span>message() <span class="overload">[4/6]</span></h2>
+<h2 class="memtitle"><span class="permalink"><a href="#a7624e6d763f1e247dea4282bf81831e8">&#9670;&#160;</a></span>message() <span class="overload">[8/12]</span></h2>
 
 <div class="memitem">
 <div class="memproto">
@@ -3809,8 +4175,36 @@ template&lt;typename Source &gt; </div>
 
 </div>
 </div>
+<a id="aae988d3af5bb5af26a364adfb96d31ff" name="aae988d3af5bb5af26a364adfb96d31ff"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#aae988d3af5bb5af26a364adfb96d31ff">&#9670;&#160;</a></span>message() <span class="overload">[9/12]</span></h2>
+
+<div class="memitem">
+<div class="memproto">
+<table class="mlabels">
+  <tr>
+  <td class="mlabels-left">
+      <table class="memname">
+        <tr>
+          <td class="memname">const char * tlv::message </td>
+          <td>(</td>
+          <td class="paramtype"><a class="el" href="namespacetlv.html#a9589938dbd11333ff8444739191ced14">schema_definition_kind</a>&#160;</td>
+          <td class="paramname"><em>value</em></td><td>)</td>
+          <td></td>
+        </tr>
+      </table>
+  </td>
+  <td class="mlabels-right">
+<span class="mlabels"><span class="mlabel">inline</span><span class="mlabel">noexcept</span></span>  </td>
+  </tr>
+</table>
+</div><div class="memdoc">
+
+<p>Canonical static name, or unknown for unrecognized categories. </p>
+
+</div>
+</div>
 <a id="a00a8d58e45f01c9f891664cb084118c2" name="a00a8d58e45f01c9f891664cb084118c2"></a>
-<h2 class="memtitle"><span class="permalink"><a href="#a00a8d58e45f01c9f891664cb084118c2">&#9670;&#160;</a></span>message() <span class="overload">[5/6]</span></h2>
+<h2 class="memtitle"><span class="permalink"><a href="#a00a8d58e45f01c9f891664cb084118c2">&#9670;&#160;</a></span>message() <span class="overload">[10/12]</span></h2>
 
 <div class="memitem">
 <div class="memproto">
@@ -3838,7 +4232,7 @@ template&lt;typename Source &gt; </div>
 </div>
 </div>
 <a id="ad8f9ff7a3d41ea094990fd809eb734f9" name="ad8f9ff7a3d41ea094990fd809eb734f9"></a>
-<h2 class="memtitle"><span class="permalink"><a href="#ad8f9ff7a3d41ea094990fd809eb734f9">&#9670;&#160;</a></span>message() <span class="overload">[6/6]</span></h2>
+<h2 class="memtitle"><span class="permalink"><a href="#ad8f9ff7a3d41ea094990fd809eb734f9">&#9670;&#160;</a></span>message() <span class="overload">[11/12]</span></h2>
 
 <div class="memitem">
 <div class="memproto">
@@ -3862,6 +4256,34 @@ template&lt;typename Source &gt; </div>
 </div><div class="memdoc">
 
 <p>Immutable program-lifetime severity name. </p>
+
+</div>
+</div>
+<a id="a932653fc31e67a6a7a23f163084fcde3" name="a932653fc31e67a6a7a23f163084fcde3"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#a932653fc31e67a6a7a23f163084fcde3">&#9670;&#160;</a></span>message() <span class="overload">[12/12]</span></h2>
+
+<div class="memitem">
+<div class="memproto">
+<table class="mlabels">
+  <tr>
+  <td class="mlabels-left">
+      <table class="memname">
+        <tr>
+          <td class="memname">const char * tlv::message </td>
+          <td>(</td>
+          <td class="paramtype"><a class="el" href="namespacetlv.html#a047694bc3dd10e75e2dc596b4654abf3">writer_phase</a>&#160;</td>
+          <td class="paramname"><em>value</em></td><td>)</td>
+          <td></td>
+        </tr>
+      </table>
+  </td>
+  <td class="mlabels-right">
+<span class="mlabels"><span class="mlabel">inline</span><span class="mlabel">noexcept</span></span>  </td>
+  </tr>
+</table>
+</div><div class="memdoc">
+
+<p>Canonical static name, or unknown for unrecognized categories. </p>
 
 </div>
 </div>
@@ -4225,7 +4647,7 @@ template&lt;typename F &gt; </div>
   </table>
   </dd>
 </dl>
-<dl class="section note"><dt>Note</dt><dd>Format construction or movement may allocate if F does. Range machinery and successful iteration do not allocate or copy Value bytes. begin() consumes from the current position, with the same single-pass rules as <a class="el" href="classtlv_1_1detail_1_1reader__base.html#a823c65241e52f804b56afdb32a428846" title="Consume and publish the next element at the current cursor position.">reader::begin()</a>. </dd></dl>
+<dl class="section note"><dt>Note</dt><dd>Format construction or movement may allocate if F does. Range machinery and successful iteration do not allocate or copy Value bytes. <a class="el" href="namespacetlv.html#a047694bc3dd10e75e2dc596b4654abf3a8d589afa4dfaeeed85fff5aa78e5ff6a">begin()</a> consumes from the current position, with the same single-pass rules as <a class="el" href="classtlv_1_1detail_1_1reader__base.html#a823c65241e52f804b56afdb32a428846" title="Consume and publish the next element at the current cursor position.">reader::begin()</a>. </dd></dl>
 <dl class="section warning"><dt>Warning</dt><dd>Input and storage borrowed by F must outlive retained results. The range must also outlive views borrowing its owned Format. Moving it invalidates iterators and views borrowing its previous Format storage. No copy or assignment is provided. </dd></dl>
 
 </div>
@@ -4269,7 +4691,7 @@ template&lt;typename F &gt; </div>
 </div>
 </div>
 <a id="afe9d31d2a00160499f44e858c792ec41" name="afe9d31d2a00160499f44e858c792ec41"></a>
-<h2 class="memtitle"><span class="permalink"><a href="#afe9d31d2a00160499f44e858c792ec41">&#9670;&#160;</a></span>phase() <span class="overload">[1/2]</span></h2>
+<h2 class="memtitle"><span class="permalink"><a href="#afe9d31d2a00160499f44e858c792ec41">&#9670;&#160;</a></span>phase() <span class="overload">[1/3]</span></h2>
 
 <div class="memitem">
 <div class="memproto">
@@ -4297,7 +4719,7 @@ template&lt;typename F &gt; </div>
 </div>
 </div>
 <a id="a64e562b5fddbfebe49856337239aafb5" name="a64e562b5fddbfebe49856337239aafb5"></a>
-<h2 class="memtitle"><span class="permalink"><a href="#a64e562b5fddbfebe49856337239aafb5">&#9670;&#160;</a></span>phase() <span class="overload">[2/2]</span></h2>
+<h2 class="memtitle"><span class="permalink"><a href="#a64e562b5fddbfebe49856337239aafb5">&#9670;&#160;</a></span>phase() <span class="overload">[2/3]</span></h2>
 
 <div class="memitem">
 <div class="memproto">
@@ -4321,6 +4743,34 @@ template&lt;typename F &gt; </div>
 </div><div class="memdoc">
 
 <p>Apply phase to the Reader-specific part of a complete diagnostic. </p>
+
+</div>
+</div>
+<a id="a85a677677e9828e3e2e015a7ff141353" name="a85a677677e9828e3e2e015a7ff141353"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#a85a677677e9828e3e2e015a7ff141353">&#9670;&#160;</a></span>phase() <span class="overload">[3/3]</span></h2>
+
+<div class="memitem">
+<div class="memproto">
+<table class="mlabels">
+  <tr>
+  <td class="mlabels-left">
+      <table class="memname">
+        <tr>
+          <td class="memname"><a class="el" href="namespacetlv.html#a047694bc3dd10e75e2dc596b4654abf3">writer_phase</a> tlv::phase </td>
+          <td>(</td>
+          <td class="paramtype">const <a class="el" href="namespacetlv.html#a1df134eb9e2b476155eb324618396e4d">writer_diagnostic</a> &amp;&#160;</td>
+          <td class="paramname"><em>value</em></td><td>)</td>
+          <td></td>
+        </tr>
+      </table>
+  </td>
+  <td class="mlabels-right">
+<span class="mlabels"><span class="mlabel">inline</span><span class="mlabel">noexcept</span></span>  </td>
+  </tr>
+</table>
+</div><div class="memdoc">
+
+<p>Typed operation associated with Writer evidence. </p>
 
 </div>
 </div>
@@ -4408,7 +4858,7 @@ template&lt;typename F &gt; </div>
 <p>Reproduce original bytes after checking semantic equality. </p>
 <dl class="params"><dt>Parameters</dt><dd>
   <table class="params">
-    <tr><td class="paramdir">[in]</td><td class="paramname">original</td><td>Immutable borrowed source from <a class="el" href="namespacetlv.html#ac8c79662a9de381b9e60f3a762c664a3" title="Decode one element and retain its original wire ranges without allocation.">decode()</a>. </td></tr>
+    <tr><td class="paramdir">[in]</td><td class="paramname">original</td><td>Immutable borrowed source from <a class="el" href="namespacetlv.html#a0e6dec4706a8d713e39ab60230d357fea5b93625023a1c2180221257849744b59">decode()</a>. </td></tr>
     <tr><td class="paramdir">[in]</td><td class="paramname">value</td><td>Current semantic content. </td></tr>
     <tr><td class="paramdir">[out]</td><td class="paramname">data</td><td>Destination, or NULL with zero capacity for a size query. </td></tr>
     <tr><td class="paramdir">[in]</td><td class="paramname">capacity</td><td>Native writable bytes.</td></tr>

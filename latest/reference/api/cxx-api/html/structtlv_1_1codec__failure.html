@@ -98,6 +98,15 @@ Public Member Functions</h2></td></tr>
 <tr class="memitem:a70c4bd74b0bfff478ede027d5a9ae029" id="r_a70c4bd74b0bfff478ede027d5a9ae029"><td class="memItemLeft" align="right" valign="top">&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="structtlv_1_1codec__failure.html#a70c4bd74b0bfff478ede027d5a9ae029">codec_failure</a> (<a class="elRef" href="../../c-api/html/group__core.html#ga164d2817a32e5d7b7aa1472e887b47c3">tlv_result_t</a> <a class="el" href="namespacetlv.html#a0e9dc5e120173d6322fc63d2d1fc09c3a2063c1608d6e0baf80249c42e2be5804">value</a>, const <a class="elRef" href="../../c-api/html/codec_2diagnostic_8h.html#a59f8458396cf6b5047ba62210725b13c">tlv_codec_diagnostic_t</a> &amp;detail) noexcept</td></tr>
 <tr class="memdesc:a70c4bd74b0bfff478ede027d5a9ae029"><td class="mdescLeft">&#160;</td><td class="mdescRight">Preserve the full optional diagnostic by value; external borrows remain borrowed.  <br /></td></tr>
 <tr class="separator:a70c4bd74b0bfff478ede027d5a9ae029"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:acc11b26af6cdc1a32811f875218c3d66" id="r_acc11b26af6cdc1a32811f875218c3d66"><td class="memItemLeft" align="right" valign="top"><a class="el" href="namespacetlv.html#a0e6dec4706a8d713e39ab60230d357fe">codec_phase</a>&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="structtlv_1_1codec__failure.html#acc11b26af6cdc1a32811f875218c3d66">phase</a> () const noexcept</td></tr>
+<tr class="memdesc:acc11b26af6cdc1a32811f875218c3d66"><td class="mdescLeft">&#160;</td><td class="mdescRight">Operation attempted by this conversion.  <br /></td></tr>
+<tr class="separator:acc11b26af6cdc1a32811f875218c3d66"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a73d439fc2521b0055b65f5e30bf85f99" id="r_a73d439fc2521b0055b65f5e30bf85f99"><td class="memItemLeft" align="right" valign="top"><a class="el" href="namespacetlv.html#a91405148dda4604c55fd30e57b5f91b1">codec_cause</a>&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="structtlv_1_1codec__failure.html#a73d439fc2521b0055b65f5e30bf85f99">cause</a> () const noexcept</td></tr>
+<tr class="memdesc:a73d439fc2521b0055b65f5e30bf85f99"><td class="mdescLeft">&#160;</td><td class="mdescRight">Delegated diagnostic category.  <br /></td></tr>
+<tr class="separator:a73d439fc2521b0055b65f5e30bf85f99"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a72cd6da380bd7afd3d0bdf7e99c58e98" id="r_a72cd6da380bd7afd3d0bdf7e99c58e98"><td class="memItemLeft" align="right" valign="top"><a class="el" href="namespacetlv.html#a410ac284e31ff7048dc535bdcac064a2">codec_violation</a>&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="structtlv_1_1codec__failure.html#a72cd6da380bd7afd3d0bdf7e99c58e98">violation</a> () const noexcept</td></tr>
+<tr class="memdesc:a72cd6da380bd7afd3d0bdf7e99c58e98"><td class="mdescLeft">&#160;</td><td class="mdescRight">Callback contract violation, if detected.  <br /></td></tr>
+<tr class="separator:a72cd6da380bd7afd3d0bdf7e99c58e98"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:ad7e3a31c7602578aaa294657b6fd8c95" id="r_ad7e3a31c7602578aaa294657b6fd8c95"><td class="memItemLeft" align="right" valign="top"><a class="el" href="namespacetlv.html#ab9d10b8185e9a80cd73b5a0ef633a22c">errc</a>&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="structtlv_1_1codec__failure.html#ad7e3a31c7602578aaa294657b6fd8c95">status</a> () const noexcept</td></tr>
 <tr class="memdesc:ad7e3a31c7602578aaa294657b6fd8c95"><td class="mdescLeft">&#160;</td><td class="mdescRight">Common C++ result classification.  <br /></td></tr>
 <tr class="separator:ad7e3a31c7602578aaa294657b6fd8c95"><td class="memSeparator" colspan="2">&#160;</td></tr>
@@ -225,6 +234,33 @@ Friends</h2></td></tr>
 </div>
 </div>
 <h2 class="groupheader">Member Function Documentation</h2>
+<a id="a73d439fc2521b0055b65f5e30bf85f99" name="a73d439fc2521b0055b65f5e30bf85f99"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#a73d439fc2521b0055b65f5e30bf85f99">&#9670;&#160;</a></span>cause()</h2>
+
+<div class="memitem">
+<div class="memproto">
+<table class="mlabels">
+  <tr>
+  <td class="mlabels-left">
+      <table class="memname">
+        <tr>
+          <td class="memname"><a class="el" href="namespacetlv.html#a91405148dda4604c55fd30e57b5f91b1">codec_cause</a> tlv::codec_failure::cause </td>
+          <td>(</td>
+          <td class="paramname"></td><td>)</td>
+          <td> const</td>
+        </tr>
+      </table>
+  </td>
+  <td class="mlabels-right">
+<span class="mlabels"><span class="mlabel">inline</span><span class="mlabel">noexcept</span></span>  </td>
+  </tr>
+</table>
+</div><div class="memdoc">
+
+<p>Delegated diagnostic category. </p>
+
+</div>
+</div>
 <a id="acc621a955b2c1a82de4cf8ad79617209" name="acc621a955b2c1a82de4cf8ad79617209"></a>
 <h2 class="memtitle"><span class="permalink"><a href="#acc621a955b2c1a82de4cf8ad79617209">&#9670;&#160;</a></span>failure()</h2>
 
@@ -306,6 +342,33 @@ Friends</h2></td></tr>
 
 </div>
 </div>
+<a id="acc11b26af6cdc1a32811f875218c3d66" name="acc11b26af6cdc1a32811f875218c3d66"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#acc11b26af6cdc1a32811f875218c3d66">&#9670;&#160;</a></span>phase()</h2>
+
+<div class="memitem">
+<div class="memproto">
+<table class="mlabels">
+  <tr>
+  <td class="mlabels-left">
+      <table class="memname">
+        <tr>
+          <td class="memname"><a class="el" href="namespacetlv.html#a0e6dec4706a8d713e39ab60230d357fe">codec_phase</a> tlv::codec_failure::phase </td>
+          <td>(</td>
+          <td class="paramname"></td><td>)</td>
+          <td> const</td>
+        </tr>
+      </table>
+  </td>
+  <td class="mlabels-right">
+<span class="mlabels"><span class="mlabel">inline</span><span class="mlabel">noexcept</span></span>  </td>
+  </tr>
+</table>
+</div><div class="memdoc">
+
+<p>Operation attempted by this conversion. </p>
+
+</div>
+</div>
 <a id="ad7e3a31c7602578aaa294657b6fd8c95" name="ad7e3a31c7602578aaa294657b6fd8c95"></a>
 <h2 class="memtitle"><span class="permalink"><a href="#ad7e3a31c7602578aaa294657b6fd8c95">&#9670;&#160;</a></span>status()</h2>
 
@@ -330,6 +393,33 @@ Friends</h2></td></tr>
 </div><div class="memdoc">
 
 <p>Common C++ result classification. </p>
+
+</div>
+</div>
+<a id="a72cd6da380bd7afd3d0bdf7e99c58e98" name="a72cd6da380bd7afd3d0bdf7e99c58e98"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#a72cd6da380bd7afd3d0bdf7e99c58e98">&#9670;&#160;</a></span>violation()</h2>
+
+<div class="memitem">
+<div class="memproto">
+<table class="mlabels">
+  <tr>
+  <td class="mlabels-left">
+      <table class="memname">
+        <tr>
+          <td class="memname"><a class="el" href="namespacetlv.html#a410ac284e31ff7048dc535bdcac064a2">codec_violation</a> tlv::codec_failure::violation </td>
+          <td>(</td>
+          <td class="paramname"></td><td>)</td>
+          <td> const</td>
+        </tr>
+      </table>
+  </td>
+  <td class="mlabels-right">
+<span class="mlabels"><span class="mlabel">inline</span><span class="mlabel">noexcept</span></span>  </td>
+  </tr>
+</table>
+</div><div class="memdoc">
+
+<p>Callback contract violation, if detected. </p>
 
 </div>
 </div>

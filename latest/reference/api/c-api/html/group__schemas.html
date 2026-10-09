@@ -354,6 +354,9 @@ Functions</h2></td></tr>
 <tr class="memitem:ga7f8651f7f1f83f182b82bdb42e07c519" id="r_ga7f8651f7f1f83f182b82bdb42e07c519"><td class="memItemLeft" align="right" valign="top">const char *&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="group__schemas.html#ga7f8651f7f1f83f182b82bdb42e07c519">tlv_schema_issue_kind_string</a> (<a class="el" href="group__schemas.html#ga3227a53ef45b23ad3a68daf7a412be6d">tlv_schema_issue_kind_t</a> kind)</td></tr>
 <tr class="memdesc:ga7f8651f7f1f83f182b82bdb42e07c519"><td class="mdescLeft">&#160;</td><td class="mdescRight">Returns a short name for a violation kind.  <br /></td></tr>
 <tr class="separator:ga7f8651f7f1f83f182b82bdb42e07c519"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:gaafdbd1deb8a555e60d207b32d43d6572" id="r_gaafdbd1deb8a555e60d207b32d43d6572"><td class="memItemLeft" align="right" valign="top">const char *&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="group__schemas.html#gaafdbd1deb8a555e60d207b32d43d6572">tlv_schema_definition_kind_string</a> (<a class="el" href="group__schemas.html#ga61f8b4cdcf9c639a9a779a20c7bb012a">tlv_schema_definition_kind_t</a> value)</td></tr>
+<tr class="memdesc:gaafdbd1deb8a555e60d207b32d43d6572"><td class="mdescLeft">&#160;</td><td class="mdescRight">Returns the diagnostic name of a schema definition kind.  <br /></td></tr>
+<tr class="separator:gaafdbd1deb8a555e60d207b32d43d6572"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:ga3b0f2029a9060eab1d2fddc71269bd3e" id="r_ga3b0f2029a9060eab1d2fddc71269bd3e"><td class="memItemLeft" align="right" valign="top">void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="group__schemas.html#ga3b0f2029a9060eab1d2fddc71269bd3e">tlv_schema_diagnostic_init</a> (<a class="el" href="group__schemas.html#ga76559fb9baaff706b34cab6954926c98">tlv_schema_diagnostic_t</a> *diagnostic)</td></tr>
 <tr class="memdesc:ga3b0f2029a9060eab1d2fddc71269bd3e"><td class="mdescLeft">&#160;</td><td class="mdescRight">Resets a schema diagnostic to all-unset.  <br /></td></tr>
 <tr class="separator:ga3b0f2029a9060eab1d2fddc71269bd3e"><td class="memSeparator" colspan="2">&#160;</td></tr>
@@ -1424,6 +1427,34 @@ Any permitted callback error, propagated unchanged unless an earlier schema/valu
 
 </div>
 </div>
+<a id="gaafdbd1deb8a555e60d207b32d43d6572" name="gaafdbd1deb8a555e60d207b32d43d6572"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#gaafdbd1deb8a555e60d207b32d43d6572">&#9670;&#160;</a></span>tlv_schema_definition_kind_string()</h2>
+
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname">const char * tlv_schema_definition_kind_string </td>
+          <td>(</td>
+          <td class="paramtype"><a class="el" href="group__schemas.html#ga61f8b4cdcf9c639a9a779a20c7bb012a">tlv_schema_definition_kind_t</a>&#160;</td>
+          <td class="paramname"><em>value</em></td><td>)</td>
+          <td></td>
+        </tr>
+      </table>
+</div><div class="memdoc">
+
+<p>Returns the diagnostic name of a schema definition kind. </p>
+<dl class="params"><dt>Parameters</dt><dd>
+  <table class="params">
+    <tr><td class="paramdir">[in]</td><td class="paramname">value</td><td>Diagnostic enum value. </td></tr>
+  </table>
+  </dd>
+</dl>
+<dl class="section return"><dt>Returns</dt><dd>A static NUL-terminated string, or <code>"unknown"</code> for an unrecognized value. </dd></dl>
+<dl class="section note"><dt>Note</dt><dd>Never returns NULL or allocates. Do not free or modify the string. Available even when the corresponding capability is disabled. </dd></dl>
+
+</div>
+</div>
 <a id="ga3b0f2029a9060eab1d2fddc71269bd3e" name="ga3b0f2029a9060eab1d2fddc71269bd3e"></a>
 <h2 class="memtitle"><span class="permalink"><a href="#ga3b0f2029a9060eab1d2fddc71269bd3e">&#9670;&#160;</a></span>tlv_schema_diagnostic_init()</h2>
 
@@ -1487,7 +1518,7 @@ Any permitted callback error, propagated unchanged unless an earlier schema/valu
 </dl>
 <dl class="section return"><dt>Returns</dt><dd>The first matching entry, borrowed from the schema's table. </dd>
 <dd>
-<code>NULL</code> for an unknown tag, <code>NULL</code> arguments, or a missing nonempty table. </dd></dl>
+<code>NULL</code> for an unknown tag, <code>NULL</code> arguments, an invalid lookup tag, or a missing nonempty table. No separate failure channel is provided. </dd></dl>
 
 </div>
 </div>
@@ -1515,6 +1546,7 @@ Any permitted callback error, propagated unchanged unless an earlier schema/valu
   </dd>
 </dl>
 <dl class="section return"><dt>Returns</dt><dd>A static, NUL-terminated string such as <code>"missing"</code> or <code>"order"</code>, never <code>NULL</code>; an unrecognized value yields <code>"unknown"</code>. </dd></dl>
+<dl class="section note"><dt>Note</dt><dd>Available even when Schema processing is disabled; never allocates. </dd></dl>
 
 </div>
 </div>

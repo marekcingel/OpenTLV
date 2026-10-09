@@ -4641,7 +4641,13 @@ value)</code>, <code>set_input(bytes, discard, final)</code>, <code>next()</code
 Lua strings and match snapshots own copied bytes. Callback errors invalidate
 the execution until reset, and reentrant calls are rejected. <code>close()</code> releases
 native owners deterministically. Native failures raise tables with <code>code</code> and
-Query diagnostic detail. See <a href="https://github.com/marekcingel/OpenTLV/blob/main/bindings/lua/tests/program_spec.lua">consumer tests</a>.</p>
+Query diagnostic detail. <code>error.query.kind_name</code> is the canonical C category,
+such as <code>syntax</code> or <code>state</code>. Reader <code>operation</code> includes <code>header</code>; Reader bounds
+and field offsets retain their presence, and lengths beyond Lua's exact numeric
+range use decimal strings. Codec detail adds <code>operation_name</code>, <code>cause_name</code> and
+<code>violation_name</code> beside raw numeric values. See the
+<a href="../../reference/errors/#binding-diagnostics">binding diagnostic reference</a> and
+<a href="https://github.com/marekcingel/OpenTLV/blob/main/bindings/lua/tests/program_spec.lua">consumer tests</a>.</p>
 <p>Compile options accept <code>providers = {num = {id = ..., decode = ...}, ...}</code> for
 <code>num</code>, <code>bcd</code>, <code>text</code> and <code>date</code>. Callbacks receive a Value string and optional
 copied event metadata; return an integer or a UTF-8 string for <code>text</code>. Set

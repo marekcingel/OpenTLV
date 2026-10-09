@@ -3847,8 +3847,9 @@ call. Callback exceptions invalidate the execution until reset; reentrant calls
 on that execution are rejected. Scalars use <code>finish()</code> then <code>result()</code>; <code>info</code>
 reports native validation and resource coverage. Explicit limits include
 <code>max_depth</code>, <code>max_nodes</code> and <code>max_work</code>.
-Reader failures preserve copied field offsets, Tag, raw length, expected/actual
-text, path and diagnostic context in <code>error.query.reader</code>.</p>
+Reader failures preserve copied field offsets, Tag and raw length in
+<code>error.query.reader</code>; expected/actual text, path and diagnostic context appear
+once in <code>error.query.diagnostic</code>, shared with any <code>codec_detail</code>.</p>
 <p><code>new V1Query("70/5A")</code> exposes bounded legacy parsing, <code>format()</code>, copied <code>steps</code>,
 <code>evaluate(input, options)</code> and a native preorder matcher. <code>matcher()</code> creates an
 independent owner; feed every Tag and depth with <code>feed(tag, depth)</code>, and call

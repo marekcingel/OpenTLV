@@ -126,7 +126,7 @@ Public Member Functions</h2></td></tr>
 <tr class="memdesc:a91a2669aa6fe17173f8110159203760f"><td class="mdescLeft">&#160;</td><td class="mdescRight">Read-only snapshot of path matches; allocates the result vector.  <br /></td></tr>
 <tr class="separator:a91a2669aa6fe17173f8110159203760f"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:a31ef41de29c8bb3c3cca41d02c735275" id="r_a31ef41de29c8bb3c3cca41d02c735275"><td class="memItemLeft" align="right" valign="top">std::vector&lt; <a class="el" href="classtlv_1_1const__node.html">const_node</a> &gt;&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classtlv_1_1document.html#a31ef41de29c8bb3c3cca41d02c735275">select</a> (const char *text) const</td></tr>
-<tr class="memdesc:a31ef41de29c8bb3c3cca41d02c735275"><td class="mdescLeft">&#160;</td><td class="mdescRight">Compile a path and obtain a read-only snapshot; throws <a class="el" href="classtlv_1_1query__error.html" title="Query compilation failure with the original C error and text offset.">query_error</a> on syntax failure.  <br /></td></tr>
+<tr class="memdesc:a31ef41de29c8bb3c3cca41d02c735275"><td class="mdescLeft">&#160;</td><td class="mdescRight">Compile a path and obtain a read-only snapshot; throws <a class="el" href="classtlv_1_1query__error.html" title="Query compilation or lookup failure with the original C error and location.">query_error</a> on syntax failure.  <br /></td></tr>
 <tr class="separator:a31ef41de29c8bb3c3cca41d02c735275"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:a8b3fd4527693f2bb6093a58183b4d637" id="r_a8b3fd4527693f2bb6093a58183b4d637"><td class="memItemLeft" align="right" valign="top"><a class="el" href="classtlv_1_1expected.html">expected</a>&lt; std::vector&lt; <a class="el" href="classtlv_1_1const__node.html">const_node</a> &gt;, <a class="el" href="structtlv_1_1query__failure.html">query_failure</a> &gt;&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classtlv_1_1document.html#a8b3fd4527693f2bb6093a58183b4d637">select</a> (const <a class="el" href="classtlv_1_1query__program.html">query_program</a> &amp;program, <a class="el" href="classtlv_1_1query__capabilities.html">query_capabilities</a> environment=nullptr, size_t max_work=100000000) const</td></tr>
 <tr class="memdesc:a8b3fd4527693f2bb6093a58183b4d637"><td class="mdescLeft">&#160;</td><td class="mdescRight">Evaluate a compiled query and return read-only handles; may allocate.  <br /></td></tr>
@@ -763,7 +763,13 @@ The format callbacks' contexts are borrowed and must outlive the document. Docum
   </table>
   </dd>
 </dl>
-<dl class="section return"><dt>Returns</dt><dd>The first addressed element in document order, or an empty handle. </dd></dl>
+<dl class="section return"><dt>Returns</dt><dd>The first addressed element in document order, or an empty handle when no element matches. </dd></dl>
+<dl class="exception"><dt>Exceptions</dt><dd>
+  <table class="exception">
+    <tr><td class="paramname"><a class="el" href="classtlv_1_1query__error.html" title="Query compilation or lookup failure with the original C error and location.">query_error</a></td><td>If native path validation fails, including an empty query (<code>INVALID_ARG</code>). The error carries only the result code; its diagnostic is empty and its location unknown. </td></tr>
+  </table>
+  </dd>
+</dl>
 
 </div>
 </div>
@@ -1366,7 +1372,7 @@ template&lt;typename Field &gt; </div>
 <dl class="section return"><dt>Returns</dt><dd>Snapshot with the lifetime and mutation rules of <a class="el" href="classtlv_1_1document.html#ab85c865445c883cea28a0f7a425e9ebe" title="Select all matching Nodes in Document order.">select(const query&amp;)</a>. </dd></dl>
 <dl class="exception"><dt>Exceptions</dt><dd>
   <table class="exception">
-    <tr><td class="paramname"><a class="el" href="classtlv_1_1query__error.html" title="Query compilation failure with the original C error and text offset.">query_error</a></td><td>On compilation failure, retaining the original text offset. </td></tr>
+    <tr><td class="paramname"><a class="el" href="classtlv_1_1query__error.html" title="Query compilation or lookup failure with the original C error and location.">query_error</a></td><td>On compilation failure, retaining the original text offset. </td></tr>
     <tr><td class="paramname">std::bad_alloc</td><td>On C++ result or handle allocation failure. </td></tr>
   </table>
   </dd>
@@ -1398,7 +1404,7 @@ template&lt;typename Field &gt; </div>
 </table>
 </div><div class="memdoc">
 
-<p>Compile a path and obtain a read-only snapshot; throws <a class="el" href="classtlv_1_1query__error.html" title="Query compilation failure with the original C error and text offset.">query_error</a> on syntax failure. </p>
+<p>Compile a path and obtain a read-only snapshot; throws <a class="el" href="classtlv_1_1query__error.html" title="Query compilation or lookup failure with the original C error and location.">query_error</a> on syntax failure. </p>
 
 </div>
 </div>

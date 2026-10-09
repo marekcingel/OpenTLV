@@ -1234,7 +1234,8 @@ Variables</h2></td></tr>
 </dl>
 <dl class="section return"><dt>Returns</dt><dd>The borrowed, NUL-terminated name of the entry whose <code>position</code> matches. </dd>
 <dd>
-<code>NULL</code> if no entry matches. </dd></dl>
+<code>NULL</code> if no entry matches or the matching entry's name is NULL. </dd></dl>
+<dl class="section note"><dt>Note</dt><dd>The caller must supply a valid table extent; this lookup does not validate the table and has no separate failure channel. </dd></dl>
 
 </div>
 </div>

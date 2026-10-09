@@ -80,7 +80,7 @@ $(function() {
 </div><!--header-->
 <div class="contents">
 
-<p>Query compilation failure with the original C error and text offset.  
+<p>Query compilation or lookup failure with the original C error and location.  
  <a href="classtlv_1_1query__error.html#details">More...</a></p>
 
 <p><code>#include &lt;query.hpp&gt;</code></p>
@@ -94,10 +94,10 @@ Inheritance diagram for tlv::query_error:</div>
 <tr class="heading"><td colspan="2"><h2 class="groupheader"><a id="pub-methods" name="pub-methods"></a>
 Public Member Functions</h2></td></tr>
 <tr class="memitem:a17cc6d3ec4f43feb1fd99d7826607386" id="r_a17cc6d3ec4f43feb1fd99d7826607386"><td class="memItemLeft" align="right" valign="top">&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classtlv_1_1query__error.html#a17cc6d3ec4f43feb1fd99d7826607386">query_error</a> (<a class="elRef" href="../../c-api/html/group__core.html#ga164d2817a32e5d7b7aa1472e887b47c3">tlv_result_t</a> <a class="el" href="classtlv_1_1query__error.html#a5aecf3d97da38a1ad34ed7776ad2b1d3">code</a>, <a class="elRef" href="../../c-api/html/group__diagnostics.html#ga2118f30a61e0b0b3ba5d20c73a740b2e">tlv_diagnostic_t</a> <a class="el" href="namespacetlv.html#a00ca9c69c35ef11f6a22b7eda1b115ba">diagnostic</a>)</td></tr>
-<tr class="memdesc:a17cc6d3ec4f43feb1fd99d7826607386"><td class="mdescLeft">&#160;</td><td class="mdescRight">Retain compilation error code and offending text position.  <br /></td></tr>
+<tr class="memdesc:a17cc6d3ec4f43feb1fd99d7826607386"><td class="mdescLeft">&#160;</td><td class="mdescRight">Retain the original failure code and optional evidence location.  <br /></td></tr>
 <tr class="separator:a17cc6d3ec4f43feb1fd99d7826607386"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:a5aecf3d97da38a1ad34ed7776ad2b1d3" id="r_a5aecf3d97da38a1ad34ed7776ad2b1d3"><td class="memItemLeft" align="right" valign="top"><a class="elRef" href="../../c-api/html/group__core.html#ga164d2817a32e5d7b7aa1472e887b47c3">tlv_result_t</a>&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classtlv_1_1query__error.html#a5aecf3d97da38a1ad34ed7776ad2b1d3">code</a> () const noexcept</td></tr>
-<tr class="memdesc:a5aecf3d97da38a1ad34ed7776ad2b1d3"><td class="mdescLeft">&#160;</td><td class="mdescRight">Original C compilation result.  <br /></td></tr>
+<tr class="memdesc:a5aecf3d97da38a1ad34ed7776ad2b1d3"><td class="mdescLeft">&#160;</td><td class="mdescRight">Original C compilation or lookup result.  <br /></td></tr>
 <tr class="separator:a5aecf3d97da38a1ad34ed7776ad2b1d3"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:aaac43e1c393520ad4e04a1130ae8635d" id="r_aaac43e1c393520ad4e04a1130ae8635d"><td class="memItemLeft" align="right" valign="top"><a class="el" href="namespacetlv.html#ab9d10b8185e9a80cd73b5a0ef633a22c">errc</a>&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classtlv_1_1query__error.html#aaac43e1c393520ad4e04a1130ae8635d">status</a> () const noexcept</td></tr>
 <tr class="memdesc:aaac43e1c393520ad4e04a1130ae8635d"><td class="mdescLeft">&#160;</td><td class="mdescRight">Canonical C++ status matching nonthrowing Query parsing.  <br /></td></tr>
@@ -113,7 +113,7 @@ Public Member Functions</h2></td></tr>
 <tr class="separator:a83ec96ea0178f47dd25ecc2453d59abe"><td class="memSeparator" colspan="2">&#160;</td></tr>
 </table>
 <a name="details" id="details"></a><h2 class="groupheader">Detailed Description</h2>
-<div class="textblock"><p>Query compilation failure with the original C error and text offset. </p>
+<div class="textblock"><p>Query compilation or lookup failure with the original C error and location. </p>
 </div><h2 class="groupheader">Constructor &amp; Destructor Documentation</h2>
 <a id="a17cc6d3ec4f43feb1fd99d7826607386" name="a17cc6d3ec4f43feb1fd99d7826607386"></a>
 <h2 class="memtitle"><span class="permalink"><a href="#a17cc6d3ec4f43feb1fd99d7826607386">&#9670;&#160;</a></span>query_error()</h2>
@@ -149,7 +149,7 @@ Public Member Functions</h2></td></tr>
 </table>
 </div><div class="memdoc">
 
-<p>Retain compilation error code and offending text position. </p>
+<p>Retain the original failure code and optional evidence location. </p>
 
 </div>
 </div>
@@ -177,7 +177,7 @@ Public Member Functions</h2></td></tr>
 </table>
 </div><div class="memdoc">
 
-<p>Original C compilation result. </p>
+<p>Original C compilation or lookup result. </p>
 
 </div>
 </div>

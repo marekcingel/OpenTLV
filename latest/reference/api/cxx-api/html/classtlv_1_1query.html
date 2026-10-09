@@ -112,7 +112,7 @@ Public Member Functions</h2></td></tr>
 <tr class="heading"><td colspan="2"><h2 class="groupheader"><a id="pub-static-methods" name="pub-static-methods"></a>
 Static Public Member Functions</h2></td></tr>
 <tr class="memitem:a66873fd47c90ba778ea6426d6dc66ca5" id="r_a66873fd47c90ba778ea6426d6dc66ca5"><td class="memItemLeft" align="right" valign="top">static <a class="el" href="classtlv_1_1query.html">query</a>&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classtlv_1_1query.html#a66873fd47c90ba778ea6426d6dc66ca5">compile</a> (const char *text)</td></tr>
-<tr class="memdesc:a66873fd47c90ba778ea6426d6dc66ca5"><td class="mdescLeft">&#160;</td><td class="mdescRight">Compile a path, throwing <a class="el" href="classtlv_1_1query__error.html" title="Query compilation failure with the original C error and text offset.">query_error</a> on failure.  <br /></td></tr>
+<tr class="memdesc:a66873fd47c90ba778ea6426d6dc66ca5"><td class="mdescLeft">&#160;</td><td class="mdescRight">Compile a path, throwing <a class="el" href="classtlv_1_1query__error.html" title="Query compilation or lookup failure with the original C error and location.">query_error</a> on failure.  <br /></td></tr>
 <tr class="separator:a66873fd47c90ba778ea6426d6dc66ca5"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:af72e30d0d38179197b87eb7198a29f9a" id="r_af72e30d0d38179197b87eb7198a29f9a"><td class="memItemLeft" align="right" valign="top">static <a class="el" href="classtlv_1_1expected.html">expected</a>&lt; <a class="el" href="classtlv_1_1query.html">query</a>, <a class="el" href="structtlv_1_1error.html">error</a> &gt;&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classtlv_1_1query.html#af72e30d0d38179197b87eb7198a29f9a">parse</a> (const char *text, <a class="elRef" href="../../c-api/html/group__diagnostics.html#ga2118f30a61e0b0b3ba5d20c73a740b2e">tlv_diagnostic_t</a> *<a class="el" href="namespacetlv.html#a00ca9c69c35ef11f6a22b7eda1b115ba">diagnostic</a>=nullptr)</td></tr>
 <tr class="memdesc:af72e30d0d38179197b87eb7198a29f9a"><td class="mdescLeft">&#160;</td><td class="mdescRight">Parses the text of a query.  <br /></td></tr>
@@ -157,7 +157,7 @@ Friends</h2></td></tr>
 </table>
 </div><div class="memdoc">
 
-<p>Compile a path, throwing <a class="el" href="classtlv_1_1query__error.html" title="Query compilation failure with the original C error and text offset.">query_error</a> on failure. </p>
+<p>Compile a path, throwing <a class="el" href="classtlv_1_1query__error.html" title="Query compilation or lookup failure with the original C error and location.">query_error</a> on failure. </p>
 <dl class="params"><dt>Parameters</dt><dd>
   <table class="params">
     <tr><td class="paramname">text</td><td>NUL-terminated path; not retained. </td></tr>
