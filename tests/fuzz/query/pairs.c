@@ -233,14 +233,23 @@ int LLVMFuzzerTestOneInput(const uint8_t* data, size_t size) {
         tlv_result_t           rc =
             tlv_query_program_visit(&reader, conversion_exec, collect, &matches[2], &diagnostic);
         if (provider.status != TLV_OK || provider.invalid_type) {
-            const tlv_result_t expected_codec = provider.status;
-            if (rc != (provider.status == TLV_OK ? TLV_ERR_CALLBACK : TLV_ERR_INVALID_VALUE) ||
-                diagnostic.kind != (provider.status == TLV_OK ? TLV_QUERY_ERROR_CALLBACK
-                                                              : TLV_QUERY_ERROR_CODEC) ||
-                diagnostic.codec != expected_codec ||
-                !(diagnostic.diagnostic.location.domain == TLV_LOCATION_INPUT &&
-                  diagnostic.diagnostic.location.kind != TLV_LOCATION_UNKNOWN) ||
-                diagnostic.diagnostic.location.begin != 0 || diagnostic.begin >= diagnostic.end ||
+            const int32_t      expected_codec = (int32_t)provider.status;
+            const tlv_result_t expected =
+                provider.status == TLV_OK || provider.status == TLV_ERR_END_OF_BUFFER
+                    ? TLV_ERR_CALLBACK
+                    : provider.status;
+            const tlv_codec_violation_t violation =
+                provider.status == TLV_OK                  ? TLV_CODEC_VIOLATION_TYPE
+                : provider.status == TLV_ERR_END_OF_BUFFER ? TLV_CODEC_VIOLATION_RESULT
+                                                           : TLV_CODEC_VIOLATION_NONE;
+            if (rc != expected || diagnostic.diagnostic.code != expected ||
+                diagnostic.kind != (expected == TLV_ERR_CALLBACK ? TLV_QUERY_ERROR_CALLBACK
+                                                                 : TLV_QUERY_ERROR_CODEC) ||
+                !diagnostic.has_codec || diagnostic.codec != expected_codec ||
+                diagnostic.codec_detail.reported != expected_codec ||
+                diagnostic.codec_detail.violation != violation ||
+                diagnostic.diagnostic.location.kind != TLV_LOCATION_UNKNOWN ||
+                diagnostic.begin >= diagnostic.end ||
                 tlv_query_program_visit(&reader, conversion_exec, collect, &matches[2], NULL) !=
                     TLV_ERR_INVALID_STATE)
                 abort();
