@@ -3965,7 +3965,9 @@ checks its result. The full Writer output comparison runs outside measurement.</
 <code>tlv_schema_validate()</code> and <code>tlv_der_schema_read()</code> call first checks the whole
 reachable definition, so each complete workload has a definition-check-only
 counterpart (<code>tlv_schema_check()</code> or <code>tlv_der_schema_check()</code>) on the same
-schema. Generic Schema validates with the BER Format; DER Schema reads one root
+schema. The prepared-handle cases (<code>tlv_schema_validate_checked()</code> and
+<code>tlv_der_schema_read_checked()</code>) run only in Google Benchmark, because this
+harness is also built against baseline checkouts that predate them. Generic Schema validates with the BER Format; DER Schema reads one root
 element. Schemas and inputs are built before measurement in
 <code>benchmarks/callgrind/schema_workloads.h</code>, which the Google Benchmark suite also
 uses.</p>

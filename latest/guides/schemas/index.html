@@ -1036,6 +1036,17 @@
 </li>
       
         <li class="md-nav__item">
+  <a href="#checking-a-definition-once" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Checking a definition once
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
   <a href="#next-step" class="md-nav__link">
     <span class="md-ellipsis">
       
@@ -3760,6 +3771,17 @@
 </li>
       
         <li class="md-nav__item">
+  <a href="#checking-a-definition-once" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Checking a definition once
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
   <a href="#next-step" class="md-nav__link">
     <span class="md-ellipsis">
       
@@ -4240,16 +4262,18 @@ validation without an ASN.1 constraint expression parser:</p>
 <p><code>tlv_schema_validate</code> stops at the first violation. To collect all violations,
 call <code>tlv_schema_validate_all_diag</code> with the same <code>tlv_structure_schema_t</code>.
 The rules, including occurrence, ordering, groups, form and length constraints,
-are shared with fail-fast validation.</p>
+are shared with fail-fast validation. For a single violation, the fail-fast
+diagnostic and the first report entry carry the same tag, path, field name and
+expected-versus-actual detail.</p>
 <div class="highlight"><pre><span></span><code><a id="__codelineno-17-1" name="__codelineno-17-1" href="#__codelineno-17-1"></a><span class="n">tlv_schema_diagnostic_t</span><span class="w"> </span><span class="n">diagnostics</span><span class="p">[</span><span class="mi">16</span><span class="p">];</span>
 <a id="__codelineno-17-2" name="__codelineno-17-2" href="#__codelineno-17-2"></a><span class="n">tlv_schema_diagnostic_report_t</span><span class="w"> </span><span class="n">report</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="p">{</span><span class="n">diagnostics</span><span class="p">,</span><span class="w"> </span><span class="mi">16</span><span class="p">,</span><span class="w"> </span><span class="mi">0</span><span class="p">};</span>
 <a id="__codelineno-17-3" name="__codelineno-17-3" href="#__codelineno-17-3"></a><span class="n">tlv_result_t</span><span class="w"> </span><span class="n">rc</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">tlv_schema_validate_all_diag</span><span class="p">(</span><span class="n">data</span><span class="p">,</span><span class="w"> </span><span class="n">size</span><span class="p">,</span><span class="w"> </span><span class="o">&amp;</span><span class="n">tlv_format_ber</span><span class="p">,</span>
-<a id="__codelineno-17-4" name="__codelineno-17-4" href="#__codelineno-17-4"></a><span class="w">    </span><span class="o">&amp;</span><span class="n">template_schema</span><span class="p">,</span><span class="w"> </span><span class="mi">16</span><span class="p">,</span><span class="w"> </span><span class="mi">1000</span><span class="p">,</span><span class="w"> </span><span class="n">TLV_SCHEMA_UNKNOWN_BY_SCHEMA</span><span class="p">,</span><span class="w"> </span><span class="o">&amp;</span><span class="n">report</span><span class="p">,</span><span class="w"> </span><span class="o">&amp;</span><span class="n">offset</span><span class="p">);</span>
+<a id="__codelineno-17-4" name="__codelineno-17-4" href="#__codelineno-17-4"></a><span class="w">    </span><span class="o">&amp;</span><span class="n">template_schema</span><span class="p">,</span><span class="w"> </span><span class="mi">16</span><span class="p">,</span><span class="w"> </span><span class="mi">1000</span><span class="p">,</span><span class="w"> </span><span class="n">TLV_SCHEMA_UNKNOWN_BY_SCHEMA</span><span class="p">,</span><span class="w"> </span><span class="o">&amp;</span><span class="n">report</span><span class="p">,</span><span class="w"> </span><span class="nb">NULL</span><span class="p">);</span>
 <a id="__codelineno-17-5" name="__codelineno-17-5" href="#__codelineno-17-5"></a><span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="n">rc</span><span class="w"> </span><span class="o">==</span><span class="w"> </span><span class="n">TLV_ERR_SCHEMA</span><span class="p">)</span><span class="w"> </span><span class="p">{</span>
 <a id="__codelineno-17-6" name="__codelineno-17-6" href="#__codelineno-17-6"></a><span class="w">    </span><span class="k">for</span><span class="w"> </span><span class="p">(</span><span class="kt">size_t</span><span class="w"> </span><span class="n">i</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mi">0</span><span class="p">;</span><span class="w"> </span><span class="n">i</span><span class="w"> </span><span class="o">&lt;</span><span class="w"> </span><span class="n">report</span><span class="p">.</span><span class="n">count</span><span class="w"> </span><span class="o">&amp;&amp;</span><span class="w"> </span><span class="n">i</span><span class="w"> </span><span class="o">&lt;</span><span class="w"> </span><span class="n">report</span><span class="p">.</span><span class="n">capacity</span><span class="p">;</span><span class="w"> </span><span class="o">++</span><span class="n">i</span><span class="p">)</span><span class="w"> </span><span class="p">{</span>
 <a id="__codelineno-17-7" name="__codelineno-17-7" href="#__codelineno-17-7"></a><span class="w">        </span><span class="k">const</span><span class="w"> </span><span class="n">tlv_schema_diagnostic_t</span><span class="o">*</span><span class="w"> </span><span class="n">d</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="o">&amp;</span><span class="n">diagnostics</span><span class="p">[</span><span class="n">i</span><span class="p">];</span>
 <a id="__codelineno-17-8" name="__codelineno-17-8" href="#__codelineno-17-8"></a><span class="w">        </span><span class="kt">char</span><span class="w"> </span><span class="n">path</span><span class="p">[</span><span class="mi">256</span><span class="p">];</span>
-<a id="__codelineno-17-9" name="__codelineno-17-9" href="#__codelineno-17-9"></a><span class="w">        </span><span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="n">tlv_diagnostic_path_string</span><span class="p">(</span><span class="o">&amp;</span><span class="n">d</span><span class="o">-&gt;</span><span class="n">path</span><span class="p">,</span><span class="w"> </span><span class="n">path</span><span class="p">,</span><span class="w"> </span><span class="k">sizeof</span><span class="p">(</span><span class="n">path</span><span class="p">),</span><span class="w"> </span><span class="nb">NULL</span><span class="p">)</span><span class="w"> </span><span class="o">==</span><span class="w"> </span><span class="n">TLV_OK</span><span class="p">)</span>
+<a id="__codelineno-17-9" name="__codelineno-17-9" href="#__codelineno-17-9"></a><span class="w">        </span><span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="n">tlv_diagnostic_path_string</span><span class="p">(</span><span class="o">&amp;</span><span class="n">d</span><span class="o">-&gt;</span><span class="n">diagnostic</span><span class="p">.</span><span class="n">path</span><span class="p">,</span><span class="w"> </span><span class="n">path</span><span class="p">,</span><span class="w"> </span><span class="k">sizeof</span><span class="p">(</span><span class="n">path</span><span class="p">),</span><span class="w"> </span><span class="nb">NULL</span><span class="p">)</span><span class="w"> </span><span class="o">==</span><span class="w"> </span><span class="n">TLV_OK</span><span class="p">)</span>
 <a id="__codelineno-17-10" name="__codelineno-17-10" href="#__codelineno-17-10"></a><span class="w">            </span><span class="n">printf</span><span class="p">(</span><span class="s">"%s in %s"</span><span class="p">,</span><span class="w"> </span><span class="n">tlv_schema_issue_kind_string</span><span class="p">(</span><span class="n">d</span><span class="o">-&gt;</span><span class="n">kind</span><span class="p">),</span><span class="w"> </span><span class="n">path</span><span class="p">);</span>
 <a id="__codelineno-17-11" name="__codelineno-17-11" href="#__codelineno-17-11"></a><span class="w">        </span><span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="n">d</span><span class="o">-&gt;</span><span class="n">diagnostic</span><span class="p">.</span><span class="n">location</span><span class="p">.</span><span class="n">kind</span><span class="w"> </span><span class="o">!=</span><span class="w"> </span><span class="n">TLV_LOCATION_UNKNOWN</span><span class="p">)</span><span class="w"> </span><span class="n">printf</span><span class="p">(</span><span class="s">" (offset %zu)"</span><span class="p">,</span><span class="w"> </span><span class="n">d</span><span class="o">-&gt;</span><span class="n">diagnostic</span><span class="p">.</span><span class="n">location</span><span class="p">.</span><span class="n">begin</span><span class="p">);</span>
 <a id="__codelineno-17-12" name="__codelineno-17-12" href="#__codelineno-17-12"></a><span class="w">        </span><span class="n">printf</span><span class="p">(</span><span class="s">"</span><span class="se">\n</span><span class="s">"</span><span class="p">);</span>
@@ -4321,7 +4345,32 @@ recursive references are supported. The allocation-free worklist holds at most
 <code>TLV_SCHEMA_MAX_TABLES</code> (256) table identities and uses linear pointer lookup,
 plus each table's local rule/group checks. Exhausting this fixed capacity returns
 <code>TLV_ERR_UNSUPPORTED</code>. Definition depth is independent of the input nesting
-limit (<code>TLV_SCHEMA_MAX_DEPTH</code>); no global cache or checked-handle lifetime is added.</p>
+limit (<code>TLV_SCHEMA_MAX_DEPTH</code>); the library keeps no global cache.</p>
+<h2 id="checking-a-definition-once">Checking a definition once<a class="headerlink" href="#checking-a-definition-once" title="Permanent link">&para;</a></h2>
+<p>Every <code>tlv_schema_validate</code> and <code>tlv_schema_validate_all_diag</code> call checks the
+whole definition before reading input. When many inputs are validated against
+one immutable schema, check it once with <code>tlv_schema_prepare</code> and validate
+through the returned handle:</p>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-19-1" name="__codelineno-19-1" href="#__codelineno-19-1"></a><span class="n">tlv_schema_checked_t</span><span class="w"> </span><span class="n">checked</span><span class="p">;</span>
+<a id="__codelineno-19-2" name="__codelineno-19-2" href="#__codelineno-19-2"></a><span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="n">tlv_schema_prepare</span><span class="p">(</span><span class="o">&amp;</span><span class="n">checked</span><span class="p">,</span><span class="w"> </span><span class="o">&amp;</span><span class="n">template_schema</span><span class="p">,</span><span class="w"> </span><span class="o">&amp;</span><span class="n">diagnostic</span><span class="p">)</span><span class="w"> </span><span class="o">!=</span><span class="w"> </span><span class="n">TLV_OK</span><span class="p">)</span>
+<a id="__codelineno-19-3" name="__codelineno-19-3" href="#__codelineno-19-3"></a><span class="w">    </span><span class="k">return</span><span class="p">;</span><span class="w"> </span><span class="cm">/* invalid definition */</span>
+<a id="__codelineno-19-4" name="__codelineno-19-4" href="#__codelineno-19-4"></a><span class="k">for</span><span class="w"> </span><span class="p">(</span><span class="n">each</span><span class="w"> </span><span class="n">packet</span><span class="p">)</span>
+<a id="__codelineno-19-5" name="__codelineno-19-5" href="#__codelineno-19-5"></a><span class="w">    </span><span class="n">rc</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">tlv_schema_validate_checked</span><span class="p">(</span><span class="o">&amp;</span><span class="n">checked</span><span class="p">,</span><span class="w"> </span><span class="n">data</span><span class="p">,</span><span class="w"> </span><span class="n">size</span><span class="p">,</span><span class="w"> </span><span class="o">&amp;</span><span class="n">tlv_format_ber</span><span class="p">,</span><span class="w"> </span><span class="mi">16</span><span class="p">,</span><span class="w"> </span><span class="mi">1000</span><span class="p">,</span>
+<a id="__codelineno-19-6" name="__codelineno-19-6" href="#__codelineno-19-6"></a><span class="w">                                     </span><span class="o">&amp;</span><span class="n">diagnostic</span><span class="p">);</span>
+</code></pre></div>
+<p><code>tlv_schema_validate_checked</code> and <code>tlv_schema_validate_all_checked</code> run the same
+validation as the plain functions and skip only the definition check. Runtime
+limits are still checked on every call. The handle borrows the schema: every
+table, rule, entry and group must stay alive and unchanged while it is used.
+The handle cannot detect mutation, so prepare it again after changing the
+definition. A failed <code>tlv_schema_prepare</code> leaves the handle unprepared, and an
+unprepared handle is rejected with <code>TLV_ERR_INVALID_STATE</code>. In C++,
+<code>tlv::checked_schema::prepare</code> returns the handle for <code>tlv::validate</code> and
+<code>validation_report::validate</code>.</p>
+<p>For a large schema and a small input, this removes most of the per-call cost.
+For a large input and a small schema, the definition check is negligible and
+both paths cost the same; see the
+<a href="https://github.com/marekcingel/OpenTLV/blob/main/benchmarks/README.md#schema-definition-checking-and-input-processing">benchmark evidence</a>.</p>
 <h2 id="next-step">Next step<a class="headerlink" href="#next-step" title="Permanent link">&para;</a></h2>
 <p>Next: <a href="../codecs/">Codec</a> to interpret Value bytes; framing remains the Format responsibility.</p>
 

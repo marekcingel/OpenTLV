@@ -90,6 +90,9 @@ Public Member Functions</h2></td></tr>
 <tr class="memitem:a9696806332a602dab38459f28bca6f02" id="r_a9696806332a602dab38459f28bca6f02"><td class="memItemLeft" align="right" valign="top"><a class="el" href="classtlv_1_1expected.html">expected</a>&lt; size_t, <a class="el" href="structtlv_1_1error.html">error</a> &gt;&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classtlv_1_1validation__report.html#a9696806332a602dab38459f28bca6f02">validate</a> (<a class="el" href="namespacetlv.html#a2abe7003a70af047ef9acae17f31f75d">bytes</a> <a class="el" href="namespacetlv.html#a55a9e58b26605c8d07848f7a2721b1d7aa43c1b0aa53a0c908810c06ab1ff3967">input</a>, <a class="el" href="classtlv_1_1format.html">tlv::format</a> <a class="el" href="classtlv_1_1format.html">format</a>, <a class="el" href="classtlv_1_1schema.html">schema</a> <a class="el" href="classtlv_1_1definition.html">definition</a>, <a class="el" href="namespacetlv.html#af31fcaf82bbd372e71eeb16d8729272e">unknown_policy</a> <a class="el" href="namespacetlv.html#a9589938dbd11333ff8444739191ced14aad921d60486366258809553a3db49a4a">unknown</a>=<a class="el" href="namespacetlv.html#af31fcaf82bbd372e71eeb16d8729272ea87884748440bfecf36865f2d6ccf827c">unknown_policy::by_schema</a>, size_t max_depth=<a class="elRef" href="../../c-api/html/group__schemas.html#gga39fca1837c5ce7715cbf571669660c13a73347319edde9db5a3ccc39892774977">TLV_SCHEMA_MAX_DEPTH</a>, size_t max_elements=SIZE_MAX)</td></tr>
 <tr class="memdesc:a9696806332a602dab38459f28bca6f02"><td class="mdescLeft">&#160;</td><td class="mdescRight">Validate framing and collect structural violations through the canonical engine.  <br /></td></tr>
 <tr class="separator:a9696806332a602dab38459f28bca6f02"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:ac14ec378f45d0a6d2b9bd3ebadcbe818" id="r_ac14ec378f45d0a6d2b9bd3ebadcbe818"><td class="memItemLeft" align="right" valign="top"><a class="el" href="classtlv_1_1expected.html">expected</a>&lt; size_t, <a class="el" href="structtlv_1_1error.html">error</a> &gt;&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classtlv_1_1validation__report.html#ac14ec378f45d0a6d2b9bd3ebadcbe818">validate</a> (<a class="el" href="namespacetlv.html#a2abe7003a70af047ef9acae17f31f75d">bytes</a> <a class="el" href="namespacetlv.html#a55a9e58b26605c8d07848f7a2721b1d7aa43c1b0aa53a0c908810c06ab1ff3967">input</a>, <a class="el" href="classtlv_1_1format.html">tlv::format</a> <a class="el" href="classtlv_1_1format.html">format</a>, const <a class="el" href="classtlv_1_1checked__schema.html">checked_schema</a> &amp;<a class="el" href="classtlv_1_1definition.html">definition</a>, <a class="el" href="namespacetlv.html#af31fcaf82bbd372e71eeb16d8729272e">unknown_policy</a> <a class="el" href="namespacetlv.html#a9589938dbd11333ff8444739191ced14aad921d60486366258809553a3db49a4a">unknown</a>=<a class="el" href="namespacetlv.html#af31fcaf82bbd372e71eeb16d8729272ea87884748440bfecf36865f2d6ccf827c">unknown_policy::by_schema</a>, size_t max_depth=<a class="elRef" href="../../c-api/html/group__schemas.html#gga39fca1837c5ce7715cbf571669660c13a73347319edde9db5a3ccc39892774977">TLV_SCHEMA_MAX_DEPTH</a>, size_t max_elements=SIZE_MAX)</td></tr>
+<tr class="memdesc:ac14ec378f45d0a6d2b9bd3ebadcbe818"><td class="mdescLeft">&#160;</td><td class="mdescRight">Collect structural violations against a prepared Schema without rechecking it.  <br /></td></tr>
+<tr class="separator:ac14ec378f45d0a6d2b9bd3ebadcbe818"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:af08af3e7008e4beb974ff473b1819074" id="r_af08af3e7008e4beb974ff473b1819074"><td class="memItemLeft" align="right" valign="top">size_t&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classtlv_1_1validation__report.html#af08af3e7008e4beb974ff473b1819074">size</a> () const noexcept</td></tr>
 <tr class="memdesc:af08af3e7008e4beb974ff473b1819074"><td class="mdescLeft">&#160;</td><td class="mdescRight">Number of retained violations.  <br /></td></tr>
 <tr class="separator:af08af3e7008e4beb974ff473b1819074"><td class="memSeparator" colspan="2">&#160;</td></tr>
@@ -232,8 +235,84 @@ template&lt;size_t Capacity&gt; </div>
 
 </div>
 </div>
+<a id="ac14ec378f45d0a6d2b9bd3ebadcbe818" name="ac14ec378f45d0a6d2b9bd3ebadcbe818"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#ac14ec378f45d0a6d2b9bd3ebadcbe818">&#9670;&#160;</a></span>validate() <span class="overload">[1/2]</span></h2>
+
+<div class="memitem">
+<div class="memproto">
+<div class="memtemplate">
+template&lt;size_t Capacity&gt; </div>
+<table class="mlabels">
+  <tr>
+  <td class="mlabels-left">
+      <table class="memname">
+        <tr>
+          <td class="memname"><a class="el" href="classtlv_1_1expected.html">expected</a>&lt; size_t, <a class="el" href="structtlv_1_1error.html">error</a> &gt; <a class="el" href="classtlv_1_1validation__report.html">tlv::validation_report</a>&lt; Capacity &gt;::validate </td>
+          <td>(</td>
+          <td class="paramtype"><a class="el" href="namespacetlv.html#a2abe7003a70af047ef9acae17f31f75d">bytes</a>&#160;</td>
+          <td class="paramname"><em>input</em>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype"><a class="el" href="classtlv_1_1format.html">tlv::format</a>&#160;</td>
+          <td class="paramname"><em>format</em>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype">const <a class="el" href="classtlv_1_1checked__schema.html">checked_schema</a> &amp;&#160;</td>
+          <td class="paramname"><em>definition</em>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype"><a class="el" href="namespacetlv.html#af31fcaf82bbd372e71eeb16d8729272e">unknown_policy</a>&#160;</td>
+          <td class="paramname"><em>unknown</em> = <code><a class="el" href="namespacetlv.html#af31fcaf82bbd372e71eeb16d8729272ea87884748440bfecf36865f2d6ccf827c">unknown_policy::by_schema</a></code>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype">size_t&#160;</td>
+          <td class="paramname"><em>max_depth</em> = <code><a class="elRef" href="../../c-api/html/group__schemas.html#gga39fca1837c5ce7715cbf571669660c13a73347319edde9db5a3ccc39892774977">TLV_SCHEMA_MAX_DEPTH</a></code>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype">size_t&#160;</td>
+          <td class="paramname"><em>max_elements</em> = <code>SIZE_MAX</code>&#160;</td>
+        </tr>
+        <tr>
+          <td></td>
+          <td>)</td>
+          <td></td><td></td>
+        </tr>
+      </table>
+  </td>
+  <td class="mlabels-right">
+<span class="mlabels"><span class="mlabel">inline</span></span>  </td>
+  </tr>
+</table>
+</div><div class="memdoc">
+
+<p>Collect structural violations against a prepared Schema without rechecking it. </p>
+<dl class="params"><dt>Parameters</dt><dd>
+  <table class="params">
+    <tr><td class="paramname">input</td><td>Immutable borrowed wire bytes. </td></tr>
+    <tr><td class="paramname">format</td><td>Readable borrowed Format. </td></tr>
+    <tr><td class="paramname">definition</td><td>Prepared Schema; its storage must be unchanged since preparation. </td></tr>
+    <tr><td class="paramname">unknown</td><td>Override for unknown identifiers. </td></tr>
+    <tr><td class="paramname">max_depth</td><td>Maximum nesting depth. </td></tr>
+    <tr><td class="paramname">max_elements</td><td>Maximum element count. </td></tr>
+  </table>
+  </dd>
+</dl>
+<dl class="section return"><dt>Returns</dt><dd>Total violations (possibly greater than capacity), or a wire/argument failure. </dd></dl>
+
+</div>
+</div>
 <a id="a9696806332a602dab38459f28bca6f02" name="a9696806332a602dab38459f28bca6f02"></a>
-<h2 class="memtitle"><span class="permalink"><a href="#a9696806332a602dab38459f28bca6f02">&#9670;&#160;</a></span>validate()</h2>
+<h2 class="memtitle"><span class="permalink"><a href="#a9696806332a602dab38459f28bca6f02">&#9670;&#160;</a></span>validate() <span class="overload">[2/2]</span></h2>
 
 <div class="memitem">
 <div class="memproto">

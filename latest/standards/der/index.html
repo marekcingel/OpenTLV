@@ -3961,7 +3961,11 @@ component tags, CHOICE alternatives required with no default, no IMPLICIT taggin
 of CHOICE or ANY, and bounded transparent CHOICE paths). Read and write perform
 this check before processing input or invoking callbacks. Shared types are
 checked once per call; recursive containers and tagged recursion are supported.
-Wire nesting is bounded separately by the runtime limits.</p>
+Wire nesting is bounded separately by the runtime limits. To read or write many
+values with one immutable schema, check it once with <code>tlv_der_schema_prepare</code>
+and use <code>tlv_der_schema_read_checked</code> or <code>tlv_der_schema_write_checked</code>, which
+skip only the definition check. The handle borrows the whole type graph, which
+must stay alive and unchanged while the handle is used; mutation is not detected.</p>
 <p>A <code>TLV_DER_SCHEMA_UNIVERSAL</code> leaf's optional <code>constraint</code>
 (<code>tlv_der_schema_leaf_constraint_t</code>) adds ASN.1 <code>SIZE</code> and value-range checks
 on top of its own canonical DER content rules: <code>min_length</code>/<code>max_length</code> bound

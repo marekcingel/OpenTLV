@@ -130,6 +130,9 @@ Classes</h2></td></tr>
 <tr class="memitem:"><td class="memItemLeft" align="right" valign="top">struct &#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="structtlv_1_1bounds.html">bounds</a></td></tr>
 <tr class="memdesc:"><td class="mdescLeft">&#160;</td><td class="mdescRight">Inclusive bounds for byte lengths or occurrence counts.  <a href="structtlv_1_1bounds.html#details">More...</a><br /></td></tr>
 <tr class="separator:"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:"><td class="memItemLeft" align="right" valign="top">class &#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classtlv_1_1checked__schema.html">checked_schema</a></td></tr>
+<tr class="memdesc:"><td class="mdescLeft">&#160;</td><td class="mdescRight">Borrowed Schema whose definition was checked once, for repeated validation.  <a href="classtlv_1_1checked__schema.html#details">More...</a><br /></td></tr>
+<tr class="separator:"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:"><td class="memItemLeft" align="right" valign="top">struct &#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="structtlv_1_1codec.html">codec</a></td></tr>
 <tr class="memdesc:"><td class="mdescLeft">&#160;</td><td class="mdescRight">Default Value codec customization point, independent of tags.  <a href="structtlv_1_1codec.html#details">More...</a><br /></td></tr>
 <tr class="separator:"><td class="memSeparator" colspan="2">&#160;</td></tr>
@@ -935,6 +938,9 @@ Functions</h2></td></tr>
 <tr class="memitem:a363c6a069d86a5f3c209b7b02f43ae5a" id="r_a363c6a069d86a5f3c209b7b02f43ae5a"><td class="memItemLeft" align="right" valign="top"><a class="el" href="classtlv_1_1expected.html">expected</a>&lt; void, <a class="el" href="structtlv_1_1error.html">error</a> &gt;&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="namespacetlv.html#a363c6a069d86a5f3c209b7b02f43ae5a">validate</a> (<a class="el" href="namespacetlv.html#a2abe7003a70af047ef9acae17f31f75d">bytes</a> data, <a class="el" href="classtlv_1_1format.html">tlv::format</a> <a class="el" href="classtlv_1_1format.html">format</a>, <a class="el" href="classtlv_1_1schema.html">schema</a> <a class="el" href="classtlv_1_1definition.html">definition</a>, size_t max_depth=<a class="elRef" href="../../c-api/html/group__schemas.html#gga39fca1837c5ce7715cbf571669660c13a73347319edde9db5a3ccc39892774977">TLV_SCHEMA_MAX_DEPTH</a>, size_t max_elements=SIZE_MAX)</td></tr>
 <tr class="memdesc:a363c6a069d86a5f3c209b7b02f43ae5a"><td class="mdescLeft">&#160;</td><td class="mdescRight">Validate wire structure against a C++ Schema without allocation.  <br /></td></tr>
 <tr class="separator:a363c6a069d86a5f3c209b7b02f43ae5a"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:ae1e91728147fe54ab9f32dbe14473dcf" id="r_ae1e91728147fe54ab9f32dbe14473dcf"><td class="memItemLeft" align="right" valign="top"><a class="el" href="classtlv_1_1expected.html">expected</a>&lt; void, <a class="el" href="structtlv_1_1error.html">error</a> &gt;&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="namespacetlv.html#ae1e91728147fe54ab9f32dbe14473dcf">validate</a> (<a class="el" href="namespacetlv.html#a2abe7003a70af047ef9acae17f31f75d">bytes</a> data, <a class="el" href="classtlv_1_1format.html">tlv::format</a> <a class="el" href="classtlv_1_1format.html">format</a>, const <a class="el" href="classtlv_1_1checked__schema.html">checked_schema</a> &amp;<a class="el" href="classtlv_1_1definition.html">definition</a>, size_t max_depth=<a class="elRef" href="../../c-api/html/group__schemas.html#gga39fca1837c5ce7715cbf571669660c13a73347319edde9db5a3ccc39892774977">TLV_SCHEMA_MAX_DEPTH</a>, size_t max_elements=SIZE_MAX)</td></tr>
+<tr class="memdesc:ae1e91728147fe54ab9f32dbe14473dcf"><td class="mdescLeft">&#160;</td><td class="mdescRight">Validate wire structure against a prepared Schema without rechecking its definition.  <br /></td></tr>
+<tr class="separator:ae1e91728147fe54ab9f32dbe14473dcf"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:a577b84832327b25989a0567c05db0607" id="r_a577b84832327b25989a0567c05db0607"><td class="memTemplParams" colspan="2">template&lt;uint8_t... Bytes&gt; </td></tr>
 <tr class="memitem:a577b84832327b25989a0567c05db0607"><td class="memTemplItemLeft" align="right" valign="top"><a class="el" href="classtlv_1_1tag.html">tlv::tag</a>&#160;</td><td class="memTemplItemRight" valign="bottom"><a class="el" href="namespacetlv.html#a577b84832327b25989a0567c05db0607">tag_bytes</a> () noexcept</td></tr>
 <tr class="memdesc:a577b84832327b25989a0567c05db0607"><td class="mdescLeft">&#160;</td><td class="mdescRight">Borrow a literal identifier from immutable program-lifetime storage.  <br /></td></tr>
@@ -5518,8 +5524,75 @@ template&lt;typename Failure &gt; </div>
 
 </div>
 </div>
+<a id="ae1e91728147fe54ab9f32dbe14473dcf" name="ae1e91728147fe54ab9f32dbe14473dcf"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#ae1e91728147fe54ab9f32dbe14473dcf">&#9670;&#160;</a></span>validate() <span class="overload">[1/2]</span></h2>
+
+<div class="memitem">
+<div class="memproto">
+<table class="mlabels">
+  <tr>
+  <td class="mlabels-left">
+      <table class="memname">
+        <tr>
+          <td class="memname"><a class="el" href="classtlv_1_1expected.html">expected</a>&lt; void, <a class="el" href="structtlv_1_1error.html">error</a> &gt; tlv::validate </td>
+          <td>(</td>
+          <td class="paramtype"><a class="el" href="namespacetlv.html#a2abe7003a70af047ef9acae17f31f75d">bytes</a>&#160;</td>
+          <td class="paramname"><em>data</em>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype"><a class="el" href="classtlv_1_1format.html">tlv::format</a>&#160;</td>
+          <td class="paramname"><em>format</em>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype">const <a class="el" href="classtlv_1_1checked__schema.html">checked_schema</a> &amp;&#160;</td>
+          <td class="paramname"><em>definition</em>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype">size_t&#160;</td>
+          <td class="paramname"><em>max_depth</em> = <code><a class="elRef" href="../../c-api/html/group__schemas.html#gga39fca1837c5ce7715cbf571669660c13a73347319edde9db5a3ccc39892774977">TLV_SCHEMA_MAX_DEPTH</a></code>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype">size_t&#160;</td>
+          <td class="paramname"><em>max_elements</em> = <code>SIZE_MAX</code>&#160;</td>
+        </tr>
+        <tr>
+          <td></td>
+          <td>)</td>
+          <td></td><td></td>
+        </tr>
+      </table>
+  </td>
+  <td class="mlabels-right">
+<span class="mlabels"><span class="mlabel">inline</span></span>  </td>
+  </tr>
+</table>
+</div><div class="memdoc">
+
+<p>Validate wire structure against a prepared Schema without rechecking its definition. </p>
+<dl class="params"><dt>Parameters</dt><dd>
+  <table class="params">
+    <tr><td class="paramname">data</td><td>Borrowed wire bytes. </td></tr>
+    <tr><td class="paramname">format</td><td>Borrowed Format and immutable context. </td></tr>
+    <tr><td class="paramname">definition</td><td>Prepared Schema; its storage must be unchanged since preparation. </td></tr>
+    <tr><td class="paramname">max_depth</td><td>Maximum nesting depth, bounded by the canonical engine's capacity. </td></tr>
+    <tr><td class="paramname">max_elements</td><td>Maximum element count. </td></tr>
+  </table>
+  </dd>
+</dl>
+<dl class="section return"><dt>Returns</dt><dd>Success or a canonical error with the failure's absolute byte offset. </dd></dl>
+
+</div>
+</div>
 <a id="a363c6a069d86a5f3c209b7b02f43ae5a" name="a363c6a069d86a5f3c209b7b02f43ae5a"></a>
-<h2 class="memtitle"><span class="permalink"><a href="#a363c6a069d86a5f3c209b7b02f43ae5a">&#9670;&#160;</a></span>validate()</h2>
+<h2 class="memtitle"><span class="permalink"><a href="#a363c6a069d86a5f3c209b7b02f43ae5a">&#9670;&#160;</a></span>validate() <span class="overload">[2/2]</span></h2>
 
 <div class="memitem">
 <div class="memproto">
