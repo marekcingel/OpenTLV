@@ -418,6 +418,12 @@ Unknown visitor discriminators produce `CALLBACK`.
 
 | Current producer or behavior | Required target change |
 | --- | --- |
+| Generator reports `NULL_ARG` for a non-NULL Format without read/write capability | `UNSUPPORTED`; missing required top-level pointers retain `NULL_ARG`. C++ uses the same capability-before-configuration precedence. Implemented in #572. |
+| Generator rejects `max_depth > 64` as `INVALID_ARG` | `UNSUPPORTED` for a request beyond fixed implementation capability. Implemented in #572. |
+| Generator exhausts attempts when every candidate's minimum Value size exceeds `max_value_size` or `max_case_size` | Reject the contradictory domain as `INVALID_ARG` in `tlv_generator_workspace_size()`. Check all descriptors but allow a mixture of usable and unusable candidates. Implemented in #572. |
+| Generator hides callback failures and successful encode/decode semantic mismatches as candidate rejection | Propagate detected `CALLBACK` and classify changed identifier presence/bytes, Value, or incomplete successful decoding as `CALLBACK`; abort even inside a child stream or after partial success. Implemented in #572. |
+| Generator rejects candidates that fail ordinary Format operations or byte-exact reconstruction with preserved semantics | Retain the bounded candidate search and `LIMIT` when no nonempty case is produced. Format-specific identifier/framing feasibility cannot be decided by the Format-independent workspace query. Implemented in #572. |
+| Generator workspace/attempt arithmetic and caller buffer checks | Retain `OVERFLOW` for unrepresentable workspace or attempt budget, and `BUFFER_TOO_SHORT` for insufficient output/workspace. Algorithm version and valid deterministic bytes are unchanged by #572. |
 | `tlv_value_constraint_validate()` returns `SCHEMA` for invalid bounds, enum or allowed-values storage | Validate the definition as `INVALID_SCHEMA`; valid constraints rejecting data produce `SCHEMA` + `VALUE`. |
 | Generic Schema rule/group validation uses `SCHEMA` in fail-fast validation and `INVALID_ARG` in report preflight | Invalid definition -> `INVALID_SCHEMA`, independent of which validation entry point is called. |
 | Generic Schema/LLDP/DHCP required-field checks and DER missing components differ | `SCHEMA` + `MISSING`; preserve builtin-owned requirements and explicit location anchors. |

@@ -38,10 +38,11 @@ static size_t value_size(generator_t* g, size_t lo, size_t hi) {
 
 tlv_result_t tlv_generator_workspace_size(const tlv_generator_options_t* o, size_t* size) {
     size_t i;
+    int feasible = 0;
     if (!o || !size) return TLV_ERR_NULL_ARG;
-    if (!o->max_elements || !o->max_case_size || o->max_depth > 64 || !o->candidates ||
-        !o->candidate_count)
+    if (!o->max_elements || !o->max_case_size || !o->candidates || !o->candidate_count)
         return TLV_ERR_INVALID_ARG;
+    if (o->max_depth > 64) return TLV_ERR_UNSUPPORTED;
     if (o->max_case_size > SIZE_MAX / (o->max_depth + 1) || o->max_case_size == SIZE_MAX ||
         o->max_elements > SIZE_MAX / 64)
         return TLV_ERR_OVERFLOW;
@@ -49,12 +50,16 @@ tlv_result_t tlv_generator_workspace_size(const tlv_generator_options_t* o, size
         const tlv_generator_candidate_t* c = &o->candidates[i];
         if (c->min_value_size > c->max_value_size || (!c->tag.data && c->tag.size))
             return TLV_ERR_INVALID_ARG;
+        if (c->min_value_size <= o->max_value_size && c->min_value_size <= o->max_case_size)
+            feasible = 1;
     }
+    if (!feasible) return TLV_ERR_INVALID_ARG;
     *size = (o->max_depth + 1) * o->max_case_size;
     return TLV_OK;
 }
 
-static size_t stream(generator_t* g, uint8_t* out, size_t capacity, size_t depth) {
+static tlv_result_t stream(generator_t* g, uint8_t* out, size_t capacity, size_t depth,
+                           size_t* written) {
     size_t pos = 0;
     size_t target = 1 + (size_t)(next(g) % g->remaining);
     size_t accepted = 0;
@@ -63,6 +68,7 @@ static size_t stream(generator_t* g, uint8_t* out, size_t capacity, size_t depth
         uint8_t* value = g->workspace + depth * g->options->max_case_size;
         size_t hi, length, n = 0, check = 0, saved = g->remaining, i;
         tlv_decoded_t decoded;
+        tlv_result_t rc;
         int constructed;
         --g->attempts;
         c = &g->options->candidates[next(g) % g->options->candidate_count];
@@ -74,9 +80,11 @@ static size_t stream(generator_t* g, uint8_t* out, size_t capacity, size_t depth
             g->format->is_constructed && g->format->is_constructed(g->format->context, &c->tag);
         --g->remaining;
         if (constructed) {
-            length = depth < g->options->max_depth && g->remaining && hi
-                         ? stream(g, value, hi, depth + 1)
-                         : 0;
+            length = 0;
+            if (depth < g->options->max_depth && g->remaining && hi) {
+                rc = stream(g, value, hi, depth + 1, &length);
+                if (rc != TLV_OK) return rc;
+            }
             if (length < c->min_value_size) {
                 g->remaining = saved;
                 continue;
@@ -85,22 +93,31 @@ static size_t stream(generator_t* g, uint8_t* out, size_t capacity, size_t depth
             length = value_size(g, c->min_value_size, hi);
             for (i = 0; i < length; ++i) value[i] = (uint8_t)next(g);
         }
-        if (tlv_write(out + pos, capacity - pos, g->format, c->tag, value, length, &n) != TLV_OK ||
-            !n || tlv_format_decode(g->format, out + pos, n, &decoded, NULL) != TLV_OK ||
-            decoded.source.size != n || !tlv_tag_equal(c->tag, decoded.element.tag) ||
+        rc = tlv_write(out + pos, capacity - pos, g->format, c->tag, value, length, &n);
+        if (rc == TLV_ERR_CALLBACK) return rc;
+        if (rc != TLV_OK) goto rejected;
+        if (!n) return TLV_ERR_CALLBACK;
+        rc = tlv_format_decode(g->format, out + pos, n, &decoded, NULL);
+        if (rc == TLV_ERR_CALLBACK) return rc;
+        if (rc != TLV_OK) goto rejected;
+        /* Successful bidirectional encoding must preserve the semantic Element. */
+        if (decoded.source.size != n || !tlv_tag_equal(c->tag, decoded.element.tag) ||
             ((c->tag.data == NULL) != (decoded.element.tag.data == NULL)) ||
             decoded.element.value.size != length ||
-            (length && memcmp(decoded.element.value.data, value, length)) ||
-            tlv_write_element(value, g->options->max_case_size, g->format, &decoded.element,
-                              &check) != TLV_OK ||
-            check != n || memcmp(value, out + pos, n)) {
-            g->remaining = saved;
-            continue;
-        }
+            (length && memcmp(decoded.element.value.data, value, length)))
+            return TLV_ERR_CALLBACK;
+        rc = tlv_write_element(value, g->options->max_case_size, g->format, &decoded.element,
+                               &check);
+        if (rc == TLV_ERR_CALLBACK) return rc;
+        if (rc != TLV_OK || check != n || memcmp(value, out + pos, n)) goto rejected;
         pos += n;
         ++accepted;
+        continue;
+    rejected:
+        g->remaining = saved;
     }
-    return pos;
+    *written = pos;
+    return TLV_OK;
 }
 
 tlv_result_t tlv_generate(const tlv_format_t* format, const tlv_generator_options_t* o,
@@ -109,9 +126,8 @@ tlv_result_t tlv_generate(const tlv_format_t* format, const tlv_generator_option
     generator_t g;
     size_t required, n;
     tlv_result_t rc;
-    if (!format || !data || !workspace || !written || !tlv_format_can_read(format) ||
-        !tlv_format_can_write(format))
-        return TLV_ERR_NULL_ARG;
+    if (!format || !o || !data || !workspace || !written) return TLV_ERR_NULL_ARG;
+    if (!tlv_format_can_read(format) || !tlv_format_can_write(format)) return TLV_ERR_UNSUPPORTED;
     rc = tlv_generator_workspace_size(o, &required);
     if (rc != TLV_OK) return rc;
     if (capacity < o->max_case_size || workspace_size < required) return TLV_ERR_BUFFER_TOO_SHORT;
@@ -124,7 +140,8 @@ tlv_result_t tlv_generate(const tlv_format_t* format, const tlv_generator_option
     g.random = mix(mix(o->seed ^ UINT64_C(0xd1b54a32d192ed03)) ^ o->case_index);
     g.remaining = o->max_elements;
     g.attempts = o->max_elements * 64;
-    n = stream(&g, data, o->max_case_size, 0);
+    rc = stream(&g, data, o->max_case_size, 0, &n);
+    if (rc != TLV_OK) return rc;
     if (!n) return TLV_ERR_LIMIT;
     *written = n;
     return TLV_OK;
