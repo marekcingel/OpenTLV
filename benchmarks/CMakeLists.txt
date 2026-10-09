@@ -16,6 +16,7 @@ FetchContent_MakeAvailable(googlebenchmark)
 add_executable(${PROJECT_NAME}
     src/tlv_benchmarks.cpp
     src/reader_decode_benchmarks.cpp
+    src/schema_benchmarks.cpp
 )
 
 target_compile_features(${PROJECT_NAME} PRIVATE cxx_std_11)

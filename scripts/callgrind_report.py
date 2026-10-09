@@ -282,6 +282,36 @@ def _percent_text(value):
     return "n/a (zero baseline)" if value is None else f"{value:+.2f}%"
 
 
+def _definition_check_lines(report):
+    """Relate each complete Schema workload to its definition-check-only workload."""
+    by_name = {workload["name"]: workload for workload in report["workloads"]}
+    pairs = [(workload, by_name[workload["definition_check"]]) for workload in report["workloads"]
+             if workload.get("definition_check") in by_name]
+    if not pairs:
+        return []
+    iterations = report.get("metadata", {}).get("iterations")
+    per_call = isinstance(iterations, int) and not isinstance(iterations, bool) and iterations > 0
+    lines = [
+        "## Schema definition-check share", "",
+        "Each complete workload checks the whole definition before processing its input. The share is the "
+        "definition-check-only Ir divided by the complete workload's Ir, per revision.", "",
+        "| Workload | Definition check | Baseline check Ir/call | Candidate check Ir/call | "
+        "Baseline share | Candidate share |",
+        "| --- | --- | ---: | ---: | ---: | ---: |",
+    ]
+    for complete, check in pairs:
+        cells = []
+        for side in ("baseline", "candidate"):
+            count = check["instructions"][side]
+            cells.append(f"{count / iterations:,.0f}" if per_call else "n/a")
+        for side in ("baseline", "candidate"):
+            total = complete["instructions"][side]
+            cells.append(f"{check['instructions'][side] * 100.0 / total:.1f}%" if total else "n/a")
+        lines.append(f"| {_cell(complete['name'])} | {_cell(check['name'])} | " + " | ".join(cells) + " |")
+    lines.append("")
+    return lines
+
+
 def render_markdown(report, top_functions=10):
     """Render a portable summary; the JSON report retains every function delta."""
     if isinstance(top_functions, bool) or not isinstance(top_functions, int) or top_functions < 1:
@@ -328,8 +358,10 @@ def render_markdown(report, top_functions=10):
         lines.append(f"| {_cell(workload['name'])} | {result['baseline']:,} | {result['candidate']:,} | "
                      f"{result['delta']:+,} | {_percent_text(result['percent'])} | "
                      f"{'Warning: instruction increase' if result['warning'] else 'Within thresholds'} |")
+    lines.append("")
+    lines.extend(_definition_check_lines(report))
     lines.extend([
-        "", "## Native Release timing", "",
+        "## Native Release timing", "",
         "| Workload | Baseline median ns | Candidate median ns | Delta ns | Change | Baseline CV | Candidate CV | Signal |",
         "| --- | ---: | ---: | ---: | ---: | ---: | ---: | --- |",
     ])

@@ -7,6 +7,8 @@
 #include "tlv/reader/reader.h"
 #include "tlv/writer/writer.h"
 
+#include "schema_workloads.h"
+
 #include <errno.h>
 #include <inttypes.h>
 #include <stdio.h>
@@ -30,6 +32,7 @@ typedef struct {
     uint64_t               all_checksum;
     uint64_t               query_checksum;
     uint64_t               writer_checksum;
+    schema_workloads_t     schema;
 } workload_data_t;
 
 typedef int (*workload_fn)(workload_data_t*, uint64_t*);
@@ -139,6 +142,55 @@ static int run_query(workload_data_t* data, uint64_t* checksum) {
     return matches.valid && matches.count == ENTRY_COUNT / 16 && *checksum == data->query_checksum;
 }
 
+#define SCHEMA_WORKLOAD(name)                                                                      \
+    static int run_##name(workload_data_t* data, uint64_t* checksum) {                             \
+        return name(&data->schema, checksum);                                                      \
+    }
+SCHEMA_WORKLOAD(schema_check_shared)
+SCHEMA_WORKLOAD(schema_validate_shared)
+SCHEMA_WORKLOAD(schema_check_flat)
+SCHEMA_WORKLOAD(schema_validate_flat)
+SCHEMA_WORKLOAD(schema_check_recursive)
+SCHEMA_WORKLOAD(schema_validate_recursive)
+SCHEMA_WORKLOAD(der_schema_check_shared)
+SCHEMA_WORKLOAD(der_schema_read_shared)
+SCHEMA_WORKLOAD(der_schema_check_flat)
+SCHEMA_WORKLOAD(der_schema_read_flat)
+SCHEMA_WORKLOAD(der_schema_check_recursive)
+SCHEMA_WORKLOAD(der_schema_read_recursive)
+#undef SCHEMA_WORKLOAD
+
+/* Each workload names its dataset; definition-check-only workloads read no input. */
+typedef struct {
+    const char* name;
+    workload_fn run;
+    const char* input_id;
+    size_t      input_bytes;
+} workload_t;
+
+static const workload_t workloads[] = {
+    {"reader", run_reader, "ber-flat-256x16-v1", WIRE_SIZE},
+    {"writer", run_writer, "ber-flat-256x16-v1", WIRE_SIZE},
+    {"document", run_document, "ber-flat-256x16-v1", WIRE_SIZE},
+    {"query", run_query, "ber-flat-256x16-v1", WIRE_SIZE},
+    {"schema_check_shared", run_schema_check_shared, "schema-shared-200-v1", 0},
+    {"schema_validate_shared", run_schema_validate_shared, "schema-shared-200/ber-30-00-v1", 2},
+    {"schema_check_flat", run_schema_check_flat, "schema-flat-16-v1", 0},
+    {"schema_validate_flat", run_schema_validate_flat, "schema-flat-16/ber-flat-256x16-v1",
+     SCHEMA_FLAT_WIRE},
+    {"schema_check_recursive", run_schema_check_recursive, "schema-recursive-v1", 0},
+    {"schema_validate_recursive", run_schema_validate_recursive,
+     "schema-recursive/ber-nested-16x20-v1", SCHEMA_NESTED_WIRE},
+    {"der_schema_check_shared", run_der_schema_check_shared, "der-schema-shared-200-v1", 0},
+    {"der_schema_read_shared", run_der_schema_read_shared, "der-schema-shared-200/der-30-00-v1", 2},
+    {"der_schema_check_flat", run_der_schema_check_flat, "der-schema-seq-of-octets-v1", 0},
+    {"der_schema_read_flat", run_der_schema_read_flat,
+     "der-schema-seq-of-octets/der-seq-of-256x16-v1", SCHEMA_DER_FLAT_WIRE},
+    {"der_schema_check_recursive", run_der_schema_check_recursive, "der-schema-recursive-v1", 0},
+    {"der_schema_read_recursive", run_der_schema_read_recursive,
+     "der-schema-recursive/der-nested-16x20-v1", SCHEMA_NESTED_WIRE},
+};
+
 static void* allocate_aligned(size_t size, size_t alignment) {
     void* allocation = NULL;
     if (alignment < sizeof(void*)) alignment = sizeof(void*);
@@ -181,21 +233,25 @@ static uint64_t elapsed_ns(const struct timespec* start, const struct timespec* 
 }
 
 int main(int argc, char** argv) {
-    workload_data_t    data;
-    workload_fn        run = NULL;
-    unsigned long long parsed;
-    uint64_t           iterations, iteration, checksum = 0, total = 0;
-    char*              end;
-    struct timespec    start, finish;
-    int                success = 1;
+    static workload_data_t data;
+    const workload_t*      workload = NULL;
+    workload_fn            run = NULL;
+    size_t                 index;
+    unsigned long long     parsed;
+    uint64_t               iterations, iteration, checksum = 0, total = 0;
+    char*                  end;
+    struct timespec        start, finish;
+    int                    success = 1;
     if (argc != 3) {
-        fprintf(stderr, "usage: %s reader|writer|document|query ITERATIONS\n", argv[0]);
+        fprintf(stderr, "usage: %s WORKLOAD ITERATIONS\nworkloads:", argv[0]);
+        for (index = 0; index < sizeof workloads / sizeof *workloads; ++index)
+            fprintf(stderr, " %s", workloads[index].name);
+        fprintf(stderr, "\n");
         return 2;
     }
-    if (strcmp(argv[1], "reader") == 0) run = run_reader;
-    if (strcmp(argv[1], "writer") == 0) run = run_writer;
-    if (strcmp(argv[1], "document") == 0) run = run_document;
-    if (strcmp(argv[1], "query") == 0) run = run_query;
+    for (index = 0; index < sizeof workloads / sizeof *workloads; ++index)
+        if (strcmp(argv[1], workloads[index].name) == 0) workload = &workloads[index];
+    if (workload != NULL) run = workload->run;
     errno = 0;
     parsed = strtoull(argv[2], &end, 10);
     if (run == NULL || argv[2][0] < '0' || argv[2][0] > '9' || *end != '\0' || errno != 0 ||
@@ -205,6 +261,7 @@ int main(int argc, char** argv) {
     }
     iterations = (uint64_t)parsed;
     prepare_input(&data);
+    schema_workloads_init(&data.schema);
     if (tlv_document_options_init(&data.document_options, &tlv_format_ber) != TLV_OK ||
         (run == run_query && !prepare_query(&data))) {
         fprintf(stderr, "workload setup failed; the checkout may not support this driver\n");
@@ -245,9 +302,9 @@ int main(int argc, char** argv) {
     if (success && run == run_writer && memcmp(data.output, data.wire, WIRE_SIZE) != 0) success = 0;
     if (success) {
         printf("{\"workload\":\"%s\",\"iterations\":%" PRIu64 ",\"elapsed_ns\":%" PRIu64
-               ",\"checksum\":%" PRIu64 ",\"input_bytes\":%d,"
-               "\"input_id\":\"ber-flat-256x16-v1\"}\n",
-               argv[1], iterations, elapsed_ns(&start, &finish), total, WIRE_SIZE);
+               ",\"checksum\":%" PRIu64 ",\"input_bytes\":%zu,\"input_id\":\"%s\"}\n",
+               workload->name, iterations, elapsed_ns(&start, &finish), total,
+               workload->input_bytes, workload->input_id);
     } else {
         fprintf(stderr, "workload iteration produced an unexpected result\n");
     }

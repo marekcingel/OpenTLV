@@ -44,6 +44,9 @@ class ComparisonTests(unittest.TestCase):
             with self.subTest(change=change), self.assertRaises(ValueError):
                 comparison.validate_result(json.dumps(self.result(**change)), "reader", 100)
         self.assertEqual(comparison.validate_result(json.dumps(self.result()), "reader", 100), self.result())
+        # Definition-check-only workloads read no input.
+        self.assertEqual(comparison.validate_result(json.dumps(self.result(input_bytes=0)), "reader", 100),
+                         self.result(input_bytes=0))
         with self.assertRaisesRegex(ValueError, "JSON result object"):
             comparison.validate_result("[]", "reader", 100)
 

@@ -24,7 +24,21 @@ from callgrind_report import compare_workload, parse_profile, render_markdown
 
 
 ROOT = Path(__file__).resolve().parents[1]
-WORKLOADS = ("reader", "writer", "document", "query")
+WORKLOADS = ("reader", "writer", "document", "query",
+             "schema_check_shared", "schema_validate_shared", "schema_check_flat",
+             "schema_validate_flat", "schema_check_recursive", "schema_validate_recursive",
+             "der_schema_check_shared", "der_schema_read_shared", "der_schema_check_flat",
+             "der_schema_read_flat", "der_schema_check_recursive", "der_schema_read_recursive")
+# Complete Schema workloads and their definition-check-only reference workloads.
+DEFINITION_CHECKS = {
+    "schema_validate_shared": "schema_check_shared",
+    "schema_validate_flat": "schema_check_flat",
+    "schema_validate_recursive": "schema_check_recursive",
+    "der_schema_read_shared": "der_schema_check_shared",
+    "der_schema_read_flat": "der_schema_check_flat",
+    "der_schema_read_recursive": "der_schema_check_recursive",
+}
+HARNESS_FILES = ("CMakeLists.txt", "workloads.c", "schema_workloads.h")
 BUILD_FLAGS = {"callgrind": ("RelWithDebInfo", "-O2 -g -DNDEBUG"),
                "native": ("Release", "-O3 -DNDEBUG")}
 
@@ -99,9 +113,11 @@ def validate_result(text, workload, iterations):
     if (value.get("workload") != workload or type(value.get("iterations")) is not int
             or value["iterations"] != iterations):
         raise ValueError(f"Mismatched workload/iteration result: {workload}")
-    for key in ("elapsed_ns", "input_bytes"):
-        if type(value.get(key)) is not int or value[key] <= 0:
-            raise ValueError(f"Invalid {key} for {workload}")
+    if type(value.get("elapsed_ns")) is not int or value["elapsed_ns"] <= 0:
+        raise ValueError(f"Invalid elapsed_ns for {workload}")
+    # Definition-check-only workloads read no input.
+    if type(value.get("input_bytes")) is not int or value["input_bytes"] < 0:
+        raise ValueError(f"Invalid input_bytes for {workload}")
     if type(value.get("checksum")) is not int or value["checksum"] < 0:
         raise ValueError(f"Missing or invalid checksum for {workload}")
     if not isinstance(value.get("input_id"), str) or not value["input_id"]:
@@ -157,7 +173,7 @@ def compare(args, output):
     harness = output / "harness"
     harness.mkdir()
     metadata["harness_sha256"] = {}
-    for name in ("CMakeLists.txt", "workloads.c"):
+    for name in HARNESS_FILES:
         source = ROOT / "benchmarks" / "callgrind" / name
         shutil.copyfile(source, harness / name)
         metadata["harness_sha256"][name] = hashlib.sha256(source.read_bytes()).hexdigest()
@@ -241,6 +257,8 @@ def compare(args, output):
         native_threshold_percent=args.native_threshold_percent) for name in WORKLOADS]
     for workload in workloads:
         workload.update(metadata["workload_inputs"][workload["name"]])
+        if workload["name"] in DEFINITION_CHECKS:
+            workload["definition_check"] = DEFINITION_CHECKS[workload["name"]]
         for side in sources:
             median = workload["native"][f"{side}_median_ns"]
             workload["native"][f"{side}_ns_per_iteration"] = median / args.native_iterations

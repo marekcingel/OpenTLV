@@ -228,6 +228,20 @@ class ComparisonTest(unittest.TestCase):
         self.assertIn("200,000,000.00 ns/iteration candidate", report)
         self.assertIn("10.00 MiB/s baseline, 5.00 MiB/s candidate", report)
 
+    def test_definition_check_share_relates_complete_and_check_only_workloads(self):
+        check = compare_workload("schema_check", profile(300), profile(100), [100] * 3, [100] * 3)
+        complete = compare_workload("schema_validate", profile(400), profile(200), [100] * 3, [100] * 3)
+        complete["definition_check"] = "schema_check"
+        check["input_bytes"] = 0
+        report = render_markdown({"baseline_sha": "abc", "candidate_sha": "def",
+                                  "metadata": {"native_iterations": 10, "iterations": 100},
+                                  "workloads": [check, complete]})
+        self.assertIn("| schema_validate | schema_check | 3 | 1 | 75.0% | 50.0% |", report)
+        self.assertNotIn("MiB/s", report)
+        plain = render_markdown({"baseline_sha": "abc", "candidate_sha": "def", "metadata": {},
+                                 "workloads": [check]})
+        self.assertNotIn("definition-check share", plain)
+
 
 if __name__ == "__main__":
     unittest.main()

@@ -232,7 +232,9 @@ TEST(Unit_Tlv_FixedFieldAdapters, BinaryCallbacksUseTheRealLengthConfiguration) 
                 error = {};
                 EXPECT_EQ(read_result,
                           tlv_binary_decode(&config, wire, 2 + available, &decoded, &error));
-                EXPECT_EQ(consumed, error.length.size);
+                // Failure detail is published only on failure; success publishes the source.
+                EXPECT_EQ(consumed,
+                          read_result == TLV_OK ? decoded.source.length.size : error.length.size);
                 if (expected != TLV_OK) EXPECT_EQ(0u, consumed);
                 if (read_result != TLV_OK) EXPECT_EQ(99u, value);
             }

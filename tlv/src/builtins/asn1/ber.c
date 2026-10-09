@@ -212,22 +212,28 @@ const tlv_field_composition_t tlv_ber_fields = {.context = NULL,
 const tlv_format_t tlv_format_ber = {&tlv_ber_fields, tlv_fields_decode, tlv_fields_measure,
                                      tlv_fields_encode, tlv_asn1_is_constructed};
 
+static tlv_result_t indefinite_failure(tlv_format_error_t* error, tlv_result_t rc,
+                                       tlv_region_t region, size_t offset) {
+    error->region = region;
+    error->offset = offset;
+    error->has_offset = 1;
+    return rc;
+}
+
 tlv_result_t tlv_asn1_indefinite_measure(const void* context, const tlv_element_t* element,
                                          tlv_encoding_t* sizes, tlv_format_error_t* error) {
     const tlv_field_composition_t* fields = (const tlv_field_composition_t*)context;
     size_t tag_size;
-    tlv_result_t rc;
-    error->region = TLV_REGION_TAG;
-    error->has_offset = 1;
-    rc = fields->write_tag(fields->context, &element->tag, NULL, 0, &tag_size);
-    if (rc != TLV_OK) return rc;
-    if (!tlv_asn1_is_constructed(NULL, &element->tag)) return TLV_ERR_INVALID_LENGTH;
-    sizes->header = tag_size + (tlv_size_t)1;
-    sizes->value = element->value.size;
-    sizes->trailer = 2;
-    rc = tlv_size_add(sizes->header, sizes->value, &sizes->total);
-    if (rc != TLV_OK) return rc;
-    return tlv_size_add(sizes->total, sizes->trailer, &sizes->total);
+    tlv_result_t rc = fields->write_tag(fields->context, &element->tag, NULL, 0, &tag_size);
+    if (rc == TLV_OK && !tlv_asn1_is_constructed(NULL, &element->tag)) rc = TLV_ERR_INVALID_LENGTH;
+    if (rc == TLV_OK) {
+        sizes->header = tag_size + (tlv_size_t)1;
+        sizes->value = element->value.size;
+        sizes->trailer = 2;
+        rc = tlv_size_add(sizes->header, sizes->value, &sizes->total);
+    }
+    if (rc == TLV_OK) rc = tlv_size_add(sizes->total, sizes->trailer, &sizes->total);
+    return rc == TLV_OK ? TLV_OK : indefinite_failure(error, rc, TLV_REGION_TAG, 0);
 }
 
 tlv_result_t tlv_asn1_indefinite_encode(const void* context, const tlv_element_t* element,
@@ -238,13 +244,11 @@ tlv_result_t tlv_asn1_indefinite_encode(const void* context, const tlv_element_t
     tlv_result_t rc = tlv_asn1_indefinite_measure(context, element, &sizes, error);
     if (rc != TLV_OK) return rc;
     rc = tlv_size_to_native(sizes.total, &total);
-    if (rc != TLV_OK) return rc;
-    if (capacity < total) return TLV_ERR_BUFFER_TOO_SHORT;
+    if (rc == TLV_OK && capacity < total) rc = TLV_ERR_BUFFER_TOO_SHORT;
+    if (rc != TLV_OK) return indefinite_failure(error, rc, TLV_REGION_TAG, 0);
     n = (size_t)element->value.size;
-    error->region = TLV_REGION_VALUE;
-    error->offset = (size_t)sizes.header;
     rc = tlv_ber_scan_contents(element->value.data, n, 0, &checked, &used);
-    if (rc != TLV_OK) return rc;
+    if (rc != TLV_OK) return indefinite_failure(error, rc, TLV_REGION_VALUE, (size_t)sizes.header);
     memcpy(data, element->tag.data, element->tag.size);
     data[element->tag.size] = 0x80;
     if (n) memcpy(data + (size_t)sizes.header, element->value.data, n);

@@ -12,10 +12,25 @@ static tlv_range_t range(size_t offset, size_t size) {
     return r;
 }
 
-static void location(tlv_format_error_t* e, tlv_region_t region, size_t offset) {
+/* A field extent clipped to the available input, also for a failed field. */
+static tlv_range_t available(size_t offset, size_t used, size_t size) {
+    return range(offset, used <= size - offset ? used : size - offset);
+}
+
+/* Successful operations never write error; failures publish detail from state already held. */
+static tlv_result_t failure(tlv_format_error_t* e, tlv_result_t rc, tlv_region_t region,
+                            size_t offset) {
     e->region = region;
     e->offset = offset;
     e->has_offset = 1;
+    return rc;
+}
+
+static tlv_result_t fields_failure(tlv_format_error_t* e, const tlv_decoded_t* result,
+                                   tlv_result_t rc, tlv_region_t region, size_t offset) {
+    e->tag = result->source.tag;
+    e->length = result->source.length;
+    return failure(e, rc, region, offset);
 }
 
 tlv_result_t tlv_fields_decode(const void* context, const uint8_t* data, size_t size,
@@ -28,56 +43,61 @@ tlv_result_t tlv_fields_decode(const void* context, const uint8_t* data, size_t 
     for (int step = 0; step < 2; ++step) {
         int identifier = (step == 0) == (f->element_order == TLV_ELEMENT_ORDER_TLV);
         if (identifier) {
-            location(error, TLV_REGION_TAG, pos);
             rc = f->read_tag(f->context, data + pos, size - pos, &tag, &tag_size);
             rc = tlv_callback_result(rc, 0);
-            if (rc != TLV_OK) return rc;
-            if (!tag_size || tag_size > size - pos || (tag.size && !tag.data))
-                return TLV_ERR_CALLBACK;
-            error->tag = result->source.tag = range(pos, tag_size);
+            if (rc == TLV_OK && (!tag_size || tag_size > size - pos || (tag.size && !tag.data)))
+                rc = TLV_ERR_CALLBACK;
+            if (rc != TLV_OK) return fields_failure(error, result, rc, TLV_REGION_TAG, pos);
+            result->source.tag = range(pos, tag_size);
             pos += tag_size;
         } else {
-            location(error, TLV_REGION_LENGTH, pos);
             if (f->resolve) {
                 tlv_format_error_t resolved = {0};
                 rc = f->resolve(f->context, &tag, data + pos, size - pos, &length_size, &length,
                                 &trailer, &resolved);
                 rc = tlv_callback_result(rc, 0);
-                if (rc != TLV_OK && resolved.has_offset) {
-                    error->region = resolved.region;
-                    error->offset = pos + resolved.offset;
-                    error->required = resolved.required;
-                    error->has_required = resolved.has_required;
+                if (rc != TLV_OK) {
+                    result->source.length = available(pos, length_size, size);
+                    fields_failure(error, result, rc, TLV_REGION_LENGTH, pos);
+                    if (resolved.has_offset) {
+                        error->region = resolved.region;
+                        error->offset = pos + resolved.offset;
+                        error->required = resolved.required;
+                        error->has_required = resolved.has_required;
+                    }
+                    return rc;
                 }
             } else {
                 rc = f->read_length(f->context, data + pos, size - pos, &length, &length_size);
                 rc = tlv_callback_result(rc, 0);
             }
-            error->length = range(pos, length_size <= size - pos ? length_size : size - pos);
-            if (rc != TLV_OK) return rc;
-            if (length_size > size - pos) return TLV_ERR_CALLBACK;
-            if (f->length_scope == TLV_LENGTH_SCOPE_TAG_AND_VALUE && !length)
-                return TLV_ERR_INVALID_LENGTH;
-            result->source.length = error->length;
+            result->source.length = available(pos, length_size, size);
+            if (rc == TLV_OK && length_size > size - pos) rc = TLV_ERR_CALLBACK;
+            if (rc == TLV_OK && f->length_scope == TLV_LENGTH_SCOPE_TAG_AND_VALUE && !length)
+                rc = TLV_ERR_INVALID_LENGTH;
+            if (rc != TLV_OK) return fields_failure(error, result, rc, TLV_REGION_LENGTH, pos);
             pos += length_size;
         }
     }
     if (f->length_scope == TLV_LENGTH_SCOPE_TAG_AND_VALUE) {
-        if (length < tag_size) {
-            location(error, TLV_REGION_LENGTH, result->source.length.offset);
-            return TLV_ERR_INVALID_LENGTH;
-        }
+        if (length < tag_size)
+            return fields_failure(error, result, TLV_ERR_INVALID_LENGTH, TLV_REGION_LENGTH,
+                                  result->source.length.offset);
         length -= tag_size;
     }
-    location(error, TLV_REGION_VALUE, pos);
-    error->required = length;
-    error->has_required = 1;
-    if (length > size - pos) return TLV_ERR_BUFFER_TOO_SHORT;
+    if (length > size - pos) {
+        error->required = length;
+        error->has_required = 1;
+        return fields_failure(error, result, TLV_ERR_BUFFER_TOO_SHORT, TLV_REGION_VALUE, pos);
+    }
     native = (size_t)length;
-    error->value = range(pos, native);
-    location(error, TLV_REGION_TRAILER, pos + native);
-    error->required = trailer;
-    if (trailer > size - pos - native) return TLV_ERR_BUFFER_TOO_SHORT;
+    if (trailer > size - pos - native) {
+        error->required = trailer;
+        error->has_required = 1;
+        error->value = range(pos, native);
+        return fields_failure(error, result, TLV_ERR_BUFFER_TOO_SHORT, TLV_REGION_TRAILER,
+                              pos + native);
+    }
     result->element.tag = tag;
     result->element.value = (tlv_value_t){data + pos, length};
     result->source.header = range(0, pos);
@@ -87,22 +107,24 @@ tlv_result_t tlv_fields_decode(const void* context, const uint8_t* data, size_t 
     return TLV_OK;
 }
 
+static size_t length_offset(const tlv_field_composition_t* f, size_t tag_size) {
+    return f->element_order == TLV_ELEMENT_ORDER_TLV ? tag_size : 0;
+}
+
 static tlv_result_t field_sizes(const tlv_field_composition_t* f, const tlv_element_t* element,
                                 size_t* tag_size, size_t* length_size, tlv_size_t* count,
                                 tlv_format_error_t* error) {
-    tlv_result_t rc;
-    location(error, TLV_REGION_TAG, 0);
-    rc = f->write_tag(f->context, &element->tag, NULL, 0, tag_size);
+    tlv_result_t rc = f->write_tag(f->context, &element->tag, NULL, 0, tag_size);
     rc = tlv_callback_result(rc, 0);
-    if (rc != TLV_OK) return rc;
-    if (!*tag_size) return TLV_ERR_CALLBACK;
+    if (rc == TLV_OK && !*tag_size) rc = TLV_ERR_CALLBACK;
+    if (rc != TLV_OK) return failure(error, rc, TLV_REGION_TAG, 0);
     *count = element->value.size;
-    location(error, TLV_REGION_LENGTH, f->element_order == TLV_ELEMENT_ORDER_TLV ? *tag_size : 0);
-    if (f->length_scope == TLV_LENGTH_SCOPE_TAG_AND_VALUE) {
+    if (f->length_scope == TLV_LENGTH_SCOPE_TAG_AND_VALUE)
         rc = tlv_size_add(*count, *tag_size, count);
-        if (rc != TLV_OK) return rc;
-    }
-    return tlv_callback_result(f->write_length(f->context, *count, NULL, 0, length_size), 0);
+    if (rc == TLV_OK)
+        rc = tlv_callback_result(f->write_length(f->context, *count, NULL, 0, length_size), 0);
+    return rc == TLV_OK ? TLV_OK
+                        : failure(error, rc, TLV_REGION_LENGTH, length_offset(f, *tag_size));
 }
 
 tlv_result_t tlv_fields_measure(const void* context, const tlv_element_t* element,
@@ -113,10 +135,12 @@ tlv_result_t tlv_fields_measure(const void* context, const tlv_element_t* elemen
     tlv_result_t rc = field_sizes(f, element, &t, &l, &count, error);
     if (rc != TLV_OK) return rc;
     rc = tlv_size_add(t, l, &encoding->header);
-    if (rc != TLV_OK) return rc;
-    encoding->value = element->value.size;
-    encoding->trailer = 0;
-    return tlv_size_add(encoding->header, encoding->value, &encoding->total);
+    if (rc == TLV_OK) {
+        encoding->value = element->value.size;
+        encoding->trailer = 0;
+        rc = tlv_size_add(encoding->header, encoding->value, &encoding->total);
+    }
+    return rc == TLV_OK ? TLV_OK : failure(error, rc, TLV_REGION_LENGTH, length_offset(f, t));
 }
 
 tlv_result_t tlv_fields_encode(const void* context, const tlv_element_t* element, uint8_t* data,
@@ -126,21 +150,20 @@ tlv_result_t tlv_fields_encode(const void* context, const tlv_element_t* element
     tlv_size_t count;
     tlv_result_t rc = field_sizes(f, element, &t, &l, &count, error);
     if (rc != TLV_OK) return rc;
-    rc = tlv_size_to_native(element->value.size, &v);
-    if (rc != TLV_OK) return rc;
-    if (t > capacity || l > capacity - t || v > capacity - t - l) return TLV_ERR_BUFFER_TOO_SHORT;
     to = f->element_order == TLV_ELEMENT_ORDER_TLV ? 0 : l;
-    lo = f->element_order == TLV_ELEMENT_ORDER_TLV ? t : 0;
-    location(error, TLV_REGION_TAG, to);
+    lo = length_offset(f, t);
+    rc = tlv_size_to_native(element->value.size, &v);
+    if (rc == TLV_OK && (t > capacity || l > capacity - t || v > capacity - t - l))
+        rc = TLV_ERR_BUFFER_TOO_SHORT;
+    if (rc != TLV_OK) return failure(error, rc, TLV_REGION_LENGTH, lo);
     rc = f->write_tag(f->context, &element->tag, data + to, t, &used);
     rc = tlv_callback_result(rc, 0);
-    if (rc != TLV_OK) return rc;
-    if (used != t) return TLV_ERR_CALLBACK;
-    location(error, TLV_REGION_LENGTH, lo);
+    if (rc == TLV_OK && used != t) rc = TLV_ERR_CALLBACK;
+    if (rc != TLV_OK) return failure(error, rc, TLV_REGION_TAG, to);
     rc = f->write_length(f->context, count, data + lo, l, &used);
     rc = tlv_callback_result(rc, 0);
-    if (rc != TLV_OK) return rc;
-    if (used != l) return TLV_ERR_CALLBACK;
+    if (rc == TLV_OK && used != l) rc = TLV_ERR_CALLBACK;
+    if (rc != TLV_OK) return failure(error, rc, TLV_REGION_LENGTH, lo);
     if (v) memcpy(data + t + l, element->value.data, v);
     *written = t + l + v;
     return TLV_OK;
@@ -232,13 +255,10 @@ tlv_result_t tlv_tagged_fields_decode(const void* context, const uint8_t* data, 
     const tlv_tagged_fields_composition_t* f = (const tlv_tagged_fields_composition_t*)context;
     tlv_tag_t tag = {0};
     size_t width = 0;
-    tlv_result_t rc;
-    location(error, TLV_REGION_TAG, 0);
-    rc = f->fields.read_tag(f->fields.context, data, size, &tag, &width);
+    tlv_result_t rc = f->fields.read_tag(f->fields.context, data, size, &tag, &width);
     rc = tlv_callback_result(rc, 0);
-    if (rc != TLV_OK) return rc;
-    if (!width || width > size || (tag.size && !tag.data)) return TLV_ERR_CALLBACK;
-    error->tag = range(0, width);
+    if (rc == TLV_OK && (!width || width > size || (tag.size && !tag.data))) rc = TLV_ERR_CALLBACK;
+    if (rc != TLV_OK) return failure(error, rc, TLV_REGION_TAG, 0);
     if (!tagged_fields_tag_only(f, &tag))
         return tlv_fields_decode(&f->fields, data, size, result, error);
     result->element.tag = tag;
@@ -256,19 +276,16 @@ tlv_result_t tlv_tagged_fields_measure(const void* context, const tlv_element_t*
                                        tlv_encoding_t* encoding, tlv_format_error_t* error) {
     const tlv_tagged_fields_composition_t* f = (const tlv_tagged_fields_composition_t*)context;
     size_t width = 0;
-    tlv_result_t rc;
-    location(error, TLV_REGION_TAG, 0);
-    rc = f->fields.write_tag(f->fields.context, &element->tag, NULL, 0, &width);
+    tlv_result_t rc = f->fields.write_tag(f->fields.context, &element->tag, NULL, 0, &width);
     rc = tlv_callback_result(rc, 0);
-    if (rc != TLV_OK) return rc;
-    if (!width) return TLV_ERR_CALLBACK;
+    if (rc == TLV_OK && !width) rc = TLV_ERR_CALLBACK;
+    if (rc != TLV_OK) return failure(error, rc, TLV_REGION_TAG, 0);
     if (!tagged_fields_tag_only(f, &element->tag))
         return tlv_fields_measure(&f->fields, element, encoding, error);
     if (element->value.size) {
-        location(error, TLV_REGION_VALUE, width);
         error->required = 0;
         error->has_required = 1;
-        return TLV_ERR_INVALID_LENGTH;
+        return failure(error, TLV_ERR_INVALID_LENGTH, TLV_REGION_VALUE, width);
     }
     *encoding = (tlv_encoding_t){width, 0, 0, width};
     return TLV_OK;
@@ -283,8 +300,10 @@ tlv_result_t tlv_tagged_fields_encode(const void* context, const tlv_element_t* 
     if (rc != TLV_OK) return rc;
     if (!tagged_fields_tag_only(f, &element->tag))
         return tlv_fields_encode(&f->fields, element, data, capacity, written, error);
-    if (encoding.total > capacity) return TLV_ERR_BUFFER_TOO_SHORT;
-    return f->fields.write_tag(f->fields.context, &element->tag, data, capacity, written);
+    rc = encoding.total > capacity
+             ? TLV_ERR_BUFFER_TOO_SHORT
+             : f->fields.write_tag(f->fields.context, &element->tag, data, capacity, written);
+    return rc == TLV_OK ? TLV_OK : failure(error, rc, TLV_REGION_TAG, 0);
 }
 
 tlv_result_t tlv_tagged_fields_format_init(tlv_format_t* format,

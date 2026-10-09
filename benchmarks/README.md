@@ -86,6 +86,36 @@ variation. It does not run benchmarks or establish statistical significance.
 Record the source commit, variant, compiler/build flags and invocation using
 Google Benchmark's `--benchmark_context` when producing each input JSON.
 
+## Schema definition checking and input processing
+
+The `schema/` and `der_schema/` families measure generic Schema and DER Schema.
+Every complete `tlv_schema_validate()` or `tlv_der_schema_read()` call checks
+the whole reachable definition before reading input, so each schema shape has a
+`check` case (`tlv_schema_check()` or `tlv_der_schema_check()` only) and a
+complete `validate` or `read` case:
+
+| Shape | Cases | Input |
+| --- | --- | --- |
+| `shared` | `{schema,der_schema}/{check,validate or read}/shared` | `30 00` against 200 distinct tables or types, each referencing the next two |
+| `flat` | `{schema,der_schema}/{check,validate or read}/flat` | 256 primitive 16-byte Values against a 16-rule table, or a DER `SEQUENCE OF OCTET STRING` |
+| `recursive` | `{schema,der_schema}/{check,validate or read}/recursive` | `T = SEQUENCE OF T` with 16 chains of 20 nested empty SEQUENCEs |
+
+The Callgrind driver uses the same fixtures from
+`callgrind/schema_workloads.h`; see the
+[Callgrind workloads](../docs/development/valgrind.md#compare-instruction-counts-and-native-timings).
+Schemas and inputs are built once, outside timing, and every call checks its
+result. `bytes_per_second` is reported only for complete cases that read input.
+The cases need Schema with Reader and BER, or DER Schema; others are skipped.
+
+```text
+"--benchmark_filter=^(der_)?schema/" --benchmark_min_time=0.2s --benchmark_repetitions=10 --benchmark_report_aggregates_only=false --benchmark_display_aggregates_only=true --benchmark_out=benchmarks/results/schema.json --benchmark_out_format=json
+```
+
+[`evidence/schema-573.json`](evidence/schema-573.json) records these cases
+before definition checking can be done once and reused, as a baseline for that
+change. It is a Windows MSVC Release run with ten repetitions and generic host
+and executable labels.
+
 ## Public C++ Reader and Document
 
 The `cxx_reader/` and `cxx_document/` workloads measure the public facade itself
