@@ -4298,6 +4298,11 @@ by #554. <code>ARGUMENT</code> remains to be added for cases currently forced in
 <code>IMAGE_VERSION</code> for a recognized version mismatch. <code>CODEC</code> denotes conversion
 context; a callback contract violation during conversion uses <code>CALLBACK</code> and
 records the codec operation and reported result, including a reported <code>OK</code>.
+The raw <code>codec.reported</code> and Query <code>codec</code> fields use <code>int32_t</code>, preserving
+unknown and negative foreign callback results without invalid C++ enum reads.
+Callback signatures still use <code>tlv_result_t</code>: C++ callbacks must return values
+representable by that enum, and callers must use the C dispatch entry points
+to normalize foreign callback results before interpreting the returned status.
 Ordinary invalid encoded values remain <code>CODEC</code> plus <code>INVALID_VALUE</code>.</p>
 <p>Schema input findings retain <code>MISSING</code>, <code>DUPLICATE</code>, <code>UNEXPECTED</code>, <code>KIND</code>,
 <code>LENGTH</code>, <code>ORDER</code> and <code>ASSERTION</code>; add <code>VALUE</code> for a direct semantic constraint
@@ -4767,6 +4772,30 @@ Unknown visitor discriminators produce <code>CALLBACK</code>.</p>
 </thead>
 <tbody>
 <tr>
+<td>Generator reports <code>NULL_ARG</code> for a non-NULL Format without read/write capability</td>
+<td><code>UNSUPPORTED</code>; missing required top-level pointers retain <code>NULL_ARG</code>. C++ uses the same capability-before-configuration precedence. Implemented in #572.</td>
+</tr>
+<tr>
+<td>Generator rejects <code>max_depth &gt; 64</code> as <code>INVALID_ARG</code></td>
+<td><code>UNSUPPORTED</code> for a request beyond fixed implementation capability. Implemented in #572.</td>
+</tr>
+<tr>
+<td>Generator exhausts attempts when every candidate's minimum Value size exceeds <code>max_value_size</code> or <code>max_case_size</code></td>
+<td>Reject the contradictory domain as <code>INVALID_ARG</code> in <code>tlv_generator_workspace_size()</code>. Check all descriptors but allow a mixture of usable and unusable candidates. Implemented in #572.</td>
+</tr>
+<tr>
+<td>Generator hides callback failures and successful encode/decode semantic mismatches as candidate rejection</td>
+<td>Propagate detected <code>CALLBACK</code> and classify changed identifier presence/bytes, Value, or incomplete successful decoding as <code>CALLBACK</code>; abort even inside a child stream or after partial success. Implemented in #572.</td>
+</tr>
+<tr>
+<td>Generator rejects candidates that fail ordinary Format operations or byte-exact reconstruction with preserved semantics</td>
+<td>Retain the bounded candidate search and <code>LIMIT</code> when no nonempty case is produced. Format-specific identifier/framing feasibility cannot be decided by the Format-independent workspace query. Implemented in #572.</td>
+</tr>
+<tr>
+<td>Generator workspace/attempt arithmetic and caller buffer checks</td>
+<td>Retain <code>OVERFLOW</code> for unrepresentable workspace or attempt budget, and <code>BUFFER_TOO_SHORT</code> for insufficient output/workspace. Algorithm version and valid deterministic bytes are unchanged by #572.</td>
+</tr>
+<tr>
 <td><code>tlv_value_constraint_validate()</code> returns <code>SCHEMA</code> for invalid bounds, enum or allowed-values storage</td>
 <td>Validate the definition as <code>INVALID_SCHEMA</code>; valid constraints rejecting data produce <code>SCHEMA</code> + <code>VALUE</code>.</td>
 </tr>
@@ -4817,7 +4846,7 @@ Unknown visitor discriminators produce <code>CALLBACK</code>.</p>
 <code>STATE</code>, facade mappings and <code>INVALID_VALUE</code> for malformed structural feeds.</p>
 <p>Issue #554 implements unsupported capability, workspace and callback classifications
 including impossible preorder depth returned by a Tree Writer source callback.
-The separate Codec result domain and its lossless propagation migrate in #556;
+Codec uses the shared result domain and lossless typed propagation as of #556;
 other Query detail kinds and the remaining result classes are follow-up work. No append-only or numeric ABI guarantee is attached to
 <code>INVALID_STATE = 19</code> or <code>STATE = 12</code>. The complete target API is not yet available.
 The follow-up implementation replaces enums/signatures/layouts directly and

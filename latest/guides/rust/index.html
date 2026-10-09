@@ -3855,8 +3855,8 @@ structures such as <code>DocumentError</code> and <code>WriterError</code>. Ther
 <li><code>Writer::write</code> returns <code>Error::BufferTooShort</code> when the element does not fit
   and leaves the position unchanged, so you can retry with a bigger buffer.</li>
 <li>Layers with more context use their own types: <code>SchemaError</code> and
-  <code>ValidationError</code> carry the C <code>Error</code> plus the failing offset, and <code>CodecError</code>
-  maps the separate <code>tlv_codec_result_t</code>.</li>
+  <code>ValidationError</code> carry the C <code>Error</code> plus the failing offset, and <code>CodecFailure</code>
+  retains the shared <code>Error</code> and owned conversion diagnostic.</li>
 </ul>
 <h2 id="ownership-and-lifetimes">Ownership and lifetimes<a class="headerlink" href="#ownership-and-lifetimes" title="Permanent link">&para;</a></h2>
 <table>
@@ -3987,7 +3987,7 @@ compact without discarding detail.
 <code>ProgramOptions.providers</code> holds <code>QueryProvider</code> values for the closed NUM, BCD,
 TEXT and DATE conversions. Each owns a stable ID, scratch limit and <code>Send + Sync</code>
 callback. Callbacks receive bytes and optional owned metadata; return
-<code>QueryDecoded</code> or <code>QueryCodecError</code>. Provider panics become native codec errors,
+<code>QueryDecoded</code> or the shared <code>Error</code>. Provider panics become native codec errors,
 and text is copied into bounded native scratch. Programs retain provider owners.</p>
 <p><code>QueryProgram::edit_document</code> evaluates and edits under one exclusive Document
 borrow. <code>QueryEdit</code> selects removal, replacement or insertion;

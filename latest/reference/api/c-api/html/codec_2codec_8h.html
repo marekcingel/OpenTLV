@@ -76,7 +76,6 @@ $(function() {
   <div class="summary">
 <a href="#nested-classes">Data Structures</a> &#124;
 <a href="#typedef-members">Typedefs</a> &#124;
-<a href="#enum-members">Enumerations</a> &#124;
 <a href="#func-members">Functions</a>  </div>
   <div class="headertitle"><div class="title">codec.h File Reference<div class="ingroups"><a class="el" href="group__codecs.html">Codecs</a></div></div></div>
 </div><!--header-->
@@ -85,6 +84,7 @@ $(function() {
 <p>Value codec descriptors for converting raw TLV values to and from C representations.  
 <a href="#details">More...</a></p>
 <div class="textblock"><code>#include &quot;<a class="el" href="error_8h.html">tlv/error.h</a>&quot;</code><br />
+<code>#include &quot;<a class="el" href="codec_2diagnostic_8h.html">tlv/codec/diagnostic.h</a>&quot;</code><br />
 <code>#include &quot;tlv/export.h&quot;</code><br />
 <code>#include &lt;stddef.h&gt;</code><br />
 <code>#include &lt;stdint.h&gt;</code><br />
@@ -97,39 +97,18 @@ Data Structures</h2></td></tr>
 </table><table class="memberdecls">
 <tr class="heading"><td colspan="2"><h2 class="groupheader"><a id="typedef-members" name="typedef-members"></a>
 Typedefs</h2></td></tr>
-<tr class="memitem:ga6033534ecdbfc36953062aed6279562f" id="r_ga6033534ecdbfc36953062aed6279562f"><td class="memItemLeft" align="right" valign="top">typedef enum <a class="el" href="group__codecs.html#ga5aefdf4a40140da8025256c425474b1a">tlv_codec_result</a>&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="group__codecs.html#ga6033534ecdbfc36953062aed6279562f">tlv_codec_result_t</a></td></tr>
-<tr class="memdesc:ga6033534ecdbfc36953062aed6279562f"><td class="mdescLeft">&#160;</td><td class="mdescRight">Result code of a value conversion.  <br /></td></tr>
-<tr class="separator:ga6033534ecdbfc36953062aed6279562f"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:gab79131d94a100a55e0e58473ca95f785" id="r_gab79131d94a100a55e0e58473ca95f785"><td class="memItemLeft" align="right" valign="top">typedef struct <a class="el" href="structtlv__codec.html">tlv_codec</a>&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="group__codecs.html#gab79131d94a100a55e0e58473ca95f785">tlv_codec_t</a></td></tr>
 <tr class="memdesc:gab79131d94a100a55e0e58473ca95f785"><td class="mdescLeft">&#160;</td><td class="mdescRight">Borrowed codec descriptor with an optional immutable context.  <br /></td></tr>
 <tr class="separator:gab79131d94a100a55e0e58473ca95f785"><td class="memSeparator" colspan="2">&#160;</td></tr>
 </table><table class="memberdecls">
-<tr class="heading"><td colspan="2"><h2 class="groupheader"><a id="enum-members" name="enum-members"></a>
-Enumerations</h2></td></tr>
-<tr class="memitem:ga5aefdf4a40140da8025256c425474b1a" id="r_ga5aefdf4a40140da8025256c425474b1a"><td class="memItemLeft" align="right" valign="top">enum &#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="group__codecs.html#ga5aefdf4a40140da8025256c425474b1a">tlv_codec_result</a> { <br />
-&#160;&#160;<a class="el" href="group__codecs.html#gga5aefdf4a40140da8025256c425474b1aac7febd810d4499676ac656cfaac83e51">TLV_CODEC_OK</a> = 0
-, <a class="el" href="group__codecs.html#gga5aefdf4a40140da8025256c425474b1aaa8a374fe8d72bbae4f25046774dcc686">TLV_CODEC_ERR_NULL_ARG</a>
-, <a class="el" href="group__codecs.html#gga5aefdf4a40140da8025256c425474b1aa187607751b25c1e4b9a9c2032e93f4d2">TLV_CODEC_ERR_BUFFER_TOO_SHORT</a>
-, <a class="el" href="group__codecs.html#gga5aefdf4a40140da8025256c425474b1aa2dde6f557037bd68cdf6004636648291">TLV_CODEC_ERR_INVALID_VALUE</a>
-, <br />
-&#160;&#160;<a class="el" href="group__codecs.html#gga5aefdf4a40140da8025256c425474b1aa92060a99b1c9ac1fd965191ec74ae5f3">TLV_CODEC_ERR_UNSUPPORTED</a>
-, <a class="el" href="group__codecs.html#gga5aefdf4a40140da8025256c425474b1aacb73f083c46ec5e072caddf46eb8a635">TLV_CODEC_ERR_INVALID_STRUCTURE</a>
-<br />
- }</td></tr>
-<tr class="memdesc:ga5aefdf4a40140da8025256c425474b1a"><td class="mdescLeft">&#160;</td><td class="mdescRight">Result code of a value conversion.  <a href="group__codecs.html#ga5aefdf4a40140da8025256c425474b1a">More...</a><br /></td></tr>
-<tr class="separator:ga5aefdf4a40140da8025256c425474b1a"><td class="memSeparator" colspan="2">&#160;</td></tr>
-</table><table class="memberdecls">
 <tr class="heading"><td colspan="2"><h2 class="groupheader"><a id="func-members" name="func-members"></a>
 Functions</h2></td></tr>
-<tr class="memitem:ga7de8d4351e9f4b98cd480ec634eced7a" id="r_ga7de8d4351e9f4b98cd480ec634eced7a"><td class="memItemLeft" align="right" valign="top"><a class="el" href="group__codecs.html#ga6033534ecdbfc36953062aed6279562f">tlv_codec_result_t</a>&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="group__codecs.html#ga7de8d4351e9f4b98cd480ec634eced7a">tlv_codec_decode</a> (const <a class="el" href="group__codecs.html#gab79131d94a100a55e0e58473ca95f785">tlv_codec_t</a> *codec, const uint8_t *data, size_t size, void *value, size_t capacity)</td></tr>
-<tr class="memdesc:ga7de8d4351e9f4b98cd480ec634eced7a"><td class="mdescLeft">&#160;</td><td class="mdescRight">Decodes a raw value with a codec.  <br /></td></tr>
-<tr class="separator:ga7de8d4351e9f4b98cd480ec634eced7a"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:ga6ab3f99685db43f4572a27c3ddae2a62" id="r_ga6ab3f99685db43f4572a27c3ddae2a62"><td class="memItemLeft" align="right" valign="top"><a class="el" href="group__codecs.html#ga6033534ecdbfc36953062aed6279562f">tlv_codec_result_t</a>&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="group__codecs.html#ga6ab3f99685db43f4572a27c3ddae2a62">tlv_codec_encode</a> (const <a class="el" href="group__codecs.html#gab79131d94a100a55e0e58473ca95f785">tlv_codec_t</a> *codec, const void *value, size_t size, uint8_t *data, size_t capacity, size_t *written)</td></tr>
-<tr class="memdesc:ga6ab3f99685db43f4572a27c3ddae2a62"><td class="mdescLeft">&#160;</td><td class="mdescRight">Encodes a C representation into raw value bytes with a codec.  <br /></td></tr>
-<tr class="separator:ga6ab3f99685db43f4572a27c3ddae2a62"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:ga29bac18a06040bfae9c0a783de865d46" id="r_ga29bac18a06040bfae9c0a783de865d46"><td class="memItemLeft" align="right" valign="top">const char *&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="group__codecs.html#ga29bac18a06040bfae9c0a783de865d46">tlv_codec_strerror</a> (<a class="el" href="group__codecs.html#ga6033534ecdbfc36953062aed6279562f">tlv_codec_result_t</a> result)</td></tr>
-<tr class="memdesc:ga29bac18a06040bfae9c0a783de865d46"><td class="mdescLeft">&#160;</td><td class="mdescRight">Returns a readable description of a codec result.  <br /></td></tr>
-<tr class="separator:ga29bac18a06040bfae9c0a783de865d46"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:ga9ea8055633ebf0b64e284f7494e3fd66" id="r_ga9ea8055633ebf0b64e284f7494e3fd66"><td class="memItemLeft" align="right" valign="top"><a class="el" href="group__core.html#ga164d2817a32e5d7b7aa1472e887b47c3">tlv_result_t</a>&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="group__codecs.html#ga9ea8055633ebf0b64e284f7494e3fd66">tlv_codec_decode</a> (const <a class="el" href="group__codecs.html#gab79131d94a100a55e0e58473ca95f785">tlv_codec_t</a> *codec, const uint8_t *data, size_t size, void *value, size_t capacity, <a class="el" href="codec_2diagnostic_8h.html#a59f8458396cf6b5047ba62210725b13c">tlv_codec_diagnostic_t</a> *diagnostic)</td></tr>
+<tr class="memdesc:ga9ea8055633ebf0b64e284f7494e3fd66"><td class="mdescLeft">&#160;</td><td class="mdescRight">Decodes a raw value with a codec.  <br /></td></tr>
+<tr class="separator:ga9ea8055633ebf0b64e284f7494e3fd66"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:ga866587672c3083a266776ebdc6ee786c" id="r_ga866587672c3083a266776ebdc6ee786c"><td class="memItemLeft" align="right" valign="top"><a class="el" href="group__core.html#ga164d2817a32e5d7b7aa1472e887b47c3">tlv_result_t</a>&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="group__codecs.html#ga866587672c3083a266776ebdc6ee786c">tlv_codec_encode</a> (const <a class="el" href="group__codecs.html#gab79131d94a100a55e0e58473ca95f785">tlv_codec_t</a> *codec, const void *value, size_t size, uint8_t *data, size_t capacity, size_t *written, <a class="el" href="codec_2diagnostic_8h.html#a59f8458396cf6b5047ba62210725b13c">tlv_codec_diagnostic_t</a> *diagnostic)</td></tr>
+<tr class="memdesc:ga866587672c3083a266776ebdc6ee786c"><td class="mdescLeft">&#160;</td><td class="mdescRight">Encodes a C representation into raw value bytes with a codec.  <br /></td></tr>
+<tr class="separator:ga866587672c3083a266776ebdc6ee786c"><td class="memSeparator" colspan="2">&#160;</td></tr>
 </table>
 <a name="details" id="details"></a><h2 class="groupheader">Detailed Description</h2>
 <div class="textblock"><p>Value codec descriptors for converting raw TLV values to and from C representations. </p>

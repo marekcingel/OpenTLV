@@ -76,7 +76,7 @@ var searchData=
   ['borrow_5fvalue_73',['borrow_value',['../namespacetlv_1_1native.html#a797289684a2c61a990cd488c9073b299',1,'tlv::native']]],
   ['bounds_74',['bounds',['../structtlv_1_1bounds.html',1,'tlv::bounds'],['../structtlv_1_1bounds.html#a8c37b759a11ee81e88dcf49e9f2a58b1',1,'tlv::bounds::bounds()']]],
   ['buf_75',['buf',['../../../c-api/html/structtlv__writer.html#a37ce6d8aacd5dd9ac7ddd58a45d5e428',1,'tlv_writer']]],
-  ['buffer_5ftoo_5fshort_76',['buffer_too_short',['../namespacetlv.html#ab9d10b8185e9a80cd73b5a0ef633a22caf3476e64ac4a56f9900e0e8c1fb761a7',1,'tlv::buffer_too_short'],['../namespacetlv.html#aa12a2d260f443407813879992167be54af3476e64ac4a56f9900e0e8c1fb761a7',1,'tlv::buffer_too_short']]],
+  ['buffer_5ftoo_5fshort_76',['buffer_too_short',['../namespacetlv.html#ab9d10b8185e9a80cd73b5a0ef633a22caf3476e64ac4a56f9900e0e8c1fb761a7',1,'tlv']]],
   ['builder_2ehpp_77',['builder.hpp',['../query_2builder_8hpp.html',1,'(Global Namespace)'],['../writer_2builder_8hpp.html',1,'(Global Namespace)']]],
   ['builtin_5fcodec_2ehpp_78',['builtin_codec.hpp',['../builtin__codec_8hpp.html',1,'']]],
   ['builtins_79',['Builtins',['../../../c-api/html/group__builtins.html',1,'']]],

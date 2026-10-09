@@ -3968,7 +3968,7 @@ bytes and names, so returned definitions survive the registry.</p>
 Values through C. <code>LITTLE_ENDIAN</code> and <code>BCD</code> are also supported; BCD requires
 <code>digits</code> precision. Width zero selects minimal encoding. <code>decode</code>, <code>encode</code>,
 <code>encoded_size</code> and <code>encode_into</code> expose conversion, measurement and caller-owned
-output. Conversion errors raise <code>codec.CodecError</code>; integers outside uint64
+output. Conversion errors raise the corresponding <code>OpenTLVError</code> subclass; integers outside uint64
 raise <code>OverflowError</code> during representation adaptation.</p>
 <p><code>opentlv.codec</code> also binds <code>tlv_emv_codec_amount</code> for EMV format n12 amounts:</p>
 <div class="highlight"><pre><span></span><code><a id="__codelineno-6-1" name="__codelineno-6-1" href="#__codelineno-6-1"></a><span class="kn">from</span><span class="w"> </span><span class="nn">opentlv</span><span class="w"> </span><span class="kn">import</span> <span class="n">codec</span>
@@ -3979,8 +3979,9 @@ raise <code>OverflowError</code> during representation adaptation.</p>
 <p>Other public C codecs (dates, Track 2, AFL, CVM results and cryptogram
 information, among others) remain binding gaps. They must be exposed by wrapping
 the public C descriptors rather than reimplementing their conversion logic.
-<code>codec.CodecError</code> is separate from <code>OpenTLVError</code>, matching C's separate codec
-error domain; its <code>.code</code> contains the raw <code>tlv_codec_result_t</code> value.</p>
+<code>OpenTLVError.code</code> contains the shared <code>tlv_result_t</code> value; <code>codec_detail</code>
+retains operation, original provider result, contract violation and delegated
+cause when supplied by C. Its <code>schema</code> entry is an owned <code>SchemaDiagnostic</code>.</p>
 <p>Runnable version, decoding and encoding an EMV "Amount, Authorised" element:
 <a href="https://github.com/marekcingel/OpenTLV/blob/main/bindings/python/opentlv/examples/codec.py">codec.py</a>
 (<code>python examples/codec.py</code>).</p>

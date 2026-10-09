@@ -116,7 +116,7 @@ Public Member Functions</h2></td></tr>
 class tlv::codec_owner&lt; Codec &gt;</div><p>Stationary owner adapting a stateful C++ Value codec to runtime selection. </p>
 <dl class="tparams"><dt>Template Parameters</dt><dd>
   <table class="tparams">
-    <tr><td class="paramname">Codec</td><td>Immutable codec exposing value_type, const noexcept decode(bytes) returning expected&lt;value_type, codec_errc&gt;, and const noexcept encode(const value_type&amp;, byte*, size_t) returning expected&lt;size_t, codec_errc&gt;. </td></tr>
+    <tr><td class="paramname">Codec</td><td>Immutable codec exposing value_type, const noexcept decode(bytes) returning expected&lt;value_type, codec_failure&gt;, and const noexcept encode(const value_type&amp;, byte*, size_t) returning expected&lt;size_t, codec_failure&gt;. </td></tr>
   </table>
   </dd>
 </dl>

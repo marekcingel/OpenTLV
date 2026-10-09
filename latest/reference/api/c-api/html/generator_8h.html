@@ -116,7 +116,7 @@ Functions</h2></td></tr>
 <tr class="memdesc:a1394cceaf9c29b029b8abbde9b79bc73"><td class="mdescLeft">&#160;</td><td class="mdescRight">Compute required caller-owned workspace without allocation.  <br /></td></tr>
 <tr class="separator:a1394cceaf9c29b029b8abbde9b79bc73"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:ab309cc036e049bd3c9413628b2b6897f" id="r_ab309cc036e049bd3c9413628b2b6897f"><td class="memItemLeft" align="right" valign="top"><a class="el" href="group__core.html#ga164d2817a32e5d7b7aa1472e887b47c3">tlv_result_t</a>&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="generator_8h.html#ab309cc036e049bd3c9413628b2b6897f">tlv_generate</a> (const <a class="el" href="group__formats.html#gac461da7e8d46362fa8e09694efb0b062">tlv_format_t</a> *format, const <a class="el" href="generator_8h.html#a30ffa41b8f052cbc2383ad76dd1abad8">tlv_generator_options_t</a> *options, uint8_t *data, size_t capacity, uint8_t *workspace, size_t workspace_size, size_t *written)</td></tr>
-<tr class="memdesc:ab309cc036e049bd3c9413628b2b6897f"><td class="mdescLeft">&#160;</td><td class="mdescRight">Generate one nonempty complete stream through the canonical Writer. A bounded search accepts only elements that decode completely and re-encode byte-exactly. No independent wire encoder or protocol dispatch is used. Candidate constraints must describe independently composable elements of the selected Format. Message-level terminators, ordering and Schema policy are not inferred from Format; configure an ordinary TLV stream domain. Values deliberately sample interval ends and 127/128/255/256 boundaries.  <br /></td></tr>
+<tr class="memdesc:ab309cc036e049bd3c9413628b2b6897f"><td class="mdescLeft">&#160;</td><td class="mdescRight">Generate one nonempty complete stream through the canonical Writer.  <br /></td></tr>
 <tr class="separator:ab309cc036e049bd3c9413628b2b6897f"><td class="memSeparator" colspan="2">&#160;</td></tr>
 </table>
 <a name="details" id="details"></a><h2 class="groupheader">Detailed Description</h2>
@@ -228,8 +228,8 @@ Functions</h2></td></tr>
       </table>
 </div><div class="memdoc">
 
-<p>Generate one nonempty complete stream through the canonical Writer. A bounded search accepts only elements that decode completely and re-encode byte-exactly. No independent wire encoder or protocol dispatch is used. Candidate constraints must describe independently composable elements of the selected Format. Message-level terminators, ordering and Schema policy are not inferred from Format; configure an ordinary TLV stream domain. Values deliberately sample interval ends and 127/128/255/256 boundaries. </p>
-<dl class="params"><dt>Parameters</dt><dd>
+<p>Generate one nonempty complete stream through the canonical Writer. </p>
+<p>A bounded search accepts only elements that decode completely and re-encode byte-exactly. No independent wire encoder or protocol dispatch is used. Candidate constraints must describe independently composable elements of the selected Format. Message-level terminators, ordering and Schema policy are not inferred from Format; configure an ordinary TLV stream domain. Values deliberately sample interval ends and 127/128/255/256 boundaries. Candidate operation failures other than <a class="el" href="group__core.html#gga516c7250563ee9332e2f45f2d203ae61adc3ffd285317edbc89e61fa26935e3c2">TLV_ERR_CALLBACK</a>, and byte-exact reconstruction mismatches with preserved semantics, reject that candidate. A detected callback violation or successful encode/decode that changes the semantic Element aborts the entire case, including failures in child streams. </p><dl class="params"><dt>Parameters</dt><dd>
   <table class="params">
     <tr><td class="paramdir">[in]</td><td class="paramname">format</td><td>Required readable and writable immutable Format. </td></tr>
     <tr><td class="paramdir">[in]</td><td class="paramname">options</td><td>Required immutable options and borrowed candidate storage. </td></tr>
@@ -243,16 +243,20 @@ Functions</h2></td></tr>
 </dl>
 <dl class="section return"><dt>Returns</dt><dd><a class="el" href="group__core.html#gga516c7250563ee9332e2f45f2d203ae61ac763c25dd3e807fae4d8078c3d3e94ed">TLV_OK</a> on success. </dd>
 <dd>
-<a class="el" href="group__core.html#gga516c7250563ee9332e2f45f2d203ae61aa4a514ccb37d17b2cd7c7da47d2eab88">TLV_ERR_NULL_ARG</a> for missing pointers or Format capabilities. </dd>
+<a class="el" href="group__core.html#gga516c7250563ee9332e2f45f2d203ae61aa4a514ccb37d17b2cd7c7da47d2eab88">TLV_ERR_NULL_ARG</a> for missing required top-level pointers. </dd>
 <dd>
-<a class="el" href="group__core.html#gga516c7250563ee9332e2f45f2d203ae61a83b538a74c7058e8863132a6410b9d65">TLV_ERR_INVALID_ARG</a> for invalid configuration. </dd>
+<a class="el" href="group__core.html#gga516c7250563ee9332e2f45f2d203ae61a09879563fe6271975928879b0de69bc1">TLV_ERR_UNSUPPORTED</a> for a Format without read/write capability or max_depth greater than 64. </dd>
+<dd>
+<a class="el" href="group__core.html#gga516c7250563ee9332e2f45f2d203ae61a83b538a74c7058e8863132a6410b9d65">TLV_ERR_INVALID_ARG</a> for invalid configuration, as checked by <a class="el" href="generator_8h.html#a1394cceaf9c29b029b8abbde9b79bc73" title="Compute required caller-owned workspace without allocation.">tlv_generator_workspace_size()</a>. </dd>
 <dd>
 <a class="el" href="group__core.html#gga516c7250563ee9332e2f45f2d203ae61a02f1494beef2c6ffc5f3ba9859fc6e2a">TLV_ERR_OVERFLOW</a> for unrepresentable workspace or attempt budget. </dd>
 <dd>
 <a class="el" href="group__core.html#gga516c7250563ee9332e2f45f2d203ae61acbd34cf02b42e70e99648aef5b9ca8b3">TLV_ERR_BUFFER_TOO_SHORT</a> for insufficient output or workspace. </dd>
 <dd>
-<a class="el" href="group__core.html#gga516c7250563ee9332e2f45f2d203ae61a1e32eada09d59d834a685da1adeaaf97">TLV_ERR_LIMIT</a> if the bounded search cannot generate a nonempty case. </dd></dl>
-<dl class="section note"><dt>Note</dt><dd>written is unchanged on failure; output and workspace bytes may change. No storage is retained. Format callbacks must be deterministic and obey their contracts. </dd></dl>
+<a class="el" href="group__core.html#gga516c7250563ee9332e2f45f2d203ae61a1e32eada09d59d834a685da1adeaaf97">TLV_ERR_LIMIT</a> if the bounded search cannot generate a nonempty case. </dd>
+<dd>
+<a class="el" href="group__core.html#gga516c7250563ee9332e2f45f2d203ae61adc3ffd285317edbc89e61fa26935e3c2">TLV_ERR_CALLBACK</a> for a detected callback contract violation, including an incomplete successful decode or changed identifier presence/bytes or Value. </dd></dl>
+<dl class="section note"><dt>Note</dt><dd>written is unchanged on failure; output and workspace bytes may change. No storage is retained. Format callbacks must be deterministic and obey their contracts. Required top-level pointers are checked before Format capabilities, then configuration is validated before output and workspace capacities. </dd></dl>
 
 </div>
 </div>
@@ -283,9 +287,9 @@ Functions</h2></td></tr>
 </div><div class="memdoc">
 
 <p>Compute required caller-owned workspace without allocation. </p>
-<dl class="params"><dt>Parameters</dt><dd>
+<p>Validates limits and all candidate descriptors. At least one candidate must have a minimum Value size within both max_value_size and max_case_size. This Format-independent check cannot establish identifier support or whether wire framing fits; those candidates may still be rejected during generation. </p><dl class="params"><dt>Parameters</dt><dd>
   <table class="params">
-    <tr><td class="paramdir">[in]</td><td class="paramname">options</td><td>Required validated configuration. </td></tr>
+    <tr><td class="paramdir">[in]</td><td class="paramname">options</td><td>Required configuration to validate. </td></tr>
     <tr><td class="paramdir">[out]</td><td class="paramname">size</td><td>Required bytes: (max_depth + 1) * max_case_size. </td></tr>
   </table>
   </dd>
@@ -294,7 +298,9 @@ Functions</h2></td></tr>
 <dd>
 <a class="el" href="group__core.html#gga516c7250563ee9332e2f45f2d203ae61aa4a514ccb37d17b2cd7c7da47d2eab88">TLV_ERR_NULL_ARG</a> for missing arguments. </dd>
 <dd>
-<a class="el" href="group__core.html#gga516c7250563ee9332e2f45f2d203ae61a83b538a74c7058e8863132a6410b9d65">TLV_ERR_INVALID_ARG</a> for invalid limits or candidate intervals. </dd>
+<a class="el" href="group__core.html#gga516c7250563ee9332e2f45f2d203ae61a83b538a74c7058e8863132a6410b9d65">TLV_ERR_INVALID_ARG</a> for invalid limits, candidate descriptors or no candidate whose minimum Value size fits both configured size limits. </dd>
+<dd>
+<a class="el" href="group__core.html#gga516c7250563ee9332e2f45f2d203ae61a09879563fe6271975928879b0de69bc1">TLV_ERR_UNSUPPORTED</a> for max_depth greater than 64. </dd>
 <dd>
 <a class="el" href="group__core.html#gga516c7250563ee9332e2f45f2d203ae61a02f1494beef2c6ffc5f3ba9859fc6e2a">TLV_ERR_OVERFLOW</a> for unrepresentable workspace or attempt budget. </dd></dl>
 <dl class="section note"><dt>Note</dt><dd>Output is unchanged on failure. </dd></dl>

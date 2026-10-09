@@ -176,7 +176,7 @@ Public Member Functions</h2></td></tr>
   </table>
   </dd>
 </dl>
-<dl class="section return"><dt>Returns</dt><dd>Complete wire bytes, or the canonical C validation/generation error. </dd></dl>
+<dl class="section return"><dt>Returns</dt><dd>Complete wire bytes, or the canonical C validation/generation error. An unreadable or unwritable Format returns <a class="elRef" href="../../c-api/html/group__core.html#gga516c7250563ee9332e2f45f2d203ae61a09879563fe6271975928879b0de69bc1">TLV_ERR_UNSUPPORTED</a> before options validation, matching <a class="elRef" href="../../c-api/html/generator_8h.html#ab309cc036e049bd3c9413628b2b6897f">tlv_generate()</a>. </dd></dl>
 <dl class="exception"><dt>Exceptions</dt><dd>
   <table class="exception">
     <tr><td class="paramname">std::bad_alloc</td><td>If C++ storage allocation fails. </td></tr>

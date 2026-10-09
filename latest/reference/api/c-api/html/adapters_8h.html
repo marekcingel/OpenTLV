@@ -127,9 +127,9 @@ Functions</h2></td></tr>
 <tr class="memitem:a4a7f2f72ac24d945295f2c1db12964c0" id="r_a4a7f2f72ac24d945295f2c1db12964c0"><td class="memItemLeft" align="right" valign="top"><a class="el" href="group__core.html#ga164d2817a32e5d7b7aa1472e887b47c3">tlv_result_t</a>&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="adapters_8h.html#a4a7f2f72ac24d945295f2c1db12964c0">tlv_query_definition_resolve</a> (const void *context, const char *namespace_name, size_t namespace_size, const char *name, size_t name_size, <a class="el" href="structtlv__tag__t.html">tlv_tag_t</a> *tag)</td></tr>
 <tr class="memdesc:a4a7f2f72ac24d945295f2c1db12964c0"><td class="mdescLeft">&#160;</td><td class="mdescRight">Resolve names using exact registry labels in explicit namespaces.  <br /></td></tr>
 <tr class="separator:a4a7f2f72ac24d945295f2c1db12964c0"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:ab2cda6b5853b463e1741f04258c88b90" id="r_ab2cda6b5853b463e1741f04258c88b90"><td class="memItemLeft" align="right" valign="top"><a class="el" href="group__codecs.html#ga6033534ecdbfc36953062aed6279562f">tlv_codec_result_t</a>&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="adapters_8h.html#ab2cda6b5853b463e1741f04258c88b90">tlv_query_codec_decode</a> (const void *context, const <a class="el" href="tree_8h.html#a3b1e811784f5c9b0085cb0144a0c57c2">tlv_tree_event_t</a> *event, const uint8_t *data, size_t size, void *scratch, size_t capacity, <a class="el" href="group__traversal.html#ga0da4f42a4d34072621292fbd8f681d77">tlv_query_result_t</a> *result)</td></tr>
-<tr class="memdesc:ab2cda6b5853b463e1741f04258c88b90"><td class="mdescLeft">&#160;</td><td class="mdescRight">Decode a complete Value with an existing codec, preserving codec errors.  <br /></td></tr>
-<tr class="separator:ab2cda6b5853b463e1741f04258c88b90"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a9abe13386b9bbed4c471c34a203964da" id="r_a9abe13386b9bbed4c471c34a203964da"><td class="memItemLeft" align="right" valign="top"><a class="el" href="group__core.html#ga164d2817a32e5d7b7aa1472e887b47c3">tlv_result_t</a>&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="adapters_8h.html#a9abe13386b9bbed4c471c34a203964da">tlv_query_codec_decode</a> (const void *context, const <a class="el" href="tree_8h.html#a3b1e811784f5c9b0085cb0144a0c57c2">tlv_tree_event_t</a> *event, const uint8_t *data, size_t size, void *scratch, size_t capacity, <a class="el" href="group__traversal.html#ga0da4f42a4d34072621292fbd8f681d77">tlv_query_result_t</a> *result, <a class="el" href="codec_2diagnostic_8h.html#a59f8458396cf6b5047ba62210725b13c">tlv_codec_diagnostic_t</a> *diagnostic)</td></tr>
+<tr class="memdesc:a9abe13386b9bbed4c471c34a203964da"><td class="mdescLeft">&#160;</td><td class="mdescRight">Decode a complete Value with an existing codec, preserving codec errors.  <br /></td></tr>
+<tr class="separator:a9abe13386b9bbed4c471c34a203964da"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:a7909c0e6bb341baf14b3b6049ced9863" id="r_a7909c0e6bb341baf14b3b6049ced9863"><td class="memItemLeft" align="right" valign="top">const <a class="el" href="group__traversal.html#ga46bd20df3a79567b3aa87e7b1a906903">tlv_query_hook_t</a> *&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="adapters_8h.html#a7909c0e6bb341baf14b3b6049ced9863">tlv_query_builtin_hooks</a> (size_t *count)</td></tr>
 <tr class="memdesc:a7909c0e6bb341baf14b3b6049ced9863"><td class="mdescLeft">&#160;</td><td class="mdescRight">Static native generic NUM/BCD/TEXT providers, IDs 1/2/3. NUM uses minimal signed big-endian int64; BCD uses unsigned packed decimal with at most 18 digits; TEXT uses borrowed UTF-8 bytes. Domain codecs may replace these by explicit adapters and distinct stable capability IDs.  <br /></td></tr>
 <tr class="separator:a7909c0e6bb341baf14b3b6049ced9863"><td class="memSeparator" colspan="2">&#160;</td></tr>
@@ -254,14 +254,14 @@ Functions</h2></td></tr>
 
 </div>
 </div>
-<a id="ab2cda6b5853b463e1741f04258c88b90" name="ab2cda6b5853b463e1741f04258c88b90"></a>
-<h2 class="memtitle"><span class="permalink"><a href="#ab2cda6b5853b463e1741f04258c88b90">&#9670;&#160;</a></span>tlv_query_codec_decode()</h2>
+<a id="a9abe13386b9bbed4c471c34a203964da" name="a9abe13386b9bbed4c471c34a203964da"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#a9abe13386b9bbed4c471c34a203964da">&#9670;&#160;</a></span>tlv_query_codec_decode()</h2>
 
 <div class="memitem">
 <div class="memproto">
       <table class="memname">
         <tr>
-          <td class="memname"><a class="el" href="group__codecs.html#ga6033534ecdbfc36953062aed6279562f">tlv_codec_result_t</a> tlv_query_codec_decode </td>
+          <td class="memname"><a class="el" href="group__core.html#ga164d2817a32e5d7b7aa1472e887b47c3">tlv_result_t</a> tlv_query_codec_decode </td>
           <td>(</td>
           <td class="paramtype">const void *&#160;</td>
           <td class="paramname"><em>context</em>, </td>
@@ -300,7 +300,13 @@ Functions</h2></td></tr>
           <td class="paramkey"></td>
           <td></td>
           <td class="paramtype"><a class="el" href="group__traversal.html#ga0da4f42a4d34072621292fbd8f681d77">tlv_query_result_t</a> *&#160;</td>
-          <td class="paramname"><em>result</em>&#160;</td>
+          <td class="paramname"><em>result</em>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype"><a class="el" href="codec_2diagnostic_8h.html#a59f8458396cf6b5047ba62210725b13c">tlv_codec_diagnostic_t</a> *&#160;</td>
+          <td class="paramname"><em>diagnostic</em>&#160;</td>
         </tr>
         <tr>
           <td></td>
@@ -324,7 +330,13 @@ Functions</h2></td></tr>
   </dd>
 </dl>
 <dl class="section return"><dt>Returns</dt><dd>Original codec status; unsigned overflow maps to INVALID_VALUE. </dd></dl>
-<dl class="section note"><dt>Note</dt><dd>No allocation. UTF-8 validation adds linear external adapter work. </dd></dl>
+<dl class="section note"><dt>Note</dt><dd>No allocation. UTF-8 validation adds linear external adapter work. *</dd></dl>
+<dl class="params"><dt>Parameters</dt><dd>
+  <table class="params">
+    <tr><td class="paramdir">[out]</td><td class="paramname">diagnostic</td><td>Optional initialized failure output; NULL skips evidence collection. </td></tr>
+  </table>
+  </dd>
+</dl>
 
 </div>
 </div>

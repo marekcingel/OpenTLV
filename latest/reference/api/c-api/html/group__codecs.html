@@ -299,9 +299,6 @@ Typedefs</h2></td></tr>
 <tr class="memitem:ga46e7a4a78d27c5ff93b99aca25766908" id="r_ga46e7a4a78d27c5ff93b99aca25766908"><td class="memItemLeft" align="right" valign="top">typedef struct <a class="el" href="structtlv__bluetooth__uuid__list.html">tlv_bluetooth_uuid_list</a>&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="group__codecs.html#ga46e7a4a78d27c5ff93b99aca25766908">tlv_bluetooth_uuid_list_t</a></td></tr>
 <tr class="memdesc:ga46e7a4a78d27c5ff93b99aca25766908"><td class="mdescLeft">&#160;</td><td class="mdescRight">Borrowed UUID list, retaining all original bytes in wire order.  <br /></td></tr>
 <tr class="separator:ga46e7a4a78d27c5ff93b99aca25766908"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:ga6033534ecdbfc36953062aed6279562f" id="r_ga6033534ecdbfc36953062aed6279562f"><td class="memItemLeft" align="right" valign="top">typedef enum <a class="el" href="group__codecs.html#ga5aefdf4a40140da8025256c425474b1a">tlv_codec_result</a>&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="group__codecs.html#ga6033534ecdbfc36953062aed6279562f">tlv_codec_result_t</a></td></tr>
-<tr class="memdesc:ga6033534ecdbfc36953062aed6279562f"><td class="mdescLeft">&#160;</td><td class="mdescRight">Result code of a value conversion.  <br /></td></tr>
-<tr class="separator:ga6033534ecdbfc36953062aed6279562f"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:gab79131d94a100a55e0e58473ca95f785" id="r_gab79131d94a100a55e0e58473ca95f785"><td class="memItemLeft" align="right" valign="top">typedef struct <a class="el" href="structtlv__codec.html">tlv_codec</a>&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="group__codecs.html#gab79131d94a100a55e0e58473ca95f785">tlv_codec_t</a></td></tr>
 <tr class="memdesc:gab79131d94a100a55e0e58473ca95f785"><td class="mdescLeft">&#160;</td><td class="mdescRight">Borrowed codec descriptor with an optional immutable context.  <br /></td></tr>
 <tr class="separator:gab79131d94a100a55e0e58473ca95f785"><td class="memSeparator" colspan="2">&#160;</td></tr>
@@ -360,22 +357,10 @@ Enumerations</h2></td></tr>
  }</td></tr>
 <tr class="memdesc:ga16af7b253440dadd46a80a4b9fddba4d"><td class="mdescLeft">&#160;</td><td class="mdescRight">Maximum number of PAN digits in Track 2 Equivalent Data, and of discretionary digits.  <a href="group__codecs.html#ga16af7b253440dadd46a80a4b9fddba4d">More...</a><br /></td></tr>
 <tr class="separator:ga16af7b253440dadd46a80a4b9fddba4d"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:ga5aefdf4a40140da8025256c425474b1a" id="r_ga5aefdf4a40140da8025256c425474b1a"><td class="memItemLeft" align="right" valign="top">enum &#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="group__codecs.html#ga5aefdf4a40140da8025256c425474b1a">tlv_codec_result</a> { <br />
-&#160;&#160;<a class="el" href="group__codecs.html#gga5aefdf4a40140da8025256c425474b1aac7febd810d4499676ac656cfaac83e51">TLV_CODEC_OK</a> = 0
-, <a class="el" href="group__codecs.html#gga5aefdf4a40140da8025256c425474b1aaa8a374fe8d72bbae4f25046774dcc686">TLV_CODEC_ERR_NULL_ARG</a>
-, <a class="el" href="group__codecs.html#gga5aefdf4a40140da8025256c425474b1aa187607751b25c1e4b9a9c2032e93f4d2">TLV_CODEC_ERR_BUFFER_TOO_SHORT</a>
-, <a class="el" href="group__codecs.html#gga5aefdf4a40140da8025256c425474b1aa2dde6f557037bd68cdf6004636648291">TLV_CODEC_ERR_INVALID_VALUE</a>
-, <br />
-&#160;&#160;<a class="el" href="group__codecs.html#gga5aefdf4a40140da8025256c425474b1aa92060a99b1c9ac1fd965191ec74ae5f3">TLV_CODEC_ERR_UNSUPPORTED</a>
-, <a class="el" href="group__codecs.html#gga5aefdf4a40140da8025256c425474b1aacb73f083c46ec5e072caddf46eb8a635">TLV_CODEC_ERR_INVALID_STRUCTURE</a>
-<br />
+<tr class="memitem:gaaf105ae5beaca1dee30ae54530691fce" id="r_gaaf105ae5beaca1dee30ae54530691fce"><td class="memItemLeft" align="right" valign="top">enum &#160;</td><td class="memItemRight" valign="bottom">{ <a class="el" href="group__codecs.html#ggaaf105ae5beaca1dee30ae54530691fcea444d11f3ec106da446fb3786750ed7fe">TLV_STRUCTURE_MAX_DEPTH</a> = 64
  }</td></tr>
-<tr class="memdesc:ga5aefdf4a40140da8025256c425474b1a"><td class="mdescLeft">&#160;</td><td class="mdescRight">Result code of a value conversion.  <a href="group__codecs.html#ga5aefdf4a40140da8025256c425474b1a">More...</a><br /></td></tr>
-<tr class="separator:ga5aefdf4a40140da8025256c425474b1a"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:gaba01db17f4a2bfbc3db60dc172972a25" id="r_gaba01db17f4a2bfbc3db60dc172972a25"><td class="memItemLeft" align="right" valign="top">enum &#160;</td><td class="memItemRight" valign="bottom">{ <a class="el" href="group__codecs.html#ggaba01db17f4a2bfbc3db60dc172972a25a444d11f3ec106da446fb3786750ed7fe">TLV_STRUCTURE_MAX_DEPTH</a> = 64
- }</td></tr>
-<tr class="memdesc:gaba01db17f4a2bfbc3db60dc172972a25"><td class="mdescLeft">&#160;</td><td class="mdescRight">Frame capacity used by structure codecs when no Schema is supplied.  <a href="group__codecs.html#gaba01db17f4a2bfbc3db60dc172972a25">More...</a><br /></td></tr>
-<tr class="separator:gaba01db17f4a2bfbc3db60dc172972a25"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memdesc:gaaf105ae5beaca1dee30ae54530691fce"><td class="mdescLeft">&#160;</td><td class="mdescRight">Frame capacity used by structure codecs when no Schema is supplied.  <a href="group__codecs.html#gaaf105ae5beaca1dee30ae54530691fce">More...</a><br /></td></tr>
+<tr class="separator:gaaf105ae5beaca1dee30ae54530691fce"><td class="memSeparator" colspan="2">&#160;</td></tr>
 </table><table class="memberdecls">
 <tr class="heading"><td colspan="2"><h2 class="groupheader"><a id="func-members" name="func-members"></a>
 Functions</h2></td></tr>
@@ -388,24 +373,21 @@ Functions</h2></td></tr>
 <tr class="memitem:gaad5ac34251b7088343919f082e03d6e7" id="r_gaad5ac34251b7088343919f082e03d6e7"><td class="memItemLeft" align="right" valign="top">bool&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="group__codecs.html#gaad5ac34251b7088343919f082e03d6e7">tlv_bluetooth_ad_flags_test</a> (const <a class="el" href="structtlv__value__t.html">tlv_value_t</a> *flags, uint8_t mask)</td></tr>
 <tr class="memdesc:gaad5ac34251b7088343919f082e03d6e7"><td class="mdescLeft">&#160;</td><td class="mdescRight">Tests masks in the first octet of a decoded Flags value.  <br /></td></tr>
 <tr class="separator:gaad5ac34251b7088343919f082e03d6e7"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:gaab5d092233db9472376dced8d1b09f53" id="r_gaab5d092233db9472376dced8d1b09f53"><td class="memItemLeft" align="right" valign="top"><a class="el" href="group__codecs.html#ga6033534ecdbfc36953062aed6279562f">tlv_codec_result_t</a>&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="group__codecs.html#gaab5d092233db9472376dced8d1b09f53">tlv_bluetooth_uuid_list_at</a> (const <a class="el" href="group__codecs.html#ga46e7a4a78d27c5ff93b99aca25766908">tlv_bluetooth_uuid_list_t</a> *list, size_t index, void *value, size_t capacity)</td></tr>
-<tr class="memdesc:gaab5d092233db9472376dced8d1b09f53"><td class="mdescLeft">&#160;</td><td class="mdescRight">Decodes one UUID by index without allocation or advancing state.  <br /></td></tr>
-<tr class="separator:gaab5d092233db9472376dced8d1b09f53"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:ga7de8d4351e9f4b98cd480ec634eced7a" id="r_ga7de8d4351e9f4b98cd480ec634eced7a"><td class="memItemLeft" align="right" valign="top"><a class="el" href="group__codecs.html#ga6033534ecdbfc36953062aed6279562f">tlv_codec_result_t</a>&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="group__codecs.html#ga7de8d4351e9f4b98cd480ec634eced7a">tlv_codec_decode</a> (const <a class="el" href="group__codecs.html#gab79131d94a100a55e0e58473ca95f785">tlv_codec_t</a> *codec, const uint8_t *data, size_t size, void *value, size_t capacity)</td></tr>
-<tr class="memdesc:ga7de8d4351e9f4b98cd480ec634eced7a"><td class="mdescLeft">&#160;</td><td class="mdescRight">Decodes a raw value with a codec.  <br /></td></tr>
-<tr class="separator:ga7de8d4351e9f4b98cd480ec634eced7a"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:ga6ab3f99685db43f4572a27c3ddae2a62" id="r_ga6ab3f99685db43f4572a27c3ddae2a62"><td class="memItemLeft" align="right" valign="top"><a class="el" href="group__codecs.html#ga6033534ecdbfc36953062aed6279562f">tlv_codec_result_t</a>&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="group__codecs.html#ga6ab3f99685db43f4572a27c3ddae2a62">tlv_codec_encode</a> (const <a class="el" href="group__codecs.html#gab79131d94a100a55e0e58473ca95f785">tlv_codec_t</a> *codec, const void *value, size_t size, uint8_t *data, size_t capacity, size_t *written)</td></tr>
-<tr class="memdesc:ga6ab3f99685db43f4572a27c3ddae2a62"><td class="mdescLeft">&#160;</td><td class="mdescRight">Encodes a C representation into raw value bytes with a codec.  <br /></td></tr>
-<tr class="separator:ga6ab3f99685db43f4572a27c3ddae2a62"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:ga29bac18a06040bfae9c0a783de865d46" id="r_ga29bac18a06040bfae9c0a783de865d46"><td class="memItemLeft" align="right" valign="top">const char *&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="group__codecs.html#ga29bac18a06040bfae9c0a783de865d46">tlv_codec_strerror</a> (<a class="el" href="group__codecs.html#ga6033534ecdbfc36953062aed6279562f">tlv_codec_result_t</a> result)</td></tr>
-<tr class="memdesc:ga29bac18a06040bfae9c0a783de865d46"><td class="mdescLeft">&#160;</td><td class="mdescRight">Returns a readable description of a codec result.  <br /></td></tr>
-<tr class="separator:ga29bac18a06040bfae9c0a783de865d46"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:ga411187afb5dd48fdb4938aec36117d54" id="r_ga411187afb5dd48fdb4938aec36117d54"><td class="memItemLeft" align="right" valign="top"><a class="el" href="group__codecs.html#ga6033534ecdbfc36953062aed6279562f">tlv_codec_result_t</a>&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="group__codecs.html#ga411187afb5dd48fdb4938aec36117d54">tlv_structure_decode</a> (const <a class="el" href="group__codecs.html#gaa8040b111c69624c529f37ede0fae9ce">tlv_structure_codec_t</a> *codec, const uint8_t *data, size_t size, void *value, size_t capacity)</td></tr>
-<tr class="memdesc:ga411187afb5dd48fdb4938aec36117d54"><td class="mdescLeft">&#160;</td><td class="mdescRight">Validates and decodes a complete sequence into an application object.  <br /></td></tr>
-<tr class="separator:ga411187afb5dd48fdb4938aec36117d54"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:ga352f33f17758235c45bb76d1888dffaa" id="r_ga352f33f17758235c45bb76d1888dffaa"><td class="memItemLeft" align="right" valign="top"><a class="el" href="group__codecs.html#ga6033534ecdbfc36953062aed6279562f">tlv_codec_result_t</a>&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="group__codecs.html#ga352f33f17758235c45bb76d1888dffaa">tlv_structure_encode</a> (const <a class="el" href="group__codecs.html#gaa8040b111c69624c529f37ede0fae9ce">tlv_structure_codec_t</a> *codec, const void *value, size_t size, uint8_t *data, size_t capacity, size_t *written)</td></tr>
-<tr class="memdesc:ga352f33f17758235c45bb76d1888dffaa"><td class="mdescLeft">&#160;</td><td class="mdescRight">Encodes an application object into a complete, validated sequence.  <br /></td></tr>
-<tr class="separator:ga352f33f17758235c45bb76d1888dffaa"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:gad7679b75da2dfc639aab32b9db274c27" id="r_gad7679b75da2dfc639aab32b9db274c27"><td class="memItemLeft" align="right" valign="top"><a class="el" href="group__core.html#ga164d2817a32e5d7b7aa1472e887b47c3">tlv_result_t</a>&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="group__codecs.html#gad7679b75da2dfc639aab32b9db274c27">tlv_bluetooth_uuid_list_at</a> (const <a class="el" href="group__codecs.html#ga46e7a4a78d27c5ff93b99aca25766908">tlv_bluetooth_uuid_list_t</a> *list, size_t index, void *value, size_t capacity)</td></tr>
+<tr class="memdesc:gad7679b75da2dfc639aab32b9db274c27"><td class="mdescLeft">&#160;</td><td class="mdescRight">Decodes one UUID by index without allocation or advancing state.  <br /></td></tr>
+<tr class="separator:gad7679b75da2dfc639aab32b9db274c27"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:ga9ea8055633ebf0b64e284f7494e3fd66" id="r_ga9ea8055633ebf0b64e284f7494e3fd66"><td class="memItemLeft" align="right" valign="top"><a class="el" href="group__core.html#ga164d2817a32e5d7b7aa1472e887b47c3">tlv_result_t</a>&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="group__codecs.html#ga9ea8055633ebf0b64e284f7494e3fd66">tlv_codec_decode</a> (const <a class="el" href="group__codecs.html#gab79131d94a100a55e0e58473ca95f785">tlv_codec_t</a> *codec, const uint8_t *data, size_t size, void *value, size_t capacity, <a class="el" href="codec_2diagnostic_8h.html#a59f8458396cf6b5047ba62210725b13c">tlv_codec_diagnostic_t</a> *diagnostic)</td></tr>
+<tr class="memdesc:ga9ea8055633ebf0b64e284f7494e3fd66"><td class="mdescLeft">&#160;</td><td class="mdescRight">Decodes a raw value with a codec.  <br /></td></tr>
+<tr class="separator:ga9ea8055633ebf0b64e284f7494e3fd66"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:ga866587672c3083a266776ebdc6ee786c" id="r_ga866587672c3083a266776ebdc6ee786c"><td class="memItemLeft" align="right" valign="top"><a class="el" href="group__core.html#ga164d2817a32e5d7b7aa1472e887b47c3">tlv_result_t</a>&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="group__codecs.html#ga866587672c3083a266776ebdc6ee786c">tlv_codec_encode</a> (const <a class="el" href="group__codecs.html#gab79131d94a100a55e0e58473ca95f785">tlv_codec_t</a> *codec, const void *value, size_t size, uint8_t *data, size_t capacity, size_t *written, <a class="el" href="codec_2diagnostic_8h.html#a59f8458396cf6b5047ba62210725b13c">tlv_codec_diagnostic_t</a> *diagnostic)</td></tr>
+<tr class="memdesc:ga866587672c3083a266776ebdc6ee786c"><td class="mdescLeft">&#160;</td><td class="mdescRight">Encodes a C representation into raw value bytes with a codec.  <br /></td></tr>
+<tr class="separator:ga866587672c3083a266776ebdc6ee786c"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:gaab29095099d5df672921c05364ab6ea5" id="r_gaab29095099d5df672921c05364ab6ea5"><td class="memItemLeft" align="right" valign="top"><a class="el" href="group__core.html#ga164d2817a32e5d7b7aa1472e887b47c3">tlv_result_t</a>&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="group__codecs.html#gaab29095099d5df672921c05364ab6ea5">tlv_structure_decode</a> (const <a class="el" href="group__codecs.html#gaa8040b111c69624c529f37ede0fae9ce">tlv_structure_codec_t</a> *codec, const uint8_t *data, size_t size, void *value, size_t capacity, <a class="el" href="codec_2diagnostic_8h.html#a59f8458396cf6b5047ba62210725b13c">tlv_codec_diagnostic_t</a> *diagnostic)</td></tr>
+<tr class="memdesc:gaab29095099d5df672921c05364ab6ea5"><td class="mdescLeft">&#160;</td><td class="mdescRight">Validates and decodes a complete sequence into an application object.  <br /></td></tr>
+<tr class="separator:gaab29095099d5df672921c05364ab6ea5"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:gaa9b892e68c9e94f6ed7e78b788e19e3e" id="r_gaa9b892e68c9e94f6ed7e78b788e19e3e"><td class="memItemLeft" align="right" valign="top"><a class="el" href="group__core.html#ga164d2817a32e5d7b7aa1472e887b47c3">tlv_result_t</a>&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="group__codecs.html#gaa9b892e68c9e94f6ed7e78b788e19e3e">tlv_structure_encode</a> (const <a class="el" href="group__codecs.html#gaa8040b111c69624c529f37ede0fae9ce">tlv_structure_codec_t</a> *codec, const void *value, size_t size, uint8_t *data, size_t capacity, size_t *written, <a class="el" href="codec_2diagnostic_8h.html#a59f8458396cf6b5047ba62210725b13c">tlv_codec_diagnostic_t</a> *diagnostic)</td></tr>
+<tr class="memdesc:gaa9b892e68c9e94f6ed7e78b788e19e3e"><td class="mdescLeft">&#160;</td><td class="mdescRight">Encodes an application object into a complete, validated sequence.  <br /></td></tr>
+<tr class="separator:gaa9b892e68c9e94f6ed7e78b788e19e3e"><td class="memSeparator" colspan="2">&#160;</td></tr>
 </table><table class="memberdecls">
 <tr class="heading"><td colspan="2"><h2 class="groupheader"><a id="var-members" name="var-members"></a>
 Variables</h2></td></tr>
@@ -910,25 +892,7 @@ Variables</h2></td></tr>
 </div><div class="memdoc">
 
 <p>Borrowed UUID list, retaining all original bytes in wire order. </p>
-<p>Keep raw storage alive and immutable. Iterate indices starting at zero while less than <code>raw.size / uuid_size</code> using <a class="el" href="group__codecs.html#gaab5d092233db9472376dced8d1b09f53" title="Decodes one UUID by index without allocation or advancing state.">tlv_bluetooth_uuid_list_at()</a>. Empty lists have no entries. Publicly constructed views are validated before access. </p>
-
-</div>
-</div>
-<a id="ga6033534ecdbfc36953062aed6279562f" name="ga6033534ecdbfc36953062aed6279562f"></a>
-<h2 class="memtitle"><span class="permalink"><a href="#ga6033534ecdbfc36953062aed6279562f">&#9670;&#160;</a></span>tlv_codec_result_t</h2>
-
-<div class="memitem">
-<div class="memproto">
-      <table class="memname">
-        <tr>
-          <td class="memname">typedef enum <a class="el" href="group__codecs.html#ga5aefdf4a40140da8025256c425474b1a">tlv_codec_result</a> <a class="el" href="group__codecs.html#ga6033534ecdbfc36953062aed6279562f">tlv_codec_result_t</a></td>
-        </tr>
-      </table>
-</div><div class="memdoc">
-
-<p>Result code of a value conversion. </p>
-<p>Value-conversion errors are independent of TLV framing errors, which use <a class="el" href="group__core.html#ga164d2817a32e5d7b7aa1472e887b47c3" title="Result code returned by OpenTLV C functions.">tlv_result_t</a>.</p>
-<dl class="section see"><dt>See also</dt><dd><a class="el" href="group__codecs.html#ga29bac18a06040bfae9c0a783de865d46" title="Returns a readable description of a codec result.">tlv_codec_strerror</a> </dd></dl>
+<p>Keep raw storage alive and immutable. Iterate indices starting at zero while less than <code>raw.size / uuid_size</code> using <a class="el" href="group__codecs.html#gad7679b75da2dfc639aab32b9db274c27" title="Decodes one UUID by index without allocation or advancing state.">tlv_bluetooth_uuid_list_at()</a>. Empty lists have no entries. Publicly constructed views are validated before access. </p>
 
 </div>
 </div>
@@ -951,10 +915,11 @@ Variables</h2></td></tr>
 <li><b>Decode</b> consumes the entire raw value and may return a representation that borrows the input bytes; that input must then outlive the representation.</li>
 <li><b>Encode</b> with <code>data == NULL</code> and <code>capacity == 0</code> validates the value and reports its exact encoded size without writing. A normal success reports the bytes written.</li>
 <li>A callback may be <code>NULL</code> for an unsupported direction. Errors propagate unchanged.</li>
-<li>On error, destination contents are unspecified, and the <a class="el" href="group__codecs.html#ga6ab3f99685db43f4572a27c3ddae2a62" title="Encodes a C representation into raw value bytes with a codec.">tlv_codec_encode()</a> wrapper reports <code>written == 0</code>.</li>
+<li>On error, destination contents are unspecified, and the <a class="el" href="group__codecs.html#ga866587672c3083a266776ebdc6ee786c" title="Encodes a C representation into raw value bytes with a codec.">tlv_codec_encode()</a> wrapper reports <code>written == 0</code>.</li>
 <li>Input and output must not overlap unless the codec explicitly supports it.</li>
 </ul>
-<dl class="section see"><dt>See also</dt><dd><a class="el" href="group__codecs.html#ga7de8d4351e9f4b98cd480ec634eced7a" title="Decodes a raw value with a codec.">tlv_codec_decode</a>, <a class="el" href="group__codecs.html#ga6ab3f99685db43f4572a27c3ddae2a62" title="Encodes a C representation into raw value bytes with a codec.">tlv_codec_encode</a> </dd></dl>
+<p>Failures use the shared tlv_result_t domain unchanged. Decode admits delegated <a class="el" href="group__core.html#gga516c7250563ee9332e2f45f2d203ae61ad90e4f5b2c36d63f9a93b92f1064a5e6">TLV_NEED_MORE_DATA</a>; encode and measure reject it. <a class="el" href="group__core.html#gga516c7250563ee9332e2f45f2d203ae61ad3ea4a680040d2294498178b02b79878">TLV_ERR_END_OF_BUFFER</a> and unknown results are callback violations. A successful encode count larger than the supplied buffer is <a class="el" href="group__core.html#gga516c7250563ee9332e2f45f2d203ae61adc3ffd285317edbc89e61fa26935e3c2">TLV_ERR_CALLBACK</a>. Optional diagnostics retain reported results and any delegated cause; borrowed evidence must outlive the call.</p>
+<dl class="section see"><dt>See also</dt><dd><a class="el" href="group__codecs.html#ga9ea8055633ebf0b64e284f7494e3fd66" title="Decodes a raw value with a codec.">tlv_codec_decode</a>, <a class="el" href="group__codecs.html#ga866587672c3083a266776ebdc6ee786c" title="Encodes a C representation into raw value bytes with a codec.">tlv_codec_encode</a> </dd></dl>
 
 </div>
 </div>
@@ -974,7 +939,7 @@ Variables</h2></td></tr>
 <p>Object bindings belong to the codec layer. The descriptor maps a complete sequence, including nested elements, to a single application object. No tag is prescribed for the complete object.</p>
 <p>The descriptor's own <code>context</code> (passed to <code>decode</code>/<code>encode</code>), its <code>format</code> and its <code>schema</code> are all borrowed and must outlive every use of the descriptor; <code>format</code>'s own context is a separate, unrelated value with the same "borrowed, must outlive" rule, see <a href="https://marekcingel.github.io/OpenTLV/guides/memory/">format context ownership and lifetime</a>. The <code>decode</code> and <code>encode</code> callbacks follow the alignment, ownership, capacity, overlap and error contracts of <a class="el" href="group__codecs.html#gab79131d94a100a55e0e58473ca95f785" title="Borrowed codec descriptor with an optional immutable context.">tlv_codec_t</a>. They must be stable across sizing and writing and must consume or produce the complete sequence.</p>
 <p>Decode validates the entire structure before invoking the callback. Encode validates the produced bytes before reporting success; a <code>NULL</code>/0 size query relies on the callback to validate the object without producing bytes. On any error the destination is unspecified and <code>written</code> is zero.</p>
-<dl class="section see"><dt>See also</dt><dd><a class="el" href="group__codecs.html#ga411187afb5dd48fdb4938aec36117d54" title="Validates and decodes a complete sequence into an application object.">tlv_structure_decode</a>, <a class="el" href="group__codecs.html#ga352f33f17758235c45bb76d1888dffaa" title="Encodes an application object into a complete, validated sequence.">tlv_structure_encode</a> </dd></dl>
+<dl class="section see"><dt>See also</dt><dd><a class="el" href="group__codecs.html#gaab29095099d5df672921c05364ab6ea5" title="Validates and decodes a complete sequence into an application object.">tlv_structure_decode</a>, <a class="el" href="group__codecs.html#gaa9b892e68c9e94f6ed7e78b788e19e3e" title="Encodes an application object into a complete, validated sequence.">tlv_structure_encode</a> </dd></dl>
 
 </div>
 </div>
@@ -992,7 +957,7 @@ Variables</h2></td></tr>
 </div><div class="memdoc">
 
 <p>Maximum number of arcs <a class="el" href="group__codecs.html#gac1de63672b92cfa7f106fc5de48674f3" title="Decoded OBJECT IDENTIFIER or RELATIVE-OID arc values (X.690 section 8.19 and 8.20).">tlv_asn1_oid_t</a> can hold. </p>
-<p>Generous for every OBJECT IDENTIFIER or RELATIVE-OID seen in practice; decode reports <a class="el" href="group__codecs.html#gga5aefdf4a40140da8025256c425474b1aa2dde6f557037bd68cdf6004636648291">TLV_CODEC_ERR_INVALID_VALUE</a> if the content needs more. </p>
+<p>Generous for every OBJECT IDENTIFIER or RELATIVE-OID seen in practice; decode reports <a class="el" href="group__core.html#gga516c7250563ee9332e2f45f2d203ae61a07580ca64f30aa1a72a405fcbca72f10">TLV_ERR_INVALID_VALUE</a> if the content needs more. </p>
 <table class="fieldtable">
 <tr><th colspan="2">Enumerator</th></tr><tr><td class="fieldname"><a id="gga06fc87d81c62e9abb8790b6e5713c55ba20a28d0716db812951e434dae746dcc0" name="gga06fc87d81c62e9abb8790b6e5713c55ba20a28d0716db812951e434dae746dcc0"></a>TLV_ASN1_OID_MAX_ARCS&#160;</td><td class="fielddoc"></td></tr>
 </table>
@@ -1012,7 +977,7 @@ Variables</h2></td></tr>
 </div><div class="memdoc">
 
 <p>Maximum number of arcs <a class="el" href="group__codecs.html#gae8f1386c752002b7ef06f09984bac139" title="Decoded OID-IRI or RELATIVE-OID-IRI content (X.690 section 8.21 and 8.22): arc labels.">tlv_asn1_iri_t</a> can hold. </p>
-<p>Generous for every OID-IRI or RELATIVE-OID-IRI seen in practice; decode reports <a class="el" href="group__codecs.html#gga5aefdf4a40140da8025256c425474b1aa2dde6f557037bd68cdf6004636648291">TLV_CODEC_ERR_INVALID_VALUE</a> if the content needs more. </p>
+<p>Generous for every OID-IRI or RELATIVE-OID-IRI seen in practice; decode reports <a class="el" href="group__core.html#gga516c7250563ee9332e2f45f2d203ae61a07580ca64f30aa1a72a405fcbca72f10">TLV_ERR_INVALID_VALUE</a> if the content needs more. </p>
 <table class="fieldtable">
 <tr><th colspan="2">Enumerator</th></tr><tr><td class="fieldname"><a id="ggadf764cbdea00d65edcd07bb9953ad2b7a24a74458ddfa8d0662a32104b0233965" name="ggadf764cbdea00d65edcd07bb9953ad2b7a24a74458ddfa8d0662a32104b0233965"></a>TLV_ASN1_IRI_MAX_ARCS&#160;</td><td class="fielddoc"></td></tr>
 </table>
@@ -1059,8 +1024,8 @@ Variables</h2></td></tr>
 
 </div>
 </div>
-<a id="gaba01db17f4a2bfbc3db60dc172972a25" name="gaba01db17f4a2bfbc3db60dc172972a25"></a>
-<h2 class="memtitle"><span class="permalink"><a href="#gaba01db17f4a2bfbc3db60dc172972a25">&#9670;&#160;</a></span>anonymous enum</h2>
+<a id="gaaf105ae5beaca1dee30ae54530691fce" name="gaaf105ae5beaca1dee30ae54530691fce"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#gaaf105ae5beaca1dee30ae54530691fce">&#9670;&#160;</a></span>anonymous enum</h2>
 
 <div class="memitem">
 <div class="memproto">
@@ -1073,7 +1038,7 @@ Variables</h2></td></tr>
 
 <p>Frame capacity used by structure codecs when no Schema is supplied. </p>
 <table class="fieldtable">
-<tr><th colspan="2">Enumerator</th></tr><tr><td class="fieldname"><a id="ggaba01db17f4a2bfbc3db60dc172972a25a444d11f3ec106da446fb3786750ed7fe" name="ggaba01db17f4a2bfbc3db60dc172972a25a444d11f3ec106da446fb3786750ed7fe"></a>TLV_STRUCTURE_MAX_DEPTH&#160;</td><td class="fielddoc"></td></tr>
+<tr><th colspan="2">Enumerator</th></tr><tr><td class="fieldname"><a id="ggaaf105ae5beaca1dee30ae54530691fcea444d11f3ec106da446fb3786750ed7fe" name="ggaaf105ae5beaca1dee30ae54530691fcea444d11f3ec106da446fb3786750ed7fe"></a>TLV_STRUCTURE_MAX_DEPTH&#160;</td><td class="fielddoc"></td></tr>
 </table>
 
 </div>
@@ -1099,38 +1064,6 @@ Variables</h2></td></tr>
 <tr><td class="fieldname"><a id="gga798c4638c9a55ff43b932d29586b5d78a49ea1249bb00d5b7be1349546c44fded" name="gga798c4638c9a55ff43b932d29586b5d78a49ea1249bb00d5b7be1349546c44fded"></a>TLV_BLUETOOTH_AD_FLAG_BR_EDR_NOT_SUPPORTED&#160;</td><td class="fielddoc"><p>BR/EDR is not supported. </p>
 </td></tr>
 <tr><td class="fieldname"><a id="gga798c4638c9a55ff43b932d29586b5d78a477822fd204667fae9d0c32ce46c45b0" name="gga798c4638c9a55ff43b932d29586b5d78a477822fd204667fae9d0c32ce46c45b0"></a>TLV_BLUETOOTH_AD_FLAG_SIMULTANEOUS_LE_BR_EDR_CONTROLLER&#160;</td><td class="fielddoc"><p>Controller supports simultaneous LE and BR/EDR to the same device. </p>
-</td></tr>
-</table>
-
-</div>
-</div>
-<a id="ga5aefdf4a40140da8025256c425474b1a" name="ga5aefdf4a40140da8025256c425474b1a"></a>
-<h2 class="memtitle"><span class="permalink"><a href="#ga5aefdf4a40140da8025256c425474b1a">&#9670;&#160;</a></span>tlv_codec_result</h2>
-
-<div class="memitem">
-<div class="memproto">
-      <table class="memname">
-        <tr>
-          <td class="memname">enum <a class="el" href="group__codecs.html#ga5aefdf4a40140da8025256c425474b1a">tlv_codec_result</a></td>
-        </tr>
-      </table>
-</div><div class="memdoc">
-
-<p>Result code of a value conversion. </p>
-<p>Value-conversion errors are independent of TLV framing errors, which use <a class="el" href="group__core.html#ga164d2817a32e5d7b7aa1472e887b47c3" title="Result code returned by OpenTLV C functions.">tlv_result_t</a>.</p>
-<dl class="section see"><dt>See also</dt><dd><a class="el" href="group__codecs.html#ga29bac18a06040bfae9c0a783de865d46" title="Returns a readable description of a codec result.">tlv_codec_strerror</a> </dd></dl>
-<table class="fieldtable">
-<tr><th colspan="2">Enumerator</th></tr><tr><td class="fieldname"><a id="gga5aefdf4a40140da8025256c425474b1aac7febd810d4499676ac656cfaac83e51" name="gga5aefdf4a40140da8025256c425474b1aac7febd810d4499676ac656cfaac83e51"></a>TLV_CODEC_OK&#160;</td><td class="fielddoc"><p>The conversion succeeded. </p>
-</td></tr>
-<tr><td class="fieldname"><a id="gga5aefdf4a40140da8025256c425474b1aaa8a374fe8d72bbae4f25046774dcc686" name="gga5aefdf4a40140da8025256c425474b1aaa8a374fe8d72bbae4f25046774dcc686"></a>TLV_CODEC_ERR_NULL_ARG&#160;</td><td class="fielddoc"><p>A required pointer argument is <code>NULL</code>. </p>
-</td></tr>
-<tr><td class="fieldname"><a id="gga5aefdf4a40140da8025256c425474b1aa187607751b25c1e4b9a9c2032e93f4d2" name="gga5aefdf4a40140da8025256c425474b1aa187607751b25c1e4b9a9c2032e93f4d2"></a>TLV_CODEC_ERR_BUFFER_TOO_SHORT&#160;</td><td class="fielddoc"><p>A supplied buffer is too small for the data or representation. </p>
-</td></tr>
-<tr><td class="fieldname"><a id="gga5aefdf4a40140da8025256c425474b1aa2dde6f557037bd68cdf6004636648291" name="gga5aefdf4a40140da8025256c425474b1aa2dde6f557037bd68cdf6004636648291"></a>TLV_CODEC_ERR_INVALID_VALUE&#160;</td><td class="fielddoc"><p>The value or its representation is invalid for the codec. </p>
-</td></tr>
-<tr><td class="fieldname"><a id="gga5aefdf4a40140da8025256c425474b1aa92060a99b1c9ac1fd965191ec74ae5f3" name="gga5aefdf4a40140da8025256c425474b1aa92060a99b1c9ac1fd965191ec74ae5f3"></a>TLV_CODEC_ERR_UNSUPPORTED&#160;</td><td class="fielddoc"><p>The requested direction or operation is not supported by the codec. </p>
-</td></tr>
-<tr><td class="fieldname"><a id="gga5aefdf4a40140da8025256c425474b1aacb73f083c46ec5e072caddf46eb8a635" name="gga5aefdf4a40140da8025256c425474b1aacb73f083c46ec5e072caddf46eb8a635"></a>TLV_CODEC_ERR_INVALID_STRUCTURE&#160;</td><td class="fielddoc"><p>A complete structure is malformed, or violates its schema or limits. </p>
 </td></tr>
 </table>
 
@@ -1344,14 +1277,14 @@ Variables</h2></td></tr>
 
 </div>
 </div>
-<a id="gaab5d092233db9472376dced8d1b09f53" name="gaab5d092233db9472376dced8d1b09f53"></a>
-<h2 class="memtitle"><span class="permalink"><a href="#gaab5d092233db9472376dced8d1b09f53">&#9670;&#160;</a></span>tlv_bluetooth_uuid_list_at()</h2>
+<a id="gad7679b75da2dfc639aab32b9db274c27" name="gad7679b75da2dfc639aab32b9db274c27"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#gad7679b75da2dfc639aab32b9db274c27">&#9670;&#160;</a></span>tlv_bluetooth_uuid_list_at()</h2>
 
 <div class="memitem">
 <div class="memproto">
       <table class="memname">
         <tr>
-          <td class="memname"><a class="el" href="group__codecs.html#ga6033534ecdbfc36953062aed6279562f">tlv_codec_result_t</a> tlv_bluetooth_uuid_list_at </td>
+          <td class="memname"><a class="el" href="group__core.html#ga164d2817a32e5d7b7aa1472e887b47c3">tlv_result_t</a> tlv_bluetooth_uuid_list_at </td>
           <td>(</td>
           <td class="paramtype">const <a class="el" href="group__codecs.html#ga46e7a4a78d27c5ff93b99aca25766908">tlv_bluetooth_uuid_list_t</a> *&#160;</td>
           <td class="paramname"><em>list</em>, </td>
@@ -1392,25 +1325,25 @@ Variables</h2></td></tr>
   </table>
   </dd>
 </dl>
-<dl class="section return"><dt>Returns</dt><dd><a class="el" href="group__codecs.html#gga5aefdf4a40140da8025256c425474b1aac7febd810d4499676ac656cfaac83e51">TLV_CODEC_OK</a> on success. </dd>
+<dl class="section return"><dt>Returns</dt><dd><a class="el" href="group__core.html#gga516c7250563ee9332e2f45f2d203ae61ac763c25dd3e807fae4d8078c3d3e94ed">TLV_OK</a> on success. </dd>
 <dd>
-<a class="el" href="group__codecs.html#gga5aefdf4a40140da8025256c425474b1aaa8a374fe8d72bbae4f25046774dcc686">TLV_CODEC_ERR_NULL_ARG</a> for missing pointers, including nonempty NULL data. </dd>
+<a class="el" href="group__core.html#gga516c7250563ee9332e2f45f2d203ae61aa4a514ccb37d17b2cd7c7da47d2eab88">TLV_ERR_NULL_ARG</a> for missing pointers, including nonempty NULL data. </dd>
 <dd>
-<a class="el" href="group__codecs.html#gga5aefdf4a40140da8025256c425474b1aa2dde6f557037bd68cdf6004636648291">TLV_CODEC_ERR_INVALID_VALUE</a> for invalid width, partial UUID, non-native raw size or an out-of-range index (also for empty lists). </dd>
+<a class="el" href="group__core.html#gga516c7250563ee9332e2f45f2d203ae61a07580ca64f30aa1a72a405fcbca72f10">TLV_ERR_INVALID_VALUE</a> for invalid width, partial UUID, non-native raw size or an out-of-range index (also for empty lists). </dd>
 <dd>
-<a class="el" href="group__codecs.html#gga5aefdf4a40140da8025256c425474b1aa187607751b25c1e4b9a9c2032e93f4d2">TLV_CODEC_ERR_BUFFER_TOO_SHORT</a> for insufficient object capacity. </dd></dl>
+<a class="el" href="group__core.html#gga516c7250563ee9332e2f45f2d203ae61acbd34cf02b42e70e99648aef5b9ca8b3">TLV_ERR_BUFFER_TOO_SHORT</a> for insufficient object capacity. </dd></dl>
 <dl class="section note"><dt>Note</dt><dd>The view and source remain unchanged. Destination is unchanged on error. </dd></dl>
 
 </div>
 </div>
-<a id="ga7de8d4351e9f4b98cd480ec634eced7a" name="ga7de8d4351e9f4b98cd480ec634eced7a"></a>
-<h2 class="memtitle"><span class="permalink"><a href="#ga7de8d4351e9f4b98cd480ec634eced7a">&#9670;&#160;</a></span>tlv_codec_decode()</h2>
+<a id="ga9ea8055633ebf0b64e284f7494e3fd66" name="ga9ea8055633ebf0b64e284f7494e3fd66"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#ga9ea8055633ebf0b64e284f7494e3fd66">&#9670;&#160;</a></span>tlv_codec_decode()</h2>
 
 <div class="memitem">
 <div class="memproto">
       <table class="memname">
         <tr>
-          <td class="memname"><a class="el" href="group__codecs.html#ga6033534ecdbfc36953062aed6279562f">tlv_codec_result_t</a> tlv_codec_decode </td>
+          <td class="memname"><a class="el" href="group__core.html#ga164d2817a32e5d7b7aa1472e887b47c3">tlv_result_t</a> tlv_codec_decode </td>
           <td>(</td>
           <td class="paramtype">const <a class="el" href="group__codecs.html#gab79131d94a100a55e0e58473ca95f785">tlv_codec_t</a> *&#160;</td>
           <td class="paramname"><em>codec</em>, </td>
@@ -1437,7 +1370,13 @@ Variables</h2></td></tr>
           <td class="paramkey"></td>
           <td></td>
           <td class="paramtype">size_t&#160;</td>
-          <td class="paramname"><em>capacity</em>&#160;</td>
+          <td class="paramname"><em>capacity</em>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype"><a class="el" href="codec_2diagnostic_8h.html#a59f8458396cf6b5047ba62210725b13c">tlv_codec_diagnostic_t</a> *&#160;</td>
+          <td class="paramname"><em>diagnostic</em>&#160;</td>
         </tr>
         <tr>
           <td></td>
@@ -1459,25 +1398,31 @@ Variables</h2></td></tr>
   </table>
   </dd>
 </dl>
-<dl class="section return"><dt>Returns</dt><dd><a class="el" href="group__codecs.html#gga5aefdf4a40140da8025256c425474b1aac7febd810d4499676ac656cfaac83e51">TLV_CODEC_OK</a> on success. </dd>
+<dl class="section return"><dt>Returns</dt><dd><a class="el" href="group__core.html#gga516c7250563ee9332e2f45f2d203ae61ac763c25dd3e807fae4d8078c3d3e94ed">TLV_OK</a> on success. </dd>
 <dd>
-<a class="el" href="group__codecs.html#gga5aefdf4a40140da8025256c425474b1aaa8a374fe8d72bbae4f25046774dcc686">TLV_CODEC_ERR_NULL_ARG</a> for missing required pointers. </dd>
+<a class="el" href="group__core.html#gga516c7250563ee9332e2f45f2d203ae61aa4a514ccb37d17b2cd7c7da47d2eab88">TLV_ERR_NULL_ARG</a> for missing required pointers. </dd>
 <dd>
-<a class="el" href="group__codecs.html#gga5aefdf4a40140da8025256c425474b1aa92060a99b1c9ac1fd965191ec74ae5f3">TLV_CODEC_ERR_UNSUPPORTED</a> if the codec has no decoder. </dd>
+<a class="el" href="group__core.html#gga516c7250563ee9332e2f45f2d203ae61a09879563fe6271975928879b0de69bc1">TLV_ERR_UNSUPPORTED</a> if the codec has no decoder. </dd>
 <dd>
-<a class="el" href="group__codecs.html#gga5aefdf4a40140da8025256c425474b1aa187607751b25c1e4b9a9c2032e93f4d2">TLV_CODEC_ERR_BUFFER_TOO_SHORT</a> or <a class="el" href="group__codecs.html#gga5aefdf4a40140da8025256c425474b1aa2dde6f557037bd68cdf6004636648291">TLV_CODEC_ERR_INVALID_VALUE</a> as reported by the codec.</dd></dl>
+<a class="el" href="group__core.html#gga516c7250563ee9332e2f45f2d203ae61acbd34cf02b42e70e99648aef5b9ca8b3">TLV_ERR_BUFFER_TOO_SHORT</a> or <a class="el" href="group__core.html#gga516c7250563ee9332e2f45f2d203ae61a07580ca64f30aa1a72a405fcbca72f10">TLV_ERR_INVALID_VALUE</a> as reported by the codec.</dd></dl>
 <dl class="section warning"><dt>Warning</dt><dd>On error the contents of <code>value</code> are unspecified. </dd></dl>
+<dl class="params"><dt>Parameters</dt><dd>
+  <table class="params">
+    <tr><td class="paramdir">[out]</td><td class="paramname">diagnostic</td><td>Optional initialized failure output; NULL skips evidence collection. </td></tr>
+  </table>
+  </dd>
+</dl>
 
 </div>
 </div>
-<a id="ga6ab3f99685db43f4572a27c3ddae2a62" name="ga6ab3f99685db43f4572a27c3ddae2a62"></a>
-<h2 class="memtitle"><span class="permalink"><a href="#ga6ab3f99685db43f4572a27c3ddae2a62">&#9670;&#160;</a></span>tlv_codec_encode()</h2>
+<a id="ga866587672c3083a266776ebdc6ee786c" name="ga866587672c3083a266776ebdc6ee786c"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#ga866587672c3083a266776ebdc6ee786c">&#9670;&#160;</a></span>tlv_codec_encode()</h2>
 
 <div class="memitem">
 <div class="memproto">
       <table class="memname">
         <tr>
-          <td class="memname"><a class="el" href="group__codecs.html#ga6033534ecdbfc36953062aed6279562f">tlv_codec_result_t</a> tlv_codec_encode </td>
+          <td class="memname"><a class="el" href="group__core.html#ga164d2817a32e5d7b7aa1472e887b47c3">tlv_result_t</a> tlv_codec_encode </td>
           <td>(</td>
           <td class="paramtype">const <a class="el" href="group__codecs.html#gab79131d94a100a55e0e58473ca95f785">tlv_codec_t</a> *&#160;</td>
           <td class="paramname"><em>codec</em>, </td>
@@ -1510,7 +1455,13 @@ Variables</h2></td></tr>
           <td class="paramkey"></td>
           <td></td>
           <td class="paramtype">size_t *&#160;</td>
-          <td class="paramname"><em>written</em>&#160;</td>
+          <td class="paramname"><em>written</em>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype"><a class="el" href="codec_2diagnostic_8h.html#a59f8458396cf6b5047ba62210725b13c">tlv_codec_diagnostic_t</a> *&#160;</td>
+          <td class="paramname"><em>diagnostic</em>&#160;</td>
         </tr>
         <tr>
           <td></td>
@@ -1533,52 +1484,31 @@ Variables</h2></td></tr>
   </table>
   </dd>
 </dl>
-<dl class="section return"><dt>Returns</dt><dd><a class="el" href="group__codecs.html#gga5aefdf4a40140da8025256c425474b1aac7febd810d4499676ac656cfaac83e51">TLV_CODEC_OK</a> on success. </dd>
+<dl class="section return"><dt>Returns</dt><dd><a class="el" href="group__core.html#gga516c7250563ee9332e2f45f2d203ae61ac763c25dd3e807fae4d8078c3d3e94ed">TLV_OK</a> on success. </dd>
 <dd>
-<a class="el" href="group__codecs.html#gga5aefdf4a40140da8025256c425474b1aaa8a374fe8d72bbae4f25046774dcc686">TLV_CODEC_ERR_NULL_ARG</a> for missing required pointers. </dd>
+<a class="el" href="group__core.html#gga516c7250563ee9332e2f45f2d203ae61aa4a514ccb37d17b2cd7c7da47d2eab88">TLV_ERR_NULL_ARG</a> for missing required pointers. </dd>
 <dd>
-<a class="el" href="group__codecs.html#gga5aefdf4a40140da8025256c425474b1aa92060a99b1c9ac1fd965191ec74ae5f3">TLV_CODEC_ERR_UNSUPPORTED</a> if the codec has no encoder. </dd>
+<a class="el" href="group__core.html#gga516c7250563ee9332e2f45f2d203ae61a09879563fe6271975928879b0de69bc1">TLV_ERR_UNSUPPORTED</a> if the codec has no encoder. </dd>
 <dd>
-<a class="el" href="group__codecs.html#gga5aefdf4a40140da8025256c425474b1aa187607751b25c1e4b9a9c2032e93f4d2">TLV_CODEC_ERR_BUFFER_TOO_SHORT</a> or <a class="el" href="group__codecs.html#gga5aefdf4a40140da8025256c425474b1aa2dde6f557037bd68cdf6004636648291">TLV_CODEC_ERR_INVALID_VALUE</a> as reported by the codec.</dd></dl>
+<a class="el" href="group__core.html#gga516c7250563ee9332e2f45f2d203ae61acbd34cf02b42e70e99648aef5b9ca8b3">TLV_ERR_BUFFER_TOO_SHORT</a> or <a class="el" href="group__core.html#gga516c7250563ee9332e2f45f2d203ae61a07580ca64f30aa1a72a405fcbca72f10">TLV_ERR_INVALID_VALUE</a> as reported by the codec.</dd></dl>
 <dl class="section warning"><dt>Warning</dt><dd>On error the destination contents are unspecified and <code>*written</code> is zero. </dd></dl>
-
-</div>
-</div>
-<a id="ga29bac18a06040bfae9c0a783de865d46" name="ga29bac18a06040bfae9c0a783de865d46"></a>
-<h2 class="memtitle"><span class="permalink"><a href="#ga29bac18a06040bfae9c0a783de865d46">&#9670;&#160;</a></span>tlv_codec_strerror()</h2>
-
-<div class="memitem">
-<div class="memproto">
-      <table class="memname">
-        <tr>
-          <td class="memname">const char * tlv_codec_strerror </td>
-          <td>(</td>
-          <td class="paramtype"><a class="el" href="group__codecs.html#ga6033534ecdbfc36953062aed6279562f">tlv_codec_result_t</a>&#160;</td>
-          <td class="paramname"><em>result</em></td><td>)</td>
-          <td></td>
-        </tr>
-      </table>
-</div><div class="memdoc">
-
-<p>Returns a readable description of a codec result. </p>
 <dl class="params"><dt>Parameters</dt><dd>
   <table class="params">
-    <tr><td class="paramname">result</td><td>Codec result to describe.</td></tr>
+    <tr><td class="paramdir">[out]</td><td class="paramname">diagnostic</td><td>Optional initialized failure output; NULL skips evidence collection. </td></tr>
   </table>
   </dd>
 </dl>
-<dl class="section return"><dt>Returns</dt><dd>A static, NUL-terminated string. The caller must not free or modify it. </dd></dl>
 
 </div>
 </div>
-<a id="ga411187afb5dd48fdb4938aec36117d54" name="ga411187afb5dd48fdb4938aec36117d54"></a>
-<h2 class="memtitle"><span class="permalink"><a href="#ga411187afb5dd48fdb4938aec36117d54">&#9670;&#160;</a></span>tlv_structure_decode()</h2>
+<a id="gaab29095099d5df672921c05364ab6ea5" name="gaab29095099d5df672921c05364ab6ea5"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#gaab29095099d5df672921c05364ab6ea5">&#9670;&#160;</a></span>tlv_structure_decode()</h2>
 
 <div class="memitem">
 <div class="memproto">
       <table class="memname">
         <tr>
-          <td class="memname"><a class="el" href="group__codecs.html#ga6033534ecdbfc36953062aed6279562f">tlv_codec_result_t</a> tlv_structure_decode </td>
+          <td class="memname"><a class="el" href="group__core.html#ga164d2817a32e5d7b7aa1472e887b47c3">tlv_result_t</a> tlv_structure_decode </td>
           <td>(</td>
           <td class="paramtype">const <a class="el" href="group__codecs.html#gaa8040b111c69624c529f37ede0fae9ce">tlv_structure_codec_t</a> *&#160;</td>
           <td class="paramname"><em>codec</em>, </td>
@@ -1605,7 +1535,13 @@ Variables</h2></td></tr>
           <td class="paramkey"></td>
           <td></td>
           <td class="paramtype">size_t&#160;</td>
-          <td class="paramname"><em>capacity</em>&#160;</td>
+          <td class="paramname"><em>capacity</em>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype"><a class="el" href="codec_2diagnostic_8h.html#a59f8458396cf6b5047ba62210725b13c">tlv_codec_diagnostic_t</a> *&#160;</td>
+          <td class="paramname"><em>diagnostic</em>&#160;</td>
         </tr>
         <tr>
           <td></td>
@@ -1627,25 +1563,31 @@ Variables</h2></td></tr>
   </table>
   </dd>
 </dl>
-<dl class="section return"><dt>Returns</dt><dd><a class="el" href="group__codecs.html#gga5aefdf4a40140da8025256c425474b1aac7febd810d4499676ac656cfaac83e51">TLV_CODEC_OK</a> on success. </dd>
+<dl class="section return"><dt>Returns</dt><dd><a class="el" href="group__core.html#gga516c7250563ee9332e2f45f2d203ae61ac763c25dd3e807fae4d8078c3d3e94ed">TLV_OK</a> on success. </dd>
 <dd>
-<a class="el" href="group__codecs.html#gga5aefdf4a40140da8025256c425474b1aaa8a374fe8d72bbae4f25046774dcc686">TLV_CODEC_ERR_NULL_ARG</a> for missing required arguments. </dd>
+<a class="el" href="group__core.html#gga516c7250563ee9332e2f45f2d203ae61aa4a514ccb37d17b2cd7c7da47d2eab88">TLV_ERR_NULL_ARG</a> for missing required arguments. </dd>
 <dd>
-<a class="el" href="group__codecs.html#gga5aefdf4a40140da8025256c425474b1aacb73f083c46ec5e072caddf46eb8a635">TLV_CODEC_ERR_INVALID_STRUCTURE</a> if validation fails. </dd>
+Original Reader/Schema/resource result if validation fails, with its cause. </dd>
 <dd>
-<a class="el" href="group__codecs.html#gga5aefdf4a40140da8025256c425474b1aa92060a99b1c9ac1fd965191ec74ae5f3">TLV_CODEC_ERR_UNSUPPORTED</a> if the descriptor has no decoder.</dd></dl>
+<a class="el" href="group__core.html#gga516c7250563ee9332e2f45f2d203ae61a09879563fe6271975928879b0de69bc1">TLV_ERR_UNSUPPORTED</a> if the descriptor has no decoder.</dd></dl>
 <dl class="section warning"><dt>Warning</dt><dd>On error the contents of <code>value</code> are unspecified. The decoded object may borrow <code>data</code>, which must then outlive it. </dd></dl>
+<dl class="params"><dt>Parameters</dt><dd>
+  <table class="params">
+    <tr><td class="paramdir">[out]</td><td class="paramname">diagnostic</td><td>Optional initialized failure output; NULL skips evidence collection. </td></tr>
+  </table>
+  </dd>
+</dl>
 
 </div>
 </div>
-<a id="ga352f33f17758235c45bb76d1888dffaa" name="ga352f33f17758235c45bb76d1888dffaa"></a>
-<h2 class="memtitle"><span class="permalink"><a href="#ga352f33f17758235c45bb76d1888dffaa">&#9670;&#160;</a></span>tlv_structure_encode()</h2>
+<a id="gaa9b892e68c9e94f6ed7e78b788e19e3e" name="gaa9b892e68c9e94f6ed7e78b788e19e3e"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#gaa9b892e68c9e94f6ed7e78b788e19e3e">&#9670;&#160;</a></span>tlv_structure_encode()</h2>
 
 <div class="memitem">
 <div class="memproto">
       <table class="memname">
         <tr>
-          <td class="memname"><a class="el" href="group__codecs.html#ga6033534ecdbfc36953062aed6279562f">tlv_codec_result_t</a> tlv_structure_encode </td>
+          <td class="memname"><a class="el" href="group__core.html#ga164d2817a32e5d7b7aa1472e887b47c3">tlv_result_t</a> tlv_structure_encode </td>
           <td>(</td>
           <td class="paramtype">const <a class="el" href="group__codecs.html#gaa8040b111c69624c529f37ede0fae9ce">tlv_structure_codec_t</a> *&#160;</td>
           <td class="paramname"><em>codec</em>, </td>
@@ -1678,7 +1620,13 @@ Variables</h2></td></tr>
           <td class="paramkey"></td>
           <td></td>
           <td class="paramtype">size_t *&#160;</td>
-          <td class="paramname"><em>written</em>&#160;</td>
+          <td class="paramname"><em>written</em>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype"><a class="el" href="codec_2diagnostic_8h.html#a59f8458396cf6b5047ba62210725b13c">tlv_codec_diagnostic_t</a> *&#160;</td>
+          <td class="paramname"><em>diagnostic</em>&#160;</td>
         </tr>
         <tr>
           <td></td>
@@ -1701,16 +1649,22 @@ Variables</h2></td></tr>
   </table>
   </dd>
 </dl>
-<dl class="section return"><dt>Returns</dt><dd><a class="el" href="group__codecs.html#gga5aefdf4a40140da8025256c425474b1aac7febd810d4499676ac656cfaac83e51">TLV_CODEC_OK</a> on success. </dd>
+<dl class="section return"><dt>Returns</dt><dd><a class="el" href="group__core.html#gga516c7250563ee9332e2f45f2d203ae61ac763c25dd3e807fae4d8078c3d3e94ed">TLV_OK</a> on success. </dd>
 <dd>
-<a class="el" href="group__codecs.html#gga5aefdf4a40140da8025256c425474b1aaa8a374fe8d72bbae4f25046774dcc686">TLV_CODEC_ERR_NULL_ARG</a> for missing required arguments. </dd>
+<a class="el" href="group__core.html#gga516c7250563ee9332e2f45f2d203ae61aa4a514ccb37d17b2cd7c7da47d2eab88">TLV_ERR_NULL_ARG</a> for missing required arguments. </dd>
 <dd>
-<a class="el" href="group__codecs.html#gga5aefdf4a40140da8025256c425474b1aa187607751b25c1e4b9a9c2032e93f4d2">TLV_CODEC_ERR_BUFFER_TOO_SHORT</a> if <code>capacity</code> is insufficient. </dd>
+<a class="el" href="group__core.html#gga516c7250563ee9332e2f45f2d203ae61acbd34cf02b42e70e99648aef5b9ca8b3">TLV_ERR_BUFFER_TOO_SHORT</a> if <code>capacity</code> is insufficient. </dd>
 <dd>
-<a class="el" href="group__codecs.html#gga5aefdf4a40140da8025256c425474b1aacb73f083c46ec5e072caddf46eb8a635">TLV_CODEC_ERR_INVALID_STRUCTURE</a> if the produced bytes fail validation. </dd>
+Original Reader/Schema/resource result if produced bytes fail validation. Known byte locations describe OUTPUT coordinates. </dd>
 <dd>
-<a class="el" href="group__codecs.html#gga5aefdf4a40140da8025256c425474b1aa92060a99b1c9ac1fd965191ec74ae5f3">TLV_CODEC_ERR_UNSUPPORTED</a> if the descriptor has no encoder.</dd></dl>
+<a class="el" href="group__core.html#gga516c7250563ee9332e2f45f2d203ae61a09879563fe6271975928879b0de69bc1">TLV_ERR_UNSUPPORTED</a> if the descriptor has no encoder.</dd></dl>
 <dl class="section warning"><dt>Warning</dt><dd>On error the destination is unspecified and <code>*written</code> is zero. </dd></dl>
+<dl class="params"><dt>Parameters</dt><dd>
+  <table class="params">
+    <tr><td class="paramdir">[out]</td><td class="paramname">diagnostic</td><td>Optional initialized failure output; NULL skips evidence collection. </td></tr>
+  </table>
+  </dd>
+</dl>
 
 </div>
 </div>
@@ -1786,7 +1740,7 @@ Variables</h2></td></tr>
 </div><div class="memdoc">
 
 <p>BOOLEAN codec (X.690 section 8.2 and 11.1): one content byte, <code>bool</code>. </p>
-<p>Decode requires exactly one content byte, <code>00</code> (<code>false</code>) or <code>FF</code> (<code>true</code>); any other content, including any other length, is <a class="el" href="group__codecs.html#gga5aefdf4a40140da8025256c425474b1aa2dde6f557037bd68cdf6004636648291">TLV_CODEC_ERR_INVALID_VALUE</a>. Encode always writes one byte, <code>00</code> or <code>FF</code>. </p>
+<p>Decode requires exactly one content byte, <code>00</code> (<code>false</code>) or <code>FF</code> (<code>true</code>); any other content, including any other length, is <a class="el" href="group__core.html#gga516c7250563ee9332e2f45f2d203ae61a07580ca64f30aa1a72a405fcbca72f10">TLV_ERR_INVALID_VALUE</a>. Encode always writes one byte, <code>00</code> or <code>FF</code>. </p>
 
 </div>
 </div>
@@ -1987,7 +1941,7 @@ Variables</h2></td></tr>
 </div><div class="memdoc">
 
 <p>IA5String codec (X.690 section 8.23): <a class="el" href="group__codecs.html#gaf086d7e5a7ab70e22f9a99a698c17fde" title="Decoded restricted character string content (X.690 section 8.23): borrowed bytes.">tlv_asn1_string_t</a>. </p>
-<p>Every content byte must be 7-bit ASCII (<code>0x00</code>-<code>0x7F</code>); any other byte is <a class="el" href="group__codecs.html#gga5aefdf4a40140da8025256c425474b1aa2dde6f557037bd68cdf6004636648291">TLV_CODEC_ERR_INVALID_VALUE</a> on decode or encode. </p>
+<p>Every content byte must be 7-bit ASCII (<code>0x00</code>-<code>0x7F</code>); any other byte is <a class="el" href="group__core.html#gga516c7250563ee9332e2f45f2d203ae61a07580ca64f30aa1a72a405fcbca72f10">TLV_ERR_INVALID_VALUE</a> on decode or encode. </p>
 
 </div>
 </div>
@@ -2012,7 +1966,7 @@ Variables</h2></td></tr>
 </div><div class="memdoc">
 
 <p>INTEGER codec (X.690 section 8.3 and 11.2): minimal two's complement, <code>int64_t</code>. </p>
-<p>Decode requires the minimal big-endian two's complement encoding X.690 defines (no redundant all-zero or all-one leading byte); content needing more than 8 bytes in that minimal form has no <code>int64_t</code> representation and is rejected with <a class="el" href="group__codecs.html#gga5aefdf4a40140da8025256c425474b1aa2dde6f557037bd68cdf6004636648291">TLV_CODEC_ERR_INVALID_VALUE</a>. Encode always writes the minimal two's complement encoding of the given value, 1 to 8 bytes. </p>
+<p>Decode requires the minimal big-endian two's complement encoding X.690 defines (no redundant all-zero or all-one leading byte); content needing more than 8 bytes in that minimal form has no <code>int64_t</code> representation and is rejected with <a class="el" href="group__core.html#gga516c7250563ee9332e2f45f2d203ae61a07580ca64f30aa1a72a405fcbca72f10">TLV_ERR_INVALID_VALUE</a>. Encode always writes the minimal two's complement encoding of the given value, 1 to 8 bytes. </p>
 
 </div>
 </div>
@@ -2037,7 +1991,7 @@ Variables</h2></td></tr>
 </div><div class="memdoc">
 
 <p>NULL codec (X.690 section 8.8 and 11.2): no representation. </p>
-<p>Decode requires empty content and writes nothing to <code>*value</code>; per <a class="el" href="group__codecs.html#ga7de8d4351e9f4b98cd480ec634eced7a" title="Decodes a raw value with a codec.">tlv_codec_decode()</a>, <code>value</code> must still be a non-<code>NULL</code> object, of any type and any capacity including zero. Encode reads nothing from <code>value</code> and always reports zero bytes written. </p>
+<p>Decode requires empty content and writes nothing to <code>*value</code>; per <a class="el" href="group__codecs.html#ga9ea8055633ebf0b64e284f7494e3fd66" title="Decodes a raw value with a codec.">tlv_codec_decode()</a>, <code>value</code> must still be a non-<code>NULL</code> object, of any type and any capacity including zero. Encode reads nothing from <code>value</code> and always reports zero bytes written. </p>
 
 </div>
 </div>
@@ -2062,7 +2016,7 @@ Variables</h2></td></tr>
 </div><div class="memdoc">
 
 <p>NumericString codec (X.690 section 8.23): <a class="el" href="group__codecs.html#gaf086d7e5a7ab70e22f9a99a698c17fde" title="Decoded restricted character string content (X.690 section 8.23): borrowed bytes.">tlv_asn1_string_t</a>. </p>
-<p>Every content byte must be <code>0</code>-<code>9</code> or the space character; any other byte is <a class="el" href="group__codecs.html#gga5aefdf4a40140da8025256c425474b1aa2dde6f557037bd68cdf6004636648291">TLV_CODEC_ERR_INVALID_VALUE</a> on decode or encode. </p>
+<p>Every content byte must be <code>0</code>-<code>9</code> or the space character; any other byte is <a class="el" href="group__core.html#gga516c7250563ee9332e2f45f2d203ae61a07580ca64f30aa1a72a405fcbca72f10">TLV_ERR_INVALID_VALUE</a> on decode or encode. </p>
 
 </div>
 </div>
@@ -2137,7 +2091,7 @@ Variables</h2></td></tr>
 </div><div class="memdoc">
 
 <p>OBJECT IDENTIFIER codec (X.690 section 8.19 and 11.3): <a class="el" href="group__codecs.html#gac1de63672b92cfa7f106fc5de48674f3" title="Decoded OBJECT IDENTIFIER or RELATIVE-OID arc values (X.690 section 8.19 and 8.20).">tlv_asn1_oid_t</a>. </p>
-<p>The content's first subidentifier decodes to two arcs following X.690 section 8.19.4: <code>arcs[0]</code> is 0, 1 or 2, and <code>arcs[1]</code> is its remainder (below 40 when <code>arcs[0]</code> is 0 or 1, unbounded when <code>arcs[0]</code> is 2); <code>count</code> is therefore always at least 2 on success. Every subidentifier must be a minimal base-128 encoding (no redundant leading <code>80</code> byte) whose value fits <code>uint64_t</code>; more subidentifiers than <a class="el" href="group__codecs.html#gga06fc87d81c62e9abb8790b6e5713c55ba20a28d0716db812951e434dae746dcc0">TLV_ASN1_OID_MAX_ARCS</a> <code>- 1</code> allows is <a class="el" href="group__codecs.html#gga5aefdf4a40140da8025256c425474b1aa2dde6f557037bd68cdf6004636648291">TLV_CODEC_ERR_INVALID_VALUE</a>. Encode rejects <code>arcs[0]</code> outside 0-2, <code>arcs[1]</code> &gt;= 40 when <code>arcs[0]</code> &lt; 2, and arc combinations that would overflow <code>uint64_t</code>.</p>
+<p>The content's first subidentifier decodes to two arcs following X.690 section 8.19.4: <code>arcs[0]</code> is 0, 1 or 2, and <code>arcs[1]</code> is its remainder (below 40 when <code>arcs[0]</code> is 0 or 1, unbounded when <code>arcs[0]</code> is 2); <code>count</code> is therefore always at least 2 on success. Every subidentifier must be a minimal base-128 encoding (no redundant leading <code>80</code> byte) whose value fits <code>uint64_t</code>; more subidentifiers than <a class="el" href="group__codecs.html#gga06fc87d81c62e9abb8790b6e5713c55ba20a28d0716db812951e434dae746dcc0">TLV_ASN1_OID_MAX_ARCS</a> <code>- 1</code> allows is <a class="el" href="group__core.html#gga516c7250563ee9332e2f45f2d203ae61a07580ca64f30aa1a72a405fcbca72f10">TLV_ERR_INVALID_VALUE</a>. Encode rejects <code>arcs[0]</code> outside 0-2, <code>arcs[1]</code> &gt;= 40 when <code>arcs[0]</code> &lt; 2, and arc combinations that would overflow <code>uint64_t</code>.</p>
 <dl class="section see"><dt>See also</dt><dd><a class="el" href="group__codecs.html#ga1ba6b944860b3e323281483a2b59e5ab" title="RELATIVE-OID codec (X.690 section 8.20 and 11.3): tlv_asn1_oid_t.">tlv_asn1_codec_relative_oid</a> </dd></dl>
 
 </div>
@@ -2189,7 +2143,7 @@ Variables</h2></td></tr>
 </div><div class="memdoc">
 
 <p>PrintableString codec (X.690 section 8.23): <a class="el" href="group__codecs.html#gaf086d7e5a7ab70e22f9a99a698c17fde" title="Decoded restricted character string content (X.690 section 8.23): borrowed bytes.">tlv_asn1_string_t</a>. </p>
-<p>Every content byte must be a letter, digit, space, or one of &lsquo;&rsquo;()+,-./:=?`; any other byte is <a class="el" href="group__codecs.html#gga5aefdf4a40140da8025256c425474b1aa2dde6f557037bd68cdf6004636648291">TLV_CODEC_ERR_INVALID_VALUE</a> on decode or encode. </p>
+<p>Every content byte must be a letter, digit, space, or one of &lsquo;&rsquo;()+,-./:=?`; any other byte is <a class="el" href="group__core.html#gga516c7250563ee9332e2f45f2d203ae61a07580ca64f30aa1a72a405fcbca72f10">TLV_ERR_INVALID_VALUE</a> on decode or encode. </p>
 
 </div>
 </div>
@@ -2441,7 +2395,7 @@ Variables</h2></td></tr>
 </div><div class="memdoc">
 
 <p>VisibleString codec (X.690 section 8.23): <a class="el" href="group__codecs.html#gaf086d7e5a7ab70e22f9a99a698c17fde" title="Decoded restricted character string content (X.690 section 8.23): borrowed bytes.">tlv_asn1_string_t</a>. </p>
-<p>Every content byte must be a printable ASCII character, space through <code>~</code> (<code>0x20</code>-<code>0x7E</code>); any other byte is <a class="el" href="group__codecs.html#gga5aefdf4a40140da8025256c425474b1aa2dde6f557037bd68cdf6004636648291">TLV_CODEC_ERR_INVALID_VALUE</a> on decode or encode. </p>
+<p>Every content byte must be a printable ASCII character, space through <code>~</code> (<code>0x20</code>-<code>0x7E</code>); any other byte is <a class="el" href="group__core.html#gga516c7250563ee9332e2f45f2d203ae61a07580ca64f30aa1a72a405fcbca72f10">TLV_ERR_INVALID_VALUE</a> on decode or encode. </p>
 
 </div>
 </div>
@@ -2466,8 +2420,8 @@ Variables</h2></td></tr>
 </div><div class="memdoc">
 
 <p>Flags codec for AD Type 0x01, represented by a borrowed <a class="el" href="structtlv__value__t.html" title="Non-owning, read-only view of a TLV value.">tlv_value_t</a>. </p>
-<p>Accepts zero or more octets, preserving unknown bits and extension octets. Bit 4 was previously used and is not assigned a current meaning here. An empty value means all bits clear; an absent AD structure is a separate condition. Both directions reject a nonempty value ending in an all-zero octet with <a class="el" href="group__codecs.html#gga5aefdf4a40140da8025256c425474b1aa2dde6f557037bd68cdf6004636648291">TLV_CODEC_ERR_INVALID_VALUE</a> (CSS requires trailing zero octets to be omitted). No channel-specific or connectability policy is enforced.</p>
-<p>Encode validates the borrowed pointer and native size before accessing it; a nonempty NULL span is <a class="el" href="group__codecs.html#gga5aefdf4a40140da8025256c425474b1aaa8a374fe8d72bbae4f25046774dcc686">TLV_CODEC_ERR_NULL_ARG</a>, and an unrepresentable size is <a class="el" href="group__codecs.html#gga5aefdf4a40140da8025256c425474b1aa2dde6f557037bd68cdf6004636648291">TLV_CODEC_ERR_INVALID_VALUE</a>. Insufficient destination capacity is <a class="el" href="group__codecs.html#gga5aefdf4a40140da8025256c425474b1aa187607751b25c1e4b9a9c2032e93f4d2">TLV_CODEC_ERR_BUFFER_TOO_SHORT</a>. Encode preserves accepted bytes exactly. </p>
+<p>Accepts zero or more octets, preserving unknown bits and extension octets. Bit 4 was previously used and is not assigned a current meaning here. An empty value means all bits clear; an absent AD structure is a separate condition. Both directions reject a nonempty value ending in an all-zero octet with <a class="el" href="group__core.html#gga516c7250563ee9332e2f45f2d203ae61a07580ca64f30aa1a72a405fcbca72f10">TLV_ERR_INVALID_VALUE</a> (CSS requires trailing zero octets to be omitted). No channel-specific or connectability policy is enforced.</p>
+<p>Encode validates the borrowed pointer and native size before accessing it; a nonempty NULL span is <a class="el" href="group__core.html#gga516c7250563ee9332e2f45f2d203ae61aa4a514ccb37d17b2cd7c7da47d2eab88">TLV_ERR_NULL_ARG</a>, and an unrepresentable size is <a class="el" href="group__core.html#gga516c7250563ee9332e2f45f2d203ae61a07580ca64f30aa1a72a405fcbca72f10">TLV_ERR_INVALID_VALUE</a>. Insufficient destination capacity is <a class="el" href="group__core.html#gga516c7250563ee9332e2f45f2d203ae61acbd34cf02b42e70e99648aef5b9ca8b3">TLV_ERR_BUFFER_TOO_SHORT</a>. Encode preserves accepted bytes exactly. </p>
 
 </div>
 </div>
@@ -2493,7 +2447,7 @@ Variables</h2></td></tr>
 
 <p>Local Name codec for AD Types 0x08 and 0x09, using a borrowed <a class="el" href="structtlv__value__t.html" title="Non-owning, read-only view of a TLV value.">tlv_value_t</a>. </p>
 <p>Both shortened and complete names use the same codec. Accepts valid UTF-8 of any native length, including embedded U+0000; no NUL terminator is appended or required. Length is in bytes, not characters. Encode copies exactly the supplied bytes. The caller retains the AD Type to distinguish a shortened name from a complete name; no full-name comparison is made.</p>
-<p>The 248-byte field limit belongs to tlv_bluetooth_ad_schema. Both directions report <a class="el" href="group__codecs.html#gga5aefdf4a40140da8025256c425474b1aa2dde6f557037bd68cdf6004636648291">TLV_CODEC_ERR_INVALID_VALUE</a> for malformed/truncated UTF-8, overlong encodings, surrogates or code points above U+10FFFF. A nonempty NULL span is <a class="el" href="group__codecs.html#gga5aefdf4a40140da8025256c425474b1aaa8a374fe8d72bbae4f25046774dcc686">TLV_CODEC_ERR_NULL_ARG</a>; insufficient destination capacity is <a class="el" href="group__codecs.html#gga5aefdf4a40140da8025256c425474b1aa187607751b25c1e4b9a9c2032e93f4d2">TLV_CODEC_ERR_BUFFER_TOO_SHORT</a>.</p>
+<p>The 248-byte field limit belongs to tlv_bluetooth_ad_schema. Both directions report <a class="el" href="group__core.html#gga516c7250563ee9332e2f45f2d203ae61a07580ca64f30aa1a72a405fcbca72f10">TLV_ERR_INVALID_VALUE</a> for malformed/truncated UTF-8, overlong encodings, surrogates or code points above U+10FFFF. A nonempty NULL span is <a class="el" href="group__core.html#gga516c7250563ee9332e2f45f2d203ae61aa4a514ccb37d17b2cd7c7da47d2eab88">TLV_ERR_NULL_ARG</a>; insufficient destination capacity is <a class="el" href="group__core.html#gga516c7250563ee9332e2f45f2d203ae61acbd34cf02b42e70e99648aef5b9ca8b3">TLV_ERR_BUFFER_TOO_SHORT</a>.</p>
 <dl class="section see"><dt>See also</dt><dd><a href="https://www.bluetooth.com/wp-content/uploads/Files/Specification/HTML/Core-60/out/en/host/generic-access-profile.html">https://www.bluetooth.com/wp-content/uploads/Files/Specification/HTML/Core-60/out/en/host/generic-access-profile.html</a> </dd></dl>
 
 </div>
@@ -2519,7 +2473,7 @@ Variables</h2></td></tr>
 </div><div class="memdoc">
 
 <p>Tx Power Level codec for AD Type 0x0A, represented by <code>int8_t</code> dBm. </p>
-<p>Decode requires exactly one signed two's-complement octet in the Bluetooth range -127 through +127 dBm; for example, FC decodes to -4. Encode writes exactly one octet. The excluded value -128 (80 on wire), incorrect wire length or incorrect encode object size is <a class="el" href="group__codecs.html#gga5aefdf4a40140da8025256c425474b1aa2dde6f557037bd68cdf6004636648291">TLV_CODEC_ERR_INVALID_VALUE</a>. Insufficient destination capacity is <a class="el" href="group__codecs.html#gga5aefdf4a40140da8025256c425474b1aa187607751b25c1e4b9a9c2032e93f4d2">TLV_CODEC_ERR_BUFFER_TOO_SHORT</a>. </p>
+<p>Decode requires exactly one signed two's-complement octet in the Bluetooth range -127 through +127 dBm; for example, FC decodes to -4. Encode writes exactly one octet. The excluded value -128 (80 on wire), incorrect wire length or incorrect encode object size is <a class="el" href="group__core.html#gga516c7250563ee9332e2f45f2d203ae61a07580ca64f30aa1a72a405fcbca72f10">TLV_ERR_INVALID_VALUE</a>. Insufficient destination capacity is <a class="el" href="group__core.html#gga516c7250563ee9332e2f45f2d203ae61acbd34cf02b42e70e99648aef5b9ca8b3">TLV_ERR_BUFFER_TOO_SHORT</a>. </p>
 
 </div>
 </div>
@@ -2544,7 +2498,7 @@ Variables</h2></td></tr>
 </div><div class="memdoc">
 
 <p>Static-lifetime codec for AD Type 0xFF, using <a class="el" href="group__codecs.html#ga519fac563c311b6ea25b77c2f95fe4f0" title="Company Identifier and borrowed opaque manufacturer payload.">tlv_bluetooth_manufacturer_data_t</a>. </p>
-<p>Decode requires at least two identifier bytes; the remainder is borrowed. Encode writes the identifier little-endian and copies payload unchanged. Every uint16_t identifier is accepted, including identifiers absent from a registry. Empty payloads are valid; no AD framing size limit applies. A short identifier, incorrect encode object size, non-native payload size or total size overflow returns <a class="el" href="group__codecs.html#gga5aefdf4a40140da8025256c425474b1aa2dde6f557037bd68cdf6004636648291">TLV_CODEC_ERR_INVALID_VALUE</a>. Missing required pointers or nonempty NULL payload return <a class="el" href="group__codecs.html#gga5aefdf4a40140da8025256c425474b1aaa8a374fe8d72bbae4f25046774dcc686">TLV_CODEC_ERR_NULL_ARG</a>. Insufficient output capacity returns <a class="el" href="group__codecs.html#gga5aefdf4a40140da8025256c425474b1aa187607751b25c1e4b9a9c2032e93f4d2">TLV_CODEC_ERR_BUFFER_TOO_SHORT</a>. Neither direction allocates or performs Company Identifier lookup. </p>
+<p>Decode requires at least two identifier bytes; the remainder is borrowed. Encode writes the identifier little-endian and copies payload unchanged. Every uint16_t identifier is accepted, including identifiers absent from a registry. Empty payloads are valid; no AD framing size limit applies. A short identifier, incorrect encode object size, non-native payload size or total size overflow returns <a class="el" href="group__core.html#gga516c7250563ee9332e2f45f2d203ae61a07580ca64f30aa1a72a405fcbca72f10">TLV_ERR_INVALID_VALUE</a>. Missing required pointers or nonempty NULL payload return <a class="el" href="group__core.html#gga516c7250563ee9332e2f45f2d203ae61aa4a514ccb37d17b2cd7c7da47d2eab88">TLV_ERR_NULL_ARG</a>. Insufficient output capacity returns <a class="el" href="group__core.html#gga516c7250563ee9332e2f45f2d203ae61acbd34cf02b42e70e99648aef5b9ca8b3">TLV_ERR_BUFFER_TOO_SHORT</a>. Neither direction allocates or performs Company Identifier lookup. </p>
 
 </div>
 </div>
@@ -2569,7 +2523,7 @@ Variables</h2></td></tr>
 </div><div class="memdoc">
 
 <p>Service Data codec for AD Type 0x21, using <a class="el" href="group__codecs.html#gae82c78856868db9aedd9018ffed7c044" title="Service Data with a 128-bit UUID and borrowed opaque payload.">tlv_bluetooth_service_data128_t</a>. </p>
-<p>Decode requires at least 16 UUID bytes; the remainder is borrowed as payload. Encode regenerates the UUID through <a class="el" href="group__codecs.html#ga79e9303bfcbf57aae637be9e77db2684" title="Converts exactly 16 wire bytes to/from tlv_bluetooth_uuid128_t.">tlv_bluetooth_codec_uuid128</a> and copies payload unchanged. Empty payloads are valid; no AD framing size limit applies. A short UUID, incorrect encode object size, non-native payload size or total size overflow returns <a class="el" href="group__codecs.html#gga5aefdf4a40140da8025256c425474b1aa2dde6f557037bd68cdf6004636648291">TLV_CODEC_ERR_INVALID_VALUE</a>. Missing required pointers or nonempty NULL payload return <a class="el" href="group__codecs.html#gga5aefdf4a40140da8025256c425474b1aaa8a374fe8d72bbae4f25046774dcc686">TLV_CODEC_ERR_NULL_ARG</a>. Insufficient output capacity returns <a class="el" href="group__codecs.html#gga5aefdf4a40140da8025256c425474b1aa187607751b25c1e4b9a9c2032e93f4d2">TLV_CODEC_ERR_BUFFER_TOO_SHORT</a>. Neither direction allocates. </p>
+<p>Decode requires at least 16 UUID bytes; the remainder is borrowed as payload. Encode regenerates the UUID through <a class="el" href="group__codecs.html#ga79e9303bfcbf57aae637be9e77db2684" title="Converts exactly 16 wire bytes to/from tlv_bluetooth_uuid128_t.">tlv_bluetooth_codec_uuid128</a> and copies payload unchanged. Empty payloads are valid; no AD framing size limit applies. A short UUID, incorrect encode object size, non-native payload size or total size overflow returns <a class="el" href="group__core.html#gga516c7250563ee9332e2f45f2d203ae61a07580ca64f30aa1a72a405fcbca72f10">TLV_ERR_INVALID_VALUE</a>. Missing required pointers or nonempty NULL payload return <a class="el" href="group__core.html#gga516c7250563ee9332e2f45f2d203ae61aa4a514ccb37d17b2cd7c7da47d2eab88">TLV_ERR_NULL_ARG</a>. Insufficient output capacity returns <a class="el" href="group__core.html#gga516c7250563ee9332e2f45f2d203ae61acbd34cf02b42e70e99648aef5b9ca8b3">TLV_ERR_BUFFER_TOO_SHORT</a>. Neither direction allocates. </p>
 
 </div>
 </div>
@@ -2594,7 +2548,7 @@ Variables</h2></td></tr>
 </div><div class="memdoc">
 
 <p>Service Data codec for AD Type 0x16, using <a class="el" href="group__codecs.html#gaf516bf8a267edeb4de5364bf48a2dcf4" title="Service Data with a 16-bit UUID and borrowed opaque payload.">tlv_bluetooth_service_data16_t</a>. </p>
-<p>Decode requires at least 2 UUID bytes; the remainder is borrowed as payload. Encode regenerates the UUID through <a class="el" href="group__codecs.html#ga05b87cc6cebac9f37c496b9096bac999" title="Source alias of tlv_codec_uint16_le; no separate binary symbol. Requires no optional Bluetooth compon...">tlv_bluetooth_codec_uuid16</a> and copies payload unchanged. Empty payloads are valid; no AD framing size limit applies. A short UUID, incorrect encode object size, non-native payload size or total size overflow returns <a class="el" href="group__codecs.html#gga5aefdf4a40140da8025256c425474b1aa2dde6f557037bd68cdf6004636648291">TLV_CODEC_ERR_INVALID_VALUE</a>. Missing required pointers or nonempty NULL payload return <a class="el" href="group__codecs.html#gga5aefdf4a40140da8025256c425474b1aaa8a374fe8d72bbae4f25046774dcc686">TLV_CODEC_ERR_NULL_ARG</a>. Insufficient output capacity returns <a class="el" href="group__codecs.html#gga5aefdf4a40140da8025256c425474b1aa187607751b25c1e4b9a9c2032e93f4d2">TLV_CODEC_ERR_BUFFER_TOO_SHORT</a>. Neither direction allocates. </p>
+<p>Decode requires at least 2 UUID bytes; the remainder is borrowed as payload. Encode regenerates the UUID through <a class="el" href="group__codecs.html#ga05b87cc6cebac9f37c496b9096bac999" title="Source alias of tlv_codec_uint16_le; no separate binary symbol. Requires no optional Bluetooth compon...">tlv_bluetooth_codec_uuid16</a> and copies payload unchanged. Empty payloads are valid; no AD framing size limit applies. A short UUID, incorrect encode object size, non-native payload size or total size overflow returns <a class="el" href="group__core.html#gga516c7250563ee9332e2f45f2d203ae61a07580ca64f30aa1a72a405fcbca72f10">TLV_ERR_INVALID_VALUE</a>. Missing required pointers or nonempty NULL payload return <a class="el" href="group__core.html#gga516c7250563ee9332e2f45f2d203ae61aa4a514ccb37d17b2cd7c7da47d2eab88">TLV_ERR_NULL_ARG</a>. Insufficient output capacity returns <a class="el" href="group__core.html#gga516c7250563ee9332e2f45f2d203ae61acbd34cf02b42e70e99648aef5b9ca8b3">TLV_ERR_BUFFER_TOO_SHORT</a>. Neither direction allocates. </p>
 
 </div>
 </div>
@@ -2619,7 +2573,7 @@ Variables</h2></td></tr>
 </div><div class="memdoc">
 
 <p>Service Data codec for AD Type 0x20, using <a class="el" href="group__codecs.html#gadec783bc1ef90f1e6881a25687154de5" title="Service Data with a 32-bit UUID and borrowed opaque payload.">tlv_bluetooth_service_data32_t</a>. </p>
-<p>Decode requires at least 4 UUID bytes; the remainder is borrowed as payload. Encode regenerates the UUID through <a class="el" href="group__codecs.html#ga39621698a4bb1f752738f8f893bc8f17" title="Source alias of tlv_codec_uint32_le; no separate binary symbol. Requires no optional Bluetooth compon...">tlv_bluetooth_codec_uuid32</a> and copies payload unchanged. Empty payloads are valid; no AD framing size limit applies. A short UUID, incorrect encode object size, non-native payload size or total size overflow returns <a class="el" href="group__codecs.html#gga5aefdf4a40140da8025256c425474b1aa2dde6f557037bd68cdf6004636648291">TLV_CODEC_ERR_INVALID_VALUE</a>. Missing required pointers or nonempty NULL payload return <a class="el" href="group__codecs.html#gga5aefdf4a40140da8025256c425474b1aaa8a374fe8d72bbae4f25046774dcc686">TLV_CODEC_ERR_NULL_ARG</a>. Insufficient output capacity returns <a class="el" href="group__codecs.html#gga5aefdf4a40140da8025256c425474b1aa187607751b25c1e4b9a9c2032e93f4d2">TLV_CODEC_ERR_BUFFER_TOO_SHORT</a>. Neither direction allocates. </p>
+<p>Decode requires at least 4 UUID bytes; the remainder is borrowed as payload. Encode regenerates the UUID through <a class="el" href="group__codecs.html#ga39621698a4bb1f752738f8f893bc8f17" title="Source alias of tlv_codec_uint32_le; no separate binary symbol. Requires no optional Bluetooth compon...">tlv_bluetooth_codec_uuid32</a> and copies payload unchanged. Empty payloads are valid; no AD framing size limit applies. A short UUID, incorrect encode object size, non-native payload size or total size overflow returns <a class="el" href="group__core.html#gga516c7250563ee9332e2f45f2d203ae61a07580ca64f30aa1a72a405fcbca72f10">TLV_ERR_INVALID_VALUE</a>. Missing required pointers or nonempty NULL payload return <a class="el" href="group__core.html#gga516c7250563ee9332e2f45f2d203ae61aa4a514ccb37d17b2cd7c7da47d2eab88">TLV_ERR_NULL_ARG</a>. Insufficient output capacity returns <a class="el" href="group__core.html#gga516c7250563ee9332e2f45f2d203ae61acbd34cf02b42e70e99648aef5b9ca8b3">TLV_ERR_BUFFER_TOO_SHORT</a>. Neither direction allocates. </p>
 
 </div>
 </div>
@@ -2694,7 +2648,7 @@ Variables</h2></td></tr>
 </div><div class="memdoc">
 
 <p>UUID16 list codec using <a class="el" href="group__codecs.html#ga46e7a4a78d27c5ff93b99aca25766908" title="Borrowed UUID list, retaining all original bytes in wire order.">tlv_bluetooth_uuid_list_t</a> (width 2). </p>
-<p>Decode borrows the input and validates its length is a multiple of the UUID width, including zero. Encode validates the view and copies its raw bytes exactly. A mismatched width, partial UUID or size exceeding SIZE_MAX returns <a class="el" href="group__codecs.html#gga5aefdf4a40140da8025256c425474b1aa2dde6f557037bd68cdf6004636648291">TLV_CODEC_ERR_INVALID_VALUE</a>; nonempty NULL data returns <a class="el" href="group__codecs.html#gga5aefdf4a40140da8025256c425474b1aaa8a374fe8d72bbae4f25046774dcc686">TLV_CODEC_ERR_NULL_ARG</a>. No AD framing limit or completeness policy applies. Use for AD Types 0x02 and 0x03; retain the AD Type separately. </p>
+<p>Decode borrows the input and validates its length is a multiple of the UUID width, including zero. Encode validates the view and copies its raw bytes exactly. A mismatched width, partial UUID or size exceeding SIZE_MAX returns <a class="el" href="group__core.html#gga516c7250563ee9332e2f45f2d203ae61a07580ca64f30aa1a72a405fcbca72f10">TLV_ERR_INVALID_VALUE</a>; nonempty NULL data returns <a class="el" href="group__core.html#gga516c7250563ee9332e2f45f2d203ae61aa4a514ccb37d17b2cd7c7da47d2eab88">TLV_ERR_NULL_ARG</a>. No AD framing limit or completeness policy applies. Use for AD Types 0x02 and 0x03; retain the AD Type separately. </p>
 
 </div>
 </div>
@@ -2744,7 +2698,7 @@ Variables</h2></td></tr>
 </div><div class="memdoc">
 
 <p>Codec for amounts (format n12): six bytes of BCD to and from <code>uint64_t</code>. </p>
-<p>Use with <a class="el" href="group__codecs.html#ga7de8d4351e9f4b98cd480ec634eced7a" title="Decodes a raw value with a codec.">tlv_codec_decode()</a> and <a class="el" href="group__codecs.html#ga6ab3f99685db43f4572a27c3ddae2a62" title="Encodes a C representation into raw value bytes with a codec.">tlv_codec_encode()</a>. Currency amounts are unscaled minor units. The general semantic-codec rules in the file documentation apply. </p>
+<p>Use with <a class="el" href="group__codecs.html#ga9ea8055633ebf0b64e284f7494e3fd66" title="Decodes a raw value with a codec.">tlv_codec_decode()</a> and <a class="el" href="group__codecs.html#ga866587672c3083a266776ebdc6ee786c" title="Encodes a C representation into raw value bytes with a codec.">tlv_codec_encode()</a>. Currency amounts are unscaled minor units. The general semantic-codec rules in the file documentation apply. </p>
 
 </div>
 </div>

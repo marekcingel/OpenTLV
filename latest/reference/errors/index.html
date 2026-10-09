@@ -2545,6 +2545,17 @@
 </li>
       
         <li class="md-nav__item">
+  <a href="#conversion-failures" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Conversion failures
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
   <a href="#see-also" class="md-nav__link">
     <span class="md-ellipsis">
       
@@ -3718,6 +3729,17 @@
 </li>
       
         <li class="md-nav__item">
+  <a href="#conversion-failures" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Conversion failures
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
   <a href="#see-also" class="md-nav__link">
     <span class="md-ellipsis">
       
@@ -3762,8 +3784,7 @@ available yet, except for <code>TLV_ERR_INVALID_STATE</code> and Query kind <cod
 <code>TLV_ERR_INVALID_SCHEMA</code> with Schema failure classification (#553), and
 <code>TLV_ERR_UNSUPPORTED</code>/<code>TLV_ERR_CALLBACK</code> with resource and callback classification (#554). The
 tables below describe the current codes and behavior.</p>
-<p>Core operations return a <code>tlv_result_t</code> from <code>tlv/error.h</code>; Codec operations
-currently have a separate <code>tlv_codec_result_t</code>. Zero is success; nonzero core
+<p>Core and Codec operations return the shared <code>tlv_result_t</code> from <code>tlv/error.h</code>. Zero is success; nonzero core
 results include errors, end-of-input and the resumable
 <code>TLV_NEED_MORE_DATA</code> condition. <code>tlv_strerror</code> returns a static, readable
 description of any code and <code>"unknown error"</code> for an unrecognized one; never free or
@@ -3927,7 +3948,7 @@ the breaking #551 migration; <code>INVALID_STATE = 19</code> does not promise ap
 <td><code>TLV_ERR_INVALID_VALUE</code></td>
 <td>14</td>
 <td>Content or its interpretation is invalid.</td>
-<td>DER/CER canonical Value checks and SET ordering; Query operand types, variable bindings, malformed images, legacy codec failures and scalar cardinality; malformed structural event streams. Configuration and provider contract violations use separate results.</td>
+<td>DER/CER canonical Value checks and SET ordering; Query operand types, variable bindings, malformed images, invalid converted Values and scalar cardinality; malformed structural event streams. Configuration and provider contract violations use separate results.</td>
 </tr>
 <tr>
 <td><code>TLV_ERR_UNSUPPORTED</code></td>
@@ -3992,8 +4013,8 @@ Explicit visitor error stops remain <code>VISITOR</code>; unknown visitor action
 <code>CALLBACK</code>, while normal early stop remains success.</p>
 <p>Query hook output with a wrong type, nonempty NULL span or invalid UTF-8 returns
 <code>CALLBACK</code> with Query kind <code>CALLBACK</code>, preserving the reported codec result
-(including <code>TLV_CODEC_OK</code>). Legacy ordinary codec failures still use
-<code>INVALID_VALUE</code> plus <code>CODEC</code> until the shared result migration in #556.
+(including <code>TLV_OK</code>). Ordinary conversion failures preserve their original
+result and typed cause with Query kind <code>CODEC</code> (or <code>STATE</code> for lifecycle misuse).
 Malformed stored images use <code>INVALID_VALUE</code> plus <code>IMAGE</code>; a recognized image
 with an incompatible version uses <code>UNSUPPORTED</code> plus <code>IMAGE_VERSION</code>.</p>
 <p>Optional path truncation keeps the operation's original result and increments
@@ -4045,6 +4066,16 @@ native clients and use the matching binding version. C++ errors expose
 and <code>SchemaError</code> with <code>kind="missing"</code> for required absence.</p>
 <p>Custom format callback errors propagate unchanged through the generic reader and writer,
 so a custom format can return any of the codes above.</p>
+<h2 id="conversion-failures">Conversion failures<a class="headerlink" href="#conversion-failures" title="Permanent link">&para;</a></h2>
+<p>Codec, Structure Codec and Query conversions return the same <code>tlv_result_t</code>.
+The separate Codec enum, constants and strerror entry point were removed in #556.
+Callbacks and entry points accept optional <code>tlv_codec_diagnostic_t</code> output.
+Structure validation preserves the original Reader/Schema/resource result and
+cause; Query retains this evidence alongside its related expression span.
+Invalid callback discriminators or successful output contracts report <code>CALLBACK</code>
+while preserving the callback's reported value, including <code>OK</code>.</p>
+<p>This changes callback signatures and the Query diagnostic layout. Rebuild native
+clients and use matching bindings. Valid conversion bytes are unchanged.</p>
 <h2 id="see-also">See also<a class="headerlink" href="#see-also" title="Permanent link">&para;</a></h2>
 <ul>
 <li><a href="../c-api/">C API reference</a> for the documented codes per function.</li>

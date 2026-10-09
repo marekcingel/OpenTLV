@@ -9,7 +9,7 @@ var searchData=
   ['der_5fvalidation_2eh_6',['der_validation.h',['../../../c-api/html/der__validation_8h.html',1,'']]],
   ['dhcpv4_2eh_7',['dhcpv4.h',['../../../c-api/html/dhcpv4_8h.html',1,'']]],
   ['dhcpv4_2ehpp_8',['dhcpv4.hpp',['../dhcpv4_8hpp.html',1,'']]],
-  ['diagnostic_2eh_9',['diagnostic.h',['../../../c-api/html/diagnostic_8h.html',1,'(Global Namespace)'],['../../../c-api/html/reader_2diagnostic_8h.html',1,'(Global Namespace)']]],
+  ['diagnostic_2eh_9',['diagnostic.h',['../../../c-api/html/codec_2diagnostic_8h.html',1,'(Global Namespace)'],['../../../c-api/html/diagnostic_8h.html',1,'(Global Namespace)'],['../../../c-api/html/reader_2diagnostic_8h.html',1,'(Global Namespace)']]],
   ['diagnostic_2ehpp_10',['diagnostic.hpp',['../diagnostic_8hpp.html',1,'']]],
   ['dictionary_2ehpp_11',['dictionary.hpp',['../dictionary_8hpp.html',1,'']]],
   ['diff_2ehpp_12',['diff.hpp',['../diff_8hpp.html',1,'']]],

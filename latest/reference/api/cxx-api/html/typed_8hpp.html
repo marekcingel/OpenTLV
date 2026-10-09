@@ -144,7 +144,7 @@ Typedefs</h2></td></tr>
 </table>
 <a name="details" id="details"></a><h2 class="groupheader">Detailed Description</h2>
 <div class="textblock"><p>C++11 typed fields and tag-independent Value codec customization. </p>
-<p>A codec exposes value_type, decode(bytes) returning expected&lt;value_type, codec_errc&gt;, and encode(const value_type&amp;, byte*, size_t) returning expected&lt;size_t, codec_errc&gt;. Encode with nullptr and zero capacity validates and measures the value. Implementations must respect capacity and report the exact byte count. Input and output must not overlap. Schema owns contextual length, occurrence and nesting constraints. </p>
+<p>A codec exposes value_type, decode(bytes) returning expected&lt;value_type, codec_failure&gt;, and encode(const value_type&amp;, byte*, size_t) returning expected&lt;size_t, codec_failure&gt;. Encode with nullptr and zero capacity validates and measures the value. Implementations must respect capacity and report the exact byte count. Input and output must not overlap. Schema owns contextual length, occurrence and nesting constraints. </p>
 </div></div><!-- contents -->
 <!-- start footer part -->
 <hr class="footer"/><address class="footer"><small>

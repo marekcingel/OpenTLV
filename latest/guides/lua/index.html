@@ -4492,11 +4492,10 @@ offline_auth_record_count}</code>; Track 2 is <code>{pan, expiration_year,
 expiration_month, service_code, discretionary_data}</code>. This selection occurs
 before conversion, and does not add codec metadata to generic Definition.</p>
 <h3 id="errors-and-custom-codecs">Errors and custom codecs<a class="headerlink" href="#errors-and-custom-codecs" title="Permanent link">&para;</a></h3>
-<p>C codec failures raise an <code>opentlv.Error</code> table with <code>domain = "codec"</code>,
-<code>code</code> and <code>message</code> from <code>tlv_codec_strerror()</code>. Codes are exported as
-<code>tlv.codec_errors.OK</code>, <code>NULL_ARG</code>, <code>BUFFER_TOO_SHORT</code>, <code>INVALID_VALUE</code>,
-<code>UNSUPPORTED</code> and <code>INVALID_STRUCTURE</code>; <code>tlv.codec_strerror(code)</code> exposes
-their descriptions. Codec codes are a separate domain from <code>tlv.errors</code>.
+<p>C codec failures raise an <code>opentlv.Error</code> table with the shared <code>tlv.errors</code>
+<code>code</code> and a <code>message</code> from <code>tlv_strerror()</code>. Optional <code>codec_detail</code> retains
+operation, reported result, callback violation and delegated cause. The old
+<code>codec_errors</code> and <code>codec_strerror</code> APIs have been removed.
 No source offset or Tag is invented for a Value-only operation. Incorrect
 Lua types and host representation bounds raise Lua argument errors.</p>
 <div class="highlight"><pre><span></span><code><a id="__codelineno-14-1" name="__codelineno-14-1" href="#__codelineno-14-1"></a><span class="kd">local</span><span class="w"> </span><span class="nv">codec</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="nv">tlv</span><span class="p">.</span><span class="py">codec</span><span class="w"> </span><span class="p">{</span>

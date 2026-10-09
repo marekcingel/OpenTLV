@@ -13,5 +13,6 @@ var searchData=
   ['variables_10',['variables',['../structtlv__query__compile__options.html#a1268b467e015a1d4e18ecd88a3b02628',1,'tlv_query_compile_options']]],
   ['version_11',['version',['../structtlv__query__program.html#a68ecab185b029dd490f8bc7348028bca',1,'tlv_query_program']]],
   ['version_2eh_12',['version.h',['../version_8h.html',1,'']]],
-  ['visitor_2eh_13',['visitor.h',['../visitor_8h.html',1,'']]]
+  ['violation_13',['violation',['../structtlv__codec__detail.html#a0216a70be21b167865615e696de74a85',1,'tlv_codec_detail']]],
+  ['visitor_2eh_14',['visitor.h',['../visitor_8h.html',1,'']]]
 ];

@@ -3981,8 +3981,8 @@ offset plus Schema kind and anchor.</p>
 <h2 id="codecs-and-the-emv-dictionary">Codecs and the EMV dictionary<a class="headerlink" href="#codecs-and-the-emv-dictionary" title="Permanent link">&para;</a></h2>
 <p><code>Codec</code> converts a raw value to a typed <code>Value</code> (<code>Number</code>, <code>Flags</code>, <code>Digits</code>,
 <code>Date</code>, <code>Time</code>, <code>Afl</code>, <code>Track2</code>, ...) with <code>decode</code>, and back with <code>encode</code>,
-<code>encode_into</code> and <code>encoded_size</code>. Errors use <code>CodecError</code>, mapped from
-<code>tlv_codec_result_t</code>, which is separate from the framing <code>Error</code>. <code>Codec::amount</code>
+<code>encode_into</code> and <code>encoded_size</code>. Errors use <code>CodecFailure</code>, mapped from
+the shared <code>Error</code> and optional owned <code>CodecDiagnostic</code>. <code>Codec::amount</code>
 is the amount codec; every other codec comes from the EMV dictionary:</p>
 <div class="highlight"><pre><span></span><code><a id="__codelineno-3-1" name="__codelineno-3-1" href="#__codelineno-3-1"></a><span class="k">use</span><span class="w"> </span><span class="n">opentlv</span><span class="p">::</span><span class="n">emv</span><span class="p">::{</span><span class="bp">self</span><span class="p">,</span><span class="w"> </span><span class="n">Context</span><span class="p">};</span>
 <a id="__codelineno-3-2" name="__codelineno-3-2" href="#__codelineno-3-2"></a>

@@ -3914,8 +3914,10 @@ and <a href="https://github.com/marekcingel/OpenTLV/blob/main/bindings/go/exampl
 <h2 id="errors-diagnostics-and-concurrency">Errors, diagnostics and concurrency<a class="headerlink" href="#errors-diagnostics-and-concurrency" title="Permanent link">&para;</a></h2>
 <p>Use <code>errors.Is</code> with named statuses such as <code>ErrInvalidTag</code>; use <code>errors.As</code> for
 <code>*ParseError</code>, <code>*WriteError</code>, <code>*QueryError</code>, <code>CapacityError</code> or <code>StatusError</code>.
-Wrapping with <code>%w</code> preserves matching. Value conversion uses the separate
-<code>CodecError</code> domain, for example <code>ErrCodecInvalidValue</code>.
+Wrapping with <code>%w</code> preserves matching. Value conversion returns <code>*CodecError</code>
+with an unwrapped common status, for example <code>ErrInvalidValue</code>; its <code>Detail</code>
+retains the owned conversion evidence. Query providers return a shared error
+or nil, and <code>ProgramError.CodecDetail</code> preserves native conversion detail.
 EOF and incremental pauses remain flow control with nil <code>Err()</code>.</p>
 <p>Diagnostics copy byte slices, text, context and paths into Go storage, surviving
 input reuse or Document cleanup. Presence flags distinguish absent information

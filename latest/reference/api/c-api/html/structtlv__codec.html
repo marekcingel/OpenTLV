@@ -84,10 +84,10 @@ $(function() {
 Data Fields</h2></td></tr>
 <tr class="memitem:ac3db750e92243552aab57de371617db9" id="r_ac3db750e92243552aab57de371617db9"><td class="memItemLeft" align="right" valign="top">const void *&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="structtlv__codec.html#ac3db750e92243552aab57de371617db9">context</a></td></tr>
 <tr class="separator:ac3db750e92243552aab57de371617db9"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:a4c13053a47bc19b0d35c3397a3d53c12" id="r_a4c13053a47bc19b0d35c3397a3d53c12"><td class="memItemLeft" align="right" valign="top"><a class="el" href="group__codecs.html#ga6033534ecdbfc36953062aed6279562f">tlv_codec_result_t</a>(*&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="structtlv__codec.html#a4c13053a47bc19b0d35c3397a3d53c12">decode</a> )(const void *<a class="el" href="structtlv__codec.html#ac3db750e92243552aab57de371617db9">context</a>, const uint8_t *data, size_t size, void *value, size_t capacity)</td></tr>
-<tr class="separator:a4c13053a47bc19b0d35c3397a3d53c12"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:aee40d5f01a1b83dced9d3d4964114ed2" id="r_aee40d5f01a1b83dced9d3d4964114ed2"><td class="memItemLeft" align="right" valign="top"><a class="el" href="group__codecs.html#ga6033534ecdbfc36953062aed6279562f">tlv_codec_result_t</a>(*&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="structtlv__codec.html#aee40d5f01a1b83dced9d3d4964114ed2">encode</a> )(const void *<a class="el" href="structtlv__codec.html#ac3db750e92243552aab57de371617db9">context</a>, const void *value, size_t size, uint8_t *data, size_t capacity, size_t *written)</td></tr>
-<tr class="separator:aee40d5f01a1b83dced9d3d4964114ed2"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a293ac223773056a357706a74f8ee9e3e" id="r_a293ac223773056a357706a74f8ee9e3e"><td class="memItemLeft" align="right" valign="top"><a class="el" href="group__core.html#ga164d2817a32e5d7b7aa1472e887b47c3">tlv_result_t</a>(*&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="structtlv__codec.html#a293ac223773056a357706a74f8ee9e3e">decode</a> )(const void *<a class="el" href="structtlv__codec.html#ac3db750e92243552aab57de371617db9">context</a>, const uint8_t *data, size_t size, void *value, size_t capacity, <a class="el" href="codec_2diagnostic_8h.html#a59f8458396cf6b5047ba62210725b13c">tlv_codec_diagnostic_t</a> *diagnostic)</td></tr>
+<tr class="separator:a293ac223773056a357706a74f8ee9e3e"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a542c0a05313fc0aae713eebf4bcabad0" id="r_a542c0a05313fc0aae713eebf4bcabad0"><td class="memItemLeft" align="right" valign="top"><a class="el" href="group__core.html#ga164d2817a32e5d7b7aa1472e887b47c3">tlv_result_t</a>(*&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="structtlv__codec.html#a542c0a05313fc0aae713eebf4bcabad0">encode</a> )(const void *<a class="el" href="structtlv__codec.html#ac3db750e92243552aab57de371617db9">context</a>, const void *value, size_t size, uint8_t *data, size_t capacity, size_t *written, <a class="el" href="codec_2diagnostic_8h.html#a59f8458396cf6b5047ba62210725b13c">tlv_codec_diagnostic_t</a> *diagnostic)</td></tr>
+<tr class="separator:a542c0a05313fc0aae713eebf4bcabad0"><td class="memSeparator" colspan="2">&#160;</td></tr>
 </table>
 <a name="details" id="details"></a><h2 class="groupheader">Detailed Description</h2>
 <div class="textblock"><p>Borrowed codec descriptor with an optional immutable context. </p>
@@ -97,10 +97,11 @@ Data Fields</h2></td></tr>
 <li><b>Decode</b> consumes the entire raw value and may return a representation that borrows the input bytes; that input must then outlive the representation.</li>
 <li><b>Encode</b> with <code>data == NULL</code> and <code>capacity == 0</code> validates the value and reports its exact encoded size without writing. A normal success reports the bytes written.</li>
 <li>A callback may be <code>NULL</code> for an unsupported direction. Errors propagate unchanged.</li>
-<li>On error, destination contents are unspecified, and the <a class="el" href="group__codecs.html#ga6ab3f99685db43f4572a27c3ddae2a62" title="Encodes a C representation into raw value bytes with a codec.">tlv_codec_encode()</a> wrapper reports <code>written == 0</code>.</li>
+<li>On error, destination contents are unspecified, and the <a class="el" href="group__codecs.html#ga866587672c3083a266776ebdc6ee786c" title="Encodes a C representation into raw value bytes with a codec.">tlv_codec_encode()</a> wrapper reports <code>written == 0</code>.</li>
 <li>Input and output must not overlap unless the codec explicitly supports it.</li>
 </ul>
-<dl class="section see"><dt>See also</dt><dd><a class="el" href="group__codecs.html#ga7de8d4351e9f4b98cd480ec634eced7a" title="Decodes a raw value with a codec.">tlv_codec_decode</a>, <a class="el" href="group__codecs.html#ga6ab3f99685db43f4572a27c3ddae2a62" title="Encodes a C representation into raw value bytes with a codec.">tlv_codec_encode</a> </dd></dl>
+<p>Failures use the shared tlv_result_t domain unchanged. Decode admits delegated <a class="el" href="group__core.html#gga516c7250563ee9332e2f45f2d203ae61ad90e4f5b2c36d63f9a93b92f1064a5e6">TLV_NEED_MORE_DATA</a>; encode and measure reject it. <a class="el" href="group__core.html#gga516c7250563ee9332e2f45f2d203ae61ad3ea4a680040d2294498178b02b79878">TLV_ERR_END_OF_BUFFER</a> and unknown results are callback violations. A successful encode count larger than the supplied buffer is <a class="el" href="group__core.html#gga516c7250563ee9332e2f45f2d203ae61adc3ffd285317edbc89e61fa26935e3c2">TLV_ERR_CALLBACK</a>. Optional diagnostics retain reported results and any delegated cause; borrowed evidence must outlive the call.</p>
+<dl class="section see"><dt>See also</dt><dd><a class="el" href="group__codecs.html#ga9ea8055633ebf0b64e284f7494e3fd66" title="Decodes a raw value with a codec.">tlv_codec_decode</a>, <a class="el" href="group__codecs.html#ga866587672c3083a266776ebdc6ee786c" title="Encodes a C representation into raw value bytes with a codec.">tlv_codec_encode</a> </dd></dl>
 </div><h2 class="groupheader">Field Documentation</h2>
 <a id="ac3db750e92243552aab57de371617db9" name="ac3db750e92243552aab57de371617db9"></a>
 <h2 class="memtitle"><span class="permalink"><a href="#ac3db750e92243552aab57de371617db9">&#9670;&#160;</a></span>context</h2>
@@ -117,14 +118,14 @@ Data Fields</h2></td></tr>
 
 </div>
 </div>
-<a id="a4c13053a47bc19b0d35c3397a3d53c12" name="a4c13053a47bc19b0d35c3397a3d53c12"></a>
-<h2 class="memtitle"><span class="permalink"><a href="#a4c13053a47bc19b0d35c3397a3d53c12">&#9670;&#160;</a></span>decode</h2>
+<a id="a293ac223773056a357706a74f8ee9e3e" name="a293ac223773056a357706a74f8ee9e3e"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#a293ac223773056a357706a74f8ee9e3e">&#9670;&#160;</a></span>decode</h2>
 
 <div class="memitem">
 <div class="memproto">
       <table class="memname">
         <tr>
-          <td class="memname"><a class="el" href="group__codecs.html#ga6033534ecdbfc36953062aed6279562f">tlv_codec_result_t</a>(* tlv_codec::decode) (const void *<a class="el" href="structtlv__codec.html#ac3db750e92243552aab57de371617db9">context</a>, const uint8_t *data, size_t size, void *value, size_t capacity)</td>
+          <td class="memname"><a class="el" href="group__core.html#ga164d2817a32e5d7b7aa1472e887b47c3">tlv_result_t</a>(* tlv_codec::decode) (const void *<a class="el" href="structtlv__codec.html#ac3db750e92243552aab57de371617db9">context</a>, const uint8_t *data, size_t size, void *value, size_t capacity, <a class="el" href="codec_2diagnostic_8h.html#a59f8458396cf6b5047ba62210725b13c">tlv_codec_diagnostic_t</a> *diagnostic)</td>
         </tr>
       </table>
 </div><div class="memdoc">
@@ -133,14 +134,14 @@ Data Fields</h2></td></tr>
 
 </div>
 </div>
-<a id="aee40d5f01a1b83dced9d3d4964114ed2" name="aee40d5f01a1b83dced9d3d4964114ed2"></a>
-<h2 class="memtitle"><span class="permalink"><a href="#aee40d5f01a1b83dced9d3d4964114ed2">&#9670;&#160;</a></span>encode</h2>
+<a id="a542c0a05313fc0aae713eebf4bcabad0" name="a542c0a05313fc0aae713eebf4bcabad0"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#a542c0a05313fc0aae713eebf4bcabad0">&#9670;&#160;</a></span>encode</h2>
 
 <div class="memitem">
 <div class="memproto">
       <table class="memname">
         <tr>
-          <td class="memname"><a class="el" href="group__codecs.html#ga6033534ecdbfc36953062aed6279562f">tlv_codec_result_t</a>(* tlv_codec::encode) (const void *<a class="el" href="structtlv__codec.html#ac3db750e92243552aab57de371617db9">context</a>, const void *value, size_t size, uint8_t *data, size_t capacity, size_t *written)</td>
+          <td class="memname"><a class="el" href="group__core.html#ga164d2817a32e5d7b7aa1472e887b47c3">tlv_result_t</a>(* tlv_codec::encode) (const void *<a class="el" href="structtlv__codec.html#ac3db750e92243552aab57de371617db9">context</a>, const void *value, size_t size, uint8_t *data, size_t capacity, size_t *written, <a class="el" href="codec_2diagnostic_8h.html#a59f8458396cf6b5047ba62210725b13c">tlv_codec_diagnostic_t</a> *diagnostic)</td>
         </tr>
       </table>
 </div><div class="memdoc">

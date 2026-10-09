@@ -99,12 +99,12 @@ Typedefs</h2></td></tr>
 </table><table class="memberdecls">
 <tr class="heading"><td colspan="2"><h2 class="groupheader"><a id="func-members" name="func-members"></a>
 Functions</h2></td></tr>
-<tr class="memitem:aacd40631e993b6b2a786ebce35a2f588" id="r_aacd40631e993b6b2a786ebce35a2f588"><td class="memItemLeft" align="right" valign="top"><a class="el" href="group__codecs.html#ga6033534ecdbfc36953062aed6279562f">tlv_codec_result_t</a>&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="digits_8h.html#aacd40631e993b6b2a786ebce35a2f588">tlv_digits_decode</a> (const void *context, const uint8_t *data, size_t size, void *value, size_t capacity)</td></tr>
-<tr class="memdesc:aacd40631e993b6b2a786ebce35a2f588"><td class="mdescLeft">&#160;</td><td class="mdescRight">Decodes packed digits to a NUL-terminated ASCII string.  <br /></td></tr>
-<tr class="separator:aacd40631e993b6b2a786ebce35a2f588"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:a12ea8d1e167b61ac2e904dee37a9a9f7" id="r_a12ea8d1e167b61ac2e904dee37a9a9f7"><td class="memItemLeft" align="right" valign="top"><a class="el" href="group__codecs.html#ga6033534ecdbfc36953062aed6279562f">tlv_codec_result_t</a>&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="digits_8h.html#a12ea8d1e167b61ac2e904dee37a9a9f7">tlv_digits_encode</a> (const void *context, const void *value, size_t size, uint8_t *data, size_t capacity, size_t *written)</td></tr>
-<tr class="memdesc:a12ea8d1e167b61ac2e904dee37a9a9f7"><td class="mdescLeft">&#160;</td><td class="mdescRight">Encodes ASCII decimal digits, retaining leading zeros.  <br /></td></tr>
-<tr class="separator:a12ea8d1e167b61ac2e904dee37a9a9f7"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a81b68d7d77d11d7eb3a21e7d6046435d" id="r_a81b68d7d77d11d7eb3a21e7d6046435d"><td class="memItemLeft" align="right" valign="top"><a class="el" href="group__core.html#ga164d2817a32e5d7b7aa1472e887b47c3">tlv_result_t</a>&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="digits_8h.html#a81b68d7d77d11d7eb3a21e7d6046435d">tlv_digits_decode</a> (const void *context, const uint8_t *data, size_t size, void *value, size_t capacity, <a class="el" href="codec_2diagnostic_8h.html#a59f8458396cf6b5047ba62210725b13c">tlv_codec_diagnostic_t</a> *diagnostic)</td></tr>
+<tr class="memdesc:a81b68d7d77d11d7eb3a21e7d6046435d"><td class="mdescLeft">&#160;</td><td class="mdescRight">Decodes packed digits to a NUL-terminated ASCII string.  <br /></td></tr>
+<tr class="separator:a81b68d7d77d11d7eb3a21e7d6046435d"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a73b14a961edb39e6fdd5fcec59dc3a75" id="r_a73b14a961edb39e6fdd5fcec59dc3a75"><td class="memItemLeft" align="right" valign="top"><a class="el" href="group__core.html#ga164d2817a32e5d7b7aa1472e887b47c3">tlv_result_t</a>&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="digits_8h.html#a73b14a961edb39e6fdd5fcec59dc3a75">tlv_digits_encode</a> (const void *context, const void *value, size_t size, uint8_t *data, size_t capacity, size_t *written, <a class="el" href="codec_2diagnostic_8h.html#a59f8458396cf6b5047ba62210725b13c">tlv_codec_diagnostic_t</a> *diagnostic)</td></tr>
+<tr class="memdesc:a73b14a961edb39e6fdd5fcec59dc3a75"><td class="mdescLeft">&#160;</td><td class="mdescRight">Encodes ASCII decimal digits, retaining leading zeros.  <br /></td></tr>
+<tr class="separator:a73b14a961edb39e6fdd5fcec59dc3a75"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:af5359e67f57a94e2328638564e16e90b" id="r_af5359e67f57a94e2328638564e16e90b"><td class="memItemLeft" align="right" valign="top">static <a class="el" href="group__codecs.html#gab79131d94a100a55e0e58473ca95f785">tlv_codec_t</a>&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="digits_8h.html#af5359e67f57a94e2328638564e16e90b">tlv_digits_codec</a> (const <a class="el" href="digits_8h.html#af563f45860c0fd3164c155c38b7915c9">tlv_digits_codec_config_t</a> *config)</td></tr>
 <tr class="memdesc:af5359e67f57a94e2328638564e16e90b"><td class="mdescLeft">&#160;</td><td class="mdescRight">Creates a descriptor borrowing a digit-string configuration.  <br /></td></tr>
 <tr class="separator:af5359e67f57a94e2328638564e16e90b"><td class="memSeparator" colspan="2">&#160;</td></tr>
@@ -165,14 +165,14 @@ Functions</h2></td></tr>
 
 </div>
 </div>
-<a id="aacd40631e993b6b2a786ebce35a2f588" name="aacd40631e993b6b2a786ebce35a2f588"></a>
-<h2 class="memtitle"><span class="permalink"><a href="#aacd40631e993b6b2a786ebce35a2f588">&#9670;&#160;</a></span>tlv_digits_decode()</h2>
+<a id="a81b68d7d77d11d7eb3a21e7d6046435d" name="a81b68d7d77d11d7eb3a21e7d6046435d"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#a81b68d7d77d11d7eb3a21e7d6046435d">&#9670;&#160;</a></span>tlv_digits_decode()</h2>
 
 <div class="memitem">
 <div class="memproto">
       <table class="memname">
         <tr>
-          <td class="memname"><a class="el" href="group__codecs.html#ga6033534ecdbfc36953062aed6279562f">tlv_codec_result_t</a> tlv_digits_decode </td>
+          <td class="memname"><a class="el" href="group__core.html#ga164d2817a32e5d7b7aa1472e887b47c3">tlv_result_t</a> tlv_digits_decode </td>
           <td>(</td>
           <td class="paramtype">const void *&#160;</td>
           <td class="paramname"><em>context</em>, </td>
@@ -199,7 +199,13 @@ Functions</h2></td></tr>
           <td class="paramkey"></td>
           <td></td>
           <td class="paramtype">size_t&#160;</td>
-          <td class="paramname"><em>capacity</em>&#160;</td>
+          <td class="paramname"><em>capacity</em>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype"><a class="el" href="codec_2diagnostic_8h.html#a59f8458396cf6b5047ba62210725b13c">tlv_codec_diagnostic_t</a> *&#160;</td>
+          <td class="paramname"><em>diagnostic</em>&#160;</td>
         </tr>
         <tr>
           <td></td>
@@ -220,19 +226,25 @@ Functions</h2></td></tr>
   </table>
   </dd>
 </dl>
-<dl class="section return"><dt>Returns</dt><dd><a class="el" href="group__codecs.html#gga5aefdf4a40140da8025256c425474b1aac7febd810d4499676ac656cfaac83e51">TLV_CODEC_OK</a>, <a class="el" href="group__codecs.html#gga5aefdf4a40140da8025256c425474b1aaa8a374fe8d72bbae4f25046774dcc686">TLV_CODEC_ERR_NULL_ARG</a>, <a class="el" href="group__codecs.html#gga5aefdf4a40140da8025256c425474b1aa2dde6f557037bd68cdf6004636648291">TLV_CODEC_ERR_INVALID_VALUE</a> for invalid width/digits/padding, or <a class="el" href="group__codecs.html#gga5aefdf4a40140da8025256c425474b1aa187607751b25c1e4b9a9c2032e93f4d2">TLV_CODEC_ERR_BUFFER_TOO_SHORT</a>. </dd></dl>
+<dl class="section return"><dt>Returns</dt><dd><a class="el" href="group__core.html#gga516c7250563ee9332e2f45f2d203ae61ac763c25dd3e807fae4d8078c3d3e94ed">TLV_OK</a>, <a class="el" href="group__core.html#gga516c7250563ee9332e2f45f2d203ae61aa4a514ccb37d17b2cd7c7da47d2eab88">TLV_ERR_NULL_ARG</a>, <a class="el" href="group__core.html#gga516c7250563ee9332e2f45f2d203ae61a07580ca64f30aa1a72a405fcbca72f10">TLV_ERR_INVALID_VALUE</a> for invalid width/digits/padding, or <a class="el" href="group__core.html#gga516c7250563ee9332e2f45f2d203ae61acbd34cf02b42e70e99648aef5b9ca8b3">TLV_ERR_BUFFER_TOO_SHORT</a>. </dd></dl>
 <dl class="section note"><dt>Note</dt><dd>No allocation occurs; output is unchanged on failure. </dd></dl>
+<dl class="params"><dt>Parameters</dt><dd>
+  <table class="params">
+    <tr><td class="paramdir">[out]</td><td class="paramname">diagnostic</td><td>Optional initialized failure output; NULL skips evidence collection. </td></tr>
+  </table>
+  </dd>
+</dl>
 
 </div>
 </div>
-<a id="a12ea8d1e167b61ac2e904dee37a9a9f7" name="a12ea8d1e167b61ac2e904dee37a9a9f7"></a>
-<h2 class="memtitle"><span class="permalink"><a href="#a12ea8d1e167b61ac2e904dee37a9a9f7">&#9670;&#160;</a></span>tlv_digits_encode()</h2>
+<a id="a73b14a961edb39e6fdd5fcec59dc3a75" name="a73b14a961edb39e6fdd5fcec59dc3a75"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#a73b14a961edb39e6fdd5fcec59dc3a75">&#9670;&#160;</a></span>tlv_digits_encode()</h2>
 
 <div class="memitem">
 <div class="memproto">
       <table class="memname">
         <tr>
-          <td class="memname"><a class="el" href="group__codecs.html#ga6033534ecdbfc36953062aed6279562f">tlv_codec_result_t</a> tlv_digits_encode </td>
+          <td class="memname"><a class="el" href="group__core.html#ga164d2817a32e5d7b7aa1472e887b47c3">tlv_result_t</a> tlv_digits_encode </td>
           <td>(</td>
           <td class="paramtype">const void *&#160;</td>
           <td class="paramname"><em>context</em>, </td>
@@ -265,7 +277,13 @@ Functions</h2></td></tr>
           <td class="paramkey"></td>
           <td></td>
           <td class="paramtype">size_t *&#160;</td>
-          <td class="paramname"><em>written</em>&#160;</td>
+          <td class="paramname"><em>written</em>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype"><a class="el" href="codec_2diagnostic_8h.html#a59f8458396cf6b5047ba62210725b13c">tlv_codec_diagnostic_t</a> *&#160;</td>
+          <td class="paramname"><em>diagnostic</em>&#160;</td>
         </tr>
         <tr>
           <td></td>
@@ -287,8 +305,14 @@ Functions</h2></td></tr>
   </table>
   </dd>
 </dl>
-<dl class="section return"><dt>Returns</dt><dd><a class="el" href="group__codecs.html#gga5aefdf4a40140da8025256c425474b1aac7febd810d4499676ac656cfaac83e51">TLV_CODEC_OK</a>, <a class="el" href="group__codecs.html#gga5aefdf4a40140da8025256c425474b1aaa8a374fe8d72bbae4f25046774dcc686">TLV_CODEC_ERR_NULL_ARG</a>, <a class="el" href="group__codecs.html#gga5aefdf4a40140da8025256c425474b1aa2dde6f557037bd68cdf6004636648291">TLV_CODEC_ERR_INVALID_VALUE</a> for invalid width/digits, or <a class="el" href="group__codecs.html#gga5aefdf4a40140da8025256c425474b1aa187607751b25c1e4b9a9c2032e93f4d2">TLV_CODEC_ERR_BUFFER_TOO_SHORT</a>. </dd></dl>
+<dl class="section return"><dt>Returns</dt><dd><a class="el" href="group__core.html#gga516c7250563ee9332e2f45f2d203ae61ac763c25dd3e807fae4d8078c3d3e94ed">TLV_OK</a>, <a class="el" href="group__core.html#gga516c7250563ee9332e2f45f2d203ae61aa4a514ccb37d17b2cd7c7da47d2eab88">TLV_ERR_NULL_ARG</a>, <a class="el" href="group__core.html#gga516c7250563ee9332e2f45f2d203ae61a07580ca64f30aa1a72a405fcbca72f10">TLV_ERR_INVALID_VALUE</a> for invalid width/digits, or <a class="el" href="group__core.html#gga516c7250563ee9332e2f45f2d203ae61acbd34cf02b42e70e99648aef5b9ca8b3">TLV_ERR_BUFFER_TOO_SHORT</a>. </dd></dl>
 <dl class="section note"><dt>Note</dt><dd>No allocation occurs; output bytes are unchanged on failure. Input, output, configuration and written must not overlap. </dd></dl>
+<dl class="params"><dt>Parameters</dt><dd>
+  <table class="params">
+    <tr><td class="paramdir">[out]</td><td class="paramname">diagnostic</td><td>Optional initialized failure output; NULL skips evidence collection. </td></tr>
+  </table>
+  </dd>
+</dl>
 
 </div>
 </div>

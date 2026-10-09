@@ -107,9 +107,9 @@ Typedefs</h2></td></tr>
 </table><table class="memberdecls">
 <tr class="heading"><td colspan="2"><h2 class="groupheader"><a id="func-members" name="func-members"></a>
 Functions</h2></td></tr>
-<tr class="memitem:a1b4d5a028215dcabf3aea08186814b5c" id="r_a1b4d5a028215dcabf3aea08186814b5c"><td class="memItemLeft" align="right" valign="top"><a class="el" href="group__codecs.html#ga6033534ecdbfc36953062aed6279562f">tlv_codec_result_t</a>&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="ipv4_8h.html#a1b4d5a028215dcabf3aea08186814b5c">tlv_ipv4_list_at</a> (const <a class="el" href="ipv4_8h.html#a7a74412f18132c6fd7eac03e36d30cd2">tlv_ipv4_list_t</a> *list, size_t index, <a class="el" href="ipv4_8h.html#a2a0ca33aead215e711c114902dc72636">tlv_ipv4_t</a> *value)</td></tr>
-<tr class="memdesc:a1b4d5a028215dcabf3aea08186814b5c"><td class="mdescLeft">&#160;</td><td class="mdescRight">Copies one address from a validated borrowed IPv4 list.  <br /></td></tr>
-<tr class="separator:a1b4d5a028215dcabf3aea08186814b5c"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:ab16a74f15d0e355f5d228a81f1aa9298" id="r_ab16a74f15d0e355f5d228a81f1aa9298"><td class="memItemLeft" align="right" valign="top"><a class="el" href="group__core.html#ga164d2817a32e5d7b7aa1472e887b47c3">tlv_result_t</a>&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="ipv4_8h.html#ab16a74f15d0e355f5d228a81f1aa9298">tlv_ipv4_list_at</a> (const <a class="el" href="ipv4_8h.html#a7a74412f18132c6fd7eac03e36d30cd2">tlv_ipv4_list_t</a> *list, size_t index, <a class="el" href="ipv4_8h.html#a2a0ca33aead215e711c114902dc72636">tlv_ipv4_t</a> *value)</td></tr>
+<tr class="memdesc:ab16a74f15d0e355f5d228a81f1aa9298"><td class="mdescLeft">&#160;</td><td class="mdescRight">Copies one address from a validated borrowed IPv4 list.  <br /></td></tr>
+<tr class="separator:ab16a74f15d0e355f5d228a81f1aa9298"><td class="memSeparator" colspan="2">&#160;</td></tr>
 </table><table class="memberdecls">
 <tr class="heading"><td colspan="2"><h2 class="groupheader"><a id="var-members" name="var-members"></a>
 Variables</h2></td></tr>
@@ -122,7 +122,7 @@ Variables</h2></td></tr>
 </table>
 <a name="details" id="details"></a><h2 class="groupheader">Detailed Description</h2>
 <div class="textblock"><p>Allocation-free IPv4 address and address list codecs. </p>
-<p>Descriptors have static lifetime and require no optional protocol component. Use <a class="el" href="group__codecs.html#ga7de8d4351e9f4b98cd480ec634eced7a" title="Decodes a raw value with a codec.">tlv_codec_decode()</a> and <a class="el" href="group__codecs.html#ga6ab3f99685db43f4572a27c3ddae2a62" title="Encodes a C representation into raw value bytes with a codec.">tlv_codec_encode()</a>; their pointer, overlap and error contracts apply. Decode requires at least sizeof the documented C representation; encode requires exactly sizeof that representation. Wrong wire lengths or object sizes return <a class="el" href="group__codecs.html#gga5aefdf4a40140da8025256c425474b1aa2dde6f557037bd68cdf6004636648291">TLV_CODEC_ERR_INVALID_VALUE</a>; insufficient destination capacity returns <a class="el" href="group__codecs.html#gga5aefdf4a40140da8025256c425474b1aa187607751b25c1e4b9a9c2032e93f4d2">TLV_CODEC_ERR_BUFFER_TOO_SHORT</a>. Encode size queries validate the representation before reporting its size. No codec applies option-specific limits or allocates storage. </p>
+<p>Descriptors have static lifetime and require no optional protocol component. Use <a class="el" href="group__codecs.html#ga9ea8055633ebf0b64e284f7494e3fd66" title="Decodes a raw value with a codec.">tlv_codec_decode()</a> and <a class="el" href="group__codecs.html#ga866587672c3083a266776ebdc6ee786c" title="Encodes a C representation into raw value bytes with a codec.">tlv_codec_encode()</a>; their pointer, overlap and error contracts apply. Decode requires at least sizeof the documented C representation; encode requires exactly sizeof that representation. Wrong wire lengths or object sizes return <a class="el" href="group__core.html#gga516c7250563ee9332e2f45f2d203ae61a07580ca64f30aa1a72a405fcbca72f10">TLV_ERR_INVALID_VALUE</a>; insufficient destination capacity returns <a class="el" href="group__core.html#gga516c7250563ee9332e2f45f2d203ae61acbd34cf02b42e70e99648aef5b9ca8b3">TLV_ERR_BUFFER_TOO_SHORT</a>. Encode size queries validate the representation before reporting its size. No codec applies option-specific limits or allocates storage. </p>
 </div><h2 class="groupheader">Typedef Documentation</h2>
 <a id="a7a74412f18132c6fd7eac03e36d30cd2" name="a7a74412f18132c6fd7eac03e36d30cd2"></a>
 <h2 class="memtitle"><span class="permalink"><a href="#a7a74412f18132c6fd7eac03e36d30cd2">&#9670;&#160;</a></span>tlv_ipv4_list_t</h2>
@@ -157,14 +157,14 @@ Variables</h2></td></tr>
 </div>
 </div>
 <h2 class="groupheader">Function Documentation</h2>
-<a id="a1b4d5a028215dcabf3aea08186814b5c" name="a1b4d5a028215dcabf3aea08186814b5c"></a>
-<h2 class="memtitle"><span class="permalink"><a href="#a1b4d5a028215dcabf3aea08186814b5c">&#9670;&#160;</a></span>tlv_ipv4_list_at()</h2>
+<a id="ab16a74f15d0e355f5d228a81f1aa9298" name="ab16a74f15d0e355f5d228a81f1aa9298"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#ab16a74f15d0e355f5d228a81f1aa9298">&#9670;&#160;</a></span>tlv_ipv4_list_at()</h2>
 
 <div class="memitem">
 <div class="memproto">
       <table class="memname">
         <tr>
-          <td class="memname"><a class="el" href="group__codecs.html#ga6033534ecdbfc36953062aed6279562f">tlv_codec_result_t</a> tlv_ipv4_list_at </td>
+          <td class="memname"><a class="el" href="group__core.html#ga164d2817a32e5d7b7aa1472e887b47c3">tlv_result_t</a> tlv_ipv4_list_at </td>
           <td>(</td>
           <td class="paramtype">const <a class="el" href="ipv4_8h.html#a7a74412f18132c6fd7eac03e36d30cd2">tlv_ipv4_list_t</a> *&#160;</td>
           <td class="paramname"><em>list</em>, </td>
@@ -198,11 +198,11 @@ Variables</h2></td></tr>
   </table>
   </dd>
 </dl>
-<dl class="section return"><dt>Returns</dt><dd><a class="el" href="group__codecs.html#gga5aefdf4a40140da8025256c425474b1aac7febd810d4499676ac656cfaac83e51">TLV_CODEC_OK</a> on success. </dd>
+<dl class="section return"><dt>Returns</dt><dd><a class="el" href="group__core.html#gga516c7250563ee9332e2f45f2d203ae61ac763c25dd3e807fae4d8078c3d3e94ed">TLV_OK</a> on success. </dd>
 <dd>
-<a class="el" href="group__codecs.html#gga5aefdf4a40140da8025256c425474b1aaa8a374fe8d72bbae4f25046774dcc686">TLV_CODEC_ERR_NULL_ARG</a> for missing pointers or nonempty NULL data. </dd>
+<a class="el" href="group__core.html#gga516c7250563ee9332e2f45f2d203ae61aa4a514ccb37d17b2cd7c7da47d2eab88">TLV_ERR_NULL_ARG</a> for missing pointers or nonempty NULL data. </dd>
 <dd>
-<a class="el" href="group__codecs.html#gga5aefdf4a40140da8025256c425474b1aa2dde6f557037bd68cdf6004636648291">TLV_CODEC_ERR_INVALID_VALUE</a> for malformed lengths or an invalid index. </dd></dl>
+<a class="el" href="group__core.html#gga516c7250563ee9332e2f45f2d203ae61a07580ca64f30aa1a72a405fcbca72f10">TLV_ERR_INVALID_VALUE</a> for malformed lengths or an invalid index. </dd></dl>
 <dl class="section note"><dt>Note</dt><dd>The destination is unchanged on failure. No allocation occurs. </dd></dl>
 
 </div>
@@ -253,7 +253,7 @@ Variables</h2></td></tr>
 </div><div class="memdoc">
 
 <p>Converts a multiple of four bytes to/from <a class="el" href="ipv4_8h.html#a7a74412f18132c6fd7eac03e36d30cd2" title="Borrowed sequence of IPv4 addresses in network octet order.">tlv_ipv4_list_t</a>. </p>
-<p>Decode borrows input. Encode validates the view and copies all raw bytes, preserving address order and duplicates. Empty lists are valid. Nonempty NULL data returns <a class="el" href="group__codecs.html#gga5aefdf4a40140da8025256c425474b1aaa8a374fe8d72bbae4f25046774dcc686">TLV_CODEC_ERR_NULL_ARG</a>; non-native lengths or incomplete addresses return <a class="el" href="group__codecs.html#gga5aefdf4a40140da8025256c425474b1aa2dde6f557037bd68cdf6004636648291">TLV_CODEC_ERR_INVALID_VALUE</a>, including for size queries. </p>
+<p>Decode borrows input. Encode validates the view and copies all raw bytes, preserving address order and duplicates. Empty lists are valid. Nonempty NULL data returns <a class="el" href="group__core.html#gga516c7250563ee9332e2f45f2d203ae61aa4a514ccb37d17b2cd7c7da47d2eab88">TLV_ERR_NULL_ARG</a>; non-native lengths or incomplete addresses return <a class="el" href="group__core.html#gga516c7250563ee9332e2f45f2d203ae61a07580ca64f30aa1a72a405fcbca72f10">TLV_ERR_INVALID_VALUE</a>, including for size queries. </p>
 
 </div>
 </div>

@@ -75,9 +75,7 @@ $(function() {
 <div class="header">
   <div class="summary">
 <a href="#nested-classes">Classes</a> &#124;
-<a href="#namespaces">Namespaces</a> &#124;
-<a href="#enum-members">Enumerations</a> &#124;
-<a href="#func-members">Functions</a>  </div>
+<a href="#namespaces">Namespaces</a>  </div>
   <div class="headertitle"><div class="title">dynamic.hpp File Reference</div></div>
 </div><!--header-->
 <div class="contents">
@@ -91,6 +89,9 @@ $(function() {
 </div><table class="memberdecls">
 <tr class="heading"><td colspan="2"><h2 class="groupheader"><a id="nested-classes" name="nested-classes"></a>
 Classes</h2></td></tr>
+<tr class="memitem:"><td class="memItemLeft" align="right" valign="top">struct &#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="structtlv_1_1codec__failure.html">tlv::codec_failure</a></td></tr>
+<tr class="memdesc:"><td class="mdescLeft">&#160;</td><td class="mdescRight">Shared result and complete conversion evidence, without a separate error enum.  <a href="structtlv_1_1codec__failure.html#details">More...</a><br /></td></tr>
+<tr class="separator:"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:"><td class="memItemLeft" align="right" valign="top">class &#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classtlv_1_1dynamic__codec.html">tlv::dynamic_codec</a></td></tr>
 <tr class="memdesc:"><td class="mdescLeft">&#160;</td><td class="mdescRight">Borrowed runtime Value codec, selected by a domain dictionary or explicit interoperability.  <a href="classtlv_1_1dynamic__codec.html#details">More...</a><br /></td></tr>
 <tr class="separator:"><td class="memSeparator" colspan="2">&#160;</td></tr>
@@ -103,30 +104,6 @@ Namespaces</h2></td></tr>
 <tr class="memitem:namespacetlv" id="r_namespacetlv"><td class="memItemLeft" align="right" valign="top">namespace &#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="namespacetlv.html">tlv</a></td></tr>
 <tr class="memdesc:namespacetlv"><td class="mdescLeft">&#160;</td><td class="mdescRight">Public C++ wrappers, value types, codec traits and helpers for OpenTLV. <br /></td></tr>
 <tr class="separator:"><td class="memSeparator" colspan="2">&#160;</td></tr>
-</table><table class="memberdecls">
-<tr class="heading"><td colspan="2"><h2 class="groupheader"><a id="enum-members" name="enum-members"></a>
-Enumerations</h2></td></tr>
-<tr class="memitem:aa12a2d260f443407813879992167be54" id="r_aa12a2d260f443407813879992167be54"><td class="memItemLeft" align="right" valign="top">enum class &#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="namespacetlv.html#aa12a2d260f443407813879992167be54">tlv::codec_errc</a> { <br />
-&#160;&#160;<a class="el" href="namespacetlv.html#aa12a2d260f443407813879992167be54a444bcb3a3fcf8389296c49467f27e1d6">tlv::ok</a> = TLV_CODEC_OK
-, <a class="el" href="namespacetlv.html#aa12a2d260f443407813879992167be54a97925b4c4d12317896aa469d6d08c66f">tlv::null_argument</a> = TLV_CODEC_ERR_NULL_ARG
-, <a class="el" href="namespacetlv.html#aa12a2d260f443407813879992167be54af3476e64ac4a56f9900e0e8c1fb761a7">tlv::buffer_too_short</a> = TLV_CODEC_ERR_BUFFER_TOO_SHORT
-, <a class="el" href="namespacetlv.html#aa12a2d260f443407813879992167be54a24fe18195f0e29f8d3ef5ad3110cfc24">tlv::invalid_value</a> = TLV_CODEC_ERR_INVALID_VALUE
-, <br />
-&#160;&#160;<a class="el" href="namespacetlv.html#aa12a2d260f443407813879992167be54a723c25877a86786664edc4b643c08a6f">tlv::unsupported</a> = TLV_CODEC_ERR_UNSUPPORTED
-, <a class="el" href="namespacetlv.html#aa12a2d260f443407813879992167be54aa9c9447d2f9469d247d70a9846cc3d00">tlv::invalid_structure</a> = TLV_CODEC_ERR_INVALID_STRUCTURE
-<br />
- }</td></tr>
-<tr class="memdesc:aa12a2d260f443407813879992167be54"><td class="mdescLeft">&#160;</td><td class="mdescRight">Value conversion outcomes, independent of wire framing errors.  <a href="namespacetlv.html#aa12a2d260f443407813879992167be54">More...</a><br /></td></tr>
-<tr class="separator:aa12a2d260f443407813879992167be54"><td class="memSeparator" colspan="2">&#160;</td></tr>
-</table><table class="memberdecls">
-<tr class="heading"><td colspan="2"><h2 class="groupheader"><a id="func-members" name="func-members"></a>
-Functions</h2></td></tr>
-<tr class="memitem:a2170bbddd435b2e76b8c464c8e5830bc" id="r_a2170bbddd435b2e76b8c464c8e5830bc"><td class="memItemLeft" align="right" valign="top">const char *&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="namespacetlv.html#a2170bbddd435b2e76b8c464c8e5830bc">tlv::message</a> (<a class="el" href="namespacetlv.html#aa12a2d260f443407813879992167be54">codec_errc</a> code) noexcept</td></tr>
-<tr class="memdesc:a2170bbddd435b2e76b8c464c8e5830bc"><td class="mdescLeft">&#160;</td><td class="mdescRight">Return immutable program-lifetime codec status text without allocation.  <br /></td></tr>
-<tr class="separator:a2170bbddd435b2e76b8c464c8e5830bc"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:aa6802a1ba938a262892905e643866000" id="r_aa6802a1ba938a262892905e643866000"><td class="memItemLeft" align="right" valign="top"><a class="el" href="structtlv_1_1error.html">error</a>&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="namespacetlv.html#aa6802a1ba938a262892905e643866000">tlv::to_error</a> (<a class="el" href="namespacetlv.html#aa12a2d260f443407813879992167be54">codec_errc</a> code) noexcept</td></tr>
-<tr class="memdesc:aa6802a1ba938a262892905e643866000"><td class="mdescLeft">&#160;</td><td class="mdescRight">Project a codec outcome into the common diagnostic contract without allocation.  <br /></td></tr>
-<tr class="separator:aa6802a1ba938a262892905e643866000"><td class="memSeparator" colspan="2">&#160;</td></tr>
 </table>
 <a name="details" id="details"></a><h2 class="groupheader">Detailed Description</h2>
 <div class="textblock"><p>Runtime-selected Value codecs over caller-owned typed storage. </p>

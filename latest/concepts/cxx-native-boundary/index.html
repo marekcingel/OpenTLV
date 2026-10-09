@@ -3966,7 +3966,7 @@ exact declarations belong in the <a href="../../reference/cxx-api/">C++ referenc
 <tr>
 <td>Typed Values</td>
 <td><code>field</code>, Value codecs, typed decode/find/write</td>
-<td>Explicit Tag/codec association; separate codec and framing errors</td>
+<td>Explicit Tag/codec association; shared results with codec and framing context</td>
 </tr>
 <tr>
 <td>Standards</td>
@@ -4001,7 +4001,7 @@ results, vector conveniences and application callbacks may also
 allocate. Successful borrowed/fixed-size codec operations retain their C
 allocation behavior.</p>
 <p>Cursor operations return <code>expected</code> with <code>tlv::error</code>; copying the error and its
-borrowed static message does not allocate. <code>status()</code> exposes <code>tlv::errc</code>, with
+borrowed static message does not allocate. <code>status()</code> exposes <code>tlv::codec_failure</code>, with
 distinct <code>end_of_input</code> and <code>need_more_data</code> outcomes. Located errors expose
 <code>has_offset()</code>, <code>offset()</code> and <code>stage()</code>. Custom error descriptions are borrowed
 and must outlive the errors. Format customization uses <code>format_failure</code> and scoped construction
@@ -4268,7 +4268,7 @@ without heap allocation for ancestor descriptors; their identifier bytes remain 
 </table>
 <p>Custom Format methods use exact C++ return types and <code>const noexcept</code> callbacks;
 the existing positive and negative compile checks enforce this contract. Typed
-codecs return <code>expected&lt;T, codec_errc&gt;</code> and may propagate their own allocation
+codecs return <code>expected&lt;T, codec_failure&gt;</code> and may propagate their own allocation
 exceptions. <code>codec_owner&lt;C&gt;</code> additionally requires const, nonthrowing decode and
 encode methods and a nothrow move-assignable representation because it invokes
 those methods through the canonical C callback ABI. Non-default-constructible
@@ -4424,8 +4424,8 @@ C engine harnesses remain outside this gate. Run
 </table>
 <h3 id="source-migration">Source migration<a class="headerlink" href="#source-migration" title="Permanent link">&para;</a></h3>
 <p>Use <code>error.message()</code> instead of the previous owning string field, and scoped
-<code>errc</code>/<code>codec_errc</code> values instead of C constants in C++ callbacks. Custom typed
-codecs must update their <code>expected</code> error type to <code>codec_errc</code>. Use
+<code>codec_failure</code>/<code>codec_failure</code> values instead of C constants in C++ callbacks. Custom typed
+codecs must update their <code>expected</code> error type to <code>codec_failure</code>. Use
 <code>fixed_format&lt;...&gt;::view()</code> or a preset object, and <code>runtime_fixed_format</code> for
 runtime policies. Raw Format overloads become <code>native::borrow_format(raw)</code>.
 Native typed codec adapters move to <code>native::codec_adapter</code>; raw Schema

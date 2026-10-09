@@ -100,9 +100,13 @@ Data Fields</h2></td></tr>
 <tr class="separator:ae5ed984c943213cf5ba7c717807616be"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:af56b2116fe73a8f68eaa274b4b2b263f" id="r_af56b2116fe73a8f68eaa274b4b2b263f"><td class="memItemLeft" align="right" valign="top"><a class="el" href="reader_2diagnostic_8h.html#a367e97df35b6ec522746678b01a02236">tlv_reader_detail_t</a>&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="structtlv__query__diagnostic.html#af56b2116fe73a8f68eaa274b4b2b263f">reader</a></td></tr>
 <tr class="separator:af56b2116fe73a8f68eaa274b4b2b263f"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:a40f4205ba340eab13960cd1d91414f99" id="r_a40f4205ba340eab13960cd1d91414f99"><td class="memItemLeft" align="right" valign="top"><a class="el" href="group__codecs.html#ga6033534ecdbfc36953062aed6279562f">tlv_codec_result_t</a>&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="structtlv__query__diagnostic.html#a40f4205ba340eab13960cd1d91414f99">codec</a></td></tr>
-<tr class="memdesc:a40f4205ba340eab13960cd1d91414f99"><td class="mdescLeft">&#160;</td><td class="mdescRight">Original codec result for <a class="el" href="group__traversal.html#gga66edcf242c8bc06318ff99b24f1ce0eda8c3fa940f82a96c6cc438c762d3a22ca">TLV_QUERY_ERROR_CODEC</a> or a conversion <a class="el" href="group__traversal.html#gga66edcf242c8bc06318ff99b24f1ce0eda6b1d3f123241519789f685f72517ddb7">TLV_QUERY_ERROR_CALLBACK</a>.  <br /></td></tr>
-<tr class="separator:a40f4205ba340eab13960cd1d91414f99"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a6986b5d6e017e8c0cccd9073f8f55b84" id="r_a6986b5d6e017e8c0cccd9073f8f55b84"><td class="memItemLeft" align="right" valign="top">int32_t&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="structtlv__query__diagnostic.html#a6986b5d6e017e8c0cccd9073f8f55b84">codec</a></td></tr>
+<tr class="memdesc:a6986b5d6e017e8c0cccd9073f8f55b84"><td class="mdescLeft">&#160;</td><td class="mdescRight">Original codec result for <a class="el" href="group__traversal.html#gga66edcf242c8bc06318ff99b24f1ce0eda8c3fa940f82a96c6cc438c762d3a22ca">TLV_QUERY_ERROR_CODEC</a> or a conversion <a class="el" href="group__traversal.html#gga66edcf242c8bc06318ff99b24f1ce0eda6b1d3f123241519789f685f72517ddb7">TLV_QUERY_ERROR_CALLBACK</a>.  <br /></td></tr>
+<tr class="separator:a6986b5d6e017e8c0cccd9073f8f55b84"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a66913e5d65a8081262a2e814d360814b" id="r_a66913e5d65a8081262a2e814d360814b"><td class="memItemLeft" align="right" valign="top">int&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="structtlv__query__diagnostic.html#a66913e5d65a8081262a2e814d360814b">has_codec</a></td></tr>
+<tr class="separator:a66913e5d65a8081262a2e814d360814b"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:ac4f26b668f6c62d2f8a7c425908a5ff5" id="r_ac4f26b668f6c62d2f8a7c425908a5ff5"><td class="memItemLeft" align="right" valign="top"><a class="el" href="codec_2diagnostic_8h.html#aa64e28234414f87b5689c490ee825229">tlv_codec_detail_t</a>&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="structtlv__query__diagnostic.html#ac4f26b668f6c62d2f8a7c425908a5ff5">codec_detail</a></td></tr>
+<tr class="separator:ac4f26b668f6c62d2f8a7c425908a5ff5"><td class="memSeparator" colspan="2">&#160;</td></tr>
 </table>
 <a name="details" id="details"></a><h2 class="groupheader">Detailed Description</h2>
 <div class="textblock"><p>Fixed-layout compiler/execution failure, initialized by diagnostic entry points. </p>
@@ -129,20 +133,35 @@ This value type is not extensible; changing its layout requires an ABI change. <
 
 </div>
 </div>
-<a id="a40f4205ba340eab13960cd1d91414f99" name="a40f4205ba340eab13960cd1d91414f99"></a>
-<h2 class="memtitle"><span class="permalink"><a href="#a40f4205ba340eab13960cd1d91414f99">&#9670;&#160;</a></span>codec</h2>
+<a id="a6986b5d6e017e8c0cccd9073f8f55b84" name="a6986b5d6e017e8c0cccd9073f8f55b84"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#a6986b5d6e017e8c0cccd9073f8f55b84">&#9670;&#160;</a></span>codec</h2>
 
 <div class="memitem">
 <div class="memproto">
       <table class="memname">
         <tr>
-          <td class="memname"><a class="el" href="group__codecs.html#ga6033534ecdbfc36953062aed6279562f">tlv_codec_result_t</a> tlv_query_diagnostic::codec</td>
+          <td class="memname">int32_t tlv_query_diagnostic::codec</td>
         </tr>
       </table>
 </div><div class="memdoc">
 
 <p>Original codec result for <a class="el" href="group__traversal.html#gga66edcf242c8bc06318ff99b24f1ce0eda8c3fa940f82a96c6cc438c762d3a22ca">TLV_QUERY_ERROR_CODEC</a> or a conversion <a class="el" href="group__traversal.html#gga66edcf242c8bc06318ff99b24f1ce0eda6b1d3f123241519789f685f72517ddb7">TLV_QUERY_ERROR_CALLBACK</a>. </p>
-<p>Preserves <a class="el" href="group__codecs.html#gga5aefdf4a40140da8025256c425474b1aac7febd810d4499676ac656cfaac83e51">TLV_CODEC_OK</a> when a successful codec result violates the declared type, has nonzero size with NULL data, or contains invalid UTF-8. The operation then returns <a class="el" href="group__core.html#gga516c7250563ee9332e2f45f2d203ae61adc3ffd285317edbc89e61fa26935e3c2">TLV_ERR_CALLBACK</a>; expected identifies the violated output contract. </p>
+<p>Preserves <a class="el" href="group__core.html#gga516c7250563ee9332e2f45f2d203ae61ac763c25dd3e807fae4d8078c3d3e94ed">TLV_OK</a> when a successful codec result violates the declared type, has nonzero size with NULL data, or contains invalid UTF-8. The operation then returns <a class="el" href="group__core.html#gga516c7250563ee9332e2f45f2d203ae61adc3ffd285317edbc89e61fa26935e3c2">TLV_ERR_CALLBACK</a>; expected identifies the violated output contract. Stored as a raw integer so unknown provider results remain safe to read in C++. </p>
+
+</div>
+</div>
+<a id="ac4f26b668f6c62d2f8a7c425908a5ff5" name="ac4f26b668f6c62d2f8a7c425908a5ff5"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#ac4f26b668f6c62d2f8a7c425908a5ff5">&#9670;&#160;</a></span>codec_detail</h2>
+
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname"><a class="el" href="codec_2diagnostic_8h.html#aa64e28234414f87b5689c490ee825229">tlv_codec_detail_t</a> tlv_query_diagnostic::codec_detail</td>
+        </tr>
+      </table>
+</div><div class="memdoc">
+<p>Conversion and delegated cause; common data above. </p>
 
 </div>
 </div>
@@ -203,6 +222,21 @@ This value type is not extensible; changing its layout requires an ABI change. <
       </table>
 </div><div class="memdoc">
 <p>Static expected-token description, or NULL. </p>
+
+</div>
+</div>
+<a id="a66913e5d65a8081262a2e814d360814b" name="a66913e5d65a8081262a2e814d360814b"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#a66913e5d65a8081262a2e814d360814b">&#9670;&#160;</a></span>has_codec</h2>
+
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname">int tlv_query_diagnostic::has_codec</td>
+        </tr>
+      </table>
+</div><div class="memdoc">
+<p>Nonzero when codec_detail carries conversion context. </p>
 
 </div>
 </div>

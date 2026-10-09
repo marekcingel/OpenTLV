@@ -13,5 +13,6 @@ var searchData=
   ['verification_5ffailed_10',['verification_failed',['../namespacetlv_1_1emv.html#a1962c5134ee99e30ef9fc12015a14aed',1,'tlv::emv']]],
   ['verification_5fsucceeded_11',['verification_succeeded',['../namespacetlv_1_1emv.html#a9db9fbec583f96bd71d9a3f5c093ed7a',1,'tlv::emv']]],
   ['version_12',['version',['../../../c-api/html/structtlv__query__program.html#a68ecab185b029dd490f8bc7348028bca',1,'tlv_query_program']]],
-  ['voice_13',['voice',['../namespacetlv_1_1emv.html#a81c248deec7a6b39d7d88c4fbffe0940',1,'tlv::emv']]]
+  ['violation_13',['violation',['../../../c-api/html/structtlv__codec__detail.html#a0216a70be21b167865615e696de74a85',1,'tlv_codec_detail']]],
+  ['voice_14',['voice',['../namespacetlv_1_1emv.html#a81c248deec7a6b39d7d88c4fbffe0940',1,'tlv::emv']]]
 ];
