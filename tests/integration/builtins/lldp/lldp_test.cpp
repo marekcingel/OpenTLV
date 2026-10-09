@@ -178,7 +178,8 @@ TEST(Integration_Tlv_Lldp, DocumentQueryCodecEditAndStructuralRevalidation) {
     std::unique_ptr<tlv_document_t, decltype(&tlv_document_free)> doc(raw, tlv_document_free);
     tlv_query_t                                                   query{};
     ASSERT_EQ(TLV_OK, tlv_query_parse("03", &query, nullptr));
-    auto* ttl_node = tlv_document_find_path(doc.get(), &query);
+    tlv_node_t* ttl_node = nullptr;
+    ASSERT_EQ(TLV_OK, tlv_document_find_path(doc.get(), &query, &ttl_node));
     ASSERT_NE(nullptr, ttl_node);
     const uint16_t ttl = 300;
     uint8_t        value[2];
@@ -331,7 +332,9 @@ TEST(Integration_Tlv_Lldp, ReaderDefinitionsAndQueryUseTypeWithoutProtocolSemant
     tlv_document_t* raw = nullptr;
     ASSERT_EQ(TLV_OK, tlv_document_parse(wire, sizeof(wire), &options, &raw, nullptr));
     std::unique_ptr<tlv_document_t, decltype(&tlv_document_free)> doc(raw, tlv_document_free);
-    EXPECT_NE(nullptr, tlv_document_find_path(doc.get(), &query));
+    tlv_node_t*                                                   found = nullptr;
+    ASSERT_EQ(TLV_OK, tlv_document_find_path(doc.get(), &query, &found));
+    EXPECT_NE(nullptr, found);
     uint8_t output[sizeof(wire)]{};
     size_t  written = 0;
     ASSERT_EQ(TLV_OK, tlv_document_encode(doc.get(), output, sizeof(output), &written));

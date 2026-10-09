@@ -438,7 +438,9 @@ TLV_API tlv_node_t* tlv_node_parent(const tlv_node_t* node);
  * @param[in] parent   Node whose children are searched, or `NULL` for the top level.
  * @param[in] tag      Tag to look for, compared by contents like tlv_tag_equal().
  *
- * @return The first matching child in encoding order, or `NULL`.
+ * @return The first matching child in encoding order, or `NULL` for no match,
+ * an invalid Tag, or a NULL Document when searching the top level. This lookup
+ * has no separate failure channel; it does not validate parent ownership.
  */
 TLV_API tlv_node_t* tlv_document_find(const tlv_document_t* document, const tlv_node_t* parent,
                                       tlv_tag_t tag);
@@ -460,7 +462,7 @@ typedef tlv_visit_result_t (*tlv_document_query_visitor_t)(tlv_node_t* node, voi
  * @param visitor Required callback.
  * @param context Optional caller context.
  * @return OK on exhaustion or STOP, NULL_ARG for missing arguments, Query validation
- * errors, or VISITOR for ERROR or an unknown callback result.
+ * errors, VISITOR for ERROR, or CALLBACK for an unknown callback result.
  * @warning Do not mutate or destroy the Document during traversal. Nodes borrow it.
  * Callback effects are not rolled back on failure.
  * @note Never allocates.
@@ -566,12 +568,18 @@ TLV_API tlv_result_t tlv_document_query_program_visit(struct tlv_query_exec* exe
  *
  * @param[in] document Document to search.
  * @param[in] query    Parsed query.
+ * @param[out] node    Required output; receives the first borrowed matching node,
+ *                    or `NULL` when no node matches. Must not overlap the inputs.
  *
- * @return The first addressed node, or `NULL` if none, or if an argument is `NULL` or the
- *         query is empty.
+ * @return #TLV_OK on a completed search, including no match.
+ * @return #TLV_ERR_NULL_ARG if a required argument is `NULL`.
+ * @return #TLV_ERR_INVALID_ARG if the query is empty or has an invalid step count.
+ * @return #TLV_ERR_INVALID_TAG_SIZE if the query contains invalid step boundaries.
+ * @note Never allocates. On failure, `*node` is unchanged. Query validation happens
+ * even for an empty Document. The returned node borrows the Document.
  */
-TLV_API tlv_node_t* tlv_document_find_path(const tlv_document_t* document,
-                                           const tlv_query_t* query);
+TLV_API tlv_result_t tlv_document_find_path(const tlv_document_t* document,
+                                            const tlv_query_t* query, tlv_node_t** node);
 
 /** @} */
 

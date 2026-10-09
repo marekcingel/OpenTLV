@@ -280,7 +280,9 @@ TEST(Integration_Tlv_Emv, GenericQueryAndDocumentUseEmvFraming) {
     tlv_document_t* raw = nullptr;
     ASSERT_EQ(TLV_OK, tlv_document_parse(wire, sizeof(wire), &options, &raw, nullptr));
     std::unique_ptr<tlv_document_t, decltype(&tlv_document_free)> doc(raw, tlv_document_free);
-    ASSERT_NE(nullptr, tlv_document_find_path(doc.get(), &query));
+    tlv_node_t*                                                   found = nullptr;
+    ASSERT_EQ(TLV_OK, tlv_document_find_path(doc.get(), &query, &found));
+    ASSERT_NE(nullptr, found);
     uint8_t output[sizeof(wire)] = {};
     size_t  written = 0;
     ASSERT_EQ(TLV_OK, tlv_document_encode(doc.get(), output, sizeof(output), &written));

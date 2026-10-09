@@ -190,7 +190,13 @@ static int document_new(lua_State* L) {
 static tlv_node_t* find_path(lua_State* L, document_t* self, int arg) {
     tlv_query_t        scratch;
     const tlv_query_t* query = opentlv_lua_check_query(L, arg, &scratch);
-    return tlv_document_find_path(self->document, query);
+    tlv_node_t*        node = NULL;
+    tlv_result_t       code = tlv_document_find_path(self->document, query, &node);
+    if (code != TLV_OK) {
+        opentlv_lua_raise(L, code, 0, 0);
+        return NULL;
+    }
+    return node;
 }
 
 /* Mutations accept either a path/Query or a live node owned by this document. */

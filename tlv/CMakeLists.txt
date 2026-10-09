@@ -21,6 +21,7 @@ add_library(${PROJECT_NAME} ${_tlv_library_type}
     src/formats/escaped.c
     src/copy.c
     src/diagnostic.c
+    src/diagnostic_strings.c
     src/tag.c
     src/endian.c
     src/size.c

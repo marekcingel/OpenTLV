@@ -89,8 +89,8 @@ typedef struct {
  * @param[in] tag    Tag to find.
  *
  * @return The first matching entry, borrowed from the schema's table.
- * @return `NULL` for an unknown tag, `NULL` arguments, or a missing nonempty
- *         table.
+ * @return `NULL` for an unknown tag, `NULL` arguments, an invalid lookup tag,
+ *         or a missing nonempty table. No separate failure channel is provided.
  */
 TLV_API const tlv_schema_entry_t* tlv_schema_find(const tlv_schema_t* schema, const tlv_tag_t* tag);
 
@@ -276,6 +276,7 @@ typedef enum tlv_schema_unknown_policy {
  *
  * @return A static, NUL-terminated string such as `"missing"` or `"order"`, never `NULL`;
  *         an unrecognized value yields `"unknown"`.
+ * @note Available even when Schema processing is disabled; never allocates.
  */
 TLV_API const char* tlv_schema_issue_kind_string(tlv_schema_issue_kind_t kind);
 
@@ -288,6 +289,16 @@ typedef enum tlv_schema_definition_kind {
     TLV_SCHEMA_DEFINITION_TYPE,        /**< The owner is a DER Schema type. */
     TLV_SCHEMA_DEFINITION_COMPONENT    /**< Indexed component in the owner DER type. */
 } tlv_schema_definition_kind_t;
+
+/**
+ * @brief Returns the diagnostic name of a schema definition kind.
+ *
+ * @param[in] value Diagnostic enum value.
+ * @return A static NUL-terminated string, or `"unknown"` for an unrecognized value.
+ * @note Never returns NULL or allocates. Do not free or modify the string.
+ * Available even when the corresponding capability is disabled.
+ */
+TLV_API const char* tlv_schema_definition_kind_string(tlv_schema_definition_kind_t value);
 
 /** @brief Native definition evidence, independent of wire/text byte locations.
  * @note The API determines the owner's type. For DER OF types, component index zero

@@ -74,7 +74,8 @@ TEST(Integration_Tlv_NfcType2, QueryAndDocumentPreserveControlElementsAndOffsets
                                                  0, 5, visit, &matches, nullptr));
         EXPECT_EQ(offsets[i], matches);
 #if OPENTLV_DOCUMENT
-        auto* node = tlv_document_find_path(doc.get(), &query);
+        tlv_node_t* node = nullptr;
+        ASSERT_EQ(TLV_OK, tlv_document_find_path(doc.get(), &query, &node));
         ASSERT_NE(nullptr, node);
         EXPECT_EQ(lengths[i], tlv_node_value_size(node));
         EXPECT_EQ(0, tlv_node_is_constructed(node));

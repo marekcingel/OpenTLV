@@ -355,15 +355,21 @@ impl<'f> Document<'f> {
         // SAFETY: exclusive document access, valid tag.
         self.node_mut(unsafe { native::tlv_document_find(self.raw, ptr::null(), tag.raw()) })
     }
-    /// First path match using the canonical parsed Query engine.
-    pub fn find_path(&self, query: &Query) -> Option<Node<'_, 'f>> {
+    /// First path match using the canonical parsed Query engine; no match is `Ok(None)`.
+    /// Native validation failures are returned without changing their error category.
+    pub fn find_path(&self, query: &Query) -> Result<Option<Node<'_, 'f>>> {
+        let mut raw = ptr::null_mut();
         // SAFETY: live query and document; result borrows this document.
-        self.node(unsafe { native::tlv_document_find_path(self.raw, &query.raw) })
+        Error::check(unsafe { native::tlv_document_find_path(self.raw, &query.raw, &mut raw) })?;
+        Ok(self.node(raw))
     }
-    /// First path match with exclusive mutation access.
-    pub fn find_path_mut(&mut self, query: &Query) -> Option<NodeMut<'_, 'f>> {
+    /// First path match with exclusive mutation access; no match is `Ok(None)`.
+    /// Native validation failures are returned without changing their error category.
+    pub fn find_path_mut(&mut self, query: &Query) -> Result<Option<NodeMut<'_, 'f>>> {
+        let mut raw = ptr::null_mut();
         // SAFETY: exclusive document access, valid parsed query.
-        self.node_mut(unsafe { native::tlv_document_find_path(self.raw, &query.raw) })
+        Error::check(unsafe { native::tlv_document_find_path(self.raw, &query.raw, &mut raw) })?;
+        Ok(self.node_mut(raw))
     }
     /// Append a copied top-level element. Constructed values are parsed by C.
     pub fn append(&mut self, tag: &Tag, value: &[u8]) -> Result<NodeMut<'_, 'f>> {

@@ -26,6 +26,23 @@ typedef enum tlv_reader_operation {
     TLV_READER_OP_HEADER
 } tlv_reader_operation_t;
 
+#ifdef __cplusplus
+extern "C" {
+#endif
+
+/**
+ * @brief Returns the diagnostic name of a reader operation.
+ *
+ * @param[in] value Diagnostic enum value.
+ * @return A static NUL-terminated string, or `"unknown"` for an unrecognized value.
+ * @note Never returns NULL or allocates. Do not free or modify the string.
+ * Available even when the corresponding capability is disabled.
+ */
+TLV_API const char* tlv_reader_operation_string(tlv_reader_operation_t value);
+#ifdef __cplusplus
+}
+#endif
+
 /**
  * @brief Reader-specific failure evidence without common diagnostic metadata.
  * @note Fields with a zero has_* flag are unset. Tag and raw-length bytes borrow

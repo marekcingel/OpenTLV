@@ -16,12 +16,32 @@ typedef enum tlv_codec_operation {
     TLV_CODEC_OP_ENCODE, /**< Encode an application representation. */
     TLV_CODEC_OP_MEASURE /**< Validate and measure without writing. */
 } tlv_codec_operation_t;
+
+/**
+ * @brief Returns the diagnostic name of a codec operation.
+ *
+ * @param[in] value Diagnostic enum value.
+ * @return A static NUL-terminated string, or `"unknown"` for an unrecognized value.
+ * @note Never returns NULL or allocates. Do not free or modify the string.
+ * Available even when the corresponding capability is disabled.
+ */
+TLV_API const char* tlv_codec_operation_string(tlv_codec_operation_t value);
 /** @brief Origin of the optional delegated cause. */
 typedef enum tlv_codec_cause {
     TLV_CODEC_CAUSE_NONE,   /**< No lower-layer detail was supplied. */
     TLV_CODEC_CAUSE_READER, /**< Reader detail is active. */
     TLV_CODEC_CAUSE_SCHEMA  /**< Schema detail is active. */
 } tlv_codec_cause_t;
+
+/**
+ * @brief Returns the diagnostic name of a codec cause.
+ *
+ * @param[in] value Diagnostic enum value.
+ * @return A static NUL-terminated string, or `"unknown"` for an unrecognized value.
+ * @note Never returns NULL or allocates. Do not free or modify the string.
+ * Available even when the corresponding capability is disabled.
+ */
+TLV_API const char* tlv_codec_cause_string(tlv_codec_cause_t value);
 /** @brief Detected callback contract violation, independent of a returned failure. */
 typedef enum tlv_codec_violation {
     TLV_CODEC_VIOLATION_NONE,   /**< No detected callback breach. */
@@ -30,6 +50,16 @@ typedef enum tlv_codec_violation {
     TLV_CODEC_VIOLATION_TYPE,   /**< Successful conversion has the wrong type or span. */
     TLV_CODEC_VIOLATION_UTF8    /**< Successful text result is not valid UTF-8. */
 } tlv_codec_violation_t;
+
+/**
+ * @brief Returns the diagnostic name of a codec violation.
+ *
+ * @param[in] value Diagnostic enum value.
+ * @return A static NUL-terminated string, or `"unknown"` for an unrecognized value.
+ * @note Never returns NULL or allocates. Do not free or modify the string.
+ * Available even when the corresponding capability is disabled.
+ */
+TLV_API const char* tlv_codec_violation_string(tlv_codec_violation_t value);
 /** @brief Schema cause fields without a second copy of the common diagnostic.
  * @note Tag, field and definition owner borrow the original input/schema.
  */

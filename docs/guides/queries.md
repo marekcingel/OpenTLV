@@ -425,9 +425,10 @@ The public APIs differ in whether they return one match or a collection:
 
 ```c
 tlv_query_t query;
-size_t text_offset;
-if (tlv_query_parse("6F/A5/50", &query, &text_offset) != TLV_OK) return 1;
-const tlv_node_t* label = tlv_document_find_path(document, &query);
+tlv_diagnostic_t diagnostic;
+if (tlv_query_parse("6F/A5/50", &query, &diagnostic) != TLV_OK) return 1;
+tlv_node_t* label = NULL;
+if (tlv_document_find_path(document, &query, &label) != TLV_OK) return 1;
 if (label) {
     const uint8_t* value = tlv_node_value_data(label);
     size_t size = tlv_node_value_size(label);
@@ -435,7 +436,7 @@ if (label) {
 }
 ```
 
-No match is `NULL`. C also offers `tlv_document_query_visit()` for all matches.
+A completed search returns `TLV_OK`, with `NULL` for no match. Failures leave the output unchanged. C also offers `tlv_document_query_visit()` for all matches.
 
 ///
 
@@ -458,12 +459,12 @@ if (label) {
 
 ```rust
 let query = opentlv::Query::parse("6F/A5/50")?;
-if let Some(label) = document.find_path(&query) {
+if let Some(label) = document.find_path(&query)? {
     let value = label.value(); // borrows Document storage
 }
 ```
 
-No match is `None`. Query parse errors retain the byte offset; `?` propagates them.
+No match is `Ok(None)`. Lookup and parse errors propagate through `?`; parse errors retain their location.
 
 ///
 

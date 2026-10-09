@@ -42,11 +42,35 @@ TLV_API uint32_t tlv_version_minor(void);
 TLV_API uint32_t tlv_version_patch(void);
 TLV_API uint64_t tlv_version_revision(void);
 
+/**
+ * @brief Returns the linked library's prerelease label.
+ * @return A static NUL-terminated string, never NULL; do not free or modify it.
+ */
 TLV_API const char* tlv_version_prerelease(void);
+/**
+ * @brief Returns the linked library's complete version string.
+ * @return A static NUL-terminated string, never NULL; do not free or modify it.
+ */
 TLV_API const char* tlv_version_string(void);
+/**
+ * @brief Returns the linked library's Git commit hash.
+ * @return A static NUL-terminated string, never NULL; do not free or modify it.
+ */
 TLV_API const char* tlv_version_git_commit_hash(void);
+/**
+ * @brief Returns the linked library's Git branch name.
+ * @return A static NUL-terminated string, never NULL; do not free or modify it.
+ */
 TLV_API const char* tlv_version_git_branch(void);
+/**
+ * @brief Returns the linked library's Git tag.
+ * @return A static NUL-terminated string, never NULL; do not free or modify it.
+ */
 TLV_API const char* tlv_version_git_tag(void);
+/**
+ * @brief Returns the linked library's Git describe metadata.
+ * @return A static NUL-terminated string, never NULL; do not free or modify it.
+ */
 TLV_API const char* tlv_version_git_repo(void);
 
 #ifdef __cplusplus

@@ -70,6 +70,16 @@ typedef enum tlv_query_error_kind {
     TLV_QUERY_ERROR_IMAGE          /**< Malformed stored program image. */
 } tlv_query_error_kind_t;
 
+/**
+ * @brief Returns the diagnostic name of a query error kind.
+ *
+ * @param[in] value Diagnostic enum value.
+ * @return A static NUL-terminated string, or `"unknown"` for an unrecognized value.
+ * @note Never returns NULL or allocates. Do not free or modify the string.
+ * Available even when the corresponding capability is disabled.
+ */
+TLV_API const char* tlv_query_error_kind_string(tlv_query_error_kind_t value);
+
 /** @brief Earliest publication frontier for the conservatively selected backend. */
 typedef enum tlv_query_decision_timing {
     TLV_QUERY_DECISION_NODE,  /**< Complete BEGIN/ELEMENT publication. */

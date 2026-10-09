@@ -44,8 +44,13 @@ static tlv_visit_result_t first_path_match(tlv_node_t* node, void* context) {
     return TLV_VISIT_STOP;
 }
 
-tlv_node_t* tlv_document_find_path(const tlv_document_t* document, const tlv_query_t* query) {
+tlv_result_t tlv_document_find_path(const tlv_document_t* document, const tlv_query_t* query,
+                                    tlv_node_t** node) {
     tlv_node_t* result = NULL;
-    (void)tlv_document_query_visit(document, query, first_path_match, &result);
-    return result;
+    tlv_result_t rc;
+    if (!node) return TLV_ERR_NULL_ARG;
+    rc = tlv_document_query_visit(document, query, first_path_match, &result);
+    if (rc != TLV_OK) return rc;
+    *node = result;
+    return TLV_OK;
 }

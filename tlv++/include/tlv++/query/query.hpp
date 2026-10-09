@@ -23,15 +23,15 @@ struct query_access;
 }
 /// @endcond
 
-/** @brief Query compilation failure with the original C error and text offset. */
+/** @brief Query compilation or lookup failure with the original C error and location. */
 class query_error : public std::runtime_error {
 public:
-    /** @brief Retain compilation error code and offending text position. */
+    /** @brief Retain the original failure code and optional evidence location. */
     query_error(tlv_result_t code, tlv_diagnostic_t diagnostic)
         : std::runtime_error(tlv_strerror(code)), code_(code), diagnostic_(diagnostic) {
         diagnostic_.code = code;
     }
-    /** @brief Original C compilation result. */
+    /** @brief Original C compilation or lookup result. */
     tlv_result_t code() const noexcept {
         return code_;
     }

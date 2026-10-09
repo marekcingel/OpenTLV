@@ -1195,7 +1195,13 @@ static PyObject* _opentlv_document_find_path(PyObject* module, PyObject* args) {
         raise_reader_error(code, &error_offset);
         return NULL;
     }
-    return node_to_py(tlv_document_find_path(document, &query));
+    tlv_node_t* node = NULL;
+    code = tlv_document_find_path(document, &query, &node);
+    if (code != TLV_OK) {
+        raise_reader_error(code, NULL);
+        return NULL;
+    }
+    return node_to_py(node);
 }
 
 /* document_insert(capsule, parent, before, tag, value) -> int (the new node) */

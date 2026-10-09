@@ -127,7 +127,9 @@ int main(void) {
         {
             tlv_query_t query;
             CHECK(tlv_query_parse("02/01", &query, NULL) == TLV_OK);
-            CHECK(tlv_document_find_path(document, &query) == child);
+            tlv_node_t* found = NULL;
+            CHECK(tlv_document_find_path(document, &query, &found) == TLV_OK);
+            CHECK(found == child);
         }
 #endif
 #if OPENTLV_WRITER

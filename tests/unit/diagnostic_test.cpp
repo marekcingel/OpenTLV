@@ -2,6 +2,10 @@
 // Copyright (c) 2026 Marek Cingel
 
 #include "tlv/diagnostic.h"
+#include "tlv/reader/diagnostic.h"
+#include "tlv/writer/writer.h"
+#include "tlv/query/program.h"
+#include "tlv/codec/diagnostic.h"
 #include "../diagnostic_invariant.h"
 #include <gtest/gtest.h>
 #include <cstring>
@@ -371,4 +375,14 @@ TEST(Unit_Tlv_Diagnostic, TruncatedPathStringMarksOmissionsAndMeasuresSuffix) {
     path.omitted = SIZE_MAX;
     EXPECT_EQ(TLV_ERR_BUFFER_TOO_SHORT, tlv_diagnostic_path_push(&path, TLV_TAG(0x77)));
     EXPECT_EQ(SIZE_MAX, path.omitted);
+}
+
+TEST(Unit_Tlv_Diagnostic, CanonicalNamesLinkFromCpp) {
+    EXPECT_STREQ("header", tlv_reader_operation_string(TLV_READER_OP_HEADER));
+    EXPECT_STREQ("end", tlv_writer_operation_string(TLV_WRITER_OP_END));
+    EXPECT_STREQ("image_version", tlv_query_error_kind_string(TLV_QUERY_ERROR_IMAGE_VERSION));
+    EXPECT_STREQ("component", tlv_schema_definition_kind_string(TLV_SCHEMA_DEFINITION_COMPONENT));
+    EXPECT_STREQ("measure", tlv_codec_operation_string(TLV_CODEC_OP_MEASURE));
+    EXPECT_STREQ("schema", tlv_codec_cause_string(TLV_CODEC_CAUSE_SCHEMA));
+    EXPECT_STREQ("utf8", tlv_codec_violation_string(TLV_CODEC_VIOLATION_UTF8));
 }

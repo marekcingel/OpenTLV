@@ -99,7 +99,11 @@ fn owns_input_and_delegates_navigation_query_and_mutation() {
     };
     assert_eq!(document.len(), 3);
     let query = Query::parse("30/04").unwrap();
-    assert_eq!(document.find_path(&query).unwrap().value(), &[42]);
+    assert_eq!(document.find_path(&query).unwrap().unwrap().value(), &[42]);
+    assert!(document
+        .find_path(&Query::parse("FF").unwrap())
+        .unwrap()
+        .is_none());
     let root = document.first().unwrap();
     assert!(root.is_constructed());
     assert_eq!(
@@ -109,6 +113,7 @@ fn owns_input_and_delegates_navigation_query_and_mutation() {
     assert_eq!(root.next().unwrap().value(), &[]);
     document
         .find_path_mut(&query)
+        .unwrap()
         .unwrap()
         .set_value(&[43])
         .unwrap();

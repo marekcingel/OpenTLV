@@ -89,7 +89,8 @@ extern "C" {
     pub fn tlv_document_find_path(
         document: *const tlv_document_t,
         query: *const tlv_query_t,
-    ) -> *mut tlv_node_t;
+        node: *mut *mut tlv_node_t,
+    ) -> tlv_result_t;
     pub fn tlv_document_insert(
         document: *mut tlv_document_t,
         parent: *mut tlv_node_t,

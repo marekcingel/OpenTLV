@@ -138,7 +138,9 @@ TLV_API int tlv_asn1_bit_string_test(const tlv_asn1_bit_string_t* bits, size_t p
  * @param[in] position Bit position to find.
  *
  * @return The borrowed, NUL-terminated name of the entry whose `position` matches.
- * @return `NULL` if no entry matches.
+ * @return `NULL` if no entry matches or the matching entry's name is NULL.
+ * @note The caller must supply a valid table extent; this lookup does not
+ * validate the table and has no separate failure channel.
  */
 TLV_API const char* tlv_asn1_named_bit_find(const tlv_asn1_named_bit_t* names, size_t count,
                                             size_t position);
