@@ -1382,6 +1382,30 @@ static tlv_result_t write_input(uint8_t* data, size_t capacity, const tlv_der_sc
     return TLV_OK;
 }
 
+tlv_result_t tlv_der_schema_prepare(tlv_der_schema_checked_t* checked,
+                                    const tlv_der_schema_type_t* root,
+                                    tlv_schema_diagnostic_t* diagnostic) {
+    tlv_result_t rc;
+    if (!checked) {
+        if (diagnostic) tlv_schema_diagnostic_init(diagnostic);
+        return publish(TLV_ERR_NULL_ARG, TLV_LOCATION_DOMAIN_UNKNOWN, diagnostic);
+    }
+    checked->root = NULL;
+    rc = tlv_der_schema_check(root, diagnostic);
+    if (rc == TLV_OK) checked->root = root;
+    return rc;
+}
+
+/* Reads with a root whose definition has already been checked. */
+static tlv_result_t read_checked(const uint8_t* data, size_t size,
+                                 const tlv_der_schema_type_t* root,
+                                 const tlv_der_schema_limits_t* limits, tlv_element_t* element,
+                                 size_t* consumed, tlv_schema_diagnostic_t* diagnostic) {
+    tlv_result_t rc = read_input(data, size, root, limits, element, consumed,
+                                 diagnostic ? &diagnostic->diagnostic : NULL, diagnostic);
+    return publish(rc, TLV_LOCATION_INPUT, diagnostic);
+}
+
 tlv_result_t tlv_der_schema_read(const uint8_t* data, size_t size,
                                  const tlv_der_schema_type_t* root,
                                  const tlv_der_schema_limits_t* limits, tlv_element_t* element,
@@ -1392,9 +1416,37 @@ tlv_result_t tlv_der_schema_read(const uint8_t* data, size_t size,
         return publish(TLV_ERR_NULL_ARG, TLV_LOCATION_DOMAIN_UNKNOWN, diagnostic);
     rc = tlv_der_schema_check(root, diagnostic);
     if (rc != TLV_OK) return rc;
-    rc = read_input(data, size, root, limits, element, consumed,
-                    diagnostic ? &diagnostic->diagnostic : NULL, diagnostic);
-    return publish(rc, TLV_LOCATION_INPUT, diagnostic);
+    return read_checked(data, size, root, limits, element, consumed, diagnostic);
+}
+
+tlv_result_t tlv_der_schema_read_checked(const tlv_der_schema_checked_t* checked,
+                                         const uint8_t* data, size_t size,
+                                         const tlv_der_schema_limits_t* limits,
+                                         tlv_element_t* element, size_t* consumed,
+                                         tlv_schema_diagnostic_t* diagnostic) {
+    if (diagnostic) tlv_schema_diagnostic_init(diagnostic);
+    if (!checked || (!data && size) || !element || !consumed)
+        return publish(TLV_ERR_NULL_ARG, TLV_LOCATION_DOMAIN_UNKNOWN, diagnostic);
+    if (!checked->root)
+        return publish(TLV_ERR_INVALID_STATE, TLV_LOCATION_DOMAIN_UNKNOWN, diagnostic);
+    return read_checked(data, size, checked->root, limits, element, consumed, diagnostic);
+}
+
+/* Writes with a root whose definition has already been checked. */
+static tlv_result_t write_checked(uint8_t* data, size_t capacity, const tlv_der_schema_type_t* root,
+                                  tlv_der_schema_encode_fn encode, const void* context,
+                                  const tlv_der_schema_limits_t* limits, uint8_t* scratch_bytes,
+                                  size_t scratch_bytes_capacity, tlv_der_schema_record_t* scratch,
+                                  size_t scratch_capacity, size_t* written,
+                                  tlv_schema_diagnostic_t* diagnostic) {
+    int located = 0;
+    tlv_result_t rc =
+        write_input(data, capacity, root, encode, context, limits, scratch_bytes,
+                    scratch_bytes_capacity, scratch, scratch_capacity, written,
+                    diagnostic ? &diagnostic->diagnostic : NULL, diagnostic, &located);
+    if (diagnostic && !located)
+        memset(&diagnostic->diagnostic.location, 0, sizeof diagnostic->diagnostic.location);
+    return publish(rc, TLV_LOCATION_OUTPUT, diagnostic);
 }
 
 tlv_result_t tlv_der_schema_write(uint8_t* data, size_t capacity, const tlv_der_schema_type_t* root,
@@ -1403,7 +1455,6 @@ tlv_result_t tlv_der_schema_write(uint8_t* data, size_t capacity, const tlv_der_
                                   size_t scratch_bytes_capacity, tlv_der_schema_record_t* scratch,
                                   size_t scratch_capacity, size_t* written,
                                   tlv_schema_diagnostic_t* diagnostic) {
-    int located = 0;
     tlv_result_t rc;
     if (diagnostic) tlv_schema_diagnostic_init(diagnostic);
     if ((!data && capacity) || !root || !encode || !written ||
@@ -1411,10 +1462,23 @@ tlv_result_t tlv_der_schema_write(uint8_t* data, size_t capacity, const tlv_der_
         return publish(TLV_ERR_NULL_ARG, TLV_LOCATION_DOMAIN_UNKNOWN, diagnostic);
     rc = tlv_der_schema_check(root, diagnostic);
     if (rc != TLV_OK) return rc;
-    rc = write_input(data, capacity, root, encode, context, limits, scratch_bytes,
-                     scratch_bytes_capacity, scratch, scratch_capacity, written,
-                     diagnostic ? &diagnostic->diagnostic : NULL, diagnostic, &located);
-    if (diagnostic && !located)
-        memset(&diagnostic->diagnostic.location, 0, sizeof diagnostic->diagnostic.location);
-    return publish(rc, TLV_LOCATION_OUTPUT, diagnostic);
+    return write_checked(data, capacity, root, encode, context, limits, scratch_bytes,
+                         scratch_bytes_capacity, scratch, scratch_capacity, written, diagnostic);
+}
+
+tlv_result_t tlv_der_schema_write_checked(uint8_t* data, size_t capacity,
+                                          const tlv_der_schema_checked_t* checked,
+                                          tlv_der_schema_encode_fn encode, const void* context,
+                                          const tlv_der_schema_limits_t* limits,
+                                          uint8_t* scratch_bytes, size_t scratch_bytes_capacity,
+                                          tlv_der_schema_record_t* scratch, size_t scratch_capacity,
+                                          size_t* written, tlv_schema_diagnostic_t* diagnostic) {
+    if (diagnostic) tlv_schema_diagnostic_init(diagnostic);
+    if ((!data && capacity) || !checked || !encode || !written ||
+        (!scratch_bytes && scratch_bytes_capacity) || (!scratch && scratch_capacity))
+        return publish(TLV_ERR_NULL_ARG, TLV_LOCATION_DOMAIN_UNKNOWN, diagnostic);
+    if (!checked->root)
+        return publish(TLV_ERR_INVALID_STATE, TLV_LOCATION_DOMAIN_UNKNOWN, diagnostic);
+    return write_checked(data, capacity, checked->root, encode, context, limits, scratch_bytes,
+                         scratch_bytes_capacity, scratch, scratch_capacity, written, diagnostic);
 }

@@ -142,3 +142,130 @@ TEST(Integration_Tlv_DerSchema, CompositeStructureRoundTrips) {
                                           &generic_consumed, nullptr));
     EXPECT_EQ(output.size(), generic_consumed);
 }
+
+/* A prepared handle skips only the definition check: reads, writes, their
+ * diagnostics and limits
+ * match the plain API for the same schema. */
+TEST(Integration_Tlv_DerSchema, CheckedHandleMatchesPlainReadAndWrite) {
+    tlv_der_schema_component_t  members[2] = {Required(kInteger), Required(kOctetString)};
+    const tlv_der_schema_type_t root = {
+        TLV_DER_SCHEMA_SEQUENCE, 0, members, 2, nullptr, 0, 0, nullptr, 0};
+    tlv_der_schema_checked_t checked;
+    ASSERT_EQ(TLV_OK, tlv_der_schema_prepare(&checked, &root, nullptr));
+    EXPECT_EQ(&root, checked.root);
+
+    const std::vector<std::vector<uint8_t>> inputs = {
+        {0x30, 0x06, 0x02, 0x01, 0x05, 0x04, 0x01, 0xAB}, // valid
+        {0x30, 0x03, 0x02, 0x01, 0x05},                   // missing OCTET STRING
+        {0x30, 0x03, 0x04, 0x01, 0xAB},                   // wrong component
+        {0x30, 0x06, 0x02, 0x01},                         // truncated
+        {},                                               // absent root
+    };
+    for (size_t i = 0; i < inputs.size(); ++i) {
+        SCOPED_TRACE(i);
+        const auto&             wire = inputs[i];
+        tlv_element_t           plain_element{}, checked_element{};
+        size_t                  plain_consumed = 0, checked_consumed = 0;
+        tlv_schema_diagnostic_t plain, prepared;
+        const tlv_result_t expected = tlv_der_schema_read(wire.data(), wire.size(), &root, nullptr,
+                                                          &plain_element, &plain_consumed, &plain);
+        EXPECT_EQ(expected,
+                  tlv_der_schema_read_checked(&checked, wire.data(), wire.size(), nullptr,
+                                              &checked_element, &checked_consumed, &prepared));
+        EXPECT_EQ(plain_consumed, checked_consumed);
+        EXPECT_EQ(plain.diagnostic.code, prepared.diagnostic.code);
+        EXPECT_EQ(plain.diagnostic.location.domain, prepared.diagnostic.location.domain);
+        EXPECT_EQ(plain.diagnostic.location.kind, prepared.diagnostic.location.kind);
+        EXPECT_EQ(plain.diagnostic.location.begin, prepared.diagnostic.location.begin);
+        EXPECT_EQ(plain.kind, prepared.kind);
+    }
+
+    std::vector<ScriptEntry>             complete = {{&members[0], 0, true, {0x05}},
+                                                     {&members[1], 0, true, {0xAB}}};
+    std::vector<ScriptEntry>             incomplete = {{&members[0], 0, true, {0x05}}};
+    std::vector<uint8_t>                 arena(256);
+    std::vector<tlv_der_schema_record_t> records(4);
+    for (auto* script : {&complete, &incomplete}) {
+        uint8_t                 plain_output[32] = {0}, checked_output[32] = {0};
+        size_t                  plain_written = 0, checked_written = 0;
+        tlv_schema_diagnostic_t plain, prepared;
+        const tlv_result_t      expected = tlv_der_schema_write(
+            plain_output, sizeof plain_output, &root, ScriptEncode, script, nullptr, arena.data(),
+            arena.size(), records.data(), records.size(), &plain_written, &plain);
+        EXPECT_EQ(expected, tlv_der_schema_write_checked(
+                                checked_output, sizeof checked_output, &checked, ScriptEncode,
+                                script, nullptr, arena.data(), arena.size(), records.data(),
+                                records.size(), &checked_written, &prepared));
+        EXPECT_EQ(plain_written, checked_written);
+        EXPECT_EQ(0, std::memcmp(plain_output, checked_output, sizeof plain_output));
+        EXPECT_EQ(plain.diagnostic.code, prepared.diagnostic.code);
+        EXPECT_EQ(plain.diagnostic.location.domain, prepared.diagnostic.location.domain);
+        EXPECT_EQ(plain.diagnostic.location.kind, prepared.diagnostic.location.kind);
+        EXPECT_EQ(plain.diagnostic.location.begin, prepared.diagnostic.location.begin);
+        EXPECT_EQ(plain.kind, prepared.kind);
+    }
+}
+
+TEST(Integration_Tlv_DerSchema, CheckedHandleKeepsLimitsAndRejectsInvalidUse) {
+    tlv_der_schema_component_t  members[1] = {Required(kInteger)};
+    const tlv_der_schema_type_t root = {
+        TLV_DER_SCHEMA_SEQUENCE, 0, members, 1, nullptr, 0, 0, nullptr, 0};
+    /* A CHOICE alternative must be REQUIRED, so this definition is invalid. */
+    tlv_der_schema_component_t alternatives[1] = {
+        {&kInteger, TLV_DER_TAG_NONE, TLV_ASN1_UNIVERSAL, 0, TLV_DER_OPTIONAL, nullptr, 0}};
+    const tlv_der_schema_type_t invalid = {
+        TLV_DER_SCHEMA_CHOICE, 0, alternatives, 1, nullptr, 0, 0, nullptr, 0};
+    const uint8_t            wire[] = {0x30, 0x03, 0x02, 0x01, 0x05};
+    tlv_der_schema_checked_t checked;
+    tlv_schema_diagnostic_t  diagnostic;
+    tlv_element_t            element{};
+    size_t                   consumed = 0;
+    ASSERT_EQ(TLV_OK, tlv_der_schema_prepare(&checked, &root, nullptr));
+
+    tlv_der_schema_limits_t limits = tlv_der_schema_default_limits;
+    limits.base.max_input_size = sizeof wire - 1;
+    EXPECT_EQ(TLV_ERR_LIMIT, tlv_der_schema_read_checked(&checked, wire, sizeof wire, &limits,
+                                                         &element, &consumed, nullptr));
+    ASSERT_EQ(TLV_OK, tlv_der_schema_read_checked(&checked, wire, sizeof wire, nullptr, &element,
+                                                  &consumed, nullptr));
+    EXPECT_EQ(sizeof wire, consumed);
+
+    /* A failed preparation never leaves the handle on the previous definition. */
+    EXPECT_EQ(TLV_ERR_INVALID_SCHEMA, tlv_der_schema_prepare(&checked, &invalid, &diagnostic));
+    EXPECT_EQ(nullptr, checked.root);
+    EXPECT_EQ(TLV_SCHEMA_ISSUE_DEFINITION, diagnostic.kind);
+    EXPECT_EQ(TLV_ERR_INVALID_STATE,
+              tlv_der_schema_read_checked(&checked, wire, sizeof wire, nullptr, &element, &consumed,
+                                          &diagnostic));
+    EXPECT_EQ(TLV_ERR_INVALID_STATE, diagnostic.diagnostic.code);
+    EXPECT_EQ(TLV_LOCATION_UNKNOWN, diagnostic.diagnostic.location.kind);
+
+    std::vector<ScriptEntry> script = {{&members[0], 0, true, {0x05}}};
+    uint8_t                  scratch_bytes[64];
+    size_t                   written = 7;
+    EXPECT_EQ(TLV_ERR_INVALID_STATE,
+              tlv_der_schema_write_checked(nullptr, 0, &checked, ScriptEncode, &script, nullptr,
+                                           scratch_bytes, sizeof scratch_bytes, nullptr, 0,
+                                           &written, nullptr));
+    EXPECT_EQ(7u, written);
+
+    EXPECT_EQ(TLV_ERR_NULL_ARG, tlv_der_schema_prepare(nullptr, &root, &diagnostic));
+    EXPECT_EQ(TLV_ERR_NULL_ARG, diagnostic.diagnostic.code);
+    EXPECT_EQ(TLV_ERR_NULL_ARG, tlv_der_schema_prepare(&checked, nullptr, nullptr));
+    ASSERT_EQ(TLV_OK, tlv_der_schema_prepare(&checked, &root, nullptr));
+    EXPECT_EQ(TLV_ERR_NULL_ARG, tlv_der_schema_read_checked(nullptr, wire, sizeof wire, nullptr,
+                                                            &element, &consumed, nullptr));
+    EXPECT_EQ(TLV_ERR_NULL_ARG, tlv_der_schema_read_checked(&checked, wire, sizeof wire, nullptr,
+                                                            nullptr, &consumed, nullptr));
+    EXPECT_EQ(TLV_ERR_NULL_ARG,
+              tlv_der_schema_write_checked(nullptr, 0, nullptr, ScriptEncode, &script, nullptr,
+                                           scratch_bytes, sizeof scratch_bytes, nullptr, 0,
+                                           &written, nullptr));
+    EXPECT_EQ(TLV_ERR_NULL_ARG, tlv_der_schema_write_checked(
+                                    nullptr, 0, &checked, nullptr, &script, nullptr, scratch_bytes,
+                                    sizeof scratch_bytes, nullptr, 0, &written, nullptr));
+    ASSERT_EQ(TLV_OK, tlv_der_schema_write_checked(nullptr, 0, &checked, ScriptEncode, &script,
+                                                   nullptr, scratch_bytes, sizeof scratch_bytes,
+                                                   nullptr, 0, &written, nullptr));
+    EXPECT_EQ(sizeof wire, written);
+}

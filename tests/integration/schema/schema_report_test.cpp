@@ -525,5 +525,13 @@ TEST(Integration_Tlv_SchemaReport, DeepPathsKeepRootPrefixAndCountInnerOmissions
         EXPECT_EQ(depth - retained, diagnostic.diagnostic.path.omitted);
         for (size_t i = 0; i < retained; ++i)
             EXPECT_TRUE(tlv_tag_equal(tlv_tag(&tags[i], 1), diagnostic.diagnostic.path.tags[i]));
+
+        tlv_schema_diagnostic_t failFast;
+        ASSERT_EQ(TLV_ERR_SCHEMA, tlv_schema_validate(wire.data(), wire.size(), &tlv_format_ber,
+                                                      &schemas[0], 64, 100, &failFast));
+        ASSERT_EQ(retained, failFast.diagnostic.path.length);
+        EXPECT_EQ(depth - retained, failFast.diagnostic.path.omitted);
+        for (size_t i = 0; i < retained; ++i)
+            EXPECT_TRUE(tlv_tag_equal(tlv_tag(&tags[i], 1), failFast.diagnostic.path.tags[i]));
     }
 }

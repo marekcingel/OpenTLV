@@ -3,6 +3,7 @@
 
 #include "tlv/schema/schema.h"
 #include "tlv/reader/reader.h"
+#include "diagnostic_internal.h"
 #include "traversal_internal.h"
 #include "tlv/size.h"
 #include <string.h>
@@ -24,26 +25,13 @@ typedef struct collector {
     size_t depth;
 } collector_t;
 
-/* Expected-versus-actual detail for one violation, filled only for the kinds
- * it applies to; `rule` is the matched rule, or NULL for
- * TLV_SCHEMA_ISSUE_UNEXPECTED, which has none. For a group-level MISSING or
- * DUPLICATE, `group` is set instead of `rule`. */
-typedef struct violation_detail {
-    const tlv_structure_rule_t* rule;
-    int has_occurs;
-    size_t occurs;
-    int has_length;
-    size_t actual_length;
-    int has_form;
-    int actual_constructed;
-    const tlv_structure_group_t* group;
-} violation_detail_t;
-
-static void add_issue(collector_t* c, tlv_schema_issue_kind_t kind, const tlv_tag_t* tag,
-                      const size_t* offset, const violation_detail_t* detail) {
+/* Records one violation with its location and path, and returns the stored
+ * entry for kind-specific detail, or NULL once storage is full. */
+static tlv_schema_diagnostic_t* add_issue(collector_t* c, tlv_schema_issue_kind_t kind,
+                                          const tlv_tag_t* tag, const size_t* offset) {
     tlv_schema_diagnostic_report_t* report = c->diag_report;
     tlv_schema_diagnostic_t* diagnostic;
-    if (report->count++ >= report->capacity) return;
+    if (report->count++ >= report->capacity) return NULL;
     diagnostic = &report->diagnostics[report->count - 1];
     memset(diagnostic, 0, sizeof(*diagnostic));
     tlv_diagnostic_init(&diagnostic->diagnostic, TLV_ERR_SCHEMA, TLV_DIAGNOSTIC_SEVERITY_ERROR);
@@ -65,44 +53,13 @@ static void add_issue(collector_t* c, tlv_schema_issue_kind_t kind, const tlv_ta
             break;
         }
     }
-    if (detail && detail->group) {
-        const tlv_structure_group_t* group = detail->group;
-        diagnostic->field = group->name;
-        diagnostic->is_group = 1;
-        if (detail->has_occurs) {
-            diagnostic->has_occurs = 1;
-            diagnostic->min_occurs = group->min_occurs;
-            diagnostic->max_occurs = group->max_occurs;
-            diagnostic->occurs = detail->occurs;
-        }
-    } else if (detail && detail->rule) {
-        const tlv_structure_rule_t* rule = detail->rule;
-        diagnostic->field = rule->entry->name;
-        if (detail->has_occurs) {
-            diagnostic->has_occurs = 1;
-            diagnostic->min_occurs = rule->min_occurs;
-            diagnostic->max_occurs = rule->max_occurs;
-            diagnostic->occurs = detail->occurs;
-        }
-        if (detail->has_length) {
-            diagnostic->has_length = 1;
-            diagnostic->min_length = rule->entry->min_length;
-            diagnostic->max_length = rule->entry->max_length;
-            diagnostic->actual_length = detail->actual_length;
-            diagnostic->length_multiple = rule->entry->length_multiple;
-            diagnostic->length_flags = rule->entry->flags;
-        }
-        if (detail->has_form) {
-            diagnostic->has_form = 1;
-            diagnostic->expected_form = rule->kind;
-            diagnostic->actual_constructed = detail->actual_constructed;
-        }
-    }
+    return diagnostic;
 }
 
 /* Checks the rule table of a scope and its occurrence counts. */
 static tlv_result_t check_scope(const uint8_t* data, const tlv_format_t* format, collector_t* c,
                                 const frame_t* frame) {
+    tlv_schema_diagnostic_t* issue;
     tlv_result_t rc;
 
     for (size_t i = 0; i < frame->schema->count; ++i) {
@@ -114,14 +71,14 @@ static tlv_result_t check_scope(const uint8_t* data, const tlv_format_t* format,
             rc = tlv_read(data + pos, frame->end - pos, format, &element, &used);
             if (rc != TLV_OK) return rc;
             if (same_tag(&rule->entry->tag, &element.tag) && ++count > rule->max_occurs) {
-                violation_detail_t detail = {rule, 1, count, 0, 0, 0, 0, NULL};
-                add_issue(c, TLV_SCHEMA_ISSUE_DUPLICATE, &element.tag, &pos, &detail);
+                issue = add_issue(c, TLV_SCHEMA_ISSUE_DUPLICATE, &element.tag, &pos);
+                if (issue) schema_issue_occurs(issue, rule, NULL, count);
             }
             pos += used;
         }
         if (count < rule->min_occurs) {
-            violation_detail_t detail = {rule, 1, count, 0, 0, 0, 0, NULL};
-            add_issue(c, TLV_SCHEMA_ISSUE_MISSING, &rule->entry->tag, &frame->end, &detail);
+            issue = add_issue(c, TLV_SCHEMA_ISSUE_MISSING, &rule->entry->tag, &frame->end);
+            if (issue) schema_issue_occurs(issue, rule, NULL, count);
         }
     }
     for (size_t g = 0; g < frame->schema->group_count; ++g) {
@@ -142,16 +99,16 @@ static tlv_result_t check_scope(const uint8_t* data, const tlv_format_t* format,
                 if (frame->schema->rules[i].group == group->id &&
                     same_tag(&frame->schema->rules[i].entry->tag, &element.tag)) {
                     if (++count > group->max_occurs) {
-                        violation_detail_t detail = {NULL, 1, count, 0, 0, 0, 0, group};
-                        add_issue(c, TLV_SCHEMA_ISSUE_DUPLICATE, &element.tag, &pos, &detail);
+                        issue = add_issue(c, TLV_SCHEMA_ISSUE_DUPLICATE, &element.tag, &pos);
+                        if (issue) schema_issue_occurs(issue, NULL, group, count);
                     }
                     break;
                 }
             pos += used;
         }
         if (count < group->min_occurs) {
-            violation_detail_t detail = {NULL, 1, count, 0, 0, 0, 0, group};
-            add_issue(c, TLV_SCHEMA_ISSUE_MISSING, first_tag, &frame->end, &detail);
+            issue = add_issue(c, TLV_SCHEMA_ISSUE_MISSING, first_tag, &frame->end);
+            if (issue) schema_issue_occurs(issue, NULL, group, count);
         }
     }
     if (frame->schema->order == TLV_SCHEMA_ORDER_SEQUENCE) {
@@ -166,9 +123,8 @@ static tlv_result_t check_scope(const uint8_t* data, const tlv_format_t* format,
             for (size_t i = 0; i < frame->schema->count; ++i)
                 if (same_tag(&frame->schema->rules[i].entry->tag, &element.tag)) {
                     if (have_last && i < last_index) {
-                        violation_detail_t detail = {
-                            &frame->schema->rules[i], 0, 0, 0, 0, 0, 0, NULL};
-                        add_issue(c, TLV_SCHEMA_ISSUE_ORDER, &element.tag, &pos, &detail);
+                        issue = add_issue(c, TLV_SCHEMA_ISSUE_ORDER, &element.tag, &pos);
+                        if (issue) issue->field = frame->schema->rules[i].entry->name;
                     } else {
                         last_index = i;
                     }
@@ -219,7 +175,7 @@ static tlv_result_t validate_all(const uint8_t* data, size_t size, const tlv_for
             if (!rule) {
                 if (unknown == TLV_SCHEMA_UNKNOWN_REJECT ||
                     (unknown == TLV_SCHEMA_UNKNOWN_BY_SCHEMA && !current->allow_unknown))
-                    add_issue(c, TLV_SCHEMA_ISSUE_UNEXPECTED, &element.tag, &pos, NULL);
+                    (void)add_issue(c, TLV_SCHEMA_ISSUE_UNEXPECTED, &element.tag, &pos);
                 if (item.constructed && item.element.value.size)
                     (void)tlv_tree_reader_skip_subtree(&reader);
                 continue;
@@ -227,16 +183,18 @@ static tlv_result_t validate_all(const uint8_t* data, size_t size, const tlv_for
             rc = tlv_size_to_native(element.value.size, &value_length);
             if (rc != TLV_OK) return rc;
             if (tlv_schema_validate_length(rule->entry, value_length) != TLV_OK) {
-                violation_detail_t detail = {rule, 0, 0, 1, value_length, 0, 0, NULL};
-                add_issue(c, TLV_SCHEMA_ISSUE_LENGTH, &element.tag, &pos, &detail);
+                tlv_schema_diagnostic_t* issue =
+                    add_issue(c, TLV_SCHEMA_ISSUE_LENGTH, &element.tag, &pos);
+                if (issue) schema_issue_length(issue, rule, value_length);
             }
             constructed =
                 format->is_constructed && format->is_constructed(format->context, &element.tag);
             kind_ok = !((rule->kind == TLV_SCHEMA_PRIMITIVE && constructed) ||
                         (rule->kind == TLV_SCHEMA_CONSTRUCTED && !constructed));
             if (!kind_ok) {
-                violation_detail_t detail = {rule, 0, 0, 0, 0, 1, constructed, NULL};
-                add_issue(c, TLV_SCHEMA_ISSUE_KIND, &element.tag, &pos, &detail);
+                tlv_schema_diagnostic_t* issue =
+                    add_issue(c, TLV_SCHEMA_ISSUE_KIND, &element.tag, &pos);
+                if (issue) schema_issue_form(issue, rule, constructed);
             }
             if (kind_ok && rule->children) {
                 size_t start = (size_t)(element.value.data - data);
@@ -259,6 +217,23 @@ static tlv_result_t validate_all(const uint8_t* data, size_t size, const tlv_for
     return c->diag_report->count ? TLV_ERR_SCHEMA : TLV_OK;
 }
 
+/* Collects violations against a schema whose definition has already been checked. */
+static tlv_result_t report_checked(const uint8_t* data, size_t size, const tlv_format_t* format,
+                                   const tlv_structure_schema_t* schema, size_t max_depth,
+                                   size_t max_elements, tlv_schema_unknown_policy_t unknown,
+                                   tlv_schema_diagnostic_report_t* report,
+                                   tlv_schema_diagnostic_t* diagnostic) {
+    tlv_result_t rc;
+    collector_t c;
+    memset(&c, 0, sizeof(c));
+    c.diag_report = report;
+    rc = validate_all(data, size, format, schema, max_depth, max_elements, unknown, &c,
+                      diagnostic ? &diagnostic->diagnostic : NULL);
+    if (diagnostic) diagnostic->diagnostic.code = rc;
+    if (rc != TLV_OK && rc != TLV_ERR_SCHEMA) report->count = 0;
+    return rc;
+}
+
 tlv_result_t tlv_schema_validate_all_diag(const uint8_t* data, size_t size,
                                           const tlv_format_t* format,
                                           const tlv_structure_schema_t* schema, size_t max_depth,
@@ -266,7 +241,6 @@ tlv_result_t tlv_schema_validate_all_diag(const uint8_t* data, size_t size,
                                           tlv_schema_diagnostic_report_t* report,
                                           tlv_schema_diagnostic_t* diagnostic) {
     tlv_result_t rc;
-    collector_t c;
     if (!report) return TLV_ERR_NULL_ARG;
     report->count = 0;
     if (!schema || (!report->diagnostics && report->capacity)) return TLV_ERR_NULL_ARG;
@@ -275,11 +249,24 @@ tlv_result_t tlv_schema_validate_all_diag(const uint8_t* data, size_t size,
     if (diagnostic) tlv_schema_diagnostic_init(diagnostic);
     rc = tlv_schema_check(schema, diagnostic);
     if (rc != TLV_OK) return rc;
-    memset(&c, 0, sizeof(c));
-    c.diag_report = report;
-    rc = validate_all(data, size, format, schema, max_depth, max_elements, unknown, &c,
-                      diagnostic ? &diagnostic->diagnostic : NULL);
-    if (diagnostic) diagnostic->diagnostic.code = rc;
-    if (rc != TLV_OK && rc != TLV_ERR_SCHEMA) report->count = 0;
-    return rc;
+    return report_checked(data, size, format, schema, max_depth, max_elements, unknown, report,
+                          diagnostic);
+}
+
+tlv_result_t tlv_schema_validate_all_checked(const tlv_schema_checked_t* checked,
+                                             const uint8_t* data, size_t size,
+                                             const tlv_format_t* format, size_t max_depth,
+                                             size_t max_elements,
+                                             tlv_schema_unknown_policy_t unknown,
+                                             tlv_schema_diagnostic_report_t* report,
+                                             tlv_schema_diagnostic_t* diagnostic) {
+    if (!report) return TLV_ERR_NULL_ARG;
+    report->count = 0;
+    if (!checked || (!report->diagnostics && report->capacity)) return TLV_ERR_NULL_ARG;
+    if (unknown < TLV_SCHEMA_UNKNOWN_BY_SCHEMA || unknown > TLV_SCHEMA_UNKNOWN_REJECT)
+        return TLV_ERR_INVALID_ARG;
+    if (!checked->schema) return TLV_ERR_INVALID_STATE;
+    if (diagnostic) tlv_schema_diagnostic_init(diagnostic);
+    return report_checked(data, size, format, checked->schema, max_depth, max_elements, unknown,
+                          report, diagnostic);
 }

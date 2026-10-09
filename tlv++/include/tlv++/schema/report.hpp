@@ -115,6 +115,44 @@ private:
     template <size_t> friend class validation_report;
 };
 /**
+ * @brief Borrowed Schema whose definition was checked once, for repeated validation.
+ *
+ * Validation through this handle runs the same engine as validation with the
+ * plain `tlv::schema` but skips the per-call definition check. Runtime limits are
+ * still checked on every call. Copies share the same borrowed Schema.
+ * @warning The Schema storage must stay alive and unchanged while the handle is
+ * used; mutation is not detected. Prepare again after changing the definition.
+ */
+class checked_schema {
+public:
+    /**
+     * @brief Check a Schema definition once.
+     * @param definition Immutable borrowed Schema.
+     * @return The prepared handle, or the definition failure of tlv_schema_prepare().
+     */
+    static expected<checked_schema, error> prepare(schema definition) {
+        checked_schema          result;
+        tlv_schema_diagnostic_t diagnostic{};
+        if (tlv_schema_prepare(&result.raw_, detail::schema_access::get(definition), &diagnostic) !=
+            TLV_OK)
+            return unexpected<error>(detail::error_access::schema(diagnostic));
+        return result;
+    }
+    /** @brief The checked borrowed Schema. */
+    schema definition() const noexcept {
+        return detail::schema_access::borrow(raw_.schema);
+    }
+    /** @brief Native handle for the `_checked` C functions. */
+    const tlv_schema_checked_t& native() const noexcept {
+        return raw_;
+    }
+
+private:
+    checked_schema() noexcept = default;
+    tlv_schema_checked_t raw_{};
+};
+
+/**
  * @brief Caller-owned report storage retaining the first Capacity Schema violations.
  * @tparam Capacity Maximum retained violation count, including zero for counting only.
  * @warning Retained identifiers and names borrow input, Format and Schema storage.
@@ -149,6 +187,34 @@ public:
         total_ = report.count;
         if (rc != TLV_OK && rc != TLV_ERR_SCHEMA)
             return unexpected<error>(detail::error_access::schema(diagnostic));
+        return total_;
+    }
+    /**
+     * @brief Collect structural violations against a prepared Schema without rechecking it.
+     * @param input Immutable borrowed wire bytes.
+     * @param format Readable borrowed Format.
+     * @param definition Prepared Schema; its storage must be unchanged since preparation.
+     * @param unknown Override for unknown identifiers.
+     * @param max_depth Maximum nesting depth.
+     * @param max_elements Maximum element count.
+     * @return Total violations (possibly greater than capacity), or a wire/argument failure.
+     */
+    expected<size_t, error> validate(bytes input, tlv::format format,
+                                     const checked_schema& definition,
+                                     unknown_policy        unknown = unknown_policy::by_schema,
+                                     size_t                max_depth = TLV_SCHEMA_MAX_DEPTH,
+                                     size_t                max_elements = SIZE_MAX) {
+        tlv_schema_diagnostic_report_t report{storage_.data(), Capacity, 0};
+        tlv_schema_diagnostic_t        diagnostic{};
+        const auto                     rc = tlv_schema_validate_all_checked(
+            &definition.native(), reinterpret_cast<const uint8_t*>(input.data()), input.size(),
+            &detail::format_access::get(format), max_depth, max_elements,
+            static_cast<tlv_schema_unknown_policy_t>(unknown), &report, &diagnostic);
+        total_ = report.count;
+        if (rc != TLV_OK && rc != TLV_ERR_SCHEMA) {
+            diagnostic.diagnostic.code = rc;
+            return unexpected<error>(detail::error_access::schema(diagnostic));
+        }
         return total_;
     }
     /** @brief Number of retained violations. */

@@ -38,6 +38,27 @@ inline expected<void, error> validate(bytes data, tlv::format format, schema def
     return {};
 }
 
+/**
+ * @brief Validate wire structure against a prepared Schema without rechecking its definition.
+ * @param data Borrowed wire bytes.
+ * @param format Borrowed Format and immutable context.
+ * @param definition Prepared Schema; its storage must be unchanged since preparation.
+ * @param max_depth Maximum nesting depth, bounded by the canonical engine's capacity.
+ * @param max_elements Maximum element count.
+ * @return Success or a canonical error with the failure's absolute byte offset.
+ */
+inline expected<void, error> validate(bytes data, tlv::format format,
+                                      const checked_schema& definition,
+                                      size_t                max_depth = TLV_SCHEMA_MAX_DEPTH,
+                                      size_t                max_elements = SIZE_MAX) {
+    tlv_schema_diagnostic_t diagnostic{};
+    const auto              rc = tlv_schema_validate_checked(
+        &definition.native(), reinterpret_cast<const uint8_t*>(data.data()), data.size(),
+        &detail::format_access::get(format), max_depth, max_elements, &diagnostic);
+    if (rc != TLV_OK) return unexpected<error>(detail::error_access::schema(diagnostic));
+    return {};
+}
+
 /** @brief Explicit interoperability with native Schema tables and diagnostic storage. */
 namespace native {
 /** @brief C++ alias for the schema-specific diagnostic type, #tlv_schema_diagnostic_t. */

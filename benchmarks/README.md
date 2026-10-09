@@ -91,17 +91,20 @@ Google Benchmark's `--benchmark_context` when producing each input JSON.
 The `schema/` and `der_schema/` families measure generic Schema and DER Schema.
 Every complete `tlv_schema_validate()` or `tlv_der_schema_read()` call checks
 the whole reachable definition before reading input, so each schema shape has a
-`check` case (`tlv_schema_check()` or `tlv_der_schema_check()` only) and a
-complete `validate` or `read` case:
+`check` case (`tlv_schema_check()` or `tlv_der_schema_check()` only), a
+complete `validate` or `read` case, and a `validate_checked` or `read_checked`
+case that validates through a handle prepared once with `tlv_schema_prepare()`
+or `tlv_der_schema_prepare()`:
 
 | Shape | Cases | Input |
 | --- | --- | --- |
-| `shared` | `{schema,der_schema}/{check,validate or read}/shared` | `30 00` against 200 distinct tables or types, each referencing the next two |
-| `flat` | `{schema,der_schema}/{check,validate or read}/flat` | 256 primitive 16-byte Values against a 16-rule table, or a DER `SEQUENCE OF OCTET STRING` |
-| `recursive` | `{schema,der_schema}/{check,validate or read}/recursive` | `T = SEQUENCE OF T` with 16 chains of 20 nested empty SEQUENCEs |
+| `shared` | `{schema,der_schema}/{check,validate or read,validate_checked or read_checked}/shared` | `30 00` against 200 distinct tables or types, each referencing the next two |
+| `flat` | `{schema,der_schema}/{check,validate or read,validate_checked or read_checked}/flat` | 256 primitive 16-byte Values against a 16-rule table, or a DER `SEQUENCE OF OCTET STRING` |
+| `recursive` | `{schema,der_schema}/{check,validate or read,validate_checked or read_checked}/recursive` | `T = SEQUENCE OF T` with 16 chains of 20 nested empty SEQUENCEs |
 
 The Callgrind driver uses the same fixtures from
-`callgrind/schema_workloads.h`; see the
+`callgrind/schema_workloads.h`, without the prepared-handle cases, because it
+is also built against baseline checkouts that predate them; see the
 [Callgrind workloads](../docs/development/valgrind.md#compare-instruction-counts-and-native-timings).
 Schemas and inputs are built once, outside timing, and every call checks its
 result. `bytes_per_second` is reported only for complete cases that read input.
@@ -115,6 +118,23 @@ The cases need Schema with Reader and BER, or DER Schema; others are skipped.
 before definition checking can be done once and reused, as a baseline for that
 change. It is a Windows MSVC Release run with ten repetitions and generic host
 and executable labels.
+
+[`evidence/schema-575.json`](evidence/schema-575.json) records the same cases
+with prepared handles, run with `--benchmark_enable_random_interleaving=true`
+on the same host. Median CPU time per call:
+
+| Case | Plain | Prepared handle |
+| --- | --- | --- |
+| `schema/*/shared` | 25.0 us | 0.66 us |
+| `schema/*/flat` | 497 us | 523 us |
+| `schema/*/recursive` | 133 us | 126 us |
+| `der_schema/*/shared` | 20.3 us | 0.10 us |
+| `der_schema/*/flat` | 23.9 us | 21.9 us |
+| `der_schema/*/recursive` | 32.3 us | 26.2 us |
+
+Large-schema, small-input calls lose almost all of their cost. Large-input,
+small-schema calls are unchanged within this host's 20-35 % repetition
+variation.
 
 ## Public C++ Reader and Document
 

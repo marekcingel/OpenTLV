@@ -9,6 +9,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Fixed
 
+- Fix the diagnostic-return CI check for `tlv_schema_prepare()` by documenting its direct argument-error return. (#575)
+- Fix the C++ API documentation build and the C++ consumer-boundary check for prepared Schema handles. (#575)
 - Report JS/WASM path queries over the step or tag-byte limit with the `limit` Query kind instead of `syntax`. (#559)
 - Run the CLI Query conformance test in CTest and retain source locations in the `otlv query` Document backend, so match offsets and `@offset`/`@hlen` work there too. (#557)
 - Report Lua element-conversion failures with an input location, and keep large Lua location and Writer length values exact. (#558)
@@ -120,6 +122,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Changed
 
+- `tlv_schema_validate()` diagnostics carry the same tag, path, field name and expected-versus-actual detail as the first `tlv_schema_validate_all_diag()` entry. (#574)
 - Builtin Format callbacks write `tlv_format_error_t` only on failure, which makes successful decoding cheaper. Failure detail is unchanged; read it only after a failing result. (#561)
 - Generate the Rust, Go and Python diagnostic vocabularies from the C enums and check them in CI. Rust categories are `#[non_exhaustive]` with `Unrecognized(RawCategory)`; Python unknown categories are cached and label out-of-range values as `unknown`. (#557)
 - C++ `document::find()` throws `query_error` for an empty or invalid query instead of returning an empty node. (#557)
@@ -224,6 +227,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Added
 
+- Add prepared Schema handles that check a definition once for repeated validation: `tlv_schema_prepare()` and `tlv_der_schema_prepare()` with `_checked` validate, report, read and write functions, and C++ `tlv::checked_schema`. (#575)
 - Add generic and DER Schema workloads to the Callgrind comparison and Google Benchmark, measuring definition checking separately from input processing for a large shared schema, a large input and a recursive schema. (#573)
 - Add a Rust regression test that resumable Query `NEED_MORE_DATA` keeps its Reader cause and does not allocate common diagnostic metadata per chunk. (#558)
 - Add canonical names for Query, Reader, Writer, Schema-definition and Codec diagnostic enums, available even with processing capabilities disabled. Clarify lookup failure channels and current error-reference behavior. (#557)
