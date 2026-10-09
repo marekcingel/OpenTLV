@@ -5,6 +5,7 @@
 
 from __future__ import annotations
 from opentlv.location import Location
+from opentlv.diagnostic import Severity, SchemaIssue, SchemaDefinitionKind
 
 import enum
 import struct
@@ -180,8 +181,8 @@ class SchemaDiagnostic:
     path_omitted counts innermost scopes beyond the native path capacity.
     """
     code: int
-    severity: int
-    kind: int
+    severity: Severity
+    kind: SchemaIssue
     kind_name: str
     tag: Tag
     path: tuple[Tag, ...]
@@ -195,7 +196,7 @@ class SchemaDiagnostic:
     length_flags: int
     path_omitted: int = 0
     location: Location = Location()
-    definition_kind: int = 0
+    definition_kind: SchemaDefinitionKind = SchemaDefinitionKind.UNKNOWN
     definition_index: int = 0
 
 
@@ -203,12 +204,12 @@ def _diagnostic_from_native(item) -> SchemaDiagnostic:
     """Copy the canonical native Schema diagnostic into its public projection."""
     (code, severity, kind, name, tag, path, offset, field, group,
      occurs, length, form, multiple, flags, path_omitted, location, definition_kind, definition_index) = item
-    return SchemaDiagnostic(code, severity, kind, name, Tag(tag),
+    return SchemaDiagnostic(code, Severity(severity), SchemaIssue(kind), name, Tag(tag),
         tuple(Tag(t) for t in path), offset, field, bool(group),
         SchemaBounds(*occurs) if occurs is not None else None,
         SchemaBounds(*length) if length is not None else None,
         (Kind(form[0]), bool(form[1])) if form is not None else None,
-        multiple, flags, path_omitted, Location(**location), definition_kind, definition_index)
+        multiple, flags, path_omitted, Location(**location), SchemaDefinitionKind(definition_kind), definition_index)
 
 
 @dataclass(frozen=True)

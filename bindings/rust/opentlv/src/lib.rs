@@ -50,7 +50,7 @@
 //! Fallible operations return [`Result`], whose error is [`Error`]: one variant
 //! per C `TLV_ERR_*` code, [`Display`](std::fmt::Display)ed with the C
 //! description. [`SchemaError`] and [`ValidationError`] add the failing offset and
-//! [`CodecFailure`] maps the separate codec result codes. Malformed input never
+//! [`CodecFailure`] retains shared result codes and delegated codec evidence. Malformed input never
 //! panics. A [`Reader`] ends after its first error; a [`Writer`] that reports
 //! [`Error::BufferTooShort`] keeps its position.
 //!
@@ -73,6 +73,8 @@
 #![warn(missing_docs)]
 
 mod codec;
+mod diagnostic_kind;
+pub use diagnostic_kind::*;
 mod definition;
 pub use definition::{Definition, DefinitionRegistry};
 #[cfg(feature = "document")]
@@ -110,7 +112,7 @@ pub use fixed_format::{
 pub use format::Format;
 pub use query::{Query, QueryError, QueryMatcher};
 pub use reader::{read, read_fixed, Reader, ReaderError};
-pub use reader_diagnostic::ReaderDiagnostic;
+pub use reader_diagnostic::{DiagnosticContext, DiagnosticMetadata, ReaderDiagnostic};
 pub use schema::{
     Kind, LengthRule, LengthSchema, SchemaBounds, SchemaDiagnostic, SchemaDiagnosticReport,
     SchemaError, SchemaOrder, StructureGroup, StructureRule, StructureSchema, UnknownPolicy,

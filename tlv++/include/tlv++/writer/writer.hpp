@@ -11,6 +11,22 @@
 #include "tlv++/writer/value.hpp"
 
 namespace tlv {
+/** @brief Typed writer phase diagnostic category. */
+enum class writer_phase {
+    tag = TLV_WRITER_OP_TAG /**< Canonical tag category. */,
+    length = TLV_WRITER_OP_LENGTH /**< Canonical length category. */,
+    value = TLV_WRITER_OP_VALUE /**< Canonical value category. */,
+    header = TLV_WRITER_OP_HEADER /**< Canonical header category. */,
+    trailer = TLV_WRITER_OP_TRAILER /**< Canonical trailer category. */,
+    copy = TLV_WRITER_OP_COPY /**< Canonical copy category. */,
+    preserve = TLV_WRITER_OP_PRESERVE /**< Canonical preserve category. */,
+    begin = TLV_WRITER_OP_BEGIN /**< Canonical begin category. */,
+    end = TLV_WRITER_OP_END /**< Canonical end category. */
+};
+/** @brief Canonical static name, or unknown for unrecognized categories. */
+inline const char* message(writer_phase value) noexcept {
+    return tlv_writer_operation_string(static_cast<tlv_writer_operation_t>(value));
+}
 
 /**
  * @file writer.hpp
@@ -19,6 +35,10 @@ namespace tlv {
 
 /** @brief C++ alias for the writer-specific diagnostic type, #tlv_writer_diagnostic_t. */
 using writer_diagnostic = tlv_writer_diagnostic_t;
+/** @brief Typed operation associated with Writer evidence. */
+inline writer_phase phase(const writer_diagnostic& value) noexcept {
+    return static_cast<writer_phase>(value.operation);
+}
 /// @cond INTERNAL
 namespace detail {
 inline error writer_failed(tlv_result_t code, const writer_diagnostic& diagnostic) noexcept {

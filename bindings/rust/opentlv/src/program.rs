@@ -93,7 +93,7 @@ impl std::fmt::Debug for QueryProvider {
 }
 impl QueryProvider {
     /// Retain a decoder for all programs/executions using it. Panics are contained
-    /// at the FFI boundary and reported as native InvalidValue codec diagnostics.
+    /// at the FFI boundary and reported as native Callback diagnostics.
     pub fn new<F>(conversion: QueryConversion, id: u32, max_result_bytes: usize, decode: F) -> Self
     where
         F: Fn(&[u8], Option<QueryMetadata>) -> std::result::Result<QueryDecoded, Error>
@@ -186,12 +186,14 @@ unsafe extern "C" fn decode_provider(
 /// Complete owned native failure, independent of input/program lifetime.
 #[derive(Clone, Debug)]
 pub struct ProgramError {
+    /// Owned common diagnostic evidence, boxed to keep result values compact.
+    pub metadata: Box<crate::DiagnosticMetadata>,
     /// Primary evidence coordinates; Query spans remain related expression context.
-    pub location: crate::Location,
+    pub location: Box<crate::Location>,
     /// Original native status, including resumable NEED_MORE_DATA.
     pub error: Error,
     /// Native Query diagnostic category.
-    pub kind: i32,
+    pub kind: crate::QueryErrorKind,
     /// Inclusive Query byte offset.
     pub begin: usize,
     /// Exclusive Query byte offset.
@@ -219,11 +221,7 @@ impl ProgramError {
 }
 impl std::fmt::Display for ProgramError {
     fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
-        write!(
-            f,
-            "{} at Query bytes {}..{}",
-            self.error, self.begin, self.end
-        )
+        write!(f, "{} ({}) at {}", self.error, self.kind, self.location)
     }
 }
 impl std::error::Error for ProgramError {}
@@ -242,13 +240,21 @@ fn check(code: i32, diagnostic: &native::tlv_query_diagnostic_t) -> ProgramResul
                 })
             };
             ProgramError {
-                location: crate::Location::from_raw(diagnostic.diagnostic.location),
+                location: Box::new(crate::Location::from_raw(diagnostic.diagnostic.location)),
+                metadata: Box::new(crate::DiagnosticMetadata {
+                    expected: text(diagnostic.diagnostic.expected),
+                    actual: text(diagnostic.diagnostic.actual),
+                    severity: crate::Severity::from_raw(diagnostic.diagnostic.severity),
+                    contexts: crate::reader_diagnostic::contexts(&diagnostic.diagnostic),
+                    path: crate::reader_diagnostic::path(&diagnostic.diagnostic),
+                    path_omitted: diagnostic.diagnostic.path.omitted,
+                }),
                 error,
-                kind: if code == native::TLV_ERR_INVALID_STATE {
+                kind: crate::QueryErrorKind::from_raw(if code == native::TLV_ERR_INVALID_STATE {
                     native::TLV_QUERY_ERROR_STATE
                 } else {
                     diagnostic.kind
-                },
+                }),
                 begin: diagnostic.begin,
                 end: diagnostic.end,
                 expected: text(diagnostic.expected),
@@ -991,9 +997,10 @@ pub enum QueryEvent<'a> {
 unsafe fn project<'a>(event: &native::tlv_tree_event_t) -> ProgramResult<QueryMatch<'a>> {
     Ok(QueryMatch {
         element: unsafe { Element::from_raw(&event.element) }.map_err(|e| ProgramError {
-            location: crate::Location::default(),
+            location: Box::default(),
+            metadata: Box::default(),
             error: e,
-            kind: 0,
+            kind: crate::QueryErrorKind::None,
             begin: 0,
             end: 0,
             expected: None,
@@ -1370,9 +1377,10 @@ impl<'a> QueryExecution<'a> {
             capacity = match value_capacity {
                 Some(value) => value,
                 None => document.encoded_size().map_err(|error| ProgramError {
-                    location: crate::Location::default(),
+                    location: Box::default(),
+                    metadata: Box::default(),
                     error,
-                    kind: 0,
+                    kind: crate::QueryErrorKind::None,
                     begin: 0,
                     end: 0,
                     expected: None,

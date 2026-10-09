@@ -38,6 +38,10 @@ enum class query_issue {
     callback = TLV_QUERY_ERROR_CALLBACK,           /**< Callback failure. */
     state = TLV_QUERY_ERROR_STATE                  /**< Invalid lifecycle or callback reentrancy. */
 };
+/** @brief Canonical static Query category name, including unknown values. */
+inline const char* message(query_issue value) noexcept {
+    return tlv_query_error_kind_string(static_cast<tlv_query_error_kind_t>(value));
+}
 /** @brief Scalar result borrowing immutable input, program or execution storage until reset. */
 struct query_value {
     query_type kind;    /**< Result category; node sequences are consumed with next(). */
@@ -83,6 +87,7 @@ struct query_memory {
 };
 inline query_failure query_failed(tlv_result_t rc, tlv_query_diagnostic_t d = {}) {
     if (rc == TLV_ERR_INVALID_STATE) d.kind = TLV_QUERY_ERROR_STATE;
+    d.diagnostic.code = rc;
     return {rc, d};
 }
 } // namespace detail

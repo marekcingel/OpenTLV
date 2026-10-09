@@ -23,9 +23,6 @@ void opentlv_lua_open_error(lua_State* L);
  * the stack is unchanged on return. */
 void opentlv_lua_register_error_codes(lua_State* L, int module_table_index);
 
-/* "tag", "length", "value" or "trailer"; NULL for an unset operation. */
-const char* opentlv_lua_reader_operation_name(tlv_reader_operation_t operation);
-
 /* Pushes a table describing `code`, with the "opentlv.Error" metatable set:
  * always "code" and "message" (tlv_strerror(code)); "offset" only if
  * has_offset. Does not raise; the caller decides whether to return it,

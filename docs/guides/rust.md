@@ -191,7 +191,11 @@ matches; `next_result_with_ordinal()` also returns native preorder identity.
 Owning workspace and `execution_external` are available with explicit bounds;
 the latter borrows caller storage. Rust lifetimes preserve program, input and
 Document ownership; errors retain native Query spans and diagnostic detail.
-`ProgramError.location` holds primary evidence. `source_offset()` projects its
+`ProgramError.kind` is a `QueryErrorKind`; compare with `QueryErrorKind::Syntax`
+or `QueryErrorKind::State` and use `name()` for the canonical C spelling.
+`ProgramError.metadata` retains severity, contexts and the enclosing path with
+its omitted count. Metadata and `location` are boxed to keep returned errors
+compact. `ProgramError.location` holds primary evidence. `source_offset()` projects its
 start only for known INPUT locations, including zero; expression spans and
 unknown locations return `None`. `expected` and `limit` use owned immutable
 `Box<str>` values (inspect with `as_deref()`), keeping ordinary and edit errors

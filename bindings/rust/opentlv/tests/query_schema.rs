@@ -133,7 +133,7 @@ fn original_reader_and_invalid_rule_failures_are_not_assertion_failures() {
     let failure = schema
         .validate_buffer(&[0x5a, 2, 0], QuerySchemaLimits::default())
         .unwrap_err();
-    assert_eq!(failure.failure.kind, 7);
+    assert_eq!(failure.failure.kind, opentlv::QueryErrorKind::Reader);
     assert!(failure.failure.reader.is_some());
     assert!(failure.schema.is_none());
     for (selector, assertion) in [("count(//5A)", "1 = 1"), ("//5A", "//5A")] {

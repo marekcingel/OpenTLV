@@ -286,7 +286,7 @@ if(HAS_BER)
     check(5 "no match for query 6F/A5/51" query 6F/A5/51 --format ber --hex "${query_hex}")
     check(5 "no match for query 6F/A5/50" query 6F/A5/50 --format ber --hex " ")
     check(0 "tag=50" query 6F//50 --format ber --hex "${query_hex}")
-    check(2 "invalid argument query=" query 6F/5 --format ber --hex "${query_hex}")
+    check(2 "location=expression:span:3..4; kind=syntax; expression=3:4" query 6F/5 --format ber --hex "${query_hex}")
     check(0 "tag=50" query "6F/A5 /50" --format ber --hex "${query_hex}")
     check(0 "^5\n$" query --query "//50" --count --format ber --hex "${query_hex}")
     check(0 "^false\n$" query --query "//51" --exists --format ber --hex "${query_hex}")
@@ -352,7 +352,7 @@ if(HAS_EMV)
     # distinguishable from an ordinary format error.
     check(0 "^$" validate --format ber --module emv --hex "6F098407A0000000031010") # DF Name only.
     # Missing mandatory DF Name is a schema finding anchored at the scope end.
-    check(1 "^otlv: schema TLV_ERR_SCHEMA at byte 2 tag=84: schema constraint violated\n$"
+    check(1 "^otlv: schema TLV_ERR_SCHEMA at byte 2 tag=84: schema constraint violated; location=input:scope_end; path=6F\n$"
         validate --format ber --module emv --hex "6F00" --diagnostics compact)
     check(1 "schema TLV_ERR_SCHEMA at byte 11 tag=50:" # Application Label forbidden directly under the FCI Template.
         validate --format ber --module emv --hex "6F0C8407A0000000031010500141" --diagnostics compact)
@@ -367,20 +367,20 @@ if(HAS_EMV)
     check(0 "^$" validate --format ber --module emv # A nested, known-optional FCI Proprietary Template child.
         --hex "6F0C84053132333435A503500141")
     check(0 "^$" validate --format ber --module emv --hex "770A82021980940408010100") # GPO response format 2: AIP + AFL.
-    check(1 "^otlv: schema TLV_ERR_SCHEMA at byte 6 tag=94: schema constraint violated\n$"
+    check(1 "^otlv: schema TLV_ERR_SCHEMA at byte 6 tag=94: schema constraint violated; location=input:scope_end; path=77\n$"
         validate --format ber --module emv --hex "770482021980" --diagnostics compact) # Missing mandatory AFL.
     check(0 "^$" validate --format ber --module emv --hex "7003DF0100") # Unmodeled top-level template: accepted unchecked.
     check(1 "^otlv: TLV_ERR_BUFFER_TOO_SHORT" # A plain format error is not labeled "schema".
         validate --format ber --module emv --hex "6F0AFF" --diagnostics compact)
     # A missing field keeps its scope-end anchor even when another root follows.
-    check(1 "^otlv: schema TLV_ERR_SCHEMA at byte 2 tag=84: schema constraint violated\n$"
+    check(1 "^otlv: schema TLV_ERR_SCHEMA at byte 2 tag=84: schema constraint violated; location=input:scope_end; path=6F\n$"
         validate --format ber --module emv --hex "6F00770A82021980940408010100" --diagnostics compact)
     check(0 "tag=6F" dump --format ber --module emv --hex "6F00") # dump's --module never runs schema checks.
 
     # --diagnostics (#264): human (the default) and json render the same
     # tlv_schema_diagnostic_t as compact, which is exercised throughout this
     # file and matches the pre-#264 wording.
-    check(1 "^otlv: error: schema constraint violated\n\ncode: TLV_ERR_SCHEMA\noffset: 0x2 \\(2\\)\npath: 6F\ntag: 84\nfield: df_name\nexpected occurrences: 1\\.\\.1\nactual occurrences: 0\n$"
+    check(1 "^otlv: error: schema constraint violated\n\ncode: TLV_ERR_SCHEMA\nlocation: input scope_end\noffset: 0x2 \\(2\\)\nkind: missing\npath: 6F\ntag: 84\nfield: df_name\nexpected occurrences: 1\\.\\.1\nactual occurrences: 0\n$"
         validate --format ber --module emv --hex "6F00")
     check(1 "\"code\":\"TLV_ERR_SCHEMA\",\"field\":\"df_name\",\"kind\":\"missing\",\"location\":\\{\"begin\":2,\"domain\":\"input\",\"end\":2,\"kind\":\"scope_end\"\\},\"max_occurs\":1,\"message\":\"schema constraint violated\",\"min_occurs\":1,\"occurs\":0,\"offset\":2,\"path\":\"6F\",\"severity\":\"error\",\"tag\":\"84\""
         validate --format ber --module emv --hex "6F00" --diagnostics json)
@@ -394,9 +394,9 @@ if(HAS_BER)
     # multi-line with a machine-readable code line, json is a flat object.
     # BER retains the original reader diagnostic, including declared length
     # and available bytes when a value overruns its input.
-    check(1 "^otlv: error: buffer too short\n\ncode: TLV_ERR_BUFFER_TOO_SHORT\noffset: 0x2 \\(2\\)\ntag: 04\nwhile reading: value\nraw length: 02\ndeclared length: 2\navailable: 1\n$"
+    check(1 "^otlv: error: buffer too short\n\ncode: TLV_ERR_BUFFER_TOO_SHORT\nlocation: input point\noffset: 0x2 \\(2\\)\ntag: 04\nwhile reading: value\nraw length: 02\ndeclared length: 2\navailable: 1\n$"
         validate --format ber --hex "0402AA")
-    check(1 "^{\"available\":1,\"code\":\"TLV_ERR_BUFFER_TOO_SHORT\",\"declared_length\":2,\"location\":{\"begin\":2,\"domain\":\"input\",\"end\":2,\"kind\":\"point\"},\"message\":\"buffer too short\",\"offset\":2,\"operation\":\"value\",\"raw_length\":\"02\",\"severity\":\"error\",\"tag\":\"04\"}\n$"
+    check(1 "^{\"available\":1,\"code\":\"TLV_ERR_BUFFER_TOO_SHORT\",\"declared_length\":2,\"enclosing_end\":3,\"length_offset\":1,\"location\":{\"begin\":2,\"domain\":\"input\",\"end\":2,\"kind\":\"point\"},\"message\":\"buffer too short\",\"offset\":2,\"operation\":\"value\",\"raw_length\":\"02\",\"required\":2,\"severity\":\"error\",\"tag\":\"04\",\"tag_offset\":0,\"value_offset\":2}\n$"
         validate --format ber --hex "0402AA" --diagnostics json)
 endif()
 if(HAS_DER)
@@ -887,12 +887,12 @@ endfunction()
 if(HAS_BER)
     set(damaged "5A0112 0000 5A0134")
     run_cli(4 "offset=0 tag=5A length=1 value=12\nskipped offset=3 length=2 error=TLV_ERR_INVALID_TAG error-offset=3\noffset=5 tag=5A length=1 value=34\n"
-        "^otlv: skipped 2 byte\\(s\\) at offset 3: TLV_ERR_INVALID_TAG at byte 3 while reading tag; available=5: invalid tag\notlv: output is incomplete: recovery skipped 1 range\\(s\\), 2 byte\\(s\\) in total\n$"
+        "^otlv: skipped 2 byte\\(s\\) at offset 3: TLV_ERR_INVALID_TAG at byte 3 while reading tag; available=5: invalid tag; location=input:point\notlv: output is incomplete: recovery skipped 1 range\\(s\\), 2 byte\\(s\\) in total\n$"
         dump --format ber --hex "${damaged}" --recover --diagnostics compact)
     # json wraps each skipped range's diagnostic with the range it recovered
     # from, since a schema-free tlv_diagnostic_t has no room for that itself.
     run_cli(4 "offset=0 tag=5A length=1 value=12\nskipped offset=3 length=2 error=TLV_ERR_INVALID_TAG error-offset=3\noffset=5 tag=5A length=1 value=34\n"
-        "^\\{\"available\":5,\"code\":\"TLV_ERR_INVALID_TAG\",\"location\":{\"begin\":3,\"domain\":\"input\",\"end\":3,\"kind\":\"point\"},\"message\":\"invalid tag\",\"offset\":3,\"operation\":\"tag\",\"severity\":\"warning\",\"skipped_length\":2,\"skipped_offset\":3\\}\notlv: output is incomplete: recovery skipped 1 range\\(s\\), 2 byte\\(s\\) in total\n$"
+        "^\\{\"available\":5,\"code\":\"TLV_ERR_INVALID_TAG\",\"enclosing_end\":8,\"location\":{\"begin\":3,\"domain\":\"input\",\"end\":3,\"kind\":\"point\"},\"message\":\"invalid tag\",\"offset\":3,\"operation\":\"tag\",\"severity\":\"warning\",\"skipped_length\":2,\"skipped_offset\":3\\}\notlv: output is incomplete: recovery skipped 1 range\\(s\\), 2 byte\\(s\\) in total\n$"
         dump --format ber --hex "${damaged}" --recover --diagnostics json)
     # Without --recover the same input fails at the first error, and validate
     # stays strict.

@@ -2,20 +2,17 @@
 // Copyright (c) 2026 Marek Cingel
 
 #include "error.h"
+#include "codec.h"
 
 #include <stdio.h>
 
 int opentlv_lua_raise_writer_error(lua_State* L, tlv_result_t code,
                                    const tlv_writer_diagnostic_t* diag) {
-    static const char* const operations[] = {"tag",  "length",   "value", "header", "trailer",
-                                             "copy", "preserve", "begin", "end"};
-    tlv_diagnostic_t         diagnostic = diag->diagnostic;
+    tlv_diagnostic_t diagnostic = diag->diagnostic;
     diagnostic.code = code;
     opentlv_lua_push_diagnostic(L, &diagnostic);
-    if ((unsigned)diag->operation < sizeof(operations) / sizeof(operations[0])) {
-        lua_pushstring(L, operations[diag->operation]);
-        lua_setfield(L, -2, "operation");
-    }
+    lua_pushstring(L, tlv_writer_operation_string(diag->operation));
+    lua_setfield(L, -2, "operation");
     if (diag->has_tag) {
         lua_pushlstring(L, diag->tag.data ? (const char*)diag->tag.data : "", diag->tag.size);
         lua_setfield(L, -2, "tag");
@@ -33,16 +30,6 @@ int opentlv_lua_raise_writer_error(lua_State* L, tlv_result_t code,
         lua_setfield(L, -2, "available");
     }
     return lua_error(L);
-}
-
-const char* opentlv_lua_reader_operation_name(tlv_reader_operation_t operation) {
-    switch (operation) {
-        case TLV_READER_OP_TAG: return "tag";
-        case TLV_READER_OP_LENGTH: return "length";
-        case TLV_READER_OP_VALUE: return "value";
-        case TLV_READER_OP_TRAILER: return "trailer";
-        default: return NULL;
-    }
 }
 
 static int error_tostring(lua_State* L) {
@@ -132,6 +119,19 @@ void opentlv_lua_push_error(lua_State* L, tlv_result_t code, int has_offset, siz
     lua_setfield(L, -2, "code");
     lua_pushstring(L, tlv_strerror(code));
     lua_setfield(L, -2, "message");
+    lua_newtable(L);
+    lua_pushstring(L, tlv_location_domain_string(TLV_LOCATION_DOMAIN_UNKNOWN));
+    lua_setfield(L, -2, "domain");
+    lua_pushstring(
+        L, tlv_location_kind_string(has_offset ? TLV_LOCATION_POINT : TLV_LOCATION_UNKNOWN));
+    lua_setfield(L, -2, "kind");
+    if (has_offset) {
+        opentlv_lua_codec_push_uint(L, offset);
+        lua_setfield(L, -2, "begin");
+        opentlv_lua_codec_push_uint(L, offset);
+        lua_setfield(L, -2, "end");
+    }
+    lua_setfield(L, -2, "location");
     if (has_offset) {
         lua_pushinteger(L, (lua_Integer)offset);
         lua_setfield(L, -2, "offset");
@@ -153,7 +153,7 @@ void opentlv_lua_push_reader_error(lua_State* L, tlv_result_t code,
 }
 
 void opentlv_lua_add_reader_detail(lua_State* L, const tlv_reader_detail_t* detail) {
-    const char* operation = opentlv_lua_reader_operation_name(detail->operation);
+    const char* operation = tlv_reader_operation_string(detail->operation);
     if (operation != NULL) {
         lua_pushstring(L, operation);
         lua_setfield(L, -2, "operation");
@@ -161,6 +161,39 @@ void opentlv_lua_add_reader_detail(lua_State* L, const tlv_reader_detail_t* deta
     if (detail->has_tag) {
         lua_pushlstring(L, (const char*)detail->tag.data, detail->tag.size);
         lua_setfield(L, -2, "tag");
+    }
+    if (detail->has_tag_offset) {
+        opentlv_lua_codec_push_uint(L, detail->tag_offset);
+        lua_setfield(L, -2, "tag_offset");
+    }
+    if (detail->has_length_offset) {
+        opentlv_lua_codec_push_uint(L, detail->length_offset);
+        lua_setfield(L, -2, "length_offset");
+    }
+    if (detail->has_value_offset) {
+        opentlv_lua_codec_push_uint(L, detail->value_offset);
+        lua_setfield(L, -2, "value_offset");
+    }
+    if (detail->has_declared_length) {
+        opentlv_lua_codec_push_uint(L, detail->declared_length);
+        lua_setfield(L, -2, "declared_length");
+    }
+    if (detail->has_required) {
+        opentlv_lua_codec_push_uint(L, detail->required);
+        lua_setfield(L, -2, "required");
+    }
+    if (detail->has_available) {
+        opentlv_lua_codec_push_uint(L, detail->available);
+        lua_setfield(L, -2, "available");
+    }
+    if (detail->has_enclosing_end) {
+        opentlv_lua_codec_push_uint(L, detail->enclosing_end);
+        lua_setfield(L, -2, "enclosing_end");
+    }
+    if (detail->has_raw_length) {
+        lua_pushlstring(L, detail->raw_length.data ? (const char*)detail->raw_length.data : "",
+                        detail->raw_length.size);
+        lua_setfield(L, -2, "raw_length");
     }
 }
 
@@ -232,12 +265,18 @@ void opentlv_lua_push_codec_detail(lua_State* L, const tlv_codec_detail_t* d) {
     lua_newtable(L);
     lua_pushinteger(L, d->operation);
     lua_setfield(L, -2, "operation");
+    lua_pushstring(L, tlv_codec_operation_string(d->operation));
+    lua_setfield(L, -2, "operation_name");
     lua_pushinteger(L, d->reported);
     lua_setfield(L, -2, "reported");
     lua_pushinteger(L, d->violation);
     lua_setfield(L, -2, "violation");
+    lua_pushstring(L, tlv_codec_violation_string(d->violation));
+    lua_setfield(L, -2, "violation_name");
     lua_pushinteger(L, d->cause);
     lua_setfield(L, -2, "cause");
+    lua_pushstring(L, tlv_codec_cause_string(d->cause));
+    lua_setfield(L, -2, "cause_name");
     if (d->representation) {
         lua_pushstring(L, d->representation);
         lua_setfield(L, -2, "representation");
@@ -252,10 +291,14 @@ void opentlv_lua_push_codec_detail(lua_State* L, const tlv_codec_detail_t* d) {
         lua_newtable(L);
         lua_pushnumber(L, (lua_Number)v->kind);
         lua_setfield(L, -2, "kind");
+        lua_pushstring(L, tlv_schema_issue_kind_string(v->kind));
+        lua_setfield(L, -2, "kind_name");
         lua_pushlstring(L, (const char*)v->tag.data, v->tag.size);
         lua_setfield(L, -2, "tag");
         lua_pushinteger(L, v->definition.kind);
         lua_setfield(L, -2, "definition_kind");
+        lua_pushstring(L, tlv_schema_definition_kind_string(v->definition.kind));
+        lua_setfield(L, -2, "definition_kind_name");
         lua_pushnumber(L, (lua_Number)v->definition.index);
         lua_setfield(L, -2, "definition_index");
         lua_pushstring(L, v->field);

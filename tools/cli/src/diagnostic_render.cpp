@@ -58,11 +58,16 @@ void append_header_human(std::ostringstream& out, const tlv::diagnostic& d) {
     out << tlv::message(tlv::severity_of(d)) << ": " << tlv::message(static_cast<tlv::errc>(d.code))
         << "\n";
     out << "\ncode: " << error_name(static_cast<tlv::errc>(d.code));
+    out << "\nlocation: " << tlv::message(tlv::domain(d.location)) << " "
+        << tlv::message(tlv::kind(d.location));
     if (d.location.kind)
         out << "\noffset: " << hex_offset(d.location.begin) << " (" << d.location.begin << ")";
+    if (tlv::kind(d.location) == tlv::location_kind::span)
+        out << "\nrange: " << d.location.begin << ".." << d.location.end;
 }
 
 void append_trailer_human(std::ostringstream& out, const tlv::diagnostic& d) {
+    if (d.has_path && d.path.omitted) out << "\npath_omitted: " << d.path.omitted;
     if (d.expected) out << "\nexpected: " << d.expected;
     if (d.actual) out << "\nactual: " << d.actual;
     for (const tlv::diagnostic_context* ctx = d.contexts; ctx; ctx = ctx->next)
@@ -71,6 +76,12 @@ void append_trailer_human(std::ostringstream& out, const tlv::diagnostic& d) {
 
 std::string trailer_compact(const tlv::diagnostic& d) {
     std::ostringstream out;
+    out << "; location=" << tlv::message(tlv::domain(d.location)) << ":"
+        << tlv::message(tlv::kind(d.location));
+    if (tlv::kind(d.location) == tlv::location_kind::span)
+        out << ":" << d.location.begin << ".." << d.location.end;
+    if (d.has_path) out << "; path=" << path_string(d.path);
+    if (d.has_path && d.path.omitted) out << "; path_omitted=" << d.path.omitted;
     if (d.expected) out << "; expected=" << d.expected;
     if (d.actual) out << "; actual=" << d.actual;
     for (const tlv::diagnostic_context* ctx = d.contexts; ctx; ctx = ctx->next)
@@ -145,6 +156,10 @@ std::string diagnostic_json(const tlv::diagnostic& d, const char* stage, const c
 std::string schema_human(const tlv::validation_issue& d) {
     std::ostringstream out;
     append_header_human(out, d.diagnostic());
+    out << "\nkind: " << tlv::message(d.kind());
+    if (d.error().definition_kind() != tlv::schema_definition_kind::unknown)
+        out << "\ndefinition: " << tlv::message(d.error().definition_kind()) << "["
+            << d.error().definition().index << "]";
     if (d.depth()) out << "\npath: " << path_string(d.path());
     out << "\ntag: " << hex_tag(d.tag());
     if (d.field()) out << "\nfield: " << d.field();
@@ -166,6 +181,8 @@ std::string schema_compact(const tlv::validation_issue& d) {
     out << "schema " << error_name(d.error().status());
     if (tlv::kind(d.diagnostic().location) != tlv::location_kind::unknown)
         out << " at byte " << d.diagnostic().location.begin;
+    else
+        out << " at unknown location";
     out << " tag=" << hex_tag(d.tag());
     out << ": " << tlv::message(d.error().status()) << trailer_compact(d.diagnostic());
     return out.str();
@@ -175,6 +192,10 @@ std::string schema_json(const tlv::validation_issue& d) {
     nlohmann::json object;
     set_header_json(object, d.diagnostic());
     object["kind"] = tlv::message(d.kind());
+    if (d.error().definition_kind() != tlv::schema_definition_kind::unknown) {
+        object["definition_kind"] = tlv::message(d.error().definition_kind());
+        object["definition_index"] = d.error().definition().index;
+    }
     if (d.depth()) {
         object["path"] = path_string(d.path());
         if (d.path().omitted) object["path_omitted"] = d.path().omitted;
@@ -243,6 +264,11 @@ std::string reader_json(const tlv::reader_diagnostic& d) {
     if (d.detail.has_raw_length) object["raw_length"] = hex_tag(tlv::tag(tlv::raw_length(d)));
     if (d.detail.has_declared_length) object["declared_length"] = d.detail.declared_length;
     if (d.detail.has_available) object["available"] = d.detail.available;
+    if (d.detail.has_required) object["required"] = d.detail.required;
+    if (d.detail.has_tag_offset) object["tag_offset"] = d.detail.tag_offset;
+    if (d.detail.has_length_offset) object["length_offset"] = d.detail.length_offset;
+    if (d.detail.has_value_offset) object["value_offset"] = d.detail.value_offset;
+    if (d.detail.has_enclosing_end) object["enclosing_end"] = d.detail.enclosing_end;
     append_trailer_json(object, d.diagnostic);
     return object.dump();
 }

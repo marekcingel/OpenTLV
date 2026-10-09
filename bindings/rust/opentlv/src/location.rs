@@ -77,3 +77,38 @@ impl Location {
         }
     }
 }
+
+impl std::fmt::Display for Location {
+    fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
+        if self.kind == LocationKind::Unknown {
+            return f.write_str("unknown location");
+        }
+        write!(
+            f,
+            "{} {} {}..{}",
+            self.domain.name(),
+            self.kind.name(),
+            self.begin,
+            self.end
+        )
+    }
+}
+
+impl LocationDomain {
+    /// Canonical C coordinate-domain name.
+    pub fn name(self) -> &'static str {
+        // SAFETY: C returns static ASCII text.
+        unsafe { std::ffi::CStr::from_ptr(native::tlv_location_domain_string(self as i32)) }
+            .to_str()
+            .expect("ASCII location label")
+    }
+}
+impl LocationKind {
+    /// Canonical C location-anchor name.
+    pub fn name(self) -> &'static str {
+        // SAFETY: C returns static ASCII text.
+        unsafe { std::ffi::CStr::from_ptr(native::tlv_location_kind_string(self as i32)) }
+            .to_str()
+            .expect("ASCII location label")
+    }
+}

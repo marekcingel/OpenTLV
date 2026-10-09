@@ -6,11 +6,13 @@ export function queryFacade(wasm) {
   const decoder = new TextDecoder("utf-8", { fatal: true });
   const types = Object.freeze({ integer: 2, bytes: 3, string: 4 });
   class QueryError extends Error {
-    constructor(code, query = {}, applied = 0, rule = null, schema = null, location = { domain: "unknown", kind: "unknown" }) {
-      super(`OpenTLV Query status ${code}`);
+    constructor(code, query = {}, applied = 0, rule = null, schema = null, location = { domain: "unknown", kind: "unknown" }, message = null) {
+      super(message ?? wasm.UTF8ToString(wasm._opentlv_wasm_strerror(code)));
       this.code = code;
       this.location = Object.freeze(location);
-      this.query = Object.freeze(code === 19 ? { ...query, kind: 12 } : query);
+      const kind = code === 19 ? 12 : (query.kind ?? 0);
+      this.query = Object.freeze({ ...query, kind,
+        kind_name: wasm.UTF8ToString(wasm._opentlv_wasm_query_error_kind_string(kind)) });
       this.applied = applied;
       this.rule = rule;
       this.schema = schema;
@@ -29,7 +31,7 @@ export function queryFacade(wasm) {
         }
       }
     }
-    if (reply.code && !(allowEnd && reply.code === 5)) throw new QueryError(reply.code, reply.query, reply.applied, reply.rule, reply.schema, reply.location);
+    if (reply.code && !(allowEnd && reply.code === 5)) throw new QueryError(reply.code, reply.query, reply.applied, reply.rule, reply.schema, reply.location, reply.message);
     return reply;
   }
   function bytes(value) {

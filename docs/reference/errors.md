@@ -272,6 +272,39 @@ while preserving the callback's reported value, including `OK`.
 This changes callback signatures and the Query diagnostic layout. Rebuild native
 clients and use matching bindings. Valid conversion bytes are unchanged.
 
+## Binding diagnostics
+
+Bindings use the C result domain, including resumable `NEED_MORE_DATA`, and
+preserve the independent detail, primary location and delegated cause. Category
+names come from the C string functions; an unrecognized value is named
+`unknown`. A raw callback `reported` result stays numeric so invalid provider
+results remain inspectable.
+
+| Facade | Diagnostic categories |
+| --- | --- |
+| C++ | `errc`, `query_issue`, `reader_phase`, `writer_phase`, `schema_issue`, `schema_definition_kind`, `codec_phase`, `codec_cause`, `codec_violation`; `message(category)` calls C. |
+| Rust | `Error` and typed `QueryErrorKind`, `ReaderOperation`, `WriterOperation`, `SchemaIssue`, `SchemaDefinitionKind`, `CodecOperation`, `CodecCause`, `CodecViolation`, `Severity`; category `name()` calls C. `UnknownRaw(i32)` retains unrecognized values. |
+| Python | Typed result exceptions; Query `query["query_kind"]`, Schema report fields and Codec detail fields use `IntEnum` categories exported by `opentlv`. Their `label` property calls C. Reader/Writer `operation` remains a canonical string. |
+| Go | `errors.Is` classifies results and `errors.As` retrieves owned details. `ProgramError.Kind`, `QuerySchemaError.Kind` and Codec categories are typed; `String()` calls C. Reader/Writer errors expose typed `Phase()` methods. |
+| Lua | Error tables preserve result `code`, `location`, optional path and contexts. `query.kind_name` and Codec `operation_name`, `cause_name`, `violation_name` come from C alongside numeric values. |
+| JS/WASM | `QueryError` carries the C message, structured `location` and owned Query evidence. `query.kind_name`, Reader `operation_name` and Codec names accompany numeric categories. |
+
+For example, Rust consumers match `failure.kind == QueryErrorKind::Syntax`;
+Python consumers compare `error.query["query_kind"] is QueryErrorKind.SYNTAX`.
+Use `.as_raw()` in Rust when an external protocol explicitly requires the C
+integer. These diagnostic field changes are source-breaking; rebuild bindings
+against the matching C library.
+
+Unknown locations have no meaningful numeric coordinates. A known point at
+zero is distinct from absence. Related Query expression spans do not replace
+the primary input/output/Value location. Retained paths hold outermost scopes;
+`path_omitted` counts omitted innermost scopes. Go's `HasReader` guards the
+Reader-specific part of a Query failure.
+
+CLI diagnostics identify the location domain and anchor kind. Compact output
+includes truncated paths and omitted counts; Query JSON includes common
+diagnostic metadata and delegated Codec or Reader evidence.
+
 ## See also
 
 - [C API reference](c-api.md) for the documented codes per function.

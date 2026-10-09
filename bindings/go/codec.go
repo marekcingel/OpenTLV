@@ -166,16 +166,20 @@ func IPv4ListCodec() Codec[[][4]byte] {
 // CodecDetail owns conversion evidence in the shared result domain.
 type CodecDetail struct {
 	Diagnostic
-	Operation, Reported, Violation int
-	Representation                 string
-	Reader                         *Diagnostic
-	Schema                         *CodecSchemaDetail
+	Operation      CodecOperation
+	Reported       int
+	Violation      CodecViolation
+	Cause          CodecCause
+	Representation string
+	Reader         *Diagnostic
+	Schema         *CodecSchemaDetail
 }
 
 // CodecSchemaDetail owns delegated Schema details. DefinitionIndex identifies
 // the native rule within its definition; native owner addresses are not exposed.
 type CodecSchemaDetail struct {
-	Kind, DefinitionKind                                             int
+	Kind                                                             SchemaIssue
+	DefinitionKind                                                   SchemaDefinitionKind
 	DefinitionIndex                                                  uint64
 	Tag                                                              []byte
 	Field                                                            string
@@ -191,13 +195,33 @@ func publicCodecDetail(d *capi.CodecDetail) *CodecDetail {
 	if d == nil {
 		return nil
 	}
-	result := &CodecDetail{Diagnostic: publicDiagnostic(d.Diagnostic), Operation: d.Operation, Reported: d.Reported, Violation: d.Violation, Representation: d.Representation}
+	result := &CodecDetail{Diagnostic: publicDiagnostic(d.Diagnostic), Operation: CodecOperation(d.Operation), Reported: d.Reported, Violation: CodecViolation(d.Violation), Cause: CodecCause(d.Cause), Representation: d.Representation}
 	if d.Reader != nil {
 		v := publicDiagnostic(*d.Reader)
 		result.Reader = &v
 	}
 	if d.Schema != nil {
-		v := CodecSchemaDetail(*d.Schema)
+		v := CodecSchemaDetail{
+			Kind:              SchemaIssue(d.Schema.Kind),
+			DefinitionKind:    SchemaDefinitionKind(d.Schema.DefinitionKind),
+			DefinitionIndex:   d.Schema.DefinitionIndex,
+			Tag:               d.Schema.Tag,
+			Field:             d.Schema.Field,
+			IsGroup:           d.Schema.IsGroup,
+			HasOccurs:         d.Schema.HasOccurs,
+			HasLength:         d.Schema.HasLength,
+			HasForm:           d.Schema.HasForm,
+			MinOccurs:         d.Schema.MinOccurs,
+			MaxOccurs:         d.Schema.MaxOccurs,
+			Occurs:            d.Schema.Occurs,
+			MinLength:         d.Schema.MinLength,
+			MaxLength:         d.Schema.MaxLength,
+			ActualLength:      d.Schema.ActualLength,
+			ExpectedForm:      d.Schema.ExpectedForm,
+			ActualConstructed: d.Schema.ActualConstructed,
+			LengthMultiple:    d.Schema.LengthMultiple,
+			LengthFlags:       d.Schema.LengthFlags,
+		}
 		result.Schema = &v
 	}
 	return result

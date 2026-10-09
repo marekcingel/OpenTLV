@@ -12,6 +12,41 @@
  * @brief Runtime-selected Value codecs over caller-owned typed storage.
  */
 namespace tlv {
+/** @brief Typed codec violation diagnostic category. */
+enum class codec_violation {
+    none = TLV_CODEC_VIOLATION_NONE /**< Canonical none category. */,
+    result = TLV_CODEC_VIOLATION_RESULT /**< Canonical result category. */,
+    size = TLV_CODEC_VIOLATION_SIZE /**< Canonical size category. */,
+    type = TLV_CODEC_VIOLATION_TYPE /**< Canonical type category. */,
+    utf8 = TLV_CODEC_VIOLATION_UTF8 /**< Canonical utf8 category. */
+};
+/** @brief Canonical static name, or unknown for unrecognized categories. */
+inline const char* message(codec_violation value) noexcept {
+    return tlv_codec_violation_string(static_cast<tlv_codec_violation_t>(value));
+}
+
+/** @brief Typed codec cause diagnostic category. */
+enum class codec_cause {
+    none = TLV_CODEC_CAUSE_NONE /**< Canonical none category. */,
+    reader = TLV_CODEC_CAUSE_READER /**< Canonical reader category. */,
+    schema = TLV_CODEC_CAUSE_SCHEMA /**< Canonical schema category. */
+};
+/** @brief Canonical static name, or unknown for unrecognized categories. */
+inline const char* message(codec_cause value) noexcept {
+    return tlv_codec_cause_string(static_cast<tlv_codec_cause_t>(value));
+}
+
+/** @brief Typed codec phase diagnostic category. */
+enum class codec_phase {
+    decode = TLV_CODEC_OP_DECODE /**< Canonical decode category. */,
+    encode = TLV_CODEC_OP_ENCODE /**< Canonical encode category. */,
+    measure = TLV_CODEC_OP_MEASURE /**< Canonical measure category. */
+};
+/** @brief Canonical static name, or unknown for unrecognized categories. */
+inline const char* message(codec_phase value) noexcept {
+    return tlv_codec_operation_string(static_cast<tlv_codec_operation_t>(value));
+}
+
 /** @brief Shared result and complete conversion evidence, without a separate error enum. */
 struct codec_failure {
     tlv_result_t           code;         /**< Original common result. */
@@ -28,6 +63,18 @@ struct codec_failure {
     codec_failure(tlv_result_t value, const tlv_codec_diagnostic_t& detail) noexcept
         : code(value), diagnostic(detail) {
         diagnostic.diagnostic.code = value;
+    }
+    /** @brief Operation attempted by this conversion. */
+    codec_phase phase() const noexcept {
+        return static_cast<codec_phase>(diagnostic.codec.operation);
+    }
+    /** @brief Delegated diagnostic category. */
+    codec_cause cause() const noexcept {
+        return static_cast<codec_cause>(diagnostic.codec.cause);
+    }
+    /** @brief Callback contract violation, if detected. */
+    codec_violation violation() const noexcept {
+        return static_cast<codec_violation>(diagnostic.codec.violation);
     }
     /** @brief Common C++ result classification. */
     errc status() const noexcept {

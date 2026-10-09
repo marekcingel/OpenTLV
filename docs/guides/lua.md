@@ -597,7 +597,13 @@ value)`, `set_input(bytes, discard, final)`, `next()`, `visit(callback)`,
 Lua strings and match snapshots own copied bytes. Callback errors invalidate
 the execution until reset, and reentrant calls are rejected. `close()` releases
 native owners deterministically. Native failures raise tables with `code` and
-Query diagnostic detail. See [consumer tests](../../bindings/lua/tests/program_spec.lua).
+Query diagnostic detail. `error.query.kind_name` is the canonical C category,
+such as `syntax` or `state`. Reader `operation` includes `header`; Reader bounds
+and field offsets retain their presence, and lengths beyond Lua's exact numeric
+range use decimal strings. Codec detail adds `operation_name`, `cause_name` and
+`violation_name` beside raw numeric values. See the
+[binding diagnostic reference](../reference/errors.md#binding-diagnostics) and
+[consumer tests](../../bindings/lua/tests/program_spec.lua).
 
 Compile options accept `providers = {num = {id = ..., decode = ...}, ...}` for
 `num`, `bcd`, `text` and `date`. Callbacks receive a Value string and optional

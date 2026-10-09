@@ -8,6 +8,11 @@ use std::{ffi::CStr, slice};
 /// Structured detail from the canonical Reader, safe to retain after input replacement.
 #[derive(Clone, Debug, Default)]
 pub struct ReaderDiagnostic {
+    /// Canonical diagnostic severity.
+    pub severity: crate::Severity,
+    /// Owned subsystem context entries.
+    pub contexts: Vec<crate::DiagnosticContext>,
+
     /// Primary evidence coordinates.
     pub location: crate::Location,
     /// Retained enclosing Tag bytes; None means no path was tracked.
@@ -17,7 +22,7 @@ pub struct ReaderDiagnostic {
     /// Absolute failing field offset.
     pub offset: Option<usize>,
     /// C Reader operation code (tag, length, value, trailer or header).
-    pub operation: i32,
+    pub operation: crate::ReaderOperation,
     /// Raw wire identifier, when reported.
     pub tag: Option<Vec<u8>>,
     /// Original available length-field bytes.
@@ -73,6 +78,8 @@ impl ReaderDiagnostic {
         }
         Self {
             location: crate::Location::from_raw(common.location),
+            severity: crate::Severity::from_raw(common.severity),
+            contexts: unsafe { contexts(common) },
             path: (common.has_path != 0).then(|| {
                 common.path.tags[..common.path.length]
                     .iter()
@@ -81,7 +88,7 @@ impl ReaderDiagnostic {
             }),
             path_omitted: common.path.omitted,
             offset: (common.location.kind != 0).then_some(common.location.begin),
-            operation: raw.operation,
+            operation: crate::ReaderOperation::from_raw(raw.operation),
             // SAFETY: the caller keeps diagnostic buffers alive for these copies.
             tag: (raw.has_tag != 0).then(|| unsafe { bytes(raw.tag.data, raw.tag.size) }),
             raw_length: (raw.has_raw_length != 0)
@@ -98,4 +105,72 @@ impl ReaderDiagnostic {
             actual: unsafe { text(common.actual) },
         }
     }
+}
+
+/// Owned subsystem context, independent of native pointer lifetimes.
+#[derive(Clone, Debug, PartialEq, Eq)]
+pub struct DiagnosticContext {
+    /// Producing layer.
+    pub layer: String,
+    /// Context key.
+    pub key: String,
+    /// Context value.
+    pub value: String,
+}
+
+pub(crate) unsafe fn contexts(raw: &native::tlv_diagnostic_t) -> Vec<DiagnosticContext> {
+    let text = |p: *const std::os::raw::c_char| {
+        if p.is_null() {
+            String::new()
+        } else {
+            // SAFETY: caller retains the native context list and its strings.
+            unsafe { CStr::from_ptr(p) }.to_string_lossy().into_owned()
+        }
+    };
+    let mut result = Vec::new();
+    let mut current = raw.contexts;
+    while !current.is_null() {
+        // SAFETY: caller retains the acyclic native context list.
+        let entry = unsafe { &*current };
+        result.push(DiagnosticContext {
+            layer: text(entry.layer),
+            key: text(entry.key),
+            value: text(entry.value),
+        });
+        current = entry.next;
+    }
+    result
+}
+
+pub(crate) unsafe fn path(raw: &native::tlv_diagnostic_t) -> Option<Vec<Vec<u8>>> {
+    (raw.has_path != 0).then(|| {
+        raw.path.tags[..raw.path.length]
+            .iter()
+            .map(|tag| {
+                if tag.size == 0 {
+                    Vec::new()
+                } else {
+                    // SAFETY: caller retains the borrowed tag spans until copied.
+                    unsafe { slice::from_raw_parts(tag.data, tag.size) }.to_vec()
+                }
+            })
+            .collect()
+    })
+}
+
+/// Owned common diagnostic metadata; absence of a path is distinct from an empty path.
+#[derive(Clone, Debug, Default)]
+pub struct DiagnosticMetadata {
+    /// Common expected condition, independent of related Query expression detail.
+    pub expected: Option<Box<str>>,
+    /// Common observed condition, when reported.
+    pub actual: Option<Box<str>>,
+    /// Canonical diagnostic severity.
+    pub severity: crate::Severity,
+    /// Owned subsystem context entries.
+    pub contexts: Vec<crate::DiagnosticContext>,
+    /// Retained enclosing tags; None means no path evidence.
+    pub path: Option<Vec<Vec<u8>>>,
+    /// Number of omitted innermost scopes.
+    pub path_omitted: usize,
 }

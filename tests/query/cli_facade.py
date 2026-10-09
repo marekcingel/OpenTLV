@@ -29,6 +29,18 @@ def main():
             for name, value in case.get("variables", {}).items():
                 command += ["--var", f"{name}:{value['type']}={value['value']}"]
             result = subprocess.run(command, text=True, capture_output=True, timeout=30)
+            if case["id"] in ("document-following-source-location", "document-preceding-source-location") and backend == "auto":
+                # Auto selects the CLI's semantic Document backend for these axes.
+                # It does not retain Source metadata, just like explicit Document above.
+                # Verify the canonical failure instead of expecting wire coordinates.
+                assert result.returncode == 3, (case["id"], result.stderr)
+                diagnostic = json.loads(result.stderr)
+                assert diagnostic["code"] == 14 and diagnostic["kind"] == 6
+                assert diagnostic["kind_name"] == "source"
+                assert diagnostic["location"]["domain"] == "expression"
+                assert "source_offset" not in diagnostic
+                checks += 1
+                continue
             if "diagnostic" in case:
                 assert result.returncode != 0, (case["id"], backend)
                 diagnostic = json.loads(result.stderr)
