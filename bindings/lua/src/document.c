@@ -180,10 +180,10 @@ static int document_new(lua_State* L) {
     lua_setmetatable(L, -2);
     lua_pushvalue(L, 2);
     self->format_ref = luaL_ref(L, LUA_REGISTRYINDEX);
-    size_t offset = SIZE_MAX;
+    tlv_reader_diagnostic_t offset = {0};
     code = data ? tlv_document_parse(data, length, &options, &self->document, &offset)
                 : tlv_document_create(&options, &self->document);
-    if (code != TLV_OK) return opentlv_lua_raise(L, code, offset != SIZE_MAX, offset);
+    if (code != TLV_OK) return opentlv_lua_raise_reader_error(L, code, &offset);
     return 1;
 }
 

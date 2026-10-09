@@ -39,6 +39,7 @@ void opentlv_lua_push_diagnostic(lua_State* L, const tlv_diagnostic_t* diagnosti
  * "operation" and "tag" from a reader diagnostic when it reports them.
  * `diag` may be NULL, equivalent to opentlv_lua_push_error() with has_offset
  * false. */
+void opentlv_lua_add_reader_detail(lua_State* L, const tlv_reader_detail_t* detail);
 void opentlv_lua_push_reader_error(lua_State* L, tlv_result_t code,
                                    const tlv_reader_diagnostic_t* diag);
 

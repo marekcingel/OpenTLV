@@ -29,8 +29,8 @@ struct outcome {
 static bool equal(const outcome& a, const outcome& b) {
     return a.status == b.status && a.diagnostic == b.diagnostic && a.kind == b.kind &&
            a.integer == b.integer && a.count == b.count && a.configured == b.configured &&
-           a.has_source_offset == b.has_source_offset && a.source_offset == b.source_offset &&
-           a.codec == b.codec &&
+           a.has_source_offset == b.has_source_offset &&
+           (!a.has_source_offset || a.source_offset == b.source_offset) && a.codec == b.codec &&
            (a.expected && b.expected ? !std::strcmp(a.expected, b.expected)
                                      : a.expected == b.expected) &&
            (a.limit && b.limit ? !std::strcmp(a.limit, b.limit) : a.limit == b.limit) &&
@@ -101,8 +101,9 @@ static int execute(const tlv_query_program_t* p, unsigned seed, size_t capacity,
     if (out.status == TLV_OK) out.status = tlv_query_exec_finish(e, &diagnostic);
     out.diagnostic = diagnostic.kind;
     out.configured = diagnostic.configured;
-    out.has_source_offset = diagnostic.has_source_offset;
-    out.source_offset = diagnostic.source_offset;
+    out.has_source_offset = (diagnostic.diagnostic.location.domain == TLV_LOCATION_INPUT &&
+                             diagnostic.diagnostic.location.kind != TLV_LOCATION_UNKNOWN);
+    out.source_offset = diagnostic.diagnostic.location.begin;
     out.codec = diagnostic.codec;
     out.expected = diagnostic.expected;
     out.limit = diagnostic.limit;

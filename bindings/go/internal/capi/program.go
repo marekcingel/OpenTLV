@@ -28,6 +28,7 @@ const QueryErrorState = int(C.TLV_QUERY_ERROR_STATE)
 
 // ProgramDiagnostic copies all Query fields and the original Reader diagnostic.
 type ProgramDiagnostic struct {
+	Location                             Location
 	Kind                                 int
 	Begin, End, SourceOffset, Configured uint64
 	HasSourceOffset                      bool
@@ -37,10 +38,14 @@ type ProgramDiagnostic struct {
 }
 
 func programDiagnostic(d C.tlv_query_diagnostic_t, code Code) ProgramDiagnostic {
-	return ProgramDiagnostic{Kind: int(d.kind), Begin: uint64(d.begin), End: uint64(d.end),
-		SourceOffset: uint64(d.source_offset), HasSourceOffset: d.has_source_offset != 0,
+	reader := Diagnostic{Code: code}
+	if d.has_reader != 0 {
+		reader = readerDiagnosticParts(d.diagnostic, d.reader, code)
+	}
+	return ProgramDiagnostic{Location: diagnostic(d.diagnostic, 0).Location, Kind: int(d.kind), Begin: uint64(d.begin), End: uint64(d.end),
+		SourceOffset: uint64(d.diagnostic.location.begin), HasSourceOffset: d.diagnostic.location.domain == C.TLV_LOCATION_INPUT && d.diagnostic.location.kind != C.TLV_LOCATION_UNKNOWN,
 		Configured: uint64(d.configured), Expected: C.GoString(d.expected), Limit: C.GoString(d.limit),
-		Codec: int(d.codec), Reader: readerDiagnostic(d.reader, code)}
+		Codec: int(d.codec), Reader: reader}
 }
 
 // ProgramOptions owns maps; C borrows only during bounded compilation.
@@ -128,7 +133,6 @@ type QueryRule struct {
 }
 type QuerySchemaLimits struct{ Depth, Nodes, Work, Contexts, ValueCapacity int }
 type QuerySchemaDiagnostic struct {
-	Anchor int
 	Rule   int
 	Field  string
 	Kind   int
@@ -237,15 +241,10 @@ func ValidateQuerySchema(rules []QueryRule, data []byte, document *Document, for
 			&workspace, values, C.size_t(capacity), &staging, &nativeDetail))
 	}
 	detail := QuerySchemaDiagnostic{Rule: int(nativeDetail.rule), Field: C.GoString(nativeDetail.schema.field),
-		Kind: int(nativeDetail.schema.kind), Anchor: int(nativeDetail.schema.anchor), Schema: diagnostic(nativeDetail.schema.diagnostic, 0),
+		Kind: int(nativeDetail.schema.kind), Schema: diagnostic(nativeDetail.schema.diagnostic, 0),
 		Query: programDiagnostic(nativeDetail.query, code)}
 	detail.Schema.Tag = bytes.Clone(nativeBytes(nativeDetail.schema.tag.data, nativeDetail.schema.tag.size))
 	detail.Schema.HasTag = nativeDetail.schema.tag.size != 0
-	detail.Schema.PathOmitted = uint64(nativeDetail.schema.path.omitted)
-	for index := 0; index < int(nativeDetail.schema.path.length); index++ {
-		tag := nativeDetail.schema.path.tags[index]
-		detail.Schema.Path = append(detail.Schema.Path, bytes.Clone(nativeBytes(tag.data, tag.size)))
-	}
 	runtime.KeepAlive(rules)
 	runtime.KeepAlive(document)
 	return code, detail

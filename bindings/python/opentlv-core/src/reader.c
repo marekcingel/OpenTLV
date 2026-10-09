@@ -196,17 +196,11 @@ PyObject* opentlv_python_builder_consume(PyObject* module, PyObject* capsule) {
         return NULL;
     }
     tlv_document_t*         document = NULL;
-    size_t                  offset = SIZE_MAX;
     tlv_reader_diagnostic_t diagnostic;
     tlv_reader_diagnostic_init(&diagnostic);
-    tlv_result_t code =
-        tlv_document_builder_consume(self->builder, &document, &offset, &diagnostic);
+    tlv_result_t code = tlv_document_builder_consume(self->builder, &document, &diagnostic);
     if (code != TLV_NEED_MORE_DATA) release_builder(self);
     if (code != TLV_OK) {
-        if (offset != SIZE_MAX && !diagnostic.diagnostic.has_offset) {
-            diagnostic.diagnostic.has_offset = 1;
-            diagnostic.diagnostic.offset = offset;
-        }
         opentlv_python_raise_reader(code, &diagnostic);
         return NULL;
     }
@@ -473,9 +467,8 @@ PyObject* opentlv_python_cursor_visit(PyObject* module, PyObject* args) {
     tlv_reader_diagnostic_t diagnostic;
     tlv_reader_diagnostic_init(&diagnostic);
     tlv_result_t code =
-        self->nested
-            ? tlv_tree_reader_visit_diag(&self->tree, visit_item, callback, NULL, &diagnostic)
-            : tlv_reader_visit_diag(&self->reader, visit_element, callback, &diagnostic);
+        self->nested ? tlv_tree_reader_visit(&self->tree, visit_item, callback, &diagnostic)
+                     : tlv_reader_visit_diag(&self->reader, visit_element, callback, &diagnostic);
     self->busy = 0;
     if (PyErr_Occurred()) return NULL;
     if (code != TLV_OK) {
@@ -500,8 +493,8 @@ PyObject* opentlv_python_query_create(PyObject* module, PyObject* input) {
     (void)module;
     query_state* self = calloc(1, sizeof(*self));
     if (!self) return PyErr_NoMemory();
-    tlv_result_t code = TLV_OK;
-    size_t       offset = 0;
+    tlv_result_t            code = TLV_OK;
+    tlv_reader_diagnostic_t offset = {0};
     if (PyUnicode_Check(input)) {
         Py_ssize_t  length;
         const char* text = PyUnicode_AsUTF8AndSize(input, &length);
@@ -514,7 +507,7 @@ PyObject* opentlv_python_query_create(PyObject* module, PyObject* input) {
             PyErr_SetString(PyExc_ValueError, "query text contains NUL");
             return NULL;
         }
-        code = tlv_query_parse(text, &self->query, &offset);
+        code = tlv_query_parse(text, &self->query, &offset.diagnostic);
     } else {
         query_state* original = PyCapsule_GetPointer(input, QUERY_NAME);
         if (!original) {
@@ -527,8 +520,7 @@ PyObject* opentlv_python_query_create(PyObject* module, PyObject* input) {
     if (code != TLV_OK) {
         tlv_reader_diagnostic_t diag;
         tlv_reader_diagnostic_init(&diag);
-        diag.diagnostic.has_offset = 1;
-        diag.diagnostic.offset = offset;
+        diag = offset;
         free(self);
         opentlv_python_raise_reader(code, &diag);
         return NULL;
@@ -622,16 +614,15 @@ PyObject* opentlv_python_query_visit(PyObject* module, PyObject* args) {
     }
     reader->has_current = 0;
     self->busy = reader->busy = 1;
-    size_t       offset = 0;
-    tlv_result_t code =
+    tlv_reader_diagnostic_t offset = {0};
+    tlv_result_t            code =
         tlv_query_visit(&reader->tree, &self->matcher, visit_item, callback, &offset);
     self->busy = reader->busy = 0;
     if (PyErr_Occurred()) return NULL;
     if (code != TLV_OK) {
         tlv_reader_diagnostic_t diag;
         tlv_reader_diagnostic_init(&diag);
-        diag.diagnostic.has_offset = 1;
-        diag.diagnostic.offset = offset;
+        diag = offset;
         opentlv_python_raise_reader(code, &diag);
         return NULL;
     }

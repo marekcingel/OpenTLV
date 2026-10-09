@@ -53,7 +53,7 @@ TEST(Integration_Tlv_Lldp, SchemaMandatoryPrefixOptionalEndAndDiagnostics) {
     tlv_schema_diagnostic_t diagnostic{};
     EXPECT_EQ(TLV_OK, tlv_lldp_validate(base_lldpdu.data(), base_lldpdu.size(), 3, &diagnostic));
     EXPECT_EQ(TLV_OK, diagnostic.diagnostic.code);
-    EXPECT_FALSE(diagnostic.diagnostic.has_offset);
+    EXPECT_FALSE(diagnostic.diagnostic.location.kind);
     auto wire = base_lldpdu;
     wire.insert(wire.end(), {0, 0});
     EXPECT_EQ(TLV_OK, tlv_lldp_validate(wire.data(), wire.size(), 4, nullptr));
@@ -61,7 +61,7 @@ TEST(Integration_Tlv_Lldp, SchemaMandatoryPrefixOptionalEndAndDiagnostics) {
     EXPECT_EQ(TLV_ERR_SCHEMA,
               TLV_DIAGNOSTIC_RESULT(diagnostic,
                                     tlv_lldp_validate(wire.data(), wire.size(), 5, &diagnostic)));
-    EXPECT_EQ(14u, diagnostic.diagnostic.offset);
+    EXPECT_EQ(14u, diagnostic.diagnostic.location.begin);
     EXPECT_STREQ("end of region after End TLV", diagnostic.diagnostic.expected);
     wire = base_lldpdu;
     wire[0] = 4;
@@ -69,15 +69,15 @@ TEST(Integration_Tlv_Lldp, SchemaMandatoryPrefixOptionalEndAndDiagnostics) {
     EXPECT_EQ(TLV_ERR_SCHEMA,
               TLV_DIAGNOSTIC_RESULT(diagnostic,
                                     tlv_lldp_validate(wire.data(), wire.size(), 3, &diagnostic)));
-    EXPECT_EQ(0u, diagnostic.diagnostic.offset);
+    EXPECT_EQ(0u, diagnostic.diagnostic.location.begin);
     EXPECT_STREQ("Chassis ID, Port ID, TTL prefix", diagnostic.diagnostic.expected);
     EXPECT_EQ(TLV_SCHEMA_ISSUE_ORDER, diagnostic.kind);
     EXPECT_EQ(TLV_ERR_SCHEMA,
               TLV_DIAGNOSTIC_RESULT(diagnostic,
                                     tlv_lldp_validate(base_lldpdu.data(), 8, 3, &diagnostic)));
-    EXPECT_EQ(8u, diagnostic.diagnostic.offset);
+    EXPECT_EQ(8u, diagnostic.diagnostic.location.begin);
     EXPECT_EQ(TLV_SCHEMA_ISSUE_MISSING, diagnostic.kind);
-    EXPECT_EQ(TLV_SCHEMA_ANCHOR_SCOPE_END, diagnostic.anchor);
+    EXPECT_EQ(TLV_LOCATION_SCOPE_END, diagnostic.diagnostic.location.kind);
     EXPECT_EQ(TLV_ERR_SCHEMA,
               TLV_DIAGNOSTIC_RESULT(diagnostic, tlv_lldp_validate(nullptr, 0, 3, &diagnostic)));
     EXPECT_EQ(TLV_ERR_NULL_ARG,
@@ -85,7 +85,7 @@ TEST(Integration_Tlv_Lldp, SchemaMandatoryPrefixOptionalEndAndDiagnostics) {
     EXPECT_EQ(TLV_ERR_LIMIT, TLV_DIAGNOSTIC_RESULT(diagnostic, tlv_lldp_validate(base_lldpdu.data(),
                                                                                  base_lldpdu.size(),
                                                                                  2, &diagnostic)));
-    EXPECT_EQ(8u, diagnostic.diagnostic.offset);
+    EXPECT_EQ(TLV_LOCATION_UNKNOWN, diagnostic.diagnostic.location.kind);
     EXPECT_EQ(TLV_ERR_LIMIT, tlv_lldp_validate(base_lldpdu.data(), base_lldpdu.size(), 0, nullptr));
 }
 
@@ -123,7 +123,7 @@ TEST(Integration_Tlv_Lldp, SchemaRejectsDuplicatesLengthsAndTruncation) {
         EXPECT_EQ(TLV_ERR_SCHEMA,
                   TLV_DIAGNOSTIC_RESULT(
                       diagnostic, tlv_lldp_validate(wire.data(), wire.size(), 20, &diagnostic)));
-        EXPECT_EQ(base_lldpdu.size(), diagnostic.diagnostic.offset);
+        EXPECT_EQ(base_lldpdu.size(), diagnostic.diagnostic.location.begin);
     }
     auto wire = base_lldpdu;
     wire.push_back(0xFE);
@@ -142,7 +142,7 @@ TEST(Integration_Tlv_Lldp, GenericSchemaReportAndValueCodecComposition) {
                                   10, TLV_SCHEMA_UNKNOWN_BY_SCHEMA, &report, nullptr));
     EXPECT_EQ(1u, report.count);
     EXPECT_EQ(TLV_SCHEMA_ISSUE_DUPLICATE, issue.kind);
-    EXPECT_EQ(0u, issue.path.length);
+    EXPECT_EQ(0u, issue.diagnostic.path.length);
     EXPECT_TRUE(tlv_tag_equal(TLV_TAG(3), issue.tag));
     tlv_reader_t reader{};
     ASSERT_EQ(TLV_OK,
@@ -286,11 +286,11 @@ TEST(Integration_Tlv_Lldp, TruncationReportsWireRegionsAndDoesNotAdvance) {
                   TLV_DIAGNOSTIC_RESULT(error, tlv_reader_next_diag(&reader, &element, &error)));
         EXPECT_EQ(0u, reader.pos);
         EXPECT_TRUE(tlv_tag_equal(TLV_TAG(42), element.tag));
-        EXPECT_EQ(size == 1 ? TLV_READER_OP_HEADER : TLV_READER_OP_VALUE, error.operation);
-        EXPECT_EQ(size == 1 ? 0u : 2u, error.diagnostic.offset);
+        EXPECT_EQ(size == 1 ? TLV_READER_OP_HEADER : TLV_READER_OP_VALUE, error.detail.operation);
+        EXPECT_EQ(size == 1 ? 0u : 2u, error.diagnostic.location.begin);
         if (size > 1) {
-            EXPECT_TRUE(error.has_declared_length);
-            EXPECT_EQ(256u, error.declared_length);
+            EXPECT_TRUE(error.detail.has_declared_length);
+            EXPECT_EQ(256u, error.detail.declared_length);
         }
     }
 }

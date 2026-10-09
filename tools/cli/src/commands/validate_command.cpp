@@ -24,6 +24,7 @@ void validate_command::run_module_checks() {
         if (!container) {
             result_ = container.error().status();
             error_offset_ = container.error().offset();
+            reader_diag_.diagnostic.location = container.error().location();
             return;
         }
         const size_t              significant = *container;
@@ -34,6 +35,7 @@ void validate_command::run_module_checks() {
         if (!validated) {
             result_ = validated.error().status();
             error_offset_ = validated.error().offset();
+            reader_diag_.diagnostic.location = validated.error().location();
         } else if (report.size()) {
             schema_diag_ = report.at(0);
             has_schema_diag_ = true;
@@ -51,7 +53,9 @@ void validate_command::run_module_checks() {
             if (decoded.status != decode_status::error) return tlv::visit_control::next;
             self.result_ = tlv::errc::invalid_value;
             self.error_offset_ = offset;
-            self.reader_diag_.has_tag = 1;
+            tlv::set_location(self.reader_diag_.diagnostic, tlv::location_domain::input,
+                              tlv::location_kind::point, offset, offset);
+            self.reader_diag_.detail.has_tag = 1;
             tlv::set_tag(self.reader_diag_, element->tag());
             self.stage_ = "codec ";
             return tlv::visit_control::stop;
@@ -84,6 +88,7 @@ void validate_command::run_module_checks() {
         if (!validated) {
             result_ = validated.error().status();
             error_offset_ = validated.error().offset();
+            reader_diag_.diagnostic.location = validated.error().location();
             stage_ = "schema ";
         } else if (report.size()) {
             schema_diag_ = report.at(0);
@@ -115,7 +120,8 @@ std::string validate_command::render_failure_diagnostic(diagnostic_format  diag_
 #if OPENTLV_EMV
     if (stage_name == "dictionary" && check_.result == result_) {
         tlv::diagnostic diag = tlv::make_diagnostic(result_, tlv::severity::error);
-        tlv::set_offset(diag, error_offset_);
+        tlv::set_location(diag, tlv::location_domain::input, tlv::location_kind::point,
+                          error_offset_, error_offset_);
         if (check_.scope.path.length) tlv::set_path(diag, check_.scope.path);
         if (!check_.expected.empty()) diag.expected = check_.expected.c_str();
         if (!check_.actual.empty()) diag.actual = check_.actual.c_str();

@@ -126,7 +126,14 @@ type DiagnosticContext struct{ Layer, Key, Value string }
 
 // Diagnostic is a Go projection of native reader/writer detail, with no C pointers.
 // Tag and RawLength are owned snapshots; text is copied from native storage.
+// Location is the native evidence domain, anchor and half-open coordinates.
+type Location struct {
+	Domain, Kind int
+	Begin, End   uint64
+}
+
 type Diagnostic struct {
+	Location                                                  Location
 	Code                                                      Code
 	Severity, Operation                                       int
 	Offset                                                    OptionalSize
@@ -137,6 +144,7 @@ type Diagnostic struct {
 	DeclaredLength, Available, EnclosingEnd, Required, Length OptionalSize
 	Contexts                                                  []DiagnosticContext
 	Path                                                      [][]byte
+	HasPath                                                   bool
 	PathOmitted                                               uint64
 }
 
@@ -161,11 +169,12 @@ func nativeBytes(data *C.uint8_t, size C.size_t) []byte {
 func wireRange(r C.tlv_range_t) Range                   { return Range{int(r.offset), int(r.size), r.present != 0} }
 func optional(value uint64, present C.int) OptionalSize { return OptionalSize{value, present != 0} }
 func diagnostic(d C.tlv_diagnostic_t, operation C.int) Diagnostic {
-	result := Diagnostic{Code: Code(d.code), Severity: int(d.severity), Operation: int(operation), Offset: optional(uint64(d.offset), d.has_offset), Expected: C.GoString(d.expected), Actual: C.GoString(d.actual)}
+	result := Diagnostic{Location: Location{int(d.location.domain), int(d.location.kind), uint64(d.location.begin), uint64(d.location.end)}, Code: Code(d.code), Severity: int(d.severity), Operation: int(operation), Offset: optional(uint64(d.location.begin), C.int(d.location.kind)), Expected: C.GoString(d.expected), Actual: C.GoString(d.actual)}
 	for c := d.contexts; c != nil; c = c.next {
 		result.Contexts = append(result.Contexts, DiagnosticContext{C.GoString(c.layer), C.GoString(c.key), C.GoString(c.value)})
 	}
-	if d.path != nil {
+	if d.has_path != 0 {
+		result.HasPath = true
 		result.PathOmitted = uint64(d.path.omitted)
 		for i := 0; i < int(d.path.length); i++ {
 			t := d.path.tags[i]
@@ -260,7 +269,11 @@ func writerDiagnostic(r C.go_write_result, tag []byte) Diagnostic {
 }
 
 func readerDiagnostic(native C.tlv_reader_diagnostic_t, code Code) Diagnostic {
-	d := diagnostic(native.diagnostic, C.int(native.operation))
+	return readerDiagnosticParts(native.diagnostic, native.detail, code)
+}
+
+func readerDiagnosticParts(common C.tlv_diagnostic_t, native C.tlv_reader_detail_t, code Code) Diagnostic {
+	d := diagnostic(common, C.int(native.operation))
 	d.Code = code
 	d.HasTag = native.has_tag != 0
 	if d.HasTag {

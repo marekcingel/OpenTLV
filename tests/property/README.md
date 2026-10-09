@@ -48,6 +48,10 @@ seed = int.from_bytes(hashlib.sha256(commit.lower().encode("ascii")).digest()[:8
 This uses the actual checked-out commit, including a PR merge commit. The same
 commit, generator version, candidate domain, Format and limits reproduce the
 same corpus. The mapping itself has a versioned name in metadata.
+Generator version 2 changes seed/case-index mixing. Rebuild the CLI and rerun
+the suite to regenerate both binary cases and `metadata.json`; version 1 corpus
+bytes must not be relabeled as version 2. The metadata contract and CLI candidate
+domain version are unchanged.
 
 ## Wire property and coverage
 

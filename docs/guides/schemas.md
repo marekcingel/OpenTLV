@@ -226,7 +226,7 @@ whether input visits the affected branch. Valid tables rejecting lengths,
 occurrences, membership or element kind return `TLV_ERR_SCHEMA`.
 
 The optional `tlv_schema_diagnostic_t` identifies the reason. Required absence
-uses `TLV_SCHEMA_ISSUE_MISSING` and a `TLV_SCHEMA_ANCHOR_SCOPE_END` position.
+uses `TLV_SCHEMA_ISSUE_MISSING` and a `TLV_LOCATION_SCOPE_END` position.
 That boundary can coincide with an unrelated sibling; do not decode a tag there.
 Definition errors have unknown byte location. Framing and resource results
 propagate. The output diagnostic is reset on entry.
@@ -473,7 +473,7 @@ if (rc == TLV_ERR_SCHEMA) {
         char path[256];
         if (tlv_diagnostic_path_string(&d->path, path, sizeof(path), NULL) == TLV_OK)
             printf("%s in %s", tlv_schema_issue_kind_string(d->kind), path);
-        if (d->diagnostic.has_offset) printf(" (offset %zu)", d->diagnostic.offset);
+        if (d->diagnostic.location.kind != TLV_LOCATION_UNKNOWN) printf(" (offset %zu)", d->diagnostic.location.begin);
         printf("\n");
     }
 }

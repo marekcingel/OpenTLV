@@ -121,11 +121,13 @@ TEST(Integration_Tlv_Der, InvalidFieldsHaveOffsetsAndPreserveOutputs) {
     cases.push_back({overflow, TLV_ERR_INVALID_LENGTH, 1});
     for (const auto& item : cases) {
         SCOPED_TRACE(::testing::PrintToString(item.bytes));
-        tlv_element_t element{TLV_TAG(0x55), {nullptr, 42}};
-        size_t        consumed = 42, offset = 99;
+        tlv_element_t    element{TLV_TAG(0x55), {nullptr, 42}};
+        size_t           consumed = 42;
+        tlv_diagnostic_t offset = {};
+        offset.location.begin = 99;
         EXPECT_EQ(item.error, tlv_der_read(item.bytes.data(), item.bytes.size(), nullptr, &element,
                                            &consumed, &offset));
-        EXPECT_EQ(item.offset, offset);
+        EXPECT_EQ(item.offset, offset.location.begin);
         EXPECT_EQ(42u, consumed);
         EXPECT_EQ(0x55, element.tag.data[0]);
         EXPECT_EQ(42u, element.value.size);
@@ -148,7 +150,8 @@ tlv_visit_result_t collect(const tlv_element_t* element, size_t depth, size_t of
 TEST(Integration_Tlv_Der, NestedTraversalAndEncoding) {
     const uint8_t      data[] = {0x30, 9, 0x02, 1, 5, 0xA0, 4, 0x04, 0, 0x30, 0, 0x05, 0};
     std::vector<Visit> visits;
-    size_t             offset = 99;
+    tlv_diagnostic_t   offset = {};
+    offset.location.begin = 99;
     ASSERT_EQ(TLV_OK, tlv_der_visit(data, sizeof(data), nullptr, collect, &visits, &offset));
     ASSERT_EQ(6u, visits.size());
     const size_t offsets[] = {0, 2, 5, 7, 9, 11}, depths[] = {0, 1, 1, 2, 2, 0};
@@ -157,7 +160,7 @@ TEST(Integration_Tlv_Der, NestedTraversalAndEncoding) {
         EXPECT_EQ(depths[i], visits[i].depth);
         EXPECT_EQ(data[offsets[i]], visits[i].tag);
     }
-    EXPECT_EQ(99u, offset);
+    EXPECT_EQ(99u, offset.location.begin);
     tlv_element_t element{};
     size_t        consumed, written;
     ASSERT_EQ(TLV_OK, tlv_der_read(data, sizeof(data), nullptr, &element, &consumed, nullptr));
@@ -173,7 +176,9 @@ TEST(Integration_Tlv_Der, NestedTraversalAndEncoding) {
 TEST(Integration_Tlv_Der, LimitsAndWriterValidation) {
     const uint8_t    data[] = {0x30, 4, 0xA0, 2, 0x04, 0};
     tlv_der_limits_t limits = {2, sizeof(data), 4, 3};
-    size_t           offset = 99, written = 99;
+    size_t           written = 99;
+    tlv_diagnostic_t offset = {};
+    offset.location.begin = 99;
     ASSERT_EQ(TLV_OK, tlv_der_visit(data, sizeof(data), &limits, nullptr, nullptr, &offset));
     for (int limit = 0; limit < 4; ++limit) {
         auto   restricted = limits;
@@ -198,10 +203,10 @@ TEST(Integration_Tlv_Der, LimitsAndWriterValidation) {
         }
         EXPECT_EQ(TLV_ERR_LIMIT,
                   tlv_der_visit(data, sizeof(data), &restricted, nullptr, nullptr, &offset));
-        EXPECT_EQ(expected, offset);
+        EXPECT_EQ(expected, offset.location.begin);
         EXPECT_EQ(TLV_ERR_LIMIT, tlv_der_write(nullptr, 0, (TLV_TAG(0x30)), data + 2, 4,
                                                &restricted, &written, &offset));
-        EXPECT_EQ(expected, offset);
+        EXPECT_EQ(expected, offset.location.begin);
         EXPECT_EQ(99u, written);
     }
     limits.max_depth = TLV_DER_MAX_DEPTH + 1;
@@ -214,7 +219,7 @@ TEST(Integration_Tlv_Der, LimitsAndWriterValidation) {
     EXPECT_EQ(TLV_ERR_INVALID_LENGTH,
               tlv_der_write(output, sizeof(output), (TLV_TAG(0x30)), invalid, sizeof(invalid),
                             nullptr, &written, &offset));
-    EXPECT_EQ(3u, offset);
+    EXPECT_EQ(3u, offset.location.begin);
     EXPECT_EQ(99u, written);
     for (auto byte : output) EXPECT_EQ(0xEE, byte);
     EXPECT_EQ(TLV_ERR_BUFFER_TOO_SHORT,
@@ -276,13 +281,15 @@ TEST(Integration_Tlv_Der, StrictReadWriteRoundTripsCanonicalStructure) {
 
 TEST(Integration_Tlv_Der, StrictReadRejectsNestedNoncanonicalContentButNonStrictAccepts) {
     /* SEQUENCE { OCTET STRING "x", BOOLEAN 0x01 (noncanonical) } */
-    const uint8_t data[] = {0x30, 6, 0x04, 1, 'x', 0x01, 1, 0x01};
-    tlv_element_t element{};
-    size_t        consumed = 0, offset = 99;
+    const uint8_t    data[] = {0x30, 6, 0x04, 1, 'x', 0x01, 1, 0x01};
+    tlv_element_t    element{};
+    size_t           consumed = 0;
+    tlv_diagnostic_t offset = {};
+    offset.location.begin = 99;
     ASSERT_EQ(TLV_OK, tlv_der_read(data, sizeof(data), nullptr, &element, &consumed, nullptr));
     EXPECT_EQ(TLV_ERR_INVALID_VALUE,
               tlv_der_read_strict(data, sizeof(data), nullptr, &element, &consumed, &offset));
-    EXPECT_EQ(7u, offset);
+    EXPECT_EQ(7u, offset.location.begin);
     uint8_t output[sizeof(data)];
     size_t  written = 42;
     EXPECT_EQ(TLV_OK, tlv_der_write(output, sizeof(output), (TLV_TAG(0x30)), data + 2,
@@ -290,7 +297,7 @@ TEST(Integration_Tlv_Der, StrictReadRejectsNestedNoncanonicalContentButNonStrict
     EXPECT_EQ(TLV_ERR_INVALID_VALUE,
               tlv_der_write_strict(output, sizeof(output), (TLV_TAG(0x30)), data + 2,
                                    sizeof(data) - 2, nullptr, &written, &offset));
-    EXPECT_EQ(7u, offset);
+    EXPECT_EQ(7u, offset.location.begin);
 }
 
 TEST(Integration_Tlv_Der, TagSizeLimitAndNumericOverflow) {

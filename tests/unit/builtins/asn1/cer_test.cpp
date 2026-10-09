@@ -51,10 +51,12 @@ TEST(Unit_Tlv_Cer, TagClassAndConstructedAccessors) {
 }
 
 TEST(Unit_Tlv_Cer, EmptyArgumentsAndVisitorControl) {
-    tlv_element_t element{};
-    size_t        used = 99, offset = 99;
+    tlv_element_t    element{};
+    size_t           used = 99;
+    tlv_diagnostic_t offset = {};
+    offset.location.begin = 99;
     EXPECT_EQ(TLV_ERR_END_OF_BUFFER, tlv_cer_read(nullptr, 0, nullptr, &element, &used, &offset));
-    EXPECT_EQ(0u, offset);
+    EXPECT_EQ(0u, offset.location.begin);
     EXPECT_EQ(99u, used);
     EXPECT_EQ(TLV_OK, tlv_cer_visit(nullptr, 0, nullptr, nullptr, nullptr, nullptr));
     EXPECT_EQ(TLV_ERR_NULL_ARG, tlv_cer_visit(nullptr, 1, nullptr, nullptr, nullptr, nullptr));
@@ -66,7 +68,7 @@ TEST(Unit_Tlv_Cer, EmptyArgumentsAndVisitorControl) {
     auto error = [](const tlv_element_t*, size_t, size_t, void*) { return TLV_VISIT_ERROR; };
     EXPECT_EQ(TLV_OK, tlv_cer_visit(data, sizeof(data), nullptr, stop, nullptr, nullptr));
     EXPECT_EQ(TLV_ERR_VISITOR, tlv_cer_visit(data, sizeof(data), nullptr, error, nullptr, &offset));
-    EXPECT_EQ(0u, offset);
+    EXPECT_EQ(0u, offset.location.begin);
     EXPECT_NE(TLV_OK, tlv_cer_visit(data, sizeof(data), nullptr, nullptr, nullptr, nullptr));
 }
 
@@ -86,32 +88,36 @@ TEST(Unit_Tlv_Cer, TagSizeErrorsPreserveOutputs) {
 
 TEST(Unit_Tlv_Cer, PrimitiveIndefiniteAndConstructedDefiniteAreRejected) {
     /* Primitive tag with the indefinite marker. */
-    const uint8_t primitive_indefinite[] = {0x04, 0x80};
-    tlv_element_t element{};
-    size_t        consumed = 42, offset = 99;
+    const uint8_t    primitive_indefinite[] = {0x04, 0x80};
+    tlv_element_t    element{};
+    size_t           consumed = 42;
+    tlv_diagnostic_t offset = {};
+    offset.location.begin = 99;
     EXPECT_EQ(TLV_ERR_INVALID_LENGTH,
               tlv_cer_read(primitive_indefinite, sizeof(primitive_indefinite), nullptr, &element,
                            &consumed, &offset));
-    EXPECT_EQ(1u, offset);
+    EXPECT_EQ(1u, offset.location.begin);
 
     /* Constructed tag with a definite length. */
     const uint8_t constructed_definite[] = {0x30, 3, 0x02, 1, 5};
     EXPECT_EQ(TLV_ERR_INVALID_LENGTH,
               tlv_cer_read(constructed_definite, sizeof(constructed_definite), nullptr, &element,
                            &consumed, &offset));
-    EXPECT_EQ(1u, offset);
+    EXPECT_EQ(1u, offset.location.begin);
 }
 
 TEST(Unit_Tlv_Cer, NonSegmentableUniversalTypeRejectsConstructedForm) {
     /* INTEGER is UNIVERSAL, not segmentable, and not in the always-
      * constructed set: CER never permits a constructed encoding of it,
      * even though the raw identifier octet alone would parse. */
-    const uint8_t data[] = {0x22, 0x80, 0x02, 1, 5, 0, 0}; /* 0x22 = constructed INTEGER */
-    tlv_element_t element{};
-    size_t        consumed, offset = 99;
+    const uint8_t    data[] = {0x22, 0x80, 0x02, 1, 5, 0, 0}; /* 0x22 = constructed INTEGER */
+    tlv_element_t    element{};
+    size_t           consumed;
+    tlv_diagnostic_t offset = {};
+    offset.location.begin = 99;
     EXPECT_EQ(TLV_ERR_INVALID_LENGTH,
               tlv_cer_read(data, sizeof(data), nullptr, &element, &consumed, &offset));
-    EXPECT_EQ(1u, offset);
+    EXPECT_EQ(1u, offset.location.begin);
 }
 
 namespace {

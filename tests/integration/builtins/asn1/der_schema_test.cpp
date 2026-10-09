@@ -41,7 +41,7 @@ TEST(Integration_Tlv_DerSchema, SchemaRejectsNonCanonicalSetOrderGenericDerAccep
               tlv_der_schema_read(misordered.data(), misordered.size(), &set_type, nullptr,
                                   &schema_element, &schema_consumed, &schema_offset));
 
-    size_t generic_offset = 0;
+    tlv_diagnostic_t generic_offset = {};
     EXPECT_EQ(TLV_OK, tlv_der_visit_strict(misordered.data(), misordered.size(), nullptr, nullptr,
                                            nullptr, &generic_offset));
 }

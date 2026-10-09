@@ -82,7 +82,7 @@ TLV_API void tlv_reader_diagnostic_init(tlv_reader_diagnostic_t* diagnostic);
  * @note On failure both `out_element` and `consumed` remain unchanged.
  * @note On success `*out_diagnostic` is left unchanged.
  * @warning The caller must keep `data` alive while `out_element->value` or
- *          `out_diagnostic->tag` is used.
+ *          `out_diagnostic->detail.tag` is used.
  */
 TLV_API tlv_result_t tlv_read_diag(const uint8_t* data, size_t size, const tlv_format_t* format,
                                    tlv_element_t* out_element, size_t* consumed,

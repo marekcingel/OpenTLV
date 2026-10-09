@@ -270,7 +270,7 @@ TEST(Unit_Tlvpp_FullQuery, ContextualSchemaAssertionsPreserveReaderFailures) {
                                                     100000, &workspace, &diagnostic)));
     EXPECT_EQ(0u, diagnostic.rule);
     EXPECT_STREQ("label-requires-name", diagnostic.schema.field);
-    EXPECT_EQ(4u, diagnostic.schema.diagnostic.offset);
+    EXPECT_EQ(4u, diagnostic.schema.diagnostic.location.begin);
     EXPECT_EQ(TLV_OK, tlv_schema_query_validate_buffer(input, 4, &format, &rule, 1, 3, 100, 100000,
                                                        &workspace, &diagnostic));
     std::vector<uint8_t> malformed(input, input + sizeof input);
@@ -297,8 +297,8 @@ TEST(Unit_Tlvpp_FullQuery, ContextualSchemaAssertionsPreserveReaderFailures) {
               TLV_DIAGNOSTIC_RESULT(diagnostic, tlv_schema_query_validate_buffer(
                                                     input, sizeof input, &format, &rule, 1, 3, 100,
                                                     100000, &workspace, &diagnostic)));
-    ASSERT_EQ(1u, diagnostic.schema.path.length);
-    EXPECT_EQ(0x6F, diagnostic.schema.path.tags[0].data[0]);
+    ASSERT_EQ(1u, diagnostic.schema.diagnostic.path.length);
+    EXPECT_EQ(0x6F, diagnostic.schema.diagnostic.path.tags[0].data[0]);
     EXPECT_STREQ("assertion", tlv_schema_issue_kind_string(diagnostic.schema.kind));
 }
 
@@ -814,9 +814,9 @@ TEST(Unit_Tlvpp_QueryRanges, EmptyAndCompilationErrors) {
         EXPECT_EQ(TLV_ERR_INVALID_ARG, error.code());
         EXPECT_EQ(3u, error.offset());
     }
-    size_t offset = 0;
+    tlv_diagnostic_t offset{};
     EXPECT_FALSE(tlv::query::parse("6F//50", &offset));
-    EXPECT_EQ(3u, offset);
+    EXPECT_EQ(3u, offset.location.begin);
 }
 
 TEST(Unit_Tlvpp_QueryRanges, MalformedTailIsNotEnd) {

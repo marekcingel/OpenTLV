@@ -10,7 +10,7 @@ extern "C" {
  * @brief Deterministic allocation-free generation of Writer-reconstructible streams.
  */
 /** @brief Wire generator algorithm version, changed when deterministic output changes. */
-#define TLV_GENERATOR_VERSION 1
+#define TLV_GENERATOR_VERSION 2
 /** @brief A borrowed candidate identifier and permitted Value size interval.
  * Constructed identifiers are classified exclusively by Format and receive
  * generated child streams. Primitive Values contain arbitrary bytes; this is
@@ -26,6 +26,8 @@ typedef struct tlv_generator_candidate {
  * Same algorithm version, immutable Format/configuration, ordered candidates,
  * options, seed and case index produce the same bytes, independent of earlier
  * calls and output capacity (provided capacity is sufficient).
+ * Version 2 mixes the seed and case index in separate SplitMix64 finalization
+ * stages. Different seed/index pairs are not a guarantee of unique wire bytes.
  */
 typedef struct tlv_generator_options {
     uint64_t seed;         /**< Explicit seed; zero is valid. */

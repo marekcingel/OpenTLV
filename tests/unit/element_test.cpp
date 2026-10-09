@@ -104,7 +104,7 @@ TEST(Unit_Tlv_Element, OversizedLogicalValuePreservesOutputsAndFullDiagnostic) {
     EXPECT_EQ(9u, element.tag.data[0]);
     EXPECT_EQ(nullptr, source.data);
     EXPECT_EQ(1u, element.value.size);
-    EXPECT_EQ(TLV_SIZE_MAX, diagnostic.declared_length);
+    EXPECT_EQ(TLV_SIZE_MAX, diagnostic.detail.declared_length);
 }
 
 #if OPENTLV_FORMAT_BER
@@ -201,12 +201,12 @@ TEST(Unit_Tlv_Element, BerOversizedValueKeepsDecodedAndRawLengthInDiagnostic) {
                                                         &element, &consumed, &diagnostic)));
     EXPECT_EQ(99u, consumed);
     EXPECT_EQ(nullptr, element.tag.data);
-    ASSERT_TRUE(diagnostic.has_declared_length);
-    EXPECT_EQ(UINT64_C(4294967296), diagnostic.declared_length);
-    EXPECT_EQ(127u, diagnostic.available);
-    ASSERT_TRUE(diagnostic.has_raw_length);
-    EXPECT_EQ(data.data() + 1, diagnostic.raw_length.data);
-    EXPECT_EQ(6u, diagnostic.raw_length.size);
+    ASSERT_TRUE(diagnostic.detail.has_declared_length);
+    EXPECT_EQ(UINT64_C(4294967296), diagnostic.detail.declared_length);
+    EXPECT_EQ(127u, diagnostic.detail.available);
+    ASSERT_TRUE(diagnostic.detail.has_raw_length);
+    EXPECT_EQ(data.data() + 1, diagnostic.detail.raw_length.data);
+    EXPECT_EQ(6u, diagnostic.detail.raw_length.size);
 }
 
 TEST(Unit_Tlv_Element, LogicalOverflowAndTruncatedLengthKeepAvailableRawBytes) {
@@ -220,16 +220,16 @@ TEST(Unit_Tlv_Element, LogicalOverflowAndTruncatedLengthKeepAvailableRawBytes) {
         TLV_ERR_INVALID_LENGTH,
         TLV_DIAGNOSTIC_RESULT(diagnostic, tlv_read_diag(overflow, sizeof(overflow), &tlv_format_ber,
                                                         &element, &consumed, &diagnostic)));
-    EXPECT_FALSE(diagnostic.has_declared_length);
-    ASSERT_TRUE(diagnostic.has_raw_length);
-    EXPECT_EQ(overflow + 1, diagnostic.raw_length.data);
-    EXPECT_EQ(10u, diagnostic.raw_length.size);
+    EXPECT_FALSE(diagnostic.detail.has_declared_length);
+    ASSERT_TRUE(diagnostic.detail.has_raw_length);
+    EXPECT_EQ(overflow + 1, diagnostic.detail.raw_length.data);
+    EXPECT_EQ(10u, diagnostic.detail.raw_length.size);
     EXPECT_EQ(99u, consumed);
     EXPECT_EQ(TLV_ERR_BUFFER_TOO_SHORT,
               TLV_DIAGNOSTIC_RESULT(diagnostic, tlv_read_diag(overflow, 4, &tlv_format_ber,
                                                               &element, &consumed, &diagnostic)));
-    ASSERT_TRUE(diagnostic.has_raw_length);
-    EXPECT_EQ(3u, diagnostic.raw_length.size);
+    ASSERT_TRUE(diagnostic.detail.has_raw_length);
+    EXPECT_EQ(3u, diagnostic.detail.raw_length.size);
     EXPECT_EQ(99u, consumed);
 }
 #endif
@@ -265,11 +265,11 @@ TEST(Unit_Tlv_Element, FixedSizeDomainIsIndependentOfFieldOrderAndByteOrder) {
                 TLV_ERR_BUFFER_TOO_SHORT,
                 TLV_DIAGNOSTIC_RESULT(diagnostic, tlv_read_diag(data, sizeof(data), &format,
                                                                 &element, &consumed, &diagnostic)));
-            EXPECT_EQ(TLV_SIZE_MAX, diagnostic.declared_length);
-            EXPECT_EQ(1u, diagnostic.available);
-            EXPECT_TRUE(diagnostic.has_raw_length);
-            EXPECT_EQ(data + length_offset, diagnostic.raw_length.data);
-            EXPECT_EQ(8u, diagnostic.raw_length.size);
+            EXPECT_EQ(TLV_SIZE_MAX, diagnostic.detail.declared_length);
+            EXPECT_EQ(1u, diagnostic.detail.available);
+            EXPECT_TRUE(diagnostic.detail.has_raw_length);
+            EXPECT_EQ(data + length_offset, diagnostic.detail.raw_length.data);
+            EXPECT_EQ(8u, diagnostic.detail.raw_length.size);
             EXPECT_EQ(1u, element.value.size);
         }
     }
@@ -289,9 +289,9 @@ TEST(Unit_Tlv_Element, DerRejectsNonminimalLengthButPreservesItsRawFieldInDiagno
               TLV_DIAGNOSTIC_RESULT(diagnostic, tlv_read_diag(bytes, sizeof(bytes), &tlv_format_der,
                                                               &element, &consumed, &diagnostic)));
     EXPECT_EQ(99u, consumed);
-    EXPECT_TRUE(diagnostic.has_raw_length);
-    EXPECT_EQ(bytes + 1, diagnostic.raw_length.data);
-    EXPECT_EQ(3u, diagnostic.raw_length.size);
+    EXPECT_TRUE(diagnostic.detail.has_raw_length);
+    EXPECT_EQ(bytes + 1, diagnostic.detail.raw_length.data);
+    EXPECT_EQ(3u, diagnostic.detail.raw_length.size);
 }
 TEST(Unit_Tlv_Element, DerValidationPublishesTheSameRawFields) {
     tlv_source_t source{};
@@ -441,7 +441,7 @@ TEST(Unit_Tlv_FormatContract, EveryTruncatedRegionAndInvalidTrailerAreDiagnosedO
             TLV_DIAGNOSTIC_RESULT(diagnostic, tlv_read_diag(wire, size, &framed_format, &element,
                                                             &consumed, &diagnostic)));
         EXPECT_EQ(99u, consumed);
-        EXPECT_EQ(error.region == TLV_REGION_VALUE, diagnostic.has_declared_length != 0);
+        EXPECT_EQ(error.region == TLV_REGION_VALUE, diagnostic.detail.has_declared_length != 0);
     }
     wire[5] = 0;
     tlv_decoded_t      result{};
@@ -654,12 +654,12 @@ TEST(Unit_Tlv_FormatContract, ReaderDiagnosticsDoNotDecodeAgain) {
                                                               &consumed, &diagnostic)));
     EXPECT_EQ(1u, context.calls);
     EXPECT_EQ(99u, consumed);
-    EXPECT_EQ(5u, diagnostic.diagnostic.offset);
-    EXPECT_TRUE(diagnostic.has_tag);
-    ASSERT_EQ(1u, diagnostic.tag.size);
-    EXPECT_EQ(7, diagnostic.tag.data[0]);
-    EXPECT_TRUE(diagnostic.has_raw_length);
-    EXPECT_FALSE(diagnostic.has_declared_length);
+    EXPECT_EQ(5u, diagnostic.diagnostic.location.begin);
+    EXPECT_TRUE(diagnostic.detail.has_tag);
+    ASSERT_EQ(1u, diagnostic.detail.tag.size);
+    EXPECT_EQ(7, diagnostic.detail.tag.data[0]);
+    EXPECT_TRUE(diagnostic.detail.has_raw_length);
+    EXPECT_FALSE(diagnostic.detail.has_declared_length);
 }
 
 TEST(Unit_Tlv_FormatContract, DecodeRejectsInconsistentTagWithoutPublishingOutput) {

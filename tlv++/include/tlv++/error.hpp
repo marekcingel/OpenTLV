@@ -105,12 +105,44 @@ enum class schema_issue {
     assertion = TLV_SCHEMA_ISSUE_ASSERTION    /**< Query assertion failed. */
 };
 /** @brief Meaning of a Schema failure's byte offset. */
-enum class schema_anchor {
-    unknown = TLV_SCHEMA_ANCHOR_UNKNOWN,     /**< No byte location. */
-    element = TLV_SCHEMA_ANCHOR_ELEMENT,     /**< Existing element evidence. */
-    scope_end = TLV_SCHEMA_ANCHOR_SCOPE_END, /**< End of enclosing scope. */
-    insertion = TLV_SCHEMA_ANCHOR_INSERTION  /**< Missing ordered content. */
+enum class location_kind {
+    unknown = TLV_LOCATION_UNKNOWN,     /**< No byte location. */
+    point = TLV_LOCATION_POINT,         /**< Existing element evidence. */
+    span = TLV_LOCATION_SPAN,           /**< Half-open evidence range. */
+    scope_end = TLV_LOCATION_SCOPE_END, /**< End of enclosing scope. */
+    insertion = TLV_LOCATION_INSERTION  /**< Missing ordered content. */
 };
+/** @brief Coordinate space of diagnostic evidence. */
+enum class location_domain {
+    unknown = TLV_LOCATION_DOMAIN_UNKNOWN, /**< No known source. */
+    input = TLV_LOCATION_INPUT,            /**< Input wire bytes. */
+    output = TLV_LOCATION_OUTPUT,          /**< Would-be output wire bytes. */
+    expression = TLV_LOCATION_EXPRESSION,  /**< Query expression bytes. */
+    definition = TLV_LOCATION_DEFINITION,  /**< Definition text bytes. */
+    value = TLV_LOCATION_VALUE             /**< Value-local bytes with unknown outer origin. */
+};
+/** @brief Allocation-free primary location value. */
+using location = tlv_location_t;
+/** @brief Read a location's coordinate domain. */
+inline location_domain domain(const location& value) noexcept {
+    return static_cast<location_domain>(value.domain);
+}
+/** @brief Read a location's anchor kind. */
+inline location_kind kind(const location& value) noexcept {
+    return static_cast<location_kind>(value.kind);
+}
+/** @brief Static human-readable coordinate-domain name. */
+inline const char* message(location_domain value) noexcept {
+    return tlv_location_domain_string(static_cast<tlv_location_domain_t>(value));
+}
+/** @brief Static human-readable location-kind name. */
+inline const char* message(location_kind value) noexcept {
+    return tlv_location_kind_string(static_cast<tlv_location_kind_t>(value));
+}
+/** @brief Translate both coordinates; overflow clears only the optional location. */
+inline void translate_location(location& value, size_t origin) noexcept {
+    tlv_location_translate(&value, origin);
+}
 /**
  * @brief Allocation-free operation error with optional absolute byte offset.
  *
@@ -153,17 +185,25 @@ struct error {
     schema_issue schema_kind() const noexcept {
         return schema_kind_;
     }
-    /** @brief Schema location meaning, or unknown for other failures. */
-    schema_anchor anchor() const noexcept {
-        return anchor_;
+    /** @brief Complete primary evidence location, including its domain and range. */
+    tlv_location_t location() const noexcept {
+        return location_;
+    }
+    /** @brief Native definition coordinate; owner borrows the supplied schema/type. */
+    tlv_schema_definition_location_t definition() const noexcept {
+        return definition_;
+    }
+    /** @brief Whether an enclosing path was tracked, including a known empty path. */
+    bool has_path() const noexcept {
+        return has_path_;
     }
     /** @brief Whether offset() contains a known location. */
     bool has_offset() const noexcept {
-        return located_;
+        return location_.kind != TLV_LOCATION_UNKNOWN;
     }
     /** @brief Absolute byte offset, valid only when has_offset() is true. */
     std::size_t offset() const noexcept {
-        return offset_;
+        return location_.begin;
     }
     /** @brief Whether tag() identifies the failing element; identifier bytes remain borrowed. */
     bool has_tag() const noexcept {
@@ -198,25 +238,28 @@ struct error {
     /** @brief Return an enriched copy without modifying the original or allocating. */
     error at(std::size_t offset, operation stage) const noexcept {
         error copy = *this;
-        copy.offset_ = offset;
-        copy.located_ = true;
+        tlv_location_set(&copy.location_,
+                         stage == operation::writer  ? TLV_LOCATION_OUTPUT
+                         : stage == operation::query ? TLV_LOCATION_EXPRESSION
+                                                     : TLV_LOCATION_INPUT,
+                         TLV_LOCATION_POINT, offset, offset);
         copy.stage_ = stage;
         return copy;
     }
 
 private:
-    schema_issue          schema_kind_ = schema_issue::none;
-    schema_anchor         anchor_ = schema_anchor::unknown;
-    const char*           message_;
-    operation             stage_ = operation::unspecified;
-    std::size_t           offset_ = 0;
-    bool                  located_ = false;
-    tlv::severity         severity_ = tlv::severity::error;
-    tlv_tag_t             tag_{};
-    tlv_diagnostic_path_t path_{};
-    bool                  has_tag_ = false;
-    const char*           expected_ = nullptr;
-    const char*           actual_ = nullptr;
+    schema_issue                     schema_kind_ = schema_issue::none;
+    const char*                      message_;
+    operation                        stage_ = operation::unspecified;
+    tlv_location_t                   location_{};
+    tlv_schema_definition_location_t definition_{};
+    bool                             has_path_ = false;
+    tlv::severity                    severity_ = tlv::severity::error;
+    tlv_tag_t                        tag_{};
+    tlv_diagnostic_path_t            path_{};
+    bool                             has_tag_ = false;
+    const char*                      expected_ = nullptr;
+    const char*                      actual_ = nullptr;
     friend struct detail::error_access;
 };
 /** @brief Project an ordinary error into the common diagnostic contract without allocation. */
@@ -236,23 +279,22 @@ namespace detail {
 struct error_access {
     static error schema(const tlv_schema_diagnostic_t& value) noexcept {
         error result = diagnostic(value.diagnostic, operation::schema,
-                                  value.tag.size ? &value.tag : nullptr, &value.path);
+                                  value.tag.size ? &value.tag : nullptr, &value.diagnostic.path);
         result.schema_kind_ = static_cast<schema_issue>(value.kind);
-        result.anchor_ = static_cast<schema_anchor>(value.anchor);
+        result.definition_ = value.definition;
+
         return result;
     }
     static error diagnostic(const tlv_diagnostic_t& value, operation stage,
                             const tlv_tag_t*             tag = nullptr,
                             const tlv_diagnostic_path_t* path = nullptr) noexcept {
         error result(static_cast<errc>(value.code), stage);
-        if (value.has_offset) {
-            result.offset_ = value.offset;
-            result.located_ = true;
-        }
+        result.location_ = value.location;
+        result.has_path_ = value.has_path != 0;
         if (path)
             result.path_ = *path;
-        else if (value.path)
-            result.path_ = *value.path;
+        else if (value.has_path)
+            result.path_ = value.path;
         result.severity_ = static_cast<tlv::severity>(value.severity);
         if (tag) {
             result.tag_ = *tag;

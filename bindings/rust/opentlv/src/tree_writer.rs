@@ -177,7 +177,7 @@ impl WriterDiagnostic {
             }
         };
         Self {
-            offset: (diag.diagnostic.has_offset != 0).then_some(diag.diagnostic.offset),
+            offset: (diag.diagnostic.location.kind != 0).then_some(diag.diagnostic.location.begin),
             operation: diag.operation,
             // SAFETY: diagnostic tag is copied while its operation inputs remain live.
             tag: if diag.has_tag != 0 {

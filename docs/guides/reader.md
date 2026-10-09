@@ -313,9 +313,10 @@ The callback's Element pointer is temporary, but an Element copied by value has
 the same borrowed lifetime as a direct pull result. Keep its original input and
 any Format-supplied Tag storage alive and unchanged while retaining it.
 Diagnostics are cleared at each adapter entry; Reader outcomes fill them,
-whereas visitor and tree resource errors leave them clear. Tree `error_offset`
-reports the published item for visitor errors and the frontier for pull failures
-or need-more-data; it is unchanged on success.
+while visitor errors identify the visited item and tree resource preflight
+errors retain UNKNOWN location. The canonical `tlv_tree_reader_visit()` accepts
+a Reader diagnostic directly. Known input coordinates include discarded windows;
+no offset-only output or `_diag` compatibility wrapper is retained.
 
 See the runnable [Visitor example](../../examples/tlv/src/visitor.c) for STOP,
 resumption and incremental input replacement.

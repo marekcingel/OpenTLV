@@ -212,7 +212,8 @@ fn parse_reports_source_offset_and_limits() {
         .err()
         .unwrap();
     assert_eq!(error.error, Error::BufferTooShort);
-    assert_eq!(error.offset, Some(2));
+    assert_eq!(error.offset, Some(4));
+    assert_eq!(error.location.domain, opentlv::LocationDomain::Input);
     assert_eq!(
         Document::parse(&[1, 0], Format::Ber, 0, 0)
             .err()

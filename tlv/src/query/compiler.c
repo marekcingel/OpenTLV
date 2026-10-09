@@ -216,53 +216,53 @@ static tlv_result_t options_check(const tlv_query_compile_options_t* supplied,
         if (supplied->struct_size != sizeof *o || supplied->language_version != 1 ||
             !supplied->max_text || !supplied->max_tokens || !supplied->max_nesting ||
             !supplied->max_states)
-            return query_error(d, TLV_ERR_INVALID_ARG, TLV_QUERY_ERROR_STORAGE, 0, 0,
-                               "initialized language-version 1 options");
+            return query_error_unlocated(d, TLV_ERR_INVALID_ARG, TLV_QUERY_ERROR_STORAGE,
+                                         "initialized language-version 1 options");
         *o = *supplied;
     }
     if (o->variable_count > o->max_states || (o->variable_count && !o->variables))
-        return query_error(d, TLV_ERR_INVALID_ARG, TLV_QUERY_ERROR_BINDING, 0, 0,
-                           "bounded variable declarations");
+        return query_error_unlocated(d, TLV_ERR_INVALID_ARG, TLV_QUERY_ERROR_BINDING,
+                                     "bounded variable declarations");
     for (size_t i = 0; i < o->variable_count; ++i) {
         const tlv_query_variable_t* v = &o->variables[i];
         if (!v->name || !identifier_start((unsigned char)v->name[0]) ||
             v->type < TLV_QUERY_RESULT_INTEGER || v->type > TLV_QUERY_RESULT_STRING)
-            return query_error(d, TLV_ERR_INVALID_ARG, TLV_QUERY_ERROR_BINDING, 0, 0,
-                               "named integer, bytes or string variable");
+            return query_error_unlocated(d, TLV_ERR_INVALID_ARG, TLV_QUERY_ERROR_BINDING,
+                                         "named integer, bytes or string variable");
         for (size_t j = 0; v->name[j]; ++j)
             if (!identifier_continue((unsigned char)v->name[j]))
-                return query_error(d, TLV_ERR_INVALID_ARG, TLV_QUERY_ERROR_BINDING, 0, 0,
-                                   "variable identifier");
+                return query_error_unlocated(d, TLV_ERR_INVALID_ARG, TLV_QUERY_ERROR_BINDING,
+                                             "variable identifier");
         for (size_t j = 0; j < i; ++j)
             if (!strcmp(v->name, o->variables[j].name))
-                return query_error(d, TLV_ERR_INVALID_ARG, TLV_QUERY_ERROR_BINDING, 0, 0,
-                                   "unique variable declaration");
+                return query_error_unlocated(d, TLV_ERR_INVALID_ARG, TLV_QUERY_ERROR_BINDING,
+                                             "unique variable declaration");
     }
     if (!o->max_resolved_tag || o->max_resolved_tag > UINT32_MAX || o->max_pattern > UINT32_MAX)
-        return query_error(d, TLV_ERR_INVALID_ARG, TLV_QUERY_ERROR_STORAGE, 0, 0,
-                           "bounded capabilities");
+        return query_error_unlocated(d, TLV_ERR_INVALID_ARG, TLV_QUERY_ERROR_STORAGE,
+                                     "bounded capabilities");
     if (o->environment) {
         const tlv_query_environment_t* e = o->environment;
         if (e->hook_count > o->max_states || (e->hook_count && !e->hooks))
-            return query_error(d, TLV_ERR_INVALID_ARG, TLV_QUERY_ERROR_CAPABILITY, 0, 0,
-                               "valid bounded unique codec hooks");
+            return query_error_unlocated(d, TLV_ERR_INVALID_ARG, TLV_QUERY_ERROR_CAPABILITY,
+                                         "valid bounded unique codec hooks");
         for (size_t i = 0; i < e->hook_count; ++i) {
             const tlv_query_hook_t* h = &e->hooks[i];
             if (!h->id || h->function > TLV_QUERY_DATE || !h->scratch_alignment ||
                 h->scratch_alignment > 16 || (h->scratch_alignment & (h->scratch_alignment - 1)) ||
                 h->scratch_size > UINT32_MAX - 15)
-                return query_error(d, TLV_ERR_INVALID_ARG, TLV_QUERY_ERROR_CAPABILITY, 0, 0,
-                                   "valid bounded unique codec hooks");
+                return query_error_unlocated(d, TLV_ERR_INVALID_ARG, TLV_QUERY_ERROR_CAPABILITY,
+                                             "valid bounded unique codec hooks");
             for (size_t j = 0; j < i; ++j)
                 if (e->hooks[j].id == h->id || e->hooks[j].function == h->function)
-                    return query_error(d, TLV_ERR_INVALID_ARG, TLV_QUERY_ERROR_CAPABILITY, 0, 0,
-                                       "valid bounded unique codec hooks");
+                    return query_error_unlocated(d, TLV_ERR_INVALID_ARG, TLV_QUERY_ERROR_CAPABILITY,
+                                                 "valid bounded unique codec hooks");
         }
     }
     if (size > o->max_text) return query_limit(d, "text", o->max_text, 0, size);
     if (size >= UINT32_MAX)
-        return query_error(d, TLV_ERR_OVERFLOW, TLV_QUERY_ERROR_STORAGE, 0, 0,
-                           "representable Query text size");
+        return query_error_unlocated(d, TLV_ERR_OVERFLOW, TLV_QUERY_ERROR_STORAGE,
+                                     "representable Query text size");
     return TLV_OK;
 }
 
@@ -287,8 +287,8 @@ tlv_result_t tlv_query_compile_scratch(const char* text, size_t size,
     }
     query_diag_init(d);
     if (!text || !bytes || !alignment)
-        return query_error(d, TLV_ERR_NULL_ARG, TLV_QUERY_ERROR_STORAGE, 0, 0,
-                           "required compiler arguments");
+        return query_error_unlocated(d, TLV_ERR_NULL_ARG, TLV_QUERY_ERROR_STORAGE,
+                                     "required compiler arguments");
     tlv_query_compile_options_t o;
     tlv_result_t rc = options_check(options, &o, size, d);
     if (rc != TLV_OK) return rc;
@@ -296,12 +296,12 @@ tlv_result_t tlv_query_compile_scratch(const char* text, size_t size,
     rc = lex(text, size, o.max_tokens, NULL, &count, d, NULL, NULL);
     if (rc != TLV_OK) return rc;
     if (count >= UINT32_MAX / 2 || count > SIZE_MAX / scratch_unit() - 1)
-        return query_error(d, TLV_ERR_OVERFLOW, TLV_QUERY_ERROR_STORAGE, 0, 0,
-                           "representable compile scratch size");
+        return query_error_unlocated(d, TLV_ERR_OVERFLOW, TLV_QUERY_ERROR_STORAGE,
+                                     "representable compile scratch size");
     size_t base = (count + 1) * scratch_unit();
     if (size > SIZE_MAX - base || count > (SIZE_MAX - base - size) / o.max_resolved_tag)
-        return query_error(d, TLV_ERR_OVERFLOW, TLV_QUERY_ERROR_STORAGE, 0, 0,
-                           "representable compiler storage size");
+        return query_error_unlocated(d, TLV_ERR_OVERFLOW, TLV_QUERY_ERROR_STORAGE,
+                                     "representable compiler storage size");
     *bytes = base + size + count * o.max_resolved_tag;
     *alignment = sizeof(uint32_t);
     return TLV_OK;
@@ -958,11 +958,11 @@ tlv_result_t tlv_query_compile(const char* text, size_t size,
     }
     query_diag_init(d);
     if (!text || !scratch || !info || (!storage && capacity))
-        return query_error(d, TLV_ERR_NULL_ARG, TLV_QUERY_ERROR_STORAGE, 0, 0,
-                           "required compiler arguments");
+        return query_error_unlocated(d, TLV_ERR_NULL_ARG, TLV_QUERY_ERROR_STORAGE,
+                                     "required compiler arguments");
     if (info->struct_size < offsetof(tlv_query_program_info_t, expression_values))
-        return query_error(d, TLV_ERR_INVALID_ARG, TLV_QUERY_ERROR_STORAGE, 0, 0,
-                           "initialized program info extent");
+        return query_error_unlocated(d, TLV_ERR_INVALID_ARG, TLV_QUERY_ERROR_STORAGE,
+                                     "initialized program info extent");
     tlv_query_compile_options_t o;
     tlv_result_t rc = options_check(options, &o, size, d);
     if (rc != TLV_OK) return rc;
@@ -970,11 +970,11 @@ tlv_result_t tlv_query_compile(const char* text, size_t size,
     rc = tlv_query_compile_scratch(text, size, &o, &needed, &alignment, d);
     if (rc != TLV_OK) return rc;
     if ((uintptr_t)scratch % alignment || (storage && (uintptr_t)storage % sizeof(uint32_t)))
-        return query_error(d, TLV_ERR_INVALID_ARG, TLV_QUERY_ERROR_STORAGE, 0, 0,
-                           "aligned storage");
+        return query_error_unlocated(d, TLV_ERR_INVALID_ARG, TLV_QUERY_ERROR_STORAGE,
+                                     "aligned storage");
     if (scratch_size < needed)
-        return query_error(d, TLV_ERR_BUFFER_TOO_SHORT, TLV_QUERY_ERROR_STORAGE, 0, 0,
-                           "sufficient compile scratch capacity");
+        return query_error_unlocated(d, TLV_ERR_BUFFER_TOO_SHORT, TLV_QUERY_ERROR_STORAGE,
+                                     "sufficient compile scratch capacity");
     size_t count = 0;
     rc = lex(text, size, o.max_tokens, NULL, &count, d, NULL, NULL);
     if (rc != TLV_OK) return rc;
@@ -1042,16 +1042,16 @@ tlv_result_t tlv_query_compile(const char* text, size_t size,
     }
     if (size > SIZE_MAX - sizeof(tlv_query_program_t) - 1 ||
         used > (SIZE_MAX - sizeof(tlv_query_program_t) - size - 1) / sizeof(query_node_t))
-        return query_error(d, TLV_ERR_OVERFLOW, TLV_QUERY_ERROR_STORAGE, 0, 0,
-                           "representable program size");
+        return query_error_unlocated(d, TLV_ERR_OVERFLOW, TLV_QUERY_ERROR_STORAGE,
+                                     "representable program size");
     size_t text_offset = sizeof(tlv_query_program_t) + used * sizeof(query_node_t);
     if (payload_size > SIZE_MAX - text_offset - size - 1)
-        return query_error(d, TLV_ERR_OVERFLOW, TLV_QUERY_ERROR_STORAGE, 0, 0,
-                           "representable compiler storage size");
+        return query_error_unlocated(d, TLV_ERR_OVERFLOW, TLV_QUERY_ERROR_STORAGE,
+                                     "representable compiler storage size");
     size_t total = text_offset + size + 1 + payload_size;
     if (total > UINT32_MAX)
-        return query_error(d, TLV_ERR_OVERFLOW, TLV_QUERY_ERROR_STORAGE, 0, 0,
-                           "representable program size");
+        return query_error_unlocated(d, TLV_ERR_OVERFLOW, TLV_QUERY_ERROR_STORAGE,
+                                     "representable program size");
     tlv_query_program_info_t result;
     /* The versioned output is copied by byte extent, including structure padding. */
     memset(&result, 0, sizeof result);
@@ -1098,8 +1098,8 @@ tlv_result_t tlv_query_compile(const char* text, size_t size,
     memcpy(info, &result, info->struct_size < sizeof result ? info->struct_size : sizeof result);
     if (!storage) return TLV_OK;
     if (capacity < total)
-        return query_error(d, TLV_ERR_BUFFER_TOO_SHORT, TLV_QUERY_ERROR_STORAGE, 0, 0,
-                           "sufficient program capacity");
+        return query_error_unlocated(d, TLV_ERR_BUFFER_TOO_SHORT, TLV_QUERY_ERROR_STORAGE,
+                                     "sufficient program capacity");
     tlv_query_program_t p = {QUERY_MAGIC,
                              QUERY_IMAGE_VERSION,
                              (uint32_t)used,
@@ -1139,16 +1139,16 @@ static tlv_result_t prepare_layout(const char* text, size_t size,
     tlv_result_t rc = tlv_query_compile_scratch(text, size, options, &scratch, &align, diagnostic);
     if (rc != TLV_OK) return rc;
     if (scratch > SIZE_MAX - (sizeof(uint32_t) - 1))
-        return query_error(diagnostic, TLV_ERR_OVERFLOW, TLV_QUERY_ERROR_STORAGE, 0, 0,
-                           "representable compiler storage size");
+        return query_error_unlocated(diagnostic, TLV_ERR_OVERFLOW, TLV_QUERY_ERROR_STORAGE,
+                                     "representable compiler storage size");
     size_t start = (scratch + sizeof(uint32_t) - 1) & ~(sizeof(uint32_t) - 1);
     if (size > SIZE_MAX - sizeof(tlv_query_program_t) - 1)
-        return query_error(diagnostic, TLV_ERR_OVERFLOW, TLV_QUERY_ERROR_STORAGE, 0, 0,
-                           "representable compiler storage size");
+        return query_error_unlocated(diagnostic, TLV_ERR_OVERFLOW, TLV_QUERY_ERROR_STORAGE,
+                                     "representable compiler storage size");
     size_t image = sizeof(tlv_query_program_t) + size + 1;
     if (scratch > SIZE_MAX - image || start > SIZE_MAX - image - scratch)
-        return query_error(diagnostic, TLV_ERR_OVERFLOW, TLV_QUERY_ERROR_STORAGE, 0, 0,
-                           "representable compiler storage size");
+        return query_error_unlocated(diagnostic, TLV_ERR_OVERFLOW, TLV_QUERY_ERROR_STORAGE,
+                                     "representable compiler storage size");
     *offset = start;
     *bytes = start + image + scratch;
     *alignment = align;
@@ -1185,11 +1185,11 @@ tlv_result_t tlv_query_compile_prepare(const char* text, size_t size,
     tlv_result_t rc = prepare_layout(text, size, options, &offset, &needed, &alignment, diagnostic);
     if (rc != TLV_OK) return rc;
     if ((uintptr_t)workspace % alignment)
-        return query_error(diagnostic, TLV_ERR_INVALID_ARG, TLV_QUERY_ERROR_STORAGE, 0, 0,
-                           "aligned prepare workspace");
+        return query_error_unlocated(diagnostic, TLV_ERR_INVALID_ARG, TLV_QUERY_ERROR_STORAGE,
+                                     "aligned prepare workspace");
     if (capacity < needed)
-        return query_error(diagnostic, TLV_ERR_BUFFER_TOO_SHORT, TLV_QUERY_ERROR_STORAGE, 0, 0,
-                           "sufficient compiler storage capacity");
+        return query_error_unlocated(diagnostic, TLV_ERR_BUFFER_TOO_SHORT, TLV_QUERY_ERROR_STORAGE,
+                                     "sufficient compiler storage capacity");
     tlv_query_program_info_t result;
     memset(&result, 0, sizeof result);
     result.struct_size = sizeof result;
@@ -1225,8 +1225,8 @@ tlv_result_t tlv_query_compile_commit(const void* prepared, size_t prepared_size
         return TLV_ERR_INVALID_ARG;
     if (storage_capacity < prepared_size) {
         query_diag_init(diagnostic);
-        return query_error(diagnostic, TLV_ERR_BUFFER_TOO_SHORT, TLV_QUERY_ERROR_STORAGE, 0, 0,
-                           "sufficient compiler storage capacity");
+        return query_error_unlocated(diagnostic, TLV_ERR_BUFFER_TOO_SHORT, TLV_QUERY_ERROR_STORAGE,
+                                     "sufficient compiler storage capacity");
     }
     tlv_query_program_info_t result;
     memset(&result, 0, sizeof result);
@@ -1250,28 +1250,28 @@ static tlv_result_t image_header(const void* image, size_t size, tlv_query_progr
         return TLV_ERR_INVALID_ARG;
     query_diag_init(diagnostic);
     if (!image)
-        return query_error(diagnostic, TLV_ERR_NULL_ARG, TLV_QUERY_ERROR_STORAGE, 0, 0,
-                           "required compiler arguments");
+        return query_error_unlocated(diagnostic, TLV_ERR_NULL_ARG, TLV_QUERY_ERROR_STORAGE,
+                                     "required compiler arguments");
     if (size < sizeof *header)
-        return query_error(diagnostic, TLV_ERR_INVALID_VALUE, TLV_QUERY_ERROR_IMAGE, 0, 0,
-                           "complete image header");
+        return query_error_unlocated(diagnostic, TLV_ERR_INVALID_VALUE, TLV_QUERY_ERROR_IMAGE,
+                                     "complete image header");
     memcpy(header, image, sizeof *header);
     if (header->magic != QUERY_MAGIC)
-        return query_error(diagnostic, TLV_ERR_INVALID_VALUE, TLV_QUERY_ERROR_IMAGE, 0, 0,
-                           "recognized Query image magic");
+        return query_error_unlocated(diagnostic, TLV_ERR_INVALID_VALUE, TLV_QUERY_ERROR_IMAGE,
+                                     "recognized Query image magic");
     if (header->version != QUERY_IMAGE_VERSION)
-        return query_error(diagnostic, TLV_ERR_UNSUPPORTED, TLV_QUERY_ERROR_IMAGE_VERSION, 0, 0,
-                           "same-release native-endian Query image");
+        return query_error_unlocated(diagnostic, TLV_ERR_UNSUPPORTED, TLV_QUERY_ERROR_IMAGE_VERSION,
+                                     "same-release native-endian Query image");
     if (!header->count || header->count > (UINT32_MAX - sizeof *header) / sizeof(query_node_t))
-        return query_error(diagnostic, TLV_ERR_INVALID_VALUE, TLV_QUERY_ERROR_IMAGE, 0, 0,
-                           "bounded image instruction count");
+        return query_error_unlocated(diagnostic, TLV_ERR_INVALID_VALUE, TLV_QUERY_ERROR_IMAGE,
+                                     "bounded image instruction count");
     size_t offset = sizeof *header + (size_t)header->count * sizeof(query_node_t);
     if (header->reserved != size || header->text_offset != offset || offset >= size ||
         !header->text_size || header->text_size >= size - offset ||
         header->payload_size != size - offset - header->text_size - 1 ||
         ((const char*)image)[offset + header->text_size] != 0)
-        return query_error(diagnostic, TLV_ERR_INVALID_VALUE, TLV_QUERY_ERROR_IMAGE, 0, 0,
-                           "bounded image text and payload");
+        return query_error_unlocated(diagnostic, TLV_ERR_INVALID_VALUE, TLV_QUERY_ERROR_IMAGE,
+                                     "bounded image text and payload");
     return TLV_OK;
 }
 
@@ -1291,12 +1291,12 @@ tlv_result_t tlv_query_program_load_scratch(const void* image, size_t size,
                                    options, &compile_bytes, &compile_alignment, diagnostic);
     if (rc != TLV_OK) return rc;
     if (compile_bytes > SIZE_MAX - (sizeof(uint32_t) - 1))
-        return query_error(diagnostic, TLV_ERR_OVERFLOW, TLV_QUERY_ERROR_STORAGE, 0, 0,
-                           "representable compiler storage size");
+        return query_error_unlocated(diagnostic, TLV_ERR_OVERFLOW, TLV_QUERY_ERROR_STORAGE,
+                                     "representable compiler storage size");
     size_t offset = (compile_bytes + sizeof(uint32_t) - 1) & ~(sizeof(uint32_t) - 1);
     if (size > SIZE_MAX - offset)
-        return query_error(diagnostic, TLV_ERR_OVERFLOW, TLV_QUERY_ERROR_STORAGE, 0, 0,
-                           "representable compiler storage size");
+        return query_error_unlocated(diagnostic, TLV_ERR_OVERFLOW, TLV_QUERY_ERROR_STORAGE,
+                                     "representable compiler storage size");
     *bytes = offset + size;
     *alignment = compile_alignment;
     return TLV_OK;
@@ -1329,11 +1329,11 @@ tlv_result_t tlv_query_program_load(const void* image, size_t size,
         tlv_query_program_load_scratch(image, size, options, &needed, &alignment, diagnostic);
     if (rc != TLV_OK) return rc;
     if ((uintptr_t)image % sizeof(uint32_t) || (uintptr_t)scratch % alignment)
-        return query_error(diagnostic, TLV_ERR_INVALID_ARG, TLV_QUERY_ERROR_STORAGE, 0, 0,
-                           "aligned image and validation scratch");
+        return query_error_unlocated(diagnostic, TLV_ERR_INVALID_ARG, TLV_QUERY_ERROR_STORAGE,
+                                     "aligned image and validation scratch");
     if (capacity < needed)
-        return query_error(diagnostic, TLV_ERR_BUFFER_TOO_SHORT, TLV_QUERY_ERROR_STORAGE, 0, 0,
-                           "sufficient compiler storage capacity");
+        return query_error_unlocated(diagnostic, TLV_ERR_BUFFER_TOO_SHORT, TLV_QUERY_ERROR_STORAGE,
+                                     "sufficient compiler storage capacity");
     size_t offset = needed - size;
     tlv_query_program_t header;
     memcpy(&header, image, sizeof header);
@@ -1345,8 +1345,8 @@ tlv_result_t tlv_query_program_load(const void* image, size_t size,
                            scratch, offset, reconstructed, size, &info, diagnostic);
     if (rc != TLV_OK) return rc;
     if (info.program_size != size || memcmp(image, reconstructed, size))
-        return query_error(diagnostic, TLV_ERR_INVALID_VALUE, TLV_QUERY_ERROR_IMAGE, 0, 0,
-                           "canonical validated Query image and matching capabilities");
+        return query_error_unlocated(diagnostic, TLV_ERR_INVALID_VALUE, TLV_QUERY_ERROR_IMAGE,
+                                     "canonical validated Query image and matching capabilities");
     *program = (const tlv_query_program_t*)image;
     if (output_info) {
         info.struct_size = output_info->struct_size;

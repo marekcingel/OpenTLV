@@ -5,28 +5,23 @@
 #include "tlv/reader/reader.h"
 #include "tlv/reader/tree.h"
 
-static tlv_result_t tree_error(tlv_result_t rc, size_t offset, size_t* out) {
-    if (out) *out = offset;
-    return rc;
-}
-
 static tlv_result_t visitor_error(tlv_reader_diagnostic_t* diagnostic, tlv_result_t rc,
                                   int has_offset, size_t offset) {
     if (diagnostic) {
         tlv_reader_diagnostic_init(diagnostic);
         tlv_diagnostic_init(&diagnostic->diagnostic, rc, TLV_DIAGNOSTIC_SEVERITY_ERROR);
-        if (has_offset) tlv_diagnostic_set_offset(&diagnostic->diagnostic, offset);
+        if (has_offset)
+            tlv_diagnostic_set_location(&diagnostic->diagnostic, TLV_LOCATION_INPUT,
+                                        TLV_LOCATION_POINT, offset, offset);
     }
     return rc;
 }
 
-tlv_result_t tlv_tree_reader_visit_diag(tlv_tree_reader_t* reader, tlv_tree_visitor_t visitor,
-                                        void* context, size_t* error_offset,
-                                        tlv_reader_diagnostic_t* diagnostic) {
+tlv_result_t tlv_tree_reader_visit(tlv_tree_reader_t* reader, tlv_tree_visitor_t visitor,
+                                   void* context, tlv_reader_diagnostic_t* diagnostic) {
     tlv_result_t rc;
     if (diagnostic) tlv_reader_diagnostic_init(diagnostic);
-    if (!reader)
-        return tree_error(visitor_error(diagnostic, TLV_ERR_NULL_ARG, 0, 0), 0, error_offset);
+    if (!reader) return visitor_error(diagnostic, TLV_ERR_NULL_ARG, 0, 0);
     /* Node projection drains structural ENDs before callbacks, preserving STOP
      * and Query frontier semantics even when the last match closes its parents. */
     while (!tlv_tree_reader_at_end(reader)) {
@@ -36,25 +31,18 @@ tlv_result_t tlv_tree_reader_visit_diag(tlv_tree_reader_t* reader, tlv_tree_visi
             /* Tree preflight failures leave their diagnostic untouched. */
             if (diagnostic && diagnostic->diagnostic.code != rc)
                 visitor_error(diagnostic, rc, 0, 0);
-            return tree_error(rc, tlv_tree_reader_offset(reader), error_offset);
+            return rc;
         }
         if (visitor) {
             tlv_visit_result_t result = visitor(&item.element, item.depth, item.offset, context);
             if (result == TLV_VISIT_STOP) return TLV_OK;
             if (result != TLV_VISIT_CONTINUE)
-                return tree_error(
-                    visitor_error(diagnostic,
-                                  result == TLV_VISIT_ERROR ? TLV_ERR_VISITOR : TLV_ERR_CALLBACK, 1,
-                                  item.offset),
-                    item.offset, error_offset);
+                return visitor_error(diagnostic,
+                                     result == TLV_VISIT_ERROR ? TLV_ERR_VISITOR : TLV_ERR_CALLBACK,
+                                     1, item.offset);
         }
     }
     return TLV_OK;
-}
-
-tlv_result_t tlv_tree_reader_visit(tlv_tree_reader_t* reader, tlv_tree_visitor_t visitor,
-                                   void* context, size_t* error_offset) {
-    return tlv_tree_reader_visit_diag(reader, visitor, context, error_offset, NULL);
 }
 
 tlv_result_t tlv_reader_visit_diag(tlv_reader_t* reader, tlv_visitor_t visitor, void* context,

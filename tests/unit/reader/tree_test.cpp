@@ -169,7 +169,7 @@ TEST(Unit_Tlv_Tree, RelocationWhileNestedRetainsOnlyStructuralOffsets) {
     EXPECT_EQ(
         TLV_NEED_MORE_DATA,
         TLV_DIAGNOSTIC_RESULT(diagnostic, tlv_tree_reader_next_diag(&reader, &item, &diagnostic)));
-    EXPECT_EQ(9u, diagnostic.diagnostic.offset);
+    EXPECT_EQ(9u, diagnostic.diagnostic.location.begin);
     EXPECT_EQ(8u, tlv_tree_reader_offset(&reader));
     ASSERT_EQ(TLV_OK, tlv_tree_reader_set_input(&reader, third, 4, 0, 1));
     ASSERT_EQ(TLV_OK, tlv_tree_reader_next(&reader, &item));
@@ -194,10 +194,10 @@ TEST(Unit_Tlv_Tree, ChildErrorsCannotBorrowBytesOutsideTheParent) {
         EXPECT_EQ(TLV_ERR_BUFFER_TOO_SHORT,
                   TLV_DIAGNOSTIC_RESULT(diagnostic,
                                         tlv_tree_reader_next_diag(&reader, &item, &diagnostic)));
-        EXPECT_EQ(4u, diagnostic.diagnostic.offset);
-        EXPECT_EQ(5u, diagnostic.enclosing_end);
-        EXPECT_EQ(2u, diagnostic.required);
-        EXPECT_EQ(1u, diagnostic.available);
+        EXPECT_EQ(4u, diagnostic.diagnostic.location.begin);
+        EXPECT_EQ(5u, diagnostic.detail.enclosing_end);
+        EXPECT_EQ(2u, diagnostic.detail.required);
+        EXPECT_EQ(1u, diagnostic.detail.available);
         EXPECT_EQ(1u, reader.count);
         EXPECT_EQ(0u, reader.depth);
         EXPECT_EQ(99u, frame.end);

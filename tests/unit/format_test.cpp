@@ -515,11 +515,11 @@ TEST(Unit_Tlv_Format, FailedDecodeCallbacksPreservePublishedOutputsAcrossReaderP
                         expect_same_source(source_before, source);
                         if (diagnostic) {
                             EXPECT_EQ(expected, detail.diagnostic.code);
-                            EXPECT_EQ(TLV_READER_OP_LENGTH, detail.operation);
-                            EXPECT_FALSE(detail.diagnostic.has_offset);
-                            EXPECT_FALSE(detail.has_tag);
-                            EXPECT_FALSE(detail.has_raw_length);
-                            EXPECT_FALSE(detail.has_value_offset);
+                            EXPECT_EQ(TLV_READER_OP_LENGTH, detail.detail.operation);
+                            EXPECT_FALSE(detail.diagnostic.location.kind);
+                            EXPECT_FALSE(detail.detail.has_tag);
+                            EXPECT_FALSE(detail.detail.has_raw_length);
+                            EXPECT_FALSE(detail.detail.has_value_offset);
                         }
                     }
                 }
@@ -542,14 +542,14 @@ TEST(Unit_Tlv_Format, MissingDecodeArgumentsDoNotPublishUninitializedDiagnosticF
                                                                   &consumed, &diagnostic)));
         EXPECT_EQ(99u, consumed);
         EXPECT_EQ(TLV_ERR_NULL_ARG, diagnostic.diagnostic.code);
-        EXPECT_EQ(TLV_READER_OP_HEADER, diagnostic.operation);
-        EXPECT_FALSE(diagnostic.diagnostic.has_offset);
-        EXPECT_EQ(0u, diagnostic.diagnostic.offset);
-        EXPECT_FALSE(diagnostic.has_tag);
-        EXPECT_FALSE(diagnostic.has_raw_length);
-        EXPECT_FALSE(diagnostic.has_declared_length);
-        EXPECT_FALSE(diagnostic.has_required);
-        EXPECT_FALSE(diagnostic.has_available);
+        EXPECT_EQ(TLV_READER_OP_HEADER, diagnostic.detail.operation);
+        EXPECT_FALSE(diagnostic.diagnostic.location.kind);
+        EXPECT_EQ(0u, diagnostic.diagnostic.location.begin);
+        EXPECT_FALSE(diagnostic.detail.has_tag);
+        EXPECT_FALSE(diagnostic.detail.has_raw_length);
+        EXPECT_FALSE(diagnostic.detail.has_declared_length);
+        EXPECT_FALSE(diagnostic.detail.has_required);
+        EXPECT_FALSE(diagnostic.detail.has_available);
     }
 }
 

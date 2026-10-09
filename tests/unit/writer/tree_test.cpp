@@ -156,7 +156,7 @@ TEST(Unit_Tlv_TreeWriter, EncoderFailureRestoresValueAndPreservesFinalPrefix) {
             TLV_ERR_INVALID_LENGTH,
             TLV_DIAGNOSTIC_RESULT(diagnostic, tlv_tree_writer_end_diag(&writer, &diagnostic)));
         EXPECT_EQ(TLV_WRITER_OP_LENGTH, diagnostic.operation);
-        EXPECT_EQ(3u, diagnostic.diagnostic.offset);
+        EXPECT_EQ(3u, diagnostic.diagnostic.location.begin);
         EXPECT_EQ(1u, writer.depth);
         EXPECT_EQ(4u, writer.output.pos);
         EXPECT_EQ(2u, tlv_tree_writer_size(&writer));
@@ -482,7 +482,7 @@ TEST(Unit_Tlv_TreeWriter, MeasurementKeepsAbsoluteDiagnosticsAndPropagatesSource
               TLV_DIAGNOSTIC_RESULT(diagnostic,
                                     tlv_tree_writer_measure(&failing, Source::next, &source,
                                                             &workspace, 1, 3, &size, &diagnostic)));
-    EXPECT_EQ(3u, diagnostic.diagnostic.offset);
+    EXPECT_EQ(3u, diagnostic.diagnostic.location.begin);
     EXPECT_EQ(TLV_WRITER_OP_LENGTH, diagnostic.operation);
     EXPECT_EQ(99u, size);
     EXPECT_EQ(0u, workspace.required_data);
@@ -501,7 +501,7 @@ TEST(Unit_Tlv_TreeWriter, MeasurementKeepsAbsoluteDiagnosticsAndPropagatesSource
               TLV_DIAGNOSTIC_RESULT(diagnostic,
                                     tlv_tree_writer_measure(&failing, Source::next, &source,
                                                             &workspace, 1, 3, &size, &diagnostic)));
-    EXPECT_EQ(3u, diagnostic.diagnostic.offset);
+    EXPECT_EQ(3u, diagnostic.diagnostic.location.begin);
     const auto fail_source = [](void*, tlv_element_t*, size_t*, int*) { return TLV_ERR_VISITOR; };
     EXPECT_EQ(TLV_ERR_VISITOR,
               TLV_DIAGNOSTIC_RESULT(diagnostic,

@@ -45,18 +45,26 @@ int query_command::run() {
                                  {"kind", d.kind},
                                  {"begin", d.begin},
                                  {"end", d.end}};
-        if (d.has_source_offset) detail["source_offset"] = d.source_offset;
+        if (tlv::domain(d.diagnostic.location) == tlv::location_domain::input &&
+            tlv::kind(d.diagnostic.location) != tlv::location_kind::unknown)
+            detail["source_offset"] = d.diagnostic.location.begin;
+        detail["location"] = {{"domain", tlv::message(tlv::domain(d.diagnostic.location))},
+                              {"kind", tlv::message(tlv::kind(d.diagnostic.location))}};
+        if (tlv::kind(d.diagnostic.location) != tlv::location_kind::unknown) {
+            detail["location"]["begin"] = d.diagnostic.location.begin;
+            detail["location"]["end"] = d.diagnostic.location.end;
+        }
         if (d.expected) detail["expected"] = d.expected;
         if (d.limit) {
             detail["limit"] = d.limit;
             detail["configured"] = d.configured;
         }
         if (failure.kind() == tlv::query_issue::codec) detail["codec"] = d.codec;
-        if (failure.kind() == tlv::query_issue::reader) {
-            detail["reader"] = {{"code", static_cast<tlv::errc>(d.reader.diagnostic.code)},
+        if (d.has_reader) {
+            detail["reader"] = {{"code", static_cast<tlv::errc>(d.diagnostic.code)},
                                 {"operation", d.reader.operation}};
-            if (d.reader.diagnostic.has_offset)
-                detail["reader"]["offset"] = d.reader.diagnostic.offset;
+            if (d.diagnostic.location.kind)
+                detail["reader"]["offset"] = d.diagnostic.location.begin;
             if (d.reader.has_tag)
                 detail["reader"]["tag"] = hex_string(tlv::diagnostic_tag(d.reader).as_bytes());
         }

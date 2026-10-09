@@ -105,7 +105,6 @@ go_document* go_document_parse(go_format config, const uint8_t* data, size_t siz
         tlv_document_builder_t* builder = NULL;
         size_t                  capacity = options.max_depth < size ? options.max_depth : size;
         tlv_tree_frame_t*       frames = NULL;
-        size_t                  error_offset = SIZE_MAX;
         if (capacity > SIZE_MAX / sizeof(*frames)) {
             *code = TLV_ERR_OVERFLOW;
         } else {
@@ -117,10 +116,7 @@ go_document* go_document_parse(go_format config, const uint8_t* data, size_t siz
             if (*code == TLV_OK)
                 *code = tlv_document_builder_create(&options, &reader, NULL, &builder);
             if (*code == TLV_OK)
-                *code =
-                    tlv_document_builder_consume(builder, &d->document, &error_offset, diagnostic);
-            if (*code != TLV_OK && !diagnostic->diagnostic.has_offset && error_offset != SIZE_MAX)
-                tlv_diagnostic_set_offset(&diagnostic->diagnostic, error_offset);
+                *code = tlv_document_builder_consume(builder, &d->document, diagnostic);
             tlv_document_builder_free(builder);
             free(frames);
         }
@@ -172,10 +168,10 @@ static tlv_visit_result_t collect_query(tlv_node_t* node, void* context) {
 #endif
 
 int go_document_query(go_document* d, const char* text, void*** nodes, size_t* count,
-                      size_t* error_offset) {
+                      tlv_diagnostic_t* diagnostic) {
 #if OPENTLV_DOCUMENT
     tlv_query_t      query;
-    tlv_result_t     code = tlv_query_parse(text, &query, error_offset);
+    tlv_result_t     code = tlv_query_parse(text, &query, diagnostic);
     go_query_results results = {NULL, 0};
     size_t           capacity;
     if (code != TLV_OK) return code;
@@ -198,7 +194,7 @@ int go_document_query(go_document* d, const char* text, void*** nodes, size_t* c
     (void)text;
     (void)nodes;
     (void)count;
-    (void)error_offset;
+    (void)diagnostic;
     return TLV_ERR_UNSUPPORTED;
 #endif
 }
@@ -816,8 +812,10 @@ tlv_result_t go_query_feed_encoded(go_query_execution* q, const uint8_t* data, s
         q->buffers = buffer;
         memset(diagnostic, 0, sizeof *diagnostic);
         diagnostic->kind = TLV_QUERY_ERROR_READER;
-        diagnostic->reader = original;
-        diagnostic->reader.diagnostic.code = rc;
+        diagnostic->has_reader = 1;
+        diagnostic->reader = original.detail;
+        diagnostic->diagnostic = original.diagnostic;
+        diagnostic->diagnostic.code = rc;
         return rc;
     }
     event->kind =

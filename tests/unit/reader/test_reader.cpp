@@ -101,8 +101,8 @@ TEST(Unit_Tlvpp_ReaderParity, IncrementalSourceOffsetsAndFinalTruncation) {
     ASSERT_FALSE(failure);
     EXPECT_EQ(TLV_DIAGNOSTIC_RESULT(expected, tlv_reader_next_diag(&native, &element, &expected)),
               failure.error().code);
-    EXPECT_EQ(expected.diagnostic.offset, actual.diagnostic.offset);
-    EXPECT_EQ(expected.operation, actual.operation);
+    EXPECT_EQ(expected.diagnostic.location.begin, actual.diagnostic.location.begin);
+    EXPECT_EQ(expected.detail.operation, actual.detail.operation);
     EXPECT_FALSE(reader.at_end());
     EXPECT_EQ(0u, reader.consumed());
     ASSERT_TRUE(reader.set_input(view(data, 4), 0, tlv::input_mode::incremental));
@@ -117,7 +117,7 @@ TEST(Unit_Tlvpp_ReaderParity, IncrementalSourceOffsetsAndFinalTruncation) {
     auto truncated = reader.next_source(&actual);
     ASSERT_FALSE(truncated);
     EXPECT_EQ(TLV_ERR_BUFFER_TOO_SHORT, truncated.error().code);
-    EXPECT_EQ(4u, actual.diagnostic.offset); // Missing Length field, not the element start.
+    EXPECT_EQ(4u, actual.diagnostic.location.begin); // Missing Length field, not the element start.
     EXPECT_EQ(3u, reader.offset());
 }
 
@@ -126,14 +126,12 @@ TEST(Unit_Tlvpp_TreeReaderParity, ValidationReportsMalformedChildWithoutRequesti
     tlv::tree_frame        frames[1]{};
     tlv::tree_reader       reader(view(data, sizeof(data)), tlv::native::borrow_format(format),
                                   {frames, 1}, 1, 5, tlv::input_mode::incremental);
-    size_t                 offset = 99;
     tlv::reader_diagnostic diagnostic{};
-    auto                   result = reader.validate(&offset, &diagnostic);
+    auto                   result = reader.validate(&diagnostic);
     ASSERT_FALSE(result);
     EXPECT_EQ(TLV_ERR_BUFFER_TOO_SHORT, result.error().code);
-    EXPECT_EQ(2u, offset);
     EXPECT_EQ(2u, reader.offset());
-    EXPECT_EQ(4u, diagnostic.diagnostic.offset); // Missing Value at the parent's end.
+    EXPECT_EQ(4u, diagnostic.diagnostic.location.begin); // Missing Value at the parent's end.
 }
 
 TEST(Unit_Tlvpp_QueryParity, MatcherOwnsQueryAfterTemporaryExpires) {

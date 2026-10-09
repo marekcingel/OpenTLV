@@ -112,19 +112,21 @@ TEST(Unit_Tlv_CerValues, RejectsIncorrectSegmentTag) {
     data.push_back('z');
     data.push_back(0);
     data.push_back(0);
-    size_t offset = 99;
+    tlv_diagnostic_t offset = {};
+    offset.location.begin = 99;
     EXPECT_EQ(TLV_ERR_INVALID_TAG,
               tlv_cer_visit(data.data(), data.size(), nullptr, nullptr, nullptr, &offset));
-    EXPECT_EQ(2u, offset);
+    EXPECT_EQ(2u, offset.location.begin);
 }
 
 TEST(Unit_Tlv_CerValues, RejectsConstructedSegment) {
     /* OCTET STRING wrapper whose only "segment" is itself constructed. */
-    const uint8_t data[] = {0x24, 0x80, 0x24, 0x80, 0x04, 1, 'a', 0, 0, 0, 0};
-    size_t        offset = 99;
+    const uint8_t    data[] = {0x24, 0x80, 0x24, 0x80, 0x04, 1, 'a', 0, 0, 0, 0};
+    tlv_diagnostic_t offset = {};
+    offset.location.begin = 99;
     EXPECT_EQ(TLV_ERR_INVALID_TAG,
               tlv_cer_visit(data, sizeof(data), nullptr, nullptr, nullptr, &offset));
-    EXPECT_EQ(2u, offset);
+    EXPECT_EQ(2u, offset.location.begin);
 }
 
 TEST(Unit_Tlv_CerValues, RejectsShortNonFinalSegment) {
@@ -140,10 +142,11 @@ TEST(Unit_Tlv_CerValues, RejectsShortNonFinalSegment) {
     data.push_back('z'); /* proves seg wasn't last */
     data.push_back(0);
     data.push_back(0);
-    size_t offset = 99;
+    tlv_diagnostic_t offset = {};
+    offset.location.begin = 99;
     EXPECT_EQ(TLV_ERR_INVALID_LENGTH,
               tlv_cer_visit(data.data(), data.size(), nullptr, nullptr, nullptr, &offset));
-    EXPECT_EQ(2u, offset);
+    EXPECT_EQ(2u, offset.location.begin);
 }
 
 TEST(Unit_Tlv_CerValues, RejectsOversizedSegment) {
@@ -151,20 +154,22 @@ TEST(Unit_Tlv_CerValues, RejectsOversizedSegment) {
     data.resize(data.size() + 1001, 'a');
     data.push_back(0);
     data.push_back(0);
-    size_t offset = 99;
+    tlv_diagnostic_t offset = {};
+    offset.location.begin = 99;
     EXPECT_EQ(TLV_ERR_INVALID_LENGTH,
               tlv_cer_visit(data.data(), data.size(), nullptr, nullptr, nullptr, &offset));
-    EXPECT_EQ(2u, offset);
+    EXPECT_EQ(2u, offset.location.begin);
 }
 
 TEST(Unit_Tlv_CerValues, RejectsEmptySegment) {
     /* A sole empty segment: noncanonical (should have been primitive with
      * zero-length content, or omitted entirely). */
-    const uint8_t data[] = {0x24, 0x80, 0x04, 0, 0, 0};
-    size_t        offset = 99;
+    const uint8_t    data[] = {0x24, 0x80, 0x04, 0, 0, 0};
+    tlv_diagnostic_t offset = {};
+    offset.location.begin = 99;
     EXPECT_EQ(TLV_ERR_INVALID_LENGTH,
               tlv_cer_visit(data, sizeof(data), nullptr, nullptr, nullptr, &offset));
-    EXPECT_EQ(2u, offset);
+    EXPECT_EQ(2u, offset.location.begin);
 }
 
 TEST(Unit_Tlv_CerValues, RejectsUnjustifiedConstructedEncoding) {
@@ -173,11 +178,12 @@ TEST(Unit_Tlv_CerValues, RejectsUnjustifiedConstructedEncoding) {
      * the outer element's length field (its 0x80 indefinite marker),
      * matching the "length-form errors point to the length field" offset
      * convention used throughout these validators. */
-    const uint8_t data[] = {0x24, 0x80, 0x04, 1, 'a', 0, 0};
-    size_t        offset = 99;
+    const uint8_t    data[] = {0x24, 0x80, 0x04, 1, 'a', 0, 0};
+    tlv_diagnostic_t offset = {};
+    offset.location.begin = 99;
     EXPECT_EQ(TLV_ERR_INVALID_LENGTH,
               tlv_cer_visit(data, sizeof(data), nullptr, nullptr, nullptr, &offset));
-    EXPECT_EQ(1u, offset);
+    EXPECT_EQ(1u, offset.location.begin);
 }
 
 TEST(Unit_Tlv_CerValues, BitStringSegmentation) {
@@ -208,7 +214,8 @@ TEST(Unit_Tlv_CerValues, BitStringSegmentation) {
      * octet; strict content validation rejects it. */
     std::vector<uint8_t> tampered = data;
     tampered[2 + 4] = 1; /* first byte of the first segment's content */
-    size_t offset = 99;
+    tlv_diagnostic_t offset = {};
+    offset.location.begin = 99;
     EXPECT_EQ(TLV_OK,
               tlv_cer_visit(tampered.data(), tampered.size(), nullptr, nullptr, nullptr, nullptr));
     EXPECT_EQ(TLV_ERR_INVALID_VALUE, tlv_cer_visit_strict(tampered.data(), tampered.size(), nullptr,
@@ -239,7 +246,8 @@ TEST(Unit_Tlv_CerValues, Utf8StringCharacterSplitAcrossSegmentBoundary) {
      * invalid; strict validation must still catch it across the boundary. */
     std::vector<uint8_t> truncated = data;
     truncated[truncated.size() - 3] = 0x41; /* replace the continuation byte with 'A' */
-    size_t offset = 99;
+    tlv_diagnostic_t offset = {};
+    offset.location.begin = 99;
     EXPECT_EQ(TLV_ERR_INVALID_VALUE, tlv_cer_read_strict(truncated.data(), truncated.size(),
                                                          nullptr, &element, &consumed, &offset));
 }
@@ -265,8 +273,10 @@ TEST(Unit_Tlv_CerValues, CharacterStringRejectsInvalidCharsetPerSegment) {
     size_t  written = 0;
     ASSERT_EQ(TLV_OK, tlv_cer_write(output, sizeof(output), (TLV_TAG(0x32)), children.data(),
                                     children.size(), nullptr, &written, nullptr));
-    tlv_element_t element{};
-    size_t        consumed = 0, offset = 99;
+    tlv_element_t    element{};
+    size_t           consumed = 0;
+    tlv_diagnostic_t offset = {};
+    offset.location.begin = 99;
     ASSERT_EQ(TLV_OK, tlv_cer_read(output, written, nullptr, &element, &consumed, nullptr));
     EXPECT_EQ(TLV_ERR_INVALID_VALUE,
               tlv_cer_read_strict(output, written, nullptr, &element, &consumed, &offset));
@@ -302,13 +312,16 @@ TEST(Unit_Tlv_CerValues, WriteStrictRejectsInvalidContentButNonStrictAccepts) {
     const uint8_t   bad_value[] = {0x02}; /* only 0x00/0xFF are canonical */
     uint8_t         output[8];
     std::memset(output, 0xEE, sizeof(output));
-    size_t written = 99, offset = 0;
+    size_t           written = 99;
+    tlv_diagnostic_t offset = {};
 
     EXPECT_EQ(TLV_ERR_INVALID_VALUE,
               tlv_cer_write_strict(output, sizeof(output), tag, bad_value, sizeof(bad_value),
                                    nullptr, &written, &offset));
     EXPECT_EQ(99u, written);
-    EXPECT_EQ(1u, offset); /* just past the 1-byte tag, matching write_impl's offset_base */
+    EXPECT_EQ(
+        1u,
+        offset.location.begin); /* just past the 1-byte tag, matching write_impl's offset_base */
     for (auto byte : output) EXPECT_EQ(0xEE, byte);
 
     EXPECT_EQ(TLV_OK, tlv_cer_write(output, sizeof(output), tag, bad_value, sizeof(bad_value),

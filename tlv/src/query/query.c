@@ -11,12 +11,18 @@ static int hex_digit(char c) {
     return query_hex((unsigned char)c);
 }
 
-static void set_offset(size_t* out, size_t offset) {
-    if (out) *out = offset;
+static tlv_result_t path_error(tlv_diagnostic_t* diagnostic, tlv_result_t code, size_t begin,
+                               size_t end) {
+    if (diagnostic) {
+        tlv_diagnostic_init(diagnostic, code, TLV_DIAGNOSTIC_SEVERITY_ERROR);
+        tlv_diagnostic_set_location(diagnostic, TLV_LOCATION_EXPRESSION, TLV_LOCATION_SPAN, begin,
+                                    end);
+    }
+    return code;
 }
 
 tlv_result_t tlv_query_parse_n(const char* text, size_t size, tlv_query_t* query,
-                               size_t* error_offset) {
+                               tlv_diagnostic_t* diagnostic) {
     query_v1_data_t parsed;
     size_t pos = 0, used = 0;
     if (!text || !query) return TLV_ERR_NULL_ARG;
@@ -25,23 +31,19 @@ tlv_result_t tlv_query_parse_n(const char* text, size_t size, tlv_query_t* query
         size_t start = pos, digits;
         while (pos < size && text[pos] != '/') {
             if (hex_digit(text[pos]) < 0) {
-                set_offset(error_offset, pos);
-                return TLV_ERR_INVALID_ARG;
+                return path_error(diagnostic, TLV_ERR_INVALID_ARG, pos, pos + 1);
             }
             ++pos;
         }
         digits = pos - start;
         if (!digits || digits % 2) {
-            set_offset(error_offset, digits ? start : pos);
-            return TLV_ERR_INVALID_ARG;
+            return path_error(diagnostic, TLV_ERR_INVALID_ARG, start, pos);
         }
         if (parsed.count == TLV_QUERY_MAX_STEPS) {
-            set_offset(error_offset, start);
-            return TLV_ERR_LIMIT;
+            return path_error(diagnostic, TLV_ERR_LIMIT, start, pos);
         }
         if (digits / 2 > TLV_QUERY_MAX_BYTES - used) {
-            set_offset(error_offset, start);
-            return TLV_ERR_LIMIT;
+            return path_error(diagnostic, TLV_ERR_LIMIT, start, pos);
         }
         for (size_t i = 0; i < digits / 2; ++i)
             parsed.bytes[used + i] =
@@ -56,9 +58,9 @@ tlv_result_t tlv_query_parse_n(const char* text, size_t size, tlv_query_t* query
     return TLV_OK;
 }
 
-tlv_result_t tlv_query_parse(const char* text, tlv_query_t* query, size_t* error_offset) {
+tlv_result_t tlv_query_parse(const char* text, tlv_query_t* query, tlv_diagnostic_t* diagnostic) {
     if (!text || !query) return TLV_ERR_NULL_ARG;
-    return tlv_query_parse_n(text, strlen(text), query, error_offset);
+    return tlv_query_parse_n(text, strlen(text), query, diagnostic);
 }
 
 #endif
@@ -178,20 +180,21 @@ static tlv_visit_result_t on_element(const tlv_element_t* element, size_t depth,
 }
 
 tlv_result_t tlv_query_visit(tlv_tree_reader_t* reader, tlv_query_matcher_t* matcher,
-                             tlv_tree_visitor_t visitor, void* context, size_t* error_offset) {
+                             tlv_tree_visitor_t visitor, void* context,
+                             tlv_reader_diagnostic_t* diagnostic) {
     query_visitor_t state;
     if (!reader || !matcher || !visitor) return TLV_ERR_NULL_ARG;
     if (!query_v1_matcher_load(matcher).query) return TLV_ERR_NULL_ARG;
     state.matcher = matcher;
     state.visitor = visitor;
     state.context = context;
-    return tlv_tree_reader_visit(reader, on_element, &state, error_offset);
+    return tlv_tree_reader_visit(reader, on_element, &state, diagnostic);
 }
 
 tlv_result_t tlv_query_visit_buffer(const uint8_t* data, size_t size, const tlv_format_t* format,
                                     const tlv_query_t* query, size_t max_depth, size_t max_elements,
                                     tlv_tree_visitor_t visitor, void* context,
-                                    size_t* error_offset) {
+                                    tlv_reader_diagnostic_t* diagnostic) {
     tlv_query_matcher_t matcher;
     tlv_result_t rc;
     if (!visitor) return TLV_ERR_NULL_ARG;
@@ -202,9 +205,12 @@ tlv_result_t tlv_query_visit_buffer(const uint8_t* data, size_t size, const tlv_
     rc = tlv_tree_reader_init(&reader, data, size, format, frames, TLV_QUERY_MAX_STEPS, max_depth,
                               max_elements);
     if (rc != TLV_OK) {
-        if (error_offset) *error_offset = 0;
+        if (diagnostic) {
+            tlv_reader_diagnostic_init(diagnostic);
+            diagnostic->diagnostic.code = rc;
+        }
         return rc;
     }
-    return tlv_query_visit(&reader, &matcher, visitor, context, error_offset);
+    return tlv_query_visit(&reader, &matcher, visitor, context, diagnostic);
 }
 #endif

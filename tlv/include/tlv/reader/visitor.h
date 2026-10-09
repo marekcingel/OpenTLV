@@ -97,8 +97,10 @@ TLV_API tlv_result_t tlv_reader_visit_diag(tlv_reader_t* reader, tlv_visitor_t v
  * @param[in,out] reader Initialized caller-owned cursor; required.
  * @param[in] visitor Callback, or NULL to validate only.
  * @param[in] context Opaque callback context; may be NULL.
- * @param[out] error_offset Optional absolute failing item offset, or frontier
- *            on pull failure/need-more-data; zero for NULL reader. Unchanged on success.
+ * @param[out] diagnostic Optional Reader detail, initialized at entry. INPUT coordinates
+ *            are absolute in the stream, including discarded windows. Unknown locations
+ *            remain unknown; visitor failures identify the visited item. Tag bytes and
+ *            context strings remain borrowed from input/Format storage.
  * @return #TLV_OK at final exhaustion or on #TLV_VISIT_STOP.
  * @return #TLV_NEED_MORE_DATA when more input is needed; use
  *         tlv_tree_reader_set_input() before resuming.
@@ -109,21 +111,7 @@ TLV_API tlv_result_t tlv_reader_visit_diag(tlv_reader_t* reader, tlv_visitor_t v
  *          lifetimes follow tlv_reader_visit(); do not modify active frames.
  */
 TLV_API tlv_result_t tlv_tree_reader_visit(tlv_tree_reader_t* reader, tlv_tree_visitor_t visitor,
-                                           void* context, size_t* error_offset);
-
-/**
- * @brief Visit preorder items with original Tree Reader diagnostics.
- *
- * @copydetails tlv_tree_reader_visit
- * @param[out] diagnostic Optional detail, cleared at entry. Filled on Reader
- *            failure or need-more-data with absolute offsets, without reparsing;
- *            remains clear on success and tree argument/resource/visitor errors.
- *            Borrowed diagnostic storage follows Tree Reader.
- */
-TLV_API tlv_result_t tlv_tree_reader_visit_diag(tlv_tree_reader_t* reader,
-                                                tlv_tree_visitor_t visitor, void* context,
-                                                size_t* error_offset,
-                                                tlv_reader_diagnostic_t* diagnostic);
+                                           void* context, tlv_reader_diagnostic_t* diagnostic);
 
 #ifdef __cplusplus
 }

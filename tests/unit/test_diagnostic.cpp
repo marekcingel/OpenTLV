@@ -11,7 +11,7 @@ TEST(Unit_Tlvpp_Diagnostic, MakeDiagnosticSetsCodeAndSeverity) {
 
     EXPECT_EQ(tlv::errc::end_of_input, tlv::status(diagnostic));
     EXPECT_EQ(tlv::severity::warning, tlv::severity_of(diagnostic));
-    EXPECT_EQ(0, diagnostic.has_offset);
+    EXPECT_EQ(0, diagnostic.location.kind);
     EXPECT_EQ(nullptr, diagnostic.contexts);
 }
 
@@ -83,6 +83,6 @@ TEST(Unit_Tlvpp_Diagnostic, SetPathAttachesThePathToTheDiagnostic) {
 
     tlv::set_path(diagnostic, path);
 
-    ASSERT_EQ(&path, diagnostic.path);
-    EXPECT_EQ(1u, diagnostic.path->length);
+    ASSERT_TRUE(diagnostic.has_path);
+    EXPECT_EQ(1u, diagnostic.path.length);
 }

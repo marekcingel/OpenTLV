@@ -91,7 +91,7 @@ def test_structure_schema_reports_a_missing_required_field():
         schema.validate(b"")
     assert excinfo.value.offset == 0
     assert excinfo.value.kind == "missing"
-    assert excinfo.value.anchor == 2
+    assert excinfo.value.location.kind == "scope_end"
 
 
 def test_structure_schema_rejects_an_unknown_tag_by_default():
@@ -186,7 +186,7 @@ def test_bounded_schema_reports_copy_paths_and_count_omitted_issues():
     assert allowed.total_count == 1
     assert allowed.diagnostics[0].kind_name == "missing"
     assert allowed.diagnostics[0].offset == 2
-    assert allowed.diagnostics[0].anchor == 2
+    assert allowed.diagnostics[0].location.kind == "scope_end"
     with pytest.raises(BufferTooShortError):
         schema.validate_diagnostics(bytes.fromhex("0201"))
 
@@ -234,7 +234,7 @@ def test_detailed_schema_group_bounds_capacity_and_wire_errors():
     assert issue.is_group and issue.field == "choice"
     assert issue.occurrences == SchemaBounds(1, 1, 0)
     assert issue.offset == 0
-    assert issue.anchor == 2
+    assert issue.location.kind == "scope_end"
     duplicate = schema.validate_diagnostics(bytes.fromhex("04000400")).diagnostics[0]
     assert duplicate.occurrences == SchemaBounds(1, 1, 2)
     assert duplicate.offset == 2

@@ -21,6 +21,7 @@ const (
 
 // ProgramError preserves Query spans, named limits, codec and original Reader detail.
 type ProgramError struct {
+	Location Location
 	StatusError
 	Kind                                 int
 	Begin, End, SourceOffset, Configured uint64
@@ -38,7 +39,7 @@ func programError(code capi.Code, d capi.ProgramDiagnostic) error {
 	if code == capi.InvalidState {
 		d.Kind = capi.QueryErrorState
 	}
-	return &ProgramError{StatusError: StatusError{code: code}, Kind: d.Kind,
+	return &ProgramError{Location: Location{LocationDomain(d.Location.Domain), LocationKind(d.Location.Kind), d.Location.Begin, d.Location.End}, StatusError: StatusError{code: code}, Kind: d.Kind,
 		Begin: d.Begin, End: d.End, SourceOffset: d.SourceOffset, HasSourceOffset: d.HasSourceOffset,
 		Configured: d.Configured, Expected: d.Expected, Limit: d.Limit, Codec: d.Codec, Reader: publicDiagnostic(d.Reader)}
 }
@@ -103,7 +104,6 @@ type QuerySchemaError struct {
 	Diagnostic
 	Rule    int
 	Kind    int
-	Anchor  int // Native Schema position: unknown, element, scope end, insertion.
 	Field   string
 	Failure *ProgramError
 }
@@ -167,7 +167,7 @@ func validateQuerySchema(rules []QueryRule, input []byte, document *Document, fo
 	}
 	failure := programError(code, detail.Query).(*ProgramError)
 	return &QuerySchemaError{Diagnostic: publicDiagnostic(detail.Schema), Rule: detail.Rule,
-		Kind: detail.Kind, Anchor: detail.Anchor, Field: detail.Field, Failure: failure}
+		Kind: detail.Kind, Field: detail.Field, Failure: failure}
 }
 
 // ValidateQueryBuffer delegates contextual assertions to C over a copied complete

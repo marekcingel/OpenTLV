@@ -16,13 +16,38 @@ of inventing its own error-reporting shape.
 
 tlv_diagnostic_t diagnostic;
 tlv_diagnostic_init(&diagnostic, TLV_ERR_END_OF_BUFFER, TLV_DIAGNOSTIC_SEVERITY_ERROR);
-tlv_diagnostic_set_offset(&diagnostic, 42);
+tlv_diagnostic_set_location(&diagnostic, TLV_LOCATION_INPUT, TLV_LOCATION_POINT, 42, 42);
 ```
 
-`tlv_diagnostic_t` holds a stable `code` (a `tlv_result_t`), a `severity`, an
-optional byte `offset`, and borrowed `expected`/`actual` descriptions. Every
+`tlv_diagnostic_t` holds a stable `code` (a `tlv_result_t`), a `severity`, a
+primary `location`, an optional inline enclosing path, and borrowed `expected`/`actual` descriptions. Every
 field is a fixed-size value or a borrowed pointer, so building or passing a
 diagnostic never allocates.
+
+## Evidence locations
+
+`location.kind == TLV_LOCATION_UNKNOWN` means there is no known position. A
+POINT at zero is known evidence; never use zero or `SIZE_MAX` as an absence
+sentinel. SPAN is half-open `[begin, end)` and may be empty at EOF. SCOPE_END
+and INSERTION describe missing content without claiming an element exists there.
+
+The domain is INPUT, OUTPUT, EXPRESSION, DEFINITION or VALUE. Each operation
+defines the source and origin: Reader input coordinates include discarded windows;
+Writer and DER write coordinates describe would-be output; Query parse spans
+index expression bytes. Query runtime errors may carry primary INPUT evidence
+and retain a separate related expression span in `begin`/`end`. VALUE is local
+evidence whose enclosing wire origin is unavailable. Native Schema definitions
+use `definition.kind`, `definition.owner` and `definition.index`, not invented
+wire offsets. The owner borrows the supplied table/type.
+
+`tlv_location_translate()` checks both bounds. Overflow clears only the optional
+location and preserves the original result and detail. Diagnostics remain optional;
+requesting them does not add a second parse or callback invocation.
+
+The offset-only failure outputs and Schema-specific anchor enum were removed.
+Use the structured diagnostic parameters on Query paths, Tree visitors, Document,
+DER/CER, Bluetooth AD and DOL APIs. Rebuild native clients and every binding after
+this source and ABI change; there are no compatibility wrappers.
 
 ## Layering context
 
@@ -66,15 +91,15 @@ tlv_reader_diagnostic_t diagnostic;
 tlv_result_t rc = tlv_read_diag(data, size, &format, &element, &consumed, &diagnostic);
 if (rc != TLV_OK) {
     /* diagnostic.diagnostic.code   == rc
-     * diagnostic.diagnostic.offset == the offset of the field that failed
-     * diagnostic.operation         == which step failed (tag, length, value or trailer)
-     * diagnostic.declared_length / diagnostic.available, when set, describe
+     * diagnostic.diagnostic.location.begin == the offset of the field that failed
+     * diagnostic.detail.operation         == which step failed (tag, length, value or trailer)
+     * diagnostic.detail.declared_length / diagnostic.detail.available, when set, describe
      * a value or trailer that didn't fit the input */
 }
 ```
 
 For a tag whose declared value length exceeds the bytes left in the input,
-`diagnostic.operation` is `TLV_READER_OP_VALUE`, `diagnostic.has_tag` is set,
+`diagnostic.detail.operation` is `TLV_READER_OP_VALUE`, `diagnostic.detail.has_tag` is set,
 and `declared_length`/`available` report the mismatch directly, without
 having to re-parse the input to find it. Every field is a fixed-size value or
 a borrowed pointer, so filling a `tlv_reader_diagnostic_t` never allocates,
@@ -82,6 +107,13 @@ and `tag` borrows the input like any tag a reader produces.
 
 `tlv_reader_next_diag()` reports the same fields with offsets absolute within
 the reader's buffer, not relative to the element being read.
+
+Reader-specific evidence lives in `tlv_reader_detail_t`. A standalone Reader
+failure pairs it with one common diagnostic as `diagnostic` and `detail`.
+Query embeds the same detail as `reader`, guarded by `has_reader`, while
+`query.diagnostic` is the sole result, location and path for the failure.
+Reader causes remain present under Query `STATE`; pure Query failures leave
+`has_reader` unset. Neither representation contains self-referential pointers.
 
 ## Writer diagnostics
 
@@ -100,7 +132,7 @@ tlv_result_t rc = tlv_write_diag(data, capacity, &format, tag, value, length, &w
                                  &diagnostic);
 if (rc != TLV_OK) {
     /* diagnostic.diagnostic.code   == rc
-     * diagnostic.diagnostic.offset == the output offset the element would have started at
+     * diagnostic.diagnostic.location.begin == the output offset the element would have started at
      * diagnostic.operation         == which step failed (tag, length or value)
      * diagnostic.length            == the value length that was requested
      * diagnostic.required / diagnostic.available, when set, describe an
@@ -128,19 +160,19 @@ as a `tlv_schema_diagnostic_t`; see
 ```c
 #include "tlv/schema/schema.h"
 
-tlv_schema_diagnostic_t        diagnostics[16];
+tlv_schema_diagnostic_t        diagnostics[16], failure;
 tlv_schema_diagnostic_report_t report = {diagnostics, 16, 0};
 
 tlv_result_t rc = tlv_schema_validate_all_diag(data, size, &tlv_format_ber, &template_schema, 16,
                                                1000, TLV_SCHEMA_UNKNOWN_BY_SCHEMA, &report,
-                                               &offset);
+                                               &failure);
 if (rc == TLV_ERR_SCHEMA) {
     for (size_t i = 0; i < report.count && i < report.capacity; ++i) {
         const tlv_schema_diagnostic_t* d = &diagnostics[i];
         char path[64];
-        tlv_diagnostic_path_string(&d->path, path, sizeof(path), NULL);
+        tlv_diagnostic_path_string(&d->diagnostic.path, path, sizeof(path), NULL);
         /* d->diagnostic.code   == TLV_ERR_SCHEMA; kind distinguishes missing, length and other findings
-         * d->diagnostic.offset == the offset of the affected element, when d->diagnostic.has_offset
+         * d->diagnostic.location.begin == the offset of the affected element, when d->diagnostic.location.kind != TLV_LOCATION_UNKNOWN
          * path                == the scopes enclosing d->tag, for example "6F > A5 > BF0C > 61"
          * d->field             == the rule's schema name for d->tag, or NULL if it has none */
     }
@@ -148,7 +180,7 @@ if (rc == TLV_ERR_SCHEMA) {
 ```
 
 For a value whose length is outside its rule's bounds, `d->kind` is
-`TLV_SCHEMA_ISSUE_LENGTH`, `d->diagnostic.code` is `TLV_ERR_INVALID_LENGTH`,
+`TLV_SCHEMA_ISSUE_LENGTH`, `d->diagnostic.code` is `TLV_ERR_SCHEMA`,
 and `d->has_length` is set, with `min_length`/`max_length` from the rule and
 `actual_length` from the value that violated it: validating a 4F (ADF Name)
 with only 3 bytes against a rule requiring 5 to 16 fills `min_length` with
@@ -160,12 +192,10 @@ reporting what the value actually was. Only the fields for `kind` are set; the
 others are left zero. `field` and the fields for other kinds are `NULL` or
 unset for `TLV_SCHEMA_ISSUE_UNEXPECTED`, which matches no rule.
 
-`d->path` is a plain `tlv_diagnostic_path_t` value, not reachable through
-`d->diagnostic.path` (which stays `NULL`): each `tlv_schema_diagnostic_t` in a
-report needs its own path, and wiring it through a pointer field would leave
-a dangling self-reference the moment the struct is copied out of the report
-array. Attach it explicitly with `tlv_diagnostic_set_path(&d->diagnostic,
-&d->path)` if code elsewhere expects to find a path on `d->diagnostic`.
+The common base stores `path` by value, with `has_path` distinguishing an
+untracked path from a known empty path. Copying a diagnostic needs no rebasing.
+Tag spans still borrow their bytes; bindings copy those bytes before releasing
+the source. A nonzero `path.omitted` records truncated inner ancestry.
 
 ## Hierarchical paths
 
@@ -209,11 +239,11 @@ produced, attach the path with `tlv_diagnostic_set_path()`:
 ```c
 tlv_diagnostic_t diagnostic;
 tlv_diagnostic_init(&diagnostic, TLV_ERR_INVALID_LENGTH, TLV_DIAGNOSTIC_SEVERITY_ERROR);
-tlv_diagnostic_set_offset(&diagnostic, offset);
+tlv_diagnostic_set_location(&diagnostic, TLV_LOCATION_INPUT, TLV_LOCATION_POINT, offset, offset);
 tlv_diagnostic_set_path(&diagnostic, &path);
 
 char text[128];
-tlv_diagnostic_path_string(diagnostic.path, text, sizeof(text), NULL);
+tlv_diagnostic_path_string(&diagnostic.path, text, sizeof(text), NULL);
 /* text == "6F > A5 > BF0C > 61" for the element enclosing the failing 4F */
 ```
 
@@ -232,12 +262,10 @@ path. Diagnostic capacity does not reduce Schema's structural depth limit.
 Adding `omitted` changes the public path and embedding Schema diagnostic ABI;
 rebuild native clients and bindings against the updated headers/library.
 
-Nothing is copied or allocated: a pushed tag
-borrows the input like any tag a reader produces, and `path` itself must stay
-valid, and unchanged, for as long as the diagnostic is used. Tracking a path
-is entirely opt-in: a diagnostic that is never given one, and code that never
-builds a `tlv_diagnostic_path_t`, pay nothing beyond the one `NULL` pointer in
-`tlv_diagnostic_t::path`.
+Attaching a path copies its bounded value. The original path object can be
+changed or destroyed after attachment, while the Tag bytes must remain alive.
+Path collection is opt-in, but inline path capacity contributes to every common
+diagnostic's size. No diagnostic allocates memory.
 
 ## Scope
 
@@ -257,8 +285,8 @@ handling](python.md#error-handling)). Rust returns a `Result<T, Error>` with
 one `Error` variant per code, plus separate `SchemaError`, `ValidationError` and
 `CodecError` types for layers that add context, rather than a single chained
 diagnostic (see [Using OpenTLV from Rust: Error
-handling](rust.md#error-handling)). Neither binds hierarchical paths or
-context chaining yet.
+handling](rust.md#error-handling)). Schema reports own copied paths in both bindings; Rust Reader detail also copies
+tracked common paths. Location domain, kind and bounds are available directly.
 
 Reader diagnostics preserve `declared_length` as a 64-bit `tlv_size_t`, even
 when the value does not fit the supplied buffer or native address space.

@@ -14,7 +14,9 @@ TEST(Unit_Tlv_SchemaFailure, DefinitionIsIndependentOfInputAndOptionalChildren) 
     tlv_schema_diagnostic_t      diagnostic{};
     EXPECT_EQ(TLV_ERR_INVALID_SCHEMA, tlv_schema_check(&root, &diagnostic));
     EXPECT_EQ(TLV_SCHEMA_ISSUE_DEFINITION, diagnostic.kind);
-    EXPECT_FALSE(diagnostic.diagnostic.has_offset);
+    EXPECT_FALSE(diagnostic.diagnostic.location.kind);
+    EXPECT_EQ(TLV_SCHEMA_DEFINITION_TABLE, diagnostic.definition.kind);
+    EXPECT_EQ(&invalid, diagnostic.definition.owner);
     EXPECT_EQ(TLV_ERR_INVALID_SCHEMA,
               tlv_schema_validate(nullptr, 0, &controlled::format, &root, 8, 16, &diagnostic));
     EXPECT_EQ(TLV_ERR_INVALID_SCHEMA, diagnostic.diagnostic.code);
@@ -38,9 +40,11 @@ TEST(Unit_Tlv_SchemaFailure, MissingHasOneResultAndExplicitScopeEnd) {
               tlv_schema_validate(nullptr, 0, &controlled::format, &schema, 8, 16, &diagnostic));
     EXPECT_EQ(TLV_ERR_SCHEMA, diagnostic.diagnostic.code);
     EXPECT_EQ(TLV_SCHEMA_ISSUE_MISSING, diagnostic.kind);
-    EXPECT_EQ(TLV_SCHEMA_ANCHOR_SCOPE_END, diagnostic.anchor);
-    ASSERT_TRUE(diagnostic.diagnostic.has_offset);
-    EXPECT_EQ(0u, diagnostic.diagnostic.offset);
+    EXPECT_EQ(TLV_LOCATION_SCOPE_END, diagnostic.diagnostic.location.kind);
+    EXPECT_EQ(TLV_LOCATION_INPUT, diagnostic.diagnostic.location.domain);
+    EXPECT_EQ(diagnostic.diagnostic.location.begin, diagnostic.diagnostic.location.end);
+    ASSERT_TRUE(diagnostic.diagnostic.location.kind);
+    EXPECT_EQ(0u, diagnostic.diagnostic.location.begin);
     EXPECT_TRUE(tlv_tag_equal(field.tag, diagnostic.tag));
     EXPECT_EQ(1u, diagnostic.min_occurs);
     EXPECT_EQ(0u, diagnostic.occurs);
@@ -50,8 +54,8 @@ TEST(Unit_Tlv_SchemaFailure, MissingHasOneResultAndExplicitScopeEnd) {
                                            TLV_SCHEMA_UNKNOWN_BY_SCHEMA, &report, nullptr));
     EXPECT_EQ(1u, report.count);
     EXPECT_EQ(TLV_SCHEMA_ISSUE_MISSING, diagnostic.kind);
-    EXPECT_EQ(TLV_SCHEMA_ANCHOR_SCOPE_END, diagnostic.anchor);
-    EXPECT_TRUE(diagnostic.diagnostic.has_offset);
+    EXPECT_EQ(TLV_LOCATION_SCOPE_END, diagnostic.diagnostic.location.kind);
+    EXPECT_TRUE(diagnostic.diagnostic.location.kind);
     EXPECT_EQ(TLV_ERR_SCHEMA,
               tlv_schema_validate(nullptr, 0, &controlled::format, &schema, 8, 16, nullptr));
 }
@@ -85,7 +89,7 @@ TEST(Unit_Tlv_SchemaFailure, RecursiveDefinitionsAndCapabilityBoundsAreDistinct)
     EXPECT_EQ(TLV_ERR_UNSUPPORTED, tlv_schema_check(schemas, &diagnostic));
     EXPECT_EQ(TLV_ERR_UNSUPPORTED, diagnostic.diagnostic.code);
     EXPECT_EQ(TLV_SCHEMA_ISSUE_NONE, diagnostic.kind);
-    EXPECT_FALSE(diagnostic.diagnostic.has_offset);
+    EXPECT_FALSE(diagnostic.diagnostic.location.kind);
     rules[TLV_SCHEMA_MAX_TABLES - 1].children = nullptr;
     EXPECT_EQ(TLV_OK, tlv_schema_check(schemas, &diagnostic));
     rules[0].children = schemas;
@@ -93,7 +97,7 @@ TEST(Unit_Tlv_SchemaFailure, RecursiveDefinitionsAndCapabilityBoundsAreDistinct)
     EXPECT_EQ(TLV_OK, diagnostic.diagnostic.code);
     EXPECT_EQ(TLV_ERR_NULL_ARG, tlv_schema_check(nullptr, &diagnostic));
     EXPECT_EQ(TLV_SCHEMA_ISSUE_NONE, diagnostic.kind);
-    EXPECT_FALSE(diagnostic.diagnostic.has_offset);
+    EXPECT_FALSE(diagnostic.diagnostic.location.kind);
 }
 
 TEST(Unit_Tlv_SchemaFailure, SharedDagIsCheckedByIdentityIncludingUnvisitedDefinitions) {
@@ -113,5 +117,11 @@ TEST(Unit_Tlv_SchemaFailure, SharedDagIsCheckedByIdentityIncludingUnvisitedDefin
     EXPECT_EQ(TLV_OK, tlv_schema_validate_all_diag(nullptr, 0, &controlled::format, tables, 0, 0,
                                                    TLV_SCHEMA_UNKNOWN_BY_SCHEMA, &report, nullptr));
     rules[39][1].entry = nullptr;
+    tlv_schema_diagnostic_t diagnostic{};
+    EXPECT_EQ(TLV_ERR_INVALID_SCHEMA, tlv_schema_check(tables, &diagnostic));
+    EXPECT_EQ(TLV_SCHEMA_DEFINITION_RULE, diagnostic.definition.kind);
+    EXPECT_EQ(&tables[39], diagnostic.definition.owner);
+    EXPECT_EQ(1u, diagnostic.definition.index);
+    EXPECT_EQ(TLV_LOCATION_UNKNOWN, diagnostic.diagnostic.location.kind);
     EXPECT_EQ(TLV_ERR_INVALID_SCHEMA, tlv_schema_check(tables, nullptr));
 }

@@ -47,17 +47,21 @@ static void add_issue(collector_t* c, tlv_schema_issue_kind_t kind, const tlv_ta
     diagnostic = &report->diagnostics[report->count - 1];
     memset(diagnostic, 0, sizeof(*diagnostic));
     tlv_diagnostic_init(&diagnostic->diagnostic, TLV_ERR_SCHEMA, TLV_DIAGNOSTIC_SEVERITY_ERROR);
-    if (offset) tlv_diagnostic_set_offset(&diagnostic->diagnostic, *offset);
+    if (offset)
+        tlv_diagnostic_set_location(&diagnostic->diagnostic, TLV_LOCATION_INPUT, TLV_LOCATION_POINT,
+                                    *offset, *offset);
     diagnostic->kind = kind;
-    diagnostic->anchor = !offset                            ? TLV_SCHEMA_ANCHOR_UNKNOWN
-                         : kind == TLV_SCHEMA_ISSUE_MISSING ? TLV_SCHEMA_ANCHOR_SCOPE_END
-                                                            : TLV_SCHEMA_ANCHOR_ELEMENT;
+    diagnostic->diagnostic.location.kind = !offset ? TLV_LOCATION_UNKNOWN
+                                           : kind == TLV_SCHEMA_ISSUE_MISSING
+                                               ? TLV_LOCATION_SCOPE_END
+                                               : TLV_LOCATION_POINT;
     diagnostic->tag = *tag;
-    tlv_diagnostic_path_init(&diagnostic->path);
+    diagnostic->diagnostic.has_path = 1;
+    tlv_diagnostic_path_init(&diagnostic->diagnostic.path);
     for (size_t i = 1; i <= c->depth; ++i) {
-        if (tlv_diagnostic_path_push(&diagnostic->path, c->frames[i].tag) ==
+        if (tlv_diagnostic_path_push(&diagnostic->diagnostic.path, c->frames[i].tag) ==
             TLV_ERR_BUFFER_TOO_SHORT) {
-            diagnostic->path.omitted += c->depth - i;
+            diagnostic->diagnostic.path.omitted += c->depth - i;
             break;
         }
     }
@@ -180,11 +184,11 @@ static tlv_result_t check_scope(const uint8_t* data, const tlv_format_t* format,
 static tlv_result_t validate_all(const uint8_t* data, size_t size, const tlv_format_t* format,
                                  const tlv_structure_schema_t* schema, size_t max_depth,
                                  size_t max_elements, tlv_schema_unknown_policy_t unknown,
-                                 collector_t* c, size_t* error_offset) {
+                                 collector_t* c, tlv_diagnostic_t* diagnostic) {
     frame_t stack[TLV_SCHEMA_MAX_DEPTH + 1];
     tlv_tree_frame_t frames[TLV_SCHEMA_MAX_DEPTH];
     tlv_tree_reader_t reader;
-    tlv_result_t rc = schema_check_tree(data, size, format, max_depth, max_elements, error_offset);
+    tlv_result_t rc = schema_check_tree(data, size, format, max_depth, max_elements, diagnostic);
     if (rc != TLV_OK) return rc;
     memset(stack, 0, sizeof(stack));
     stack[0].schema = schema;
@@ -237,7 +241,9 @@ static tlv_result_t validate_all(const uint8_t* data, size_t size, const tlv_for
             if (kind_ok && rule->children) {
                 size_t start = (size_t)(element.value.data - data);
                 if (c->depth == TLV_SCHEMA_MAX_DEPTH) {
-                    if (error_offset) *error_offset = pos;
+                    if (diagnostic)
+                        tlv_diagnostic_set_location(diagnostic, TLV_LOCATION_INPUT,
+                                                    TLV_LOCATION_POINT, pos, pos);
                     return TLV_ERR_LIMIT;
                 }
                 ++c->depth;
@@ -258,7 +264,7 @@ tlv_result_t tlv_schema_validate_all_diag(const uint8_t* data, size_t size,
                                           const tlv_structure_schema_t* schema, size_t max_depth,
                                           size_t max_elements, tlv_schema_unknown_policy_t unknown,
                                           tlv_schema_diagnostic_report_t* report,
-                                          size_t* error_offset) {
+                                          tlv_schema_diagnostic_t* diagnostic) {
     tlv_result_t rc;
     collector_t c;
     if (!report) return TLV_ERR_NULL_ARG;
@@ -266,12 +272,14 @@ tlv_result_t tlv_schema_validate_all_diag(const uint8_t* data, size_t size,
     if (!schema || (!report->diagnostics && report->capacity)) return TLV_ERR_NULL_ARG;
     if (unknown < TLV_SCHEMA_UNKNOWN_BY_SCHEMA || unknown > TLV_SCHEMA_UNKNOWN_REJECT)
         return TLV_ERR_INVALID_ARG;
-    rc = tlv_schema_check(schema, NULL);
+    if (diagnostic) tlv_schema_diagnostic_init(diagnostic);
+    rc = tlv_schema_check(schema, diagnostic);
     if (rc != TLV_OK) return rc;
     memset(&c, 0, sizeof(c));
     c.diag_report = report;
     rc = validate_all(data, size, format, schema, max_depth, max_elements, unknown, &c,
-                      error_offset);
+                      diagnostic ? &diagnostic->diagnostic : NULL);
+    if (diagnostic) diagnostic->diagnostic.code = rc;
     if (rc != TLV_OK && rc != TLV_ERR_SCHEMA) report->count = 0;
     return rc;
 }

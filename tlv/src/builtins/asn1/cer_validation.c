@@ -14,8 +14,17 @@
 const tlv_cer_limits_t tlv_cer_default_limits = {32, (size_t)16 * 1024 * 1024,
                                                  (size_t)16 * 1024 * 1024, 100000};
 
-static tlv_result_t fail(tlv_result_t rc, size_t offset, size_t* error_offset) {
-    if (error_offset) *error_offset = offset;
+static tlv_result_t fail(tlv_result_t rc, size_t offset, tlv_diagnostic_t* diagnostic) {
+    if (diagnostic) {
+        tlv_diagnostic_init(diagnostic, rc, TLV_DIAGNOSTIC_SEVERITY_ERROR);
+        tlv_diagnostic_set_location(diagnostic, TLV_LOCATION_INPUT, TLV_LOCATION_POINT, offset,
+                                    offset);
+    }
+    return rc;
+}
+
+static tlv_result_t unlocated(tlv_result_t rc, tlv_diagnostic_t* diagnostic) {
+    if (diagnostic) tlv_diagnostic_init(diagnostic, rc, TLV_DIAGNOSTIC_SEVERITY_ERROR);
     return rc;
 }
 
@@ -68,7 +77,8 @@ static tlv_result_t traverse(const uint8_t* data, size_t size, size_t base, size
                              size_t initial_count, const tlv_cer_limits_t* limits,
                              tlv_cer_visitor_t visitor, void* context, int one,
                              tlv_element_t* first, size_t* first_size, int strict,
-                             tlv_cer_segment_state_t* outer_segments, size_t* error_offset) {
+                             tlv_cer_segment_state_t* outer_segments,
+                             tlv_diagnostic_t* diagnostic) {
     cer_level_t levels[TLV_CER_MAX_DEPTH];
     size_t depth = 0, pos = 0, count = initial_count;
     for (;;) {
@@ -85,35 +95,35 @@ static tlv_result_t traverse(const uint8_t* data, size_t size, size_t base, size
                 if (outer_segments) {
                     size_t seg_err = 0;
                     rc = tlv_cer_segment_state_finish(outer_segments, base - 1, &seg_err);
-                    if (rc != TLV_OK) return fail(rc, seg_err, error_offset);
+                    if (rc != TLV_OK) return fail(rc, seg_err, diagnostic);
                 }
                 return TLV_OK;
             }
             return fail(TLV_ERR_BUFFER_TOO_SHORT, base + levels[depth - 1].length_offset,
-                        error_offset);
+                        diagnostic);
         }
 
         if (data[pos] == 0) {
             cer_level_t* lvl;
             tlv_element_t constructed_element;
             size_t value_len;
-            if (size - pos < 2) return fail(TLV_ERR_BUFFER_TOO_SHORT, base + pos, error_offset);
-            if (data[pos + 1] != 0) return fail(TLV_ERR_INVALID_LENGTH, base + pos, error_offset);
-            if (depth == 0) return fail(TLV_ERR_INVALID_TAG, base + pos, error_offset);
+            if (size - pos < 2) return fail(TLV_ERR_BUFFER_TOO_SHORT, base + pos, diagnostic);
+            if (data[pos + 1] != 0) return fail(TLV_ERR_INVALID_LENGTH, base + pos, diagnostic);
+            if (depth == 0) return fail(TLV_ERR_INVALID_TAG, base + pos, diagnostic);
             lvl = &levels[depth - 1];
             value_len = pos - lvl->content_start;
             if (value_len > limits->max_value_size)
-                return fail(TLV_ERR_LIMIT, base + lvl->length_offset, error_offset);
+                return fail(TLV_ERR_LIMIT, base + lvl->length_offset, diagnostic);
             if (lvl->segmentable) {
                 size_t seg_err = 0;
                 rc = tlv_cer_segment_state_finish(&lvl->segment_state, base + lvl->length_offset,
                                                   &seg_err);
-                if (rc != TLV_OK) return fail(rc, seg_err, error_offset);
+                if (rc != TLV_OK) return fail(rc, seg_err, diagnostic);
             }
             {
                 tlv_size_t vlen;
                 rc = tlv_size_from_native(value_len, &vlen);
-                if (rc != TLV_OK) return fail(rc, base + lvl->length_offset, error_offset);
+                if (rc != TLV_OK) return fail(rc, base + lvl->length_offset, diagnostic);
                 constructed_element.value.size = vlen;
             }
             constructed_element.tag = lvl->tag;
@@ -127,7 +137,7 @@ static tlv_result_t traverse(const uint8_t* data, size_t size, size_t base, size
                 if (v == TLV_VISIT_STOP) return TLV_OK;
                 if (v != TLV_VISIT_CONTINUE)
                     return fail(v == TLV_VISIT_ERROR ? TLV_ERR_VISITOR : TLV_ERR_CALLBACK,
-                                base + lvl->tag_offset, error_offset);
+                                base + lvl->tag_offset, diagnostic);
             }
             if (one && depth == 0) {
                 *first = constructed_element;
@@ -137,13 +147,13 @@ static tlv_result_t traverse(const uint8_t* data, size_t size, size_t base, size
             continue;
         }
 
-        if (count == limits->max_elements) return fail(TLV_ERR_LIMIT, base + pos, error_offset);
+        if (count == limits->max_elements) return fail(TLV_ERR_LIMIT, base + pos, diagnostic);
         elem_start = pos;
         rc = tlv_cer_fields.read_tag(NULL, data + pos, size - pos, &tag, &tag_size);
-        if (rc != TLV_OK) return fail(rc, base + pos, error_offset);
+        if (rc != TLV_OK) return fail(rc, base + pos, diagnostic);
         pos += tag_size;
         length_offset = pos;
-        if (pos == size) return fail(TLV_ERR_BUFFER_TOO_SHORT, base + length_offset, error_offset);
+        if (pos == size) return fail(TLV_ERR_BUFFER_TOO_SHORT, base + length_offset, diagnostic);
 
         tag_class = tlv_asn1_tag_class(&tag);
         if (tag_class == TLV_ASN1_UNIVERSAL) {
@@ -158,16 +168,16 @@ static tlv_result_t traverse(const uint8_t* data, size_t size, size_t base, size
         if (data[pos] == 0x80) {
             /* Constructed, indefinite: push a new level and descend. */
             if (!tlv_asn1_tag_is_constructed(&tag))
-                return fail(TLV_ERR_INVALID_LENGTH, base + length_offset, error_offset);
+                return fail(TLV_ERR_INVALID_LENGTH, base + length_offset, diagnostic);
             /* A segment must always be primitive; a constructed element
              * where a segment was expected is a prohibited nested-segment
              * arrangement, regardless of its own tag or type eligibility. */
             if (parent_segments(levels, depth, outer_segments))
-                return fail(TLV_ERR_INVALID_TAG, base + elem_start, error_offset);
+                return fail(TLV_ERR_INVALID_TAG, base + elem_start, diagnostic);
             if (recognized_universal && !must_construct && info.form == TLV_CER_FORM_PRIMITIVE_ONLY)
-                return fail(TLV_ERR_INVALID_LENGTH, base + length_offset, error_offset);
+                return fail(TLV_ERR_INVALID_LENGTH, base + length_offset, diagnostic);
             if (initial_depth + depth == limits->max_depth)
-                return fail(TLV_ERR_LIMIT, base + elem_start, error_offset);
+                return fail(TLV_ERR_LIMIT, base + elem_start, diagnostic);
             ++count;
             {
                 cer_level_t* lvl = &levels[depth];
@@ -187,7 +197,7 @@ static tlv_result_t traverse(const uint8_t* data, size_t size, size_t base, size
 
         /* Primitive: definite, canonically minimal length. */
         if (tlv_asn1_tag_is_constructed(&tag))
-            return fail(TLV_ERR_INVALID_LENGTH, base + length_offset, error_offset);
+            return fail(TLV_ERR_INVALID_LENGTH, base + length_offset, diagnostic);
         {
             size_t value_length, length_size;
             tlv_size_t logical_size;
@@ -195,10 +205,10 @@ static tlv_result_t traverse(const uint8_t* data, size_t size, size_t base, size
             tlv_element_t element;
             rc = tlv_cer_fields.read_length(NULL, data + pos, size - pos, &logical_size,
                                             &length_size);
-            if (rc != TLV_OK) return fail(rc, base + length_offset, error_offset);
+            if (rc != TLV_OK) return fail(rc, base + length_offset, diagnostic);
             pos += length_size;
             if (logical_size > size - pos)
-                return fail(TLV_ERR_BUFFER_TOO_SHORT, base + pos, error_offset);
+                return fail(TLV_ERR_BUFFER_TOO_SHORT, base + pos, diagnostic);
             value_length = (size_t)logical_size;
             value_ptr = data + pos;
             ++count;
@@ -208,17 +218,17 @@ static tlv_result_t traverse(const uint8_t* data, size_t size, size_t base, size
                 size_t seg_err = 0;
                 rc = tlv_cer_segment_state_add(parent, &tag, value_ptr, value_length,
                                                base + elem_start, &seg_err);
-                if (rc != TLV_OK) return fail(rc, seg_err, error_offset);
+                if (rc != TLV_OK) return fail(rc, seg_err, diagnostic);
             } else {
                 if (value_length > limits->max_value_size)
-                    return fail(TLV_ERR_LIMIT, base + length_offset, error_offset);
+                    return fail(TLV_ERR_LIMIT, base + length_offset, diagnostic);
                 if (recognized_universal) {
                     if (info.form != TLV_CER_FORM_PRIMITIVE_ONLY &&
                         value_length > TLV_CER_MAX_SEGMENT_OCTETS)
-                        return fail(TLV_ERR_INVALID_LENGTH, base + length_offset, error_offset);
+                        return fail(TLV_ERR_INVALID_LENGTH, base + length_offset, diagnostic);
                     if (strict) {
                         rc = tlv_asn1_validate_universal_value(number, value_ptr, value_length);
-                        if (rc != TLV_OK) return fail(rc, base + pos, error_offset);
+                        if (rc != TLV_OK) return fail(rc, base + pos, diagnostic);
                     }
                 }
             }
@@ -227,7 +237,7 @@ static tlv_result_t traverse(const uint8_t* data, size_t size, size_t base, size
             {
                 tlv_size_t vlen;
                 rc = tlv_size_from_native(value_length, &vlen);
-                if (rc != TLV_OK) return fail(rc, base + length_offset, error_offset);
+                if (rc != TLV_OK) return fail(rc, base + length_offset, diagnostic);
                 element.value.size = vlen;
             }
 
@@ -244,7 +254,7 @@ static tlv_result_t traverse(const uint8_t* data, size_t size, size_t base, size
                 if (v == TLV_VISIT_STOP) return TLV_OK;
                 if (v != TLV_VISIT_CONTINUE)
                     return fail(v == TLV_VISIT_ERROR ? TLV_ERR_VISITOR : TLV_ERR_CALLBACK,
-                                base + elem_start, error_offset);
+                                base + elem_start, diagnostic);
             }
         }
     }
@@ -252,38 +262,39 @@ static tlv_result_t traverse(const uint8_t* data, size_t size, size_t base, size
 
 static tlv_result_t visit_impl(const uint8_t* data, size_t size, const tlv_cer_limits_t* limits,
                                tlv_cer_visitor_t visitor, void* context, int strict,
-                               size_t* error_offset) {
+                               tlv_diagnostic_t* diagnostic) {
     if (!limits) limits = &tlv_cer_default_limits;
-    if (!data && size) return fail(TLV_ERR_NULL_ARG, 0, error_offset);
-    if (limits->max_depth > TLV_CER_MAX_DEPTH) return fail(TLV_ERR_UNSUPPORTED, 0, error_offset);
-    if (size > limits->max_input_size) return fail(TLV_ERR_LIMIT, 0, error_offset);
+    if (!data && size) return unlocated(TLV_ERR_NULL_ARG, diagnostic);
+    if (limits->max_depth > TLV_CER_MAX_DEPTH) return unlocated(TLV_ERR_UNSUPPORTED, diagnostic);
+    if (size > limits->max_input_size) return unlocated(TLV_ERR_LIMIT, diagnostic);
     return traverse(data, size, 0, 0, 0, limits, visitor, context, 0, NULL, NULL, strict, NULL,
-                    error_offset);
+                    diagnostic);
 }
 
 tlv_result_t tlv_cer_visit(const uint8_t* data, size_t size, const tlv_cer_limits_t* limits,
-                           tlv_cer_visitor_t visitor, void* context, size_t* error_offset) {
-    return visit_impl(data, size, limits, visitor, context, 0, error_offset);
+                           tlv_cer_visitor_t visitor, void* context, tlv_diagnostic_t* diagnostic) {
+    return visit_impl(data, size, limits, visitor, context, 0, diagnostic);
 }
 
 tlv_result_t tlv_cer_visit_strict(const uint8_t* data, size_t size, const tlv_cer_limits_t* limits,
-                                  tlv_cer_visitor_t visitor, void* context, size_t* error_offset) {
-    return visit_impl(data, size, limits, visitor, context, 1, error_offset);
+                                  tlv_cer_visitor_t visitor, void* context,
+                                  tlv_diagnostic_t* diagnostic) {
+    return visit_impl(data, size, limits, visitor, context, 1, diagnostic);
 }
 
 static tlv_result_t read_impl(const uint8_t* data, size_t size, const tlv_cer_limits_t* limits,
                               tlv_element_t* element, size_t* consumed, int strict,
-                              size_t* error_offset) {
+                              tlv_diagnostic_t* diagnostic) {
     tlv_element_t result;
     size_t used;
     tlv_result_t rc;
     if (!limits) limits = &tlv_cer_default_limits;
-    if ((!data && size) || !element || !consumed) return fail(TLV_ERR_NULL_ARG, 0, error_offset);
-    if (limits->max_depth > TLV_CER_MAX_DEPTH) return fail(TLV_ERR_UNSUPPORTED, 0, error_offset);
-    if (size > limits->max_input_size) return fail(TLV_ERR_LIMIT, 0, error_offset);
-    if (!size) return fail(TLV_ERR_END_OF_BUFFER, 0, error_offset);
+    if ((!data && size) || !element || !consumed) return unlocated(TLV_ERR_NULL_ARG, diagnostic);
+    if (limits->max_depth > TLV_CER_MAX_DEPTH) return unlocated(TLV_ERR_UNSUPPORTED, diagnostic);
+    if (size > limits->max_input_size) return unlocated(TLV_ERR_LIMIT, diagnostic);
+    if (!size) return fail(TLV_ERR_END_OF_BUFFER, 0, diagnostic);
     rc = traverse(data, size, 0, 0, 0, limits, NULL, NULL, 1, &result, &used, strict, NULL,
-                  error_offset);
+                  diagnostic);
     if (rc == TLV_OK) {
         *element = result;
         *consumed = used;
@@ -292,13 +303,14 @@ static tlv_result_t read_impl(const uint8_t* data, size_t size, const tlv_cer_li
 }
 
 tlv_result_t tlv_cer_read(const uint8_t* data, size_t size, const tlv_cer_limits_t* limits,
-                          tlv_element_t* element, size_t* consumed, size_t* error_offset) {
-    return read_impl(data, size, limits, element, consumed, 0, error_offset);
+                          tlv_element_t* element, size_t* consumed, tlv_diagnostic_t* diagnostic) {
+    return read_impl(data, size, limits, element, consumed, 0, diagnostic);
 }
 
 tlv_result_t tlv_cer_read_strict(const uint8_t* data, size_t size, const tlv_cer_limits_t* limits,
-                                 tlv_element_t* element, size_t* consumed, size_t* error_offset) {
-    return read_impl(data, size, limits, element, consumed, 1, error_offset);
+                                 tlv_element_t* element, size_t* consumed,
+                                 tlv_diagnostic_t* diagnostic) {
+    return read_impl(data, size, limits, element, consumed, 1, diagnostic);
 }
 
 #if OPENTLV_WRITER
@@ -308,9 +320,10 @@ tlv_result_t tlv_cer_read_strict(const uint8_t* data, size_t size, const tlv_cer
  * TLV_ERR_INVALID_LENGTH if a segmentable UNIVERSAL type's content exceeds
  * TLV_CER_MAX_SEGMENT_OCTETS as a bare primitive (a structural rule, checked
  * unconditionally). offset_base is where this element's length field would
- * sit in the eventual output, used for error_offset. */
+ * sit in the eventual output, used for diagnostic. */
 static tlv_result_t check_primitive_value(tlv_tag_t tag, const uint8_t* value, size_t length,
-                                          size_t offset_base, int strict, size_t* error_offset) {
+                                          size_t offset_base, int strict,
+                                          tlv_diagnostic_t* diagnostic) {
     tlv_result_t rc;
     uint64_t number;
     if (tlv_asn1_tag_class(&tag) != TLV_ASN1_UNIVERSAL) return TLV_OK;
@@ -318,34 +331,34 @@ static tlv_result_t check_primitive_value(tlv_tag_t tag, const uint8_t* value, s
     {
         tlv_cer_type_info_t info = tlv_cer_type_info(number);
         if (info.form != TLV_CER_FORM_PRIMITIVE_ONLY && length > TLV_CER_MAX_SEGMENT_OCTETS)
-            return fail(TLV_ERR_INVALID_LENGTH, offset_base, error_offset);
+            return fail(TLV_ERR_INVALID_LENGTH, offset_base, diagnostic);
     }
     if (!strict) return TLV_OK;
     rc = tlv_asn1_validate_universal_value(number, value, length);
-    if (rc != TLV_OK) return fail(rc, offset_base, error_offset);
+    if (rc != TLV_OK) return fail(rc, offset_base, diagnostic);
     return TLV_OK;
 }
 
 static tlv_result_t write_impl(uint8_t* data, size_t capacity, tlv_tag_t tag, const uint8_t* value,
                                size_t length, const tlv_cer_limits_t* limits, int strict,
-                               size_t* written, size_t* error_offset) {
+                               size_t* written, tlv_diagnostic_t* diagnostic) {
     tlv_result_t rc;
     size_t tag_size;
     if (!limits) limits = &tlv_cer_default_limits;
     if ((!data && capacity) || (!value && length) || !written)
-        return fail(TLV_ERR_NULL_ARG, 0, error_offset);
-    if (limits->max_depth > TLV_CER_MAX_DEPTH) return fail(TLV_ERR_UNSUPPORTED, 0, error_offset);
-    if (!limits->max_elements) return fail(TLV_ERR_LIMIT, 0, error_offset);
+        return unlocated(TLV_ERR_NULL_ARG, diagnostic);
+    if (limits->max_depth > TLV_CER_MAX_DEPTH) return unlocated(TLV_ERR_UNSUPPORTED, diagnostic);
+    if (!limits->max_elements) return unlocated(TLV_ERR_LIMIT, diagnostic);
     rc = tlv_cer_fields.write_tag(NULL, &tag, NULL, 0, &tag_size);
-    if (rc != TLV_OK) return fail(rc, 0, error_offset);
+    if (rc != TLV_OK) return unlocated(rc, diagnostic);
 
     if (tlv_asn1_tag_is_constructed(&tag)) {
         size_t total;
         tlv_cer_segment_state_t outer_state;
         tlv_cer_segment_state_t* outer_segments = NULL;
-        if (length > SIZE_MAX - tag_size - 3) return fail(TLV_ERR_INVALID_LENGTH, 0, error_offset);
+        if (length > SIZE_MAX - tag_size - 3) return unlocated(TLV_ERR_INVALID_LENGTH, diagnostic);
         total = tag_size + 1 + length + 2;
-        if (total > limits->max_input_size) return fail(TLV_ERR_LIMIT, 0, error_offset);
+        if (total > limits->max_input_size) return unlocated(TLV_ERR_LIMIT, diagnostic);
         /* When the element being written is itself a segmentable UNIVERSAL
          * type, validate its pre-encoded children as canonical segments the
          * same way reading does (see parent_segments()/traverse()). */
@@ -361,13 +374,13 @@ static tlv_result_t write_impl(uint8_t* data, size_t capacity, tlv_tag_t tag, co
             }
         }
         rc = traverse(value, length, tag_size + 1, 1, 1, limits, NULL, NULL, 0, NULL, NULL, strict,
-                      outer_segments, error_offset);
+                      outer_segments, diagnostic);
         if (rc != TLV_OK) return rc;
         if (!data) {
             *written = total;
             return TLV_OK;
         }
-        if (capacity < total) return fail(TLV_ERR_BUFFER_TOO_SHORT, 0, error_offset);
+        if (capacity < total) return unlocated(TLV_ERR_BUFFER_TOO_SHORT, diagnostic);
         memcpy(data, tag.data, tag_size);
         data[tag_size] = 0x80;
         if (length) memcpy(data + tag_size + 1, value, length);
@@ -377,36 +390,43 @@ static tlv_result_t write_impl(uint8_t* data, size_t capacity, tlv_tag_t tag, co
         return TLV_OK;
     }
 
-    if (length > limits->max_value_size) return fail(TLV_ERR_LIMIT, tag_size, error_offset);
-    rc = check_primitive_value(tag, value, length, tag_size, strict, error_offset);
+    if (length > limits->max_value_size) return fail(TLV_ERR_LIMIT, tag_size, diagnostic);
+    rc = check_primitive_value(tag, value, length, tag_size, strict, diagnostic);
     if (rc != TLV_OK) return rc;
     {
         size_t total;
         rc = tlv_encoded_size(tag, length, &tlv_format_cer, &total);
-        if (rc != TLV_OK)
-            return fail(rc, rc == TLV_ERR_INVALID_LENGTH ? tag_size : 0, error_offset);
-        if (total > limits->max_input_size) return fail(TLV_ERR_LIMIT, 0, error_offset);
+        if (rc != TLV_OK) return fail(rc, rc == TLV_ERR_INVALID_LENGTH ? tag_size : 0, diagnostic);
+        if (total > limits->max_input_size) return unlocated(TLV_ERR_LIMIT, diagnostic);
         if (!data) {
             *written = total;
             return TLV_OK;
         }
         rc = tlv_write(data, capacity, &tlv_format_cer, tag, value, length, written);
-        if (rc != TLV_OK) return fail(rc, 0, error_offset);
+        if (rc != TLV_OK) return unlocated(rc, diagnostic);
     }
     return TLV_OK;
 }
 
 tlv_result_t tlv_cer_write(uint8_t* data, size_t capacity, tlv_tag_t tag, const uint8_t* value,
                            size_t length, const tlv_cer_limits_t* limits, size_t* written,
-                           size_t* error_offset) {
-    return write_impl(data, capacity, tag, value, length, limits, 0, written, error_offset);
+                           tlv_diagnostic_t* diagnostic) {
+    tlv_result_t rc =
+        write_impl(data, capacity, tag, value, length, limits, 0, written, diagnostic);
+    if (rc != TLV_OK && diagnostic && diagnostic->location.kind != TLV_LOCATION_UNKNOWN)
+        diagnostic->location.domain = TLV_LOCATION_OUTPUT;
+    return rc;
 }
 
 tlv_result_t tlv_cer_write_strict(uint8_t* data, size_t capacity, tlv_tag_t tag,
                                   const uint8_t* value, size_t length,
                                   const tlv_cer_limits_t* limits, size_t* written,
-                                  size_t* error_offset) {
-    return write_impl(data, capacity, tag, value, length, limits, 1, written, error_offset);
+                                  tlv_diagnostic_t* diagnostic) {
+    tlv_result_t rc =
+        write_impl(data, capacity, tag, value, length, limits, 1, written, diagnostic);
+    if (rc != TLV_OK && diagnostic && diagnostic->location.kind != TLV_LOCATION_UNKNOWN)
+        diagnostic->location.domain = TLV_LOCATION_OUTPUT;
+    return rc;
 }
 
 /* Source-octet layout for one call: num_non_final segments consuming
@@ -423,10 +443,10 @@ static void segment_layout(size_t total_octets, size_t chunk, size_t* num_non_fi
     *final_octets = total_octets - *num_non_final * chunk;
 }
 
-tlv_result_t tlv_cer_write_segmented_string(uint8_t* data, size_t capacity, tlv_tag_t tag,
-                                            const uint8_t* content, size_t content_length,
-                                            const tlv_cer_limits_t* limits, size_t* written,
-                                            size_t* error_offset) {
+static tlv_result_t write_segmented_string(uint8_t* data, size_t capacity, tlv_tag_t tag,
+                                           const uint8_t* content, size_t content_length,
+                                           const tlv_cer_limits_t* limits, size_t* written,
+                                           tlv_diagnostic_t* diagnostic) {
     tlv_result_t rc;
     uint64_t number;
     tlv_cer_type_info_t info;
@@ -434,43 +454,43 @@ tlv_result_t tlv_cer_write_segmented_string(uint8_t* data, size_t capacity, tlv_
 
     if (!limits) limits = &tlv_cer_default_limits;
     if ((!data && capacity) || (!content && content_length) || !written)
-        return fail(TLV_ERR_NULL_ARG, 0, error_offset);
-    if (limits->max_depth > TLV_CER_MAX_DEPTH) return fail(TLV_ERR_UNSUPPORTED, 0, error_offset);
-    if (!limits->max_elements) return fail(TLV_ERR_LIMIT, 0, error_offset);
+        return unlocated(TLV_ERR_NULL_ARG, diagnostic);
+    if (limits->max_depth > TLV_CER_MAX_DEPTH) return unlocated(TLV_ERR_UNSUPPORTED, diagnostic);
+    if (!limits->max_elements) return unlocated(TLV_ERR_LIMIT, diagnostic);
     if (tlv_asn1_tag_class(&tag) != TLV_ASN1_UNIVERSAL || tlv_asn1_tag_is_constructed(&tag))
-        return fail(TLV_ERR_INVALID_ARG, 0, error_offset);
+        return unlocated(TLV_ERR_INVALID_ARG, diagnostic);
     rc = tlv_cer_fields.write_tag(NULL, &tag, NULL, 0, &tag_size);
-    if (rc != TLV_OK) return fail(rc, 0, error_offset);
+    if (rc != TLV_OK) return unlocated(rc, diagnostic);
     if (tlv_cer_tag_number(&tag, &number) != TLV_OK || number > 36)
-        return fail(TLV_ERR_INVALID_ARG, 0, error_offset);
+        return unlocated(TLV_ERR_INVALID_ARG, diagnostic);
     info = tlv_cer_type_info(number);
-    if (info.form == TLV_CER_FORM_PRIMITIVE_ONLY) return fail(TLV_ERR_INVALID_ARG, 0, error_offset);
+    if (info.form == TLV_CER_FORM_PRIMITIVE_ONLY) return unlocated(TLV_ERR_INVALID_ARG, diagnostic);
 
     rc = tlv_asn1_validate_universal_value(number, content, content_length);
-    if (rc != TLV_OK) return fail(rc, tag_size, error_offset);
+    if (rc != TLV_OK) return fail(rc, tag_size, diagnostic);
 
     if (content_length <= TLV_CER_MAX_SEGMENT_OCTETS) {
         if (content_length > limits->max_value_size)
-            return fail(TLV_ERR_LIMIT, tag_size, error_offset);
+            return fail(TLV_ERR_LIMIT, tag_size, diagnostic);
         {
             size_t total;
             rc = tlv_encoded_size(tag, content_length, &tlv_format_cer, &total);
             if (rc != TLV_OK)
-                return fail(rc, rc == TLV_ERR_INVALID_LENGTH ? tag_size : 0, error_offset);
-            if (total > limits->max_input_size) return fail(TLV_ERR_LIMIT, 0, error_offset);
+                return fail(rc, rc == TLV_ERR_INVALID_LENGTH ? tag_size : 0, diagnostic);
+            if (total > limits->max_input_size) return unlocated(TLV_ERR_LIMIT, diagnostic);
             if (!data) {
                 *written = total;
                 return TLV_OK;
             }
             rc = tlv_write(data, capacity, &tlv_format_cer, tag, content, content_length, written);
-            if (rc != TLV_OK) return fail(rc, 0, error_offset);
+            if (rc != TLV_OK) return unlocated(rc, diagnostic);
         }
         return TLV_OK;
     }
 
-    if (content_length > limits->max_value_size) return fail(TLV_ERR_LIMIT, tag_size, error_offset);
+    if (content_length > limits->max_value_size) return fail(TLV_ERR_LIMIT, tag_size, diagnostic);
     rc = tlv_cer_fields.write_length(NULL, TLV_CER_MAX_SEGMENT_OCTETS, NULL, 0, &seg_length_size);
-    if (rc != TLV_OK) return fail(rc, 0, error_offset);
+    if (rc != TLV_OK) return unlocated(rc, diagnostic);
 
     {
         /* is_bit: every segment (including non-final ones, whose leading
@@ -485,28 +505,28 @@ tlv_result_t tlv_cer_write_segmented_string(uint8_t* data, size_t capacity, tlv_
         segment_layout(source_octets, chunk, &num_non_final, &final_octets);
         final_content_size = is_bit ? final_octets + 1 : final_octets;
         rc = tlv_cer_fields.write_length(NULL, final_content_size, NULL, 0, &final_length_size);
-        if (rc != TLV_OK) return fail(rc, 0, error_offset);
+        if (rc != TLV_OK) return unlocated(rc, diagnostic);
 
         per_segment = tag_size + seg_length_size + TLV_CER_MAX_SEGMENT_OCTETS;
         if (num_non_final > (SIZE_MAX - tag_size - 1 - 2) / per_segment)
-            return fail(TLV_ERR_INVALID_LENGTH, 0, error_offset);
+            return unlocated(TLV_ERR_INVALID_LENGTH, diagnostic);
         total = tag_size + 1 + num_non_final * per_segment + 2;
         {
             size_t final_segment_size = tag_size + final_length_size + final_content_size;
             if (final_segment_size > SIZE_MAX - total)
-                return fail(TLV_ERR_INVALID_LENGTH, 0, error_offset);
+                return unlocated(TLV_ERR_INVALID_LENGTH, diagnostic);
             total += final_segment_size;
         }
-        if (total > limits->max_input_size) return fail(TLV_ERR_LIMIT, 0, error_offset);
+        if (total > limits->max_input_size) return unlocated(TLV_ERR_LIMIT, diagnostic);
         /* Elements written: the outer constructed element, num_non_final
          * segments, and the final segment. */
-        if (num_non_final + 2 > limits->max_elements) return fail(TLV_ERR_LIMIT, 0, error_offset);
+        if (num_non_final + 2 > limits->max_elements) return unlocated(TLV_ERR_LIMIT, diagnostic);
 
         if (!data) {
             *written = total;
             return TLV_OK;
         }
-        if (capacity < total) return fail(TLV_ERR_BUFFER_TOO_SHORT, 0, error_offset);
+        if (capacity < total) return unlocated(TLV_ERR_BUFFER_TOO_SHORT, diagnostic);
 
         {
             uint8_t* out = data;
@@ -525,7 +545,7 @@ tlv_result_t tlv_cer_write_segmented_string(uint8_t* data, size_t capacity, tlv_
                 out += tag_size;
                 rc = tlv_cer_fields.write_length(NULL, TLV_CER_MAX_SEGMENT_OCTETS, out,
                                                  seg_length_size, &used);
-                if (rc != TLV_OK) return fail(rc, 0, error_offset);
+                if (rc != TLV_OK) return unlocated(rc, diagnostic);
                 out += used;
                 if (is_bit) *out++ = 0;
                 memcpy(out, src, chunk);
@@ -536,7 +556,7 @@ tlv_result_t tlv_cer_write_segmented_string(uint8_t* data, size_t capacity, tlv_
             out += tag_size;
             rc = tlv_cer_fields.write_length(NULL, final_content_size, out, final_length_size,
                                              &used);
-            if (rc != TLV_OK) return fail(rc, 0, error_offset);
+            if (rc != TLV_OK) return unlocated(rc, diagnostic);
             out += used;
             if (is_bit) *out++ = content[0];
             if (final_octets) {
@@ -549,6 +569,17 @@ tlv_result_t tlv_cer_write_segmented_string(uint8_t* data, size_t capacity, tlv_
         }
     }
     return TLV_OK;
+}
+
+tlv_result_t tlv_cer_write_segmented_string(uint8_t* data, size_t capacity, tlv_tag_t tag,
+                                            const uint8_t* content, size_t content_length,
+                                            const tlv_cer_limits_t* limits, size_t* written,
+                                            tlv_diagnostic_t* diagnostic) {
+    tlv_result_t rc = write_segmented_string(data, capacity, tag, content, content_length, limits,
+                                             written, diagnostic);
+    if (rc != TLV_OK && diagnostic && diagnostic->location.kind != TLV_LOCATION_UNKNOWN)
+        diagnostic->location.domain = TLV_LOCATION_OUTPUT;
+    return rc;
 }
 
 #endif

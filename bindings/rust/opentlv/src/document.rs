@@ -13,6 +13,8 @@ pub struct DocumentError {
     pub error: Error,
     /// Absolute source offset for parsing failures.
     pub offset: Option<usize>,
+    /// Primary evidence location, copied from C.
+    pub location: crate::Location,
     /// Required output capacity when encoding into insufficient storage.
     pub required: Option<usize>,
 }
@@ -21,6 +23,7 @@ impl From<Error> for DocumentError {
         Self {
             error,
             offset: None,
+            location: crate::Location::default(),
             required: None,
         }
     }
@@ -93,6 +96,11 @@ impl<'r, 'a> DocumentBuilder<'r, 'a> {
         Error::check(code).map_err(|error| DocumentError {
             error,
             offset: reader.diagnostic.as_ref().and_then(|d| d.offset),
+            location: reader
+                .diagnostic
+                .as_ref()
+                .map(|d| d.location)
+                .unwrap_or_default(),
             required: None,
         })?;
         // SAFETY: successful pull initialized the complete item. Create immediately
@@ -128,24 +136,28 @@ impl<'r, 'a> DocumentBuilder<'r, 'a> {
     /// a Document. Terminal errors discard unfinished nodes in C.
     pub fn consume(&mut self) -> DocResult<Document<'a>> {
         let mut raw = ptr::null_mut();
-        let mut offset = usize::MAX;
         let mut diagnostic = MaybeUninit::uninit();
         // SAFETY: live builder and exclusively borrowed stable reader, valid outputs.
         let code = unsafe {
             native::tlv_reader_diagnostic_init(diagnostic.as_mut_ptr());
-            native::tlv_document_builder_consume(
-                self.raw,
-                &mut raw,
-                &mut offset,
-                diagnostic.as_mut_ptr(),
-            )
+            native::tlv_document_builder_consume(self.raw, &mut raw, diagnostic.as_mut_ptr())
         };
         // SAFETY: input remains live through copying all diagnostic fields.
         self.reader.diagnostic = (code != native::TLV_OK)
             .then(|| unsafe { ReaderDiagnostic::from_raw(&diagnostic.assume_init()) });
         Error::check(code).map_err(|error| DocumentError {
             error,
-            offset: (offset != usize::MAX).then_some(offset),
+            offset: self
+                .reader
+                .diagnostic
+                .as_ref()
+                .and_then(|d| d.location.offset()),
+            location: self
+                .reader
+                .diagnostic
+                .as_ref()
+                .map(|d| d.location)
+                .unwrap_or_default(),
             required: None,
         })?;
         Ok(Document {
@@ -275,7 +287,8 @@ impl<'f> Document<'f> {
         options.max_elements = max_elements;
         options.retain_source_locations = i32::from(retain_source_locations);
         let mut raw = ptr::null_mut();
-        let mut offset = usize::MAX;
+        // SAFETY: zero diagnostic has no active borrows.
+        let mut diagnostic: native::tlv_reader_diagnostic_t = unsafe { std::mem::zeroed() };
         // SAFETY: C owns copied nodes; all temporary inputs remain live through the call.
         let code = unsafe {
             match data {
@@ -284,14 +297,15 @@ impl<'f> Document<'f> {
                     data.len(),
                     &options,
                     &mut raw,
-                    &mut offset,
+                    &mut diagnostic,
                 ),
                 None => native::tlv_document_create(&options, &mut raw),
             }
         };
         Error::check(code).map_err(|error| DocumentError {
             error,
-            offset: (offset != usize::MAX).then_some(offset),
+            offset: crate::Location::from_raw(diagnostic.diagnostic.location).offset(),
+            location: crate::Location::from_raw(diagnostic.diagnostic.location),
             required: None,
         })?;
         Ok(Self {
@@ -637,6 +651,7 @@ fn encoding_result(code: i32, written: usize) -> DocResult<usize> {
     Error::check(code).map_err(|error| DocumentError {
         error,
         offset: None,
+        location: crate::Location::default(),
         required: (error == Error::BufferTooShort).then_some(written),
     })?;
     Ok(written)

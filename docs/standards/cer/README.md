@@ -34,9 +34,10 @@ DEFAULT omission and SET/SET OF ordering remain outside this scope regardless.
 
 const uint8_t input[] = {0x30, 0x80, 0x02, 1, 42, 0, 0}; /* SEQUENCE(indefinite){ INTEGER 42 } */
 tlv_element_t element;
-size_t consumed, error_offset;
+size_t consumed;
+tlv_diagnostic_t diagnostic;
 tlv_result_t rc = tlv_cer_read(input, sizeof(input), NULL,
-                              &element, &consumed, &error_offset);
+                              &element, &consumed, &diagnostic);
 ```
 
 `tlv_cer_read` validates one element and all of its descendants — indefinite
@@ -45,7 +46,7 @@ returning its element and complete encoded size. Trailing input is ignored. Empt
 input returns `TLV_ERR_END_OF_BUFFER`. Keep the input alive while using returned
 views (see [memory ownership](../../guides/memory.md)).
 
-`tlv_cer_visit(data, size, limits, visitor, context, &error_offset)` processes all
+`tlv_cer_visit(data, size, limits, visitor, context, &diagnostic)` processes all
 concatenated elements, including nested constructed values. A NULL visitor
 performs validation only. Empty input succeeds.
 
@@ -130,14 +131,15 @@ uint8_t tag_bytes[TLV_ASN1_TAG_MAX_SIZE]; /* the tag borrows these bytes */
 tlv_tag_t tag;
 const uint8_t children[] = {0x02, 1, 42};
 uint8_t output[16];
-size_t required, written, error_offset;
+size_t required, written;
+tlv_diagnostic_t diagnostic;
 tlv_result_t rc = tlv_cer_tag_make(TLV_ASN1_UNIVERSAL, 1, 16, tag_bytes, &tag); /* SEQUENCE */
 if (rc == TLV_OK)
     rc = tlv_cer_write(NULL, 0, tag, children, sizeof(children), NULL,
-                       &required, &error_offset);
+                       &required, &diagnostic);
 if (rc == TLV_OK && required <= sizeof(output))
     rc = tlv_cer_write(output, sizeof(output), tag, children, sizeof(children),
-                       NULL, &written, &error_offset);
+                       NULL, &written, &diagnostic);
 /* Success: output contains 30 80 02 01 2A 00 00 (indefinite framing + EOC). */
 ```
 
@@ -157,12 +159,13 @@ length:
 ```c
 uint8_t content[2500]; /* fill with logical OCTET STRING data */
 uint8_t output[2600];
-size_t written, error_offset;
+size_t written;
+tlv_diagnostic_t diagnostic;
 uint8_t tag_bytes[TLV_ASN1_TAG_MAX_SIZE];
 tlv_tag_t octet_string;
 tlv_cer_tag_make(TLV_ASN1_UNIVERSAL, 0, 4, tag_bytes, &octet_string); /* primitive OCTET STRING */
 tlv_cer_write_segmented_string(output, sizeof(output), octet_string,
-                              content, sizeof(content), NULL, &written, &error_offset);
+                              content, sizeof(content), NULL, &written, &diagnostic);
 /* Success: two 1000-octet segments plus a 500-octet final segment. */
 ```
 
@@ -208,7 +211,7 @@ as unsupported), a difference from DER's shared dispatch, which returns
 
 ## Errors, offsets and limits
 
-Optional `error_offset` is changed only on failure, following the same
+Optional `diagnostic` carries the result and primary location, following the same
 conventions as DER: it identifies the absolute start of the failing tag, length,
 or value field, relative to the supplied input (or would-be encoded output for
 writes). A missing EOC is reported at the position where it was expected (the

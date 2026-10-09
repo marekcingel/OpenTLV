@@ -5,6 +5,7 @@
 #define OPENTLV_BUILTINS_ASN1_DER_VALIDATION_H
 
 #include "tlv/error.h"
+#include "tlv/diagnostic.h"
 #include "tlv/config.h"
 #include "tlv/builtins/asn1/der.h"
 #include "tlv/tree.h"
@@ -83,9 +84,9 @@ typedef tlv_visit_result_t (*tlv_der_visitor_t)(const tlv_element_t* element, si
  * @param[in]  limits       Limits, or `NULL` for #tlv_der_default_limits.
  * @param[out] element         Receives the element; its value borrows `data`.
  * @param[out] consumed     Receives the encoded size of the element.
- * @param[out] error_offset Optional. On failure receives the start of the
+ * @param[out] diagnostic Optional. On failure receives an INPUT point at the start of the
  *                          failing tag, length, or value field, relative to
- *                          `data`; argument and input-limit errors use 0.
+ *                          `data`; argument and configuration failures have UNKNOWN location.
  *                          Unchanged on success.
  *
  * @return #TLV_OK on success.
@@ -93,11 +94,12 @@ typedef tlv_visit_result_t (*tlv_der_visitor_t)(const tlv_element_t* element, si
  * @return #TLV_ERR_LIMIT if a limit is exceeded.
  * @return Another error code for malformed or noncanonical input.
  *
- * @note Outputs other than `error_offset` remain unchanged on failure.
+ * @note Outputs other than `diagnostic` remain unchanged on failure.
  * @warning The caller must keep `data` alive while `element` is used.
  */
 TLV_API tlv_result_t tlv_der_read(const uint8_t* data, size_t size, const tlv_der_limits_t* limits,
-                                  tlv_element_t* element, size_t* consumed, size_t* error_offset);
+                                  tlv_element_t* element, size_t* consumed,
+                                  tlv_diagnostic_t* diagnostic);
 
 /**
  * @brief Validates all concatenated DER elements recursively.
@@ -110,7 +112,7 @@ TLV_API tlv_result_t tlv_der_read(const uint8_t* data, size_t size, const tlv_de
  * @param[in]  limits       Limits, or `NULL` for #tlv_der_default_limits.
  * @param[in]  visitor      Callback per element in preorder; `NULL` validates only.
  * @param[in]  context      Passed to the visitor unchanged.
- * @param[out] error_offset Optional; see tlv_der_read().
+ * @param[out] diagnostic Optional; see tlv_der_read().
  *
  * @return #TLV_OK on success, including a visitor stop.
  * @return #TLV_ERR_VISITOR if the visitor requests an error stop.
@@ -119,7 +121,8 @@ TLV_API tlv_result_t tlv_der_read(const uint8_t* data, size_t size, const tlv_de
  * @warning Callback side effects are not rolled back on errors.
  */
 TLV_API tlv_result_t tlv_der_visit(const uint8_t* data, size_t size, const tlv_der_limits_t* limits,
-                                   tlv_der_visitor_t visitor, void* context, size_t* error_offset);
+                                   tlv_der_visitor_t visitor, void* context,
+                                   tlv_diagnostic_t* diagnostic);
 
 #if OPENTLV_WRITER
 /**
@@ -138,7 +141,7 @@ TLV_API tlv_result_t tlv_der_visit(const uint8_t* data, size_t size, const tlv_d
  * @param[in]  length       Value length in bytes.
  * @param[in]  limits       Limits, or `NULL` for #tlv_der_default_limits.
  * @param[out] written      Receives the encoded (or required) size.
- * @param[out] error_offset Optional. Offset of the failure relative to the
+ * @param[out] diagnostic Optional. OUTPUT location relative to the
  *                          would-be output, using the read conventions.
  *
  * @return #TLV_OK on success.
@@ -150,7 +153,7 @@ TLV_API tlv_result_t tlv_der_visit(const uint8_t* data, size_t size, const tlv_d
 TLV_API tlv_result_t tlv_der_write(uint8_t* data, size_t capacity, tlv_tag_t tag,
                                    const uint8_t* value, size_t length,
                                    const tlv_der_limits_t* limits, size_t* written,
-                                   size_t* error_offset);
+                                   tlv_diagnostic_t* diagnostic);
 #endif
 
 /**
@@ -171,7 +174,7 @@ TLV_API tlv_result_t tlv_der_write(uint8_t* data, size_t capacity, tlv_tag_t tag
  */
 TLV_API tlv_result_t tlv_der_read_strict(const uint8_t* data, size_t size,
                                          const tlv_der_limits_t* limits, tlv_element_t* element,
-                                         size_t* consumed, size_t* error_offset);
+                                         size_t* consumed, tlv_diagnostic_t* diagnostic);
 /**
  * @brief Strict counterpart of tlv_der_visit().
  *
@@ -181,7 +184,7 @@ TLV_API tlv_result_t tlv_der_read_strict(const uint8_t* data, size_t size,
  */
 TLV_API tlv_result_t tlv_der_visit_strict(const uint8_t* data, size_t size,
                                           const tlv_der_limits_t* limits, tlv_der_visitor_t visitor,
-                                          void* context, size_t* error_offset);
+                                          void* context, tlv_diagnostic_t* diagnostic);
 #if OPENTLV_WRITER
 /**
  * @brief Strict counterpart of tlv_der_write().
@@ -193,7 +196,7 @@ TLV_API tlv_result_t tlv_der_visit_strict(const uint8_t* data, size_t size,
 TLV_API tlv_result_t tlv_der_write_strict(uint8_t* data, size_t capacity, tlv_tag_t tag,
                                           const uint8_t* value, size_t length,
                                           const tlv_der_limits_t* limits, size_t* written,
-                                          size_t* error_offset);
+                                          tlv_diagnostic_t* diagnostic);
 #endif
 
 #ifdef __cplusplus

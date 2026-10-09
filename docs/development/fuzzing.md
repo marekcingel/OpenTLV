@@ -67,7 +67,8 @@ date/time calendar checks, enum validation) independently of TLV framing.
 parsing, resolve-driven construction, and EMV padding/truncation), which is
 not ordinary TLV structure and so is not exercised by any other target.
 
-`error_offset` may change on failure; on success it must stay unchanged.
+Optional diagnostics carry explicit location kinds and domains. Inspect locations
+only on failure; UNKNOWN coordinates must not be interpreted.
 Earlier visitor effects are not rolled back. The suite checks these documented
 exceptions rather than requiring every output to remain unchanged on error.
 

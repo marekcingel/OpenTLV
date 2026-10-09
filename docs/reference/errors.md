@@ -29,7 +29,7 @@ return describes that result:
 - `tlv_diagnostic_t` and the active diagnostic in an embedding type have
   `diagnostic.code == rc`.
 - `tlv_query_diagnostic_t` has `kind != TLV_QUERY_ERROR_NONE`. A `READER` detail
-  also has `reader.diagnostic.code == rc`; a `CODEC` detail has a non-OK codec result.
+  sets `has_reader` and stores its result, location and path only in `diagnostic`; a `CODEC` detail has a non-OK codec result.
 - An initialized Query diagnostic for `TLV_ERR_INVALID_STATE` has kind
   `TLV_QUERY_ERROR_STATE`. Pre-initialization preservation exceptions below still apply.
 - Schema Query has alternative detail channels: a false assertion sets
@@ -169,13 +169,18 @@ later callback or scratch failure prevents completing the hypothetical encoding,
 the original result and detail are retained with unknown byte location. The destination and `written`
 remain unchanged on failure.
 
-Several APIs report an `error_offset` that is changed only on failure. For the DER validation
-functions it identifies the start of the failing field, relative to the input: tag
-errors point to the tag, length errors to the length prefix, and truncated values to their
-value start, including missing fields at the end of the input. Value-size limits point to
-the length field and depth or count limits to the first disallowed element. Argument,
-configuration, total-size and destination-capacity errors use offset zero. The CER validation
-reports its own `error_offset`; see the [CER validation](../standards/cer/README.md).
+Failure locations use the common `tlv_location_t` value: a domain, kind and
+checked `[begin, end)` coordinates. UNKNOWN has no position; a POINT at zero or
+an empty SPAN at EOF is known evidence. INPUT, OUTPUT, EXPRESSION, DEFINITION
+and VALUE domains identify distinct coordinate spaces. Translation overflow
+drops optional location evidence while retaining the original result.
+
+DER/CER, DOL, Bluetooth AD, Document, Query paths and Tree visitors accept
+structured diagnostics; their offset-only outputs were removed in #555.
+DER/CER reads report INPUT points at the failing field, writes report OUTPUT
+points in would-be encoding, and DOL reports INPUT positions within its DOL
+descriptor even while writing. Argument/configuration failures remain unknown.
+See [diagnostics](../guides/diagnostics.md#evidence-locations) for origins and ownership.
 
 Schema validators distinguish invalid definitions (`TLV_ERR_INVALID_SCHEMA`) from
 valid definitions rejecting input (`TLV_ERR_SCHEMA`). Length constraints are Schema
@@ -185,16 +190,16 @@ with `TLV_SCHEMA_ISSUE_MISSING`, consistently across generic Schema and builtins
 `TLV_ERR_SCHEMA_MISSING` has been removed without an alias.
 
 `tlv_schema_validate()`, DER schema check/read/write, LLDP and DHCP container
-validation return `tlv_schema_diagnostic_t` detail when requested. Its `anchor`
-distinguishes an existing element, scope end, insertion point and unknown position.
+validation return `tlv_schema_diagnostic_t` detail when requested. Its `diagnostic.location.kind`
+distinguishes a point, span, scope end, insertion point and unknown position.
 A missing field is not an element at its anchor; never decode a tag there to
 explain the failure. Generic report findings now use scope end for missing fields,
 including known offset zero for an empty root. Definition failures have no input
-byte location. The remaining offset-only APIs migrate separately under #555.
+byte location; `definition.kind`, `owner` and `index` identify native definitions.
 
-The Schema diagnostic layout and affected signatures changed in #553. Rebuild
+The Schema diagnostic layout and affected signatures changed in #553 and #555. Rebuild
 native clients and use the matching binding version. C++ errors expose
-`schema_kind()` and `anchor()`; Python uses `InvalidSchemaError` for definitions
+`schema_kind()`, `location()` and `definition()`; Python uses `InvalidSchemaError` for definitions
 and `SchemaError` with `kind="missing"` for required absence.
 
 Custom format callback errors propagate unchanged through the generic reader and writer,

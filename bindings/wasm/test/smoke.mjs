@@ -94,7 +94,8 @@ result = opentlv.parse(hexToBytes("84 03 41 42 43 84 05 41"), { format: "ber" })
 assert.equal(result.elements.length, 1);
 assert.equal(result.elements[0].tag, "84");
 assert.ok(result.error, "truncated input must report an error");
-assert.equal(result.error.offset, 5);
+assert.equal(result.error.offset, 7);
+assert.deepEqual(result.error.location, {domain: "input", kind: "point", begin: 7, end: 7});
 assert.equal(typeof result.error.message, "string");
 assert.notEqual(result.error.code, 0);
 

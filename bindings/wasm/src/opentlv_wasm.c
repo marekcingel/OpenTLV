@@ -46,10 +46,10 @@ enum {
 };
 
 struct opentlv_wasm_result {
-    tlv_result_t code;
-    size_t       error_offset;
-    char*        json;
-    size_t       json_size;
+    tlv_result_t   code;
+    tlv_location_t location;
+    char*          json;
+    size_t         json_size;
 };
 
 typedef struct {
@@ -317,13 +317,32 @@ static const tlv_format_t* select_format(const char* name, int* ber, int* der,
     return NULL;
 }
 
-static void append_error(builder_t* b, tlv_result_t code, size_t offset) {
+static void write_location(builder_t* b, const tlv_location_t* location) {
+    tlv_location_t unknown = {0};
+    if (!location) location = &unknown;
+    builder_text(b, ",\"location\":{\"domain\":");
+    builder_json_string(b, tlv_location_domain_string(location->domain));
+    builder_text(b, ",\"kind\":");
+    builder_json_string(b, tlv_location_kind_string(location->kind));
+    if (location->kind != TLV_LOCATION_UNKNOWN) {
+        builder_text(b, ",\"begin\":");
+        builder_number(b, location->begin);
+        builder_text(b, ",\"end\":");
+        builder_number(b, location->end);
+    }
+    builder_text(b, "}");
+}
+
+static void append_error(builder_t* b, tlv_result_t code, const tlv_location_t* location) {
     builder_text(b, ",\"error\":{\"code\":");
     builder_number(b, (size_t)code);
     builder_text(b, ",\"message\":");
     builder_json_string(b, tlv_strerror(code));
-    builder_text(b, ",\"offset\":");
-    builder_number(b, offset);
+    write_location(b, location);
+    if (location->kind != TLV_LOCATION_UNKNOWN) {
+        builder_text(b, ",\"offset\":");
+        builder_number(b, location->begin);
+    }
     builder_text(b, "}");
 }
 
@@ -331,12 +350,12 @@ opentlv_wasm_result_t* opentlv_wasm_parse(const uint8_t* data, size_t size, cons
                                           const char* module, size_t fixed_tag_size,
                                           size_t fixed_length_size, int fixed_big_endian,
                                           int fixed_length_first, int fixed_counts_tag) {
-    opentlv_wasm_result_t* result = (opentlv_wasm_result_t*)calloc(1, sizeof *result);
-    const tlv_format_t*    reader;
-    writer_context_t*      w;
-    int                    ber, der;
-    size_t                 error_offset = 0;
-    size_t                 padding_offset = size;
+    opentlv_wasm_result_t*  result = (opentlv_wasm_result_t*)calloc(1, sizeof *result);
+    const tlv_format_t*     reader;
+    writer_context_t*       w;
+    int                     ber, der;
+    tlv_reader_diagnostic_t error_offset = {0};
+    size_t                  padding_offset = size;
     /* Storage for select_format()'s "fixed" case; must outlive its use below. */
     tlv_fixed_format_t fixed_config;
     tlv_format_t       fixed_format;
@@ -387,36 +406,41 @@ opentlv_wasm_result_t* opentlv_wasm_parse(const uint8_t* data, size_t size, cons
                 tlv_element_t           element;
                 tlv_reader_diagnostic_t diagnostic;
                 if (data[offset] == 0) {
-                    size_t significant_size, relative_error = 0;
+                    size_t                  significant_size;
+                    tlv_reader_diagnostic_t relative_error = {0};
                     result->code = tlv_bluetooth_ad_data_validate(
                         data + offset, size - offset, &significant_size, &relative_error);
                     if (result->code == TLV_OK)
                         padding_offset = offset;
-                    else
-                        error_offset = offset + relative_error;
+                    else {
+                        error_offset = relative_error;
+                        tlv_location_translate(&error_offset.diagnostic.location, offset);
+                    }
                     break;
                 }
                 if (count++ == WASM_MAX_ELEMENTS) {
                     result->code = TLV_ERR_LIMIT;
-                    error_offset = offset;
+                    tlv_diagnostic_set_location(&error_offset.diagnostic, TLV_LOCATION_INPUT,
+                                                TLV_LOCATION_POINT, offset, offset);
                     break;
                 }
                 result->code = tlv_reader_next_diag(&ad_reader, &element, &diagnostic);
                 if (result->code != TLV_OK) {
-                    error_offset =
-                        diagnostic.diagnostic.has_offset ? diagnostic.diagnostic.offset : offset;
+                    error_offset = diagnostic;
                     break;
                 }
                 if (emit_element(&element, 0, offset, w) != TLV_VISIT_CONTINUE) {
                     result->code = TLV_ERR_VISITOR;
-                    error_offset = offset;
+                    tlv_diagnostic_set_location(&error_offset.diagnostic, TLV_LOCATION_INPUT,
+                                                TLV_LOCATION_POINT, offset, offset);
                 }
             }
         } else
 #endif
 #if OPENTLV_FORMAT_DER
             if (der) {
-            result->code = tlv_der_visit(data, size, NULL, emit_element, w, &error_offset);
+            result->code =
+                tlv_der_visit(data, size, NULL, emit_element, w, &error_offset.diagnostic);
         } else
 #endif
         {
@@ -430,7 +454,7 @@ opentlv_wasm_result_t* opentlv_wasm_parse(const uint8_t* data, size_t size, cons
         }
     }
     if (w->out.failed) result->code = TLV_ERR_OUT_OF_MEMORY;
-    result->error_offset = error_offset;
+    result->location = error_offset.diagnostic.location;
 
     close_elements(w, 0);
     builder_text(&w->out, "]");
@@ -441,7 +465,7 @@ opentlv_wasm_result_t* opentlv_wasm_parse(const uint8_t* data, size_t size, cons
         builder_number(&w->out, size - padding_offset);
         builder_text(&w->out, "}");
     }
-    if (result->code != TLV_OK) append_error(&w->out, result->code, error_offset);
+    if (result->code != TLV_OK) append_error(&w->out, result->code, &result->location);
     builder_text(&w->out, "}");
 
     if (w->out.failed) {
@@ -460,8 +484,8 @@ int opentlv_wasm_result_code(const opentlv_wasm_result_t* result) {
     return result ? (int)result->code : (int)TLV_ERR_NULL_ARG;
 }
 
-size_t opentlv_wasm_result_error_offset(const opentlv_wasm_result_t* result) {
-    return result ? result->error_offset : 0;
+const tlv_location_t* opentlv_wasm_result_location(const opentlv_wasm_result_t* result) {
+    return result ? &result->location : NULL;
 }
 
 const char* opentlv_wasm_result_json(const opentlv_wasm_result_t* result) {
@@ -688,24 +712,26 @@ static void query_unsigned(builder_t* b, uint64_t value) {
     (void)snprintf(text, sizeof text, "%llu", (unsigned long long)value);
     builder_json_string(b, text);
 }
-static void query_reader_diagnostic(builder_t* b, const tlv_reader_diagnostic_t* r) {
+static void query_reader_diagnostic(builder_t* b, const tlv_diagnostic_t* common,
+                                    const tlv_reader_detail_t* r) {
     builder_text(b, ",\"reader\":{\"code\":");
-    builder_number(b, r->diagnostic.code);
+    builder_number(b, common->code);
+    write_location(b, &common->location);
     builder_text(b, ",\"severity\":");
-    builder_number(b, r->diagnostic.severity);
+    builder_number(b, common->severity);
     builder_text(b, ",\"operation\":");
     builder_number(b, r->operation);
-    if (r->diagnostic.has_offset) {
+    if (common->location.kind) {
         builder_text(b, ",\"offset\":");
-        builder_number(b, r->diagnostic.offset);
+        builder_number(b, common->location.begin);
     }
-    if (r->diagnostic.expected) {
+    if (common->expected) {
         builder_text(b, ",\"expected\":");
-        builder_json_string(b, r->diagnostic.expected);
+        builder_json_string(b, common->expected);
     }
-    if (r->diagnostic.actual) {
+    if (common->actual) {
         builder_text(b, ",\"actual\":");
-        builder_json_string(b, r->diagnostic.actual);
+        builder_json_string(b, common->actual);
     }
     if (r->has_tag) {
         builder_text(b, ",\"tag\":\"");
@@ -739,19 +765,19 @@ static void query_reader_diagnostic(builder_t* b, const tlv_reader_diagnostic_t*
         query_unsigned(b, r->required);
     }
     builder_text(b, ",\"path\":[");
-    if (r->diagnostic.path)
-        for (size_t i = 0; i < r->diagnostic.path->length; ++i) {
-            const tlv_tag_t* tag = r->diagnostic.path->tags + i;
+    if (common->has_path)
+        for (size_t i = 0; i < common->path.length; ++i) {
+            const tlv_tag_t* tag = common->path.tags + i;
             if (i) builder_text(b, ",");
             builder_text(b, "\"");
             builder_hex(b, tag->data, tag->size);
             builder_text(b, "\"");
         }
     builder_text(b, "],\"path_omitted\":");
-    builder_number(b, r->diagnostic.path ? r->diagnostic.path->omitted : 0);
+    builder_number(b, common->has_path ? common->path.omitted : 0);
     builder_text(b, ",\"contexts\":[");
     int first = 1;
-    for (const tlv_diagnostic_context_t* c = r->diagnostic.contexts; c; c = c->next) {
+    for (const tlv_diagnostic_context_t* c = common->contexts; c; c = c->next) {
         if (!first) builder_text(b, ",");
         first = 0;
         builder_text(b, "{\"layer\":");
@@ -769,6 +795,7 @@ static void query_status(builder_t* b, tlv_result_t code, const tlv_query_diagno
     b->failed = 0;
     builder_text(b, "{\"code\":");
     builder_number(b, code);
+    write_location(b, d ? &d->diagnostic.location : NULL);
     builder_text(b, ",\"query\":{\"kind\":");
     builder_number(b, code == TLV_ERR_INVALID_STATE ? TLV_QUERY_ERROR_STATE
                       : d                           ? d->kind
@@ -790,12 +817,12 @@ static void query_status(builder_t* b, tlv_result_t code, const tlv_query_diagno
             builder_text(b, ",\"expected\":");
             builder_json_string(b, d->expected);
         }
-        if (d->has_source_offset) {
+        if ((d->diagnostic.location.domain == TLV_LOCATION_INPUT &&
+             d->diagnostic.location.kind != TLV_LOCATION_UNKNOWN)) {
             builder_text(b, ",\"source_offset\":");
-            builder_number(b, d->source_offset);
+            builder_number(b, d->diagnostic.location.begin);
         }
-        if (d->kind == TLV_QUERY_ERROR_READER || d->reader.diagnostic.code != TLV_OK)
-            query_reader_diagnostic(b, &d->reader);
+        if (d->has_reader) query_reader_diagnostic(b, &d->diagnostic, &d->reader);
     }
     builder_text(b, "}");
 }
@@ -813,13 +840,13 @@ struct opentlv_wasm_v1 {
     tlv_query_t         query;
     tlv_query_matcher_t matcher;
     tlv_result_t        code;
-    size_t              offset;
+    tlv_diagnostic_t    diagnostic;
     builder_t           reply;
 };
 opentlv_wasm_v1_t* opentlv_wasm_v1_new(const char* text, size_t size) {
     opentlv_wasm_v1_t* q = calloc(1, sizeof *q);
     if (!q) return NULL;
-    q->code = tlv_query_parse_n(text, size, &q->query, &q->offset);
+    q->code = tlv_query_parse_n(text, size, &q->query, &q->diagnostic);
     if (q->code == TLV_OK) q->code = tlv_query_matcher_init(&q->matcher, &q->query);
     return q;
 }
@@ -828,8 +855,9 @@ const char* opentlv_wasm_v1_operation(opentlv_wasm_v1_t* q, int operation, const
     tlv_query_diagnostic_t diagnostic = {0};
     if (q->code != TLV_OK) {
         diagnostic.kind = TLV_QUERY_ERROR_SYNTAX;
-        diagnostic.begin = q->offset;
-        diagnostic.end = q->offset;
+        diagnostic.diagnostic = q->diagnostic;
+        diagnostic.begin = q->diagnostic.location.begin;
+        diagnostic.end = q->diagnostic.location.end;
     }
     tlv_result_t rc = q->code;
     if (rc == TLV_OK && operation == 1) rc = tlv_query_matcher_init(&q->matcher, &q->query);
@@ -985,14 +1013,14 @@ const char* opentlv_wasm_schema_validate(opentlv_wasm_program_t* owner, const ui
     builder_text(&owner->reply, "\",\"field\":");
     builder_json_string(&owner->reply, diagnostic.schema.field ? diagnostic.schema.field : "");
     query_field(&owner->reply, "kind", diagnostic.schema.kind);
-    query_field(&owner->reply, "anchor", diagnostic.schema.anchor);
+    write_location(&owner->reply, &diagnostic.schema.diagnostic.location);
     builder_text(&owner->reply, ",\"kind_name\":");
     builder_json_string(&owner->reply, tlv_schema_issue_kind_string(diagnostic.schema.kind));
     query_field(&owner->reply, "code", diagnostic.schema.diagnostic.code);
     query_field(&owner->reply, "severity", diagnostic.schema.diagnostic.severity);
     builder_text(&owner->reply, ",\"offset\":");
-    if (diagnostic.schema.diagnostic.has_offset)
-        builder_number(&owner->reply, diagnostic.schema.diagnostic.offset);
+    if (diagnostic.schema.diagnostic.location.kind)
+        builder_number(&owner->reply, diagnostic.schema.diagnostic.location.begin);
     else
         builder_text(&owner->reply, "null");
     builder_text(&owner->reply, ",\"expected\":");
@@ -1006,15 +1034,15 @@ const char* opentlv_wasm_schema_validate(opentlv_wasm_program_t* owner, const ui
     else
         builder_text(&owner->reply, "null");
     builder_text(&owner->reply, ",\"path\":[");
-    for (size_t i = 0; i < diagnostic.schema.path.length; ++i) {
+    for (size_t i = 0; i < diagnostic.schema.diagnostic.path.length; ++i) {
         if (i) builder_text(&owner->reply, ",");
         builder_text(&owner->reply, "\"");
-        builder_hex(&owner->reply, diagnostic.schema.path.tags[i].data,
-                    diagnostic.schema.path.tags[i].size);
+        builder_hex(&owner->reply, diagnostic.schema.diagnostic.path.tags[i].data,
+                    diagnostic.schema.diagnostic.path.tags[i].size);
         builder_text(&owner->reply, "\"");
     }
     builder_text(&owner->reply, "],\"path_omitted\":");
-    builder_number(&owner->reply, diagnostic.schema.path.omitted);
+    builder_number(&owner->reply, diagnostic.schema.diagnostic.path.omitted);
     builder_text(&owner->reply, "}");
     return query_reply(&owner->reply);
 }

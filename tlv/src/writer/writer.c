@@ -23,7 +23,8 @@ static void wdiag(tlv_writer_diagnostic_t* diagnostic, tlv_result_t code,
     if (!diagnostic) return;
     tlv_writer_diagnostic_init(diagnostic);
     tlv_diagnostic_init(&diagnostic->diagnostic, code, TLV_DIAGNOSTIC_SEVERITY_ERROR);
-    tlv_diagnostic_set_offset(&diagnostic->diagnostic, offset);
+    tlv_diagnostic_set_location(&diagnostic->diagnostic, TLV_LOCATION_OUTPUT, TLV_LOCATION_POINT,
+                                offset, offset);
     diagnostic->operation = operation;
     if (element) {
         diagnostic->has_tag = 1;
@@ -54,6 +55,8 @@ static void wdiag_format(tlv_writer_diagnostic_t* diagnostic, tlv_result_t code,
     if (error->region == TLV_REGION_TRAILER) operation = TLV_WRITER_OP_TRAILER;
     wdiag(diagnostic, code, operation, element, error->has_offset ? error->offset : 0, available,
           NULL);
+    if (diagnostic && !error->has_offset)
+        memset(&diagnostic->diagnostic.location, 0, sizeof diagnostic->diagnostic.location);
     if (diagnostic && error->has_required &&
         tlv_size_to_native(error->required, &required) == TLV_OK) {
         diagnostic->has_required = 1;
@@ -124,6 +127,8 @@ static tlv_result_t writer_destination(tlv_writer_t* writer, uint8_t** data, siz
     if (rc != TLV_OK) {
         wdiag(diagnostic, rc, TLV_WRITER_OP_VALUE, element, writer ? writer->pos : 0, available,
               NULL);
+        if (diagnostic)
+            memset(&diagnostic->diagnostic.location, 0, sizeof diagnostic->diagnostic.location);
         return rc;
     }
     *available = writer->capacity - writer->pos;
@@ -135,12 +140,9 @@ static tlv_result_t writer_finish(tlv_writer_t* writer, tlv_result_t rc, size_t 
                                   tlv_writer_diagnostic_t* diagnostic) {
     if (rc == TLV_OK)
         writer->pos += written;
-    else if (diagnostic && diagnostic->diagnostic.has_offset) {
+    else if (diagnostic && diagnostic->diagnostic.location.kind) {
         /* Do not wrap an unrepresentable callback offset. */
-        if (diagnostic->diagnostic.offset > SIZE_MAX - writer->pos)
-            diagnostic->diagnostic.has_offset = 0;
-        else
-            diagnostic->diagnostic.offset += writer->pos;
+        tlv_location_translate(&diagnostic->diagnostic.location, writer->pos);
     }
     return rc;
 }

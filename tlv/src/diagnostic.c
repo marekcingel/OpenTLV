@@ -13,10 +13,35 @@ void tlv_diagnostic_init(tlv_diagnostic_t* diagnostic, tlv_result_t code,
     diagnostic->severity = severity;
 }
 
-void tlv_diagnostic_set_offset(tlv_diagnostic_t* diagnostic, size_t offset) {
-    if (diagnostic == NULL) return;
-    diagnostic->has_offset = 1;
-    diagnostic->offset = offset;
+void tlv_location_set(tlv_location_t* location, tlv_location_domain_t domain,
+                      tlv_location_kind_t kind, size_t begin, size_t end) {
+    if (!location) return;
+    memset(location, 0, sizeof *location);
+    if (domain < TLV_LOCATION_INPUT || domain > TLV_LOCATION_VALUE || kind < TLV_LOCATION_POINT ||
+        kind > TLV_LOCATION_INSERTION || begin > end || (kind != TLV_LOCATION_SPAN && begin != end))
+        return;
+    location->domain = domain;
+    location->kind = kind;
+    location->begin = begin;
+    location->end = end;
+}
+
+void tlv_location_translate(tlv_location_t* location, size_t origin) {
+    if (!location || location->kind == TLV_LOCATION_UNKNOWN) return;
+    if (location->domain < TLV_LOCATION_INPUT || location->domain > TLV_LOCATION_VALUE ||
+        location->kind < TLV_LOCATION_POINT || location->kind > TLV_LOCATION_INSERTION ||
+        location->begin > location->end || location->end > SIZE_MAX - origin ||
+        (location->kind != TLV_LOCATION_SPAN && location->begin != location->end)) {
+        memset(location, 0, sizeof *location);
+        return;
+    }
+    location->begin += origin;
+    location->end += origin;
+}
+
+void tlv_diagnostic_set_location(tlv_diagnostic_t* diagnostic, tlv_location_domain_t domain,
+                                 tlv_location_kind_t kind, size_t begin, size_t end) {
+    if (diagnostic) tlv_location_set(&diagnostic->location, domain, kind, begin, end);
 }
 
 void tlv_diagnostic_add_context(tlv_diagnostic_t* diagnostic, tlv_diagnostic_context_t* context,
@@ -31,7 +56,34 @@ void tlv_diagnostic_add_context(tlv_diagnostic_t* diagnostic, tlv_diagnostic_con
 
 void tlv_diagnostic_set_path(tlv_diagnostic_t* diagnostic, const tlv_diagnostic_path_t* path) {
     if (diagnostic == NULL) return;
-    diagnostic->path = path;
+    diagnostic->has_path = path != NULL;
+    if (path)
+        diagnostic->path = *path;
+    else
+        memset(&diagnostic->path, 0, sizeof diagnostic->path);
+}
+
+const char* tlv_location_domain_string(tlv_location_domain_t domain) {
+    switch (domain) {
+        case TLV_LOCATION_DOMAIN_UNKNOWN: return "unknown";
+        case TLV_LOCATION_INPUT: return "input";
+        case TLV_LOCATION_OUTPUT: return "output";
+        case TLV_LOCATION_EXPRESSION: return "expression";
+        case TLV_LOCATION_DEFINITION: return "definition";
+        case TLV_LOCATION_VALUE: return "value";
+    }
+    return "unknown";
+}
+
+const char* tlv_location_kind_string(tlv_location_kind_t kind) {
+    switch (kind) {
+        case TLV_LOCATION_UNKNOWN: return "unknown";
+        case TLV_LOCATION_POINT: return "point";
+        case TLV_LOCATION_SPAN: return "span";
+        case TLV_LOCATION_SCOPE_END: return "scope_end";
+        case TLV_LOCATION_INSERTION: return "insertion";
+    }
+    return "unknown";
 }
 
 void tlv_diagnostic_path_init(tlv_diagnostic_path_t* path) {

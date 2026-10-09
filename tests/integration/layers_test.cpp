@@ -72,9 +72,9 @@ TEST(Integration_Tlvpp, BerPathQuery) {
                                0x50, 0x02, 0x41, 0x42, 0x50, 0x01, 0xFF};
     const tlv::bytes input(reinterpret_cast<const tlv::byte*>(wire), sizeof(wire));
 
-    size_t offset = 99;
+    tlv_diagnostic_t offset{};
     EXPECT_FALSE(tlv::query::parse("6F//50", &offset));
-    EXPECT_EQ(3u, offset);
+    EXPECT_EQ(3u, offset.location.begin);
 
     auto path = tlv::query::parse("6F/A5/50");
     ASSERT_TRUE(path);
@@ -99,8 +99,8 @@ TEST(Integration_Tlvpp, BerPathQuery) {
                                           ADD_FAILURE();
                                           return TLV_VISIT_CONTINUE;
                                       }));
-    size_t failed_at = 0;
-    auto   limited = path->visit_buffer(
+    tlv_reader_diagnostic_t failed_at{};
+    auto                    limited = path->visit_buffer(
         input, tlv::ber::format{}, 1, 100,
         [](const tlv::element_view&, size_t, size_t) { return TLV_VISIT_CONTINUE; }, &failed_at);
     ASSERT_FALSE(limited);
@@ -141,7 +141,7 @@ TEST(Integration_Tlvpp, ValidateAllDiagReportsFieldNamesAndPaths) {
     ASSERT_EQ(2u, *count); // Tag 1 is missing and tag 2 is unexpected.
     EXPECT_EQ(TLV_SCHEMA_ISSUE_MISSING, diagnostics[0].kind);
     EXPECT_STREQ("one", diagnostics[0].field);
-    EXPECT_EQ(0u, diagnostics[0].path.length);
+    EXPECT_EQ(0u, diagnostics[0].diagnostic.path.length);
     EXPECT_TRUE(tlv_tag_equal(TLV_TAG(1), diagnostics[0].tag));
     EXPECT_EQ(TLV_SCHEMA_ISSUE_UNEXPECTED, diagnostics[1].kind);
     EXPECT_EQ(nullptr, diagnostics[1].field);
@@ -252,7 +252,7 @@ TEST(Integration_Tlvpp, ValidateAllDiagReportsGroupAndOrderViolations) {
     ASSERT_EQ(1u, *order_count);
     EXPECT_EQ(TLV_SCHEMA_ISSUE_ORDER, diagnostics[0].kind);
     EXPECT_STREQ("one", diagnostics[0].field);
-    EXPECT_EQ(0u, diagnostics[0].path.length);
+    EXPECT_EQ(0u, diagnostics[0].diagnostic.path.length);
     EXPECT_TRUE(tlv_tag_equal(TLV_TAG(1), diagnostics[0].tag));
 }
 

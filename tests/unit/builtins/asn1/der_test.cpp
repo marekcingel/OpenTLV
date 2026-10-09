@@ -32,10 +32,12 @@ TEST(Unit_Tlv_Der, UniversalPrimitiveConstructedRules) {
 }
 
 TEST(Unit_Tlv_Der, EmptyArgumentsAndVisitorControl) {
-    tlv_element_t element{};
-    size_t        used = 99, offset = 99;
+    tlv_element_t    element{};
+    size_t           used = 99;
+    tlv_diagnostic_t offset = {};
+    offset.location.begin = 99;
     EXPECT_EQ(TLV_ERR_END_OF_BUFFER, tlv_der_read(nullptr, 0, nullptr, &element, &used, &offset));
-    EXPECT_EQ(0u, offset);
+    EXPECT_EQ(0u, offset.location.begin);
     EXPECT_EQ(99u, used);
     EXPECT_EQ(TLV_OK, tlv_der_visit(nullptr, 0, nullptr, nullptr, nullptr, nullptr));
     EXPECT_EQ(TLV_ERR_NULL_ARG, tlv_der_visit(nullptr, 1, nullptr, nullptr, nullptr, nullptr));
@@ -52,7 +54,7 @@ TEST(Unit_Tlv_Der, EmptyArgumentsAndVisitorControl) {
     auto error = [](const tlv_element_t*, size_t, size_t, void*) { return TLV_VISIT_ERROR; };
     EXPECT_EQ(TLV_OK, tlv_der_visit(data, sizeof(data), nullptr, stop, nullptr, nullptr));
     EXPECT_EQ(TLV_ERR_VISITOR, tlv_der_visit(data, sizeof(data), nullptr, error, nullptr, &offset));
-    EXPECT_EQ(0u, offset);
+    EXPECT_EQ(0u, offset.location.begin);
     EXPECT_NE(TLV_OK, tlv_der_visit(data, sizeof(data), nullptr, nullptr, nullptr, nullptr));
 }
 

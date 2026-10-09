@@ -67,7 +67,7 @@ TEST(Unit_Tlvpp, CanonicalWriterMeasuresPreservesAndCopiesIntoCallerStorage) {
     EXPECT_FALSE(writer.write(decoded.element, &diagnostic).has_value());
     EXPECT_EQ(9u, writer.size());
     EXPECT_EQ(3u, diagnostic.required);
-    EXPECT_EQ(9u, diagnostic.diagnostic.offset);
+    EXPECT_EQ(9u, diagnostic.diagnostic.location.begin);
 }
 
 #if OPENTLV_LLDP
@@ -179,11 +179,11 @@ TEST(Unit_Tlvpp, ReaderNextDiagReportsValueExceedingAvailableBytes) {
     ASSERT_FALSE(e.has_value());
     EXPECT_TRUE(e.error().code == TLV_ERR_BUFFER_TOO_SHORT);
     EXPECT_EQ(TLV_ERR_BUFFER_TOO_SHORT, diagnostic.diagnostic.code);
-    EXPECT_EQ(TLV_READER_OP_VALUE, diagnostic.operation);
-    ASSERT_TRUE(diagnostic.has_declared_length);
-    EXPECT_EQ(6u, diagnostic.declared_length);
-    ASSERT_TRUE(diagnostic.has_available);
-    EXPECT_EQ(0u, diagnostic.available);
+    EXPECT_EQ(TLV_READER_OP_VALUE, diagnostic.detail.operation);
+    ASSERT_TRUE(diagnostic.detail.has_declared_length);
+    EXPECT_EQ(6u, diagnostic.detail.declared_length);
+    ASSERT_TRUE(diagnostic.detail.has_available);
+    EXPECT_EQ(0u, diagnostic.detail.available);
 }
 
 // --- Codec concept test ---

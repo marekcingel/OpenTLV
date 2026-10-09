@@ -124,6 +124,32 @@ TEST(Unit_Generator, ValidationAndImpossibleDomain) {
     EXPECT_EQ(TLV_ERR_OVERFLOW, tlv_generator_workspace_size(&options, &written));
     EXPECT_EQ(99u, written);
 }
+TEST(Unit_Generator, SeedAndCaseIndexDoNotCancel) {
+    const auto     candidate = tlv::make_generator_candidate(tlv::tag_bytes<1>(), 32, 32);
+    const auto     fixed = tlv::fixed_format<1, 1, tlv::byte_order::big_endian>::view();
+    const uint64_t increment = UINT64_C(0x9e3779b97f4a7c15);
+    const uint64_t seeds[] = {0, 42, UINT64_MAX};
+    const uint64_t indices[] = {1, 2, 7, UINT64_MAX};
+    for (const auto seed : seeds) {
+        for (const auto index : indices) {
+            SCOPED_TRACE(::testing::Message() << "seed=" << seed << " case=" << index);
+            tlv::generator_options options{
+                seed ^ (index * increment), 0, 1, 0, 32, 64, &candidate, 1};
+            tlv::generator first(fixed, options);
+            options.seed = seed;
+            tlv::generator second(fixed, options);
+            auto           a = first.generate(0);
+            auto           b = second.generate(index);
+            ASSERT_TRUE(a);
+            ASSERT_TRUE(b);
+            // These pairs produced the identical stream with version 1.
+            EXPECT_NE(*a, *b);
+            auto replay = first.generate(0);
+            ASSERT_TRUE(replay);
+            EXPECT_EQ(*a, *replay);
+        }
+    }
+}
 TEST(Unit_Generator, CxxFacadeAndZeroDepth) {
     const uint8_t raw = 1;
     auto          candidate = tlv::make_generator_candidate(
@@ -143,7 +169,7 @@ TEST(Unit_Generator, CxxFacadeAndZeroDepth) {
     size_t count = 0, deepest = 0;
     check_stream(fixed, output, *result, 0, count, deepest);
     EXPECT_EQ(1u, count);
-    const uint8_t golden[] = {1, 1, 164};
+    const uint8_t golden[] = {1, 10, 89, 174, 39, 203, 39, 166, 132, 173, 153, 98};
     ASSERT_EQ(sizeof(golden), *result);
     EXPECT_EQ(0, std::memcmp(output, golden, sizeof(golden)));
     EXPECT_EQ(0u, deepest);

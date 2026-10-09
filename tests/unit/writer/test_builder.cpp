@@ -113,7 +113,7 @@ TEST(Unit_Tlvpp_WriterBuilder, ClosingFailurePreservesFirstDiagnosticAndComplete
     writer.constructed<0xE1>([](tlv::writer_builder& parent) { parent.write<2>("A"); });
     EXPECT_EQ(TLV_ERR_INVALID_VALUE, writer.status());
     EXPECT_EQ(TLV_WRITER_OP_HEADER, diagnostic.operation);
-    EXPECT_EQ(2u, diagnostic.diagnostic.offset);
+    EXPECT_EQ(TLV_LOCATION_UNKNOWN, diagnostic.diagnostic.location.kind);
     EXPECT_EQ(2u, writer.size());
     const uint8_t preserved[] = {1, 0, 2, 1, 'A'};
     expect_wire(output, preserved);
@@ -220,7 +220,7 @@ TEST(Unit_Tlvpp_WriterBuilder, FirstErrorStopsWritingAndSkipsLaterCallbacks) {
     EXPECT_STREQ(tlv_strerror(TLV_ERR_BUFFER_TOO_SHORT), result.error().message());
     EXPECT_FALSE(called);
     EXPECT_EQ(3u, writer.size());
-    EXPECT_EQ(3u, diagnostic.diagnostic.offset);
+    EXPECT_EQ(3u, diagnostic.diagnostic.location.begin);
     EXPECT_EQ(10u, diagnostic.required);
     const uint8_t expected[] = {1, 1, 'A'};
     expect_wire(output, expected);

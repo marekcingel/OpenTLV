@@ -2,6 +2,7 @@
 // Copyright (c) 2026 Marek Cingel
 #include "tlv/query/program.h"
 #include "tlv/query/query.h"
+#include "tlv/schema/schema.h"
 #include <stdio.h>
 #include <stddef.h>
 
@@ -17,6 +18,52 @@
 #define FIELD(type, field) printf(",\"%s\":%zu", #field, offsetof(type, field))
 int main(void) {
     printf("{\"version\":1,\"pointer_bits\":%zu,\"types\":{", sizeof(void*) * 8);
+    TYPE(tlv_location_t);
+    FIELD(tlv_location_t, domain);
+    FIELD(tlv_location_t, kind);
+    FIELD(tlv_location_t, begin);
+    FIELD(tlv_location_t, end);
+    printf("},");
+    TYPE(tlv_diagnostic_t);
+    FIELD(tlv_diagnostic_t, code);
+    FIELD(tlv_diagnostic_t, severity);
+    FIELD(tlv_diagnostic_t, location);
+    FIELD(tlv_diagnostic_t, expected);
+    FIELD(tlv_diagnostic_t, actual);
+    FIELD(tlv_diagnostic_t, contexts);
+    FIELD(tlv_diagnostic_t, has_path);
+    FIELD(tlv_diagnostic_t, path);
+    printf("},");
+    TYPE(tlv_reader_detail_t);
+    FIELD(tlv_reader_detail_t, operation);
+    FIELD(tlv_reader_detail_t, has_tag);
+    FIELD(tlv_reader_detail_t, tag);
+    FIELD(tlv_reader_detail_t, has_tag_offset);
+    FIELD(tlv_reader_detail_t, tag_offset);
+    FIELD(tlv_reader_detail_t, has_length_offset);
+    FIELD(tlv_reader_detail_t, length_offset);
+    FIELD(tlv_reader_detail_t, has_value_offset);
+    FIELD(tlv_reader_detail_t, value_offset);
+    FIELD(tlv_reader_detail_t, has_declared_length);
+    FIELD(tlv_reader_detail_t, declared_length);
+    FIELD(tlv_reader_detail_t, has_raw_length);
+    FIELD(tlv_reader_detail_t, raw_length);
+    FIELD(tlv_reader_detail_t, has_available);
+    FIELD(tlv_reader_detail_t, available);
+    FIELD(tlv_reader_detail_t, has_enclosing_end);
+    FIELD(tlv_reader_detail_t, enclosing_end);
+    FIELD(tlv_reader_detail_t, has_required);
+    FIELD(tlv_reader_detail_t, required);
+    printf("},");
+    TYPE(tlv_reader_diagnostic_t);
+    FIELD(tlv_reader_diagnostic_t, diagnostic);
+    FIELD(tlv_reader_diagnostic_t, detail);
+    printf("},");
+    TYPE(tlv_schema_definition_location_t);
+    FIELD(tlv_schema_definition_location_t, kind);
+    FIELD(tlv_schema_definition_location_t, owner);
+    FIELD(tlv_schema_definition_location_t, index);
+    printf("},");
     TYPE(tlv_query_t);
     printf("},");
     TYPE(tlv_query_matcher_t);
@@ -55,17 +102,20 @@ int main(void) {
     FIELD(tlv_query_exec_info_t, invalid);
     printf("},");
     TYPE(tlv_query_diagnostic_t);
+    FIELD(tlv_query_diagnostic_t, diagnostic);
     FIELD(tlv_query_diagnostic_t, kind);
+    FIELD(tlv_query_diagnostic_t, has_reader);
     FIELD(tlv_query_diagnostic_t, begin);
     FIELD(tlv_query_diagnostic_t, end);
     FIELD(tlv_query_diagnostic_t, reader);
+    FIELD(tlv_query_diagnostic_t, codec);
     printf("},");
     TYPE(tlv_query_result_t);
     FIELD(tlv_query_result_t, kind);
     FIELD(tlv_query_result_t, boolean);
     FIELD(tlv_query_result_t, integer);
     FIELD(tlv_query_result_t, data);
-    FIELD(tlv_query_result_t, size);
+    printf(",\"size_offset\":%zu", offsetof(tlv_query_result_t, size));
     printf("},");
     TYPE(tlv_query_compile_options_t);
     FIELD(tlv_query_compile_options_t, struct_size);

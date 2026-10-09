@@ -103,11 +103,11 @@ func TestNestedDocumentFailureAndLimits(t *testing.T) {
 		t.Fatalf("nested diagnostic: %v %+v", err, parsed)
 	}
 	d, err = opentlv.ParseWithOptions([]byte{0x30, 2, 2, 0}, f, opentlv.DocumentOptions{MaxDepth: 0, MaxElements: 10})
-	if d != nil || !errors.As(err, &parsed) || !errors.Is(err, opentlv.ErrLimit) || !parsed.HasOffset || parsed.Offset != 2 {
+	if d != nil || !errors.As(err, &parsed) || !errors.Is(err, opentlv.ErrLimit) || parsed.HasOffset {
 		t.Fatalf("depth limit diagnostic: %v %+v", err, parsed)
 	}
 	d, err = opentlv.ParseWithOptions([]byte{2, 0}, f, opentlv.DocumentOptions{MaxDepth: 0, MaxElements: 0})
-	if d != nil || !errors.As(err, &parsed) || !errors.Is(err, opentlv.ErrLimit) || !parsed.HasOffset || parsed.Offset != 0 {
+	if d != nil || !errors.As(err, &parsed) || !errors.Is(err, opentlv.ErrLimit) || parsed.HasOffset {
 		t.Fatalf("element limit diagnostic: %v %+v", err, parsed)
 	}
 }

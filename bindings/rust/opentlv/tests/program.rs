@@ -12,6 +12,7 @@ fn unfinished_result_reports_state_and_reset_recovers() {
     let failure = execution.result().unwrap_err();
     assert_eq!(failure.error, Error::InvalidState);
     assert_eq!(failure.kind, opentlv_sys::TLV_QUERY_ERROR_STATE);
+    assert_eq!(failure.source_offset(), None);
     let malformed = execution
         .feed_event(opentlv::QueryEvent::End {
             depth: 0,
@@ -27,6 +28,25 @@ fn unfinished_result_reports_state_and_reset_recovers() {
     execution.reset().unwrap();
     execution.finish().unwrap();
     assert_eq!(execution.result().unwrap(), QueryValue::Integer(0));
+}
+#[test]
+fn source_offset_projects_primary_input_evidence_only() {
+    let syntax = QueryProgram::compile("/", &ProgramOptions::default())
+        .err()
+        .unwrap();
+    assert_eq!(syntax.source_offset(), None);
+    assert!(syntax.expected.as_deref().is_some());
+    let program = QueryProgram::compile("//5A", &ProgramOptions::default()).unwrap();
+    for (input, offset) in [(vec![0], 0), (vec![0x5a, 2, 0], 2)] {
+        let mut execution = program.execution(4, 20, 100000, true).unwrap();
+        let mut reader = TreeReader::new(&input, Format::Ber, 4, 4, 20, true).unwrap();
+        let failure = execution
+            .visit(&mut reader, |_| Visit::Continue)
+            .unwrap_err();
+        assert_eq!(failure.source_offset(), Some(offset));
+        assert_eq!(failure.location.domain, opentlv::LocationDomain::Input);
+        assert_eq!(failure.location.begin, offset);
+    }
 }
 #[test]
 fn custom_providers_keep_lifetimes_and_validate_image_requirements() {

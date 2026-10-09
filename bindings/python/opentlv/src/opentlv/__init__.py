@@ -22,6 +22,7 @@ from opentlv import codec
 from opentlv.codec import CodecError, NumberCodec, NumberEncoding
 from opentlv.document import Document, DocumentBuilder, Node
 from opentlv.element import Element
+from opentlv.location import Location
 from opentlv.error import (
     BufferTooShortError,
     EndOfBufferError,
@@ -87,6 +88,7 @@ __all__ = [
     "LengthRule",
     "LengthSchema",
     "LimitError",
+    "Location",
     "NullArgError",
     "NativeSizeError",
     "NeedMoreDataError",

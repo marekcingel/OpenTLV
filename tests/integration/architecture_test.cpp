@@ -157,7 +157,7 @@ TEST(Integration_Tlv_Pipeline, IncrementalSelectionMutationAndEncodingAtEverySpl
         std::unique_ptr<tlv_document_builder_t, decltype(&tlv_document_builder_free)> builder(
             raw_builder, tlv_document_builder_free);
         tlv_document_t* raw = nullptr;
-        ASSERT_EQ(TLV_OK, tlv_document_builder_consume(builder.get(), &raw, nullptr, nullptr));
+        ASSERT_EQ(TLV_OK, tlv_document_builder_consume(builder.get(), &raw, nullptr));
         std::unique_ptr<tlv_document_t, decltype(&tlv_document_free)> doc(raw, tlv_document_free);
         EXPECT_EQ(decoded + 1, format.decodes); // Only the selected descendant is decoded.
         EXPECT_EQ(9u, tlv_tree_reader_offset(&reader));
@@ -210,25 +210,16 @@ TEST(Integration_Tlv_Pipeline, BuilderPreservesAbsoluteDiagnosticsAndReaderLimit
         tlv_reader_diagnostic_t diagnostic;
         std::memset(&diagnostic, 0, sizeof diagnostic);
         diagnostic.diagnostic.code = TLV_ERR_VISITOR;
-        unsigned char before[sizeof diagnostic];
-        std::memcpy(before, &diagnostic, sizeof diagnostic);
-        size_t offset = 99;
-        auto   rc = tlv_document_builder_consume(raw, &doc, &offset, &diagnostic);
+        auto rc = tlv_document_builder_consume(raw, &doc, &diagnostic);
         EXPECT_EQ(limited ? TLV_ERR_LIMIT : TLV_ERR_BUFFER_TOO_SHORT, rc);
-        if (limited) {
-            // Builder delegates without initializing detail: Reader resource
-            // preflight leaves this diagnostic untouched.
-            EXPECT_EQ(0, std::memcmp(before, &diagnostic, sizeof diagnostic));
-        } else {
-            diagnostic_test::result(rc, diagnostic);
-        }
+        diagnostic_test::result(rc, diagnostic);
+        if (limited) EXPECT_EQ(TLV_LOCATION_UNKNOWN, diagnostic.diagnostic.location.kind);
         EXPECT_EQ(nullptr, doc);
-        EXPECT_EQ(4u, offset);
         if (!limited) {
-            EXPECT_TRUE(diagnostic.diagnostic.has_offset);
+            EXPECT_TRUE(diagnostic.diagnostic.location.kind);
             // Builder reports the offending element; detailed diagnostics point
             // at its missing Value, both in absolute stream coordinates.
-            EXPECT_EQ(6u, diagnostic.diagnostic.offset);
+            EXPECT_EQ(6u, diagnostic.diagnostic.location.begin);
         }
     }
 }
@@ -270,8 +261,8 @@ TEST(Integration_Tlv_Architecture, BerIndefiniteTraversalSchemaAndCopies) {
 
     tlv_schema_diagnostic_t offset{};
     EXPECT_EQ(TLV_ERR_LIMIT, visit_tree_input(wire, sizeof(wire), &tlv_format_ber, 2, 6, nullptr,
-                                              nullptr, &offset.diagnostic.offset));
-    EXPECT_EQ(6u, offset.diagnostic.offset);
+                                              nullptr, &offset.diagnostic.location.begin));
+    EXPECT_EQ(TLV_LOCATION_UNKNOWN, offset.diagnostic.location.kind);
     tlv_element_t element{};
     size_t        used = 0;
     ASSERT_EQ(TLV_OK, tlv_read(wire, sizeof(wire), &tlv_format_ber, &element, &used));
@@ -301,7 +292,7 @@ TEST(Integration_Tlv_Architecture, BerIndefiniteTraversalSchemaAndCopies) {
     const tlv_structure_schema_t root = {&parent, 1, 0, nullptr, 0, TLV_SCHEMA_ORDER_ANY};
     EXPECT_EQ(TLV_ERR_SCHEMA,
               tlv_schema_validate(empty, sizeof(empty), &tlv_format_ber, &root, 0, 1, &offset));
-    EXPECT_EQ(2u, offset.diagnostic.offset);
+    EXPECT_EQ(2u, offset.diagnostic.location.begin);
 }
 #endif
 
@@ -359,15 +350,15 @@ TEST(Integration_Tlv_Architecture, SchemaChecksRequiredRepeatedAndNestedMembersh
     tlv_schema_diagnostic_t offset{};
     EXPECT_EQ(TLV_ERR_SCHEMA, tlv_schema_validate(empty, sizeof(empty), &constructed_format,
                                                   &schema, 0, 1, &offset));
-    EXPECT_EQ(2u, offset.diagnostic.offset);
+    EXPECT_EQ(2u, offset.diagnostic.location.begin);
     const uint8_t duplicate[] = {0x80, 6, 1, 1, 42, 1, 1, 7};
     EXPECT_EQ(TLV_ERR_SCHEMA, tlv_schema_validate(duplicate, sizeof(duplicate), &constructed_format,
                                                   &schema, 1, 3, &offset));
-    EXPECT_EQ(5u, offset.diagnostic.offset);
+    EXPECT_EQ(5u, offset.diagnostic.location.begin);
     const uint8_t unknown[] = {0x80, 6, 1, 1, 42, 3, 1, 7};
     EXPECT_EQ(TLV_ERR_SCHEMA, tlv_schema_validate(unknown, sizeof(unknown), &constructed_format,
                                                   &schema, 1, 3, &offset));
-    EXPECT_EQ(5u, offset.diagnostic.offset);
+    EXPECT_EQ(5u, offset.diagnostic.location.begin);
     const uint8_t bad_length[] = {0x80, 2, 1, 0};
     EXPECT_EQ(TLV_ERR_SCHEMA, tlv_schema_validate(bad_length, sizeof(bad_length),
                                                   &constructed_format, &schema, 1, 2, nullptr));
@@ -394,12 +385,12 @@ TEST(Integration_Tlv_Architecture, MaximumDepthAndEmptyChildSchemaUseTheSameBoun
     EXPECT_EQ(TLV_ERR_LIMIT,
               tlv_schema_validate(wire.data(), wire.size(), &constructed_format, &recursive,
                                   TLV_TREE_DEFAULT_DEPTH - 1, TLV_TREE_DEFAULT_DEPTH + 1, &offset));
-    EXPECT_EQ(2u * TLV_TREE_DEFAULT_DEPTH, offset.diagnostic.offset);
+    EXPECT_EQ(TLV_LOCATION_UNKNOWN, offset.diagnostic.location.kind);
     rule.min_occurs = 1;
     EXPECT_EQ(TLV_ERR_SCHEMA,
               tlv_schema_validate(wire.data(), wire.size(), &constructed_format, &recursive,
                                   TLV_TREE_DEFAULT_DEPTH, TLV_TREE_DEFAULT_DEPTH + 1, &offset));
-    EXPECT_EQ(wire.size(), offset.diagnostic.offset);
+    EXPECT_EQ(wire.size(), offset.diagnostic.location.begin);
 }
 
 TEST(Integration_Tlv_Architecture, TreeCursorDiagnosticsKeepAbsoluteOffsetsAndParentBounds) {
@@ -412,14 +403,14 @@ TEST(Integration_Tlv_Architecture, TreeCursorDiagnosticsKeepAbsoluteOffsetsAndPa
               visit_tree_input_diag(data, sizeof(data), &constructed_format, 8, 8, nullptr, nullptr,
                                     &error_offset, &diagnostic));
     EXPECT_EQ(4u, error_offset);
-    EXPECT_EQ(TLV_READER_OP_VALUE, diagnostic.operation);
-    EXPECT_EQ(6u, diagnostic.diagnostic.offset);
-    EXPECT_EQ(4u, diagnostic.tag_offset);
-    EXPECT_EQ(5u, diagnostic.length_offset);
-    EXPECT_EQ(6u, diagnostic.value_offset);
-    EXPECT_EQ(7u, diagnostic.enclosing_end);
-    EXPECT_EQ(1u, diagnostic.available);
-    EXPECT_EQ(2u, diagnostic.declared_length);
+    EXPECT_EQ(TLV_READER_OP_VALUE, diagnostic.detail.operation);
+    EXPECT_EQ(6u, diagnostic.diagnostic.location.begin);
+    EXPECT_EQ(4u, diagnostic.detail.tag_offset);
+    EXPECT_EQ(5u, diagnostic.detail.length_offset);
+    EXPECT_EQ(6u, diagnostic.detail.value_offset);
+    EXPECT_EQ(7u, diagnostic.detail.enclosing_end);
+    EXPECT_EQ(1u, diagnostic.detail.available);
+    EXPECT_EQ(2u, diagnostic.detail.declared_length);
 }
 
 TEST(Integration_Tlv_Architecture, SequentialTraversalDoesNotRecoverPastInvalidInput) {

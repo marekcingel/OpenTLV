@@ -12,6 +12,7 @@
 #include "format.h"
 #include "reader.h"
 #include "query.h"
+#include "location.h"
 #include "schema.h"
 #include "writer.h"
 #include <tlv/config.h>
@@ -126,20 +127,23 @@ static void raise_code_only(tlv_result_t code) {
     raise_error(fields);
 }
 
-static void raise_reader_error(tlv_result_t code, const tlv_reader_diagnostic_t* diag) {
+static void raise_reader_parts(tlv_result_t code, const tlv_diagnostic_t* common,
+                               const tlv_reader_detail_t* diag) {
     PyObject* fields = PyDict_New();
     if (fields == NULL) {
         return;
     }
-    int         has_offset = diag != NULL && diag->diagnostic.has_offset;
-    size_t      offset = has_offset ? diag->diagnostic.offset : 0;
-    const char* expected = diag != NULL ? diag->diagnostic.expected : NULL;
-    const char* actual = diag != NULL ? diag->diagnostic.actual : NULL;
+    int         has_offset = diag != NULL && common->location.kind;
+    size_t      offset = has_offset ? common->location.begin : 0;
+    const char* expected = diag != NULL ? common->expected : NULL;
+    const char* actual = diag != NULL ? common->actual : NULL;
     const char* operation = diag != NULL ? reader_operation_name(diag->operation) : NULL;
     int         has_tag = diag != NULL && diag->has_tag;
 
     if (dict_set(fields, "code", PyLong_FromLong((long)code)) < 0 ||
         dict_set_size_or_none(fields, "offset", has_offset, offset) < 0 ||
+        dict_set(fields, "location", opentlv_python_location(diag ? &common->location : NULL)) <
+            0 ||
         dict_set_str_or_none(fields, "expected", expected) < 0 ||
         dict_set_str_or_none(fields, "actual", actual) < 0 ||
         dict_set_str_or_none(fields, "operation", operation) < 0 ||
@@ -171,6 +175,10 @@ static void raise_reader_error(tlv_result_t code, const tlv_reader_diagnostic_t*
     raise_error(fields);
 }
 
+static void raise_reader_error(tlv_result_t code, const tlv_reader_diagnostic_t* diag) {
+    raise_reader_parts(code, diag ? &diag->diagnostic : NULL, diag ? &diag->detail : NULL);
+}
+
 void opentlv_python_raise_query(tlv_result_t code, const tlv_query_diagnostic_t* diagnostic) {
     tlv_query_diagnostic_t state = {0};
     if (code == TLV_ERR_INVALID_STATE) {
@@ -178,25 +186,28 @@ void opentlv_python_raise_query(tlv_result_t code, const tlv_query_diagnostic_t*
         state.kind = TLV_QUERY_ERROR_STATE;
         diagnostic = &state;
     }
-    raise_reader_error(code, diagnostic && (diagnostic->kind == TLV_QUERY_ERROR_READER ||
-                                            diagnostic->reader.diagnostic.code != TLV_OK)
-                                 ? &diagnostic->reader
-                                 : NULL);
+    raise_reader_parts(code, diagnostic ? &diagnostic->diagnostic : NULL,
+                       diagnostic && diagnostic->has_reader ? &diagnostic->reader : NULL);
     if (!diagnostic || !PyErr_ExceptionMatches(opentlv_python_error)) return;
     PyObject *type, *value, *traceback;
     PyErr_Fetch(&type, &value, &traceback);
     PyErr_NormalizeException(&type, &value, &traceback);
     PyObject* args = value ? PyObject_GetAttrString(value, "args") : NULL;
     PyObject* fields = args ? PyTuple_GetItem(args, 0) : NULL;
-    if (fields && (dict_set(fields, "query_kind", PyLong_FromLong(diagnostic->kind)) < 0 ||
-                   dict_set(fields, "begin", PyLong_FromSize_t(diagnostic->begin)) < 0 ||
-                   dict_set(fields, "end", PyLong_FromSize_t(diagnostic->end)) < 0 ||
-                   dict_set_size_or_none(fields, "source_offset", diagnostic->has_source_offset,
-                                         diagnostic->source_offset) < 0 ||
-                   dict_set_str_or_none(fields, "query_expected", diagnostic->expected) < 0 ||
-                   dict_set_str_or_none(fields, "limit", diagnostic->limit) < 0 ||
-                   dict_set(fields, "configured", PyLong_FromSize_t(diagnostic->configured)) < 0 ||
-                   dict_set(fields, "codec", PyLong_FromLong(diagnostic->codec)) < 0)) {
+    if (fields &&
+        (dict_set(fields, "location", opentlv_python_location(&diagnostic->diagnostic.location)) <
+             0 ||
+         dict_set(fields, "query_kind", PyLong_FromLong(diagnostic->kind)) < 0 ||
+         dict_set(fields, "begin", PyLong_FromSize_t(diagnostic->begin)) < 0 ||
+         dict_set(fields, "end", PyLong_FromSize_t(diagnostic->end)) < 0 ||
+         dict_set_size_or_none(fields, "source_offset",
+                               (diagnostic->diagnostic.location.domain == TLV_LOCATION_INPUT &&
+                                diagnostic->diagnostic.location.kind != TLV_LOCATION_UNKNOWN),
+                               diagnostic->diagnostic.location.begin) < 0 ||
+         dict_set_str_or_none(fields, "query_expected", diagnostic->expected) < 0 ||
+         dict_set_str_or_none(fields, "limit", diagnostic->limit) < 0 ||
+         dict_set(fields, "configured", PyLong_FromSize_t(diagnostic->configured)) < 0 ||
+         dict_set(fields, "codec", PyLong_FromLong(diagnostic->codec)) < 0)) {
         Py_XDECREF(args);
         Py_XDECREF(type);
         Py_XDECREF(value);
@@ -212,8 +223,8 @@ static void raise_writer_error(tlv_result_t code, const tlv_writer_diagnostic_t*
     if (fields == NULL) {
         return;
     }
-    int         has_offset = diag != NULL && diag->diagnostic.has_offset;
-    size_t      offset = has_offset ? diag->diagnostic.offset : 0;
+    int         has_offset = diag != NULL && diag->diagnostic.location.kind;
+    size_t      offset = has_offset ? diag->diagnostic.location.begin : 0;
     const char* expected = diag != NULL ? diag->diagnostic.expected : NULL;
     const char* actual = diag != NULL ? diag->diagnostic.actual : NULL;
     const char* operation = diag != NULL ? writer_operation_name(diag->operation) : NULL;
@@ -227,6 +238,8 @@ static void raise_writer_error(tlv_result_t code, const tlv_writer_diagnostic_t*
 
     if (dict_set(fields, "code", PyLong_FromLong((long)code)) < 0 ||
         dict_set_size_or_none(fields, "offset", has_offset, offset) < 0 ||
+        dict_set(fields, "location",
+                 opentlv_python_location(diag ? &diag->diagnostic.location : NULL)) < 0 ||
         dict_set_str_or_none(fields, "expected", expected) < 0 ||
         dict_set_str_or_none(fields, "actual", actual) < 0 ||
         dict_set_str_or_none(fields, "operation", operation) < 0 ||
@@ -241,16 +254,22 @@ static void raise_writer_error(tlv_result_t code, const tlv_writer_diagnostic_t*
     raise_error(fields);
 }
 
-/* Raises _opentlv.Error with "code" and "offset" only; used by every
- * failure that reports just a code plus a byte offset (schema validation,
- * document parsing, query parsing). */
-static void raise_code_and_offset(tlv_result_t code, size_t offset) {
+/* Schema locations and native definition indices survive binding conversion. */
+static void raise_schema_error(tlv_result_t code, const tlv_schema_diagnostic_t* diagnostic) {
     PyObject* fields = PyDict_New();
-    if (fields == NULL) {
-        return;
-    }
-    if (dict_set(fields, "code", PyLong_FromLong((long)code)) < 0 ||
-        dict_set_size_or_none(fields, "offset", code != TLV_ERR_INVALID_SCHEMA, offset) < 0) {
+    if (!fields) return;
+    if (dict_set(fields, "code", PyLong_FromLong(code)) < 0 ||
+        dict_set_size_or_none(fields, "offset",
+                              diagnostic->diagnostic.location.kind != TLV_LOCATION_UNKNOWN,
+                              diagnostic->diagnostic.location.begin) < 0 ||
+        dict_set(fields, "location", opentlv_python_location(&diagnostic->diagnostic.location)) <
+            0 ||
+        dict_set(fields, "kind",
+                 PyUnicode_FromString(tlv_schema_issue_kind_string(diagnostic->kind))) < 0 ||
+        dict_set(fields, "definition_kind", PyLong_FromLong(diagnostic->definition.kind)) < 0 ||
+        dict_set_size_or_none(fields, "definition_index",
+                              diagnostic->definition.kind != TLV_SCHEMA_DEFINITION_UNKNOWN,
+                              diagnostic->definition.index) < 0) {
         Py_DECREF(fields);
         return;
     }
@@ -509,10 +528,10 @@ static tlv_structure_schema_t* build_structure_schema(PyObject* schema_obj) {
 
 /* Copy every borrowed field before the schema and input are released. */
 static PyObject* schema_diagnostic_value(const tlv_schema_diagnostic_t* diagnostic) {
-    PyObject* path = PyTuple_New((Py_ssize_t)diagnostic->path.length);
+    PyObject* path = PyTuple_New((Py_ssize_t)diagnostic->diagnostic.path.length);
     if (!path) return NULL;
-    for (size_t i = 0; i < diagnostic->path.length; ++i) {
-        tlv_tag_t tag = diagnostic->path.tags[i];
+    for (size_t i = 0; i < diagnostic->diagnostic.path.length; ++i) {
+        tlv_tag_t tag = diagnostic->diagnostic.path.tags[i];
         PyObject* value = PyBytes_FromStringAndSize((const char*)tag.data, (Py_ssize_t)tag.size);
         if (!value) {
             Py_DECREF(path);
@@ -522,8 +541,8 @@ static PyObject* schema_diagnostic_value(const tlv_schema_diagnostic_t* diagnost
     }
     PyObject* tag = PyBytes_FromStringAndSize((const char*)diagnostic->tag.data,
                                               (Py_ssize_t)diagnostic->tag.size);
-    PyObject* offset = diagnostic->diagnostic.has_offset
-                           ? PyLong_FromSize_t(diagnostic->diagnostic.offset)
+    PyObject* offset = diagnostic->diagnostic.location.kind
+                           ? PyLong_FromSize_t(diagnostic->diagnostic.location.begin)
                            : Py_NewRef(Py_None);
     PyObject* occurs = diagnostic->has_occurs
                            ? Py_BuildValue("(KKK)", (unsigned long long)diagnostic->min_occurs,
@@ -539,13 +558,15 @@ static PyObject* schema_diagnostic_value(const tlv_schema_diagnostic_t* diagnost
                                                           diagnostic->actual_constructed)
                                           : Py_NewRef(Py_None);
     /* N consumes each reference, including on failure. */
-    return Py_BuildValue("(iiisNNNziNNNKIKi)", (int)diagnostic->diagnostic.code,
-                         (int)diagnostic->diagnostic.severity, (int)diagnostic->kind,
-                         tlv_schema_issue_kind_string(diagnostic->kind), tag, path, offset,
-                         diagnostic->field, diagnostic->is_group, occurs, length, form,
-                         (unsigned long long)diagnostic->length_multiple,
-                         (unsigned int)diagnostic->length_flags,
-                         (unsigned long long)diagnostic->path.omitted, (int)diagnostic->anchor);
+    return Py_BuildValue(
+        "(iiisNNNziNNNKIKNin)", (int)diagnostic->diagnostic.code,
+        (int)diagnostic->diagnostic.severity, (int)diagnostic->kind,
+        tlv_schema_issue_kind_string(diagnostic->kind), tag, path, offset, diagnostic->field,
+        diagnostic->is_group, occurs, length, form, (unsigned long long)diagnostic->length_multiple,
+        (unsigned int)diagnostic->length_flags,
+        (unsigned long long)diagnostic->diagnostic.path.omitted,
+        opentlv_python_location(&diagnostic->diagnostic.location), (int)diagnostic->definition.kind,
+        (Py_ssize_t)diagnostic->definition.index);
 }
 
 static PyObject* schema_diagnostic_report(const Py_buffer* buffer, const tlv_format_t* format,
@@ -555,7 +576,7 @@ static PyObject* schema_diagnostic_report(const Py_buffer* buffer, const tlv_for
     tlv_schema_diagnostic_t* storage = capacity ? calloc(capacity, sizeof(*storage)) : NULL;
     if (capacity && !storage) return PyErr_NoMemory();
     tlv_schema_diagnostic_report_t report = {storage, capacity, 0};
-    size_t                         offset = 0;
+    tlv_schema_diagnostic_t        offset = {0};
     tlv_result_t                   code =
         tlv_schema_validate_all_diag(buffer->buf, (size_t)buffer->len, format, schema, max_depth,
                                      max_elements, unknown, &report, &offset);
@@ -575,7 +596,7 @@ static PyObject* schema_diagnostic_report(const Py_buffer* buffer, const tlv_for
             if (items) result = Py_BuildValue("(NN)", PyLong_FromSize_t(report.count), items);
         }
     } else
-        raise_code_and_offset(code, offset);
+        raise_schema_error(code, &offset);
     free(storage);
     return result;
 }
@@ -674,18 +695,7 @@ static PyObject* _opentlv_structure_validate(PyObject* module, PyObject* args) {
     free_structure_schema(schema);
     PyBuffer_Release(&buffer);
     if (code != TLV_OK) {
-        PyObject* fields = PyDict_New();
-        if (!fields) return NULL;
-        if (dict_set(fields, "code", PyLong_FromLong(code)) < 0 ||
-            dict_set_size_or_none(fields, "offset", diagnostic.diagnostic.has_offset,
-                                  diagnostic.diagnostic.offset) < 0 ||
-            dict_set(fields, "kind",
-                     PyUnicode_FromString(tlv_schema_issue_kind_string(diagnostic.kind))) < 0 ||
-            dict_set(fields, "anchor", PyLong_FromLong(diagnostic.anchor)) < 0) {
-            Py_DECREF(fields);
-            return NULL;
-        }
-        raise_error(fields);
+        raise_schema_error(code, &diagnostic);
         return NULL;
     }
     Py_RETURN_NONE;
@@ -1011,13 +1021,13 @@ static PyObject* _opentlv_document_parse(PyObject* module, PyObject* args) {
         return NULL;
     }
     options.retain_source_locations = retain_source_locations;
-    tlv_document_t* document = NULL;
-    size_t          error_offset = 0;
+    tlv_document_t*         document = NULL;
+    tlv_reader_diagnostic_t error_offset = {0};
     tlv_result_t code = tlv_document_parse((const uint8_t*)buffer.buf, (size_t)buffer.len, &options,
                                            &document, &error_offset);
     PyBuffer_Release(&buffer);
     if (code != TLV_OK) {
-        raise_code_and_offset(code, error_offset);
+        raise_reader_error(code, &error_offset);
         Py_DECREF(owner);
         return NULL;
     }
@@ -1084,11 +1094,11 @@ static PyObject* _opentlv_document_find_path(PyObject* module, PyObject* args) {
     if (document == NULL) {
         return NULL;
     }
-    tlv_query_t  query;
-    size_t       error_offset = 0;
-    tlv_result_t code = tlv_query_parse(text, &query, &error_offset);
+    tlv_query_t             query;
+    tlv_reader_diagnostic_t error_offset = {0};
+    tlv_result_t            code = tlv_query_parse(text, &query, &error_offset.diagnostic);
     if (code != TLV_OK) {
-        raise_code_and_offset(code, error_offset);
+        raise_reader_error(code, &error_offset);
         return NULL;
     }
     return node_to_py(tlv_document_find_path(document, &query));
@@ -1504,12 +1514,7 @@ static PyObject* _opentlv_write(PyObject* module, PyObject* args) {
     PyBuffer_Release(&value_buf);
     PyBuffer_Release(&buffer);
     if (code != TLV_OK) {
-        if (diag.diagnostic.has_offset) {
-            if (diag.diagnostic.offset > SIZE_MAX - (size_t)offset)
-                diag.diagnostic.has_offset = 0;
-            else
-                diag.diagnostic.offset += (size_t)offset;
-        }
+        tlv_location_translate(&diag.diagnostic.location, (size_t)offset);
         raise_writer_error(code, &diag);
         return NULL;
     }
@@ -1727,12 +1732,7 @@ static PyObject* _opentlv_write_fixed(PyObject* module, PyObject* args) {
     PyBuffer_Release(&value_buf);
     PyBuffer_Release(&buffer);
     if (code != TLV_OK) {
-        if (diag.diagnostic.has_offset) {
-            if (diag.diagnostic.offset > SIZE_MAX - (size_t)offset)
-                diag.diagnostic.has_offset = 0;
-            else
-                diag.diagnostic.offset += (size_t)offset;
-        }
+        tlv_location_translate(&diag.diagnostic.location, (size_t)offset);
         raise_writer_error(code, &diag);
         return NULL;
     }

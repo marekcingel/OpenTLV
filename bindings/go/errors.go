@@ -55,12 +55,44 @@ type OptionalSize struct {
 // DiagnosticContext is a copied native layer/key/value context entry.
 type DiagnosticContext struct{ Layer, Key, Value string }
 
+// LocationDomain identifies the coordinate space of failure evidence.
+type LocationDomain int
+
+const (
+	LocationDomainUnknown LocationDomain = iota
+	LocationInput
+	LocationOutput
+	LocationExpression
+	LocationDefinition
+	LocationValue
+)
+
+// LocationKind distinguishes absence from points, ranges and missing-content boundaries.
+type LocationKind int
+
+const (
+	LocationUnknown LocationKind = iota
+	LocationPoint
+	LocationSpan
+	LocationScopeEnd
+	LocationInsertion
+)
+
+// Location is a snapshot of the primary evidence coordinates.
+type Location struct {
+	Domain     LocationDomain
+	Kind       LocationKind
+	Begin, End uint64
+}
+
 // Diagnostic owns a snapshot of C diagnostics. No input or native storage is
 // borrowed. Optional fields retain native presence; absent detail is not inferred.
 // Reader offsets are absolute in the input, including discarded windows.
 // Writer offsets use the coordinate system of the native encoding operation.
 // Operation and Severity retain the native enumerated values.
+// Location.Kind zero means unknown; Offset projects the known Location.Begin.
 type Diagnostic struct {
+	Location                                                  Location
 	Message                                                   string
 	Severity, Operation                                       int
 	Offset                                                    uint64
@@ -72,6 +104,8 @@ type Diagnostic struct {
 	DeclaredLength, Available, EnclosingEnd, Required, Length OptionalSize
 	Contexts                                                  []DiagnosticContext
 	Path                                                      [][]byte
+	// HasPath distinguishes a tracked empty path from absent path evidence.
+	HasPath bool
 	// PathOmitted counts innermost scopes beyond the retained outermost Path.
 	PathOmitted uint64
 }
@@ -108,12 +142,12 @@ func (e *WriteError) Unwrap() error { return e.status }
 
 func publicDiagnostic(d capi.Diagnostic) Diagnostic {
 	size := func(v capi.OptionalSize) OptionalSize { return OptionalSize{v.Value, v.Present} }
-	result := Diagnostic{Message: d.Code.String(), Severity: d.Severity, Operation: d.Operation,
+	result := Diagnostic{Location: Location{LocationDomain(d.Location.Domain), LocationKind(d.Location.Kind), d.Location.Begin, d.Location.End}, Message: d.Code.String(), Severity: d.Severity, Operation: d.Operation,
 		Offset: d.Offset.Value, HasOffset: d.Offset.Present, Expected: d.Expected, Actual: d.Actual,
 		Tag: d.Tag, RawLength: d.RawLength, HasTag: d.HasTag, HasRawLength: d.HasRawLength,
 		TagOffset: size(d.TagOffset), LengthOffset: size(d.LengthOffset), ValueOffset: size(d.ValueOffset),
 		DeclaredLength: size(d.DeclaredLength), Available: size(d.Available), EnclosingEnd: size(d.EnclosingEnd),
-		Required: size(d.Required), Length: size(d.Length), Path: d.Path, PathOmitted: d.PathOmitted}
+		Required: size(d.Required), Length: size(d.Length), Path: d.Path, HasPath: d.HasPath, PathOmitted: d.PathOmitted}
 	for _, c := range d.Contexts {
 		result.Contexts = append(result.Contexts, DiagnosticContext{c.Layer, c.Key, c.Value})
 	}
@@ -124,7 +158,20 @@ func parseError(code capi.Code, d capi.Diagnostic, base uint64) error {
 	// These fields are positions in the native input window, not byte counts.
 	for _, offset := range []*capi.OptionalSize{&d.Offset, &d.TagOffset, &d.LengthOffset, &d.ValueOffset, &d.EnclosingEnd} {
 		if offset.Present {
-			offset.Value += base
+			if offset.Value > ^uint64(0)-base {
+				*offset = capi.OptionalSize{}
+			} else {
+				offset.Value += base
+			}
+		}
+	}
+	if d.Location.Kind != 0 {
+		if d.Location.Begin > d.Location.End || d.Location.End > ^uint64(0)-base {
+			d.Location = capi.Location{}
+			d.Offset = capi.OptionalSize{}
+		} else {
+			d.Location.Begin += base
+			d.Location.End += base
 		}
 	}
 	d.Code = code

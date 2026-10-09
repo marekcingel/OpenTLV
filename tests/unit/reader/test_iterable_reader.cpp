@@ -137,9 +137,10 @@ TEST(Unit_Tlvpp_IterableReader, FirstFailureThrowsWithCanonicalDiagnosticAndNoCo
     } catch (const tlv::parse_error& failure) {
         EXPECT_EQ(result.error().code, failure.code());
         EXPECT_EQ(0u, failure.offset());
-        EXPECT_EQ(expected.diagnostic.offset, failure.diagnostic().diagnostic.offset);
-        EXPECT_EQ(expected.operation, failure.diagnostic().operation);
-        EXPECT_EQ(expected.declared_length, failure.diagnostic().declared_length);
+        EXPECT_EQ(expected.diagnostic.location.begin,
+                  failure.diagnostic().diagnostic.location.begin);
+        EXPECT_EQ(expected.detail.operation, failure.diagnostic().detail.operation);
+        EXPECT_EQ(expected.detail.declared_length, failure.diagnostic().detail.declared_length);
     }
     EXPECT_EQ(0u, reader.consumed());
     EXPECT_THROW((void)reader.begin(), tlv::parse_error);
@@ -158,7 +159,7 @@ TEST(Unit_Tlvpp_IterableReader, LaterFailureThrowsAfterValidPrefixAndCanRetryExp
     } catch (const tlv::parse_error& failure) {
         EXPECT_EQ(TLV_ERR_BUFFER_TOO_SHORT, failure.code());
         EXPECT_EQ(3u, failure.offset());
-        EXPECT_EQ(4u, failure.diagnostic().diagnostic.offset);
+        EXPECT_EQ(4u, failure.diagnostic().diagnostic.location.begin);
     }
     EXPECT_EQ(1u, count);
     EXPECT_EQ(3u, reader.consumed());
@@ -178,8 +179,8 @@ TEST(Unit_Tlvpp_IterableReader, InvalidInitializationAndCallbackEndAreNotEmptyRa
         EXPECT_EQ(tlv::errc::null_argument, error.status());
         EXPECT_EQ(tlv::operation::reader, error.stage());
         EXPECT_EQ(tlv::severity::error, error.severity());
-        ASSERT_TRUE(error.has_offset());
-        EXPECT_EQ(0u, error.offset());
+        EXPECT_FALSE(error.has_offset());
+        EXPECT_EQ(tlv::location_kind::unknown, tlv::kind(error.location()));
         EXPECT_FALSE(error.has_tag());
         EXPECT_EQ(0u, error.depth());
         EXPECT_EQ(nullptr, error.expected());
@@ -259,7 +260,7 @@ TEST(Unit_Tlvpp_IterableReader, IncrementalShortageExhaustionAndAbsoluteOffsets)
     } catch (const tlv::parse_error& failure) {
         EXPECT_EQ(TLV_NEED_MORE_DATA, failure.code());
         EXPECT_EQ(5u, failure.offset());
-        EXPECT_EQ(5u, failure.diagnostic().diagnostic.offset);
+        EXPECT_EQ(5u, failure.diagnostic().diagnostic.location.begin);
     }
     ASSERT_TRUE(reader.set_input(input(wire + 3, sizeof(wire) - 3), 0, tlv::input_mode::final));
     EXPECT_EQ(tlv::tag_bytes<3>(), reader.begin()->tag());

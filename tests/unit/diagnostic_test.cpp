@@ -16,8 +16,8 @@ TEST(Unit_Tlv_Diagnostic, InitSetsCodeAndSeverityAndZeroesEverythingElse) {
 
     EXPECT_EQ(TLV_ERR_END_OF_BUFFER, diagnostic.code);
     EXPECT_EQ(TLV_DIAGNOSTIC_SEVERITY_WARNING, diagnostic.severity);
-    EXPECT_EQ(0, diagnostic.has_offset);
-    EXPECT_EQ(0u, diagnostic.offset);
+    EXPECT_EQ(0, diagnostic.location.kind);
+    EXPECT_EQ(0u, diagnostic.location.begin);
     EXPECT_EQ(nullptr, diagnostic.expected);
     EXPECT_EQ(nullptr, diagnostic.actual);
     EXPECT_EQ(nullptr, diagnostic.contexts);
@@ -27,18 +27,64 @@ TEST(Unit_Tlv_Diagnostic, InitIgnoresANullDiagnostic) {
     tlv_diagnostic_init(nullptr, TLV_OK, TLV_DIAGNOSTIC_SEVERITY_ERROR);
 }
 
+TEST(Unit_Tlv_Diagnostic, LocationDistinguishesUnknownZeroAndEmptyEofSpan) {
+    tlv_diagnostic_t diagnostic{};
+    EXPECT_EQ(TLV_LOCATION_UNKNOWN, diagnostic.location.kind);
+    tlv_diagnostic_set_location(&diagnostic, TLV_LOCATION_INPUT, TLV_LOCATION_POINT, 0, 0);
+    EXPECT_EQ(TLV_LOCATION_POINT, diagnostic.location.kind);
+    EXPECT_EQ(TLV_LOCATION_INPUT, diagnostic.location.domain);
+    tlv_diagnostic_set_location(&diagnostic, TLV_LOCATION_EXPRESSION, TLV_LOCATION_SPAN, 7, 7);
+    EXPECT_EQ(TLV_LOCATION_SPAN, diagnostic.location.kind);
+    EXPECT_EQ(7u, diagnostic.location.begin);
+    EXPECT_EQ(7u, diagnostic.location.end);
+}
+
+TEST(Unit_Tlv_Diagnostic, InvalidOrOverflowingEnrichmentPreservesOriginalFailure) {
+    tlv_diagnostic_t diagnostic{};
+    tlv_diagnostic_init(&diagnostic, TLV_ERR_SCHEMA, TLV_DIAGNOSTIC_SEVERITY_ERROR);
+    tlv_diagnostic_set_location(&diagnostic, TLV_LOCATION_INPUT, TLV_LOCATION_SPAN, 3, 2);
+    EXPECT_EQ(TLV_LOCATION_UNKNOWN, diagnostic.location.kind);
+    tlv_diagnostic_set_location(&diagnostic, TLV_LOCATION_OUTPUT, TLV_LOCATION_SPAN, SIZE_MAX - 1,
+                                SIZE_MAX);
+    tlv_location_translate(&diagnostic.location, 1);
+    EXPECT_EQ(TLV_LOCATION_UNKNOWN, diagnostic.location.kind);
+    EXPECT_EQ(TLV_ERR_SCHEMA, diagnostic.code);
+    tlv_diagnostic_set_location(&diagnostic, TLV_LOCATION_INPUT, TLV_LOCATION_SCOPE_END, 2, 2);
+    tlv_location_translate(&diagnostic.location, 8);
+    EXPECT_EQ(TLV_LOCATION_SCOPE_END, diagnostic.location.kind);
+    EXPECT_EQ(10u, diagnostic.location.begin);
+    EXPECT_EQ(10u, diagnostic.location.end);
+}
+
+TEST(Unit_Tlv_Diagnostic, CopiedDiagnosticOwnsPathAndTruncationState) {
+    const uint8_t         tag_bytes[] = {0x30};
+    tlv_diagnostic_path_t path{};
+    for (size_t i = 0; i < TLV_DIAGNOSTIC_PATH_MAX + 3; ++i)
+        (void)tlv_diagnostic_path_push(&path, tlv_tag(tag_bytes, sizeof tag_bytes));
+    tlv_diagnostic_t original{};
+    tlv_diagnostic_set_path(&original, &path);
+    tlv_diagnostic_t copy = original;
+    tlv_diagnostic_path_init(&path);
+    tlv_diagnostic_set_path(&original, nullptr);
+    ASSERT_TRUE(copy.has_path);
+    EXPECT_EQ(static_cast<size_t>(TLV_DIAGNOSTIC_PATH_MAX), copy.path.length);
+    EXPECT_EQ(3u, copy.path.omitted);
+    EXPECT_TRUE(tlv_tag_equal(copy.path.tags[0], tlv_tag(tag_bytes, sizeof tag_bytes)));
+    EXPECT_FALSE(original.has_path);
+}
+
 TEST(Unit_Tlv_Diagnostic, SetOffsetSetsHasOffsetAndTheOffset) {
     tlv_diagnostic_t diagnostic;
     tlv_diagnostic_init(&diagnostic, TLV_ERR_END_OF_BUFFER, TLV_DIAGNOSTIC_SEVERITY_ERROR);
 
-    tlv_diagnostic_set_offset(&diagnostic, 42);
+    tlv_diagnostic_set_location(&diagnostic, TLV_LOCATION_INPUT, TLV_LOCATION_POINT, 42, 42);
 
-    EXPECT_NE(0, diagnostic.has_offset);
-    EXPECT_EQ(42u, diagnostic.offset);
+    EXPECT_NE(0, diagnostic.location.kind);
+    EXPECT_EQ(42u, diagnostic.location.begin);
 }
 
 TEST(Unit_Tlv_Diagnostic, SetOffsetIgnoresANullDiagnostic) {
-    tlv_diagnostic_set_offset(nullptr, 42);
+    tlv_diagnostic_set_location(nullptr, TLV_LOCATION_INPUT, TLV_LOCATION_POINT, 42, 42);
 }
 
 TEST(Unit_Tlv_Diagnostic, AddContextPushesOntoTheFrontOfTheChain) {
@@ -89,10 +135,11 @@ TEST(Unit_Tlv_Diagnostic, SetPathSetsAndClearsTheField) {
     tlv_diagnostic_path_init(&path);
 
     tlv_diagnostic_set_path(&diagnostic, &path);
-    EXPECT_EQ(&path, diagnostic.path);
+    EXPECT_TRUE(diagnostic.has_path);
+    EXPECT_EQ(path.length, diagnostic.path.length);
 
     tlv_diagnostic_set_path(&diagnostic, nullptr);
-    EXPECT_EQ(nullptr, diagnostic.path);
+    EXPECT_FALSE(diagnostic.has_path);
 }
 
 TEST(Unit_Tlv_Diagnostic, SetPathIgnoresANullDiagnostic) {
@@ -235,19 +282,48 @@ TEST(Unit_Tlv_Diagnostic, InvariantHelperRejectsEmptyAndMismatchedFailureDetail)
     EXPECT_FALSE(test_query_diagnostic_matches(TLV_ERR_INVALID_ARG, &query));
     query.kind = TLV_QUERY_ERROR_READER;
     EXPECT_FALSE(test_query_diagnostic_matches(TLV_NEED_MORE_DATA, &query));
-    query.reader.diagnostic.code = TLV_NEED_MORE_DATA;
+    query.diagnostic.code = TLV_NEED_MORE_DATA;
+    EXPECT_FALSE(test_query_diagnostic_matches(TLV_NEED_MORE_DATA, &query));
+    query.has_reader = 1;
     EXPECT_TRUE(test_query_diagnostic_matches(TLV_NEED_MORE_DATA, &query));
     query.kind = TLV_QUERY_ERROR_CODEC;
     EXPECT_FALSE(test_query_diagnostic_matches(TLV_ERR_INVALID_VALUE, &query));
     query.codec = TLV_CODEC_ERR_INVALID_VALUE;
+    query.diagnostic.code = TLV_ERR_INVALID_VALUE;
     EXPECT_TRUE(test_query_diagnostic_matches(TLV_ERR_INVALID_VALUE, &query));
     for (auto kind : {TLV_QUERY_ERROR_EVENTS, TLV_QUERY_ERROR_BINDING, TLV_QUERY_ERROR_READER}) {
         query.kind = kind;
-        query.reader.diagnostic.code = TLV_ERR_INVALID_STATE;
+        query.diagnostic.code = TLV_ERR_INVALID_STATE;
         EXPECT_FALSE(test_query_diagnostic_matches(TLV_ERR_INVALID_STATE, &query));
     }
     query.kind = TLV_QUERY_ERROR_STATE;
+    query.diagnostic.code = TLV_ERR_INVALID_STATE;
     EXPECT_TRUE(test_query_diagnostic_matches(TLV_ERR_INVALID_STATE, &query));
+}
+
+TEST(Unit_Tlv_Diagnostic, QueryCopyOwnsOnePathAndPreservesReaderDetail) {
+    uint8_t                tag[] = {0x70};
+    tlv_query_diagnostic_t original{};
+    original.kind = TLV_QUERY_ERROR_READER;
+    original.has_reader = 1;
+    original.reader.operation = TLV_READER_OP_VALUE;
+    original.reader.has_required = 1;
+    original.reader.required = 7;
+    tlv_diagnostic_init(&original.diagnostic, TLV_ERR_BUFFER_TOO_SHORT,
+                        TLV_DIAGNOSTIC_SEVERITY_ERROR);
+    tlv_diagnostic_path_t path{};
+    ASSERT_EQ(TLV_OK, tlv_diagnostic_path_push(&path, tlv_tag(tag, sizeof tag)));
+    tlv_diagnostic_set_path(&original.diagnostic, &path);
+    const tlv_query_diagnostic_t copy = original;
+    original = {};
+    path = {};
+    EXPECT_TRUE(test_query_diagnostic_matches(TLV_ERR_BUFFER_TOO_SHORT, &copy));
+    ASSERT_TRUE(copy.diagnostic.has_path);
+    ASSERT_EQ(1u, copy.diagnostic.path.length);
+    EXPECT_EQ(tag, copy.diagnostic.path.tags[0].data);
+    EXPECT_EQ(TLV_READER_OP_VALUE, copy.reader.operation);
+    EXPECT_TRUE(copy.reader.has_required);
+    EXPECT_EQ(7u, copy.reader.required);
 }
 
 TEST(Unit_Tlv_Diagnostic, TruncatedPathUnwindsBeforeReplacingASibling) {

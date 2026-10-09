@@ -76,7 +76,7 @@ static void check_der_schema(const tlv_der_schema_type_t* root, const uint8_t* d
     } else {
         fuzz_unchanged(&element, &before);
         FUZZ_CHECK(consumed == SIZE_MAX && error.diagnostic.code == rc);
-        FUZZ_CHECK(!error.diagnostic.has_offset || error.diagnostic.offset <= size);
+        FUZZ_CHECK(!error.diagnostic.location.kind || error.diagnostic.location.begin <= size);
     }
 }
 

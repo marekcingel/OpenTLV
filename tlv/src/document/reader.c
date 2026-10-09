@@ -20,7 +20,7 @@ struct tlv_document_builder {
 };
 
 static tlv_result_t append_item(tlv_document_builder_t* builder, const tlv_tree_item_t* item,
-                                size_t* error_offset) {
+                                tlv_reader_diagnostic_t* diagnostic) {
     tlv_node_t* created;
     size_t depth, length;
     tlv_result_t rc;
@@ -32,8 +32,14 @@ static tlv_result_t append_item(tlv_document_builder_t* builder, const tlv_tree_
         rc = document_create_node(builder->document, builder->container, item->element.tag,
                                   item->element.value.data, length, item->constructed,
                                   builder->target_depth + depth, builder->base + item->offset,
-                                  error_offset, &created);
-    if (rc != TLV_OK) document_set_offset(error_offset, builder->base + item->offset);
+                                  diagnostic, &created);
+    if (rc != TLV_OK && diagnostic) {
+        memset(diagnostic, 0, sizeof *diagnostic);
+        diagnostic->diagnostic.code = rc;
+        tlv_diagnostic_set_location(&diagnostic->diagnostic, TLV_LOCATION_INPUT, TLV_LOCATION_POINT,
+                                    item->offset, item->offset);
+        tlv_location_translate(&diagnostic->diagnostic.location, builder->base);
+    }
     if (rc == TLV_OK && builder->retain_source_locations && item->source.data) {
         tlv_document_source_location_t* location = document_node_location(created);
         location->offset = item->offset;
@@ -49,14 +55,17 @@ static tlv_result_t append_item(tlv_document_builder_t* builder, const tlv_tree_
 }
 
 /* Shared by complete parsing, mutation and the resumable public builder. */
-static tlv_result_t consume_tree(tlv_document_builder_t* builder, size_t* error_offset,
+static tlv_result_t consume_tree(tlv_document_builder_t* builder,
                                  tlv_reader_diagnostic_t* diagnostic) {
     tlv_tree_reader_t* reader = builder->reader;
     while (builder->subtree ? !builder->subtree_done : !tlv_tree_reader_at_end(reader)) {
         tlv_tree_event_t event;
         tlv_result_t rc = tlv_tree_reader_next_event_diag(reader, &event, diagnostic);
         if (rc != TLV_OK) {
-            document_set_offset(error_offset, builder->base + tlv_tree_reader_offset(reader));
+            if (diagnostic) {
+                diagnostic->diagnostic.code = rc;
+                tlv_location_translate(&diagnostic->diagnostic.location, builder->base);
+            }
             return rc;
         }
         if (event.kind == TLV_TREE_END) {
@@ -66,7 +75,7 @@ static tlv_result_t consume_tree(tlv_document_builder_t* builder, size_t* error_
         } else {
             tlv_tree_item_t item = {event.element, event.source, event.depth, event.offset,
                                     event.kind == TLV_TREE_BEGIN};
-            rc = append_item(builder, &item, error_offset);
+            rc = append_item(builder, &item, diagnostic);
             if (rc != TLV_OK) return rc;
         }
     }
@@ -74,14 +83,15 @@ static tlv_result_t consume_tree(tlv_document_builder_t* builder, size_t* error_
 }
 
 tlv_result_t document_parse_list(tlv_document_t* document, tlv_node_t* parent, const uint8_t* data,
-                                 size_t size, size_t depth, size_t base, size_t* error_offset) {
+                                 size_t size, size_t depth, size_t base,
+                                 tlv_reader_diagnostic_t* diagnostic) {
     tlv_tree_reader_t reader;
     tlv_tree_frame_t* frames = NULL;
     tlv_document_builder_t builder = {0};
     size_t capacity;
     tlv_result_t rc;
     if (size && depth > document->options.max_depth) {
-        document_set_offset(error_offset, base);
+        document_set_offset(diagnostic, base);
         return TLV_ERR_LIMIT;
     }
     capacity = depth > document->options.max_depth ? 0 : document->options.max_depth - depth;
@@ -104,23 +114,28 @@ tlv_result_t document_parse_list(tlv_document_t* document, tlv_node_t* parent, c
     /* Only initial top-level parsing imports provenance. Mutation buffers have
      * no coordinates in the original Document input. */
     builder.retain_source_locations = !parent && document->options.retain_source_locations;
-    if (rc == TLV_OK) rc = consume_tree(&builder, error_offset, NULL);
+    if (rc == TLV_OK) rc = consume_tree(&builder, diagnostic);
     document_memory_release(document, frames);
     return rc;
 }
 
 tlv_result_t tlv_document_parse(const uint8_t* data, size_t size,
                                 const tlv_document_options_t* options, tlv_document_t** document,
-                                size_t* error_offset) {
+                                tlv_reader_diagnostic_t* diagnostic) {
     tlv_document_t* created;
     tlv_result_t rc;
     if (!document) return TLV_ERR_NULL_ARG;
     *document = NULL;
     if (!data && size) return TLV_ERR_NULL_ARG;
+    if (diagnostic) tlv_reader_diagnostic_init(diagnostic);
     rc = tlv_document_create(options, &created);
-    if (rc != TLV_OK) return rc;
-    rc = document_parse_list(created, NULL, data, size, 0, 0, error_offset);
     if (rc != TLV_OK) {
+        if (diagnostic) diagnostic->diagnostic.code = rc;
+        return rc;
+    }
+    rc = document_parse_list(created, NULL, data, size, 0, 0, diagnostic);
+    if (rc != TLV_OK) {
+        if (diagnostic) diagnostic->diagnostic.code = rc;
         tlv_document_free(created);
         return rc;
     }
@@ -169,14 +184,16 @@ tlv_result_t tlv_document_builder_create(const tlv_document_options_t* options,
 }
 
 tlv_result_t tlv_document_builder_consume(tlv_document_builder_t* builder,
-                                          tlv_document_t** document, size_t* error_offset,
+                                          tlv_document_t** document,
                                           tlv_reader_diagnostic_t* diagnostic) {
     tlv_result_t rc;
     if (!document) return TLV_ERR_NULL_ARG;
     *document = NULL;
     if (!builder) return TLV_ERR_NULL_ARG;
     if (!builder->document) return TLV_ERR_INVALID_STATE;
-    rc = consume_tree(builder, error_offset, diagnostic);
+    if (diagnostic) tlv_reader_diagnostic_init(diagnostic);
+    rc = consume_tree(builder, diagnostic);
+    if (diagnostic && rc != TLV_OK) diagnostic->diagnostic.code = rc;
     if (rc == TLV_NEED_MORE_DATA) return rc;
     if (rc == TLV_OK)
         *document = builder->document;

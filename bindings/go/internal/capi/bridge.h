@@ -127,6 +127,6 @@ go_write_result go_document_encode(go_document* document, go_format config, uint
                                    size_t capacity, int measure);
 size_t          go_document_count(go_document* document);
 int  go_document_query(go_document* document, const char* text, void*** nodes, size_t* count,
-                       size_t* error_offset);
+                       tlv_diagnostic_t* diagnostic);
 void go_query_free(void** nodes);
 #endif

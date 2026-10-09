@@ -2,6 +2,62 @@
   "version": 1,
   "pointer_bits": 32,
   "types": {
+    "tlv_location_t": {
+      "size": 16,
+      "alignment": 4,
+      "domain": 0,
+      "kind": 4,
+      "begin": 8,
+      "end": 12
+    },
+    "tlv_diagnostic_t": {
+      "size": 304,
+      "alignment": 4,
+      "code": 0,
+      "severity": 4,
+      "location": 8,
+      "expected": 24,
+      "actual": 28,
+      "contexts": 32,
+      "has_path": 36,
+      "path": 40
+    },
+    "tlv_reader_detail_t": {
+      "size": 96,
+      "alignment": 8,
+      "operation": 0,
+      "has_tag": 4,
+      "tag": 8,
+      "has_tag_offset": 16,
+      "tag_offset": 20,
+      "has_length_offset": 24,
+      "length_offset": 28,
+      "has_value_offset": 32,
+      "value_offset": 36,
+      "has_declared_length": 40,
+      "declared_length": 48,
+      "has_raw_length": 56,
+      "raw_length": 60,
+      "has_available": 68,
+      "available": 72,
+      "has_enclosing_end": 76,
+      "enclosing_end": 80,
+      "has_required": 84,
+      "required": 88
+    },
+    "tlv_reader_diagnostic_t": {
+      "size": 400,
+      "alignment": 8,
+      "diagnostic": 0,
+      "detail": 304
+    },
+    "tlv_schema_definition_location_t": {
+      "size": 12,
+      "alignment": 4,
+      "kind": 0,
+      "owner": 4,
+      "index": 8
+    },
     "tlv_query_t": {
       "size": 648,
       "alignment": 8
@@ -48,20 +104,24 @@
       "invalid": 24
     },
     "tlv_query_diagnostic_t": {
-      "size": 168,
+      "size": 440,
       "alignment": 8,
-      "kind": 0,
-      "begin": 4,
-      "end": 8,
-      "reader": 32
+      "diagnostic": 0,
+      "kind": 304,
+      "has_reader": 308,
+      "begin": 312,
+      "end": 316,
+      "reader": 336,
+      "codec": 432
     },
     "tlv_query_result_t": {
-      "size": 20,
+      "size": 24,
       "alignment": 8,
       "kind": 0,
       "boolean": 4,
       "integer": 8,
-      "data": 16
+      "data": 16,
+      "size_offset": 20
     },
     "tlv_query_compile_options_t": {
       "size": 56,

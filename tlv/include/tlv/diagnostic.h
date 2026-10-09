@@ -33,6 +33,61 @@ typedef enum tlv_diagnostic_severity {
     TLV_DIAGNOSTIC_SEVERITY_INFO
 } tlv_diagnostic_severity_t;
 
+/** @brief Coordinate space of diagnostic evidence; the API identifies its source object. */
+typedef enum tlv_location_domain {
+    TLV_LOCATION_DOMAIN_UNKNOWN = 0, /**< No coordinate space is known. */
+    TLV_LOCATION_INPUT,              /**< Input wire bytes, relative to the documented origin. */
+    TLV_LOCATION_OUTPUT,             /**< Would-be output wire bytes, even if writing failed. */
+    TLV_LOCATION_EXPRESSION,         /**< Query expression text bytes. */
+    TLV_LOCATION_DEFINITION,         /**< Schema/model definition text bytes. */
+    TLV_LOCATION_VALUE               /**< Value-local bytes whose enclosing origin is unknown. */
+} tlv_location_domain_t;
+
+/** @brief Meaning of a location, independently of the failure class. */
+typedef enum tlv_location_kind {
+    TLV_LOCATION_UNKNOWN = 0, /**< No known position; coordinates must not be read. */
+    TLV_LOCATION_POINT,       /**< Known byte position, including zero or EOF. */
+    TLV_LOCATION_SPAN,        /**< Half-open evidence range [begin, end). */
+    TLV_LOCATION_SCOPE_END,   /**< End of an enclosing scope; no offending element is implied. */
+    TLV_LOCATION_INSERTION    /**< Position where absent ordered content would be inserted. */
+} tlv_location_kind_t;
+
+/** @brief Allocation-free location value. Points and boundaries have equal begin and end.
+ * @note A span may be empty at EOF and must describe available evidence, not missing bytes.
+ * Native definitions use typed rule/component detail instead of invented text coordinates. */
+typedef struct tlv_location {
+    tlv_location_domain_t domain; /**< Coordinate space; an API specifies the source and origin. */
+    tlv_location_kind_t kind;     /**< Active anchor, or UNKNOWN when no position is known. */
+    size_t begin;                 /**< Inclusive byte position, valid only for a known kind. */
+    size_t end;                   /**< Exclusive span end, or begin for other known kinds. */
+} tlv_location_t;
+
+/** @brief Set checked coordinates; invalid kinds, domains or bounds produce an unknown location.
+ * @param[out] location Optional destination.
+ * @param[in] domain Coordinate space.
+ * @param[in] kind Anchor kind; UNKNOWN clears the location.
+ * @param[in] begin Inclusive start.
+ * @param[in] end Exclusive end; must equal begin except for SPAN.
+ * @note Invalid optional enrichment never changes the operation's result. */
+TLV_API void tlv_location_set(tlv_location_t* location, tlv_location_domain_t domain,
+                              tlv_location_kind_t kind, size_t begin, size_t end);
+
+/** @brief Translate a known location by a byte origin using checked arithmetic.
+ * @param[in,out] location Optional location; overflow makes it unknown.
+ * @param[in] origin Bytes to add to both coordinates.
+ * @note Unknown locations remain unknown; the coordinate domain is preserved. */
+TLV_API void tlv_location_translate(tlv_location_t* location, size_t origin);
+
+/** @brief Return a static domain name, or "unknown" for an unrecognized value.
+ * @param[in] domain Coordinate domain.
+ * @return Immutable NUL-terminated name. */
+TLV_API const char* tlv_location_domain_string(tlv_location_domain_t domain);
+
+/** @brief Return a static anchor name, or "unknown" for an unrecognized value.
+ * @param[in] kind Anchor kind.
+ * @return Immutable NUL-terminated name. */
+TLV_API const char* tlv_location_kind_string(tlv_location_kind_t kind);
+
 /**
  * @brief One piece of context a layer has attached to a #tlv_diagnostic_t.
  *
@@ -71,8 +126,7 @@ enum { TLV_DIAGNOSTIC_PATH_MAX = 32 };
  * allocated: pushing a tag stores its borrowed `data`/`size` pair, which
  * must stay valid, and unchanged, for as long as the path is used.
  *
- * Path tracking is entirely opt-in: a #tlv_diagnostic_t that is never given
- * a path costs nothing beyond the one `NULL` pointer in `path`.
+ * Path collection is opt-in; the diagnostic stores a bounded path by value.
  */
 typedef struct tlv_diagnostic_path {
     /** Enclosing tags, outermost first; `length` entries are valid. */
@@ -169,19 +223,18 @@ typedef struct tlv_diagnostic {
     tlv_result_t code;
     /** How serious the diagnostic is. */
     tlv_diagnostic_severity_t severity;
-    /** Nonzero if `offset` is set. */
-    int has_offset;
-    /** Input or output byte offset the diagnostic refers to; valid only if `has_offset` is nonzero.
-     */
-    size_t offset;
+    /** Primary evidence location; UNKNOWN differs from a known position at byte zero. */
+    tlv_location_t location;
     /** Borrowed description of what was expected, or `NULL` if not applicable. */
     const char* expected;
     /** Borrowed description of what was actually found, or `NULL` if not applicable. */
     const char* actual;
     /** Innermost context first, outermost last; `NULL` if nothing has been attached. */
     const tlv_diagnostic_context_t* contexts;
-    /** Enclosing tags leading to this diagnostic, or `NULL` if not tracked. */
-    const tlv_diagnostic_path_t* path;
+    /** Nonzero when the enclosing path was tracked, including a known empty path. */
+    int has_path;
+    /** Enclosing tags stored by value; Tag bytes remain borrowed. */
+    tlv_diagnostic_path_t path;
 } tlv_diagnostic_t;
 
 /**
@@ -196,14 +249,17 @@ TLV_API void tlv_diagnostic_init(tlv_diagnostic_t* diagnostic, tlv_result_t code
                                  tlv_diagnostic_severity_t severity);
 
 /**
- * @brief Sets the byte offset a diagnostic refers to.
+ * @brief Sets a checked primary evidence location.
  *
  * @param[in,out] diagnostic Diagnostic to update; must not be `NULL`.
- * @param[in]     offset     Input or output byte offset.
- *
- * @note Also sets `has_offset` to nonzero.
+ * @param[in] domain Coordinate space with an API-defined source object and origin.
+ * @param[in] kind Anchor kind; UNKNOWN clears the location.
+ * @param[in] begin Inclusive start.
+ * @param[in] end Exclusive end, or begin for a point/boundary.
+ * @note Invalid coordinates clear the location without changing the result.
  */
-TLV_API void tlv_diagnostic_set_offset(tlv_diagnostic_t* diagnostic, size_t offset);
+TLV_API void tlv_diagnostic_set_location(tlv_diagnostic_t* diagnostic, tlv_location_domain_t domain,
+                                         tlv_location_kind_t kind, size_t begin, size_t end);
 
 /**
  * @brief Attaches one context entry to a diagnostic.
@@ -229,10 +285,9 @@ TLV_API void tlv_diagnostic_add_context(tlv_diagnostic_t* diagnostic,
  * @brief Sets the hierarchical path a diagnostic refers to.
  *
  * @param[in,out] diagnostic Diagnostic to update; must not be `NULL`.
- * @param[in]     path       Borrowed path of enclosing tags, or `NULL` to clear it.
+ * @param[in]     path       Path to copy, or `NULL` to clear its presence.
  *
- * @warning `path` and the tags it holds must stay valid, and unchanged, for
- *          as long as the diagnostic is used.
+ * @warning Tag bytes remain borrowed and must stay valid and unchanged while used.
  */
 TLV_API void tlv_diagnostic_set_path(tlv_diagnostic_t* diagnostic,
                                      const tlv_diagnostic_path_t* path);

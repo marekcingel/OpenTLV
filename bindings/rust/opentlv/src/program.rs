@@ -201,6 +201,8 @@ unsafe extern "C" fn decode_provider(
 /// Complete owned native failure, independent of input/program lifetime.
 #[derive(Clone, Debug)]
 pub struct ProgramError {
+    /// Primary evidence coordinates; Query spans remain related expression context.
+    pub location: crate::Location,
     /// Original native status, including resumable NEED_MORE_DATA.
     pub error: Error,
     /// Native Query diagnostic category.
@@ -209,18 +211,24 @@ pub struct ProgramError {
     pub begin: usize,
     /// Exclusive Query byte offset.
     pub end: usize,
-    /// Original input offset when Source metadata exists.
-    pub source_offset: Option<usize>,
-    /// Owned native expected-token or type description.
-    pub expected: Option<String>,
-    /// Named exhausted resource, when present.
-    pub limit: Option<String>,
+    /// Owned immutable native expected-token or type description.
+    pub expected: Option<Box<str>>,
+    /// Owned immutable name of the exhausted resource, when present.
+    pub limit: Option<Box<str>>,
     /// Configured bound for the named resource.
     pub configured: usize,
     /// Original native codec status.
     pub codec: i32,
     /// Owned original Reader diagnostic for Reader failures.
     pub reader: Option<Box<ReaderDiagnostic>>,
+}
+impl ProgramError {
+    /// Known primary input offset, derived from `location` without duplicate storage.
+    pub fn source_offset(&self) -> Option<usize> {
+        (self.location.domain == crate::LocationDomain::Input)
+            .then(|| self.location.offset())
+            .flatten()
+    }
 }
 impl std::fmt::Display for ProgramError {
     fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
@@ -239,9 +247,15 @@ fn check(code: i32, diagnostic: &native::tlv_query_diagnostic_t) -> ProgramResul
         // SAFETY: diagnostics come from C; descriptions are static NUL-terminated strings.
         unsafe {
             let text = |p: *const std::os::raw::c_char| {
-                (!p.is_null()).then(|| CStr::from_ptr(p).to_string_lossy().into_owned())
+                (!p.is_null()).then(|| {
+                    CStr::from_ptr(p)
+                        .to_string_lossy()
+                        .into_owned()
+                        .into_boxed_str()
+                })
             };
             ProgramError {
+                location: crate::Location::from_raw(diagnostic.diagnostic.location),
                 error,
                 kind: if code == native::TLV_ERR_INVALID_STATE {
                     native::TLV_QUERY_ERROR_STATE
@@ -250,15 +264,16 @@ fn check(code: i32, diagnostic: &native::tlv_query_diagnostic_t) -> ProgramResul
                 },
                 begin: diagnostic.begin,
                 end: diagnostic.end,
-                source_offset: (diagnostic.has_source_offset != 0)
-                    .then_some(diagnostic.source_offset),
                 expected: text(diagnostic.expected),
                 limit: text(diagnostic.limit),
                 configured: diagnostic.configured,
                 codec: diagnostic.codec,
-                reader: (diagnostic.kind == 7
-                    || diagnostic.reader.diagnostic.code != native::TLV_OK)
-                    .then(|| Box::new(ReaderDiagnostic::from_raw(&diagnostic.reader))),
+                reader: (diagnostic.has_reader != 0).then(|| {
+                    Box::new(ReaderDiagnostic::from_parts(
+                        &diagnostic.diagnostic,
+                        &diagnostic.reader,
+                    ))
+                }),
             }
         }
     })
@@ -979,11 +994,11 @@ pub enum QueryEvent<'a> {
 unsafe fn project<'a>(event: &native::tlv_tree_event_t) -> ProgramResult<QueryMatch<'a>> {
     Ok(QueryMatch {
         element: unsafe { Element::from_raw(&event.element) }.map_err(|e| ProgramError {
+            location: crate::Location::default(),
             error: e,
             kind: 0,
             begin: 0,
             end: 0,
-            source_offset: None,
             expected: None,
             limit: None,
             configured: 0,
@@ -1357,11 +1372,11 @@ impl<'a> QueryExecution<'a> {
             capacity = match value_capacity {
                 Some(value) => value,
                 None => document.encoded_size().map_err(|error| ProgramError {
+                    location: crate::Location::default(),
                     error,
                     kind: 0,
                     begin: 0,
                     end: 0,
-                    source_offset: None,
                     expected: None,
                     limit: None,
                     configured: 0,

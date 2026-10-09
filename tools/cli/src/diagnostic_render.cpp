@@ -58,7 +58,8 @@ void append_header_human(std::ostringstream& out, const tlv::diagnostic& d) {
     out << tlv::message(tlv::severity_of(d)) << ": " << tlv::message(static_cast<tlv::errc>(d.code))
         << "\n";
     out << "\ncode: " << error_name(static_cast<tlv::errc>(d.code));
-    if (d.has_offset) out << "\noffset: " << hex_offset(d.offset) << " (" << d.offset << ")";
+    if (d.location.kind)
+        out << "\noffset: " << hex_offset(d.location.begin) << " (" << d.location.begin << ")";
 }
 
 void append_trailer_human(std::ostringstream& out, const tlv::diagnostic& d) {
@@ -81,7 +82,13 @@ void set_header_json(nlohmann::json& object, const tlv::diagnostic& d) {
     object["severity"] = tlv::message(tlv::severity_of(d));
     object["code"] = error_name(static_cast<tlv::errc>(d.code));
     object["message"] = tlv::message(static_cast<tlv::errc>(d.code));
-    if (d.has_offset) object["offset"] = d.offset;
+    object["location"] = {{"domain", tlv::message(tlv::domain(d.location))},
+                          {"kind", tlv::message(tlv::kind(d.location))}};
+    if (tlv::kind(d.location) != tlv::location_kind::unknown) {
+        object["offset"] = d.location.begin;
+        object["location"]["begin"] = d.location.begin;
+        object["location"]["end"] = d.location.end;
+    }
 }
 
 void append_trailer_json(nlohmann::json& object, const tlv::diagnostic& d) {
@@ -101,7 +108,7 @@ std::string diagnostic_human(const tlv::diagnostic& d, const char* stage, const 
     std::ostringstream out;
     append_header_human(out, d);
     if (tag_hex) out << "\ntag: " << tag_hex;
-    if (d.path) out << "\npath: " << path_string(*d.path);
+    if (d.has_path) out << "\npath: " << path_string(d.path);
     if (stage && *stage) out << "\nstage: " << stage;
     append_trailer_human(out, d);
     return out.str();
@@ -110,8 +117,11 @@ std::string diagnostic_human(const tlv::diagnostic& d, const char* stage, const 
 std::string diagnostic_compact(const tlv::diagnostic& d, const char* stage, const char* tag_hex) {
     std::ostringstream out;
     if (stage && *stage) out << stage << " ";
-    out << error_name(static_cast<tlv::errc>(d.code)) << " at byte "
-        << (d.has_offset ? d.offset : 0);
+    out << error_name(static_cast<tlv::errc>(d.code));
+    if (d.location.kind)
+        out << " at byte " << d.location.begin;
+    else
+        out << " at unknown location";
     if (tag_hex) out << " tag=" << tag_hex;
     out << ": " << tlv::message(static_cast<tlv::errc>(d.code)) << trailer_compact(d);
     return out.str();
@@ -121,9 +131,9 @@ std::string diagnostic_json(const tlv::diagnostic& d, const char* stage, const c
     nlohmann::json object;
     set_header_json(object, d);
     if (tag_hex) object["tag"] = tag_hex;
-    if (d.path) {
-        object["path"] = path_string(*d.path);
-        if (d.path->omitted) object["path_omitted"] = d.path->omitted;
+    if (d.has_path) {
+        object["path"] = path_string(d.path);
+        if (d.path.omitted) object["path_omitted"] = d.path.omitted;
     }
     if (stage && *stage) object["stage"] = stage;
     append_trailer_json(object, d);
@@ -153,8 +163,10 @@ std::string schema_human(const tlv::validation_issue& d) {
 
 std::string schema_compact(const tlv::validation_issue& d) {
     std::ostringstream out;
-    out << "schema " << error_name(d.error().status()) << " at byte "
-        << (d.diagnostic().has_offset ? d.diagnostic().offset : 0) << " tag=" << hex_tag(d.tag());
+    out << "schema " << error_name(d.error().status());
+    if (tlv::kind(d.diagnostic().location) != tlv::location_kind::unknown)
+        out << " at byte " << d.diagnostic().location.begin;
+    out << " tag=" << hex_tag(d.tag());
     out << ": " << tlv::message(d.error().status()) << trailer_compact(d.diagnostic());
     return out.str();
 }
@@ -163,7 +175,6 @@ std::string schema_json(const tlv::validation_issue& d) {
     nlohmann::json object;
     set_header_json(object, d.diagnostic());
     object["kind"] = tlv::message(d.kind());
-    object["anchor"] = static_cast<int>(d.error().anchor());
     if (d.depth()) {
         object["path"] = path_string(d.path());
         if (d.path().omitted) object["path_omitted"] = d.path().omitted;
@@ -193,25 +204,28 @@ std::string schema_json(const tlv::validation_issue& d) {
 std::string reader_human(const tlv::reader_diagnostic& d) {
     std::ostringstream out;
     append_header_human(out, d.diagnostic);
-    if (d.diagnostic.path) out << "\npath: " << path_string(*d.diagnostic.path);
-    if (d.has_tag) out << "\ntag: " << hex_tag(tlv::diagnostic_tag(d));
+    if (d.diagnostic.has_path) out << "\npath: " << path_string(d.diagnostic.path);
+    if (d.detail.has_tag) out << "\ntag: " << hex_tag(tlv::diagnostic_tag(d));
     out << "\nwhile reading: " << tlv::message(tlv::phase(d));
-    if (d.has_raw_length) out << "\nraw length: " << hex_tag(tlv::tag(tlv::raw_length(d)));
-    if (d.has_declared_length) out << "\ndeclared length: " << d.declared_length;
-    if (d.has_available) out << "\navailable: " << d.available;
+    if (d.detail.has_raw_length) out << "\nraw length: " << hex_tag(tlv::tag(tlv::raw_length(d)));
+    if (d.detail.has_declared_length) out << "\ndeclared length: " << d.detail.declared_length;
+    if (d.detail.has_available) out << "\navailable: " << d.detail.available;
     append_trailer_human(out, d.diagnostic);
     return out.str();
 }
 
 std::string reader_compact(const tlv::reader_diagnostic& d) {
     std::ostringstream out;
-    out << error_name(static_cast<tlv::errc>(d.diagnostic.code)) << " at byte "
-        << (d.diagnostic.has_offset ? d.diagnostic.offset : 0);
-    if (d.has_tag) out << " tag=" << hex_tag(tlv::diagnostic_tag(d));
+    out << error_name(static_cast<tlv::errc>(d.diagnostic.code));
+    if (d.diagnostic.location.kind)
+        out << " at byte " << d.diagnostic.location.begin;
+    else
+        out << " at unknown location";
+    if (d.detail.has_tag) out << " tag=" << hex_tag(tlv::diagnostic_tag(d));
     out << " while reading " << tlv::message(tlv::phase(d));
-    if (d.has_raw_length) out << "; raw_length=" << hex_tag(tlv::tag(tlv::raw_length(d)));
-    if (d.has_declared_length) out << "; declared_length=" << d.declared_length;
-    if (d.has_available) out << "; available=" << d.available;
+    if (d.detail.has_raw_length) out << "; raw_length=" << hex_tag(tlv::tag(tlv::raw_length(d)));
+    if (d.detail.has_declared_length) out << "; declared_length=" << d.detail.declared_length;
+    if (d.detail.has_available) out << "; available=" << d.detail.available;
     out << ": " << tlv::message(static_cast<tlv::errc>(d.diagnostic.code))
         << trailer_compact(d.diagnostic);
     return out.str();
@@ -220,15 +234,15 @@ std::string reader_compact(const tlv::reader_diagnostic& d) {
 std::string reader_json(const tlv::reader_diagnostic& d) {
     nlohmann::json object;
     set_header_json(object, d.diagnostic);
-    if (d.diagnostic.path) {
-        object["path"] = path_string(*d.diagnostic.path);
-        if (d.diagnostic.path->omitted) object["path_omitted"] = d.diagnostic.path->omitted;
+    if (d.diagnostic.has_path) {
+        object["path"] = path_string(d.diagnostic.path);
+        if (d.diagnostic.path.omitted) object["path_omitted"] = d.diagnostic.path.omitted;
     }
-    if (d.has_tag) object["tag"] = hex_tag(tlv::diagnostic_tag(d));
+    if (d.detail.has_tag) object["tag"] = hex_tag(tlv::diagnostic_tag(d));
     object["operation"] = tlv::message(tlv::phase(d));
-    if (d.has_raw_length) object["raw_length"] = hex_tag(tlv::tag(tlv::raw_length(d)));
-    if (d.has_declared_length) object["declared_length"] = d.declared_length;
-    if (d.has_available) object["available"] = d.available;
+    if (d.detail.has_raw_length) object["raw_length"] = hex_tag(tlv::tag(tlv::raw_length(d)));
+    if (d.detail.has_declared_length) object["declared_length"] = d.detail.declared_length;
+    if (d.detail.has_available) object["available"] = d.detail.available;
     append_trailer_json(object, d.diagnostic);
     return object.dump();
 }

@@ -96,7 +96,10 @@ fn canonical_formats_are_consistent_on_every_der_seed() {
                 .filter_map(|r| r.as_ref().err())
             {
                 assert!(
-                    error.offset <= data.len(),
+                    error
+                        .location
+                        .offset()
+                        .map_or(true, |offset| offset <= data.len()),
                     "{name} {format:?}: offset past end"
                 );
             }

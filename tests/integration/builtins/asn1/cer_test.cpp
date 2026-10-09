@@ -39,7 +39,8 @@ TEST(Integration_Tlv_Cer, NestedIndefiniteContainersPostorderVisitOrder) {
     /* SEQUENCE(indefinite) { INTEGER 5, SEQUENCE(indefinite) { OCTET STRING [0,0] } } */
     const uint8_t      data[] = {0x30, 0x80, 0x02, 1, 5, 0x30, 0x80, 0x04, 2, 0, 0, 0, 0, 0, 0};
     std::vector<Visit> visits;
-    size_t             offset = 99;
+    tlv_diagnostic_t   offset = {};
+    offset.location.begin = 99;
     ASSERT_EQ(TLV_OK, tlv_cer_visit(data, sizeof(data), nullptr, collect, &visits, &offset));
     ASSERT_EQ(4u, visits.size());
     /* Primitive leaves visited immediately (preorder among siblings);
@@ -52,7 +53,7 @@ TEST(Integration_Tlv_Cer, NestedIndefiniteContainersPostorderVisitOrder) {
         EXPECT_EQ(depths[i], visits[i].depth);
         EXPECT_EQ(tags[i], visits[i].tag);
     }
-    EXPECT_EQ(99u, offset);
+    EXPECT_EQ(99u, offset.location.begin);
 
     tlv_element_t element{};
     size_t        consumed;
@@ -97,17 +98,20 @@ TEST(Integration_Tlv_Cer, MissingTruncatedAndUnexpectedEoc) {
     };
     for (const auto& item : cases) {
         SCOPED_TRACE(::testing::PrintToString(item.bytes));
-        size_t offset = 99;
+        tlv_diagnostic_t offset = {};
+        offset.location.begin = 99;
         EXPECT_EQ(item.error, tlv_cer_visit(item.bytes.data(), item.bytes.size(), nullptr, nullptr,
                                             nullptr, &offset));
-        EXPECT_EQ(item.offset, offset);
+        EXPECT_EQ(item.offset, offset.location.begin);
     }
 }
 
 TEST(Integration_Tlv_Cer, SingleElementReadLeavesFollowingElementUnconsumed) {
-    const uint8_t data[] = {0x30, 0x80, 0, 0, 0x02, 1, 5};
-    tlv_element_t element{};
-    size_t        consumed = 0, offset = 99;
+    const uint8_t    data[] = {0x30, 0x80, 0, 0, 0x02, 1, 5};
+    tlv_element_t    element{};
+    size_t           consumed = 0;
+    tlv_diagnostic_t offset = {};
+    offset.location.begin = 99;
     ASSERT_EQ(TLV_OK, tlv_cer_read(data, sizeof(data), nullptr, &element, &consumed, nullptr));
     EXPECT_EQ(4u, consumed);
     std::vector<Visit> visits;
@@ -136,23 +140,26 @@ TEST(Integration_Tlv_Cer, ConstructedFormRejectedStructurallyEvenWithoutStrict) 
     /* SEQUENCE(indefinite) { constructed INTEGER(indefinite) { INTEGER 5 } } --
      * INTEGER is not segmentable and not in the always-constructed set, so
      * this is a framing defect caught even by the non-strict traversal. */
-    const uint8_t data[] = {0x30, 0x80, 0x22, 0x80, 0x02, 1, 5, 0, 0, 0, 0};
-    size_t        offset = 99;
+    const uint8_t    data[] = {0x30, 0x80, 0x22, 0x80, 0x02, 1, 5, 0, 0, 0, 0};
+    tlv_diagnostic_t offset = {};
+    offset.location.begin = 99;
     EXPECT_EQ(TLV_ERR_INVALID_LENGTH,
               tlv_cer_visit(data, sizeof(data), nullptr, nullptr, nullptr, &offset));
-    EXPECT_EQ(3u, offset);
+    EXPECT_EQ(3u, offset.location.begin);
 }
 
 TEST(Integration_Tlv_Cer, StrictReadRejectsNoncanonicalContentButNonStrictAccepts) {
     /* SEQUENCE(indefinite) { OCTET STRING "x", BOOLEAN 0x01 (noncanonical) } */
-    const uint8_t data[] = {0x30, 0x80, 0x04, 1, 'x', 0x01, 1, 0x01, 0, 0};
-    tlv_element_t element{};
-    size_t        consumed = 0, offset = 99;
+    const uint8_t    data[] = {0x30, 0x80, 0x04, 1, 'x', 0x01, 1, 0x01, 0, 0};
+    tlv_element_t    element{};
+    size_t           consumed = 0;
+    tlv_diagnostic_t offset = {};
+    offset.location.begin = 99;
     ASSERT_EQ(TLV_OK, tlv_cer_read(data, sizeof(data), nullptr, &element, &consumed, nullptr));
     EXPECT_EQ(sizeof(data), consumed);
     EXPECT_EQ(TLV_ERR_INVALID_VALUE,
               tlv_cer_read_strict(data, sizeof(data), nullptr, &element, &consumed, &offset));
-    EXPECT_EQ(7u, offset);
+    EXPECT_EQ(7u, offset.location.begin);
 }
 
 TEST(Integration_Tlv_Cer, AcceptsUnconstrainedLegacyStringPrimitiveAndConstructed) {
@@ -205,7 +212,9 @@ TEST(Integration_Tlv_Cer, WriteConstructedProducesCanonicalIndefiniteFraming) {
 
 TEST(Integration_Tlv_Cer, WriteRejectsOversizedPrimitiveForSegmentableTypeEvenNonStrict) {
     std::vector<uint8_t> value(1001, 'a');
-    size_t               written = 99, offset = 99;
+    size_t               written = 99;
+    tlv_diagnostic_t     offset = {};
+    offset.location.begin = 99;
     EXPECT_EQ(TLV_ERR_INVALID_LENGTH, tlv_cer_write(nullptr, 0, (TLV_TAG(0x04)), value.data(),
                                                     value.size(), nullptr, &written, &offset));
     EXPECT_EQ(99u, written);
@@ -215,7 +224,9 @@ TEST(Integration_Tlv_Cer, FailedWritePreservesOutputAndSize) {
     const uint8_t children[] = {0x02, 1, 5};
     uint8_t       output[8];
     std::memset(output, 0xEE, sizeof(output));
-    size_t written = 99, offset = 99;
+    size_t           written = 99;
+    tlv_diagnostic_t offset = {};
+    offset.location.begin = 99;
     EXPECT_EQ(TLV_ERR_BUFFER_TOO_SHORT,
               tlv_cer_write(output, 1, (TLV_TAG(0x30)), children, sizeof(children), nullptr,
                             &written, &offset));

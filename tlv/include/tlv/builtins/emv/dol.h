@@ -5,6 +5,7 @@
 #define OPENTLV_BUILTINS_EMV_DOL_H
 
 #include "tlv/error.h"
+#include "tlv/diagnostic.h"
 #include "tlv/tag.h"
 #include "tlv/export.h"
 #include <stddef.h>
@@ -105,7 +106,7 @@ extern TLV_API const tlv_dol_limits_t tlv_dol_default_limits;
  * @param[in]  limits       Limits, or `NULL` for #tlv_dol_default_limits.
  * @param[in]  visit        Callback per entry.
  * @param[in]  context      Passed to `visit` unchanged.
- * @param[out] error_offset Optional. On failure receives the failing entry's own
+ * @param[out] diagnostic Optional. On failure receives an INPUT point at the failing entry's own
  *                          starting offset (its tag, for a tag or
  *                          missing-length-byte failure).
  *
@@ -115,7 +116,8 @@ extern TLV_API const tlv_dol_limits_t tlv_dol_default_limits;
  * @return Any error returned by `visit`, unchanged.
  */
 TLV_API tlv_result_t tlv_dol_read(const uint8_t* data, size_t size, const tlv_dol_limits_t* limits,
-                                  tlv_dol_visit_fn visit, void* context, size_t* error_offset);
+                                  tlv_dol_visit_fn visit, void* context,
+                                  tlv_diagnostic_t* diagnostic);
 
 /**
  * @brief EMV Book 3 section 5.4's two padding/truncation styles for fitting a resolved value.
@@ -209,8 +211,9 @@ typedef tlv_result_t (*tlv_dol_resolve_fn)(const tlv_dol_entry_t* entry, size_t 
  *                          only for a size query.
  * @param[in]  context      Passed to `resolve` unchanged.
  * @param[out] written      Receives the total size.
- * @param[out] error_offset Optional. On failure receives the failing entry's own
- *                          starting offset within `dol`.
+ * @param[out] diagnostic Optional. On failure receives an INPUT point at the failing entry's own
+ *                          starting offset within `dol`, including write operations.
+ *                          Argument failures have UNKNOWN location.
  *
  * @return #TLV_OK on success.
  * @return #TLV_ERR_BUFFER_TOO_SHORT if `capacity` is insufficient.
@@ -224,7 +227,7 @@ typedef tlv_result_t (*tlv_dol_resolve_fn)(const tlv_dol_entry_t* entry, size_t 
 TLV_API tlv_result_t tlv_dol_write(const uint8_t* dol, size_t dol_size, uint8_t* data,
                                    size_t capacity, const tlv_dol_limits_t* limits,
                                    tlv_dol_resolve_fn resolve, void* context, size_t* written,
-                                   size_t* error_offset);
+                                   tlv_diagnostic_t* diagnostic);
 
 #ifdef __cplusplus
 }

@@ -25,7 +25,7 @@ pub struct tlv_schema_diagnostic_t {
     /// Corresponding C field.
     pub tag: tlv_tag_t,
     /// Corresponding C field.
-    pub path: tlv_diagnostic_path_t,
+    pub definition: tlv_schema_definition_location_t,
     /// Corresponding C field.
     pub field: *const c_char,
     /// Corresponding C field.
@@ -56,8 +56,6 @@ pub struct tlv_schema_diagnostic_t {
     pub length_multiple: usize,
     /// Corresponding C field.
     pub length_flags: u32,
-    /// Schema byte-position anchor (unknown, element, scope end, insertion).
-    pub anchor: c_int,
 }
 /// Caller-owned detailed report storage.
 #[repr(C)]
@@ -80,6 +78,18 @@ extern "C" {
         max_elements: usize,
         unknown: c_int,
         report: *mut tlv_schema_diagnostic_report_t,
-        error_offset: *mut usize,
+        diagnostic: *mut tlv_schema_diagnostic_t,
     ) -> tlv_result_t;
+}
+
+/// Native definition owner and member index.
+#[repr(C)]
+#[derive(Clone, Copy, Debug)]
+pub struct tlv_schema_definition_location_t {
+    /// Table/rule/group/type/component discriminator, zero for unknown.
+    pub kind: c_int,
+    /// Borrowed owner table or type.
+    pub owner: *const c_void,
+    /// Index within the owner for indexed kinds.
+    pub index: usize,
 }

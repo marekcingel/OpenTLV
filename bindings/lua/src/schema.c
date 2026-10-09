@@ -219,15 +219,20 @@ static void bounds(lua_State* L, const char* name, size_t minimum, size_t maximu
 void opentlv_lua_push_schema_diagnostic(lua_State* L, const tlv_schema_diagnostic_t* detail) {
     static const char* const kinds[] = {"any", "primitive", "constructed"};
     tlv_diagnostic_t         diagnostic = detail->diagnostic;
-    /* Native schema reports store path separately to avoid self-pointers. */
-    tlv_diagnostic_set_path(&diagnostic, &detail->path);
     opentlv_lua_push_diagnostic(L, &diagnostic);
-    lua_pushstring(L, tlv_schema_issue_kind_string(detail->kind));
-    lua_setfield(L, -2, "kind");
-    lua_pushinteger(L, detail->anchor);
-    lua_setfield(L, -2, "anchor");
-    lua_pushlstring(L, detail->tag.data ? (const char*)detail->tag.data : "", detail->tag.size);
-    lua_setfield(L, -2, "tag");
+    if (detail->kind != TLV_SCHEMA_ISSUE_NONE) {
+        lua_pushstring(L, tlv_schema_issue_kind_string(detail->kind));
+        lua_setfield(L, -2, "kind");
+    }
+    if (detail->tag.size) {
+        lua_pushlstring(L, (const char*)detail->tag.data, detail->tag.size);
+        lua_setfield(L, -2, "tag");
+    }
+    if (detail->definition.kind != TLV_SCHEMA_DEFINITION_UNKNOWN) {
+        lua_pushinteger(L, detail->definition.kind);
+        lua_setfield(L, -2, "definition_kind");
+        size_field(L, "definition_index", detail->definition.index, 0);
+    }
     if (detail->field) {
         lua_pushstring(L, detail->field);
         lua_setfield(L, -2, "field");
@@ -283,8 +288,8 @@ static int schema_validate(lua_State* L) {
         capacity ? lua_newuserdata(L, capacity * sizeof(*report.diagnostics)) : NULL;
     report.capacity = capacity;
     report.count = 0;
-    size_t       offset = SIZE_MAX;
-    tlv_result_t code =
+    tlv_schema_diagnostic_t offset = {0};
+    tlv_result_t            code =
         tlv_schema_validate_all_diag((const uint8_t*)data, size, &format->format, &self->schema,
                                      max_depth, max_elements, unknown, &report, &offset);
     lua_newtable(L);
@@ -303,12 +308,8 @@ static int schema_validate(lua_State* L) {
             lua_rawseti(L, -2, (int)i + 1);
         }
     } else {
-        /* The report API supplies only status and optional offset on fatal
-         * errors. Never reconstruct tag/path by parsing the input again. */
-        tlv_diagnostic_t diagnostic;
-        tlv_diagnostic_init(&diagnostic, code, TLV_DIAGNOSTIC_SEVERITY_ERROR);
-        if (offset != SIZE_MAX) tlv_diagnostic_set_offset(&diagnostic, offset);
-        opentlv_lua_push_diagnostic(L, &diagnostic);
+        offset.diagnostic.code = code;
+        opentlv_lua_push_schema_diagnostic(L, &offset);
         lua_rawseti(L, -2, 1);
     }
     lua_setfield(L, -2, "diagnostics");

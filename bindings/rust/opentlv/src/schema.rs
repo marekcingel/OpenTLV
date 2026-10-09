@@ -414,8 +414,12 @@ pub struct SchemaDiagnostic {
     pub kind: i32,
     /// Name returned by the C kind helper.
     pub kind_name: String,
-    /// Byte-position meaning: unknown, element, scope end or insertion.
-    pub anchor: i32,
+    /// Primary evidence domain, kind and coordinates.
+    pub location: crate::Location,
+    /// Native definition coordinate category (zero when absent).
+    pub definition_kind: i32,
+    /// Rule, group, type or component index in the supplied schema.
+    pub definition_index: usize,
     /// Affected tag, separate from the enclosing path.
     pub tag: Tag,
     /// Retained outermost enclosing scope tags.
@@ -448,7 +452,7 @@ impl SchemaDiagnostic {
     // SAFETY: the caller keeps all native diagnostic spans and strings alive.
     pub(crate) unsafe fn from_raw(item: &native::tlv_schema_diagnostic_t) -> crate::Result<Self> {
         let mut path = Vec::new();
-        for tag in &item.path.tags[..item.path.length] {
+        for tag in &item.diagnostic.path.tags[..item.diagnostic.path.length] {
             // SAFETY: scope Tags borrow live input or schema storage.
             path.push(unsafe { Tag::from_raw(tag) }?);
         }
@@ -472,12 +476,14 @@ impl SchemaDiagnostic {
             severity: item.diagnostic.severity,
             kind: item.kind,
             kind_name,
-            anchor: item.anchor,
+            location: crate::Location::from_raw(item.diagnostic.location),
+            definition_kind: item.definition.kind,
+            definition_index: item.definition.index,
             // SAFETY: affected tag borrows still-live storage.
             tag: unsafe { Tag::from_raw(&item.tag) }?,
             path,
-            path_omitted: item.path.omitted,
-            offset: (item.diagnostic.has_offset != 0).then_some(item.diagnostic.offset),
+            path_omitted: item.diagnostic.path.omitted,
+            offset: (item.diagnostic.location.kind != 0).then_some(item.diagnostic.location.begin),
             expected: if item.diagnostic.expected.is_null() {
                 None
             } else {
@@ -612,7 +618,9 @@ impl StructureSchema {
             error,
             offset: None,
             kind: 0,
-            anchor: 0,
+            location: crate::Location::default(),
+            definition_kind: 0,
+            definition_index: 0,
         };
         let mut storage = Vec::<std::mem::MaybeUninit<native::tlv_schema_diagnostic_t>>::new();
         storage
@@ -624,7 +632,8 @@ impl StructureSchema {
             capacity,
             count: 0,
         };
-        let mut offset = 0;
+        // SAFETY: zero diagnostic has no active borrows.
+        let mut diagnostic: native::tlv_schema_diagnostic_t = unsafe { std::mem::zeroed() };
         // SAFETY: schema/input are live and C receives exclusive, correctly sized storage.
         let code = unsafe {
             native::tlv_schema_validate_all_diag(
@@ -636,23 +645,21 @@ impl StructureSchema {
                 limits.max_elements,
                 unknown as i32,
                 &mut report,
-                &mut offset,
+                &mut diagnostic,
             )
         };
         if code != native::TLV_OK && code != native::TLV_ERR_SCHEMA {
             return Err(SchemaError {
                 error: Error::from_code(code).unwrap(),
-                offset: if code == native::TLV_ERR_INVALID_SCHEMA {
-                    None
-                } else {
-                    Some(offset)
-                },
+                offset: crate::Location::from_raw(diagnostic.diagnostic.location).offset(),
                 kind: if code == native::TLV_ERR_INVALID_SCHEMA {
                     9
                 } else {
                     0
                 },
-                anchor: 0,
+                location: crate::Location::default(),
+                definition_kind: 0,
+                definition_index: 0,
             });
         }
         let mut diagnostics = Vec::new();
@@ -847,13 +854,15 @@ impl StructureSchema {
             None => Ok(()),
             Some(error) => Err(SchemaError {
                 error,
-                offset: if diagnostic.diagnostic.has_offset != 0 {
-                    Some(diagnostic.diagnostic.offset)
+                offset: if diagnostic.diagnostic.location.kind != 0 {
+                    Some(diagnostic.diagnostic.location.begin)
                 } else {
                     None
                 },
                 kind: diagnostic.kind,
-                anchor: diagnostic.anchor,
+                location: crate::Location::from_raw(diagnostic.diagnostic.location),
+                definition_kind: diagnostic.definition.kind,
+                definition_index: diagnostic.definition.index,
             }),
         }
     }
@@ -886,13 +895,17 @@ impl Default for ValidationLimits {
 pub struct SchemaError {
     /// The error reported by the C library.
     pub error: Error,
-    /// Known byte position; use anchor to distinguish scope end from an element.
+    /// Known byte position; use location.kind to distinguish scope end from a point.
     /// Definition errors have no input position.
     pub offset: Option<usize>,
     /// Canonical Schema reason.
     pub kind: i32,
-    /// Canonical Schema location anchor.
-    pub anchor: i32,
+    /// Canonical primary evidence location.
+    pub location: crate::Location,
+    /// Native definition coordinate category (zero when absent).
+    pub definition_kind: i32,
+    /// Rule, group, type or component index in the supplied schema.
+    pub definition_index: usize,
 }
 
 impl fmt::Display for SchemaError {

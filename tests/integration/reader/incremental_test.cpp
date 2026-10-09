@@ -110,10 +110,10 @@ TEST(Integration_Tlv_Incremental, MissingEocReportsTrailerExtentThenTruncationAt
     ASSERT_EQ(
         TLV_NEED_MORE_DATA,
         TLV_DIAGNOSTIC_RESULT(diagnostic, tlv_reader_next_diag(&reader, &element, &diagnostic)));
-    EXPECT_EQ(TLV_READER_OP_TRAILER, diagnostic.operation);
-    EXPECT_TRUE(diagnostic.has_required);
-    EXPECT_EQ(2u, diagnostic.required);
-    EXPECT_EQ(1u, diagnostic.available);
+    EXPECT_EQ(TLV_READER_OP_TRAILER, diagnostic.detail.operation);
+    EXPECT_TRUE(diagnostic.detail.has_required);
+    EXPECT_EQ(2u, diagnostic.detail.required);
+    EXPECT_EQ(1u, diagnostic.detail.available);
     ASSERT_EQ(TLV_OK, tlv_reader_set_input(&reader, wire, sizeof(wire), 0, 1));
     EXPECT_EQ(
         TLV_ERR_BUFFER_TOO_SHORT,

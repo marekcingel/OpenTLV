@@ -57,8 +57,8 @@ TEST(Integration_Tlv_BluetoothSemantic, EveryUuidLengthThroughContainerReaderSch
             } else {
                 EXPECT_EQ(TLV_ERR_SCHEMA, schema);
                 ASSERT_EQ(1u, report.count);
-                EXPECT_TRUE(diagnostic.diagnostic.has_offset);
-                EXPECT_EQ(3u, diagnostic.diagnostic.offset);
+                EXPECT_TRUE(diagnostic.diagnostic.location.kind);
+                EXPECT_EQ(3u, diagnostic.diagnostic.location.begin);
                 EXPECT_EQ(type, diagnostic.tag.data[0]);
             }
             EXPECT_EQ(original, wire);

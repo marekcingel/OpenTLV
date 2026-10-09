@@ -82,14 +82,20 @@ static void push_query_error(lua_State* L, tlv_result_t code, const tlv_query_di
         opentlv_lua_push_error(L, code, 0, 0);
         return;
     }
-    opentlv_lua_push_reader_error(L, code, &d->reader);
+    opentlv_lua_push_diagnostic(L, &d->diagnostic);
+    field(L, "code", code);
+    lua_pushstring(L, tlv_strerror(code));
+    lua_setfield(L, -2, "message");
+    if (d->has_reader) opentlv_lua_add_reader_detail(L, &d->reader);
     lua_newtable(L);
     field(L, "kind", d->kind);
     field(L, "begin", d->begin);
     field(L, "end", d->end);
     field(L, "configured", d->configured);
     field(L, "codec", d->codec);
-    if (d->has_source_offset) field(L, "source_offset", d->source_offset);
+    if ((d->diagnostic.location.domain == TLV_LOCATION_INPUT &&
+         d->diagnostic.location.kind != TLV_LOCATION_UNKNOWN))
+        field(L, "source_offset", d->diagnostic.location.begin);
     if (d->expected) {
         lua_pushstring(L, d->expected);
         lua_setfield(L, -2, "expected");

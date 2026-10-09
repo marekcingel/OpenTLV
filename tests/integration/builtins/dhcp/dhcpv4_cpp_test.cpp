@@ -16,7 +16,7 @@ TEST(Integration_Tlvpp_Dhcpv4, ContainerUsesSharedRulesAndDiagnostics) {
     EXPECT_EQ(TLV_ERR_SCHEMA, tlv::native::dhcpv4_options_validate(wire, sizeof(wire), &rules, 4,
                                                                    significant, &diagnostic));
     EXPECT_EQ(6u, significant);
-    EXPECT_EQ(6u, diagnostic.diagnostic.offset);
+    EXPECT_EQ(6u, diagnostic.diagnostic.location.begin);
 }
 
 TEST(Integration_Tlvpp_Dhcpv4, SharedPresetReaderWriterRoundTrip) {

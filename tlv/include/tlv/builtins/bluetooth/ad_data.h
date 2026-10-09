@@ -5,6 +5,7 @@
 #define OPENTLV_BUILTINS_BLUETOOTH_AD_DATA_H
 
 #include "tlv/error.h"
+#include "tlv/reader/diagnostic.h"
 #include <stddef.h>
 #include <stdint.h>
 
@@ -38,9 +39,10 @@ extern "C" {
  * @param[in] size Input size in bytes, including padding.
  * @param[out] significant_size Required. Receives the prefix size in bytes,
  *                              excluding padding, only on success.
- * @param[out] error_offset Optional. On failure receives the failing field's
+ * @param[out] diagnostic Optional. On failure receives the failing field's
  *                         offset relative to `data`, or the first nonzero
- *                         padding byte. Argument errors report zero.
+ *                         padding byte, in the INPUT domain. Argument errors
+ *                         have unknown location.
  *                         Unchanged on success.
  *
  * @return #TLV_OK if all structures and padding are valid.
@@ -53,7 +55,8 @@ extern "C" {
  *       not overlap the input or each other.
  */
 TLV_API tlv_result_t tlv_bluetooth_ad_data_validate(const uint8_t* data, size_t size,
-                                                    size_t* significant_size, size_t* error_offset);
+                                                    size_t* significant_size,
+                                                    tlv_reader_diagnostic_t* diagnostic);
 
 #ifdef __cplusplus
 }

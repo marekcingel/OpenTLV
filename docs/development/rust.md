@@ -146,8 +146,9 @@ encoding; it implements `FromStr` and `Display` for names such as `"der"`.
 on top of the format: `validate`, `read`, `encoded_size` and `write`, each with
 a `Strictness` (`Canonical` or `Strict`, which also validates UNIVERSAL
 content). `default_limits()` returns `Result<Limits, ValidationError>`.
-These bounded operations return `InvalidArg` at offset zero for formats other
-than DER/CER; ordinary framing remains available through Reader/Writer. Failures are `ValidationError` values with the failing offset.
+These bounded operations return `InvalidArg` with unknown location for formats other
+than DER/CER; ordinary framing remains available through Reader/Writer. Failures are
+`ValidationError` values with an explicit location domain, kind and bounds.
 
 Reader and Tree Reader callbacks and resumable Query matching delegate to C.
 The DOL component and structure codecs are not bound yet.

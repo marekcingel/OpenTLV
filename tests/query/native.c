@@ -35,8 +35,8 @@ static tlv_result_t document_run(const uint8_t* input, size_t size, const tlv_fo
     tlv_result_t           rc = tlv_document_options_init(&options, format);
     if (rc != TLV_OK) return rc;
     options.retain_source_locations = 1;
-    tlv_document_t* document = NULL;
-    size_t          offset;
+    tlv_document_t*         document = NULL;
+    tlv_reader_diagnostic_t offset = {0};
     rc = tlv_document_parse(input, size, &options, &document, &offset);
     if (rc != TLV_OK) return rc;
     tlv_tree_writer_frame_t     writer_frames[128];

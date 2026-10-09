@@ -15,28 +15,28 @@ import (
 )
 
 // Query delegates parsing and document traversal to C and retains no Go pointers.
-func (d *Document) Query(text string) ([]Node, Code, OptionalSize) {
+func (d *Document) Query(text string) ([]Node, Code, Diagnostic) {
 	if i := strings.IndexByte(text, 0); i >= 0 {
-		return nil, InvalidArg, OptionalSize{Value: uint64(i), Present: true}
+		return nil, InvalidArg, Diagnostic{Code: InvalidArg, Location: Location{3, 2, uint64(i), uint64(i + 1)}, Offset: OptionalSize{Value: uint64(i), Present: true}}
 	}
 	s := C.CString(text)
 	defer C.free(unsafe.Pointer(s))
 	defer runtime.KeepAlive(d)
 	var nodes *unsafe.Pointer
 	var count C.size_t
-	offset := ^C.size_t(0)
-	code := Code(C.go_document_query(d.ptr, s, &nodes, &count, &offset))
+	var nativeDetail C.tlv_diagnostic_t
+	code := Code(C.go_document_query(d.ptr, s, &nodes, &count, &nativeDetail))
 	defer C.go_query_free(nodes)
-	detail := OptionalSize{Value: uint64(offset), Present: offset != ^C.size_t(0)}
+	detail := diagnostic(nativeDetail, 0)
 	if code != OK {
 		return nil, code, detail
 	}
 	if uint64(count) > uint64(^uint(0)>>1) {
-		return nil, NativeSize, OptionalSize{}
+		return nil, NativeSize, Diagnostic{}
 	}
 	result := make([]Node, int(count))
 	for i, p := range unsafe.Slice(nodes, int(count)) {
 		result[i] = Node{p}
 	}
-	return result, OK, OptionalSize{}
+	return result, OK, Diagnostic{}
 }

@@ -13,12 +13,15 @@ typedef struct generator {
     size_t attempts;
 } generator_t;
 
-/* SplitMix64: fixed-width arithmetic makes the sequence platform independent. */
-static uint64_t next(generator_t* g) {
-    uint64_t z = (g->random += UINT64_C(0x9e3779b97f4a7c15));
+/* SplitMix64 finalizer: fixed-width arithmetic is platform independent. */
+static uint64_t mix(uint64_t z) {
     z = (z ^ (z >> 30)) * UINT64_C(0xbf58476d1ce4e5b9);
     z = (z ^ (z >> 27)) * UINT64_C(0x94d049bb133111eb);
     return z ^ (z >> 31);
+}
+
+static uint64_t next(generator_t* g) {
+    return mix(g->random += UINT64_C(0x9e3779b97f4a7c15));
 }
 
 static size_t value_size(generator_t* g, size_t lo, size_t hi) {
@@ -115,8 +118,10 @@ tlv_result_t tlv_generate(const tlv_format_t* format, const tlv_generator_option
     g.format = format;
     g.options = o;
     g.workspace = workspace;
-    g.random = o->seed ^ UINT64_C(0xd1b54a32d192ed03);
-    g.random ^= o->case_index * UINT64_C(0x9e3779b97f4a7c15);
+    /* Mix the seed before introducing the case index so raw seed/index bits
+     * cannot cancel as in seed ^ (case_index * increment). Mix again to avoid
+     * making adjacent cases shifted versions of the same random sequence. */
+    g.random = mix(mix(o->seed ^ UINT64_C(0xd1b54a32d192ed03)) ^ o->case_index);
     g.remaining = o->max_elements;
     g.attempts = o->max_elements * 64;
     n = stream(&g, data, o->max_case_size, 0);
