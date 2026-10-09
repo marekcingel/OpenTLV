@@ -183,13 +183,26 @@ unsafe extern "C" fn decode_provider(
         Err(_) => Error::Callback.code(),
     }
 }
+/// Exhausted Query resource reported by a LIMIT failure.
+#[derive(Clone, Debug, PartialEq, Eq)]
+pub struct QueryLimit {
+    /// Owned immutable name of the exhausted resource.
+    pub name: Box<str>,
+    /// Configured bound for the named resource.
+    pub configured: usize,
+}
+
 /// Complete owned native failure, independent of input/program lifetime.
 #[derive(Clone, Debug)]
 pub struct ProgramError {
-    /// Owned common diagnostic evidence, boxed to keep result values compact.
-    pub metadata: Box<crate::DiagnosticMetadata>,
+    /// Owned common evidence when no Reader cause carries it.
+    ///
+    /// None for Reader failures, whose `reader` holds the same evidence, and when C
+    /// reported only error severity without text, contexts or path. Use the accessors
+    /// below to read either source.
+    pub metadata: Option<Box<crate::DiagnosticMetadata>>,
     /// Primary evidence coordinates; Query spans remain related expression context.
-    pub location: Box<crate::Location>,
+    pub location: crate::Location,
     /// Original native status, including resumable NEED_MORE_DATA.
     pub error: Error,
     /// Native Query diagnostic category.
@@ -200,10 +213,10 @@ pub struct ProgramError {
     pub end: usize,
     /// Owned immutable native expected-token or type description.
     pub expected: Option<Box<str>>,
-    /// Owned immutable name of the exhausted resource, when present.
-    pub limit: Option<Box<str>>,
-    /// Configured bound for the named resource.
-    pub configured: usize,
+    /// Exhausted named resource and its configured bound, when present.
+    ///
+    /// Boxed with the rare limit evidence so `location` stays inline.
+    pub limit: Option<Box<QueryLimit>>,
     /// Original native codec status.
     pub codec: i32,
     /// Owned conversion cause supplied by the provider.
@@ -212,6 +225,38 @@ pub struct ProgramError {
     pub reader: Option<Box<ReaderDiagnostic>>,
 }
 impl ProgramError {
+    /// Canonical severity of the common diagnostic.
+    pub fn severity(&self) -> crate::Severity {
+        match (&self.reader, &self.metadata) {
+            (Some(reader), _) => reader.severity,
+            (None, Some(metadata)) => metadata.severity,
+            (None, None) => crate::Severity::Error,
+        }
+    }
+    /// Owned subsystem contexts of the common diagnostic.
+    pub fn contexts(&self) -> &[crate::DiagnosticContext] {
+        match (&self.reader, &self.metadata) {
+            (Some(reader), _) => &reader.contexts,
+            (None, Some(metadata)) => &metadata.contexts,
+            (None, None) => &[],
+        }
+    }
+    /// Retained enclosing tags; None means no path evidence.
+    pub fn path(&self) -> Option<&[Vec<u8>]> {
+        match (&self.reader, &self.metadata) {
+            (Some(reader), _) => reader.path.as_deref(),
+            (None, Some(metadata)) => metadata.path.as_deref(),
+            (None, None) => None,
+        }
+    }
+    /// Number of omitted innermost path scopes.
+    pub fn path_omitted(&self) -> usize {
+        match (&self.reader, &self.metadata) {
+            (Some(reader), _) => reader.path_omitted,
+            (None, Some(metadata)) => metadata.path_omitted,
+            (None, None) => 0,
+        }
+    }
     /// Known primary input offset, derived from `location` without duplicate storage.
     pub fn source_offset(&self) -> Option<usize> {
         (self.location.domain == crate::LocationDomain::Input)
@@ -239,15 +284,24 @@ fn check(code: i32, diagnostic: &native::tlv_query_diagnostic_t) -> ProgramResul
                         .into_boxed_str()
                 })
             };
+            let common = &diagnostic.diagnostic;
+            // Reader causes own the common evidence; plain failures skip the allocation.
+            let reported = !common.expected.is_null()
+                || !common.actual.is_null()
+                || !common.contexts.is_null()
+                || common.has_path != 0
+                || crate::Severity::from_raw(common.severity) != crate::Severity::Error;
             ProgramError {
-                location: Box::new(crate::Location::from_raw(diagnostic.diagnostic.location)),
-                metadata: Box::new(crate::DiagnosticMetadata {
-                    expected: text(diagnostic.diagnostic.expected),
-                    actual: text(diagnostic.diagnostic.actual),
-                    severity: crate::Severity::from_raw(diagnostic.diagnostic.severity),
-                    contexts: crate::reader_diagnostic::contexts(&diagnostic.diagnostic),
-                    path: crate::reader_diagnostic::path(&diagnostic.diagnostic),
-                    path_omitted: diagnostic.diagnostic.path.omitted,
+                location: crate::Location::from_raw(common.location),
+                metadata: (diagnostic.has_reader == 0 && reported).then(|| {
+                    Box::new(crate::DiagnosticMetadata {
+                        expected: text(common.expected),
+                        actual: text(common.actual),
+                        severity: crate::Severity::from_raw(common.severity),
+                        contexts: crate::reader_diagnostic::contexts(common),
+                        path: crate::reader_diagnostic::path(common),
+                        path_omitted: common.path.omitted,
+                    })
                 }),
                 error,
                 kind: crate::QueryErrorKind::from_raw(if code == native::TLV_ERR_INVALID_STATE {
@@ -258,8 +312,12 @@ fn check(code: i32, diagnostic: &native::tlv_query_diagnostic_t) -> ProgramResul
                 begin: diagnostic.begin,
                 end: diagnostic.end,
                 expected: text(diagnostic.expected),
-                limit: text(diagnostic.limit),
-                configured: diagnostic.configured,
+                limit: text(diagnostic.limit).map(|name| {
+                    Box::new(QueryLimit {
+                        name,
+                        configured: diagnostic.configured,
+                    })
+                }),
                 codec: diagnostic.codec,
                 codec_detail: if diagnostic.has_codec != 0 {
                     Some(Box::new(crate::CodecDiagnostic::from_raw(
@@ -997,15 +1055,14 @@ pub enum QueryEvent<'a> {
 unsafe fn project<'a>(event: &native::tlv_tree_event_t) -> ProgramResult<QueryMatch<'a>> {
     Ok(QueryMatch {
         element: unsafe { Element::from_raw(&event.element) }.map_err(|e| ProgramError {
-            location: Box::default(),
-            metadata: Box::default(),
+            location: crate::Location::default(),
+            metadata: None,
             error: e,
             kind: crate::QueryErrorKind::None,
             begin: 0,
             end: 0,
             expected: None,
             limit: None,
-            configured: 0,
             codec: 0,
             codec_detail: None,
             reader: None,
@@ -1377,15 +1434,14 @@ impl<'a> QueryExecution<'a> {
             capacity = match value_capacity {
                 Some(value) => value,
                 None => document.encoded_size().map_err(|error| ProgramError {
-                    location: Box::default(),
-                    metadata: Box::default(),
+                    location: crate::Location::default(),
+                    metadata: None,
                     error,
                     kind: crate::QueryErrorKind::None,
                     begin: 0,
                     end: 0,
                     expected: None,
                     limit: None,
-                    configured: 0,
                     codec: 0,
                     codec_detail: None,
                     reader: None,

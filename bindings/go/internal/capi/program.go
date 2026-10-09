@@ -45,7 +45,8 @@ func programDiagnostic(d C.tlv_query_diagnostic_t, code Code) ProgramDiagnostic 
 	if d.has_reader != 0 {
 		reader = readerDiagnosticParts(d.diagnostic, d.reader, code)
 	}
-	return ProgramDiagnostic{Common: diagnostic(d.diagnostic, 0), HasReader: d.has_reader != 0, Location: diagnostic(d.diagnostic, 0).Location, Kind: int(d.kind), Begin: uint64(d.begin), End: uint64(d.end),
+	common := diagnostic(d.diagnostic, 0)
+	return ProgramDiagnostic{Common: common, HasReader: d.has_reader != 0, Location: common.Location, Kind: int(d.kind), Begin: uint64(d.begin), End: uint64(d.end),
 		SourceOffset: uint64(d.diagnostic.location.begin), HasSourceOffset: d.diagnostic.location.domain == C.TLV_LOCATION_INPUT && d.diagnostic.location.kind != C.TLV_LOCATION_UNKNOWN,
 		Configured: uint64(d.configured), Expected: C.GoString(d.expected), Limit: C.GoString(d.limit),
 		Codec: int(d.codec), CodecDetail: queryCodecDetail(d), Reader: reader}

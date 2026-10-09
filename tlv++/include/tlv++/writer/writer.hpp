@@ -11,6 +11,12 @@
 #include "tlv++/writer/value.hpp"
 
 namespace tlv {
+
+/**
+ * @file writer.hpp
+ * @brief C++ wrapper for sequential writing into a caller-owned buffer.
+ */
+
 /** @brief Typed writer phase diagnostic category. */
 enum class writer_phase {
     tag = TLV_WRITER_OP_TAG /**< Canonical tag category. */,
@@ -27,11 +33,6 @@ enum class writer_phase {
 inline const char* message(writer_phase value) noexcept {
     return tlv_writer_operation_string(static_cast<tlv_writer_operation_t>(value));
 }
-
-/**
- * @file writer.hpp
- * @brief C++ wrapper for sequential writing into a caller-owned buffer.
- */
 
 /** @brief C++ alias for the writer-specific diagnostic type, #tlv_writer_diagnostic_t. */
 using writer_diagnostic = tlv_writer_diagnostic_t;

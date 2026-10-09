@@ -17,8 +17,11 @@ fn native_names_cover_complete_vocabulary_and_unknown_values() {
     assert_eq!(Severity::Warning.name(), "warning");
     assert_eq!(QueryErrorKind::State.name(), "state");
     let unknown = QueryErrorKind::from_raw(9876);
-    assert_eq!(unknown, QueryErrorKind::UnknownRaw(9876));
+    assert!(matches!(unknown, QueryErrorKind::Unrecognized(raw) if raw.as_raw() == 9876));
+    assert_eq!(unknown, QueryErrorKind::from_raw(9876));
     assert_eq!(unknown.as_raw(), 9876);
+    // Known raw values never become Unknown, so equality agrees with as_raw().
+    assert_eq!(QueryErrorKind::from_raw(0), QueryErrorKind::None);
     assert_eq!(unknown.name(), "unknown");
 }
 
@@ -56,7 +59,9 @@ fn query_metadata_preserves_absent_reader_paths() {
             .unwrap_err()
     };
     assert_eq!(failure.kind, QueryErrorKind::Reader);
-    assert_eq!(failure.metadata.path, None);
-    assert_eq!(failure.metadata.path_omitted, 0);
-    assert_eq!(failure.reader.as_ref().unwrap().path, failure.metadata.path);
+    assert_eq!(failure.path(), None);
+    assert_eq!(failure.path_omitted(), 0);
+    // The Reader cause owns the common evidence; it is not duplicated.
+    assert!(failure.metadata.is_none());
+    assert_eq!(failure.reader.as_ref().unwrap().path, None);
 }

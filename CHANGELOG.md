@@ -9,6 +9,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Fixed
 
+- Run the CLI Query conformance test in CTest and retain source locations in the `otlv query` Document backend, so match offsets and `@offset`/`@hlen` work there too. (#557)
+- Report Lua element-conversion failures with an input location, and keep large Lua location and Writer length values exact. (#558)
 - Preserve common Query evidence without a Reader cause in Python and Go, retain Rust Writer locations and diagnostic contexts, and expose complete Lua Reader bounds without narrowing large lengths. (#558)
 - Fix the EMV Codec fuzz oracle to expect `SCHEMA` for rejected wire lengths and verify preserved Schema length diagnostics, while retaining strict checks for invalid representations and round trips. (#556)
 - Fix the Query fuzz oracle for shared Codec failures and raw `int32_t` diagnostics, restoring the Clang fuzz build and checking preserved results, callback violations and unknown locations. (#556)
@@ -117,6 +119,10 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Changed
 
+- Generate the Rust, Go and Python diagnostic vocabularies from the C enums and check them in CI. Rust categories are `#[non_exhaustive]` with `Unrecognized(RawCategory)`; Python unknown categories are cached and label out-of-range values as `unknown`. (#557)
+- C++ `document::find()` throws `query_error` for an empty or invalid query instead of returning an empty node. (#557)
+- Rust `ProgramError` keeps `location` inline, stores common evidence only without a Reader cause (read via `severity()`, `contexts()`, `path()`), and groups limits as `QueryLimit`; `SchemaDiagnostic.path` is now an `Option`. (#558)
+- JS/WASM Query failures report common diagnostic evidence once under `query.diagnostic`; Reader and Codec causes carry only their own detail. Go adds typed `Diagnostic.ReaderPhase()` and `WriterPhase()`. (#558)
 - Adopt canonical diagnostic category names across C++, Rust, Python, Go, Lua and JS/WASM. Add typed failure categories to the native-language facades and render CLI location domains, unknown positions, truncated paths and codec causes. Binding diagnostic field types change; rebuild and migrate consumers together. (#558)
 - Replace the pointer-returning `tlv_document_find_path()` with an explicit result and node output, distinguishing lookup failures from no match. Migrate C++/Rust/Python/Lua callers; native clients must rebuild. (#557)
 - Unify Codec, Structure Codec and Query conversions on `tlv_result_t`, preserving delegated Reader/Schema failures and optional typed diagnostics. Invalid callback results and success payloads report `CALLBACK` with the original result. Remove the separate Codec result domain across C, C++ and bindings; update callback signatures and rebuild native consumers for the changed diagnostic ABI. (#556)

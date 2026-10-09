@@ -18,15 +18,15 @@ int opentlv_lua_raise_writer_error(lua_State* L, tlv_result_t code,
         lua_setfield(L, -2, "tag");
     }
     if (diag->has_length) {
-        lua_pushnumber(L, (lua_Number)diag->length);
+        opentlv_lua_codec_push_uint(L, diag->length);
         lua_setfield(L, -2, "length");
     }
     if (diag->has_required) {
-        lua_pushnumber(L, (lua_Number)diag->required);
+        opentlv_lua_codec_push_uint(L, diag->required);
         lua_setfield(L, -2, "required");
     }
     if (diag->has_available) {
-        lua_pushnumber(L, (lua_Number)diag->available);
+        opentlv_lua_codec_push_uint(L, diag->available);
         lua_setfield(L, -2, "available");
     }
     return lua_error(L);
@@ -34,7 +34,7 @@ int opentlv_lua_raise_writer_error(lua_State* L, tlv_result_t code,
 
 static int error_tostring(lua_State* L) {
     /* Error objects are plain tables with this metatable attached (see
-     * opentlv_lua_push_error()), not userdata, so this is reached only as
+     * opentlv_lua_push_diagnostic()), not userdata, so this is reached only as
      * the __tostring metamethod itself; no argument check is needed. */
     luaL_checktype(L, 1, LUA_TTABLE);
 
@@ -43,13 +43,15 @@ static int error_tostring(lua_State* L) {
     lua_getfield(L, 1, "code");
     lua_Integer code = lua_tointeger(L, -1);
     lua_getfield(L, 1, "offset");
-    int         has_offset = !lua_isnil(L, -1);
-    lua_Integer offset = has_offset ? lua_tointeger(L, -1) : 0;
+    int has_offset = !lua_isnil(L, -1);
+    /* Large offsets are decimal strings; lua_tostring() renders both forms. */
+    const char* offset = has_offset ? lua_tostring(L, -1) : NULL;
 
     char buffer[128];
     if (has_offset) {
-        snprintf(buffer, sizeof buffer, "opentlv: %s (code %lld, offset %lld)",
-                 message != NULL ? message : "unknown error", (long long)code, (long long)offset);
+        snprintf(buffer, sizeof buffer, "opentlv: %s (code %lld, offset %s)",
+                 message != NULL ? message : "unknown error", (long long)code,
+                 offset != NULL ? offset : "?");
     } else {
         snprintf(buffer, sizeof buffer, "opentlv: %s (code %lld)",
                  message != NULL ? message : "unknown error", (long long)code);
@@ -114,30 +116,12 @@ void opentlv_lua_register_error_codes(lua_State* L, int module_table_index) {
 }
 
 void opentlv_lua_push_error(lua_State* L, tlv_result_t code, int has_offset, size_t offset) {
-    lua_newtable(L);
-    lua_pushinteger(L, (lua_Integer)code);
-    lua_setfield(L, -2, "code");
-    lua_pushstring(L, tlv_strerror(code));
-    lua_setfield(L, -2, "message");
-    lua_newtable(L);
-    lua_pushstring(L, tlv_location_domain_string(TLV_LOCATION_DOMAIN_UNKNOWN));
-    lua_setfield(L, -2, "domain");
-    lua_pushstring(
-        L, tlv_location_kind_string(has_offset ? TLV_LOCATION_POINT : TLV_LOCATION_UNKNOWN));
-    lua_setfield(L, -2, "kind");
-    if (has_offset) {
-        opentlv_lua_codec_push_uint(L, offset);
-        lua_setfield(L, -2, "begin");
-        opentlv_lua_codec_push_uint(L, offset);
-        lua_setfield(L, -2, "end");
-    }
-    lua_setfield(L, -2, "location");
-    if (has_offset) {
-        lua_pushinteger(L, (lua_Integer)offset);
-        lua_setfield(L, -2, "offset");
-    }
-    luaL_getmetatable(L, OPENTLV_LUA_ERROR_MT);
-    lua_setmetatable(L, -2);
+    tlv_diagnostic_t diagnostic;
+    tlv_diagnostic_init(&diagnostic, code, TLV_DIAGNOSTIC_SEVERITY_ERROR);
+    if (has_offset)
+        tlv_diagnostic_set_location(&diagnostic, TLV_LOCATION_INPUT, TLV_LOCATION_POINT, offset,
+                                    offset);
+    opentlv_lua_push_diagnostic(L, &diagnostic);
 }
 
 void opentlv_lua_push_reader_error(lua_State* L, tlv_result_t code,
@@ -153,11 +137,8 @@ void opentlv_lua_push_reader_error(lua_State* L, tlv_result_t code,
 }
 
 void opentlv_lua_add_reader_detail(lua_State* L, const tlv_reader_detail_t* detail) {
-    const char* operation = tlv_reader_operation_string(detail->operation);
-    if (operation != NULL) {
-        lua_pushstring(L, operation);
-        lua_setfield(L, -2, "operation");
-    }
+    lua_pushstring(L, tlv_reader_operation_string(detail->operation));
+    lua_setfield(L, -2, "operation");
     if (detail->has_tag) {
         lua_pushlstring(L, (const char*)detail->tag.data, detail->tag.size);
         lua_setfield(L, -2, "tag");
@@ -198,20 +179,30 @@ void opentlv_lua_add_reader_detail(lua_State* L, const tlv_reader_detail_t* deta
 }
 
 void opentlv_lua_push_diagnostic(lua_State* L, const tlv_diagnostic_t* diagnostic) {
-    opentlv_lua_push_error(L, diagnostic->code, diagnostic->location.kind,
-                           diagnostic->location.begin);
+    const tlv_location_t* location = &diagnostic->location;
     lua_newtable(L);
-    lua_pushstring(L, tlv_location_domain_string(diagnostic->location.domain));
+    lua_pushinteger(L, (lua_Integer)diagnostic->code);
+    lua_setfield(L, -2, "code");
+    lua_pushstring(L, tlv_strerror(diagnostic->code));
+    lua_setfield(L, -2, "message");
+    lua_newtable(L);
+    lua_pushstring(L, tlv_location_domain_string(location->domain));
     lua_setfield(L, -2, "domain");
-    lua_pushstring(L, tlv_location_kind_string(diagnostic->location.kind));
+    lua_pushstring(L, tlv_location_kind_string(location->kind));
     lua_setfield(L, -2, "kind");
-    if (diagnostic->location.kind != TLV_LOCATION_UNKNOWN) {
-        lua_pushinteger(L, (lua_Integer)diagnostic->location.begin);
+    if (location->kind != TLV_LOCATION_UNKNOWN) {
+        opentlv_lua_codec_push_uint(L, location->begin);
         lua_setfield(L, -2, "begin");
-        lua_pushinteger(L, (lua_Integer)diagnostic->location.end);
+        opentlv_lua_codec_push_uint(L, location->end);
         lua_setfield(L, -2, "end");
     }
     lua_setfield(L, -2, "location");
+    if (location->kind != TLV_LOCATION_UNKNOWN) {
+        opentlv_lua_codec_push_uint(L, location->begin);
+        lua_setfield(L, -2, "offset");
+    }
+    luaL_getmetatable(L, OPENTLV_LUA_ERROR_MT);
+    lua_setmetatable(L, -2);
     lua_pushstring(L, tlv_diagnostic_severity_string(diagnostic->severity));
     lua_setfield(L, -2, "severity");
     if (diagnostic->expected) {

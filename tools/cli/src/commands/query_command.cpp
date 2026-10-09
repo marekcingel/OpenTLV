@@ -252,6 +252,8 @@ int query_command::run() {
         tlv::document_format settings(*selected_format);
         settings.max_depth = options_.max_depth;
         settings.max_elements = options_.max_elements;
+        // The CLI owns the wire input, so Document matches keep their input coordinates.
+        settings.retain_source_locations = true;
         auto parsed = tlv::document::parse(
             tlv::bytes(reinterpret_cast<const tlv::byte*>(data()), size()), settings);
         if (!parsed) return fail(3, tlv::message(parsed.error().status()));
@@ -284,11 +286,12 @@ int query_command::run() {
                         if (!encoded) return fail(3, tlv::message(encoded.error().status()));
                         children.insert(children.end(), encoded->begin(), encoded->end());
                     }
+                const auto source = node->source_location();
                 emit(tlv::element_view(node->tag(), node->is_constructed()
                                                         ? tlv::value_view(tlv::bytes(
                                                               children.data(), children.size()))
                                                         : value),
-                     false, 0);
+                     source.has_offset != 0, source.offset);
             }
 #else
         return fail(2, "Document backend is disabled in this build");

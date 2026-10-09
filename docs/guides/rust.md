@@ -193,13 +193,15 @@ the latter borrows caller storage. Rust lifetimes preserve program, input and
 Document ownership; errors retain native Query spans and diagnostic detail.
 `ProgramError.kind` is a `QueryErrorKind`; compare with `QueryErrorKind::Syntax`
 or `QueryErrorKind::State` and use `name()` for the canonical C spelling.
-`ProgramError.metadata` retains severity, contexts and the enclosing path with
-its omitted count. Metadata and `location` are boxed to keep returned errors
-compact. `ProgramError.location` holds primary evidence. `source_offset()` projects its
+`severity()`, `contexts()`, `path()` and `path_omitted()` read the common
+evidence from the Reader cause when present, otherwise from the boxed
+`metadata`, which stays `None` when nothing beyond error severity was reported.
+`ProgramError.location` holds primary evidence inline. `source_offset()` projects its
 start only for known INPUT locations, including zero; expression spans and
-unknown locations return `None`. `expected` and `limit` use owned immutable
-`Box<str>` values (inspect with `as_deref()`), keeping ordinary and edit errors
-compact without discarding detail.
+unknown locations return `None`. `expected` is an owned immutable `Box<str>`
+(inspect with `as_deref()`); `limit` boxes the exhausted resource name with its
+configured bound as `QueryLimit`. Categories are `#[non_exhaustive]`;
+unrecognized native values become `Unrecognized(RawCategory)`.
 `ProgramOptions.providers` holds `QueryProvider` values for the closed NUM, BCD,
 TEXT and DATE conversions. Each owns a stable ID, scratch limit and `Send + Sync`
 callback. Callbacks receive bytes and optional owned metadata; return

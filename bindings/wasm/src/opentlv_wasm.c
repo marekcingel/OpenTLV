@@ -754,19 +754,13 @@ static void query_common_diagnostic(builder_t* b, const tlv_diagnostic_t* common
     }
     builder_text(b, "]");
 }
-static void query_reader_diagnostic(builder_t* b, const tlv_diagnostic_t* common,
-                                    const tlv_reader_detail_t* r) {
-    builder_text(b, ",\"reader\":{\"code\":");
-    builder_number(b, common->code);
-    write_location(b, &common->location);
-    builder_text(b, ",\"operation\":");
+/* Reader and Codec causes carry only their own detail; the common result,
+ * location, path and contexts are emitted once under query.diagnostic. */
+static void query_reader_diagnostic(builder_t* b, const tlv_reader_detail_t* r) {
+    builder_text(b, ",\"reader\":{\"operation\":");
     builder_number(b, r->operation);
     builder_text(b, ",\"operation_name\":");
     builder_json_string(b, tlv_reader_operation_string(r->operation));
-    if (common->location.kind) {
-        builder_text(b, ",\"offset\":");
-        builder_number(b, common->location.begin);
-    }
     if (r->has_tag) {
         builder_text(b, ",\"tag\":\"");
         builder_hex(b, r->tag.data, r->tag.size);
@@ -798,11 +792,9 @@ static void query_reader_diagnostic(builder_t* b, const tlv_diagnostic_t* common
         builder_text(b, ",\"required\":");
         query_unsigned(b, r->required);
     }
-    query_common_diagnostic(b, common);
     builder_text(b, "}");
 }
-static void query_codec_diagnostic(builder_t* b, const tlv_diagnostic_t* common,
-                                   const tlv_codec_detail_t* d) {
+static void query_codec_diagnostic(builder_t* b, const tlv_codec_detail_t* d) {
     builder_text(b, ",\"codec_detail\":{\"operation\":");
     builder_number(b, d->operation);
     builder_text(b, ",\"operation_name\":");
@@ -817,13 +809,11 @@ static void query_codec_diagnostic(builder_t* b, const tlv_diagnostic_t* common,
     builder_number(b, d->cause);
     builder_text(b, ",\"cause_name\":");
     builder_json_string(b, tlv_codec_cause_string(d->cause));
-    write_location(b, &common->location);
-    query_common_diagnostic(b, common);
     if (d->representation) {
         builder_text(b, ",\"representation\":");
         builder_json_string(b, d->representation);
     }
-    if (d->cause == TLV_CODEC_CAUSE_READER) query_reader_diagnostic(b, common, &d->detail.reader);
+    if (d->cause == TLV_CODEC_CAUSE_READER) query_reader_diagnostic(b, &d->detail.reader);
     if (d->cause == TLV_CODEC_CAUSE_SCHEMA) {
         const tlv_codec_schema_detail_t* v = &d->detail.schema;
         builder_text(b, ",\"schema\":{\"kind\":");
@@ -925,8 +915,8 @@ static void query_status(builder_t* b, tlv_result_t code, const tlv_query_diagno
         write_location(b, &d->diagnostic.location);
         query_common_diagnostic(b, &d->diagnostic);
         builder_text(b, "}");
-        if (d->has_codec) query_codec_diagnostic(b, &d->diagnostic, &d->codec_detail);
-        if (d->has_reader) query_reader_diagnostic(b, &d->diagnostic, &d->reader);
+        if (d->has_codec) query_codec_diagnostic(b, &d->codec_detail);
+        if (d->has_reader) query_reader_diagnostic(b, &d->reader);
     }
     builder_text(b, "}");
 }

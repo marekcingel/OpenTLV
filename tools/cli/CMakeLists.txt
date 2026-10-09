@@ -128,4 +128,14 @@ if(OPENTLV_BUILD_CLI_TESTS)
             -P "${CMAKE_CURRENT_SOURCE_DIR}/examples.cmake")
         set_tests_properties(Integration_cli_cpp_examples PROPERTIES LABELS "integration;cli;examples")
     endif()
+    # Registered here because tests/ is configured before the otlv target exists.
+    find_package(Python3 COMPONENTS Interpreter QUIET)
+    if(Python3_Interpreter_FOUND AND OPENTLV_QUERY_FRONTEND AND OPENTLV_FORMAT_BER
+       AND OPENTLV_DOCUMENT)
+        add_test(NAME query-cli-conformance
+            COMMAND ${Python3_EXECUTABLE} ${PROJECT_SOURCE_DIR}/tests/query/cli_facade.py
+                --cli $<TARGET_FILE:otlv>)
+        set_tests_properties(query-cli-conformance PROPERTIES LABELS "query;conformance;memcheck-full")
+        opentlv_memcheck_timeout(query-cli-conformance 3600)
+    endif()
 endif()

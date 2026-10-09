@@ -21,6 +21,8 @@ def test_canonical_names_and_unknown_values(category, value, label):
     assert value.label == label
     assert category(9876).value == 9876
     assert category(9876).label == "unknown"
+    assert category(9876) is category(9876)
+    assert category(2 ** 40).label == "unknown"
 
 
 def test_query_without_reader_preserves_expression_location():

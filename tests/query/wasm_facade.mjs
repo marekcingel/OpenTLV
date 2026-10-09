@@ -451,7 +451,9 @@ assert.throws(() => diagnosticProgram.evaluate(hexToBytes("5a82010200")), error 
 diagnosticProgram.close();
 assert.equal(readerFailure.query.reader.declared_length, 258);
 assert.equal(readerFailure.query.reader.tag, "5A");
-assert.equal(readerFailure.query.reader.path_omitted, 0);
+assert.equal(readerFailure.query.diagnostic.path_omitted, 0);
+// Common evidence is emitted once, under query.diagnostic.
+assert.equal(readerFailure.query.reader.path_omitted, undefined);
 assert.equal(readerFailure.query.kind_name, "reader");
 assert.equal(readerFailure.query.reader.operation_name, "value");
 assert.equal(readerFailure.message, "buffer too short");

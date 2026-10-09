@@ -283,11 +283,11 @@ results remain inspectable.
 | Facade | Diagnostic categories |
 | --- | --- |
 | C++ | `errc`, `query_issue`, `reader_phase`, `writer_phase`, `schema_issue`, `schema_definition_kind`, `codec_phase`, `codec_cause`, `codec_violation`; `message(category)` calls C. |
-| Rust | `Error` and typed `QueryErrorKind`, `ReaderOperation`, `WriterOperation`, `SchemaIssue`, `SchemaDefinitionKind`, `CodecOperation`, `CodecCause`, `CodecViolation`, `Severity`; category `name()` calls C. `UnknownRaw(i32)` retains unrecognized values. |
+| Rust | `Error` and typed `QueryErrorKind`, `ReaderOperation`, `WriterOperation`, `SchemaIssue`, `SchemaDefinitionKind`, `CodecOperation`, `CodecCause`, `CodecViolation`, `Severity`; category `name()` calls C. Categories are `#[non_exhaustive]`; `Unrecognized(RawCategory)` retains unrecognized values. |
 | Python | Typed result exceptions; Query `query["query_kind"]`, Schema report fields and Codec detail fields use `IntEnum` categories exported by `opentlv`. Their `label` property calls C. Reader/Writer `operation` remains a canonical string. |
-| Go | `errors.Is` classifies results and `errors.As` retrieves owned details. `ProgramError.Kind`, `QuerySchemaError.Kind` and Codec categories are typed; `String()` calls C. Reader/Writer errors expose typed `Phase()` methods. |
+| Go | `errors.Is` classifies results and `errors.As` retrieves owned details. `ProgramError.Kind`, `QuerySchemaError.Kind` and Codec categories are typed; `String()` calls C. Reader/Writer errors expose typed `Phase()` methods; `Diagnostic.ReaderPhase()` and `WriterPhase()` type Query Reader causes too. |
 | Lua | Error tables preserve result `code`, `location`, optional path and contexts. `query.kind_name` and Codec `operation_name`, `cause_name`, `violation_name` come from C alongside numeric values. |
-| JS/WASM | `QueryError` carries the C message, structured `location` and owned Query evidence. `query.kind_name`, Reader `operation_name` and Codec names accompany numeric categories. |
+| JS/WASM | `QueryError` carries the C message, structured `location` and owned Query evidence. `query.kind_name`, Reader `operation_name` and Codec names accompany numeric categories. Common evidence appears once in `query.diagnostic`. |
 
 For example, Rust consumers match `failure.kind == QueryErrorKind::Syntax`;
 Python consumers compare `error.query["query_kind"] is QueryErrorKind.SYNTAX`.

@@ -1,6 +1,7 @@
 // SPDX-License-Identifier: MIT
 // Copyright (c) 2026 Marek Cingel
 
+#include "tlv/diagnostic.h"
 #include "tlv/reader/diagnostic.h"
 #include "tlv/writer/writer.h"
 #include "tlv/query/program.h"
@@ -84,5 +85,21 @@ int main(void) {
     CHECK_NAME(tlv_schema_issue_kind_string(TLV_SCHEMA_ISSUE_DEFINITION), "definition");
     CHECK_NAME(tlv_schema_issue_kind_string((tlv_schema_issue_kind_t)127), "unknown");
     CHECK_NAME(tlv_diagnostic_severity_string(TLV_DIAGNOSTIC_SEVERITY_ERROR), "error");
+    CHECK_NAME(tlv_diagnostic_severity_string(TLV_DIAGNOSTIC_SEVERITY_WARNING), "warning");
+    CHECK_NAME(tlv_diagnostic_severity_string(TLV_DIAGNOSTIC_SEVERITY_INFO), "info");
+    CHECK_NAME(tlv_diagnostic_severity_string((tlv_diagnostic_severity_t)127), "unknown");
+    CHECK_NAME(tlv_location_domain_string(TLV_LOCATION_DOMAIN_UNKNOWN), "unknown");
+    CHECK_NAME(tlv_location_domain_string(TLV_LOCATION_INPUT), "input");
+    CHECK_NAME(tlv_location_domain_string(TLV_LOCATION_OUTPUT), "output");
+    CHECK_NAME(tlv_location_domain_string(TLV_LOCATION_EXPRESSION), "expression");
+    CHECK_NAME(tlv_location_domain_string(TLV_LOCATION_DEFINITION), "definition");
+    CHECK_NAME(tlv_location_domain_string(TLV_LOCATION_VALUE), "value");
+    CHECK_NAME(tlv_location_domain_string((tlv_location_domain_t)127), "unknown");
+    CHECK_NAME(tlv_location_kind_string(TLV_LOCATION_UNKNOWN), "unknown");
+    CHECK_NAME(tlv_location_kind_string(TLV_LOCATION_POINT), "point");
+    CHECK_NAME(tlv_location_kind_string(TLV_LOCATION_SPAN), "span");
+    CHECK_NAME(tlv_location_kind_string(TLV_LOCATION_SCOPE_END), "scope_end");
+    CHECK_NAME(tlv_location_kind_string(TLV_LOCATION_INSERTION), "insertion");
+    CHECK_NAME(tlv_location_kind_string((tlv_location_kind_t)127), "unknown");
     return 0;
 }

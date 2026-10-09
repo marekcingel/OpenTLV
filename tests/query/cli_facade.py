@@ -5,7 +5,6 @@ import argparse
 import json
 from pathlib import Path
 import subprocess
-from reference import tree
 
 
 def main():
@@ -21,26 +20,12 @@ def main():
             excluded.append({"id": case["id"], "reason": "requires external fixture name resolver"})
             continue
         for backend in ("auto", "document"):
-            if backend == "document" and any(text in case["query"] for text in ("@offset", "@hlen")):
-                continue
             command = [args.cli, "query", "--query", case["query"], "--format", "ber",
                        "--hex", case["wire"], "--output", "json", "--diagnostics", "json",
                        "--backend", backend]
             for name, value in case.get("variables", {}).items():
                 command += ["--var", f"{name}:{value['type']}={value['value']}"]
             result = subprocess.run(command, text=True, capture_output=True, timeout=30)
-            if case["id"] in ("document-following-source-location", "document-preceding-source-location") and backend == "auto":
-                # Auto selects the CLI's semantic Document backend for these axes.
-                # It does not retain Source metadata, just like explicit Document above.
-                # Verify the canonical failure instead of expecting wire coordinates.
-                assert result.returncode == 3, (case["id"], result.stderr)
-                diagnostic = json.loads(result.stderr)
-                assert diagnostic["code"] == 14 and diagnostic["kind"] == 6
-                assert diagnostic["kind_name"] == "source"
-                assert diagnostic["location"]["domain"] == "expression"
-                assert "source_offset" not in diagnostic
-                checks += 1
-                continue
             if "diagnostic" in case:
                 assert result.returncode != 0, (case["id"], backend)
                 diagnostic = json.loads(result.stderr)
@@ -58,23 +43,9 @@ def main():
                     actual = (f"bool:{int(value)}" if kind == 1 else f"int:{value}" if kind == 2
                               else "bytes:" + value.lower() if kind == 3
                               else "string:" + value.encode().hex())
-                elif backend == "document":
-                    # Source-less CLI rows carry semantic Tag/Value. Compare the
-                    # independently selected preorder identities' logical payload.
-                    _, nodes = tree(bytes.fromhex(case["wire"]))
-                    by_offset = {node["offset"]: node for node in nodes}
-                    actual = [(row["tag"].lower(), row["value"].lower()) for row in output["matches"]]
-                    expected = [(by_offset[offset]["tag"].hex(), by_offset[offset]["value"].hex())
-                                for offset in expected]
                 else:
-                    # Auto D has source-less output too. Compare semantic rows.
-                    if any(row["offset"] is None for row in output["matches"]):
-                        _, nodes = tree(bytes.fromhex(case["wire"]))
-                        by_offset = {node["offset"]: node for node in nodes}
-                        actual = [(row["tag"].lower(), row["value"].lower()) for row in output["matches"]]
-                        expected = [(by_offset[offset]["tag"].hex(), by_offset[offset]["value"].hex()) for offset in expected]
-                    else:
-                        actual = [row["offset"] for row in output["matches"]]
+                    # Both backends retain the wire coordinates of the input.
+                    actual = [row["offset"] for row in output["matches"]]
                 assert actual == expected, (case["id"], backend, actual, expected)
             checks += 1
     report = {"version": 1, "facade": "CLI", "checks": checks, "exclusions": excluded}

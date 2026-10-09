@@ -89,7 +89,8 @@ type Location struct {
 // borrowed. Optional fields retain native presence; absent detail is not inferred.
 // Reader offsets are absolute in the input, including discarded windows.
 // Writer offsets use the coordinate system of the native encoding operation.
-// Operation and Severity retain the native enumerated values.
+// Operation retains the native value shared by Reader and Writer evidence; use
+// ReaderPhase or WriterPhase for the typed category of the producing layer.
 // Location.Kind zero means unknown; Offset projects the known Location.Begin.
 type Diagnostic struct {
 	Location                                                  Location
@@ -184,11 +185,17 @@ func writeError(code capi.Code, d capi.Diagnostic) error {
 	return &WriteError{Diagnostic: publicDiagnostic(d), status: StatusError{code: code}}
 }
 
+// ReaderPhase types Operation for Reader evidence, including Query Reader causes.
+func (d Diagnostic) ReaderPhase() ReaderOperation { return ReaderOperation(d.Operation) }
+
+// WriterPhase types Operation for Writer evidence.
+func (d Diagnostic) WriterPhase() WriterOperation { return WriterOperation(d.Operation) }
+
 // Phase identifies the failed Reader operation.
-func (e *ParseError) Phase() ReaderOperation { return ReaderOperation(e.Operation) }
+func (e *ParseError) Phase() ReaderOperation { return e.ReaderPhase() }
 
 // Phase identifies the failed Writer operation.
-func (e *WriteError) Phase() WriterOperation { return WriterOperation(e.Operation) }
+func (e *WriteError) Phase() WriterOperation { return e.WriterPhase() }
 
 // String returns the canonical C coordinate-domain name.
 func (v LocationDomain) String() string { return capi.LocationDomainName(int(v)) }

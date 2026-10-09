@@ -8,6 +8,16 @@ if(OPENTLV_BUILD_MEMCHECK)
     set_tests_properties(memcheck-launcher PROPERTIES LABELS "infrastructure;no-memcheck")
 endif()
 
+find_package(Python3 COMPONENTS Interpreter QUIET)
+if(Python3_Interpreter_FOUND)
+    # Generated Rust, Go and Python vocabularies must match the C enums.
+    add_test(NAME diagnostic-vocabulary-generated
+        COMMAND "${Python3_EXECUTABLE}"
+            "${OpenTLV_SOURCE_DIR}/scripts/generate_diagnostic_vocabulary.py" --check)
+    set_tests_properties(diagnostic-vocabulary-generated PROPERTIES
+        LABELS "infrastructure;bindings;no-memcheck")
+endif()
+
 add_executable(capability-contract capabilities.c)
 get_target_property(_capability_sources tlv SOURCES)
 file(GENERATE OUTPUT "${OpenTLV_BINARY_DIR}/capability-sources.txt"

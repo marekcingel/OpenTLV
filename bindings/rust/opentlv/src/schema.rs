@@ -408,8 +408,6 @@ pub struct SchemaBounds {
 pub struct SchemaDiagnostic {
     /// Owned subsystem context entries.
     pub contexts: Vec<crate::DiagnosticContext>,
-    /// Distinguishes a tracked empty path from absent evidence.
-    pub has_path: bool,
     /// C error corresponding to the violation.
     pub error: Error,
     /// C severity code.
@@ -426,8 +424,9 @@ pub struct SchemaDiagnostic {
     pub definition_index: usize,
     /// Affected tag, separate from the enclosing path.
     pub tag: Tag,
-    /// Retained outermost enclosing scope tags.
-    pub path: Vec<Tag>,
+    /// Retained outermost enclosing scope tags; None means no path evidence,
+    /// distinct from a tracked empty path at the top level.
+    pub path: Option<Vec<Tag>>,
     /// Number of innermost enclosing scopes omitted from `path`.
     pub path_omitted: usize,
     /// Affected source offset, when available.
@@ -455,11 +454,16 @@ pub struct SchemaDiagnostic {
 impl SchemaDiagnostic {
     // SAFETY: the caller keeps all native diagnostic spans and strings alive.
     pub(crate) unsafe fn from_raw(item: &native::tlv_schema_diagnostic_t) -> crate::Result<Self> {
-        let mut path = Vec::new();
-        for tag in &item.diagnostic.path.tags[..item.diagnostic.path.length] {
-            // SAFETY: scope Tags borrow live input or schema storage.
-            path.push(unsafe { Tag::from_raw(tag) }?);
-        }
+        let path = if item.diagnostic.has_path != 0 {
+            let mut path = Vec::with_capacity(item.diagnostic.path.length);
+            for tag in &item.diagnostic.path.tags[..item.diagnostic.path.length] {
+                // SAFETY: scope Tags borrow live input or schema storage.
+                path.push(unsafe { Tag::from_raw(tag) }?);
+            }
+            Some(path)
+        } else {
+            None
+        };
         // SAFETY: C returns a static NUL-terminated name for any kind.
         let kind_name =
             unsafe { std::ffi::CStr::from_ptr(native::tlv_schema_issue_kind_string(item.kind)) }
@@ -478,7 +482,6 @@ impl SchemaDiagnostic {
         Ok(Self {
             error: Error::from_code(item.diagnostic.code).unwrap_or(Error::Schema),
             contexts: unsafe { crate::reader_diagnostic::contexts(&item.diagnostic) },
-            has_path: item.diagnostic.has_path != 0,
             severity: crate::Severity::from_raw(item.diagnostic.severity),
             kind: crate::SchemaIssue::from_raw(item.kind),
             kind_name,

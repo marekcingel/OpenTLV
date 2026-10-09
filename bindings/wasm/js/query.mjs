@@ -5,14 +5,17 @@ export function queryFacade(wasm) {
   const encoder = new TextEncoder();
   const decoder = new TextDecoder("utf-8", { fatal: true });
   const types = Object.freeze({ integer: 2, bytes: 3, string: 4 });
+  // TLV_ERR_INVALID_STATE always reports the Query STATE category.
+  const INVALID_STATE = 19, QUERY_ERROR_STATE = 12;
   class QueryError extends Error {
     constructor(code, query = {}, applied = 0, rule = null, schema = null, location = { domain: "unknown", kind: "unknown" }, message = null) {
       super(message ?? wasm.UTF8ToString(wasm._opentlv_wasm_strerror(code)));
       this.code = code;
       this.location = Object.freeze(location);
-      const kind = code === 19 ? 12 : (query.kind ?? 0);
-      this.query = Object.freeze({ ...query, kind,
-        kind_name: wasm.UTF8ToString(wasm._opentlv_wasm_query_error_kind_string(kind)) });
+      // Native replies already name their category; only facade STATE checks need one.
+      this.query = Object.freeze(code === INVALID_STATE ? { ...query, kind: QUERY_ERROR_STATE,
+        kind_name: wasm.UTF8ToString(wasm._opentlv_wasm_query_error_kind_string(QUERY_ERROR_STATE)) }
+        : query);
       this.applied = applied;
       this.rule = rule;
       this.schema = schema;
@@ -183,12 +186,12 @@ export function queryFacade(wasm) {
     }
     static fixed(options = {}) { return new Format("fixed", options); }
     static custom(options) { return new Format("custom", options); }
-    _retain() { if (!this._pointer || this._active) throw new QueryError(19); ++this._references; }
+    _retain() { if (!this._pointer || this._active) throw new QueryError(INVALID_STATE); ++this._references; }
     _release() { if (--this._references === 0) { for (const callback of this._callbacks) wasm.removeFunction(callback); this._callbacks = []; } }
     _throw() { if (this._failed) { const error = this._error; this._failed = false; this._error = null; throw error; } }
     _native(run) { try { return run(); } finally { this._throw(); } }
     close() {
-      if (this._active) throw new QueryError(19);
+      if (this._active) throw new QueryError(INVALID_STATE);
       if (this._pointer) { wasm._opentlv_wasm_format_free(this._pointer); this._pointer = 0; this._release(); }
     }
   }
@@ -307,7 +310,7 @@ export function queryFacade(wasm) {
       } catch (error) { this.close(); throw error; }
     }
     static load(image, options = {}) { return new QueryProgram(image, options, true); }
-    _check() { if (!this._pointer || this._providerActive || this._formatOwner._active) throw new QueryError(19); }
+    _check() { if (!this._pointer || this._providerActive || this._formatOwner._active) throw new QueryError(INVALID_STATE); }
     _native(run) {
       try { return this._formatOwner._native(run); }
       finally { if (this._providerFailed) { const error = this._providerError; this._providerFailed = false; this._providerError = null; throw error; } }
@@ -320,7 +323,7 @@ export function queryFacade(wasm) {
       }
     }
     close() {
-      if (this._providerActive || this._formatOwner._active) throw new QueryError(19);
+      if (this._providerActive || this._formatOwner._active) throw new QueryError(INVALID_STATE);
       if (this._pointer) { wasm._opentlv_wasm_program_free(this._pointer); this._release(); }
       this._pointer = 0;
     }
@@ -355,7 +358,7 @@ export function queryFacade(wasm) {
       try { this._operation(0); } catch (error) { this.close(); throw error; }
     }
     _operation(operation, tag = new Uint8Array(), depth = 0) {
-      if (!this._pointer) throw new QueryError(19);
+      if (!this._pointer) throw new QueryError(INVALID_STATE);
       return temporary(bytes(tag), pointer => response(wasm._opentlv_wasm_v1_operation(this._pointer, operation, pointer, tag.length, size(depth))));
     }
     format() { return this._operation(0).text; }
@@ -392,7 +395,7 @@ export function queryFacade(wasm) {
       } catch (error) { this.close(); throw error; }
     }
     close() {
-      if (this._busy) throw new QueryError(19);
+      if (this._busy) throw new QueryError(INVALID_STATE);
       if (this._closed) return;
       this._pointers.forEach((pointer, index) => {
         wasm._opentlv_wasm_program_free(pointer);
@@ -402,7 +405,7 @@ export function queryFacade(wasm) {
     }
     _validate(input, document, { max_depth = 64, max_nodes = 1024, max_work = 100000000,
       max_contexts = max_nodes, value_capacity = null } = {}) {
-      if (this._closed || this._busy || this._owner._formatOwner._active || this._programs.some(program => program._providerActive || program._formatOwner._active)) throw new QueryError(19);
+      if (this._closed || this._busy || this._owner._formatOwner._active || this._programs.some(program => program._providerActive || program._formatOwner._active)) throw new QueryError(INVALID_STATE);
       if (document) document._check();
       bytes(input);
       this._busy = true;
@@ -447,7 +450,7 @@ export function queryFacade(wasm) {
       this._document = null;
     }
     _check(allowInvalid = false) {
-      if (!this._pointer || this._busy || this._program._providerActive || this._program._formatOwner._active || (!allowInvalid && this._invalid)) throw new QueryError(19);
+      if (!this._pointer || this._busy || this._program._providerActive || this._program._formatOwner._active || (!allowInvalid && this._invalid)) throw new QueryError(INVALID_STATE);
       if (!allowInvalid && this._document) this._document._check();
     }
     _operation(operation, argument = 0, allowEnd = false) {
@@ -461,7 +464,7 @@ export function queryFacade(wasm) {
       });
     }
     close() {
-      if (this._busy || this._program._providerActive || this._program._formatOwner._active) throw new QueryError(19);
+      if (this._busy || this._program._providerActive || this._program._formatOwner._active) throw new QueryError(INVALID_STATE);
       if (this._pointer) { wasm._opentlv_wasm_execution_free(this._pointer); this._program._release(); }
       this._pointer = 0; this._document = null;
     }
@@ -557,7 +560,7 @@ export function queryFacade(wasm) {
       this._check();
       const kinds = { remove: 0, replace: 1, insert_after: 2 };
       if (!this._document || !Object.hasOwn(kinds, kind)) throw new TypeError("Document selection and remove/replace/insert_after required");
-      if (this._document._active) throw new QueryError(19);
+      if (this._document._active) throw new QueryError(INVALID_STATE);
       bytes(tag); bytes(value);
       return temporary(tag, tagPointer => temporary(value, valuePointer => this._native(() =>
         wasm._opentlv_wasm_execution_edit(this._pointer, kinds[kind], tagPointer, tag.length,
@@ -585,15 +588,15 @@ export function queryFacade(wasm) {
       this._inputSize = input.length;
       this._active = 0;
     }
-    _check() { if (!this._pointer || this._program._formatOwner._active) throw new QueryError(19); }
+    _check() { if (!this._pointer || this._program._formatOwner._active) throw new QueryError(INVALID_STATE); }
     close() {
-      if (this._active || this._program._formatOwner._active) throw new QueryError(19);
+      if (this._active || this._program._formatOwner._active) throw new QueryError(INVALID_STATE);
       if (this._pointer) { wasm._opentlv_wasm_document_free(this._pointer); this._program._release(); }
       this._pointer = 0;
     }
     _node(node, operation, data = new Uint8Array()) {
       this._check();
-      if (this._active && (operation === 4 || operation === 5)) throw new QueryError(19);
+      if (this._active && (operation === 4 || operation === 5)) throw new QueryError(INVALID_STATE);
       return this._program._native(() => temporary(string(node?.identity ?? "0"), identity => temporary(data, pointer =>
         response(wasm._opentlv_wasm_document_node(this._pointer, node?._address ?? 0, identity, operation, pointer, data.length)).value)));
     }

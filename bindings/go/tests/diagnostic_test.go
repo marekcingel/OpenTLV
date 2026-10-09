@@ -27,6 +27,15 @@ func TestCanonicalDiagnosticNames(t *testing.T) {
 	}
 }
 
+func TestDiagnosticPhasesAreTyped(t *testing.T) {
+	// The shared raw value is typed by the layer that produced the evidence.
+	reader := tlv.Diagnostic{Operation: int(tlv.ReaderOperationHeader)}
+	writer := tlv.Diagnostic{Operation: int(tlv.WriterOperationEnd)}
+	if reader.ReaderPhase() != tlv.ReaderOperationHeader || writer.WriterPhase() != tlv.WriterOperationEnd {
+		t.Fatalf("phases: %v %v", reader.ReaderPhase(), writer.WriterPhase())
+	}
+}
+
 func TestQueryCategoryAndCommonEvidenceWithoutReader(t *testing.T) {
 	format, err := tlv.Builtin(tlv.BER)
 	if err != nil {

@@ -806,8 +806,11 @@ public:
      *
      * @param path Parsed query.
      *
-     * @return The first addressed element in document order, or an empty handle.
-     * @throws query_error If native path validation or lookup fails.
+     * @return The first addressed element in document order, or an empty handle
+     *         when no element matches.
+     * @throws query_error If native path validation fails, including an empty query
+     *         (`INVALID_ARG`). The error carries only the result code; its diagnostic
+     *         is empty and its location unknown.
      */
     node find(const query& path) {
         tlv_node_t* result = nullptr;

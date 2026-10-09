@@ -78,13 +78,6 @@ if(Python3_Interpreter_FOUND)
                 --native $<TARGET_FILE:test-query-abi>)
         set_tests_properties(query-abi-snapshot PROPERTIES LABELS "query;abi")
     endif()
-    if(TARGET otlv)
-        add_test(NAME query-cli-conformance
-            COMMAND ${Python3_EXECUTABLE} ${CMAKE_CURRENT_SOURCE_DIR}/cli_facade.py
-                --cli $<TARGET_FILE:otlv>)
-        set_tests_properties(query-cli-conformance PROPERTIES LABELS "query;conformance;memcheck-full")
-        opentlv_memcheck_timeout(query-cli-conformance 3600)
-    endif()
     add_test(NAME query-s0-conformance
         COMMAND ${Python3_EXECUTABLE} ${CMAKE_CURRENT_SOURCE_DIR}/run.py
             --native $<TARGET_FILE:test-query-conformance>)
