@@ -129,6 +129,7 @@ tlv_result_t tlv_schema_prepare(tlv_schema_checked_t* checked, const tlv_structu
             diagnostic->diagnostic.code = TLV_ERR_NULL_ARG;
             diagnostic->diagnostic.severity = TLV_DIAGNOSTIC_SEVERITY_ERROR;
         }
+        /* diagnostic-return: the initialized base code is set above. */
         return TLV_ERR_NULL_ARG;
     }
     checked->schema = NULL;

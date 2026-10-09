@@ -9,6 +9,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Fixed
 
+- Fix the diagnostic-return CI check for `tlv_schema_prepare()` by documenting its direct argument-error return. (#575)
 - Fix the C++ API documentation build and the C++ consumer-boundary check for prepared Schema handles. (#575)
 - Report JS/WASM path queries over the step or tag-byte limit with the `limit` Query kind instead of `syntax`. (#559)
 - Run the CLI Query conformance test in CTest and retain source locations in the `otlv query` Document backend, so match offsets and `@offset`/`@hlen` work there too. (#557)
