@@ -287,6 +287,47 @@ TLV_API tlv_result_t tlv_der_schema_check(const tlv_der_schema_type_t* root,
                                           tlv_schema_diagnostic_t* diagnostic);
 
 /**
+ * @brief A DER schema whose definition has passed tlv_der_schema_check().
+ *
+ * Lets repeated reading or writing with one immutable schema skip the per-call
+ * definition check. Prepare it with tlv_der_schema_prepare() and use it with
+ * tlv_der_schema_read_checked() or tlv_der_schema_write_checked(), which run
+ * the same engine as tlv_der_schema_read() and tlv_der_schema_write(); limits
+ * are still checked on every call.
+ *
+ * The handle borrows the schema graph. Every reachable type, component,
+ * constraint and default encoding must stay alive and unchanged while the
+ * handle is used. The handle cannot detect mutation; prepare it again after
+ * changing the definition. It holds no other state and may be copied.
+ *
+ * @see tlv_der_schema_prepare
+ */
+typedef struct tlv_der_schema_checked {
+    /** Borrowed checked root type, or `NULL` when not prepared. Set by tlv_der_schema_prepare(). */
+    const tlv_der_schema_type_t* root;
+} tlv_der_schema_checked_t;
+
+/**
+ * @brief Checks a DER schema definition once and prepares a handle for repeated use.
+ *
+ * Runs tlv_der_schema_check() on `root`. On success, `checked` borrows
+ * `root`; on any failure it is reset to unprepared, so a handle is never left
+ * referring to a definition that did not pass the check.
+ *
+ * @param[out] checked    Handle to prepare; must not be `NULL`.
+ * @param[in]  root       Borrowed root type; see #tlv_der_schema_checked_t for
+ *                        its lifetime and immutability requirements.
+ * @param[out] diagnostic Optional failure detail, as for tlv_der_schema_check().
+ *
+ * @return #TLV_OK if the definition is valid and `checked` is prepared.
+ * @return #TLV_ERR_NULL_ARG if `checked` or `root` is `NULL`.
+ * @return Any other error of tlv_der_schema_check().
+ */
+TLV_API tlv_result_t tlv_der_schema_prepare(tlv_der_schema_checked_t* checked,
+                                            const tlv_der_schema_type_t* root,
+                                            tlv_schema_diagnostic_t* diagnostic);
+
+/**
  * @brief Validates encoded data against a schema.
  *
  * Reports the single complete element consumed, with the same zero-copy,
@@ -321,6 +362,34 @@ TLV_API tlv_result_t tlv_der_schema_read(const uint8_t* data, size_t size,
                                          const tlv_der_schema_limits_t* limits,
                                          tlv_element_t* element, size_t* consumed,
                                          tlv_schema_diagnostic_t* diagnostic);
+
+/**
+ * @brief Validates encoded data against a prepared schema without repeating its definition check.
+ *
+ * Behaves exactly like tlv_der_schema_read() with `checked->root`, except that
+ * the definition check done by tlv_der_schema_prepare() is not repeated.
+ * Never returns #TLV_ERR_INVALID_SCHEMA.
+ *
+ * @param[in]  checked    Prepared handle; its schema must be unchanged since preparation.
+ * @param[in]  data       Encoded input.
+ * @param[in]  size       Input size in bytes.
+ * @param[in]  limits     Limits, or `NULL` for #tlv_der_schema_default_limits.
+ * @param[out] element    Receives the element; its value borrows `data`.
+ * @param[out] consumed   Receives the encoded size of the element.
+ * @param[out] diagnostic Optional first failure, as for tlv_der_schema_read().
+ *
+ * @return #TLV_OK if the data conforms.
+ * @return #TLV_ERR_NULL_ARG for a missing required pointer.
+ * @return #TLV_ERR_INVALID_STATE if `checked` is not prepared.
+ * @return Any other error of tlv_der_schema_read() except #TLV_ERR_INVALID_SCHEMA.
+ *
+ * @warning The caller must keep `data` alive while `element` is used.
+ */
+TLV_API tlv_result_t tlv_der_schema_read_checked(const tlv_der_schema_checked_t* checked,
+                                                 const uint8_t* data, size_t size,
+                                                 const tlv_der_schema_limits_t* limits,
+                                                 tlv_element_t* element, size_t* consumed,
+                                                 tlv_schema_diagnostic_t* diagnostic);
 
 /**
  * @brief Callback supplying one component's raw inner content for tlv_der_schema_write().
@@ -470,6 +539,40 @@ TLV_API tlv_result_t tlv_der_schema_write(uint8_t* data, size_t capacity,
                                           uint8_t* scratch_bytes, size_t scratch_bytes_capacity,
                                           tlv_der_schema_record_t* scratch, size_t scratch_capacity,
                                           size_t* written, tlv_schema_diagnostic_t* diagnostic);
+
+/**
+ * @brief Encodes with a prepared schema without repeating its definition check.
+ *
+ * Behaves exactly like tlv_der_schema_write() with `checked->root`, except
+ * that the definition check done by tlv_der_schema_prepare() is not repeated.
+ * Never returns #TLV_ERR_INVALID_SCHEMA.
+ *
+ * @param[out] data             Destination, as for tlv_der_schema_write().
+ * @param[in]  capacity         Destination capacity in bytes.
+ * @param[in]  checked          Prepared handle; its schema must be unchanged since preparation.
+ * @param[in]  encode           Callback supplying component content and presence.
+ * @param[in]  context          Passed to `encode` unchanged.
+ * @param[in]  limits           Limits, or `NULL` for #tlv_der_schema_default_limits.
+ * @param[out] scratch_bytes    Byte arena for composing output. Required.
+ * @param[in]  scratch_bytes_capacity Capacity of `scratch_bytes` in bytes.
+ * @param[out] scratch          SET OF sort / SEQUENCE OF composition records.
+ * @param[in]  scratch_capacity Number of records in `scratch`.
+ * @param[out] written          Receives the encoded (or required) size.
+ * @param[out] diagnostic       Optional first failure, as for tlv_der_schema_write().
+ *
+ * @return #TLV_OK on success.
+ * @return #TLV_ERR_NULL_ARG for a missing required pointer.
+ * @return #TLV_ERR_INVALID_STATE if `checked` is not prepared.
+ * @return Any other error of tlv_der_schema_write() except #TLV_ERR_INVALID_SCHEMA.
+ *
+ * @note The destination and `written` remain unchanged on error, as for
+ *       tlv_der_schema_write().
+ */
+TLV_API tlv_result_t tlv_der_schema_write_checked(
+    uint8_t* data, size_t capacity, const tlv_der_schema_checked_t* checked,
+    tlv_der_schema_encode_fn encode, const void* context, const tlv_der_schema_limits_t* limits,
+    uint8_t* scratch_bytes, size_t scratch_bytes_capacity, tlv_der_schema_record_t* scratch,
+    size_t scratch_capacity, size_t* written, tlv_schema_diagnostic_t* diagnostic);
 
 #ifdef __cplusplus
 }

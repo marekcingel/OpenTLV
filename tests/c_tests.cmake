@@ -81,6 +81,7 @@ set(SOURCES
     reader/tree_test.cpp
     reader/visitor_test.cpp
     schema/constraint_test.cpp
+    schema/schema_checked_test.cpp
     schema/schema_parity_test.cpp
     schema/schema_report_test.cpp
     schema/schema_report_c_test.c
@@ -131,7 +132,8 @@ if(NOT (OPENTLV_FORMAT_BER AND OPENTLV_EMV))
 endif()
 if(NOT (OPENTLV_FORMAT_BER))
     list(REMOVE_ITEM SOURCES builtins/asn1/format_ber_test.cpp builtins/asn1/asn1_codec_test.cpp
-                                 schema/schema_parity_test.cpp schema/schema_report_test.cpp
+                                 schema/schema_checked_test.cpp schema/schema_parity_test.cpp
+                                 schema/schema_report_test.cpp
                                  schema/schema_report_c_test.c)
 endif()
 if(NOT (OPENTLV_BLUETOOTH))

@@ -217,6 +217,23 @@ static tlv_result_t validate_all(const uint8_t* data, size_t size, const tlv_for
     return c->diag_report->count ? TLV_ERR_SCHEMA : TLV_OK;
 }
 
+/* Collects violations against a schema whose definition has already been checked. */
+static tlv_result_t report_checked(const uint8_t* data, size_t size, const tlv_format_t* format,
+                                   const tlv_structure_schema_t* schema, size_t max_depth,
+                                   size_t max_elements, tlv_schema_unknown_policy_t unknown,
+                                   tlv_schema_diagnostic_report_t* report,
+                                   tlv_schema_diagnostic_t* diagnostic) {
+    tlv_result_t rc;
+    collector_t c;
+    memset(&c, 0, sizeof(c));
+    c.diag_report = report;
+    rc = validate_all(data, size, format, schema, max_depth, max_elements, unknown, &c,
+                      diagnostic ? &diagnostic->diagnostic : NULL);
+    if (diagnostic) diagnostic->diagnostic.code = rc;
+    if (rc != TLV_OK && rc != TLV_ERR_SCHEMA) report->count = 0;
+    return rc;
+}
+
 tlv_result_t tlv_schema_validate_all_diag(const uint8_t* data, size_t size,
                                           const tlv_format_t* format,
                                           const tlv_structure_schema_t* schema, size_t max_depth,
@@ -224,7 +241,6 @@ tlv_result_t tlv_schema_validate_all_diag(const uint8_t* data, size_t size,
                                           tlv_schema_diagnostic_report_t* report,
                                           tlv_schema_diagnostic_t* diagnostic) {
     tlv_result_t rc;
-    collector_t c;
     if (!report) return TLV_ERR_NULL_ARG;
     report->count = 0;
     if (!schema || (!report->diagnostics && report->capacity)) return TLV_ERR_NULL_ARG;
@@ -233,11 +249,24 @@ tlv_result_t tlv_schema_validate_all_diag(const uint8_t* data, size_t size,
     if (diagnostic) tlv_schema_diagnostic_init(diagnostic);
     rc = tlv_schema_check(schema, diagnostic);
     if (rc != TLV_OK) return rc;
-    memset(&c, 0, sizeof(c));
-    c.diag_report = report;
-    rc = validate_all(data, size, format, schema, max_depth, max_elements, unknown, &c,
-                      diagnostic ? &diagnostic->diagnostic : NULL);
-    if (diagnostic) diagnostic->diagnostic.code = rc;
-    if (rc != TLV_OK && rc != TLV_ERR_SCHEMA) report->count = 0;
-    return rc;
+    return report_checked(data, size, format, schema, max_depth, max_elements, unknown, report,
+                          diagnostic);
+}
+
+tlv_result_t tlv_schema_validate_all_checked(const tlv_schema_checked_t* checked,
+                                             const uint8_t* data, size_t size,
+                                             const tlv_format_t* format, size_t max_depth,
+                                             size_t max_elements,
+                                             tlv_schema_unknown_policy_t unknown,
+                                             tlv_schema_diagnostic_report_t* report,
+                                             tlv_schema_diagnostic_t* diagnostic) {
+    if (!report) return TLV_ERR_NULL_ARG;
+    report->count = 0;
+    if (!checked || (!report->diagnostics && report->capacity)) return TLV_ERR_NULL_ARG;
+    if (unknown < TLV_SCHEMA_UNKNOWN_BY_SCHEMA || unknown > TLV_SCHEMA_UNKNOWN_REJECT)
+        return TLV_ERR_INVALID_ARG;
+    if (!checked->schema) return TLV_ERR_INVALID_STATE;
+    if (diagnostic) tlv_schema_diagnostic_init(diagnostic);
+    return report_checked(data, size, format, checked->schema, max_depth, max_elements, unknown,
+                          report, diagnostic);
 }

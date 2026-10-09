@@ -405,6 +405,47 @@ TLV_API void tlv_schema_diagnostic_init(tlv_schema_diagnostic_t* diagnostic);
 TLV_API tlv_result_t tlv_schema_check(const tlv_structure_schema_t* schema,
                                       tlv_schema_diagnostic_t* diagnostic);
 
+/**
+ * @brief A structural schema whose definition has passed tlv_schema_check().
+ *
+ * Lets repeated validation against one immutable schema skip the per-call
+ * definition check. Prepare it with tlv_schema_prepare() and use it with
+ * tlv_schema_validate_checked() or tlv_schema_validate_all_checked(), which
+ * run the same validation as tlv_schema_validate() and
+ * tlv_schema_validate_all_diag(); runtime limits are still checked on every call.
+ *
+ * The handle borrows the schema graph. Every reachable table, rule, entry and
+ * group must stay alive and unchanged while the handle is used. The handle
+ * cannot detect mutation; prepare it again after changing the definition.
+ * It holds no other state and may be copied.
+ *
+ * @see tlv_schema_prepare
+ */
+typedef struct tlv_schema_checked {
+    /** Borrowed checked schema, or `NULL` when not prepared. Set by tlv_schema_prepare(). */
+    const tlv_structure_schema_t* schema;
+} tlv_schema_checked_t;
+
+/**
+ * @brief Checks a schema definition once and prepares a handle for repeated validation.
+ *
+ * Runs tlv_schema_check() on `schema`. On success, `checked` borrows `schema`;
+ * on any failure it is reset to unprepared, so a handle is never left
+ * referring to a definition that did not pass the check.
+ *
+ * @param[out] checked    Handle to prepare; must not be `NULL`.
+ * @param[in]  schema     Borrowed schema graph; see #tlv_schema_checked_t for
+ *                        its lifetime and immutability requirements.
+ * @param[out] diagnostic Optional failure detail, as for tlv_schema_check().
+ *
+ * @return #TLV_OK if the definition is valid and `checked` is prepared.
+ * @return #TLV_ERR_NULL_ARG if `checked` or `schema` is `NULL`.
+ * @return Any other error of tlv_schema_check().
+ */
+TLV_API tlv_result_t tlv_schema_prepare(tlv_schema_checked_t* checked,
+                                        const tlv_structure_schema_t* schema,
+                                        tlv_schema_diagnostic_t* diagnostic);
+
 #if OPENTLV_READER
 /**
  * @brief Validates framing, nesting, lengths, occurrence counts, ordering,
@@ -449,6 +490,32 @@ TLV_API tlv_result_t tlv_schema_validate(const uint8_t* data, size_t size,
                                          const tlv_format_t* format,
                                          const tlv_structure_schema_t* schema, size_t max_depth,
                                          size_t max_elements, tlv_schema_diagnostic_t* diagnostic);
+
+/**
+ * @brief Validates input against a prepared schema without repeating its definition check.
+ *
+ * Behaves exactly like tlv_schema_validate() with `checked->schema`, except
+ * that the definition check done by tlv_schema_prepare() is not repeated.
+ * Never returns #TLV_ERR_INVALID_SCHEMA.
+ *
+ * @param[in]  checked      Prepared handle; its schema must be unchanged since preparation.
+ * @param[in]  data         Encoded input.
+ * @param[in]  size         Input size in bytes.
+ * @param[in]  format       Reader format.
+ * @param[in]  max_depth    Runtime nesting limit, as for tlv_schema_validate().
+ * @param[in]  max_elements Maximum total elements, as for tlv_tree_reader_visit().
+ * @param[out] diagnostic   Optional first failure, as for tlv_schema_validate().
+ *
+ * @return #TLV_OK if the data conforms to the schema.
+ * @return #TLV_ERR_NULL_ARG for a missing required pointer.
+ * @return #TLV_ERR_INVALID_STATE if `checked` is not prepared.
+ * @return Any other error of tlv_schema_validate() except #TLV_ERR_INVALID_SCHEMA.
+ */
+TLV_API tlv_result_t tlv_schema_validate_checked(const tlv_schema_checked_t* checked,
+                                                 const uint8_t* data, size_t size,
+                                                 const tlv_format_t* format, size_t max_depth,
+                                                 size_t max_elements,
+                                                 tlv_schema_diagnostic_t* diagnostic);
 #endif
 
 /**
@@ -524,6 +591,38 @@ TLV_API tlv_result_t tlv_schema_validate_all_diag(const uint8_t* data, size_t si
                                                   tlv_schema_unknown_policy_t unknown,
                                                   tlv_schema_diagnostic_report_t* report,
                                                   tlv_schema_diagnostic_t* diagnostic);
+
+/**
+ * @brief Reports every violation against a prepared schema without repeating its definition check.
+ *
+ * Behaves exactly like tlv_schema_validate_all_diag() with `checked->schema`,
+ * except that the definition check done by tlv_schema_prepare() is not
+ * repeated. Never returns #TLV_ERR_INVALID_SCHEMA.
+ *
+ * @param[in]     checked      Prepared handle; its schema must be unchanged since preparation.
+ * @param[in]     data         Encoded input.
+ * @param[in]     size         Input size in bytes.
+ * @param[in]     format       Reader format.
+ * @param[in]     max_depth    Runtime nesting limit, as for tlv_schema_validate_all_diag().
+ * @param[in]     max_elements Maximum total elements, as for tlv_tree_reader_visit().
+ * @param[in]     unknown      Policy for tags without a rule.
+ * @param[in,out] report       Receives the violations, as for tlv_schema_validate_all_diag().
+ * @param[out]    diagnostic   Optional fatal failure detail, as for
+ *                             tlv_schema_validate_all_diag().
+ *
+ * @return #TLV_OK if the data conforms; `report->count` is zero.
+ * @return #TLV_ERR_SCHEMA if at least one violation was found.
+ * @return #TLV_ERR_NULL_ARG for missing required arguments.
+ * @return #TLV_ERR_INVALID_STATE if `checked` is not prepared.
+ * @return Any other error of tlv_schema_validate_all_diag() except #TLV_ERR_INVALID_SCHEMA.
+ */
+TLV_API tlv_result_t tlv_schema_validate_all_checked(const tlv_schema_checked_t* checked,
+                                                     const uint8_t* data, size_t size,
+                                                     const tlv_format_t* format, size_t max_depth,
+                                                     size_t max_elements,
+                                                     tlv_schema_unknown_policy_t unknown,
+                                                     tlv_schema_diagnostic_report_t* report,
+                                                     tlv_schema_diagnostic_t* diagnostic);
 #endif
 
 #ifdef __cplusplus

@@ -218,22 +218,46 @@ static tlv_result_t validate_input(const uint8_t* data, size_t size, const tlv_f
     return TLV_OK;
 }
 
-tlv_result_t tlv_schema_validate(const uint8_t* data, size_t size, const tlv_format_t* format,
-                                 const tlv_structure_schema_t* schema, size_t max_depth,
-                                 size_t max_elements, tlv_schema_diagnostic_t* diagnostic) {
-    tlv_result_t rc;
-    if (diagnostic) tlv_schema_diagnostic_init(diagnostic);
-    if (!schema || !format || (!data && size)) {
-        rc = TLV_ERR_NULL_ARG;
-    } else {
-        rc = tlv_schema_check(schema, diagnostic);
-        if (rc != TLV_OK) return rc;
-        rc = validate_input(data, size, format, schema, max_depth, max_elements,
-                            diagnostic ? &diagnostic->diagnostic : NULL, diagnostic);
-    }
+/* Validates input against a schema whose definition has already been checked. */
+static tlv_result_t validate_checked(const uint8_t* data, size_t size, const tlv_format_t* format,
+                                     const tlv_structure_schema_t* schema, size_t max_depth,
+                                     size_t max_elements, tlv_schema_diagnostic_t* diagnostic) {
+    tlv_result_t rc = validate_input(data, size, format, schema, max_depth, max_elements,
+                                     diagnostic ? &diagnostic->diagnostic : NULL, diagnostic);
     if (diagnostic && rc != TLV_OK) {
         diagnostic->diagnostic.code = rc;
         diagnostic->diagnostic.severity = TLV_DIAGNOSTIC_SEVERITY_ERROR;
     }
     return rc;
+}
+
+static tlv_result_t argument_failure(tlv_result_t rc, tlv_schema_diagnostic_t* diagnostic) {
+    if (diagnostic) {
+        diagnostic->diagnostic.code = rc;
+        diagnostic->diagnostic.severity = TLV_DIAGNOSTIC_SEVERITY_ERROR;
+    }
+    return rc;
+}
+
+tlv_result_t tlv_schema_validate(const uint8_t* data, size_t size, const tlv_format_t* format,
+                                 const tlv_structure_schema_t* schema, size_t max_depth,
+                                 size_t max_elements, tlv_schema_diagnostic_t* diagnostic) {
+    tlv_result_t rc;
+    if (diagnostic) tlv_schema_diagnostic_init(diagnostic);
+    if (!schema || !format || (!data && size))
+        return argument_failure(TLV_ERR_NULL_ARG, diagnostic);
+    rc = tlv_schema_check(schema, diagnostic);
+    if (rc != TLV_OK) return rc;
+    return validate_checked(data, size, format, schema, max_depth, max_elements, diagnostic);
+}
+
+tlv_result_t tlv_schema_validate_checked(const tlv_schema_checked_t* checked, const uint8_t* data,
+                                         size_t size, const tlv_format_t* format, size_t max_depth,
+                                         size_t max_elements, tlv_schema_diagnostic_t* diagnostic) {
+    if (diagnostic) tlv_schema_diagnostic_init(diagnostic);
+    if (!checked || !format || (!data && size))
+        return argument_failure(TLV_ERR_NULL_ARG, diagnostic);
+    if (!checked->schema) return argument_failure(TLV_ERR_INVALID_STATE, diagnostic);
+    return validate_checked(data, size, format, checked->schema, max_depth, max_elements,
+                            diagnostic);
 }

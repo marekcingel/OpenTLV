@@ -122,6 +122,47 @@ TEST(Unit_Tlvpp, PublicSchemaReportsMissingFieldAndBoundedViolations) {
     EXPECT_EQ(2u, *count_only.validate({}, format, schema.view()));
 }
 
+TEST(Unit_Tlvpp, CheckedSchemaValidatesLikePlainSchema) {
+    const tlv::schema_storage<1>  schema({{tlv::tag_bytes<1>(),
+                                           tlv::bounds::exactly(1),
+                                           tlv::bounds::exactly(1),
+                                           tlv::schema_kind::primitive,
+                                           {},
+                                           "first"}});
+    const tlv::fixed_format<1, 1> format;
+    auto                          checked = tlv::checked_schema::prepare(schema.view());
+    ASSERT_TRUE(checked);
+    const tlv::byte valid[] = {tlv::byte(1), tlv::byte(1), tlv::byte(0x41)};
+    const tlv::byte wrong_length[] = {tlv::byte(1), tlv::byte(2), tlv::byte(0x41), tlv::byte(0x42)};
+    EXPECT_TRUE(tlv::validate({valid, sizeof valid}, format, *checked));
+    auto plain = tlv::validate({wrong_length, sizeof wrong_length}, format, schema.view());
+    auto prepared = tlv::validate({wrong_length, sizeof wrong_length}, format, *checked);
+    ASSERT_FALSE(plain);
+    ASSERT_FALSE(prepared);
+    EXPECT_EQ(plain.error().status(), prepared.error().status());
+    EXPECT_EQ(plain.error().offset(), prepared.error().offset());
+
+    tlv::validation_report<1> report;
+    auto                      missing = report.validate({}, format, *checked);
+    ASSERT_TRUE(missing);
+    EXPECT_EQ(1u, *missing);
+    EXPECT_EQ(tlv::schema_issue::missing, report.at(0).kind());
+    EXPECT_STREQ("first", report.at(0).field());
+    // Runtime limits are still checked through the prepared handle.
+    EXPECT_FALSE(
+        report.validate({valid, sizeof valid}, format, *checked, {}, TLV_SCHEMA_MAX_DEPTH, 0));
+
+    const tlv::schema_storage<1> invalid({{tlv::tag_bytes<1>(),
+                                           tlv::bounds(2, 1),
+                                           tlv::bounds::exactly(1),
+                                           tlv::schema_kind::primitive,
+                                           {},
+                                           "first"}});
+    auto                         rejected = tlv::checked_schema::prepare(invalid.view());
+    ASSERT_FALSE(rejected);
+    EXPECT_EQ(tlv::errc::invalid_schema, rejected.error().status());
+}
+
 TEST(Unit_Tlvpp, ErrorCopiesPreserveLocationWithoutOwningText) {
     static_assert(std::is_trivially_copyable<tlv::error>::value,
                   "Errors must not own heap storage");

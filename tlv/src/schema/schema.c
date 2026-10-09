@@ -119,3 +119,20 @@ done:
     }
     return rc;
 }
+
+tlv_result_t tlv_schema_prepare(tlv_schema_checked_t* checked, const tlv_structure_schema_t* schema,
+                                tlv_schema_diagnostic_t* diagnostic) {
+    tlv_result_t rc;
+    if (!checked) {
+        if (diagnostic) {
+            tlv_schema_diagnostic_init(diagnostic);
+            diagnostic->diagnostic.code = TLV_ERR_NULL_ARG;
+            diagnostic->diagnostic.severity = TLV_DIAGNOSTIC_SEVERITY_ERROR;
+        }
+        return TLV_ERR_NULL_ARG;
+    }
+    checked->schema = NULL;
+    rc = tlv_schema_check(schema, diagnostic);
+    if (rc == TLV_OK) checked->schema = schema;
+    return rc;
+}

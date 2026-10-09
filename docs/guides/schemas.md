@@ -561,7 +561,38 @@ recursive references are supported. The allocation-free worklist holds at most
 `TLV_SCHEMA_MAX_TABLES` (256) table identities and uses linear pointer lookup,
 plus each table's local rule/group checks. Exhausting this fixed capacity returns
 `TLV_ERR_UNSUPPORTED`. Definition depth is independent of the input nesting
-limit (`TLV_SCHEMA_MAX_DEPTH`); no global cache or checked-handle lifetime is added.
+limit (`TLV_SCHEMA_MAX_DEPTH`); the library keeps no global cache.
+
+## Checking a definition once
+
+Every `tlv_schema_validate` and `tlv_schema_validate_all_diag` call checks the
+whole definition before reading input. When many inputs are validated against
+one immutable schema, check it once with `tlv_schema_prepare` and validate
+through the returned handle:
+
+```c
+tlv_schema_checked_t checked;
+if (tlv_schema_prepare(&checked, &template_schema, &diagnostic) != TLV_OK)
+    return; /* invalid definition */
+for (each packet)
+    rc = tlv_schema_validate_checked(&checked, data, size, &tlv_format_ber, 16, 1000,
+                                     &diagnostic);
+```
+
+`tlv_schema_validate_checked` and `tlv_schema_validate_all_checked` run the same
+validation as the plain functions and skip only the definition check. Runtime
+limits are still checked on every call. The handle borrows the schema: every
+table, rule, entry and group must stay alive and unchanged while it is used.
+The handle cannot detect mutation, so prepare it again after changing the
+definition. A failed `tlv_schema_prepare` leaves the handle unprepared, and an
+unprepared handle is rejected with `TLV_ERR_INVALID_STATE`. In C++,
+`tlv::checked_schema::prepare` returns the handle for `tlv::validate` and
+`validation_report::validate`.
+
+For a large schema and a small input, this removes most of the per-call cost.
+For a large input and a small schema, the definition check is negligible and
+both paths cost the same; see the
+[benchmark evidence](../../benchmarks/README.md#schema-definition-checking-and-input-processing).
 
 ## Next step
 

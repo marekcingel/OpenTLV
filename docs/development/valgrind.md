@@ -228,7 +228,9 @@ The Schema workloads separate definition checking from input processing. Every
 `tlv_schema_validate()` and `tlv_der_schema_read()` call first checks the whole
 reachable definition, so each complete workload has a definition-check-only
 counterpart (`tlv_schema_check()` or `tlv_der_schema_check()`) on the same
-schema. Generic Schema validates with the BER Format; DER Schema reads one root
+schema. The prepared-handle cases (`tlv_schema_validate_checked()` and
+`tlv_der_schema_read_checked()`) run only in Google Benchmark, because this
+harness is also built against baseline checkouts that predate them. Generic Schema validates with the BER Format; DER Schema reads one root
 element. Schemas and inputs are built before measurement in
 `benchmarks/callgrind/schema_workloads.h`, which the Google Benchmark suite also
 uses.

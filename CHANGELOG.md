@@ -225,6 +225,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Added
 
+- Add prepared Schema handles that check a definition once for repeated validation: `tlv_schema_prepare()` and `tlv_der_schema_prepare()` with `_checked` validate, report, read and write functions, and C++ `tlv::checked_schema`. (#575)
 - Add generic and DER Schema workloads to the Callgrind comparison and Google Benchmark, measuring definition checking separately from input processing for a large shared schema, a large input and a recursive schema. (#573)
 - Add a Rust regression test that resumable Query `NEED_MORE_DATA` keeps its Reader cause and does not allocate common diagnostic metadata per chunk. (#558)
 - Add canonical names for Query, Reader, Writer, Schema-definition and Codec diagnostic enums, available even with processing capabilities disabled. Clarify lookup failure channels and current error-reference behavior. (#557)
