@@ -7,6 +7,7 @@ from __future__ import annotations
 
 from typing import Optional
 from opentlv.location import Location
+from opentlv.diagnostic import QueryErrorKind, CodecOperation, CodecCause, CodecViolation, SchemaDefinitionKind, Severity
 
 import _opentlv as _native
 
@@ -184,16 +185,25 @@ def _from_native(error: "_native.Error") -> OpenTLVError:
                        value_offset=fields.get("value_offset"), enclosing_end=fields.get("enclosing_end"),
                        kind=fields.get("kind"),
                        location=Location(**fields.get("location", {})))
+    result.severity = Severity(fields.get("severity", 0))
+    result.path = tuple(fields.get("path", ())) if fields.get("has_path", False) else None
+    result.path_omitted = fields.get("path_omitted", 0)
+    result.contexts = tuple(fields.get("contexts", ()))
     result.codec_detail = fields.get("codec_detail")
     if result.codec_detail and "schema" in result.codec_detail:
         from opentlv.schema import _diagnostic_from_native
         result.codec_detail["schema"] = _diagnostic_from_native(result.codec_detail["schema"])
-    result.definition_kind = fields.get("definition_kind", 0)
+    result.definition_kind = SchemaDefinitionKind(fields.get("definition_kind", 0))
     result.definition_index = fields.get("definition_index")
     # Preserve every Query field alongside the original typed Reader/status error.
     result.query = {key: fields.get(key) for key in (
-        "query_kind", "begin", "end", "source_offset", "query_expected",
+        "query_kind", "query_kind_name", "begin", "end", "source_offset", "query_expected",
         "limit", "configured", "codec", "codec_detail")} if "query_kind" in fields else None
+    if result.query is not None:
+        result.query["query_kind"] = QueryErrorKind(result.query["query_kind"])
+    if result.codec_detail:
+        for key, category in (("operation", CodecOperation), ("cause", CodecCause), ("violation", CodecViolation)):
+            result.codec_detail[key] = category(result.codec_detail[key])
     if "applied" in fields:
         result.applied = fields["applied"]
     if "rule" in fields:

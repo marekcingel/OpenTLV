@@ -127,8 +127,9 @@ call. Callback exceptions invalidate the execution until reset; reentrant calls
 on that execution are rejected. Scalars use `finish()` then `result()`; `info`
 reports native validation and resource coverage. Explicit limits include
 `max_depth`, `max_nodes` and `max_work`.
-Reader failures preserve copied field offsets, Tag, raw length, expected/actual
-text, path and diagnostic context in `error.query.reader`.
+Reader failures preserve copied field offsets, Tag and raw length in
+`error.query.reader`; expected/actual text, path and diagnostic context appear
+once in `error.query.diagnostic`, shared with any `codec_detail`.
 
 `new V1Query("70/5A")` exposes bounded legacy parsing, `format()`, copied `steps`,
 `evaluate(input, options)` and a native preorder matcher. `matcher()` creates an

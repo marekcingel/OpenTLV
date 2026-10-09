@@ -65,7 +65,7 @@ TLV_API tlv_result_t tlv_query_codec_decode(const void* context, const tlv_tree_
  * with at most 18 digits; TEXT uses borrowed UTF-8 bytes. Domain codecs may
  * replace these by explicit adapters and distinct stable capability IDs.
  * @param[out] count Optional provider count.
- * @return Borrowed immutable provider array. */
+ * @return Borrowed immutable provider array, never NULL. A NULL count is allowed. */
 TLV_API const tlv_query_hook_t* tlv_query_builtin_hooks(size_t* count);
 #ifdef __cplusplus
 }

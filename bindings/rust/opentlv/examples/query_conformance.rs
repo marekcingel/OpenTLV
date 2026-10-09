@@ -171,7 +171,7 @@ fn main() {
         eprintln!(
             "{} {} {} {}",
             error.error.code(),
-            error.kind,
+            error.kind.as_raw(),
             error.begin,
             error.end
         );

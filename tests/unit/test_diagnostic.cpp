@@ -2,8 +2,22 @@
 // Copyright (c) 2026 Marek Cingel
 
 #include "tlv++/diagnostic.hpp"
+#include "tlv++/reader/reader.hpp"
+#include "tlv++/writer/writer.hpp"
+#include "tlv++/query/program.hpp"
+#include "tlv++/codec/dynamic.hpp"
 
 #include <gtest/gtest.h>
+
+TEST(Unit_Tlvpp_Diagnostic, CanonicalTypedCategoryNames) {
+    EXPECT_STREQ("header", tlv::message(tlv::reader_phase::header));
+    EXPECT_STREQ("end", tlv::message(tlv::writer_phase::end));
+    EXPECT_STREQ("state", tlv::message(tlv::query_issue::state));
+    EXPECT_STREQ("measure", tlv::message(tlv::codec_phase::measure));
+    EXPECT_STREQ("reader", tlv::message(tlv::codec_cause::reader));
+    EXPECT_STREQ("utf8", tlv::message(tlv::codec_violation::utf8));
+    EXPECT_STREQ("component", tlv::message(tlv::schema_definition_kind::component));
+}
 
 TEST(Unit_Tlvpp_Diagnostic, MakeDiagnosticSetsCodeAndSeverity) {
     tlv::diagnostic diagnostic =

@@ -8,6 +8,16 @@ if(OPENTLV_BUILD_MEMCHECK)
     set_tests_properties(memcheck-launcher PROPERTIES LABELS "infrastructure;no-memcheck")
 endif()
 
+find_package(Python3 COMPONENTS Interpreter QUIET)
+if(Python3_Interpreter_FOUND)
+    # Generated Rust, Go and Python vocabularies must match the C enums.
+    add_test(NAME diagnostic-vocabulary-generated
+        COMMAND "${Python3_EXECUTABLE}"
+            "${OpenTLV_SOURCE_DIR}/scripts/generate_diagnostic_vocabulary.py" --check)
+    set_tests_properties(diagnostic-vocabulary-generated PROPERTIES
+        LABELS "infrastructure;bindings;no-memcheck")
+endif()
+
 add_executable(capability-contract capabilities.c)
 get_target_property(_capability_sources tlv SOURCES)
 file(GENERATE OUTPUT "${OpenTLV_BINARY_DIR}/capability-sources.txt"
@@ -15,6 +25,11 @@ file(GENERATE OUTPUT "${OpenTLV_BINARY_DIR}/capability-sources.txt"
 target_link_libraries(capability-contract PRIVATE tlv)
 add_test(NAME capability-contract COMMAND capability-contract)
 set_tests_properties(capability-contract PROPERTIES LABELS "capabilities")
+add_executable(diagnostic-strings-contract diagnostic_strings.c)
+target_link_libraries(diagnostic-strings-contract PRIVATE tlv)
+opentlv_configure_compiler(diagnostic-strings-contract)
+add_test(NAME diagnostic-strings-contract COMMAND diagnostic-strings-contract)
+set_tests_properties(diagnostic-strings-contract PROPERTIES LABELS "capabilities;diagnostics")
 if(OPENTLV_BUILD_CXX)
     add_executable(capability-cxx-contract capabilities.cpp)
     target_link_libraries(capability-cxx-contract PRIVATE tlv++)
@@ -22,9 +37,11 @@ if(OPENTLV_BUILD_CXX)
     set_tests_properties(capability-cxx-contract PROPERTIES LABELS "capabilities")
 endif()
 if(OPENTLV_BUILD_SHARED_LIBS)
-    add_custom_command(TARGET capability-contract POST_BUILD
-        COMMAND ${CMAKE_COMMAND} -E copy_if_different
-            $<TARGET_FILE:tlv> $<TARGET_FILE_DIR:capability-contract>)
+    foreach(contract IN ITEMS capability-contract diagnostic-strings-contract)
+        add_custom_command(TARGET ${contract} POST_BUILD
+            COMMAND ${CMAKE_COMMAND} -E copy_if_different
+                $<TARGET_FILE:tlv> $<TARGET_FILE_DIR:${contract}>)
+    endforeach()
 endif()
 
 if(OPENTLV_BUILD_UNIT_TESTS OR OPENTLV_BUILD_INTEGRATION_TESTS)

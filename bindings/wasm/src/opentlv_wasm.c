@@ -712,19 +712,11 @@ static void query_unsigned(builder_t* b, uint64_t value) {
     (void)snprintf(text, sizeof text, "%llu", (unsigned long long)value);
     builder_json_string(b, text);
 }
-static void query_reader_diagnostic(builder_t* b, const tlv_diagnostic_t* common,
-                                    const tlv_reader_detail_t* r) {
-    builder_text(b, ",\"reader\":{\"code\":");
-    builder_number(b, common->code);
-    write_location(b, &common->location);
+static void query_common_diagnostic(builder_t* b, const tlv_diagnostic_t* common) {
     builder_text(b, ",\"severity\":");
     builder_number(b, common->severity);
-    builder_text(b, ",\"operation\":");
-    builder_number(b, r->operation);
-    if (common->location.kind) {
-        builder_text(b, ",\"offset\":");
-        builder_number(b, common->location.begin);
-    }
+    builder_text(b, ",\"severity_name\":");
+    builder_json_string(b, tlv_diagnostic_severity_string(common->severity));
     if (common->expected) {
         builder_text(b, ",\"expected\":");
         builder_json_string(b, common->expected);
@@ -733,6 +725,42 @@ static void query_reader_diagnostic(builder_t* b, const tlv_diagnostic_t* common
         builder_text(b, ",\"actual\":");
         builder_json_string(b, common->actual);
     }
+
+    builder_text(b, ",\"has_path\":");
+    builder_text(b, common->has_path ? "true" : "false");
+    builder_text(b, ",\"path\":[");
+    if (common->has_path)
+        for (size_t i = 0; i < common->path.length; ++i) {
+            const tlv_tag_t* tag = common->path.tags + i;
+            if (i) builder_text(b, ",");
+            builder_text(b, "\"");
+            builder_hex(b, tag->data, tag->size);
+            builder_text(b, "\"");
+        }
+    builder_text(b, "],\"path_omitted\":");
+    builder_number(b, common->has_path ? common->path.omitted : 0);
+    builder_text(b, ",\"contexts\":[");
+    int first = 1;
+    for (const tlv_diagnostic_context_t* c = common->contexts; c; c = c->next) {
+        if (!first) builder_text(b, ",");
+        first = 0;
+        builder_text(b, "{\"layer\":");
+        builder_json_string(b, c->layer ? c->layer : "");
+        builder_text(b, ",\"key\":");
+        builder_json_string(b, c->key ? c->key : "");
+        builder_text(b, ",\"value\":");
+        builder_json_string(b, c->value ? c->value : "");
+        builder_text(b, "}");
+    }
+    builder_text(b, "]");
+}
+/* Reader and Codec causes carry only their own detail; the common result,
+ * location, path and contexts are emitted once under query.diagnostic. */
+static void query_reader_diagnostic(builder_t* b, const tlv_reader_detail_t* r) {
+    builder_text(b, ",\"reader\":{\"operation\":");
+    builder_number(b, r->operation);
+    builder_text(b, ",\"operation_name\":");
+    builder_json_string(b, tlv_reader_operation_string(r->operation));
     if (r->has_tag) {
         builder_text(b, ",\"tag\":\"");
         builder_hex(b, r->tag.data, r->tag.size);
@@ -764,51 +792,34 @@ static void query_reader_diagnostic(builder_t* b, const tlv_diagnostic_t* common
         builder_text(b, ",\"required\":");
         query_unsigned(b, r->required);
     }
-    builder_text(b, ",\"path\":[");
-    if (common->has_path)
-        for (size_t i = 0; i < common->path.length; ++i) {
-            const tlv_tag_t* tag = common->path.tags + i;
-            if (i) builder_text(b, ",");
-            builder_text(b, "\"");
-            builder_hex(b, tag->data, tag->size);
-            builder_text(b, "\"");
-        }
-    builder_text(b, "],\"path_omitted\":");
-    builder_number(b, common->has_path ? common->path.omitted : 0);
-    builder_text(b, ",\"contexts\":[");
-    int first = 1;
-    for (const tlv_diagnostic_context_t* c = common->contexts; c; c = c->next) {
-        if (!first) builder_text(b, ",");
-        first = 0;
-        builder_text(b, "{\"layer\":");
-        builder_json_string(b, c->layer ? c->layer : "");
-        builder_text(b, ",\"key\":");
-        builder_json_string(b, c->key ? c->key : "");
-        builder_text(b, ",\"value\":");
-        builder_json_string(b, c->value ? c->value : "");
-        builder_text(b, "}");
-    }
-    builder_text(b, "]}");
+    builder_text(b, "}");
 }
-static void query_codec_diagnostic(builder_t* b, const tlv_diagnostic_t* common,
-                                   const tlv_codec_detail_t* d) {
+static void query_codec_diagnostic(builder_t* b, const tlv_codec_detail_t* d) {
     builder_text(b, ",\"codec_detail\":{\"operation\":");
     builder_number(b, d->operation);
+    builder_text(b, ",\"operation_name\":");
+    builder_json_string(b, tlv_codec_operation_string(d->operation));
     builder_text(b, ",\"reported\":");
     builder_number(b, d->reported);
     builder_text(b, ",\"violation\":");
     builder_number(b, d->violation);
+    builder_text(b, ",\"violation_name\":");
+    builder_json_string(b, tlv_codec_violation_string(d->violation));
     builder_text(b, ",\"cause\":");
     builder_number(b, d->cause);
+    builder_text(b, ",\"cause_name\":");
+    builder_json_string(b, tlv_codec_cause_string(d->cause));
     if (d->representation) {
         builder_text(b, ",\"representation\":");
         builder_json_string(b, d->representation);
     }
-    if (d->cause == TLV_CODEC_CAUSE_READER) query_reader_diagnostic(b, common, &d->detail.reader);
+    if (d->cause == TLV_CODEC_CAUSE_READER) query_reader_diagnostic(b, &d->detail.reader);
     if (d->cause == TLV_CODEC_CAUSE_SCHEMA) {
         const tlv_codec_schema_detail_t* v = &d->detail.schema;
         builder_text(b, ",\"schema\":{\"kind\":");
         builder_number(b, v->kind);
+        builder_text(b, ",\"kind_name\":");
+        builder_json_string(b, tlv_schema_issue_kind_string(v->kind));
         builder_text(b, ",\"tag\":\"");
         builder_hex(b, v->tag.data, v->tag.size);
         builder_text(b, "\"");
@@ -818,6 +829,8 @@ static void query_codec_diagnostic(builder_t* b, const tlv_diagnostic_t* common,
         }
         builder_text(b, ",\"definition_kind\":");
         builder_number(b, v->definition.kind);
+        builder_text(b, ",\"definition_kind_name\":");
+        builder_json_string(b, tlv_schema_definition_kind_string(v->definition.kind));
         builder_text(b, ",\"definition_index\":");
         builder_number(b, v->definition.index);
         builder_text(b, ",\"is_group\":");
@@ -852,16 +865,29 @@ static void query_codec_diagnostic(builder_t* b, const tlv_diagnostic_t* common,
     }
     builder_text(b, "}");
 }
+const char* opentlv_wasm_strerror(int code) {
+    return tlv_strerror((tlv_result_t)code);
+}
+const char* opentlv_wasm_query_error_kind_string(int kind) {
+    return tlv_query_error_kind_string((tlv_query_error_kind_t)kind);
+}
 static void query_status(builder_t* b, tlv_result_t code, const tlv_query_diagnostic_t* d) {
     b->size = 0;
     b->failed = 0;
     builder_text(b, "{\"code\":");
     builder_number(b, code);
+    builder_text(b, ",\"message\":");
+    builder_json_string(b, tlv_strerror(code));
     write_location(b, d ? &d->diagnostic.location : NULL);
     builder_text(b, ",\"query\":{\"kind\":");
     builder_number(b, code == TLV_ERR_INVALID_STATE ? TLV_QUERY_ERROR_STATE
                       : d                           ? d->kind
                                                     : TLV_QUERY_ERROR_NONE);
+    builder_text(b, ",\"kind_name\":");
+    builder_json_string(b, tlv_query_error_kind_string(code == TLV_ERR_INVALID_STATE
+                                                           ? TLV_QUERY_ERROR_STATE
+                                                       : d ? d->kind
+                                                           : TLV_QUERY_ERROR_NONE));
     builder_text(b, ",\"begin\":");
     builder_number(b, d ? d->begin : 0);
     builder_text(b, ",\"end\":");
@@ -884,8 +910,13 @@ static void query_status(builder_t* b, tlv_result_t code, const tlv_query_diagno
             builder_text(b, ",\"source_offset\":");
             builder_number(b, d->diagnostic.location.begin);
         }
-        if (d->has_codec) query_codec_diagnostic(b, &d->diagnostic, &d->codec_detail);
-        if (d->has_reader) query_reader_diagnostic(b, &d->diagnostic, &d->reader);
+        builder_text(b, ",\"diagnostic\":{\"code\":");
+        builder_number(b, code);
+        write_location(b, &d->diagnostic.location);
+        query_common_diagnostic(b, &d->diagnostic);
+        builder_text(b, "}");
+        if (d->has_codec) query_codec_diagnostic(b, &d->codec_detail);
+        if (d->has_reader) query_reader_diagnostic(b, &d->reader);
     }
     builder_text(b, "}");
 }

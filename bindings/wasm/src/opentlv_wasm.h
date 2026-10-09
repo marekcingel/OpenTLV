@@ -52,6 +52,10 @@
 extern "C" {
 #endif
 
+/* Canonical program-lifetime descriptions for native and facade-originated failures. */
+OPENTLV_WASM_API const char* opentlv_wasm_strerror(int code);
+OPENTLV_WASM_API const char* opentlv_wasm_query_error_kind_string(int kind);
+
 /* Opaque parse result; release it with opentlv_wasm_result_free(). */
 typedef struct opentlv_wasm_result opentlv_wasm_result_t;
 

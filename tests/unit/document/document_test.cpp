@@ -7,6 +7,7 @@
 #include "tlv/document/document.h"
 // Private state is used only to place the nonwrapping counters near exhaustion.
 #include "../../../tlv/src/document/document_internal.h"
+#include "../../../tlv/src/query/v1_internal.h"
 #include <gtest/gtest.h>
 #include <cstdint>
 #include <memory>
@@ -93,7 +94,9 @@ Bytes encode(const tlv_document_t* doc) {
 tlv_node_t* find(const tlv_document_t* doc, const char* path) {
     tlv_query_t query;
     EXPECT_EQ(TLV_OK, tlv_query_parse(path, &query, nullptr));
-    return tlv_document_find_path(doc, &query);
+    tlv_node_t* result = nullptr;
+    EXPECT_EQ(TLV_OK, tlv_document_find_path(doc, &query, &result));
+    return result;
 }
 
 Bytes value_of(const tlv_node_t* node) {
@@ -321,9 +324,38 @@ TEST(Unit_Tlv_Document, FindsByTagAndPath) {
     EXPECT_EQ(first, find(doc.get(), "50"));
 
     tlv_query_t empty = {};
-    EXPECT_EQ(nullptr, tlv_document_find_path(doc.get(), &empty));
-    EXPECT_EQ(nullptr, tlv_document_find_path(doc.get(), nullptr));
-    EXPECT_EQ(nullptr, tlv_document_find_path(nullptr, &empty));
+    tlv_node_t* result = first;
+    EXPECT_EQ(TLV_ERR_INVALID_ARG, tlv_document_find_path(doc.get(), &empty, &result));
+    EXPECT_EQ(first, result);
+    EXPECT_EQ(TLV_ERR_NULL_ARG, tlv_document_find_path(doc.get(), nullptr, &result));
+    EXPECT_EQ(first, result);
+    EXPECT_EQ(TLV_ERR_NULL_ARG, tlv_document_find_path(nullptr, &empty, &result));
+    EXPECT_EQ(first, result);
+    EXPECT_EQ(TLV_ERR_NULL_ARG, tlv_document_find_path(doc.get(), &empty, nullptr));
+    tlv_query_t missing{};
+    ASSERT_EQ(TLV_OK, tlv_query_parse("FE", &missing, nullptr));
+    EXPECT_EQ(TLV_OK, tlv_document_find_path(doc.get(), &missing, &result));
+    EXPECT_EQ(nullptr, result);
+}
+
+TEST(Unit_Tlv_Document, PathLookupPreservesValidationFailuresOnEmptyDocuments) {
+    Doc         document = parse({});
+    tlv_query_t query{};
+    // Use a live node from another Document as a sentinel; lookup must not publish on error.
+    Doc         owner = parse(sample);
+    tlv_node_t* sentinel = tlv_document_first(owner.get());
+    tlv_node_t* result = sentinel;
+    EXPECT_EQ(TLV_ERR_INVALID_ARG, tlv_document_find_path(document.get(), &query, &result));
+    EXPECT_EQ(sentinel, result);
+    ASSERT_EQ(TLV_OK, tlv_query_parse("50", &query, nullptr));
+    auto corrupt = query_v1_load(&query);
+    corrupt.ends[0] = 0;
+    memcpy(&query, &corrupt, sizeof corrupt);
+    EXPECT_EQ(TLV_ERR_INVALID_TAG_SIZE, tlv_document_find_path(document.get(), &query, &result));
+    EXPECT_EQ(sentinel, result);
+    ASSERT_EQ(TLV_OK, tlv_query_parse("50", &query, nullptr));
+    EXPECT_EQ(TLV_OK, tlv_document_find_path(document.get(), &query, &result));
+    EXPECT_EQ(nullptr, result);
 }
 
 TEST(Unit_Tlv_Document, SetValueOnPrimitiveUpdatesEnclosingLengths) {
@@ -1411,7 +1443,9 @@ TEST(Unit_Tlv_Document, QueryVisitsAllMatchesAndHonorsCallbackCommands) {
     EXPECT_EQ(TLV_OK, tlv_document_query_visit(document.get(), &query, QueryCollection::collect,
                                                &collection));
     ASSERT_EQ(2u, collection.nodes.size());
-    EXPECT_EQ(collection.nodes[0], tlv_document_find_path(document.get(), &query));
+    tlv_node_t* first_match = nullptr;
+    ASSERT_EQ(TLV_OK, tlv_document_find_path(document.get(), &query, &first_match));
+    EXPECT_EQ(collection.nodes[0], first_match);
     EXPECT_EQ(collection.nodes[1], tlv_node_next(collection.nodes[0]));
     collection.nodes.clear();
     collection.command = TLV_VISIT_STOP;

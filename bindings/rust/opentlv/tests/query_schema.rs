@@ -57,8 +57,8 @@ fn false_assertion_preserves_owned_rule_path_offset_and_expectation() {
     assert_eq!(detail.kind_name, "assertion");
     assert_eq!(detail.error, Error::Schema);
     assert_eq!(detail.tag.as_bytes(), &[0x5a]);
-    assert_eq!(detail.path.len(), 1);
-    assert_eq!(detail.path[0].as_bytes(), &[0x70]);
+    assert_eq!(detail.path.as_deref().unwrap().len(), 1);
+    assert_eq!(detail.path.as_deref().unwrap()[0].as_bytes(), &[0x70]);
     assert_eq!(detail.offset, Some(2));
     assert_eq!(detail.field.as_deref(), Some("three-required"));
     assert_eq!(
@@ -81,8 +81,8 @@ fn native_context_work_and_node_limits_and_overflow_are_preserved() {
         )
         .unwrap_err();
     assert_eq!(failure.failure.error, Error::Limit);
-    assert_eq!(failure.failure.limit.as_deref(), Some("schema-contexts"));
-    assert_eq!(failure.failure.configured, 1);
+    let limit = failure.failure.limit.as_deref().unwrap();
+    assert_eq!((&*limit.name, limit.configured), ("schema-contexts", 1));
     assert!(failure.schema.is_none());
     for limits in [
         QuerySchemaLimits {
@@ -133,7 +133,7 @@ fn original_reader_and_invalid_rule_failures_are_not_assertion_failures() {
     let failure = schema
         .validate_buffer(&[0x5a, 2, 0], QuerySchemaLimits::default())
         .unwrap_err();
-    assert_eq!(failure.failure.kind, 7);
+    assert_eq!(failure.failure.kind, opentlv::QueryErrorKind::Reader);
     assert!(failure.failure.reader.is_some());
     assert!(failure.schema.is_none());
     for (selector, assertion) in [("count(//5A)", "1 = 1"), ("//5A", "//5A")] {
@@ -285,7 +285,7 @@ fn document_supports_reverse_axes_and_bounded_canonical_values() {
     let detail = failure.schema.unwrap();
     assert_eq!(detail.offset, None);
     assert_eq!(detail.tag.as_bytes(), &[0x5a]);
-    assert_eq!(detail.path[0].as_bytes(), &[0x70]);
+    assert_eq!(detail.path.as_deref().unwrap()[0].as_bytes(), &[0x70]);
     assert_eq!(detail.field.as_deref(), Some("three-required"));
     assert_eq!(
         detail.expected.as_deref(),
@@ -333,8 +333,10 @@ fn deep_assertion_preserves_outermost_path_and_omitted_count() {
         .unwrap_err()
         .schema
         .unwrap();
-    assert_eq!(detail.path.len(), 32);
-    assert_eq!(detail.path[0].as_bytes(), &[0x70]);
-    assert!(detail.path[1..].iter().all(|tag| tag.as_bytes() == [0x30]));
+    assert_eq!(detail.path.as_deref().unwrap().len(), 32);
+    assert_eq!(detail.path.as_deref().unwrap()[0].as_bytes(), &[0x70]);
+    assert!(detail.path.as_deref().unwrap()[1..]
+        .iter()
+        .all(|tag| tag.as_bytes() == [0x30]));
     assert_eq!(detail.path_omitted, 3);
 }

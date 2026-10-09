@@ -583,7 +583,8 @@ TEST(Integration_Tlv_Architecture, WireFamiliesShareCanonicalElementAndGenericOp
                   tlv_document_parse(test.wire.data(), test.wire.size(), &options, &raw, nullptr));
         std::unique_ptr<tlv_document_t, decltype(&tlv_document_free)> doc(raw, tlv_document_free);
         EXPECT_EQ(3u, tlv_document_count(doc.get()));
-        auto* node = tlv_document_find_path(doc.get(), &query);
+        tlv_node_t* node = nullptr;
+        ASSERT_EQ(TLV_OK, tlv_document_find_path(doc.get(), &query, &node));
         ASSERT_NE(nullptr, node);
         ASSERT_EQ(1u, tlv_node_value_size(node));
         EXPECT_EQ(3, tlv_node_value_data(node)[0]);

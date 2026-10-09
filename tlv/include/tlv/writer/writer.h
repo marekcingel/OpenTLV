@@ -107,6 +107,16 @@ typedef enum tlv_writer_operation {
 } tlv_writer_operation_t;
 
 /**
+ * @brief Returns the diagnostic name of a writer operation.
+ *
+ * @param[in] value Diagnostic enum value.
+ * @return A static NUL-terminated string, or `"unknown"` for an unrecognized value.
+ * @note Never returns NULL or allocates. Do not free or modify the string.
+ * Available even when the corresponding capability is disabled.
+ */
+TLV_API const char* tlv_writer_operation_string(tlv_writer_operation_t value);
+
+/**
  * @brief Structured detail for a failed tlv_write() or tlv_writer_write() call.
  *
  * Pairs a #tlv_diagnostic_t with the writer-specific state needed to explain

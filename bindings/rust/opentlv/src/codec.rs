@@ -67,7 +67,7 @@ pub struct CodecDiagnostic {
     /// Shared native result.
     pub code: i32,
     /// Native informational, warning or error severity.
-    pub severity: i32,
+    pub severity: crate::Severity,
     /// Expected representation when provided.
     pub expected: Option<String>,
     /// Actual representation when provided.
@@ -79,11 +79,13 @@ pub struct CodecDiagnostic {
     /// Owned (layer, key, value) context entries in native order.
     pub contexts: Vec<(String, String, String)>,
     /// Native decode, encode or measure operation.
-    pub operation: i32,
+    pub operation: crate::CodecOperation,
+    /// Delegated evidence category.
+    pub cause: crate::CodecCause,
     /// Original provider result, including success before a contract breach.
     pub reported: i32,
     /// Native callback contract violation discriminator.
-    pub violation: i32,
+    pub violation: crate::CodecViolation,
     /// Optional provider representation name.
     pub representation: Option<String>,
     /// Shared primary failure location.
@@ -152,15 +154,16 @@ impl CodecDiagnostic {
         };
         Self {
             code: raw.diagnostic.code,
-            severity: raw.diagnostic.severity,
+            severity: crate::Severity::from_raw(raw.diagnostic.severity),
             expected: common.expected,
             actual: common.actual,
             path: common.path,
             path_omitted: common.path_omitted,
             contexts,
-            operation: raw.codec.operation,
+            operation: crate::CodecOperation::from_raw(raw.codec.operation),
+            cause: crate::CodecCause::from_raw(raw.codec.cause),
             reported: raw.codec.reported,
-            violation: raw.codec.violation,
+            violation: crate::CodecViolation::from_raw(raw.codec.violation),
             representation: if raw.codec.representation.is_null() {
                 None
             } else {

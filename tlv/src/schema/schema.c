@@ -32,22 +32,6 @@ void tlv_schema_diagnostic_init(tlv_schema_diagnostic_t* diagnostic) {
     memset(diagnostic, 0, sizeof(*diagnostic));
 }
 
-const char* tlv_schema_issue_kind_string(tlv_schema_issue_kind_t kind) {
-    switch (kind) {
-        case TLV_SCHEMA_ISSUE_NONE: return "none";
-        case TLV_SCHEMA_ISSUE_VALUE: return "value";
-        case TLV_SCHEMA_ISSUE_DEFINITION: return "definition";
-        case TLV_SCHEMA_ISSUE_MISSING: return "missing";
-        case TLV_SCHEMA_ISSUE_DUPLICATE: return "duplicate";
-        case TLV_SCHEMA_ISSUE_UNEXPECTED: return "unexpected";
-        case TLV_SCHEMA_ISSUE_KIND: return "kind";
-        case TLV_SCHEMA_ISSUE_LENGTH: return "length";
-        case TLV_SCHEMA_ISSUE_ORDER: return "order";
-        case TLV_SCHEMA_ISSUE_ASSERTION: return "assertion";
-    }
-    return "unknown";
-}
-
 static int group_index(const tlv_structure_schema_t* schema, uint32_t id) {
     for (size_t g = 0; g < schema->group_count; ++g)
         if (schema->groups[g].id == id) return (int)g;

@@ -12,6 +12,8 @@
 use std::os::raw::{c_char, c_int, c_void};
 
 mod codec_diagnostic;
+mod diagnostic_strings;
+pub use diagnostic_strings::*;
 #[cfg(feature = "document")]
 mod document;
 mod program;

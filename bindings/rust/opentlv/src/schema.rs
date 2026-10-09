@@ -406,24 +406,27 @@ pub struct SchemaBounds {
 /// Owned detailed C Schema violation; paths contain enclosing scopes only.
 #[derive(Clone, Debug)]
 pub struct SchemaDiagnostic {
+    /// Owned subsystem context entries.
+    pub contexts: Vec<crate::DiagnosticContext>,
     /// C error corresponding to the violation.
     pub error: Error,
     /// C severity code.
-    pub severity: i32,
+    pub severity: crate::Severity,
     /// Canonical violation kind.
-    pub kind: i32,
+    pub kind: crate::SchemaIssue,
     /// Name returned by the C kind helper.
     pub kind_name: String,
     /// Primary evidence domain, kind and coordinates.
     pub location: crate::Location,
     /// Native definition coordinate category (zero when absent).
-    pub definition_kind: i32,
+    pub definition_kind: crate::SchemaDefinitionKind,
     /// Rule, group, type or component index in the supplied schema.
     pub definition_index: usize,
     /// Affected tag, separate from the enclosing path.
     pub tag: Tag,
-    /// Retained outermost enclosing scope tags.
-    pub path: Vec<Tag>,
+    /// Retained outermost enclosing scope tags; None means no path evidence,
+    /// distinct from a tracked empty path at the top level.
+    pub path: Option<Vec<Tag>>,
     /// Number of innermost enclosing scopes omitted from `path`.
     pub path_omitted: usize,
     /// Affected source offset, when available.
@@ -451,11 +454,16 @@ pub struct SchemaDiagnostic {
 impl SchemaDiagnostic {
     // SAFETY: the caller keeps all native diagnostic spans and strings alive.
     pub(crate) unsafe fn from_raw(item: &native::tlv_schema_diagnostic_t) -> crate::Result<Self> {
-        let mut path = Vec::new();
-        for tag in &item.diagnostic.path.tags[..item.diagnostic.path.length] {
-            // SAFETY: scope Tags borrow live input or schema storage.
-            path.push(unsafe { Tag::from_raw(tag) }?);
-        }
+        let path = if item.diagnostic.has_path != 0 {
+            let mut path = Vec::with_capacity(item.diagnostic.path.length);
+            for tag in &item.diagnostic.path.tags[..item.diagnostic.path.length] {
+                // SAFETY: scope Tags borrow live input or schema storage.
+                path.push(unsafe { Tag::from_raw(tag) }?);
+            }
+            Some(path)
+        } else {
+            None
+        };
         // SAFETY: C returns a static NUL-terminated name for any kind.
         let kind_name =
             unsafe { std::ffi::CStr::from_ptr(native::tlv_schema_issue_kind_string(item.kind)) }
@@ -473,11 +481,12 @@ impl SchemaDiagnostic {
         };
         Ok(Self {
             error: Error::from_code(item.diagnostic.code).unwrap_or(Error::Schema),
-            severity: item.diagnostic.severity,
-            kind: item.kind,
+            contexts: unsafe { crate::reader_diagnostic::contexts(&item.diagnostic) },
+            severity: crate::Severity::from_raw(item.diagnostic.severity),
+            kind: crate::SchemaIssue::from_raw(item.kind),
             kind_name,
             location: crate::Location::from_raw(item.diagnostic.location),
-            definition_kind: item.definition.kind,
+            definition_kind: crate::SchemaDefinitionKind::from_raw(item.definition.kind),
             definition_index: item.definition.index,
             // SAFETY: affected tag borrows still-live storage.
             tag: unsafe { Tag::from_raw(&item.tag) }?,
@@ -617,9 +626,9 @@ impl StructureSchema {
         let convert = |error| SchemaError {
             error,
             offset: None,
-            kind: 0,
+            kind: crate::SchemaIssue::None,
             location: crate::Location::default(),
-            definition_kind: 0,
+            definition_kind: crate::SchemaDefinitionKind::Unknown,
             definition_index: 0,
         };
         let mut storage = Vec::<std::mem::MaybeUninit<native::tlv_schema_diagnostic_t>>::new();
@@ -652,14 +661,10 @@ impl StructureSchema {
             return Err(SchemaError {
                 error: Error::from_code(code).unwrap(),
                 offset: crate::Location::from_raw(diagnostic.diagnostic.location).offset(),
-                kind: if code == native::TLV_ERR_INVALID_SCHEMA {
-                    9
-                } else {
-                    0
-                },
-                location: crate::Location::default(),
-                definition_kind: 0,
-                definition_index: 0,
+                kind: crate::SchemaIssue::from_raw(diagnostic.kind),
+                location: crate::Location::from_raw(diagnostic.diagnostic.location),
+                definition_kind: crate::SchemaDefinitionKind::from_raw(diagnostic.definition.kind),
+                definition_index: diagnostic.definition.index,
             });
         }
         let mut diagnostics = Vec::new();
@@ -859,9 +864,9 @@ impl StructureSchema {
                 } else {
                     None
                 },
-                kind: diagnostic.kind,
+                kind: crate::SchemaIssue::from_raw(diagnostic.kind),
                 location: crate::Location::from_raw(diagnostic.diagnostic.location),
-                definition_kind: diagnostic.definition.kind,
+                definition_kind: crate::SchemaDefinitionKind::from_raw(diagnostic.definition.kind),
                 definition_index: diagnostic.definition.index,
             }),
         }
@@ -899,11 +904,11 @@ pub struct SchemaError {
     /// Definition errors have no input position.
     pub offset: Option<usize>,
     /// Canonical Schema reason.
-    pub kind: i32,
+    pub kind: crate::SchemaIssue,
     /// Canonical primary evidence location.
     pub location: crate::Location,
     /// Native definition coordinate category (zero when absent).
-    pub definition_kind: i32,
+    pub definition_kind: crate::SchemaDefinitionKind,
     /// Rule, group, type or component index in the supplied schema.
     pub definition_index: usize,
 }

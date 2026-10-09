@@ -12,6 +12,20 @@
  * @brief Allocation-free C++ operation status and error context.
  */
 namespace tlv {
+/** @brief Typed schema definition kind diagnostic category. */
+enum class schema_definition_kind {
+    unknown = TLV_SCHEMA_DEFINITION_UNKNOWN /**< Canonical unknown category. */,
+    table = TLV_SCHEMA_DEFINITION_TABLE /**< Canonical table category. */,
+    rule = TLV_SCHEMA_DEFINITION_RULE /**< Canonical rule category. */,
+    group = TLV_SCHEMA_DEFINITION_GROUP /**< Canonical group category. */,
+    type = TLV_SCHEMA_DEFINITION_TYPE /**< Canonical type category. */,
+    component = TLV_SCHEMA_DEFINITION_COMPONENT /**< Canonical component category. */
+};
+/** @brief Canonical static name, or unknown for unrecognized categories. */
+inline const char* message(schema_definition_kind value) noexcept {
+    return tlv_schema_definition_kind_string(static_cast<tlv_schema_definition_kind_t>(value));
+}
+
 class tag;
 /// @cond INTERNAL
 namespace detail {
@@ -192,6 +206,10 @@ struct error {
     /** @brief Native definition coordinate; owner borrows the supplied schema/type. */
     tlv_schema_definition_location_t definition() const noexcept {
         return definition_;
+    }
+    /** @brief Typed category of the identified definition object. */
+    schema_definition_kind definition_kind() const noexcept {
+        return static_cast<schema_definition_kind>(definition_.kind);
     }
     /** @brief Whether an enclosing path was tracked, including a known empty path. */
     bool has_path() const noexcept {

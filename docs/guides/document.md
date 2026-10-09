@@ -164,15 +164,18 @@ for (tlv_node_t* child = tlv_node_first_child(fci); child; child = tlv_node_next
 }
 
 tlv_query_t query;
-tlv_query_parse("6F/A5/50", &query, NULL);
-tlv_node_t* label = tlv_document_find_path(document, &query);
+if (tlv_query_parse("6F/A5/50", &query, NULL) != TLV_OK) return 1;
+tlv_node_t* label = NULL;
+if (tlv_document_find_path(document, &query, &label) != TLV_OK) return 1;
 const uint8_t* value = tlv_node_value_data(label);
 size_t length = tlv_node_value_size(label);
 ```
 
-`tlv_document_find_path()` returns the first element the query addresses in
-document order. A constructed node has no value bytes of its own; read its
-children.
+`tlv_document_find_path()` returns `TLV_OK` and publishes the first matching
+node in document order, or `NULL` for no match. Validation failures retain their
+result and leave the output unchanged. C++ `document.find(query)` throws
+`query_error` on failure; Rust returns `Result<Option<Node>>` (and the mutable
+equivalent). A constructed node has no value bytes of its own; read its children.
 
 ## Modifying
 

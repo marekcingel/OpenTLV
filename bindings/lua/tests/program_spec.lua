@@ -9,9 +9,22 @@ local function fails(run, code)
     if code then assert(type(err) == "table" and err.code == code, tostring(err)) end
     if code == tlv.errors.INVALID_STATE then
         assert(err.query and err.query.kind == 12, "missing Query STATE diagnostic")
+        assert(err.query.kind_name == "state")
     end
     return err
 end
+local syntax = fails(function() tlv.query_program("/", f) end)
+assert(syntax.query.kind_name == "syntax")
+assert(syntax.location.domain == "expression")
+local reader_error = fails(function()
+    local execution = tlv.query_program("//5A", tlv.formats.fixed(1, 1, "big")):execution()
+    execution:set_input(b(0x5a, 3, 0))
+    execution:finish()
+end, tlv.errors.BUFFER_TOO_SHORT)
+assert(reader_error.query.kind_name == "reader")
+assert(reader_error.operation == "value")
+assert(reader_error.declared_length == 3 and reader_error.available == 1)
+assert(reader_error.raw_length == b(3))
 local options = {variables = {min = "integer"}, optimize = true}
 local fixed = tlv.formats.fixed(2, 2, "little")
 local tag_options = {tags={id=301, class_of=function() return 7 end,

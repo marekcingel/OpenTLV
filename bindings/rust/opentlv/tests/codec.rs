@@ -385,8 +385,8 @@ fn conversion_diagnostic_keeps_shared_result_and_owned_context() {
     let diagnostic = failure.diagnostic.unwrap();
     assert_eq!(diagnostic.code, Error::Schema.code());
     assert_eq!(diagnostic.reported, Error::Schema.code());
-    assert_eq!(diagnostic.operation, 0);
-    assert_eq!(diagnostic.violation, 0);
+    assert_eq!(diagnostic.operation, opentlv::CodecOperation::Decode);
+    assert_eq!(diagnostic.violation, opentlv::CodecViolation::None);
     let cause = diagnostic.schema.unwrap();
     assert_eq!(cause.error, Error::Schema);
     let length = cause.length.unwrap();

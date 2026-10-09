@@ -2,12 +2,12 @@
 
 This page describes the **currently implemented API**. The accepted
 [failure model](../concepts/error-model.md) (#551) defines a replacement taxonomy,
-typed diagnostic layering, locations and propagation rules. Its implementation
-will break API and ABI compatibility; the target names and signatures are not
-available yet, except for `TLV_ERR_INVALID_STATE` and Query kind `STATE` (#552),
-`TLV_ERR_INVALID_SCHEMA` with Schema failure classification (#553), and
-`TLV_ERR_UNSUPPORTED`/`TLV_ERR_CALLBACK` with resource and callback classification (#554). The
-tables below describe the current codes and behavior.
+typed diagnostic layering, locations and propagation rules. Migration proceeds
+through breaking API and ABI changes: lifecycle (#552),
+Schema classification (#553), resource/callback classification (#554), locations
+(#555), shared Codec results and propagation (#556), and diagnostic names and
+Document lookup failure channels (#557). The tables below describe the current
+codes, not target names still awaiting implementation.
 
 Core and Codec operations return the shared `tlv_result_t` from `tlv/error.h`. Zero is success; nonzero core
 results include errors, end-of-input and the resumable
@@ -62,7 +62,8 @@ Query now uses `STATE` for lifecycle/reentrancy failures and `EVENTS` with
 [failure-model migration](../concepts/error-model.md#migration-inventory),
 `STORAGE` still covers compiler/plan arguments and capacities, `BINDING` covers
 binding arguments, `CAPABILITY` covers incompatible formats or hook configuration,
-and `EVENTS` also covers visitor/callback failures. Diagnostic layouts are unchanged.
+while visitor/provider failures use `CALLBACK`. Diagnostic layouts changed in
+issues #553, #555 and #556; rebuild native consumers with matching headers and bindings.
 
 ### Regression enforcement
 
@@ -95,7 +96,7 @@ the breaking #551 migration; `INVALID_STATE = 19` does not promise append-only e
 | `TLV_ERR_OUT_OF_MEMORY` | 4 | An owning operation could not obtain storage. | Document allocation and allocation-size checks. Caller-supplied workspace exhaustion uses `BUFFER_TOO_SHORT`. |
 | `TLV_ERR_END_OF_BUFFER` | 5 | No further element exists, or the input is empty. | Normal end of iteration with `tlv_reader_next`; for a single read, empty input. |
 | `TLV_ERR_INVALID_TAG` | 6 | A tag is malformed or invalid for the format or standard. | Malformed BER identifier digits, or a tag the selected format rejects. Incomplete identifiers return `TLV_ERR_BUFFER_TOO_SHORT`. |
-| `TLV_ERR_VISITOR` | 7 | A visitor callback requested an error stop. | Your visitor returned `TLV_VISIT_ERROR` or an unknown result. |
+| `TLV_ERR_VISITOR` | 7 | A visitor callback requested an error stop. | Your visitor returned `TLV_VISIT_ERROR`. Unknown visitor results produce `CALLBACK`. |
 | `TLV_ERR_LIMIT` | 8 | A configured depth, size or element-count limit was exceeded. | The limits passed to the Tree Reader or validation function, `TLV_BER_MAX_DEPTH` (64). Limits are inclusive and zero is a real limit. |
 | `TLV_ERR_SCHEMA` | 9 | Input violates a valid schema. | Missing or forbidden fields, excess occurrences, kind/order mismatches, and length or Value constraints. Schema detail identifies the reason, including `MISSING`. |
 | `TLV_ERR_INVALID_ARG` | 10 | An API configuration or argument descriptor is invalid. | A required callback missing from a format descriptor, or an invalid option value. |
@@ -201,8 +202,62 @@ native clients and use the matching binding version. C++ errors expose
 `schema_kind()`, `location()` and `definition()`; Python uses `InvalidSchemaError` for definitions
 and `SchemaError` with `kind="missing"` for required absence.
 
-Custom format callback errors propagate unchanged through the generic reader and writer,
-so a custom format can return any of the codes above.
+Custom Format callback failures permitted by the callback contract propagate
+unchanged through the generic Reader and Writer. Unknown results, forbidden
+control statuses and invalid successful payloads become `TLV_ERR_CALLBACK`;
+see the public callback contracts in `tlv/format.h`.
+
+## Diagnostic enum names
+
+The C library owns the diagnostic names; callers need no parallel name tables.
+Each function below returns a static NUL-terminated string, never NULL, with
+`"unknown"` for an unrecognized value. Names use lowercase words and underscores
+(for example `"image_version"`). Do not free or modify the returned storage.
+These functions remain available with the processing capabilities disabled.
+
+| Diagnostic value | Name function |
+| --- | --- |
+| Severity | `tlv_diagnostic_severity_string()` |
+| Location domain / anchor | `tlv_location_domain_string()` / `tlv_location_kind_string()` |
+| Query failure kind | `tlv_query_error_kind_string()` |
+| Reader / Writer operation | `tlv_reader_operation_string()` / `tlv_writer_operation_string()` |
+| Schema finding / definition object | `tlv_schema_issue_kind_string()` / `tlv_schema_definition_kind_string()` |
+| Codec operation / delegated cause / callback violation | `tlv_codec_operation_string()` / `tlv_codec_cause_string()` / `tlv_codec_violation_string()` |
+
+`tlv_strerror()` separately describes results, with `"unknown error"` as its
+fallback. Enum-name strings describe detail; they do not replace result codes.
+
+## Lookup and pointer-returning APIs
+
+`tlv_document_find_path(document, query, &node)` returns `TLV_OK` with the first
+match, or `TLV_OK` with NULL when the search completed without a match. Invalid
+queries and arguments retain the original failure result and leave `node`
+unchanged, even on an empty Document. The former pointer-returning signature
+has been replaced without a compatibility wrapper. Rebuild native callers.
+C++ path lookup throws `query_error`; Rust uses `Result<Option<Node>>` and
+`Result<Option<NodeMut>>`; Python and Lua raise the native failure category.
+
+The remaining exported pointer-returning APIs have these explicit contracts;
+none performs a delegated fallible traversal or allocation:
+
+| API family | Pointer / NULL contract |
+| --- | --- |
+| Document `first`, Node `first_child`, `next`, `parent`, `next_same_tag` | Borrowed node; NULL for no such node or a NULL input. |
+| `tlv_document_find()` | Borrowed first direct match; NULL for no match, invalid Tag, or absent top-level Document. Parent ownership is a caller precondition. |
+| `tlv_node_value_data()` | Borrowed primitive bytes; NULL for NULL node, empty Value, or constructed node. |
+| `tlv_definition_find()`, `tlv_schema_find()` | Borrowed entry; NULL for no match or rejected arguments/table descriptor. They skip invalid entry Tags and do not validate complete definitions. |
+| `tlv_value_constraint_name()` | Borrowed name; NULL for unavailable table/name, wrong constraint kind, or no match. |
+| `tlv_asn1_named_bit_find()` | Borrowed name; NULL for no match or a NULL entry name. The caller supplies a valid table extent. |
+| EMV `dictionary_for`, `schema_for` | Static table; NULL for invalid context. |
+| EMV `dictionary_find`, `find` | Borrowed entry; NULL for no match or invalid lookup arguments/context. |
+| `tlv_emv_symbol()`, `tlv_emv_display_label()` | Borrowed/static optional text; NULL for absent metadata/label, including NULL input. |
+| `tlv_query_builtin_hooks()` | Non-NULL static provider array; optional count output. |
+| Version string and Git metadata accessors | Non-NULL static build metadata; no prerelease is an empty string, unavailable Git metadata uses `"unknown"`. |
+| Diagnostic name functions, `tlv_strerror()`, `tlv_emv_value_kind_description()` | Non-NULL static text with the documented unknown-value fallback. |
+
+A NULL lookup result alone therefore does not distinguish absence from rejected
+arguments unless the API has a separate result channel. Follow each header's
+argument, extent and lifetime preconditions.
 
 ## Conversion failures
 
@@ -216,6 +271,39 @@ while preserving the callback's reported value, including `OK`.
 
 This changes callback signatures and the Query diagnostic layout. Rebuild native
 clients and use matching bindings. Valid conversion bytes are unchanged.
+
+## Binding diagnostics
+
+Bindings use the C result domain, including resumable `NEED_MORE_DATA`, and
+preserve the independent detail, primary location and delegated cause. Category
+names come from the C string functions; an unrecognized value is named
+`unknown`. A raw callback `reported` result stays numeric so invalid provider
+results remain inspectable.
+
+| Facade | Diagnostic categories |
+| --- | --- |
+| C++ | `errc`, `query_issue`, `reader_phase`, `writer_phase`, `schema_issue`, `schema_definition_kind`, `codec_phase`, `codec_cause`, `codec_violation`; `message(category)` calls C. |
+| Rust | `Error` and typed `QueryErrorKind`, `ReaderOperation`, `WriterOperation`, `SchemaIssue`, `SchemaDefinitionKind`, `CodecOperation`, `CodecCause`, `CodecViolation`, `Severity`; category `name()` calls C. Categories are `#[non_exhaustive]`; `Unrecognized(RawCategory)` retains unrecognized values. |
+| Python | Typed result exceptions; Query `query["query_kind"]`, Schema report fields and Codec detail fields use `IntEnum` categories exported by `opentlv`. Their `label` property calls C. Reader/Writer `operation` remains a canonical string. |
+| Go | `errors.Is` classifies results and `errors.As` retrieves owned details. `ProgramError.Kind`, `QuerySchemaError.Kind` and Codec categories are typed; `String()` calls C. Reader/Writer errors expose typed `Phase()` methods; `Diagnostic.ReaderPhase()` and `WriterPhase()` type Query Reader causes too. |
+| Lua | Error tables preserve result `code`, `location`, optional path and contexts. `query.kind_name` and Codec `operation_name`, `cause_name`, `violation_name` come from C alongside numeric values. |
+| JS/WASM | `QueryError` carries the C message, structured `location` and owned Query evidence. `query.kind_name`, Reader `operation_name` and Codec names accompany numeric categories. Common evidence appears once in `query.diagnostic`. |
+
+For example, Rust consumers match `failure.kind == QueryErrorKind::Syntax`;
+Python consumers compare `error.query["query_kind"] is QueryErrorKind.SYNTAX`.
+Use `.as_raw()` in Rust when an external protocol explicitly requires the C
+integer. These diagnostic field changes are source-breaking; rebuild bindings
+against the matching C library.
+
+Unknown locations have no meaningful numeric coordinates. A known point at
+zero is distinct from absence. Related Query expression spans do not replace
+the primary input/output/Value location. Retained paths hold outermost scopes;
+`path_omitted` counts omitted innermost scopes. Go's `HasReader` guards the
+Reader-specific part of a Query failure.
+
+CLI diagnostics identify the location domain and anchor kind. Compact output
+includes truncated paths and omitted counts; Query JSON includes common
+diagnostic metadata and delegated Codec or Reader evidence.
 
 ## See also
 

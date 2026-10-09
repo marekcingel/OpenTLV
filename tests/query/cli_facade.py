@@ -5,7 +5,6 @@ import argparse
 import json
 from pathlib import Path
 import subprocess
-from reference import tree
 
 
 def main():
@@ -21,8 +20,6 @@ def main():
             excluded.append({"id": case["id"], "reason": "requires external fixture name resolver"})
             continue
         for backend in ("auto", "document"):
-            if backend == "document" and any(text in case["query"] for text in ("@offset", "@hlen")):
-                continue
             command = [args.cli, "query", "--query", case["query"], "--format", "ber",
                        "--hex", case["wire"], "--output", "json", "--diagnostics", "json",
                        "--backend", backend]
@@ -46,23 +43,9 @@ def main():
                     actual = (f"bool:{int(value)}" if kind == 1 else f"int:{value}" if kind == 2
                               else "bytes:" + value.lower() if kind == 3
                               else "string:" + value.encode().hex())
-                elif backend == "document":
-                    # Source-less CLI rows carry semantic Tag/Value. Compare the
-                    # independently selected preorder identities' logical payload.
-                    _, nodes = tree(bytes.fromhex(case["wire"]))
-                    by_offset = {node["offset"]: node for node in nodes}
-                    actual = [(row["tag"].lower(), row["value"].lower()) for row in output["matches"]]
-                    expected = [(by_offset[offset]["tag"].hex(), by_offset[offset]["value"].hex())
-                                for offset in expected]
                 else:
-                    # Auto D has source-less output too. Compare semantic rows.
-                    if any(row["offset"] is None for row in output["matches"]):
-                        _, nodes = tree(bytes.fromhex(case["wire"]))
-                        by_offset = {node["offset"]: node for node in nodes}
-                        actual = [(row["tag"].lower(), row["value"].lower()) for row in output["matches"]]
-                        expected = [(by_offset[offset]["tag"].hex(), by_offset[offset]["value"].hex()) for offset in expected]
-                    else:
-                        actual = [row["offset"] for row in output["matches"]]
+                    # Both backends retain the wire coordinates of the input.
+                    actual = [row["offset"] for row in output["matches"]]
                 assert actual == expected, (case["id"], backend, actual, expected)
             checks += 1
     report = {"version": 1, "facade": "CLI", "checks": checks, "exclusions": excluded}

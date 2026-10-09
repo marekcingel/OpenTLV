@@ -89,6 +89,8 @@ static void push_query_error(lua_State* L, tlv_result_t code, const tlv_query_di
     if (d->has_reader) opentlv_lua_add_reader_detail(L, &d->reader);
     lua_newtable(L);
     field(L, "kind", d->kind);
+    lua_pushstring(L, tlv_query_error_kind_string(d->kind));
+    lua_setfield(L, -2, "kind_name");
     field(L, "begin", d->begin);
     field(L, "end", d->end);
     field(L, "configured", d->configured);

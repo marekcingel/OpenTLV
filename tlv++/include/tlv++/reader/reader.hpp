@@ -44,14 +44,7 @@ inline reader_phase phase(const reader_diagnostic& value) noexcept {
 }
 /** @brief Immutable program-lifetime Reader phase name. */
 inline const char* message(reader_phase value) noexcept {
-    switch (value) {
-        case reader_phase::tag: return "tag";
-        case reader_phase::length: return "length";
-        case reader_phase::value: return "value";
-        case reader_phase::trailer: return "trailer";
-        case reader_phase::header: return "header";
-    }
-    return "unknown";
+    return tlv_reader_operation_string(static_cast<tlv_reader_operation_t>(value));
 }
 /** @brief Borrow a Reader diagnostic's identifier, or an absent identifier. */
 inline tlv::tag diagnostic_tag(const reader_detail& value) noexcept {

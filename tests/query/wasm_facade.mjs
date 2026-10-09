@@ -451,5 +451,21 @@ assert.throws(() => diagnosticProgram.evaluate(hexToBytes("5a82010200")), error 
 diagnosticProgram.close();
 assert.equal(readerFailure.query.reader.declared_length, 258);
 assert.equal(readerFailure.query.reader.tag, "5A");
-assert.equal(readerFailure.query.reader.path_omitted, 0);
+assert.equal(readerFailure.query.diagnostic.path_omitted, 0);
+// Common evidence is emitted once, under query.diagnostic.
+assert.equal(readerFailure.query.reader.path_omitted, undefined);
+assert.equal(readerFailure.query.kind_name, "reader");
+assert.equal(readerFailure.query.reader.operation_name, "value");
+assert.equal(readerFailure.message, "buffer too short");
+assert.throws(() => api.compileQuery("/"), error =>
+  error.query.kind_name === "syntax" && error.location.domain === "expression");
+let nestedFailureWire = hexToBytes("5a0300");
+for (let depth = 0; depth < 35; depth++) {
+  nestedFailureWire = Uint8Array.from([0x70, nestedFailureWire.length, ...nestedFailureWire]);
+}
+const deepFailureProgram = api.compileQuery("//5A");
+assert.throws(() => deepFailureProgram.evaluate(nestedFailureWire), error =>
+  error.query.diagnostic.has_path === false && error.query.diagnostic.path_omitted === 0 &&
+  error.query.diagnostic.severity_name === "error");
+deepFailureProgram.close();
 console.log("JS/WASM extensions: checked resolvers, Tag adapters, Formats, Source feeds, ordinals and V1 passed");

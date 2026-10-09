@@ -42,6 +42,7 @@ jobs:
         run: |
           python scripts/test_diagnostic_returns.py
           python scripts/check_diagnostic_returns.py
+          python scripts/generate_diagnostic_vocabulary.py --check
       - uses: pre-commit/action@v3.0.1
 
   cppcheck:

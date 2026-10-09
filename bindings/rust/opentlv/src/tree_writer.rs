@@ -147,10 +147,21 @@ unsafe extern "C" fn measure_event_next<'a, I: Iterator<Item = Result<crate::Tre
 /// Owned details for a failed Writer operation.
 #[derive(Clone, Debug)]
 pub struct WriterDiagnostic {
+    /// Canonical diagnostic severity.
+    pub severity: crate::Severity,
+    /// Owned subsystem context entries.
+    pub contexts: Vec<crate::DiagnosticContext>,
+    /// Retained enclosing tags; None means no path evidence.
+    pub path: Option<Vec<Vec<u8>>>,
+    /// Number of omitted innermost scopes.
+    pub path_omitted: usize,
+
     /// Absolute failing output offset when available.
     pub offset: Option<usize>,
     /// C Writer operation code.
-    pub operation: i32,
+    pub operation: crate::WriterOperation,
+    /// Primary output evidence coordinates.
+    pub location: crate::Location,
     /// Tag being encoded, copied before temporary input expires.
     pub tag: Option<Tag>,
     /// Native Value size, when representable.
@@ -178,7 +189,12 @@ impl WriterDiagnostic {
         };
         Self {
             offset: (diag.diagnostic.location.kind != 0).then_some(diag.diagnostic.location.begin),
-            operation: diag.operation,
+            operation: crate::WriterOperation::from_raw(diag.operation),
+            severity: crate::Severity::from_raw(diag.diagnostic.severity),
+            contexts: unsafe { crate::reader_diagnostic::contexts(&diag.diagnostic) },
+            path: unsafe { crate::reader_diagnostic::path(&diag.diagnostic) },
+            path_omitted: diag.diagnostic.path.omitted,
+            location: crate::Location::from_raw(diag.diagnostic.location),
             // SAFETY: diagnostic tag is copied while its operation inputs remain live.
             tag: if diag.has_tag != 0 {
                 unsafe { Tag::from_raw(&diag.tag) }.ok()

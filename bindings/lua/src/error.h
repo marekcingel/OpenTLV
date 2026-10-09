@@ -23,17 +23,16 @@ void opentlv_lua_open_error(lua_State* L);
  * the stack is unchanged on return. */
 void opentlv_lua_register_error_codes(lua_State* L, int module_table_index);
 
-/* "tag", "length", "value" or "trailer"; NULL for an unset operation. */
-const char* opentlv_lua_reader_operation_name(tlv_reader_operation_t operation);
-
 /* Pushes a table describing `code`, with the "opentlv.Error" metatable set:
- * always "code" and "message" (tlv_strerror(code)); "offset" only if
- * has_offset. Does not raise; the caller decides whether to return it,
+ * always "code", "message" (tlv_strerror(code)) and "location"; when
+ * has_offset, `offset` is an input point reported as "offset" and in
+ * "location". Does not raise; the caller decides whether to return it,
  * stash it (see visitor.c), or raise it with lua_error(). */
 void opentlv_lua_push_error(lua_State* L, tlv_result_t code, int has_offset, size_t offset);
 
-/* Copies the common native diagnostic, including optional path and contexts,
- * into an owned error table. Does not raise. */
+/* Copies the common native diagnostic, including its complete location,
+ * optional path and contexts, into an owned error table with the
+ * "opentlv.Error" metatable. Does not raise. */
 void opentlv_lua_push_diagnostic(lua_State* L, const tlv_diagnostic_t* diagnostic);
 
 /* Like opentlv_lua_push_error(), additionally filling "expected", "actual",

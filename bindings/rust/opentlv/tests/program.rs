@@ -11,7 +11,7 @@ fn unfinished_result_reports_state_and_reset_recovers() {
     let mut execution = program.execution(4, 20, 100000, true).unwrap();
     let failure = execution.result().unwrap_err();
     assert_eq!(failure.error, Error::InvalidState);
-    assert_eq!(failure.kind, opentlv_sys::TLV_QUERY_ERROR_STATE);
+    assert_eq!(failure.kind, opentlv::QueryErrorKind::State);
     assert_eq!(failure.source_offset(), None);
     let malformed = execution
         .feed_event(opentlv::QueryEvent::End {
@@ -21,10 +21,10 @@ fn unfinished_result_reports_state_and_reset_recovers() {
         })
         .unwrap_err();
     assert_eq!(malformed.error, Error::InvalidValue);
-    assert_eq!(malformed.kind, 5);
+    assert_eq!(malformed.kind, opentlv::QueryErrorKind::Events);
     let retried = execution.finish().unwrap_err();
     assert_eq!(retried.error, Error::InvalidState);
-    assert_eq!(retried.kind, opentlv_sys::TLV_QUERY_ERROR_STATE);
+    assert_eq!(retried.kind, opentlv::QueryErrorKind::State);
     execution.reset().unwrap();
     execution.finish().unwrap();
     assert_eq!(execution.result().unwrap(), QueryValue::Integer(0));
@@ -268,13 +268,14 @@ fn stopped_incremental_retention_and_borrowed_binding() {
     let program = QueryProgram::compile("(//5A)[last()]", &ProgramOptions::default()).unwrap();
     let mut execution = program.execution(4, 20, 100000, true).unwrap();
     let mut reader = TreeReader::new(&WIRE[..8], Format::Ber, 4, 4, 20, false).unwrap();
-    assert_eq!(
-        execution
-            .visit(&mut reader, |_| Visit::Continue)
-            .unwrap_err()
-            .error,
-        Error::NeedMoreData
-    );
+    let pending = execution
+        .visit(&mut reader, |_| Visit::Continue)
+        .unwrap_err();
+    assert_eq!(pending.error, Error::NeedMoreData);
+    // Resumable input always has a Reader cause, so each chunk skips common metadata.
+    assert!(pending.reader.is_some());
+    assert!(pending.metadata.is_none());
+    assert_eq!(pending.severity(), opentlv::Severity::Info);
     reader.set_input(WIRE, 0, true).unwrap();
     assert_eq!(execution.next(&mut reader).unwrap().unwrap().offset, 8);
     assert!(execution.next(&mut reader).unwrap().is_none());
@@ -299,7 +300,10 @@ fn explicit_workspace_early_coverage_and_panic_does_not_cross_c() {
     let mut reader = TreeReader::new(&[0x5a, 0, 0x50, 2], Format::Ber, 4, 4, 20, true).unwrap();
     assert!(execution.exists(&mut reader, true).unwrap());
     assert_eq!(execution.info().unwrap().full_validation, 0);
-    assert_eq!(execution.exists(&mut reader, false).unwrap_err().kind, 7);
+    assert_eq!(
+        execution.exists(&mut reader, false).unwrap_err().kind,
+        opentlv::QueryErrorKind::Reader
+    );
     execution.reset().unwrap();
     let mut reader = TreeReader::new(WIRE, Format::Ber, 4, 4, 20, true).unwrap();
     let panic = std::panic::catch_unwind(std::panic::AssertUnwindSafe(|| {
@@ -324,7 +328,7 @@ fn document_reverse_axes_context_and_scalar_snapshot() {
         .evaluate_document(&document, None, None)
         .unwrap_err();
     assert_eq!(failure.error, Error::InvalidState);
-    assert_eq!(failure.kind, opentlv_sys::TLV_QUERY_ERROR_STATE);
+    assert_eq!(failure.kind, opentlv::QueryErrorKind::State);
     assert_eq!(
         execution.next_document().unwrap().unwrap().tag().as_bytes(),
         &[0x50]

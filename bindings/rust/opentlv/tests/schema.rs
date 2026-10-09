@@ -345,7 +345,7 @@ fn bounded_reports_keep_total_and_owned_paths() {
         .unwrap();
     assert_eq!(report.total_count, 2);
     assert_eq!(report.diagnostics.len(), 1);
-    assert!(report.diagnostics[0].path.is_empty());
+    assert!(report.diagnostics[0].path.as_deref() == Some(&[][..]));
     assert!([Tag::from_bytes(&[1]), Tag::from_bytes(&[2])].contains(&report.diagnostics[0].tag));
     assert_eq!(
         schema
@@ -359,7 +359,7 @@ fn bounded_reports_keep_total_and_owned_paths() {
         .unwrap();
     drop(schema);
     assert_eq!(report.diagnostics[0].kind_name, "missing");
-    assert!(report.diagnostics[0].path.is_empty());
+    assert!(report.diagnostics[0].path.as_deref() == Some(&[][..]));
     assert_eq!(report.diagnostics[0].tag, Tag::from_bytes(&[1]));
     assert_eq!(report.diagnostics[0].offset, Some(2));
     assert_eq!(
@@ -394,7 +394,10 @@ fn nested_report_outlives_input_and_schema() {
     };
     assert_eq!(report.diagnostics[0].kind_name, "length");
     assert_eq!(report.diagnostics[0].tag, Tag::from_bytes(&[4]));
-    assert_eq!(report.diagnostics[0].path, [Tag::from_bytes(&[0x30])]);
+    assert_eq!(
+        report.diagnostics[0].path.as_deref().unwrap(),
+        [Tag::from_bytes(&[0x30])]
+    );
     assert_eq!(report.diagnostics[0].offset, Some(2));
 }
 
@@ -431,7 +434,7 @@ fn detailed_report_owns_names_and_expected_actual() {
     let issue = &report.diagnostics[0];
     assert_eq!(issue.field.as_deref(), Some("payload-?"));
     assert_eq!(issue.kind_name, "length");
-    assert_eq!(issue.path, [Tag::from_bytes(&[0x30])]);
+    assert_eq!(issue.path.as_deref().unwrap(), [Tag::from_bytes(&[0x30])]);
     assert_eq!(issue.tag, Tag::from_bytes(&[4]));
     assert_eq!(issue.offset, Some(2));
     assert_eq!(
@@ -562,9 +565,9 @@ fn deep_report_preserves_outermost_path_and_omitted_count() {
     drop(schema);
     drop(wire);
     let issue = &report.diagnostics[0];
-    assert_eq!(issue.path.len(), 32);
-    assert_eq!(issue.path[0], Tag::from_bytes(&[0x70]));
-    assert!(issue.path[1..]
+    assert_eq!(issue.path.as_deref().unwrap().len(), 32);
+    assert_eq!(issue.path.as_deref().unwrap()[0], Tag::from_bytes(&[0x70]));
+    assert!(issue.path.as_deref().unwrap()[1..]
         .iter()
         .all(|tag| *tag == Tag::from_bytes(&[0x30])));
     assert_eq!(issue.path_omitted, 3);

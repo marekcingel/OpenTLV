@@ -133,6 +133,10 @@ and `Reset` preserve canonical continuation and validation behavior.
 scalars. Input and match bytes are copied and retained as required. Callback
 panics invalidate an execution until reset; reentrant operations are rejected.
 Call `Close` for deterministic cleanup. `ProgramError` retains Query diagnostics.
+Its `Kind` is a `QueryErrorKind` with canonical `String()` names; use
+`QueryErrorKindSyntax` or `QueryErrorKindState` instead of numeric literals.
+Common `Diagnostic` evidence survives failures without a Reader cause;
+`HasReader` guards the separate `Reader` detail.
 See [consumer tests](../../bindings/go/tests/program_test.go).
 
 `ProgramOptions.Providers` maps `QueryNum`, `QueryBCD`, `QueryText` and `QueryDate`

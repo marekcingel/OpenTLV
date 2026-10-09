@@ -3,6 +3,7 @@
 package opentlv
 
 import (
+	"fmt"
 	"github.com/marekcingel/OpenTLV/bindings/go/internal/capi"
 	"runtime"
 	"sync"
@@ -21,15 +22,21 @@ const (
 
 // ProgramError preserves Query spans, named limits, codec and original Reader detail.
 type ProgramError struct {
-	Location Location
+	Diagnostic
+	HasReader bool
 	StatusError
-	Kind                                 int
+	Kind                                 QueryErrorKind
 	Begin, End, SourceOffset, Configured uint64
 	HasSourceOffset                      bool
 	Expected, Limit                      string
 	CodecDetail                          *CodecDetail
 	Codec                                int
 	Reader                               Diagnostic
+}
+
+// Error renders the canonical result, Query category and primary evidence.
+func (e *ProgramError) Error() string {
+	return fmt.Sprintf("%s (%s) at %s", e.StatusError.Error(), e.Kind, e.Location)
 }
 
 func (e *ProgramError) Unwrap() error { return e.StatusError }
@@ -40,7 +47,8 @@ func programError(code capi.Code, d capi.ProgramDiagnostic) error {
 	if code == capi.InvalidState {
 		d.Kind = capi.QueryErrorState
 	}
-	return &ProgramError{Location: Location{LocationDomain(d.Location.Domain), LocationKind(d.Location.Kind), d.Location.Begin, d.Location.End}, StatusError: StatusError{code: code}, Kind: d.Kind,
+	d.Common.Code = code
+	return &ProgramError{Diagnostic: publicDiagnostic(d.Common), HasReader: d.HasReader, StatusError: StatusError{code: code}, Kind: QueryErrorKind(d.Kind),
 		Begin: d.Begin, End: d.End, SourceOffset: d.SourceOffset, HasSourceOffset: d.HasSourceOffset,
 		Configured: d.Configured, Expected: d.Expected, Limit: d.Limit, Codec: d.Codec, CodecDetail: publicCodecDetail(d.CodecDetail), Reader: publicDiagnostic(d.Reader)}
 }
@@ -104,7 +112,7 @@ func DefaultQuerySchemaLimits() QuerySchemaLimits {
 type QuerySchemaError struct {
 	Diagnostic
 	Rule    int
-	Kind    int
+	Kind    SchemaIssue
 	Field   string
 	Failure *ProgramError
 }
@@ -168,7 +176,7 @@ func validateQuerySchema(rules []QueryRule, input []byte, document *Document, fo
 	}
 	failure := programError(code, detail.Query).(*ProgramError)
 	return &QuerySchemaError{Diagnostic: publicDiagnostic(detail.Schema), Rule: detail.Rule,
-		Kind: detail.Kind, Field: detail.Field, Failure: failure}
+		Kind: SchemaIssue(detail.Kind), Field: detail.Field, Failure: failure}
 }
 
 // ValidateQueryBuffer delegates contextual assertions to C over a copied complete

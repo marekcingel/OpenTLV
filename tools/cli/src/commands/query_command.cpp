@@ -5,7 +5,9 @@
 #include <iostream>
 #include "commands/support.hpp"
 #include "diagnostics.hpp"
+#include "diagnostic_render.hpp"
 #include "tlv++/query/program.hpp"
+#include "tlv++/codec/dynamic.hpp"
 #include <cstring>
 #include <limits>
 #if OPENTLV_FORMAT_BER
@@ -43,6 +45,7 @@ int query_command::run() {
         nlohmann::json detail = {{"error", tlv::message(failure.status())},
                                  {"code", failure.status()},
                                  {"kind", d.kind},
+                                 {"kind_name", tlv::message(failure.kind())},
                                  {"begin", d.begin},
                                  {"end", d.end}};
         if (tlv::domain(d.diagnostic.location) == tlv::location_domain::input &&
@@ -60,20 +63,57 @@ int query_command::run() {
             detail["configured"] = d.configured;
         }
         if (failure.kind() == tlv::query_issue::codec) detail["codec"] = d.codec;
+        detail["diagnostic"] = nlohmann::json::parse(
+            format_diagnostic(d.diagnostic, diagnostic_format::json, "query", nullptr));
+        if (d.has_codec) {
+            const auto& codec = d.codec_detail;
+            detail["codec_detail"] = {
+                {"operation", tlv::message(static_cast<tlv::codec_phase>(codec.operation))},
+                {"cause", tlv::message(static_cast<tlv::codec_cause>(codec.cause))},
+                {"violation", tlv::message(static_cast<tlv::codec_violation>(codec.violation))},
+                {"reported", codec.reported}};
+            if (codec.representation)
+                detail["codec_detail"]["representation"] = codec.representation;
+            if (static_cast<tlv::codec_cause>(codec.cause) == tlv::codec_cause::reader) {
+                tlv::reader_diagnostic reader{};
+                reader.diagnostic = d.diagnostic;
+                reader.detail = codec.detail.reader;
+                detail["codec_detail"]["reader"] = nlohmann::json::parse(
+                    format_reader_diagnostic(reader, diagnostic_format::json));
+            }
+            if (static_cast<tlv::codec_cause>(codec.cause) == tlv::codec_cause::schema) {
+                detail["codec_detail"]["schema"] = {
+                    {"kind",
+                     tlv::message(static_cast<tlv::schema_issue>(codec.detail.schema.kind))},
+                    {"definition_kind", tlv::message(static_cast<tlv::schema_definition_kind>(
+                                            codec.detail.schema.definition.kind))},
+                    {"definition_index", codec.detail.schema.definition.index}};
+            }
+        }
         if (d.has_reader) {
-            detail["reader"] = {{"code", static_cast<tlv::errc>(d.diagnostic.code)},
-                                {"operation", d.reader.operation}};
-            if (d.diagnostic.location.kind)
-                detail["reader"]["offset"] = d.diagnostic.location.begin;
-            if (d.reader.has_tag)
-                detail["reader"]["tag"] = hex_string(tlv::diagnostic_tag(d.reader).as_bytes());
+            tlv::reader_diagnostic reader{};
+            reader.diagnostic = d.diagnostic;
+            reader.detail = d.reader;
+            detail["reader"] =
+                nlohmann::json::parse(format_reader_diagnostic(reader, diagnostic_format::json));
         }
         if (!strcmp(options_.diagnostics, "json"))
             std::cerr << detail.dump() << '\n';
-        else
-            std::cerr << "otlv: " << tlv::message(failure.status()) << " query=" << d.begin << ':'
-                      << d.end << (d.expected ? " expected=" : "") << (d.expected ? d.expected : "")
-                      << '\n';
+        else {
+            std::cerr << "otlv: "
+                      << format_diagnostic(d.diagnostic, diagnostic_format::compact, "query",
+                                           nullptr)
+                      << "; kind=" << tlv::message(failure.kind());
+            if (d.end > d.begin) std::cerr << "; expression=" << d.begin << ':' << d.end;
+            if (d.expected) std::cerr << "; expected=" << d.expected;
+            if (d.has_codec)
+                std::cerr << "; codec="
+                          << tlv::message(static_cast<tlv::codec_phase>(d.codec_detail.operation))
+                          << "; violation="
+                          << tlv::message(
+                                 static_cast<tlv::codec_violation>(d.codec_detail.violation));
+            std::cerr << '\n';
+        }
         return status;
     };
     struct variable {
@@ -212,6 +252,8 @@ int query_command::run() {
         tlv::document_format settings(*selected_format);
         settings.max_depth = options_.max_depth;
         settings.max_elements = options_.max_elements;
+        // The CLI owns the wire input, so Document matches keep their input coordinates.
+        settings.retain_source_locations = true;
         auto parsed = tlv::document::parse(
             tlv::bytes(reinterpret_cast<const tlv::byte*>(data()), size()), settings);
         if (!parsed) return fail(3, tlv::message(parsed.error().status()));
@@ -244,11 +286,12 @@ int query_command::run() {
                         if (!encoded) return fail(3, tlv::message(encoded.error().status()));
                         children.insert(children.end(), encoded->begin(), encoded->end());
                     }
+                const auto source = node->source_location();
                 emit(tlv::element_view(node->tag(), node->is_constructed()
                                                         ? tlv::value_view(tlv::bytes(
                                                               children.data(), children.size()))
                                                         : value),
-                     false, 0);
+                     source.has_offset != 0, source.offset);
             }
 #else
         return fail(2, "Document backend is disabled in this build");

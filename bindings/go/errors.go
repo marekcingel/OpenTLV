@@ -89,12 +89,14 @@ type Location struct {
 // borrowed. Optional fields retain native presence; absent detail is not inferred.
 // Reader offsets are absolute in the input, including discarded windows.
 // Writer offsets use the coordinate system of the native encoding operation.
-// Operation and Severity retain the native enumerated values.
+// Operation retains the native value shared by Reader and Writer evidence; use
+// ReaderPhase or WriterPhase for the typed category of the producing layer.
 // Location.Kind zero means unknown; Offset projects the known Location.Begin.
 type Diagnostic struct {
 	Location                                                  Location
 	Message                                                   string
-	Severity, Operation                                       int
+	Severity                                                  Severity
+	Operation                                                 int
 	Offset                                                    uint64
 	HasOffset                                                 bool
 	Expected, Actual                                          string
@@ -142,7 +144,7 @@ func (e *WriteError) Unwrap() error { return e.status }
 
 func publicDiagnostic(d capi.Diagnostic) Diagnostic {
 	size := func(v capi.OptionalSize) OptionalSize { return OptionalSize{v.Value, v.Present} }
-	result := Diagnostic{Location: Location{LocationDomain(d.Location.Domain), LocationKind(d.Location.Kind), d.Location.Begin, d.Location.End}, Message: d.Code.String(), Severity: d.Severity, Operation: d.Operation,
+	result := Diagnostic{Location: Location{LocationDomain(d.Location.Domain), LocationKind(d.Location.Kind), d.Location.Begin, d.Location.End}, Message: d.Code.String(), Severity: Severity(d.Severity), Operation: d.Operation,
 		Offset: d.Offset.Value, HasOffset: d.Offset.Present, Expected: d.Expected, Actual: d.Actual,
 		Tag: d.Tag, RawLength: d.RawLength, HasTag: d.HasTag, HasRawLength: d.HasRawLength,
 		TagOffset: size(d.TagOffset), LengthOffset: size(d.LengthOffset), ValueOffset: size(d.ValueOffset),
@@ -181,4 +183,30 @@ func parseError(code capi.Code, d capi.Diagnostic, base uint64) error {
 func writeError(code capi.Code, d capi.Diagnostic) error {
 	d.Code = code
 	return &WriteError{Diagnostic: publicDiagnostic(d), status: StatusError{code: code}}
+}
+
+// ReaderPhase types Operation for Reader evidence, including Query Reader causes.
+func (d Diagnostic) ReaderPhase() ReaderOperation { return ReaderOperation(d.Operation) }
+
+// WriterPhase types Operation for Writer evidence.
+func (d Diagnostic) WriterPhase() WriterOperation { return WriterOperation(d.Operation) }
+
+// Phase identifies the failed Reader operation.
+func (e *ParseError) Phase() ReaderOperation { return e.ReaderPhase() }
+
+// Phase identifies the failed Writer operation.
+func (e *WriteError) Phase() WriterOperation { return e.WriterPhase() }
+
+// String returns the canonical C coordinate-domain name.
+func (v LocationDomain) String() string { return capi.LocationDomainName(int(v)) }
+
+// String returns the canonical C location-anchor name.
+func (v LocationKind) String() string { return capi.LocationKindName(int(v)) }
+
+// String distinguishes unknown evidence from a known point at byte zero.
+func (v Location) String() string {
+	if v.Kind == LocationUnknown {
+		return "unknown location"
+	}
+	return fmt.Sprintf("%s %s %d..%d", v.Domain, v.Kind, v.Begin, v.End)
 }

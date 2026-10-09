@@ -61,6 +61,8 @@ from opentlv.program import (QueryProgram, QueryExecution, QueryMatch, QueryProv
                              QuerySchema, QueryTagAdapter, QueryDefinitionResolver, query_emv_resolve)
 
 __all__ = [
+    "ReaderOperation", "WriterOperation", "QueryErrorKind", "SchemaIssue", "SchemaDefinitionKind",
+    "CodecOperation", "CodecCause", "CodecViolation", "Severity",
     "QueryProgram", "QueryExecution", "QueryMatch", "QueryProvider", "QueryRule", "QuerySchema",
     "QueryTagAdapter", "QueryDefinitionResolver", "query_emv_resolve",
     "__version__",
@@ -125,3 +127,8 @@ __all__ = [
     "encoded_size",
     "element_encoded_size",
 ]
+
+from opentlv.diagnostic import (
+    ReaderOperation, WriterOperation, QueryErrorKind, SchemaIssue, SchemaDefinitionKind,
+    CodecOperation, CodecCause, CodecViolation, Severity,
+)
