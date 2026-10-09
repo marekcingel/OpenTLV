@@ -156,10 +156,39 @@ static void check_digits(const tlv_codec_t* codec, const uint8_t* data, size_t s
 static void check_definition(const tlv_emv_definition_t* definition, const uint8_t* data,
                              size_t size) {
     if (!definition || !definition->codec) return;
-    if (tlv_emv_builtin_value_kind(definition) == TLV_EMV_VALUE_DIGITS)
+    const tlv_emv_value_kind_t kind = tlv_emv_builtin_value_kind(definition);
+    if (kind != TLV_EMV_VALUE_DIGITS && !fixed_capacity(kind)) return;
+    const tlv_schema_entry_t* schema = definition->schema;
+    FUZZ_CHECK(schema != NULL);
+    const tlv_result_t length_result = tlv_schema_validate_length(schema, size);
+    /* Builtin definitions are valid; a rejected wire length is a Schema finding,
+     * distinct from invalid bytes in a representation of an admissible length. */
+    FUZZ_CHECK(length_result == TLV_OK || length_result == TLV_ERR_SCHEMA);
+    if (length_result == TLV_ERR_SCHEMA) {
+        fuzz_codec_fixed_value value;
+        tlv_codec_diagnostic_t diagnostic;
+        FUZZ_CHECK(tlv_codec_decode(definition->codec, data, size, &value, sizeof value,
+                                    &diagnostic) == TLV_ERR_SCHEMA);
+        FUZZ_CHECK(diagnostic.diagnostic.code == TLV_ERR_SCHEMA);
+        FUZZ_CHECK(diagnostic.codec.reported == TLV_ERR_SCHEMA);
+        FUZZ_CHECK(diagnostic.codec.operation == TLV_CODEC_OP_DECODE);
+        FUZZ_CHECK(diagnostic.codec.violation == TLV_CODEC_VIOLATION_NONE);
+        FUZZ_CHECK(diagnostic.codec.cause == TLV_CODEC_CAUSE_SCHEMA);
+        const tlv_codec_schema_detail_t* detail = &diagnostic.codec.detail.schema;
+        FUZZ_CHECK(detail->kind == TLV_SCHEMA_ISSUE_LENGTH && detail->has_length);
+        FUZZ_CHECK(detail->min_length == schema->min_length);
+        FUZZ_CHECK(detail->max_length == schema->max_length);
+        FUZZ_CHECK(detail->actual_length == size);
+        FUZZ_CHECK(detail->length_multiple == schema->length_multiple);
+        FUZZ_CHECK(detail->length_flags == schema->flags);
+        FUZZ_CHECK(tlv_codec_decode(definition->codec, data, size, &value, sizeof value, NULL) ==
+                   TLV_ERR_SCHEMA);
+        return;
+    }
+    if (kind == TLV_EMV_VALUE_DIGITS)
         check_digits(definition->codec, data, size);
     else
-        check_fixed(definition->codec, tlv_emv_builtin_value_kind(definition), data, size);
+        check_fixed(definition->codec, kind, data, size);
 }
 
 int LLVMFuzzerTestOneInput(const uint8_t* data, size_t size) {

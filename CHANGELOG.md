@@ -9,6 +9,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Fixed
 
+- Fix the EMV Codec fuzz oracle to expect `SCHEMA` for rejected wire lengths and verify preserved Schema length diagnostics, while retaining strict checks for invalid representations and round trips. (#556)
 - Fix the Query fuzz oracle for shared Codec failures and raw `int32_t` diagnostics, restoring the Clang fuzz build and checking preserved results, callback violations and unknown locations. (#556)
 - Store raw Codec and Query callback results as `int32_t` so C++ clients can safely inspect unknown and negative provider results; cover foreign C callbacks under sanitizers. This changes public field types; rebuild native clients and bindings. (#556)
 - Fix out-of-range C++ enum values in Codec and Query regression tests so UBSan can verify unknown callback-result handling. (#556)
