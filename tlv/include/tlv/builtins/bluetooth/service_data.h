@@ -53,9 +53,9 @@ typedef struct tlv_bluetooth_service_data16 {
  * Encode regenerates the UUID through #tlv_bluetooth_codec_uuid16 and copies
  * payload unchanged. Empty payloads are valid; no AD framing size limit applies.
  * A short UUID, incorrect encode object size, non-native payload size or total
- * size overflow returns #TLV_CODEC_ERR_INVALID_VALUE. Missing required pointers
- * or nonempty NULL payload return #TLV_CODEC_ERR_NULL_ARG. Insufficient output
- * capacity returns #TLV_CODEC_ERR_BUFFER_TOO_SHORT. Neither direction allocates.
+ * size overflow returns #TLV_ERR_INVALID_VALUE. Missing required pointers
+ * or nonempty NULL payload return #TLV_ERR_NULL_ARG. Insufficient output
+ * capacity returns #TLV_ERR_BUFFER_TOO_SHORT. Neither direction allocates.
  */
 extern TLV_API const tlv_codec_t tlv_bluetooth_codec_service_data16;
 
@@ -82,9 +82,9 @@ typedef struct tlv_bluetooth_service_data32 {
  * Encode regenerates the UUID through #tlv_bluetooth_codec_uuid32 and copies
  * payload unchanged. Empty payloads are valid; no AD framing size limit applies.
  * A short UUID, incorrect encode object size, non-native payload size or total
- * size overflow returns #TLV_CODEC_ERR_INVALID_VALUE. Missing required pointers
- * or nonempty NULL payload return #TLV_CODEC_ERR_NULL_ARG. Insufficient output
- * capacity returns #TLV_CODEC_ERR_BUFFER_TOO_SHORT. Neither direction allocates.
+ * size overflow returns #TLV_ERR_INVALID_VALUE. Missing required pointers
+ * or nonempty NULL payload return #TLV_ERR_NULL_ARG. Insufficient output
+ * capacity returns #TLV_ERR_BUFFER_TOO_SHORT. Neither direction allocates.
  */
 extern TLV_API const tlv_codec_t tlv_bluetooth_codec_service_data32;
 
@@ -111,9 +111,9 @@ typedef struct tlv_bluetooth_service_data128 {
  * Encode regenerates the UUID through #tlv_bluetooth_codec_uuid128 and copies
  * payload unchanged. Empty payloads are valid; no AD framing size limit applies.
  * A short UUID, incorrect encode object size, non-native payload size or total
- * size overflow returns #TLV_CODEC_ERR_INVALID_VALUE. Missing required pointers
- * or nonempty NULL payload return #TLV_CODEC_ERR_NULL_ARG. Insufficient output
- * capacity returns #TLV_CODEC_ERR_BUFFER_TOO_SHORT. Neither direction allocates.
+ * size overflow returns #TLV_ERR_INVALID_VALUE. Missing required pointers
+ * or nonempty NULL payload return #TLV_ERR_NULL_ARG. Insufficient output
+ * capacity returns #TLV_ERR_BUFFER_TOO_SHORT. Neither direction allocates.
  */
 extern TLV_API const tlv_codec_t tlv_bluetooth_codec_service_data128;
 

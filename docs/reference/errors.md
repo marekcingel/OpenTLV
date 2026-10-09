@@ -9,8 +9,7 @@ available yet, except for `TLV_ERR_INVALID_STATE` and Query kind `STATE` (#552),
 `TLV_ERR_UNSUPPORTED`/`TLV_ERR_CALLBACK` with resource and callback classification (#554). The
 tables below describe the current codes and behavior.
 
-Core operations return a `tlv_result_t` from `tlv/error.h`; Codec operations
-currently have a separate `tlv_codec_result_t`. Zero is success; nonzero core
+Core and Codec operations return the shared `tlv_result_t` from `tlv/error.h`. Zero is success; nonzero core
 results include errors, end-of-input and the resumable
 `TLV_NEED_MORE_DATA` condition. `tlv_strerror` returns a static, readable
 description of any code and `"unknown error"` for an unrecognized one; never free or
@@ -103,7 +102,7 @@ the breaking #551 migration; `INVALID_STATE = 19` does not promise append-only e
 | `TLV_ERR_INVALID_TAG_SIZE` | 11 | A tag size is outside the range the operation or format supports. | A tag length the selected format rejects (for example more than 8 bytes for BER, CER and DER, or a tag width different from the configured Fixed width), or an empty tag where the operation needs bytes. Also the numeric tag conversions for empty tags and tags longer than 8 bytes. `tlv_tag_t` itself has no size limit. |
 | `TLV_ERR_INVALID_BYTE_ORDER` | 12 | A byte order is unknown or unsupported. | The `TLV_BYTE_ORDER_*` value passed to the integer conversion functions in `tlv/endian.h` and `tlv/tag.h`, or `tlv_fixed_format_t.length.byte_order` in [configurable fixed-width TLV](../formats/fixed/configurable.md). |
 | `TLV_ERR_OVERFLOW` | 13 | An unsigned value cannot fit the requested numeric width, or logical size arithmetic overflows. | The value against the destination width in the same integer conversion functions. |
-| `TLV_ERR_INVALID_VALUE` | 14 | Content or its interpretation is invalid. | DER/CER canonical Value checks and SET ordering; Query operand types, variable bindings, malformed images, legacy codec failures and scalar cardinality; malformed structural event streams. Configuration and provider contract violations use separate results. |
+| `TLV_ERR_INVALID_VALUE` | 14 | Content or its interpretation is invalid. | DER/CER canonical Value checks and SET ordering; Query operand types, variable bindings, malformed images, invalid converted Values and scalar cardinality; malformed structural event streams. Configuration and provider contract violations use separate results. |
 | `TLV_ERR_UNSUPPORTED` | 15 | A type, Query capability or program-image version is unsupported. | Strict ASN.1 validation rejects unchecked types; see [DER validation](../standards/der/README.md#strict-universal-value-validation). Query also uses this code outside ASN.1; Schema definition checks use it for valid graphs exceeding fixed checking capacity. |
 | `TLV_ERR_INVALID_SCHEMA` | 16 | A schema definition is invalid independently of input. | Constraint kinds and bounds, required references, rule/group tables and DER type definitions. |
 | `TLV_ERR_NATIVE_SIZE` | 17 | A logical size exceeds the native address space. | Checked conversion to `size_t`; the logical quantity itself remains valid. |
@@ -141,8 +140,8 @@ Explicit visitor error stops remain `VISITOR`; unknown visitor actions are
 
 Query hook output with a wrong type, nonempty NULL span or invalid UTF-8 returns
 `CALLBACK` with Query kind `CALLBACK`, preserving the reported codec result
-(including `TLV_CODEC_OK`). Legacy ordinary codec failures still use
-`INVALID_VALUE` plus `CODEC` until the shared result migration in #556.
+(including `TLV_OK`). Ordinary conversion failures preserve their original
+result and typed cause with Query kind `CODEC` (or `STATE` for lifecycle misuse).
 Malformed stored images use `INVALID_VALUE` plus `IMAGE`; a recognized image
 with an incompatible version uses `UNSUPPORTED` plus `IMAGE_VERSION`.
 
@@ -204,6 +203,19 @@ and `SchemaError` with `kind="missing"` for required absence.
 
 Custom format callback errors propagate unchanged through the generic reader and writer,
 so a custom format can return any of the codes above.
+
+## Conversion failures
+
+Codec, Structure Codec and Query conversions return the same `tlv_result_t`.
+The separate Codec enum, constants and strerror entry point were removed in #556.
+Callbacks and entry points accept optional `tlv_codec_diagnostic_t` output.
+Structure validation preserves the original Reader/Schema/resource result and
+cause; Query retains this evidence alongside its related expression span.
+Invalid callback discriminators or successful output contracts report `CALLBACK`
+while preserving the callback's reported value, including `OK`.
+
+This changes callback signatures and the Query diagnostic layout. Rebuild native
+clients and use matching bindings. Valid conversion bytes are unchanged.
 
 ## See also
 

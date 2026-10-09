@@ -26,7 +26,9 @@ class OpenTLVError(Exception):
     preserve the Reader's absolute source coordinates.
     `raw_length` and `declared_length` preserve reader length diagnostics
     without narrowing the decoded value. For writer failures, `required` is
-    the exact encoded size needed to grow the output buffer.
+    the exact encoded size needed to grow the output buffer. `codec_detail`
+    optionally carries conversion evidence; its delegated `schema` is an owned
+    `SchemaDiagnostic`.
     """
 
     def __init__(self, code: int, offset: Optional[int] = None, expected: Optional[str] = None,
@@ -55,6 +57,7 @@ class OpenTLVError(Exception):
         self.length_offset = length_offset
         self.value_offset = value_offset
         self.enclosing_end = enclosing_end
+        self.codec_detail = None
 
 
 class BufferTooShortError(OpenTLVError):
@@ -181,12 +184,16 @@ def _from_native(error: "_native.Error") -> OpenTLVError:
                        value_offset=fields.get("value_offset"), enclosing_end=fields.get("enclosing_end"),
                        kind=fields.get("kind"),
                        location=Location(**fields.get("location", {})))
+    result.codec_detail = fields.get("codec_detail")
+    if result.codec_detail and "schema" in result.codec_detail:
+        from opentlv.schema import _diagnostic_from_native
+        result.codec_detail["schema"] = _diagnostic_from_native(result.codec_detail["schema"])
     result.definition_kind = fields.get("definition_kind", 0)
     result.definition_index = fields.get("definition_index")
     # Preserve every Query field alongside the original typed Reader/status error.
     result.query = {key: fields.get(key) for key in (
         "query_kind", "begin", "end", "source_offset", "query_expected",
-        "limit", "configured", "codec")} if "query_kind" in fields else None
+        "limit", "configured", "codec", "codec_detail")} if "query_kind" in fields else None
     if "applied" in fields:
         result.applied = fields["applied"]
     if "rule" in fields:

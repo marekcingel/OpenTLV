@@ -19,7 +19,7 @@ from _opentlv import version_string
 
 from opentlv.definition import Definition, DefinitionRegistry
 from opentlv import codec
-from opentlv.codec import CodecError, NumberCodec, NumberEncoding
+from opentlv.codec import NumberCodec, NumberEncoding
 from opentlv.document import Document, DocumentBuilder, Node
 from opentlv.element import Element
 from opentlv.location import Location
@@ -72,7 +72,6 @@ __all__ = [
     "codec",
     "Definition",
     "DefinitionRegistry",
-    "CodecError",
     "NumberCodec",
     "NumberEncoding",
     "EndOfBufferError",

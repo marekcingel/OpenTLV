@@ -7,6 +7,7 @@
 #include "compat.h"
 
 #include <tlv/error.h>
+#include <tlv/codec/diagnostic.h>
 #include <tlv/reader/reader.h>
 #include <tlv/writer/writer.h>
 
@@ -56,5 +57,8 @@ int opentlv_lua_raise_reader_error(lua_State* L, tlv_result_t code,
 /* Copies borrowed writer diagnostic fields into the raised Lua error table. */
 int opentlv_lua_raise_writer_error(lua_State* L, tlv_result_t code,
                                    const tlv_writer_diagnostic_t* diag);
+
+/* Push owned conversion detail without duplicating the enclosing common diagnostic. */
+void opentlv_lua_push_codec_detail(lua_State* L, const tlv_codec_detail_t* detail);
 
 #endif /* OPENTLV_LUA_ERROR_H */

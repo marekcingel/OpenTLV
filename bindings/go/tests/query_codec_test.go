@@ -100,38 +100,41 @@ func TestValueCodecs(t *testing.T) {
 }
 func TestCodecFailures(t *testing.T) {
 	_, err := opentlv.Uint16BECodec().Decode([]byte{1})
-	if !errors.Is(err, opentlv.ErrCodecInvalidValue) {
+	if !errors.Is(err, opentlv.ErrInvalidValue) {
 		t.Fatal(err)
 	}
-	var detail opentlv.CodecError
-	if !errors.As(err, &detail) || errors.Is(err, opentlv.ErrInvalidValue) {
-		t.Fatal("codec status domain")
+	var detail *opentlv.CodecError
+	if !errors.As(err, &detail) || !errors.Is(err, opentlv.ErrInvalidValue) {
+		t.Fatal("shared codec status")
+	}
+	if detail.Detail == nil || detail.Detail.Operation != 0 || detail.Detail.Reported != opentlv.ErrInvalidValue.Code() {
+		t.Fatal("missing codec evidence", detail)
 	}
 	_, err = opentlv.Int64Codec().Decode([]byte{0, 1})
-	if !errors.Is(err, opentlv.ErrCodecInvalidValue) {
+	if !errors.Is(err, opentlv.ErrInvalidValue) {
 		t.Fatal(err)
 	}
 	_, err = opentlv.NumberCodec(opentlv.NumberConfig{Width: 1}).Encode(256)
-	if !errors.Is(err, opentlv.ErrCodecInvalidValue) {
+	if !errors.Is(err, opentlv.ErrInvalidValue) {
 		t.Fatal(err)
 	}
 	_, err = opentlv.TextCodec(opentlv.TextConfig{Alphabet: opentlv.ASCIIAlnum}).Decode([]byte{' '})
-	if !errors.Is(err, opentlv.ErrCodecInvalidValue) {
+	if !errors.Is(err, opentlv.ErrInvalidValue) {
 		t.Fatal(err)
 	}
 	_, err = opentlv.DigitsCodec(0).Decode([]byte{0xa1})
-	if !errors.Is(err, opentlv.ErrCodecInvalidValue) {
+	if !errors.Is(err, opentlv.ErrInvalidValue) {
 		t.Fatal(err)
 	}
 	_, err = opentlv.IPv4ListCodec().Decode([]byte{1})
-	if !errors.Is(err, opentlv.ErrCodecInvalidValue) {
+	if !errors.Is(err, opentlv.ErrInvalidValue) {
 		t.Fatal(err)
 	}
 	var zero opentlv.Codec[uint8]
-	if _, err = zero.Decode(nil); !errors.Is(err, opentlv.ErrCodecUnsupported) {
+	if _, err = zero.Decode(nil); !errors.Is(err, opentlv.ErrUnsupported) {
 		t.Fatal(err)
 	}
-	if _, err = zero.Encode(0); !errors.Is(err, opentlv.ErrCodecUnsupported) {
+	if _, err = zero.Encode(0); !errors.Is(err, opentlv.ErrUnsupported) {
 		t.Fatal(err)
 	}
 }

@@ -790,6 +790,68 @@ static void query_reader_diagnostic(builder_t* b, const tlv_diagnostic_t* common
     }
     builder_text(b, "]}");
 }
+static void query_codec_diagnostic(builder_t* b, const tlv_diagnostic_t* common,
+                                   const tlv_codec_detail_t* d) {
+    builder_text(b, ",\"codec_detail\":{\"operation\":");
+    builder_number(b, d->operation);
+    builder_text(b, ",\"reported\":");
+    builder_number(b, d->reported);
+    builder_text(b, ",\"violation\":");
+    builder_number(b, d->violation);
+    builder_text(b, ",\"cause\":");
+    builder_number(b, d->cause);
+    if (d->representation) {
+        builder_text(b, ",\"representation\":");
+        builder_json_string(b, d->representation);
+    }
+    if (d->cause == TLV_CODEC_CAUSE_READER) query_reader_diagnostic(b, common, &d->detail.reader);
+    if (d->cause == TLV_CODEC_CAUSE_SCHEMA) {
+        const tlv_codec_schema_detail_t* v = &d->detail.schema;
+        builder_text(b, ",\"schema\":{\"kind\":");
+        builder_number(b, v->kind);
+        builder_text(b, ",\"tag\":\"");
+        builder_hex(b, v->tag.data, v->tag.size);
+        builder_text(b, "\"");
+        if (v->field) {
+            builder_text(b, ",\"field\":");
+            builder_json_string(b, v->field);
+        }
+        builder_text(b, ",\"definition_kind\":");
+        builder_number(b, v->definition.kind);
+        builder_text(b, ",\"definition_index\":");
+        builder_number(b, v->definition.index);
+        builder_text(b, ",\"is_group\":");
+        builder_number(b, v->is_group);
+        builder_text(b, ",\"has_occurs\":");
+        builder_number(b, v->has_occurs);
+        builder_text(b, ",\"min_occurs\":");
+        builder_number(b, v->min_occurs);
+        builder_text(b, ",\"max_occurs\":");
+        builder_number(b, v->max_occurs);
+        builder_text(b, ",\"occurs\":");
+        builder_number(b, v->occurs);
+        builder_text(b, ",\"has_length\":");
+        builder_number(b, v->has_length);
+        builder_text(b, ",\"min_length\":");
+        builder_number(b, v->min_length);
+        builder_text(b, ",\"max_length\":");
+        builder_number(b, v->max_length);
+        builder_text(b, ",\"actual_length\":");
+        builder_number(b, v->actual_length);
+        builder_text(b, ",\"has_form\":");
+        builder_number(b, v->has_form);
+        builder_text(b, ",\"expected_form\":");
+        builder_number(b, v->expected_form);
+        builder_text(b, ",\"actual_constructed\":");
+        builder_number(b, v->actual_constructed);
+        builder_text(b, ",\"length_multiple\":");
+        builder_number(b, v->length_multiple);
+        builder_text(b, ",\"length_flags\":");
+        builder_number(b, v->length_flags);
+        builder_text(b, "}");
+    }
+    builder_text(b, "}");
+}
 static void query_status(builder_t* b, tlv_result_t code, const tlv_query_diagnostic_t* d) {
     b->size = 0;
     b->failed = 0;
@@ -822,6 +884,7 @@ static void query_status(builder_t* b, tlv_result_t code, const tlv_query_diagno
             builder_text(b, ",\"source_offset\":");
             builder_number(b, d->diagnostic.location.begin);
         }
+        if (d->has_codec) query_codec_diagnostic(b, &d->diagnostic, &d->codec_detail);
         if (d->has_reader) query_reader_diagnostic(b, &d->diagnostic, &d->reader);
     }
     builder_text(b, "}");

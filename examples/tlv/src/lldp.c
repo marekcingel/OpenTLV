@@ -22,7 +22,7 @@ int main(void) {
             size_t   size;
             if (tlv_size_to_native(element.value.size, &size) != TLV_OK) return 1;
             if (tlv_codec_decode(&tlv_lldp_codec_ttl, element.value.data, size, &seconds,
-                                 sizeof(seconds)) != TLV_CODEC_OK)
+                                 sizeof(seconds), NULL) != TLV_OK)
                 return 1;
             if (seconds != 120) return 1;
         }

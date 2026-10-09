@@ -24,19 +24,20 @@ namespace tlv {
  * @param codec Structure codec descriptor.
  * @param data  Encoded sequence; borrowed.
  *
- * @return The decoded object, or the #codec_errc reported by the
+ * @return The decoded object, or the tlv::codec_failure reported by the
  *         codec.
  *
  * @warning The codec may borrow `data` in the returned object; the caller
  *          must keep `data` alive as long as the object is used.
  */
 template <typename T>
-TLV_NODISCARD expected<T, codec_errc> decode_structure(const tlv_structure_codec_t& codec,
-                                                       bytes                        data) {
-    T          value{};
+TLV_NODISCARD expected<T, codec_failure> decode_structure(const tlv_structure_codec_t& codec,
+                                                          bytes                        data) {
+    T                      value{};
+    tlv_codec_diagnostic_t diagnostic;
     const auto rc = tlv_structure_decode(&codec, reinterpret_cast<const uint8_t*>(data.data()),
-                                         data.size(), &value, sizeof(T));
-    if (rc != TLV_CODEC_OK) return unexpected<codec_errc>(static_cast<codec_errc>(rc));
+                                         data.size(), &value, sizeof(T), &diagnostic);
+    if (rc != TLV_OK) return unexpected<codec_failure>(codec_failure(rc, diagnostic));
     return value;
 }
 
@@ -54,17 +55,19 @@ TLV_NODISCARD expected<T, codec_errc> decode_structure(const tlv_structure_codec
  * @param capacity Destination capacity in bytes.
  *
  * @return The number of bytes written (or required, for a size query), or
- *         the #codec_errc reported by the codec.
+ *         the tlv::codec_failure reported by the codec.
  *
  * @warning On error the contents of `data` are unspecified.
  */
 template <typename T>
-TLV_NODISCARD expected<size_t, codec_errc>
+TLV_NODISCARD expected<size_t, codec_failure>
 encode_structure(const tlv_structure_codec_t& codec, const T& value, byte* data, size_t capacity) {
-    size_t     written = 0;
-    const auto rc = tlv_structure_encode(&codec, &value, sizeof(T),
-                                         reinterpret_cast<uint8_t*>(data), capacity, &written);
-    if (rc != TLV_CODEC_OK) return unexpected<codec_errc>(static_cast<codec_errc>(rc));
+    size_t                 written = 0;
+    tlv_codec_diagnostic_t diagnostic;
+    const auto             rc =
+        tlv_structure_encode(&codec, &value, sizeof(T), reinterpret_cast<uint8_t*>(data), capacity,
+                             &written, &diagnostic);
+    if (rc != TLV_OK) return unexpected<codec_failure>(codec_failure(rc, diagnostic));
     return written;
 }
 } // namespace tlv

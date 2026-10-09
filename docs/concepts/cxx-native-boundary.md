@@ -20,7 +20,7 @@ exact declarations belong in the [C++ reference](../reference/cxx-api.md).
 | Schema | `schema_storage<N>`, `schema`, `validation_report<N>` | Caller-owned bounded tables and reports; validation delegates to C without allocation |
 | Runtime Values | `dynamic_codec`, `emv::dictionary` | Explicit representation contracts and immutable metadata; no tag lookup in Value conversion |
 | Selection | `query`, `query_matcher`, Document Query | C grammar and matching over borrowed or owned traversal |
-| Typed Values | `field`, Value codecs, typed decode/find/write | Explicit Tag/codec association; separate codec and framing errors |
+| Typed Values | `field`, Value codecs, typed decode/find/write | Explicit Tag/codec association; shared results with codec and framing context |
 | Standards | `ber`, `der`, `cer`, `asn1`, `emv`, `bluetooth`, `lldp`, `dhcp`, `nfc` | Domain conveniences under enabled native components |
 
 Generic concepts stay public under `tlv`. `tlv::detail` contains descriptor
@@ -54,7 +54,7 @@ allocate. Successful borrowed/fixed-size codec operations retain their C
 allocation behavior.
 
 Cursor operations return `expected` with `tlv::error`; copying the error and its
-borrowed static message does not allocate. `status()` exposes `tlv::errc`, with
+borrowed static message does not allocate. `status()` exposes `tlv::codec_failure`, with
 distinct `end_of_input` and `need_more_data` outcomes. Located errors expose
 `has_offset()`, `offset()` and `stage()`. Custom error descriptions are borrowed
 and must outlive the errors. Format customization uses `format_failure` and scoped construction
@@ -240,7 +240,7 @@ without heap allocation for ancestor descriptors; their identifier bytes remain 
 
 Custom Format methods use exact C++ return types and `const noexcept` callbacks;
 the existing positive and negative compile checks enforce this contract. Typed
-codecs return `expected<T, codec_errc>` and may propagate their own allocation
+codecs return `expected<T, codec_failure>` and may propagate their own allocation
 exceptions. `codec_owner<C>` additionally requires const, nonthrowing decode and
 encode methods and a nothrow move-assignable representation because it invokes
 those methods through the canonical C callback ABI. Non-default-constructible
@@ -316,8 +316,8 @@ C engine harnesses remain outside this gate. Run
 ### Source migration
 
 Use `error.message()` instead of the previous owning string field, and scoped
-`errc`/`codec_errc` values instead of C constants in C++ callbacks. Custom typed
-codecs must update their `expected` error type to `codec_errc`. Use
+`codec_failure`/`codec_failure` values instead of C constants in C++ callbacks. Custom typed
+codecs must update their `expected` error type to `codec_failure`. Use
 `fixed_format<...>::view()` or a preset object, and `runtime_fixed_format` for
 runtime policies. Raw Format overloads become `native::borrow_format(raw)`.
 Native typed codec adapters move to `native::codec_adapter`; raw Schema

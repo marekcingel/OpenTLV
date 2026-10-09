@@ -116,9 +116,9 @@ static void                          push_ipv4_list(lua_State* L, const void* va
     if (v->raw.size / 4 > INT_MAX) luaL_error(L, "array too large");
     lua_newtable(L);
     for (size_t i = 0; i < v->raw.size / 4; ++i) {
-        tlv_ipv4_t         item;
-        tlv_codec_result_t code = tlv_ipv4_list_at(v, i, &item);
-        if (code != TLV_CODEC_OK) opentlv_lua_codec_raise(L, code);
+        tlv_ipv4_t   item;
+        tlv_result_t code = tlv_ipv4_list_at(v, i, &item);
+        if (code != TLV_OK) opentlv_lua_codec_raise(L, code);
         push_ipv4(L, &item);
         lua_rawseti(L, -2, (int)i + 1);
     }
@@ -134,9 +134,9 @@ static void get_ipv4_list(lua_State* L, int index, void* value) {
         lua_rawgeti(L, index, (int)i + 1);
         get_ipv4(L, lua_gettop(L), &item);
         lua_pop(L, 1);
-        tlv_codec_result_t code =
-            tlv_codec_encode(&tlv_codec_ipv4, &item, sizeof item, bytes + i * 4, 4, &written);
-        if (code != TLV_CODEC_OK) opentlv_lua_codec_raise(L, code);
+        tlv_result_t code =
+            tlv_codec_encode(&tlv_codec_ipv4, &item, sizeof item, bytes + i * 4, 4, &written, NULL);
+        if (code != TLV_OK) opentlv_lua_codec_raise(L, code);
     }
     v->raw.data = bytes;
     v->raw.size = count * 4;
@@ -694,8 +694,8 @@ static void                          push_uuid_list(lua_State* L, const void* va
             uint32_t                u32;
             tlv_bluetooth_uuid128_t u128;
         } item;
-        tlv_codec_result_t code = tlv_bluetooth_uuid_list_at(v, i, &item, sizeof item);
-        if (code != TLV_CODEC_OK) opentlv_lua_codec_raise(L, code);
+        tlv_result_t code = tlv_bluetooth_uuid_list_at(v, i, &item, sizeof item);
+        if (code != TLV_OK) opentlv_lua_codec_raise(L, code);
         if (v->uuid_size == 2)
             push_u16(L, &item.u16);
         else if (v->uuid_size == 4)
@@ -717,9 +717,9 @@ static void get_uuid_list(lua_State* L, int index, void* value, size_t width,
         lua_rawgeti(L, index, (int)i + 1);
         rep->get(L, lua_gettop(L), item);
         lua_pop(L, 1);
-        tlv_codec_result_t code =
-            tlv_codec_encode(codec, item, rep->size, bytes + i * width, width, &written);
-        if (code != TLV_CODEC_OK) opentlv_lua_codec_raise(L, code);
+        tlv_result_t code =
+            tlv_codec_encode(codec, item, rep->size, bytes + i * width, width, &written, NULL);
+        if (code != TLV_OK) opentlv_lua_codec_raise(L, code);
     }
     v->raw.data = bytes;
     v->raw.size = count * width;
@@ -1006,7 +1006,7 @@ static int                           emv_find(lua_State* L) {
         case TLV_EMV_VALUE_AFL: rep = &rep_emv_afl; break;
         case TLV_EMV_VALUE_CVM_RESULT: rep = &rep_emv_cvm; break;
         case TLV_EMV_VALUE_TRACK2: rep = &rep_emv_track2; break;
-        default: return opentlv_lua_codec_raise(L, TLV_CODEC_ERR_UNSUPPORTED);
+        default: return opentlv_lua_codec_raise(L, TLV_ERR_UNSUPPORTED);
     }
     opentlv_lua_codec_push(L, definition->codec, rep);
     return 1;

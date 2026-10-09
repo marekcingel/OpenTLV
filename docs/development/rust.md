@@ -121,8 +121,8 @@ schema.validate(&data, opentlv::Format::Ber, &opentlv::ValidationLimits::default
 
 `Codec` converts a raw value to a typed `Value` (`Number`, `Flags`, `Digits`,
 `Date`, `Time`, `Afl`, `Track2`, ...) with `decode`, and back with `encode`,
-`encode_into` and `encoded_size`. Errors use `CodecError`, mapped from
-`tlv_codec_result_t`, which is separate from the framing `Error`. `Codec::amount`
+`encode_into` and `encoded_size`. Errors use `CodecFailure`, mapped from
+the shared `Error` and optional owned `CodecDiagnostic`. `Codec::amount`
 is the amount codec; every other codec comes from the EMV dictionary:
 
 ```rust

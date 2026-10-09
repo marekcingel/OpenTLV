@@ -172,8 +172,8 @@ static tlv_result_t validate_leaf_constraint(const tlv_der_schema_type_t* type, 
     if (length < constraint->min_length || length > constraint->max_length) return TLV_ERR_SCHEMA;
     if (constraint->value_constraint) {
         int64_t value = 0;
-        if (tlv_codec_decode(&tlv_asn1_codec_integer, data, length, &value, sizeof(value)) !=
-            TLV_CODEC_OK)
+        if (tlv_codec_decode(&tlv_asn1_codec_integer, data, length, &value, sizeof(value), NULL) !=
+            TLV_OK)
             return TLV_ERR_INVALID_VALUE;
         return tlv_value_constraint_validate(constraint->value_constraint, value);
     }

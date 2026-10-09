@@ -3,7 +3,6 @@
 
 #include "../diagnostic_assertions.h"
 #include "../../tlv/src/callback_internal.h"
-#include "../../tlv/src/codec/result_internal.h"
 #include "tlv/formats/compose.h"
 #include "tlv/reader/reader.h"
 #include "tlv/writer/writer.h"
@@ -22,9 +21,6 @@ TEST(Unit_Tlv_Format, CallbackResultDomainsPreserveErrorsAndRejectControlStatuse
         }
     }
     EXPECT_EQ(TLV_ERR_CALLBACK, tlv_callback_result(static_cast<tlv_result_t>(21), 1));
-    for (int code = TLV_CODEC_OK; code <= TLV_CODEC_ERR_INVALID_STRUCTURE; ++code)
-        EXPECT_TRUE(tlv_codec_result_valid(static_cast<tlv_codec_result_t>(code)));
-    EXPECT_FALSE(tlv_codec_result_valid(static_cast<tlv_codec_result_t>(7)));
     EXPECT_STREQ("invalid data or application representation", tlv_strerror(TLV_ERR_INVALID_VALUE));
 }
 

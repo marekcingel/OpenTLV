@@ -97,10 +97,10 @@ After reading the Tx Power element, for example:
 size_t length;
 int8_t dbm;
 if (tlv_size_to_native(element.value.size, &length) == TLV_OK) {
-    tlv_codec_result_t result = tlv_codec_decode(
+    tlv_result_t result = tlv_codec_decode(
         &tlv_bluetooth_ad_codec_tx_power, element.value.data, length,
-        &dbm, sizeof(dbm));
-    /* On success dbm is -4; otherwise tlv_codec_strerror(result) describes the error. */
+        &dbm, sizeof(dbm), NULL);
+    /* On success dbm is -4; otherwise tlv_strerror(result) describes the error. */
     (void)result;
 }
 ```
@@ -112,9 +112,9 @@ remain alive and immutable. Encode takes the same C representation and supports
 borrowed pointer. Accepted bytes round-trip exactly.
 
 Malformed values (including invalid UTF-8, non-minimal Flags and invalid Tx
-Power) report `TLV_CODEC_ERR_INVALID_VALUE`. Missing pointers report
-`TLV_CODEC_ERR_NULL_ARG`, and insufficient output capacity reports
-`TLV_CODEC_ERR_BUFFER_TOO_SHORT`. `tlv_codec_strerror()` provides readable
+Power) report `TLV_ERR_INVALID_VALUE`. Missing pointers report
+`TLV_ERR_NULL_ARG`, and insufficient output capacity reports
+`TLV_ERR_BUFFER_TOO_SHORT`. `tlv_strerror()` provides readable
 diagnostics; these are distinct from framing and schema errors. Applications
 can retain the parsed tag and source offset alongside a codec error.
 
@@ -329,11 +329,11 @@ int decode_service_uuids(void) {
     tlv_bluetooth_uuid_list_t list;
     size_t count;
     if (tlv_codec_decode(&tlv_bluetooth_codec_uuid16_list, raw, sizeof(raw),
-                         &list, sizeof(list)) != TLV_CODEC_OK) return 1;
+                         &list, sizeof(list), NULL) != TLV_OK) return 1;
     if (tlv_size_to_native(list.raw.size / list.uuid_size, &count) != TLV_OK) return 1;
     for (size_t i = 0; i < count; ++i) {
         uint16_t uuid;
-        if (tlv_bluetooth_uuid_list_at(&list, i, &uuid, sizeof(uuid)) != TLV_CODEC_OK)
+        if (tlv_bluetooth_uuid_list_at(&list, i, &uuid, sizeof(uuid)) != TLV_OK)
             return 1;
         /* uuid is 0x180F, then 0x180A. list.raw still points to raw. */
     }

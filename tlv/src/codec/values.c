@@ -5,29 +5,34 @@
 #include "tlv/endian.h"
 #include <string.h>
 
-static tlv_codec_result_t decode_uint8(const void* context, const uint8_t* data, size_t size,
-                                       void* value, size_t capacity) {
+static tlv_result_t decode_uint8(const void* context, const uint8_t* data, size_t size, void* value,
+                                 size_t capacity, tlv_codec_diagnostic_t* diagnostic) {
+    tlv_codec_diagnostic_init(diagnostic, TLV_CODEC_OP_DECODE);
     uint8_t result;
     (void)context;
-    if (size != 1) return TLV_CODEC_ERR_INVALID_VALUE;
-    if (capacity < sizeof(result)) return TLV_CODEC_ERR_BUFFER_TOO_SHORT;
+    if (size != 1) return tlv_codec_diagnostic_result(diagnostic, TLV_ERR_INVALID_VALUE);
+    if (capacity < sizeof(result))
+        return tlv_codec_diagnostic_result(diagnostic, TLV_ERR_BUFFER_TOO_SHORT);
     result = data[0];
     memcpy(value, &result, sizeof(result));
-    return TLV_CODEC_OK;
+    return tlv_codec_diagnostic_result(diagnostic, TLV_OK);
 }
 
-static tlv_codec_result_t encode_uint8(const void* context, const void* value, size_t size,
-                                       uint8_t* data, size_t capacity, size_t* written) {
+static tlv_result_t encode_uint8(const void* context, const void* value, size_t size, uint8_t* data,
+                                 size_t capacity, size_t* written,
+                                 tlv_codec_diagnostic_t* diagnostic) {
+    tlv_codec_diagnostic_init(diagnostic, data ? TLV_CODEC_OP_ENCODE : TLV_CODEC_OP_MEASURE);
     uint8_t input;
     (void)context;
-    if (size != sizeof(input)) return TLV_CODEC_ERR_INVALID_VALUE;
+    if (size != sizeof(input))
+        return tlv_codec_diagnostic_result(diagnostic, TLV_ERR_INVALID_VALUE);
     if (data) {
-        if (capacity < 1) return TLV_CODEC_ERR_BUFFER_TOO_SHORT;
+        if (capacity < 1) return tlv_codec_diagnostic_result(diagnostic, TLV_ERR_BUFFER_TOO_SHORT);
         memcpy(&input, value, sizeof(input));
         data[0] = input;
     }
     *written = 1;
-    return TLV_CODEC_OK;
+    return tlv_codec_diagnostic_result(diagnostic, TLV_OK);
 }
 
 const tlv_codec_t tlv_codec_uint8 = {NULL, decode_uint8, encode_uint8};
@@ -35,25 +40,31 @@ const tlv_codec_t tlv_codec_uint8 = {NULL, decode_uint8, encode_uint8};
 static const tlv_byte_order_t big_endian = TLV_BYTE_ORDER_BIG_ENDIAN;
 static const tlv_byte_order_t little_endian = TLV_BYTE_ORDER_LITTLE_ENDIAN;
 
-static tlv_codec_result_t decode_uint16(const void* context, const uint8_t* data, size_t size,
-                                        void* value, size_t capacity) {
+static tlv_result_t decode_uint16(const void* context, const uint8_t* data, size_t size,
+                                  void* value, size_t capacity,
+                                  tlv_codec_diagnostic_t* diagnostic) {
+    tlv_codec_diagnostic_init(diagnostic, TLV_CODEC_OP_DECODE);
     uint16_t result;
     (void)context;
-    if (size != 2) return TLV_CODEC_ERR_INVALID_VALUE;
-    if (capacity < sizeof(result)) return TLV_CODEC_ERR_BUFFER_TOO_SHORT;
+    if (size != 2) return tlv_codec_diagnostic_result(diagnostic, TLV_ERR_INVALID_VALUE);
+    if (capacity < sizeof(result))
+        return tlv_codec_diagnostic_result(diagnostic, TLV_ERR_BUFFER_TOO_SHORT);
     result = *(const tlv_byte_order_t*)context == TLV_BYTE_ORDER_BIG_ENDIAN ? tlv_read_u16_be(data)
                                                                             : tlv_read_u16_le(data);
     memcpy(value, &result, sizeof(result));
-    return TLV_CODEC_OK;
+    return tlv_codec_diagnostic_result(diagnostic, TLV_OK);
 }
 
-static tlv_codec_result_t encode_uint16(const void* context, const void* value, size_t size,
-                                        uint8_t* data, size_t capacity, size_t* written) {
+static tlv_result_t encode_uint16(const void* context, const void* value, size_t size,
+                                  uint8_t* data, size_t capacity, size_t* written,
+                                  tlv_codec_diagnostic_t* diagnostic) {
+    tlv_codec_diagnostic_init(diagnostic, data ? TLV_CODEC_OP_ENCODE : TLV_CODEC_OP_MEASURE);
     uint16_t input;
     (void)context;
-    if (size != sizeof(input)) return TLV_CODEC_ERR_INVALID_VALUE;
+    if (size != sizeof(input))
+        return tlv_codec_diagnostic_result(diagnostic, TLV_ERR_INVALID_VALUE);
     if (data) {
-        if (capacity < 2) return TLV_CODEC_ERR_BUFFER_TOO_SHORT;
+        if (capacity < 2) return tlv_codec_diagnostic_result(diagnostic, TLV_ERR_BUFFER_TOO_SHORT);
         memcpy(&input, value, sizeof(input));
         if (*(const tlv_byte_order_t*)context == TLV_BYTE_ORDER_BIG_ENDIAN)
             tlv_write_u16_be(data, input);
@@ -61,30 +72,36 @@ static tlv_codec_result_t encode_uint16(const void* context, const void* value, 
             tlv_write_u16_le(data, input);
     }
     *written = 2;
-    return TLV_CODEC_OK;
+    return tlv_codec_diagnostic_result(diagnostic, TLV_OK);
 }
 
 const tlv_codec_t tlv_codec_uint16_be = {&big_endian, decode_uint16, encode_uint16};
 
-static tlv_codec_result_t decode_uint32(const void* context, const uint8_t* data, size_t size,
-                                        void* value, size_t capacity) {
+static tlv_result_t decode_uint32(const void* context, const uint8_t* data, size_t size,
+                                  void* value, size_t capacity,
+                                  tlv_codec_diagnostic_t* diagnostic) {
+    tlv_codec_diagnostic_init(diagnostic, TLV_CODEC_OP_DECODE);
     uint32_t result;
     (void)context;
-    if (size != 4) return TLV_CODEC_ERR_INVALID_VALUE;
-    if (capacity < sizeof(result)) return TLV_CODEC_ERR_BUFFER_TOO_SHORT;
+    if (size != 4) return tlv_codec_diagnostic_result(diagnostic, TLV_ERR_INVALID_VALUE);
+    if (capacity < sizeof(result))
+        return tlv_codec_diagnostic_result(diagnostic, TLV_ERR_BUFFER_TOO_SHORT);
     result = *(const tlv_byte_order_t*)context == TLV_BYTE_ORDER_BIG_ENDIAN ? tlv_read_u32_be(data)
                                                                             : tlv_read_u32_le(data);
     memcpy(value, &result, sizeof(result));
-    return TLV_CODEC_OK;
+    return tlv_codec_diagnostic_result(diagnostic, TLV_OK);
 }
 
-static tlv_codec_result_t encode_uint32(const void* context, const void* value, size_t size,
-                                        uint8_t* data, size_t capacity, size_t* written) {
+static tlv_result_t encode_uint32(const void* context, const void* value, size_t size,
+                                  uint8_t* data, size_t capacity, size_t* written,
+                                  tlv_codec_diagnostic_t* diagnostic) {
+    tlv_codec_diagnostic_init(diagnostic, data ? TLV_CODEC_OP_ENCODE : TLV_CODEC_OP_MEASURE);
     uint32_t input;
     (void)context;
-    if (size != sizeof(input)) return TLV_CODEC_ERR_INVALID_VALUE;
+    if (size != sizeof(input))
+        return tlv_codec_diagnostic_result(diagnostic, TLV_ERR_INVALID_VALUE);
     if (data) {
-        if (capacity < 4) return TLV_CODEC_ERR_BUFFER_TOO_SHORT;
+        if (capacity < 4) return tlv_codec_diagnostic_result(diagnostic, TLV_ERR_BUFFER_TOO_SHORT);
         memcpy(&input, value, sizeof(input));
         if (*(const tlv_byte_order_t*)context == TLV_BYTE_ORDER_BIG_ENDIAN)
             tlv_write_u32_be(data, input);
@@ -92,37 +109,44 @@ static tlv_codec_result_t encode_uint32(const void* context, const void* value, 
             tlv_write_u32_le(data, input);
     }
     *written = 4;
-    return TLV_CODEC_OK;
+    return tlv_codec_diagnostic_result(diagnostic, TLV_OK);
 }
 
 const tlv_codec_t tlv_codec_uint32_be = {&big_endian, decode_uint32, encode_uint32};
 
-static tlv_codec_result_t decode_bytes(const void* context, const uint8_t* data, size_t size,
-                                       void* value, size_t capacity) {
+static tlv_result_t decode_bytes(const void* context, const uint8_t* data, size_t size, void* value,
+                                 size_t capacity, tlv_codec_diagnostic_t* diagnostic) {
+    tlv_codec_diagnostic_init(diagnostic, TLV_CODEC_OP_DECODE);
     tlv_value_t result;
     (void)context;
-    if (capacity < sizeof(result)) return TLV_CODEC_ERR_BUFFER_TOO_SHORT;
+    if (capacity < sizeof(result))
+        return tlv_codec_diagnostic_result(diagnostic, TLV_ERR_BUFFER_TOO_SHORT);
     result.data = data;
     result.size = size;
     memcpy(value, &result, sizeof(result));
-    return TLV_CODEC_OK;
+    return tlv_codec_diagnostic_result(diagnostic, TLV_OK);
 }
 
-static tlv_codec_result_t encode_bytes(const void* context, const void* value, size_t size,
-                                       uint8_t* data, size_t capacity, size_t* written) {
+static tlv_result_t encode_bytes(const void* context, const void* value, size_t size, uint8_t* data,
+                                 size_t capacity, size_t* written,
+                                 tlv_codec_diagnostic_t* diagnostic) {
+    tlv_codec_diagnostic_init(diagnostic, data ? TLV_CODEC_OP_ENCODE : TLV_CODEC_OP_MEASURE);
     tlv_value_t input;
     size_t length;
     (void)context;
-    if (size != sizeof(input)) return TLV_CODEC_ERR_INVALID_VALUE;
+    if (size != sizeof(input))
+        return tlv_codec_diagnostic_result(diagnostic, TLV_ERR_INVALID_VALUE);
     memcpy(&input, value, sizeof(input));
-    if (!input.data && input.size) return TLV_CODEC_ERR_NULL_ARG;
-    if (tlv_size_to_native(input.size, &length) != TLV_OK) return TLV_CODEC_ERR_INVALID_VALUE;
+    if (!input.data && input.size) return tlv_codec_diagnostic_result(diagnostic, TLV_ERR_NULL_ARG);
+    if (tlv_size_to_native(input.size, &length) != TLV_OK)
+        return tlv_codec_diagnostic_result(diagnostic, TLV_ERR_INVALID_VALUE);
     if (data) {
-        if (capacity < length) return TLV_CODEC_ERR_BUFFER_TOO_SHORT;
+        if (capacity < length)
+            return tlv_codec_diagnostic_result(diagnostic, TLV_ERR_BUFFER_TOO_SHORT);
         if (length) memcpy(data, input.data, length);
     }
     *written = length;
-    return TLV_CODEC_OK;
+    return tlv_codec_diagnostic_result(diagnostic, TLV_OK);
 }
 
 const tlv_codec_t tlv_codec_bytes = {NULL, decode_bytes, encode_bytes};
@@ -156,37 +180,46 @@ static void integer_encode_value(int64_t value, uint8_t full[sizeof(int64_t)]) {
         full[i] = (uint8_t)(bits >> (8 * (sizeof(int64_t) - 1 - i)));
 }
 
-static tlv_codec_result_t decode_integer(const void* context, const uint8_t* data, size_t size,
-                                         void* value, size_t capacity) {
+static tlv_result_t decode_integer(const void* context, const uint8_t* data, size_t size,
+                                   void* value, size_t capacity,
+                                   tlv_codec_diagnostic_t* diagnostic) {
+    tlv_codec_diagnostic_init(diagnostic, TLV_CODEC_OP_DECODE);
     int64_t result;
     (void)context;
-    if (size == 0 || size > sizeof(int64_t)) return TLV_CODEC_ERR_INVALID_VALUE;
+    if (size == 0 || size > sizeof(int64_t))
+        return tlv_codec_diagnostic_result(diagnostic, TLV_ERR_INVALID_VALUE);
     if (size > 1 &&
         ((data[0] == 0 && (data[1] & 0x80) == 0) || (data[0] == 0xFF && (data[1] & 0x80) != 0)))
-        return TLV_CODEC_ERR_INVALID_VALUE;
-    if (!integer_decode_value(data, size, &result)) return TLV_CODEC_ERR_INVALID_VALUE;
-    if (capacity < sizeof(result)) return TLV_CODEC_ERR_BUFFER_TOO_SHORT;
+        return tlv_codec_diagnostic_result(diagnostic, TLV_ERR_INVALID_VALUE);
+    if (!integer_decode_value(data, size, &result))
+        return tlv_codec_diagnostic_result(diagnostic, TLV_ERR_INVALID_VALUE);
+    if (capacity < sizeof(result))
+        return tlv_codec_diagnostic_result(diagnostic, TLV_ERR_BUFFER_TOO_SHORT);
     memcpy(value, &result, sizeof(result));
-    return TLV_CODEC_OK;
+    return tlv_codec_diagnostic_result(diagnostic, TLV_OK);
 }
 
-static tlv_codec_result_t encode_integer(const void* context, const void* value, size_t size,
-                                         uint8_t* data, size_t capacity, size_t* written) {
+static tlv_result_t encode_integer(const void* context, const void* value, size_t size,
+                                   uint8_t* data, size_t capacity, size_t* written,
+                                   tlv_codec_diagnostic_t* diagnostic) {
+    tlv_codec_diagnostic_init(diagnostic, data ? TLV_CODEC_OP_ENCODE : TLV_CODEC_OP_MEASURE);
     int64_t input;
     uint8_t full[sizeof(int64_t)];
     size_t minimal_size, offset;
     (void)context;
-    if (size != sizeof(input)) return TLV_CODEC_ERR_INVALID_VALUE;
+    if (size != sizeof(input))
+        return tlv_codec_diagnostic_result(diagnostic, TLV_ERR_INVALID_VALUE);
     memcpy(&input, value, sizeof(input));
     integer_encode_value(input, full);
     minimal_size = integer_minimal_size(full);
     offset = sizeof(full) - minimal_size;
     if (data) {
-        if (capacity < minimal_size) return TLV_CODEC_ERR_BUFFER_TOO_SHORT;
+        if (capacity < minimal_size)
+            return tlv_codec_diagnostic_result(diagnostic, TLV_ERR_BUFFER_TOO_SHORT);
         memcpy(data, full + offset, minimal_size);
     }
     *written = minimal_size;
-    return TLV_CODEC_OK;
+    return tlv_codec_diagnostic_result(diagnostic, TLV_OK);
 }
 
 const tlv_codec_t tlv_codec_int64_minimal_be = {NULL, decode_integer, encode_integer};

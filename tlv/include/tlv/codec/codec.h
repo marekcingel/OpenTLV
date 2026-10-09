@@ -5,6 +5,7 @@
 #define OPENTLV_CODEC_H
 
 #include "tlv/error.h"
+#include "tlv/codec/diagnostic.h"
 #include "tlv/export.h"
 #include <stddef.h>
 #include <stdint.h>
@@ -22,29 +23,6 @@ extern "C" {
 /** @addtogroup codecs
  * @{
  */
-
-/**
- * @brief Result code of a value conversion.
- *
- * Value-conversion errors are independent of TLV framing errors, which use
- * #tlv_result_t.
- *
- * @see tlv_codec_strerror
- */
-typedef enum tlv_codec_result {
-    /** The conversion succeeded. */
-    TLV_CODEC_OK = 0,
-    /** A required pointer argument is `NULL`. */
-    TLV_CODEC_ERR_NULL_ARG,
-    /** A supplied buffer is too small for the data or representation. */
-    TLV_CODEC_ERR_BUFFER_TOO_SHORT,
-    /** The value or its representation is invalid for the codec. */
-    TLV_CODEC_ERR_INVALID_VALUE,
-    /** The requested direction or operation is not supported by the codec. */
-    TLV_CODEC_ERR_UNSUPPORTED,
-    /** A complete structure is malformed, or violates its schema or limits. */
-    TLV_CODEC_ERR_INVALID_STRUCTURE
-} tlv_codec_result_t;
 
 /**
  * @brief Borrowed codec descriptor with an optional immutable context.
@@ -73,6 +51,12 @@ typedef enum tlv_codec_result {
  *   wrapper reports `written == 0`.
  * - Input and output must not overlap unless the codec explicitly supports it.
  *
+ * Failures use the shared tlv_result_t domain unchanged. Decode admits delegated
+ * #TLV_NEED_MORE_DATA; encode and measure reject it. #TLV_ERR_END_OF_BUFFER and
+ * unknown results are callback violations. A successful encode count larger than
+ * the supplied buffer is #TLV_ERR_CALLBACK. Optional diagnostics retain reported
+ * results and any delegated cause; borrowed evidence must outlive the call.
+ *
  * @see tlv_codec_decode, tlv_codec_encode
  */
 typedef struct tlv_codec {
@@ -83,15 +67,15 @@ typedef struct tlv_codec {
      *
      * `capacity` is the size of `value` in bytes.
      */
-    tlv_codec_result_t (*decode)(const void* context, const uint8_t* data, size_t size, void* value,
-                                 size_t capacity);
+    tlv_result_t (*decode)(const void* context, const uint8_t* data, size_t size, void* value,
+                           size_t capacity, tlv_codec_diagnostic_t* diagnostic);
     /**
      * Encodes a C representation into raw value bytes; `NULL` if unsupported.
      *
      * `size` is the size of `value` in bytes. `capacity` is the size of `data`.
      */
-    tlv_codec_result_t (*encode)(const void* context, const void* value, size_t size, uint8_t* data,
-                                 size_t capacity, size_t* written);
+    tlv_result_t (*encode)(const void* context, const void* value, size_t size, uint8_t* data,
+                           size_t capacity, size_t* written, tlv_codec_diagnostic_t* diagnostic);
 } tlv_codec_t;
 
 /**
@@ -106,16 +90,18 @@ typedef struct tlv_codec {
  * @param[out] value    Destination object, correctly typed and aligned.
  * @param[in]  capacity Size of `value` in bytes.
  *
- * @return #TLV_CODEC_OK on success.
- * @return #TLV_CODEC_ERR_NULL_ARG for missing required pointers.
- * @return #TLV_CODEC_ERR_UNSUPPORTED if the codec has no decoder.
- * @return #TLV_CODEC_ERR_BUFFER_TOO_SHORT or #TLV_CODEC_ERR_INVALID_VALUE as
+ * @return #TLV_OK on success.
+ * @return #TLV_ERR_NULL_ARG for missing required pointers.
+ * @return #TLV_ERR_UNSUPPORTED if the codec has no decoder.
+ * @return #TLV_ERR_BUFFER_TOO_SHORT or #TLV_ERR_INVALID_VALUE as
  *         reported by the codec.
  *
  * @warning On error the contents of `value` are unspecified.
+ * @param[out] diagnostic Optional initialized failure output; NULL skips evidence collection.
  */
-TLV_API tlv_codec_result_t tlv_codec_decode(const tlv_codec_t* codec, const uint8_t* data,
-                                            size_t size, void* value, size_t capacity);
+TLV_API tlv_result_t tlv_codec_decode(const tlv_codec_t* codec, const uint8_t* data, size_t size,
+                                      void* value, size_t capacity,
+                                      tlv_codec_diagnostic_t* diagnostic);
 
 /**
  * @brief Encodes a C representation into raw value bytes with a codec.
@@ -131,26 +117,18 @@ TLV_API tlv_codec_result_t tlv_codec_decode(const tlv_codec_t* codec, const uint
  * @param[out] written  Receives the bytes written, or the required size for a
  *                      query. Required; must not alias input or destination.
  *
- * @return #TLV_CODEC_OK on success.
- * @return #TLV_CODEC_ERR_NULL_ARG for missing required pointers.
- * @return #TLV_CODEC_ERR_UNSUPPORTED if the codec has no encoder.
- * @return #TLV_CODEC_ERR_BUFFER_TOO_SHORT or #TLV_CODEC_ERR_INVALID_VALUE as
+ * @return #TLV_OK on success.
+ * @return #TLV_ERR_NULL_ARG for missing required pointers.
+ * @return #TLV_ERR_UNSUPPORTED if the codec has no encoder.
+ * @return #TLV_ERR_BUFFER_TOO_SHORT or #TLV_ERR_INVALID_VALUE as
  *         reported by the codec.
  *
  * @warning On error the destination contents are unspecified and `*written` is zero.
+ * @param[out] diagnostic Optional initialized failure output; NULL skips evidence collection.
  */
-TLV_API tlv_codec_result_t tlv_codec_encode(const tlv_codec_t* codec, const void* value,
-                                            size_t size, uint8_t* data, size_t capacity,
-                                            size_t* written);
-
-/**
- * @brief Returns a readable description of a codec result.
- *
- * @param result Codec result to describe.
- *
- * @return A static, NUL-terminated string. The caller must not free or modify it.
- */
-TLV_API const char* tlv_codec_strerror(tlv_codec_result_t result);
+TLV_API tlv_result_t tlv_codec_encode(const tlv_codec_t* codec, const void* value, size_t size,
+                                      uint8_t* data, size_t capacity, size_t* written,
+                                      tlv_codec_diagnostic_t* diagnostic);
 
 #ifdef __cplusplus
 }

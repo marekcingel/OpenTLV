@@ -222,9 +222,10 @@ static void mutate(callback_state* s) {
     (void)s;
 }
 #endif
-static tlv_codec_result_t decode(const void* context, const tlv_tree_event_t* input,
-                                 const uint8_t* data, size_t size, void* scratch, size_t capacity,
-                                 tlv_query_result_t* out) {
+static tlv_result_t decode(const void* context, const tlv_tree_event_t* input, const uint8_t* data,
+                           size_t size, void* scratch, size_t capacity, tlv_query_result_t* out,
+                           tlv_codec_diagnostic_t* diagnostic) {
+    tlv_codec_diagnostic_init(diagnostic, TLV_CODEC_OP_DECODE);
     callback_state* s = (callback_state*)context;
     (void)input;
     (void)data;
@@ -250,7 +251,7 @@ static tlv_codec_result_t decode(const void* context, const tlv_tree_event_t* in
     if ((s->fail && rc == TLV_OK) || (!s->fail && rc != TLV_OK)) ++s->errors;
     out->kind = TLV_QUERY_RESULT_INTEGER;
     out->integer = 1;
-    return s->fail ? TLV_CODEC_ERR_INVALID_VALUE : TLV_CODEC_OK;
+    return tlv_codec_diagnostic_result(diagnostic, s->fail ? TLV_ERR_INVALID_VALUE : TLV_OK);
 }
 static tlv_result_t tag_number(const void* context, const tlv_tag_t* tag, int64_t* out) {
     callback_state* s = (callback_state*)context;
@@ -450,9 +451,11 @@ static int reinitializing_constructed(const void* context, const tlv_tag_t* tag)
     raw_reinitialize((raw_init_state*)context);
     return 0;
 }
-static tlv_codec_result_t reinitializing_codec(const void* context, const tlv_tree_event_t* input,
-                                               const uint8_t* data, size_t size, void* scratch,
-                                               size_t capacity, tlv_query_result_t* out) {
+static tlv_result_t reinitializing_codec(const void* context, const tlv_tree_event_t* input,
+                                         const uint8_t* data, size_t size, void* scratch,
+                                         size_t capacity, tlv_query_result_t* out,
+                                         tlv_codec_diagnostic_t* diagnostic) {
+    tlv_codec_diagnostic_init(diagnostic, TLV_CODEC_OP_ENCODE);
     (void)input;
     (void)data;
     (void)size;
@@ -461,7 +464,7 @@ static tlv_codec_result_t reinitializing_codec(const void* context, const tlv_tr
     raw_reinitialize((raw_init_state*)context);
     out->kind = TLV_QUERY_RESULT_INTEGER;
     out->integer = 1;
-    return TLV_CODEC_OK;
+    return tlv_codec_diagnostic_result(diagnostic, TLV_OK);
 }
 #if OPENTLV_READER
 static tlv_visit_result_t reinitializing_event(const tlv_tree_event_t* input, void* context) {

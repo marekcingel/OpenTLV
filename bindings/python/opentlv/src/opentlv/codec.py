@@ -11,16 +11,7 @@ from enum import IntEnum
 import _opentlv as _native
 
 
-class CodecError(Exception):
-    """A failed value conversion, mapped from a non-zero `tlv_codec_result_t`.
-
-    This is a separate error domain from `OpenTLVError`: codec conversion
-    errors are independent of TLV framing errors.
-    """
-
-    def __init__(self, code: int) -> None:
-        super().__init__(_native.codec_strerror(code))
-        self.code = code
+from opentlv.error import _from_native
 
 
 def decode_amount(data: bytes) -> int:
@@ -35,9 +26,8 @@ def decode_amount(data: bytes) -> int:
         raise NotImplementedError("EMV is disabled in this build")
     try:
         return _native.emv_decode_amount(data)
-    except _native.CodecError as native_error:
-        (code,) = native_error.args
-        raise CodecError(code) from None
+    except _native.Error as native_error:
+        raise _from_native(native_error) from None
 
 
 def encode_amount(value: int) -> bytes:
@@ -50,9 +40,8 @@ def encode_amount(value: int) -> bytes:
         raise NotImplementedError("EMV is disabled in this build")
     try:
         return _native.emv_encode_amount(value)
-    except _native.CodecError as native_error:
-        (code,) = native_error.args
-        raise CodecError(code) from None
+    except _native.Error as native_error:
+        raise _from_native(native_error) from None
 
 
 
@@ -79,8 +68,8 @@ class NumberCodec:
         try:
             return _native.number_codec(operation, int(self.encoding), self.width,
                                         self.digits, value, output)
-        except _native.CodecError as error:
-            raise CodecError(error.args[0]) from None
+        except _native.Error as error:
+            raise _from_native(error) from None
 
     def decode(self, data) -> int:
         """Decode Value bytes through C into an unsigned integer."""

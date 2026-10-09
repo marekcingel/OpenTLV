@@ -54,21 +54,6 @@ pub enum QueryDecoded {
     /// Validated UTF-8 string.
     String(String),
 }
-/// Original C codec failure returned by a custom provider.
-#[derive(Clone, Copy, Debug, PartialEq, Eq)]
-#[repr(i32)]
-pub enum QueryCodecError {
-    /// Missing required input.
-    NullArgument = 1,
-    /// Insufficient explicit scratch.
-    BufferTooShort = 2,
-    /// Invalid encoded value or callback panic.
-    InvalidValue = 3,
-    /// Unsupported conversion.
-    Unsupported = 4,
-    /// Invalid structure.
-    InvalidStructure = 5,
-}
 /// Optional complete-node metadata copied for a conversion callback.
 #[derive(Clone, Debug)]
 pub struct QueryMetadata {
@@ -83,9 +68,8 @@ pub struct QueryMetadata {
     /// Original event byte offset, when supplied by the producer.
     pub offset: usize,
 }
-type DecodeProvider = dyn Fn(&[u8], Option<QueryMetadata>) -> std::result::Result<QueryDecoded, QueryCodecError>
-    + Send
-    + Sync;
+type DecodeProvider =
+    dyn Fn(&[u8], Option<QueryMetadata>) -> std::result::Result<QueryDecoded, Error> + Send + Sync;
 /// Owning thread-safe provider. Stable ID and scratch capacity enter the C image;
 /// callback code remains outside the engine's allocation and work contracts.
 #[derive(Clone)]
@@ -112,7 +96,7 @@ impl QueryProvider {
     /// at the FFI boundary and reported as native InvalidValue codec diagnostics.
     pub fn new<F>(conversion: QueryConversion, id: u32, max_result_bytes: usize, decode: F) -> Self
     where
-        F: Fn(&[u8], Option<QueryMetadata>) -> std::result::Result<QueryDecoded, QueryCodecError>
+        F: Fn(&[u8], Option<QueryMetadata>) -> std::result::Result<QueryDecoded, Error>
             + Send
             + Sync
             + 'static,
@@ -133,6 +117,7 @@ unsafe extern "C" fn decode_provider(
     scratch: *mut c_void,
     capacity: usize,
     result: *mut native::tlv_query_result_t,
+    _diagnostic: *mut native::tlv_codec_diagnostic_t,
 ) -> i32 {
     // SAFETY: the program owns its boxed providers; C lends complete bounded
     // input and exclusive frame scratch for this synchronous invocation.
@@ -147,7 +132,7 @@ unsafe extern "C" fn decode_provider(
     } else {
         let event = unsafe { &*event };
         let Ok(value_size) = usize::try_from(event.element.value.size) else {
-            return QueryCodecError::InvalidValue as i32;
+            return Error::InvalidValue.code();
         };
         Some(QueryMetadata {
             tag: if event.element.tag.size == 0 {
@@ -177,7 +162,7 @@ unsafe extern "C" fn decode_provider(
                 }
                 QueryDecoded::String(text) => {
                     if text.len() > capacity {
-                        return QueryCodecError::BufferTooShort as i32;
+                        return Error::BufferTooShort.code();
                     }
                     if !text.is_empty() {
                         unsafe {
@@ -194,8 +179,8 @@ unsafe extern "C" fn decode_provider(
             }
             0
         }
-        Ok(Err(code)) => code as i32,
-        Err(_) => QueryCodecError::InvalidValue as i32,
+        Ok(Err(code)) => code.code(),
+        Err(_) => Error::Callback.code(),
     }
 }
 /// Complete owned native failure, independent of input/program lifetime.
@@ -219,6 +204,8 @@ pub struct ProgramError {
     pub configured: usize,
     /// Original native codec status.
     pub codec: i32,
+    /// Owned conversion cause supplied by the provider.
+    pub codec_detail: Option<Box<crate::CodecDiagnostic>>,
     /// Owned original Reader diagnostic for Reader failures.
     pub reader: Option<Box<ReaderDiagnostic>>,
 }
@@ -268,6 +255,16 @@ fn check(code: i32, diagnostic: &native::tlv_query_diagnostic_t) -> ProgramResul
                 limit: text(diagnostic.limit),
                 configured: diagnostic.configured,
                 codec: diagnostic.codec,
+                codec_detail: if diagnostic.has_codec != 0 {
+                    Some(Box::new(crate::CodecDiagnostic::from_raw(
+                        &native::tlv_codec_diagnostic_t {
+                            diagnostic: diagnostic.diagnostic,
+                            codec: diagnostic.codec_detail,
+                        },
+                    )))
+                } else {
+                    None
+                },
                 reader: (diagnostic.has_reader != 0).then(|| {
                     Box::new(ReaderDiagnostic::from_parts(
                         &diagnostic.diagnostic,
@@ -1003,6 +1000,7 @@ unsafe fn project<'a>(event: &native::tlv_tree_event_t) -> ProgramResult<QueryMa
             limit: None,
             configured: 0,
             codec: 0,
+            codec_detail: None,
             reader: None,
         })?,
         depth: event.depth,
@@ -1381,6 +1379,7 @@ impl<'a> QueryExecution<'a> {
                     limit: None,
                     configured: 0,
                     codec: 0,
+                    codec_detail: None,
                     reader: None,
                 })?,
             };

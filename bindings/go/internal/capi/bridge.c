@@ -381,12 +381,15 @@ static tlv_result_t query_dynamic_resolve(const void* context, const char* space
     return (tlv_result_t)goQueryResolve((uintptr_t)context, (char*)space, space_size, (char*)name,
                                         name_size, tag);
 }
-static tlv_codec_result_t query_provider_decode(const void* context, const tlv_tree_event_t* event,
-                                                const uint8_t* data, size_t size, void* scratch,
-                                                size_t capacity, tlv_query_result_t* result) {
-    return (tlv_codec_result_t)goQueryProviderDecode((uintptr_t)context, (tlv_tree_event_t*)event,
-                                                     (uint8_t*)data, size, scratch, capacity,
-                                                     result);
+static tlv_result_t query_provider_decode(const void* context, const tlv_tree_event_t* event,
+                                          const uint8_t* data, size_t size, void* scratch,
+                                          size_t capacity, tlv_query_result_t* result,
+                                          tlv_codec_diagnostic_t* diagnostic) {
+    tlv_codec_diagnostic_init(diagnostic, TLV_CODEC_OP_DECODE);
+    return tlv_codec_diagnostic_result(
+        diagnostic,
+        (tlv_result_t)goQueryProviderDecode((uintptr_t)context, (tlv_tree_event_t*)event,
+                                            (uint8_t*)data, size, scratch, capacity, result));
 }
 typedef struct query_buffer {
     struct query_buffer* next;

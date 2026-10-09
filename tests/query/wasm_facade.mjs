@@ -157,7 +157,7 @@ textProvider.close();
 const shortProvider = api.compileQuery("text(//5A)", { providers: {
   text: { id: 102, max_result_bytes: 2, decode: () => "a\0b" },
 } });
-assert.throws(() => shortProvider.evaluate(hexToBytes("5a00")), error => error.query.codec === 2);
+assert.throws(() => shortProvider.evaluate(hexToBytes("5a00")), error => error.code === 1 && error.query.codec === 1 && error.query.codec_detail.reported === 1 && error.query.codec_detail.operation === 0);
 shortProvider.close();
 let active;
 const reentrant = api.compileQuery("num(//5A)", { providers: {

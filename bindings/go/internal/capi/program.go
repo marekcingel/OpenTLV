@@ -33,6 +33,7 @@ type ProgramDiagnostic struct {
 	Begin, End, SourceOffset, Configured uint64
 	HasSourceOffset                      bool
 	Expected, Limit                      string
+	CodecDetail                          *CodecDetail
 	Codec                                int
 	Reader                               Diagnostic
 }
@@ -45,7 +46,7 @@ func programDiagnostic(d C.tlv_query_diagnostic_t, code Code) ProgramDiagnostic 
 	return ProgramDiagnostic{Location: diagnostic(d.diagnostic, 0).Location, Kind: int(d.kind), Begin: uint64(d.begin), End: uint64(d.end),
 		SourceOffset: uint64(d.diagnostic.location.begin), HasSourceOffset: d.diagnostic.location.domain == C.TLV_LOCATION_INPUT && d.diagnostic.location.kind != C.TLV_LOCATION_UNKNOWN,
 		Configured: uint64(d.configured), Expected: C.GoString(d.expected), Limit: C.GoString(d.limit),
-		Codec: int(d.codec), Reader: reader}
+		Codec: int(d.codec), CodecDetail: queryCodecDetail(d), Reader: reader}
 }
 
 // ProgramOptions owns maps; C borrows only during bounded compilation.
@@ -80,15 +81,15 @@ func goQueryProviderRelease(handle C.uintptr_t) { cgo.Handle(handle).Delete() }
 //export goQueryProviderDecode
 func goQueryProviderDecode(handle C.uintptr_t, event *C.tlv_tree_event_t, data *C.uint8_t, size C.size_t,
 	scratch unsafe.Pointer, capacity C.size_t, output *C.tlv_query_result_t) (code C.int) {
-	code = 3
+	code = C.TLV_ERR_CALLBACK
 	defer func() {
 		if recover() != nil {
-			code = 3
+			code = C.TLV_ERR_CALLBACK
 		}
 	}()
 	provider := cgo.Handle(handle).Value().(QueryProvider)
 	if uint64(size) > uint64(^uint(0)>>1) {
-		return 3
+		return C.TLV_ERR_CALLBACK
 	}
 	input := bytes.Clone(unsafe.Slice((*byte)(unsafe.Pointer(data)), int(size)))
 	var metadata *QueryMetadata
@@ -98,9 +99,6 @@ func goQueryProviderDecode(handle C.uintptr_t, event *C.tlv_tree_event_t, data *
 	}
 	value, status := provider.Decode(input, metadata)
 	if status != 0 {
-		if status < 1 || status > 5 {
-			return 3
-		}
 		return C.int(status)
 	}
 	*output = C.tlv_query_result_t{}
@@ -110,14 +108,14 @@ func goQueryProviderDecode(handle C.uintptr_t, event *C.tlv_tree_event_t, data *
 		output.integer = C.int64_t(value.Integer)
 	case 4:
 		if uint64(len(value.Text)) > uint64(capacity) {
-			return 2
+			return C.TLV_ERR_BUFFER_TOO_SHORT
 		}
 		copy(unsafe.Slice((*byte)(scratch), len(value.Text)), value.Text)
 		output.kind = 4
 		output.data = (*C.uint8_t)(scratch)
 		output.size = C.size_t(len(value.Text))
 	default:
-		return 3
+		return C.TLV_ERR_CALLBACK
 	}
 	return 0
 }
@@ -692,3 +690,10 @@ func (q *ProgramExecution) EditDocument(document *Document, kind int, tag, value
 	return int(applied), code
 }
 func (n Node) Identity() uint64 { return uint64(C.go_query_node_identity(n.ptr)) }
+
+func queryCodecDetail(d C.tlv_query_diagnostic_t) *CodecDetail {
+	if d.has_codec == 0 {
+		return nil
+	}
+	return codecDetail(d.diagnostic, d.codec_detail)
+}

@@ -197,8 +197,8 @@ int main(void) {
 #if OPENTLV_CODEC
     {
         uint8_t value = 0;
-        CHECK(tlv_codec_decode(&tlv_codec_uint8, wire + 2, 1, &value, sizeof value) ==
-              TLV_CODEC_OK);
+        CHECK(tlv_codec_decode(&tlv_codec_uint8, wire + 2, 1, &value, sizeof value, NULL) ==
+              TLV_OK);
         CHECK(value == 42);
     }
 #endif

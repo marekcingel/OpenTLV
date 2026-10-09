@@ -131,14 +131,14 @@ namespace bluetooth {
  * @param index Zero-based UUID index.
  * @return UUID or canonical size/index error; the input remains unchanged.
  */
-template <typename T> expected<T, codec_errc> uuid_at(const uuid_list& list, size_t index) {
+template <typename T> expected<T, codec_failure> uuid_at(const uuid_list& list, size_t index) {
     static_assert(std::is_same<T, uint16_t>::value || std::is_same<T, uint32_t>::value ||
                       std::is_same<T, uuid128>::value,
                   "UUID representation must match a Bluetooth UUID");
     const auto raw = detail::bluetooth_uuid_list_conversion::to_native(list);
     T          result{};
     const auto rc = tlv_bluetooth_uuid_list_at(&raw, index, &result, sizeof(result));
-    if (rc != TLV_CODEC_OK) return unexpected<codec_errc>(static_cast<codec_errc>(rc));
+    if (rc != TLV_OK) return unexpected<codec_failure>(codec_failure(rc));
     return result;
 }
 /** @brief Value codec; see #tlv_bluetooth_codec_uuid16. */

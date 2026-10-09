@@ -183,41 +183,48 @@ TEST(Unit_Tlv_Architecture, SchemaGroupTableValidity) {
 struct object {
     uint8_t first, second;
 };
-tlv_codec_result_t object_decode(const void*, const tlv_format_t* selected, const uint8_t* data,
-                                 size_t size, void* value, size_t capacity) {
-    if (capacity < sizeof(object)) return TLV_CODEC_ERR_BUFFER_TOO_SHORT;
+tlv_result_t object_decode(const void*, const tlv_format_t* selected, const uint8_t* data,
+                           size_t size, void* value, size_t capacity,
+                           tlv_codec_diagnostic_t* diagnostic) {
+    tlv_codec_diagnostic_init(diagnostic, TLV_CODEC_OP_DECODE);
+    if (capacity < sizeof(object))
+        return tlv_codec_diagnostic_result(diagnostic, TLV_ERR_BUFFER_TOO_SHORT);
     tlv_reader_t  reader{};
     tlv_element_t element{};
     object        result{};
     if (tlv_reader_init(&reader, data, size, selected) != TLV_OK)
-        return TLV_CODEC_ERR_INVALID_VALUE;
+        return tlv_codec_diagnostic_result(diagnostic, TLV_ERR_INVALID_VALUE);
     while (!tlv_reader_at_end(&reader)) {
-        if (tlv_reader_next(&reader, &element) != TLV_OK) return TLV_CODEC_ERR_INVALID_VALUE;
+        if (tlv_reader_next(&reader, &element) != TLV_OK)
+            return tlv_codec_diagnostic_result(diagnostic, TLV_ERR_INVALID_VALUE);
         if (element.tag.data[0] == 1)
             result.first = element.value.data[0];
         else
             result.second = element.value.data[0];
     }
     std::memcpy(value, &result, sizeof(result));
-    return TLV_CODEC_OK;
+    return tlv_codec_diagnostic_result(diagnostic, TLV_OK);
 }
-tlv_codec_result_t object_encode(const void*, const tlv_format_t* selected, const void* value,
-                                 size_t size, uint8_t* data, size_t capacity, size_t* written) {
-    if (size != sizeof(object)) return TLV_CODEC_ERR_INVALID_VALUE;
+tlv_result_t object_encode(const void*, const tlv_format_t* selected, const void* value,
+                           size_t size, uint8_t* data, size_t capacity, size_t* written,
+                           tlv_codec_diagnostic_t* diagnostic) {
+    tlv_codec_diagnostic_init(diagnostic, TLV_CODEC_OP_ENCODE);
+    if (size != sizeof(object))
+        return tlv_codec_diagnostic_result(diagnostic, TLV_ERR_INVALID_VALUE);
     if (!data) {
         *written = 6;
-        return TLV_CODEC_OK;
+        return tlv_codec_diagnostic_result(diagnostic, TLV_OK);
     }
-    if (capacity < 6) return TLV_CODEC_ERR_BUFFER_TOO_SHORT;
+    if (capacity < 6) return tlv_codec_diagnostic_result(diagnostic, TLV_ERR_BUFFER_TOO_SHORT);
     object input{};
     std::memcpy(&input, value, sizeof(input));
     tlv_writer_t writer{};
     if (tlv_writer_init(&writer, data, capacity, selected) != TLV_OK ||
         tlv_writer_write(&writer, TLV_TAG(1), &input.first, 1) != TLV_OK ||
         tlv_writer_write(&writer, TLV_TAG(2), &input.second, 1) != TLV_OK)
-        return TLV_CODEC_ERR_INVALID_VALUE;
+        return tlv_codec_diagnostic_result(diagnostic, TLV_ERR_INVALID_VALUE);
     *written = tlv_writer_size(&writer);
-    return TLV_CODEC_OK;
+    return tlv_codec_diagnostic_result(diagnostic, TLV_OK);
 }
 
 TEST(Unit_Tlv_Architecture, StructureCodecValidatesArgumentsDirectionsAndCallbackCounts) {
@@ -226,28 +233,28 @@ TEST(Unit_Tlv_Architecture, StructureCodecValidatesArgumentsDirectionsAndCallbac
     object                value{};
     uint8_t               wire[6]{};
     size_t                used = 99;
-    EXPECT_EQ(TLV_CODEC_ERR_UNSUPPORTED,
-              tlv_structure_decode(&codec, nullptr, 0, &value, sizeof(value)));
-    EXPECT_EQ(TLV_CODEC_ERR_UNSUPPORTED,
-              tlv_structure_encode(&codec, &value, sizeof(value), wire, sizeof(wire), &used));
+    EXPECT_EQ(TLV_ERR_UNSUPPORTED,
+              tlv_structure_decode(&codec, nullptr, 0, &value, sizeof(value), NULL));
+    EXPECT_EQ(TLV_ERR_UNSUPPORTED,
+              tlv_structure_encode(&codec, &value, sizeof(value), wire, sizeof(wire), &used, NULL));
     EXPECT_EQ(0u, used);
-    EXPECT_EQ(TLV_CODEC_ERR_NULL_ARG,
-              tlv_structure_encode(nullptr, &value, sizeof(value), wire, sizeof(wire), &used));
-    EXPECT_EQ(TLV_CODEC_ERR_NULL_ARG,
-              tlv_structure_decode(&codec, nullptr, 1, &value, sizeof(value)));
+    EXPECT_EQ(TLV_ERR_NULL_ARG, tlv_structure_encode(nullptr, &value, sizeof(value), wire,
+                                                     sizeof(wire), &used, NULL));
+    EXPECT_EQ(TLV_ERR_NULL_ARG,
+              tlv_structure_decode(&codec, nullptr, 1, &value, sizeof(value), NULL));
     codec.max_depth = TLV_TREE_DEFAULT_DEPTH + 1;
-    EXPECT_EQ(TLV_CODEC_ERR_UNSUPPORTED,
-              tlv_structure_decode(&codec, nullptr, 0, &value, sizeof(value)));
-    EXPECT_EQ(TLV_CODEC_ERR_UNSUPPORTED,
-              tlv_structure_encode(&codec, &value, sizeof(value), wire, sizeof(wire), &used));
+    EXPECT_EQ(TLV_ERR_UNSUPPORTED,
+              tlv_structure_decode(&codec, nullptr, 0, &value, sizeof(value), NULL));
+    EXPECT_EQ(TLV_ERR_UNSUPPORTED,
+              tlv_structure_encode(&codec, &value, sizeof(value), wire, sizeof(wire), &used, NULL));
     codec.max_depth = 0;
     codec.encode = [](const void*, const tlv_format_t*, const void*, size_t, uint8_t*,
-                      size_t capacity, size_t* count) {
+                      size_t capacity, size_t* count, tlv_codec_diagnostic_t*) {
         *count = capacity + 1;
-        return TLV_CODEC_OK;
+        return TLV_OK;
     };
-    EXPECT_EQ(TLV_CODEC_ERR_BUFFER_TOO_SHORT,
-              tlv_structure_encode(&codec, &value, sizeof(value), wire, sizeof(wire), &used));
+    EXPECT_EQ(TLV_ERR_CALLBACK,
+              tlv_structure_encode(&codec, &value, sizeof(value), wire, sizeof(wire), &used, NULL));
     EXPECT_EQ(0u, used);
 }
 
@@ -258,13 +265,13 @@ TEST(Unit_Tlv_Architecture, StructureCodecDecodesWithoutWriterAndChecksEncoderFo
                                    2,       object_decode,       object_encode};
     const uint8_t         wire[] = {1, 1, 42, 2, 1, 7};
     object                value{};
-    ASSERT_EQ(TLV_CODEC_OK,
-              tlv_structure_decode(&codec, wire, sizeof(wire), &value, sizeof(value)));
+    ASSERT_EQ(TLV_OK,
+              tlv_structure_decode(&codec, wire, sizeof(wire), &value, sizeof(value), NULL));
     EXPECT_EQ(42, value.first);
     EXPECT_EQ(7, value.second);
     size_t used = 99;
-    EXPECT_EQ(TLV_CODEC_ERR_NULL_ARG,
-              tlv_structure_encode(&codec, &value, sizeof(value), nullptr, 0, &used));
+    EXPECT_EQ(TLV_ERR_UNSUPPORTED,
+              tlv_structure_encode(&codec, &value, sizeof(value), nullptr, 0, &used, NULL));
     EXPECT_EQ(0u, used);
     for (int missing = 0; missing < 3; ++missing) {
         auto incomplete = full_format;
@@ -272,8 +279,8 @@ TEST(Unit_Tlv_Architecture, StructureCodecDecodesWithoutWriterAndChecksEncoderFo
         if (missing == 1) incomplete.encode = nullptr;
         if (missing == 2) incomplete.measure = nullptr;
         codec.format = &incomplete;
-        EXPECT_EQ(TLV_CODEC_ERR_NULL_ARG,
-                  tlv_structure_encode(&codec, &value, sizeof(value), nullptr, 0, &used));
+        EXPECT_EQ(TLV_ERR_UNSUPPORTED,
+                  tlv_structure_encode(&codec, &value, sizeof(value), nullptr, 0, &used, NULL));
         EXPECT_EQ(0u, used);
     }
 }
@@ -284,11 +291,78 @@ TEST(Unit_Tlv_Architecture, EmvDictionaryAndCodecWorkWithoutBuiltinWireFormats) 
     uint64_t input = 123456, output = 0;
     uint8_t  bytes[6]{};
     size_t   written = 0;
-    ASSERT_EQ(TLV_CODEC_OK, tlv_codec_encode(&tlv_emv_codec_amount, &input, sizeof(input), bytes,
-                                             sizeof(bytes), &written));
-    ASSERT_EQ(TLV_CODEC_OK,
-              tlv_codec_decode(&tlv_emv_codec_amount, bytes, written, &output, sizeof(output)));
+    ASSERT_EQ(TLV_OK, tlv_codec_encode(&tlv_emv_codec_amount, &input, sizeof(input), bytes,
+                                       sizeof(bytes), &written, NULL));
+    ASSERT_EQ(TLV_OK, tlv_codec_decode(&tlv_emv_codec_amount, bytes, written, &output,
+                                       sizeof(output), NULL));
     EXPECT_EQ(input, output);
 }
 #endif
 } // namespace
+
+TEST(Unit_Tlv_Architecture, StructureCodecPreservesValidationCauses) {
+    tlv_structure_codec_t codec = {
+        nullptr, &constructed_full_format, &children, 0, 2, object_decode, object_encode};
+    const uint8_t          valid[] = {1, 1, 42, 2, 1, 7};
+    object                 value{};
+    tlv_codec_diagnostic_t diagnostic{};
+    auto                   check = [&](const uint8_t* data, size_t size, tlv_result_t expected) {
+        EXPECT_EQ(expected,
+                  tlv_structure_decode(&codec, data, size, &value, sizeof value, &diagnostic));
+        EXPECT_EQ(expected, diagnostic.diagnostic.code);
+        EXPECT_EQ(expected,
+                  tlv_structure_decode(&codec, data, size, &value, sizeof value, nullptr));
+    };
+    check(valid + 3, 3, TLV_ERR_SCHEMA);
+    EXPECT_EQ(TLV_CODEC_CAUSE_SCHEMA, diagnostic.codec.cause);
+    EXPECT_EQ(TLV_SCHEMA_ISSUE_MISSING, diagnostic.codec.detail.schema.kind);
+    auto invalid_schema = children;
+    invalid_schema.order = static_cast<tlv_schema_order_t>(99);
+    codec.schema = &invalid_schema;
+    check(valid, sizeof valid, TLV_ERR_INVALID_SCHEMA);
+    EXPECT_EQ(TLV_CODEC_CAUSE_SCHEMA, diagnostic.codec.cause);
+    codec.schema = nullptr;
+    codec.max_elements = 1;
+    check(valid, sizeof valid, TLV_ERR_LIMIT);
+    EXPECT_EQ(TLV_CODEC_CAUSE_READER, diagnostic.codec.cause);
+    codec.max_elements = 2;
+    check(valid, sizeof valid - 1, TLV_ERR_BUFFER_TOO_SHORT);
+    EXPECT_EQ(TLV_CODEC_CAUSE_READER, diagnostic.codec.cause);
+    EXPECT_NE(TLV_LOCATION_UNKNOWN, diagnostic.diagnostic.location.kind);
+    const auto copy = diagnostic;
+    diagnostic = {};
+    EXPECT_EQ(TLV_ERR_BUFFER_TOO_SHORT, copy.diagnostic.code);
+    EXPECT_EQ(TLV_CODEC_CAUSE_READER, copy.codec.cause);
+}
+
+TEST(Unit_Tlv_Architecture, StructureEncoderKeepsOutputValidationLocation) {
+    tlv_structure_codec_t  codec = {nullptr,
+                                    &constructed_full_format,
+                                    nullptr,
+                                    0,
+                                    2,
+                                    nullptr,
+                                    [](const void*, const tlv_format_t*, const void*, size_t,
+                                       uint8_t* data, size_t, size_t* written,
+                                       tlv_codec_diagnostic_t*) {
+                                       if (data) {
+                                           data[0] = 1;
+                                           data[1] = 2;
+                                           data[2] = 42;
+                                       }
+                                       *written = 3;
+                                       return TLV_OK;
+                                    }};
+    object                 value{};
+    uint8_t                data[3]{};
+    size_t                 written = 99;
+    tlv_codec_diagnostic_t diagnostic{};
+    EXPECT_EQ(TLV_ERR_BUFFER_TOO_SHORT, tlv_structure_encode(&codec, &value, sizeof value, data,
+                                                             sizeof data, &written, &diagnostic));
+    EXPECT_EQ(0u, written);
+    EXPECT_EQ(TLV_ERR_BUFFER_TOO_SHORT, diagnostic.diagnostic.code);
+    EXPECT_EQ(TLV_CODEC_OP_ENCODE, diagnostic.codec.operation);
+    EXPECT_EQ(TLV_CODEC_CAUSE_READER, diagnostic.codec.cause);
+    EXPECT_EQ(TLV_LOCATION_OUTPUT, diagnostic.diagnostic.location.domain);
+    EXPECT_NE(TLV_LOCATION_UNKNOWN, diagnostic.diagnostic.location.kind);
+}

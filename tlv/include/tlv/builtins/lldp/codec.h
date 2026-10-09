@@ -19,8 +19,8 @@
  * exactly sizeof the documented C representation; decode needs at least that
  * capacity. Use tlv_codec_encode() with NULL/0 for validated size queries.
  * Input and output must not overlap. Invalid lengths or field values return
- * #TLV_CODEC_ERR_INVALID_VALUE, nonempty NULL spans #TLV_CODEC_ERR_NULL_ARG,
- * and insufficient output capacity #TLV_CODEC_ERR_BUFFER_TOO_SHORT.
+ * #TLV_ERR_INVALID_VALUE, nonempty NULL spans #TLV_ERR_NULL_ARG,
+ * and insufficient output capacity #TLV_ERR_BUFFER_TOO_SHORT.
  * These codecs interpret Values only, without framing or sequence validation.
  */
 

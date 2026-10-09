@@ -105,10 +105,12 @@ typedef struct tlv_query_diagnostic {
     /** @brief Original codec result for #TLV_QUERY_ERROR_CODEC or a conversion
      * #TLV_QUERY_ERROR_CALLBACK.
      *
-     * Preserves #TLV_CODEC_OK when a successful codec result violates the declared type,
+     * Preserves #TLV_OK when a successful codec result violates the declared type,
      * has nonzero size with NULL data, or contains invalid UTF-8. The operation then
      * returns #TLV_ERR_CALLBACK; expected identifies the violated output contract. */
-    tlv_codec_result_t codec;
+    tlv_result_t codec;
+    int has_codec;                   /**< Nonzero when codec_detail carries conversion context. */
+    tlv_codec_detail_t codec_detail; /**< Conversion and delegated cause; common data above. */
 } tlv_query_diagnostic_t;
 
 /** @brief Category of a Query expression's result. */
@@ -146,10 +148,15 @@ typedef enum tlv_query_conversion {
  * @param[in,out] scratch Private aligned caller storage for this VM frame.
  * @param[in] capacity Scratch bytes.
  * @param[out] result Tagged scalar; may borrow input or scratch until reset.
- * @note No allocation. Callback work is outside the engine work bound. */
-typedef tlv_codec_result_t (*tlv_query_decode_t)(const void* context, const tlv_tree_event_t* event,
-                                                 const uint8_t* data, size_t size, void* scratch,
-                                                 size_t capacity, tlv_query_result_t* result);
+ * @note Return a shared result unchanged; NEED_MORE_DATA is preserved, END and
+ * unknown results become CALLBACK. Diagnostic borrows must survive the callback.
+ * No allocation. Callback work is outside the engine work bound. * @param[out] diagnostic Optional
+ * initialized failure output; NULL skips evidence collection.
+ */
+typedef tlv_result_t (*tlv_query_decode_t)(const void* context, const tlv_tree_event_t* event,
+                                           const uint8_t* data, size_t size, void* scratch,
+                                           size_t capacity, tlv_query_result_t* result,
+                                           tlv_codec_diagnostic_t* diagnostic);
 
 /** @brief Immutable compile requirement/execution provider. IDs, not pointers, enter programs. */
 typedef struct tlv_query_hook {

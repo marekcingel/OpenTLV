@@ -443,7 +443,7 @@ This design completes #551. Issue #552 implements `INVALID_STATE`, Query kind
 
 Issue #554 implements unsupported capability, workspace and callback classifications
 including impossible preorder depth returned by a Tree Writer source callback.
-The separate Codec result domain and its lossless propagation migrate in #556;
+Codec uses the shared result domain and lossless typed propagation as of #556;
 other Query detail kinds and the remaining result classes are follow-up work. No append-only or numeric ABI guarantee is attached to
 `INVALID_STATE = 19` or `STATE = 12`. The complete target API is not yet available.
 The follow-up implementation replaces enums/signatures/layouts directly and

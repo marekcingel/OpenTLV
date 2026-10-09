@@ -91,66 +91,65 @@ static void check_fixed_roundtrip(const tlv_codec_t* codec, tlv_emv_value_kind_t
     uint8_t                encoded[256];
     size_t                 queried = SIZE_MAX, written = SIZE_MAX, written_short = SIZE_MAX;
     fuzz_codec_fixed_value decoded;
-    FUZZ_CHECK(tlv_codec_encode(codec, value, object_size, NULL, 0, &queried) == TLV_CODEC_OK);
+    FUZZ_CHECK(tlv_codec_encode(codec, value, object_size, NULL, 0, &queried, NULL) == TLV_OK);
     FUZZ_CHECK(queried > 0 && queried <= sizeof(encoded));
     memset(encoded, 0xa5, sizeof(encoded));
-    FUZZ_CHECK(tlv_codec_encode(codec, value, object_size, encoded, sizeof(encoded), &written) ==
-               TLV_CODEC_OK);
+    FUZZ_CHECK(tlv_codec_encode(codec, value, object_size, encoded, sizeof(encoded), &written,
+                                NULL) == TLV_OK);
     FUZZ_CHECK(written == queried);
-    FUZZ_CHECK(tlv_codec_encode(codec, value, object_size, encoded, written - 1, &written_short) ==
-               TLV_CODEC_ERR_BUFFER_TOO_SHORT);
+    FUZZ_CHECK(tlv_codec_encode(codec, value, object_size, encoded, written - 1, &written_short,
+                                NULL) == TLV_ERR_BUFFER_TOO_SHORT);
     FUZZ_CHECK(written_short == 0);
     memset(&decoded, 0x5a, sizeof(decoded));
-    FUZZ_CHECK(tlv_codec_decode(codec, encoded, written, &decoded, object_size) == TLV_CODEC_OK);
+    FUZZ_CHECK(tlv_codec_decode(codec, encoded, written, &decoded, object_size, NULL) == TLV_OK);
     FUZZ_CHECK(fixed_equal(kind, &decoded, value));
 }
 
 static void check_fixed(const tlv_codec_t* codec, tlv_emv_value_kind_t kind, const uint8_t* data,
                         size_t size) {
     fuzz_codec_fixed_value value;
-    tlv_codec_result_t     rc;
+    tlv_result_t           rc;
     size_t                 capacity = fixed_capacity(kind);
     if (!capacity) return;
     memset(&value, 0xa5, sizeof(value));
     /* One byte short of the documented representation must never succeed,
      * regardless of whether the raw bytes are otherwise a valid value. */
     if (capacity > 1)
-        FUZZ_CHECK(tlv_codec_decode(codec, data, size, &value, capacity - 1) != TLV_CODEC_OK);
-    rc = tlv_codec_decode(codec, data, size, &value, capacity);
-    FUZZ_CHECK(rc == TLV_CODEC_OK || rc == TLV_CODEC_ERR_INVALID_VALUE);
-    if (rc == TLV_CODEC_OK) check_fixed_roundtrip(codec, kind, &value, capacity);
+        FUZZ_CHECK(tlv_codec_decode(codec, data, size, &value, capacity - 1, NULL) != TLV_OK);
+    rc = tlv_codec_decode(codec, data, size, &value, capacity, NULL);
+    FUZZ_CHECK(rc == TLV_OK || rc == TLV_ERR_INVALID_VALUE);
+    if (rc == TLV_OK) check_fixed_roundtrip(codec, kind, &value, capacity);
 }
 
 static void check_digits(const tlv_codec_t* codec, const uint8_t* data, size_t size) {
-    char               digits[FUZZ_CODEC_DIGITS_CAPACITY];
-    char               decoded[FUZZ_CODEC_DIGITS_CAPACITY];
-    uint8_t            encoded[FUZZ_CODEC_DIGITS_CAPACITY];
-    tlv_codec_result_t rc;
-    size_t queried = SIZE_MAX, written = SIZE_MAX, written_short = SIZE_MAX, digit_count;
+    char         digits[FUZZ_CODEC_DIGITS_CAPACITY];
+    char         decoded[FUZZ_CODEC_DIGITS_CAPACITY];
+    uint8_t      encoded[FUZZ_CODEC_DIGITS_CAPACITY];
+    tlv_result_t rc;
+    size_t       queried = SIZE_MAX, written = SIZE_MAX, written_short = SIZE_MAX, digit_count;
     memset(digits, 0xa5, sizeof(digits));
-    rc = tlv_codec_decode(codec, data, size, digits, sizeof(digits));
-    FUZZ_CHECK(rc == TLV_CODEC_OK || rc == TLV_CODEC_ERR_INVALID_VALUE ||
-               rc == TLV_CODEC_ERR_BUFFER_TOO_SHORT);
-    if (rc != TLV_CODEC_OK) return;
+    rc = tlv_codec_decode(codec, data, size, digits, sizeof(digits), NULL);
+    FUZZ_CHECK(rc == TLV_OK || rc == TLV_ERR_INVALID_VALUE || rc == TLV_ERR_BUFFER_TOO_SHORT);
+    if (rc != TLV_OK) return;
     digit_count = strlen(digits);
     FUZZ_CHECK(digit_count < sizeof(digits));
     /* decode_digits validates before checking capacity, so a capacity that
      * omits only the terminating NUL must fail this same input deterministically. */
-    FUZZ_CHECK(tlv_codec_decode(codec, data, size, decoded, digit_count) ==
-               TLV_CODEC_ERR_BUFFER_TOO_SHORT);
-    FUZZ_CHECK(tlv_codec_encode(codec, digits, digit_count, NULL, 0, &queried) == TLV_CODEC_OK);
+    FUZZ_CHECK(tlv_codec_decode(codec, data, size, decoded, digit_count, NULL) ==
+               TLV_ERR_BUFFER_TOO_SHORT);
+    FUZZ_CHECK(tlv_codec_encode(codec, digits, digit_count, NULL, 0, &queried, NULL) == TLV_OK);
     FUZZ_CHECK(queried <= sizeof(encoded));
     memset(encoded, 0xa5, sizeof(encoded));
-    FUZZ_CHECK(tlv_codec_encode(codec, digits, digit_count, encoded, sizeof(encoded), &written) ==
-               TLV_CODEC_OK);
+    FUZZ_CHECK(tlv_codec_encode(codec, digits, digit_count, encoded, sizeof(encoded), &written,
+                                NULL) == TLV_OK);
     FUZZ_CHECK(written == queried);
     if (written > 0) {
         FUZZ_CHECK(tlv_codec_encode(codec, digits, digit_count, encoded, written - 1,
-                                    &written_short) == TLV_CODEC_ERR_BUFFER_TOO_SHORT);
+                                    &written_short, NULL) == TLV_ERR_BUFFER_TOO_SHORT);
         FUZZ_CHECK(written_short == 0);
     }
     memset(decoded, 0x5a, sizeof(decoded));
-    FUZZ_CHECK(tlv_codec_decode(codec, encoded, written, decoded, sizeof(decoded)) == TLV_CODEC_OK);
+    FUZZ_CHECK(tlv_codec_decode(codec, encoded, written, decoded, sizeof(decoded), NULL) == TLV_OK);
     FUZZ_CHECK(strcmp(digits, decoded) == 0);
 }
 

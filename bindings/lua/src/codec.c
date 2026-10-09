@@ -26,16 +26,14 @@ typedef struct lua_codec {
     int custom;
 } lua_codec_t;
 
-int opentlv_lua_codec_raise(lua_State* L, tlv_codec_result_t code) {
-    lua_newtable(L);
-    lua_pushinteger(L, code);
-    lua_setfield(L, -2, "code");
-    lua_pushstring(L, "codec");
-    lua_setfield(L, -2, "domain");
-    lua_pushstring(L, tlv_codec_strerror(code));
-    lua_setfield(L, -2, "message");
-    luaL_getmetatable(L, OPENTLV_LUA_ERROR_MT);
-    lua_setmetatable(L, -2);
+int opentlv_lua_codec_raise(lua_State* L, tlv_result_t code) {
+    return opentlv_lua_raise(L, code, 0, 0);
+}
+
+static int raise_codec_diagnostic(lua_State* L, const tlv_codec_diagnostic_t* d) {
+    opentlv_lua_push_diagnostic(L, &d->diagnostic);
+    opentlv_lua_push_codec_detail(L, &d->codec);
+    lua_setfield(L, -2, "codec_detail");
     return lua_error(L);
 }
 
@@ -216,38 +214,43 @@ static int invoke_custom(lua_State* L) {
     return 1;
 }
 
-static tlv_codec_result_t custom_run(custom_call_t* call) {
+static tlv_result_t custom_run(custom_call_t* call) {
     lua_pushvalue(call->L, call->closure);
     call->failed = lua_pcall(call->L, 0, 1, 0) != LUA_OK;
     call->result = lua_gettop(call->L);
-    return call->failed ? TLV_CODEC_ERR_INVALID_VALUE : TLV_CODEC_OK;
+    return call->failed ? TLV_ERR_INVALID_VALUE : TLV_OK;
 }
 
-static tlv_codec_result_t custom_decode(const void* context, const uint8_t* data, size_t size,
-                                        void* value, size_t capacity) {
+static tlv_result_t custom_decode(const void* context, const uint8_t* data, size_t size,
+                                  void* value, size_t capacity,
+                                  tlv_codec_diagnostic_t* diagnostic) {
+    tlv_codec_diagnostic_init(diagnostic, TLV_CODEC_OP_DECODE);
     custom_call_t* call = (custom_call_t*)context;
     (void)value;
     (void)capacity;
     call->data = data;
     call->size = size;
-    return custom_run(call);
+    return tlv_codec_diagnostic_result(diagnostic, custom_run(call));
 }
 
-static tlv_codec_result_t custom_encode(const void* context, const void* value, size_t size,
-                                        uint8_t* data, size_t capacity, size_t* written) {
+static tlv_result_t custom_encode(const void* context, const void* value, size_t size,
+                                  uint8_t* data, size_t capacity, size_t* written,
+                                  tlv_codec_diagnostic_t* diagnostic) {
+    tlv_codec_diagnostic_init(diagnostic, TLV_CODEC_OP_ENCODE);
     custom_call_t* call = (custom_call_t*)context;
     (void)value;
     (void)size;
     if (!call->result) {
-        tlv_codec_result_t code = custom_run(call);
-        if (code != TLV_CODEC_OK) return code;
+        tlv_result_t code = custom_run(call);
+        if (code != TLV_OK) return tlv_codec_diagnostic_result(diagnostic, code);
     }
     size_t      length;
     const char* bytes = lua_tolstring(call->L, call->result, &length);
-    if (data && capacity < length) return TLV_CODEC_ERR_BUFFER_TOO_SHORT;
+    if (data && capacity < length)
+        return tlv_codec_diagnostic_result(diagnostic, TLV_ERR_BUFFER_TOO_SHORT);
     if (data && length) memcpy(data, bytes, length);
     *written = length;
-    return TLV_CODEC_OK;
+    return tlv_codec_diagnostic_result(diagnostic, TLV_OK);
 }
 
 static tlv_codec_t prepare_custom(lua_State* L, lua_codec_t* codec, custom_call_t* call,
@@ -272,17 +275,18 @@ static tlv_codec_t prepare_custom(lua_State* L, lua_codec_t* codec, custom_call_
 }
 
 static int codec_decode(lua_State* L) {
-    lua_codec_t*       codec = luaL_checkudata(L, 1, CODEC_MT);
-    size_t             size;
-    const uint8_t*     data = (const uint8_t*)opentlv_lua_codec_string(L, 2, &size);
-    tlv_codec_result_t code;
+    tlv_codec_diagnostic_t diagnostic;
+    lua_codec_t*           codec = luaL_checkudata(L, 1, CODEC_MT);
+    size_t                 size;
+    const uint8_t*         data = (const uint8_t*)opentlv_lua_codec_string(L, 2, &size);
+    tlv_result_t           code;
     if (codec->custom) {
         custom_call_t call;
         tlv_codec_t   native = prepare_custom(L, codec, &call, 0);
         unsigned char dummy;
-        code = tlv_codec_decode(&native, data, size, &dummy, sizeof dummy);
+        code = tlv_codec_decode(&native, data, size, &dummy, sizeof dummy, &diagnostic);
         if (call.failed) return lua_error(L);
-        if (code != TLV_CODEC_OK) return opentlv_lua_codec_raise(L, code);
+        if (code != TLV_OK) return raise_codec_diagnostic(L, &diagnostic);
         return 1;
     }
     size_t capacity = codec->rep->size;
@@ -291,8 +295,8 @@ static int codec_decode(lua_State* L) {
         capacity = size * 2 + 1;
     }
     void* value = lua_newuserdata(L, capacity);
-    code = tlv_codec_decode(&codec->codec, data, size, value, capacity);
-    if (code != TLV_CODEC_OK) return opentlv_lua_codec_raise(L, code);
+    code = tlv_codec_decode(&codec->codec, data, size, value, capacity, &diagnostic);
+    if (code != TLV_OK) return raise_codec_diagnostic(L, &diagnostic);
     if (codec->rep->push)
         codec->rep->push(L, value);
     else
@@ -301,7 +305,8 @@ static int codec_decode(lua_State* L) {
 }
 
 static int codec_encode(lua_State* L) {
-    lua_codec_t* codec = luaL_checkudata(L, 1, CODEC_MT);
+    tlv_codec_diagnostic_t diagnostic;
+    lua_codec_t*           codec = luaL_checkudata(L, 1, CODEC_MT);
     luaL_checkany(L, 2);
     custom_call_t call;
     tlv_codec_t   native = codec->codec;
@@ -319,14 +324,14 @@ static int codec_encode(lua_State* L) {
         memset(value, 0, size);
         codec->rep->get(L, 2, value);
     }
-    size_t             required = 0, written = 0;
-    tlv_codec_result_t code = tlv_codec_encode(&native, value, size, NULL, 0, &required);
+    size_t       required = 0, written = 0;
+    tlv_result_t code = tlv_codec_encode(&native, value, size, NULL, 0, &required, &diagnostic);
     if (codec->custom && call.failed) return lua_error(L);
-    if (code != TLV_CODEC_OK) return opentlv_lua_codec_raise(L, code);
+    if (code != TLV_OK) return raise_codec_diagnostic(L, &diagnostic);
     uint8_t* bytes = lua_newuserdata(L, required ? required : 1);
-    code = tlv_codec_encode(&native, value, size, bytes, required, &written);
+    code = tlv_codec_encode(&native, value, size, bytes, required, &written, &diagnostic);
     if (codec->custom && call.failed) return lua_error(L);
-    if (code != TLV_CODEC_OK) return opentlv_lua_codec_raise(L, code);
+    if (code != TLV_OK) return raise_codec_diagnostic(L, &diagnostic);
     lua_pushlstring(L, (const char*)bytes, written);
     return 1;
 }
@@ -411,12 +416,6 @@ static int custom_codec(lua_State* L) {
     return 1;
 }
 
-static int codec_strerror(lua_State* L) {
-    int64_t code = opentlv_lua_codec_int(L, 1, 0, TLV_CODEC_ERR_INVALID_STRUCTURE);
-    lua_pushstring(L, tlv_codec_strerror((tlv_codec_result_t)code));
-    return 1;
-}
-
 void opentlv_lua_open_codec(lua_State* L, int module_index) {
     static const opentlv_lua_method_t methods[] = {
         {"decode", codec_decode}, {"encode", codec_encode}, {NULL, NULL}};
@@ -432,14 +431,4 @@ void opentlv_lua_open_codec(lua_State* L, int module_index) {
     lua_setfield(L, module_index, "codecs");
     lua_pushcfunction(L, custom_codec);
     lua_setfield(L, module_index, "codec");
-    lua_pushcfunction(L, codec_strerror);
-    lua_setfield(L, module_index, "codec_strerror");
-    static const char* const errors[] = {
-        "OK", "NULL_ARG", "BUFFER_TOO_SHORT", "INVALID_VALUE", "UNSUPPORTED", "INVALID_STRUCTURE"};
-    lua_newtable(L);
-    for (unsigned i = 0; i < sizeof errors / sizeof errors[0]; ++i) {
-        lua_pushinteger(L, (lua_Integer)i);
-        lua_setfield(L, -2, errors[i]);
-    }
-    lua_setfield(L, module_index, "codec_errors");
 }

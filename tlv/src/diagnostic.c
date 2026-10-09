@@ -2,8 +2,17 @@
 // Copyright (c) 2026 Marek Cingel
 
 #include "tlv/diagnostic.h"
+#include "tlv/codec/diagnostic.h"
 #include <stdint.h>
 #include <string.h>
+
+void tlv_codec_diagnostic_init(tlv_codec_diagnostic_t* diagnostic,
+                               tlv_codec_operation_t operation) {
+    if (!diagnostic) return;
+    memset(diagnostic, 0, sizeof(*diagnostic));
+    diagnostic->diagnostic.severity = TLV_DIAGNOSTIC_SEVERITY_INFO;
+    diagnostic->codec.operation = operation;
+}
 
 void tlv_diagnostic_init(tlv_diagnostic_t* diagnostic, tlv_result_t code,
                          tlv_diagnostic_severity_t severity) {

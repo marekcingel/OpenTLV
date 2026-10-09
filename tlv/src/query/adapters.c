@@ -34,18 +34,23 @@ tlv_result_t tlv_query_definition_resolve(const void* context, const char* ns, s
     return TLV_OK;
 }
 #if OPENTLV_CODEC
-tlv_codec_result_t tlv_query_codec_decode(const void* context, const tlv_tree_event_t* event,
-                                          const uint8_t* data, size_t size, void* scratch,
-                                          size_t capacity, tlv_query_result_t* result) {
+tlv_result_t tlv_query_codec_decode(const void* context, const tlv_tree_event_t* event,
+                                    const uint8_t* data, size_t size, void* scratch,
+                                    size_t capacity, tlv_query_result_t* result,
+                                    tlv_codec_diagnostic_t* diagnostic) {
+    tlv_codec_diagnostic_init(diagnostic, TLV_CODEC_OP_DECODE);
     (void)event;
-    if (!context || !scratch || !result) return TLV_CODEC_ERR_NULL_ARG;
+    if (!context || !scratch || !result)
+        return tlv_codec_diagnostic_result(diagnostic, TLV_ERR_NULL_ARG);
     const tlv_query_codec_adapter_t* adapter = context;
-    if (adapter->representation > TLV_QUERY_CODEC_UTF8) return TLV_CODEC_ERR_INVALID_VALUE;
+    if (adapter->representation < TLV_QUERY_CODEC_SIGNED ||
+        adapter->representation > TLV_QUERY_CODEC_UTF8)
+        return tlv_codec_diagnostic_result(diagnostic, TLV_ERR_INVALID_ARG);
     size_t needed =
         adapter->representation == TLV_QUERY_CODEC_UTF8 ? sizeof(tlv_value_t) : sizeof(uint64_t);
-    if (capacity < needed) return TLV_CODEC_ERR_BUFFER_TOO_SHORT;
-    tlv_codec_result_t rc = tlv_codec_decode(adapter->codec, data, size, scratch, capacity);
-    if (rc != TLV_CODEC_OK) return rc;
+    if (capacity < needed) return tlv_codec_diagnostic_result(diagnostic, TLV_ERR_BUFFER_TOO_SHORT);
+    tlv_result_t rc = tlv_codec_decode(adapter->codec, data, size, scratch, capacity, diagnostic);
+    if (rc != TLV_OK) return tlv_codec_diagnostic_result(diagnostic, rc);
     tlv_query_result_t out = {0};
     out.kind = TLV_QUERY_RESULT_INTEGER;
     if (adapter->representation == TLV_QUERY_CODEC_SIGNED)
@@ -53,19 +58,19 @@ tlv_codec_result_t tlv_query_codec_decode(const void* context, const tlv_tree_ev
     else if (adapter->representation == TLV_QUERY_CODEC_UNSIGNED) {
         uint64_t n;
         memcpy(&n, scratch, sizeof n);
-        if (n > INT64_MAX) return TLV_CODEC_ERR_INVALID_VALUE;
+        if (n > INT64_MAX) return tlv_codec_diagnostic_result(diagnostic, TLV_ERR_INVALID_VALUE);
         out.integer = (int64_t)n;
     } else {
         tlv_value_t span;
         memcpy(&span, scratch, sizeof span);
         if (span.size > SIZE_MAX || tlv_utf8_validate(span.data, (size_t)span.size) != TLV_OK)
-            return TLV_CODEC_ERR_INVALID_VALUE;
+            return tlv_codec_diagnostic_result(diagnostic, TLV_ERR_INVALID_VALUE);
         out.kind = TLV_QUERY_RESULT_STRING;
         out.data = span.data;
         out.size = (size_t)span.size;
     }
     *result = out;
-    return TLV_CODEC_OK;
+    return tlv_codec_diagnostic_result(diagnostic, TLV_OK);
 }
 static const tlv_number_codec_config_t bcd_config = {TLV_NUMBER_BCD, 0, 18};
 static const tlv_codec_t bcd_codec = {&bcd_config, tlv_number_decode, tlv_number_encode};

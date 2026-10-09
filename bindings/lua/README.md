@@ -119,7 +119,7 @@ codec; `codec:encode(value)` returns a binary string. `opentlv.codecs` exposes
 generic codecs, configured number/text/digits constructors and the enabled
 ASN.1, Bluetooth, LLDP and EMV codecs. `opentlv.codec {decode = ..., encode = ...}`
 bridges custom Lua functions through `tlv_codec_t`. Codec errors have
-`domain = "codec"`, with codes in `opentlv.codec_errors`.
+shared codes in `opentlv.errors` and optional `codec_detail`.
 
 See the [Codec guide](../../docs/guides/lua.md#value-codecs) for exact integer
 handling, builtin representations and EMV selection, and

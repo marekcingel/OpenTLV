@@ -1,56 +1,102 @@
 // SPDX-License-Identifier: MIT
 // Copyright (c) 2026 Marek Cingel
-
 #include "tlv/codec/structure.h"
 #include "tlv/reader/visitor.h"
+#include "result_internal.h"
 
-static int valid_descriptor(const tlv_structure_codec_t* codec) {
-    return codec && tlv_format_can_read(codec->format);
-}
-
-static tlv_codec_result_t validate(const tlv_structure_codec_t* codec, const uint8_t* data,
-                                   size_t size) {
+static tlv_result_t validate(const tlv_structure_codec_t* codec, const uint8_t* data, size_t size,
+                             tlv_codec_diagnostic_t* diagnostic) {
     tlv_result_t rc;
     if (codec->schema) {
+        tlv_schema_diagnostic_t cause;
+        if (diagnostic) tlv_schema_diagnostic_init(&cause);
         rc = tlv_schema_validate(data, size, codec->format, codec->schema, codec->max_depth,
-                                 codec->max_elements, NULL);
+                                 codec->max_elements, diagnostic ? &cause : NULL);
+        if (diagnostic && rc != TLV_OK) {
+            diagnostic->diagnostic = cause.diagnostic;
+            diagnostic->codec.cause = TLV_CODEC_CAUSE_SCHEMA;
+            diagnostic->codec.detail.schema.kind = cause.kind;
+            diagnostic->codec.detail.schema.tag = cause.tag;
+            diagnostic->codec.detail.schema.definition = cause.definition;
+            diagnostic->codec.detail.schema.field = cause.field;
+            diagnostic->codec.detail.schema.is_group = cause.is_group;
+            diagnostic->codec.detail.schema.has_occurs = cause.has_occurs;
+            diagnostic->codec.detail.schema.min_occurs = cause.min_occurs;
+            diagnostic->codec.detail.schema.max_occurs = cause.max_occurs;
+            diagnostic->codec.detail.schema.occurs = cause.occurs;
+            diagnostic->codec.detail.schema.has_length = cause.has_length;
+            diagnostic->codec.detail.schema.min_length = cause.min_length;
+            diagnostic->codec.detail.schema.max_length = cause.max_length;
+            diagnostic->codec.detail.schema.actual_length = cause.actual_length;
+            diagnostic->codec.detail.schema.has_form = cause.has_form;
+            diagnostic->codec.detail.schema.expected_form = cause.expected_form;
+            diagnostic->codec.detail.schema.actual_constructed = cause.actual_constructed;
+            diagnostic->codec.detail.schema.length_multiple = cause.length_multiple;
+            diagnostic->codec.detail.schema.length_flags = cause.length_flags;
+        }
     } else {
         tlv_tree_reader_t reader;
         tlv_tree_frame_t frames[TLV_STRUCTURE_MAX_DEPTH];
+        tlv_reader_diagnostic_t cause;
+        if (diagnostic) tlv_reader_diagnostic_init(&cause);
         rc = tlv_tree_reader_init(&reader, data, size, codec->format, frames,
                                   TLV_STRUCTURE_MAX_DEPTH, codec->max_depth, codec->max_elements);
-        if (rc == TLV_OK) rc = tlv_tree_reader_visit(&reader, NULL, NULL, NULL);
+        if (rc == TLV_OK)
+            rc = tlv_tree_reader_visit(&reader, NULL, NULL, diagnostic ? &cause : NULL);
+        if (diagnostic && rc != TLV_OK) {
+            diagnostic->diagnostic = cause.diagnostic;
+            diagnostic->codec.cause = TLV_CODEC_CAUSE_READER;
+            diagnostic->codec.detail.reader = cause.detail;
+        }
     }
-    return rc == TLV_OK ? TLV_CODEC_OK : TLV_CODEC_ERR_INVALID_STRUCTURE;
+    return tlv_codec_diagnostic_result(diagnostic, rc);
 }
 
-tlv_codec_result_t tlv_structure_decode(const tlv_structure_codec_t* codec, const uint8_t* data,
-                                        size_t size, void* value, size_t capacity) {
-    tlv_codec_result_t rc;
-    if (!valid_descriptor(codec) || !value || (!data && size)) return TLV_CODEC_ERR_NULL_ARG;
-    if (!codec->decode) return TLV_CODEC_ERR_UNSUPPORTED;
-    rc = validate(codec, data, size);
-    if (rc != TLV_CODEC_OK) return rc;
-    return codec->decode(codec->context, codec->format, data, size, value, capacity);
+tlv_result_t tlv_structure_decode(const tlv_structure_codec_t* codec, const uint8_t* data,
+                                  size_t size, void* value, size_t capacity,
+                                  tlv_codec_diagnostic_t* diagnostic) {
+    tlv_result_t rc;
+    tlv_codec_diagnostic_init(diagnostic, TLV_CODEC_OP_DECODE);
+    if (!codec || !value || (!data && size))
+        return tlv_codec_diagnostic_result(diagnostic, TLV_ERR_NULL_ARG);
+    if (!codec->format) return tlv_codec_diagnostic_result(diagnostic, TLV_ERR_INVALID_ARG);
+    if (!codec->decode || !tlv_format_can_read(codec->format))
+        return tlv_codec_diagnostic_result(diagnostic, TLV_ERR_UNSUPPORTED);
+    rc = validate(codec, data, size, diagnostic);
+    if (rc != TLV_OK) return rc;
+    rc = codec->decode(codec->context, codec->format, data, size, value, capacity, diagnostic);
+    return tlv_codec_callback_result(diagnostic, rc, TLV_CODEC_OP_DECODE);
 }
 
-tlv_codec_result_t tlv_structure_encode(const tlv_structure_codec_t* codec, const void* value,
-                                        size_t size, uint8_t* data, size_t capacity,
-                                        size_t* written) {
+tlv_result_t tlv_structure_encode(const tlv_structure_codec_t* codec, const void* value,
+                                  size_t size, uint8_t* data, size_t capacity, size_t* written,
+                                  tlv_codec_diagnostic_t* diagnostic) {
     size_t count = 0;
-    tlv_codec_result_t rc;
-    if (!written) return TLV_CODEC_ERR_NULL_ARG;
+    tlv_result_t rc;
+    tlv_codec_operation_t operation = data ? TLV_CODEC_OP_ENCODE : TLV_CODEC_OP_MEASURE;
+    tlv_codec_diagnostic_init(diagnostic, operation);
+    if (!written) return tlv_codec_diagnostic_result(diagnostic, TLV_ERR_NULL_ARG);
     *written = 0;
-    if (!valid_descriptor(codec) || !value || (!data && capacity)) return TLV_CODEC_ERR_NULL_ARG;
-    if (!codec->encode) return TLV_CODEC_ERR_UNSUPPORTED;
-    if (!tlv_format_can_write(codec->format)) return TLV_CODEC_ERR_NULL_ARG;
-    rc = codec->encode(codec->context, codec->format, value, size, data, capacity, &count);
-    if (rc != TLV_CODEC_OK) return rc;
-    if (data && count > capacity) return TLV_CODEC_ERR_BUFFER_TOO_SHORT;
+    if (!codec || !value || (!data && capacity))
+        return tlv_codec_diagnostic_result(diagnostic, TLV_ERR_NULL_ARG);
+    if (!codec->format) return tlv_codec_diagnostic_result(diagnostic, TLV_ERR_INVALID_ARG);
+    if (!codec->encode || !tlv_format_can_read(codec->format) ||
+        !tlv_format_can_write(codec->format))
+        return tlv_codec_diagnostic_result(diagnostic, TLV_ERR_UNSUPPORTED);
+    rc = codec->encode(codec->context, codec->format, value, size, data, capacity, &count,
+                       diagnostic);
+    rc = tlv_codec_callback_result(diagnostic, rc, operation);
+    if (rc != TLV_OK) return rc;
+    if (data && count > capacity) {
+        if (diagnostic) diagnostic->codec.violation = TLV_CODEC_VIOLATION_SIZE;
+        return tlv_codec_diagnostic_result(diagnostic, TLV_ERR_CALLBACK);
+    }
     if (data) {
-        rc = validate(codec, data, count);
-        if (rc != TLV_CODEC_OK) return rc;
+        rc = validate(codec, data, count, diagnostic);
+        if (diagnostic && diagnostic->diagnostic.location.domain == TLV_LOCATION_INPUT)
+            diagnostic->diagnostic.location.domain = TLV_LOCATION_OUTPUT;
+        if (rc != TLV_OK) return rc;
     }
     *written = count;
-    return TLV_CODEC_OK;
+    return tlv_codec_diagnostic_result(diagnostic, TLV_OK);
 }

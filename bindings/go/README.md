@@ -364,12 +364,10 @@ IPv4 representations use `[4]byte` and `[][4]byte` in network octet order.
 The zero Codec is unsupported. Generic codecs remain usable with protocol
 components and Document disabled.
 
-Value conversion errors are `CodecError` values in the separate C codec status
-domain. Use `errors.Is(err, opentlv.ErrCodecInvalidValue)` or `errors.As` with
-`CodecError`. C Value codecs provide no structured diagnostics, so none are
-invented. This facade covers generic Value codecs; protocol-specific codecs,
-custom native descriptors and application-object Structure codecs are not yet
-exposed.
+Value conversion failures are `*CodecError` values wrapping a common status.
+Use `errors.Is(err, opentlv.ErrInvalidValue)` or `errors.As` with `*CodecError`.
+Its `Detail` owns the conversion diagnostic and available delegated cause.
+Query providers return shared errors; nil denotes success.
 
 Run `go run ./examples/codec`, and with Document enabled,
 `go run ./examples/query` for querying followed by typed Value decoding.

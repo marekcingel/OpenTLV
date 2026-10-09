@@ -20,7 +20,7 @@ inline tlv_result_t result(tlv_result_t rc, const tlv_query_diagnostic_t& diagno
         EXPECT_TRUE(test_query_diagnostic_matches(rc, &diagnostic))
             << "result=" << rc << " kind=" << diagnostic.kind;
         if (diagnostic.kind == TLV_QUERY_ERROR_READER) EXPECT_TRUE(diagnostic.has_reader);
-        if (diagnostic.kind == TLV_QUERY_ERROR_CODEC) EXPECT_NE(TLV_CODEC_OK, diagnostic.codec);
+        if (diagnostic.kind == TLV_QUERY_ERROR_CODEC) EXPECT_NE(TLV_OK, diagnostic.codec);
     }
     return rc;
 }

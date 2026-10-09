@@ -27,6 +27,8 @@ typedef struct {
     unsigned argument; /* numeric BCD digits (0=binary), or CN maximum digits */
 } emv_value_rule_t;
 
-tlv_codec_result_t emv_value_decode(const void*, const uint8_t*, size_t, void*, size_t);
-tlv_codec_result_t emv_value_encode(const void*, const void*, size_t, uint8_t*, size_t, size_t*);
+tlv_result_t emv_value_decode(const void*, const uint8_t*, size_t, void*, size_t,
+                              tlv_codec_diagnostic_t* diagnostic);
+tlv_result_t emv_value_encode(const void*, const void*, size_t, uint8_t*, size_t, size_t*,
+                              tlv_codec_diagnostic_t* diagnostic);
 #endif

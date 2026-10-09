@@ -11,10 +11,12 @@
 
 use std::os::raw::{c_char, c_int, c_void};
 
+mod codec_diagnostic;
 #[cfg(feature = "document")]
 mod document;
 mod program;
 mod schema_report;
+pub use codec_diagnostic::*;
 #[cfg(feature = "document")]
 pub use document::*;
 pub use program::*;
@@ -558,21 +560,6 @@ pub struct tlv_structure_schema_t {
     pub order: tlv_schema_order_t,
 }
 
-/// Result code of a value conversion (`tlv_codec_result_t`).
-pub type tlv_codec_result_t = c_int;
-/// The conversion succeeded (`TLV_CODEC_OK`).
-pub const TLV_CODEC_OK: tlv_codec_result_t = 0;
-/// A required pointer argument is null (`TLV_CODEC_ERR_NULL_ARG`).
-pub const TLV_CODEC_ERR_NULL_ARG: tlv_codec_result_t = 1;
-/// A supplied buffer is too small (`TLV_CODEC_ERR_BUFFER_TOO_SHORT`).
-pub const TLV_CODEC_ERR_BUFFER_TOO_SHORT: tlv_codec_result_t = 2;
-/// The value or its representation is invalid (`TLV_CODEC_ERR_INVALID_VALUE`).
-pub const TLV_CODEC_ERR_INVALID_VALUE: tlv_codec_result_t = 3;
-/// The operation is not supported by the codec (`TLV_CODEC_ERR_UNSUPPORTED`).
-pub const TLV_CODEC_ERR_UNSUPPORTED: tlv_codec_result_t = 4;
-/// A structure is malformed or violates its schema (`TLV_CODEC_ERR_INVALID_STRUCTURE`).
-pub const TLV_CODEC_ERR_INVALID_STRUCTURE: tlv_codec_result_t = 5;
-
 /// Value decoder callback of a codec.
 pub type tlv_codec_decode_fn = unsafe extern "C" fn(
     context: *const c_void,
@@ -580,7 +567,8 @@ pub type tlv_codec_decode_fn = unsafe extern "C" fn(
     size: usize,
     value: *mut c_void,
     capacity: usize,
-) -> tlv_codec_result_t;
+    diagnostic: *mut tlv_codec_diagnostic_t,
+) -> tlv_result_t;
 
 /// Value encoder callback of a codec.
 pub type tlv_codec_encode_fn = unsafe extern "C" fn(
@@ -590,7 +578,8 @@ pub type tlv_codec_encode_fn = unsafe extern "C" fn(
     data: *mut u8,
     capacity: usize,
     written: *mut usize,
-) -> tlv_codec_result_t;
+    diagnostic: *mut tlv_codec_diagnostic_t,
+) -> tlv_result_t;
 
 /// Borrowed codec descriptor (`tlv_codec_t`).
 #[repr(C)]
@@ -919,7 +908,8 @@ extern "C" {
         size: usize,
         value: *mut c_void,
         capacity: usize,
-    ) -> tlv_codec_result_t;
+        diagnostic: *mut tlv_codec_diagnostic_t,
+    ) -> tlv_result_t;
     /// Encodes a C representation into raw value bytes with a codec.
     pub fn tlv_codec_encode(
         codec: *const tlv_codec_t,
@@ -928,9 +918,9 @@ extern "C" {
         data: *mut u8,
         capacity: usize,
         written: *mut usize,
-    ) -> tlv_codec_result_t;
+        diagnostic: *mut tlv_codec_diagnostic_t,
+    ) -> tlv_result_t;
     /// Describes a codec result.
-    pub fn tlv_codec_strerror(result: tlv_codec_result_t) -> *const c_char;
 
     /// Default DER limits.
     pub static tlv_der_default_limits: tlv_der_limits_t;
@@ -1250,6 +1240,16 @@ extern "C" {
 }
 
 /// Native tlv_diagnostic state.
+/// Borrowed native context chain. Strings and nodes must outlive inspection.
+#[repr(C)]
+#[derive(Clone, Copy, Debug)]
+pub struct tlv_diagnostic_context_t {
+    pub layer: *const c_char,
+    pub key: *const c_char,
+    pub value: *const c_char,
+    pub next: *const tlv_diagnostic_context_t,
+}
+
 #[repr(C)]
 #[derive(Clone, Copy, Debug)]
 pub struct tlv_diagnostic_t {
@@ -1264,7 +1264,7 @@ pub struct tlv_diagnostic_t {
     /// Borrowed actual text.
     pub actual: *const c_char,
     /// Borrowed contexts.
-    pub contexts: *const c_void,
+    pub contexts: *const tlv_diagnostic_context_t,
     /// Whether the enclosing path was tracked.
     pub has_path: c_int,
     /// Path copied by value; identifier bytes remain borrowed.
@@ -1580,7 +1580,8 @@ extern "C" {
         size: usize,
         value: *mut c_void,
         capacity: usize,
-    ) -> tlv_codec_result_t;
+        diagnostic: *mut tlv_codec_diagnostic_t,
+    ) -> tlv_result_t;
     pub fn tlv_number_encode(
         context: *const c_void,
         value: *const c_void,
@@ -1588,7 +1589,8 @@ extern "C" {
         data: *mut u8,
         capacity: usize,
         written: *mut usize,
-    ) -> tlv_codec_result_t;
+        diagnostic: *mut tlv_codec_diagnostic_t,
+    ) -> tlv_result_t;
 }
 
 /// Borrowed table of generic Definitions.

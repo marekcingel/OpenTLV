@@ -20,21 +20,23 @@ static tlv_visit_result_t collect(const tlv_tree_event_t* event, void* context) 
     return matches->stop ? TLV_VISIT_STOP : TLV_VISIT_CONTINUE;
 }
 typedef struct provider {
-    tlv_codec_result_t status;
-    int                invalid_type;
+    tlv_result_t status;
+    int          invalid_type;
 } provider_t;
-static tlv_codec_result_t decode(const void* context, const tlv_tree_event_t* event,
-                                 const uint8_t* data, size_t size, void* scratch, size_t capacity,
-                                 tlv_query_result_t* result) {
+static tlv_result_t decode(const void* context, const tlv_tree_event_t* event, const uint8_t* data,
+                           size_t size, void* scratch, size_t capacity, tlv_query_result_t* result,
+                           tlv_codec_diagnostic_t* diagnostic) {
+    tlv_codec_diagnostic_init(diagnostic, TLV_CODEC_OP_DECODE);
     const provider_t* provider = context;
     if (!event || event->element.tag.size != 1 || event->element.tag.data[0] != 0x5a || size != 1 ||
         !data || capacity != 8 || (uintptr_t)scratch % 8)
         abort();
-    if (provider->status != TLV_CODEC_OK) return provider->status;
+    if (provider->status != TLV_OK)
+        return tlv_codec_diagnostic_result(diagnostic, provider->status);
     memset(result, 0, sizeof *result);
     result->kind = provider->invalid_type ? TLV_QUERY_RESULT_BOOL : TLV_QUERY_RESULT_INTEGER;
     result->integer = data[0];
-    return TLV_CODEC_OK;
+    return tlv_codec_diagnostic_result(diagnostic, TLV_OK);
 }
 static int constructed(const void* context, const tlv_tag_t* tag) {
     (void)context;
@@ -202,7 +204,7 @@ int LLVMFuzzerTestOneInput(const uint8_t* data, size_t size) {
     /* Provider failure and malformed result types are independent fuzz inputs.
      * Reinitialize exactly the same workspace after failure, then prove that a
      * compatible successful provider can evaluate without stale invalid state. */
-    provider_t              provider = {(tlv_codec_result_t)(data[0] % 6), (data[0] & 32) != 0};
+    provider_t              provider = {(tlv_result_t)(data[0] % 6), (data[0] & 32) != 0};
     tlv_query_hook_t        hook = {101, TLV_QUERY_NUM, 8, 8, &provider, decode};
     tlv_query_environment_t environment = {0};
     environment.hooks = &hook;
@@ -230,12 +232,11 @@ int LLVMFuzzerTestOneInput(const uint8_t* data, size_t size) {
         tlv_query_diagnostic_t diagnostic;
         tlv_result_t           rc =
             tlv_query_program_visit(&reader, conversion_exec, collect, &matches[2], &diagnostic);
-        if (provider.status != TLV_CODEC_OK || provider.invalid_type) {
-            const tlv_codec_result_t expected_codec = provider.status;
-            if (rc !=
-                    (provider.status == TLV_CODEC_OK ? TLV_ERR_CALLBACK : TLV_ERR_INVALID_VALUE) ||
-                diagnostic.kind != (provider.status == TLV_CODEC_OK ? TLV_QUERY_ERROR_CALLBACK
-                                                                    : TLV_QUERY_ERROR_CODEC) ||
+        if (provider.status != TLV_OK || provider.invalid_type) {
+            const tlv_result_t expected_codec = provider.status;
+            if (rc != (provider.status == TLV_OK ? TLV_ERR_CALLBACK : TLV_ERR_INVALID_VALUE) ||
+                diagnostic.kind != (provider.status == TLV_OK ? TLV_QUERY_ERROR_CALLBACK
+                                                              : TLV_QUERY_ERROR_CODEC) ||
                 diagnostic.codec != expected_codec ||
                 !(diagnostic.diagnostic.location.domain == TLV_LOCATION_INPUT &&
                   diagnostic.diagnostic.location.kind != TLV_LOCATION_UNKNOWN) ||
@@ -249,7 +250,7 @@ int LLVMFuzzerTestOneInput(const uint8_t* data, size_t size) {
                 result.kind != TLV_QUERY_RESULT_INTEGER || result.integer != data[0])
                 abort();
         }
-        provider.status = TLV_CODEC_OK;
+        provider.status = TLV_OK;
         provider.invalid_type = 0;
     }
     return 0;

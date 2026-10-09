@@ -16,8 +16,8 @@
  * Use tlv_codec_decode() and tlv_codec_encode(); their pointer, overlap and
  * error contracts apply. Decode requires at least sizeof the documented C
  * representation; encode requires exactly sizeof that representation.
- * Wrong wire lengths or object sizes return #TLV_CODEC_ERR_INVALID_VALUE;
- * insufficient destination capacity returns #TLV_CODEC_ERR_BUFFER_TOO_SHORT.
+ * Wrong wire lengths or object sizes return #TLV_ERR_INVALID_VALUE;
+ * insufficient destination capacity returns #TLV_ERR_BUFFER_TOO_SHORT.
  * Encode size queries validate the representation before reporting its size.
  * No codec applies option-specific limits or allocates storage.
  */
@@ -47,8 +47,8 @@ typedef struct tlv_ipv4_list {
  *
  * Decode borrows input. Encode validates the view and copies all raw bytes,
  * preserving address order and duplicates. Empty lists are valid. Nonempty
- * NULL data returns #TLV_CODEC_ERR_NULL_ARG; non-native lengths or incomplete
- * addresses return #TLV_CODEC_ERR_INVALID_VALUE, including for size queries.
+ * NULL data returns #TLV_ERR_NULL_ARG; non-native lengths or incomplete
+ * addresses return #TLV_ERR_INVALID_VALUE, including for size queries.
  */
 extern TLV_API const tlv_codec_t tlv_codec_ipv4_list;
 
@@ -58,13 +58,12 @@ extern TLV_API const tlv_codec_t tlv_codec_ipv4_list;
  * @param[in] list Required view with readable, immutable raw storage.
  * @param[in] index Zero-based index, less than raw.size / 4.
  * @param[out] value Required destination, not overlapping the view or its bytes.
- * @return #TLV_CODEC_OK on success.
- * @return #TLV_CODEC_ERR_NULL_ARG for missing pointers or nonempty NULL data.
- * @return #TLV_CODEC_ERR_INVALID_VALUE for malformed lengths or an invalid index.
+ * @return #TLV_OK on success.
+ * @return #TLV_ERR_NULL_ARG for missing pointers or nonempty NULL data.
+ * @return #TLV_ERR_INVALID_VALUE for malformed lengths or an invalid index.
  * @note The destination is unchanged on failure. No allocation occurs.
  */
-TLV_API tlv_codec_result_t tlv_ipv4_list_at(const tlv_ipv4_list_t* list, size_t index,
-                                            tlv_ipv4_t* value);
+TLV_API tlv_result_t tlv_ipv4_list_at(const tlv_ipv4_list_t* list, size_t index, tlv_ipv4_t* value);
 
 #ifdef __cplusplus
 }

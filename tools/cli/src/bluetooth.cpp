@@ -44,8 +44,7 @@ decode_result decode(const tlv::element_view* element, Render render) {
     const auto    value = Codec::decode(element->value().as_bytes());
     decode_result result;
     result.status = value ? decode_status::ok : decode_status::error;
-    result.text =
-        value ? render(*value) : tlv::message(static_cast<tlv::codec_errc>(value.error()));
+    result.text = value ? render(*value) : tlv::message(value.error().status());
     return result;
 }
 template <class Codec> decode_result decode_uuids(const tlv::element_view* element) {

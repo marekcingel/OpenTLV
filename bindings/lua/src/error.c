@@ -227,3 +227,67 @@ int opentlv_lua_raise_reader_error(lua_State* L, tlv_result_t code,
     opentlv_lua_push_reader_error(L, code, diag);
     return lua_error(L);
 }
+
+void opentlv_lua_push_codec_detail(lua_State* L, const tlv_codec_detail_t* d) {
+    lua_newtable(L);
+    lua_pushinteger(L, d->operation);
+    lua_setfield(L, -2, "operation");
+    lua_pushinteger(L, d->reported);
+    lua_setfield(L, -2, "reported");
+    lua_pushinteger(L, d->violation);
+    lua_setfield(L, -2, "violation");
+    lua_pushinteger(L, d->cause);
+    lua_setfield(L, -2, "cause");
+    if (d->representation) {
+        lua_pushstring(L, d->representation);
+        lua_setfield(L, -2, "representation");
+    }
+    if (d->cause == TLV_CODEC_CAUSE_READER) {
+        lua_newtable(L);
+        opentlv_lua_add_reader_detail(L, &d->detail.reader);
+        lua_setfield(L, -2, "reader");
+    }
+    if (d->cause == TLV_CODEC_CAUSE_SCHEMA) {
+        const tlv_codec_schema_detail_t* v = &d->detail.schema;
+        lua_newtable(L);
+        lua_pushnumber(L, (lua_Number)v->kind);
+        lua_setfield(L, -2, "kind");
+        lua_pushlstring(L, (const char*)v->tag.data, v->tag.size);
+        lua_setfield(L, -2, "tag");
+        lua_pushinteger(L, v->definition.kind);
+        lua_setfield(L, -2, "definition_kind");
+        lua_pushnumber(L, (lua_Number)v->definition.index);
+        lua_setfield(L, -2, "definition_index");
+        lua_pushstring(L, v->field);
+        lua_setfield(L, -2, "field");
+        lua_pushnumber(L, (lua_Number)v->is_group);
+        lua_setfield(L, -2, "is_group");
+        lua_pushnumber(L, (lua_Number)v->has_occurs);
+        lua_setfield(L, -2, "has_occurs");
+        lua_pushnumber(L, (lua_Number)v->min_occurs);
+        lua_setfield(L, -2, "min_occurs");
+        lua_pushnumber(L, (lua_Number)v->max_occurs);
+        lua_setfield(L, -2, "max_occurs");
+        lua_pushnumber(L, (lua_Number)v->occurs);
+        lua_setfield(L, -2, "occurs");
+        lua_pushnumber(L, (lua_Number)v->has_length);
+        lua_setfield(L, -2, "has_length");
+        lua_pushnumber(L, (lua_Number)v->min_length);
+        lua_setfield(L, -2, "min_length");
+        lua_pushnumber(L, (lua_Number)v->max_length);
+        lua_setfield(L, -2, "max_length");
+        lua_pushnumber(L, (lua_Number)v->actual_length);
+        lua_setfield(L, -2, "actual_length");
+        lua_pushnumber(L, (lua_Number)v->has_form);
+        lua_setfield(L, -2, "has_form");
+        lua_pushnumber(L, (lua_Number)v->expected_form);
+        lua_setfield(L, -2, "expected_form");
+        lua_pushnumber(L, (lua_Number)v->actual_constructed);
+        lua_setfield(L, -2, "actual_constructed");
+        lua_pushnumber(L, (lua_Number)v->length_multiple);
+        lua_setfield(L, -2, "length_multiple");
+        lua_pushnumber(L, (lua_Number)v->length_flags);
+        lua_setfield(L, -2, "length_flags");
+        lua_setfield(L, -2, "schema");
+    }
+}

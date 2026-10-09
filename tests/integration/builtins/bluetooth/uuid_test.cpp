@@ -29,17 +29,17 @@ TEST(Integration_Tlv_BluetoothUuid, Story347AndAllListAdTypesPreserveRawValues) 
         EXPECT_EQ(length + 2, consumed);
         EXPECT_EQ(type, element.tag.data[0]);
         tlv_bluetooth_uuid_list_t list = {};
-        ASSERT_EQ(TLV_CODEC_OK,
-                  tlv_codec_decode(codecs[kind], element.value.data, native, &list, sizeof(list)));
+        ASSERT_EQ(TLV_OK, tlv_codec_decode(codecs[kind], element.value.data, native, &list,
+                                           sizeof(list), NULL));
         EXPECT_EQ(wire + 2, list.raw.data);
         EXPECT_EQ(element.value.data, list.raw.data);
         EXPECT_EQ(element.value.size, list.raw.size);
         EXPECT_EQ(2u, list.raw.size / list.uuid_size);
         if (kind == 0) {
             uint16_t uuid = 0;
-            ASSERT_EQ(TLV_CODEC_OK, tlv_bluetooth_uuid_list_at(&list, 0, &uuid, sizeof(uuid)));
+            ASSERT_EQ(TLV_OK, tlv_bluetooth_uuid_list_at(&list, 0, &uuid, sizeof(uuid)));
             EXPECT_EQ(0x180F, uuid);
-            ASSERT_EQ(TLV_CODEC_OK, tlv_bluetooth_uuid_list_at(&list, 1, &uuid, sizeof(uuid)));
+            ASSERT_EQ(TLV_OK, tlv_bluetooth_uuid_list_at(&list, 1, &uuid, sizeof(uuid)));
             EXPECT_EQ(0x180A, uuid);
         }
         EXPECT_EQ(0, std::memcmp(original, wire, sizeof(wire)));
@@ -52,9 +52,9 @@ TEST(Integration_Tlv_BluetoothUuid, MalformedListRemainsAvailableAsRawValue) {
     size_t        consumed = 0;
     ASSERT_EQ(TLV_OK, tlv_read(wire, sizeof(wire), &tlv_format_bluetooth_ltv, &element, &consumed));
     tlv_bluetooth_uuid_list_t list = {};
-    EXPECT_EQ(TLV_CODEC_ERR_INVALID_VALUE,
+    EXPECT_EQ(TLV_ERR_INVALID_VALUE,
               tlv_codec_decode(&tlv_bluetooth_codec_uuid16_list, element.value.data, 3, &list,
-                               sizeof(list)));
+                               sizeof(list), NULL));
     EXPECT_EQ(wire + 2, element.value.data);
     EXPECT_EQ(3u, element.value.size);
 }

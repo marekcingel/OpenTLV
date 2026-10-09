@@ -2,37 +2,38 @@
 // Copyright (c) 2026 Marek Cingel
 
 #include "tlv/codec/codec.h"
+#include "result_internal.h"
 
-tlv_codec_result_t tlv_codec_decode(const tlv_codec_t* codec, const uint8_t* data, size_t size,
-                                    void* value, size_t capacity) {
-    if (!codec || !value || (!data && size)) return TLV_CODEC_ERR_NULL_ARG;
-    if (!codec->decode) return TLV_CODEC_ERR_UNSUPPORTED;
-    return codec->decode(codec->context, data, size, value, capacity);
+tlv_result_t tlv_codec_decode(const tlv_codec_t* codec, const uint8_t* data, size_t size,
+                              void* value, size_t capacity, tlv_codec_diagnostic_t* diagnostic) {
+    tlv_result_t result;
+    tlv_codec_diagnostic_init(diagnostic, TLV_CODEC_OP_DECODE);
+    if (!codec || !value || (!data && size))
+        return tlv_codec_diagnostic_result(diagnostic, TLV_ERR_NULL_ARG);
+    if (!codec->decode) return tlv_codec_diagnostic_result(diagnostic, TLV_ERR_UNSUPPORTED);
+    result = codec->decode(codec->context, data, size, value, capacity, diagnostic);
+    return tlv_codec_callback_result(diagnostic, result, TLV_CODEC_OP_DECODE);
 }
 
-tlv_codec_result_t tlv_codec_encode(const tlv_codec_t* codec, const void* value, size_t size,
-                                    uint8_t* data, size_t capacity, size_t* written) {
+tlv_result_t tlv_codec_encode(const tlv_codec_t* codec, const void* value, size_t size,
+                              uint8_t* data, size_t capacity, size_t* written,
+                              tlv_codec_diagnostic_t* diagnostic) {
     size_t count = 0;
-    tlv_codec_result_t result;
-    if (!written) return TLV_CODEC_ERR_NULL_ARG;
+    tlv_result_t result;
+    tlv_codec_operation_t operation = data ? TLV_CODEC_OP_ENCODE : TLV_CODEC_OP_MEASURE;
+    tlv_codec_diagnostic_init(diagnostic, operation);
+    if (!written) return tlv_codec_diagnostic_result(diagnostic, TLV_ERR_NULL_ARG);
     *written = 0;
-    if (!codec || !value || (!data && capacity)) return TLV_CODEC_ERR_NULL_ARG;
-    if (!codec->encode) return TLV_CODEC_ERR_UNSUPPORTED;
-    result = codec->encode(codec->context, value, size, data, capacity, &count);
-    if (result != TLV_CODEC_OK) return result;
-    if (data && count > capacity) return TLV_CODEC_ERR_BUFFER_TOO_SHORT;
-    *written = count;
-    return TLV_CODEC_OK;
-}
-
-const char* tlv_codec_strerror(tlv_codec_result_t result) {
-    switch (result) {
-        case TLV_CODEC_OK: return "Success";
-        case TLV_CODEC_ERR_NULL_ARG: return "Null codec argument";
-        case TLV_CODEC_ERR_BUFFER_TOO_SHORT: return "Codec destination too short";
-        case TLV_CODEC_ERR_INVALID_VALUE: return "Invalid codec value";
-        case TLV_CODEC_ERR_UNSUPPORTED: return "Unsupported codec operation";
-        case TLV_CODEC_ERR_INVALID_STRUCTURE: return "Invalid TLV structure";
-        default: return "Unknown codec error";
+    if (!codec || !value || (!data && capacity))
+        return tlv_codec_diagnostic_result(diagnostic, TLV_ERR_NULL_ARG);
+    if (!codec->encode) return tlv_codec_diagnostic_result(diagnostic, TLV_ERR_UNSUPPORTED);
+    result = codec->encode(codec->context, value, size, data, capacity, &count, diagnostic);
+    result = tlv_codec_callback_result(diagnostic, result, operation);
+    if (result != TLV_OK) return result;
+    if (data && count > capacity) {
+        if (diagnostic) diagnostic->codec.violation = TLV_CODEC_VIOLATION_SIZE;
+        return tlv_codec_diagnostic_result(diagnostic, TLV_ERR_CALLBACK);
     }
+    *written = count;
+    return TLV_OK;
 }

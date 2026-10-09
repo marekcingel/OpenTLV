@@ -5,25 +5,21 @@ package opentlv
 
 import "github.com/marekcingel/OpenTLV/bindings/go/internal/capi"
 
-// CodecError is a value-conversion status, distinct from TLV framing statuses.
-// Native value codecs supply no structured diagnostics. It supports errors.Is.
-type CodecError int
+// CodecError retains a shared OpenTLV status and conversion evidence.
+type CodecError struct {
+	Diagnostic
+	Detail *CodecDetail
+	status StatusError
+}
 
-const (
-	// ErrCodecNullArg identifies a missing required native argument.
-	ErrCodecNullArg CodecError = 1
-	// ErrCodecBufferTooShort identifies insufficient representation/output capacity.
-	ErrCodecBufferTooShort CodecError = 2
-	// ErrCodecInvalidValue identifies invalid configuration or value bytes.
-	ErrCodecInvalidValue CodecError = 3
-	// ErrCodecUnsupported identifies an unsupported direction or codec.
-	ErrCodecUnsupported CodecError = 4
-	// ErrCodecInvalidStructure identifies invalid framing/schema in structure conversion.
-	ErrCodecInvalidStructure CodecError = 5
-)
+// Error returns the canonical shared result description.
+func (e *CodecError) Error() string { return e.status.Error() }
 
-// Error returns the canonical C codec status description.
-func (e CodecError) Error() string { return capi.CodecMessage(int(e)) }
+// Unwrap supports matching every common status with errors.Is.
+func (e *CodecError) Unwrap() error { return e.status }
+
+// Code returns the original shared C result.
+func (e *CodecError) Code() int { return e.status.Code() }
 
 // Codec is an immutable typed facade over a C value codec. Its zero value is
 // unsupported. It is safe for concurrent use with independent input storage.
@@ -38,11 +34,11 @@ type Codec[T any] struct {
 func (c Codec[T]) Decode(data []byte) (T, error) {
 	var zero T
 	if c.from == nil {
-		return zero, ErrCodecUnsupported
+		return zero, ErrUnsupported
 	}
-	n, s, b, code := c.config.Decode(data)
+	n, s, b, code, detail := c.config.Decode(data)
 	if code != 0 {
-		return zero, CodecError(code)
+		return zero, codecError(code, detail)
 	}
 	return c.from(n, s, b), nil
 }
@@ -50,12 +46,12 @@ func (c Codec[T]) Decode(data []byte) (T, error) {
 // Encode returns an independent encoded Value, or the native conversion error.
 func (c Codec[T]) Encode(value T) ([]byte, error) {
 	if c.to == nil {
-		return nil, ErrCodecUnsupported
+		return nil, ErrUnsupported
 	}
 	n, s, b := c.to(value)
-	result, code := c.config.Encode(n, s, b)
+	result, code, detail := c.config.Encode(n, s, b)
 	if code != 0 {
-		return nil, CodecError(code)
+		return nil, codecError(code, detail)
 	}
 	return result, nil
 }
@@ -165,4 +161,51 @@ func IPv4ListCodec() Codec[[][4]byte] {
 		}
 		return 0, 0, b
 	}}
+}
+
+// CodecDetail owns conversion evidence in the shared result domain.
+type CodecDetail struct {
+	Diagnostic
+	Operation, Reported, Violation int
+	Representation                 string
+	Reader                         *Diagnostic
+	Schema                         *CodecSchemaDetail
+}
+
+// CodecSchemaDetail owns delegated Schema details. DefinitionIndex identifies
+// the native rule within its definition; native owner addresses are not exposed.
+type CodecSchemaDetail struct {
+	Kind, DefinitionKind                                             int
+	DefinitionIndex                                                  uint64
+	Tag                                                              []byte
+	Field                                                            string
+	IsGroup, HasOccurs, HasLength, HasForm                           bool
+	MinOccurs, MaxOccurs, Occurs, MinLength, MaxLength, ActualLength uint64
+	ExpectedForm                                                     int
+	ActualConstructed                                                bool
+	LengthMultiple                                                   uint64
+	LengthFlags                                                      uint32
+}
+
+func publicCodecDetail(d *capi.CodecDetail) *CodecDetail {
+	if d == nil {
+		return nil
+	}
+	result := &CodecDetail{Diagnostic: publicDiagnostic(d.Diagnostic), Operation: d.Operation, Reported: d.Reported, Violation: d.Violation, Representation: d.Representation}
+	if d.Reader != nil {
+		v := publicDiagnostic(*d.Reader)
+		result.Reader = &v
+	}
+	if d.Schema != nil {
+		v := CodecSchemaDetail(*d.Schema)
+		result.Schema = &v
+	}
+	return result
+}
+func codecError(code int, d *capi.CodecDetail) *CodecError {
+	result := &CodecError{status: StatusError{code: capi.Code(code)}, Detail: publicCodecDetail(d)}
+	if result.Detail != nil {
+		result.Diagnostic = result.Detail.Diagnostic
+	}
+	return result
 }

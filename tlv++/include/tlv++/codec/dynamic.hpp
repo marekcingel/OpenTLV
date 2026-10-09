@@ -12,37 +12,48 @@
  * @brief Runtime-selected Value codecs over caller-owned typed storage.
  */
 namespace tlv {
-/** @brief Value conversion outcomes, independent of wire framing errors. */
-enum class codec_errc {
-    ok = TLV_CODEC_OK,                                  /**< Conversion succeeded. */
-    null_argument = TLV_CODEC_ERR_NULL_ARG,             /**< Required storage absent. */
-    buffer_too_short = TLV_CODEC_ERR_BUFFER_TOO_SHORT,  /**< Insufficient capacity. */
-    invalid_value = TLV_CODEC_ERR_INVALID_VALUE,        /**< Invalid Value representation. */
-    unsupported = TLV_CODEC_ERR_UNSUPPORTED,            /**< Direction not supported. */
-    invalid_structure = TLV_CODEC_ERR_INVALID_STRUCTURE /**< Structural conversion failed. */
-};
-/** @brief Return immutable program-lifetime codec status text without allocation. */
-inline const char* message(codec_errc code) noexcept {
-    return tlv_codec_strerror(static_cast<tlv_codec_result_t>(code));
-}
-/** @brief Project a codec outcome into the common diagnostic contract without allocation.
- * @param code Original codec status, retained by the calling result for exact domain inspection.
- * @return Corresponding operation status with the codec's precise static description.
- * @note invalid_structure projects to errc::invalid_value because structural conversion can
- * fail without Schema validation. The original codec status and its description remain distinct.
- */
-inline error to_error(codec_errc code) noexcept {
-    errc status = errc::invalid_value;
-    switch (code) {
-        case codec_errc::ok: status = errc::ok; break;
-        case codec_errc::null_argument: status = errc::null_argument; break;
-        case codec_errc::buffer_too_short: status = errc::buffer_too_short; break;
-        case codec_errc::unsupported: status = errc::unsupported; break;
-        case codec_errc::invalid_structure:
-        case codec_errc::invalid_value: break;
+/** @brief Shared result and complete conversion evidence, without a separate error enum. */
+struct codec_failure {
+    tlv_result_t           code;         /**< Original common result. */
+    tlv_codec_diagnostic_t diagnostic{}; /**< Conversion operation, location and delegated cause. */
+    /** @brief Construct a result-only conversion failure. */
+    codec_failure(errc value) noexcept : codec_failure(static_cast<tlv_result_t>(value)) {}
+    /** @brief Preserve a native result with unknown cause/location. */
+    explicit codec_failure(tlv_result_t value) noexcept : code(value) {
+        tlv_codec_diagnostic_init(&diagnostic, TLV_CODEC_OP_DECODE);
+        diagnostic.codec.reported = value;
+        tlv_codec_diagnostic_result(&diagnostic, value);
     }
-    return error(static_cast<tlv_result_t>(status), message(code)).during(operation::codec);
-}
+    /** @brief Preserve the full optional diagnostic by value; external borrows remain borrowed. */
+    codec_failure(tlv_result_t value, const tlv_codec_diagnostic_t& detail) noexcept
+        : code(value), diagnostic(detail) {
+        diagnostic.diagnostic.code = value;
+    }
+    /** @brief Common C++ result classification. */
+    errc status() const noexcept {
+        return static_cast<errc>(code);
+    }
+    /** @brief Canonical static description. */
+    const char* message() const noexcept {
+        return tlv_strerror(code);
+    }
+    /** @brief Project common metadata while this object retains complete typed evidence. */
+    error failure() const noexcept {
+        return detail::error_access::diagnostic(diagnostic.diagnostic, operation::codec);
+    }
+    /** @brief Return the shared native result for callback interoperability. */
+    explicit operator tlv_result_t() const noexcept {
+        return code;
+    }
+    /** @brief Compare classification with the shared result domain. */
+    friend bool operator==(const codec_failure& a, errc b) noexcept {
+        return a.status() == b;
+    }
+    /** @brief Compare classification with the shared result domain. */
+    friend bool operator==(errc a, const codec_failure& b) noexcept {
+        return a == b.status();
+    }
+};
 /// @cond INTERNAL
 namespace detail {
 struct codec_access;
@@ -79,10 +90,10 @@ public:
      * @return Representation or original codec status; conversion never selects by enclosing tag.
      * @warning T must match the selected descriptor; borrowed members require input to outlive T.
      */
-    template <typename T> expected<T, codec_errc> decode(bytes input) const {
+    template <typename T> expected<T, codec_failure> decode(bytes input) const {
         T    result{};
         auto status = decode_into(input, span<T>(&result, 1));
-        if (!status) return unexpected<codec_errc>(status.error());
+        if (!status) return unexpected<codec_failure>(status.error());
         return result;
     }
     /**
@@ -93,13 +104,15 @@ public:
      * @return Success or original codec status. On failure destination is unspecified.
      */
     template <typename T>
-    expected<void, codec_errc> decode_into(bytes input, span<T> output) const {
-        if (!readable()) return unexpected<codec_errc>(codec_errc::unsupported);
+    expected<void, codec_failure> decode_into(bytes input, span<T> output) const {
+        if (!readable()) return unexpected<codec_failure>(errc::unsupported);
         if (output.size() > SIZE_MAX / sizeof(T))
-            return unexpected<codec_errc>(codec_errc::buffer_too_short);
-        auto rc = tlv_codec_decode(descriptor_, reinterpret_cast<const uint8_t*>(input.data()),
-                                   input.size(), output.data(), output.size() * sizeof(T));
-        if (rc != TLV_CODEC_OK) return unexpected<codec_errc>(static_cast<codec_errc>(rc));
+            return unexpected<codec_failure>(errc::buffer_too_short);
+        tlv_codec_diagnostic_t diagnostic;
+        auto                   rc =
+            tlv_codec_decode(descriptor_, reinterpret_cast<const uint8_t*>(input.data()),
+                             input.size(), output.data(), output.size() * sizeof(T), &diagnostic);
+        if (rc != TLV_OK) return unexpected<codec_failure>(codec_failure(rc, diagnostic));
         return {};
     }
     /**
@@ -111,13 +124,14 @@ public:
      * @warning Failing encoding may modify destination bytes.
      */
     template <typename T>
-    expected<size_t, codec_errc> encode(const T& value, span<byte> output = {}) const {
-        if (!writable()) return unexpected<codec_errc>(codec_errc::unsupported);
-        size_t written = 0;
-        auto   rc =
-            tlv_codec_encode(descriptor_, &value, sizeof(T),
-                             reinterpret_cast<uint8_t*>(output.data()), output.size(), &written);
-        if (rc != TLV_CODEC_OK) return unexpected<codec_errc>(static_cast<codec_errc>(rc));
+    expected<size_t, codec_failure> encode(const T& value, span<byte> output = {}) const {
+        if (!writable()) return unexpected<codec_failure>(errc::unsupported);
+        tlv_codec_diagnostic_t diagnostic;
+        size_t                 written = 0;
+        auto rc = tlv_codec_encode(descriptor_, &value, sizeof(T),
+                                   reinterpret_cast<uint8_t*>(output.data()), output.size(),
+                                   &written, &diagnostic);
+        if (rc != TLV_OK) return unexpected<codec_failure>(codec_failure(rc, diagnostic));
         return written;
     }
 
@@ -141,8 +155,8 @@ struct codec_access {
 
 /** @brief Stationary owner adapting a stateful C++ Value codec to runtime selection.
  * @tparam Codec Immutable codec exposing value_type, const noexcept decode(bytes)
- * returning expected<value_type, codec_errc>, and const noexcept
- * encode(const value_type&, byte*, size_t) returning expected<size_t, codec_errc>.
+ * returning expected<value_type, codec_failure>, and const noexcept
+ * encode(const value_type&, byte*, size_t) returning expected<size_t, codec_failure>.
  * @note Nonthrowing static typed codecs also satisfy this contract. The adapter allocates nothing;
  * state construction follows Codec's own policy. No native callback tables are required.
  * @warning Views borrow this owner. Decode results may borrow the input Value bytes.
@@ -152,13 +166,13 @@ public:
     /** @brief Exact representation required by this runtime codec. */
     using value_type = typename Codec::value_type;
     static_assert(std::is_same<decltype(std::declval<const Codec&>().decode(std::declval<bytes>())),
-                               expected<value_type, codec_errc>>::value,
-                  "Runtime codec decode must return expected<value_type, codec_errc>");
+                               expected<value_type, codec_failure>>::value,
+                  "Runtime codec decode must return expected<value_type, codec_failure>");
     static_assert(
         std::is_same<decltype(std::declval<const Codec&>().encode(
                          std::declval<const value_type&>(), static_cast<byte*>(nullptr), size_t{})),
-                     expected<size_t, codec_errc>>::value,
-        "Runtime codec encode must return expected<size_t, codec_errc>");
+                     expected<size_t, codec_failure>>::value,
+        "Runtime codec encode must return expected<size_t, codec_failure>");
     static_assert(std::is_nothrow_move_assignable<value_type>::value,
                   "Runtime codec representations must support noexcept move assignment");
     static_assert(noexcept(std::declval<const Codec&>().decode(std::declval<bytes>())),
@@ -189,28 +203,39 @@ public:
     dynamic_codec view() const&& = delete;
 
 private:
-    Codec                     codec_;
-    tlv_codec_t               descriptor_;
-    static tlv_codec_result_t decode(const void* context, const uint8_t* data, size_t size,
-                                     void* output, size_t capacity) noexcept {
-        if (!output) return TLV_CODEC_ERR_NULL_ARG;
-        if (capacity < sizeof(value_type)) return TLV_CODEC_ERR_BUFFER_TOO_SHORT;
+    Codec               codec_;
+    tlv_codec_t         descriptor_;
+    static tlv_result_t decode(const void* context, const uint8_t* data, size_t size, void* output,
+                               size_t capacity, tlv_codec_diagnostic_t* diagnostic) noexcept {
+        tlv_codec_diagnostic_init(diagnostic, TLV_CODEC_OP_DECODE);
+        if (!output) return tlv_codec_diagnostic_result(diagnostic, TLV_ERR_NULL_ARG);
+        if (capacity < sizeof(value_type))
+            return tlv_codec_diagnostic_result(diagnostic, TLV_ERR_BUFFER_TOO_SHORT);
         const auto& self = *static_cast<const codec_owner*>(context);
         auto        value = self.codec_.decode({reinterpret_cast<const byte*>(data), size});
-        if (!value) return static_cast<tlv_codec_result_t>(value.error());
+        if (!value) {
+            if (diagnostic) *diagnostic = value.error().diagnostic;
+            return tlv_codec_diagnostic_result(diagnostic, value.error().code);
+        }
         *static_cast<value_type*>(output) = std::move(*value);
-        return TLV_CODEC_OK;
+        return tlv_codec_diagnostic_result(diagnostic, TLV_OK);
     }
-    static tlv_codec_result_t encode(const void* context, const void* input, size_t size,
-                                     uint8_t* output, size_t capacity, size_t* written) noexcept {
-        if (!input || !written) return TLV_CODEC_ERR_NULL_ARG;
-        if (size != sizeof(value_type)) return TLV_CODEC_ERR_INVALID_VALUE;
+    static tlv_result_t encode(const void* context, const void* input, size_t size, uint8_t* output,
+                               size_t capacity, size_t* written,
+                               tlv_codec_diagnostic_t* diagnostic) noexcept {
+        tlv_codec_diagnostic_init(diagnostic, TLV_CODEC_OP_ENCODE);
+        if (!input || !written) return tlv_codec_diagnostic_result(diagnostic, TLV_ERR_NULL_ARG);
+        if (size != sizeof(value_type))
+            return tlv_codec_diagnostic_result(diagnostic, TLV_ERR_INVALID_VALUE);
         const auto& self = *static_cast<const codec_owner*>(context);
         auto        value = self.codec_.encode(*static_cast<const value_type*>(input),
                                                reinterpret_cast<byte*>(output), capacity);
-        if (!value) return static_cast<tlv_codec_result_t>(value.error());
+        if (!value) {
+            if (diagnostic) *diagnostic = value.error().diagnostic;
+            return tlv_codec_diagnostic_result(diagnostic, value.error().code);
+        }
         *written = *value;
-        return TLV_CODEC_OK;
+        return tlv_codec_diagnostic_result(diagnostic, TLV_OK);
     }
 };
 } // namespace tlv

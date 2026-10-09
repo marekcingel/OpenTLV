@@ -343,7 +343,7 @@ if(HAS_EMV)
     # --decode: a tag outside the dictionary is skipped gracefully, without a decoded/decode-error field.
     check(0 "^offset=0 tag=DF01 length=1 value=00 name=\"Unknown EMV tag in this context\"\n$" dump --format ber --hex "DF010100" --module emv --decode)
     # --decode: a value with the right length but an invalid BCD nibble reports a codec diagnostic.
-    check(0 "decode-error=\"Invalid codec value\"" dump --format ber --hex "9F0206FFFFFFFFFFFF" --module emv --decode)
+    check(0 "decode-error=\"invalid data or application representation\"" dump --format ber --hex "9F0206FFFFFFFFFFFF" --module emv --decode)
     # --decode: a value kind with no codec (PAN is DIGITS, not BYTES/TEXT/TEMPLATE, so use a template tag instead).
     check(0 "^offset=0 tag=6F length=0 value= name=\"File Control Information \\(FCI\\) Template\"\n$" dump --format ber --hex "6F00" --module emv --decode)
     check(0 "\"decoded\":\"12345678\"" dump --format ber --hex "5A0412345678" --module emv --decode --output json)
@@ -817,7 +817,7 @@ if(HAS_EMV)
     run_cli(0 "9F0206000000001000DF010100\n" "" encode --format ber --input "${json_dir}/cli-emv.json")
     check(0 "\"description\":\"Numeric value" decode --format ber --module emv --describe --hex "9F0206000000001000")
     check(0 "\"decoded\":\"1000\"" decode --format ber --module emv --decode --hex "9F0206000000001000")
-    check(0 "\"decode_error\":\"Invalid codec value\"" decode --format ber --module emv --decode --hex "9F0206FFFFFFFFFFFF")
+    check(0 "\"decode_error\":\"invalid data or application representation\"" decode --format ber --module emv --decode --hex "9F0206FFFFFFFFFFFF")
     check(2 "--decode requires --module" decode --format ber --hex "9F0206000000001000" --decode)
     check(2 "requires --format ber" decode --format der --module emv --hex " ")
     # Context-dependent names: the same tag is named per enclosing template.

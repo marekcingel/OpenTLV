@@ -172,10 +172,12 @@ static void destroy_program(PyObject* capsule) {
     Py_XDECREF(self->owners);
     free(self);
 }
-static PyObject*          project(const tlv_tree_event_t* event);
-static tlv_codec_result_t decode_provider(const void* context, const tlv_tree_event_t* event,
-                                          const uint8_t* data, size_t size, void* scratch,
-                                          size_t capacity, tlv_query_result_t* result) {
+static PyObject*    project(const tlv_tree_event_t* event);
+static tlv_result_t decode_provider(const void* context, const tlv_tree_event_t* event,
+                                    const uint8_t* data, size_t size, void* scratch,
+                                    size_t capacity, tlv_query_result_t* result,
+                                    tlv_codec_diagnostic_t* diagnostic) {
+    tlv_codec_diagnostic_init(diagnostic, TLV_CODEC_OP_DECODE);
     PyObject* callback = (PyObject*)context;
     PyObject* input = PyBytes_FromStringAndSize((const char*)data, (Py_ssize_t)size);
     PyObject* metadata = event ? project(event) : Py_NewRef(Py_None);
@@ -183,20 +185,20 @@ static tlv_codec_result_t decode_provider(const void* context, const tlv_tree_ev
         input && metadata ? PyObject_CallFunctionObjArgs(callback, input, metadata, NULL) : NULL;
     Py_XDECREF(input);
     Py_XDECREF(metadata);
-    if (!value) return TLV_CODEC_ERR_INVALID_VALUE;
+    if (!value) return tlv_codec_diagnostic_result(diagnostic, TLV_ERR_INVALID_VALUE);
     memset(result, 0, sizeof *result);
-    tlv_codec_result_t code = TLV_CODEC_OK;
+    tlv_result_t code = TLV_OK;
     if (PyLong_Check(value) && !PyBool_Check(value)) {
         result->kind = TLV_QUERY_RESULT_INTEGER;
         result->integer = PyLong_AsLongLong(value);
-        if (PyErr_Occurred()) code = TLV_CODEC_ERR_INVALID_VALUE;
+        if (PyErr_Occurred()) code = TLV_ERR_INVALID_VALUE;
     } else if (PyUnicode_Check(value)) {
         Py_ssize_t  length;
         const char* text = PyUnicode_AsUTF8AndSize(value, &length);
         if (!text)
-            code = TLV_CODEC_ERR_INVALID_VALUE;
+            code = TLV_ERR_INVALID_VALUE;
         else if ((size_t)length > capacity)
-            code = TLV_CODEC_ERR_BUFFER_TOO_SHORT;
+            code = TLV_ERR_BUFFER_TOO_SHORT;
         else {
             if (length) memcpy(scratch, text, (size_t)length);
             result->kind = TLV_QUERY_RESULT_STRING;
@@ -205,10 +207,10 @@ static tlv_codec_result_t decode_provider(const void* context, const tlv_tree_ev
         }
     } else {
         PyErr_SetString(PyExc_TypeError, "Query provider must return int or str");
-        code = TLV_CODEC_ERR_INVALID_VALUE;
+        code = TLV_ERR_INVALID_VALUE;
     }
     Py_DECREF(value);
-    return code;
+    return tlv_codec_diagnostic_result(diagnostic, code);
 }
 static void dispose_execution(execution* self) {
     Py_XDECREF(self->owner);

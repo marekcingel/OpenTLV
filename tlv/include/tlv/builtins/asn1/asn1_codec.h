@@ -30,7 +30,7 @@ extern "C" {
  * more permissive BER format: BOOLEAN accepts only content `00` or `FF`,
  * INTEGER and ENUMERATED reject non-minimal two's complement encodings, and
  * so on. A non-canonical but otherwise legal plain-BER encoding (for example
- * a BOOLEAN of `01`) is rejected with #TLV_CODEC_ERR_INVALID_VALUE.
+ * a BOOLEAN of `01`) is rejected with #TLV_ERR_INVALID_VALUE.
  *
  * BIT STRING, OCTET STRING, the restricted character string types
  * (UTF8String, NumericString, PrintableString, IA5String, VisibleString,
@@ -50,7 +50,7 @@ extern "C" {
  *
  * Decode requires exactly one content byte, `00` (`false`) or `FF` (`true`);
  * any other content, including any other length, is
- * #TLV_CODEC_ERR_INVALID_VALUE. Encode always writes one byte, `00` or `FF`.
+ * #TLV_ERR_INVALID_VALUE. Encode always writes one byte, `00` or `FF`.
  */
 extern TLV_API const tlv_codec_t tlv_asn1_codec_boolean;
 
@@ -60,7 +60,7 @@ extern TLV_API const tlv_codec_t tlv_asn1_codec_boolean;
  * Decode requires the minimal big-endian two's complement encoding X.690
  * defines (no redundant all-zero or all-one leading byte); content needing
  * more than 8 bytes in that minimal form has no `int64_t` representation and
- * is rejected with #TLV_CODEC_ERR_INVALID_VALUE. Encode always writes the
+ * is rejected with #TLV_ERR_INVALID_VALUE. Encode always writes the
  * minimal two's complement encoding of the given value, 1 to 8 bytes.
  */
 extern TLV_API const tlv_codec_t tlv_asn1_codec_integer;
@@ -173,7 +173,7 @@ extern TLV_API const tlv_codec_t tlv_asn1_codec_null;
  * @brief Maximum number of arcs #tlv_asn1_oid_t can hold.
  *
  * Generous for every OBJECT IDENTIFIER or RELATIVE-OID seen in practice;
- * decode reports #TLV_CODEC_ERR_INVALID_VALUE if the content needs more.
+ * decode reports #TLV_ERR_INVALID_VALUE if the content needs more.
  */
 enum { TLV_ASN1_OID_MAX_ARCS = 32 };
 
@@ -194,7 +194,7 @@ typedef struct tlv_asn1_oid {
  * is therefore always at least 2 on success. Every subidentifier must be a
  * minimal base-128 encoding (no redundant leading `80` byte) whose value
  * fits `uint64_t`; more subidentifiers than #TLV_ASN1_OID_MAX_ARCS `- 1`
- * allows is #TLV_CODEC_ERR_INVALID_VALUE. Encode rejects `arcs[0]` outside
+ * allows is #TLV_ERR_INVALID_VALUE. Encode rejects `arcs[0]` outside
  * 0-2, `arcs[1]` >= 40 when `arcs[0]` < 2, and arc combinations that would
  * overflow `uint64_t`.
  *
@@ -242,7 +242,7 @@ extern TLV_API const tlv_codec_t tlv_asn1_codec_utf8_string;
  * @brief NumericString codec (X.690 section 8.23): #tlv_asn1_string_t.
  *
  * Every content byte must be `0`-`9` or the space character; any other byte
- * is #TLV_CODEC_ERR_INVALID_VALUE on decode or encode.
+ * is #TLV_ERR_INVALID_VALUE on decode or encode.
  */
 extern TLV_API const tlv_codec_t tlv_asn1_codec_numeric_string;
 
@@ -250,7 +250,7 @@ extern TLV_API const tlv_codec_t tlv_asn1_codec_numeric_string;
  * @brief PrintableString codec (X.690 section 8.23): #tlv_asn1_string_t.
  *
  * Every content byte must be a letter, digit, space, or one of
- * `'()+,-./:=?`; any other byte is #TLV_CODEC_ERR_INVALID_VALUE on decode or
+ * `'()+,-./:=?`; any other byte is #TLV_ERR_INVALID_VALUE on decode or
  * encode.
  */
 extern TLV_API const tlv_codec_t tlv_asn1_codec_printable_string;
@@ -259,7 +259,7 @@ extern TLV_API const tlv_codec_t tlv_asn1_codec_printable_string;
  * @brief IA5String codec (X.690 section 8.23): #tlv_asn1_string_t.
  *
  * Every content byte must be 7-bit ASCII (`0x00`-`0x7F`); any other byte is
- * #TLV_CODEC_ERR_INVALID_VALUE on decode or encode.
+ * #TLV_ERR_INVALID_VALUE on decode or encode.
  */
 extern TLV_API const tlv_codec_t tlv_asn1_codec_ia5_string;
 
@@ -267,7 +267,7 @@ extern TLV_API const tlv_codec_t tlv_asn1_codec_ia5_string;
  * @brief VisibleString codec (X.690 section 8.23): #tlv_asn1_string_t.
  *
  * Every content byte must be a printable ASCII character, space through `~`
- * (`0x20`-`0x7E`); any other byte is #TLV_CODEC_ERR_INVALID_VALUE on decode
+ * (`0x20`-`0x7E`); any other byte is #TLV_ERR_INVALID_VALUE on decode
  * or encode.
  */
 extern TLV_API const tlv_codec_t tlv_asn1_codec_visible_string;
@@ -522,7 +522,7 @@ extern TLV_API const tlv_codec_t tlv_asn1_codec_duration;
  * @brief Maximum number of arcs #tlv_asn1_iri_t can hold.
  *
  * Generous for every OID-IRI or RELATIVE-OID-IRI seen in practice; decode
- * reports #TLV_CODEC_ERR_INVALID_VALUE if the content needs more.
+ * reports #TLV_ERR_INVALID_VALUE if the content needs more.
  */
 enum { TLV_ASN1_IRI_MAX_ARCS = 32 };
 

@@ -1,8 +1,8 @@
 // SPDX-License-Identifier: MIT
 // Copyright (c) 2026 Marek Cingel
 use opentlv::{
-    Error, Format, ProgramOptions, QueryBinding, QueryCodecError, QueryConversion, QueryDecoded,
-    QueryProgram, QueryProvider, QueryType, QueryValue, TreeReader, Visit,
+    Error, Format, ProgramOptions, QueryBinding, QueryConversion, QueryDecoded, QueryProgram,
+    QueryProvider, QueryType, QueryValue, TreeReader, Visit,
 };
 
 #[test]
@@ -77,7 +77,7 @@ fn custom_providers_keep_lifetimes_and_validate_image_requirements() {
 
 #[test]
 fn provider_text_capacity_original_errors_and_panics_are_contained() {
-    for (capacity, expected) in [(3, None), (2, Some(2))] {
+    for (capacity, expected) in [(3, None), (2, Some(Error::BufferTooShort.code()))] {
         let mut options = ProgramOptions::default();
         options.providers.push(QueryProvider::new(
             QueryConversion::Text,
@@ -106,7 +106,7 @@ fn provider_text_capacity_original_errors_and_panics_are_contained() {
                 if panic {
                     panic!("provider panic");
                 }
-                Err(QueryCodecError::Unsupported)
+                Err(Error::Unsupported)
             },
         ));
         let program = QueryProgram::compile("num(//5A)", &options).unwrap();
@@ -117,7 +117,11 @@ fn provider_text_capacity_original_errors_and_panics_are_contained() {
                 .visit(&mut reader, |_| Visit::Continue)
                 .unwrap_err()
                 .codec,
-            if panic { 3 } else { 4 }
+            if panic {
+                Error::Callback.code()
+            } else {
+                Error::Unsupported.code()
+            }
         );
         execution.reset().unwrap();
     }

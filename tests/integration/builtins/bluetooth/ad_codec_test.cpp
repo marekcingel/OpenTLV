@@ -21,23 +21,23 @@ TEST(Integration_Tlv_BluetoothAdCodec, Story346DecodesValuesAndPreservesRawBytes
     size_t        length = 0;
     ASSERT_EQ(TLV_OK, tlv_reader_next(&reader, &element));
     ASSERT_EQ(TLV_OK, tlv_size_to_native(element.value.size, &length));
-    ASSERT_EQ(TLV_CODEC_OK, tlv_codec_decode(&tlv_bluetooth_ad_codec_flags, element.value.data,
-                                             length, &flags, sizeof(flags)));
+    ASSERT_EQ(TLV_OK, tlv_codec_decode(&tlv_bluetooth_ad_codec_flags, element.value.data, length,
+                                       &flags, sizeof(flags), NULL));
     EXPECT_EQ(wire + 2, flags.data);
     EXPECT_EQ(0x06, flags.data[0]);
     EXPECT_TRUE(tlv_bluetooth_ad_flags_test(&flags, TLV_BLUETOOTH_AD_FLAG_LE_GENERAL_DISCOVERABLE));
     ASSERT_EQ(TLV_OK, tlv_reader_next(&reader, &element));
     ASSERT_EQ(TLV_OK, tlv_size_to_native(element.value.size, &length));
-    ASSERT_EQ(TLV_CODEC_OK, tlv_codec_decode(&tlv_bluetooth_ad_codec_tx_power, element.value.data,
-                                             length, &power, sizeof(power)));
+    ASSERT_EQ(TLV_OK, tlv_codec_decode(&tlv_bluetooth_ad_codec_tx_power, element.value.data, length,
+                                       &power, sizeof(power), NULL));
     EXPECT_EQ(-4, power);
     EXPECT_EQ(wire + 5, element.value.data);
     EXPECT_EQ(0xFC, element.value.data[0]);
     ASSERT_EQ(TLV_OK, tlv_reader_next(&reader, &element));
     EXPECT_EQ(0x09, element.tag.data[0]);
     ASSERT_EQ(TLV_OK, tlv_size_to_native(element.value.size, &length));
-    ASSERT_EQ(TLV_CODEC_OK, tlv_codec_decode(&tlv_bluetooth_ad_codec_local_name, element.value.data,
-                                             length, &name, sizeof(name)));
+    ASSERT_EQ(TLV_OK, tlv_codec_decode(&tlv_bluetooth_ad_codec_local_name, element.value.data,
+                                       length, &name, sizeof(name), NULL));
     EXPECT_EQ(wire + 8, name.data);
     EXPECT_EQ(6u, name.size);
     EXPECT_EQ(0, std::memcmp(name.data, "Sensor", 6));
@@ -53,8 +53,8 @@ TEST(Integration_Tlv_BluetoothAdCodec, BothNameTypesUseTheSameCodec) {
                   tlv_read(wire, sizeof(wire), &tlv_format_bluetooth_ltv, &element, &consumed));
         ASSERT_EQ(TLV_OK, tlv_size_to_native(element.value.size, &length));
         tlv_value_t name = {};
-        ASSERT_EQ(TLV_CODEC_OK, tlv_codec_decode(&tlv_bluetooth_ad_codec_local_name,
-                                                 element.value.data, length, &name, sizeof(name)));
+        ASSERT_EQ(TLV_OK, tlv_codec_decode(&tlv_bluetooth_ad_codec_local_name, element.value.data,
+                                           length, &name, sizeof(name), NULL));
         EXPECT_EQ(wire + 2, name.data);
         EXPECT_EQ(2u, name.size);
         EXPECT_EQ(type, element.tag.data[0]);
@@ -68,9 +68,9 @@ TEST(Integration_Tlv_BluetoothAdCodec, InvalidSemanticValueRemainsAvailableAfter
     ASSERT_EQ(TLV_OK, tlv_read(wire, sizeof(wire), &tlv_format_bluetooth_ltv, &element, &consumed));
     int8_t     power = 0;
     const auto result = tlv_codec_decode(&tlv_bluetooth_ad_codec_tx_power, element.value.data, 1,
-                                         &power, sizeof(power));
-    EXPECT_EQ(TLV_CODEC_ERR_INVALID_VALUE, result);
-    EXPECT_STREQ("Invalid codec value", tlv_codec_strerror(result));
+                                         &power, sizeof(power), NULL);
+    EXPECT_EQ(TLV_ERR_INVALID_VALUE, result);
+    EXPECT_STREQ("invalid data or application representation", tlv_strerror(result));
     EXPECT_EQ(wire + 2, element.value.data);
     EXPECT_EQ(0x80, element.value.data[0]);
     EXPECT_EQ(1u, element.value.size);

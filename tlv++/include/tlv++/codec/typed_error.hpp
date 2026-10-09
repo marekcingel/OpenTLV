@@ -26,27 +26,24 @@ enum class typed_errc {
 struct typed_error {
     /** Failure stage. */
     typed_errc kind;
-    /** Original codec code, or TLV_CODEC_OK for other stages. */
-    tlv_codec_result_t codec_code;
+    /** Original codec code, or TLV_OK for other stages. */
+    tlv_result_t codec_code;
     /** Original Writer code, or TLV_OK for other stages. */
     tlv_result_t framing_code;
+    /** Complete conversion evidence when kind is codec. */
+    tlv_codec_diagnostic_t codec_diagnostic{};
     /** @brief Construct a lookup or Node error.
      * @param stage Failure stage.
      */
     explicit typed_error(typed_errc stage)
-        : kind(stage), codec_code(TLV_CODEC_OK), framing_code(TLV_OK) {}
-    /** @brief Preserve a Value codec error.
-     * @param code Original codec failure.
-     */
-    explicit typed_error(tlv_codec_result_t code)
-        : kind(typed_errc::codec), codec_code(code), framing_code(TLV_OK) {}
+        : kind(stage), codec_code(TLV_OK), framing_code(TLV_OK) {}
     /** @brief Preserve a C++ Value codec failure without allocation. */
-    explicit typed_error(codec_errc code)
-        : kind(typed_errc::codec), codec_code(static_cast<tlv_codec_result_t>(code)),
-          framing_code(TLV_OK) {}
+    explicit typed_error(const codec_failure& value)
+        : kind(typed_errc::codec), codec_code(value.code), framing_code(TLV_OK),
+          codec_diagnostic(value.diagnostic) {}
     /** @brief Original Value codec status, meaningful for kind == typed_errc::codec. */
-    codec_errc codec_status() const noexcept {
-        return static_cast<codec_errc>(codec_code);
+    errc codec_status() const noexcept {
+        return static_cast<errc>(codec_code);
     }
     /** @brief Original framing status, meaningful for kind == typed_errc::framing. */
     errc framing_status() const noexcept {
@@ -67,7 +64,7 @@ struct typed_error {
     }
     /** @brief Project common diagnostic metadata; kind and codec_status() retain exact detail. */
     tlv::error failure() const noexcept {
-        if (kind == typed_errc::codec) return to_error(codec_status());
+        if (kind == typed_errc::codec) return codec_failure(codec_code, codec_diagnostic).failure();
         if (kind == typed_errc::framing) return tlv::error(framing_status(), operation::writer);
         const auto code = kind == typed_errc::missing_field ? errc::schema : errc::invalid_argument;
         return tlv::error(static_cast<tlv_result_t>(code), message()).during(operation::codec);
@@ -76,7 +73,7 @@ struct typed_error {
      * @param code Original framing failure.
      */
     explicit typed_error(tlv_result_t code)
-        : kind(typed_errc::framing), codec_code(TLV_CODEC_OK), framing_code(code) {}
+        : kind(typed_errc::framing), codec_code(TLV_OK), framing_code(code) {}
 };
 } // namespace tlv
 #endif

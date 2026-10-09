@@ -50,7 +50,7 @@
 //! Fallible operations return [`Result`], whose error is [`Error`]: one variant
 //! per C `TLV_ERR_*` code, [`Display`](std::fmt::Display)ed with the C
 //! description. [`SchemaError`] and [`ValidationError`] add the failing offset and
-//! [`CodecError`] maps the separate codec result codes. Malformed input never
+//! [`CodecFailure`] maps the separate codec result codes. Malformed input never
 //! panics. A [`Reader`] ends after its first error; a [`Writer`] that reports
 //! [`Error::BufferTooShort`] keeps its position.
 //!
@@ -98,8 +98,9 @@ mod writer;
 pub mod emv;
 
 pub use codec::{
-    AccountType, AflEntry, BiometricType, Codec, CodecError, CodecResult, CryptogramInfo,
-    CryptogramType, CvmResult, Date, NumberCodec, NumberEncoding, Time, Track2, Value, ValueKind,
+    AccountType, AflEntry, BiometricType, Codec, CodecDiagnostic, CodecFailure, CodecResult,
+    CryptogramInfo, CryptogramType, CvmResult, Date, NumberCodec, NumberEncoding, Time, Track2,
+    Value, ValueKind,
 };
 pub use element::Element;
 pub use error::{Error, Result};
@@ -130,10 +131,10 @@ pub use writer::{
 use std::ffi::CStr;
 mod program;
 pub use program::{
-    ProgramError, ProgramOptions, ProgramResult, QueryBinding, QueryCodecError, QueryConversion,
-    QueryDecoded, QueryDefinitionScope, QueryEvent, QueryExecution, QueryMatch, QueryMetadata,
-    QueryProgram, QueryProvider, QueryResolver, QueryRule, QuerySchema, QuerySchemaError,
-    QuerySchemaLimits, QueryTagAdapter, QueryType, QueryValue,
+    ProgramError, ProgramOptions, ProgramResult, QueryBinding, QueryConversion, QueryDecoded,
+    QueryDefinitionScope, QueryEvent, QueryExecution, QueryMatch, QueryMetadata, QueryProgram,
+    QueryProvider, QueryResolver, QueryRule, QuerySchema, QuerySchemaError, QuerySchemaLimits,
+    QueryTagAdapter, QueryType, QueryValue,
 };
 #[cfg(feature = "document")]
 pub use program::{QueryEdit, QueryEditError, QueryEditOptions};

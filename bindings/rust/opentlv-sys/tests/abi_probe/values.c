@@ -57,6 +57,21 @@ struct align_tlv_query_diagnostic_t {
     tlv_query_diagnostic_t value;
 };
 
+struct align_tlv_codec_schema_detail {
+    char                      prefix;
+    tlv_codec_schema_detail_t value;
+};
+
+struct align_tlv_codec_detail {
+    char               prefix;
+    tlv_codec_detail_t value;
+};
+
+struct align_tlv_codec_diagnostic {
+    char                   prefix;
+    tlv_codec_diagnostic_t value;
+};
+
 size_t opentlv_test_fixed_abi(size_t index) {
     const size_t values[] = {sizeof(tlv_fixed_identifier_t),
                              offsetof(struct identifier_alignment, value),
@@ -155,6 +170,40 @@ size_t opentlv_test_fixed_abi(size_t index) {
                              offsetof(tlv_query_diagnostic_t, configured),
                              offsetof(tlv_query_diagnostic_t, reader),
                              offsetof(tlv_query_diagnostic_t, codec),
+                             offsetof(tlv_query_diagnostic_t, has_codec),
+                             offsetof(tlv_query_diagnostic_t, codec_detail),
+                             sizeof(tlv_codec_schema_detail_t),
+                             offsetof(struct align_tlv_codec_schema_detail, value),
+                             offsetof(tlv_codec_schema_detail_t, kind),
+                             offsetof(tlv_codec_schema_detail_t, tag),
+                             offsetof(tlv_codec_schema_detail_t, definition),
+                             offsetof(tlv_codec_schema_detail_t, field),
+                             offsetof(tlv_codec_schema_detail_t, is_group),
+                             offsetof(tlv_codec_schema_detail_t, has_occurs),
+                             offsetof(tlv_codec_schema_detail_t, min_occurs),
+                             offsetof(tlv_codec_schema_detail_t, max_occurs),
+                             offsetof(tlv_codec_schema_detail_t, occurs),
+                             offsetof(tlv_codec_schema_detail_t, has_length),
+                             offsetof(tlv_codec_schema_detail_t, min_length),
+                             offsetof(tlv_codec_schema_detail_t, max_length),
+                             offsetof(tlv_codec_schema_detail_t, actual_length),
+                             offsetof(tlv_codec_schema_detail_t, has_form),
+                             offsetof(tlv_codec_schema_detail_t, expected_form),
+                             offsetof(tlv_codec_schema_detail_t, actual_constructed),
+                             offsetof(tlv_codec_schema_detail_t, length_multiple),
+                             offsetof(tlv_codec_schema_detail_t, length_flags),
+                             sizeof(tlv_codec_detail_t),
+                             offsetof(struct align_tlv_codec_detail, value),
+                             offsetof(tlv_codec_detail_t, operation),
+                             offsetof(tlv_codec_detail_t, reported),
+                             offsetof(tlv_codec_detail_t, violation),
+                             offsetof(tlv_codec_detail_t, representation),
+                             offsetof(tlv_codec_detail_t, cause),
+                             offsetof(tlv_codec_detail_t, detail),
+                             sizeof(tlv_codec_diagnostic_t),
+                             offsetof(struct align_tlv_codec_diagnostic, value),
+                             offsetof(tlv_codec_diagnostic_t, diagnostic),
+                             offsetof(tlv_codec_diagnostic_t, codec),
                              sizeof(tlv_schema_query_diagnostic_t),
                              offsetof(struct schema_query_alignment, value),
                              offsetof(tlv_schema_query_diagnostic_t, rule),

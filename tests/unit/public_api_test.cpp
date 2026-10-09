@@ -9,18 +9,16 @@ namespace {
 struct bounded_byte_codec {
     using value_type = uint8_t;
     explicit bounded_byte_codec(uint8_t maximum) : maximum(maximum) {}
-    tlv::expected<uint8_t, tlv::codec_errc> decode(tlv::bytes input) const noexcept {
+    tlv::expected<uint8_t, tlv::codec_failure> decode(tlv::bytes input) const noexcept {
         if (input.size() != 1 || static_cast<unsigned>(input[0]) > maximum)
-            return tlv::unexpected<tlv::codec_errc>(tlv::codec_errc::invalid_value);
+            return tlv::unexpected<tlv::codec_failure>(tlv::errc::invalid_value);
         return static_cast<uint8_t>(input[0]);
     }
-    tlv::expected<size_t, tlv::codec_errc> encode(const uint8_t& value, tlv::byte* output,
-                                                  size_t capacity) const noexcept {
-        if (value > maximum)
-            return tlv::unexpected<tlv::codec_errc>(tlv::codec_errc::invalid_value);
+    tlv::expected<size_t, tlv::codec_failure> encode(const uint8_t& value, tlv::byte* output,
+                                                     size_t capacity) const noexcept {
+        if (value > maximum) return tlv::unexpected<tlv::codec_failure>(tlv::errc::invalid_value);
         if (!output && !capacity) return size_t(1);
-        if (capacity < 1)
-            return tlv::unexpected<tlv::codec_errc>(tlv::codec_errc::buffer_too_short);
+        if (capacity < 1) return tlv::unexpected<tlv::codec_failure>(tlv::errc::buffer_too_short);
         output[0] = static_cast<tlv::byte>(value);
         return size_t(1);
     }
@@ -56,8 +54,7 @@ TEST(Unit_Tlvpp, RuntimeCodecAcceptsDefaultAndMultipleConstructorArguments) {
     stationary_codec multiple_owner(1, 2);
     const tlv::byte  zero[] = {tlv::byte(0)}, two[] = {tlv::byte(2)};
     EXPECT_EQ(0u, *default_owner.view().decode<uint8_t>({zero, 1}));
-    EXPECT_EQ(tlv::codec_errc::invalid_value,
-              default_owner.view().decode<uint8_t>({two, 1}).error());
+    EXPECT_EQ(tlv::errc::invalid_value, default_owner.view().decode<uint8_t>({two, 1}).error());
     EXPECT_EQ(2u, *multiple_owner.view().decode<uint8_t>({two, 1}));
 }
 
@@ -66,7 +63,7 @@ TEST(Unit_Tlvpp, RuntimeCodecOwnsNonDefaultStateAndPreservesStatus) {
     const auto                           codec = owner.view();
     const tlv::byte                      valid[] = {tlv::byte(6)}, invalid[] = {tlv::byte(8)};
     EXPECT_EQ(6u, *codec.decode<uint8_t>({valid, 1}));
-    EXPECT_EQ(tlv::codec_errc::invalid_value, codec.decode<uint8_t>({invalid, 1}).error());
+    EXPECT_EQ(tlv::errc::invalid_value, codec.decode<uint8_t>({invalid, 1}).error());
     const auto failure = tlv::to_error(codec.decode<uint8_t>({invalid, 1}).error());
     EXPECT_EQ(tlv::operation::codec, failure.stage());
     EXPECT_EQ(tlv::errc::invalid_value, failure.status());
@@ -78,12 +75,15 @@ TEST(Unit_Tlvpp, RuntimeCodecOwnsNonDefaultStateAndPreservesStatus) {
                   "Codec owners remain stationary");
 }
 
-TEST(Unit_Tlvpp, CodecStructureFailureDoesNotImplySchemaValidation) {
-    const auto codec_status = tlv::codec_errc::invalid_structure;
-    const auto failure = tlv::to_error(codec_status);
-    EXPECT_EQ(tlv::errc::invalid_value, failure.status());
-    EXPECT_EQ(tlv::operation::codec, failure.stage());
-    EXPECT_STREQ(tlv::message(codec_status), failure.message());
+TEST(Unit_Tlvpp, CodecFailuresPreserveSharedResults) {
+    for (auto status : {tlv::errc::limit, tlv::errc::schema, tlv::errc::invalid_schema,
+                        tlv::errc::invalid_value, tlv::errc::need_more_data}) {
+        const tlv::codec_failure conversion(status);
+        const auto               failure = tlv::to_error(conversion);
+        EXPECT_EQ(status, failure.status());
+        EXPECT_EQ(tlv::operation::codec, failure.stage());
+        EXPECT_STREQ(tlv::message(status), failure.message());
+    }
 }
 
 TEST(Unit_Tlvpp, PublicSchemaReportsMissingFieldAndBoundedViolations) {
@@ -316,11 +316,11 @@ TEST(Unit_Tlvpp, RuntimeDictionaryCodecKeepsContextAndConversionErrors) {
     auto short_buffer =
         pan.codec().decode_into({wire, sizeof wire}, tlv::span<char>(small, sizeof small));
     ASSERT_FALSE(short_buffer);
-    EXPECT_EQ(tlv::codec_errc::buffer_too_short, short_buffer.error());
+    EXPECT_EQ(tlv::errc::buffer_too_short, short_buffer.error());
     EXPECT_FALSE(tlv::emv::dictionary(tlv::emv::context::bht).find(tlv::tag_bytes<0x5A>()));
     EXPECT_FALSE(dictionary.at(dictionary.size()));
     auto unsupported = tlv::dynamic_codec{}.decode<uint64_t>({});
     ASSERT_FALSE(unsupported);
-    EXPECT_EQ(tlv::codec_errc::unsupported, unsupported.error());
+    EXPECT_EQ(tlv::errc::unsupported, unsupported.error());
 }
 #endif

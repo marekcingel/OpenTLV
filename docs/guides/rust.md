@@ -103,8 +103,8 @@ structures such as `DocumentError` and `WriterError`. There are no panics on bad
 - `Writer::write` returns `Error::BufferTooShort` when the element does not fit
   and leaves the position unchanged, so you can retry with a bigger buffer.
 - Layers with more context use their own types: `SchemaError` and
-  `ValidationError` carry the C `Error` plus the failing offset, and `CodecError`
-  maps the separate `tlv_codec_result_t`.
+  `ValidationError` carry the C `Error` plus the failing offset, and `CodecFailure`
+  retains the shared `Error` and owned conversion diagnostic.
 
 ## Ownership and lifetimes
 
@@ -199,7 +199,7 @@ compact without discarding detail.
 `ProgramOptions.providers` holds `QueryProvider` values for the closed NUM, BCD,
 TEXT and DATE conversions. Each owns a stable ID, scratch limit and `Send + Sync`
 callback. Callbacks receive bytes and optional owned metadata; return
-`QueryDecoded` or `QueryCodecError`. Provider panics become native codec errors,
+`QueryDecoded` or the shared `Error`. Provider panics become native codec errors,
 and text is copied into bounded native scratch. Programs retain provider owners.
 
 `QueryProgram::edit_document` evaluates and edits under one exclusive Document

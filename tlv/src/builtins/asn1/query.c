@@ -25,23 +25,25 @@ static tlv_result_t tag_number(const void* context, const tlv_tag_t* tag, int64_
     return TLV_OK;
 }
 const tlv_query_tag_adapter_t tlv_asn1_query_tags = {1, NULL, tag_class, tag_number};
-static tlv_codec_result_t date_decode(const void* context, const tlv_tree_event_t* event,
-                                      const uint8_t* data, size_t size, void* scratch,
-                                      size_t capacity, tlv_query_result_t* result) {
+static tlv_result_t date_decode(const void* context, const tlv_tree_event_t* event,
+                                const uint8_t* data, size_t size, void* scratch, size_t capacity,
+                                tlv_query_result_t* result, tlv_codec_diagnostic_t* diagnostic) {
+    tlv_codec_diagnostic_init(diagnostic, TLV_CODEC_OP_DECODE);
     (void)context;
     (void)event;
-    if (!scratch || !result) return TLV_CODEC_ERR_NULL_ARG;
-    tlv_codec_result_t rc =
-        tlv_codec_decode(&tlv_asn1_codec_generalized_time, data, size, scratch, capacity);
-    if (rc != TLV_CODEC_OK) return rc;
+    if (!scratch || !result) return tlv_codec_diagnostic_result(diagnostic, TLV_ERR_NULL_ARG);
+    tlv_result_t rc =
+        tlv_codec_decode(&tlv_asn1_codec_generalized_time, data, size, scratch, capacity, NULL);
+    if (rc != TLV_OK) return tlv_codec_diagnostic_result(diagnostic, rc);
     tlv_asn1_generalized_time_t t;
     memcpy(&t, scratch, sizeof t);
-    if (t.fraction_digits_length) return TLV_CODEC_ERR_INVALID_VALUE;
+    if (t.fraction_digits_length)
+        return tlv_codec_diagnostic_result(diagnostic, TLV_ERR_INVALID_VALUE);
     static const unsigned days[] = {31, 28, 31, 30, 31, 30, 31, 31, 30, 31, 30, 31};
     int leap = t.year % 4 == 0 && (t.year % 100 != 0 || t.year % 400 == 0);
     if (!t.month || t.month > 12 || !t.day ||
         t.day > days[t.month - 1] + (unsigned)(t.month == 2 && leap))
-        return TLV_CODEC_ERR_INVALID_VALUE;
+        return tlv_codec_diagnostic_result(diagnostic, TLV_ERR_INVALID_VALUE);
     /* Count whole Gregorian days from year zero, then shift to 1970-01-01. */
     int64_t year = t.year,
             total = 365 * year + (year + 3) / 4 - (year + 99) / 100 + (year + 399) / 400;
@@ -54,7 +56,7 @@ static tlv_codec_result_t date_decode(const void* context, const tlv_tree_event_
     out.kind = TLV_QUERY_RESULT_INTEGER;
     out.integer = (total - epoch) * 86400 + t.hour * 3600 + t.minute * 60 + t.second;
     *result = out;
-    return TLV_CODEC_OK;
+    return tlv_codec_diagnostic_result(diagnostic, TLV_OK);
 }
 const tlv_query_hook_t tlv_asn1_query_date = {
     4, TLV_QUERY_DATE, sizeof(tlv_asn1_generalized_time_t), 8, NULL, date_decode};
