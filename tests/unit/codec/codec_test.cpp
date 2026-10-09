@@ -9,6 +9,9 @@
 #include "tlv/writer/writer.h"
 
 namespace {
+// Unassigned result within the C++ enum range (0..31), safe to read under UBSan.
+constexpr tlv_result_t unknown_result = static_cast<tlv_result_t>(21);
+
 tlv_result_t decode_u16(const void* context, const uint8_t* data, size_t size, void* value,
                         size_t capacity, tlv_codec_diagnostic_t* diagnostic) {
     tlv_codec_diagnostic_init(diagnostic, TLV_CODEC_OP_DECODE);
@@ -125,7 +128,7 @@ TEST(Unit_Tlv_Codec, InvalidArgumentsAndUnsupportedDirections) {
               TLV_ERR_UNSUPPORTED);
     EXPECT_EQ(written, 0u);
     EXPECT_STREQ(tlv_strerror(TLV_ERR_INVALID_VALUE), "invalid data or application representation");
-    EXPECT_STREQ(tlv_strerror(static_cast<tlv_result_t>(99)), "unknown error");
+    EXPECT_STREQ(tlv_strerror(unknown_result), "unknown error");
 }
 
 TEST(Unit_Tlv_Codec, SharedResultsAndCallbackEvidenceAreLossless) {
@@ -157,18 +160,18 @@ TEST(Unit_Tlv_Codec, SharedResultsAndCallbackEvidenceAreLossless) {
         EXPECT_EQ(TLV_CODEC_OP_MEASURE, diagnostic.codec.operation);
         EXPECT_EQ(0u, written);
     }
-    tlv_codec_t   codec = {nullptr,
-                           [](const void*, const uint8_t*, size_t, void*, size_t,
-                              tlv_codec_diagnostic_t*) { return static_cast<tlv_result_t>(999); },
-                           [](const void*, const void*, size_t, uint8_t*, size_t capacity,
-                              size_t* written, tlv_codec_diagnostic_t*) {
+    tlv_codec_t            codec = {nullptr,
+                                    [](const void*, const uint8_t*, size_t, void*, size_t,
+                                       tlv_codec_diagnostic_t*) { return unknown_result; },
+                                    [](const void*, const void*, size_t, uint8_t*, size_t capacity,
+                                       size_t* written, tlv_codec_diagnostic_t*) {
                              *written = capacity + 1;
                              return TLV_OK;
-                           }};
-    unsigned char value = 0;
+                                    }};
+    unsigned char          value = 0;
     tlv_codec_diagnostic_t diagnostic{};
     EXPECT_EQ(TLV_ERR_CALLBACK, tlv_codec_decode(&codec, nullptr, 0, &value, 1, &diagnostic));
-    EXPECT_EQ(999, diagnostic.codec.reported);
+    EXPECT_EQ(unknown_result, diagnostic.codec.reported);
     EXPECT_EQ(TLV_CODEC_VIOLATION_RESULT, diagnostic.codec.violation);
     size_t written = 99;
     EXPECT_EQ(TLV_ERR_CALLBACK,

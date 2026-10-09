@@ -13,6 +13,9 @@
 #include <vector>
 
 namespace {
+// Unassigned result within the C++ enum range (0..31), safe to read under UBSan.
+constexpr tlv_result_t unknown_result = static_cast<tlv_result_t>(21);
+
 struct Buffer {
     std::vector<uint8_t> bytes;
     void*                data;
@@ -511,7 +514,7 @@ TEST(Unit_Tlv_QueryF2, ProviderTextResultDiagnostics) {
 TEST(Unit_Tlv_QueryF2, ConversionPreservesSharedFailuresAndRelatedExpression) {
     for (const auto status :
          {TLV_ERR_LIMIT, TLV_ERR_SCHEMA, TLV_ERR_INVALID_SCHEMA, TLV_ERR_BUFFER_TOO_SHORT,
-          TLV_NEED_MORE_DATA, TLV_ERR_END_OF_BUFFER, static_cast<tlv_result_t>(999)}) {
+          TLV_NEED_MORE_DATA, TLV_ERR_END_OF_BUFFER, unknown_result}) {
         Evaluation e;
         for (auto& hook : e.hooks) {
             if (hook.function != TLV_QUERY_NUM) continue;
@@ -532,9 +535,7 @@ TEST(Unit_Tlv_QueryF2, ConversionPreservesSharedFailuresAndRelatedExpression) {
         ASSERT_EQ(TLV_OK, e.compile("num(//5A)"));
         ASSERT_EQ(TLV_OK, e.init());
         const auto expected =
-            status == TLV_ERR_END_OF_BUFFER || status == static_cast<tlv_result_t>(999)
-                ? TLV_ERR_CALLBACK
-                : status;
+            status == TLV_ERR_END_OF_BUFFER || status == unknown_result ? TLV_ERR_CALLBACK : status;
         EXPECT_EQ(expected, e.run({0x5a, 1, 1}));
         EXPECT_EQ(expected, e.diagnostic.diagnostic.code);
         ASSERT_TRUE(e.diagnostic.has_codec);

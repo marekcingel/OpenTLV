@@ -9,6 +9,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Fixed
 
+- Fix out-of-range C++ enum values in Codec and Query regression tests so UBSan can verify unknown callback-result handling. (#556)
 - Store Query failure paths only once by sharing Reader-specific detail separately from the common diagnostic. Reduce the 64-bit Query diagnostic from 1400 to 808 bytes; Reader fields move under `detail`, and Query exposes their presence through `has_reader`. Native clients and bindings must be rebuilt. (#555)
 - Initialize missing Reader diagnostic detail when Query returns `NEED_MORE_DATA`, preserving informational severity and avoiding uninitialized diagnostic copies. (#555)
 - Avoid clearing full Reader diagnostics for every Query and Schema Query event, and skip Reader diagnostic collection when Schema Query callers do not request it. (#555)
