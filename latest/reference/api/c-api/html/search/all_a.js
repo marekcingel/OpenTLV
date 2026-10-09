@@ -8,11 +8,12 @@ var searchData=
   ['length_2eh_5',['length.h',['../length_8h.html',1,'']]],
   ['length_5fflags_6',['length_flags',['../structtlv__schema__diagnostic.html#ab155844647b309fc9ccf17c3ff1a767d',1,'tlv_schema_diagnostic']]],
   ['length_5fmultiple_7',['length_multiple',['../structtlv__schema__entry__t.html#a20fb7e8c3883a4782980a006445f755f',1,'tlv_schema_entry_t::length_multiple'],['../structtlv__schema__diagnostic.html#ab314a9325c1f7d0de54bf88701bc0fa1',1,'tlv_schema_diagnostic::length_multiple']]],
-  ['length_5foffset_8',['length_offset',['../structtlv__reader__diagnostic.html#a8b0f5c76fb0e1b24211f7f01116bb994',1,'tlv_reader_diagnostic']]],
+  ['length_5foffset_8',['length_offset',['../structtlv__reader__detail.html#a434ed34ef619e0bdc108090857035a22',1,'tlv_reader_detail']]],
   ['length_5fscope_9',['length_scope',['../structtlv__field__composition.html#abfc067f3bbc23ac07a2b78374d18c0dd',1,'tlv_field_composition::length_scope'],['../structtlv__binary__composition.html#a3f07e6a42e66b61fdddbc1ef353e78c3',1,'tlv_binary_composition::length_scope'],['../structtlv__escaped__format.html#a1327285c074784f93456572427281b01',1,'tlv_escaped_format::length_scope'],['../structtlv__packed__layout.html#ad310526806825b6bb59e772b7603e61b',1,'tlv_packed_layout::length_scope'],['../structtlv__variable__format.html#ac65aea37b4ec50c161bdf1fd67a0adbe',1,'tlv_variable_format::length_scope']]],
   ['level_10',['level',['../structtlv__query__program.html#a3917c7d2f2fadc20241de77489b0b5d0',1,'tlv_query_program::level'],['../structtlv__query__program__info.html#a5f893576b094858eb3ff0eaaf9d4a143',1,'tlv_query_program_info::level']]],
   ['limit_11',['limit',['../structtlv__query__diagnostic.html#a89e80ef1a6251a0b3964bb559e180afa',1,'tlv_query_diagnostic']]],
   ['lldp_2eh_12',['lldp.h',['../lldp_8h.html',1,'']]],
-  ['long_5fform_5fbit_13',['long_form_bit',['../structtlv__variable__length.html#a3ea64af18c9851f0f9c975bbc6736431',1,'tlv_variable_length']]],
-  ['low_14',['low',['../structtlv__query__instruction.html#a36b312f7113e9a5b3f92cf2b7d0f89be',1,'tlv_query_instruction']]]
+  ['location_13',['location',['../structtlv__diagnostic.html#a5fc9d29d180e552fa899d25a91b43002',1,'tlv_diagnostic']]],
+  ['long_5fform_5fbit_14',['long_form_bit',['../structtlv__variable__length.html#a3ea64af18c9851f0f9c975bbc6736431',1,'tlv_variable_length']]],
+  ['low_15',['low',['../structtlv__query__instruction.html#a36b312f7113e9a5b3f92cf2b7d0f89be',1,'tlv_query_instruction']]]
 ];

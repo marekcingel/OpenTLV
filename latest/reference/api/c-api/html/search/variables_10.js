@@ -1,10 +1,10 @@
 var searchData=
 [
   ['raw_0',['raw',['../structtlv__bluetooth__service__data16.html#a1133731eb8ec49802f7fe198220b96a8',1,'tlv_bluetooth_service_data16::raw'],['../structtlv__bluetooth__service__data32.html#ad3f2e6beb6c9d2d6ee5108b452ded39c',1,'tlv_bluetooth_service_data32::raw'],['../structtlv__bluetooth__service__data128.html#a5fab938c3c0bf1b92f7799ca2e60cc1d',1,'tlv_bluetooth_service_data128::raw'],['../structtlv__bluetooth__uuid__list.html#adcfbe2543c8fbddf9b583aba9d27826b',1,'tlv_bluetooth_uuid_list::raw'],['../structtlv__ipv4__list.html#a0346157986f8edee0ed2f6401a08a988',1,'tlv_ipv4_list::raw'],['../structtlv__bluetooth__manufacturer__data.html#afbab578820fca69a583bad730a852219',1,'tlv_bluetooth_manufacturer_data::raw']]],
-  ['raw_5flength_1',['raw_length',['../structtlv__reader__diagnostic.html#abd695f9d0041d04a72697b8753439bbf',1,'tlv_reader_diagnostic']]],
+  ['raw_5flength_1',['raw_length',['../structtlv__reader__detail.html#a165e31a400c95ea549ffa24667b5f389',1,'tlv_reader_detail']]],
   ['read_5flength_2',['read_length',['../structtlv__field__composition.html#a51c2dff99e735f4bb873e22a96ca241c',1,'tlv_field_composition']]],
   ['read_5ftag_3',['read_tag',['../structtlv__field__composition.html#a0094ee8b8f50e8e9736f19784c5a0bdd',1,'tlv_field_composition']]],
-  ['reader_4',['reader',['../structtlv__query__diagnostic.html#a468b1d1b53536a21c80ebbe3e1f1d80e',1,'tlv_query_diagnostic']]],
+  ['reader_4',['reader',['../structtlv__query__diagnostic.html#af56b2116fe73a8f68eaa274b4b2b263f',1,'tlv_query_diagnostic']]],
   ['region_5',['region',['../structtlv__format__error.html#a08a422ad555a459895a4e10cbc578b95',1,'tlv_format_error']]],
   ['reject_5fzero_5ffirst_5fpayload_6',['reject_zero_first_payload',['../structtlv__identifier__policy.html#a788d40c4d8a234861a92a12d384fa041',1,'tlv_identifier_policy']]],
   ['release_7',['release',['../structtlv__allocator.html#a59680de45a4041e88dbd1fb798b3f145',1,'tlv_allocator']]],
@@ -12,7 +12,7 @@ var searchData=
   ['requested_5flength_9',['requested_length',['../structtlv__dol__entry.html#ad7d90dafcda0066d578a7277cf26cff5',1,'tlv_dol_entry']]],
   ['require_5fend_10',['require_end',['../structtlv__dhcpv4__options__rules.html#aae41c64c0030ca43b1880e318a63ed31',1,'tlv_dhcpv4_options_rules']]],
   ['require_5fminimal_11',['require_minimal',['../structtlv__identifier__policy.html#a855b399f696722552a82e602d91fa845',1,'tlv_identifier_policy::require_minimal'],['../structtlv__length__policy.html#aa7e9b64049a7596409b0b9b8b4f2f5bd',1,'tlv_length_policy::require_minimal']]],
-  ['required_12',['required',['../structtlv__format__error.html#a7331ba0ddc0d90f4debf39fc366d4760',1,'tlv_format_error::required'],['../structtlv__writer__diagnostic.html#a894638824c3f1e0af2a1285ab1faccda',1,'tlv_writer_diagnostic::required'],['../structtlv__reader__diagnostic.html#a8dd6095780b51576e9d19c0a289ad469',1,'tlv_reader_diagnostic::required']]],
+  ['required_12',['required',['../structtlv__format__error.html#a7331ba0ddc0d90f4debf39fc366d4760',1,'tlv_format_error::required'],['../structtlv__writer__diagnostic.html#a894638824c3f1e0af2a1285ab1faccda',1,'tlv_writer_diagnostic::required'],['../structtlv__reader__detail.html#aab6bf3d5cf78affce1f1c0666fe1b1ce',1,'tlv_reader_detail::required']]],
   ['required_5fdata_13',['required_data',['../structtlv__tree__writer__workspace.html#a422c1ff269934ece1444932f12e86d7c',1,'tlv_tree_writer_workspace']]],
   ['required_5fscratch_14',['required_scratch',['../structtlv__tree__writer__workspace.html#ab7682c48cfa38f739218be0e52de85d6',1,'tlv_tree_writer_workspace']]],
   ['reserved_15',['reserved',['../structtlv__query__program.html#ae5dfcb0497210d252633d435e9e3bde5',1,'tlv_query_program']]],

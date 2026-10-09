@@ -4001,8 +4001,9 @@ encoding; it implements <code>FromStr</code> and <code>Display</code> for names 
 on top of the format: <code>validate</code>, <code>read</code>, <code>encoded_size</code> and <code>write</code>, each with
 a <code>Strictness</code> (<code>Canonical</code> or <code>Strict</code>, which also validates UNIVERSAL
 content). <code>default_limits()</code> returns <code>Result&lt;Limits, ValidationError&gt;</code>.
-These bounded operations return <code>InvalidArg</code> at offset zero for formats other
-than DER/CER; ordinary framing remains available through Reader/Writer. Failures are <code>ValidationError</code> values with the failing offset.</p>
+These bounded operations return <code>InvalidArg</code> with unknown location for formats other
+than DER/CER; ordinary framing remains available through Reader/Writer. Failures are
+<code>ValidationError</code> values with an explicit location domain, kind and bounds.</p>
 <p>Reader and Tree Reader callbacks and resumable Query matching delegate to C.
 The DOL component and structure codecs are not bound yet.</p>
 <h2 id="build">Build<a class="headerlink" href="#build" title="Permanent link">&para;</a></h2>

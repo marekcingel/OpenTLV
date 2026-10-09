@@ -89,17 +89,23 @@ $(function() {
 </div><table class="memberdecls">
 <tr class="heading"><td colspan="2"><h2 class="groupheader"><a id="nested-classes" name="nested-classes"></a>
 Data Structures</h2></td></tr>
+<tr class="memitem:"><td class="memItemLeft" align="right" valign="top">struct &#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="structtlv__reader__detail.html">tlv_reader_detail</a></td></tr>
+<tr class="memdesc:"><td class="mdescLeft">&#160;</td><td class="mdescRight">Reader-specific failure evidence without common diagnostic metadata.  <a href="structtlv__reader__detail.html#details">More...</a><br /></td></tr>
+<tr class="separator:"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:"><td class="memItemLeft" align="right" valign="top">struct &#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="structtlv__reader__diagnostic.html">tlv_reader_diagnostic</a></td></tr>
-<tr class="memdesc:"><td class="mdescLeft">&#160;</td><td class="mdescRight">Structured detail for a failed <a class="el" href="group__reader.html#gab43f1d0dbbaf69e1dbb3f0e421956939" title="Parses one element from the beginning of a buffer.">tlv_read()</a> or <a class="el" href="group__reader.html#gaddbded36b09dec9db85bf3f7af39b4c2" title="Reads the next TLV element and advances the reader.">tlv_reader_next()</a> call.  <a href="structtlv__reader__diagnostic.html#details">More...</a><br /></td></tr>
+<tr class="memdesc:"><td class="mdescLeft">&#160;</td><td class="mdescRight">Common failure diagnostic paired with Reader-specific evidence.  <a href="structtlv__reader__diagnostic.html#details">More...</a><br /></td></tr>
 <tr class="separator:"><td class="memSeparator" colspan="2">&#160;</td></tr>
 </table><table class="memberdecls">
 <tr class="heading"><td colspan="2"><h2 class="groupheader"><a id="typedef-members" name="typedef-members"></a>
 Typedefs</h2></td></tr>
 <tr class="memitem:abf8b5b14db678fec0ef62a89e62ed22f" id="r_abf8b5b14db678fec0ef62a89e62ed22f"><td class="memItemLeft" align="right" valign="top">typedef enum <a class="el" href="reader_2diagnostic_8h.html#a1eb19dea4cfcbb788587e7a3208430a9">tlv_reader_operation</a>&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="reader_2diagnostic_8h.html#abf8b5b14db678fec0ef62a89e62ed22f">tlv_reader_operation_t</a></td></tr>
-<tr class="memdesc:abf8b5b14db678fec0ef62a89e62ed22f"><td class="mdescLeft">&#160;</td><td class="mdescRight">Which parsing step a <a class="el" href="reader_2diagnostic_8h.html#a24371a524a13cd9d1cd22b3db640de85" title="Structured detail for a failed tlv_read() or tlv_reader_next() call.">tlv_reader_diagnostic_t</a> reports on.  <br /></td></tr>
+<tr class="memdesc:abf8b5b14db678fec0ef62a89e62ed22f"><td class="mdescLeft">&#160;</td><td class="mdescRight">Which parsing step a <a class="el" href="reader_2diagnostic_8h.html#a24371a524a13cd9d1cd22b3db640de85" title="Common failure diagnostic paired with Reader-specific evidence.">tlv_reader_diagnostic_t</a> reports on.  <br /></td></tr>
 <tr class="separator:abf8b5b14db678fec0ef62a89e62ed22f"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a367e97df35b6ec522746678b01a02236" id="r_a367e97df35b6ec522746678b01a02236"><td class="memItemLeft" align="right" valign="top">typedef struct <a class="el" href="structtlv__reader__detail.html">tlv_reader_detail</a>&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="reader_2diagnostic_8h.html#a367e97df35b6ec522746678b01a02236">tlv_reader_detail_t</a></td></tr>
+<tr class="memdesc:a367e97df35b6ec522746678b01a02236"><td class="mdescLeft">&#160;</td><td class="mdescRight">Reader-specific failure evidence without common diagnostic metadata.  <br /></td></tr>
+<tr class="separator:a367e97df35b6ec522746678b01a02236"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:a24371a524a13cd9d1cd22b3db640de85" id="r_a24371a524a13cd9d1cd22b3db640de85"><td class="memItemLeft" align="right" valign="top">typedef struct <a class="el" href="structtlv__reader__diagnostic.html">tlv_reader_diagnostic</a>&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="reader_2diagnostic_8h.html#a24371a524a13cd9d1cd22b3db640de85">tlv_reader_diagnostic_t</a></td></tr>
-<tr class="memdesc:a24371a524a13cd9d1cd22b3db640de85"><td class="mdescLeft">&#160;</td><td class="mdescRight">Structured detail for a failed <a class="el" href="group__reader.html#gab43f1d0dbbaf69e1dbb3f0e421956939" title="Parses one element from the beginning of a buffer.">tlv_read()</a> or <a class="el" href="group__reader.html#gaddbded36b09dec9db85bf3f7af39b4c2" title="Reads the next TLV element and advances the reader.">tlv_reader_next()</a> call.  <br /></td></tr>
+<tr class="memdesc:a24371a524a13cd9d1cd22b3db640de85"><td class="mdescLeft">&#160;</td><td class="mdescRight">Common failure diagnostic paired with Reader-specific evidence.  <br /></td></tr>
 <tr class="separator:a24371a524a13cd9d1cd22b3db640de85"><td class="memSeparator" colspan="2">&#160;</td></tr>
 </table><table class="memberdecls">
 <tr class="heading"><td colspan="2"><h2 class="groupheader"><a id="enum-members" name="enum-members"></a>
@@ -113,12 +119,31 @@ Enumerations</h2></td></tr>
 &#160;&#160;<a class="el" href="reader_2diagnostic_8h.html#a1eb19dea4cfcbb788587e7a3208430a9a0b6cdce18686e6622750671413c7b328">TLV_READER_OP_HEADER</a>
 <br />
  }</td></tr>
-<tr class="memdesc:a1eb19dea4cfcbb788587e7a3208430a9"><td class="mdescLeft">&#160;</td><td class="mdescRight">Which parsing step a <a class="el" href="reader_2diagnostic_8h.html#a24371a524a13cd9d1cd22b3db640de85" title="Structured detail for a failed tlv_read() or tlv_reader_next() call.">tlv_reader_diagnostic_t</a> reports on.  <a href="reader_2diagnostic_8h.html#a1eb19dea4cfcbb788587e7a3208430a9">More...</a><br /></td></tr>
+<tr class="memdesc:a1eb19dea4cfcbb788587e7a3208430a9"><td class="mdescLeft">&#160;</td><td class="mdescRight">Which parsing step a <a class="el" href="reader_2diagnostic_8h.html#a24371a524a13cd9d1cd22b3db640de85" title="Common failure diagnostic paired with Reader-specific evidence.">tlv_reader_diagnostic_t</a> reports on.  <a href="reader_2diagnostic_8h.html#a1eb19dea4cfcbb788587e7a3208430a9">More...</a><br /></td></tr>
 <tr class="separator:a1eb19dea4cfcbb788587e7a3208430a9"><td class="memSeparator" colspan="2">&#160;</td></tr>
 </table>
 <a name="details" id="details"></a><h2 class="groupheader">Detailed Description</h2>
 <div class="textblock"><p>Reader diagnostic vocabulary usable without the Reader implementation. </p>
 </div><h2 class="groupheader">Typedef Documentation</h2>
+<a id="a367e97df35b6ec522746678b01a02236" name="a367e97df35b6ec522746678b01a02236"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#a367e97df35b6ec522746678b01a02236">&#9670;&#160;</a></span>tlv_reader_detail_t</h2>
+
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname">typedef struct <a class="el" href="structtlv__reader__detail.html">tlv_reader_detail</a> <a class="el" href="reader_2diagnostic_8h.html#a367e97df35b6ec522746678b01a02236">tlv_reader_detail_t</a></td>
+        </tr>
+      </table>
+</div><div class="memdoc">
+
+<p>Reader-specific failure evidence without common diagnostic metadata. </p>
+<dl class="section note"><dt>Note</dt><dd>Fields with a zero has_* flag are unset. Tag and raw-length bytes borrow the original wire storage, which must outlive this detail. The tag is the wire envelope reported by Format, not a transformed semantic identifier. </dd>
+<dd>
+This fixed-size value contains no result, location or path. It can be embedded beside one shared <a class="el" href="group__diagnostics.html#ga2118f30a61e0b0b3ba5d20c73a740b2e" title="A structured diagnostic: a stable code plus the state that produced it.">tlv_diagnostic_t</a> without duplicating that storage. </dd></dl>
+
+</div>
+</div>
 <a id="a24371a524a13cd9d1cd22b3db640de85" name="a24371a524a13cd9d1cd22b3db640de85"></a>
 <h2 class="memtitle"><span class="permalink"><a href="#a24371a524a13cd9d1cd22b3db640de85">&#9670;&#160;</a></span>tlv_reader_diagnostic_t</h2>
 
@@ -131,10 +156,8 @@ Enumerations</h2></td></tr>
       </table>
 </div><div class="memdoc">
 
-<p>Structured detail for a failed <a class="el" href="group__reader.html#gab43f1d0dbbaf69e1dbb3f0e421956939" title="Parses one element from the beginning of a buffer.">tlv_read()</a> or <a class="el" href="group__reader.html#gaddbded36b09dec9db85bf3f7af39b4c2" title="Reads the next TLV element and advances the reader.">tlv_reader_next()</a> call. </p>
-<p>Pairs a <a class="el" href="group__diagnostics.html#ga2118f30a61e0b0b3ba5d20c73a740b2e" title="A structured diagnostic: a stable code plus the state that produced it.">tlv_diagnostic_t</a> with the reader-specific state needed to locate a parsing failure precisely: which step failed, the tag being processed if one was already decoded, the offsets of the fields involved, and the sizes that made the operation fail. Every field is a fixed-size value or a borrowed pointer, so filling one never allocates. Diagnostic <code>tag</code> borrows the raw wire envelope reported in the format error; for transformed identifiers this is not the canonical semantic Tag.</p>
-<p>A field not applicable to the failure that produced the diagnostic is left unset, indicated by its paired <code>has_*</code> flag being zero.</p>
-<p>Once initialized by an operation, a non-<a class="el" href="group__core.html#gga516c7250563ee9332e2f45f2d203ae61ac763c25dd3e807fae4d8078c3d3e94ed">TLV_OK</a> return has the same code in <code>diagnostic.code</code>. Preflight checks which run before initialization leave this object untouched. A successful call need not clear earlier detail.</p>
+<p>Common failure diagnostic paired with Reader-specific evidence. </p>
+<dl class="section note"><dt>Note</dt><dd>Once initialized, diagnostic.code matches the non-OK result. Preflight checks before initialization leave this object untouched; success need not clear earlier detail. No allocation occurs. Borrowed detail follows the lifetime contract of <a class="el" href="reader_2diagnostic_8h.html#a367e97df35b6ec522746678b01a02236" title="Reader-specific failure evidence without common diagnostic metadata.">tlv_reader_detail_t</a>. </dd></dl>
 <dl class="section see"><dt>See also</dt><dd><a class="el" href="group__reader.html#gac84de34d64c807e7cedc9b80442e95df" title="Resets a reader diagnostic to all-unset.">tlv_reader_diagnostic_init</a> </dd></dl>
 
 </div>
@@ -151,7 +174,7 @@ Enumerations</h2></td></tr>
       </table>
 </div><div class="memdoc">
 
-<p>Which parsing step a <a class="el" href="reader_2diagnostic_8h.html#a24371a524a13cd9d1cd22b3db640de85" title="Structured detail for a failed tlv_read() or tlv_reader_next() call.">tlv_reader_diagnostic_t</a> reports on. </p>
+<p>Which parsing step a <a class="el" href="reader_2diagnostic_8h.html#a24371a524a13cd9d1cd22b3db640de85" title="Common failure diagnostic paired with Reader-specific evidence.">tlv_reader_diagnostic_t</a> reports on. </p>
 
 </div>
 </div>
@@ -168,7 +191,7 @@ Enumerations</h2></td></tr>
       </table>
 </div><div class="memdoc">
 
-<p>Which parsing step a <a class="el" href="reader_2diagnostic_8h.html#a24371a524a13cd9d1cd22b3db640de85" title="Structured detail for a failed tlv_read() or tlv_reader_next() call.">tlv_reader_diagnostic_t</a> reports on. </p>
+<p>Which parsing step a <a class="el" href="reader_2diagnostic_8h.html#a24371a524a13cd9d1cd22b3db640de85" title="Common failure diagnostic paired with Reader-specific evidence.">tlv_reader_diagnostic_t</a> reports on. </p>
 <table class="fieldtable">
 <tr><th colspan="2">Enumerator</th></tr><tr><td class="fieldname"><a id="a1eb19dea4cfcbb788587e7a3208430a9af1b48765f73e5817a480f3dd7b2840f4" name="a1eb19dea4cfcbb788587e7a3208430a9af1b48765f73e5817a480f3dd7b2840f4"></a>TLV_READER_OP_TAG&#160;</td><td class="fielddoc"><p>Decoding the tag. </p>
 </td></tr>

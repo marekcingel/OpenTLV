@@ -307,7 +307,7 @@ A permitted decoder error, propagated unchanged. Invalid control statuses, unkno
 <dl class="section note"><dt>Note</dt><dd>On failure both <code>out_element</code> and <code>consumed</code> remain unchanged. </dd>
 <dd>
 On success <code>*out_diagnostic</code> is left unchanged. </dd></dl>
-<dl class="section warning"><dt>Warning</dt><dd>The caller must keep <code>data</code> alive while <code>out_element-&gt;value</code> or <code>out_diagnostic-&gt;tag</code> is used. </dd></dl>
+<dl class="section warning"><dt>Warning</dt><dd>The caller must keep <code>data</code> alive while <code>out_element-&gt;value</code> or <code>out_diagnostic-&gt;detail.tag</code> is used. </dd></dl>
 
 </div>
 </div>

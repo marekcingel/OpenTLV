@@ -111,9 +111,15 @@ Public Member Functions</h2></td></tr>
 <tr class="memitem:a4b379d58833ad90ca95651aed41d2948" id="r_a4b379d58833ad90ca95651aed41d2948"><td class="memItemLeft" align="right" valign="top"><a class="el" href="namespacetlv.html#a0e9dc5e120173d6322fc63d2d1fc09c3">schema_issue</a>&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="structtlv_1_1error.html#a4b379d58833ad90ca95651aed41d2948">schema_kind</a> () const noexcept</td></tr>
 <tr class="memdesc:a4b379d58833ad90ca95651aed41d2948"><td class="mdescLeft">&#160;</td><td class="mdescRight">Typed Schema reason, or none for other failures.  <br /></td></tr>
 <tr class="separator:a4b379d58833ad90ca95651aed41d2948"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:a484b68b93a91b5d21eb5e0862580a48a" id="r_a484b68b93a91b5d21eb5e0862580a48a"><td class="memItemLeft" align="right" valign="top"><a class="el" href="namespacetlv.html#a2daf3f938a5ac0228275c60e641cc490">schema_anchor</a>&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="structtlv_1_1error.html#a484b68b93a91b5d21eb5e0862580a48a">anchor</a> () const noexcept</td></tr>
-<tr class="memdesc:a484b68b93a91b5d21eb5e0862580a48a"><td class="mdescLeft">&#160;</td><td class="mdescRight">Schema location meaning, or unknown for other failures.  <br /></td></tr>
-<tr class="separator:a484b68b93a91b5d21eb5e0862580a48a"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a170c90abf2266eb3a99656a382d5a190" id="r_a170c90abf2266eb3a99656a382d5a190"><td class="memItemLeft" align="right" valign="top"><a class="elRef" href="../../c-api/html/group__diagnostics.html#gae2e0e7ca068fc25af03d3fc94f347ca0">tlv_location_t</a>&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="structtlv_1_1error.html#a170c90abf2266eb3a99656a382d5a190">location</a> () const noexcept</td></tr>
+<tr class="memdesc:a170c90abf2266eb3a99656a382d5a190"><td class="mdescLeft">&#160;</td><td class="mdescRight">Complete primary evidence location, including its domain and range.  <br /></td></tr>
+<tr class="separator:a170c90abf2266eb3a99656a382d5a190"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a7e57a74e891f7cc5d240e072a1c8a6fd" id="r_a7e57a74e891f7cc5d240e072a1c8a6fd"><td class="memItemLeft" align="right" valign="top"><a class="elRef" href="../../c-api/html/group__schemas.html#ga7c46528bfaebb8caed58ae50e480c10d">tlv_schema_definition_location_t</a>&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="structtlv_1_1error.html#a7e57a74e891f7cc5d240e072a1c8a6fd">definition</a> () const noexcept</td></tr>
+<tr class="memdesc:a7e57a74e891f7cc5d240e072a1c8a6fd"><td class="mdescLeft">&#160;</td><td class="mdescRight">Native definition coordinate; owner borrows the supplied schema/type.  <br /></td></tr>
+<tr class="separator:a7e57a74e891f7cc5d240e072a1c8a6fd"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a1971652f6e83c037b657514bd42d0ed4" id="r_a1971652f6e83c037b657514bd42d0ed4"><td class="memItemLeft" align="right" valign="top">bool&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="structtlv_1_1error.html#a1971652f6e83c037b657514bd42d0ed4">has_path</a> () const noexcept</td></tr>
+<tr class="memdesc:a1971652f6e83c037b657514bd42d0ed4"><td class="mdescLeft">&#160;</td><td class="mdescRight">Whether an enclosing path was tracked, including a known empty path.  <br /></td></tr>
+<tr class="separator:a1971652f6e83c037b657514bd42d0ed4"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:afb11e5286309cc54142d98d0c8a89dd6" id="r_afb11e5286309cc54142d98d0c8a89dd6"><td class="memItemLeft" align="right" valign="top">bool&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="structtlv_1_1error.html#afb11e5286309cc54142d98d0c8a89dd6">has_offset</a> () const noexcept</td></tr>
 <tr class="memdesc:afb11e5286309cc54142d98d0c8a89dd6"><td class="mdescLeft">&#160;</td><td class="mdescRight">Whether <a class="el" href="structtlv_1_1error.html#a6140b63c1bfee3fedc88dfd392efe6c1" title="Absolute byte offset, valid only when has_offset() is true.">offset()</a> contains a known location.  <br /></td></tr>
 <tr class="separator:afb11e5286309cc54142d98d0c8a89dd6"><td class="memSeparator" colspan="2">&#160;</td></tr>
@@ -301,33 +307,6 @@ Friends</h2></td></tr>
 
 </div>
 </div>
-<a id="a484b68b93a91b5d21eb5e0862580a48a" name="a484b68b93a91b5d21eb5e0862580a48a"></a>
-<h2 class="memtitle"><span class="permalink"><a href="#a484b68b93a91b5d21eb5e0862580a48a">&#9670;&#160;</a></span>anchor()</h2>
-
-<div class="memitem">
-<div class="memproto">
-<table class="mlabels">
-  <tr>
-  <td class="mlabels-left">
-      <table class="memname">
-        <tr>
-          <td class="memname"><a class="el" href="namespacetlv.html#a2daf3f938a5ac0228275c60e641cc490">schema_anchor</a> tlv::error::anchor </td>
-          <td>(</td>
-          <td class="paramname"></td><td>)</td>
-          <td> const</td>
-        </tr>
-      </table>
-  </td>
-  <td class="mlabels-right">
-<span class="mlabels"><span class="mlabel">inline</span><span class="mlabel">noexcept</span></span>  </td>
-  </tr>
-</table>
-</div><div class="memdoc">
-
-<p>Schema location meaning, or unknown for other failures. </p>
-
-</div>
-</div>
 <a id="a488bce25cec1a775b5db3a5fbf204fb7" name="a488bce25cec1a775b5db3a5fbf204fb7"></a>
 <h2 class="memtitle"><span class="permalink"><a href="#a488bce25cec1a775b5db3a5fbf204fb7">&#9670;&#160;</a></span>at()</h2>
 
@@ -363,6 +342,33 @@ Friends</h2></td></tr>
 </div><div class="memdoc">
 
 <p>Return an enriched copy without modifying the original or allocating. </p>
+
+</div>
+</div>
+<a id="a7e57a74e891f7cc5d240e072a1c8a6fd" name="a7e57a74e891f7cc5d240e072a1c8a6fd"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#a7e57a74e891f7cc5d240e072a1c8a6fd">&#9670;&#160;</a></span>definition()</h2>
+
+<div class="memitem">
+<div class="memproto">
+<table class="mlabels">
+  <tr>
+  <td class="mlabels-left">
+      <table class="memname">
+        <tr>
+          <td class="memname"><a class="elRef" href="../../c-api/html/group__schemas.html#ga7c46528bfaebb8caed58ae50e480c10d">tlv_schema_definition_location_t</a> tlv::error::definition </td>
+          <td>(</td>
+          <td class="paramname"></td><td>)</td>
+          <td> const</td>
+        </tr>
+      </table>
+  </td>
+  <td class="mlabels-right">
+<span class="mlabels"><span class="mlabel">inline</span><span class="mlabel">noexcept</span></span>  </td>
+  </tr>
+</table>
+</div><div class="memdoc">
+
+<p>Native definition coordinate; owner borrows the supplied schema/type. </p>
 
 </div>
 </div>
@@ -503,6 +509,33 @@ Friends</h2></td></tr>
 
 </div>
 </div>
+<a id="a1971652f6e83c037b657514bd42d0ed4" name="a1971652f6e83c037b657514bd42d0ed4"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#a1971652f6e83c037b657514bd42d0ed4">&#9670;&#160;</a></span>has_path()</h2>
+
+<div class="memitem">
+<div class="memproto">
+<table class="mlabels">
+  <tr>
+  <td class="mlabels-left">
+      <table class="memname">
+        <tr>
+          <td class="memname">bool tlv::error::has_path </td>
+          <td>(</td>
+          <td class="paramname"></td><td>)</td>
+          <td> const</td>
+        </tr>
+      </table>
+  </td>
+  <td class="mlabels-right">
+<span class="mlabels"><span class="mlabel">inline</span><span class="mlabel">noexcept</span></span>  </td>
+  </tr>
+</table>
+</div><div class="memdoc">
+
+<p>Whether an enclosing path was tracked, including a known empty path. </p>
+
+</div>
+</div>
 <a id="aab6aea9ae5ed687e1b375c3789124c2c" name="aab6aea9ae5ed687e1b375c3789124c2c"></a>
 <h2 class="memtitle"><span class="permalink"><a href="#aab6aea9ae5ed687e1b375c3789124c2c">&#9670;&#160;</a></span>has_tag()</h2>
 
@@ -527,6 +560,33 @@ Friends</h2></td></tr>
 </div><div class="memdoc">
 
 <p>Whether tag() identifies the failing element; identifier bytes remain borrowed. </p>
+
+</div>
+</div>
+<a id="a170c90abf2266eb3a99656a382d5a190" name="a170c90abf2266eb3a99656a382d5a190"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#a170c90abf2266eb3a99656a382d5a190">&#9670;&#160;</a></span>location()</h2>
+
+<div class="memitem">
+<div class="memproto">
+<table class="mlabels">
+  <tr>
+  <td class="mlabels-left">
+      <table class="memname">
+        <tr>
+          <td class="memname"><a class="elRef" href="../../c-api/html/group__diagnostics.html#gae2e0e7ca068fc25af03d3fc94f347ca0">tlv_location_t</a> tlv::error::location </td>
+          <td>(</td>
+          <td class="paramname"></td><td>)</td>
+          <td> const</td>
+        </tr>
+      </table>
+  </td>
+  <td class="mlabels-right">
+<span class="mlabels"><span class="mlabel">inline</span><span class="mlabel">noexcept</span></span>  </td>
+  </tr>
+</table>
+</div><div class="memdoc">
+
+<p>Complete primary evidence location, including its domain and range. </p>
 
 </div>
 </div>

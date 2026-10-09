@@ -5,7 +5,7 @@
 <meta http-equiv="X-UA-Compatible" content="IE=11"/>
 <meta name="generator" content="Doxygen 1.9.8"/>
 <meta name="viewport" content="width=device-width, initial-scale=1"/>
-<title>OpenTLV C API: tlv_reader_diagnostic Struct Reference</title>
+<title>OpenTLV C API: tlv_schema_definition_location Struct Reference</title>
 <link href="tabs.css" rel="stylesheet" type="text/css"/>
 <script type="text/javascript" src="jquery.js"></script>
 <script type="text/javascript" src="dynsections.js"></script>
@@ -71,59 +71,75 @@ $(function() {
 <div class="header">
   <div class="summary">
 <a href="#pub-attribs">Data Fields</a>  </div>
-  <div class="headertitle"><div class="title">tlv_reader_diagnostic Struct Reference</div></div>
+  <div class="headertitle"><div class="title">tlv_schema_definition_location Struct Reference<div class="ingroups"><a class="el" href="group__schemas.html">Schemas</a></div></div></div>
 </div><!--header-->
 <div class="contents">
 
-<p>Common failure diagnostic paired with Reader-specific evidence.  
- <a href="structtlv__reader__diagnostic.html#details">More...</a></p>
+<p>Native definition evidence, independent of wire/text byte locations.  
+ <a href="structtlv__schema__definition__location.html#details">More...</a></p>
 
-<p><code>#include &lt;diagnostic.h&gt;</code></p>
+<p><code>#include &lt;schema.h&gt;</code></p>
 <table class="memberdecls">
 <tr class="heading"><td colspan="2"><h2 class="groupheader"><a id="pub-attribs" name="pub-attribs"></a>
 Data Fields</h2></td></tr>
-<tr class="memitem:a85cf1aa3370e9ce63c71af72de65080e" id="r_a85cf1aa3370e9ce63c71af72de65080e"><td class="memItemLeft" align="right" valign="top"><a class="el" href="group__diagnostics.html#ga2118f30a61e0b0b3ba5d20c73a740b2e">tlv_diagnostic_t</a>&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="structtlv__reader__diagnostic.html#a85cf1aa3370e9ce63c71af72de65080e">diagnostic</a></td></tr>
-<tr class="separator:a85cf1aa3370e9ce63c71af72de65080e"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:a1751c419dfa662f9774384b4287a5b8b" id="r_a1751c419dfa662f9774384b4287a5b8b"><td class="memItemLeft" align="right" valign="top"><a class="el" href="reader_2diagnostic_8h.html#a367e97df35b6ec522746678b01a02236">tlv_reader_detail_t</a>&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="structtlv__reader__diagnostic.html#a1751c419dfa662f9774384b4287a5b8b">detail</a></td></tr>
-<tr class="separator:a1751c419dfa662f9774384b4287a5b8b"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a1c1922c9c00bea468f50f73a3371e502" id="r_a1c1922c9c00bea468f50f73a3371e502"><td class="memItemLeft" align="right" valign="top"><a class="el" href="group__schemas.html#ga61f8b4cdcf9c639a9a779a20c7bb012a">tlv_schema_definition_kind_t</a>&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="structtlv__schema__definition__location.html#a1c1922c9c00bea468f50f73a3371e502">kind</a></td></tr>
+<tr class="separator:a1c1922c9c00bea468f50f73a3371e502"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a16074c7a0b57d9cda5669348743634d6" id="r_a16074c7a0b57d9cda5669348743634d6"><td class="memItemLeft" align="right" valign="top">const void *&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="structtlv__schema__definition__location.html#a16074c7a0b57d9cda5669348743634d6">owner</a></td></tr>
+<tr class="separator:a16074c7a0b57d9cda5669348743634d6"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:ad8383c65f931c9d7e601f40b293eaa02" id="r_ad8383c65f931c9d7e601f40b293eaa02"><td class="memItemLeft" align="right" valign="top">size_t&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="structtlv__schema__definition__location.html#ad8383c65f931c9d7e601f40b293eaa02">index</a></td></tr>
+<tr class="separator:ad8383c65f931c9d7e601f40b293eaa02"><td class="memSeparator" colspan="2">&#160;</td></tr>
 </table>
 <a name="details" id="details"></a><h2 class="groupheader">Detailed Description</h2>
-<div class="textblock"><p>Common failure diagnostic paired with Reader-specific evidence. </p>
-<dl class="section note"><dt>Note</dt><dd>Once initialized, diagnostic.code matches the non-OK result. Preflight checks before initialization leave this object untouched; success need not clear earlier detail. No allocation occurs. Borrowed detail follows the lifetime contract of <a class="el" href="reader_2diagnostic_8h.html#a367e97df35b6ec522746678b01a02236" title="Reader-specific failure evidence without common diagnostic metadata.">tlv_reader_detail_t</a>. </dd></dl>
-<dl class="section see"><dt>See also</dt><dd><a class="el" href="group__reader.html#gac84de34d64c807e7cedc9b80442e95df" title="Resets a reader diagnostic to all-unset.">tlv_reader_diagnostic_init</a> </dd></dl>
+<div class="textblock"><p>Native definition evidence, independent of wire/text byte locations. </p>
+<dl class="section note"><dt>Note</dt><dd>The API determines the owner's type. For DER OF types, component index zero denotes the element descriptor. The owner is borrowed from the supplied definition. </dd></dl>
 </div><h2 class="groupheader">Field Documentation</h2>
-<a id="a1751c419dfa662f9774384b4287a5b8b" name="a1751c419dfa662f9774384b4287a5b8b"></a>
-<h2 class="memtitle"><span class="permalink"><a href="#a1751c419dfa662f9774384b4287a5b8b">&#9670;&#160;</a></span>detail</h2>
+<a id="ad8383c65f931c9d7e601f40b293eaa02" name="ad8383c65f931c9d7e601f40b293eaa02"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#ad8383c65f931c9d7e601f40b293eaa02">&#9670;&#160;</a></span>index</h2>
 
 <div class="memitem">
 <div class="memproto">
       <table class="memname">
         <tr>
-          <td class="memname"><a class="el" href="reader_2diagnostic_8h.html#a367e97df35b6ec522746678b01a02236">tlv_reader_detail_t</a> tlv_reader_diagnostic::detail</td>
+          <td class="memname">size_t tlv_schema_definition_location::index</td>
         </tr>
       </table>
 </div><div class="memdoc">
-<p>Parsing step, borrowed field bytes and optional bounds. </p>
+<p>Rule/group/component index for indexed kinds. </p>
 
 </div>
 </div>
-<a id="a85cf1aa3370e9ce63c71af72de65080e" name="a85cf1aa3370e9ce63c71af72de65080e"></a>
-<h2 class="memtitle"><span class="permalink"><a href="#a85cf1aa3370e9ce63c71af72de65080e">&#9670;&#160;</a></span>diagnostic</h2>
+<a id="a1c1922c9c00bea468f50f73a3371e502" name="a1c1922c9c00bea468f50f73a3371e502"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#a1c1922c9c00bea468f50f73a3371e502">&#9670;&#160;</a></span>kind</h2>
 
 <div class="memitem">
 <div class="memproto">
       <table class="memname">
         <tr>
-          <td class="memname"><a class="el" href="group__diagnostics.html#ga2118f30a61e0b0b3ba5d20c73a740b2e">tlv_diagnostic_t</a> tlv_reader_diagnostic::diagnostic</td>
+          <td class="memname"><a class="el" href="group__schemas.html#ga61f8b4cdcf9c639a9a779a20c7bb012a">tlv_schema_definition_kind_t</a> tlv_schema_definition_location::kind</td>
         </tr>
       </table>
 </div><div class="memdoc">
-<p>Result, severity, primary location and the single owned path. </p>
+<p>Active object kind, or UNKNOWN. </p>
+
+</div>
+</div>
+<a id="a16074c7a0b57d9cda5669348743634d6" name="a16074c7a0b57d9cda5669348743634d6"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#a16074c7a0b57d9cda5669348743634d6">&#9670;&#160;</a></span>owner</h2>
+
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname">const void* tlv_schema_definition_location::owner</td>
+        </tr>
+      </table>
+</div><div class="memdoc">
+<p>Borrowed Schema table or DER type, valid for known kind. </p>
 
 </div>
 </div>
 <hr/>The documentation for this struct was generated from the following file:<ul>
-<li>tlv/reader/<a class="el" href="reader_2diagnostic_8h.html">diagnostic.h</a></li>
+<li>tlv/schema/<a class="el" href="schema_2schema_8h.html">schema.h</a></li>
 </ul>
 </div><!-- contents -->
 <!-- start footer part -->

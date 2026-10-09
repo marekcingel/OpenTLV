@@ -75,7 +75,7 @@ $(function() {
 </div><!--header-->
 <div class="contents">
 
-<p>Immutable configuration of one independently reproducible case. Same algorithm version, immutable Format/configuration, ordered candidates, options, seed and case index produce the same bytes, independent of earlier calls and output capacity (provided capacity is sufficient).  
+<p>Immutable configuration of one independently reproducible case. Same algorithm version, immutable Format/configuration, ordered candidates, options, seed and case index produce the same bytes, independent of earlier calls and output capacity (provided capacity is sufficient). Version 2 mixes the seed and case index in separate SplitMix64 finalization stages. Different seed/index pairs are not a guarantee of unique wire bytes.  
  <a href="structtlv__generator__options.html#details">More...</a></p>
 
 <p><code>#include &lt;generator.h&gt;</code></p>
@@ -100,7 +100,7 @@ Data Fields</h2></td></tr>
 <tr class="separator:a2c6f87d22554e0f899515e8160e2e830"><td class="memSeparator" colspan="2">&#160;</td></tr>
 </table>
 <a name="details" id="details"></a><h2 class="groupheader">Detailed Description</h2>
-<div class="textblock"><p>Immutable configuration of one independently reproducible case. Same algorithm version, immutable Format/configuration, ordered candidates, options, seed and case index produce the same bytes, independent of earlier calls and output capacity (provided capacity is sufficient). </p>
+<div class="textblock"><p>Immutable configuration of one independently reproducible case. Same algorithm version, immutable Format/configuration, ordered candidates, options, seed and case index produce the same bytes, independent of earlier calls and output capacity (provided capacity is sufficient). Version 2 mixes the seed and case index in separate SplitMix64 finalization stages. Different seed/index pairs are not a guarantee of unique wire bytes. </p>
 </div><h2 class="groupheader">Field Documentation</h2>
 <a id="a2c6f87d22554e0f899515e8160e2e830" name="a2c6f87d22554e0f899515e8160e2e830"></a>
 <h2 class="memtitle"><span class="permalink"><a href="#a2c6f87d22554e0f899515e8160e2e830">&#9670;&#160;</a></span>candidate_count</h2>

@@ -20,7 +20,7 @@ var searchData=
   ['allowed_5fvalues_17',['allowed_values',['../structtlv__value__constraint.html#af7b3a69161d7032211cbef9279c7f4c1',1,'tlv_value_constraint']]],
   ['allowed_5fvalues_5fcount_18',['allowed_values_count',['../structtlv__value__constraint.html#a5cd5033bbaa25ccd604c128a9bf9009c',1,'tlv_value_constraint']]],
   ['alphabet_19',['alphabet',['../structtlv__text__codec__config.html#af7b3207445ed78e373f7287d538f641f',1,'tlv_text_codec_config']]],
-  ['anchor_20',['anchor',['../structtlv__query__instruction.html#a19b8c39b5418d7c5cf6762f1deb45af1',1,'tlv_query_instruction::anchor'],['../structtlv__schema__diagnostic.html#aa6c2dca48afb0e0dffc1b9965e23750b',1,'tlv_schema_diagnostic::anchor']]],
+  ['anchor_20',['anchor',['../structtlv__query__instruction.html#a19b8c39b5418d7c5cf6762f1deb45af1',1,'tlv_query_instruction']]],
   ['and_20utilities_21',['Core types and utilities',['../group__core.html',1,'']]],
   ['api_20reference_22',['OpenTLV C API reference',['../index.html',1,'']]],
   ['arcs_23',['arcs',['../structtlv__asn1__oid.html#a9f2d307b3c41c619a7fd14a68cae3208',1,'tlv_asn1_oid::arcs'],['../structtlv__asn1__iri.html#a1c8938f0b348e3cc8a70299cddb73272',1,'tlv_asn1_iri::arcs']]],
@@ -28,6 +28,6 @@ var searchData=
   ['assertion_25',['assertion',['../structtlv__schema__query__rule.html#a699852dc24a818e14a33bbb6b04a2c0c',1,'tlv_schema_query_rule::assertion'],['../structtlv__schema__query__workspace.html#afdd74e193a90a55070d39f89cc985319',1,'tlv_schema_query_workspace::assertion']]],
   ['assertion_5fsize_26',['assertion_size',['../structtlv__schema__query__workspace.html#ad25f2ff7fc24352ee177064a4d7e0101',1,'tlv_schema_query_workspace']]],
   ['attributes_2eh_27',['attributes.h',['../attributes_8h.html',1,'']]],
-  ['available_28',['available',['../structtlv__reader__diagnostic.html#ab3a6eca30829402b87a5d1b4d04dca25',1,'tlv_reader_diagnostic::available'],['../structtlv__writer__diagnostic.html#a90e2b7f189630d152336f5b2af44e233',1,'tlv_writer_diagnostic::available']]],
+  ['available_28',['available',['../structtlv__reader__detail.html#abdeed82fc4d82e71cbe3cc8a12cc0558',1,'tlv_reader_detail::available'],['../structtlv__writer__diagnostic.html#a90e2b7f189630d152336f5b2af44e233',1,'tlv_writer_diagnostic::available']]],
   ['axis_29',['axis',['../structtlv__query__instruction.html#a566d700bc4c57eca45e3a2557e99e75b',1,'tlv_query_instruction']]]
 ];

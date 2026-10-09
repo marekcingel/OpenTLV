@@ -4145,9 +4145,10 @@ belong to the cursor and persist across adapter calls.</p>
 the same borrowed lifetime as a direct pull result. Keep its original input and
 any Format-supplied Tag storage alive and unchanged while retaining it.
 Diagnostics are cleared at each adapter entry; Reader outcomes fill them,
-whereas visitor and tree resource errors leave them clear. Tree <code>error_offset</code>
-reports the published item for visitor errors and the frontier for pull failures
-or need-more-data; it is unchanged on success.</p>
+while visitor errors identify the visited item and tree resource preflight
+errors retain UNKNOWN location. The canonical <code>tlv_tree_reader_visit()</code> accepts
+a Reader diagnostic directly. Known input coordinates include discarded windows;
+no offset-only output or <code>_diag</code> compatibility wrapper is retained.</p>
 <p>See the runnable <a href="https://github.com/marekcingel/OpenTLV/blob/main/examples/tlv/src/visitor.c">Visitor example</a> for STOP,
 resumption and incremental input replacement.</p>
 <h2 id="ownership-and-composition">Ownership and composition<a class="headerlink" href="#ownership-and-composition" title="Permanent link">&para;</a></h2>

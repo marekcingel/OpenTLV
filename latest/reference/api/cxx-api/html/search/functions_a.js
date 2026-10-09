@@ -7,5 +7,6 @@ var searchData=
   ['level_4',['level',['../classtlv_1_1query__program.html#a8bc97aec9ebe337b1c39bf5d5d33fe42',1,'tlv::query_program']]],
   ['lldp_5fformat_5',['lldp_format',['../namespacetlv_1_1native.html#a2df257c754f7ea8b50c57ebdf6c31318',1,'tlv::native']]],
   ['load_5fexternal_6',['load_external',['../classtlv_1_1query__program.html#afc45d853d810990dcb52504db48dd618',1,'tlv::query_program']]],
-  ['load_5fscratch_7',['load_scratch',['../classtlv_1_1query__program.html#ab1e03458b8357b6e04b92dcf771d4c98',1,'tlv::query_program']]]
+  ['load_5fscratch_7',['load_scratch',['../classtlv_1_1query__program.html#ab1e03458b8357b6e04b92dcf771d4c98',1,'tlv::query_program']]],
+  ['location_8',['location',['../structtlv_1_1error.html#a170c90abf2266eb3a99656a382d5a190',1,'tlv::error::location()'],['../classtlv_1_1query__error.html#a83ec96ea0178f47dd25ecc2453d59abe',1,'tlv::query_error::location()']]]
 ];

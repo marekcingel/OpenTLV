@@ -203,9 +203,9 @@ Public Member Functions</h2></td></tr>
 </table><table class="memberdecls">
 <tr class="heading"><td colspan="2"><h2 class="groupheader"><a id="pub-static-methods" name="pub-static-methods"></a>
 Static Public Member Functions</h2></td></tr>
-<tr class="memitem:a43b250caff9461bc694455a87d0f3c57" id="r_a43b250caff9461bc694455a87d0f3c57"><td class="memItemLeft" align="right" valign="top">static <a class="el" href="classtlv_1_1expected.html">expected</a>&lt; <a class="el" href="classtlv_1_1document.html">document</a>, <a class="el" href="structtlv_1_1error.html">error</a> &gt;&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classtlv_1_1document.html#a43b250caff9461bc694455a87d0f3c57">parse</a> (<a class="el" href="namespacetlv.html#a2abe7003a70af047ef9acae17f31f75d">bytes</a> data, const <a class="el" href="structtlv_1_1document__format.html">document_format</a> &amp;<a class="el" href="classtlv_1_1format.html">format</a>, size_t *error_offset=nullptr)</td></tr>
-<tr class="memdesc:a43b250caff9461bc694455a87d0f3c57"><td class="mdescLeft">&#160;</td><td class="mdescRight">Parses encoded elements into a new document.  <br /></td></tr>
-<tr class="separator:a43b250caff9461bc694455a87d0f3c57"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a63de1ff9cbcf3369a5e80630e45a2590" id="r_a63de1ff9cbcf3369a5e80630e45a2590"><td class="memItemLeft" align="right" valign="top">static <a class="el" href="classtlv_1_1expected.html">expected</a>&lt; <a class="el" href="classtlv_1_1document.html">document</a>, <a class="el" href="structtlv_1_1error.html">error</a> &gt;&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classtlv_1_1document.html#a63de1ff9cbcf3369a5e80630e45a2590">parse</a> (<a class="el" href="namespacetlv.html#a2abe7003a70af047ef9acae17f31f75d">bytes</a> data, const <a class="el" href="structtlv_1_1document__format.html">document_format</a> &amp;<a class="el" href="classtlv_1_1format.html">format</a>, <a class="elRef" href="../../c-api/html/reader_2diagnostic_8h.html#a24371a524a13cd9d1cd22b3db640de85">tlv_reader_diagnostic_t</a> *<a class="el" href="namespacetlv.html#a00ca9c69c35ef11f6a22b7eda1b115ba">diagnostic</a>=nullptr)</td></tr>
+<tr class="memdesc:a63de1ff9cbcf3369a5e80630e45a2590"><td class="mdescLeft">&#160;</td><td class="mdescRight">Parses encoded elements into a new document.  <br /></td></tr>
+<tr class="separator:a63de1ff9cbcf3369a5e80630e45a2590"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:aa8622b1aa4eddb3de224eaf5ead1c76b" id="r_aa8622b1aa4eddb3de224eaf5ead1c76b"><td class="memItemLeft" align="right" valign="top">static <a class="el" href="classtlv_1_1expected.html">expected</a>&lt; <a class="el" href="classtlv_1_1document.html">document</a>, <a class="el" href="structtlv_1_1error.html">error</a> &gt;&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classtlv_1_1document.html#aa8622b1aa4eddb3de224eaf5ead1c76b">create</a> (const <a class="el" href="structtlv_1_1document__format.html">document_format</a> &amp;<a class="el" href="classtlv_1_1format.html">format</a>)</td></tr>
 <tr class="memdesc:aa8622b1aa4eddb3de224eaf5ead1c76b"><td class="mdescLeft">&#160;</td><td class="mdescRight">Creates an empty document.  <br /></td></tr>
 <tr class="separator:aa8622b1aa4eddb3de224eaf5ead1c76b"><td class="memSeparator" colspan="2">&#160;</td></tr>
@@ -1127,8 +1127,8 @@ template&lt;typename Field &gt; </div>
 
 </div>
 </div>
-<a id="a43b250caff9461bc694455a87d0f3c57" name="a43b250caff9461bc694455a87d0f3c57"></a>
-<h2 class="memtitle"><span class="permalink"><a href="#a43b250caff9461bc694455a87d0f3c57">&#9670;&#160;</a></span>parse()</h2>
+<a id="a63de1ff9cbcf3369a5e80630e45a2590" name="a63de1ff9cbcf3369a5e80630e45a2590"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#a63de1ff9cbcf3369a5e80630e45a2590">&#9670;&#160;</a></span>parse()</h2>
 
 <div class="memitem">
 <div class="memproto">
@@ -1151,8 +1151,8 @@ template&lt;typename Field &gt; </div>
         <tr>
           <td class="paramkey"></td>
           <td></td>
-          <td class="paramtype">size_t *&#160;</td>
-          <td class="paramname"><em>error_offset</em> = <code>nullptr</code>&#160;</td>
+          <td class="paramtype"><a class="elRef" href="../../c-api/html/reader_2diagnostic_8h.html#a24371a524a13cd9d1cd22b3db640de85">tlv_reader_diagnostic_t</a> *&#160;</td>
+          <td class="paramname"><em>diagnostic</em> = <code>nullptr</code>&#160;</td>
         </tr>
         <tr>
           <td></td>
@@ -1173,7 +1173,7 @@ template&lt;typename Field &gt; </div>
   <table class="params">
     <tr><td class="paramname">data</td><td>Encoded input; copied, so it may be released afterwards. </td></tr>
     <tr><td class="paramname">format</td><td>Format descriptor and limits; copied. </td></tr>
-    <tr><td class="paramname">error_offset</td><td>Optional. On a malformed input receives the absolute offset of the offending element.</td></tr>
+    <tr><td class="paramname">diagnostic</td><td>Optional original Reader detail with INPUT coordinates relative to data. Tag and text views remain borrowed.</td></tr>
   </table>
   </dd>
 </dl>

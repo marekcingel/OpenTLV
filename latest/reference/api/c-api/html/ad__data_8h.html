@@ -82,21 +82,22 @@ $(function() {
 <p>Bluetooth Advertising Data container framing and zero padding.  
 <a href="#details">More...</a></p>
 <div class="textblock"><code>#include &quot;<a class="el" href="error_8h.html">tlv/error.h</a>&quot;</code><br />
+<code>#include &quot;<a class="el" href="reader_2diagnostic_8h.html">tlv/reader/diagnostic.h</a>&quot;</code><br />
 <code>#include &lt;stddef.h&gt;</code><br />
 <code>#include &lt;stdint.h&gt;</code><br />
 </div><table class="memberdecls">
 <tr class="heading"><td colspan="2"><h2 class="groupheader"><a id="func-members" name="func-members"></a>
 Functions</h2></td></tr>
-<tr class="memitem:ada37c406e5260fa487908e3ef88abd89" id="r_ada37c406e5260fa487908e3ef88abd89"><td class="memItemLeft" align="right" valign="top"><a class="el" href="group__core.html#ga164d2817a32e5d7b7aa1472e887b47c3">tlv_result_t</a>&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="ad__data_8h.html#ada37c406e5260fa487908e3ef88abd89">tlv_bluetooth_ad_data_validate</a> (const uint8_t *data, size_t size, size_t *significant_size, size_t *error_offset)</td></tr>
-<tr class="memdesc:ada37c406e5260fa487908e3ef88abd89"><td class="mdescLeft">&#160;</td><td class="mdescRight">Validates AD structures and trailing zero padding.  <br /></td></tr>
-<tr class="separator:ada37c406e5260fa487908e3ef88abd89"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:ab27dae6d694acb96e074b8ffb21c1f3a" id="r_ab27dae6d694acb96e074b8ffb21c1f3a"><td class="memItemLeft" align="right" valign="top"><a class="el" href="group__core.html#ga164d2817a32e5d7b7aa1472e887b47c3">tlv_result_t</a>&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="ad__data_8h.html#ab27dae6d694acb96e074b8ffb21c1f3a">tlv_bluetooth_ad_data_validate</a> (const uint8_t *data, size_t size, size_t *significant_size, <a class="el" href="reader_2diagnostic_8h.html#a24371a524a13cd9d1cd22b3db640de85">tlv_reader_diagnostic_t</a> *diagnostic)</td></tr>
+<tr class="memdesc:ab27dae6d694acb96e074b8ffb21c1f3a"><td class="mdescLeft">&#160;</td><td class="mdescRight">Validates AD structures and trailing zero padding.  <br /></td></tr>
+<tr class="separator:ab27dae6d694acb96e074b8ffb21c1f3a"><td class="memSeparator" colspan="2">&#160;</td></tr>
 </table>
 <a name="details" id="details"></a><h2 class="groupheader">Detailed Description</h2>
 <div class="textblock"><p>Bluetooth Advertising Data container framing and zero padding. </p>
 <dl class="section note"><dt>Note</dt><dd>Requires <code>OPENTLV_BLUETOOTH=ON</code>. </dd></dl>
 </div><h2 class="groupheader">Function Documentation</h2>
-<a id="ada37c406e5260fa487908e3ef88abd89" name="ada37c406e5260fa487908e3ef88abd89"></a>
-<h2 class="memtitle"><span class="permalink"><a href="#ada37c406e5260fa487908e3ef88abd89">&#9670;&#160;</a></span>tlv_bluetooth_ad_data_validate()</h2>
+<a id="ab27dae6d694acb96e074b8ffb21c1f3a" name="ab27dae6d694acb96e074b8ffb21c1f3a"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#ab27dae6d694acb96e074b8ffb21c1f3a">&#9670;&#160;</a></span>tlv_bluetooth_ad_data_validate()</h2>
 
 <div class="memitem">
 <div class="memproto">
@@ -122,8 +123,8 @@ Functions</h2></td></tr>
         <tr>
           <td class="paramkey"></td>
           <td></td>
-          <td class="paramtype">size_t *&#160;</td>
-          <td class="paramname"><em>error_offset</em>&#160;</td>
+          <td class="paramtype"><a class="el" href="reader_2diagnostic_8h.html#a24371a524a13cd9d1cd22b3db640de85">tlv_reader_diagnostic_t</a> *&#160;</td>
+          <td class="paramname"><em>diagnostic</em>&#160;</td>
         </tr>
         <tr>
           <td></td>
@@ -141,7 +142,7 @@ Functions</h2></td></tr>
     <tr><td class="paramdir">[in]</td><td class="paramname">data</td><td>Caller-owned input, unchanged during the call. May be <code>NULL</code> only when <code>size</code> is zero. </td></tr>
     <tr><td class="paramdir">[in]</td><td class="paramname">size</td><td>Input size in bytes, including padding. </td></tr>
     <tr><td class="paramdir">[out]</td><td class="paramname">significant_size</td><td>Required. Receives the prefix size in bytes, excluding padding, only on success. </td></tr>
-    <tr><td class="paramdir">[out]</td><td class="paramname">error_offset</td><td>Optional. On failure receives the failing field's offset relative to <code>data</code>, or the first nonzero padding byte. Argument errors report zero. Unchanged on success.</td></tr>
+    <tr><td class="paramdir">[out]</td><td class="paramname">diagnostic</td><td>Optional. On failure receives the failing field's offset relative to <code>data</code>, or the first nonzero padding byte, in the INPUT domain. Argument errors have unknown location. Unchanged on success.</td></tr>
   </table>
   </dd>
 </dl>

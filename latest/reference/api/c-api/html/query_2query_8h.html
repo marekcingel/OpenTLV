@@ -85,6 +85,7 @@ $(function() {
 <p>Path queries that address TLV elements by their nested tags.  
 <a href="#details">More...</a></p>
 <div class="textblock"><code>#include &quot;<a class="el" href="error_8h.html">tlv/error.h</a>&quot;</code><br />
+<code>#include &quot;<a class="el" href="diagnostic_8h.html">tlv/diagnostic.h</a>&quot;</code><br />
 <code>#include &quot;<a class="el" href="config_8h.html">tlv/config.h</a>&quot;</code><br />
 <code>#include &quot;<a class="el" href="tree_8h.html">tlv/tree.h</a>&quot;</code><br />
 <code>#include &quot;<a class="el" href="tag_8h.html">tlv/tag.h</a>&quot;</code><br />
@@ -121,12 +122,12 @@ Enumerations</h2></td></tr>
 </table><table class="memberdecls">
 <tr class="heading"><td colspan="2"><h2 class="groupheader"><a id="func-members" name="func-members"></a>
 Functions</h2></td></tr>
-<tr class="memitem:gac6cc1fdb84b230eec2b4bd26e5da8385" id="r_gac6cc1fdb84b230eec2b4bd26e5da8385"><td class="memItemLeft" align="right" valign="top"><a class="el" href="group__core.html#ga164d2817a32e5d7b7aa1472e887b47c3">tlv_result_t</a>&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="group__traversal.html#gac6cc1fdb84b230eec2b4bd26e5da8385">tlv_query_parse</a> (const char *text, <a class="el" href="group__traversal.html#ga976e323bdf21f26674eb8ad393f2e2e5">tlv_query_t</a> *query, size_t *error_offset)</td></tr>
-<tr class="memdesc:gac6cc1fdb84b230eec2b4bd26e5da8385"><td class="mdescLeft">&#160;</td><td class="mdescRight">Parses the text of a query.  <br /></td></tr>
-<tr class="separator:gac6cc1fdb84b230eec2b4bd26e5da8385"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:ga9b38114be292ab2dd4b42cd046b06482" id="r_ga9b38114be292ab2dd4b42cd046b06482"><td class="memItemLeft" align="right" valign="top"><a class="el" href="group__core.html#ga164d2817a32e5d7b7aa1472e887b47c3">tlv_result_t</a>&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="group__traversal.html#ga9b38114be292ab2dd4b42cd046b06482">tlv_query_parse_n</a> (const char *text, size_t size, <a class="el" href="group__traversal.html#ga976e323bdf21f26674eb8ad393f2e2e5">tlv_query_t</a> *query, size_t *error_offset)</td></tr>
-<tr class="memdesc:ga9b38114be292ab2dd4b42cd046b06482"><td class="mdescLeft">&#160;</td><td class="mdescRight">Parse a bounded V1 ASCII path without requiring a terminator.  <br /></td></tr>
-<tr class="separator:ga9b38114be292ab2dd4b42cd046b06482"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:ga2eb5624206246844e16d1a423460a2bd" id="r_ga2eb5624206246844e16d1a423460a2bd"><td class="memItemLeft" align="right" valign="top"><a class="el" href="group__core.html#ga164d2817a32e5d7b7aa1472e887b47c3">tlv_result_t</a>&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="group__traversal.html#ga2eb5624206246844e16d1a423460a2bd">tlv_query_parse</a> (const char *text, <a class="el" href="group__traversal.html#ga976e323bdf21f26674eb8ad393f2e2e5">tlv_query_t</a> *query, <a class="el" href="group__diagnostics.html#ga2118f30a61e0b0b3ba5d20c73a740b2e">tlv_diagnostic_t</a> *diagnostic)</td></tr>
+<tr class="memdesc:ga2eb5624206246844e16d1a423460a2bd"><td class="mdescLeft">&#160;</td><td class="mdescRight">Parses the text of a query.  <br /></td></tr>
+<tr class="separator:ga2eb5624206246844e16d1a423460a2bd"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:gad8896bca894d1d4a31c9d5007fd28792" id="r_gad8896bca894d1d4a31c9d5007fd28792"><td class="memItemLeft" align="right" valign="top"><a class="el" href="group__core.html#ga164d2817a32e5d7b7aa1472e887b47c3">tlv_result_t</a>&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="group__traversal.html#gad8896bca894d1d4a31c9d5007fd28792">tlv_query_parse_n</a> (const char *text, size_t size, <a class="el" href="group__traversal.html#ga976e323bdf21f26674eb8ad393f2e2e5">tlv_query_t</a> *query, <a class="el" href="group__diagnostics.html#ga2118f30a61e0b0b3ba5d20c73a740b2e">tlv_diagnostic_t</a> *diagnostic)</td></tr>
+<tr class="memdesc:gad8896bca894d1d4a31c9d5007fd28792"><td class="mdescLeft">&#160;</td><td class="mdescRight">Parse a bounded V1 ASCII path without requiring a terminator.  <br /></td></tr>
+<tr class="separator:gad8896bca894d1d4a31c9d5007fd28792"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:ga5600717647a8e06c981b1c361e0c50b4" id="r_ga5600717647a8e06c981b1c361e0c50b4"><td class="memItemLeft" align="right" valign="top">size_t&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="group__traversal.html#ga5600717647a8e06c981b1c361e0c50b4">tlv_query_count</a> (const <a class="el" href="group__traversal.html#ga976e323bdf21f26674eb8ad393f2e2e5">tlv_query_t</a> *query)</td></tr>
 <tr class="memdesc:ga5600717647a8e06c981b1c361e0c50b4"><td class="mdescLeft">&#160;</td><td class="mdescRight">Return the validated V1 step count.  <br /></td></tr>
 <tr class="separator:ga5600717647a8e06c981b1c361e0c50b4"><td class="memSeparator" colspan="2">&#160;</td></tr>

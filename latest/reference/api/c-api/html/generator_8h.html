@@ -92,12 +92,12 @@ Data Structures</h2></td></tr>
 <tr class="memdesc:"><td class="mdescLeft">&#160;</td><td class="mdescRight">A borrowed candidate identifier and permitted Value size interval. Constructed identifiers are classified exclusively by Format and receive generated child streams. Primitive Values contain arbitrary bytes; this is wire generation, not Schema/Codec-valid content generation. Exclude stream terminators and identifiers requiring contextual ordering from this table.  <a href="structtlv__generator__candidate.html#details">More...</a><br /></td></tr>
 <tr class="separator:"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:"><td class="memItemLeft" align="right" valign="top">struct &#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="structtlv__generator__options.html">tlv_generator_options</a></td></tr>
-<tr class="memdesc:"><td class="mdescLeft">&#160;</td><td class="mdescRight">Immutable configuration of one independently reproducible case. Same algorithm version, immutable Format/configuration, ordered candidates, options, seed and case index produce the same bytes, independent of earlier calls and output capacity (provided capacity is sufficient).  <a href="structtlv__generator__options.html#details">More...</a><br /></td></tr>
+<tr class="memdesc:"><td class="mdescLeft">&#160;</td><td class="mdescRight">Immutable configuration of one independently reproducible case. Same algorithm version, immutable Format/configuration, ordered candidates, options, seed and case index produce the same bytes, independent of earlier calls and output capacity (provided capacity is sufficient). Version 2 mixes the seed and case index in separate SplitMix64 finalization stages. Different seed/index pairs are not a guarantee of unique wire bytes.  <a href="structtlv__generator__options.html#details">More...</a><br /></td></tr>
 <tr class="separator:"><td class="memSeparator" colspan="2">&#160;</td></tr>
 </table><table class="memberdecls">
 <tr class="heading"><td colspan="2"><h2 class="groupheader"><a id="define-members" name="define-members"></a>
 Macros</h2></td></tr>
-<tr class="memitem:a0ab571fa2c45c9a1844d22f77cdcee70" id="r_a0ab571fa2c45c9a1844d22f77cdcee70"><td class="memItemLeft" align="right" valign="top">#define&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="generator_8h.html#a0ab571fa2c45c9a1844d22f77cdcee70">TLV_GENERATOR_VERSION</a>&#160;&#160;&#160;1</td></tr>
+<tr class="memitem:a0ab571fa2c45c9a1844d22f77cdcee70" id="r_a0ab571fa2c45c9a1844d22f77cdcee70"><td class="memItemLeft" align="right" valign="top">#define&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="generator_8h.html#a0ab571fa2c45c9a1844d22f77cdcee70">TLV_GENERATOR_VERSION</a>&#160;&#160;&#160;2</td></tr>
 <tr class="memdesc:a0ab571fa2c45c9a1844d22f77cdcee70"><td class="mdescLeft">&#160;</td><td class="mdescRight">Wire generator algorithm version, changed when deterministic output changes.  <br /></td></tr>
 <tr class="separator:a0ab571fa2c45c9a1844d22f77cdcee70"><td class="memSeparator" colspan="2">&#160;</td></tr>
 </table><table class="memberdecls">
@@ -107,7 +107,7 @@ Typedefs</h2></td></tr>
 <tr class="memdesc:a5ba29dabdcf17ffa6a68e96034c3f597"><td class="mdescLeft">&#160;</td><td class="mdescRight">A borrowed candidate identifier and permitted Value size interval. Constructed identifiers are classified exclusively by Format and receive generated child streams. Primitive Values contain arbitrary bytes; this is wire generation, not Schema/Codec-valid content generation. Exclude stream terminators and identifiers requiring contextual ordering from this table.  <br /></td></tr>
 <tr class="separator:a5ba29dabdcf17ffa6a68e96034c3f597"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:a30ffa41b8f052cbc2383ad76dd1abad8" id="r_a30ffa41b8f052cbc2383ad76dd1abad8"><td class="memItemLeft" align="right" valign="top">typedef struct <a class="el" href="structtlv__generator__options.html">tlv_generator_options</a>&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="generator_8h.html#a30ffa41b8f052cbc2383ad76dd1abad8">tlv_generator_options_t</a></td></tr>
-<tr class="memdesc:a30ffa41b8f052cbc2383ad76dd1abad8"><td class="mdescLeft">&#160;</td><td class="mdescRight">Immutable configuration of one independently reproducible case. Same algorithm version, immutable Format/configuration, ordered candidates, options, seed and case index produce the same bytes, independent of earlier calls and output capacity (provided capacity is sufficient).  <br /></td></tr>
+<tr class="memdesc:a30ffa41b8f052cbc2383ad76dd1abad8"><td class="mdescLeft">&#160;</td><td class="mdescRight">Immutable configuration of one independently reproducible case. Same algorithm version, immutable Format/configuration, ordered candidates, options, seed and case index produce the same bytes, independent of earlier calls and output capacity (provided capacity is sufficient). Version 2 mixes the seed and case index in separate SplitMix64 finalization stages. Different seed/index pairs are not a guarantee of unique wire bytes.  <br /></td></tr>
 <tr class="separator:a30ffa41b8f052cbc2383ad76dd1abad8"><td class="memSeparator" colspan="2">&#160;</td></tr>
 </table><table class="memberdecls">
 <tr class="heading"><td colspan="2"><h2 class="groupheader"><a id="func-members" name="func-members"></a>
@@ -129,7 +129,7 @@ Functions</h2></td></tr>
 <div class="memproto">
       <table class="memname">
         <tr>
-          <td class="memname">#define TLV_GENERATOR_VERSION&#160;&#160;&#160;1</td>
+          <td class="memname">#define TLV_GENERATOR_VERSION&#160;&#160;&#160;2</td>
         </tr>
       </table>
 </div><div class="memdoc">
@@ -167,7 +167,7 @@ Functions</h2></td></tr>
       </table>
 </div><div class="memdoc">
 
-<p>Immutable configuration of one independently reproducible case. Same algorithm version, immutable Format/configuration, ordered candidates, options, seed and case index produce the same bytes, independent of earlier calls and output capacity (provided capacity is sufficient). </p>
+<p>Immutable configuration of one independently reproducible case. Same algorithm version, immutable Format/configuration, ordered candidates, options, seed and case index produce the same bytes, independent of earlier calls and output capacity (provided capacity is sufficient). Version 2 mixes the seed and case index in separate SplitMix64 finalization stages. Different seed/index pairs are not a guarantee of unique wire bytes. </p>
 
 </div>
 </div>

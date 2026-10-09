@@ -267,7 +267,9 @@ Functions</h2></td></tr>
 <dl class="section return"><dt>Returns</dt><dd><a class="el" href="group__core.html#gga516c7250563ee9332e2f45f2d203ae61a83b538a74c7058e8863132a6410b9d65">TLV_ERR_INVALID_ARG</a> for misaligned programs; <a class="el" href="group__core.html#gga516c7250563ee9332e2f45f2d203ae61a07580ca64f30aa1a72a405fcbca72f10">TLV_ERR_INVALID_VALUE</a> for malformed program contents or a non-node selector/non-boolean assertion. </dd>
 <dd>
 Other native sizing/capacity error or OK; outputs unchanged on failure. </dd></dl>
-<dl class="section note"><dt>Note</dt><dd>Context arrays and Reader frames are additional explicit storage. Rules reuse the two workspaces sequentially; Document Value snapshot and owning tree are separate. </dd></dl>
+<dl class="section note"><dt>Note</dt><dd>This sizing function has no diagnostic output. Only <a class="el" href="schema_2query_8h.html#a63b640519ac5a61933d01579054f9d42" title="Validate contextual boolean assertions over immutable complete input.">tlv_schema_query_validate_buffer()</a> and, when enabled, tlv_schema_query_validate_document() report Query kind IMAGE or TYPE and the failing rule index through their optional diagnostic output. </dd>
+<dd>
+Context arrays and Reader frames are additional explicit storage. Rules reuse the two workspaces sequentially; Document Value snapshot and owning tree are separate. </dd></dl>
 
 </div>
 </div>

@@ -4024,9 +4024,9 @@ their cursor/storage choices and error handling differ.</p>
 <a id="__codelineno-4-18" name="__codelineno-4-18" href="#__codelineno-4-18"></a><span class="cm">/* On TLV_ERR_INVALID_ARG, text_offset is the index of the offending character. */</span>
 <a id="__codelineno-4-19" name="__codelineno-4-19" href="#__codelineno-4-19"></a><span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="n">rc</span><span class="w"> </span><span class="o">!=</span><span class="w"> </span><span class="n">TLV_OK</span><span class="p">)</span><span class="w"> </span><span class="k">return</span><span class="w"> </span><span class="mi">1</span><span class="p">;</span>
 <a id="__codelineno-4-20" name="__codelineno-4-20" href="#__codelineno-4-20"></a>
-<a id="__codelineno-4-21" name="__codelineno-4-21" href="#__codelineno-4-21"></a><span class="kt">size_t</span><span class="w"> </span><span class="n">error_offset</span><span class="p">;</span>
+<a id="__codelineno-4-21" name="__codelineno-4-21" href="#__codelineno-4-21"></a><span class="n">tlv_reader_diagnostic_t</span><span class="w"> </span><span class="n">diagnostic</span><span class="p">;</span>
 <a id="__codelineno-4-22" name="__codelineno-4-22" href="#__codelineno-4-22"></a><span class="n">rc</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">tlv_query_visit_buffer</span><span class="p">(</span><span class="n">data</span><span class="p">,</span><span class="w"> </span><span class="n">size</span><span class="p">,</span><span class="w"> </span><span class="o">&amp;</span><span class="n">tlv_format_ber</span><span class="p">,</span><span class="w"> </span><span class="o">&amp;</span><span class="n">query</span><span class="p">,</span><span class="w"> </span><span class="n">TLV_TREE_DEFAULT_DEPTH</span><span class="p">,</span><span class="w"> </span><span class="mi">100000</span><span class="p">,</span><span class="w"> </span><span class="n">print_match</span><span class="p">,</span>
-<a id="__codelineno-4-23" name="__codelineno-4-23" href="#__codelineno-4-23"></a><span class="w">                    </span><span class="nb">NULL</span><span class="p">,</span><span class="w"> </span><span class="o">&amp;</span><span class="n">error_offset</span><span class="p">);</span>
+<a id="__codelineno-4-23" name="__codelineno-4-23" href="#__codelineno-4-23"></a><span class="w">                    </span><span class="nb">NULL</span><span class="p">,</span><span class="w"> </span><span class="o">&amp;</span><span class="n">diagnostic</span><span class="p">);</span>
 <a id="__codelineno-4-24" name="__codelineno-4-24" href="#__codelineno-4-24"></a><span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="n">rc</span><span class="w"> </span><span class="o">!=</span><span class="w"> </span><span class="n">TLV_OK</span><span class="p">)</span><span class="w"> </span><span class="k">return</span><span class="w"> </span><span class="mi">1</span><span class="p">;</span>
 </code></pre></div>
 <p><code>tlv_query_visit_buffer()</code> builds on <code>tlv_tree_reader_visit()</code>: it neither allocates nor
@@ -4037,7 +4037,7 @@ malformed data after the last match is reported, and <code>max_depth</code> and
 <code>max_elements</code> apply to every traversed element, not only to matches.</p>
 <p>For incremental input or caller-selected traversal storage, initialize a
 <code>tlv_tree_reader_t</code> and a <code>tlv_query_matcher_t</code>, then call
-<code>tlv_query_visit(&amp;reader, &amp;matcher, print_match, NULL, &amp;error_offset)</code>.
+<code>tlv_query_visit(&amp;reader, &amp;matcher, print_match, NULL, &amp;diagnostic)</code>.
 Retain both states across STOP or <code>TLV_NEED_MORE_DATA</code>; replace input using
 <code>tlv_tree_reader_set_input()</code> before resuming. The buffer convenience function
 owns <code>TLV_QUERY_MAX_STEPS</code> frames, while the cursor API uses caller-owned frames.</p>

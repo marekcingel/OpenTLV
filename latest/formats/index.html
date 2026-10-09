@@ -4236,7 +4236,7 @@ Custom protocols can supply a different rule. Traversal follows the value elemen
 and resumes at the complete encoded end, so BER EOCs are skipped correctly.</p>
 <p>Initialize <code>tlv_tree_reader_t</code> with caller-owned frames, a runtime depth limit
 and an element limit, then call <code>tlv_tree_reader_visit(&amp;reader, visitor, context,
-error_offset)</code>. The Format classifies constructed tags; Visitor consumes the
+diagnostic)</code>. The Format classifies constructed tags; Visitor consumes the
 canonical Tree Reader stream.</p>
 <p>See also the <a href="../reference/c-api/#formats">C API reference: formats</a>.</p>
 <h3 id="formats-whose-length-precedes-the-tag">Formats whose length precedes the tag<a class="headerlink" href="#formats-whose-length-precedes-the-tag" title="Permanent link">&para;</a></h3>

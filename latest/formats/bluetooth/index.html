@@ -4177,7 +4177,7 @@ limit. Pass only significant AD structures; use the container helper below
 to validate padding and obtain the significant prefix first.</p>
 <h2 id="advertising-data-containers-and-padding">Advertising Data containers and padding<a class="headerlink" href="#advertising-data-containers-and-padding" title="Permanent link">&para;</a></h2>
 <p>Include <code>tlv/builtins/bluetooth/ad_data.h</code> and call
-<code>tlv_bluetooth_ad_data_validate(data, size, &amp;significant_size, &amp;error_offset)</code>
+<code>tlv_bluetooth_ad_data_validate(data, size, &amp;significant_size, &amp;diagnostic)</code>
 before processing a padded Advertising Data buffer. This helper is available
 with <code>OPENTLV_BLUETOOTH=ON</code> and uses the generic reader with the
 strict Bluetooth LTV format. It allocates nothing and leaves the input unchanged.</p>
@@ -4191,11 +4191,11 @@ byte must be zero. Zeros inside declared values are preserved. Empty input
 Unknown AD types and empty values are accepted; schema and value-codec checks
 remain separate.</p>
 <p>A nonzero byte after padding starts returns <code>TLV_ERR_INVALID_VALUE</code>, with
-<code>error_offset</code> pointing to the first offending byte. Truncated structures
+<code>diagnostic.diagnostic.location</code> identifying the first offending INPUT byte. Truncated structures
 retain the generic reader error and failing-field offset, even when their
 available value bytes end in zeros. <code>significant_size</code> is required and remains
-unchanged on failure. <code>error_offset</code> is optional, unchanged on success, and
-zero for argument errors. Output storage must not overlap the input or each
+unchanged on failure. <code>diagnostic</code> is optional and unchanged on success; argument errors have
+UNKNOWN location. Output storage must not overlap the input or each
 other. Never strip trailing zeros by scanning backward: they may belong to
 the final value.</p>
 <!-- markdownlint-disable-next-line MD033 -->

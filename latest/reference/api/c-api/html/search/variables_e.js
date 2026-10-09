@@ -1,7 +1,7 @@
 var searchData=
 [
   ['pan_0',['pan',['../structtlv__emv__track2__t.html#a3005a481c764f1b3f489b20663f78381',1,'tlv_emv_track2_t']]],
-  ['path_1',['path',['../structtlv__diagnostic.html#a95612fb75bb2e70bef01a62ba8953075',1,'tlv_diagnostic::path'],['../structtlv__schema__diagnostic.html#aecfad3c2ed37d5c9e34b9949ef8a8f19',1,'tlv_schema_diagnostic::path']]],
+  ['path_1',['path',['../structtlv__diagnostic.html#a541033855f3169581d498bcb3f39e1a3',1,'tlv_diagnostic']]],
   ['path_5fguard_2',['path_guard',['../structtlv__query__instruction.html#a3ec846f9e1d8d083263a5dfce95fd840',1,'tlv_query_instruction']]],
   ['path_5fkind_3',['path_kind',['../structtlv__query__instruction.html#a70956717c95cdc5e9c75f9b8262415d0',1,'tlv_query_instruction']]],
   ['pattern_5fbytes_4',['pattern_bytes',['../structtlv__query__program__info.html#a63fc581738d6755f06410942bf44658b',1,'tlv_query_program_info']]],

@@ -881,6 +881,17 @@
     <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
       
         <li class="md-nav__item">
+  <a href="#evidence-locations" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Evidence locations
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
   <a href="#layering-context" class="md-nav__link">
     <span class="md-ellipsis">
       
@@ -3639,6 +3650,17 @@
     <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
       
         <li class="md-nav__item">
+  <a href="#evidence-locations" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Evidence locations
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
   <a href="#layering-context" class="md-nav__link">
     <span class="md-ellipsis">
       
@@ -3763,12 +3785,32 @@ of inventing its own error-reporting shape.</p>
 <a id="__codelineno-1-2" name="__codelineno-1-2" href="#__codelineno-1-2"></a>
 <a id="__codelineno-1-3" name="__codelineno-1-3" href="#__codelineno-1-3"></a><span class="n">tlv_diagnostic_t</span><span class="w"> </span><span class="n">diagnostic</span><span class="p">;</span>
 <a id="__codelineno-1-4" name="__codelineno-1-4" href="#__codelineno-1-4"></a><span class="n">tlv_diagnostic_init</span><span class="p">(</span><span class="o">&amp;</span><span class="n">diagnostic</span><span class="p">,</span><span class="w"> </span><span class="n">TLV_ERR_END_OF_BUFFER</span><span class="p">,</span><span class="w"> </span><span class="n">TLV_DIAGNOSTIC_SEVERITY_ERROR</span><span class="p">);</span>
-<a id="__codelineno-1-5" name="__codelineno-1-5" href="#__codelineno-1-5"></a><span class="n">tlv_diagnostic_set_offset</span><span class="p">(</span><span class="o">&amp;</span><span class="n">diagnostic</span><span class="p">,</span><span class="w"> </span><span class="mi">42</span><span class="p">);</span>
+<a id="__codelineno-1-5" name="__codelineno-1-5" href="#__codelineno-1-5"></a><span class="n">tlv_diagnostic_set_location</span><span class="p">(</span><span class="o">&amp;</span><span class="n">diagnostic</span><span class="p">,</span><span class="w"> </span><span class="n">TLV_LOCATION_INPUT</span><span class="p">,</span><span class="w"> </span><span class="n">TLV_LOCATION_POINT</span><span class="p">,</span><span class="w"> </span><span class="mi">42</span><span class="p">,</span><span class="w"> </span><span class="mi">42</span><span class="p">);</span>
 </code></pre></div>
-<p><code>tlv_diagnostic_t</code> holds a stable <code>code</code> (a <code>tlv_result_t</code>), a <code>severity</code>, an
-optional byte <code>offset</code>, and borrowed <code>expected</code>/<code>actual</code> descriptions. Every
+<p><code>tlv_diagnostic_t</code> holds a stable <code>code</code> (a <code>tlv_result_t</code>), a <code>severity</code>, a
+primary <code>location</code>, an optional inline enclosing path, and borrowed <code>expected</code>/<code>actual</code> descriptions. Every
 field is a fixed-size value or a borrowed pointer, so building or passing a
 diagnostic never allocates.</p>
+<h2 id="evidence-locations">Evidence locations<a class="headerlink" href="#evidence-locations" title="Permanent link">&para;</a></h2>
+<p><code>location.kind == TLV_LOCATION_UNKNOWN</code> means there is no known position. A
+POINT at zero is known evidence; never use zero or <code>SIZE_MAX</code> as an absence
+sentinel. SPAN is half-open <code>[begin, end)</code> and may be empty at EOF. SCOPE_END
+and INSERTION describe missing content without claiming an element exists there.</p>
+<p>The domain is INPUT, OUTPUT, EXPRESSION, DEFINITION or VALUE. Each operation
+defines the source and origin: Reader input coordinates include discarded windows;
+Writer and DER write coordinates describe would-be output; Query parse spans
+index expression bytes. Query runtime errors may carry primary INPUT evidence
+and retain a separate related expression span in <code>begin</code>/<code>end</code>. VALUE is local
+evidence whose enclosing wire origin is unavailable. Native Schema definitions
+use <code>definition.kind</code>, <code>definition.owner</code> and <code>definition.index</code>, not invented
+wire offsets. The owner borrows the supplied table/type.</p>
+<p><code>tlv_location_translate()</code> checks both bounds. Overflow clears only the optional
+location and preserves the original result and detail. Diagnostics remain optional;
+requesting them does not add a second parse or callback invocation.</p>
+<p>The offset-only failure outputs and Schema-specific anchor enum were removed.
+Use the structured diagnostic parameters on Query paths, Tree visitors, Document,
+DER/CER, Bluetooth AD and DOL APIs. Rebuild native clients and every binding after
+this source and ABI change; there are no compatibility wrappers.</p>
 <h2 id="layering-context">Layering context<a class="headerlink" href="#layering-context" title="Permanent link">&para;</a></h2>
 <p>A lower layer produces a diagnostic; higher layers add detail without
 changing what it already says, by chaining caller-owned
@@ -3802,20 +3844,26 @@ functions remain usable without paying for diagnostics.</p>
 <a id="__codelineno-3-7" name="__codelineno-3-7" href="#__codelineno-3-7"></a><span class="n">tlv_result_t</span><span class="w"> </span><span class="n">rc</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">tlv_read_diag</span><span class="p">(</span><span class="n">data</span><span class="p">,</span><span class="w"> </span><span class="n">size</span><span class="p">,</span><span class="w"> </span><span class="o">&amp;</span><span class="n">format</span><span class="p">,</span><span class="w"> </span><span class="o">&amp;</span><span class="n">element</span><span class="p">,</span><span class="w"> </span><span class="o">&amp;</span><span class="n">consumed</span><span class="p">,</span><span class="w"> </span><span class="o">&amp;</span><span class="n">diagnostic</span><span class="p">);</span>
 <a id="__codelineno-3-8" name="__codelineno-3-8" href="#__codelineno-3-8"></a><span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="n">rc</span><span class="w"> </span><span class="o">!=</span><span class="w"> </span><span class="n">TLV_OK</span><span class="p">)</span><span class="w"> </span><span class="p">{</span>
 <a id="__codelineno-3-9" name="__codelineno-3-9" href="#__codelineno-3-9"></a><span class="w">    </span><span class="cm">/* diagnostic.diagnostic.code   == rc</span>
-<a id="__codelineno-3-10" name="__codelineno-3-10" href="#__codelineno-3-10"></a><span class="cm">     * diagnostic.diagnostic.offset == the offset of the field that failed</span>
-<a id="__codelineno-3-11" name="__codelineno-3-11" href="#__codelineno-3-11"></a><span class="cm">     * diagnostic.operation         == which step failed (tag, length, value or trailer)</span>
-<a id="__codelineno-3-12" name="__codelineno-3-12" href="#__codelineno-3-12"></a><span class="cm">     * diagnostic.declared_length / diagnostic.available, when set, describe</span>
+<a id="__codelineno-3-10" name="__codelineno-3-10" href="#__codelineno-3-10"></a><span class="cm">     * diagnostic.diagnostic.location.begin == the offset of the field that failed</span>
+<a id="__codelineno-3-11" name="__codelineno-3-11" href="#__codelineno-3-11"></a><span class="cm">     * diagnostic.detail.operation         == which step failed (tag, length, value or trailer)</span>
+<a id="__codelineno-3-12" name="__codelineno-3-12" href="#__codelineno-3-12"></a><span class="cm">     * diagnostic.detail.declared_length / diagnostic.detail.available, when set, describe</span>
 <a id="__codelineno-3-13" name="__codelineno-3-13" href="#__codelineno-3-13"></a><span class="cm">     * a value or trailer that didn't fit the input */</span>
 <a id="__codelineno-3-14" name="__codelineno-3-14" href="#__codelineno-3-14"></a><span class="p">}</span>
 </code></pre></div>
 <p>For a tag whose declared value length exceeds the bytes left in the input,
-<code>diagnostic.operation</code> is <code>TLV_READER_OP_VALUE</code>, <code>diagnostic.has_tag</code> is set,
+<code>diagnostic.detail.operation</code> is <code>TLV_READER_OP_VALUE</code>, <code>diagnostic.detail.has_tag</code> is set,
 and <code>declared_length</code>/<code>available</code> report the mismatch directly, without
 having to re-parse the input to find it. Every field is a fixed-size value or
 a borrowed pointer, so filling a <code>tlv_reader_diagnostic_t</code> never allocates,
 and <code>tag</code> borrows the input like any tag a reader produces.</p>
 <p><code>tlv_reader_next_diag()</code> reports the same fields with offsets absolute within
 the reader's buffer, not relative to the element being read.</p>
+<p>Reader-specific evidence lives in <code>tlv_reader_detail_t</code>. A standalone Reader
+failure pairs it with one common diagnostic as <code>diagnostic</code> and <code>detail</code>.
+Query embeds the same detail as <code>reader</code>, guarded by <code>has_reader</code>, while
+<code>query.diagnostic</code> is the sole result, location and path for the failure.
+Reader causes remain present under Query <code>STATE</code>; pure Query failures leave
+<code>has_reader</code> unset. Neither representation contains self-referential pointers.</p>
 <h2 id="writer-diagnostics">Writer diagnostics<a class="headerlink" href="#writer-diagnostics" title="Permanent link">&para;</a></h2>
 <p>The writer enriches a diagnostic the same way: <code>tlv_write_diag()</code> and
 <code>tlv_writer_write_diag()</code> behave exactly like <code>tlv_write()</code> and
@@ -3830,7 +3878,7 @@ the reader's buffer, not relative to the element being read.</p>
 <a id="__codelineno-4-7" name="__codelineno-4-7" href="#__codelineno-4-7"></a><span class="w">                                 </span><span class="o">&amp;</span><span class="n">diagnostic</span><span class="p">);</span>
 <a id="__codelineno-4-8" name="__codelineno-4-8" href="#__codelineno-4-8"></a><span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="n">rc</span><span class="w"> </span><span class="o">!=</span><span class="w"> </span><span class="n">TLV_OK</span><span class="p">)</span><span class="w"> </span><span class="p">{</span>
 <a id="__codelineno-4-9" name="__codelineno-4-9" href="#__codelineno-4-9"></a><span class="w">    </span><span class="cm">/* diagnostic.diagnostic.code   == rc</span>
-<a id="__codelineno-4-10" name="__codelineno-4-10" href="#__codelineno-4-10"></a><span class="cm">     * diagnostic.diagnostic.offset == the output offset the element would have started at</span>
+<a id="__codelineno-4-10" name="__codelineno-4-10" href="#__codelineno-4-10"></a><span class="cm">     * diagnostic.diagnostic.location.begin == the output offset the element would have started at</span>
 <a id="__codelineno-4-11" name="__codelineno-4-11" href="#__codelineno-4-11"></a><span class="cm">     * diagnostic.operation         == which step failed (tag, length or value)</span>
 <a id="__codelineno-4-12" name="__codelineno-4-12" href="#__codelineno-4-12"></a><span class="cm">     * diagnostic.length            == the value length that was requested</span>
 <a id="__codelineno-4-13" name="__codelineno-4-13" href="#__codelineno-4-13"></a><span class="cm">     * diagnostic.required / diagnostic.available, when set, describe an</span>
@@ -3852,26 +3900,26 @@ as a <code>tlv_schema_diagnostic_t</code>; see
 <a href="../schemas/#reporting-every-violation">Reporting every violation</a>.</p>
 <div class="highlight"><pre><span></span><code><a id="__codelineno-5-1" name="__codelineno-5-1" href="#__codelineno-5-1"></a><span class="cp">#include</span><span class="w"> </span><span class="cpf">"tlv/schema/schema.h"</span>
 <a id="__codelineno-5-2" name="__codelineno-5-2" href="#__codelineno-5-2"></a>
-<a id="__codelineno-5-3" name="__codelineno-5-3" href="#__codelineno-5-3"></a><span class="n">tlv_schema_diagnostic_t</span><span class="w">        </span><span class="n">diagnostics</span><span class="p">[</span><span class="mi">16</span><span class="p">];</span>
+<a id="__codelineno-5-3" name="__codelineno-5-3" href="#__codelineno-5-3"></a><span class="n">tlv_schema_diagnostic_t</span><span class="w">        </span><span class="n">diagnostics</span><span class="p">[</span><span class="mi">16</span><span class="p">],</span><span class="w"> </span><span class="n">failure</span><span class="p">;</span>
 <a id="__codelineno-5-4" name="__codelineno-5-4" href="#__codelineno-5-4"></a><span class="n">tlv_schema_diagnostic_report_t</span><span class="w"> </span><span class="n">report</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="p">{</span><span class="n">diagnostics</span><span class="p">,</span><span class="w"> </span><span class="mi">16</span><span class="p">,</span><span class="w"> </span><span class="mi">0</span><span class="p">};</span>
 <a id="__codelineno-5-5" name="__codelineno-5-5" href="#__codelineno-5-5"></a>
 <a id="__codelineno-5-6" name="__codelineno-5-6" href="#__codelineno-5-6"></a><span class="n">tlv_result_t</span><span class="w"> </span><span class="n">rc</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">tlv_schema_validate_all_diag</span><span class="p">(</span><span class="n">data</span><span class="p">,</span><span class="w"> </span><span class="n">size</span><span class="p">,</span><span class="w"> </span><span class="o">&amp;</span><span class="n">tlv_format_ber</span><span class="p">,</span><span class="w"> </span><span class="o">&amp;</span><span class="n">template_schema</span><span class="p">,</span><span class="w"> </span><span class="mi">16</span><span class="p">,</span>
 <a id="__codelineno-5-7" name="__codelineno-5-7" href="#__codelineno-5-7"></a><span class="w">                                               </span><span class="mi">1000</span><span class="p">,</span><span class="w"> </span><span class="n">TLV_SCHEMA_UNKNOWN_BY_SCHEMA</span><span class="p">,</span><span class="w"> </span><span class="o">&amp;</span><span class="n">report</span><span class="p">,</span>
-<a id="__codelineno-5-8" name="__codelineno-5-8" href="#__codelineno-5-8"></a><span class="w">                                               </span><span class="o">&amp;</span><span class="n">offset</span><span class="p">);</span>
+<a id="__codelineno-5-8" name="__codelineno-5-8" href="#__codelineno-5-8"></a><span class="w">                                               </span><span class="o">&amp;</span><span class="n">failure</span><span class="p">);</span>
 <a id="__codelineno-5-9" name="__codelineno-5-9" href="#__codelineno-5-9"></a><span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="n">rc</span><span class="w"> </span><span class="o">==</span><span class="w"> </span><span class="n">TLV_ERR_SCHEMA</span><span class="p">)</span><span class="w"> </span><span class="p">{</span>
 <a id="__codelineno-5-10" name="__codelineno-5-10" href="#__codelineno-5-10"></a><span class="w">    </span><span class="k">for</span><span class="w"> </span><span class="p">(</span><span class="kt">size_t</span><span class="w"> </span><span class="n">i</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mi">0</span><span class="p">;</span><span class="w"> </span><span class="n">i</span><span class="w"> </span><span class="o">&lt;</span><span class="w"> </span><span class="n">report</span><span class="p">.</span><span class="n">count</span><span class="w"> </span><span class="o">&amp;&amp;</span><span class="w"> </span><span class="n">i</span><span class="w"> </span><span class="o">&lt;</span><span class="w"> </span><span class="n">report</span><span class="p">.</span><span class="n">capacity</span><span class="p">;</span><span class="w"> </span><span class="o">++</span><span class="n">i</span><span class="p">)</span><span class="w"> </span><span class="p">{</span>
 <a id="__codelineno-5-11" name="__codelineno-5-11" href="#__codelineno-5-11"></a><span class="w">        </span><span class="k">const</span><span class="w"> </span><span class="n">tlv_schema_diagnostic_t</span><span class="o">*</span><span class="w"> </span><span class="n">d</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="o">&amp;</span><span class="n">diagnostics</span><span class="p">[</span><span class="n">i</span><span class="p">];</span>
 <a id="__codelineno-5-12" name="__codelineno-5-12" href="#__codelineno-5-12"></a><span class="w">        </span><span class="kt">char</span><span class="w"> </span><span class="n">path</span><span class="p">[</span><span class="mi">64</span><span class="p">];</span>
-<a id="__codelineno-5-13" name="__codelineno-5-13" href="#__codelineno-5-13"></a><span class="w">        </span><span class="n">tlv_diagnostic_path_string</span><span class="p">(</span><span class="o">&amp;</span><span class="n">d</span><span class="o">-&gt;</span><span class="n">path</span><span class="p">,</span><span class="w"> </span><span class="n">path</span><span class="p">,</span><span class="w"> </span><span class="k">sizeof</span><span class="p">(</span><span class="n">path</span><span class="p">),</span><span class="w"> </span><span class="nb">NULL</span><span class="p">);</span>
+<a id="__codelineno-5-13" name="__codelineno-5-13" href="#__codelineno-5-13"></a><span class="w">        </span><span class="n">tlv_diagnostic_path_string</span><span class="p">(</span><span class="o">&amp;</span><span class="n">d</span><span class="o">-&gt;</span><span class="n">diagnostic</span><span class="p">.</span><span class="n">path</span><span class="p">,</span><span class="w"> </span><span class="n">path</span><span class="p">,</span><span class="w"> </span><span class="k">sizeof</span><span class="p">(</span><span class="n">path</span><span class="p">),</span><span class="w"> </span><span class="nb">NULL</span><span class="p">);</span>
 <a id="__codelineno-5-14" name="__codelineno-5-14" href="#__codelineno-5-14"></a><span class="w">        </span><span class="cm">/* d-&gt;diagnostic.code   == TLV_ERR_SCHEMA; kind distinguishes missing, length and other findings</span>
-<a id="__codelineno-5-15" name="__codelineno-5-15" href="#__codelineno-5-15"></a><span class="cm">         * d-&gt;diagnostic.offset == the offset of the affected element, when d-&gt;diagnostic.has_offset</span>
+<a id="__codelineno-5-15" name="__codelineno-5-15" href="#__codelineno-5-15"></a><span class="cm">         * d-&gt;diagnostic.location.begin == the offset of the affected element, when d-&gt;diagnostic.location.kind != TLV_LOCATION_UNKNOWN</span>
 <a id="__codelineno-5-16" name="__codelineno-5-16" href="#__codelineno-5-16"></a><span class="cm">         * path                == the scopes enclosing d-&gt;tag, for example "6F &gt; A5 &gt; BF0C &gt; 61"</span>
 <a id="__codelineno-5-17" name="__codelineno-5-17" href="#__codelineno-5-17"></a><span class="cm">         * d-&gt;field             == the rule's schema name for d-&gt;tag, or NULL if it has none */</span>
 <a id="__codelineno-5-18" name="__codelineno-5-18" href="#__codelineno-5-18"></a><span class="w">    </span><span class="p">}</span>
 <a id="__codelineno-5-19" name="__codelineno-5-19" href="#__codelineno-5-19"></a><span class="p">}</span>
 </code></pre></div>
 <p>For a value whose length is outside its rule's bounds, <code>d-&gt;kind</code> is
-<code>TLV_SCHEMA_ISSUE_LENGTH</code>, <code>d-&gt;diagnostic.code</code> is <code>TLV_ERR_INVALID_LENGTH</code>,
+<code>TLV_SCHEMA_ISSUE_LENGTH</code>, <code>d-&gt;diagnostic.code</code> is <code>TLV_ERR_SCHEMA</code>,
 and <code>d-&gt;has_length</code> is set, with <code>min_length</code>/<code>max_length</code> from the rule and
 <code>actual_length</code> from the value that violated it: validating a 4F (ADF Name)
 with only 3 bytes against a rule requiring 5 to 16 fills <code>min_length</code> with
@@ -3882,12 +3930,10 @@ the rule and <code>occurs</code> the number found; a primitive/constructed misma
 reporting what the value actually was. Only the fields for <code>kind</code> are set; the
 others are left zero. <code>field</code> and the fields for other kinds are <code>NULL</code> or
 unset for <code>TLV_SCHEMA_ISSUE_UNEXPECTED</code>, which matches no rule.</p>
-<p><code>d-&gt;path</code> is a plain <code>tlv_diagnostic_path_t</code> value, not reachable through
-<code>d-&gt;diagnostic.path</code> (which stays <code>NULL</code>): each <code>tlv_schema_diagnostic_t</code> in a
-report needs its own path, and wiring it through a pointer field would leave
-a dangling self-reference the moment the struct is copied out of the report
-array. Attach it explicitly with <code>tlv_diagnostic_set_path(&amp;d-&gt;diagnostic,
-&amp;d-&gt;path)</code> if code elsewhere expects to find a path on <code>d-&gt;diagnostic</code>.</p>
+<p>The common base stores <code>path</code> by value, with <code>has_path</code> distinguishing an
+untracked path from a known empty path. Copying a diagnostic needs no rebasing.
+Tag spans still borrow their bytes; bindings copy those bytes before releasing
+the source. A nonzero <code>path.omitted</code> records truncated inner ancestry.</p>
 <h2 id="hierarchical-paths">Hierarchical paths<a class="headerlink" href="#hierarchical-paths" title="Permanent link">&para;</a></h2>
 <p>An offset alone does not say which branch of a nested document a diagnostic
 came from: the same tag can appear at several depths. <code>tlv_diagnostic_path_t</code>
@@ -3924,11 +3970,11 @@ and returning to an ancestor drops everything below it. When a diagnostic is
 produced, attach the path with <code>tlv_diagnostic_set_path()</code>:</p>
 <div class="highlight"><pre><span></span><code><a id="__codelineno-7-1" name="__codelineno-7-1" href="#__codelineno-7-1"></a><span class="n">tlv_diagnostic_t</span><span class="w"> </span><span class="n">diagnostic</span><span class="p">;</span>
 <a id="__codelineno-7-2" name="__codelineno-7-2" href="#__codelineno-7-2"></a><span class="n">tlv_diagnostic_init</span><span class="p">(</span><span class="o">&amp;</span><span class="n">diagnostic</span><span class="p">,</span><span class="w"> </span><span class="n">TLV_ERR_INVALID_LENGTH</span><span class="p">,</span><span class="w"> </span><span class="n">TLV_DIAGNOSTIC_SEVERITY_ERROR</span><span class="p">);</span>
-<a id="__codelineno-7-3" name="__codelineno-7-3" href="#__codelineno-7-3"></a><span class="n">tlv_diagnostic_set_offset</span><span class="p">(</span><span class="o">&amp;</span><span class="n">diagnostic</span><span class="p">,</span><span class="w"> </span><span class="n">offset</span><span class="p">);</span>
+<a id="__codelineno-7-3" name="__codelineno-7-3" href="#__codelineno-7-3"></a><span class="n">tlv_diagnostic_set_location</span><span class="p">(</span><span class="o">&amp;</span><span class="n">diagnostic</span><span class="p">,</span><span class="w"> </span><span class="n">TLV_LOCATION_INPUT</span><span class="p">,</span><span class="w"> </span><span class="n">TLV_LOCATION_POINT</span><span class="p">,</span><span class="w"> </span><span class="n">offset</span><span class="p">,</span><span class="w"> </span><span class="n">offset</span><span class="p">);</span>
 <a id="__codelineno-7-4" name="__codelineno-7-4" href="#__codelineno-7-4"></a><span class="n">tlv_diagnostic_set_path</span><span class="p">(</span><span class="o">&amp;</span><span class="n">diagnostic</span><span class="p">,</span><span class="w"> </span><span class="o">&amp;</span><span class="n">path</span><span class="p">);</span>
 <a id="__codelineno-7-5" name="__codelineno-7-5" href="#__codelineno-7-5"></a>
 <a id="__codelineno-7-6" name="__codelineno-7-6" href="#__codelineno-7-6"></a><span class="kt">char</span><span class="w"> </span><span class="n">text</span><span class="p">[</span><span class="mi">128</span><span class="p">];</span>
-<a id="__codelineno-7-7" name="__codelineno-7-7" href="#__codelineno-7-7"></a><span class="n">tlv_diagnostic_path_string</span><span class="p">(</span><span class="n">diagnostic</span><span class="p">.</span><span class="n">path</span><span class="p">,</span><span class="w"> </span><span class="n">text</span><span class="p">,</span><span class="w"> </span><span class="k">sizeof</span><span class="p">(</span><span class="n">text</span><span class="p">),</span><span class="w"> </span><span class="nb">NULL</span><span class="p">);</span>
+<a id="__codelineno-7-7" name="__codelineno-7-7" href="#__codelineno-7-7"></a><span class="n">tlv_diagnostic_path_string</span><span class="p">(</span><span class="o">&amp;</span><span class="n">diagnostic</span><span class="p">.</span><span class="n">path</span><span class="p">,</span><span class="w"> </span><span class="n">text</span><span class="p">,</span><span class="w"> </span><span class="k">sizeof</span><span class="p">(</span><span class="n">text</span><span class="p">),</span><span class="w"> </span><span class="nb">NULL</span><span class="p">);</span>
 <a id="__codelineno-7-8" name="__codelineno-7-8" href="#__codelineno-7-8"></a><span class="cm">/* text == "6F &gt; A5 &gt; BF0C &gt; 61" for the element enclosing the failing 4F */</span>
 </code></pre></div>
 <p>Every path producer retains the outermost <code>TLV_DIAGNOSTIC_PATH_MAX</code> tags (32).
@@ -3944,12 +3990,10 @@ same root-prefix policy. Their affected tag remains separate from the enclosing
 path. Diagnostic capacity does not reduce Schema's structural depth limit.
 Adding <code>omitted</code> changes the public path and embedding Schema diagnostic ABI;
 rebuild native clients and bindings against the updated headers/library.</p>
-<p>Nothing is copied or allocated: a pushed tag
-borrows the input like any tag a reader produces, and <code>path</code> itself must stay
-valid, and unchanged, for as long as the diagnostic is used. Tracking a path
-is entirely opt-in: a diagnostic that is never given one, and code that never
-builds a <code>tlv_diagnostic_path_t</code>, pay nothing beyond the one <code>NULL</code> pointer in
-<code>tlv_diagnostic_t::path</code>.</p>
+<p>Attaching a path copies its bounded value. The original path object can be
+changed or destroyed after attachment, while the Tag bytes must remain alive.
+Path collection is opt-in, but inline path capacity contributes to every common
+diagnostic's size. No diagnostic allocates memory.</p>
 <h2 id="scope">Scope<a class="headerlink" href="#scope" title="Permanent link">&para;</a></h2>
 <p>The core <code>tlv_diagnostic_t</code> type is independent of any wire format, schema or
 protocol, so it carries no BER-, EMV- or CLI-specific fields; those layers
@@ -3965,8 +4009,8 @@ handling</a>). Rust returns a <code>Result&lt;T, Error&gt;</code> with
 one <code>Error</code> variant per code, plus separate <code>SchemaError</code>, <code>ValidationError</code> and
 <code>CodecError</code> types for layers that add context, rather than a single chained
 diagnostic (see <a href="../rust/#error-handling">Using OpenTLV from Rust: Error
-handling</a>). Neither binds hierarchical paths or
-context chaining yet.</p>
+handling</a>). Schema reports own copied paths in both bindings; Rust Reader detail also copies
+tracked common paths. Location domain, kind and bounds are available directly.</p>
 <p>Reader diagnostics preserve <code>declared_length</code> as a 64-bit <code>tlv_size_t</code>, even
 when the value does not fit the supplied buffer or native address space.
 When <code>has_raw_length</code> is set, <code>raw_length</code> borrows the original length-field

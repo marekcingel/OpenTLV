@@ -84,6 +84,7 @@ $(function() {
 <a href="#details">More...</a></p>
 <div class="textblock"><code>#include &quot;<a class="el" href="types_8hpp.html">tlv++/types.hpp</a>&quot;</code><br />
 <code>#include &quot;<a class="el" href="schema_2definition_8hpp.html">tlv++/schema/definition.hpp</a>&quot;</code><br />
+<code>#include &quot;<a class="el" href="reader_8hpp.html">tlv++/reader/reader.hpp</a>&quot;</code><br />
 <code>#include &quot;<a class="elRef" href="../../c-api/html/ad__types_8h.html">tlv/builtins/bluetooth/ad_types.h</a>&quot;</code><br />
 <code>#include &quot;<a class="elRef" href="../../c-api/html/company__ids_8h.html">tlv/builtins/bluetooth/company_ids.h</a>&quot;</code><br />
 <code>#include &quot;<a class="elRef" href="../../c-api/html/ad__data_8h.html">tlv/builtins/bluetooth/ad_data.h</a>&quot;</code><br />
@@ -109,9 +110,9 @@ Functions</h2></td></tr>
 <tr class="memitem:a0d5a60552171432911229ce46c9a6789" id="r_a0d5a60552171432911229ce46c9a6789"><td class="memItemLeft" align="right" valign="top"><a class="el" href="classtlv_1_1schema.html">tlv::schema</a>&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="namespacetlv_1_1bluetooth.html#a0d5a60552171432911229ce46c9a6789">tlv::bluetooth::structural_schema</a> () noexcept</td></tr>
 <tr class="memdesc:a0d5a60552171432911229ce46c9a6789"><td class="mdescLeft">&#160;</td><td class="mdescRight">Program-lifetime Advertising Data structural Schema.  <br /></td></tr>
 <tr class="separator:a0d5a60552171432911229ce46c9a6789"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:a61ca302aba24afa7baa86e9c2b10e0c8" id="r_a61ca302aba24afa7baa86e9c2b10e0c8"><td class="memItemLeft" align="right" valign="top"><a class="el" href="classtlv_1_1expected.html">expected</a>&lt; size_t, <a class="el" href="structtlv_1_1error.html">error</a> &gt;&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="namespacetlv_1_1bluetooth.html#a61ca302aba24afa7baa86e9c2b10e0c8">tlv::bluetooth::validate_container</a> (<a class="el" href="namespacetlv.html#a2abe7003a70af047ef9acae17f31f75d">bytes</a> input)</td></tr>
-<tr class="memdesc:a61ca302aba24afa7baa86e9c2b10e0c8"><td class="mdescLeft">&#160;</td><td class="mdescRight">Validate AD framing and padding, returning the significant input byte count.  <br /></td></tr>
-<tr class="separator:a61ca302aba24afa7baa86e9c2b10e0c8"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:aa1f42e4522c30517f38624185dde57ec" id="r_aa1f42e4522c30517f38624185dde57ec"><td class="memItemLeft" align="right" valign="top"><a class="el" href="classtlv_1_1expected.html">expected</a>&lt; size_t, <a class="el" href="structtlv_1_1error.html">error</a> &gt;&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="namespacetlv_1_1bluetooth.html#aa1f42e4522c30517f38624185dde57ec">tlv::bluetooth::validate_container</a> (<a class="el" href="namespacetlv.html#a2abe7003a70af047ef9acae17f31f75d">bytes</a> <a class="el" href="namespacetlv.html#a55a9e58b26605c8d07848f7a2721b1d7aa43c1b0aa53a0c908810c06ab1ff3967">input</a>, <a class="el" href="namespacetlv.html#aec6151f23d86b874b79d9d2ae021e568">reader_diagnostic</a> *<a class="el" href="namespacetlv.html#a00ca9c69c35ef11f6a22b7eda1b115ba">diagnostic</a>=nullptr)</td></tr>
+<tr class="memdesc:aa1f42e4522c30517f38624185dde57ec"><td class="mdescLeft">&#160;</td><td class="mdescRight">Validate AD framing and padding, returning the significant input byte count.  <br /></td></tr>
+<tr class="separator:aa1f42e4522c30517f38624185dde57ec"><td class="memSeparator" colspan="2">&#160;</td></tr>
 </table>
 <a name="details" id="details"></a><h2 class="groupheader">Detailed Description</h2>
 <div class="textblock"><p>Bluetooth Advertising Data metadata and container validation. </p>

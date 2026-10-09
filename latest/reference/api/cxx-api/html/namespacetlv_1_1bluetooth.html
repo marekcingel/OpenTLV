@@ -207,9 +207,9 @@ Functions</h2></td></tr>
 <tr class="memitem:a0d5a60552171432911229ce46c9a6789" id="r_a0d5a60552171432911229ce46c9a6789"><td class="memItemLeft" align="right" valign="top"><a class="el" href="classtlv_1_1schema.html">tlv::schema</a>&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="namespacetlv_1_1bluetooth.html#a0d5a60552171432911229ce46c9a6789">structural_schema</a> () noexcept</td></tr>
 <tr class="memdesc:a0d5a60552171432911229ce46c9a6789"><td class="mdescLeft">&#160;</td><td class="mdescRight">Program-lifetime Advertising Data structural Schema.  <br /></td></tr>
 <tr class="separator:a0d5a60552171432911229ce46c9a6789"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:a61ca302aba24afa7baa86e9c2b10e0c8" id="r_a61ca302aba24afa7baa86e9c2b10e0c8"><td class="memItemLeft" align="right" valign="top"><a class="el" href="classtlv_1_1expected.html">expected</a>&lt; size_t, <a class="el" href="structtlv_1_1error.html">error</a> &gt;&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="namespacetlv_1_1bluetooth.html#a61ca302aba24afa7baa86e9c2b10e0c8">validate_container</a> (<a class="el" href="namespacetlv.html#a2abe7003a70af047ef9acae17f31f75d">bytes</a> input)</td></tr>
-<tr class="memdesc:a61ca302aba24afa7baa86e9c2b10e0c8"><td class="mdescLeft">&#160;</td><td class="mdescRight">Validate AD framing and padding, returning the significant input byte count.  <br /></td></tr>
-<tr class="separator:a61ca302aba24afa7baa86e9c2b10e0c8"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:aa1f42e4522c30517f38624185dde57ec" id="r_aa1f42e4522c30517f38624185dde57ec"><td class="memItemLeft" align="right" valign="top"><a class="el" href="classtlv_1_1expected.html">expected</a>&lt; size_t, <a class="el" href="structtlv_1_1error.html">error</a> &gt;&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="namespacetlv_1_1bluetooth.html#aa1f42e4522c30517f38624185dde57ec">validate_container</a> (<a class="el" href="namespacetlv.html#a2abe7003a70af047ef9acae17f31f75d">bytes</a> <a class="el" href="namespacetlv.html#a55a9e58b26605c8d07848f7a2721b1d7aa43c1b0aa53a0c908810c06ab1ff3967">input</a>, <a class="el" href="namespacetlv.html#aec6151f23d86b874b79d9d2ae021e568">reader_diagnostic</a> *<a class="el" href="namespacetlv.html#a00ca9c69c35ef11f6a22b7eda1b115ba">diagnostic</a>=nullptr)</td></tr>
+<tr class="memdesc:aa1f42e4522c30517f38624185dde57ec"><td class="mdescLeft">&#160;</td><td class="mdescRight">Validate AD framing and padding, returning the significant input byte count.  <br /></td></tr>
+<tr class="separator:aa1f42e4522c30517f38624185dde57ec"><td class="memSeparator" colspan="2">&#160;</td></tr>
 </table>
 <a name="details" id="details"></a><h2 class="groupheader">Detailed Description</h2>
 <div class="textblock"><p>Bluetooth Advertising Data Value semantics. </p>
@@ -793,8 +793,8 @@ template&lt;typename T &gt; </div>
 
 </div>
 </div>
-<a id="a61ca302aba24afa7baa86e9c2b10e0c8" name="a61ca302aba24afa7baa86e9c2b10e0c8"></a>
-<h2 class="memtitle"><span class="permalink"><a href="#a61ca302aba24afa7baa86e9c2b10e0c8">&#9670;&#160;</a></span>validate_container()</h2>
+<a id="aa1f42e4522c30517f38624185dde57ec" name="aa1f42e4522c30517f38624185dde57ec"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#aa1f42e4522c30517f38624185dde57ec">&#9670;&#160;</a></span>validate_container()</h2>
 
 <div class="memitem">
 <div class="memproto">
@@ -806,8 +806,18 @@ template&lt;typename T &gt; </div>
           <td class="memname"><a class="el" href="classtlv_1_1expected.html">expected</a>&lt; size_t, <a class="el" href="structtlv_1_1error.html">error</a> &gt; tlv::bluetooth::validate_container </td>
           <td>(</td>
           <td class="paramtype"><a class="el" href="namespacetlv.html#a2abe7003a70af047ef9acae17f31f75d">bytes</a>&#160;</td>
-          <td class="paramname"><em>input</em></td><td>)</td>
+          <td class="paramname"><em>input</em>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
           <td></td>
+          <td class="paramtype"><a class="el" href="namespacetlv.html#aec6151f23d86b874b79d9d2ae021e568">reader_diagnostic</a> *&#160;</td>
+          <td class="paramname"><em>diagnostic</em> = <code>nullptr</code>&#160;</td>
+        </tr>
+        <tr>
+          <td></td>
+          <td>)</td>
+          <td></td><td></td>
         </tr>
       </table>
   </td>
@@ -821,6 +831,7 @@ template&lt;typename T &gt; </div>
 <dl class="params"><dt>Parameters</dt><dd>
   <table class="params">
     <tr><td class="paramname">input</td><td>Immutable input, borrowed during the call only. </td></tr>
+    <tr><td class="paramname">diagnostic</td><td>Optional original Reader detail; identifier bytes borrow input. </td></tr>
   </table>
   </dd>
 </dl>

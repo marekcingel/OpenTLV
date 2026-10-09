@@ -93,9 +93,9 @@ Inheritance diagram for tlv::query_error:</div>
 <table class="memberdecls">
 <tr class="heading"><td colspan="2"><h2 class="groupheader"><a id="pub-methods" name="pub-methods"></a>
 Public Member Functions</h2></td></tr>
-<tr class="memitem:a27598821eb8fb7cfda6d0de7316d5bb0" id="r_a27598821eb8fb7cfda6d0de7316d5bb0"><td class="memItemLeft" align="right" valign="top">&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classtlv_1_1query__error.html#a27598821eb8fb7cfda6d0de7316d5bb0">query_error</a> (<a class="elRef" href="../../c-api/html/group__core.html#ga164d2817a32e5d7b7aa1472e887b47c3">tlv_result_t</a> <a class="el" href="classtlv_1_1query__error.html#a5aecf3d97da38a1ad34ed7776ad2b1d3">code</a>, size_t <a class="el" href="classtlv_1_1query__error.html#a50068f1f1bd471bc6685c7347337cd1d">offset</a>)</td></tr>
-<tr class="memdesc:a27598821eb8fb7cfda6d0de7316d5bb0"><td class="mdescLeft">&#160;</td><td class="mdescRight">Retain compilation error code and offending text position.  <br /></td></tr>
-<tr class="separator:a27598821eb8fb7cfda6d0de7316d5bb0"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a17cc6d3ec4f43feb1fd99d7826607386" id="r_a17cc6d3ec4f43feb1fd99d7826607386"><td class="memItemLeft" align="right" valign="top">&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classtlv_1_1query__error.html#a17cc6d3ec4f43feb1fd99d7826607386">query_error</a> (<a class="elRef" href="../../c-api/html/group__core.html#ga164d2817a32e5d7b7aa1472e887b47c3">tlv_result_t</a> <a class="el" href="classtlv_1_1query__error.html#a5aecf3d97da38a1ad34ed7776ad2b1d3">code</a>, <a class="elRef" href="../../c-api/html/group__diagnostics.html#ga2118f30a61e0b0b3ba5d20c73a740b2e">tlv_diagnostic_t</a> <a class="el" href="namespacetlv.html#a00ca9c69c35ef11f6a22b7eda1b115ba">diagnostic</a>)</td></tr>
+<tr class="memdesc:a17cc6d3ec4f43feb1fd99d7826607386"><td class="mdescLeft">&#160;</td><td class="mdescRight">Retain compilation error code and offending text position.  <br /></td></tr>
+<tr class="separator:a17cc6d3ec4f43feb1fd99d7826607386"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:a5aecf3d97da38a1ad34ed7776ad2b1d3" id="r_a5aecf3d97da38a1ad34ed7776ad2b1d3"><td class="memItemLeft" align="right" valign="top"><a class="elRef" href="../../c-api/html/group__core.html#ga164d2817a32e5d7b7aa1472e887b47c3">tlv_result_t</a>&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classtlv_1_1query__error.html#a5aecf3d97da38a1ad34ed7776ad2b1d3">code</a> () const noexcept</td></tr>
 <tr class="memdesc:a5aecf3d97da38a1ad34ed7776ad2b1d3"><td class="mdescLeft">&#160;</td><td class="mdescRight">Original C compilation result.  <br /></td></tr>
 <tr class="separator:a5aecf3d97da38a1ad34ed7776ad2b1d3"><td class="memSeparator" colspan="2">&#160;</td></tr>
@@ -108,12 +108,15 @@ Public Member Functions</h2></td></tr>
 <tr class="memitem:a50068f1f1bd471bc6685c7347337cd1d" id="r_a50068f1f1bd471bc6685c7347337cd1d"><td class="memItemLeft" align="right" valign="top">size_t&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classtlv_1_1query__error.html#a50068f1f1bd471bc6685c7347337cd1d">offset</a> () const noexcept</td></tr>
 <tr class="memdesc:a50068f1f1bd471bc6685c7347337cd1d"><td class="mdescLeft">&#160;</td><td class="mdescRight">Zero-based offending character or tag position.  <br /></td></tr>
 <tr class="separator:a50068f1f1bd471bc6685c7347337cd1d"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a83ec96ea0178f47dd25ecc2453d59abe" id="r_a83ec96ea0178f47dd25ecc2453d59abe"><td class="memItemLeft" align="right" valign="top"><a class="elRef" href="../../c-api/html/group__diagnostics.html#gae2e0e7ca068fc25af03d3fc94f347ca0">tlv_location_t</a>&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classtlv_1_1query__error.html#a83ec96ea0178f47dd25ecc2453d59abe">location</a> () const noexcept</td></tr>
+<tr class="memdesc:a83ec96ea0178f47dd25ecc2453d59abe"><td class="mdescLeft">&#160;</td><td class="mdescRight">Primary expression evidence, or unknown when no text position is available.  <br /></td></tr>
+<tr class="separator:a83ec96ea0178f47dd25ecc2453d59abe"><td class="memSeparator" colspan="2">&#160;</td></tr>
 </table>
 <a name="details" id="details"></a><h2 class="groupheader">Detailed Description</h2>
 <div class="textblock"><p>Query compilation failure with the original C error and text offset. </p>
 </div><h2 class="groupheader">Constructor &amp; Destructor Documentation</h2>
-<a id="a27598821eb8fb7cfda6d0de7316d5bb0" name="a27598821eb8fb7cfda6d0de7316d5bb0"></a>
-<h2 class="memtitle"><span class="permalink"><a href="#a27598821eb8fb7cfda6d0de7316d5bb0">&#9670;&#160;</a></span>query_error()</h2>
+<a id="a17cc6d3ec4f43feb1fd99d7826607386" name="a17cc6d3ec4f43feb1fd99d7826607386"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#a17cc6d3ec4f43feb1fd99d7826607386">&#9670;&#160;</a></span>query_error()</h2>
 
 <div class="memitem">
 <div class="memproto">
@@ -130,8 +133,8 @@ Public Member Functions</h2></td></tr>
         <tr>
           <td class="paramkey"></td>
           <td></td>
-          <td class="paramtype">size_t&#160;</td>
-          <td class="paramname"><em>offset</em>&#160;</td>
+          <td class="paramtype"><a class="elRef" href="../../c-api/html/group__diagnostics.html#ga2118f30a61e0b0b3ba5d20c73a740b2e">tlv_diagnostic_t</a>&#160;</td>
+          <td class="paramname"><em>diagnostic</em>&#160;</td>
         </tr>
         <tr>
           <td></td>
@@ -202,6 +205,33 @@ Public Member Functions</h2></td></tr>
 </div><div class="memdoc">
 
 <p>Copy the common structured failure without allocating. </p>
+
+</div>
+</div>
+<a id="a83ec96ea0178f47dd25ecc2453d59abe" name="a83ec96ea0178f47dd25ecc2453d59abe"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#a83ec96ea0178f47dd25ecc2453d59abe">&#9670;&#160;</a></span>location()</h2>
+
+<div class="memitem">
+<div class="memproto">
+<table class="mlabels">
+  <tr>
+  <td class="mlabels-left">
+      <table class="memname">
+        <tr>
+          <td class="memname"><a class="elRef" href="../../c-api/html/group__diagnostics.html#gae2e0e7ca068fc25af03d3fc94f347ca0">tlv_location_t</a> tlv::query_error::location </td>
+          <td>(</td>
+          <td class="paramname"></td><td>)</td>
+          <td> const</td>
+        </tr>
+      </table>
+  </td>
+  <td class="mlabels-right">
+<span class="mlabels"><span class="mlabel">inline</span><span class="mlabel">noexcept</span></span>  </td>
+  </tr>
+</table>
+</div><div class="memdoc">
+
+<p>Primary expression evidence, or unknown when no text position is available. </p>
 
 </div>
 </div>

@@ -101,9 +101,9 @@ Public Member Functions</h2></td></tr>
 <tr class="memitem:a6bddbb6bf449ee517b391b486f2be2a4" id="r_a6bddbb6bf449ee517b391b486f2be2a4"><td class="memItemLeft" align="right" valign="top"><a class="el" href="classtlv_1_1document__builder.html">document_builder</a> &amp;&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classtlv_1_1document__builder.html#a6bddbb6bf449ee517b391b486f2be2a4">operator=</a> (<a class="el" href="classtlv_1_1document__builder.html">document_builder</a> &amp;&amp;) noexcept=default</td></tr>
 <tr class="memdesc:a6bddbb6bf449ee517b391b486f2be2a4"><td class="mdescLeft">&#160;</td><td class="mdescRight">Discard unfinished work and take over another builder.  <br /></td></tr>
 <tr class="separator:a6bddbb6bf449ee517b391b486f2be2a4"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:aa83fbf09b405fc32bb61b3bcae5c783c" id="r_aa83fbf09b405fc32bb61b3bcae5c783c"><td class="memItemLeft" align="right" valign="top"><a class="el" href="classtlv_1_1expected.html">expected</a>&lt; <a class="el" href="classtlv_1_1document.html">document</a>, <a class="el" href="structtlv_1_1error.html">error</a> &gt;&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classtlv_1_1document__builder.html#aa83fbf09b405fc32bb61b3bcae5c783c">consume</a> (size_t *error_offset=nullptr, <a class="el" href="namespacetlv.html#aec6151f23d86b874b79d9d2ae021e568">reader_diagnostic</a> *<a class="el" href="namespacetlv.html#a00ca9c69c35ef11f6a22b7eda1b115ba">diagnostic</a>=nullptr)</td></tr>
-<tr class="memdesc:aa83fbf09b405fc32bb61b3bcae5c783c"><td class="mdescLeft">&#160;</td><td class="mdescRight">Consume available items and return the owning document when complete.  <br /></td></tr>
-<tr class="separator:aa83fbf09b405fc32bb61b3bcae5c783c"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a581512fc676ada38d8d209625dc7f9f2" id="r_a581512fc676ada38d8d209625dc7f9f2"><td class="memItemLeft" align="right" valign="top"><a class="el" href="classtlv_1_1expected.html">expected</a>&lt; <a class="el" href="classtlv_1_1document.html">document</a>, <a class="el" href="structtlv_1_1error.html">error</a> &gt;&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classtlv_1_1document__builder.html#a581512fc676ada38d8d209625dc7f9f2">consume</a> (<a class="el" href="namespacetlv.html#aec6151f23d86b874b79d9d2ae021e568">reader_diagnostic</a> *<a class="el" href="namespacetlv.html#a00ca9c69c35ef11f6a22b7eda1b115ba">diagnostic</a>=nullptr)</td></tr>
+<tr class="memdesc:a581512fc676ada38d8d209625dc7f9f2"><td class="mdescLeft">&#160;</td><td class="mdescRight">Consume available items and return the owning document when complete.  <br /></td></tr>
+<tr class="separator:a581512fc676ada38d8d209625dc7f9f2"><td class="memSeparator" colspan="2">&#160;</td></tr>
 </table><table class="memberdecls">
 <tr class="heading"><td colspan="2"><h2 class="groupheader"><a id="pub-static-methods" name="pub-static-methods"></a>
 Static Public Member Functions</h2></td></tr>
@@ -175,8 +175,8 @@ Static Public Member Functions</h2></td></tr>
 </div>
 </div>
 <h2 class="groupheader">Member Function Documentation</h2>
-<a id="aa83fbf09b405fc32bb61b3bcae5c783c" name="aa83fbf09b405fc32bb61b3bcae5c783c"></a>
-<h2 class="memtitle"><span class="permalink"><a href="#aa83fbf09b405fc32bb61b3bcae5c783c">&#9670;&#160;</a></span>consume()</h2>
+<a id="a581512fc676ada38d8d209625dc7f9f2" name="a581512fc676ada38d8d209625dc7f9f2"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#a581512fc676ada38d8d209625dc7f9f2">&#9670;&#160;</a></span>consume()</h2>
 
 <div class="memitem">
 <div class="memproto">
@@ -187,19 +187,9 @@ Static Public Member Functions</h2></td></tr>
         <tr>
           <td class="memname"><a class="el" href="classtlv_1_1expected.html">expected</a>&lt; <a class="el" href="classtlv_1_1document.html">document</a>, <a class="el" href="structtlv_1_1error.html">error</a> &gt; tlv::document_builder::consume </td>
           <td>(</td>
-          <td class="paramtype">size_t *&#160;</td>
-          <td class="paramname"><em>error_offset</em> = <code>nullptr</code>, </td>
-        </tr>
-        <tr>
-          <td class="paramkey"></td>
-          <td></td>
           <td class="paramtype"><a class="el" href="namespacetlv.html#aec6151f23d86b874b79d9d2ae021e568">reader_diagnostic</a> *&#160;</td>
-          <td class="paramname"><em>diagnostic</em> = <code>nullptr</code>&#160;</td>
-        </tr>
-        <tr>
+          <td class="paramname"><em>diagnostic</em> = <code>nullptr</code></td><td>)</td>
           <td></td>
-          <td>)</td>
-          <td></td><td></td>
         </tr>
       </table>
   </td>
@@ -212,7 +202,6 @@ Static Public Member Functions</h2></td></tr>
 <p>Consume available items and return the owning document when complete. </p>
 <dl class="params"><dt>Parameters</dt><dd>
   <table class="params">
-    <tr><td class="paramname">error_offset</td><td>Optional absolute source failure offset. </td></tr>
     <tr><td class="paramname">diagnostic</td><td>Optional borrowed Reader failure detail. </td></tr>
   </table>
   </dd>

@@ -4604,7 +4604,7 @@ optional implementations that work without the future <code>.otlv</code> interpr
 <p>The old names have no compatibility aliases. Reconfigure existing builds using
 <code>OPENTLV_EMV</code>; an old cache entry does not control the renamed option. Rust
 <code>default_limits()</code> now returns a <code>Result</code>; bounded validation operations reject
-formats other than DER/CER with <code>InvalidArg</code> at offset zero. Reader/Writer keep
+formats other than DER/CER with <code>InvalidArg</code> and unknown location. Reader/Writer keep
 using their selected Format directly. Standard guides now live in <code>standards/</code>.</p>
 <p>CLI <code>--module emv</code> selects the existing native EMV definitions, schemas and
 codecs for the relevant command; <code>--format</code> selects framing independently. WASM

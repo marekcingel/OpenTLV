@@ -104,19 +104,19 @@ Public Member Functions</h2></td></tr>
 <tr class="memitem:aad00eb35527e7f8c9fae7b4b7a0defb8" id="r_aad00eb35527e7f8c9fae7b4b7a0defb8"><td class="memItemLeft" align="right" valign="top"><a class="el" href="classtlv_1_1tag.html">tlv::tag</a>&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classtlv_1_1query.html#aad00eb35527e7f8c9fae7b4b7a0defb8">step</a> (size_t) const &amp;&amp;=delete</td></tr>
 <tr class="memdesc:aad00eb35527e7f8c9fae7b4b7a0defb8"><td class="mdescLeft">&#160;</td><td class="mdescRight">Reject identifier views into a temporary Query.  <br /></td></tr>
 <tr class="separator:aad00eb35527e7f8c9fae7b4b7a0defb8"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:a97537fb91c283e5cb9400fb0198c7d17" id="r_a97537fb91c283e5cb9400fb0198c7d17"><td class="memTemplParams" colspan="2">template&lt;typename Visitor &gt; </td></tr>
-<tr class="memitem:a97537fb91c283e5cb9400fb0198c7d17"><td class="memTemplItemLeft" align="right" valign="top"><a class="el" href="classtlv_1_1expected.html">expected</a>&lt; void, <a class="el" href="structtlv_1_1error.html">error</a> &gt;&#160;</td><td class="memTemplItemRight" valign="bottom"><a class="el" href="classtlv_1_1query.html#a97537fb91c283e5cb9400fb0198c7d17">visit_buffer</a> (<a class="el" href="namespacetlv.html#a2abe7003a70af047ef9acae17f31f75d">bytes</a> data, <a class="el" href="classtlv_1_1format.html">tlv::format</a> <a class="el" href="classtlv_1_1format.html">format</a>, size_t max_depth, size_t max_elements, Visitor &amp;&amp;<a class="el" href="namespacetlv.html#ab9d10b8185e9a80cd73b5a0ef633a22ca127870930d65c57ee65fcc47f2170d38">visitor</a>, size_t *error_offset=nullptr) const</td></tr>
-<tr class="memdesc:a97537fb91c283e5cb9400fb0198c7d17"><td class="mdescLeft">&#160;</td><td class="mdescRight">Calls a visitor for every element the query addresses.  <br /></td></tr>
-<tr class="separator:a97537fb91c283e5cb9400fb0198c7d17"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:ab65bf95bf408feb98f60eab49ba1a798" id="r_ab65bf95bf408feb98f60eab49ba1a798"><td class="memTemplParams" colspan="2">template&lt;typename Visitor &gt; </td></tr>
+<tr class="memitem:ab65bf95bf408feb98f60eab49ba1a798"><td class="memTemplItemLeft" align="right" valign="top"><a class="el" href="classtlv_1_1expected.html">expected</a>&lt; void, <a class="el" href="structtlv_1_1error.html">error</a> &gt;&#160;</td><td class="memTemplItemRight" valign="bottom"><a class="el" href="classtlv_1_1query.html#ab65bf95bf408feb98f60eab49ba1a798">visit_buffer</a> (<a class="el" href="namespacetlv.html#a2abe7003a70af047ef9acae17f31f75d">bytes</a> data, <a class="el" href="classtlv_1_1format.html">tlv::format</a> <a class="el" href="classtlv_1_1format.html">format</a>, size_t max_depth, size_t max_elements, Visitor &amp;&amp;<a class="el" href="namespacetlv.html#ab9d10b8185e9a80cd73b5a0ef633a22ca127870930d65c57ee65fcc47f2170d38">visitor</a>, <a class="elRef" href="../../c-api/html/reader_2diagnostic_8h.html#a24371a524a13cd9d1cd22b3db640de85">tlv_reader_diagnostic_t</a> *<a class="el" href="namespacetlv.html#a00ca9c69c35ef11f6a22b7eda1b115ba">diagnostic</a>=nullptr) const</td></tr>
+<tr class="memdesc:ab65bf95bf408feb98f60eab49ba1a798"><td class="mdescLeft">&#160;</td><td class="mdescRight">Calls a visitor for every element the query addresses.  <br /></td></tr>
+<tr class="separator:ab65bf95bf408feb98f60eab49ba1a798"><td class="memSeparator" colspan="2">&#160;</td></tr>
 </table><table class="memberdecls">
 <tr class="heading"><td colspan="2"><h2 class="groupheader"><a id="pub-static-methods" name="pub-static-methods"></a>
 Static Public Member Functions</h2></td></tr>
 <tr class="memitem:a66873fd47c90ba778ea6426d6dc66ca5" id="r_a66873fd47c90ba778ea6426d6dc66ca5"><td class="memItemLeft" align="right" valign="top">static <a class="el" href="classtlv_1_1query.html">query</a>&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classtlv_1_1query.html#a66873fd47c90ba778ea6426d6dc66ca5">compile</a> (const char *text)</td></tr>
 <tr class="memdesc:a66873fd47c90ba778ea6426d6dc66ca5"><td class="mdescLeft">&#160;</td><td class="mdescRight">Compile a path, throwing <a class="el" href="classtlv_1_1query__error.html" title="Query compilation failure with the original C error and text offset.">query_error</a> on failure.  <br /></td></tr>
 <tr class="separator:a66873fd47c90ba778ea6426d6dc66ca5"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:a14847e1e517af00592812012d260df8f" id="r_a14847e1e517af00592812012d260df8f"><td class="memItemLeft" align="right" valign="top">static <a class="el" href="classtlv_1_1expected.html">expected</a>&lt; <a class="el" href="classtlv_1_1query.html">query</a>, <a class="el" href="structtlv_1_1error.html">error</a> &gt;&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classtlv_1_1query.html#a14847e1e517af00592812012d260df8f">parse</a> (const char *text, size_t *error_offset=nullptr)</td></tr>
-<tr class="memdesc:a14847e1e517af00592812012d260df8f"><td class="mdescLeft">&#160;</td><td class="mdescRight">Parses the text of a query.  <br /></td></tr>
-<tr class="separator:a14847e1e517af00592812012d260df8f"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:af72e30d0d38179197b87eb7198a29f9a" id="r_af72e30d0d38179197b87eb7198a29f9a"><td class="memItemLeft" align="right" valign="top">static <a class="el" href="classtlv_1_1expected.html">expected</a>&lt; <a class="el" href="classtlv_1_1query.html">query</a>, <a class="el" href="structtlv_1_1error.html">error</a> &gt;&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classtlv_1_1query.html#af72e30d0d38179197b87eb7198a29f9a">parse</a> (const char *text, <a class="elRef" href="../../c-api/html/group__diagnostics.html#ga2118f30a61e0b0b3ba5d20c73a740b2e">tlv_diagnostic_t</a> *<a class="el" href="namespacetlv.html#a00ca9c69c35ef11f6a22b7eda1b115ba">diagnostic</a>=nullptr)</td></tr>
+<tr class="memdesc:af72e30d0d38179197b87eb7198a29f9a"><td class="mdescLeft">&#160;</td><td class="mdescRight">Parses the text of a query.  <br /></td></tr>
+<tr class="separator:af72e30d0d38179197b87eb7198a29f9a"><td class="memSeparator" colspan="2">&#160;</td></tr>
 </table><table class="memberdecls">
 <tr class="heading"><td colspan="2"><h2 class="groupheader"><a id="friends" name="friends"></a>
 Friends</h2></td></tr>
@@ -196,8 +196,8 @@ Friends</h2></td></tr>
 
 </div>
 </div>
-<a id="a14847e1e517af00592812012d260df8f" name="a14847e1e517af00592812012d260df8f"></a>
-<h2 class="memtitle"><span class="permalink"><a href="#a14847e1e517af00592812012d260df8f">&#9670;&#160;</a></span>parse()</h2>
+<a id="af72e30d0d38179197b87eb7198a29f9a" name="af72e30d0d38179197b87eb7198a29f9a"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#af72e30d0d38179197b87eb7198a29f9a">&#9670;&#160;</a></span>parse()</h2>
 
 <div class="memitem">
 <div class="memproto">
@@ -214,8 +214,8 @@ Friends</h2></td></tr>
         <tr>
           <td class="paramkey"></td>
           <td></td>
-          <td class="paramtype">size_t *&#160;</td>
-          <td class="paramname"><em>error_offset</em> = <code>nullptr</code>&#160;</td>
+          <td class="paramtype"><a class="elRef" href="../../c-api/html/group__diagnostics.html#ga2118f30a61e0b0b3ba5d20c73a740b2e">tlv_diagnostic_t</a> *&#160;</td>
+          <td class="paramname"><em>diagnostic</em> = <code>nullptr</code>&#160;</td>
         </tr>
         <tr>
           <td></td>
@@ -231,15 +231,15 @@ Friends</h2></td></tr>
 </div><div class="memdoc">
 
 <p>Parses the text of a query. </p>
-<p>Wraps <a class="elRef" href="../../c-api/html/group__traversal.html#gac6cc1fdb84b230eec2b4bd26e5da8385">tlv_query_parse()</a>.</p>
+<p>Wraps <a class="elRef" href="../../c-api/html/group__traversal.html#ga2eb5624206246844e16d1a423460a2bd">tlv_query_parse()</a>.</p>
 <dl class="params"><dt>Parameters</dt><dd>
   <table class="params">
     <tr><td class="paramname">text</td><td>NUL-terminated query text. </td></tr>
-    <tr><td class="paramname">error_offset</td><td>Optional. On failure receives the index in <code>text</code> of the offending character; see <a class="elRef" href="../../c-api/html/group__traversal.html#gac6cc1fdb84b230eec2b4bd26e5da8385">tlv_query_parse()</a>.</td></tr>
+    <tr><td class="paramname">diagnostic</td><td>Optional. On failure receives the index in <code>text</code> of the offending character; see <a class="elRef" href="../../c-api/html/group__traversal.html#ga2eb5624206246844e16d1a423460a2bd">tlv_query_parse()</a>.</td></tr>
   </table>
   </dd>
 </dl>
-<dl class="section return"><dt>Returns</dt><dd>The query, or the error of <a class="elRef" href="../../c-api/html/group__traversal.html#gac6cc1fdb84b230eec2b4bd26e5da8385">tlv_query_parse()</a>. </dd></dl>
+<dl class="section return"><dt>Returns</dt><dd>The query, or the error of <a class="elRef" href="../../c-api/html/group__traversal.html#ga2eb5624206246844e16d1a423460a2bd">tlv_query_parse()</a>. </dd></dl>
 
 </div>
 </div>
@@ -363,8 +363,8 @@ Friends</h2></td></tr>
 
 </div>
 </div>
-<a id="a97537fb91c283e5cb9400fb0198c7d17" name="a97537fb91c283e5cb9400fb0198c7d17"></a>
-<h2 class="memtitle"><span class="permalink"><a href="#a97537fb91c283e5cb9400fb0198c7d17">&#9670;&#160;</a></span>visit_buffer()</h2>
+<a id="ab65bf95bf408feb98f60eab49ba1a798" name="ab65bf95bf408feb98f60eab49ba1a798"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#ab65bf95bf408feb98f60eab49ba1a798">&#9670;&#160;</a></span>visit_buffer()</h2>
 
 <div class="memitem">
 <div class="memproto">
@@ -407,8 +407,8 @@ template&lt;typename Visitor &gt; </div>
         <tr>
           <td class="paramkey"></td>
           <td></td>
-          <td class="paramtype">size_t *&#160;</td>
-          <td class="paramname"><em>error_offset</em> = <code>nullptr</code>&#160;</td>
+          <td class="paramtype"><a class="elRef" href="../../c-api/html/reader_2diagnostic_8h.html#a24371a524a13cd9d1cd22b3db640de85">tlv_reader_diagnostic_t</a> *&#160;</td>
+          <td class="paramname"><em>diagnostic</em> = <code>nullptr</code>&#160;</td>
         </tr>
         <tr>
           <td></td>
@@ -427,7 +427,7 @@ template&lt;typename Visitor &gt; </div>
 <p>Wraps tlv_query_visit_buffer(): elements are visited in document order and the rules for limits, offsets and errors are the same. Nothing is allocated and the entries passed to the visitor borrow <code>data</code>.</p>
 <dl class="tparams"><dt>Template Parameters</dt><dd>
   <table class="tparams">
-    <tr><td class="paramname">Visitor</td><td>Callable invoked as <code><a class="el" href="namespacetlv.html#ab9d10b8185e9a80cd73b5a0ef633a22ca127870930d65c57ee65fcc47f2170d38">visitor(element_view, depth, absolute_offset)</a></code> returning <a class="elRef" href="../../c-api/html/tree_8h.html#a5685cbc116854f9874253489cb769622">tlv_visit_result_t</a>, as for <a class="el" href="classtlv_1_1tree__reader.html#ab1551f6a071bad184c3d9b89f87e8dca" title="Visit remaining items using the canonical C Visitor engine.">tree_reader::visit()</a>.</td></tr>
+    <tr><td class="paramname">Visitor</td><td>Callable invoked as <code><a class="el" href="namespacetlv.html#ab9d10b8185e9a80cd73b5a0ef633a22ca127870930d65c57ee65fcc47f2170d38">visitor(element_view, depth, absolute_offset)</a></code> returning <a class="elRef" href="../../c-api/html/tree_8h.html#a5685cbc116854f9874253489cb769622">tlv_visit_result_t</a>, as for <a class="el" href="classtlv_1_1tree__reader.html#a857f9459dd0fa032d34fdc30b5e11975" title="Visit remaining items using the canonical C Visitor engine.">tree_reader::visit()</a>.</td></tr>
   </table>
   </dd>
 </dl>
@@ -438,7 +438,7 @@ template&lt;typename Visitor &gt; </div>
     <tr><td class="paramname">max_depth</td><td>Runtime depth limit; the convenience API owns TLV_QUERY_MAX_STEPS frames. </td></tr>
     <tr><td class="paramname">max_elements</td><td>Bound on all traversed elements. </td></tr>
     <tr><td class="paramname">visitor</td><td>Visitor callable; returning <a class="elRef" href="../../c-api/html/tree_8h.html#a32dd2f26caa5ae7507636430b13cc961adbda0be9ca29c754fea87575ba560d01">TLV_VISIT_STOP</a> succeeds immediately, <a class="elRef" href="../../c-api/html/tree_8h.html#a32dd2f26caa5ae7507636430b13cc961a1e6076c71ec8c7a08aa0c5e47cc1a74b">TLV_VISIT_ERROR</a> fails. </td></tr>
-    <tr><td class="paramname">error_offset</td><td>Optional. On failure receives the failing element's absolute offset; unchanged on success.</td></tr>
+    <tr><td class="paramname">diagnostic</td><td>Optional. On failure receives the failing element's absolute offset; unchanged on success.</td></tr>
   </table>
   </dd>
 </dl>
