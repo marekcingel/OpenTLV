@@ -41,6 +41,7 @@ set(SOURCES
     builtins/lldp/codec_test.cpp
     builtins/lldp/lldp_test.cpp
     codec/codec_test.cpp
+    codec/raw_result.c
     codec/ipv4_test.cpp
     codec/values_test.cpp
     codec/digits_test.cpp

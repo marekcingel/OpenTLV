@@ -31,7 +31,7 @@ record!(tlv_query_diagnostic_t {
     diagnostic: tlv_diagnostic_t,
     kind: c_int, has_reader: c_int, begin: usize, end: usize,
     expected: *const c_char, limit: *const c_char, configured: usize,
-    reader: tlv_reader_detail_t, codec: tlv_result_t,
+    reader: tlv_reader_detail_t, codec: i32,
     has_codec: c_int, codec_detail: tlv_codec_detail_t,
 });
 record!(tlv_query_result_t { kind: c_int, boolean: c_int, integer: i64, data: *const u8, size: usize });

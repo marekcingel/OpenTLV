@@ -107,8 +107,9 @@ typedef struct tlv_query_diagnostic {
      *
      * Preserves #TLV_OK when a successful codec result violates the declared type,
      * has nonzero size with NULL data, or contains invalid UTF-8. The operation then
-     * returns #TLV_ERR_CALLBACK; expected identifies the violated output contract. */
-    tlv_result_t codec;
+     * returns #TLV_ERR_CALLBACK; expected identifies the violated output contract.
+     * Stored as a raw integer so unknown provider results remain safe to read in C++. */
+    int32_t codec;
     int has_codec;                   /**< Nonzero when codec_detail carries conversion context. */
     tlv_codec_detail_t codec_detail; /**< Conversion and delegated cause; common data above. */
 } tlv_query_diagnostic_t;

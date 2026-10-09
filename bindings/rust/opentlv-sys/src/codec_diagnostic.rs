@@ -50,7 +50,7 @@ pub struct tlv_codec_detail_t {
     /// Native field.
     pub operation: c_int,
     /// Native field.
-    pub reported: tlv_result_t,
+    pub reported: i32,
     /// Native field.
     pub violation: c_int,
     /// Native field.

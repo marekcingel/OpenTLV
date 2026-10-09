@@ -58,7 +58,8 @@ typedef struct tlv_codec_schema_detail {
  */
 typedef struct tlv_codec_detail {
     tlv_codec_operation_t operation; /**< Conversion operation. */
-    tlv_result_t reported; /**< Provider result, including OK for a bad success payload. */
+    int32_t reported; /**< Raw provider result, including unknown integers and OK for a bad
+                          success payload. Kept outside the enum domain for safe FFI/C++ reads. */
     tlv_codec_violation_t violation; /**< Detected callback breach. */
     const char* representation;      /**< Optional borrowed static representation name. */
     tlv_codec_cause_t cause;         /**< Active delegated detail. */

@@ -12,9 +12,10 @@
 #include <string>
 #include <vector>
 
+#include "../../unknown_result.h"
+#include "../codec/raw_result.h"
+
 namespace {
-// Unassigned result within the C++ enum range (0..31), safe to read under UBSan.
-constexpr tlv_result_t unknown_result = static_cast<tlv_result_t>(21);
 
 struct Buffer {
     std::vector<uint8_t> bytes;
@@ -512,6 +513,7 @@ TEST(Unit_Tlv_QueryF2, ProviderTextResultDiagnostics) {
 }
 
 TEST(Unit_Tlv_QueryF2, ConversionPreservesSharedFailuresAndRelatedExpression) {
+    ASSERT_STREQ(tlv_strerror(unknown_result), "unknown error");
     for (const auto status :
          {TLV_ERR_LIMIT, TLV_ERR_SCHEMA, TLV_ERR_INVALID_SCHEMA, TLV_ERR_BUFFER_TOO_SHORT,
           TLV_NEED_MORE_DATA, TLV_ERR_END_OF_BUFFER, unknown_result}) {
@@ -542,6 +544,28 @@ TEST(Unit_Tlv_QueryF2, ConversionPreservesSharedFailuresAndRelatedExpression) {
         EXPECT_EQ(status, e.diagnostic.codec_detail.reported);
         EXPECT_EQ(17u, e.diagnostic.diagnostic.location.begin);
         EXPECT_EQ(42u, e.diagnostic.codec_detail.detail.reader.required);
+        EXPECT_LT(e.diagnostic.begin, e.diagnostic.end);
+    }
+}
+
+TEST(Unit_Tlv_QueryF2, ForeignCallbackResultsRemainReadableInCpp) {
+    for (const int32_t reported : {999, -1, INT32_MIN, INT32_MAX}) {
+        SCOPED_TRACE(reported);
+        Evaluation e;
+        for (auto& hook : e.hooks) {
+            if (hook.function != TLV_QUERY_NUM) continue;
+            hook.context = &reported;
+            hook.decode = tlv_test_raw_query;
+        }
+        ASSERT_EQ(TLV_OK, e.compile("num(//5A)"));
+        ASSERT_EQ(TLV_OK, e.init());
+        EXPECT_EQ(TLV_ERR_CALLBACK, e.run({0x5a, 1, 1}));
+        EXPECT_EQ(TLV_ERR_CALLBACK, e.diagnostic.diagnostic.code);
+        EXPECT_EQ(TLV_QUERY_ERROR_CALLBACK, e.diagnostic.kind);
+        ASSERT_TRUE(e.diagnostic.has_codec);
+        EXPECT_EQ(reported, e.diagnostic.codec);
+        EXPECT_EQ(reported, e.diagnostic.codec_detail.reported);
+        EXPECT_EQ(TLV_CODEC_VIOLATION_RESULT, e.diagnostic.codec_detail.violation);
         EXPECT_LT(e.diagnostic.begin, e.diagnostic.end);
     }
 }

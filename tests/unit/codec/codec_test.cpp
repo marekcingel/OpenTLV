@@ -8,9 +8,10 @@
 #include "tlv/reader/reader.h"
 #include "tlv/writer/writer.h"
 
+#include "../../unknown_result.h"
+#include "../codec/raw_result.h"
+
 namespace {
-// Unassigned result within the C++ enum range (0..31), safe to read under UBSan.
-constexpr tlv_result_t unknown_result = static_cast<tlv_result_t>(21);
 
 tlv_result_t decode_u16(const void* context, const uint8_t* data, size_t size, void* value,
                         size_t capacity, tlv_codec_diagnostic_t* diagnostic) {
@@ -132,6 +133,7 @@ TEST(Unit_Tlv_Codec, InvalidArgumentsAndUnsupportedDirections) {
 }
 
 TEST(Unit_Tlv_Codec, SharedResultsAndCallbackEvidenceAreLossless) {
+    ASSERT_STREQ(tlv_strerror(unknown_result), "unknown error");
     for (int code = TLV_OK; code <= TLV_ERR_CALLBACK; ++code) {
         const auto  reported = static_cast<tlv_result_t>(code);
         tlv_codec_t codec = {
@@ -179,4 +181,30 @@ TEST(Unit_Tlv_Codec, SharedResultsAndCallbackEvidenceAreLossless) {
     EXPECT_EQ(TLV_OK, diagnostic.codec.reported);
     EXPECT_EQ(TLV_CODEC_VIOLATION_SIZE, diagnostic.codec.violation);
     EXPECT_EQ(0u, written);
+}
+
+TEST(Unit_Tlv_Codec, ForeignCallbackResultsRemainReadableInCpp) {
+    for (const int32_t reported : {999, -1, INT32_MIN, INT32_MAX}) {
+        SCOPED_TRACE(reported);
+        const tlv_codec_t      codec = {&reported, tlv_test_raw_decode, tlv_test_raw_encode};
+        uint8_t                value = 0;
+        tlv_codec_diagnostic_t diagnostic{};
+        EXPECT_EQ(TLV_ERR_CALLBACK, tlv_codec_decode(&codec, nullptr, 0, &value, 1, &diagnostic));
+        EXPECT_EQ(TLV_ERR_CALLBACK, diagnostic.diagnostic.code);
+        EXPECT_EQ(reported, diagnostic.codec.reported);
+        EXPECT_EQ(TLV_CODEC_VIOLATION_RESULT, diagnostic.codec.violation);
+        EXPECT_EQ(TLV_ERR_CALLBACK, tlv_codec_decode(&codec, nullptr, 0, &value, 1, nullptr));
+        for (bool measure : {false, true}) {
+            size_t written = 99;
+            EXPECT_EQ(TLV_ERR_CALLBACK,
+                      tlv_codec_encode(&codec, &value, 1, measure ? nullptr : &value,
+                                       measure ? 0 : 1, &written, &diagnostic));
+            EXPECT_EQ(TLV_ERR_CALLBACK, diagnostic.diagnostic.code);
+            EXPECT_EQ(reported, diagnostic.codec.reported);
+            EXPECT_EQ(TLV_CODEC_VIOLATION_RESULT, diagnostic.codec.violation);
+            EXPECT_EQ(measure ? TLV_CODEC_OP_MEASURE : TLV_CODEC_OP_ENCODE,
+                      diagnostic.codec.operation);
+            EXPECT_EQ(0u, written);
+        }
+    }
 }

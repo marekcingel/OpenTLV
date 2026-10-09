@@ -140,7 +140,7 @@
         "tlv_query_result_t": 2,
         "tlv_query_variable_info_t": 1,
         "tlv_query_variable_t": 1,
-        "tlv_result_t": 2,
+        "tlv_result_t": 1,
         "tlv_tag": 1,
         "tlv_tree_event_t": 3
       }

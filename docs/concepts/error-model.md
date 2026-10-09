@@ -154,6 +154,11 @@ by #554. `ARGUMENT` remains to be added for cases currently forced into
 `IMAGE_VERSION` for a recognized version mismatch. `CODEC` denotes conversion
 context; a callback contract violation during conversion uses `CALLBACK` and
 records the codec operation and reported result, including a reported `OK`.
+The raw `codec.reported` and Query `codec` fields use `int32_t`, preserving
+unknown and negative foreign callback results without invalid C++ enum reads.
+Callback signatures still use `tlv_result_t`: C++ callbacks must return values
+representable by that enum, and callers must use the C dispatch entry points
+to normalize foreign callback results before interpreting the returned status.
 Ordinary invalid encoded values remain `CODEC` plus `INVALID_VALUE`.
 
 Schema input findings retain `MISSING`, `DUPLICATE`, `UNEXPECTED`, `KIND`,
