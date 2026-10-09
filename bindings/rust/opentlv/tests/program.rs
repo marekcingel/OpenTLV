@@ -268,13 +268,14 @@ fn stopped_incremental_retention_and_borrowed_binding() {
     let program = QueryProgram::compile("(//5A)[last()]", &ProgramOptions::default()).unwrap();
     let mut execution = program.execution(4, 20, 100000, true).unwrap();
     let mut reader = TreeReader::new(&WIRE[..8], Format::Ber, 4, 4, 20, false).unwrap();
-    assert_eq!(
-        execution
-            .visit(&mut reader, |_| Visit::Continue)
-            .unwrap_err()
-            .error,
-        Error::NeedMoreData
-    );
+    let pending = execution
+        .visit(&mut reader, |_| Visit::Continue)
+        .unwrap_err();
+    assert_eq!(pending.error, Error::NeedMoreData);
+    // Resumable input always has a Reader cause, so each chunk skips common metadata.
+    assert!(pending.reader.is_some());
+    assert!(pending.metadata.is_none());
+    assert_eq!(pending.severity(), opentlv::Severity::Info);
     reader.set_input(WIRE, 0, true).unwrap();
     assert_eq!(execution.next(&mut reader).unwrap().unwrap().offset, 8);
     assert!(execution.next(&mut reader).unwrap().is_none());

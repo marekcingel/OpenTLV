@@ -222,6 +222,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Added
 
+- Add a Rust regression test that resumable Query `NEED_MORE_DATA` keeps its Reader cause and does not allocate common diagnostic metadata per chunk. (#558)
 - Add canonical names for Query, Reader, Writer, Schema-definition and Codec diagnostic enums, available even with processing capabilities disabled. Clarify lookup failure channels and current error-reference behavior. (#557)
 - Define the target failure model, including shared result classes, typed diagnostics, explicit locations and propagation rules, with a migration inventory for the planned breaking API changes. (#551)
 - Add informational Callgrind instruction-count and native Release timing comparisons for Reader, Writer, Document and Query, with baseline/candidate reports and downloadable profiling evidence. (#560)
