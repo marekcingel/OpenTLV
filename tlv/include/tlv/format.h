@@ -79,6 +79,10 @@ typedef enum tlv_region {
  *
  * The core initializes callback storage. Public operation output guarantees are
  * documented on the individual entry points.
+ *
+ * @note Read this detail only after a failing result. Builtin callbacks write it
+ * only on failure, from state they already hold, so successful decoding does no
+ * diagnostic work. Custom callbacks may do the same.
  */
 typedef struct tlv_format_error {
     tlv_region_t region; /**< Region being interpreted. */

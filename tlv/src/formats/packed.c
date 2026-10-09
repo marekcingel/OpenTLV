@@ -44,59 +44,75 @@ tlv_result_t tlv_packed_layout_validate(const tlv_packed_layout_t* f) {
     return TLV_OK;
 }
 
+/* Failure detail is published only on failure, from ranges already computed. */
+static tlv_result_t packed_failure(tlv_format_error_t* error, tlv_result_t rc, tlv_region_t region,
+                                   size_t offset, tlv_size_t required, tlv_range_t tag,
+                                   tlv_range_t length, tlv_range_t value) {
+    error->region = region;
+    error->offset = offset;
+    error->has_offset = 1;
+    error->required = required;
+    error->has_required = 1;
+    error->tag = tag;
+    error->length = length;
+    error->value = value;
+    return rc;
+}
+
 tlv_result_t tlv_packed_decode(const void* context, const uint8_t* data, size_t size,
                                tlv_decoded_t* result, tlv_format_error_t* error) {
     const tlv_packed_layout_t* f = (const tlv_packed_layout_t*)context;
+    const tlv_range_t none = {0};
     tlv_decoded_t decoded = {0};
+    tlv_range_t tag, count_field;
     uint64_t type, count, canonical;
     size_t length;
     tlv_result_t rc;
     if ((!data && size) || !result || !error) return TLV_ERR_NULL_ARG;
     rc = tlv_packed_layout_validate(f);
     if (rc != TLV_OK) return rc;
-    error->region = TLV_REGION_HEADER;
-    error->has_offset = 1;
-    error->offset = 0;
-    error->has_required = 1;
-    error->required = f->header_size;
-    if (size < f->header_size) return TLV_ERR_BUFFER_TOO_SHORT;
-    error->tag = envelope(&f->tag);
-    error->length = envelope(&f->length);
+    if (size < f->header_size)
+        return packed_failure(error, TLV_ERR_BUFFER_TOO_SHORT, TLV_REGION_HEADER, 0, f->header_size,
+                              none, none, none);
+    tag = envelope(&f->tag);
+    count_field = envelope(&f->length);
     (void)tlv_packed_field_read(&f->tag, data, size, &type);
     (void)tlv_packed_field_read(&f->length, data, size, &count);
     if (f->length_scope == TLV_LENGTH_SCOPE_TAG_AND_VALUE) {
-        if (count < error->tag.size) {
-            error->region = TLV_REGION_LENGTH;
-            error->offset = error->length.offset;
-            return TLV_ERR_INVALID_LENGTH;
-        }
-        count -= error->tag.size;
+        if (count < tag.size)
+            return packed_failure(error, TLV_ERR_INVALID_LENGTH, TLV_REGION_LENGTH,
+                                  count_field.offset, f->header_size, tag, count_field, none);
+        count -= tag.size;
     }
-    error->region = TLV_REGION_VALUE;
-    error->offset = f->header_size;
-    error->required = count;
-    error->value = (tlv_range_t){
-        f->header_size, count <= size - f->header_size ? (size_t)count : size - f->header_size, 1};
-    if (count > size - f->header_size) return TLV_ERR_BUFFER_TOO_SHORT;
+    if (count > size - f->header_size)
+        return packed_failure(error, TLV_ERR_BUFFER_TOO_SHORT, TLV_REGION_VALUE, f->header_size,
+                              count, tag, count_field,
+                              (tlv_range_t){f->header_size, size - f->header_size, 1});
     length = (size_t)count;
     decoded.element.tag = tlv_tag(f->tag_storage + (size_t)type * f->tag_size, f->tag_size);
     (void)tlv_read_uint(decoded.element.tag.data, f->tag_size, TLV_BYTE_ORDER_BIG_ENDIAN,
                         &canonical);
-    if (canonical != type) {
-        error->region = TLV_REGION_TAG;
-        error->offset = error->tag.offset;
-        return TLV_ERR_INVALID_TAG;
-    }
+    if (canonical != type)
+        return packed_failure(error, TLV_ERR_INVALID_TAG, TLV_REGION_TAG, tag.offset, count, tag,
+                              count_field, (tlv_range_t){f->header_size, length, 1});
     decoded.element.value = (tlv_value_t){data + f->header_size, length};
     decoded.source.header = (tlv_range_t){0, f->header_size, 1};
-    decoded.source.tag = error->tag;
-    decoded.source.length = error->length;
+    decoded.source.tag = tag;
+    decoded.source.length = count_field;
     decoded.source.value = (tlv_range_t){f->header_size, length, 1};
     decoded.source.trailer = (tlv_range_t){f->header_size + length, 0, 1};
     decoded.source.size = f->header_size + length;
     decoded.source.tag_binding = TLV_TAG_BINDING_FORMAT;
     *result = decoded;
     return TLV_OK;
+}
+
+static tlv_result_t field_failure(tlv_format_error_t* error, tlv_result_t rc, tlv_region_t region,
+                                  const tlv_packed_field_t* field) {
+    error->region = region;
+    error->offset = envelope(field).offset;
+    error->has_offset = 1;
+    return rc;
 }
 
 tlv_result_t tlv_packed_measure(const void* context, const tlv_element_t* element,
@@ -107,20 +123,20 @@ tlv_result_t tlv_packed_measure(const void* context, const tlv_element_t* elemen
     if (!element || !result || !error) return TLV_ERR_NULL_ARG;
     rc = tlv_packed_layout_validate(f);
     if (rc != TLV_OK) return rc;
-    error->region = TLV_REGION_TAG;
-    error->has_offset = 1;
-    error->offset = envelope(&f->tag).offset;
-    if (!element->tag.data && element->tag.size) return TLV_ERR_NULL_ARG;
-    if (element->tag.size != f->tag_size) return TLV_ERR_INVALID_TAG_SIZE;
-    (void)tlv_read_uint(element->tag.data, f->tag_size, TLV_BYTE_ORDER_BIG_ENDIAN, &type);
-    if (type > mask(f->tag.bit_width)) return TLV_ERR_INVALID_TAG;
-    error->region = TLV_REGION_LENGTH;
-    error->offset = envelope(&f->length).offset;
+    if (!element->tag.data && element->tag.size)
+        rc = TLV_ERR_NULL_ARG;
+    else if (element->tag.size != f->tag_size)
+        rc = TLV_ERR_INVALID_TAG_SIZE;
+    else {
+        (void)tlv_read_uint(element->tag.data, f->tag_size, TLV_BYTE_ORDER_BIG_ENDIAN, &type);
+        if (type > mask(f->tag.bit_width)) rc = TLV_ERR_INVALID_TAG;
+    }
+    if (rc != TLV_OK) return field_failure(error, rc, TLV_REGION_TAG, &f->tag);
     overhead = f->length_scope == TLV_LENGTH_SCOPE_TAG_AND_VALUE ? envelope(&f->tag).size : 0;
     maximum = mask(f->length.bit_width);
     if (overhead > maximum || element->value.size > maximum - overhead ||
         element->value.size > UINT64_MAX - f->header_size)
-        return TLV_ERR_INVALID_LENGTH;
+        return field_failure(error, TLV_ERR_INVALID_LENGTH, TLV_REGION_LENGTH, &f->length);
     *result = (tlv_encoding_t){f->header_size, element->value.size, 0,
                                f->header_size + element->value.size};
     return TLV_OK;
@@ -135,8 +151,11 @@ tlv_result_t tlv_packed_encode(const void* context, const tlv_element_t* element
     if (!data || !written) return TLV_ERR_NULL_ARG;
     rc = tlv_packed_measure(context, element, &sizes, error);
     if (rc != TLV_OK) return rc;
-    if (element->value.size && !element->value.data) return TLV_ERR_NULL_ARG;
-    if (sizes.total > capacity) return TLV_ERR_BUFFER_TOO_SHORT;
+    if (element->value.size && !element->value.data)
+        rc = TLV_ERR_NULL_ARG;
+    else if (sizes.total > capacity)
+        rc = TLV_ERR_BUFFER_TOO_SHORT;
+    if (rc != TLV_OK) return field_failure(error, rc, TLV_REGION_LENGTH, &f->length);
     (void)tlv_read_uint(element->tag.data, f->tag_size, TLV_BYTE_ORDER_BIG_ENDIAN, &type);
     count = element->value.size;
     if (f->length_scope == TLV_LENGTH_SCOPE_TAG_AND_VALUE) count += envelope(&f->tag).size;

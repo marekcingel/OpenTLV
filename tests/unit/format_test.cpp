@@ -3,9 +3,21 @@
 
 #include "../diagnostic_assertions.h"
 #include "../../tlv/src/callback_internal.h"
+#include "tlv/config.h"
 #include "tlv/formats/compose.h"
+#include "tlv/formats/fixed.h"
+#include "tlv/formats/variable.h"
 #include "tlv/reader/reader.h"
 #include "tlv/writer/writer.h"
+#if OPENTLV_FORMAT_BER
+#include "tlv/builtins/asn1/ber.h"
+#endif
+#if OPENTLV_LLDP
+#include "tlv/builtins/lldp/lldp.h"
+#endif
+#if OPENTLV_NFC
+#include "tlv/builtins/nfc/type2.h"
+#endif
 #include <gtest/gtest.h>
 #include <cstring>
 #include <limits>
@@ -645,5 +657,74 @@ TEST(Unit_Tlv_Format, RuntimeDefinedTagWidthsRoundTripWithoutRebuilding) {
         EXPECT_EQ(TLV_ERR_INVALID_TAG_SIZE,
                   tlv_write(wire.data(), wire.size(), &writer_format,
                             tlv_tag(other.data(), other.size()), value, sizeof(value), &written));
+    }
+}
+
+TEST(Unit_Tlv_Format, SuccessfulBuiltinCallbacksDoNotWriteFailureDetail) {
+    // Failure detail is materialized on failure only; success leaves the storage untouched.
+    const tlv_fixed_format_t fixed_tlv = {
+        {1}, {1, TLV_BYTE_ORDER_BIG_ENDIAN}, TLV_ELEMENT_ORDER_TLV, TLV_LENGTH_SCOPE_VALUE};
+    const tlv_fixed_format_t fixed_ltv = {
+        {1}, {1, TLV_BYTE_ORDER_BIG_ENDIAN}, TLV_ELEMENT_ORDER_LTV, TLV_LENGTH_SCOPE_TAG_AND_VALUE};
+    const tlv_variable_format_t variable = {{0x1F, 0x1F, 0x80, 0x7F, 8, nullptr},
+                                            {0x80, 0x7F, TLV_BYTE_ORDER_BIG_ENDIAN, nullptr},
+                                            TLV_ELEMENT_ORDER_TLV,
+                                            TLV_LENGTH_SCOPE_VALUE,
+                                            nullptr};
+    const uint8_t               empty_tag = 0x00;
+    const tlv_tag_t             tag_only[] = {tlv_tag(&empty_tag, 1)};
+    const tlv_tagged_binary_composition_t tagged = {fixed_tlv, tag_only, 1};
+    tlv_format_t fixed_tlv_format{}, fixed_ltv_format{}, variable_format{}, tagged_format{};
+    ASSERT_EQ(TLV_OK, tlv_fixed_format_init(&fixed_tlv_format, &fixed_tlv));
+    ASSERT_EQ(TLV_OK, tlv_fixed_format_init(&fixed_ltv_format, &fixed_ltv));
+    ASSERT_EQ(TLV_OK, tlv_variable_format_init(&variable_format, &variable));
+    ASSERT_EQ(TLV_OK, tlv_tagged_binary_format_init(&tagged_format, &tagged));
+    struct Case {
+        const char*          name;
+        const tlv_format_t*  format;
+        std::vector<uint8_t> wire;
+    };
+    std::vector<Case> cases = {
+        {"fixed TLV", &fixed_tlv_format, {0x5A, 0x02, 0x01, 0x02}},
+        {"fixed LTV", &fixed_ltv_format, {0x03, 0x16, 0x01, 0x02}},
+        {"variable", &variable_format, {0x5A, 0x02, 0x01, 0x02}},
+        {"tagged", &tagged_format, {0x5A, 0x02, 0x01, 0x02}},
+        {"tagged tag-only", &tagged_format, {0x00}},
+#if OPENTLV_FORMAT_BER
+        {"BER definite", &tlv_format_ber, {0x9F, 0x02, 0x01, 0x07}},
+        {"BER indefinite", &tlv_format_ber, {0x30, 0x80, 0x04, 0x01, 0xAA, 0x00, 0x00}},
+        {"BER indefinite writer",
+         &tlv_format_ber_indefinite,
+         {0x30, 0x80, 0x04, 0x01, 0xAA, 0x00, 0x00}},
+#endif
+#if OPENTLV_LLDP
+        {"LLDP packed", &tlv_format_lldp, {0x02, 0x03, 0x04, 0x05, 0x06}},
+#endif
+#if OPENTLV_NFC
+        {"NFC escaped", &tlv_format_nfc_type2, {0x03, 0x02, 0xD1, 0x01}},
+        {"NFC terminator", &tlv_format_nfc_type2, {0xFE}},
+#endif
+    };
+    tlv_format_error_t sentinel;
+    std::memset(&sentinel, 0x5A, sizeof sentinel);
+    for (const auto& c : cases) {
+        SCOPED_TRACE(c.name);
+        const tlv_format_t* f = c.format;
+        tlv_format_error_t  error;
+        tlv_decoded_t       decoded{};
+        std::memcpy(&error, &sentinel, sizeof error);
+        ASSERT_EQ(TLV_OK, f->decode(f->context, c.wire.data(), c.wire.size(), &decoded, &error));
+        EXPECT_EQ(c.wire.size(), decoded.source.size);
+        EXPECT_EQ(0, std::memcmp(&sentinel, &error, sizeof error));
+        if (!tlv_format_can_write(f)) continue;
+        tlv_encoding_t encoding{};
+        ASSERT_EQ(TLV_OK, f->measure(f->context, &decoded.element, &encoding, &error));
+        EXPECT_EQ(0, std::memcmp(&sentinel, &error, sizeof error));
+        std::vector<uint8_t> output(static_cast<size_t>(encoding.total));
+        size_t               written = 0;
+        ASSERT_EQ(TLV_OK, f->encode(f->context, &decoded.element, output.data(), output.size(),
+                                    &written, &error));
+        EXPECT_EQ(output.size(), written);
+        EXPECT_EQ(0, std::memcmp(&sentinel, &error, sizeof error));
     }
 }

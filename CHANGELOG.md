@@ -120,6 +120,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Changed
 
+- Builtin Format callbacks write `tlv_format_error_t` only on failure, which makes successful decoding cheaper. Failure detail is unchanged; read it only after a failing result. (#561)
 - Generate the Rust, Go and Python diagnostic vocabularies from the C enums and check them in CI. Rust categories are `#[non_exhaustive]` with `Unrecognized(RawCategory)`; Python unknown categories are cached and label out-of-range values as `unknown`. (#557)
 - C++ `document::find()` throws `query_error` for an empty or invalid query instead of returning an empty node. (#557)
 - Rust `ProgramError` keeps `location` inline, stores common evidence only without a Reader cause (read via `severity()`, `contexts()`, `path()`), and groups limits as `QueryLimit`; `SchemaDiagnostic.path` is now an `Option`. (#558)
