@@ -460,18 +460,20 @@ static const tlv_schema_entry_t identifier = {{tag_id, sizeof(tag_id)}, 8, 8, 0,
 `tlv_schema_validate` stops at the first violation. To collect all violations,
 call `tlv_schema_validate_all_diag` with the same `tlv_structure_schema_t`.
 The rules, including occurrence, ordering, groups, form and length constraints,
-are shared with fail-fast validation.
+are shared with fail-fast validation. For a single violation, the fail-fast
+diagnostic and the first report entry carry the same tag, path, field name and
+expected-versus-actual detail.
 
 ```c
 tlv_schema_diagnostic_t diagnostics[16];
 tlv_schema_diagnostic_report_t report = {diagnostics, 16, 0};
 tlv_result_t rc = tlv_schema_validate_all_diag(data, size, &tlv_format_ber,
-    &template_schema, 16, 1000, TLV_SCHEMA_UNKNOWN_BY_SCHEMA, &report, &offset);
+    &template_schema, 16, 1000, TLV_SCHEMA_UNKNOWN_BY_SCHEMA, &report, NULL);
 if (rc == TLV_ERR_SCHEMA) {
     for (size_t i = 0; i < report.count && i < report.capacity; ++i) {
         const tlv_schema_diagnostic_t* d = &diagnostics[i];
         char path[256];
-        if (tlv_diagnostic_path_string(&d->path, path, sizeof(path), NULL) == TLV_OK)
+        if (tlv_diagnostic_path_string(&d->diagnostic.path, path, sizeof(path), NULL) == TLV_OK)
             printf("%s in %s", tlv_schema_issue_kind_string(d->kind), path);
         if (d->diagnostic.location.kind != TLV_LOCATION_UNKNOWN) printf(" (offset %zu)", d->diagnostic.location.begin);
         printf("\n");

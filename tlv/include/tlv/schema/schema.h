@@ -435,6 +435,8 @@ TLV_API tlv_result_t tlv_schema_check(const tlv_structure_schema_t* schema,
  * TLV_SCHEMA_MAX_DEPTH.
  * @param[in]  max_elements  Maximum total elements, as for tlv_tree_reader_visit().
  * @param[out] diagnostic Optional first failure, including kind and location anchor.
+ * A schema violation carries the same tag, enclosing path, field name and
+ * expected-versus-actual detail as the matching tlv_schema_validate_all_diag() entry.
  * Definition and argument failures have no byte location.
  *
  * @return #TLV_OK if the data conforms to the schema.

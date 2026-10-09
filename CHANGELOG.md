@@ -120,6 +120,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Changed
 
+- `tlv_schema_validate()` diagnostics carry the same tag, path, field name and expected-versus-actual detail as the first `tlv_schema_validate_all_diag()` entry. (#574)
 - Builtin Format callbacks write `tlv_format_error_t` only on failure, which makes successful decoding cheaper. Failure detail is unchanged; read it only after a failing result. (#561)
 - Generate the Rust, Go and Python diagnostic vocabularies from the C enums and check them in CI. Rust categories are `#[non_exhaustive]` with `Unrecognized(RawCategory)`; Python unknown categories are cached and label out-of-range values as `unknown`. (#557)
 - C++ `document::find()` throws `query_error` for an empty or invalid query instead of returning an empty node. (#557)
