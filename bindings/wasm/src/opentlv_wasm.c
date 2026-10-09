@@ -948,7 +948,10 @@ const char* opentlv_wasm_v1_operation(opentlv_wasm_v1_t* q, int operation, const
                                       size_t size, size_t depth) {
     tlv_query_diagnostic_t diagnostic = {0};
     if (q->code != TLV_OK) {
-        diagnostic.kind = TLV_QUERY_ERROR_SYNTAX;
+        /* Name only the V1 parse failures that a Query kind describes. */
+        diagnostic.kind = q->code == TLV_ERR_INVALID_ARG ? TLV_QUERY_ERROR_SYNTAX
+                          : q->code == TLV_ERR_LIMIT     ? TLV_QUERY_ERROR_LIMIT
+                                                         : TLV_QUERY_ERROR_NONE;
         diagnostic.diagnostic = q->diagnostic;
         diagnostic.begin = q->diagnostic.location.begin;
         diagnostic.end = q->diagnostic.location.end;
