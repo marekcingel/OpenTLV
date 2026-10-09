@@ -54,9 +54,9 @@ typedef struct tlv_bluetooth_manufacturer_data {
  * Every uint16_t identifier is accepted, including identifiers absent from a
  * registry. Empty payloads are valid; no AD framing size limit applies.
  * A short identifier, incorrect encode object size, non-native payload size
- * or total size overflow returns #TLV_CODEC_ERR_INVALID_VALUE. Missing required
- * pointers or nonempty NULL payload return #TLV_CODEC_ERR_NULL_ARG.
- * Insufficient output capacity returns #TLV_CODEC_ERR_BUFFER_TOO_SHORT.
+ * or total size overflow returns #TLV_ERR_INVALID_VALUE. Missing required
+ * pointers or nonempty NULL payload return #TLV_ERR_NULL_ARG.
+ * Insufficient output capacity returns #TLV_ERR_BUFFER_TOO_SHORT.
  * Neither direction allocates or performs Company Identifier lookup.
  */
 extern TLV_API const tlv_codec_t tlv_bluetooth_codec_manufacturer_data;

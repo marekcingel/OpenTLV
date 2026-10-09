@@ -53,14 +53,17 @@ typedef struct tlv_number_codec_config {
  * @param[in] size Value byte count, matching the selected representation.
  * @param[out] value Required uint64_t destination, not overlapping input/configuration.
  * @param[in] capacity Destination capacity in bytes, at least sizeof(uint64_t).
- * @return #TLV_CODEC_OK on success.
- * @return #TLV_CODEC_ERR_NULL_ARG for missing required pointers.
- * @return #TLV_CODEC_ERR_INVALID_VALUE for invalid configuration, length or digits.
- * @return #TLV_CODEC_ERR_BUFFER_TOO_SHORT for insufficient destination capacity.
+ * @return #TLV_OK on success.
+ * @return #TLV_ERR_NULL_ARG for missing required pointers.
+ * @return #TLV_ERR_INVALID_ARG for invalid configuration.
+ * @return #TLV_ERR_INVALID_VALUE for invalid length or digits.
+ * @return #TLV_ERR_BUFFER_TOO_SHORT for insufficient destination capacity.
  * @note No allocation occurs. Destination is unchanged on failure.
+ * @param[out] diagnostic Optional initialized failure output; NULL skips evidence collection.
  */
-TLV_API tlv_codec_result_t tlv_number_decode(const void* context, const uint8_t* data, size_t size,
-                                             void* value, size_t capacity);
+TLV_API tlv_result_t tlv_number_decode(const void* context, const uint8_t* data, size_t size,
+                                       void* value, size_t capacity,
+                                       tlv_codec_diagnostic_t* diagnostic);
 
 /**
  * @brief Encodes a configured uint64_t; usable as a codec callback.
@@ -70,16 +73,19 @@ TLV_API tlv_codec_result_t tlv_number_decode(const void* context, const uint8_t*
  * @param[out] data Destination, or NULL with zero capacity for a size query.
  * @param[in] capacity Destination capacity in bytes.
  * @param[out] written Required result byte count, zero on failure.
- * @return #TLV_CODEC_OK on success, including a validated size query.
- * @return #TLV_CODEC_ERR_NULL_ARG for missing required pointers.
- * @return #TLV_CODEC_ERR_INVALID_VALUE for invalid configuration/object size or a value
+ * @return #TLV_OK on success, including a validated size query.
+ * @return #TLV_ERR_NULL_ARG for missing required pointers.
+ * @return #TLV_ERR_INVALID_ARG for invalid configuration.
+ * @return #TLV_ERR_INVALID_VALUE for invalid object size or a value
  *         that cannot fit the selected width/decimal precision.
- * @return #TLV_CODEC_ERR_BUFFER_TOO_SHORT for insufficient output capacity.
+ * @return #TLV_ERR_BUFFER_TOO_SHORT for insufficient output capacity.
  * @note No allocation occurs. Output bytes are unchanged on failure. Input,
  *       output, configuration and written must not overlap.
+ * @param[out] diagnostic Optional initialized failure output; NULL skips evidence collection.
  */
-TLV_API tlv_codec_result_t tlv_number_encode(const void* context, const void* value, size_t size,
-                                             uint8_t* data, size_t capacity, size_t* written);
+TLV_API tlv_result_t tlv_number_encode(const void* context, const void* value, size_t size,
+                                       uint8_t* data, size_t capacity, size_t* written,
+                                       tlv_codec_diagnostic_t* diagnostic);
 
 /**
  * @brief Creates a descriptor borrowing a numeric configuration without allocation.

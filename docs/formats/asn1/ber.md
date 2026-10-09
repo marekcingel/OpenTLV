@@ -279,7 +279,7 @@ int64_t number;
 size_t  length;
 if (tlv_size_to_native(element.value.size, &length) == TLV_OK &&
     tlv_codec_decode(&tlv_asn1_codec_integer, element.value.data, length,
-                      &number, sizeof(number)) == TLV_CODEC_OK) {
+                      &number, sizeof(number), NULL) == TLV_OK) {
     /* number holds the decoded INTEGER */
 }
 ```
@@ -338,7 +338,7 @@ Every codec enforces the same canonical content rules ITU-T X.690 section 11
 defines for DER and CER, even when the raw value was read through the more
 permissive `tlv_format_ber`: for example a BOOLEAN of `01`, a
 non-minimal two's complement INTEGER, or a UTCTime missing its trailing `Z`,
-is rejected with `TLV_CODEC_ERR_INVALID_VALUE`. See
+is rejected with `TLV_ERR_INVALID_VALUE`. See
 `tlv/builtins/asn1/asn1_codec.h` for each codec's exact content and
 representation rules.
 

@@ -42,8 +42,8 @@ TEST(Integration_Tlv_Lldp, StructuralRulesCanBorrowExistingFieldSchemas) {
     const uint64_t            seconds = 120;
     uint8_t                   bytes[2] = {};
     size_t                    written = 0;
-    EXPECT_EQ(TLV_CODEC_OK,
-              tlv_codec_encode(&codec, &seconds, sizeof(seconds), bytes, sizeof(bytes), &written));
+    EXPECT_EQ(TLV_OK, tlv_codec_encode(&codec, &seconds, sizeof(seconds), bytes, sizeof(bytes),
+                                       &written, NULL));
     EXPECT_EQ(2u, written);
     EXPECT_EQ(0, bytes[0]);
     EXPECT_EQ(120, bytes[1]);
@@ -155,8 +155,8 @@ TEST(Integration_Tlv_Lldp, GenericSchemaReportAndValueCodecComposition) {
             uint16_t ttl = 0;
             size_t   value_size = 0;
             ASSERT_EQ(TLV_OK, tlv_size_to_native(element.value.size, &value_size));
-            ASSERT_EQ(TLV_CODEC_OK, tlv_codec_decode(&tlv_lldp_codec_ttl, element.value.data,
-                                                     value_size, &ttl, sizeof(ttl)));
+            ASSERT_EQ(TLV_OK, tlv_codec_decode(&tlv_lldp_codec_ttl, element.value.data, value_size,
+                                               &ttl, sizeof(ttl), NULL));
             EXPECT_EQ(120, ttl);
         }
         uint8_t encoded[258];
@@ -183,8 +183,8 @@ TEST(Integration_Tlv_Lldp, DocumentQueryCodecEditAndStructuralRevalidation) {
     const uint16_t ttl = 300;
     uint8_t        value[2];
     size_t         written = 0;
-    ASSERT_EQ(TLV_CODEC_OK, tlv_codec_encode(&tlv_lldp_codec_ttl, &ttl, sizeof(ttl), value,
-                                             sizeof(value), &written));
+    ASSERT_EQ(TLV_OK, tlv_codec_encode(&tlv_lldp_codec_ttl, &ttl, sizeof(ttl), value, sizeof(value),
+                                       &written, NULL));
     ASSERT_EQ(TLV_OK, tlv_node_set_value(ttl_node, value, written));
     std::array<uint8_t, 12> wire{};
     ASSERT_EQ(TLV_OK, tlv_document_encode(doc.get(), wire.data(), wire.size(), &written));

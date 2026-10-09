@@ -16,8 +16,8 @@
  * Use tlv_codec_decode() and tlv_codec_encode(); their pointer, overlap and
  * error contracts apply. Decode requires at least sizeof the documented C
  * representation; encode requires exactly sizeof that representation.
- * Wrong wire lengths or object sizes return #TLV_CODEC_ERR_INVALID_VALUE;
- * insufficient destination capacity returns #TLV_CODEC_ERR_BUFFER_TOO_SHORT.
+ * Wrong wire lengths or object sizes return #TLV_ERR_INVALID_VALUE;
+ * insufficient destination capacity returns #TLV_ERR_BUFFER_TOO_SHORT.
  * Encode size queries validate the representation before reporting its size.
  * No codec applies option-specific limits or allocates storage.
  */
@@ -52,8 +52,8 @@ extern TLV_API const tlv_codec_t tlv_codec_int64_minimal_be;
  * Empty values are accepted. Decode borrows input, which must remain alive
  * and immutable while retained. Encode copies bytes without normalization.
  * Encode, including size queries, rejects nonempty NULL data with
- * #TLV_CODEC_ERR_NULL_ARG and non-native lengths with
- * #TLV_CODEC_ERR_INVALID_VALUE. No text or identifier semantics are applied.
+ * #TLV_ERR_NULL_ARG and non-native lengths with
+ * #TLV_ERR_INVALID_VALUE. No text or identifier semantics are applied.
  */
 extern TLV_API const tlv_codec_t tlv_codec_bytes;
 

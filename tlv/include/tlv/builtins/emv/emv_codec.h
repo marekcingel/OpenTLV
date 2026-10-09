@@ -17,7 +17,8 @@ extern "C" {
  *
  * Use tlv_codec_decode() and tlv_codec_encode() with these codecs or with the
  * EMV codec descriptors. Semantic codecs enforce the tag's length and
- * value representation and report errors as `TLV_CODEC_ERR_*`.
+ * value representation and report shared #tlv_result_t errors. Schema length
+ * failures retain their Schema cause in the optional Codec diagnostic.
  *
  * Rules shared by all semantic codecs:
  * - Decode requires a destination of at least `sizeof` the documented C

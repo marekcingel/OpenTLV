@@ -21,7 +21,7 @@ struct outcome {
     int64_t                 integer;
     size_t                  configured, source_offset;
     int                     has_source_offset;
-    tlv_codec_result_t      codec;
+    int32_t                 codec;
     const char*             expected;
     const char*             limit;
     size_t                  ordinals[8], count;

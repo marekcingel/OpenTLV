@@ -18,74 +18,164 @@ use std::ptr;
 
 use opentlv_sys as native;
 
-/// An error of a value conversion, mapped from a `tlv_codec_result_t`.
-///
-/// Value-conversion errors are independent of TLV framing errors, which use
-/// [`Error`](crate::Error).
-#[derive(Clone, Copy, Debug, PartialEq, Eq, Hash)]
-#[non_exhaustive]
-pub enum CodecError {
-    /// A required pointer argument is `NULL`.
-    NullArg,
-    /// A supplied buffer is too small for the data or representation.
-    BufferTooShort,
-    /// The value or its representation is invalid for the codec.
-    InvalidValue,
-    /// The requested direction or operation is not supported by the codec.
-    Unsupported,
-    /// A complete structure is malformed, or violates its schema or limits.
-    InvalidStructure,
-    /// A result code not known to this crate; carries the raw code.
-    Unknown(i32),
+/// A conversion failure in the shared OpenTLV result domain.
+#[derive(Clone, Debug)]
+pub struct CodecFailure {
+    /// Original common result.
+    pub error: crate::Error,
+    /// Owned conversion and delegated evidence when supplied by C.
+    pub diagnostic: Option<Box<CodecDiagnostic>>,
 }
-
-/// Result type of value conversions.
-pub type CodecResult<T> = std::result::Result<T, CodecError>;
-
-impl CodecError {
-    /// Maps a raw `tlv_codec_result_t` to an error, or `None` for success.
-    pub fn from_code(code: i32) -> Option<CodecError> {
-        Some(match code {
-            native::TLV_CODEC_OK => return None,
-            native::TLV_CODEC_ERR_NULL_ARG => CodecError::NullArg,
-            native::TLV_CODEC_ERR_BUFFER_TOO_SHORT => CodecError::BufferTooShort,
-            native::TLV_CODEC_ERR_INVALID_VALUE => CodecError::InvalidValue,
-            native::TLV_CODEC_ERR_UNSUPPORTED => CodecError::Unsupported,
-            native::TLV_CODEC_ERR_INVALID_STRUCTURE => CodecError::InvalidStructure,
-            other => CodecError::Unknown(other),
+/// Conversion result with optional typed failure evidence.
+pub type CodecResult<T> = std::result::Result<T, CodecFailure>;
+impl From<crate::Error> for CodecFailure {
+    fn from(error: crate::Error) -> Self {
+        Self {
+            error,
+            diagnostic: None,
+        }
+    }
+}
+impl CodecFailure {
+    /// Original shared result number.
+    pub fn code(&self) -> i32 {
+        self.error.code()
+    }
+    fn check(code: i32, diagnostic: &native::tlv_codec_diagnostic_t) -> CodecResult<()> {
+        crate::Error::check(code).map_err(|error| Self {
+            error,
+            diagnostic: Some(Box::new(unsafe { CodecDiagnostic::from_raw(diagnostic) })),
         })
     }
-
-    /// Returns the raw `tlv_codec_result_t` code of the error.
-    pub fn code(self) -> i32 {
-        match self {
-            CodecError::NullArg => native::TLV_CODEC_ERR_NULL_ARG,
-            CodecError::BufferTooShort => native::TLV_CODEC_ERR_BUFFER_TOO_SHORT,
-            CodecError::InvalidValue => native::TLV_CODEC_ERR_INVALID_VALUE,
-            CodecError::Unsupported => native::TLV_CODEC_ERR_UNSUPPORTED,
-            CodecError::InvalidStructure => native::TLV_CODEC_ERR_INVALID_STRUCTURE,
-            CodecError::Unknown(code) => code,
-        }
-    }
-
-    fn check(code: native::tlv_codec_result_t) -> CodecResult<()> {
-        match CodecError::from_code(code) {
-            None => Ok(()),
-            Some(err) => Err(err),
-        }
+}
+impl PartialEq for CodecFailure {
+    fn eq(&self, other: &Self) -> bool {
+        self.error == other.error
     }
 }
-
-impl fmt::Display for CodecError {
+impl Eq for CodecFailure {}
+impl fmt::Display for CodecFailure {
     fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
-        // SAFETY: `tlv_codec_strerror` returns a static NUL-terminated string
-        // for every code.
-        let message = unsafe { CStr::from_ptr(native::tlv_codec_strerror(self.code())) };
-        f.write_str(&message.to_string_lossy())
+        self.error.fmt(f)
     }
 }
+impl error::Error for CodecFailure {}
 
-impl error::Error for CodecError {}
+/// Owned conversion evidence; no native borrowed pointer escapes.
+#[derive(Clone, Debug)]
+pub struct CodecDiagnostic {
+    /// Shared native result.
+    pub code: i32,
+    /// Native informational, warning or error severity.
+    pub severity: i32,
+    /// Expected representation when provided.
+    pub expected: Option<String>,
+    /// Actual representation when provided.
+    pub actual: Option<String>,
+    /// Owned enclosing Tags; None means no path was tracked.
+    pub path: Option<Vec<Vec<u8>>>,
+    /// Number of innermost scopes omitted from the bounded native path.
+    pub path_omitted: usize,
+    /// Owned (layer, key, value) context entries in native order.
+    pub contexts: Vec<(String, String, String)>,
+    /// Native decode, encode or measure operation.
+    pub operation: i32,
+    /// Original provider result, including success before a contract breach.
+    pub reported: i32,
+    /// Native callback contract violation discriminator.
+    pub violation: i32,
+    /// Optional provider representation name.
+    pub representation: Option<String>,
+    /// Shared primary failure location.
+    pub location: crate::Location,
+    /// Owned delegated Reader cause.
+    pub reader: Option<Box<crate::ReaderDiagnostic>>,
+    /// Owned delegated Schema cause.
+    pub schema: Option<Box<crate::SchemaDiagnostic>>,
+}
+impl CodecDiagnostic {
+    pub(crate) unsafe fn from_raw(raw: &native::tlv_codec_diagnostic_t) -> Self {
+        let common =
+            unsafe { crate::ReaderDiagnostic::from_parts(&raw.diagnostic, &mem::zeroed()) };
+        let mut contexts = Vec::new();
+        let mut entry = raw.diagnostic.contexts;
+        while !entry.is_null() {
+            let value = unsafe { &*entry };
+            let text = |p: *const c_char| {
+                if p.is_null() {
+                    String::new()
+                } else {
+                    unsafe { CStr::from_ptr(p) }.to_string_lossy().into_owned()
+                }
+            };
+            contexts.push((text(value.layer), text(value.key), text(value.value)));
+            entry = value.next;
+        }
+        let reader = if raw.codec.cause == 1 {
+            let cause = native::tlv_reader_diagnostic_t {
+                diagnostic: raw.diagnostic,
+                detail: unsafe { raw.codec.detail.reader },
+            };
+            Some(Box::new(unsafe {
+                crate::ReaderDiagnostic::from_raw(&cause)
+            }))
+        } else {
+            None
+        };
+        let schema = if raw.codec.cause == 2 {
+            let detail = unsafe { raw.codec.detail.schema };
+            let mut cause: native::tlv_schema_diagnostic_t = unsafe { mem::zeroed() };
+            cause.diagnostic = raw.diagnostic;
+            cause.kind = detail.kind;
+            cause.tag = detail.tag;
+            cause.definition = detail.definition;
+            cause.field = detail.field;
+            cause.is_group = detail.is_group;
+            cause.has_occurs = detail.has_occurs;
+            cause.min_occurs = detail.min_occurs;
+            cause.max_occurs = detail.max_occurs;
+            cause.occurs = detail.occurs;
+            cause.has_length = detail.has_length;
+            cause.min_length = detail.min_length;
+            cause.max_length = detail.max_length;
+            cause.actual_length = detail.actual_length;
+            cause.has_form = detail.has_form;
+            cause.expected_form = detail.expected_form;
+            cause.actual_constructed = detail.actual_constructed;
+            cause.length_multiple = detail.length_multiple;
+            cause.length_flags = detail.length_flags;
+            unsafe { crate::SchemaDiagnostic::from_raw(&cause) }
+                .ok()
+                .map(Box::new)
+        } else {
+            None
+        };
+        Self {
+            code: raw.diagnostic.code,
+            severity: raw.diagnostic.severity,
+            expected: common.expected,
+            actual: common.actual,
+            path: common.path,
+            path_omitted: common.path_omitted,
+            contexts,
+            operation: raw.codec.operation,
+            reported: raw.codec.reported,
+            violation: raw.codec.violation,
+            representation: if raw.codec.representation.is_null() {
+                None
+            } else {
+                Some(
+                    unsafe { CStr::from_ptr(raw.codec.representation) }
+                        .to_string_lossy()
+                        .into_owned(),
+                )
+            },
+            location: crate::Location::from_raw(raw.diagnostic.location),
+            reader,
+            schema,
+        }
+    }
+}
 
 /// The representation a semantic codec converts a raw value to and from.
 ///
@@ -385,7 +475,7 @@ impl fmt::Debug for Codec {
 fn fill_cstr<const N: usize>(text: &str) -> CodecResult<[c_char; N]> {
     let bytes = text.as_bytes();
     if bytes.len() >= N {
-        return Err(CodecError::InvalidValue);
+        return Err(CodecFailure::from(crate::Error::InvalidValue));
     }
     let mut out = [0 as c_char; N];
     for (dst, src) in out.iter_mut().zip(bytes) {
@@ -401,7 +491,7 @@ fn read_cstr(chars: &[c_char]) -> CodecResult<String> {
         .take_while(|c| **c != 0)
         .map(|c| *c as u8)
         .collect();
-    String::from_utf8(bytes).map_err(|_| CodecError::InvalidValue)
+    String::from_utf8(bytes).map_err(|_| CodecFailure::from(crate::Error::InvalidValue))
 }
 
 impl Codec {
@@ -443,22 +533,27 @@ impl Codec {
         // SAFETY: `data` is a valid slice; `out` is a valid, writable object of
         // the size passed as capacity, and it has the C type this codec kind
         // decodes into. The codec descriptor is immutable and static.
-        CodecError::check(unsafe {
-            native::tlv_codec_decode(
-                self.raw,
-                data.as_ptr(),
-                data.len(),
-                (out as *mut T).cast::<c_void>(),
-                mem::size_of::<T>(),
-            )
-        })
+        let mut diagnostic: native::tlv_codec_diagnostic_t = unsafe { mem::zeroed() };
+        CodecFailure::check(
+            unsafe {
+                native::tlv_codec_decode(
+                    self.raw,
+                    data.as_ptr(),
+                    data.len(),
+                    (out as *mut T).cast::<c_void>(),
+                    mem::size_of::<T>(),
+                    &mut diagnostic,
+                )
+            },
+            &diagnostic,
+        )
     }
 
     /// Decodes a raw value, for example the value of an [`Element`](crate::Element).
     ///
     /// # Errors
     ///
-    /// [`CodecError::InvalidValue`] if the bytes are not a valid value of this
+    /// [`CodecFailure::from(crate::Error::InvalidValue)`] if the bytes are not a valid value of this
     /// codec's kind (wrong length, bad BCD digit, out-of-range field, …).
     pub fn decode(&self, data: &[u8]) -> CodecResult<Value> {
         // SAFETY (all `zeroed` uses below): the C types are plain integers,
@@ -478,18 +573,26 @@ impl Codec {
                 let mut digits = vec![0u8; data.len() * 2 + 1];
                 // SAFETY: `digits` is a valid writable buffer of its length;
                 // the digits codec writes a NUL-terminated string into it.
-                CodecError::check(unsafe {
-                    native::tlv_codec_decode(
-                        self.raw,
-                        data.as_ptr(),
-                        data.len(),
-                        digits.as_mut_ptr().cast::<c_void>(),
-                        digits.len(),
-                    )
-                })?;
+                let mut diagnostic: native::tlv_codec_diagnostic_t = unsafe { mem::zeroed() };
+                CodecFailure::check(
+                    unsafe {
+                        native::tlv_codec_decode(
+                            self.raw,
+                            data.as_ptr(),
+                            data.len(),
+                            digits.as_mut_ptr().cast::<c_void>(),
+                            digits.len(),
+                            &mut diagnostic,
+                        )
+                    },
+                    &diagnostic,
+                )?;
                 let end = digits.iter().position(|b| *b == 0).unwrap_or(digits.len());
                 digits.truncate(end);
-                Value::Digits(String::from_utf8(digits).map_err(|_| CodecError::InvalidValue)?)
+                Value::Digits(
+                    String::from_utf8(digits)
+                        .map_err(|_| CodecFailure::from(crate::Error::InvalidValue))?,
+                )
             }
             ValueKind::Date => {
                 let mut date = native::tlv_emv_date_t::default();
@@ -517,7 +620,7 @@ impl Codec {
                     native::TLV_EMV_ACCOUNT_SAVINGS => AccountType::Savings,
                     native::TLV_EMV_ACCOUNT_CHEQUE_DEBIT => AccountType::ChequeDebit,
                     native::TLV_EMV_ACCOUNT_CREDIT => AccountType::Credit,
-                    _ => return Err(CodecError::InvalidValue),
+                    _ => return Err(CodecFailure::from(crate::Error::InvalidValue)),
                 })
             }
             ValueKind::Cryptogram => {
@@ -529,7 +632,7 @@ impl Codec {
                         1 => CryptogramType::Tc,
                         2 => CryptogramType::Arqc,
                         3 => CryptogramType::Rfu,
-                        _ => return Err(CodecError::InvalidValue),
+                        _ => return Err(CodecFailure::from(crate::Error::InvalidValue)),
                     },
                     flags: info.flags,
                 })
@@ -543,7 +646,7 @@ impl Codec {
                     native::TLV_EMV_BIOMETRIC_FINGER => BiometricType::Finger,
                     native::TLV_EMV_BIOMETRIC_IRIS => BiometricType::Iris,
                     native::TLV_EMV_BIOMETRIC_PALM => BiometricType::Palm,
-                    _ => return Err(CodecError::InvalidValue),
+                    _ => return Err(CodecFailure::from(crate::Error::InvalidValue)),
                 })
             }
             ValueKind::NumberList => {
@@ -593,7 +696,7 @@ impl Codec {
                 })
             }
             ValueKind::Bytes | ValueKind::Text | ValueKind::Template => {
-                return Err(CodecError::Unsupported)
+                return Err(CodecFailure::from(crate::Error::Unsupported))
             }
         })
     }
@@ -621,15 +724,27 @@ impl Codec {
         // codec kind; `data` is either null with zero capacity or a writable
         // buffer of `capacity` bytes; `written` is a writable `usize` that
         // aliases neither.
-        CodecError::check(unsafe {
-            native::tlv_codec_encode(self.raw, value, size, data, capacity, &mut written)
-        })?;
+        let mut diagnostic: native::tlv_codec_diagnostic_t = unsafe { mem::zeroed() };
+        CodecFailure::check(
+            unsafe {
+                native::tlv_codec_encode(
+                    self.raw,
+                    value,
+                    size,
+                    data,
+                    capacity,
+                    &mut written,
+                    &mut diagnostic,
+                )
+            },
+            &diagnostic,
+        )?;
         Ok(written)
     }
 
     fn encode_value(&self, value: &Value, data: *mut u8, capacity: usize) -> CodecResult<usize> {
         if value.kind() != self.kind {
-            return Err(CodecError::InvalidValue);
+            return Err(CodecFailure::from(crate::Error::InvalidValue));
         }
         match value {
             Value::Number(n) | Value::Flags(n) => self.encode_object(n, data, capacity),
@@ -689,7 +804,7 @@ impl Codec {
             Value::NumberList(numbers) => {
                 let mut list = native::tlv_emv_number_list_t::default();
                 if numbers.len() > list.values.len() {
-                    return Err(CodecError::InvalidValue);
+                    return Err(CodecFailure::from(crate::Error::InvalidValue));
                 }
                 list.values[..numbers.len()].copy_from_slice(numbers);
                 list.count = numbers.len();
@@ -697,7 +812,7 @@ impl Codec {
             }
             Value::Afl(entries) => {
                 if entries.len() > native::TLV_EMV_AFL_MAX_ENTRIES {
-                    return Err(CodecError::InvalidValue);
+                    return Err(CodecFailure::from(crate::Error::InvalidValue));
                 }
                 let mut afl = native::tlv_emv_afl_t {
                     entries: [native::tlv_emv_afl_entry_t::default();
@@ -741,7 +856,7 @@ impl Codec {
     ///
     /// # Errors
     ///
-    /// [`CodecError::InvalidValue`] if `value` is of another kind than the
+    /// [`CodecFailure::from(crate::Error::InvalidValue)`] if `value` is of another kind than the
     /// codec's or invalid for it.
     pub fn encoded_size(&self, value: &Value) -> CodecResult<usize> {
         self.encode_value(value, ptr::null_mut(), 0)
@@ -751,7 +866,7 @@ impl Codec {
     ///
     /// # Errors
     ///
-    /// [`CodecError::BufferTooShort`] if `out` is too small, or the errors of
+    /// [`CodecFailure::from(crate::Error::BufferTooShort)`] if `out` is too small, or the errors of
     /// [`Codec::encoded_size`]. On error `out` may have been modified.
     pub fn encode_into(&self, value: &Value, out: &mut [u8]) -> CodecResult<usize> {
         self.encode_value(value, out.as_mut_ptr(), out.len())
@@ -804,15 +919,20 @@ impl NumberCodec {
     pub fn decode(&self, data: &[u8]) -> CodecResult<u64> {
         let mut value = 0u64;
         // SAFETY: correctly aligned configuration and u64 destination; disjoint live input.
-        CodecError::check(unsafe {
-            native::tlv_number_decode(
-                (&self.config as *const native::tlv_number_codec_config_t).cast(),
-                data.as_ptr(),
-                data.len(),
-                (&mut value as *mut u64).cast(),
-                mem::size_of::<u64>(),
-            )
-        })?;
+        let mut diagnostic: native::tlv_codec_diagnostic_t = unsafe { mem::zeroed() };
+        CodecFailure::check(
+            unsafe {
+                native::tlv_number_decode(
+                    (&self.config as *const native::tlv_number_codec_config_t).cast(),
+                    data.as_ptr(),
+                    data.len(),
+                    (&mut value as *mut u64).cast(),
+                    mem::size_of::<u64>(),
+                    &mut diagnostic,
+                )
+            },
+            &diagnostic,
+        )?;
         Ok(value)
     }
     /// Measure a validated encoding through the C size-query operation.
@@ -834,16 +954,21 @@ impl NumberCodec {
         let mut written = 0;
         // SAFETY: private callers supply either NULL/zero or a writable exclusive slice.
         // Configuration, scalar input and count are aligned live independent objects.
-        CodecError::check(unsafe {
-            native::tlv_number_encode(
-                (&self.config as *const native::tlv_number_codec_config_t).cast(),
-                (&value as *const u64).cast(),
-                mem::size_of::<u64>(),
-                output,
-                capacity,
-                &mut written,
-            )
-        })?;
+        let mut diagnostic: native::tlv_codec_diagnostic_t = unsafe { mem::zeroed() };
+        CodecFailure::check(
+            unsafe {
+                native::tlv_number_encode(
+                    (&self.config as *const native::tlv_number_codec_config_t).cast(),
+                    (&value as *const u64).cast(),
+                    mem::size_of::<u64>(),
+                    output,
+                    capacity,
+                    &mut written,
+                    &mut diagnostic,
+                )
+            },
+            &diagnostic,
+        )?;
         Ok(written)
     }
 }

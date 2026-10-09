@@ -23,24 +23,24 @@ void check_vector(const tlv_codec_t* codec, const T& expected, std::initializer_
     ASSERT_NE(nullptr, codec);
     const std::vector<uint8_t> bytes(raw);
     T                          decoded{};
-    ASSERT_EQ(TLV_CODEC_OK,
-              tlv_codec_decode(codec, bytes.data(), bytes.size(), &decoded, sizeof(decoded)));
+    ASSERT_EQ(TLV_OK,
+              tlv_codec_decode(codec, bytes.data(), bytes.size(), &decoded, sizeof(decoded), NULL));
     uint8_t encoded[16] = {};
     size_t  count = 99;
-    ASSERT_EQ(TLV_CODEC_OK,
-              tlv_codec_encode(codec, &expected, sizeof(expected), nullptr, 0, &count));
+    ASSERT_EQ(TLV_OK,
+              tlv_codec_encode(codec, &expected, sizeof(expected), nullptr, 0, &count, NULL));
     ASSERT_EQ(bytes.size(), count);
-    ASSERT_EQ(TLV_CODEC_OK,
-              tlv_codec_encode(codec, &decoded, sizeof(decoded), encoded, sizeof(encoded), &count));
+    ASSERT_EQ(TLV_OK, tlv_codec_encode(codec, &decoded, sizeof(decoded), encoded, sizeof(encoded),
+                                       &count, NULL));
     EXPECT_EQ(bytes.size(), count);
     EXPECT_EQ(0, std::memcmp(encoded, bytes.data(), count));
-    ASSERT_EQ(TLV_CODEC_OK, tlv_codec_encode(codec, &expected, sizeof(expected), encoded,
-                                             sizeof(encoded), &count));
+    ASSERT_EQ(TLV_OK, tlv_codec_encode(codec, &expected, sizeof(expected), encoded, sizeof(encoded),
+                                       &count, NULL));
     EXPECT_EQ(0, std::memcmp(encoded, bytes.data(), count));
-    EXPECT_EQ(TLV_CODEC_ERR_BUFFER_TOO_SHORT,
-              tlv_codec_decode(codec, bytes.data(), bytes.size(), &decoded, sizeof(decoded) - 1));
-    EXPECT_EQ(TLV_CODEC_ERR_BUFFER_TOO_SHORT, tlv_codec_encode(codec, &expected, sizeof(expected),
-                                                               encoded, bytes.size() - 1, &count));
+    EXPECT_EQ(TLV_ERR_BUFFER_TOO_SHORT, tlv_codec_decode(codec, bytes.data(), bytes.size(),
+                                                         &decoded, sizeof(decoded) - 1, NULL));
+    EXPECT_EQ(TLV_ERR_BUFFER_TOO_SHORT, tlv_codec_encode(codec, &expected, sizeof(expected),
+                                                         encoded, bytes.size() - 1, &count, NULL));
     EXPECT_EQ(0u, count);
 }
 } // namespace
@@ -84,8 +84,8 @@ TEST(Unit_Tlv_Emv, PublicTagConstantsMatchDefinitions) {
             if (!permitted && entry->codec) {
                 const uint8_t wire[261] = {};
                 uint64_t      output = 99;
-                EXPECT_EQ(TLV_CODEC_ERR_INVALID_VALUE,
-                          tlv_codec_decode(entry->codec, wire, length, &output, sizeof(output)));
+                EXPECT_EQ(TLV_ERR_SCHEMA, tlv_codec_decode(entry->codec, wire, length, &output,
+                                                           sizeof(output), NULL));
                 EXPECT_EQ(99u, output);
             }
         }
@@ -213,100 +213,97 @@ TEST(Unit_Tlv_Emv, SemanticErrorsAndUnalignedStorage) {
     const auto*               number_codec = find(tlv_emv_tag_amount_authorised_binary)->codec;
     alignas(uint64_t) uint8_t storage[sizeof(uint64_t) + 1] = {};
     const uint8_t             raw[] = {0xFF, 0xFF, 0xFF, 0xFF};
-    ASSERT_EQ(TLV_CODEC_OK, tlv_codec_decode(number_codec, raw, 4, storage + 1, sizeof(uint64_t)));
+    ASSERT_EQ(TLV_OK, tlv_codec_decode(number_codec, raw, 4, storage + 1, sizeof(uint64_t), NULL));
     uint64_t number;
     std::memcpy(&number, storage + 1, sizeof(number));
     EXPECT_EQ(UINT64_C(4294967295), number);
     uint8_t wire[8];
     size_t  written;
-    ASSERT_EQ(TLV_CODEC_OK,
-              tlv_codec_encode(number_codec, storage + 1, sizeof(uint64_t), wire, 4, &written));
+    ASSERT_EQ(TLV_OK, tlv_codec_encode(number_codec, storage + 1, sizeof(uint64_t), wire, 4,
+                                       &written, NULL));
     EXPECT_EQ(0, std::memcmp(raw, wire, 4));
     number = UINT64_C(4294967296);
-    EXPECT_EQ(TLV_CODEC_ERR_INVALID_VALUE,
-              tlv_codec_encode(number_codec, &number, sizeof(number), nullptr, 0, &written));
+    EXPECT_EQ(TLV_ERR_SCHEMA,
+              tlv_codec_encode(number_codec, &number, sizeof(number), nullptr, 0, &written, NULL));
     EXPECT_EQ(0u, written);
 
     const auto*          date_codec = find(tlv_emv_tag_transaction_date)->codec;
     const tlv_emv_date_t bad_dates[] = {{23, 2, 29}, {24, 0, 1},  {24, 13, 1},
                                         {24, 4, 31}, {100, 1, 1}, {24, 1, 0}};
     for (const auto& date : bad_dates)
-        EXPECT_EQ(TLV_CODEC_ERR_INVALID_VALUE,
-                  tlv_codec_encode(date_codec, &date, sizeof(date), nullptr, 0, &written));
+        EXPECT_EQ(TLV_ERR_INVALID_VALUE,
+                  tlv_codec_encode(date_codec, &date, sizeof(date), nullptr, 0, &written, NULL));
     const auto* bio_codec = find(tlv_emv_tag_biometric_type, TLV_EMV_CONTEXT_BHT)->codec;
     const auto  invalid_bio = static_cast<tlv_emv_biometric_type_t>(3);
-    EXPECT_EQ(TLV_CODEC_ERR_INVALID_VALUE,
-              tlv_codec_encode(bio_codec, &invalid_bio, sizeof(invalid_bio), nullptr, 0, &written));
+    EXPECT_EQ(TLV_ERR_INVALID_VALUE, tlv_codec_encode(bio_codec, &invalid_bio, sizeof(invalid_bio),
+                                                      nullptr, 0, &written, NULL));
     const uint8_t            invalid_bio_bytes[] = {3};
     tlv_emv_biometric_type_t bio;
-    EXPECT_EQ(TLV_CODEC_ERR_INVALID_VALUE,
-              tlv_codec_decode(bio_codec, invalid_bio_bytes, 1, &bio, sizeof(bio)));
+    EXPECT_EQ(TLV_ERR_INVALID_VALUE,
+              tlv_codec_decode(bio_codec, invalid_bio_bytes, 1, &bio, sizeof(bio), NULL));
     const auto*          time_codec = find(tlv_emv_tag_transaction_time)->codec;
     const tlv_emv_time_t bad_times[] = {{24, 0, 0}, {0, 60, 0}, {0, 0, 60}};
     for (const auto& time : bad_times)
-        EXPECT_EQ(TLV_CODEC_ERR_INVALID_VALUE,
-                  tlv_codec_encode(time_codec, &time, sizeof(time), nullptr, 0, &written));
+        EXPECT_EQ(TLV_ERR_INVALID_VALUE,
+                  tlv_codec_encode(time_codec, &time, sizeof(time), nullptr, 0, &written, NULL));
     const uint8_t  invalid_time[] = {0x24, 0, 0};
     tlv_emv_time_t time;
-    EXPECT_EQ(TLV_CODEC_ERR_INVALID_VALUE,
-              tlv_codec_decode(time_codec, invalid_time, 3, &time, sizeof(time)));
+    EXPECT_EQ(TLV_ERR_INVALID_VALUE,
+              tlv_codec_decode(time_codec, invalid_time, 3, &time, sizeof(time), NULL));
     const auto* cryptogram_codec = find(tlv_emv_tag_cryptogram_information_data)->codec;
     tlv_emv_cryptogram_info_t bad_info = {TLV_EMV_CRYPTOGRAM_TC, 64};
-    EXPECT_EQ(
-        TLV_CODEC_ERR_INVALID_VALUE,
-        tlv_codec_encode(cryptogram_codec, &bad_info, sizeof(bad_info), nullptr, 0, &written));
+    EXPECT_EQ(TLV_ERR_INVALID_VALUE, tlv_codec_encode(cryptogram_codec, &bad_info, sizeof(bad_info),
+                                                      nullptr, 0, &written, NULL));
     bad_info = {static_cast<tlv_emv_cryptogram_type_t>(4), 0};
-    EXPECT_EQ(
-        TLV_CODEC_ERR_INVALID_VALUE,
-        tlv_codec_encode(cryptogram_codec, &bad_info, sizeof(bad_info), nullptr, 0, &written));
+    EXPECT_EQ(TLV_ERR_INVALID_VALUE, tlv_codec_encode(cryptogram_codec, &bad_info, sizeof(bad_info),
+                                                      nullptr, 0, &written, NULL));
     check_vector(cryptogram_codec, tlv_emv_cryptogram_info_t{TLV_EMV_CRYPTOGRAM_RFU, 63}, {0xFF});
     const auto* list_codec = find(tlv_emv_tag_application_reference_currency_exponent)->codec;
     tlv_emv_number_list_t list = {{10, 0, 0, 0}, 1};
-    EXPECT_EQ(TLV_CODEC_ERR_INVALID_VALUE,
-              tlv_codec_encode(list_codec, &list, sizeof(list), nullptr, 0, &written));
+    EXPECT_EQ(TLV_ERR_INVALID_VALUE,
+              tlv_codec_encode(list_codec, &list, sizeof(list), nullptr, 0, &written, NULL));
     list = {{0}, 5};
-    EXPECT_EQ(TLV_CODEC_ERR_INVALID_VALUE,
-              tlv_codec_encode(list_codec, &list, sizeof(list), nullptr, 0, &written));
+    EXPECT_EQ(TLV_ERR_INVALID_VALUE,
+              tlv_codec_encode(list_codec, &list, sizeof(list), nullptr, 0, &written, NULL));
     list.count = 0;
-    EXPECT_EQ(TLV_CODEC_ERR_INVALID_VALUE,
-              tlv_codec_encode(list_codec, &list, sizeof(list), nullptr, 0, &written));
+    EXPECT_EQ(TLV_ERR_INVALID_VALUE,
+              tlv_codec_encode(list_codec, &list, sizeof(list), nullptr, 0, &written, NULL));
     const uint8_t invalid_list[] = {0x10};
-    EXPECT_EQ(TLV_CODEC_ERR_INVALID_VALUE,
-              tlv_codec_decode(list_codec, invalid_list, 1, &list, sizeof(list)));
+    EXPECT_EQ(TLV_ERR_INVALID_VALUE,
+              tlv_codec_decode(list_codec, invalid_list, 1, &list, sizeof(list), NULL));
     const auto invalid_account = static_cast<tlv_emv_account_type_t>(40);
-    EXPECT_EQ(TLV_CODEC_ERR_INVALID_VALUE,
+    EXPECT_EQ(TLV_ERR_INVALID_VALUE,
               tlv_codec_encode(find(tlv_emv_tag_account_type)->codec, &invalid_account,
-                               sizeof(invalid_account), nullptr, 0, &written));
+                               sizeof(invalid_account), nullptr, 0, &written, NULL));
 }
 
 TEST(Unit_Tlv_Emv, AmountCodecRejectsInvalidInputs) {
     uint64_t amount = 1000000000000ULL;
     uint8_t  wire[7] = {};
     size_t   written = 99;
-    EXPECT_EQ(TLV_CODEC_ERR_INVALID_VALUE, tlv_codec_encode(&tlv_emv_codec_amount, &amount,
-                                                            sizeof(amount), nullptr, 0, &written));
+    EXPECT_EQ(TLV_ERR_INVALID_VALUE, tlv_codec_encode(&tlv_emv_codec_amount, &amount,
+                                                      sizeof(amount), nullptr, 0, &written, NULL));
     EXPECT_EQ(0u, written);
     amount = 0;
-    EXPECT_EQ(TLV_CODEC_ERR_BUFFER_TOO_SHORT,
-              tlv_codec_encode(&tlv_emv_codec_amount, &amount, sizeof(amount), wire, 5, &written));
+    EXPECT_EQ(TLV_ERR_BUFFER_TOO_SHORT, tlv_codec_encode(&tlv_emv_codec_amount, &amount,
+                                                         sizeof(amount), wire, 5, &written, NULL));
     EXPECT_EQ(0u, written);
-    EXPECT_EQ(TLV_CODEC_ERR_INVALID_VALUE,
-              tlv_codec_encode(&tlv_emv_codec_amount, &amount, 1, wire, 6, &written));
-    EXPECT_EQ(TLV_CODEC_ERR_BUFFER_TOO_SHORT,
-              tlv_codec_decode(&tlv_emv_codec_amount, wire, 6, &amount, 1));
+    EXPECT_EQ(TLV_ERR_INVALID_VALUE,
+              tlv_codec_encode(&tlv_emv_codec_amount, &amount, 1, wire, 6, &written, NULL));
+    EXPECT_EQ(TLV_ERR_BUFFER_TOO_SHORT,
+              tlv_codec_decode(&tlv_emv_codec_amount, wire, 6, &amount, 1, NULL));
     for (size_t size : {0u, 5u, 7u})
-        EXPECT_EQ(TLV_CODEC_ERR_INVALID_VALUE,
-                  tlv_codec_decode(&tlv_emv_codec_amount, wire, size, &amount, sizeof(amount)));
-    EXPECT_EQ(TLV_CODEC_ERR_NULL_ARG,
-              tlv_codec_decode(&tlv_emv_codec_amount, nullptr, 6, &amount, sizeof(amount)));
+        EXPECT_EQ(TLV_ERR_SCHEMA, tlv_codec_decode(&tlv_emv_codec_amount, wire, size, &amount,
+                                                   sizeof(amount), NULL));
+    EXPECT_EQ(TLV_ERR_NULL_ARG,
+              tlv_codec_decode(&tlv_emv_codec_amount, nullptr, 6, &amount, sizeof(amount), NULL));
     for (size_t pos = 0; pos < 6; ++pos) {
         for (unsigned digit = 10; digit <= 15; ++digit) {
             for (unsigned shift : {0u, 4u}) {
                 std::memset(wire, 0, sizeof(wire));
                 wire[pos] = static_cast<uint8_t>(digit << shift);
-                EXPECT_EQ(
-                    TLV_CODEC_ERR_INVALID_VALUE,
-                    tlv_codec_decode(&tlv_emv_codec_amount, wire, 6, &amount, sizeof(amount)));
+                EXPECT_EQ(TLV_ERR_INVALID_VALUE, tlv_codec_decode(&tlv_emv_codec_amount, wire, 6,
+                                                                  &amount, sizeof(amount), NULL));
             }
         }
     }
@@ -332,17 +329,17 @@ TEST(Unit_Tlv_Emv, AflCodecRejectsMalformedEntries) {
     const uint8_t offline_count_out_of_range[] = {0x08, 0x01, 0x01, 0x02};
     for (const auto* bad :
          {sfi_zero, sfi_too_high, first_record_zero, last_before_first, offline_count_out_of_range})
-        EXPECT_EQ(TLV_CODEC_ERR_INVALID_VALUE,
-                  tlv_codec_decode(codec, bad, 4, &decoded, sizeof(decoded)));
+        EXPECT_EQ(TLV_ERR_INVALID_VALUE,
+                  tlv_codec_decode(codec, bad, 4, &decoded, sizeof(decoded), NULL));
 
     tlv_emv_afl_t empty{};
     empty.count = 0;
-    EXPECT_EQ(TLV_CODEC_ERR_INVALID_VALUE,
-              tlv_codec_encode(codec, &empty, sizeof(empty), nullptr, 0, &written));
+    EXPECT_EQ(TLV_ERR_INVALID_VALUE,
+              tlv_codec_encode(codec, &empty, sizeof(empty), nullptr, 0, &written, NULL));
     tlv_emv_afl_t too_many{};
     too_many.count = TLV_EMV_AFL_MAX_ENTRIES + 1;
-    EXPECT_EQ(TLV_CODEC_ERR_INVALID_VALUE,
-              tlv_codec_encode(codec, &too_many, sizeof(too_many), nullptr, 0, &written));
+    EXPECT_EQ(TLV_ERR_INVALID_VALUE,
+              tlv_codec_encode(codec, &too_many, sizeof(too_many), nullptr, 0, &written, NULL));
 }
 
 TEST(Unit_Tlv_Emv, CvmResultCodecPreservesRawFields) {
@@ -384,45 +381,44 @@ TEST(Unit_Tlv_Emv, Track2CodecRejectsMalformedValues) {
 
     // No field separator anywhere in the value.
     const uint8_t no_separator[] = {0x11, 0x11, 0x11, 0x11, 0x11};
-    EXPECT_EQ(
-        TLV_CODEC_ERR_INVALID_VALUE,
-        tlv_codec_decode(codec, no_separator, sizeof(no_separator), &decoded, sizeof(decoded)));
+    EXPECT_EQ(TLV_ERR_INVALID_VALUE, tlv_codec_decode(codec, no_separator, sizeof(no_separator),
+                                                      &decoded, sizeof(decoded), NULL));
 
     // Separator in the first nibble: an empty PAN.
     const uint8_t empty_pan[] = {0xD2, 0x71, 0x22, 0x00};
-    EXPECT_EQ(TLV_CODEC_ERR_INVALID_VALUE,
-              tlv_codec_decode(codec, empty_pan, sizeof(empty_pan), &decoded, sizeof(decoded)));
+    EXPECT_EQ(TLV_ERR_INVALID_VALUE, tlv_codec_decode(codec, empty_pan, sizeof(empty_pan), &decoded,
+                                                      sizeof(decoded), NULL));
 
     // Expiration month 13 is out of range.
     const uint8_t bad_month[] = {0x1D, 0x99, 0x13, 0x00, 0x01, 0x2F};
-    EXPECT_EQ(TLV_CODEC_ERR_INVALID_VALUE,
-              tlv_codec_decode(codec, bad_month, sizeof(bad_month), &decoded, sizeof(decoded)));
+    EXPECT_EQ(TLV_ERR_INVALID_VALUE, tlv_codec_decode(codec, bad_month, sizeof(bad_month), &decoded,
+                                                      sizeof(decoded), NULL));
 
     // A non-decimal nibble inside the discretionary data.
     const uint8_t bad_discretionary[] = {0x1D, 0x99, 0x01, 0x00, 0x0E, 0x2F};
-    EXPECT_EQ(TLV_CODEC_ERR_INVALID_VALUE,
+    EXPECT_EQ(TLV_ERR_INVALID_VALUE,
               tlv_codec_decode(codec, bad_discretionary, sizeof(bad_discretionary), &decoded,
-                               sizeof(decoded)));
+                               sizeof(decoded), NULL));
 
     tlv_emv_track2_t empty_pan_value{};
     std::strcpy(empty_pan_value.discretionary_data, "1");
     empty_pan_value.expiration_month = 1;
-    EXPECT_EQ(
-        TLV_CODEC_ERR_INVALID_VALUE,
-        tlv_codec_encode(codec, &empty_pan_value, sizeof(empty_pan_value), nullptr, 0, &written));
+    EXPECT_EQ(TLV_ERR_INVALID_VALUE,
+              tlv_codec_encode(codec, &empty_pan_value, sizeof(empty_pan_value), nullptr, 0,
+                               &written, NULL));
 
     tlv_emv_track2_t bad_month_value{};
     std::strcpy(bad_month_value.pan, "1");
     bad_month_value.expiration_month = 13;
-    EXPECT_EQ(
-        TLV_CODEC_ERR_INVALID_VALUE,
-        tlv_codec_encode(codec, &bad_month_value, sizeof(bad_month_value), nullptr, 0, &written));
+    EXPECT_EQ(TLV_ERR_INVALID_VALUE,
+              tlv_codec_encode(codec, &bad_month_value, sizeof(bad_month_value), nullptr, 0,
+                               &written, NULL));
 
     tlv_emv_track2_t non_digit_pan{};
     std::strcpy(non_digit_pan.pan, "41A1");
     non_digit_pan.expiration_month = 1;
-    EXPECT_EQ(TLV_CODEC_ERR_INVALID_VALUE,
-              tlv_codec_encode(codec, &non_digit_pan, sizeof(non_digit_pan), nullptr, 0, &written));
+    EXPECT_EQ(TLV_ERR_INVALID_VALUE, tlv_codec_encode(codec, &non_digit_pan, sizeof(non_digit_pan),
+                                                      nullptr, 0, &written, NULL));
 }
 
 TEST(Unit_Tlv_Emv, NamedBitFlagConstantsMatchWireBitPositions) {
@@ -544,14 +540,14 @@ TEST(Unit_Tlv_Emv, CallerOwnedDictionaryUsesTheSameLookupAndGenericCodec) {
     EXPECT_EQ(TLV_OK, tlv_emv_validate_length(entry, 6));
     const uint8_t value[] = {0, 0, 0, 0, 0x12, 0x34};
     uint64_t      decoded = 0;
-    ASSERT_EQ(TLV_CODEC_OK,
-              tlv_codec_decode(entry->codec, value, sizeof(value), &decoded, sizeof(decoded)));
+    ASSERT_EQ(TLV_OK, tlv_codec_decode(entry->codec, value, sizeof(value), &decoded,
+                                       sizeof(decoded), NULL));
     EXPECT_EQ(1234u, decoded);
     const auto* builtin = tlv_emv_find(TLV_EMV_CONTEXT_BASE, &tag);
     ASSERT_NE(nullptr, builtin);
     uint64_t builtin_value = 0;
-    EXPECT_EQ(TLV_CODEC_OK, tlv_codec_decode(builtin->codec, value, sizeof(value), &builtin_value,
-                                             sizeof(builtin_value)));
+    EXPECT_EQ(TLV_OK, tlv_codec_decode(builtin->codec, value, sizeof(value), &builtin_value,
+                                       sizeof(builtin_value), NULL));
     EXPECT_EQ(decoded, builtin_value);
     const auto unknown = TLV_TAG(0x81);
     EXPECT_EQ(nullptr, tlv_emv_dictionary_find(&dictionary, &unknown));
@@ -574,23 +570,24 @@ TEST(Unit_Tlv_Emv, CallerOwnedMetadataDoesNotInferRepresentationFromTag) {
     const tlv_number_codec_config_t config{TLV_NUMBER_BINARY_BE, 0, 0};
     const tlv_codec_t               unknown{
         &config,
-        [](const void* context, const uint8_t* data, size_t size, void* value, size_t capacity) {
-            return tlv_number_decode(context, data, size, value, capacity);
+        [](const void* context, const uint8_t* data, size_t size, void* value, size_t capacity,
+           tlv_codec_diagnostic_t*) {
+            return tlv_number_decode(context, data, size, value, capacity, NULL);
         },
         [](const void* context, const void* value, size_t size, uint8_t* data, size_t capacity,
-           size_t* written) {
-            return tlv_number_encode(context, value, size, data, capacity, written);
+           size_t* written, tlv_codec_diagnostic_t*) {
+            return tlv_number_encode(context, value, size, data, capacity, written, NULL);
         }};
     const tlv_emv_definition_t entry{&identifier, &schema, &unknown};
     const uint8_t              wire[] = {42};
     uint64_t                   decoded = 0;
-    EXPECT_EQ(TLV_CODEC_OK,
-              tlv_codec_decode(entry.codec, wire, sizeof(wire), &decoded, sizeof(decoded)));
+    EXPECT_EQ(TLV_OK,
+              tlv_codec_decode(entry.codec, wire, sizeof(wire), &decoded, sizeof(decoded), NULL));
     EXPECT_EQ(42u, decoded);
     uint8_t encoded = 0;
     size_t  written = 0;
-    EXPECT_EQ(TLV_CODEC_OK,
-              tlv_codec_encode(entry.codec, &decoded, sizeof(decoded), &encoded, 1, &written));
+    EXPECT_EQ(TLV_OK, tlv_codec_encode(entry.codec, &decoded, sizeof(decoded), &encoded, 1,
+                                       &written, NULL));
     EXPECT_EQ(42, encoded);
     EXPECT_EQ(1u, written);
     EXPECT_STREQ("caller", tlv_emv_symbol(&entry));

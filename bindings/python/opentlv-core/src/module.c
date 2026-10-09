@@ -33,7 +33,6 @@
 #include <tlv/writer/writer.h>
 
 static PyObject* opentlv_python_error = NULL;
-static PyObject* opentlv_python_codec_error = NULL;
 
 static PyObject* _opentlv_version_string(PyObject* module, PyObject* Py_UNUSED(args)) {
     (void)module;
@@ -127,11 +126,11 @@ static void raise_code_only(tlv_result_t code) {
     raise_error(fields);
 }
 
-static void raise_reader_parts(tlv_result_t code, const tlv_diagnostic_t* common,
-                               const tlv_reader_detail_t* diag) {
+static PyObject* reader_parts_value(tlv_result_t code, const tlv_diagnostic_t* common,
+                                    const tlv_reader_detail_t* diag) {
     PyObject* fields = PyDict_New();
     if (fields == NULL) {
-        return;
+        return NULL;
     }
     int         has_offset = diag != NULL && common->location.kind;
     size_t      offset = has_offset ? common->location.begin : 0;
@@ -170,14 +169,22 @@ static void raise_reader_parts(tlv_result_t code, const tlv_diagnostic_t* common
                  diag && diag->has_required ? PyLong_FromUnsignedLongLong(diag->required)
                                             : Py_NewRef(Py_None)) < 0) {
         Py_DECREF(fields);
-        return;
+        return NULL;
     }
-    raise_error(fields);
+    return fields;
+}
+
+static void raise_reader_parts(tlv_result_t code, const tlv_diagnostic_t* common,
+                               const tlv_reader_detail_t* diag) {
+    raise_error(reader_parts_value(code, common, diag));
 }
 
 static void raise_reader_error(tlv_result_t code, const tlv_reader_diagnostic_t* diag) {
     raise_reader_parts(code, diag ? &diag->diagnostic : NULL, diag ? &diag->detail : NULL);
 }
+
+static PyObject* codec_detail_value(const tlv_diagnostic_t*   common,
+                                    const tlv_codec_detail_t* detail);
 
 void opentlv_python_raise_query(tlv_result_t code, const tlv_query_diagnostic_t* diagnostic) {
     tlv_query_diagnostic_t state = {0};
@@ -207,7 +214,11 @@ void opentlv_python_raise_query(tlv_result_t code, const tlv_query_diagnostic_t*
          dict_set_str_or_none(fields, "query_expected", diagnostic->expected) < 0 ||
          dict_set_str_or_none(fields, "limit", diagnostic->limit) < 0 ||
          dict_set(fields, "configured", PyLong_FromSize_t(diagnostic->configured)) < 0 ||
-         dict_set(fields, "codec", PyLong_FromLong(diagnostic->codec)) < 0)) {
+         dict_set(fields, "codec", PyLong_FromLong(diagnostic->codec)) < 0 ||
+         dict_set(fields, "codec_detail",
+                  diagnostic->has_codec
+                      ? codec_detail_value(&diagnostic->diagnostic, &diagnostic->codec_detail)
+                      : Py_NewRef(Py_None)) < 0)) {
         Py_XDECREF(args);
         Py_XDECREF(type);
         Py_XDECREF(value);
@@ -701,26 +712,104 @@ static PyObject* _opentlv_structure_validate(PyObject* module, PyObject* args) {
     Py_RETURN_NONE;
 }
 
-static PyObject* _opentlv_codec_strerror(PyObject* module, PyObject* args) {
-    (void)module;
-    int code;
-    if (!PyArg_ParseTuple(args, "i", &code)) {
+static PyObject* codec_detail_value(const tlv_diagnostic_t*   common,
+                                    const tlv_codec_detail_t* detail) {
+    PyObject* result =
+        Py_BuildValue("{s:i,s:i,s:i,s:z,s:i}", "operation", detail->operation, "reported",
+                      detail->reported, "violation", detail->violation, "representation",
+                      detail->representation, "cause", detail->cause);
+    if (!result) return NULL;
+    PyObject* path = PyTuple_New(common->has_path ? (Py_ssize_t)common->path.length : 0);
+    if (!path) {
+        Py_DECREF(result);
         return NULL;
     }
-    return PyUnicode_FromString(tlv_codec_strerror((tlv_codec_result_t)code));
+    for (size_t i = 0; common->has_path && i < common->path.length; ++i) {
+        tlv_tag_t tag = common->path.tags[i];
+        PyObject* item = PyBytes_FromStringAndSize((const char*)tag.data, (Py_ssize_t)tag.size);
+        if (!item) {
+            Py_DECREF(path);
+            Py_DECREF(result);
+            return NULL;
+        }
+        PyTuple_SetItem(path, (Py_ssize_t)i, item);
+    }
+    if (dict_set(result, "path", path) < 0 ||
+        dict_set(result, "has_path", PyBool_FromLong(common->has_path)) < 0 ||
+        dict_set(result, "path_omitted", PyLong_FromSize_t(common->path.omitted)) < 0 ||
+        dict_set_str_or_none(result, "expected", common->expected) < 0 ||
+        dict_set_str_or_none(result, "actual", common->actual) < 0) {
+        Py_DECREF(result);
+        return NULL;
+    }
+    PyObject* contexts = PyList_New(0);
+    if (!contexts) {
+        Py_DECREF(result);
+        return NULL;
+    }
+    for (const tlv_diagnostic_context_t* context = common->contexts; context;
+         context = context->next) {
+        PyObject* item = Py_BuildValue("{s:z,s:z,s:z}", "layer", context->layer, "key",
+                                       context->key, "value", context->value);
+        if (!item || PyList_Append(contexts, item) < 0) {
+            Py_XDECREF(item);
+            Py_DECREF(contexts);
+            Py_DECREF(result);
+            return NULL;
+        }
+        Py_DECREF(item);
+    }
+    if (dict_set(result, "contexts", contexts) < 0) {
+        Py_DECREF(result);
+        return NULL;
+    }
+    if (detail->cause == TLV_CODEC_CAUSE_READER &&
+        dict_set(result, "reader",
+                 reader_parts_value(common->code, common, &detail->detail.reader)) < 0) {
+        Py_DECREF(result);
+        return NULL;
+    }
+    if (detail->cause == TLV_CODEC_CAUSE_SCHEMA) {
+        tlv_schema_diagnostic_t schema = {0};
+        schema.diagnostic = *common;
+        schema.kind = detail->detail.schema.kind;
+        schema.tag = detail->detail.schema.tag;
+        schema.definition = detail->detail.schema.definition;
+        schema.field = detail->detail.schema.field;
+        schema.is_group = detail->detail.schema.is_group;
+        schema.has_occurs = detail->detail.schema.has_occurs;
+        schema.min_occurs = detail->detail.schema.min_occurs;
+        schema.max_occurs = detail->detail.schema.max_occurs;
+        schema.occurs = detail->detail.schema.occurs;
+        schema.has_length = detail->detail.schema.has_length;
+        schema.min_length = detail->detail.schema.min_length;
+        schema.max_length = detail->detail.schema.max_length;
+        schema.actual_length = detail->detail.schema.actual_length;
+        schema.has_form = detail->detail.schema.has_form;
+        schema.expected_form = detail->detail.schema.expected_form;
+        schema.actual_constructed = detail->detail.schema.actual_constructed;
+        schema.length_multiple = detail->detail.schema.length_multiple;
+        schema.length_flags = detail->detail.schema.length_flags;
+        if (dict_set(result, "schema", schema_diagnostic_value(&schema)) < 0) {
+            Py_DECREF(result);
+            return NULL;
+        }
+    }
+    return result;
 }
 
-/* Raises _opentlv.CodecError with a single int argument: the
- * tlv_codec_result_t code. This is a separate error domain from
- * _opentlv.Error: tlv_codec_result_t conversion errors are
- * independent of the tlv_result_t framing errors that raises. */
-static void raise_codec_error(tlv_codec_result_t code) {
-    PyObject* codec_args = Py_BuildValue("(i)", (int)code);
-    if (codec_args == NULL) {
+static void raise_codec_error(tlv_result_t code, const tlv_codec_diagnostic_t* diagnostic) {
+    PyObject* fields = PyDict_New();
+    if (!fields) return;
+    if (dict_set(fields, "code", PyLong_FromLong(code)) < 0 ||
+        dict_set(fields, "location", opentlv_python_location(&diagnostic->diagnostic.location)) <
+            0 ||
+        dict_set(fields, "codec_detail",
+                 codec_detail_value(&diagnostic->diagnostic, &diagnostic->codec)) < 0) {
+        Py_DECREF(fields);
         return;
     }
-    PyErr_SetObject(opentlv_python_codec_error, codec_args);
-    Py_DECREF(codec_args);
+    raise_error(fields);
 }
 
 /* Names do not participate in lookup; the facade retains them in its records. */
@@ -755,11 +844,12 @@ static PyObject* _opentlv_definition_find(PyObject* module, PyObject* args) {
 
 static PyObject* _opentlv_number_codec(PyObject* module, PyObject* args) {
     (void)module;
-    int        operation, encoding;
-    Py_ssize_t width;
-    PyObject*  digits_obj;
-    PyObject*  input;
-    PyObject*  output = Py_None;
+    tlv_codec_diagnostic_t diagnostic;
+    int                    operation, encoding;
+    Py_ssize_t             width;
+    PyObject*              digits_obj;
+    PyObject*              input;
+    PyObject*              output = Py_None;
     if (!PyArg_ParseTuple(args, "iinOO|O", &operation, &encoding, &width, &digits_obj, &input,
                           &output))
         return NULL;
@@ -776,14 +866,15 @@ static PyObject* _opentlv_number_codec(PyObject* module, PyObject* args) {
     tlv_number_codec_config_t config = {(tlv_number_encoding_t)encoding, (size_t)width,
                                         (unsigned int)digits};
     uint64_t                  value = 0;
-    tlv_codec_result_t        code;
+    tlv_result_t              code;
     if (operation == 0) {
         Py_buffer data;
         if (PyObject_GetBuffer(input, &data, PyBUF_SIMPLE) < 0) return NULL;
-        code = tlv_number_decode(&config, data.buf, (size_t)data.len, &value, sizeof(value));
+        code = tlv_number_decode(&config, data.buf, (size_t)data.len, &value, sizeof(value),
+                                 &diagnostic);
         PyBuffer_Release(&data);
-        if (code != TLV_CODEC_OK) {
-            raise_codec_error(code);
+        if (code != TLV_OK) {
+            raise_codec_error(code, &diagnostic);
             return NULL;
         }
         return PyLong_FromUnsignedLongLong(value);
@@ -795,10 +886,10 @@ static PyObject* _opentlv_number_codec(PyObject* module, PyObject* args) {
         Py_buffer buffer;
         if (PyObject_GetBuffer(output, &buffer, PyBUF_WRITABLE) < 0) return NULL;
         code = tlv_number_encode(&config, &value, sizeof(value), buffer.buf, (size_t)buffer.len,
-                                 &written);
+                                 &written, &diagnostic);
         PyBuffer_Release(&buffer);
-        if (code != TLV_CODEC_OK) {
-            raise_codec_error(code);
+        if (code != TLV_OK) {
+            raise_codec_error(code, &diagnostic);
             return NULL;
         }
         return PyLong_FromSize_t(written);
@@ -807,17 +898,18 @@ static PyObject* _opentlv_number_codec(PyObject* module, PyObject* args) {
         PyErr_SetString(PyExc_ValueError, "unknown codec operation");
         return NULL;
     }
-    code = tlv_number_encode(&config, &value, sizeof(value), NULL, 0, &written);
-    if (code != TLV_CODEC_OK) {
-        raise_codec_error(code);
+    code = tlv_number_encode(&config, &value, sizeof(value), NULL, 0, &written, &diagnostic);
+    if (code != TLV_OK) {
+        raise_codec_error(code, &diagnostic);
         return NULL;
     }
     if (operation == 2) return PyLong_FromSize_t(written);
     /* Numeric C representations never exceed nine bytes; size query already validates. */
     uint8_t bytes[9];
-    code = tlv_number_encode(&config, &value, sizeof(value), bytes, sizeof(bytes), &written);
-    if (code != TLV_CODEC_OK) {
-        raise_codec_error(code);
+    code = tlv_number_encode(&config, &value, sizeof(value), bytes, sizeof(bytes), &written,
+                             &diagnostic);
+    if (code != TLV_OK) {
+        raise_codec_error(code, &diagnostic);
         return NULL;
     }
     return PyBytes_FromStringAndSize((const char*)bytes, (Py_ssize_t)written);
@@ -827,20 +919,21 @@ static PyObject* _opentlv_number_codec(PyObject* module, PyObject* args) {
 /* emv_decode_amount(data) -> int
  *
  * Decodes 6 bytes of BCD (EMV format n12) into an unscaled minor-unit
- * amount, using the public `tlv_emv_codec_amount` codec. Raises _opentlv.CodecError
+ * amount, using the public `tlv_emv_codec_amount` codec. Raises _opentlv.Error
  * on failure. */
 static PyObject* _opentlv_emv_decode_amount(PyObject* module, PyObject* args) {
     (void)module;
-    Py_buffer buffer;
+    tlv_codec_diagnostic_t diagnostic;
+    Py_buffer              buffer;
     if (!PyArg_ParseTuple(args, "y*", &buffer)) {
         return NULL;
     }
-    uint64_t           value = 0;
-    tlv_codec_result_t code = tlv_codec_decode(&tlv_emv_codec_amount, (const uint8_t*)buffer.buf,
-                                               (size_t)buffer.len, &value, sizeof(value));
+    uint64_t     value = 0;
+    tlv_result_t code = tlv_codec_decode(&tlv_emv_codec_amount, (const uint8_t*)buffer.buf,
+                                         (size_t)buffer.len, &value, sizeof(value), &diagnostic);
     PyBuffer_Release(&buffer);
-    if (code != TLV_CODEC_OK) {
-        raise_codec_error(code);
+    if (code != TLV_OK) {
+        raise_codec_error(code, &diagnostic);
         return NULL;
     }
     return PyLong_FromUnsignedLongLong((unsigned long long)value);
@@ -850,21 +943,22 @@ static PyObject* _opentlv_emv_decode_amount(PyObject* module, PyObject* args) {
  *
  * Encodes an unscaled minor-unit amount as 6 bytes of BCD (EMV format n12),
  * using the public `tlv_emv_codec_amount` codec. Raises
- * _opentlv.CodecError on failure, for example if `value` does not fit
+ * _opentlv.Error on failure, for example if `value` does not fit
  * the format's 12-digit range. */
 static PyObject* _opentlv_emv_encode_amount(PyObject* module, PyObject* args) {
     (void)module;
-    unsigned long long value_arg;
+    tlv_codec_diagnostic_t diagnostic;
+    unsigned long long     value_arg;
     if (!PyArg_ParseTuple(args, "K", &value_arg)) {
         return NULL;
     }
-    uint64_t value = (uint64_t)value_arg;
-    uint8_t  data[16]; /* the amount codec always writes exactly 6 bytes; generous headroom */
-    size_t   written = 0;
-    tlv_codec_result_t code = tlv_codec_encode(&tlv_emv_codec_amount, &value, sizeof(value), data,
-                                               sizeof(data), &written);
-    if (code != TLV_CODEC_OK) {
-        raise_codec_error(code);
+    uint64_t     value = (uint64_t)value_arg;
+    uint8_t      data[16]; /* the amount codec always writes exactly 6 bytes; generous headroom */
+    size_t       written = 0;
+    tlv_result_t code = tlv_codec_encode(&tlv_emv_codec_amount, &value, sizeof(value), data,
+                                         sizeof(data), &written, &diagnostic);
+    if (code != TLV_OK) {
+        raise_codec_error(code, &diagnostic);
         return NULL;
     }
     return PyBytes_FromStringAndSize((const char*)data, (Py_ssize_t)written);
@@ -1927,8 +2021,6 @@ static PyMethodDef opentlv_python_methods[] = {
     {"definition_find", _opentlv_definition_find, METH_VARARGS,
      "Find the first generic C Definition."},
     {"number_codec", _opentlv_number_codec, METH_VARARGS, "Configured C numeric Value codec."},
-    {"codec_strerror", _opentlv_codec_strerror, METH_VARARGS,
-     "Return the readable description of a tlv_codec_result_t code."},
 #if OPENTLV_EMV
     {"emv_decode_amount", _opentlv_emv_decode_amount, METH_VARARGS,
      "Decode 6 bytes of BCD (EMV format n12) into an unscaled minor-unit amount."},
@@ -2005,16 +2097,7 @@ PyMODINIT_FUNC PyInit__opentlv(void) {
         return NULL;
     }
 
-    /* Raised with a single int argument: the tlv_codec_result_t code. */
-    opentlv_python_codec_error = PyErr_NewException("_opentlv.CodecError", NULL, NULL);
-    if (opentlv_python_codec_error == NULL) {
-        Py_DECREF(module);
-        return NULL;
-    }
-    if (PyModule_AddObjectRef(module, "CodecError", opentlv_python_codec_error) < 0) {
-        Py_DECREF(module);
-        return NULL;
-    }
+    /* Raised with a single int argument: the tlv_result_t code. */
 
     return module;
 }

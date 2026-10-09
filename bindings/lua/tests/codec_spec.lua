@@ -22,8 +22,9 @@ local function fails(fn, code)
     local ok, err = pcall(fn)
     assert(not ok, "expected failure")
     if code then
-        assert(type(err) == "table" and err.domain == "codec" and err.code == code)
-        assert(err.message == tlv.codec_strerror(code))
+        assert(type(err) == "table" and err.code == code)
+        assert(type(err.message) == "string")
+        assert(err.codec_detail ~= nil)
         assert(tostring(err):find(err.message, 1, true))
     end
     return err
@@ -59,10 +60,10 @@ round(c.digits {width = 3}, b(0x00, 0x12, 0xFF), "0012")
 round(c.digits {}, "", "")
 round(c.text {width = 5, zero_padding = true}, "abc\0\0", "abc")
 round(c.text {alphabet = "ascii_alnum"}, "A123", "A123")
-fails(function() c.text {alphabet = "ascii_alnum"}:encode("a b") end, tlv.codec_errors.INVALID_VALUE)
-fails(function() c.uint8:decode("") end, tlv.codec_errors.INVALID_VALUE)
-fails(function() c.int64_minimal_be:decode(b(0, 1)) end, tlv.codec_errors.INVALID_VALUE)
-fails(function() c.ipv4_list:decode("abc") end, tlv.codec_errors.INVALID_VALUE)
+fails(function() c.text {alphabet = "ascii_alnum"}:encode("a b") end, tlv.errors.INVALID_VALUE)
+fails(function() c.uint8:decode("") end, tlv.errors.INVALID_VALUE)
+fails(function() c.int64_minimal_be:decode(b(0, 1)) end, tlv.errors.INVALID_VALUE)
+fails(function() c.ipv4_list:decode("abc") end, tlv.errors.INVALID_VALUE)
 for _, value in ipairs({-1, 256, 1.5, "256", "", "12x", "1\0", true, {}}) do
     fails(function() c.uint8:encode(value) end)
 end
@@ -73,7 +74,7 @@ fails(function() c.int64_minimal_be:encode("9223372036854775808") end)
 fails(function() c.int64_minimal_be:encode("-9223372036854775809") end)
 fails(function() c.bytes:encode(123) end)
 fails(function() c.bytes:decode(123) end)
-fails(function() c.number {width = 1}:encode(256) end, tlv.codec_errors.INVALID_VALUE)
+fails(function() c.number {width = 1}:encode(256) end, tlv.errors.INVALID_VALUE)
 
 if c.asn1 then
     local a = c.asn1
@@ -107,11 +108,11 @@ if c.asn1 then
         round(a[name], "123", "123")
     end
     round(a.duration, "1DT2H", "1DT2H")
-    fails(function() a.boolean:decode(b(1)) end, tlv.codec_errors.INVALID_VALUE)
+    fails(function() a.boolean:decode(b(1)) end, tlv.errors.INVALID_VALUE)
     fails(function() a.boolean:encode(1) end)
-    fails(function() a.bit_string:encode {unused_bits = 1, data = b(1)} end, tlv.codec_errors.INVALID_VALUE)
-    fails(function() a.utf8_string:decode(b(0xC0, 0x80)) end, tlv.codec_errors.INVALID_VALUE)
-    fails(function() a.oid:encode {3, 0} end, tlv.codec_errors.INVALID_VALUE)
+    fails(function() a.bit_string:encode {unused_bits = 1, data = b(1)} end, tlv.errors.INVALID_VALUE)
+    fails(function() a.utf8_string:decode(b(0xC0, 0x80)) end, tlv.errors.INVALID_VALUE)
+    fails(function() a.oid:encode {3, 0} end, tlv.errors.INVALID_VALUE)
     fails(function() a.bmp_string:encode("a") end)
     local arcs = {}; for i = 1, 33 do arcs[i] = 1 end
     fails(function() a.relative_oid:encode(arcs) end)
@@ -135,7 +136,7 @@ if c.lldp.chassis_id then
     round(l.management_address, b(5, 1, 192, 0, 2, 1, 2, 0, 0, 0, 3, 0),
           {address_subtype = 1, address = b(192, 0, 2, 1), interface_subtype = 2, interface_number = 3, oid = ""})
     round(l.organisation, b(1, 2, 3, 4) .. "abc", {oui = b(1, 2, 3), subtype = 4, payload = "abc"})
-    fails(function() l.capabilities:encode {supported = 1, enabled = 2} end, tlv.codec_errors.INVALID_VALUE)
+    fails(function() l.capabilities:encode {supported = 1, enabled = 2} end, tlv.errors.INVALID_VALUE)
 end
 
 if c.bluetooth.flags then
@@ -153,9 +154,9 @@ if c.bluetooth.flags then
     round(bt.service_data128, uuid:reverse().."abc", {uuid=uuid, payload="abc", raw=uuid:reverse().."abc"})
     round(bt.manufacturer_data, b(0x34,0x12).."abc", {company_id=0x1234, payload="abc", raw=b(0x34,0x12).."abc"})
     assert(bt.manufacturer_data:encode {company_id=0x1234, payload="abc"} == b(0x34,0x12).."abc")
-    fails(function() bt.tx_power:encode(-128) end, tlv.codec_errors.INVALID_VALUE)
-    fails(function() bt.uuid16_list:decode("a") end, tlv.codec_errors.INVALID_VALUE)
-    fails(function() bt.flags:decode(b(6,0)) end, tlv.codec_errors.INVALID_VALUE)
+    fails(function() bt.tx_power:encode(-128) end, tlv.errors.INVALID_VALUE)
+    fails(function() bt.uuid16_list:decode("a") end, tlv.errors.INVALID_VALUE)
+    fails(function() bt.flags:decode(b(6,0)) end, tlv.errors.INVALID_VALUE)
 end
 
 if c.emv then
@@ -192,8 +193,8 @@ local marker = {}
 local bad = tlv.codec {decode = function() error(marker) end, encode = function() error(marker) end}
 assert(fails(function() bad:decode("x") end) == marker)
 assert(fails(function() bad:encode({}) end) == marker)
-fails(function() tlv.codec {}:decode("") end, tlv.codec_errors.UNSUPPORTED)
-fails(function() tlv.codec {decode = function(s) return s end}:encode("") end, tlv.codec_errors.UNSUPPORTED)
+fails(function() tlv.codec {}:decode("") end, tlv.errors.UNSUPPORTED)
+fails(function() tlv.codec {decode = function(s) return s end}:encode("") end, tlv.errors.UNSUPPORTED)
 fails(function() tlv.codec {encode = function() return 12 end}:encode("") end)
 assert(tlv.codec {decode = function() return nil end}:decode("") == nil)
 assert(tlv.codec {encode = function(value) assert(value == nil); return "" end}:encode(nil) == "")

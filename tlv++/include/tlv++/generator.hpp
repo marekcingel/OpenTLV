@@ -24,7 +24,8 @@ inline generator_candidate make_generator_candidate(tlv::tag tag, size_t minimum
 }
 /** @brief Compute scratch storage required by the native generator.
  * @param[in] options Immutable generator configuration.
- * @return Required bytes, or the canonical validation/overflow error.
+ * @return Required bytes, or the canonical configuration, capability or overflow error.
+ * @see tlv_generator_workspace_size()
  */
 inline expected<size_t, error> generator_workspace_size(const generator_options& options) {
     size_t size = 0;
@@ -76,6 +77,8 @@ public:
      * @brief Generate an independently reproducible case into owned bytes.
      * @param[in] case_index Random-access case index; zero is valid.
      * @return Complete wire bytes, or the canonical C validation/generation error.
+     * An unreadable or unwritable Format returns #TLV_ERR_UNSUPPORTED before
+     * options validation, matching tlv_generate().
      * @throws std::bad_alloc If C++ storage allocation fails.
      * @throws std::length_error If required storage exceeds vector's maximum size.
      * @note Call order does not affect output. Failed calls expose no partial result
@@ -86,7 +89,7 @@ public:
         auto options = options_;
         options.case_index = case_index;
         if (!format_.readable() || !format_.writable())
-            return unexpected<error>(error::from_c(TLV_ERR_NULL_ARG));
+            return unexpected<error>(error::from_c(TLV_ERR_UNSUPPORTED));
         auto required = generator_workspace_size(options);
         if (!required) return unexpected<error>(required.error());
         workspace_.resize(*required);

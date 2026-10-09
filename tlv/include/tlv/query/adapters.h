@@ -53,11 +53,13 @@ typedef struct tlv_query_codec_adapter {
  * @param[in] capacity Representation bytes.
  * @param[out] result Integer or UTF-8 string output.
  * @return Original codec status; unsigned overflow maps to INVALID_VALUE.
- * @note No allocation. UTF-8 validation adds linear external adapter work. */
-TLV_API tlv_codec_result_t tlv_query_codec_decode(const void* context,
-                                                  const tlv_tree_event_t* event,
-                                                  const uint8_t* data, size_t size, void* scratch,
-                                                  size_t capacity, tlv_query_result_t* result);
+ * @note No allocation. UTF-8 validation adds linear external adapter work. * @param[out] diagnostic
+ * Optional initialized failure output; NULL skips evidence collection.
+ */
+TLV_API tlv_result_t tlv_query_codec_decode(const void* context, const tlv_tree_event_t* event,
+                                            const uint8_t* data, size_t size, void* scratch,
+                                            size_t capacity, tlv_query_result_t* result,
+                                            tlv_codec_diagnostic_t* diagnostic);
 /** @brief Static native generic NUM/BCD/TEXT providers, IDs 1/2/3.
  * NUM uses minimal signed big-endian int64; BCD uses unsigned packed decimal
  * with at most 18 digits; TEXT uses borrowed UTF-8 bytes. Domain codecs may

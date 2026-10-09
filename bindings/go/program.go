@@ -27,6 +27,7 @@ type ProgramError struct {
 	Begin, End, SourceOffset, Configured uint64
 	HasSourceOffset                      bool
 	Expected, Limit                      string
+	CodecDetail                          *CodecDetail
 	Codec                                int
 	Reader                               Diagnostic
 }
@@ -41,7 +42,7 @@ func programError(code capi.Code, d capi.ProgramDiagnostic) error {
 	}
 	return &ProgramError{Location: Location{LocationDomain(d.Location.Domain), LocationKind(d.Location.Kind), d.Location.Begin, d.Location.End}, StatusError: StatusError{code: code}, Kind: d.Kind,
 		Begin: d.Begin, End: d.End, SourceOffset: d.SourceOffset, HasSourceOffset: d.HasSourceOffset,
-		Configured: d.Configured, Expected: d.Expected, Limit: d.Limit, Codec: d.Codec, Reader: publicDiagnostic(d.Reader)}
+		Configured: d.Configured, Expected: d.Expected, Limit: d.Limit, Codec: d.Codec, CodecDetail: publicCodecDetail(d.CodecDetail), Reader: publicDiagnostic(d.Reader)}
 }
 
 // ProgramOptions declares immutable compile-time names, types and explicit bounds.
@@ -75,13 +76,13 @@ type QueryMetadata struct {
 }
 
 // QueryProvider replaces one builtin with a stable nonzero ID and bounded UTF-8 scratch.
-// Decode returns QueryInteger or QueryString and a codec status (zero for success).
+// Decode returns QueryInteger or QueryString and a shared OpenTLV error (nil for success).
 // Callbacks must be safe for concurrent independent executions. Their allocations
-// and work are outside C engine contracts; panics become InvalidValue codec diagnostics.
+// and work are outside C engine contracts; panics become Callback diagnostics.
 type QueryProvider struct {
 	ID             uint32
 	MaxResultBytes int
-	Decode         func([]byte, *QueryMetadata) (QueryValue, CodecError)
+	Decode         func([]byte, *QueryMetadata) (QueryValue, error)
 }
 
 // QueryRule composes an immutable context selector and relative boolean assertion.
@@ -225,7 +226,7 @@ func buildProgram(data []byte, options ProgramOptions, image bool) (*QueryProgra
 					public = &QueryMetadata{Tag: metadata.Tag, Value: metadata.Value, Kind: metadata.Kind, Depth: metadata.Depth, Offset: metadata.Offset}
 				}
 				value, status := decode(input, public)
-				return capi.ProviderResult{Type: int(value.Type), Integer: value.Integer, Text: value.String}, int(status)
+				return capi.ProviderResult{Type: int(value.Type), Integer: value.Integer, Text: value.String}, int(queryCallbackCode(status))
 			}}
 	}
 	var tags *capi.QueryTagAdapter

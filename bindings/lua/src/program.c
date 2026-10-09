@@ -93,6 +93,10 @@ static void push_query_error(lua_State* L, tlv_result_t code, const tlv_query_di
     field(L, "end", d->end);
     field(L, "configured", d->configured);
     field(L, "codec", d->codec);
+    if (d->has_codec) {
+        opentlv_lua_push_codec_detail(L, &d->codec_detail);
+        lua_setfield(L, -2, "codec_detail");
+    }
     if ((d->diagnostic.location.domain == TLV_LOCATION_INPUT &&
          d->diagnostic.location.kind != TLV_LOCATION_UNKNOWN))
         field(L, "source_offset", d->diagnostic.location.begin);
@@ -255,9 +259,11 @@ static int provider_invoke(lua_State* L) {
     lua_call(L, 2, 1);
     return 1;
 }
-static tlv_codec_result_t provider_decode(const void* context, const tlv_tree_event_t* event,
-                                          const uint8_t* data, size_t size, void* scratch,
-                                          size_t capacity, tlv_query_result_t* result) {
+static tlv_result_t provider_decode(const void* context, const tlv_tree_event_t* event,
+                                    const uint8_t* data, size_t size, void* scratch,
+                                    size_t capacity, tlv_query_result_t* result,
+                                    tlv_codec_diagnostic_t* diagnostic) {
+    tlv_codec_diagnostic_init(diagnostic, TLV_CODEC_OP_DECODE);
     provider_t*     provider = (provider_t*)context;
     program_t*      p = provider->owner;
     lua_State*      L = p->callback_state;
@@ -274,10 +280,10 @@ static tlv_codec_result_t provider_decode(const void* context, const tlv_tree_ev
     if (failed) {
         lua_replace(L, p->callback_error_index);
         p->callback_failed = 1;
-        return TLV_CODEC_ERR_INVALID_VALUE;
+        return tlv_codec_diagnostic_result(diagnostic, TLV_ERR_INVALID_VALUE);
     }
     memset(result, 0, sizeof *result);
-    tlv_codec_result_t code = TLV_CODEC_OK;
+    tlv_result_t code = TLV_OK;
     if (lua_type(L, -1) == LUA_TNUMBER) {
 #if LUA_VERSION_NUM >= 503
         int         valid;
@@ -292,7 +298,7 @@ static tlv_codec_result_t provider_decode(const void* context, const tlv_tree_ev
         valid = valid && (lua_Number)value == number;
 #endif
         if (!valid)
-            code = TLV_CODEC_ERR_INVALID_VALUE;
+            code = TLV_ERR_INVALID_VALUE;
         else {
             result->kind = TLV_QUERY_RESULT_INTEGER;
             result->integer = (int64_t)value;
@@ -301,7 +307,7 @@ static tlv_codec_result_t provider_decode(const void* context, const tlv_tree_ev
         size_t      length;
         const char* value = lua_tolstring(L, -1, &length);
         if (length > capacity)
-            code = TLV_CODEC_ERR_BUFFER_TOO_SHORT;
+            code = TLV_ERR_BUFFER_TOO_SHORT;
         else {
             if (length) memcpy(scratch, value, length);
             result->kind = TLV_QUERY_RESULT_STRING;
@@ -309,9 +315,9 @@ static tlv_codec_result_t provider_decode(const void* context, const tlv_tree_ev
             result->size = length;
         }
     } else
-        code = TLV_CODEC_ERR_INVALID_VALUE;
+        code = TLV_ERR_INVALID_VALUE;
     lua_pop(L, 1);
-    return code;
+    return tlv_codec_diagnostic_result(diagnostic, code);
 }
 typedef struct {
     program_t*     owner;

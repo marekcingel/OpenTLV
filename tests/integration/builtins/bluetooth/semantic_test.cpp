@@ -41,9 +41,9 @@ TEST(Integration_Tlv_BluetoothSemantic, EveryUuidLengthThroughContainerReaderSch
             EXPECT_EQ(wire.data() + 5, decoded.element.value.data);
             ASSERT_NE(nullptr, tlv_definition_find(&tlv_bluetooth_ad_types, &decoded.element.tag));
             tlv_bluetooth_uuid_list_t list{};
-            const auto                rc =
-                tlv_codec_decode(codec, decoded.element.value.data, length, &list, sizeof(list));
-            EXPECT_EQ(length % width == 0 ? TLV_CODEC_OK : TLV_CODEC_ERR_INVALID_VALUE, rc);
+            const auto rc = tlv_codec_decode(codec, decoded.element.value.data, length, &list,
+                                             sizeof(list), NULL);
+            EXPECT_EQ(length % width == 0 ? TLV_OK : TLV_ERR_INVALID_VALUE, rc);
             tlv_schema_diagnostic_t        diagnostic{};
             tlv_schema_diagnostic_report_t report = {&diagnostic, 1, 0};
             const auto                     schema = tlv_schema_validate_all_diag(

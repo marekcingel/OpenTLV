@@ -116,7 +116,7 @@ func TestQuerySchemaProviderLifetimeAndDocumentGuards(t *testing.T) {
 	context := compiled(t, "//5A", nil)
 	var predicate *tlv.QueryProgram
 	options := tlv.ProgramOptions{Format: f, Providers: map[tlv.QueryConversion]tlv.QueryProvider{
-		tlv.QueryNum: {ID: 201, Decode: func(value []byte, metadata *tlv.QueryMetadata) (tlv.QueryValue, tlv.CodecError) {
+		tlv.QueryNum: {ID: 201, Decode: func(value []byte, metadata *tlv.QueryMetadata) (tlv.QueryValue, error) {
 			if metadata == nil || !bytes.Equal(metadata.Tag, []byte{0x5a}) {
 				t.Error("missing metadata")
 			}
@@ -133,7 +133,7 @@ func TestQuerySchemaProviderLifetimeAndDocumentGuards(t *testing.T) {
 			context.Close()
 			predicate.Close()
 			runtime.GC()
-			return tlv.QueryValue{Type: tlv.QueryInteger, Integer: int64(value[0])}, 0
+			return tlv.QueryValue{Type: tlv.QueryInteger, Integer: int64(value[0])}, nil
 		}},
 	}}
 	predicate, err = tlv.CompileQuery("num(.) = 1", options)
@@ -148,7 +148,7 @@ func TestQuerySchemaProviderLifetimeAndDocumentGuards(t *testing.T) {
 		t.Fatal(err)
 	}
 	panicOptions := tlv.ProgramOptions{Format: f, Providers: map[tlv.QueryConversion]tlv.QueryProvider{
-		tlv.QueryNum: {ID: 202, Decode: func([]byte, *tlv.QueryMetadata) (tlv.QueryValue, tlv.CodecError) { panic("schema provider") }},
+		tlv.QueryNum: {ID: 202, Decode: func([]byte, *tlv.QueryMetadata) (tlv.QueryValue, error) { panic("schema provider") }},
 	}}
 	throwing, err := tlv.CompileQuery("num(.) = 1", panicOptions)
 	if err != nil {
@@ -157,7 +157,7 @@ func TestQuerySchemaProviderLifetimeAndDocumentGuards(t *testing.T) {
 	defer throwing.Close()
 	var failure *tlv.ProgramError
 	err = tlv.ValidateQueryDocument([]tlv.QueryRule{{Context: compiled(t, "//5A", nil), Assertion: throwing}}, doc, tlv.DefaultQuerySchemaLimits())
-	if !errors.As(err, &failure) || failure.Codec != 3 {
+	if !errors.As(err, &failure) || failure.Codec != tlv.ErrCallback.Code() {
 		t.Fatal(err)
 	}
 	if err := doc.Close(); err != nil {
@@ -181,11 +181,11 @@ func TestQueryCustomProvidersLifetimeImageAndErrors(t *testing.T) {
 		t.Skip("BER disabled")
 	}
 	options := tlv.ProgramOptions{Format: f, Optimize: true, Providers: map[tlv.QueryConversion]tlv.QueryProvider{
-		tlv.QueryNum: {ID: 101, Decode: func(value []byte, metadata *tlv.QueryMetadata) (tlv.QueryValue, tlv.CodecError) {
+		tlv.QueryNum: {ID: 101, Decode: func(value []byte, metadata *tlv.QueryMetadata) (tlv.QueryValue, error) {
 			if metadata == nil || metadata.Offset != 0 {
 				t.Error("missing metadata")
 			}
-			return tlv.QueryValue{Type: tlv.QueryInteger, Integer: int64(value[0]) * 10}, 0
+			return tlv.QueryValue{Type: tlv.QueryInteger, Integer: int64(value[0]) * 10}, nil
 		}},
 	}}
 	p, err := tlv.CompileQuery("num(//5A)", options)
@@ -220,8 +220,8 @@ func TestQueryCustomProvidersLifetimeImageAndErrors(t *testing.T) {
 	}
 	for _, capacity := range []int{3, 2} {
 		options.Providers = map[tlv.QueryConversion]tlv.QueryProvider{tlv.QueryText: {ID: 102, MaxResultBytes: capacity,
-			Decode: func([]byte, *tlv.QueryMetadata) (tlv.QueryValue, tlv.CodecError) {
-				return tlv.QueryValue{Type: tlv.QueryString, String: "a\x00b"}, 0
+			Decode: func([]byte, *tlv.QueryMetadata) (tlv.QueryValue, error) {
+				return tlv.QueryValue{Type: tlv.QueryString, String: "a\x00b"}, nil
 			}}}
 		text, err := tlv.CompileQuery("text(//5A)", options)
 		if err != nil {
@@ -235,7 +235,7 @@ func TestQueryCustomProvidersLifetimeImageAndErrors(t *testing.T) {
 		err = e.Visit(func(tlv.QueryMatch) tlv.QueryVisit { return tlv.QueryContinue })
 		if capacity == 2 {
 			var failure *tlv.ProgramError
-			if !errors.As(err, &failure) || failure.Codec != 2 {
+			if !errors.As(err, &failure) || failure.Codec != tlv.ErrBufferTooShort.Code() {
 				t.Fatal(err)
 			}
 		} else {
@@ -255,14 +255,14 @@ func TestQueryProviderPanicAndReentryDoNotCrossC(t *testing.T) {
 	var active *tlv.QueryExecution
 	for _, panicProvider := range []bool{false, true} {
 		options := tlv.ProgramOptions{Format: f, Optimize: true, Providers: map[tlv.QueryConversion]tlv.QueryProvider{
-			tlv.QueryNum: {ID: 103, Decode: func([]byte, *tlv.QueryMetadata) (tlv.QueryValue, tlv.CodecError) {
+			tlv.QueryNum: {ID: 103, Decode: func([]byte, *tlv.QueryMetadata) (tlv.QueryValue, error) {
 				if panicProvider {
 					panic("provider panic")
 				}
 				if err := active.Reset(); err == nil {
 					t.Error("allowed callback reentry")
 				}
-				return tlv.QueryValue{}, tlv.ErrCodecUnsupported
+				return tlv.QueryValue{}, tlv.ErrUnsupported
 			}},
 		}}
 		p, err := tlv.CompileQuery("num(//5A)", options)
@@ -276,9 +276,9 @@ func TestQueryProviderPanicAndReentryDoNotCrossC(t *testing.T) {
 		}
 		err = active.Visit(func(tlv.QueryMatch) tlv.QueryVisit { return tlv.QueryContinue })
 		var failure *tlv.ProgramError
-		expected := 4
+		expected := tlv.ErrUnsupported.Code()
 		if panicProvider {
-			expected = 3
+			expected = tlv.ErrCallback.Code()
 		}
 		if !errors.As(err, &failure) || failure.Codec != expected {
 			t.Fatal(err)

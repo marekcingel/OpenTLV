@@ -5,7 +5,7 @@
 
 use opentlv::emv::{self, Context};
 use opentlv::{
-    AccountType, AflEntry, BiometricType, Codec, CodecError, CryptogramInfo, CryptogramType,
+    AccountType, AflEntry, BiometricType, Codec, CodecFailure, CryptogramInfo, CryptogramType,
     CvmResult, Date, Error, Format, Reader, Tag, Time, Track2, Value, ValueKind,
 };
 
@@ -34,9 +34,12 @@ fn amount_codec_round_trips_bcd() {
     round_trip(amount, &[0, 0, 0, 0, 0x12, 0x34], Value::Number(1234));
     assert_eq!(
         amount.decode(&[0, 0, 0, 0, 0x1A, 0x34]),
-        Err(CodecError::InvalidValue)
+        Err(CodecFailure::from(opentlv::Error::InvalidValue))
     );
-    assert_eq!(amount.decode(&[0, 0, 0]), Err(CodecError::InvalidValue));
+    assert_eq!(
+        amount.decode(&[0, 0, 0]),
+        Err(CodecFailure::from(opentlv::Error::Schema))
+    );
 }
 
 #[test]
@@ -109,7 +112,10 @@ fn digits_drop_the_padding_nibble() {
         pan.encode(&Value::Digits("41111".into())).unwrap(),
         [0x41, 0x11, 0x1F]
     );
-    assert_eq!(pan.decode(&[]), Err(CodecError::InvalidValue));
+    assert_eq!(
+        pan.decode(&[]),
+        Err(CodecFailure::from(opentlv::Error::Schema))
+    );
 }
 
 #[test]
@@ -126,7 +132,7 @@ fn dates_and_times_are_range_checked() {
     );
     assert_eq!(
         date.decode(&[0x25, 0x13, 0x01]),
-        Err(CodecError::InvalidValue)
+        Err(CodecFailure::from(opentlv::Error::InvalidValue))
     );
 
     let time = codec(Context::Base, &[0x9F, 0x21]);
@@ -141,7 +147,7 @@ fn dates_and_times_are_range_checked() {
     );
     assert_eq!(
         time.decode(&[0x24, 0x00, 0x00]),
-        Err(CodecError::InvalidValue)
+        Err(CodecFailure::from(opentlv::Error::InvalidValue))
     );
 }
 
@@ -150,11 +156,17 @@ fn enumerations_reject_undefined_values() {
     let account = codec(Context::Base, &[0x5F, 0x57]);
     round_trip(account, &[0x10], Value::Account(AccountType::Savings));
     round_trip(account, &[0x30], Value::Account(AccountType::Credit));
-    assert_eq!(account.decode(&[0x11]), Err(CodecError::InvalidValue));
+    assert_eq!(
+        account.decode(&[0x11]),
+        Err(CodecFailure::from(opentlv::Error::InvalidValue))
+    );
 
     let biometric = codec(Context::Bht, &[0x81]);
     round_trip(biometric, &[0x08], Value::Biometric(BiometricType::Finger));
-    assert_eq!(biometric.decode(&[0x01]), Err(CodecError::InvalidValue));
+    assert_eq!(
+        biometric.decode(&[0x01]),
+        Err(CodecFailure::from(opentlv::Error::InvalidValue))
+    );
 
     let cid = codec(Context::Base, &[0x9F, 0x27]);
     round_trip(
@@ -200,10 +212,13 @@ fn afl_round_trips_and_validates_entries() {
     // SFI 0 is reserved.
     assert_eq!(
         afl.decode(&[0x00, 0x01, 0x01, 0x00]),
-        Err(CodecError::InvalidValue)
+        Err(CodecFailure::from(opentlv::Error::InvalidValue))
     );
     let too_many = Value::Afl(vec![AflEntry::default(); 64]);
-    assert_eq!(afl.encoded_size(&too_many), Err(CodecError::InvalidValue));
+    assert_eq!(
+        afl.encoded_size(&too_many),
+        Err(CodecFailure::from(opentlv::Error::InvalidValue))
+    );
 }
 
 #[test]
@@ -239,30 +254,39 @@ fn track2_round_trips() {
         pan: "1".repeat(20),
         ..Track2::default()
     });
-    assert_eq!(track2.encoded_size(&long), Err(CodecError::InvalidValue));
+    assert_eq!(
+        track2.encoded_size(&long),
+        Err(CodecFailure::from(opentlv::Error::InvalidValue))
+    );
     // Month 0 is invalid.
     let bad = Value::Track2(Track2 {
         pan: "1234".into(),
         ..Track2::default()
     });
-    assert_eq!(track2.encoded_size(&bad), Err(CodecError::InvalidValue));
+    assert_eq!(
+        track2.encoded_size(&bad),
+        Err(CodecFailure::from(opentlv::Error::InvalidValue))
+    );
 }
 
 #[test]
 fn encoding_reports_errors() {
     let aip = codec(Context::Base, &[0x82]);
     // Wrong value kind for the codec.
-    assert_eq!(aip.encode(&Value::Number(1)), Err(CodecError::InvalidValue));
+    assert_eq!(
+        aip.encode(&Value::Number(1)),
+        Err(CodecFailure::from(opentlv::Error::InvalidValue))
+    );
     // Value too large for the two-byte field.
     assert_eq!(
         aip.encode(&Value::Flags(0x1_0000)),
-        Err(CodecError::InvalidValue)
+        Err(CodecFailure::from(opentlv::Error::Schema))
     );
 
     let mut small = [0u8; 1];
     assert_eq!(
         aip.encode_into(&Value::Flags(0x2000), &mut small),
-        Err(CodecError::BufferTooShort)
+        Err(CodecFailure::from(opentlv::Error::BufferTooShort))
     );
     let mut exact = [0u8; 4];
     assert_eq!(aip.encode_into(&Value::Flags(0x2000), &mut exact), Ok(2));
@@ -271,14 +295,16 @@ fn encoding_reports_errors() {
 
 #[test]
 fn codec_errors_display_the_c_description() {
-    assert!(!CodecError::InvalidValue.to_string().is_empty());
+    assert!(!CodecFailure::from(opentlv::Error::InvalidValue)
+        .to_string()
+        .is_empty());
     assert_eq!(
-        CodecError::from_code(CodecError::BufferTooShort.code()),
-        Some(CodecError::BufferTooShort)
+        Error::from_code(CodecFailure::from(opentlv::Error::BufferTooShort).code()),
+        Some(Error::BufferTooShort)
     );
-    assert_eq!(CodecError::from_code(0), None);
-    assert_eq!(CodecError::from_code(999), Some(CodecError::Unknown(999)));
-    let _: &dyn std::error::Error = &CodecError::Unsupported;
+    assert_eq!(Error::from_code(0), None);
+    assert_eq!(Error::from_code(999), Some(Error::Unknown(999)));
+    let _: &dyn std::error::Error = &CodecFailure::from(opentlv::Error::Unsupported);
 }
 
 #[test]
@@ -350,4 +376,21 @@ fn configured_numeric_codecs_delegate_measure_decode_and_encode_to_c() {
     assert!(NumberCodec::new(NumberEncoding::Bcd, 1, 2)
         .decode(&[0xFA])
         .is_err());
+}
+
+#[test]
+fn conversion_diagnostic_keeps_shared_result_and_owned_context() {
+    let failure = Codec::amount().decode(&[1]).unwrap_err();
+    assert_eq!(failure.error, Error::Schema);
+    let diagnostic = failure.diagnostic.unwrap();
+    assert_eq!(diagnostic.code, Error::Schema.code());
+    assert_eq!(diagnostic.reported, Error::Schema.code());
+    assert_eq!(diagnostic.operation, 0);
+    assert_eq!(diagnostic.violation, 0);
+    let cause = diagnostic.schema.unwrap();
+    assert_eq!(cause.error, Error::Schema);
+    let length = cause.length.unwrap();
+    assert_eq!(length.minimum, 6);
+    assert_eq!(length.maximum, 6);
+    assert_eq!(length.actual, 1);
 }

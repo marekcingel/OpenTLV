@@ -18,89 +18,93 @@ static int id_valid(int kind, uint8_t subtype, const uint8_t* p, size_t size) {
     if (subtype == mac + 1) return size >= 2 && address_valid(p[0], size - 1);
     return 1;
 }
-static tlv_codec_result_t span_size(tlv_value_t value, size_t max, size_t* size) {
-    if (!value.data && value.size) return TLV_CODEC_ERR_NULL_ARG;
+static tlv_result_t span_size(tlv_value_t value, size_t max, size_t* size) {
+    if (!value.data && value.size) return TLV_ERR_NULL_ARG;
     if (value.size > max || tlv_size_to_native(value.size, size) != TLV_OK)
-        return TLV_CODEC_ERR_INVALID_VALUE;
-    return TLV_CODEC_OK;
+        return TLV_ERR_INVALID_VALUE;
+    return TLV_OK;
 }
 
-static tlv_codec_result_t decode(const void* context, const uint8_t* data, size_t size, void* value,
-                                 size_t capacity) {
+static tlv_result_t decode(const void* context, const uint8_t* data, size_t size, void* value,
+                           size_t capacity, tlv_codec_diagnostic_t* diagnostic) {
+    tlv_codec_diagnostic_init(diagnostic, TLV_CODEC_OP_DECODE);
     const int kind = *(const int*)context;
 #define RETURN_VALUE(result)                                                                       \
     do {                                                                                           \
-        if (capacity < sizeof(result)) return TLV_CODEC_ERR_BUFFER_TOO_SHORT;                      \
+        if (capacity < sizeof(result))                                                             \
+            return tlv_codec_diagnostic_result(diagnostic, TLV_ERR_BUFFER_TOO_SHORT);              \
         memcpy(value, &(result), sizeof(result));                                                  \
-        return TLV_CODEC_OK;                                                                       \
+        return tlv_codec_diagnostic_result(diagnostic, TLV_OK);                                    \
     } while (0)
     switch (kind) {
         case CHASSIS:
         case PORT: {
             tlv_lldp_id_t result;
             if (size < 2 || !id_valid(kind, data[0], data + 1, size - 1))
-                return TLV_CODEC_ERR_INVALID_VALUE;
+                return tlv_codec_diagnostic_result(diagnostic, TLV_ERR_INVALID_VALUE);
             result.subtype = data[0];
             result.identifier = (tlv_value_t){data + 1, size - 1};
             RETURN_VALUE(result);
         }
         case CAPABILITIES: {
             tlv_lldp_capabilities_t result;
-            if (size != 4) return TLV_CODEC_ERR_INVALID_VALUE;
+            if (size != 4) return tlv_codec_diagnostic_result(diagnostic, TLV_ERR_INVALID_VALUE);
             result.supported = tlv_read_u16_be(data);
             result.enabled = tlv_read_u16_be(data + 2);
             if ((result.enabled & (uint16_t)~result.supported) != 0)
-                return TLV_CODEC_ERR_INVALID_VALUE;
+                return tlv_codec_diagnostic_result(diagnostic, TLV_ERR_INVALID_VALUE);
             RETURN_VALUE(result);
         }
         case MANAGEMENT: {
             tlv_lldp_management_address_t result;
             size_t address_length, offset, oid_length;
-            if (size < 9) return TLV_CODEC_ERR_INVALID_VALUE;
+            if (size < 9) return tlv_codec_diagnostic_result(diagnostic, TLV_ERR_INVALID_VALUE);
             address_length = data[0]; /* Includes the family octet. */
             if (address_length < 2 || address_length > 32 || address_length > size - 7)
-                return TLV_CODEC_ERR_INVALID_VALUE;
+                return tlv_codec_diagnostic_result(diagnostic, TLV_ERR_INVALID_VALUE);
             result.address_subtype = data[1];
             result.address = (tlv_value_t){data + 2, address_length - 1};
             if (!address_valid(result.address_subtype, address_length - 1))
-                return TLV_CODEC_ERR_INVALID_VALUE;
+                return tlv_codec_diagnostic_result(diagnostic, TLV_ERR_INVALID_VALUE);
             offset = 1 + address_length;
             result.interface_subtype = data[offset];
             if (result.interface_subtype < 1 || result.interface_subtype > 3)
-                return TLV_CODEC_ERR_INVALID_VALUE;
+                return tlv_codec_diagnostic_result(diagnostic, TLV_ERR_INVALID_VALUE);
             result.interface_number = ((uint32_t)data[offset + 1] << 24) |
                                       ((uint32_t)data[offset + 2] << 16) |
                                       ((uint32_t)data[offset + 3] << 8) | data[offset + 4];
             oid_length = data[offset + 5];
             if (oid_length > 128 || oid_length != size - offset - 6)
-                return TLV_CODEC_ERR_INVALID_VALUE;
+                return tlv_codec_diagnostic_result(diagnostic, TLV_ERR_INVALID_VALUE);
             result.oid = (tlv_value_t){data + offset + 6, oid_length};
             RETURN_VALUE(result);
         }
         case ORGANISATION: {
             tlv_lldp_organisation_t result;
-            if (size < 4) return TLV_CODEC_ERR_INVALID_VALUE;
+            if (size < 4) return tlv_codec_diagnostic_result(diagnostic, TLV_ERR_INVALID_VALUE);
             memcpy(result.oui, data, 3);
             result.subtype = data[3];
             result.payload = (tlv_value_t){data + 4, size - 4};
             RETURN_VALUE(result);
         }
-        default: return TLV_CODEC_ERR_UNSUPPORTED;
+        default: return tlv_codec_diagnostic_result(diagnostic, TLV_ERR_UNSUPPORTED);
     }
 #undef RETURN_VALUE
 }
 
-static tlv_codec_result_t encode(const void* context, const void* value, size_t size, uint8_t* data,
-                                 size_t capacity, size_t* written) {
+static tlv_result_t encode(const void* context, const void* value, size_t size, uint8_t* data,
+                           size_t capacity, size_t* written, tlv_codec_diagnostic_t* diagnostic) {
+    tlv_codec_diagnostic_init(diagnostic, data ? TLV_CODEC_OP_ENCODE : TLV_CODEC_OP_MEASURE);
     const int kind = *(const int*)context;
     /* Management representation: length + family/address (32) + interface (5)
      * + OID length + OID (128). These are inner representation bounds. */
     uint8_t wire[1 + 32 + 5 + 1 + 128];
     size_t length = 0, count = 0;
-    tlv_codec_result_t rc;
+    tlv_result_t rc;
 #define READ_VALUE(input)                                                                          \
     do {                                                                                           \
-        if (size != sizeof(input)) return TLV_CODEC_ERR_INVALID_VALUE;                             \
+        if (size != sizeof(input))                                                                 \
+            return tlv_codec_diagnostic_result(diagnostic, TLV_ERR_INVALID_VALUE);                 \
         memcpy(&(input), value, sizeof(input));                                                    \
     } while (0)
     switch (kind) {
@@ -109,23 +113,24 @@ static tlv_codec_result_t encode(const void* context, const void* value, size_t 
             tlv_lldp_id_t input;
             READ_VALUE(input);
             rc = span_size(input.identifier, SIZE_MAX - 1, &count);
-            if (rc != TLV_CODEC_OK) return rc;
+            if (rc != TLV_OK) return tlv_codec_diagnostic_result(diagnostic, rc);
             if (!id_valid(kind, input.subtype, input.identifier.data, count))
-                return TLV_CODEC_ERR_INVALID_VALUE;
+                return tlv_codec_diagnostic_result(diagnostic, TLV_ERR_INVALID_VALUE);
             length = 1 + count;
             if (data) {
-                if (capacity < length) return TLV_CODEC_ERR_BUFFER_TOO_SHORT;
+                if (capacity < length)
+                    return tlv_codec_diagnostic_result(diagnostic, TLV_ERR_BUFFER_TOO_SHORT);
                 data[0] = input.subtype;
                 memcpy(data + 1, input.identifier.data, count);
             }
             *written = length;
-            return TLV_CODEC_OK;
+            return tlv_codec_diagnostic_result(diagnostic, TLV_OK);
         }
         case CAPABILITIES: {
             tlv_lldp_capabilities_t input;
             READ_VALUE(input);
             if ((input.enabled & (uint16_t)~input.supported) != 0)
-                return TLV_CODEC_ERR_INVALID_VALUE;
+                return tlv_codec_diagnostic_result(diagnostic, TLV_ERR_INVALID_VALUE);
             tlv_write_u16_be(wire, input.supported);
             tlv_write_u16_be(wire + 2, input.enabled);
             length = 4;
@@ -136,12 +141,12 @@ static tlv_codec_result_t encode(const void* context, const void* value, size_t 
             size_t oid_length, offset;
             READ_VALUE(input);
             rc = span_size(input.address, 31, &count);
-            if (rc != TLV_CODEC_OK) return rc;
+            if (rc != TLV_OK) return tlv_codec_diagnostic_result(diagnostic, rc);
             rc = span_size(input.oid, 128, &oid_length);
-            if (rc != TLV_CODEC_OK) return rc;
+            if (rc != TLV_OK) return tlv_codec_diagnostic_result(diagnostic, rc);
             if (!address_valid(input.address_subtype, count) || input.interface_subtype < 1 ||
                 input.interface_subtype > 3)
-                return TLV_CODEC_ERR_INVALID_VALUE;
+                return tlv_codec_diagnostic_result(diagnostic, TLV_ERR_INVALID_VALUE);
             wire[0] = (uint8_t)(count + 1);
             wire[1] = input.address_subtype;
             memcpy(wire + 2, input.address.data, count);
@@ -160,26 +165,28 @@ static tlv_codec_result_t encode(const void* context, const void* value, size_t 
             tlv_lldp_organisation_t input;
             READ_VALUE(input);
             rc = span_size(input.payload, SIZE_MAX - 4, &count);
-            if (rc != TLV_CODEC_OK) return rc;
+            if (rc != TLV_OK) return tlv_codec_diagnostic_result(diagnostic, rc);
             length = 4 + count;
             if (data) {
-                if (capacity < length) return TLV_CODEC_ERR_BUFFER_TOO_SHORT;
+                if (capacity < length)
+                    return tlv_codec_diagnostic_result(diagnostic, TLV_ERR_BUFFER_TOO_SHORT);
                 memcpy(data, input.oui, 3);
                 data[3] = input.subtype;
                 if (count) memcpy(data + 4, input.payload.data, count);
             }
             *written = length;
-            return TLV_CODEC_OK;
+            return tlv_codec_diagnostic_result(diagnostic, TLV_OK);
         }
-        default: return TLV_CODEC_ERR_UNSUPPORTED;
+        default: return tlv_codec_diagnostic_result(diagnostic, TLV_ERR_UNSUPPORTED);
     }
 #undef READ_VALUE
     if (data) {
-        if (capacity < length) return TLV_CODEC_ERR_BUFFER_TOO_SHORT;
+        if (capacity < length)
+            return tlv_codec_diagnostic_result(diagnostic, TLV_ERR_BUFFER_TOO_SHORT);
         if (length) memcpy(data, wire, length);
     }
     *written = length;
-    return TLV_CODEC_OK;
+    return tlv_codec_diagnostic_result(diagnostic, TLV_OK);
 }
 
 #define CODEC(name, kind)                                                                          \

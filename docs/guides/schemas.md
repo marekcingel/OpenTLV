@@ -398,7 +398,7 @@ static const tlv_value_constraint_t version_range = {
 
 int64_t version;
 tlv_codec_decode(&tlv_asn1_codec_integer, element.value.data, element.value.size,
-                  &version, sizeof(version));
+                  &version, sizeof(version), NULL);
 tlv_result_t rc = tlv_value_constraint_validate(&version_range, version);
 /* TLV_OK, or TLV_ERR_SCHEMA if version is outside 0-255. */
 ```

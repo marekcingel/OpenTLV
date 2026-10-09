@@ -10,26 +10,32 @@
 #include "tlv/writer/writer.h"
 
 namespace {
-tlv_codec_result_t decode_u16(const void* context, const uint8_t* data, size_t size, void* value,
-                              size_t capacity) {
-    if (size != sizeof(uint16_t)) return TLV_CODEC_ERR_INVALID_VALUE;
-    if (capacity < sizeof(uint16_t)) return TLV_CODEC_ERR_BUFFER_TOO_SHORT;
+tlv_result_t decode_u16(const void* context, const uint8_t* data, size_t size, void* value,
+                        size_t capacity, tlv_codec_diagnostic_t* diagnostic) {
+    tlv_codec_diagnostic_init(diagnostic, TLV_CODEC_OP_DECODE);
+    if (size != sizeof(uint16_t))
+        return tlv_codec_diagnostic_result(diagnostic, TLV_ERR_INVALID_VALUE);
+    if (capacity < sizeof(uint16_t))
+        return tlv_codec_diagnostic_result(diagnostic, TLV_ERR_BUFFER_TOO_SHORT);
     *static_cast<uint16_t*>(value) =
         *static_cast<const bool*>(context) ? tlv_read_u16_be(data) : tlv_read_u16_le(data);
-    return TLV_CODEC_OK;
+    return tlv_codec_diagnostic_result(diagnostic, TLV_OK);
 }
-tlv_codec_result_t encode_u16(const void* context, const void* value, size_t size, uint8_t* data,
-                              size_t capacity, size_t* written) {
-    if (size != sizeof(uint16_t)) return TLV_CODEC_ERR_INVALID_VALUE;
+tlv_result_t encode_u16(const void* context, const void* value, size_t size, uint8_t* data,
+                        size_t capacity, size_t* written, tlv_codec_diagnostic_t* diagnostic) {
+    tlv_codec_diagnostic_init(diagnostic, TLV_CODEC_OP_ENCODE);
+    if (size != sizeof(uint16_t))
+        return tlv_codec_diagnostic_result(diagnostic, TLV_ERR_INVALID_VALUE);
     if (data) {
-        if (capacity < sizeof(uint16_t)) return TLV_CODEC_ERR_BUFFER_TOO_SHORT;
+        if (capacity < sizeof(uint16_t))
+            return tlv_codec_diagnostic_result(diagnostic, TLV_ERR_BUFFER_TOO_SHORT);
         if (*static_cast<const bool*>(context))
             tlv_write_u16_be(data, *static_cast<const uint16_t*>(value));
         else
             tlv_write_u16_le(data, *static_cast<const uint16_t*>(value));
     }
     *written = sizeof(uint16_t);
-    return TLV_CODEC_OK;
+    return tlv_codec_diagnostic_result(diagnostic, TLV_OK);
 }
 const bool        big_endian = true;
 const tlv_codec_t scalar = {&big_endian, decode_u16, encode_u16};
@@ -41,8 +47,8 @@ TEST(Integration_Tlv_Codec, ExplicitConversionBetweenFramingOperations) {
     uint8_t   raw[2], framed[4];
     size_t    raw_size = 0, framed_size = 0, consumed = 0;
     tlv_tag_t tag = TLV_TAG(1);
-    ASSERT_EQ(tlv_codec_encode(&scalar, &value, sizeof(value), raw, sizeof(raw), &raw_size),
-              TLV_CODEC_OK);
+    ASSERT_EQ(tlv_codec_encode(&scalar, &value, sizeof(value), raw, sizeof(raw), &raw_size, NULL),
+              TLV_OK);
     ASSERT_EQ(
         tlv_write(framed, sizeof(framed), &controlled::format, tag, raw, raw_size, &framed_size),
         TLV_OK);
@@ -51,13 +57,13 @@ TEST(Integration_Tlv_Codec, ExplicitConversionBetweenFramingOperations) {
     EXPECT_EQ(consumed, framed_size);
     EXPECT_EQ(element.value.data, framed + 2);
     ASSERT_EQ(tlv_codec_decode(&scalar, element.value.data, element.value.size, &decoded,
-                               sizeof(decoded)),
-              TLV_CODEC_OK);
+                               sizeof(decoded), NULL),
+              TLV_OK);
     EXPECT_EQ(decoded, value);
     // Framing also accepts values that this codec rejects.
     framed[1] = 1;
     ASSERT_EQ(tlv_read(framed, 3, &controlled::format, &element, &consumed), TLV_OK);
     EXPECT_EQ(tlv_codec_decode(&scalar, element.value.data, element.value.size, &decoded,
-                               sizeof(decoded)),
-              TLV_CODEC_ERR_INVALID_VALUE);
+                               sizeof(decoded), NULL),
+              TLV_ERR_INVALID_VALUE);
 }

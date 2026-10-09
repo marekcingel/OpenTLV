@@ -37,12 +37,14 @@ typedef struct tlv_schema_number {
  * @param[in] size Value byte count.
  * @param[out] value Required uint64_t destination, disjoint from input/configuration.
  * @param[in] capacity Destination capacity in bytes.
- * @return #TLV_CODEC_ERR_NULL_ARG for missing pointers, #TLV_CODEC_ERR_INVALID_VALUE
+ * @return #TLV_ERR_NULL_ARG for missing pointers, #TLV_ERR_SCHEMA or #TLV_ERR_INVALID_SCHEMA
  *         for a schema violation, otherwise the result of tlv_number_decode().
  * @note Output is unchanged on failure; no allocation occurs.
+ * @param[out] diagnostic Optional initialized failure output; NULL skips evidence collection.
  */
-TLV_API tlv_codec_result_t tlv_schema_number_decode(const void* context, const uint8_t* data,
-                                                    size_t size, void* value, size_t capacity);
+TLV_API tlv_result_t tlv_schema_number_decode(const void* context, const uint8_t* data, size_t size,
+                                              void* value, size_t capacity,
+                                              tlv_codec_diagnostic_t* diagnostic);
 
 /** @brief Selects a fitting schema-permitted width, then delegates numeric encoding.
  * @param[in] context Required immutable #tlv_schema_number_t with a non-NULL schema.
@@ -51,14 +53,15 @@ TLV_API tlv_codec_result_t tlv_schema_number_decode(const void* context, const u
  * @param[out] data Output, or NULL with zero capacity for a validated size query.
  * @param[in] capacity Output byte capacity.
  * @param[out] written Required byte count, zero on failure.
- * @return #TLV_CODEC_ERR_NULL_ARG for missing pointers, #TLV_CODEC_ERR_INVALID_VALUE
+ * @return #TLV_ERR_NULL_ARG for missing pointers, #TLV_ERR_SCHEMA or #TLV_ERR_INVALID_SCHEMA
  *         if no supported width fits Schema, otherwise tlv_number_encode()'s result.
  * @note Output is unchanged on failure. All input storage, output, configuration
  *       and written must be disjoint. No allocation occurs.
+ * @param[out] diagnostic Optional initialized failure output; NULL skips evidence collection.
  */
-TLV_API tlv_codec_result_t tlv_schema_number_encode(const void* context, const void* value,
-                                                    size_t size, uint8_t* data, size_t capacity,
-                                                    size_t* written);
+TLV_API tlv_result_t tlv_schema_number_encode(const void* context, const void* value, size_t size,
+                                              uint8_t* data, size_t capacity, size_t* written,
+                                              tlv_codec_diagnostic_t* diagnostic);
 
 /** @brief Creates a codec borrowing an explicit Schema/number composition.
  * @param[in] config Borrowed immutable composition, validated on invocation.

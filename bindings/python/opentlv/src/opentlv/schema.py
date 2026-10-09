@@ -199,6 +199,18 @@ class SchemaDiagnostic:
     definition_index: int = 0
 
 
+def _diagnostic_from_native(item) -> SchemaDiagnostic:
+    """Copy the canonical native Schema diagnostic into its public projection."""
+    (code, severity, kind, name, tag, path, offset, field, group,
+     occurs, length, form, multiple, flags, path_omitted, location, definition_kind, definition_index) = item
+    return SchemaDiagnostic(code, severity, kind, name, Tag(tag),
+        tuple(Tag(t) for t in path), offset, field, bool(group),
+        SchemaBounds(*occurs) if occurs is not None else None,
+        SchemaBounds(*length) if length is not None else None,
+        (Kind(form[0]), bool(form[1])) if form is not None else None,
+        multiple, flags, path_omitted, Location(**location), definition_kind, definition_index)
+
+
 @dataclass(frozen=True)
 class SchemaDiagnosticReport:
     """Total violations and the bounded prefix of detailed diagnostics."""
@@ -290,15 +302,7 @@ class StructureSchema:
                 self._to_native(), max_depth, max_elements, capacity, int(unknown))
         except _native.Error as error:
             raise _from_native(error) from None
-        return SchemaDiagnosticReport(count, tuple(
-            SchemaDiagnostic(code, severity, kind, name, Tag(tag),
-                tuple(Tag(t) for t in path), offset, field, bool(group),
-                SchemaBounds(*occurs) if occurs is not None else None,
-                SchemaBounds(*length) if length is not None else None,
-                (Kind(form[0]), bool(form[1])) if form is not None else None,
-                multiple, flags, path_omitted, Location(**location), definition_kind, definition_index)
-            for code, severity, kind, name, tag, path, offset, field, group,
-                occurs, length, form, multiple, flags, path_omitted, location, definition_kind, definition_index in items))
+        return SchemaDiagnosticReport(count, tuple(_diagnostic_from_native(item) for item in items))
 
     def __len__(self) -> int:
         return len(self.rules)

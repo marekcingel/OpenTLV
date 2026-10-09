@@ -19,7 +19,7 @@ Each codec documents the type and alignment of its representation. Decode takes
 raw bytes plus a caller-owned destination object and its capacity in bytes.
 Encode takes a C object and its size in bytes plus a caller-owned byte buffer.
 No heap allocation or registration is required. A missing callback reports
-`TLV_CODEC_ERR_UNSUPPORTED` for that direction.
+`TLV_ERR_UNSUPPORTED` for that direction.
 
 For example, an application can define a zero-copy decoder:
 
@@ -28,15 +28,18 @@ For example, an application can define a zero-copy decoder:
 
 typedef struct { const uint8_t* data; size_t length; } byte_range_t;
 
-static tlv_codec_result_t decode_bytes(const void* context,
-    const uint8_t* data, size_t size, void* value, size_t capacity)
+static tlv_result_t decode_bytes(const void* context,
+    const uint8_t* data, size_t size, void* value, size_t capacity,
+    tlv_codec_diagnostic_t* diagnostic)
 {
+    tlv_codec_diagnostic_init(diagnostic, TLV_CODEC_OP_DECODE);
     byte_range_t* bytes = (byte_range_t*)value;
     (void)context;
-    if (capacity < sizeof(*bytes)) return TLV_CODEC_ERR_BUFFER_TOO_SHORT;
+    if (capacity < sizeof(*bytes))
+        return tlv_codec_diagnostic_result(diagnostic, TLV_ERR_BUFFER_TOO_SHORT);
     bytes->data = data;
     bytes->length = size;
-    return TLV_CODEC_OK;
+    return tlv_codec_diagnostic_result(diagnostic, TLV_OK);
 }
 
 static const tlv_codec_t bytes_codec = {NULL, decode_bytes, NULL};
@@ -49,9 +52,9 @@ native `size_t` size:
 ```c
 size_t length;
 byte_range_t bytes;
-tlv_codec_result_t result;
+tlv_result_t result;
 if (tlv_size_to_native(view.value.size, &length) != TLV_OK) { /* value too large for this build */ }
-result = tlv_codec_decode(&bytes_codec, view.value.data, length, &bytes, sizeof(bytes));
+result = tlv_codec_decode(&bytes_codec, view.value.data, length, &bytes, sizeof(bytes), NULL);
 ```
 
 The resulting `bytes` borrows the original input. Keep that storage alive and
@@ -64,11 +67,11 @@ For an application-defined encoder, query and encode explicitly:
 
 ```c
 size_t required, written;
-tlv_codec_result_t result = tlv_codec_encode(&my_codec,
-    &value, sizeof(value), NULL, 0, &required);
-if (result == TLV_CODEC_OK && required <= sizeof(raw)) {
+tlv_result_t result = tlv_codec_encode(&my_codec,
+    &value, sizeof(value), NULL, 0, &required, NULL);
+if (result == TLV_OK && required <= sizeof(raw)) {
     result = tlv_codec_encode(&my_codec, &value, sizeof(value),
-        raw, sizeof(raw), &written);
+        raw, sizeof(raw), &written, NULL);
     /* On success, pass raw and written to tlv_write(). */
 }
 ```
@@ -80,9 +83,19 @@ pointer is always required. Input and output must not overlap unless the codec
 supports it. On failure destination contents are unspecified and encode's
 `written` is zero. The descriptor, context, and buffers remain caller-owned.
 
-`tlv_codec_result_t` and `tlv_codec_strerror()` report conversion errors
-independently from parser/writer `tlv_result_t` errors. The existing C++ codec
-trait and registry are separate APIs and are unchanged.
+Codec operations use the same `tlv_result_t` and `tlv_strerror()` as Reader,
+Writer and Query. Their final argument is an optional `tlv_codec_diagnostic_t*`;
+pass `NULL` when evidence is not needed. Callbacks receive the same optional
+output. Preserve lower-layer results and evidence, and keep borrowed descriptions,
+paths and Tags alive after returning. Decode can propagate `NEED_MORE_DATA`;
+encode/measure cannot. `END_OF_BUFFER`, unknown results and invalid successful
+payloads become `CALLBACK`, with the original result in `codec.reported`.
+
+Diagnostics contain one common result/location/path and conversion detail:
+operation, optional representation, callback violation, and a discriminated
+Reader or Schema cause. Unknown locations stay unknown. Query keeps the related
+expression span separately and exposes conversion evidence under `has_codec`
+and `codec_detail`. C++ uses `codec_failure`, whose status is the shared `errc`.
 
 ## C++11 typed fields and Value codecs
 
@@ -141,8 +154,8 @@ the third field parameter. Both mechanisms use this C++11 contract:
 ```cpp
 struct MyCodec {
     using value_type = MyType;
-    static tlv::expected<MyType, tlv::codec_errc> decode(tlv::bytes input);
-    static tlv::expected<size_t, tlv::codec_errc>
+    static tlv::expected<MyType, tlv::codec_failure> decode(tlv::bytes input);
+    static tlv::expected<size_t, tlv::codec_failure>
     encode(const MyType& value, tlv::byte* output, size_t capacity);
 };
 ```
@@ -193,8 +206,9 @@ and element limits (zero is a real limit).
 `tlv_structure_decode` validates the complete structure before invoking the
 object mapper. `tlv_structure_encode` supports a NULL/0 size query and validates
 produced bytes on an actual write. A query relies on the callback to validate
-the object without generating bytes. Invalid framing/schema output returns
-`TLV_CODEC_ERR_INVALID_STRUCTURE`. As with value codecs, destination contents
+the object without generating bytes. Validation preserves the actual Reader,
+Schema or resource result and its cause; output validation locations use OUTPUT
+coordinates. As with value codecs, destination contents
 on failure are unspecified and failed encoding reports zero written bytes.
 Object storage and encoded storage belong to the caller.
 

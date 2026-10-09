@@ -175,8 +175,10 @@ and [codec/main.go](../../bindings/go/examples/codec/main.go).
 
 Use `errors.Is` with named statuses such as `ErrInvalidTag`; use `errors.As` for
 `*ParseError`, `*WriteError`, `*QueryError`, `CapacityError` or `StatusError`.
-Wrapping with `%w` preserves matching. Value conversion uses the separate
-`CodecError` domain, for example `ErrCodecInvalidValue`.
+Wrapping with `%w` preserves matching. Value conversion returns `*CodecError`
+with an unwrapped common status, for example `ErrInvalidValue`; its `Detail`
+retains the owned conversion evidence. Query providers return a shared error
+or nil, and `ProgramError.CodecDetail` preserves native conversion detail.
 EOF and incremental pauses remain flow control with nil `Err()`.
 
 Diagnostics copy byte slices, text, context and paths into Go storage, surviving

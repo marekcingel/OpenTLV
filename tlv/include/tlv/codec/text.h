@@ -45,12 +45,15 @@ typedef struct tlv_text_codec_config {
  * @param[in] size Wire byte count.
  * @param[out] value Required tlv_value_t destination, disjoint from input/configuration.
  * @param[in] capacity Destination size, at least sizeof(tlv_value_t).
- * @return #TLV_CODEC_OK, #TLV_CODEC_ERR_NULL_ARG, #TLV_CODEC_ERR_INVALID_VALUE
- *         for invalid configuration/length/text, or #TLV_CODEC_ERR_BUFFER_TOO_SHORT.
+ * @return #TLV_OK, #TLV_ERR_NULL_ARG, #TLV_ERR_INVALID_VALUE
+ *         for invalid length/text, #TLV_ERR_INVALID_ARG for invalid configuration, or
+ * #TLV_ERR_BUFFER_TOO_SHORT.
  * @note No allocation or NUL terminator is added. Destination is unchanged on failure.
+ * @param[out] diagnostic Optional initialized failure output; NULL skips evidence collection.
  */
-TLV_API tlv_codec_result_t tlv_text_decode(const void* context, const uint8_t* data, size_t size,
-                                           void* value, size_t capacity);
+TLV_API tlv_result_t tlv_text_decode(const void* context, const uint8_t* data, size_t size,
+                                     void* value, size_t capacity,
+                                     tlv_codec_diagnostic_t* diagnostic);
 
 /** @brief Encodes a tlv_value_t character span, optionally adding trailing zero bytes.
  * @param[in] context Required immutable #tlv_text_codec_config_t.
@@ -59,13 +62,16 @@ TLV_API tlv_codec_result_t tlv_text_decode(const void* context, const uint8_t* d
  * @param[out] data Destination, or NULL with zero capacity for a validated size query.
  * @param[in] capacity Destination byte capacity.
  * @param[out] written Required encoded byte count, zero on failure.
- * @return #TLV_CODEC_OK, #TLV_CODEC_ERR_NULL_ARG, #TLV_CODEC_ERR_INVALID_VALUE
- *         for invalid configuration/length/text, or #TLV_CODEC_ERR_BUFFER_TOO_SHORT.
+ * @return #TLV_OK, #TLV_ERR_NULL_ARG, #TLV_ERR_INVALID_VALUE
+ *         for invalid length/text, #TLV_ERR_INVALID_ARG for invalid configuration, or
+ * #TLV_ERR_BUFFER_TOO_SHORT.
  * @note No allocation occurs; output is unchanged on failure. All input storage,
  *       output, configuration and written must be disjoint.
+ * @param[out] diagnostic Optional initialized failure output; NULL skips evidence collection.
  */
-TLV_API tlv_codec_result_t tlv_text_encode(const void* context, const void* value, size_t size,
-                                           uint8_t* data, size_t capacity, size_t* written);
+TLV_API tlv_result_t tlv_text_encode(const void* context, const void* value, size_t size,
+                                     uint8_t* data, size_t capacity, size_t* written,
+                                     tlv_codec_diagnostic_t* diagnostic);
 
 /** @brief Creates a descriptor borrowing a text configuration.
  * @param[in] config Borrowed configuration, validated when invoked.

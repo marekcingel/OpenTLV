@@ -118,7 +118,7 @@ TEST(Unit_Generator, ValidationAndImpossibleDomain) {
     EXPECT_EQ(TLV_ERR_BUFFER_TOO_SHORT,
               tlv_generate(&fixed, &options, out, 64, workspace, 63, &written));
     options.max_depth = 65;
-    EXPECT_EQ(TLV_ERR_INVALID_ARG, tlv_generator_workspace_size(&options, &written));
+    EXPECT_EQ(TLV_ERR_UNSUPPORTED, tlv_generator_workspace_size(&options, &written));
     options.max_depth = 1;
     options.max_case_size = SIZE_MAX;
     EXPECT_EQ(TLV_ERR_OVERFLOW, tlv_generator_workspace_size(&options, &written));
@@ -255,7 +255,7 @@ TEST(Unit_Generator, OwnedCxxErrorsAndRepeatedCalls) {
     tlv::generator missing(tlv::native::borrow_format(unavailable), options);
     auto           missing_result = missing.generate(0);
     ASSERT_FALSE(missing_result);
-    EXPECT_EQ(TLV_ERR_NULL_ARG, missing_result.error().code);
+    EXPECT_EQ(TLV_ERR_UNSUPPORTED, missing_result.error().code);
     tlv::generator valid(tlv::native::borrow_format(fixed), options);
     EXPECT_TRUE(valid.generate(0));
     EXPECT_TRUE(valid.generate(7));
@@ -319,6 +319,326 @@ TEST(Unit_Generator, RejectsWriterOutputWithChangedSemantics) {
     };
     uint8_t output[64], workspace[64];
     size_t  written = 99;
-    EXPECT_EQ(TLV_ERR_LIMIT, tlv_generate(&broken, &options, output, 64, workspace, 64, &written));
+    EXPECT_EQ(TLV_ERR_CALLBACK,
+              tlv_generate(&broken, &options, output, 64, workspace, 64, &written));
     EXPECT_EQ(99u, written);
+}
+
+namespace {
+class GeneratorResults : public ::testing::Test {
+protected:
+    const uint8_t             tag = 1;
+    tlv_generator_candidate_t candidate{{&tag, 1}, 0, 10};
+    tlv_generator_options_t   options{0, 0, 1, 0, 10, 64, &candidate, 1};
+    const tlv_fixed_format_t  config{
+        {1}, {1, TLV_BYTE_ORDER_BIG_ENDIAN}, TLV_ELEMENT_ORDER_TLV, TLV_LENGTH_SCOPE_VALUE};
+    tlv_format_t format{};
+
+    void SetUp() override {
+        ASSERT_EQ(TLV_OK, tlv_fixed_format_init(&format, &config));
+    }
+
+    void expect_result(tlv_result_t expected) {
+        // All three entry points must agree, including combined-invalid inputs.
+        uint8_t output[64], workspace[64];
+        size_t  written = 99;
+        auto    rc = tlv_generate(&format, &options, output, sizeof(output), workspace,
+                                  sizeof(workspace), &written);
+        EXPECT_EQ(expected, rc);
+        if (expected != TLV_OK) EXPECT_EQ(99u, written);
+        auto borrowed = tlv::generate(
+            tlv::native::borrow_format(format), options,
+            tlv::span<tlv::byte>{reinterpret_cast<tlv::byte*>(output), sizeof(output)},
+            tlv::span<tlv::byte>{reinterpret_cast<tlv::byte*>(workspace), sizeof(workspace)});
+        EXPECT_EQ(expected, borrowed ? TLV_OK : borrowed.error().code);
+        tlv::generator generator(tlv::native::borrow_format(format), options);
+        auto           owned = generator.generate(options.case_index);
+        EXPECT_EQ(expected, owned ? TLV_OK : owned.error().code);
+        if (expected == TLV_OK && borrowed && owned) {
+            EXPECT_EQ(written, *borrowed);
+            ASSERT_EQ(written, owned->size());
+            EXPECT_EQ(0, std::memcmp(output, owned->data(), written));
+        }
+    }
+
+    void expect_workspace(tlv_result_t expected) {
+        size_t size = 99;
+        EXPECT_EQ(expected, tlv_generator_workspace_size(&options, &size));
+        if (expected != TLV_OK) EXPECT_EQ(99u, size);
+        auto result = tlv::generator_workspace_size(options);
+        EXPECT_EQ(expected, result ? TLV_OK : result.error().code);
+    }
+};
+} // namespace
+
+TEST_F(GeneratorResults, CapabilitiesAndValidationPrecedence) {
+    const auto original = format;
+    for (int missing = 0; missing < 4; ++missing) {
+        SCOPED_TRACE(missing);
+        format = original;
+        if (missing == 0) format.decode = nullptr;
+        if (missing == 1) format.measure = nullptr;
+        if (missing == 2) format.encode = nullptr;
+        if (missing == 3) format = {};
+        options.max_elements = 1;
+        expect_result(TLV_ERR_UNSUPPORTED);
+        options.max_elements = 0;
+        expect_result(TLV_ERR_UNSUPPORTED);
+    }
+    format = original;
+    expect_result(TLV_ERR_INVALID_ARG);
+    options.max_elements = 1;
+    options.max_depth = 65;
+    expect_workspace(TLV_ERR_UNSUPPORTED);
+    expect_result(TLV_ERR_UNSUPPORTED);
+    options.max_depth = SIZE_MAX;
+    expect_workspace(TLV_ERR_UNSUPPORTED);
+    expect_result(TLV_ERR_UNSUPPORTED);
+    options.max_depth = 64;
+    size_t size = 0;
+    ASSERT_EQ(TLV_OK, tlv_generator_workspace_size(&options, &size));
+    EXPECT_EQ(65u * options.max_case_size, size);
+}
+
+TEST_F(GeneratorResults, NullTopLevelPointersPrecedeCapabilities) {
+    uint8_t output[64], workspace[64];
+    size_t  written = 99;
+    format = {};
+    EXPECT_EQ(TLV_ERR_NULL_ARG,
+              tlv_generate(nullptr, &options, output, 64, workspace, 64, &written));
+    EXPECT_EQ(TLV_ERR_NULL_ARG,
+              tlv_generate(&format, nullptr, output, 64, workspace, 64, &written));
+    EXPECT_EQ(TLV_ERR_NULL_ARG,
+              tlv_generate(&format, &options, nullptr, 64, workspace, 64, &written));
+    EXPECT_EQ(TLV_ERR_NULL_ARG, tlv_generate(&format, &options, output, 64, nullptr, 64, &written));
+    EXPECT_EQ(TLV_ERR_NULL_ARG,
+              tlv_generate(&format, &options, output, 64, workspace, 64, nullptr));
+    EXPECT_EQ(TLV_ERR_NULL_ARG, tlv_generator_workspace_size(nullptr, &written));
+    EXPECT_EQ(TLV_ERR_NULL_ARG, tlv_generator_workspace_size(&options, nullptr));
+    EXPECT_EQ(99u, written);
+}
+
+TEST_F(GeneratorResults, ContradictoryValueLimitsAndMixedDomains) {
+    candidate.min_value_size = 1;
+    options.max_value_size = 0;
+    expect_workspace(TLV_ERR_INVALID_ARG);
+    expect_result(TLV_ERR_INVALID_ARG);
+    options.max_value_size = 10;
+    options.max_case_size = 1;
+    candidate.min_value_size = 2;
+    expect_workspace(TLV_ERR_INVALID_ARG);
+    expect_result(TLV_ERR_INVALID_ARG);
+
+    // A feasible Value need not leave room for the Format's framing.
+    candidate.min_value_size = 1;
+    expect_workspace(TLV_OK);
+    expect_result(TLV_ERR_LIMIT);
+
+    options.max_case_size = 64;
+    tlv_generator_candidate_t mixed[] = {{{&tag, 1}, 11, 20}, {{&tag, 1}, 0, 0}};
+    options.candidates = mixed;
+    options.candidate_count = 2;
+    expect_workspace(TLV_OK);
+    expect_result(TLV_OK);
+    // Do not stop descriptor validation after finding a feasible candidate.
+    std::swap(mixed[0], mixed[1]);
+    mixed[1].min_value_size = 21;
+    expect_workspace(TLV_ERR_INVALID_ARG);
+    expect_result(TLV_ERR_INVALID_ARG);
+    mixed[1] = {{nullptr, 1}, 0, 0};
+    expect_workspace(TLV_ERR_INVALID_ARG);
+    expect_result(TLV_ERR_INVALID_ARG);
+}
+
+TEST_F(GeneratorResults, OverflowAndInvalidDescriptors) {
+    options.max_elements = SIZE_MAX / 64 + 1;
+    expect_workspace(TLV_ERR_OVERFLOW);
+    expect_result(TLV_ERR_OVERFLOW);
+    options.max_elements = 1;
+    options.max_case_size = SIZE_MAX;
+    expect_workspace(TLV_ERR_OVERFLOW);
+    expect_result(TLV_ERR_OVERFLOW);
+    options.max_case_size = SIZE_MAX / 2 + 1;
+    options.max_depth = 1;
+    expect_workspace(TLV_ERR_OVERFLOW);
+    expect_result(TLV_ERR_OVERFLOW);
+    options.max_case_size = 64;
+    options.max_depth = 0;
+    options.candidates = nullptr;
+    expect_workspace(TLV_ERR_INVALID_ARG);
+    expect_result(TLV_ERR_INVALID_ARG);
+    options.candidates = &candidate;
+    options.candidate_count = 0;
+    expect_workspace(TLV_ERR_INVALID_ARG);
+    expect_result(TLV_ERR_INVALID_ARG);
+}
+
+TEST_F(GeneratorResults, CallbackFailuresFromEveryOperation) {
+    const auto original = format;
+    for (int operation = 0; operation < 3; ++operation) {
+        SCOPED_TRACE(operation);
+        format = original;
+        if (operation == 0)
+            format.measure = [](const void*, const tlv_element_t*, tlv_encoding_t*,
+                                tlv_format_error_t*) { return TLV_ERR_CALLBACK; };
+        if (operation == 1)
+            format.encode = [](const void*, const tlv_element_t*, uint8_t*, size_t, size_t*,
+                               tlv_format_error_t*) { return TLV_ERR_CALLBACK; };
+        if (operation == 2)
+            format.decode = [](const void*, const uint8_t*, size_t, tlv_decoded_t*,
+                               tlv_format_error_t*) { return TLV_ERR_CALLBACK; };
+        expect_result(TLV_ERR_CALLBACK);
+    }
+}
+
+TEST_F(GeneratorResults, SemanticMismatchAndMalformedSuccessPayload) {
+    candidate.min_value_size = 1;
+    const auto original = format;
+    format.encode = [](const void* context, const tlv_element_t* element, uint8_t* data,
+                       size_t capacity, size_t* written, tlv_format_error_t* error) {
+        tlv_format_t normal{};
+        tlv_fixed_format_init(&normal, static_cast<const tlv_fixed_format_t*>(context));
+        auto rc = normal.encode(context, element, data, capacity, written, error);
+        if (rc == TLV_OK) data[0] ^= 1;
+        return rc;
+    };
+    expect_result(TLV_ERR_CALLBACK);
+    format = original;
+    format.encode = [](const void*, const tlv_element_t*, uint8_t*, size_t, size_t* written,
+                       tlv_format_error_t*) {
+        *written = 0; // Success disagrees with the measured nonempty representation.
+        return TLV_OK;
+    };
+    expect_result(TLV_ERR_CALLBACK);
+    format = original;
+    format.decode = [](const void*, const uint8_t*, size_t, tlv_decoded_t* decoded,
+                       tlv_format_error_t*) {
+        *decoded = {}; // Invalid successful source extent, caught by Format.
+        return TLV_OK;
+    };
+    expect_result(TLV_ERR_CALLBACK);
+}
+
+TEST_F(GeneratorResults, NestedCallbackFailureAbortsWholeCase) {
+    struct context {
+        tlv_format_t   base;
+        mutable size_t calls = 0;
+    } state;
+    state.base = format;
+    format.context = &state;
+    format.measure = [](const void* opaque, const tlv_element_t* element, tlv_encoding_t* size,
+                        tlv_format_error_t* error) {
+        const auto& s = *static_cast<const context*>(opaque);
+        return s.base.measure(s.base.context, element, size, error);
+    };
+    format.decode = [](const void* opaque, const uint8_t* data, size_t size, tlv_decoded_t* decoded,
+                       tlv_format_error_t* error) {
+        const auto& s = *static_cast<const context*>(opaque);
+        return s.base.decode(s.base.context, data, size, decoded, error);
+    };
+    options.max_elements = 2;
+    options.max_depth = 1;
+    format.is_constructed = [](const void*, const tlv_tag_t*) { return 1; };
+    format.encode = [](const void* opaque, const tlv_element_t* element, uint8_t* data,
+                       size_t capacity, size_t* written, tlv_format_error_t* error) {
+        const auto& s = *static_cast<const context*>(opaque);
+        if (++s.calls == 1) return TLV_ERR_CALLBACK;
+        return s.base.encode(s.base.context, element, data, capacity, written, error);
+    };
+    // The root must not swallow a child failure and publish an empty Value.
+    uint8_t output[64], workspace[128];
+    size_t  written = 99;
+    EXPECT_EQ(TLV_ERR_CALLBACK, tlv_generate(&format, &options, output, sizeof(output), workspace,
+                                             sizeof(workspace), &written));
+    EXPECT_EQ(99u, written);
+    EXPECT_EQ(1u, state.calls);
+    state.calls = 0;
+    tlv::generator generator(tlv::native::borrow_format(format), options);
+    auto           result = generator.generate(0);
+    ASSERT_FALSE(result);
+    EXPECT_EQ(TLV_ERR_CALLBACK, result.error().code);
+    EXPECT_EQ(1u, state.calls);
+}
+
+TEST_F(GeneratorResults, ReconstructionFilteringAndFailureAfterPartialSuccess) {
+    struct context {
+        tlv_format_t   base;
+        mutable size_t calls = 0;
+        size_t         fail_at = 0;
+        bool           alternate_framing = false;
+        uint8_t        semantic_tag = 1;
+    } state;
+    state.base = format;
+    format.context = &state;
+    format.measure = [](const void* opaque, const tlv_element_t* element, tlv_encoding_t* size,
+                        tlv_format_error_t* error) {
+        const auto& s = *static_cast<const context*>(opaque);
+        return s.base.measure(s.base.context, element, size, error);
+    };
+    format.decode = [](const void* opaque, const uint8_t* data, size_t size, tlv_decoded_t* decoded,
+                       tlv_format_error_t* error) {
+        const auto& s = *static_cast<const context*>(opaque);
+        auto        rc = s.base.decode(s.base.context, data, size, decoded, error);
+        // This test Format gives two wire identifiers the same semantic identity.
+        if (rc == TLV_OK && s.alternate_framing) {
+            decoded->element.tag = {&s.semantic_tag, 1};
+            decoded->source.tag_binding = TLV_TAG_BINDING_FORMAT;
+        }
+        return rc;
+    };
+    format.encode = [](const void* opaque, const tlv_element_t* element, uint8_t* data,
+                       size_t capacity, size_t* written, tlv_format_error_t* error) {
+        const auto& s = *static_cast<const context*>(opaque);
+        if (++s.calls == s.fail_at) return TLV_ERR_CALLBACK;
+        auto rc = s.base.encode(s.base.context, element, data, capacity, written, error);
+        // A stable choice based on identifier storage exercises the byte-exact
+        // filter without changing decoded Tag/Value semantics.
+        if (rc == TLV_OK && s.alternate_framing && element->tag.data == &s.semantic_tag)
+            data[0] |= 0x80;
+        return rc;
+    };
+    candidate.max_value_size = 0;
+    options.max_elements = 2;
+    for (size_t fail_at : {2u, 3u, 0u}) {
+        SCOPED_TRACE(fail_at);
+        state.fail_at = fail_at;
+        state.alternate_framing = fail_at == 0;
+        bool reached = false;
+        // Some seeds choose only one element. Find a two-element case to prove
+        // a later callback failure discards earlier successfully accepted output.
+        for (uint64_t seed = 0; seed < 32 && !reached; ++seed) {
+            options.seed = seed;
+            for (int facade = 0; facade < 3; ++facade) {
+                state.calls = 0;
+                uint8_t      output[64], workspace[64];
+                size_t       written = 99;
+                tlv_result_t rc;
+                if (facade == 0) {
+                    rc = tlv_generate(&format, &options, output, 64, workspace, 64, &written);
+                    if (rc != TLV_OK) EXPECT_EQ(99u, written);
+                } else if (facade == 1) {
+                    auto result = tlv::generate(
+                        tlv::native::borrow_format(format), options,
+                        tlv::span<tlv::byte>{reinterpret_cast<tlv::byte*>(output), 64},
+                        tlv::span<tlv::byte>{reinterpret_cast<tlv::byte*>(workspace), 64});
+                    rc = result ? TLV_OK : result.error().code;
+                } else {
+                    tlv::generator generator(tlv::native::borrow_format(format), options);
+                    auto           result = generator.generate(0);
+                    rc = result ? TLV_OK : result.error().code;
+                }
+                if (fail_at == 0) {
+                    EXPECT_EQ(TLV_ERR_LIMIT, rc);
+                    reached = true;
+                } else if (state.calls >= fail_at) {
+                    EXPECT_EQ(TLV_ERR_CALLBACK, rc);
+                    EXPECT_EQ(fail_at, state.calls); // Abort immediately, with no retry.
+                    reached = true;
+                } else {
+                    EXPECT_EQ(TLV_OK, rc);
+                }
+            }
+        }
+        EXPECT_TRUE(reached);
+    }
 }

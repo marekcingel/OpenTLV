@@ -34,9 +34,9 @@
     } while (0)
 #define CHECK_CODEC(call)                                                                          \
     do {                                                                                           \
-        tlv_codec_result_t rc_ = (call);                                                           \
-        if (rc_ != TLV_CODEC_OK) {                                                                 \
-            fprintf(stderr, "%s: %s\n", #call, tlv_codec_strerror(rc_));                           \
+        tlv_result_t rc_ = (call);                                                                 \
+        if (rc_ != TLV_OK) {                                                                       \
+            fprintf(stderr, "%s: %s\n", #call, tlv_strerror(rc_));                                 \
             return 1;                                                                              \
         }                                                                                          \
     } while (0)
@@ -56,7 +56,7 @@ static void print_tag(const tlv_tag_t* tag) {
 /* Encodes `value` through its semantic codec into caller-owned `scratch`. */
 static int encode_child(const tlv_codec_t* codec, const void* value, size_t value_size,
                         uint8_t* scratch, size_t scratch_capacity, size_t* size) {
-    CHECK_CODEC(tlv_codec_encode(codec, value, value_size, scratch, scratch_capacity, size));
+    CHECK_CODEC(tlv_codec_encode(codec, value, value_size, scratch, scratch_capacity, size, NULL));
     return 0;
 }
 
@@ -207,10 +207,10 @@ static tlv_visit_result_t decode_field(const tlv_element_t* element, void* conte
 
     switch (tlv_emv_builtin_value_kind(def)) {
         case TLV_EMV_VALUE_DIGITS: {
-            tlv_codec_result_t rc = tlv_codec_decode(def->codec, element->value.data, length,
-                                                     record->pan, sizeof(record->pan));
-            if (rc != TLV_CODEC_OK) {
-                printf(" -> decode error: %s\n", tlv_codec_strerror(rc));
+            tlv_result_t rc = tlv_codec_decode(def->codec, element->value.data, length, record->pan,
+                                               sizeof(record->pan), NULL);
+            if (rc != TLV_OK) {
+                printf(" -> decode error: %s\n", tlv_strerror(rc));
                 ++record->errors;
                 break;
             }
@@ -219,10 +219,10 @@ static tlv_visit_result_t decode_field(const tlv_element_t* element, void* conte
             break;
         }
         case TLV_EMV_VALUE_DATE: {
-            tlv_codec_result_t rc = tlv_codec_decode(def->codec, element->value.data, length,
-                                                     &record->expiry, sizeof(record->expiry));
-            if (rc != TLV_CODEC_OK) {
-                printf(" -> decode error: %s\n", tlv_codec_strerror(rc));
+            tlv_result_t rc = tlv_codec_decode(def->codec, element->value.data, length,
+                                               &record->expiry, sizeof(record->expiry), NULL);
+            if (rc != TLV_OK) {
+                printf(" -> decode error: %s\n", tlv_strerror(rc));
                 ++record->errors;
                 break;
             }
@@ -233,10 +233,10 @@ static tlv_visit_result_t decode_field(const tlv_element_t* element, void* conte
             break;
         }
         case TLV_EMV_VALUE_FLAGS: {
-            tlv_codec_result_t rc = tlv_codec_decode(def->codec, element->value.data, length,
-                                                     &record->aip, sizeof(record->aip));
-            if (rc != TLV_CODEC_OK) {
-                printf(" -> decode error: %s\n", tlv_codec_strerror(rc));
+            tlv_result_t rc = tlv_codec_decode(def->codec, element->value.data, length,
+                                               &record->aip, sizeof(record->aip), NULL);
+            if (rc != TLV_OK) {
+                printf(" -> decode error: %s\n", tlv_strerror(rc));
                 ++record->errors;
                 break;
             }
@@ -247,10 +247,10 @@ static tlv_visit_result_t decode_field(const tlv_element_t* element, void* conte
             break;
         }
         case TLV_EMV_VALUE_NUMBER: {
-            tlv_codec_result_t rc = tlv_codec_decode(def->codec, element->value.data, length,
-                                                     &record->amount, sizeof(record->amount));
-            if (rc != TLV_CODEC_OK) {
-                printf(" -> decode error: %s\n", tlv_codec_strerror(rc));
+            tlv_result_t rc = tlv_codec_decode(def->codec, element->value.data, length,
+                                               &record->amount, sizeof(record->amount), NULL);
+            if (rc != TLV_OK) {
+                printf(" -> decode error: %s\n", tlv_strerror(rc));
                 ++record->errors;
                 break;
             }
@@ -260,11 +260,11 @@ static tlv_visit_result_t decode_field(const tlv_element_t* element, void* conte
         }
         case TLV_EMV_VALUE_CRYPTOGRAM: {
             static const char* const names[] = {"AAC", "TC", "ARQC", "RFU"};
-            tlv_codec_result_t       rc =
+            tlv_result_t             rc =
                 tlv_codec_decode(def->codec, element->value.data, length, &record->cryptogram,
-                                 sizeof(record->cryptogram));
-            if (rc != TLV_CODEC_OK) {
-                printf(" -> decode error: %s\n", tlv_codec_strerror(rc));
+                                 sizeof(record->cryptogram), NULL);
+            if (rc != TLV_OK) {
+                printf(" -> decode error: %s\n", tlv_strerror(rc));
                 ++record->errors;
                 break;
             }
@@ -273,10 +273,10 @@ static tlv_visit_result_t decode_field(const tlv_element_t* element, void* conte
             break;
         }
         case TLV_EMV_VALUE_ACCOUNT: {
-            tlv_codec_result_t rc = tlv_codec_decode(def->codec, element->value.data, length,
-                                                     &record->account, sizeof(record->account));
-            if (rc != TLV_CODEC_OK) {
-                printf(" -> decode error: %s\n", tlv_codec_strerror(rc));
+            tlv_result_t rc = tlv_codec_decode(def->codec, element->value.data, length,
+                                               &record->account, sizeof(record->account), NULL);
+            if (rc != TLV_OK) {
+                printf(" -> decode error: %s\n", tlv_strerror(rc));
                 ++record->errors;
                 break;
             }
@@ -288,11 +288,11 @@ static tlv_visit_result_t decode_field(const tlv_element_t* element, void* conte
             break;
         }
         case TLV_EMV_VALUE_AFL: {
-            size_t             i;
-            tlv_codec_result_t rc = tlv_codec_decode(def->codec, element->value.data, length,
-                                                     &record->afl, sizeof(record->afl));
-            if (rc != TLV_CODEC_OK) {
-                printf(" -> decode error: %s\n", tlv_codec_strerror(rc));
+            size_t       i;
+            tlv_result_t rc = tlv_codec_decode(def->codec, element->value.data, length,
+                                               &record->afl, sizeof(record->afl), NULL);
+            if (rc != TLV_OK) {
+                printf(" -> decode error: %s\n", tlv_strerror(rc));
                 ++record->errors;
                 break;
             }

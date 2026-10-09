@@ -15,15 +15,15 @@ struct count {
 namespace tlv {
 template <> struct codec<application::count> {
     using value_type = application::count;
-    static expected<value_type, tlv::codec_errc> decode(bytes input) {
+    static expected<value_type, tlv::codec_failure> decode(bytes input) {
         auto result = uint8_codec::decode(input);
-        if (!result) return unexpected<tlv::codec_errc>(result.error());
-        if (*result > 10) return unexpected<tlv::codec_errc>(tlv::codec_errc::invalid_value);
+        if (!result) return unexpected<tlv::codec_failure>(result.error());
+        if (*result > 10) return unexpected<tlv::codec_failure>(tlv::errc::invalid_value);
         return value_type{*result};
     }
-    static expected<size_t, tlv::codec_errc> encode(const value_type& value, byte* output,
-                                                    size_t capacity) {
-        if (value.value > 10) return unexpected<tlv::codec_errc>(tlv::codec_errc::invalid_value);
+    static expected<size_t, tlv::codec_failure> encode(const value_type& value, byte* output,
+                                                       size_t capacity) {
+        if (value.value > 10) return unexpected<tlv::codec_failure>(tlv::errc::invalid_value);
         return uint8_codec::encode(value.value, output, capacity);
     }
 };
@@ -88,13 +88,13 @@ TEST(Unit_Tlvpp_TypedFields, ErrorDomainsAndCursorPreservation) {
     EXPECT_EQ(tlv::typed_errc::tag_mismatch, wrong.error().kind);
     auto invalid = tlv::element_view(Big::tag(), tlv::value_view({input, 1})).decode<Big>();
     ASSERT_FALSE(invalid);
-    EXPECT_EQ(TLV_CODEC_ERR_INVALID_VALUE, invalid.error().codec_code);
+    EXPECT_EQ(TLV_ERR_INVALID_VALUE, invalid.error().codec_code);
     tlv::byte     output[3]{};
     tlv::byte     scratch[1]{};
     tlv::writer<> writer(output, 3, tlv::native::borrow_format(controlled::format));
     auto          too_small = writer.write<Label>("AB", {scratch, 1});
     ASSERT_FALSE(too_small);
-    EXPECT_EQ(TLV_CODEC_ERR_BUFFER_TOO_SHORT, too_small.error().codec_code);
+    EXPECT_EQ(TLV_ERR_BUFFER_TOO_SHORT, too_small.error().codec_code);
     auto framing = writer.write<Label>("AB");
     ASSERT_FALSE(framing);
     EXPECT_EQ(tlv::typed_errc::framing, framing.error().kind);

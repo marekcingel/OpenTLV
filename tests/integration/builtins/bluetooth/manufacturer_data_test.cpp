@@ -24,8 +24,8 @@ TEST(Integration_Tlv_BluetoothManufacturerData, Story349PreservesOpaqueVendorDat
     EXPECT_STREQ("Manufacturer Specific Data", type->name);
     ASSERT_EQ(TLV_OK, tlv_size_to_native(element.value.size, &native));
     tlv_bluetooth_manufacturer_data_t value = {};
-    ASSERT_EQ(TLV_CODEC_OK, tlv_codec_decode(&tlv_bluetooth_codec_manufacturer_data,
-                                             element.value.data, native, &value, sizeof(value)));
+    ASSERT_EQ(TLV_OK, tlv_codec_decode(&tlv_bluetooth_codec_manufacturer_data, element.value.data,
+                                       native, &value, sizeof(value), NULL));
     EXPECT_EQ(0x004C, value.company_id);
     EXPECT_EQ(wire + 4, value.payload.data);
     EXPECT_EQ(23u, value.payload.size);
@@ -39,9 +39,9 @@ TEST(Integration_Tlv_BluetoothManufacturerData, Story349PreservesOpaqueVendorDat
     EXPECT_STREQ("Apple, Inc.", company->name);
     uint8_t encoded_value[25] = {}, output[27] = {};
     size_t  written = 0;
-    ASSERT_EQ(TLV_CODEC_OK,
+    ASSERT_EQ(TLV_OK,
               tlv_codec_encode(&tlv_bluetooth_codec_manufacturer_data, &value, sizeof(value),
-                               encoded_value, sizeof(encoded_value), &written));
+                               encoded_value, sizeof(encoded_value), &written, NULL));
     ASSERT_EQ(TLV_OK, tlv_write(output, sizeof(output), &tlv_format_bluetooth_ltv, element.tag,
                                 encoded_value, written, &written));
     EXPECT_EQ(sizeof(wire), written);
@@ -51,9 +51,9 @@ TEST(Integration_Tlv_BluetoothManufacturerData, Story349PreservesOpaqueVendorDat
     const uint8_t short_wire[] = {0x02, 0xFF, 0x4C};
     ASSERT_EQ(TLV_OK, tlv_read(short_wire, sizeof(short_wire), &tlv_format_bluetooth_ltv, &element,
                                &consumed));
-    EXPECT_EQ(TLV_CODEC_ERR_INVALID_VALUE,
+    EXPECT_EQ(TLV_ERR_INVALID_VALUE,
               tlv_codec_decode(&tlv_bluetooth_codec_manufacturer_data, element.value.data, 1,
-                               &value, sizeof(value)));
+                               &value, sizeof(value), NULL));
     EXPECT_EQ(short_wire + 2, element.value.data);
     EXPECT_EQ(1u, element.value.size);
 }

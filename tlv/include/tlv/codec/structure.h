@@ -71,11 +71,13 @@ typedef struct tlv_structure_codec {
      */
     size_t max_elements;
     /** Converts a validated sequence to the application object; `NULL` if unsupported. */
-    tlv_codec_result_t (*decode)(const void* context, const tlv_format_t* format,
-                                 const uint8_t* data, size_t size, void* value, size_t capacity);
+    tlv_result_t (*decode)(const void* context, const tlv_format_t* format, const uint8_t* data,
+                           size_t size, void* value, size_t capacity,
+                           tlv_codec_diagnostic_t* diagnostic);
     /** Converts the application object to a sequence; `NULL` if unsupported. */
-    tlv_codec_result_t (*encode)(const void* context, const tlv_format_t* format, const void* value,
-                                 size_t size, uint8_t* data, size_t capacity, size_t* written);
+    tlv_result_t (*encode)(const void* context, const tlv_format_t* format, const void* value,
+                           size_t size, uint8_t* data, size_t capacity, size_t* written,
+                           tlv_codec_diagnostic_t* diagnostic);
 } tlv_structure_codec_t;
 
 /**
@@ -90,17 +92,18 @@ typedef struct tlv_structure_codec {
  * @param[out] value    Destination object, correctly typed and aligned.
  * @param[in]  capacity Size of `value` in bytes.
  *
- * @return #TLV_CODEC_OK on success.
- * @return #TLV_CODEC_ERR_NULL_ARG for missing required arguments.
- * @return #TLV_CODEC_ERR_INVALID_STRUCTURE if validation fails.
- * @return #TLV_CODEC_ERR_UNSUPPORTED if the descriptor has no decoder.
+ * @return #TLV_OK on success.
+ * @return #TLV_ERR_NULL_ARG for missing required arguments.
+ * @return Original Reader/Schema/resource result if validation fails, with its cause.
+ * @return #TLV_ERR_UNSUPPORTED if the descriptor has no decoder.
  *
  * @warning On error the contents of `value` are unspecified. The decoded
  *          object may borrow `data`, which must then outlive it.
+ * @param[out] diagnostic Optional initialized failure output; NULL skips evidence collection.
  */
-TLV_API tlv_codec_result_t tlv_structure_decode(const tlv_structure_codec_t* codec,
-                                                const uint8_t* data, size_t size, void* value,
-                                                size_t capacity);
+TLV_API tlv_result_t tlv_structure_decode(const tlv_structure_codec_t* codec, const uint8_t* data,
+                                          size_t size, void* value, size_t capacity,
+                                          tlv_codec_diagnostic_t* diagnostic);
 
 /**
  * @brief Encodes an application object into a complete, validated sequence.
@@ -116,17 +119,19 @@ TLV_API tlv_codec_result_t tlv_structure_decode(const tlv_structure_codec_t* cod
  * @param[in]  capacity Destination capacity in bytes.
  * @param[out] written  Receives the bytes written, or the required size for a query.
  *
- * @return #TLV_CODEC_OK on success.
- * @return #TLV_CODEC_ERR_NULL_ARG for missing required arguments.
- * @return #TLV_CODEC_ERR_BUFFER_TOO_SHORT if `capacity` is insufficient.
- * @return #TLV_CODEC_ERR_INVALID_STRUCTURE if the produced bytes fail validation.
- * @return #TLV_CODEC_ERR_UNSUPPORTED if the descriptor has no encoder.
+ * @return #TLV_OK on success.
+ * @return #TLV_ERR_NULL_ARG for missing required arguments.
+ * @return #TLV_ERR_BUFFER_TOO_SHORT if `capacity` is insufficient.
+ * @return Original Reader/Schema/resource result if produced bytes fail validation.
+ *         Known byte locations describe OUTPUT coordinates.
+ * @return #TLV_ERR_UNSUPPORTED if the descriptor has no encoder.
  *
  * @warning On error the destination is unspecified and `*written` is zero.
+ * @param[out] diagnostic Optional initialized failure output; NULL skips evidence collection.
  */
-TLV_API tlv_codec_result_t tlv_structure_encode(const tlv_structure_codec_t* codec,
-                                                const void* value, size_t size, uint8_t* data,
-                                                size_t capacity, size_t* written);
+TLV_API tlv_result_t tlv_structure_encode(const tlv_structure_codec_t* codec, const void* value,
+                                          size_t size, uint8_t* data, size_t capacity,
+                                          size_t* written, tlv_codec_diagnostic_t* diagnostic);
 #ifdef __cplusplus
 }
 #endif

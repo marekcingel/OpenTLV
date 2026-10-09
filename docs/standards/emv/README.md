@@ -143,9 +143,9 @@ if (tlv_read(wire, wire_size, &tlv_format_emv, &element, &consumed) == TLV_OK) {
     if (def && tlv_emv_validate_length(def, element.value.size) == TLV_OK &&
         tlv_tag_equal(element.tag, tlv_emv_tag_amount_authorised) && def->codec) {
         uint64_t amount;
-        tlv_codec_result_t result = tlv_codec_decode(
+        tlv_result_t result = tlv_codec_decode(
             def->codec, element.value.data, element.value.size,
-            &amount, sizeof(amount));
+            &amount, sizeof(amount), NULL);
         /* Check result before using amount. */
     }
 }

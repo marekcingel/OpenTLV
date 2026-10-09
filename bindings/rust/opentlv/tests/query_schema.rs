@@ -1,8 +1,8 @@
 // SPDX-License-Identifier: MIT
 // Copyright (c) 2026 Marek Cingel
 use opentlv::{
-    Error, Format, ProgramOptions, QueryCodecError, QueryConversion, QueryDecoded, QueryProgram,
-    QueryProvider, QueryRule, QuerySchema, QuerySchemaLimits,
+    Error, Format, ProgramOptions, QueryConversion, QueryDecoded, QueryProgram, QueryProvider,
+    QueryRule, QuerySchema, QuerySchemaLimits,
 };
 
 const WIRE: &[u8] = &[0x70, 6, 0x5a, 1, 1, 0x50, 1, 2, 0x5a, 1, 3];
@@ -190,7 +190,7 @@ fn schema_retains_programs_and_providers_and_preserves_codec_errors() {
                 if panic {
                     panic!("schema provider panic");
                 }
-                Err(QueryCodecError::Unsupported)
+                Err(Error::Unsupported)
             },
         ));
         let schema = QuerySchema::new(
@@ -203,7 +203,14 @@ fn schema_retains_programs_and_providers_and_preserves_codec_errors() {
         let failure = schema
             .validate_buffer(WIRE, QuerySchemaLimits::default())
             .unwrap_err();
-        assert_eq!(failure.failure.codec, if panic { 3 } else { 4 });
+        assert_eq!(
+            failure.failure.codec,
+            if panic {
+                Error::Callback.code()
+            } else {
+                Error::Unsupported.code()
+            }
+        );
         assert!(failure.schema.is_none());
     }
 }

@@ -20,11 +20,12 @@ export function queryFacade(wasm) {
   function response(pointer, allowEnd = false) {
     if (!pointer) throw new QueryError(4);
     const reply = JSON.parse(wasm.UTF8ToString(pointer));
-    if (reply.query?.reader) {
+    for (const reader of [reply.query?.reader, reply.query?.codec_detail?.reader]) {
+      if (!reader) continue;
       for (const field of ["declared_length", "required"]) {
-        if (Object.hasOwn(reply.query.reader, field)) {
-          const value = BigInt(reply.query.reader[field]);
-          reply.query.reader[field] = value <= BigInt(Number.MAX_SAFE_INTEGER) ? Number(value) : value;
+        if (Object.hasOwn(reader, field)) {
+          const value = BigInt(reader[field]);
+          reader[field] = value <= BigInt(Number.MAX_SAFE_INTEGER) ? Number(value) : value;
         }
       }
     }
@@ -260,7 +261,7 @@ export function queryFacade(wasm) {
           }
           const capacity = size(provider.max_result_bytes ?? 0);
           const decode = provider.decode;
-          const callback = wasm.addFunction((context, event, data, length, scratch, available, result) => {
+          const callback = wasm.addFunction((context, event, data, length, scratch, available, result, _diagnostic) => {
             this._providerActive = true;
             try {
               const metadata = event ? Object.freeze({
@@ -280,7 +281,7 @@ export function queryFacade(wasm) {
               if (name === "text") {
                 if (typeof value !== "string") throw new TypeError("text provider must return string");
                 const output = encoder.encode(value);
-                if (output.length > available) return 2;
+                if (output.length > available) return 1;
                 wasm.HEAPU8.set(output, scratch);
                 wasm._opentlv_wasm_provider_text(result, scratch, output.length);
               } else {
@@ -291,9 +292,9 @@ export function queryFacade(wasm) {
                   Number(BigInt.asUintN(32, integer >> 32n)));
               }
               return 0;
-            } catch (error) { this._providerError = error; this._providerFailed = true; return 3; }
+            } catch (error) { this._providerError = error; this._providerFailed = true; return 20; }
             finally { this._providerActive = false; }
-          }, "iiiiiiii");
+          }, "iiiiiiiii");
           this._callbacks.push(callback);
           check(wasm._opentlv_wasm_program_provider(this._pointer, conversions[name], provider.id, capacity, callback));
         }

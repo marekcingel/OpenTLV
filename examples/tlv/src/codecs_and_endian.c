@@ -25,33 +25,40 @@
     } while (0)
 #define CHECK_CODEC(call)                                                                          \
     do {                                                                                           \
-        tlv_codec_result_t rc_ = (call);                                                           \
-        if (rc_ != TLV_CODEC_OK) {                                                                 \
-            fprintf(stderr, "%s: %s\n", #call, tlv_codec_strerror(rc_));                           \
+        tlv_result_t rc_ = (call);                                                                 \
+        if (rc_ != TLV_OK) {                                                                       \
+            fprintf(stderr, "%s: %s\n", #call, tlv_strerror(rc_));                                 \
             return 1;                                                                              \
         }                                                                                          \
     } while (0)
 
-static tlv_codec_result_t decode_u32(const void* context, const uint8_t* data, size_t size,
-                                     void* value, size_t capacity) {
+static tlv_result_t decode_u32(const void* context, const uint8_t* data, size_t size, void* value,
+                               size_t capacity, tlv_codec_diagnostic_t* diagnostic) {
+    tlv_codec_diagnostic_init(diagnostic, TLV_CODEC_OP_DECODE);
     (void)context;
-    if (size != sizeof(uint32_t)) return TLV_CODEC_ERR_INVALID_VALUE;
-    if (capacity < sizeof(uint32_t)) return TLV_CODEC_ERR_BUFFER_TOO_SHORT;
+    if (size != sizeof(uint32_t))
+        return tlv_codec_diagnostic_result(diagnostic, TLV_ERR_INVALID_VALUE);
+    if (capacity < sizeof(uint32_t))
+        return tlv_codec_diagnostic_result(diagnostic, TLV_ERR_BUFFER_TOO_SHORT);
     *(uint32_t*)value = tlv_read_u32_be(data);
-    return TLV_CODEC_OK;
+    return tlv_codec_diagnostic_result(diagnostic, TLV_OK);
 }
-static tlv_codec_result_t encode_u32(const void* context, const void* value, size_t size,
-                                     uint8_t* data, size_t capacity, size_t* written) {
+static tlv_result_t encode_u32(const void* context, const void* value, size_t size, uint8_t* data,
+                               size_t capacity, size_t* written,
+                               tlv_codec_diagnostic_t* diagnostic) {
+    tlv_codec_diagnostic_init(diagnostic, TLV_CODEC_OP_ENCODE);
     (void)context;
-    if (size != sizeof(uint32_t)) return TLV_CODEC_ERR_INVALID_VALUE;
+    if (size != sizeof(uint32_t))
+        return tlv_codec_diagnostic_result(diagnostic, TLV_ERR_INVALID_VALUE);
     if (!data) {
         *written = sizeof(uint32_t);
-        return TLV_CODEC_OK;
+        return tlv_codec_diagnostic_result(diagnostic, TLV_OK);
     }
-    if (capacity < sizeof(uint32_t)) return TLV_CODEC_ERR_BUFFER_TOO_SHORT;
+    if (capacity < sizeof(uint32_t))
+        return tlv_codec_diagnostic_result(diagnostic, TLV_ERR_BUFFER_TOO_SHORT);
     tlv_write_u32_be(data, *(const uint32_t*)value);
     *written = sizeof(uint32_t);
-    return TLV_CODEC_OK;
+    return tlv_codec_diagnostic_result(diagnostic, TLV_OK);
 }
 
 int main(void) {
@@ -67,16 +74,17 @@ int main(void) {
     size_t            required, written, encoded_size, consumed;
     tlv_element_t     element;
 
-    CHECK_CODEC(tlv_codec_encode(&codec, &number, sizeof(number), NULL, 0, &required));
+    CHECK_CODEC(tlv_codec_encode(&codec, &number, sizeof(number), NULL, 0, &required, NULL));
     printf("Codec needs %zu bytes\n", required);
-    CHECK_CODEC(tlv_codec_encode(&codec, &number, sizeof(number), raw, sizeof(raw), &written));
+    CHECK_CODEC(
+        tlv_codec_encode(&codec, &number, sizeof(number), raw, sizeof(raw), &written, NULL));
     CHECK(tlv_write(encoded, sizeof(encoded), &format, TLV_TAG(3), raw, written, &encoded_size));
     CHECK(tlv_read(encoded, encoded_size, &format, &element, &consumed));
     {
         size_t value_length;
         CHECK(tlv_size_to_native(element.value.size, &value_length));
-        CHECK_CODEC(
-            tlv_codec_decode(&codec, element.value.data, value_length, &decoded, sizeof(decoded)));
+        CHECK_CODEC(tlv_codec_decode(&codec, element.value.data, value_length, &decoded,
+                                     sizeof(decoded), NULL));
     }
     printf("Decoded uint32 BE: 0x%08" PRIX32 "\n", decoded);
 

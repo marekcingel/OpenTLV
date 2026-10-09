@@ -455,11 +455,10 @@ before conversion, and does not add codec metadata to generic Definition.
 
 ### Errors and custom codecs
 
-C codec failures raise an `opentlv.Error` table with `domain = "codec"`,
-`code` and `message` from `tlv_codec_strerror()`. Codes are exported as
-`tlv.codec_errors.OK`, `NULL_ARG`, `BUFFER_TOO_SHORT`, `INVALID_VALUE`,
-`UNSUPPORTED` and `INVALID_STRUCTURE`; `tlv.codec_strerror(code)` exposes
-their descriptions. Codec codes are a separate domain from `tlv.errors`.
+C codec failures raise an `opentlv.Error` table with the shared `tlv.errors`
+`code` and a `message` from `tlv_strerror()`. Optional `codec_detail` retains
+operation, reported result, callback violation and delegated cause. The old
+`codec_errors` and `codec_strerror` APIs have been removed.
 No source offset or Tag is invented for a Value-only operation. Incorrect
 Lua types and host representation bounds raise Lua argument errors.
 

@@ -24,7 +24,7 @@ template <typename Codec> void value_round_trip(tlv::bytes wire) {
     if (wire.size()) {
         auto short_output = Codec::encode(*decoded, output.data(), wire.size() - 1);
         ASSERT_FALSE(short_output);
-        EXPECT_EQ(tlv::codec_errc::buffer_too_short, short_output.error());
+        EXPECT_EQ(tlv::errc::buffer_too_short, short_output.error());
     }
 }
 } // namespace
@@ -309,8 +309,8 @@ void emv_dictionary_round_trip(tlv_emv_context_t context, tlv::tag expected_tag)
     uint8_t    c_output[128]{};
     size_t     c_size = 0;
     const auto rc = tlv_codec_encode(entry->codec, object_data(value), object_size(value), c_output,
-                                     sizeof(c_output), &c_size);
-    ASSERT_EQ(TLV_CODEC_OK, rc);
+                                     sizeof(c_output), &c_size, NULL);
+    ASSERT_EQ(TLV_OK, rc);
     auto measured = Codec::encode(value, nullptr, 0);
     ASSERT_TRUE(measured);
     EXPECT_EQ(c_size, *measured);

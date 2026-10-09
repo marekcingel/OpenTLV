@@ -18,8 +18,8 @@
  * tlv_codec_encode(); their NULL, overlap, size-query and error contracts apply.
  * Supply correctly typed and aligned objects. Decode requires at least the
  * representation's sizeof; encode requires exactly its sizeof.
- * Incorrect wire lengths or object sizes return #TLV_CODEC_ERR_INVALID_VALUE;
- * insufficient output capacity returns #TLV_CODEC_ERR_BUFFER_TOO_SHORT.
+ * Incorrect wire lengths or object sizes return #TLV_ERR_INVALID_VALUE;
+ * insufficient output capacity returns #TLV_ERR_BUFFER_TOO_SHORT.
  * UUID assignments, versions and variants are not validated or normalized.
  *
  * @see
@@ -75,8 +75,8 @@ typedef struct tlv_bluetooth_uuid_list {
  * Decode borrows the input and validates its length is a multiple of the UUID
  * width, including zero. Encode validates the view and copies its raw bytes
  * exactly. A mismatched width, partial UUID or size exceeding SIZE_MAX returns
- * #TLV_CODEC_ERR_INVALID_VALUE; nonempty NULL data returns
- * #TLV_CODEC_ERR_NULL_ARG. No AD framing limit or completeness policy applies.
+ * #TLV_ERR_INVALID_VALUE; nonempty NULL data returns
+ * #TLV_ERR_NULL_ARG. No AD framing limit or completeness policy applies.
  * Use for AD Types 0x02 and 0x03; retain the AD Type separately.
  */
 extern TLV_API const tlv_codec_t tlv_bluetooth_codec_uuid16_list;
@@ -102,15 +102,15 @@ extern TLV_API const tlv_codec_t tlv_bluetooth_codec_uuid128_list;
  *                  #tlv_bluetooth_uuid128_t according to the list width.
  *                  Must not overlap the view or its raw storage.
  * @param[in] capacity Destination object capacity in bytes.
- * @return #TLV_CODEC_OK on success.
- * @return #TLV_CODEC_ERR_NULL_ARG for missing pointers, including nonempty NULL data.
- * @return #TLV_CODEC_ERR_INVALID_VALUE for invalid width, partial UUID,
+ * @return #TLV_OK on success.
+ * @return #TLV_ERR_NULL_ARG for missing pointers, including nonempty NULL data.
+ * @return #TLV_ERR_INVALID_VALUE for invalid width, partial UUID,
  *         non-native raw size or an out-of-range index (also for empty lists).
- * @return #TLV_CODEC_ERR_BUFFER_TOO_SHORT for insufficient object capacity.
+ * @return #TLV_ERR_BUFFER_TOO_SHORT for insufficient object capacity.
  * @note The view and source remain unchanged. Destination is unchanged on error.
  */
-TLV_API tlv_codec_result_t tlv_bluetooth_uuid_list_at(const tlv_bluetooth_uuid_list_t* list,
-                                                      size_t index, void* value, size_t capacity);
+TLV_API tlv_result_t tlv_bluetooth_uuid_list_at(const tlv_bluetooth_uuid_list_t* list, size_t index,
+                                                void* value, size_t capacity);
 
 /** @} */
 #ifdef __cplusplus

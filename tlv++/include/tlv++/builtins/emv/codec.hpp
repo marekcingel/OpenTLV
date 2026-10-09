@@ -81,41 +81,47 @@ template <tlv_emv_context_t Context, typename Tag> struct emv_dictionary_codec_p
 };
 template <typename T, typename Provider> struct emv_dictionary_value_codec {
     using value_type = T;
-    static expected<T, codec_errc> decode(bytes input) {
-        T          result{};
-        const auto rc =
+    static expected<T, codec_failure> decode(bytes input) {
+        T                      result{};
+        tlv_codec_diagnostic_t diagnostic;
+        const auto             rc =
             tlv_codec_decode(Provider::descriptor(), reinterpret_cast<const uint8_t*>(input.data()),
-                             input.size(), &result, sizeof(result));
-        if (rc != TLV_CODEC_OK) return unexpected<codec_errc>(static_cast<codec_errc>(rc));
+                             input.size(), &result, sizeof(result), &diagnostic);
+        if (rc != TLV_OK) return unexpected<codec_failure>(codec_failure(rc, diagnostic));
         return result;
     }
-    static expected<size_t, codec_errc> encode(const T& value, byte* output, size_t capacity) {
-        size_t     written = 0;
-        const auto rc = tlv_codec_encode(Provider::descriptor(), &value, sizeof(value),
-                                         reinterpret_cast<uint8_t*>(output), capacity, &written);
-        if (rc != TLV_CODEC_OK) return unexpected<codec_errc>(static_cast<codec_errc>(rc));
+    static expected<size_t, codec_failure> encode(const T& value, byte* output, size_t capacity) {
+        size_t                 written = 0;
+        tlv_codec_diagnostic_t diagnostic;
+        const auto             rc =
+            tlv_codec_encode(Provider::descriptor(), &value, sizeof(value),
+                             reinterpret_cast<uint8_t*>(output), capacity, &written, &diagnostic);
+        if (rc != TLV_OK) return unexpected<codec_failure>(codec_failure(rc, diagnostic));
         return written;
     }
 };
 template <typename Provider> struct emv_dictionary_value_codec<std::string, Provider> {
     using value_type = std::string;
-    static expected<std::string, codec_errc> decode(bytes input) {
-        if (!input.data() && input.size()) return unexpected<codec_errc>(codec_errc::null_argument);
+    static expected<std::string, codec_failure> decode(bytes input) {
+        if (!input.data() && input.size()) return unexpected<codec_failure>(errc::null_argument);
         if (input.size() > (std::numeric_limits<size_t>::max() - 1) / 2)
-            return unexpected<codec_errc>(codec_errc::invalid_value);
-        std::vector<char> storage(input.size() * 2 + 1);
-        const auto        rc =
+            return unexpected<codec_failure>(errc::invalid_value);
+        std::vector<char>      storage(input.size() * 2 + 1);
+        tlv_codec_diagnostic_t diagnostic;
+        const auto             rc =
             tlv_codec_decode(Provider::descriptor(), reinterpret_cast<const uint8_t*>(input.data()),
-                             input.size(), storage.data(), storage.size());
-        if (rc != TLV_CODEC_OK) return unexpected<codec_errc>(static_cast<codec_errc>(rc));
+                             input.size(), storage.data(), storage.size(), &diagnostic);
+        if (rc != TLV_OK) return unexpected<codec_failure>(codec_failure(rc, diagnostic));
         return std::string(storage.data());
     }
-    static expected<size_t, codec_errc> encode(const std::string& value, byte* output,
-                                               size_t capacity) {
-        size_t     written = 0;
-        const auto rc = tlv_codec_encode(Provider::descriptor(), value.c_str(), value.size(),
-                                         reinterpret_cast<uint8_t*>(output), capacity, &written);
-        if (rc != TLV_CODEC_OK) return unexpected<codec_errc>(static_cast<codec_errc>(rc));
+    static expected<size_t, codec_failure> encode(const std::string& value, byte* output,
+                                                  size_t capacity) {
+        size_t                 written = 0;
+        tlv_codec_diagnostic_t diagnostic;
+        const auto             rc =
+            tlv_codec_encode(Provider::descriptor(), value.c_str(), value.size(),
+                             reinterpret_cast<uint8_t*>(output), capacity, &written, &diagnostic);
+        if (rc != TLV_OK) return unexpected<codec_failure>(codec_failure(rc, diagnostic));
         return written;
     }
 };

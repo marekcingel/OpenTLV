@@ -19,8 +19,8 @@
  * @brief C++11 typed fields and tag-independent Value codec customization.
  *
  * A codec exposes value_type, decode(bytes) returning expected<value_type,
- * codec_errc>, and encode(const value_type&, byte*, size_t) returning
- * expected<size_t, codec_errc>. Encode with nullptr and zero capacity
+ * codec_failure>, and encode(const value_type&, byte*, size_t) returning
+ * expected<size_t, codec_failure>. Encode with nullptr and zero capacity
  * validates and measures the value. Implementations must respect capacity and
  * report the exact byte count. Input and output must not overlap. Schema owns
  * contextual length, occurrence and nesting constraints.
@@ -57,11 +57,12 @@ template <typename T, const tlv_codec_t* Descriptor> struct codec_adapter {
      * @param input Borrowed input, retained if T is a borrowed representation.
      * @return Decoded value or original codec code.
      */
-    static expected<T, codec_errc> decode(bytes input) {
-        T          value{};
+    static expected<T, codec_failure> decode(bytes input) {
+        T                      value{};
+        tlv_codec_diagnostic_t diagnostic;
         const auto rc = tlv_codec_decode(Descriptor, reinterpret_cast<const uint8_t*>(input.data()),
-                                         input.size(), &value, sizeof(T));
-        if (rc != TLV_CODEC_OK) return unexpected<codec_errc>(static_cast<codec_errc>(rc));
+                                         input.size(), &value, sizeof(T), &diagnostic);
+        if (rc != TLV_OK) return unexpected<codec_failure>(codec_failure(rc, diagnostic));
         return value;
     }
     /** @brief Encode or measure through the C codec.
@@ -70,11 +71,13 @@ template <typename T, const tlv_codec_t* Descriptor> struct codec_adapter {
      * @param capacity Available bytes; output must be disjoint from value storage.
      * @return Written or required byte count, or original codec code.
      */
-    static expected<size_t, codec_errc> encode(const T& value, byte* output, size_t capacity) {
-        size_t     written = 0;
-        const auto rc = tlv_codec_encode(Descriptor, &value, sizeof(T),
-                                         reinterpret_cast<uint8_t*>(output), capacity, &written);
-        if (rc != TLV_CODEC_OK) return unexpected<codec_errc>(static_cast<codec_errc>(rc));
+    static expected<size_t, codec_failure> encode(const T& value, byte* output, size_t capacity) {
+        size_t                 written = 0;
+        tlv_codec_diagnostic_t diagnostic;
+        const auto             rc =
+            tlv_codec_encode(Descriptor, &value, sizeof(T), reinterpret_cast<uint8_t*>(output),
+                             capacity, &written, &diagnostic);
+        if (rc != TLV_OK) return unexpected<codec_failure>(codec_failure(rc, diagnostic));
         return written;
     }
 };
@@ -115,9 +118,9 @@ template <> struct codec<value_view> {
      * @param input Borrowed input, live and immutable while the result is used.
      * @return Borrowed view or original C codec error.
      */
-    static expected<value_view, codec_errc> decode(bytes input) {
+    static expected<value_view, codec_failure> decode(bytes input) {
         auto raw = detail::codec_adapter<tlv_value_t, &tlv_codec_bytes>::decode(input);
-        if (!raw) return unexpected<codec_errc>(raw.error());
+        if (!raw) return unexpected<codec_failure>(raw.error());
         return detail::semantic_access::borrow(*raw);
     }
     /** @brief Copy or measure arbitrary Value bytes through the C codec.
@@ -126,8 +129,8 @@ template <> struct codec<value_view> {
      * @param capacity Available bytes.
      * @return Written or required bytes, or original C codec error.
      */
-    static expected<size_t, codec_errc> encode(const value_view& value, byte* output,
-                                               size_t capacity) {
+    static expected<size_t, codec_failure> encode(const value_view& value, byte* output,
+                                                  size_t capacity) {
         return detail::codec_adapter<tlv_value_t, &tlv_codec_bytes>::encode(
             detail::semantic_access::get(value), output, capacity);
     }
@@ -141,9 +144,9 @@ template <> struct codec<std::string> {
      * @param input Borrowed bytes, not retained.
      * @return Owned string or original codec error.
      */
-    static expected<std::string, codec_errc> decode(bytes input) {
+    static expected<std::string, codec_failure> decode(bytes input) {
         auto value = codec<value_view>::decode(input);
-        if (!value) return unexpected<codec_errc>(value.error());
+        if (!value) return unexpected<codec_failure>(value.error());
         if (input.empty()) return std::string{};
         return std::string(reinterpret_cast<const char*>(input.data()), input.size());
     }
@@ -153,8 +156,8 @@ template <> struct codec<std::string> {
      * @param capacity Available bytes.
      * @return Written or required bytes, or original codec error.
      */
-    static expected<size_t, codec_errc> encode(const std::string& value, byte* output,
-                                               size_t capacity) {
+    static expected<size_t, codec_failure> encode(const std::string& value, byte* output,
+                                                  size_t capacity) {
         return codec<value_view>::encode(
             value_view(bytes(reinterpret_cast<const byte*>(value.data()), value.size())), output,
             capacity);
@@ -169,10 +172,10 @@ template <typename Tag, typename T, typename Codec> struct field_contract {
         bool, std::is_same<decltype(G::tag()), tlv::tag>::value &&
                   std::is_same<T, typename C::value_type>::value &&
                   std::is_same<decltype(C::decode(std::declval<bytes>())),
-                               expected<T, codec_errc>>::value &&
+                               expected<T, codec_failure>>::value &&
                   std::is_same<decltype(C::encode(std::declval<const T&>(),
                                                   static_cast<byte*>(nullptr), size_t{})),
-                               expected<size_t, codec_errc>>::value>;
+                               expected<size_t, codec_failure>>::value>;
     template <typename, typename> static std::false_type test(...);
     static const bool value = decltype(test<Tag, Codec>(0))::value;
 };
@@ -189,8 +192,8 @@ template <typename Tag, typename T, typename Codec = codec<T>> struct field {
     static_assert(
         detail::field_contract<Tag, T, Codec>::value,
         "tlv::field requires Tag::tag() returning tlv::tag, Codec::value_type matching T, "
-        "decode(bytes) returning expected<T, codec_errc>, and "
-        "encode(const T&, byte*, size_t) returning expected<size_t, codec_errc>");
+        "decode(bytes) returning expected<T, codec_failure>, and "
+        "encode(const T&, byte*, size_t) returning expected<size_t, codec_failure>");
     /** Semantic decoded type. */
     using value_type = T;
     /** Selected Value codec. */
@@ -221,11 +224,11 @@ expected<void, typed_error> writer_base::write(const typename Field::value_type&
     auto size = Field::codec_type::encode(value, nullptr, 0);
     if (!size) return unexpected<typed_error>(typed_error(size.error()));
     if (*size > scratch.size())
-        return unexpected<typed_error>(typed_error(TLV_CODEC_ERR_BUFFER_TOO_SHORT));
+        return unexpected<typed_error>(typed_error(codec_failure(errc::buffer_too_short)));
     auto written = Field::codec_type::encode(value, scratch.data(), scratch.size());
     if (!written) return unexpected<typed_error>(typed_error(written.error()));
     if (*written != *size || *written > scratch.size())
-        return unexpected<typed_error>(typed_error(TLV_CODEC_ERR_INVALID_VALUE));
+        return unexpected<typed_error>(typed_error(codec_failure(errc::callback)));
     auto result = write(Field::tag(), bytes(scratch.data(), *written));
     if (!result) return unexpected<typed_error>(typed_error(result.error().code));
     return {};

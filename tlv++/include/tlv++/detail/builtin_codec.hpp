@@ -22,12 +22,12 @@ namespace detail {
 template <typename T, typename Native, const tlv_codec_t* Descriptor, typename Conversion>
 struct builtin_codec {
     using value_type = T;
-    static expected<T, codec_errc> decode(bytes input) {
+    static expected<T, codec_failure> decode(bytes input) {
         auto result = codec_adapter<Native, Descriptor>::decode(input);
-        if (!result) return unexpected<codec_errc>(result.error());
+        if (!result) return unexpected<codec_failure>(result.error());
         return Conversion::from_native(*result);
     }
-    static expected<size_t, codec_errc> encode(const T& value, byte* output, size_t capacity) {
+    static expected<size_t, codec_failure> encode(const T& value, byte* output, size_t capacity) {
         Native native = Conversion::to_native(value);
         return codec_adapter<Native, Descriptor>::encode(native, output, capacity);
     }
@@ -43,14 +43,14 @@ struct borrowed_value_conversion {
 template <typename Native, const tlv_codec_t* Descriptor, size_t Width = 1>
 struct builtin_string_codec {
     using value_type = value_view;
-    static expected<value_view, codec_errc> decode(bytes input) {
+    static expected<value_view, codec_failure> decode(bytes input) {
         auto result = codec_adapter<Native, Descriptor>::decode(input);
-        if (!result) return unexpected<codec_errc>(result.error());
+        if (!result) return unexpected<codec_failure>(result.error());
         return value_view(
             bytes(reinterpret_cast<const byte*>(result->data), result->length * Width));
     }
-    static expected<size_t, codec_errc> encode(value_view value, byte* output, size_t capacity) {
-        if (value.size() % Width) return unexpected<codec_errc>(codec_errc::invalid_value);
+    static expected<size_t, codec_failure> encode(value_view value, byte* output, size_t capacity) {
+        if (value.size() % Width) return unexpected<codec_failure>(errc::invalid_value);
         Native native{reinterpret_cast<const uint8_t*>(value.data()), value.size() / Width};
         return codec_adapter<Native, Descriptor>::encode(native, output, capacity);
     }

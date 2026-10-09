@@ -23,7 +23,7 @@
  * requires exactly its `sizeof`; decode requires at least that capacity.
  * No codec allocates, adds framing, or changes the original element.
  * Input and output must not overlap. Size queries and error behavior follow
- * #tlv_codec_t; tlv_codec_strerror() supplies readable diagnostics.
+ * #tlv_codec_t; tlv_strerror() supplies readable diagnostics.
  * UUID list codecs for AD Types 0x02 through 0x07 are declared separately in
  * tlv/builtins/bluetooth/uuid.h, together with reusable UUID value codecs.
  *
@@ -60,13 +60,13 @@ typedef enum tlv_bluetooth_ad_flag {
  * Bit 4 was previously used and is not assigned a current meaning here.
  * An empty value means all bits clear; an absent AD structure is a separate
  * condition. Both directions reject a nonempty value ending in an all-zero
- * octet with #TLV_CODEC_ERR_INVALID_VALUE (CSS requires trailing zero octets
+ * octet with #TLV_ERR_INVALID_VALUE (CSS requires trailing zero octets
  * to be omitted). No channel-specific or connectability policy is enforced.
  *
  * Encode validates the borrowed pointer and native size before accessing it;
- * a nonempty NULL span is #TLV_CODEC_ERR_NULL_ARG, and an unrepresentable
- * size is #TLV_CODEC_ERR_INVALID_VALUE. Insufficient destination capacity is
- * #TLV_CODEC_ERR_BUFFER_TOO_SHORT. Encode preserves accepted bytes exactly.
+ * a nonempty NULL span is #TLV_ERR_NULL_ARG, and an unrepresentable
+ * size is #TLV_ERR_INVALID_VALUE. Insufficient destination capacity is
+ * #TLV_ERR_BUFFER_TOO_SHORT. Encode preserves accepted bytes exactly.
  */
 extern TLV_API const tlv_codec_t tlv_bluetooth_ad_codec_flags;
 
@@ -94,10 +94,10 @@ TLV_API bool tlv_bluetooth_ad_flags_test(const tlv_value_t* flags, uint8_t mask)
  * a shortened name from a complete name; no full-name comparison is made.
  *
  * The 248-byte field limit belongs to tlv_bluetooth_ad_schema. Both directions
- * report #TLV_CODEC_ERR_INVALID_VALUE for malformed/truncated UTF-8, overlong
+ * report #TLV_ERR_INVALID_VALUE for malformed/truncated UTF-8, overlong
  * encodings, surrogates or code points
- * above U+10FFFF. A nonempty NULL span is #TLV_CODEC_ERR_NULL_ARG; insufficient
- * destination capacity is #TLV_CODEC_ERR_BUFFER_TOO_SHORT.
+ * above U+10FFFF. A nonempty NULL span is #TLV_ERR_NULL_ARG; insufficient
+ * destination capacity is #TLV_ERR_BUFFER_TOO_SHORT.
  *
  * @see
  * https://www.bluetooth.com/wp-content/uploads/Files/Specification/HTML/Core-60/out/en/host/generic-access-profile.html
@@ -110,8 +110,8 @@ extern TLV_API const tlv_codec_t tlv_bluetooth_ad_codec_local_name;
  * Decode requires exactly one signed two's-complement octet in the Bluetooth
  * range -127 through +127 dBm; for example, FC decodes to -4. Encode writes
  * exactly one octet. The excluded value -128 (80 on wire), incorrect wire
- * length or incorrect encode object size is #TLV_CODEC_ERR_INVALID_VALUE.
- * Insufficient destination capacity is #TLV_CODEC_ERR_BUFFER_TOO_SHORT.
+ * length or incorrect encode object size is #TLV_ERR_INVALID_VALUE.
+ * Insufficient destination capacity is #TLV_ERR_BUFFER_TOO_SHORT.
  */
 extern TLV_API const tlv_codec_t tlv_bluetooth_ad_codec_tx_power;
 

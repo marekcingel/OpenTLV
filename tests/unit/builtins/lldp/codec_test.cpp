@@ -12,35 +12,35 @@
 namespace {
 template <typename T> T roundtrip(const tlv_codec_t& codec, const std::vector<uint8_t>& wire) {
     T value{};
-    EXPECT_EQ(TLV_CODEC_OK,
-              tlv_codec_decode(&codec, wire.data(), wire.size(), &value, sizeof(value)));
+    EXPECT_EQ(TLV_OK,
+              tlv_codec_decode(&codec, wire.data(), wire.size(), &value, sizeof(value), NULL));
     size_t size = 999;
-    EXPECT_EQ(TLV_CODEC_OK, tlv_codec_encode(&codec, &value, sizeof(value), nullptr, 0, &size));
+    EXPECT_EQ(TLV_OK, tlv_codec_encode(&codec, &value, sizeof(value), nullptr, 0, &size, NULL));
     EXPECT_EQ(wire.size(), size);
     std::vector<uint8_t> encoded(wire.size() + 1, 0xCC);
-    EXPECT_EQ(TLV_CODEC_OK,
-              tlv_codec_encode(&codec, &value, sizeof(value), encoded.data(), wire.size(), &size));
+    EXPECT_EQ(TLV_OK, tlv_codec_encode(&codec, &value, sizeof(value), encoded.data(), wire.size(),
+                                       &size, NULL));
     EXPECT_TRUE(std::equal(wire.begin(), wire.end(), encoded.begin()));
     EXPECT_EQ(0xCC, encoded.back());
-    EXPECT_EQ(TLV_CODEC_ERR_BUFFER_TOO_SHORT,
-              tlv_codec_decode(&codec, wire.data(), wire.size(), &value, sizeof(value) - 1));
+    EXPECT_EQ(TLV_ERR_BUFFER_TOO_SHORT,
+              tlv_codec_decode(&codec, wire.data(), wire.size(), &value, sizeof(value) - 1, NULL));
     if (!wire.empty()) {
         encoded.assign(wire.size(), 0xCC);
-        EXPECT_EQ(TLV_CODEC_ERR_BUFFER_TOO_SHORT,
+        EXPECT_EQ(TLV_ERR_BUFFER_TOO_SHORT,
                   tlv_codec_encode(&codec, &value, sizeof(value), encoded.data(), wire.size() - 1,
-                                   &size));
+                                   &size, NULL));
         EXPECT_EQ(0u, size);
         for (uint8_t byte : encoded) EXPECT_EQ(0xCC, byte);
     }
-    EXPECT_EQ(TLV_CODEC_ERR_INVALID_VALUE,
-              tlv_codec_encode(&codec, &value, sizeof(value) - 1, nullptr, 0, &size));
+    EXPECT_EQ(TLV_ERR_INVALID_VALUE,
+              tlv_codec_encode(&codec, &value, sizeof(value) - 1, nullptr, 0, &size, NULL));
     return value;
 }
 
 template <typename T> void invalid(const tlv_codec_t& codec, const std::vector<uint8_t>& wire) {
     T value{};
-    EXPECT_EQ(TLV_CODEC_ERR_INVALID_VALUE,
-              tlv_codec_decode(&codec, wire.data(), wire.size(), &value, sizeof(value)));
+    EXPECT_EQ(TLV_ERR_INVALID_VALUE,
+              tlv_codec_decode(&codec, wire.data(), wire.size(), &value, sizeof(value), NULL));
 }
 } // namespace
 
@@ -149,30 +149,29 @@ TEST(Unit_Tlv_LldpCodec, EncodingRejectsInvalidAndOversizedRepresentations) {
     uint8_t     byte = 1;
     size_t      written = 999;
     tlv_value_t text = {nullptr, 1};
-    EXPECT_EQ(TLV_CODEC_ERR_NULL_ARG,
-              tlv_codec_encode(&tlv_lldp_codec_text, &text, sizeof(text), nullptr, 0, &written));
+    EXPECT_EQ(TLV_ERR_NULL_ARG, tlv_codec_encode(&tlv_lldp_codec_text, &text, sizeof(text), nullptr,
+                                                 0, &written, NULL));
     EXPECT_EQ(0u, written);
     text = {&byte, UINT64_MAX};
-    EXPECT_EQ(SIZE_MAX == UINT64_MAX ? TLV_CODEC_OK : TLV_CODEC_ERR_INVALID_VALUE,
-              tlv_codec_encode(&tlv_lldp_codec_text, &text, sizeof(text), nullptr, 0, &written));
+    EXPECT_EQ(
+        SIZE_MAX == UINT64_MAX ? TLV_OK : TLV_ERR_INVALID_VALUE,
+        tlv_codec_encode(&tlv_lldp_codec_text, &text, sizeof(text), nullptr, 0, &written, NULL));
     tlv_lldp_id_t id = {4, {&byte, 1}};
-    EXPECT_EQ(TLV_CODEC_ERR_INVALID_VALUE,
-              tlv_codec_encode(&tlv_lldp_codec_chassis_id, &id, sizeof(id), nullptr, 0, &written));
+    EXPECT_EQ(TLV_ERR_INVALID_VALUE, tlv_codec_encode(&tlv_lldp_codec_chassis_id, &id, sizeof(id),
+                                                      nullptr, 0, &written, NULL));
     tlv_lldp_capabilities_t caps = {4, 8};
-    EXPECT_EQ(TLV_CODEC_ERR_INVALID_VALUE, tlv_codec_encode(&tlv_lldp_codec_capabilities, &caps,
-                                                            sizeof(caps), nullptr, 0, &written));
+    EXPECT_EQ(TLV_ERR_INVALID_VALUE, tlv_codec_encode(&tlv_lldp_codec_capabilities, &caps,
+                                                      sizeof(caps), nullptr, 0, &written, NULL));
     tlv_lldp_organisation_t org = {{0, 0, 0}, 0, {&byte, UINT64_MAX}};
-    EXPECT_EQ(TLV_CODEC_ERR_INVALID_VALUE, tlv_codec_encode(&tlv_lldp_codec_organisation, &org,
-                                                            sizeof(org), nullptr, 0, &written));
+    EXPECT_EQ(TLV_ERR_INVALID_VALUE, tlv_codec_encode(&tlv_lldp_codec_organisation, &org,
+                                                      sizeof(org), nullptr, 0, &written, NULL));
     tlv_lldp_management_address_t address = {250, {&byte, 1}, 4, 0, {nullptr, 0}};
-    EXPECT_EQ(TLV_CODEC_ERR_INVALID_VALUE,
-              tlv_codec_encode(&tlv_lldp_codec_management_address, &address, sizeof(address),
-                               nullptr, 0, &written));
+    EXPECT_EQ(TLV_ERR_INVALID_VALUE, tlv_codec_encode(&tlv_lldp_codec_management_address, &address,
+                                                      sizeof(address), nullptr, 0, &written, NULL));
     address.interface_subtype = 1;
     address.oid = {&byte, UINT64_MAX};
-    EXPECT_EQ(TLV_CODEC_ERR_INVALID_VALUE,
-              tlv_codec_encode(&tlv_lldp_codec_management_address, &address, sizeof(address),
-                               nullptr, 0, &written));
+    EXPECT_EQ(TLV_ERR_INVALID_VALUE, tlv_codec_encode(&tlv_lldp_codec_management_address, &address,
+                                                      sizeof(address), nullptr, 0, &written, NULL));
 }
 
 TEST(Unit_Tlv_LldpCodec, SchemaOwnsOuterLengthPolicy) {

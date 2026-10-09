@@ -1,5 +1,6 @@
 # SPDX-License-Identifier: MIT
 # Copyright (c) 2026 Marek Cingel
+from opentlv import BufferTooShortError
 import gc
 import pytest
 from opentlv import (QueryProgram, TreeReader, Visit, Document, InvalidArgError, InvalidStateError,
@@ -200,9 +201,11 @@ def test_custom_text_provider_has_exact_bounded_result_scratch():
     provider = QueryProvider(102, lambda value, metadata: "a\0b", max_result_bytes=3)
     assert QueryProgram("text(//5A)", providers={"text": provider}).evaluate(b"\x5a\0") == "a\0b"
     short = QueryProvider(102, provider.decode, max_result_bytes=2)
-    with pytest.raises(InvalidValueError) as error:
+    with pytest.raises(BufferTooShortError) as error:
         QueryProgram("text(//5A)", providers={"text": short}).evaluate(b"\x5a\0")
-    assert error.value.query["codec"] == 2
+    assert error.value.query["codec"] == 1
+    assert error.value.codec_detail["reported"] == 1
+    assert error.value.codec_detail["operation"] == 0
 
 
 def test_provider_exception_and_execution_reentry_are_preserved():

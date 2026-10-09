@@ -22,7 +22,7 @@ void        opentlv_lua_codec_push(lua_State* L, const tlv_codec_t* codec,
                                    const opentlv_lua_codec_rep_t* rep);
 void        opentlv_lua_codec_add(lua_State* L, const char* name, const tlv_codec_t* codec,
                                   const opentlv_lua_codec_rep_t* rep);
-int         opentlv_lua_codec_raise(lua_State* L, tlv_codec_result_t code);
+int         opentlv_lua_codec_raise(lua_State* L, tlv_result_t code);
 uint64_t    opentlv_lua_codec_uint(lua_State* L, int index, uint64_t maximum);
 int64_t     opentlv_lua_codec_int(lua_State* L, int index, int64_t minimum, int64_t maximum);
 void        opentlv_lua_codec_push_uint(lua_State* L, uint64_t value);

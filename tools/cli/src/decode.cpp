@@ -131,7 +131,7 @@ decode_result decode_fixed(tlv::dynamic_codec codec, tlv::bytes input,
     auto          value = codec.decode<T>(input);
     if (!value) {
         result.status = decode_status::error;
-        result.text = tlv::message(value.error());
+        result.text = value.error().message();
         return result;
     }
     result.status = decode_status::ok;
@@ -152,7 +152,7 @@ decode_result decode_digits(tlv::dynamic_codec codec, tlv::bytes input) {
     auto        decoded = codec.decode_into(input, tlv::span<char>(&buffer[0], buffer.size()));
     if (!decoded) {
         result.status = decode_status::error;
-        result.text = tlv::message(decoded.error());
+        result.text = decoded.error().message();
         return result;
     }
     result.status = decode_status::ok;

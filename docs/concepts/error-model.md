@@ -154,6 +154,11 @@ by #554. `ARGUMENT` remains to be added for cases currently forced into
 `IMAGE_VERSION` for a recognized version mismatch. `CODEC` denotes conversion
 context; a callback contract violation during conversion uses `CALLBACK` and
 records the codec operation and reported result, including a reported `OK`.
+The raw `codec.reported` and Query `codec` fields use `int32_t`, preserving
+unknown and negative foreign callback results without invalid C++ enum reads.
+Callback signatures still use `tlv_result_t`: C++ callbacks must return values
+representable by that enum, and callers must use the C dispatch entry points
+to normalize foreign callback results before interpreting the returned status.
 Ordinary invalid encoded values remain `CODEC` plus `INVALID_VALUE`.
 
 Schema input findings retain `MISSING`, `DUPLICATE`, `UNEXPECTED`, `KIND`,
@@ -418,6 +423,12 @@ Unknown visitor discriminators produce `CALLBACK`.
 
 | Current producer or behavior | Required target change |
 | --- | --- |
+| Generator reports `NULL_ARG` for a non-NULL Format without read/write capability | `UNSUPPORTED`; missing required top-level pointers retain `NULL_ARG`. C++ uses the same capability-before-configuration precedence. Implemented in #572. |
+| Generator rejects `max_depth > 64` as `INVALID_ARG` | `UNSUPPORTED` for a request beyond fixed implementation capability. Implemented in #572. |
+| Generator exhausts attempts when every candidate's minimum Value size exceeds `max_value_size` or `max_case_size` | Reject the contradictory domain as `INVALID_ARG` in `tlv_generator_workspace_size()`. Check all descriptors but allow a mixture of usable and unusable candidates. Implemented in #572. |
+| Generator hides callback failures and successful encode/decode semantic mismatches as candidate rejection | Propagate detected `CALLBACK` and classify changed identifier presence/bytes, Value, or incomplete successful decoding as `CALLBACK`; abort even inside a child stream or after partial success. Implemented in #572. |
+| Generator rejects candidates that fail ordinary Format operations or byte-exact reconstruction with preserved semantics | Retain the bounded candidate search and `LIMIT` when no nonempty case is produced. Format-specific identifier/framing feasibility cannot be decided by the Format-independent workspace query. Implemented in #572. |
+| Generator workspace/attempt arithmetic and caller buffer checks | Retain `OVERFLOW` for unrepresentable workspace or attempt budget, and `BUFFER_TOO_SHORT` for insufficient output/workspace. Algorithm version and valid deterministic bytes are unchanged by #572. |
 | `tlv_value_constraint_validate()` returns `SCHEMA` for invalid bounds, enum or allowed-values storage | Validate the definition as `INVALID_SCHEMA`; valid constraints rejecting data produce `SCHEMA` + `VALUE`. |
 | Generic Schema rule/group validation uses `SCHEMA` in fail-fast validation and `INVALID_ARG` in report preflight | Invalid definition -> `INVALID_SCHEMA`, independent of which validation entry point is called. |
 | Generic Schema/LLDP/DHCP required-field checks and DER missing components differ | `SCHEMA` + `MISSING`; preserve builtin-owned requirements and explicit location anchors. |
@@ -437,7 +448,7 @@ This design completes #551. Issue #552 implements `INVALID_STATE`, Query kind
 
 Issue #554 implements unsupported capability, workspace and callback classifications
 including impossible preorder depth returned by a Tree Writer source callback.
-The separate Codec result domain and its lossless propagation migrate in #556;
+Codec uses the shared result domain and lossless typed propagation as of #556;
 other Query detail kinds and the remaining result classes are follow-up work. No append-only or numeric ABI guarantee is attached to
 `INVALID_STATE = 19` or `STATE = 12`. The complete target API is not yet available.
 The follow-up implementation replaces enums/signatures/layouts directly and

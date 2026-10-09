@@ -109,6 +109,8 @@ int main(void) {
     FIELD(tlv_query_diagnostic_t, end);
     FIELD(tlv_query_diagnostic_t, reader);
     FIELD(tlv_query_diagnostic_t, codec);
+    FIELD(tlv_query_diagnostic_t, has_codec);
+    FIELD(tlv_query_diagnostic_t, codec_detail);
     printf("},");
     TYPE(tlv_query_result_t);
     FIELD(tlv_query_result_t, kind);

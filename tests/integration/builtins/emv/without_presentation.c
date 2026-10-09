@@ -33,11 +33,11 @@ int main(void) {
     CHECK(tlv_tag_equal(entry->definition->tag, tlv_emv_tag_amount_authorised));
     CHECK(tlv_emv_validate_length(entry, 6) == TLV_OK);
     CHECK(tlv_emv_validate_length(entry, 5) == TLV_ERR_SCHEMA);
-    CHECK(tlv_codec_decode(entry->codec, element.value.data, 6, &amount, sizeof(amount)) ==
-          TLV_CODEC_OK);
+    CHECK(tlv_codec_decode(entry->codec, element.value.data, 6, &amount, sizeof(amount), NULL) ==
+          TLV_OK);
     CHECK(amount == 1234);
     CHECK(tlv_codec_encode(entry->codec, &amount, sizeof(amount), encoded, sizeof(encoded),
-                           &written) == TLV_CODEC_OK);
+                           &written, NULL) == TLV_OK);
     CHECK(written == 6 && memcmp(encoded, wire + 3, 6) == 0);
     CHECK(tlv_schema_validate(gpo, sizeof(gpo), &tlv_format_emv, &tlv_emv_structure_schema, 8, 100,
                               NULL) == TLV_OK);
@@ -69,7 +69,7 @@ int main(void) {
         entry = tlv_emv_dictionary_find(&dictionary, &element.tag);
         CHECK(entry == &custom);
         CHECK(tlv_emv_validate_length(entry, 1) == TLV_OK);
-        CHECK(tlv_codec_decode(entry->codec, raw, 1, &value, sizeof(value)) == TLV_CODEC_OK);
+        CHECK(tlv_codec_decode(entry->codec, raw, 1, &value, sizeof(value), NULL) == TLV_OK);
         CHECK(value == 42);
     }
     return 0;

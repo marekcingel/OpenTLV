@@ -811,7 +811,7 @@ events:
                                "balanced complete canonical events without pruning");
 failure:
     e->invalid = 1;
-    if (d && event->source.data) {
+    if (d && !d->has_codec && event->source.data) {
         tlv_diagnostic_set_location(&d->diagnostic, TLV_LOCATION_INPUT, TLV_LOCATION_POINT,
                                     event->offset, event->offset);
     }

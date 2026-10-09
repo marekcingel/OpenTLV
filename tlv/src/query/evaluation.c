@@ -5,6 +5,20 @@
 #include "../codec/result_internal.h"
 #include <stdio.h>
 
+static tlv_result_t codec_failure(tlv_query_diagnostic_t* d, tlv_codec_diagnostic_t* cause,
+                                  tlv_result_t result, const query_node_t* n,
+                                  const char* expected) {
+    query_error(d, result, TLV_QUERY_ERROR_CODEC, n->begin, n->end, expected);
+    if (d) {
+        tlv_codec_diagnostic_result(cause, result);
+        d->diagnostic = cause->diagnostic;
+        d->has_codec = 1;
+        d->codec_detail = cause->codec;
+        d->codec = cause->codec.reported;
+    }
+    return result;
+}
+
 /* The shared retained backend indexes canonical events, never reparses wire bytes.
    Every evaluation frame has explicit bounded node sets. Child references are
    strictly backward in the immutable image; no recursion or VM back edges. */
@@ -324,25 +338,21 @@ static tlv_result_t scalar_call(tlv_query_exec_t* e, eval_frame_t* f, const quer
         for (size_t i = 0; i < e->environment->hook_count; ++i)
             if (e->environment->hooks[i].id == n->hook_id) hook = &e->environment->hooks[i];
         tlv_query_result_t result = {0};
-        tlv_codec_result_t rc =
+        tlv_codec_diagnostic_t cause;
+        tlv_codec_diagnostic_t* cd = d ? &cause : NULL;
+        tlv_codec_diagnostic_init(cd, TLV_CODEC_OP_DECODE);
+        tlv_result_t rc =
             hook->decode(hook->context, event, f->a.data, f->a.size,
                          eval_codec_scratch(e) + instruction * e->program->codec_stride,
-                         hook->scratch_size, &result);
+                         hook->scratch_size, &result, cd);
         if (!e->busy) return TLV_ERR_INVALID_STATE;
-        if (!tlv_codec_result_valid(rc)) {
-            if (d) d->codec = rc;
-            return query_error(d, TLV_ERR_CALLBACK, TLV_QUERY_ERROR_CALLBACK, n->begin, n->end,
-                               "valid codec result discriminator");
-        }
-        if (rc != TLV_CODEC_OK) {
-            if (d) d->codec = rc;
-            return query_error(d, TLV_ERR_INVALID_VALUE, TLV_QUERY_ERROR_CODEC, n->begin, n->end,
-                               "strict complete-Value decoding");
+        rc = tlv_codec_callback_result(cd, rc, TLV_CODEC_OP_DECODE);
+        if (rc != TLV_OK) {
+            return codec_failure(d, cd, rc, n, "strict complete-Value decoding");
         }
         if (query_private_type(result.kind) != n->type || (result.size && !result.data)) {
-            if (d) d->codec = rc;
-            return query_error(d, TLV_ERR_CALLBACK, TLV_QUERY_ERROR_CALLBACK, n->begin, n->end,
-                               "declared codec result type");
+            if (cd) cd->codec.violation = TLV_CODEC_VIOLATION_TYPE;
+            return codec_failure(d, cd, TLV_ERR_CALLBACK, n, "declared codec result type");
         }
         if (result.kind == TLV_QUERY_RESULT_INTEGER)
             f->value = signed_value(result.integer);
@@ -350,9 +360,8 @@ static tlv_result_t scalar_call(tlv_query_exec_t* e, eval_frame_t* f, const quer
             tlv_result_t work = eval_charge(e, result.size, n, d);
             if (work != TLV_OK) return work;
             if (tlv_utf8_validate(result.data, result.size) != TLV_OK) {
-                if (d) d->codec = rc;
-                return query_error(d, TLV_ERR_CALLBACK, TLV_QUERY_ERROR_CALLBACK, n->begin, n->end,
-                                   "UTF-8 decoded string");
+                if (cd) cd->codec.violation = TLV_CODEC_VIOLATION_UTF8;
+                return codec_failure(d, cd, TLV_ERR_CALLBACK, n, "UTF-8 decoded string");
             }
             f->value.kind = V_STRING;
             f->value.data = result.data;
@@ -412,7 +421,7 @@ static void push_frame(tlv_query_exec_t* e, size_t index, uint32_t instruction, 
 static tlv_result_t eval_failure(tlv_query_exec_t* e, const eval_frame_t* f, tlv_result_t rc,
                                  tlv_query_diagnostic_t* d) {
     size_t selected = f->selected < e->elements ? f->selected : f->context;
-    if (d && selected < e->elements) {
+    if (d && !d->has_codec && selected < e->elements) {
         const retained_node_t* node = &eval_nodes(e)[selected];
         size_t offset;
         tlv_result_t location = e->document_metadata

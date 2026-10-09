@@ -12,7 +12,11 @@
 #include <string>
 #include <vector>
 
+#include "../../unknown_result.h"
+#include "../codec/raw_result.h"
+
 namespace {
+
 struct Buffer {
     std::vector<uint8_t> bytes;
     void*                data;
@@ -181,10 +185,10 @@ TEST(Unit_Tlv_QueryF2, StrictCodecErrorsAndEagerBooleanEvaluation) {
         ASSERT_EQ(TLV_OK, e.init());
         EXPECT_EQ(TLV_ERR_INVALID_VALUE, e.run({0x5a, 1, 0xff}));
         EXPECT_EQ(TLV_QUERY_ERROR_CODEC, e.diagnostic.kind);
-        EXPECT_EQ(TLV_CODEC_ERR_INVALID_VALUE, e.diagnostic.codec);
-        EXPECT_TRUE((e.diagnostic.diagnostic.location.domain == TLV_LOCATION_INPUT &&
-                     e.diagnostic.diagnostic.location.kind != TLV_LOCATION_UNKNOWN));
-        EXPECT_EQ(0u, e.diagnostic.diagnostic.location.begin);
+        EXPECT_EQ(TLV_ERR_INVALID_VALUE, e.diagnostic.codec);
+        // The primitive supplies no byte coordinate; the expression span stays related evidence.
+        EXPECT_EQ(TLV_LOCATION_DOMAIN_UNKNOWN, e.diagnostic.diagnostic.location.domain);
+        EXPECT_EQ(TLV_LOCATION_UNKNOWN, e.diagnostic.diagnostic.location.kind);
         EXPECT_LT(e.diagnostic.begin, e.diagnostic.end);
     }
     Evaluation e;
@@ -442,16 +446,16 @@ TEST(Unit_Tlv_QueryF2, ProviderScratchAlignmentAndResultValidation) {
         bool   bad;
     } state = {0, false};
     auto decode = [](const void* context, const tlv_tree_event_t*, const uint8_t*, size_t,
-                     void* scratch, size_t capacity,
-                     tlv_query_result_t* result) -> tlv_codec_result_t {
+                     void* scratch, size_t capacity, tlv_query_result_t* result,
+                     tlv_codec_diagnostic_t*) -> tlv_result_t {
         State* state = const_cast<State*>(static_cast<const State*>(context));
         if (reinterpret_cast<uintptr_t>(scratch) % 16 || capacity != 32)
-            return TLV_CODEC_ERR_INVALID_VALUE;
+            return TLV_ERR_INVALID_VALUE;
         ++state->calls;
         std::memset(scratch, 0, capacity);
         result->kind = state->bad ? TLV_QUERY_RESULT_STRING : TLV_QUERY_RESULT_INTEGER;
         result->integer = 42;
-        return TLV_CODEC_OK;
+        return TLV_OK;
     };
     Evaluation e;
     e.hooks[0].id = 100;
@@ -470,17 +474,16 @@ TEST(Unit_Tlv_QueryF2, ProviderScratchAlignmentAndResultValidation) {
     ASSERT_EQ(e.init(), TLV_OK);
     EXPECT_EQ(e.run({}), TLV_ERR_CALLBACK);
     EXPECT_EQ(e.diagnostic.kind, TLV_QUERY_ERROR_CALLBACK);
-    EXPECT_EQ(e.diagnostic.codec, TLV_CODEC_OK);
+    EXPECT_EQ(e.diagnostic.codec, TLV_OK);
     EXPECT_LT(e.diagnostic.begin, e.diagnostic.end);
 }
 
 TEST(Unit_Tlv_QueryF2, ProviderTextResultDiagnostics) {
     struct Case {
-        bool               missing_data;
-        tlv_codec_result_t status;
+        bool         missing_data;
+        tlv_result_t status;
     };
-    const Case cases[] = {
-        {false, TLV_CODEC_OK}, {true, TLV_CODEC_OK}, {false, TLV_CODEC_ERR_UNSUPPORTED}};
+    const Case cases[] = {{false, TLV_OK}, {true, TLV_OK}, {false, TLV_ERR_UNSUPPORTED}};
     for (const auto& test : cases) {
         SCOPED_TRACE(test.missing_data);
         SCOPED_TRACE(test.status);
@@ -489,7 +492,8 @@ TEST(Unit_Tlv_QueryF2, ProviderTextResultDiagnostics) {
             if (hook.function != TLV_QUERY_TEXT) continue;
             hook.context = &test;
             hook.decode = [](const void* context, const tlv_tree_event_t*, const uint8_t*, size_t,
-                             void*, size_t, tlv_query_result_t* result) -> tlv_codec_result_t {
+                             void*, size_t, tlv_query_result_t* result,
+                             tlv_codec_diagnostic_t*) -> tlv_result_t {
                 const auto&          test = *static_cast<const Case*>(context);
                 static const uint8_t invalid_utf8[] = {0xff};
                 result->kind = TLV_QUERY_RESULT_STRING;
@@ -500,11 +504,68 @@ TEST(Unit_Tlv_QueryF2, ProviderTextResultDiagnostics) {
         }
         ASSERT_EQ(e.compile("text(//5A)"), TLV_OK);
         ASSERT_EQ(e.init(), TLV_OK);
-        EXPECT_EQ(e.run({0x5a, 1, 1}),
-                  test.status == TLV_CODEC_OK ? TLV_ERR_CALLBACK : TLV_ERR_INVALID_VALUE);
+        EXPECT_EQ(e.run({0x5a, 1, 1}), test.status == TLV_OK ? TLV_ERR_CALLBACK : test.status);
         EXPECT_EQ(e.diagnostic.kind,
-                  test.status == TLV_CODEC_OK ? TLV_QUERY_ERROR_CALLBACK : TLV_QUERY_ERROR_CODEC);
+                  test.status == TLV_OK ? TLV_QUERY_ERROR_CALLBACK : TLV_QUERY_ERROR_CODEC);
         EXPECT_EQ(e.diagnostic.codec, test.status);
+        EXPECT_LT(e.diagnostic.begin, e.diagnostic.end);
+    }
+}
+
+TEST(Unit_Tlv_QueryF2, ConversionPreservesSharedFailuresAndRelatedExpression) {
+    ASSERT_STREQ(tlv_strerror(unknown_result), "unknown error");
+    for (const auto status :
+         {TLV_ERR_LIMIT, TLV_ERR_SCHEMA, TLV_ERR_INVALID_SCHEMA, TLV_ERR_BUFFER_TOO_SHORT,
+          TLV_NEED_MORE_DATA, TLV_ERR_END_OF_BUFFER, unknown_result}) {
+        Evaluation e;
+        for (auto& hook : e.hooks) {
+            if (hook.function != TLV_QUERY_NUM) continue;
+            hook.context = &status;
+            hook.decode = [](const void* context, const tlv_tree_event_t*, const uint8_t*, size_t,
+                             void*, size_t, tlv_query_result_t*,
+                             tlv_codec_diagnostic_t* diagnostic) {
+                if (diagnostic) {
+                    diagnostic->diagnostic.location = {TLV_LOCATION_INPUT, TLV_LOCATION_POINT, 17,
+                                                       17};
+                    diagnostic->codec.cause = TLV_CODEC_CAUSE_READER;
+                    diagnostic->codec.detail.reader.has_required = 1;
+                    diagnostic->codec.detail.reader.required = 42;
+                }
+                return *static_cast<const tlv_result_t*>(context);
+            };
+        }
+        ASSERT_EQ(TLV_OK, e.compile("num(//5A)"));
+        ASSERT_EQ(TLV_OK, e.init());
+        const auto expected =
+            status == TLV_ERR_END_OF_BUFFER || status == unknown_result ? TLV_ERR_CALLBACK : status;
+        EXPECT_EQ(expected, e.run({0x5a, 1, 1}));
+        EXPECT_EQ(expected, e.diagnostic.diagnostic.code);
+        ASSERT_TRUE(e.diagnostic.has_codec);
+        EXPECT_EQ(status, e.diagnostic.codec_detail.reported);
+        EXPECT_EQ(17u, e.diagnostic.diagnostic.location.begin);
+        EXPECT_EQ(42u, e.diagnostic.codec_detail.detail.reader.required);
+        EXPECT_LT(e.diagnostic.begin, e.diagnostic.end);
+    }
+}
+
+TEST(Unit_Tlv_QueryF2, ForeignCallbackResultsRemainReadableInCpp) {
+    for (const int32_t reported : {999, -1, INT32_MIN, INT32_MAX}) {
+        SCOPED_TRACE(reported);
+        Evaluation e;
+        for (auto& hook : e.hooks) {
+            if (hook.function != TLV_QUERY_NUM) continue;
+            hook.context = &reported;
+            hook.decode = tlv_test_raw_query;
+        }
+        ASSERT_EQ(TLV_OK, e.compile("num(//5A)"));
+        ASSERT_EQ(TLV_OK, e.init());
+        EXPECT_EQ(TLV_ERR_CALLBACK, e.run({0x5a, 1, 1}));
+        EXPECT_EQ(TLV_ERR_CALLBACK, e.diagnostic.diagnostic.code);
+        EXPECT_EQ(TLV_QUERY_ERROR_CALLBACK, e.diagnostic.kind);
+        ASSERT_TRUE(e.diagnostic.has_codec);
+        EXPECT_EQ(reported, e.diagnostic.codec);
+        EXPECT_EQ(reported, e.diagnostic.codec_detail.reported);
+        EXPECT_EQ(TLV_CODEC_VIOLATION_RESULT, e.diagnostic.codec_detail.violation);
         EXPECT_LT(e.diagnostic.begin, e.diagnostic.end);
     }
 }

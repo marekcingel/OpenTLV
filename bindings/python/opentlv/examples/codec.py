@@ -11,7 +11,7 @@ installing both packages.
 """
 
 import opentlv
-from opentlv import codec
+from opentlv import codec, OpenTLVError
 
 # 9F02 06 00 00 00 01 23 45 -- an "Amount, Authorised" element for 12345
 # (unscaled minor units, e.g. EUR 123.45).
@@ -28,7 +28,7 @@ def main() -> None:
 
     try:
         codec.decode_amount(b"\x00\x00\x01")  # wrong length for format n12
-    except codec.CodecError as error:
+    except OpenTLVError as error:
         print(f"rejected: {error}")
 
 

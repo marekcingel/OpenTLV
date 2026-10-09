@@ -164,7 +164,7 @@ bytes and names, so returned definitions survive the registry.
 Values through C. `LITTLE_ENDIAN` and `BCD` are also supported; BCD requires
 `digits` precision. Width zero selects minimal encoding. `decode`, `encode`,
 `encoded_size` and `encode_into` expose conversion, measurement and caller-owned
-output. Conversion errors raise `codec.CodecError`; integers outside uint64
+output. Conversion errors raise the corresponding `OpenTLVError` subclass; integers outside uint64
 raise `OverflowError` during representation adaptation.
 
 `opentlv.codec` also binds `tlv_emv_codec_amount` for EMV format n12 amounts:
@@ -179,8 +179,9 @@ codec.decode_amount(b"\x00\x00\x00\x01\x23\x45")  # 12345
 Other public C codecs (dates, Track 2, AFL, CVM results and cryptogram
 information, among others) remain binding gaps. They must be exposed by wrapping
 the public C descriptors rather than reimplementing their conversion logic.
-`codec.CodecError` is separate from `OpenTLVError`, matching C's separate codec
-error domain; its `.code` contains the raw `tlv_codec_result_t` value.
+`OpenTLVError.code` contains the shared `tlv_result_t` value; `codec_detail`
+retains operation, original provider result, contract violation and delegated
+cause when supplied by C. Its `schema` entry is an owned `SchemaDiagnostic`.
 
 Runnable version, decoding and encoding an EMV "Amount, Authorised" element:
 [codec.py](https://github.com/marekcingel/OpenTLV/blob/main/bindings/python/opentlv/examples/codec.py)

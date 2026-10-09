@@ -27,14 +27,14 @@ TEST(Integration_Tlvpp, Asn1IntegerCodecComposesWithValueRangeConstraint) {
 
     const uint8_t in_range[] = {0x2A}; // 42
     int64_t       version = -1;
-    ASSERT_EQ(TLV_CODEC_OK, tlv_codec_decode(&tlv_asn1_codec_integer, in_range, sizeof(in_range),
-                                             &version, sizeof(version)));
+    ASSERT_EQ(TLV_OK, tlv_codec_decode(&tlv_asn1_codec_integer, in_range, sizeof(in_range),
+                                       &version, sizeof(version), NULL));
     EXPECT_EQ(42, version);
     EXPECT_EQ(TLV_OK, tlv_value_constraint_validate(&version_range, version));
 
     const uint8_t out_of_range[] = {0x01, 0x2C}; // 300
-    ASSERT_EQ(TLV_CODEC_OK, tlv_codec_decode(&tlv_asn1_codec_integer, out_of_range,
-                                             sizeof(out_of_range), &version, sizeof(version)));
+    ASSERT_EQ(TLV_OK, tlv_codec_decode(&tlv_asn1_codec_integer, out_of_range, sizeof(out_of_range),
+                                       &version, sizeof(version), NULL));
     EXPECT_EQ(300, version);
     EXPECT_EQ(TLV_ERR_SCHEMA, tlv_value_constraint_validate(&version_range, version));
 }
@@ -260,34 +260,39 @@ namespace {
 struct pair_value {
     uint8_t first, second;
 };
-tlv_codec_result_t decode_pair(const void*, const tlv_format_t* format, const uint8_t* data,
-                               size_t size, void* out, size_t capacity) {
-    if (capacity < sizeof(pair_value)) return TLV_CODEC_ERR_BUFFER_TOO_SHORT;
+tlv_result_t decode_pair(const void*, const tlv_format_t* format, const uint8_t* data, size_t size,
+                         void* out, size_t capacity, tlv_codec_diagnostic_t* diagnostic) {
+    tlv_codec_diagnostic_init(diagnostic, TLV_CODEC_OP_DECODE);
+    if (capacity < sizeof(pair_value))
+        return tlv_codec_diagnostic_result(diagnostic, TLV_ERR_BUFFER_TOO_SHORT);
     tlv_element_t a{}, b{};
     size_t        used = 0, second_used = 0;
     if (tlv_read(data, size, format, &a, &used) != TLV_OK ||
         tlv_read(data + used, size - used, format, &b, &second_used) != TLV_OK ||
         a.value.size != 1 || b.value.size != 1 || a.tag.data[0] != 1 || b.tag.data[0] != 2 ||
         used + second_used != size)
-        return TLV_CODEC_ERR_INVALID_VALUE;
+        return tlv_codec_diagnostic_result(diagnostic, TLV_ERR_INVALID_VALUE);
     *static_cast<pair_value*>(out) = pair_value{a.value.data[0], b.value.data[0]};
-    return TLV_CODEC_OK;
+    return tlv_codec_diagnostic_result(diagnostic, TLV_OK);
 }
-tlv_codec_result_t encode_pair(const void*, const tlv_format_t* format, const void* value,
-                               size_t size, uint8_t* data, size_t capacity, size_t* written) {
-    if (size != sizeof(pair_value)) return TLV_CODEC_ERR_INVALID_VALUE;
+tlv_result_t encode_pair(const void*, const tlv_format_t* format, const void* value, size_t size,
+                         uint8_t* data, size_t capacity, size_t* written,
+                         tlv_codec_diagnostic_t* diagnostic) {
+    tlv_codec_diagnostic_init(diagnostic, TLV_CODEC_OP_ENCODE);
+    if (size != sizeof(pair_value))
+        return tlv_codec_diagnostic_result(diagnostic, TLV_ERR_INVALID_VALUE);
     const auto& pair = *static_cast<const pair_value*>(value);
     if (!data) {
         *written = 6;
-        return TLV_CODEC_OK;
+        return tlv_codec_diagnostic_result(diagnostic, TLV_OK);
     }
     size_t first = 0, second = 0;
     if (tlv_write(data, capacity, format, TLV_TAG(1), &pair.first, 1, &first) != TLV_OK ||
         tlv_write(data + first, capacity - first, format, TLV_TAG(2), &pair.second, 1, &second) !=
             TLV_OK)
-        return TLV_CODEC_ERR_BUFFER_TOO_SHORT;
+        return tlv_codec_diagnostic_result(diagnostic, TLV_ERR_BUFFER_TOO_SHORT);
     *written = first + second;
-    return TLV_CODEC_OK;
+    return tlv_codec_diagnostic_result(diagnostic, TLV_OK);
 }
 } // namespace
 
@@ -307,5 +312,5 @@ TEST(Integration_Tlvpp, StructureCodecUsesCallerOwnedStorage) {
     EXPECT_EQ(7, result->second);
     auto failed = tlv::decode_structure<pair_value>(codec, tlv::bytes(data, *written - 1));
     ASSERT_FALSE(failed);
-    EXPECT_EQ(tlv::codec_errc::invalid_structure, failed.error());
+    EXPECT_EQ(tlv::errc::buffer_too_short, failed.error());
 }
