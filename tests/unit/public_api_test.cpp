@@ -169,7 +169,7 @@ TEST(Unit_Tlvpp, ErrorCopiesPreserveLocationWithoutOwningText) {
     tlv::reader<tlv::fixed_format<1, 1>> reader({input, sizeof input});
     auto                                 result = reader.next();
     ASSERT_FALSE(result);
-    EXPECT_EQ(tlv::errc::buffer_too_short, result.error().status());
+    EXPECT_EQ(tlv::errc::truncated, result.error().status());
     EXPECT_TRUE(result.error().has_offset());
     EXPECT_EQ(2u, result.error().offset());
     EXPECT_EQ(tlv::operation::reader, result.error().stage());

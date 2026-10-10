@@ -97,7 +97,7 @@ TEST(Unit_Tlv_NfcType2, InvalidExtendedLengthsAndTruncationDiagnostics) {
         decoded.source.size = 777;
         tlv_format_error_t error{};
         EXPECT_EQ(
-            available ? TLV_ERR_BUFFER_TOO_SHORT : TLV_ERR_END_OF_BUFFER,
+            available ? TLV_ERR_TRUNCATED : TLV_END,
             tlv_format_decode(&tlv_format_nfc_type2, wire.data(), available, &decoded, &error));
         EXPECT_EQ(777u, decoded.source.size);
         if (available) {

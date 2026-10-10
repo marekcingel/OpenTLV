@@ -45,9 +45,8 @@ typedef struct tlv_packed_field {
  *
  * @return #TLV_OK on success.
  * @return #TLV_ERR_NULL_ARG for any required NULL pointer.
- * @return #TLV_ERR_INVALID_ARG for invalid storage size, offset or width.
- * @return #TLV_ERR_INVALID_BYTE_ORDER for unsupported byte order.
- * @return #TLV_ERR_BUFFER_TOO_SHORT if the complete storage is unavailable.
+ * @return #TLV_ERR_INVALID_ARG for invalid storage size, offset, width or byte order.
+ * @return #TLV_ERR_TRUNCATED if the complete storage is unavailable.
  *
  * @note Validation follows the order above. Failure leaves *value unchanged.
  * No allocation or access beyond storage_size bytes occurs.
@@ -65,8 +64,7 @@ TLV_API tlv_result_t tlv_packed_field_read(const tlv_packed_field_t* field, cons
  *
  * @return #TLV_OK on success.
  * @return #TLV_ERR_NULL_ARG for any required NULL pointer.
- * @return #TLV_ERR_INVALID_ARG for invalid storage size, offset or width.
- * @return #TLV_ERR_INVALID_BYTE_ORDER for unsupported byte order.
+ * @return #TLV_ERR_INVALID_ARG for invalid storage size, offset, width or byte order.
  * @return #TLV_ERR_BUFFER_TOO_SHORT if the complete storage is unavailable.
  * @return #TLV_ERR_OVERFLOW if value does not fit bit_width.
  *

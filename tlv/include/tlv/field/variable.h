@@ -110,7 +110,7 @@ typedef struct tlv_variable_length {
  * @return #TLV_OK on success.
  * @return #TLV_ERR_NULL_ARG for a missing required pointer.
  * @return #TLV_ERR_INVALID_ARG for invalid configuration.
- * @return #TLV_ERR_BUFFER_TOO_SHORT for a missing prefix or continuation octet.
+ * @return #TLV_ERR_TRUNCATED for a missing prefix or continuation octet.
  * @return #TLV_ERR_INVALID_TAG_SIZE if the identifier would exceed max_size.
  * @return #TLV_ERR_INVALID_TAG for invalid bits or a policy violation.
  * @note Validate required pointers, configuration, then available wire bytes.
@@ -154,8 +154,8 @@ TLV_API tlv_result_t tlv_variable_identifier_write(const tlv_variable_identifier
  * @return #TLV_OK on success.
  * @return #TLV_ERR_NULL_ARG for a missing required pointer.
  * @return #TLV_ERR_INVALID_ARG for invalid masks or policy configuration.
- * @return #TLV_ERR_INVALID_BYTE_ORDER for unsupported byte order.
- * @return #TLV_ERR_BUFFER_TOO_SHORT for an incomplete field.
+ * @return #TLV_ERR_INVALID_ARG for an unknown byte order.
+ * @return #TLV_ERR_TRUNCATED for an incomplete field.
  * @return #TLV_ERR_INVALID_LENGTH for invalid prefix, zero long-form width or policy violation.
  * @return #TLV_ERR_OVERFLOW if an unconstrained count exceeds #tlv_size_t.
  * @note Validate required pointers and configuration before inspecting wire bytes.
@@ -177,7 +177,7 @@ TLV_API tlv_result_t tlv_variable_length_read(const tlv_variable_length_t* confi
  * @return #TLV_OK on success.
  * @return #TLV_ERR_NULL_ARG for missing pointers or NULL data with nonzero capacity.
  * @return #TLV_ERR_INVALID_ARG for invalid masks or policy configuration.
- * @return #TLV_ERR_INVALID_BYTE_ORDER for unsupported byte order.
+ * @return #TLV_ERR_INVALID_ARG for an unknown byte order.
  * @return #TLV_ERR_INVALID_LENGTH for an unrepresentable width or policy violation.
  * @return #TLV_ERR_BUFFER_TOO_SHORT for insufficient destination capacity.
  * @note Validate required pointers, configuration, count representability and

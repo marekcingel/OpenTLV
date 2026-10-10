@@ -9,7 +9,7 @@
 #include <map>
 #include <vector>
 
-#include "tlv++/codec/codec.hpp"
+#include "tlv++/types.hpp"
 
 namespace tlv {
 
@@ -21,7 +21,7 @@ namespace tlv {
 /**
  * @brief Registry for types that must be decoded at runtime.
  *
- * Complements the compile-time TlvCodec concept. Useful, for example, for
+ * Maps Tags to decoders selected at runtime. Useful, for example, for
  * pluggable formats whose types are not all known at compile time.
  *
  * @note Registering and decoding may allocate. The registry copies the bytes
@@ -46,41 +46,19 @@ public:
     }
 
     /**
-     * @brief Registers a codec type directly, using its static `tag` and `decode()`.
-     *
-     * Replaces any previous registration for `T::tag`.
-     *
-     * @tparam T A type satisfying #tlv::is_tlv_codec.
-     */
-#if __cplusplus >= 202002L
-    template <TlvCodec T> void register_type() {
-#else
-    template <typename T> void register_type() {
-#endif
-        static_assert(is_tlv_codec<T>::value, "T must satisfy the TLV codec interface");
-        register_decoder(T::tag, [](bytes data) -> expected<any, error> {
-            expected<T, error> result = T::decode(data);
-            if (!result) {
-                return unexpected<error>(result.error());
-            }
-            return any(std::move(*result));
-        });
-    }
-
-    /**
      * @brief Decodes a value with the decoder registered for a tag.
      *
      * @param tag  Tag identifying the decoder.
      * @param data Value bytes.
      *
      * @return The decoded value, the decoder's error, or an error with code
-     *         #TLV_ERR_INVALID_LENGTH and message `"unregistered tag"` if no
+     *         #TLV_ERR_UNSUPPORTED and message `"unregistered tag"` if no
      *         decoder is registered for `tag`.
      */
     TLV_NODISCARD expected<any, error> decode(tlv::tag tag, bytes data) const {
         const auto found = decoders_.find(key(tag));
         if (found == decoders_.end()) {
-            return unexpected<error>(error{TLV_ERR_INVALID_LENGTH, "unregistered tag"});
+            return unexpected<error>(error{TLV_ERR_UNSUPPORTED, "unregistered tag"});
         }
         return found->second(data);
     }

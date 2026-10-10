@@ -104,7 +104,7 @@ TEST(Integration_Tlvpp, BerPathQuery) {
         input, tlv::ber::format{}, 1, 100,
         [](const tlv::element_view&, size_t, size_t) { return TLV_VISIT_CONTINUE; }, &failed_at);
     ASSERT_FALSE(limited);
-    EXPECT_EQ(TLV_ERR_LIMIT, limited.error().code);
+    EXPECT_EQ(tlv::errc::limit, limited.error().status());
 }
 #endif
 
@@ -171,7 +171,7 @@ TEST(Integration_Tlvpp, ValidateEnforcesSequenceOrder) {
                                         sizeof(out_of_order));
     auto reordered = tlv::native::validate(out_of_order_bytes, tlv_format_ber, schema, 0, 4);
     ASSERT_FALSE(reordered);
-    EXPECT_EQ(TLV_ERR_SCHEMA, reordered.error().code);
+    EXPECT_EQ(tlv::errc::schema, reordered.error().status());
 
     const uint8_t interleaved[] = {1, 0, 2, 0, 1, 0};
     EXPECT_FALSE(tlv::native::validate(
@@ -204,14 +204,14 @@ TEST(Integration_Tlvpp, ValidateEnforcesChoiceGroupOccurrence) {
 
     auto neither = tlv::native::validate(tlv::bytes(), tlv_format_ber, schema, 0, 4);
     ASSERT_FALSE(neither);
-    EXPECT_EQ(TLV_ERR_SCHEMA, neither.error().code);
+    EXPECT_EQ(tlv::errc::schema, neither.error().status());
 
     const uint8_t both[] = {1, 0, 2, 0};
     auto          too_many =
         tlv::native::validate(tlv::bytes(reinterpret_cast<const tlv::byte*>(both), sizeof(both)),
                               tlv_format_ber, schema, 0, 4);
     ASSERT_FALSE(too_many);
-    EXPECT_EQ(TLV_ERR_SCHEMA, too_many.error().code);
+    EXPECT_EQ(tlv::errc::schema, too_many.error().status());
 }
 
 TEST(Integration_Tlvpp, ValidateAllDiagReportsGroupAndOrderViolations) {
@@ -312,5 +312,5 @@ TEST(Integration_Tlvpp, StructureCodecUsesCallerOwnedStorage) {
     EXPECT_EQ(7, result->second);
     auto failed = tlv::decode_structure<pair_value>(codec, tlv::bytes(data, *written - 1));
     ASSERT_FALSE(failed);
-    EXPECT_EQ(tlv::errc::buffer_too_short, failed.error());
+    EXPECT_EQ(tlv::errc::truncated, failed.error());
 }

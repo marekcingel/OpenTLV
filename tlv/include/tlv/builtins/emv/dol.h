@@ -111,7 +111,7 @@ extern TLV_API const tlv_dol_limits_t tlv_dol_default_limits;
  *                          missing-length-byte failure).
  *
  * @return #TLV_OK if all entries were visited.
- * @return #TLV_ERR_BUFFER_TOO_SHORT for a dangling tag with no length byte.
+ * @return #TLV_ERR_TRUNCATED for a dangling tag with no length byte.
  * @return #TLV_ERR_LIMIT if a limit is exceeded.
  * @return Any error returned by `visit`, unchanged.
  */

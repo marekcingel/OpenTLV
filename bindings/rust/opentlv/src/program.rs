@@ -1218,7 +1218,7 @@ impl<'a> QueryExecution<'a> {
         // lifetimes retain every input span projected into the returned match.
         let code =
             unsafe { native::tlv_query_result_next_ordinal(self.raw, &mut event, &mut ordinal) };
-        if code == native::TLV_ERR_END_OF_BUFFER {
+        if code == native::TLV_END {
             return Ok(None);
         }
         plain(code)?;
@@ -1494,7 +1494,7 @@ impl<'a> QueryExecution<'a> {
             .ok_or_else(|| plain(native::TLV_ERR_INVALID_ARG).unwrap_err())?;
         let mut node = ptr::null_mut();
         let rc = unsafe { native::tlv_document_query_next(self.raw, &mut node) };
-        if rc == native::TLV_ERR_END_OF_BUFFER {
+        if rc == native::TLV_END {
             return Ok(None);
         }
         plain(rc)?;

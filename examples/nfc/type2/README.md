@@ -80,9 +80,9 @@ is expected.
 | --- | --- | --- |
 | `nonminimal-extended.bin` | `03 FF 00 FE` | `TLV_ERR_INVALID_LENGTH` |
 | `reserved-length.bin` | `03 FF FF FF` | `TLV_ERR_INVALID_LENGTH` |
-| `missing-length.bin` | `03` | `TLV_ERR_BUFFER_TOO_SHORT` |
-| `truncated-extended.bin` | `03 FF 01` | `TLV_ERR_BUFFER_TOO_SHORT` |
-| `truncated-value.bin` | `03 03 D0 00` | `TLV_ERR_BUFFER_TOO_SHORT` |
+| `missing-length.bin` | `03` | `TLV_ERR_TRUNCATED` |
+| `truncated-extended.bin` | `03 FF 01` | `TLV_ERR_TRUNCATED` |
+| `truncated-value.bin` | `03 03 D0 00` | `TLV_ERR_TRUNCATED` |
 
 ## Run validation
 

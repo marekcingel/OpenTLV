@@ -12,7 +12,7 @@ namespace {
 // Two raw tag bytes, and a configurable fixed-width little-endian length.
 const size_t width = 2;
 tlv_result_t read_tag(const void*, const uint8_t* data, size_t size, tlv_tag_t* tag, size_t* used) {
-    if (size < 2) return TLV_ERR_BUFFER_TOO_SHORT;
+    if (size < 2) return TLV_ERR_TRUNCATED;
     *tag = tlv_tag(data, 2);
     *used = 2;
     return TLV_OK;
@@ -34,7 +34,7 @@ tlv_result_t length_size(const void* ctx, tlv_size_t length, size_t* used) {
 tlv_result_t read_length(const void* ctx, const uint8_t* data, size_t size, tlv_size_t* length,
                          size_t* used) {
     *used = *static_cast<const size_t*>(ctx);
-    if (size < *used) return TLV_ERR_BUFFER_TOO_SHORT;
+    if (size < *used) return TLV_ERR_TRUNCATED;
     *length = data[0] | (static_cast<size_t>(data[1]) << 8);
     return TLV_OK;
 }

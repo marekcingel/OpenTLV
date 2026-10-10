@@ -48,7 +48,6 @@
 #endif
 
 #if OPENTLV_CODEC
-#include "tlv++/codec/codec.hpp"
 #include "tlv++/codec/dynamic.hpp"
 #include "tlv++/codec/typed.hpp"
 #include "tlv++/codec/registry.hpp"

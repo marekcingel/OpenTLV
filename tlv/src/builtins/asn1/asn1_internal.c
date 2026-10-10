@@ -19,7 +19,7 @@ tlv_result_t tlv_asn1_read_identifier(const void* context, const uint8_t* data, 
     (void)context;
     rc = tlv_variable_identifier_read(&encoding, data, size, &parsed, &count);
     if (rc != TLV_OK) {
-        if (rc == TLV_ERR_BUFFER_TOO_SHORT) *consumed = count;
+        if (rc == TLV_ERR_TRUNCATED) *consumed = count;
         return rc;
     }
     number = count == 1 ? (data[0] & TLV_ASN1_TAG_NUMBER_MASK) : (count == 2 ? data[1] : 127);

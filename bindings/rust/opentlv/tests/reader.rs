@@ -49,7 +49,7 @@ fn truncated_value_is_an_error_then_iteration_stops() {
     let data = [0x01, 0x01, 0xAA, 0x02, 0x05, 0x00];
     let mut reader = Reader::new(&data);
     assert!(reader.next().unwrap().is_ok());
-    assert_eq!(reader.next().unwrap().unwrap_err(), Error::BufferTooShort);
+    assert_eq!(reader.next().unwrap().unwrap_err(), Error::Truncated);
     assert!(reader.next().is_none());
     assert!(reader.next().is_none());
 }
@@ -58,7 +58,7 @@ fn truncated_value_is_an_error_then_iteration_stops() {
 fn truncated_length_is_an_error() {
     let data = [0x01];
     let err = Reader::new(&data).next().unwrap().unwrap_err();
-    assert_eq!(err, Error::BufferTooShort);
+    assert_eq!(err, Error::Truncated);
 }
 
 #[test]
@@ -79,7 +79,7 @@ fn error_propagates_with_question_mark() {
         Ok(n)
     }
     assert_eq!(count(&[0x01, 0x00, 0x02, 0x00]), Ok(2));
-    assert_eq!(count(&[0x01, 0x02, 0x00]), Err(Error::BufferTooShort));
+    assert_eq!(count(&[0x01, 0x02, 0x00]), Err(Error::Truncated));
 }
 
 #[test]
@@ -128,6 +128,6 @@ fn single_read_retains_layout_and_owned_failure_detail() {
     let decoded = opentlv::read(&[1, 0, 0xff], opentlv::Format::Ber).unwrap();
     assert_eq!(decoded.encoded(), &[1, 0]);
     let error = opentlv::read(&[1, 2], opentlv::Format::Ber).unwrap_err();
-    assert_eq!(error.error, opentlv::Error::BufferTooShort);
+    assert_eq!(error.error, opentlv::Error::Truncated);
     assert!(error.diagnostic.is_some());
 }

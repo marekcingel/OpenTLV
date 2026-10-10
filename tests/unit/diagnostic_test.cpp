@@ -16,9 +16,9 @@ TEST(Unit_Tlv_Diagnostic, InitSetsCodeAndSeverityAndZeroesEverythingElse) {
     tlv_diagnostic_t diagnostic;
     std::memset(&diagnostic, 0xAA, sizeof(diagnostic));
 
-    tlv_diagnostic_init(&diagnostic, TLV_ERR_END_OF_BUFFER, TLV_DIAGNOSTIC_SEVERITY_WARNING);
+    tlv_diagnostic_init(&diagnostic, TLV_END, TLV_DIAGNOSTIC_SEVERITY_WARNING);
 
-    EXPECT_EQ(TLV_ERR_END_OF_BUFFER, diagnostic.code);
+    EXPECT_EQ(TLV_END, diagnostic.code);
     EXPECT_EQ(TLV_DIAGNOSTIC_SEVERITY_WARNING, diagnostic.severity);
     EXPECT_EQ(0, diagnostic.location.kind);
     EXPECT_EQ(0u, diagnostic.location.begin);
@@ -79,7 +79,7 @@ TEST(Unit_Tlv_Diagnostic, CopiedDiagnosticOwnsPathAndTruncationState) {
 
 TEST(Unit_Tlv_Diagnostic, SetOffsetSetsHasOffsetAndTheOffset) {
     tlv_diagnostic_t diagnostic;
-    tlv_diagnostic_init(&diagnostic, TLV_ERR_END_OF_BUFFER, TLV_DIAGNOSTIC_SEVERITY_ERROR);
+    tlv_diagnostic_init(&diagnostic, TLV_END, TLV_DIAGNOSTIC_SEVERITY_ERROR);
 
     tlv_diagnostic_set_location(&diagnostic, TLV_LOCATION_INPUT, TLV_LOCATION_POINT, 42, 42);
 
@@ -134,7 +134,7 @@ TEST(Unit_Tlv_Diagnostic, SeverityStringFallsBackForAnUnrecognizedValue) {
 
 TEST(Unit_Tlv_Diagnostic, SetPathSetsAndClearsTheField) {
     tlv_diagnostic_t diagnostic;
-    tlv_diagnostic_init(&diagnostic, TLV_ERR_END_OF_BUFFER, TLV_DIAGNOSTIC_SEVERITY_ERROR);
+    tlv_diagnostic_init(&diagnostic, TLV_END, TLV_DIAGNOSTIC_SEVERITY_ERROR);
     tlv_diagnostic_path_t path;
     tlv_diagnostic_path_init(&path);
 

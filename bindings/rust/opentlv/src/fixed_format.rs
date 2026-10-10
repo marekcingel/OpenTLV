@@ -180,7 +180,7 @@ impl<'a> FixedFormat<'a> {
     /// # Errors
     ///
     /// [`Error::InvalidArg`] if `config`'s `tag_size` is 0 or `length_size` is
-    /// 0 or greater than 8; [`Error::InvalidByteOrder`] cannot occur since
+    /// 0 or greater than 8. An unknown byte order cannot occur since
     /// `config` is always built with a valid [`ByteOrder`].
     pub fn new(config: &'a FixedFormatConfig) -> Result<FixedFormat<'a>> {
         let mut format = MaybeUninit::<native::tlv_format_t>::uninit();

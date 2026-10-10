@@ -434,9 +434,9 @@ TLV_API tlv_result_t tlv_der_schema_read_checked(const tlv_der_schema_checked_t*
  * @note A #TLV_DER_REQUIRED component, or an element below a SET OF's or
  *       SEQUENCE OF's `min_elements`, reporting absent is a caller/schema
  *       mismatch (#TLV_ERR_SCHEMA).
- * @note Allowed results are #TLV_OK and any defined `TLV_ERR_*` error except
- * #TLV_ERR_END_OF_BUFFER. #TLV_NEED_MORE_DATA, #TLV_ERR_END_OF_BUFFER and unknown
- * result values violate the callback contract and are reported as #TLV_ERR_CALLBACK.
+ * @note Allowed results are #TLV_OK and any defined `TLV_ERR_*` error. #TLV_END,
+ * #TLV_NEED_MORE_DATA and unknown result values violate the callback contract
+ * and are reported as #TLV_ERR_CALLBACK.
  */
 typedef tlv_result_t (*tlv_der_schema_encode_fn)(const void* context,
                                                  const tlv_der_schema_component_t* component,

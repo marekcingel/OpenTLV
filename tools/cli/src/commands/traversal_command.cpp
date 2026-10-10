@@ -139,7 +139,7 @@ tlv::errc traversal_command::visit_pdol(std::size_t* error_offset) {
         const tlv::element_view element(*identifier, tlv::value_view{});
         pos += used;
         *error_offset = pos;
-        if (pos == size()) return tlv::errc::buffer_too_short;
+        if (pos == size()) return tlv::errc::truncated;
         requested = data()[pos++];
         ++count;
         if (!prints_pdol_annotations()) continue;

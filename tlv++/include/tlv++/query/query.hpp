@@ -72,7 +72,8 @@ public:
     static query compile(const char* text) {
         tlv_diagnostic_t diagnostic{};
         auto             result = parse(text, &diagnostic);
-        if (!result) throw query_error(result.error().code, diagnostic);
+        if (!result)
+            throw query_error(static_cast<tlv_result_t>(result.error().status()), diagnostic);
         return *result;
     }
 
@@ -238,7 +239,7 @@ public:
 
     /** @brief Pull the next match, or original Reader error including NEED_MORE_DATA.
      * @param diagnostic Optional original Reader diagnostic.
-     * @return Matching tree_item or END_OF_BUFFER at final exhaustion.
+     * @return Matching tree_item or TLV_END at final exhaustion.
      * @note Feed replacement input to the Reader before retrying NEED_MORE_DATA.
      * Every pull invalidates earlier iterators. No unmatched ancestors are skipped.
      */
@@ -307,7 +308,7 @@ public:
             if (code != TLV_OK) {
                 auto offset = range_->reader_ ? range_->reader_->offset() : 0;
                 range_ = nullptr;
-                if (code != TLV_ERR_END_OF_BUFFER) throw parse_error(code, offset, diagnostic);
+                if (code != TLV_END) throw parse_error(code, offset, diagnostic);
                 return;
             }
         }

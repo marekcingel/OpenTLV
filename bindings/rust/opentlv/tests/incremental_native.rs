@@ -64,7 +64,7 @@ fn native_reader_layout_and_incremental_transitions_match_c() {
         assert_eq!(native::tlv_reader_at_end(&reader), 1);
         assert_eq!(
             native::tlv_reader_next(&mut reader, element.as_mut_ptr()),
-            native::TLV_ERR_END_OF_BUFFER
+            native::TLV_END
         );
     }
     assert_eq!(

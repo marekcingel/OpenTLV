@@ -249,7 +249,7 @@ static tlv_result_t preorder_event(void* context, tlv_tree_event_t* event) {
         rc = source->next(source->context, &source->pending.element, &source->pending.depth,
                           &constructed);
         rc = tlv_callback_result(rc, 1);
-        if (rc == TLV_ERR_END_OF_BUFFER) {
+        if (rc == TLV_END) {
             source->done = 1;
         } else {
             if (rc != TLV_OK) return rc;
@@ -264,7 +264,7 @@ static tlv_result_t preorder_event(void* context, tlv_tree_event_t* event) {
         event->depth = --source->open;
         return TLV_OK;
     }
-    if (source->done) return TLV_ERR_END_OF_BUFFER;
+    if (source->done) return TLV_END;
     *event = source->pending;
     source->available = 0;
     if (event->kind == TLV_TREE_BEGIN) ++source->open;
@@ -306,7 +306,7 @@ tlv_result_t tree_writer_measure_events_observed(
     for (;;) {
         tlv_tree_event_t event = {0};
         rc = tlv_callback_result(next(context, &event), 1);
-        if (rc == TLV_ERR_END_OF_BUFFER) break;
+        if (rc == TLV_END) break;
         if (rc != TLV_OK)
             return tree_error(diagnostic, rc, TLV_WRITER_OP_VALUE, writer.output.pos, NULL);
         /* Validate structure before measuring, including omitted descendants. */

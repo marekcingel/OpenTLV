@@ -74,7 +74,7 @@ static int run_reader(workload_data_t* data, uint64_t* checksum) {
             return 0;
         ++count;
     }
-    return rc == TLV_ERR_END_OF_BUFFER && count == ENTRY_COUNT && *checksum == data->all_checksum;
+    return rc == TLV_END && count == ENTRY_COUNT && *checksum == data->all_checksum;
 }
 
 static int run_writer(workload_data_t* data, uint64_t* checksum) {

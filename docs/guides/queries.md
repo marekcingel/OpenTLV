@@ -132,7 +132,7 @@ after the delivered match. NEED_MORE_DATA preserves the native continuation and
 is returned as a distinct status in `query_failure.code`. Retained input windows
 must stay alive and immutable until execution destruction/reset. `result()` reads
 a finalized typed scalar; byte/string spans borrow input, program or workspace.
-`next()` pulls finalized retained node events and reports END_OF_BUFFER only at
+`next()` pulls finalized retained node events and reports `TLV_END` only at
 final exhaustion. Each independent execution retains the program owner.
 `next(reader)` is the single-pass resumable alternative: it stops after one
 publication and reports NEED_MORE_DATA independently of final exhaustion. Scalar
@@ -294,7 +294,7 @@ static tlv_visit_result_t print_match(const tlv_element_t* element, size_t depth
 tlv_query_t query;
 size_t text_offset;
 tlv_result_t rc = tlv_query_parse("6F/A5/50", &query, &text_offset);
-/* On TLV_ERR_INVALID_ARG, text_offset is the index of the offending character. */
+/* On TLV_ERR_SYNTAX, text_offset is the index of the offending character. */
 if (rc != TLV_OK) return 1;
 
 tlv_reader_diagnostic_t diagnostic;
@@ -339,7 +339,7 @@ if (tlv_query_matcher_visit(&matcher, &element->tag, depth)) {
 
 size_t text_offset;
 auto query = tlv::query::parse("6F/A5/50", &text_offset);
-if (!query) return 1; // query.error().code; text_offset is the offending character
+if (!query) return 1; // query.error().status(); text_offset is the offending character
 
 auto visited = query->visit_buffer(
     tlv::bytes(data, size), tlv_format_ber,
@@ -476,7 +476,7 @@ if label is not None:
     value = bytes(label.value)  # owned snapshot
 ```
 
-No match is `None`; malformed query text raises `opentlv.InvalidArgError`. [Runnable query example](../../bindings/python/opentlv/examples/query.py).
+No match is `None`; malformed query text raises `opentlv.InvalidSyntaxError`. [Runnable query example](../../bindings/python/opentlv/examples/query.py).
 
 ///
 

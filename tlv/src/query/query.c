@@ -31,13 +31,13 @@ tlv_result_t tlv_query_parse_n(const char* text, size_t size, tlv_query_t* query
         size_t start = pos, digits;
         while (pos < size && text[pos] != '/') {
             if (hex_digit(text[pos]) < 0) {
-                return path_error(diagnostic, TLV_ERR_INVALID_ARG, pos, pos + 1);
+                return path_error(diagnostic, TLV_ERR_SYNTAX, pos, pos + 1);
             }
             ++pos;
         }
         digits = pos - start;
         if (!digits || digits % 2) {
-            return path_error(diagnostic, TLV_ERR_INVALID_ARG, start, pos);
+            return path_error(diagnostic, TLV_ERR_SYNTAX, start, pos);
         }
         if (parsed.count == TLV_QUERY_MAX_STEPS) {
             return path_error(diagnostic, TLV_ERR_LIMIT, start, pos);

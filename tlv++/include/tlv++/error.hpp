@@ -32,25 +32,30 @@ namespace detail {
 struct error_access;
 }
 /// @endcond
-/** @brief Canonical operation outcomes, independent of native enum types. */
+/**
+ * @brief Canonical operation outcomes, independent of native enum types.
+ *
+ * `end` and `need_more_data` are control statuses, not failures.
+ */
 enum class errc {
-    ok = TLV_OK,                                     /**< Operation completed. */
-    buffer_too_short = TLV_ERR_BUFFER_TOO_SHORT,     /**< Insufficient input or output. */
-    invalid_length = TLV_ERR_INVALID_LENGTH,         /**< Invalid wire length. */
-    null_argument = TLV_ERR_NULL_ARG,                /**< Missing required storage. */
-    out_of_memory = TLV_ERR_OUT_OF_MEMORY,           /**< Allocation failed. */
-    end_of_input = TLV_ERR_END_OF_BUFFER,            /**< Final input exhausted. */
-    invalid_tag = TLV_ERR_INVALID_TAG,               /**< Invalid identifier. */
-    visitor = TLV_ERR_VISITOR,                       /**< Visitor requested failure. */
-    limit = TLV_ERR_LIMIT,                           /**< Configured limit exceeded. */
-    schema = TLV_ERR_SCHEMA,                         /**< Schema violation. */
-    callback = TLV_ERR_CALLBACK,                     /**< Callback contract violation. */
-    invalid_state = TLV_ERR_INVALID_STATE,           /**< Operation forbidden by lifecycle state. */
-    invalid_argument = TLV_ERR_INVALID_ARG,          /**< Invalid argument. */
-    invalid_tag_size = TLV_ERR_INVALID_TAG_SIZE,     /**< Invalid identifier width. */
-    invalid_byte_order = TLV_ERR_INVALID_BYTE_ORDER, /**< Unsupported byte order. */
-    overflow = TLV_ERR_OVERFLOW,                     /**< Numeric overflow. */
-    invalid_value = TLV_ERR_INVALID_VALUE,           /**< Invalid semantic value. */
+    ok = TLV_OK,                                 /**< Operation completed. */
+    end = TLV_END,                               /**< Normal end of iteration; no element. */
+    truncated = TLV_ERR_TRUNCATED,               /**< Final input ends inside an element. */
+    buffer_too_short = TLV_ERR_BUFFER_TOO_SHORT, /**< Destination or workspace too small. */
+    invalid_length = TLV_ERR_INVALID_LENGTH,     /**< Invalid wire length. */
+    null_argument = TLV_ERR_NULL_ARG,            /**< Missing required storage. */
+    out_of_memory = TLV_ERR_OUT_OF_MEMORY,       /**< Allocation failed. */
+    invalid_tag = TLV_ERR_INVALID_TAG,           /**< Invalid identifier. */
+    visitor = TLV_ERR_VISITOR,                   /**< Visitor requested failure. */
+    limit = TLV_ERR_LIMIT,                       /**< Configured limit exceeded. */
+    schema = TLV_ERR_SCHEMA,                     /**< Schema violation. */
+    callback = TLV_ERR_CALLBACK,                 /**< Callback contract violation. */
+    invalid_state = TLV_ERR_INVALID_STATE,       /**< Operation forbidden by lifecycle state. */
+    invalid_argument = TLV_ERR_INVALID_ARG,      /**< Invalid argument. */
+    invalid_tag_size = TLV_ERR_INVALID_TAG_SIZE, /**< Invalid identifier width. */
+    syntax = TLV_ERR_SYNTAX,                     /**< Text violates the requested grammar. */
+    overflow = TLV_ERR_OVERFLOW,                 /**< Numeric overflow. */
+    invalid_value = TLV_ERR_INVALID_VALUE,       /**< Invalid semantic value. */
     unsupported =
         TLV_ERR_UNSUPPORTED, /**< Requested capability or representation is not implemented. */
     invalid_schema = TLV_ERR_INVALID_SCHEMA, /**< Invalid schema definition. */
@@ -65,11 +70,12 @@ inline const char* message(errc code) noexcept {
 inline const char* name(errc code) noexcept {
     switch (code) {
         case errc::ok: return "TLV_OK";
+        case errc::end: return "TLV_END";
+        case errc::truncated: return "TLV_ERR_TRUNCATED";
         case errc::buffer_too_short: return "TLV_ERR_BUFFER_TOO_SHORT";
         case errc::invalid_length: return "TLV_ERR_INVALID_LENGTH";
         case errc::null_argument: return "TLV_ERR_NULL_ARG";
         case errc::out_of_memory: return "TLV_ERR_OUT_OF_MEMORY";
-        case errc::end_of_input: return "TLV_ERR_END_OF_BUFFER";
         case errc::invalid_tag: return "TLV_ERR_INVALID_TAG";
         case errc::visitor: return "TLV_ERR_VISITOR";
         case errc::limit: return "TLV_ERR_LIMIT";
@@ -78,7 +84,7 @@ inline const char* name(errc code) noexcept {
         case errc::invalid_state: return "TLV_ERR_INVALID_STATE";
         case errc::invalid_argument: return "TLV_ERR_INVALID_ARG";
         case errc::invalid_tag_size: return "TLV_ERR_INVALID_TAG_SIZE";
-        case errc::invalid_byte_order: return "TLV_ERR_INVALID_BYTE_ORDER";
+        case errc::syntax: return "TLV_ERR_SYNTAX";
         case errc::overflow: return "TLV_ERR_OVERFLOW";
         case errc::invalid_value: return "TLV_ERR_INVALID_VALUE";
         case errc::unsupported: return "TLV_ERR_UNSUPPORTED";
@@ -167,25 +173,23 @@ inline void translate_location(location& value, size_t origin) noexcept {
  * success does not construct an error. Check sizes when budgeting stack or retained results.
  */
 struct error {
-    /** @brief Native status retained for transitional interoperability. */
-    tlv_result_t code;
     /** @brief Borrowed NUL-terminated description, never null for library errors. */
     const char* message() const noexcept {
         return message_;
     }
     /** @brief Construct an error with a program-lifetime canonical description. */
     explicit error(errc value, operation stage = operation::unspecified) noexcept
-        : code(static_cast<tlv_result_t>(value)), message_(tlv::message(value)), stage_(stage) {}
+        : code_(static_cast<tlv_result_t>(value)), message_(tlv::message(value)), stage_(stage) {}
     /** @brief Construct an interoperability error with borrowed description. */
     error(tlv_result_t value, const char* description) noexcept
-        : code(value), message_(description ? description : tlv_strerror(value)) {}
+        : code_(value), message_(description ? description : tlv_strerror(value)) {}
     /** @brief Translate a native code without allocating. */
     static error from_c(tlv_result_t value) noexcept {
         return error(static_cast<errc>(value));
     }
     /** @brief Canonical C++ status, including distinct EOF and resumable input. */
     errc status() const noexcept {
-        return static_cast<errc>(code);
+        return static_cast<errc>(code_);
     }
     /** @brief Subsystem responsible for this failure. */
     operation stage() const noexcept {
@@ -266,6 +270,7 @@ struct error {
     }
 
 private:
+    tlv_result_t                     code_;
     schema_issue                     schema_kind_ = schema_issue::none;
     const char*                      message_;
     operation                        stage_ = operation::unspecified;

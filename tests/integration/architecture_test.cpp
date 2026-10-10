@@ -39,7 +39,7 @@
 namespace {
 // Deliberately different from BER: bit 7 identifies a container.
 tlv_result_t tag_read(const void*, const uint8_t* data, size_t size, tlv_tag_t* tag, size_t* used) {
-    if (!size) return TLV_ERR_BUFFER_TOO_SHORT;
+    if (!size) return TLV_ERR_TRUNCATED;
     *tag = tlv_tag(data, 1);
     *used = 1;
     return TLV_OK;
@@ -55,7 +55,7 @@ tlv_result_t tag_write(const void*, const tlv_tag_t* tag, uint8_t* data, size_t 
 }
 tlv_result_t length_read(const void*, const uint8_t* data, size_t size, tlv_size_t* length,
                          size_t* used) {
-    if (!size) return TLV_ERR_BUFFER_TOO_SHORT;
+    if (!size) return TLV_ERR_TRUNCATED;
     *length = data[0];
     *used = 1;
     return TLV_OK;
@@ -211,7 +211,7 @@ TEST(Integration_Tlv_Pipeline, BuilderPreservesAbsoluteDiagnosticsAndReaderLimit
         std::memset(&diagnostic, 0, sizeof diagnostic);
         diagnostic.diagnostic.code = TLV_ERR_VISITOR;
         auto rc = tlv_document_builder_consume(raw, &doc, &diagnostic);
-        EXPECT_EQ(limited ? TLV_ERR_LIMIT : TLV_ERR_BUFFER_TOO_SHORT, rc);
+        EXPECT_EQ(limited ? TLV_ERR_LIMIT : TLV_ERR_TRUNCATED, rc);
         diagnostic_test::result(rc, diagnostic);
         if (limited) EXPECT_EQ(TLV_LOCATION_UNKNOWN, diagnostic.diagnostic.location.kind);
         EXPECT_EQ(nullptr, doc);
@@ -324,8 +324,8 @@ TEST(Integration_Tlv_Architecture, GenericVisitorUsesFormatNestingAndAbsoluteOff
 TEST(Integration_Tlv_Architecture, TreeRejectsTruncatedChildrenAndSupportsEarlyStop) {
     const uint8_t wire[] = {0x80, 2, 1, 9, 2, 0};
     size_t        offset = 99;
-    EXPECT_EQ(TLV_ERR_BUFFER_TOO_SHORT, visit_tree_input(wire, sizeof(wire), &constructed_format, 2,
-                                                         10, nullptr, nullptr, &offset));
+    EXPECT_EQ(TLV_ERR_TRUNCATED, visit_tree_input(wire, sizeof(wire), &constructed_format, 2, 10,
+                                                  nullptr, nullptr, &offset));
     EXPECT_EQ(2u, offset);
     auto stop = [](const tlv_element_t*, size_t, size_t, void*) { return TLV_VISIT_STOP; };
     EXPECT_EQ(TLV_OK, visit_tree_input(wire, sizeof(wire), &constructed_format, 2, 10, stop,
@@ -399,7 +399,7 @@ TEST(Integration_Tlv_Architecture, TreeCursorDiagnosticsKeepAbsoluteOffsetsAndPa
     const uint8_t           data[] = {1, 0, 0x80, 3, 1, 2, 0xAA, 2, 0};
     size_t                  error_offset = 99;
     tlv_reader_diagnostic_t diagnostic{};
-    ASSERT_EQ(TLV_ERR_BUFFER_TOO_SHORT,
+    ASSERT_EQ(TLV_ERR_TRUNCATED,
               visit_tree_input_diag(data, sizeof(data), &constructed_format, 8, 8, nullptr, nullptr,
                                     &error_offset, &diagnostic));
     EXPECT_EQ(4u, error_offset);
@@ -418,10 +418,10 @@ TEST(Integration_Tlv_Architecture, SequentialTraversalDoesNotRecoverPastInvalidI
     tlv_element_t element{};
     tlv_reader_t  reader;
     ASSERT_EQ(TLV_OK, tlv_reader_init(&reader, noisy, sizeof(noisy), &format));
-    EXPECT_EQ(TLV_ERR_BUFFER_TOO_SHORT, tlv_reader_next(&reader, &element));
+    EXPECT_EQ(TLV_ERR_TRUNCATED, tlv_reader_next(&reader, &element));
     EXPECT_EQ(0u, reader.pos);
     auto visit = [](const tlv_element_t*, void*) { return TLV_VISIT_CONTINUE; };
-    EXPECT_EQ(TLV_ERR_BUFFER_TOO_SHORT, visit_input(noisy, sizeof(noisy), &format, visit, nullptr));
+    EXPECT_EQ(TLV_ERR_TRUNCATED, visit_input(noisy, sizeof(noisy), &format, visit, nullptr));
     EXPECT_EQ(TLV_OK, visit_input(noisy + 2, sizeof(noisy) - 2, &format, visit, nullptr));
 }
 

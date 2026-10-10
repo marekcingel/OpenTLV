@@ -31,7 +31,7 @@ extern "C" {
 /**
  * @brief Immutable DHCPv4 option descriptor with static lifetime.
  *
- * Decode reports #TLV_ERR_BUFFER_TOO_SHORT for incomplete normal options.
+ * Decode reports #TLV_ERR_TRUNCATED for incomplete normal options.
  * Pad/End consume exactly one byte, with absent source Length and present empty
  * Value/Trailer ranges at offset one. Measure/encode reject Tag widths other
  * than one with #TLV_ERR_INVALID_TAG_SIZE, normal Values above 255 bytes with

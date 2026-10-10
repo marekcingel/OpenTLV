@@ -281,7 +281,7 @@ TEST(Unit_Tlv_QueryF2, EnvironmentMismatchIsRejectedBeforeInput) {
     Evaluation flat;
     EXPECT_EQ(TLV_ERR_UNSUPPORTED, flat.compile("class()"));
     EXPECT_EQ(TLV_ERR_UNSUPPORTED, flat.compile("number()"));
-    EXPECT_EQ(TLV_ERR_INVALID_ARG, flat.compile("text()"));
+    EXPECT_EQ(TLV_ERR_SYNTAX, flat.compile("text()"));
     EXPECT_EQ(TLV_ERR_INVALID_VALUE, flat.compile("value(x'00')"));
     EXPECT_EQ(TLV_ERR_INVALID_VALUE, flat.compile("'text' = x'74657874'"));
 }
@@ -372,7 +372,7 @@ TEST(Unit_Tlv_QueryF2, WorkspaceLimitsFinalizationAndResume) {
     EXPECT_EQ(remaining, std::vector<size_t>({3}));
     tlv_tree_event_t event{};
     event.offset = 999;
-    EXPECT_EQ(tlv_query_result_next(e.exec, &event), TLV_ERR_END_OF_BUFFER);
+    EXPECT_EQ(tlv_query_result_next(e.exec, &event), TLV_END);
     EXPECT_EQ(event.offset, 999u);
     ASSERT_EQ(e.init(1), TLV_OK);
     EXPECT_EQ(e.run(std::vector<uint8_t>(wire, wire + sizeof wire)), TLV_ERR_LIMIT);
@@ -516,7 +516,7 @@ TEST(Unit_Tlv_QueryF2, ConversionPreservesSharedFailuresAndRelatedExpression) {
     ASSERT_STREQ(tlv_strerror(unknown_result), "unknown error");
     for (const auto status :
          {TLV_ERR_LIMIT, TLV_ERR_SCHEMA, TLV_ERR_INVALID_SCHEMA, TLV_ERR_BUFFER_TOO_SHORT,
-          TLV_NEED_MORE_DATA, TLV_ERR_END_OF_BUFFER, unknown_result}) {
+          TLV_NEED_MORE_DATA, TLV_END, unknown_result}) {
         Evaluation e;
         for (auto& hook : e.hooks) {
             if (hook.function != TLV_QUERY_NUM) continue;
@@ -537,7 +537,7 @@ TEST(Unit_Tlv_QueryF2, ConversionPreservesSharedFailuresAndRelatedExpression) {
         ASSERT_EQ(TLV_OK, e.compile("num(//5A)"));
         ASSERT_EQ(TLV_OK, e.init());
         const auto expected =
-            status == TLV_ERR_END_OF_BUFFER || status == unknown_result ? TLV_ERR_CALLBACK : status;
+            status == TLV_END || status == unknown_result ? TLV_ERR_CALLBACK : status;
         EXPECT_EQ(expected, e.run({0x5a, 1, 1}));
         EXPECT_EQ(expected, e.diagnostic.diagnostic.code);
         ASSERT_TRUE(e.diagnostic.has_codec);

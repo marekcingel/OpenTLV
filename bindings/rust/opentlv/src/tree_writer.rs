@@ -38,7 +38,7 @@ unsafe extern "C" fn measure_next<'a, I: Iterator<Item = Result<TreeWriteItem<'a
     let source = unsafe { &mut *context.cast::<MeasureSource<'a, I>>() };
     let outcome = catch_unwind(AssertUnwindSafe(|| {
         let Some(item) = source.items.next() else {
-            return Ok(native::TLV_ERR_END_OF_BUFFER);
+            return Ok(native::TLV_END);
         };
         let item = item?;
         source
@@ -90,7 +90,7 @@ unsafe extern "C" fn measure_event_next<'a, I: Iterator<Item = Result<crate::Tre
     let source = unsafe { &mut *context.cast::<EventMeasureSource<'a, I>>() };
     let outcome = catch_unwind(AssertUnwindSafe(|| {
         let Some(item) = source.items.next() else {
-            return Ok(native::TLV_ERR_END_OF_BUFFER);
+            return Ok(native::TLV_END);
         };
         let item = item?;
         source

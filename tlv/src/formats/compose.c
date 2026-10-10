@@ -88,15 +88,14 @@ tlv_result_t tlv_fields_decode(const void* context, const uint8_t* data, size_t 
     if (length > size - pos) {
         error->required = length;
         error->has_required = 1;
-        return fields_failure(error, result, TLV_ERR_BUFFER_TOO_SHORT, TLV_REGION_VALUE, pos);
+        return fields_failure(error, result, TLV_ERR_TRUNCATED, TLV_REGION_VALUE, pos);
     }
     native = (size_t)length;
     if (trailer > size - pos - native) {
         error->required = trailer;
         error->has_required = 1;
         error->value = range(pos, native);
-        return fields_failure(error, result, TLV_ERR_BUFFER_TOO_SHORT, TLV_REGION_TRAILER,
-                              pos + native);
+        return fields_failure(error, result, TLV_ERR_TRUNCATED, TLV_REGION_TRAILER, pos + native);
     }
     result->element.tag = tag;
     result->element.value = (tlv_value_t){data + pos, length};
@@ -223,7 +222,7 @@ tlv_result_t tlv_binary_decode(const void* context, const uint8_t* data, size_t 
     const tlv_binary_composition_t* composition = (const tlv_binary_composition_t*)context;
     tlv_field_composition_t f = binary_fields(context);
     tlv_result_t rc = tlv_fields_decode(&f, data, size, result, error);
-    if (rc == TLV_ERR_BUFFER_TOO_SHORT &&
+    if (rc == TLV_ERR_TRUNCATED &&
         (error->region == TLV_REGION_TAG || error->region == TLV_REGION_LENGTH)) {
         error->has_required = 1;
         error->required = error->region == TLV_REGION_TAG ? composition->identifier.size
@@ -339,7 +338,7 @@ tlv_result_t tlv_tagged_binary_decode(const void* context, const uint8_t* data, 
     const tlv_tagged_binary_composition_t* f = (const tlv_tagged_binary_composition_t*)context;
     tlv_tagged_fields_composition_t fields = tagged_binary_fields(f);
     tlv_result_t rc = tlv_tagged_fields_decode(&fields, data, size, result, error);
-    if (rc == TLV_ERR_BUFFER_TOO_SHORT &&
+    if (rc == TLV_ERR_TRUNCATED &&
         (error->region == TLV_REGION_TAG || error->region == TLV_REGION_LENGTH)) {
         error->has_required = 1;
         error->required =

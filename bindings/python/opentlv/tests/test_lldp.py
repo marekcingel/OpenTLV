@@ -3,7 +3,7 @@
 
 import pytest
 import _opentlv
-from opentlv import Format, Reader, Writer, InvalidLengthError, BufferTooShortError
+from opentlv import Format, Reader, Writer, InvalidLengthError, TruncatedError
 
 
 def test_preset_tracks_native_build_option():
@@ -24,7 +24,7 @@ def test_lldp_preset_roundtrip(length):
 
 @pytest.mark.skipif(not _opentlv.HAS_LLDP, reason="LLDP disabled")
 def test_lldp_preset_rejects_truncation_and_large_values():
-    with pytest.raises(BufferTooShortError):
+    with pytest.raises(TruncatedError):
         list(Reader(b"\x03\x00", format=Format.LLDP))
     with pytest.raises(InvalidLengthError):
         Writer(format=Format.LLDP).write(b"\x01", bytes(512))

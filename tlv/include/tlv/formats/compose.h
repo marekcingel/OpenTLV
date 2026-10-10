@@ -44,10 +44,12 @@ extern "C" {
  * @return A framing or buffer error reported by the resolver.
  *
  * @note Definite counts need not fit the input yet.
- * @note Allowed results are #TLV_OK and any defined `TLV_ERR_*` error except
- * #TLV_ERR_END_OF_BUFFER. #TLV_NEED_MORE_DATA, #TLV_ERR_END_OF_BUFFER and unknown
- * result values violate the callback contract and are reported as #TLV_ERR_CALLBACK.
- * Use #TLV_ERR_BUFFER_TOO_SHORT for incomplete input, including an empty field.
+ * @note Allowed results are #TLV_OK and any defined `TLV_ERR_*` error. #TLV_END,
+ * #TLV_NEED_MORE_DATA and unknown result values violate the callback contract
+ * and are reported as #TLV_ERR_CALLBACK.
+ * Use #TLV_ERR_TRUNCATED for incomplete input, including an empty field.
+ * Decoding has no destination, so #TLV_ERR_BUFFER_TOO_SHORT is not a valid
+ * decoding result.
  */
 typedef tlv_result_t (*tlv_resolve_bounds_fn)(const void* context, const tlv_tag_t* tag,
                                               const uint8_t* data, size_t size, size_t* length_size,
@@ -80,9 +82,9 @@ typedef enum tlv_length_scope {
  * Both write callbacks must support NULL output with zero capacity: measurement
  * queries their widths through the same callbacks used for encoding.
  * All field callbacks and the resolver accept only #TLV_OK or defined `TLV_ERR_*`
- * errors other than #TLV_ERR_END_OF_BUFFER. Incomplete input uses
- * #TLV_ERR_BUFFER_TOO_SHORT; control statuses and unknown results become
- * #TLV_ERR_CALLBACK.
+ * errors. Incomplete input uses #TLV_ERR_TRUNCATED; control statuses and
+ * unknown results become #TLV_ERR_CALLBACK, and so does #TLV_ERR_BUFFER_TOO_SHORT
+ * once propagated through tlv_format_decode().
  */
 typedef struct tlv_field_composition {
     const void* context;               /**< Immutable encoding context. */
@@ -277,7 +279,7 @@ TLV_API tlv_result_t tlv_tagged_binary_encode(const void* context, const tlv_ele
  * @return #TLV_OK on success.
  * @return #TLV_ERR_NULL_ARG if format or composition is NULL.
  * @return #TLV_ERR_INVALID_ARG for invalid widths, ordering, scope or table entries.
- * @return #TLV_ERR_INVALID_BYTE_ORDER for unsupported length byte order.
+ * @return #TLV_ERR_INVALID_ARG for an unknown length byte order.
  */
 TLV_API tlv_result_t tlv_tagged_binary_format_init(
     tlv_format_t* format, const tlv_tagged_binary_composition_t* composition);

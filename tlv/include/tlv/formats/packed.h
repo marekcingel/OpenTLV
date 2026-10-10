@@ -53,7 +53,7 @@ typedef struct tlv_packed_layout {
  * @return #TLV_OK on success.
  * @return #TLV_ERR_NULL_ARG for NULL layout or storage.
  * @return #TLV_ERR_INVALID_ARG for invalid widths, overlap, scope or capacity.
- * @return #TLV_ERR_INVALID_BYTE_ORDER for unsupported field byte order.
+ * @return #TLV_ERR_INVALID_ARG for an unknown field byte order.
  * @return #TLV_ERR_OVERFLOW if the full table size cannot fit size_t.
  * @note Never allocates or modifies configuration.
  */
@@ -69,7 +69,7 @@ TLV_API tlv_result_t tlv_packed_layout_validate(const tlv_packed_layout_t* layou
  * @param[out] error Required diagnostic output; may change on failure.
  * @return #TLV_OK on success.
  * @return #TLV_ERR_NULL_ARG for required NULL pointers.
- * @return #TLV_ERR_BUFFER_TOO_SHORT for incomplete header or Value.
+ * @return #TLV_ERR_TRUNCATED for incomplete header or Value.
  * @return #TLV_ERR_INVALID_LENGTH if the count is smaller than its Tag scope.
  * @return #TLV_ERR_INVALID_TAG if the selected table entry is not canonical.
  * @return Configuration errors from tlv_packed_layout_validate().

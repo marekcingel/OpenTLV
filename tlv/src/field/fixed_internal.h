@@ -14,7 +14,7 @@ static inline tlv_result_t fixed_length_validate(const tlv_fixed_length_t* confi
     if (!config->size || config->size > 8) return TLV_ERR_INVALID_ARG;
     if (config->byte_order != TLV_BYTE_ORDER_BIG_ENDIAN &&
         config->byte_order != TLV_BYTE_ORDER_LITTLE_ENDIAN)
-        return TLV_ERR_INVALID_BYTE_ORDER;
+        return TLV_ERR_INVALID_ARG;
     return TLV_OK;
 }
 

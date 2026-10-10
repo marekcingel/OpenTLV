@@ -49,10 +49,10 @@ def read(data, format=None):
     """Read one complete Element and Layout through C; trailing bytes are unread.
 
     Returns Decoded; len(result.encoded) is the consumed byte count.
-    Empty input raises EndOfBufferError rather than iterator StopIteration.
+    Empty input raises EndError rather than iterator StopIteration.
     """
-    from opentlv.error import EndOfBufferError
+    from opentlv.error import EndError
     try:
         return Reader(data, format).read_source()
     except StopIteration:
-        raise EndOfBufferError(5) from None
+        raise EndError(5) from None

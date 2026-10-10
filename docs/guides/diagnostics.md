@@ -6,7 +6,7 @@ Prerequisite: Complete a [first program](../getting-started/README.md#quick-star
 operation failure --> error code + optional source context
 ```
 
-A result code such as `TLV_ERR_END_OF_BUFFER` says an operation failed, but
+A result code such as `TLV_ERR_TRUNCATED` says an operation failed, but
 not where, on what, or why. The **diagnostic** model adds that detail as a
 single, allocation-free structure that every OpenTLV layer can share instead
 of inventing its own error-reporting shape.
@@ -15,7 +15,7 @@ of inventing its own error-reporting shape.
 #include "tlv/diagnostic.h"
 
 tlv_diagnostic_t diagnostic;
-tlv_diagnostic_init(&diagnostic, TLV_ERR_END_OF_BUFFER, TLV_DIAGNOSTIC_SEVERITY_ERROR);
+tlv_diagnostic_init(&diagnostic, TLV_ERR_TRUNCATED, TLV_DIAGNOSTIC_SEVERITY_ERROR);
 tlv_diagnostic_set_location(&diagnostic, TLV_LOCATION_INPUT, TLV_LOCATION_POINT, 42, 42);
 ```
 

@@ -36,7 +36,7 @@ func TestParseErrorSnapshotAndAbsoluteOffsets(t *testing.T) {
 	var parsed *opentlv.ParseError
 	var status opentlv.StatusError
 	err := fmt.Errorf("application: %w", r.Err())
-	if !errors.As(err, &parsed) || !errors.As(err, &status) || !errors.Is(err, opentlv.ErrBufferTooShort) {
+	if !errors.As(err, &parsed) || !errors.As(err, &status) || !errors.Is(err, opentlv.ErrTruncated) {
 		t.Fatalf("error chain: %v", err)
 	}
 	if !parsed.HasOffset || parsed.Offset != 6 || !parsed.TagOffset.Present || parsed.TagOffset.Value != 4 || parsed.LengthOffset.Value != 5 || parsed.ValueOffset.Value != 6 {
@@ -99,7 +99,7 @@ func TestNestedDocumentFailureAndLimits(t *testing.T) {
 		t.Skip("Document disabled")
 	}
 	var parsed *opentlv.ParseError
-	if d != nil || !errors.As(err, &parsed) || !errors.Is(err, opentlv.ErrBufferTooShort) || !parsed.HasOffset || parsed.Offset != 4 || parsed.TagOffset.Value != 2 || !bytes.Equal(parsed.Tag, []byte{2}) {
+	if d != nil || !errors.As(err, &parsed) || !errors.Is(err, opentlv.ErrTruncated) || !parsed.HasOffset || parsed.Offset != 4 || parsed.TagOffset.Value != 2 || !bytes.Equal(parsed.Tag, []byte{2}) {
 		t.Fatalf("nested diagnostic: %v %+v", err, parsed)
 	}
 	d, err = opentlv.ParseWithOptions([]byte{0x30, 2, 2, 0}, f, opentlv.DocumentOptions{MaxDepth: 0, MaxElements: 10})
@@ -120,7 +120,7 @@ func TestDocumentParseDiagnostics(t *testing.T) {
 		t.Skip("Document disabled")
 	}
 	var parsed *opentlv.ParseError
-	if d != nil || !errors.As(err, &parsed) || !errors.Is(err, opentlv.ErrBufferTooShort) || !parsed.HasOffset || parsed.Offset != 4 || parsed.TagOffset.Value != 2 {
+	if d != nil || !errors.As(err, &parsed) || !errors.Is(err, opentlv.ErrTruncated) || !parsed.HasOffset || parsed.Offset != 4 || parsed.TagOffset.Value != 2 {
 		t.Fatalf("document diagnostic: %v %+v", err, parsed)
 	}
 	input[2], input[3] = 99, 99

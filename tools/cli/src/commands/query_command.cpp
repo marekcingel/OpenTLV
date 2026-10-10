@@ -33,7 +33,7 @@ std::string query_path(const tlv::query& query) {
 namespace cli {
 
 int query_command::run() {
-    // Preserve the V1 output shape and validation rules for existing invocations.
+    // Plain path queries use the V1 traversal, output shape and validation rules.
     if (options_.query && !options_.query_count && !options_.query_exists &&
         !options_.query_explain && options_.query_variables.empty() &&
         !strcmp(options_.query_backend, "auto"))
@@ -275,7 +275,7 @@ int query_command::run() {
         if (program->result_type() == tlv::query_type::nodes)
             for (;;) {
                 auto node = document->next(*execution);
-                if (!node && node.error().status() == tlv::errc::end_of_input) break;
+                if (!node && node.error().status() == tlv::errc::end) break;
                 if (!node) return report(node.error(), 3);
                 // Constructed Value output is obtained through the normal Document encoder.
                 auto                   value = node->value();

@@ -131,7 +131,7 @@ static int run_contains(const tlv_query_program_t* p, int retained, size_t patte
         CHECK(diagnostic.configured == p->pattern_capacity);
     } else if (retained) {
         CHECK(tlv_query_result_next(exec, &event) == TLV_OK);
-        CHECK(tlv_query_result_next(exec, &event) == TLV_ERR_END_OF_BUFFER);
+        CHECK(tlv_query_result_next(exec, &event) == TLV_END);
     } else {
         CHECK(matched == 1);
         CHECK(tlv_query_exec_finish(exec, NULL) == TLV_OK);
@@ -222,7 +222,7 @@ static int run(const tlv_query_program_t* p, int retained, int64_t parameter, un
         tlv_tree_event_t event;
         tlv_result_t     rc;
         while ((rc = tlv_query_result_next(exec, &event)) == TLV_OK) *bits |= 1u << event.offset;
-        CHECK(rc == TLV_ERR_END_OF_BUFFER);
+        CHECK(rc == TLV_END);
     }
     return 0;
 }

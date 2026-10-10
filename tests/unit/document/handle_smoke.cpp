@@ -69,7 +69,7 @@ int main(int argc, char**) {
     const tlv::byte                      malformed[] = {tlv::byte(1), tlv::byte(8)};
     tlv::reader<tlv::fixed_format<1, 1>> reader({malformed, sizeof malformed});
     auto                                 failed = reader.next();
-    if (failed || failed.error().status() != tlv::errc::buffer_too_short || allocations != before)
+    if (failed || failed.error().status() != tlv::errc::truncated || allocations != before)
         return 5;
     return 0;
 }

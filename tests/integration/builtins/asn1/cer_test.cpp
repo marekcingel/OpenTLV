@@ -91,10 +91,10 @@ TEST(Integration_Tlv_Cer, MissingTruncatedAndUnexpectedEoc) {
         size_t               offset;
     };
     const std::vector<Case> cases = {
-        {{0x30, 0x80, 0x02, 1, 5}, TLV_ERR_BUFFER_TOO_SHORT, 1},    /* missing EOC */
-        {{0x30, 0x80, 0x02, 1, 5, 0}, TLV_ERR_BUFFER_TOO_SHORT, 5}, /* truncated EOC */
-        {{0, 0}, TLV_ERR_INVALID_TAG, 0},                           /* unexpected EOC */
-        {{0x30, 0x80, 0, 0, 0, 0}, TLV_ERR_INVALID_TAG, 4},         /* trailing stray EOC */
+        {{0x30, 0x80, 0x02, 1, 5}, TLV_ERR_TRUNCATED, 1},    /* missing EOC */
+        {{0x30, 0x80, 0x02, 1, 5, 0}, TLV_ERR_TRUNCATED, 5}, /* truncated EOC */
+        {{0, 0}, TLV_ERR_INVALID_TAG, 0},                    /* unexpected EOC */
+        {{0x30, 0x80, 0, 0, 0, 0}, TLV_ERR_INVALID_TAG, 4},  /* trailing stray EOC */
     };
     for (const auto& item : cases) {
         SCOPED_TRACE(::testing::PrintToString(item.bytes));

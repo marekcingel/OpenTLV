@@ -217,7 +217,7 @@ TLV_API size_t tlv_tree_writer_size(const tlv_tree_writer_t* writer);
  * @param[out] element Borrowed Tag and primitive Value; constructed Value is ignored.
  * @param[out] depth Root-relative depth, starting at zero.
  * @param[out] constructed Nonzero for a parent, including an empty parent.
- * @return #TLV_OK for an item, #TLV_ERR_END_OF_BUFFER at final end, or a source error.
+ * @return #TLV_OK for an item, #TLV_END at final end, or a source error.
  * @warning Tags must remain immutable and alive until traversal completes; primitive
  *          Values must remain readable until the next callback. Storage must not
  *          overlap the measurement workspace. Depth may increase only after a parent.
@@ -241,7 +241,7 @@ typedef struct tlv_tree_writer_workspace {
  * @brief Pull one structural event for bounded tree measurement.
  * @param[in,out] context Producer state.
  * @param[out] event One event on TLV_OK; unchanged otherwise.
- * @return TLV_OK, TLV_ERR_END_OF_BUFFER at final EOF, or a producer error.
+ * @return TLV_OK, #TLV_END at final EOF, or a producer error.
  * @warning BEGIN Tags must outlive measurement; other payloads need only survive
  * until the next callback. No callbacks may mutate the measurement workspace.
  */

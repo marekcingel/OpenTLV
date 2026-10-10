@@ -310,12 +310,12 @@ TEST(Integration_Tlv_Fixed, EveryFieldOrderAndLengthScopeCombinationRoundTrips) 
                           tlv_writer_write(&writer, TLV_TAG(0x7F), value.data(), value.size()));
                 const size_t total = writer.pos;
 
-                // size 0 is TLV_ERR_END_OF_BUFFER, not TLV_ERR_BUFFER_TOO_SHORT; only
+                // size 0 is TLV_END, not TLV_ERR_BUFFER_TOO_SHORT; only
                 // partial input is a truncation.
                 for (size_t size = 1; size < total; ++size) {
                     tlv_element_t truncated{};
                     size_t        consumed = 0;
-                    EXPECT_EQ(TLV_ERR_BUFFER_TOO_SHORT,
+                    EXPECT_EQ(TLV_ERR_TRUNCATED,
                               tlv_read(data, size, &format, &truncated, &consumed));
                 }
 

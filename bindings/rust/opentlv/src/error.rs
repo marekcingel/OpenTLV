@@ -17,16 +17,18 @@ use opentlv_sys as native;
 #[derive(Clone, Copy, Debug, PartialEq, Eq, Hash)]
 #[non_exhaustive]
 pub enum Error {
-    /// A supplied buffer is too small for the data or output required.
+    /// A caller-supplied destination or workspace is too small.
     BufferTooShort,
+    /// Final input ends inside an element; supply complete input.
+    Truncated,
     /// A length is malformed, out of range, or not representable as `usize`.
     InvalidLength,
     /// A required pointer argument is `NULL`.
     NullArg,
     /// An allocation failed.
     OutOfMemory,
-    /// No further element exists, or the input is empty.
-    EndOfBuffer,
+    /// Normal end of iteration, or empty single-read input; not a failure.
+    End,
     /// A tag is malformed or invalid for the format or standard.
     InvalidTag,
     /// A visitor callback requested an error stop.
@@ -39,8 +41,8 @@ pub enum Error {
     InvalidArg,
     /// Tag size violates the range supported by the operation.
     InvalidTagSize,
-    /// Byte order is unknown or unsupported.
-    InvalidByteOrder,
+    /// Text does not match the requested grammar, such as Query syntax.
+    Syntax,
     /// An unsigned value cannot fit the requested numeric width.
     Overflow,
     /// Data or its application representation is invalid for the requested interpretation.
@@ -70,17 +72,18 @@ impl Error {
         Some(match code {
             native::TLV_OK => return None,
             native::TLV_ERR_BUFFER_TOO_SHORT => Error::BufferTooShort,
+            native::TLV_ERR_TRUNCATED => Error::Truncated,
             native::TLV_ERR_INVALID_LENGTH => Error::InvalidLength,
             native::TLV_ERR_NULL_ARG => Error::NullArg,
             native::TLV_ERR_OUT_OF_MEMORY => Error::OutOfMemory,
-            native::TLV_ERR_END_OF_BUFFER => Error::EndOfBuffer,
+            native::TLV_END => Error::End,
             native::TLV_ERR_INVALID_TAG => Error::InvalidTag,
             native::TLV_ERR_VISITOR => Error::Visitor,
             native::TLV_ERR_LIMIT => Error::Limit,
             native::TLV_ERR_SCHEMA => Error::Schema,
             native::TLV_ERR_INVALID_ARG => Error::InvalidArg,
             native::TLV_ERR_INVALID_TAG_SIZE => Error::InvalidTagSize,
-            native::TLV_ERR_INVALID_BYTE_ORDER => Error::InvalidByteOrder,
+            native::TLV_ERR_SYNTAX => Error::Syntax,
             native::TLV_ERR_OVERFLOW => Error::Overflow,
             native::TLV_ERR_INVALID_VALUE => Error::InvalidValue,
             native::TLV_ERR_UNSUPPORTED => Error::Unsupported,
@@ -97,17 +100,18 @@ impl Error {
     pub fn code(self) -> i32 {
         match self {
             Error::BufferTooShort => native::TLV_ERR_BUFFER_TOO_SHORT,
+            Error::Truncated => native::TLV_ERR_TRUNCATED,
             Error::InvalidLength => native::TLV_ERR_INVALID_LENGTH,
             Error::NullArg => native::TLV_ERR_NULL_ARG,
             Error::OutOfMemory => native::TLV_ERR_OUT_OF_MEMORY,
-            Error::EndOfBuffer => native::TLV_ERR_END_OF_BUFFER,
+            Error::End => native::TLV_END,
             Error::InvalidTag => native::TLV_ERR_INVALID_TAG,
             Error::Visitor => native::TLV_ERR_VISITOR,
             Error::Limit => native::TLV_ERR_LIMIT,
             Error::Schema => native::TLV_ERR_SCHEMA,
             Error::InvalidArg => native::TLV_ERR_INVALID_ARG,
             Error::InvalidTagSize => native::TLV_ERR_INVALID_TAG_SIZE,
-            Error::InvalidByteOrder => native::TLV_ERR_INVALID_BYTE_ORDER,
+            Error::Syntax => native::TLV_ERR_SYNTAX,
             Error::Overflow => native::TLV_ERR_OVERFLOW,
             Error::InvalidValue => native::TLV_ERR_INVALID_VALUE,
             Error::Unsupported => native::TLV_ERR_UNSUPPORTED,
@@ -144,19 +148,19 @@ impl error::Error for Error {}
 mod tests {
     use super::*;
 
-    const KNOWN: [(i32, Error); 20] = [
+    const KNOWN: [(i32, Error); 21] = [
         (1, Error::BufferTooShort),
         (2, Error::InvalidLength),
         (3, Error::NullArg),
         (4, Error::OutOfMemory),
-        (5, Error::EndOfBuffer),
+        (5, Error::End),
         (6, Error::InvalidTag),
         (7, Error::Visitor),
         (8, Error::Limit),
         (9, Error::Schema),
         (10, Error::InvalidArg),
         (11, Error::InvalidTagSize),
-        (12, Error::InvalidByteOrder),
+        (12, Error::Syntax),
         (13, Error::Overflow),
         (14, Error::InvalidValue),
         (15, Error::Unsupported),
@@ -165,6 +169,7 @@ mod tests {
         (18, Error::NeedMoreData),
         (19, Error::InvalidState),
         (20, Error::Callback),
+        (21, Error::Truncated),
     ];
 
     #[test]

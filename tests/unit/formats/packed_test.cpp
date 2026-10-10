@@ -151,7 +151,7 @@ TEST(Unit_Tlv_Packed, TruncationAndScopeUnderflowPreserveDecodedOutput) {
         tlv_decoded_t decoded{};
         decoded.source.size = 99;
         tlv_format_error_t error{};
-        EXPECT_EQ(TLV_ERR_BUFFER_TOO_SHORT,
+        EXPECT_EQ(TLV_ERR_TRUNCATED,
                   tlv_packed_decode(&config, size ? wire : nullptr, size, &decoded, &error));
         EXPECT_EQ(99u, decoded.source.size);
         EXPECT_EQ(size < 2 ? TLV_REGION_HEADER : TLV_REGION_VALUE, error.region);
@@ -214,7 +214,7 @@ TEST(Unit_Tlv_Packed, ConfigurationValidationDoesNotReadStorage) {
     }
     auto bad = good;
     bad.tag.byte_order = TLV_BYTE_ORDER_UNKNOWN;
-    EXPECT_EQ(TLV_ERR_INVALID_BYTE_ORDER, tlv_packed_layout_validate(&bad));
+    EXPECT_EQ(TLV_ERR_INVALID_ARG, tlv_packed_layout_validate(&bad));
     bad = good;
     bad.tag_storage = nullptr;
     EXPECT_EQ(TLV_ERR_NULL_ARG, tlv_packed_layout_validate(&bad));
@@ -241,8 +241,7 @@ TEST(Unit_Tlv_Packed, WideLengthIsCheckedBeforeNativeNarrowing) {
     const uint8_t             wire[] = {0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF};
     tlv_decoded_t             decoded{};
     tlv_format_error_t        error{};
-    EXPECT_EQ(TLV_ERR_BUFFER_TOO_SHORT,
-              tlv_format_decode(&format, wire, sizeof(wire), &decoded, &error));
+    EXPECT_EQ(TLV_ERR_TRUNCATED, tlv_format_decode(&format, wire, sizeof(wire), &decoded, &error));
     EXPECT_EQ(UINT64_MAX >> 1, error.required);
     EXPECT_EQ(8u, error.offset);
     const uint8_t  tag = 1;

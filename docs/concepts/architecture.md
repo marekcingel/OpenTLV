@@ -256,7 +256,7 @@ tlv++/
   document/  document.hpp
   writer/    writer.hpp, tree.hpp, builder.hpp
   schema/    schema.hpp
-  codec/     codec.hpp, structure.hpp, registry.hpp
+  codec/     dynamic.hpp, typed.hpp, structure.hpp, registry.hpp
   formats/
     fixed_format.hpp
   builtins/
@@ -269,9 +269,8 @@ tlv++/
 ```
 
 `tlv++` is header-only, so there is no separate `tlv++/src/`. `registry.hpp`
-sits under `codec/` alongside `codec.hpp` and `structure.hpp`: it is a
-runtime-dispatch complement to the compile-time `TlvCodec` concept, with no C
-counterpart. Built-in C++ APIs now cover ASN.1, EMV, Bluetooth, LLDP, DHCP
+sits under `codec/` alongside the typed and structure codecs: it maps Tags to
+decoders selected at runtime, with no C counterpart. Built-in C++ APIs now cover ASN.1, EMV, Bluetooth, LLDP, DHCP
 and NFC under `builtins/<protocol>/`, following the enabled native components.
 See [C++ built-in standards](cxx-builtins.md) for their scoped coverage.
 Every `tlv++` header keeps using full paths from the include root
@@ -378,10 +377,8 @@ can invoke value codecs. Both APIs document object representation and ownership
 through the selected descriptor. C++ offers `decode_structure<T>` and
 `encode_structure` wrappers with caller-owned output storage.
 
-C++ Writers accept explicit Tags/bytes and typed fields that select Value codecs. `tlv::write_value(writer, value)`
-is the explicit codec convenience function for existing `T::tag` types. That
-helper retains its temporary `std::vector` and may allocate; raw I/O and the C
-codec wrappers do not allocate. C++ errors and user-defined object types may
+C++ Writers accept explicit Tags/bytes and typed fields that select Value codecs;
+raw I/O and the C codec wrappers do not allocate. C++ errors and user-defined object types may
 also allocate according to their representation.
 
 ## Include only what you need
@@ -518,10 +515,11 @@ the former flat reader headers become
 `tlv++/builtins/asn1/ber.hpp`/`tlv++/builtins/fixed/fixed_format.hpp`.
 `tlv++/types.hpp`, `tlv++/compat.hpp`, `tlv++/diagnostic.hpp` and the
 aggregate `tlv++/tlv.hpp` are unaffected. No type, function or namespace
-changed; only header locations did.
+changed; only header locations did. `tlv++/codec/codec.hpp` was later removed
+together with its tag-carrying payload interface; use typed fields instead.
 
-Replace typed `writer.write(value)` with
-`tlv::write_value(writer, value)`. Raw `writer.write(tag, bytes)` is unchanged.
+Typed C++ writes use typed fields (`writer.write<Field>(value)`). Raw
+`writer.write(tag, bytes)` is unchanged.
 Split custom descriptors into `tlv_reader_format_t` and `tlv_writer_format_t`.
 Use matching `tlv_reader_format_<name>` / `tlv_writer_format_<name>` constants
 at each call site. Runtime construction uses `tlv_reader_format_init` and

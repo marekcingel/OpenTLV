@@ -116,7 +116,7 @@ DER depths may be up to 64. Limits must be nonnegative integers representable by
 
 Every reading or traversal failure raises a table (via Lua's `error()`) with
 a `code` (the raw `tlv_result_t` value, also available named under
-`opentlv.errors`, for example `opentlv.errors.BUFFER_TOO_SHORT`) and a
+`opentlv.errors`, for example `opentlv.errors.TRUNCATED`) and a
 `message` (the C `tlv_strerror()` text); `tostring()` on it formats both
 together. When the C API reports structured diagnostic detail for the
 failure, `offset`, `expected`, `actual`, `operation` and `tag` carry it;

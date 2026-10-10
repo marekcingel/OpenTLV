@@ -49,8 +49,8 @@ namespace tlv {
  * the same static storage duration. The format performs no allocation and
  * reads values in place. Errors match the C `tlv_fixed_format_t`-based format
  * for the same widths and byte order:
- * - #TLV_ERR_BUFFER_TOO_SHORT when the input holds fewer bytes than a field
- *   needs, or the output has less capacity than a field needs;
+ * - #TLV_ERR_TRUNCATED when the input holds fewer bytes than a field needs;
+ * - #TLV_ERR_BUFFER_TOO_SHORT when the output has less capacity than a field needs;
  * - #TLV_ERR_INVALID_TAG_SIZE when a written tag is not `TagWidth` bytes;
  * - #TLV_ERR_INVALID_LENGTH when a value length exceeds the largest value
  *   `LengthWidth` bytes can hold, or a decoded length does not fit in `size_t`.

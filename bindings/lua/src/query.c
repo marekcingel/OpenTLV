@@ -156,7 +156,7 @@ static int matcher_pull(lua_State* L, int visit) {
         tlv_reader_diagnostic_t diagnostic;
         tlv_reader_diagnostic_init(&diagnostic);
         tlv_result_t rc = tlv_tree_reader_next_diag(&q->reader, &item, &diagnostic);
-        if (rc == TLV_ERR_END_OF_BUFFER) {
+        if (rc == TLV_END) {
             lua_pushnil(L);
             return visit ? 0 : 1;
         }
@@ -285,7 +285,7 @@ static int query_evaluate(lua_State* L) {
         tlv_reader_diagnostic_t diagnostic;
         tlv_reader_diagnostic_init(&diagnostic);
         code = tlv_tree_reader_next_diag(&reader, &item, &diagnostic);
-        if (code == TLV_ERR_END_OF_BUFFER) break;
+        if (code == TLV_END) break;
         if (code != TLV_OK) return opentlv_lua_raise_reader_error(L, code, &diagnostic);
         if (!tlv_query_matcher_visit(&matcher, &item.element.tag, item.depth)) continue;
         if (count == INT_MAX) return opentlv_lua_raise(L, TLV_ERR_LIMIT, 0, 0);

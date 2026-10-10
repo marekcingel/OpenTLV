@@ -6,11 +6,13 @@ for authors of C capabilities and language facades. Read the
 [current error reference](../reference/errors.md) first.
 
 **Status: design decided; lifecycle implemented by #552, Schema classification
-by #553, capability/resource/callback results by #554, and common locations by #555. Remaining API and binding
+by #553, capability/resource/callback results by #554, common locations by #555, and the
+`END`, `TRUNCATED` and `SYNTAX` results by #578. Remaining API and binding
 migration is separate work.** This page defines the target contract.
-`TLV_ERR_INVALID_STATE`, `TLV_ERR_INVALID_SCHEMA`, `TLV_ERR_UNSUPPORTED` and
-`TLV_ERR_CALLBACK` are public, together with Query kinds `STATE`, `CALLBACK`,
-`TYPE` and `IMAGE`. Other new target names are not yet public declarations. The reference page continues to describe the running
+`TLV_END`, `TLV_ERR_TRUNCATED`, `TLV_ERR_SYNTAX`, `TLV_ERR_INVALID_STATE`,
+`TLV_ERR_INVALID_SCHEMA`, `TLV_ERR_UNSUPPORTED` and `TLV_ERR_CALLBACK` are public,
+together with Query kinds `STATE`, `CALLBACK`, `TYPE` and `IMAGE`;
+`TLV_ERR_END_OF_BUFFER` and `TLV_ERR_INVALID_BYTE_ORDER` are removed. Other new target names are not yet public declarations. The reference page continues to describe the running
 implementation. This design does not preserve source, binary, enum-number or
 diagnostic-layout compatibility. Removed names get no aliases, compatibility
 wrappers or deprecation period. Native consumers and bindings migrate together.
@@ -369,7 +371,7 @@ enums constitute a migration.
 | `TLV_QUERY_ERROR_STORAGE` | `BUFFER_TOO_SHORT` + `STORAGE` for capacity; invalid alignment/extents/overlap/options -> `INVALID_ARG` + `ARGUMENT`, subject to pre-initialization guards. |
 | `TLV_QUERY_ERROR_EVENTS` | Invalid structural feed -> `INVALID_VALUE` + `EVENTS`; lifecycle/reentrancy -> `INVALID_STATE` + `STATE`; deliberate visitor error -> `VISITOR` + `CALLBACK`; callback contract violation -> `CALLBACK` + `CALLBACK`. |
 | `TLV_QUERY_ERROR_SOURCE` | Required metadata absent on supplied data -> `INVALID_VALUE` + `SOURCE`; backend cannot provide the requested metadata at all -> `UNSUPPORTED` + `SOURCE`. Neither invents an offset. |
-| `TLV_QUERY_ERROR_READER` | Preserve the Reader result and typed detail, including `LIMIT`, `BUFFER_TOO_SHORT`, `TLV_END` or `TLV_NEED_MORE_DATA`. |
+| `TLV_QUERY_ERROR_READER` | Preserve the Reader result and typed detail, including `LIMIT`, `TRUNCATED`, `BUFFER_TOO_SHORT`, `TLV_END` or `TLV_NEED_MORE_DATA`. |
 | `TLV_QUERY_ERROR_BINDING` | Missing/unknown/duplicate/incompatible variable binding -> `INVALID_VALUE` + `BINDING`; NULL API pointer -> `NULL_ARG` + `ARGUMENT`; invalid binding array extent -> `INVALID_ARG` + `ARGUMENT`. |
 | `TLV_QUERY_ERROR_CARDINALITY` | `INVALID_VALUE` + `CARDINALITY`; expected/actual counts are typed detail. |
 | `TLV_QUERY_ERROR_CODEC` | Preserve the shared result and typed conversion cause under `CODEC`; bad successful hook payload -> `CALLBACK` + `CALLBACK`. |

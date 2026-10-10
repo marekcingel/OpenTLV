@@ -235,7 +235,7 @@ impl Format {
     ///
     /// Returns [`Error::InvalidArg`] at offset zero for formats other than DER/CER.
     ///
-    /// Same as [`Format::validate`], plus [`Error::EndOfBuffer`] for empty
+    /// Same as [`Format::validate`], plus [`Error::End`] for empty
     /// input.
     pub fn read<'a>(
         self,

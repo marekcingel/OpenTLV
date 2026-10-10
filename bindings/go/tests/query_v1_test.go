@@ -92,7 +92,7 @@ func TestV1QueryBoundedParseErrors(t *testing.T) {
 	for _, text := range []string{"", "50/", "50\x0051", "éé"} {
 		_, err := tlv.ParseQuery(text)
 		var detail *tlv.QueryError
-		if !errors.Is(err, tlv.ErrInvalidArg) || !errors.As(err, &detail) || !detail.HasOffset {
+		if !errors.Is(err, tlv.ErrSyntax) || !errors.As(err, &detail) || !detail.HasOffset {
 			t.Fatalf("%q: %v", text, err)
 		}
 	}

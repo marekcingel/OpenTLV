@@ -74,7 +74,7 @@ TEST(Unit_Tlvpp_FullQuery, TypedBuilderAndResumablePull) {
     for (;;) {
         auto node = execution->next(reader);
         if (!node) {
-            EXPECT_EQ(TLV_ERR_END_OF_BUFFER, node.error().code);
+            EXPECT_EQ(TLV_END, node.error().code);
             break;
         }
         ++matches;
@@ -811,7 +811,7 @@ TEST(Unit_Tlvpp_QueryRanges, EmptyAndCompilationErrors) {
         reader.select("6F//50");
         FAIL();
     } catch (const tlv::query_error& error) {
-        EXPECT_EQ(TLV_ERR_INVALID_ARG, error.code());
+        EXPECT_EQ(TLV_ERR_SYNTAX, error.code());
         EXPECT_EQ(3u, error.offset());
     }
     tlv_diagnostic_t offset{};
@@ -831,7 +831,7 @@ TEST(Unit_Tlvpp_QueryRanges, MalformedTailIsNotEnd) {
         ++it;
         FAIL();
     } catch (const tlv::parse_error& error) {
-        EXPECT_NE(TLV_ERR_END_OF_BUFFER, error.code());
+        EXPECT_NE(TLV_END, error.code());
         EXPECT_EQ(2u, error.offset());
     }
 }
@@ -853,7 +853,7 @@ TEST(Unit_Tlvpp_QueryRanges, IncrementalResumeAndIteratorCopies) {
     EXPECT_EQ(3u, next->offset);
     auto end = selected.next();
     ASSERT_FALSE(end);
-    EXPECT_EQ(TLV_ERR_END_OF_BUFFER, end.error().code);
+    EXPECT_EQ(tlv::errc::end, end.error().status());
 }
 
 TEST(Unit_Tlvpp_QueryRanges, LimitsApplyToUnmatchedItems) {
@@ -863,7 +863,7 @@ TEST(Unit_Tlvpp_QueryRanges, LimitsApplyToUnmatchedItems) {
     auto             selected = reader.select("51");
     auto             result = selected.next();
     ASSERT_FALSE(result);
-    EXPECT_EQ(TLV_ERR_LIMIT, result.error().code);
+    EXPECT_EQ(tlv::errc::limit, result.error().status());
 }
 
 #if OPENTLV_DOCUMENT

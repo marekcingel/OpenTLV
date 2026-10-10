@@ -263,7 +263,7 @@
       "query": "//5A[@len=1",
       "wire": "",
       "diagnostic": {
-        "code": 10,
+        "code": 12,
         "kind": 1,
         "begin": 11,
         "end": 11

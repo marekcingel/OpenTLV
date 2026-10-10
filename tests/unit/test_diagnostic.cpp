@@ -20,10 +20,9 @@ TEST(Unit_Tlvpp_Diagnostic, CanonicalTypedCategoryNames) {
 }
 
 TEST(Unit_Tlvpp_Diagnostic, MakeDiagnosticSetsCodeAndSeverity) {
-    tlv::diagnostic diagnostic =
-        tlv::make_diagnostic(tlv::errc::end_of_input, tlv::severity::warning);
+    tlv::diagnostic diagnostic = tlv::make_diagnostic(tlv::errc::end, tlv::severity::warning);
 
-    EXPECT_EQ(tlv::errc::end_of_input, tlv::status(diagnostic));
+    EXPECT_EQ(tlv::errc::end, tlv::status(diagnostic));
     EXPECT_EQ(tlv::severity::warning, tlv::severity_of(diagnostic));
     EXPECT_EQ(0, diagnostic.location.kind);
     EXPECT_EQ(nullptr, diagnostic.contexts);
@@ -90,8 +89,7 @@ TEST(Unit_Tlvpp_Diagnostic, PopPathRemovesTheLastTag) {
 }
 
 TEST(Unit_Tlvpp_Diagnostic, SetPathAttachesThePathToTheDiagnostic) {
-    tlv::diagnostic diagnostic =
-        tlv::make_diagnostic(tlv::errc::end_of_input, tlv::severity::error);
+    tlv::diagnostic      diagnostic = tlv::make_diagnostic(tlv::errc::end, tlv::severity::error);
     tlv::diagnostic_path path = tlv::make_diagnostic_path();
     tlv::push_path(path, tlv::tag_bytes<0x6F>());
 

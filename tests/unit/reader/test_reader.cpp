@@ -36,8 +36,8 @@ TEST(Unit_Tlvpp_ReaderParity, PullFailuresDecodeOnceAndRetainDiagnosticContext) 
         tlv::reader<> reader(view(data, 5), tlv::native::borrow_format(counted), mode);
         ASSERT_TRUE(reader.next());
         ASSERT_EQ(1u, decode_calls);
-        const auto code = mode == tlv::input_mode::final ? tlv::errc::buffer_too_short
-                                                         : tlv::errc::need_more_data;
+        const auto code =
+            mode == tlv::input_mode::final ? tlv::errc::truncated : tlv::errc::need_more_data;
         for (size_t retry = 0; retry < 2; ++retry) {
             const auto result = reader.next();
             ASSERT_FALSE(result);
@@ -62,7 +62,7 @@ TEST(Unit_Tlvpp_ReaderParity, PullFailuresDecodeOnceAndRetainDiagnosticContext) 
             EXPECT_EQ(4u, decode_calls);
             const auto eof = reader.next();
             ASSERT_FALSE(eof);
-            EXPECT_EQ(tlv::errc::end_of_input, eof.error().status());
+            EXPECT_EQ(tlv::errc::end, eof.error().status());
             EXPECT_EQ(4u, decode_calls);
             ASSERT_TRUE(eof.error().has_offset());
             EXPECT_EQ(sizeof data, eof.error().offset());
@@ -85,7 +85,7 @@ TEST(Unit_Tlvpp_ReaderParity, SingleElementSourceAndFailurePreservation) {
     auto                   failure =
         tlv::read(view(data, 2), tlv::native::borrow_format(format), consumed, &diagnostic);
     ASSERT_FALSE(failure);
-    EXPECT_EQ(TLV_ERR_BUFFER_TOO_SHORT, failure.error().code);
+    EXPECT_EQ(tlv::errc::truncated, failure.error().status());
     EXPECT_EQ(3u, consumed);
 }
 
@@ -100,7 +100,7 @@ TEST(Unit_Tlvpp_ReaderParity, IncrementalSourceOffsetsAndFinalTruncation) {
     auto                   failure = reader.next_source(&actual);
     ASSERT_FALSE(failure);
     EXPECT_EQ(TLV_DIAGNOSTIC_RESULT(expected, tlv_reader_next_diag(&native, &element, &expected)),
-              failure.error().code);
+              static_cast<tlv_result_t>(failure.error().status()));
     EXPECT_EQ(expected.diagnostic.location.begin, actual.diagnostic.location.begin);
     EXPECT_EQ(expected.detail.operation, actual.detail.operation);
     EXPECT_FALSE(reader.at_end());
@@ -112,11 +112,11 @@ TEST(Unit_Tlvpp_ReaderParity, IncrementalSourceOffsetsAndFinalTruncation) {
     EXPECT_EQ(3u, reader.offset());
     auto need_more = reader.next_source(&actual);
     ASSERT_FALSE(need_more);
-    EXPECT_EQ(TLV_NEED_MORE_DATA, need_more.error().code);
+    EXPECT_EQ(tlv::errc::need_more_data, need_more.error().status());
     ASSERT_TRUE(reader.set_input(view(data + 3, 1), 0, tlv::input_mode::final));
     auto truncated = reader.next_source(&actual);
     ASSERT_FALSE(truncated);
-    EXPECT_EQ(TLV_ERR_BUFFER_TOO_SHORT, truncated.error().code);
+    EXPECT_EQ(tlv::errc::truncated, truncated.error().status());
     EXPECT_EQ(4u, actual.diagnostic.location.begin); // Missing Length field, not the element start.
     EXPECT_EQ(3u, reader.offset());
 }
@@ -129,7 +129,7 @@ TEST(Unit_Tlvpp_TreeReaderParity, ValidationReportsMalformedChildWithoutRequesti
     tlv::reader_diagnostic diagnostic{};
     auto                   result = reader.validate(&diagnostic);
     ASSERT_FALSE(result);
-    EXPECT_EQ(TLV_ERR_BUFFER_TOO_SHORT, result.error().code);
+    EXPECT_EQ(tlv::errc::truncated, result.error().status());
     EXPECT_EQ(2u, reader.offset());
     EXPECT_EQ(4u, diagnostic.diagnostic.location.begin); // Missing Value at the parent's end.
 }
@@ -158,7 +158,7 @@ TEST(Unit_Tlvpp_ReaderParity, VisitorStopThenResumeWithoutReplay) {
         return TLV_VISIT_CONTINUE;
     });
     ASSERT_FALSE(status);
-    EXPECT_EQ(TLV_NEED_MORE_DATA, status.error().code);
+    EXPECT_EQ(tlv::errc::need_more_data, status.error().status());
     EXPECT_EQ(2u, count);
     ASSERT_TRUE(reader.set_input(view(nullptr, 0), sizeof(data), tlv::input_mode::final));
     EXPECT_TRUE(reader.at_end());
@@ -191,7 +191,7 @@ TEST(Unit_Tlvpp_TreeReaderParity, EveryItemMatchesCanonicalCursor) {
     EXPECT_EQ(sizeof(data), reader.consumed());
     auto end = reader.next();
     ASSERT_FALSE(end);
-    EXPECT_EQ(TLV_ERR_END_OF_BUFFER, end.error().code);
+    EXPECT_EQ(tlv::errc::end, end.error().status());
 }
 
 TEST(Unit_Tlvpp_TreeReaderParity, DescentLimitAllowsSkipAndCountsOnlyPublishedItems) {
@@ -200,7 +200,7 @@ TEST(Unit_Tlvpp_TreeReaderParity, DescentLimitAllowsSkipAndCountsOnlyPublishedIt
     ASSERT_TRUE(reader.next());
     auto limit = reader.next();
     ASSERT_FALSE(limit);
-    EXPECT_EQ(TLV_ERR_LIMIT, limit.error().code);
+    EXPECT_EQ(tlv::errc::limit, limit.error().status());
     ASSERT_TRUE(reader.skip_subtree());
     auto sibling = reader.next();
     ASSERT_TRUE(sibling);
@@ -215,7 +215,7 @@ TEST(Unit_Tlvpp_TreeReaderParity, CompleteParentRequiredAndVisitorResumesAfterSk
                             tlv::input_mode::incremental);
     auto             incomplete = reader.next();
     ASSERT_FALSE(incomplete);
-    EXPECT_EQ(TLV_NEED_MORE_DATA, incomplete.error().code);
+    EXPECT_EQ(tlv::errc::need_more_data, incomplete.error().status());
     EXPECT_EQ(0u, reader.offset());
     ASSERT_TRUE(reader.set_input(view(data, 4), 0, tlv::input_mode::incremental));
     const auto stop = [](const tlv::element_view&, size_t, size_t) { return TLV_VISIT_STOP; };
@@ -259,7 +259,7 @@ TEST(Unit_Tlvpp_QueryParity, MatchStateSurvivesStopAndInputReplacement) {
         return TLV_VISIT_CONTINUE;
     });
     ASSERT_FALSE(status);
-    EXPECT_EQ(TLV_NEED_MORE_DATA, status.error().code);
+    EXPECT_EQ(tlv::errc::need_more_data, status.error().status());
     ASSERT_TRUE(reader.set_input(view(data + 6, 4), 6, tlv::input_mode::final));
     ASSERT_TRUE(matcher.visit(reader, [&](const tlv::element_view&, size_t, size_t offset) {
         ++count;

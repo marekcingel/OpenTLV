@@ -435,9 +435,9 @@ they handle and ignore the rest.
 
 | Input | Result |
 | --- | --- |
-| No input left | `TLV_ERR_END_OF_BUFFER`; `tlv_reader_at_end` reports a clean finish |
+| No input left | `TLV_END`; `tlv_reader_at_end` reports a clean finish |
 | Length byte `00` | `TLV_ERR_INVALID_LENGTH`: there is no type byte |
-| Length larger than the remaining bytes | `TLV_ERR_BUFFER_TOO_SHORT` |
+| Length larger than the remaining bytes | `TLV_ERR_TRUNCATED` |
 
 A length byte of zero has no type byte to report. In Bluetooth data it also
 starts the non-significant zero padding that may follow the last structure, so

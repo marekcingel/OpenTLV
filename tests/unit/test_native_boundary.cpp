@@ -77,7 +77,7 @@ TEST(Unit_Tlvpp_NativeBoundary, ReaderRetainsIncrementalAndDiagnosticContracts) 
     tlv::reader_diagnostic diagnostic{};
     auto                   incomplete = reader.next(diagnostic);
     ASSERT_FALSE(incomplete);
-    EXPECT_EQ(TLV_NEED_MORE_DATA, incomplete.error().code);
+    EXPECT_EQ(tlv::errc::need_more_data, incomplete.error().status());
     EXPECT_EQ(0u, reader.offset());
     ASSERT_TRUE(reader.set_input(view(data, sizeof(data)), 0, tlv::input_mode::final));
     auto complete = reader.next();
@@ -88,7 +88,7 @@ TEST(Unit_Tlvpp_NativeBoundary, ReaderRetainsIncrementalAndDiagnosticContracts) 
     size_t consumed = 99;
     auto   failed = tlv::read(view(data, 3), format, consumed, &diagnostic);
     ASSERT_FALSE(failed);
-    EXPECT_EQ(TLV_ERR_BUFFER_TOO_SHORT, failed.error().code);
+    EXPECT_EQ(tlv::errc::truncated, failed.error().status());
     EXPECT_EQ(99u, consumed);
 }
 
@@ -134,7 +134,7 @@ TEST(Unit_Tlvpp_NativeBoundary, TemporaryViewPreservesWriterFailureAndSourceCont
     tlv::writer_diagnostic diagnostic{};
     auto                   failed = writer.write(decoded->element, &diagnostic);
     ASSERT_FALSE(failed);
-    EXPECT_EQ(TLV_ERR_BUFFER_TOO_SHORT, failed.error().code);
+    EXPECT_EQ(tlv::errc::buffer_too_short, failed.error().status());
     EXPECT_EQ(6u, writer.size());
     EXPECT_EQ(6u, diagnostic.diagnostic.location.begin);
 }
@@ -147,7 +147,7 @@ TEST(Unit_Tlvpp_NativeBoundary, InvalidBorrowedDescriptorReportsEngineErrors) {
     tlv::reader<> reader(tlv::bytes(), format);
     auto          next = reader.next();
     ASSERT_FALSE(next);
-    EXPECT_EQ(TLV_ERR_NULL_ARG, next.error().code);
+    EXPECT_EQ(tlv::errc::null_argument, next.error().status());
     tlv::writer<>           writer(nullptr, 0, format);
     const tlv::element_view element{tlv::tag_bytes<1>(), tlv::value_view{}};
     auto                    written = writer.write(element);

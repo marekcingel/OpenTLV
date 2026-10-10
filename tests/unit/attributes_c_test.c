@@ -7,11 +7,6 @@ TLV_NODISCARD static int nodiscard_answer(void) {
     return 42;
 }
 
-TLV_DEPRECATED_MSG("use nodiscard_answer instead")
-TLV_MAYBE_UNUSED static int deprecated_answer(void) {
-    return 42;
-}
-
 static int fallthrough_sum(int selector) {
     int sum = 0;
     switch (selector) {

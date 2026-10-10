@@ -12,8 +12,7 @@
  *
  * @section compatibility Language compatibility
  * This reference shows the C++11 fallback interfaces of tlv::any, tlv::span,
- * tlv::expected and tlv::unexpected, together with the C++20 tlv::TlvCodec
- * concept. In newer language modes, compat.hpp selects standard-library
+ * tlv::expected and tlv::unexpected. In newer language modes, compat.hpp selects standard-library
  * aliases: byte and any from C++17, span from C++20, and expected/unexpected
  * when the standard library advertises C++23 expected support.
  * The fallback interfaces are minimal; they do not promise every operation

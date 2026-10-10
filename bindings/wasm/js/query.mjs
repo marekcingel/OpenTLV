@@ -348,7 +348,7 @@ export function queryFacade(wasm) {
       } finally { execution.close(); }
     }
   }
-  /** Bounded V1 compatibility value and independent native matcher continuation. */
+  /** Bounded V1 path Query value and independent native matcher continuation. */
   class V1Query {
     constructor(text) {
       if (typeof text !== "string") throw new TypeError("Query text required");

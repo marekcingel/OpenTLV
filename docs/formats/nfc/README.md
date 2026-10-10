@@ -29,7 +29,7 @@ Values of 0 through 254 bytes use a one-byte Length. Values of 255 through
 65534 bytes use `FF` followed by a two-byte big-endian count. For example,
 `03 FF 01 00` introduces a 256-byte NDEF Value. Extended counts below 255 and
 the reserved `FFFF` count return `TLV_ERR_INVALID_LENGTH`; incomplete fields
-or Values return `TLV_ERR_BUFFER_TOO_SHORT`.
+or Values return `TLV_ERR_TRUNCATED`.
 
 NULL and Terminator have no Length or wire Value. They expose an empty
 semantic Value and are returned as ordinary elements. The Reader does not

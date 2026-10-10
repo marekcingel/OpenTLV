@@ -168,7 +168,7 @@ Audit evidence is the public facade and consumer tests, rather than raw FFI:
 WASM includes both the parse-to-JSON tooling embedding and an owning compiled
 Query/Document facade. Its Query facade provides configured/custom Formats,
 Tag adapters, scoped/Definition/EMV resolvers, Schema, edits, source events,
-ordinals and bounded V1 compatibility. General Reader/Writer parity remains a
+ordinals and bounded V1 path queries. General Reader/Writer parity remains a
 separate concern. Java remains future work. Exact signatures
 belong in generated references and binding source documentation; this matrix
 records supported workflows and their limits. Do not treat an experimental
@@ -178,7 +178,7 @@ label or raw FFI declaration as proof of parity.
 
 `tlv::reader<>` and `tlv::tree_reader` accept `tlv::input_mode::incremental`.
 Their `next` operations return `expected` results with the original C codes:
-`TLV_NEED_MORE_DATA` is resumable and `TLV_ERR_END_OF_BUFFER` is final exhaustion.
+`TLV_NEED_MORE_DATA` is resumable and `TLV_END` is final exhaustion.
 Use `set_input` to replace the contiguous input window and declare final input;
 `consumed` bounds the discardable prefix and `offset` remains absolute.
 

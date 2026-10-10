@@ -1087,7 +1087,7 @@ TEST(Unit_Tlv_DocumentBuilder, PrimitiveAndEmptyConstructedRootsDoNotReadMalform
         ASSERT_EQ(TLV_OK, tlv_document_builder_consume(raw, &doc.handle, nullptr));
         EXPECT_EQ(Bytes({tag, 0}), encode(doc.get()));
         EXPECT_EQ(2u, tlv_tree_reader_offset(&reader));
-        EXPECT_EQ(TLV_ERR_BUFFER_TOO_SHORT, tlv_tree_reader_next(&reader, &root));
+        EXPECT_EQ(TLV_ERR_TRUNCATED, tlv_tree_reader_next(&reader, &root));
     }
 }
 
@@ -1125,18 +1125,16 @@ TEST(Unit_Tlv_DocumentBuilder, PreservesReaderDiagnosticsAfterWindowReplacement)
     ASSERT_EQ(TLV_OK, tlv_tree_reader_set_input(&reader, bad.data(), bad.size(), first.size(), 1));
     tlv_reader_diagnostic_t actual;
     tlv_reader_diagnostic_init(&actual);
-    EXPECT_EQ(
-        TLV_ERR_BUFFER_TOO_SHORT,
-        TLV_DIAGNOSTIC_RESULT(actual, tlv_document_builder_consume(raw, &doc.handle, &actual)));
+    EXPECT_EQ(TLV_ERR_TRUNCATED, TLV_DIAGNOSTIC_RESULT(actual, tlv_document_builder_consume(
+                                                                   raw, &doc.handle, &actual)));
     EXPECT_EQ(nullptr, doc.handle);
     EXPECT_EQ(TLV_LOCATION_INPUT, actual.diagnostic.location.domain);
     EXPECT_EQ(6u, actual.diagnostic.location.begin);
     tlv_reader_diagnostic_t expected;
     tlv_reader_diagnostic_init(&expected);
     tlv_tree_item_t item;
-    ASSERT_EQ(
-        TLV_ERR_BUFFER_TOO_SHORT,
-        TLV_DIAGNOSTIC_RESULT(expected, tlv_tree_reader_next_diag(&reader, &item, &expected)));
+    ASSERT_EQ(TLV_ERR_TRUNCATED, TLV_DIAGNOSTIC_RESULT(expected, tlv_tree_reader_next_diag(
+                                                                     &reader, &item, &expected)));
     EXPECT_EQ(expected.diagnostic.code, actual.diagnostic.code);
     EXPECT_EQ(expected.diagnostic.location.begin, actual.diagnostic.location.begin);
     EXPECT_EQ(expected.detail.operation, actual.detail.operation);

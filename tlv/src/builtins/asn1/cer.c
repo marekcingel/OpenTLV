@@ -21,7 +21,7 @@ static tlv_result_t read_value_bounds(const void* context, const tlv_tag_t* tag,
     tlv_result_t rc;
     int constructed = tlv_asn1_is_constructed(context, tag);
     *length_size = tlv_ber_length_field_size(data, size);
-    if (!size) return TLV_ERR_BUFFER_TOO_SHORT;
+    if (!size) return TLV_ERR_TRUNCATED;
     if (data[0] == TLV_BER_LENGTH_LONG_FORM_BIT) {
         if (!constructed) return TLV_ERR_INVALID_LENGTH;
         rc = tlv_ber_scan_contents_diag(data + 1, size - 1, 1, &native_length, &used, error);

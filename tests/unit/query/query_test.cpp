@@ -9,16 +9,16 @@
 TEST(Unit_Tlv_Query, LocationsDistinguishSyntaxEvidenceAndEmptyEof) {
     tlv_query_t      query{};
     tlv_diagnostic_t diagnostic{};
-    EXPECT_EQ(TLV_ERR_INVALID_ARG, tlv_query_parse_n("GG", 2, &query, &diagnostic));
-    EXPECT_EQ(TLV_ERR_INVALID_ARG, diagnostic.code);
+    EXPECT_EQ(TLV_ERR_SYNTAX, tlv_query_parse_n("GG", 2, &query, &diagnostic));
+    EXPECT_EQ(TLV_ERR_SYNTAX, diagnostic.code);
     EXPECT_EQ(TLV_LOCATION_EXPRESSION, diagnostic.location.domain);
     EXPECT_EQ(TLV_LOCATION_SPAN, diagnostic.location.kind);
     EXPECT_EQ(0u, diagnostic.location.begin);
     EXPECT_EQ(1u, diagnostic.location.end);
-    EXPECT_EQ(TLV_ERR_INVALID_ARG, tlv_query_parse_n("01/", 3, &query, &diagnostic));
+    EXPECT_EQ(TLV_ERR_SYNTAX, tlv_query_parse_n("01/", 3, &query, &diagnostic));
     EXPECT_EQ(3u, diagnostic.location.begin);
     EXPECT_EQ(3u, diagnostic.location.end);
-    EXPECT_EQ(TLV_ERR_INVALID_ARG, tlv_query_parse_n("01/", 3, &query, nullptr));
+    EXPECT_EQ(TLV_ERR_SYNTAX, tlv_query_parse_n("01/", 3, &query, nullptr));
 }
 #include "../../../tlv/src/query/v1_internal.h"
 #include <vector>
@@ -135,7 +135,7 @@ TEST(Unit_Tlv_Query, RejectsSyntaxErrorsAtTheOffendingPosition) {
         tlv_query_t      query = {};
         tlv_diagnostic_t offset = {};
         offset.location.begin = 99;
-        EXPECT_EQ(TLV_ERR_INVALID_ARG, tlv_query_parse(c.text, &query, &offset)) << c.text;
+        EXPECT_EQ(TLV_ERR_SYNTAX, tlv_query_parse(c.text, &query, &offset)) << c.text;
         EXPECT_EQ(c.offset, offset.location.begin) << c.text;
         EXPECT_EQ(0u, tlv_query_count(&query)) << c.text;
     }
@@ -255,7 +255,7 @@ TEST(Unit_Tlv_Query, PropagatesTraversalErrorsAndLimits) {
     // Damage after the last match is still reported.
     std::vector<uint8_t> truncated(data.begin(), data.begin() + 14);
     const Outcome        run = visit_buffer("6F/A5/50", truncated);
-    EXPECT_EQ(TLV_ERR_BUFFER_TOO_SHORT, run.rc);
+    EXPECT_EQ(TLV_ERR_TRUNCATED, run.rc);
     EXPECT_EQ(14u, run.error_offset);
     EXPECT_EQ(1u, run.matches.size());
 }

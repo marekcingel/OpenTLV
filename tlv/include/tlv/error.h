@@ -23,20 +23,21 @@ extern "C" {
 /**
  * @brief Result code returned by OpenTLV C functions.
  *
- * Zero is success. #TLV_NEED_MORE_DATA is a resumable input condition;
- * other nonzero values describe errors or end of input. Unless a function states
- * otherwise, an error leaves its output parameters unchanged. Which codes a
- * function can return is documented on that function.
+ * Zero is success. #TLV_END and #TLV_NEED_MORE_DATA are control statuses, not
+ * failures: #TLV_END ends an iteration normally and #TLV_NEED_MORE_DATA asks
+ * for more non-final input. Other nonzero values are failures. Unless a function
+ * states otherwise, a nonzero result leaves its output parameters unchanged.
+ * Which codes a function can return is documented on that function.
  *
- * @note Numeric values, including INVALID_STATE=19, are release-specific during
- * the breaking failure-model migration and are not a stable ABI numbering contract.
+ * @note Numeric values are release-specific during the breaking failure-model
+ * migration and are not a stable ABI numbering contract.
  * @see tlv_strerror
  */
 typedef enum tlv_result {
     /** The operation succeeded. */
     TLV_OK = 0,
-    /** Caller-supplied destination or workspace capacity is insufficient; legacy input decoders
-       also use this for incomplete input. */
+    /** Caller-supplied destination or workspace capacity is insufficient. Incomplete
+       input is #TLV_ERR_TRUNCATED or #TLV_NEED_MORE_DATA instead. */
     TLV_ERR_BUFFER_TOO_SHORT = 1,
     /** A length is malformed or outside the wire encoding range. */
     TLV_ERR_INVALID_LENGTH = 2,
@@ -44,8 +45,9 @@ typedef enum tlv_result {
     TLV_ERR_NULL_ARG = 3,
     /** An allocation failed. */
     TLV_ERR_OUT_OF_MEMORY = 4,
-    /** No further element exists, or the input is empty. */
-    TLV_ERR_END_OF_BUFFER = 5,
+    /** Control status: normal end of an iteration, or an empty single-read region.
+       No element is published. This is not a failure. */
+    TLV_END = 5,
     /** A tag is malformed or invalid for the format or standard. */
     TLV_ERR_INVALID_TAG = 6,
     /** A visitor callback requested an error stop. */
@@ -58,8 +60,8 @@ typedef enum tlv_result {
     TLV_ERR_INVALID_ARG = 10,
     /** Tag size violates the range supported by the operation. */
     TLV_ERR_INVALID_TAG_SIZE = 11,
-    /** Byte order is unknown or unsupported. */
-    TLV_ERR_INVALID_BYTE_ORDER = 12,
+    /** Text does not match the requested language grammar, such as Query syntax. */
+    TLV_ERR_SYNTAX = 12,
     /** Unsigned value cannot fit the requested numeric width. */
     TLV_ERR_OVERFLOW = 13,
     /** Data or its application representation is invalid for the requested interpretation. */
@@ -75,7 +77,10 @@ typedef enum tlv_result {
     /** The operation is not allowed in the object's current lifecycle state. */
     TLV_ERR_INVALID_STATE = 19,
     /** A callback violated its return-value or successful-output contract. */
-    TLV_ERR_CALLBACK = 20
+    TLV_ERR_CALLBACK = 20,
+    /** Final input ends inside a required representation (Tag, Length, Value or trailer).
+       More output or workspace capacity cannot repair it; supply complete input. */
+    TLV_ERR_TRUNCATED = 21
 } tlv_result_t;
 
 /**

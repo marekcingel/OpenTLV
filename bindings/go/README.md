@@ -380,8 +380,8 @@ innermost scopes beyond the native path capacity.
 Use `errors.Is(err, opentlv.ErrInvalidTag)` (or another named `Err` value)
 for stable error matching. Use `errors.As` to obtain `*ParseError`,
 `*WriteError`, the existing value `StatusError`, or `CapacityError`.
-`StatusError.Code()` remains available for compatibility; callers do not need
-native numeric codes. Wrapping with `fmt.Errorf("operation: %w", err)` preserves
+`StatusError.Code()` returns the native result for comparison with raw
+diagnostic fields such as `ProgramError.Codec`; matching needs no numeric codes. Wrapping with `fmt.Errorf("operation: %w", err)` preserves
 matching and structured detail.
 
 Native parsing failures from Reader and `Parse`/`ParseWithOptions` return
@@ -391,7 +391,8 @@ Document encoding also returns `*WriteError`, but the current C Document encodin
 API supplies only a status, so its optional detail is absent. Local argument
 checks and Document mutation failures may return `StatusError` directly.
 Fixed output capacity failures retain the existing `CapacityError` and match
-`ErrBufferTooShort`. Clean Reader EOF and incremental `NEED_MORE_DATA` remain
+`ErrBufferTooShort`. Final input that ends inside an element matches
+`ErrTruncated`. Clean Reader EOF and incremental `NEED_MORE_DATA` remain
 flow control (`Err() == nil`), rather than terminal errors.
 
 Diagnostics own copied byte slices, strings, native contexts (innermost first),
@@ -408,7 +409,7 @@ are described above.
 
 ```go
 if err := reader.Err(); err != nil {
-    if errors.Is(err, opentlv.ErrBufferTooShort) {
+    if errors.Is(err, opentlv.ErrTruncated) {
         fmt.Println("incomplete final input")
     }
     var parseErr *opentlv.ParseError

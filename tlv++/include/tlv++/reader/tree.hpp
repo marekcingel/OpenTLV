@@ -69,7 +69,7 @@ public:
      * @brief Publish the next complete borrowed preorder item.
      * @param[out] diagnostic Optional Reader failure detail; unchanged on success
      * or tree resource errors.
-     * @return Item, NEED_MORE_DATA, END_OF_BUFFER, or the original C error.
+     * @return Item, NEED_MORE_DATA, TLV_END, or the original C error.
      * @note Hides pending END events before reading a node. Apart from those
      * closures, non-success preserves traversal state. A parent requires its
      * entire encoded extent; use next_event() for explicit structural events.

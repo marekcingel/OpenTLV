@@ -95,9 +95,8 @@ TEST(Unit_Tlv_Ber, TagSizeLimitAndContinuation) {
               static_cast<const tlv_field_composition_t*>(ber_writer.context)
                   ->write_tag(nullptr, &tag, nullptr, 0, &used));
     for (size_t size = 0; size < TLV_ASN1_TAG_MAX_SIZE; ++size)
-        EXPECT_EQ(TLV_ERR_BUFFER_TOO_SHORT,
-                  static_cast<const tlv_field_composition_t*>(ber.context)
-                      ->read_tag(nullptr, bytes.data(), size, &tag, &used));
+        EXPECT_EQ(TLV_ERR_TRUNCATED, static_cast<const tlv_field_composition_t*>(ber.context)
+                                         ->read_tag(nullptr, bytes.data(), size, &tag, &used));
 }
 
 TEST(Unit_Tlv_Ber, InvalidTagsAndWriterState) {
@@ -210,8 +209,7 @@ TEST(Unit_Tlv_Ber, TruncationPreservesReaderOutput) {
         tlv_reader_t reader;
         ASSERT_EQ(TLV_OK, tlv_reader_init(&reader, data.data(), size, &ber));
         tlv_element_t element = {TLV_TAG(0xEE), {nullptr, 42}};
-        EXPECT_EQ(size ? TLV_ERR_BUFFER_TOO_SHORT : TLV_ERR_END_OF_BUFFER,
-                  tlv_reader_next(&reader, &element));
+        EXPECT_EQ(size ? TLV_ERR_TRUNCATED : TLV_END, tlv_reader_next(&reader, &element));
         EXPECT_EQ(0u, reader.pos);
         EXPECT_EQ(0xEE, element.tag.data[0]);
         EXPECT_EQ(nullptr, element.value.data);
@@ -373,14 +371,14 @@ TEST(Unit_Tlv_Ber, StandaloneLengthDecodeTruncationAndNullArgs) {
     tlv_size_t    value = 999;
     size_t        consumed = 999;
     for (size_t size = 0; size < sizeof(bytes); ++size) {
-        EXPECT_EQ(TLV_ERR_BUFFER_TOO_SHORT, tlv_ber_length_decode(bytes, size, &value, &consumed));
+        EXPECT_EQ(TLV_ERR_TRUNCATED, tlv_ber_length_decode(bytes, size, &value, &consumed));
         EXPECT_EQ(999u, value);
         EXPECT_EQ(999u, consumed);
     }
     EXPECT_EQ(TLV_ERR_NULL_ARG, tlv_ber_length_decode(nullptr, 1, &value, &consumed));
     EXPECT_EQ(TLV_ERR_NULL_ARG, tlv_ber_length_decode(bytes, sizeof(bytes), nullptr, &consumed));
     EXPECT_EQ(TLV_ERR_NULL_ARG, tlv_ber_length_decode(bytes, sizeof(bytes), &value, nullptr));
-    EXPECT_EQ(TLV_ERR_BUFFER_TOO_SHORT, tlv_ber_length_decode(nullptr, 0, &value, &consumed));
+    EXPECT_EQ(TLV_ERR_TRUNCATED, tlv_ber_length_decode(nullptr, 0, &value, &consumed));
 }
 
 TEST(Unit_Tlv_Ber, LongPaddedLengthsAndTruncation) {
@@ -406,7 +404,7 @@ TEST(Unit_Tlv_Ber, LongPaddedLengthsAndTruncation) {
         length = 42;
         used = 43;
         for (size_t size = 0; size < bytes.size(); ++size) {
-            EXPECT_EQ(TLV_ERR_BUFFER_TOO_SHORT,
+            EXPECT_EQ(TLV_ERR_TRUNCATED,
                       static_cast<const tlv_field_composition_t*>(ber.context)
                           ->read_length(nullptr, bytes.data(), size, &length, &used));
             EXPECT_EQ(42u, length);
@@ -639,9 +637,8 @@ TEST(Unit_Tlv_Asn1, LengthPoliciesKeepBorrowedContentsAndEocTrailerSeparate) {
         EXPECT_EQ(0, std::memcmp(copied, indefinite, written));
         // The two zero bytes inside OCTET STRING are contents, not a closing EOC.
         tlv_format_error_t error{};
-        EXPECT_EQ(TLV_ERR_BUFFER_TOO_SHORT,
-                  tlv_format_decode(contract.format, indefinite, sizeof(indefinite) - 2, &decoded,
-                                    &error));
+        EXPECT_EQ(TLV_ERR_TRUNCATED, tlv_format_decode(contract.format, indefinite,
+                                                       sizeof(indefinite) - 2, &decoded, &error));
         EXPECT_EQ(TLV_REGION_TRAILER, error.region);
         EXPECT_TRUE(error.has_offset);
         EXPECT_EQ(10u, error.offset);

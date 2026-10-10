@@ -132,7 +132,7 @@ assert.deepEqual(result.elements, []);
 assert.deepEqual(result.padding, { offset: 0, length: 2 });
 assert.deepEqual(opentlv.parse(new Uint8Array(0), { format: "bluetooth-ad" }).elements, []);
 result = opentlv.parse(hexToBytes("02 01 06 04 09 00 00"), { format: "bluetooth-ad" });
-assert.equal(result.error.code, 1);
+assert.equal(result.error.code, 21);
 assert.equal(result.error.offset, 5);
 assert.equal(result.elements.length, 1);
 assert.ok(opentlv.parse(sample, { format: "bluetooth-ad", module: "emv" }).error);

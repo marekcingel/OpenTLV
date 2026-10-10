@@ -17,7 +17,7 @@ func main() {
 	for reader.Next() {
 	}
 	err = reader.Err()
-	if errors.Is(err, opentlv.ErrBufferTooShort) {
+	if errors.Is(err, opentlv.ErrTruncated) {
 		fmt.Println("incomplete final input")
 	}
 	var parsed *opentlv.ParseError

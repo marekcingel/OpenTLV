@@ -240,8 +240,8 @@ including a malformed query and a query with no match
 ## Error handling
 
 Every reading or writing failure raises a subclass of `opentlv.OpenTLVError`,
-one per C `TLV_ERR_*` code (`BufferTooShortError`, `InvalidLengthError`,
-`SchemaError`, and so on), so callers can catch a specific error type or the
+one per C `TLV_ERR_*` code (`TruncatedError`, `BufferTooShortError`,
+`InvalidLengthError`, `SchemaError`, and so on), so callers can catch a specific error type or the
 base class. `OpenTLVError.code` is the raw result code, and `str(error)` is
 the C `tlv_strerror` text. When the C API reports structured diagnostic
 detail for the failure, `offset`, `expected`, `actual`, `operation` and `tag`
@@ -258,7 +258,7 @@ returns the C spelling. Codec and Schema categories are typed too. See the
 ```python
 try:
     list(opentlv.Reader(truncated))
-except opentlv.BufferTooShortError as error:
+except opentlv.TruncatedError as error:
     print(f"{error} at offset {error.offset} ({error.operation})")
 ```
 

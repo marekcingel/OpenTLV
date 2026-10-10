@@ -74,7 +74,7 @@ invalid LLDP data without making Schema a dependency of Reader.
 - Type 127 retains the entire OUI/subtype/payload sequence in Value. No vendor
   dispatch or nested TLV traversal is performed.
 - Base names cover Types 0..8 and 127. Reserved Types 9..126 have no definition.
-- Truncated headers or Values return `TLV_ERR_BUFFER_TOO_SHORT`. Non-single-byte
+- Truncated headers or Values return `TLV_ERR_TRUNCATED`. Non-single-byte
   Tags return `TLV_ERR_INVALID_TAG_SIZE`, Types above 127 `TLV_ERR_INVALID_TAG`,
   and Values larger than 511 `TLV_ERR_INVALID_LENGTH`.
 - Structural and value checks are explicit APIs above framing, described below.
@@ -213,7 +213,7 @@ int main(void) {
             if (seconds != 120) return 1;
         }
     }
-    return rc == TLV_ERR_END_OF_BUFFER ? 0 : 1;
+    return rc == TLV_END ? 0 : 1;
 }
 ```
 

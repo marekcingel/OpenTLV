@@ -82,7 +82,7 @@ TEST(Unit_Tlv_PackedField, TruncationLeavesOutputsUnchanged) {
             std::array<uint8_t, 8> bytes = {{0xAB}};
             const auto             before = bytes;
             uint64_t               output = 42;
-            EXPECT_EQ(TLV_ERR_BUFFER_TOO_SHORT,
+            EXPECT_EQ(TLV_ERR_TRUNCATED,
                       tlv_packed_field_read(&field, bytes.data(), size, &output));
             EXPECT_EQ(42u, output);
             EXPECT_EQ(TLV_ERR_BUFFER_TOO_SHORT,
@@ -112,10 +112,9 @@ TEST(Unit_Tlv_PackedField, InvalidConfigurationAndPointers) {
                   tlv_packed_field_write(&field, bytes.data(), bytes.size(), 0));
     }
     tlv_packed_field_t field = {8, 0, 64, TLV_BYTE_ORDER_UNKNOWN};
-    EXPECT_EQ(TLV_ERR_INVALID_BYTE_ORDER,
+    EXPECT_EQ(TLV_ERR_INVALID_ARG,
               tlv_packed_field_read(&field, bytes.data(), bytes.size(), &output));
-    EXPECT_EQ(TLV_ERR_INVALID_BYTE_ORDER,
-              tlv_packed_field_write(&field, bytes.data(), bytes.size(), 0));
+    EXPECT_EQ(TLV_ERR_INVALID_ARG, tlv_packed_field_write(&field, bytes.data(), bytes.size(), 0));
     field.byte_order = TLV_BYTE_ORDER_BIG_ENDIAN;
     EXPECT_EQ(TLV_ERR_NULL_ARG, tlv_packed_field_read(nullptr, bytes.data(), 8, &output));
     EXPECT_EQ(TLV_ERR_NULL_ARG, tlv_packed_field_read(&field, nullptr, 8, &output));

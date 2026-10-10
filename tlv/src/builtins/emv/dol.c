@@ -29,7 +29,7 @@ static tlv_result_t read_entry(const uint8_t* data, size_t size, size_t offset,
     size_t tag_used;
     tlv_result_t rc = tlv_ber_read_identifier(data + offset, size - offset, &entry->tag, &tag_used);
     if (rc != TLV_OK) return rc;
-    if (offset + tag_used == size) return TLV_ERR_BUFFER_TOO_SHORT;
+    if (offset + tag_used == size) return TLV_ERR_TRUNCATED;
     entry->requested_length = data[offset + tag_used];
     *used = tag_used + 1;
     return TLV_OK;

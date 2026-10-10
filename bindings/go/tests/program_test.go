@@ -313,7 +313,7 @@ func TestQueryRawFeedsImmediateRetainedAndMalformed(t *testing.T) {
 			if err != nil || item.Offset != 7 {
 				t.Fatal(item, err)
 			}
-			if _, err := q.Next(); !errors.Is(err, tlv.ErrEndOfBuffer) {
+			if _, err := q.Next(); !errors.Is(err, tlv.ErrEnd) {
 				t.Fatal(err)
 			}
 		}
@@ -454,7 +454,7 @@ func TestCompiledStreamingContinuationOwnershipAndReentry(t *testing.T) {
 	}); err != nil {
 		t.Fatal(err)
 	}
-	if _, err := q.Next(); !errors.Is(err, tlv.ErrEndOfBuffer) {
+	if _, err := q.Next(); !errors.Is(err, tlv.ErrEnd) {
 		t.Fatal(err)
 	}
 	if err := q.Reset(); err != nil {

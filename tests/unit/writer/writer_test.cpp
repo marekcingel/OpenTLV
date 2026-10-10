@@ -281,7 +281,7 @@ TEST(Unit_Tlv_Writer, OverflowAndCallbackFailuresPreserveOutput) {
     };
     EXPECT_EQ(TLV_ERR_CALLBACK, tlv_write(data, 4, &format, tag, nullptr, 0, &size));
     format_layout.write_tag = [](const void*, const tlv_tag_t*, uint8_t*, size_t, size_t*) {
-        return TLV_ERR_END_OF_BUFFER;
+        return TLV_END;
     };
     EXPECT_EQ(TLV_ERR_CALLBACK, tlv_encoded_size(tag, 0, &format, &size));
     EXPECT_EQ(99u, size);

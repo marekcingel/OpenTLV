@@ -58,7 +58,7 @@ TEST(Integration_Tlv_Visitor, PropagatesTruncatedInputAfterSuccessfulVisits) {
     for (size_t size = 3; size < sizeof(data); ++size) {
         SCOPED_TRACE(size);
         Visits visits;
-        EXPECT_EQ(TLV_ERR_BUFFER_TOO_SHORT,
+        EXPECT_EQ(TLV_ERR_TRUNCATED,
                   visit_input(data, size, &controlled::format, collect, &visits));
         EXPECT_EQ(1u, visits.count);
     }

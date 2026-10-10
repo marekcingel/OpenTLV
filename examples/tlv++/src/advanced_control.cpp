@@ -18,7 +18,7 @@ int main() {
     // Partial input reports NEED_MORE_DATA and consumes no incomplete element.
     tlv::reader<Format> reader({output, 4}, tlv::input_mode::incremental);
     auto                incomplete = reader.next();
-    if (incomplete || incomplete.error().code != TLV_NEED_MORE_DATA) return 2;
+    if (incomplete || incomplete.error().status() != tlv::errc::need_more_data) return 2;
     if (!reader.set_input({output, writer.size()}, 0, tlv::input_mode::final)) return 3;
     auto element = reader.next();
     if (!element) return 4;

@@ -63,7 +63,7 @@ typedef struct tlv_dhcpv4_options_rules {
  * @return #TLV_ERR_SCHEMA with MISSING detail and SCOPE_END anchor if End is absent.
  * @return #TLV_ERR_SCHEMA for a forbidden tail byte.
  * @return #TLV_ERR_LIMIT when the element limit would be exceeded.
- * @return #TLV_ERR_BUFFER_TOO_SHORT for a truncated option.
+ * @return #TLV_ERR_TRUNCATED for a truncated option.
  * @return Any other Reader error, propagated unchanged.
  * @note significant_size is unchanged on failure. Output storage must not
  *       overlap input, rules or other outputs. Optional End with no End present

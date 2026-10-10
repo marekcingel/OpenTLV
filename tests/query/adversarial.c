@@ -136,7 +136,7 @@ static int sequence(const tlv_query_program_t* p, int retained, const char* oper
             case 'P':
                 expected = !finished || invalid ? TLV_ERR_INVALID_STATE
                            : !retained          ? TLV_ERR_INVALID_ARG
-                           : cursor == nodes    ? TLV_ERR_END_OF_BUFFER
+                           : cursor == nodes    ? TLV_END
                                                 : TLV_OK;
                 rc = tlv_query_result_next(e, &output);
                 if (expected == TLV_OK) {

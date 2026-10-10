@@ -178,7 +178,7 @@ TEST(Unit_Tlvpp_Document, SelectionInvalidatedByCursorAndBuilderOperations) {
         }
         auto rejected = tlv::document_builder::current_subtree(reader);
         ASSERT_FALSE(rejected);
-        EXPECT_EQ(TLV_ERR_INVALID_STATE, rejected.error().code);
+        EXPECT_EQ(tlv::errc::invalid_state, rejected.error().status());
     }
 }
 
@@ -296,7 +296,7 @@ TEST(Unit_Tlvpp_Document, InsertsIntoConstructedElementsBeforeASibling) {
     // A primitive parent is refused and nothing changes.
     auto refused = doc.insert(tlv::tag_bytes<0x50>(), view(payload), outer.first_child());
     ASSERT_FALSE(refused.has_value());
-    EXPECT_EQ(TLV_ERR_INVALID_ARG, refused.error().code);
+    EXPECT_EQ(tlv::errc::invalid_argument, refused.error().status());
     EXPECT_EQ(6u, doc.size());
 }
 
@@ -309,7 +309,7 @@ TEST(Unit_Tlvpp_Document, ReportsErrorsAndKeepsTheDocumentUnchanged) {
     const Bytes malformed = make({0x50, 0x09});
     auto        result = inner.set(view(malformed));
     ASSERT_FALSE(result.has_value());
-    EXPECT_NE(TLV_OK, result.error().code);
+    EXPECT_NE(tlv::errc::ok, result.error().status());
     EXPECT_EQ(sample, *doc.encode());
 
     tlv_reader_diagnostic_t offset{};
@@ -321,7 +321,7 @@ TEST(Unit_Tlvpp_Document, ReportsErrorsAndKeepsTheDocumentUnchanged) {
     limited.max_elements = 2;
     auto limited_parse = tlv::document::parse(view(sample), limited);
     ASSERT_FALSE(limited_parse.has_value());
-    EXPECT_EQ(TLV_ERR_LIMIT, limited_parse.error().code);
+    EXPECT_EQ(tlv::errc::limit, limited_parse.error().status());
 }
 
 TEST(Unit_Tlvpp_Document, MovedDocumentKeepsHandlesValid) {
@@ -356,7 +356,7 @@ TEST(Unit_Tlvpp_Document, CreatesWithoutDecoderAndChecksItOnlyForParsing) {
     ASSERT_TRUE(created.has_value());
     auto parsed = tlv::document::parse(view(sample), write_only);
     ASSERT_FALSE(parsed.has_value());
-    EXPECT_EQ(TLV_ERR_NULL_ARG, parsed.error().code);
+    EXPECT_EQ(tlv::errc::null_argument, parsed.error().status());
 }
 
 TEST(Unit_Tlvpp_Document, ExplicitDestinationPreservesTreeAndSubtreeBoundaries) {
@@ -437,17 +437,17 @@ TEST(Unit_Tlvpp_Document, ErasureInvalidatesCopiesDescendantsAndIteratorsOnly) {
     EXPECT_EQ(0u, copy.value().size());
     EXPECT_FALSE(copy.parent());
     EXPECT_FALSE(copy.find(tlv::tag_bytes<0x50>()));
-    EXPECT_EQ(TLV_ERR_INVALID_STATE, copy.set(tlv::bytes()).error().code);
-    EXPECT_EQ(TLV_ERR_INVALID_STATE, copy.encode().error().code);
-    EXPECT_EQ(TLV_ERR_INVALID_STATE, copy.encoded_size().error().code);
-    EXPECT_EQ(TLV_ERR_INVALID_STATE,
-              copy.encode(tlv::native::borrow_format(controlled::format)).error().code);
+    EXPECT_EQ(tlv::errc::invalid_state, copy.set(tlv::bytes()).error().status());
+    EXPECT_EQ(tlv::errc::invalid_state, copy.encode().error().status());
+    EXPECT_EQ(tlv::errc::invalid_state, copy.encoded_size().error().status());
+    EXPECT_EQ(tlv::errc::invalid_state,
+              copy.encode(tlv::native::borrow_format(controlled::format)).error().status());
     copy.erase();
     EXPECT_EQ(make({0x50, 0x01, 0xFF}), *doc.encode());
-    EXPECT_EQ(TLV_ERR_INVALID_STATE,
-              doc.insert(tlv::tag_bytes<0x50>(), tlv::bytes(), child).error().code);
-    EXPECT_EQ(TLV_ERR_INVALID_STATE,
-              doc.insert(tlv::tag_bytes<0x50>(), tlv::bytes(), tlv::node(), copy).error().code);
+    EXPECT_EQ(tlv::errc::invalid_state,
+              doc.insert(tlv::tag_bytes<0x50>(), tlv::bytes(), child).error().status());
+    EXPECT_EQ(tlv::errc::invalid_state,
+              doc.insert(tlv::tag_bytes<0x50>(), tlv::bytes(), tlv::node(), copy).error().status());
 }
 
 TEST(Unit_Tlvpp_Document, ReplacementPreservesParentCopiesAndFailedEditsPreserveChildren) {
@@ -474,12 +474,12 @@ TEST(Unit_Tlvpp_Document, ReplacementPreservesParentCopiesAndFailedEditsPreserve
     EXPECT_EQ(make({0x6F, 0x03, 0x51, 0x01, 0x22, 0x50, 0x01, 0xFF}), *doc.encode());
     auto foreign = tlv::document::parse(view(sample), format());
     ASSERT_TRUE(foreign);
-    EXPECT_EQ(TLV_ERR_INVALID_ARG,
-              doc.insert(tlv::tag_bytes<0x50>(), tlv::bytes(), foreign->first()).error().code);
-    EXPECT_EQ(TLV_ERR_INVALID_ARG,
+    EXPECT_EQ(tlv::errc::invalid_argument,
+              doc.insert(tlv::tag_bytes<0x50>(), tlv::bytes(), foreign->first()).error().status());
+    EXPECT_EQ(tlv::errc::invalid_argument,
               outer.insert(tlv::tag_bytes<0x50>(), tlv::bytes(), foreign->first().first_child())
                   .error()
-                  .code);
+                  .status());
     // Repeated allocation must never revive handles to an erased node.
     for (int i = 0; i < 16; ++i) {
         auto inserted = outer.insert(tlv::tag_bytes<0x52>(), tlv::bytes());
@@ -500,8 +500,8 @@ TEST(Unit_Tlvpp_Document, DestructionAndMoveAssignmentInvalidateOnlyPreviousOwne
     }
     EXPECT_FALSE(retained);
     EXPECT_TRUE(retained_range.empty());
-    EXPECT_EQ(TLV_ERR_INVALID_STATE,
-              retained.insert(tlv::tag_bytes<0x50>(), tlv::bytes()).error().code);
+    EXPECT_EQ(tlv::errc::invalid_state,
+              retained.insert(tlv::tag_bytes<0x50>(), tlv::bytes()).error().status());
     auto source = tlv::document::parse(view(sample), format());
     auto destination = tlv::document::parse(view(sample), format());
     ASSERT_TRUE(source);

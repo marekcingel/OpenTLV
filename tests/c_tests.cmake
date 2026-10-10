@@ -78,6 +78,7 @@ set(SOURCES
     query/f3_test.cpp
     reader/reader_test.cpp
     reader/incremental_test.cpp
+    reader/result_taxonomy_test.cpp
     reader/tree_test.cpp
     reader/visitor_test.cpp
     schema/constraint_test.cpp

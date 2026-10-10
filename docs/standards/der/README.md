@@ -55,7 +55,7 @@ if (rc == TLV_OK) {
 
 `tlv_der_read` validates one element and all of its descendants before returning
 its element and complete encoded size. Trailing input is ignored. Empty input
-returns `TLV_ERR_END_OF_BUFFER`. View and consumed outputs are required and
+returns `TLV_END`. View and consumed outputs are required and
 remain unchanged on failure. Keep the input alive while using returned views.
 
 Class and constructed accessors require a valid DER tag. `tlv_der_tag_number`

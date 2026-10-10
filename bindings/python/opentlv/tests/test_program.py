@@ -1,6 +1,6 @@
 # SPDX-License-Identifier: MIT
 # Copyright (c) 2026 Marek Cingel
-from opentlv import BufferTooShortError
+from opentlv import TruncatedError
 import gc
 import pytest
 from opentlv import (QueryProgram, TreeReader, Visit, Document, InvalidArgError, InvalidStateError,
@@ -253,7 +253,7 @@ def test_invalid_constructed_query_replacement_is_atomic():
     wire = bytes.fromhex("70035a0101")
     document = Document(wire)
     execution = QueryProgram("//70").execution().evaluate_document(document)
-    with pytest.raises(BufferTooShortError) as failure:
+    with pytest.raises(TruncatedError) as failure:
         execution.edit_document("replace", value=b"\x5a")
     assert failure.value.applied == 0 and document.encode() == wire
     execution.reset()

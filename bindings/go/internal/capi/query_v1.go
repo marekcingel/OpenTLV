@@ -25,7 +25,7 @@ type PathQuery struct{ raw C.tlv_query_t }
 func ParsePath(text string) (*PathQuery, Code, Diagnostic) {
 	query := &PathQuery{}
 	input := []byte(text)
-	// C rejects empty input; a nonnull pointer keeps its status INVALID_ARG.
+	// C rejects empty input; a nonnull pointer keeps its status SYNTAX.
 	if len(input) == 0 {
 		input = []byte{0}
 	}

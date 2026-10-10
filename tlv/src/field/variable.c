@@ -64,7 +64,7 @@ tlv_result_t tlv_variable_identifier_read(const tlv_variable_identifier_t* confi
     if (rc != TLV_OK) return rc;
     if (!size) {
         *consumed = 0;
-        return TLV_ERR_BUFFER_TOO_SHORT;
+        return TLV_ERR_TRUNCATED;
     }
     if ((data[0] & config->inline_mask) == config->escape) {
         for (;;) {
@@ -72,7 +72,7 @@ tlv_result_t tlv_variable_identifier_read(const tlv_variable_identifier_t* confi
             if (count == config->max_size) return TLV_ERR_INVALID_TAG_SIZE;
             if (count == size) {
                 *consumed = size;
-                return TLV_ERR_BUFFER_TOO_SHORT;
+                return TLV_ERR_TRUNCATED;
             }
             octet = data[count++];
             if (octet & ~(config->continuation_bit | config->payload_mask))
@@ -115,7 +115,7 @@ tlv_result_t tlv_variable_length_read(const tlv_variable_length_t* config, const
     rc = length_validate(config);
     if (rc != TLV_OK) return rc;
     *consumed = size ? 1 : 0;
-    if (!size) return TLV_ERR_BUFFER_TOO_SHORT;
+    if (!size) return TLV_ERR_TRUNCATED;
     if (data[0] & ~(config->long_form_bit | config->payload_mask)) return TLV_ERR_INVALID_LENGTH;
     count = unpack(data[0], config->payload_mask);
     if (!(data[0] & config->long_form_bit)) {
@@ -128,7 +128,7 @@ tlv_result_t tlv_variable_length_read(const tlv_variable_length_t* config, const
     if (config->policy && (!config->policy->allow_long || count > config->policy->max_long_octets))
         return TLV_ERR_INVALID_LENGTH;
     *consumed = count < size ? count + 1 : size;
-    if (count >= size) return TLV_ERR_BUFFER_TOO_SHORT;
+    if (count >= size) return TLV_ERR_TRUNCATED;
     /* Fold most significant octets first, permitting any number of zero
      * padding octets while checking every arithmetic step before shifting. */
     for (size_t i = 0; i < count; ++i) {

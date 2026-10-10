@@ -28,7 +28,7 @@ struct move_only_format : custom_cpp_format {
 
 struct end_error_format {
     tlv::expected<tlv::decoded, tlv::format_failure> decode(tlv::bytes) const noexcept {
-        return tlv::unexpected<tlv::format_failure>(tlv::format_failure(TLV_ERR_END_OF_BUFFER));
+        return tlv::unexpected<tlv::format_failure>(tlv::format_failure(TLV_END));
     }
 };
 
@@ -37,7 +37,7 @@ struct counted_error_format {
     tlv::expected<tlv::decoded, tlv::format_failure> decode(tlv::bytes) const noexcept {
         ++*calls; // An observation sink; immutable configuration and outcomes are unchanged.
         return tlv::unexpected<tlv::format_failure>(
-            tlv::format_failure(tlv::errc::buffer_too_short).at(tlv::wire_region::value, 1, 2));
+            tlv::format_failure(tlv::errc::truncated).at(tlv::wire_region::value, 1, 2));
     }
 };
 
@@ -135,7 +135,7 @@ TEST(Unit_Tlvpp_IterableReader, FirstFailureThrowsWithCanonicalDiagnosticAndNoCo
         (void)reader.begin();
         FAIL() << "must report a truncated first element";
     } catch (const tlv::parse_error& failure) {
-        EXPECT_EQ(result.error().code, failure.code());
+        EXPECT_EQ(static_cast<tlv_result_t>(result.error().status()), failure.code());
         EXPECT_EQ(0u, failure.offset());
         EXPECT_EQ(expected.diagnostic.location.begin,
                   failure.diagnostic().diagnostic.location.begin);
@@ -157,7 +157,7 @@ TEST(Unit_Tlvpp_IterableReader, LaterFailureThrowsAfterValidPrefixAndCanRetryExp
         }
         FAIL() << "must report the truncated second header";
     } catch (const tlv::parse_error& failure) {
-        EXPECT_EQ(TLV_ERR_BUFFER_TOO_SHORT, failure.code());
+        EXPECT_EQ(TLV_ERR_TRUNCATED, failure.code());
         EXPECT_EQ(3u, failure.offset());
         EXPECT_EQ(4u, failure.diagnostic().diagnostic.location.begin);
     }
@@ -165,7 +165,7 @@ TEST(Unit_Tlvpp_IterableReader, LaterFailureThrowsAfterValidPrefixAndCanRetryExp
     EXPECT_EQ(3u, reader.consumed());
     auto result = reader.next();
     ASSERT_FALSE(result);
-    EXPECT_EQ(TLV_ERR_BUFFER_TOO_SHORT, result.error().code);
+    EXPECT_EQ(tlv::errc::truncated, result.error().status());
 }
 
 TEST(Unit_Tlvpp_IterableReader, InvalidInitializationAndCallbackEndAreNotEmptyRanges) {
@@ -190,7 +190,7 @@ TEST(Unit_Tlvpp_IterableReader, InvalidInitializationAndCallbackEndAreNotEmptyRa
     tlv::reader<end_error_format> custom(input(data, sizeof(data)));
     try {
         (void)custom.begin();
-        FAIL() << "callback END_OF_BUFFER inside input is not final EOF";
+        FAIL() << "callback TLV_END inside input is not final EOF";
     } catch (const tlv::parse_error& failure) {
         EXPECT_EQ(TLV_ERR_CALLBACK, failure.code());
         EXPECT_FALSE(failure.failure().has_offset());
@@ -214,7 +214,7 @@ TEST(Unit_Tlvpp_IterableReader, FailureAndPauseDecodeOnceAndEmptyBoundariesDoNot
         } catch (const tlv::parse_error& failure) {
             EXPECT_EQ(1u, calls);
             const auto error = failure.failure();
-            EXPECT_EQ(mode == tlv::input_mode::final ? tlv::errc::buffer_too_short
+            EXPECT_EQ(mode == tlv::input_mode::final ? tlv::errc::truncated
                                                      : tlv::errc::need_more_data,
                       error.status());
             ASSERT_TRUE(error.has_offset());

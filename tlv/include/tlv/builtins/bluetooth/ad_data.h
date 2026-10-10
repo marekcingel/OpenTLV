@@ -48,7 +48,7 @@ extern "C" {
  * @return #TLV_OK if all structures and padding are valid.
  * @return #TLV_ERR_NULL_ARG for a missing required pointer.
  * @return #TLV_ERR_INVALID_VALUE for a nonzero byte after padding starts.
- * @return #TLV_ERR_BUFFER_TOO_SHORT for a truncated structure.
+ * @return #TLV_ERR_TRUNCATED for a truncated structure.
  * @return Any other generic reader error, propagated unchanged.
  *
  * @note `significant_size` remains unchanged on failure. Output storage must

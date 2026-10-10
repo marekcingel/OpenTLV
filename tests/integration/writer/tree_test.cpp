@@ -56,7 +56,7 @@ TEST(Integration_Tlv_TreeWriter, ReaderTransformWriterWithoutDocument) {
             ASSERT_EQ(TLV_OK, tlv_tree_writer_write_element(&writer, &item.element));
         }
     }
-    ASSERT_EQ(TLV_ERR_END_OF_BUFFER, rc);
+    ASSERT_EQ(TLV_END, rc);
     while (open) {
         ASSERT_EQ(TLV_OK, tlv_tree_writer_end(&writer));
         --open;

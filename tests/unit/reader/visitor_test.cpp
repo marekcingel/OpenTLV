@@ -24,9 +24,9 @@ tlv_visit_result_t collect(const tlv_element_t* element, void* context) {
 }
 } // namespace
 
-TEST(Unit_Tlv_Visitor, PropagatesErrorsButRejectsCallbackEndOfBuffer) {
+TEST(Unit_Tlv_Visitor, PropagatesErrorsButRejectsCallbackEnd) {
     const uint8_t data[] = {1, 0};
-    for (auto error : {TLV_ERR_INVALID_TAG, TLV_ERR_INVALID_LENGTH, TLV_ERR_END_OF_BUFFER}) {
+    for (auto error : {TLV_ERR_INVALID_TAG, TLV_ERR_INVALID_LENGTH, TLV_END}) {
         for (bool fail_tag : {false, true}) {
             auto layout = controlled::format_layout;
             auto format = controlled::format;
@@ -41,17 +41,17 @@ TEST(Unit_Tlv_Visitor, PropagatesErrorsButRejectsCallbackEndOfBuffer) {
                                         size_t*) { return *static_cast<const tlv_result_t*>(ctx); };
             }
             Visits visits;
-            EXPECT_EQ(error == TLV_ERR_END_OF_BUFFER ? TLV_ERR_CALLBACK : error,
+            EXPECT_EQ(error == TLV_END ? TLV_ERR_CALLBACK : error,
                       visit_input(data, sizeof(data), &format, collect, &visits));
             EXPECT_EQ(0u, visits.count);
             tlv_reader_t reader;
             ASSERT_EQ(TLV_OK, tlv_reader_init(&reader, data, sizeof(data), &format));
-            EXPECT_EQ(error == TLV_ERR_END_OF_BUFFER ? TLV_ERR_CALLBACK : error,
+            EXPECT_EQ(error == TLV_END ? TLV_ERR_CALLBACK : error,
                       tlv_reader_visit(&reader, collect, &visits));
             tlv_tree_reader_t tree;
             ASSERT_EQ(TLV_OK,
                       tlv_tree_reader_init(&tree, data, sizeof(data), &format, nullptr, 0, 0, 1));
-            EXPECT_EQ(error == TLV_ERR_END_OF_BUFFER ? TLV_ERR_CALLBACK : error,
+            EXPECT_EQ(error == TLV_END ? TLV_ERR_CALLBACK : error,
                       tlv_tree_reader_visit(&tree, nullptr, nullptr, nullptr));
         }
     }
@@ -268,7 +268,7 @@ TEST(Unit_Tlv_Visitor, TreeDiagnosticsDecodeOnceAndResourceErrorsCarryCode) {
     ASSERT_EQ(TLV_OK, tlv_tree_reader_init(&reader, malformed, sizeof(malformed), &format, frames,
                                            1, 1, 2));
     tlv_reader_diagnostic_t diagnostic{};
-    EXPECT_EQ(TLV_ERR_BUFFER_TOO_SHORT,
+    EXPECT_EQ(TLV_ERR_TRUNCATED,
               TLV_DIAGNOSTIC_RESULT(diagnostic,
                                     tlv_tree_reader_visit(&reader, nullptr, nullptr, &diagnostic)));
     EXPECT_EQ(2u, reads);

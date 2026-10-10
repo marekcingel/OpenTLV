@@ -4,7 +4,7 @@
 import gc
 import pytest
 from opentlv import (Reader, TreeReader, Format, FixedFormat, NeedMoreDataError,
-                     BufferTooShortError, LimitError, InvalidArgError)
+                     TruncatedError, LimitError, InvalidArgError, InvalidSyntaxError)
 from opentlv import Query, Visit
 
 
@@ -63,7 +63,7 @@ def test_malformed_child_diagnostic_and_snapshot_ownership():
     tree = TreeReader(data, final_input=False)
     data[:] = b"\x00" * len(data)
     assert next(tree).element.tag.data == b"\x30"
-    with pytest.raises(BufferTooShortError) as error:
+    with pytest.raises(TruncatedError) as error:
         next(tree)
     assert error.value.offset == 4
     assert tree.offset == 2
@@ -114,7 +114,7 @@ def test_query_continuation_owns_query_and_callback_values():
     del tree, matcher
     gc.collect()
     assert [bytes(element.value) for element in retained] == [b"", b"", b""]
-    with pytest.raises(InvalidArgError) as error:
+    with pytest.raises(InvalidSyntaxError) as error:
         Query("30/")
     assert error.value.offset == 3
 
@@ -132,7 +132,7 @@ def test_immutable_bytes_remain_zero_copy_and_tree_visitor_can_skip():
 
 def test_reader_field_diagnostics_retain_source_coordinates():
     reader = Reader(b"\x04\x03\x2a")
-    with pytest.raises(BufferTooShortError) as error:
+    with pytest.raises(TruncatedError) as error:
         next(reader)
     assert error.value.tag_offset == 0
     assert error.value.length_offset == 1

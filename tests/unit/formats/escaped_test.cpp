@@ -136,13 +136,12 @@ TEST(Unit_Tlv_Escaped, InvalidConfigurationPreservesDescriptorAndOutputs) {
     }
     auto bad = valid;
     bad.length.byte_order = TLV_BYTE_ORDER_UNKNOWN;
-    EXPECT_EQ(TLV_ERR_INVALID_BYTE_ORDER, tlv_escaped_format_init(&format, &bad));
+    EXPECT_EQ(TLV_ERR_INVALID_ARG, tlv_escaped_format_init(&format, &bad));
     EXPECT_EQ(TLV_ERR_NULL_ARG, tlv_escaped_format_init(nullptr, &valid));
     EXPECT_EQ(TLV_ERR_NULL_ARG, tlv_escaped_format_init(&format, nullptr));
     uint64_t count = 123;
     size_t   used = 456;
-    EXPECT_EQ(TLV_ERR_INVALID_BYTE_ORDER,
-              tlv_escaped_length_read(&bad.length, nullptr, 0, &count, &used));
+    EXPECT_EQ(TLV_ERR_INVALID_ARG, tlv_escaped_length_read(&bad.length, nullptr, 0, &count, &used));
     EXPECT_EQ(123u, count);
     EXPECT_EQ(456u, used);
     EXPECT_EQ(TLV_ERR_NULL_ARG, tlv_escaped_length_read(&valid.length, nullptr, 1, &count, &used));

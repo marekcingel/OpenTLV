@@ -53,10 +53,10 @@ measure_tree(tlv::format format, Source&& next, tree_writer_workspace& workspace
         bool         parent = false;
         element_view view;
         auto         item = (*static_cast<state*>(context)->function)(view, *depth, parent);
-        if (!item) return item.error().code;
+        if (!item) return static_cast<tlv_result_t>(item.error().status());
         *value = detail::semantic_access::get(view);
         *constructed = parent ? 1 : 0;
-        return *item ? TLV_OK : TLV_ERR_END_OF_BUFFER;
+        return *item ? TLV_OK : TLV_END;
     };
     size_t size = 0;
     auto   code = tlv_tree_writer_measure(&detail::format_access::get(format), callback, &context,
@@ -88,9 +88,9 @@ measure_tree_events(tlv::format format, Source&& next, tree_writer_workspace& wo
     auto callback = [](void* context, tlv_tree_event_t* event) -> tlv_result_t {
         tree_event view{};
         auto       item = (*static_cast<callable*>(context))(view);
-        if (!item) return item.error().code;
+        if (!item) return static_cast<tlv_result_t>(item.error().status());
         *event = detail::tree_access::get(view);
-        return *item ? TLV_OK : TLV_ERR_END_OF_BUFFER;
+        return *item ? TLV_OK : TLV_END;
     };
     size_t size = 0;
     auto   rc =

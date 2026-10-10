@@ -18,27 +18,28 @@ import (
 type Code int
 
 const (
-	OK               Code = C.TLV_OK
-	BufferTooShort   Code = C.TLV_ERR_BUFFER_TOO_SHORT
-	InvalidLength    Code = C.TLV_ERR_INVALID_LENGTH
-	NullArg          Code = C.TLV_ERR_NULL_ARG
-	OutOfMemory      Code = C.TLV_ERR_OUT_OF_MEMORY
-	EndOfBuffer      Code = C.TLV_ERR_END_OF_BUFFER
-	InvalidTag       Code = C.TLV_ERR_INVALID_TAG
-	Visitor          Code = C.TLV_ERR_VISITOR
-	Limit            Code = C.TLV_ERR_LIMIT
-	Schema           Code = C.TLV_ERR_SCHEMA
-	InvalidArg       Code = C.TLV_ERR_INVALID_ARG
-	InvalidTagSize   Code = C.TLV_ERR_INVALID_TAG_SIZE
-	InvalidByteOrder Code = C.TLV_ERR_INVALID_BYTE_ORDER
-	Overflow         Code = C.TLV_ERR_OVERFLOW
-	InvalidValue     Code = C.TLV_ERR_INVALID_VALUE
-	Unsupported      Code = C.TLV_ERR_UNSUPPORTED
-	InvalidSchema    Code = C.TLV_ERR_INVALID_SCHEMA
-	NativeSize       Code = C.TLV_ERR_NATIVE_SIZE
-	NeedMoreData     Code = C.TLV_NEED_MORE_DATA
-	InvalidState     Code = C.TLV_ERR_INVALID_STATE
-	Callback         Code = C.TLV_ERR_CALLBACK
+	OK             Code = C.TLV_OK
+	BufferTooShort Code = C.TLV_ERR_BUFFER_TOO_SHORT
+	InvalidLength  Code = C.TLV_ERR_INVALID_LENGTH
+	NullArg        Code = C.TLV_ERR_NULL_ARG
+	OutOfMemory    Code = C.TLV_ERR_OUT_OF_MEMORY
+	End            Code = C.TLV_END
+	Truncated      Code = C.TLV_ERR_TRUNCATED
+	InvalidTag     Code = C.TLV_ERR_INVALID_TAG
+	Visitor        Code = C.TLV_ERR_VISITOR
+	Limit          Code = C.TLV_ERR_LIMIT
+	Schema         Code = C.TLV_ERR_SCHEMA
+	InvalidArg     Code = C.TLV_ERR_INVALID_ARG
+	InvalidTagSize Code = C.TLV_ERR_INVALID_TAG_SIZE
+	Syntax         Code = C.TLV_ERR_SYNTAX
+	Overflow       Code = C.TLV_ERR_OVERFLOW
+	InvalidValue   Code = C.TLV_ERR_INVALID_VALUE
+	Unsupported    Code = C.TLV_ERR_UNSUPPORTED
+	InvalidSchema  Code = C.TLV_ERR_INVALID_SCHEMA
+	NativeSize     Code = C.TLV_ERR_NATIVE_SIZE
+	NeedMoreData   Code = C.TLV_NEED_MORE_DATA
+	InvalidState   Code = C.TLV_ERR_INVALID_STATE
+	Callback       Code = C.TLV_ERR_CALLBACK
 )
 
 // String copies the native status description into Go storage.

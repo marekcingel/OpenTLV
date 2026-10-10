@@ -16,7 +16,9 @@ const tlv_der_limits_t tlv_der_default_limits = {32, (size_t)16 * 1024 * 1024,
 
 static tlv_result_t fail(tlv_result_t rc, size_t offset, tlv_diagnostic_t* diagnostic) {
     if (diagnostic) {
-        tlv_diagnostic_init(diagnostic, rc, TLV_DIAGNOSTIC_SEVERITY_ERROR);
+        tlv_diagnostic_init(diagnostic, rc,
+                            rc == TLV_END ? TLV_DIAGNOSTIC_SEVERITY_INFO
+                                          : TLV_DIAGNOSTIC_SEVERITY_ERROR);
         tlv_diagnostic_set_location(diagnostic, TLV_LOCATION_INPUT, TLV_LOCATION_POINT, offset,
                                     offset);
     }
@@ -42,7 +44,7 @@ tlv_result_t tlv_der_read_element(const uint8_t* data, size_t size, size_t base,
     if (value_length > limits->max_value_size)
         return fail(TLV_ERR_LIMIT, base + tag_size, diagnostic);
     if (value_length > size - tag_size - length_size)
-        return fail(TLV_ERR_BUFFER_TOO_SHORT, base + tag_size + length_size, diagnostic);
+        return fail(TLV_ERR_TRUNCATED, base + tag_size + length_size, diagnostic);
     element->value.size = value_length;
 
     element->value.data = data + tag_size + length_size;
@@ -143,7 +145,7 @@ static tlv_result_t read_impl(const uint8_t* data, size_t size, const tlv_der_li
     if ((!data && size) || !element || !consumed) return unlocated(TLV_ERR_NULL_ARG, diagnostic);
     if (limits->max_depth > TLV_DER_MAX_DEPTH) return unlocated(TLV_ERR_UNSUPPORTED, diagnostic);
     if (size > limits->max_input_size) return unlocated(TLV_ERR_LIMIT, diagnostic);
-    if (!size) return fail(TLV_ERR_END_OF_BUFFER, 0, diagnostic);
+    if (!size) return fail(TLV_END, 0, diagnostic);
     rc = traverse(data, size, 0, 0, 0, limits, NULL, NULL, 1, &result, &used, strict, diagnostic);
     if (rc == TLV_OK) {
         *element = result;

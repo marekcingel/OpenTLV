@@ -884,7 +884,7 @@ public:
         for (;;) {
             tlv_node_t* pointer = nullptr;
             auto        code = tlv_document_query_next(execution->c_exec(), &pointer);
-            if (code == TLV_ERR_END_OF_BUFFER) break;
+            if (code == TLV_END) break;
             if (code != TLV_OK) return unexpected<query_failure>(detail::query_failed(code));
             results.push_back(node(pointer, impl_->lifetime));
         }
@@ -941,7 +941,7 @@ private:
 public:
     /** @brief Pull a checked Document handle from a completed execution for this Document.
      * @param execution Completed continuation, with this Document alive and unchanged.
-     * @return Checked Node, END_OF_BUFFER, or INVALID_STATE for missing, expired or stale
+     * @return Checked Node, TLV_END, or INVALID_STATE for missing, expired or stale
      * Document execution; INVALID_ARG for an execution owned by a different Document. */
     expected<node, query_failure> next(query_execution& execution) {
         if (!execution.has_document_ || execution.document_lifetime_.expired())

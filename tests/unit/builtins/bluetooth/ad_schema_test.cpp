@@ -126,7 +126,7 @@ TEST(Unit_Tlv_BluetoothAdSchema, ExamplesPaddingAndTruncation) {
     EXPECT_EQ(TLV_OK, validate({2, 0x0A, 0xFC}));
     EXPECT_EQ(TLV_ERR_SCHEMA, validate({3, 0x0A, 0xFC, 0xFD}));
     EXPECT_EQ(TLV_ERR_INVALID_LENGTH, validate({2, 1, 6, 0, 0}));
-    EXPECT_EQ(TLV_ERR_BUFFER_TOO_SHORT, validate({3, 0x0A, 0xFC}));
+    EXPECT_EQ(TLV_ERR_TRUNCATED, validate({3, 0x0A, 0xFC}));
     EXPECT_EQ(TLV_OK, validate({1, 0xFE}));
 }
 

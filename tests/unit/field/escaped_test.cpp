@@ -28,7 +28,7 @@ TEST(Unit_Tlv_Escaped, CountsWidthsByteOrdersAndTransactionalErrors) {
                 EXPECT_EQ(written, consumed);
                 for (size_t available = 0; available < written; ++available) {
                     decoded = 17;
-                    EXPECT_EQ(TLV_ERR_BUFFER_TOO_SHORT,
+                    EXPECT_EQ(TLV_ERR_TRUNCATED,
                               tlv_escaped_length_read(&config, wire.data(), available, &decoded,
                                                       &consumed));
                     EXPECT_EQ(17u, decoded);
@@ -88,10 +88,9 @@ TEST(Unit_Tlv_EscapedField, InvalidConfigurationPreservesOutputs) {
     auto bad_order = invalid;
     bad_order.min_extended = 0;
     bad_order.byte_order = TLV_BYTE_ORDER_UNKNOWN;
-    EXPECT_EQ(TLV_ERR_INVALID_BYTE_ORDER,
+    EXPECT_EQ(TLV_ERR_INVALID_ARG,
               tlv_escaped_length_read(&bad_order, input, sizeof(input), &count, &used));
-    EXPECT_EQ(TLV_ERR_INVALID_BYTE_ORDER,
-              tlv_escaped_length_write(&bad_order, 0, &output, 1, &used));
+    EXPECT_EQ(TLV_ERR_INVALID_ARG, tlv_escaped_length_write(&bad_order, 0, &output, 1, &used));
     EXPECT_EQ(42u, count);
     EXPECT_EQ(99u, used);
     EXPECT_EQ(0xCC, output);

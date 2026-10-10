@@ -115,7 +115,7 @@ assert.throws(() => query.next(), error => error.code === 19 && error.query.kind
 query.reset().setInput(hexToBytes("5a005a"));
 assert.equal(query.exists({ early_return: true }), true);
 assert.equal(query.info.full_validation, 0);
-assert.throws(() => query.exists(), error => error.code === 1);
+assert.throws(() => query.exists(), error => error.code === 21);
 assert.deepEqual(first.value, hexToBytes("01"));
 program.close(); loaded.close(); query.close();
 const selected = api.compileQuery("//5A/preceding-sibling::*");
@@ -367,7 +367,7 @@ customFormat = api.Format.custom({
   decode(input) {
     if (formatFailure) throw formatMarker;
     assert.throws(() => customFormat.close(), error => error.code === 19 && error.query.kind === 12);
-    if (input.length < 2 || input.length < input[1] + 2) return { code: 1 };
+    if (input.length < 2 || input.length < input[1] + 2) return { code: 21 };
     return { tag: Uint8Array.of(input[0] ^ 0xff), header: { offset: 0, size: 2 },
       tagRange: { offset: 0, size: 1 }, lengthRange: { offset: 1, size: 1 },
       value: { offset: 2, size: input[1] } };
@@ -405,7 +405,7 @@ assert.equal(customFormatExecution.next().value[0], 7);
 customSchema.validateBuffer(customWire); customSchema.close();
 customFormatExecution.close(); customDocument.close(); customDocument = null;
 const readOnlyFormat = api.Format.custom({ decode(input) {
-  if (!input.length) return { code: 1 };
+  if (!input.length) return { code: 21 };
   return { tag: input.subarray(0, 1), header: { offset: 0, size: 1 }, value: { offset: 1, size: 0 } };
 } });
 const readOnlyProgram = api.compileQuery("//51", { format: readOnlyFormat });
@@ -439,7 +439,7 @@ assert.equal(legacyMatcher.feed(hexToBytes("5a"), 1), true);
 legacyMatcher.reset(); legacyMatcher.close();
 assert.throws(() => new api.V1Query("70\0/5a"));
 assert.throws(() => new api.V1Query("70/5"), error =>
-  error.code === 10 && error.query.kind_name === "syntax" && error.query.begin === 3 && error.query.end === 4);
+  error.code === 12 && error.query.kind_name === "syntax" && error.query.begin === 3 && error.query.end === 4);
 assert.throws(() => new api.V1Query(Array(66).fill("5a").join("/")), error =>
   error.code === 8 && error.query.kind_name === "limit" && error.location.domain === "expression");
 assert.throws(() => new api.V1Query("5a".repeat(513)), error =>
@@ -452,7 +452,7 @@ requiredLoaded.close(); requirements.close();
 const diagnosticProgram = api.compileQuery("//5A");
 let readerFailure;
 assert.throws(() => diagnosticProgram.evaluate(hexToBytes("5a82010200")), error => {
-  readerFailure = error; return error.code === 1 && error.query.reader.raw_length === "820102";
+  readerFailure = error; return error.code === 21 && error.query.reader.raw_length === "820102";
 });
 diagnosticProgram.close();
 assert.equal(readerFailure.query.reader.declared_length, 258);
@@ -462,7 +462,7 @@ assert.equal(readerFailure.query.diagnostic.path_omitted, 0);
 assert.equal(readerFailure.query.reader.path_omitted, undefined);
 assert.equal(readerFailure.query.kind_name, "reader");
 assert.equal(readerFailure.query.reader.operation_name, "value");
-assert.equal(readerFailure.message, "buffer too short");
+assert.equal(readerFailure.message, "truncated input");
 assert.throws(() => api.compileQuery("/"), error =>
   error.query.kind_name === "syntax" && error.location.domain === "expression");
 let nestedFailureWire = hexToBytes("5a0300");

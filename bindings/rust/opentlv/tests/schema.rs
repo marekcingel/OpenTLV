@@ -174,10 +174,7 @@ fn malformed_framing_is_reported() {
     let err = schema
         .validate(&[0x01, 0x05, 0x00], Format::Ber, &limits())
         .unwrap_err();
-    assert!(matches!(
-        err.error,
-        Error::BufferTooShort | Error::InvalidLength
-    ));
+    assert!(matches!(err.error, Error::Truncated | Error::InvalidLength));
 }
 
 #[test]

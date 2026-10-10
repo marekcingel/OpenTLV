@@ -108,7 +108,7 @@ Failures use allocation-free `format_failure`, containing the original result
 code and optional `tlv_format_error_t` wire detail. Return
 `tlv::unexpected<tlv::format_failure>(...)`; partial offsets and ranges are
 relative to the current element. Incomplete input uses
-`TLV_ERR_BUFFER_TOO_SHORT`; malformed input uses its specific error. The Reader
+`TLV_ERR_TRUNCATED`; malformed input uses its specific error. The Reader
 engine translates truncation into `TLV_NEED_MORE_DATA` for incremental input and
 preserves its cursor. Generic C++ operation errors retain their existing message
 allocation behavior.
@@ -138,8 +138,8 @@ their input bytes are owned.
 
 ## Source migration
 
-Reader and Writer are now templates. Existing runtime-Format code uses
-`tlv::reader<>` and `tlv::writer<>`, including in function parameter types.
-Their existing C++ view and transitional native-descriptor constructors remain
-available. `write_value` accepts a Writer with any Format parameter. The public
-C API, ABI and serialized behavior of existing Formats are unchanged.
+Reader and Writer are templates. Runtime-Format code uses `tlv::reader<>` and
+`tlv::writer<>`, including in function parameter types, and constructs them
+from a `tlv::format` view; wrap a native C descriptor explicitly with
+`tlv::native::borrow_format()`. The public C API, ABI and serialized behavior
+of existing Formats are unchanged.

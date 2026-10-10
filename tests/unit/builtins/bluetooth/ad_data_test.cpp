@@ -41,7 +41,7 @@ TEST(Unit_Tlv_BluetoothAdData, ReturnsPrefixForReaderAndSchema) {
     ASSERT_EQ(TLV_OK, tlv_reader_init(&reader, data, significant, &tlv_format_bluetooth_ltv));
     ASSERT_EQ(TLV_OK, tlv_reader_next(&reader, &element));
     EXPECT_EQ(data + 2, element.value.data);
-    EXPECT_EQ(TLV_ERR_END_OF_BUFFER, tlv_reader_next(&reader, &element));
+    EXPECT_EQ(TLV_END, tlv_reader_next(&reader, &element));
     EXPECT_EQ(TLV_OK, tlv_schema_validate(data, significant, &tlv_format_bluetooth_ltv,
                                           &tlv_bluetooth_ad_schema, 8, 100, &offset));
     ASSERT_EQ(TLV_OK, tlv_reader_init(&reader, data, sizeof(data), &tlv_format_bluetooth_ltv));
@@ -88,11 +88,11 @@ TEST(Unit_Tlv_BluetoothAdData, PropagatesTruncationAndFieldOffsets) {
         size_t                  significant = 99;
         tlv_reader_diagnostic_t offset = {};
         offset.diagnostic.location.begin = 99;
-        EXPECT_EQ(TLV_ERR_BUFFER_TOO_SHORT,
+        EXPECT_EQ(TLV_ERR_TRUNCATED,
                   tlv_bluetooth_ad_data_validate(data, size, &significant, &offset));
         EXPECT_EQ(99u, significant);
         EXPECT_EQ(size == 4 ? 4u : 5u, offset.diagnostic.location.begin);
-        EXPECT_EQ(TLV_ERR_BUFFER_TOO_SHORT,
+        EXPECT_EQ(TLV_ERR_TRUNCATED,
                   tlv_bluetooth_ad_data_validate(data, size, &significant, nullptr));
     }
 }

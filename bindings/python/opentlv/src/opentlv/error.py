@@ -62,7 +62,11 @@ class OpenTLVError(Exception):
 
 
 class BufferTooShortError(OpenTLVError):
-    """A supplied buffer is too small for the data or output required."""
+    """A caller-supplied destination or workspace is too small."""
+
+
+class TruncatedError(OpenTLVError):
+    """Final input ends inside an element; supply complete input."""
 
 
 class InvalidLengthError(OpenTLVError):
@@ -77,8 +81,8 @@ class OutOfMemoryError(OpenTLVError):
     """An allocation failed."""
 
 
-class EndOfBufferError(OpenTLVError):
-    """No further element exists, or the input is empty."""
+class EndError(OpenTLVError):
+    """Normal end of iteration, or an empty single-read region; not a failure."""
 
 
 class InvalidTagError(OpenTLVError):
@@ -105,8 +109,8 @@ class InvalidTagSizeError(OpenTLVError):
     """Tag size violates the range supported by the operation."""
 
 
-class InvalidByteOrderError(OpenTLVError):
-    """Byte order is unknown or unsupported."""
+class InvalidSyntaxError(OpenTLVError):
+    """Text does not match the requested grammar, such as Query syntax."""
 
 
 class ValueOverflowError(OpenTLVError):
@@ -147,14 +151,14 @@ _ERROR_TYPES = {
     2: InvalidLengthError,
     3: NullArgError,
     4: OutOfMemoryError,
-    5: EndOfBufferError,
+    5: EndError,
     6: InvalidTagError,
     7: VisitorError,
     8: LimitError,
     9: SchemaError,
     10: InvalidArgError,
     11: InvalidTagSizeError,
-    12: InvalidByteOrderError,
+    12: InvalidSyntaxError,
     13: ValueOverflowError,
     14: InvalidValueError,
     15: UnsupportedError,
@@ -163,6 +167,7 @@ _ERROR_TYPES = {
     18: NeedMoreDataError,
     19: InvalidStateError,
     20: CallbackError,
+    21: TruncatedError,
 }
 
 

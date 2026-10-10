@@ -540,7 +540,7 @@ func (q *QueryExecution) Visit(visitor func(QueryMatch) QueryVisit) error {
 	return programError(code, diag)
 }
 
-// Next pulls one owned Tree match, returning ErrEndOfBuffer at final exhaustion.
+// Next pulls one owned Tree match, returning ErrEnd at final exhaustion.
 func (q *QueryExecution) Next() (QueryMatch, error) {
 	if q == nil || q.resultType != QueryNodes {
 		return QueryMatch{}, programError(capi.InvalidArg, capi.ProgramDiagnostic{})
@@ -556,7 +556,7 @@ func (q *QueryExecution) Next() (QueryMatch, error) {
 	found := false
 	err := q.Visit(func(match QueryMatch) QueryVisit { result = match; found = true; return QueryStop })
 	if err == nil && !found {
-		err = programError(capi.EndOfBuffer, capi.ProgramDiagnostic{})
+		err = programError(capi.End, capi.ProgramDiagnostic{})
 	}
 	return result, err
 }

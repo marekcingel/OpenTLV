@@ -94,7 +94,7 @@ describe("opentlv.reader", function()
             end
         end)
         assert(not ok)
-        assert(err.code == opentlv.errors.BUFFER_TOO_SHORT)
+        assert(err.code == opentlv.errors.TRUNCATED)
         assert(type(err.message) == "string")
         assert(err.offset ~= nil)
         assert(err.operation ~= nil)

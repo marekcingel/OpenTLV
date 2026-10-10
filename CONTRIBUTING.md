@@ -96,7 +96,6 @@ and put any module-wide rules there.
 | `@note` | Guarantees and clarifications, such as output preservation on failure. |
 | `@warning` | Hazards the caller must act on, such as lifetime requirements, or callbacks that may leave a buffer modified on error. |
 | `@see` | Related functions or types. |
-| `@deprecated` | Deprecated APIs, with the replacement. |
 
 **Describe the public contract, not the implementation.** Where they apply,
 state each of the following explicitly:
@@ -191,7 +190,7 @@ and `OPENTLV_BUILD_CXX=OFF` does not disable reference generation.
 
 The C++ namespace, class and header indexes cover only `tlv++/include/tlv++`.
 Private members and implementation helpers are excluded. The reference shows
-C++11 compatibility interfaces plus the C++20 `TlvCodec` concept; its landing
+the C++11 fallback interfaces; its landing
 page explains the standard-library aliases selected by newer language modes.
 Ownership, lifetime and error contracts come from the public header comments.
 

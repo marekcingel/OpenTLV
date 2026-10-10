@@ -677,7 +677,7 @@ static int retained_scale(void) {
         CHECK(tlv_query_result_next_ordinal(e, &spans.selected, &spans.ordinal) == TLV_OK);
         CHECK(spans.ordinal == i && spans.selected.element.tag.data == input.element.tag.data);
     }
-    CHECK(tlv_query_result_next(e, &spans.selected) == TLV_ERR_END_OF_BUFFER);
+    CHECK(tlv_query_result_next(e, &spans.selected) == TLV_END);
     free(allocation);
 #if OPENTLV_READER
     CHECK(retained_resume_scale() == 0);

@@ -233,7 +233,7 @@ public:
      * The returned element's value borrows the original buffer.
      *
      * @return The next element, or an error: #TLV_ERR_NULL_ARG if the reader
-     *         failed to initialize, #TLV_ERR_END_OF_BUFFER when no further
+     *         failed to initialize, #TLV_END when no further
      *         element exists, or any error of tlv_reader_next().
      *
      * @note On error the reader position is unchanged.
@@ -334,7 +334,7 @@ public:
 
 private:
     bool read_for_iteration(element_view& element) {
-        // Only the cursor's final boundary is EOF. A callback returning END_OF_BUFFER
+        // Only the cursor's final boundary is EOF. A callback returning TLV_END
         // inside nonempty input remains an error.
         if (init_ok_ && at_end()) return false;
         reader_diagnostic diagnostic;

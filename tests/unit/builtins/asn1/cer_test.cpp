@@ -55,7 +55,7 @@ TEST(Unit_Tlv_Cer, EmptyArgumentsAndVisitorControl) {
     size_t           used = 99;
     tlv_diagnostic_t offset = {};
     offset.location.begin = 99;
-    EXPECT_EQ(TLV_ERR_END_OF_BUFFER, tlv_cer_read(nullptr, 0, nullptr, &element, &used, &offset));
+    EXPECT_EQ(TLV_END, tlv_cer_read(nullptr, 0, nullptr, &element, &used, &offset));
     EXPECT_EQ(0u, offset.location.begin);
     EXPECT_EQ(99u, used);
     EXPECT_EQ(TLV_OK, tlv_cer_visit(nullptr, 0, nullptr, nullptr, nullptr, nullptr));

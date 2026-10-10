@@ -63,10 +63,12 @@ tlv_result_t tlv_format_decode(const tlv_format_t* format, const uint8_t* data, 
     if (!size) {
         detail.has_offset = 1;
         if (error) *error = detail;
-        return TLV_ERR_END_OF_BUFFER;
+        return TLV_END;
     }
     rc = format->decode(format->context, data, size, &result, &detail);
     rc = tlv_callback_result(rc, 0);
+    /* Decoding has no destination: incomplete input is TRUNCATED, never capacity. */
+    if (rc == TLV_ERR_BUFFER_TOO_SHORT) rc = TLV_ERR_CALLBACK;
     if (rc == TLV_OK) {
         if (!s->header.present || !s->value.present || !s->trailer.present || !s->size ||
             s->size > size || s->header.offset != 0 || !range_valid(s->header, s->size) ||

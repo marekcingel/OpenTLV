@@ -43,7 +43,7 @@ TEST(Unit_Tlvpp_TreeWriterParity, MeasurementStagesCanonicalEncoding) {
     workspace.scratch_capacity = 0;
     auto failure = tlv::measure_tree(tlv::native::borrow_format(format), next, workspace);
     ASSERT_FALSE(failure);
-    EXPECT_EQ(TLV_ERR_BUFFER_TOO_SHORT, failure.error().code);
+    EXPECT_EQ(tlv::errc::buffer_too_short, failure.error().status());
     EXPECT_EQ(4u, workspace.required_scratch);
     EXPECT_EQ(0u, workspace.required_data);
 }
@@ -55,7 +55,7 @@ TEST(Unit_Tlvpp_TreeWriterParity, MeasurementPropagatesSourceError) {
     };
     auto result = tlv::measure_tree(tlv::native::borrow_format(format), next, workspace);
     ASSERT_FALSE(result);
-    EXPECT_EQ(TLV_ERR_INVALID_VALUE, result.error().code);
+    EXPECT_EQ(tlv::errc::invalid_value, result.error().status());
     EXPECT_EQ(0u, workspace.required_data);
     EXPECT_EQ(0u, workspace.required_scratch);
 }
@@ -85,7 +85,7 @@ TEST(Unit_Tlvpp_WriterParity, SingleWriteAndMeasurementMatchC) {
         tlv::write(output, 1, tlv::native::borrow_format(format), element.tag(),
                    tlv::bytes(reinterpret_cast<const tlv::byte*>(value_bytes), 2), &diagnostic);
     ASSERT_FALSE(failure);
-    EXPECT_EQ(TLV_ERR_BUFFER_TOO_SHORT, failure.error().code);
+    EXPECT_EQ(tlv::errc::buffer_too_short, failure.error().status());
     EXPECT_TRUE(diagnostic.has_required);
     EXPECT_EQ(native_size, diagnostic.required);
 }

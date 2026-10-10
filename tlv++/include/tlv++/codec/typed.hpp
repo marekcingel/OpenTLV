@@ -230,7 +230,9 @@ expected<void, typed_error> writer_base::write(const typename Field::value_type&
     if (*written != *size || *written > scratch.size())
         return unexpected<typed_error>(typed_error(codec_failure(errc::callback)));
     auto result = write(Field::tag(), bytes(scratch.data(), *written));
-    if (!result) return unexpected<typed_error>(typed_error(result.error().code));
+    if (!result)
+        return unexpected<typed_error>(
+            typed_error(static_cast<tlv_result_t>(result.error().status())));
     return {};
 }
 } // namespace detail

@@ -65,9 +65,9 @@ func TestIncompleteAndEmptyInput(t *testing.T) {
 			e, n, code, d := f.Read(input, final)
 			want := NeedMoreData
 			if final {
-				want = BufferTooShort
+				want = Truncated
 				if len(input) == 0 {
-					want = EndOfBuffer
+					want = End
 				}
 			}
 			if code != want || n != 0 || e.Tag != nil || e.Value != nil || d.Code != want {

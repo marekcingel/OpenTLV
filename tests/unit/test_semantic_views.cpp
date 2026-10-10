@@ -63,18 +63,18 @@ TEST(Unit_Tlvpp_Semantics, NativeImportsRejectInvalidRepresentationBeforeByteAcc
     const uint8_t storage[] = {42};
     auto          bad_tag = tlv::native::borrow_tag({nullptr, 1});
     ASSERT_FALSE(bad_tag);
-    EXPECT_EQ(TLV_ERR_NULL_ARG, bad_tag.error().code);
+    EXPECT_EQ(tlv::errc::null_argument, bad_tag.error().status());
     auto bad_value = tlv::native::borrow_value({nullptr, 1});
     ASSERT_FALSE(bad_value);
-    EXPECT_EQ(TLV_ERR_NULL_ARG, bad_value.error().code);
+    EXPECT_EQ(tlv::errc::null_argument, bad_value.error().status());
     auto bad_element = tlv::native::borrow_element({{storage, 1}, {nullptr, 1}});
     ASSERT_FALSE(bad_element);
-    EXPECT_EQ(TLV_ERR_NULL_ARG, bad_element.error().code);
+    EXPECT_EQ(tlv::errc::null_argument, bad_element.error().status());
 #if SIZE_MAX < UINT64_MAX
     const tlv_value_t oversized{storage, static_cast<tlv_size_t>(SIZE_MAX) + 1};
     auto              rejected = tlv::native::borrow_value(oversized);
     ASSERT_FALSE(rejected);
-    EXPECT_EQ(TLV_ERR_NATIVE_SIZE, rejected.error().code);
+    EXPECT_EQ(tlv::errc::native_size, rejected.error().status());
     EXPECT_FALSE((tlv::native::borrow_element({{storage, 1}, oversized})));
 #endif
     auto valid = tlv::native::borrow_element({{storage, 1}, {storage, 1}});
@@ -149,6 +149,6 @@ TEST(Unit_Tlvpp_Semantics, PreservationDistinguishesAbsentAndExplicitlyEmptyIden
         auto rejected =
             tlv::preserve(result->source, {changed, result->element.value()}, &output, 1);
         ASSERT_FALSE(rejected);
-        EXPECT_EQ(TLV_ERR_INVALID_ARG, rejected.error().code);
+        EXPECT_EQ(tlv::errc::invalid_argument, rejected.error().status());
     }
 }

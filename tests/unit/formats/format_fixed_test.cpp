@@ -141,8 +141,8 @@ TEST(Unit_Tlv_Fixed, InitRejectsInvalidByteOrder) {
         {1}, {2, TLV_BYTE_ORDER_UNKNOWN}, TLV_ELEMENT_ORDER_TLV, TLV_LENGTH_SCOPE_VALUE};
     tlv_format_t reader{};
     tlv_format_t writer{};
-    EXPECT_EQ(TLV_ERR_INVALID_BYTE_ORDER, tlv_fixed_format_init(&reader, &unknown));
-    EXPECT_EQ(TLV_ERR_INVALID_BYTE_ORDER, tlv_fixed_format_init(&writer, &unknown));
+    EXPECT_EQ(TLV_ERR_INVALID_ARG, tlv_fixed_format_init(&reader, &unknown));
+    EXPECT_EQ(TLV_ERR_INVALID_ARG, tlv_fixed_format_init(&writer, &unknown));
 }
 
 TEST(Unit_Tlv_Fixed, TruncationPreservesReaderAndOutput) {
@@ -155,8 +155,7 @@ TEST(Unit_Tlv_Fixed, TruncationPreservesReaderAndOutput) {
         tlv_reader_t reader;
         ASSERT_EQ(TLV_OK, tlv_reader_init(&reader, data, size, &format));
         tlv_element_t element = {TLV_TAG(0xEE), {nullptr, 42}};
-        EXPECT_EQ(size ? TLV_ERR_BUFFER_TOO_SHORT : TLV_ERR_END_OF_BUFFER,
-                  tlv_reader_next(&reader, &element));
+        EXPECT_EQ(size ? TLV_ERR_TRUNCATED : TLV_END, tlv_reader_next(&reader, &element));
         EXPECT_EQ(0u, reader.pos);
         EXPECT_EQ(0xEE, element.tag.data[0]);
         EXPECT_EQ(nullptr, element.value.data);

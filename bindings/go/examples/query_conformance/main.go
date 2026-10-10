@@ -162,7 +162,7 @@ func main() {
 		}
 		for {
 			node, err := q.NextDocument()
-			if errors.Is(err, tlv.ErrEndOfBuffer) {
+			if errors.Is(err, tlv.ErrEnd) {
 				break
 			}
 			if err != nil {

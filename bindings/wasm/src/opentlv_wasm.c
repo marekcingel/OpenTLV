@@ -949,9 +949,9 @@ const char* opentlv_wasm_v1_operation(opentlv_wasm_v1_t* q, int operation, const
     tlv_query_diagnostic_t diagnostic = {0};
     if (q->code != TLV_OK) {
         /* Name only the V1 parse failures that a Query kind describes. */
-        diagnostic.kind = q->code == TLV_ERR_INVALID_ARG ? TLV_QUERY_ERROR_SYNTAX
-                          : q->code == TLV_ERR_LIMIT     ? TLV_QUERY_ERROR_LIMIT
-                                                         : TLV_QUERY_ERROR_NONE;
+        diagnostic.kind = q->code == TLV_ERR_SYNTAX  ? TLV_QUERY_ERROR_SYNTAX
+                          : q->code == TLV_ERR_LIMIT ? TLV_QUERY_ERROR_LIMIT
+                                                     : TLV_QUERY_ERROR_NONE;
         diagnostic.diagnostic = q->diagnostic;
         diagnostic.begin = q->diagnostic.location.begin;
         diagnostic.end = q->diagnostic.location.end;
@@ -1565,7 +1565,7 @@ const char* opentlv_wasm_execution_operation(opentlv_wasm_execution_t* q, int op
             else {
                 event.kind = (tlv_tree_event_kind_t)-1;
                 rc = tlv_query_program_visit(&q->reader, q->exec, wasm_pull, &event, &d);
-                if (rc == TLV_OK && (int)event.kind == -1) rc = TLV_ERR_END_OF_BUFFER;
+                if (rc == TLV_OK && (int)event.kind == -1) rc = TLV_END;
             }
             break;
         case 2: rc = tlv_query_exec_result(q->exec, &result); break;

@@ -10,14 +10,15 @@ const char* tlv_strerror(tlv_result_t result) {
         case TLV_ERR_INVALID_STATE: return "invalid state";
         case TLV_ERR_CALLBACK: return "callback contract violated";
         case TLV_ERR_INVALID_ARG: return "invalid argument";
-        case TLV_ERR_INVALID_BYTE_ORDER: return "invalid byte order";
+        case TLV_ERR_SYNTAX: return "syntax error";
+        case TLV_ERR_TRUNCATED: return "truncated input";
         case TLV_ERR_OVERFLOW: return "numeric overflow";
         case TLV_OK: return "OK";
         case TLV_ERR_BUFFER_TOO_SHORT: return "buffer too short";
         case TLV_ERR_INVALID_LENGTH: return "invalid length encoding";
         case TLV_ERR_NULL_ARG: return "null argument";
         case TLV_ERR_OUT_OF_MEMORY: return "out of memory";
-        case TLV_ERR_END_OF_BUFFER: return "end of buffer";
+        case TLV_END: return "end";
         case TLV_ERR_INVALID_TAG_SIZE: return "invalid tag size";
         case TLV_ERR_INVALID_TAG: return "invalid tag";
         case TLV_ERR_VISITOR: return "visitor error";

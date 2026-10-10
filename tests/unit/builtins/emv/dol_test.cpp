@@ -95,7 +95,7 @@ TEST(Unit_Tlv_Dol, ReadRejectsDanglingTag) {
     const std::vector<uint8_t>   data = {0x5A, 0x08, 0x9F, 0x02};
     std::vector<tlv_dol_entry_t> entries;
     tlv_diagnostic_t             offset{};
-    EXPECT_EQ(TLV_ERR_BUFFER_TOO_SHORT, Read(data, &entries, &offset));
+    EXPECT_EQ(TLV_ERR_TRUNCATED, Read(data, &entries, &offset));
     EXPECT_EQ(2u, offset.location.begin);
     EXPECT_EQ(1u, entries.size());
 }
@@ -105,7 +105,7 @@ TEST(Unit_Tlv_Dol, ReadRejectsMalformedTag) {
     const std::vector<uint8_t>   data = {0x9F};
     std::vector<tlv_dol_entry_t> entries;
     tlv_diagnostic_t             offset{};
-    EXPECT_EQ(TLV_ERR_BUFFER_TOO_SHORT, Read(data, &entries, &offset));
+    EXPECT_EQ(TLV_ERR_TRUNCATED, Read(data, &entries, &offset));
     EXPECT_EQ(0u, offset.location.begin);
 }
 
@@ -165,8 +165,8 @@ TEST(Unit_Tlv_Dol, WriteSizeQueryValidatesMalformedDol) {
     size_t                     written = 99;
     tlv_diagnostic_t           offset = {};
     offset.location.begin = 99;
-    EXPECT_EQ(TLV_ERR_BUFFER_TOO_SHORT, tlv_dol_write(dol.data(), dol.size(), nullptr, 0, nullptr,
-                                                      nullptr, nullptr, &written, &offset));
+    EXPECT_EQ(TLV_ERR_TRUNCATED, tlv_dol_write(dol.data(), dol.size(), nullptr, 0, nullptr, nullptr,
+                                               nullptr, &written, &offset));
     EXPECT_EQ(0u, offset.location.begin);
 }
 
@@ -300,9 +300,8 @@ TEST(Unit_Tlv_Dol, WriteMalformedDolPropagatesReadError) {
     size_t                     written = 99;
     tlv_diagnostic_t           offset = {};
     offset.location.begin = 99;
-    EXPECT_EQ(TLV_ERR_BUFFER_TOO_SHORT,
-              tlv_dol_write(dol.data(), dol.size(), output.data(), output.size(), nullptr,
-                            ScriptResolve, nullptr, &written, &offset));
+    EXPECT_EQ(TLV_ERR_TRUNCATED, tlv_dol_write(dol.data(), dol.size(), output.data(), output.size(),
+                                               nullptr, ScriptResolve, nullptr, &written, &offset));
     EXPECT_EQ(0u, offset.location.begin);
 }
 

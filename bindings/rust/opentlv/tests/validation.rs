@@ -151,7 +151,7 @@ fn read_returns_the_first_element_and_its_size() {
             .read(&[], &limits, Strictness::Canonical)
             .unwrap_err()
             .error,
-        Error::EndOfBuffer
+        Error::End
     );
 }
 

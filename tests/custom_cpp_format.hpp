@@ -13,12 +13,11 @@ struct custom_cpp_format {
     unsigned char                                    trailer = 0xA5;
     tlv::expected<tlv::decoded, tlv::format_failure> decode(tlv::bytes data) const noexcept {
         if (data.size() < 2)
-            return failure(tlv::errc::buffer_too_short, tlv::wire_region::header, data.size(), 2);
+            return failure(tlv::errc::truncated, tlv::wire_region::header, data.size(), 2);
         const size_t length = static_cast<unsigned char>(data[1]);
         const size_t total = length + 3;
         if (data.size() < total)
-            return failure(tlv::errc::buffer_too_short, tlv::wire_region::trailer, data.size(),
-                           total);
+            return failure(tlv::errc::truncated, tlv::wire_region::trailer, data.size(), total);
         if (static_cast<unsigned char>(data[total - 1]) != trailer)
             return failure(tlv::errc::invalid_value, tlv::wire_region::trailer, total - 1, total);
         tlv::source source{};

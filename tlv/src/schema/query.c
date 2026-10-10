@@ -42,7 +42,7 @@ tlv_result_t tlv_schema_query_validate_document(const tlv_document_t* document,
         for (;;) {
             tlv_node_t* node;
             rc = tlv_document_query_next(exec, &node);
-            if (rc == TLV_ERR_END_OF_BUFFER) break;
+            if (rc == TLV_END) break;
             if (rc != TLV_OK)
                 return query_failure(detail, rc, TLV_QUERY_ERROR_EVENTS,
                                      "valid Schema Query execution");
@@ -177,7 +177,7 @@ static tlv_result_t buffer_evaluate(const uint8_t* data, size_t size, const tlv_
          * materialize missing detail on failure, never on the successful event path. */
         if (diagnostic) original.diagnostic.code = TLV_OK;
         rc = tlv_tree_reader_next_event_diag(&reader, &event, diagnostic ? &original : NULL);
-        if (rc == TLV_ERR_END_OF_BUFFER) return tlv_query_exec_finish(exec, diagnostic);
+        if (rc == TLV_END) return tlv_query_exec_finish(exec, diagnostic);
         if (rc != TLV_OK) {
             if (diagnostic) {
                 if (original.diagnostic.code == TLV_OK) {
@@ -263,7 +263,7 @@ tlv_result_t tlv_schema_query_validate_buffer(const uint8_t* data, size_t size,
             tlv_tree_event_t event;
             size_t ordinal;
             rc = tlv_query_result_next_ordinal(exec, &event, &ordinal);
-            if (rc == TLV_ERR_END_OF_BUFFER) break;
+            if (rc == TLV_END) break;
             if (rc != TLV_OK)
                 return query_failure(detail, rc, TLV_QUERY_ERROR_EVENTS,
                                      "valid Schema Query execution");

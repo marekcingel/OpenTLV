@@ -21,7 +21,7 @@ typedef struct document_source {
 static tlv_result_t document_next(void* context, tlv_tree_event_t* event) {
     document_source_t* source = (document_source_t*)context;
     const tlv_node_t* node = source->next;
-    if (!node) return TLV_ERR_END_OF_BUFFER;
+    if (!node) return TLV_END;
     memset(event, 0, sizeof *event);
     event->depth = source->depth;
     if (source->closing) {

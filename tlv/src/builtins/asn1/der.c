@@ -15,7 +15,7 @@ static tlv_result_t der_read_tag(const void* context, const uint8_t* data, size_
     if ((!data && size) || !tag || !consumed) return TLV_ERR_NULL_ARG;
     rc = tlv_asn1_read_identifier(context, data, size, &parsed, &count);
     if (rc != TLV_OK) {
-        if (rc == TLV_ERR_BUFFER_TOO_SHORT) *consumed = count;
+        if (rc == TLV_ERR_TRUNCATED) *consumed = count;
         return rc;
     }
     /* Only tags up to 36 currently have assigned universal type semantics.
