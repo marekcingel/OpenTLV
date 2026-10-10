@@ -86,8 +86,8 @@ pre-initialization checks. Diagnostic-return comments do not waive that rule.
 ## Codes
 
 Codes are grouped by category: success, control statuses, invalid input data,
-invalid use of the API, resources and numeric ranges, capabilities, and
-callbacks. Numbers below describe this release. Before 1.0.0 they are not
+invalid use of the API, capacity, resources and numeric ranges, capabilities,
+and callbacks. Numbers below describe this release. Before 1.0.0 they are not
 stable ABI identifiers and may change to keep categories together.
 
 | Code | Value | Meaning | What to check |

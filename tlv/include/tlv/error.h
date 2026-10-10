@@ -30,7 +30,8 @@ extern "C" {
  * Which codes a function can return is documented on that function.
  *
  * Values are grouped by category: success, control statuses, invalid input data,
- * invalid use of the API, resources and ranges, capabilities, and callbacks.
+ * invalid use of the API, capacity, resources and numeric ranges, capabilities, and
+ * callbacks.
  *
  * @note Numeric values are release-specific before 1.0.0 and are not a stable ABI
  * numbering contract; they may change to keep categories together.
@@ -72,11 +73,11 @@ typedef enum tlv_result {
     TLV_ERR_INVALID_STATE = 12,
     /** A schema definition is invalid, independently of the input being validated. */
     TLV_ERR_INVALID_SCHEMA = 13,
+
+    /* Capacity, resources and numeric ranges. */
     /** Caller-supplied destination or workspace capacity is insufficient. Incomplete
        input is #TLV_ERR_TRUNCATED or #TLV_NEED_MORE_DATA instead. */
     TLV_ERR_BUFFER_TOO_SHORT = 14,
-
-    /* Resources and numeric ranges. */
     /** A configured depth, size, or element-count limit was exceeded. */
     TLV_ERR_LIMIT = 15,
     /** Unsigned value cannot fit the requested numeric width. */

@@ -148,28 +148,32 @@ impl error::Error for Error {}
 mod tests {
     use super::*;
 
-    const KNOWN: [(i32, Error); 21] = [
-        (1, Error::End),
-        (2, Error::NeedMoreData),
-        (3, Error::Truncated),
-        (4, Error::InvalidTag),
-        (5, Error::InvalidTagSize),
-        (6, Error::InvalidLength),
-        (7, Error::InvalidValue),
-        (8, Error::Syntax),
-        (9, Error::Schema),
-        (10, Error::NullArg),
-        (11, Error::InvalidArg),
-        (12, Error::InvalidState),
-        (13, Error::InvalidSchema),
-        (14, Error::BufferTooShort),
-        (15, Error::Limit),
-        (16, Error::Overflow),
-        (17, Error::NativeSize),
-        (18, Error::OutOfMemory),
-        (19, Error::Unsupported),
-        (20, Error::Visitor),
-        (21, Error::Callback),
+    const KNOWN: [(i32, Error, &str); 21] = [
+        (1, Error::End, "end of iteration"),
+        (2, Error::NeedMoreData, "need more data"),
+        (3, Error::Truncated, "truncated input"),
+        (4, Error::InvalidTag, "invalid tag"),
+        (5, Error::InvalidTagSize, "invalid tag size"),
+        (6, Error::InvalidLength, "invalid length encoding"),
+        (
+            7,
+            Error::InvalidValue,
+            "invalid data or application representation",
+        ),
+        (8, Error::Syntax, "syntax error"),
+        (9, Error::Schema, "schema constraint violated"),
+        (10, Error::NullArg, "null argument"),
+        (11, Error::InvalidArg, "invalid argument"),
+        (12, Error::InvalidState, "invalid state"),
+        (13, Error::InvalidSchema, "invalid schema definition"),
+        (14, Error::BufferTooShort, "buffer too short"),
+        (15, Error::Limit, "resource limit exceeded"),
+        (16, Error::Overflow, "numeric overflow"),
+        (17, Error::NativeSize, "native address space exceeded"),
+        (18, Error::OutOfMemory, "out of memory"),
+        (19, Error::Unsupported, "unsupported capability"),
+        (20, Error::Visitor, "visitor error"),
+        (21, Error::Callback, "callback contract violated"),
     ];
 
     #[test]
@@ -180,7 +184,7 @@ mod tests {
 
     #[test]
     fn every_known_code_round_trips() {
-        for (code, error) in KNOWN {
+        for (code, error, _) in KNOWN {
             assert_eq!(Error::from_code(code), Some(error));
             assert_eq!(error.code(), code);
             assert_eq!(Error::check(code), Err(error));
@@ -195,10 +199,9 @@ mod tests {
 
     #[test]
     fn display_uses_the_c_description() {
-        for (_, error) in KNOWN {
-            let text = error.to_string();
-            assert!(!text.is_empty());
-            assert_ne!(text, "unknown error", "{error:?}");
+        // Exact C texts catch a sys constant that drifted to another result.
+        for (_, error, text) in KNOWN {
+            assert_eq!(error.to_string(), text, "{error:?}");
         }
         assert_eq!(Error::Unknown(999).to_string(), "unknown error");
     }

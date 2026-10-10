@@ -55,6 +55,9 @@ extern "C" {
 /* Canonical program-lifetime descriptions for native and facade-originated failures. */
 OPENTLV_WASM_API const char* opentlv_wasm_strerror(int code);
 OPENTLV_WASM_API const char* opentlv_wasm_query_error_kind_string(int kind);
+/* Program-lifetime JSON {"result":{NAME:code},"query_error":{NAME:kind}} taken from the C
+ * enums, so JavaScript never hard-codes result values; NULL on allocation failure. */
+OPENTLV_WASM_API const char* opentlv_wasm_constants(void);
 
 /* Opaque parse result; release it with opentlv_wasm_result_free(). */
 typedef struct opentlv_wasm_result opentlv_wasm_result_t;

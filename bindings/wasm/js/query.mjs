@@ -5,10 +5,14 @@ export function queryFacade(wasm) {
   const encoder = new TextEncoder();
   const decoder = new TextDecoder("utf-8", { fatal: true });
   const types = Object.freeze({ integer: 2, bytes: 3, string: 4 });
-  // tlv_result_t values from tlv/error.h. TLV_ERR_INVALID_STATE always reports
-  // the Query STATE category.
-  const END = 1, INVALID_TAG = 4, INVALID_ARG = 11, INVALID_STATE = 12, BUFFER_TOO_SHORT = 14,
-    CALLBACK = 21, QUERY_ERROR_STATE = 12;
+  // Result and Query error values come from the C enums, never hard-coded
+  // numbers. TLV_ERR_INVALID_STATE always reports the Query STATE category.
+  const constantsPointer = wasm._opentlv_wasm_constants();
+  if (!constantsPointer) throw new Error("out of memory");
+  const constants = JSON.parse(wasm.UTF8ToString(constantsPointer));
+  const { END, INVALID_TAG, INVALID_ARG, INVALID_STATE, BUFFER_TOO_SHORT, OUT_OF_MEMORY, UNSUPPORTED,
+    CALLBACK } = constants.result;
+  const QUERY_ERROR_STATE = constants.query_error.STATE;
   class QueryError extends Error {
     constructor(code, query = {}, applied = 0, rule = null, schema = null, location = { domain: "unknown", kind: "unknown" }, message = null) {
       super(message ?? wasm.UTF8ToString(wasm._opentlv_wasm_strerror(code)));
@@ -25,7 +29,7 @@ export function queryFacade(wasm) {
   }
   function check(code) { if (code) throw new QueryError(code); }
   function response(pointer, allowEnd = false) {
-    if (!pointer) throw new QueryError(4);
+    if (!pointer) throw new QueryError(OUT_OF_MEMORY);
     const reply = JSON.parse(wasm.UTF8ToString(pointer));
     for (const reader of [reply.query?.reader, reply.query?.codec_detail?.reader]) {
       if (!reader) continue;
@@ -58,7 +62,7 @@ export function queryFacade(wasm) {
   }
   function temporary(data, run) {
     const pointer = wasm._opentlv_wasm_alloc(data.length);
-    if (!pointer) throw new QueryError(4);
+    if (!pointer) throw new QueryError(OUT_OF_MEMORY);
     try { wasm.HEAPU8.set(data, pointer); return run(pointer); }
     finally { wasm._opentlv_wasm_free(pointer); }
   }
@@ -84,7 +88,7 @@ export function queryFacade(wasm) {
     try {
       for (const item of data) {
         const pointer = wasm._opentlv_wasm_alloc(item.length);
-        if (!pointer) throw new QueryError(4);
+        if (!pointer) throw new QueryError(OUT_OF_MEMORY);
         allocated.push(pointer);
         wasm.HEAPU8.set(item, pointer);
       }
@@ -115,7 +119,7 @@ export function queryFacade(wasm) {
     return (scope, name) => {
       if (scope) return table.get(JSON.stringify([scope, name]))?.slice() ?? null;
       const matches = [...table].filter(([key]) => JSON.parse(key)[1] === name);
-      if (matches.length > 1) throw new QueryError(10);
+      if (matches.length > 1) throw new QueryError(INVALID_ARG);
       return matches[0]?.[1].slice() ?? null;
     };
   }
@@ -137,7 +141,7 @@ export function queryFacade(wasm) {
           !["value", "tag-and-value"].includes(length_scope)) throw new TypeError("invalid Fixed configuration");
       this._pointer = temporary(string(name), pointer => wasm._opentlv_wasm_format_new(pointer,
         size(tag_size), size(length_size), Number(byte_order === "big"), Number(element_order === "ltv"), Number(length_scope === "tag-and-value")));
-      if (!this._pointer) throw new QueryError(15);
+      if (!this._pointer) throw new QueryError(UNSUPPORTED);
       this._callbacks = []; this._references = 1; this._active = false; this._failed = false; this._error = null;
       const owner = this._pointer;
       const callback = (fn, signature) => {
@@ -206,7 +210,7 @@ export function queryFacade(wasm) {
       this._formatOwner._retain();
       this._pointer = wasm._opentlv_wasm_program_with_format(this._formatOwner._pointer);
       if (ownFormat) this._formatOwner.close();
-      if (!this._pointer) { this._formatOwner._release(); throw new QueryError(15); }
+      if (!this._pointer) { this._formatOwner._release(); throw new QueryError(UNSUPPORTED); }
       this._callbacks = [];
       this._references = 1;
       this._providerActive = false;
@@ -356,7 +360,7 @@ export function queryFacade(wasm) {
       if (typeof text !== "string") throw new TypeError("Query text required");
       const input = encoder.encode(text);
       this._pointer = temporary(input, pointer => wasm._opentlv_wasm_v1_new(pointer, input.length));
-      if (!this._pointer) throw new QueryError(4);
+      if (!this._pointer) throw new QueryError(OUT_OF_MEMORY);
       try { this._operation(0); } catch (error) { this.close(); throw error; }
     }
     _operation(operation, tag = new Uint8Array(), depth = 0) {
