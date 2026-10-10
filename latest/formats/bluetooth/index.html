@@ -4098,7 +4098,7 @@ After reading the Tx Power element, for example:</p>
 <a id="__codelineno-0-7" name="__codelineno-0-7" href="#__codelineno-0-7"></a><span class="w">    </span><span class="n">tlv_result_t</span><span class="w"> </span><span class="n">result</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">tlv_codec_decode</span><span class="p">(</span>
 <a id="__codelineno-0-8" name="__codelineno-0-8" href="#__codelineno-0-8"></a><span class="w">        </span><span class="o">&amp;</span><span class="n">tlv_bluetooth_ad_codec_tx_power</span><span class="p">,</span><span class="w"> </span><span class="n">element</span><span class="p">.</span><span class="n">value</span><span class="p">.</span><span class="n">data</span><span class="p">,</span><span class="w"> </span><span class="n">length</span><span class="p">,</span>
 <a id="__codelineno-0-9" name="__codelineno-0-9" href="#__codelineno-0-9"></a><span class="w">        </span><span class="o">&amp;</span><span class="n">dbm</span><span class="p">,</span><span class="w"> </span><span class="k">sizeof</span><span class="p">(</span><span class="n">dbm</span><span class="p">),</span><span class="w"> </span><span class="nb">NULL</span><span class="p">);</span>
-<a id="__codelineno-0-10" name="__codelineno-0-10" href="#__codelineno-0-10"></a><span class="w">    </span><span class="cm">/* On success dbm is -4; otherwise tlv_strerror(result) describes the error. */</span>
+<a id="__codelineno-0-10" name="__codelineno-0-10" href="#__codelineno-0-10"></a><span class="w">    </span><span class="cm">/* On success dbm is -4; otherwise tlv_result_string(result) describes the error. */</span>
 <a id="__codelineno-0-11" name="__codelineno-0-11" href="#__codelineno-0-11"></a><span class="w">    </span><span class="p">(</span><span class="kt">void</span><span class="p">)</span><span class="n">result</span><span class="p">;</span>
 <a id="__codelineno-0-12" name="__codelineno-0-12" href="#__codelineno-0-12"></a><span class="p">}</span>
 </code></pre></div>
@@ -4110,7 +4110,7 @@ borrowed pointer. Accepted bytes round-trip exactly.</p>
 <p>Malformed values (including invalid UTF-8, non-minimal Flags and invalid Tx
 Power) report <code>TLV_ERR_INVALID_VALUE</code>. Missing pointers report
 <code>TLV_ERR_NULL_ARG</code>, and insufficient output capacity reports
-<code>TLV_ERR_BUFFER_TOO_SHORT</code>. <code>tlv_strerror()</code> provides readable
+<code>TLV_ERR_BUFFER_TOO_SHORT</code>. <code>tlv_result_string()</code> provides readable
 diagnostics; these are distinct from framing and schema errors. Applications
 can retain the parsed tag and source offset alongside a codec error.</p>
 <p>UUID lists, Service Data and Manufacturer Specific Data use the separate

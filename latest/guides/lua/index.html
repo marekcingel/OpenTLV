@@ -4065,7 +4065,7 @@ DER depths may be up to 64. Limits must be nonnegative integers representable by
 <p>Every reading or traversal failure raises a table (via Lua's <code>error()</code>) with
 a <code>code</code> (the raw <code>tlv_result_t</code> value, also available named under
 <code>opentlv.errors</code>, for example <code>opentlv.errors.TRUNCATED</code>) and a
-<code>message</code> (the C <code>tlv_strerror()</code> text); <code>tostring()</code> on it formats both
+<code>message</code> (the C <code>tlv_result_string()</code> text); <code>tostring()</code> on it formats both
 together. When the C API reports structured diagnostic detail for the
 failure, <code>offset</code>, <code>expected</code>, <code>actual</code>, <code>operation</code> and <code>tag</code> carry it;
 fields the failure does not report are absent, so check with <code>err.offset</code>
@@ -4296,7 +4296,7 @@ failures. Lua argument/type errors and allocation failures raise Lua errors.</p>
 <p>Schema reports, Reader and Writer use the same common native diagnostic
 conversion. Tables own their strings and remain valid after the input,
 Schema or Reader/Writer is collected. Common fields are <code>code</code>, <code>message</code>
-(from <code>tlv_strerror()</code>), and <code>severity</code> (<code>"error"</code>, <code>"warning"</code>, <code>"info"</code>).
+(from <code>tlv_result_string()</code>), and <code>severity</code> (<code>"error"</code>, <code>"warning"</code>, <code>"info"</code>).
 <code>offset</code>, <code>expected</code>, <code>actual</code>, <code>path</code> and <code>contexts</code> appear only when supplied
 by C. Offsets remain zero-based bytes, independent of Lua array indexing.
 <code>contexts</code> is an array of <code>{layer, key, value}</code> tables in native order.</p>
@@ -4493,7 +4493,7 @@ expiration_month, service_code, discretionary_data}</code>. This selection occur
 before conversion, and does not add codec metadata to generic Definition.</p>
 <h3 id="errors-and-custom-codecs">Errors and custom codecs<a class="headerlink" href="#errors-and-custom-codecs" title="Permanent link">&para;</a></h3>
 <p>C codec failures raise an <code>opentlv.Error</code> table with the shared <code>tlv.errors</code>
-<code>code</code> and a <code>message</code> from <code>tlv_strerror()</code>. Optional <code>codec_detail</code> retains
+<code>code</code> and a <code>message</code> from <code>tlv_result_string()</code>. Optional <code>codec_detail</code> retains
 operation, reported result, callback violation and delegated cause. The old
 <code>codec_errors</code> and <code>codec_strerror</code> APIs have been removed.
 No source offset or Tag is invented for a Value-only operation. Incorrect

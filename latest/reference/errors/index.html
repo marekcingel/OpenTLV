@@ -3873,9 +3873,9 @@ Schema classification (#553), resource/callback classification (#554), locations
 Document lookup failure channels (#557), and the <code>END</code>, <code>TRUNCATED</code> and
 <code>SYNTAX</code> results (#578). The tables below describe the current
 codes, not target names still awaiting implementation.</p>
-<p>Core and Codec operations return the shared <code>tlv_result_t</code> from <code>tlv/error.h</code>. Zero is success. <code>TLV_END</code> (normal end
+<p>Core and Codec operations return the shared <code>tlv_result_t</code> from <code>tlv/result.h</code>. Zero is success. <code>TLV_END</code> (normal end
 of iteration) and <code>TLV_NEED_MORE_DATA</code> (resumable non-final input) are control
-statuses, not failures; every other nonzero result is a failure. <code>tlv_strerror</code> returns a static, readable
+statuses, not failures; every other nonzero result is a failure. <code>tlv_result_string</code> returns a static, readable
 description of any code and <code>"unknown error"</code> for an unrecognized one; never free or
 modify the string. The Rust <code>Error</code> type maps every <code>TLV_ERR_*</code> code.</p>
 <p>Unless a function says otherwise, an error leaves its output parameters unchanged. A
@@ -4238,7 +4238,7 @@ These functions remain available with the processing capabilities disabled.</p>
 </tr>
 </tbody>
 </table>
-<p><code>tlv_strerror()</code> separately describes results, with <code>"unknown error"</code> as its
+<p><code>tlv_result_string()</code> separately describes results, with <code>"unknown error"</code> as its
 fallback. Enum-name strings describe detail; they do not replace result codes.</p>
 <h2 id="lookup-and-pointer-returning-apis">Lookup and pointer-returning APIs<a class="headerlink" href="#lookup-and-pointer-returning-apis" title="Permanent link">&para;</a></h2>
 <p><code>tlv_document_find_path(document, query, &amp;node)</code> returns <code>TLV_OK</code> with the first
@@ -4303,7 +4303,7 @@ none performs a delegated fallible traversal or allocation:</p>
 <td>Non-NULL static build metadata; no prerelease is an empty string, unavailable Git metadata uses <code>"unknown"</code>.</td>
 </tr>
 <tr>
-<td>Diagnostic name functions, <code>tlv_strerror()</code>, <code>tlv_emv_value_kind_description()</code></td>
+<td>Diagnostic name functions, <code>tlv_result_string()</code>, <code>tlv_emv_value_kind_description()</code></td>
 <td>Non-NULL static text with the documented unknown-value fallback.</td>
 </tr>
 </tbody>

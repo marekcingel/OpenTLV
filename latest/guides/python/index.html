@@ -4033,7 +4033,7 @@ including a malformed query and a query with no match
 one per C <code>TLV_ERR_*</code> code (<code>TruncatedError</code>, <code>BufferTooShortError</code>,
 <code>InvalidLengthError</code>, <code>SchemaError</code>, and so on), so callers can catch a specific error type or the
 base class. <code>OpenTLVError.code</code> is the raw result code, and <code>str(error)</code> is
-the C <code>tlv_strerror</code> text. When the C API reports structured diagnostic
+the C <code>tlv_result_string</code> text. When the C API reports structured diagnostic
 detail for the failure, <code>offset</code>, <code>expected</code>, <code>actual</code>, <code>operation</code> and <code>tag</code>
 carry it, for both a <code>Reader</code> and a <code>Writer</code> failure; <code>length</code>, <code>required</code>
 and <code>available</code> carry buffer bounds (<code>length</code> is Writer-only).

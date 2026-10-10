@@ -3846,7 +3846,7 @@ structures such as <code>DocumentError</code> and <code>WriterError</code>. Ther
 <code>unsafe</code> in caller code.</p>
 <ul>
 <li><code>Error</code> has one variant per C <code>TLV_ERR_*</code> code and implements
-  <code>std::error::Error</code> and <code>Display</code> (the text comes from C <code>tlv_strerror</code>), so
+  <code>std::error::Error</code> and <code>Display</code> (the text comes from C <code>tlv_result_string</code>), so
   it works with <code>?</code> and <code>Box&lt;dyn Error&gt;</code>. It is <code>#[non_exhaustive]</code>: a code from
   a newer C library becomes <code>Error::Unknown(code)</code>, and <code>code()</code> returns the raw
   value.</li>

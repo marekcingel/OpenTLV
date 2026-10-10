@@ -3818,7 +3818,7 @@ entire supplied value. Empty decode input may be <code>NULL, 0</code>; the repre
 pointer is always required. Input and output must not overlap unless the codec
 supports it. On failure destination contents are unspecified and encode's
 <code>written</code> is zero. The descriptor, context, and buffers remain caller-owned.</p>
-<p>Codec operations use the same <code>tlv_result_t</code> and <code>tlv_strerror()</code> as Reader,
+<p>Codec operations use the same <code>tlv_result_t</code> and <code>tlv_result_string()</code> as Reader,
 Writer and Query. Their final argument is an optional <code>tlv_codec_diagnostic_t*</code>;
 pass <code>NULL</code> when evidence is not needed. Callbacks receive the same optional
 output. Preserve lower-layer results and evidence, and keep borrowed descriptions,

@@ -4004,7 +4004,7 @@ length bytes, in the order <code>element_order</code> selects, followed by the v
 <a id="__codelineno-2-14" name="__codelineno-2-14" href="#__codelineno-2-14"></a><span class="cp">    do {                                                                                           \</span>
 <a id="__codelineno-2-15" name="__codelineno-2-15" href="#__codelineno-2-15"></a><span class="cp">        tlv_result_t rc_ = (call);                                                                 \</span>
 <a id="__codelineno-2-16" name="__codelineno-2-16" href="#__codelineno-2-16"></a><span class="cp">        if (rc_ != TLV_OK) {                                                                       \</span>
-<a id="__codelineno-2-17" name="__codelineno-2-17" href="#__codelineno-2-17"></a><span class="cp">            fprintf(stderr, "%s: %s\n", #call, tlv_strerror(rc_));                                 \</span>
+<a id="__codelineno-2-17" name="__codelineno-2-17" href="#__codelineno-2-17"></a><span class="cp">            fprintf(stderr, "%s: %s\n", #call, tlv_result_string(rc_));                            \</span>
 <a id="__codelineno-2-18" name="__codelineno-2-18" href="#__codelineno-2-18"></a><span class="cp">            return 1;                                                                              \</span>
 <a id="__codelineno-2-19" name="__codelineno-2-19" href="#__codelineno-2-19"></a><span class="cp">        }                                                                                          \</span>
 <a id="__codelineno-2-20" name="__codelineno-2-20" href="#__codelineno-2-20"></a><span class="cp">    } while (0)</span>
