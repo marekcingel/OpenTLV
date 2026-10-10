@@ -513,7 +513,7 @@ TEST(Unit_Tlv_QueryF2, ProviderTextResultDiagnostics) {
 }
 
 TEST(Unit_Tlv_QueryF2, ConversionPreservesSharedFailuresAndRelatedExpression) {
-    ASSERT_STREQ(tlv_strerror(unknown_result), "unknown error");
+    ASSERT_STREQ(tlv_result_string(unknown_result), "unknown error");
     for (const auto status :
          {TLV_ERR_LIMIT, TLV_ERR_SCHEMA, TLV_ERR_INVALID_SCHEMA, TLV_ERR_BUFFER_TOO_SHORT,
           TLV_NEED_MORE_DATA, TLV_END, unknown_result}) {

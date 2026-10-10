@@ -29,7 +29,7 @@ TEST(Unit_Tlv_Incremental, EmptyOpenInputRequiresDataUntilExplicitEof) {
     EXPECT_TRUE(tlv_reader_at_end(&reader));
     EXPECT_EQ(TLV_END, tlv_reader_next(&reader, &element));
     EXPECT_EQ(TLV_ERR_INVALID_STATE, tlv_reader_set_input(&reader, nullptr, 0, 0, 0));
-    EXPECT_STREQ("need more data", tlv_strerror(TLV_NEED_MORE_DATA));
+    EXPECT_STREQ("need more data", tlv_result_string(TLV_NEED_MORE_DATA));
 }
 
 TEST(Unit_Tlv_Incremental, EverySplitResumesWithoutPublishingPartialOutput) {

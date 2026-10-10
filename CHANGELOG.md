@@ -126,6 +126,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Changed
 
+- **Breaking:** Rename `tlv/error.h` to `tlv/result.h` and `tlv_strerror()` to `tlv_result_string()`, so the header and text function match `tlv_result_t` and the `tlv_<enum>_string()` convention; the contract and the result names are unchanged. No compatibility header or alias is provided; update includes and calls, and rebuild native consumers. (#580)
 - `TLV_ERR_BUFFER_TOO_SHORT` belongs to the capacity, resources and numeric ranges category; values are unchanged. (#578)
 - **Breaking:** Renumber `tlv_result_t` by category: success, control statuses (`END`, `NEED_MORE_DATA`), invalid input data, invalid API use, resources and ranges, capabilities, and callbacks. Rebuild native consumers; bindings use the new values. (#578)
 - **Breaking:** Query evaluation reports function argument type and arity mismatches as `INVALID_VALUE` with kind `TYPE` instead of `INVALID_ARG` with `SYNTAX`; an out-of-range integer literal keeps `OVERFLOW` with kind `TYPE`, and a non-digit in a literal reports `SYNTAX`. (#578)

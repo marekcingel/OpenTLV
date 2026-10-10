@@ -70,7 +70,7 @@ TEST(Integration_Tlv_BluetoothAdCodec, InvalidSemanticValueRemainsAvailableAfter
     const auto result = tlv_codec_decode(&tlv_bluetooth_ad_codec_tx_power, element.value.data, 1,
                                          &power, sizeof(power), NULL);
     EXPECT_EQ(TLV_ERR_INVALID_VALUE, result);
-    EXPECT_STREQ("invalid data or application representation", tlv_strerror(result));
+    EXPECT_STREQ("invalid data or application representation", tlv_result_string(result));
     EXPECT_EQ(wire + 2, element.value.data);
     EXPECT_EQ(0x80, element.value.data[0]);
     EXPECT_EQ(1u, element.value.size);

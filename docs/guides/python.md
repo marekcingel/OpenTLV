@@ -243,7 +243,7 @@ Every reading or writing failure raises a subclass of `opentlv.OpenTLVError`,
 one per C `TLV_ERR_*` code (`TruncatedError`, `BufferTooShortError`,
 `InvalidLengthError`, `SchemaError`, and so on), so callers can catch a specific error type or the
 base class. `OpenTLVError.code` is the raw result code, and `str(error)` is
-the C `tlv_strerror` text. When the C API reports structured diagnostic
+the C `tlv_result_string` text. When the C API reports structured diagnostic
 detail for the failure, `offset`, `expected`, `actual`, `operation` and `tag`
 carry it, for both a `Reader` and a `Writer` failure; `length`, `required`
 and `available` carry buffer bounds (`length` is Writer-only).

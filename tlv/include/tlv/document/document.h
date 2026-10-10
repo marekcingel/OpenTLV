@@ -5,7 +5,7 @@
 #define OPENTLV_DOCUMENT_H
 
 #include "tlv/export.h"
-#include "tlv/error.h"
+#include "tlv/result.h"
 #include "tlv/format.h"
 #include "tlv/config.h"
 #if OPENTLV_QUERY

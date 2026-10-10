@@ -17,7 +17,7 @@ static tlv_result_t failure(tlv_schema_diagnostic_t* diagnostic, tlv_result_t rc
         }
         if (rc == TLV_ERR_SCHEMA) diagnostic->kind = TLV_SCHEMA_ISSUE_UNEXPECTED;
         diagnostic->diagnostic.expected = expected;
-        diagnostic->diagnostic.actual = tlv_strerror(rc);
+        diagnostic->diagnostic.actual = tlv_result_string(rc);
     }
     return rc;
 }

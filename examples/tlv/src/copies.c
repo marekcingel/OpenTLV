@@ -19,7 +19,7 @@
     do {                                                                                           \
         tlv_result_t rc_ = (call);                                                                 \
         if (rc_ != TLV_OK) {                                                                       \
-            fprintf(stderr, "%s: %s\n", #call, tlv_strerror(rc_));                                 \
+            fprintf(stderr, "%s: %s\n", #call, tlv_result_string(rc_));                            \
             return 1;                                                                              \
         }                                                                                          \
     } while (0)
@@ -59,7 +59,7 @@ int main(void) {
     printf("Required value storage: %zu bytes\n", required);
     result = tlv_copy_value(&element, owned, 1, &written);
     if (result != TLV_ERR_BUFFER_TOO_SHORT) return 1;
-    printf("Expected capacity error: %s\n", tlv_strerror(result));
+    printf("Expected capacity error: %s\n", tlv_result_string(result));
     CHECK(tlv_copy_value(&element, owned, sizeof(owned), &written));
 
     CHECK(tlv_copy_encoded(input, consumed, NULL, 0, &required));

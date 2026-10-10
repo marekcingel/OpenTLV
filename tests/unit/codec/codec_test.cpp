@@ -128,12 +128,13 @@ TEST(Unit_Tlv_Codec, InvalidArgumentsAndUnsupportedDirections) {
     EXPECT_EQ(tlv_codec_encode(&empty, &value, sizeof(value), nullptr, 0, &written, NULL),
               TLV_ERR_UNSUPPORTED);
     EXPECT_EQ(written, 0u);
-    EXPECT_STREQ(tlv_strerror(TLV_ERR_INVALID_VALUE), "invalid data or application representation");
-    EXPECT_STREQ(tlv_strerror(unknown_result), "unknown error");
+    EXPECT_STREQ(tlv_result_string(TLV_ERR_INVALID_VALUE),
+                 "invalid data or application representation");
+    EXPECT_STREQ(tlv_result_string(unknown_result), "unknown error");
 }
 
 TEST(Unit_Tlv_Codec, SharedResultsAndCallbackEvidenceAreLossless) {
-    ASSERT_STREQ(tlv_strerror(unknown_result), "unknown error");
+    ASSERT_STREQ(tlv_result_string(unknown_result), "unknown error");
     for (int code = TLV_OK; code <= TLV_ERR_CALLBACK; ++code) {
         const auto  reported = static_cast<tlv_result_t>(code);
         tlv_codec_t codec = {

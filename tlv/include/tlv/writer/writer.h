@@ -4,7 +4,7 @@
 #ifndef OPENTLV_WRITER_H
 #define OPENTLV_WRITER_H
 
-#include "tlv/error.h"
+#include "tlv/result.h"
 #include "tlv/diagnostic.h"
 #include "tlv/format.h"
 #include "tlv/export.h"

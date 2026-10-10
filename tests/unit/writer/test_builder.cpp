@@ -217,7 +217,7 @@ TEST(Unit_Tlvpp_WriterBuilder, FirstErrorStopsWritingAndSkipsLaterCallbacks) {
     auto result = writer.finish();
     ASSERT_FALSE(result);
     EXPECT_EQ(TLV_ERR_BUFFER_TOO_SHORT, result.error().code);
-    EXPECT_STREQ(tlv_strerror(TLV_ERR_BUFFER_TOO_SHORT), result.error().message());
+    EXPECT_STREQ(tlv_result_string(TLV_ERR_BUFFER_TOO_SHORT), result.error().message());
     EXPECT_FALSE(called);
     EXPECT_EQ(3u, writer.size());
     EXPECT_EQ(3u, diagnostic.diagnostic.location.begin);

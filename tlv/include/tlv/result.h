@@ -1,8 +1,8 @@
 // SPDX-License-Identifier: MIT
 // Copyright (c) 2026 Marek Cingel
 
-#ifndef OPENTLV_ERROR_H
-#define OPENTLV_ERROR_H
+#ifndef OPENTLV_RESULT_H
+#define OPENTLV_RESULT_H
 
 #include "tlv/export.h"
 
@@ -35,7 +35,7 @@ extern "C" {
  *
  * @note Numeric values are release-specific before 1.0.0 and are not a stable ABI
  * numbering contract; they may change to keep categories together.
- * @see tlv_strerror
+ * @see tlv_result_string
  */
 typedef enum tlv_result {
     /** The operation succeeded. */
@@ -106,7 +106,7 @@ typedef enum tlv_result {
  * @return A static, NUL-terminated string, never `NULL`; an unrecognized
  *         value yields `"unknown error"`. The caller must not free or modify it.
  */
-TLV_API const char* tlv_strerror(tlv_result_t result);
+TLV_API const char* tlv_result_string(tlv_result_t result);
 
 #ifdef __cplusplus
 }
@@ -114,4 +114,4 @@ TLV_API const char* tlv_strerror(tlv_result_t result);
 
 /** @} */
 
-#endif /* OPENTLV_ERROR_H */
+#endif /* OPENTLV_RESULT_H */

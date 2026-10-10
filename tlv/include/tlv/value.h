@@ -4,7 +4,7 @@
 #ifndef OPENTLV_VALUE_H
 #define OPENTLV_VALUE_H
 
-#include "tlv/error.h"
+#include "tlv/result.h"
 #include "tlv/size.h"
 #include "tlv/export.h"
 #include <stdbool.h>

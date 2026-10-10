@@ -23,7 +23,7 @@
 #include <tlv/codec/codec.h>
 #include <tlv/codec/number.h>
 #include <tlv/document/document.h>
-#include <tlv/error.h>
+#include <tlv/result.h>
 #include <tlv/definition.h>
 #include <tlv/size.h>
 #include <tlv/query/query.h>
@@ -45,7 +45,7 @@ static PyObject* _opentlv_strerror(PyObject* module, PyObject* args) {
     if (!PyArg_ParseTuple(args, "i", &code)) {
         return NULL;
     }
-    return PyUnicode_FromString(tlv_strerror((tlv_result_t)code));
+    return PyUnicode_FromString(tlv_result_string((tlv_result_t)code));
 }
 
 /* Sets dict[key] = value, or leaves an exception set and returns -1 if
@@ -2118,7 +2118,7 @@ PyMODINIT_FUNC PyInit__opentlv(void) {
         Py_DECREF(module);
         return NULL;
     }
-    /* Result codes come from tlv/error.h, so Python never hard-codes their numbers. */
+    /* Result codes come from tlv/result.h, so Python never hard-codes their numbers. */
     {
         static const struct {
             const char*  name;

@@ -4,7 +4,7 @@
 #ifndef OPENTLV_TAG_H
 #define OPENTLV_TAG_H
 
-#include "tlv/error.h"
+#include "tlv/result.h"
 #include "tlv/export.h"
 #include <stdbool.h>
 #include <stdint.h>

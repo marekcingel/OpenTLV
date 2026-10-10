@@ -5,7 +5,7 @@
 #define OPENTLV_ENDIAN_H
 
 #include "tlv/export.h"
-#include "tlv/error.h"
+#include "tlv/result.h"
 #include <stddef.h>
 #include <stdint.h>
 

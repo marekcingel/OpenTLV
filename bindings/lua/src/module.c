@@ -38,7 +38,7 @@
 #include "visitor.h"
 #include "writer.h"
 
-#include <tlv/error.h>
+#include <tlv/result.h>
 #include <tlv/version.h>
 
 static int l_version(lua_State* L) {
@@ -48,7 +48,7 @@ static int l_version(lua_State* L) {
 
 static int l_strerror(lua_State* L) {
     lua_Integer code = luaL_checkinteger(L, 1);
-    lua_pushstring(L, tlv_strerror((tlv_result_t)code));
+    lua_pushstring(L, tlv_result_string((tlv_result_t)code));
     return 1;
 }
 

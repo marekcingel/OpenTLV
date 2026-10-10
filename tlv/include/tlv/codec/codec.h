@@ -4,7 +4,7 @@
 #ifndef OPENTLV_CODEC_H
 #define OPENTLV_CODEC_H
 
-#include "tlv/error.h"
+#include "tlv/result.h"
 #include "tlv/codec/diagnostic.h"
 #include "tlv/export.h"
 #include <stddef.h>

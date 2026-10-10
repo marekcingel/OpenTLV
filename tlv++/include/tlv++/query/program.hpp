@@ -295,13 +295,13 @@ private:
 #if OPENTLV_QUERY_FRONTEND
         if (!explain) fn = tlv_query_program_format;
 #else
-        if (!explain) throw std::runtime_error(tlv_strerror(TLV_ERR_UNSUPPORTED));
+        if (!explain) throw std::runtime_error(tlv_result_string(TLV_ERR_UNSUPPORTED));
 #endif
         auto rc = fn(program_, nullptr, 0, &size);
-        if (rc != TLV_OK) throw std::runtime_error(tlv_strerror(rc));
+        if (rc != TLV_OK) throw std::runtime_error(tlv_result_string(rc));
         std::string out(size, '\0');
         rc = fn(program_, &out[0], size, &size);
-        if (rc != TLV_OK) throw std::runtime_error(tlv_strerror(rc));
+        if (rc != TLV_OK) throw std::runtime_error(tlv_result_string(rc));
         out.resize(size - 1);
         return out;
     }

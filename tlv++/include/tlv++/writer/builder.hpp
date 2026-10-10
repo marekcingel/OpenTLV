@@ -30,7 +30,7 @@ struct writer_failure {
     }
     /** @brief Borrow a static description; no allocation or ownership transfer. */
     const char* message() const noexcept {
-        return tlv_strerror(code);
+        return tlv_result_string(code);
     }
 };
 

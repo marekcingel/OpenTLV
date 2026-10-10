@@ -14,7 +14,7 @@ class BoundaryTests(unittest.TestCase):
         return [item["symbol"] for item in violations("consumer.cpp", source)]
 
     def test_comments_and_strings_do_not_create_dependencies(self):
-        self.assertEqual([], self.symbols('''// #include <tlv/error.h>
+        self.assertEqual([], self.symbols('''// #include <tlv/result.h>
 /* tlv_reader_next(); TLV_OK; */
 const char* text = R"note(tlv::native and TLV_OK)note";
 const char* quoted = "tlv_reader_t";
@@ -29,11 +29,11 @@ const char* quoted = "tlv_reader_t";
 '''))
 
     def test_include_text_inside_raw_strings_is_not_a_header(self):
-        self.assertEqual(["tlv/error.h"], self.symbols('''const char* sample = R"sample(
+        self.assertEqual(["tlv/result.h"], self.symbols('''const char* sample = R"sample(
 #include "tlv/reader/reader.h"
 )sample";
 const char* comment_text = "/*";
-#include "tlv/error.h"
+#include "tlv/result.h"
 '''))
 
     def test_native_tokens_and_spaced_namespaces_are_rejected(self):
@@ -87,9 +87,9 @@ class BaselineTests(unittest.TestCase):
                          [item["symbol"] for item in failures])
 
     def test_new_native_headers_in_interop_files_are_rejected(self):
-        self.source('#include <tlv++/tlv.hpp>\n#include <tlv/error.h>\nTLV_OK;')
+        self.source('#include <tlv++/tlv.hpp>\n#include <tlv/result.h>\nTLV_OK;')
         failures = audit(self.root, self.baseline(TLV_OK=1))
-        self.assertEqual(["tlv/error.h"], [item["symbol"] for item in failures])
+        self.assertEqual(["tlv/result.h"], [item["symbol"] for item in failures])
 
     def test_reduced_and_removed_symbols_make_budgets_stale(self):
         self.source('#include <tlv++/tlv.hpp>\nTLV_OK;')
@@ -98,7 +98,7 @@ class BaselineTests(unittest.TestCase):
         self.assertEqual(["TLV_OK", "TLV_ERR_LIMIT"], [item["symbol"] for item in failures])
 
     def test_missing_or_no_longer_facade_consumer_has_stale_baseline(self):
-        for source in (None, '#include <tlv/error.h>\nTLV_OK;',
+        for source in (None, '#include <tlv/result.h>\nTLV_OK;',
                        '// #include <tlv++/tlv.hpp>\nTLV_OK;'):
             with self.subTest(source=source):
                 if source is not None:

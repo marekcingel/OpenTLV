@@ -4,7 +4,7 @@
 #ifndef OPENTLV_QUERY_H
 #define OPENTLV_QUERY_H
 
-#include "tlv/error.h"
+#include "tlv/result.h"
 #include "tlv/diagnostic.h"
 #include "tlv/config.h"
 #include "tlv/tree.h"

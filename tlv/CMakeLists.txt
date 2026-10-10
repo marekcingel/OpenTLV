@@ -27,7 +27,7 @@ add_library(${PROJECT_NAME} ${_tlv_library_type}
     src/size.c
     src/value.c
     src/utf8_internal.c
-    src/error.c
+    src/result.c
     ${OpenTLV_BINARY_DIR}/generated/src/version.c
     ${OpenTLV_BINARY_DIR}/generated/src/config.c
 )

@@ -4,7 +4,7 @@
 #ifndef OPENTLV_BUILTINS_ASN1_DER_SCHEMA_H
 #define OPENTLV_BUILTINS_ASN1_DER_SCHEMA_H
 
-#include "tlv/error.h"
+#include "tlv/result.h"
 #include "tlv/builtins/asn1/der_validation.h"
 #include "tlv/builtins/asn1/der.h"
 #include "tlv/schema/constraint.h"

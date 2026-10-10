@@ -4,7 +4,7 @@
 #ifndef OPENTLV_COPY_H
 #define OPENTLV_COPY_H
 
-#include "tlv/error.h"
+#include "tlv/result.h"
 #include "tlv/config.h"
 #include "tlv/element.h"
 #include "tlv/format.h"

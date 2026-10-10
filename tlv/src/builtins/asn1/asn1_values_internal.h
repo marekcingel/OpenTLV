@@ -3,7 +3,7 @@
 
 #ifndef OPENTLV_ASN1_VALUES_INTERNAL_H
 #define OPENTLV_ASN1_VALUES_INTERNAL_H
-#include "tlv/error.h"
+#include "tlv/result.h"
 #include "../../utf8_internal.h"
 #include <stdint.h>
 #include <stddef.h>

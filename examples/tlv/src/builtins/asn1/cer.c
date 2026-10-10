@@ -17,7 +17,7 @@
     do {                                                                                           \
         tlv_result_t rc_ = (call);                                                                 \
         if (rc_ != TLV_OK) {                                                                       \
-            fprintf(stderr, "%s: %s\n", #call, tlv_strerror(rc_));                                 \
+            fprintf(stderr, "%s: %s\n", #call, tlv_result_string(rc_));                            \
             return 1;                                                                              \
         }                                                                                          \
     } while (0)

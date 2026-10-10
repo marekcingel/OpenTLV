@@ -4,7 +4,7 @@
 #ifndef OPENTLV_BUILTINS_ASN1_BER_H
 #define OPENTLV_BUILTINS_ASN1_BER_H
 
-#include "tlv/error.h"
+#include "tlv/result.h"
 #include "tlv/config.h"
 #if OPENTLV_WRITER
 #include "tlv/writer/writer.h"

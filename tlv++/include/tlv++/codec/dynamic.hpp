@@ -82,7 +82,7 @@ struct codec_failure {
     }
     /** @brief Canonical static description. */
     const char* message() const noexcept {
-        return tlv_strerror(code);
+        return tlv_result_string(code);
     }
     /** @brief Project common metadata while this object retains complete typed evidence. */
     error failure() const noexcept {

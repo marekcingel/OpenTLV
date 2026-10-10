@@ -4,7 +4,7 @@
 #ifndef OPENTLV_CALLBACK_INTERNAL_H
 #define OPENTLV_CALLBACK_INTERNAL_H
 
-#include "tlv/error.h"
+#include "tlv/result.h"
 
 /* Callback control statuses are opt-in. Ordinary provider failures retain
  * their identity; an unknown discriminator is a provider contract defect. */
