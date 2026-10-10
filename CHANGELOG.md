@@ -9,6 +9,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Fixed
 
+- Match the documented fixed-format example block to its source after the `tlv_result_string()` rename. (#580)
 - JS/WASM Query takes result codes from C (`opentlv_wasm_constants()`) instead of hard-coded numbers, so its own errors report the renumbered codes. (#578)
 - Document `TLV_ERR_SYNTAX` for invalid tokens returned by `tlv_query_compile_scratch()`. (#578)
 - Fix the Callgrind comparison build by detecting Reader EOF with `tlv_reader_at_end()`, so the shared workload harness compiles against both the baseline and candidate result codes. (#578)
