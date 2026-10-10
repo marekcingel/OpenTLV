@@ -82,9 +82,9 @@ TEST(Unit_Tlv, WriterRejectsUnsupportedTagSizesWithoutWriting) {
     EXPECT_EQ(TLV_ERR_NULL_ARG, tlv_writer_write(&writer, tlv_tag(nullptr, 1), nullptr, 0));
     EXPECT_EQ(0u, tlv_writer_size(&writer));
     for (uint8_t byte : buf) EXPECT_EQ(0xAA, byte);
-    EXPECT_EQ(12, TLV_ERR_SYNTAX);
+    EXPECT_EQ(8, TLV_ERR_SYNTAX);
     EXPECT_STREQ("syntax error", tlv_strerror(TLV_ERR_SYNTAX));
-    EXPECT_EQ(11, TLV_ERR_INVALID_TAG_SIZE);
+    EXPECT_EQ(5, TLV_ERR_INVALID_TAG_SIZE);
     EXPECT_STREQ("invalid tag size", tlv_strerror(TLV_ERR_INVALID_TAG_SIZE));
     EXPECT_STREQ("invalid tag", tlv_strerror(TLV_ERR_INVALID_TAG));
 }

@@ -110,7 +110,11 @@ class InvalidTagSizeError(OpenTLVError):
 
 
 class InvalidSyntaxError(OpenTLVError):
-    """Text does not match the requested grammar, such as Query syntax."""
+    """Text does not match the requested grammar, such as Query syntax.
+
+    Mirrors ``TLV_ERR_SYNTAX`` (``Syntax``/``ErrSyntax``/``SYNTAX`` in the other
+    bindings); named to avoid shadowing Python's built-in ``SyntaxError``.
+    """
 
 
 class ValueOverflowError(OpenTLVError):

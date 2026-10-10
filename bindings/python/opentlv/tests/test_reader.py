@@ -1,6 +1,7 @@
 # SPDX-License-Identifier: MIT
 # Copyright (c) 2026 Marek Cingel
 
+import _opentlv as _native
 import pytest
 
 from opentlv import Format, TruncatedError, Element, InvalidLengthError, OpenTLVError, Reader, Tag
@@ -59,7 +60,7 @@ def test_truncated_value_raises_truncated_error_with_diagnostics():
     with pytest.raises(TruncatedError) as excinfo:
         next(reader)
     error = excinfo.value
-    assert error.code == 21
+    assert error.code == _native.RESULT_TRUNCATED
     assert error.operation == "value"
     assert error.offset == 2
     assert isinstance(error, OpenTLVError)

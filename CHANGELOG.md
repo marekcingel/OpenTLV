@@ -9,6 +9,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Fixed
 
+- Document `TLV_ERR_SYNTAX` for invalid tokens returned by `tlv_query_compile_scratch()`. (#578)
 - Fix the Callgrind comparison build by detecting Reader EOF with `tlv_reader_at_end()`, so the shared workload harness compiles against both the baseline and candidate result codes. (#578)
 - C++ `codec_registry::decode()` reports an unregistered Tag as `errc::unsupported` instead of `errc::invalid_length`. (#578)
 - Fix the diagnostic-return CI check for `tlv_schema_prepare()` by documenting its direct argument-error return. (#575)
@@ -124,6 +125,10 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Changed
 
+- **Breaking:** Renumber `tlv_result_t` by category: success, control statuses (`END`, `NEED_MORE_DATA`), invalid input data, invalid API use, resources and ranges, capabilities, and callbacks. Rebuild native consumers; bindings use the new values. (#578)
+- **Breaking:** Query evaluation reports function argument type and arity mismatches as `INVALID_VALUE` with kind `TYPE` instead of `INVALID_ARG` with `SYNTAX`; an out-of-range integer literal keeps `OVERFLOW` with kind `TYPE`, and a non-digit in a literal reports `SYNTAX`. (#578)
+- `tlv_fields_decode()` and `tlv_tagged_fields_decode()` report `BUFFER_TOO_SHORT` from a read callback or resolver as `CALLBACK` directly, not only through `tlv_format_decode()`. (#578)
+- `tlv_strerror(TLV_END)` reads "end of iteration". (#578)
 - Python takes result codes from the native module (`_opentlv.RESULT_*`) instead of hard-coded numbers. (#578)
 - **Breaking:** Add `TLV_END` (normal end of iteration, not a failure), `TLV_ERR_TRUNCATED` (final input ends inside an element) and `TLV_ERR_SYNTAX` (Query grammar). `TLV_ERR_BUFFER_TOO_SHORT` now means only destination or workspace capacity; Format decoders must report incomplete input as `TRUNCATED`. Unknown byte orders return `INVALID_ARG`. Bindings: C++ `errc::end`/`truncated`/`syntax`, Rust `Error::End`/`Truncated`/`Syntax`, Python `EndError`/`TruncatedError`/`InvalidSyntaxError`, Go `ErrEnd`/`ErrTruncated`/`ErrSyntax`, Lua `errors.END`/`TRUNCATED`/`SYNTAX`. (#578)
 - `tlv_schema_validate()` diagnostics carry the same tag, path, field name and expected-versus-actual detail as the first `tlv_schema_validate_all_diag()` entry. (#574)

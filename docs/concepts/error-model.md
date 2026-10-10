@@ -12,8 +12,9 @@ migration is separate work.** This page defines the target contract.
 `TLV_END`, `TLV_ERR_TRUNCATED`, `TLV_ERR_SYNTAX`, `TLV_ERR_INVALID_STATE`,
 `TLV_ERR_INVALID_SCHEMA`, `TLV_ERR_UNSUPPORTED` and `TLV_ERR_CALLBACK` are public,
 together with Query kinds `STATE`, `CALLBACK`, `TYPE` and `IMAGE`;
-`TLV_ERR_END_OF_BUFFER` and `TLV_ERR_INVALID_BYTE_ORDER` are removed. Other new target names are not yet public declarations. The reference page continues to describe the running
-implementation. This design does not preserve source, binary, enum-number or
+`TLV_ERR_END_OF_BUFFER` and `TLV_ERR_INVALID_BYTE_ORDER` are removed. Target
+names that are not yet declared, such as the Query kind `ARGUMENT`, appear only
+on this page; the reference page describes the running implementation. This design does not preserve source, binary, enum-number or
 diagnostic-layout compatibility. Removed names get no aliases, compatibility
 wrappers or deprecation period. Native consumers and bindings migrate together.
 
@@ -452,7 +453,7 @@ Issue #554 implements unsupported capability, workspace and callback classificat
 including impossible preorder depth returned by a Tree Writer source callback.
 Codec uses the shared result domain and lossless typed propagation as of #556;
 other Query detail kinds and the remaining result classes are follow-up work. No append-only or numeric ABI guarantee is attached to
-`INVALID_STATE = 19` or `STATE = 12`. The complete target API is not yet available.
+result or Query kind values; #578 regrouped `tlv_result_t` by category. The complete target API is not yet available.
 The follow-up implementation replaces enums/signatures/layouts directly and
 updates their Doxygen contracts. It must cover common result strings, all
 native producers, C++ facades, Go/Rust/Python/Lua/JS-WASM, CLI rendering and

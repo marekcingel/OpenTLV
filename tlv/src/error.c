@@ -18,7 +18,7 @@ const char* tlv_strerror(tlv_result_t result) {
         case TLV_ERR_INVALID_LENGTH: return "invalid length encoding";
         case TLV_ERR_NULL_ARG: return "null argument";
         case TLV_ERR_OUT_OF_MEMORY: return "out of memory";
-        case TLV_END: return "end";
+        case TLV_END: return "end of iteration";
         case TLV_ERR_INVALID_TAG_SIZE: return "invalid tag size";
         case TLV_ERR_INVALID_TAG: return "invalid tag";
         case TLV_ERR_VISITOR: return "visitor error";

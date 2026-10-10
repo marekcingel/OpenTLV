@@ -1,6 +1,7 @@
 # SPDX-License-Identifier: MIT
 # Copyright (c) 2026 Marek Cingel
 
+import _opentlv as _native
 import pytest
 
 from opentlv import codec, OpenTLVError
@@ -67,9 +68,9 @@ def test_codec_diagnostic_uses_shared_status_and_operation():
     from opentlv import NumberCodec, InvalidArgError, SchemaError, BufferTooShortError
     with pytest.raises(SchemaError) as failure:
         codec.decode_amount(b"bad")
-    assert failure.value.code == 9
+    assert failure.value.code == _native.RESULT_SCHEMA
     assert failure.value.codec_detail["operation"] == 0
-    assert failure.value.codec_detail["reported"] == 9
+    assert failure.value.codec_detail["reported"] == _native.RESULT_SCHEMA
     assert failure.value.codec_detail["cause"] == 2
     assert failure.value.codec_detail["schema"].length.actual == 3
     with pytest.raises(InvalidArgError) as failure:

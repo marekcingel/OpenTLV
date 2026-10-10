@@ -13,8 +13,7 @@ func document(t *testing.T, data []byte, f opentlv.Format) *opentlv.Document {
 	t.Helper()
 	d, err := opentlv.Parse(data, f)
 	if err != nil {
-		var status opentlv.StatusError
-		if errors.As(err, &status) && status.Code() == 15 {
+		if errors.Is(err, opentlv.ErrUnsupported) {
 			t.Skip("Document disabled")
 		}
 		t.Fatal(err)

@@ -4024,27 +4024,27 @@
     <enum-decl name='tlv_result' id='type-id-375'>
       <underlying-type type-id='type-id-30'/>
       <enumerator name='TLV_OK' value='0'/>
-      <enumerator name='TLV_ERR_BUFFER_TOO_SHORT' value='1'/>
-      <enumerator name='TLV_ERR_INVALID_LENGTH' value='2'/>
-      <enumerator name='TLV_ERR_NULL_ARG' value='3'/>
-      <enumerator name='TLV_ERR_OUT_OF_MEMORY' value='4'/>
-      <enumerator name='TLV_END' value='5'/>
-      <enumerator name='TLV_ERR_INVALID_TAG' value='6'/>
-      <enumerator name='TLV_ERR_VISITOR' value='7'/>
-      <enumerator name='TLV_ERR_LIMIT' value='8'/>
+      <enumerator name='TLV_END' value='1'/>
+      <enumerator name='TLV_NEED_MORE_DATA' value='2'/>
+      <enumerator name='TLV_ERR_TRUNCATED' value='3'/>
+      <enumerator name='TLV_ERR_INVALID_TAG' value='4'/>
+      <enumerator name='TLV_ERR_INVALID_TAG_SIZE' value='5'/>
+      <enumerator name='TLV_ERR_INVALID_LENGTH' value='6'/>
+      <enumerator name='TLV_ERR_INVALID_VALUE' value='7'/>
+      <enumerator name='TLV_ERR_SYNTAX' value='8'/>
       <enumerator name='TLV_ERR_SCHEMA' value='9'/>
-      <enumerator name='TLV_ERR_INVALID_ARG' value='10'/>
-      <enumerator name='TLV_ERR_INVALID_TAG_SIZE' value='11'/>
-      <enumerator name='TLV_ERR_SYNTAX' value='12'/>
-      <enumerator name='TLV_ERR_OVERFLOW' value='13'/>
-      <enumerator name='TLV_ERR_INVALID_VALUE' value='14'/>
-      <enumerator name='TLV_ERR_UNSUPPORTED' value='15'/>
-      <enumerator name='TLV_ERR_INVALID_SCHEMA' value='16'/>
+      <enumerator name='TLV_ERR_NULL_ARG' value='10'/>
+      <enumerator name='TLV_ERR_INVALID_ARG' value='11'/>
+      <enumerator name='TLV_ERR_INVALID_STATE' value='12'/>
+      <enumerator name='TLV_ERR_INVALID_SCHEMA' value='13'/>
+      <enumerator name='TLV_ERR_BUFFER_TOO_SHORT' value='14'/>
+      <enumerator name='TLV_ERR_LIMIT' value='15'/>
+      <enumerator name='TLV_ERR_OVERFLOW' value='16'/>
       <enumerator name='TLV_ERR_NATIVE_SIZE' value='17'/>
-      <enumerator name='TLV_NEED_MORE_DATA' value='18'/>
-      <enumerator name='TLV_ERR_INVALID_STATE' value='19'/>
-      <enumerator name='TLV_ERR_CALLBACK' value='20'/>
-      <enumerator name='TLV_ERR_TRUNCATED' value='21'/>
+      <enumerator name='TLV_ERR_OUT_OF_MEMORY' value='18'/>
+      <enumerator name='TLV_ERR_UNSUPPORTED' value='19'/>
+      <enumerator name='TLV_ERR_VISITOR' value='20'/>
+      <enumerator name='TLV_ERR_CALLBACK' value='21'/>
     </enum-decl>
     <enum-decl name='tlv_tag_binding' id='type-id-376'>
       <underlying-type type-id='type-id-30'/>

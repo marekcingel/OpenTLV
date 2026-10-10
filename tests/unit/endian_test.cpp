@@ -12,7 +12,7 @@ extern "C" int tlv_test_c_endian(void);
 
 TEST(Unit_Tlv_Endian, PublicCContract) {
     EXPECT_EQ(1, tlv_test_c_endian());
-    EXPECT_EQ(13, TLV_ERR_OVERFLOW);
+    EXPECT_EQ(16, TLV_ERR_OVERFLOW);
     EXPECT_STREQ("numeric overflow", tlv_strerror(TLV_ERR_OVERFLOW));
 }
 

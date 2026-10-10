@@ -5,8 +5,10 @@ export function queryFacade(wasm) {
   const encoder = new TextEncoder();
   const decoder = new TextDecoder("utf-8", { fatal: true });
   const types = Object.freeze({ integer: 2, bytes: 3, string: 4 });
-  // TLV_ERR_INVALID_STATE always reports the Query STATE category.
-  const INVALID_STATE = 19, QUERY_ERROR_STATE = 12;
+  // tlv_result_t values from tlv/error.h. TLV_ERR_INVALID_STATE always reports
+  // the Query STATE category.
+  const END = 1, INVALID_TAG = 4, INVALID_ARG = 11, INVALID_STATE = 12, BUFFER_TOO_SHORT = 14,
+    CALLBACK = 21, QUERY_ERROR_STATE = 12;
   class QueryError extends Error {
     constructor(code, query = {}, applied = 0, rule = null, schema = null, location = { domain: "unknown", kind: "unknown" }, message = null) {
       super(message ?? wasm.UTF8ToString(wasm._opentlv_wasm_strerror(code)));
@@ -34,7 +36,7 @@ export function queryFacade(wasm) {
         }
       }
     }
-    if (reply.code && !(allowEnd && reply.code === 5)) throw new QueryError(reply.code, reply.query, reply.applied, reply.rule, reply.schema, reply.location, reply.message);
+    if (reply.code && !(allowEnd && reply.code === END)) throw new QueryError(reply.code, reply.query, reply.applied, reply.rule, reply.schema, reply.location, reply.message);
     return reply;
   }
   function bytes(value) {
@@ -142,7 +144,7 @@ export function queryFacade(wasm) {
         const pointer = wasm.addFunction((...args) => {
           this._active = true;
           try { return fn(...args); }
-          catch (error) { this._error = error; this._failed = true; return 10; }
+          catch (error) { this._error = error; this._failed = true; return INVALID_ARG; }
           finally { this._active = false; }
         }, signature);
         this._callbacks.push(pointer); return pointer;
@@ -177,7 +179,7 @@ export function queryFacade(wasm) {
             const output = encode(element(input));
             if (output?.code) return size(output.code);
             bytes(output);
-            if (output.length > capacity) return 1;
+            if (output.length > capacity) return BUFFER_TOO_SHORT;
             wasm.HEAPU8.set(output, data); wasm._opentlv_wasm_size_write(written, output.length); return 0;
           }, "iiiiiii") : 0;
           check(wasm._opentlv_wasm_format_callbacks(owner, read, measurePointer, write, constructed));
@@ -236,9 +238,9 @@ export function queryFacade(wasm) {
             this._providerActive = true;
             try {
               const tag = resolve(decoder.decode(wasm.HEAPU8.slice(scope, scope + scopeSize)), decoder.decode(wasm.HEAPU8.slice(name, name + nameSize)));
-              if (tag == null) return 6;
+              if (tag == null) return INVALID_TAG;
               return temporary(bytes(tag), data => wasm._opentlv_wasm_resolved_tag(context, result, data, tag.length));
-            } catch (error) { this._providerError = error; this._providerFailed = true; return 10; }
+            } catch (error) { this._providerError = error; this._providerFailed = true; return INVALID_ARG; }
             finally { this._providerActive = false; }
           }, "iiiiiii");
           this._callbacks.push(callback); check(wasm._opentlv_wasm_program_resolver(this._pointer, callback));
@@ -252,7 +254,7 @@ export function queryFacade(wasm) {
             const pointer = wasm.addFunction((context, tag, result) => {
               this._providerActive = true;
               try { int64(fn(tagBytes(tag)), (low, high) => wasm._opentlv_wasm_integer_write(result, low, high)); return 0; }
-              catch (error) { this._providerError = error; this._providerFailed = true; return 10; }
+              catch (error) { this._providerError = error; this._providerFailed = true; return INVALID_ARG; }
               finally { this._providerActive = false; }
             }, "iiii");
             this._callbacks.push(pointer); return pointer;
@@ -286,7 +288,7 @@ export function queryFacade(wasm) {
               if (name === "text") {
                 if (typeof value !== "string") throw new TypeError("text provider must return string");
                 const output = encoder.encode(value);
-                if (output.length > available) return 1;
+                if (output.length > available) return BUFFER_TOO_SHORT;
                 wasm.HEAPU8.set(output, scratch);
                 wasm._opentlv_wasm_provider_text(result, scratch, output.length);
               } else {
@@ -297,7 +299,7 @@ export function queryFacade(wasm) {
                   Number(BigInt.asUintN(32, integer >> 32n)));
               }
               return 0;
-            } catch (error) { this._providerError = error; this._providerFailed = true; return 20; }
+            } catch (error) { this._providerError = error; this._providerFailed = true; return CALLBACK; }
             finally { this._providerActive = false; }
           }, "iiiiiiiii");
           this._callbacks.push(callback);
@@ -520,7 +522,7 @@ export function queryFacade(wasm) {
     /** Pull a finalized retained event with its traversal identity (independent of Source offset). */
     nextOrdinal() {
       const reply = this._operation(8, 0, true);
-      return reply.code === 5 ? null : Object.freeze({ ordinal: reply.ordinal, match: this._match(reply.value) });
+      return reply.code === END ? null : Object.freeze({ ordinal: reply.ordinal, match: this._match(reply.value) });
     }
     _match(value) {
       return Object.freeze({ offset: value.offset, depth: value.depth, constructed: value.kind === 0,
@@ -528,7 +530,7 @@ export function queryFacade(wasm) {
     }
     next() {
       const reply = this._operation(1, 0, true);
-      if (reply.code === 5) return null;
+      if (reply.code === END) return null;
       return this._document ? new Node(this._document, reply.value) : this._match(reply.value);
     }
     visit(callback) {

@@ -22,7 +22,7 @@
  *                  "lengthValid": true, "children": [ ... ]},
  *                 {"offset": 2, "depth": 1, "tag": "84", "length": 3,
  *                  "headerSize": 2, "constructed": false, "value": "414243"}],
- *    "error": {"code": 1, "message": "...", "offset": 12}}
+ *    "error": {"code": 3, "message": "...", "offset": 12}}
  *
  * "error" is present only on failure; "elements" then holds every element
  * that was read before the error. Only BER, DER and CER elements can be

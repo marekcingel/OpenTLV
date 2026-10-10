@@ -48,7 +48,7 @@ TEST(Unit_Tlv_DerSchema, CallbackContractAndWorkspaceFailuresRemainDistinct) {
         *absent = s.mode == 2 && s.calls > 1;
         if (s.mode == 3) return TLV_ERR_INVALID_VALUE;
         if (s.mode == 4) return TLV_END;
-        if (s.mode == 5) return static_cast<tlv_result_t>(22);
+        if (s.mode == 5) return static_cast<tlv_result_t>(23);
         if (data) {
             data[0] = 1;
             if (s.mode == 1) *written = 0;

@@ -5,6 +5,7 @@
 #include "tlv/config.h"
 #include "tlv/reader/reader.h"
 #include "tlv/writer/tree.h"
+#include "tlv/formats/compose.h"
 #include "tlv/formats/escaped.h"
 #include "tlv/formats/fixed.h"
 #include "tlv/formats/packed.h"
@@ -265,7 +266,7 @@ TEST(Unit_Tlv_ResultTaxonomy, ValidatingReadersReportEndWithoutFailureSeverity) 
 
 TEST(Unit_Tlv_ResultTaxonomy, DecodersCannotReturnControlCapacityOrUnknownResults) {
     for (tlv_result_t reported :
-         {TLV_END, TLV_NEED_MORE_DATA, TLV_ERR_BUFFER_TOO_SHORT, static_cast<tlv_result_t>(22)}) {
+         {TLV_END, TLV_NEED_MORE_DATA, TLV_ERR_BUFFER_TOO_SHORT, static_cast<tlv_result_t>(23)}) {
         SCOPED_TRACE(reported);
         tlv_format_t format{};
         format.context = &reported;
@@ -285,6 +286,35 @@ TEST(Unit_Tlv_ResultTaxonomy, DecodersCannotReturnControlCapacityOrUnknownResult
     }
 }
 
+TEST(Unit_Tlv_ResultTaxonomy, CompositionReadCallbacksCannotReportCapacity) {
+    /* A Format written for the old contract signals incomplete input as capacity. */
+    const tlv_field_composition_t layout = {
+        nullptr,
+        [](const void*, const uint8_t* data, size_t size, tlv_tag_t* tag, size_t* used) {
+            if (!size) return TLV_ERR_TRUNCATED;
+            *tag = tlv_tag(data, 1);
+            *used = 1;
+            return TLV_OK;
+        },
+        [](const void*, const uint8_t*, size_t, tlv_size_t*, size_t*) {
+            return TLV_ERR_BUFFER_TOO_SHORT;
+        },
+        nullptr,
+        nullptr,
+        nullptr,
+        TLV_ELEMENT_ORDER_TLV,
+        TLV_LENGTH_SCOPE_VALUE};
+    const uint8_t      wire[] = {1};
+    tlv_decoded_t      decoded{};
+    tlv_format_error_t error{};
+    EXPECT_EQ(TLV_ERR_CALLBACK, tlv_fields_decode(&layout, wire, sizeof wire, &decoded, &error));
+    const tlv_format_t format = {&layout, tlv_fields_decode, nullptr, nullptr, nullptr};
+    tlv_reader_t       reader;
+    ASSERT_EQ(TLV_OK, tlv_reader_init_incremental(&reader, wire, sizeof wire, &format));
+    tlv_element_t element{};
+    EXPECT_EQ(TLV_ERR_CALLBACK, tlv_reader_next(&reader, &element));
+}
+
 TEST(Unit_Tlv_ResultTaxonomy, IterationSourcesMayEndButNotPauseOrInventResults) {
     const tlv_fixed_format_t config = {
         {1}, {1, TLV_BYTE_ORDER_BIG_ENDIAN}, TLV_ELEMENT_ORDER_TLV, TLV_LENGTH_SCOPE_VALUE};
@@ -294,7 +324,7 @@ TEST(Unit_Tlv_ResultTaxonomy, IterationSourcesMayEndButNotPauseOrInventResults) 
         tlv_result_t finish;
         int          calls;
     };
-    for (tlv_result_t finish : {TLV_END, TLV_NEED_MORE_DATA, static_cast<tlv_result_t>(22)}) {
+    for (tlv_result_t finish : {TLV_END, TLV_NEED_MORE_DATA, static_cast<tlv_result_t>(23)}) {
         SCOPED_TRACE(finish);
         Source source = {finish, 0};
         auto   next = [](void* context, tlv_tree_event_t* event) -> tlv_result_t {
@@ -325,7 +355,7 @@ TEST(Unit_Tlv_ResultTaxonomy, IterationSourcesMayEndButNotPauseOrInventResults) 
 }
 
 TEST(Unit_Tlv_ResultTaxonomy, NewResultsHaveDistinctDescriptions) {
-    EXPECT_STREQ("end", tlv_strerror(TLV_END));
+    EXPECT_STREQ("end of iteration", tlv_strerror(TLV_END));
     EXPECT_STREQ("truncated input", tlv_strerror(TLV_ERR_TRUNCATED));
     EXPECT_STREQ("syntax error", tlv_strerror(TLV_ERR_SYNTAX));
     EXPECT_STRNE(tlv_strerror(TLV_ERR_TRUNCATED), tlv_strerror(TLV_ERR_BUFFER_TOO_SHORT));

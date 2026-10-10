@@ -220,7 +220,7 @@ with every element read before the failure:
 
 ```json
 { "format": "ber", "elements": [ ... ],
-  "error": { "code": 1, "message": "buffer too short", "offset": 5 } }
+  "error": { "code": 3, "message": "truncated input", "offset": 5 } }
 ```
 
 `parse` throws only for programming errors (a non-`Uint8Array` argument) or

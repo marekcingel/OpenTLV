@@ -315,7 +315,7 @@ TLV_API void tlv_query_compile_options_init(tlv_query_compile_options_t* options
  * @param[out] alignment Required alignment output.
  * @param[out] diagnostic Optional initialized failure detail.
  * @return #TLV_OK on success; #TLV_ERR_NULL_ARG for missing arguments;
- * #TLV_ERR_INVALID_ARG for invalid options or lexical input;
+ * #TLV_ERR_INVALID_ARG for invalid options; #TLV_ERR_SYNTAX for invalid tokens;
  * #TLV_ERR_LIMIT for text/token bounds; #TLV_ERR_OVERFLOW for sizing overflow.
  * @note Never allocates; size/alignment outputs are unchanged on failure.
  */

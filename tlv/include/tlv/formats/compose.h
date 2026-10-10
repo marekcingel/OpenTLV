@@ -82,9 +82,10 @@ typedef enum tlv_length_scope {
  * Both write callbacks must support NULL output with zero capacity: measurement
  * queries their widths through the same callbacks used for encoding.
  * All field callbacks and the resolver accept only #TLV_OK or defined `TLV_ERR_*`
- * errors. Incomplete input uses #TLV_ERR_TRUNCATED; control statuses and
- * unknown results become #TLV_ERR_CALLBACK, and so does #TLV_ERR_BUFFER_TOO_SHORT
- * once propagated through tlv_format_decode().
+ * errors. Incomplete input uses #TLV_ERR_TRUNCATED. Control statuses, unknown
+ * results and #TLV_ERR_BUFFER_TOO_SHORT from a read callback or the resolver
+ * become #TLV_ERR_CALLBACK, already in tlv_fields_decode() and
+ * tlv_tagged_fields_decode().
  */
 typedef struct tlv_field_composition {
     const void* context;               /**< Immutable encoding context. */

@@ -224,7 +224,8 @@ if tlv.document and tlv.formats.ber then
     local old_node = edit_doc:first()
     local editing = tlv.query_program("//5A",f):execution()
     editing:evaluate_document(edit_doc)
-    local short = fails(function() editing:edit_document("replace",nil,b(9),2) end,1)
+    local short = fails(function() editing:edit_document("replace",nil,b(9),2) end,
+                        tlv.errors.BUFFER_TOO_SHORT)
     assert(short.applied == 0)
     assert(editing:edit_document("replace",nil,b(9),3) == 3)
     fails(function() old_node:tag() end)

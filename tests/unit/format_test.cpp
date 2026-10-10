@@ -31,7 +31,7 @@ TEST(Unit_Tlv_Format, CallbackResultDomainsPreserveErrorsAndRejectControlStatuse
             EXPECT_EQ(rejected ? TLV_ERR_CALLBACK : result, tlv_callback_result(result, allow_end));
         }
     }
-    EXPECT_EQ(TLV_ERR_CALLBACK, tlv_callback_result(static_cast<tlv_result_t>(22), 1));
+    EXPECT_EQ(TLV_ERR_CALLBACK, tlv_callback_result(static_cast<tlv_result_t>(23), 1));
     EXPECT_STREQ("invalid data or application representation", tlv_strerror(TLV_ERR_INVALID_VALUE));
 }
 
@@ -51,14 +51,14 @@ TEST(Unit_Tlv_Format, ProviderResultsAreDistinctFromInvalidSuccessPayloads) {
     const uint8_t data[] = {1};
     for (auto result :
          {TLV_OK, TLV_ERR_INVALID_VALUE, TLV_ERR_LIMIT, TLV_ERR_TRUNCATED, TLV_ERR_BUFFER_TOO_SHORT,
-          TLV_END, TLV_NEED_MORE_DATA, static_cast<tlv_result_t>(22)}) {
+          TLV_END, TLV_NEED_MORE_DATA, static_cast<tlv_result_t>(23)}) {
         state = {result, 0};
         tlv_decoded_t decoded{};
         decoded.source.size = 99;
         // Decoding has no destination, so a capacity result is a contract violation.
         const bool invalid = result == TLV_OK || result == TLV_END ||
                              result == TLV_NEED_MORE_DATA || result == TLV_ERR_BUFFER_TOO_SHORT ||
-                             result == 22;
+                             result == 23;
         EXPECT_EQ(invalid ? TLV_ERR_CALLBACK : result,
                   tlv_format_decode(&format, data, sizeof data, &decoded, nullptr));
         EXPECT_EQ(99u, decoded.source.size);
