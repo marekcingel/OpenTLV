@@ -66,7 +66,7 @@ type CodecConfig struct {
 
 // CodecMessage returns the canonical codec error description.
 func CodecMessage(code int) string {
-	return C.GoString(C.tlv_strerror(C.tlv_result_t(code)))
+	return C.GoString(C.tlv_result_string(C.tlv_result_t(code)))
 }
 func (c CodecConfig) native() (C.go_codec, bool) {
 	if c.Width < 0 || c.Digits < 0 || uint64(c.Digits) > uint64(^uint32(0)) || c.Encoding < 0 || c.Encoding > 2 {

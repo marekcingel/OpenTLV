@@ -32,7 +32,8 @@ TEST(Unit_Tlv_Format, CallbackResultDomainsPreserveErrorsAndRejectControlStatuse
         }
     }
     EXPECT_EQ(TLV_ERR_CALLBACK, tlv_callback_result(static_cast<tlv_result_t>(23), 1));
-    EXPECT_STREQ("invalid data or application representation", tlv_strerror(TLV_ERR_INVALID_VALUE));
+    EXPECT_STREQ("invalid data or application representation",
+                 tlv_result_string(TLV_ERR_INVALID_VALUE));
 }
 
 TEST(Unit_Tlv_Format, ProviderResultsAreDistinctFromInvalidSuccessPayloads) {

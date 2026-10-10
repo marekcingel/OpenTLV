@@ -3,7 +3,7 @@
 
 #ifndef OPENTLV_SCHEMA_CONSTRAINT_H
 #define OPENTLV_SCHEMA_CONSTRAINT_H
-#include "tlv/error.h"
+#include "tlv/result.h"
 #include "tlv/export.h"
 #include <stddef.h>
 #include <stdint.h>

@@ -28,7 +28,7 @@
     do {                                                                                           \
         tlv_result_t rc_ = (call);                                                                 \
         if (rc_ != TLV_OK) {                                                                       \
-            fprintf(stderr, "%s: %s\n", #call, tlv_strerror(rc_));                                 \
+            fprintf(stderr, "%s: %s\n", #call, tlv_result_string(rc_));                            \
             return 1;                                                                              \
         }                                                                                          \
     } while (0)
@@ -36,7 +36,7 @@
     do {                                                                                           \
         tlv_result_t rc_ = (call);                                                                 \
         if (rc_ != TLV_OK) {                                                                       \
-            fprintf(stderr, "%s: %s\n", #call, tlv_strerror(rc_));                                 \
+            fprintf(stderr, "%s: %s\n", #call, tlv_result_string(rc_));                            \
             return 1;                                                                              \
         }                                                                                          \
     } while (0)
@@ -210,7 +210,7 @@ static tlv_visit_result_t decode_field(const tlv_element_t* element, void* conte
             tlv_result_t rc = tlv_codec_decode(def->codec, element->value.data, length, record->pan,
                                                sizeof(record->pan), NULL);
             if (rc != TLV_OK) {
-                printf(" -> decode error: %s\n", tlv_strerror(rc));
+                printf(" -> decode error: %s\n", tlv_result_string(rc));
                 ++record->errors;
                 break;
             }
@@ -222,7 +222,7 @@ static tlv_visit_result_t decode_field(const tlv_element_t* element, void* conte
             tlv_result_t rc = tlv_codec_decode(def->codec, element->value.data, length,
                                                &record->expiry, sizeof(record->expiry), NULL);
             if (rc != TLV_OK) {
-                printf(" -> decode error: %s\n", tlv_strerror(rc));
+                printf(" -> decode error: %s\n", tlv_result_string(rc));
                 ++record->errors;
                 break;
             }
@@ -236,7 +236,7 @@ static tlv_visit_result_t decode_field(const tlv_element_t* element, void* conte
             tlv_result_t rc = tlv_codec_decode(def->codec, element->value.data, length,
                                                &record->aip, sizeof(record->aip), NULL);
             if (rc != TLV_OK) {
-                printf(" -> decode error: %s\n", tlv_strerror(rc));
+                printf(" -> decode error: %s\n", tlv_result_string(rc));
                 ++record->errors;
                 break;
             }
@@ -250,7 +250,7 @@ static tlv_visit_result_t decode_field(const tlv_element_t* element, void* conte
             tlv_result_t rc = tlv_codec_decode(def->codec, element->value.data, length,
                                                &record->amount, sizeof(record->amount), NULL);
             if (rc != TLV_OK) {
-                printf(" -> decode error: %s\n", tlv_strerror(rc));
+                printf(" -> decode error: %s\n", tlv_result_string(rc));
                 ++record->errors;
                 break;
             }
@@ -264,7 +264,7 @@ static tlv_visit_result_t decode_field(const tlv_element_t* element, void* conte
                 tlv_codec_decode(def->codec, element->value.data, length, &record->cryptogram,
                                  sizeof(record->cryptogram), NULL);
             if (rc != TLV_OK) {
-                printf(" -> decode error: %s\n", tlv_strerror(rc));
+                printf(" -> decode error: %s\n", tlv_result_string(rc));
                 ++record->errors;
                 break;
             }
@@ -276,7 +276,7 @@ static tlv_visit_result_t decode_field(const tlv_element_t* element, void* conte
             tlv_result_t rc = tlv_codec_decode(def->codec, element->value.data, length,
                                                &record->account, sizeof(record->account), NULL);
             if (rc != TLV_OK) {
-                printf(" -> decode error: %s\n", tlv_strerror(rc));
+                printf(" -> decode error: %s\n", tlv_result_string(rc));
                 ++record->errors;
                 break;
             }
@@ -292,7 +292,7 @@ static tlv_visit_result_t decode_field(const tlv_element_t* element, void* conte
             tlv_result_t rc = tlv_codec_decode(def->codec, element->value.data, length,
                                                &record->afl, sizeof(record->afl), NULL);
             if (rc != TLV_OK) {
-                printf(" -> decode error: %s\n", tlv_strerror(rc));
+                printf(" -> decode error: %s\n", tlv_result_string(rc));
                 ++record->errors;
                 break;
             }

@@ -135,9 +135,9 @@ impl Error {
 
 impl fmt::Display for Error {
     fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
-        // SAFETY: `tlv_strerror` never returns NULL; it returns a static,
+        // SAFETY: `tlv_result_string` never returns NULL; it returns a static,
         // NUL-terminated string for every input.
-        let message = unsafe { CStr::from_ptr(native::tlv_strerror(self.code())) };
+        let message = unsafe { CStr::from_ptr(native::tlv_result_string(self.code())) };
         f.write_str(&message.to_string_lossy())
     }
 }

@@ -94,7 +94,7 @@ structures such as `DocumentError` and `WriterError`. There are no panics on bad
 `unsafe` in caller code.
 
 - `Error` has one variant per C `TLV_ERR_*` code and implements
-  `std::error::Error` and `Display` (the text comes from C `tlv_strerror`), so
+  `std::error::Error` and `Display` (the text comes from C `tlv_result_string`), so
   it works with `?` and `Box<dyn Error>`. It is `#[non_exhaustive]`: a code from
   a newer C library becomes `Error::Unknown(code)`, and `code()` returns the raw
   value.

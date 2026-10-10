@@ -4,7 +4,7 @@
 #ifndef OPENTLV_READER_H
 #define OPENTLV_READER_H
 
-#include "tlv/error.h"
+#include "tlv/result.h"
 #include "tlv/reader/diagnostic.h"
 #include "tlv/format.h"
 #include "tlv/export.h"

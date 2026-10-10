@@ -4,7 +4,7 @@
 #ifndef OPENTLV_BUILTINS_ASN1_DER_VALIDATION_H
 #define OPENTLV_BUILTINS_ASN1_DER_VALIDATION_H
 
-#include "tlv/error.h"
+#include "tlv/result.h"
 #include "tlv/diagnostic.h"
 #include "tlv/config.h"
 #include "tlv/builtins/asn1/der.h"

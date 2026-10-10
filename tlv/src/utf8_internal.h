@@ -4,7 +4,7 @@
 #ifndef OPENTLV_UTF8_INTERNAL_H
 #define OPENTLV_UTF8_INTERNAL_H
 
-#include "tlv/error.h"
+#include "tlv/result.h"
 #include <stddef.h>
 #include <stdint.h>
 

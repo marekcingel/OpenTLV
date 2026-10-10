@@ -117,7 +117,7 @@ DER depths may be up to 64. Limits must be nonnegative integers representable by
 Every reading or traversal failure raises a table (via Lua's `error()`) with
 a `code` (the raw `tlv_result_t` value, also available named under
 `opentlv.errors`, for example `opentlv.errors.TRUNCATED`) and a
-`message` (the C `tlv_strerror()` text); `tostring()` on it formats both
+`message` (the C `tlv_result_string()` text); `tostring()` on it formats both
 together. When the C API reports structured diagnostic detail for the
 failure, `offset`, `expected`, `actual`, `operation` and `tag` carry it;
 fields the failure does not report are absent, so check with `err.offset`
@@ -315,7 +315,7 @@ failures. Lua argument/type errors and allocation failures raise Lua errors.
 Schema reports, Reader and Writer use the same common native diagnostic
 conversion. Tables own their strings and remain valid after the input,
 Schema or Reader/Writer is collected. Common fields are `code`, `message`
-(from `tlv_strerror()`), and `severity` (`"error"`, `"warning"`, `"info"`).
+(from `tlv_result_string()`), and `severity` (`"error"`, `"warning"`, `"info"`).
 `offset`, `expected`, `actual`, `path` and `contexts` appear only when supplied
 by C. Offsets remain zero-based bytes, independent of Lua array indexing.
 `contexts` is an array of `{layer, key, value}` tables in native order.
@@ -456,7 +456,7 @@ before conversion, and does not add codec metadata to generic Definition.
 ### Errors and custom codecs
 
 C codec failures raise an `opentlv.Error` table with the shared `tlv.errors`
-`code` and a `message` from `tlv_strerror()`. Optional `codec_detail` retains
+`code` and a `message` from `tlv_result_string()`. Optional `codec_detail` retains
 operation, reported result, callback violation and delegated cause. The old
 `codec_errors` and `codec_strerror` APIs have been removed.
 No source offset or Tag is invented for a Value-only operation. Incorrect

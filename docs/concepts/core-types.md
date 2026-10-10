@@ -9,7 +9,7 @@ Element = Tag + Value bytes (logical length = Value size)
 Include `<tlv/element.h>` for `tlv_element_t`, `<tlv/value.h>` for `tlv_value_t`, and
 `<tlv/size.h>` for `tlv_size_t`, or `<tlv/tlv.h>` to pull in all of them
 along with the rest of the public API. The common `tlv_result_t` error codes
-come from `<tlv/error.h>`. Tags and their configuration are declared in
+come from `<tlv/result.h>`. Tags and their configuration are declared in
 `<tlv/tag.h>`, which can also be included directly.
 
 - `tlv_size_t` is a fixed 64-bit unsigned logical TLV value length, with

@@ -188,7 +188,7 @@ Public headers under `tlv/include/tlv/` and sources under `tlv/src/` use:
 
 ```text
 tlv/
-  element.h, value.h, length.h, size.h, error.h, endian.h, copy.h, format.h, tlv.h
+  element.h, value.h, length.h, size.h, result.h, endian.h, copy.h, format.h, tlv.h
   compiler.h, attributes.h, definition.h
   reader/    reader.h, tree.h, visitor.h
   query/     query.h

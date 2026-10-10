@@ -6,7 +6,7 @@
 
 #include "compat.h"
 
-#include <tlv/error.h>
+#include <tlv/result.h>
 #include <tlv/codec/diagnostic.h>
 #include <tlv/reader/reader.h>
 #include <tlv/writer/writer.h>
@@ -24,7 +24,7 @@ void opentlv_lua_open_error(lua_State* L);
 void opentlv_lua_register_error_codes(lua_State* L, int module_table_index);
 
 /* Pushes a table describing `code`, with the "opentlv.Error" metatable set:
- * always "code", "message" (tlv_strerror(code)) and "location"; when
+ * always "code", "message" (tlv_result_string(code)) and "location"; when
  * has_offset, `offset` is an input point reported as "offset" and in
  * "location". Does not raise; the caller decides whether to return it,
  * stash it (see visitor.c), or raise it with lua_error(). */

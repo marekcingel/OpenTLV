@@ -43,7 +43,7 @@ const (
 )
 
 // String copies the native status description into Go storage.
-func (code Code) String() string { return C.GoString(C.tlv_strerror(C.tlv_result_t(code))) }
+func (code Code) String() string { return C.GoString(C.tlv_result_string(C.tlv_result_t(code))) }
 
 // Kind identifies a native format. Availability follows the linked C configuration.
 type Kind int

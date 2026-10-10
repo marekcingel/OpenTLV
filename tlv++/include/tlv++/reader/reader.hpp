@@ -100,7 +100,7 @@ public:
      * @param diagnostic Original C Reader detail; any byte views remain borrowed.
      */
     parse_error(tlv_result_t code, size_t offset, reader_diagnostic diagnostic)
-        : std::runtime_error(tlv_strerror(code)), code_(code), offset_(offset),
+        : std::runtime_error(tlv_result_string(code)), code_(code), offset_(offset),
           diagnostic_(diagnostic) {}
     /** @brief Original C Reader result code. */
     tlv_result_t code() const noexcept {

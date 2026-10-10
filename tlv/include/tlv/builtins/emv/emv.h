@@ -5,7 +5,7 @@
 #define OPENTLV_BUILTINS_EMV_H
 #include "tlv/definition.h"
 
-#include "tlv/error.h"
+#include "tlv/result.h"
 #include "tlv/builtins/emv/format.h"
 #include "tlv/schema/schema.h"
 #include "tlv/builtins/emv/emv_codec.h"

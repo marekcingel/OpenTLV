@@ -554,7 +554,7 @@
         "tlv_fields_measure": 1,
         "tlv_format_error_t": 2,
         "tlv_format_t": 2,
-        "tlv_strerror": 1,
+        "tlv_result_string": 1,
         "tlv_tag_t": 1
       }
     },

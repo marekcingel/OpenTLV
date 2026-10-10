@@ -3,7 +3,7 @@
 
 #ifndef OPENTLV_TLVPP_ERROR_HPP
 #define OPENTLV_TLVPP_ERROR_HPP
-#include "tlv/error.h"
+#include "tlv/result.h"
 #include "tlv/diagnostic.h"
 #include "tlv/schema/schema.h"
 #include <cstddef>
@@ -64,7 +64,7 @@ enum class errc {
 };
 /** @brief Name an operation status using immutable program-lifetime text; never allocates. */
 inline const char* message(errc code) noexcept {
-    return tlv_strerror(static_cast<tlv_result_t>(code));
+    return tlv_result_string(static_cast<tlv_result_t>(code));
 }
 /** @brief Stable symbolic spelling of a canonical status, for logs and serialized diagnostics. */
 inline const char* name(errc code) noexcept {
@@ -182,7 +182,7 @@ struct error {
         : code_(static_cast<tlv_result_t>(value)), message_(tlv::message(value)), stage_(stage) {}
     /** @brief Construct an interoperability error with borrowed description. */
     error(tlv_result_t value, const char* description) noexcept
-        : code_(value), message_(description ? description : tlv_strerror(value)) {}
+        : code_(value), message_(description ? description : tlv_result_string(value)) {}
     /** @brief Translate a native code without allocating. */
     static error from_c(tlv_result_t value) noexcept {
         return error(static_cast<errc>(value));

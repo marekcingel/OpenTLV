@@ -3,7 +3,7 @@
 
 #ifndef OPENTLV_CER_VALUES_INTERNAL_H
 #define OPENTLV_CER_VALUES_INTERNAL_H
-#include "tlv/error.h"
+#include "tlv/result.h"
 #include "tlv/tag.h"
 #include "asn1_values_internal.h"
 #include <stdint.h>

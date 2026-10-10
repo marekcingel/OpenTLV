@@ -83,7 +83,7 @@ TEST(Unit_Tlv_QueryProgram, LifecycleErrorsDifferFromArgumentsAndResetRecovers) 
     EXPECT_EQ(TLV_ERR_INVALID_ARG, tlv_query_exec_context(exec, 8));
     EXPECT_EQ(TLV_OK, tlv_query_exec_context(exec, 0));
     EXPECT_EQ(TLV_OK, tlv_query_exec_feed(exec, &event, &matched, &p.diagnostic));
-    EXPECT_STREQ("invalid state", tlv_strerror(TLV_ERR_INVALID_STATE));
+    EXPECT_STREQ("invalid state", tlv_result_string(TLV_ERR_INVALID_STATE));
 }
 tlv_visit_result_t collect_event(const tlv_tree_event_t* event, void* context) {
     static_cast<std::vector<size_t>*>(context)->push_back(event->offset);

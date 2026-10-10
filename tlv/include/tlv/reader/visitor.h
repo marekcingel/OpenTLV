@@ -4,7 +4,7 @@
 #ifndef OPENTLV_VISITOR_H
 #define OPENTLV_VISITOR_H
 
-#include "tlv/error.h"
+#include "tlv/result.h"
 #include "tlv/format.h"
 #include "tlv/reader/tree.h"
 #include "tlv/export.h"

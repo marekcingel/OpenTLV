@@ -45,7 +45,7 @@ int main(void) {
     tlv_result_t result = tlv_schema_validate(document, sizeof(document), &tlv_format_ber,
                                               &top_schema, TLV_TREE_DEFAULT_DEPTH, 16, NULL);
     if (result != TLV_OK) {
-        fprintf(stderr, "unexpected: %s\n", tlv_strerror(result));
+        fprintf(stderr, "unexpected: %s\n", tlv_result_string(result));
         return 1;
     }
     puts("Document conforms to the schema");
@@ -53,9 +53,9 @@ int main(void) {
     result = tlv_schema_validate(incomplete, sizeof(incomplete), &tlv_format_ber, &top_schema,
                                  TLV_TREE_DEFAULT_DEPTH, 16, NULL);
     if (result != TLV_ERR_SCHEMA) {
-        fprintf(stderr, "expected a missing-field error, got %s\n", tlv_strerror(result));
+        fprintf(stderr, "expected a missing-field error, got %s\n", tlv_result_string(result));
         return 1;
     }
-    printf("Incomplete document rejected: %s\n", tlv_strerror(result));
+    printf("Incomplete document rejected: %s\n", tlv_result_string(result));
     return 0;
 }

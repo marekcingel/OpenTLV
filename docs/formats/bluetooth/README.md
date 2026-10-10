@@ -100,7 +100,7 @@ if (tlv_size_to_native(element.value.size, &length) == TLV_OK) {
     tlv_result_t result = tlv_codec_decode(
         &tlv_bluetooth_ad_codec_tx_power, element.value.data, length,
         &dbm, sizeof(dbm), NULL);
-    /* On success dbm is -4; otherwise tlv_strerror(result) describes the error. */
+    /* On success dbm is -4; otherwise tlv_result_string(result) describes the error. */
     (void)result;
 }
 ```
@@ -114,7 +114,7 @@ borrowed pointer. Accepted bytes round-trip exactly.
 Malformed values (including invalid UTF-8, non-minimal Flags and invalid Tx
 Power) report `TLV_ERR_INVALID_VALUE`. Missing pointers report
 `TLV_ERR_NULL_ARG`, and insufficient output capacity reports
-`TLV_ERR_BUFFER_TOO_SHORT`. `tlv_strerror()` provides readable
+`TLV_ERR_BUFFER_TOO_SHORT`. `tlv_result_string()` provides readable
 diagnostics; these are distinct from framing and schema errors. Applications
 can retain the parsed tag and source offset alongside a codec error.
 

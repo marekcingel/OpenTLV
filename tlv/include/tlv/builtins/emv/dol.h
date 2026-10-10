@@ -4,7 +4,7 @@
 #ifndef OPENTLV_BUILTINS_EMV_DOL_H
 #define OPENTLV_BUILTINS_EMV_DOL_H
 
-#include "tlv/error.h"
+#include "tlv/result.h"
 #include "tlv/diagnostic.h"
 #include "tlv/tag.h"
 #include "tlv/export.h"

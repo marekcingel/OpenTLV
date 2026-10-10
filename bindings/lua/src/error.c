@@ -185,7 +185,7 @@ void opentlv_lua_push_diagnostic(lua_State* L, const tlv_diagnostic_t* diagnosti
     lua_newtable(L);
     lua_pushinteger(L, (lua_Integer)diagnostic->code);
     lua_setfield(L, -2, "code");
-    lua_pushstring(L, tlv_strerror(diagnostic->code));
+    lua_pushstring(L, tlv_result_string(diagnostic->code));
     lua_setfield(L, -2, "message");
     lua_newtable(L);
     lua_pushstring(L, tlv_location_domain_string(location->domain));

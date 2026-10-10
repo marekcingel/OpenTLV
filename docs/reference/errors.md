@@ -10,9 +10,9 @@ Document lookup failure channels (#557), and the `END`, `TRUNCATED` and
 `SYNTAX` results (#578). The tables below describe the current
 codes, not target names still awaiting implementation.
 
-Core and Codec operations return the shared `tlv_result_t` from `tlv/error.h`. Zero is success. `TLV_END` (normal end
+Core and Codec operations return the shared `tlv_result_t` from `tlv/result.h`. Zero is success. `TLV_END` (normal end
 of iteration) and `TLV_NEED_MORE_DATA` (resumable non-final input) are control
-statuses, not failures; every other nonzero result is a failure. `tlv_strerror` returns a static, readable
+statuses, not failures; every other nonzero result is a failure. `tlv_result_string` returns a static, readable
 description of any code and `"unknown error"` for an unrecognized one; never free or
 modify the string. The Rust `Error` type maps every `TLV_ERR_*` code.
 
@@ -244,7 +244,7 @@ These functions remain available with the processing capabilities disabled.
 | Schema finding / definition object | `tlv_schema_issue_kind_string()` / `tlv_schema_definition_kind_string()` |
 | Codec operation / delegated cause / callback violation | `tlv_codec_operation_string()` / `tlv_codec_cause_string()` / `tlv_codec_violation_string()` |
 
-`tlv_strerror()` separately describes results, with `"unknown error"` as its
+`tlv_result_string()` separately describes results, with `"unknown error"` as its
 fallback. Enum-name strings describe detail; they do not replace result codes.
 
 ## Lookup and pointer-returning APIs
@@ -273,7 +273,7 @@ none performs a delegated fallible traversal or allocation:
 | `tlv_emv_symbol()`, `tlv_emv_display_label()` | Borrowed/static optional text; NULL for absent metadata/label, including NULL input. |
 | `tlv_query_builtin_hooks()` | Non-NULL static provider array; optional count output. |
 | Version string and Git metadata accessors | Non-NULL static build metadata; no prerelease is an empty string, unavailable Git metadata uses `"unknown"`. |
-| Diagnostic name functions, `tlv_strerror()`, `tlv_emv_value_kind_description()` | Non-NULL static text with the documented unknown-value fallback. |
+| Diagnostic name functions, `tlv_result_string()`, `tlv_emv_value_kind_description()` | Non-NULL static text with the documented unknown-value fallback. |
 
 A NULL lookup result alone therefore does not distinguish absence from rejected
 arguments unless the API has a separate result channel. Follow each header's

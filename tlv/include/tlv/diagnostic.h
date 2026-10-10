@@ -4,7 +4,7 @@
 #ifndef OPENTLV_DIAGNOSTIC_H
 #define OPENTLV_DIAGNOSTIC_H
 
-#include "tlv/error.h"
+#include "tlv/result.h"
 #include "tlv/export.h"
 #include "tlv/tag.h"
 #include <stddef.h>

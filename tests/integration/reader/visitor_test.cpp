@@ -50,7 +50,7 @@ TEST(Integration_Tlv_Visitor, StopsOrFailsBeforeReadingMalformedTail) {
                   visit_input(data, sizeof(data), &controlled::format, collect, &visits));
         EXPECT_EQ(2u, visits.count);
     }
-    EXPECT_STREQ("visitor error", tlv_strerror(TLV_ERR_VISITOR));
+    EXPECT_STREQ("visitor error", tlv_result_string(TLV_ERR_VISITOR));
 }
 
 TEST(Integration_Tlv_Visitor, PropagatesTruncatedInputAfterSuccessfulVisits) {

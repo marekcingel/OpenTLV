@@ -84,7 +84,7 @@ static void push_query_error(lua_State* L, tlv_result_t code, const tlv_query_di
     }
     opentlv_lua_push_diagnostic(L, &d->diagnostic);
     field(L, "code", code);
-    lua_pushstring(L, tlv_strerror(code));
+    lua_pushstring(L, tlv_result_string(code));
     lua_setfield(L, -2, "message");
     if (d->has_reader) opentlv_lua_add_reader_detail(L, &d->reader);
     lua_newtable(L);

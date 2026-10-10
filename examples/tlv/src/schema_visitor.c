@@ -78,7 +78,7 @@ int main(void) {
     if (tlv_reader_init(&reader, invalid, sizeof(invalid), &format) != TLV_OK) return 1;
     result = tlv_reader_visit(&reader, visit, &state);
     if (result != TLV_ERR_VISITOR) return 1;
-    printf("Schema rejection by visitor: %s\n", tlv_strerror(result));
+    printf("Schema rejection by visitor: %s\n", tlv_result_string(result));
 
     return 0;
 }

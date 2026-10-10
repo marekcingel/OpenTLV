@@ -461,7 +461,7 @@ extern "C" {
     /// Returns the patch version number.
     pub fn tlv_version_patch() -> u32;
     /// Returns a NUL-terminated static description of a result code.
-    pub fn tlv_strerror(result: tlv_result_t) -> *const c_char;
+    pub fn tlv_result_string(result: tlv_result_t) -> *const c_char;
     /// Narrows a length to the native `size_t`.
     pub fn tlv_size_to_native(length: tlv_size_t, size: *mut usize) -> tlv_result_t;
     /// Tests whether two tags have the same size and bytes.
@@ -1114,8 +1114,8 @@ mod tests {
     }
 
     #[test]
-    fn strerror_describes_ok() {
-        let message = unsafe { CStr::from_ptr(tlv_strerror(TLV_OK)) };
+    fn result_string_describes_ok() {
+        let message = unsafe { CStr::from_ptr(tlv_result_string(TLV_OK)) };
         assert!(!message.to_bytes().is_empty());
     }
 }

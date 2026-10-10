@@ -1,9 +1,9 @@
 // SPDX-License-Identifier: MIT
 // Copyright (c) 2026 Marek Cingel
 
-#include "tlv/error.h"
+#include "tlv/result.h"
 
-const char* tlv_strerror(tlv_result_t result) {
+const char* tlv_result_string(tlv_result_t result) {
     switch (result) {
         case TLV_NEED_MORE_DATA: return "need more data";
         case TLV_ERR_NATIVE_SIZE: return "native address space exceeded";

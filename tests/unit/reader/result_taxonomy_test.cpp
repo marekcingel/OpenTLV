@@ -355,8 +355,8 @@ TEST(Unit_Tlv_ResultTaxonomy, IterationSourcesMayEndButNotPauseOrInventResults) 
 }
 
 TEST(Unit_Tlv_ResultTaxonomy, NewResultsHaveDistinctDescriptions) {
-    EXPECT_STREQ("end of iteration", tlv_strerror(TLV_END));
-    EXPECT_STREQ("truncated input", tlv_strerror(TLV_ERR_TRUNCATED));
-    EXPECT_STREQ("syntax error", tlv_strerror(TLV_ERR_SYNTAX));
-    EXPECT_STRNE(tlv_strerror(TLV_ERR_TRUNCATED), tlv_strerror(TLV_ERR_BUFFER_TOO_SHORT));
+    EXPECT_STREQ("end of iteration", tlv_result_string(TLV_END));
+    EXPECT_STREQ("truncated input", tlv_result_string(TLV_ERR_TRUNCATED));
+    EXPECT_STREQ("syntax error", tlv_result_string(TLV_ERR_SYNTAX));
+    EXPECT_STRNE(tlv_result_string(TLV_ERR_TRUNCATED), tlv_result_string(TLV_ERR_BUFFER_TOO_SHORT));
 }

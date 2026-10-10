@@ -337,7 +337,7 @@ static void append_error(builder_t* b, tlv_result_t code, const tlv_location_t* 
     builder_text(b, ",\"error\":{\"code\":");
     builder_number(b, (size_t)code);
     builder_text(b, ",\"message\":");
-    builder_json_string(b, tlv_strerror(code));
+    builder_json_string(b, tlv_result_string(code));
     write_location(b, location);
     if (location->kind != TLV_LOCATION_UNKNOWN) {
         builder_text(b, ",\"offset\":");
@@ -866,7 +866,7 @@ static void query_codec_diagnostic(builder_t* b, const tlv_codec_detail_t* d) {
     builder_text(b, "}");
 }
 const char* opentlv_wasm_strerror(int code) {
-    return tlv_strerror((tlv_result_t)code);
+    return tlv_result_string((tlv_result_t)code);
 }
 const char* opentlv_wasm_query_error_kind_string(int kind) {
     return tlv_query_error_kind_string((tlv_query_error_kind_t)kind);
@@ -936,7 +936,7 @@ static void query_status(builder_t* b, tlv_result_t code, const tlv_query_diagno
     builder_text(b, "{\"code\":");
     builder_number(b, code);
     builder_text(b, ",\"message\":");
-    builder_json_string(b, tlv_strerror(code));
+    builder_json_string(b, tlv_result_string(code));
     write_location(b, d ? &d->diagnostic.location : NULL);
     builder_text(b, ",\"query\":{\"kind\":");
     builder_number(b, code == TLV_ERR_INVALID_STATE ? TLV_QUERY_ERROR_STATE
