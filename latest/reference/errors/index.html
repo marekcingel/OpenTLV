@@ -2507,6 +2507,17 @@
       <ul class="md-nav__list">
         
           <li class="md-nav__item">
+  <a href="#end-truncated-input-and-buffer-capacity" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        End, truncated input and buffer capacity
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
   <a href="#arguments-versus-lifecycle-state" class="md-nav__link">
     <span class="md-ellipsis">
       
@@ -3724,6 +3735,17 @@
       <ul class="md-nav__list">
         
           <li class="md-nav__item">
+  <a href="#end-truncated-input-and-buffer-capacity" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        End, truncated input and buffer capacity
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
   <a href="#arguments-versus-lifecycle-state" class="md-nav__link">
     <span class="md-ellipsis">
       
@@ -3847,12 +3869,13 @@
 typed diagnostic layering, locations and propagation rules. Migration proceeds
 through breaking API and ABI changes: lifecycle (#552),
 Schema classification (#553), resource/callback classification (#554), locations
-(#555), shared Codec results and propagation (#556), and diagnostic names and
-Document lookup failure channels (#557). The tables below describe the current
+(#555), shared Codec results and propagation (#556), diagnostic names and
+Document lookup failure channels (#557), and the <code>END</code>, <code>TRUNCATED</code> and
+<code>SYNTAX</code> results (#578). The tables below describe the current
 codes, not target names still awaiting implementation.</p>
-<p>Core and Codec operations return the shared <code>tlv_result_t</code> from <code>tlv/error.h</code>. Zero is success; nonzero core
-results include errors, end-of-input and the resumable
-<code>TLV_NEED_MORE_DATA</code> condition. <code>tlv_strerror</code> returns a static, readable
+<p>Core and Codec operations return the shared <code>tlv_result_t</code> from <code>tlv/error.h</code>. Zero is success. <code>TLV_END</code> (normal end
+of iteration) and <code>TLV_NEED_MORE_DATA</code> (resumable non-final input) are control
+statuses, not failures; every other nonzero result is a failure. <code>tlv_strerror</code> returns a static, readable
 description of any code and <code>"unknown error"</code> for an unrecognized one; never free or
 modify the string. The Rust <code>Error</code> type maps every <code>TLV_ERR_*</code> code.</p>
 <p>Unless a function says otherwise, an error leaves its output parameters unchanged. A
@@ -3872,8 +3895,8 @@ return describes that result:</p>
 <li>Schema Query has alternative detail channels: a false assertion sets
   <code>schema.diagnostic.code</code>, while an execution failure fills <code>query</code>.</li>
 </ul>
-<p>The rule includes <code>TLV_ERR_END_OF_BUFFER</code> and <code>TLV_NEED_MORE_DATA</code> when returned
-through an initialized diagnostic channel. These are still normal iteration or
+<p>The rule includes <code>TLV_END</code> and <code>TLV_NEED_MORE_DATA</code> when returned
+through an initialized diagnostic channel; their severity is <code>INFO</code>, not <code>ERROR</code>. These are still normal iteration or
 resumption conditions where the API says so. Query represents resumable Reader
 status as <code>READER</code>; this does not poison the execution.</p>
 <p>Diagnostics are failure outputs, so the general unchanged-output rule above does
@@ -3915,8 +3938,10 @@ control-flow proof. A separate lexical rule rejects <code>INVALID_ARG</code> ret
 <code>busy</code>, <code>finished</code>, <code>invalid</code> or <code>query_callbacks</code> member predicates, including
 pre-initialization checks. Diagnostic-return comments do not waive that rule.</p>
 <h2 id="codes">Codes<a class="headerlink" href="#codes" title="Permanent link">&para;</a></h2>
-<p>Numbers below describe this release. They are not stable ABI identifiers during
-the breaking #551 migration; <code>INVALID_STATE = 19</code> does not promise append-only enums.</p>
+<p>Codes are grouped by category: success, control statuses, invalid input data,
+invalid use of the API, capacity, resources and numeric ranges, capabilities,
+and callbacks. Numbers below describe this release. Before 1.0.0 they are not
+stable ABI identifiers and may change to keep categories together.</p>
 <table>
 <thead>
 <tr>
@@ -3934,52 +3959,52 @@ the breaking #551 migration; <code>INVALID_STATE = 19</code> does not promise ap
 <td></td>
 </tr>
 <tr>
-<td><code>TLV_ERR_BUFFER_TOO_SHORT</code></td>
+<td><code>TLV_END</code></td>
 <td>1</td>
-<td>A supplied buffer is too small for the data or the output.</td>
-<td>Reading: more bytes are required to complete the header, value or trailer (incomplete input). Writing: the output capacity is smaller than <code>tlv_encoded_size</code> reports.</td>
+<td>Control status: normal end of iteration, or an empty single-read region. Not a failure.</td>
+<td><code>tlv_reader_next</code> and other iterators after the last element; <code>tlv_read</code> on empty input. No element is published.</td>
+</tr>
+<tr>
+<td><code>TLV_NEED_MORE_DATA</code></td>
+<td>2</td>
+<td>Control status: incremental input is exhausted or incomplete.</td>
+<td>Supply an extended window or declare EOF. No element is published and the cursor does not advance.</td>
+</tr>
+<tr>
+<td><code>TLV_ERR_TRUNCATED</code></td>
+<td>3</td>
+<td>Final input ends inside a required representation.</td>
+<td>Supply complete input; a larger output buffer cannot help. Non-final Reader input reports <code>TLV_NEED_MORE_DATA</code> for the same cut.</td>
+</tr>
+<tr>
+<td><code>TLV_ERR_INVALID_TAG</code></td>
+<td>4</td>
+<td>A tag is malformed or invalid for the format or standard.</td>
+<td>Malformed BER identifier digits, or a tag the selected format rejects. Incomplete identifiers return <code>TLV_ERR_TRUNCATED</code>.</td>
+</tr>
+<tr>
+<td><code>TLV_ERR_INVALID_TAG_SIZE</code></td>
+<td>5</td>
+<td>A tag size is outside the range the operation or format supports.</td>
+<td>A tag length the selected format rejects (for example more than 8 bytes for BER, CER and DER, or a tag width different from the configured Fixed width), or an empty tag where the operation needs bytes. Also the numeric tag conversions for empty tags and tags longer than 8 bytes. <code>tlv_tag_t</code> itself has no size limit.</td>
 </tr>
 <tr>
 <td><code>TLV_ERR_INVALID_LENGTH</code></td>
-<td>2</td>
+<td>6</td>
 <td>A length is malformed or invalid for the wire encoding.</td>
 <td>The format's length limits (for example the length width for <a href="../../formats/fixed/configurable/">configurable fixed-width TLV</a>), or the reserved BER length prefix <code>FF</code>.</td>
 </tr>
 <tr>
-<td><code>TLV_ERR_NULL_ARG</code></td>
-<td>3</td>
-<td>A required pointer argument is <code>NULL</code>.</td>
-<td>Required outputs and descriptors; <code>NULL</code> data is valid only with size zero.</td>
-</tr>
-<tr>
-<td><code>TLV_ERR_OUT_OF_MEMORY</code></td>
-<td>4</td>
-<td>An owning operation could not obtain storage.</td>
-<td>Document allocation and allocation-size checks. Caller-supplied workspace exhaustion uses <code>BUFFER_TOO_SHORT</code>.</td>
-</tr>
-<tr>
-<td><code>TLV_ERR_END_OF_BUFFER</code></td>
-<td>5</td>
-<td>No further element exists, or the input is empty.</td>
-<td>Normal end of iteration with <code>tlv_reader_next</code>; for a single read, empty input.</td>
-</tr>
-<tr>
-<td><code>TLV_ERR_INVALID_TAG</code></td>
-<td>6</td>
-<td>A tag is malformed or invalid for the format or standard.</td>
-<td>Malformed BER identifier digits, or a tag the selected format rejects. Incomplete identifiers return <code>TLV_ERR_BUFFER_TOO_SHORT</code>.</td>
-</tr>
-<tr>
-<td><code>TLV_ERR_VISITOR</code></td>
+<td><code>TLV_ERR_INVALID_VALUE</code></td>
 <td>7</td>
-<td>A visitor callback requested an error stop.</td>
-<td>Your visitor returned <code>TLV_VISIT_ERROR</code>. Unknown visitor results produce <code>CALLBACK</code>.</td>
+<td>Content or its interpretation is invalid.</td>
+<td>DER/CER canonical Value checks and SET ordering; Query operand types, variable bindings, malformed images, invalid converted Values and scalar cardinality; malformed structural event streams. Configuration and provider contract violations use separate results.</td>
 </tr>
 <tr>
-<td><code>TLV_ERR_LIMIT</code></td>
+<td><code>TLV_ERR_SYNTAX</code></td>
 <td>8</td>
-<td>A configured depth, size or element-count limit was exceeded.</td>
-<td>The limits passed to the Tree Reader or validation function, <code>TLV_BER_MAX_DEPTH</code> (64). Limits are inclusive and zero is a real limit.</td>
+<td>Text does not match the requested grammar.</td>
+<td>Query expressions and V1 paths. Query diagnostics pair it with kind <code>SYNTAX</code> and an expression span.</td>
 </tr>
 <tr>
 <td><code>TLV_ERR_SCHEMA</code></td>
@@ -3988,46 +4013,46 @@ the breaking #551 migration; <code>INVALID_STATE = 19</code> does not promise ap
 <td>Missing or forbidden fields, excess occurrences, kind/order mismatches, and length or Value constraints. Schema detail identifies the reason, including <code>MISSING</code>.</td>
 </tr>
 <tr>
-<td><code>TLV_ERR_INVALID_ARG</code></td>
+<td><code>TLV_ERR_NULL_ARG</code></td>
 <td>10</td>
-<td>An API configuration or argument descriptor is invalid.</td>
-<td>A required callback missing from a format descriptor, or an invalid option value.</td>
+<td>A required pointer argument is <code>NULL</code>.</td>
+<td>Required outputs and descriptors; <code>NULL</code> data is valid only with size zero.</td>
 </tr>
 <tr>
-<td><code>TLV_ERR_INVALID_TAG_SIZE</code></td>
+<td><code>TLV_ERR_INVALID_ARG</code></td>
 <td>11</td>
-<td>A tag size is outside the range the operation or format supports.</td>
-<td>A tag length the selected format rejects (for example more than 8 bytes for BER, CER and DER, or a tag width different from the configured Fixed width), or an empty tag where the operation needs bytes. Also the numeric tag conversions for empty tags and tags longer than 8 bytes. <code>tlv_tag_t</code> itself has no size limit.</td>
+<td>An API configuration or argument descriptor is invalid.</td>
+<td>A required callback missing from a format descriptor, an invalid option value, or an unknown <code>TLV_BYTE_ORDER_*</code> value.</td>
 </tr>
 <tr>
-<td><code>TLV_ERR_INVALID_BYTE_ORDER</code></td>
+<td><code>TLV_ERR_INVALID_STATE</code></td>
 <td>12</td>
-<td>A byte order is unknown or unsupported.</td>
-<td>The <code>TLV_BYTE_ORDER_*</code> value passed to the integer conversion functions in <code>tlv/endian.h</code> and <code>tlv/tag.h</code>, or <code>tlv_fixed_format_t.length.byte_order</code> in <a href="../../formats/fixed/configurable/">configurable fixed-width TLV</a>.</td>
-</tr>
-<tr>
-<td><code>TLV_ERR_OVERFLOW</code></td>
-<td>13</td>
-<td>An unsigned value cannot fit the requested numeric width, or logical size arithmetic overflows.</td>
-<td>The value against the destination width in the same integer conversion functions.</td>
-</tr>
-<tr>
-<td><code>TLV_ERR_INVALID_VALUE</code></td>
-<td>14</td>
-<td>Content or its interpretation is invalid.</td>
-<td>DER/CER canonical Value checks and SET ordering; Query operand types, variable bindings, malformed images, invalid converted Values and scalar cardinality; malformed structural event streams. Configuration and provider contract violations use separate results.</td>
-</tr>
-<tr>
-<td><code>TLV_ERR_UNSUPPORTED</code></td>
-<td>15</td>
-<td>A type, Query capability or program-image version is unsupported.</td>
-<td>Strict ASN.1 validation rejects unchecked types; see <a href="../../standards/der/#strict-universal-value-validation">DER validation</a>. Query also uses this code outside ASN.1; Schema definition checks use it for valid graphs exceeding fixed checking capacity.</td>
+<td>The operation is forbidden by the current lifecycle state.</td>
+<td>Reset a failed or used Query execution before reuse; leave the callback before mutating; close Tree Writer parents before finishing; only skip a pending Reader subtree. Stale Document results also use this code.</td>
 </tr>
 <tr>
 <td><code>TLV_ERR_INVALID_SCHEMA</code></td>
-<td>16</td>
+<td>13</td>
 <td>A schema definition is invalid independently of input.</td>
 <td>Constraint kinds and bounds, required references, rule/group tables and DER type definitions.</td>
+</tr>
+<tr>
+<td><code>TLV_ERR_BUFFER_TOO_SHORT</code></td>
+<td>14</td>
+<td>A caller-supplied destination or workspace is too small.</td>
+<td>Writing: the output capacity is smaller than <code>tlv_encoded_size</code> reports; also frame arrays, arenas and scratch. Never used for incomplete input.</td>
+</tr>
+<tr>
+<td><code>TLV_ERR_LIMIT</code></td>
+<td>15</td>
+<td>A configured depth, size or element-count limit was exceeded.</td>
+<td>The limits passed to the Tree Reader or validation function, <code>TLV_BER_MAX_DEPTH</code> (64). Limits are inclusive and zero is a real limit.</td>
+</tr>
+<tr>
+<td><code>TLV_ERR_OVERFLOW</code></td>
+<td>16</td>
+<td>An unsigned value cannot fit the requested numeric width, or logical size arithmetic overflows.</td>
+<td>The value against the destination width in the same integer conversion functions.</td>
 </tr>
 <tr>
 <td><code>TLV_ERR_NATIVE_SIZE</code></td>
@@ -4036,25 +4061,63 @@ the breaking #551 migration; <code>INVALID_STATE = 19</code> does not promise ap
 <td>Checked conversion to <code>size_t</code>; the logical quantity itself remains valid.</td>
 </tr>
 <tr>
-<td><code>TLV_NEED_MORE_DATA</code></td>
+<td><code>TLV_ERR_OUT_OF_MEMORY</code></td>
 <td>18</td>
-<td>Incremental input is exhausted or incomplete.</td>
-<td>Supply an extended window or declare EOF. No element is published and the cursor does not advance.</td>
+<td>An owning operation could not obtain storage.</td>
+<td>Document allocation and allocation-size checks. Caller-supplied workspace exhaustion uses <code>BUFFER_TOO_SHORT</code>.</td>
 </tr>
 <tr>
-<td><code>TLV_ERR_INVALID_STATE</code></td>
+<td><code>TLV_ERR_UNSUPPORTED</code></td>
 <td>19</td>
-<td>The operation is forbidden by the current lifecycle state.</td>
-<td>Reset a failed or used Query execution before reuse; leave the callback before mutating; close Tree Writer parents before finishing; only skip a pending Reader subtree. Stale Document results also use this code.</td>
+<td>A type, Query capability or program-image version is unsupported.</td>
+<td>Strict ASN.1 validation rejects unchecked types; see <a href="../../standards/der/#strict-universal-value-validation">DER validation</a>. Query also uses this code outside ASN.1; Schema definition checks use it for valid graphs exceeding fixed checking capacity.</td>
+</tr>
+<tr>
+<td><code>TLV_ERR_VISITOR</code></td>
+<td>20</td>
+<td>A visitor callback requested an error stop.</td>
+<td>Your visitor returned <code>TLV_VISIT_ERROR</code>. Unknown visitor results produce <code>CALLBACK</code>.</td>
 </tr>
 <tr>
 <td><code>TLV_ERR_CALLBACK</code></td>
-<td>20</td>
+<td>21</td>
 <td>A callback violates its declared contract.</td>
 <td>Invalid discriminator or success payload; correct the provider. Legitimate provider failures keep their original result.</td>
 </tr>
 </tbody>
 </table>
+<h3 id="end-truncated-input-and-buffer-capacity">End, truncated input and buffer capacity<a class="headerlink" href="#end-truncated-input-and-buffer-capacity" title="Permanent link">&para;</a></h3>
+<p>These outcomes need different responses and never share a code:</p>
+<table>
+<thead>
+<tr>
+<th>Situation</th>
+<th>Result</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Final input, no further element</td>
+<td><code>TLV_END</code></td>
+</tr>
+<tr>
+<td>Final input ends inside a Tag, Length, Value or trailer</td>
+<td><code>TLV_ERR_TRUNCATED</code>, with an INPUT location</td>
+</tr>
+<tr>
+<td>Non-final input, either of the above</td>
+<td><code>TLV_NEED_MORE_DATA</code></td>
+</tr>
+<tr>
+<td>Destination or workspace too small</td>
+<td><code>TLV_ERR_BUFFER_TOO_SHORT</code></td>
+</tr>
+</tbody>
+</table>
+<p>Format decode callbacks report incomplete input as <code>TLV_ERR_TRUNCATED</code>;
+decoding has no destination, so <code>TLV_ERR_BUFFER_TOO_SHORT</code> from a decoder is
+a <code>CALLBACK</code> violation. <code>TLV_ERR_END_OF_BUFFER</code> and <code>TLV_ERR_INVALID_BYTE_ORDER</code>
+were removed without aliases; an unknown byte order is <code>TLV_ERR_INVALID_ARG</code>.</p>
 <h3 id="arguments-versus-lifecycle-state">Arguments versus lifecycle state<a class="headerlink" href="#arguments-versus-lifecycle-state" title="Permanent link">&para;</a></h3>
 <p><code>TLV_ERR_INVALID_STATE</code> distinguishes lifecycle/reentrancy rejection from
 <code>TLV_ERR_INVALID_ARG</code>, which still describes bad arguments, configuration,

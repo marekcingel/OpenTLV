@@ -4179,7 +4179,7 @@ counterpart and each protocol's wrapper under <code>builtins/&lt;protocol&gt;/</
 <a id="__codelineno-3-6" name="__codelineno-3-6" href="#__codelineno-3-6"></a>  document/  document.hpp
 <a id="__codelineno-3-7" name="__codelineno-3-7" href="#__codelineno-3-7"></a>  writer/    writer.hpp, tree.hpp, builder.hpp
 <a id="__codelineno-3-8" name="__codelineno-3-8" href="#__codelineno-3-8"></a>  schema/    schema.hpp
-<a id="__codelineno-3-9" name="__codelineno-3-9" href="#__codelineno-3-9"></a>  codec/     codec.hpp, structure.hpp, registry.hpp
+<a id="__codelineno-3-9" name="__codelineno-3-9" href="#__codelineno-3-9"></a>  codec/     dynamic.hpp, typed.hpp, structure.hpp, registry.hpp
 <a id="__codelineno-3-10" name="__codelineno-3-10" href="#__codelineno-3-10"></a>  formats/
 <a id="__codelineno-3-11" name="__codelineno-3-11" href="#__codelineno-3-11"></a>    fixed_format.hpp
 <a id="__codelineno-3-12" name="__codelineno-3-12" href="#__codelineno-3-12"></a>  builtins/
@@ -4191,9 +4191,8 @@ counterpart and each protocol's wrapper under <code>builtins/&lt;protocol&gt;/</
 <a id="__codelineno-3-18" name="__codelineno-3-18" href="#__codelineno-3-18"></a>    nfc/        type2.hpp
 </code></pre></div>
 <p><code>tlv++</code> is header-only, so there is no separate <code>tlv++/src/</code>. <code>registry.hpp</code>
-sits under <code>codec/</code> alongside <code>codec.hpp</code> and <code>structure.hpp</code>: it is a
-runtime-dispatch complement to the compile-time <code>TlvCodec</code> concept, with no C
-counterpart. Built-in C++ APIs now cover ASN.1, EMV, Bluetooth, LLDP, DHCP
+sits under <code>codec/</code> alongside the typed and structure codecs: it maps Tags to
+decoders selected at runtime, with no C counterpart. Built-in C++ APIs now cover ASN.1, EMV, Bluetooth, LLDP, DHCP
 and NFC under <code>builtins/&lt;protocol&gt;/</code>, following the enabled native components.
 See <a href="../cxx-builtins/">C++ built-in standards</a> for their scoped coverage.
 Every <code>tlv++</code> header keeps using full paths from the include root
@@ -4288,10 +4287,8 @@ offsets or allocate application objects. Application callbacks map fields and
 can invoke value codecs. Both APIs document object representation and ownership
 through the selected descriptor. C++ offers <code>decode_structure&lt;T&gt;</code> and
 <code>encode_structure</code> wrappers with caller-owned output storage.</p>
-<p>C++ Writers accept explicit Tags/bytes and typed fields that select Value codecs. <code>tlv::write_value(writer, value)</code>
-is the explicit codec convenience function for existing <code>T::tag</code> types. That
-helper retains its temporary <code>std::vector</code> and may allocate; raw I/O and the C
-codec wrappers do not allocate. C++ errors and user-defined object types may
+<p>C++ Writers accept explicit Tags/bytes and typed fields that select Value codecs;
+raw I/O and the C codec wrappers do not allocate. C++ errors and user-defined object types may
 also allocate according to their representation.</p>
 <h2 id="include-only-what-you-need">Include only what you need<a class="headerlink" href="#include-only-what-you-need" title="Permanent link">&para;</a></h2>
 <p>A build contains only the components it asks for. A project that needs just the
@@ -4487,9 +4484,10 @@ the former flat reader headers become
 <code>tlv++/builtins/asn1/ber.hpp</code>/<code>tlv++/builtins/fixed/fixed_format.hpp</code>.
 <code>tlv++/types.hpp</code>, <code>tlv++/compat.hpp</code>, <code>tlv++/diagnostic.hpp</code> and the
 aggregate <code>tlv++/tlv.hpp</code> are unaffected. No type, function or namespace
-changed; only header locations did.</p>
-<p>Replace typed <code>writer.write(value)</code> with
-<code>tlv::write_value(writer, value)</code>. Raw <code>writer.write(tag, bytes)</code> is unchanged.
+changed; only header locations did. <code>tlv++/codec/codec.hpp</code> was later removed
+together with its tag-carrying payload interface; use typed fields instead.</p>
+<p>Typed C++ writes use typed fields (<code>writer.write&lt;Field&gt;(value)</code>). Raw
+<code>writer.write(tag, bytes)</code> is unchanged.
 Split custom descriptors into <code>tlv_reader_format_t</code> and <code>tlv_writer_format_t</code>.
 Use matching <code>tlv_reader_format_&lt;name&gt;</code> / <code>tlv_writer_format_&lt;name&gt;</code> constants
 at each call site. Runtime construction uses <code>tlv_reader_format_init</code> and

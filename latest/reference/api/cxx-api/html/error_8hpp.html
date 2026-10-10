@@ -124,31 +124,32 @@ Enumerations</h2></td></tr>
 <tr class="separator:a9589938dbd11333ff8444739191ced14"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:ab9d10b8185e9a80cd73b5a0ef633a22c" id="r_ab9d10b8185e9a80cd73b5a0ef633a22c"><td class="memItemLeft" align="right" valign="top">enum class &#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="namespacetlv.html#ab9d10b8185e9a80cd73b5a0ef633a22c">tlv::errc</a> { <br />
 &#160;&#160;<a class="el" href="namespacetlv.html#ab9d10b8185e9a80cd73b5a0ef633a22ca444bcb3a3fcf8389296c49467f27e1d6">tlv::ok</a> = TLV_OK
+, <a class="el" href="namespacetlv.html#ab9d10b8185e9a80cd73b5a0ef633a22ca7f021a1415b86f2d013b2618fb31ae53">tlv::end</a> = TLV_END
+, <a class="el" href="namespacetlv.html#ab9d10b8185e9a80cd73b5a0ef633a22caac273a9aa2a7a6e63ef477fa7f6d1980">tlv::truncated</a> = TLV_ERR_TRUNCATED
 , <a class="el" href="namespacetlv.html#ab9d10b8185e9a80cd73b5a0ef633a22caf3476e64ac4a56f9900e0e8c1fb761a7">tlv::buffer_too_short</a> = TLV_ERR_BUFFER_TOO_SHORT
-, <a class="el" href="namespacetlv.html#ab9d10b8185e9a80cd73b5a0ef633a22ca2970685bea59a5d3e9bbd92de36caccc">tlv::invalid_length</a> = TLV_ERR_INVALID_LENGTH
+, <br />
+&#160;&#160;<a class="el" href="namespacetlv.html#ab9d10b8185e9a80cd73b5a0ef633a22ca2970685bea59a5d3e9bbd92de36caccc">tlv::invalid_length</a> = TLV_ERR_INVALID_LENGTH
 , <a class="el" href="namespacetlv.html#ab9d10b8185e9a80cd73b5a0ef633a22ca97925b4c4d12317896aa469d6d08c66f">tlv::null_argument</a> = TLV_ERR_NULL_ARG
-, <br />
-&#160;&#160;<a class="el" href="namespacetlv.html#ab9d10b8185e9a80cd73b5a0ef633a22ca5ea42cc8dbd653d9afd96c1d2fd147e2">tlv::out_of_memory</a> = TLV_ERR_OUT_OF_MEMORY
-, <a class="el" href="namespacetlv.html#ab9d10b8185e9a80cd73b5a0ef633a22caca11f56dd477c09e06583dbdcda0985f">tlv::end_of_input</a> = TLV_ERR_END_OF_BUFFER
+, <a class="el" href="namespacetlv.html#ab9d10b8185e9a80cd73b5a0ef633a22ca5ea42cc8dbd653d9afd96c1d2fd147e2">tlv::out_of_memory</a> = TLV_ERR_OUT_OF_MEMORY
 , <a class="el" href="namespacetlv.html#ab9d10b8185e9a80cd73b5a0ef633a22ca159cb53c185dae9e51fb5e4d14cf37a3">tlv::invalid_tag</a> = TLV_ERR_INVALID_TAG
-, <a class="el" href="namespacetlv.html#ab9d10b8185e9a80cd73b5a0ef633a22ca127870930d65c57ee65fcc47f2170d38">tlv::visitor</a> = TLV_ERR_VISITOR
 , <br />
-&#160;&#160;<a class="el" href="namespacetlv.html#ab9d10b8185e9a80cd73b5a0ef633a22caaa9f73eea60a006820d0f8768bc8a3fc">tlv::limit</a> = TLV_ERR_LIMIT
+&#160;&#160;<a class="el" href="namespacetlv.html#ab9d10b8185e9a80cd73b5a0ef633a22ca127870930d65c57ee65fcc47f2170d38">tlv::visitor</a> = TLV_ERR_VISITOR
+, <a class="el" href="namespacetlv.html#ab9d10b8185e9a80cd73b5a0ef633a22caaa9f73eea60a006820d0f8768bc8a3fc">tlv::limit</a> = TLV_ERR_LIMIT
 , <a class="el" href="namespacetlv.html#ab9d10b8185e9a80cd73b5a0ef633a22cac9550d5fad73447fc24ba47f95d1c6b7">tlv::schema</a> = TLV_ERR_SCHEMA
 , <a class="el" href="namespacetlv.html#ab9d10b8185e9a80cd73b5a0ef633a22ca924a8ceeac17f54d3be3f8cdf1c04eb2">tlv::callback</a> = TLV_ERR_CALLBACK
-, <a class="el" href="namespacetlv.html#ab9d10b8185e9a80cd73b5a0ef633a22ca1528b2e7d0051d6d859b53639dd6f49c">tlv::invalid_state</a> = TLV_ERR_INVALID_STATE
 , <br />
-&#160;&#160;<a class="el" href="namespacetlv.html#ab9d10b8185e9a80cd73b5a0ef633a22cae55d43eabeefe5a8271b4a3c898bd18f">tlv::invalid_argument</a> = TLV_ERR_INVALID_ARG
+&#160;&#160;<a class="el" href="namespacetlv.html#ab9d10b8185e9a80cd73b5a0ef633a22ca1528b2e7d0051d6d859b53639dd6f49c">tlv::invalid_state</a> = TLV_ERR_INVALID_STATE
+, <a class="el" href="namespacetlv.html#ab9d10b8185e9a80cd73b5a0ef633a22cae55d43eabeefe5a8271b4a3c898bd18f">tlv::invalid_argument</a> = TLV_ERR_INVALID_ARG
 , <a class="el" href="namespacetlv.html#ab9d10b8185e9a80cd73b5a0ef633a22ca43ea9c825aea3544f00b043c2641b915">tlv::invalid_tag_size</a> = TLV_ERR_INVALID_TAG_SIZE
-, <a class="el" href="namespacetlv.html#ab9d10b8185e9a80cd73b5a0ef633a22ca27e961b905ec9360d190b99ac1a74b64">tlv::invalid_byte_order</a> = TLV_ERR_INVALID_BYTE_ORDER
-, <a class="el" href="namespacetlv.html#ab9d10b8185e9a80cd73b5a0ef633a22ca0bd9f6dd716003f3818d15d2e211ee73">tlv::overflow</a> = TLV_ERR_OVERFLOW
+, <a class="el" href="namespacetlv.html#ab9d10b8185e9a80cd73b5a0ef633a22ca55152fd428afc5d73e8878d27d0b09c3">tlv::syntax</a> = TLV_ERR_SYNTAX
 , <br />
-&#160;&#160;<a class="el" href="namespacetlv.html#ab9d10b8185e9a80cd73b5a0ef633a22ca24fe18195f0e29f8d3ef5ad3110cfc24">tlv::invalid_value</a> = TLV_ERR_INVALID_VALUE
+&#160;&#160;<a class="el" href="namespacetlv.html#ab9d10b8185e9a80cd73b5a0ef633a22ca0bd9f6dd716003f3818d15d2e211ee73">tlv::overflow</a> = TLV_ERR_OVERFLOW
+, <a class="el" href="namespacetlv.html#ab9d10b8185e9a80cd73b5a0ef633a22ca24fe18195f0e29f8d3ef5ad3110cfc24">tlv::invalid_value</a> = TLV_ERR_INVALID_VALUE
 , <a class="el" href="namespacetlv.html#ab9d10b8185e9a80cd73b5a0ef633a22ca723c25877a86786664edc4b643c08a6f">tlv::unsupported</a>
 , <a class="el" href="namespacetlv.html#ab9d10b8185e9a80cd73b5a0ef633a22ca63d28c4a1c67cfd6fbb0fcb24cc34585">tlv::invalid_schema</a> = TLV_ERR_INVALID_SCHEMA
-, <a class="el" href="namespacetlv.html#ab9d10b8185e9a80cd73b5a0ef633a22caa2bdee755c9d473d1ed3ed0fd1683dd4">tlv::native_size</a> = TLV_ERR_NATIVE_SIZE
 , <br />
-&#160;&#160;<a class="el" href="namespacetlv.html#ab9d10b8185e9a80cd73b5a0ef633a22ca14e09d0c3397651da4ed57851df3caa8">tlv::need_more_data</a> = TLV_NEED_MORE_DATA
+&#160;&#160;<a class="el" href="namespacetlv.html#ab9d10b8185e9a80cd73b5a0ef633a22caa2bdee755c9d473d1ed3ed0fd1683dd4">tlv::native_size</a> = TLV_ERR_NATIVE_SIZE
+, <a class="el" href="namespacetlv.html#ab9d10b8185e9a80cd73b5a0ef633a22ca14e09d0c3397651da4ed57851df3caa8">tlv::need_more_data</a> = TLV_NEED_MORE_DATA
 <br />
  }</td></tr>
 <tr class="memdesc:ab9d10b8185e9a80cd73b5a0ef633a22c"><td class="mdescLeft">&#160;</td><td class="mdescRight">Canonical operation outcomes, independent of native enum types.  <a href="namespacetlv.html#ab9d10b8185e9a80cd73b5a0ef633a22c">More...</a><br /></td></tr>

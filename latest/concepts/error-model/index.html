@@ -4047,12 +4047,15 @@ for authors of C capabilities and language facades. Read the
 <a href="../architectural-rules/">architectural rules</a> and
 <a href="../../reference/errors/">current error reference</a> first.</p>
 <p><strong>Status: design decided; lifecycle implemented by #552, Schema classification
-by #553, capability/resource/callback results by #554, and common locations by #555. Remaining API and binding
+by #553, capability/resource/callback results by #554, common locations by #555, and the
+<code>END</code>, <code>TRUNCATED</code> and <code>SYNTAX</code> results by #578. Remaining API and binding
 migration is separate work.</strong> This page defines the target contract.
-<code>TLV_ERR_INVALID_STATE</code>, <code>TLV_ERR_INVALID_SCHEMA</code>, <code>TLV_ERR_UNSUPPORTED</code> and
-<code>TLV_ERR_CALLBACK</code> are public, together with Query kinds <code>STATE</code>, <code>CALLBACK</code>,
-<code>TYPE</code> and <code>IMAGE</code>. Other new target names are not yet public declarations. The reference page continues to describe the running
-implementation. This design does not preserve source, binary, enum-number or
+<code>TLV_END</code>, <code>TLV_ERR_TRUNCATED</code>, <code>TLV_ERR_SYNTAX</code>, <code>TLV_ERR_INVALID_STATE</code>,
+<code>TLV_ERR_INVALID_SCHEMA</code>, <code>TLV_ERR_UNSUPPORTED</code> and <code>TLV_ERR_CALLBACK</code> are public,
+together with Query kinds <code>STATE</code>, <code>CALLBACK</code>, <code>TYPE</code> and <code>IMAGE</code>;
+<code>TLV_ERR_END_OF_BUFFER</code> and <code>TLV_ERR_INVALID_BYTE_ORDER</code> are removed. Target
+names that are not yet declared, such as the Query kind <code>ARGUMENT</code>, appear only
+on this page; the reference page describes the running implementation. This design does not preserve source, binary, enum-number or
 diagnostic-layout compatibility. Removed names get no aliases, compatibility
 wrappers or deprecation period. Native consumers and bindings migrate together.</p>
 <h2 id="one-failure-four-questions">One failure, four questions<a class="headerlink" href="#one-failure-four-questions" title="Permanent link">&para;</a></h2>
@@ -4626,7 +4629,7 @@ enums constitute a migration.</p>
 </tr>
 <tr>
 <td><code>TLV_QUERY_ERROR_READER</code></td>
-<td>Preserve the Reader result and typed detail, including <code>LIMIT</code>, <code>BUFFER_TOO_SHORT</code>, <code>TLV_END</code> or <code>TLV_NEED_MORE_DATA</code>.</td>
+<td>Preserve the Reader result and typed detail, including <code>LIMIT</code>, <code>TRUNCATED</code>, <code>BUFFER_TOO_SHORT</code>, <code>TLV_END</code> or <code>TLV_NEED_MORE_DATA</code>.</td>
 </tr>
 <tr>
 <td><code>TLV_QUERY_ERROR_BINDING</code></td>
@@ -4848,7 +4851,7 @@ Unknown visitor discriminators produce <code>CALLBACK</code>.</p>
 including impossible preorder depth returned by a Tree Writer source callback.
 Codec uses the shared result domain and lossless typed propagation as of #556;
 other Query detail kinds and the remaining result classes are follow-up work. No append-only or numeric ABI guarantee is attached to
-<code>INVALID_STATE = 19</code> or <code>STATE = 12</code>. The complete target API is not yet available.
+result or Query kind values; #578 regrouped <code>tlv_result_t</code> by category. The complete target API is not yet available.
 The follow-up implementation replaces enums/signatures/layouts directly and
 updates their Doxygen contracts. It must cover common result strings, all
 native producers, C++ facades, Go/Rust/Python/Lua/JS-WASM, CLI rendering and

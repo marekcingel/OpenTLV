@@ -3747,7 +3747,7 @@ validate control Values, their ordering, or the contents of an NDEF message.</p>
 65534 bytes use <code>FF</code> followed by a two-byte big-endian count. For example,
 <code>03 FF 01 00</code> introduces a 256-byte NDEF Value. Extended counts below 255 and
 the reserved <code>FFFF</code> count return <code>TLV_ERR_INVALID_LENGTH</code>; incomplete fields
-or Values return <code>TLV_ERR_BUFFER_TOO_SHORT</code>.</p>
+or Values return <code>TLV_ERR_TRUNCATED</code>.</p>
 <p>NULL and Terminator have no Length or wire Value. They expose an empty
 semantic Value and are returned as ordinary elements. The Reader does not
 skip NULL or stop at Terminator. The caller applies those policies.</p>

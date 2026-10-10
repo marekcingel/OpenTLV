@@ -4077,7 +4077,7 @@ tree traversal and schemas can rescan nested encodings.</p>
 <p>Indefinite primitive values and malformed EOC length fields return
 <code>TLV_ERR_INVALID_LENGTH</code>. Unexpected EOC in a scanned definite scope and reserved
 universal tag zero used as an ordinary element return <code>TLV_ERR_INVALID_TAG</code>.
-Missing/truncated EOC or child encodings return <code>TLV_ERR_BUFFER_TOO_SHORT</code>.
+Missing/truncated EOC or child encodings return <code>TLV_ERR_TRUNCATED</code>.
 Single-element definite reads still defer child validation to tree traversal.</p>
 <h3 id="explicit-indefinite-writing">Explicit indefinite writing<a class="headerlink" href="#explicit-indefinite-writing" title="Permanent link">&para;</a></h3>
 <p><code>tlv_write</code>, <code>tlv_writer_write</code>, and <code>tlv_encoded_size</code> retain definite BER output.
@@ -4147,7 +4147,7 @@ full 64-bit range instead of the current build's <code>size_t</code>. The indefi
 marker (<code>80</code> alone) and the reserved <code>FF</code> prefix are rejected with
 <code>TLV_ERR_INVALID_LENGTH</code>, as is a padded value wider than <code>tlv_size_t</code> or
 nonzero excess padding. A field that declares more length octets than
-<code>data_size</code> provides returns <code>TLV_ERR_BUFFER_TOO_SHORT</code>. It does not process
+<code>data_size</code> provides returns <code>TLV_ERR_TRUNCATED</code>. It does not process
 the indefinite-length marker's associated content or constructed EOC framing;
 use <code>tlv_format_ber</code> or <code>tlv_ber_write_indefinite</code> for that.</p>
 <p><code>tlv_ber_length_encode</code> always produces the shortest definite form and
@@ -4237,9 +4237,9 @@ representation rules.</p>
 <p>Malformed tags and unterminated tags on write return <code>TLV_ERR_INVALID_TAG</code>,
 unless continuation requires bytes beyond <code>TLV_ASN1_TAG_MAX_SIZE</code>. Empty tags on write and
 tags longer than <code>TLV_ASN1_TAG_MAX_SIZE</code> return <code>TLV_ERR_INVALID_TAG_SIZE</code>. Missing tag continuation or length bytes return
-<code>TLV_ERR_BUFFER_TOO_SHORT</code>; a continuation requiring bytes beyond <code>TLV_ASN1_TAG_MAX_SIZE</code>
+<code>TLV_ERR_TRUNCATED</code>; a continuation requiring bytes beyond <code>TLV_ASN1_TAG_MAX_SIZE</code>
 returns <code>TLV_ERR_INVALID_TAG_SIZE</code> even if those bytes are missing. Empty input to
-the generic reader returns <code>TLV_ERR_END_OF_BUFFER</code>. All BER-specific encoding
+the generic reader returns <code>TLV_END</code>. All BER-specific encoding
 and validation live in the format callbacks.</p>
 <!-- markdownlint-disable-next-line MD033 -->
 <p><a id="layout-and-typical-use"></a></p>

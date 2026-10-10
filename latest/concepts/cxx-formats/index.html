@@ -3790,7 +3790,7 @@ must reject a request lacking the bytes they need.</p>
 code and optional <code>tlv_format_error_t</code> wire detail. Return
 <code>tlv::unexpected&lt;tlv::format_failure&gt;(...)</code>; partial offsets and ranges are
 relative to the current element. Incomplete input uses
-<code>TLV_ERR_BUFFER_TOO_SHORT</code>; malformed input uses its specific error. The Reader
+<code>TLV_ERR_TRUNCATED</code>; malformed input uses its specific error. The Reader
 engine translates truncation into <code>TLV_NEED_MORE_DATA</code> for incremental input and
 preserves its cursor. Generic C++ operation errors retain their existing message
 allocation behavior.</p>
@@ -3814,11 +3814,11 @@ are used. A <code>view()</code> may be temporary; destroying it does not destroy
 Documents retain their documented descriptor/context dependencies even when
 their input bytes are owned.</p>
 <h2 id="source-migration">Source migration<a class="headerlink" href="#source-migration" title="Permanent link">&para;</a></h2>
-<p>Reader and Writer are now templates. Existing runtime-Format code uses
-<code>tlv::reader&lt;&gt;</code> and <code>tlv::writer&lt;&gt;</code>, including in function parameter types.
-Their existing C++ view and transitional native-descriptor constructors remain
-available. <code>write_value</code> accepts a Writer with any Format parameter. The public
-C API, ABI and serialized behavior of existing Formats are unchanged.</p>
+<p>Reader and Writer are templates. Runtime-Format code uses <code>tlv::reader&lt;&gt;</code> and
+<code>tlv::writer&lt;&gt;</code>, including in function parameter types, and constructs them
+from a <code>tlv::format</code> view; wrap a native C descriptor explicitly with
+<code>tlv::native::borrow_format()</code>. The public C API, ABI and serialized behavior
+of existing Formats are unchanged.</p>
 
 
 

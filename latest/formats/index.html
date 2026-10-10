@@ -4131,8 +4131,8 @@ beginning of a buffer:</p>
 The reader allocates no memory, copies no value bytes, and does not decode
 value semantics or validate a schema. Formats may inspect nested framing to
 resolve an element boundary. Empty input (including NULL with size zero)
-returns <code>TLV_ERR_END_OF_BUFFER</code>; missing tag, length, or value bytes return
-<code>TLV_ERR_BUFFER_TOO_SHORT</code> with the supplied formats. Invalid arguments return
+returns <code>TLV_END</code>; missing tag, length, or value bytes return
+<code>TLV_ERR_TRUNCATED</code> with the supplied formats. Invalid arguments return
 <code>TLV_ERR_NULL_ARG</code>. Both outputs are required and remain unchanged on failure.
 Custom format callback errors propagate unchanged. The stateful
 <code>tlv_reader_next</code> uses the same parser and advances by the consumed size.</p>

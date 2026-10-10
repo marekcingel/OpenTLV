@@ -3997,7 +3997,8 @@ replaces logical measurement or allocates output storage.</p>
 <li><code>TLV_ERR_OVERFLOW</code>: logical arithmetic exceeds the logical size domain.</li>
 <li><code>TLV_ERR_INVALID_LENGTH</code>: the quantity is invalid for the wire encoding.</li>
 <li><code>TLV_ERR_NATIVE_SIZE</code>: a valid logical size exceeds the native address space.</li>
-<li><code>TLV_ERR_BUFFER_TOO_SHORT</code>: the concrete buffer is insufficient.</li>
+<li><code>TLV_ERR_BUFFER_TOO_SHORT</code>: the concrete destination buffer is insufficient.</li>
+<li><code>TLV_ERR_TRUNCATED</code>: the input ends inside the element being decoded.</li>
 </ul>
 <p>Wire integer byte order is explicit and independent of the host. A format's
 accepted logical range must not silently change between 32-bit and 64-bit builds.</p>

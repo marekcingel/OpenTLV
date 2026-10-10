@@ -72,7 +72,6 @@ $(function() {
   <div class="summary">
 <a href="#namespaces">Namespaces</a> &#124;
 <a href="#nested-classes">Classes</a> &#124;
-<a href="#concepts">Concepts</a> &#124;
 <a href="#typedef-members">Typedefs</a> &#124;
 <a href="#enum-members">Enumerations</a> &#124;
 <a href="#func-members">Functions</a> &#124;
@@ -226,9 +225,6 @@ Classes</h2></td></tr>
 <tr class="memitem:"><td class="memItemLeft" align="right" valign="top">class &#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classtlv_1_1generator.html">generator</a></td></tr>
 <tr class="memdesc:"><td class="mdescLeft">&#160;</td><td class="mdescRight">Reusable C++ generator with owned scratch storage and owned case results.  <a href="classtlv_1_1generator.html#details">More...</a><br /></td></tr>
 <tr class="separator:"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:"><td class="memItemLeft" align="right" valign="top">struct &#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="structtlv_1_1is__tlv__codec.html">is_tlv_codec</a></td></tr>
-<tr class="memdesc:"><td class="mdescLeft">&#160;</td><td class="mdescRight">Trait for the legacy application payload interface that includes its own tag.  <a href="structtlv_1_1is__tlv__codec.html#details">More...</a><br /></td></tr>
-<tr class="separator:"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:"><td class="memItemLeft" align="right" valign="top">struct &#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="structtlv_1_1measure__request.html">measure_request</a></td></tr>
 <tr class="memdesc:"><td class="mdescLeft">&#160;</td><td class="mdescRight">Borrowed arguments for exact logical Format measurement.  <a href="structtlv_1_1measure__request.html#details">More...</a><br /></td></tr>
 <tr class="separator:"><td class="memSeparator" colspan="2">&#160;</td></tr>
@@ -257,7 +253,7 @@ Classes</h2></td></tr>
 <tr class="memdesc:"><td class="mdescLeft">&#160;</td><td class="mdescRight">Query compilation or lookup failure with the original C error and location.  <a href="classtlv_1_1query__error.html#details">More...</a><br /></td></tr>
 <tr class="separator:"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:"><td class="memItemLeft" align="right" valign="top">class &#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classtlv_1_1query__execution.html">query_execution</a></td></tr>
-<tr class="memdesc:"><td class="mdescLeft">&#160;</td><td class="mdescRight">Independent move-only Query continuation, retaining its compiled program. Borrowed input and environments must remain stable until destruction/reset. Byte/string scalars and Tree events borrow input/program/workspace; copy explicitly for owned results. NEED_MORE_DATA preserves state and differs from final END_OF_BUFFER.  <a href="classtlv_1_1query__execution.html#details">More...</a><br /></td></tr>
+<tr class="memdesc:"><td class="mdescLeft">&#160;</td><td class="mdescRight">Independent move-only Query continuation, retaining its compiled program. Borrowed input and environments must remain stable until destruction/reset. Byte/string scalars and Tree events borrow input/program/workspace; copy explicitly for owned results. NEED_MORE_DATA preserves state and differs from final TLV_END.  <a href="classtlv_1_1query__execution.html#details">More...</a><br /></td></tr>
 <tr class="separator:"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:"><td class="memItemLeft" align="right" valign="top">class &#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classtlv_1_1query__expression.html">query_expression</a></td></tr>
 <tr class="memdesc:"><td class="mdescLeft">&#160;</td><td class="mdescRight">Typed expression text, validated only when compiled through the canonical C engine.  <a href="classtlv_1_1query__expression.html#details">More...</a><br /></td></tr>
@@ -362,12 +358,6 @@ Classes</h2></td></tr>
 <tr class="memdesc:"><td class="mdescLeft">&#160;</td><td class="mdescRight">Borrowed, disjoint construction storage and explicit traversal limits.  <a href="structtlv_1_1writer__workspace.html#details">More...</a><br /></td></tr>
 <tr class="separator:"><td class="memSeparator" colspan="2">&#160;</td></tr>
 </table><table class="memberdecls">
-<tr class="heading"><td colspan="2"><h2 class="groupheader"><a id="concepts" name="concepts"></a>
-Concepts</h2></td></tr>
-<tr class="memitem:"><td class="memItemLeft" align="right" valign="top">concept &#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="concepttlv_1_1TlvCodec.html">TlvCodec</a></td></tr>
-<tr class="memdesc:"><td class="mdescLeft">&#160;</td><td class="mdescRight">Concept form of <a class="el" href="structtlv_1_1is__tlv__codec.html" title="Trait for the legacy application payload interface that includes its own tag.">tlv::is_tlv_codec</a>; available from C++20. <br /></td></tr>
-<tr class="separator:"><td class="memSeparator" colspan="2">&#160;</td></tr>
-</table><table class="memberdecls">
 <tr class="heading"><td colspan="2"><h2 class="groupheader"><a id="typedef-members" name="typedef-members"></a>
 Typedefs</h2></td></tr>
 <tr class="memitem:ab3b27dc7d0096b9d584e42a691be0372" id="r_ab3b27dc7d0096b9d584e42a691be0372"><td class="memItemLeft" align="right" valign="top">using&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="namespacetlv.html#ab3b27dc7d0096b9d584e42a691be0372">uint8_codec</a> = detail::codec_adapter&lt; uint8_t, &amp;<a class="elRef" href="../../c-api/html/values_8h.html#af32720386bd4480a5ec873793a5fd7e8">tlv_codec_uint8</a> &gt;</td></tr>
@@ -449,7 +439,7 @@ Typedefs</h2></td></tr>
 <tr class="memdesc:aac7ce2fb952523ed254ce316a65a386b"><td class="mdescLeft">&#160;</td><td class="mdescRight">Opaque structural Writer frame storage; contents belong to the active Writer.  <br /></td></tr>
 <tr class="separator:aac7ce2fb952523ed254ce316a65a386b"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:ab17c45337fcf91eb2d6e5477b0fbe06d" id="r_ab17c45337fcf91eb2d6e5477b0fbe06d"><td class="memItemLeft" align="right" valign="top">using&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="namespacetlv.html#ab17c45337fcf91eb2d6e5477b0fbe06d">tree_writer_frame</a> = <a class="elRef" href="../../c-api/html/group__writer.html#gac48be24a305bd17c0a57ebc45b7a771f">tlv_tree_writer_frame_t</a></td></tr>
-<tr class="memdesc:ab17c45337fcf91eb2d6e5477b0fbe06d"><td class="mdescLeft">&#160;</td><td class="mdescRight">Caller-owned Tree Writer frame; retains a borrowed Tag until <a class="el" href="namespacetlv.html#a047694bc3dd10e75e2dc596b4654abf3a7f021a1415b86f2d013b2618fb31ae53">end()</a>.  <br /></td></tr>
+<tr class="memdesc:ab17c45337fcf91eb2d6e5477b0fbe06d"><td class="mdescLeft">&#160;</td><td class="mdescRight">Caller-owned Tree Writer frame; retains a borrowed Tag until <a class="el" href="namespacetlv.html#ab9d10b8185e9a80cd73b5a0ef633a22ca7f021a1415b86f2d013b2618fb31ae53">end()</a>.  <br /></td></tr>
 <tr class="separator:ab17c45337fcf91eb2d6e5477b0fbe06d"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:a57b8cb8121f7e7c4f797dee062d94717" id="r_a57b8cb8121f7e7c4f797dee062d94717"><td class="memItemLeft" align="right" valign="top">using&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="namespacetlv.html#a57b8cb8121f7e7c4f797dee062d94717">tree_writer_workspace</a> = <a class="elRef" href="../../c-api/html/group__writer.html#gab9db909d8cb7eb930d06a32e07a72fd8">tlv_tree_writer_workspace_t</a></td></tr>
 <tr class="memdesc:a57b8cb8121f7e7c4f797dee062d94717"><td class="mdescLeft">&#160;</td><td class="mdescRight">Borrowed bounded staging storage and required-capacity results for tree measurement.  <br /></td></tr>
@@ -517,31 +507,32 @@ Enumerations</h2></td></tr>
 <tr class="separator:a9589938dbd11333ff8444739191ced14"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:ab9d10b8185e9a80cd73b5a0ef633a22c" id="r_ab9d10b8185e9a80cd73b5a0ef633a22c"><td class="memItemLeft" align="right" valign="top">enum class &#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="namespacetlv.html#ab9d10b8185e9a80cd73b5a0ef633a22c">errc</a> { <br />
 &#160;&#160;<a class="el" href="namespacetlv.html#ab9d10b8185e9a80cd73b5a0ef633a22ca444bcb3a3fcf8389296c49467f27e1d6">ok</a> = TLV_OK
+, <a class="el" href="namespacetlv.html#ab9d10b8185e9a80cd73b5a0ef633a22ca7f021a1415b86f2d013b2618fb31ae53">end</a> = TLV_END
+, <a class="el" href="namespacetlv.html#ab9d10b8185e9a80cd73b5a0ef633a22caac273a9aa2a7a6e63ef477fa7f6d1980">truncated</a> = TLV_ERR_TRUNCATED
 , <a class="el" href="namespacetlv.html#ab9d10b8185e9a80cd73b5a0ef633a22caf3476e64ac4a56f9900e0e8c1fb761a7">buffer_too_short</a> = TLV_ERR_BUFFER_TOO_SHORT
-, <a class="el" href="namespacetlv.html#ab9d10b8185e9a80cd73b5a0ef633a22ca2970685bea59a5d3e9bbd92de36caccc">invalid_length</a> = TLV_ERR_INVALID_LENGTH
+, <br />
+&#160;&#160;<a class="el" href="namespacetlv.html#ab9d10b8185e9a80cd73b5a0ef633a22ca2970685bea59a5d3e9bbd92de36caccc">invalid_length</a> = TLV_ERR_INVALID_LENGTH
 , <a class="el" href="namespacetlv.html#ab9d10b8185e9a80cd73b5a0ef633a22ca97925b4c4d12317896aa469d6d08c66f">null_argument</a> = TLV_ERR_NULL_ARG
-, <br />
-&#160;&#160;<a class="el" href="namespacetlv.html#ab9d10b8185e9a80cd73b5a0ef633a22ca5ea42cc8dbd653d9afd96c1d2fd147e2">out_of_memory</a> = TLV_ERR_OUT_OF_MEMORY
-, <a class="el" href="namespacetlv.html#ab9d10b8185e9a80cd73b5a0ef633a22caca11f56dd477c09e06583dbdcda0985f">end_of_input</a> = TLV_ERR_END_OF_BUFFER
+, <a class="el" href="namespacetlv.html#ab9d10b8185e9a80cd73b5a0ef633a22ca5ea42cc8dbd653d9afd96c1d2fd147e2">out_of_memory</a> = TLV_ERR_OUT_OF_MEMORY
 , <a class="el" href="namespacetlv.html#ab9d10b8185e9a80cd73b5a0ef633a22ca159cb53c185dae9e51fb5e4d14cf37a3">invalid_tag</a> = TLV_ERR_INVALID_TAG
-, <a class="el" href="namespacetlv.html#ab9d10b8185e9a80cd73b5a0ef633a22ca127870930d65c57ee65fcc47f2170d38">visitor</a> = TLV_ERR_VISITOR
 , <br />
-&#160;&#160;<a class="el" href="namespacetlv.html#ab9d10b8185e9a80cd73b5a0ef633a22caaa9f73eea60a006820d0f8768bc8a3fc">limit</a> = TLV_ERR_LIMIT
+&#160;&#160;<a class="el" href="namespacetlv.html#ab9d10b8185e9a80cd73b5a0ef633a22ca127870930d65c57ee65fcc47f2170d38">visitor</a> = TLV_ERR_VISITOR
+, <a class="el" href="namespacetlv.html#ab9d10b8185e9a80cd73b5a0ef633a22caaa9f73eea60a006820d0f8768bc8a3fc">limit</a> = TLV_ERR_LIMIT
 , <a class="el" href="namespacetlv.html#ab9d10b8185e9a80cd73b5a0ef633a22cac9550d5fad73447fc24ba47f95d1c6b7">schema</a> = TLV_ERR_SCHEMA
 , <a class="el" href="namespacetlv.html#ab9d10b8185e9a80cd73b5a0ef633a22ca924a8ceeac17f54d3be3f8cdf1c04eb2">callback</a> = TLV_ERR_CALLBACK
-, <a class="el" href="namespacetlv.html#ab9d10b8185e9a80cd73b5a0ef633a22ca1528b2e7d0051d6d859b53639dd6f49c">invalid_state</a> = TLV_ERR_INVALID_STATE
 , <br />
-&#160;&#160;<a class="el" href="namespacetlv.html#ab9d10b8185e9a80cd73b5a0ef633a22cae55d43eabeefe5a8271b4a3c898bd18f">invalid_argument</a> = TLV_ERR_INVALID_ARG
+&#160;&#160;<a class="el" href="namespacetlv.html#ab9d10b8185e9a80cd73b5a0ef633a22ca1528b2e7d0051d6d859b53639dd6f49c">invalid_state</a> = TLV_ERR_INVALID_STATE
+, <a class="el" href="namespacetlv.html#ab9d10b8185e9a80cd73b5a0ef633a22cae55d43eabeefe5a8271b4a3c898bd18f">invalid_argument</a> = TLV_ERR_INVALID_ARG
 , <a class="el" href="namespacetlv.html#ab9d10b8185e9a80cd73b5a0ef633a22ca43ea9c825aea3544f00b043c2641b915">invalid_tag_size</a> = TLV_ERR_INVALID_TAG_SIZE
-, <a class="el" href="namespacetlv.html#ab9d10b8185e9a80cd73b5a0ef633a22ca27e961b905ec9360d190b99ac1a74b64">invalid_byte_order</a> = TLV_ERR_INVALID_BYTE_ORDER
-, <a class="el" href="namespacetlv.html#ab9d10b8185e9a80cd73b5a0ef633a22ca0bd9f6dd716003f3818d15d2e211ee73">overflow</a> = TLV_ERR_OVERFLOW
+, <a class="el" href="namespacetlv.html#ab9d10b8185e9a80cd73b5a0ef633a22ca55152fd428afc5d73e8878d27d0b09c3">syntax</a> = TLV_ERR_SYNTAX
 , <br />
-&#160;&#160;<a class="el" href="namespacetlv.html#ab9d10b8185e9a80cd73b5a0ef633a22ca24fe18195f0e29f8d3ef5ad3110cfc24">invalid_value</a> = TLV_ERR_INVALID_VALUE
+&#160;&#160;<a class="el" href="namespacetlv.html#ab9d10b8185e9a80cd73b5a0ef633a22ca0bd9f6dd716003f3818d15d2e211ee73">overflow</a> = TLV_ERR_OVERFLOW
+, <a class="el" href="namespacetlv.html#ab9d10b8185e9a80cd73b5a0ef633a22ca24fe18195f0e29f8d3ef5ad3110cfc24">invalid_value</a> = TLV_ERR_INVALID_VALUE
 , <a class="el" href="namespacetlv.html#ab9d10b8185e9a80cd73b5a0ef633a22ca723c25877a86786664edc4b643c08a6f">unsupported</a>
 , <a class="el" href="namespacetlv.html#ab9d10b8185e9a80cd73b5a0ef633a22ca63d28c4a1c67cfd6fbb0fcb24cc34585">invalid_schema</a> = TLV_ERR_INVALID_SCHEMA
-, <a class="el" href="namespacetlv.html#ab9d10b8185e9a80cd73b5a0ef633a22caa2bdee755c9d473d1ed3ed0fd1683dd4">native_size</a> = TLV_ERR_NATIVE_SIZE
 , <br />
-&#160;&#160;<a class="el" href="namespacetlv.html#ab9d10b8185e9a80cd73b5a0ef633a22ca14e09d0c3397651da4ed57851df3caa8">need_more_data</a> = TLV_NEED_MORE_DATA
+&#160;&#160;<a class="el" href="namespacetlv.html#ab9d10b8185e9a80cd73b5a0ef633a22caa2bdee755c9d473d1ed3ed0fd1683dd4">native_size</a> = TLV_ERR_NATIVE_SIZE
+, <a class="el" href="namespacetlv.html#ab9d10b8185e9a80cd73b5a0ef633a22ca14e09d0c3397651da4ed57851df3caa8">need_more_data</a> = TLV_NEED_MORE_DATA
 <br />
  }</td></tr>
 <tr class="memdesc:ab9d10b8185e9a80cd73b5a0ef633a22c"><td class="mdescLeft">&#160;</td><td class="mdescRight">Canonical operation outcomes, independent of native enum types.  <a href="namespacetlv.html#ab9d10b8185e9a80cd73b5a0ef633a22c">More...</a><br /></td></tr>
@@ -774,7 +765,7 @@ Functions</h2></td></tr>
 <tr class="memitem:ac21543dad24955a172717e44c22ea4cd" id="r_ac21543dad24955a172717e44c22ea4cd"><td class="memItemLeft" align="right" valign="top"><a class="el" href="namespacetlv.html#a00ca9c69c35ef11f6a22b7eda1b115ba">diagnostic</a>&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="namespacetlv.html#ac21543dad24955a172717e44c22ea4cd">make_diagnostic</a> (<a class="el" href="namespacetlv.html#ab9d10b8185e9a80cd73b5a0ef633a22c">errc</a> code, <a class="el" href="namespacetlv.html#a066bba7bde757c31179a8585a37ae760">severity</a> level=<a class="el" href="namespacetlv.html#a066bba7bde757c31179a8585a37ae760acb5e100e5a9a3e7f6d1fd97512215282">severity::error</a>) noexcept</td></tr>
 <tr class="memdesc:ac21543dad24955a172717e44c22ea4cd"><td class="mdescLeft">&#160;</td><td class="mdescRight">Initialize common diagnostic metadata using C++ status and severity.  <br /></td></tr>
 <tr class="separator:ac21543dad24955a172717e44c22ea4cd"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:a785654eaf977a9bef21cbecc005f568d" id="r_a785654eaf977a9bef21cbecc005f568d"><td class="memItemLeft" align="right" valign="top">void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="namespacetlv.html#a785654eaf977a9bef21cbecc005f568d">set_location</a> (<a class="el" href="namespacetlv.html#a00ca9c69c35ef11f6a22b7eda1b115ba">diagnostic</a> &amp;<a class="el" href="namespacetlv.html#a0e9dc5e120173d6322fc63d2d1fc09c3a2063c1608d6e0baf80249c42e2be5804">value</a>, <a class="el" href="namespacetlv.html#a55a9e58b26605c8d07848f7a2721b1d7">location_domain</a> <a class="el" href="namespacetlv.html#ad34af8ea6e99862f3fa9038d4e15794b">domain</a>, <a class="el" href="namespacetlv.html#a1d189f8757dea18406596d1c3c5ff3eb">location_kind</a> <a class="el" href="namespacetlv.html#a4a6c54ee451ccac7733e7582ab64d736">kind</a>, size_t <a class="el" href="namespacetlv.html#a047694bc3dd10e75e2dc596b4654abf3a8d589afa4dfaeeed85fff5aa78e5ff6a">begin</a>, size_t <a class="el" href="namespacetlv.html#a047694bc3dd10e75e2dc596b4654abf3a7f021a1415b86f2d013b2618fb31ae53">end</a>) noexcept</td></tr>
+<tr class="memitem:a785654eaf977a9bef21cbecc005f568d" id="r_a785654eaf977a9bef21cbecc005f568d"><td class="memItemLeft" align="right" valign="top">void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="namespacetlv.html#a785654eaf977a9bef21cbecc005f568d">set_location</a> (<a class="el" href="namespacetlv.html#a00ca9c69c35ef11f6a22b7eda1b115ba">diagnostic</a> &amp;<a class="el" href="namespacetlv.html#a0e9dc5e120173d6322fc63d2d1fc09c3a2063c1608d6e0baf80249c42e2be5804">value</a>, <a class="el" href="namespacetlv.html#a55a9e58b26605c8d07848f7a2721b1d7">location_domain</a> <a class="el" href="namespacetlv.html#ad34af8ea6e99862f3fa9038d4e15794b">domain</a>, <a class="el" href="namespacetlv.html#a1d189f8757dea18406596d1c3c5ff3eb">location_kind</a> <a class="el" href="namespacetlv.html#a4a6c54ee451ccac7733e7582ab64d736">kind</a>, size_t <a class="el" href="namespacetlv.html#a047694bc3dd10e75e2dc596b4654abf3a8d589afa4dfaeeed85fff5aa78e5ff6a">begin</a>, size_t <a class="el" href="namespacetlv.html#ab9d10b8185e9a80cd73b5a0ef633a22ca7f021a1415b86f2d013b2618fb31ae53">end</a>) noexcept</td></tr>
 <tr class="memdesc:a785654eaf977a9bef21cbecc005f568d"><td class="mdescLeft">&#160;</td><td class="mdescRight">Attach evidence in an explicit coordinate domain to a common diagnostic.  <br /></td></tr>
 <tr class="separator:a785654eaf977a9bef21cbecc005f568d"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:a047407a6f84fd28cfcc413a4af612dba" id="r_a047407a6f84fd28cfcc413a4af612dba"><td class="memItemLeft" align="right" valign="top"><a class="el" href="classtlv_1_1expected.html">expected</a>&lt; size_t, <a class="el" href="structtlv_1_1error.html">error</a> &gt;&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="namespacetlv.html#a047407a6f84fd28cfcc413a4af612dba">format_path</a> (const <a class="el" href="namespacetlv.html#a362165fd39d879542d984a7aa5c5f1af">diagnostic_path</a> &amp;path, <a class="el" href="classtlv_1_1span.html">span</a>&lt; char &gt; <a class="el" href="namespacetlv.html#a55a9e58b26605c8d07848f7a2721b1d7a78e6221f6393d1356681db398f14ce6d">output</a>)</td></tr>
@@ -1322,7 +1313,7 @@ Variables</h2></td></tr>
       </table>
 </div><div class="memdoc">
 
-<p>Caller-owned Tree Writer frame; retains a borrowed Tag until <a class="el" href="namespacetlv.html#a047694bc3dd10e75e2dc596b4654abf3a7f021a1415b86f2d013b2618fb31ae53">end()</a>. </p>
+<p>Caller-owned Tree Writer frame; retains a borrowed Tag until <a class="el" href="namespacetlv.html#ab9d10b8185e9a80cd73b5a0ef633a22ca7f021a1415b86f2d013b2618fb31ae53">end()</a>. </p>
 
 </div>
 </div>
@@ -1706,18 +1697,21 @@ Variables</h2></td></tr>
 </div><div class="memdoc">
 
 <p>Canonical operation outcomes, independent of native enum types. </p>
+<p><code>end</code> and <code>need_more_data</code> are control statuses, not failures. </p>
 <table class="fieldtable">
 <tr><th colspan="2">Enumerator</th></tr><tr><td class="fieldname"><a id="ab9d10b8185e9a80cd73b5a0ef633a22ca444bcb3a3fcf8389296c49467f27e1d6" name="ab9d10b8185e9a80cd73b5a0ef633a22ca444bcb3a3fcf8389296c49467f27e1d6"></a>ok&#160;</td><td class="fielddoc"><p>Operation completed. </p>
 </td></tr>
-<tr><td class="fieldname"><a id="ab9d10b8185e9a80cd73b5a0ef633a22caf3476e64ac4a56f9900e0e8c1fb761a7" name="ab9d10b8185e9a80cd73b5a0ef633a22caf3476e64ac4a56f9900e0e8c1fb761a7"></a>buffer_too_short&#160;</td><td class="fielddoc"><p>Insufficient input or output. </p>
+<tr><td class="fieldname"><a id="ab9d10b8185e9a80cd73b5a0ef633a22ca7f021a1415b86f2d013b2618fb31ae53" name="ab9d10b8185e9a80cd73b5a0ef633a22ca7f021a1415b86f2d013b2618fb31ae53"></a>end&#160;</td><td class="fielddoc"><p>Normal end of iteration; no element. </p>
+</td></tr>
+<tr><td class="fieldname"><a id="ab9d10b8185e9a80cd73b5a0ef633a22caac273a9aa2a7a6e63ef477fa7f6d1980" name="ab9d10b8185e9a80cd73b5a0ef633a22caac273a9aa2a7a6e63ef477fa7f6d1980"></a>truncated&#160;</td><td class="fielddoc"><p>Final input ends inside an element. </p>
+</td></tr>
+<tr><td class="fieldname"><a id="ab9d10b8185e9a80cd73b5a0ef633a22caf3476e64ac4a56f9900e0e8c1fb761a7" name="ab9d10b8185e9a80cd73b5a0ef633a22caf3476e64ac4a56f9900e0e8c1fb761a7"></a>buffer_too_short&#160;</td><td class="fielddoc"><p>Destination or workspace too small. </p>
 </td></tr>
 <tr><td class="fieldname"><a id="ab9d10b8185e9a80cd73b5a0ef633a22ca2970685bea59a5d3e9bbd92de36caccc" name="ab9d10b8185e9a80cd73b5a0ef633a22ca2970685bea59a5d3e9bbd92de36caccc"></a>invalid_length&#160;</td><td class="fielddoc"><p>Invalid wire length. </p>
 </td></tr>
 <tr><td class="fieldname"><a id="ab9d10b8185e9a80cd73b5a0ef633a22ca97925b4c4d12317896aa469d6d08c66f" name="ab9d10b8185e9a80cd73b5a0ef633a22ca97925b4c4d12317896aa469d6d08c66f"></a>null_argument&#160;</td><td class="fielddoc"><p>Missing required storage. </p>
 </td></tr>
 <tr><td class="fieldname"><a id="ab9d10b8185e9a80cd73b5a0ef633a22ca5ea42cc8dbd653d9afd96c1d2fd147e2" name="ab9d10b8185e9a80cd73b5a0ef633a22ca5ea42cc8dbd653d9afd96c1d2fd147e2"></a>out_of_memory&#160;</td><td class="fielddoc"><p>Allocation failed. </p>
-</td></tr>
-<tr><td class="fieldname"><a id="ab9d10b8185e9a80cd73b5a0ef633a22caca11f56dd477c09e06583dbdcda0985f" name="ab9d10b8185e9a80cd73b5a0ef633a22caca11f56dd477c09e06583dbdcda0985f"></a>end_of_input&#160;</td><td class="fielddoc"><p>Final input exhausted. </p>
 </td></tr>
 <tr><td class="fieldname"><a id="ab9d10b8185e9a80cd73b5a0ef633a22ca159cb53c185dae9e51fb5e4d14cf37a3" name="ab9d10b8185e9a80cd73b5a0ef633a22ca159cb53c185dae9e51fb5e4d14cf37a3"></a>invalid_tag&#160;</td><td class="fielddoc"><p>Invalid identifier. </p>
 </td></tr>
@@ -1735,7 +1729,7 @@ Variables</h2></td></tr>
 </td></tr>
 <tr><td class="fieldname"><a id="ab9d10b8185e9a80cd73b5a0ef633a22ca43ea9c825aea3544f00b043c2641b915" name="ab9d10b8185e9a80cd73b5a0ef633a22ca43ea9c825aea3544f00b043c2641b915"></a>invalid_tag_size&#160;</td><td class="fielddoc"><p>Invalid identifier width. </p>
 </td></tr>
-<tr><td class="fieldname"><a id="ab9d10b8185e9a80cd73b5a0ef633a22ca27e961b905ec9360d190b99ac1a74b64" name="ab9d10b8185e9a80cd73b5a0ef633a22ca27e961b905ec9360d190b99ac1a74b64"></a>invalid_byte_order&#160;</td><td class="fielddoc"><p>Unsupported byte order. </p>
+<tr><td class="fieldname"><a id="ab9d10b8185e9a80cd73b5a0ef633a22ca55152fd428afc5d73e8878d27d0b09c3" name="ab9d10b8185e9a80cd73b5a0ef633a22ca55152fd428afc5d73e8878d27d0b09c3"></a>syntax&#160;</td><td class="fielddoc"><p>Text violates the requested grammar. </p>
 </td></tr>
 <tr><td class="fieldname"><a id="ab9d10b8185e9a80cd73b5a0ef633a22ca0bd9f6dd716003f3818d15d2e211ee73" name="ab9d10b8185e9a80cd73b5a0ef633a22ca0bd9f6dd716003f3818d15d2e211ee73"></a>overflow&#160;</td><td class="fielddoc"><p>Numeric overflow. </p>
 </td></tr>
@@ -1975,7 +1969,7 @@ Variables</h2></td></tr>
 </td></tr>
 <tr><td class="fieldname"><a id="a7bcb5c918f4c7e096cd783d894a7ffd5a4e3c809e49a5ed13e4da9152df252371" name="a7bcb5c918f4c7e096cd783d894a7ffd5a4e3c809e49a5ed13e4da9152df252371"></a>image_version&#160;</td><td class="fielddoc"><p>Incompatible program image. </p>
 </td></tr>
-<tr><td class="fieldname"><a id="a7bcb5c918f4c7e096cd783d894a7ffd5a599dcce2998a6b40b1e38e8c6006cb0a" name="a7bcb5c918f4c7e096cd783d894a7ffd5a599dcce2998a6b40b1e38e8c6006cb0a"></a>type&#160;</td><td class="fielddoc"><p>Incompatible expression types. </p>
+<tr><td class="fieldname"><a id="a7bcb5c918f4c7e096cd783d894a7ffd5a599dcce2998a6b40b1e38e8c6006cb0a" name="a7bcb5c918f4c7e096cd783d894a7ffd5a599dcce2998a6b40b1e38e8c6006cb0a"></a>type&#160;</td><td class="fielddoc"><p>Operand type, arity or numeric range. </p>
 </td></tr>
 <tr><td class="fieldname"><a id="a7bcb5c918f4c7e096cd783d894a7ffd5a78805a221a988e79ef3f42d7c5bfd418" name="a7bcb5c918f4c7e096cd783d894a7ffd5a78805a221a988e79ef3f42d7c5bfd418"></a>image&#160;</td><td class="fielddoc"><p>Malformed stored program image. </p>
 </td></tr>

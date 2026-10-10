@@ -4555,7 +4555,7 @@ they handle and ignore the rest.</p>
 <tbody>
 <tr>
 <td>No input left</td>
-<td><code>TLV_ERR_END_OF_BUFFER</code>; <code>tlv_reader_at_end</code> reports a clean finish</td>
+<td><code>TLV_END</code>; <code>tlv_reader_at_end</code> reports a clean finish</td>
 </tr>
 <tr>
 <td>Length byte <code>00</code></td>
@@ -4563,7 +4563,7 @@ they handle and ignore the rest.</p>
 </tr>
 <tr>
 <td>Length larger than the remaining bytes</td>
-<td><code>TLV_ERR_BUFFER_TOO_SHORT</code></td>
+<td><code>TLV_ERR_TRUNCATED</code></td>
 </tr>
 </tbody>
 </table>

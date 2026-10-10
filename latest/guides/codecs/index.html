@@ -3823,7 +3823,7 @@ Writer and Query. Their final argument is an optional <code>tlv_codec_diagnostic
 pass <code>NULL</code> when evidence is not needed. Callbacks receive the same optional
 output. Preserve lower-layer results and evidence, and keep borrowed descriptions,
 paths and Tags alive after returning. Decode can propagate <code>NEED_MORE_DATA</code>;
-encode/measure cannot. <code>END_OF_BUFFER</code>, unknown results and invalid successful
+encode/measure cannot. <code>END</code>, unknown results and invalid successful
 payloads become <code>CALLBACK</code>, with the original result in <code>codec.reported</code>.</p>
 <p>Diagnostics contain one common result/location/path and conversion detail:
 operation, optional representation, callback violation, and a discriminated
@@ -3899,8 +3899,8 @@ past the cursor may change. Custom codecs may allocate even with caller-owned
 scratch. The selected Format still generates all element framing.</p>
 <p>The <a href="https://github.com/marekcingel/OpenTLV/blob/main/examples/tlv++/src/typed_fields.cpp">compiled typed-field example</a>
 uses C++11 with no optional protocol component and exercises Document lookup
-when Document is enabled. The existing <code>is_tlv_codec</code>, <code>write_value()</code> and
-runtime registry remain available with their original contracts.</p>
+when Document is enabled. <code>tlv::codec_registry</code> maps Tags to decoders selected
+at runtime.</p>
 <h2 id="asn1-universal-type-codecs">ASN.1 universal-type codecs<a class="headerlink" href="#asn1-universal-type-codecs" title="Permanent link">&para;</a></h2>
 <p><code>tlv/builtins/asn1/asn1_codec.h</code> provides <code>tlv_codec_t</code> descriptors for the
 ASN.1 primitive universal types (BOOLEAN, INTEGER, ENUMERATED, BIT STRING,
@@ -3928,10 +3928,7 @@ T must match the descriptor's representation and be default constructible.
 For a tested two-field mapping, see
 <a href="https://github.com/marekcingel/OpenTLV/blob/main/tests/integration/architecture_test.cpp"><code>architecture_test.cpp</code></a> and
 <a href="https://github.com/marekcingel/OpenTLV/blob/main/tests/integration/layers_test.cpp"><code>layers_test.cpp</code></a>.</p>
-<p>Existing tag-associated C++ codecs remain supported. Use
-<code>tlv::write_value(writer, value)</code> from <code>tlv++/codec/codec.hpp</code> instead of the former
-<code>writer.write(value)</code>. This explicit convenience helper may allocate a temporary
-vector. Raw readers/writers now include only <code>tlv++/types.hpp</code> and the C I/O
+<p>Raw C++ readers and writers include only <code>tlv++/types.hpp</code> and the C I/O
 contracts; they do not depend on codecs.</p>
 <h2 id="other-languages">Other languages<a class="headerlink" href="#other-languages" title="Permanent link">&para;</a></h2>
 <p>Python and Rust do not bind this generic callback model; each exposes its own,

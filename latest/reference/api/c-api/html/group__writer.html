@@ -283,7 +283,7 @@ Functions</h2></td></tr>
   </table>
   </dd>
 </dl>
-<dl class="section return"><dt>Returns</dt><dd>TLV_OK, TLV_ERR_END_OF_BUFFER at final EOF, or a producer error. </dd></dl>
+<dl class="section return"><dt>Returns</dt><dd>TLV_OK, <a class="el" href="group__core.html#gga516c7250563ee9332e2f45f2d203ae61a9a868594c9a5db5eb4a1e34dcf5b5211">TLV_END</a> at final EOF, or a producer error. </dd></dl>
 <dl class="section warning"><dt>Warning</dt><dd>BEGIN Tags must outlive measurement; other payloads need only survive until the next callback. No callbacks may mutate the measurement workspace. </dd></dl>
 
 </div>
@@ -326,7 +326,7 @@ Functions</h2></td></tr>
   </table>
   </dd>
 </dl>
-<dl class="section return"><dt>Returns</dt><dd><a class="el" href="group__core.html#gga516c7250563ee9332e2f45f2d203ae61ac763c25dd3e807fae4d8078c3d3e94ed">TLV_OK</a> for an item, <a class="el" href="group__core.html#gga516c7250563ee9332e2f45f2d203ae61ad3ea4a680040d2294498178b02b79878">TLV_ERR_END_OF_BUFFER</a> at final end, or a source error. </dd></dl>
+<dl class="section return"><dt>Returns</dt><dd><a class="el" href="group__core.html#gga516c7250563ee9332e2f45f2d203ae61ac763c25dd3e807fae4d8078c3d3e94ed">TLV_OK</a> for an item, <a class="el" href="group__core.html#gga516c7250563ee9332e2f45f2d203ae61a9a868594c9a5db5eb4a1e34dcf5b5211">TLV_END</a> at final end, or a source error. </dd></dl>
 <dl class="section warning"><dt>Warning</dt><dd>Tags must remain immutable and alive until traversal completes; primitive Values must remain readable until the next callback. Storage must not overlap the measurement workspace. Depth may increase only after a parent. </dd></dl>
 
 </div>

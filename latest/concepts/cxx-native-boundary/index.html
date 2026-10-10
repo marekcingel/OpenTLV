@@ -4002,14 +4002,14 @@ allocate. Successful borrowed/fixed-size codec operations retain their C
 allocation behavior.</p>
 <p>Cursor operations return <code>expected</code> with <code>tlv::error</code>; copying the error and its
 borrowed static message does not allocate. <code>status()</code> exposes <code>tlv::codec_failure</code>, with
-distinct <code>end_of_input</code> and <code>need_more_data</code> outcomes. Located errors expose
+distinct <code>end</code> and <code>need_more_data</code> outcomes. Located errors expose
 <code>has_offset()</code>, <code>offset()</code> and <code>stage()</code>. Custom error descriptions are borrowed
 and must outlive the errors. Format customization uses <code>format_failure</code> and scoped construction
 uses <code>writer_failure</code>, preserving codes/detail without allocating error strings.
 Typed field failures distinguish invalid handles, Tag mismatch, constructed
 Values, codec errors and Writer errors. Ranges use their documented failure
 channel; explicit pulls give control over resumable statuses.
-<code>errc::need_more_data</code> is a pause and <code>errc::end_of_input</code> is final exhaustion.
+<code>errc::need_more_data</code> is a pause and <code>errc::end</code> is final exhaustion.
 C++11 remains the baseline; generic lambdas require C++14.</p>
 <h3 id="exception-policy">Exception policy<a class="headerlink" href="#exception-policy" title="Permanent link">&para;</a></h3>
 <p>The C++ facade requires compiler exception support. Operational failures from
@@ -4180,7 +4180,7 @@ without heap allocation for ancestor descriptors; their identifier bytes remain 
 <tr>
 <td>Reader / Tree Reader <code>next()</code></td>
 <td>Element or event</td>
-<td><code>end_of_input</code> is final exhaustion; <code>need_more_data</code> preserves resumable state</td>
+<td><code>end</code> is final exhaustion; <code>need_more_data</code> preserves resumable state</td>
 </tr>
 <tr>
 <td>Reader / Query range</td>
@@ -4440,7 +4440,7 @@ initialization; previously an initialization failure appeared to be clean
 end-of-input. A loop using <code>while (!reader.at_end())</code> must check the result of
 <code>next()</code> and stop or recover on failure. Ignoring that result can now repeat
 indefinitely with an invalid Format. In explicit pull loops, treat
-<code>errc::end_of_input</code> as completion, <code>errc::need_more_data</code> as a resumable pause,
+<code>errc::end</code> as completion, <code>errc::need_more_data</code> as a resumable pause,
 and other errors as failures requiring handling before another pull.</p>
 
 

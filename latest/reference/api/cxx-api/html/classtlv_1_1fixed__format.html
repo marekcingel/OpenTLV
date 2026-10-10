@@ -150,7 +150,8 @@ class tlv::fixed_format&lt; TagWidth, LengthWidth, Order &gt;</div><p>A fixed-wi
 </table>
 <p>Any other value fails to compile with a <code>static_assert</code>.</p>
 <p>The descriptor returned by format() has static storage duration, so it never needs lifetime management; its context is a static <code>tlv_fixed_format_t</code> built from <code>TagWidth</code>, <code>LengthWidth</code> and <code>Order</code> with the same static storage duration. The format performs no allocation and reads values in place. Errors match the C <code>tlv_fixed_format_t</code>-based format for the same widths and byte order:</p><ul>
-<li><a class="elRef" href="../../c-api/html/group__core.html#gga516c7250563ee9332e2f45f2d203ae61acbd34cf02b42e70e99648aef5b9ca8b3">TLV_ERR_BUFFER_TOO_SHORT</a> when the input holds fewer bytes than a field needs, or the output has less capacity than a field needs;</li>
+<li><a class="elRef" href="../../c-api/html/group__core.html#gga516c7250563ee9332e2f45f2d203ae61a60fbf9dd69121d45608da576e5a10d42">TLV_ERR_TRUNCATED</a> when the input holds fewer bytes than a field needs;</li>
+<li><a class="elRef" href="../../c-api/html/group__core.html#gga516c7250563ee9332e2f45f2d203ae61acbd34cf02b42e70e99648aef5b9ca8b3">TLV_ERR_BUFFER_TOO_SHORT</a> when the output has less capacity than a field needs;</li>
 <li><a class="elRef" href="../../c-api/html/group__core.html#gga516c7250563ee9332e2f45f2d203ae61a10505614abc0b8d1ef8e5eef944dc014">TLV_ERR_INVALID_TAG_SIZE</a> when a written tag is not <code>TagWidth</code> bytes;</li>
 <li><a class="elRef" href="../../c-api/html/group__core.html#gga516c7250563ee9332e2f45f2d203ae61a11e399e826cabbe9fb215922485d3742">TLV_ERR_INVALID_LENGTH</a> when a value length exceeds the largest value <code>LengthWidth</code> bytes can hold, or a decoded length does not fit in <code>size_t</code>.</li>
 </ul>

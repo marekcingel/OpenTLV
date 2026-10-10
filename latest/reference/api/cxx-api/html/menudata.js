@@ -93,7 +93,6 @@ var menudata={children:[
 {text:"v",url:"namespacemembers_type_v.html#index_v"},
 {text:"w",url:"namespacemembers_type_w.html#index_w"}]},
 {text:"Enumerations",url:"namespacemembers_enum.html"}]}]},
-{text:"Concepts",url:"concepts.html"},
 {text:"Classes",url:"annotated.html",children:[
 {text:"Class List",url:"annotated.html"},
 {text:"Class Index",url:"classes.html"},

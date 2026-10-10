@@ -212,7 +212,7 @@ Functions</h2></td></tr>
 <p>Trailing bytes after the element are ignored. On success <code>out_element</code> borrows the input value and either input or immutable format-supplied identifier storage (see <a class="el" href="group__formats.html#ga9477918442d515ac1a1a67db085eaae7" title="Storage binding of a decoded semantic identifier.">tlv_tag_binding_t</a>). <code>consumed</code> receives the complete encoded size (tag + length + value + optional trailer). The value excludes enclosing framing such as BER EOC. No allocation, value copying, or schema validation occurs.</p>
 <dl class="params"><dt>Parameters</dt><dd>
   <table class="params">
-    <tr><td class="paramdir">[in]</td><td class="paramname">data</td><td>Encoded input. May be <code>NULL</code> only when <code>size</code> is zero, which returns <a class="el" href="group__core.html#gga516c7250563ee9332e2f45f2d203ae61ad3ea4a680040d2294498178b02b79878">TLV_ERR_END_OF_BUFFER</a>. </td></tr>
+    <tr><td class="paramdir">[in]</td><td class="paramname">data</td><td>Encoded input. May be <code>NULL</code> only when <code>size</code> is zero, which returns <a class="el" href="group__core.html#gga516c7250563ee9332e2f45f2d203ae61a9a868594c9a5db5eb4a1e34dcf5b5211">TLV_END</a>. </td></tr>
     <tr><td class="paramdir">[in]</td><td class="paramname">size</td><td>Input size in bytes. </td></tr>
     <tr><td class="paramdir">[in]</td><td class="paramname">format</td><td>Readable canonical format descriptor. </td></tr>
     <tr><td class="paramdir">[out]</td><td class="paramname">out_element</td><td>Receives the parsed element. Required. </td></tr>
@@ -224,7 +224,7 @@ Functions</h2></td></tr>
 <dd>
 <a class="el" href="group__core.html#gga516c7250563ee9332e2f45f2d203ae61aa4a514ccb37d17b2cd7c7da47d2eab88">TLV_ERR_NULL_ARG</a> for missing required pointers or callbacks. </dd>
 <dd>
-<a class="el" href="group__core.html#gga516c7250563ee9332e2f45f2d203ae61ad3ea4a680040d2294498178b02b79878">TLV_ERR_END_OF_BUFFER</a> for empty input. </dd>
+<a class="el" href="group__core.html#gga516c7250563ee9332e2f45f2d203ae61a9a868594c9a5db5eb4a1e34dcf5b5211">TLV_END</a> for empty input; this is not a failure. </dd>
 <dd>
 <a class="el" href="group__core.html#gga516c7250563ee9332e2f45f2d203ae61ad733937761f1a5428fba8f9d2914b713">TLV_ERR_INVALID_TAG</a> if the tag is malformed. </dd>
 <dd>
@@ -232,7 +232,7 @@ Functions</h2></td></tr>
 <dd>
 <a class="el" href="group__core.html#gga516c7250563ee9332e2f45f2d203ae61a11e399e826cabbe9fb215922485d3742">TLV_ERR_INVALID_LENGTH</a> if the length field is malformed. </dd>
 <dd>
-<a class="el" href="group__core.html#gga516c7250563ee9332e2f45f2d203ae61acbd34cf02b42e70e99648aef5b9ca8b3">TLV_ERR_BUFFER_TOO_SHORT</a> if the header, value or trailer is incomplete. </dd>
+<a class="el" href="group__core.html#gga516c7250563ee9332e2f45f2d203ae61a60fbf9dd69121d45608da576e5a10d42">TLV_ERR_TRUNCATED</a> if the header, value or trailer is incomplete. </dd>
 <dd>
 A permitted decoder error, propagated unchanged. Invalid control statuses, unknown callback results and invalid successful outputs become <a class="el" href="group__core.html#gga516c7250563ee9332e2f45f2d203ae61adc3ffd285317edbc89e61fa26935e3c2">TLV_ERR_CALLBACK</a>; see <a class="el" href="group__formats.html#ga8d1eee0db90bbfbabc928219225ad143" title="Decode one complete element and validate its framing.">tlv_decode_fn</a>.</dd></dl>
 <dl class="section note"><dt>Note</dt><dd>On failure both outputs remain unchanged. </dd></dl>
@@ -617,11 +617,11 @@ On success <code>*out_diagnostic</code> is left unchanged. </dd></dl>
 </dl>
 <dl class="section return"><dt>Returns</dt><dd><a class="el" href="group__core.html#gga516c7250563ee9332e2f45f2d203ae61ac763c25dd3e807fae4d8078c3d3e94ed">TLV_OK</a> when an element is available. </dd>
 <dd>
-<a class="el" href="group__core.html#gga516c7250563ee9332e2f45f2d203ae61ad3ea4a680040d2294498178b02b79878">TLV_ERR_END_OF_BUFFER</a> when final input has been fully consumed. </dd>
+<a class="el" href="group__core.html#gga516c7250563ee9332e2f45f2d203ae61a9a868594c9a5db5eb4a1e34dcf5b5211">TLV_END</a> when final input has been fully consumed; this is not a failure. </dd>
 <dd>
 <a class="el" href="group__core.html#gga516c7250563ee9332e2f45f2d203ae61ad90e4f5b2c36d63f9a93b92f1064a5e6">TLV_NEED_MORE_DATA</a> when non-final input is exhausted or Format reports incomplete input. No partial element is published or consumed. </dd>
 <dd>
-<a class="el" href="group__core.html#gga516c7250563ee9332e2f45f2d203ae61acbd34cf02b42e70e99648aef5b9ca8b3">TLV_ERR_BUFFER_TOO_SHORT</a> when final input contains an incomplete element. </dd>
+<a class="el" href="group__core.html#gga516c7250563ee9332e2f45f2d203ae61a60fbf9dd69121d45608da576e5a10d42">TLV_ERR_TRUNCATED</a> when final input contains an incomplete element. </dd>
 <dd>
 Any other <a class="el" href="group__reader.html#gab43f1d0dbbaf69e1dbb3f0e421956939" title="Parses one element from the beginning of a buffer.">tlv_read()</a> error for invalid input or arguments. </dd>
 <dd>

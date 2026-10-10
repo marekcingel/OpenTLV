@@ -3702,7 +3702,7 @@ representation; they are not the decoded value size.</p>
 <p>Readers and format callbacks decode logical value sizes into <code>tlv_size_t</code>.
 The format checks the decoded count against the available input before any
 native narrowing or pointer arithmetic, then publishes <code>element.value.size</code>.
-A count larger than the supplied buffer returns <code>TLV_ERR_BUFFER_TOO_SHORT</code>
+A count larger than the supplied input returns <code>TLV_ERR_TRUNCATED</code>
 without modifying the output element or consumed count.
 Consumers that need a native <code>size_t</code> back out of <code>element.value.size</code>, for
 pointer arithmetic, memory access, or a call into an API that still takes

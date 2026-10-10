@@ -3689,7 +3689,7 @@ results are identical on big-endian and little-endian hosts.</p>
 Choose <code>TLV_BYTE_ORDER_BIG_ENDIAN</code> or <code>TLV_BYTE_ORDER_LITTLE_ENDIAN</code> explicitly.</p>
 <p>Both return <code>TLV_OK</code> on success. Validation checks required pointers first
 (<code>TLV_ERR_NULL_ARG</code>), then width (<code>TLV_ERR_INVALID_LENGTH</code>), then byte order
-(<code>TLV_ERR_INVALID_BYTE_ORDER</code>, including <code>TLV_BYTE_ORDER_UNKNOWN</code>). Writes
+(<code>TLV_ERR_INVALID_ARG</code>, including <code>TLV_BYTE_ORDER_UNKNOWN</code>). Writes
 also return <code>TLV_ERR_OVERFLOW</code> for values that do not fit; they never truncate. All failures leave outputs
 unchanged. Reads accept zero padding and finish reading before storing the
 result. Writes pad with zero bytes at the most significant end.</p>

@@ -11,8 +11,7 @@ var indexSectionsWithContent =
   8: "abcdefghiklmnopqrstuvw",
   9: "adopqrv",
   10: "abcdefmrstuw",
-  11: "acor",
-  12: "t"
+  11: "acor"
 };
 
 var indexSectionNames =
@@ -28,8 +27,7 @@ var indexSectionNames =
   8: "enumvalues",
   9: "related",
   10: "groups",
-  11: "pages",
-  12: "concepts"
+  11: "pages"
 };
 
 var indexSectionLabels =
@@ -45,7 +43,6 @@ var indexSectionLabels =
   8: "Enumerator",
   9: "Friends",
   10: "Modules",
-  11: "Pages",
-  12: "Concepts"
+  11: "Pages"
 };
 

@@ -4218,7 +4218,7 @@ native functionality; see <a href="../../guides/select-components/">component se
 <p>WASM includes both the parse-to-JSON tooling embedding and an owning compiled
 Query/Document facade. Its Query facade provides configured/custom Formats,
 Tag adapters, scoped/Definition/EMV resolvers, Schema, edits, source events,
-ordinals and bounded V1 compatibility. General Reader/Writer parity remains a
+ordinals and bounded V1 path queries. General Reader/Writer parity remains a
 separate concern. Java remains future work. Exact signatures
 belong in generated references and binding source documentation; this matrix
 records supported workflows and their limits. Do not treat an experimental
@@ -4226,7 +4226,7 @@ label or raw FFI declaration as proof of parity.</p>
 <h3 id="c-resumable-traversal">C++ resumable traversal<a class="headerlink" href="#c-resumable-traversal" title="Permanent link">&para;</a></h3>
 <p><code>tlv::reader&lt;&gt;</code> and <code>tlv::tree_reader</code> accept <code>tlv::input_mode::incremental</code>.
 Their <code>next</code> operations return <code>expected</code> results with the original C codes:
-<code>TLV_NEED_MORE_DATA</code> is resumable and <code>TLV_ERR_END_OF_BUFFER</code> is final exhaustion.
+<code>TLV_NEED_MORE_DATA</code> is resumable and <code>TLV_END</code> is final exhaustion.
 Use <code>set_input</code> to replace the contiguous input window and declare final input;
 <code>consumed</code> bounds the discardable prefix and <code>offset</code> remains absolute.</p>
 <p>Tree Reader takes a borrowed <code>span&lt;tree_frame&gt;</code> plus depth and item limits.

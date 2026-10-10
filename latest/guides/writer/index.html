@@ -3887,8 +3887,7 @@ or a byte span with a known length. No conversion copies or allocates storage.</
 C++ Value codec or field with the desired width and byte order, encode into
 caller-owned scratch or use the typed Writer overloads below, and check the
 codec result before publishing bytes. The Writer does not infer a codec from a tag or serialize a
-host object's memory. The existing <code>write_value()</code> convenience for application
-codecs uses a temporary vector and is outside this allocation-free interface.</p>
+host object's memory.</p>
 <p>For reusable associations between tags and semantic types, sequential Writers
 also support <code>write&lt;Field&gt;(value)</code> and <code>write&lt;Field&gt;(value, scratch)</code> using
 <a href="../codecs/#c11-typed-fields-and-value-codecs">typed fields and Value codecs</a>.

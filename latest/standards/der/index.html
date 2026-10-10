@@ -3777,7 +3777,7 @@ does not convert arbitrary BER or repair noncanonical input.</p>
 </code></pre></div>
 <p><code>tlv_der_read</code> validates one element and all of its descendants before returning
 its element and complete encoded size. Trailing input is ignored. Empty input
-returns <code>TLV_ERR_END_OF_BUFFER</code>. View and consumed outputs are required and
+returns <code>TLV_END</code>. View and consumed outputs are required and
 remain unchanged on failure. Keep the input alive while using returned views.</p>
 <p>Class and constructed accessors require a valid DER tag. <code>tlv_der_tag_number</code>
 validates a tag and extracts a <code>uint64_t</code>; larger numbers return

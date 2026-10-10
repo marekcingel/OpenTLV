@@ -3962,11 +3962,11 @@ length bytes, in the order <code>element_order</code> selects, followed by the v
 </tr>
 <tr>
 <td><code>length.byte_order</code> (C) is neither big- nor little-endian</td>
-<td><code>TLV_ERR_INVALID_BYTE_ORDER</code> (init only)</td>
+<td><code>TLV_ERR_INVALID_ARG</code> (init only)</td>
 </tr>
 <tr>
 <td>Input has fewer bytes than the tag, length or value needs</td>
-<td><code>TLV_ERR_BUFFER_TOO_SHORT</code></td>
+<td><code>TLV_ERR_TRUNCATED</code></td>
 </tr>
 <tr>
 <td>Output capacity is smaller than the element</td>

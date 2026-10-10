@@ -4030,8 +4030,8 @@ including a malformed query and a query with no match
 (<code>python examples/query.py</code>).</p>
 <h2 id="error-handling">Error handling<a class="headerlink" href="#error-handling" title="Permanent link">&para;</a></h2>
 <p>Every reading or writing failure raises a subclass of <code>opentlv.OpenTLVError</code>,
-one per C <code>TLV_ERR_*</code> code (<code>BufferTooShortError</code>, <code>InvalidLengthError</code>,
-<code>SchemaError</code>, and so on), so callers can catch a specific error type or the
+one per C <code>TLV_ERR_*</code> code (<code>TruncatedError</code>, <code>BufferTooShortError</code>,
+<code>InvalidLengthError</code>, <code>SchemaError</code>, and so on), so callers can catch a specific error type or the
 base class. <code>OpenTLVError.code</code> is the raw result code, and <code>str(error)</code> is
 the C <code>tlv_strerror</code> text. When the C API reports structured diagnostic
 detail for the failure, <code>offset</code>, <code>expected</code>, <code>actual</code>, <code>operation</code> and <code>tag</code>
@@ -4045,7 +4045,7 @@ returns the C spelling. Codec and Schema categories are typed too. See the
 <a href="../../reference/errors/#binding-diagnostics">binding diagnostic reference</a>.</p>
 <div class="highlight"><pre><span></span><code><a id="__codelineno-8-1" name="__codelineno-8-1" href="#__codelineno-8-1"></a><span class="k">try</span><span class="p">:</span>
 <a id="__codelineno-8-2" name="__codelineno-8-2" href="#__codelineno-8-2"></a>    <span class="nb">list</span><span class="p">(</span><span class="n">opentlv</span><span class="o">.</span><span class="n">Reader</span><span class="p">(</span><span class="n">truncated</span><span class="p">))</span>
-<a id="__codelineno-8-3" name="__codelineno-8-3" href="#__codelineno-8-3"></a><span class="k">except</span> <span class="n">opentlv</span><span class="o">.</span><span class="n">BufferTooShortError</span> <span class="k">as</span> <span class="n">error</span><span class="p">:</span>
+<a id="__codelineno-8-3" name="__codelineno-8-3" href="#__codelineno-8-3"></a><span class="k">except</span> <span class="n">opentlv</span><span class="o">.</span><span class="n">TruncatedError</span> <span class="k">as</span> <span class="n">error</span><span class="p">:</span>
 <a id="__codelineno-8-4" name="__codelineno-8-4" href="#__codelineno-8-4"></a>    <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">"</span><span class="si">{</span><span class="n">error</span><span class="si">}</span><span class="s2"> at offset </span><span class="si">{</span><span class="n">error</span><span class="o">.</span><span class="n">offset</span><span class="si">}</span><span class="s2"> (</span><span class="si">{</span><span class="n">error</span><span class="o">.</span><span class="n">operation</span><span class="si">}</span><span class="s2">)"</span><span class="p">)</span>
 </code></pre></div>
 <p><code>Reader</code> yields elements until the first error, then raises <code>StopIteration</code> on
