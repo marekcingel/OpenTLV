@@ -70,7 +70,7 @@ func TestReaderRejectsEveryTruncatedElementPrefix(t *testing.T) {
 			wire := writer.Bytes()
 			for end := 1; end < len(wire); end++ {
 				reader := opentlv.NewReader(wire[:end], format)
-				if reader.Next() || !errors.Is(reader.Err(), opentlv.ErrBufferTooShort) || reader.Offset() != 0 || reader.NeedsMoreData() {
+				if reader.Next() || !errors.Is(reader.Err(), opentlv.ErrTruncated) || reader.Offset() != 0 || reader.NeedsMoreData() {
 					t.Fatalf("order %v endian %v prefix %d: %v", order, byteOrder, end, reader.Err())
 				}
 				var detail *opentlv.ParseError

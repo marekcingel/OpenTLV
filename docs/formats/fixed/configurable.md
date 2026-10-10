@@ -141,8 +141,8 @@ Element (4 bytes)
 | Situation | Result |
 | --- | --- |
 | `config` (C) is `NULL`, `identifier.size` is 0, `length.size` is 0 or greater than 8, or `element_order`/`length_scope` is not one of its enumerators | `TLV_ERR_INVALID_ARG` (init only) |
-| `length.byte_order` (C) is neither big- nor little-endian | `TLV_ERR_INVALID_BYTE_ORDER` (init only) |
-| Input has fewer bytes than the tag, length or value needs | `TLV_ERR_BUFFER_TOO_SHORT` |
+| `length.byte_order` (C) is neither big- nor little-endian | `TLV_ERR_INVALID_ARG` (init only) |
+| Input has fewer bytes than the tag, length or value needs | `TLV_ERR_TRUNCATED` |
 | Output capacity is smaller than the element | `TLV_ERR_BUFFER_TOO_SHORT` |
 | Written tag size differs from the configured tag width | `TLV_ERR_INVALID_TAG_SIZE` |
 | Value longer than the largest length the length width can hold (minus `identifier.size` under `TLV_LENGTH_SCOPE_TAG_AND_VALUE`) | `TLV_ERR_INVALID_LENGTH` |

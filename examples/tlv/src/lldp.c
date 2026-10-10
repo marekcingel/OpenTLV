@@ -27,5 +27,5 @@ int main(void) {
             if (seconds != 120) return 1;
         }
     }
-    return rc == TLV_ERR_END_OF_BUFFER ? 0 : 1;
+    return rc == TLV_END ? 0 : 1;
 }

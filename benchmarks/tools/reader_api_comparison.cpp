@@ -34,12 +34,14 @@ __attribute__((noinline)) unsigned long long run_cpp(const char* work, const tlv
         const bool failing =
             std::strcmp(work, "failed") == 0 || std::strcmp(work, "incremental") == 0;
         const auto expected =
-            std::strcmp(work, "incremental") == 0 ? TLV_NEED_MORE_DATA : TLV_ERR_BUFFER_TOO_SHORT;
+            std::strcmp(work, "incremental") == 0 ? TLV_NEED_MORE_DATA : TLV_ERR_TRUNCATED;
         for (size_t i = 0; i < count; ++i) {
             auto result = reader.next();
             if (failing) {
-                if (result || result.error().code != expected) std::abort();
-                checksum += static_cast<unsigned>(result.error().code);
+                const auto code =
+                    result ? TLV_OK : static_cast<tlv_result_t>(result.error().status());
+                if (code != expected) std::abort();
+                checksum += static_cast<unsigned>(code);
             } else {
                 if (!result) std::abort();
                 checksum += result->value().size() + static_cast<unsigned>(result->value()[0]);
@@ -64,7 +66,7 @@ __attribute__((noinline)) unsigned long long run_c(const char* work, const tlv::
     unsigned long long      checksum = 0;
     const bool failing = std::strcmp(work, "failed") == 0 || std::strcmp(work, "incremental") == 0;
     const auto expected =
-        std::strcmp(work, "incremental") == 0 ? TLV_NEED_MORE_DATA : TLV_ERR_BUFFER_TOO_SHORT;
+        std::strcmp(work, "incremental") == 0 ? TLV_NEED_MORE_DATA : TLV_ERR_TRUNCATED;
     for (size_t i = 0; i < count; ++i) {
         const auto rc = diagnostic ? tlv_reader_next_diag(&reader, &element, &detail)
                                    : tlv_reader_next(&reader, &element);
@@ -123,7 +125,7 @@ int main(int argc, char** argv) {
     unsigned long long expected_sum = 0;
     if (failing) {
         const auto expected =
-            std::strcmp(work, "incremental") == 0 ? TLV_NEED_MORE_DATA : TLV_ERR_BUFFER_TOO_SHORT;
+            std::strcmp(work, "incremental") == 0 ? TLV_NEED_MORE_DATA : TLV_ERR_TRUNCATED;
         expected_sum = static_cast<unsigned>(expected) * static_cast<unsigned long long>(count);
     } else {
         expected_sum = count;

@@ -89,7 +89,7 @@ static tlv_result_t lex(const char* text, size_t size, size_t limit, query_token
             case '@':
             case '$':
                 if (c == '$' && (pos == size || !identifier_start((unsigned char)text[pos])))
-                    return query_error(d, TLV_ERR_INVALID_ARG, TLV_QUERY_ERROR_SYNTAX, begin, pos,
+                    return query_error(d, TLV_ERR_SYNTAX, TLV_QUERY_ERROR_SYNTAX, begin, pos,
                                        "variable identifier starting with a letter");
                 kind = c == '@' ? T_META : T_VARIABLE;
                 while (pos < size && (c == '$' ? identifier_continue((unsigned char)text[pos])
@@ -102,22 +102,22 @@ static tlv_result_t lex(const char* text, size_t size, size_t limit, query_token
                 kind = T_STRING;
                 while (pos < size && (unsigned char)text[pos] != c) {
                     if ((unsigned char)text[pos] < 32)
-                        return query_error(d, TLV_ERR_INVALID_ARG, TLV_QUERY_ERROR_SYNTAX, pos,
-                                           pos + 1, "ASCII string or escaped UTF-8 bytes");
+                        return query_error(d, TLV_ERR_SYNTAX, TLV_QUERY_ERROR_SYNTAX, pos, pos + 1,
+                                           "ASCII string or escaped UTF-8 bytes");
                     if (text[pos] == '\\') {
                         ++pos;
                         if (pos == size ||
                             (text[pos] != '\\' && text[pos] != '\'' && text[pos] != '"'))
-                            return query_error(d, TLV_ERR_INVALID_ARG, TLV_QUERY_ERROR_SYNTAX, pos,
-                                               pos, "escaped quote or backslash");
+                            return query_error(d, TLV_ERR_SYNTAX, TLV_QUERY_ERROR_SYNTAX, pos, pos,
+                                               "escaped quote or backslash");
                     }
                     ++pos;
                 }
                 if (pos == size)
-                    return query_error(d, TLV_ERR_INVALID_ARG, TLV_QUERY_ERROR_SYNTAX, begin, pos,
+                    return query_error(d, TLV_ERR_SYNTAX, TLV_QUERY_ERROR_SYNTAX, begin, pos,
                                        "closing quote");
                 if (tlv_utf8_validate((const uint8_t*)text + begin + 1, pos - begin - 1) != TLV_OK)
-                    return query_error(d, TLV_ERR_INVALID_ARG, TLV_QUERY_ERROR_SYNTAX, begin, pos,
+                    return query_error(d, TLV_ERR_SYNTAX, TLV_QUERY_ERROR_SYNTAX, begin, pos,
                                        "valid UTF-8 string");
                 ++pos;
                 break;
@@ -128,13 +128,13 @@ static tlv_result_t lex(const char* text, size_t size, size_t limit, query_token
                     size_t digits = pos;
                     while (pos < size && text[pos] != '\'') {
                         if (query_hex((unsigned char)text[pos]) < 0)
-                            return query_error(d, TLV_ERR_INVALID_ARG, TLV_QUERY_ERROR_SYNTAX, pos,
+                            return query_error(d, TLV_ERR_SYNTAX, TLV_QUERY_ERROR_SYNTAX, pos,
                                                pos + 1, "hexadecimal byte");
                         ++pos;
                     }
                     if (pos == size || (pos - digits) % 2)
-                        return query_error(d, TLV_ERR_INVALID_ARG, TLV_QUERY_ERROR_SYNTAX, begin,
-                                           pos, "even hexadecimal bytes and closing quote");
+                        return query_error(d, TLV_ERR_SYNTAX, TLV_QUERY_ERROR_SYNTAX, begin, pos,
+                                           "even hexadecimal bytes and closing quote");
                     ++pos;
                 } else if (word_char(c)) {
                     kind = T_WORD;
@@ -152,7 +152,7 @@ static tlv_result_t lex(const char* text, size_t size, size_t limit, query_token
                 }
         }
         if (kind == T_END)
-            return query_error(d, TLV_ERR_INVALID_ARG, TLV_QUERY_ERROR_SYNTAX, begin, pos,
+            return query_error(d, TLV_ERR_SYNTAX, TLV_QUERY_ERROR_SYNTAX, begin, pos,
                                "Query token");
         if (used == limit) return query_limit(d, "tokens", limit, begin, pos);
         if (tokens) {
@@ -450,7 +450,7 @@ static tlv_result_t parse(const char* text, const query_token_t* tokens, size_t 
             for (axis = A_CHILD; axis <= A_PRECEDE; ++axis)
                 if (query_word(text, t.begin, t.end, query_axis_name(axis))) break;
             if (axis > A_PRECEDE)
-                return query_error(d, TLV_ERR_INVALID_ARG, TLV_QUERY_ERROR_SYNTAX, t.begin, t.end,
+                return query_error(d, TLV_ERR_SYNTAX, TLV_QUERY_ERROR_SYNTAX, t.begin, t.end,
                                    "known axis");
             i += 2;
             if (i >= count || tokens[i].kind != T_WORD) goto syntax;
@@ -484,20 +484,20 @@ static tlv_result_t parse(const char* text, const query_token_t* tokens, size_t 
         if (*used > o->max_states) return query_limit(d, "states", o->max_states, t.begin, t.end);
         continue;
     syntax:
-        return query_error(d, TLV_ERR_INVALID_ARG, TLV_QUERY_ERROR_SYNTAX, t.begin, t.end,
+        return query_error(d, TLV_ERR_SYNTAX, TLV_QUERY_ERROR_SYNTAX, t.begin, t.end,
                            expected ? "expression or step" : "operator or closing delimiter");
     }
     if (expected || nesting) {
         size_t eof = count ? tokens[count - 1].end : 0;
-        return query_error(d, TLV_ERR_INVALID_ARG, TLV_QUERY_ERROR_SYNTAX, eof, eof,
+        return query_error(d, TLV_ERR_SYNTAX, TLV_QUERY_ERROR_SYNTAX, eof, eof,
                            nesting ? "closing delimiter" : "expression");
     }
     while (on)
         if (!reduce(nodes, used, values, &vn, ops[--on], tokens))
-            return query_error(d, TLV_ERR_INVALID_ARG, TLV_QUERY_ERROR_SYNTAX, 0, 0,
+            return query_error(d, TLV_ERR_SYNTAX, TLV_QUERY_ERROR_SYNTAX, 0, 0,
                                "complete expression operands");
     if (vn != 1)
-        return query_error(d, TLV_ERR_INVALID_ARG, TLV_QUERY_ERROR_SYNTAX, 0, 0,
+        return query_error(d, TLV_ERR_SYNTAX, TLV_QUERY_ERROR_SYNTAX, 0, 0,
                            "one expression result");
     if (*used > o->max_states) return query_limit(d, "states", o->max_states, 0, 0);
     *root = values[0];
@@ -583,7 +583,7 @@ static tlv_result_t analyze(const char* text, query_node_t* nodes, size_t count,
             uint32_t args[3];
             size_t arity = call_args(nodes, n, args);
             if (arity > 3)
-                return query_error(d, TLV_ERR_INVALID_ARG, TLV_QUERY_ERROR_SYNTAX, n->begin, n->end,
+                return query_error(d, TLV_ERR_SYNTAX, TLV_QUERY_ERROR_SYNTAX, n->begin, n->end,
                                    "at most three function arguments");
             for (size_t j = 1; j < arity; ++j)
                 if (nodes[args[j]].op == Q_TEST && decimal(text, &nodes[args[j]]))
@@ -682,9 +682,12 @@ static tlv_result_t analyze(const char* text, query_node_t* nodes, size_t count,
             uint64_t maximum = (uint64_t)INT64_MAX + (unsigned)negative;
             for (size_t j = n->begin + (unsigned)negative; j < n->end; ++j) {
                 unsigned digit = (unsigned)(text[j] - '0');
-                if (digit > 9 || value > (maximum - digit) / 10)
-                    return query_error(d, TLV_ERR_OVERFLOW, TLV_QUERY_ERROR_SYNTAX, n->begin,
-                                       n->end, "signed int64");
+                if (digit > 9)
+                    return query_error(d, TLV_ERR_SYNTAX, TLV_QUERY_ERROR_SYNTAX, n->begin, n->end,
+                                       "decimal literal");
+                if (value > (maximum - digit) / 10)
+                    return query_error(d, TLV_ERR_OVERFLOW, TLV_QUERY_ERROR_TYPE, n->begin, n->end,
+                                       "signed int64");
                 value = value * 10 + digit;
             }
             n->immediate_low = (uint32_t)value;
@@ -922,7 +925,7 @@ static tlv_result_t analyze(const char* text, query_node_t* nodes, size_t count,
         }
         continue;
     syntax:
-        return query_error(d, TLV_ERR_INVALID_ARG, TLV_QUERY_ERROR_SYNTAX, n->begin, n->end,
+        return query_error(d, TLV_ERR_SYNTAX, TLV_QUERY_ERROR_SYNTAX, n->begin, n->end,
                            "valid Query operand/arity");
     types:
         return query_error(d, TLV_ERR_INVALID_VALUE, TLV_QUERY_ERROR_TYPE, n->begin, n->end,

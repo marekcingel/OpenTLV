@@ -34,7 +34,7 @@ extern "C" {
 /**
  * @brief Immutable LLDP framing descriptor with static lifetime.
  *
- * Decode rejects incomplete headers/Values with #TLV_ERR_BUFFER_TOO_SHORT.
+ * Decode rejects incomplete headers/Values with #TLV_ERR_TRUNCATED.
  * Measure/encode reject a Tag size other than one with #TLV_ERR_INVALID_TAG_SIZE,
  * a Type above 127 with #TLV_ERR_INVALID_TAG, and a Value size above 511 with
  * #TLV_ERR_INVALID_LENGTH. Source Tag/Length byte envelopes overlap; semantic

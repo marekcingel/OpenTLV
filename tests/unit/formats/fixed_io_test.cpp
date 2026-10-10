@@ -19,17 +19,17 @@ const tlv_format_t fixed_format = [] {
 }();
 } // namespace
 
-TEST(Unit_Tlv, ReaderDetectsBufferTooShortForValue) {
+TEST(Unit_Tlv, ReaderDetectsTruncatedValue) {
     /* claims the value has 5 bytes, but the buffer has only 2 */
     const uint8_t data[] = {0x01, 0x05, 'a', 'b'};
     tlv_reader_t  reader;
     ASSERT_EQ(TLV_OK, tlv_reader_init(&reader, data, sizeof(data), &fixed_format));
 
     tlv_element_t element;
-    ASSERT_EQ(TLV_ERR_BUFFER_TOO_SHORT, tlv_reader_next(&reader, &element));
+    ASSERT_EQ(TLV_ERR_TRUNCATED, tlv_reader_next(&reader, &element));
 }
 
-TEST(Unit_Tlv, ReaderDetectsEndOfBuffer) {
+TEST(Unit_Tlv, ReaderDetectsEnd) {
     const uint8_t data[] = {0x01, 0x00};
     tlv_reader_t  reader;
     ASSERT_EQ(TLV_OK, tlv_reader_init(&reader, data, sizeof(data), &fixed_format));
@@ -38,7 +38,7 @@ TEST(Unit_Tlv, ReaderDetectsEndOfBuffer) {
     ASSERT_EQ(TLV_OK, tlv_reader_next(&reader, &element));
     ASSERT_EQ(0, element.value.size);
     ASSERT_TRUE(tlv_reader_at_end(&reader));
-    ASSERT_EQ(TLV_ERR_END_OF_BUFFER, tlv_reader_next(&reader, &element));
+    ASSERT_EQ(TLV_END, tlv_reader_next(&reader, &element));
 }
 
 TEST(Unit_Tlv, ReaderRejectsNullArgs) {
@@ -82,9 +82,9 @@ TEST(Unit_Tlv, WriterRejectsUnsupportedTagSizesWithoutWriting) {
     EXPECT_EQ(TLV_ERR_NULL_ARG, tlv_writer_write(&writer, tlv_tag(nullptr, 1), nullptr, 0));
     EXPECT_EQ(0u, tlv_writer_size(&writer));
     for (uint8_t byte : buf) EXPECT_EQ(0xAA, byte);
-    EXPECT_EQ(12, TLV_ERR_INVALID_BYTE_ORDER);
-    EXPECT_STREQ("invalid byte order", tlv_strerror(TLV_ERR_INVALID_BYTE_ORDER));
-    EXPECT_EQ(11, TLV_ERR_INVALID_TAG_SIZE);
+    EXPECT_EQ(8, TLV_ERR_SYNTAX);
+    EXPECT_STREQ("syntax error", tlv_strerror(TLV_ERR_SYNTAX));
+    EXPECT_EQ(5, TLV_ERR_INVALID_TAG_SIZE);
     EXPECT_STREQ("invalid tag size", tlv_strerror(TLV_ERR_INVALID_TAG_SIZE));
     EXPECT_STREQ("invalid tag", tlv_strerror(TLV_ERR_INVALID_TAG));
 }

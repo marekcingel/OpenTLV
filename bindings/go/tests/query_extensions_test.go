@@ -154,7 +154,7 @@ func TestQueryDefinitionsFixedFormatsAndSourceFeeds(t *testing.T) {
 	if ordinal != 0 || !bytes.Equal(match.Element.Tag(), []byte{0x12, 0x34}) || !bytes.Equal(match.Element.Value(), []byte{0x56}) {
 		t.Fatalf("match %#v ordinal %d", match, ordinal)
 	}
-	if _, _, err := q.NextResultWithOrdinal(); !errors.Is(err, tlv.ErrEndOfBuffer) {
+	if _, _, err := q.NextResultWithOrdinal(); !errors.Is(err, tlv.ErrEnd) {
 		t.Fatal(err)
 	}
 	context, err := tlv.CompileQuery("//a:payload", options)

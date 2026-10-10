@@ -111,7 +111,7 @@ static int run(const tlv::query_program& program, bool retained, int64_t n, unsi
             tlv_result_t     rc;
             while ((rc = tlv_query_result_next(tlv::native::handle(*execution), &event)) == TLV_OK)
                 bits |= 1u << event.offset;
-            CHECK(rc == TLV_ERR_END_OF_BUFFER);
+            CHECK(rc == TLV_END);
         }
     }
     CHECK(execution->reset());

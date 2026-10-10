@@ -50,8 +50,8 @@ typedef struct tlv_escaped_length {
  * @return #TLV_OK on success.
  * @return #TLV_ERR_NULL_ARG for a missing required pointer.
  * @return #TLV_ERR_INVALID_ARG for invalid configuration.
- * @return #TLV_ERR_INVALID_BYTE_ORDER for unsupported byte order.
- * @return #TLV_ERR_BUFFER_TOO_SHORT for incomplete fields.
+ * @return #TLV_ERR_INVALID_ARG for an unknown byte order.
+ * @return #TLV_ERR_TRUNCATED for incomplete fields.
  * @return #TLV_ERR_INVALID_LENGTH for a reserved prefix or out-of-range count.
  * @note Validate required pointers and configuration before inspecting wire bytes.
  * Argument/configuration errors preserve both outputs; incomplete input reports
@@ -70,7 +70,7 @@ TLV_API tlv_result_t tlv_escaped_length_read(const tlv_escaped_length_t* config,
  * @return #TLV_OK on success.
  * @return #TLV_ERR_NULL_ARG for a missing pointer or NULL data with nonzero capacity.
  * @return #TLV_ERR_INVALID_ARG for invalid configuration.
- * @return #TLV_ERR_INVALID_BYTE_ORDER for unsupported byte order.
+ * @return #TLV_ERR_INVALID_ARG for an unknown byte order.
  * @return #TLV_ERR_INVALID_LENGTH for a count above max_length.
  * @return #TLV_ERR_BUFFER_TOO_SHORT for insufficient capacity.
  * @note Validate required pointers, configuration, count range and capacity in

@@ -3,7 +3,7 @@
 
 import pytest
 
-from opentlv import BufferTooShortError, Document, Format, Node, Tag, Writer
+from opentlv import Document, TruncatedError, Format, Node, Tag, Writer
 
 
 def test_pipeline_materializes_matched_current_subtree_without_repull():
@@ -187,8 +187,8 @@ def test_repr_shows_count_and_tag():
     assert "primitive" in repr(doc.first)
 
 
-def test_document_parse_reports_buffer_too_short():
-    with pytest.raises(BufferTooShortError):
+def test_document_parse_reports_truncated_input():
+    with pytest.raises(TruncatedError):
         Document(bytes([0x01, 0x05, 0xAA]))
 
 
@@ -239,7 +239,7 @@ def test_replacing_children_keeps_parent_and_unrelated_handles_valid():
     alias = doc.first
     child = parent.first_child
     sibling = parent.next
-    with pytest.raises(BufferTooShortError):
+    with pytest.raises(TruncatedError):
         parent.value = bytes.fromhex("8102")
     assert child.value == b"\xaa"
     parent.value = bytes.fromhex("8101BB")
@@ -300,7 +300,7 @@ def test_builder_keeps_format_alive_and_leaves_following_sibling_unread():
     reader = TreeReader(bytes.fromhex("300304012A0402"))
     with DocumentBuilder(reader, next_subtree=True) as builder:
         document = builder.consume()
-    with pytest.raises(BufferTooShortError):
+    with pytest.raises(TruncatedError):
         next(reader)
     del builder, reader
     gc.collect()
@@ -317,9 +317,9 @@ def test_builder_abandonment_and_terminal_failure_release_reader():
     assert next(reader).element.tag == Tag(b"\x01")
     reader = TreeReader(b"\x01\x02")
     builder = DocumentBuilder(reader)
-    with pytest.raises(BufferTooShortError):
+    with pytest.raises(TruncatedError):
         builder.consume()
-    with pytest.raises(BufferTooShortError):
+    with pytest.raises(TruncatedError):
         next(reader)
 
 

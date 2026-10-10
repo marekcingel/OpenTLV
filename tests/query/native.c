@@ -83,7 +83,7 @@ static tlv_result_t document_run(const uint8_t* input, size_t size, const tlv_fo
                 node = tlv_node_next(node);
             }
         }
-        if (rc == TLV_ERR_END_OF_BUFFER) rc = TLV_OK;
+        if (rc == TLV_END) rc = TLV_OK;
         while (rc == TLV_OK && (rc = tlv_document_query_next(exec, &node)) == TLV_OK) {
             for (size_t i = 0; i < count; ++i)
                 if (handles[i] == node) {
@@ -91,7 +91,7 @@ static tlv_result_t document_run(const uint8_t* input, size_t size, const tlv_fo
                     break;
                 }
         }
-        if (rc == TLV_ERR_END_OF_BUFFER) rc = TLV_OK;
+        if (rc == TLV_END) rc = TLV_OK;
     }
     /* Scalar spans need printing before releasing their Document/Value storage. */
     if (rc == TLV_OK && result.kind != TLV_QUERY_RESULT_NODES) {

@@ -197,7 +197,7 @@ int LLVMFuzzerTestOneInput(const uint8_t* data, size_t size) {
             }
             if (count >= matches[0].count || matches[0].offsets[count++] != offset) abort();
         }
-        if (rc != TLV_ERR_END_OF_BUFFER || count != matches[0].count) abort();
+        if (rc != TLV_END || count != matches[0].count) abort();
     }
     tlv_document_free(document);
 #endif
@@ -234,14 +234,13 @@ int LLVMFuzzerTestOneInput(const uint8_t* data, size_t size) {
             tlv_query_program_visit(&reader, conversion_exec, collect, &matches[2], &diagnostic);
         if (provider.status != TLV_OK || provider.invalid_type) {
             const int32_t      expected_codec = (int32_t)provider.status;
-            const tlv_result_t expected =
-                provider.status == TLV_OK || provider.status == TLV_ERR_END_OF_BUFFER
-                    ? TLV_ERR_CALLBACK
-                    : provider.status;
+            const tlv_result_t expected = provider.status == TLV_OK || provider.status == TLV_END
+                                              ? TLV_ERR_CALLBACK
+                                              : provider.status;
             const tlv_codec_violation_t violation =
-                provider.status == TLV_OK                  ? TLV_CODEC_VIOLATION_TYPE
-                : provider.status == TLV_ERR_END_OF_BUFFER ? TLV_CODEC_VIOLATION_RESULT
-                                                           : TLV_CODEC_VIOLATION_NONE;
+                provider.status == TLV_OK    ? TLV_CODEC_VIOLATION_TYPE
+                : provider.status == TLV_END ? TLV_CODEC_VIOLATION_RESULT
+                                             : TLV_CODEC_VIOLATION_NONE;
             if (rc != expected || diagnostic.diagnostic.code != expected ||
                 diagnostic.kind != (expected == TLV_ERR_CALLBACK ? TLV_QUERY_ERROR_CALLBACK
                                                                  : TLV_QUERY_ERROR_CODEC) ||

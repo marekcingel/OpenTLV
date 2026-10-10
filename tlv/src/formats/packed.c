@@ -72,8 +72,8 @@ tlv_result_t tlv_packed_decode(const void* context, const uint8_t* data, size_t 
     rc = tlv_packed_layout_validate(f);
     if (rc != TLV_OK) return rc;
     if (size < f->header_size)
-        return packed_failure(error, TLV_ERR_BUFFER_TOO_SHORT, TLV_REGION_HEADER, 0, f->header_size,
-                              none, none, none);
+        return packed_failure(error, TLV_ERR_TRUNCATED, TLV_REGION_HEADER, 0, f->header_size, none,
+                              none, none);
     tag = envelope(&f->tag);
     count_field = envelope(&f->length);
     (void)tlv_packed_field_read(&f->tag, data, size, &type);
@@ -85,8 +85,8 @@ tlv_result_t tlv_packed_decode(const void* context, const uint8_t* data, size_t 
         count -= tag.size;
     }
     if (count > size - f->header_size)
-        return packed_failure(error, TLV_ERR_BUFFER_TOO_SHORT, TLV_REGION_VALUE, f->header_size,
-                              count, tag, count_field,
+        return packed_failure(error, TLV_ERR_TRUNCATED, TLV_REGION_VALUE, f->header_size, count,
+                              tag, count_field,
                               (tlv_range_t){f->header_size, size - f->header_size, 1});
     length = (size_t)count;
     decoded.element.tag = tlv_tag(f->tag_storage + (size_t)type * f->tag_size, f->tag_size);

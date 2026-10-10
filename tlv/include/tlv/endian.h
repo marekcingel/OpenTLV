@@ -125,7 +125,7 @@ TLV_API void tlv_write_u64_le(uint8_t* data, uint64_t value);
  * @return #TLV_OK on success.
  * @return #TLV_ERR_NULL_ARG if a required pointer is `NULL`.
  * @return #TLV_ERR_INVALID_LENGTH if `width` is unsupported.
- * @return #TLV_ERR_INVALID_BYTE_ORDER if `order` is unknown or unsupported.
+ * @return #TLV_ERR_INVALID_ARG if `order` is unknown.
  *
  * @note On failure `*value` is unchanged.
  */
@@ -149,7 +149,7 @@ TLV_API tlv_result_t tlv_read_uint(const uint8_t* data, size_t width, tlv_byte_o
  * @return #TLV_OK on success.
  * @return #TLV_ERR_NULL_ARG if `data` is `NULL`.
  * @return #TLV_ERR_INVALID_LENGTH if `width` is unsupported.
- * @return #TLV_ERR_INVALID_BYTE_ORDER if `order` is unknown or unsupported.
+ * @return #TLV_ERR_INVALID_ARG if `order` is unknown.
  * @return #TLV_ERR_OVERFLOW if `value` does not fit in `width` bytes.
  *
  * @note On failure the destination is unchanged.

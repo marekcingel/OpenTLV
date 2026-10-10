@@ -318,7 +318,7 @@ struct Source {
     size_t                  position = 0;
     static tlv_result_t next(void* context, tlv_element_t* element, size_t* depth, int* parent) {
         auto& source = *static_cast<Source*>(context);
-        if (source.position == source.items.size()) return TLV_ERR_END_OF_BUFFER;
+        if (source.position == source.items.size()) return TLV_END;
         const auto& item = source.items[source.position++];
         *element = item.element;
         *depth = item.depth;
@@ -435,7 +435,7 @@ TEST(Unit_Tlv_TreeWriter, EventMeasurementRejectsMalformedStreamsAsInvalidValues
         bool                supplied = false;
         static tlv_result_t next(void* context, tlv_tree_event_t* event) {
             auto& source = *static_cast<Events*>(context);
-            if (source.supplied) return TLV_ERR_END_OF_BUFFER;
+            if (source.supplied) return TLV_END;
             *event = source.input;
             source.supplied = true;
             return TLV_OK;

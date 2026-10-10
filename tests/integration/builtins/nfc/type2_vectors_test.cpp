@@ -94,7 +94,7 @@ TEST_P(NfcType2Vectors, DecodeExpectedElementsAndSourceRanges) {
     }
     EXPECT_EQ(wire.size(), tlv_reader_offset(&reader));
     tlv_element_t element{};
-    EXPECT_EQ(TLV_ERR_END_OF_BUFFER, tlv_reader_next(&reader, &element));
+    EXPECT_EQ(TLV_END, tlv_reader_next(&reader, &element));
 }
 
 TEST_P(NfcType2Vectors, EncodeIndependentElementsMatchesDump) {
@@ -139,9 +139,9 @@ TEST(Integration_Tlv_NfcType2, RejectsInvalidCorpusDumps) {
         tlv_result_t result;
     } cases[] = {{"nonminimal-extended", TLV_ERR_INVALID_LENGTH},
                  {"reserved-length", TLV_ERR_INVALID_LENGTH},
-                 {"missing-length", TLV_ERR_BUFFER_TOO_SHORT},
-                 {"truncated-extended", TLV_ERR_BUFFER_TOO_SHORT},
-                 {"truncated-value", TLV_ERR_BUFFER_TOO_SHORT}};
+                 {"missing-length", TLV_ERR_TRUNCATED},
+                 {"truncated-extended", TLV_ERR_TRUNCATED},
+                 {"truncated-value", TLV_ERR_TRUNCATED}};
     for (const auto& test : cases) {
         SCOPED_TRACE(test.name);
         const std::string path =

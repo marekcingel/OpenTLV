@@ -10,7 +10,7 @@
  * their identity; an unknown discriminator is a provider contract defect. */
 static inline tlv_result_t tlv_callback_result(tlv_result_t result, int allow_end) {
     switch (result) {
-        case TLV_ERR_END_OF_BUFFER: return allow_end ? result : TLV_ERR_CALLBACK;
+        case TLV_END: return allow_end ? result : TLV_ERR_CALLBACK;
         case TLV_OK:
         case TLV_ERR_BUFFER_TOO_SHORT:
         case TLV_ERR_INVALID_LENGTH:
@@ -22,7 +22,8 @@ static inline tlv_result_t tlv_callback_result(tlv_result_t result, int allow_en
         case TLV_ERR_SCHEMA:
         case TLV_ERR_INVALID_ARG:
         case TLV_ERR_INVALID_TAG_SIZE:
-        case TLV_ERR_INVALID_BYTE_ORDER:
+        case TLV_ERR_SYNTAX:
+        case TLV_ERR_TRUNCATED:
         case TLV_ERR_OVERFLOW:
         case TLV_ERR_INVALID_VALUE:
         case TLV_ERR_UNSUPPORTED:

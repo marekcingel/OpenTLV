@@ -32,7 +32,7 @@ def main() -> None:
         # Malformed query text raises, distinct from "no match".
         try:
             document.find_path("6F//50")
-        except opentlv.InvalidArgError as error:
+        except opentlv.InvalidSyntaxError as error:
             print(f"rejected: {error}")
 
 

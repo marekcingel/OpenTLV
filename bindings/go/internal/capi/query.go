@@ -17,7 +17,7 @@ import (
 // Query delegates parsing and document traversal to C and retains no Go pointers.
 func (d *Document) Query(text string) ([]Node, Code, Diagnostic) {
 	if i := strings.IndexByte(text, 0); i >= 0 {
-		return nil, InvalidArg, Diagnostic{Code: InvalidArg, Location: Location{3, 2, uint64(i), uint64(i + 1)}, Offset: OptionalSize{Value: uint64(i), Present: true}}
+		return nil, Syntax, Diagnostic{Code: Syntax, Location: Location{3, 2, uint64(i), uint64(i + 1)}, Offset: OptionalSize{Value: uint64(i), Present: true}}
 	}
 	s := C.CString(text)
 	defer C.free(unsafe.Pointer(s))

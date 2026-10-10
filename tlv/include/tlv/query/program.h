@@ -53,7 +53,7 @@ typedef enum tlv_query_level {
  * @note Numeric values are release-specific during the breaking failure-model migration. */
 typedef enum tlv_query_error_kind {
     TLV_QUERY_ERROR_NONE,          /**< No failure. */
-    TLV_QUERY_ERROR_SYNTAX,        /**< Invalid token or grammar. */
+    TLV_QUERY_ERROR_SYNTAX,        /**< Invalid token or grammar; paired with #TLV_ERR_SYNTAX. */
     TLV_QUERY_ERROR_CAPABILITY,    /**< Recognized feature unavailable in this backend. */
     TLV_QUERY_ERROR_LIMIT,         /**< Named capacity or work budget exhausted. */
     TLV_QUERY_ERROR_STORAGE,       /**< Invalid storage or alignment. */
@@ -66,7 +66,7 @@ typedef enum tlv_query_error_kind {
     TLV_QUERY_ERROR_IMAGE_VERSION, /**< Internal image belongs to an incompatible release. */
     TLV_QUERY_ERROR_STATE,         /**< Invalid lifecycle state or forbidden reentrancy. */
     TLV_QUERY_ERROR_CALLBACK,      /**< Callback contract violation or explicit visitor error. */
-    TLV_QUERY_ERROR_TYPE,          /**< Incompatible expression operand types. */
+    TLV_QUERY_ERROR_TYPE,          /**< Operand type, arity or numeric-range mismatch. */
     TLV_QUERY_ERROR_IMAGE          /**< Malformed stored program image. */
 } tlv_query_error_kind_t;
 
@@ -315,7 +315,7 @@ TLV_API void tlv_query_compile_options_init(tlv_query_compile_options_t* options
  * @param[out] alignment Required alignment output.
  * @param[out] diagnostic Optional initialized failure detail.
  * @return #TLV_OK on success; #TLV_ERR_NULL_ARG for missing arguments;
- * #TLV_ERR_INVALID_ARG for invalid options or lexical input;
+ * #TLV_ERR_INVALID_ARG for invalid options; #TLV_ERR_SYNTAX for invalid tokens;
  * #TLV_ERR_LIMIT for text/token bounds; #TLV_ERR_OVERFLOW for sizing overflow.
  * @note Never allocates; size/alignment outputs are unchanged on failure.
  */
@@ -339,7 +339,8 @@ TLV_API tlv_result_t tlv_query_compile_scratch(const char* text, size_t size,
  * @return #TLV_ERR_UNSUPPORTED for recognized later-phase capabilities.
  * @return #TLV_ERR_BUFFER_TOO_SHORT for insufficient scratch/output; info is
  * populated for insufficient program output, not insufficient scratch.
- * @return #TLV_ERR_INVALID_ARG for syntax/options/alignment; #TLV_ERR_NULL_ARG
+ * @return #TLV_ERR_SYNTAX for text that violates the Query grammar.
+ * @return #TLV_ERR_INVALID_ARG for options/alignment; #TLV_ERR_NULL_ARG
  * for missing pointers; #TLV_ERR_LIMIT for configured resources.
  * @note Storage, scratch, text and info must not overlap. Failure preserves
  * program storage. Sizing and writing are deterministic for identical input/options.
@@ -745,7 +746,7 @@ TLV_API tlv_result_t tlv_query_exec_result(const tlv_query_exec_t* exec,
 /** @brief Pull finalized unique node events in document order.
  * @param[in,out] exec Successfully finished retained node-result execution.
  * @param[out] event Matching event, unchanged on exhaustion/error.
- * @return #TLV_OK, #TLV_ERR_END_OF_BUFFER, #TLV_ERR_NULL_ARG, or
+ * @return #TLV_OK, #TLV_END at exhaustion, #TLV_ERR_NULL_ARG, or
  * #TLV_ERR_INVALID_ARG for overlap or an incompatible backend/result type.
  * @return #TLV_ERR_INVALID_STATE before finalization, after failure, during callbacks or for a
  * stale Document revision.
@@ -756,7 +757,7 @@ TLV_API tlv_result_t tlv_query_result_next(tlv_query_exec_t* exec, tlv_tree_even
  * @param exec Completed retained node-result execution.
  * @param event Borrowed matching event, unchanged on failure.
  * @param ordinal Original input preorder position, independent of Source offsets.
- * @return OK, END_OF_BUFFER or native state/revision error; never allocates.
+ * @return OK, #TLV_END at exhaustion, or native state/revision error; never allocates.
  * @note The ordinal is scoped to one traversal/revision and is not tlv_node_identity().
  * @return #TLV_ERR_INVALID_STATE for the same lifecycle failures as tlv_query_result_next().
  */

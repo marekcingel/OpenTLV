@@ -85,9 +85,9 @@ TEST(Unit_Tlv_BluetoothLtv, RejectsZeroLengthAndTruncation) {
     EXPECT_EQ(nullptr, element.value.data);
     const uint8_t truncated[] = {0x03, 0x09, 'H', 'i'};
     for (size_t size = 1; size < sizeof(truncated); ++size)
-        EXPECT_EQ(TLV_ERR_BUFFER_TOO_SHORT,
+        EXPECT_EQ(TLV_ERR_TRUNCATED,
                   tlv_read(truncated, size, &reader_format, &element, &consumed));
-    EXPECT_EQ(TLV_ERR_END_OF_BUFFER, tlv_read(zero, 0, &reader_format, &element, &consumed));
+    EXPECT_EQ(TLV_END, tlv_read(zero, 0, &reader_format, &element, &consumed));
 }
 
 TEST(Unit_Tlv_BluetoothLtv, WritesLengthBeforeType) {

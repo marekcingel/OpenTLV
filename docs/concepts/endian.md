@@ -47,7 +47,7 @@ Choose `TLV_BYTE_ORDER_BIG_ENDIAN` or `TLV_BYTE_ORDER_LITTLE_ENDIAN` explicitly.
 
 Both return `TLV_OK` on success. Validation checks required pointers first
 (`TLV_ERR_NULL_ARG`), then width (`TLV_ERR_INVALID_LENGTH`), then byte order
-(`TLV_ERR_INVALID_BYTE_ORDER`, including `TLV_BYTE_ORDER_UNKNOWN`). Writes
+(`TLV_ERR_INVALID_ARG`, including `TLV_BYTE_ORDER_UNKNOWN`). Writes
 also return `TLV_ERR_OVERFLOW` for values that do not fit; they never truncate. All failures leave outputs
 unchanged. Reads accept zero padding and finish reading before storing the
 result. Writes pad with zero bytes at the most significant end.

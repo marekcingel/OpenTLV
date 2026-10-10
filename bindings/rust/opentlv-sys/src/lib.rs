@@ -33,38 +33,48 @@ pub type tlv_result_t = c_int;
 
 /// The operation succeeded (`TLV_OK`).
 pub const TLV_OK: tlv_result_t = 0;
-/// A supplied buffer is too small (`TLV_ERR_BUFFER_TOO_SHORT`).
-pub const TLV_ERR_BUFFER_TOO_SHORT: tlv_result_t = 1;
-/// A length is malformed or out of range (`TLV_ERR_INVALID_LENGTH`).
-pub const TLV_ERR_INVALID_LENGTH: tlv_result_t = 2;
-/// A required pointer argument is `NULL` (`TLV_ERR_NULL_ARG`).
-pub const TLV_ERR_NULL_ARG: tlv_result_t = 3;
-/// An allocation failed (`TLV_ERR_OUT_OF_MEMORY`).
-pub const TLV_ERR_OUT_OF_MEMORY: tlv_result_t = 4;
-/// No further element exists, or the input is empty (`TLV_ERR_END_OF_BUFFER`).
-pub const TLV_ERR_END_OF_BUFFER: tlv_result_t = 5;
+/// Normal end of iteration, or empty single-read input; not a failure (`TLV_END`).
+pub const TLV_END: tlv_result_t = 1;
+/// Incremental Reader requires more bytes or explicit EOF (`TLV_NEED_MORE_DATA`).
+pub const TLV_NEED_MORE_DATA: tlv_result_t = 2;
+/// Final input ends inside an element (`TLV_ERR_TRUNCATED`).
+pub const TLV_ERR_TRUNCATED: tlv_result_t = 3;
 /// A tag is malformed or invalid (`TLV_ERR_INVALID_TAG`).
-pub const TLV_ERR_INVALID_TAG: tlv_result_t = 6;
-/// A visitor callback requested an error stop (`TLV_ERR_VISITOR`).
-pub const TLV_ERR_VISITOR: tlv_result_t = 7;
-/// A configured limit was exceeded (`TLV_ERR_LIMIT`).
-pub const TLV_ERR_LIMIT: tlv_result_t = 8;
+pub const TLV_ERR_INVALID_TAG: tlv_result_t = 4;
+/// Tag size is outside the supported range (`TLV_ERR_INVALID_TAG_SIZE`).
+pub const TLV_ERR_INVALID_TAG_SIZE: tlv_result_t = 5;
+/// A length is malformed or out of range (`TLV_ERR_INVALID_LENGTH`).
+pub const TLV_ERR_INVALID_LENGTH: tlv_result_t = 6;
+/// Primitive content is malformed (`TLV_ERR_INVALID_VALUE`).
+pub const TLV_ERR_INVALID_VALUE: tlv_result_t = 7;
+/// Text does not match the requested grammar (`TLV_ERR_SYNTAX`).
+pub const TLV_ERR_SYNTAX: tlv_result_t = 8;
 /// Input violates a schema rule (`TLV_ERR_SCHEMA`).
 pub const TLV_ERR_SCHEMA: tlv_result_t = 9;
+/// A required pointer argument is `NULL` (`TLV_ERR_NULL_ARG`).
+pub const TLV_ERR_NULL_ARG: tlv_result_t = 10;
 /// An argument has an invalid value (`TLV_ERR_INVALID_ARG`).
-pub const TLV_ERR_INVALID_ARG: tlv_result_t = 10;
-/// Tag size is outside the supported range (`TLV_ERR_INVALID_TAG_SIZE`).
-pub const TLV_ERR_INVALID_TAG_SIZE: tlv_result_t = 11;
-/// Byte order is unknown or unsupported (`TLV_ERR_INVALID_BYTE_ORDER`).
-pub const TLV_ERR_INVALID_BYTE_ORDER: tlv_result_t = 12;
-/// A value does not fit the requested width (`TLV_ERR_OVERFLOW`).
-pub const TLV_ERR_OVERFLOW: tlv_result_t = 13;
-/// Primitive content is malformed (`TLV_ERR_INVALID_VALUE`).
-pub const TLV_ERR_INVALID_VALUE: tlv_result_t = 14;
-/// A requested type or capability is unsupported (`TLV_ERR_UNSUPPORTED`).
-pub const TLV_ERR_UNSUPPORTED: tlv_result_t = 15;
+pub const TLV_ERR_INVALID_ARG: tlv_result_t = 11;
+/// Operation forbidden by the current lifecycle state (`TLV_ERR_INVALID_STATE`).
+pub const TLV_ERR_INVALID_STATE: tlv_result_t = 12;
 /// A schema definition is invalid (`TLV_ERR_INVALID_SCHEMA`).
-pub const TLV_ERR_INVALID_SCHEMA: tlv_result_t = 16;
+pub const TLV_ERR_INVALID_SCHEMA: tlv_result_t = 13;
+/// A destination or workspace is too small (`TLV_ERR_BUFFER_TOO_SHORT`).
+pub const TLV_ERR_BUFFER_TOO_SHORT: tlv_result_t = 14;
+/// A configured limit was exceeded (`TLV_ERR_LIMIT`).
+pub const TLV_ERR_LIMIT: tlv_result_t = 15;
+/// A value does not fit the requested width (`TLV_ERR_OVERFLOW`).
+pub const TLV_ERR_OVERFLOW: tlv_result_t = 16;
+/// Logical size cannot fit the native address space (`TLV_ERR_NATIVE_SIZE`).
+pub const TLV_ERR_NATIVE_SIZE: tlv_result_t = 17;
+/// An allocation failed (`TLV_ERR_OUT_OF_MEMORY`).
+pub const TLV_ERR_OUT_OF_MEMORY: tlv_result_t = 18;
+/// A requested type or capability is unsupported (`TLV_ERR_UNSUPPORTED`).
+pub const TLV_ERR_UNSUPPORTED: tlv_result_t = 19;
+/// A visitor callback requested an error stop (`TLV_ERR_VISITOR`).
+pub const TLV_ERR_VISITOR: tlv_result_t = 20;
+/// A callback violated its contract (`TLV_ERR_CALLBACK`).
+pub const TLV_ERR_CALLBACK: tlv_result_t = 21;
 
 /// Byte order of a multi-byte integer (`tlv_byte_order_t`).
 pub type tlv_byte_order_t = c_int;
@@ -648,7 +658,7 @@ pub const TLV_EMV_VALUE_AFL: tlv_emv_value_kind_t = 12;
 pub const TLV_EMV_VALUE_CVM_RESULT: tlv_emv_value_kind_t = 13;
 /// [`tlv_emv_track2_t`] (`TLV_EMV_VALUE_TRACK2`).
 pub const TLV_EMV_VALUE_TRACK2: tlv_emv_value_kind_t = 14;
-/// Caller-selected codec not recognized by the compatibility presenter.
+/// Not an entry in the builtin presentation profile (`TLV_EMV_VALUE_UNKNOWN`).
 pub const TLV_EMV_VALUE_UNKNOWN: tlv_emv_value_kind_t = 15;
 
 /// Decoded EMV date (`tlv_emv_date_t`).
@@ -1046,14 +1056,6 @@ extern "C" {
         diagnostic: *mut tlv_diagnostic_t,
     ) -> tlv_result_t;
 }
-
-/// Logical size cannot fit the native address space.
-pub const TLV_ERR_NATIVE_SIZE: tlv_result_t = 17;
-/// Incremental Reader requires more bytes or explicit EOF.
-pub const TLV_NEED_MORE_DATA: tlv_result_t = 18;
-/// Operation forbidden by the current lifecycle state.
-pub const TLV_ERR_INVALID_STATE: tlv_result_t = 19;
-pub const TLV_ERR_CALLBACK: tlv_result_t = 20;
 
 extern "C" {
     /// Decode semantic content and original source information.

@@ -69,7 +69,7 @@ fn malformed_child_is_terminal_input_error_not_need_more() {
     let data = [0x30, 2, 4, 1];
     let mut tree = TreeReader::new(&data, Format::Ber, 1, 1, 4, false).unwrap();
     tree.read().unwrap();
-    assert_eq!(tree.read().unwrap_err(), Error::BufferTooShort);
+    assert_eq!(tree.read().unwrap_err(), Error::Truncated);
     assert_eq!(tree.diagnostic().unwrap().offset, Some(4));
     assert_eq!(tree.offset(), 2);
 }

@@ -33,7 +33,7 @@ extern "C" {
  * framing such as BER EOC. No allocation, value copying, or schema validation occurs.
  *
  * @param[in]  data      Encoded input. May be `NULL` only when `size` is zero,
- *                       which returns #TLV_ERR_END_OF_BUFFER.
+ *                       which returns #TLV_END.
  * @param[in]  size      Input size in bytes.
  * @param[in]  format    Readable canonical format descriptor.
  * @param[out] out_element Receives the parsed element. Required.
@@ -41,11 +41,11 @@ extern "C" {
  *
  * @return #TLV_OK on success.
  * @return #TLV_ERR_NULL_ARG for missing required pointers or callbacks.
- * @return #TLV_ERR_END_OF_BUFFER for empty input.
+ * @return #TLV_END for empty input; this is not a failure.
  * @return #TLV_ERR_INVALID_TAG if the tag is malformed.
  * @return #TLV_ERR_INVALID_TAG_SIZE for an empty tag or an unsupported tag size.
  * @return #TLV_ERR_INVALID_LENGTH if the length field is malformed.
- * @return #TLV_ERR_BUFFER_TOO_SHORT if the header, value or trailer is incomplete.
+ * @return #TLV_ERR_TRUNCATED if the header, value or trailer is incomplete.
  * @return A permitted decoder error, propagated unchanged. Invalid control statuses,
  * unknown callback results and invalid successful outputs become #TLV_ERR_CALLBACK;
  * see #tlv_decode_fn.
@@ -234,10 +234,10 @@ TLV_API int tlv_reader_at_end(const tlv_reader_t* reader);
  * @param[out]    out_element Receives the next element.
  *
  * @return #TLV_OK when an element is available.
- * @return #TLV_ERR_END_OF_BUFFER when final input has been fully consumed.
+ * @return #TLV_END when final input has been fully consumed; this is not a failure.
  * @return #TLV_NEED_MORE_DATA when non-final input is exhausted or Format
  *         reports incomplete input. No partial element is published or consumed.
- * @return #TLV_ERR_BUFFER_TOO_SHORT when final input contains an incomplete element.
+ * @return #TLV_ERR_TRUNCATED when final input contains an incomplete element.
  * @return Any other tlv_read() error for invalid input or arguments.
  * @return #TLV_ERR_INVALID_ARG if position exceeds input size.
  * @return #TLV_ERR_OVERFLOW if the absolute input extent exceeds SIZE_MAX.

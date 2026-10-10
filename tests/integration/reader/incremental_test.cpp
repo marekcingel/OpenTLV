@@ -49,7 +49,7 @@ void check_splits(const tlv_format_t* format, const std::vector<uint8_t>& wire) 
         EXPECT_EQ(replacement.data() + source.value.offset, element.value.data);
         EXPECT_EQ(replacement.data(), source.data);
         EXPECT_EQ(wire.size(), tlv_reader_consumed(&reader));
-        EXPECT_EQ(TLV_ERR_END_OF_BUFFER, tlv_reader_next(&reader, &element));
+        EXPECT_EQ(TLV_END, tlv_reader_next(&reader, &element));
     }
 }
 } // namespace
@@ -116,7 +116,7 @@ TEST(Integration_Tlv_Incremental, MissingEocReportsTrailerExtentThenTruncationAt
     EXPECT_EQ(1u, diagnostic.detail.available);
     ASSERT_EQ(TLV_OK, tlv_reader_set_input(&reader, wire, sizeof(wire), 0, 1));
     EXPECT_EQ(
-        TLV_ERR_BUFFER_TOO_SHORT,
+        TLV_ERR_TRUNCATED,
         TLV_DIAGNOSTIC_RESULT(diagnostic, tlv_reader_next_diag(&reader, &element, &diagnostic)));
 }
 #endif

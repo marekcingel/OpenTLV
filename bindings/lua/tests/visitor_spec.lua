@@ -185,7 +185,7 @@ describe("Lua visitors", function()
         failure(function() opentlv.visit(DATA, fixed) end)
         local err = failure(function()
             opentlv.visit(DATA .. string.char(3, 2, 0), fixed, function() end)
-        end, opentlv.errors.BUFFER_TOO_SHORT)
+        end, opentlv.errors.TRUNCATED)
         assert(err.offset ~= nil and err.operation == "value")
     end)
 

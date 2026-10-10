@@ -80,7 +80,7 @@ typedef union tlv_query {
  *
  * @return #TLV_OK on success.
  * @return #TLV_ERR_NULL_ARG if `text` or `query` is `NULL`.
- * @return #TLV_ERR_INVALID_ARG for a syntax error: an empty step, an odd number
+ * @return #TLV_ERR_SYNTAX for a syntax error: an empty step, an odd number
  *         of digits, or a character other than a hexadecimal digit or `/`.
  * @return #TLV_ERR_LIMIT if the query has more than #TLV_QUERY_MAX_STEPS tags or
  *         more than #TLV_QUERY_MAX_BYTES tag bytes in total.
@@ -98,7 +98,7 @@ TLV_API tlv_result_t tlv_query_parse(const char* text, tlv_query_t* query,
  * @param[out] diagnostic Optional failure detail with an expression span; unchanged on success.
  * @return #TLV_OK on success.
  * @return #TLV_ERR_NULL_ARG for a missing required pointer.
- * @return #TLV_ERR_INVALID_ARG for empty text, embedded NUL, non-ASCII or invalid V1 syntax.
+ * @return #TLV_ERR_SYNTAX for empty text, embedded NUL, non-ASCII or invalid V1 syntax.
  * @return #TLV_ERR_LIMIT above the inline step or tag-byte limits.
  * @note Never allocates or reads outside the supplied span. Output may overlap text.
  */

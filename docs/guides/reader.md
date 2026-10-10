@@ -34,8 +34,8 @@ for (;;) {
         /* Process or retain the borrowed element here. */
         continue;
     }
-    if (rc == TLV_ERR_END_OF_BUFFER) break;
-    if (rc == TLV_ERR_BUFFER_TOO_SHORT) {
+    if (rc == TLV_END) break;
+    if (rc == TLV_ERR_TRUNCATED) {
         /* Incomplete input at reader.pos; the caller owns further input. */
         return 1;
     }
@@ -49,9 +49,9 @@ for (;;) {
 | Result | Meaning | Cursor and element output |
 | --- | --- | --- |
 | `TLV_OK` | One complete element is available | Publish element; advance by its full encoded size, including any trailer |
-| `TLV_ERR_END_OF_BUFFER` | Final input has been consumed | Unchanged |
+| `TLV_END` | Final input has been consumed; not a failure | Unchanged |
 | `TLV_NEED_MORE_DATA` | Non-final input is exhausted or incomplete | Unchanged |
-| `TLV_ERR_BUFFER_TOO_SHORT` | Final input contains an incomplete element | Unchanged |
+| `TLV_ERR_TRUNCATED` | Final input contains an incomplete element | Unchanged |
 | Any other result | Specific parsing or argument error | Unchanged |
 
 The single-element `tlv_read()` primitive retains its complete-buffer behavior;
@@ -76,8 +76,8 @@ prefix contents or access the old buffer. The caller may relocate that buffer
 before supplying the new pointer, provided no old borrowed view is still used.
 
 Set `final_input` to 1 to declare EOF. Repeating an incomplete read then reports
-`TLV_ERR_BUFFER_TOO_SHORT`; fully consumed final input reports
-`TLV_ERR_END_OF_BUFFER`. EOF cannot be reopened or extended without
+`TLV_ERR_TRUNCATED`; fully consumed final input reports
+`TLV_END`. EOF cannot be reopened or extended without
 reinitializing Reader. Discarding consumed bytes or rebinding the same final
 extent is still permitted. A rejected update leaves Reader unchanged.
 
@@ -163,7 +163,7 @@ remain usable while their original backing storage remains alive and unchanged.
 Only genuine final EOF ends iteration. Initialization errors, malformed or
 truncated data, and `TLV_NEED_MORE_DATA` throw `tlv::parse_error` from `begin()`
 or increment. The failing element is not consumed; a successful prefix remains
-consumed. Even a custom decoder returning `TLV_ERR_END_OF_BUFFER` inside
+consumed. Even a custom decoder returning `TLV_END` inside
 nonempty input produces an exception.
 
 ```cpp
@@ -275,7 +275,7 @@ The complete-element contract from incremental Reader still applies. **An
 incomplete child delays publication of its enclosing constructed parent.**
 Tree Reader cannot return a complete borrowed parent and then wait for bytes
 inside that parent's Value. Once published, that parent bounds child reads as
-final input; a child exceeding the bound returns `TLV_ERR_BUFFER_TOO_SHORT`,
+final input; a child exceeding the bound returns `TLV_ERR_TRUNCATED`,
 not `TLV_NEED_MORE_DATA`. More bytes outside the parent cannot repair it.
 Incremental traversal resumes across complete subtrees and incomplete subsequent
 roots, without requiring the entire stream in memory. It does not provide an

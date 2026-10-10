@@ -12,7 +12,7 @@ extern "C" int tlv_test_c_endian(void);
 
 TEST(Unit_Tlv_Endian, PublicCContract) {
     EXPECT_EQ(1, tlv_test_c_endian());
-    EXPECT_EQ(13, TLV_ERR_OVERFLOW);
+    EXPECT_EQ(16, TLV_ERR_OVERFLOW);
     EXPECT_STREQ("numeric overflow", tlv_strerror(TLV_ERR_OVERFLOW));
 }
 
@@ -219,8 +219,8 @@ TEST(Unit_Tlv_Endian, CheckedFailuresPreserveOutputs) {
                   tlv_write_uint(bytes, width, TLV_BYTE_ORDER_BIG_ENDIAN, 0));
     }
     for (auto order : {TLV_BYTE_ORDER_UNKNOWN}) {
-        EXPECT_EQ(TLV_ERR_INVALID_BYTE_ORDER, tlv_read_uint(bytes, 8, order, &value));
-        EXPECT_EQ(TLV_ERR_INVALID_BYTE_ORDER, tlv_write_uint(bytes, 8, order, 0));
+        EXPECT_EQ(TLV_ERR_INVALID_ARG, tlv_read_uint(bytes, 8, order, &value));
+        EXPECT_EQ(TLV_ERR_INVALID_ARG, tlv_write_uint(bytes, 8, order, 0));
     }
     EXPECT_EQ(TLV_ERR_NULL_ARG, tlv_read_uint(nullptr, 8, TLV_BYTE_ORDER_BIG_ENDIAN, &value));
     EXPECT_EQ(TLV_ERR_NULL_ARG, tlv_read_uint(bytes, 8, TLV_BYTE_ORDER_BIG_ENDIAN, nullptr));
@@ -246,8 +246,7 @@ TEST(Unit_Tlv_Endian, ValidationOrderAndBothOrdersPreserveOutputs) {
             for (auto byte : storage) EXPECT_EQ(0xA5, byte);
         }
         if (order == TLV_BYTE_ORDER_UNKNOWN) {
-            EXPECT_EQ(TLV_ERR_INVALID_BYTE_ORDER,
-                      tlv_write_uint(storage + 1, 1, order, UINT64_MAX));
+            EXPECT_EQ(TLV_ERR_INVALID_ARG, tlv_write_uint(storage + 1, 1, order, UINT64_MAX));
             for (auto byte : storage) EXPECT_EQ(0xA5, byte);
         }
     }

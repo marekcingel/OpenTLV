@@ -127,9 +127,9 @@ TEST(Integration_Tlv_Lldp, SchemaRejectsDuplicatesLengthsAndTruncation) {
     }
     auto wire = base_lldpdu;
     wire.push_back(0xFE);
-    EXPECT_EQ(TLV_ERR_BUFFER_TOO_SHORT, tlv_lldp_validate(wire.data(), wire.size(), 20, nullptr));
+    EXPECT_EQ(TLV_ERR_TRUNCATED, tlv_lldp_validate(wire.data(), wire.size(), 20, nullptr));
     wire.insert(wire.end(), {4, 0, 0});
-    EXPECT_EQ(TLV_ERR_BUFFER_TOO_SHORT, tlv_lldp_validate(wire.data(), wire.size(), 20, nullptr));
+    EXPECT_EQ(TLV_ERR_TRUNCATED, tlv_lldp_validate(wire.data(), wire.size(), 20, nullptr));
 }
 
 TEST(Integration_Tlv_Lldp, GenericSchemaReportAndValueCodecComposition) {
@@ -283,7 +283,7 @@ TEST(Integration_Tlv_Lldp, TruncationReportsWireRegionsAndDoesNotAdvance) {
         tlv_element_t element{};
         element.tag = TLV_TAG(42);
         tlv_reader_diagnostic_t error{};
-        EXPECT_EQ(TLV_ERR_BUFFER_TOO_SHORT,
+        EXPECT_EQ(TLV_ERR_TRUNCATED,
                   TLV_DIAGNOSTIC_RESULT(error, tlv_reader_next_diag(&reader, &element, &error)));
         EXPECT_EQ(0u, reader.pos);
         EXPECT_TRUE(tlv_tag_equal(TLV_TAG(42), element.tag));

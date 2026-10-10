@@ -9,26 +9,30 @@ import (
 )
 
 // Named errors support errors.Is, including through processing error wrappers.
-// Their native codes are available for compatibility, but are not needed for matching.
+// Their native codes match raw diagnostic fields, but are not needed for matching.
 var (
-	ErrBufferTooShort   = StatusError{code: capi.BufferTooShort}
-	ErrInvalidLength    = StatusError{code: capi.InvalidLength}
-	ErrNullArg          = StatusError{code: capi.NullArg}
-	ErrOutOfMemory      = StatusError{code: capi.OutOfMemory}
-	ErrEndOfBuffer      = StatusError{code: capi.EndOfBuffer}
-	ErrInvalidTag       = StatusError{code: capi.InvalidTag}
-	ErrVisitor          = StatusError{code: capi.Visitor}
-	ErrLimit            = StatusError{code: capi.Limit}
-	ErrSchema           = StatusError{code: capi.Schema}
-	ErrInvalidArg       = StatusError{code: capi.InvalidArg}
-	ErrInvalidTagSize   = StatusError{code: capi.InvalidTagSize}
-	ErrInvalidByteOrder = StatusError{code: capi.InvalidByteOrder}
-	ErrOverflow         = StatusError{code: capi.Overflow}
-	ErrInvalidValue     = StatusError{code: capi.InvalidValue}
-	ErrUnsupported      = StatusError{code: capi.Unsupported}
-	ErrInvalidSchema    = StatusError{code: capi.InvalidSchema}
-	ErrNativeSize       = StatusError{code: capi.NativeSize}
-	ErrNeedMoreData     = StatusError{code: capi.NeedMoreData}
+	ErrBufferTooShort = StatusError{code: capi.BufferTooShort}
+	ErrInvalidLength  = StatusError{code: capi.InvalidLength}
+	ErrNullArg        = StatusError{code: capi.NullArg}
+	ErrOutOfMemory    = StatusError{code: capi.OutOfMemory}
+	ErrInvalidTag     = StatusError{code: capi.InvalidTag}
+	ErrVisitor        = StatusError{code: capi.Visitor}
+	ErrLimit          = StatusError{code: capi.Limit}
+	ErrSchema         = StatusError{code: capi.Schema}
+	ErrInvalidArg     = StatusError{code: capi.InvalidArg}
+	ErrInvalidTagSize = StatusError{code: capi.InvalidTagSize}
+	ErrOverflow       = StatusError{code: capi.Overflow}
+	ErrInvalidValue   = StatusError{code: capi.InvalidValue}
+	ErrUnsupported    = StatusError{code: capi.Unsupported}
+	ErrInvalidSchema  = StatusError{code: capi.InvalidSchema}
+	ErrNativeSize     = StatusError{code: capi.NativeSize}
+	ErrNeedMoreData   = StatusError{code: capi.NeedMoreData}
+	// ErrEnd is normal end of iteration, not a failure.
+	ErrEnd = StatusError{code: capi.End}
+	// ErrTruncated reports final input that ends inside an element.
+	ErrTruncated = StatusError{code: capi.Truncated}
+	// ErrSyntax reports text that violates the requested grammar.
+	ErrSyntax = StatusError{code: capi.Syntax}
 	// ErrInvalidState reports lifecycle or callback reentrancy misuse.
 	ErrInvalidState = StatusError{code: capi.InvalidState}
 	// ErrCallback reports a provider contract violation.

@@ -42,7 +42,7 @@ TEST(Unit_Tlv_FixedFieldAdapters, DecodePreservesPrefixRangesAndElementRelativeE
                 tlv_decoded_t decoded{};
                 decoded.source.size = 99;
                 tlv_format_error_t error{};
-                EXPECT_EQ(TLV_ERR_BUFFER_TOO_SHORT,
+                EXPECT_EQ(TLV_ERR_TRUNCATED,
                           tlv_format_decode(&format, wire.data(), available, &decoded, &error));
                 EXPECT_EQ(99u, decoded.source.size);
                 const bool         tag_complete = available >= tag_offset + 2;
@@ -267,7 +267,7 @@ TEST(Unit_Tlv_FixedFieldAdapters, InitializersValidateFieldsBeforeCompositionPol
     EXPECT_EQ(TLV_ERR_NULL_ARG, tlv_tagged_binary_format_init(nullptr, &tagged));
     EXPECT_EQ(TLV_ERR_INVALID_ARG, tlv_tagged_binary_format_init(&format, &tagged));
     tagged.fields.identifier.size = 1;
-    EXPECT_EQ(TLV_ERR_INVALID_BYTE_ORDER, tlv_tagged_binary_format_init(&format, &tagged));
+    EXPECT_EQ(TLV_ERR_INVALID_ARG, tlv_tagged_binary_format_init(&format, &tagged));
     tlv_escaped_format_t escaped{{0},
                                  {0x80, 1, TLV_BYTE_ORDER_UNKNOWN, 0, 255},
                                  TLV_ELEMENT_ORDER_TLV,
@@ -277,7 +277,7 @@ TEST(Unit_Tlv_FixedFieldAdapters, InitializersValidateFieldsBeforeCompositionPol
     EXPECT_EQ(TLV_ERR_NULL_ARG, tlv_escaped_format_init(nullptr, &escaped));
     EXPECT_EQ(TLV_ERR_INVALID_ARG, tlv_escaped_format_init(&format, &escaped));
     escaped.identifier.size = 1;
-    EXPECT_EQ(TLV_ERR_INVALID_BYTE_ORDER, tlv_escaped_format_init(&format, &escaped));
+    EXPECT_EQ(TLV_ERR_INVALID_ARG, tlv_escaped_format_init(&format, &escaped));
     escaped.length.extended_size = 0;
     EXPECT_EQ(TLV_ERR_INVALID_ARG, tlv_escaped_format_init(&format, &escaped));
     EXPECT_EQ(&valid, format.context);
@@ -329,8 +329,7 @@ TEST(Unit_Tlv_FixedFieldAdapters, BuiltinFieldCallbacksFollowArgumentAndPrefixCo
         tlv_tag_t parsed = tag;
         EXPECT_EQ(TLV_ERR_NULL_ARG, fields->read_tag(fields->context, nullptr, 1, &parsed, &used));
         EXPECT_EQ(99u, used);
-        EXPECT_EQ(TLV_ERR_BUFFER_TOO_SHORT,
-                  fields->read_tag(fields->context, bytes, 1, &parsed, &used));
+        EXPECT_EQ(TLV_ERR_TRUNCATED, fields->read_tag(fields->context, bytes, 1, &parsed, &used));
         EXPECT_EQ(1u, used);
         EXPECT_EQ(tag.data, parsed.data);
         EXPECT_EQ(tag.size, parsed.size);

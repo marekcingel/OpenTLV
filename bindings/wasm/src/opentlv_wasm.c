@@ -871,6 +871,65 @@ const char* opentlv_wasm_strerror(int code) {
 const char* opentlv_wasm_query_error_kind_string(int kind) {
     return tlv_query_error_kind_string((tlv_query_error_kind_t)kind);
 }
+
+typedef struct {
+    const char* name;
+    int         value;
+} wasm_constant_t;
+
+static void constants_object(builder_t* b, const char* key, const wasm_constant_t* items,
+                             size_t count) {
+    size_t i;
+    builder_json_string(b, key);
+    builder_text(b, ":{");
+    for (i = 0; i < count; ++i) {
+        if (i) builder_text(b, ",");
+        builder_json_string(b, items[i].name);
+        builder_text(b, ":");
+        builder_number(b, (size_t)items[i].value);
+    }
+    builder_text(b, "}");
+}
+
+const char* opentlv_wasm_constants(void) {
+    static const wasm_constant_t results[] = {
+        {"OK", TLV_OK},
+        {"END", TLV_END},
+        {"NEED_MORE_DATA", TLV_NEED_MORE_DATA},
+        {"TRUNCATED", TLV_ERR_TRUNCATED},
+        {"INVALID_TAG", TLV_ERR_INVALID_TAG},
+        {"INVALID_TAG_SIZE", TLV_ERR_INVALID_TAG_SIZE},
+        {"INVALID_LENGTH", TLV_ERR_INVALID_LENGTH},
+        {"INVALID_VALUE", TLV_ERR_INVALID_VALUE},
+        {"SYNTAX", TLV_ERR_SYNTAX},
+        {"SCHEMA", TLV_ERR_SCHEMA},
+        {"NULL_ARG", TLV_ERR_NULL_ARG},
+        {"INVALID_ARG", TLV_ERR_INVALID_ARG},
+        {"INVALID_STATE", TLV_ERR_INVALID_STATE},
+        {"INVALID_SCHEMA", TLV_ERR_INVALID_SCHEMA},
+        {"BUFFER_TOO_SHORT", TLV_ERR_BUFFER_TOO_SHORT},
+        {"LIMIT", TLV_ERR_LIMIT},
+        {"OVERFLOW", TLV_ERR_OVERFLOW},
+        {"NATIVE_SIZE", TLV_ERR_NATIVE_SIZE},
+        {"OUT_OF_MEMORY", TLV_ERR_OUT_OF_MEMORY},
+        {"UNSUPPORTED", TLV_ERR_UNSUPPORTED},
+        {"VISITOR", TLV_ERR_VISITOR},
+        {"CALLBACK", TLV_ERR_CALLBACK},
+    };
+    static const wasm_constant_t query_errors[] = {
+        {"STATE", TLV_QUERY_ERROR_STATE},
+    };
+    static builder_t b;
+    if (b.size == 0 && !b.failed) {
+        builder_text(&b, "{");
+        constants_object(&b, "result", results, sizeof results / sizeof results[0]);
+        builder_text(&b, ",");
+        constants_object(&b, "query_error", query_errors,
+                         sizeof query_errors / sizeof query_errors[0]);
+        builder_text(&b, "}");
+    }
+    return b.failed ? NULL : b.data;
+}
 static void query_status(builder_t* b, tlv_result_t code, const tlv_query_diagnostic_t* d) {
     b->size = 0;
     b->failed = 0;
@@ -949,9 +1008,9 @@ const char* opentlv_wasm_v1_operation(opentlv_wasm_v1_t* q, int operation, const
     tlv_query_diagnostic_t diagnostic = {0};
     if (q->code != TLV_OK) {
         /* Name only the V1 parse failures that a Query kind describes. */
-        diagnostic.kind = q->code == TLV_ERR_INVALID_ARG ? TLV_QUERY_ERROR_SYNTAX
-                          : q->code == TLV_ERR_LIMIT     ? TLV_QUERY_ERROR_LIMIT
-                                                         : TLV_QUERY_ERROR_NONE;
+        diagnostic.kind = q->code == TLV_ERR_SYNTAX  ? TLV_QUERY_ERROR_SYNTAX
+                          : q->code == TLV_ERR_LIMIT ? TLV_QUERY_ERROR_LIMIT
+                                                     : TLV_QUERY_ERROR_NONE;
         diagnostic.diagnostic = q->diagnostic;
         diagnostic.begin = q->diagnostic.location.begin;
         diagnostic.end = q->diagnostic.location.end;
@@ -1565,7 +1624,7 @@ const char* opentlv_wasm_execution_operation(opentlv_wasm_execution_t* q, int op
             else {
                 event.kind = (tlv_tree_event_kind_t)-1;
                 rc = tlv_query_program_visit(&q->reader, q->exec, wasm_pull, &event, &d);
-                if (rc == TLV_OK && (int)event.kind == -1) rc = TLV_ERR_END_OF_BUFFER;
+                if (rc == TLV_OK && (int)event.kind == -1) rc = TLV_END;
             }
             break;
         case 2: rc = tlv_query_exec_result(q->exec, &result); break;

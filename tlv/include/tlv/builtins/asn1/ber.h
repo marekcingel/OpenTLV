@@ -218,7 +218,7 @@ enum { TLV_BER_LENGTH_MAX_ENCODED_SIZE = 9 };
  * @return #TLV_ERR_NULL_ARG if a required pointer is `NULL`.
  * @return #TLV_ERR_INVALID_LENGTH for the indefinite marker, the reserved
  *         0xFF prefix, a value wider than #tlv_size_t, or nonzero excess padding.
- * @return #TLV_ERR_BUFFER_TOO_SHORT if the field claims more length octets
+ * @return #TLV_ERR_TRUNCATED if the field claims more length octets
  *         than `data_size` provides.
  *
  * @note On any failure `*value` and `*consumed` are unchanged.
@@ -271,7 +271,7 @@ TLV_API extern const tlv_format_t tlv_format_ber_indefinite;
  * @return #TLV_ERR_NULL_ARG for a missing required pointer.
  * @return #TLV_ERR_INVALID_TAG for a reserved EOC tag or zero first payload digit.
  * @return #TLV_ERR_INVALID_TAG_SIZE if the identifier exceeds the supported width.
- * @return #TLV_ERR_BUFFER_TOO_SHORT for an incomplete identifier.
+ * @return #TLV_ERR_TRUNCATED for an incomplete identifier.
  * @note Both outputs remain unchanged on failure. An invalid available first
  * payload digit is reported before later truncation or width errors.
  */

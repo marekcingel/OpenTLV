@@ -730,9 +730,9 @@ available:
 
 ```sh
 $ otlv validate --format ber --hex "0402AA"
-otlv: error: buffer too short
+otlv: error: truncated input
 
-code: TLV_ERR_BUFFER_TOO_SHORT
+code: TLV_ERR_TRUNCATED
 offset: 0x2 (2)
 tag: 04
 while reading: value

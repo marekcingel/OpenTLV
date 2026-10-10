@@ -33,7 +33,7 @@ TEST(Unit_Tlv_Variable, ConfigurationAndNullArguments) {
     }
     auto bad_order = config;
     bad_order.length.byte_order = TLV_BYTE_ORDER_UNKNOWN;
-    EXPECT_EQ(TLV_ERR_INVALID_BYTE_ORDER, tlv_variable_format_init(&format, &bad_order));
+    EXPECT_EQ(TLV_ERR_INVALID_ARG, tlv_variable_format_init(&format, &bad_order));
     EXPECT_EQ(TLV_ERR_NULL_ARG, tlv_variable_format_init(nullptr, &config));
     EXPECT_EQ(TLV_ERR_NULL_ARG, tlv_variable_format_init(&format, nullptr));
     EXPECT_EQ(TLV_ERR_NULL_ARG, tlv_variable_fields_init(nullptr, &config));

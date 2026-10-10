@@ -74,7 +74,7 @@ if(HAS_NFC)
         check(1 "TLV_ERR_INVALID_LENGTH" decode --format nfc-type2 --input "${nfc_corpus}/invalid/${vector}.bin")
     endforeach()
     foreach(vector IN ITEMS missing-length truncated-extended truncated-value)
-        check(1 "TLV_ERR_BUFFER_TOO_SHORT" decode --format nfc-type2 --input "${nfc_corpus}/invalid/${vector}.bin")
+        check(1 "TLV_ERR_TRUNCATED" decode --format nfc-type2 --input "${nfc_corpus}/invalid/${vector}.bin")
     endforeach()
 endif()
 check(2 "requires a shell" completion)
@@ -249,7 +249,7 @@ if(HAS_BER)
     check(0 "^$" validate --format ber --pdol --hex "9F02069F0206")
     check(0 "^$" validate --format ber --pdol --hex " ")
     check(1 "TLV_ERR_.*byte 0" validate --format ber --pdol --hex "9F" --diagnostics compact)
-    check(1 "TLV_ERR_BUFFER_TOO_SHORT.*byte 2" validate --format ber --pdol --hex "9F02" --diagnostics compact)
+    check(1 "TLV_ERR_TRUNCATED.*byte 2" validate --format ber --pdol --hex "9F02" --diagnostics compact)
     check(1 "TLV_ERR_INVALID_TAG_SIZE" validate --format ber --pdol --hex "DF810101")
     check(1 "TLV_ERR_INVALID_TAG" validate --format ber --pdol --hex "0000")
     check(3 "TLV_ERR_LIMIT.*byte 3" validate --format ber --pdol --hex "9F02069F1A02" --max-elements 1 --diagnostics compact)
@@ -303,7 +303,7 @@ if(HAS_BER)
         check(2 "requires --format ber, der or emv" query 6F/A5 --format fixed --hex "0100")
     endif()
     check(2 "duplicate" query 6F --format ber --hex "${query_hex}" --value --value)
-    check(1 "TLV_ERR_BUFFER_TOO_SHORT at byte 2 tag=6F while reading value; raw_length=05; declared_length=5; available=0" query 6F --format ber --hex "6F05" --diagnostics compact)
+    check(1 "TLV_ERR_TRUNCATED at byte 2 tag=6F while reading value; raw_length=05; declared_length=5; available=0" query 6F --format ber --hex "6F05" --diagnostics compact)
     # query's own visitor tracks the enclosing path too, not just dump's.
     check(1 "path: 6F > A5" query 6F/A5/50 --format ber --hex "6F09A507500141AABB1000")
     check(3 "TLV_ERR_LIMIT" query 6F/A5/50 --format ber --hex "${query_hex}" --max-depth 1)
@@ -370,7 +370,7 @@ if(HAS_EMV)
     check(1 "^otlv: schema TLV_ERR_SCHEMA at byte 6 tag=94: schema constraint violated; location=input:scope_end; path=77\n$"
         validate --format ber --module emv --hex "770482021980" --diagnostics compact) # Missing mandatory AFL.
     check(0 "^$" validate --format ber --module emv --hex "7003DF0100") # Unmodeled top-level template: accepted unchecked.
-    check(1 "^otlv: TLV_ERR_BUFFER_TOO_SHORT" # A plain format error is not labeled "schema".
+    check(1 "^otlv: TLV_ERR_TRUNCATED" # A plain format error is not labeled "schema".
         validate --format ber --module emv --hex "6F0AFF" --diagnostics compact)
     # A missing field keeps its scope-end anchor even when another root follows.
     check(1 "^otlv: schema TLV_ERR_SCHEMA at byte 2 tag=84: schema constraint violated; location=input:scope_end; path=6F\n$"
@@ -394,9 +394,9 @@ if(HAS_BER)
     # multi-line with a machine-readable code line, json is a flat object.
     # BER retains the original reader diagnostic, including declared length
     # and available bytes when a value overruns its input.
-    check(1 "^otlv: error: buffer too short\n\ncode: TLV_ERR_BUFFER_TOO_SHORT\nlocation: input point\noffset: 0x2 \\(2\\)\ntag: 04\nwhile reading: value\nraw length: 02\ndeclared length: 2\navailable: 1\n$"
+    check(1 "^otlv: error: truncated input\n\ncode: TLV_ERR_TRUNCATED\nlocation: input point\noffset: 0x2 \\(2\\)\ntag: 04\nwhile reading: value\nraw length: 02\ndeclared length: 2\navailable: 1\n$"
         validate --format ber --hex "0402AA")
-    check(1 "^{\"available\":1,\"code\":\"TLV_ERR_BUFFER_TOO_SHORT\",\"declared_length\":2,\"enclosing_end\":3,\"length_offset\":1,\"location\":{\"begin\":2,\"domain\":\"input\",\"end\":2,\"kind\":\"point\"},\"message\":\"buffer too short\",\"offset\":2,\"operation\":\"value\",\"raw_length\":\"02\",\"required\":2,\"severity\":\"error\",\"tag\":\"04\",\"tag_offset\":0,\"value_offset\":2}\n$"
+    check(1 "^{\"available\":1,\"code\":\"TLV_ERR_TRUNCATED\",\"declared_length\":2,\"enclosing_end\":3,\"length_offset\":1,\"location\":{\"begin\":2,\"domain\":\"input\",\"end\":2,\"kind\":\"point\"},\"message\":\"truncated input\",\"offset\":2,\"operation\":\"value\",\"raw_length\":\"02\",\"required\":2,\"severity\":\"error\",\"tag\":\"04\",\"tag_offset\":0,\"value_offset\":2}\n$"
         validate --format ber --hex "0402AA" --diagnostics json)
 endif()
 if(HAS_DER)
@@ -469,7 +469,7 @@ if(HAS_BLUETOOTH_LTV)
     check(0 "^{\"elements\":\\[{\"length\":2,\"offset\":0,\"tag\":\"09\",\"value\":\"4142\"}\\]}\n$" dump --format bluetooth-ltv --hex "03 09 41 42" --output json)
     check(0 "^$" validate --format bluetooth-ltv --hex "02 01 06 01 FF")
     check(1 "TLV_ERR_INVALID_LENGTH at byte 3" validate --format bluetooth-ltv --hex "02 01 06 00" --diagnostics compact)
-    check(1 "TLV_ERR_BUFFER_TOO_SHORT at byte 5 tag=09 while reading value; raw_length=05; declared_length=4; available=1" validate --format bluetooth-ltv --hex "02 01 06 05 09 41" --diagnostics compact)
+    check(1 "TLV_ERR_TRUNCATED at byte 5 tag=09 while reading value; raw_length=05; declared_length=4; available=1" validate --format bluetooth-ltv --hex "02 01 06 05 09 41" --diagnostics compact)
     round_trip(bluetooth-ltv 09 414243)
     check(0 "^03094142\n$" encode --format bluetooth-ltv --tag 09 --value 4142)
     check(1 "cannot encode element 0: " encode --format bluetooth-ltv --tag 0102 --value AA)
@@ -849,7 +849,7 @@ if(HAS_EMV)
     check(1 "^otlv: schema TLV_ERR_SCHEMA at byte 2 tag=84: " validate --format ber --module emv --emv-check all --hex "6F00" --diagnostics compact)
     check(1 "^otlv: dictionary TLV_ERR_SCHEMA at byte 11 tag=9F02: " validate --format ber --module emv --emv-check all --hex "6F098407A0000000031010 9F02050000000010" --diagnostics compact)
     # A framing error is still reported before any EMV check runs.
-    check(1 "^otlv: TLV_ERR_BUFFER_TOO_SHORT" validate --format ber --module emv --emv-check dictionary --hex "9F0206" --diagnostics compact)
+    check(1 "^otlv: TLV_ERR_TRUNCATED" validate --format ber --module emv --emv-check dictionary --hex "9F0206" --diagnostics compact)
     check(3 "TLV_ERR_LIMIT" validate --format ber --module emv --emv-check dictionary --max-elements 0 --hex "9F02050000000010")
     # The same length is valid or not depending on the context: 82 is the
     # Application Interchange Profile (2 bytes) in the base context and a
@@ -901,7 +901,7 @@ if(HAS_BER)
     run_cli(1 "" "TLV_ERR_INVALID_TAG at byte 3" decode --format ber --hex "${damaged}" --diagnostics compact)
 
     # Truncated trailing data is one skipped range up to the end of the input.
-    set(cut_json [=[{"complete":false,"elements":[{"length":1,"offset":0,"tag":"5A","value":"12"}],"skipped":[{"error":"TLV_ERR_BUFFER_TOO_SHORT","error_offset":3,"length":3,"message":"buffer too short","offset":3}]}]=])
+    set(cut_json [=[{"complete":false,"elements":[{"length":1,"offset":0,"tag":"5A","value":"12"}],"skipped":[{"error":"TLV_ERR_TRUNCATED","error_offset":3,"length":3,"message":"truncated input","offset":3}]}]=])
     run_cli(4 "${cut_json}\n" "skipped 3 byte\\(s\\) at offset 3" dump --format ber --hex "5A0112 5A05 AA" --recover --output json)
 
     # decode marks the document incomplete and lists every skipped range.
@@ -936,7 +936,7 @@ if(HAS_BER)
     run_cli(3 "" "TLV_ERR_LIMIT" decode --format ber --hex "E1035A0112 0000" --recover --max-depth 0)
 endif()
 if(HAS_BER)
-    check_out(4 "^offset=0 tag=04 length=1 value=AA\nskipped offset=3 length=3 error=TLV_ERR_BUFFER_TOO_SHORT error-offset=3\n$"
+    check_out(4 "^offset=0 tag=04 length=1 value=AA\nskipped offset=3 length=3 error=TLV_ERR_TRUNCATED error-offset=3\n$"
         dump --format ber --hex "0401AA 04 05 AA" --recover)
 endif()
 if(HAS_DER)
@@ -1074,14 +1074,14 @@ if(HAS_BER)
     string(REPEAT "30 > " 31 retained_path)
     string(APPEND retained_path "30 > ...")
     foreach(command IN ITEMS dump validate decode)
-        check(1 "TLV_ERR_BUFFER_TOO_SHORT" ${command} --format ber
+        check(1 "TLV_ERR_TRUNCATED" ${command} --format ber
             --hex "${invalid_nested}" --diagnostics json)
         string(JSON diagnostic_path GET "${last_error}" path)
         string(JSON omitted GET "${last_error}" path_omitted)
         if(NOT diagnostic_path STREQUAL retained_path OR NOT omitted EQUAL 8)
             message(FATAL_ERROR "Incomplete deep diagnostic path: ${last_error}")
         endif()
-        check(1 "TLV_ERR_BUFFER_TOO_SHORT" ${command} --format ber
+        check(1 "TLV_ERR_TRUNCATED" ${command} --format ber
             --hex "${invalid_nested}" --diagnostics human)
         string(FIND "${last_error}" "path: ${retained_path}\n" path_position)
         if(path_position EQUAL -1)
@@ -1097,7 +1097,7 @@ if(HAS_BER)
     endforeach()
     string(REPEAT "${long_tag} > " 31 long_tag_path)
     string(APPEND long_tag_path "${long_tag} > ...")
-    check(1 "TLV_ERR_BUFFER_TOO_SHORT" validate --format ber
+    check(1 "TLV_ERR_TRUNCATED" validate --format ber
         --hex "${long_tag_wire}" --diagnostics json)
     string(JSON diagnostic_path GET "${last_error}" path)
     string(JSON omitted GET "${last_error}" path_omitted)
@@ -1112,7 +1112,7 @@ if(HAS_BER)
         foreach(level RANGE 1 ${ancestor_depth})
             wrap_diagnostic_sequence("${sibling_wire}" sibling_wire)
         endforeach()
-        check(1 "TLV_ERR_BUFFER_TOO_SHORT" validate --format ber --max-depth 96
+        check(1 "TLV_ERR_TRUNCATED" validate --format ber --max-depth 96
             --hex "${sibling_wire}" --diagnostics json)
         string(JSON diagnostic_path GET "${last_error}" path)
         if(ancestor_depth GREATER 31)

@@ -9,6 +9,10 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Fixed
 
+- JS/WASM Query takes result codes from C (`opentlv_wasm_constants()`) instead of hard-coded numbers, so its own errors report the renumbered codes. (#578)
+- Document `TLV_ERR_SYNTAX` for invalid tokens returned by `tlv_query_compile_scratch()`. (#578)
+- Fix the Callgrind comparison build by detecting Reader EOF with `tlv_reader_at_end()`, so the shared workload harness compiles against both the baseline and candidate result codes. (#578)
+- C++ `codec_registry::decode()` reports an unregistered Tag as `errc::unsupported` instead of `errc::invalid_length`. (#578)
 - Fix the diagnostic-return CI check for `tlv_schema_prepare()` by documenting its direct argument-error return. (#575)
 - Fix the C++ API documentation build and the C++ consumer-boundary check for prepared Schema handles. (#575)
 - Report JS/WASM path queries over the step or tag-byte limit with the `limit` Query kind instead of `syntax`. (#559)
@@ -122,6 +126,13 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Changed
 
+- `TLV_ERR_BUFFER_TOO_SHORT` belongs to the capacity, resources and numeric ranges category; values are unchanged. (#578)
+- **Breaking:** Renumber `tlv_result_t` by category: success, control statuses (`END`, `NEED_MORE_DATA`), invalid input data, invalid API use, resources and ranges, capabilities, and callbacks. Rebuild native consumers; bindings use the new values. (#578)
+- **Breaking:** Query evaluation reports function argument type and arity mismatches as `INVALID_VALUE` with kind `TYPE` instead of `INVALID_ARG` with `SYNTAX`; an out-of-range integer literal keeps `OVERFLOW` with kind `TYPE`, and a non-digit in a literal reports `SYNTAX`. (#578)
+- `tlv_fields_decode()` and `tlv_tagged_fields_decode()` report `BUFFER_TOO_SHORT` from a read callback or resolver as `CALLBACK` directly, not only through `tlv_format_decode()`. (#578)
+- `tlv_strerror(TLV_END)` reads "end of iteration". (#578)
+- Python takes result codes from the native module (`_opentlv.RESULT_*`) instead of hard-coded numbers. (#578)
+- **Breaking:** Add `TLV_END` (normal end of iteration, not a failure), `TLV_ERR_TRUNCATED` (final input ends inside an element) and `TLV_ERR_SYNTAX` (Query grammar). `TLV_ERR_BUFFER_TOO_SHORT` now means only destination or workspace capacity; Format decoders must report incomplete input as `TRUNCATED`. Unknown byte orders return `INVALID_ARG`. Bindings: C++ `errc::end`/`truncated`/`syntax`, Rust `Error::End`/`Truncated`/`Syntax`, Python `EndError`/`TruncatedError`/`InvalidSyntaxError`, Go `ErrEnd`/`ErrTruncated`/`ErrSyntax`, Lua `errors.END`/`TRUNCATED`/`SYNTAX`. (#578)
 - `tlv_schema_validate()` diagnostics carry the same tag, path, field name and expected-versus-actual detail as the first `tlv_schema_validate_all_diag()` entry. (#574)
 - Builtin Format callbacks write `tlv_format_error_t` only on failure, which makes successful decoding cheaper. Failure detail is unchanged; read it only after a failing result. (#561)
 - Generate the Rust, Go and Python diagnostic vocabularies from the C enums and check them in CI. Rust categories are `#[non_exhaustive]` with `Unrecognized(RawCategory)`; Python unknown categories are cached and label out-of-range values as `unknown`. (#557)
@@ -220,6 +231,9 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Removed
 
+- **Breaking:** Remove compatibility-only C++ APIs: the tag-carrying payload interface (`tlv::is_tlv_codec`, `TlvCodec`, `tlv::write_value()`, `codec_registry::register_type()` and `tlv++/codec/codec.hpp`; use typed fields and `register_decoder()`) and the public `tlv::error::code` field (use `status()`). (#578)
+- **Breaking:** Remove the unused `TLV_DEPRECATED_MSG` attribute macro; OpenTLV has no deprecation periods before 1.0.0. (#578)
+- **Breaking:** Remove `TLV_ERR_END_OF_BUFFER` and `TLV_ERR_INVALID_BYTE_ORDER` and their binding names (C++ `errc::end_of_input`/`invalid_byte_order`, Rust `Error::EndOfBuffer`/`InvalidByteOrder`, Python `EndOfBufferError`/`InvalidByteOrderError`, Go `ErrEndOfBuffer`/`ErrInvalidByteOrder`, Lua `errors.END_OF_BUFFER`/`INVALID_BYTE_ORDER`) without aliases. (#578)
 - **Breaking:** Remove the compact Schema issue/report API, its path formatter and Rust/Python facade types and methods; use detailed Schema diagnostics and the shared diagnostic path model. Remove C++ `visit_tree` and `reader/visitor.hpp`; use `tree_reader::visit`. (#401)
 - **Breaking:** Remove the public Scanner API (`tlv_scan`, `tlv/reader/scanner.h`). Applications implement recovery policy using `tlv_read()`; CLI `--recover` remains available as CLI-owned policy. (#391)
 - **Breaking:** Remove the dedicated Fixed 1-byte TLV format: `tlv_reader_format_fixed_1byte`, `tlv_writer_format_fixed_1byte`, `tlv/builtins/fixed/fixed_1byte.h`, the `OPENTLV_FORMAT_FIXED_1BYTE` CMake option and `tlv_config_format_fixed_1byte()`, the Rust `Format::Fixed1Byte` and Python `Format.FIXED_1BYTE` variants, and the CLI/WASM `fixed-1byte` format name (now `fixed`); use the configurable fixed-width format's `tlv_fixed_config_t{1, 1, TLV_BYTE_ORDER_BIG_ENDIAN}` (or `tlv::fixed_format<1, 1, TLV_BYTE_ORDER_BIG_ENDIAN>`) instead. (#317)
@@ -227,6 +241,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Added
 
+- Rust error tests compare every variant with its exact `tlv_strerror()` text, so a result constant that drifts from C fails. (#578)
+- Test that an incremental Reader resumes after every truncated cut and then reports `TLV_END`, and that decoders cannot return control, capacity or unknown results while Tree Writer sources may end iteration. (#578)
 - Add prepared Schema handles that check a definition once for repeated validation: `tlv_schema_prepare()` and `tlv_der_schema_prepare()` with `_checked` validate, report, read and write functions, and C++ `tlv::checked_schema`. (#575)
 - Add generic and DER Schema workloads to the Callgrind comparison and Google Benchmark, measuring definition checking separately from input processing for a large shared schema, a large input and a recursive schema. (#573)
 - Add a Rust regression test that resumable Query `NEED_MORE_DATA` keeps its Reader cause and does not allocate common diagnostic metadata per chunk. (#558)

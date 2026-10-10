@@ -27,9 +27,9 @@ const std::array<uint8_t, 128> identifiers = [] {
 
 tlv_result_t packed_decode(const void* context, const uint8_t* data, size_t size,
                            tlv_decoded_t* result, tlv_format_error_t*) {
-    if (size < 2) return TLV_ERR_BUFFER_TOO_SHORT;
+    if (size < 2) return TLV_ERR_TRUNCATED;
     const size_t length = (static_cast<size_t>(data[0] & 1) << 8) | data[1];
-    if (length > size - 2) return TLV_ERR_BUFFER_TOO_SHORT;
+    if (length > size - 2) return TLV_ERR_TRUNCATED;
     const auto* table = static_cast<const std::array<uint8_t, 128>*>(context);
     result->element = {tlv_tag(&(*table)[data[0] >> 1], 1), {data + 2, length}};
     result->source.header = {0, 2, 1};
@@ -135,7 +135,7 @@ TEST(Integration_Tlv_TransformedTag, BoundsAndRejectedCallbacksDoNotPublishResul
     for (size_t size : {size_t(1), size_t(2)}) {
         tlv_decoded_t decoded{};
         decoded.source.size = 99;
-        EXPECT_EQ(TLV_ERR_BUFFER_TOO_SHORT,
+        EXPECT_EQ(TLV_ERR_TRUNCATED,
                   tlv_format_decode(&packed_format, wire, size, &decoded, nullptr));
         EXPECT_EQ(99u, decoded.source.size);
     }

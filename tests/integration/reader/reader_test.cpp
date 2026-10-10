@@ -34,7 +34,7 @@ void expect_failure(const uint8_t* data, size_t size, const tlv_format_t* format
 TEST(Integration_Tlv_Reader, DetectsTruncatedBerLengthAndValue) {
     const uint8_t data[] = {1, 0x82, 0, 2, 0xAB, 0xCD};
     for (size_t size = 1; size < sizeof(data); ++size)
-        expect_failure(data, size, &tlv_format_ber, TLV_ERR_BUFFER_TOO_SHORT);
+        expect_failure(data, size, &tlv_format_ber, TLV_ERR_TRUNCATED);
     const uint8_t invalid[] = {1, 0x80};
     expect_failure(invalid, sizeof(invalid), &tlv_format_ber, TLV_ERR_INVALID_LENGTH);
 }
@@ -51,12 +51,12 @@ TEST(Integration_Tlv_Reader, CursorDistinguishesIncompleteTagLengthValueAndTrail
         ASSERT_EQ(TLV_OK, tlv_reader_next(&reader, &element));
         for (int repeat = 0; repeat != 2; ++repeat) {
             tlv_reader_diagnostic_t diagnostic{};
-            EXPECT_EQ(TLV_ERR_BUFFER_TOO_SHORT,
+            EXPECT_EQ(TLV_ERR_TRUNCATED,
                       TLV_DIAGNOSTIC_RESULT(diagnostic,
                                             tlv_reader_next_diag(&reader, &element, &diagnostic)));
             EXPECT_EQ(2u, reader.pos);
             EXPECT_EQ(data, element.tag.data);
-            EXPECT_EQ(TLV_ERR_BUFFER_TOO_SHORT, diagnostic.diagnostic.code);
+            EXPECT_EQ(TLV_ERR_TRUNCATED, diagnostic.diagnostic.code);
             EXPECT_GE(diagnostic.diagnostic.location.begin, 2u);
             EXPECT_LE(diagnostic.diagnostic.location.begin, size);
             EXPECT_EQ(size, diagnostic.detail.enclosing_end);
@@ -74,7 +74,7 @@ TEST(Integration_Tlv_Reader, CursorDistinguishesIncompleteTagLengthValueAndTrail
     EXPECT_EQ(5u, element.value.size);
     EXPECT_EQ(7u, source.trailer.offset);
     EXPECT_EQ(2u, source.trailer.size);
-    EXPECT_EQ(TLV_ERR_END_OF_BUFFER, tlv_reader_next(&reader, &element));
+    EXPECT_EQ(TLV_END, tlv_reader_next(&reader, &element));
 }
 
 TEST(Integration_Tlv_Reader, CursorReturnsMalformedInputWithoutScanningForLaterElement) {

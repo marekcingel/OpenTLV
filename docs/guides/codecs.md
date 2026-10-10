@@ -88,7 +88,7 @@ Writer and Query. Their final argument is an optional `tlv_codec_diagnostic_t*`;
 pass `NULL` when evidence is not needed. Callbacks receive the same optional
 output. Preserve lower-layer results and evidence, and keep borrowed descriptions,
 paths and Tags alive after returning. Decode can propagate `NEED_MORE_DATA`;
-encode/measure cannot. `END_OF_BUFFER`, unknown results and invalid successful
+encode/measure cannot. `END`, unknown results and invalid successful
 payloads become `CALLBACK`, with the original result in `codec.reported`.
 
 Diagnostics contain one common result/location/path and conversion detail:
@@ -183,8 +183,8 @@ scratch. The selected Format still generates all element framing.
 
 The [compiled typed-field example](../../examples/tlv++/src/typed_fields.cpp)
 uses C++11 with no optional protocol component and exercises Document lookup
-when Document is enabled. The existing `is_tlv_codec`, `write_value()` and
-runtime registry remain available with their original contracts.
+when Document is enabled. `tlv::codec_registry` maps Tags to decoders selected
+at runtime.
 
 ## ASN.1 universal-type codecs
 
@@ -219,10 +219,7 @@ For a tested two-field mapping, see
 [`architecture_test.cpp`](../../tests/integration/architecture_test.cpp) and
 [`layers_test.cpp`](../../tests/integration/layers_test.cpp).
 
-Existing tag-associated C++ codecs remain supported. Use
-`tlv::write_value(writer, value)` from `tlv++/codec/codec.hpp` instead of the former
-`writer.write(value)`. This explicit convenience helper may allocate a temporary
-vector. Raw readers/writers now include only `tlv++/types.hpp` and the C I/O
+Raw C++ readers and writers include only `tlv++/types.hpp` and the C I/O
 contracts; they do not depend on codecs.
 
 ## Other languages

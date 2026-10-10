@@ -79,7 +79,7 @@ int main(int argc, char** argv) try {
     while (rc == TLV_OK) {
         tlv_tree_event_t event{};
         rc = tlv_tree_reader_next_event(&reader, &event);
-        if (rc == TLV_ERR_END_OF_BUFFER) {
+        if (rc == TLV_END) {
             rc = tlv_tree_reader_at_end(&reader) ? tlv_tree_writer_finish(&writer)
                                                  : TLV_ERR_INVALID_ARG;
             break;

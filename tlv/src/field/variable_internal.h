@@ -24,7 +24,7 @@ static inline tlv_result_t length_validate(const tlv_variable_length_t* c) {
     if (!single_bit(c->long_form_bit) || !c->payload_mask || (c->long_form_bit & c->payload_mask))
         return TLV_ERR_INVALID_ARG;
     if (c->byte_order != TLV_BYTE_ORDER_BIG_ENDIAN && c->byte_order != TLV_BYTE_ORDER_LITTLE_ENDIAN)
-        return TLV_ERR_INVALID_BYTE_ORDER;
+        return TLV_ERR_INVALID_ARG;
     if (c->policy &&
         (c->policy->allow_short > 1 || c->policy->allow_long > 1 ||
          c->policy->require_minimal > 1 || (!c->policy->allow_short && !c->policy->allow_long) ||

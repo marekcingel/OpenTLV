@@ -53,7 +53,7 @@ func (r *Reader) Next() bool {
 		r.element = elementFromNative(e, r.base+r.pos)
 		r.pos += n
 		return true
-	case capi.EndOfBuffer:
+	case capi.End:
 		r.done = true
 	case capi.NeedMoreData:
 		r.waiting = true

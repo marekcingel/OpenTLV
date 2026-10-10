@@ -36,7 +36,7 @@ func TestQueryDocumentEditsAndErrors(t *testing.T) {
 	for _, path := range []string{"", "//01", "01/", "0Z", "01\x00FF"} {
 		_, err = d.Query(path)
 		var detail *opentlv.QueryError
-		if !errors.Is(err, opentlv.ErrInvalidArg) || !errors.As(err, &detail) || !detail.HasOffset {
+		if !errors.Is(err, opentlv.ErrSyntax) || !errors.As(err, &detail) || !detail.HasOffset {
 			t.Fatal(path, err)
 		}
 	}

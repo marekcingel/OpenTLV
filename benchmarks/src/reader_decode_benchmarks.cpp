@@ -143,7 +143,7 @@ void reader_decode(benchmark::State& state, workload kind) {
                 ++count;
             }
         }
-        if (rc != TLV_ERR_END_OF_BUFFER || count != data.roots) {
+        if (rc != TLV_END || count != data.roots) {
             state.SkipWithError("Reader did not decode the exact root count and reach EOF");
             break;
         }
@@ -174,8 +174,7 @@ void tree_decode(benchmark::State& state, workload kind) {
                     ++count;
             }
         }
-        if (rc != TLV_ERR_END_OF_BUFFER || count != data.elements ||
-            ends != data.roots * data.depth) {
+        if (rc != TLV_END || count != data.elements || ends != data.roots * data.depth) {
             state.SkipWithError("Tree Reader did not decode the exact element/END counts and EOF");
             break;
         }

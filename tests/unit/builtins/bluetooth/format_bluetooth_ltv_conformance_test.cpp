@@ -172,11 +172,11 @@ TEST(Unit_Tlv_BluetoothLtvConformance, LengthByteAgainstEveryBufferSize) {
             size_t        consumed = 7;
             const auto rc = tlv_read(data.data(), data.size(), &reader_format, &element, &consumed);
             if (!size) {
-                EXPECT_EQ(TLV_ERR_END_OF_BUFFER, rc);
+                EXPECT_EQ(TLV_END, rc);
             } else if (!length) {
                 EXPECT_EQ(TLV_ERR_INVALID_LENGTH, rc);
             } else if (length > size - 1) {
-                EXPECT_EQ(TLV_ERR_BUFFER_TOO_SHORT, rc) << length << "/" << size;
+                EXPECT_EQ(TLV_ERR_TRUNCATED, rc) << length << "/" << size;
             } else {
                 ASSERT_EQ(TLV_OK, rc) << length << "/" << size;
                 EXPECT_EQ(length + 1u, consumed);
@@ -260,7 +260,7 @@ TEST(Unit_Tlv_BluetoothLtvConformance, EveryTruncationOfAStreamStopsAtElementBou
             }
             EXPECT_EQ(complete, elements.size()) << cut;
             // The reader is only exhausted on a boundary; an incomplete tail is never accepted.
-            EXPECT_EQ(on_boundary ? TLV_OK : TLV_ERR_BUFFER_TOO_SHORT, rc) << cut;
+            EXPECT_EQ(on_boundary ? TLV_OK : TLV_ERR_TRUNCATED, rc) << cut;
         }
     }
 }
@@ -271,10 +271,10 @@ TEST(Unit_Tlv_BluetoothLtvConformance, LengthOverrunningTheBufferIsRejected) {
     tlv_result_t rc = TLV_OK;
     const auto   elements = read_all(data, &rc);
     EXPECT_EQ(1u, elements.size());
-    EXPECT_EQ(TLV_ERR_BUFFER_TOO_SHORT, rc);
+    EXPECT_EQ(TLV_ERR_TRUNCATED, rc);
     const Bytes maximum_declared = {0xFF, 0x09, 0x01};
     read_all(maximum_declared, &rc);
-    EXPECT_EQ(TLV_ERR_BUFFER_TOO_SHORT, rc);
+    EXPECT_EQ(TLV_ERR_TRUNCATED, rc);
 }
 
 TEST(Unit_Tlv_BluetoothLtvConformance, ZeroLengthEndsParsingLikePadding) {
@@ -318,7 +318,7 @@ TEST(Unit_Tlv_BluetoothLtvConformance, VisitorReportsOffsetOfMalformedElement) {
     const Bytes data = {0x02, 0x01, 0x06, 0x02, 0x0A, 0x04, 0x09, 0x09, 'H'};
     VisitLog    log;
     size_t      error_offset = 0;
-    EXPECT_EQ(TLV_ERR_BUFFER_TOO_SHORT,
+    EXPECT_EQ(TLV_ERR_TRUNCATED,
               visit_tree_input(data.data(), data.size(), &reader_format, TLV_TREE_DEFAULT_DEPTH,
                                100, log_visit, &log, &error_offset));
     EXPECT_EQ(6u, error_offset);

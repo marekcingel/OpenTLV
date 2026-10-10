@@ -205,7 +205,7 @@ void query_v1_stream(benchmark::State& state) {
             benchmark::DoNotOptimize(matched);
             if (matched) query_match(&event, nullptr);
         }
-        if (rc != TLV_ERR_END_OF_BUFFER) {
+        if (rc != TLV_END) {
             state.SkipWithError("V1 stream traversal");
             break;
         }

@@ -277,7 +277,7 @@ TEST(Unit_Tlv_QueryF3, CandidatesExactCapacityOverflowAndSourceLessIdentity) {
     ASSERT_EQ(tlv_query_exec_finish(e.exec, &e.diagnostic), TLV_OK);
     EXPECT_EQ(tlv_query_result_next(e.exec, &event), TLV_OK);
     EXPECT_EQ(tlv_query_result_next(e.exec, &event), TLV_OK);
-    EXPECT_EQ(tlv_query_result_next(e.exec, &event), TLV_ERR_END_OF_BUFFER);
+    EXPECT_EQ(tlv_query_result_next(e.exec, &event), TLV_END);
 }
 TEST(Unit_Tlv_QueryF3, NestedDeferredOrderAndReverseContexts) {
     struct Case {
@@ -431,7 +431,7 @@ TEST(Unit_Tlv_QueryF3, DocumentAxesContextMutationValuesAndScalar) {
     EXPECT_EQ(found, tlv_node_next(child));
     EXPECT_EQ(tlv_document_query_next(e.exec, &found), TLV_OK);
     EXPECT_EQ(found, tlv_node_next(root));
-    EXPECT_EQ(tlv_document_query_next(e.exec, &found), TLV_ERR_END_OF_BUFFER);
+    EXPECT_EQ(tlv_document_query_next(e.exec, &found), TLV_END);
     uint8_t     tag = 0x5a;
     tlv_node_t* inserted;
     ASSERT_EQ(tlv_document_insert(document, root, child, tlv_tag(&tag, 1), nullptr, 0, &inserted),
@@ -609,7 +609,7 @@ TEST(Unit_Tlv_QueryF3, DocumentLocationPreservesEmptyHeaderAndZeroOffset) {
     e.format = {};
     e.format.decode = [](const void*, const uint8_t* data, size_t size, tlv_decoded_t* decoded,
                          tlv_format_error_t*) -> tlv_result_t {
-        if (!size) return TLV_ERR_BUFFER_TOO_SHORT;
+        if (!size) return TLV_ERR_TRUNCATED;
         *decoded = {};
         decoded->element.value = {data, 1};
         decoded->source.data = data;
@@ -669,7 +669,7 @@ TEST(Unit_Tlv_QueryF3, OriginalLocationsAreIndependentOfCanonicalValueSnapshot) 
     tlv_node_t* node = nullptr;
     ASSERT_EQ(tlv_document_query_next(e.exec, &node), TLV_OK);
     EXPECT_EQ(node, tlv_node_next(tlv_document_first(raw)));
-    EXPECT_EQ(tlv_document_query_next(e.exec, &node), TLV_ERR_END_OF_BUFFER);
+    EXPECT_EQ(tlv_document_query_next(e.exec, &node), TLV_END);
 }
 #endif
 

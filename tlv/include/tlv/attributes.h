@@ -72,31 +72,6 @@
 #endif
 
 /**
- * @brief Marks a declaration as deprecated, with a message naming the
- * replacement.
- *
- * Named `TLV_DEPRECATED_MSG` rather than `TLV_DEPRECATED` because the latter
- * is already defined, without a message, by CMake's `GenerateExportHeader` in
- * the generated tlv/export.h that most public headers include.
- *
- * `message` must be a string literal. Expands to the standard
- * `[[deprecated(message)]]` attribute in C++14 or newer or in C23, to
- * `__attribute__((deprecated(message)))` on compilers that recognize it (GCC,
- * Clang), to `__declspec(deprecated(message))` on compilers that recognize
- * that instead (MSVC, clang-cl), and to nothing otherwise, including the C99
- * baseline.
- */
-#if (defined(__cplusplus) && __cplusplus >= 201402L) || TLV_HAS_C23
-#define TLV_DEPRECATED_MSG(message) [[deprecated(message)]]
-#elif TLV_HAS_ATTRIBUTE(deprecated)
-#define TLV_DEPRECATED_MSG(message) __attribute__((deprecated(message)))
-#elif TLV_HAS_DECLSPEC_ATTRIBUTE(deprecated)
-#define TLV_DEPRECATED_MSG(message) __declspec(deprecated(message))
-#else
-#define TLV_DEPRECATED_MSG(message)
-#endif
-
-/**
  * @brief Marks an intentional fall-through between adjacent `switch` cases.
  *
  * Used as a standalone statement, `TLV_FALLTHROUGH;`, as the last statement

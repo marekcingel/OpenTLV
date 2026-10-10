@@ -11,8 +11,9 @@ static void diag_start(tlv_reader_diagnostic_t* diagnostic, tlv_result_t code,
                        tlv_reader_operation_t operation, size_t offset) {
     tlv_reader_diagnostic_init(diagnostic);
     tlv_diagnostic_init(&diagnostic->diagnostic, code,
-                        code == TLV_NEED_MORE_DATA ? TLV_DIAGNOSTIC_SEVERITY_INFO
-                                                   : TLV_DIAGNOSTIC_SEVERITY_ERROR);
+                        code == TLV_NEED_MORE_DATA || code == TLV_END
+                            ? TLV_DIAGNOSTIC_SEVERITY_INFO
+                            : TLV_DIAGNOSTIC_SEVERITY_ERROR);
     tlv_diagnostic_set_location(&diagnostic->diagnostic, TLV_LOCATION_INPUT, TLV_LOCATION_POINT,
                                 offset, offset);
     diagnostic->detail.operation = operation;
@@ -159,7 +160,7 @@ static tlv_result_t reader_next(tlv_reader_t* reader, tlv_element_t* out_element
     }
     offset = tlv_reader_offset(reader);
     if (reader->pos == reader->size) {
-        rc = reader->final_input ? TLV_ERR_END_OF_BUFFER : TLV_NEED_MORE_DATA;
+        rc = reader->final_input ? TLV_END : TLV_NEED_MORE_DATA;
         if (out_diagnostic) {
             diag_start(out_diagnostic, rc, TLV_READER_OP_HEADER, offset);
             out_diagnostic->detail.has_available = 1;
@@ -170,7 +171,7 @@ static tlv_result_t reader_next(tlv_reader_t* reader, tlv_element_t* out_element
     }
     rc = tlv_read_impl(reader->data + reader->pos, reader->size - reader->pos, reader->format,
                        out_element, &consumed, source, out_diagnostic);
-    if (rc == TLV_ERR_BUFFER_TOO_SHORT && !reader->final_input) rc = TLV_NEED_MORE_DATA;
+    if (rc == TLV_ERR_TRUNCATED && !reader->final_input) rc = TLV_NEED_MORE_DATA;
     if (rc == TLV_OK) {
         reader->pos += consumed;
     } else if (out_diagnostic) {

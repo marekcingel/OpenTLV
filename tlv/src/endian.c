@@ -62,7 +62,7 @@ tlv_result_t tlv_read_uint(const uint8_t* data, size_t width, tlv_byte_order_t o
     if (!data || !value) return TLV_ERR_NULL_ARG;
     if (!width || width > sizeof(uint64_t)) return TLV_ERR_INVALID_LENGTH;
     if (order != TLV_BYTE_ORDER_BIG_ENDIAN && order != TLV_BYTE_ORDER_LITTLE_ENDIAN)
-        return TLV_ERR_INVALID_BYTE_ORDER;
+        return TLV_ERR_INVALID_ARG;
     for (i = 0; i < width; ++i) {
         size_t index = order == TLV_BYTE_ORDER_BIG_ENDIAN ? i : width - 1 - i;
         result = (result << 8) | data[index];
@@ -76,7 +76,7 @@ tlv_result_t tlv_write_uint(uint8_t* data, size_t width, tlv_byte_order_t order,
     if (!data) return TLV_ERR_NULL_ARG;
     if (!width || width > sizeof(uint64_t)) return TLV_ERR_INVALID_LENGTH;
     if (order != TLV_BYTE_ORDER_BIG_ENDIAN && order != TLV_BYTE_ORDER_LITTLE_ENDIAN)
-        return TLV_ERR_INVALID_BYTE_ORDER;
+        return TLV_ERR_INVALID_ARG;
     if (width < sizeof(uint64_t) && (value >> (width * 8)) != 0) return TLV_ERR_OVERFLOW;
     for (i = 0; i < width; ++i) {
         size_t index = order == TLV_BYTE_ORDER_LITTLE_ENDIAN ? i : width - 1 - i;

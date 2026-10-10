@@ -81,7 +81,7 @@ TLV_API int tlv_variable_is_constructed(const void* context, const tlv_tag_t* ta
  * @return #TLV_OK on success.
  * @return #TLV_ERR_NULL_ARG for NULL fields or config.
  * @return #TLV_ERR_INVALID_ARG for invalid masks, widths, policies, predicate, ordering or scope.
- * @return #TLV_ERR_INVALID_BYTE_ORDER for unsupported length byte order.
+ * @return #TLV_ERR_INVALID_ARG for an unknown length byte order.
  * @note No allocation occurs. The resulting context points to config. A concrete
  * format may add a #tlv_resolve_bounds_fn for terminated TLV/VALUE framing;
  * it must provide matching canonical measure/encode callbacks to write trailers.
@@ -103,7 +103,7 @@ TLV_API tlv_result_t tlv_variable_fields_init(tlv_field_composition_t* fields,
  * @return #TLV_OK on success.
  * @return #TLV_ERR_NULL_ARG for NULL format or config.
  * @return #TLV_ERR_INVALID_ARG for invalid masks, widths, policies, predicate, ordering or scope.
- * @return #TLV_ERR_INVALID_BYTE_ORDER for unsupported length byte order.
+ * @return #TLV_ERR_INVALID_ARG for an unknown length byte order.
  * @note No allocation occurs. The descriptor borrows config directly and can be
  * copied. If config supplies a constructed predicate, the descriptor installs
  * tlv_variable_is_constructed(); otherwise it has no constructed classifier.

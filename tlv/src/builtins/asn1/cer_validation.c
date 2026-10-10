@@ -16,7 +16,9 @@ const tlv_cer_limits_t tlv_cer_default_limits = {32, (size_t)16 * 1024 * 1024,
 
 static tlv_result_t fail(tlv_result_t rc, size_t offset, tlv_diagnostic_t* diagnostic) {
     if (diagnostic) {
-        tlv_diagnostic_init(diagnostic, rc, TLV_DIAGNOSTIC_SEVERITY_ERROR);
+        tlv_diagnostic_init(diagnostic, rc,
+                            rc == TLV_END ? TLV_DIAGNOSTIC_SEVERITY_INFO
+                                          : TLV_DIAGNOSTIC_SEVERITY_ERROR);
         tlv_diagnostic_set_location(diagnostic, TLV_LOCATION_INPUT, TLV_LOCATION_POINT, offset,
                                     offset);
     }
@@ -99,15 +101,14 @@ static tlv_result_t traverse(const uint8_t* data, size_t size, size_t base, size
                 }
                 return TLV_OK;
             }
-            return fail(TLV_ERR_BUFFER_TOO_SHORT, base + levels[depth - 1].length_offset,
-                        diagnostic);
+            return fail(TLV_ERR_TRUNCATED, base + levels[depth - 1].length_offset, diagnostic);
         }
 
         if (data[pos] == 0) {
             cer_level_t* lvl;
             tlv_element_t constructed_element;
             size_t value_len;
-            if (size - pos < 2) return fail(TLV_ERR_BUFFER_TOO_SHORT, base + pos, diagnostic);
+            if (size - pos < 2) return fail(TLV_ERR_TRUNCATED, base + pos, diagnostic);
             if (data[pos + 1] != 0) return fail(TLV_ERR_INVALID_LENGTH, base + pos, diagnostic);
             if (depth == 0) return fail(TLV_ERR_INVALID_TAG, base + pos, diagnostic);
             lvl = &levels[depth - 1];
@@ -153,7 +154,7 @@ static tlv_result_t traverse(const uint8_t* data, size_t size, size_t base, size
         if (rc != TLV_OK) return fail(rc, base + pos, diagnostic);
         pos += tag_size;
         length_offset = pos;
-        if (pos == size) return fail(TLV_ERR_BUFFER_TOO_SHORT, base + length_offset, diagnostic);
+        if (pos == size) return fail(TLV_ERR_TRUNCATED, base + length_offset, diagnostic);
 
         tag_class = tlv_asn1_tag_class(&tag);
         if (tag_class == TLV_ASN1_UNIVERSAL) {
@@ -207,8 +208,7 @@ static tlv_result_t traverse(const uint8_t* data, size_t size, size_t base, size
                                             &length_size);
             if (rc != TLV_OK) return fail(rc, base + length_offset, diagnostic);
             pos += length_size;
-            if (logical_size > size - pos)
-                return fail(TLV_ERR_BUFFER_TOO_SHORT, base + pos, diagnostic);
+            if (logical_size > size - pos) return fail(TLV_ERR_TRUNCATED, base + pos, diagnostic);
             value_length = (size_t)logical_size;
             value_ptr = data + pos;
             ++count;
@@ -292,7 +292,7 @@ static tlv_result_t read_impl(const uint8_t* data, size_t size, const tlv_cer_li
     if ((!data && size) || !element || !consumed) return unlocated(TLV_ERR_NULL_ARG, diagnostic);
     if (limits->max_depth > TLV_CER_MAX_DEPTH) return unlocated(TLV_ERR_UNSUPPORTED, diagnostic);
     if (size > limits->max_input_size) return unlocated(TLV_ERR_LIMIT, diagnostic);
-    if (!size) return fail(TLV_ERR_END_OF_BUFFER, 0, diagnostic);
+    if (!size) return fail(TLV_END, 0, diagnostic);
     rc = traverse(data, size, 0, 0, 0, limits, NULL, NULL, 1, &result, &used, strict, NULL,
                   diagnostic);
     if (rc == TLV_OK) {

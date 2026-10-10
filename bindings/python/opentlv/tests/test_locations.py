@@ -3,12 +3,12 @@
 
 import pytest
 
-from opentlv import InvalidArgError, Location, Query, SchemaError, StructureRule, StructureSchema
+from opentlv import InvalidSyntaxError, Location, Query, SchemaError, StructureRule, StructureSchema
 
 
 @pytest.mark.parametrize("text, begin, end", [("GG", 0, 1), ("01/", 3, 3), ("", 0, 0)])
 def test_path_syntax_has_expression_evidence_including_empty_eof(text, begin, end):
-    with pytest.raises(InvalidArgError) as failed:
+    with pytest.raises(InvalidSyntaxError) as failed:
         Query(text)
     assert failed.value.location == Location("expression", "span", begin, end)
 

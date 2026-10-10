@@ -7,10 +7,10 @@
 // Application framing: one-byte Tag, two-byte little-endian Length, opaque Value.
 struct my_format {
     tlv::expected<tlv::decoded, tlv::format_failure> decode(tlv::bytes data) const noexcept {
-        if (data.size() < 3) return fail(tlv::errc::buffer_too_short);
+        if (data.size() < 3) return fail(tlv::errc::truncated);
         const size_t length = static_cast<unsigned char>(data[1]) |
                               (static_cast<size_t>(static_cast<unsigned char>(data[2])) << 8);
-        if (length > data.size() - 3) return fail(tlv::errc::buffer_too_short);
+        if (length > data.size() - 3) return fail(tlv::errc::truncated);
         tlv::source source{};
         source.size = length + 3;
         source.header = {0, 3, 1};

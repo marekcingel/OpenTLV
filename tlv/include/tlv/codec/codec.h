@@ -52,7 +52,7 @@ extern "C" {
  * - Input and output must not overlap unless the codec explicitly supports it.
  *
  * Failures use the shared tlv_result_t domain unchanged. Decode admits delegated
- * #TLV_NEED_MORE_DATA; encode and measure reject it. #TLV_ERR_END_OF_BUFFER and
+ * #TLV_NEED_MORE_DATA; encode and measure reject it. #TLV_END and
  * unknown results are callback violations. A successful encode count larger than
  * the supplied buffer is #TLV_ERR_CALLBACK. Optional diagnostics retain reported
  * results and any delegated cause; borrowed evidence must outlive the call.

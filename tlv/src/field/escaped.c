@@ -12,7 +12,7 @@ tlv_result_t tlv_escaped_length_read(const tlv_escaped_length_t* f, const uint8_
     rc = validate_length(f);
     if (rc != TLV_OK) return rc;
     *consumed = 0;
-    if (!size) return TLV_ERR_BUFFER_TOO_SHORT;
+    if (!size) return TLV_ERR_TRUNCATED;
     *consumed = 1;
     if (data[0] > f->escape) return TLV_ERR_INVALID_LENGTH;
     if (data[0] < f->escape) {
@@ -21,7 +21,7 @@ tlv_result_t tlv_escaped_length_read(const tlv_escaped_length_t* f, const uint8_
     }
     width = 1 + f->extended_size;
     *consumed = size < width ? size : width;
-    if (size < width) return TLV_ERR_BUFFER_TOO_SHORT;
+    if (size < width) return TLV_ERR_TRUNCATED;
     rc = tlv_read_uint(data + 1, f->extended_size, f->byte_order, &value);
     if (rc != TLV_OK) return rc;
     if (value < f->min_extended || value > f->max_length) return TLV_ERR_INVALID_LENGTH;

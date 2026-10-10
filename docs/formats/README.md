@@ -120,8 +120,8 @@ Trailing bytes are ignored. The input must remain alive while using the element.
 The reader allocates no memory, copies no value bytes, and does not decode
 value semantics or validate a schema. Formats may inspect nested framing to
 resolve an element boundary. Empty input (including NULL with size zero)
-returns `TLV_ERR_END_OF_BUFFER`; missing tag, length, or value bytes return
-`TLV_ERR_BUFFER_TOO_SHORT` with the supplied formats. Invalid arguments return
+returns `TLV_END`; missing tag, length, or value bytes return
+`TLV_ERR_TRUNCATED` with the supplied formats. Invalid arguments return
 `TLV_ERR_NULL_ARG`. Both outputs are required and remain unchanged on failure.
 Custom format callback errors propagate unchanged. The stateful
 `tlv_reader_next` uses the same parser and advances by the consumed size.

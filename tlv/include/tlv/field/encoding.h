@@ -22,7 +22,7 @@ extern "C" {
  *
  * Validation order is shared with the standalone Field Encoding primitives:
  * required NULL arguments (#TLV_ERR_NULL_ARG), encoding configuration
- * (#TLV_ERR_INVALID_ARG or #TLV_ERR_INVALID_BYTE_ORDER), field-specific
+ * (#TLV_ERR_INVALID_ARG), field-specific
  * constraints, then available input/output capacity. Decoders inspect wire
  * constraints as the necessary prefix becomes available. Context follows the
  * enclosing Format's borrowing preconditions; stateless callbacks may ignore it.
@@ -50,12 +50,14 @@ extern "C" {
  *
  * @return #TLV_OK on success.
  * @return #TLV_ERR_NULL_ARG for a missing required pointer.
- * @return #TLV_ERR_INVALID_ARG or #TLV_ERR_INVALID_BYTE_ORDER for invalid configuration.
+ * @return #TLV_ERR_INVALID_ARG for invalid configuration, including an unknown byte order.
  * @return An identifier or buffer error reported by the decoder.
- * @note Allowed results are #TLV_OK and any defined `TLV_ERR_*` error except
- * #TLV_ERR_END_OF_BUFFER. #TLV_NEED_MORE_DATA, #TLV_ERR_END_OF_BUFFER and unknown
- * result values violate the callback contract and are reported as #TLV_ERR_CALLBACK.
- * Use #TLV_ERR_BUFFER_TOO_SHORT for incomplete input, including an empty field.
+ * @note Allowed results are #TLV_OK and any defined `TLV_ERR_*` error. #TLV_END,
+ * #TLV_NEED_MORE_DATA and unknown result values violate the callback contract
+ * and are reported as #TLV_ERR_CALLBACK.
+ * Use #TLV_ERR_TRUNCATED for incomplete input, including an empty field.
+ * Decoding has no destination, so #TLV_ERR_BUFFER_TOO_SHORT is not a valid
+ * decoding result.
  */
 typedef tlv_result_t (*tlv_read_tag_fn)(const void* context, const uint8_t* data, size_t size,
                                         tlv_tag_t* tag, size_t* consumed);
@@ -71,12 +73,14 @@ typedef tlv_result_t (*tlv_read_tag_fn)(const void* context, const uint8_t* data
  *
  * @return #TLV_OK on success.
  * @return #TLV_ERR_NULL_ARG for a missing required pointer.
- * @return #TLV_ERR_INVALID_ARG or #TLV_ERR_INVALID_BYTE_ORDER for invalid configuration.
+ * @return #TLV_ERR_INVALID_ARG for invalid configuration, including an unknown byte order.
  * @return A length or buffer error reported by the decoder.
- * @note Allowed results are #TLV_OK and any defined `TLV_ERR_*` error except
- * #TLV_ERR_END_OF_BUFFER. #TLV_NEED_MORE_DATA, #TLV_ERR_END_OF_BUFFER and unknown
- * result values violate the callback contract and are reported as #TLV_ERR_CALLBACK.
- * Use #TLV_ERR_BUFFER_TOO_SHORT for incomplete input, including an empty field.
+ * @note Allowed results are #TLV_OK and any defined `TLV_ERR_*` error. #TLV_END,
+ * #TLV_NEED_MORE_DATA and unknown result values violate the callback contract
+ * and are reported as #TLV_ERR_CALLBACK.
+ * Use #TLV_ERR_TRUNCATED for incomplete input, including an empty field.
+ * Decoding has no destination, so #TLV_ERR_BUFFER_TOO_SHORT is not a valid
+ * decoding result.
  */
 typedef tlv_result_t (*tlv_read_length_fn)(const void* context, const uint8_t* data, size_t size,
                                            tlv_size_t* length, size_t* consumed);
@@ -92,13 +96,13 @@ typedef tlv_result_t (*tlv_read_length_fn)(const void* context, const uint8_t* d
  *
  * @return #TLV_OK on success.
  * @return #TLV_ERR_NULL_ARG for a missing required pointer.
- * @return #TLV_ERR_INVALID_ARG or #TLV_ERR_INVALID_BYTE_ORDER for invalid configuration.
+ * @return #TLV_ERR_INVALID_ARG for invalid configuration, including an unknown byte order.
  * @return An identifier or buffer error reported by the encoder.
  *
  * @note Validation follows the shared Field Encoding order; failed writes preserve outputs.
- * @note Allowed results are #TLV_OK and any defined `TLV_ERR_*` error except
- * #TLV_ERR_END_OF_BUFFER. #TLV_NEED_MORE_DATA, #TLV_ERR_END_OF_BUFFER and unknown
- * result values violate the callback contract and are reported as #TLV_ERR_CALLBACK.
+ * @note Allowed results are #TLV_OK and any defined `TLV_ERR_*` error. #TLV_END,
+ * #TLV_NEED_MORE_DATA and unknown result values violate the callback contract
+ * and are reported as #TLV_ERR_CALLBACK.
  */
 typedef tlv_result_t (*tlv_write_tag_fn)(const void* context, const tlv_tag_t* tag, uint8_t* data,
                                          size_t capacity, size_t* written);
@@ -114,13 +118,13 @@ typedef tlv_result_t (*tlv_write_tag_fn)(const void* context, const tlv_tag_t* t
  *
  * @return #TLV_OK on success.
  * @return #TLV_ERR_NULL_ARG for a missing required pointer.
- * @return #TLV_ERR_INVALID_ARG or #TLV_ERR_INVALID_BYTE_ORDER for invalid configuration.
+ * @return #TLV_ERR_INVALID_ARG for invalid configuration, including an unknown byte order.
  * @return A length or buffer error reported by the encoder.
  *
  * @note Validation follows the shared Field Encoding order; failed writes preserve outputs.
- * @note Allowed results are #TLV_OK and any defined `TLV_ERR_*` error except
- * #TLV_ERR_END_OF_BUFFER. #TLV_NEED_MORE_DATA, #TLV_ERR_END_OF_BUFFER and unknown
- * result values violate the callback contract and are reported as #TLV_ERR_CALLBACK.
+ * @note Allowed results are #TLV_OK and any defined `TLV_ERR_*` error. #TLV_END,
+ * #TLV_NEED_MORE_DATA and unknown result values violate the callback contract
+ * and are reported as #TLV_ERR_CALLBACK.
  */
 typedef tlv_result_t (*tlv_write_length_fn)(const void* context, tlv_size_t length, uint8_t* data,
                                             size_t capacity, size_t* written);

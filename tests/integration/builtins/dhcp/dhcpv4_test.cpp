@@ -79,7 +79,7 @@ TEST(Integration_Tlv_Dhcpv4, ReaderWriterExposePadAndContinuePastEnd) {
     EXPECT_EQ(sizeof(wire), tlv_writer_size(&writer));
     EXPECT_EQ(0, std::memcmp(wire, output, sizeof(wire)));
     tlv_element_t element{};
-    EXPECT_EQ(TLV_ERR_END_OF_BUFFER, tlv_reader_next(&reader, &element));
+    EXPECT_EQ(TLV_END, tlv_reader_next(&reader, &element));
 }
 
 TEST(Integration_Tlv_Dhcpv4, QueryAndDocumentTreatPadAndEndAsOrdinaryElements) {
@@ -180,7 +180,7 @@ TEST(Integration_Tlv_Dhcpv4, ReaderTruncationReportsAbsoluteOffsetsWithoutAdvanc
         for (int i = 0; i < 3; ++i) ASSERT_EQ(TLV_OK, tlv_reader_next(&reader, &element));
         const auto              previous = element;
         tlv_reader_diagnostic_t error{};
-        EXPECT_EQ(TLV_ERR_BUFFER_TOO_SHORT,
+        EXPECT_EQ(TLV_ERR_TRUNCATED,
                   TLV_DIAGNOSTIC_RESULT(error, tlv_reader_next_diag(&reader, &element, &error)));
         EXPECT_EQ(4u, reader.pos);
         EXPECT_TRUE(tlv_tag_equal(previous.tag, element.tag));

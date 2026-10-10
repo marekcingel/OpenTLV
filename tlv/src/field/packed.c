@@ -8,7 +8,7 @@ static tlv_result_t packed_validate(const tlv_packed_field_t* f) {
         f->bit_offset >= f->storage_size * 8 || f->bit_width > f->storage_size * 8 - f->bit_offset)
         return TLV_ERR_INVALID_ARG;
     if (f->byte_order != TLV_BYTE_ORDER_BIG_ENDIAN && f->byte_order != TLV_BYTE_ORDER_LITTLE_ENDIAN)
-        return TLV_ERR_INVALID_BYTE_ORDER;
+        return TLV_ERR_INVALID_ARG;
     return TLV_OK;
 }
 
@@ -23,7 +23,7 @@ tlv_result_t tlv_packed_field_read(const tlv_packed_field_t* field, const uint8_
     if (!field || !data || !value) return TLV_ERR_NULL_ARG;
     rc = packed_validate(field);
     if (rc != TLV_OK) return rc;
-    if (size < field->storage_size) return TLV_ERR_BUFFER_TOO_SHORT;
+    if (size < field->storage_size) return TLV_ERR_TRUNCATED;
     rc = tlv_read_uint(data, field->storage_size, field->byte_order, &storage);
     if (rc != TLV_OK) return rc;
     *value = (storage >> field->bit_offset) & packed_mask(field->bit_width);

@@ -24,8 +24,8 @@ TEST(Integration_Tlv_Ber, VariableDelegationPreservesDiagnostics) {
         size_t               length_size;
     };
     const Case cases[] = {
-        {{0x04}, TLV_ERR_BUFFER_TOO_SHORT, TLV_REGION_LENGTH, 1, 0},
-        {{0x04, 0x82, 1}, TLV_ERR_BUFFER_TOO_SHORT, TLV_REGION_LENGTH, 1, 2},
+        {{0x04}, TLV_ERR_TRUNCATED, TLV_REGION_LENGTH, 1, 0},
+        {{0x04, 0x82, 1}, TLV_ERR_TRUNCATED, TLV_REGION_LENGTH, 1, 2},
         {{0x04, 0xFF, 0}, TLV_ERR_INVALID_LENGTH, TLV_REGION_LENGTH, 1, 1},
         {{0x04, 0x89, 1, 0, 0, 0, 0, 0, 0, 0, 0}, TLV_ERR_INVALID_LENGTH, TLV_REGION_LENGTH, 1, 10},
         {{0x9F, 0x80}, TLV_ERR_INVALID_TAG, TLV_REGION_TAG, 0, 0},
@@ -36,8 +36,8 @@ TEST(Integration_Tlv_Ber, VariableDelegationPreservesDiagnostics) {
          TLV_REGION_TRAILER,
          6,
          1},
-        {{0x30, 0x80, 0x04, 2, 0, 0}, TLV_ERR_BUFFER_TOO_SHORT, TLV_REGION_TRAILER, 6, 1},
-        {{0x30, 0x80, 0x04, 2, 0}, TLV_ERR_BUFFER_TOO_SHORT, TLV_REGION_VALUE, 4, 1}};
+        {{0x30, 0x80, 0x04, 2, 0, 0}, TLV_ERR_TRUNCATED, TLV_REGION_TRAILER, 6, 1},
+        {{0x30, 0x80, 0x04, 2, 0}, TLV_ERR_TRUNCATED, TLV_REGION_VALUE, 4, 1}};
     for (const auto& c : cases) {
         SCOPED_TRACE(::testing::Message() << "offset=" << c.offset << " size=" << c.wire.size());
         tlv_decoded_t decoded = {};
@@ -125,7 +125,7 @@ TEST(Integration_Tlv_Ber, TagsAndLengthsRoundTrip) {
             if (length) EXPECT_EQ(0, std::memcmp(value.data(), element.value.data, length));
             ASSERT_EQ(TLV_OK, tlv_reader_next(&reader, &element));
             EXPECT_EQ(0x5A, element.tag.data[0]);
-            EXPECT_EQ(TLV_ERR_END_OF_BUFFER, tlv_reader_next(&reader, &element));
+            EXPECT_EQ(TLV_END, tlv_reader_next(&reader, &element));
         }
     }
 }
@@ -200,7 +200,7 @@ TEST(Integration_Tlv_Ber, LengthWireBytesAndBounds) {
                               ->read_length(nullptr, data.data(), data.size(), &length, &used));
         EXPECT_EQ(item.value, length);
         for (size_t size = 0; size < data.size(); ++size)
-            EXPECT_EQ(TLV_ERR_BUFFER_TOO_SHORT,
+            EXPECT_EQ(TLV_ERR_TRUNCATED,
                       static_cast<const tlv_field_composition_t*>(ber.context)
                           ->read_length(nullptr, data.data(), size, &length, &used));
     }
@@ -246,8 +246,7 @@ TEST(Integration_Tlv_Ber, IndefiniteReferenceEncodingsAndRoundTrip) {
         for (size_t size = 1; size < required; ++size) {
             element = tlv_element_t{TLV_TAG(0xEE), {nullptr, 42}};
             used = 999;
-            EXPECT_EQ(TLV_ERR_BUFFER_TOO_SHORT,
-                      tlv_read(output.data(), size, &ber, &element, &used));
+            EXPECT_EQ(TLV_ERR_TRUNCATED, tlv_read(output.data(), size, &ber, &element, &used));
             EXPECT_EQ(999u, used);
             EXPECT_EQ(0xEE, element.tag.data[0]);
             EXPECT_EQ(nullptr, element.value.data);
@@ -276,9 +275,9 @@ TEST(Integration_Tlv_Ber, IndefiniteMalformedInputIsAtomic) {
         {{0x30, 0x80, 0x30, 2, 0x30, 0x80, 0, 0, 0, 0}, TLV_ERR_INVALID_LENGTH},
         {{0x30, 0x80, 0x30, 3, 0x04, 2, 0, 0, 0}, TLV_ERR_INVALID_LENGTH},
         {{0x30, 0x80, 0x04, 0xFF, 0, 0}, TLV_ERR_INVALID_LENGTH},
-        {{0x30, 0x80, 0x04, 2, 0, 0}, TLV_ERR_BUFFER_TOO_SHORT},
-        {{0x30, 0x80, 0}, TLV_ERR_BUFFER_TOO_SHORT},
-        {{0x30, 0x80, 0x30, 0x80, 0, 0}, TLV_ERR_BUFFER_TOO_SHORT}};
+        {{0x30, 0x80, 0x04, 2, 0, 0}, TLV_ERR_TRUNCATED},
+        {{0x30, 0x80, 0}, TLV_ERR_TRUNCATED},
+        {{0x30, 0x80, 0x30, 0x80, 0, 0}, TLV_ERR_TRUNCATED}};
     for (const auto& item : cases) {
         tlv_reader_t reader{};
         ASSERT_EQ(TLV_OK, tlv_reader_init(&reader, item.wire.data(), item.wire.size(), &ber));

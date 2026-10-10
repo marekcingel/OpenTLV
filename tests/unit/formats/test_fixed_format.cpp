@@ -44,7 +44,7 @@ TEST(TlvppRuntimeFixed, RejectsInvalidConfigurationThroughResult) {
     ASSERT_FALSE(selected);
     EXPECT_EQ(tlv::errc::invalid_argument, selected.error().status());
     const tlv::runtime_fixed_format invalid_order(1, 1, static_cast<tlv::byte_order>(99));
-    EXPECT_EQ(tlv::errc::invalid_byte_order, invalid_order.view().error().status());
+    EXPECT_EQ(tlv::errc::invalid_argument, invalid_order.view().error().status());
 }
 
 namespace {
@@ -227,7 +227,7 @@ TEST(Unit_Tlvpp_FixedFormat, MaximumEncodableLengthRoundTrips) {
     tlv::writer<>          w2(too_big.data(), too_big.size(), tlv::fixed_format<1, 1, BE>::view());
     auto                   r = w2.write(make_tag(1), to_bytes(std::string(256, 'x')));
     ASSERT_FALSE(r.has_value());
-    EXPECT_EQ(r.error().code, TLV_ERR_INVALID_LENGTH);
+    EXPECT_EQ(r.error().status(), tlv::errc::invalid_length);
     EXPECT_EQ(w2.size(), 0u);
 }
 
@@ -253,7 +253,7 @@ TEST(Unit_Tlvpp_FixedFormat, TruncatedInputIsRejected) {
                              format::view());
         auto          element = reader.next();
         ASSERT_FALSE(element.has_value());
-        EXPECT_EQ(element.error().code, TLV_ERR_BUFFER_TOO_SHORT);
+        EXPECT_EQ(element.error().status(), tlv::errc::truncated);
     }
 }
 
@@ -262,15 +262,15 @@ TEST(Unit_Tlvpp_FixedFormat, DecodeReportsTheTruncatedField) {
     const uint8_t      data[] = {1, 2, 1, 2, 3};
     tlv_decoded_t      decoded{};
     tlv_format_error_t error{};
-    EXPECT_EQ(TLV_ERR_BUFFER_TOO_SHORT, tlv_format_decode(&tlv::native::descriptor(format::view()),
-                                                          data, 1, &decoded, &error));
+    EXPECT_EQ(TLV_ERR_TRUNCATED, tlv_format_decode(&tlv::native::descriptor(format::view()), data,
+                                                   1, &decoded, &error));
     EXPECT_EQ(TLV_REGION_TAG, error.region);
-    EXPECT_EQ(TLV_ERR_BUFFER_TOO_SHORT, tlv_format_decode(&tlv::native::descriptor(format::view()),
-                                                          data, 4, &decoded, &error));
+    EXPECT_EQ(TLV_ERR_TRUNCATED, tlv_format_decode(&tlv::native::descriptor(format::view()), data,
+                                                   4, &decoded, &error));
     EXPECT_EQ(TLV_REGION_LENGTH, error.region);
     EXPECT_EQ(2u, error.offset);
-    EXPECT_EQ(TLV_ERR_BUFFER_TOO_SHORT, tlv_format_decode(&tlv::native::descriptor(format::view()),
-                                                          data, 5, &decoded, &error));
+    EXPECT_EQ(TLV_ERR_TRUNCATED, tlv_format_decode(&tlv::native::descriptor(format::view()), data,
+                                                   5, &decoded, &error));
     EXPECT_EQ(TLV_REGION_VALUE, error.region);
     EXPECT_EQ(0x030201u, error.required);
 }
@@ -284,7 +284,7 @@ TEST(Unit_Tlvpp_FixedFormat, InsufficientOutputCapacityIsReported) {
         tlv::writer<>            w(buf.data(), capacity, format::view());
         auto                     r = w.write(make_tag(2), to_bytes("abc"));
         ASSERT_FALSE(r.has_value());
-        EXPECT_EQ(r.error().code, TLV_ERR_BUFFER_TOO_SHORT);
+        EXPECT_EQ(r.error().status(), tlv::errc::buffer_too_short);
         EXPECT_EQ(w.size(), 0u);
     }
 }
@@ -316,7 +316,7 @@ TEST(Unit_Tlvpp_FixedFormat, TagSizeMustMatchTheConfiguredWidth) {
     for (std::size_t width : {std::size_t(1), std::size_t(3)}) {
         auto r = w.write(make_tag(width), to_bytes("a"));
         ASSERT_FALSE(r.has_value());
-        EXPECT_EQ(r.error().code, TLV_ERR_INVALID_TAG_SIZE);
+        EXPECT_EQ(r.error().status(), tlv::errc::invalid_tag_size);
     }
     EXPECT_EQ(w.size(), 0u);
 }

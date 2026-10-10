@@ -277,7 +277,7 @@ tlv_result_t query_function_eval(tlv_query_exec_t* e, const tlv_tree_event_t* ev
     uint32_t index = n->left;
     while (index != QUERY_NONE && nodes[index].op == Q_ARGS) {
         if (count == 2)
-            return query_error(d, TLV_ERR_INVALID_ARG, TLV_QUERY_ERROR_SYNTAX, n->begin, n->end,
+            return query_error(d, TLV_ERR_INVALID_VALUE, TLV_QUERY_ERROR_TYPE, n->begin, n->end,
                                "function arity");
         args[count++] = nodes[index].right;
         index = nodes[index].left;
@@ -416,7 +416,7 @@ tlv_result_t query_function_eval(tlv_query_exec_t* e, const tlv_tree_event_t* ev
     }
     return TLV_OK;
 arity:
-    return query_error(d, TLV_ERR_INVALID_ARG, TLV_QUERY_ERROR_SYNTAX, n->begin, n->end,
+    return query_error(d, TLV_ERR_INVALID_VALUE, TLV_QUERY_ERROR_TYPE, n->begin, n->end,
                        "valid function argument types and arity");
 }
 
@@ -930,7 +930,7 @@ tlv_result_t tlv_query_program_visit(tlv_tree_reader_t* reader, tlv_query_exec_t
                                          "callback preserves execution workspace");
         }
         e->busy = 0;
-        if (rc == TLV_ERR_END_OF_BUFFER) {
+        if (rc == TLV_END) {
             rc = tlv_query_exec_finish(e, d);
             if (rc != TLV_OK || !e->retained)
                 return query_failure(d, rc, TLV_QUERY_ERROR_EVENTS, "valid execution operation");
@@ -1007,7 +1007,7 @@ retained_results:
     for (;;) {
         tlv_tree_event_t event;
         tlv_result_t rc = tlv_query_result_next(e, &event);
-        if (rc == TLV_ERR_END_OF_BUFFER) return TLV_OK;
+        if (rc == TLV_END) return TLV_OK;
         if (rc != TLV_OK)
             return query_failure(d, rc, TLV_QUERY_ERROR_EVENTS, "valid execution operation");
         e->any_match = 1;

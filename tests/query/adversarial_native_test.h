@@ -48,7 +48,7 @@ static int native_document(const tlv_query_program_t* p, size_t kind) {
             : kind == 1 ? tlv_node_next(tlv_document_first(document))
                         : tlv_node_first_child(tlv_node_next(tlv_document_first(document)));
         CHECK(node == expected);
-        CHECK(tlv_document_query_next(e, &node) == TLV_ERR_END_OF_BUFFER);
+        CHECK(tlv_document_query_next(e, &node) == TLV_END);
     } else if (kind == 4)
         CHECK(result.integer == 1);
     else if (kind == 5)
@@ -127,7 +127,7 @@ static int native_profiles(void) {
             size_t           ordinal;
             CHECK(tlv_query_result_next_ordinal(e, &output, &ordinal) == TLV_OK);
             CHECK(ordinal == (kind == 1 ? 0u : 1u));
-            CHECK(tlv_query_result_next(e, &output) == TLV_ERR_END_OF_BUFFER);
+            CHECK(tlv_query_result_next(e, &output) == TLV_END);
         } else if (kind == 4)
             CHECK(result.kind == TLV_QUERY_RESULT_INTEGER && result.integer == 1);
         else if (kind == 5)

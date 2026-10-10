@@ -45,8 +45,7 @@ Numbers and enums require an explicit Value representation. Select a typed
 C++ Value codec or field with the desired width and byte order, encode into
 caller-owned scratch or use the typed Writer overloads below, and check the
 codec result before publishing bytes. The Writer does not infer a codec from a tag or serialize a
-host object's memory. The existing `write_value()` convenience for application
-codecs uses a temporary vector and is outside this allocation-free interface.
+host object's memory.
 
 For reusable associations between tags and semantic types, sequential Writers
 also support `write<Field>(value)` and `write<Field>(value, scratch)` using

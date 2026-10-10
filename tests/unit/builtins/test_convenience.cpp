@@ -38,7 +38,7 @@ TEST(Unit_Tlvpp_BuiltinConvenience, BerIndefiniteFramingHelper) {
     EXPECT_EQ(7u, size->total);
     auto empty_output = tlv::ber::write_indefinite({}, tlv::tag_bytes<0x30>(), view(children, 3));
     ASSERT_FALSE(empty_output);
-    EXPECT_EQ(TLV_ERR_BUFFER_TOO_SHORT, empty_output.error().code);
+    EXPECT_EQ(tlv::errc::buffer_too_short, empty_output.error().status());
     tlv::byte output[7]{};
     auto      result = tlv::ber::write_indefinite({output, sizeof(output)}, tlv::tag_bytes<0x30>(),
                                                   view(children, 3));

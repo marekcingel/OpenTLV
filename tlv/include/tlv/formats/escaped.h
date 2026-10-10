@@ -64,7 +64,7 @@ TLV_API tlv_result_t tlv_escaped_encode(const void* context, const tlv_element_t
  * @return #TLV_OK on success.
  * @return #TLV_ERR_NULL_ARG for missing pointers.
  * @return #TLV_ERR_INVALID_ARG for invalid widths, ranges, framing or tag table.
- * @return #TLV_ERR_INVALID_BYTE_ORDER for unsupported byte order.
+ * @return #TLV_ERR_INVALID_ARG for an unknown byte order.
  */
 TLV_API tlv_result_t tlv_escaped_format_init(tlv_format_t* format,
                                              const tlv_escaped_format_t* config);

@@ -109,21 +109,20 @@ TEST(Integration_Tlv_DhcpContainer, TruncationPreservesReaderFieldOffsets) {
         ASSERT_EQ(TLV_OK, tlv_reader_next(&reader, &element));
         ASSERT_EQ(TLV_OK, tlv_reader_next(&reader, &element));
         ASSERT_EQ(
-            TLV_ERR_BUFFER_TOO_SHORT,
+            TLV_ERR_TRUNCATED,
             TLV_DIAGNOSTIC_RESULT(expected, tlv_reader_next_diag(&reader, &element, &expected)));
         size_t                  significant = 999;
         tlv_schema_diagnostic_t diagnostic{};
-        EXPECT_EQ(TLV_ERR_BUFFER_TOO_SHORT,
+        EXPECT_EQ(TLV_ERR_TRUNCATED,
                   TLV_DIAGNOSTIC_RESULT(diagnostic,
                                         tlv_dhcpv4_options_validate(wire, size, nullptr, SIZE_MAX,
                                                                     &significant, &diagnostic)));
         EXPECT_TRUE(diagnostic.diagnostic.location.kind);
         EXPECT_EQ(expected.diagnostic.location.begin, diagnostic.diagnostic.location.begin);
-        EXPECT_EQ(TLV_ERR_BUFFER_TOO_SHORT, diagnostic.diagnostic.code);
+        EXPECT_EQ(TLV_ERR_TRUNCATED, diagnostic.diagnostic.code);
         EXPECT_EQ(999u, significant);
-        EXPECT_EQ(
-            TLV_ERR_BUFFER_TOO_SHORT,
-            tlv_dhcpv4_options_validate(wire, size, nullptr, SIZE_MAX, &significant, nullptr));
+        EXPECT_EQ(TLV_ERR_TRUNCATED, tlv_dhcpv4_options_validate(wire, size, nullptr, SIZE_MAX,
+                                                                 &significant, nullptr));
     }
 }
 

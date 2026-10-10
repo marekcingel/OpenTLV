@@ -45,7 +45,7 @@ enum tlv_nfc_type2_tag {
  * stops automatically. The caller handles termination and bytes after it.
  * No automatically constructed Values, allocations or NDEF validation.
  *
- * Decode returns #TLV_ERR_BUFFER_TOO_SHORT for incomplete fields/Values and
+ * Decode returns #TLV_ERR_TRUNCATED for incomplete fields/Values and
  * #TLV_ERR_INVALID_LENGTH for invalid extended counts. Encode/measure reject
  * nonempty NULL/Terminator Values and Values above 65534 with
  * #TLV_ERR_INVALID_LENGTH, and non-one-byte Tags with #TLV_ERR_INVALID_TAG_SIZE.

@@ -126,7 +126,7 @@ static int execute(const tlv_query_program_t* p, unsigned seed, size_t capacity,
         tlv_tree_event_t event{};
         size_t           ordinal = 999;
         auto             rc = tlv_query_result_next_ordinal(e, &event, &ordinal);
-        if (rc == TLV_ERR_END_OF_BUFFER) {
+        if (rc == TLV_END) {
             CHECK(ordinal == 999);
             break;
         }

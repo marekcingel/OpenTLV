@@ -86,8 +86,10 @@ void opentlv_lua_register_error_codes(lua_State* L, int module_table_index) {
     lua_setfield(L, -2, "NULL_ARG");
     lua_pushinteger(L, TLV_ERR_OUT_OF_MEMORY);
     lua_setfield(L, -2, "OUT_OF_MEMORY");
-    lua_pushinteger(L, TLV_ERR_END_OF_BUFFER);
-    lua_setfield(L, -2, "END_OF_BUFFER");
+    lua_pushinteger(L, TLV_END);
+    lua_setfield(L, -2, "END");
+    lua_pushinteger(L, TLV_ERR_TRUNCATED);
+    lua_setfield(L, -2, "TRUNCATED");
     lua_pushinteger(L, TLV_ERR_INVALID_TAG);
     lua_setfield(L, -2, "INVALID_TAG");
     lua_pushinteger(L, TLV_ERR_VISITOR);
@@ -100,8 +102,8 @@ void opentlv_lua_register_error_codes(lua_State* L, int module_table_index) {
     lua_setfield(L, -2, "INVALID_ARG");
     lua_pushinteger(L, TLV_ERR_INVALID_TAG_SIZE);
     lua_setfield(L, -2, "INVALID_TAG_SIZE");
-    lua_pushinteger(L, TLV_ERR_INVALID_BYTE_ORDER);
-    lua_setfield(L, -2, "INVALID_BYTE_ORDER");
+    lua_pushinteger(L, TLV_ERR_SYNTAX);
+    lua_setfield(L, -2, "SYNTAX");
     lua_pushinteger(L, TLV_ERR_OVERFLOW);
     lua_setfield(L, -2, "OVERFLOW");
     lua_pushinteger(L, TLV_ERR_INVALID_VALUE);

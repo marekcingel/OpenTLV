@@ -79,7 +79,7 @@ TEST(Unit_Tlv_TaggedBinary, ValidatesConfigurationAndPreservesDescriptor) {
     }
     auto empty = valid;
     empty.fields.length.byte_order = TLV_BYTE_ORDER_UNKNOWN;
-    EXPECT_EQ(TLV_ERR_INVALID_BYTE_ORDER, tlv_tagged_binary_format_init(&format, &empty));
+    EXPECT_EQ(TLV_ERR_INVALID_ARG, tlv_tagged_binary_format_init(&format, &empty));
     EXPECT_EQ(original.context, format.context);
     empty = valid;
     empty.tag_only = nullptr;

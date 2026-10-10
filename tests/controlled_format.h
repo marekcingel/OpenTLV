@@ -11,14 +11,14 @@
 namespace controlled {
 inline tlv_result_t read_tag(const void*, const uint8_t* data, size_t size, tlv_tag_t* tag,
                              size_t* used) {
-    if (!size) return TLV_ERR_BUFFER_TOO_SHORT;
+    if (!size) return TLV_ERR_TRUNCATED;
     *tag = tlv_tag(data, 1);
     *used = 1;
     return TLV_OK;
 }
 inline tlv_result_t read_length(const void*, const uint8_t* data, size_t size, tlv_size_t* length,
                                 size_t* used) {
-    if (!size) return TLV_ERR_BUFFER_TOO_SHORT;
+    if (!size) return TLV_ERR_TRUNCATED;
     *length = data[0];
     *used = 1;
     return TLV_OK;

@@ -110,7 +110,7 @@ describe("Lua Schema", function()
     it("returns fatal status and native offsets without invented schema details", function()
         local schema = tlv.schema {rules = {{tag = bytes(1), min_occurs = 1}}}
         local result = schema:validate(bytes(2, 0, 3, 2, 0), fixed, {capacity = 0})
-        assert(not result.ok and result.code == tlv.errors.BUFFER_TOO_SHORT)
+        assert(not result.ok and result.code == tlv.errors.TRUNCATED)
         assert(result.total_count == 1 and #result.diagnostics == 1 and not result.truncated)
         local diagnostic = result.diagnostics[1]
         assert(diagnostic.code == result.code and diagnostic.offset ~= nil)

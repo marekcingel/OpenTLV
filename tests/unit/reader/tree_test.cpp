@@ -39,7 +39,7 @@ TEST(Unit_Tlv_Tree, PreorderMetadataAndIndependentBorrowedResults) {
     EXPECT_EQ(data + 2, retained.element.value.data);
     EXPECT_EQ(6u, retained.element.value.size);
     tlv_tree_item_t output = retained;
-    EXPECT_EQ(TLV_ERR_END_OF_BUFFER, tlv_tree_reader_next(&reader, &output));
+    EXPECT_EQ(TLV_END, tlv_tree_reader_next(&reader, &output));
     EXPECT_EQ(retained.source.data, output.source.data);
 }
 
@@ -115,7 +115,7 @@ TEST(Unit_Tlv_Tree, CountLimitsAreGlobalAndZeroPermitsEmptyInputOnly) {
     EXPECT_EQ(TLV_ERR_LIMIT, tlv_tree_reader_next(&reader, &item));
     EXPECT_EQ(4u, tlv_tree_reader_offset(&reader));
     ASSERT_EQ(TLV_OK, tlv_tree_reader_init(&reader, nullptr, 0, &format, nullptr, 0, 0, 0));
-    EXPECT_EQ(TLV_ERR_END_OF_BUFFER, tlv_tree_reader_next(&reader, &item));
+    EXPECT_EQ(TLV_END, tlv_tree_reader_next(&reader, &item));
     ASSERT_EQ(TLV_OK, tlv_tree_reader_init(&reader, data, sizeof(data), &format, nullptr, 0, 0, 0));
     EXPECT_EQ(TLV_ERR_LIMIT, tlv_tree_reader_next(&reader, &item));
 }
@@ -191,7 +191,7 @@ TEST(Unit_Tlv_Tree, ChildErrorsCannotBorrowBytesOutsideTheParent) {
     ASSERT_EQ(TLV_OK, tlv_tree_reader_set_input(&reader, relocated, sizeof(relocated), 2, 0));
     tlv_reader_diagnostic_t diagnostic{};
     for (int i = 0; i < 2; ++i) {
-        EXPECT_EQ(TLV_ERR_BUFFER_TOO_SHORT,
+        EXPECT_EQ(TLV_ERR_TRUNCATED,
                   TLV_DIAGNOSTIC_RESULT(diagnostic,
                                         tlv_tree_reader_next_diag(&reader, &item, &diagnostic)));
         EXPECT_EQ(4u, diagnostic.diagnostic.location.begin);
@@ -222,7 +222,7 @@ TEST(Unit_Tlv_Tree, FinalityAndInvalidUpdatesPreserveTraversal) {
     EXPECT_EQ(before.input.size, reader.input.size);
     EXPECT_EQ(before.count, reader.count);
     ASSERT_EQ(TLV_OK, tlv_tree_reader_set_input(&reader, data, sizeof(data), 0, 1));
-    EXPECT_EQ(TLV_ERR_BUFFER_TOO_SHORT, tlv_tree_reader_next(&reader, &item));
+    EXPECT_EQ(TLV_ERR_TRUNCATED, tlv_tree_reader_next(&reader, &item));
     EXPECT_EQ(TLV_ERR_INVALID_STATE, tlv_tree_reader_set_input(&reader, data, sizeof(data), 0, 0));
     ASSERT_EQ(TLV_OK,
               tlv_tree_reader_init_incremental(&reader, nullptr, 0, &format, nullptr, 0, 0, 0));
@@ -230,7 +230,7 @@ TEST(Unit_Tlv_Tree, FinalityAndInvalidUpdatesPreserveTraversal) {
     EXPECT_EQ(TLV_NEED_MORE_DATA, tlv_tree_reader_next(&reader, &item));
     ASSERT_EQ(TLV_OK, tlv_tree_reader_set_input(&reader, nullptr, 0, 0, 1));
     EXPECT_TRUE(tlv_tree_reader_at_end(&reader));
-    EXPECT_EQ(TLV_ERR_END_OF_BUFFER, tlv_tree_reader_next(&reader, &item));
+    EXPECT_EQ(TLV_END, tlv_tree_reader_next(&reader, &item));
 }
 
 TEST(Unit_Tlv_Tree, NullArgumentsAndFailedInitializationDoNotPublish) {
@@ -263,7 +263,7 @@ TEST(Unit_Tlv_Tree, OpaqueFormatDoesNotInspectValuesAndPropagatesCallbackErrors)
     EXPECT_TRUE(tlv_tree_reader_at_end(&reader));
     auto bad = format;
     bad.decode = [](const void*, const uint8_t*, size_t, tlv_decoded_t*, tlv_format_error_t*) {
-        return TLV_ERR_END_OF_BUFFER;
+        return TLV_END;
     };
     ASSERT_EQ(TLV_OK, tlv_tree_reader_init_incremental(&reader, data, sizeof(data), &bad, nullptr,
                                                        0, 0, 1));
@@ -312,7 +312,7 @@ TEST(Unit_Tlv_Tree, CanonicalEventsRoundTripAndCloseBeforeNeedMore) {
         EXPECT_EQ(before.depth, reader.depth);
     }
     ASSERT_EQ(TLV_OK, tlv_tree_reader_set_input(&reader, nullptr, 0, sizeof(data), 1));
-    EXPECT_EQ(TLV_ERR_END_OF_BUFFER, tlv_tree_reader_next_event(&reader, &event));
+    EXPECT_EQ(TLV_END, tlv_tree_reader_next_event(&reader, &event));
 }
 
 TEST(Unit_Tlv_Tree, EventSkipIsBalancedAndWriterRejectsOmittedContent) {

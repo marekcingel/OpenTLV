@@ -24,7 +24,7 @@ static tlv_result_t document_metadata(const void* handle, int header, size_t* va
 static tlv_result_t document_event(void* context, tlv_tree_event_t* event) {
     document_source_t* source = context;
     const tlv_node_t* node = source->next;
-    if (!node) return TLV_ERR_END_OF_BUFFER;
+    if (!node) return TLV_END;
     memset(event, 0, sizeof *event);
     event->depth = source->depth;
     if (source->closing)
@@ -149,7 +149,7 @@ tlv_result_t tlv_document_query_evaluate(const tlv_document_t* document, tlv_que
         const tlv_node_t* node = source.next;
         tlv_tree_event_t event;
         rc = document_event(&source, &event);
-        if (rc == TLV_ERR_END_OF_BUFFER) break;
+        if (rc == TLV_END) break;
         if (rc != TLV_OK) goto failed;
         rc = document_charge(&budget, 1);
         if (rc != TLV_OK) goto failed;
@@ -216,7 +216,7 @@ tlv_result_t tlv_document_query_program_visit(tlv_query_exec_t* e,
     for (;;) {
         tlv_node_t* node;
         tlv_result_t rc = tlv_document_query_next(e, &node);
-        if (rc == TLV_ERR_END_OF_BUFFER) return TLV_OK;
+        if (rc == TLV_END) return TLV_OK;
         if (rc != TLV_OK) return rc;
         tlv_document_t* owner = (tlv_document_t*)e->document_owner;
         document_query_callback(owner, 1);
@@ -269,7 +269,7 @@ tlv_result_t tlv_document_query_edit(tlv_document_t* document, tlv_query_exec_t*
     for (;;) {
         tlv_node_t* node;
         tlv_result_t rc = tlv_document_query_next(e, &node);
-        if (rc == TLV_ERR_END_OF_BUFFER) break;
+        if (rc == TLV_END) break;
         if (rc != TLV_OK) return rc;
         if (count == capacity) return TLV_ERR_BUFFER_TOO_SHORT;
         targets[count++] = node;

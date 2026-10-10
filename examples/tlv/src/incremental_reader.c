@@ -31,7 +31,7 @@ int main(void) {
             size_t        offset = tlv_reader_offset(&reader);
             tlv_element_t element;
             tlv_result_t  rc = tlv_reader_next(&reader, &element);
-            if (rc == TLV_NEED_MORE_DATA || rc == TLV_ERR_END_OF_BUFFER) break;
+            if (rc == TLV_NEED_MORE_DATA || rc == TLV_END) break;
             if (rc != TLV_OK) return 1; /* Includes truncation once input is final. */
             printf("Element at offset %zu, tag %u\n", offset, (unsigned)element.tag.data[0]);
             ++count; /* Consume the borrowed view before the next window update. */

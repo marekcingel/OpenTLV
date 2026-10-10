@@ -1,6 +1,7 @@
 # SPDX-License-Identifier: MIT
 # Copyright (c) 2026 Marek Cingel
-from opentlv import BufferTooShortError
+import _opentlv as _native
+from opentlv import TruncatedError
 import gc
 import pytest
 from opentlv import (QueryProgram, TreeReader, Visit, Document, InvalidArgError, InvalidStateError,
@@ -203,8 +204,8 @@ def test_custom_text_provider_has_exact_bounded_result_scratch():
     short = QueryProvider(102, provider.decode, max_result_bytes=2)
     with pytest.raises(BufferTooShortError) as error:
         QueryProgram("text(//5A)", providers={"text": short}).evaluate(b"\x5a\0")
-    assert error.value.query["codec"] == 1
-    assert error.value.codec_detail["reported"] == 1
+    assert error.value.query["codec"] == _native.RESULT_BUFFER_TOO_SHORT
+    assert error.value.codec_detail["reported"] == _native.RESULT_BUFFER_TOO_SHORT
     assert error.value.codec_detail["operation"] == 0
 
 
@@ -253,7 +254,7 @@ def test_invalid_constructed_query_replacement_is_atomic():
     wire = bytes.fromhex("70035a0101")
     document = Document(wire)
     execution = QueryProgram("//70").execution().evaluate_document(document)
-    with pytest.raises(BufferTooShortError) as failure:
+    with pytest.raises(TruncatedError) as failure:
         execution.edit_document("replace", value=b"\x5a")
     assert failure.value.applied == 0 and document.encode() == wire
     execution.reset()
@@ -445,6 +446,6 @@ def test_invalid_successful_provider_output_is_callback_failure():
         "num": QueryProvider(104, lambda value, metadata: "wrong type", max_result_bytes=32)})
     with pytest.raises(CallbackError) as failed:
         program.evaluate(bytes.fromhex("5a0103"))
-    assert failed.value.code == 20
+    assert failed.value.code == _native.RESULT_CALLBACK
     assert failed.value.query["query_kind"] == 13
     assert failed.value.query["codec"] == 0

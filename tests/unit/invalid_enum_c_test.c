@@ -25,14 +25,13 @@ int tlv_test_invalid_enum_fields(void) {
     memset(output, 0xCC, sizeof output);
     memcpy(before, output, sizeof output);
     CHECK(tlv_fixed_length_read(&config, input, sizeof input, &value, &used) ==
-          TLV_ERR_INVALID_BYTE_ORDER);
-    CHECK(tlv_fixed_length_read(&config, NULL, 0, &value, &used) == TLV_ERR_INVALID_BYTE_ORDER);
-    CHECK(tlv_fixed_length_write(&config, 0, output, sizeof output, &used) ==
-          TLV_ERR_INVALID_BYTE_ORDER);
-    CHECK(tlv_fixed_length_write(&config, 0, NULL, 0, &used) == TLV_ERR_INVALID_BYTE_ORDER);
-    CHECK(tlv_read_uint(input, sizeof input, order, &value) == TLV_ERR_INVALID_BYTE_ORDER);
-    CHECK(tlv_write_uint(output, sizeof output, order, 0) == TLV_ERR_INVALID_BYTE_ORDER);
-    CHECK(tlv_write_uint(output, 1, order, UINT64_MAX) == TLV_ERR_INVALID_BYTE_ORDER);
+          TLV_ERR_INVALID_ARG);
+    CHECK(tlv_fixed_length_read(&config, NULL, 0, &value, &used) == TLV_ERR_INVALID_ARG);
+    CHECK(tlv_fixed_length_write(&config, 0, output, sizeof output, &used) == TLV_ERR_INVALID_ARG);
+    CHECK(tlv_fixed_length_write(&config, 0, NULL, 0, &used) == TLV_ERR_INVALID_ARG);
+    CHECK(tlv_read_uint(input, sizeof input, order, &value) == TLV_ERR_INVALID_ARG);
+    CHECK(tlv_write_uint(output, sizeof output, order, 0) == TLV_ERR_INVALID_ARG);
+    CHECK(tlv_write_uint(output, 1, order, UINT64_MAX) == TLV_ERR_INVALID_ARG);
     const size_t widths[] = {0, 9, SIZE_MAX};
     for (size_t i = 0; i < sizeof widths / sizeof widths[0]; ++i) {
         CHECK(tlv_read_uint(NULL, widths[i], order, &value) == TLV_ERR_NULL_ARG);
@@ -49,8 +48,8 @@ int tlv_test_invalid_enum_fields(void) {
                                             TLV_ELEMENT_ORDER_TLV,
                                             TLV_LENGTH_SCOPE_VALUE,
                                             NULL};
-    CHECK(tlv_fixed_format_init(&format, &fixed) == TLV_ERR_INVALID_BYTE_ORDER);
-    CHECK(tlv_variable_format_init(&format, &variable) == TLV_ERR_INVALID_BYTE_ORDER);
+    CHECK(tlv_fixed_format_init(&format, &fixed) == TLV_ERR_INVALID_ARG);
+    CHECK(tlv_variable_format_init(&format, &variable) == TLV_ERR_INVALID_ARG);
     const uint8_t       packed_tags[] = {0, 1};
     tlv_packed_layout_t packed = {1,
                                   {1, 7, 1, TLV_BYTE_ORDER_BIG_ENDIAN},
@@ -62,7 +61,7 @@ int tlv_test_invalid_enum_fields(void) {
     CHECK(tlv_packed_layout_validate(&packed) == TLV_ERR_INVALID_ARG);
     packed.length_scope = TLV_LENGTH_SCOPE_VALUE;
     packed.length.byte_order = order;
-    CHECK(tlv_packed_layout_validate(&packed) == TLV_ERR_INVALID_BYTE_ORDER);
+    CHECK(tlv_packed_layout_validate(&packed) == TLV_ERR_INVALID_ARG);
     CHECK(value == 42 && used == 99 && memcmp(output, before, sizeof output) == 0);
     return 0;
 }

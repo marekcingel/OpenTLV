@@ -234,28 +234,28 @@ TEST(Unit_Generator, OwnedCxxErrorsAndRepeatedCalls) {
     tlv::generator invalid(tlv::native::borrow_format(fixed), options);
     auto           result = invalid.generate(0);
     ASSERT_FALSE(result);
-    EXPECT_EQ(TLV_ERR_INVALID_ARG, result.error().code);
+    EXPECT_EQ(tlv::errc::invalid_argument, result.error().status());
     options.max_elements = 1;
     options.max_depth = 1;
     options.max_case_size = SIZE_MAX;
     tlv::generator overflow(tlv::native::borrow_format(fixed), options);
     auto           overflow_result = overflow.generate(0);
     ASSERT_FALSE(overflow_result);
-    EXPECT_EQ(TLV_ERR_OVERFLOW, overflow_result.error().code);
+    EXPECT_EQ(tlv::errc::overflow, overflow_result.error().status());
     options.max_depth = 0;
     options.max_case_size = 1; // Too small even for an empty element.
     tlv::generator impossible(tlv::native::borrow_format(fixed), options);
     for (uint64_t index : {0u, 7u}) {
         auto impossible_result = impossible.generate(index);
         ASSERT_FALSE(impossible_result);
-        EXPECT_EQ(TLV_ERR_LIMIT, impossible_result.error().code);
+        EXPECT_EQ(tlv::errc::limit, impossible_result.error().status());
     }
     options.max_case_size = 64;
     tlv_format_t   unavailable{};
     tlv::generator missing(tlv::native::borrow_format(unavailable), options);
     auto           missing_result = missing.generate(0);
     ASSERT_FALSE(missing_result);
-    EXPECT_EQ(TLV_ERR_UNSUPPORTED, missing_result.error().code);
+    EXPECT_EQ(tlv::errc::unsupported, missing_result.error().status());
     tlv::generator valid(tlv::native::borrow_format(fixed), options);
     EXPECT_TRUE(valid.generate(0));
     EXPECT_TRUE(valid.generate(7));
@@ -350,10 +350,11 @@ protected:
             tlv::native::borrow_format(format), options,
             tlv::span<tlv::byte>{reinterpret_cast<tlv::byte*>(output), sizeof(output)},
             tlv::span<tlv::byte>{reinterpret_cast<tlv::byte*>(workspace), sizeof(workspace)});
-        EXPECT_EQ(expected, borrowed ? TLV_OK : borrowed.error().code);
+        EXPECT_EQ(expected,
+                  borrowed ? TLV_OK : static_cast<tlv_result_t>(borrowed.error().status()));
         tlv::generator generator(tlv::native::borrow_format(format), options);
         auto           owned = generator.generate(options.case_index);
-        EXPECT_EQ(expected, owned ? TLV_OK : owned.error().code);
+        EXPECT_EQ(expected, owned ? TLV_OK : static_cast<tlv_result_t>(owned.error().status()));
         if (expected == TLV_OK && borrowed && owned) {
             EXPECT_EQ(written, *borrowed);
             ASSERT_EQ(written, owned->size());
@@ -366,7 +367,7 @@ protected:
         EXPECT_EQ(expected, tlv_generator_workspace_size(&options, &size));
         if (expected != TLV_OK) EXPECT_EQ(99u, size);
         auto result = tlv::generator_workspace_size(options);
-        EXPECT_EQ(expected, result ? TLV_OK : result.error().code);
+        EXPECT_EQ(expected, result ? TLV_OK : static_cast<tlv_result_t>(result.error().status()));
     }
 };
 } // namespace
@@ -556,7 +557,7 @@ TEST_F(GeneratorResults, NestedCallbackFailureAbortsWholeCase) {
     tlv::generator generator(tlv::native::borrow_format(format), options);
     auto           result = generator.generate(0);
     ASSERT_FALSE(result);
-    EXPECT_EQ(TLV_ERR_CALLBACK, result.error().code);
+    EXPECT_EQ(tlv::errc::callback, result.error().status());
     EXPECT_EQ(1u, state.calls);
 }
 
@@ -621,11 +622,11 @@ TEST_F(GeneratorResults, ReconstructionFilteringAndFailureAfterPartialSuccess) {
                         tlv::native::borrow_format(format), options,
                         tlv::span<tlv::byte>{reinterpret_cast<tlv::byte*>(output), 64},
                         tlv::span<tlv::byte>{reinterpret_cast<tlv::byte*>(workspace), 64});
-                    rc = result ? TLV_OK : result.error().code;
+                    rc = result ? TLV_OK : static_cast<tlv_result_t>(result.error().status());
                 } else {
                     tlv::generator generator(tlv::native::borrow_format(format), options);
                     auto           result = generator.generate(0);
-                    rc = result ? TLV_OK : result.error().code;
+                    rc = result ? TLV_OK : static_cast<tlv_result_t>(result.error().status());
                 }
                 if (fail_at == 0) {
                     EXPECT_EQ(TLV_ERR_LIMIT, rc);

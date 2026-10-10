@@ -97,7 +97,7 @@ TEST(Unit_Tlv_Element, OversizedLogicalValuePreservesOutputsAndFullDiagnostic) {
     tlv_element_t           element{TLV_TAG(9), {data, 1}};
     size_t                  consumed = 99;
     tlv_reader_diagnostic_t diagnostic{};
-    EXPECT_EQ(TLV_ERR_BUFFER_TOO_SHORT,
+    EXPECT_EQ(TLV_ERR_TRUNCATED,
               TLV_DIAGNOSTIC_RESULT(diagnostic, tlv_read_diag(data, sizeof(data), &format, &element,
                                                               &consumed, &diagnostic)));
     EXPECT_EQ(99u, consumed);
@@ -196,7 +196,7 @@ TEST(Unit_Tlv_Element, BerOversizedValueKeepsDecodedAndRawLengthInDiagnostic) {
     size_t                  consumed = 99;
     tlv_reader_diagnostic_t diagnostic{};
     EXPECT_EQ(
-        TLV_ERR_BUFFER_TOO_SHORT,
+        TLV_ERR_TRUNCATED,
         TLV_DIAGNOSTIC_RESULT(diagnostic, tlv_read_diag(data.data(), data.size(), &tlv_format_ber,
                                                         &element, &consumed, &diagnostic)));
     EXPECT_EQ(99u, consumed);
@@ -225,7 +225,7 @@ TEST(Unit_Tlv_Element, LogicalOverflowAndTruncatedLengthKeepAvailableRawBytes) {
     EXPECT_EQ(overflow + 1, diagnostic.detail.raw_length.data);
     EXPECT_EQ(10u, diagnostic.detail.raw_length.size);
     EXPECT_EQ(99u, consumed);
-    EXPECT_EQ(TLV_ERR_BUFFER_TOO_SHORT,
+    EXPECT_EQ(TLV_ERR_TRUNCATED,
               TLV_DIAGNOSTIC_RESULT(diagnostic, tlv_read_diag(overflow, 4, &tlv_format_ber,
                                                               &element, &consumed, &diagnostic)));
     ASSERT_TRUE(diagnostic.detail.has_raw_length);
@@ -262,7 +262,7 @@ TEST(Unit_Tlv_Element, FixedSizeDomainIsIndependentOfFieldOrderAndByteOrder) {
             ASSERT_EQ(TLV_OK, tlv_write_uint(data + length_offset, 8, byte_order, TLV_SIZE_MAX));
             tlv_reader_diagnostic_t diagnostic{};
             EXPECT_EQ(
-                TLV_ERR_BUFFER_TOO_SHORT,
+                TLV_ERR_TRUNCATED,
                 TLV_DIAGNOSTIC_RESULT(diagnostic, tlv_read_diag(data, sizeof(data), &format,
                                                                 &element, &consumed, &diagnostic)));
             EXPECT_EQ(TLV_SIZE_MAX, diagnostic.detail.declared_length);
@@ -336,7 +336,7 @@ tlv_result_t framed_decode(const void*, const uint8_t* data, size_t size, tlv_de
                            tlv_format_error_t* error) {
     error->region = TLV_REGION_HEADER;
     error->has_offset = 1;
-    if (size < 4) return TLV_ERR_BUFFER_TOO_SHORT;
+    if (size < 4) return TLV_ERR_TRUNCATED;
     if (data[0] != 0xA5) return TLV_ERR_INVALID_VALUE;
     error->tag = {1, 1, 1};
     error->length = {2, 1, 1};
@@ -345,11 +345,11 @@ tlv_result_t framed_decode(const void*, const uint8_t* data, size_t size, tlv_de
     error->offset = 4;
     error->has_required = 1;
     error->required = n;
-    if (n > size - 4) return TLV_ERR_BUFFER_TOO_SHORT;
+    if (n > size - 4) return TLV_ERR_TRUNCATED;
     error->region = TLV_REGION_TRAILER;
     error->offset = 4 + n;
     error->required = 1;
-    if (size - 4 - n < 1) return TLV_ERR_BUFFER_TOO_SHORT;
+    if (size - 4 - n < 1) return TLV_ERR_TRUNCATED;
     uint8_t checksum = 0;
     for (size_t i = 0; i < n; ++i) checksum ^= data[4 + i];
     if (data[4 + n] != checksum) return TLV_ERR_INVALID_VALUE;
@@ -426,7 +426,7 @@ TEST(Unit_Tlv_FormatContract, EveryTruncatedRegionAndInvalidTrailerAreDiagnosedO
         tlv_decoded_t result{};
         result.source.size = 99;
         tlv_format_error_t error{};
-        ASSERT_EQ(TLV_ERR_BUFFER_TOO_SHORT,
+        ASSERT_EQ(TLV_ERR_TRUNCATED,
                   tlv_format_decode(&framed_format, wire, size, &result, &error));
         EXPECT_EQ(99u, result.source.size);
         EXPECT_EQ(size < 4    ? TLV_REGION_HEADER
@@ -437,7 +437,7 @@ TEST(Unit_Tlv_FormatContract, EveryTruncatedRegionAndInvalidTrailerAreDiagnosedO
         tlv_element_t           element{};
         size_t                  consumed = 99;
         ASSERT_EQ(
-            TLV_ERR_BUFFER_TOO_SHORT,
+            TLV_ERR_TRUNCATED,
             TLV_DIAGNOSTIC_RESULT(diagnostic, tlv_read_diag(wire, size, &framed_format, &element,
                                                             &consumed, &diagnostic)));
         EXPECT_EQ(99u, consumed);
@@ -497,7 +497,7 @@ TEST(Unit_Tlv_FormatContract, NoExplicitFieldsAndEmptyHeaderAreValid) {
     tlv_format_t format{};
     format.decode = [](const void*, const uint8_t* data, size_t size, tlv_decoded_t* result,
                        tlv_format_error_t*) {
-        if (!size) return TLV_ERR_BUFFER_TOO_SHORT;
+        if (!size) return TLV_ERR_TRUNCATED;
         result->element = {{nullptr, 0}, {data, 1}};
         result->source.header = {0, 0, 1};
         result->source.value = {0, 1, 1};
@@ -631,7 +631,7 @@ TEST(Unit_Tlv_FormatContract, StatefulReaderAndWriterAdvancePastTrailer) {
     EXPECT_EQ(sizeof(second), element.value.size);
     EXPECT_EQ(wire + 10, element.value.data);
     EXPECT_TRUE(tlv_reader_at_end(&reader));
-    EXPECT_EQ(TLV_ERR_END_OF_BUFFER, tlv_reader_next(&reader, &element));
+    EXPECT_EQ(TLV_END, tlv_reader_next(&reader, &element));
 }
 
 TEST(Unit_Tlv_FormatContract, ReaderDiagnosticsDoNotDecodeAgain) {

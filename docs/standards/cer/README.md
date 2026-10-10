@@ -43,7 +43,7 @@ tlv_result_t rc = tlv_cer_read(input, sizeof(input), NULL,
 `tlv_cer_read` validates one element and all of its descendants — indefinite
 constructed framing, EOC placement, and canonical string segmentation — before
 returning its element and complete encoded size. Trailing input is ignored. Empty
-input returns `TLV_ERR_END_OF_BUFFER`. Keep the input alive while using returned
+input returns `TLV_END`. Keep the input alive while using returned
 views (see [memory ownership](../../guides/memory.md)).
 
 `tlv_cer_visit(data, size, limits, visitor, context, &diagnostic)` processes all

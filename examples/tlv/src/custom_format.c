@@ -39,7 +39,7 @@ static void print_element(const tlv_element_t* element) {
 static tlv_result_t read_tag_1byte(const void* context, const uint8_t* data, size_t size,
                                    tlv_tag_t* tag, size_t* consumed) {
     (void)context;
-    if (!size) return TLV_ERR_BUFFER_TOO_SHORT;
+    if (!size) return TLV_ERR_TRUNCATED;
     *tag = tlv_tag(data, 1);
     *consumed = 1;
     return TLV_OK;
@@ -59,7 +59,7 @@ static tlv_result_t write_tag_1byte(const void* context, const tlv_tag_t* tag, u
 static tlv_result_t read_length_le16(const void* context, const uint8_t* data, size_t size,
                                      tlv_size_t* length, size_t* consumed) {
     (void)context;
-    if (size < sizeof(uint16_t)) return TLV_ERR_BUFFER_TOO_SHORT;
+    if (size < sizeof(uint16_t)) return TLV_ERR_TRUNCATED;
     *length = tlv_read_u16_le(data);
     *consumed = sizeof(uint16_t);
     return TLV_OK;

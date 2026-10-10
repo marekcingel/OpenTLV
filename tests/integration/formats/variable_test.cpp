@@ -25,7 +25,7 @@ tlv_result_t resolve(const void* context, const tlv_tag_t*, const uint8_t* data,
                      tlv_format_error_t* error) {
     const auto* c = static_cast<const tlv_variable_format_t*>(context);
     *length_size = size ? 1 : 0;
-    if (!size) return TLV_ERR_BUFFER_TOO_SHORT;
+    if (!size) return TLV_ERR_TRUNCATED;
     *trailer_size = 0;
     if (data[0] != 0x80)
         return tlv_variable_length_read(&c->length, data, size, value_size, length_size);
@@ -52,7 +52,7 @@ tlv_result_t resolve(const void* context, const tlv_tag_t*, const uint8_t* data,
     error->region = TLV_REGION_TRAILER;
     error->offset = pos;
     error->has_offset = 1;
-    return TLV_ERR_BUFFER_TOO_SHORT;
+    return TLV_ERR_TRUNCATED;
 }
 
 tlv_result_t terminated_measure(const void* context, const tlv_element_t* element,
@@ -133,7 +133,7 @@ TEST(Integration_Tlv_Variable, ReaderWriterAndLayoutAcrossOrderAndScope) {
             tlv_element_t read = {};
             ASSERT_EQ(TLV_OK, tlv_reader_next(&reader, &read));
             EXPECT_EQ(value.size(), read.value.size);
-            EXPECT_EQ(TLV_ERR_END_OF_BUFFER, tlv_reader_next(&reader, &read));
+            EXPECT_EQ(TLV_END, tlv_reader_next(&reader, &read));
         }
     }
 }
@@ -164,7 +164,7 @@ TEST(Integration_Tlv_Variable, ErrorsKeepReaderWriterStateAndProvideFieldLocatio
     const uint8_t      bytes[] = {0xA5, 0xC0, 0x83, 0xFF};
     tlv_decoded_t      decoded = {};
     tlv_format_error_t error = {};
-    EXPECT_EQ(TLV_ERR_BUFFER_TOO_SHORT,
+    EXPECT_EQ(TLV_ERR_TRUNCATED,
               tlv_format_decode(&format, bytes, sizeof(bytes), &decoded, &error));
     EXPECT_EQ(TLV_REGION_LENGTH, error.region);
     EXPECT_EQ(2u, error.offset);
@@ -172,7 +172,7 @@ TEST(Integration_Tlv_Variable, ErrorsKeepReaderWriterStateAndProvideFieldLocatio
     tlv_reader_t  reader = {};
     tlv_element_t element = {};
     ASSERT_EQ(TLV_OK, tlv_reader_init(&reader, bytes, sizeof(bytes), &format));
-    EXPECT_EQ(TLV_ERR_BUFFER_TOO_SHORT, tlv_reader_next(&reader, &element));
+    EXPECT_EQ(TLV_ERR_TRUNCATED, tlv_reader_next(&reader, &element));
     EXPECT_EQ(0u, reader.pos);
     uint8_t      destination[] = {0xCC};
     tlv_writer_t writer = {};
@@ -218,10 +218,10 @@ TEST(Integration_Tlv_Variable, ComposesTerminatedBoundsAndTrailerWithoutBuiltinP
     EXPECT_EQ(9u, used);
     EXPECT_EQ(0, std::memcmp(bytes, out, used));
     tlv_format_error_t error = {};
-    EXPECT_EQ(TLV_ERR_BUFFER_TOO_SHORT, tlv_format_decode(&format, bytes, 7, &decoded, &error));
+    EXPECT_EQ(TLV_ERR_TRUNCATED, tlv_format_decode(&format, bytes, 7, &decoded, &error));
     EXPECT_EQ(TLV_REGION_TRAILER, error.region);
     EXPECT_EQ(7u, error.offset);
-    EXPECT_EQ(TLV_ERR_BUFFER_TOO_SHORT, tlv_format_decode(&format, bytes, 8, &decoded, &error));
+    EXPECT_EQ(TLV_ERR_TRUNCATED, tlv_format_decode(&format, bytes, 8, &decoded, &error));
 }
 
 TEST(Integration_Tlv_Variable, DeclarativeThreeByteTagsMinimalLengthsAndConstructedBit) {

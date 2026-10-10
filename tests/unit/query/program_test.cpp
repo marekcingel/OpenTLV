@@ -593,6 +593,7 @@ TEST(Unit_Tlv_QueryProgram, SignedIntegersAndSubstringBounds) {
     ASSERT_EQ(TLV_OK, p.compile("//5A[-0 = 0 and -2 < -1 and 9223372036854775807 > @len]"));
     EXPECT_EQ((std::vector<size_t>{0}), run(p, {0x5A, 0}));
     EXPECT_EQ(TLV_ERR_OVERFLOW, p.compile("//5A[@len = 9223372036854775808]"));
+    EXPECT_EQ(TLV_QUERY_ERROR_TYPE, p.diagnostic.kind); // Numeric range, not grammar.
     EXPECT_EQ(TLV_ERR_OVERFLOW, p.compile("//5A[@len = -9223372036854775809]"));
     ASSERT_EQ(TLV_OK, p.compile("//5A[substr(value(), -1) = x'']"));
     tlv_result_t rc;
@@ -655,12 +656,31 @@ TEST(Unit_Tlv_QueryProgram, UniqueVariableRequirementsAndCompactWorkspace) {
                   p.info.states,
               bytes);
 }
+TEST(Unit_Tlv_QueryProgram, GrammarFailuresPairSyntaxResultAndKind) {
+    Program p;
+    for (const char* text :
+         {"/", "//5A[@len > 1", "//5A[@len > ]", "//5A[@len 1]", "//5A[#]", "unknown::5A",
+          "//5A[@len > $123]", "//5A[value() = 'abc]", "//5A[value() = x'0]",
+          "//5A[value() = x'0G']", "//5A[substr(value(), 1, 2, 3) = x'']"}) {
+        SCOPED_TRACE(text);
+        EXPECT_EQ(TLV_ERR_SYNTAX, p.compile(text));
+        EXPECT_EQ(TLV_QUERY_ERROR_SYNTAX, p.diagnostic.kind);
+        EXPECT_EQ(TLV_ERR_SYNTAX, p.diagnostic.diagnostic.code);
+        EXPECT_EQ(TLV_LOCATION_EXPRESSION, p.diagnostic.diagnostic.location.domain);
+    }
+    // Valid grammar that fails for another reason never borrows the SYNTAX kind.
+    for (const char* text : {"//5A[@len = 9223372036854775808]", "//5A[num(.) > $min]"}) {
+        SCOPED_TRACE(text);
+        EXPECT_NE(TLV_ERR_SYNTAX, p.compile(text));
+        EXPECT_NE(TLV_QUERY_ERROR_SYNTAX, p.diagnostic.kind);
+    }
+}
 TEST(Unit_Tlv_QueryProgram, VariableIdentifiersFollowGrammar) {
     Program p;
-    EXPECT_EQ(TLV_ERR_INVALID_ARG, p.compile("//5A[@len > $123]"));
+    EXPECT_EQ(TLV_ERR_SYNTAX, p.compile("//5A[@len > $123]"));
     EXPECT_EQ(TLV_QUERY_ERROR_SYNTAX, p.diagnostic.kind);
-    EXPECT_EQ(TLV_ERR_INVALID_ARG, p.compile("//5A[@len > $?foo]"));
-    EXPECT_EQ(TLV_ERR_INVALID_ARG, p.compile("//5A[@len > $_foo]"));
+    EXPECT_EQ(TLV_ERR_SYNTAX, p.compile("//5A[@len > $?foo]"));
+    EXPECT_EQ(TLV_ERR_SYNTAX, p.compile("//5A[@len > $_foo]"));
     tlv_query_compile_options_t options;
     tlv_query_compile_options_init(&options);
     tlv_query_variable_t variable = {"123", TLV_QUERY_RESULT_INTEGER};
@@ -876,14 +896,14 @@ TEST(Unit_Tlv_QueryProgram, UnsupportedFeaturesHavePreciseDiagnostics) {
     EXPECT_EQ(TLV_ERR_UNSUPPORTED, tlv_query_exec_size(p.get(), 1, &bytes, &alignment));
     EXPECT_EQ(TLV_ERR_UNSUPPORTED, p.compile("//5A[num(.) > $min]"));
     EXPECT_EQ(TLV_QUERY_ERROR_CAPABILITY, p.diagnostic.kind);
-    EXPECT_EQ(TLV_ERR_INVALID_ARG, p.compile("//5A[@len > 1"));
+    EXPECT_EQ(TLV_ERR_SYNTAX, p.compile("//5A[@len > 1"));
     EXPECT_EQ(TLV_QUERY_ERROR_SYNTAX, p.diagnostic.kind);
     EXPECT_EQ(TLV_OK, p.compile("//5A[1]"));
     EXPECT_EQ(TLV_QUERY_S2, p.info.level);
-    EXPECT_EQ(TLV_ERR_INVALID_ARG, p.compile("//9F?"));
-    EXPECT_EQ(TLV_ERR_INVALID_ARG, p.compile("//tag-mask(x'00', x'FFFF')"));
-    EXPECT_EQ(TLV_ERR_INVALID_ARG, p.compile("//tag-range(x'FF', x'00')"));
-    EXPECT_EQ(TLV_ERR_INVALID_ARG, p.compile("unknown::5A"));
+    EXPECT_EQ(TLV_ERR_SYNTAX, p.compile("//9F?"));
+    EXPECT_EQ(TLV_ERR_SYNTAX, p.compile("//tag-mask(x'00', x'FFFF')"));
+    EXPECT_EQ(TLV_ERR_SYNTAX, p.compile("//tag-range(x'FF', x'00')"));
+    EXPECT_EQ(TLV_ERR_SYNTAX, p.compile("unknown::5A"));
     EXPECT_EQ(TLV_QUERY_ERROR_SYNTAX, p.diagnostic.kind);
     EXPECT_EQ(TLV_OK, p.compile("70/(//5A)"));
     EXPECT_EQ(TLV_OK, p.compile("//5A[ancestor::70[@len=3]]"));
@@ -1329,7 +1349,7 @@ TEST(Unit_Tlv_Query, BoundedParsingFormattingAndCorruptAccess) {
     std::memcpy(before, &query, sizeof query);
     tlv_diagnostic_t offset = {};
     offset.location.begin = 99;
-    EXPECT_EQ(TLV_ERR_INVALID_ARG, tlv_query_parse_n("6F\0/50", 6, &query, &offset));
+    EXPECT_EQ(TLV_ERR_SYNTAX, tlv_query_parse_n("6F\0/50", 6, &query, &offset));
     EXPECT_EQ(2u, offset.location.begin);
     EXPECT_EQ(0, std::memcmp(&query, before, sizeof query));
     tlv_query_t copy;

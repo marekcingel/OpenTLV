@@ -96,16 +96,16 @@ TEST(Integration_Tlv_Der, InvalidFieldsHaveOffsetsAndPreserveOutputs) {
         tlv_result_t         error;
         size_t               offset;
     };
-    std::vector<Case> cases = {{{0x04}, TLV_ERR_BUFFER_TOO_SHORT, 1},
+    std::vector<Case> cases = {{{0x04}, TLV_ERR_TRUNCATED, 1},
                                {{0x04, 0x80}, TLV_ERR_INVALID_LENGTH, 1},
                                {{0x04, 0xFF}, TLV_ERR_INVALID_LENGTH, 1},
                                {{0x04, 0x81, 0x7F}, TLV_ERR_INVALID_LENGTH, 1},
                                {{0x04, 0x82, 0, 0x80}, TLV_ERR_INVALID_LENGTH, 1},
-                               {{0x04, 0x82, 1}, TLV_ERR_BUFFER_TOO_SHORT, 1},
-                               {{0x04, 2, 0}, TLV_ERR_BUFFER_TOO_SHORT, 2},
-                               {{0x30, 3, 0x04, 2, 0}, TLV_ERR_BUFFER_TOO_SHORT, 4},
+                               {{0x04, 0x82, 1}, TLV_ERR_TRUNCATED, 1},
+                               {{0x04, 2, 0}, TLV_ERR_TRUNCATED, 2},
+                               {{0x30, 3, 0x04, 2, 0}, TLV_ERR_TRUNCATED, 4},
                                {{0x30, 2, 0x04, 0x80}, TLV_ERR_INVALID_LENGTH, 3},
-                               {{0x30, 1, 0x04, 0}, TLV_ERR_BUFFER_TOO_SHORT, 3},
+                               {{0x30, 1, 0x04, 0}, TLV_ERR_TRUNCATED, 3},
                                {{0, 0}, TLV_ERR_INVALID_TAG, 0},
                                {{0x0F, 0}, TLV_ERR_INVALID_TAG, 0},
                                {{0x24, 0}, TLV_ERR_INVALID_TAG, 0},
@@ -113,7 +113,7 @@ TEST(Integration_Tlv_Der, InvalidFieldsHaveOffsetsAndPreserveOutputs) {
                                {{0x30, 2, 0x21, 0}, TLV_ERR_INVALID_TAG, 2}};
     cases.push_back({{0x9F, 0x1E, 0}, TLV_ERR_INVALID_TAG, 0});
     cases.push_back({{0x9F, 0x80, 0x1F, 0}, TLV_ERR_INVALID_TAG, 0});
-    cases.push_back({{0x9F}, TLV_ERR_BUFFER_TOO_SHORT, 0});
+    cases.push_back({{0x9F}, TLV_ERR_TRUNCATED, 0});
     std::vector<uint8_t> overflow(sizeof(tlv_size_t) + 3, 0);
     overflow[0] = 4;
     overflow[1] = static_cast<uint8_t>(0x80 | (sizeof(tlv_size_t) + 1));

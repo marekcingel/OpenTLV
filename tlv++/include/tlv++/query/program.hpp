@@ -33,7 +33,7 @@ enum class query_issue {
     cardinality = TLV_QUERY_ERROR_CARDINALITY,     /**< Scalar cardinality mismatch. */
     codec = TLV_QUERY_ERROR_CODEC,                 /**< Value conversion failure. */
     image_version = TLV_QUERY_ERROR_IMAGE_VERSION, /**< Incompatible program image. */
-    type = TLV_QUERY_ERROR_TYPE,                   /**< Incompatible expression types. */
+    type = TLV_QUERY_ERROR_TYPE,                   /**< Operand type, arity or numeric range. */
     image = TLV_QUERY_ERROR_IMAGE,                 /**< Malformed stored program image. */
     callback = TLV_QUERY_ERROR_CALLBACK,           /**< Callback failure. */
     state = TLV_QUERY_ERROR_STATE                  /**< Invalid lifecycle or callback reentrancy. */
@@ -51,7 +51,7 @@ struct query_value {
 };
 /** @brief Original native status and complete Query diagnostic, including Reader/codec detail. */
 struct query_failure {
-    tlv_result_t code; /**< Original status, including NEED_MORE_DATA and END_OF_BUFFER. */
+    tlv_result_t           code; /**< Original status, including NEED_MORE_DATA and TLV_END. */
     tlv_query_diagnostic_t diagnostic; /**< Byte span, source, limit and codec context. */
     /** @brief Canonical C++ operation status, preserving resumable input and EOF. */
     errc status() const noexcept {
@@ -313,7 +313,7 @@ private:
 /** @brief Independent move-only Query continuation, retaining its compiled program.
  * Borrowed input and environments must remain stable until destruction/reset. Byte/string
  * scalars and Tree events borrow input/program/workspace; copy explicitly for owned results.
- * NEED_MORE_DATA preserves state and differs from final END_OF_BUFFER. */
+ * NEED_MORE_DATA preserves state and differs from final TLV_END. */
 class query_execution {
 public:
     /** @brief Allocate an independent execution using C++ capabilities.
@@ -522,7 +522,7 @@ public:
                            value->integer,
                            {reinterpret_cast<const byte*>(value->data), value->size}};
     }
-    /** @brief Pull a finalized retained Tree result; END_OF_BUFFER means final exhaustion.
+    /** @brief Pull a finalized retained Tree result; TLV_END means final exhaustion.
      * @return Event or INVALID_STATE before completion, after failure, during callbacks or
      * when the backing Document has expired or changed; other native errors propagate. */
     expected<tree_event, query_failure> next() {
@@ -535,7 +535,7 @@ public:
     }
     /** @brief Resume Tree selection until one borrowed node, final EOF or NEED_MORE_DATA.
      * @param reader Exclusive Tree cursor, unchanged between pulls except legal input replacement.
-     * @return Node, END_OF_BUFFER at final exhaustion, or the full resumable/error diagnostic.
+     * @return Node, TLV_END at final exhaustion, or the full resumable/error diagnostic.
      * @note Uses native STOP after publication. S0 publishes immediately; retained S2
      * validates to EOF first. Input and Source owners obey visit() lifetime rules.
      * Scalar programs are rejected before consuming the Reader. */
@@ -550,7 +550,7 @@ public:
             return TLV_VISIT_STOP;
         });
         if (!status) return unexpected<query_failure>(status.error());
-        if (!found) return unexpected<query_failure>(detail::query_failed(TLV_ERR_END_OF_BUFFER));
+        if (!found) return unexpected<query_failure>(detail::query_failed(TLV_END));
         return selected;
     }
 

@@ -4,7 +4,6 @@
     "examples/tlv++/src/advanced_control.cpp": {
       "reason": "Explicit C/C++ interoperability example.",
       "symbols": {
-        "TLV_NEED_MORE_DATA": 1,
         "tlv++/native.hpp": 1,
         "tlv::native::descriptor": 1
       }
@@ -49,8 +48,7 @@
         "TLV_CODEC_OP_ENCODE": 1,
         "TLV_ERR_BUFFER_TOO_SHORT": 2,
         "TLV_ERR_INVALID_VALUE": 2,
-        "TLV_ERR_LIMIT": 1,
-        "TLV_ERR_SCHEMA": 4,
+        "TLV_ERR_SCHEMA": 1,
         "TLV_OK": 10,
         "TLV_SCHEMA_ANY": 8,
         "TLV_SCHEMA_ISSUE_DUPLICATE": 1,
@@ -101,7 +99,7 @@
       "reason": "Adversarial C backend equivalence, including C++ Document ownership.",
       "symbols": {
         "TLV_ERR_BUFFER_TOO_SHORT": 1,
-        "TLV_ERR_END_OF_BUFFER": 1,
+        "TLV_END": 1,
         "TLV_ERR_INVALID_ARG": 1,
         "TLV_ERR_INVALID_STATE": 2,
         "TLV_LOCATION_INPUT": 1,
@@ -148,7 +146,7 @@
     "tests/query/constexpr.cpp": {
       "reason": "Generated native plan representation and runtime compiler equivalence.",
       "symbols": {
-        "TLV_ERR_END_OF_BUFFER": 1,
+        "TLV_END": 1,
         "TLV_OK": 3,
         "TLV_QUERY_PLAN_BYTES": 1,
         "TLV_QUERY_RESULT_BYTES": 1,
@@ -174,7 +172,7 @@
       "reason": "Native Query workspace, resolver and execution ABI parity.",
       "symbols": {
         "TLV_BYTE_ORDER_BIG_ENDIAN": 1,
-        "TLV_ERR_END_OF_BUFFER": 2,
+        "TLV_END": 1,
         "TLV_ERR_INVALID_TAG": 2,
         "TLV_ERR_UNSUPPORTED": 1,
         "TLV_NEED_MORE_DATA": 1,
@@ -226,7 +224,6 @@
         "TLV_EMV_CONTEXT_BIOMETRIC_VERIFICATION": 1,
         "TLV_EMV_CONTEXT_BIT_GROUP": 1,
         "TLV_EMV_CRYPTOGRAM_AAC": 1,
-        "TLV_ERR_BUFFER_TOO_SHORT": 1,
         "TLV_OK": 1,
         "tlv::detail::semantic_access::get": 1,
         "tlv_codec_encode": 1,
@@ -257,11 +254,7 @@
       "reason": "Native Format ownership, edit/retirement parity and deterministic allocator address-reuse validation.",
       "symbols": {
         "TLV_ELEMENT_ORDER_LTV": 1,
-        "TLV_ERR_INVALID_ARG": 3,
-        "TLV_ERR_INVALID_STATE": 8,
-        "TLV_ERR_LIMIT": 1,
-        "TLV_ERR_NULL_ARG": 1,
-        "TLV_OK": 4,
+        "TLV_OK": 3,
         "TLV_TAG": 1,
         "TLV_VISIT_STOP": 1,
         "tlv++/native.hpp": 1,
@@ -285,9 +278,9 @@
       "symbols": {
         "TLV_BYTE_ORDER_BIG_ENDIAN": 2,
         "TLV_ELEMENT_ORDER_TLV": 3,
-        "TLV_ERR_BUFFER_TOO_SHORT": 6,
-        "TLV_ERR_INVALID_LENGTH": 5,
-        "TLV_ERR_INVALID_TAG_SIZE": 1,
+        "TLV_ERR_BUFFER_TOO_SHORT": 1,
+        "TLV_ERR_TRUNCATED": 3,
+        "TLV_ERR_INVALID_LENGTH": 4,
         "TLV_LENGTH_SCOPE_VALUE": 3,
         "TLV_OK": 15,
         "TLV_REGION_LENGTH": 1,
@@ -321,12 +314,12 @@
         "TLV_BYTE_ORDER_BIG_ENDIAN": 8,
         "TLV_ELEMENT_ORDER_TLV": 8,
         "TLV_ERR_BUFFER_TOO_SHORT": 2,
-        "TLV_ERR_CALLBACK": 13,
-        "TLV_ERR_INVALID_ARG": 15,
-        "TLV_ERR_LIMIT": 4,
+        "TLV_ERR_CALLBACK": 12,
+        "TLV_ERR_INVALID_ARG": 14,
+        "TLV_ERR_LIMIT": 3,
         "TLV_ERR_NULL_ARG": 7,
-        "TLV_ERR_OVERFLOW": 8,
-        "TLV_ERR_UNSUPPORTED": 8,
+        "TLV_ERR_OVERFLOW": 7,
+        "TLV_ERR_UNSUPPORTED": 7,
         "TLV_LENGTH_SCOPE_VALUE": 8,
         "TLV_OK": 38,
         "TLV_TAG_BINDING_FORMAT": 1,
@@ -351,7 +344,7 @@
         "tlv_generator_candidate_t": 10,
         "tlv_generator_options_t": 6,
         "tlv_generator_workspace_size": 9,
-        "tlv_result_t": 3,
+        "tlv_result_t": 8,
         "tlv_tag_t": 2,
         "tlv_write_element": 1
       }
@@ -364,12 +357,13 @@
         "TLV_DOCUMENT_QUERY_REMOVE": 4,
         "TLV_DOCUMENT_QUERY_REPLACE": 1,
         "TLV_ERR_BUFFER_TOO_SHORT": 2,
-        "TLV_ERR_END_OF_BUFFER": 3,
-        "TLV_ERR_INVALID_ARG": 3,
+        "TLV_END": 2,
+        "TLV_ERR_INVALID_ARG": 2,
+        "TLV_ERR_SYNTAX": 1,
         "TLV_ERR_INVALID_LENGTH": 2,
         "TLV_ERR_INVALID_STATE": 7,
         "TLV_ERR_INVALID_VALUE": 1,
-        "TLV_ERR_LIMIT": 4,
+        "TLV_ERR_LIMIT": 3,
         "TLV_ERR_OUT_OF_MEMORY": 1,
         "TLV_ERR_SCHEMA": 4,
         "TLV_NEED_MORE_DATA": 2,
@@ -437,23 +431,20 @@
     "tests/unit/reader/test_iterable_reader.cpp": {
       "reason": "Malformed native Format initialization and range exception propagation.",
       "symbols": {
-        "TLV_ERR_BUFFER_TOO_SHORT": 2,
+        "TLV_ERR_TRUNCATED": 1,
         "TLV_ERR_CALLBACK": 1,
-        "TLV_ERR_END_OF_BUFFER": 1,
+        "TLV_END": 1,
         "TLV_NEED_MORE_DATA": 1,
         "tlv++/native.hpp": 1,
         "tlv::native::borrow_format": 2,
-        "tlv_format_t": 1
+        "tlv_format_t": 1,
+        "tlv_result_t": 1
       }
     },
     "tests/unit/reader/test_reader.cpp": {
       "reason": "Reader and Tree Reader diagnostic/event parity with native cursors. Shared diagnostic-result assertions check these existing native parity calls.",
       "symbols": {
         "TLV_DIAGNOSTIC_RESULT": 1,
-        "TLV_ERR_BUFFER_TOO_SHORT": 3,
-        "TLV_ERR_END_OF_BUFFER": 1,
-        "TLV_ERR_LIMIT": 1,
-        "TLV_NEED_MORE_DATA": 4,
         "TLV_OK": 3,
         "TLV_VISIT_CONTINUE": 4,
         "TLV_VISIT_STOP": 3,
@@ -469,7 +460,7 @@
         "tlv_reader_init_incremental": 1,
         "tlv_reader_next_diag": 1,
         "tlv_reader_t": 1,
-        "tlv_result_t": 1,
+        "tlv_result_t": 2,
         "tlv_tag_t": 1,
         "tlv_tree_item_t": 1,
         "tlv_tree_reader_init": 1,
@@ -480,9 +471,6 @@
     "tests/unit/test_native_boundary.cpp": {
       "reason": "Explicit C/C++ native conversion contract.",
       "symbols": {
-        "TLV_ERR_BUFFER_TOO_SHORT": 2,
-        "TLV_ERR_NULL_ARG": 1,
-        "TLV_NEED_MORE_DATA": 1,
         "TLV_SCHEMA_ISSUE_MISSING": 1,
         "TLV_SCHEMA_ISSUE_UNEXPECTED": 1,
         "TLV_SCHEMA_ORDER_ANY": 1,
@@ -510,9 +498,6 @@
     "tests/unit/test_semantic_views.cpp": {
       "reason": "Native representation isolation and malformed native imports.",
       "symbols": {
-        "TLV_ERR_INVALID_ARG": 1,
-        "TLV_ERR_NATIVE_SIZE": 1,
-        "TLV_ERR_NULL_ARG": 3,
         "TLV_OK": 1,
         "tlv++/native.hpp": 1,
         "tlv::native::borrow_element": 3,
@@ -532,10 +517,8 @@
     "tests/unit/test_tlvpp.cpp": {
       "reason": "Legacy native-format and descriptor parity; public acceptance cases live in public_api_test.cpp.",
       "symbols": {
-        "TLV_ERR_BUFFER_TOO_SHORT": 5,
-        "TLV_ERR_END_OF_BUFFER": 1,
-        "TLV_ERR_NATIVE_SIZE": 1,
-        "TLV_ERR_NULL_ARG": 1,
+        "TLV_ERR_BUFFER_TOO_SHORT": 1,
+        "TLV_ERR_TRUNCATED": 1,
         "TLV_READER_OP_VALUE": 1,
         "TLV_WRITER_OP_VALUE": 1,
         "tlv++/native.hpp": 1,
@@ -578,8 +561,7 @@
     "tests/unit/writer/test_tree_writer.cpp": {
       "reason": "Native Tree Writer callbacks and output parity.",
       "symbols": {
-        "TLV_ERR_BUFFER_TOO_SHORT": 2,
-        "TLV_ERR_INVALID_VALUE": 2,
+        "TLV_ERR_INVALID_VALUE": 1,
         "TLV_OK": 1,
         "tlv++/native.hpp": 1,
         "tlv::native::borrow_format": 10,

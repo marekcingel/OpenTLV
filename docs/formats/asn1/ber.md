@@ -162,7 +162,7 @@ tree traversal and schemas can rescan nested encodings.
 Indefinite primitive values and malformed EOC length fields return
 `TLV_ERR_INVALID_LENGTH`. Unexpected EOC in a scanned definite scope and reserved
 universal tag zero used as an ordinary element return `TLV_ERR_INVALID_TAG`.
-Missing/truncated EOC or child encodings return `TLV_ERR_BUFFER_TOO_SHORT`.
+Missing/truncated EOC or child encodings return `TLV_ERR_TRUNCATED`.
 Single-element definite reads still defer child validation to tree traversal.
 
 ### Explicit indefinite writing
@@ -244,7 +244,7 @@ full 64-bit range instead of the current build's `size_t`. The indefinite
 marker (`80` alone) and the reserved `FF` prefix are rejected with
 `TLV_ERR_INVALID_LENGTH`, as is a padded value wider than `tlv_size_t` or
 nonzero excess padding. A field that declares more length octets than
-`data_size` provides returns `TLV_ERR_BUFFER_TOO_SHORT`. It does not process
+`data_size` provides returns `TLV_ERR_TRUNCATED`. It does not process
 the indefinite-length marker's associated content or constructed EOC framing;
 use `tlv_format_ber` or `tlv_ber_write_indefinite` for that.
 
@@ -345,9 +345,9 @@ representation rules.
 Malformed tags and unterminated tags on write return `TLV_ERR_INVALID_TAG`,
 unless continuation requires bytes beyond `TLV_ASN1_TAG_MAX_SIZE`. Empty tags on write and
 tags longer than `TLV_ASN1_TAG_MAX_SIZE` return `TLV_ERR_INVALID_TAG_SIZE`. Missing tag continuation or length bytes return
-`TLV_ERR_BUFFER_TOO_SHORT`; a continuation requiring bytes beyond `TLV_ASN1_TAG_MAX_SIZE`
+`TLV_ERR_TRUNCATED`; a continuation requiring bytes beyond `TLV_ASN1_TAG_MAX_SIZE`
 returns `TLV_ERR_INVALID_TAG_SIZE` even if those bytes are missing. Empty input to
-the generic reader returns `TLV_ERR_END_OF_BUFFER`. All BER-specific encoding
+the generic reader returns `TLV_END`. All BER-specific encoding
 and validation live in the format callbacks.
 
 <!-- markdownlint-disable-next-line MD033 -->

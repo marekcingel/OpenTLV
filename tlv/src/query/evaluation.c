@@ -775,7 +775,7 @@ static tlv_result_t result_next(tlv_query_exec_t* e, tlv_tree_event_t* event, si
         }
         ++e->result_cursor;
     }
-    return TLV_ERR_END_OF_BUFFER;
+    return TLV_END;
 }
 tlv_result_t tlv_query_result_next(tlv_query_exec_t* e, tlv_tree_event_t* event) {
     return result_next(e, event, NULL);
@@ -844,7 +844,7 @@ tlv_result_t query_document_next(tlv_query_exec_t* e, void** handle) {
             return TLV_OK;
         }
     }
-    return TLV_ERR_END_OF_BUFFER;
+    return TLV_END;
 }
 
 tlv_result_t query_document_result_count(const tlv_query_exec_t* e, size_t* count) {

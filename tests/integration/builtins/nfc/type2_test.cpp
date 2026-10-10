@@ -43,7 +43,7 @@ TEST(Integration_Tlv_NfcType2, ReaderWriterExposeNullAndContinuePastTerminator) 
     EXPECT_EQ(sizeof(wire), tlv_writer_size(&writer));
     EXPECT_EQ(0, std::memcmp(wire, output, sizeof(wire)));
     tlv_element_t element{};
-    EXPECT_EQ(TLV_ERR_END_OF_BUFFER, tlv_reader_next(&reader, &element));
+    EXPECT_EQ(TLV_END, tlv_reader_next(&reader, &element));
 }
 
 TEST(Integration_Tlv_NfcType2, QueryAndDocumentPreserveControlElementsAndOffsets) {

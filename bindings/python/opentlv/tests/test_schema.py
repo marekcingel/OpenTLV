@@ -174,7 +174,7 @@ def test_structural_length_policies_and_invalid_group_are_native():
     with pytest.raises(InvalidSchemaError):
         schema.validate(bytes.fromhex("0400"))
 def test_bounded_schema_reports_copy_paths_and_count_omitted_issues():
-    from opentlv import UnknownPolicy, BufferTooShortError
+    from opentlv import UnknownPolicy, TruncatedError
     schema = StructureSchema([StructureRule(b"\x01", min_occurs=1)])
     report = schema.validate_diagnostics(bytes.fromhex("0200"), capacity=1)
     assert report.total_count == 2
@@ -187,7 +187,7 @@ def test_bounded_schema_reports_copy_paths_and_count_omitted_issues():
     assert allowed.diagnostics[0].kind_name == "missing"
     assert allowed.diagnostics[0].offset == 2
     assert allowed.diagnostics[0].location.kind == "scope_end"
-    with pytest.raises(BufferTooShortError):
+    with pytest.raises(TruncatedError):
         schema.validate_diagnostics(bytes.fromhex("0201"))
 
 
@@ -227,7 +227,7 @@ def test_detailed_schema_report_owns_names_paths_and_expected_actual():
 
 
 def test_detailed_schema_group_bounds_capacity_and_wire_errors():
-    from opentlv import SchemaBounds, StructureGroup, BufferTooShortError
+    from opentlv import SchemaBounds, StructureGroup, TruncatedError
     schema = StructureSchema([StructureRule(b"\x04", group=7)],
                              groups=[StructureGroup(7, 1, 1, name="choice")])
     issue = schema.validate_diagnostics(b"").diagnostics[0]
@@ -241,7 +241,7 @@ def test_detailed_schema_group_bounds_capacity_and_wire_errors():
     report = schema.validate_diagnostics(bytes.fromhex("0500"), capacity=0)
     assert report.total_count == 2 and report.diagnostics == ()
     assert len(schema.validate_diagnostics(bytes.fromhex("0500"), capacity=1).diagnostics) == 1
-    with pytest.raises(BufferTooShortError):
+    with pytest.raises(TruncatedError):
         schema.validate_diagnostics(bytes.fromhex("0401"))
     with pytest.raises(ValueError):
         schema.validate_diagnostics(b"", capacity=-1)

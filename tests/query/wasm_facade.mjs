@@ -64,7 +64,7 @@ for (const fixture of cases) {
             try {
               const matches = [];
               query.setInput(wire.subarray(0, split), { final: false });
-              assert.throws(() => query.visit(match => { matches.push(match.offset); }), error => error.code === 18, fixture.id);
+              assert.throws(() => query.visit(match => { matches.push(match.offset); }), error => error.code === 2, fixture.id);
               query.setInput(wire);
               query.visit(match => { matches.push(match.offset); });
               verify(query, matches);
@@ -99,23 +99,23 @@ assert.throws(() => api.loadQuery(program.image().subarray(1)));
 const query = loaded.execution({ retained: false });
 query.setInput(hexToBytes("5a0101"), { final: false });
 const first = query.next();
-assert.throws(() => query.next(), error => error.code === 18);
+assert.throws(() => query.next(), error => error.code === 2);
 query.setInput(hexToBytes("5a01015a0102"));
 query.visit(match => {
   assert.equal(match.offset, 3);
-  assert.throws(() => query.close(), error => error.code === 19 && error.query.kind === 12);
-  assert.throws(() => query.reset(), error => error.code === 19 && error.query.kind === 12);
+  assert.throws(() => query.close(), error => error.code === 12 && error.query.kind === 12);
+  assert.throws(() => query.reset(), error => error.code === 12 && error.query.kind === 12);
   return false;
 });
 assert.equal(query.next(), null);
 query.reset().setInput(hexToBytes("5a00"));
 const failure = new Error("callback failure");
 assert.throws(() => query.visit(() => { throw failure; }), error => error === failure);
-assert.throws(() => query.next(), error => error.code === 19 && error.query.kind === 12);
+assert.throws(() => query.next(), error => error.code === 12 && error.query.kind === 12);
 query.reset().setInput(hexToBytes("5a005a"));
 assert.equal(query.exists({ early_return: true }), true);
 assert.equal(query.info.full_validation, 0);
-assert.throws(() => query.exists(), error => error.code === 1);
+assert.throws(() => query.exists(), error => error.code === 3);
 assert.deepEqual(first.value, hexToBytes("01"));
 program.close(); loaded.close(); query.close();
 const selected = api.compileQuery("//5A/preceding-sibling::*");
@@ -124,11 +124,11 @@ const selection = selected.execution().evaluateDocument(document);
 const node = selection.next();
 assert.deepEqual(node.value, hexToBytes("01"));
 node.setValue(hexToBytes("07"));
-assert.throws(() => selection.next(), error => error.code === 19 && error.query.kind === 12);
+assert.throws(() => selection.next(), error => error.code === 12 && error.query.kind === 12);
 selection.reset().evaluateDocument(document);
 assert.deepEqual(selection.next().value, hexToBytes("07"));
 document.close();
-assert.throws(() => selection.next(), error => error.code === 19 && error.query.kind === 12);
+assert.throws(() => selection.next(), error => error.code === 12 && error.query.kind === 12);
 selection.reset(); selection.close(); selected.close();
 console.log(`JS/WASM public Query facade: ${cases.length} fixtures, ${checks} backend/window checks passed`);
 
@@ -141,7 +141,7 @@ const custom = api.compileQuery("num(//5A)", { providers });
 assert.equal(custom.evaluate(hexToBytes("5a0103")), -30);
 assert.equal(metadataSeen.at(-1).offset, 0);
 const customImage = custom.image();
-assert.throws(() => api.QueryProgram.load(customImage), error => error.code === 14 && error.query.kind === 15);
+assert.throws(() => api.QueryProgram.load(customImage), error => error.code === 7 && error.query.kind === 15);
 const customLoaded = api.QueryProgram.load(customImage, { providers });
 assert.equal(customLoaded.evaluate(hexToBytes("5a0104")), -40);
 const ongoing = custom.execution().setInput(hexToBytes("5a0105"));
@@ -157,14 +157,14 @@ textProvider.close();
 const shortProvider = api.compileQuery("text(//5A)", { providers: {
   text: { id: 102, max_result_bytes: 2, decode: () => "a\0b" },
 } });
-assert.throws(() => shortProvider.evaluate(hexToBytes("5a00")), error => error.code === 1 && error.query.codec === 1 && error.query.codec_detail.reported === 1 && error.query.codec_detail.operation === 0);
+assert.throws(() => shortProvider.evaluate(hexToBytes("5a00")), error => error.code === 14 && error.query.codec === 14 && error.query.codec_detail.reported === 14 && error.query.codec_detail.operation === 0);
 shortProvider.close();
 let active;
 const reentrant = api.compileQuery("num(//5A)", { providers: {
   num: { id: 103, decode: () => { active.reset(); return 1; } },
 } });
 active = reentrant.execution().setInput(hexToBytes("5a00"));
-assert.throws(() => active.finish(), error => error.code === 19 && error.query.kind === 12);
+assert.throws(() => active.finish(), error => error.code === 12 && error.query.kind === 12);
 active.reset(); active.close(); reentrant.close();
 const exceptional = api.compileQuery("num(//5A)", { providers: {
   num: { id: 104, decode: () => { throw null; } },
@@ -175,7 +175,7 @@ console.log("JS/WASM custom providers: lifetime, image compatibility, bounded re
 const feedProgram = api.compileQuery("//5A");
 const feedExecution = feedProgram.execution({ retained: false });
 assert.equal(feedExecution.feed({ kind: "element", tag: hexToBytes("5a"), value: hexToBytes("01") }).offset, 0);
-assert.throws(() => feedExecution.setInput(hexToBytes("5a00")), error => error.code === 19 && error.query.kind === 12);
+assert.throws(() => feedExecution.setInput(hexToBytes("5a00")), error => error.code === 12 && error.query.kind === 12);
 feedExecution.finish();
 assert.equal(feedExecution.info.full_validation, 1);
 feedExecution.reset();
@@ -193,10 +193,10 @@ const editingDocument = api.document(hexToBytes("70065a01015a01025a0103"));
 const editingProgram = api.compileQuery("//5A");
 const editing = editingProgram.execution().evaluateDocument(editingDocument);
 assert.throws(() => editing.editDocument("replace", { value: hexToBytes("09"), target_capacity: 2 }),
-  error => error.code === 1 && error.applied === 0);
+  error => error.code === 14 && error.applied === 0);
 assert.deepEqual(editingDocument.first.firstChild.value, hexToBytes("01"));
 assert.equal(editing.editDocument("replace", { value: hexToBytes("09"), target_capacity: 3 }), 3);
-assert.throws(() => editing.next(), error => error.code === 19 && error.query.kind === 12);
+assert.throws(() => editing.next(), error => error.code === 12 && error.query.kind === 12);
 editing.reset().evaluateDocument(editingDocument);
 assert.equal(editing.editDocument("insert_after", { tag: hexToBytes("5b"), value: hexToBytes("04") }), 3);
 const ancestorProgram = api.compileQuery("//70 | //5A");
@@ -259,10 +259,10 @@ const schemaProviderAssertion = api.compileQuery("num(.) = 1", { providers: { nu
   id: 201, decode(value, metadata) {
     if (throwSchemaProvider) throw schemaMarker;
     assert.deepEqual(metadata.tag, hexToBytes("5a"));
-    assert.throws(() => schemaDocument.close(), error => error.code === 19 && error.query.kind === 12);
-    assert.throws(() => schemaDocument.first.erase(), error => error.code === 19 && error.query.kind === 12);
-    assert.throws(() => schemaProvider.close(), error => error.code === 19 && error.query.kind === 12);
-    assert.throws(() => schemaProvider.validateDocument(schemaDocument), error => error.code === 19 && error.query.kind === 12);
+    assert.throws(() => schemaDocument.close(), error => error.code === 12 && error.query.kind === 12);
+    assert.throws(() => schemaDocument.first.erase(), error => error.code === 12 && error.query.kind === 12);
+    assert.throws(() => schemaProvider.close(), error => error.code === 12 && error.query.kind === 12);
+    assert.throws(() => schemaProvider.validateDocument(schemaDocument), error => error.code === 12 && error.query.kind === 12);
     return value[0];
   },
 } } });
@@ -276,7 +276,7 @@ const reverseContext = api.compileQuery("//5A[2]");
 const reverseAssertion = api.compileQuery("exists(preceding::5A)");
 const reverseSchema = api.querySchema([{ context: reverseContext, assertion: reverseAssertion }]);
 const siblingInput = hexToBytes("70065a01015a0102");
-assert.throws(() => reverseSchema.validateBuffer(siblingInput), error => error.code === 15);
+assert.throws(() => reverseSchema.validateBuffer(siblingInput), error => error.code === 19);
 const siblingDocument = api.document(siblingInput);
 reverseSchema.validateDocument(siblingDocument);
 reverseSchema.close(); reverseContext.close(); reverseAssertion.close(); siblingDocument.close();
@@ -296,7 +296,7 @@ assert.throws(() => api.compileQuery("//name('a','missing')", { resolve: definit
 let resolutions = 0;
 assert.throws(() => api.compileQuery("//name('a','changing')", {
   resolve: () => Uint8Array.of(++resolutions === 1 ? 0x5a : 0x5b),
-}), error => error.code === 14 && error.query.kind === 15);
+}), error => error.code === 7 && error.query.kind === 15);
 assert.ok(resolutions >= 2);
 const resolverMarker = { resolver: "failed" };
 assert.throws(() => api.compileQuery("//name('a','x')", { resolve() { throw resolverMarker; } }), error => error === resolverMarker);
@@ -308,7 +308,7 @@ assert.equal(unqualified.evaluate(hexToBytes("5a00")).length, 1);
 unqualified.close();
 assert.throws(() => api.compileQuery("//name('','x')", { resolve: api.definitionResolver({
   a: [{ name: "x", tag: hexToBytes("01") }], b: [{ name: "x", tag: hexToBytes("02") }],
-}) }), error => error.code === 10);
+}) }), error => error.code === 11);
 
 // Optional tag capabilities have stable image identities and owned callback lifetimes.
 const fixedFormat = api.Format.fixed({ tag_size: 2, length_size: 2, byte_order: "little", element_order: "ltv", length_scope: "tag-and-value" });
@@ -316,9 +316,9 @@ const fixedInput = hexToBytes("0300123407");
 const adapter = { id: 311, numberOf: tag => BigInt(tag[0] * 256 + tag[1]) };
 const tagged = api.compileQuery("//*[number()=4660]", { format: fixedFormat, tags: adapter });
 assert.equal(tagged.evaluate(fixedInput).length, 1);
-assert.throws(() => api.compileQuery("//*[class()=1]", { format: fixedFormat, tags: adapter }), error => error.code === 15);
+assert.throws(() => api.compileQuery("//*[class()=1]", { format: fixedFormat, tags: adapter }), error => error.code === 19);
 const taggedImage = tagged.image();
-assert.throws(() => api.loadQuery(taggedImage, { format: fixedFormat, tags: { ...adapter, id: 312 } }), error => error.code === 14 && error.query.kind === 15);
+assert.throws(() => api.loadQuery(taggedImage, { format: fixedFormat, tags: { ...adapter, id: 312 } }), error => error.code === 7 && error.query.kind === 15);
 const taggedLoaded = api.loadQuery(taggedImage, { format: fixedFormat, tags: adapter });
 const taggedExecution = taggedLoaded.execution().setInput(fixedInput);
 const fixedDocument = api.document(fixedInput, { format: fixedFormat });
@@ -329,12 +329,12 @@ taggedExecution.close(); fixedDocument.close();
 let tagExecution;
 const tagMarker = { tag: "failed" };
 const tagErrors = api.compileQuery("//*[class()=1]", { tags: { id: 313, classOf() {
-  assert.throws(() => tagExecution.reset(), error => error.code === 19 && error.query.kind === 12);
+  assert.throws(() => tagExecution.reset(), error => error.code === 12 && error.query.kind === 12);
   throw tagMarker;
 } } });
 tagExecution = tagErrors.execution().setInput(hexToBytes("5a00"));
 assert.throws(() => tagExecution.next(), error => error === tagMarker);
-assert.throws(() => tagExecution.next(), error => error.code === 19 && error.query.kind === 12);
+assert.throws(() => tagExecution.next(), error => error.code === 12 && error.query.kind === 12);
 tagExecution.reset(); tagExecution.close(); tagErrors.close();
 for (const marker of [null, undefined, new api.QueryError(5)]) {
   const p = api.compileQuery("//*[number()=1]", { tags: { id: 314, numberOf() { throw marker; } } });
@@ -366,8 +366,8 @@ const formatMarker = { format: "failed" };
 customFormat = api.Format.custom({
   decode(input) {
     if (formatFailure) throw formatMarker;
-    assert.throws(() => customFormat.close(), error => error.code === 19 && error.query.kind === 12);
-    if (input.length < 2 || input.length < input[1] + 2) return { code: 1 };
+    assert.throws(() => customFormat.close(), error => error.code === 12 && error.query.kind === 12);
+    if (input.length < 2 || input.length < input[1] + 2) return { code: 3 };
     return { tag: Uint8Array.of(input[0] ^ 0xff), header: { offset: 0, size: 2 },
       tagRange: { offset: 0, size: 1 }, lengthRange: { offset: 1, size: 1 },
       value: { offset: 2, size: input[1] } };
@@ -377,7 +377,7 @@ customFormat = api.Format.custom({
     return { header: 2, value: element.valueSize };
   },
   encode(element) {
-    if (customDocument) assert.throws(() => customDocument.close(), error => error.code === 19 && error.query.kind === 12);
+    if (customDocument) assert.throws(() => customDocument.close(), error => error.code === 12 && error.query.kind === 12);
     return Uint8Array.of(element.tag[0] ^ 0xff, element.valueSize, ...element.value);
   },
 });
@@ -405,7 +405,7 @@ assert.equal(customFormatExecution.next().value[0], 7);
 customSchema.validateBuffer(customWire); customSchema.close();
 customFormatExecution.close(); customDocument.close(); customDocument = null;
 const readOnlyFormat = api.Format.custom({ decode(input) {
-  if (!input.length) return { code: 1 };
+  if (!input.length) return { code: 3 };
   return { tag: input.subarray(0, 1), header: { offset: 0, size: 1 }, value: { offset: 1, size: 0 } };
 } });
 const readOnlyProgram = api.compileQuery("//51", { format: readOnlyFormat });
@@ -439,11 +439,11 @@ assert.equal(legacyMatcher.feed(hexToBytes("5a"), 1), true);
 legacyMatcher.reset(); legacyMatcher.close();
 assert.throws(() => new api.V1Query("70\0/5a"));
 assert.throws(() => new api.V1Query("70/5"), error =>
-  error.code === 10 && error.query.kind_name === "syntax" && error.query.begin === 3 && error.query.end === 4);
+  error.code === 8 && error.query.kind_name === "syntax" && error.query.begin === 3 && error.query.end === 4);
 assert.throws(() => new api.V1Query(Array(66).fill("5a").join("/")), error =>
-  error.code === 8 && error.query.kind_name === "limit" && error.location.domain === "expression");
+  error.code === 15 && error.query.kind_name === "limit" && error.location.domain === "expression");
 assert.throws(() => new api.V1Query("5a".repeat(513)), error =>
-  error.code === 8 && error.query.kind_name === "limit");
+  error.code === 15 && error.query.kind_name === "limit");
 const requirements = api.compileQuery("//5A[num(.)=$amount]", { variables: { unused: "bytes", amount: "integer" } });
 assert.deepEqual(requirements.variables, { amount: "integer" });
 const requiredLoaded = api.loadQuery(requirements.image(), { variables: { amount: "integer" } });
@@ -452,7 +452,7 @@ requiredLoaded.close(); requirements.close();
 const diagnosticProgram = api.compileQuery("//5A");
 let readerFailure;
 assert.throws(() => diagnosticProgram.evaluate(hexToBytes("5a82010200")), error => {
-  readerFailure = error; return error.code === 1 && error.query.reader.raw_length === "820102";
+  readerFailure = error; return error.code === 3 && error.query.reader.raw_length === "820102";
 });
 diagnosticProgram.close();
 assert.equal(readerFailure.query.reader.declared_length, 258);
@@ -462,7 +462,7 @@ assert.equal(readerFailure.query.diagnostic.path_omitted, 0);
 assert.equal(readerFailure.query.reader.path_omitted, undefined);
 assert.equal(readerFailure.query.kind_name, "reader");
 assert.equal(readerFailure.query.reader.operation_name, "value");
-assert.equal(readerFailure.message, "buffer too short");
+assert.equal(readerFailure.message, "truncated input");
 assert.throws(() => api.compileQuery("/"), error =>
   error.query.kind_name === "syntax" && error.location.domain === "expression");
 let nestedFailureWire = hexToBytes("5a0300");

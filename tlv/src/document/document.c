@@ -610,7 +610,7 @@ tlv_result_t document_edit_targets(tlv_document_t* document, tlv_node_t** target
             }
         }
         document_memory_release(document, frames);
-        if (check != TLV_ERR_END_OF_BUFFER) return check;
+        if (check != TLV_END) return check;
     }
     size_t projected = document->count;
     for (size_t i = 0; i < count; ++i) {

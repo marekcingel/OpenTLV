@@ -64,17 +64,17 @@ static int element_checksum(tlv_tag_t tag, const uint8_t* value, size_t size, ui
 static int run_reader(workload_data_t* data, uint64_t* checksum) {
     tlv_reader_t  reader;
     tlv_element_t element;
-    tlv_result_t  rc;
     size_t        count = 0;
     *checksum = 0;
     if (tlv_reader_init(&reader, data->wire, WIRE_SIZE, &tlv_format_ber) != TLV_OK) return 0;
-    while ((rc = tlv_reader_next(&reader, &element)) == TLV_OK) {
+    while (tlv_reader_next(&reader, &element) == TLV_OK) {
         if (!element_checksum(element.tag, element.value.data, (size_t)element.value.size,
                               checksum))
             return 0;
         ++count;
     }
-    return rc == TLV_ERR_END_OF_BUFFER && count == ENTRY_COUNT && *checksum == data->all_checksum;
+    /* Clean EOF without naming the end status, so the harness builds against any revision. */
+    return tlv_reader_at_end(&reader) && count == ENTRY_COUNT && *checksum == data->all_checksum;
 }
 
 static int run_writer(workload_data_t* data, uint64_t* checksum) {

@@ -62,7 +62,11 @@ class OpenTLVError(Exception):
 
 
 class BufferTooShortError(OpenTLVError):
-    """A supplied buffer is too small for the data or output required."""
+    """A caller-supplied destination or workspace is too small."""
+
+
+class TruncatedError(OpenTLVError):
+    """Final input ends inside an element; supply complete input."""
 
 
 class InvalidLengthError(OpenTLVError):
@@ -77,8 +81,8 @@ class OutOfMemoryError(OpenTLVError):
     """An allocation failed."""
 
 
-class EndOfBufferError(OpenTLVError):
-    """No further element exists, or the input is empty."""
+class EndError(OpenTLVError):
+    """Normal end of iteration, or an empty single-read region; not a failure."""
 
 
 class InvalidTagError(OpenTLVError):
@@ -105,8 +109,12 @@ class InvalidTagSizeError(OpenTLVError):
     """Tag size violates the range supported by the operation."""
 
 
-class InvalidByteOrderError(OpenTLVError):
-    """Byte order is unknown or unsupported."""
+class InvalidSyntaxError(OpenTLVError):
+    """Text does not match the requested grammar, such as Query syntax.
+
+    Mirrors ``TLV_ERR_SYNTAX`` (``Syntax``/``ErrSyntax``/``SYNTAX`` in the other
+    bindings); named to avoid shadowing Python's built-in ``SyntaxError``.
+    """
 
 
 class ValueOverflowError(OpenTLVError):
@@ -141,28 +149,29 @@ class CallbackError(OpenTLVError):
     """A provider violated its callback contract."""
 
 
-# Keyed by tlv_result_t; mirrors tlv/include/tlv/error.h.
+# Keyed by tlv_result_t; values come from the native module, not hard-coded numbers.
 _ERROR_TYPES = {
-    1: BufferTooShortError,
-    2: InvalidLengthError,
-    3: NullArgError,
-    4: OutOfMemoryError,
-    5: EndOfBufferError,
-    6: InvalidTagError,
-    7: VisitorError,
-    8: LimitError,
-    9: SchemaError,
-    10: InvalidArgError,
-    11: InvalidTagSizeError,
-    12: InvalidByteOrderError,
-    13: ValueOverflowError,
-    14: InvalidValueError,
-    15: UnsupportedError,
-    16: InvalidSchemaError,
-    17: NativeSizeError,
-    18: NeedMoreDataError,
-    19: InvalidStateError,
-    20: CallbackError,
+    _native.RESULT_BUFFER_TOO_SHORT: BufferTooShortError,
+    _native.RESULT_INVALID_LENGTH: InvalidLengthError,
+    _native.RESULT_NULL_ARG: NullArgError,
+    _native.RESULT_OUT_OF_MEMORY: OutOfMemoryError,
+    _native.RESULT_END: EndError,
+    _native.RESULT_INVALID_TAG: InvalidTagError,
+    _native.RESULT_VISITOR: VisitorError,
+    _native.RESULT_LIMIT: LimitError,
+    _native.RESULT_SCHEMA: SchemaError,
+    _native.RESULT_INVALID_ARG: InvalidArgError,
+    _native.RESULT_INVALID_TAG_SIZE: InvalidTagSizeError,
+    _native.RESULT_SYNTAX: InvalidSyntaxError,
+    _native.RESULT_OVERFLOW: ValueOverflowError,
+    _native.RESULT_INVALID_VALUE: InvalidValueError,
+    _native.RESULT_UNSUPPORTED: UnsupportedError,
+    _native.RESULT_INVALID_SCHEMA: InvalidSchemaError,
+    _native.RESULT_NATIVE_SIZE: NativeSizeError,
+    _native.RESULT_NEED_MORE_DATA: NeedMoreDataError,
+    _native.RESULT_INVALID_STATE: InvalidStateError,
+    _native.RESULT_CALLBACK: CallbackError,
+    _native.RESULT_TRUNCATED: TruncatedError,
 }
 
 

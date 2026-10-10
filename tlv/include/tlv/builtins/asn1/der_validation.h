@@ -90,7 +90,7 @@ typedef tlv_visit_result_t (*tlv_der_visitor_t)(const tlv_element_t* element, si
  *                          Unchanged on success.
  *
  * @return #TLV_OK on success.
- * @return #TLV_ERR_END_OF_BUFFER for empty input.
+ * @return #TLV_END for empty input; this is not a failure.
  * @return #TLV_ERR_LIMIT if a limit is exceeded.
  * @return Another error code for malformed or noncanonical input.
  *

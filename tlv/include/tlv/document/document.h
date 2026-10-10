@@ -532,7 +532,7 @@ TLV_API tlv_result_t tlv_document_query_evaluate(const tlv_document_t* document,
 /** @brief Pull the next finalized unique node handle in current Document preorder.
  * @param[in,out] exec Successfully evaluated Document node execution.
  * @param[out] node Borrowed node; unchanged on exhaustion or error.
- * @return OK, END_OF_BUFFER, NULL argument or invalid execution state/revision.
+ * @return OK, #TLV_END at exhaustion, NULL argument or invalid execution state/revision.
  * @note Document and Value storage must remain alive and unchanged. First is one pull;
  * all is repeated pulls. Any successful Document edit rejects subsequent pulls
  * before dereferencing retained nodes. Iteration allocates nothing and also works

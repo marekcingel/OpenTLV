@@ -53,7 +53,7 @@ fn current_subtree_cannot_reuse_a_stale_selection() {
                 .unwrap(),
             _ => {
                 reader.read().unwrap();
-                assert_eq!(reader.read().unwrap_err(), Error::EndOfBuffer);
+                assert_eq!(reader.read().unwrap_err(), Error::End);
             }
         }
         assert_eq!(
@@ -88,7 +88,7 @@ fn builder_resumes_and_materializes_selected_subtree_without_sibling_decode() {
         builder.consume().unwrap()
     };
     assert_eq!(document.encode().unwrap(), &input[..5]);
-    assert_eq!(reader.read().err().unwrap(), Error::BufferTooShort);
+    assert_eq!(reader.read().err().unwrap(), Error::Truncated);
 }
 
 #[test]
@@ -147,7 +147,7 @@ fn failed_mutation_preserves_document_and_encoding_capacity_is_reported() {
     let mut document = Document::parse(&[0x30, 3, 4, 1, 42], Format::Ber, 2, 2).unwrap();
     assert_eq!(
         document.first_mut().unwrap().set_value(&[4, 2]),
-        Err(Error::BufferTooShort)
+        Err(Error::Truncated)
     );
     assert_eq!(
         document
@@ -216,7 +216,7 @@ fn parse_reports_source_offset_and_limits() {
     let error = Document::parse(&[1, 0, 2, 2], Format::Ber, 64, 100)
         .err()
         .unwrap();
-    assert_eq!(error.error, Error::BufferTooShort);
+    assert_eq!(error.error, Error::Truncated);
     assert_eq!(error.offset, Some(4));
     assert_eq!(error.location.domain, opentlv::LocationDomain::Input);
     assert_eq!(

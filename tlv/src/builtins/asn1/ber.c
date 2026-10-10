@@ -40,12 +40,12 @@ tlv_result_t tlv_ber_tag_number(const tlv_tag_t* tag, uint64_t* number) {
 
 static tlv_result_t scan_failure(tlv_format_error_t* error, tlv_result_t code, size_t offset,
                                  tlv_region_t region, int bounded) {
-    if (code == TLV_ERR_BUFFER_TOO_SHORT && bounded) code = TLV_ERR_INVALID_LENGTH;
+    if (code == TLV_ERR_TRUNCATED && bounded) code = TLV_ERR_INVALID_LENGTH;
     if (error) {
         error->region = region;
         error->offset = offset;
         error->has_offset = 1;
-        if (region == TLV_REGION_TRAILER && code == TLV_ERR_BUFFER_TOO_SHORT) {
+        if (region == TLV_REGION_TRAILER && code == TLV_ERR_TRUNCATED) {
             error->has_required = 1;
             error->required = TLV_BER_EOC_SIZE;
         }
@@ -72,7 +72,7 @@ tlv_result_t tlv_ber_scan_contents_diag(const uint8_t* data, size_t size, int in
         int child_indefinite, constructed;
         if (pos == limit) {
             if (terminated[depth - 1])
-                return scan_failure(error, TLV_ERR_BUFFER_TOO_SHORT, pos, TLV_REGION_TRAILER,
+                return scan_failure(error, TLV_ERR_TRUNCATED, pos, TLV_REGION_TRAILER,
                                     bounded[depth - 1]);
             if (--depth == 0) {
                 *value_size = pos;
@@ -84,8 +84,7 @@ tlv_result_t tlv_ber_scan_contents_diag(const uint8_t* data, size_t size, int in
         if (data[pos] == 0) {
             region = TLV_REGION_TRAILER;
             if (limit - pos < TLV_BER_EOC_SIZE)
-                return scan_failure(error, TLV_ERR_BUFFER_TOO_SHORT, pos, region,
-                                    bounded[depth - 1]);
+                return scan_failure(error, TLV_ERR_TRUNCATED, pos, region, bounded[depth - 1]);
             if (data[pos + 1] != 0)
                 return scan_failure(error, TLV_ERR_INVALID_LENGTH, pos, region, bounded[depth - 1]);
             if (!terminated[depth - 1])
@@ -104,7 +103,7 @@ tlv_result_t tlv_ber_scan_contents_diag(const uint8_t* data, size_t size, int in
         pos += tag_size;
         region = TLV_REGION_LENGTH;
         if (pos == limit)
-            return scan_failure(error, TLV_ERR_BUFFER_TOO_SHORT, pos, region, bounded[depth - 1]);
+            return scan_failure(error, TLV_ERR_TRUNCATED, pos, region, bounded[depth - 1]);
         constructed = tlv_asn1_is_constructed(NULL, &tag);
         child_indefinite = data[pos] == TLV_BER_LENGTH_LONG_FORM_BIT;
         if (child_indefinite) {
@@ -122,8 +121,7 @@ tlv_result_t tlv_ber_scan_contents_diag(const uint8_t* data, size_t size, int in
                     error->has_required = 1;
                     error->required = length;
                 }
-                return scan_failure(error, TLV_ERR_BUFFER_TOO_SHORT, pos, region,
-                                    bounded[depth - 1]);
+                return scan_failure(error, TLV_ERR_TRUNCATED, pos, region, bounded[depth - 1]);
             }
         }
         if (constructed) {

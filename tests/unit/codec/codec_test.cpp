@@ -147,15 +147,14 @@ TEST(Unit_Tlv_Codec, SharedResultsAndCallbackEvidenceAreLossless) {
             }};
         unsigned char          value = 0;
         tlv_codec_diagnostic_t diagnostic{};
-        const auto decode = reported == TLV_ERR_END_OF_BUFFER ? TLV_ERR_CALLBACK : reported;
+        const auto             decode = reported == TLV_END ? TLV_ERR_CALLBACK : reported;
         EXPECT_EQ(decode, tlv_codec_decode(&codec, nullptr, 0, &value, 1, &diagnostic));
         EXPECT_EQ(decode, diagnostic.diagnostic.code);
         EXPECT_EQ(reported, diagnostic.codec.reported);
         EXPECT_EQ(decode, tlv_codec_decode(&codec, nullptr, 0, &value, 1, nullptr));
         size_t     written = 99;
-        const auto encode = reported == TLV_ERR_END_OF_BUFFER || reported == TLV_NEED_MORE_DATA
-                                ? TLV_ERR_CALLBACK
-                                : reported;
+        const auto encode =
+            reported == TLV_END || reported == TLV_NEED_MORE_DATA ? TLV_ERR_CALLBACK : reported;
         EXPECT_EQ(encode, tlv_codec_encode(&codec, &value, 1, nullptr, 0, &written, &diagnostic));
         EXPECT_EQ(encode, diagnostic.diagnostic.code);
         EXPECT_EQ(reported, diagnostic.codec.reported);

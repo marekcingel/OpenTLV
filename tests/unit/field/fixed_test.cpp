@@ -39,7 +39,7 @@ TEST(Unit_Tlv_FixedField, IdentifierFailuresPreserveOutputsAndBuffer) {
     tlv_tag_t                    tag = tlv_tag(input + 1, 2);
     size_t                       consumed = 99;
     for (size_t available = 0; available < config.size; ++available) {
-        EXPECT_EQ(TLV_ERR_BUFFER_TOO_SHORT,
+        EXPECT_EQ(TLV_ERR_TRUNCATED,
                   tlv_fixed_identifier_read(&config, input, available, &tag, &consumed));
         EXPECT_EQ(input + 1, tag.data);
         EXPECT_EQ(2u, tag.size);
@@ -88,7 +88,7 @@ TEST(Unit_Tlv_FixedField, IdentifierValidatesConfigurationAndRequiredArguments) 
     const tlv_tag_t missing_bytes = tlv_tag(nullptr, 2);
     EXPECT_EQ(TLV_ERR_NULL_ARG,
               tlv_fixed_identifier_write(&valid, &missing_bytes, &output, 1, &used));
-    EXPECT_EQ(TLV_ERR_BUFFER_TOO_SHORT, tlv_fixed_identifier_read(&valid, nullptr, 0, &tag, &used));
+    EXPECT_EQ(TLV_ERR_TRUNCATED, tlv_fixed_identifier_read(&valid, nullptr, 0, &tag, &used));
     EXPECT_EQ(input, tag.data);
     EXPECT_EQ(1u, tag.size);
     EXPECT_EQ(0u, used);
@@ -145,7 +145,7 @@ TEST(Unit_Tlv_FixedField, LengthTruncationReportsPrefixAndWritesRemainAtomic) {
         for (size_t available = 0; available < width; ++available) {
             tlv_size_t value = 42;
             size_t     consumed = 99;
-            EXPECT_EQ(TLV_ERR_BUFFER_TOO_SHORT,
+            EXPECT_EQ(TLV_ERR_TRUNCATED,
                       tlv_fixed_length_read(&config, input, available, &value, &consumed));
             EXPECT_EQ(42u, value);
             EXPECT_EQ(available, consumed);
@@ -197,14 +197,12 @@ TEST(Unit_Tlv_FixedField, LengthConfigurationErrorsPreserveBothOutputs) {
     }
     for (auto order : {TLV_BYTE_ORDER_UNKNOWN}) {
         const tlv_fixed_length_t invalid{2, order};
-        EXPECT_EQ(TLV_ERR_INVALID_BYTE_ORDER,
+        EXPECT_EQ(TLV_ERR_INVALID_ARG,
                   tlv_fixed_length_read(&invalid, input, sizeof(input), &value, &used));
-        EXPECT_EQ(TLV_ERR_INVALID_BYTE_ORDER,
-                  tlv_fixed_length_read(&invalid, nullptr, 0, &value, &used));
-        EXPECT_EQ(TLV_ERR_INVALID_BYTE_ORDER,
+        EXPECT_EQ(TLV_ERR_INVALID_ARG, tlv_fixed_length_read(&invalid, nullptr, 0, &value, &used));
+        EXPECT_EQ(TLV_ERR_INVALID_ARG,
                   tlv_fixed_length_write(&invalid, 0, output.data(), output.size(), &used));
-        EXPECT_EQ(TLV_ERR_INVALID_BYTE_ORDER,
-                  tlv_fixed_length_write(&invalid, 0, nullptr, 0, &used));
+        EXPECT_EQ(TLV_ERR_INVALID_ARG, tlv_fixed_length_write(&invalid, 0, nullptr, 0, &used));
     }
     EXPECT_EQ(42u, value);
     EXPECT_EQ(99u, used);
@@ -231,7 +229,7 @@ TEST(Unit_Tlv_FixedField, LengthValidatesRequiredArgumentsBeforeConfiguration) {
     EXPECT_EQ(99u, used);
     EXPECT_EQ(0xCC, output[0]);
     EXPECT_EQ(0xCC, output[1]);
-    EXPECT_EQ(TLV_ERR_BUFFER_TOO_SHORT, tlv_fixed_length_read(&valid, nullptr, 0, &value, &used));
+    EXPECT_EQ(TLV_ERR_TRUNCATED, tlv_fixed_length_read(&valid, nullptr, 0, &value, &used));
     EXPECT_EQ(42u, value);
     EXPECT_EQ(0u, used);
 }

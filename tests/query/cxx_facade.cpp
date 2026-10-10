@@ -176,7 +176,7 @@ int main(int argc, char** argv) {
         for (;;) {
             auto item = reader.next();
             if (!item) {
-                if (item.error().code != TLV_ERR_END_OF_BUFFER) return 2;
+                if (item.error().status() != tlv::errc::end) return 2;
                 break;
             }
             if (!node) return 2;
@@ -197,8 +197,7 @@ int main(int argc, char** argv) {
             for (;;) {
                 auto selected = document->next(*execution);
                 if (!selected) {
-                    if (selected.error().code != TLV_ERR_END_OF_BUFFER)
-                        return fail(selected.error());
+                    if (selected.error().code != TLV_END) return fail(selected.error());
                     break;
                 }
                 bool found = false;

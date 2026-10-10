@@ -127,7 +127,7 @@ TEST(Unit_Tlv_Dhcpv4, TruncationDiagnosticsAndUnchangedDecodeOutput) {
         tlv_decoded_t decoded{};
         decoded.source.size = 999;
         tlv_format_error_t error{};
-        EXPECT_EQ(size ? TLV_ERR_BUFFER_TOO_SHORT : TLV_ERR_END_OF_BUFFER,
+        EXPECT_EQ(size ? TLV_ERR_TRUNCATED : TLV_END,
                   tlv_format_decode(&tlv_format_dhcpv4, wire, size, &decoded, &error));
         EXPECT_EQ(999u, decoded.source.size);
         if (size) {

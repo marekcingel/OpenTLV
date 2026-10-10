@@ -17,16 +17,18 @@ use opentlv_sys as native;
 #[derive(Clone, Copy, Debug, PartialEq, Eq, Hash)]
 #[non_exhaustive]
 pub enum Error {
-    /// A supplied buffer is too small for the data or output required.
+    /// A caller-supplied destination or workspace is too small.
     BufferTooShort,
+    /// Final input ends inside an element; supply complete input.
+    Truncated,
     /// A length is malformed, out of range, or not representable as `usize`.
     InvalidLength,
     /// A required pointer argument is `NULL`.
     NullArg,
     /// An allocation failed.
     OutOfMemory,
-    /// No further element exists, or the input is empty.
-    EndOfBuffer,
+    /// Normal end of iteration, or empty single-read input; not a failure.
+    End,
     /// A tag is malformed or invalid for the format or standard.
     InvalidTag,
     /// A visitor callback requested an error stop.
@@ -39,8 +41,8 @@ pub enum Error {
     InvalidArg,
     /// Tag size violates the range supported by the operation.
     InvalidTagSize,
-    /// Byte order is unknown or unsupported.
-    InvalidByteOrder,
+    /// Text does not match the requested grammar, such as Query syntax.
+    Syntax,
     /// An unsigned value cannot fit the requested numeric width.
     Overflow,
     /// Data or its application representation is invalid for the requested interpretation.
@@ -70,17 +72,18 @@ impl Error {
         Some(match code {
             native::TLV_OK => return None,
             native::TLV_ERR_BUFFER_TOO_SHORT => Error::BufferTooShort,
+            native::TLV_ERR_TRUNCATED => Error::Truncated,
             native::TLV_ERR_INVALID_LENGTH => Error::InvalidLength,
             native::TLV_ERR_NULL_ARG => Error::NullArg,
             native::TLV_ERR_OUT_OF_MEMORY => Error::OutOfMemory,
-            native::TLV_ERR_END_OF_BUFFER => Error::EndOfBuffer,
+            native::TLV_END => Error::End,
             native::TLV_ERR_INVALID_TAG => Error::InvalidTag,
             native::TLV_ERR_VISITOR => Error::Visitor,
             native::TLV_ERR_LIMIT => Error::Limit,
             native::TLV_ERR_SCHEMA => Error::Schema,
             native::TLV_ERR_INVALID_ARG => Error::InvalidArg,
             native::TLV_ERR_INVALID_TAG_SIZE => Error::InvalidTagSize,
-            native::TLV_ERR_INVALID_BYTE_ORDER => Error::InvalidByteOrder,
+            native::TLV_ERR_SYNTAX => Error::Syntax,
             native::TLV_ERR_OVERFLOW => Error::Overflow,
             native::TLV_ERR_INVALID_VALUE => Error::InvalidValue,
             native::TLV_ERR_UNSUPPORTED => Error::Unsupported,
@@ -97,17 +100,18 @@ impl Error {
     pub fn code(self) -> i32 {
         match self {
             Error::BufferTooShort => native::TLV_ERR_BUFFER_TOO_SHORT,
+            Error::Truncated => native::TLV_ERR_TRUNCATED,
             Error::InvalidLength => native::TLV_ERR_INVALID_LENGTH,
             Error::NullArg => native::TLV_ERR_NULL_ARG,
             Error::OutOfMemory => native::TLV_ERR_OUT_OF_MEMORY,
-            Error::EndOfBuffer => native::TLV_ERR_END_OF_BUFFER,
+            Error::End => native::TLV_END,
             Error::InvalidTag => native::TLV_ERR_INVALID_TAG,
             Error::Visitor => native::TLV_ERR_VISITOR,
             Error::Limit => native::TLV_ERR_LIMIT,
             Error::Schema => native::TLV_ERR_SCHEMA,
             Error::InvalidArg => native::TLV_ERR_INVALID_ARG,
             Error::InvalidTagSize => native::TLV_ERR_INVALID_TAG_SIZE,
-            Error::InvalidByteOrder => native::TLV_ERR_INVALID_BYTE_ORDER,
+            Error::Syntax => native::TLV_ERR_SYNTAX,
             Error::Overflow => native::TLV_ERR_OVERFLOW,
             Error::InvalidValue => native::TLV_ERR_INVALID_VALUE,
             Error::Unsupported => native::TLV_ERR_UNSUPPORTED,
@@ -144,27 +148,32 @@ impl error::Error for Error {}
 mod tests {
     use super::*;
 
-    const KNOWN: [(i32, Error); 20] = [
-        (1, Error::BufferTooShort),
-        (2, Error::InvalidLength),
-        (3, Error::NullArg),
-        (4, Error::OutOfMemory),
-        (5, Error::EndOfBuffer),
-        (6, Error::InvalidTag),
-        (7, Error::Visitor),
-        (8, Error::Limit),
-        (9, Error::Schema),
-        (10, Error::InvalidArg),
-        (11, Error::InvalidTagSize),
-        (12, Error::InvalidByteOrder),
-        (13, Error::Overflow),
-        (14, Error::InvalidValue),
-        (15, Error::Unsupported),
-        (16, Error::InvalidSchema),
-        (17, Error::NativeSize),
-        (18, Error::NeedMoreData),
-        (19, Error::InvalidState),
-        (20, Error::Callback),
+    const KNOWN: [(i32, Error, &str); 21] = [
+        (1, Error::End, "end of iteration"),
+        (2, Error::NeedMoreData, "need more data"),
+        (3, Error::Truncated, "truncated input"),
+        (4, Error::InvalidTag, "invalid tag"),
+        (5, Error::InvalidTagSize, "invalid tag size"),
+        (6, Error::InvalidLength, "invalid length encoding"),
+        (
+            7,
+            Error::InvalidValue,
+            "invalid data or application representation",
+        ),
+        (8, Error::Syntax, "syntax error"),
+        (9, Error::Schema, "schema constraint violated"),
+        (10, Error::NullArg, "null argument"),
+        (11, Error::InvalidArg, "invalid argument"),
+        (12, Error::InvalidState, "invalid state"),
+        (13, Error::InvalidSchema, "invalid schema definition"),
+        (14, Error::BufferTooShort, "buffer too short"),
+        (15, Error::Limit, "resource limit exceeded"),
+        (16, Error::Overflow, "numeric overflow"),
+        (17, Error::NativeSize, "native address space exceeded"),
+        (18, Error::OutOfMemory, "out of memory"),
+        (19, Error::Unsupported, "unsupported capability"),
+        (20, Error::Visitor, "visitor error"),
+        (21, Error::Callback, "callback contract violated"),
     ];
 
     #[test]
@@ -175,7 +184,7 @@ mod tests {
 
     #[test]
     fn every_known_code_round_trips() {
-        for (code, error) in KNOWN {
+        for (code, error, _) in KNOWN {
             assert_eq!(Error::from_code(code), Some(error));
             assert_eq!(error.code(), code);
             assert_eq!(Error::check(code), Err(error));
@@ -190,10 +199,9 @@ mod tests {
 
     #[test]
     fn display_uses_the_c_description() {
-        for (_, error) in KNOWN {
-            let text = error.to_string();
-            assert!(!text.is_empty());
-            assert_ne!(text, "unknown error", "{error:?}");
+        // Exact C texts catch a sys constant that drifted to another result.
+        for (_, error, text) in KNOWN {
+            assert_eq!(error.to_string(), text, "{error:?}");
         }
         assert_eq!(Error::Unknown(999).to_string(), "unknown error");
     }

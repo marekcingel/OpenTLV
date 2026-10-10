@@ -215,7 +215,7 @@ static tlv_result_t measure_next(void* context, tlv_element_t* element, size_t* 
                                  int* constructed) {
     measure_source* source = context;
     PyObject*       item = PyIter_Next(source->iterator);
-    if (!item) return PyErr_Occurred() ? TLV_ERR_INVALID_ARG : TLV_ERR_END_OF_BUFFER;
+    if (!item) return PyErr_Occurred() ? TLV_ERR_INVALID_ARG : TLV_END;
     PyObject * tag, *value;
     Py_ssize_t item_depth;
     if (!PyArg_ParseTuple(item, "OOnp", &tag, &value, &item_depth, constructed)) {
@@ -244,7 +244,7 @@ static tlv_result_t measure_next(void* context, tlv_element_t* element, size_t* 
 static tlv_result_t measure_event_next(void* context, tlv_tree_event_t* event) {
     measure_source* source = context;
     PyObject*       item = PyIter_Next(source->iterator);
-    if (!item) return PyErr_Occurred() ? TLV_ERR_INVALID_ARG : TLV_ERR_END_OF_BUFFER;
+    if (!item) return PyErr_Occurred() ? TLV_ERR_INVALID_ARG : TLV_END;
     PyObject * tag, *value;
     Py_ssize_t depth;
     int        kind, skipped;

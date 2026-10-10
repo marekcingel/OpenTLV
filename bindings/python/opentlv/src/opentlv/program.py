@@ -6,7 +6,8 @@ from types import MappingProxyType
 import _opentlv as _native
 from opentlv.cursor import TreeReader, Visit
 from opentlv.element import Element
-from opentlv.error import _from_native, EndOfBufferError, InvalidStateError
+from opentlv.diagnostic import QueryErrorKind
+from opentlv.error import _from_native, EndError, InvalidStateError
 from opentlv.format import _resolve_format, _format_specification
 from opentlv.fixed_format import FixedFormat
 from opentlv.tag import Tag
@@ -98,7 +99,7 @@ def _match(raw):
 
 
 class QueryProgram:
-    """Full compiled language, independent of the legacy V1 Query matcher.
+    """Full compiled language, independent of the V1 path Query matcher.
 
     C owns syntax, types, optimizer and evaluation. Owning Python storage and
     copied results allocate; the C compiler/VM remain allocation-free. Names
@@ -239,8 +240,8 @@ class QuerySchema:
     def _validate(self, input, *, max_depth=64, max_nodes=1024, max_work=10000000,
                   max_contexts=None, value_capacity=None):
         if self._busy:
-            error = InvalidStateError(19)
-            error.query = {"query_kind": 12}
+            error = InvalidStateError(_native.RESULT_INVALID_STATE)
+            error.query = {"query_kind": QueryErrorKind.STATE}
             raise error
         self._busy = True
         try:
@@ -421,7 +422,7 @@ class QueryExecution:
                 self._document._lifetimes = previous_lifetimes
 
     def next(self, reader=None):
-        """Pull one match; END_OF_BUFFER becomes StopIteration, not NEED_MORE_DATA."""
+        """Pull one match; TLV_END becomes StopIteration, not NEED_MORE_DATA."""
         self._check()
         try:
             if reader is not None:
@@ -434,7 +435,7 @@ class QueryExecution:
                 return selected[0]
             raw = _call(_native.execution_next, self._capsule)
             return self._document._wrap(raw) if self._document is not None else _match(raw)
-        except EndOfBufferError:
+        except EndError:
             raise StopIteration from None
 
     def __iter__(self):
@@ -452,7 +453,7 @@ class QueryExecution:
         try:
             raw, ordinal = _call(_native.execution_next_ordinal, self._capsule)
             return _match(raw), ordinal
-        except EndOfBufferError:
+        except EndError:
             raise StopIteration from None
         finally:
             if self._document is not None:

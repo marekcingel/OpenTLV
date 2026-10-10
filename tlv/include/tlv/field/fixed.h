@@ -53,7 +53,7 @@ typedef struct tlv_fixed_length {
  * @return #TLV_OK on success.
  * @return #TLV_ERR_NULL_ARG for a missing required pointer or NULL data with nonzero size.
  * @return #TLV_ERR_INVALID_ARG for a zero configured width.
- * @return #TLV_ERR_BUFFER_TOO_SHORT for incomplete input.
+ * @return #TLV_ERR_TRUNCATED for incomplete input.
  * @note Validation follows the order above. Argument/configuration errors preserve
  * both outputs. Incomplete input sets *consumed to size and leaves tag unchanged.
  * No allocation or copy occurs; bytes after the identifier are not inspected.
@@ -95,8 +95,8 @@ TLV_API tlv_result_t tlv_fixed_identifier_write(const tlv_fixed_identifier_t* co
  * @return #TLV_OK on success.
  * @return #TLV_ERR_NULL_ARG for a missing required pointer or NULL data with nonzero size.
  * @return #TLV_ERR_INVALID_ARG for a configured width outside one through eight bytes.
- * @return #TLV_ERR_INVALID_BYTE_ORDER for unsupported byte order.
- * @return #TLV_ERR_BUFFER_TOO_SHORT for incomplete input.
+ * @return #TLV_ERR_INVALID_ARG for an unknown byte order.
+ * @return #TLV_ERR_TRUNCATED for incomplete input.
  * @note Validation follows the order above. Argument/configuration errors leave
  * both outputs unchanged. Incomplete input sets *consumed to size. No allocation
  * or access beyond the configured width occurs.
@@ -115,7 +115,7 @@ TLV_API tlv_result_t tlv_fixed_length_read(const tlv_fixed_length_t* config, con
  * @return #TLV_OK on success.
  * @return #TLV_ERR_NULL_ARG for missing pointers or NULL data with nonzero capacity.
  * @return #TLV_ERR_INVALID_ARG for a configured width outside one through eight bytes.
- * @return #TLV_ERR_INVALID_BYTE_ORDER for unsupported byte order.
+ * @return #TLV_ERR_INVALID_ARG for an unknown byte order.
  * @return #TLV_ERR_INVALID_LENGTH if length does not fit the configured width.
  * @return #TLV_ERR_BUFFER_TOO_SHORT for insufficient destination capacity.
  * @note Validation follows the order above. The destination and *written are

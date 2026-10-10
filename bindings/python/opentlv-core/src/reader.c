@@ -312,7 +312,7 @@ static PyObject* cursor_pull(PyObject* capsule, int events) {
                             : tlv_reader_next_source_diag(&self->reader, &item.element,
                                                           &item.source, &diagnostic);
     }
-    if (code == TLV_ERR_END_OF_BUFFER) return Py_NewRef(Py_None);
+    if (code == TLV_END) return Py_NewRef(Py_None);
     if (code != TLV_OK) {
         opentlv_python_raise_reader(code, &diagnostic);
         return NULL;

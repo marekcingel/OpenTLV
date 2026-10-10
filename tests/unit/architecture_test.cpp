@@ -21,7 +21,7 @@
 namespace {
 // Deliberately different from BER: bit 7 identifies a container.
 tlv_result_t tag_read(const void*, const uint8_t* data, size_t size, tlv_tag_t* tag, size_t* used) {
-    if (!size) return TLV_ERR_BUFFER_TOO_SHORT;
+    if (!size) return TLV_ERR_TRUNCATED;
     *tag = tlv_tag(data, 1);
     *used = 1;
     return TLV_OK;
@@ -37,7 +37,7 @@ tlv_result_t tag_write(const void*, const tlv_tag_t* tag, uint8_t* data, size_t 
 }
 tlv_result_t length_read(const void*, const uint8_t* data, size_t size, tlv_size_t* length,
                          size_t* used) {
-    if (!size) return TLV_ERR_BUFFER_TOO_SHORT;
+    if (!size) return TLV_ERR_TRUNCATED;
     *length = data[0];
     *used = 1;
     return TLV_OK;
@@ -326,12 +326,12 @@ TEST(Unit_Tlv_Architecture, StructureCodecPreservesValidationCauses) {
     check(valid, sizeof valid, TLV_ERR_LIMIT);
     EXPECT_EQ(TLV_CODEC_CAUSE_READER, diagnostic.codec.cause);
     codec.max_elements = 2;
-    check(valid, sizeof valid - 1, TLV_ERR_BUFFER_TOO_SHORT);
+    check(valid, sizeof valid - 1, TLV_ERR_TRUNCATED);
     EXPECT_EQ(TLV_CODEC_CAUSE_READER, diagnostic.codec.cause);
     EXPECT_NE(TLV_LOCATION_UNKNOWN, diagnostic.diagnostic.location.kind);
     const auto copy = diagnostic;
     diagnostic = {};
-    EXPECT_EQ(TLV_ERR_BUFFER_TOO_SHORT, copy.diagnostic.code);
+    EXPECT_EQ(TLV_ERR_TRUNCATED, copy.diagnostic.code);
     EXPECT_EQ(TLV_CODEC_CAUSE_READER, copy.codec.cause);
 }
 
@@ -357,10 +357,10 @@ TEST(Unit_Tlv_Architecture, StructureEncoderKeepsOutputValidationLocation) {
     uint8_t                data[3]{};
     size_t                 written = 99;
     tlv_codec_diagnostic_t diagnostic{};
-    EXPECT_EQ(TLV_ERR_BUFFER_TOO_SHORT, tlv_structure_encode(&codec, &value, sizeof value, data,
-                                                             sizeof data, &written, &diagnostic));
+    EXPECT_EQ(TLV_ERR_TRUNCATED, tlv_structure_encode(&codec, &value, sizeof value, data,
+                                                      sizeof data, &written, &diagnostic));
     EXPECT_EQ(0u, written);
-    EXPECT_EQ(TLV_ERR_BUFFER_TOO_SHORT, diagnostic.diagnostic.code);
+    EXPECT_EQ(TLV_ERR_TRUNCATED, diagnostic.diagnostic.code);
     EXPECT_EQ(TLV_CODEC_OP_ENCODE, diagnostic.codec.operation);
     EXPECT_EQ(TLV_CODEC_CAUSE_READER, diagnostic.codec.cause);
     EXPECT_EQ(TLV_LOCATION_OUTPUT, diagnostic.diagnostic.location.domain);

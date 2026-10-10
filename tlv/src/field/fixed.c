@@ -11,7 +11,7 @@ tlv_result_t tlv_fixed_identifier_read(const tlv_fixed_identifier_t* config, con
     rc = fixed_identifier_validate(config);
     if (rc != TLV_OK) return rc;
     *consumed = size < config->size ? size : config->size;
-    if (size < config->size) return TLV_ERR_BUFFER_TOO_SHORT;
+    if (size < config->size) return TLV_ERR_TRUNCATED;
     *tag = tlv_tag(data, config->size);
     *consumed = config->size;
     return TLV_OK;
@@ -38,7 +38,7 @@ tlv_result_t tlv_fixed_length_read(const tlv_fixed_length_t* config, const uint8
     rc = fixed_length_validate(config);
     if (rc != TLV_OK) return rc;
     *consumed = size < config->size ? size : config->size;
-    if (size < config->size) return TLV_ERR_BUFFER_TOO_SHORT;
+    if (size < config->size) return TLV_ERR_TRUNCATED;
     return tlv_read_uint(data, config->size, config->byte_order, length);
 }
 

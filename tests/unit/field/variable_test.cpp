@@ -61,7 +61,7 @@ TEST(Unit_Tlv_Variable, IdentifierBoundsAndAtomicWrites) {
     tlv_tag_t     tag = tlv_tag(bytes, sizeof(bytes));
     size_t        used = 99;
     for (size_t size = 0; size < 3; ++size) {
-        EXPECT_EQ(TLV_ERR_BUFFER_TOO_SHORT,
+        EXPECT_EQ(TLV_ERR_TRUNCATED,
                   tlv_variable_identifier_read(&limited, bytes, size, &tag, &used));
         EXPECT_EQ(size, used);
         EXPECT_EQ(sizeof(bytes), tag.size);
@@ -144,7 +144,7 @@ TEST(Unit_Tlv_Variable, PaddedLengthsAndOverflowInBothByteOrders) {
         EXPECT_EQ(7u, value);
         EXPECT_EQ(128u, used);
         for (size_t size = 1; size < bytes.size(); ++size) {
-            EXPECT_EQ(TLV_ERR_BUFFER_TOO_SHORT,
+            EXPECT_EQ(TLV_ERR_TRUNCATED,
                       tlv_variable_length_read(&c, bytes.data(), size, &value, &used));
             EXPECT_EQ(size, used);
             EXPECT_EQ(7u, value);
@@ -165,8 +165,7 @@ TEST(Unit_Tlv_Variable, LengthFailuresPreserveOutputAndReportAvailablePrefix) {
               tlv_variable_length_read(&count, zero_width, 1, &value, &used));
     EXPECT_EQ(1u, used);
     EXPECT_EQ(99u, value);
-    EXPECT_EQ(TLV_ERR_BUFFER_TOO_SHORT,
-              tlv_variable_length_read(&count, nullptr, 0, &value, &used));
+    EXPECT_EQ(TLV_ERR_TRUNCATED, tlv_variable_length_read(&count, nullptr, 0, &value, &used));
     EXPECT_EQ(0u, used);
     const tlv_variable_length_t tiny = {0x80, 1, TLV_BYTE_ORDER_BIG_ENDIAN, NULL};
     const uint8_t               invalid[] = {2};
@@ -217,9 +216,9 @@ TEST(Unit_Tlv_VariableField, InvalidConfigurationPreservesOutputs) {
               tlv_variable_length_write(&invalid_length, 1, &output, 1, &used));
     invalid_length = count;
     invalid_length.byte_order = TLV_BYTE_ORDER_UNKNOWN;
-    EXPECT_EQ(TLV_ERR_INVALID_BYTE_ORDER,
+    EXPECT_EQ(TLV_ERR_INVALID_ARG,
               tlv_variable_length_read(&invalid_length, input, sizeof(input), &value, &used));
-    EXPECT_EQ(TLV_ERR_INVALID_BYTE_ORDER,
+    EXPECT_EQ(TLV_ERR_INVALID_ARG,
               tlv_variable_length_write(&invalid_length, 1, &output, 1, &used));
     EXPECT_EQ(42u, value);
     EXPECT_EQ(99u, used);
@@ -353,7 +352,7 @@ TEST(Unit_Tlv_VariablePolicies, LengthFormsBoundsAndMinimalityBothOrders) {
             EXPECT_EQ(1u, used);
         }
         const uint8_t truncated[] = {0x82, 1};
-        EXPECT_EQ(TLV_ERR_BUFFER_TOO_SHORT,
+        EXPECT_EQ(TLV_ERR_TRUNCATED,
                   tlv_variable_length_read(&config, truncated, 2, &decoded, &used));
         EXPECT_EQ(2u, used);
         uint8_t output[3] = {0xCC, 0xCC, 0xCC};

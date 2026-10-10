@@ -176,16 +176,18 @@ typedef struct tlv_decoded {
  * @param[out] error   Partial failure information; always non-NULL.
  *
  * @return #TLV_OK on success.
- * @return #TLV_ERR_BUFFER_TOO_SHORT when more input bytes are required to
+ * @return #TLV_ERR_TRUNCATED when more input bytes are required to
  *         complete the header, value or trailer. Malformed wire data must use
  *         its specific error code instead; Reader propagates this distinction.
  * @return A wire or buffer error reported by the format.
  *
  * @note Callbacks never allocate or retain data. The core initializes outputs.
- * @note Allowed results are #TLV_OK and any defined `TLV_ERR_*` error except
- * #TLV_ERR_END_OF_BUFFER. #TLV_NEED_MORE_DATA, #TLV_ERR_END_OF_BUFFER and unknown
- * result values violate the callback contract and are reported as #TLV_ERR_CALLBACK.
- * Use #TLV_ERR_BUFFER_TOO_SHORT for incomplete input, including an empty field.
+ * @note Allowed results are #TLV_OK and any defined `TLV_ERR_*` error. #TLV_END,
+ * #TLV_NEED_MORE_DATA and unknown result values violate the callback contract
+ * and are reported as #TLV_ERR_CALLBACK.
+ * Use #TLV_ERR_TRUNCATED for incomplete input, including an empty field.
+ * Decoding has no destination, so #TLV_ERR_BUFFER_TOO_SHORT is not a valid
+ * decoding result.
  */
 typedef tlv_result_t (*tlv_decode_fn)(const void* context, const uint8_t* data, size_t size,
                                       tlv_decoded_t* result, tlv_format_error_t* error);
@@ -202,9 +204,9 @@ typedef tlv_result_t (*tlv_decode_fn)(const void* context, const uint8_t* data, 
  * @return #TLV_OK on success.
  * @return #TLV_ERR_OVERFLOW if logical size arithmetic overflows.
  * @return A format error if the semantic input cannot be represented.
- * @note Allowed results are #TLV_OK and any defined `TLV_ERR_*` error except
- * #TLV_ERR_END_OF_BUFFER. #TLV_NEED_MORE_DATA, #TLV_ERR_END_OF_BUFFER and unknown
- * result values violate the callback contract and are reported as #TLV_ERR_CALLBACK.
+ * @note Allowed results are #TLV_OK and any defined `TLV_ERR_*` error. #TLV_END,
+ * #TLV_NEED_MORE_DATA and unknown result values violate the callback contract
+ * and are reported as #TLV_ERR_CALLBACK.
  */
 typedef tlv_result_t (*tlv_measure_fn)(const void* context, const tlv_element_t* element,
                                        tlv_encoding_t* encoding, tlv_format_error_t* error);
@@ -223,9 +225,9 @@ typedef tlv_result_t (*tlv_measure_fn)(const void* context, const tlv_element_t*
  * @return A format error if encoding fails.
  *
  * @warning On failure, destination bytes are unspecified.
- * @note Allowed results are #TLV_OK and any defined `TLV_ERR_*` error except
- * #TLV_ERR_END_OF_BUFFER. #TLV_NEED_MORE_DATA, #TLV_ERR_END_OF_BUFFER and unknown
- * result values violate the callback contract and are reported as #TLV_ERR_CALLBACK.
+ * @note Allowed results are #TLV_OK and any defined `TLV_ERR_*` error. #TLV_END,
+ * #TLV_NEED_MORE_DATA and unknown result values violate the callback contract
+ * and are reported as #TLV_ERR_CALLBACK.
  */
 typedef tlv_result_t (*tlv_encode_fn)(const void* context, const tlv_element_t* element,
                                       uint8_t* data, size_t capacity, size_t* written,
@@ -297,10 +299,12 @@ TLV_API int tlv_format_can_write(const tlv_format_t* format);
  *                    unchanged on success. Missing arguments yield empty detail.
  *
  * @return #TLV_OK on success.
- * @return #TLV_ERR_END_OF_BUFFER if the input is empty, without calling the decoder.
+ * @return #TLV_END if the input is empty, without calling the decoder.
  * This wrapper status is not an allowed decoder callback result.
+ * @return #TLV_ERR_TRUNCATED if the input ends inside the element.
  * @return #TLV_ERR_NULL_ARG for a missing required argument or decode callback.
- * @return #TLV_ERR_CALLBACK if the decoder violates its result or source-range contract.
+ * @return #TLV_ERR_CALLBACK if the decoder violates its result or source-range contract,
+ *         including returning #TLV_ERR_BUFFER_TOO_SHORT.
  * @return Any permitted decoder error, propagated unchanged; see the callback result contract.
  */
 TLV_API tlv_result_t tlv_format_decode(const tlv_format_t* format, const uint8_t* data, size_t size,

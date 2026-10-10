@@ -1063,7 +1063,7 @@ static int execution_next_run(lua_State* L) {
     if (q->document_ref != LUA_NOREF) {
         tlv_node_t*  node = NULL;
         tlv_result_t rc = tlv_document_query_next(q->exec, &node);
-        if (rc == TLV_ERR_END_OF_BUFFER) {
+        if (rc == TLV_END) {
             lua_pushnil(L);
             return 1;
         }
@@ -1075,7 +1075,7 @@ static int execution_next_run(lua_State* L) {
     if (q->fed && q->retained) {
         tlv_tree_event_t event;
         tlv_result_t     rc = tlv_query_result_next(q->exec, &event);
-        if (rc == TLV_ERR_END_OF_BUFFER) {
+        if (rc == TLV_END) {
             lua_pushnil(L);
             return 1;
         }
@@ -1105,7 +1105,7 @@ static int execution_ordinal_run(lua_State* L) {
     tlv_tree_event_t event;
     size_t           ordinal;
     tlv_result_t     rc = tlv_query_result_next_ordinal(q->exec, &event, &ordinal);
-    if (rc == TLV_ERR_END_OF_BUFFER) return 0;
+    if (rc == TLV_END) return 0;
     if (rc != TLV_OK) return query_error(L, rc, NULL);
     push_match(L, &event);
     lua_pushnumber(L, (lua_Number)ordinal);

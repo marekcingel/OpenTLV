@@ -73,7 +73,7 @@ typedef tlv_binary_composition_t tlv_fixed_format_t;
  *         is 0, `config->length.size` is 0 or greater than 8, or
  *         `config->element_order`/`config->length_scope` is not one of the
  *         enumerators above.
- * @return #TLV_ERR_INVALID_BYTE_ORDER if `config->length.byte_order` is neither
+ * @return #TLV_ERR_INVALID_ARG if `config->length.byte_order` is neither
  *         #TLV_BYTE_ORDER_BIG_ENDIAN nor #TLV_BYTE_ORDER_LITTLE_ENDIAN.
  *
  * @note On failure the descriptor is unchanged.

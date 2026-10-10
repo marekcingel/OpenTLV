@@ -166,8 +166,8 @@ TLV_API tlv_result_t tlv_tree_reader_set_input(tlv_tree_reader_t* reader, const 
  * @param[out] item Required output; unchanged on non-success.
  * @return #TLV_OK when one item is published.
  * @return #TLV_NEED_MORE_DATA for exhausted or incomplete non-final root input.
- * @return #TLV_ERR_END_OF_BUFFER for exhausted final input.
- * @return #TLV_ERR_BUFFER_TOO_SHORT for incomplete final input or a child that
+ * @return #TLV_END for exhausted final input; this is not a failure.
+ * @return #TLV_ERR_TRUNCATED for incomplete final input or a child that
  *         exceeds its complete parent's value. Appending cannot repair the latter.
  * @return #TLV_ERR_LIMIT when the configured depth or element count is exhausted.
  * @return #TLV_ERR_BUFFER_TOO_SHORT when caller frame capacity is exhausted.

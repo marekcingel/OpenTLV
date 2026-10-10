@@ -2,6 +2,7 @@
 # Copyright (c) 2026 Marek Cingel
 
 """Sequential Reader over the canonical C cursor."""
+import _opentlv as _native
 from opentlv.cursor import Decoded, _Cursor
 from opentlv.error import NeedMoreDataError, OpenTLVError
 
@@ -49,10 +50,10 @@ def read(data, format=None):
     """Read one complete Element and Layout through C; trailing bytes are unread.
 
     Returns Decoded; len(result.encoded) is the consumed byte count.
-    Empty input raises EndOfBufferError rather than iterator StopIteration.
+    Empty input raises EndError rather than iterator StopIteration.
     """
-    from opentlv.error import EndOfBufferError
+    from opentlv.error import EndError
     try:
         return Reader(data, format).read_source()
     except StopIteration:
-        raise EndOfBufferError(5) from None
+        raise EndError(_native.RESULT_END) from None

@@ -59,8 +59,8 @@ TEST(Unit_Tlv_EmvFormat, RejectsInvalidIdentifiersOnReadAndWrite) {
     }
     const uint8_t incomplete[] = {0x9f};
     tlv_decoded_t decoded{};
-    EXPECT_EQ(TLV_ERR_BUFFER_TOO_SHORT, tlv_format_decode(&tlv_format_emv, incomplete,
-                                                          sizeof(incomplete), &decoded, nullptr));
+    EXPECT_EQ(TLV_ERR_TRUNCATED, tlv_format_decode(&tlv_format_emv, incomplete, sizeof(incomplete),
+                                                   &decoded, nullptr));
 }
 
 TEST(Unit_Tlv_EmvFormat, LengthBoundariesLayoutAndEveryTruncation) {
@@ -84,7 +84,7 @@ TEST(Unit_Tlv_EmvFormat, LengthBoundariesLayoutAndEveryTruncation) {
         EXPECT_EQ(length, decoded.element.value.size);
         EXPECT_EQ(0u, decoded.source.trailer.size);
         for (size_t size = 1; size < wire.size(); ++size) {
-            EXPECT_EQ(TLV_ERR_BUFFER_TOO_SHORT,
+            EXPECT_EQ(TLV_ERR_TRUNCATED,
                       tlv_format_decode(&tlv_format_emv, wire.data(), size, &decoded, nullptr));
         }
     }

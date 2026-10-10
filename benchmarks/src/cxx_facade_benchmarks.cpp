@@ -69,7 +69,7 @@ void cxx_reader_success(benchmark::State& state, framing kind, traversal method)
             for (;;) {
                 auto result = reader.next();
                 if (!result) {
-                    if (result.error().status() != tlv::errc::end_of_input) {
+                    if (result.error().status() != tlv::errc::end) {
                         state.SkipWithError("C++ Reader failed before final EOF");
                         return;
                     }
@@ -102,10 +102,10 @@ void cxx_reader_failure(benchmark::State& state, framing kind, failure outcome) 
                                  : tlv::bytes(wire, sizeof wire);
     tlv::reader<>    reader(input, format,
                             incremental ? tlv::input_mode::incremental : tlv::input_mode::final);
-    const auto       expected = outcome == failure::eof              ? tlv::errc::end_of_input
+    const auto       expected = outcome == failure::eof              ? tlv::errc::end
                                 : outcome == failure::initialization ? tlv::errc::null_argument
                                 : incremental                        ? tlv::errc::need_more_data
-                                                                     : tlv::errc::buffer_too_short;
+                                                                     : tlv::errc::truncated;
     const size_t     attempts = static_cast<size_t>(state.range(0));
     for (auto _ : state) {
         for (size_t i = 0; i < attempts; ++i) {
@@ -152,7 +152,7 @@ void cxx_reader_resume(benchmark::State& state, framing kind) {
             }
             benchmark::DoNotOptimize(complete->value().data());
             auto eof = reader.next();
-            if (eof || eof.error().status() != tlv::errc::end_of_input || !reader.at_end()) {
+            if (eof || eof.error().status() != tlv::errc::end || !reader.at_end()) {
                 state.SkipWithError("Resumed C++ Reader did not reach final EOF");
                 return;
             }
