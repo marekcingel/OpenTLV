@@ -124,6 +124,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Changed
 
+- Python takes result codes from the native module (`_opentlv.RESULT_*`) instead of hard-coded numbers. (#578)
 - **Breaking:** Add `TLV_END` (normal end of iteration, not a failure), `TLV_ERR_TRUNCATED` (final input ends inside an element) and `TLV_ERR_SYNTAX` (Query grammar). `TLV_ERR_BUFFER_TOO_SHORT` now means only destination or workspace capacity; Format decoders must report incomplete input as `TRUNCATED`. Unknown byte orders return `INVALID_ARG`. Bindings: C++ `errc::end`/`truncated`/`syntax`, Rust `Error::End`/`Truncated`/`Syntax`, Python `EndError`/`TruncatedError`/`InvalidSyntaxError`, Go `ErrEnd`/`ErrTruncated`/`ErrSyntax`, Lua `errors.END`/`TRUNCATED`/`SYNTAX`. (#578)
 - `tlv_schema_validate()` diagnostics carry the same tag, path, field name and expected-versus-actual detail as the first `tlv_schema_validate_all_diag()` entry. (#574)
 - Builtin Format callbacks write `tlv_format_error_t` only on failure, which makes successful decoding cheaper. Failure detail is unchanged; read it only after a failing result. (#561)
@@ -233,6 +234,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Added
 
+- Test that an incremental Reader resumes after every truncated cut and then reports `TLV_END`, and that decoders cannot return control, capacity or unknown results while Tree Writer sources may end iteration. (#578)
 - Add prepared Schema handles that check a definition once for repeated validation: `tlv_schema_prepare()` and `tlv_der_schema_prepare()` with `_checked` validate, report, read and write functions, and C++ `tlv::checked_schema`. (#575)
 - Add generic and DER Schema workloads to the Callgrind comparison and Google Benchmark, measuring definition checking separately from input processing for a large shared schema, a large input and a recursive schema. (#573)
 - Add a Rust regression test that resumable Query `NEED_MORE_DATA` keeps its Reader cause and does not allocate common diagnostic metadata per chunk. (#558)

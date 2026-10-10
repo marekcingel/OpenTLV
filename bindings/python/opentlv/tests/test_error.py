@@ -31,28 +31,34 @@ from opentlv.error import (
 )
 
 KNOWN = [
-    (1, BufferTooShortError),
-    (2, InvalidLengthError),
-    (3, NullArgError),
-    (4, OutOfMemoryError),
-    (5, EndError),
-    (6, InvalidTagError),
-    (7, VisitorError),
-    (8, LimitError),
-    (9, SchemaError),
-    (10, InvalidArgError),
-    (11, InvalidTagSizeError),
-    (12, InvalidSyntaxError),
-    (13, ValueOverflowError),
-    (14, InvalidValueError),
-    (15, UnsupportedError),
-    (16, InvalidSchemaError),
-    (17, NativeSizeError),
-    (18, NeedMoreDataError),
-    (19, InvalidStateError),
-    (20, CallbackError),
-    (21, TruncatedError),
+    (native.RESULT_BUFFER_TOO_SHORT, BufferTooShortError),
+    (native.RESULT_INVALID_LENGTH, InvalidLengthError),
+    (native.RESULT_NULL_ARG, NullArgError),
+    (native.RESULT_OUT_OF_MEMORY, OutOfMemoryError),
+    (native.RESULT_END, EndError),
+    (native.RESULT_INVALID_TAG, InvalidTagError),
+    (native.RESULT_VISITOR, VisitorError),
+    (native.RESULT_LIMIT, LimitError),
+    (native.RESULT_SCHEMA, SchemaError),
+    (native.RESULT_INVALID_ARG, InvalidArgError),
+    (native.RESULT_INVALID_TAG_SIZE, InvalidTagSizeError),
+    (native.RESULT_SYNTAX, InvalidSyntaxError),
+    (native.RESULT_OVERFLOW, ValueOverflowError),
+    (native.RESULT_INVALID_VALUE, InvalidValueError),
+    (native.RESULT_UNSUPPORTED, UnsupportedError),
+    (native.RESULT_INVALID_SCHEMA, InvalidSchemaError),
+    (native.RESULT_NATIVE_SIZE, NativeSizeError),
+    (native.RESULT_NEED_MORE_DATA, NeedMoreDataError),
+    (native.RESULT_INVALID_STATE, InvalidStateError),
+    (native.RESULT_CALLBACK, CallbackError),
+    (native.RESULT_TRUNCATED, TruncatedError),
 ]
+
+
+def test_every_native_result_constant_has_a_typed_error():
+    names = [name for name in dir(native) if name.startswith("RESULT_") and name != "RESULT_OK"]
+    assert native.RESULT_OK == 0
+    assert sorted(getattr(native, name) for name in names) == sorted(code for code, _ in KNOWN)
 
 
 def test_every_known_code_maps_to_its_typed_error():

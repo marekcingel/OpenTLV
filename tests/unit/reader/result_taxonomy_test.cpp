@@ -4,6 +4,7 @@
 #include "../../diagnostic_assertions.h"
 #include "tlv/config.h"
 #include "tlv/reader/reader.h"
+#include "tlv/writer/tree.h"
 #include "tlv/formats/escaped.h"
 #include "tlv/formats/fixed.h"
 #include "tlv/formats/packed.h"
@@ -77,6 +78,24 @@ void check_reader(const Case& c, const std::vector<uint8_t>& wire, size_t cut, i
     }
 }
 
+/* A non-final cut pauses without consuming; extending the same window to the
+ * complete element and declaring EOF publishes it, after which iteration ends. */
+void check_resume(const Case& c, const std::vector<uint8_t>& wire, const tlv_decoded_t& expected,
+                  size_t cut) {
+    tlv_reader_t reader;
+    ASSERT_EQ(TLV_OK,
+              tlv_reader_init_incremental(&reader, cut ? wire.data() : nullptr, cut, c.format));
+    tlv_element_t element{};
+    ASSERT_EQ(TLV_NEED_MORE_DATA, tlv_reader_next(&reader, &element));
+    ASSERT_EQ(TLV_OK, tlv_reader_set_input(&reader, wire.data(), wire.size(), 0, 1));
+    ASSERT_EQ(TLV_OK, tlv_reader_next(&reader, &element));
+    EXPECT_EQ(wire.size(), tlv_reader_consumed(&reader));
+    EXPECT_EQ(expected.element.tag.size, element.tag.size);
+    EXPECT_EQ(expected.element.value.size, element.value.size);
+    EXPECT_EQ(wire.data() + expected.source.value.offset, element.value.data);
+    EXPECT_EQ(TLV_END, tlv_reader_next(&reader, &element));
+}
+
 void check_format(const Case& c) {
     SCOPED_TRACE(c.name);
     const tlv_element_t element = {c.tag, {c.value.data(), c.value.size()}};
@@ -106,6 +125,7 @@ void check_format(const Case& c) {
         SCOPED_TRACE(cut);
         check_reader(c, wire, cut, 1);
         check_reader(c, wire, cut, 0);
+        check_resume(c, wire, decoded, cut);
         if (!cut) continue;
         EXPECT_EQ(TLV_ERR_TRUNCATED, tlv_read(wire.data(), cut, c.format, &read, &consumed));
         tlv_reader_diagnostic_t diagnostic{};
@@ -243,15 +263,65 @@ TEST(Unit_Tlv_ResultTaxonomy, ValidatingReadersReportEndWithoutFailureSeverity) 
 }
 #endif
 
-TEST(Unit_Tlv_ResultTaxonomy, DecoderBufferTooShortViolatesTheCallbackContract) {
+TEST(Unit_Tlv_ResultTaxonomy, DecodersCannotReturnControlCapacityOrUnknownResults) {
+    for (tlv_result_t reported :
+         {TLV_END, TLV_NEED_MORE_DATA, TLV_ERR_BUFFER_TOO_SHORT, static_cast<tlv_result_t>(22)}) {
+        SCOPED_TRACE(reported);
+        tlv_format_t format{};
+        format.context = &reported;
+        format.decode = [](const void* context, const uint8_t*, size_t, tlv_decoded_t*,
+                           tlv_format_error_t*) {
+            return *static_cast<const tlv_result_t*>(context);
+        };
+        const uint8_t wire[] = {1};
+        tlv_element_t element{};
+        size_t        consumed = 0;
+        EXPECT_EQ(TLV_ERR_CALLBACK, tlv_read(wire, sizeof wire, &format, &element, &consumed));
+        /* Not even a non-final Reader reinterprets them as resumable or as end of input. */
+        tlv_reader_t reader;
+        ASSERT_EQ(TLV_OK, tlv_reader_init_incremental(&reader, wire, sizeof wire, &format));
+        EXPECT_EQ(TLV_ERR_CALLBACK, tlv_reader_next(&reader, &element));
+        EXPECT_EQ(0u, tlv_reader_consumed(&reader));
+    }
+}
+
+TEST(Unit_Tlv_ResultTaxonomy, IterationSourcesMayEndButNotPauseOrInventResults) {
+    const tlv_fixed_format_t config = {
+        {1}, {1, TLV_BYTE_ORDER_BIG_ENDIAN}, TLV_ELEMENT_ORDER_TLV, TLV_LENGTH_SCOPE_VALUE};
     tlv_format_t format{};
-    format.decode = [](const void*, const uint8_t*, size_t, tlv_decoded_t*, tlv_format_error_t*) {
-        return TLV_ERR_BUFFER_TOO_SHORT;
+    ASSERT_EQ(TLV_OK, tlv_fixed_format_init(&format, &config));
+    struct Source {
+        tlv_result_t finish;
+        int          calls;
     };
-    const uint8_t wire[] = {1};
-    tlv_element_t element{};
-    size_t        consumed = 0;
-    EXPECT_EQ(TLV_ERR_CALLBACK, tlv_read(wire, sizeof wire, &format, &element, &consumed));
+    for (tlv_result_t finish : {TLV_END, TLV_NEED_MORE_DATA, static_cast<tlv_result_t>(22)}) {
+        SCOPED_TRACE(finish);
+        Source source = {finish, 0};
+        auto   next = [](void* context, tlv_tree_event_t* event) -> tlv_result_t {
+            static const uint8_t value[] = {'A'};
+            auto&                s = *static_cast<Source*>(context);
+            if (s.calls++) return s.finish;
+            *event = tlv_tree_event_t{};
+            event->kind = TLV_TREE_ELEMENT;
+            event->element = {TLV_TAG(0x01), {value, sizeof value}};
+            return TLV_OK;
+        };
+        tlv_tree_writer_frame_t     frames[4];
+        uint8_t                     data[16];
+        uint8_t                     scratch[16];
+        tlv_tree_writer_workspace_t workspace = {frames,         4, data, sizeof data, scratch,
+                                                 sizeof scratch, 0, 0};
+        size_t                      size = 99;
+        const tlv_result_t rc = tlv_tree_writer_measure_events(&format, next, &source, &workspace,
+                                                               4, 8, &size, nullptr);
+        if (finish == TLV_END) {
+            EXPECT_EQ(TLV_OK, rc);
+            EXPECT_EQ(3u, size);
+        } else {
+            EXPECT_EQ(TLV_ERR_CALLBACK, rc);
+            EXPECT_EQ(99u, size);
+        }
+    }
 }
 
 TEST(Unit_Tlv_ResultTaxonomy, NewResultsHaveDistinctDescriptions) {

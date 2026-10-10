@@ -2118,6 +2118,42 @@ PyMODINIT_FUNC PyInit__opentlv(void) {
         Py_DECREF(module);
         return NULL;
     }
+    /* Result codes come from tlv/error.h, so Python never hard-codes their numbers. */
+    {
+        static const struct {
+            const char*  name;
+            tlv_result_t value;
+        } results[] = {
+            {"RESULT_OK", TLV_OK},
+            {"RESULT_END", TLV_END},
+            {"RESULT_NEED_MORE_DATA", TLV_NEED_MORE_DATA},
+            {"RESULT_TRUNCATED", TLV_ERR_TRUNCATED},
+            {"RESULT_BUFFER_TOO_SHORT", TLV_ERR_BUFFER_TOO_SHORT},
+            {"RESULT_INVALID_LENGTH", TLV_ERR_INVALID_LENGTH},
+            {"RESULT_NULL_ARG", TLV_ERR_NULL_ARG},
+            {"RESULT_OUT_OF_MEMORY", TLV_ERR_OUT_OF_MEMORY},
+            {"RESULT_INVALID_TAG", TLV_ERR_INVALID_TAG},
+            {"RESULT_VISITOR", TLV_ERR_VISITOR},
+            {"RESULT_LIMIT", TLV_ERR_LIMIT},
+            {"RESULT_SCHEMA", TLV_ERR_SCHEMA},
+            {"RESULT_INVALID_ARG", TLV_ERR_INVALID_ARG},
+            {"RESULT_INVALID_TAG_SIZE", TLV_ERR_INVALID_TAG_SIZE},
+            {"RESULT_SYNTAX", TLV_ERR_SYNTAX},
+            {"RESULT_OVERFLOW", TLV_ERR_OVERFLOW},
+            {"RESULT_INVALID_VALUE", TLV_ERR_INVALID_VALUE},
+            {"RESULT_UNSUPPORTED", TLV_ERR_UNSUPPORTED},
+            {"RESULT_INVALID_SCHEMA", TLV_ERR_INVALID_SCHEMA},
+            {"RESULT_NATIVE_SIZE", TLV_ERR_NATIVE_SIZE},
+            {"RESULT_INVALID_STATE", TLV_ERR_INVALID_STATE},
+            {"RESULT_CALLBACK", TLV_ERR_CALLBACK},
+        };
+        for (size_t i = 0; i < sizeof results / sizeof results[0]; ++i) {
+            if (PyModule_AddIntConstant(module, results[i].name, (long)results[i].value) < 0) {
+                Py_DECREF(module);
+                return NULL;
+            }
+        }
+    }
 
     /* Raised with a single dict argument carrying "code" and whichever
      * diagnostic keys the failing call supports; see raise_error() above.

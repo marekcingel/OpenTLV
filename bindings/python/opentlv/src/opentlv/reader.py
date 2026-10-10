@@ -2,6 +2,7 @@
 # Copyright (c) 2026 Marek Cingel
 
 """Sequential Reader over the canonical C cursor."""
+import _opentlv as _native
 from opentlv.cursor import Decoded, _Cursor
 from opentlv.error import NeedMoreDataError, OpenTLVError
 
@@ -55,4 +56,4 @@ def read(data, format=None):
     try:
         return Reader(data, format).read_source()
     except StopIteration:
-        raise EndError(5) from None
+        raise EndError(_native.RESULT_END) from None

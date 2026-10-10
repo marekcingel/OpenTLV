@@ -6,6 +6,7 @@ from types import MappingProxyType
 import _opentlv as _native
 from opentlv.cursor import TreeReader, Visit
 from opentlv.element import Element
+from opentlv.diagnostic import QueryErrorKind
 from opentlv.error import _from_native, EndError, InvalidStateError
 from opentlv.format import _resolve_format, _format_specification
 from opentlv.fixed_format import FixedFormat
@@ -239,8 +240,8 @@ class QuerySchema:
     def _validate(self, input, *, max_depth=64, max_nodes=1024, max_work=10000000,
                   max_contexts=None, value_capacity=None):
         if self._busy:
-            error = InvalidStateError(19)
-            error.query = {"query_kind": 12}
+            error = InvalidStateError(_native.RESULT_INVALID_STATE)
+            error.query = {"query_kind": QueryErrorKind.STATE}
             raise error
         self._busy = True
         try:

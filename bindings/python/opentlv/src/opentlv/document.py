@@ -237,7 +237,7 @@ class Document:
 
     def _assert_mutable(self):
         if self._query_active:
-            raise InvalidStateError(19)
+            raise InvalidStateError(_native.RESULT_INVALID_STATE)
 
     def _lifetime(self, ptr):
         if self._capsule is None:
