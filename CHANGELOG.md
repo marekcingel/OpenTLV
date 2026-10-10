@@ -9,6 +9,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Fixed
 
+- Fix the Callgrind comparison build by detecting Reader EOF with `tlv_reader_at_end()`, so the shared workload harness compiles against both the baseline and candidate result codes. (#578)
 - C++ `codec_registry::decode()` reports an unregistered Tag as `errc::unsupported` instead of `errc::invalid_length`. (#578)
 - Fix the diagnostic-return CI check for `tlv_schema_prepare()` by documenting its direct argument-error return. (#575)
 - Fix the C++ API documentation build and the C++ consumer-boundary check for prepared Schema handles. (#575)
