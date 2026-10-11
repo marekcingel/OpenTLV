@@ -13,6 +13,7 @@ _FAMILIES = {
     "ReaderOperation": "reader_operation",
     "WriterOperation": "writer_operation",
     "QueryErrorKind": "query_error_kind",
+    "QueryCause": "query_cause",
     "SchemaIssue": "schema_issue_kind",
     "SchemaDefinitionKind": "schema_definition_kind",
     "CodecOperation": "codec_operation",
@@ -81,6 +82,15 @@ class QueryErrorKind(_Category):
     CALLBACK = 13
     TYPE = 14
     IMAGE = 15
+    SCHEMA = 16
+
+
+class QueryCause(_Category):
+    """Canonical QueryCause category."""
+    NONE = 0
+    READER = 1
+    CODEC = 2
+    SCHEMA = 3
 
 
 class SchemaIssue(_Category):

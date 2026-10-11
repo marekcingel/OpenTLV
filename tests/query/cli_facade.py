@@ -30,9 +30,14 @@ def main():
                 assert result.returncode != 0, (case["id"], backend)
                 diagnostic = json.loads(result.stderr)
                 expected = case["diagnostic"]
-                for field in ("code", "kind", "begin", "end"):
+                for field in ("code", "kind"):
                     if field in expected:
                         assert diagnostic[field] == expected[field], (case["id"], field, diagnostic)
+                if "begin" in expected:
+                    # The expression span is primary, or related evidence beside another location.
+                    location = diagnostic["location"]
+                    span = location if location["domain"] == "expression" else diagnostic["expression"]
+                    assert (span["begin"], span["end"]) == (expected["begin"], expected["end"]), (case["id"], diagnostic)
             else:
                 assert result.returncode in (0, 5), (case["id"], backend, result.stderr)
                 output = json.loads(result.stdout)

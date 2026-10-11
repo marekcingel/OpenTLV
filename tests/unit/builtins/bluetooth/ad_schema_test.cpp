@@ -105,21 +105,21 @@ TEST(Unit_Tlv_BluetoothAdSchema, ReportsLengthMultipleAndExactLengthAtElementOff
                                            &tlv_bluetooth_ad_schema, 1, 64,
                                            TLV_SCHEMA_UNKNOWN_BY_SCHEMA, &detailed, &offset));
     ASSERT_EQ(2u, detailed.count);
-    EXPECT_EQ(TLV_SCHEMA_ISSUE_LENGTH, diagnostics[0].kind);
+    EXPECT_EQ(TLV_SCHEMA_ISSUE_LENGTH, diagnostics[0].detail.kind);
     EXPECT_EQ(3u, diagnostics[0].diagnostic.location.begin);
     EXPECT_EQ(8u, diagnostics[1].diagnostic.location.begin);
-    EXPECT_NE(0, diagnostics[0].has_length);
-    EXPECT_EQ(2u, diagnostics[0].length_multiple);
-    EXPECT_EQ(3u, diagnostics[0].actual_length);
-    EXPECT_EQ(0u, diagnostics[0].min_length);
-    EXPECT_EQ(SIZE_MAX, diagnostics[0].max_length);
-    EXPECT_EQ(0u, diagnostics[1].length_multiple);
-    EXPECT_EQ(1u, diagnostics[1].min_length);
-    EXPECT_EQ(1u, diagnostics[1].max_length);
-    EXPECT_EQ(2u, diagnostics[1].actual_length);
-    EXPECT_STREQ("Tx Power Level", diagnostics[1].field);
+    EXPECT_NE(0, diagnostics[0].detail.has_length);
+    EXPECT_EQ(2u, diagnostics[0].detail.length_multiple);
+    EXPECT_EQ(3u, diagnostics[0].detail.actual_length);
+    EXPECT_EQ(0u, diagnostics[0].detail.min_length);
+    EXPECT_EQ(SIZE_MAX, diagnostics[0].detail.max_length);
+    EXPECT_EQ(0u, diagnostics[1].detail.length_multiple);
+    EXPECT_EQ(1u, diagnostics[1].detail.min_length);
+    EXPECT_EQ(1u, diagnostics[1].detail.max_length);
+    EXPECT_EQ(2u, diagnostics[1].detail.actual_length);
+    EXPECT_STREQ("Tx Power Level", diagnostics[1].detail.field);
     tlv_schema_diagnostic_init(&diagnostics[0]);
-    EXPECT_EQ(0u, diagnostics[0].length_multiple);
+    EXPECT_EQ(0u, diagnostics[0].detail.length_multiple);
 }
 
 TEST(Unit_Tlv_BluetoothAdSchema, ExamplesPaddingAndTruncation) {
@@ -139,11 +139,11 @@ TEST(Unit_Tlv_BluetoothAdSchema, ReportsSharedGroupAndSupportsExplicitUnknownPol
                                            &tlv_bluetooth_ad_schema, 1, 64,
                                            TLV_SCHEMA_UNKNOWN_BY_SCHEMA, &report, nullptr));
     ASSERT_EQ(1u, report.count);
-    EXPECT_EQ(TLV_SCHEMA_ISSUE_DUPLICATE, diagnostics[0].kind);
-    EXPECT_NE(0, diagnostics[0].is_group);
-    EXPECT_STREQ("Local Name", diagnostics[0].field);
-    EXPECT_EQ(2u, diagnostics[0].occurs);
-    EXPECT_EQ(1u, diagnostics[0].max_occurs);
+    EXPECT_EQ(TLV_SCHEMA_ISSUE_DUPLICATE, diagnostics[0].detail.kind);
+    EXPECT_NE(0, diagnostics[0].detail.is_group);
+    EXPECT_STREQ("Local Name", diagnostics[0].detail.field);
+    EXPECT_EQ(2u, diagnostics[0].detail.occurs);
+    EXPECT_EQ(1u, diagnostics[0].detail.max_occurs);
     EXPECT_EQ(TLV_ERR_SCHEMA,
               tlv_schema_validate_all_diag(wire.data(), wire.size(), &tlv_format_bluetooth_ltv,
                                            &tlv_bluetooth_ad_schema, 1, 64,

@@ -26,7 +26,7 @@ static tlv_result_t fail(tlv_result_t rc, size_t offset, tlv_diagnostic_t* locat
 static tlv_result_t missing(size_t offset, tlv_diagnostic_t* location,
                             tlv_schema_diagnostic_t* diagnostic, tlv_location_kind_t anchor) {
     if (diagnostic) {
-        diagnostic->kind = TLV_SCHEMA_ISSUE_MISSING;
+        diagnostic->detail.kind = TLV_SCHEMA_ISSUE_MISSING;
         diagnostic->diagnostic.location.kind = anchor;
     }
     return fail(TLV_ERR_SCHEMA, offset, location);
@@ -384,12 +384,13 @@ static tlv_result_t check_graph(const tlv_der_schema_type_t* root,
 tlv_result_t tlv_der_schema_check(const tlv_der_schema_type_t* root,
                                   tlv_schema_diagnostic_t* diagnostic) {
     if (diagnostic) tlv_schema_diagnostic_init(diagnostic);
-    tlv_result_t rc =
-        root ? check_graph(root, diagnostic ? &diagnostic->definition : NULL) : TLV_ERR_NULL_ARG;
+    tlv_result_t rc = root ? check_graph(root, diagnostic ? &diagnostic->detail.definition : NULL)
+                           : TLV_ERR_NULL_ARG;
     if (diagnostic) {
-        if (rc == TLV_OK) memset(&diagnostic->definition, 0, sizeof diagnostic->definition);
+        if (rc == TLV_OK)
+            memset(&diagnostic->detail.definition, 0, sizeof diagnostic->detail.definition);
         diagnostic->diagnostic.code = rc;
-        if (rc == TLV_ERR_INVALID_SCHEMA) diagnostic->kind = TLV_SCHEMA_ISSUE_DEFINITION;
+        if (rc == TLV_ERR_INVALID_SCHEMA) diagnostic->detail.kind = TLV_SCHEMA_ISSUE_DEFINITION;
     }
     return rc;
 }
@@ -793,8 +794,8 @@ static tlv_result_t defer_failure(der_schema_write_ctx_t* wctx, tlv_result_t rc,
     if (!wctx->locate_failure || !composition_failure(rc)) return rc;
     if (wctx->failure == TLV_OK) {
         if (wctx->diagnostic && rc == TLV_ERR_SCHEMA &&
-            wctx->diagnostic->kind == TLV_SCHEMA_ISSUE_NONE)
-            wctx->diagnostic->kind = TLV_SCHEMA_ISSUE_VALUE;
+            wctx->diagnostic->detail.kind == TLV_SCHEMA_ISSUE_NONE)
+            wctx->diagnostic->detail.kind = TLV_SCHEMA_ISSUE_VALUE;
         wctx->failure = rc;
         wctx->failure_owner = owner;
         wctx->failure_offset = offset;
@@ -806,7 +807,7 @@ static tlv_result_t defer_failure(der_schema_write_ctx_t* wctx, tlv_result_t rc,
 static tlv_result_t defer_missing(der_schema_write_ctx_t* wctx, size_t owner,
                                   tlv_location_kind_t anchor) {
     if (wctx->diagnostic && wctx->failure == TLV_OK) {
-        wctx->diagnostic->kind = TLV_SCHEMA_ISSUE_MISSING;
+        wctx->diagnostic->detail.kind = TLV_SCHEMA_ISSUE_MISSING;
         wctx->diagnostic->diagnostic.location.kind = anchor;
     }
     return defer_failure(wctx, TLV_ERR_SCHEMA, owner, 0);

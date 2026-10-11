@@ -15,7 +15,7 @@ static tlv_result_t failure(tlv_schema_diagnostic_t* diagnostic, tlv_result_t rc
                                         TLV_LOCATION_POINT, offset, offset);
             diagnostic->diagnostic.location.kind = TLV_LOCATION_POINT;
         }
-        if (rc == TLV_ERR_SCHEMA) diagnostic->kind = TLV_SCHEMA_ISSUE_UNEXPECTED;
+        if (rc == TLV_ERR_SCHEMA) diagnostic->detail.kind = TLV_SCHEMA_ISSUE_UNEXPECTED;
         diagnostic->diagnostic.expected = expected;
         diagnostic->diagnostic.actual = tlv_result_string(rc);
     }
@@ -75,11 +75,11 @@ tlv_result_t tlv_dhcpv4_options_validate(const uint8_t* data, size_t size,
         static const uint8_t end_tag = 255;
         rc = failure(diagnostic, TLV_ERR_SCHEMA, size, "DHCP End option");
         if (diagnostic) {
-            diagnostic->kind = TLV_SCHEMA_ISSUE_MISSING;
+            diagnostic->detail.kind = TLV_SCHEMA_ISSUE_MISSING;
             diagnostic->diagnostic.location.kind = TLV_LOCATION_SCOPE_END;
-            diagnostic->tag = tlv_tag(&end_tag, 1);
-            diagnostic->has_occurs = 1;
-            diagnostic->min_occurs = diagnostic->max_occurs = 1;
+            diagnostic->detail.tag = tlv_tag(&end_tag, 1);
+            diagnostic->detail.has_occurs = 1;
+            diagnostic->detail.min_occurs = diagnostic->detail.max_occurs = 1;
         }
         return rc;
     }

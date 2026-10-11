@@ -36,11 +36,23 @@ enum class query_issue {
     type = TLV_QUERY_ERROR_TYPE,                   /**< Operand type, arity or numeric range. */
     image = TLV_QUERY_ERROR_IMAGE,                 /**< Malformed stored program image. */
     callback = TLV_QUERY_ERROR_CALLBACK,           /**< Callback failure. */
-    state = TLV_QUERY_ERROR_STATE                  /**< Invalid lifecycle or callback reentrancy. */
+    state = TLV_QUERY_ERROR_STATE,                 /**< Invalid lifecycle or callback reentrancy. */
+    schema = TLV_QUERY_ERROR_SCHEMA                /**< Failed Schema Query assertion. */
 };
 /** @brief Canonical static Query category name, including unknown values. */
 inline const char* message(query_issue value) noexcept {
     return tlv_query_error_kind_string(static_cast<tlv_query_error_kind_t>(value));
+}
+/** @brief Layer whose typed detail is active in a Query diagnostic. */
+enum class query_cause {
+    none = TLV_QUERY_CAUSE_NONE,     /**< Query-owned failure without lower-layer detail. */
+    reader = TLV_QUERY_CAUSE_READER, /**< Reader detail is active. */
+    codec = TLV_QUERY_CAUSE_CODEC,   /**< Conversion detail is active. */
+    schema = TLV_QUERY_CAUSE_SCHEMA  /**< Schema detail is active. */
+};
+/** @brief Canonical static Query cause name, including unknown values. */
+inline const char* message(query_cause value) noexcept {
+    return tlv_query_cause_string(static_cast<tlv_query_cause_t>(value));
 }
 /** @brief Scalar result borrowing immutable input, program or execution storage until reset. */
 struct query_value {
@@ -52,7 +64,7 @@ struct query_value {
 /** @brief Original native status and complete Query diagnostic, including Reader/codec detail. */
 struct query_failure {
     tlv_result_t           code; /**< Original status, including NEED_MORE_DATA and TLV_END. */
-    tlv_query_diagnostic_t diagnostic; /**< Byte span, source, limit and codec context. */
+    tlv_query_diagnostic_t diagnostic; /**< Common evidence, Query detail and one cause. */
     /** @brief Canonical C++ operation status, preserving resumable input and EOF. */
     errc status() const noexcept {
         return static_cast<errc>(code);
@@ -64,6 +76,10 @@ struct query_failure {
     /** @brief Category identifying the relevant subsystem detail. */
     query_issue kind() const noexcept {
         return static_cast<query_issue>(diagnostic.kind);
+    }
+    /** @brief Layer whose detail is active in `diagnostic.detail`. */
+    query_cause cause() const noexcept {
+        return static_cast<query_cause>(diagnostic.cause);
     }
     /** @brief Copy common diagnostic information while preserving Query detail on this object. */
     tlv::error failure() const noexcept {

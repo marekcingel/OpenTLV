@@ -86,24 +86,29 @@ static void push_query_error(lua_State* L, tlv_result_t code, const tlv_query_di
     field(L, "code", code);
     lua_pushstring(L, tlv_result_string(code));
     lua_setfield(L, -2, "message");
-    if (d->has_reader) opentlv_lua_add_reader_detail(L, &d->reader);
+    if (d->cause == TLV_QUERY_CAUSE_READER) opentlv_lua_add_reader_detail(L, &d->detail.reader);
     lua_newtable(L);
     field(L, "kind", d->kind);
     lua_pushstring(L, tlv_query_error_kind_string(d->kind));
     lua_setfield(L, -2, "kind_name");
-    field(L, "begin", d->begin);
-    field(L, "end", d->end);
+    /* The expression span is primary, or related evidence beside another location. */
+    const tlv_location_t* span = d->diagnostic.location.domain == TLV_LOCATION_EXPRESSION
+                                     ? &d->diagnostic.location
+                                     : &d->expression;
+    int                   known = span->kind != TLV_LOCATION_UNKNOWN;
+    field(L, "begin", known ? span->begin : 0);
+    field(L, "end", known ? span->end : 0);
     field(L, "configured", d->configured);
-    field(L, "codec", d->codec);
-    if (d->has_codec) {
-        opentlv_lua_push_codec_detail(L, &d->codec_detail);
+    field(L, "codec", d->cause == TLV_QUERY_CAUSE_CODEC ? d->detail.codec.reported : 0);
+    if (d->cause == TLV_QUERY_CAUSE_CODEC) {
+        opentlv_lua_push_codec_detail(L, &d->detail.codec);
         lua_setfield(L, -2, "codec_detail");
     }
     if ((d->diagnostic.location.domain == TLV_LOCATION_INPUT &&
          d->diagnostic.location.kind != TLV_LOCATION_UNKNOWN))
         field(L, "source_offset", d->diagnostic.location.begin);
-    if (d->expected) {
-        lua_pushstring(L, d->expected);
+    if (d->diagnostic.expected) {
+        lua_pushstring(L, d->diagnostic.expected);
         lua_setfield(L, -2, "expected");
     }
     if (d->limit) {
@@ -1384,7 +1389,12 @@ static int schema_error_projection(lua_State* L) {
     tlv_result_t                         rc = (tlv_result_t)lua_tointeger(L, 2);
     push_query_error(L, rc, &diagnostic->query);
     field(L, "rule", diagnostic->rule);
-    opentlv_lua_push_schema_diagnostic(L, &diagnostic->schema);
+    tlv_schema_diagnostic_t schema = {0};
+    if (diagnostic->query.cause == TLV_QUERY_CAUSE_SCHEMA) {
+        schema.diagnostic = diagnostic->query.diagnostic;
+        schema.detail = diagnostic->query.detail.schema;
+    }
+    opentlv_lua_push_schema_diagnostic(L, &schema);
     lua_setfield(L, -2, "schema");
     return 1;
 }

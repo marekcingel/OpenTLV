@@ -25,7 +25,7 @@ public:
     validation_issue() noexcept : raw_{} {}
     /** @brief Violation category. */
     schema_issue kind() const noexcept {
-        return static_cast<schema_issue>(raw_.kind);
+        return static_cast<schema_issue>(raw_.detail.kind);
     }
     /** @brief Canonical status and absolute wire offset. */
     tlv::error error() const noexcept {
@@ -33,15 +33,15 @@ public:
     }
     /** @brief Affected identifier, borrowed from input, Format or Schema. */
     tlv::tag tag() const noexcept {
-        return detail::semantic_access::borrow(raw_.tag);
+        return detail::semantic_access::borrow(raw_.detail.tag);
     }
     /** @brief Optional borrowed field or group name, or nullptr. */
     const char* field() const noexcept {
-        return raw_.field;
+        return raw_.detail.field;
     }
     /** @brief Whether this violation concerns an alternative group. */
     bool is_group() const noexcept {
-        return raw_.is_group != 0;
+        return raw_.detail.is_group != 0;
     }
     /** @brief Number of retained outermost enclosing identifiers. */
     size_t depth() const noexcept {
@@ -58,15 +58,15 @@ public:
     }
     /** @brief Whether occurrence details are available. */
     bool has_occurrences() const noexcept {
-        return raw_.has_occurs != 0;
+        return raw_.detail.has_occurs != 0;
     }
     /** @brief Expected occurrence bounds, valid when has_occurrences(). */
     bounds expected_occurrences() const noexcept {
-        return {raw_.min_occurs, raw_.max_occurs};
+        return {raw_.detail.min_occurs, raw_.detail.max_occurs};
     }
     /** @brief Observed occurrence count, valid when has_occurrences(). */
     size_t occurrences() const noexcept {
-        return raw_.occurs;
+        return raw_.detail.occurs;
     }
     /** @brief Common diagnostic metadata; its external strings remain borrowed. */
     tlv::diagnostic diagnostic() const noexcept {
@@ -78,35 +78,35 @@ public:
     }
     /** @brief Whether length constraint details are available. */
     bool has_length() const noexcept {
-        return raw_.has_length != 0;
+        return raw_.detail.has_length != 0;
     }
     /** @brief Inclusive expected length bounds, valid when has_length(). */
     bounds expected_length() const noexcept {
-        return {raw_.min_length, raw_.max_length};
+        return {raw_.detail.min_length, raw_.detail.max_length};
     }
     /** @brief Observed Value length, valid when has_length(). */
     size_t length() const noexcept {
-        return raw_.actual_length;
+        return raw_.detail.actual_length;
     }
     /** @brief Required length multiple, zero for unrestricted. */
     size_t length_multiple() const noexcept {
-        return raw_.length_multiple;
+        return raw_.detail.length_multiple;
     }
     /** @brief Whether only the two length bounds are permitted. */
     bool length_endpoints_only() const noexcept {
-        return (raw_.length_flags & TLV_SCHEMA_LENGTH_ENDPOINTS) != 0;
+        return (raw_.detail.length_flags & TLV_SCHEMA_LENGTH_ENDPOINTS) != 0;
     }
     /** @brief Whether element form constraint details are available. */
     bool has_form() const noexcept {
-        return raw_.has_form != 0;
+        return raw_.detail.has_form != 0;
     }
     /** @brief Required element form, valid when has_form(). */
     schema_kind expected_form() const noexcept {
-        return static_cast<schema_kind>(raw_.expected_form);
+        return static_cast<schema_kind>(raw_.detail.expected_form);
     }
     /** @brief Whether the observed element was constructed, valid when has_form(). */
     bool constructed() const noexcept {
-        return raw_.actual_constructed != 0;
+        return raw_.detail.actual_constructed != 0;
     }
 
 private:

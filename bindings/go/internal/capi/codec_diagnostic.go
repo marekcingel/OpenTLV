@@ -5,7 +5,7 @@ package capi
 /*
 #include "bridge.h"
 static tlv_reader_detail_t codec_reader(tlv_codec_detail_t d) { return d.detail.reader; }
-static tlv_codec_schema_detail_t codec_schema(tlv_codec_detail_t d) { return d.detail.schema; }
+static tlv_schema_detail_t codec_schema(tlv_codec_detail_t d) { return d.detail.schema; }
 */
 import "C"
 import "bytes"

@@ -22,8 +22,9 @@ int constructed(const void*, const tlv_tag_t* tag) {
     return tag->size == 1 && tag->data[0] == 0x70;
 }
 int fail(tlv::query_failure error) {
-    std::cerr << error.code << ' ' << error.diagnostic.kind << ' ' << error.diagnostic.begin << ' '
-              << error.diagnostic.end << '\n';
+    std::cerr << error.code << ' ' << error.diagnostic.kind << ' '
+              << error.diagnostic.diagnostic.location.begin << ' '
+              << error.diagnostic.diagnostic.location.end << '\n';
     return 1;
 }
 tlv_result_t resolve(const void*, const char* scope, size_t scope_size, const char* name,

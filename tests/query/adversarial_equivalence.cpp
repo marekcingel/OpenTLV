@@ -104,8 +104,8 @@ static int execute(const tlv_query_program_t* p, unsigned seed, size_t capacity,
     out.has_source_offset = (diagnostic.diagnostic.location.domain == TLV_LOCATION_INPUT &&
                              diagnostic.diagnostic.location.kind != TLV_LOCATION_UNKNOWN);
     out.source_offset = diagnostic.diagnostic.location.begin;
-    out.codec = diagnostic.codec;
-    out.expected = diagnostic.expected;
+    out.codec = diagnostic.cause == TLV_QUERY_CAUSE_CODEC ? diagnostic.detail.codec.reported : 0;
+    out.expected = diagnostic.diagnostic.expected;
     out.limit = diagnostic.limit;
     if (out.status != TLV_OK) {
         tlv_query_result_t result{};

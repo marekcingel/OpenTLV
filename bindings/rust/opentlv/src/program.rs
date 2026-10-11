@@ -207,17 +207,18 @@ pub struct ProgramError {
     pub error: Error,
     /// Native Query diagnostic category.
     pub kind: crate::QueryErrorKind,
-    /// Inclusive Query byte offset.
+    /// Inclusive Query byte offset of the expression span, whether it is the primary
+    /// location or related evidence beside another primary location; zero without one.
     pub begin: usize,
-    /// Exclusive Query byte offset.
+    /// Exclusive Query byte offset of the expression span; zero without one.
     pub end: usize,
-    /// Owned immutable native expected-token or type description.
+    /// Owned immutable native expected-token or type description from the common diagnostic.
     pub expected: Option<Box<str>>,
     /// Exhausted named resource and its configured bound, when present.
     ///
     /// Boxed with the rare limit evidence so `location` stays inline.
     pub limit: Option<Box<QueryLimit>>,
-    /// Original native codec status.
+    /// Original native codec status reported by an active conversion cause, otherwise zero.
     pub codec: i32,
     /// Owned conversion cause supplied by the provider.
     pub codec_detail: Option<Box<crate::CodecDiagnostic>>,
@@ -285,6 +286,15 @@ fn check(code: i32, diagnostic: &native::tlv_query_diagnostic_t) -> ProgramResul
                 })
             };
             let common = &diagnostic.diagnostic;
+            // The expression span is primary, or related evidence beside another location.
+            let span = [common.location, diagnostic.expression]
+                .into_iter()
+                .find(|location| {
+                    location.domain == native::TLV_LOCATION_EXPRESSION && location.kind != 0
+                });
+            // C initializes the whole union, so copying the inactive arm reads defined bytes.
+            let codec = (diagnostic.cause == native::TLV_QUERY_CAUSE_CODEC)
+                .then_some(diagnostic.detail.codec);
             // Reader causes own the common evidence; plain failures skip the allocation.
             let reported = !common.expected.is_null()
                 || !common.actual.is_null()
@@ -293,46 +303,46 @@ fn check(code: i32, diagnostic: &native::tlv_query_diagnostic_t) -> ProgramResul
                 || crate::Severity::from_raw(common.severity) != crate::Severity::Error;
             ProgramError {
                 location: crate::Location::from_raw(common.location),
-                metadata: (diagnostic.has_reader == 0 && reported).then(|| {
-                    Box::new(crate::DiagnosticMetadata {
-                        expected: text(common.expected),
-                        actual: text(common.actual),
-                        severity: crate::Severity::from_raw(common.severity),
-                        contexts: crate::reader_diagnostic::contexts(common),
-                        path: crate::reader_diagnostic::path(common),
-                        path_omitted: common.path.omitted,
-                    })
-                }),
+                metadata: (diagnostic.cause != native::TLV_QUERY_CAUSE_READER && reported).then(
+                    || {
+                        Box::new(crate::DiagnosticMetadata {
+                            expected: text(common.expected),
+                            actual: text(common.actual),
+                            severity: crate::Severity::from_raw(common.severity),
+                            contexts: crate::reader_diagnostic::contexts(common),
+                            path: crate::reader_diagnostic::path(common),
+                            path_omitted: common.path.omitted,
+                        })
+                    },
+                ),
                 error,
                 kind: crate::QueryErrorKind::from_raw(if code == native::TLV_ERR_INVALID_STATE {
                     native::TLV_QUERY_ERROR_STATE
                 } else {
                     diagnostic.kind
                 }),
-                begin: diagnostic.begin,
-                end: diagnostic.end,
-                expected: text(diagnostic.expected),
+                begin: span.map_or(0, |span| span.begin),
+                end: span.map_or(0, |span| span.end),
+                expected: text(common.expected),
                 limit: text(diagnostic.limit).map(|name| {
                     Box::new(QueryLimit {
                         name,
                         configured: diagnostic.configured,
                     })
                 }),
-                codec: diagnostic.codec,
-                codec_detail: if diagnostic.has_codec != 0 {
-                    Some(Box::new(crate::CodecDiagnostic::from_raw(
+                codec: codec.map_or(0, |codec| codec.reported),
+                codec_detail: codec.map(|codec| {
+                    Box::new(crate::CodecDiagnostic::from_raw(
                         &native::tlv_codec_diagnostic_t {
                             diagnostic: diagnostic.diagnostic,
-                            codec: diagnostic.codec_detail,
+                            codec,
                         },
-                    )))
-                } else {
-                    None
-                },
-                reader: (diagnostic.has_reader != 0).then(|| {
+                    ))
+                }),
+                reader: (diagnostic.cause == native::TLV_QUERY_CAUSE_READER).then(|| {
                     Box::new(ReaderDiagnostic::from_parts(
                         &diagnostic.diagnostic,
-                        &diagnostic.reader,
+                        &diagnostic.detail.reader,
                     ))
                 }),
             }

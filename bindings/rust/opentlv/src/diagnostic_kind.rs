@@ -189,6 +189,8 @@ pub enum QueryErrorKind {
     Type,
     /// C `image` category.
     Image,
+    /// C `schema` category.
+    Schema,
     /// Unrecognized native value, retained without loss.
     Unrecognized(RawCategory),
 }
@@ -212,6 +214,7 @@ impl QueryErrorKind {
             13 => Self::Callback,
             14 => Self::Type,
             15 => Self::Image,
+            16 => Self::Schema,
             other => Self::Unrecognized(RawCategory(other)),
         }
     }
@@ -234,6 +237,7 @@ impl QueryErrorKind {
             Self::Callback => 13,
             Self::Type => 14,
             Self::Image => 15,
+            Self::Schema => 16,
             Self::Unrecognized(value) => value.as_raw(),
         }
     }
@@ -251,6 +255,61 @@ impl Default for QueryErrorKind {
     }
 }
 impl fmt::Display for QueryErrorKind {
+    fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
+        f.write_str(self.name())
+    }
+}
+
+/// Canonical QueryCause diagnostic category.
+#[derive(Clone, Copy, Debug, PartialEq, Eq, Hash)]
+#[non_exhaustive]
+pub enum QueryCause {
+    /// C `none` category.
+    None,
+    /// C `reader` category.
+    Reader,
+    /// C `codec` category.
+    Codec,
+    /// C `schema` category.
+    Schema,
+    /// Unrecognized native value, retained without loss.
+    Unrecognized(RawCategory),
+}
+impl QueryCause {
+    /// Preserve a native category, including future values.
+    pub fn from_raw(value: i32) -> Self {
+        match value {
+            0 => Self::None,
+            1 => Self::Reader,
+            2 => Self::Codec,
+            3 => Self::Schema,
+            other => Self::Unrecognized(RawCategory(other)),
+        }
+    }
+    /// Original C category value.
+    pub fn as_raw(self) -> i32 {
+        match self {
+            Self::None => 0,
+            Self::Reader => 1,
+            Self::Codec => 2,
+            Self::Schema => 3,
+            Self::Unrecognized(value) => value.as_raw(),
+        }
+    }
+    /// Program-lifetime canonical C spelling.
+    pub fn name(self) -> &'static str {
+        // SAFETY: every integer maps to a static NUL-terminated ASCII string.
+        unsafe { CStr::from_ptr(native::tlv_query_cause_string(self.as_raw())) }
+            .to_str()
+            .expect("ASCII diagnostic label")
+    }
+}
+impl Default for QueryCause {
+    fn default() -> Self {
+        Self::from_raw(0)
+    }
+}
+impl fmt::Display for QueryCause {
     fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
         f.write_str(self.name())
     }

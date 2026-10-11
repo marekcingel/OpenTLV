@@ -297,10 +297,10 @@ static int diagnostics(const tlv_query_program_t* p) {
             CHECK(tlv_query_exec_feed(e, &input, &matched, &d) ==
                   (bad_span ? TLV_ERR_INVALID_ARG : TLV_ERR_INVALID_VALUE));
             CHECK(matched == 79 && d.kind == TLV_QUERY_ERROR_EVENTS);
-            CHECK(d.expected &&
-                  !strcmp(d.expected, bad_span
-                                          ? "valid event span arguments"
-                                          : "balanced complete canonical events without pruning"));
+            CHECK(d.diagnostic.expected &&
+                  !strcmp(d.diagnostic.expected,
+                          bad_span ? "valid event span arguments"
+                                   : "balanced complete canonical events without pruning"));
             CHECK((d.diagnostic.location.domain == TLV_LOCATION_INPUT &&
                    d.diagnostic.location.kind != TLV_LOCATION_UNKNOWN) &&
                   d.diagnostic.location.begin == 17 && !d.limit);

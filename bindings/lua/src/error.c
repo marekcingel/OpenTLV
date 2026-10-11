@@ -280,7 +280,7 @@ void opentlv_lua_push_codec_detail(lua_State* L, const tlv_codec_detail_t* d) {
         lua_setfield(L, -2, "reader");
     }
     if (d->cause == TLV_CODEC_CAUSE_SCHEMA) {
-        const tlv_codec_schema_detail_t* v = &d->detail.schema;
+        const tlv_schema_detail_t* v = &d->detail.schema;
         lua_newtable(L);
         lua_pushnumber(L, (lua_Number)v->kind);
         lua_setfield(L, -2, "kind");

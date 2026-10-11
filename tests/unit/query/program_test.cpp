@@ -944,7 +944,7 @@ TEST(Unit_Tlv_QueryProgram, CapacityAndNestingBoundariesPreserveStorage) {
         TLV_DIAGNOSTIC_RESULT(d, tlv_query_compile(nested.data(), nested.size(), &options,
                                                    scratch.data(), size, nullptr, 0, &info, &d)));
     EXPECT_STREQ("nesting", d.limit);
-    EXPECT_EQ(1u, d.begin);
+    EXPECT_EQ(1u, d.diagnostic.location.begin);
 }
 
 TEST(Unit_Tlv_QueryProgram, CorruptInternalImagesAreRejectedBeforeExecutionOrFormatting) {
@@ -1092,9 +1092,9 @@ TEST(Unit_Tlv_QueryProgram, TreeResourceLimitsHaveOwnedSafeReaderDiagnostics) {
                   TLV_DIAGNOSTIC_RESULT(selector.diagnostic,
                                         tlv_query_program_visit(&reader, exec, collect_event,
                                                                 &selected, &selector.diagnostic)));
-        const auto& detail = selector.diagnostic.reader;
+        const auto& detail = selector.diagnostic.detail.reader;
         EXPECT_EQ(TLV_QUERY_ERROR_READER, selector.diagnostic.kind);
-        EXPECT_TRUE(selector.diagnostic.has_reader);
+        EXPECT_EQ(TLV_QUERY_CAUSE_READER, selector.diagnostic.cause);
         EXPECT_EQ(resource == 0 ? TLV_ERR_BUFFER_TOO_SHORT : TLV_ERR_LIMIT,
                   selector.diagnostic.diagnostic.code);
         EXPECT_EQ(TLV_DIAGNOSTIC_SEVERITY_ERROR, selector.diagnostic.diagnostic.severity);
@@ -1144,12 +1144,12 @@ TEST(Unit_Tlv_QueryProgram, TreeResourceLimitsHaveOwnedSafeReaderDiagnostics) {
                                                     wire, sizeof wire, &format, &rule, 1, 0, 8,
                                                     100000, &workspace, &diagnostic)));
     EXPECT_EQ(TLV_QUERY_ERROR_READER, diagnostic.query.kind);
-    EXPECT_TRUE(diagnostic.query.has_reader);
+    EXPECT_EQ(TLV_QUERY_CAUSE_READER, diagnostic.query.cause);
     EXPECT_EQ(TLV_ERR_LIMIT, diagnostic.query.diagnostic.code);
     EXPECT_EQ(nullptr, diagnostic.query.diagnostic.expected);
-    EXPECT_EQ(nullptr, diagnostic.query.reader.tag.data);
-    EXPECT_EQ(0, diagnostic.query.reader.has_tag);
-    EXPECT_EQ(0, diagnostic.query.reader.has_raw_length);
+    EXPECT_EQ(nullptr, diagnostic.query.detail.reader.tag.data);
+    EXPECT_EQ(0, diagnostic.query.detail.reader.has_tag);
+    EXPECT_EQ(0, diagnostic.query.detail.reader.has_raw_length);
     EXPECT_EQ(TLV_LOCATION_UNKNOWN, diagnostic.query.diagnostic.location.kind);
     EXPECT_EQ(0u, diagnostic.query.diagnostic.path.length);
     EXPECT_EQ(0u, diagnostic.query.diagnostic.path.omitted);
@@ -1428,8 +1428,8 @@ TEST(Unit_Tlv_QueryProgram, VisitorFailureAndIncrementalStatusCarryDetail) {
         EXPECT_EQ(TLV_ERR_VISITOR, TLV_DIAGNOSTIC_RESULT(d, tlv_query_program_visit(
                                                                 &reader, exec, fail, nullptr, &d)));
         EXPECT_EQ(TLV_QUERY_ERROR_CALLBACK, d.kind);
-        EXPECT_FALSE(d.has_reader);
-        EXPECT_STREQ("visitor continue or stop", d.expected);
+        EXPECT_NE(TLV_QUERY_CAUSE_READER, d.cause);
+        EXPECT_STREQ("visitor continue or stop", d.diagnostic.expected);
         // exists initializes its diagnostic even when the execution is poisoned.
         int found = 77;
         EXPECT_EQ(TLV_ERR_INVALID_STATE,
@@ -1444,7 +1444,7 @@ TEST(Unit_Tlv_QueryProgram, VisitorFailureAndIncrementalStatusCarryDetail) {
             TLV_DIAGNOSTIC_RESULT(d, tlv_query_program_visit(&reader, exec, fail, nullptr, &d)));
         EXPECT_EQ(TLV_QUERY_ERROR_READER, d.kind);
         EXPECT_EQ(TLV_NEED_MORE_DATA, d.diagnostic.code);
-        EXPECT_TRUE(d.has_reader);
+        EXPECT_EQ(TLV_QUERY_CAUSE_READER, d.cause);
         EXPECT_EQ(TLV_DIAGNOSTIC_SEVERITY_INFO, d.diagnostic.severity);
     }
 }
@@ -1481,9 +1481,9 @@ TEST(Unit_Tlv_QueryProgram, PropagatedReaderStateUsesStateKindAndPreservesReader
                   TLV_DIAGNOSTIC_RESULT(diagnostic, tlv_query_program_visit(&reader, exec, visitor,
                                                                             nullptr, &diagnostic)));
         EXPECT_EQ(TLV_QUERY_ERROR_STATE, diagnostic.kind);
-        EXPECT_TRUE(diagnostic.has_reader);
+        EXPECT_EQ(TLV_QUERY_CAUSE_READER, diagnostic.cause);
         EXPECT_EQ(TLV_ERR_INVALID_STATE, diagnostic.diagnostic.code);
-        EXPECT_EQ(TLV_READER_OP_VALUE, diagnostic.reader.operation);
+        EXPECT_EQ(TLV_READER_OP_VALUE, diagnostic.detail.reader.operation);
         EXPECT_EQ(1u, diagnostic.diagnostic.location.begin);
     }
 }
@@ -1628,10 +1628,10 @@ TEST(Unit_Tlv_QueryProgram, DeepSchemaPathsMatchBetweenBufferAndDocument) {
                   tlv_schema_query_validate_buffer(wire.data(), wire.size(), &nested_format, &rule,
                                                    1, 64, 100, 1000000, &workspace, &diagnostic));
         const size_t retained = depth < 32 ? depth : 32;
-        ASSERT_EQ(retained, diagnostic.schema.diagnostic.path.length);
-        EXPECT_EQ(depth - retained, diagnostic.schema.diagnostic.path.omitted);
+        ASSERT_EQ(retained, diagnostic.query.diagnostic.path.length);
+        EXPECT_EQ(depth - retained, diagnostic.query.diagnostic.path.omitted);
         for (size_t i = 0; i < retained; ++i)
-            EXPECT_EQ(0x80 + i, diagnostic.schema.diagnostic.path.tags[i].data[0]);
+            EXPECT_EQ(0x80 + i, diagnostic.query.diagnostic.path.tags[i].data[0]);
 #if OPENTLV_DOCUMENT && OPENTLV_READER && OPENTLV_WRITER
         tlv_document_options_t options;
         ASSERT_EQ(TLV_OK, tlv_document_options_init(&options, &nested_format));
@@ -1644,12 +1644,12 @@ TEST(Unit_Tlv_QueryProgram, DeepSchemaPathsMatchBetweenBufferAndDocument) {
         ASSERT_EQ(TLV_ERR_SCHEMA, tlv_schema_query_validate_document(
                                       document.get(), &rule, 1, 64, 100, 1000000, &workspace,
                                       nullptr, 0, nullptr, &doc_diagnostic));
-        ASSERT_EQ(retained, doc_diagnostic.schema.diagnostic.path.length);
-        EXPECT_EQ(diagnostic.schema.diagnostic.path.omitted,
-                  doc_diagnostic.schema.diagnostic.path.omitted);
+        ASSERT_EQ(retained, doc_diagnostic.query.diagnostic.path.length);
+        EXPECT_EQ(diagnostic.query.diagnostic.path.omitted,
+                  doc_diagnostic.query.diagnostic.path.omitted);
         for (size_t i = 0; i < retained; ++i)
-            EXPECT_TRUE(tlv_tag_equal(diagnostic.schema.diagnostic.path.tags[i],
-                                      doc_diagnostic.schema.diagnostic.path.tags[i]));
+            EXPECT_TRUE(tlv_tag_equal(diagnostic.query.diagnostic.path.tags[i],
+                                      doc_diagnostic.query.diagnostic.path.tags[i]));
 #endif
     }
 }

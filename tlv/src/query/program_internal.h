@@ -371,14 +371,35 @@ static inline tlv_result_t query_error(tlv_query_diagnostic_t* d, tlv_result_t c
         tlv_diagnostic_init(&d->diagnostic, code, TLV_DIAGNOSTIC_SEVERITY_ERROR);
         tlv_diagnostic_set_location(&d->diagnostic, TLV_LOCATION_EXPRESSION, TLV_LOCATION_SPAN,
                                     begin, end);
+        d->diagnostic.expected = expected;
         d->kind = code == TLV_ERR_INVALID_STATE ? TLV_QUERY_ERROR_STATE
                   : code == TLV_ERR_CALLBACK    ? TLV_QUERY_ERROR_CALLBACK
                                                 : kind;
-        d->begin = begin;
-        d->end = end;
-        d->expected = expected;
+        memset(&d->expression, 0, sizeof d->expression);
+        d->cause = TLV_QUERY_CAUSE_NONE;
     }
     return code;
+}
+/* Before another location becomes primary, keep a primary expression span as the
+ * related secondary span, so each span is stored exactly once. */
+static inline void query_relate_expression(tlv_query_diagnostic_t* d) {
+    if (d->diagnostic.location.domain == TLV_LOCATION_EXPRESSION &&
+        d->diagnostic.location.kind != TLV_LOCATION_UNKNOWN)
+        d->expression = d->diagnostic.location;
+}
+static inline void query_input_location(tlv_query_diagnostic_t* d, size_t offset) {
+    query_relate_expression(d);
+    tlv_diagnostic_set_location(&d->diagnostic, TLV_LOCATION_INPUT, TLV_LOCATION_POINT, offset,
+                                offset);
+}
+/* The Reader diagnostic becomes the common part unchanged; its detail is the only cause. */
+static inline void query_reader_failure(tlv_query_diagnostic_t* d, tlv_result_t rc,
+                                        const tlv_reader_diagnostic_t* reader) {
+    d->kind = rc == TLV_ERR_INVALID_STATE ? TLV_QUERY_ERROR_STATE : TLV_QUERY_ERROR_READER;
+    memset(&d->expression, 0, sizeof d->expression);
+    d->cause = TLV_QUERY_CAUSE_READER;
+    d->detail.reader = reader->detail;
+    d->diagnostic = reader->diagnostic;
 }
 /* Admission/lifecycle failures have no expression evidence, even at byte zero. */
 static inline tlv_result_t query_error_unlocated(tlv_query_diagnostic_t* d, tlv_result_t code,

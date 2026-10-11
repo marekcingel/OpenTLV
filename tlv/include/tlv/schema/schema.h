@@ -310,11 +310,10 @@ typedef struct tlv_schema_definition_location {
 } tlv_schema_definition_location_t;
 
 /**
- * @brief Structured Schema failure detail shared by validation and definition checks.
+ * @brief Schema-specific failure evidence without common diagnostic metadata.
  *
- * Pairs a #tlv_diagnostic_t (code, severity and an optional byte position) with the schema-specific
- * detail needed to explain the violation: which rule or #tlv_structure_group_t it breaks, the tag
- * involved, the enclosing path, the schema field or group name if it has one, and the
+ * Identifies which rule or #tlv_structure_group_t a violation breaks, the tag
+ * involved, the schema field or group name if it has one, and the
  * expected-versus-actual detail for whichever of `kind`'s cases applies. A
  * field not applicable to `kind` is left unset, indicated by its paired
  * `has_*` flag being zero. Every field is a fixed-size value or a borrowed
@@ -327,15 +326,14 @@ typedef struct tlv_schema_definition_location {
  * group's `name`, and the occurrence fields are the group's own bounds and
  * summed occurrences rather than one rule's.
  *
- * The common base owns its bounded path value, so copies retain valid external
- * Tag borrows without self-references. Native definition failures identify the
- * owning table/type and offending member independently of byte locations.
+ * Native definition failures identify the owning table/type and offending
+ * member independently of byte locations.
  *
- * @see tlv_schema_diagnostic_init
+ * @note This fixed-size value contains no result, location or path. It is the
+ * single Schema detail type: #tlv_schema_diagnostic_t pairs it with one common
+ * #tlv_diagnostic_t, and Codec and Query embed it as their delegated Schema cause.
  */
-typedef struct tlv_schema_diagnostic {
-    /** Common result, severity, primary location and enclosing path. */
-    tlv_diagnostic_t diagnostic;
+typedef struct tlv_schema_detail {
     /** Which rule was violated; see #tlv_schema_issue_kind_t. */
     tlv_schema_issue_kind_t kind;
     /** Affected tag; for #TLV_SCHEMA_ISSUE_MISSING, the tag that is absent. Borrows the input
@@ -363,8 +361,7 @@ typedef struct tlv_schema_diagnostic {
      * nonzero, of the group's members combined. */
     size_t occurs;
     /** Nonzero if `min_length`, `max_length`, `actual_length`, `length_multiple` and `length_flags`
-     * are set
-     * (#TLV_SCHEMA_ISSUE_LENGTH). */
+     * are set (#TLV_SCHEMA_ISSUE_LENGTH). */
     int has_length;
     /** Minimum permitted value length in bytes, inclusive. */
     size_t min_length;
@@ -382,6 +379,23 @@ typedef struct tlv_schema_diagnostic {
     size_t length_multiple;
     /** Schema length-policy flags, including #TLV_SCHEMA_LENGTH_ENDPOINTS, when has_length. */
     uint32_t length_flags;
+} tlv_schema_detail_t;
+
+/**
+ * @brief Common failure diagnostic paired with Schema-specific evidence.
+ *
+ * Shared by validation and definition checks. The common base carries the
+ * code, severity, primary location, expected text and enclosing path; `detail`
+ * explains the violation. The common base owns its bounded path value, so copies
+ * retain valid external Tag borrows without self-references.
+ *
+ * @see tlv_schema_diagnostic_init
+ */
+typedef struct tlv_schema_diagnostic {
+    /** Common result, severity, primary location and enclosing path. */
+    tlv_diagnostic_t diagnostic;
+    /** Violated rule, affected tag and expected-versus-actual evidence. */
+    tlv_schema_detail_t detail;
 } tlv_schema_diagnostic_t;
 
 /**

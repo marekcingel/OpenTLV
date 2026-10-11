@@ -88,7 +88,7 @@ TEST(Unit_Tlv_DerSchema, InvalidDefinitionPrecedesInputAndCallbacks) {
         TLV_DER_SCHEMA_UNIVERSAL, 2, nullptr, 0, nullptr, 0, 0, &constraint, 0};
     tlv_schema_diagnostic_t diagnostic{};
     EXPECT_EQ(TLV_ERR_INVALID_SCHEMA, tlv_der_schema_check(&type, &diagnostic));
-    EXPECT_EQ(TLV_SCHEMA_ISSUE_DEFINITION, diagnostic.kind);
+    EXPECT_EQ(TLV_SCHEMA_ISSUE_DEFINITION, diagnostic.detail.kind);
     EXPECT_FALSE(diagnostic.diagnostic.location.kind);
     tlv_element_t element{};
     size_t        consumed = 123;
@@ -117,7 +117,7 @@ TEST(Unit_Tlv_DerSchema, RequiredRootHasMissingDetailForReadAndWrite) {
     EXPECT_EQ(TLV_ERR_SCHEMA, tlv_der_schema_read(nullptr, 0, &kInteger, nullptr, &element,
                                                   &consumed, &diagnostic));
     EXPECT_EQ(TLV_ERR_SCHEMA, diagnostic.diagnostic.code);
-    EXPECT_EQ(TLV_SCHEMA_ISSUE_MISSING, diagnostic.kind);
+    EXPECT_EQ(TLV_SCHEMA_ISSUE_MISSING, diagnostic.detail.kind);
     EXPECT_EQ(TLV_LOCATION_SCOPE_END, diagnostic.diagnostic.location.kind);
     EXPECT_TRUE(diagnostic.diagnostic.location.kind);
     EXPECT_EQ(0u, diagnostic.diagnostic.location.begin);
@@ -131,7 +131,7 @@ TEST(Unit_Tlv_DerSchema, RequiredRootHasMissingDetailForReadAndWrite) {
     size_t written = 123;
     EXPECT_EQ(TLV_ERR_SCHEMA, tlv_der_schema_write(nullptr, 0, &kInteger, absent, nullptr, nullptr,
                                                    nullptr, 0, nullptr, 0, &written, &diagnostic));
-    EXPECT_EQ(TLV_SCHEMA_ISSUE_MISSING, diagnostic.kind);
+    EXPECT_EQ(TLV_SCHEMA_ISSUE_MISSING, diagnostic.detail.kind);
     EXPECT_EQ(TLV_LOCATION_INSERTION, diagnostic.diagnostic.location.kind);
     EXPECT_TRUE(diagnostic.diagnostic.location.kind);
     EXPECT_EQ(0u, diagnostic.diagnostic.location.begin);
@@ -145,7 +145,7 @@ TEST(Unit_Tlv_DerSchema, DefinitionGraphErrorsAreNotInputOrCapabilityFailures) {
         TLV_DER_SCHEMA_SEQUENCE_OF, 0, nullptr, 0, nullptr, 0, SIZE_MAX, nullptr, 0};
     tlv_schema_diagnostic_t diagnostic{};
     EXPECT_EQ(TLV_ERR_INVALID_SCHEMA, tlv_der_schema_check(&root, &diagnostic));
-    EXPECT_EQ(TLV_SCHEMA_ISSUE_DEFINITION, diagnostic.kind);
+    EXPECT_EQ(TLV_SCHEMA_ISSUE_DEFINITION, diagnostic.detail.kind);
     EXPECT_FALSE(diagnostic.diagnostic.location.kind);
     auto element = Required(root);
     root.element = &element;
@@ -156,7 +156,7 @@ TEST(Unit_Tlv_DerSchema, DefinitionGraphErrorsAreNotInputOrCapabilityFailures) {
     root.components = &element;
     root.component_count = TLV_DER_SCHEMA_MAX_COMPONENTS + 1;
     EXPECT_EQ(TLV_ERR_UNSUPPORTED, tlv_der_schema_check(&root, &diagnostic));
-    EXPECT_EQ(TLV_SCHEMA_ISSUE_NONE, diagnostic.kind);
+    EXPECT_EQ(TLV_SCHEMA_ISSUE_NONE, diagnostic.detail.kind);
     EXPECT_FALSE(diagnostic.diagnostic.location.kind);
     EXPECT_EQ(TLV_ERR_NULL_ARG, tlv_der_schema_check(nullptr, &diagnostic));
     EXPECT_EQ(TLV_ERR_NULL_ARG, diagnostic.diagnostic.code);
@@ -939,7 +939,7 @@ TEST(Unit_Tlv_DerSchema, TransparentCyclesAreRejectedEvenInsideProductiveCycles)
     choice.components = &alternative;
     tlv_schema_diagnostic_t diagnostic{};
     EXPECT_EQ(TLV_ERR_INVALID_SCHEMA, tlv_der_schema_check(&choice, &diagnostic));
-    EXPECT_EQ(TLV_SCHEMA_ISSUE_DEFINITION, diagnostic.kind);
+    EXPECT_EQ(TLV_SCHEMA_ISSUE_DEFINITION, diagnostic.detail.kind);
     EXPECT_FALSE(diagnostic.diagnostic.location.kind);
     // A consuming edge elsewhere in the graph must not hide this CHOICE self-loop.
     tlv_der_schema_component_t members[2] = {Required(choice), Required(choice)};

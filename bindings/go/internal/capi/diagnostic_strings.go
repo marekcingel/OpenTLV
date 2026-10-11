@@ -17,6 +17,9 @@ func WriterOperationName(value int) string {
 func QueryErrorKindName(value int) string {
 	return C.GoString(C.tlv_query_error_kind_string(C.tlv_query_error_kind_t(value)))
 }
+func QueryCauseName(value int) string {
+	return C.GoString(C.tlv_query_cause_string(C.tlv_query_cause_t(value)))
+}
 func SchemaIssueName(value int) string {
 	return C.GoString(C.tlv_schema_issue_kind_string(C.tlv_schema_issue_kind_t(value)))
 }

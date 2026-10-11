@@ -43,15 +43,17 @@ typedef struct tlv_schema_query_workspace {
     size_t frame_capacity;    /**< Reader stack entries. */
 } tlv_schema_query_workspace_t;
 /** @brief Rule-aware failure preserving native Query/Reader/codec diagnostics.
- * @note After initialization, a failed assertion sets `schema.diagnostic.code`
- * to the return code; an execution failure sets `query.kind` to a non-NONE
- * category. Invalid program contents initialize `query.kind` to IMAGE; incompatible
- * rule result types initialize it to TYPE, both with #TLV_ERR_INVALID_VALUE.
- * Other preflight rejection before initialization leaves both untouched. */
+ * @note After initialization, every failure is described once by `query`. A
+ * failed assertion sets `query.diagnostic.code` to #TLV_ERR_SCHEMA, `query.kind`
+ * to #TLV_QUERY_ERROR_SCHEMA and `query.cause` to #TLV_QUERY_CAUSE_SCHEMA, with
+ * ASSERTION detail (tag, field=name) in `query.detail.schema`. An execution failure
+ * keeps its own result, kind and cause. Invalid program contents initialize
+ * `query.kind` to IMAGE; incompatible rule result types initialize it to TYPE,
+ * both with #TLV_ERR_INVALID_VALUE. Other preflight rejection before
+ * initialization leaves the object untouched. */
 typedef struct tlv_schema_query_diagnostic {
-    size_t rule;                    /**< Zero-based failing rule. */
-    tlv_schema_diagnostic_t schema; /**< Failed boolean context, field=name, expected=true. */
-    tlv_query_diagnostic_t query;   /**< Original engine/Reader failure, separately preserved. */
+    size_t rule;                  /**< Zero-based failing rule. */
+    tlv_query_diagnostic_t query; /**< Assertion or original engine/Reader/codec failure. */
 } tlv_schema_query_diagnostic_t;
 /** @brief Discover aggregate sequential execution requirements and validate result types.
  * @param rules Immutable borrowed descriptors.

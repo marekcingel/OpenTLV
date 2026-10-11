@@ -52,6 +52,17 @@ const char* tlv_query_error_kind_string(tlv_query_error_kind_t value) {
         case TLV_QUERY_ERROR_CALLBACK: return "callback";
         case TLV_QUERY_ERROR_TYPE: return "type";
         case TLV_QUERY_ERROR_IMAGE: return "image";
+        case TLV_QUERY_ERROR_SCHEMA: return "schema";
+    }
+    return "unknown";
+}
+
+const char* tlv_query_cause_string(tlv_query_cause_t value) {
+    switch (value) {
+        case TLV_QUERY_CAUSE_NONE: return "none";
+        case TLV_QUERY_CAUSE_READER: return "reader";
+        case TLV_QUERY_CAUSE_CODEC: return "codec";
+        case TLV_QUERY_CAUSE_SCHEMA: return "schema";
     }
     return "unknown";
 }

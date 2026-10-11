@@ -10,7 +10,7 @@ static tlv_result_t tlv_schema_codec_length_result(const tlv_schema_entry_t* rul
                                                    tlv_codec_diagnostic_t* diagnostic) {
     if (diagnostic) {
         diagnostic->codec.cause = TLV_CODEC_CAUSE_SCHEMA;
-        tlv_codec_schema_detail_t* detail = &diagnostic->codec.detail.schema;
+        tlv_schema_detail_t* detail = &diagnostic->codec.detail.schema;
         detail->kind = result == TLV_ERR_INVALID_SCHEMA ? TLV_SCHEMA_ISSUE_DEFINITION
                                                         : TLV_SCHEMA_ISSUE_LENGTH;
         detail->tag = rule->tag;

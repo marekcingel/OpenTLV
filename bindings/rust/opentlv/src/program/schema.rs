@@ -226,13 +226,17 @@ fn schema_result(
 ) -> Result<(), QuerySchemaError> {
     check(code, &diagnostic.query).map_err(|failure| {
         // SAFETY: input, Document and rule names are still alive. Only a false
-        // assertion initializes this nested record; its borrowed fields are copied.
-        let schema = if diagnostic.schema.kind == 0 {
-            None
-        } else {
-            unsafe { crate::SchemaDiagnostic::from_raw(&diagnostic.schema) }
+        // assertion selects the Schema cause; its borrowed fields are copied.
+        let schema = if diagnostic.query.cause == native::TLV_QUERY_CAUSE_SCHEMA {
+            let cause = native::tlv_schema_diagnostic_t {
+                diagnostic: diagnostic.query.diagnostic,
+                detail: unsafe { diagnostic.query.detail.schema },
+            };
+            unsafe { crate::SchemaDiagnostic::from_raw(&cause) }
                 .ok()
                 .map(Box::new)
+        } else {
+            None
         };
         QuerySchemaError {
             rule: diagnostic.rule,

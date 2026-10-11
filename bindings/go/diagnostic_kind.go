@@ -59,10 +59,24 @@ const (
 	QueryErrorKindCallback     QueryErrorKind = 13
 	QueryErrorKindType         QueryErrorKind = 14
 	QueryErrorKindImage        QueryErrorKind = 15
+	QueryErrorKindSchema       QueryErrorKind = 16
 )
 
 // String returns the canonical C spelling, or "unknown".
 func (v QueryErrorKind) String() string { return capi.QueryErrorKindName(int(v)) }
+
+// QueryCause identifies a canonical C diagnostic category.
+type QueryCause int
+
+const (
+	QueryCauseNone   QueryCause = 0
+	QueryCauseReader QueryCause = 1
+	QueryCauseCodec  QueryCause = 2
+	QueryCauseSchema QueryCause = 3
+)
+
+// String returns the canonical C spelling, or "unknown".
+func (v QueryCause) String() string { return capi.QueryCauseName(int(v)) }
 
 // SchemaIssue identifies a canonical C diagnostic category.
 type SchemaIssue int

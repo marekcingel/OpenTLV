@@ -143,6 +143,13 @@ the normal machine-readable extension; borrowed text contexts are optional
 human-readable enrichment. Programs must not parse context strings to classify
 an error.
 
+Every field of a public diagnostic has exactly one meaning (#579). Layer detail
+types (`tlv_reader_detail_t`, `tlv_schema_detail_t` and `tlv_codec_detail_t`)
+contain no result, location or path. An enclosing diagnostic embeds one common
+base and at most one active lower-layer detail, selected by a discriminated
+cause, so a delegated cause is reachable through one path only. See the
+[field table](../reference/errors.md#diagnostic-field-ownership).
+
 The base carries the returned result, severity, origin layer, primary location
 and optional path/expected/actual information. Specialized detail identifies the
 operation and reason, including the original lower-layer detail when delegated.
@@ -157,8 +164,9 @@ by #554. `ARGUMENT` remains to be added for cases currently forced into
 `IMAGE_VERSION` for a recognized version mismatch. `CODEC` denotes conversion
 context; a callback contract violation during conversion uses `CALLBACK` and
 records the codec operation and reported result, including a reported `OK`.
-The raw `codec.reported` and Query `codec` fields use `int32_t`, preserving
-unknown and negative foreign callback results without invalid C++ enum reads.
+The raw `codec.reported` field, which Query reaches as `detail.codec.reported`,
+uses `int32_t`, preserving unknown and negative foreign callback results
+without invalid C++ enum reads.
 Callback signatures still use `tlv_result_t`: C++ callbacks must return values
 representable by that enum, and callers must use the C dispatch entry points
 to normalize foreign callback results before interpreting the returned status.
@@ -244,8 +252,9 @@ than returning a new overflow error.
 Reader locations are relative to the documented input origin, including the
 absolute origin of an incremental window. Query expression spans and input
 Source offsets remain separate. On Reader/Codec propagation, the original
-input location stays primary and the Query expression span is related context;
-do not overwrite one with the other. If the lower layer gives a Value-relative
+input location stays primary and the Query expression span is related context
+in `expression`; do not overwrite one with the other, and do not store a span
+twice when it is already primary. If the lower layer gives a Value-relative
 position, translate it only when the Value origin is known. Without it, retain
 the local domain/origin information or mark the enclosing source position
 unknown. Do not manufacture an absolute offset.

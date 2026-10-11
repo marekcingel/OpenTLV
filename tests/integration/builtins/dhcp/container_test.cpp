@@ -66,7 +66,7 @@ TEST(Integration_Tlv_DhcpContainer, MissingAndOptionalEndIncludingEmptyAndAllPad
                   diagnostic, tlv_dhcpv4_options_validate(wire, sizeof(wire), nullptr, SIZE_MAX,
                                                           &significant, &diagnostic)));
     EXPECT_EQ(sizeof(wire), diagnostic.diagnostic.location.begin);
-    EXPECT_EQ(TLV_SCHEMA_ISSUE_MISSING, diagnostic.kind);
+    EXPECT_EQ(TLV_SCHEMA_ISSUE_MISSING, diagnostic.detail.kind);
     EXPECT_EQ(TLV_LOCATION_SCOPE_END, diagnostic.diagnostic.location.kind);
     EXPECT_TRUE(diagnostic.diagnostic.location.kind);
     EXPECT_EQ(999u, significant);

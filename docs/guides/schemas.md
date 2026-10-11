@@ -474,15 +474,16 @@ if (rc == TLV_ERR_SCHEMA) {
         const tlv_schema_diagnostic_t* d = &diagnostics[i];
         char path[256];
         if (tlv_diagnostic_path_string(&d->diagnostic.path, path, sizeof(path), NULL) == TLV_OK)
-            printf("%s in %s", tlv_schema_issue_kind_string(d->kind), path);
+            printf("%s in %s", tlv_schema_issue_kind_string(d->detail.kind), path);
         if (d->diagnostic.location.kind != TLV_LOCATION_UNKNOWN) printf(" (offset %zu)", d->diagnostic.location.begin);
         printf("\n");
     }
 }
 ```
 
-Each diagnostic contains its violation `kind`, affected `tag`, enclosing scope
-`path`, field name, common diagnostic code/offset and applicable expected/actual
+Each diagnostic pairs one common `diagnostic` (code, offset, enclosing scope
+`path` and expected/actual text) with a `tlv_schema_detail_t` `detail`: the
+violation `kind`, affected `tag`, field name and applicable expected/actual
 constraints. The path excludes the affected tag. Tags and names borrow input,
 Format or Schema storage, which must outlive retained C diagnostics. Missing
 fields use their enclosing element's offset; a missing root field has no offset.

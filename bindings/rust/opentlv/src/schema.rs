@@ -465,16 +465,17 @@ impl SchemaDiagnostic {
             None
         };
         // SAFETY: C returns a static NUL-terminated name for any kind.
-        let kind_name =
-            unsafe { std::ffi::CStr::from_ptr(native::tlv_schema_issue_kind_string(item.kind)) }
-                .to_string_lossy()
-                .into_owned();
-        let field = if item.field.is_null() {
+        let kind_name = unsafe {
+            std::ffi::CStr::from_ptr(native::tlv_schema_issue_kind_string(item.detail.kind))
+        }
+        .to_string_lossy()
+        .into_owned();
+        let field = if item.detail.field.is_null() {
             None
         } else {
             // SAFETY: schema retains this NUL-terminated name during the copy.
             Some(
-                unsafe { std::ffi::CStr::from_ptr(item.field) }
+                unsafe { std::ffi::CStr::from_ptr(item.detail.field) }
                     .to_string_lossy()
                     .into_owned(),
             )
@@ -483,13 +484,13 @@ impl SchemaDiagnostic {
             error: Error::from_code(item.diagnostic.code).unwrap_or(Error::Schema),
             contexts: unsafe { crate::reader_diagnostic::contexts(&item.diagnostic) },
             severity: crate::Severity::from_raw(item.diagnostic.severity),
-            kind: crate::SchemaIssue::from_raw(item.kind),
+            kind: crate::SchemaIssue::from_raw(item.detail.kind),
             kind_name,
             location: crate::Location::from_raw(item.diagnostic.location),
-            definition_kind: crate::SchemaDefinitionKind::from_raw(item.definition.kind),
-            definition_index: item.definition.index,
+            definition_kind: crate::SchemaDefinitionKind::from_raw(item.detail.definition.kind),
+            definition_index: item.detail.definition.index,
             // SAFETY: affected tag borrows still-live storage.
-            tag: unsafe { Tag::from_raw(&item.tag) }?,
+            tag: unsafe { Tag::from_raw(&item.detail.tag) }?,
             path,
             path_omitted: item.diagnostic.path.omitted,
             offset: (item.diagnostic.location.kind != 0).then_some(item.diagnostic.location.begin),
@@ -512,27 +513,27 @@ impl SchemaDiagnostic {
                 )
             },
             field,
-            is_group: item.is_group != 0,
-            occurrences: (item.has_occurs != 0).then_some(SchemaBounds {
-                minimum: item.min_occurs,
-                maximum: item.max_occurs,
-                actual: item.occurs,
+            is_group: item.detail.is_group != 0,
+            occurrences: (item.detail.has_occurs != 0).then_some(SchemaBounds {
+                minimum: item.detail.min_occurs,
+                maximum: item.detail.max_occurs,
+                actual: item.detail.occurs,
             }),
-            length: (item.has_length != 0).then_some(SchemaBounds {
-                minimum: item.min_length,
-                maximum: item.max_length,
-                actual: item.actual_length,
+            length: (item.detail.has_length != 0).then_some(SchemaBounds {
+                minimum: item.detail.min_length,
+                maximum: item.detail.max_length,
+                actual: item.detail.actual_length,
             }),
-            form: (item.has_form != 0).then_some((
-                match item.expected_form {
+            form: (item.detail.has_form != 0).then_some((
+                match item.detail.expected_form {
                     1 => Kind::Primitive,
                     2 => Kind::Constructed,
                     _ => Kind::Any,
                 },
-                item.actual_constructed != 0,
+                item.detail.actual_constructed != 0,
             )),
-            length_multiple: item.length_multiple,
-            length_flags: item.length_flags,
+            length_multiple: item.detail.length_multiple,
+            length_flags: item.detail.length_flags,
         })
     }
 }
@@ -661,10 +662,12 @@ impl StructureSchema {
             return Err(SchemaError {
                 error: Error::from_code(code).unwrap(),
                 offset: crate::Location::from_raw(diagnostic.diagnostic.location).offset(),
-                kind: crate::SchemaIssue::from_raw(diagnostic.kind),
+                kind: crate::SchemaIssue::from_raw(diagnostic.detail.kind),
                 location: crate::Location::from_raw(diagnostic.diagnostic.location),
-                definition_kind: crate::SchemaDefinitionKind::from_raw(diagnostic.definition.kind),
-                definition_index: diagnostic.definition.index,
+                definition_kind: crate::SchemaDefinitionKind::from_raw(
+                    diagnostic.detail.definition.kind,
+                ),
+                definition_index: diagnostic.detail.definition.index,
             });
         }
         let mut diagnostics = Vec::new();
@@ -864,10 +867,12 @@ impl StructureSchema {
                 } else {
                     None
                 },
-                kind: crate::SchemaIssue::from_raw(diagnostic.kind),
+                kind: crate::SchemaIssue::from_raw(diagnostic.detail.kind),
                 location: crate::Location::from_raw(diagnostic.diagnostic.location),
-                definition_kind: crate::SchemaDefinitionKind::from_raw(diagnostic.definition.kind),
-                definition_index: diagnostic.definition.index,
+                definition_kind: crate::SchemaDefinitionKind::from_raw(
+                    diagnostic.detail.definition.kind,
+                ),
+                definition_index: diagnostic.detail.definition.index,
             }),
         }
     }

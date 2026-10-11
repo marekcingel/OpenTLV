@@ -104,13 +104,11 @@ int main(void) {
     TYPE(tlv_query_diagnostic_t);
     FIELD(tlv_query_diagnostic_t, diagnostic);
     FIELD(tlv_query_diagnostic_t, kind);
-    FIELD(tlv_query_diagnostic_t, has_reader);
-    FIELD(tlv_query_diagnostic_t, begin);
-    FIELD(tlv_query_diagnostic_t, end);
-    FIELD(tlv_query_diagnostic_t, reader);
-    FIELD(tlv_query_diagnostic_t, codec);
-    FIELD(tlv_query_diagnostic_t, has_codec);
-    FIELD(tlv_query_diagnostic_t, codec_detail);
+    FIELD(tlv_query_diagnostic_t, expression);
+    FIELD(tlv_query_diagnostic_t, limit);
+    FIELD(tlv_query_diagnostic_t, configured);
+    FIELD(tlv_query_diagnostic_t, cause);
+    FIELD(tlv_query_diagnostic_t, detail);
     printf("},");
     TYPE(tlv_query_result_t);
     FIELD(tlv_query_result_t, kind);

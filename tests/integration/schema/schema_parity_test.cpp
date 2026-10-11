@@ -62,9 +62,9 @@ const char* form(int constructed) {
 // pointer identity. Fields whose has_* flag is clear are not rendered.
 std::string describe(const tlv_schema_diagnostic_t& d) {
     const tlv_location_t& at = d.diagnostic.location;
-    std::string out = std::string("severity=") +
-                      tlv_diagnostic_severity_string(d.diagnostic.severity) +
-                      " kind=" + tlv_schema_issue_kind_string(d.kind) + " tag=" + hex(d.tag);
+    std::string           out =
+        std::string("severity=") + tlv_diagnostic_severity_string(d.diagnostic.severity) +
+        " kind=" + tlv_schema_issue_kind_string(d.detail.kind) + " tag=" + hex(d.detail.tag);
     out += " path=";
     if (!d.diagnostic.has_path) {
         out += "-";
@@ -73,17 +73,20 @@ std::string describe(const tlv_schema_diagnostic_t& d) {
             out += (i ? ">" : "") + hex(d.diagnostic.path.tags[i]);
         out += "+" + std::to_string(d.diagnostic.path.omitted);
     }
-    out += " field=" + std::string(d.field ? d.field : "-") + (d.is_group ? " group" : "");
-    if (d.has_occurs)
-        out += " occurs=" + std::to_string(d.occurs) + "[" + std::to_string(d.min_occurs) + "," +
-               std::to_string(d.max_occurs) + "]";
-    if (d.has_length)
-        out += " length=" + std::to_string(d.actual_length) + "[" + std::to_string(d.min_length) +
-               "," + std::to_string(d.max_length) + "]%" + std::to_string(d.length_multiple) +
-               " flags=" + std::to_string(d.length_flags);
-    if (d.has_form)
-        out += std::string(" expected=") + form(d.expected_form == TLV_SCHEMA_CONSTRUCTED) +
-               " actual=" + form(d.actual_constructed);
+    out += " field=" + std::string(d.detail.field ? d.detail.field : "-") +
+           (d.detail.is_group ? " group" : "");
+    if (d.detail.has_occurs)
+        out += " occurs=" + std::to_string(d.detail.occurs) + "[" +
+               std::to_string(d.detail.min_occurs) + "," + std::to_string(d.detail.max_occurs) +
+               "]";
+    if (d.detail.has_length)
+        out += " length=" + std::to_string(d.detail.actual_length) + "[" +
+               std::to_string(d.detail.min_length) + "," + std::to_string(d.detail.max_length) +
+               "]%" + std::to_string(d.detail.length_multiple) +
+               " flags=" + std::to_string(d.detail.length_flags);
+    if (d.detail.has_form)
+        out += std::string(" expected=") + form(d.detail.expected_form == TLV_SCHEMA_CONSTRUCTED) +
+               " actual=" + form(d.detail.actual_constructed);
     out += " at=" + std::string(tlv_location_kind_string(at.kind)) + ":" +
            std::to_string(at.begin) + "-" + std::to_string(at.end);
     return out;

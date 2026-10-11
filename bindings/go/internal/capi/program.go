@@ -12,6 +12,14 @@ static tlv_visit_result_t query_callback(const tlv_tree_event_t* event, void* co
 static tlv_result_t query_visit_handle(go_query_execution* q, uintptr_t handle, tlv_query_diagnostic_t* d) {
     return go_query_visit(q, query_callback, (void*)handle, d);
 }
+static tlv_reader_detail_t query_reader(const tlv_query_diagnostic_t* d) { return d->detail.reader; }
+static tlv_codec_detail_t query_codec(const tlv_query_diagnostic_t* d) { return d->detail.codec; }
+static tlv_schema_detail_t query_schema(const tlv_query_diagnostic_t* d) { return d->detail.schema; }
+// The expression span is primary, or related evidence beside another primary location.
+static tlv_location_t query_expression(const tlv_query_diagnostic_t* d) {
+    return d->diagnostic.location.domain == TLV_LOCATION_EXPRESSION ? d->diagnostic.location
+                                                                    : d->expression;
+}
 */
 import "C"
 import (
@@ -42,14 +50,23 @@ type ProgramDiagnostic struct {
 
 func programDiagnostic(d C.tlv_query_diagnostic_t, code Code) ProgramDiagnostic {
 	reader := Diagnostic{Code: code}
-	if d.has_reader != 0 {
-		reader = readerDiagnosticParts(d.diagnostic, d.reader, code)
+	hasReader := d.cause == C.TLV_QUERY_CAUSE_READER
+	if hasReader {
+		reader = readerDiagnosticParts(d.diagnostic, C.query_reader(&d), code)
 	}
 	common := diagnostic(d.diagnostic, 0)
-	return ProgramDiagnostic{Common: common, HasReader: d.has_reader != 0, Location: common.Location, Kind: int(d.kind), Begin: uint64(d.begin), End: uint64(d.end),
+	span := C.query_expression(&d)
+	result := ProgramDiagnostic{Common: common, HasReader: hasReader, Location: common.Location, Kind: int(d.kind),
 		SourceOffset: uint64(d.diagnostic.location.begin), HasSourceOffset: d.diagnostic.location.domain == C.TLV_LOCATION_INPUT && d.diagnostic.location.kind != C.TLV_LOCATION_UNKNOWN,
-		Configured: uint64(d.configured), Expected: C.GoString(d.expected), Limit: C.GoString(d.limit),
-		Codec: int(d.codec), CodecDetail: queryCodecDetail(d), Reader: reader}
+		Configured: uint64(d.configured), Expected: C.GoString(d.diagnostic.expected), Limit: C.GoString(d.limit),
+		CodecDetail: queryCodecDetail(d), Reader: reader}
+	if span.kind != C.TLV_LOCATION_UNKNOWN {
+		result.Begin, result.End = uint64(span.begin), uint64(span.end)
+	}
+	if result.CodecDetail != nil {
+		result.Codec = result.CodecDetail.Reported
+	}
+	return result
 }
 
 // ProgramOptions owns maps; C borrows only during bounded compilation.
@@ -241,11 +258,14 @@ func ValidateQuerySchema(rules []QueryRule, data []byte, document *Document, for
 			C.size_t(len(rules)), C.size_t(limits.Depth), C.size_t(limits.Nodes), C.size_t(limits.Work),
 			&workspace, values, C.size_t(capacity), &staging, &nativeDetail))
 	}
-	detail := QuerySchemaDiagnostic{Rule: int(nativeDetail.rule), Field: C.GoString(nativeDetail.schema.field),
-		Kind: int(nativeDetail.schema.kind), Schema: diagnostic(nativeDetail.schema.diagnostic, 0),
-		Query: programDiagnostic(nativeDetail.query, code)}
-	detail.Schema.Tag = bytes.Clone(nativeBytes(nativeDetail.schema.tag.data, nativeDetail.schema.tag.size))
-	detail.Schema.HasTag = nativeDetail.schema.tag.size != 0
+	detail := QuerySchemaDiagnostic{Rule: int(nativeDetail.rule), Query: programDiagnostic(nativeDetail.query, code)}
+	if nativeDetail.query.cause == C.TLV_QUERY_CAUSE_SCHEMA {
+		schema := C.query_schema(&nativeDetail.query)
+		detail.Field, detail.Kind = C.GoString(schema.field), int(schema.kind)
+		detail.Schema = diagnostic(nativeDetail.query.diagnostic, 0)
+		detail.Schema.Tag = bytes.Clone(nativeBytes(schema.tag.data, schema.tag.size))
+		detail.Schema.HasTag = schema.tag.size != 0
+	}
 	runtime.KeepAlive(rules)
 	runtime.KeepAlive(document)
 	return code, detail
@@ -695,8 +715,8 @@ func (q *ProgramExecution) EditDocument(document *Document, kind int, tag, value
 func (n Node) Identity() uint64 { return uint64(C.go_query_node_identity(n.ptr)) }
 
 func queryCodecDetail(d C.tlv_query_diagnostic_t) *CodecDetail {
-	if d.has_codec == 0 {
+	if d.cause != C.TLV_QUERY_CAUSE_CODEC {
 		return nil
 	}
-	return codecDetail(d.diagnostic, d.codec_detail)
+	return codecDetail(d.diagnostic, C.query_codec(&d))
 }

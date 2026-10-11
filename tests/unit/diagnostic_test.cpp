@@ -288,13 +288,32 @@ TEST(Unit_Tlv_Diagnostic, InvariantHelperRejectsEmptyAndMismatchedFailureDetail)
     EXPECT_FALSE(test_query_diagnostic_matches(TLV_NEED_MORE_DATA, &query));
     query.diagnostic.code = TLV_NEED_MORE_DATA;
     EXPECT_FALSE(test_query_diagnostic_matches(TLV_NEED_MORE_DATA, &query));
-    query.has_reader = 1;
+    query.cause = TLV_QUERY_CAUSE_READER;
     EXPECT_TRUE(test_query_diagnostic_matches(TLV_NEED_MORE_DATA, &query));
     query.kind = TLV_QUERY_ERROR_CODEC;
+    query.cause = TLV_QUERY_CAUSE_CODEC;
+    query.detail.codec = {};
     EXPECT_FALSE(test_query_diagnostic_matches(TLV_ERR_INVALID_VALUE, &query));
-    query.codec = TLV_ERR_INVALID_VALUE;
+    query.detail.codec.reported = TLV_ERR_INVALID_VALUE;
     query.diagnostic.code = TLV_ERR_INVALID_VALUE;
     EXPECT_TRUE(test_query_diagnostic_matches(TLV_ERR_INVALID_VALUE, &query));
+    query.cause = TLV_QUERY_CAUSE_READER;
+    EXPECT_FALSE(test_query_diagnostic_matches(TLV_ERR_INVALID_VALUE, &query));
+    query.cause = TLV_QUERY_CAUSE_CODEC;
+    query.kind = TLV_QUERY_ERROR_SCHEMA;
+    query.diagnostic.code = TLV_ERR_SCHEMA;
+    EXPECT_FALSE(test_query_diagnostic_matches(TLV_ERR_SCHEMA, &query));
+    query.cause = TLV_QUERY_CAUSE_SCHEMA;
+    EXPECT_TRUE(test_query_diagnostic_matches(TLV_ERR_SCHEMA, &query));
+    query.kind = TLV_QUERY_ERROR_SYNTAX;
+    query.cause = TLV_QUERY_CAUSE_NONE;
+    query.diagnostic.code = TLV_ERR_SYNTAX;
+    tlv_diagnostic_set_location(&query.diagnostic, TLV_LOCATION_EXPRESSION, TLV_LOCATION_SPAN, 1,
+                                3);
+    EXPECT_TRUE(test_query_diagnostic_matches(TLV_ERR_SYNTAX, &query));
+    query.expression = query.diagnostic.location;
+    EXPECT_FALSE(test_query_diagnostic_matches(TLV_ERR_SYNTAX, &query));
+    query.expression = {};
     for (auto kind : {TLV_QUERY_ERROR_EVENTS, TLV_QUERY_ERROR_BINDING, TLV_QUERY_ERROR_READER}) {
         query.kind = kind;
         query.diagnostic.code = TLV_ERR_INVALID_STATE;
@@ -309,10 +328,10 @@ TEST(Unit_Tlv_Diagnostic, QueryCopyOwnsOnePathAndPreservesReaderDetail) {
     uint8_t                tag[] = {0x70};
     tlv_query_diagnostic_t original{};
     original.kind = TLV_QUERY_ERROR_READER;
-    original.has_reader = 1;
-    original.reader.operation = TLV_READER_OP_VALUE;
-    original.reader.has_required = 1;
-    original.reader.required = 7;
+    original.cause = TLV_QUERY_CAUSE_READER;
+    original.detail.reader.operation = TLV_READER_OP_VALUE;
+    original.detail.reader.has_required = 1;
+    original.detail.reader.required = 7;
     tlv_diagnostic_init(&original.diagnostic, TLV_ERR_BUFFER_TOO_SHORT,
                         TLV_DIAGNOSTIC_SEVERITY_ERROR);
     tlv_diagnostic_path_t path{};
@@ -325,9 +344,10 @@ TEST(Unit_Tlv_Diagnostic, QueryCopyOwnsOnePathAndPreservesReaderDetail) {
     ASSERT_TRUE(copy.diagnostic.has_path);
     ASSERT_EQ(1u, copy.diagnostic.path.length);
     EXPECT_EQ(tag, copy.diagnostic.path.tags[0].data);
-    EXPECT_EQ(TLV_READER_OP_VALUE, copy.reader.operation);
-    EXPECT_TRUE(copy.reader.has_required);
-    EXPECT_EQ(7u, copy.reader.required);
+    EXPECT_EQ(TLV_QUERY_CAUSE_READER, copy.cause);
+    EXPECT_EQ(TLV_READER_OP_VALUE, copy.detail.reader.operation);
+    EXPECT_TRUE(copy.detail.reader.has_required);
+    EXPECT_EQ(7u, copy.detail.reader.required);
 }
 
 TEST(Unit_Tlv_Diagnostic, TruncatedPathUnwindsBeforeReplacingASibling) {

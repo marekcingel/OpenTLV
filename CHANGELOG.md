@@ -9,6 +9,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Fixed
 
+- Wrap the generated Rust diagnostic vocabulary imports as rustfmt does, so `generate_diagnostic_vocabulary.py --check` and `cargo fmt` agree. (#579)
 - Match the documented fixed-format example block to its source after the `tlv_result_string()` rename. (#580)
 - JS/WASM Query takes result codes from C (`opentlv_wasm_constants()`) instead of hard-coded numbers, so its own errors report the renumbered codes. (#578)
 - Document `TLV_ERR_SYNTAX` for invalid tokens returned by `tlv_query_compile_scratch()`. (#578)
@@ -127,6 +128,11 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Changed
 
+- **Breaking:** `otlv query` diagnostics store each value once: JSON drops `begin`, `end`, the top-level `expected` and `codec` (use `location`, `diagnostic.expected` and `codec_detail.reported`), adds `cause`, and reports `expression` only when another location is primary; compact text no longer repeats `expected=`. (#579)
+- Rust, Go, Python, Lua and JS/WASM Query diagnostics read the single C sources; their `begin`/`end` report the expression span whether it is primary or related, and a failed Schema Query assertion now carries Query kind `schema` while its Schema fields come from the Query cause. Rebuild bindings. (#579)
+- **Breaking:** `tlv_schema_query_diagnostic_t` reports every failure once in `query` and loses its `schema` member: a false assertion has `TLV_ERR_SCHEMA`, the new kind `TLV_QUERY_ERROR_SCHEMA` and cause `TLV_QUERY_CAUSE_SCHEMA` with `ASSERTION` detail in `query.detail.schema`. (#579)
+- **Breaking:** `tlv_query_diagnostic_t` has one source of truth per field: result, location, path and expected text live only in `diagnostic`; a discriminated `cause` (`tlv_query_cause_t`) selects one of `detail.reader`, `detail.codec` or `detail.schema`; the expression span is the primary location, or the related `expression` location when a Reader, conversion or input location is primary. `begin`/`end`, `expected`, `codec`, `has_codec`/`codec_detail` and `has_reader`/`reader` are removed; a Reader failure inside a conversion hook is reachable only as `detail.codec.detail.reader`. The 64-bit layout shrinks from 1000 to 840 bytes. See the field table in the error reference and rebuild native consumers and bindings. (#579)
+- **Breaking:** Move the Schema detail of `tlv_schema_diagnostic_t` into the new `tlv_schema_detail_t`, so the diagnostic is `{diagnostic, detail}` like the Reader diagnostic, and use the same type for the Codec Schema cause instead of the removed `tlv_codec_schema_detail_t`. Access Schema fields as `detail.kind`, `detail.tag`, `detail.field` and so on. (#579)
 - **Breaking:** Rename `tlv/error.h` to `tlv/result.h` and `tlv_strerror()` to `tlv_result_string()`, so the header and text function match `tlv_result_t` and the `tlv_<enum>_string()` convention; the contract and the result names are unchanged. No compatibility header or alias is provided; update includes and calls, and rebuild native consumers. (#580)
 - `TLV_ERR_BUFFER_TOO_SHORT` belongs to the capacity, resources and numeric ranges category; values are unchanged. (#578)
 - **Breaking:** Renumber `tlv_result_t` by category: success, control statuses (`END`, `NEED_MORE_DATA`), invalid input data, invalid API use, resources and ranges, capabilities, and callbacks. Rebuild native consumers; bindings use the new values. (#578)
@@ -243,6 +249,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Added
 
+- Add `tlv_query_cause_string()` and Query cause categories in the bindings: C++ `query_cause` with `query_failure::cause()` and `query_issue::schema`, Rust, Go and Python `QueryCause`. (#579)
+- Test that a Reader failure inside a Query conversion hook reaches Query only through the Codec cause and equals the original Reader detail; the shared diagnostic assertions check the cause of every `READER`, `CODEC` and `SCHEMA` kind and that an expression span is never stored twice. (#579)
 - Rust error tests compare every variant with its exact `tlv_strerror()` text, so a result constant that drifts from C fails. (#578)
 - Test that an incremental Reader resumes after every truncated cut and then reports `TLV_END`, and that decoders cannot return control, capacity or unknown results while Tree Writer sources may end iteration. (#578)
 - Add prepared Schema handles that check a definition once for repeated validation: `tlv_schema_prepare()` and `tlv_der_schema_prepare()` with `_checked` validate, report, read and write functions, and C++ `tlv::checked_schema`. (#575)

@@ -14,6 +14,8 @@ extern "C" {
     pub fn tlv_writer_operation_string(value: c_int) -> *const c_char;
     /// Canonical static QueryErrorKind label, including unknown values.
     pub fn tlv_query_error_kind_string(value: c_int) -> *const c_char;
+    /// Canonical static QueryCause label, including unknown values.
+    pub fn tlv_query_cause_string(value: c_int) -> *const c_char;
     /// Canonical static SchemaDefinitionKind label, including unknown values.
     pub fn tlv_schema_definition_kind_string(value: c_int) -> *const c_char;
     /// Canonical static CodecOperation label, including unknown values.

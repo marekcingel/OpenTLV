@@ -215,7 +215,7 @@ TEST(Unit_Tlvpp_FullQuery, EmbeddedNulPreservesNativeSpan) {
     auto query = tlv::query_program::compile(std::string("//50\0", 5));
     ASSERT_FALSE(query);
     EXPECT_EQ(TLV_QUERY_ERROR_SYNTAX, query.error().diagnostic.kind);
-    EXPECT_EQ(4u, query.error().diagnostic.begin);
+    EXPECT_EQ(4u, query.error().diagnostic.diagnostic.location.begin);
 }
 
 TEST(Unit_Tlvpp_FullQuery, CallerStorageAndRepeatedNeedMoreData) {
@@ -269,8 +269,8 @@ TEST(Unit_Tlvpp_FullQuery, ContextualSchemaAssertionsPreserveReaderFailures) {
                                                     input, sizeof input, &format, &rule, 1, 3, 100,
                                                     100000, &workspace, &diagnostic)));
     EXPECT_EQ(0u, diagnostic.rule);
-    EXPECT_STREQ("label-requires-name", diagnostic.schema.field);
-    EXPECT_EQ(4u, diagnostic.schema.diagnostic.location.begin);
+    EXPECT_STREQ("label-requires-name", diagnostic.query.detail.schema.field);
+    EXPECT_EQ(4u, diagnostic.query.diagnostic.location.begin);
     EXPECT_EQ(TLV_OK, tlv_schema_query_validate_buffer(input, 4, &format, &rule, 1, 3, 100, 100000,
                                                        &workspace, &diagnostic));
     std::vector<uint8_t> malformed(input, input + sizeof input);
@@ -297,9 +297,9 @@ TEST(Unit_Tlvpp_FullQuery, ContextualSchemaAssertionsPreserveReaderFailures) {
               TLV_DIAGNOSTIC_RESULT(diagnostic, tlv_schema_query_validate_buffer(
                                                     input, sizeof input, &format, &rule, 1, 3, 100,
                                                     100000, &workspace, &diagnostic)));
-    ASSERT_EQ(1u, diagnostic.schema.diagnostic.path.length);
-    EXPECT_EQ(0x6F, diagnostic.schema.diagnostic.path.tags[0].data[0]);
-    EXPECT_STREQ("assertion", tlv_schema_issue_kind_string(diagnostic.schema.kind));
+    ASSERT_EQ(1u, diagnostic.query.diagnostic.path.length);
+    EXPECT_EQ(0x6F, diagnostic.query.diagnostic.path.tags[0].data[0]);
+    EXPECT_STREQ("assertion", tlv_schema_issue_kind_string(diagnostic.query.detail.schema.kind));
 }
 
 #if OPENTLV_DOCUMENT
@@ -737,8 +737,8 @@ TEST(Unit_Tlvpp_FullQuery, DocumentSchemaRunsTheSameContextualPrograms) {
               TLV_DIAGNOSTIC_RESULT(diagnostic, tlv_schema_query_validate_document(
                                                     tlv::native::handle(*doc), &rule, 1, 3, 100,
                                                     100000, &w, nullptr, 0, nullptr, &diagnostic)));
-    EXPECT_EQ(TLV_SCHEMA_ISSUE_ASSERTION, diagnostic.schema.kind);
-    EXPECT_STREQ("name", diagnostic.schema.field);
+    EXPECT_EQ(TLV_SCHEMA_ISSUE_ASSERTION, diagnostic.query.detail.schema.kind);
+    EXPECT_STREQ("name", diagnostic.query.detail.schema.field);
 }
 
 TEST(Unit_Tlvpp_FullQuery, DocumentEnvironmentAcceptsCopiedDescriptorAndRejectsForeignPolicy) {
