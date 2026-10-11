@@ -254,9 +254,9 @@ TEST(Unit_Tlvpp_NativeBoundary, SchemaPreservesNamedDiagnosticsThroughFormatView
                                                 2, diagnostics, 4);
     ASSERT_TRUE(count);
     EXPECT_EQ(2u, *count);
-    EXPECT_EQ(TLV_SCHEMA_ISSUE_MISSING, diagnostics[0].kind);
-    EXPECT_STREQ("one", diagnostics[0].field);
-    EXPECT_EQ(TLV_SCHEMA_ISSUE_UNEXPECTED, diagnostics[1].kind);
+    EXPECT_EQ(TLV_SCHEMA_ISSUE_MISSING, diagnostics[0].detail.kind);
+    EXPECT_STREQ("one", diagnostics[0].detail.field);
+    EXPECT_EQ(TLV_SCHEMA_ISSUE_UNEXPECTED, diagnostics[1].detail.kind);
 }
 
 #if OPENTLV_DOCUMENT

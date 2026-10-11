@@ -8,6 +8,17 @@ pub const TLV_QUERY_ERROR_STATE: c_int = 12;
 pub const TLV_QUERY_ERROR_CALLBACK: c_int = 13;
 pub const TLV_QUERY_ERROR_TYPE: c_int = 14;
 pub const TLV_QUERY_ERROR_IMAGE: c_int = 15;
+pub const TLV_QUERY_ERROR_SCHEMA: c_int = 16;
+/// Query expression text coordinate domain.
+pub const TLV_LOCATION_EXPRESSION: c_int = 3;
+/// Query-owned failure without lower-layer detail.
+pub const TLV_QUERY_CAUSE_NONE: c_int = 0;
+/// Reader detail is active.
+pub const TLV_QUERY_CAUSE_READER: c_int = 1;
+/// Conversion detail is active.
+pub const TLV_QUERY_CAUSE_CODEC: c_int = 2;
+/// Schema detail is active.
+pub const TLV_QUERY_CAUSE_SCHEMA: c_int = 3;
 
 macro_rules! record {
     ($name:ident { $($field:ident: $type:ty),* $(,)? }) => {
@@ -29,11 +40,23 @@ pub struct tlv_query_exec_t {
 }
 record!(tlv_query_diagnostic_t {
     diagnostic: tlv_diagnostic_t,
-    kind: c_int, has_reader: c_int, begin: usize, end: usize,
-    expected: *const c_char, limit: *const c_char, configured: usize,
-    reader: tlv_reader_detail_t, codec: i32,
-    has_codec: c_int, codec_detail: tlv_codec_detail_t,
+    kind: c_int, expression: tlv_location_t,
+    limit: *const c_char, configured: usize,
+    cause: c_int, detail: tlv_query_cause_detail_t,
 });
+#[repr(C)]
+#[derive(Clone, Copy)]
+/// Only the member selected by `cause` is active.
+pub union tlv_query_cause_detail_t {
+    pub reader: tlv_reader_detail_t,
+    pub codec: tlv_codec_detail_t,
+    pub schema: tlv_schema_detail_t,
+}
+impl std::fmt::Debug for tlv_query_cause_detail_t {
+    fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
+        f.write_str("QueryCause")
+    }
+}
 record!(tlv_query_result_t { kind: c_int, boolean: c_int, integer: i64, data: *const u8, size: usize });
 /// Closed conversion provider callback; spans borrow input or exclusive scratch.
 pub type tlv_query_decode_t = Option<
@@ -65,7 +88,6 @@ record!(tlv_schema_query_workspace_t { selector: *mut c_void, selector_size: usi
     context_capacity: usize, frames: *mut tlv_tree_frame_t, frame_capacity: usize });
 record!(tlv_schema_query_diagnostic_t {
     rule: usize,
-    schema: tlv_schema_diagnostic_t,
     query: tlv_query_diagnostic_t
 });
 record!(tlv_query_variable_t { name: *const c_char, type_: c_int });

@@ -174,7 +174,7 @@ static void check_definition(const tlv_emv_definition_t* definition, const uint8
         FUZZ_CHECK(diagnostic.codec.operation == TLV_CODEC_OP_DECODE);
         FUZZ_CHECK(diagnostic.codec.violation == TLV_CODEC_VIOLATION_NONE);
         FUZZ_CHECK(diagnostic.codec.cause == TLV_CODEC_CAUSE_SCHEMA);
-        const tlv_codec_schema_detail_t* detail = &diagnostic.codec.detail.schema;
+        const tlv_schema_detail_t* detail = &diagnostic.codec.detail.schema;
         FUZZ_CHECK(detail->kind == TLV_SCHEMA_ISSUE_LENGTH && detail->has_length);
         FUZZ_CHECK(detail->min_length == schema->min_length);
         FUZZ_CHECK(detail->max_length == schema->max_length);

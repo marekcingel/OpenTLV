@@ -815,7 +815,7 @@ static void query_codec_diagnostic(builder_t* b, const tlv_codec_detail_t* d) {
     }
     if (d->cause == TLV_CODEC_CAUSE_READER) query_reader_diagnostic(b, &d->detail.reader);
     if (d->cause == TLV_CODEC_CAUSE_SCHEMA) {
-        const tlv_codec_schema_detail_t* v = &d->detail.schema;
+        const tlv_schema_detail_t* v = &d->detail.schema;
         builder_text(b, ",\"schema\":{\"kind\":");
         builder_number(b, v->kind);
         builder_text(b, ",\"kind_name\":");
@@ -947,22 +947,28 @@ static void query_status(builder_t* b, tlv_result_t code, const tlv_query_diagno
                                                            ? TLV_QUERY_ERROR_STATE
                                                        : d ? d->kind
                                                            : TLV_QUERY_ERROR_NONE));
+    /* The expression span is primary, or related evidence beside another location. */
+    const tlv_location_t* span = !d ? NULL
+                                 : d->diagnostic.location.domain == TLV_LOCATION_EXPRESSION
+                                     ? &d->diagnostic.location
+                                     : &d->expression;
+    int                   spanned = span && span->kind != TLV_LOCATION_UNKNOWN;
     builder_text(b, ",\"begin\":");
-    builder_number(b, d ? d->begin : 0);
+    builder_number(b, spanned ? span->begin : 0);
     builder_text(b, ",\"end\":");
-    builder_number(b, d ? d->end : 0);
+    builder_number(b, spanned ? span->end : 0);
     if (d) {
         builder_text(b, ",\"configured\":");
         builder_number(b, d->configured);
         builder_text(b, ",\"codec\":");
-        builder_number(b, d->codec);
+        builder_number(b, d->cause == TLV_QUERY_CAUSE_CODEC ? d->detail.codec.reported : 0);
         if (d->limit) {
             builder_text(b, ",\"limit\":");
             builder_json_string(b, d->limit);
         }
-        if (d->expected) {
+        if (d->diagnostic.expected) {
             builder_text(b, ",\"expected\":");
-            builder_json_string(b, d->expected);
+            builder_json_string(b, d->diagnostic.expected);
         }
         if ((d->diagnostic.location.domain == TLV_LOCATION_INPUT &&
              d->diagnostic.location.kind != TLV_LOCATION_UNKNOWN)) {
@@ -974,8 +980,8 @@ static void query_status(builder_t* b, tlv_result_t code, const tlv_query_diagno
         write_location(b, &d->diagnostic.location);
         query_common_diagnostic(b, &d->diagnostic);
         builder_text(b, "}");
-        if (d->has_codec) query_codec_diagnostic(b, &d->codec_detail);
-        if (d->has_reader) query_reader_diagnostic(b, &d->reader);
+        if (d->cause == TLV_QUERY_CAUSE_CODEC) query_codec_diagnostic(b, &d->detail.codec);
+        if (d->cause == TLV_QUERY_CAUSE_READER) query_reader_diagnostic(b, &d->detail.reader);
     }
     builder_text(b, "}");
 }
@@ -1011,9 +1017,8 @@ const char* opentlv_wasm_v1_operation(opentlv_wasm_v1_t* q, int operation, const
         diagnostic.kind = q->code == TLV_ERR_SYNTAX  ? TLV_QUERY_ERROR_SYNTAX
                           : q->code == TLV_ERR_LIMIT ? TLV_QUERY_ERROR_LIMIT
                                                      : TLV_QUERY_ERROR_NONE;
+        /* The V1 expression span is the primary location; it is not stored twice. */
         diagnostic.diagnostic = q->diagnostic;
-        diagnostic.begin = q->diagnostic.location.begin;
-        diagnostic.end = q->diagnostic.location.end;
     }
     tlv_result_t rc = q->code;
     if (rc == TLV_OK && operation == 1) rc = tlv_query_matcher_init(&q->matcher, &q->query);
@@ -1164,41 +1169,47 @@ const char* opentlv_wasm_schema_validate(opentlv_wasm_program_t* owner, const ui
     free(rules);
     query_status(&owner->reply, rc, &diagnostic.query);
     query_field(&owner->reply, "rule", diagnostic.rule);
+    /* Only a failed assertion has Schema detail; it shares the Query common part. */
+    tlv_schema_diagnostic_t schema = {0};
+    if (diagnostic.query.cause == TLV_QUERY_CAUSE_SCHEMA) {
+        schema.diagnostic = diagnostic.query.diagnostic;
+        schema.detail = diagnostic.query.detail.schema;
+    }
     builder_text(&owner->reply, ",\"schema\":{\"tag\":\"");
-    builder_hex(&owner->reply, diagnostic.schema.tag.data, diagnostic.schema.tag.size);
+    builder_hex(&owner->reply, schema.detail.tag.data, schema.detail.tag.size);
     builder_text(&owner->reply, "\",\"field\":");
-    builder_json_string(&owner->reply, diagnostic.schema.field ? diagnostic.schema.field : "");
-    query_field(&owner->reply, "kind", diagnostic.schema.kind);
-    write_location(&owner->reply, &diagnostic.schema.diagnostic.location);
+    builder_json_string(&owner->reply, schema.detail.field ? schema.detail.field : "");
+    query_field(&owner->reply, "kind", schema.detail.kind);
+    write_location(&owner->reply, &schema.diagnostic.location);
     builder_text(&owner->reply, ",\"kind_name\":");
-    builder_json_string(&owner->reply, tlv_schema_issue_kind_string(diagnostic.schema.kind));
-    query_field(&owner->reply, "code", diagnostic.schema.diagnostic.code);
-    query_field(&owner->reply, "severity", diagnostic.schema.diagnostic.severity);
+    builder_json_string(&owner->reply, tlv_schema_issue_kind_string(schema.detail.kind));
+    query_field(&owner->reply, "code", schema.diagnostic.code);
+    query_field(&owner->reply, "severity", schema.diagnostic.severity);
     builder_text(&owner->reply, ",\"offset\":");
-    if (diagnostic.schema.diagnostic.location.kind)
-        builder_number(&owner->reply, diagnostic.schema.diagnostic.location.begin);
+    if (schema.diagnostic.location.kind)
+        builder_number(&owner->reply, schema.diagnostic.location.begin);
     else
         builder_text(&owner->reply, "null");
     builder_text(&owner->reply, ",\"expected\":");
-    if (diagnostic.schema.diagnostic.expected)
-        builder_json_string(&owner->reply, diagnostic.schema.diagnostic.expected);
+    if (schema.diagnostic.expected)
+        builder_json_string(&owner->reply, schema.diagnostic.expected);
     else
         builder_text(&owner->reply, "null");
     builder_text(&owner->reply, ",\"actual\":");
-    if (diagnostic.schema.diagnostic.actual)
-        builder_json_string(&owner->reply, diagnostic.schema.diagnostic.actual);
+    if (schema.diagnostic.actual)
+        builder_json_string(&owner->reply, schema.diagnostic.actual);
     else
         builder_text(&owner->reply, "null");
     builder_text(&owner->reply, ",\"path\":[");
-    for (size_t i = 0; i < diagnostic.schema.diagnostic.path.length; ++i) {
+    for (size_t i = 0; i < schema.diagnostic.path.length; ++i) {
         if (i) builder_text(&owner->reply, ",");
         builder_text(&owner->reply, "\"");
-        builder_hex(&owner->reply, diagnostic.schema.diagnostic.path.tags[i].data,
-                    diagnostic.schema.diagnostic.path.tags[i].size);
+        builder_hex(&owner->reply, schema.diagnostic.path.tags[i].data,
+                    schema.diagnostic.path.tags[i].size);
         builder_text(&owner->reply, "\"");
     }
     builder_text(&owner->reply, "],\"path_omitted\":");
-    builder_number(&owner->reply, diagnostic.schema.diagnostic.path.omitted);
+    builder_number(&owner->reply, schema.diagnostic.path.omitted);
     builder_text(&owner->reply, "}");
     return query_reply(&owner->reply);
 }

@@ -46,8 +46,7 @@ int query_command::run() {
                                  {"code", failure.status()},
                                  {"kind", d.kind},
                                  {"kind_name", tlv::message(failure.kind())},
-                                 {"begin", d.begin},
-                                 {"end", d.end}};
+                                 {"cause", tlv::message(failure.cause())}};
         if (tlv::domain(d.diagnostic.location) == tlv::location_domain::input &&
             tlv::kind(d.diagnostic.location) != tlv::location_kind::unknown)
             detail["source_offset"] = d.diagnostic.location.begin;
@@ -57,16 +56,16 @@ int query_command::run() {
             detail["location"]["begin"] = d.diagnostic.location.begin;
             detail["location"]["end"] = d.diagnostic.location.end;
         }
-        if (d.expected) detail["expected"] = d.expected;
+        if (tlv::kind(d.expression) != tlv::location_kind::unknown)
+            detail["expression"] = {{"begin", d.expression.begin}, {"end", d.expression.end}};
         if (d.limit) {
             detail["limit"] = d.limit;
             detail["configured"] = d.configured;
         }
-        if (failure.kind() == tlv::query_issue::codec) detail["codec"] = d.codec;
         detail["diagnostic"] = nlohmann::json::parse(
             format_diagnostic(d.diagnostic, diagnostic_format::json, "query", nullptr));
-        if (d.has_codec) {
-            const auto& codec = d.codec_detail;
+        if (failure.cause() == tlv::query_cause::codec) {
+            const auto& codec = d.detail.codec;
             detail["codec_detail"] = {
                 {"operation", tlv::message(static_cast<tlv::codec_phase>(codec.operation))},
                 {"cause", tlv::message(static_cast<tlv::codec_cause>(codec.cause))},
@@ -90,12 +89,18 @@ int query_command::run() {
                     {"definition_index", codec.detail.schema.definition.index}};
             }
         }
-        if (d.has_reader) {
+        if (failure.cause() == tlv::query_cause::reader) {
             tlv::reader_diagnostic reader{};
             reader.diagnostic = d.diagnostic;
-            reader.detail = d.reader;
+            reader.detail = d.detail.reader;
             detail["reader"] =
                 nlohmann::json::parse(format_reader_diagnostic(reader, diagnostic_format::json));
+        }
+        if (failure.cause() == tlv::query_cause::schema) {
+            const auto& schema = d.detail.schema;
+            detail["schema"] = {
+                {"kind", tlv::message(static_cast<tlv::schema_issue>(schema.kind))}};
+            if (schema.field) detail["schema"]["field"] = schema.field;
         }
         if (!strcmp(options_.diagnostics, "json"))
             std::cerr << detail.dump() << '\n';
@@ -104,14 +109,14 @@ int query_command::run() {
                       << format_diagnostic(d.diagnostic, diagnostic_format::compact, "query",
                                            nullptr)
                       << "; kind=" << tlv::message(failure.kind());
-            if (d.end > d.begin) std::cerr << "; expression=" << d.begin << ':' << d.end;
-            if (d.expected) std::cerr << "; expected=" << d.expected;
-            if (d.has_codec)
+            if (tlv::kind(d.expression) != tlv::location_kind::unknown)
+                std::cerr << "; expression=" << d.expression.begin << ':' << d.expression.end;
+            if (failure.cause() == tlv::query_cause::codec)
                 std::cerr << "; codec="
-                          << tlv::message(static_cast<tlv::codec_phase>(d.codec_detail.operation))
+                          << tlv::message(static_cast<tlv::codec_phase>(d.detail.codec.operation))
                           << "; violation="
                           << tlv::message(
-                                 static_cast<tlv::codec_violation>(d.codec_detail.violation));
+                                 static_cast<tlv::codec_violation>(d.detail.codec.violation));
             std::cerr << '\n';
         }
         return status;

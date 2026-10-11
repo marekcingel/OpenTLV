@@ -38,12 +38,12 @@ static tlv_schema_diagnostic_t* add_issue(collector_t* c, tlv_schema_issue_kind_
     if (offset)
         tlv_diagnostic_set_location(&diagnostic->diagnostic, TLV_LOCATION_INPUT, TLV_LOCATION_POINT,
                                     *offset, *offset);
-    diagnostic->kind = kind;
+    diagnostic->detail.kind = kind;
     diagnostic->diagnostic.location.kind = !offset ? TLV_LOCATION_UNKNOWN
                                            : kind == TLV_SCHEMA_ISSUE_MISSING
                                                ? TLV_LOCATION_SCOPE_END
                                                : TLV_LOCATION_POINT;
-    diagnostic->tag = *tag;
+    diagnostic->detail.tag = *tag;
     diagnostic->diagnostic.has_path = 1;
     tlv_diagnostic_path_init(&diagnostic->diagnostic.path);
     for (size_t i = 1; i <= c->depth; ++i) {
@@ -124,7 +124,7 @@ static tlv_result_t check_scope(const uint8_t* data, const tlv_format_t* format,
                 if (same_tag(&frame->schema->rules[i].entry->tag, &element.tag)) {
                     if (have_last && i < last_index) {
                         issue = add_issue(c, TLV_SCHEMA_ISSUE_ORDER, &element.tag, &pos);
-                        if (issue) issue->field = frame->schema->rules[i].entry->name;
+                        if (issue) issue->detail.field = frame->schema->rules[i].entry->name;
                     } else {
                         last_index = i;
                     }

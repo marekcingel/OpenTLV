@@ -35,9 +35,10 @@ The domain is INPUT, OUTPUT, EXPRESSION, DEFINITION or VALUE. Each operation
 defines the source and origin: Reader input coordinates include discarded windows;
 Writer and DER write coordinates describe would-be output; Query parse spans
 index expression bytes. Query runtime errors may carry primary INPUT evidence
-and retain a separate related expression span in `begin`/`end`. VALUE is local
-evidence whose enclosing wire origin is unavailable. Native Schema definitions
-use `definition.kind`, `definition.owner` and `definition.index`, not invented
+and retain a separate related expression span in the EXPRESSION-domain
+`expression` location, which stays unknown when the span is already primary.
+VALUE is local evidence whose enclosing wire origin is unavailable. Native
+Schema definitions use `detail.definition.kind`, `.owner` and `.index`, not invented
 wire offsets. The owner borrows the supplied table/type.
 
 `tlv_location_translate()` checks both bounds. Overflow clears only the optional
@@ -110,10 +111,12 @@ the reader's buffer, not relative to the element being read.
 
 Reader-specific evidence lives in `tlv_reader_detail_t`. A standalone Reader
 failure pairs it with one common diagnostic as `diagnostic` and `detail`.
-Query embeds the same detail as `reader`, guarded by `has_reader`, while
-`query.diagnostic` is the sole result, location and path for the failure.
-Reader causes remain present under Query `STATE`; pure Query failures leave
-`has_reader` unset. Neither representation contains self-referential pointers.
+Query embeds the same detail as `detail.reader`, selected by
+`cause == TLV_QUERY_CAUSE_READER`, while `query.diagnostic` is the sole result,
+location, path and expected text for the failure. Reader causes remain present
+under Query `STATE`; pure Query failures have cause `NONE`. A Reader failure
+inside a conversion hook is reachable only as `detail.codec.detail.reader`, under
+cause `CODEC`. Neither representation contains self-referential pointers.
 
 ## Writer diagnostics
 
@@ -173,15 +176,17 @@ if (rc == TLV_ERR_SCHEMA) {
         tlv_diagnostic_path_string(&d->diagnostic.path, path, sizeof(path), NULL);
         /* d->diagnostic.code   == TLV_ERR_SCHEMA; kind distinguishes missing, length and other findings
          * d->diagnostic.location.begin == the offset of the affected element, when d->diagnostic.location.kind != TLV_LOCATION_UNKNOWN
-         * path                == the scopes enclosing d->tag, for example "6F > A5 > BF0C > 61"
-         * d->field             == the rule's schema name for d->tag, or NULL if it has none */
+         * path                == the scopes enclosing d->detail.tag, for example "6F > A5 > BF0C > 61"
+         * d->detail.field      == the rule's schema name for d->detail.tag, or NULL if it has none */
     }
 }
 ```
 
-For a value whose length is outside its rule's bounds, `d->kind` is
-`TLV_SCHEMA_ISSUE_LENGTH`, `d->diagnostic.code` is `TLV_ERR_SCHEMA`,
-and `d->has_length` is set, with `min_length`/`max_length` from the rule and
+Schema-specific evidence lives in `tlv_schema_detail_t`, paired with one common
+diagnostic as `diagnostic` and `detail`; Codec and Query embed the same type as
+their Schema cause. For a value whose length is outside its rule's bounds,
+`d->detail.kind` is `TLV_SCHEMA_ISSUE_LENGTH`, `d->diagnostic.code` is
+`TLV_ERR_SCHEMA`, and `d->detail.has_length` is set, with `min_length`/`max_length` from the rule and
 `actual_length` from the value that violated it: validating a 4F (ADF Name)
 with only 3 bytes against a rule requiring 5 to 16 fills `min_length` with
 `5`, `max_length` with `16`, and `actual_length` with `3`. A missing or

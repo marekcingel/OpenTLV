@@ -28,12 +28,15 @@ return describes that result:
 
 - `tlv_diagnostic_t` and the active diagnostic in an embedding type have
   `diagnostic.code == rc`.
-- `tlv_query_diagnostic_t` has `kind != TLV_QUERY_ERROR_NONE`. A `READER` detail
-  sets `has_reader` and stores its result, location and path only in `diagnostic`; a `CODEC` detail has a non-OK codec result.
+- `tlv_query_diagnostic_t` has `kind != TLV_QUERY_ERROR_NONE`. A `READER` kind
+  has cause `READER` and stores its result, location and path only in
+  `diagnostic`; a `CODEC` kind has cause `CODEC` with a non-OK
+  `detail.codec.reported`; a `SCHEMA` kind has cause `SCHEMA`.
 - An initialized Query diagnostic for `TLV_ERR_INVALID_STATE` has kind
   `TLV_QUERY_ERROR_STATE`. Pre-initialization preservation exceptions below still apply.
-- Schema Query has alternative detail channels: a false assertion sets
-  `schema.diagnostic.code`, while an execution failure fills `query`.
+- Schema Query reports every failure once in `query`: a false assertion has
+  `SCHEMA` result, kind and cause with `ASSERTION` detail, while an execution
+  failure keeps its own result, kind and cause.
 
 The rule includes `TLV_END` and `TLV_NEED_MORE_DATA` when returned
 through an initialized diagnostic channel; their severity is `INFO`, not `ERROR`. These are still normal iteration or
@@ -64,7 +67,7 @@ Query now uses `STATE` for lifecycle/reentrancy failures and `EVENTS` with
 `STORAGE` still covers compiler/plan arguments and capacities, `BINDING` covers
 binding arguments, `CAPABILITY` covers incompatible formats or hook configuration,
 while visitor/provider failures use `CALLBACK`. Diagnostic layouts changed in
-issues #553, #555 and #556; rebuild native consumers with matching headers and bindings.
+issues #553, #555, #556 and #579; rebuild native consumers with matching headers and bindings.
 
 ### Regression enforcement
 
@@ -82,6 +85,46 @@ propagated variables and callback behavior require runtime tests; it is not a
 control-flow proof. A separate lexical rule rejects `INVALID_ARG` returns under
 `busy`, `finished`, `invalid` or `query_callbacks` member predicates, including
 pre-initialization checks. Diagnostic-return comments do not waive that rule.
+
+## Diagnostic field ownership
+
+Each public diagnostic field has one meaning (#579). The common
+`tlv_diagnostic_t` owns the result, severity, primary location, expected and
+actual text, contexts and path. Layer detail types carry only layer-specific
+evidence and never repeat those common fields. An enclosing diagnostic holds at
+most one active lower-layer detail, selected by its cause.
+
+| Diagnostic | Common part | Layer-specific fields | Delegated cause |
+| --- | --- | --- | --- |
+| `tlv_reader_diagnostic_t` | `diagnostic` | `detail` (`tlv_reader_detail_t`) | none |
+| `tlv_schema_diagnostic_t` | `diagnostic` | `detail` (`tlv_schema_detail_t`) | none |
+| `tlv_codec_diagnostic_t` | `diagnostic` | `codec.operation`, `reported`, `violation`, `representation` | `codec.cause` selects `codec.detail.reader` or `codec.detail.schema` |
+| `tlv_query_diagnostic_t` | `diagnostic` | `kind`, `expression`, `limit`, `configured` | `cause` selects `detail.reader`, `detail.codec` or `detail.schema` |
+| `tlv_schema_query_diagnostic_t` | `query.diagnostic` | `rule` | `query.cause`; a false assertion uses `SCHEMA` |
+
+The Query `expression` field is related evidence: it holds the expression span
+only when the primary `diagnostic.location` is in another domain (INPUT, VALUE
+or unknown, for example a Reader or conversion failure). When the span is
+itself primary (`TLV_LOCATION_EXPRESSION`), `expression` is unknown. A Reader
+failure inside a conversion hook is reachable only as
+`detail.codec.detail.reader`; Query cause `READER` is reserved for its own
+Reader traversal.
+
+Fields removed in #579 and where their values now live:
+
+| Removed field | Replacement |
+| --- | --- |
+| `tlv_codec_schema_detail_t` | `tlv_schema_detail_t`, the same type as `tlv_schema_diagnostic_t::detail` |
+| Schema diagnostic `kind`, `tag`, `definition`, `field`, occurrence, length and form fields | `tlv_schema_diagnostic_t::detail.*` |
+| Query `begin` / `end` | `diagnostic.location` when it is an EXPRESSION span, otherwise `expression` |
+| Query `expected` | `diagnostic.expected`; a conversion's own expectation takes precedence and Query fills only a missing one |
+| Query `int32_t codec` | `detail.codec.reported` under cause `CODEC` |
+| Query `has_codec` / `codec_detail` | `cause == TLV_QUERY_CAUSE_CODEC` / `detail.codec` |
+| Query `has_reader` / `reader` | `cause == TLV_QUERY_CAUSE_READER` / `detail.reader` |
+| Schema Query `schema` | `query` with kind and cause `SCHEMA`; Schema detail in `query.detail.schema`, common evidence in `query.diagnostic` |
+
+`tlv_query_cause_string()` names the Query cause. The 64-bit Query diagnostic
+shrinks from 1000 to 840 bytes.
 
 ## Codes
 
@@ -239,7 +282,7 @@ These functions remain available with the processing capabilities disabled.
 | --- | --- |
 | Severity | `tlv_diagnostic_severity_string()` |
 | Location domain / anchor | `tlv_location_domain_string()` / `tlv_location_kind_string()` |
-| Query failure kind | `tlv_query_error_kind_string()` |
+| Query failure kind / delegated cause | `tlv_query_error_kind_string()` / `tlv_query_cause_string()` |
 | Reader / Writer operation | `tlv_reader_operation_string()` / `tlv_writer_operation_string()` |
 | Schema finding / definition object | `tlv_schema_issue_kind_string()` / `tlv_schema_definition_kind_string()` |
 | Codec operation / delegated cause / callback violation | `tlv_codec_operation_string()` / `tlv_codec_cause_string()` / `tlv_codec_violation_string()` |
@@ -319,7 +362,8 @@ Unknown locations have no meaningful numeric coordinates. A known point at
 zero is distinct from absence. Related Query expression spans do not replace
 the primary input/output/Value location. Retained paths hold outermost scopes;
 `path_omitted` counts omitted innermost scopes. Go's `HasReader` guards the
-Reader-specific part of a Query failure.
+Reader-specific part of a Query failure. Binding Query `begin`/`end` fields
+report the expression span whether it is primary or related.
 
 CLI diagnostics identify the location domain and anchor kind. Compact output
 includes truncated paths and omitted counts; Query JSON includes common

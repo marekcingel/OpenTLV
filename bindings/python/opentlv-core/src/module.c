@@ -216,9 +216,17 @@ void opentlv_python_raise_query(tlv_result_t code, const tlv_query_diagnostic_t*
         diagnostic = &state;
     }
     raise_reader_parts(code, diagnostic ? &diagnostic->diagnostic : NULL,
-                       diagnostic && diagnostic->has_reader ? &diagnostic->reader : NULL);
+                       diagnostic && diagnostic->cause == TLV_QUERY_CAUSE_READER
+                           ? &diagnostic->detail.reader
+                           : NULL);
     if (!diagnostic || !PyErr_ExceptionMatches(opentlv_python_error)) return;
-    PyObject *type, *value, *traceback;
+    /* The expression span is primary, or related evidence beside another location. */
+    const tlv_location_t* span = diagnostic->diagnostic.location.domain == TLV_LOCATION_EXPRESSION
+                                     ? &diagnostic->diagnostic.location
+                                     : &diagnostic->expression;
+    int                   spanned = span->kind != TLV_LOCATION_UNKNOWN;
+    int                   converted = diagnostic->cause == TLV_QUERY_CAUSE_CODEC;
+    PyObject *            type, *value, *traceback;
     PyErr_Fetch(&type, &value, &traceback);
     PyErr_NormalizeException(&type, &value, &traceback);
     PyObject* args = value ? PyObject_GetAttrString(value, "args") : NULL;
@@ -229,20 +237,20 @@ void opentlv_python_raise_query(tlv_result_t code, const tlv_query_diagnostic_t*
          dict_set(fields, "query_kind", PyLong_FromLong(diagnostic->kind)) < 0 ||
          dict_set_str_or_none(fields, "query_kind_name",
                               tlv_query_error_kind_string(diagnostic->kind)) < 0 ||
-         dict_set(fields, "begin", PyLong_FromSize_t(diagnostic->begin)) < 0 ||
-         dict_set(fields, "end", PyLong_FromSize_t(diagnostic->end)) < 0 ||
+         dict_set(fields, "begin", PyLong_FromSize_t(spanned ? span->begin : 0)) < 0 ||
+         dict_set(fields, "end", PyLong_FromSize_t(spanned ? span->end : 0)) < 0 ||
          dict_set_size_or_none(fields, "source_offset",
                                (diagnostic->diagnostic.location.domain == TLV_LOCATION_INPUT &&
                                 diagnostic->diagnostic.location.kind != TLV_LOCATION_UNKNOWN),
                                diagnostic->diagnostic.location.begin) < 0 ||
-         dict_set_str_or_none(fields, "query_expected", diagnostic->expected) < 0 ||
+         dict_set_str_or_none(fields, "query_expected", diagnostic->diagnostic.expected) < 0 ||
          dict_set_str_or_none(fields, "limit", diagnostic->limit) < 0 ||
          dict_set(fields, "configured", PyLong_FromSize_t(diagnostic->configured)) < 0 ||
-         dict_set(fields, "codec", PyLong_FromLong(diagnostic->codec)) < 0 ||
+         dict_set(fields, "codec",
+                  PyLong_FromLong(converted ? diagnostic->detail.codec.reported : 0)) < 0 ||
          dict_set(fields, "codec_detail",
-                  diagnostic->has_codec
-                      ? codec_detail_value(&diagnostic->diagnostic, &diagnostic->codec_detail)
-                      : Py_NewRef(Py_None)) < 0)) {
+                  converted ? codec_detail_value(&diagnostic->diagnostic, &diagnostic->detail.codec)
+                            : Py_NewRef(Py_None)) < 0)) {
         Py_XDECREF(args);
         Py_XDECREF(type);
         Py_XDECREF(value);
@@ -304,11 +312,12 @@ static void raise_schema_error(tlv_result_t code, const tlv_schema_diagnostic_t*
         dict_set(fields, "location", opentlv_python_location(&diagnostic->diagnostic.location)) <
             0 ||
         dict_set(fields, "kind",
-                 PyUnicode_FromString(tlv_schema_issue_kind_string(diagnostic->kind))) < 0 ||
-        dict_set(fields, "definition_kind", PyLong_FromLong(diagnostic->definition.kind)) < 0 ||
+                 PyUnicode_FromString(tlv_schema_issue_kind_string(diagnostic->detail.kind))) < 0 ||
+        dict_set(fields, "definition_kind", PyLong_FromLong(diagnostic->detail.definition.kind)) <
+            0 ||
         dict_set_size_or_none(fields, "definition_index",
-                              diagnostic->definition.kind != TLV_SCHEMA_DEFINITION_UNKNOWN,
-                              diagnostic->definition.index) < 0) {
+                              diagnostic->detail.definition.kind != TLV_SCHEMA_DEFINITION_UNKNOWN,
+                              diagnostic->detail.definition.index) < 0) {
         Py_DECREF(fields);
         return;
     }
@@ -582,34 +591,38 @@ static PyObject* schema_diagnostic_value(const tlv_schema_diagnostic_t* diagnost
         }
         PyTuple_SetItem(path, (Py_ssize_t)i, value);
     }
-    PyObject* tag = PyBytes_FromStringAndSize((const char*)diagnostic->tag.data,
-                                              (Py_ssize_t)diagnostic->tag.size);
+    PyObject* tag = PyBytes_FromStringAndSize((const char*)diagnostic->detail.tag.data,
+                                              (Py_ssize_t)diagnostic->detail.tag.size);
     PyObject* offset = diagnostic->diagnostic.location.kind
                            ? PyLong_FromSize_t(diagnostic->diagnostic.location.begin)
                            : Py_NewRef(Py_None);
-    PyObject* occurs = diagnostic->has_occurs
-                           ? Py_BuildValue("(KKK)", (unsigned long long)diagnostic->min_occurs,
-                                           (unsigned long long)diagnostic->max_occurs,
-                                           (unsigned long long)diagnostic->occurs)
-                           : Py_NewRef(Py_None);
-    PyObject* length = diagnostic->has_length
-                           ? Py_BuildValue("(KKK)", (unsigned long long)diagnostic->min_length,
-                                           (unsigned long long)diagnostic->max_length,
-                                           (unsigned long long)diagnostic->actual_length)
-                           : Py_NewRef(Py_None);
-    PyObject* form = diagnostic->has_form ? Py_BuildValue("(ii)", (int)diagnostic->expected_form,
-                                                          diagnostic->actual_constructed)
-                                          : Py_NewRef(Py_None);
+    PyObject* occurs =
+        diagnostic->detail.has_occurs
+            ? Py_BuildValue("(KKK)", (unsigned long long)diagnostic->detail.min_occurs,
+                            (unsigned long long)diagnostic->detail.max_occurs,
+                            (unsigned long long)diagnostic->detail.occurs)
+            : Py_NewRef(Py_None);
+    PyObject* length =
+        diagnostic->detail.has_length
+            ? Py_BuildValue("(KKK)", (unsigned long long)diagnostic->detail.min_length,
+                            (unsigned long long)diagnostic->detail.max_length,
+                            (unsigned long long)diagnostic->detail.actual_length)
+            : Py_NewRef(Py_None);
+    PyObject* form = diagnostic->detail.has_form
+                         ? Py_BuildValue("(ii)", (int)diagnostic->detail.expected_form,
+                                         diagnostic->detail.actual_constructed)
+                         : Py_NewRef(Py_None);
     /* N consumes each reference, including on failure. */
-    return Py_BuildValue(
-        "(iiisNNNziNNNKIKNin)", (int)diagnostic->diagnostic.code,
-        (int)diagnostic->diagnostic.severity, (int)diagnostic->kind,
-        tlv_schema_issue_kind_string(diagnostic->kind), tag, path, offset, diagnostic->field,
-        diagnostic->is_group, occurs, length, form, (unsigned long long)diagnostic->length_multiple,
-        (unsigned int)diagnostic->length_flags,
-        (unsigned long long)diagnostic->diagnostic.path.omitted,
-        opentlv_python_location(&diagnostic->diagnostic.location), (int)diagnostic->definition.kind,
-        (Py_ssize_t)diagnostic->definition.index);
+    return Py_BuildValue("(iiisNNNziNNNKIKNin)", (int)diagnostic->diagnostic.code,
+                         (int)diagnostic->diagnostic.severity, (int)diagnostic->detail.kind,
+                         tlv_schema_issue_kind_string(diagnostic->detail.kind), tag, path, offset,
+                         diagnostic->detail.field, diagnostic->detail.is_group, occurs, length,
+                         form, (unsigned long long)diagnostic->detail.length_multiple,
+                         (unsigned int)diagnostic->detail.length_flags,
+                         (unsigned long long)diagnostic->diagnostic.path.omitted,
+                         opentlv_python_location(&diagnostic->diagnostic.location),
+                         (int)diagnostic->detail.definition.kind,
+                         (Py_ssize_t)diagnostic->detail.definition.index);
 }
 
 static PyObject* schema_diagnostic_report(const Py_buffer* buffer, const tlv_format_t* format,
@@ -772,24 +785,7 @@ static PyObject* codec_detail_value(const tlv_diagnostic_t*   common,
     if (detail->cause == TLV_CODEC_CAUSE_SCHEMA) {
         tlv_schema_diagnostic_t schema = {0};
         schema.diagnostic = *common;
-        schema.kind = detail->detail.schema.kind;
-        schema.tag = detail->detail.schema.tag;
-        schema.definition = detail->detail.schema.definition;
-        schema.field = detail->detail.schema.field;
-        schema.is_group = detail->detail.schema.is_group;
-        schema.has_occurs = detail->detail.schema.has_occurs;
-        schema.min_occurs = detail->detail.schema.min_occurs;
-        schema.max_occurs = detail->detail.schema.max_occurs;
-        schema.occurs = detail->detail.schema.occurs;
-        schema.has_length = detail->detail.schema.has_length;
-        schema.min_length = detail->detail.schema.min_length;
-        schema.max_length = detail->detail.schema.max_length;
-        schema.actual_length = detail->detail.schema.actual_length;
-        schema.has_form = detail->detail.schema.has_form;
-        schema.expected_form = detail->detail.schema.expected_form;
-        schema.actual_constructed = detail->detail.schema.actual_constructed;
-        schema.length_multiple = detail->detail.schema.length_multiple;
-        schema.length_flags = detail->detail.schema.length_flags;
+        schema.detail = detail->detail.schema;
         if (dict_set(result, "schema", schema_diagnostic_value(&schema)) < 0) {
             Py_DECREF(result);
             return NULL;
@@ -1936,6 +1932,8 @@ static PyObject* diagnostic_name(PyObject* module, PyObject* args) {
         return PyUnicode_FromString(tlv_writer_operation_string((tlv_writer_operation_t)value));
     if (!strcmp(category, "query_error_kind"))
         return PyUnicode_FromString(tlv_query_error_kind_string((tlv_query_error_kind_t)value));
+    if (!strcmp(category, "query_cause"))
+        return PyUnicode_FromString(tlv_query_cause_string((tlv_query_cause_t)value));
     if (!strcmp(category, "schema_issue_kind"))
         return PyUnicode_FromString(tlv_schema_issue_kind_string((tlv_schema_issue_kind_t)value));
     if (!strcmp(category, "schema_definition_kind"))

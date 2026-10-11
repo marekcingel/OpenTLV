@@ -145,12 +145,12 @@ TEST(Integration_Tlv_EmvSchema, ReportsFciViolationsWithPathsInOnePass) {
         ASSERT_EQ(TLV_OK, tlv_diagnostic_path_string(&issues[i].diagnostic.path, text, sizeof(text),
                                                      nullptr));
         EXPECT_STREQ("6F", text);
-        if (issues[i].kind == TLV_SCHEMA_ISSUE_MISSING) {
-            EXPECT_TRUE(tlv_tag_equal(TLV_TAG(0x84), issues[i].tag));
+        if (issues[i].detail.kind == TLV_SCHEMA_ISSUE_MISSING) {
+            EXPECT_TRUE(tlv_tag_equal(TLV_TAG(0x84), issues[i].detail.tag));
             EXPECT_EQ(wire.size(), issues[i].diagnostic.location.begin);
         } else {
-            EXPECT_EQ(TLV_SCHEMA_ISSUE_UNEXPECTED, issues[i].kind);
-            EXPECT_TRUE(tlv_tag_equal(TLV_TAG(0x50), issues[i].tag));
+            EXPECT_EQ(TLV_SCHEMA_ISSUE_UNEXPECTED, issues[i].detail.kind);
+            EXPECT_TRUE(tlv_tag_equal(TLV_TAG(0x50), issues[i].detail.tag));
             EXPECT_EQ(2u, issues[i].diagnostic.location.begin);
         }
     }

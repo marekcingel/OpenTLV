@@ -14,12 +14,10 @@ pub struct tlv_diagnostic_path_t {
     /// Number of innermost scope Tags omitted after the retained outer prefix.
     pub omitted: usize,
 }
-/// Detailed native Schema violation.
+/// Schema-specific violation evidence, shared by Schema, Codec and Query diagnostics.
 #[repr(C)]
 #[derive(Clone, Copy, Debug)]
-pub struct tlv_schema_diagnostic_t {
-    /// Corresponding C field.
-    pub diagnostic: tlv_diagnostic_t,
+pub struct tlv_schema_detail_t {
     /// Corresponding C field.
     pub kind: c_int,
     /// Corresponding C field.
@@ -56,6 +54,15 @@ pub struct tlv_schema_diagnostic_t {
     pub length_multiple: usize,
     /// Corresponding C field.
     pub length_flags: u32,
+}
+/// Detailed native Schema violation.
+#[repr(C)]
+#[derive(Clone, Copy, Debug)]
+pub struct tlv_schema_diagnostic_t {
+    /// Corresponding C field.
+    pub diagnostic: tlv_diagnostic_t,
+    /// Corresponding C field.
+    pub detail: tlv_schema_detail_t,
 }
 /// Caller-owned detailed report storage.
 #[repr(C)]

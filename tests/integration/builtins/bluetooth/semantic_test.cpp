@@ -59,7 +59,7 @@ TEST(Integration_Tlv_BluetoothSemantic, EveryUuidLengthThroughContainerReaderSch
                 ASSERT_EQ(1u, report.count);
                 EXPECT_TRUE(diagnostic.diagnostic.location.kind);
                 EXPECT_EQ(3u, diagnostic.diagnostic.location.begin);
-                EXPECT_EQ(type, diagnostic.tag.data[0]);
+                EXPECT_EQ(type, diagnostic.detail.tag.data[0]);
             }
             EXPECT_EQ(original, wire);
         }

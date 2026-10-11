@@ -139,12 +139,12 @@ TEST(Integration_Tlvpp, ValidateAllDiagReportsFieldNamesAndPaths) {
         tlv::native::validate_all_diag(bytes, tlv_format_ber, schema, 0, 2, diagnostics, 4);
     ASSERT_TRUE(count);
     ASSERT_EQ(2u, *count); // Tag 1 is missing and tag 2 is unexpected.
-    EXPECT_EQ(TLV_SCHEMA_ISSUE_MISSING, diagnostics[0].kind);
-    EXPECT_STREQ("one", diagnostics[0].field);
+    EXPECT_EQ(TLV_SCHEMA_ISSUE_MISSING, diagnostics[0].detail.kind);
+    EXPECT_STREQ("one", diagnostics[0].detail.field);
     EXPECT_EQ(0u, diagnostics[0].diagnostic.path.length);
-    EXPECT_TRUE(tlv_tag_equal(TLV_TAG(1), diagnostics[0].tag));
-    EXPECT_EQ(TLV_SCHEMA_ISSUE_UNEXPECTED, diagnostics[1].kind);
-    EXPECT_EQ(nullptr, diagnostics[1].field);
+    EXPECT_TRUE(tlv_tag_equal(TLV_TAG(1), diagnostics[0].detail.tag));
+    EXPECT_EQ(TLV_SCHEMA_ISSUE_UNEXPECTED, diagnostics[1].detail.kind);
+    EXPECT_EQ(nullptr, diagnostics[1].detail.field);
 
     auto conforming = tlv::native::validate_all_diag(
         tlv::bytes(), tlv_format_ber,
@@ -229,12 +229,12 @@ TEST(Integration_Tlvpp, ValidateAllDiagReportsGroupAndOrderViolations) {
         tlv::native::validate_all_diag(bytes, tlv_format_ber, schema, 0, 4, diagnostics, 4);
     ASSERT_TRUE(count);
     ASSERT_EQ(1u, *count); // Both alternatives present: the group's max_occurs is exceeded.
-    EXPECT_EQ(TLV_SCHEMA_ISSUE_DUPLICATE, diagnostics[0].kind);
-    EXPECT_TRUE(diagnostics[0].is_group);
-    EXPECT_STREQ("choice", diagnostics[0].field);
-    EXPECT_EQ(1u, diagnostics[0].min_occurs);
-    EXPECT_EQ(1u, diagnostics[0].max_occurs);
-    EXPECT_EQ(2u, diagnostics[0].occurs);
+    EXPECT_EQ(TLV_SCHEMA_ISSUE_DUPLICATE, diagnostics[0].detail.kind);
+    EXPECT_TRUE(diagnostics[0].detail.is_group);
+    EXPECT_STREQ("choice", diagnostics[0].detail.field);
+    EXPECT_EQ(1u, diagnostics[0].detail.min_occurs);
+    EXPECT_EQ(1u, diagnostics[0].detail.max_occurs);
+    EXPECT_EQ(2u, diagnostics[0].detail.occurs);
 
     const tlv_schema_entry_t   order_rules_fields[] = {{TLV_TAG(1), 0, 0, 0, "one", 0},
                                                        {TLV_TAG(2), 0, 0, 0, "two", 0}};
@@ -250,10 +250,10 @@ TEST(Integration_Tlvpp, ValidateAllDiagReportsGroupAndOrderViolations) {
                                                       0, 4, diagnostics, 4);
     ASSERT_TRUE(order_count);
     ASSERT_EQ(1u, *order_count);
-    EXPECT_EQ(TLV_SCHEMA_ISSUE_ORDER, diagnostics[0].kind);
-    EXPECT_STREQ("one", diagnostics[0].field);
+    EXPECT_EQ(TLV_SCHEMA_ISSUE_ORDER, diagnostics[0].detail.kind);
+    EXPECT_STREQ("one", diagnostics[0].detail.field);
     EXPECT_EQ(0u, diagnostics[0].diagnostic.path.length);
-    EXPECT_TRUE(tlv_tag_equal(TLV_TAG(1), diagnostics[0].tag));
+    EXPECT_TRUE(tlv_tag_equal(TLV_TAG(1), diagnostics[0].detail.tag));
 }
 
 namespace {

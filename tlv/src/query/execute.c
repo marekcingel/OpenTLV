@@ -811,10 +811,8 @@ events:
                                "balanced complete canonical events without pruning");
 failure:
     e->invalid = 1;
-    if (d && !d->has_codec && event->source.data) {
-        tlv_diagnostic_set_location(&d->diagnostic, TLV_LOCATION_INPUT, TLV_LOCATION_POINT,
-                                    event->offset, event->offset);
-    }
+    if (d && d->cause == TLV_QUERY_CAUSE_NONE && event->source.data)
+        query_input_location(d, event->offset);
     return query_failure(d, rc, TLV_QUERY_ERROR_EVENTS, "valid execution operation");
 }
 
@@ -942,10 +940,7 @@ tlv_result_t tlv_query_program_visit(tlv_tree_reader_t* reader, tlv_query_exec_t
                     tlv_reader_diagnostic_init(&reader_diag);
                     tlv_diagnostic_init(&reader_diag.diagnostic, rc, TLV_DIAGNOSTIC_SEVERITY_INFO);
                 }
-                d->kind = TLV_QUERY_ERROR_READER;
-                d->has_reader = 1;
-                d->reader = reader_diag.detail;
-                d->diagnostic = reader_diag.diagnostic;
+                query_reader_failure(d, rc, &reader_diag);
                 d->diagnostic.code = rc;
             }
             return rc;
@@ -957,11 +952,7 @@ tlv_result_t tlv_query_program_visit(tlv_tree_reader_t* reader, tlv_query_exec_t
                     tlv_reader_diagnostic_init(&reader_diag);
                     tlv_diagnostic_init(&reader_diag.diagnostic, rc, TLV_DIAGNOSTIC_SEVERITY_ERROR);
                 }
-                d->kind =
-                    rc == TLV_ERR_INVALID_STATE ? TLV_QUERY_ERROR_STATE : TLV_QUERY_ERROR_READER;
-                d->has_reader = 1;
-                d->reader = reader_diag.detail;
-                d->diagnostic = reader_diag.diagnostic;
+                query_reader_failure(d, rc, &reader_diag);
             }
             return query_failure(d, rc, TLV_QUERY_ERROR_EVENTS, "valid execution operation");
         }
@@ -974,11 +965,10 @@ tlv_result_t tlv_query_program_visit(tlv_tree_reader_t* reader, tlv_query_exec_t
             if (rc != TLV_OK) {
                 e->invalid = 1;
                 if (d) {
-                    d->kind = rc == TLV_ERR_INVALID_STATE ? TLV_QUERY_ERROR_STATE
-                                                          : TLV_QUERY_ERROR_READER;
-                    d->has_reader = 1;
-                    memset(&d->reader, 0, sizeof d->reader);
-                    tlv_diagnostic_init(&d->diagnostic, rc, TLV_DIAGNOSTIC_SEVERITY_ERROR);
+                    tlv_reader_diagnostic_t skipped;
+                    tlv_reader_diagnostic_init(&skipped);
+                    tlv_diagnostic_init(&skipped.diagnostic, rc, TLV_DIAGNOSTIC_SEVERITY_ERROR);
+                    query_reader_failure(d, rc, &skipped);
                 }
                 return rc;
             }

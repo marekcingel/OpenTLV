@@ -353,9 +353,15 @@ int main(int argc, char** argv) {
         }
     }
 done:
-    if (rc != TLV_OK)
-        fprintf(stderr, "%d %u %zu %zu\n", (int)rc, (unsigned)diagnostic.kind, diagnostic.begin,
-                diagnostic.end);
+    if (rc != TLV_OK) {
+        /* Print the expression span, whether it is primary or related evidence. */
+        const tlv_location_t* span =
+            diagnostic.diagnostic.location.domain == TLV_LOCATION_EXPRESSION
+                ? &diagnostic.diagnostic.location
+                : &diagnostic.expression;
+        fprintf(stderr, "%d %u %zu %zu\n", (int)rc, (unsigned)diagnostic.kind, span->begin,
+                span->end);
+    }
     free(workspace_allocation);
     free(program);
     free(scratch);

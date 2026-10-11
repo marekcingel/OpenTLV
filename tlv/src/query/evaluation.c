@@ -11,10 +11,13 @@ static tlv_result_t codec_failure(tlv_query_diagnostic_t* d, tlv_codec_diagnosti
     query_error(d, result, TLV_QUERY_ERROR_CODEC, n->begin, n->end, expected);
     if (d) {
         tlv_codec_diagnostic_result(cause, result);
+        /* The conversion's own location and expectation stay primary; the expression
+         * span becomes related evidence and the Query expectation fills only a gap. */
+        query_relate_expression(d);
         d->diagnostic = cause->diagnostic;
-        d->has_codec = 1;
-        d->codec_detail = cause->codec;
-        d->codec = cause->codec.reported;
+        if (!d->diagnostic.expected) d->diagnostic.expected = expected;
+        d->cause = TLV_QUERY_CAUSE_CODEC;
+        d->detail.codec = cause->codec;
     }
     return result;
 }
@@ -421,16 +424,13 @@ static void push_frame(tlv_query_exec_t* e, size_t index, uint32_t instruction, 
 static tlv_result_t eval_failure(tlv_query_exec_t* e, const eval_frame_t* f, tlv_result_t rc,
                                  tlv_query_diagnostic_t* d) {
     size_t selected = f->selected < e->elements ? f->selected : f->context;
-    if (d && !d->has_codec && selected < e->elements) {
+    if (d && d->cause == TLV_QUERY_CAUSE_NONE && selected < e->elements) {
         const retained_node_t* node = &eval_nodes(e)[selected];
         size_t offset;
         tlv_result_t location = e->document_metadata
                                     ? e->document_metadata(node->handle, 0, &offset)
                                     : query_source_metadata(&node->event, 0, &offset);
-        if (location == TLV_OK) {
-            tlv_diagnostic_set_location(&d->diagnostic, TLV_LOCATION_INPUT, TLV_LOCATION_POINT,
-                                        offset, offset);
-        }
+        if (location == TLV_OK) query_input_location(d, offset);
     }
     return rc;
 }

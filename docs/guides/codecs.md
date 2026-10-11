@@ -93,9 +93,10 @@ payloads become `CALLBACK`, with the original result in `codec.reported`.
 
 Diagnostics contain one common result/location/path and conversion detail:
 operation, optional representation, callback violation, and a discriminated
-Reader or Schema cause. Unknown locations stay unknown. Query keeps the related
-expression span separately and exposes conversion evidence under `has_codec`
-and `codec_detail`. C++ uses `codec_failure`, whose status is the shared `errc`.
+Reader or Schema cause. The Schema cause is the shared `tlv_schema_detail_t`.
+Unknown locations stay unknown. Query keeps the conversion's location primary,
+stores the expression span as related `expression` evidence and exposes
+conversion detail as `detail.codec` under cause `TLV_QUERY_CAUSE_CODEC`. C++ uses `codec_failure`, whose status is the shared `errc`.
 
 ## C++11 typed fields and Value codecs
 

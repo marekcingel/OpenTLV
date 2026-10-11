@@ -2,6 +2,8 @@
 // Copyright (c) 2026 Marek Cingel
 #include "../../diagnostic_assertions.h"
 #include "tlv/query/adapters.h"
+#include "tlv/codec/structure.h"
+#include "tlv/reader/visitor.h"
 #include "tlv/builtins/emv/query.h"
 #include "tlv/builtins/asn1/query.h"
 #include "tlv/builtins/asn1/ber.h"
@@ -185,11 +187,12 @@ TEST(Unit_Tlv_QueryF2, StrictCodecErrorsAndEagerBooleanEvaluation) {
         ASSERT_EQ(TLV_OK, e.init());
         EXPECT_EQ(TLV_ERR_INVALID_VALUE, e.run({0x5a, 1, 0xff}));
         EXPECT_EQ(TLV_QUERY_ERROR_CODEC, e.diagnostic.kind);
-        EXPECT_EQ(TLV_ERR_INVALID_VALUE, e.diagnostic.codec);
+        EXPECT_EQ(TLV_ERR_INVALID_VALUE, e.diagnostic.detail.codec.reported);
         // The primitive supplies no byte coordinate; the expression span stays related evidence.
         EXPECT_EQ(TLV_LOCATION_DOMAIN_UNKNOWN, e.diagnostic.diagnostic.location.domain);
         EXPECT_EQ(TLV_LOCATION_UNKNOWN, e.diagnostic.diagnostic.location.kind);
-        EXPECT_LT(e.diagnostic.begin, e.diagnostic.end);
+        EXPECT_EQ(TLV_LOCATION_EXPRESSION, e.diagnostic.expression.domain);
+        EXPECT_LT(e.diagnostic.expression.begin, e.diagnostic.expression.end);
     }
     Evaluation e;
     ASSERT_EQ(TLV_OK, e.compile("text(//5A)"));
@@ -474,8 +477,9 @@ TEST(Unit_Tlv_QueryF2, ProviderScratchAlignmentAndResultValidation) {
     ASSERT_EQ(e.init(), TLV_OK);
     EXPECT_EQ(e.run({}), TLV_ERR_CALLBACK);
     EXPECT_EQ(e.diagnostic.kind, TLV_QUERY_ERROR_CALLBACK);
-    EXPECT_EQ(e.diagnostic.codec, TLV_OK);
-    EXPECT_LT(e.diagnostic.begin, e.diagnostic.end);
+    EXPECT_EQ(e.diagnostic.detail.codec.reported, TLV_OK);
+    EXPECT_EQ(TLV_LOCATION_EXPRESSION, e.diagnostic.expression.domain);
+    EXPECT_LT(e.diagnostic.expression.begin, e.diagnostic.expression.end);
 }
 
 TEST(Unit_Tlv_QueryF2, ProviderTextResultDiagnostics) {
@@ -507,8 +511,9 @@ TEST(Unit_Tlv_QueryF2, ProviderTextResultDiagnostics) {
         EXPECT_EQ(e.run({0x5a, 1, 1}), test.status == TLV_OK ? TLV_ERR_CALLBACK : test.status);
         EXPECT_EQ(e.diagnostic.kind,
                   test.status == TLV_OK ? TLV_QUERY_ERROR_CALLBACK : TLV_QUERY_ERROR_CODEC);
-        EXPECT_EQ(e.diagnostic.codec, test.status);
-        EXPECT_LT(e.diagnostic.begin, e.diagnostic.end);
+        EXPECT_EQ(e.diagnostic.detail.codec.reported, test.status);
+        EXPECT_EQ(TLV_LOCATION_EXPRESSION, e.diagnostic.expression.domain);
+        EXPECT_LT(e.diagnostic.expression.begin, e.diagnostic.expression.end);
     }
 }
 
@@ -540,13 +545,96 @@ TEST(Unit_Tlv_QueryF2, ConversionPreservesSharedFailuresAndRelatedExpression) {
             status == TLV_END || status == unknown_result ? TLV_ERR_CALLBACK : status;
         EXPECT_EQ(expected, e.run({0x5a, 1, 1}));
         EXPECT_EQ(expected, e.diagnostic.diagnostic.code);
-        ASSERT_TRUE(e.diagnostic.has_codec);
-        EXPECT_EQ(status, e.diagnostic.codec_detail.reported);
+        ASSERT_EQ(TLV_QUERY_CAUSE_CODEC, e.diagnostic.cause);
+        EXPECT_EQ(status, e.diagnostic.detail.codec.reported);
         EXPECT_EQ(17u, e.diagnostic.diagnostic.location.begin);
-        EXPECT_EQ(42u, e.diagnostic.codec_detail.detail.reader.required);
-        EXPECT_LT(e.diagnostic.begin, e.diagnostic.end);
+        EXPECT_EQ(42u, e.diagnostic.detail.codec.detail.reader.required);
+        EXPECT_EQ(TLV_LOCATION_EXPRESSION, e.diagnostic.expression.domain);
+        EXPECT_LT(e.diagnostic.expression.begin, e.diagnostic.expression.end);
     }
 }
+
+#if OPENTLV_FORMAT_BER
+TEST(Unit_Tlv_QueryF2, ReaderFailureReachesQueryOnlyThroughTheCodecCause) {
+    // A provider delegates Value decoding to a structure codec, whose Reader rejects the
+    // nested bytes: the declared length 5 exceeds the one available byte.
+    static const uint8_t               nested[] = {0x04, 0x05, 0xAA};
+    static const tlv_structure_codec_t codec = {nullptr,
+                                                &tlv_format_ber,
+                                                nullptr,
+                                                4,
+                                                16,
+                                                [](const void*, const tlv_format_t*, const uint8_t*,
+                                                   size_t, void*, size_t,
+                                                   tlv_codec_diagnostic_t*) { return TLV_OK; },
+                                                nullptr};
+    tlv_tree_frame_t                   frames[TLV_STRUCTURE_MAX_DEPTH];
+    tlv_tree_reader_t                  reader;
+    tlv_reader_diagnostic_t            original;
+    tlv_reader_diagnostic_init(&original);
+    ASSERT_EQ(TLV_OK,
+              tlv_tree_reader_init(&reader, nested, sizeof nested, codec.format, frames,
+                                   TLV_STRUCTURE_MAX_DEPTH, codec.max_depth, codec.max_elements));
+    const tlv_result_t failure = tlv_tree_reader_visit(&reader, nullptr, nullptr, &original);
+    ASSERT_EQ(TLV_ERR_TRUNCATED, failure);
+
+    Evaluation e;
+    for (auto& hook : e.hooks) {
+        if (hook.function != TLV_QUERY_NUM) continue;
+        hook.context = &codec;
+        hook.decode = [](const void* context, const tlv_tree_event_t*, const uint8_t* data,
+                         size_t                  size, void*, size_t, tlv_query_result_t*,
+                         tlv_codec_diagnostic_t* diagnostic) {
+            uint8_t value;
+            return tlv_structure_decode(static_cast<const tlv_structure_codec_t*>(context), data,
+                                        size, &value, sizeof value, diagnostic);
+        };
+    }
+    ASSERT_EQ(TLV_OK, e.compile("num(//5A)"));
+    ASSERT_EQ(TLV_OK, e.init());
+    // The diagnostic borrows Tag bytes from this input, so it must outlive the checks.
+    const std::vector<uint8_t> wire = {0x5a, sizeof nested, nested[0], nested[1], nested[2]};
+    EXPECT_EQ(failure, e.run(wire));
+
+    const auto& d = e.diagnostic;
+    EXPECT_EQ(TLV_QUERY_ERROR_CODEC, d.kind);
+    // Exactly one path: Query cause CODEC, then the conversion's own Reader cause.
+    ASSERT_EQ(TLV_QUERY_CAUSE_CODEC, d.cause);
+    ASSERT_EQ(TLV_CODEC_CAUSE_READER, d.detail.codec.cause);
+    EXPECT_EQ(failure, d.detail.codec.reported);
+    EXPECT_EQ(TLV_CODEC_VIOLATION_NONE, d.detail.codec.violation);
+    // The Reader detail and its common evidence equal the original.
+    const auto& actual = d.detail.codec.detail.reader;
+    const auto& expected = original.detail;
+    EXPECT_EQ(expected.operation, actual.operation);
+    EXPECT_EQ(expected.has_tag, actual.has_tag);
+    EXPECT_TRUE(tlv_tag_equal(expected.tag, actual.tag));
+    EXPECT_EQ(expected.has_tag_offset, actual.has_tag_offset);
+    EXPECT_EQ(expected.tag_offset, actual.tag_offset);
+    EXPECT_EQ(expected.has_length_offset, actual.has_length_offset);
+    EXPECT_EQ(expected.length_offset, actual.length_offset);
+    EXPECT_EQ(expected.has_value_offset, actual.has_value_offset);
+    EXPECT_EQ(expected.value_offset, actual.value_offset);
+    EXPECT_EQ(expected.has_declared_length, actual.has_declared_length);
+    EXPECT_EQ(expected.declared_length, actual.declared_length);
+    EXPECT_EQ(expected.has_raw_length, actual.has_raw_length);
+    EXPECT_EQ(expected.raw_length.size, actual.raw_length.size);
+    EXPECT_EQ(expected.has_available, actual.has_available);
+    EXPECT_EQ(expected.available, actual.available);
+    EXPECT_EQ(expected.has_enclosing_end, actual.has_enclosing_end);
+    EXPECT_EQ(expected.enclosing_end, actual.enclosing_end);
+    EXPECT_EQ(expected.has_required, actual.has_required);
+    EXPECT_EQ(expected.required, actual.required);
+    EXPECT_EQ(original.diagnostic.code, d.diagnostic.code);
+    EXPECT_EQ(original.diagnostic.location.domain, d.diagnostic.location.domain);
+    EXPECT_EQ(original.diagnostic.location.kind, d.diagnostic.location.kind);
+    EXPECT_EQ(original.diagnostic.location.begin, d.diagnostic.location.begin);
+    EXPECT_EQ(original.diagnostic.location.end, d.diagnostic.location.end);
+    // The expression span is related evidence, not a second primary location.
+    EXPECT_EQ(TLV_LOCATION_EXPRESSION, d.expression.domain);
+    EXPECT_LT(d.expression.begin, d.expression.end);
+}
+#endif
 
 TEST(Unit_Tlv_QueryF2, ForeignCallbackResultsRemainReadableInCpp) {
     for (const int32_t reported : {999, -1, INT32_MIN, INT32_MAX}) {
@@ -562,10 +650,11 @@ TEST(Unit_Tlv_QueryF2, ForeignCallbackResultsRemainReadableInCpp) {
         EXPECT_EQ(TLV_ERR_CALLBACK, e.run({0x5a, 1, 1}));
         EXPECT_EQ(TLV_ERR_CALLBACK, e.diagnostic.diagnostic.code);
         EXPECT_EQ(TLV_QUERY_ERROR_CALLBACK, e.diagnostic.kind);
-        ASSERT_TRUE(e.diagnostic.has_codec);
-        EXPECT_EQ(reported, e.diagnostic.codec);
-        EXPECT_EQ(reported, e.diagnostic.codec_detail.reported);
-        EXPECT_EQ(TLV_CODEC_VIOLATION_RESULT, e.diagnostic.codec_detail.violation);
-        EXPECT_LT(e.diagnostic.begin, e.diagnostic.end);
+        ASSERT_EQ(TLV_QUERY_CAUSE_CODEC, e.diagnostic.cause);
+        EXPECT_EQ(reported, e.diagnostic.detail.codec.reported);
+        EXPECT_EQ(reported, e.diagnostic.detail.codec.reported);
+        EXPECT_EQ(TLV_CODEC_VIOLATION_RESULT, e.diagnostic.detail.codec.violation);
+        EXPECT_EQ(TLV_LOCATION_EXPRESSION, e.diagnostic.expression.domain);
+        EXPECT_LT(e.diagnostic.expression.begin, e.diagnostic.expression.end);
     }
 }

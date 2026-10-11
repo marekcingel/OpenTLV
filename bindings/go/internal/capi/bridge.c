@@ -815,8 +815,8 @@ tlv_result_t go_query_feed_encoded(go_query_execution* q, const uint8_t* data, s
         q->buffers = buffer;
         memset(diagnostic, 0, sizeof *diagnostic);
         diagnostic->kind = TLV_QUERY_ERROR_READER;
-        diagnostic->has_reader = 1;
-        diagnostic->reader = original.detail;
+        diagnostic->cause = TLV_QUERY_CAUSE_READER;
+        diagnostic->detail.reader = original.detail;
         diagnostic->diagnostic = original.diagnostic;
         diagnostic->diagnostic.code = rc;
         return rc;

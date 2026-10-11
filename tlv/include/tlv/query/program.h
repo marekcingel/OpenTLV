@@ -67,7 +67,8 @@ typedef enum tlv_query_error_kind {
     TLV_QUERY_ERROR_STATE,         /**< Invalid lifecycle state or forbidden reentrancy. */
     TLV_QUERY_ERROR_CALLBACK,      /**< Callback contract violation or explicit visitor error. */
     TLV_QUERY_ERROR_TYPE,          /**< Operand type, arity or numeric-range mismatch. */
-    TLV_QUERY_ERROR_IMAGE          /**< Malformed stored program image. */
+    TLV_QUERY_ERROR_IMAGE,         /**< Malformed stored program image. */
+    TLV_QUERY_ERROR_SCHEMA /**< Schema Query assertion failed; Schema detail is the cause. */
 } tlv_query_error_kind_t;
 
 /**
@@ -87,11 +88,34 @@ typedef enum tlv_query_decision_timing {
     TLV_QUERY_DECISION_EOF    /**< Final EOF or complete Document snapshot evaluation. */
 } tlv_query_decision_timing_t;
 
+/** @brief Layer whose typed detail is active in #tlv_query_diagnostic_t::detail. */
+typedef enum tlv_query_cause {
+    TLV_QUERY_CAUSE_NONE,   /**< Query-owned failure without lower-layer detail. */
+    TLV_QUERY_CAUSE_READER, /**< Reader detail is active. */
+    TLV_QUERY_CAUSE_CODEC,  /**< Conversion detail is active, with its own delegated cause. */
+    TLV_QUERY_CAUSE_SCHEMA  /**< Schema detail is active. */
+} tlv_query_cause_t;
+
+/**
+ * @brief Returns the diagnostic name of a query cause.
+ *
+ * @param[in] value Diagnostic enum value.
+ * @return A static NUL-terminated string, or `"unknown"` for an unrecognized value.
+ * @note Never returns NULL or allocates. Do not free or modify the string.
+ * Available even when the corresponding capability is disabled.
+ */
+TLV_API const char* tlv_query_cause_string(tlv_query_cause_t value);
+
 /** @brief Fixed-layout compiler/execution failure, initialized by diagnostic entry points.
+ * @note Every field has one meaning. Result, severity, primary location, path and
+ * expected text live only in `diagnostic`; lower-layer evidence lives only in the
+ * `detail` member selected by `cause`. A Reader failure delegated through a
+ * conversion hook is reachable only as `detail.codec.detail.reader`.
  * @note After initialization, every non-#TLV_OK return has a kind other than
  * #TLV_QUERY_ERROR_NONE. #TLV_ERR_INVALID_STATE has kind #TLV_QUERY_ERROR_STATE.
- * Reader failures and #TLV_NEED_MORE_DATA retain the
- * returned code in `diagnostic.code` and set `has_reader`. Success need not clear old detail.
+ * Reader failures and #TLV_NEED_MORE_DATA retain the returned code in
+ * `diagnostic.code` and set `cause` to #TLV_QUERY_CAUSE_READER. Success need not
+ * clear old detail.
  * @note Pre-initialization overlap, reentrancy and failed-execution guards leave
  * this output untouched. Compiler prepare/commit/load preflight argument,
  * extent and alignment checks can also reject before initialization.
@@ -100,28 +124,28 @@ typedef enum tlv_query_decision_timing {
  * it is reused. Inspect exec_info.invalid and reset before continuing.
  * @note This value type is not extensible; changing its layout requires an ABI change. */
 typedef struct tlv_query_diagnostic {
-    tlv_diagnostic_t diagnostic; /**< Common result and primary evidence location. */
+    /** Common result, severity, primary location, path and expected text. The primary
+     * location is an EXPRESSION span for compiler and expression failures, or the INPUT,
+     * VALUE or unknown location reported by the failing node or lower layer. */
+    tlv_diagnostic_t diagnostic;
     tlv_query_error_kind_t kind; /**< Query failure category. */
-    int has_reader; /**< Nonzero when reader contains lower-layer evidence, including under STATE.
-                     */
-    size_t begin;   /**< Related expression span start, inclusive. */
-    size_t end;     /**< Related expression span end, exclusive; may equal begin at EOF.
-                       Primary evidence may instead be in INPUT coordinates. */
-    const char* expected;       /**< Static expected-token description, or NULL. */
-    const char* limit;          /**< Static resource name, or NULL. */
-    size_t configured;          /**< Configured resource bound, when limit is present. */
-    tlv_reader_detail_t reader; /**< Original Reader detail when has_reader is nonzero.
-                                  Result, location and path live only in diagnostic. */
-    /** @brief Original codec result for #TLV_QUERY_ERROR_CODEC or a conversion
-     * #TLV_QUERY_ERROR_CALLBACK.
-     *
-     * Preserves #TLV_OK when a successful codec result violates the declared type,
-     * has nonzero size with NULL data, or contains invalid UTF-8. The operation then
-     * returns #TLV_ERR_CALLBACK; expected identifies the violated output contract.
-     * Stored as a raw integer so unknown provider results remain safe to read in C++. */
-    int32_t codec;
-    int has_codec;                   /**< Nonzero when codec_detail carries conversion context. */
-    tlv_codec_detail_t codec_detail; /**< Conversion and delegated cause; common data above. */
+    /** Related expression span when the primary location is not in the EXPRESSION domain;
+     * otherwise UNKNOWN, so an expression span is never stored twice. */
+    tlv_location_t expression;
+    const char* limit;       /**< Static resource name, or NULL. */
+    size_t configured;       /**< Configured resource bound, when limit is present. */
+    tlv_query_cause_t cause; /**< Active member of detail. */
+    /** @brief Discriminated lower-layer detail; only the member selected by cause is active.
+     * @note Borrowed detail follows the lifetime contract of its layer. */
+    union {
+        tlv_reader_detail_t reader; /**< Original Reader detail. */
+        /** Conversion detail. `reported` is the raw provider result for #TLV_QUERY_ERROR_CODEC
+         * or a conversion #TLV_QUERY_ERROR_CALLBACK, preserving #TLV_OK when a successful
+         * result violates the declared type, has nonzero size with NULL data, or contains
+         * invalid UTF-8; `violation` identifies the breached output contract. */
+        tlv_codec_detail_t codec;
+        tlv_schema_detail_t schema; /**< Schema detail of a failed Schema Query assertion. */
+    } detail;
 } tlv_query_diagnostic_t;
 
 /** @brief Category of a Query expression's result. */

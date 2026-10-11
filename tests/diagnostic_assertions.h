@@ -19,18 +19,21 @@ inline tlv_result_t result(tlv_result_t rc, const tlv_query_diagnostic_t& diagno
     if (rc != TLV_OK) {
         EXPECT_TRUE(test_query_diagnostic_matches(rc, &diagnostic))
             << "result=" << rc << " kind=" << diagnostic.kind;
-        if (diagnostic.kind == TLV_QUERY_ERROR_READER) EXPECT_TRUE(diagnostic.has_reader);
-        if (diagnostic.kind == TLV_QUERY_ERROR_CODEC) EXPECT_NE(TLV_OK, diagnostic.codec);
+        if (diagnostic.kind == TLV_QUERY_ERROR_READER)
+            EXPECT_EQ(TLV_QUERY_CAUSE_READER, diagnostic.cause);
+        if (diagnostic.kind == TLV_QUERY_ERROR_CODEC) {
+            EXPECT_EQ(TLV_QUERY_CAUSE_CODEC, diagnostic.cause);
+            EXPECT_NE(TLV_OK, diagnostic.detail.codec.reported);
+        }
+        if (diagnostic.kind == TLV_QUERY_ERROR_SCHEMA)
+            EXPECT_EQ(TLV_QUERY_CAUSE_SCHEMA, diagnostic.cause);
+        if (diagnostic.diagnostic.location.domain == TLV_LOCATION_EXPRESSION)
+            EXPECT_EQ(TLV_LOCATION_UNKNOWN, diagnostic.expression.kind);
     }
     return rc;
 }
 inline tlv_result_t result(tlv_result_t rc, const tlv_schema_query_diagnostic_t& diagnostic) {
-    if (rc != TLV_OK) {
-        if (diagnostic.schema.diagnostic.code != TLV_OK)
-            result(rc, diagnostic.schema.diagnostic);
-        else
-            result(rc, diagnostic.query);
-    }
+    if (rc != TLV_OK) result(rc, diagnostic.query);
     return rc;
 }
 template <typename Diagnostic> tlv_result_t result(tlv_result_t rc, const Diagnostic& diagnostic) {

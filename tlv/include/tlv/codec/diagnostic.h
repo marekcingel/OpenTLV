@@ -60,29 +60,6 @@ typedef enum tlv_codec_violation {
  * Available even when the corresponding capability is disabled.
  */
 TLV_API const char* tlv_codec_violation_string(tlv_codec_violation_t value);
-/** @brief Schema cause fields without a second copy of the common diagnostic.
- * @note Tag, field and definition owner borrow the original input/schema.
- */
-typedef struct tlv_codec_schema_detail {
-    tlv_schema_issue_kind_t kind;                /**< Schema issue. */
-    tlv_tag_t tag;                               /**< Affected identifier. */
-    tlv_schema_definition_location_t definition; /**< Native definition evidence. */
-    const char* field;                           /**< Borrowed field name. */
-    int is_group;                                /**< Group rather than individual rule. */
-    int has_occurs;                              /**< Occurrence fields are active. */
-    size_t min_occurs;                           /**< Minimum occurrences. */
-    size_t max_occurs;                           /**< Maximum occurrences. */
-    size_t occurs;                               /**< Observed occurrences. */
-    int has_length;                              /**< Length fields are active. */
-    size_t min_length;                           /**< Minimum length. */
-    size_t max_length;                           /**< Maximum length. */
-    size_t actual_length;                        /**< Observed length. */
-    int has_form;                                /**< Form fields are active. */
-    tlv_schema_kind_t expected_form;             /**< Required form. */
-    int actual_constructed;                      /**< Observed constructed flag. */
-    size_t length_multiple;                      /**< Required length multiple. */
-    uint32_t length_flags;                       /**< Schema length policy. */
-} tlv_codec_schema_detail_t;
 /** @brief Conversion detail accompanying one shared common diagnostic.
  * @note Only the member selected by cause is active. All borrows must outlive copies.
  */
@@ -94,9 +71,9 @@ typedef struct tlv_codec_detail {
     const char* representation;      /**< Optional borrowed static representation name. */
     tlv_codec_cause_t cause;         /**< Active delegated detail. */
     union {
-        tlv_reader_detail_t reader;       /**< Reader cause. */
-        tlv_codec_schema_detail_t schema; /**< Schema cause. */
-    } detail;                             /**< Discriminated lower-layer detail. */
+        tlv_reader_detail_t reader; /**< Reader cause. */
+        tlv_schema_detail_t schema; /**< Schema cause. */
+    } detail;                       /**< Discriminated lower-layer detail. */
 } tlv_codec_detail_t;
 /** @brief Copyable conversion diagnostic with one common location/path.
  * @note Caller-owned and optional. NULL avoids collecting detail. Callback diagnostics

@@ -23,8 +23,8 @@ static tlv_result_t violation(tlv_schema_diagnostic_t* diagnostic, tlv_schema_is
                                 kind == TLV_SCHEMA_ISSUE_MISSING ? TLV_LOCATION_SCOPE_END
                                                                  : TLV_LOCATION_POINT,
                                 offset, offset);
-    diagnostic->kind = kind;
-    diagnostic->tag = *tag;
+    diagnostic->detail.kind = kind;
+    diagnostic->detail.tag = *tag;
     diagnostic->diagnostic.has_path = 1;
     tlv_diagnostic_path_init(&diagnostic->diagnostic.path);
     /* Pushing past capacity keeps the outer tags and counts the omitted ones. */
@@ -117,7 +117,7 @@ static tlv_result_t check_scope(const uint8_t* data, const tlv_format_t* format,
             for (size_t i = 0; i < current->count; ++i)
                 if (same_tag(&current->rules[i].entry->tag, &element.tag)) {
                     if (have_last && i < last_index) {
-                        if (diagnostic) diagnostic->field = current->rules[i].entry->name;
+                        if (diagnostic) diagnostic->detail.field = current->rules[i].entry->name;
                         return violation(diagnostic, TLV_SCHEMA_ISSUE_ORDER, &element.tag, pos,
                                          path, depth);
                     }

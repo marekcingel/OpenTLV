@@ -71,12 +71,12 @@ TEST(Integration_Tlv_Lldp, SchemaMandatoryPrefixOptionalEndAndDiagnostics) {
                                     tlv_lldp_validate(wire.data(), wire.size(), 3, &diagnostic)));
     EXPECT_EQ(0u, diagnostic.diagnostic.location.begin);
     EXPECT_STREQ("Chassis ID, Port ID, TTL prefix", diagnostic.diagnostic.expected);
-    EXPECT_EQ(TLV_SCHEMA_ISSUE_ORDER, diagnostic.kind);
+    EXPECT_EQ(TLV_SCHEMA_ISSUE_ORDER, diagnostic.detail.kind);
     EXPECT_EQ(TLV_ERR_SCHEMA,
               TLV_DIAGNOSTIC_RESULT(diagnostic,
                                     tlv_lldp_validate(base_lldpdu.data(), 8, 3, &diagnostic)));
     EXPECT_EQ(8u, diagnostic.diagnostic.location.begin);
-    EXPECT_EQ(TLV_SCHEMA_ISSUE_MISSING, diagnostic.kind);
+    EXPECT_EQ(TLV_SCHEMA_ISSUE_MISSING, diagnostic.detail.kind);
     EXPECT_EQ(TLV_LOCATION_SCOPE_END, diagnostic.diagnostic.location.kind);
     EXPECT_EQ(TLV_ERR_SCHEMA,
               TLV_DIAGNOSTIC_RESULT(diagnostic, tlv_lldp_validate(nullptr, 0, 3, &diagnostic)));
@@ -141,9 +141,9 @@ TEST(Integration_Tlv_Lldp, GenericSchemaReportAndValueCodecComposition) {
                                   wire.data(), wire.size(), &tlv_format_lldp, &tlv_lldp_schema, 0,
                                   10, TLV_SCHEMA_UNKNOWN_BY_SCHEMA, &report, nullptr));
     EXPECT_EQ(1u, report.count);
-    EXPECT_EQ(TLV_SCHEMA_ISSUE_DUPLICATE, issue.kind);
+    EXPECT_EQ(TLV_SCHEMA_ISSUE_DUPLICATE, issue.detail.kind);
     EXPECT_EQ(0u, issue.diagnostic.path.length);
-    EXPECT_TRUE(tlv_tag_equal(TLV_TAG(3), issue.tag));
+    EXPECT_TRUE(tlv_tag_equal(TLV_TAG(3), issue.detail.tag));
     tlv_reader_t reader{};
     ASSERT_EQ(TLV_OK,
               tlv_reader_init(&reader, base_lldpdu.data(), base_lldpdu.size(), &tlv_format_lldp));

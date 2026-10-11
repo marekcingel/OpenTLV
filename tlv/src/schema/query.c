@@ -9,6 +9,20 @@ static tlv_result_t schema_query_requirements(const tlv_schema_query_rule_t* rul
                                               size_t* assertion, size_t* alignment,
                                               tlv_schema_query_diagnostic_t* diagnostic);
 
+/* A false assertion is a Schema finding: the common part carries SCHEMA and the
+ * ASSERTION detail is the only cause; location and path are added by the caller. */
+static void assertion_failure(tlv_query_diagnostic_t* d, tlv_tag_t tag, const char* name) {
+    query_diag_init(d);
+    tlv_diagnostic_init(&d->diagnostic, TLV_ERR_SCHEMA, TLV_DIAGNOSTIC_SEVERITY_ERROR);
+    d->diagnostic.expected = "contextual Query assertion true";
+    d->diagnostic.has_path = 1;
+    d->kind = TLV_QUERY_ERROR_SCHEMA;
+    d->cause = TLV_QUERY_CAUSE_SCHEMA;
+    d->detail.schema.kind = TLV_SCHEMA_ISSUE_ASSERTION;
+    d->detail.schema.tag = tag;
+    d->detail.schema.field = name;
+}
+
 #if OPENTLV_DOCUMENT && OPENTLV_READER && OPENTLV_WRITER
 tlv_result_t tlv_schema_query_validate_document(const tlv_document_t* document,
                                                 const tlv_schema_query_rule_t* rules, size_t count,
@@ -68,16 +82,11 @@ tlv_result_t tlv_schema_query_validate_document(const tlv_document_t* document,
                                      "valid Schema Query execution");
             if (!result.boolean) {
                 if (diagnostic) {
-                    tlv_schema_diagnostic_init(&diagnostic->schema);
-                    diagnostic->schema.kind = TLV_SCHEMA_ISSUE_ASSERTION;
-                    diagnostic->schema.tag = tlv_node_tag(w->contexts[j].node);
-                    diagnostic->schema.field = rules[i].name;
-                    diagnostic->schema.diagnostic.code = TLV_ERR_SCHEMA;
-                    diagnostic->schema.diagnostic.expected = "contextual Query assertion true";
-                    diagnostic->schema.diagnostic.has_path = 1;
+                    assertion_failure(&diagnostic->query, tlv_node_tag(w->contexts[j].node),
+                                      rules[i].name);
                     /* Count the complete ancestry, then fill the retained root
                      * prefix in reverse as parent links walk inward to outward. */
-                    tlv_diagnostic_path_t* path = &diagnostic->schema.diagnostic.path;
+                    tlv_diagnostic_path_t* path = &diagnostic->query.diagnostic.path;
                     size_t parents = 0;
                     for (tlv_node_t* p = tlv_node_parent(w->contexts[j].node); p;
                          p = tlv_node_parent(p))
@@ -90,7 +99,7 @@ tlv_result_t tlv_schema_query_validate_document(const tlv_document_t* document,
                         if (--parents < path->length) path->tags[parents] = tlv_node_tag(p);
                     }
                 }
-                /* diagnostic-return: schema.diagnostic.code is set for the failed assertion above.
+                /* diagnostic-return: query.diagnostic.code is set for the failed assertion above.
                  */
                 return TLV_ERR_SCHEMA;
             }
@@ -162,11 +171,11 @@ static tlv_result_t buffer_evaluate(const uint8_t* data, size_t size, const tlv_
                                            workspace->frame_capacity, depth, nodes);
     if (rc != TLV_OK) {
         if (diagnostic) {
+            tlv_reader_diagnostic_t failed;
+            tlv_reader_diagnostic_init(&failed);
+            tlv_diagnostic_init(&failed.diagnostic, rc, TLV_DIAGNOSTIC_SEVERITY_ERROR);
             query_diag_init(diagnostic);
-            diagnostic->kind =
-                rc == TLV_ERR_INVALID_STATE ? TLV_QUERY_ERROR_STATE : TLV_QUERY_ERROR_READER;
-            diagnostic->has_reader = 1;
-            tlv_diagnostic_init(&diagnostic->diagnostic, rc, TLV_DIAGNOSTIC_SEVERITY_ERROR);
+            query_reader_failure(diagnostic, rc, &failed);
         }
         return rc;
     }
@@ -184,12 +193,8 @@ static tlv_result_t buffer_evaluate(const uint8_t* data, size_t size, const tlv_
                     tlv_reader_diagnostic_init(&original);
                     tlv_diagnostic_init(&original.diagnostic, rc, TLV_DIAGNOSTIC_SEVERITY_ERROR);
                 }
-                memset(diagnostic, 0, sizeof *diagnostic);
-                diagnostic->kind =
-                    rc == TLV_ERR_INVALID_STATE ? TLV_QUERY_ERROR_STATE : TLV_QUERY_ERROR_READER;
-                diagnostic->has_reader = 1;
-                diagnostic->reader = original.detail;
-                diagnostic->diagnostic = original.diagnostic;
+                query_diag_init(diagnostic);
+                query_reader_failure(diagnostic, rc, &original);
             }
             return rc;
         }
@@ -293,21 +298,16 @@ tlv_result_t tlv_schema_query_validate_buffer(const uint8_t* data, size_t size,
                                      "valid Schema Query execution");
             if (!result.boolean) {
                 if (diagnostic) {
-                    tlv_schema_diagnostic_init(&diagnostic->schema);
-                    diagnostic->schema.kind = TLV_SCHEMA_ISSUE_ASSERTION;
-                    diagnostic->schema.tag = w->contexts[j].event.element.tag;
-                    diagnostic->schema.field = rules[i].name;
-                    diagnostic->schema.diagnostic.code = TLV_ERR_SCHEMA;
-                    diagnostic->schema.diagnostic.expected = "contextual Query assertion true";
-                    diagnostic->schema.diagnostic.has_path = 1;
+                    assertion_failure(&diagnostic->query, w->contexts[j].event.element.tag,
+                                      rules[i].name);
                     if (w->contexts[j].event.source.data)
                         tlv_diagnostic_set_location(
-                            &diagnostic->schema.diagnostic, TLV_LOCATION_INPUT, TLV_LOCATION_POINT,
+                            &diagnostic->query.diagnostic, TLV_LOCATION_INPUT, TLV_LOCATION_POINT,
                             w->contexts[j].event.offset, w->contexts[j].event.offset);
                     context_path(data, size, format, depth, nodes, w, w->contexts[j].ordinal,
-                                 &diagnostic->schema.diagnostic.path);
+                                 &diagnostic->query.diagnostic.path);
                 }
-                /* diagnostic-return: schema.diagnostic.code is set for the failed assertion above.
+                /* diagnostic-return: query.diagnostic.code is set for the failed assertion above.
                  */
                 return TLV_ERR_SCHEMA;
             }

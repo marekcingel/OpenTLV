@@ -177,7 +177,7 @@ TEST(Integration_Tlv_DerSchema, CheckedHandleMatchesPlainReadAndWrite) {
         EXPECT_EQ(plain.diagnostic.location.domain, prepared.diagnostic.location.domain);
         EXPECT_EQ(plain.diagnostic.location.kind, prepared.diagnostic.location.kind);
         EXPECT_EQ(plain.diagnostic.location.begin, prepared.diagnostic.location.begin);
-        EXPECT_EQ(plain.kind, prepared.kind);
+        EXPECT_EQ(plain.detail.kind, prepared.detail.kind);
     }
 
     std::vector<ScriptEntry>             complete = {{&members[0], 0, true, {0x05}},
@@ -202,7 +202,7 @@ TEST(Integration_Tlv_DerSchema, CheckedHandleMatchesPlainReadAndWrite) {
         EXPECT_EQ(plain.diagnostic.location.domain, prepared.diagnostic.location.domain);
         EXPECT_EQ(plain.diagnostic.location.kind, prepared.diagnostic.location.kind);
         EXPECT_EQ(plain.diagnostic.location.begin, prepared.diagnostic.location.begin);
-        EXPECT_EQ(plain.kind, prepared.kind);
+        EXPECT_EQ(plain.detail.kind, prepared.detail.kind);
     }
 }
 
@@ -233,7 +233,7 @@ TEST(Integration_Tlv_DerSchema, CheckedHandleKeepsLimitsAndRejectsInvalidUse) {
     /* A failed preparation never leaves the handle on the previous definition. */
     EXPECT_EQ(TLV_ERR_INVALID_SCHEMA, tlv_der_schema_prepare(&checked, &invalid, &diagnostic));
     EXPECT_EQ(nullptr, checked.root);
-    EXPECT_EQ(TLV_SCHEMA_ISSUE_DEFINITION, diagnostic.kind);
+    EXPECT_EQ(TLV_SCHEMA_ISSUE_DEFINITION, diagnostic.detail.kind);
     EXPECT_EQ(TLV_ERR_INVALID_STATE,
               tlv_der_schema_read_checked(&checked, wire, sizeof wire, nullptr, &element, &consumed,
                                           &diagnostic));

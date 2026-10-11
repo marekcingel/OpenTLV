@@ -125,27 +125,10 @@ impl CodecDiagnostic {
             None
         };
         let schema = if raw.codec.cause == 2 {
-            let detail = unsafe { raw.codec.detail.schema };
-            let mut cause: native::tlv_schema_diagnostic_t = unsafe { mem::zeroed() };
-            cause.diagnostic = raw.diagnostic;
-            cause.kind = detail.kind;
-            cause.tag = detail.tag;
-            cause.definition = detail.definition;
-            cause.field = detail.field;
-            cause.is_group = detail.is_group;
-            cause.has_occurs = detail.has_occurs;
-            cause.min_occurs = detail.min_occurs;
-            cause.max_occurs = detail.max_occurs;
-            cause.occurs = detail.occurs;
-            cause.has_length = detail.has_length;
-            cause.min_length = detail.min_length;
-            cause.max_length = detail.max_length;
-            cause.actual_length = detail.actual_length;
-            cause.has_form = detail.has_form;
-            cause.expected_form = detail.expected_form;
-            cause.actual_constructed = detail.actual_constructed;
-            cause.length_multiple = detail.length_multiple;
-            cause.length_flags = detail.length_flags;
+            let cause = native::tlv_schema_diagnostic_t {
+                diagnostic: raw.diagnostic,
+                detail: unsafe { raw.codec.detail.schema },
+            };
             unsafe { crate::SchemaDiagnostic::from_raw(&cause) }
                 .ok()
                 .map(Box::new)

@@ -77,7 +77,7 @@ std::string pathOf(const tlv_schema_diagnostic_t& diagnostic) {
 // Applications may render a full field path by appending the affected tag.
 std::string fullPathOf(const tlv_schema_diagnostic_t& diagnostic) {
     auto path = diagnostic.diagnostic.path;
-    EXPECT_EQ(TLV_OK, tlv_diagnostic_path_push(&path, diagnostic.tag));
+    EXPECT_EQ(TLV_OK, tlv_diagnostic_path_push(&path, diagnostic.detail.tag));
     char text[128];
     EXPECT_EQ(TLV_OK, tlv_diagnostic_path_string(&path, text, sizeof(text), nullptr));
     return text;
@@ -85,7 +85,7 @@ std::string fullPathOf(const tlv_schema_diagnostic_t& diagnostic) {
 
 const tlv_schema_diagnostic_t* findDiag(const DiagOutcome& out, tlv_schema_issue_kind_t kind) {
     for (const auto& diagnostic : out.diagnostics)
-        if (diagnostic.kind == kind) return &diagnostic;
+        if (diagnostic.detail.kind == kind) return &diagnostic;
     return nullptr;
 }
 
@@ -105,11 +105,11 @@ TEST(Integration_Tlv_SchemaReport, EndpointLengthPolicySurvivesDiagnostics) {
     const auto                   result = runDiag({0x04, 0x02, 0xAA, 0xBB}, schema);
     ASSERT_EQ(1u, result.diagnostics.size());
     const auto& diagnostic = result.diagnostics[0];
-    EXPECT_TRUE(diagnostic.has_length);
-    EXPECT_EQ(1u, diagnostic.min_length);
-    EXPECT_EQ(3u, diagnostic.max_length);
-    EXPECT_EQ(2u, diagnostic.actual_length);
-    EXPECT_EQ(static_cast<uint32_t>(TLV_SCHEMA_LENGTH_ENDPOINTS), diagnostic.length_flags);
+    EXPECT_TRUE(diagnostic.detail.has_length);
+    EXPECT_EQ(1u, diagnostic.detail.min_length);
+    EXPECT_EQ(3u, diagnostic.detail.max_length);
+    EXPECT_EQ(2u, diagnostic.detail.actual_length);
+    EXPECT_EQ(static_cast<uint32_t>(TLV_SCHEMA_LENGTH_ENDPOINTS), diagnostic.detail.length_flags);
     EXPECT_TRUE(runDiag({0x04, 0x01, 0xAA}, schema).diagnostics.empty());
     EXPECT_TRUE(runDiag({0x04, 0x03, 0xAA, 0xBB, 0xCC}, schema).diagnostics.empty());
 }
@@ -131,24 +131,24 @@ TEST(Integration_Tlv_SchemaReport, BorrowedFieldIsAuthoritativeForValidationAndD
                                                   &schema, TLV_TREE_DEFAULT_DEPTH, 1000, nullptr));
     const auto result = runDiag(wire, schema);
     ASSERT_EQ(1u, result.diagnostics.size());
-    EXPECT_STREQ("shared", result.diagnostics[0].field);
-    EXPECT_EQ(1u, result.diagnostics[0].min_length);
-    EXPECT_EQ(3u, result.diagnostics[0].max_length);
+    EXPECT_STREQ("shared", result.diagnostics[0].detail.field);
+    EXPECT_EQ(1u, result.diagnostics[0].detail.min_length);
+    EXPECT_EQ(3u, result.diagnostics[0].detail.max_length);
     EXPECT_EQ(static_cast<uint32_t>(TLV_SCHEMA_LENGTH_ENDPOINTS),
-              result.diagnostics[0].length_flags);
+              result.diagnostics[0].detail.length_flags);
     EXPECT_TRUE(runDiag({0x04, 1, 0xAA}, schema).diagnostics.empty());
     const auto missing = runDiag({}, schema);
     ASSERT_EQ(1u, missing.diagnostics.size());
     EXPECT_EQ("", pathOf(missing.diagnostics[0]));
-    EXPECT_TRUE(tlv_tag_equal(field.tag, missing.diagnostics[0].tag));
-    EXPECT_STREQ("shared", missing.diagnostics[0].field);
+    EXPECT_TRUE(tlv_tag_equal(field.tag, missing.diagnostics[0].detail.tag));
+    EXPECT_STREQ("shared", missing.diagnostics[0].detail.field);
 }
 
 TEST(Integration_Tlv_SchemaReport, ReportsMissingRequiredTagWithFullPathAndScopeEnd) {
     DiagOutcome out = runDiag(missing9F36);
     ASSERT_EQ(TLV_ERR_SCHEMA, out.rc);
     ASSERT_EQ(1u, out.count);
-    EXPECT_EQ(TLV_SCHEMA_ISSUE_MISSING, out.diagnostics[0].kind);
+    EXPECT_EQ(TLV_SCHEMA_ISSUE_MISSING, out.diagnostics[0].detail.kind);
     EXPECT_EQ("70 > 77 > 9F36", fullPathOf(out.diagnostics[0]));
     ASSERT_TRUE(out.diagnostics[0].diagnostic.location.kind);
     EXPECT_EQ(11u, out.diagnostics[0].diagnostic.location.begin); // End of the enclosing 77.
@@ -160,7 +160,7 @@ TEST(Integration_Tlv_SchemaReport, ReportsMissingTopLevelTagAtScopeEnd) {
     DiagOutcome out = runDiag(wire);
     ASSERT_EQ(TLV_ERR_SCHEMA, out.rc);
     ASSERT_EQ(1u, out.count);
-    EXPECT_EQ(TLV_SCHEMA_ISSUE_MISSING, out.diagnostics[0].kind);
+    EXPECT_EQ(TLV_SCHEMA_ISSUE_MISSING, out.diagnostics[0].detail.kind);
     EXPECT_EQ("70", fullPathOf(out.diagnostics[0]));
     EXPECT_TRUE(out.diagnostics[0].diagnostic.location.kind);
     EXPECT_EQ(wire.size(), out.diagnostics[0].diagnostic.location.begin);
@@ -183,7 +183,7 @@ TEST(Integration_Tlv_SchemaReport,
     DiagOutcome out = runDiag(wire);
     ASSERT_EQ(TLV_ERR_SCHEMA, out.rc);
     ASSERT_EQ(1u, out.count);
-    EXPECT_EQ(TLV_SCHEMA_ISSUE_DUPLICATE, out.diagnostics[0].kind);
+    EXPECT_EQ(TLV_SCHEMA_ISSUE_DUPLICATE, out.diagnostics[0].detail.kind);
     EXPECT_EQ("70 > 5F24", fullPathOf(out.diagnostics[0]));
     EXPECT_EQ(11u, out.diagnostics[0].diagnostic.location.begin);
 }
@@ -207,7 +207,7 @@ TEST(Integration_Tlv_SchemaReport, ReportsUnexpectedTagAndLengthAndHonoursUnknow
 
     out = runDiag(wire, rootSchema, TLV_SCHEMA_UNKNOWN_ALLOW);
     ASSERT_EQ(1u, out.count);
-    EXPECT_EQ(TLV_SCHEMA_ISSUE_LENGTH, out.diagnostics[0].kind);
+    EXPECT_EQ(TLV_SCHEMA_ISSUE_LENGTH, out.diagnostics[0].detail.kind);
 
     // 70 allows unknown tags by its schema; rejecting them everywhere adds a finding there.
     wire.push_back(0x5F);
@@ -231,7 +231,7 @@ TEST(Integration_Tlv_SchemaReport, ReportsPrimitiveConstructedMismatchAndDoesNot
     DiagOutcome                         out = runDiag(wire, kindSchema);
     ASSERT_EQ(TLV_ERR_SCHEMA, out.rc);
     ASSERT_EQ(2u, out.count);
-    EXPECT_EQ(TLV_SCHEMA_ISSUE_KIND, out.diagnostics[0].kind);
+    EXPECT_EQ(TLV_SCHEMA_ISSUE_KIND, out.diagnostics[0].detail.kind);
     EXPECT_EQ("5A", fullPathOf(out.diagnostics[0]));
     EXPECT_EQ(0u, out.diagnostics[0].diagnostic.location.begin);
     EXPECT_EQ("6F", fullPathOf(out.diagnostics[1]));
@@ -351,19 +351,19 @@ TEST(Integration_Tlv_SchemaReport, DiagReportsMissingRequiredTagWithFieldNameAnd
     ASSERT_EQ(TLV_ERR_SCHEMA, out.rc);
     ASSERT_EQ(1u, out.count);
     const tlv_schema_diagnostic_t& d = out.diagnostics[0];
-    EXPECT_EQ(TLV_SCHEMA_ISSUE_MISSING, d.kind);
+    EXPECT_EQ(TLV_SCHEMA_ISSUE_MISSING, d.detail.kind);
     EXPECT_EQ(TLV_ERR_SCHEMA, d.diagnostic.code);
-    EXPECT_STREQ("application_cryptogram", d.field);
+    EXPECT_STREQ("application_cryptogram", d.detail.field);
     EXPECT_EQ("70 > 77", pathOf(d));
-    EXPECT_TRUE(tlv_tag_equal(d.tag, TLV_TAG(0x9F, 0x36)));
+    EXPECT_TRUE(tlv_tag_equal(d.detail.tag, TLV_TAG(0x9F, 0x36)));
     ASSERT_TRUE(d.diagnostic.location.kind);
     EXPECT_EQ(11u, d.diagnostic.location.begin);
-    ASSERT_TRUE(d.has_occurs);
-    EXPECT_EQ(1u, d.min_occurs);
-    EXPECT_EQ(1u, d.max_occurs);
-    EXPECT_EQ(0u, d.occurs);
-    EXPECT_FALSE(d.has_length);
-    EXPECT_FALSE(d.has_form);
+    ASSERT_TRUE(d.detail.has_occurs);
+    EXPECT_EQ(1u, d.detail.min_occurs);
+    EXPECT_EQ(1u, d.detail.max_occurs);
+    EXPECT_EQ(0u, d.detail.occurs);
+    EXPECT_FALSE(d.detail.has_length);
+    EXPECT_FALSE(d.detail.has_form);
     EXPECT_TRUE(d.diagnostic.has_path); // Caller-attached only; see `path` above.
 }
 
@@ -372,7 +372,7 @@ TEST(Integration_Tlv_SchemaReport, DiagReportsMissingTopLevelTagWithEmptyPath) {
     DiagOutcome out = runDiag(wire);
     ASSERT_EQ(1u, out.count);
     const tlv_schema_diagnostic_t& d = out.diagnostics[0];
-    EXPECT_STREQ("read_record_template", d.field);
+    EXPECT_STREQ("read_record_template", d.detail.field);
     EXPECT_EQ("", pathOf(d));
     EXPECT_TRUE(d.diagnostic.location.kind);
     EXPECT_EQ(0u, d.diagnostic.location.begin);
@@ -386,15 +386,15 @@ TEST(Integration_Tlv_SchemaReport, DiagReportsDuplicateWithOccurrenceCounts) {
     DiagOutcome out = runDiag(wire);
     ASSERT_EQ(1u, out.count);
     const tlv_schema_diagnostic_t& d = out.diagnostics[0];
-    EXPECT_EQ(TLV_SCHEMA_ISSUE_DUPLICATE, d.kind);
+    EXPECT_EQ(TLV_SCHEMA_ISSUE_DUPLICATE, d.detail.kind);
     EXPECT_EQ(TLV_ERR_SCHEMA, d.diagnostic.code);
-    EXPECT_STREQ("expiration_date", d.field);
+    EXPECT_STREQ("expiration_date", d.detail.field);
     EXPECT_EQ("70", pathOf(d));
     EXPECT_EQ(11u, d.diagnostic.location.begin);
-    ASSERT_TRUE(d.has_occurs);
-    EXPECT_EQ(0u, d.min_occurs);
-    EXPECT_EQ(1u, d.max_occurs);
-    EXPECT_EQ(2u, d.occurs);
+    ASSERT_TRUE(d.detail.has_occurs);
+    EXPECT_EQ(0u, d.detail.min_occurs);
+    EXPECT_EQ(1u, d.detail.max_occurs);
+    EXPECT_EQ(2u, d.detail.occurs);
 }
 
 TEST(Integration_Tlv_SchemaReport, DiagReportsLengthAndUnexpectedDetail) {
@@ -410,20 +410,20 @@ TEST(Integration_Tlv_SchemaReport, DiagReportsLengthAndUnexpectedDetail) {
     ASSERT_NE(nullptr, unexpected);
 
     EXPECT_EQ(TLV_ERR_SCHEMA, length->diagnostic.code);
-    EXPECT_STREQ("expiration_date", length->field);
-    ASSERT_TRUE(length->has_length);
-    EXPECT_EQ(3u, length->min_length);
-    EXPECT_EQ(3u, length->max_length);
-    EXPECT_EQ(2u, length->actual_length);
-    EXPECT_FALSE(length->has_occurs);
-    EXPECT_FALSE(length->has_form);
+    EXPECT_STREQ("expiration_date", length->detail.field);
+    ASSERT_TRUE(length->detail.has_length);
+    EXPECT_EQ(3u, length->detail.min_length);
+    EXPECT_EQ(3u, length->detail.max_length);
+    EXPECT_EQ(2u, length->detail.actual_length);
+    EXPECT_FALSE(length->detail.has_occurs);
+    EXPECT_FALSE(length->detail.has_form);
 
     EXPECT_EQ(TLV_ERR_SCHEMA, unexpected->diagnostic.code);
-    EXPECT_EQ(nullptr, unexpected->field);
+    EXPECT_EQ(nullptr, unexpected->detail.field);
     EXPECT_EQ("70 > 77", pathOf(*unexpected));
-    EXPECT_FALSE(unexpected->has_length);
-    EXPECT_FALSE(unexpected->has_occurs);
-    EXPECT_FALSE(unexpected->has_form);
+    EXPECT_FALSE(unexpected->detail.has_length);
+    EXPECT_FALSE(unexpected->detail.has_occurs);
+    EXPECT_FALSE(unexpected->detail.has_form);
 }
 
 TEST(Integration_Tlv_SchemaReport, DiagReportsPrimitiveConstructedMismatchDetail) {
@@ -440,16 +440,16 @@ TEST(Integration_Tlv_SchemaReport, DiagReportsPrimitiveConstructedMismatchDetail
     ASSERT_EQ(2u, out.count);
 
     const tlv_schema_diagnostic_t& constructedExpected = out.diagnostics[0];
-    EXPECT_STREQ("constructed_field", constructedExpected.field);
-    ASSERT_TRUE(constructedExpected.has_form);
-    EXPECT_EQ(TLV_SCHEMA_CONSTRUCTED, constructedExpected.expected_form);
-    EXPECT_FALSE(constructedExpected.actual_constructed);
+    EXPECT_STREQ("constructed_field", constructedExpected.detail.field);
+    ASSERT_TRUE(constructedExpected.detail.has_form);
+    EXPECT_EQ(TLV_SCHEMA_CONSTRUCTED, constructedExpected.detail.expected_form);
+    EXPECT_FALSE(constructedExpected.detail.actual_constructed);
 
     const tlv_schema_diagnostic_t& primitiveExpected = out.diagnostics[1];
-    EXPECT_STREQ("primitive_field", primitiveExpected.field);
-    ASSERT_TRUE(primitiveExpected.has_form);
-    EXPECT_EQ(TLV_SCHEMA_PRIMITIVE, primitiveExpected.expected_form);
-    EXPECT_TRUE(primitiveExpected.actual_constructed);
+    EXPECT_STREQ("primitive_field", primitiveExpected.detail.field);
+    ASSERT_TRUE(primitiveExpected.detail.has_form);
+    EXPECT_EQ(TLV_SCHEMA_PRIMITIVE, primitiveExpected.detail.expected_form);
+    EXPECT_TRUE(primitiveExpected.detail.actual_constructed);
 }
 
 TEST(Integration_Tlv_SchemaReport, DiagCountsAllViolationsWhenStorageIsSmaller) {
@@ -477,7 +477,7 @@ TEST(Integration_Tlv_SchemaReport, DiagRejectsInvalidArguments) {
     tlv_schema_diagnostic_init(&storage[0]);
     EXPECT_EQ(TLV_OK, storage[0].diagnostic.code);
     EXPECT_FALSE(storage[0].diagnostic.location.kind);
-    EXPECT_EQ(nullptr, storage[0].field);
+    EXPECT_EQ(nullptr, storage[0].detail.field);
 }
 
 TEST(Integration_Tlv_SchemaReport, MissingFieldReferenceIsRejectedWithoutDereferencing) {

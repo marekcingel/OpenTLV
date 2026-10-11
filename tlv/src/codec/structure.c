@@ -15,24 +15,7 @@ static tlv_result_t validate(const tlv_structure_codec_t* codec, const uint8_t* 
         if (diagnostic && rc != TLV_OK) {
             diagnostic->diagnostic = cause.diagnostic;
             diagnostic->codec.cause = TLV_CODEC_CAUSE_SCHEMA;
-            diagnostic->codec.detail.schema.kind = cause.kind;
-            diagnostic->codec.detail.schema.tag = cause.tag;
-            diagnostic->codec.detail.schema.definition = cause.definition;
-            diagnostic->codec.detail.schema.field = cause.field;
-            diagnostic->codec.detail.schema.is_group = cause.is_group;
-            diagnostic->codec.detail.schema.has_occurs = cause.has_occurs;
-            diagnostic->codec.detail.schema.min_occurs = cause.min_occurs;
-            diagnostic->codec.detail.schema.max_occurs = cause.max_occurs;
-            diagnostic->codec.detail.schema.occurs = cause.occurs;
-            diagnostic->codec.detail.schema.has_length = cause.has_length;
-            diagnostic->codec.detail.schema.min_length = cause.min_length;
-            diagnostic->codec.detail.schema.max_length = cause.max_length;
-            diagnostic->codec.detail.schema.actual_length = cause.actual_length;
-            diagnostic->codec.detail.schema.has_form = cause.has_form;
-            diagnostic->codec.detail.schema.expected_form = cause.expected_form;
-            diagnostic->codec.detail.schema.actual_constructed = cause.actual_constructed;
-            diagnostic->codec.detail.schema.length_multiple = cause.length_multiple;
-            diagnostic->codec.detail.schema.length_flags = cause.length_flags;
+            diagnostic->codec.detail.schema = cause.detail;
         }
     } else {
         tlv_tree_reader_t reader;
